@@ -1,0 +1,37 @@
+# Claude All-in-One — Kho học thuật
+
+Đây là repository tổng hợp các dự án học thuật cá nhân. Mỗi thư mục con là một lĩnh vực hoặc môn học riêng (ví dụ: `Java` cho ngôn ngữ lập trình Java, `English` cho tiếng Anh, `Math` cho toán học...). Bên trong mỗi thư mục lĩnh vực sẽ có các subfolder dạng `lesson` hoặc `tutorial` đi sâu vào một khái niệm hoặc bài học cụ thể.
+
+## Quy ước chung
+
+- **Ngôn ngữ**: Tất cả tài liệu được viết bằng **tiếng Việt**. Các thuật ngữ chuyên ngành (technical terms) giữ nguyên tiếng Anh nếu không có bản dịch phổ biến; nếu có bản dịch tốt thì dùng tiếng Việt kèm chú thích tiếng Anh trong ngoặc, ví dụ: *biến (variable)*, *kế thừa (inheritance)*.
+- **Cấu trúc thư mục**:
+  ```
+  <Lĩnh vực>/
+  ├── README.md              # Tổng quan lĩnh vực, danh sách bài học
+  ├── lesson-01-<chủ-đề>/
+  │   ├── README.md          # Nội dung chi tiết của bài
+  │   └── ...                # Code, ví dụ, bài tập
+  └── tutorial-<chủ-đề>/
+      └── README.md
+  ```
+- **File `README.md`**: Mỗi thư mục (lĩnh vực và từng bài học) đều phải có `README.md` diễn giải chi tiết nội dung, mục tiêu, và liên kết đến các bài học liên quan.
+- **Cập nhật mục lục**: Khi thêm bài học mới, phải cập nhật `README.md` của thư mục lĩnh vực tương ứng (và cả file này nếu là lĩnh vực mới).
+
+## Danh sách lĩnh vực
+
+> Chưa có lĩnh vực nào được khởi tạo. Khi thêm thư mục lĩnh vực, hãy bổ sung vào bảng dưới đây.
+
+| Lĩnh vực | Mô tả | Liên kết |
+| --- | --- | --- |
+| _(trống)_ | _(trống)_ | _(trống)_ |
+
+## Cách sử dụng
+
+1. Mở thư mục lĩnh vực bạn quan tâm.
+2. Đọc `README.md` của thư mục đó để xem danh sách bài học và thứ tự gợi ý.
+3. Đi vào từng bài học theo liên kết — mỗi bài học là một thư mục độc lập, có thể chứa lý thuyết, ví dụ code, và bài tập.
+
+## Giấy phép
+
+Xem file [`LICENSE`](./LICENSE).

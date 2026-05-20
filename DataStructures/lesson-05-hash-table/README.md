@@ -1,0 +1,120 @@
+# Lesson 05 — Hash Table (Bảng băm)
+
+## Mục tiêu học tập
+
+- Hiểu **hash function** và cách hash table cho phép truy cập `O(1)` trung bình.
+- Hiểu **xung đột (collision)** và hai cách xử lý: **chaining** và **open addressing**.
+- Hiểu **load factor** và lý do phải resize.
+- Phân biệt **HashSet** và **HashMap**.
+
+## Kiến thức tiền đề
+
+- [Lesson 01 — Array](../lesson-01-array/).
+
+## 1. Vấn đề: tìm kiếm nhanh
+
+Cho 1 triệu username, kiểm tra một username mới có tồn tại không. Dùng array tốn `O(n)`. Có thể nhanh hơn?
+
+**Ý tưởng**: biến mỗi chuỗi thành một **chỉ số mảng** thông qua một hàm — gọi là **hash function**.
+
+```
+"alice" --hash--> 7    -> arr[7]
+"bob"   --hash--> 23   -> arr[23]
+```
+
+Truy cập `arr[7]`: `O(1)`.
+
+## 2. Hash function
+
+Hàm `h(key)` nhận một key và trả về một số nguyên trong khoảng `[0, m-1]` (với `m` là kích thước bảng).
+
+**Tính chất mong muốn**:
+- **Deterministic**: cùng input → cùng output.
+- **Phân bố đều**: các key khác nhau cho ra index khác nhau (tránh dồn cục).
+- **Tính nhanh**: `O(độ dài key)`.
+
+Ví dụ hash đơn giản cho chuỗi:
+```
+h(s) = (s[0]·31^(n-1) + s[1]·31^(n-2) + ... + s[n-1]) mod m
+```
+
+## 3. Xung đột (Collision)
+
+Vì miền key (vô hạn) ánh xạ về `m` ô (hữu hạn), **chắc chắn có hai key cùng hash về một index** — gọi là xung đột.
+
+Hai chiến lược xử lý phổ biến:
+
+### 3.1. Chaining (separate chaining)
+
+Mỗi ô `arr[i]` không lưu một phần tử mà lưu một **danh sách** các phần tử cùng hash về `i`.
+
+```
+arr[7] -> [("alice", 100), ("david", 200)]
+arr[23] -> [("bob", 50)]
+```
+
+- Tìm key: hash → vào đúng ô → duyệt list.
+- Trung bình `O(1)` nếu list ngắn.
+- Tệ nhất `O(n)` nếu mọi key hash về cùng một ô.
+
+### 3.2. Open addressing (probing)
+
+Không dùng list. Nếu ô bị chiếm, **tìm ô khác** theo một quy tắc:
+- **Linear probing**: thử `i+1`, `i+2`, ...
+- **Quadratic probing**: thử `i+1²`, `i+2²`, ...
+- **Double hashing**: bước nhảy dựa trên hàm hash thứ hai.
+
+Tốn ít bộ nhớ phụ nhưng dễ bị **clustering**.
+
+## 4. Load factor và resize
+
+**Load factor** `α = n / m` = (số phần tử) / (kích thước bảng).
+
+- `α` thấp → ít xung đột nhưng lãng phí bộ nhớ.
+- `α` cao → tiết kiệm bộ nhớ nhưng nhiều xung đột, tìm chậm.
+
+Khi `α` vượt ngưỡng (thường `0.75`), bảng được **resize**: tạo mảng mới gấp đôi, hash lại toàn bộ phần tử. Chi phí một lần resize là `O(n)`, nhưng amortized vẫn là `O(1)`.
+
+## 5. Độ phức tạp
+
+| Thao tác | Trung bình | Xấu nhất |
+| --- | --- | --- |
+| Tìm | `O(1)` | `O(n)` |
+| Thêm | `O(1)` amortized | `O(n)` |
+| Xóa | `O(1)` | `O(n)` |
+
+Xấu nhất xảy ra khi hash function quá tệ → mọi key dồn về một ô.
+
+## 6. HashSet vs HashMap
+
+- **HashSet**: chỉ lưu key, kiểm tra "phần tử có tồn tại không".
+- **HashMap (Dictionary)**: lưu cặp `(key, value)`, tra giá trị theo key.
+
+Cả hai đều dựa trên hash table.
+
+## 7. Ứng dụng
+
+- Bộ đếm tần suất (word count).
+- Cache (LRU = HashMap + Doubly Linked List).
+- Bảng symbol trong compiler.
+- Kiểm tra trùng lặp (`HashSet`).
+- Join trong cơ sở dữ liệu (hash join).
+
+## 8. Cạm bẫy
+
+- Dùng key **mutable** (có thể thay đổi sau khi thêm vào bảng) → mất phần tử.
+- Hash function tệ → degrade về `O(n)`.
+- Trong open addressing, **xóa cần đánh dấu "tombstone"**, không thể xóa thẳng.
+- Hash của số nguyên không phải lúc nào cũng "phân bố đều" — cẩn trọng khi key là dãy số có quy luật.
+
+## Bài tập
+
+1. Cài đặt một HashMap đơn giản với chaining. Hỗ trợ `put`, `get`, `remove`.
+2. Đếm tần suất từ trong một văn bản dùng HashMap.
+3. Cho mảng số nguyên, tìm hai số có tổng bằng `k` trong `O(n)` (gợi ý: HashSet).
+4. Giải thích tại sao `α > 1` chỉ có thể với chaining, không thể với open addressing.
+5. Vì sao **không nên dùng String mutable làm key** trong HashMap?
+
+## Bài tiếp theo
+
+[Lesson 06 — Tree](../lesson-06-tree/)

@@ -4,7 +4,9 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"strings"
+	"time"
 )
 
 // --- Bài 1: HashMap với chaining ---
@@ -104,8 +106,85 @@ func twoSum(nums []int, k int) (int, int, bool) {
 	return 0, 0, false
 }
 
+// --- Bài toán mở đầu: 1 triệu username, kiểm tra tồn tại ---
+
+// existsLinear: tìm tuần tự qua slice — O(n) mỗi truy vấn.
+func existsLinear(users []string, u string) bool {
+	for _, x := range users {
+		if x == u {
+			return true
+		}
+	}
+	return false
+}
+
+// benchmark1MUsernames: so sánh linear scan vs map (hash set).
+func benchmark1MUsernames() {
+	const N = 1_000_000
+	const Q = 10_000
+
+	rng := rand.New(rand.NewSource(42))
+	users := make([]string, N)
+	for i := range users {
+		users[i] = fmt.Sprintf("user_%d_%d", rng.Intn(1<<30), i)
+	}
+
+	// Build hash set
+	t0 := time.Now()
+	set := make(map[string]struct{}, N)
+	for _, u := range users {
+		set[u] = struct{}{}
+	}
+	buildTime := time.Since(t0)
+	fmt.Printf("Build hash set với %d username: %v\n", N, buildTime)
+
+	// Tạo Q truy vấn: nửa "có", nửa "không có"
+	queries := make([]string, Q)
+	for i := 0; i < Q/2; i++ {
+		queries[i] = users[rng.Intn(N)]
+	}
+	for i := Q / 2; i < Q; i++ {
+		queries[i] = fmt.Sprintf("missing_%d", i)
+	}
+
+	// Đo linear scan trên CHỈ 100 truy vấn (vì quá chậm cho 10000)
+	const linearQ = 100
+	t0 = time.Now()
+	hits := 0
+	for _, q := range queries[:linearQ] {
+		if existsLinear(users, q) {
+			hits++
+		}
+	}
+	linearTime := time.Since(t0)
+	fmt.Printf("Linear scan %d truy vấn: %v (%.2f ms/truy vấn, %d hit)\n",
+		linearQ, linearTime, float64(linearTime.Microseconds())/float64(linearQ)/1000, hits)
+
+	// Đo hash set với toàn bộ Q truy vấn
+	t0 = time.Now()
+	hits = 0
+	for _, q := range queries {
+		if _, ok := set[q]; ok {
+			hits++
+		}
+	}
+	setTime := time.Since(t0)
+	fmt.Printf("Hash set    %d truy vấn: %v (%.0f ns/truy vấn, %d hit)\n",
+		Q, setTime, float64(setTime.Nanoseconds())/float64(Q), hits)
+
+	// Tỷ lệ nhanh hơn
+	perQueryLinear := linearTime.Nanoseconds() / int64(linearQ)
+	perQuerySet := setTime.Nanoseconds() / int64(Q)
+	if perQuerySet > 0 {
+		fmt.Printf("Hash set nhanh hơn ~%dx mỗi truy vấn.\n", perQueryLinear/perQuerySet)
+	}
+}
+
 func main() {
-	fmt.Println("=== Bài 1: HashMap chaining ===")
+	fmt.Println("=== Bài toán mở đầu: 1 triệu username ===")
+	benchmark1MUsernames()
+
+	fmt.Println("\n=== Bài 1: HashMap chaining ===")
 	m := NewHashMap()
 	m.Put("alice", 100)
 	m.Put("bob", 200)

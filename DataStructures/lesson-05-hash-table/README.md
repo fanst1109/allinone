@@ -115,6 +115,60 @@ Cả hai đều dựa trên hash table.
 4. Giải thích tại sao `α > 1` chỉ có thể với chaining, không thể với open addressing.
 5. Vì sao **không nên dùng String mutable làm key** trong HashMap?
 
+## 9. Giải bài toán mở đầu — 1 triệu username
+
+Quay lại câu hỏi ở mục 1: cho 1 triệu username, kiểm tra một username mới có tồn tại không.
+
+### 9.1. Cách ngây thơ — slice + duyệt tuần tự
+
+```go
+users := []string{...}              // 1.000.000 chuỗi
+func exists(u string) bool {
+    for _, x := range users {
+        if x == u { return true }
+    }
+    return false
+}
+```
+- Mỗi truy vấn `O(n) = 10⁶` phép so sánh.
+- Với 1000 truy vấn → 10⁹ thao tác → vài giây tới hàng chục giây.
+
+### 9.2. Cách dùng hash set — `O(1)` trung bình
+
+```go
+set := make(map[string]struct{}, 1_000_000)
+for _, u := range users {
+    set[u] = struct{}{}              // O(1) trung bình
+}
+func exists(u string) bool {
+    _, ok := set[u]                  // O(1) trung bình
+    return ok
+}
+```
+- Build set 1 lần: `O(n)`.
+- Mỗi truy vấn sau đó: `O(1)` trung bình.
+- 1000 truy vấn → ~1000 thao tác → mili-giây.
+
+> Trong Go, `map[T]struct{}` là HashSet idiomatic — `struct{}` chiếm 0 byte, chỉ cần key.
+
+### 9.3. So sánh thực tế
+
+`solutions.go` chạy benchmark với 1.000.000 username, kết quả đo trên máy thường:
+
+| Phương án | Thời gian / truy vấn |
+| --- | --- |
+| Linear scan slice | ~1.7 **ms** |
+| `map[string]struct{}` | ~100 **ns** |
+
+→ Hash set nhanh hơn **~16.500 lần** (≈ 4 bậc). Đó là lý do hash table là một trong những cấu trúc được dùng nhiều nhất trong thực tế.
+
+Riêng việc *build* hash set 1 triệu phần tử mất ~400 ms — chỉ làm một lần, sau đó mọi truy vấn cực rẻ.
+
+### 9.4. Khi nào không dùng hash set?
+- Cần duyệt theo **thứ tự** username (alphabet) → dùng **TreeSet** / Red-Black tree.
+- Cần tìm theo **tiền tố** ("ali..." → liệt kê tất cả) → dùng **Trie** ([Lesson 10](../lesson-10-trie/)).
+- Cần kiểm tra "có thể có không" với rất nhiều phần tử trong ít bộ nhớ → **Bloom filter** ([Lesson 14](../lesson-14-advanced-structures/)).
+
 ## Lời giải chi tiết
 
 ### Bài 1 — HashMap với chaining

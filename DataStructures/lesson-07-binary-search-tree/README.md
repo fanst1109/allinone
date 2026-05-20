@@ -132,6 +132,95 @@ function minNode(node):
 4. Viết hàm chuyển BST thành mảng đã sắp xếp. Tính Big-O.
 5. Vì sao chèn dãy `1, 2, 3, 4, 5` vào BST cho cây tệ nhất? Cách khắc phục?
 
+## Lời giải chi tiết
+
+### Bài 1 — Chèn `5, 3, 8, 1, 4, 7, 9` vào BST rỗng
+```
+Sau 5:        5
+Sau 3:        5
+            /
+           3
+Sau 8:        5
+            /   \
+           3     8
+Sau 1:        5
+            /   \
+           3     8
+          /
+         1
+Sau 4:        5
+            /   \
+           3     8
+          / \
+         1   4
+Sau 7:        5
+            /   \
+           3     8
+          / \   /
+         1   4 7
+Sau 9:        5
+            /   \
+           3     8
+          / \   / \
+         1   4 7   9
+```
+
+### Bài 2 — Validate BST
+Lưu ý: **không chỉ so node với cha**, mà cần khoảng `[min, max]` truyền xuống — node trái của subtree phải vẫn phải lớn hơn ông nó.
+
+```go
+func isValidBST(root *Node) bool {
+    var ok func(n *Node, lo, hi *int) bool
+    ok = func(n *Node, lo, hi *int) bool {
+        if n == nil { return true }
+        if (lo != nil && n.val <= *lo) || (hi != nil && n.val >= *hi) { return false }
+        return ok(n.left, lo, &n.val) && ok(n.right, &n.val, hi)
+    }
+    return ok(root, nil, nil)
+}
+```
+`O(n)`.
+
+### Bài 3 — In-order successor của `k`
+Successor: phần tử **nhỏ nhất lớn hơn `k`** trong BST.
+
+```go
+func successor(root *Node, k int) *Node {
+    var s *Node
+    for n := root; n != nil; {
+        if n.val > k { s = n; n = n.left }   // node này là ứng viên, thử nhỏ hơn
+        else { n = n.right }
+    }
+    return s
+}
+```
+`O(h)`.
+
+### Bài 4 — BST → mảng đã sắp xếp
+Duyệt **in-order** → cho ra dãy đã sắp.
+```go
+func toSorted(n *Node, out *[]int) {
+    if n == nil { return }
+    toSorted(n.left, out)
+    *out = append(*out, n.val)
+    toSorted(n.right, out)
+}
+```
+`O(n)`.
+
+### Bài 5 — Vì sao dãy `1, 2, 3, 4, 5` tạo cây tệ?
+Mỗi lần chèn, phần tử mới đều **lớn hơn mọi node đã có** → đi sang phải mãi → cây trở thành dãy thẳng (chiều cao `n-1`). Mọi thao tác trở thành `O(n)`.
+
+**Khắc phục**:
+1. **Trộn ngẫu nhiên** dữ liệu trước khi chèn (nếu được).
+2. Dùng **cây cân bằng** (AVL, Red-Black) tự sửa lại sau mỗi insert/delete — [Lesson 09](../lesson-09-balanced-trees/).
+3. Dùng cấu trúc khác như **Treap** với priority ngẫu nhiên.
+
+## Code & Minh họa
+
+- [solutions.go](./solutions.go) — toàn bộ lời giải.
+- [visualization.html](./visualization.html) — chèn / tìm trên BST, highlight đường đi.
+
 ## Bài tiếp theo
 
 [Lesson 08 — Heap & Priority Queue](../lesson-08-heap-priority-queue/)

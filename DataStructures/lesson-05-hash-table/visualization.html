@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 05 — Hash Table trực quan</title>
+<style>
+  body { font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 24px; background: #f6f7f9; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 16px; }
+  h1 { margin-top: 0; }
+  .buckets { display: grid; grid-template-columns: 60px 1fr; gap: 4px; margin-top: 12px; }
+  .bidx { background: #f3f4f6; padding: 8px; font-weight: 600; text-align: center; border-radius: 4px; align-self: stretch; display:flex; align-items:center; justify-content:center; }
+  .chain { display: flex; gap: 6px; padding: 8px; background: #fafafa; border-radius: 4px; min-height: 36px; flex-wrap: wrap; align-items: center; }
+  .item { background: #fff; border: 2px solid #333; border-radius: 6px; padding: 4px 8px; font-size: 14px; transition: all .25s; }
+  .item.new { background: #d1fae5; border-color: #10b981; }
+  .item.hit { background: #fef08a; border-color: #ca8a04; }
+  button { background: #3b82f6; color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; cursor: pointer; margin-right: 6px; }
+  input { padding: 4px; }
+  .log { color: #444; margin-top: 8px; min-height: 22px; }
+  .stats { font-size: 14px; color: #555; }
+</style>
+</head>
+<body>
+<h1>Hash Table — Chaining</h1>
+
+<div class="panel">
+  <div>
+    <label>Key: <input id="k" type="text" value="alice" style="width:120px"></label>
+    <label>Value: <input id="v" type="number" value="100" style="width:80px"></label>
+    <button onclick="put()">Put</button>
+    <button onclick="get()">Get</button>
+    <button onclick="del()">Remove</button>
+    <button onclick="reset()">Reset</button>
+  </div>
+  <div class="stats" id="stats"></div>
+  <div class="buckets" id="buckets"></div>
+  <div class="log" id="log"></div>
+</div>
+
+<script>
+const CAP = 8;
+let buckets = Array.from({length: CAP}, () => []);
+let hl = {}; // bucket -> 'new' / 'hit'
+function hash(k) {
+  let h = 2166136261;
+  for (const c of k) { h ^= c.charCodeAt(0); h = (h * 16777619) >>> 0; }
+  return h % CAP;
+}
+function render() {
+  const root = document.getElementById('buckets');
+  root.innerHTML = '';
+  let total = 0, maxLen = 0;
+  for (let i = 0; i < CAP; i++) {
+    total += buckets[i].length;
+    maxLen = Math.max(maxLen, buckets[i].length);
+    const idx = document.createElement('div'); idx.className = 'bidx'; idx.textContent = i;
+    const chain = document.createElement('div'); chain.className = 'chain';
+    buckets[i].forEach(([k, v], j) => {
+      const item = document.createElement('div');
+      const klass = hl[`${i}-${j}`] || '';
+      item.className = 'item ' + klass;
+      item.textContent = `${k}=${v}`;
+      chain.appendChild(item);
+    });
+    root.appendChild(idx); root.appendChild(chain);
+  }
+  document.getElementById('stats').textContent =
+    `Tổng phần tử: ${total} · Bucket dài nhất: ${maxLen} · Load factor: ${(total/CAP).toFixed(2)}`;
+  setTimeout(() => { hl = {}; }, 600);
+}
+function put() {
+  const k = document.getElementById('k').value;
+  const v = parseInt(document.getElementById('v').value);
+  if (!k) return;
+  const i = hash(k);
+  const existing = buckets[i].findIndex(([kk]) => kk === k);
+  if (existing >= 0) {
+    buckets[i][existing][1] = v;
+    hl[`${i}-${existing}`] = 'hit';
+    document.getElementById('log').textContent = `Cập nhật ${k}=${v} tại bucket ${i}, index ${existing}`;
+  } else {
+    buckets[i].push([k, v]);
+    hl[`${i}-${buckets[i].length-1}`] = 'new';
+    document.getElementById('log').textContent =
+      `hash(${k}) = ${i}. ` + (buckets[i].length > 1 ? `Xung đột! Thêm vào cuối chain (giờ dài ${buckets[i].length}).` : `Bucket trống, thêm trực tiếp.`);
+  }
+  render();
+}
+function get() {
+  const k = document.getElementById('k').value;
+  const i = hash(k);
+  const idx = buckets[i].findIndex(([kk]) => kk === k);
+  if (idx >= 0) {
+    hl[`${i}-${idx}`] = 'hit';
+    document.getElementById('log').textContent = `get(${k}) = ${buckets[i][idx][1]} tại bucket ${i} (duyệt ${idx+1} phần tử của chain).`;
+  } else {
+    document.getElementById('log').textContent = `get(${k}): không tìm thấy (hash về bucket ${i}, đã duyệt hết chain).`;
+  }
+  render();
+}
+function del() {
+  const k = document.getElementById('k').value;
+  const i = hash(k);
+  const idx = buckets[i].findIndex(([kk]) => kk === k);
+  if (idx >= 0) {
+    buckets[i].splice(idx, 1);
+    document.getElementById('log').textContent = `Đã xóa ${k} khỏi bucket ${i}.`;
+  } else {
+    document.getElementById('log').textContent = `Không có ${k} để xóa.`;
+  }
+  render();
+}
+function reset() { buckets = Array.from({length: CAP}, () => []); render(); document.getElementById('log').textContent = ''; }
+render();
+</script>
+</body>
+</html>

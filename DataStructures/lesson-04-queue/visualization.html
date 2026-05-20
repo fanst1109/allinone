@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 04 — Circular Queue trực quan</title>
+<style>
+  body { font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 24px; background: #f6f7f9; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 16px; }
+  h1 { margin-top: 0; }
+  .ring { display: grid; grid-template-columns: repeat(8, 70px); gap: 6px; margin: 18px 0; }
+  .cell { height: 70px; border: 2px solid #aaa; border-radius: 6px; display: flex; align-items: center; justify-content: center;
+          font-weight: 600; position: relative; background: #f9fafb; transition: all .25s; }
+  .cell.filled { background: #fff; border-color: #333; }
+  .cell.front::before, .cell.rear::before {
+    position: absolute; top: -16px; font-size: 11px; color: #fff; padding: 1px 6px; border-radius: 3px;
+  }
+  .cell.front::before { content: 'front'; background: #3b82f6; left: 0; }
+  .cell.rear::before  { content: 'rear';  background: #ef4444; right: 0; }
+  .cell.front.rear::before { content: 'front=rear'; left: 0; background: #7c3aed; }
+  button { background: #3b82f6; color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; cursor: pointer; margin-right: 6px; }
+  input { padding: 4px; width: 90px; }
+  .log { color: #444; margin-top: 8px; min-height: 20px; }
+</style>
+</head>
+<body>
+<h1>Circular Queue (cap = 8)</h1>
+
+<div class="panel">
+  <div class="ring" id="ring"></div>
+  <label>Giá trị: <input id="val" type="number" value="42"></label>
+  <button onclick="enq()">Enqueue</button>
+  <button onclick="deq()">Dequeue</button>
+  <button onclick="reset()">Reset</button>
+  <div class="log" id="log"></div>
+  <p style="color:#666;font-size:14px">front: vị trí phần tử kế tiếp sẽ dequeue. rear: vị trí phần tử kế tiếp sẽ enqueue ghi vào. Cả hai chạy vòng (mod 8).</p>
+</div>
+
+<script>
+const CAP = 8;
+let data = new Array(CAP).fill(null);
+let front = 0, size = 0;
+function rear() { return (front + size) % CAP; }
+function render() {
+  const ring = document.getElementById('ring');
+  ring.innerHTML = '';
+  for (let i = 0; i < CAP; i++) {
+    const c = document.createElement('div');
+    c.className = 'cell' + (data[i] !== null ? ' filled' : '')
+                          + (i === front && size > 0 ? ' front' : '')
+                          + (i === rear() ? ' rear' : '');
+    c.textContent = data[i] === null ? '' : data[i];
+    ring.appendChild(c);
+  }
+}
+function enq() {
+  if (size === CAP) { document.getElementById('log').textContent = 'Queue đầy!'; return; }
+  const v = document.getElementById('val').value;
+  data[rear()] = v;
+  size++;
+  document.getElementById('log').textContent = `enqueue(${v}) — O(1)`;
+  render();
+}
+function deq() {
+  if (size === 0) { document.getElementById('log').textContent = 'Queue rỗng!'; return; }
+  const v = data[front];
+  data[front] = null;
+  front = (front + 1) % CAP;
+  size--;
+  document.getElementById('log').textContent = `dequeue() = ${v} — O(1)`;
+  render();
+}
+function reset() { data = new Array(CAP).fill(null); front = 0; size = 0; render(); document.getElementById('log').textContent = ''; }
+render();
+</script>
+</body>
+</html>

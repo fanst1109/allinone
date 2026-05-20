@@ -140,6 +140,89 @@ function remove(head, v):
 4. Phát hiện chu trình (cycle) trong linked list — tham khảo thuật toán "rùa và thỏ" (Floyd).
 5. Vì sao doubly linked list dễ xóa hơn singly linked list?
 
+## Lời giải chi tiết
+
+### Bài 1 — Độ dài
+Duyệt từ `head` tới `null`, đếm số node.
+
+```go
+func length(head *Node) int {
+    n := 0
+    for cur := head; cur != nil; cur = cur.next {
+        n++
+    }
+    return n
+}
+```
+`O(n)`, bộ nhớ phụ `O(1)`.
+
+### Bài 2 — Đảo ngược in-place
+Giữ ba con trỏ `prev`, `cur`, `next`. Mỗi bước trỏ ngược `cur.next` về `prev`.
+
+```go
+func reverse(head *Node) *Node {
+    var prev *Node
+    cur := head
+    for cur != nil {
+        nxt := cur.next
+        cur.next = prev
+        prev = cur
+        cur = nxt
+    }
+    return prev
+}
+```
+`O(n)` thời gian, `O(1)` bộ nhớ.
+
+### Bài 3 — Trộn hai list đã sort
+Dùng dummy node để code gọn. So sánh đầu mỗi list, lấy node nhỏ hơn nối vào kết quả.
+
+```go
+func merge(a, b *Node) *Node {
+    dummy := &Node{}
+    tail := dummy
+    for a != nil && b != nil {
+        if a.val <= b.val { tail.next = a; a = a.next } else { tail.next = b; b = b.next }
+        tail = tail.next
+    }
+    if a != nil { tail.next = a } else { tail.next = b }
+    return dummy.next
+}
+```
+`O(m + n)`.
+
+### Bài 4 — Phát hiện chu trình (Floyd "rùa và thỏ")
+Hai con trỏ: `slow` đi 1 bước, `fast` đi 2 bước. Nếu có chu trình, chúng sẽ gặp nhau; nếu không, `fast` chạm `nil`.
+
+```go
+func hasCycle(head *Node) bool {
+    slow, fast := head, head
+    for fast != nil && fast.next != nil {
+        slow = slow.next
+        fast = fast.next.next
+        if slow == fast { return true }
+    }
+    return false
+}
+```
+`O(n)` thời gian, `O(1)` bộ nhớ.
+
+Trực giác: trong chu trình độ dài `L`, mỗi vòng `fast` "bắt kịp" `slow` thêm 1 đơn vị → sau tối đa `L` vòng là gặp nhau.
+
+### Bài 5 — Vì sao doubly dễ xóa hơn?
+Singly: muốn xóa node `x`, cần node trước (`prev`) để gán `prev.next = x.next` — phải duyệt từ đầu để tìm `prev`, mất `O(n)`.
+
+Doubly: mỗi node có sẵn `x.prev` → xóa trực tiếp trong `O(1)`:
+```
+x.prev.next = x.next
+x.next.prev = x.prev
+```
+
+## Code & Minh họa
+
+- [solutions.go](./solutions.go) — Go solutions đầy đủ kèm test trên list mẫu.
+- [visualization.html](./visualization.html) — minh họa singly linked list: thêm/xóa node và phép đảo ngược.
+
 ## Bài tiếp theo
 
 [Lesson 03 — Stack](../lesson-03-stack/)

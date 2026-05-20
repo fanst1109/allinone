@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 02 — Linked List trực quan</title>
+<style>
+  body { font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 24px; background: #f6f7f9; color: #222; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 16px; }
+  h1 { margin-top: 0; }
+  .list { display: flex; align-items: center; gap: 6px; margin: 18px 0; flex-wrap: wrap; }
+  .node { display: flex; align-items: center; gap: 4px; }
+  .box { background: #fff; border: 2px solid #333; border-radius: 6px; padding: 6px 10px; min-width: 36px; text-align: center; font-weight: 600; transition: all .3s; }
+  .arrow { color: #888; font-size: 18px; }
+  .null { color: #888; font-style: italic; }
+  .new { background: #d1fae5; border-color: #10b981; }
+  .del { background: #fee2e2; border-color: #ef4444; }
+  .hit { background: #fef08a; border-color: #ca8a04; }
+  button { background: #3b82f6; color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; cursor: pointer; margin-right: 6px; }
+  input { width: 70px; padding: 4px; }
+  .log { color: #444; min-height: 20px; margin-top: 8px; }
+</style>
+</head>
+<body>
+<h1>Singly Linked List — trực quan</h1>
+
+<div class="panel">
+  <h2 style="margin-top:0">Thao tác cơ bản</h2>
+  <div class="list" id="list"></div>
+  <div>
+    <label>Giá trị: <input id="val" type="number" value="42"></label>
+    <button onclick="pushFront()">Thêm đầu</button>
+    <button onclick="pushBack()">Thêm cuối</button>
+    <button onclick="removeFirst()">Xóa node đầu</button>
+    <button onclick="removeVal()">Xóa giá trị</button>
+    <button onclick="reverseList()">Đảo ngược (animate)</button>
+    <button onclick="reset()">Reset</button>
+  </div>
+  <div class="log" id="log"></div>
+</div>
+
+<script>
+let list = [10, 20, 30, 40];
+function render(hl = {}) {
+  const root = document.getElementById('list');
+  root.innerHTML = '';
+  list.forEach((v, i) => {
+    const wrap = document.createElement('div'); wrap.className = 'node';
+    const box = document.createElement('div'); box.className = 'box ' + (hl[i] || ''); box.textContent = v;
+    wrap.appendChild(box);
+    const arr = document.createElement('span'); arr.className = 'arrow'; arr.textContent = '→';
+    wrap.appendChild(arr);
+    root.appendChild(wrap);
+  });
+  const nullSpan = document.createElement('span'); nullSpan.className = 'null'; nullSpan.textContent = 'null';
+  root.appendChild(nullSpan);
+}
+function log(msg) { document.getElementById('log').textContent = msg; }
+function val() { return parseInt(document.getElementById('val').value); }
+
+function pushFront() {
+  list.unshift(val());
+  render({ 0: 'new' });
+  log(`pushFront(${val()}) — O(1): chỉ trỏ next của node mới về head cũ.`);
+}
+function pushBack() {
+  list.push(val());
+  render({ [list.length - 1]: 'new' });
+  log(`pushBack(${val()}) — O(1) khi có con trỏ tail; O(n) nếu không có.`);
+}
+function removeFirst() {
+  if (!list.length) return;
+  const v = list.shift();
+  render();
+  log(`removeFront() = ${v} — O(1).`);
+}
+function removeVal() {
+  const v = val();
+  const idx = list.indexOf(v);
+  if (idx < 0) { log(`Không có ${v} trong list.`); return; }
+  list.splice(idx, 1);
+  render();
+  log(`Xóa giá trị ${v} (tìm ở vị trí ${idx}) — O(n) vì phải duyệt tới đó.`);
+}
+
+async function reverseList() {
+  // Hiệu ứng đảo dần dần: swap dần từ ngoài vào trong
+  let l = 0, r = list.length - 1;
+  while (l < r) {
+    render({ [l]: 'hit', [r]: 'hit' });
+    await sleep(280);
+    [list[l], list[r]] = [list[r], list[l]];
+    render({ [l]: 'new', [r]: 'new' });
+    await sleep(280);
+    l++; r--;
+  }
+  render();
+  log('Đã đảo ngược toàn bộ list — O(n).');
+}
+function reset() { list = [10, 20, 30, 40]; render(); log(''); }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+render();
+</script>
+</body>
+</html>

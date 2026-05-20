@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 03 — Stack trực quan</title>
+<style>
+  body { font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 24px; background: #f6f7f9; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 16px; }
+  h1 { margin-top: 0; }
+  .stack { display: flex; flex-direction: column-reverse; align-items: center; gap: 4px; min-height: 200px; padding: 16px; background: #f3f4f6; border-radius: 6px; border: 1px solid #ddd; }
+  .item { background: #fff; border: 2px solid #333; border-radius: 6px; padding: 6px 18px; min-width: 60px; text-align: center; font-weight: 600; transition: all .25s; }
+  .item.new { background: #d1fae5; border-color: #10b981; }
+  .item.top { background: #fef08a; border-color: #ca8a04; }
+  .item.del { background: #fee2e2; border-color: #ef4444; }
+  button { background: #3b82f6; color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; cursor: pointer; margin-right: 6px; margin-top: 6px; }
+  input { padding: 4px; width: 100px; }
+  .row { display: flex; gap: 20px; flex-wrap: wrap; }
+  .col { flex: 1; min-width: 280px; }
+  .log { color: #444; min-height: 20px; margin-top: 8px; }
+  .label { font-size: 12px; color: #888; text-align: center; margin-top: 4px; }
+</style>
+</head>
+<body>
+<h1>Stack — LIFO</h1>
+
+<div class="panel">
+  <div class="row">
+    <div class="col">
+      <h2 style="margin-top:0">Push / Pop</h2>
+      <label>Giá trị: <input id="val" type="text" value="42"></label>
+      <button onclick="doPush()">Push</button>
+      <button onclick="doPop()">Pop</button>
+      <button onclick="doPeek()">Peek</button>
+      <button onclick="resetStack()">Reset</button>
+      <div class="stack" id="stack1"></div>
+      <div class="label">đỉnh ở trên cùng</div>
+      <div class="log" id="log1"></div>
+    </div>
+    <div class="col">
+      <h2 style="margin-top:0">Kiểm tra ngoặc cân bằng</h2>
+      <input id="expr" type="text" value="({[]()})" style="width: 200px">
+      <button onclick="runCheck()">Chạy từng bước</button>
+      <button onclick="resetCheck()">Reset</button>
+      <div class="stack" id="stack2"></div>
+      <div class="label">stack ngoặc đang mở</div>
+      <div class="log" id="log2"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let S = [10, 20, 30];
+function renderStack(elId, arr, topHl = true) {
+  const root = document.getElementById(elId);
+  root.innerHTML = '';
+  arr.forEach((v, i) => {
+    const d = document.createElement('div');
+    d.className = 'item' + (topHl && i === arr.length - 1 ? ' top' : '');
+    d.textContent = v;
+    root.appendChild(d);
+  });
+}
+renderStack('stack1', S);
+function doPush() {
+  const v = document.getElementById('val').value;
+  S.push(v);
+  renderStack('stack1', S);
+  document.getElementById('log1').textContent = `push(${v}) — O(1)`;
+}
+function doPop() {
+  if (!S.length) { document.getElementById('log1').textContent = 'Stack rỗng'; return; }
+  const v = S.pop();
+  renderStack('stack1', S);
+  document.getElementById('log1').textContent = `pop() = ${v} — O(1)`;
+}
+function doPeek() {
+  if (!S.length) { document.getElementById('log1').textContent = 'Stack rỗng'; return; }
+  document.getElementById('log1').textContent = `peek() = ${S[S.length-1]} — O(1), không lấy ra`;
+}
+function resetStack() { S = [10, 20, 30]; renderStack('stack1', S); document.getElementById('log1').textContent = ''; }
+
+const pairs = { ')': '(', ']': '[', '}': '{' };
+let checkBusy = false;
+async function runCheck() {
+  if (checkBusy) return;
+  checkBusy = true;
+  const expr = document.getElementById('expr').value;
+  const log = document.getElementById('log2');
+  let stk = [];
+  renderStack('stack2', stk);
+  for (let i = 0; i < expr.length; i++) {
+    const c = expr[i];
+    if ('([{'.includes(c)) {
+      stk.push(c);
+      log.textContent = `Vị trí ${i}: '${c}' → push`;
+      renderStack('stack2', stk);
+    } else if (')]}'.includes(c)) {
+      if (!stk.length || stk[stk.length - 1] !== pairs[c]) {
+        log.textContent = `Vị trí ${i}: '${c}' không khớp đỉnh → KHÔNG cân bằng`;
+        checkBusy = false; return;
+      }
+      stk.pop();
+      log.textContent = `Vị trí ${i}: '${c}' → khớp, pop`;
+      renderStack('stack2', stk);
+    }
+    await sleep(450);
+  }
+  log.textContent = stk.length === 0 ? 'Cân bằng — stack rỗng ' : 'KHÔNG cân bằng — còn ngoặc chưa đóng';
+  checkBusy = false;
+}
+function resetCheck() { renderStack('stack2', []); document.getElementById('log2').textContent = ''; }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+</script>
+</body>
+</html>

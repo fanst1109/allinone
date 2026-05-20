@@ -155,6 +155,97 @@ function height(node):
 4. Tính đường kính (diameter) của cây nhị phân — đường đi dài nhất giữa hai node bất kỳ.
 5. Trên cây ở mục 4.1, viết ra kết quả của 4 cách duyệt với một cây khác do bạn tự vẽ.
 
+## Lời giải chi tiết
+
+### Bài 1 — Đếm số node
+```go
+func countNodes(n *Node) int {
+    if n == nil { return 0 }
+    return 1 + countNodes(n.left) + countNodes(n.right)
+}
+```
+`O(n)`.
+
+### Bài 2 — Cây đối xứng
+Một cây đối xứng (mirror) nếu subtree trái và phải là **gương** của nhau. Dùng hai con trỏ:
+```go
+func isSymmetric(root *Node) bool {
+    var mirror func(a, b *Node) bool
+    mirror = func(a, b *Node) bool {
+        if a == nil && b == nil { return true }
+        if a == nil || b == nil { return false }
+        return a.val == b.val && mirror(a.left, b.right) && mirror(a.right, b.left)
+    }
+    if root == nil { return true }
+    return mirror(root.left, root.right)
+}
+```
+`O(n)`.
+
+### Bài 3 — Level-order, mỗi tầng một dòng
+Dùng queue + đếm số node trong tầng hiện tại.
+```go
+func levelOrderByLines(root *Node) [][]int {
+    if root == nil { return nil }
+    out := [][]int{}
+    q := []*Node{root}
+    for len(q) > 0 {
+        n := len(q)
+        line := []int{}
+        for i := 0; i < n; i++ {
+            x := q[0]; q = q[1:]
+            line = append(line, x.val)
+            if x.left  != nil { q = append(q, x.left) }
+            if x.right != nil { q = append(q, x.right) }
+        }
+        out = append(out, line)
+    }
+    return out
+}
+```
+`O(n)`.
+
+### Bài 4 — Đường kính cây
+Đường kính = đường đi dài nhất giữa hai node bất kỳ = `max(height(left) + height(right) + 2)` trên mọi node.
+
+Tính chiều cao + cập nhật đường kính trong cùng một lần đệ quy:
+```go
+func diameter(root *Node) int {
+    best := 0
+    var h func(n *Node) int
+    h = func(n *Node) int {
+        if n == nil { return -1 }
+        l := h(n.left); r := h(n.right)
+        if l + r + 2 > best { best = l + r + 2 }
+        return 1 + max(l, r)
+    }
+    h(root)
+    return best
+}
+```
+`O(n)`.
+
+### Bài 5 — Tự vẽ và trace 4 cách duyệt
+Lấy cây:
+```
+        1
+       / \
+      2   3
+       \   \
+        5   6
+       /
+      4
+```
+- Preorder (Node-L-R): `1 2 5 4 3 6`.
+- Inorder (L-Node-R): `2 4 5 1 3 6`.
+- Postorder (L-R-Node): `4 5 2 6 3 1`.
+- Level-order: `1 2 3 5 6 4`.
+
+## Code & Minh họa
+
+- [solutions.go](./solutions.go) — đủ 4 bài tập + cây mẫu.
+- [visualization.html](./visualization.html) — minh họa cây nhị phân và highlight thứ tự duyệt theo 4 chế độ.
+
 ## Bài tiếp theo
 
 [Lesson 07 — Binary Search Tree](../lesson-07-binary-search-tree/)

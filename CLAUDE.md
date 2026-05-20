@@ -28,9 +28,19 @@ Khi user yêu cầu tạo một bài học mới (ví dụ: *"tạo bài học v
    - Kiến thức tiền đề (prerequisites) — link đến các bài trước nếu có
    - Nội dung lý thuyết, có ví dụ minh họa
    - Bài tập thực hành (nếu phù hợp)
+   - **Phần "Lời giải chi tiết"**: với MỌI bài tập trong README, phải có lời giải đầy đủ — giải thích cách tiếp cận, các bước, độ phức tạp. Không để bài tập "treo" không có đáp án.
    - Liên kết tới bài tiếp theo / tham khảo
-4. **Cập nhật `README.md` của lĩnh vực**: Thêm dòng mới vào bảng/danh sách bài học, kèm link tới thư mục bài học vừa tạo.
-5. **Cập nhật `README.md` cấp gốc** nếu đây là lĩnh vực mới (chưa từng xuất hiện trong bảng danh sách lĩnh vực).
+4. **File lời giải code** (nếu bài học chuyên về lập trình):
+   - Tạo file `solutions.go` (hoặc tương đương) trong thư mục bài học.
+   - **Ngôn ngữ mặc định cho lời giải code là Golang (Go)**, trừ khi bài học đó vốn thuộc một ngôn ngữ khác (ví dụ trong thư mục `Java/` thì giải bằng Java).
+   - Code phải biên dịch được, có hàm `main` minh họa khi cần, kèm comment tiếng Việt giải thích.
+   - README liên kết tới file lời giải code (`[solutions.go](./solutions.go)`).
+5. **File minh họa trực quan (HTML)** — **chỉ tạo khi user yêu cầu rõ ràng** (ví dụ: *"tạo minh họa cho lesson X"*). Mặc định **không** tự tạo `visualization.html`.
+   - Khi được yêu cầu: tạo file `visualization.html` trong thư mục bài học, là file HTML **standalone** (không cần build, không tải framework ngoài trừ CDN nhẹ nếu thực sự cần), mở trực tiếp trong trình duyệt là chạy được.
+   - Ưu tiên tương tác (nhập liệu, nút bấm, mô phỏng từng bước) hơn là hình tĩnh.
+   - Khi đã tạo: README liên kết tới file `[visualization.html](./visualization.html)`.
+6. **Cập nhật `README.md` của lĩnh vực**: Thêm dòng mới vào bảng/danh sách bài học, kèm link tới thư mục bài học vừa tạo.
+7. **Cập nhật `README.md` cấp gốc** nếu đây là lĩnh vực mới (chưa từng xuất hiện trong bảng danh sách lĩnh vực).
 
 ## Quy ước đặt tên
 
@@ -44,9 +54,18 @@ Khi user yêu cầu tạo một bài học mới (ví dụ: *"tạo bài học v
 - Sau khi tạo/sửa nội dung, **commit với thông điệp tiếng Việt rõ ràng**, ví dụ: `docs: thêm bài học vòng lặp cho Java`.
 - Push lên đúng branch đã chỉ định.
 
+## Quy ước về lời giải và minh họa (áp dụng cho mọi bài học)
+
+- **Mọi bài tập đều phải có lời giải chi tiết** trong README (mục "Lời giải chi tiết") — không để bài tập không có đáp án.
+- Lời giải nên có: cách tiếp cận, code (nếu cần), giải thích từng bước, độ phức tạp.
+- **Ngôn ngữ code mặc định: Golang (Go)**. Code trong README và `solutions.go` đều dùng Go, trừ khi bản thân lĩnh vực thuộc một ngôn ngữ khác (`Java/` → Java, `Python/` → Python...).
+- **`visualization.html` chỉ tạo khi user yêu cầu** — không tự tạo sẵn. Khi tạo: standalone, mở trực tiếp trong trình duyệt là chạy.
+- Code Go phải biên dịch được; tổ chức theo style chuẩn (`gofmt`-friendly), tên file `solutions.go` hoặc `<chủ-đề>.go`.
+
 ## Những điều cần tránh
 
 - Không viết tài liệu bằng tiếng Anh thuần (trừ thuật ngữ chuyên ngành).
 - Không tạo bài học mà quên cập nhật `README.md` của lĩnh vực.
+- Không để bài tập không có lời giải.
 - Không dùng emoji trong tài liệu trừ khi user yêu cầu.
 - Không tạo file thừa (ví dụ file ghi chú quá trình làm việc) — chỉ tạo những gì thuộc về nội dung bài học.

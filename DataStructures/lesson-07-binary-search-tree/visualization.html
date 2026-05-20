@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 07 — BST trực quan</title>
+<style>
+  body { font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 24px; background: #f6f7f9; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  h1 { margin-top: 0; }
+  svg { background: #fafafa; border: 1px solid #eee; border-radius: 6px; display: block; width: 100%; }
+  .node-c { fill: #fff; stroke: #333; stroke-width: 2; transition: fill .25s, stroke .25s; }
+  .node-c.path { fill: #fef08a; stroke: #ca8a04; }
+  .node-c.hit  { fill: #d1fae5; stroke: #10b981; }
+  .edge { stroke: #888; stroke-width: 2; }
+  text { font: 600 14px sans-serif; text-anchor: middle; dominant-baseline: central; }
+  button { background: #3b82f6; color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; cursor: pointer; margin-right: 6px; }
+  input { padding: 4px; width: 80px; }
+  .log { color: #444; margin-top: 8px; min-height: 22px; }
+</style>
+</head>
+<body>
+<h1>Binary Search Tree</h1>
+
+<div class="panel">
+  <label>Giá trị: <input id="v" type="number" value="42"></label>
+  <button onclick="doInsert()">Insert</button>
+  <button onclick="doSearch()">Search</button>
+  <button onclick="reset()">Reset</button>
+  <button onclick="loadBad()">Nạp dãy lệch (1..7)</button>
+  <svg id="svg" width="800" height="420"></svg>
+  <div class="log" id="log"></div>
+</div>
+
+<script>
+let root = null;
+function ins(n, v) { if (!n) return {v, l: null, r: null}; if (v < n.v) n.l = ins(n.l, v); else if (v > n.v) n.r = ins(n.r, v); return n; }
+function* search(n, v, path) {
+  if (!n) { yield { done: true, found: false, path }; return; }
+  path.push(n);
+  yield { done: false, current: n, path: [...path] };
+  if (v === n.v) { yield { done: true, found: true, path: [...path] }; return; }
+  if (v < n.v) yield* search(n.l, v, path);
+  else yield* search(n.r, v, path);
+}
+function layout(n, x, y, dx, nodes, edges) {
+  if (!n) return;
+  n.__pos = { x, y };
+  nodes.push(n);
+  if (n.l) { edges.push([n, n.l]); layout(n.l, x - dx, y + 70, dx / 1.7, nodes, edges); }
+  if (n.r) { edges.push([n, n.r]); layout(n.r, x + dx, y + 70, dx / 1.7, nodes, edges); }
+}
+function render(highlight = {}) {
+  const svg = document.getElementById('svg');
+  svg.innerHTML = '';
+  if (!root) return;
+  const nodes = [], edges = [];
+  layout(root, 400, 40, 180, nodes, edges);
+  edges.forEach(([a, b]) => {
+    svg.insertAdjacentHTML('beforeend',
+      `<line class="edge" x1="${a.__pos.x}" y1="${a.__pos.y}" x2="${b.__pos.x}" y2="${b.__pos.y}"/>`);
+  });
+  nodes.forEach(n => {
+    const k = highlight[n.v] || '';
+    svg.insertAdjacentHTML('beforeend',
+      `<circle class="node-c ${k}" cx="${n.__pos.x}" cy="${n.__pos.y}" r="22"/>
+       <text x="${n.__pos.x}" y="${n.__pos.y}">${n.v}</text>`);
+  });
+}
+function doInsert() {
+  const v = parseInt(document.getElementById('v').value);
+  root = ins(root, v);
+  render({ [v]: 'hit' });
+  document.getElementById('log').textContent = `Insert ${v} — đi xuống tới chỗ null rồi gắn vào.`;
+}
+async function doSearch() {
+  const v = parseInt(document.getElementById('v').value);
+  const gen = search(root, v, []);
+  let last;
+  for (const step of gen) {
+    if (step.done) {
+      last = step;
+      const hl = {};
+      step.path.forEach(n => hl[n.v] = 'path');
+      if (step.found && step.path.length) hl[step.path[step.path.length-1].v] = 'hit';
+      render(hl);
+      document.getElementById('log').textContent = step.found
+        ? `Tìm thấy ${v} sau ${step.path.length} bước (chiều cao đi qua).`
+        : `Không tìm thấy ${v}. Đã đi ${step.path.length} bước.`;
+      return;
+    }
+    const hl = {};
+    step.path.forEach(n => hl[n.v] = 'path');
+    render(hl);
+    await sleep(500);
+  }
+}
+function reset() { root = null; render(); document.getElementById('log').textContent = ''; }
+function loadBad() {
+  root = null;
+  for (let i = 1; i <= 7; i++) root = ins(root, i);
+  render();
+  document.getElementById('log').textContent = 'Chèn dãy 1..7 → cây bị lệch hoàn toàn (chiều cao = n-1).';
+}
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// Khởi tạo demo
+[50, 30, 70, 20, 40, 60, 80, 35].forEach(x => root = ins(root, x));
+render();
+</script>
+</body>
+</html>

@@ -304,7 +304,65 @@ Không có cấu trúc nào "tốt nhất cho mọi tình huống" — luôn là
 - 5: `O(n²)` (ma trận chiếm `n²` ô, lấn át mảng `n`)
 - 6: Vì `n` tăng nhanh hơn `log n`, nên `n + log n` cùng lớp với `n`.
 
+## Lời giải chi tiết
+
+### Bài 1 — Ví dụ stack và queue trong đời sống
+
+**Stack (LIFO)**:
+- Chồng đĩa: lấy đĩa luôn từ trên cùng.
+- Lịch sử trình duyệt (nút Back): trang vừa thăm cuối cùng quay lại trước.
+- Hộp đạn / băng đạn: viên nạp sau bắn ra trước.
+
+**Queue (FIFO)**:
+- Hàng người mua vé: ai đến trước được phục vụ trước.
+- Hàng in tài liệu của máy in: lệnh gửi trước in trước.
+- Đường ống nước: nước vào đầu này, ra đầu kia.
+
+### Bài 2 — Big-O của các đoạn pseudocode
+
+- **(a)** Hai vòng `n × n` → tổng `n²` thao tác → `O(n²)`.
+- **(b)** `i` đi qua `n, n/2, n/4, ..., 1` (chia đôi mỗi bước) → `log₂ n` bước → `O(log n)`.
+- **(c)** Vòng ngoài chạy `n` lần, vòng trong là `O(log n)` → tổng `n · log n` → `O(n log n)`.
+- **(d)** `n + n² = n² + n` → giữ bậc cao nhất → `O(n²)`.
+
+### Bài 3 — Tìm username trong 10 triệu user
+
+Dùng **hash table (HashSet)** chứa toàn bộ username:
+- Kiểm tra `O(1)` trung bình.
+- 10 triệu chuỗi vẫn vừa RAM thực tế.
+
+Nếu dùng array tuần tự: `O(n)` = 10 triệu thao tác mỗi truy vấn — quá chậm cho hệ thống có nhiều request đồng thời.
+
+Nếu cần *cả* truy vấn theo tiền tố (vd "ali..." → liệt kê alice, alex...) → dùng **trie** ([Lesson 10](../lesson-10-trie/)).
+
+### Bài 4 — ADT vs cấu trúc dữ liệu cụ thể
+
+- **ADT (Abstract Data Type)**: định nghĩa **"làm được gì"** — tập thao tác và bất biến. Không quy định cài đặt.
+- **Cấu trúc dữ liệu cụ thể**: cách cài đặt thật trong bộ nhớ.
+
+Ví dụ:
+- ADT `Stack` = `{push, pop, peek, isEmpty}`. Cài đặt: bằng array, bằng linked list — đều thỏa.
+- ADT `List` = `{get, set, add, remove}`. Cài đặt: ArrayList, LinkedList.
+- ADT `Map` = `{put, get, remove}`. Cài đặt: HashMap, TreeMap.
+
+### Bài 5 — Space complexity
+
+- Mảng phụ kích thước `n` chiếm `O(n)`.
+- Ma trận `n × n` chiếm `O(n²)`.
+- Tổng `O(n + n²) = O(n²)` (bậc cao nhất).
+
+### Bài 6 — Vì sao `O(n + log n) = O(n)`?
+
+Với `n` lớn, `n` luôn lớn hơn nhiều so với `log n`. Tỷ lệ `log n / n → 0` khi `n → ∞`. Do đó `log n` là "bậc thấp" so với `n`, theo quy tắc bậc cao nhất → bỏ đi.
+
+Số liệu cụ thể: `n = 10⁶` thì `log₂ n ≈ 20`, tỷ lệ `20/10⁶ = 0.00002` — gần như không đóng góp.
+
+## Code & Minh họa
+
+- [solutions.go](./solutions.go) — minh họa đếm thao tác và so sánh số bước của các lớp Big-O bằng Go.
+- [visualization.html](./visualization.html) — biểu đồ tương tác so sánh tốc độ tăng của các hàm Big-O theo `n`.
+
 ## Tham khảo & bài tiếp theo
 
-- Bài tiếp theo: *(chưa có — sẽ là `lesson-01` về Array)*.
+- Bài tiếp theo: [Lesson 01 — Array](../lesson-01-array/).
 - Đọc thêm: chương đầu của *Introduction to Algorithms* (Cormen) hoặc *Data Structures and Algorithms in Java* (Goodrich).

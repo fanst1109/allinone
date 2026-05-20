@@ -121,6 +121,74 @@ function bfs(graph, start):
 4. Cho luồng số đến liên tiếp, viết một cấu trúc tính **trung bình của 5 số gần nhất** trong `O(1)` mỗi thao tác (gợi ý: queue + biến tổng).
 5. Mô phỏng BFS trên một đồ thị nhỏ bằng tay, ghi lại trạng thái queue tại mỗi bước.
 
+## Lời giải chi tiết
+
+### Bài 1 — Circular queue dùng mảng cố định
+Dùng `front`, `rear`, và `size`. Modulo `capacity` để quay vòng.
+
+```go
+type CircQueue struct {
+    data []int
+    front, size, cap int
+}
+func New(cap int) *CircQueue { return &CircQueue{data: make([]int, cap), cap: cap} }
+func (q *CircQueue) Enqueue(x int) bool {
+    if q.size == q.cap { return false } // đầy
+    q.data[(q.front+q.size)%q.cap] = x
+    q.size++
+    return true
+}
+func (q *CircQueue) Dequeue() (int, bool) {
+    if q.size == 0 { return 0, false }
+    x := q.data[q.front]
+    q.front = (q.front + 1) % q.cap
+    q.size--
+    return x, true
+}
+```
+Tất cả `O(1)`.
+
+### Bài 2 — Queue bằng 2 stack
+Hai stack: `in` (cho enqueue) và `out` (cho dequeue).
+- `enqueue(x)`: push vào `in`.
+- `dequeue()`: nếu `out` rỗng → đổ toàn bộ `in` sang `out` (đảo thứ tự, đầu thành đỉnh). Pop `out`.
+
+Amortized `O(1)` mỗi thao tác (mỗi phần tử chuyển sang `out` đúng một lần trong đời).
+
+### Bài 3 — Stack bằng 2 queue
+Cách phổ biến: dùng `q1` là chính, `q2` phụ.
+- `push(x)`: thêm vào `q2`, đổ toàn bộ `q1` vào `q2`, swap `q1, q2`.
+- `pop()`: dequeue từ `q1`.
+
+Push: `O(n)`. Pop/Top: `O(1)`. Có biến thể tốn ngược lại.
+
+### Bài 4 — Trung bình 5 số gần nhất, `O(1)` mỗi lần
+Queue kích thước cố định 5 + biến `sum`.
+- Khi thêm `x`: nếu đủ 5 → dequeue đầu (`sum -= old`); enqueue `x`, `sum += x`; trung bình = `sum / size`.
+
+Mỗi thao tác `O(1)`.
+
+### Bài 5 — Mô phỏng BFS bằng tay
+Đồ thị:
+```
+A - B - D
+|   |
+C - E
+```
+BFS từ A: queue=[A], visited={A}.
+- Dequeue A, thăm B, C → queue=[B,C].
+- Dequeue B, thăm D, E → queue=[C,D,E].
+- Dequeue C, không có hàng xóm chưa thăm → queue=[D,E].
+- Dequeue D → queue=[E].
+- Dequeue E → queue=[].
+
+Thứ tự thăm: A, B, C, D, E.
+
+## Code & Minh họa
+
+- [solutions.go](./solutions.go) — circular queue, queue-từ-stack, sliding window average.
+- [visualization.html](./visualization.html) — minh họa circular queue với hai con trỏ `front`/`rear`.
+
 ## Bài tiếp theo
 
 [Lesson 05 — Hash Table](../lesson-05-hash-table/)

@@ -115,6 +115,65 @@ Cả hai đều dựa trên hash table.
 4. Giải thích tại sao `α > 1` chỉ có thể với chaining, không thể với open addressing.
 5. Vì sao **không nên dùng String mutable làm key** trong HashMap?
 
+## Lời giải chi tiết
+
+### Bài 1 — HashMap với chaining
+Mỗi ô là một list các cặp `(key, value)`.
+
+```go
+type entry struct{ k string; v int }
+type HashMap struct{ buckets [][]entry; cap, size int }
+func (m *HashMap) idx(k string) int { /* hash → mod cap */ }
+func (m *HashMap) Put(k string, v int) { ... }   // O(1) trung bình
+func (m *HashMap) Get(k string) (int, bool) { ... }
+func (m *HashMap) Remove(k string) { ... }
+```
+
+Khi `size/cap > 0.75` → resize: tăng `cap` gấp đôi, hash lại toàn bộ.
+
+### Bài 2 — Đếm tần suất từ
+```go
+func wordCount(text string) map[string]int {
+    out := map[string]int{}
+    for _, w := range strings.Fields(text) {
+        out[w]++
+    }
+    return out
+}
+```
+`O(n)` với `n` = tổng số ký tự.
+
+### Bài 3 — Two-sum `O(n)`
+Duyệt mảng, với mỗi `x` xem `k - x` đã thấy chưa.
+
+```go
+func twoSum(nums []int, k int) (int, int, bool) {
+    seen := map[int]int{} // value -> index
+    for i, x := range nums {
+        if j, ok := seen[k-x]; ok { return j, i, true }
+        seen[x] = i
+    }
+    return 0, 0, false
+}
+```
+`O(n)` thời gian + `O(n)` bộ nhớ.
+
+### Bài 4 — Vì sao `α > 1` chỉ có thể với chaining?
+
+Với **chaining**, mỗi ô là một list — có thể chứa nhiều phần tử → `n > m` được (`α = n/m > 1`).
+
+Với **open addressing**, mỗi ô chỉ chứa được **một phần tử**. Khi `n = m` → bảng đầy hoàn toàn, không thể thêm. Vậy luôn `α ≤ 1`.
+
+### Bài 5 — Không dùng String mutable làm key
+Nếu key thay đổi sau khi `put`, `hash(key)` mới sẽ khác `hash(key)` cũ. Khi `get(key)`, ta tới sai ô → tưởng không có phần tử. Phần tử cũ trở thành "rác" trong ô đã hash trước đó, không thể truy cập.
+
+Quy tắc: **key của hash map phải bất biến (immutable)**. Trong Java, dùng `String`, `Integer`, hoặc class với `equals/hashCode` ổn định.
+
+## Code & Minh họa
+
+- [solutions.go](./solutions.go) — HashMap với chaining, two-sum, word count.
+- [visualization.html](./visualization.html) — minh họa bucket + chaining + xung đột.
+
 ## Bài tiếp theo
 
 [Lesson 06 — Tree](../lesson-06-tree/)

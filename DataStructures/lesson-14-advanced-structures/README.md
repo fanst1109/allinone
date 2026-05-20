@@ -139,6 +139,54 @@ Dùng `k` hàm hash, đẩy mỗi key vào `k` vị trí trong một mảng bit.
 4. Khi nào nên dùng skip list thay vì balanced tree?
 5. Thiết kế (ý tưởng) một cấu trúc đếm số lượt xem **xấp xỉ** cho một website 1 tỷ URL trong RAM 1GB.
 
+## Lời giải chi tiết
+
+### Bài 1 — Vì sao DB dùng B+ tree thay vì BST cân bằng?
+- **Đặc thù ổ đĩa**: đọc từ disk theo block (4-16 KB). Mỗi lần đọc 1 node, ta muốn lấy được càng nhiều khóa càng tốt.
+- BST cân bằng (Red-Black/AVL): mỗi node chỉ chứa 1 khóa, cây cao ~`log₂ n`. Với `n = 10⁹` → chiều cao ~30 → 30 lần đọc đĩa.
+- B+ tree với `m ≈ 256`: chiều cao `log_m n` ~ 4-5 → 4-5 lần đọc đĩa, nhanh hơn ~6 lần.
+- B+ tree còn có **lá nối thành linked list** → range query (`WHERE age BETWEEN 20 AND 30`) cực nhanh: tìm `20`, duyệt lá tới `30`.
+
+### Bài 2 — Bloom filter
+- **Không có sai âm** (false negative): nếu Bloom nói "không có", thì chắc chắn không có (vì tất cả bit từng được đặt khi thêm, nay vẫn còn).
+- **Có thể sai dương** (false positive): có bit nào đó được set bởi phần tử khác → Bloom nói "có thể có" trong khi thực ra không.
+
+Kết luận "không có" là **chắc chắn**, kết luận "có" cần phải kiểm tra thật (truy đĩa).
+
+### Bài 3 — LSM-tree vs B-tree
+| Workload | LSM-tree | B-tree |
+| --- | --- | --- |
+| Ghi nhiều | **Thắng** — ghi tuần tự, không update tại chỗ | Có thể bị bottleneck do random write |
+| Đọc nhiều | Thường chậm hơn (phải tra trong nhiều SSTable + Bloom) | **Thắng** — tra theo cây, ít disk seek |
+| Range query | Tốt nếu compaction tốt | **Thắng** (B+ tree với lá nối) |
+| Update tại chỗ | Append-only → tốn dung lượng do "tombstone" | In-place |
+| Compaction nền | **Tốn IO**, có thể ảnh hưởng tail latency | Không cần |
+
+→ LSM cho **time-series, log, write-heavy**. B-tree cho **OLTP**.
+
+### Bài 4 — Khi nào dùng skip list thay balanced tree?
+- Cài đặt **đơn giản hơn nhiều** (vài chục dòng vs hàng trăm dòng cho RB tree).
+- **Concurrent-friendly**: dễ làm lock-free (Redis dùng cho ZSET vì Lua single-thread không vấn đề, nhưng kiến trúc dễ mở rộng).
+- Trade-off: dùng nhiều bộ nhớ hơn (mỗi phần tử có nhiều tầng).
+- Performance xấp xỉ balanced tree trong thực tế.
+
+### Bài 5 — Thiết kế đếm view xấp xỉ cho 1 tỷ URL trong 1 GB RAM
+Không thể giữ chính xác từng URL (1 tỷ × vài chục byte = vài chục GB). Dùng cấu trúc xấp xỉ:
+
+1. **HyperLogLog** cho cardinality (số URL khác nhau): chỉ ~1.5 KB cho sai số ~2%.
+2. **Count-Min Sketch** cho tần suất từng URL:
+   - Ma trận `d × w` (vd `5 × 2²⁰`) hash counter.
+   - Khi tăng view: hash URL bằng `d` hàm → tăng `d` ô.
+   - Khi query: lấy min của `d` ô đó.
+   - Chi phí: ~20 MB cho sai số nhỏ.
+3. Kết hợp với **top-K (Heavy Hitter)** nếu cần top URL.
+
+Đổi lại: kết quả là xấp xỉ, có thể cao hơn thật một chút (không bao giờ thấp hơn).
+
+## Code
+
+- [solutions.go](./solutions.go) — Bloom filter mini + Count-Min Sketch demo trong Go.
+
 ## Kết thúc
 
 Bạn đã đi qua toàn bộ các cấu trúc dữ liệu từ cơ bản tới nâng cao. Bước tiếp theo nên là **thuật toán (algorithms)**: sắp xếp, tìm kiếm, quy hoạch động, đồ thị nâng cao — sẽ được tạo thành một lĩnh vực riêng (`Algorithms`) khi bạn yêu cầu.

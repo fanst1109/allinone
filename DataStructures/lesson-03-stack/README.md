@@ -115,6 +115,79 @@ Duyệt đồ thị theo chiều sâu dùng stack thay vì đệ quy.
 4. Chuyển biểu thức infix `(a + b) * c` sang postfix dùng stack (thuật toán Shunting-yard, mức ý tưởng).
 5. Vì sao đệ quy có thể được "khử" (chuyển thành lặp) bằng stack tường minh?
 
+## Lời giải chi tiết
+
+### Bài 1 — Kiểm tra ngoặc cân bằng
+Gặp ngoặc mở → `push`. Gặp ngoặc đóng → `pop` và so khớp. Cuối cùng stack phải rỗng.
+
+```go
+func isBalanced(s string) bool {
+    pairs := map[rune]rune{')': '(', ']': '[', '}': '{'}
+    stack := []rune{}
+    for _, c := range s {
+        switch c {
+        case '(', '[', '{':
+            stack = append(stack, c)
+        case ')', ']', '}':
+            if len(stack) == 0 || stack[len(stack)-1] != pairs[c] { return false }
+            stack = stack[:len(stack)-1]
+        }
+    }
+    return len(stack) == 0
+}
+```
+`O(n)`.
+
+### Bài 2 — Min stack với `getMin()` `O(1)`
+Duy trì stack phụ chỉ chứa **giá trị min hiện tại** ứng với mỗi vị trí.
+
+```go
+type MinStack struct{ data, mins []int }
+func (s *MinStack) Push(x int) {
+    s.data = append(s.data, x)
+    if len(s.mins) == 0 || x <= s.mins[len(s.mins)-1] {
+        s.mins = append(s.mins, x)
+    } else {
+        s.mins = append(s.mins, s.mins[len(s.mins)-1])
+    }
+}
+func (s *MinStack) Pop() int { /* pop cả hai */ ... }
+func (s *MinStack) GetMin() int { return s.mins[len(s.mins)-1] }
+```
+Tất cả `O(1)`. Bộ nhớ phụ `O(n)`.
+
+### Bài 3 — Tính biểu thức postfix
+Gặp số: push. Gặp toán tử: pop 2 số, tính, push lại.
+
+```
+"2 3 + 4 *"
+→ push 2, push 3 → [2,3]
+→ '+' → pop 3, pop 2, 2+3=5, push → [5]
+→ push 4 → [5,4]
+→ '*' → pop 4, pop 5, 5*4=20, push → [20]
+→ kết quả: 20
+```
+
+### Bài 4 — Infix → postfix (Shunting-yard, ý tưởng)
+Hai cấu trúc: stack toán tử + queue output.
+- Số → đẩy thẳng ra output.
+- Toán tử: trong khi đỉnh stack có toán tử **ưu tiên ≥** → pop ra output; rồi push toán tử mới.
+- `(` → push; `)` → pop tới khi gặp `(`.
+- Hết input → pop hết stack ra output.
+
+`(a + b) * c` → output `a b + c *`.
+
+### Bài 5 — Vì sao đệ quy "khử" được bằng stack tường minh?
+
+Đệ quy thực chất dùng **call stack** ngầm của hệ thống: mỗi lần gọi là một frame stack. Ta có thể mô phỏng bằng stack tường minh trong code — lưu trạng thái (biến cục bộ, "bước nào"), đẩy/lấy như call stack. Lợi ích: tránh stack overflow khi đệ quy quá sâu, kiểm soát bộ nhớ tốt hơn.
+
+Ví dụ DFS đệ quy ↔ DFS dùng stack tường minh là cùng một thuật toán.
+
+## Code & Minh họa
+
+- [solutions.go](./solutions.go) — đầy đủ các bài.
+- [visualization.html](./visualization.html) — minh họa push/pop và kiểm tra ngoặc cân bằng từng bước.
+
 ## Bài tiếp theo
 
 [Lesson 04 — Queue](../lesson-04-queue/)

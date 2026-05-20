@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 00 — So sánh trực quan các lớp Big-O</title>
+<style>
+  body { font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 24px; background: #f6f7f9; color: #222; }
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 16px; }
+  label { display: inline-block; margin-right: 12px; user-select: none; }
+  input[type=range] { width: 220px; vertical-align: middle; }
+  table { border-collapse: collapse; margin-top: 8px; }
+  th, td { padding: 6px 12px; text-align: right; border-bottom: 1px solid #eee; font-variant-numeric: tabular-nums; }
+  th { background: #f0f2f5; text-align: center; }
+  .legend span { display: inline-block; padding: 2px 8px; border-radius: 4px; margin-right: 8px; color: #fff; font-size: 13px; }
+  canvas { display: block; width: 100%; max-width: 900px; height: 420px; }
+  .note { color: #666; font-size: 14px; margin-top: 10px; }
+</style>
+</head>
+<body>
+<h1>So sánh các lớp Big-O</h1>
+
+<div class="panel">
+  <div>
+    <label>n tối đa: <input id="nRange" type="range" min="10" max="1000" step="10" value="200"></label>
+    <span id="nValue">200</span>
+  </div>
+  <div style="margin-top:8px" class="legend">
+    <label><input type="checkbox" data-key="O(1)" checked> <span style="background:#888">O(1)</span></label>
+    <label><input type="checkbox" data-key="O(log n)" checked> <span style="background:#3b82f6">O(log n)</span></label>
+    <label><input type="checkbox" data-key="O(n)" checked> <span style="background:#10b981">O(n)</span></label>
+    <label><input type="checkbox" data-key="O(n log n)" checked> <span style="background:#f59e0b">O(n log n)</span></label>
+    <label><input type="checkbox" data-key="O(n²)" checked> <span style="background:#ef4444">O(n²)</span></label>
+    <label><input type="checkbox" data-key="O(2ⁿ)"> <span style="background:#7c3aed">O(2ⁿ)</span></label>
+  </div>
+  <canvas id="chart" width="900" height="420"></canvas>
+  <div class="note">Trục y dùng thang tuyến tính. Bật O(2ⁿ) để thấy nó "biến mất" lên trời nhanh thế nào.</div>
+</div>
+
+<div class="panel">
+  <h2 style="margin-top:0">Số thao tác cụ thể tại từng giá trị n</h2>
+  <table id="opsTable">
+    <thead><tr><th>n</th><th>O(1)</th><th>O(log n)</th><th>O(n)</th><th>O(n log n)</th><th>O(n²)</th><th>O(2ⁿ)</th></tr></thead>
+    <tbody></tbody>
+  </table>
+  <div class="note">Khi n = 50, O(2ⁿ) đã vượt mọi máy tính trên Trái Đất xử lý nổi trong vũ trụ thời.</div>
+</div>
+
+<script>
+const FNS = {
+  "O(1)":     n => 1,
+  "O(log n)": n => Math.log2(Math.max(1, n)),
+  "O(n)":     n => n,
+  "O(n log n)": n => n * Math.log2(Math.max(1, n)),
+  "O(n²)":    n => n * n,
+  "O(2ⁿ)":    n => Math.pow(2, Math.min(n, 60)), // clamp để không Infinity
+};
+const COLORS = {
+  "O(1)": "#888", "O(log n)": "#3b82f6", "O(n)": "#10b981",
+  "O(n log n)": "#f59e0b", "O(n²)": "#ef4444", "O(2ⁿ)": "#7c3aed"
+};
+
+const canvas = document.getElementById('chart');
+const ctx = canvas.getContext('2d');
+const nRange = document.getElementById('nRange');
+const nValue = document.getElementById('nValue');
+const tbody = document.querySelector('#opsTable tbody');
+
+function activeKeys() {
+  return [...document.querySelectorAll('input[type=checkbox][data-key]')]
+    .filter(c => c.checked).map(c => c.dataset.key);
+}
+
+function draw() {
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  const nMax = parseInt(nRange.value);
+  const keys = activeKeys();
+  // tính max y trong khoảng vẽ
+  let yMax = 0;
+  for (const k of keys) for (let n = 1; n <= nMax; n++) yMax = Math.max(yMax, FNS[k](n));
+  if (yMax === 0) yMax = 1;
+  // axes
+  ctx.strokeStyle = '#ccc'; ctx.beginPath();
+  ctx.moveTo(40, 10); ctx.lineTo(40, H-30); ctx.lineTo(W-10, H-30); ctx.stroke();
+  ctx.fillStyle = '#666'; ctx.font = '12px sans-serif';
+  ctx.fillText('n', W-20, H-14);
+  ctx.fillText('thao tác', 4, 20);
+  // curves
+  for (const k of keys) {
+    ctx.strokeStyle = COLORS[k]; ctx.lineWidth = 2; ctx.beginPath();
+    for (let n = 1; n <= nMax; n++) {
+      const x = 40 + (n / nMax) * (W - 50);
+      const v = Math.min(FNS[k](n), yMax);
+      const y = (H - 30) - (v / yMax) * (H - 40);
+      if (n === 1) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+}
+
+function updateTable() {
+  const samples = [1, 10, 50, 100, 500, 1000];
+  tbody.innerHTML = '';
+  for (const n of samples) {
+    const row = `<tr><td>${n}</td>` +
+      Object.keys(FNS).map(k => {
+        const v = FNS[k](n);
+        return `<td>${v >= 1e10 ? v.toExponential(2) : Math.round(v).toLocaleString()}</td>`;
+      }).join('') + '</tr>';
+    tbody.insertAdjacentHTML('beforeend', row);
+  }
+}
+
+nRange.addEventListener('input', () => { nValue.textContent = nRange.value; draw(); });
+document.querySelectorAll('input[type=checkbox][data-key]').forEach(c => c.addEventListener('change', draw));
+draw(); updateTable();
+</script>
+</body>
+</html>

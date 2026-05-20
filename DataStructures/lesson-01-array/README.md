@@ -124,6 +124,83 @@ arr[i][j]  ↔  arr_phang[i * n + j]
 4. Cho mảng `[3, 1, 4, 1, 5, 9, 2, 6]`. Mô phỏng từng bước thuật toán binary search tìm `5`.
 5. Khi nào nên dùng mảng 2 chiều thay vì mảng 1 chiều? Cho ví dụ.
 
+## Lời giải chi tiết
+
+### Bài 1 — Tổng các phần tử
+
+Duyệt một lần qua mảng, cộng dồn vào biến `s`.
+
+```go
+func sum(arr []int) int {
+    s := 0
+    for _, v := range arr {
+        s += v
+    }
+    return s
+}
+```
+
+- Thời gian: `O(n)` — mỗi phần tử thăm đúng 1 lần.
+- Bộ nhớ phụ: `O(1)` — chỉ một biến `s`.
+
+### Bài 2 — Binary search
+
+Yêu cầu mảng **đã sắp xếp**. Duy trì khoảng `[lo, hi]`, mỗi bước thu hẹp một nửa.
+
+```go
+func binarySearch(arr []int, target int) int {
+    lo, hi := 0, len(arr)-1
+    for lo <= hi {
+        mid := (lo + hi) / 2
+        switch {
+        case arr[mid] == target: return mid
+        case arr[mid] < target:  lo = mid + 1
+        default:                  hi = mid - 1
+        }
+    }
+    return -1
+}
+```
+
+- Thời gian: `O(log n)` — mỗi vòng chia đôi khoảng tìm kiếm.
+- Chú ý: `mid := (lo + hi) / 2` có thể tràn số nguyên với mảng cực lớn — dùng `lo + (hi-lo)/2` để an toàn.
+
+### Bài 3 — Vì sao dynamic array `O(1)` amortized?
+
+Giả sử dung lượng nhân đôi khi đầy, bắt đầu từ 1.
+
+Sau `n` lần thêm:
+- Có khoảng `log₂ n` lần resize, tốn `1 + 2 + 4 + ... + n/2 + n ≈ 2n` thao tác copy.
+- Cộng thêm `n` thao tác ghi giá trị mới.
+- Tổng `≈ 3n` thao tác cho `n` lần thêm.
+
+→ Trung bình mỗi lần thêm `3n / n = 3 = O(1)`. Gọi là **amortized `O(1)`**: chi phí thực có thể nhảy lên `O(n)` ở một số lần, nhưng tính tổng vẫn rẻ.
+
+### Bài 4 — Mô phỏng binary search
+
+Mảng đề bài `[3, 1, 4, 1, 5, 9, 2, 6]` **chưa sắp xếp** — binary search yêu cầu sắp xếp trước. Sau khi sort tăng dần: `[1, 1, 2, 3, 4, 5, 6, 9]` (chỉ số 0..7).
+
+Tìm `5`:
+- `lo=0, hi=7, mid=3`, `arr[3]=3 < 5` → `lo = 4`.
+- `lo=4, hi=7, mid=5`, `arr[5]=5 == 5` → trả về chỉ số 5.
+
+→ Tìm thấy sau 2 vòng so sánh.
+
+### Bài 5 — Mảng 2D vs 1D
+
+Dùng **mảng 2D** khi dữ liệu có cấu trúc dạng lưới / ma trận tự nhiên:
+- Ma trận toán học (nhân ma trận, đại số tuyến tính).
+- Bàn cờ vua / cờ caro (8×8).
+- Pixel của ảnh (`height × width`).
+- Bảng tính (Excel-like).
+
+Mảng 1D vẫn dùng được (bằng cách `arr[i*cols + j]`), nhưng mảng 2D giúp code **trong sáng hơn**.
+
+## Code & Minh họa
+
+- [solutions.go](./solutions.go) — Go solutions của 5 bài + thử nghiệm amortized.
+- [visualization.html](./visualization.html) — minh họa thao tác array (truy cập, chèn/xóa giữa với hiệu ứng dịch chuyển, binary search từng bước).
+
 ## Bài tiếp theo
 
 [Lesson 02 — Linked List](../lesson-02-linked-list/)

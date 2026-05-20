@@ -122,6 +122,51 @@ Sau insert/delete, có thể vi phạm — cần kết hợp **rotation** và **
 4. Vì sao Java chọn Red-Black cho `TreeMap` mà không phải AVL?
 5. So sánh khi nào nên dùng HashMap, TreeMap, và LinkedHashMap.
 
+## Lời giải chi tiết
+
+### Bài 1 — AVL chèn `10, 20, 30, 40, 50, 25`
+
+- `10` → root.
+- `20` → con phải của 10.
+- `30` → vào con phải của 20. Balance ở 10 thành -2 (lệch phải-phải) → **RR rotation** (xoay trái ở 10). Cây: 20 là root, 10 trái, 30 phải.
+- `40` → con phải của 30.
+- `50` → vào con phải của 40. Balance ở 30 thành -2 → RR rotation ở 30. Cây: 20-(10, 40), 40-(30, 50).
+- `25` → con trái của 30. Lúc này thử lại balance: 20 vẫn ok, không cần rotation.
+
+### Bài 2 — Hàm `balance`
+```go
+func height(n *Node) int { if n == nil { return -1 }; return n.h }
+func balance(n *Node) int { return height(n.left) - height(n.right) }
+```
+`O(1)` vì mỗi node đã lưu sẵn `h`. Nếu không lưu thì tính `O(n)` mỗi lần.
+
+### Bài 3 — 5 tính chất Red-Black và lý do `O(log n)`
+1. Mỗi node đỏ hoặc đen.
+2. Root đen.
+3. Mọi leaf null là đen.
+4. Node đỏ không có con đỏ.
+5. Mọi đường từ một node tới các leaf null có cùng số node đen ("black height").
+
+→ Đường dài nhất ≤ 2 × đường ngắn nhất (vì đường dài chỉ thêm node đỏ giữa các đen, mà không có 2 đỏ liên tiếp).
+→ Chiều cao ≤ `2 log₂(n+1)` ⇒ `O(log n)`.
+
+### Bài 4 — Vì sao Java chọn Red-Black cho TreeMap?
+- Insert/delete cần ít rotation hơn AVL → tốc độ ghi tốt hơn (Java workload trộn đọc/ghi).
+- Hằng số ẩn nhỏ hơn AVL trong nhiều benchmark.
+- Cài đặt phổ biến, tài liệu nhiều.
+
+### Bài 5 — HashMap vs TreeMap vs LinkedHashMap
+| Yêu cầu | Chọn |
+| --- | --- |
+| Tra cứu nhanh nhất, không cần thứ tự | HashMap (`O(1)`) |
+| Cần duyệt theo thứ tự key tăng dần / range query | TreeMap (`O(log n)`, dựa trên Red-Black) |
+| Cần duyệt theo **thứ tự chèn** (insertion order) | LinkedHashMap (`O(1)` như HashMap + LinkedList) |
+| LRU cache | LinkedHashMap với access-order |
+
+## Code
+
+- [solutions.go](./solutions.go) — cài AVL tree với insert + rotation, in cây dạng level-order.
+
 ## Bài tiếp theo
 
 [Lesson 10 — Trie](../lesson-10-trie/)

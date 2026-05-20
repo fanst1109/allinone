@@ -130,6 +130,80 @@ function kruskal(edges, n):
 4. Mở rộng Union-Find để hỗ trợ truy vấn **kích thước tập** chứa một phần tử trong `O(α)`.
 5. Cài đặt Kruskal dùng Union-Find.
 
+## Lời giải chi tiết
+
+### Bài 1 — Union-Find với hai tối ưu
+```go
+type UF struct{ parent, rank []int }
+func NewUF(n int) *UF {
+    p := make([]int, n)
+    for i := range p { p[i] = i }
+    return &UF{parent: p, rank: make([]int, n)}
+}
+func (u *UF) Find(x int) int {
+    if u.parent[x] != x { u.parent[x] = u.Find(u.parent[x]) }  // path compression
+    return u.parent[x]
+}
+func (u *UF) Union(a, b int) bool {
+    ra, rb := u.Find(a), u.Find(b)
+    if ra == rb { return false }
+    if u.rank[ra] < u.rank[rb] { ra, rb = rb, ra }            // union by rank
+    u.parent[rb] = ra
+    if u.rank[ra] == u.rank[rb] { u.rank[ra]++ }
+    return true
+}
+```
+Mỗi thao tác amortized `O(α(n)) ≈ O(1)`.
+
+### Bài 2 — Đếm nhóm bạn
+Khởi tạo UF với `n` người. Với mỗi cặp `(a, b)` là bạn: `Union(a, b)`. Cuối cùng đếm số đại diện khác nhau (số `i` mà `Find(i) == i`).
+
+```go
+func friendGroups(n int, pairs [][2]int) int {
+    uf := NewUF(n)
+    for _, p := range pairs { uf.Union(p[0], p[1]) }
+    groups := 0
+    for i := 0; i < n; i++ { if uf.Find(i) == i { groups++ } }
+    return groups
+}
+```
+
+### Bài 3 — Union-Find với đồ thị có hướng?
+**Không phù hợp**. UF gom các phần tử có quan hệ **đối xứng** (`a ~ b` ⇔ `b ~ a`). Đồ thị có hướng: cạnh `a → b` không suy ra `b → a`. Để phát hiện chu trình có hướng cần dùng DFS với 3 màu, không phải UF.
+
+UF chỉ dùng được cho đồ thị **vô hướng** để phát hiện chu trình (khi thêm cạnh `u-v` mà `find(u) == find(v)` thì có chu trình).
+
+### Bài 4 — Thêm truy vấn `size`
+Lưu thêm mảng `size[]`, mỗi gốc giữ kích thước tập của nó.
+```go
+type UF struct{ parent, rank, size []int }
+// trong Union: size[ra] += size[rb]
+// SizeOf(x) := size[Find(x)]
+```
+`O(α)`.
+
+### Bài 5 — Kruskal dùng Union-Find
+```go
+type Edge struct{ u, v, w int }
+func kruskal(n int, edges []Edge) []Edge {
+    sort.Slice(edges, func(i, j int) bool { return edges[i].w < edges[j].w })
+    uf := NewUF(n)
+    mst := []Edge{}
+    for _, e := range edges {
+        if uf.Union(e.u, e.v) {
+            mst = append(mst, e)
+            if len(mst) == n - 1 { break }
+        }
+    }
+    return mst
+}
+```
+`O(E log E)`.
+
+## Code
+
+- [solutions.go](./solutions.go) — UF đầy đủ với rank + compression, đếm nhóm bạn, Kruskal.
+
 ## Bài tiếp theo
 
 [Lesson 13 — Segment Tree & Fenwick Tree](../lesson-13-segment-tree/)

@@ -175,6 +175,110 @@ function dijkstra(graph, source):
 4. Cài đặt topological sort dùng DFS.
 5. So sánh khi nào nên dùng adjacency matrix, khi nào nên dùng adjacency list.
 
+## Lời giải chi tiết
+
+### Bài 1 — Đếm thành phần liên thông
+Duyệt mỗi đỉnh chưa thăm → chạy BFS/DFS từ đó → tăng counter.
+
+```go
+func components(g [][]int) int {
+    n := len(g)
+    visited := make([]bool, n)
+    count := 0
+    for i := 0; i < n; i++ {
+        if !visited[i] {
+            count++
+            dfs(g, i, visited)
+        }
+    }
+    return count
+}
+```
+`O(V + E)`.
+
+### Bài 2 — Chu trình trong đồ thị có hướng (3 màu)
+- 0 = trắng (chưa thăm), 1 = xám (trong stack đệ quy), 2 = đen (đã xong).
+- Trong DFS, nếu đi tới node xám → có chu trình.
+
+```go
+func hasCycleDirected(g [][]int) bool {
+    n := len(g); color := make([]int, n)
+    var dfs func(u int) bool
+    dfs = func(u int) bool {
+        color[u] = 1
+        for _, v := range g[u] {
+            if color[v] == 1 { return true }
+            if color[v] == 0 && dfs(v) { return true }
+        }
+        color[u] = 2
+        return false
+    }
+    for i := 0; i < n; i++ {
+        if color[i] == 0 && dfs(i) { return true }
+    }
+    return false
+}
+```
+`O(V + E)`.
+
+### Bài 3 — BFS shortest path + in path
+Lưu `parent[v] = u` khi enqueue. Sau khi BFS xong, truy ngược từ `t` về `s` theo `parent`.
+
+```go
+func bfsPath(g [][]int, s, t int) []int {
+    n := len(g)
+    parent := make([]int, n)
+    for i := range parent { parent[i] = -1 }
+    parent[s] = s
+    q := []int{s}
+    for len(q) > 0 {
+        u := q[0]; q = q[1:]
+        if u == t { break }
+        for _, v := range g[u] {
+            if parent[v] == -1 { parent[v] = u; q = append(q, v) }
+        }
+    }
+    if parent[t] == -1 { return nil }
+    path := []int{}
+    for v := t; v != s; v = parent[v] { path = append([]int{v}, path...) }
+    return append([]int{s}, path...)
+}
+```
+
+### Bài 4 — Topological sort dùng DFS
+Postorder DFS rồi đảo ngược. Cách khác: Kahn dùng in-degree + queue.
+
+```go
+func topoSort(g [][]int) []int {
+    n := len(g); visited := make([]bool, n); order := []int{}
+    var dfs func(u int)
+    dfs = func(u int) {
+        visited[u] = true
+        for _, v := range g[u] { if !visited[v] { dfs(v) } }
+        order = append(order, u)
+    }
+    for i := 0; i < n; i++ { if !visited[i] { dfs(i) } }
+    // đảo ngược
+    for i, j := 0, len(order)-1; i < j; i, j = i+1, j-1 {
+        order[i], order[j] = order[j], order[i]
+    }
+    return order
+}
+```
+
+### Bài 5 — Matrix vs List
+| Tình huống | Chọn |
+| --- | --- |
+| Đồ thị **dày** (`E ≈ V²`), `V` nhỏ (≤ vài nghìn) | Matrix — kiểm tra cạnh `O(1)` |
+| Đồ thị **thưa** (`E ≪ V²`), thường gặp | List — tiết kiệm bộ nhớ, duyệt hàng xóm nhanh |
+| Cần **kiểm tra cạnh nhiều lần** | Matrix |
+| Cần **duyệt toàn bộ hàng xóm** lặp đi lặp lại | List |
+| Đồ thị có **vài triệu đỉnh** | Bắt buộc List (matrix tràn RAM) |
+
+## Code
+
+- [solutions.go](./solutions.go) — đầy đủ 4 bài (1, 2, 3, 4) + đồ thị mẫu.
+
 ## Bài tiếp theo
 
 [Lesson 12 — Union-Find](../lesson-12-union-find/)

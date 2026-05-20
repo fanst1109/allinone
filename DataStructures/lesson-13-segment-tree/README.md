@@ -173,6 +173,50 @@ function rangeSum(l, r):
 4. Đếm số nghịch thế của mảng bằng Fenwick tree.
 5. Cho 10⁵ truy vấn dạng "trung bình các phần tử trong `[l, r]`", chọn cấu trúc nào và vì sao.
 
+## Lời giải chi tiết
+
+### Bài 1 — Segment tree range sum, point update
+Mảng `tree` kích thước `4n`. Mỗi node lưu tổng của đoạn nó phụ trách.
+
+Build, query, update đều như pseudocode trong phần lý thuyết. Tất cả `O(log n)` (query/update) hoặc `O(n)` (build).
+
+### Bài 2 — Range min query
+Cùng cấu trúc, đổi phép tổng thành `min`:
+```go
+tree[node] = min(tree[2*node], tree[2*node+1])
+// query: trả về +∞ khi không giao, min hai con khi cắt
+```
+
+### Bài 3 — Lazy propagation cho range-add + range-sum
+Mảng `lazy[]` lưu giá trị chưa được "đẩy" xuống con.
+- Khi update `[ql, qr] += v` chạm node nằm trọn: `tree[node] += (r-l+1)*v`, `lazy[node] += v`, không đi sâu.
+- Trước khi đi sâu vào node, gọi `pushDown` để đẩy `lazy` xuống hai con.
+
+Cả update và query đều `O(log n)`.
+
+### Bài 4 — Đếm nghịch thế bằng Fenwick
+**Nghịch thế**: cặp `(i, j)` với `i < j` nhưng `a[i] > a[j]`.
+
+Ý tưởng: duyệt từ phải sang trái, với mỗi `a[i]` đếm bao nhiêu phần tử **đã thấy ở bên phải** có giá trị `< a[i]` → đó là số nghịch thế đóng góp bởi `i`.
+
+Dùng BIT trên không gian giá trị (sau khi compress giá trị):
+```
+for i from n-1 down to 0:
+    inv += bit.PrefixSum(a[i] - 1)
+    bit.Update(a[i], +1)
+```
+`O(n log n)`.
+
+### Bài 5 — Trung bình `[l, r]` qua 10⁵ truy vấn
+Cần tổng nhanh + đếm phần tử = `r - l + 1`. **Segment tree range sum** (hoặc **prefix sum** nếu không có update) — cả hai cho tổng `O(log n)` hoặc `O(1)`. Trung bình = `sum / (r - l + 1)`.
+
+Nếu mảng **không thay đổi**: dùng prefix sum đơn giản, `O(1)` mỗi query.
+Nếu có **point update**: Fenwick tree, `O(log n)`.
+
+## Code
+
+- [solutions.go](./solutions.go) — Segment tree sum + min + lazy add; Fenwick + đếm nghịch thế.
+
 ## Bài tiếp theo
 
 [Lesson 14 — Advanced Structures](../lesson-14-advanced-structures/)

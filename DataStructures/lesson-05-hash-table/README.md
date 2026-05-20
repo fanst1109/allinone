@@ -1,128 +1,27 @@
 # Lesson 05 — Hash Table (Bảng băm)
 
-## Mục tiêu học tập
+## Mục tiêu
 
-- Hiểu **hash function** và cách hash table cho phép truy cập `O(1)` trung bình.
-- Hiểu **xung đột (collision)** và hai cách xử lý: **chaining** và **open addressing**.
-- Hiểu **load factor** và lý do phải resize.
-- Phân biệt **HashSet** và **HashMap**.
+- Hiểu vì sao hash table tra cứu **`O(1)` trung bình**.
+- Biết cách xử lý xung đột (collision).
+- Hiểu vì sao **hash function tốt** lại quan trọng (bẫy anagram).
 
-## Kiến thức tiền đề
+## Tiền đề
 
-- [Lesson 01 — Array](../lesson-01-array/).
+- [Lesson 01 — Array](../lesson-01-array/) (biết mảng + truy cập theo chỉ số là `O(1)`).
 
-## 1. Vấn đề: tìm kiếm nhanh
+---
 
-Cho 1 triệu username, kiểm tra một username mới có tồn tại không. Dùng array tốn `O(n)`. Có thể nhanh hơn?
+## 1. Bài toán mở đầu
 
-**Ý tưởng**: biến mỗi chuỗi thành một **chỉ số mảng** thông qua một hàm — gọi là **hash function**.
+Cho **1 triệu username**, kiểm tra một username mới có tồn tại không.
 
-```
-"alice" --hash--> 7    -> arr[7]
-"bob"   --hash--> 23   -> arr[23]
-```
+Yêu cầu: trả lời càng nhanh càng tốt — sign-up form gọi API mỗi khi user gõ phím.
 
-Truy cập `arr[7]`: `O(1)`.
-
-## 2. Hash function
-
-Hàm `h(key)` nhận một key và trả về một số nguyên trong khoảng `[0, m-1]` (với `m` là kích thước bảng).
-
-**Tính chất mong muốn**:
-- **Deterministic**: cùng input → cùng output.
-- **Phân bố đều**: các key khác nhau cho ra index khác nhau (tránh dồn cục).
-- **Tính nhanh**: `O(độ dài key)`.
-
-Ví dụ hash đơn giản cho chuỗi:
-```
-h(s) = (s[0]·31^(n-1) + s[1]·31^(n-2) + ... + s[n-1]) mod m
-```
-
-## 3. Xung đột (Collision)
-
-Vì miền key (vô hạn) ánh xạ về `m` ô (hữu hạn), **chắc chắn có hai key cùng hash về một index** — gọi là xung đột.
-
-Hai chiến lược xử lý phổ biến:
-
-### 3.1. Chaining (separate chaining)
-
-Mỗi ô `arr[i]` không lưu một phần tử mà lưu một **danh sách** các phần tử cùng hash về `i`.
-
-```
-arr[7] -> [("alice", 100), ("david", 200)]
-arr[23] -> [("bob", 50)]
-```
-
-- Tìm key: hash → vào đúng ô → duyệt list.
-- Trung bình `O(1)` nếu list ngắn.
-- Tệ nhất `O(n)` nếu mọi key hash về cùng một ô.
-
-### 3.2. Open addressing (probing)
-
-Không dùng list. Nếu ô bị chiếm, **tìm ô khác** theo một quy tắc:
-- **Linear probing**: thử `i+1`, `i+2`, ...
-- **Quadratic probing**: thử `i+1²`, `i+2²`, ...
-- **Double hashing**: bước nhảy dựa trên hàm hash thứ hai.
-
-Tốn ít bộ nhớ phụ nhưng dễ bị **clustering**.
-
-## 4. Load factor và resize
-
-**Load factor** `α = n / m` = (số phần tử) / (kích thước bảng).
-
-- `α` thấp → ít xung đột nhưng lãng phí bộ nhớ.
-- `α` cao → tiết kiệm bộ nhớ nhưng nhiều xung đột, tìm chậm.
-
-Khi `α` vượt ngưỡng (thường `0.75`), bảng được **resize**: tạo mảng mới gấp đôi, hash lại toàn bộ phần tử. Chi phí một lần resize là `O(n)`, nhưng amortized vẫn là `O(1)`.
-
-## 5. Độ phức tạp
-
-| Thao tác | Trung bình | Xấu nhất |
-| --- | --- | --- |
-| Tìm | `O(1)` | `O(n)` |
-| Thêm | `O(1)` amortized | `O(n)` |
-| Xóa | `O(1)` | `O(n)` |
-
-Xấu nhất xảy ra khi hash function quá tệ → mọi key dồn về một ô.
-
-## 6. HashSet vs HashMap
-
-- **HashSet**: chỉ lưu key, kiểm tra "phần tử có tồn tại không".
-- **HashMap (Dictionary)**: lưu cặp `(key, value)`, tra giá trị theo key.
-
-Cả hai đều dựa trên hash table.
-
-## 7. Ứng dụng
-
-- Bộ đếm tần suất (word count).
-- Cache (LRU = HashMap + Doubly Linked List).
-- Bảng symbol trong compiler.
-- Kiểm tra trùng lặp (`HashSet`).
-- Join trong cơ sở dữ liệu (hash join).
-
-## 8. Cạm bẫy
-
-- Dùng key **mutable** (có thể thay đổi sau khi thêm vào bảng) → mất phần tử.
-- Hash function tệ → degrade về `O(n)`.
-- Trong open addressing, **xóa cần đánh dấu "tombstone"**, không thể xóa thẳng.
-- Hash của số nguyên không phải lúc nào cũng "phân bố đều" — cẩn trọng khi key là dãy số có quy luật.
-
-## Bài tập
-
-1. Cài đặt một HashMap đơn giản với chaining. Hỗ trợ `put`, `get`, `remove`.
-2. Đếm tần suất từ trong một văn bản dùng HashMap.
-3. Cho mảng số nguyên, tìm hai số có tổng bằng `k` trong `O(n)` (gợi ý: HashSet).
-4. Giải thích tại sao `α > 1` chỉ có thể với chaining, không thể với open addressing.
-5. Vì sao **không nên dùng String mutable làm key** trong HashMap?
-
-## 9. Giải bài toán mở đầu — 1 triệu username
-
-Quay lại câu hỏi ở mục 1: cho 1 triệu username, kiểm tra một username mới có tồn tại không.
-
-### 9.1. Cách ngây thơ — slice + duyệt tuần tự
+### Cách ngây thơ — duyệt mảng
 
 ```go
-users := []string{...}              // 1.000.000 chuỗi
+users := []string{...}                       // 1.000.000 chuỗi
 func exists(u string) bool {
     for _, x := range users {
         if x == u { return true }
@@ -130,242 +29,215 @@ func exists(u string) bool {
     return false
 }
 ```
-- Mỗi truy vấn `O(n) = 10⁶` phép so sánh.
-- Với 1000 truy vấn → 10⁹ thao tác → vài giây tới hàng chục giây.
 
-### 9.2. Cách dùng hash set — `O(1)` trung bình
+Tệ nhất so sánh **1.000.000 chuỗi** → vài mili-giây mỗi lần. Hàng nghìn request/giây → server đứng.
 
-```go
-set := make(map[string]struct{}, 1_000_000)
-for _, u := range users {
-    set[u] = struct{}{}              // O(1) trung bình
-}
-func exists(u string) bool {
-    _, ok := set[u]                  // O(1) trung bình
-    return ok
-}
+## 2. Ý tưởng: *tính* vị trí thay vì *tìm*
+
+> **Linear scan**: tìm tới khi gặp → so sánh nhiều phần tử.
+> **Hash table**: tính ra vị trí → đi thẳng tới 1 ô.
+
+Có một mảng `slots[m]` và một hàm `hash(s)` trả ra số nguyên trong `[0, m)`. Khi:
+- **Thêm** `"alice"`: tính `i = hash("alice")`, đặt `slots[i] = "alice"`.
+- **Kiểm tra** `"alice"`: tính lại `i = hash("alice")` (cùng hàm → cùng kết quả), nhìn `slots[i]`.
+
+Không phải duyệt — chỉ tính + đọc một ô.
+
+**Analogy**: thư viện 1 triệu cuốn sách. Linear scan = đi từng kệ. Hash = công thức `tên sách → số kệ`, đi thẳng tới kệ đó.
+
+## 3. Mô phỏng cụ thể (bảng 10 ô, hash bằng tay)
+
+Dùng hàm hash đơn giản nhất để dễ tính: `hash(s) = (tổng mã ASCII các ký tự) mod 10`.
+
+> **Cảnh báo**: hàm này không dùng production. Lý do sẽ chỉ ra ở mục 5 — nhưng đủ để minh họa cơ chế.
+
+### Thêm 5 username
+
+| Username | Tính hash | Index |
+| --- | --- | --- |
+| `"alice"` | 97+108+105+99+101 = 510 → mod 10 | **0** |
+| `"bob"`   | 98+111+98 = 307 → mod 10           | **7** |
+| `"eve"`   | 101+118+101 = 320 → mod 10         | **0** (đụng độ!) |
+| `"carol"` | (tổng) = 529 → mod 10              | **9** |
+| `"dave"`  | (tổng) = 416 → mod 10              | **6** |
+
+Bảng cuối cùng (xung đột "alice"/"eve" để chung 1 ô — xem mục 4):
 ```
-- Build set 1 lần: `O(n)`.
-- Mỗi truy vấn sau đó: `O(1)` trung bình.
-- 1000 truy vấn → ~1000 thao tác → mili-giây.
-
-> Trong Go, `map[T]struct{}` là HashSet idiomatic — `struct{}` chiếm 0 byte, chỉ cần key.
-
-### 9.3. So sánh thực tế
-
-`solutions.go` chạy benchmark với 1.000.000 username, kết quả đo trên máy thường:
-
-| Phương án | Thời gian / truy vấn |
-| --- | --- |
-| Linear scan slice | ~1.7 **ms** |
-| `map[string]struct{}` | ~100 **ns** |
-
-→ Hash set nhanh hơn **~16.500 lần** (≈ 4 bậc). Đó là lý do hash table là một trong những cấu trúc được dùng nhiều nhất trong thực tế.
-
-Riêng việc *build* hash set 1 triệu phần tử mất ~400 ms — chỉ làm một lần, sau đó mọi truy vấn cực rẻ.
-
-### 9.4. Khi nào không dùng hash set?
-- Cần duyệt theo **thứ tự** username (alphabet) → dùng **TreeSet** / Red-Black tree.
-- Cần tìm theo **tiền tố** ("ali..." → liệt kê tất cả) → dùng **Trie** ([Lesson 10](../lesson-10-trie/)).
-- Cần kiểm tra "có thể có không" với rất nhiều phần tử trong ít bộ nhớ → **Bloom filter** ([Lesson 14](../lesson-14-advanced-structures/)).
-
-### 9.5. Vì sao hash "nhanh"? — Mô phỏng từng bước
-
-Đây là phần dễ nhầm nhất. Mấu chốt là:
-
-> **Linear scan**: *tìm* tới khi gặp → phải so sánh nhiều phần tử.
-> **Hash table**: *tính* ra vị trí → đi thẳng đến 1 ô, không cần "tìm".
-
-Cả hai dùng cùng một **mảng** dưới gốc. Khác biệt là **cách quyết định đọc ô nào**.
-
-#### Ví dụ với bảng nhỏ (10 ô, 5 username)
-
-Giả sử có hàm hash đơn giản: `hash(s) = (tổng mã ASCII các ký tự) mod 10`.
-
-**Thêm username** vào bảng `slots[10]`:
-
-| Username | Tính hash | Index | Hành động |
-| --- | --- | --- | --- |
-| `"alice"` | (97+108+105+99+101) mod 10 = 510 mod 10 | **0** | `slots[0] = "alice"` |
-| `"bob"`   | (98+111+98) mod 10 = 307 mod 10 | **7** | `slots[7] = "bob"` |
-| `"eve"`   | (101+118+101) mod 10 = 320 mod 10 | **0** | xung đột với "alice"! (xem dưới) |
-| `"carol"` | (99+97+114+111+108) mod 10 = 529 mod 10 | **9** | `slots[9] = "carol"` |
-| `"dave"`  | (100+97+118+101) mod 10 = 416 mod 10 | **6** | `slots[6] = "dave"` |
-
-Bảng cuối cùng (dùng chaining cho ô 0):
-```
-index:  0              1   2   3   4   5   6        7      8   9
-slots: [alice, eve]   _   _   _   _   _   dave    bob    _   carol
+index:  0              6        7       9
+slots: [alice, eve]   dave    bob     carol
+(các ô 1,2,3,4,5,8 trống)
 ```
 
-#### Truy vấn "alice có tồn tại không?"
+### Truy vấn
 
-1. **Tính** `hash("alice") = 0`. *(1 phép tính)*
-2. Đi thẳng tới `slots[0]`. Trong ô có 1-2 phần tử (chain ngắn).
-3. So sánh từng phần tử: "alice" == "alice" → **CÓ**. *(1 phép so sánh)*
+| Câu hỏi | Bước làm | Số so sánh chuỗi |
+| --- | --- | --- |
+| `"alice"` có không? | hash=0; nhìn slots[0]; "alice"=="alice" | **1** → CÓ |
+| `"frank"` có không? | hash=4; nhìn slots[4]; ô trống | **0** → KHÔNG |
+| `"eve"` có không? | hash=0; nhìn slots[0]; "alice"≠"eve" → "eve"=="eve" | **2** → CÓ |
 
-Không nhìn vào `slots[1..9]` chút nào.
+**Không truy vấn nào động vào ô khác.** Đó là điểm cốt lõi → `O(1)`.
 
-#### Truy vấn "frank có tồn tại không?"
+## 4. Xung đột thì sao?
 
-1. Giả sử `hash("frank") = 4`. *(1 phép tính)*
-2. Đi thẳng tới `slots[4]`. Ô trống.
-3. **KHÔNG có**. *(0 phép so sánh)*
+"alice" và "eve" cùng `hash = 0`. Hai cách xử lý:
 
-Vẫn không cần đụng vào 9 ô còn lại.
+### Chaining (cách trên)
+Mỗi ô là một **list nhỏ**: `slots[0] = ["alice", "eve"]`. Khi tra, duyệt list trong ô đó.
 
-#### So với linear scan trên 1.000.000 username
+### Open addressing
+Nếu ô bị chiếm, **thử ô kế tiếp** (`i+1`, `i+2`, ...). Tốn ít bộ nhớ phụ nhưng khi xóa cần đánh dấu "tombstone".
 
-Linear scan kiểm tra "frank":
-```go
-for i := 0; i < 1_000_000; i++ {
-    if users[i] == "frank" { return true }  // có thể chạy 1 triệu lần
-}
-return false
-```
-→ tệ nhất so sánh **1.000.000 lần**.
+Hầu hết runtime (Java HashMap, Go map cũ) dùng **chaining**. Trong bài này cũng dùng chaining.
 
-Hash check "frank":
-```go
-i := hash("frank")        // 1 phép tính (vài chục thao tác)
-return slots[i] == "frank" // 1 phép so sánh
-```
-→ **1 phép tính + 1 phép so sánh**. *Không phụ thuộc kích thước bảng.*
+### Chain dài có làm chậm không?
 
-#### Trực giác: thư viện 1 triệu cuốn sách
+Có. Chain dài 100 → tra một phần tử trong ô đó tốn `O(100)`, mất ưu thế.
 
-- **Linear**: bạn đi từng kệ, mở từng cuốn để kiểm tra tên → mất hàng giờ.
-- **Hash**: có một công thức `tên sách → số kệ`. Nhập "Sherlock Holmes" → công thức ra "kệ 4827" → đi thẳng tới kệ 4827, chỉ đọc kệ đó.
+Với hash **tốt** + load factor ~0.75 → mỗi ô trung bình **1-2 phần tử** → vẫn `O(1)`.
 
-Công thức **không nhìn vào kệ nào cả**. Nó tính dựa trên *tên*. Đó là chỗ "thần kỳ".
+Chain dài khi nào? Khi hash function **tệ** → mục 5.
 
-#### Câu hỏi tự nhiên: tại sao tính hash không đắt?
+## 5. Hash function tốt vs tệ — bẫy anagram
 
-Hash function chạy trong `O(L)` với `L` = độ dài chuỗi (~20 ký tự cho username). Tức ~20 phép cộng/nhân/modulo. Đây là **hằng số nhỏ**, không phụ thuộc `n` (số username trong bảng).
+Hàm `(tổng ASCII) mod m` ở mục 3 **bị lỗi nghiêm trọng**. Phép cộng có tính giao hoán → đổi thứ tự ký tự không đổi tổng → mọi anagram cùng hash.
 
-So với việc linear scan có thể đọc **1.000.000 chuỗi × 20 ký tự = 20 triệu thao tác**, hash chỉ ~20 thao tác để tính + 20 thao tác để so chuỗi cuối = ~40 thao tác.
-
-→ Tỷ lệ: `20.000.000 / 40 = 500.000 lần nhanh hơn` về mặt lý thuyết (thực tế ~16.500 lần như benchmark do overhead khác).
-
-#### Còn xung đột (như "alice" và "eve" cùng index 0) thì sao?
-
-Với hash tốt, mỗi ô trung bình có **1-2 phần tử** (load factor ~0.75). Khi truy vấn:
-- 90%+ trường hợp: ô có 0-1 phần tử → 1 lần so sánh.
-- Một số trường hợp: ô có 2-3 phần tử → 2-3 lần so sánh.
-- Rất hiếm: chain dài hơn (cần resize / hash function tốt hơn).
-
-Trung bình vẫn là **`O(1)`** — không phụ thuộc `n`. Đó là lý do `O(1)` đúng *trung bình* chứ không *xấu nhất*.
-
-### 9.6. Cảnh báo: hàm hash dùng ở 9.5 là "toy", không dùng thật
-
-Hàm `(tổng ASCII) mod m` ở mục 9.5 chỉ để **dễ tính bằng tay**. Trong thực tế nó **bị lỗi nghiêm trọng**: mọi anagram (chuỗi cùng ký tự, khác thứ tự) đều hash về cùng một index.
-
-**Ví dụ cụ thể**:
+### Ví dụ cụ thể
 
 ```
-"alice" = 97 + 108 + 105 + 99 + 101 = 510  →  510 mod 10 = 0
-"elica" = 101 + 108 + 105 + 99 + 97 = 510  →  510 mod 10 = 0
-"celia" = 99 + 101 + 108 + 105 + 97  = 510  →  510 mod 10 = 0
+"alice" = 97+108+105+99+101 = 510 → mod 10 = 0
+"elica" = 101+108+105+99+97 = 510 → mod 10 = 0
+"celia" = 99+101+108+105+97 = 510 → mod 10 = 0
+"lecia" = ... cũng 510            → 0
 ```
 
-Phép cộng có tính giao hoán → đổi thứ tự ký tự không đổi tổng → cùng hash.
+→ Toàn bộ anagram của "alice" dồn về `slots[0]`. Chain dài, các ô khác trống — gọi là **clustering**.
 
-**Hệ quả**:
-- "alice", "elica", "celia", "lecia"... **đều dồn về `slots[0]`**.
-- Chain ở ô 0 dài ra; các ô khác trống.
-- Truy vấn "elica" phải so sánh chuỗi với 100+ phần tử trong chain → `O(chain_len)`, không còn `O(1)`.
-- Hash table **vẫn cho kết quả đúng** (chain xử lý xung đột), chỉ **chậm dần xuống mức linear scan**.
+Hash table vẫn cho **kết quả đúng** (chain xử lý), chỉ **chậm dần xuống mức linear scan**.
 
-Hiện tượng "vài ô đầy, các ô khác trống" gọi là **clustering** — bệnh chính của hash function tệ.
+### Cách sửa: polynomial hash
 
-### 9.7. Hash function thật: polynomial hash
-
-Để vị trí ký tự ảnh hưởng đến kết quả, dùng **phép nhân** chứ không chỉ cộng:
+Cho **vị trí** ảnh hưởng đến kết quả bằng phép nhân:
 
 ```
 h(s) = s[0]·31^(n-1) + s[1]·31^(n-2) + ... + s[n-1]·31^0   (mod m)
 ```
 
-**Tính cụ thể** (mod 1_000_003, một số nguyên tố lớn — đã verify bằng Go):
+Tính cụ thể (đã verify bằng Go):
 
-| Chuỗi | Phép tính `polynomial` | h mod 1_000_003 |
+| Chuỗi | Polynomial | mod 1_000_003 |
 | --- | --- | --- |
-| `"alice"` | 97·31⁴ + 108·31³ + 105·31² + 99·31 + 101 = 92.903.040 | **902.764** |
-| `"elica"` | 101·31⁴ + 108·31³ + 105·31² + 99·31 + 97 = 96.597.120 | **596.832** |
-| `"celia"` | 99·31⁴ + 101·31³ + 108·31² + 105·31 + 97 = 94.544.610 | **544.328** |
+| `"alice"` | 92.903.040 | **902.764** |
+| `"elica"` | 96.597.120 | **596.832** |
+| `"celia"` | 94.544.610 | **544.328** |
 
-→ Ba index **hoàn toàn khác nhau**, không còn xung đột.
+Ba index hoàn toàn khác nhau → không xung đột.
 
-(Sum của cả ba đều = 510 → hash đơn giản đụng độ; polynomial cho ra ba giá trị tách hẳn.)
+**Trực giác**: hệ số `31^k` khác ở mỗi vị trí. Đổi thứ tự ký tự = đổi hệ số mỗi ký tự = đổi kết quả.
 
-**Trực giác vì sao polynomial hết bệnh**: hệ số `31^k` khác nhau ở mỗi vị trí. Ký tự đầu (`s[0]`) được nhân `31⁴` = 923.521, ký tự cuối (`s[n-1]`) nhân `1`. Đổi thứ tự = đổi hệ số mỗi ký tự = đổi toàn bộ kết quả.
+**Vì sao chọn 31?** Số nguyên tố, nhỏ (`31x = (x<<5) - x`), Java `String.hashCode()` dùng nó.
 
-**Vì sao chọn 31?**
-- Số nguyên tố → giảm xung đột với pattern bội số.
-- Đủ nhỏ để tính nhanh (`31x = (x << 5) - x`).
-- Đủ lớn để các giá trị `31^k mod m` phân bố đều.
-- Là số được Java `String.hashCode()` dùng — đã được kiểm chứng nhiều thập kỷ.
-
-### 9.8. Trong code production bạn không tự viết hash function
+### Trong code production bạn không tự viết
 
 ```go
 m := map[string]struct{}{}
 m["alice"] = struct{}{}
 m["elica"] = struct{}{}
+// Runtime Go đưa hai key vào hai bucket khác hẳn. Không xung đột.
 ```
 
-Hash internal của Go cho "alice" và "elica" khác hẳn → vào hai bucket khác → không xung đột. Runtime của Go dùng **memhash** (dựa trên AES-NI khi có); Java dùng polynomial 31; Python dùng **SipHash**. Tất cả đều xử lý anagram, prefix giống nhau, dãy số đều... đúng cách.
+- **Go**: memhash (dựa AES-NI khi có).
+- **Java**: polynomial hash 31 cho `String`.
+- **Python**: SipHash.
 
-**Vậy học hash function "tay" để làm gì?**
+Tất cả đều phụ thuộc vị trí, chống anagram + chống pattern độc hại.
 
-| Để hiểu... | Mục liên quan |
+## 6. Hiệu năng thực tế
+
+### Tính hash có đắt không?
+`O(L)` với `L` = độ dài chuỗi (~20 ký tự cho username) → vài chục thao tác. **Hằng số, không phụ thuộc `n`.**
+
+### Benchmark 1 triệu username
+(file [solutions.go](./solutions.go) — chạy `go run`)
+
+| Phương án | Mỗi truy vấn |
 | --- | --- |
-| Vì sao hash table cho `O(1)` | 9.5 |
-| Vì sao hash function tệ làm hỏng `O(1)` | 9.6 |
-| Vì sao hash thật phụ thuộc vị trí ký tự | 9.7 |
-| Vì sao Go map vẫn nhanh với dữ liệu xấu | 9.8 |
+| Linear scan slice | ~1.7 **mili-giây** |
+| `map[string]struct{}` | ~100 **nano-giây** |
 
-Và một số tình huống đặc biệt **cần tự viết hash**:
-- **Rolling hash** cho thuật toán Rabin-Karp tìm xâu con.
-- **Consistent hashing** cho hệ thống phân tán (Cassandra, load balancer).
-- **Hash key tùy biến** cho struct phức tạp (combine nhiều trường).
+→ Hash nhanh hơn **~16.000 lần** thực đo. Build set ban đầu mất ~400 ms (một lần duy nhất).
 
-Trong những trường hợp này, hiểu nguyên tắc "phụ thuộc vị trí + phân bố đều" là tối quan trọng.
+## 7. Khi nào KHÔNG nên dùng hash?
+
+| Yêu cầu | Cấu trúc phù hợp |
+| --- | --- |
+| Duyệt theo **thứ tự** key (alphabet) | TreeMap / TreeSet — [Lesson 09](../lesson-09-balanced-trees/) |
+| Tìm theo **tiền tố** ("ali..." → liệt kê) | Trie — [Lesson 10](../lesson-10-trie/) |
+| **Range query** (`age BETWEEN 20 AND 30`) | Balanced BST |
+| Chấp nhận sai ~1%, RAM cực hạn (vd 1 tỷ phần tử) | Bloom filter — [Lesson 14](../lesson-14-advanced-structures/) |
+
+## 8. HashSet vs HashMap
+
+- **HashSet**: lưu key, kiểm tra "có tồn tại". Go: `map[K]struct{}` (struct rỗng = 0 byte).
+- **HashMap**: lưu cặp `(key, value)`. Go: `map[K]V`.
+
+Cùng cơ chế hash bên dưới.
+
+## 9. Load factor và resize
+
+`α = n / m` = số phần tử / số ô.
+- Quá thấp → lãng phí bộ nhớ.
+- Quá cao → chain dài → chậm.
+
+Đa số hash table giữ `α ≤ 0.75`. Vượt ngưỡng → **resize**: cấp mảng mới gấp đôi, hash lại toàn bộ. Một lần resize `O(n)`; amortized mỗi insert vẫn `O(1)`.
+
+## 10. Bảng độ phức tạp
+
+| Thao tác | Trung bình | Xấu nhất |
+| --- | --- | --- |
+| Find | `O(1)` | `O(n)` |
+| Insert | `O(1)` amortized | `O(n)` |
+| Delete | `O(1)` | `O(n)` |
+
+Xấu nhất chỉ khi hash function thật sự kém — runtime chuẩn (Go/Java/Python) không gặp.
+
+---
+
+## Bài tập
+
+1. Cài đặt một HashMap với chaining: `Put`, `Get`, `Remove`.
+2. Đếm tần suất từ trong một văn bản.
+3. Cho mảng số nguyên, tìm hai số có tổng bằng `k` trong `O(n)`.
+4. Vì sao `α > 1` chỉ có thể với chaining, không với open addressing?
+5. Vì sao không nên dùng String mutable làm key trong HashMap?
 
 ## Lời giải chi tiết
 
-### Bài 1 — HashMap với chaining
-Mỗi ô là một list các cặp `(key, value)`.
-
+### Bài 1 — HashMap chaining
+Mỗi ô là list các cặp `(key, value)`. Khi `α > 0.75` thì resize. Cài đặt đầy đủ trong [solutions.go](./solutions.go).
 ```go
-type entry struct{ k string; v int }
 type HashMap struct{ buckets [][]entry; cap, size int }
-func (m *HashMap) idx(k string) int { /* hash → mod cap */ }
-func (m *HashMap) Put(k string, v int) { ... }   // O(1) trung bình
-func (m *HashMap) Get(k string) (int, bool) { ... }
-func (m *HashMap) Remove(k string) { ... }
+func (m *HashMap) Put(k string, v int) { /* hash → bucket → append/cập nhật */ }
+func (m *HashMap) Get(k string) (int, bool) { /* duyệt bucket */ }
+func (m *HashMap) Remove(k string) bool { /* duyệt bucket → bỏ entry */ }
 ```
+Trung bình `O(1)`.
 
-Khi `size/cap > 0.75` → resize: tăng `cap` gấp đôi, hash lại toàn bộ.
-
-### Bài 2 — Đếm tần suất từ
+### Bài 2 — Word count
 ```go
 func wordCount(text string) map[string]int {
     out := map[string]int{}
-    for _, w := range strings.Fields(text) {
-        out[w]++
-    }
+    for _, w := range strings.Fields(text) { out[w]++ }
     return out
 }
 ```
 `O(n)` với `n` = tổng số ký tự.
 
 ### Bài 3 — Two-sum `O(n)`
-Duyệt mảng, với mỗi `x` xem `k - x` đã thấy chưa.
-
+Duyệt một lần. Với mỗi `x`, xem `k - x` đã thấy chưa.
 ```go
 func twoSum(nums []int, k int) (int, int, bool) {
-    seen := map[int]int{} // value -> index
+    seen := map[int]int{}
     for i, x := range nums {
         if j, ok := seen[k-x]; ok { return j, i, true }
         seen[x] = i
@@ -373,23 +245,18 @@ func twoSum(nums []int, k int) (int, int, bool) {
     return 0, 0, false
 }
 ```
-`O(n)` thời gian + `O(n)` bộ nhớ.
 
-### Bài 4 — Vì sao `α > 1` chỉ có thể với chaining?
+### Bài 4 — `α > 1` chỉ ở chaining
+- **Chaining**: mỗi ô là list, chứa nhiều phần tử → `n > m` được.
+- **Open addressing**: mỗi ô chứa 1 phần tử → `n ≤ m`, do đó `α ≤ 1`. Khi `n = m` bảng đầy hoàn toàn.
 
-Với **chaining**, mỗi ô là một list — có thể chứa nhiều phần tử → `n > m` được (`α = n/m > 1`).
+### Bài 5 — Không dùng mutable key
+Nếu key bị sửa sau `Put`, `hash(key_mới)` khác `hash(key_cũ)`. Lần `Get` sau đi tới sai ô → "mất" phần tử (vẫn còn ở ô cũ nhưng không truy cập được). Quy tắc: **key phải bất biến**.
 
-Với **open addressing**, mỗi ô chỉ chứa được **một phần tử**. Khi `n = m` → bảng đầy hoàn toàn, không thể thêm. Vậy luôn `α ≤ 1`.
+## Code
 
-### Bài 5 — Không dùng String mutable làm key
-Nếu key thay đổi sau khi `put`, `hash(key)` mới sẽ khác `hash(key)` cũ. Khi `get(key)`, ta tới sai ô → tưởng không có phần tử. Phần tử cũ trở thành "rác" trong ô đã hash trước đó, không thể truy cập.
-
-Quy tắc: **key của hash map phải bất biến (immutable)**. Trong Java, dùng `String`, `Integer`, hoặc class với `equals/hashCode` ổn định.
-
-## Code & Minh họa
-
-- [solutions.go](./solutions.go) — HashMap với chaining, two-sum, word count.
-- [visualization.html](./visualization.html) — minh họa bucket + chaining + xung đột.
+- [solutions.go](./solutions.go) — chứa: walk-through hash bằng tay, demo anagram + polynomial, benchmark 1M user, HashMap chaining tự cài, word count, two-sum.
+- [visualization.html](./visualization.html) — thao tác hash table với chaining (đã tạo từ phiên trước).
 
 ## Bài tiếp theo
 

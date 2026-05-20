@@ -169,6 +169,93 @@ Riêng việc *build* hash set 1 triệu phần tử mất ~400 ms — chỉ là
 - Cần tìm theo **tiền tố** ("ali..." → liệt kê tất cả) → dùng **Trie** ([Lesson 10](../lesson-10-trie/)).
 - Cần kiểm tra "có thể có không" với rất nhiều phần tử trong ít bộ nhớ → **Bloom filter** ([Lesson 14](../lesson-14-advanced-structures/)).
 
+### 9.5. Vì sao hash "nhanh"? — Mô phỏng từng bước
+
+Đây là phần dễ nhầm nhất. Mấu chốt là:
+
+> **Linear scan**: *tìm* tới khi gặp → phải so sánh nhiều phần tử.
+> **Hash table**: *tính* ra vị trí → đi thẳng đến 1 ô, không cần "tìm".
+
+Cả hai dùng cùng một **mảng** dưới gốc. Khác biệt là **cách quyết định đọc ô nào**.
+
+#### Ví dụ với bảng nhỏ (10 ô, 5 username)
+
+Giả sử có hàm hash đơn giản: `hash(s) = (tổng mã ASCII các ký tự) mod 10`.
+
+**Thêm username** vào bảng `slots[10]`:
+
+| Username | Tính hash | Index | Hành động |
+| --- | --- | --- | --- |
+| `"alice"` | (97+108+105+99+101) mod 10 = 510 mod 10 | **0** | `slots[0] = "alice"` |
+| `"bob"`   | (98+111+98) mod 10 = 307 mod 10 | **7** | `slots[7] = "bob"` |
+| `"eve"`   | (101+118+101) mod 10 = 320 mod 10 | **0** | xung đột với "alice"! (xem dưới) |
+| `"carol"` | (99+97+114+111+108) mod 10 = 529 mod 10 | **9** | `slots[9] = "carol"` |
+| `"dave"`  | (100+97+118+101) mod 10 = 416 mod 10 | **6** | `slots[6] = "dave"` |
+
+Bảng cuối cùng (dùng chaining cho ô 0):
+```
+index:  0              1   2   3   4   5   6        7      8   9
+slots: [alice, eve]   _   _   _   _   _   dave    bob    _   carol
+```
+
+#### Truy vấn "alice có tồn tại không?"
+
+1. **Tính** `hash("alice") = 0`. *(1 phép tính)*
+2. Đi thẳng tới `slots[0]`. Trong ô có 1-2 phần tử (chain ngắn).
+3. So sánh từng phần tử: "alice" == "alice" → **CÓ**. *(1 phép so sánh)*
+
+Không nhìn vào `slots[1..9]` chút nào.
+
+#### Truy vấn "frank có tồn tại không?"
+
+1. Giả sử `hash("frank") = 4`. *(1 phép tính)*
+2. Đi thẳng tới `slots[4]`. Ô trống.
+3. **KHÔNG có**. *(0 phép so sánh)*
+
+Vẫn không cần đụng vào 9 ô còn lại.
+
+#### So với linear scan trên 1.000.000 username
+
+Linear scan kiểm tra "frank":
+```go
+for i := 0; i < 1_000_000; i++ {
+    if users[i] == "frank" { return true }  // có thể chạy 1 triệu lần
+}
+return false
+```
+→ tệ nhất so sánh **1.000.000 lần**.
+
+Hash check "frank":
+```go
+i := hash("frank")        // 1 phép tính (vài chục thao tác)
+return slots[i] == "frank" // 1 phép so sánh
+```
+→ **1 phép tính + 1 phép so sánh**. *Không phụ thuộc kích thước bảng.*
+
+#### Trực giác: thư viện 1 triệu cuốn sách
+
+- **Linear**: bạn đi từng kệ, mở từng cuốn để kiểm tra tên → mất hàng giờ.
+- **Hash**: có một công thức `tên sách → số kệ`. Nhập "Sherlock Holmes" → công thức ra "kệ 4827" → đi thẳng tới kệ 4827, chỉ đọc kệ đó.
+
+Công thức **không nhìn vào kệ nào cả**. Nó tính dựa trên *tên*. Đó là chỗ "thần kỳ".
+
+#### Câu hỏi tự nhiên: tại sao tính hash không đắt?
+
+Hash function chạy trong `O(L)` với `L` = độ dài chuỗi (~20 ký tự cho username). Tức ~20 phép cộng/nhân/modulo. Đây là **hằng số nhỏ**, không phụ thuộc `n` (số username trong bảng).
+
+So với việc linear scan có thể đọc **1.000.000 chuỗi × 20 ký tự = 20 triệu thao tác**, hash chỉ ~20 thao tác để tính + 20 thao tác để so chuỗi cuối = ~40 thao tác.
+
+→ Tỷ lệ: `20.000.000 / 40 = 500.000 lần nhanh hơn` về mặt lý thuyết (thực tế ~16.500 lần như benchmark do overhead khác).
+
+#### Còn xung đột (như "alice" và "eve" cùng index 0) thì sao?
+
+Với hash tốt, mỗi ô trung bình có **1-2 phần tử** (load factor ~0.75). Khi truy vấn:
+- 90%+ trường hợp: ô có 0-1 phần tử → 1 lần so sánh.
+- Một số trường hợp: ô có 2-3 phần tử → 2-3 lần so sánh.
+- Rất hiếm: chain dài hơn (cần resize / hash function tốt hơn).
+
+Trung bình vẫn là **`O(1)`** — không phụ thuộc `n`. Đó là lý do `O(1)` đúng *trung bình* chứ không *xấu nhất*.
+
 ## Lời giải chi tiết
 
 ### Bài 1 — HashMap với chaining

@@ -180,8 +180,63 @@ func benchmark1MUsernames() {
 	}
 }
 
+// --- Walk-through: hash bằng tay với bảng 10 ô ---
+
+// simpleHash: hàm hash đơn giản, dễ tính bằng tay.
+func simpleHash(s string, m int) int {
+	sum := 0
+	for _, c := range s {
+		sum += int(c)
+	}
+	return sum % m
+}
+
+func traceHashTable() {
+	const M = 10
+	slots := make([][]string, M)
+
+	fmt.Println("Bảng có 10 ô. Hash = (tổng mã ASCII) mod 10.")
+	fmt.Println()
+	fmt.Println("--- Thêm username ---")
+	for _, u := range []string{"alice", "bob", "eve", "carol", "dave"} {
+		sum := 0
+		for _, c := range u {
+			sum += int(c)
+		}
+		i := sum % M
+		slots[i] = append(slots[i], u)
+		fmt.Printf("  hash(%q) = %d mod %d = %d  -> đặt vào slots[%d] (chain dài: %d)\n",
+			u, sum, M, i, i, len(slots[i]))
+	}
+
+	fmt.Println("\n--- Trạng thái bảng ---")
+	for i, ch := range slots {
+		fmt.Printf("  slots[%d] = %v\n", i, ch)
+	}
+
+	fmt.Println("\n--- Truy vấn ---")
+	for _, q := range []string{"alice", "eve", "frank", "carol"} {
+		i := simpleHash(q, M)
+		found := false
+		cmps := 0
+		for _, x := range slots[i] {
+			cmps++
+			if x == q {
+				found = true
+				break
+			}
+		}
+		fmt.Printf("  Tìm %q: tính hash = %d (1 phép). Nhìn slots[%d] (%d phần tử). %d so sánh -> %v\n",
+			q, i, i, len(slots[i]), cmps, found)
+	}
+	fmt.Println("\nChú ý: không truy vấn nào nhìn vào các ô khác. Đó là 'O(1)'.")
+}
+
 func main() {
-	fmt.Println("=== Bài toán mở đầu: 1 triệu username ===")
+	fmt.Println("=== Walk-through: hash hoạt động thế nào ===")
+	traceHashTable()
+
+	fmt.Println("\n=== Bài toán mở đầu: 1 triệu username ===")
 	benchmark1MUsernames()
 
 	fmt.Println("\n=== Bài 1: HashMap chaining ===")

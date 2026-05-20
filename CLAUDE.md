@@ -40,7 +40,7 @@ Khi user yêu cầu tạo một bài học mới (ví dụ: *"tạo bài học v
 
 ## Quy trình làm việc với git
 
-- Branch phát triển hiện tại: `claude/init-readme-docs-yOW8D` (hoặc branch được chỉ định trong từng phiên).
+- Branch phát triển mặc định: `main`. Commit và push thẳng lên `main` trừ khi user chỉ định branch khác trong phiên làm việc.
 - Sau khi tạo/sửa nội dung, **commit với thông điệp tiếng Việt rõ ràng**, ví dụ: `docs: thêm bài học vòng lặp cho Java`.
 - Push lên đúng branch đã chỉ định.
 

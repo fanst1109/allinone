@@ -256,6 +256,82 @@ Với hash tốt, mỗi ô trung bình có **1-2 phần tử** (load factor ~0.7
 
 Trung bình vẫn là **`O(1)`** — không phụ thuộc `n`. Đó là lý do `O(1)` đúng *trung bình* chứ không *xấu nhất*.
 
+### 9.6. Cảnh báo: hàm hash dùng ở 9.5 là "toy", không dùng thật
+
+Hàm `(tổng ASCII) mod m` ở mục 9.5 chỉ để **dễ tính bằng tay**. Trong thực tế nó **bị lỗi nghiêm trọng**: mọi anagram (chuỗi cùng ký tự, khác thứ tự) đều hash về cùng một index.
+
+**Ví dụ cụ thể**:
+
+```
+"alice" = 97 + 108 + 105 + 99 + 101 = 510  →  510 mod 10 = 0
+"elica" = 101 + 108 + 105 + 99 + 97 = 510  →  510 mod 10 = 0
+"celia" = 99 + 101 + 108 + 105 + 97  = 510  →  510 mod 10 = 0
+```
+
+Phép cộng có tính giao hoán → đổi thứ tự ký tự không đổi tổng → cùng hash.
+
+**Hệ quả**:
+- "alice", "elica", "celia", "lecia"... **đều dồn về `slots[0]`**.
+- Chain ở ô 0 dài ra; các ô khác trống.
+- Truy vấn "elica" phải so sánh chuỗi với 100+ phần tử trong chain → `O(chain_len)`, không còn `O(1)`.
+- Hash table **vẫn cho kết quả đúng** (chain xử lý xung đột), chỉ **chậm dần xuống mức linear scan**.
+
+Hiện tượng "vài ô đầy, các ô khác trống" gọi là **clustering** — bệnh chính của hash function tệ.
+
+### 9.7. Hash function thật: polynomial hash
+
+Để vị trí ký tự ảnh hưởng đến kết quả, dùng **phép nhân** chứ không chỉ cộng:
+
+```
+h(s) = s[0]·31^(n-1) + s[1]·31^(n-2) + ... + s[n-1]·31^0   (mod m)
+```
+
+**Tính cụ thể** (mod 1_000_003, một số nguyên tố lớn — đã verify bằng Go):
+
+| Chuỗi | Phép tính `polynomial` | h mod 1_000_003 |
+| --- | --- | --- |
+| `"alice"` | 97·31⁴ + 108·31³ + 105·31² + 99·31 + 101 = 92.903.040 | **902.764** |
+| `"elica"` | 101·31⁴ + 108·31³ + 105·31² + 99·31 + 97 = 96.597.120 | **596.832** |
+| `"celia"` | 99·31⁴ + 101·31³ + 108·31² + 105·31 + 97 = 94.544.610 | **544.328** |
+
+→ Ba index **hoàn toàn khác nhau**, không còn xung đột.
+
+(Sum của cả ba đều = 510 → hash đơn giản đụng độ; polynomial cho ra ba giá trị tách hẳn.)
+
+**Trực giác vì sao polynomial hết bệnh**: hệ số `31^k` khác nhau ở mỗi vị trí. Ký tự đầu (`s[0]`) được nhân `31⁴` = 923.521, ký tự cuối (`s[n-1]`) nhân `1`. Đổi thứ tự = đổi hệ số mỗi ký tự = đổi toàn bộ kết quả.
+
+**Vì sao chọn 31?**
+- Số nguyên tố → giảm xung đột với pattern bội số.
+- Đủ nhỏ để tính nhanh (`31x = (x << 5) - x`).
+- Đủ lớn để các giá trị `31^k mod m` phân bố đều.
+- Là số được Java `String.hashCode()` dùng — đã được kiểm chứng nhiều thập kỷ.
+
+### 9.8. Trong code production bạn không tự viết hash function
+
+```go
+m := map[string]struct{}{}
+m["alice"] = struct{}{}
+m["elica"] = struct{}{}
+```
+
+Hash internal của Go cho "alice" và "elica" khác hẳn → vào hai bucket khác → không xung đột. Runtime của Go dùng **memhash** (dựa trên AES-NI khi có); Java dùng polynomial 31; Python dùng **SipHash**. Tất cả đều xử lý anagram, prefix giống nhau, dãy số đều... đúng cách.
+
+**Vậy học hash function "tay" để làm gì?**
+
+| Để hiểu... | Mục liên quan |
+| --- | --- |
+| Vì sao hash table cho `O(1)` | 9.5 |
+| Vì sao hash function tệ làm hỏng `O(1)` | 9.6 |
+| Vì sao hash thật phụ thuộc vị trí ký tự | 9.7 |
+| Vì sao Go map vẫn nhanh với dữ liệu xấu | 9.8 |
+
+Và một số tình huống đặc biệt **cần tự viết hash**:
+- **Rolling hash** cho thuật toán Rabin-Karp tìm xâu con.
+- **Consistent hashing** cho hệ thống phân tán (Cassandra, load balancer).
+- **Hash key tùy biến** cho struct phức tạp (combine nhiều trường).
+
+Trong những trường hợp này, hiểu nguyên tắc "phụ thuộc vị trí + phân bố đều" là tối quan trọng.
+
 ## Lời giải chi tiết
 
 ### Bài 1 — HashMap với chaining

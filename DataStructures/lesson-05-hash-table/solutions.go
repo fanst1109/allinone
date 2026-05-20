@@ -232,9 +232,43 @@ func traceHashTable() {
 	fmt.Println("\nChú ý: không truy vấn nào nhìn vào các ô khác. Đó là 'O(1)'.")
 }
 
+// --- Bẫy anagram của hash đơn giản + polynomial hash ---
+
+// polyHash: h(s) = s[0]·31^(n-1) + ... + s[n-1] (mod m).
+func polyHash(s string, m int) int {
+	h := 0
+	for _, c := range s {
+		h = (h*31 + int(c)) % m
+	}
+	return h
+}
+
+func demoAnagram() {
+	anagrams := []string{"alice", "elica", "celia", "lecia", "iacel"}
+
+	fmt.Println("Hash đơn giản (tổng ASCII) mod 10:")
+	for _, s := range anagrams {
+		sum := 0
+		for _, c := range s {
+			sum += int(c)
+		}
+		fmt.Printf("  %-7s sum=%d -> mod 10 = %d\n", s, sum, sum%10)
+	}
+	fmt.Println("→ Tất cả vào cùng 1 ô, chain dài, mất ưu thế O(1).\n")
+
+	fmt.Println("Polynomial hash mod 1_000_003:")
+	for _, s := range anagrams {
+		fmt.Printf("  %-7s -> %d\n", s, polyHash(s, 1_000_003))
+	}
+	fmt.Println("→ Mọi chuỗi vào ô khác nhau, không xung đột.")
+}
+
 func main() {
 	fmt.Println("=== Walk-through: hash hoạt động thế nào ===")
 	traceHashTable()
+
+	fmt.Println("\n=== Bẫy anagram + polynomial hash ===")
+	demoAnagram()
 
 	fmt.Println("\n=== Bài toán mở đầu: 1 triệu username ===")
 	benchmark1MUsernames()

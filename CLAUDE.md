@@ -62,10 +62,46 @@ Khi user yêu cầu tạo một bài học mới (ví dụ: *"tạo bài học v
 - **`visualization.html` chỉ tạo khi user yêu cầu** — không tự tạo sẵn. Khi tạo: standalone, mở trực tiếp trong trình duyệt là chạy.
 - Code Go phải biên dịch được; tổ chức theo style chuẩn (`gofmt`-friendly), tên file `solutions.go` hoặc `<chủ-đề>.go`.
 
+## Phong cách viết tài liệu — hiểu được ngay lần đọc đầu
+
+Mục tiêu: người đọc lần đầu phải hiểu **không cần hỏi lại**. Các nguyên tắc dưới đây rút ra từ những chỗ user phải đặt câu hỏi tiếp:
+
+1. **Vấn đề đặt ra → giải đáp ngay trong cùng bài**. Nếu mở bài bằng "Cho 1 triệu username, kiểm tra...", phải có mục trả lời cụ thể (code + số liệu + so sánh) ngay trong bài đó, không bỏ ngỏ "sẽ học ở bài sau". Mọi câu hỏi tu từ phải được "đóng".
+
+2. **Cơ chế quan trọng = walk-through bằng số cụ thể**, không chỉ công thức.
+   - Tệ: *"hash function biến key thành index"* — quá trừu tượng.
+   - Tốt: *"hash('alice') = (97+108+105+99+101) mod 10 = 510 mod 10 = **0** → đặt vào slots[0]"* — người đọc tính theo được.
+   - Với mọi cơ chế khó (hash, BST insert, Dijkstra, segment tree...), kèm bảng/mô phỏng từng bước với giá trị thật.
+
+3. **Trực giác trước hình thức**. Giải thích "vì sao nhanh / vì sao đúng" bằng analogy / hình dung đời sống trước khi đưa công thức. Ví dụ: hash = "công thức `tên sách → số kệ`, đi thẳng tới kệ thay vì duyệt cả thư viện". Định nghĩa hình thức và Big-O đặt sau.
+
+4. **Toy example phải nói rõ là toy + chỉ ra hạn chế**. Khi dùng phiên bản đơn giản hóa (hash function `sum mod m`, đồ thị 5 đỉnh, v.v.), phải:
+   - Cảnh báo "đây là minh họa, không dùng trong production".
+   - Chỉ ra **vì sao** thực tế không dùng (vd anagram → cùng hash).
+   - Đưa luôn hoặc link tới phiên bản đúng (polynomial hash, memhash...).
+   - Không để người đọc tự phát hiện rồi mới phải hỏi lại.
+
+5. **Lường trước câu hỏi tự nhiên của người đọc**. Sau mỗi cơ chế, dừng lại và tự hỏi *"đọc đến đây, mình sẽ thắc mắc gì?"*, rồi trả lời ngay trong text. Ví dụ với hash, các câu phải đoán trước:
+   - "tính hash có đắt không?"
+   - "xung đột thì sao? sai kết quả không?"
+   - "anagram / chuỗi giống nhau thì sao?"
+   - "trong Go thật mình có phải tự viết không?"
+   
+   Mỗi câu được trả lời sẵn → người đọc không phải hỏi lại.
+
+6. **Cụ thể trước, trừu tượng sau**. Mở đầu bằng ví dụ chạy được; tổng quát hóa sau. Không nhảy thẳng vào lý thuyết.
+
+7. **Đọc lại bằng góc nhìn người mới**. Sau khi viết xong, đọc lại từ đầu và tự hỏi: *"nếu mình chưa biết khái niệm này, đoạn này có cần dừng lại suy nghĩ không?"* Nếu có, viết lại đoạn đó cụ thể hơn.
+
+8. **Mỗi mục đứng được một mình**. Trong các mục con (3.2, 9.5, v.v.), không giả định người đọc đã đọc kỹ các mục khác — nhắc lại key context khi cần.
+
 ## Những điều cần tránh
 
 - Không viết tài liệu bằng tiếng Anh thuần (trừ thuật ngữ chuyên ngành).
 - Không tạo bài học mà quên cập nhật `README.md` của lĩnh vực.
 - Không để bài tập không có lời giải.
+- **Không đặt vấn đề rồi bỏ ngỏ** — câu hỏi mở bài phải được giải đáp trong cùng bài.
+- **Không dùng công thức trừu tượng mà không kèm ví dụ số cụ thể** — `h(s) = Σ s[i]·31^(n-1-i)` phải đi kèm "tính cho 'alice' = ...".
+- **Không dùng toy example mà không cảnh báo hạn chế** — người đọc sẽ tưởng đó là cách dùng thật.
 - Không dùng emoji trong tài liệu trừ khi user yêu cầu.
 - Không tạo file thừa (ví dụ file ghi chú quá trình làm việc) — chỉ tạo những gì thuộc về nội dung bài học.

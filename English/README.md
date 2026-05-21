@@ -26,6 +26,8 @@
 | # | Bài học | Mô tả | Liên kết |
 | --- | --- | --- | --- |
 | 06 | 12 thì tiếng Anh (Twelve Tenses) | Toàn bộ 12 thì = 3 thời × 4 aspect. Form + use case + signal words + ví dụ thật cho từng thì. Visualization có Web Speech API đọc nguyên câu. | [lesson-06-twelve-tenses/](./lesson-06-twelve-tenses/) |
+| 07 | Câu điều kiện (Conditionals) | 5 loại: zero / first / second / third / mixed. Form chi tiết, timeline trực quan, flowchart đoán loại, alternative connectors (unless, in case, provided that...). | [lesson-07-conditionals/](./lesson-07-conditionals/) |
+| 08 | Mệnh đề quan hệ (Relative Clauses) | who/whom/which/that/whose/where/when/why. Defining vs non-defining (vai trò dấu phẩy). Lược bớt clause. Preposition trong relative clause. | [lesson-08-relative-clauses/](./lesson-08-relative-clauses/) |
 
 ## Gợi ý cách học
 

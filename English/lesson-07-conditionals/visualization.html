@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Câu điều kiện — Conditionals</title>
+<style>
+  :root {
+    --bg: #fafaf7; --panel: #fff; --ink: #1a1a1a; --muted: #6a6a6a; --line: #e3e1dc;
+    --accent: #b45309; --accent-soft: #fef3c7;
+    --zero: #15803d; --zero-soft: #dcfce7;
+    --first: #1d4ed8; --first-soft: #dbeafe;
+    --second: #d97706; --second-soft: #fef3c7;
+    --third: #b91c1c; --third-soft: #fee2e2;
+    --mixed: #7c3aed; --mixed-soft: #ede9fe;
+    --ok: #15803d; --error: #b91c1c;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--ink); line-height: 1.55; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px 80px; }
+  header h1 { margin: 0 0 4px; font-size: 24px; }
+  header p { margin: 0 0 20px; color: var(--muted); font-size: 14px; }
+
+  .accent-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin-left: 8px; }
+  .accent-toggle button { background: var(--panel); border: none; padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; }
+  .accent-toggle button + button { border-left: 1px solid var(--line); }
+  .accent-toggle button.active { background: var(--accent); color: white; }
+
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 24px; flex-wrap: wrap; }
+  .tab { padding: 10px 16px; cursor: pointer; background: none; border: none; font-size: 14px; font-weight: 500; color: var(--muted); border-bottom: 2px solid transparent; }
+  .tab.active { color: var(--ink); border-bottom-color: var(--accent); }
+  .pane { display: none; }
+  .pane.active { display: block; }
+
+  .section-note { color: var(--muted); font-size: 13px; margin: 0 0 16px; background: var(--accent-soft); padding: 10px 14px; border-radius: 8px; border-left: 3px solid var(--accent); }
+
+  /* Type cards */
+  .type-card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px; margin-bottom: 16px; border-left: 5px solid var(--accent);
+  }
+  .type-card.zero { border-left-color: var(--zero); }
+  .type-card.first { border-left-color: var(--first); }
+  .type-card.second { border-left-color: var(--second); }
+  .type-card.third { border-left-color: var(--third); }
+  .type-card.mixed { border-left-color: var(--mixed); }
+  .type-title { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .type-title.zero { color: var(--zero); }
+  .type-title.first { color: var(--first); }
+  .type-title.second { color: var(--second); }
+  .type-title.third { color: var(--third); }
+  .type-title.mixed { color: var(--mixed); }
+  .type-formula {
+    background: #f5f4f0; padding: 8px 12px; border-radius: 6px;
+    font-family: "Lucida Console", monospace; font-size: 13px; margin-bottom: 10px;
+  }
+  .type-use { font-size: 14px; color: var(--ink); margin-bottom: 12px; }
+  .examples-list { display: flex; flex-direction: column; gap: 6px; }
+  .example-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 12px; background: #fafaf7; border: 1px solid var(--line); border-radius: 6px;
+  }
+  .example-row .sentence { flex: 1; font-size: 14px; }
+  .example-row .sentence em { font-style: normal; font-weight: 700; }
+  .play-pill { padding: 5px 10px; background: var(--accent); color: white; border-radius: 14px; font-size: 12px; cursor: pointer; border: none; white-space: nowrap; }
+  .play-pill:hover { background: #92400e; }
+  .play-pill.speaking { background: var(--ok); }
+
+  /* Timeline */
+  .timeline-svg-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .tl-svg { width: 100%; height: 220px; }
+  .tl-label-line { font-size: 13px; color: var(--muted); margin-top: 12px; text-align: center; }
+  .tl-selector { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .tl-btn {
+    padding: 8px 14px; border-radius: 6px; border: 1px solid var(--line);
+    background: white; cursor: pointer; font-size: 13px; font-weight: 500;
+  }
+  .tl-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .tl-btn.zero.active { background: var(--zero); border-color: var(--zero); }
+  .tl-btn.first.active { background: var(--first); border-color: var(--first); }
+  .tl-btn.second.active { background: var(--second); border-color: var(--second); }
+  .tl-btn.third.active { background: var(--third); border-color: var(--third); }
+  .tl-btn.mixed.active { background: var(--mixed); border-color: var(--mixed); }
+
+  /* Flowchart */
+  .flow-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
+  .flow-question { font-size: 16px; font-weight: 500; margin-bottom: 16px; padding: 12px 16px; background: var(--accent-soft); border-radius: 8px; }
+  .flow-options { display: flex; gap: 10px; flex-wrap: wrap; }
+  .flow-btn {
+    padding: 12px 20px; border: 2px solid var(--line); background: white;
+    border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500;
+  }
+  .flow-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .flow-result {
+    margin-top: 20px; padding: 20px; border-radius: 10px;
+    background: var(--accent-soft); color: var(--ink); display: none;
+  }
+  .flow-result.show { display: block; }
+  .flow-result h3 { margin: 0 0 8px; }
+
+  /* Quiz */
+  .quiz-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
+  .quiz-controls { display: flex; gap: 8px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+  .quiz-controls button { padding: 8px 14px; font-size: 13px; border: 1px solid var(--line); border-radius: 6px; background: white; cursor: pointer; font-weight: 500; }
+  .quiz-controls button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+  .quiz-stats { color: var(--muted); font-size: 13px; margin-left: auto; }
+  .quiz-question { text-align: center; padding: 20px 16px; background: var(--accent-soft); border-radius: 10px; margin-bottom: 20px; }
+  .quiz-context { font-size: 13px; color: var(--accent); margin-bottom: 10px; font-weight: 500; }
+  .quiz-sentence { font-size: 18px; line-height: 1.6; }
+  .quiz-sentence .blank { display: inline-block; min-width: 100px; padding: 2px 10px; background: var(--accent); color: white; border-radius: 4px; font-weight: 600; }
+  .quiz-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+  .opt-btn { padding: 12px; font-size: 13px; font-weight: 500; border: 2px solid var(--line); background: white; border-radius: 8px; cursor: pointer; text-align: left; }
+  .opt-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .opt-btn.correct { border-color: var(--ok); background: #f0fdf4; color: var(--ok); }
+  .opt-btn.wrong { border-color: var(--error); background: #fef2f2; color: var(--error); }
+  .quiz-feedback { margin-top: 14px; padding: 12px 16px; border-radius: 8px; font-size: 14px; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok { background: #f0fdf4; color: var(--ok); }
+  .quiz-feedback.err { background: #fef2f2; color: var(--error); }
+
+  .speech-status { font-size: 11px; color: var(--muted); margin-top: 12px; padding: 8px 12px; background: #f5f4f0; border-radius: 6px; }
+
+  footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); text-align: center; }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>Câu điều kiện — Conditionals</h1>
+  <p>5 loại câu điều kiện với ví dụ thật, click ▶ để nghe nguyên câu bằng Web Speech API.
+    Giọng:
+    <span class="accent-toggle">
+      <button id="btn-accent-us" class="active" data-variant="us">US 🇺🇸</button>
+      <button id="btn-accent-uk" data-variant="uk">UK 🇬🇧</button>
+    </span>
+  </p>
+</header>
+
+<div class="tabs">
+  <button class="tab active" data-tab="types">5 loại</button>
+  <button class="tab" data-tab="timeline">Timeline</button>
+  <button class="tab" data-tab="flowchart">Đoán loại</button>
+  <button class="tab" data-tab="quiz">Quiz</button>
+</div>
+
+<section class="pane active" id="pane-types">
+  <div class="section-note">Mỗi loại có form riêng + tình huống dùng riêng. Click ▶ để nghe ví dụ.</div>
+  <div id="types-list"></div>
+  <div class="speech-status" id="speech-status">⏳ Đang kiểm tra Web Speech API...</div>
+</section>
+
+<section class="pane" id="pane-timeline">
+  <div class="section-note">Trục thời gian hiển thị: vế if xảy ra LÚC NÀO và vế chính xảy ra LÚC NÀO. Click chọn loại để xem.</div>
+  <div class="tl-selector">
+    <button class="tl-btn zero" data-type="zero">Zero</button>
+    <button class="tl-btn first" data-type="first">First</button>
+    <button class="tl-btn second" data-type="second">Second</button>
+    <button class="tl-btn third" data-type="third">Third</button>
+    <button class="tl-btn mixed" data-type="mixed">Mixed (PK→HT)</button>
+  </div>
+  <div class="timeline-svg-wrap">
+    <svg class="tl-svg" id="timeline-svg" viewBox="0 0 800 220" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="tl-label-line" id="tl-explain">Chọn loại conditional để xem timeline.</div>
+  </div>
+</section>
+
+<section class="pane" id="pane-flowchart">
+  <div class="flow-card">
+    <div id="flow-step"></div>
+    <div class="flow-result" id="flow-result"></div>
+    <div style="margin-top: 16px;">
+      <button class="play-pill" id="btn-flow-restart" style="background: var(--muted);">↻ Bắt đầu lại</button>
+    </div>
+  </div>
+</section>
+
+<section class="pane" id="pane-quiz">
+  <div class="quiz-wrap">
+    <div class="quiz-controls">
+      <button class="primary" id="btn-new-quiz">▶ Câu mới</button>
+      <button id="btn-replay-quiz" disabled>↻ Nghe lại</button>
+      <span class="quiz-stats" id="quiz-stats">Đúng: 0 / 0</span>
+    </div>
+    <div id="quiz-display"></div>
+    <div class="quiz-feedback" id="quiz-feedback"></div>
+  </div>
+</section>
+
+<footer>Web Speech API đọc câu. Audio từ rời: <a href="https://www.oxfordlearnersdictionaries.com" target="_blank">Oxford</a>. Mặc định US 🇺🇸.</footer>
+
+<audio id="audio-el" preload="none"></audio>
+</div>
+
+<script>
+const synth = window.speechSynthesis;
+let voices = [];
+let currentVariant = localStorage.getItem('audioVariant') || 'us';
+
+function loadVoices() { voices = synth ? synth.getVoices() : []; updateSpeechStatus(); }
+if (synth) { loadVoices(); if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = loadVoices; }
+
+function pickVoice(variant) {
+  if (!voices.length) return null;
+  const langPrefix = variant === 'uk' ? 'en-GB' : 'en-US';
+  const candidates = voices.filter(v => v.lang.startsWith(langPrefix));
+  if (!candidates.length) return voices.find(v => v.lang.startsWith('en')) || voices[0];
+  const premium = candidates.find(v => /premium|enhanced|natural|samantha|alex|daniel|kate|fiona/i.test(v.name));
+  return premium || candidates[0];
+}
+
+function speak(text, btn) {
+  if (!synth) { alert("Trình duyệt không hỗ trợ Web Speech API."); return; }
+  synth.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const v = pickVoice(currentVariant);
+  if (v) { u.voice = v; u.lang = v.lang; } else { u.lang = currentVariant === 'uk' ? 'en-GB' : 'en-US'; }
+  u.rate = 0.95;
+  if (btn) {
+    btn.classList.add('speaking');
+    u.onend = () => btn.classList.remove('speaking');
+    u.onerror = () => btn.classList.remove('speaking');
+  }
+  synth.speak(u);
+}
+
+function updateSpeechStatus() {
+  const el = document.getElementById('speech-status'); if (!el) return;
+  if (!synth) { el.textContent = "⚠ Không hỗ trợ Web Speech API."; return; }
+  if (!voices.length) { el.textContent = "⏳ Đang tải giọng..."; return; }
+  const v = pickVoice(currentVariant);
+  el.textContent = `✓ Giọng đang chọn: ${v ? v.name + ' (' + v.lang + ')' : 'mặc định'}.`;
+}
+
+function setVariant(v) {
+  currentVariant = v;
+  localStorage.setItem('audioVariant', v);
+  document.querySelectorAll('.accent-toggle button').forEach(b => b.classList.toggle('active', b.dataset.variant === v));
+  updateSpeechStatus();
+}
+document.querySelectorAll('.accent-toggle button').forEach(btn => btn.addEventListener('click', () => setVariant(btn.dataset.variant)));
+setVariant(currentVariant);
+
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('pane-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// =================== Type cards data ===================
+const TYPES = [
+  { key: "zero", name: "Zero Conditional", cls: "zero",
+    formula: "If + S + V(Present Simple), S + V(Present Simple)",
+    use: "Sự thật / quy luật chung — luôn đúng. Có thể thay 'if' bằng 'when'.",
+    examples: [
+      "If you heat ice, it melts.",
+      "Plants die if you don't water them.",
+      "If you press this button, the machine starts.",
+      "When I am tired, I take a nap.",
+    ] },
+  { key: "first", name: "First Conditional (Type 1)", cls: "first",
+    formula: "If + S + V(Present Simple), S + will + V(base)",
+    use: "Tương lai có khả năng thật. Vế if KHÔNG dùng 'will'.",
+    examples: [
+      "If it rains tomorrow, I will stay home.",
+      "If you study hard, you will pass the exam.",
+      "If you don't hurry, you'll miss the bus.",
+      "If I see her, I'll tell her.",
+    ] },
+  { key: "second", name: "Second Conditional (Type 2)", cls: "second",
+    formula: "If + S + V(Past Simple) / were, S + would + V(base)",
+    use: "Giả định KHÔNG có thật ở hiện tại / tương lai. Dùng 'were' cho mọi ngôi (formal).",
+    examples: [
+      "If I were rich, I would travel the world.",
+      "If I were you, I would apologize.",
+      "If I had a million dollars, I would buy a house in the mountains.",
+      "If she knew the truth, she would be angry.",
+    ] },
+  { key: "third", name: "Third Conditional (Type 3)", cls: "third",
+    formula: "If + S + had + V3, S + would have + V3",
+    use: "Hối tiếc quá khứ — giả định ngược lại với việc đã xảy ra.",
+    examples: [
+      "If I had studied harder, I would have passed the exam.",
+      "If you had told me earlier, I would have come.",
+      "If we had left earlier, we wouldn't have missed the flight.",
+      "If she hadn't helped me, I would have failed.",
+    ] },
+  { key: "mixed", name: "Mixed Conditional", cls: "mixed",
+    formula: "Kiểu 1 (PK→HT): If + had + V3, would + V<br>Kiểu 2 (HT→PK): If + V(Past Simple), would have + V3",
+    use: "Kết hợp 2 thời điểm khác nhau giữa vế if và vế chính.",
+    examples: [
+      "If I had studied medicine, I would be a doctor now.",
+      "If she had married him, she would be unhappy today.",
+      "If I were rich, I would have bought that car last year.",
+      "If she spoke French, she would have got the job.",
+    ] },
+];
+
+const typesList = document.getElementById('types-list');
+TYPES.forEach(t => {
+  const card = document.createElement('div');
+  card.className = `type-card ${t.cls}`;
+  card.innerHTML = `
+    <div class="type-title ${t.cls}">${t.name}</div>
+    <div class="type-formula">${t.formula}</div>
+    <div class="type-use">${t.use}</div>
+    <div class="examples-list">
+      ${t.examples.map(e => `
+        <div class="example-row">
+          <div class="sentence">${e}</div>
+          <button class="play-pill" data-text="${e.replace(/"/g, '&quot;')}">▶ Đọc</button>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  card.querySelectorAll('.play-pill').forEach(b => b.addEventListener('click', () => speak(b.dataset.text, b)));
+  typesList.appendChild(card);
+});
+
+// =================== Timeline ===================
+const TIMELINE = {
+  zero: {
+    title: "Zero — luôn đúng (general truth)",
+    explain: "Cả vế if và vế chính ở Present Simple. Không bị neo vào quá khứ hay tương lai — sự thật chung. Ví dụ: 'If you heat ice, it melts.'",
+    elements: [
+      { type: "arrow", x1: 50, y1: 110, x2: 750, y2: 110, color: "#999", label: "" },
+      { type: "marker", x: 50, label: "QUÁ KHỨ" },
+      { type: "marker", x: 400, label: "BÂY GIỜ" },
+      { type: "marker", x: 750, label: "TƯƠNG LAI" },
+      { type: "band", x1: 50, x2: 750, y: 60, h: 30, color: "var(--zero-soft)", stroke: "var(--zero)", label: "If clause: heat ice" },
+      { type: "band", x1: 50, x2: 750, y: 130, h: 30, color: "var(--zero-soft)", stroke: "var(--zero)", label: "Main: it melts" },
+    ]
+  },
+  first: {
+    title: "First — tương lai có khả năng thật",
+    explain: "Vế if = Present Simple (chỉ thời gian tương lai gần). Vế chính = will + V (kết quả nếu điều kiện xảy ra).",
+    elements: [
+      { type: "arrow", x1: 50, y1: 110, x2: 750, y2: 110, color: "#999" },
+      { type: "marker", x: 50, label: "QUÁ KHỨ" },
+      { type: "marker", x: 400, label: "BÂY GIỜ" },
+      { type: "marker", x: 750, label: "TƯƠNG LAI" },
+      { type: "band", x1: 450, x2: 600, y: 60, h: 30, color: "var(--first-soft)", stroke: "var(--first)", label: "If: it rains tomorrow" },
+      { type: "band", x1: 600, x2: 750, y: 130, h: 30, color: "var(--first-soft)", stroke: "var(--first)", label: "Main: I will stay home" },
+    ]
+  },
+  second: {
+    title: "Second — giả định không có thật ở hiện tại/tương lai",
+    explain: "Vế if = Past Simple (KHÔNG có nghĩa quá khứ — là dấu hiệu giả định). Vế chính = would + V. Cả 2 vế nói về hiện tại/tương lai tưởng tượng.",
+    elements: [
+      { type: "arrow", x1: 50, y1: 110, x2: 750, y2: 110, color: "#999" },
+      { type: "marker", x: 50, label: "QUÁ KHỨ" },
+      { type: "marker", x: 400, label: "BÂY GIỜ" },
+      { type: "marker", x: 750, label: "TƯƠNG LAI" },
+      { type: "band", x1: 380, x2: 600, y: 50, h: 30, color: "var(--second-soft)", stroke: "var(--second)", label: "If: I were rich (không thật)", dashed: true },
+      { type: "band", x1: 380, x2: 600, y: 140, h: 30, color: "var(--second-soft)", stroke: "var(--second)", label: "Main: I would travel (không thật)", dashed: true },
+    ]
+  },
+  third: {
+    title: "Third — hối tiếc quá khứ",
+    explain: "Cả hai vế đều ở quá khứ — và đều giả định ngược lại với thực tế đã xảy ra. Past Perfect + would have V3.",
+    elements: [
+      { type: "arrow", x1: 50, y1: 110, x2: 750, y2: 110, color: "#999" },
+      { type: "marker", x: 50, label: "QUÁ KHỨ" },
+      { type: "marker", x: 400, label: "BÂY GIỜ" },
+      { type: "marker", x: 750, label: "TƯƠNG LAI" },
+      { type: "band", x1: 80, x2: 230, y: 50, h: 30, color: "var(--third-soft)", stroke: "var(--third)", label: "If: I had studied (không thật)", dashed: true },
+      { type: "band", x1: 230, x2: 380, y: 140, h: 30, color: "var(--third-soft)", stroke: "var(--third)", label: "Main: I would have passed", dashed: true },
+    ]
+  },
+  mixed: {
+    title: "Mixed (PK → HT) — quá khứ ảnh hưởng hiện tại",
+    explain: "Vế if ở quá khứ (Past Perfect — như Type 3). Vế chính ở hiện tại (would + V — như Type 2). Ví dụ: 'If I had studied medicine, I would be a doctor now.'",
+    elements: [
+      { type: "arrow", x1: 50, y1: 110, x2: 750, y2: 110, color: "#999" },
+      { type: "marker", x: 50, label: "QUÁ KHỨ" },
+      { type: "marker", x: 400, label: "BÂY GIỜ" },
+      { type: "marker", x: 750, label: "TƯƠNG LAI" },
+      { type: "band", x1: 80, x2: 230, y: 50, h: 30, color: "var(--mixed-soft)", stroke: "var(--mixed)", label: "If: had studied medicine (PK, không thật)", dashed: true },
+      { type: "band", x1: 350, x2: 500, y: 140, h: 30, color: "var(--mixed-soft)", stroke: "var(--mixed)", label: "Main: would be a doctor now", dashed: true },
+    ]
+  },
+};
+
+function renderTimeline(type) {
+  const data = TIMELINE[type];
+  const svg = document.getElementById('timeline-svg');
+  document.getElementById('tl-explain').innerHTML = `<strong>${data.title}</strong><br>${data.explain}`;
+  let html = '';
+  data.elements.forEach(e => {
+    if (e.type === "arrow") {
+      html += `<line x1="${e.x1}" y1="${e.y1}" x2="${e.x2}" y2="${e.y2}" stroke="${e.color}" stroke-width="2"/>`;
+      html += `<polygon points="${e.x2},${e.y2-6} ${e.x2+10},${e.y2} ${e.x2},${e.y2+6}" fill="${e.color}"/>`;
+    } else if (e.type === "marker") {
+      html += `<line x1="${e.x}" y1="100" x2="${e.x}" y2="120" stroke="#999" stroke-width="2"/>`;
+      html += `<text x="${e.x}" y="200" text-anchor="middle" font-size="12" fill="#6a6a6a" font-weight="600">${e.label}</text>`;
+    } else if (e.type === "band") {
+      const sd = e.dashed ? 'stroke-dasharray="6,4"' : '';
+      html += `<rect x="${e.x1}" y="${e.y}" width="${e.x2-e.x1}" height="${e.h}" fill="${e.color}" stroke="${e.stroke}" stroke-width="2" rx="6" ${sd}/>`;
+      html += `<text x="${(e.x1+e.x2)/2}" y="${e.y+e.h/2+4}" text-anchor="middle" font-size="11" fill="${e.stroke}" font-weight="600">${e.label}</text>`;
+    }
+  });
+  svg.innerHTML = html;
+}
+document.querySelectorAll('.tl-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.tl-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    renderTimeline(b.dataset.type);
+  });
+});
+// Default
+document.querySelector('.tl-btn[data-type="zero"]').classList.add('active');
+renderTimeline('zero');
+
+// =================== Flowchart ===================
+const FLOW = [
+  { id: 1, q: "Câu nói về SỰ THẬT / QUY LUẬT chung (lúc nào cũng đúng)?",
+    options: [
+      { label: "Có — quy luật / chân lý", next: "zero" },
+      { label: "Không — có tình huống cụ thể", next: 2 },
+    ] },
+  { id: 2, q: "Tình huống nói tới là CÓ THỂ XẢY RA THẬT trong tương lai?",
+    options: [
+      { label: "Có thật, khả năng cao", next: "first" },
+      { label: "Không có thật / giả định", next: 3 },
+    ] },
+  { id: 3, q: "Giả định thuộc thời điểm nào?",
+    options: [
+      { label: "Hiện tại / tương lai (mơ ước, lời khuyên)", next: "second" },
+      { label: "Quá khứ (hối tiếc)", next: "third" },
+      { label: "Kết hợp 2 thời điểm khác nhau", next: "mixed" },
+    ] },
+];
+const FLOW_RESULTS = {
+  "zero": { name: "Zero Conditional", color: "var(--zero)", formula: "If + Pres. Simple, Pres. Simple", example: "If you heat ice, it melts." },
+  "first": { name: "First Conditional", color: "var(--first)", formula: "If + Pres. Simple, will + V", example: "If it rains tomorrow, I will stay home." },
+  "second": { name: "Second Conditional", color: "var(--second)", formula: "If + Past Simple / were, would + V", example: "If I were rich, I would travel." },
+  "third": { name: "Third Conditional", color: "var(--third)", formula: "If + had + V3, would have + V3", example: "If I had studied, I would have passed." },
+  "mixed": { name: "Mixed Conditional", color: "var(--mixed)", formula: "If + had + V3, would + V (hoặc If + Past Simple, would have + V3)", example: "If I had studied medicine, I would be a doctor now." },
+};
+
+function showFlowStep(stepId) {
+  const step = FLOW.find(s => s.id === stepId);
+  document.getElementById('flow-result').classList.remove('show');
+  document.getElementById('flow-step').innerHTML = `
+    <div class="flow-question">${step.q}</div>
+    <div class="flow-options">
+      ${step.options.map((o, i) => `<button class="flow-btn" data-next="${o.next}">${o.label}</button>`).join('')}
+    </div>
+  `;
+  document.querySelectorAll('.flow-btn').forEach(b => b.addEventListener('click', () => {
+    const n = b.dataset.next;
+    if (FLOW_RESULTS[n]) showFlowResult(n);
+    else showFlowStep(parseInt(n));
+  }));
+}
+
+function showFlowResult(key) {
+  const r = FLOW_RESULTS[key];
+  document.getElementById('flow-step').innerHTML = '';
+  const el = document.getElementById('flow-result');
+  el.classList.add('show');
+  el.style.borderLeft = `4px solid ${r.color}`;
+  el.innerHTML = `
+    <h3 style="color: ${r.color};">→ ${r.name}</h3>
+    <div style="margin-bottom: 10px;"><strong>Form:</strong> <code>${r.formula}</code></div>
+    <div style="margin-bottom: 10px;"><strong>Ví dụ:</strong> <em>${r.example}</em>
+      <button class="play-pill" style="margin-left: 8px;" onclick="speak('${r.example.replace(/'/g, "\\'")}', this)">▶ Nghe</button>
+    </div>
+  `;
+}
+document.getElementById('btn-flow-restart').addEventListener('click', () => showFlowStep(1));
+showFlowStep(1);
+
+// =================== Quiz ===================
+const QUIZ_ITEMS = [
+  { sentence: "If you heat ice, it ___ .", options: ["melts", "will melt", "would melt", "would have melted"], correct: 0, type: "zero",
+    full: "If you heat ice, it melts.", explain: "Zero conditional — quy luật, cả 2 vế Present Simple." },
+  { sentence: "If it ___ tomorrow, I will stay home.", options: ["rain", "rains", "will rain", "would rain"], correct: 1, type: "first",
+    full: "If it rains tomorrow, I will stay home.", explain: "First conditional — vế if dùng Present Simple, không 'will'." },
+  { sentence: "If I ___ you, I would apologize.", options: ["am", "was", "were", "had been"], correct: 2, type: "second",
+    full: "If I were you, I would apologize.", explain: "Second conditional — dùng 'were' cho mọi ngôi (formal)." },
+  { sentence: "If she had studied harder, she ___ the exam.", options: ["would pass", "would have passed", "passed", "passes"], correct: 1, type: "third",
+    full: "If she had studied harder, she would have passed the exam.", explain: "Third conditional — would have + V3." },
+  { sentence: "If I ___ harder, I would be a doctor now.", options: ["studied", "had studied", "would study", "study"], correct: 1, type: "mixed",
+    full: "If I had studied harder, I would be a doctor now.", explain: "Mixed (PK→HT): điều kiện quá khứ + kết quả hiện tại." },
+  { sentence: "If you ___ him tomorrow, please call me.", options: ["see", "will see", "saw", "had seen"], correct: 0, type: "first",
+    full: "If you see him tomorrow, please call me.", explain: "First conditional — Present Simple ở vế if." },
+  { sentence: "Plants die if you ___ them.", options: ["don't water", "won't water", "wouldn't water", "hadn't watered"], correct: 0, type: "zero",
+    full: "Plants die if you don't water them.", explain: "Zero conditional — quy luật." },
+  { sentence: "If we ___ earlier, we wouldn't have missed the train.", options: ["left", "had left", "would leave", "would have left"], correct: 1, type: "third",
+    full: "If we had left earlier, we wouldn't have missed the train.", explain: "Third conditional — Past Perfect ở vế if." },
+  { sentence: "If I had a million dollars, I ___ a house.", options: ["buy", "will buy", "would buy", "would have bought"], correct: 2, type: "second",
+    full: "If I had a million dollars, I would buy a house.", explain: "Second conditional — Past Simple + would." },
+  { sentence: "___ you hurry, you'll miss the bus.", options: ["If", "Unless", "When", "Provided"], correct: 1, type: "first",
+    full: "Unless you hurry, you'll miss the bus.", explain: "'Unless' = 'if ... not'. KHÔNG dùng 'unless ... don't'." },
+  { sentence: "If she ___ French, she would have got the job.", options: ["spoke", "speaks", "had spoken", "would speak"], correct: 0, type: "mixed",
+    full: "If she spoke French, she would have got the job.", explain: "Mixed (HT→PK): điều kiện hiện tại (đặc điểm bây giờ) + kết quả quá khứ." },
+  { sentence: "If you ___ this button, the machine starts.", options: ["press", "pressed", "will press", "would press"], correct: 0, type: "zero",
+    full: "If you press this button, the machine starts.", explain: "Zero conditional — hướng dẫn / quy luật máy móc." },
+  { sentence: "Take an umbrella ___ it rains.", options: ["if", "unless", "in case", "even if"], correct: 2, type: "alt",
+    full: "Take an umbrella in case it rains.", explain: "'In case' = phòng khi (đề phòng, chưa chắc mưa). 'If' = chỉ khi đã mưa." },
+  { sentence: "If I ___ you were coming, I would have prepared dinner.", options: ["knew", "had known", "know", "would know"], correct: 1, type: "third",
+    full: "If I had known you were coming, I would have prepared dinner.", explain: "Third conditional — Past Perfect ở vế if." },
+  { sentence: "If I ___ a bird, I ___ fly to the moon.", options: ["am - will", "were - would", "had been - would have", "be - will"], correct: 1, type: "second",
+    full: "If I were a bird, I would fly to the moon.", explain: "Second conditional — giả định không có thật (tôi không phải chim)." },
+];
+
+const quizDisplay = document.getElementById('quiz-display');
+const quizFeedback = document.getElementById('quiz-feedback');
+const quizStatsEl = document.getElementById('quiz-stats');
+let qStats = { correct: 0, total: 0 };
+let currentQ = null;
+let answered = false;
+
+function newQuiz() {
+  currentQ = QUIZ_ITEMS[Math.floor(Math.random() * QUIZ_ITEMS.length)];
+  answered = false;
+  const opts = currentQ.options.map((o, i) => `<button class="opt-btn" data-i="${i}">${o}</button>`).join('');
+  quizDisplay.innerHTML = `
+    <div class="quiz-question">
+      <div class="quiz-context">Chọn từ/cụm từ điền vào chỗ trống:</div>
+      <div class="quiz-sentence">${currentQ.sentence.replace('___', '<span class="blank">___</span>')}</div>
+    </div>
+    <div class="quiz-options">${opts}</div>
+  `;
+  quizDisplay.querySelectorAll('.opt-btn').forEach(b => b.addEventListener('click', () => handleQuiz(parseInt(b.dataset.i), b)));
+  quizFeedback.classList.remove('show', 'ok', 'err');
+  document.getElementById('btn-replay-quiz').disabled = false;
+}
+
+function handleQuiz(i, btn) {
+  if (answered) return; answered = true;
+  qStats.total++;
+  quizDisplay.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+  if (i === currentQ.correct) {
+    qStats.correct++;
+    btn.classList.add('correct');
+    quizFeedback.innerHTML = `<strong>Đúng!</strong> "${currentQ.full}" — ${currentQ.explain} <button class="play-pill" style="margin-left:8px;" onclick="speak('${currentQ.full.replace(/'/g, "\\'")}', this)">▶ Nghe</button>`;
+    quizFeedback.className = 'quiz-feedback show ok';
+  } else {
+    btn.classList.add('wrong');
+    quizDisplay.querySelectorAll('.opt-btn')[currentQ.correct].classList.add('correct');
+    quizFeedback.innerHTML = `<strong>Sai.</strong> Đáp án đúng: "<em>${currentQ.options[currentQ.correct]}</em>". "${currentQ.full}" — ${currentQ.explain} <button class="play-pill" style="margin-left:8px;" onclick="speak('${currentQ.full.replace(/'/g, "\\'")}', this)">▶ Nghe</button>`;
+    quizFeedback.className = 'quiz-feedback show err';
+  }
+  quizStatsEl.textContent = `Đúng: ${qStats.correct} / ${qStats.total}`;
+}
+document.getElementById('btn-new-quiz').addEventListener('click', newQuiz);
+document.getElementById('btn-replay-quiz').addEventListener('click', () => { if (currentQ) speak(currentQ.full, null); });
+</script>
+</body>
+</html>

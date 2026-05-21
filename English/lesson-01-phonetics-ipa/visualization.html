@@ -231,6 +231,23 @@
     font-size: 15px; padding: 6px 12px;
   }
 
+  /* Accent toggle */
+  .accent-toggle {
+    display: inline-flex; gap: 0; border: 1px solid var(--line);
+    border-radius: 8px; overflow: hidden; vertical-align: middle;
+    margin-left: 8px;
+  }
+  .accent-toggle button {
+    background: var(--panel); border: none; padding: 6px 14px;
+    font-size: 13px; font-weight: 600; color: var(--muted);
+    cursor: pointer; transition: all 0.12s;
+  }
+  .accent-toggle button + button { border-left: 1px solid var(--line); }
+  .accent-toggle button:hover { background: var(--accent-soft); color: var(--accent); }
+  .accent-toggle button.active {
+    background: var(--accent); color: white;
+  }
+
   footer {
     margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--line);
     font-size: 12px; color: var(--muted); text-align: center;
@@ -250,7 +267,13 @@
 
 <header>
   <h1>IPA — 44 âm vị tiếng Anh</h1>
-  <p>Bảng phiên âm chuẩn quốc tế (Received Pronunciation). Click bất kỳ ký hiệu nào để nghe audio từ <code>oxfordlearnersdictionaries.com</code>.</p>
+  <p>Bảng phiên âm chuẩn quốc tế. Click bất kỳ ký hiệu nào để nghe audio từ <code>oxfordlearnersdictionaries.com</code>.
+    Giọng:
+    <span class="accent-toggle" role="tablist" aria-label="Chọn giọng">
+      <button id="btn-accent-uk" class="active" data-variant="uk" title="British (RP) — Anh-Anh">UK 🇬🇧</button>
+      <button id="btn-accent-us" data-variant="us" title="American (GA) — Anh-Mỹ">US 🇺🇸</button>
+    </span>
+  </p>
 </header>
 
 <div class="tabs">
@@ -394,8 +417,9 @@
 </section>
 
 <footer>
-  Audio: <a href="https://www.oxfordlearnersdictionaries.com" target="_blank" rel="noopener">Oxford Learner's Dictionaries</a> (UK pronunciation).
-  Cần kết nối Internet. Nếu một file audio không phát được, có thể từ đó đã được cập nhật URL — thử tra trực tiếp trên Oxford.
+  Audio: <a href="https://www.oxfordlearnersdictionaries.com" target="_blank" rel="noopener">Oxford Learner's Dictionaries</a>
+  — chuyển UK 🇬🇧 / US 🇺🇸 ở đầu trang.
+  Cần kết nối Internet. Nếu file US không có sẵn, tự động fallback về UK.
 </footer>
 
 <audio id="audio-el" preload="none"></audio>
@@ -404,38 +428,84 @@
 
 <script>
 // =================== Audio playback ===================
-const AUDIO_BASE_PRIMARY = "https://www.oxfordlearnersdictionaries.com/media/english/uk_pron/";
-const AUDIO_BASE_FALLBACK = "https://www.oxforddictionaries.com/media/english/uk_pron/";
+// Mỗi audio data trong toàn file là relPath kiểu UK: "s/she/sheep/sheep__gb_1.mp3".
+// Khi user chọn US, ta transform: uk_pron→us_pron và __gb_→__us_ trong khi giữ folder structure.
+const DOMAIN_NEW = "https://www.oxfordlearnersdictionaries.com/media/english/";
+const DOMAIN_OLD = "https://www.oxforddictionaries.com/media/english/";
 const audioEl = document.getElementById('audio-el');
 
-function playAudio(relPath, statusEl) {
-  if (!relPath) {
+let currentVariant = localStorage.getItem('audioVariant') || 'uk';
+
+function ukToVariantPath(ukRel, variant) {
+  // ukRel ví dụ: "s/she/sheep/sheep__gb_1.mp3"
+  if (variant === 'us') {
+    return "us_pron/" + ukRel.replace(/__gb_/, '__us_');
+  }
+  return "uk_pron/" + ukRel;
+}
+
+function buildCandidates(ukRel, variant) {
+  const list = [];
+  // 1. Variant hiện tại trên domain mới
+  list.push(DOMAIN_NEW + ukToVariantPath(ukRel, variant));
+  // 2. Variant hiện tại trên domain cũ
+  list.push(DOMAIN_OLD + ukToVariantPath(ukRel, variant));
+  // 3. Nếu user chọn US và file US không tồn tại → fallback về UK (vẫn còn audio để học)
+  if (variant === 'us') {
+    list.push(DOMAIN_NEW + ukToVariantPath(ukRel, 'uk'));
+    list.push(DOMAIN_OLD + ukToVariantPath(ukRel, 'uk'));
+  }
+  return list;
+}
+
+function playAudio(ukRel, statusEl) {
+  if (!ukRel) {
     if (statusEl) { statusEl.textContent = "Không có file audio cho âm này."; statusEl.classList.add('error'); }
     return;
   }
+  const candidates = buildCandidates(ukRel, currentVariant);
+  let idx = 0;
   if (statusEl) { statusEl.textContent = "Đang tải audio..."; statusEl.classList.remove('error'); }
-  audioEl.src = AUDIO_BASE_PRIMARY + relPath;
-  audioEl.onerror = () => {
-    // Fallback to old domain
-    audioEl.onerror = () => {
+
+  function tryNext() {
+    if (idx >= candidates.length) {
       if (statusEl) {
-        statusEl.textContent = "Không tải được audio. Bạn có thể tra trực tiếp trên Oxford.";
+        statusEl.textContent = "Không tải được audio. Tra trực tiếp trên Oxford.";
         statusEl.classList.add('error');
       }
-    };
-    audioEl.src = AUDIO_BASE_FALLBACK + relPath;
-    audioEl.play().catch(() => {});
-  };
-  audioEl.onplaying = () => {
-    if (statusEl) statusEl.textContent = "▶ Đang phát từ Oxford UK.";
-  };
-  audioEl.play().catch(err => {
-    if (statusEl) {
-      statusEl.textContent = "Không phát được — thử click lại hoặc bật loa.";
-      statusEl.classList.add('error');
+      return;
     }
+    const url = candidates[idx++];
+    audioEl.onerror = tryNext;
+    audioEl.onplaying = () => {
+      if (statusEl) {
+        const playingUs = url.includes('/us_pron/');
+        const fellBack = (currentVariant === 'us') !== playingUs;
+        const label = playingUs ? 'US 🇺🇸' : 'UK 🇬🇧';
+        statusEl.textContent = `▶ Đang phát Oxford ${label}${fellBack ? ' (fallback — file US không có sẵn)' : ''}.`;
+        statusEl.classList.remove('error');
+      }
+    };
+    audioEl.src = url;
+    const p = audioEl.play();
+    if (p && p.catch) p.catch(() => tryNext());
+  }
+  tryNext();
+}
+
+// Wire up the UK/US toggle
+function setVariant(v) {
+  currentVariant = v;
+  localStorage.setItem('audioVariant', v);
+  document.querySelectorAll('.accent-toggle button').forEach(b => {
+    b.classList.toggle('active', b.dataset.variant === v);
   });
 }
+document.querySelectorAll('.accent-toggle button').forEach(btn => {
+  btn.addEventListener('click', () => setVariant(btn.dataset.variant));
+});
+// Apply persisted preference on load
+setVariant(currentVariant);
 
 // =================== Tabs ===================
 document.querySelectorAll('.tab').forEach(btn => {
@@ -473,7 +543,7 @@ function showVowelDetail(ipa, word, ipaword, audio, desc) {
       <button class="play-btn" onclick="playAudio('${audio}', document.getElementById('vowel-audio-status'))">▶ Phát lại</button>
     </div>
     <div class="desc">${desc}</div>
-    <div class="audio-status" id="vowel-audio-status">▶ Đang phát từ Oxford UK.</div>
+    <div class="audio-status" id="vowel-audio-status">Đang tải audio...</div>
   `;
 }
 
@@ -611,7 +681,7 @@ document.querySelectorAll('.conson-half').forEach(half => {
         <button class="play-btn" onclick="playAudio('${audio}', document.getElementById('conson-audio-status'))">▶ Phát lại</button>
       </div>
       <div class="desc">${desc}</div>
-      <div class="audio-status" id="conson-audio-status">▶ Đang phát từ Oxford UK.</div>
+      <div class="audio-status" id="conson-audio-status">Đang tải audio...</div>
     `;
     playAudio(audio, document.getElementById('conson-audio-status'));
   });

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weak Forms — Dạng yếu của function words</title>
+<style>
+  :root {
+    --bg: #fafaf7; --panel: #fff; --ink: #1a1a1a; --muted: #6a6a6a; --line: #e3e1dc;
+    --accent: #b45309; --accent-soft: #fef3c7;
+    --strong: #b91c1c; --strong-soft: #fee2e2;
+    --weak: #1d4ed8; --weak-soft: #dbeafe;
+    --ok: #15803d; --error: #b91c1c;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.55; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px 80px; }
+  header h1 { margin: 0 0 4px; font-size: 24px; }
+  header p { margin: 0 0 20px; color: var(--muted); font-size: 14px; }
+  header p code { background: var(--accent-soft); color: var(--accent); padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+
+  .accent-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin-left: 8px; }
+  .accent-toggle button { background: var(--panel); border: none; padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; }
+  .accent-toggle button + button { border-left: 1px solid var(--line); }
+  .accent-toggle button.active { background: var(--accent); color: white; }
+
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 24px; flex-wrap: wrap; }
+  .tab { padding: 10px 16px; cursor: pointer; background: none; border: none; font-size: 14px; font-weight: 500; color: var(--muted); border-bottom: 2px solid transparent; }
+  .tab.active { color: var(--ink); border-bottom-color: var(--accent); }
+  .pane { display: none; }
+  .pane.active { display: block; }
+
+  .ipa-symbol { font-family: "Charis SIL", "Lucida Grande", sans-serif; }
+
+  .section-note { color: var(--muted); font-size: 13px; margin: 0 0 16px; background: var(--accent-soft); padding: 10px 14px; border-radius: 8px; border-left: 3px solid var(--accent); }
+
+  /* Weak form table */
+  .group-title { margin: 20px 0 8px; font-size: 14px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; }
+  .wf-table { width: 100%; border-collapse: collapse; background: var(--panel); border-radius: 10px; overflow: hidden; border: 1px solid var(--line); }
+  .wf-table th { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 10px; text-align: left; background: #f5f4f0; }
+  .wf-table td { padding: 10px; border-top: 1px solid var(--line); font-size: 14px; vertical-align: top; }
+  .wf-table .word { font-weight: 700; font-size: 16px; }
+  .wf-table .strong { color: var(--strong); font-family: "Charis SIL", sans-serif; }
+  .wf-table .weak { color: var(--weak); font-family: "Charis SIL", sans-serif; font-weight: 600; }
+  .wf-table .play-cell { width: 60px; }
+  .play-pill { display: inline-block; padding: 4px 10px; border-radius: 14px; background: var(--accent-soft); color: var(--accent); font-size: 12px; cursor: pointer; }
+  .play-pill:hover { background: var(--accent); color: white; }
+  .play-pill.disabled { opacity: 0.3; cursor: default; }
+  .example-row { color: var(--muted); font-size: 12px; font-style: italic; }
+
+  /* Sample sentences */
+  .sample-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; margin-bottom: 12px; }
+  .sample-text { font-size: 18px; margin-bottom: 8px; }
+  .sample-text .wf-w { background: var(--weak-soft); color: var(--weak); padding: 1px 5px; border-radius: 3px; font-size: 14px; font-weight: 600; }
+  .sample-text .wf-s { background: var(--strong-soft); color: var(--strong); padding: 1px 5px; border-radius: 3px; font-weight: 600; }
+  .sample-ipa { font-family: "Charis SIL", sans-serif; color: var(--muted); font-size: 14px; margin-bottom: 6px; }
+  .sample-note { color: var(--muted); font-size: 12px; }
+
+  /* Quiz */
+  .quiz-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
+  .quiz-controls { display: flex; gap: 8px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+  .quiz-controls button { padding: 8px 14px; font-size: 13px; border: 1px solid var(--line); border-radius: 6px; background: white; cursor: pointer; font-weight: 500; }
+  .quiz-controls button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+  .quiz-stats { color: var(--muted); font-size: 13px; margin-left: auto; }
+  .quiz-sentence { text-align: center; padding: 24px 16px; background: var(--accent-soft); border-radius: 10px; margin-bottom: 16px; }
+  .quiz-sentence .sent { font-size: 20px; }
+  .quiz-sentence .target { background: var(--accent); color: white; padding: 2px 10px; border-radius: 6px; font-weight: 700; }
+  .answer-row { display: flex; gap: 14px; justify-content: center; margin-top: 14px; flex-wrap: wrap; }
+  .ans-btn { padding: 14px 28px; font-size: 16px; font-weight: 700; border: 2px solid var(--line); background: white; border-radius: 8px; cursor: pointer; }
+  .ans-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .ans-btn.correct { border-color: var(--ok); background: #f0fdf4; color: var(--ok); }
+  .ans-btn.wrong { border-color: var(--error); background: #fef2f2; color: var(--error); }
+  .quiz-feedback { margin-top: 14px; padding: 10px 14px; border-radius: 8px; font-size: 14px; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok { background: #f0fdf4; color: var(--ok); }
+  .quiz-feedback.err { background: #fef2f2; color: var(--error); }
+
+  .audio-status { font-size: 11px; color: var(--muted); margin-top: 8px; }
+
+  footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); text-align: center; }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>Weak Forms — Dạng yếu</h1>
+  <p>40+ function words với strong và weak form. Audio: <code>oxfordlearnersdictionaries.com</code>.
+    Giọng:
+    <span class="accent-toggle">
+      <button id="btn-accent-us" class="active" data-variant="us">US 🇺🇸</button>
+      <button id="btn-accent-uk" data-variant="uk">UK 🇬🇧</button>
+    </span>
+  </p>
+</header>
+
+<div class="tabs">
+  <button class="tab active" data-tab="tra">Tra weak form</button>
+  <button class="tab" data-tab="sample">Câu mẫu</button>
+  <button class="tab" data-tab="quiz">Bài tập đoán</button>
+</div>
+
+<section class="pane active" id="pane-tra">
+  <div class="section-note">
+    <span style="background:var(--strong-soft);color:var(--strong);padding:1px 6px;border-radius:3px;font-weight:600;">Strong</span> = đọc rời/cuối câu/nhấn. <span style="background:var(--weak-soft);color:var(--weak);padding:1px 6px;border-radius:3px;font-weight:600;">Weak</span> = giữa câu, không nhấn. Click ▶ để nghe strong form (dạng từ điển).
+  </div>
+  <div id="wf-list"></div>
+  <div class="audio-status" id="status-tra"></div>
+</section>
+
+<section class="pane" id="pane-sample">
+  <div class="section-note">Câu mẫu — weak forms được tô <span style="background:var(--weak-soft);color:var(--weak);padding:1px 6px;border-radius:3px;font-weight:600;">xanh</span>, strong forms tô <span style="background:var(--strong-soft);color:var(--strong);padding:1px 6px;border-radius:3px;font-weight:600;">đỏ</span>.</div>
+  <div id="sample-list"></div>
+</section>
+
+<section class="pane" id="pane-quiz">
+  <div class="quiz-wrap">
+    <div class="quiz-controls">
+      <button class="primary" id="btn-new-quiz">▶ Câu mới</button>
+      <span class="quiz-stats" id="quiz-stats">Đúng: 0 / 0</span>
+    </div>
+    <div id="quiz-display"></div>
+    <div class="quiz-feedback" id="quiz-feedback"></div>
+  </div>
+</section>
+
+<footer>Audio: <a href="https://www.oxfordlearnersdictionaries.com" target="_blank">Oxford Learner's Dictionaries</a>. Mặc định US 🇺🇸.</footer>
+
+<audio id="audio-el" preload="none"></audio>
+</div>
+
+<script>
+const DOMAIN_NEW = "https://www.oxfordlearnersdictionaries.com/media/english/";
+const DOMAIN_OLD = "https://www.oxforddictionaries.com/media/english/";
+const audioEl = document.getElementById('audio-el');
+let currentVariant = localStorage.getItem('audioVariant') || 'us';
+function ukToVariantPath(ukRel, v) { return v === 'us' ? "us_pron/" + ukRel.replace(/__gb_/, '__us_') : "uk_pron/" + ukRel; }
+function playAudio(ukRel, statusEl) {
+  if (!ukRel) { if (statusEl) statusEl.textContent = "(không có audio)"; return; }
+  const cands = [DOMAIN_NEW + ukToVariantPath(ukRel, currentVariant), DOMAIN_OLD + ukToVariantPath(ukRel, currentVariant)];
+  if (currentVariant === 'us') { cands.push(DOMAIN_NEW + ukToVariantPath(ukRel, 'uk')); cands.push(DOMAIN_OLD + ukToVariantPath(ukRel, 'uk')); }
+  let idx = 0;
+  if (statusEl) statusEl.textContent = "Đang tải...";
+  function tryNext() {
+    if (idx >= cands.length) { if (statusEl) statusEl.textContent = "Không tải được."; return; }
+    const url = cands[idx++];
+    audioEl.onerror = tryNext;
+    audioEl.onplaying = () => { if (statusEl) { const us = url.includes('us_pron'); statusEl.textContent = `▶ Oxford ${us ? 'US 🇺🇸' : 'UK 🇬🇧'}`; } };
+    audioEl.src = url;
+    const p = audioEl.play(); if (p && p.catch) p.catch(() => tryNext());
+  }
+  tryNext();
+}
+function setVariant(v) {
+  currentVariant = v;
+  localStorage.setItem('audioVariant', v);
+  document.querySelectorAll('.accent-toggle button').forEach(b => b.classList.toggle('active', b.dataset.variant === v));
+}
+document.querySelectorAll('.accent-toggle button').forEach(btn => btn.addEventListener('click', () => setVariant(btn.dataset.variant)));
+setVariant(currentVariant);
+
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('pane-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// =================== Weak form data ===================
+const wfGroups = [
+  { name: "Mạo từ (articles)", items: [
+    { w: "the (trước phụ âm)", strong: "/ðiː/", weak: "/ðə/", ex: "the book → /ðə bʊk/", audio: "" },
+    { w: "the (trước nguyên âm)", strong: "/ðiː/", weak: "/ði/", ex: "the apple → /ði æpl/", audio: "" },
+    { w: "a", strong: "/eɪ/", weak: "/ə/", ex: "a man → /ə mæn/", audio: "" },
+    { w: "an", strong: "/æn/", weak: "/ən/", ex: "an apple → /ən æpl/", audio: "" },
+  ]},
+  { name: "Giới từ (prepositions)", items: [
+    { w: "to", strong: "/tuː/", weak: "/tə/ hoặc /tu/", ex: "go to school → /ɡoʊ tə skuːl/", audio: "" },
+    { w: "of", strong: "/ɔːv/", weak: "/əv/", ex: "cup of tea → /kʌp əv tiː/", audio: "" },
+    { w: "for", strong: "/fɔːr/", weak: "/fər/", ex: "wait for me → /weɪt fər mi/", audio: "" },
+    { w: "from", strong: "/frʌm/", weak: "/frəm/", ex: "from Hanoi → /frəm hæˈnɔɪ/", audio: "" },
+    { w: "at", strong: "/æt/", weak: "/ət/", ex: "at home → /ət hoʊm/", audio: "" },
+    { w: "as", strong: "/æz/", weak: "/əz/", ex: "as soon as → /əz suːn əz/", audio: "" },
+    { w: "than", strong: "/ðæn/", weak: "/ðən/", ex: "taller than me → /tɔːlər ðən mi/", audio: "" },
+  ]},
+  { name: "Liên từ (conjunctions)", items: [
+    { w: "and", strong: "/ænd/", weak: "/ən/ hoặc /n/", ex: "fish and chips → /fɪʃ ən tʃɪps/", audio: "" },
+    { w: "but", strong: "/bʌt/", weak: "/bət/", ex: "I would but... → /aɪ wʊd bət/", audio: "" },
+    { w: "or", strong: "/ɔːr/", weak: "/ər/", ex: "tea or coffee → /tiː ər ˈkɔːfi/", audio: "" },
+    { w: "that (conj.)", strong: "/ðæt/", weak: "/ðət/", ex: "think that he's... → /θɪŋk ðət hiːz/", audio: "" },
+    { w: "because", strong: "/bɪˈkʌz/", weak: "/bɪkəz/ hoặc /kəz/", ex: "because I'm tired → /kəz aɪm taɪərd/", audio: "" },
+  ]},
+  { name: "Trợ động từ (auxiliary verbs)", items: [
+    { w: "am", strong: "/æm/", weak: "/əm/ hoặc /m/", ex: "I am here → /aɪm hɪər/", audio: "" },
+    { w: "is", strong: "/ɪz/", weak: "/z/ hoặc /s/", ex: "she's here → /ʃiːz hɪər/", audio: "" },
+    { w: "are", strong: "/ɑːr/", weak: "/ər/ hoặc /r/", ex: "you are right → /jər raɪt/", audio: "" },
+    { w: "was", strong: "/wʌz/", weak: "/wəz/", ex: "I was tired → /aɪ wəz taɪərd/", audio: "" },
+    { w: "were", strong: "/wɜːr/", weak: "/wər/", ex: "they were here → /ðeɪ wər hɪər/", audio: "" },
+    { w: "do", strong: "/duː/", weak: "/də/ hoặc /du/", ex: "do you? → /də ju/", audio: "" },
+    { w: "does", strong: "/dʌz/", weak: "/dəz/", ex: "does he? → /dəz hi/", audio: "" },
+    { w: "have", strong: "/hæv/", weak: "/əv/ hoặc /v/", ex: "should have done → /ʃʊd əv dʌn/", audio: "h/hav/have_/have__gb_3.mp3" },
+    { w: "has", strong: "/hæz/", weak: "/əz/, /z/, /s/", ex: "she has done → /ʃiːz dʌn/", audio: "" },
+    { w: "had", strong: "/hæd/", weak: "/(h)əd/ hoặc /d/", ex: "I had been → /aɪd bɪn/", audio: "" },
+    { w: "can", strong: "/kæn/", weak: "/kən/ hoặc /kn/", ex: "I can swim → /aɪ kən swɪm/", audio: "" },
+    { w: "could", strong: "/kʊd/", weak: "/kəd/", ex: "I could go → /aɪ kəd ɡoʊ/", audio: "" },
+    { w: "will", strong: "/wɪl/", weak: "/(w)əl/ hoặc /l/", ex: "I will go → I'll go → /aɪl ɡoʊ/", audio: "" },
+    { w: "would", strong: "/wʊd/", weak: "/(w)əd/ hoặc /d/", ex: "I would → I'd → /aɪd/", audio: "" },
+    { w: "should", strong: "/ʃʊd/", weak: "/ʃəd/", ex: "you should go → /ju ʃəd ɡoʊ/", audio: "" },
+    { w: "must", strong: "/mʌst/", weak: "/məst/", ex: "I must go → /aɪ məst ɡoʊ/", audio: "" },
+  ]},
+  { name: "Đại từ (pronouns)", items: [
+    { w: "he", strong: "/hiː/", weak: "/(h)i/", ex: "tell him he is → /tel ɪm i ɪz/", audio: "" },
+    { w: "him", strong: "/hɪm/", weak: "/(h)ɪm/ hoặc /ɪm/", ex: "tell him → /tel ɪm/", audio: "" },
+    { w: "her", strong: "/hɜːr/", weak: "/(h)ər/ hoặc /ər/", ex: "give her → /ɡɪv ər/", audio: "" },
+    { w: "us", strong: "/ʌs/", weak: "/əs/", ex: "let us see → let's see /lets si/", audio: "" },
+    { w: "them", strong: "/ðem/", weak: "/(ð)əm/", ex: "tell them → /tel əm/", audio: "" },
+  ]},
+];
+
+const wfList = document.getElementById('wf-list');
+wfGroups.forEach(g => {
+  const t = document.createElement('div'); t.className = 'group-title'; t.textContent = g.name;
+  wfList.appendChild(t);
+  const tbl = document.createElement('table'); tbl.className = 'wf-table';
+  tbl.innerHTML = `<thead><tr><th>Từ</th><th>Strong</th><th>Weak</th><th>Ví dụ</th><th></th></tr></thead>`;
+  const tb = document.createElement('tbody');
+  g.items.forEach(it => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="word">${it.w}</td>
+      <td><span class="strong ipa-symbol">${it.strong}</span></td>
+      <td><span class="weak ipa-symbol">${it.weak}</span></td>
+      <td class="example-row">${it.ex}</td>
+      <td class="play-cell">${it.audio ? `<span class="play-pill" data-audio="${it.audio}">▶</span>` : `<span class="play-pill disabled">—</span>`}</td>
+    `;
+    tb.appendChild(tr);
+  });
+  tbl.appendChild(tb);
+  wfList.appendChild(tbl);
+});
+document.querySelectorAll('.play-pill[data-audio]').forEach(p => p.addEventListener('click', () => playAudio(p.dataset.audio, document.getElementById('status-tra'))));
+
+// =================== Sample sentences ===================
+const samples = [
+  {
+    text: `I'm <span class="wf-w">have-been</span> waiting <span class="wf-w">for</span> you <span class="wf-w">for</span> <span class="wf-w">an</span> hour.`,
+    ipa: `/aɪv bɪn ˈweɪtɪŋ fər ju fər ən ˈaʊər/`,
+    note: "I've = I have; have, for, an đều rơi yếu. 'You' giữa câu có thể nhẹ /jə/ hoặc /ju/."
+  },
+  {
+    text: `<span class="wf-w">A</span> cup <span class="wf-w">of</span> tea, please.`,
+    ipa: `/ə kʌp əv tiː pliːz/`,
+    note: "Cả 'a' và 'of' rơi schwa."
+  },
+  {
+    text: `<span class="wf-w">She has</span> been studying <span class="wf-w">for</span> <span class="wf-w">an</span> exam.`,
+    ipa: `/ʃiːz bɪn ˈstʌdiɪŋ fər ən ɪɡˈzæm/`,
+    note: "She has → She's; been → /bɪn/; for, an rơi yếu."
+  },
+  {
+    text: `<span class="wf-w">I would</span> like <span class="wf-w">a</span> cup <span class="wf-w">of</span> coffee <span class="wf-w">and a</span> piece <span class="wf-w">of</span> cake.`,
+    ipa: `/aɪd laɪk ə kʌp əv ˈkɔːfi ən ə piːs əv keɪk/`,
+    note: "5 content words (like, cup, coffee, piece, cake) + 5 function words yếu."
+  },
+  {
+    text: `Where <span class="wf-s">is</span> he <span class="wf-s">from</span>?`,
+    ipa: `/wer ɪz hi frʌm/`,
+    note: "'from' ở CUỐI CÂU → strong form /frʌm/, không phải /frəm/. 'is' đôi khi cũng strong nếu cần rõ."
+  },
+  {
+    text: `Yes, I <span class="wf-s">am</span>.`,
+    ipa: `/jes aɪ æm/`,
+    note: "'am' đứng riêng cuối câu → strong /æm/. So với 'I am tired' (weak /aɪm/)."
+  },
+  {
+    text: `<span class="wf-w">I have to</span> go now.`,
+    ipa: `/aɪv tə ɡoʊ naʊ/ hoặc /aɪv hæftə ɡoʊ naʊ/`,
+    note: "'have to' (= phải) thường nuốt thành /hæftə/. Function chain dài → schwa thrust mạnh."
+  },
+  {
+    text: `<span class="wf-s">I</span> said <span class="wf-s">FROM</span> Hanoi, <span class="wf-s">not TO</span> Hanoi.`,
+    ipa: `/aɪ sed frʌm hæˈnɔɪ nɒt tuː hæˈnɔɪ/`,
+    note: "Nhấn mạnh đối lập → cả 'FROM' và 'TO' đều ở strong form."
+  },
+];
+const sampleList = document.getElementById('sample-list');
+samples.forEach(s => {
+  const card = document.createElement('div'); card.className = 'sample-card';
+  card.innerHTML = `<div class="sample-text">${s.text}</div><div class="sample-ipa ipa-symbol">${s.ipa}</div><div class="sample-note">${s.note}</div>`;
+  sampleList.appendChild(card);
+});
+
+// =================== Quiz: strong or weak? ===================
+const quizItems = [
+  { sentence: "I'm waiting <span class='target'>for</span> you.", answer: "weak", explain: "'for' giữa câu, không nhấn → weak /fər/." },
+  { sentence: "Who are you waiting <span class='target'>for</span>?", answer: "strong", explain: "'for' ở cuối câu → strong /fɔːr/." },
+  { sentence: "A cup <span class='target'>of</span> tea.", answer: "weak", explain: "Giữa cụm, function word → weak /əv/." },
+  { sentence: "Yes, I <span class='target'>am</span>.", answer: "strong", explain: "Trợ động từ đứng riêng cuối câu → strong /æm/." },
+  { sentence: "I <span class='target'>am</span> a student.", answer: "weak", explain: "Giữa câu, không nhấn → weak /əm/ hoặc /m/ (contraction I'm)." },
+  { sentence: "She's been studying <span class='target'>for</span> two hours.", answer: "weak", explain: "Giữa câu, không nhấn → weak /fər/." },
+  { sentence: "I would like fish <span class='target'>and</span> chips.", answer: "weak", explain: "'and' giữa câu → weak /ən/." },
+  { sentence: "It's a question of WHO, not WHAT.", answer: "strong", explain: "Câu nhấn mạnh đối lập (WHO vs WHAT) — cả hai content words đều ở strong form." },
+  { sentence: "He's taller <span class='target'>than</span> me.", answer: "weak", explain: "Giữa câu → /ðən/." },
+  { sentence: "I'm tired because <span class='target'>I</span> didn't sleep.", answer: "weak", explain: "'I' giữa câu trong subordinate clause → thường lướt, không nhấn." },
+  { sentence: "<span class='target'>Of</span> course!", answer: "strong", explain: "'Of' trong idiom 'of course' thường được nhấn → strong /ɔːv/." },
+  { sentence: "We <span class='target'>were</span> at home.", answer: "weak", explain: "'were' giữa câu → /wər/." },
+];
+
+const quizDisplay = document.getElementById('quiz-display');
+const quizFeedback = document.getElementById('quiz-feedback');
+const quizStatsEl = document.getElementById('quiz-stats');
+let qStats = { correct: 0, total: 0 };
+let currentQ = null;
+
+function newQuiz() {
+  currentQ = quizItems[Math.floor(Math.random() * quizItems.length)];
+  quizDisplay.innerHTML = `
+    <div class="quiz-sentence"><div class="sent">${currentQ.sentence}</div></div>
+    <div style="text-align:center;font-size:13px;color:var(--muted);margin-bottom:8px;">Từ in nổi bật — STRONG hay WEAK?</div>
+    <div class="answer-row">
+      <button class="ans-btn" data-ans="strong" style="border-color:var(--strong);color:var(--strong);">STRONG</button>
+      <button class="ans-btn" data-ans="weak" style="border-color:var(--weak);color:var(--weak);">WEAK</button>
+    </div>
+  `;
+  quizDisplay.querySelectorAll('.ans-btn').forEach(b => b.addEventListener('click', () => handleQuiz(b.dataset.ans, b)));
+  quizFeedback.classList.remove('show', 'ok', 'err');
+}
+
+function handleQuiz(ans, btn) {
+  qStats.total++;
+  const buttons = quizDisplay.querySelectorAll('.ans-btn');
+  buttons.forEach(b => b.disabled = true);
+  if (ans === currentQ.answer) {
+    qStats.correct++;
+    btn.classList.add('correct');
+    quizFeedback.textContent = `Đúng! ${currentQ.explain}`;
+    quizFeedback.className = 'quiz-feedback show ok';
+  } else {
+    btn.classList.add('wrong');
+    quizDisplay.querySelector(`[data-ans="${currentQ.answer}"]`).classList.add('correct');
+    quizFeedback.textContent = `Sai. Đáp án: ${currentQ.answer.toUpperCase()}. ${currentQ.explain}`;
+    quizFeedback.className = 'quiz-feedback show err';
+  }
+  quizStatsEl.textContent = `Đúng: ${qStats.correct} / ${qStats.total}`;
+}
+
+document.getElementById('btn-new-quiz').addEventListener('click', newQuiz);
+</script>
+</body>
+</html>

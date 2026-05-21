@@ -11,9 +11,15 @@
 
 ## Danh sách bài học
 
+### Nhánh I — Phát âm (Pronunciation)
+
 | # | Bài học | Mô tả | Liên kết |
 | --- | --- | --- | --- |
-| 01 | Phiên âm IPA & phát âm chuẩn quốc tế | 44 âm vị (phoneme) của tiếng Anh: 20 nguyên âm + 24 phụ âm. Cách phát âm từng âm, ví dụ minh họa, file phát âm thật từ Oxford. | [lesson-01-phonetics-ipa/](./lesson-01-phonetics-ipa/) |
+| 01 | Phiên âm IPA & phát âm chuẩn quốc tế | 44 âm vị (phoneme) của tiếng Anh: 20 nguyên âm + 24 phụ âm. Cách phát âm từng âm, file audio Oxford US (toggle UK). | [lesson-01-phonetics-ipa/](./lesson-01-phonetics-ipa/) |
+| 02 | Quy tắc trọng âm (Word Stress) | Trọng âm trong từ: quy luật 2 âm tiết (noun-1, verb-2), cặp N/V cùng chính tả khác trọng âm, quy luật theo hậu tố (-tion, -ic, -ity), stress shift trong word family. | [lesson-02-word-stress/](./lesson-02-word-stress/) |
+| 03 | Nhịp câu & Ngữ điệu (Sentence Rhythm & Intonation) | Stress-timed vs syllable-timed, content vs function words, 4 mẫu intonation (↘ ↗ ↘↗ ↗↘). | [lesson-03-sentence-rhythm/](./lesson-03-sentence-rhythm/) |
+| 04 | Nối âm & Connected Speech | 4 quy tắc linking, elision, assimilation, T-flapping (Anh-Mỹ), các "famous reductions" (gonna, wanna, gotta...). | [lesson-04-linking-connected-speech/](./lesson-04-linking-connected-speech/) |
+| 05 | Dạng yếu (Weak Forms) | 40+ function words với strong và weak form, schwa thrust, khi nào dùng strong/weak. | [lesson-05-weak-forms/](./lesson-05-weak-forms/) |
 
 ## Gợi ý cách học
 

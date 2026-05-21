@@ -30,6 +30,13 @@
 | 08 | Mệnh đề quan hệ (Relative Clauses) | who/whom/which/that/whose/where/when/why. Defining vs non-defining (vai trò dấu phẩy). Lược bớt clause. Preposition trong relative clause. | [lesson-08-relative-clauses/](./lesson-08-relative-clauses/) |
 | 09 | Câu bị động (Passive Voice) | Active↔Passive cho 12 thì + modal. 4 trường hợp dùng passive. Get-passive informal. Pattern "have/get something done". | [lesson-09-passive-voice/](./lesson-09-passive-voice/) |
 | 10 | Modal Verbs | 9 modal: can/could/may/might/must/should/will/would/shall. So sánh must↔have to, can↔may, should↔ought to. Modal perfect (must have, should have, could have...). | [lesson-10-modal-verbs/](./lesson-10-modal-verbs/) |
+| 11 | Lời nói gián tiếp (Reported Speech) | Backshift rule cho 12 thì + modal. Báo cáo statements / questions / commands. Khi không backshift. Reporting verbs (say vs tell, advise, warn, suggest...). | [lesson-11-reported-speech/](./lesson-11-reported-speech/) |
+
+### Nhánh III — Từ vựng (Vocabulary)
+
+| # | Bài học | Mô tả | Liên kết |
+| --- | --- | --- | --- |
+| 12 | Oxford 3000 — Level A1 | 50 từ thiết yếu nhất A1, chia 5 nhóm (People, Activities, Food, Places, Adjectives). Mỗi từ kèm IPA, audio Oxford, nghĩa Việt, ví dụ. Flashcard SRS (Leitner box) lưu trong localStorage. | [lesson-12-vocab-oxford3000-a1/](./lesson-12-vocab-oxford3000-a1/) |
 
 ## Gợi ý cách học
 

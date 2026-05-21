@@ -21,6 +21,12 @@
 | 04 | Nối âm & Connected Speech | 4 quy tắc linking, elision, assimilation, T-flapping (Anh-Mỹ), các "famous reductions" (gonna, wanna, gotta...). | [lesson-04-linking-connected-speech/](./lesson-04-linking-connected-speech/) |
 | 05 | Dạng yếu (Weak Forms) | 40+ function words với strong và weak form, schwa thrust, khi nào dùng strong/weak. | [lesson-05-weak-forms/](./lesson-05-weak-forms/) |
 
+### Nhánh II — Ngữ pháp (Grammar)
+
+| # | Bài học | Mô tả | Liên kết |
+| --- | --- | --- | --- |
+| 06 | 12 thì tiếng Anh (Twelve Tenses) | Toàn bộ 12 thì = 3 thời × 4 aspect. Form + use case + signal words + ví dụ thật cho từng thì. Visualization có Web Speech API đọc nguyên câu. | [lesson-06-twelve-tenses/](./lesson-06-twelve-tenses/) |
+
 ## Gợi ý cách học
 
 - **Đừng đọc lướt**. Mỗi âm vị (phoneme) trong bài 01 nên được nghe ít nhất 5 lần, sau đó nhại lại 5 lần, rồi mới chuyển sang âm tiếp theo.

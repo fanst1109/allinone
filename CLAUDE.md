@@ -74,6 +74,7 @@ Khi user yêu cầu tạo một bài học mới (ví dụ: *"tạo bài học v
 - **Chỉ dùng URL audio đã verify** từ dataset đáng tin (như `thousandlemons/English-words-pronunciation-mp3-audio-download`). KHÔNG đoán URL từ pattern — phải kiểm tra trước.
 - **Không so sánh trực tiếp với âm tiếng Việt**. Không viết "Như 'i' trong 'đi'", "Gần như 'e' tiếng Việt", v.v. Tiếng Anh và tiếng Việt khác nhau về mặt âm vị — so sánh trực tiếp dẫn người học vào sai lệch. Thay vào đó: mô tả cơ học (vị trí lưỡi, môi, độ dài) + chỉ ra lỗi phổ biến của người Việt mà không gợi ý sai âm Việt thay thế.
 - **Audio cho mọi ví dụ chính**: Trong README và visualization, ví dụ minh họa cho âm vị / quy tắc phải có audio Oxford click nghe được, không chỉ phiên âm văn bản.
+- **Audio cho CÂU (sentence-level)**: Oxford CDN chỉ có audio cấp TỪ. Nếu lesson cần phát nguyên câu (ví dụ Lesson 06 — 12 thì), dùng **Web Speech API** (`window.speechSynthesis`) built-in trình duyệt. Pick voice theo `audioVariant` (US: `en-US`, UK: `en-GB`), ưu tiên giọng `premium/enhanced/natural`. Audio Oxford cấp từ vẫn dùng song song cho các từ rời.
 - **Style SVG/CSS cho visualization**: Khi dùng `transform: scale()` trên SVG `<g>`, luôn kèm `transform-box: fill-box; transform-origin: center;` để scale từ tâm phần tử, không phải gốc tọa độ SVG.
 
 ## Quy ước về lời giải và minh họa (áp dụng cho mọi bài học)

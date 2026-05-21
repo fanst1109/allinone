@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>12 thì tiếng Anh — Twelve Tenses</title>
+<style>
+  :root {
+    --bg: #fafaf7; --panel: #fff; --ink: #1a1a1a; --muted: #6a6a6a; --line: #e3e1dc;
+    --accent: #b45309; --accent-soft: #fef3c7;
+    --past: #b91c1c; --past-soft: #fee2e2;
+    --present: #15803d; --present-soft: #dcfce7;
+    --future: #1d4ed8; --future-soft: #dbeafe;
+    --simple: #6b7280; --cont: #d97706; --perf: #7c3aed; --pc: #be185d;
+    --ok: #15803d; --error: #b91c1c;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--ink); line-height: 1.55; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px 20px 80px; }
+  header h1 { margin: 0 0 4px; font-size: 24px; }
+  header p { margin: 0 0 20px; color: var(--muted); font-size: 14px; }
+  header p code { background: var(--accent-soft); color: var(--accent); padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+
+  .accent-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin-left: 8px; }
+  .accent-toggle button { background: var(--panel); border: none; padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; }
+  .accent-toggle button + button { border-left: 1px solid var(--line); }
+  .accent-toggle button.active { background: var(--accent); color: white; }
+
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 24px; flex-wrap: wrap; }
+  .tab { padding: 10px 16px; cursor: pointer; background: none; border: none; font-size: 14px; font-weight: 500; color: var(--muted); border-bottom: 2px solid transparent; }
+  .tab.active { color: var(--ink); border-bottom-color: var(--accent); }
+  .pane { display: none; }
+  .pane.active { display: block; }
+
+  .section-note { color: var(--muted); font-size: 13px; margin: 0 0 16px; background: var(--accent-soft); padding: 10px 14px; border-radius: 8px; border-left: 3px solid var(--accent); }
+
+  /* Timeline grid: 3 rows × 4 cols */
+  .timeline-wrap {
+    display: grid; grid-template-columns: 110px repeat(4, 1fr); gap: 8px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px;
+    margin-bottom: 16px;
+  }
+  .corner { background: transparent; }
+  .col-header {
+    text-align: center; font-size: 12px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.5px; padding: 8px; align-self: center;
+  }
+  .col-header.simple { color: var(--simple); }
+  .col-header.cont { color: var(--cont); }
+  .col-header.perf { color: var(--perf); }
+  .col-header.pc { color: var(--pc); }
+  .row-header {
+    font-size: 13px; font-weight: 700; padding: 12px 10px;
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    text-align: center;
+  }
+  .row-header.past { background: var(--past-soft); color: var(--past); }
+  .row-header.present { background: var(--present-soft); color: var(--present); }
+  .row-header.future { background: var(--future-soft); color: var(--future); }
+  .tense-cell {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .tense-cell:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(180,83,9,0.08); }
+  .tense-cell.selected { border-color: var(--accent); background: var(--accent-soft); }
+  .tense-cell .tn { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+  .tense-cell .formula { font-weight: 600; font-size: 14px; color: var(--ink); }
+
+  .tense-detail {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px; margin-bottom: 20px; min-height: 200px;
+  }
+  .tense-detail.empty { color: var(--muted); font-style: italic; text-align: center; padding: 40px; }
+  .tense-detail h3 { margin: 0 0 6px; font-size: 18px; }
+  .tense-detail .formula-big { font-family: "Charis SIL", "Lucida Grande", sans-serif; font-size: 15px; color: var(--accent); margin-bottom: 12px; }
+  .tense-detail .use-list { margin: 12px 0 16px; padding-left: 20px; }
+  .tense-detail .use-list li { margin-bottom: 4px; font-size: 14px; }
+  .tense-detail .signal-words { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+  .tense-detail .signal-words strong { color: var(--accent); }
+  .example-row {
+    display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+    border: 1px solid var(--line); border-radius: 8px; margin-bottom: 8px;
+    background: #fafaf7;
+  }
+  .example-row:hover { background: var(--accent-soft); border-color: var(--accent); }
+  .example-row .sentence { flex: 1; font-size: 15px; }
+  .play-pill {
+    padding: 6px 12px; background: var(--accent); color: white;
+    border-radius: 16px; font-size: 12px; cursor: pointer; border: none;
+    white-space: nowrap;
+  }
+  .play-pill:hover { background: #92400e; }
+  .play-pill.speaking { background: var(--ok); }
+
+  /* Form table */
+  .verb-selector { margin-bottom: 14px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .verb-selector label { font-size: 13px; color: var(--muted); }
+  .verb-selector select { padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; font-size: 14px; }
+  .form-table { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .form-table th { background: #f5f4f0; padding: 10px; text-align: left; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .form-table td { padding: 10px 12px; border-top: 1px solid var(--line); font-size: 14px; }
+  .form-table .tense-name { font-weight: 700; color: var(--accent); }
+  .form-table .aff { font-family: monospace; }
+
+  /* Compare */
+  .compare-controls { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+  .compare-controls label { font-size: 13px; color: var(--muted); }
+  .compare-controls select { padding: 8px 12px; border: 1px solid var(--line); border-radius: 6px; font-size: 14px; }
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .compare-col { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+  .compare-col h4 { margin: 0 0 8px; color: var(--accent); font-size: 15px; }
+  .compare-col .formula-small { font-family: "Charis SIL", sans-serif; color: var(--muted); font-size: 13px; margin-bottom: 10px; }
+  .compare-col .ex-sentence { padding: 8px 10px; background: var(--accent-soft); border-radius: 6px; margin-bottom: 6px; font-size: 14px; cursor: pointer; }
+  .compare-col .ex-sentence:hover { background: var(--accent); color: white; }
+
+  /* Quiz */
+  .quiz-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
+  .quiz-controls { display: flex; gap: 8px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+  .quiz-controls button { padding: 8px 14px; font-size: 13px; border: 1px solid var(--line); border-radius: 6px; background: white; cursor: pointer; font-weight: 500; }
+  .quiz-controls button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+  .quiz-stats { color: var(--muted); font-size: 13px; margin-left: auto; }
+  .quiz-question {
+    text-align: center; padding: 20px 16px; background: var(--accent-soft);
+    border-radius: 10px; margin-bottom: 20px;
+  }
+  .quiz-context { font-size: 13px; color: var(--accent); margin-bottom: 10px; font-weight: 500; }
+  .quiz-sentence { font-size: 18px; }
+  .quiz-sentence .blank { display: inline-block; min-width: 80px; padding: 2px 8px; background: var(--accent); color: white; border-radius: 4px; }
+  .quiz-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+  .opt-btn {
+    padding: 14px 12px; font-size: 13px; font-weight: 600; border: 2px solid var(--line);
+    background: white; border-radius: 8px; cursor: pointer; text-align: left;
+  }
+  .opt-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .opt-btn.correct { border-color: var(--ok); background: #f0fdf4; color: var(--ok); }
+  .opt-btn.wrong { border-color: var(--error); background: #fef2f2; color: var(--error); }
+  .quiz-feedback { margin-top: 14px; padding: 12px 16px; border-radius: 8px; font-size: 14px; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok { background: #f0fdf4; color: var(--ok); }
+  .quiz-feedback.err { background: #fef2f2; color: var(--error); }
+
+  .speech-status { font-size: 11px; color: var(--muted); margin-top: 12px; padding: 8px 12px; background: #f5f4f0; border-radius: 6px; }
+  .speech-status.warning { background: #fef3c7; color: #92400e; }
+
+  footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); text-align: center; }
+  footer a { color: var(--accent); }
+
+  @media (max-width: 720px) {
+    .timeline-wrap { grid-template-columns: 80px repeat(4, 1fr); gap: 4px; padding: 8px; }
+    .tense-cell { padding: 6px 8px; }
+    .tense-cell .formula { font-size: 12px; }
+    .compare-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>12 thì tiếng Anh — Twelve Tenses</h1>
+  <p>Click ô thì để xem ví dụ. Click câu để nghe đọc bằng Web Speech API. Audio từ rời từ <code>oxfordlearnersdictionaries.com</code>.
+    Giọng:
+    <span class="accent-toggle">
+      <button id="btn-accent-us" class="active" data-variant="us">US 🇺🇸</button>
+      <button id="btn-accent-uk" data-variant="uk">UK 🇬🇧</button>
+    </span>
+  </p>
+</header>
+
+<div class="tabs">
+  <button class="tab active" data-tab="timeline">Timeline</button>
+  <button class="tab" data-tab="form">Form</button>
+  <button class="tab" data-tab="compare">So sánh</button>
+  <button class="tab" data-tab="quiz">Quiz đoán thì</button>
+</div>
+
+<section class="pane active" id="pane-timeline">
+  <div class="section-note">
+    Lưới <strong>3 thời × 4 aspect = 12 thì</strong>. Click ô thì để xem cách dùng, signal words, và <strong>nghe đọc câu ví dụ</strong>.
+  </div>
+  <div class="timeline-wrap">
+    <div class="corner"></div>
+    <div class="col-header simple">Simple</div>
+    <div class="col-header cont">Continuous</div>
+    <div class="col-header perf">Perfect</div>
+    <div class="col-header pc">Perfect Continuous</div>
+
+    <div class="row-header past">PAST<br>(quá khứ)</div>
+    <div class="tense-cell" data-tense="past-simple"><div class="tn">5. Past Simple</div><div class="formula">I worked</div></div>
+    <div class="tense-cell" data-tense="past-cont"><div class="tn">6. Past Cont.</div><div class="formula">I was working</div></div>
+    <div class="tense-cell" data-tense="past-perf"><div class="tn">7. Past Perfect</div><div class="formula">I had worked</div></div>
+    <div class="tense-cell" data-tense="past-pc"><div class="tn">8. Past P.C.</div><div class="formula">I had been working</div></div>
+
+    <div class="row-header present">PRESENT<br>(hiện tại)</div>
+    <div class="tense-cell" data-tense="pres-simple"><div class="tn">1. Present Simple</div><div class="formula">I work</div></div>
+    <div class="tense-cell" data-tense="pres-cont"><div class="tn">2. Present Cont.</div><div class="formula">I am working</div></div>
+    <div class="tense-cell" data-tense="pres-perf"><div class="tn">3. Present Perfect</div><div class="formula">I have worked</div></div>
+    <div class="tense-cell" data-tense="pres-pc"><div class="tn">4. Present P.C.</div><div class="formula">I have been working</div></div>
+
+    <div class="row-header future">FUTURE<br>(tương lai)</div>
+    <div class="tense-cell" data-tense="fut-simple"><div class="tn">9. Future Simple</div><div class="formula">I will work</div></div>
+    <div class="tense-cell" data-tense="fut-cont"><div class="tn">10. Future Cont.</div><div class="formula">I will be working</div></div>
+    <div class="tense-cell" data-tense="fut-perf"><div class="tn">11. Future Perfect</div><div class="formula">I will have worked</div></div>
+    <div class="tense-cell" data-tense="fut-pc"><div class="tn">12. Future P.C.</div><div class="formula">I will have been working</div></div>
+  </div>
+
+  <div class="tense-detail empty" id="tense-detail">Click một ô thì ở trên để xem chi tiết và nghe ví dụ.</div>
+
+  <div class="speech-status" id="speech-status">⏳ Đang kiểm tra Web Speech API...</div>
+</section>
+
+<section class="pane" id="pane-form">
+  <div class="section-note">
+    Đổi verb để xem 12 dạng của nó. Verb được chia: V (base), V-s/es, V-ing, V2 (past), V3 (past participle).
+  </div>
+  <div class="verb-selector">
+    <label>Verb:</label>
+    <select id="verb-select">
+      <option value="work">work (worked, worked)</option>
+      <option value="eat">eat (ate, eaten)</option>
+      <option value="run">run (ran, run)</option>
+      <option value="study">study (studied, studied)</option>
+      <option value="write">write (wrote, written)</option>
+      <option value="go">go (went, gone)</option>
+    </select>
+  </div>
+  <table class="form-table" id="form-table"></table>
+</section>
+
+<section class="pane" id="pane-compare">
+  <div class="section-note">
+    Chọn 2 thì để xem song song công thức và ví dụ. Click câu để nghe đọc.
+  </div>
+  <div class="compare-controls">
+    <label>Thì A:</label>
+    <select id="cmp-a"></select>
+    <label>Thì B:</label>
+    <select id="cmp-b"></select>
+  </div>
+  <div class="compare-grid">
+    <div class="compare-col" id="cmp-col-a"></div>
+    <div class="compare-col" id="cmp-col-b"></div>
+  </div>
+</section>
+
+<section class="pane" id="pane-quiz">
+  <div class="quiz-wrap">
+    <div class="quiz-controls">
+      <button class="primary" id="btn-new-quiz">▶ Câu mới</button>
+      <button id="btn-replay-quiz" disabled>↻ Nghe lại</button>
+      <span class="quiz-stats" id="quiz-stats">Đúng: 0 / 0</span>
+    </div>
+    <div id="quiz-display"></div>
+    <div class="quiz-feedback" id="quiz-feedback"></div>
+  </div>
+</section>
+
+<footer>
+  Câu được đọc bằng Web Speech API (built-in trình duyệt). Audio từ rời từ <a href="https://www.oxfordlearnersdictionaries.com" target="_blank">Oxford Learner's Dictionaries</a>. Mặc định US 🇺🇸.
+</footer>
+
+<audio id="audio-el" preload="none"></audio>
+</div>
+
+<script>
+// ============== Web Speech API ==============
+const synth = window.speechSynthesis;
+let voices = [];
+let currentVariant = localStorage.getItem('audioVariant') || 'us';
+
+function loadVoices() {
+  voices = synth ? synth.getVoices() : [];
+  updateSpeechStatus();
+}
+if (synth) {
+  loadVoices();
+  if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = loadVoices;
+}
+
+function pickVoice(variant) {
+  if (!voices.length) return null;
+  const langPrefix = variant === 'uk' ? 'en-GB' : 'en-US';
+  // Prefer high-quality voices (Apple, Google, Microsoft)
+  const candidates = voices.filter(v => v.lang.startsWith(langPrefix));
+  if (!candidates.length) return voices.find(v => v.lang.startsWith('en')) || voices[0];
+  // Prefer "Premium" / "Enhanced" / Apple voices for natural-sounding
+  const premium = candidates.find(v => /premium|enhanced|natural|samantha|alex|daniel|kate|fiona/i.test(v.name));
+  return premium || candidates[0];
+}
+
+function speak(text, btn) {
+  if (!synth) {
+    alert("Trình duyệt không hỗ trợ Web Speech API. Hãy thử Chrome/Edge/Safari mới nhất.");
+    return;
+  }
+  synth.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const v = pickVoice(currentVariant);
+  if (v) { u.voice = v; u.lang = v.lang; }
+  else { u.lang = currentVariant === 'uk' ? 'en-GB' : 'en-US'; }
+  u.rate = 0.95;
+  u.pitch = 1.0;
+  if (btn) {
+    btn.classList.add('speaking');
+    u.onend = () => btn.classList.remove('speaking');
+    u.onerror = () => btn.classList.remove('speaking');
+  }
+  synth.speak(u);
+}
+
+function updateSpeechStatus() {
+  const el = document.getElementById('speech-status');
+  if (!el) return;
+  if (!synth) {
+    el.textContent = "⚠ Trình duyệt không hỗ trợ Web Speech API. Câu sẽ không đọc được. Thử Chrome/Edge/Safari mới nhất.";
+    el.classList.add('warning'); return;
+  }
+  if (!voices.length) {
+    el.textContent = "⏳ Đang tải danh sách giọng đọc của trình duyệt..."; return;
+  }
+  const v = pickVoice(currentVariant);
+  el.textContent = `✓ Web Speech sẵn sàng. Giọng đang chọn: ${v ? v.name + ' (' + v.lang + ')' : 'mặc định'}.`;
+  el.classList.remove('warning');
+}
+
+function setVariant(v) {
+  currentVariant = v;
+  localStorage.setItem('audioVariant', v);
+  document.querySelectorAll('.accent-toggle button').forEach(b => b.classList.toggle('active', b.dataset.variant === v));
+  updateSpeechStatus();
+}
+document.querySelectorAll('.accent-toggle button').forEach(btn => btn.addEventListener('click', () => setVariant(btn.dataset.variant)));
+setVariant(currentVariant);
+
+// Tabs
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('pane-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ============== Tense data ==============
+const TENSES = {
+  "pres-simple": {
+    name: "Present Simple", num: 1, formula: "S + V(s/es)",
+    uses: ["Thói quen, lặp lại", "Sự thật, quy luật khoa học", "Lịch trình cố định", "Trạng thái (stative verbs)"],
+    signals: ["always", "usually", "often", "every day", "on Mondays"],
+    examples: [
+      "I work in a bank in Hanoi.",
+      "She doesn't eat meat.",
+      "The sun rises in the east.",
+      "Do you speak English?",
+    ]
+  },
+  "pres-cont": {
+    name: "Present Continuous", num: 2, formula: "S + am/is/are + V-ing",
+    uses: ["Đang diễn ra lúc nói", "Tình huống tạm thời", "Kế hoạch chắc chắn tương lai gần", "Xu hướng đang thay đổi"],
+    signals: ["now", "at the moment", "right now", "today", "this week"],
+    examples: [
+      "I am writing a report at the moment.",
+      "She is wearing a red dress today.",
+      "They are not coming to the party.",
+      "What are you doing tonight?",
+    ]
+  },
+  "pres-perf": {
+    name: "Present Perfect", num: 3, formula: "S + have/has + V3",
+    uses: ["QK ảnh hưởng tới hiện tại", "Trải nghiệm cuộc đời", "Vừa xảy ra", "Bắt đầu QK, còn tới giờ"],
+    signals: ["just", "already", "yet", "ever", "never", "since", "for", "so far"],
+    examples: [
+      "I have lived in Hanoi for ten years.",
+      "She has just finished her homework.",
+      "Have you ever been to Paris?",
+      "They haven't seen the movie yet.",
+    ]
+  },
+  "pres-pc": {
+    name: "Present Perfect Continuous", num: 4, formula: "S + have/has + been + V-ing",
+    uses: ["Kéo dài từ QK tới giờ, nhấn duration", "Vừa kết thúc, để lại dấu vết"],
+    signals: ["for", "since", "all day", "how long", "lately"],
+    examples: [
+      "I have been studying English for three hours.",
+      "It has been raining all day.",
+      "How long have you been waiting?",
+      "She has been working hard recently.",
+    ]
+  },
+  "past-simple": {
+    name: "Past Simple", num: 5, formula: "S + V2",
+    uses: ["Hành động hoàn thành tại thời điểm xác định QK", "Chuỗi sự kiện QK", "Thói quen QK không còn"],
+    signals: ["yesterday", "last week", "ago", "in 2020", "when I was young"],
+    examples: [
+      "I went to the market yesterday.",
+      "She didn't see the movie last night.",
+      "Did you call me?",
+      "Shakespeare wrote Hamlet.",
+    ]
+  },
+  "past-cont": {
+    name: "Past Continuous", num: 6, formula: "S + was/were + V-ing",
+    uses: ["Đang diễn ra tại thời điểm QK", "Bị ngắt bởi hành động khác", "Background câu chuyện", "Hai hành động song song QK"],
+    signals: ["at 8 PM yesterday", "when", "while", "as"],
+    examples: [
+      "I was sleeping when you called.",
+      "What were you doing at ten last night?",
+      "They were playing in the garden all afternoon.",
+      "While I was cooking, she was setting the table.",
+    ]
+  },
+  "past-perf": {
+    name: "Past Perfect", num: 7, formula: "S + had + V3",
+    uses: ["Hoàn thành trước một thời điểm/hành động QK khác", "Lùi 1 bước trong câu chuyện"],
+    signals: ["before", "after", "by the time", "when ... already", "until then"],
+    examples: [
+      "She had finished her work before I arrived.",
+      "I realized I had forgotten my keys.",
+      "They had never seen snow until they visited Switzerland.",
+      "When we got to the cinema, the movie had already started.",
+    ]
+  },
+  "past-pc": {
+    name: "Past Perfect Continuous", num: 8, formula: "S + had + been + V-ing",
+    uses: ["Kéo dài trước thời điểm QK, nhấn duration", "Giải thích trạng thái QK"],
+    signals: ["for", "since", "before", "by the time"],
+    examples: [
+      "I had been waiting for an hour when the bus finally came.",
+      "He was out of breath. He had been running.",
+      "By the time she retired, she had been teaching for thirty years.",
+      "She was tired because she had been working all day.",
+    ]
+  },
+  "fut-simple": {
+    name: "Future Simple", num: 9, formula: "S + will + V",
+    uses: ["Dự đoán (không bằng chứng)", "Quyết định bộc phát", "Lời hứa", "Đề nghị, lời mời"],
+    signals: ["tomorrow", "next week", "in 2030", "soon", "I think"],
+    examples: [
+      "I will call you tomorrow.",
+      "It will probably rain this afternoon.",
+      "I will help you with your bag.",
+      "Will you marry me?",
+    ]
+  },
+  "fut-cont": {
+    name: "Future Continuous", num: 10, formula: "S + will + be + V-ing",
+    uses: ["Đang diễn ra tại thời điểm tương lai", "Dự kiến diễn ra tự nhiên"],
+    signals: ["at 8 PM tomorrow", "this time next week", "when you arrive"],
+    examples: [
+      "Don't call me at eight — I will be having dinner.",
+      "She will be working all day Monday.",
+      "This time next year, we will be living in a new house.",
+    ]
+  },
+  "fut-perf": {
+    name: "Future Perfect", num: 11, formula: "S + will + have + V3",
+    uses: ["Sẽ hoàn thành trước một thời điểm tương lai"],
+    signals: ["by + time", "by the time", "before"],
+    examples: [
+      "By next year, I will have graduated.",
+      "She will have finished the report by Friday.",
+      "By the time we arrive, the movie will have started.",
+    ]
+  },
+  "fut-pc": {
+    name: "Future Perfect Continuous", num: 12, formula: "S + will + have + been + V-ing",
+    uses: ["Kéo dài tới thời điểm tương lai, nhấn duration"],
+    signals: ["by ... for/since", "by the time"],
+    examples: [
+      "By next month, I will have been living in Hanoi for ten years.",
+      "At six PM, she will have been studying for eight hours.",
+      "By the end of this year, they will have been married for twenty-five years.",
+    ]
+  },
+};
+
+// Render tense detail
+const detailEl = document.getElementById('tense-detail');
+document.querySelectorAll('.tense-cell').forEach(cell => {
+  cell.addEventListener('click', () => {
+    document.querySelectorAll('.tense-cell').forEach(c => c.classList.remove('selected'));
+    cell.classList.add('selected');
+    const t = TENSES[cell.dataset.tense];
+    detailEl.classList.remove('empty');
+    detailEl.innerHTML = `
+      <h3>${t.num}. ${t.name}</h3>
+      <div class="formula-big">Form: <strong>${t.formula}</strong></div>
+      <div><strong>Dùng cho:</strong></div>
+      <ul class="use-list">${t.uses.map(u => `<li>${u}</li>`).join('')}</ul>
+      <div class="signal-words"><strong>Signal words:</strong> ${t.signals.map(s => `<code>${s}</code>`).join(', ')}</div>
+      <div><strong>Ví dụ (click để nghe):</strong></div>
+      ${t.examples.map(e => `
+        <div class="example-row">
+          <div class="sentence">${e}</div>
+          <button class="play-pill" data-text="${e.replace(/"/g, '&quot;')}">▶ Đọc câu</button>
+        </div>`).join('')}
+    `;
+    detailEl.querySelectorAll('.play-pill').forEach(btn => {
+      btn.addEventListener('click', () => speak(btn.dataset.text, btn));
+    });
+  });
+});
+
+// ============== Form table ==============
+const VERB_FORMS = {
+  work:  { base: "work",  s: "works",  ing: "working",  v2: "worked",  v3: "worked" },
+  eat:   { base: "eat",   s: "eats",   ing: "eating",   v2: "ate",     v3: "eaten" },
+  run:   { base: "run",   s: "runs",   ing: "running",  v2: "ran",     v3: "run" },
+  study: { base: "study", s: "studies",ing: "studying", v2: "studied", v3: "studied" },
+  write: { base: "write", s: "writes", ing: "writing",  v2: "wrote",   v3: "written" },
+  go:    { base: "go",    s: "goes",   ing: "going",    v2: "went",    v3: "gone" },
+};
+
+function renderFormTable(verbKey) {
+  const f = VERB_FORMS[verbKey];
+  const rows = [
+    ["1. Present Simple", `She ${f.s}`, `She does not ${f.base}`, `Does she ${f.base}?`],
+    ["2. Present Continuous", `She is ${f.ing}`, `She is not ${f.ing}`, `Is she ${f.ing}?`],
+    ["3. Present Perfect", `She has ${f.v3}`, `She has not ${f.v3}`, `Has she ${f.v3}?`],
+    ["4. Present Perfect Continuous", `She has been ${f.ing}`, `She has not been ${f.ing}`, `Has she been ${f.ing}?`],
+    ["5. Past Simple", `She ${f.v2}`, `She did not ${f.base}`, `Did she ${f.base}?`],
+    ["6. Past Continuous", `She was ${f.ing}`, `She was not ${f.ing}`, `Was she ${f.ing}?`],
+    ["7. Past Perfect", `She had ${f.v3}`, `She had not ${f.v3}`, `Had she ${f.v3}?`],
+    ["8. Past Perfect Continuous", `She had been ${f.ing}`, `She had not been ${f.ing}`, `Had she been ${f.ing}?`],
+    ["9. Future Simple", `She will ${f.base}`, `She will not ${f.base}`, `Will she ${f.base}?`],
+    ["10. Future Continuous", `She will be ${f.ing}`, `She will not be ${f.ing}`, `Will she be ${f.ing}?`],
+    ["11. Future Perfect", `She will have ${f.v3}`, `She will not have ${f.v3}`, `Will she have ${f.v3}?`],
+    ["12. Future Perfect Continuous", `She will have been ${f.ing}`, `She will not have been ${f.ing}`, `Will she have been ${f.ing}?`],
+  ];
+  const tbl = document.getElementById('form-table');
+  tbl.innerHTML = `
+    <thead><tr><th>Thì</th><th>Khẳng định</th><th>Phủ định</th><th>Câu hỏi</th></tr></thead>
+    <tbody>
+      ${rows.map(r => `<tr>
+        <td class="tense-name">${r[0]}</td>
+        <td class="aff">${r[1]}</td>
+        <td class="aff">${r[2]}</td>
+        <td class="aff">${r[3]}</td>
+      </tr>`).join('')}
+    </tbody>
+  `;
+}
+renderFormTable('work');
+document.getElementById('verb-select').addEventListener('change', e => renderFormTable(e.target.value));
+
+// ============== Compare ==============
+const cmpA = document.getElementById('cmp-a');
+const cmpB = document.getElementById('cmp-b');
+Object.entries(TENSES).forEach(([key, t]) => {
+  cmpA.appendChild(new Option(`${t.num}. ${t.name}`, key));
+  cmpB.appendChild(new Option(`${t.num}. ${t.name}`, key));
+});
+cmpA.value = "pres-simple"; cmpB.value = "pres-cont";
+
+function renderCompareCol(elId, key) {
+  const t = TENSES[key];
+  const col = document.getElementById(elId);
+  col.innerHTML = `
+    <h4>${t.num}. ${t.name}</h4>
+    <div class="formula-small"><strong>Form:</strong> ${t.formula}</div>
+    <div class="formula-small"><strong>Signal:</strong> ${t.signals.slice(0, 3).join(', ')}</div>
+    <div style="font-size: 13px; color: var(--muted); margin: 6px 0;">Ví dụ (click nghe):</div>
+    ${t.examples.slice(0, 3).map(e => `<div class="ex-sentence" data-text="${e.replace(/"/g, '&quot;')}">${e}</div>`).join('')}
+  `;
+  col.querySelectorAll('.ex-sentence').forEach(el => el.addEventListener('click', () => speak(el.dataset.text, el)));
+}
+
+function updateCompare() {
+  renderCompareCol('cmp-col-a', cmpA.value);
+  renderCompareCol('cmp-col-b', cmpB.value);
+}
+cmpA.addEventListener('change', updateCompare);
+cmpB.addEventListener('change', updateCompare);
+updateCompare();
+
+// ============== Quiz ==============
+const QUIZ_ITEMS = [
+  { sentence: "I ___ in Hanoi for ten years (vẫn đang sống ở đây).", correct: "pres-perf", options: ["pres-simple", "pres-perf", "past-simple", "past-perf"],
+    fullText: "I have lived in Hanoi for ten years.",
+    explain: "'for ten years' + 'vẫn đang sống' → Present Perfect (hoặc Pres. Perfect Cont. cũng được)." },
+  { sentence: "She ___ breakfast right now.", correct: "pres-cont", options: ["pres-simple", "pres-cont", "pres-perf", "fut-simple"],
+    fullText: "She is eating breakfast right now.",
+    explain: "'right now' → Present Continuous." },
+  { sentence: "Yesterday, I ___ to the cinema.", correct: "past-simple", options: ["pres-perf", "past-simple", "past-cont", "past-perf"],
+    fullText: "Yesterday, I went to the cinema.",
+    explain: "'yesterday' → bắt buộc Past Simple." },
+  { sentence: "By next year, I ___ my degree.", correct: "fut-perf", options: ["fut-simple", "fut-cont", "fut-perf", "fut-pc"],
+    fullText: "By next year, I will have finished my degree.",
+    explain: "'by + time tương lai' + hoàn thành → Future Perfect." },
+  { sentence: "When I arrived, the movie ___ already.", correct: "past-perf", options: ["past-simple", "past-cont", "past-perf", "past-pc"],
+    fullText: "When I arrived, the movie had already started.",
+    explain: "Đã bắt đầu TRƯỚC khi tôi đến → Past Perfect." },
+  { sentence: "He ___ here since 2018.", correct: "pres-perf", options: ["pres-simple", "pres-perf", "past-simple", "past-perf"],
+    fullText: "He has worked here since 2018.",
+    explain: "'since 2018' + vẫn đang → Present Perfect." },
+  { sentence: "Listen! Someone ___ at the door.", correct: "pres-cont", options: ["pres-simple", "pres-cont", "pres-perf", "past-simple"],
+    fullText: "Listen! Someone is knocking at the door.",
+    explain: "'Listen!' báo hiệu hành động đang diễn ra → Present Continuous." },
+  { sentence: "The sun ___ in the east.", correct: "pres-simple", options: ["pres-simple", "pres-cont", "pres-perf", "fut-simple"],
+    fullText: "The sun rises in the east.",
+    explain: "Sự thật/quy luật → Present Simple." },
+  { sentence: "At this time tomorrow, I ___ to Tokyo.", correct: "fut-cont", options: ["fut-simple", "fut-cont", "fut-perf", "fut-pc"],
+    fullText: "At this time tomorrow, I will be flying to Tokyo.",
+    explain: "'At this time tomorrow' + đang diễn ra → Future Continuous." },
+  { sentence: "I ___ for two hours when she called (vẫn chưa xong khi cô ấy gọi).", correct: "past-pc", options: ["past-simple", "past-cont", "past-perf", "past-pc"],
+    fullText: "I had been reading for two hours when she called.",
+    explain: "Kéo dài + nhấn duration TRƯỚC sự kiện QK → Past Perfect Continuous." },
+  { sentence: "I ___ him yesterday at the market.", correct: "past-simple", options: ["pres-perf", "past-simple", "past-cont", "past-perf"],
+    fullText: "I saw him yesterday at the market.",
+    explain: "'yesterday' → Past Simple (KHÔNG dùng Present Perfect với 'yesterday')." },
+  { sentence: "She ___ tired because she ___ all night.", correct: "past-pc", options: ["past-cont", "past-perf", "past-pc", "pres-perf"],
+    fullText: "She was tired because she had been working all night.",
+    explain: "Giải thích nguyên nhân QK + kéo dài → Past Perfect Continuous." },
+  { sentence: "It ___ probably ___ this afternoon.", correct: "fut-simple", options: ["fut-simple", "pres-cont", "fut-cont", "fut-perf"],
+    fullText: "It will probably rain this afternoon.",
+    explain: "Dự đoán không có bằng chứng cụ thể → Future Simple (will)." },
+  { sentence: "Don't call me at eight — I ___ dinner.", correct: "fut-cont", options: ["fut-simple", "fut-cont", "fut-perf", "pres-cont"],
+    fullText: "Don't call me at eight — I will be having dinner.",
+    explain: "Sẽ đang diễn ra tại thời điểm tương lai cụ thể → Future Continuous." },
+  { sentence: "By the time she retired, she ___ for thirty years.", correct: "past-pc", options: ["past-simple", "past-perf", "past-pc", "pres-perf"],
+    fullText: "By the time she retired, she had been teaching for thirty years.",
+    explain: "'By the time + QK' + duration → Past Perfect Continuous." },
+];
+
+const quizDisplay = document.getElementById('quiz-display');
+const quizFeedback = document.getElementById('quiz-feedback');
+const quizStatsEl = document.getElementById('quiz-stats');
+let qStats = { correct: 0, total: 0 };
+let currentQ = null;
+let answered = false;
+
+function newQuiz() {
+  currentQ = QUIZ_ITEMS[Math.floor(Math.random() * QUIZ_ITEMS.length)];
+  answered = false;
+  renderQuiz();
+  document.getElementById('btn-replay-quiz').disabled = false;
+  quizFeedback.classList.remove('show', 'ok', 'err');
+}
+
+function renderQuiz() {
+  const opts = currentQ.options.map(key => {
+    const t = TENSES[key];
+    return `<button class="opt-btn" data-key="${key}">${t.num}. ${t.name}</button>`;
+  }).join('');
+  quizDisplay.innerHTML = `
+    <div class="quiz-question">
+      <div class="quiz-context">Điền thì phù hợp cho ô trống:</div>
+      <div class="quiz-sentence">${currentQ.sentence.replace('___', '<span class="blank">___</span>')}</div>
+    </div>
+    <div class="quiz-options">${opts}</div>
+  `;
+  quizDisplay.querySelectorAll('.opt-btn').forEach(b => b.addEventListener('click', () => handleQuiz(b.dataset.key, b)));
+}
+
+function handleQuiz(key, btn) {
+  if (answered) return;
+  answered = true;
+  qStats.total++;
+  const buttons = quizDisplay.querySelectorAll('.opt-btn');
+  buttons.forEach(b => b.disabled = true);
+  if (key === currentQ.correct) {
+    qStats.correct++;
+    btn.classList.add('correct');
+    quizFeedback.innerHTML = `<strong>Đúng!</strong> "${currentQ.fullText}" — ${currentQ.explain} <button class="play-pill" style="margin-left:8px;" onclick="speak('${currentQ.fullText.replace(/'/g, "\\'")}', this)">▶ Nghe câu đầy đủ</button>`;
+    quizFeedback.className = 'quiz-feedback show ok';
+  } else {
+    btn.classList.add('wrong');
+    quizDisplay.querySelector(`[data-key="${currentQ.correct}"]`).classList.add('correct');
+    quizFeedback.innerHTML = `<strong>Sai.</strong> Đáp án đúng: <em>${TENSES[currentQ.correct].name}</em>. "${currentQ.fullText}" — ${currentQ.explain} <button class="play-pill" style="margin-left:8px;" onclick="speak('${currentQ.fullText.replace(/'/g, "\\'")}', this)">▶ Nghe câu đầy đủ</button>`;
+    quizFeedback.className = 'quiz-feedback show err';
+  }
+  quizStatsEl.textContent = `Đúng: ${qStats.correct} / ${qStats.total}`;
+}
+
+document.getElementById('btn-new-quiz').addEventListener('click', newQuiz);
+document.getElementById('btn-replay-quiz').addEventListener('click', () => {
+  if (currentQ) speak(currentQ.fullText, null);
+});
+</script>
+</body>
+</html>

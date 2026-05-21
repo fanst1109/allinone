@@ -56,6 +56,26 @@ Khi user yêu cầu tạo một bài học mới (ví dụ: *"tạo bài học v
 - Commit message viết bằng tiếng Việt rõ ràng, ví dụ: `docs: thêm bài học vòng lặp cho Java`.
 - Push trực tiếp lên `main` bằng `git push -u origin main`.
 
+## Quy ước riêng cho lĩnh vực `English/`
+
+- **Chuẩn phát âm mặc định: Anh-Mỹ (General American / GA)**. Phiên âm trong README dùng notation Oxford US (`/ˈfoʊtəɡræf/`, không phải `/ˈfəʊtəɡrɑːf/`). Khi cần đối chiếu, có chú thích Anh-Anh (RP).
+- **Audio mặc định: US 🇺🇸 từ Oxford Learner's Dictionary CDN**. Mọi `visualization.html` cho lĩnh vực `English/` phải có toggle `US 🇺🇸 / UK 🇬🇧` ở header, **mặc định active = US**, lưu lựa chọn vào `localStorage` (key `audioVariant`).
+- **Quy luật xây URL Oxford (đã xác minh)**:
+  - Base: `https://www.oxfordlearnersdictionaries.com/media/english/<variant>_pron/<letter>/<3-char>/<5-char-padded>/<word>__<suffix>_<n>.mp3`
+  - `<variant>` = `uk` hoặc `us`; `<suffix>` = `gb` (UK) hoặc `us` (US).
+  - Folder structure giữ NGUYÊN khi đổi UK↔US; chỉ đổi `uk_pron↔us_pron` và `__gb_↔__us_`.
+  - Trong code, lưu mỗi audio dưới dạng **path UK đầy đủ** (vd `s/she/sheep/sheep__gb_1.mp3`), rồi transform tại runtime theo variant đang chọn.
+- **Fallback chain 4 cấp** khi audio 404:
+  1. Variant hiện tại trên `oxfordlearnersdictionaries.com`
+  2. Cùng variant trên `oxforddictionaries.com` (domain cũ vẫn phục vụ mp3)
+  3. Nếu đang chọn US: thử UK trên domain mới
+  4. UK trên domain cũ
+  Trạng thái audio phải hiển thị giọng đang phát và đánh dấu `(fallback)` nếu rơi vào cấp 3-4.
+- **Chỉ dùng URL audio đã verify** từ dataset đáng tin (như `thousandlemons/English-words-pronunciation-mp3-audio-download`). KHÔNG đoán URL từ pattern — phải kiểm tra trước.
+- **Không so sánh trực tiếp với âm tiếng Việt**. Không viết "Như 'i' trong 'đi'", "Gần như 'e' tiếng Việt", v.v. Tiếng Anh và tiếng Việt khác nhau về mặt âm vị — so sánh trực tiếp dẫn người học vào sai lệch. Thay vào đó: mô tả cơ học (vị trí lưỡi, môi, độ dài) + chỉ ra lỗi phổ biến của người Việt mà không gợi ý sai âm Việt thay thế.
+- **Audio cho mọi ví dụ chính**: Trong README và visualization, ví dụ minh họa cho âm vị / quy tắc phải có audio Oxford click nghe được, không chỉ phiên âm văn bản.
+- **Style SVG/CSS cho visualization**: Khi dùng `transform: scale()` trên SVG `<g>`, luôn kèm `transform-box: fill-box; transform-origin: center;` để scale từ tâm phần tử, không phải gốc tọa độ SVG.
+
 ## Quy ước về lời giải và minh họa (áp dụng cho mọi bài học)
 
 - **Mọi bài tập đều phải có lời giải chi tiết** trong README (mục "Lời giải chi tiết") — không để bài tập không có đáp án.

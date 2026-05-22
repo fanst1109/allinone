@@ -39,6 +39,16 @@ Khi user yêu cầu tạo một bài học mới (ví dụ: *"tạo bài học v
    - Khi được yêu cầu: tạo file `visualization.html` trong thư mục bài học, là file HTML **standalone** (không cần build, không tải framework ngoài trừ CDN nhẹ nếu thực sự cần), mở trực tiếp trong trình duyệt là chạy được.
    - Ưu tiên tương tác (nhập liệu, nút bấm, mô phỏng từng bước) hơn là hình tĩnh.
    - **Phải có navigation strip ở đầu trang** gồm: link tới lesson trước, link tới README của lesson hiện tại, link tới README của lĩnh vực (index), link tới lesson tiếp theo. Mục đích: người đọc duyệt qua các minh họa không cần quay lại file manager. Nếu là lesson đầu hoặc cuối, dùng `<span>` thay cho link tương ứng và đặt opacity thấp.
+   - **Bắt buộc tích hợp readme-modal**: Mọi `visualization.html` **phải** có nút "📖 Đọc README" để xem README ngay trong trang. Thực hiện theo 2 bước:
+     1. Sinh file `README.data.js` bằng cách chạy `go run tools/build-readme-data.go` từ thư mục gốc repo (hoặc `go run tools/build-readme-data.go <Lĩnh vực>` để giới hạn phạm vi). File này chứa nội dung README dưới dạng `window.README_MD`.
+     2. Thêm 3 dòng script vào cuối `visualization.html`, ngay trước `</body>`:
+        ```html
+        <script src="../../tools/marked.min.js"></script>
+        <script src="./README.data.js"></script>
+        <script src="../../tools/readme-modal.js"></script>
+        ```
+        Đường dẫn `../../tools/` đúng cho cấu trúc `<Lĩnh vực>/lesson-XX-yyy/visualization.html`. Nếu viz nằm ở cấp khác thì điều chỉnh số `../` cho phù hợp.
+   - readme-modal tự inject nút floating, panel đọc README với 3 chế độ: Modal / Sidebar (chia đôi màn hình, kéo resize được) / Full. Không cần thêm markup gì khác vào viz.
    - Khi đã tạo: README liên kết tới file `[visualization.html](./visualization.html)`.
 6. **Cập nhật `README.md` của lĩnh vực**: Thêm dòng mới vào bảng/danh sách bài học, kèm link tới thư mục bài học vừa tạo.
 7. **Cập nhật `README.md` cấp gốc** nếu đây là lĩnh vực mới (chưa từng xuất hiện trong bảng danh sách lĩnh vực).
@@ -48,6 +58,21 @@ Khi user yêu cầu tạo một bài học mới (ví dụ: *"tạo bài học v
 - Thư mục lĩnh vực: viết hoa chữ cái đầu, tiếng Anh — `Java`, `English`, `Math`, `Python`, `DataStructure`.
 - Thư mục bài học: kebab-case, tiếng Anh hoặc không dấu — `lesson-01-variables`, `lesson-02-loops`, `tutorial-spring-boot`.
 - Số thứ tự `lesson-XX` phải tăng dần theo logic học, không nhảy số.
+
+## Thư mục `tools/` — công cụ dùng chung
+
+Thư mục `tools/` ở cấp gốc chứa các file dùng chung cho toàn bộ visualization trong repo:
+
+| File | Mục đích |
+|------|----------|
+| `tools/marked.min.js` | Markdown parser (marked v12, local copy — không fetch CDN để hoạt động được với `file://`) |
+| `tools/readme-modal.js` | Script tự inject nút "📖 Đọc README" + panel hiển thị README với 3 chế độ Modal / Sidebar / Full |
+| `tools/build-readme-data.go` | Go script sinh `README.data.js` cạnh mỗi cặp `README.md + visualization.html`. Chạy: `go run tools/build-readme-data.go` |
+
+**Quy tắc bắt buộc:**
+- Không sửa `tools/marked.min.js` (file thư viện, không tự viết).
+- Khi sửa `tools/readme-modal.js` hoặc `tools/build-readme-data.go`, thay đổi có hiệu lực ngay cho toàn bộ viz trong repo — kiểm tra kỹ trước khi commit.
+- Mỗi khi tạo `visualization.html` mới, **luôn** chạy `go run tools/build-readme-data.go` để sinh `README.data.js` tương ứng, rồi thêm 3 script tags vào viz (xem mục 5 ở trên).
 
 ## Quy trình làm việc với git
 

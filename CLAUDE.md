@@ -140,6 +140,9 @@ Khi một lĩnh vực có **≥ 2 lesson với visualization.html**, phải có 
     - Lý do: README markdown không render đẹp khi mở trực tiếp; modal trong viz cho phép đọc lý thuyết liền mạch mà không rời trang.
 - **Tạo index.html và nav cùng lúc với lesson mới**: mỗi khi tạo lesson tiếp theo (vd L13), cập nhật `index.html` thêm card mới VÀ thêm nav vào visualization mới VÀ cập nhật nav `Next →` của lesson trước đó (L12).
 - Không phụ thuộc README.md cho điều hướng vì khi mở `file://` trên trình duyệt, Markdown không render — phải dùng HTML.
+- **Mọi link "Trang chính" phải trỏ tới một file `index.html` cụ thể, KHÔNG bao giờ trỏ tới thư mục (`../`, `./`, hoặc `../<Lĩnh vực>/`)**. Trỏ thư mục → trình duyệt mở folder listing (xấu, lộ cấu trúc nội bộ). Đúng phải là `../index.html` (từ viz về trang chính lĩnh vực) hoặc `../index.html` (từ trang chính lĩnh vực về trang chính repo).
+- **Trang chính cấp repo bắt buộc tồn tại tại `/index.html`** — liệt kê tất cả lĩnh vực dưới dạng card, mỗi card có link `▶ Trang chính` (→ `./<Lĩnh vực>/index.html`) và `📖 README` (→ `./<Lĩnh vực>/README.md`). Khi thêm lĩnh vực mới, cập nhật `/index.html` bổ sung card tương ứng (giống như cập nhật `/README.md`).
+- **Mọi `<Lĩnh vực>/index.html` phải có link "🏠 Trang chính" ở header** trỏ tới `../index.html` (trang chính repo). Không dùng nhãn kiểu "Quay lại kho học thuật" trỏ tới `../` — không đồng nhất và mở ra folder listing.
 
 ## Phong cách viết tài liệu — hiểu được ngay lần đọc đầu
 

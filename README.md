@@ -27,6 +27,9 @@
 | DataFoundations | Nền tảng cho DataStructures — binary, hex, bitwise, set theory | [DataFoundations/](./DataFoundations/) |
 | DataStructures | Cấu trúc dữ liệu — cách tổ chức và lưu trữ dữ liệu hiệu quả | [DataStructures/](./DataStructures/) |
 | English | Lộ trình học tiếng Anh — phát âm, từ vựng, ngữ pháp, kỹ năng | [English/](./English/) |
+| Vectors | Lộ trình toán cho AI & ML — 6 tầng từ đại số phổ thông tới embedding/RAG | [Vectors/](./Vectors/) |
+
+> Mở [`index.html`](./index.html) ở root để xem trang chính có liên kết tới mọi lĩnh vực.
 
 ## Cách sử dụng
 

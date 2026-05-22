@@ -230,9 +230,10 @@ Tổng `Σ h / 2^h` hội tụ về **hằng số** (xấp xỉ 2) → `T(n) = O
 
 Trực giác: phần lớn node nằm gần đáy, chỉ phải sift xuống rất ít tầng.
 
-## Code
+## Code & Minh họa
 
 - [solutions.go](./solutions.go) — min-heap đầy đủ + heap sort + median streaming.
+- [visualization.html](./visualization.html) — heap dạng cây + mảng, animate sift-up khi insert và sift-down khi extract.
 
 ## Bài tiếp theo
 

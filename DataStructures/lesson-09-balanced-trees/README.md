@@ -163,9 +163,10 @@ func balance(n *Node) int { return height(n.left) - height(n.right) }
 | Cần duyệt theo **thứ tự chèn** (insertion order) | LinkedHashMap (`O(1)` như HashMap + LinkedList) |
 | LRU cache | LinkedHashMap với access-order |
 
-## Code
+## Code & Minh họa
 
 - [solutions.go](./solutions.go) — cài AVL tree với insert + rotation, in cây dạng level-order.
+- [visualization.html](./visualization.html) — AVL tree với hiển thị balance factor và rotation khi mất cân bằng.
 
 ## Bài tiếp theo
 

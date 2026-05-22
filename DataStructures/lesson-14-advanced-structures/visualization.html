@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 14 — Bloom Filter trực quan</title>
+<style>
+  body { font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 16px 24px; background: #f6f7f9; color: #222; }
+  .lesson-nav { display: flex; justify-content: space-between; gap: 8px; padding: 8px 12px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 16px; font-size: 14px; flex-wrap: wrap; }
+  .lesson-nav a { color: #3b82f6; text-decoration: none; padding: 4px 10px; border-radius: 4px; }
+  .lesson-nav a:hover { background: #eff6ff; }
+  .lesson-nav .disabled { color: #ccc; padding: 4px 10px; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 16px; }
+  h1 { margin: 0 0 8px 0; }
+  .bits { display: grid; grid-template-columns: repeat(32, 1fr); gap: 3px; margin: 14px 0; }
+  .bit { aspect-ratio: 1; min-height: 18px; border: 1px solid #ccc; background: #fff; display: flex; align-items: center; justify-content: center;
+         font-size: 11px; color: #555; border-radius: 3px; transition: all .3s; }
+  .bit.set { background: #1e293b; color: #fff; }
+  .bit.hashed { box-shadow: 0 0 0 3px #f59e0b; z-index: 1; }
+  .bit.fresh { background: #10b981; color: #fff; }
+  button { background: #3b82f6; color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; cursor: pointer; margin-right: 6px; }
+  input { padding: 4px; width: 140px; }
+  .log { color: #444; min-height: 22px; margin-top: 8px; font-family: monospace; font-size: 13px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
+  .stats { background: #f3f4f6; padding: 8px 12px; border-radius: 6px; font-size: 13px; }
+  .added { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .chip { background: #eff6ff; color: #1e40af; padding: 2px 8px; border-radius: 12px; font-size: 12px; }
+</style>
+</head>
+<body>
+<nav class="lesson-nav">
+  <a href="../lesson-13-segment-tree/visualization.html">← Lesson 13 Segment Tree</a>
+  <a href="./README.md">📖 README</a>
+  <a href="../README.md">📚 DataStructures</a>
+  <span class="disabled">(Last lesson)</span>
+</nav>
+
+<h1>Bloom Filter — Bộ lọc xác suất</h1>
+
+<div class="panel">
+  <div class="stats" id="stats">Bảng 64 bit, k = 3 hàm hash. Thêm và kiểm tra bằng cách hash bằng 3 hàm khác nhau.</div>
+  <div class="row" style="margin-top:10px">
+    <input id="key" type="text" value="alice">
+    <button onclick="doAdd()">Add</button>
+    <button onclick="doCheck()">Check</button>
+    <button onclick="reset()">Reset</button>
+  </div>
+  <div class="bits" id="bits"></div>
+  <div>Đã thêm: <div class="added" id="added"></div></div>
+  <div class="log" id="log">Add: bật 3 bit ứng với 3 hash. Check: cả 3 bit cùng bật → "có thể có"; có bit nào tắt → "chắc chắn không có".</div>
+</div>
+
+<script>
+const M = 64, K = 3;
+let bits = new Array(M).fill(false);
+let added = new Set();
+
+// Ba hàm hash đơn giản, đủ khác biệt
+function h1(s) { let h = 5381; for (const c of s) h = ((h << 5) + h + c.charCodeAt(0)) >>> 0; return h % M; }
+function h2(s) { let h = 2166136261; for (const c of s) { h ^= c.charCodeAt(0); h = (h * 16777619) >>> 0; } return h % M; }
+function h3(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i) * 7 + 13) >>> 0; return h % M; }
+
+function hashes(s) { return [h1(s), h2(s), h3(s)]; }
+
+function renderBits(highlighted = [], fresh = []) {
+  const root = document.getElementById('bits');
+  root.innerHTML = '';
+  const hSet = new Set(highlighted), fSet = new Set(fresh);
+  for (let i = 0; i < M; i++) {
+    const d = document.createElement('div');
+    d.className = 'bit' + (bits[i] ? ' set' : '') + (hSet.has(i) ? ' hashed' : '') + (fSet.has(i) ? ' fresh' : '');
+    d.textContent = i;
+    root.appendChild(d);
+  }
+  const a = document.getElementById('added');
+  a.innerHTML = '';
+  [...added].forEach(k => { const c = document.createElement('span'); c.className = 'chip'; c.textContent = k; a.appendChild(c); });
+  document.getElementById('stats').textContent =
+    `Bảng 64 bit · k = 3 hàm · Đã add ${added.size} key · Bit đã bật: ${bits.filter(x => x).length}/${M}`;
+}
+
+function doAdd() {
+  const s = document.getElementById('key').value.trim();
+  if (!s) return;
+  const idxs = hashes(s);
+  const beforeFresh = idxs.filter(i => !bits[i]);
+  idxs.forEach(i => bits[i] = true);
+  added.add(s);
+  renderBits(idxs, beforeFresh);
+  document.getElementById('log').textContent =
+    `Add "${s}": h1=${idxs[0]}, h2=${idxs[1]}, h3=${idxs[2]} → bật 3 bit này.`;
+}
+
+function doCheck() {
+  const s = document.getElementById('key').value.trim();
+  if (!s) return;
+  const idxs = hashes(s);
+  const allSet = idxs.every(i => bits[i]);
+  renderBits(idxs);
+  const reallyHas = added.has(s);
+  let msg = `Check "${s}": h1=${idxs[0]} (${bits[idxs[0]] ? '✓' : '✗'}), h2=${idxs[1]} (${bits[idxs[1]] ? '✓' : '✗'}), h3=${idxs[2]} (${bits[idxs[2]] ? '✓' : '✗'}) → `;
+  if (!allSet) msg += `CHẮC CHẮN không có (có bit tắt).`;
+  else if (reallyHas) msg += `"có thể có" → đúng (đã add trước đó).`;
+  else msg += `"có thể có" → nhưng THỰC TẾ chưa add — FALSE POSITIVE!`;
+  document.getElementById('log').textContent = msg;
+}
+
+function reset() { bits = new Array(M).fill(false); added = new Set(); renderBits(); document.getElementById('log').textContent = 'Reset.'; }
+renderBits();
+</script>
+</body>
+</html>

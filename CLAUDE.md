@@ -38,6 +38,7 @@ Khi user yêu cầu tạo một bài học mới (ví dụ: *"tạo bài học v
 5. **File minh họa trực quan (HTML)** — **chỉ tạo khi user yêu cầu rõ ràng** (ví dụ: *"tạo minh họa cho lesson X"*). Mặc định **không** tự tạo `visualization.html`.
    - Khi được yêu cầu: tạo file `visualization.html` trong thư mục bài học, là file HTML **standalone** (không cần build, không tải framework ngoài trừ CDN nhẹ nếu thực sự cần), mở trực tiếp trong trình duyệt là chạy được.
    - Ưu tiên tương tác (nhập liệu, nút bấm, mô phỏng từng bước) hơn là hình tĩnh.
+   - **Phải có navigation strip ở đầu trang** gồm: link tới lesson trước, link tới README của lesson hiện tại, link tới README của lĩnh vực (index), link tới lesson tiếp theo. Mục đích: người đọc duyệt qua các minh họa không cần quay lại file manager. Nếu là lesson đầu hoặc cuối, dùng `<span>` thay cho link tương ứng và đặt opacity thấp.
    - Khi đã tạo: README liên kết tới file `[visualization.html](./visualization.html)`.
 6. **Cập nhật `README.md` của lĩnh vực**: Thêm dòng mới vào bảng/danh sách bài học, kèm link tới thư mục bài học vừa tạo.
 7. **Cập nhật `README.md` cấp gốc** nếu đây là lĩnh vực mới (chưa từng xuất hiện trong bảng danh sách lĩnh vực).

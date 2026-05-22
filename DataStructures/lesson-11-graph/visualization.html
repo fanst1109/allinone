@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 11 — Graph BFS/DFS trực quan</title>
+<style>
+  body { font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 16px 24px; background: #f6f7f9; color: #222; }
+  .lesson-nav { display: flex; justify-content: space-between; gap: 8px; padding: 8px 12px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 16px; font-size: 14px; flex-wrap: wrap; }
+  .lesson-nav a { color: #3b82f6; text-decoration: none; padding: 4px 10px; border-radius: 4px; }
+  .lesson-nav a:hover { background: #eff6ff; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 16px; }
+  h1 { margin: 0 0 8px 0; } h2 { margin: 4px 0 8px 0; }
+  svg { background: #fafafa; border: 1px solid #eee; border-radius: 6px; display: block; width: 100%; max-width: 760px; }
+  .node-c { fill: #fff; stroke: #333; stroke-width: 2; transition: all .3s; }
+  .node-c.visited { fill: #d1fae5; stroke: #10b981; }
+  .node-c.current { fill: #fef08a; stroke: #ca8a04; stroke-width: 3; }
+  .node-c.frontier { fill: #dbeafe; stroke: #3b82f6; }
+  .edge { stroke: #888; stroke-width: 2; }
+  .edge.used { stroke: #10b981; stroke-width: 3; }
+  text { font: 600 14px sans-serif; text-anchor: middle; dominant-baseline: central; }
+  button { background: #3b82f6; color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; cursor: pointer; margin-right: 6px; }
+  button:disabled { background: #aaa; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .frontier-box { background: #f3f4f6; padding: 8px 12px; border-radius: 6px; margin-top: 10px; font-family: monospace; min-height: 24px; }
+  .log { color: #444; min-height: 22px; margin-top: 8px; font-family: monospace; font-size: 13px; }
+</style>
+</head>
+<body>
+<nav class="lesson-nav">
+  <a href="../lesson-10-trie/visualization.html">← Lesson 10 Trie</a>
+  <a href="./README.md">📖 README</a>
+  <a href="../README.md">📚 DataStructures</a>
+  <a href="../lesson-12-union-find/visualization.html">Lesson 12 Union-Find →</a>
+</nav>
+
+<h1>Graph — BFS vs DFS</h1>
+
+<div class="panel">
+  <div class="row">
+    <label>Bắt đầu từ: <select id="start"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label>
+    <button onclick="runBFS()">Chạy BFS</button>
+    <button onclick="runDFS()">Chạy DFS</button>
+    <button onclick="reset()">Reset</button>
+  </div>
+  <svg id="svg" width="760" height="380"></svg>
+  <div>Frontier (queue cho BFS / stack cho DFS): <div class="frontier-box" id="frontier">[]</div></div>
+  <div>Thứ tự thăm: <div class="frontier-box" id="order"></div></div>
+  <div class="log" id="log">BFS dùng queue: thăm gần trước xa sau. DFS dùng stack/đệ quy: đi sâu một nhánh trước khi quay lại.</div>
+</div>
+
+<script>
+const positions = [
+  { x: 100, y: 80 }, { x: 280, y: 80 }, { x: 460, y: 80 }, { x: 640, y: 80 },
+  { x: 190, y: 280 }, { x: 370, y: 280 }, { x: 550, y: 280 }
+];
+const edges = [
+  [0, 1], [1, 2], [2, 3], [0, 4], [1, 4], [1, 5], [2, 5], [2, 6], [3, 6], [4, 5], [5, 6]
+];
+const adj = {};
+for (let i = 0; i < 7; i++) adj[i] = [];
+edges.forEach(([u, v]) => { adj[u].push(v); adj[v].push(u); });
+
+let visited = new Set(), current = -1, frontier = [], order = [], usedEdges = new Set();
+
+function render() {
+  const svg = document.getElementById('svg');
+  svg.innerHTML = '';
+  edges.forEach(([u, v]) => {
+    const k = u + '-' + v, rk = v + '-' + u;
+    const used = usedEdges.has(k) || usedEdges.has(rk);
+    const p = positions[u], q = positions[v];
+    svg.insertAdjacentHTML('beforeend',
+      `<line class="edge ${used ? 'used' : ''}" x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}"/>`);
+  });
+  for (let i = 0; i < 7; i++) {
+    let cls = '';
+    if (i === current) cls = 'current';
+    else if (visited.has(i)) cls = 'visited';
+    else if (frontier.includes(i)) cls = 'frontier';
+    svg.insertAdjacentHTML('beforeend',
+      `<circle class="node-c ${cls}" cx="${positions[i].x}" cy="${positions[i].y}" r="22"/>
+       <text x="${positions[i].x}" y="${positions[i].y}">${i}</text>`);
+  }
+  document.getElementById('frontier').textContent = '[' + frontier.join(', ') + ']';
+  document.getElementById('order').textContent = order.join(' → ');
+}
+
+async function runBFS() {
+  reset();
+  const start = parseInt(document.getElementById('start').value);
+  frontier = [start]; visited.add(start);
+  log('BFS: queue khởi tạo = [' + start + '].');
+  render();
+  await sleep(700);
+  while (frontier.length) {
+    current = frontier.shift();
+    order.push(current);
+    log(`Lấy ${current} ra khỏi queue, thăm. Tìm hàng xóm chưa thăm.`);
+    render();
+    await sleep(600);
+    for (const nb of adj[current]) {
+      if (!visited.has(nb)) {
+        visited.add(nb); frontier.push(nb);
+        usedEdges.add(current + '-' + nb);
+        log(`Thêm ${nb} vào queue (cạnh ${current}-${nb}).`);
+        render();
+        await sleep(400);
+      }
+    }
+    current = -1;
+  }
+  log('BFS xong. Thứ tự thăm: ' + order.join(' → '));
+  render();
+}
+
+async function runDFS() {
+  reset();
+  const start = parseInt(document.getElementById('start').value);
+  frontier = [start]; visited.add(start);
+  log('DFS: stack khởi tạo = [' + start + '].');
+  render();
+  await sleep(700);
+  while (frontier.length) {
+    current = frontier.pop();
+    order.push(current);
+    log(`Lấy ${current} từ đỉnh stack, thăm.`);
+    render();
+    await sleep(600);
+    // Push neighbors (reverse for natural order)
+    const nbs = adj[current].filter(n => !visited.has(n)).reverse();
+    for (const nb of nbs) {
+      visited.add(nb); frontier.push(nb);
+      usedEdges.add(current + '-' + nb);
+    }
+    log(`Đẩy hàng xóm chưa thăm vào stack: [${adj[current].filter(n => usedEdges.has(current + '-' + n)).join(', ')}]`);
+    render();
+    await sleep(500);
+    current = -1;
+  }
+  log('DFS xong. Thứ tự thăm: ' + order.join(' → '));
+  render();
+}
+
+function reset() { visited = new Set(); current = -1; frontier = []; order = []; usedEdges = new Set(); render(); }
+function log(m) { document.getElementById('log').textContent = m; }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+render();
+</script>
+</body>
+</html>

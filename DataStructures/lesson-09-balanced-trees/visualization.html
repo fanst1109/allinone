@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 09 — AVL Tree trực quan</title>
+<style>
+  body { font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 16px 24px; background: #f6f7f9; color: #222; }
+  .lesson-nav { display: flex; justify-content: space-between; gap: 8px; padding: 8px 12px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 16px; font-size: 14px; flex-wrap: wrap; }
+  .lesson-nav a { color: #3b82f6; text-decoration: none; padding: 4px 10px; border-radius: 4px; }
+  .lesson-nav a:hover { background: #eff6ff; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 16px; }
+  h1 { margin: 0 0 8px 0; } h2 { margin: 4px 0 8px 0; }
+  svg { background: #fafafa; border: 1px solid #eee; border-radius: 6px; display: block; width: 100%; max-width: 900px; }
+  .node-c { fill: #fff; stroke: #333; stroke-width: 2; transition: all .35s; }
+  .node-c.new { fill: #d1fae5; stroke: #10b981; }
+  .node-c.unbalanced { fill: #fee2e2; stroke: #ef4444; }
+  .node-c.rotated { fill: #fef08a; stroke: #ca8a04; }
+  .edge { stroke: #888; stroke-width: 2; transition: all .35s; }
+  text { font: 600 13px sans-serif; text-anchor: middle; dominant-baseline: central; }
+  .balance { font: 400 10px sans-serif; fill: #888; }
+  button { background: #3b82f6; color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; cursor: pointer; margin-right: 6px; }
+  input { padding: 4px; width: 80px; }
+  .log { color: #444; min-height: 22px; margin-top: 8px; font-family: monospace; font-size: 13px; }
+  .row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+<nav class="lesson-nav">
+  <a href="../lesson-08-heap-priority-queue/visualization.html">← Lesson 08 Heap</a>
+  <a href="./README.md">📖 README</a>
+  <a href="../README.md">📚 DataStructures</a>
+  <a href="../lesson-10-trie/visualization.html">Lesson 10 Trie →</a>
+</nav>
+
+<h1>AVL Tree — Cân bằng tự động</h1>
+
+<div class="panel">
+  <div class="row">
+    <label>Giá trị: <input id="val" type="number" value="25"></label>
+    <button onclick="doInsert()">Insert</button>
+    <button onclick="loadDemo()">Demo: 10,20,30,40,50,25</button>
+    <button onclick="loadBad()">Chèn dãy 1..7 (xem có rotation)</button>
+    <button onclick="reset()">Reset</button>
+  </div>
+  <svg id="svg" width="900" height="420"></svg>
+  <div class="log" id="log">Chèn từng số. Nếu cân bằng vượt ±1 → tự động rotation.</div>
+  <p style="color:#666;font-size:13px">Số nhỏ bên dưới node: balance factor = height(left) - height(right). Node ĐỎ: balance vượt ±1 trước khi rotation. Node VÀNG: sau rotation.</p>
+</div>
+
+<script>
+let root = null;
+
+function height(n) { return n ? n.h : -1; }
+function balance(n) { return height(n.left) - height(n.right); }
+function update(n) { n.h = 1 + Math.max(height(n.left), height(n.right)); }
+
+function rotateRight(y) {
+  const x = y.left; y.left = x.right; x.right = y;
+  update(y); update(x); return x;
+}
+function rotateLeft(x) {
+  const y = x.right; x.right = y.left; y.left = x;
+  update(x); update(y); return y;
+}
+
+let lastRotation = null; // { type, atVal }
+function insert(n, v) {
+  if (!n) return { v, h: 0, left: null, right: null, fresh: true };
+  if (v < n.v) n.left = insert(n.left, v);
+  else if (v > n.v) n.right = insert(n.right, v);
+  else return n;
+  update(n);
+  const b = balance(n);
+  if (b > 1 && v < n.left.v) { lastRotation = { type: 'LL → rotate Right tại ' + n.v, atVal: n.v }; return rotateRight(n); }
+  if (b < -1 && v > n.right.v) { lastRotation = { type: 'RR → rotate Left tại ' + n.v, atVal: n.v }; return rotateLeft(n); }
+  if (b > 1 && v > n.left.v) {
+    lastRotation = { type: 'LR → rotate Left ở con trái, Right ở ' + n.v, atVal: n.v };
+    n.left = rotateLeft(n.left); return rotateRight(n);
+  }
+  if (b < -1 && v < n.right.v) {
+    lastRotation = { type: 'RL → rotate Right ở con phải, Left ở ' + n.v, atVal: n.v };
+    n.right = rotateRight(n.right); return rotateLeft(n);
+  }
+  return n;
+}
+
+function layout(n, x, y, dx, nodes, edges) {
+  if (!n) return;
+  n.__pos = { x, y };
+  nodes.push(n);
+  if (n.left)  { edges.push([n, n.left]);  layout(n.left,  x - dx, y + 70, Math.max(dx / 1.8, 25), nodes, edges); }
+  if (n.right) { edges.push([n, n.right]); layout(n.right, x + dx, y + 70, Math.max(dx / 1.8, 25), nodes, edges); }
+}
+
+function render(highlightVal = null, klass = '') {
+  const svg = document.getElementById('svg');
+  svg.innerHTML = '';
+  if (!root) return;
+  const nodes = [], edges = [];
+  layout(root, 450, 40, 220, nodes, edges);
+  edges.forEach(([a, b]) => {
+    svg.insertAdjacentHTML('beforeend',
+      `<line class="edge" x1="${a.__pos.x}" y1="${a.__pos.y}" x2="${b.__pos.x}" y2="${b.__pos.y}"/>`);
+  });
+  nodes.forEach(n => {
+    const k = (highlightVal === n.v) ? klass : (n.fresh ? 'new' : '');
+    svg.insertAdjacentHTML('beforeend',
+      `<circle class="node-c ${k}" cx="${n.__pos.x}" cy="${n.__pos.y}" r="22"/>
+       <text x="${n.__pos.x}" y="${n.__pos.y}">${n.v}</text>
+       <text class="balance" x="${n.__pos.x}" y="${n.__pos.y + 30}">b=${balance(n)}</text>`);
+  });
+}
+
+async function doInsert() {
+  const v = parseInt(document.getElementById('val').value);
+  lastRotation = null;
+  // clear fresh flag
+  function clear(n) { if (!n) return; n.fresh = false; clear(n.left); clear(n.right); }
+  clear(root);
+  root = insert(root, v);
+  render();
+  if (lastRotation) {
+    document.getElementById('log').textContent = `Insert ${v} → mất cân bằng → ${lastRotation.type}`;
+    render(lastRotation.atVal, 'rotated');
+  } else {
+    document.getElementById('log').textContent = `Insert ${v} (không cần rotation).`;
+  }
+}
+
+async function loadDemo() {
+  root = null;
+  for (const v of [10, 20, 30, 40, 50, 25]) {
+    function clear(n) { if (!n) return; n.fresh = false; clear(n.left); clear(n.right); }
+    clear(root);
+    lastRotation = null;
+    root = insert(root, v);
+    render();
+    document.getElementById('log').textContent =
+      `Chèn ${v}` + (lastRotation ? ` → ${lastRotation.type}` : ' (cân bằng ok)');
+    await sleep(900);
+  }
+}
+
+async function loadBad() {
+  root = null;
+  for (let v = 1; v <= 7; v++) {
+    function clear(n) { if (!n) return; n.fresh = false; clear(n.left); clear(n.right); }
+    clear(root);
+    lastRotation = null;
+    root = insert(root, v);
+    render();
+    document.getElementById('log').textContent =
+      `Chèn ${v}` + (lastRotation ? ` → ${lastRotation.type}` : ' (cân bằng ok)');
+    await sleep(800);
+  }
+  document.getElementById('log').textContent +=
+    ' — Cây vẫn cân bằng dù chèn dãy đã sắp xếp (BST thường sẽ thành dãy thẳng).';
+}
+
+function reset() { root = null; render(); document.getElementById('log').textContent = 'Reset.'; }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+loadDemo();
+</script>
+</body>
+</html>

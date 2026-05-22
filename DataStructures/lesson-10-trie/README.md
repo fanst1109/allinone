@@ -153,9 +153,10 @@ Truy vấn `countPrefix(p)`: đi xuống đến node ứng với cuối prefix, 
 
 Trong thực tế Trie **tốn bộ nhớ hơn HashSet** cho cùng số chuỗi, nhưng đổi lại có **truy vấn theo tiền tố nhanh**. Nếu cần nén bộ nhớ → dùng **compressed trie (Radix tree)**.
 
-## Code
+## Code & Minh họa
 
 - [solutions.go](./solutions.go) — cài Trie với insert/search/startsWith + đếm prefix + liệt kê từ.
+- [visualization.html](./visualization.html) — Trie với cạnh có nhãn ký tự, node vàng = kết thúc từ, animate đường tìm kiếm.
 
 ## Bài tiếp theo
 

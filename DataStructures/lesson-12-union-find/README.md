@@ -200,9 +200,10 @@ func kruskal(n int, edges []Edge) []Edge {
 ```
 `O(E log E)`.
 
-## Code
+## Code & Minh họa
 
 - [solutions.go](./solutions.go) — UF đầy đủ với rank + compression, đếm nhóm bạn, Kruskal.
+- [visualization.html](./visualization.html) — forest 10 phần tử, Union với rank và Find với path compression.
 
 ## Bài tiếp theo
 

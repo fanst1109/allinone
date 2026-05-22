@@ -213,9 +213,10 @@ Cần tổng nhanh + đếm phần tử = `r - l + 1`. **Segment tree range sum*
 Nếu mảng **không thay đổi**: dùng prefix sum đơn giản, `O(1)` mỗi query.
 Nếu có **point update**: Fenwick tree, `O(log n)`.
 
-## Code
+## Code & Minh họa
 
 - [solutions.go](./solutions.go) — Segment tree sum + min + lazy add; Fenwick + đếm nghịch thế.
+- [visualization.html](./visualization.html) — segment tree 8 phần tử, hiển thị các node bị duyệt khi query và update.
 
 ## Bài tiếp theo
 

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 12 — Union-Find trực quan</title>
+<style>
+  body { font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 16px 24px; background: #f6f7f9; color: #222; }
+  .lesson-nav { display: flex; justify-content: space-between; gap: 8px; padding: 8px 12px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 16px; font-size: 14px; flex-wrap: wrap; }
+  .lesson-nav a { color: #3b82f6; text-decoration: none; padding: 4px 10px; border-radius: 4px; }
+  .lesson-nav a:hover { background: #eff6ff; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 16px; }
+  h1 { margin: 0 0 8px 0; }
+  svg { background: #fafafa; border: 1px solid #eee; border-radius: 6px; display: block; width: 100%; max-width: 900px; }
+  .node-c { fill: #fff; stroke: #333; stroke-width: 2; transition: all .35s; }
+  .node-c.root { fill: #fef9c3; stroke: #ca8a04; stroke-width: 3; }
+  .node-c.touched { fill: #d1fae5; stroke: #10b981; }
+  .edge { stroke: #888; stroke-width: 2; transition: all .35s; }
+  text { font: 600 13px sans-serif; text-anchor: middle; dominant-baseline: central; }
+  .rank-text { font: 400 10px sans-serif; fill: #666; }
+  button { background: #3b82f6; color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; cursor: pointer; margin-right: 6px; }
+  input { padding: 4px; width: 50px; }
+  .log { color: #444; min-height: 22px; margin-top: 8px; font-family: monospace; font-size: 13px; }
+  .row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+</style>
+</head>
+<body>
+<nav class="lesson-nav">
+  <a href="../lesson-11-graph/visualization.html">← Lesson 11 Graph</a>
+  <a href="./README.md">📖 README</a>
+  <a href="../README.md">📚 DataStructures</a>
+  <a href="../lesson-13-segment-tree/visualization.html">Lesson 13 Segment Tree →</a>
+</nav>
+
+<h1>Union-Find — Disjoint Set Union</h1>
+
+<div class="panel">
+  <div class="row">
+    a = <input id="a" type="number" value="0" min="0" max="9">
+    b = <input id="b" type="number" value="1" min="0" max="9">
+    <button onclick="doUnion()">Union(a, b)</button>
+    <button onclick="doFind()">Find(a) (path compression)</button>
+    <button onclick="reset()">Reset</button>
+  </div>
+  <svg id="svg" width="900" height="380"></svg>
+  <div class="log" id="log">10 phần tử (0..9), mỗi cái là 1 tập. Union: dùng rank để gắn cây thấp vào cao. Find: nén đường lên gốc.</div>
+  <p style="color:#666;font-size:13px">Node vàng = gốc (đại diện tập). Số nhỏ dưới gốc: rank.</p>
+</div>
+
+<script>
+const N = 10;
+let parent = [], rank = [];
+function init() {
+  parent = Array.from({ length: N }, (_, i) => i);
+  rank = new Array(N).fill(0);
+}
+init();
+
+let touched = new Set();
+
+function find(x) {
+  touched.add(x);
+  if (parent[x] !== x) {
+    parent[x] = find(parent[x]);
+  }
+  return parent[x];
+}
+
+function union(a, b) {
+  const ra = find(a), rb = find(b);
+  if (ra === rb) return false;
+  if (rank[ra] < rank[rb]) { parent[ra] = rb; }
+  else if (rank[ra] > rank[rb]) { parent[rb] = ra; }
+  else { parent[rb] = ra; rank[ra]++; }
+  return true;
+}
+
+// Tính độ sâu để layout
+function buildForest() {
+  const children = Array.from({ length: N }, () => []);
+  const roots = [];
+  for (let i = 0; i < N; i++) {
+    if (parent[i] === i) roots.push(i);
+    else children[parent[i]].push(i);
+  }
+  return { children, roots };
+}
+
+function depthOf(node, children, d = 0) {
+  let maxD = d;
+  for (const c of children[node]) maxD = Math.max(maxD, depthOf(c, children, d + 1));
+  return maxD;
+}
+
+function layout() {
+  const { children, roots } = buildForest();
+  const positions = new Array(N);
+  let x0 = 60;
+  const gap = 80;
+  roots.forEach(r => {
+    // Layout subtree: assign x by DFS
+    let nextX = x0;
+    function place(node, depth) {
+      const lc = children[node];
+      if (lc.length === 0) {
+        positions[node] = { x: nextX, y: 40 + depth * 70 };
+        nextX += gap;
+      } else {
+        lc.forEach(c => place(c, depth + 1));
+        const left = positions[lc[0]].x, right = positions[lc[lc.length - 1]].x;
+        positions[node] = { x: (left + right) / 2, y: 40 + depth * 70 };
+      }
+    }
+    place(r, 0);
+    x0 = nextX + 20;
+  });
+  return { positions, children, roots };
+}
+
+function render() {
+  const svg = document.getElementById('svg');
+  svg.innerHTML = '';
+  const { positions, children, roots } = layout();
+  // edges
+  for (let i = 0; i < N; i++) {
+    if (parent[i] !== i) {
+      const p = positions[parent[i]], c = positions[i];
+      svg.insertAdjacentHTML('beforeend',
+        `<line class="edge" x1="${p.x}" y1="${p.y}" x2="${c.x}" y2="${c.y}"/>`);
+    }
+  }
+  for (let i = 0; i < N; i++) {
+    const isRoot = parent[i] === i;
+    const isTouched = touched.has(i);
+    const cls = isRoot ? 'root' : (isTouched ? 'touched' : '');
+    const { x, y } = positions[i];
+    svg.insertAdjacentHTML('beforeend',
+      `<circle class="node-c ${cls}" cx="${x}" cy="${y}" r="20"/>
+       <text x="${x}" y="${y}">${i}</text>` +
+      (isRoot ? `<text class="rank-text" x="${x}" y="${y + 28}">r=${rank[i]}</text>` : ''));
+  }
+}
+
+async function doUnion() {
+  touched = new Set();
+  const a = parseInt(document.getElementById('a').value);
+  const b = parseInt(document.getElementById('b').value);
+  const ra = find(a), rb = find(b);
+  if (ra === rb) {
+    log(`Union(${a}, ${b}): đã cùng tập (đại diện ${ra}), không làm gì.`);
+    render();
+    return;
+  }
+  const before = `rank[${ra}]=${rank[ra]}, rank[${rb}]=${rank[rb]}`;
+  union(a, b);
+  log(`Union(${a}, ${b}) → tìm gốc ${ra}, ${rb}. ${before}. Gắn cây thấp vào cao.`);
+  render();
+}
+
+async function doFind() {
+  touched = new Set();
+  const a = parseInt(document.getElementById('a').value);
+  const beforeParent = parent[a];
+  const r = find(a);
+  log(`Find(${a}): đi tới gốc = ${r}. Path compression đã chuyển tất cả node trên đường về trỏ thẳng tới ${r}.`);
+  render();
+}
+
+function reset() { init(); touched = new Set(); render(); log('Reset 10 tập đơn lẻ.'); }
+function log(m) { document.getElementById('log').textContent = m; }
+
+// Khởi tạo: union vài cặp để có cây mẫu
+union(0, 1); union(2, 3); union(0, 2); union(4, 5); union(4, 0); union(6, 7); union(8, 6);
+render();
+</script>
+</body>
+</html>

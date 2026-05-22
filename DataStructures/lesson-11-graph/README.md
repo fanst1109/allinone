@@ -275,9 +275,10 @@ func topoSort(g [][]int) []int {
 | Cần **duyệt toàn bộ hàng xóm** lặp đi lặp lại | List |
 | Đồ thị có **vài triệu đỉnh** | Bắt buộc List (matrix tràn RAM) |
 
-## Code
+## Code & Minh họa
 
 - [solutions.go](./solutions.go) — đầy đủ 4 bài (1, 2, 3, 4) + đồ thị mẫu.
+- [visualization.html](./visualization.html) — đồ thị 7 đỉnh, chạy BFS và DFS từng bước, hiển thị queue/stack và thứ tự thăm.
 
 ## Bài tiếp theo
 

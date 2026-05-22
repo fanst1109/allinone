@@ -73,6 +73,7 @@ Thư mục `tools/` ở cấp gốc chứa các file dùng chung cho toàn bộ 
 - Không sửa `tools/marked.min.js` (file thư viện, không tự viết).
 - Khi sửa `tools/readme-modal.js` hoặc `tools/build-readme-data.go`, thay đổi có hiệu lực ngay cho toàn bộ viz trong repo — kiểm tra kỹ trước khi commit.
 - Mỗi khi tạo `visualization.html` mới, **luôn** chạy `go run tools/build-readme-data.go` để sinh `README.data.js` tương ứng, rồi thêm 3 script tags vào viz (xem mục 5 ở trên).
+- **Mỗi khi sửa `README.md` của một lesson đã có `visualization.html`, BẮT BUỘC chạy lại `go run tools/build-readme-data.go` (hoặc giới hạn phạm vi `go run tools/build-readme-data.go <Lĩnh vực>`) để regenerate `README.data.js` tương ứng**, rồi commit cả `README.md` và `README.data.js` trong cùng một commit. `README.data.js` là file auto-generated — nếu quên sync, readme-modal sẽ hiển thị nội dung cũ. Không bao giờ sửa `README.data.js` bằng tay.
 
 ## Quy trình làm việc với git
 

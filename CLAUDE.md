@@ -85,6 +85,22 @@ Khi user yêu cầu tạo một bài học mới (ví dụ: *"tạo bài học v
 - **`visualization.html` chỉ tạo khi user yêu cầu** — không tự tạo sẵn. Khi tạo: standalone, mở trực tiếp trong trình duyệt là chạy.
 - Code Go phải biên dịch được; tổ chức theo style chuẩn (`gofmt`-friendly), tên file `solutions.go` hoặc `<chủ-đề>.go`.
 
+## Điều hướng giữa các bài học (Navigation)
+
+Khi một lĩnh vực có **≥ 2 lesson với visualization.html**, phải có hệ thống điều hướng để mở local cũng dùng được:
+
+- **`<Lĩnh vực>/index.html`** — trang chính của lĩnh vực, liệt kê toàn bộ lesson dưới dạng card. Mỗi card có 2 link: `▶ Visualization` (→ `./lesson-XX-yyy/visualization.html`) và `📖 README` (→ `./lesson-XX-yyy/README.md`). Khi có nhiều nhánh (vd "Phát âm" / "Ngữ pháp" / "Từ vựng" trong `English/`) thì chia section riêng cho từng nhánh.
+- **Nav sticky ở đầu mỗi `visualization.html`** với cấu trúc:
+  ```
+  🏠 Trang chính · ← L(N-1): Tiêu đề · L(N): Tiêu đề hiện tại · L(N+1): Tiêu đề →
+  ```
+  - 🏠 link về `../index.html`.
+  - Prev/Next link sang lesson liền kề trong thứ tự logic (không bắt buộc theo số thứ tự nếu lộ trình rẽ nhánh).
+  - Tiêu đề hiện tại được highlight (`background: white`, `font-weight: 700`) để phân biệt với link.
+  - CSS: `position: sticky; top: 0; z-index: 100;` — nav luôn hiện khi scroll.
+- **Tạo index.html và nav cùng lúc với lesson mới**: mỗi khi tạo lesson tiếp theo (vd L13), cập nhật `index.html` thêm card mới VÀ thêm nav vào visualization mới VÀ cập nhật nav `Next →` của lesson trước đó (L12).
+- Không phụ thuộc README.md cho điều hướng vì khi mở `file://` trên trình duyệt, Markdown không render — phải dùng HTML.
+
 ## Phong cách viết tài liệu — hiểu được ngay lần đọc đầu
 
 Mục tiêu: người đọc lần đầu phải hiểu **không cần hỏi lại**. Các nguyên tắc dưới đây rút ra từ những chỗ user phải đặt câu hỏi tiếp:

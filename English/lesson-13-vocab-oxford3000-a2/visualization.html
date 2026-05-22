@@ -126,8 +126,8 @@
   <p>80 từ A2 chia 8 nhóm. Flashcard SRS chung với L12 (tổng 130 từ).
     Giọng:
     <span class="accent-toggle">
-      <button id="btn-accent-us" class="active" data-variant="us">US 🇺🇸</button>
-      <button id="btn-accent-uk" data-variant="uk">UK 🇬🇧</button>
+      <button id="btn-accent-us" class="active" data-variant="us">US</button>
+      <button id="btn-accent-uk" data-variant="uk">UK</button>
     </span>
   </p>
 </header>
@@ -182,7 +182,7 @@
   </div>
 </section>
 
-<footer>Audio Oxford. SRS lưu trong localStorage (key: <code>vocab-srs-state</code>). Mặc định US 🇺🇸.</footer>
+<footer>Audio Oxford. SRS lưu trong localStorage (key: <code>vocab-srs-state</code>). Mặc định US.</footer>
 
 <audio id="audio-el" preload="none"></audio>
 </div>
@@ -194,14 +194,22 @@ const audioEl = document.getElementById('audio-el');
 let currentVariant = localStorage.getItem('audioVariant') || 'us';
 
 function ukToVariantPath(ukRel, v) { return v === 'us' ? "us_pron/" + ukRel.replace(/__gb_/, '__us_') : "uk_pron/" + ukRel; }
-function playAudio(ukRel, btn) {
-  if (!ukRel) return;
+function playAudio(ukRel, btn, fallbackText) {
+  if (!ukRel) {
+    if (fallbackText) speak(fallbackText, btn);
+    return;
+  }
   const cands = [DOMAIN_NEW + ukToVariantPath(ukRel, currentVariant), DOMAIN_OLD + ukToVariantPath(ukRel, currentVariant)];
   if (currentVariant === 'us') { cands.push(DOMAIN_NEW + ukToVariantPath(ukRel, 'uk')); cands.push(DOMAIN_OLD + ukToVariantPath(ukRel, 'uk')); }
   let idx = 0;
   if (btn) btn.classList.add('speaking');
   function tryNext() {
-    if (idx >= cands.length) { if (btn) btn.classList.remove('speaking'); return; }
+    if (idx >= cands.length) {
+      // All Oxford URLs failed → fallback to Web Speech
+      if (btn) btn.classList.remove('speaking');
+      if (fallbackText) speak(fallbackText, btn);
+      return;
+    }
     audioEl.onerror = tryNext;
     audioEl.onended = () => { if (btn) btn.classList.remove('speaking'); };
     audioEl.src = cands[idx++];
@@ -216,6 +224,30 @@ function setVariant(v) {
 }
 document.querySelectorAll('.accent-toggle button').forEach(btn => btn.addEventListener('click', () => setVariant(btn.dataset.variant)));
 setVariant(currentVariant);
+// Web Speech API fallback for words without Oxford audio
+const synth = window.speechSynthesis;
+let voices = [];
+function loadVoices() { voices = synth ? synth.getVoices() : []; }
+if (synth) { loadVoices(); if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = loadVoices; }
+function pickVoice(variant) {
+  if (!voices.length) return null;
+  const langPrefix = variant === 'uk' ? 'en-GB' : 'en-US';
+  const candidates = voices.filter(v => v.lang.startsWith(langPrefix));
+  if (!candidates.length) return voices.find(v => v.lang.startsWith('en')) || voices[0];
+  return candidates.find(v => /premium|enhanced|natural|samantha|alex|daniel|kate|fiona/i.test(v.name)) || candidates[0];
+}
+function speak(text, btn) {
+  if (!synth) return;
+  synth.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const v = pickVoice(currentVariant);
+  if (v) { u.voice = v; u.lang = v.lang; } else { u.lang = currentVariant === 'uk' ? 'en-GB' : 'en-US'; }
+  u.rate = 0.9;
+  if (btn) { btn.classList.add('speaking'); u.onend = () => btn.classList.remove('speaking'); u.onerror = () => btn.classList.remove('speaking'); }
+  synth.speak(u);
+}
+
+
 
 document.querySelectorAll('.tab').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -427,11 +459,11 @@ function showWordDetail(word) {
     <div class="meaning-big">${word.meaning}</div>
     <div class="example-big">${word.ex}</div>
     <div class="play-row">
-      <button class="play-pill ${word.a ? '' : 'disabled'}" id="play-btn-detail">▶ Nghe ${word.a ? "(Oxford)" : "(no audio)"}</button>
+      <button class="play-pill" id="play-btn-detail">▶ Nghe ${word.a ? "(Oxford)" : "(Web Speech)"}</button>
     </div>
   `;
   if (word.a) {
-    document.getElementById('play-btn-detail').addEventListener('click', (e) => playAudio(word.a, e.target));
+    document.getElementById('play-btn-detail').addEventListener('click', (e) => playAudio(word.a, e.target, word.w));
   }
 }
 
@@ -558,11 +590,7 @@ function showFcCard() {
     <button class="fc-btn show" id="btn-fc-reveal">🔄 Lật xem nghĩa</button>
   `;
   document.getElementById('fc-stats').textContent = `Từ ${fcCurrentIdx + 1} / ${fcQueue.length} — Level: ${fcCurrentWord.level.toUpperCase()} — Box: ${getFcBox(fcCurrentWord)}`;
-  if (fcCurrentWord.a) {
-    document.getElementById('btn-fc-listen').addEventListener('click', (e) => playAudio(fcCurrentWord.a, e.target));
-  } else {
-    document.getElementById('btn-fc-listen').disabled = true;
-  }
+  document.getElementById('btn-fc-listen').addEventListener('click', (e) => playAudio(fcCurrentWord.a, e.target, fcCurrentWord.w));
   document.getElementById('btn-fc-reveal').addEventListener('click', revealFc);
 }
 
@@ -654,7 +682,7 @@ function handleQuiz(ans, btn) {
   if (ans === currentQ.correct) {
     qStats.correct++;
     btn.classList.add('correct');
-    quizFeedback.innerHTML = `<strong>Đúng!</strong> ${currentQ.word.w} ${currentQ.word.ipa} = ${currentQ.word.meaning}. <em>"${currentQ.word.ex}"</em> ${currentQ.word.a ? `<button class="play-pill" style="margin-left:8px;" onclick="playAudio('${currentQ.word.a}', this)">▶ Nghe</button>` : ''}`;
+    quizFeedback.innerHTML = `<strong>Đúng!</strong> ${currentQ.word.w} ${currentQ.word.ipa} = ${currentQ.word.meaning}. <em>"${currentQ.word.ex}"</em> <button class=\"play-pill\" style=\"margin-left:8px;\" onclick=\"playAudio('${currentQ.word.a}', this, '${currentQ.word.w}')\">▶ Nghe</button>`;
     quizFeedback.className = 'quiz-feedback show ok';
   } else {
     btn.classList.add('wrong');

@@ -433,3 +433,4 @@ Code đầy đủ + biến thể dùng bitwise xem trong [solutions.go](./soluti
 - Bài tiếp: [Lesson 02 — Bitwise Operations](../lesson-02-bitwise-ops/) — các phép toán trên bit và bitmask.
 - Bài liên quan trong DataStructures: [Hash Table](../../DataStructures/lesson-05-hash-table/), [Advanced Structures (Bloom filter)](../../DataStructures/lesson-14-advanced-structures/).
 - Code: [solutions.go](./solutions.go).
+- Minh họa tương tác: [visualization.html](./visualization.html) — bộ chuyển đổi decimal/binary/hex, demo two's complement, playground overflow.

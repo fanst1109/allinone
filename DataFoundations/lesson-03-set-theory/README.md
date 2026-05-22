@@ -523,3 +523,4 @@ Lớp tương đương: `{1, 2, 3, 4}` và `{5, 6}`. (Người 7,... không có 
   - [Union-Find](../../DataStructures/lesson-12-union-find/) — lớp tương đương.
   - [Graph](../../DataStructures/lesson-11-graph/) — tích Descartes V × V.
 - Code: [solutions.go](./solutions.go).
+- Minh họa tương tác: [visualization.html](./visualization.html) — biểu đồ Venn tương tác, bitmask view song song, liệt kê power set.

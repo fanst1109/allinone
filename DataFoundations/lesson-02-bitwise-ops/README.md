@@ -552,3 +552,4 @@ Với `x = 0b11010010`:
 - Liên quan trong DataStructures: [Hash Table](../../DataStructures/lesson-05-hash-table/) (bitwise trong hash function), [Segment Tree / Fenwick](../../DataStructures/lesson-13-segment-tree/) (`x & -x`), [Advanced Structures](../../DataStructures/lesson-14-advanced-structures/) (Bloom filter).
 - Tài liệu Go: [`math/bits`](https://pkg.go.dev/math/bits) — luôn ưu tiên dùng thư viện chuẩn cho popcount, leading zeros, trailing zeros.
 - Code: [solutions.go](./solutions.go).
+- Minh họa tương tác: [visualization.html](./visualization.html) — máy tính bitwise 8-bit, demo bitmask, animation Brian Kernighan, bộ liệt kê tập con.

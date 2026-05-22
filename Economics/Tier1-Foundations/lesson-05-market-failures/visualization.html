@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 05 — Market Failures</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  main { max-width: 1040px; margin: 0 auto; padding: 24px; }
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .lead { color: #4a5568; margin-bottom: 24px; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 220px; color: #2d3748; }
+  input[type="number"], input[type="range"] { font-family: monospace; padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 4px; }
+  input[type="number"] { width: 100px; }
+  input[type="range"] { width: 240px; }
+  .result { background: #f7fafc; border-left: 4px solid #c05621; padding: 14px 18px; margin-top: 14px; border-radius: 4px; font-family: monospace; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  svg { display: block; margin: 0 auto; max-width: 100%; }
+  .legend { display: flex; gap: 14px; font-size: 13px; margin: 8px 0; color: #4a5568; flex-wrap: wrap; }
+  .legend .sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: 4px; opacity: 0.7; }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; background: #fff5eb; color: #c05621; font-weight: 700; margin-left: 6px; }
+  button { background: #c05621; color: white; border: none; padding: 7px 14px; border-radius: 4px; cursor: pointer; font-weight: 600; }
+  button:hover { background: #9c4221; }
+  button.alt { background: #4a5568; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-surplus-dwl/visualization.html">← L4: Thặng dư & DWL</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Market failures</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.55">L6: Consumer theory → (sắp ra)</span>
+</nav>
+
+<main>
+  <h1>Lesson 05 — Market Failures</h1>
+  <div class="lead">Mô phỏng externality (tiêu cực + tích cực) bằng MPC/MSC/MPB/MSB, demo thuế Pigou xoá DWL, và mô phỏng adverse selection vòng xoáy.</div>
+
+  <h2>1. Externality — Cân bằng thị trường vs cân bằng xã hội <span class="pill">MPC / MSC / MSB</span></h2>
+  <div class="card">
+    <div class="row"><label>Loại externality</label>
+      <select id="ext-type">
+        <option value="neg">Tiêu cực (ô nhiễm)</option>
+        <option value="pos">Tích cực (vắc-xin)</option>
+      </select>
+    </div>
+    <div class="row"><label>MPC (chi phí biên tư)</label><input id="mpc" type="number" value="50" step="5"></div>
+    <div class="row"><label>External cost/benefit</label><input id="ext" type="range" min="0" max="60" step="5" value="20"><span id="ext-v" style="font-family:monospace;"></span></div>
+    <div class="row"><label>Cầu intercept (MPB max)</label><input id="dmax" type="number" value="150" step="5"></div>
+    <div class="row"><label>Áp thuế/trợ giá Pigou?</label><input id="pigou" type="checkbox"></div>
+
+    <svg id="svg" viewBox="0 0 600 440" style="background:#fff; border:1px solid #e2e8f0;"></svg>
+    <div class="legend">
+      <span><span class="sw" style="background:#c05621"></span>MPC</span>
+      <span><span class="sw" style="background:#9c4221"></span>MSC</span>
+      <span><span class="sw" style="background:#3182ce"></span>MPB</span>
+      <span><span class="sw" style="background:#2c5282"></span>MSB</span>
+      <span><span class="sw" style="background:#e53e3e"></span>DWL</span>
+    </div>
+    <div class="result" id="out"></div>
+  </div>
+
+  <h2>2. Adverse selection — Vòng xoáy lemon market <span class="pill">Asymmetric Info</span></h2>
+  <div class="card">
+    <p>Mô phỏng thị trường bảo hiểm: khi premium tăng, nhóm khỏe rời → còn nhóm yếu → premium phải tăng tiếp.</p>
+    <div class="row"><label>% nhóm khỏe ban đầu</label><input id="healthy-pct" type="range" min="10" max="90" step="5" value="60"><span id="hp-v" style="font-family:monospace;"></span></div>
+    <div class="row"><label>Chi phí nhóm khỏe</label><input id="cost-healthy" type="number" value="1000" step="100"></div>
+    <div class="row"><label>Chi phí nhóm yếu</label><input id="cost-sick" type="number" value="5000" step="100"></div>
+    <div class="row"><label>WTP của nhóm khỏe (x chi phí)</label><input id="wtp-mult" type="range" min="1" max="2" step="0.05" value="1.1"><span id="wm-v" style="font-family:monospace;"></span></div>
+    <div class="result" id="as-out"></div>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+function get(id) { const el = $(id); return el.type === 'checkbox' ? el.checked : (parseFloat(el.value) || 0); }
+
+function calcExt() {
+  const type = $('ext-type').value;
+  const mpc = get('mpc'), ext = get('ext'), dmax = get('dmax');
+  const pigou = get('pigou');
+  $('ext-v').textContent = ext.toFixed(0);
+
+  // Cầu: MPB = dmax − Q
+  // Cung: MPC = mpc (cố định cho đơn giản)
+  // Tiêu cực: MSC = MPC + ext, MSB = MPB
+  // Tích cực: MSC = MPC, MSB = MPB + ext
+
+  let MSC, MSBmax;
+  if (type === 'neg') { MSC = mpc + ext; MSBmax = dmax; }
+  else { MSC = mpc; MSBmax = dmax + ext; }
+
+  // Q_market: MPC = MPB → mpc = dmax − Q → Q = dmax − mpc
+  // Q_optimal: MSC = MSB → MSC = MSBmax − Q → Q = MSBmax − MSC
+  const Qm = dmax - mpc;
+  const Qo = MSBmax - MSC;
+
+  // Sau Pigou:
+  // Tiêu cực: thuế ext lên MPC → MPC mới = mpc + ext = MSC → Q_new = Qo
+  // Tích cực: trợ cấp ext lên MPB → MPB mới = dmax + ext = MSB → Q_new = Qo
+  const Qpolicy = Qo;
+
+  // SVG
+  const W = 600, H = 440, padL = 60, padB = 50, padT = 30, padR = 30;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const Qview = Math.max(dmax, MSBmax) * 1.1;
+  const Pview = Math.max(dmax, MSBmax) * 1.1;
+  const sx = q => padL + (q / Qview) * plotW;
+  const sy = p => padT + plotH - (p / Pview) * plotH;
+
+  let svg = '';
+  // grid
+  for (let i = 1; i <= 5; i++) {
+    svg += `<line x1="${sx(Qview/5*i)}" y1="${padT}" x2="${sx(Qview/5*i)}" y2="${padT+plotH}" stroke="#f0f0f0"/>`;
+    svg += `<line x1="${padL}" y1="${sy(Pview/5*i)}" x2="${padL+plotW}" y2="${sy(Pview/5*i)}" stroke="#f0f0f0"/>`;
+    svg += `<text x="${sx(Qview/5*i)}" y="${padT+plotH+16}" text-anchor="middle" font-size="11" fill="#718096">${(Qview/5*i).toFixed(0)}</text>`;
+    svg += `<text x="${padL-8}" y="${sy(Pview/5*i)+4}" text-anchor="end" font-size="11" fill="#718096">${(Pview/5*i).toFixed(0)}</text>`;
+  }
+
+  // DWL area
+  if (type === 'neg' && Qm > Qo) {
+    // Tam giác giữa MSC và MPB từ Qo tới Qm
+    svg += `<polygon points="${sx(Qo)},${sy(MSC)} ${sx(Qm)},${sy(mpc)} ${sx(Qm)},${sy(MSC)}" fill="#e53e3e" fill-opacity="0.5"/>`;
+  } else if (type === 'pos' && Qo > Qm) {
+    // Tam giác giữa MSB và MSC từ Qm tới Qo
+    svg += `<polygon points="${sx(Qm)},${sy(MSC)} ${sx(Qo)},${sy(MSC)} ${sx(Qm)},${sy(MSBmax - Qm)}" fill="#e53e3e" fill-opacity="0.5"/>`;
+  }
+
+  // Đường MPC (cam, ngang)
+  svg += `<line x1="${padL}" y1="${sy(mpc)}" x2="${sx(Qview)}" y2="${sy(mpc)}" stroke="#c05621" stroke-width="2.5"/>`;
+  svg += `<text x="${sx(Qview) + 4}" y="${sy(mpc)+4}" font-size="12" fill="#c05621" font-weight="700">MPC</text>`;
+  // Đường MSC nếu tiêu cực
+  if (type === 'neg' && ext > 0) {
+    svg += `<line x1="${padL}" y1="${sy(MSC)}" x2="${sx(Qview)}" y2="${sy(MSC)}" stroke="#9c4221" stroke-width="2" stroke-dasharray="6,3"/>`;
+    svg += `<text x="${sx(Qview) + 4}" y="${sy(MSC)+4}" font-size="12" fill="#9c4221" font-weight="700">MSC</text>`;
+  }
+  // Đường MPB (xanh): từ (0, dmax) tới (dmax, 0)
+  svg += `<line x1="${sx(0)}" y1="${sy(dmax)}" x2="${sx(dmax)}" y2="${sy(0)}" stroke="#3182ce" stroke-width="2.5"/>`;
+  svg += `<text x="${sx(dmax) - 30}" y="${sy(0) - 8}" font-size="12" fill="#3182ce" font-weight="700">MPB</text>`;
+  // Đường MSB nếu tích cực
+  if (type === 'pos' && ext > 0) {
+    svg += `<line x1="${sx(0)}" y1="${sy(MSBmax)}" x2="${sx(MSBmax)}" y2="${sy(0)}" stroke="#2c5282" stroke-width="2" stroke-dasharray="6,3"/>`;
+    svg += `<text x="${sx(MSBmax) - 30}" y="${sy(0) - 24}" font-size="12" fill="#2c5282" font-weight="700">MSB</text>`;
+  }
+
+  // Q_market dot
+  svg += `<circle cx="${sx(Qm)}" cy="${sy(mpc)}" r="6" fill="#c05621"/>`;
+  svg += `<text x="${sx(Qm)}" y="${sy(mpc) + 18}" text-anchor="middle" font-size="11" fill="#c05621">Q_market=${Qm.toFixed(0)}</text>`;
+  // Q_optimal dot
+  svg += `<circle cx="${sx(Qo)}" cy="${sy(MSC)}" r="6" fill="#2f855a"/>`;
+  svg += `<text x="${sx(Qo)}" y="${sy(MSC) - 12}" text-anchor="middle" font-size="11" fill="#2f855a">Q_opt=${Qo.toFixed(0)}</text>`;
+
+  svg += `<line x1="${padL}" y1="${padT+plotH}" x2="${padL+plotW}" y2="${padT+plotH}" stroke="#cbd5e0"/>`;
+  svg += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+plotH}" stroke="#cbd5e0"/>`;
+
+  $('svg').innerHTML = svg;
+
+  let DWL = 0;
+  if (type === 'neg' && Qm > Qo) DWL = 0.5 * (Qm - Qo) * ext;
+  if (type === 'pos' && Qo > Qm) DWL = 0.5 * (Qo - Qm) * ext;
+
+  $('out').innerHTML =
+    `<strong>${type === 'neg' ? 'Externality tiêu cực' : 'Externality tích cực'}</strong> với external ${type === 'neg' ? 'cost' : 'benefit'} = ${ext}\n` +
+    `Cân bằng thị trường: Q_market = ${Qm.toFixed(0)}\n` +
+    `Cân bằng xã hội tối ưu: Q_opt = ${Qo.toFixed(0)}\n` +
+    `→ Thị trường ${type === 'neg' ? 'sản xuất THỪA' : 'sản xuất THIẾU'} ${Math.abs(Qm - Qo).toFixed(0)} đơn vị\n` +
+    `DWL (không chính sách) = ${DWL.toFixed(1)}\n\n` +
+    (pigou ?
+      `<strong>Áp ${type === 'neg' ? 'thuế Pigou' : 'trợ cấp Pigou'} = ${ext}</strong>:\n` +
+      `→ ${type === 'neg' ? 'MPC dịch lên trùng MSC' : 'MPB dịch lên trùng MSB'}\n` +
+      `→ Q mới = Q_opt = ${Qo.toFixed(0)}\n` +
+      `→ DWL = 0 ✓ (Pigou xoá DWL của externality)` :
+      `Bật checkbox "Áp thuế/trợ giá Pigou" để xem hiệu ứng.`);
+}
+['ext-type', 'mpc', 'ext', 'dmax', 'pigou'].forEach(id => $(id).addEventListener('input', calcExt));
+
+// Adverse selection
+function calcAS() {
+  let healthyPct = get('healthy-pct') / 100;
+  const ch = get('cost-healthy'), cs = get('cost-sick');
+  const wtp = get('wtp-mult');
+  $('hp-v').textContent = (healthyPct * 100).toFixed(0) + '%';
+  $('wm-v').textContent = wtp.toFixed(2) + 'x';
+
+  let log = '';
+  let round = 0;
+  const wtpHealthy = ch * wtp;
+  while (round < 5) {
+    round++;
+    const premium = healthyPct * ch + (1 - healthyPct) * cs;
+    log += `Vòng ${round}: % khỏe = ${(healthyPct * 100).toFixed(0)}%, premium = ${premium.toFixed(0)}\n`;
+    if (premium > wtpHealthy) {
+      log += `  → Premium ${premium.toFixed(0)} > WTP khỏe ${wtpHealthy.toFixed(0)} → nhóm khỏe RỜI\n`;
+      if (healthyPct < 0.05) break;
+      healthyPct = healthyPct * 0.3; // nhóm khỏe rời phần lớn
+    } else {
+      log += `  → Premium ≤ WTP khỏe → THỊ TRƯỜNG ỔN ĐỊNH ✓\n`;
+      break;
+    }
+  }
+  if (healthyPct < 0.05) log += `\n<strong>Thị trường sụp đổ adverse selection</strong> — chỉ còn nhóm yếu, premium ≈ ${cs}.`;
+  $('as-out').innerHTML = log;
+}
+['healthy-pct', 'cost-healthy', 'cost-sick', 'wtp-mult'].forEach(id => $(id).addEventListener('input', calcAS));
+
+calcExt(); calcAS();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+</body>
+</html>

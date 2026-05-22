@@ -5,15 +5,24 @@
 //   <script src="./README.data.js"></script>
 //   <script src="../../tools/readme-modal.js"></script>
 //
-// Script tự inject CSS + DOM (nút floating + modal + backdrop), không cần
+// Script tự inject CSS + DOM (nút floating + panel + backdrop), không cần
 // markup riêng trong viz. Render README bằng marked.parse(window.README_MD).
 // Phụ thuộc: window.marked (từ marked.min.js) và window.README_MD (từ
 // README.data.js, do tools/build-readme-data.go sinh ra).
+//
+// 3 chế độ hiển thị (lưu vào localStorage key "rmViewMode"):
+//   modal    — panel trượt từ phải ~65% chiều rộng, có backdrop mờ (mặc định)
+//   sidebar  — panel cố định bên phải ~40%, viz vẫn tương tác được bên trái
+//   fullscreen — che toàn màn hình, đọc tập trung
 
 (function () {
   'use strict';
 
-  const STYLE = `
+  var LS_KEY = 'rmViewMode';
+  var MODES = ['modal', 'sidebar', 'fullscreen'];
+
+  var STYLE = `
+    /* Nút floating */
     .rm-btn {
       position: fixed; bottom: 24px; right: 24px; z-index: 200;
       background: #2c5282; color: white;
@@ -21,44 +30,102 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.25);
       cursor: pointer; font-weight: 700; font-size: 14px;
       border: none; user-select: none;
-      transition: transform 0.15s, background 0.15s;
+      transition: transform 0.15s, background 0.15s, opacity 0.2s;
       font-family: inherit;
     }
     .rm-btn:hover { transform: translateY(-2px); background: #1e3a5f; }
+    .rm-btn.rm-hidden { opacity: 0; pointer-events: none; transform: translateY(8px); }
+
+    /* Backdrop */
     .rm-backdrop {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45);
       z-index: 250; opacity: 0; pointer-events: none;
-      transition: opacity 0.2s;
+      transition: opacity 0.22s;
     }
     .rm-backdrop.rm-open { opacity: 1; pointer-events: auto; }
-    .rm-modal {
-      position: fixed; top: 0; right: 0; bottom: 0;
-      width: 65%; max-width: 820px; min-width: 320px;
+
+    /* Panel — base */
+    .rm-panel {
+      position: fixed;
       background: white; z-index: 300;
-      box-shadow: -4px 0 24px rgba(0,0,0,0.18);
-      transform: translateX(105%); transition: transform 0.28s;
       display: flex; flex-direction: column;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
-    .rm-modal.rm-open { transform: translateX(0); }
-    .rm-modal .rm-header {
+
+    /* Modal mode */
+    .rm-panel.rm-mode-modal {
+      top: 0; right: 0; bottom: 0;
+      width: 65%; max-width: 820px; min-width: 320px;
+      box-shadow: -4px 0 24px rgba(0,0,0,0.2);
+      transform: translateX(105%);
+      transition: transform 0.28s cubic-bezier(.4,0,.2,1);
+    }
+    .rm-panel.rm-mode-modal.rm-open { transform: translateX(0); }
+
+    /* Sidebar mode */
+    .rm-panel.rm-mode-sidebar {
+      top: 0; right: 0; bottom: 0;
+      width: 40%; min-width: 300px; max-width: 640px;
+      box-shadow: -3px 0 18px rgba(0,0,0,0.15);
+      transform: translateX(105%);
+      transition: transform 0.28s cubic-bezier(.4,0,.2,1);
+    }
+    .rm-panel.rm-mode-sidebar.rm-open { transform: translateX(0); }
+
+    /* Fullscreen mode */
+    .rm-panel.rm-mode-fullscreen {
+      inset: 0; width: 100%;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+    }
+    .rm-panel.rm-mode-fullscreen.rm-open { transform: translateY(0); }
+
+    /* Header */
+    .rm-panel .rm-header {
       background: #2c5282; color: white;
-      padding: 14px 20px; display: flex;
+      padding: 10px 16px; display: flex;
       justify-content: space-between; align-items: center;
-      flex-shrink: 0;
+      flex-shrink: 0; gap: 10px;
     }
-    .rm-modal .rm-title { font-weight: 700; font-size: 15px; }
-    .rm-modal .rm-close {
+    .rm-panel .rm-title { font-weight: 700; font-size: 15px; flex-shrink: 0; }
+
+    /* Mode toggle */
+    .rm-mode-toggle {
+      display: flex; gap: 3px; flex: 1; justify-content: center;
+    }
+    .rm-mode-toggle button {
+      background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.85);
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 4px 10px; border-radius: 4px;
+      cursor: pointer; font-size: 12px; font-family: inherit;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+    .rm-mode-toggle button:hover {
+      background: rgba(255,255,255,0.28); color: white;
+    }
+    .rm-mode-toggle button.rm-active {
+      background: rgba(255,255,255,0.35); color: white;
+      font-weight: 700; border-color: rgba(255,255,255,0.5);
+    }
+
+    /* Close button */
+    .rm-panel .rm-close {
       background: rgba(255,255,255,0.15); color: white;
-      border: none; width: 32px; height: 32px;
-      border-radius: 50%; cursor: pointer; font-size: 18px;
+      border: none; width: 30px; height: 30px; flex-shrink: 0;
+      border-radius: 50%; cursor: pointer; font-size: 17px;
       line-height: 1; font-family: inherit;
+      transition: background 0.15s;
     }
-    .rm-modal .rm-close:hover { background: rgba(255,255,255,0.3); }
-    .rm-modal .rm-content {
+    .rm-panel .rm-close:hover { background: rgba(255,255,255,0.3); }
+
+    /* Content area */
+    .rm-panel .rm-content {
       overflow-y: auto; padding: 24px 28px;
       font-size: 14px; line-height: 1.65; color: #1f2328;
+      flex: 1;
     }
+
     /* Markdown styles */
     .rm-content h1 { font-size: 24px; margin: 0 0 16px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
     .rm-content h2 { font-size: 19px; margin: 24px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #e2e8f0; color: #2d3748; }
@@ -95,37 +162,41 @@
     .rm-content strong { font-weight: 700; }
     .rm-content em { font-style: italic; }
     .rm-content img { max-width: 100%; height: auto; }
+
+    /* Toast */
     .rm-toast {
-      position: fixed; bottom: 24px; right: 24px; z-index: 200;
+      position: fixed; bottom: 24px; right: 24px; z-index: 400;
       background: #c53030; color: white; padding: 10px 16px;
       border-radius: 6px; font-size: 13px; max-width: 420px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.25);
     }
+
     @media (max-width: 700px) {
-      .rm-modal { width: 95%; min-width: 0; }
+      .rm-panel.rm-mode-modal,
+      .rm-panel.rm-mode-sidebar { width: 95%; min-width: 0; }
     }
   `;
 
   function showToast(msg) {
-    const t = document.createElement('div');
+    var t = document.createElement('div');
     t.className = 'rm-toast';
     t.textContent = msg;
     document.body.appendChild(t);
-    setTimeout(() => t.remove(), 6000);
+    setTimeout(function () { t.remove(); }, 6000);
   }
 
   function init() {
     // Inject styles (idempotent)
     if (!document.getElementById('rm-styles')) {
-      const style = document.createElement('style');
+      var style = document.createElement('style');
       style.id = 'rm-styles';
       style.textContent = STYLE;
       document.head.appendChild(style);
     }
 
     // Check dependencies
-    const hasMarked = typeof window.marked !== 'undefined' && typeof window.marked.parse === 'function';
-    const hasReadme = typeof window.README_MD === 'string';
+    var hasMarked = typeof window.marked !== 'undefined' && typeof window.marked.parse === 'function';
+    var hasReadme = typeof window.README_MD === 'string';
 
     if (!hasMarked) {
       console.warn('[readme-modal] marked chưa load. Kiểm tra <script src="../../tools/marked.min.js"> đứng TRƯỚC readme-modal.js.');
@@ -139,62 +210,121 @@
     }
 
     // Build DOM (idempotent)
-    if (document.getElementById('rm-modal')) return;
+    if (document.getElementById('rm-panel')) return;
 
-    const btn = document.createElement('button');
+    // Read saved mode
+    var savedMode = localStorage.getItem(LS_KEY) || 'modal';
+    if (MODES.indexOf(savedMode) === -1) savedMode = 'modal';
+    var currentMode = savedMode;
+
+    // Floating button
+    var btn = document.createElement('button');
     btn.className = 'rm-btn';
     btn.id = 'rm-btn';
     btn.type = 'button';
     btn.textContent = '📖 Đọc README';
 
-    const backdrop = document.createElement('div');
+    // Backdrop (used only in modal + fullscreen modes)
+    var backdrop = document.createElement('div');
     backdrop.className = 'rm-backdrop';
     backdrop.id = 'rm-backdrop';
 
-    const modal = document.createElement('aside');
-    modal.className = 'rm-modal';
-    modal.id = 'rm-modal';
-    modal.setAttribute('role', 'dialog');
-    modal.setAttribute('aria-hidden', 'true');
-    modal.setAttribute('aria-label', 'README');
-    modal.innerHTML =
+    // Panel
+    var panel = document.createElement('aside');
+    panel.className = 'rm-panel';
+    panel.id = 'rm-panel';
+    panel.setAttribute('role', 'dialog');
+    panel.setAttribute('aria-hidden', 'true');
+    panel.setAttribute('aria-label', 'README');
+    panel.innerHTML =
       '<div class="rm-header">' +
         '<span class="rm-title">📖 README</span>' +
+        '<div class="rm-mode-toggle">' +
+          '<button type="button" data-mode="modal" title="Panel trượt từ phải, có backdrop">Modal</button>' +
+          '<button type="button" data-mode="sidebar" title="Sidebar cố định bên phải, vẫn thao tác được viz">Sidebar</button>' +
+          '<button type="button" data-mode="fullscreen" title="Che toàn màn hình để đọc tập trung">Full</button>' +
+        '</div>' +
         '<button class="rm-close" type="button" aria-label="Đóng">✕</button>' +
       '</div>' +
       '<div class="rm-content"></div>';
 
     document.body.appendChild(btn);
     document.body.appendChild(backdrop);
-    document.body.appendChild(modal);
+    document.body.appendChild(panel);
 
-    let rendered = false;
+    var rendered = false;
+
+    function applyMode(mode) {
+      // Remove old mode class
+      MODES.forEach(function (m) { panel.classList.remove('rm-mode-' + m); });
+      panel.classList.add('rm-mode-' + mode);
+
+      // Update active button in toggle
+      panel.querySelectorAll('.rm-mode-toggle button').forEach(function (b) {
+        b.classList.toggle('rm-active', b.dataset.mode === mode);
+      });
+
+      currentMode = mode;
+      try { localStorage.setItem(LS_KEY, mode); } catch (e) {}
+    }
+
     function open() {
       if (!rendered) {
         try {
-          modal.querySelector('.rm-content').innerHTML = window.marked.parse(window.README_MD);
+          panel.querySelector('.rm-content').innerHTML = window.marked.parse(window.README_MD);
         } catch (e) {
           console.error('[readme-modal] render lỗi:', e);
-          modal.querySelector('.rm-content').textContent = 'Lỗi render markdown: ' + e.message;
+          panel.querySelector('.rm-content').textContent = 'Lỗi render markdown: ' + e.message;
         }
         rendered = true;
       }
-      modal.classList.add('rm-open');
-      backdrop.classList.add('rm-open');
-      modal.setAttribute('aria-hidden', 'false');
-    }
-    function close() {
-      modal.classList.remove('rm-open');
-      backdrop.classList.remove('rm-open');
-      modal.setAttribute('aria-hidden', 'true');
+
+      applyMode(currentMode);
+      panel.classList.add('rm-open');
+      panel.setAttribute('aria-hidden', 'false');
+      btn.classList.add('rm-hidden');
+
+      // Backdrop: chỉ dùng cho modal và fullscreen, không dùng cho sidebar
+      if (currentMode !== 'sidebar') {
+        backdrop.classList.add('rm-open');
+      }
     }
 
+    function close() {
+      panel.classList.remove('rm-open');
+      backdrop.classList.remove('rm-open');
+      panel.setAttribute('aria-hidden', 'true');
+      btn.classList.remove('rm-hidden');
+    }
+
+    // Mode toggle: switch mode while panel is open or closed
+    panel.querySelectorAll('.rm-mode-toggle button').forEach(function (b) {
+      b.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var newMode = b.dataset.mode;
+        var wasOpen = panel.classList.contains('rm-open');
+        applyMode(newMode);
+        if (wasOpen) {
+          // Re-apply backdrop state for new mode
+          if (newMode === 'sidebar') {
+            backdrop.classList.remove('rm-open');
+          } else {
+            backdrop.classList.add('rm-open');
+          }
+        }
+      });
+    });
+
     btn.addEventListener('click', open);
-    modal.querySelector('.rm-close').addEventListener('click', close);
+    panel.querySelector('.rm-close').addEventListener('click', close);
+    // Backdrop click closes panel (backdrop only shown in modal/fullscreen)
     backdrop.addEventListener('click', close);
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && modal.classList.contains('rm-open')) close();
+      if (e.key === 'Escape' && panel.classList.contains('rm-open')) close();
     });
+
+    // Apply initial mode class without opening
+    applyMode(currentMode);
   }
 
   if (document.readyState === 'loading') {

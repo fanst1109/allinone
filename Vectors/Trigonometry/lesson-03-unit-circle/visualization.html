@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Đường tròn đơn vị</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  main { max-width: 1080px; margin: 0 auto; padding: 24px; }
+  h1 { color: #1a202c; margin-top: 8px; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .card h3 { margin-top: 0; color: #2c5282; }
+  .desc { color: #4a5568; font-size: 14px; margin-bottom: 12px; }
+
+  .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 50px; color: #4a5568; }
+
+  input[type="range"] { width: 280px; }
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; padding: 6px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 90px;
+  }
+  select {
+    font-size: 14px; padding: 7px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    background: white;
+    min-width: 240px;
+  }
+
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 7px 12px; border-radius: 4px; font-size: 13px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #a0aec0; }
+  button.secondary:hover { background: #718096; }
+
+  .result {
+    background: #1a202c; color: #68d391;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    padding: 12px 16px; border-radius: 4px;
+    margin-top: 12px; font-size: 14px;
+    white-space: pre-wrap;
+  }
+
+  /* Layout cho phần unit circle interactive */
+  .circle-layout {
+    display: grid;
+    grid-template-columns: 460px 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  @media (max-width: 880px) {
+    .circle-layout { grid-template-columns: 1fr; }
+  }
+
+  svg.unit-circle {
+    background: #fbfdff;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    cursor: grab;
+    user-select: none;
+    display: block;
+  }
+  svg.unit-circle:active { cursor: grabbing; }
+
+  .quad-fill { opacity: 0.18; }
+  .q1 { fill: #48bb78; }     /* xanh lá */
+  .q2 { fill: #ed8936; }     /* cam */
+  .q3 { fill: #f56565; }     /* đỏ */
+  .q4 { fill: #4299e1; }     /* xanh dương */
+  .quad-label {
+    font-family: "SF Mono", monospace;
+    font-size: 14px; font-weight: 700;
+    fill: #2d3748;
+    pointer-events: none;
+  }
+  .axis { stroke: #4a5568; stroke-width: 1.5; }
+  .grid { stroke: #e2e8f0; stroke-width: 1; }
+  .tick-label {
+    font-family: "SF Mono", monospace;
+    font-size: 11px; fill: #4a5568;
+  }
+  .circle-stroke {
+    fill: none; stroke: #2d3748; stroke-width: 2;
+  }
+  .radius-line {
+    stroke: #2c5282; stroke-width: 2.5;
+  }
+  .proj-line {
+    stroke: #3182ce; stroke-width: 1.5; stroke-dasharray: 4 4;
+  }
+  .point-p {
+    fill: #c53030; stroke: white; stroke-width: 2;
+    cursor: grab;
+  }
+  .point-p:active { cursor: grabbing; }
+  .point-cos, .point-sin {
+    fill: #3182ce; stroke: white; stroke-width: 1.5;
+  }
+  .angle-arc {
+    fill: none; stroke: #d69e2e; stroke-width: 2;
+  }
+  .angle-label {
+    font-family: "SF Mono", monospace;
+    font-size: 13px; font-weight: 700;
+    fill: #b7791f;
+  }
+  .axis-label {
+    font-family: "SF Mono", monospace;
+    font-size: 12px; fill: #4a5568;
+  }
+  .special-dot {
+    fill: #805ad5; stroke: white; stroke-width: 1.5;
+    cursor: pointer;
+  }
+  .special-dot:hover { fill: #6b46c1; r: 6; }
+  .special-label {
+    font-family: "SF Mono", monospace;
+    font-size: 10px; fill: #553c9a;
+    pointer-events: none;
+  }
+
+  /* Reduction viz */
+  .point-orig { fill: #c53030; stroke: white; stroke-width: 2; }
+  .point-reflect { fill: #38a169; stroke: white; stroke-width: 2; }
+  .reflect-axis {
+    stroke: #d69e2e; stroke-width: 2; stroke-dasharray: 6 6;
+  }
+
+  /* Bảng tóm tắt */
+  table.tbl { border-collapse: collapse; margin: 10px 0; font-size: 14px; }
+  table.tbl th, table.tbl td {
+    padding: 6px 12px; border: 1px solid #e2e8f0;
+    text-align: center;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  table.tbl th { background: #edf2f7; }
+  td.pos { color: #2f855a; font-weight: 700; }
+  td.neg { color: #c53030; font-weight: 700; }
+  td.und { color: #718096; }
+
+  .sign-badge {
+    display: inline-block;
+    padding: 4px 14px; border-radius: 4px;
+    font-family: "SF Mono", monospace; font-weight: 700;
+    font-size: 14px;
+    margin-right: 8px;
+  }
+  .sign-pos { background: #c6f6d5; color: #22543d; }
+  .sign-neg { background: #fed7d7; color: #742a2a; }
+  .sign-und { background: #e2e8f0; color: #4a5568; }
+
+  .hint { color: #718096; font-size: 13px; margin: 6px 0; }
+  .stat-line {
+    font-family: "SF Mono", monospace;
+    font-size: 14px;
+    padding: 4px 0;
+    color: #2d3748;
+  }
+  .stat-line .lbl { color: #718096; display: inline-block; min-width: 90px; }
+  .stat-line .val { color: #2c5282; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-right-triangle/visualization.html">← L2: Tam giác vuông</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Đường tròn đơn vị</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-trig-graphs/visualization.html">L4: Đồ thị hàm lượng giác →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 03 — Đường tròn đơn vị</h1>
+<p class="desc">
+  Mini-app tương tác đi kèm <a href="./README.md">README</a>.
+  Gồm 4 phần: đường tròn kéo điểm P, bảng góc đặc biệt, visualizer công thức quy gọn, và quadrant sign explorer.
+</p>
+
+<!-- =============================================================== -->
+<h2>1. Đường tròn đơn vị tương tác — kéo điểm P</h2>
+
+<div class="card">
+  <h3>Kéo điểm P (đỏ) quanh đường tròn</h3>
+  <p class="desc">
+    Kéo điểm <strong>P</strong> bằng chuột. Hoặc dùng slider để chỉnh góc trực tiếp.
+    Đường tròn tô màu theo 4 quadrant: <span style="color:#48bb78">■ QI</span>,
+    <span style="color:#ed8936">■ QII</span>, <span style="color:#f56565">■ QIII</span>,
+    <span style="color:#4299e1">■ QIV</span>.
+  </p>
+
+  <div class="circle-layout">
+    <svg class="unit-circle" id="circleSvg" viewBox="0 0 460 460" width="460" height="460">
+      <!-- Quadrant fills -->
+      <path class="quad-fill q1" d="M 230 230 L 410 230 A 180 180 0 0 0 230 50 Z" />
+      <path class="quad-fill q2" d="M 230 230 L 230 50 A 180 180 0 0 0 50 230 Z" />
+      <path class="quad-fill q3" d="M 230 230 L 50 230 A 180 180 0 0 0 230 410 Z" />
+      <path class="quad-fill q4" d="M 230 230 L 230 410 A 180 180 0 0 0 410 230 Z" />
+
+      <!-- Quadrant labels -->
+      <text class="quad-label" x="350" y="125">QI</text>
+      <text class="quad-label" x="100" y="125">QII</text>
+      <text class="quad-label" x="100" y="345">QIII</text>
+      <text class="quad-label" x="350" y="345">QIV</text>
+
+      <!-- Grid lines at ±0.5 -->
+      <line class="grid" x1="50" y1="140" x2="410" y2="140" />
+      <line class="grid" x1="50" y1="320" x2="410" y2="320" />
+      <line class="grid" x1="140" y1="50" x2="140" y2="410" />
+      <line class="grid" x1="320" y1="50" x2="320" y2="410" />
+
+      <!-- Axes -->
+      <line class="axis" x1="20" y1="230" x2="440" y2="230" marker-end="url(#arrow)" />
+      <line class="axis" x1="230" y1="440" x2="230" y2="20" marker-end="url(#arrow)" />
+
+      <!-- Axis tick labels -->
+      <text class="tick-label" x="412" y="246">x</text>
+      <text class="tick-label" x="240" y="28">y</text>
+      <text class="tick-label" x="403" y="226">1</text>
+      <text class="tick-label" x="48" y="226">-1</text>
+      <text class="tick-label" x="236" y="48">1</text>
+      <text class="tick-label" x="236" y="416">-1</text>
+      <text class="tick-label" x="222" y="246">O</text>
+
+      <!-- Arrow marker -->
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5"
+                markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5568"/>
+        </marker>
+      </defs>
+
+      <!-- Special points (12 angles) -->
+      <g id="specialDots"></g>
+
+      <!-- Unit circle -->
+      <circle class="circle-stroke" cx="230" cy="230" r="180" />
+
+      <!-- Angle arc -->
+      <path id="angleArc" class="angle-arc" />
+      <text id="angleLabelEl" class="angle-label" x="0" y="0"></text>
+
+      <!-- Projection lines -->
+      <line id="projX" class="proj-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="projY" class="proj-line" x1="0" y1="0" x2="0" y2="0" />
+
+      <!-- Radius -->
+      <line id="radius" class="radius-line" x1="230" y1="230" x2="410" y2="230" />
+
+      <!-- Axis-projected points -->
+      <circle id="pointCos" class="point-cos" cx="410" cy="230" r="4" />
+      <circle id="pointSin" class="point-sin" cx="230" cy="230" r="4" />
+      <text id="cosAxisLabel" class="axis-label" x="0" y="0"></text>
+      <text id="sinAxisLabel" class="axis-label" x="0" y="0"></text>
+
+      <!-- Main draggable point P -->
+      <circle id="pointP" class="point-p" cx="410" cy="230" r="9" />
+    </svg>
+
+    <div>
+      <div class="row">
+        <label>θ (rad):</label>
+        <input type="range" id="angleSlider" min="0" max="6.283185" step="0.001" value="0.5236">
+        <input type="number" id="angleInput" step="0.01" value="0.5236" style="width:90px">
+      </div>
+      <div class="row">
+        <button onclick="snapToSpecial(0)">0°</button>
+        <button onclick="snapToSpecial(30)">30°</button>
+        <button onclick="snapToSpecial(45)">45°</button>
+        <button onclick="snapToSpecial(60)">60°</button>
+        <button onclick="snapToSpecial(90)">90°</button>
+        <button onclick="snapToSpecial(120)">120°</button>
+        <button onclick="snapToSpecial(150)">150°</button>
+        <button onclick="snapToSpecial(180)">180°</button>
+      </div>
+      <div class="row">
+        <button onclick="snapToSpecial(210)">210°</button>
+        <button onclick="snapToSpecial(225)">225°</button>
+        <button onclick="snapToSpecial(240)">240°</button>
+        <button onclick="snapToSpecial(270)">270°</button>
+        <button onclick="snapToSpecial(300)">300°</button>
+        <button onclick="snapToSpecial(315)">315°</button>
+        <button onclick="snapToSpecial(330)">330°</button>
+        <button onclick="snapToSpecial(360)">360°</button>
+      </div>
+
+      <div class="card" style="margin-top: 14px; padding: 14px; box-shadow: none; border: 1px solid #e2e8f0;">
+        <div class="stat-line"><span class="lbl">θ (rad)</span> = <span class="val" id="outRad">0.5236</span></div>
+        <div class="stat-line"><span class="lbl">θ (deg)</span> = <span class="val" id="outDeg">30.0°</span></div>
+        <div class="stat-line"><span class="lbl">cos θ</span> = <span class="val" id="outCos">0.8660</span> &nbsp;(= x)</div>
+        <div class="stat-line"><span class="lbl">sin θ</span> = <span class="val" id="outSin">0.5000</span> &nbsp;(= y)</div>
+        <div class="stat-line"><span class="lbl">tan θ</span> = <span class="val" id="outTan">0.5774</span></div>
+        <div class="stat-line"><span class="lbl">Quadrant</span> = <span class="val" id="outQuad">QI</span></div>
+        <div class="stat-line"><span class="lbl">Ref. angle α</span> = <span class="val" id="outRef">30.0°</span></div>
+      </div>
+
+      <div class="hint">
+        Tip: hover các chấm tím trên đường tròn để nhảy nhanh tới các góc đặc biệt 30°, 45°, 60°...
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =============================================================== -->
+<h2>2. Bảng các góc đặc biệt — cheatsheet</h2>
+
+<div class="card">
+  <h3>16 góc đặc biệt: tọa độ chính xác</h3>
+  <p class="desc">
+    Bảng tham chiếu nhanh. Phân số căn giữ nguyên dạng. Trên đường tròn ở phần 1,
+    các chấm <span style="color:#805ad5">tím</span> tương ứng các góc này.
+  </p>
+
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>θ (deg)</th><th>θ (rad)</th><th>cos θ</th><th>sin θ</th><th>tan θ</th><th>Quadrant</th>
+      </tr>
+    </thead>
+    <tbody id="specialTableBody"></tbody>
+  </table>
+</div>
+
+<!-- =============================================================== -->
+<h2>3. Visualizer công thức quy gọn</h2>
+
+<div class="card">
+  <h3>Chọn công thức → xem 2 điểm đối ứng trên đường tròn</h3>
+  <p class="desc">
+    Mỗi công thức quy gọn ứng với một phép đối xứng. Chọn công thức và kéo slider θ
+    để thấy điểm gốc (<span style="color:#c53030">đỏ</span>) và điểm đã biến đổi
+    (<span style="color:#38a169">xanh lá</span>).
+  </p>
+
+  <div class="row">
+    <label style="min-width: 90px;">Công thức:</label>
+    <select id="reductionSelect" onchange="updateReduction()">
+      <option value="neg">sin(-θ) = -sin θ, cos(-θ) = cos θ  (lật qua Ox)</option>
+      <option value="pi_minus">sin(π-θ) = sin θ, cos(π-θ) = -cos θ  (lật qua Oy)</option>
+      <option value="pi_plus">sin(π+θ) = -sin θ, cos(π+θ) = -cos θ  (đối xứng O)</option>
+      <option value="two_pi">sin(2π+θ) = sin θ, cos(2π+θ) = cos θ  (quay đủ vòng)</option>
+    </select>
+  </div>
+
+  <div class="row">
+    <label>θ (rad):</label>
+    <input type="range" id="redSlider" min="0" max="1.5707963" step="0.001" value="0.5236">
+    <span id="redAngleLabel" class="stat-line"></span>
+  </div>
+
+  <div class="circle-layout">
+    <svg class="unit-circle" id="redSvg" viewBox="0 0 360 360" width="360" height="360">
+      <!-- Axes -->
+      <line class="axis" x1="20" y1="180" x2="340" y2="180" />
+      <line class="axis" x1="180" y1="340" x2="180" y2="20" />
+      <text class="tick-label" x="325" y="196">x</text>
+      <text class="tick-label" x="186" y="32">y</text>
+
+      <!-- Reflect axis (highlighted) -->
+      <line id="reflectAxis" class="reflect-axis" x1="0" y1="0" x2="0" y2="0" />
+
+      <!-- Unit circle -->
+      <circle class="circle-stroke" cx="180" cy="180" r="140" />
+
+      <!-- Lines from O to points -->
+      <line id="redLineOrig" stroke="#c53030" stroke-width="2" x1="180" y1="180" x2="0" y2="0" />
+      <line id="redLineReflect" stroke="#38a169" stroke-width="2" x1="180" y1="180" x2="0" y2="0" />
+
+      <!-- Points -->
+      <circle id="redPointOrig" class="point-orig" cx="0" cy="0" r="7" />
+      <circle id="redPointReflect" class="point-reflect" cx="0" cy="0" r="7" />
+
+      <!-- Labels -->
+      <text id="redLabelOrig" class="angle-label" x="0" y="0">P</text>
+      <text id="redLabelReflect" class="angle-label" x="0" y="0" style="fill:#22543d">P'</text>
+    </svg>
+
+    <div>
+      <div class="card" style="margin: 0; padding: 14px; box-shadow: none; border: 1px solid #e2e8f0;">
+        <h3 style="margin-top: 0; font-size: 14px; color: #2d3748;">Điểm gốc P (góc θ)</h3>
+        <div class="stat-line"><span class="lbl">θ</span> = <span class="val" id="redOrigAngle"></span></div>
+        <div class="stat-line"><span class="lbl">cos θ</span> = <span class="val" id="redOrigCos"></span></div>
+        <div class="stat-line"><span class="lbl">sin θ</span> = <span class="val" id="redOrigSin"></span></div>
+      </div>
+      <div class="card" style="margin-top: 12px; padding: 14px; box-shadow: none; border: 1px solid #c6f6d5;">
+        <h3 style="margin-top: 0; font-size: 14px; color: #22543d;">Điểm biến đổi P'</h3>
+        <div class="stat-line"><span class="lbl">θ'</span> = <span class="val" id="redNewAngle"></span></div>
+        <div class="stat-line"><span class="lbl">cos θ'</span> = <span class="val" id="redNewCos"></span></div>
+        <div class="stat-line"><span class="lbl">sin θ'</span> = <span class="val" id="redNewSin"></span></div>
+        <div id="redCheck" class="stat-line" style="margin-top:8px;color:#2f855a"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =============================================================== -->
+<h2>4. Quadrant sign explorer (ASTC mnemonic)</h2>
+
+<div class="card">
+  <h3>Kéo θ → 3 nhãn sin/cos/tan đổi màu theo dấu</h3>
+  <p class="desc">
+    <strong class="sign-pos sign-badge">+</strong> = dương (xanh).
+    <strong class="sign-neg sign-badge">-</strong> = âm (đỏ).
+    Mnemonic: <strong>All</strong> (QI) - <strong>Sin</strong> (QII) -
+    <strong>Tan</strong> (QIII) - <strong>Cos</strong> (QIV) cho biết hàm nào dương ở mỗi quadrant.
+  </p>
+
+  <div class="row">
+    <label>θ (deg):</label>
+    <input type="range" id="signSlider" min="0" max="360" step="1" value="150">
+    <span id="signAngleLabel" class="stat-line"></span>
+  </div>
+
+  <div class="row" style="margin-top: 16px;">
+    <div id="signSin" class="sign-badge sign-pos">sin θ = ?</div>
+    <div id="signCos" class="sign-badge sign-pos">cos θ = ?</div>
+    <div id="signTan" class="sign-badge sign-pos">tan θ = ?</div>
+    <div id="signQuad" style="font-family:'SF Mono',monospace;font-size:14px;font-weight:700;color:#2c5282">
+      Quadrant: ?
+    </div>
+  </div>
+
+  <table class="tbl" style="margin-top: 16px;">
+    <thead>
+      <tr>
+        <th>Quadrant</th><th>Góc (deg)</th>
+        <th>sin θ</th><th>cos θ</th><th>tan θ</th>
+        <th>Mnemonic</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr id="rowQ1"><td><strong>QI</strong></td><td>0°–90°</td>
+        <td class="pos">+</td><td class="pos">+</td><td class="pos">+</td>
+        <td><strong>A</strong>ll</td></tr>
+      <tr id="rowQ2"><td><strong>QII</strong></td><td>90°–180°</td>
+        <td class="pos">+</td><td class="neg">−</td><td class="neg">−</td>
+        <td><strong>S</strong>in</td></tr>
+      <tr id="rowQ3"><td><strong>QIII</strong></td><td>180°–270°</td>
+        <td class="neg">−</td><td class="neg">−</td><td class="pos">+</td>
+        <td><strong>T</strong>an</td></tr>
+      <tr id="rowQ4"><td><strong>QIV</strong></td><td>270°–360°</td>
+        <td class="neg">−</td><td class="pos">+</td><td class="neg">−</td>
+        <td><strong>C</strong>os</td></tr>
+    </tbody>
+  </table>
+  <div class="hint" style="margin-top:8px">Hàng đang active (chứa θ hiện tại) được highlight.</div>
+</div>
+
+<script>
+// =============================================================
+// Globals
+// =============================================================
+const CX = 230, CY = 230, R = 180;  // Phần 1 (lớn)
+const CX2 = 180, CY2 = 180, R2 = 140;  // Phần 3 (nhỏ)
+let currentTheta = Math.PI / 6;  // 30°
+
+// =============================================================
+// Helpers
+// =============================================================
+function fmt(x, digits = 4) {
+  if (!isFinite(x)) return String(x);
+  if (Math.abs(x) < 1e-10) return "0";
+  return x.toFixed(digits);
+}
+
+function normalize(theta) {
+  let t = theta % (2 * Math.PI);
+  if (t < 0) t += 2 * Math.PI;
+  return t;
+}
+
+function whichQuadrant(theta) {
+  const t = normalize(theta);
+  const eps = 1e-6;
+  if (Math.abs(t) < eps || Math.abs(t - 2*Math.PI) < eps) return 0;
+  if (Math.abs(t - Math.PI/2) < eps) return 0;
+  if (Math.abs(t - Math.PI) < eps) return 0;
+  if (Math.abs(t - 3*Math.PI/2) < eps) return 0;
+  if (t < Math.PI/2) return 1;
+  if (t < Math.PI) return 2;
+  if (t < 3*Math.PI/2) return 3;
+  return 4;
+}
+
+function referenceAngle(theta) {
+  const t = normalize(theta);
+  if (t <= Math.PI/2) return t;
+  if (t <= Math.PI) return Math.PI - t;
+  if (t <= 3*Math.PI/2) return t - Math.PI;
+  return 2*Math.PI - t;
+}
+
+// =============================================================
+// 1. Unit circle interactive
+// =============================================================
+
+// 12 góc đặc biệt + tọa độ phân số căn
+const SPECIALS = [
+  {deg: 0,   rad: "0",     cosS: "1",       sinS: "0",       tanS: "0",       coords: "(1, 0)"},
+  {deg: 30,  rad: "π/6",   cosS: "√3/2",    sinS: "1/2",     tanS: "1/√3",    coords: "(√3/2, 1/2)"},
+  {deg: 45,  rad: "π/4",   cosS: "√2/2",    sinS: "√2/2",    tanS: "1",       coords: "(√2/2, √2/2)"},
+  {deg: 60,  rad: "π/3",   cosS: "1/2",     sinS: "√3/2",    tanS: "√3",      coords: "(1/2, √3/2)"},
+  {deg: 90,  rad: "π/2",   cosS: "0",       sinS: "1",       tanS: "—",       coords: "(0, 1)"},
+  {deg: 120, rad: "2π/3",  cosS: "-1/2",    sinS: "√3/2",    tanS: "-√3",     coords: "(-1/2, √3/2)"},
+  {deg: 135, rad: "3π/4",  cosS: "-√2/2",   sinS: "√2/2",    tanS: "-1",      coords: "(-√2/2, √2/2)"},
+  {deg: 150, rad: "5π/6",  cosS: "-√3/2",   sinS: "1/2",     tanS: "-1/√3",   coords: "(-√3/2, 1/2)"},
+  {deg: 180, rad: "π",     cosS: "-1",      sinS: "0",       tanS: "0",       coords: "(-1, 0)"},
+  {deg: 210, rad: "7π/6",  cosS: "-√3/2",   sinS: "-1/2",    tanS: "1/√3",    coords: "(-√3/2, -1/2)"},
+  {deg: 225, rad: "5π/4",  cosS: "-√2/2",   sinS: "-√2/2",   tanS: "1",       coords: "(-√2/2, -√2/2)"},
+  {deg: 240, rad: "4π/3",  cosS: "-1/2",    sinS: "-√3/2",   tanS: "√3",      coords: "(-1/2, -√3/2)"},
+  {deg: 270, rad: "3π/2",  cosS: "0",       sinS: "-1",      tanS: "—",       coords: "(0, -1)"},
+  {deg: 300, rad: "5π/3",  cosS: "1/2",     sinS: "-√3/2",   tanS: "-√3",     coords: "(1/2, -√3/2)"},
+  {deg: 315, rad: "7π/4",  cosS: "√2/2",    sinS: "-√2/2",   tanS: "-1",      coords: "(√2/2, -√2/2)"},
+  {deg: 330, rad: "11π/6", cosS: "√3/2",    sinS: "-1/2",    tanS: "-1/√3",   coords: "(√3/2, -1/2)"},
+];
+
+function drawSpecialDots() {
+  const g = document.getElementById('specialDots');
+  for (const sp of SPECIALS) {
+    if (sp.deg === 0) continue; // 0° trùng với điểm xuất phát
+    const th = sp.deg * Math.PI / 180;
+    const px = CX + R * Math.cos(th);
+    const py = CY - R * Math.sin(th);
+    const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    dot.setAttribute("class", "special-dot");
+    dot.setAttribute("cx", px);
+    dot.setAttribute("cy", py);
+    dot.setAttribute("r", 4.5);
+    dot.addEventListener("click", () => snapToSpecial(sp.deg));
+    dot.addEventListener("mouseenter", () => {
+      dot.setAttribute("r", 6);
+      const tt = document.getElementById('specialTooltip');
+      if (tt) tt.textContent = `${sp.deg}° = ${sp.rad}: P = ${sp.coords}`;
+    });
+    dot.addEventListener("mouseleave", () => dot.setAttribute("r", 4.5));
+    g.appendChild(dot);
+  }
+}
+
+function updateCircle(theta) {
+  currentTheta = theta;
+  const x = Math.cos(theta);
+  const y = Math.sin(theta);
+  // SVG y trục ngược: phía dưới là +y trong SVG, nhưng toán thì là -y
+  const px = CX + R * x;
+  const py = CY - R * y;
+
+  // Point P + radius
+  document.getElementById('pointP').setAttribute('cx', px);
+  document.getElementById('pointP').setAttribute('cy', py);
+  document.getElementById('radius').setAttribute('x2', px);
+  document.getElementById('radius').setAttribute('y2', py);
+
+  // Projections
+  document.getElementById('projX').setAttribute('x1', px);
+  document.getElementById('projX').setAttribute('y1', py);
+  document.getElementById('projX').setAttribute('x2', px);
+  document.getElementById('projX').setAttribute('y2', CY);
+  document.getElementById('projY').setAttribute('x1', px);
+  document.getElementById('projY').setAttribute('y1', py);
+  document.getElementById('projY').setAttribute('x2', CX);
+  document.getElementById('projY').setAttribute('y2', py);
+
+  // Cos and sin dots on axes
+  document.getElementById('pointCos').setAttribute('cx', px);
+  document.getElementById('pointCos').setAttribute('cy', CY);
+  document.getElementById('pointSin').setAttribute('cx', CX);
+  document.getElementById('pointSin').setAttribute('cy', py);
+
+  // Labels for axes
+  const cosLab = document.getElementById('cosAxisLabel');
+  cosLab.textContent = `cos = ${fmt(x, 3)}`;
+  cosLab.setAttribute('x', px + 6);
+  cosLab.setAttribute('y', CY + (y > 0 ? 18 : -8));
+  const sinLab = document.getElementById('sinAxisLabel');
+  sinLab.textContent = `sin = ${fmt(y, 3)}`;
+  sinLab.setAttribute('x', CX + (x > 0 ? -75 : 8));
+  sinLab.setAttribute('y', py + 4);
+
+  // Angle arc
+  const arcR = 32;
+  const arc = document.getElementById('angleArc');
+  const startX = CX + arcR;
+  const startY = CY;
+  const endX = CX + arcR * Math.cos(theta);
+  const endY = CY - arcR * Math.sin(theta);
+  const tNorm = normalize(theta);
+  const largeArc = tNorm > Math.PI ? 1 : 0;
+  // sweep=0 vì SVG y trục ngược
+  arc.setAttribute('d', `M ${startX} ${startY} A ${arcR} ${arcR} 0 ${largeArc} 0 ${endX} ${endY}`);
+  // Label vị trí
+  const midA = tNorm / 2;
+  const labLab = document.getElementById('angleLabelEl');
+  labLab.setAttribute('x', CX + (arcR + 14) * Math.cos(midA) - 8);
+  labLab.setAttribute('y', CY - (arcR + 14) * Math.sin(midA) + 4);
+  labLab.textContent = `θ`;
+
+  // Stats panel
+  const deg = (tNorm * 180 / Math.PI);
+  document.getElementById('outRad').textContent = fmt(tNorm, 4);
+  document.getElementById('outDeg').textContent = `${fmt(deg, 1)}°`;
+  document.getElementById('outCos').textContent = fmt(x, 4);
+  document.getElementById('outSin').textContent = fmt(y, 4);
+  const tan = Math.abs(x) < 1e-8 ? "không xác định" : fmt(y/x, 4);
+  document.getElementById('outTan').textContent = tan;
+  const q = whichQuadrant(tNorm);
+  document.getElementById('outQuad').textContent = q === 0 ? "trục" : `Q${q}`;
+  const refA = referenceAngle(tNorm);
+  document.getElementById('outRef').textContent = `${fmt(refA * 180 / Math.PI, 1)}°`;
+
+  // Sync slider + input
+  document.getElementById('angleSlider').value = tNorm;
+  document.getElementById('angleInput').value = fmt(tNorm, 4);
+}
+
+// Drag điểm P
+let isDragging = false;
+function setupDrag() {
+  const svg = document.getElementById('circleSvg');
+  const point = document.getElementById('pointP');
+
+  function getAngleFromEvent(evt) {
+    const rect = svg.getBoundingClientRect();
+    const px = (evt.clientX - rect.left) * (460 / rect.width);
+    const py = (evt.clientY - rect.top) * (460 / rect.height);
+    const dx = px - CX;
+    const dy = CY - py;  // flip y
+    return Math.atan2(dy, dx);
+  }
+
+  point.addEventListener('mousedown', e => { isDragging = true; e.preventDefault(); });
+  svg.addEventListener('mousedown', e => {
+    if (e.target.tagName === 'circle' && e.target.classList.contains('special-dot')) return;
+    isDragging = true;
+    updateCircle(getAngleFromEvent(e));
+  });
+  window.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    updateCircle(getAngleFromEvent(e));
+  });
+  window.addEventListener('mouseup', () => isDragging = false);
+
+  // Touch
+  point.addEventListener('touchstart', e => { isDragging = true; e.preventDefault(); }, {passive: false});
+  svg.addEventListener('touchmove', e => {
+    if (!isDragging) return;
+    e.preventDefault();
+    const t = e.touches[0];
+    const fakeEvt = {clientX: t.clientX, clientY: t.clientY};
+    updateCircle(getAngleFromEvent(fakeEvt));
+  }, {passive: false});
+  window.addEventListener('touchend', () => isDragging = false);
+}
+
+document.getElementById('angleSlider').addEventListener('input', e => {
+  updateCircle(parseFloat(e.target.value));
+});
+document.getElementById('angleInput').addEventListener('input', e => {
+  const v = parseFloat(e.target.value);
+  if (!isNaN(v)) updateCircle(v);
+});
+
+function snapToSpecial(deg) {
+  updateCircle(deg * Math.PI / 180);
+}
+
+// =============================================================
+// 2. Special angles table
+// =============================================================
+function buildSpecialTable() {
+  const tbody = document.getElementById('specialTableBody');
+  for (const sp of SPECIALS) {
+    const tr = document.createElement('tr');
+    const q = whichQuadrant(sp.deg * Math.PI / 180);
+    const qStr = q === 0 ? "trục" : `Q${q}`;
+    tr.innerHTML = `
+      <td>${sp.deg}°</td>
+      <td>${sp.rad}</td>
+      <td>${sp.cosS}</td>
+      <td>${sp.sinS}</td>
+      <td class="${sp.tanS === '—' ? 'und' : ''}">${sp.tanS}</td>
+      <td>${qStr}</td>
+    `;
+    tr.style.cursor = 'pointer';
+    tr.addEventListener('click', () => snapToSpecial(sp.deg));
+    tbody.appendChild(tr);
+  }
+}
+
+// =============================================================
+// 3. Reduction formula visualizer
+// =============================================================
+function reductionTransform(mode, theta) {
+  switch (mode) {
+    case 'neg':       return { newTheta: -theta,            axisDesc: "lật qua Ox" };
+    case 'pi_minus':  return { newTheta: Math.PI - theta,   axisDesc: "lật qua Oy" };
+    case 'pi_plus':   return { newTheta: Math.PI + theta,   axisDesc: "đối xứng qua O" };
+    case 'two_pi':    return { newTheta: 2*Math.PI + theta, axisDesc: "quay đủ một vòng (về cùng điểm)" };
+  }
+}
+
+function updateReduction() {
+  const mode = document.getElementById('reductionSelect').value;
+  const theta = parseFloat(document.getElementById('redSlider').value);
+  const { newTheta, axisDesc } = reductionTransform(mode, theta);
+
+  const x1 = Math.cos(theta), y1 = Math.sin(theta);
+  const x2 = Math.cos(newTheta), y2 = Math.sin(newTheta);
+
+  // SVG coords (small circle)
+  const px1 = CX2 + R2 * x1, py1 = CY2 - R2 * y1;
+  const px2 = CX2 + R2 * x2, py2 = CY2 - R2 * y2;
+
+  document.getElementById('redPointOrig').setAttribute('cx', px1);
+  document.getElementById('redPointOrig').setAttribute('cy', py1);
+  document.getElementById('redPointReflect').setAttribute('cx', px2);
+  document.getElementById('redPointReflect').setAttribute('cy', py2);
+
+  document.getElementById('redLineOrig').setAttribute('x2', px1);
+  document.getElementById('redLineOrig').setAttribute('y2', py1);
+  document.getElementById('redLineReflect').setAttribute('x2', px2);
+  document.getElementById('redLineReflect').setAttribute('y2', py2);
+
+  // Labels
+  const labOrig = document.getElementById('redLabelOrig');
+  labOrig.setAttribute('x', px1 + 8); labOrig.setAttribute('y', py1 - 6);
+  const labRef = document.getElementById('redLabelReflect');
+  labRef.setAttribute('x', px2 + 8); labRef.setAttribute('y', py2 - 6);
+
+  // Reflect axis line (visual aid)
+  const reflectAxis = document.getElementById('reflectAxis');
+  if (mode === 'neg') {
+    reflectAxis.setAttribute('x1', 30); reflectAxis.setAttribute('y1', CY2);
+    reflectAxis.setAttribute('x2', 330); reflectAxis.setAttribute('y2', CY2);
+    reflectAxis.style.display = '';
+  } else if (mode === 'pi_minus') {
+    reflectAxis.setAttribute('x1', CX2); reflectAxis.setAttribute('y1', 30);
+    reflectAxis.setAttribute('x2', CX2); reflectAxis.setAttribute('y2', 330);
+    reflectAxis.style.display = '';
+  } else {
+    reflectAxis.style.display = 'none';
+  }
+
+  // Angle label
+  document.getElementById('redAngleLabel').textContent =
+    `${fmt(theta, 4)} rad = ${fmt(theta*180/Math.PI, 1)}° (${axisDesc})`;
+
+  // Stats
+  document.getElementById('redOrigAngle').textContent = `${fmt(theta*180/Math.PI, 1)}°`;
+  document.getElementById('redOrigCos').textContent = fmt(x1, 4);
+  document.getElementById('redOrigSin').textContent = fmt(y1, 4);
+  document.getElementById('redNewAngle').textContent = `${fmt(newTheta*180/Math.PI, 1)}°`;
+  document.getElementById('redNewCos').textContent = fmt(x2, 4);
+  document.getElementById('redNewSin').textContent = fmt(y2, 4);
+
+  // Verify
+  const check = document.getElementById('redCheck');
+  switch (mode) {
+    case 'neg':
+      check.textContent = `Kiểm: cos(-θ) ${approxEq(x2, x1) ? "=" : "≠"} cos θ (${fmt(x2,4)} vs ${fmt(x1,4)}),  sin(-θ) ${approxEq(y2, -y1) ? "=" : "≠"} -sin θ`;
+      break;
+    case 'pi_minus':
+      check.textContent = `Kiểm: cos(π-θ) ${approxEq(x2, -x1) ? "=" : "≠"} -cos θ,  sin(π-θ) ${approxEq(y2, y1) ? "=" : "≠"} sin θ`;
+      break;
+    case 'pi_plus':
+      check.textContent = `Kiểm: cos(π+θ) ${approxEq(x2, -x1) ? "=" : "≠"} -cos θ,  sin(π+θ) ${approxEq(y2, -y1) ? "=" : "≠"} -sin θ`;
+      break;
+    case 'two_pi':
+      check.textContent = `Kiểm: cos(2π+θ) ${approxEq(x2, x1) ? "=" : "≠"} cos θ,  sin(2π+θ) ${approxEq(y2, y1) ? "=" : "≠"} sin θ`;
+      break;
+  }
+}
+
+function approxEq(a, b, eps = 1e-6) {
+  return Math.abs(a - b) < eps;
+}
+
+document.getElementById('redSlider').addEventListener('input', updateReduction);
+
+// =============================================================
+// 4. Quadrant sign explorer
+// =============================================================
+function updateSign() {
+  const deg = parseFloat(document.getElementById('signSlider').value);
+  const theta = deg * Math.PI / 180;
+  const x = Math.cos(theta), y = Math.sin(theta);
+  const tan = (Math.abs(x) < 1e-8) ? null : y / x;
+  const q = whichQuadrant(theta);
+
+  document.getElementById('signAngleLabel').textContent =
+    `θ = ${deg}° = ${fmt(theta, 4)} rad`;
+
+  function setBadge(el, value, isUndefined) {
+    if (isUndefined) {
+      el.className = "sign-badge sign-und";
+      el.textContent = el.id === 'signSin' ? "sin θ = không xác định"
+                     : el.id === 'signCos' ? "cos θ = không xác định"
+                     : "tan θ = không xác định";
+      return;
+    }
+    const pos = value >= 0;
+    el.className = "sign-badge " + (pos ? "sign-pos" : "sign-neg");
+    const name = el.id === 'signSin' ? "sin θ"
+               : el.id === 'signCos' ? "cos θ"
+               : "tan θ";
+    el.textContent = `${name} = ${fmt(value, 4)}`;
+  }
+
+  setBadge(document.getElementById('signSin'), y, false);
+  setBadge(document.getElementById('signCos'), x, false);
+  setBadge(document.getElementById('signTan'), tan, tan === null);
+
+  const qLabel = document.getElementById('signQuad');
+  qLabel.textContent = q === 0 ? `Quadrant: trục tọa độ` : `Quadrant: Q${q}`;
+
+  // Highlight active row
+  for (let i = 1; i <= 4; i++) {
+    const row = document.getElementById(`rowQ${i}`);
+    row.style.background = (i === q) ? "#fef5e7" : "";
+  }
+}
+
+document.getElementById('signSlider').addEventListener('input', updateSign);
+
+// =============================================================
+// Init
+// =============================================================
+drawSpecialDots();
+buildSpecialTable();
+setupDrag();
+updateCircle(Math.PI / 6);
+updateReduction();
+updateSign();
+</script>
+
+<!-- README modal -->
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 05 — Hàm số là gì (Visualization)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  main { max-width: 1080px; margin: 0 auto; padding: 24px; }
+  h1 { color: #1a202c; margin: 0 0 8px; }
+  .lead { color: #4a5568; margin: 0 0 24px; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; margin-top: 20px; font-size: 16px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; font-size: 14px; color: #2d3748; }
+  select, input[type="number"], input[type="text"] {
+    font-size: 14px; padding: 6px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    background: white;
+  }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 7px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+  .hint { color: #718096; font-size: 13px; margin: 6px 0; }
+  .legend {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-right: 14px; font-size: 13px;
+  }
+  .legend .swatch {
+    width: 22px; height: 4px; border-radius: 2px; display: inline-block;
+  }
+  .formula {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    background: #edf2f7; padding: 2px 8px; border-radius: 4px;
+    font-size: 14px;
+  }
+  table.values {
+    border-collapse: collapse; margin-top: 10px; font-size: 13px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  table.values td, table.values th {
+    padding: 5px 12px; border: 1px solid #e2e8f0; text-align: right;
+  }
+  table.values th { background: #edf2f7; }
+  .step {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    background: #1a202c; color: #a0e6c1; padding: 10px 14px;
+    border-radius: 6px; font-size: 13px; white-space: pre-wrap;
+    margin: 10px 0;
+  }
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 10px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+  .badge.ok { background: #c6f6d5; color: #22543d; }
+  .badge.warn { background: #fed7d7; color: #742a2a; }
+  .domain-bar {
+    position: relative; height: 42px; background: #f7fafc;
+    border: 1px solid #e2e8f0; border-radius: 4px; margin: 8px 0;
+  }
+  .domain-bar .valid {
+    position: absolute; top: 0; bottom: 0;
+    background: #c6f6d5;
+  }
+  .domain-bar .axis {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+    background: #4a5568;
+  }
+  .domain-bar .tick {
+    position: absolute; bottom: -2px; width: 1px; height: 6px; background: #4a5568;
+  }
+  .domain-bar .tick-label {
+    position: absolute; bottom: -22px; transform: translateX(-50%);
+    font-size: 11px; color: #4a5568; font-family: monospace;
+  }
+  .domain-bar .gap {
+    position: absolute; top: 8px; width: 8px; height: 26px;
+    border-left: 2px dashed #c53030;
+    border-right: 2px dashed #c53030;
+    background: #fff5f5;
+  }
+  .domain-list { font-size: 13px; line-height: 1.8; }
+  .domain-list code {
+    background: #edf2f7; padding: 1px 6px; border-radius: 3px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  .plotter-wrap { display: grid; grid-template-columns: 1fr; gap: 14px; }
+  @media (min-width: 760px) {
+    .plotter-wrap.with-table { grid-template-columns: 1.4fr 1fr; }
+  }
+  .small { font-size: 12px; color: #718096; }
+  svg.graph { background: #fafbfc; border: 1px solid #e2e8f0; border-radius: 6px; display: block; max-width: 100%; }
+  .compose-flow {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; margin: 12px 0;
+  }
+  .compose-flow .box {
+    background: #ebf8ff; border: 2px solid #4299e1;
+    padding: 10px 18px; border-radius: 6px; font-weight: 700;
+  }
+  .compose-flow .arrow { color: #4a5568; font-size: 20px; }
+  .compose-flow .val {
+    background: #fefcbf; border: 1px dashed #d69e2e;
+    padding: 8px 12px; border-radius: 6px; font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-powers-roots-logs/visualization.html">← L4: Lũy thừa, căn, log</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Hàm số là gì</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-linear-quadratic/visualization.html">L6: Hàm bậc 1 và bậc 2 →</a>
+</nav>
+
+<main>
+  <h1>Lesson 05 — Hàm số là gì</h1>
+  <p class="lead">
+    Bốn module tương tác: <b>(1)</b> vẽ đồ thị, <b>(2)</b> khám phá domain,
+    <b>(3)</b> mô phỏng hàm hợp, <b>(4)</b> đối xứng f và f⁻¹ qua y = x.
+  </p>
+
+  <!-- ============================================================ -->
+  <h2>1. Function Plotter — vẽ đồ thị hàm số</h2>
+  <div class="card">
+    <div class="row">
+      <label>Hàm 1:</label>
+      <select id="plotF1">
+        <option value="x" selected>f(x) = x</option>
+        <option value="2x+1">f(x) = 2x + 1</option>
+        <option value="x^2">f(x) = x²</option>
+        <option value="x^2+1">f(x) = x² + 1</option>
+        <option value="1/x">f(x) = 1/x</option>
+        <option value="abs">f(x) = |x|</option>
+        <option value="sqrt">f(x) = √x</option>
+        <option value="e^x">f(x) = e^x</option>
+        <option value="ln">f(x) = ln(x)</option>
+        <option value="sin">f(x) = sin(x)</option>
+        <option value="cos">f(x) = cos(x)</option>
+        <option value="floor">f(x) = ⌊x⌋ (floor)</option>
+        <option value="sigmoid">f(x) = σ(x) (sigmoid)</option>
+        <option value="relu">f(x) = relu(x)</option>
+        <option value="tanh">f(x) = tanh(x)</option>
+      </select>
+      <span class="legend"><span class="swatch" style="background:#4299e1"></span>Hàm 1</span>
+
+      <label style="margin-left:12px">Hàm 2 (so sánh):</label>
+      <select id="plotF2">
+        <option value="none" selected>(không vẽ)</option>
+        <option value="x">f(x) = x</option>
+        <option value="2x+1">f(x) = 2x + 1</option>
+        <option value="x^2">f(x) = x²</option>
+        <option value="1/x">f(x) = 1/x</option>
+        <option value="abs">f(x) = |x|</option>
+        <option value="sqrt">f(x) = √x</option>
+        <option value="e^x">f(x) = e^x</option>
+        <option value="ln">f(x) = ln(x)</option>
+        <option value="sin">f(x) = sin(x)</option>
+        <option value="cos">f(x) = cos(x)</option>
+        <option value="floor">f(x) = ⌊x⌋</option>
+        <option value="sigmoid">f(x) = σ(x)</option>
+        <option value="relu">f(x) = relu(x)</option>
+        <option value="tanh">f(x) = tanh(x)</option>
+      </select>
+      <span class="legend"><span class="swatch" style="background:#e53e3e"></span>Hàm 2</span>
+    </div>
+    <div class="row">
+      <label>Phạm vi x:</label>
+      <input type="number" id="xMin" value="-5" step="0.5" style="width:80px">
+      đến
+      <input type="number" id="xMax" value="5" step="0.5" style="width:80px">
+      <button class="ghost" onclick="resetPlot()">Mặc định</button>
+    </div>
+    <div class="hint">Di chuột lên đồ thị để xem giá trị (x, f(x)). Kéo nhẹ trục để đọc các điểm khác.</div>
+
+    <svg id="plotSvg" class="graph" viewBox="0 0 720 420" width="100%" height="420"></svg>
+    <div id="plotInfo" class="hint" style="margin-top:8px"></div>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>2. Domain Explorer — phần x được phép vào</h2>
+  <div class="card">
+    <p class="hint">
+      Phần xanh = x có thể đưa vào (domain). Khoảng đỏ đứt = bị cấm
+      (chia 0, căn của số âm, log của số ≤ 0, ...).
+    </p>
+    <div class="domain-list" id="domainList"></div>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>3. Composition Visualizer — g ∘ f hoạt động thế nào</h2>
+  <div class="card">
+    <div class="row">
+      <label>Hàm f:</label>
+      <select id="cmpF">
+        <option value="2x+1" selected>f(x) = 2x + 1</option>
+        <option value="x+1">f(x) = x + 1</option>
+        <option value="x^2">f(x) = x²</option>
+        <option value="3x-2">f(x) = 3x − 2</option>
+        <option value="sin">f(x) = sin(x)</option>
+      </select>
+      <label>Hàm g:</label>
+      <select id="cmpG">
+        <option value="x^2" selected>g(x) = x²</option>
+        <option value="2x">g(x) = 2x</option>
+        <option value="x+1">g(x) = x + 1</option>
+        <option value="e^x">g(x) = e^x</option>
+        <option value="sqrt">g(x) = √x</option>
+      </select>
+      <label>x =</label>
+      <input type="number" id="cmpX" value="3" step="0.5" style="width:80px">
+    </div>
+
+    <h3>Các bước</h3>
+    <div class="compose-flow" id="cmpFlow"></div>
+    <div class="step" id="cmpSteps"></div>
+
+    <h3>Bảng giá trị</h3>
+    <div class="plotter-wrap with-table">
+      <svg id="cmpSvg" class="graph" viewBox="0 0 600 360" width="100%" height="360"></svg>
+      <div>
+        <table class="values" id="cmpTable"></table>
+        <div class="hint" style="margin-top:8px">
+          <span class="legend"><span class="swatch" style="background:#4299e1"></span>f(x)</span>
+          <span class="legend"><span class="swatch" style="background:#48bb78"></span>g(x)</span>
+          <span class="legend"><span class="swatch" style="background:#d53f8c"></span>(g∘f)(x)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>4. Inverse Function — f và f⁻¹ đối xứng qua y = x</h2>
+  <div class="card">
+    <div class="row">
+      <label>Hàm f (đơn điệu):</label>
+      <select id="invF">
+        <option value="2x+1" selected>f(x) = 2x + 1   ↔   f⁻¹(x) = (x − 1)/2</option>
+        <option value="3x-2">f(x) = 3x − 2   ↔   f⁻¹(x) = (x + 2)/3</option>
+        <option value="e^x">f(x) = e^x         ↔   f⁻¹(x) = ln(x)</option>
+        <option value="x^3">f(x) = x³           ↔   f⁻¹(x) = ∛x</option>
+        <option value="sqrt_pos">f(x) = √x (x ≥ 0)  ↔  f⁻¹(x) = x²</option>
+      </select>
+    </div>
+    <div class="hint">
+      Đường <b>tím</b> nét đứt là y = x — trục đối xứng. Điểm (a, b) trên đồ thị f
+      luôn đối ứng với điểm (b, a) trên đồ thị f⁻¹.
+    </div>
+    <svg id="invSvg" class="graph" viewBox="0 0 600 600" width="100%" height="540"></svg>
+    <div class="hint" style="margin-top:8px">
+      <span class="legend"><span class="swatch" style="background:#4299e1"></span>f(x)</span>
+      <span class="legend"><span class="swatch" style="background:#dd6b20"></span>f⁻¹(x)</span>
+      <span class="legend"><span class="swatch" style="background:#805ad5; height:2px; border-top:1px dashed #805ad5"></span>y = x</span>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ====================================================================
+// Hàm số có sẵn — đăng ký theo key string trong select
+// ====================================================================
+const FUNCS = {
+  'x':       { f: x => x,              latex: 'f(x) = x' },
+  '2x+1':    { f: x => 2*x + 1,        latex: 'f(x) = 2x + 1' },
+  '3x-2':    { f: x => 3*x - 2,        latex: 'f(x) = 3x − 2' },
+  'x+1':     { f: x => x + 1,          latex: 'f(x) = x + 1' },
+  'x^2':     { f: x => x*x,            latex: 'f(x) = x²' },
+  'x^2+1':   { f: x => x*x + 1,        latex: 'f(x) = x² + 1' },
+  'x^3':     { f: x => x*x*x,          latex: 'f(x) = x³' },
+  '2x':      { f: x => 2*x,            latex: 'f(x) = 2x' },
+  '1/x':     { f: x => x === 0 ? NaN : 1/x, latex: 'f(x) = 1/x' },
+  'abs':     { f: x => Math.abs(x),    latex: 'f(x) = |x|' },
+  'sqrt':    { f: x => x < 0 ? NaN : Math.sqrt(x), latex: 'f(x) = √x' },
+  'sqrt_pos':{ f: x => x < 0 ? NaN : Math.sqrt(x), latex: 'f(x) = √x' },
+  'e^x':     { f: x => Math.exp(x),    latex: 'f(x) = e^x' },
+  'ln':      { f: x => x <= 0 ? NaN : Math.log(x), latex: 'f(x) = ln(x)' },
+  'sin':     { f: x => Math.sin(x),    latex: 'f(x) = sin(x)' },
+  'cos':     { f: x => Math.cos(x),    latex: 'f(x) = cos(x)' },
+  'tan':     { f: x => Math.tan(x),    latex: 'f(x) = tan(x)' },
+  'floor':   { f: x => Math.floor(x),  latex: 'f(x) = ⌊x⌋' },
+  'sigmoid': { f: x => 1/(1+Math.exp(-x)), latex: 'f(x) = σ(x) = 1/(1+e⁻ˣ)' },
+  'relu':    { f: x => Math.max(0, x), latex: 'f(x) = relu(x)' },
+  'tanh':    { f: x => Math.tanh(x),   latex: 'f(x) = tanh(x)' },
+};
+
+// Hàm ngược tương ứng cho mục 4 (chỉ định nghĩa cho các hàm đơn điệu).
+const INVERSES = {
+  '2x+1':    { f: x => (x - 1) / 2,   latex: 'f⁻¹(x) = (x − 1)/2' },
+  '3x-2':    { f: x => (x + 2) / 3,   latex: 'f⁻¹(x) = (x + 2)/3' },
+  'e^x':     { f: x => x <= 0 ? NaN : Math.log(x), latex: 'f⁻¹(x) = ln(x)' },
+  'x^3':     { f: x => Math.cbrt(x),  latex: 'f⁻¹(x) = ∛x' },
+  'sqrt_pos':{ f: x => x < 0 ? NaN : x*x, latex: 'f⁻¹(x) = x² (x ≥ 0)' },
+};
+
+// ====================================================================
+// 1. Function Plotter
+// ====================================================================
+const plotSvg = document.getElementById('plotSvg');
+const PLOT_W = 720, PLOT_H = 420, PAD = 36;
+
+function makeAxes(svg, w, h, pad, xMin, xMax, yMin, yMax) {
+  svg.innerHTML = '';
+  const sx = x => pad + (x - xMin) * (w - 2*pad) / (xMax - xMin);
+  const sy = y => h - pad - (y - yMin) * (h - 2*pad) / (yMax - yMin);
+
+  // Grid
+  const gridGroup = svg2('g');
+  for (let gx = Math.ceil(xMin); gx <= xMax; gx++) {
+    const line = svg2('line');
+    line.setAttribute('x1', sx(gx)); line.setAttribute('x2', sx(gx));
+    line.setAttribute('y1', pad);    line.setAttribute('y2', h - pad);
+    line.setAttribute('stroke', '#edf2f7'); line.setAttribute('stroke-width', 1);
+    gridGroup.appendChild(line);
+  }
+  for (let gy = Math.ceil(yMin); gy <= yMax; gy++) {
+    const line = svg2('line');
+    line.setAttribute('x1', pad);     line.setAttribute('x2', w - pad);
+    line.setAttribute('y1', sy(gy));  line.setAttribute('y2', sy(gy));
+    line.setAttribute('stroke', '#edf2f7'); line.setAttribute('stroke-width', 1);
+    gridGroup.appendChild(line);
+  }
+  svg.appendChild(gridGroup);
+
+  // Axes
+  const xAxis = svg2('line');
+  xAxis.setAttribute('x1', pad); xAxis.setAttribute('x2', w - pad);
+  xAxis.setAttribute('y1', sy(0)); xAxis.setAttribute('y2', sy(0));
+  xAxis.setAttribute('stroke', '#4a5568'); xAxis.setAttribute('stroke-width', 1.5);
+  svg.appendChild(xAxis);
+  const yAxis = svg2('line');
+  yAxis.setAttribute('x1', sx(0)); yAxis.setAttribute('x2', sx(0));
+  yAxis.setAttribute('y1', pad);   yAxis.setAttribute('y2', h - pad);
+  yAxis.setAttribute('stroke', '#4a5568'); yAxis.setAttribute('stroke-width', 1.5);
+  svg.appendChild(yAxis);
+
+  // Tick labels
+  for (let gx = Math.ceil(xMin); gx <= xMax; gx++) {
+    if (gx === 0) continue;
+    const t = svg2('text');
+    t.setAttribute('x', sx(gx)); t.setAttribute('y', sy(0) + 14);
+    t.setAttribute('text-anchor', 'middle');
+    t.setAttribute('font-size', '11'); t.setAttribute('fill', '#4a5568');
+    t.textContent = gx;
+    svg.appendChild(t);
+  }
+  for (let gy = Math.ceil(yMin); gy <= yMax; gy++) {
+    if (gy === 0) continue;
+    const t = svg2('text');
+    t.setAttribute('x', sx(0) - 6); t.setAttribute('y', sy(gy) + 4);
+    t.setAttribute('text-anchor', 'end');
+    t.setAttribute('font-size', '11'); t.setAttribute('fill', '#4a5568');
+    t.textContent = gy;
+    svg.appendChild(t);
+  }
+  // Origin label
+  const o = svg2('text');
+  o.setAttribute('x', sx(0) - 6); o.setAttribute('y', sy(0) + 14);
+  o.setAttribute('text-anchor', 'end');
+  o.setAttribute('font-size', '11'); o.setAttribute('fill', '#4a5568');
+  o.textContent = '0';
+  svg.appendChild(o);
+
+  return { sx, sy };
+}
+
+function svg2(tag) {
+  return document.createElementNS('http://www.w3.org/2000/svg', tag);
+}
+
+function plotFunctionPath(svg, fn, sx, sy, xMin, xMax, yMin, yMax, color, steps=400) {
+  // Vẽ đường, tách thành nhiều đoạn nếu gặp NaN hoặc jump.
+  let path = '';
+  let started = false;
+  let prevY = null;
+  for (let i = 0; i <= steps; i++) {
+    const x = xMin + (xMax - xMin) * i / steps;
+    const y = fn(x);
+    if (!Number.isFinite(y) || y < yMin - 100 || y > yMax + 100) {
+      started = false; prevY = null;
+      continue;
+    }
+    // Vẽ xong, nhưng nếu y nhảy quá lớn (vd 1/x quanh 0) thì cắt khúc.
+    if (prevY !== null && Math.abs(y - prevY) > (yMax - yMin)) {
+      started = false;
+    }
+    path += (started ? 'L ' : 'M ') + sx(x).toFixed(2) + ' ' + sy(Math.max(yMin-10, Math.min(yMax+10, y))).toFixed(2) + ' ';
+    started = true;
+    prevY = y;
+  }
+  if (path) {
+    const p = svg2('path');
+    p.setAttribute('d', path);
+    p.setAttribute('stroke', color);
+    p.setAttribute('stroke-width', 2.5);
+    p.setAttribute('fill', 'none');
+    svg.appendChild(p);
+  }
+}
+
+function drawPlot() {
+  const xMin = parseFloat(document.getElementById('xMin').value);
+  const xMax = parseFloat(document.getElementById('xMax').value);
+  if (isNaN(xMin) || isNaN(xMax) || xMin >= xMax) return;
+
+  const f1Key = document.getElementById('plotF1').value;
+  const f2Key = document.getElementById('plotF2').value;
+  const fn1 = FUNCS[f1Key].f;
+  const fn2 = f2Key !== 'none' ? FUNCS[f2Key].f : null;
+
+  // Tự suy yMin/yMax từ giá trị thực tế.
+  let yMin = Infinity, yMax = -Infinity;
+  const sampleY = (fn) => {
+    for (let i = 0; i <= 200; i++) {
+      const x = xMin + (xMax - xMin) * i / 200;
+      const y = fn(x);
+      if (Number.isFinite(y)) { yMin = Math.min(yMin, y); yMax = Math.max(yMax, y); }
+    }
+  };
+  sampleY(fn1);
+  if (fn2) sampleY(fn2);
+  if (!Number.isFinite(yMin)) { yMin = -5; yMax = 5; }
+  // Padding 15%.
+  const ySpan = Math.max(2, yMax - yMin);
+  yMin -= ySpan * 0.15; yMax += ySpan * 0.15;
+  // Đảm bảo 0 nằm trong khung nếu có thể.
+  if (yMin > 0 && yMin < ySpan) yMin = 0;
+  if (yMax < 0 && yMax > -ySpan) yMax = 0;
+
+  const { sx, sy } = makeAxes(plotSvg, PLOT_W, PLOT_H, PAD, xMin, xMax, yMin, yMax);
+  plotFunctionPath(plotSvg, fn1, sx, sy, xMin, xMax, yMin, yMax, '#4299e1');
+  if (fn2) plotFunctionPath(plotSvg, fn2, sx, sy, xMin, xMax, yMin, yMax, '#e53e3e');
+
+  // Hover indicator
+  plotSvg.onmousemove = (ev) => {
+    const rect = plotSvg.getBoundingClientRect();
+    const px = (ev.clientX - rect.left) * PLOT_W / rect.width;
+    if (px < PAD || px > PLOT_W - PAD) return;
+    const x = xMin + (px - PAD) * (xMax - xMin) / (PLOT_W - 2*PAD);
+    const y1 = fn1(x);
+    let info = `x = ${x.toFixed(3)} | ${FUNCS[f1Key].latex.replace('f(x)', 'y₁')} ≈ ${Number.isFinite(y1) ? y1.toFixed(4) : 'undefined'}`;
+    if (fn2) {
+      const y2 = fn2(x);
+      info += ` | ${FUNCS[f2Key].latex.replace('f(x)', 'y₂')} ≈ ${Number.isFinite(y2) ? y2.toFixed(4) : 'undefined'}`;
+    }
+    document.getElementById('plotInfo').textContent = info;
+  };
+}
+
+function resetPlot() {
+  document.getElementById('xMin').value = -5;
+  document.getElementById('xMax').value = 5;
+  drawPlot();
+}
+
+['plotF1', 'plotF2', 'xMin', 'xMax'].forEach(id => {
+  document.getElementById(id).addEventListener('input', drawPlot);
+  document.getElementById(id).addEventListener('change', drawPlot);
+});
+
+drawPlot();
+
+// ====================================================================
+// 2. Domain Explorer
+// ====================================================================
+const DOMAIN_CASES = [
+  {
+    formula: 'f(x) = 2x + 1',
+    domain: 'ℝ (toàn bộ trục số)',
+    intervals: [[-10, 10]],
+    gaps: [],
+    explain: 'Không có mẫu số, không có căn, không có log — không cấm gì cả.'
+  },
+  {
+    formula: 'f(x) = 1/x',
+    domain: 'ℝ \\ {0}',
+    intervals: [[-10, 10]],
+    gaps: [0],
+    explain: 'Cấm x = 0 vì sẽ chia cho 0.'
+  },
+  {
+    formula: 'f(x) = √x',
+    domain: '[0, +∞)',
+    intervals: [[0, 10]],
+    gaps: [],
+    explain: 'Căn bậc 2 chỉ định nghĩa với x ≥ 0.'
+  },
+  {
+    formula: 'f(x) = √(x − 3)',
+    domain: '[3, +∞)',
+    intervals: [[3, 10]],
+    gaps: [],
+    explain: 'Trong căn cần ≥ 0: x − 3 ≥ 0 ⟹ x ≥ 3.'
+  },
+  {
+    formula: 'f(x) = ln(x)',
+    domain: '(0, +∞)',
+    intervals: [[0.001, 10]],
+    gaps: [],
+    explain: 'ln chỉ xác định với x > 0 (chú ý không bao gồm 0).'
+  },
+  {
+    formula: 'f(x) = 1/(x² − 4)',
+    domain: 'ℝ \\ {−2, 2}',
+    intervals: [[-10, 10]],
+    gaps: [-2, 2],
+    explain: 'Mẫu = 0 khi x = ±2 → loại 2 điểm này.'
+  },
+];
+
+function renderDomainBar(intervals, gaps, fullMin=-10, fullMax=10) {
+  const W = 600;
+  let html = `<div class="domain-bar" style="width:${W}px; max-width:100%; margin-bottom:32px">`;
+  // Phần xanh (valid).
+  for (const [a, b] of intervals) {
+    const left = (a - fullMin) / (fullMax - fullMin) * 100;
+    const width = (b - a) / (fullMax - fullMin) * 100;
+    html += `<div class="valid" style="left:${left}%; width:${width}%"></div>`;
+  }
+  // Trục.
+  html += `<div class="axis"></div>`;
+  // Tick.
+  for (let i = fullMin; i <= fullMax; i += 2) {
+    const left = (i - fullMin) / (fullMax - fullMin) * 100;
+    html += `<div class="tick" style="left:${left}%"></div>`;
+    html += `<div class="tick-label" style="left:${left}%">${i}</div>`;
+  }
+  // Gaps (điểm cấm — vẽ band nhỏ).
+  for (const g of gaps) {
+    const left = (g - fullMin) / (fullMax - fullMin) * 100;
+    html += `<div class="gap" style="left:calc(${left}% - 4px)"></div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+function drawDomainExplorer() {
+  let html = '';
+  for (const c of DOMAIN_CASES) {
+    html += `<div style="margin-bottom:20px">
+      <div><span class="formula">${c.formula}</span> &nbsp; → Domain = <code>${c.domain}</code></div>
+      ${renderDomainBar(c.intervals, c.gaps)}
+      <div class="small" style="margin-top:6px">${c.explain}</div>
+    </div>`;
+  }
+  document.getElementById('domainList').innerHTML = html;
+}
+drawDomainExplorer();
+
+// ====================================================================
+// 3. Composition Visualizer
+// ====================================================================
+function drawComposition() {
+  const fKey = document.getElementById('cmpF').value;
+  const gKey = document.getElementById('cmpG').value;
+  const x = parseFloat(document.getElementById('cmpX').value);
+  const f = FUNCS[fKey].f;
+  const g = FUNCS[gKey].f;
+  const fx = f(x);
+  const gfx = g(fx);
+
+  // Flow boxes.
+  const flow = document.getElementById('cmpFlow');
+  flow.innerHTML = `
+    <div class="val">x = ${fmt(x)}</div>
+    <div class="arrow">→</div>
+    <div class="box">${FUNCS[fKey].latex.replace('f(x) =', 'f =')}</div>
+    <div class="arrow">→</div>
+    <div class="val">f(x) = ${fmt(fx)}</div>
+    <div class="arrow">→</div>
+    <div class="box">${FUNCS[gKey].latex.replace('f(x) =', 'g =').replace('g(x) =', 'g =')}</div>
+    <div class="arrow">→</div>
+    <div class="val">g(f(x)) = ${fmt(gfx)}</div>
+  `;
+
+  // Step log.
+  const steps = `Bước 1: f(${fmt(x)}) = ${FUNCS[fKey].latex.replace('f(x) = ', '').replace(/x/g, '(' + fmt(x) + ')')} = ${fmt(fx)}
+Bước 2: g(${fmt(fx)}) = ${FUNCS[gKey].latex.replace('f(x) = ', '').replace('g(x) = ', '').replace(/x/g, '(' + fmt(fx) + ')')} = ${fmt(gfx)}
+
+⟹ (g ∘ f)(${fmt(x)}) = ${fmt(gfx)}`;
+  document.getElementById('cmpSteps').textContent = steps;
+
+  // Bảng giá trị.
+  const tab = document.getElementById('cmpTable');
+  let html = `<tr><th>x</th><th>f(x)</th><th>g(x)</th><th>(g∘f)(x)</th></tr>`;
+  const xs = [-2, -1, 0, 1, 2, 3, x];
+  // Bỏ trùng và sắp xếp.
+  const xset = [...new Set(xs.map(v => parseFloat(v.toFixed(3))))].sort((a, b) => a - b);
+  for (const xv of xset) {
+    const r1 = f(xv), r2 = g(xv), r3 = g(f(xv));
+    html += `<tr ${xv === x ? 'style="background:#fefcbf;font-weight:700"' : ''}>
+      <td>${fmt(xv)}</td><td>${fmt(r1)}</td><td>${fmt(r2)}</td><td>${fmt(r3)}</td>
+    </tr>`;
+  }
+  tab.innerHTML = html;
+
+  // Đồ thị 3 đường f, g, g∘f.
+  const xMin = -4, xMax = 4;
+  let yMin = Infinity, yMax = -Infinity;
+  for (let i = 0; i <= 200; i++) {
+    const xx = xMin + (xMax - xMin) * i / 200;
+    [f(xx), g(xx), g(f(xx))].forEach(yy => {
+      if (Number.isFinite(yy) && Math.abs(yy) < 50) {
+        yMin = Math.min(yMin, yy); yMax = Math.max(yMax, yy);
+      }
+    });
+  }
+  if (!Number.isFinite(yMin)) { yMin = -5; yMax = 5; }
+  const span = Math.max(2, yMax - yMin); yMin -= span*0.1; yMax += span*0.1;
+  const cmpSvg = document.getElementById('cmpSvg');
+  const { sx, sy } = makeAxes(cmpSvg, 600, 360, 36, xMin, xMax, yMin, yMax);
+  plotFunctionPath(cmpSvg, f, sx, sy, xMin, xMax, yMin, yMax, '#4299e1');
+  plotFunctionPath(cmpSvg, g, sx, sy, xMin, xMax, yMin, yMax, '#48bb78');
+  plotFunctionPath(cmpSvg, xv => g(f(xv)), sx, sy, xMin, xMax, yMin, yMax, '#d53f8c');
+
+  // Highlight điểm (x, g(f(x))).
+  if (Number.isFinite(gfx) && gfx >= yMin && gfx <= yMax && x >= xMin && x <= xMax) {
+    const c = svg2('circle');
+    c.setAttribute('cx', sx(x)); c.setAttribute('cy', sy(gfx));
+    c.setAttribute('r', 5); c.setAttribute('fill', '#d53f8c');
+    c.setAttribute('stroke', 'white'); c.setAttribute('stroke-width', 2);
+    cmpSvg.appendChild(c);
+  }
+}
+
+function fmt(v) {
+  if (!Number.isFinite(v)) return 'NaN';
+  if (Math.abs(v) < 1e-9) return '0';
+  if (Math.abs(v) >= 100) return v.toExponential(2);
+  return (Math.abs(v - Math.round(v)) < 1e-9) ? v.toFixed(0) : v.toFixed(3);
+}
+
+['cmpF', 'cmpG', 'cmpX'].forEach(id => {
+  document.getElementById(id).addEventListener('input', drawComposition);
+  document.getElementById(id).addEventListener('change', drawComposition);
+});
+drawComposition();
+
+// ====================================================================
+// 4. Inverse Function
+// ====================================================================
+function drawInverse() {
+  const key = document.getElementById('invF').value;
+  const fn = FUNCS[key].f;
+  const inv = INVERSES[key].f;
+
+  // Phạm vi vẽ. Cho e^x / ln(x) cần khung khác chút.
+  let xMin = -3, xMax = 5;
+  if (key === 'e^x') { xMin = -2; xMax = 4; }
+  if (key === 'sqrt_pos') { xMin = -1; xMax = 6; }
+  const yMin = xMin, yMax = xMax; // dùng khung vuông để đối xứng y = x nhìn đẹp.
+
+  const svg = document.getElementById('invSvg');
+  const W = 600, H = 600;
+  const { sx, sy } = makeAxes(svg, W, H, 40, xMin, xMax, yMin, yMax);
+
+  // Đường y = x (trục đối xứng).
+  const ln = svg2('line');
+  ln.setAttribute('x1', sx(xMin)); ln.setAttribute('y1', sy(xMin));
+  ln.setAttribute('x2', sx(xMax)); ln.setAttribute('y2', sy(xMax));
+  ln.setAttribute('stroke', '#805ad5'); ln.setAttribute('stroke-width', 1.5);
+  ln.setAttribute('stroke-dasharray', '6 4');
+  svg.appendChild(ln);
+
+  // Vẽ f và f⁻¹.
+  plotFunctionPath(svg, fn, sx, sy, xMin, xMax, yMin, yMax, '#4299e1');
+  plotFunctionPath(svg, inv, sx, sy, xMin, xMax, yMin, yMax, '#dd6b20');
+
+  // Vẽ vài cặp điểm minh họa đối xứng.
+  const samplePoints = [];
+  for (let i = 0; i < 5; i++) {
+    const xx = xMin + 0.5 + (xMax - xMin - 1) * i / 4;
+    const yy = fn(xx);
+    if (Number.isFinite(yy) && yy >= yMin && yy <= yMax) {
+      samplePoints.push([xx, yy]);
+    }
+  }
+  for (const [a, b] of samplePoints) {
+    // Điểm (a, b) trên f.
+    const c1 = svg2('circle');
+    c1.setAttribute('cx', sx(a)); c1.setAttribute('cy', sy(b));
+    c1.setAttribute('r', 4); c1.setAttribute('fill', '#4299e1');
+    svg.appendChild(c1);
+    // Điểm (b, a) trên f⁻¹.
+    const c2 = svg2('circle');
+    c2.setAttribute('cx', sx(b)); c2.setAttribute('cy', sy(a));
+    c2.setAttribute('r', 4); c2.setAttribute('fill', '#dd6b20');
+    svg.appendChild(c2);
+    // Đường nối (a,b) và (b,a) — vuông góc với y=x, minh họa đối xứng.
+    const lk = svg2('line');
+    lk.setAttribute('x1', sx(a)); lk.setAttribute('y1', sy(b));
+    lk.setAttribute('x2', sx(b)); lk.setAttribute('y2', sy(a));
+    lk.setAttribute('stroke', '#cbd5e0'); lk.setAttribute('stroke-width', 1);
+    lk.setAttribute('stroke-dasharray', '2 3');
+    svg.appendChild(lk);
+  }
+}
+
+document.getElementById('invF').addEventListener('change', drawInverse);
+drawInverse();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+</body>
+</html>

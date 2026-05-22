@@ -37,6 +37,7 @@
 | # | Bài học | Mô tả | Liên kết |
 | --- | --- | --- | --- |
 | 12 | Oxford 3000 — Level A1 | 50 từ thiết yếu nhất A1, chia 5 nhóm (People, Activities, Food, Places, Adjectives). Mỗi từ kèm IPA, audio Oxford, nghĩa Việt, ví dụ. Flashcard SRS (Leitner box) lưu trong localStorage. | [lesson-12-vocab-oxford3000-a1/](./lesson-12-vocab-oxford3000-a1/) |
+| 13 | Oxford 3000 — Level A2 | 80 từ A2 chia 8 nhóm (Body, Time, Weather, Clothes, House, Colors, Work, Verbs). SRS dùng chung key với L12 — tổng 130 từ. | [lesson-13-vocab-oxford3000-a2/](./lesson-13-vocab-oxford3000-a2/) |
 
 ## Gợi ý cách học
 

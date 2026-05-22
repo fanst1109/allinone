@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Lũy thừa, căn, logarit</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  main { max-width: 1080px; margin: 0 auto; padding: 24px; }
+  h1 { color: #1a202c; margin-top: 8px; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .card h3 { margin-top: 0; color: #2c5282; }
+  .desc { color: #4a5568; font-size: 14px; margin-bottom: 12px; }
+
+  .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 50px; color: #4a5568; }
+  input[type="text"], input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 8px 12px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 110px;
+  }
+  input.wide { width: 280px; }
+  input:focus { outline: none; border-color: #4299e1; box-shadow: 0 0 0 2px #bee3f8; }
+
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+
+  select {
+    font-size: 14px; padding: 7px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    background: white;
+    min-width: 220px;
+  }
+
+  .result {
+    background: #1a202c; color: #68d391;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    padding: 12px 16px; border-radius: 4px;
+    margin-top: 12px; font-size: 14px;
+    white-space: pre-wrap;
+  }
+  .result.warn { color: #f6ad55; }
+  .result.bad { color: #fc8181; }
+  .formula {
+    background: #edf2f7; padding: 10px 14px; border-radius: 4px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; color: #2d3748;
+    display: inline-block; margin: 8px 0;
+  }
+  .check-true { color: #2f855a; font-weight: 700; }
+  .check-false { color: #c53030; font-weight: 700; }
+
+  /* Log scale demo: 2 bar chart */
+  .scale-block { margin: 12px 0; }
+  .scale-label { font-size: 13px; font-weight: 600; color: #2d3748; margin-bottom: 6px; }
+  .bar-row {
+    display: grid; grid-template-columns: 130px 1fr 130px;
+    gap: 8px; align-items: center;
+    margin: 4px 0;
+  }
+  .bar-num {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; color: #4a5568; text-align: right;
+  }
+  .bar-bg {
+    background: #e2e8f0; border-radius: 4px;
+    height: 22px; overflow: hidden;
+    position: relative;
+  }
+  .bar-fill {
+    background: linear-gradient(90deg, #4299e1, #2c5282);
+    height: 100%; border-radius: 4px;
+  }
+  .bar-val {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 12px; color: #2d3748;
+  }
+
+  table.tbl { border-collapse: collapse; margin: 10px 0; font-size: 14px; }
+  table.tbl th, table.tbl td {
+    padding: 6px 12px; border: 1px solid #e2e8f0;
+    text-align: left;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  table.tbl th { background: #edf2f7; }
+
+  .hint { color: #718096; font-size: 13px; margin: 6px 0; }
+  .badge {
+    display: inline-block;
+    background: #fef5e7; color: #975a16;
+    padding: 2px 8px; border-radius: 999px;
+    font-size: 12px; font-weight: 600;
+  }
+  .equation-display {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 16px;
+    line-height: 1.7;
+  }
+  .equation-display .lhs, .equation-display .rhs {
+    display: inline-block; min-width: 200px;
+  }
+  .small { font-size: 12px; color: #718096; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-linear-equations/visualization.html">← L3: Phương trình bậc 1</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Lũy thừa, căn, logarit</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-functions/visualization.html">L5: Hàm số là gì →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 04 — Lũy thừa, căn, logarit</h1>
+<p class="desc">
+  Mini-app tương tác đi kèm <a href="./README.md">README</a>.
+  Gồm 4 phần: máy tính power/root/log, kiểm chứng quy luật, demo log scale, và logSumExp playground.
+</p>
+
+<!-- =============================================================== -->
+<h2>1. Máy tính: power, root, log</h2>
+
+<div class="card">
+  <h3>Lũy thừa: a<sup>b</sup></h3>
+  <p class="desc">Tính <code>a^b</code> với <code>a, b</code> bất kỳ (kể cả <code>b</code> âm hoặc phân số).</p>
+  <div class="row">
+    <label>a =</label>
+    <input id="powA" type="number" value="2" step="any">
+    <label>b =</label>
+    <input id="powB" type="number" value="10" step="any">
+    <button onclick="calcPow()">Tính</button>
+  </div>
+  <div id="powResult" class="result">Nhấn "Tính" để xem kết quả.</div>
+  <div class="hint">Thử: a=2, b=10 → 1024. a=5, b=-2 → 0.04. a=16, b=0.75 → 8.</div>
+</div>
+
+<div class="card">
+  <h3>Căn bậc n: √[n]{x}</h3>
+  <p class="desc">Tính căn bậc <code>n</code> của <code>x</code>. Tương đương <code>x^(1/n)</code>.</p>
+  <div class="row">
+    <label>x =</label>
+    <input id="rootX" type="number" value="8" step="any">
+    <label>n =</label>
+    <input id="rootN" type="number" value="3" step="1" min="1">
+    <button onclick="calcRoot()">Tính</button>
+  </div>
+  <div id="rootResult" class="result">Nhấn "Tính" để xem kết quả.</div>
+  <div class="hint">Thử: x=8, n=3 → 2 (cube root). x=16, n=4 → 2. x=-8, n=3 → -2 (n lẻ cho phép x âm).</div>
+</div>
+
+<div class="card">
+  <h3>Logarit: log<sub>b</sub>(x)</h3>
+  <p class="desc">Hỏi <em>"b lũy thừa bao nhiêu thì ra x?"</em></p>
+  <div class="row">
+    <label>b =</label>
+    <input id="logB" type="number" value="2" step="any">
+    <label>x =</label>
+    <input id="logX" type="number" value="1024" step="any">
+    <button onclick="calcLog()">Tính</button>
+  </div>
+  <div id="logResult" class="result">Nhấn "Tính" để xem kết quả.</div>
+  <div class="hint">Thử: b=2, x=1024 → 10. b=10, x=0.001 → -3. b=5, x=125 → 3.</div>
+</div>
+
+<!-- =============================================================== -->
+<h2>2. Kiểm chứng quy luật</h2>
+
+<div class="card">
+  <h3>Chọn quy luật → nhập số → check 2 vế</h3>
+  <p class="desc">Chọn 1 quy luật, app sẽ tính cả vế trái và vế phải, đối chiếu xem có khớp không.</p>
+
+  <div class="row">
+    <label style="min-width: 70px;">Quy luật:</label>
+    <select id="ruleSelect" onchange="renderRule()">
+      <optgroup label="Lũy thừa">
+        <option value="pow_mul">a^m · a^n = a^(m+n)</option>
+        <option value="pow_div">a^m / a^n = a^(m−n)</option>
+        <option value="pow_pow">(a^m)^n = a^(m·n)</option>
+        <option value="pow_ab">(a·b)^n = a^n · b^n</option>
+        <option value="pow_div_n">(a/b)^n = a^n / b^n</option>
+      </optgroup>
+      <optgroup label="Logarit">
+        <option value="log_mul">log_b(x·y) = log_b(x) + log_b(y)</option>
+        <option value="log_div">log_b(x/y) = log_b(x) − log_b(y)</option>
+        <option value="log_pow">log_b(x^n) = n · log_b(x)</option>
+        <option value="log_change">log_b(x) = log_c(x) / log_c(b)</option>
+      </optgroup>
+    </select>
+  </div>
+
+  <div id="ruleInputs" class="row"></div>
+
+  <div id="ruleResult" class="result">Chọn quy luật ở trên.</div>
+</div>
+
+<!-- =============================================================== -->
+<h2>3. Log scale: vì sao "vẽ log" giúp nhìn được dữ liệu trải nhiều bậc</h2>
+
+<div class="card">
+  <h3>Bảng: 1, 10, 100, ..., 10⁹</h3>
+  <p class="desc">
+    Cùng một dãy số, vẽ trên hai trục khác nhau. Linear scale: số nhỏ "biến mất";
+    log scale: các số cách đều nhau.
+  </p>
+
+  <div class="scale-block">
+    <div class="scale-label">📏 Linear scale (1 đơn vị pixel = 1 đơn vị số)</div>
+    <div id="linearBars"></div>
+  </div>
+
+  <div class="scale-block">
+    <div class="scale-label">📐 Log scale (1 đơn vị pixel = 1 order of magnitude)</div>
+    <div id="logBars"></div>
+  </div>
+
+  <div class="hint">
+    Nhận xét: trên linear scale, các số nhỏ (1, 10, 100, ...) gần như invisible vì
+    chúng <em>nhỏ hơn 10⁹ tới 9 bậc</em>. Trên log scale, chúng cách đều — vì
+    <code>log₁₀(1)=0, log₁₀(10)=1, log₁₀(100)=2, ...</code>
+  </div>
+</div>
+
+<!-- =============================================================== -->
+<h2>4. logSumExp playground — ổn định số trong ML</h2>
+
+<div class="card">
+  <h3>So sánh: naive vs stable</h3>
+  <p class="desc">
+    Nhập một danh sách số (phân cách bằng dấu phẩy hoặc khoảng trắng).
+    Tính <code>log(Σ exp(x_i))</code> theo 2 cách. Với x lớn (vd 1000),
+    cách naive overflow → +Inf.
+  </p>
+
+  <div class="row">
+    <label style="min-width: 50px;">xs =</label>
+    <input id="lseInput" class="wide" type="text" value="1000, 1001, 999">
+    <button onclick="calcLSE()">Tính</button>
+  </div>
+
+  <div id="lseResult" class="result">Nhấn "Tính" để so sánh.</div>
+
+  <div class="hint">
+    Thử: <code>1000, 1001, 999</code> → naive: +Inf, stable: ≈1001.41.<br>
+    Thử nhỏ: <code>1, 2, 3</code> → cả hai khớp (≈3.41).<br>
+    Thử cực lớn: <code>800, 900, 1000</code> — naive cũng overflow.
+  </div>
+
+  <div style="margin-top: 16px; padding: 12px; background: #f7fafc; border-left: 4px solid #4299e1; border-radius: 4px;">
+    <strong>Công thức ổn định:</strong><br>
+    <div class="formula">log(Σ exp(xᵢ)) = M + log(Σ exp(xᵢ − M))</div>
+    <div class="small">với M = max(xs). Sau khi trừ M, mọi exp(...) ∈ (0, 1] → không overflow.</div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// Helpers
+// ============================================================
+function fmt(x) {
+  if (!isFinite(x)) return String(x);
+  if (Math.abs(x) >= 1e6 || (Math.abs(x) < 1e-3 && x !== 0)) {
+    return x.toExponential(6);
+  }
+  return Number(x.toPrecision(10)).toString();
+}
+
+function approxEqual(a, b, eps = 1e-9) {
+  if (a === b) return true;
+  if (!isFinite(a) || !isFinite(b)) return a === b;
+  return Math.abs(a - b) <= eps * Math.max(1, Math.abs(a), Math.abs(b));
+}
+
+// ============================================================
+// 1. Power / Root / Log calculators
+// ============================================================
+function calcPow() {
+  const a = parseFloat(document.getElementById('powA').value);
+  const b = parseFloat(document.getElementById('powB').value);
+  const el = document.getElementById('powResult');
+  if (isNaN(a) || isNaN(b)) {
+    el.textContent = 'Lỗi: nhập số hợp lệ cho a và b.';
+    el.className = 'result bad';
+    return;
+  }
+  const r = Math.pow(a, b);
+  let extra = '';
+  if (b === 0) extra = '\n(quy ước: a^0 = 1 với a ≠ 0)';
+  if (b < 0 && b === Math.floor(b)) extra = `\n(a^(-n) = 1/a^n = 1/${Math.pow(a, -b)} = ${fmt(1/Math.pow(a, -b))})`;
+  if (b > 0 && b < 1) extra = `\n(mũ phân số = căn: a^(1/n) = √[n]{a})`;
+  el.textContent = `${a}^${b} = ${fmt(r)}${extra}`;
+  el.className = 'result';
+}
+
+function calcRoot() {
+  const x = parseFloat(document.getElementById('rootX').value);
+  const n = parseInt(document.getElementById('rootN').value, 10);
+  const el = document.getElementById('rootResult');
+  if (isNaN(x) || isNaN(n) || n === 0) {
+    el.textContent = 'Lỗi: nhập x và n hợp lệ (n ≠ 0).';
+    el.className = 'result bad';
+    return;
+  }
+  let r;
+  if (x < 0) {
+    if (n % 2 === 0) {
+      el.textContent = `√[${n}]{${x}} = không xác định trong số thực (căn bậc chẵn của số âm).`;
+      el.className = 'result warn';
+      return;
+    }
+    r = -Math.pow(-x, 1/n);
+  } else {
+    r = Math.pow(x, 1/n);
+  }
+  // Kiểm chứng: r^n có ra x không?
+  const check = Math.pow(r, n);
+  el.textContent = `√[${n}]{${x}} = ${fmt(r)}\n(kiểm chứng: ${fmt(r)}^${n} = ${fmt(check)})`;
+  el.className = 'result';
+}
+
+function calcLog() {
+  const b = parseFloat(document.getElementById('logB').value);
+  const x = parseFloat(document.getElementById('logX').value);
+  const el = document.getElementById('logResult');
+  if (isNaN(b) || isNaN(x)) {
+    el.textContent = 'Lỗi: nhập b và x hợp lệ.';
+    el.className = 'result bad';
+    return;
+  }
+  if (b <= 0 || b === 1) {
+    el.textContent = 'Lỗi: cơ số b phải > 0 và ≠ 1.';
+    el.className = 'result bad';
+    return;
+  }
+  if (x <= 0) {
+    el.textContent = `log_${b}(${x}) = không xác định trong số thực (cần x > 0).`;
+    el.className = 'result warn';
+    return;
+  }
+  const r = Math.log(x) / Math.log(b);
+  // Kiểm chứng: b^r có ra x không?
+  const check = Math.pow(b, r);
+  el.textContent = `log_${b}(${x}) = ${fmt(r)}\n(kiểm chứng: ${b}^${fmt(r)} = ${fmt(check)})`;
+  el.className = 'result';
+}
+
+// ============================================================
+// 2. Rule verification
+// ============================================================
+const RULES = {
+  pow_mul: {
+    name: 'a^m · a^n = a^(m+n)',
+    inputs: [['a', 2], ['m', 3], ['n', 4]],
+    eval: ({a, m, n}) => ({
+      lhs: Math.pow(a, m) * Math.pow(a, n),
+      rhs: Math.pow(a, m + n),
+      lhsStr: `${a}^${m} · ${a}^${n} = ${fmt(Math.pow(a,m))} · ${fmt(Math.pow(a,n))}`,
+      rhsStr: `${a}^${m+n}`,
+    })
+  },
+  pow_div: {
+    name: 'a^m / a^n = a^(m−n)',
+    inputs: [['a', 3], ['m', 5], ['n', 2]],
+    eval: ({a, m, n}) => ({
+      lhs: Math.pow(a, m) / Math.pow(a, n),
+      rhs: Math.pow(a, m - n),
+      lhsStr: `${a}^${m} / ${a}^${n} = ${fmt(Math.pow(a,m))} / ${fmt(Math.pow(a,n))}`,
+      rhsStr: `${a}^(${m}−${n}) = ${a}^${m-n}`,
+    })
+  },
+  pow_pow: {
+    name: '(a^m)^n = a^(m·n)',
+    inputs: [['a', 2], ['m', 3], ['n', 2]],
+    eval: ({a, m, n}) => ({
+      lhs: Math.pow(Math.pow(a, m), n),
+      rhs: Math.pow(a, m * n),
+      lhsStr: `(${a}^${m})^${n} = ${fmt(Math.pow(a,m))}^${n}`,
+      rhsStr: `${a}^(${m}·${n}) = ${a}^${m*n}`,
+    })
+  },
+  pow_ab: {
+    name: '(a·b)^n = a^n · b^n',
+    inputs: [['a', 2], ['b', 3], ['n', 4]],
+    eval: ({a, b, n}) => ({
+      lhs: Math.pow(a * b, n),
+      rhs: Math.pow(a, n) * Math.pow(b, n),
+      lhsStr: `(${a}·${b})^${n} = ${a*b}^${n}`,
+      rhsStr: `${a}^${n} · ${b}^${n} = ${fmt(Math.pow(a,n))} · ${fmt(Math.pow(b,n))}`,
+    })
+  },
+  pow_div_n: {
+    name: '(a/b)^n = a^n / b^n',
+    inputs: [['a', 6], ['b', 2], ['n', 3]],
+    eval: ({a, b, n}) => ({
+      lhs: Math.pow(a / b, n),
+      rhs: Math.pow(a, n) / Math.pow(b, n),
+      lhsStr: `(${a}/${b})^${n} = ${a/b}^${n}`,
+      rhsStr: `${a}^${n} / ${b}^${n} = ${fmt(Math.pow(a,n))} / ${fmt(Math.pow(b,n))}`,
+    })
+  },
+  log_mul: {
+    name: 'log_b(x·y) = log_b(x) + log_b(y)',
+    inputs: [['b', 10], ['x', 100], ['y', 1000]],
+    eval: ({b, x, y}) => ({
+      lhs: Math.log(x * y) / Math.log(b),
+      rhs: Math.log(x)/Math.log(b) + Math.log(y)/Math.log(b),
+      lhsStr: `log_${b}(${x}·${y}) = log_${b}(${x*y})`,
+      rhsStr: `log_${b}(${x}) + log_${b}(${y})`,
+    })
+  },
+  log_div: {
+    name: 'log_b(x/y) = log_b(x) − log_b(y)',
+    inputs: [['b', 2], ['x', 32], ['y', 4]],
+    eval: ({b, x, y}) => ({
+      lhs: Math.log(x / y) / Math.log(b),
+      rhs: Math.log(x)/Math.log(b) - Math.log(y)/Math.log(b),
+      lhsStr: `log_${b}(${x}/${y}) = log_${b}(${x/y})`,
+      rhsStr: `log_${b}(${x}) − log_${b}(${y})`,
+    })
+  },
+  log_pow: {
+    name: 'log_b(x^n) = n · log_b(x)',
+    inputs: [['b', 10], ['x', 1000], ['n', 2]],
+    eval: ({b, x, n}) => ({
+      lhs: Math.log(Math.pow(x, n)) / Math.log(b),
+      rhs: n * Math.log(x) / Math.log(b),
+      lhsStr: `log_${b}(${x}^${n}) = log_${b}(${Math.pow(x,n)})`,
+      rhsStr: `${n} · log_${b}(${x})`,
+    })
+  },
+  log_change: {
+    name: 'log_b(x) = log_c(x) / log_c(b)',
+    inputs: [['b', 2], ['x', 10], ['c', Math.E.toFixed(5)]],
+    eval: ({b, x, c}) => ({
+      lhs: Math.log(x) / Math.log(b),
+      rhs: (Math.log(x) / Math.log(c)) / (Math.log(b) / Math.log(c)),
+      lhsStr: `log_${b}(${x})`,
+      rhsStr: `log_${c}(${x}) / log_${c}(${b})`,
+    })
+  },
+};
+
+function renderRule() {
+  const key = document.getElementById('ruleSelect').value;
+  const rule = RULES[key];
+  const inputsDiv = document.getElementById('ruleInputs');
+  inputsDiv.innerHTML = '';
+
+  rule.inputs.forEach(([name, def]) => {
+    const wrap = document.createElement('div');
+    wrap.style.display = 'flex';
+    wrap.style.alignItems = 'center';
+    wrap.style.gap = '6px';
+
+    const lbl = document.createElement('label');
+    lbl.textContent = name + ' =';
+    lbl.style.minWidth = '30px';
+    wrap.appendChild(lbl);
+
+    const inp = document.createElement('input');
+    inp.type = 'number';
+    inp.step = 'any';
+    inp.value = def;
+    inp.id = 'rule_' + name;
+    inp.oninput = computeRule;
+    wrap.appendChild(inp);
+
+    inputsDiv.appendChild(wrap);
+  });
+
+  const btn = document.createElement('button');
+  btn.textContent = 'Kiểm chứng';
+  btn.onclick = computeRule;
+  inputsDiv.appendChild(btn);
+
+  computeRule();
+}
+
+function computeRule() {
+  const key = document.getElementById('ruleSelect').value;
+  const rule = RULES[key];
+  const vals = {};
+  for (const [name, _] of rule.inputs) {
+    const v = parseFloat(document.getElementById('rule_' + name).value);
+    if (isNaN(v)) {
+      document.getElementById('ruleResult').textContent = 'Nhập đủ số trước.';
+      return;
+    }
+    vals[name] = v;
+  }
+  const r = rule.eval(vals);
+  const ok = approxEqual(r.lhs, r.rhs);
+  const okText = ok ? '✓ KHỚP' : '✗ KHÔNG KHỚP';
+  const okClass = ok ? 'check-true' : 'check-false';
+
+  const el = document.getElementById('ruleResult');
+  el.innerHTML = `Quy luật: <strong>${rule.name}</strong>\n\n`
+    + `Vế trái:  ${r.lhsStr} = ${fmt(r.lhs)}\n`
+    + `Vế phải:  ${r.rhsStr} = ${fmt(r.rhs)}\n\n`
+    + `<span class="${okClass}">${okText}</span> (sai số ≈ ${fmt(Math.abs(r.lhs - r.rhs))})`;
+  el.className = 'result';
+}
+
+// ============================================================
+// 3. Log scale demo
+// ============================================================
+function renderScales() {
+  const values = [1, 10, 100, 1000, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9];
+  const maxLin = values[values.length - 1]; // 1e9
+  const maxLog = Math.log10(maxLin);        // 9
+
+  const linDiv = document.getElementById('linearBars');
+  const logDiv = document.getElementById('logBars');
+  linDiv.innerHTML = '';
+  logDiv.innerHTML = '';
+
+  values.forEach(v => {
+    // Linear bar
+    const linPct = (v / maxLin) * 100;
+    linDiv.insertAdjacentHTML('beforeend', `
+      <div class="bar-row">
+        <div class="bar-num">${v.toLocaleString()}</div>
+        <div class="bar-bg"><div class="bar-fill" style="width: ${linPct}%"></div></div>
+        <div class="bar-val">${linPct.toFixed(linPct < 0.01 ? 6 : 2)}% chiều rộng</div>
+      </div>
+    `);
+
+    // Log bar
+    const logVal = Math.log10(v);
+    const logPct = (logVal / maxLog) * 100;
+    logDiv.insertAdjacentHTML('beforeend', `
+      <div class="bar-row">
+        <div class="bar-num">${v.toLocaleString()}</div>
+        <div class="bar-bg"><div class="bar-fill" style="width: ${logPct}%"></div></div>
+        <div class="bar-val">log₁₀ = ${logVal.toFixed(0)}</div>
+      </div>
+    `);
+  });
+}
+
+// ============================================================
+// 4. LogSumExp playground
+// ============================================================
+function parseList(str) {
+  return str.split(/[\s,]+/).filter(s => s.length).map(parseFloat).filter(v => !isNaN(v));
+}
+
+function logSumExpNaive(xs) {
+  let s = 0;
+  for (const x of xs) s += Math.exp(x);
+  return Math.log(s);
+}
+
+function logSumExpStable(xs) {
+  if (xs.length === 0) return -Infinity;
+  let m = xs[0];
+  for (const x of xs) if (x > m) m = x;
+  if (m === Infinity) return Infinity;
+  if (m === -Infinity) return -Infinity;
+  let s = 0;
+  for (const x of xs) s += Math.exp(x - m);
+  return m + Math.log(s);
+}
+
+function calcLSE() {
+  const xs = parseList(document.getElementById('lseInput').value);
+  const el = document.getElementById('lseResult');
+  if (xs.length === 0) {
+    el.textContent = 'Nhập ít nhất 1 số.';
+    el.className = 'result bad';
+    return;
+  }
+  const naive = logSumExpNaive(xs);
+  const stable = logSumExpStable(xs);
+
+  const m = Math.max(...xs);
+  const shifted = xs.map(x => x - m);
+  const expShifted = shifted.map(x => Math.exp(x));
+  const sumExpShifted = expShifted.reduce((a, b) => a + b, 0);
+
+  let text = `Input: [${xs.join(', ')}]\n\n`;
+  text += `--- Cách NAIVE (dễ overflow) ---\n`;
+  text += `Tính trực tiếp: log(Σ exp(xᵢ))\n`;
+  text += `= log(${xs.map(x => `exp(${x})`).join(' + ')})\n`;
+  text += `= log(${xs.map(x => fmt(Math.exp(x))).join(' + ')})\n`;
+  text += `= ${fmt(naive)}\n`;
+  if (!isFinite(naive)) text += `→ OVERFLOW! exp của số lớn vượt quá float64.\n`;
+
+  text += `\n--- Cách STABLE ---\n`;
+  text += `M = max(xs) = ${m}\n`;
+  text += `Trừ M: [${shifted.map(fmt).join(', ')}]\n`;
+  text += `exp(...): [${expShifted.map(fmt).join(', ')}]\n`;
+  text += `Σ = ${fmt(sumExpShifted)}\n`;
+  text += `log(Σ) = ${fmt(Math.log(sumExpShifted))}\n`;
+  text += `Cộng lại M: ${m} + ${fmt(Math.log(sumExpShifted))} = ${fmt(stable)}\n`;
+
+  el.textContent = text;
+  el.className = 'result';
+}
+
+// ============================================================
+// Init
+// ============================================================
+renderRule();
+renderScales();
+calcPow();
+calcRoot();
+calcLog();
+calcLSE();
+</script>
+
+<!-- README modal -->
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+
+</main>
+</body>
+</html>

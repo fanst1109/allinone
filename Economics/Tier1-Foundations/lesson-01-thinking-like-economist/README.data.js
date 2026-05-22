@@ -1,5 +1,5 @@
 // AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
-// Source: Economics/lesson-01-thinking-like-economist/README.md
+// Source: Economics/Tier1-Foundations/lesson-01-thinking-like-economist/README.md
 // Chạy lại: go run tools/build-readme-data.go
 window.README_MD = `# Lesson 01 — Tư duy như nhà kinh tế
 

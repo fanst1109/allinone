@@ -67,8 +67,7 @@ Tier chỉ là *nhóm logic* để dễ điều hướng — về mặt cấu tr
 ## Cấu trúc mỗi bài
 
 - **README.md**: lý thuyết + walk-through bằng số + bài tập + lời giải chi tiết. Đầy đủ callout 💡, ❓, ⚠, 🔁, 📝.
-- **solutions.go**: code Go biên dịch được (`go run solutions.go`), mô phỏng các khái niệm chính.
-- **visualization.html**: chỉ tạo khi cần — không mặc định.
+- **visualization.html**: trang tương tác mở trực tiếp trong trình duyệt — máy tính chi phí cơ hội, PPF, mô phỏng quyết định biên, v.v. Có nút **📖 Đọc README** xem lý thuyết song song.
 
 ## Liên hệ với các lĩnh vực khác trong repo
 

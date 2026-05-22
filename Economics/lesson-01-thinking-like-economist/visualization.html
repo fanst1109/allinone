@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 01 — Tư duy như nhà kinh tế</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  main { max-width: 1040px; margin: 0 auto; padding: 24px; }
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .lead { color: #4a5568; margin-bottom: 24px; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 240px; color: #2d3748; }
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 6px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 130px;
+  }
+  input[type="range"] { width: 240px; }
+  .result {
+    background: #f7fafc; border-left: 4px solid #c05621; padding: 14px 18px;
+    margin-top: 14px; border-radius: 4px; font-family: "SF Mono", Monaco, monospace;
+    font-size: 14px; line-height: 1.7; white-space: pre-wrap;
+  }
+  .result strong { color: #c05621; }
+  .pos { color: #2f855a; font-weight: 700; }
+  .neg { color: #c53030; font-weight: 700; }
+  .pill {
+    display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px;
+    background: #fff5eb; color: #c05621; font-weight: 700; margin-left: 6px;
+  }
+  table.tbl {
+    width: 100%; border-collapse: collapse; margin-top: 12px;
+    font-family: "SF Mono", Monaco, monospace; font-size: 13.5px;
+  }
+  .tbl th, .tbl td { padding: 7px 10px; border-bottom: 1px solid #e2e8f0; text-align: right; }
+  .tbl th { background: #edf2f7; color: #2d3748; text-align: right; }
+  .tbl th:first-child, .tbl td:first-child { text-align: left; }
+  .tbl tr.opt { background: #f0fff4; }
+  .tbl tr.stop td { background: #fff5f5; }
+  svg { display: block; margin: 0 auto; max-width: 100%; }
+  .hint { color: #718096; font-size: 13px; margin-top: 6px; }
+  .legend { display: flex; gap: 20px; font-size: 13px; margin: 8px 0; color: #4a5568; }
+  .legend .sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: 4px; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Tư duy như nhà kinh tế</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.55">L2: Cung và cầu → (sắp ra)</span>
+</nav>
+
+<main>
+  <h1>Lesson 01 — Tư duy như nhà kinh tế</h1>
+  <div class="lead">
+    Ba công cụ tương tác cho 3 trụ cột tư duy kinh tế: <strong>chi phí cơ hội</strong>, <strong>PPF (đường giới hạn khả năng sản xuất)</strong>, và <strong>tư duy biên</strong>.
+  </div>
+
+  <!-- ====================================================================
+       1. MÁY TÍNH CHI PHÍ CƠ HỘI
+       ==================================================================== -->
+  <h2>1. Máy tính chi phí cơ hội <span class="pill">Opportunity Cost</span></h2>
+  <div class="card">
+    <p>Nhập 3 phương án sau khi tốt nghiệp. Công cụ tính <strong>lãi tuyệt đối</strong> và <strong>lãi kinh tế</strong> (đã trừ chi phí cơ hội so với phương án "đi làm").</p>
+
+    <div class="row"><label>Lương đi làm (triệu/tháng)</label>
+      <input id="oc-salary" type="number" value="15" min="0" step="1">
+    </div>
+    <div class="row"><label>Học cao học — học phí (triệu/năm)</label>
+      <input id="oc-tuition" type="number" value="40" min="0" step="5">
+    </div>
+    <div class="row"><label>Sau cao học — lương (triệu/tháng)</label>
+      <input id="oc-postsalary" type="number" value="30" min="0" step="1">
+    </div>
+    <div class="row"><label>Khởi nghiệp — vốn ban đầu (triệu)</label>
+      <input id="oc-capital" type="number" value="300" min="0" step="50">
+    </div>
+    <div class="row"><label>Khởi nghiệp — năm 1 (triệu, âm = lỗ)</label>
+      <input id="oc-y1" type="number" value="-100" step="10">
+    </div>
+    <div class="row"><label>Khởi nghiệp — năm 3+ (triệu/tháng)</label>
+      <input id="oc-y3" type="number" value="50" min="0" step="5">
+    </div>
+
+    <div class="result" id="oc-out">Đang tính...</div>
+    <div class="hint">Giả định không có lãi suất, thời gian quan sát 5 năm. Lãi kinh tế = lãi tuyệt đối − chi phí cơ hội (lương 5 năm đi làm).</div>
+  </div>
+
+  <!-- ====================================================================
+       2. PPF TƯƠNG TÁC
+       ==================================================================== -->
+  <h2>2. PPF — Đường giới hạn khả năng sản xuất <span class="pill">Production Possibility Frontier</span></h2>
+  <div class="card">
+    <p>Nông dân có <strong>tổng thời gian</strong> nhất định, mỗi giờ làm được <em>X kg gạo</em> hoặc <em>Y kg rau</em>. Kéo slider để xem tổ hợp hiện tại.</p>
+
+    <div class="row"><label>Tổng giờ làm việc / ngày</label>
+      <input id="ppf-hours" type="number" value="8" min="1" max="24" step="1">
+    </div>
+    <div class="row"><label>Năng suất gạo (kg/giờ)</label>
+      <input id="ppf-rate-a" type="number" value="4" min="0.1" step="0.5">
+    </div>
+    <div class="row"><label>Năng suất rau (kg/giờ)</label>
+      <input id="ppf-rate-b" type="number" value="6" min="0.1" step="0.5">
+    </div>
+    <div class="row"><label>Giờ phân cho <strong>gạo</strong></label>
+      <input id="ppf-slider" type="range" min="0" max="8" step="0.25" value="4">
+      <span id="ppf-slider-val" style="font-family:monospace; font-weight:700;">4.0</span>
+    </div>
+
+    <svg id="ppf-svg" viewBox="0 0 600 400" style="background:#fff; border:1px solid #e2e8f0;"></svg>
+    <div class="legend">
+      <span><span class="sw" style="background:#c05621"></span>Đường PPF (tổ hợp dùng hết giờ)</span>
+      <span><span class="sw" style="background:#3182ce"></span>Tổ hợp hiện tại</span>
+      <span><span class="sw" style="background:#a0aec0"></span>Vùng khả thi (lãng phí)</span>
+    </div>
+
+    <div class="result" id="ppf-out">Đang tính...</div>
+    <div class="hint">Tỉ lệ đánh đổi cho biết "1 kg gạo bằng bao nhiêu kg rau" — chính là chi phí cơ hội của 1 kg gạo.</div>
+  </div>
+
+  <!-- ====================================================================
+       3. TƯ DUY BIÊN — QUÁN CÀ PHÊ
+       ==================================================================== -->
+  <h2>3. Tư duy biên — Quán cà phê tuyển nhân viên <span class="pill">Marginal Analysis</span></h2>
+  <div class="card">
+    <p>Mỗi nhân viên thêm vào tạo ra <strong>doanh thu biên</strong> giảm dần. Lương biên là chi phí cố định mỗi người. Tối ưu = số nhân viên lớn nhất sao cho <strong>MB ≥ MC</strong>.</p>
+
+    <div class="row"><label>Lương biên / nhân viên (k/ngày)</label>
+      <input id="mc-input" type="range" min="50" max="900" step="50" value="300">
+      <span id="mc-val" style="font-family:monospace; font-weight:700;">300k</span>
+    </div>
+
+    <table class="tbl" id="mc-table"></table>
+    <div class="result" id="mc-out"></div>
+    <div class="hint">Kéo lương xuống thấp → tuyển nhiều hơn (nhân viên rẻ → có lãi cả với người tạo ít doanh thu). Kéo lên cao → tuyển ít / không tuyển.</div>
+  </div>
+
+  <!-- ====================================================================
+       4. SUNK COST DEMO
+       ==================================================================== -->
+  <h2>4. Sunk cost demo — Có nên ngồi xem hết phim dở?</h2>
+  <div class="card">
+    <p>Bạn đã trả 100k mua vé, xem 20 phút thấy dở. Còn 1 giờ phim. Trong 1 giờ đó, bạn có thể làm việc khác trị giá <em>X</em>. Có nên ở lại?</p>
+    <div class="row"><label>Niềm vui còn lại từ phim (k)</label>
+      <input id="sc-pleasure" type="range" min="0" max="200" step="10" value="30">
+      <span id="sc-pleasure-val" style="font-family:monospace; font-weight:700;">30k</span>
+    </div>
+    <div class="row"><label>Giá trị 1 giờ làm việc khác (k)</label>
+      <input id="sc-alt" type="range" min="0" max="200" step="10" value="80">
+      <span id="sc-alt-val" style="font-family:monospace; font-weight:700;">80k</span>
+    </div>
+    <div class="result" id="sc-out"></div>
+    <div class="hint">Vé 100k đã chi → sunk cost, không xuất hiện trong quyết định. Chỉ so sánh "niềm vui phim còn lại" với "giá trị 1 giờ làm việc khác".</div>
+  </div>
+</main>
+
+<script>
+// ============================================================================
+// 1. CHI PHÍ CƠ HỘI
+// ============================================================================
+function getNum(id) { return parseFloat(document.getElementById(id).value) || 0; }
+
+function recalcOC() {
+  const salary = getNum('oc-salary');
+  const tuition = getNum('oc-tuition');
+  const postSalary = getNum('oc-postsalary');
+  const capital = getNum('oc-capital');
+  const y1 = getNum('oc-y1');
+  const y3 = getNum('oc-y3');
+
+  // Phương án A — đi làm 5 năm
+  const A_total = salary * 12 * 5;
+
+  // Phương án B — học 2 năm (-học phí, không lương), 3 năm làm lương cao
+  const B_costs = tuition * 2;
+  const B_income = postSalary * 12 * 3;
+  const B_total = B_income - B_costs;
+
+  // Phương án C — khởi nghiệp: -vốn (giả định không thu hồi trong 5 năm),
+  // năm 1 (y1), năm 2 (= 0), năm 3,4,5 lãi y3/tháng × 36
+  const C_total = -capital + y1 + 0 + y3 * 36;
+
+  // Lãi kinh tế = lãi tuyệt đối − chi phí cơ hội (so với A baseline)
+  const oc = A_total;
+  const Aecon = 0;
+  const Becon = B_total - oc;
+  const Cecon = C_total - oc;
+
+  function fmt(n) { return (n >= 0 ? '+' : '') + n.toFixed(0); }
+  function cls(n) { return n >= 0 ? 'pos' : 'neg'; }
+
+  document.getElementById('oc-out').innerHTML =
+    `<strong>Lãi tuyệt đối 5 năm</strong> (chưa trừ chi phí cơ hội):\n` +
+    `  A. Đi làm:      ${A_total.toFixed(0)} triệu\n` +
+    `  B. Cao học:     ${B_total.toFixed(0)} triệu   (lương 3 năm − học phí 2 năm)\n` +
+    `  C. Khởi nghiệp: ${C_total.toFixed(0)} triệu   (− vốn + năm 1 + 0 + 3 năm lãi)\n\n` +
+    `<strong>Lãi kinh tế</strong> (so với baseline = đi làm):\n` +
+    `  A: <span class="${cls(Aecon)}">${fmt(Aecon)}</span>   (baseline)\n` +
+    `  B: <span class="${cls(Becon)}">${fmt(Becon)}</span> triệu\n` +
+    `  C: <span class="${cls(Cecon)}">${fmt(Cecon)}</span> triệu\n\n` +
+    `→ Phương án tốt nhất về kỳ vọng: <strong>${
+      [['A', Aecon], ['B', Becon], ['C', Cecon]].sort((x, y) => y[1] - x[1])[0][0]
+    }</strong>. Thực tế cần cân nhắc thêm rủi ro / sở thích.`;
+}
+['oc-salary', 'oc-tuition', 'oc-postsalary', 'oc-capital', 'oc-y1', 'oc-y3']
+  .forEach(id => document.getElementById(id).addEventListener('input', recalcOC));
+
+// ============================================================================
+// 2. PPF
+// ============================================================================
+const ppfSvg = document.getElementById('ppf-svg');
+
+function recalcPPF() {
+  const H = getNum('ppf-hours');
+  const rA = getNum('ppf-rate-a');
+  const rB = getNum('ppf-rate-b');
+  const slider = document.getElementById('ppf-slider');
+  slider.max = H;
+  let hA = parseFloat(slider.value);
+  if (hA > H) { hA = H; slider.value = H; }
+  document.getElementById('ppf-slider-val').textContent = hA.toFixed(1);
+
+  const hB = H - hA;
+  const a = hA * rA;
+  const b = hB * rB;
+  const aMax = H * rA, bMax = H * rB;
+  const tradeoff = rB / rA; // 1 đơn vị A = bao nhiêu B
+
+  // SVG: trục x = A (gạo), trục y = B (rau)
+  const W = 600, Hsvg = 400;
+  const padL = 60, padB = 50, padT = 30, padR = 30;
+  const plotW = W - padL - padR, plotH = Hsvg - padT - padB;
+  const sx = v => padL + (v / aMax) * plotW;
+  const sy = v => padT + plotH - (v / bMax) * plotH;
+
+  function ax(x1, y1, x2, y2, stroke = '#cbd5e0') {
+    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${stroke}" stroke-width="1.5"/>`;
+  }
+  function tx(x, y, text, anchor = 'middle', size = 12, fill = '#4a5568') {
+    return `<text x="${x}" y="${y}" text-anchor="${anchor}" font-size="${size}" fill="${fill}" font-family="-apple-system, sans-serif">${text}</text>`;
+  }
+
+  let svg = '';
+  // Vùng khả thi (tam giác)
+  svg += `<polygon points="${sx(0)},${sy(0)} ${sx(aMax)},${sy(0)} ${sx(0)},${sy(bMax)}" fill="#edf2f7" stroke="none"/>`;
+  // Đường PPF
+  svg += `<line x1="${sx(aMax)}" y1="${sy(0)}" x2="${sx(0)}" y2="${sy(bMax)}" stroke="#c05621" stroke-width="3"/>`;
+  // Gridlines
+  for (let i = 0; i <= 5; i++) {
+    const xv = (aMax / 5) * i, yv = (bMax / 5) * i;
+    svg += ax(sx(xv), padT, sx(xv), padT + plotH, '#f0f0f0');
+    svg += ax(padL, sy(yv), padL + plotW, sy(yv), '#f0f0f0');
+    svg += tx(sx(xv), padT + plotH + 16, xv.toFixed(0), 'middle', 11);
+    svg += tx(padL - 8, sy(yv) + 4, yv.toFixed(0), 'end', 11);
+  }
+  // Axes
+  svg += ax(padL, padT + plotH, padL + plotW, padT + plotH);
+  svg += ax(padL, padT, padL, padT + plotH);
+  // Axis labels
+  svg += tx(padL + plotW / 2, Hsvg - 10, 'Gạo (kg)', 'middle', 13, '#2d3748');
+  svg += `<text x="${15}" y="${padT + plotH / 2}" transform="rotate(-90 15 ${padT + plotH / 2})" text-anchor="middle" font-size="13" fill="#2d3748" font-family="-apple-system, sans-serif">Rau (kg)</text>`;
+
+  // Điểm hiện tại
+  svg += `<line x1="${sx(a)}" y1="${padT + plotH}" x2="${sx(a)}" y2="${sy(b)}" stroke="#3182ce" stroke-dasharray="3,3" stroke-width="1"/>`;
+  svg += `<line x1="${padL}" y1="${sy(b)}" x2="${sx(a)}" y2="${sy(b)}" stroke="#3182ce" stroke-dasharray="3,3" stroke-width="1"/>`;
+  svg += `<circle cx="${sx(a)}" cy="${sy(b)}" r="7" fill="#3182ce" stroke="#fff" stroke-width="2"/>`;
+  svg += tx(sx(a) + 12, sy(b) - 8, `(${a.toFixed(1)}, ${b.toFixed(1)})`, 'start', 13, '#3182ce');
+
+  ppfSvg.innerHTML = svg;
+
+  document.getElementById('ppf-out').innerHTML =
+    `<strong>Tổ hợp hiện tại</strong>: ${hA.toFixed(1)} giờ gạo + ${hB.toFixed(1)} giờ rau\n` +
+    `  → ${a.toFixed(1)} kg gạo, ${b.toFixed(1)} kg rau (đúng trên PPF)\n\n` +
+    `<strong>Tỉ lệ đánh đổi (chi phí cơ hội)</strong>:\n` +
+    `  1 kg gạo = ${tradeoff.toFixed(2)} kg rau\n` +
+    `  1 kg rau = ${(1 / tradeoff).toFixed(2)} kg gạo\n\n` +
+    `<strong>Hai đầu mút</strong>:\n` +
+    `  Chỉ làm gạo: (${aMax.toFixed(0)} kg gạo, 0 kg rau)\n` +
+    `  Chỉ làm rau: (0 kg gạo, ${bMax.toFixed(0)} kg rau)`;
+}
+['ppf-hours', 'ppf-rate-a', 'ppf-rate-b', 'ppf-slider']
+  .forEach(id => document.getElementById(id).addEventListener('input', recalcPPF));
+
+// ============================================================================
+// 3. MARGINAL ANALYSIS — QUÁN CÀ PHÊ
+// ============================================================================
+const MB_TABLE = [800, 600, 400, 200, 100]; // doanh thu biên cố định từ §4.2
+
+function recalcMC() {
+  const mc = parseFloat(document.getElementById('mc-input').value);
+  document.getElementById('mc-val').textContent = mc + 'k';
+
+  let html = '<tr><th>Số NV</th><th>Doanh thu biên (k)</th><th>Lương biên (k)</th><th>Lãi biên (k)</th><th>Trạng thái</th></tr>';
+  let totalProfit = 0;
+  let optimal = 0;
+  let stopped = false;
+  for (let i = 0; i < MB_TABLE.length; i++) {
+    const mb = MB_TABLE[i];
+    const margin = mb - mc;
+    let status, rowClass;
+    if (!stopped && margin >= 0) {
+      status = '✓ Tuyển';
+      rowClass = 'opt';
+      totalProfit += margin;
+      optimal = i + 1;
+    } else {
+      status = '✗ Dừng';
+      rowClass = stopped ? '' : 'stop';
+      stopped = true;
+    }
+    html += `<tr class="${rowClass}"><td>NV thứ ${i + 1}</td><td>${mb}</td><td>${mc}</td><td>${margin >= 0 ? '+' : ''}${margin}</td><td>${status}</td></tr>`;
+  }
+  document.getElementById('mc-table').innerHTML = html;
+
+  document.getElementById('mc-out').innerHTML =
+    `<strong>Số nhân viên tối ưu: ${optimal}</strong>\n` +
+    `Tổng lãi biên = ${totalProfit}k/ngày\n\n` +
+    (optimal === 0
+      ? `Lương quá cao (${mc}k) → không tuyển ai cả. NV thứ 1 chỉ tạo 800k mà tốn ${mc}k lương.`
+      : `Dừng ở NV thứ ${optimal} vì NV thứ ${optimal + 1} có MB < MC (làm thêm gây lỗ biên).`);
+}
+document.getElementById('mc-input').addEventListener('input', recalcMC);
+
+// ============================================================================
+// 4. SUNK COST
+// ============================================================================
+function recalcSC() {
+  const pleasure = parseFloat(document.getElementById('sc-pleasure').value);
+  const alt = parseFloat(document.getElementById('sc-alt').value);
+  document.getElementById('sc-pleasure-val').textContent = pleasure + 'k';
+  document.getElementById('sc-alt-val').textContent = alt + 'k';
+
+  const stay = pleasure;
+  const leave = alt;
+  const decision = stay > leave ? 'Ở LẠI xem phim' : (stay < leave ? 'ĐI VỀ làm việc khác' : 'Hai phương án bằng nhau');
+  const decisionClass = stay > leave ? 'pos' : (stay < leave ? 'neg' : '');
+
+  document.getElementById('sc-out').innerHTML =
+    `Vé 100k đã chi → <strong>SUNK COST</strong>, KHÔNG xuất hiện trong tính toán.\n\n` +
+    `So sánh tương lai biên:\n` +
+    `  Ở lại xem phim: ${stay}k (niềm vui)\n` +
+    `  Đi về làm khác: ${leave}k (giá trị 1 giờ)\n\n` +
+    `→ Quyết định duy lý: <span class="${decisionClass}">${decision}</span>\n\n` +
+    (Math.abs(stay - leave) < 5
+      ? `Chênh lệch rất nhỏ — gần như không quan trọng chọn cách nào.`
+      : `Chênh lệch = ${Math.abs(stay - leave)}k. Người mắc sunk cost fallacy sẽ chọn "ở lại" để "không lãng phí 100k vé" — nhưng 100k đó đã mất dù chọn gì.`);
+}
+['sc-pleasure', 'sc-alt'].forEach(id => document.getElementById(id).addEventListener('input', recalcSC));
+
+// Init
+recalcOC();
+recalcPPF();
+recalcMC();
+recalcSC();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+</body>
+</html>

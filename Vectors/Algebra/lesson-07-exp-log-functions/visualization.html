@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 07 — Hàm mũ và hàm log</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  main { max-width: 1100px; margin: 0 auto; padding: 24px; }
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 24px; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 18px 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .card .desc { color: #4a5568; font-size: 14px; margin-bottom: 12px; }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; font-size: 14px; min-width: 120px; }
+  input[type="number"], input[type="text"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; padding: 6px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 100px;
+  }
+  input[type="range"] { width: 240px; vertical-align: middle; }
+  .slider-val {
+    display: inline-block; font-family: monospace;
+    background: #edf2f7; padding: 2px 8px; border-radius: 4px;
+    font-weight: 600; color: #2b6cb0; min-width: 60px; text-align: center;
+  }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 6px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.toggle {
+    background: #e2e8f0; color: #2d3748;
+  }
+  button.toggle.active { background: #4299e1; color: white; }
+  svg { display: block; background: #fdfdfd; border: 1px solid #e2e8f0; border-radius: 6px; }
+  .chart-axis { stroke: #a0aec0; stroke-width: 1; }
+  .chart-grid { stroke: #edf2f7; stroke-width: 1; }
+  .chart-label { font-size: 11px; fill: #718096; font-family: monospace; }
+  .chart-title { font-size: 13px; fill: #2d3748; font-weight: 600; }
+  .stat-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px; margin-top: 12px;
+  }
+  .stat {
+    background: #edf2f7; padding: 8px 12px; border-radius: 4px;
+    font-family: monospace; font-size: 13px;
+  }
+  .stat .name { color: #4a5568; font-size: 11px; }
+  .stat .val { color: #2b6cb0; font-weight: 700; font-size: 14px; }
+  table { border-collapse: collapse; margin: 8px 0; }
+  table td, table th {
+    padding: 5px 12px; border: 1px solid #e2e8f0;
+    font-family: monospace; font-size: 13px;
+  }
+  table th { background: #edf2f7; text-align: left; }
+  table tr.highlight td { background: #fef5e7; font-weight: 700; }
+  .bar-row {
+    display: flex; align-items: center; gap: 8px; margin: 4px 0;
+    font-family: monospace; font-size: 13px;
+  }
+  .bar-row .lbl { min-width: 80px; }
+  .bar-row .bar {
+    height: 22px; background: linear-gradient(90deg, #4299e1, #3182ce);
+    border-radius: 3px; display: flex; align-items: center;
+    padding: 0 8px; color: white; font-weight: 700; font-size: 12px;
+    transition: width 0.2s;
+  }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; margin-top: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-swatch { width: 14px; height: 14px; border-radius: 2px; display: inline-block; }
+  .hint { color: #718096; font-size: 13px; font-style: italic; margin: 4px 0; }
+  .badge {
+    display: inline-block; background: #c6f6d5; color: #22543d;
+    padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700;
+    margin-left: 6px;
+  }
+  .badge.warn { background: #fed7d7; color: #742a2a; }
+  .toggle-group { display: inline-flex; gap: 4px; }
+  .formula {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    background: #1a202c; color: #cbf36b;
+    padding: 8px 12px; border-radius: 4px;
+    font-size: 14px; margin: 8px 0;
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-linear-quadratic/visualization.html">← L6: Hàm bậc 1 và bậc 2</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Hàm mũ và hàm log</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-linear-systems/visualization.html">L8: Hệ phương trình tuyến tính →</a>
+</nav>
+
+<main>
+  <h1>Lesson 07 — Hàm mũ và hàm log</h1>
+  <div class="subtitle">5 component tương tác: đua tốc độ tăng, sigmoid/softmax, lãi kép, định nghĩa e, và log scale.</div>
+
+  <!-- =============================================================== -->
+  <!-- Component 1: Exponential vs Polynomial Race                     -->
+  <!-- =============================================================== -->
+  <h2>1. Đua tốc độ tăng: <code>a^x</code> vs <code>x^k</code></h2>
+  <div class="card">
+    <div class="desc">
+      Chọn cơ số <code>a</code> cho hàm mũ và bậc <code>k</code> cho polynomial. Switch giữa
+      <strong>linear scale</strong> (thấy rõ chênh lệch tuyệt đối) và <strong>log scale</strong>
+      (so sánh tỉ lệ). Tìm <em>giao điểm</em>: từ x nào trở đi exponential vượt mặt?
+    </div>
+    <div class="row">
+      <label>Cơ số a (mũ):</label>
+      <input type="range" id="race-a" min="1.1" max="3" step="0.05" value="2">
+      <span class="slider-val" id="race-a-val">2.00</span>
+    </div>
+    <div class="row">
+      <label>Bậc k (poly):</label>
+      <input type="range" id="race-k" min="2" max="6" step="1" value="3">
+      <span class="slider-val" id="race-k-val">3</span>
+    </div>
+    <div class="row">
+      <label>x max:</label>
+      <input type="range" id="race-xmax" min="5" max="30" step="1" value="15">
+      <span class="slider-val" id="race-xmax-val">15</span>
+    </div>
+    <div class="row">
+      <label>Scale:</label>
+      <div class="toggle-group">
+        <button class="toggle active" id="race-linear">Linear</button>
+        <button class="toggle" id="race-log">Log (y)</button>
+      </div>
+    </div>
+    <svg id="race-svg" width="1040" height="380" viewBox="0 0 1040 380"></svg>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-swatch" style="background:#e53e3e"></span> Exponential a^x</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:#3182ce"></span> Polynomial x^k</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:#48bb78"></span> Giao điểm</div>
+    </div>
+    <div id="race-stats" class="stat-grid"></div>
+  </div>
+
+  <!-- =============================================================== -->
+  <!-- Component 2: Sigmoid + Softmax playground                       -->
+  <!-- =============================================================== -->
+  <h2>2. Sigmoid và Softmax playground</h2>
+  <div class="card">
+    <div class="desc">
+      Phần trên: kéo x → vẽ điểm trên đường sigmoid. Phần dưới: gõ logit → softmax thành xác suất.
+    </div>
+    <div class="formula">σ(x) = 1 / (1 + e^(-x))</div>
+    <div class="row">
+      <label>x =</label>
+      <input type="range" id="sig-x" min="-10" max="10" step="0.1" value="0">
+      <span class="slider-val" id="sig-x-val">0.0</span>
+      <span class="hint">→ σ(x) = <strong id="sig-val">0.5</strong></span>
+    </div>
+    <svg id="sig-svg" width="700" height="280" viewBox="0 0 700 280"></svg>
+
+    <h3 style="margin-top: 24px; color: #2d3748; font-size: 16px;">Softmax 3 lớp</h3>
+    <div class="formula">softmax(z_i) = e^(z_i) / Σ e^(z_j)</div>
+    <div class="row">
+      <label>Logit 1:</label>
+      <input type="number" id="sm-z1" value="2" step="0.5">
+      <label>Logit 2:</label>
+      <input type="number" id="sm-z2" value="1" step="0.5">
+      <label>Logit 3:</label>
+      <input type="number" id="sm-z3" value="0" step="0.5">
+    </div>
+    <div id="sm-bars"></div>
+    <div id="sm-sum" class="hint"></div>
+  </div>
+
+  <!-- =============================================================== -->
+  <!-- Component 3: Compound Interest                                  -->
+  <!-- =============================================================== -->
+  <h2>3. Lãi kép: discrete vs continuous</h2>
+  <div class="card">
+    <div class="desc">
+      Discrete: <code>A = P · (1 + r)^t</code>. Continuous (gộp liên tục): <code>A = P · e^(rt)</code>.
+      Tăng <code>t</code> thấy hai con số tách nhau dần.
+    </div>
+    <div class="row">
+      <label>P (triệu):</label>
+      <input type="number" id="ci-p" value="100" step="10">
+      <label>r (%/năm):</label>
+      <input type="number" id="ci-r" value="5" step="0.5">
+      <label>t (năm):</label>
+      <input type="number" id="ci-t" value="30" step="1">
+      <button id="ci-go">Tính</button>
+    </div>
+    <div id="ci-summary" class="stat-grid"></div>
+    <table id="ci-table" style="margin-top: 12px;"></table>
+  </div>
+
+  <!-- =============================================================== -->
+  <!-- Component 4: e definition explorer                              -->
+  <!-- =============================================================== -->
+  <h2>4. Định nghĩa <code>e</code>: <code>(1 + 1/n)^n</code></h2>
+  <div class="card">
+    <div class="desc">
+      Kéo <code>n</code> để thấy biểu thức tiến về e ≈ 2.71828. Hội tụ chậm — phải <code>n</code> rất lớn mới có nhiều chữ số đúng.
+    </div>
+    <div class="row">
+      <label>n:</label>
+      <input type="range" id="e-n" min="1" max="10000" step="1" value="10">
+      <span class="slider-val" id="e-n-val">10</span>
+    </div>
+    <div class="row">
+      <label>n (log slider):</label>
+      <input type="range" id="e-nlog" min="0" max="7" step="0.1" value="1">
+      <span class="slider-val" id="e-nlog-val">10</span>
+      <span class="hint">(n từ 1 đến 10⁷ theo log scale)</span>
+    </div>
+    <div class="stat-grid">
+      <div class="stat">
+        <div class="name">(1 + 1/n)^n</div>
+        <div class="val" id="e-result">2.5937424601</div>
+      </div>
+      <div class="stat">
+        <div class="name">e thực tế</div>
+        <div class="val">2.7182818285</div>
+      </div>
+      <div class="stat">
+        <div class="name">Sai số tuyệt đối</div>
+        <div class="val" id="e-error">0.1245</div>
+      </div>
+      <div class="stat">
+        <div class="name">Số chữ số đúng</div>
+        <div class="val" id="e-digits">1</div>
+      </div>
+    </div>
+    <svg id="e-svg" width="700" height="260" viewBox="0 0 700 260" style="margin-top: 12px;"></svg>
+    <div class="hint">Đường ngang đỏ: e thực tế. Đường xanh: (1 + 1/n)^n theo n (log scale x-axis).</div>
+  </div>
+
+  <!-- =============================================================== -->
+  <!-- Component 5: Log Scale Demo                                     -->
+  <!-- =============================================================== -->
+  <h2>5. Vì sao đôi khi vẽ ở log scale</h2>
+  <div class="card">
+    <div class="desc">
+      Cho 10 số: 10⁰, 10¹, 10², ..., 10⁹. Vẽ ở hai scale song song. Linear: 9 cột đầu lùn tịt.
+      Log: tất cả đều bậc thang. Đây là vì sao data lệch (skewed) hầu như luôn vẽ log scale.
+    </div>
+    <svg id="log-svg" width="1040" height="340" viewBox="0 0 1040 340"></svg>
+    <div class="hint">Hover từng cột để xem giá trị thật.</div>
+  </div>
+
+</main>
+
+<script>
+/* ===================================================================
+ * Helper: vẽ chart đơn giản với SVG
+ * =================================================================== */
+function mkSVG(el) {
+  while (el.firstChild) el.removeChild(el.firstChild);
+}
+function addEl(parent, tag, attrs, text) {
+  const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (text !== undefined) e.textContent = text;
+  parent.appendChild(e);
+  return e;
+}
+
+/* ===================================================================
+ * Component 1: Exponential vs Polynomial Race
+ * =================================================================== */
+const raceA = document.getElementById('race-a');
+const raceK = document.getElementById('race-k');
+const raceXmax = document.getElementById('race-xmax');
+const raceAval = document.getElementById('race-a-val');
+const raceKval = document.getElementById('race-k-val');
+const raceXmaxVal = document.getElementById('race-xmax-val');
+const raceLinear = document.getElementById('race-linear');
+const raceLog = document.getElementById('race-log');
+const raceSvg = document.getElementById('race-svg');
+const raceStats = document.getElementById('race-stats');
+let raceYscale = 'linear';
+
+function renderRace() {
+  const a = +raceA.value;
+  const k = +raceK.value;
+  const xmax = +raceXmax.value;
+  raceAval.textContent = a.toFixed(2);
+  raceKval.textContent = k;
+  raceXmaxVal.textContent = xmax;
+
+  mkSVG(raceSvg);
+  const W = 1040, H = 380, pad = { l: 70, r: 30, t: 24, b: 40 };
+  const plotW = W - pad.l - pad.r, plotH = H - pad.t - pad.b;
+
+  // Sample
+  const N = 200;
+  const pts = [];
+  let ymax = -Infinity, ymin = Infinity;
+  for (let i = 0; i <= N; i++) {
+    const x = (i / N) * xmax;
+    const yp = Math.pow(x, k);
+    const ye = Math.pow(a, x);
+    pts.push({ x, yp, ye });
+    if (yp > ymax) ymax = yp;
+    if (ye > ymax) ymax = ye;
+    if (yp > 0 && yp < ymin) ymin = yp;
+    if (ye > 0 && ye < ymin) ymin = ye;
+  }
+  if (raceYscale === 'log') {
+    if (ymin <= 0) ymin = 0.01;
+  } else {
+    ymin = 0;
+  }
+
+  // Find crossing point (first x where exp > poly and continues)
+  let crossX = null;
+  for (let i = 1; i < pts.length; i++) {
+    if (pts[i-1].ye <= pts[i-1].yp && pts[i].ye > pts[i].yp) {
+      // linear interpolate
+      const t = (pts[i-1].yp - pts[i-1].ye) / ((pts[i].ye - pts[i].yp) - (pts[i-1].ye - pts[i-1].yp));
+      crossX = pts[i-1].x + t * (pts[i].x - pts[i-1].x);
+      break;
+    }
+  }
+
+  // Scales
+  function sx(x) { return pad.l + (x / xmax) * plotW; }
+  function sy(y) {
+    if (raceYscale === 'log') {
+      if (y <= 0) y = ymin;
+      const ly = Math.log10(y), lmin = Math.log10(ymin), lmax = Math.log10(ymax);
+      return pad.t + plotH - ((ly - lmin) / (lmax - lmin)) * plotH;
+    }
+    return pad.t + plotH - (y / ymax) * plotH;
+  }
+
+  // Grid + axes
+  for (let i = 0; i <= 10; i++) {
+    const x = (i / 10) * xmax;
+    addEl(raceSvg, 'line', { x1: sx(x), y1: pad.t, x2: sx(x), y2: pad.t+plotH, class: 'chart-grid' });
+    addEl(raceSvg, 'text', { x: sx(x), y: H - 18, 'text-anchor': 'middle', class: 'chart-label' }, x.toFixed(0));
+  }
+  const yticks = raceYscale === 'log' ? 6 : 5;
+  for (let i = 0; i <= yticks; i++) {
+    let yval;
+    if (raceYscale === 'log') {
+      const lmin = Math.log10(ymin), lmax = Math.log10(ymax);
+      yval = Math.pow(10, lmin + (i / yticks) * (lmax - lmin));
+    } else {
+      yval = (i / yticks) * ymax;
+    }
+    const yy = sy(yval);
+    addEl(raceSvg, 'line', { x1: pad.l, y1: yy, x2: pad.l+plotW, y2: yy, class: 'chart-grid' });
+    addEl(raceSvg, 'text', { x: pad.l - 6, y: yy + 4, 'text-anchor': 'end', class: 'chart-label' },
+      raceYscale === 'log' ? yval.toExponential(0) : (yval >= 10000 ? yval.toExponential(1) : yval.toFixed(0))
+    );
+  }
+  addEl(raceSvg, 'line', { x1: pad.l, y1: pad.t, x2: pad.l, y2: pad.t+plotH, class: 'chart-axis' });
+  addEl(raceSvg, 'line', { x1: pad.l, y1: pad.t+plotH, x2: pad.l+plotW, y2: pad.t+plotH, class: 'chart-axis' });
+
+  // Axes labels
+  addEl(raceSvg, 'text', { x: pad.l + plotW/2, y: H - 4, 'text-anchor': 'middle', class: 'chart-title' }, 'x');
+  addEl(raceSvg, 'text', { x: 16, y: pad.t + plotH/2, 'text-anchor': 'middle', class: 'chart-title',
+    transform: `rotate(-90, 16, ${pad.t + plotH/2})` }, 'y');
+
+  // Curves
+  function path(getY, color) {
+    let d = '';
+    for (let i = 0; i < pts.length; i++) {
+      const x = sx(pts[i].x), y = sy(Math.max(getY(pts[i]), ymin));
+      if (i === 0) d += `M${x},${y}`;
+      else d += ` L${x},${y}`;
+    }
+    addEl(raceSvg, 'path', { d, fill: 'none', stroke: color, 'stroke-width': 2.5 });
+  }
+  path(p => p.yp, '#3182ce');
+  path(p => p.ye, '#e53e3e');
+
+  // Crossing point
+  if (crossX !== null) {
+    const cx = sx(crossX);
+    const cy = sy(Math.pow(a, crossX));
+    addEl(raceSvg, 'line', { x1: cx, y1: pad.t, x2: cx, y2: pad.t+plotH,
+      stroke: '#48bb78', 'stroke-dasharray': '4,3', 'stroke-width': 1.5 });
+    addEl(raceSvg, 'circle', { cx: cx, cy: cy, r: 5, fill: '#48bb78' });
+    addEl(raceSvg, 'text', { x: cx + 8, y: pad.t + 16, class: 'chart-title', fill: '#22543d' },
+      `Giao: x≈${crossX.toFixed(2)}`);
+  }
+
+  // Stats
+  const xref = xmax;
+  const yPolyRef = Math.pow(xref, k);
+  const yExpRef = Math.pow(a, xref);
+  raceStats.innerHTML = `
+    <div class="stat"><div class="name">a^x tại x=${xref}</div><div class="val">${yExpRef.toExponential(3)}</div></div>
+    <div class="stat"><div class="name">x^k tại x=${xref}</div><div class="val">${yPolyRef.toExponential(3)}</div></div>
+    <div class="stat"><div class="name">Tỉ lệ a^x / x^k</div><div class="val">${(yExpRef/yPolyRef).toExponential(2)}</div></div>
+    <div class="stat"><div class="name">Giao điểm x*</div><div class="val">${crossX !== null ? crossX.toFixed(2) : '— (chưa thấy)'}</div></div>
+  `;
+}
+[raceA, raceK, raceXmax].forEach(el => el.addEventListener('input', renderRace));
+raceLinear.onclick = () => { raceYscale = 'linear'; raceLinear.classList.add('active'); raceLog.classList.remove('active'); renderRace(); };
+raceLog.onclick = () => { raceYscale = 'log'; raceLog.classList.add('active'); raceLinear.classList.remove('active'); renderRace(); };
+renderRace();
+
+/* ===================================================================
+ * Component 2: Sigmoid + Softmax
+ * =================================================================== */
+const sigX = document.getElementById('sig-x');
+const sigXval = document.getElementById('sig-x-val');
+const sigVal = document.getElementById('sig-val');
+const sigSvg = document.getElementById('sig-svg');
+
+function sigmoid(x) {
+  if (x >= 0) return 1 / (1 + Math.exp(-x));
+  const ex = Math.exp(x);
+  return ex / (1 + ex);
+}
+
+function renderSigmoid() {
+  const x = +sigX.value;
+  sigXval.textContent = x.toFixed(1);
+  const y = sigmoid(x);
+  sigVal.textContent = y.toFixed(4);
+
+  mkSVG(sigSvg);
+  const W = 700, H = 280, pad = { l: 50, r: 20, t: 20, b: 36 };
+  const plotW = W - pad.l - pad.r, plotH = H - pad.t - pad.b;
+  function sx(v) { return pad.l + ((v + 10) / 20) * plotW; }
+  function sy(v) { return pad.t + plotH - v * plotH; }
+
+  // Grid
+  for (let v = -10; v <= 10; v += 2) {
+    addEl(sigSvg, 'line', { x1: sx(v), y1: pad.t, x2: sx(v), y2: pad.t+plotH, class: 'chart-grid' });
+    addEl(sigSvg, 'text', { x: sx(v), y: H - 18, 'text-anchor': 'middle', class: 'chart-label' }, v);
+  }
+  for (let v = 0; v <= 1; v += 0.2) {
+    addEl(sigSvg, 'line', { x1: pad.l, y1: sy(v), x2: pad.l+plotW, y2: sy(v), class: 'chart-grid' });
+    addEl(sigSvg, 'text', { x: pad.l - 6, y: sy(v) + 4, 'text-anchor': 'end', class: 'chart-label' }, v.toFixed(1));
+  }
+  // Axes (y=0 and y=1 as bounds)
+  addEl(sigSvg, 'line', { x1: pad.l, y1: sy(0), x2: pad.l+plotW, y2: sy(0), class: 'chart-axis' });
+  addEl(sigSvg, 'line', { x1: pad.l, y1: sy(1), x2: pad.l+plotW, y2: sy(1), stroke: '#a0aec0', 'stroke-dasharray': '3,3' });
+  addEl(sigSvg, 'line', { x1: sx(0), y1: pad.t, x2: sx(0), y2: pad.t+plotH, class: 'chart-axis' });
+
+  // Sigmoid curve
+  let d = '';
+  for (let i = 0; i <= 200; i++) {
+    const xv = -10 + (i / 200) * 20;
+    const yv = sigmoid(xv);
+    d += (i === 0 ? 'M' : ' L') + sx(xv) + ',' + sy(yv);
+  }
+  addEl(sigSvg, 'path', { d, fill: 'none', stroke: '#e53e3e', 'stroke-width': 2.5 });
+
+  // Current point
+  addEl(sigSvg, 'line', { x1: sx(x), y1: sy(y), x2: sx(x), y2: pad.t+plotH, stroke: '#48bb78', 'stroke-dasharray': '3,3' });
+  addEl(sigSvg, 'line', { x1: pad.l, y1: sy(y), x2: sx(x), y2: sy(y), stroke: '#48bb78', 'stroke-dasharray': '3,3' });
+  addEl(sigSvg, 'circle', { cx: sx(x), cy: sy(y), r: 6, fill: '#48bb78', stroke: 'white', 'stroke-width': 2 });
+  addEl(sigSvg, 'text', { x: sx(x) + 10, y: sy(y) - 8, class: 'chart-title', fill: '#22543d' },
+    `(${x.toFixed(1)}, ${y.toFixed(4)})`);
+}
+sigX.addEventListener('input', renderSigmoid);
+renderSigmoid();
+
+// Softmax
+const sm1 = document.getElementById('sm-z1');
+const sm2 = document.getElementById('sm-z2');
+const sm3 = document.getElementById('sm-z3');
+const smBars = document.getElementById('sm-bars');
+const smSum = document.getElementById('sm-sum');
+
+function softmax(zs) {
+  const m = Math.max(...zs);
+  const exps = zs.map(z => Math.exp(z - m));
+  const s = exps.reduce((a,b)=>a+b, 0);
+  return exps.map(e => e / s);
+}
+
+function renderSoftmax() {
+  const zs = [+sm1.value, +sm2.value, +sm3.value];
+  const ps = softmax(zs);
+  smBars.innerHTML = '';
+  ps.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'bar-row';
+    row.innerHTML = `
+      <span class="lbl">Lớp ${i+1} (z=${zs[i]}):</span>
+      <div class="bar" style="width: ${(p * 600).toFixed(1)}px;">${(p * 100).toFixed(2)}%</div>
+      <span>${p.toFixed(6)}</span>
+    `;
+    smBars.appendChild(row);
+  });
+  const sum = ps.reduce((a,b)=>a+b, 0);
+  smSum.innerHTML = `Tổng = <strong>${sum.toFixed(10)}</strong> (kỳ vọng 1.0)`;
+}
+[sm1, sm2, sm3].forEach(el => el.addEventListener('input', renderSoftmax));
+renderSoftmax();
+
+/* ===================================================================
+ * Component 3: Compound Interest
+ * =================================================================== */
+const ciP = document.getElementById('ci-p');
+const ciR = document.getElementById('ci-r');
+const ciT = document.getElementById('ci-t');
+const ciGo = document.getElementById('ci-go');
+const ciSummary = document.getElementById('ci-summary');
+const ciTable = document.getElementById('ci-table');
+
+function renderCompound() {
+  const P = +ciP.value, r = +ciR.value / 100, t = +ciT.value;
+  const Ad = P * Math.pow(1 + r, t);
+  const Ac = P * Math.exp(r * t);
+  ciSummary.innerHTML = `
+    <div class="stat"><div class="name">Discrete (sau ${t} năm)</div><div class="val">${Ad.toFixed(2)}</div></div>
+    <div class="stat"><div class="name">Continuous (sau ${t} năm)</div><div class="val">${Ac.toFixed(2)}</div></div>
+    <div class="stat"><div class="name">Chênh tuyệt đối</div><div class="val">${(Ac-Ad).toFixed(2)}</div></div>
+    <div class="stat"><div class="name">Chênh %</div><div class="val">${((Ac/Ad - 1)*100).toFixed(3)}%</div></div>
+  `;
+  // Bảng theo năm
+  let html = '<thead><tr><th>Năm</th><th>Discrete A</th><th>Continuous A</th><th>Chênh</th></tr></thead><tbody>';
+  const milestones = [];
+  for (let i = 0; i <= t; i++) milestones.push(i);
+  // Nếu t lớn, chỉ lấy mốc rời rạc
+  let years = milestones;
+  if (t > 15) {
+    years = [0, 1, 5, 10];
+    let step = Math.max(5, Math.floor(t / 8));
+    for (let y = 15; y < t; y += step) years.push(y);
+    if (years[years.length - 1] !== t) years.push(t);
+  }
+  years.forEach(y => {
+    const d = P * Math.pow(1 + r, y);
+    const c = P * Math.exp(r * y);
+    html += `<tr><td>${y}</td><td>${d.toFixed(2)}</td><td>${c.toFixed(2)}</td><td>${(c-d).toFixed(2)}</td></tr>`;
+  });
+  html += '</tbody>';
+  ciTable.innerHTML = html;
+}
+ciGo.onclick = renderCompound;
+[ciP, ciR, ciT].forEach(el => el.addEventListener('input', renderCompound));
+renderCompound();
+
+/* ===================================================================
+ * Component 4: e definition explorer
+ * =================================================================== */
+const eN = document.getElementById('e-n');
+const eNlog = document.getElementById('e-nlog');
+const eNval = document.getElementById('e-n-val');
+const eNlogVal = document.getElementById('e-nlog-val');
+const eResult = document.getElementById('e-result');
+const eError = document.getElementById('e-error');
+const eDigits = document.getElementById('e-digits');
+const eSvg = document.getElementById('e-svg');
+
+function eCalc(n) { return Math.pow(1 + 1/n, n); }
+
+function updateEDisplay(n) {
+  const val = eCalc(n);
+  const err = Math.abs(val - Math.E);
+  eResult.textContent = val.toFixed(10);
+  eError.textContent = err.toExponential(3);
+  // Số chữ số đúng = floor(-log10(err))
+  const digits = err > 0 ? Math.max(0, Math.floor(-Math.log10(err))) : 16;
+  eDigits.textContent = digits;
+}
+
+function renderEChart() {
+  mkSVG(eSvg);
+  const W = 700, H = 260, pad = { l: 60, r: 20, t: 20, b: 36 };
+  const plotW = W - pad.l - pad.r, plotH = H - pad.t - pad.b;
+  // log-x from 1 to 1e7
+  const xLog = (n) => Math.log10(n);
+  const xmin = 0, xmax = 7;
+  const ymin = 2, ymax = 2.75;
+  function sx(lg) { return pad.l + ((lg - xmin) / (xmax - xmin)) * plotW; }
+  function sy(v) { return pad.t + plotH - ((v - ymin) / (ymax - ymin)) * plotH; }
+
+  // Grid
+  for (let i = xmin; i <= xmax; i++) {
+    addEl(eSvg, 'line', { x1: sx(i), y1: pad.t, x2: sx(i), y2: pad.t+plotH, class: 'chart-grid' });
+    addEl(eSvg, 'text', { x: sx(i), y: H - 16, 'text-anchor': 'middle', class: 'chart-label' }, '10^' + i);
+  }
+  for (let v = ymin; v <= ymax; v += 0.1) {
+    addEl(eSvg, 'line', { x1: pad.l, y1: sy(v), x2: pad.l+plotW, y2: sy(v), class: 'chart-grid' });
+    addEl(eSvg, 'text', { x: pad.l - 6, y: sy(v) + 4, 'text-anchor': 'end', class: 'chart-label' }, v.toFixed(1));
+  }
+  // e line
+  addEl(eSvg, 'line', { x1: pad.l, y1: sy(Math.E), x2: pad.l+plotW, y2: sy(Math.E),
+    stroke: '#e53e3e', 'stroke-width': 1.5, 'stroke-dasharray': '5,3' });
+  addEl(eSvg, 'text', { x: pad.l+plotW + 4, y: sy(Math.E) + 4, class: 'chart-title', fill: '#c53030' }, 'e');
+
+  // Curve
+  let d = '';
+  for (let i = 0; i <= 200; i++) {
+    const lg = xmin + (i / 200) * (xmax - xmin);
+    const n = Math.pow(10, lg);
+    const v = eCalc(n);
+    if (v < ymin || v > ymax) continue;
+    d += (d ? ' L' : 'M') + sx(lg) + ',' + sy(v);
+  }
+  addEl(eSvg, 'path', { d, fill: 'none', stroke: '#3182ce', 'stroke-width': 2.5 });
+
+  // Current marker
+  const n = +eN.value;
+  const lg = Math.log10(n);
+  if (lg >= xmin && lg <= xmax) {
+    const val = eCalc(n);
+    if (val >= ymin && val <= ymax) {
+      addEl(eSvg, 'circle', { cx: sx(lg), cy: sy(val), r: 5, fill: '#48bb78', stroke: 'white', 'stroke-width': 2 });
+    }
+  }
+}
+
+function updateE() {
+  const n = +eN.value;
+  eNval.textContent = n.toString();
+  updateEDisplay(n);
+  renderEChart();
+}
+function updateELog() {
+  const lg = +eNlog.value;
+  const n = Math.max(1, Math.round(Math.pow(10, lg)));
+  eN.value = Math.min(n, 10000);
+  eNlogVal.textContent = n.toString();
+  eNval.textContent = eN.value;
+  updateEDisplay(n);
+  renderEChart();
+}
+eN.addEventListener('input', () => { eNlog.value = Math.log10(Math.max(1, +eN.value)); eNlogVal.textContent = eN.value; updateE(); });
+eNlog.addEventListener('input', updateELog);
+updateELog();
+
+/* ===================================================================
+ * Component 5: Log Scale Demo
+ * =================================================================== */
+const logSvg = document.getElementById('log-svg');
+
+function renderLogDemo() {
+  mkSVG(logSvg);
+  const W = 1040, H = 340, pad = { l: 60, r: 20, t: 30, b: 40 };
+  const halfW = (W - pad.l - pad.r - 40) / 2;
+  const plotH = H - pad.t - pad.b;
+
+  const vals = [];
+  for (let i = 0; i <= 9; i++) vals.push(Math.pow(10, i));
+  const labels = vals.map((v, i) => '10^' + i);
+  const ymax = vals[vals.length - 1];
+
+  const barW = halfW / vals.length * 0.7;
+  const gap = halfW / vals.length * 0.3;
+
+  // === Left: linear scale ===
+  addEl(logSvg, 'text', { x: pad.l + halfW/2, y: pad.t - 8, 'text-anchor': 'middle', class: 'chart-title' }, 'Linear scale');
+  // axis
+  addEl(logSvg, 'line', { x1: pad.l, y1: pad.t+plotH, x2: pad.l+halfW, y2: pad.t+plotH, class: 'chart-axis' });
+  addEl(logSvg, 'line', { x1: pad.l, y1: pad.t, x2: pad.l, y2: pad.t+plotH, class: 'chart-axis' });
+  // y ticks
+  for (let i = 0; i <= 5; i++) {
+    const yv = (i / 5) * ymax;
+    const yy = pad.t + plotH - (i / 5) * plotH;
+    addEl(logSvg, 'line', { x1: pad.l, y1: yy, x2: pad.l+halfW, y2: yy, class: 'chart-grid' });
+    addEl(logSvg, 'text', { x: pad.l - 6, y: yy + 4, 'text-anchor': 'end', class: 'chart-label' },
+      yv === 0 ? '0' : (yv/1e9).toFixed(1) + 'B');
+  }
+  vals.forEach((v, i) => {
+    const x = pad.l + i * (halfW / vals.length) + gap/2;
+    const h = (v / ymax) * plotH;
+    const rect = addEl(logSvg, 'rect', {
+      x: x, y: pad.t + plotH - h, width: barW, height: h,
+      fill: '#4299e1', class: 'bar-rect'
+    });
+    rect.style.cursor = 'pointer';
+    rect.addEventListener('mouseenter', () => rect.setAttribute('fill', '#2b6cb0'));
+    rect.addEventListener('mouseleave', () => rect.setAttribute('fill', '#4299e1'));
+    addEl(logSvg, 'title', {}, `${labels[i]} = ${v.toLocaleString()}`).appendChild(document.createTextNode(''));
+    addEl(logSvg, 'text', { x: x + barW/2, y: H - 18, 'text-anchor': 'middle', class: 'chart-label' }, labels[i]);
+  });
+
+  // === Right: log scale ===
+  const xR = pad.l + halfW + 40;
+  addEl(logSvg, 'text', { x: xR + halfW/2, y: pad.t - 8, 'text-anchor': 'middle', class: 'chart-title' }, 'Log scale (base 10)');
+  addEl(logSvg, 'line', { x1: xR, y1: pad.t+plotH, x2: xR+halfW, y2: pad.t+plotH, class: 'chart-axis' });
+  addEl(logSvg, 'line', { x1: xR, y1: pad.t, x2: xR, y2: pad.t+plotH, class: 'chart-axis' });
+  // y ticks at each decade
+  for (let i = 0; i <= 9; i++) {
+    const yy = pad.t + plotH - (i / 9) * plotH;
+    addEl(logSvg, 'line', { x1: xR, y1: yy, x2: xR+halfW, y2: yy, class: 'chart-grid' });
+    addEl(logSvg, 'text', { x: xR - 6, y: yy + 4, 'text-anchor': 'end', class: 'chart-label' }, '10^' + i);
+  }
+  vals.forEach((v, i) => {
+    const x = xR + i * (halfW / vals.length) + gap/2;
+    const h = (Math.log10(v) / 9) * plotH;
+    const heightSafe = Math.max(h, 1); // visible even at 10^0
+    const rect = addEl(logSvg, 'rect', {
+      x: x, y: pad.t + plotH - heightSafe, width: barW, height: heightSafe,
+      fill: '#48bb78', class: 'bar-rect'
+    });
+    rect.style.cursor = 'pointer';
+    rect.addEventListener('mouseenter', () => rect.setAttribute('fill', '#2f855a'));
+    rect.addEventListener('mouseleave', () => rect.setAttribute('fill', '#48bb78'));
+    const t = addEl(logSvg, 'title', {});
+    t.textContent = `${labels[i]} = ${v.toLocaleString()}`;
+    addEl(logSvg, 'text', { x: x + barW/2, y: H - 18, 'text-anchor': 'middle', class: 'chart-label' }, labels[i]);
+  });
+}
+renderLogDemo();
+</script>
+
+<!-- README modal -->
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+
+</body>
+</html>

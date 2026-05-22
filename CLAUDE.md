@@ -38,7 +38,13 @@ Khi user yêu cầu tạo một bài học mới (ví dụ: *"tạo bài học v
 5. **File minh họa trực quan (HTML)** — **chỉ tạo khi user yêu cầu rõ ràng** (ví dụ: *"tạo minh họa cho lesson X"*). Mặc định **không** tự tạo `visualization.html`.
    - Khi được yêu cầu: tạo file `visualization.html` trong thư mục bài học, là file HTML **standalone** (không cần build, không tải framework ngoài trừ CDN nhẹ nếu thực sự cần), mở trực tiếp trong trình duyệt là chạy được.
    - Ưu tiên tương tác (nhập liệu, nút bấm, mô phỏng từng bước) hơn là hình tĩnh.
-   - **Phải có navigation strip ở đầu trang** gồm: link tới lesson trước, link tới README của lesson hiện tại, link tới README của lĩnh vực (index), link tới lesson tiếp theo. Mục đích: người đọc duyệt qua các minh họa không cần quay lại file manager. Nếu là lesson đầu hoặc cuối, dùng `<span>` thay cho link tương ứng và đặt opacity thấp.
+   - **Bắt buộc load `tools/viz-base.css`** ở đầu `<head>`, TRƯỚC bất kỳ `<style>` nội bộ nào, để dùng chrome chuẩn (body bg, font, nav strip dark):
+     ```html
+     <link rel="stylesheet" href="../../tools/viz-base.css">
+     ```
+     File này định nghĩa palette chuẩn (`--viz-bg: #f5f6f8`, nav `#2d3748`, accent `#4299e1`...) và style cho `nav.viz-nav`. KHÔNG copy lại style nav strip vào `<style>` nội bộ.
+   - **Phải có navigation strip ở đầu trang** dùng `<nav class="viz-nav">`, gồm: link tới `../index.html` (🏠 Trang chính), link tới lesson trước, lesson hiện tại (highlight bằng `<span class="current">`), link tới lesson tiếp theo, phân cách bằng `<span class="sep">·</span>`. Mục đích: người đọc duyệt qua các minh họa không cần quay lại file manager. Nếu là lesson đầu hoặc cuối, dùng `<span>` thay cho link tương ứng.
+   - Component đặc thù của viz (chart, audio toggle, table...) tự định nghĩa trong `<style>` nội bộ — chỉ chrome (nav, body base) dùng chung từ `viz-base.css`.
    - **Bắt buộc tích hợp readme-modal**: Mọi `visualization.html` **phải** có nút "📖 Đọc README" để xem README ngay trong trang. Thực hiện theo 2 bước:
      1. Sinh file `README.data.js` bằng cách chạy `go run tools/build-readme-data.go` từ thư mục gốc repo (hoặc `go run tools/build-readme-data.go <Lĩnh vực>` để giới hạn phạm vi). File này chứa nội dung README dưới dạng `window.README_MD`.
      2. Thêm 3 dòng script vào cuối `visualization.html`, ngay trước `</body>`:
@@ -65,15 +71,17 @@ Thư mục `tools/` ở cấp gốc chứa các file dùng chung cho toàn bộ 
 
 | File | Mục đích |
 |------|----------|
+| `tools/viz-base.css` | Chrome chung cho mọi viz: body bg/font, sticky nav strip (`nav.viz-nav`), token màu (`--viz-bg`, `--viz-nav-bg`, ...). Load qua `<link>` |
 | `tools/marked.min.js` | Markdown parser (marked v12, local copy — không fetch CDN để hoạt động được với `file://`) |
 | `tools/readme-modal.js` | Script tự inject nút "📖 Đọc README" + panel hiển thị README với 3 chế độ Modal / Sidebar / Full |
 | `tools/build-readme-data.go` | Go script sinh `README.data.js` cạnh mỗi cặp `README.md + visualization.html`. Chạy: `go run tools/build-readme-data.go` |
 
 **Quy tắc bắt buộc:**
 - Không sửa `tools/marked.min.js` (file thư viện, không tự viết).
-- Khi sửa `tools/readme-modal.js` hoặc `tools/build-readme-data.go`, thay đổi có hiệu lực ngay cho toàn bộ viz trong repo — kiểm tra kỹ trước khi commit.
-- Mỗi khi tạo `visualization.html` mới, **luôn** chạy `go run tools/build-readme-data.go` để sinh `README.data.js` tương ứng, rồi thêm 3 script tags vào viz (xem mục 5 ở trên).
+- Khi sửa `tools/viz-base.css`, `tools/readme-modal.js` hoặc `tools/build-readme-data.go`, thay đổi có hiệu lực ngay cho toàn bộ viz trong repo — kiểm tra kỹ trước khi commit.
+- Mỗi khi tạo `visualization.html` mới: **luôn** thêm `<link rel="stylesheet" href="../../tools/viz-base.css">` vào `<head>` (chrome chuẩn), chạy `go run tools/build-readme-data.go` để sinh `README.data.js`, rồi thêm 3 script tags readme-modal vào cuối `<body>` (xem mục 5 ở trên).
 - **Mỗi khi sửa `README.md` của một lesson đã có `visualization.html`, BẮT BUỘC chạy lại `go run tools/build-readme-data.go` (hoặc giới hạn phạm vi `go run tools/build-readme-data.go <Lĩnh vực>`) để regenerate `README.data.js` tương ứng**, rồi commit cả `README.md` và `README.data.js` trong cùng một commit. `README.data.js` là file auto-generated — nếu quên sync, readme-modal sẽ hiển thị nội dung cũ. Không bao giờ sửa `README.data.js` bằng tay.
+- Không tự định nghĩa lại style cho `nav.viz-nav` trong viz — viz-base đã handle. Nếu cần biến thể chrome khác, thêm vào `viz-base.css` chứ không inline.
 
 ## Quy trình làm việc với git
 

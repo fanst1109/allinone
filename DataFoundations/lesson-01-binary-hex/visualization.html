@@ -97,6 +97,44 @@
   table.range th { background: #edf2f7; text-align: left; }
   table.range tr.active td { background: #fef5e7; font-weight: 700; }
   .hint { color: #718096; font-size: 13px; margin: 4px 0; }
+
+  /* ============== Theory cards (Hướng A) ============== */
+  details.theory {
+    background: #fffaf0;
+    border: 1px solid #f6e05e;
+    border-left: 4px solid #d69e2e;
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin: 8px 0 16px;
+  }
+  details.theory[open] { padding-bottom: 14px; }
+  details.theory > summary {
+    cursor: pointer; font-weight: 700; color: #744210;
+    user-select: none; padding: 4px 0;
+    list-style: none;
+  }
+  details.theory > summary::-webkit-details-marker { display: none; }
+  details.theory > summary::before {
+    content: '▶'; display: inline-block; margin-right: 6px;
+    transition: transform 0.15s; font-size: 11px;
+  }
+  details.theory[open] > summary::before { transform: rotate(90deg); }
+  details.theory .body {
+    margin-top: 8px; font-size: 14px; line-height: 1.6; color: #2d3748;
+  }
+  details.theory .body p { margin: 6px 0; }
+  details.theory .body code {
+    background: #fef5e7; padding: 1px 5px; border-radius: 3px;
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px;
+  }
+  details.theory .body .formula {
+    display: block; background: #1a202c; color: #68d391;
+    padding: 8px 12px; border-radius: 4px;
+    font-family: monospace; font-size: 13px; margin: 6px 0;
+    white-space: pre-wrap;
+  }
+  details.theory .body ul { margin: 6px 0; padding-left: 22px; }
+  details.theory .body li { margin: 3px 0; }
 </style>
 </head>
 <body>
@@ -114,6 +152,22 @@
   <p>Bộ công cụ tương tác: chuyển đổi cơ số, two's complement, và demo overflow. Mọi thay đổi đồng bộ ngay tức thì.</p>
 
   <h2>1. Bộ chuyển đổi Decimal ↔ Binary ↔ Hex</h2>
+  <details class="theory" open>
+    <summary>📖 Lý thuyết — hệ cơ số và cách quy đổi</summary>
+    <div class="body">
+      <p>Trong <strong>hệ cơ số b</strong>, mỗi vị trí có giá trị là một lũy thừa của <code>b</code>, đếm từ phải sang trái: <code>b⁰, b¹, b², ...</code>. Các chữ số chạy từ <code>0</code> đến <code>b-1</code>.</p>
+      <p>Quy đổi <strong>decimal → cơ số khác</strong>: chia <code>b</code> lấy dư, ghi dư từ dưới lên. Ví dụ 42 → binary:</p>
+      <span class="formula">42 ÷ 2 = 21 dư 0    ← bit thấp nhất
+21 ÷ 2 = 10 dư 1
+10 ÷ 2 =  5 dư 0
+ 5 ÷ 2 =  2 dư 1
+ 2 ÷ 2 =  1 dư 0
+ 1 ÷ 2 =  0 dư 1    ← bit cao nhất
+đọc ngược từ dưới: 101010</span>
+      <p><strong>Hex (cơ số 16)</strong> dùng để viết binary gọn 4 lần: <em>mỗi 4 bit ↔ đúng 1 chữ hex</em>. Vd <code>1111 1111</code> = <code>0xFF</code> = 255. Trong Go: <code>0x</code> cho hex, <code>0b</code> cho binary.</p>
+      <p><em>👉 Thử nghiệm</em>: gõ một số vào ô bất kỳ bên dưới, hoặc click trực tiếp vào từng bit để toggle. Quan sát 3 ô luôn đồng bộ.</p>
+    </div>
+  </details>
   <div class="card">
     <div class="row">
       <label>Decimal:</label>
@@ -142,6 +196,19 @@
   </div>
 
   <h2>2. Kích thước kiểu số nguyên (intN)</h2>
+  <details class="theory" open>
+    <summary>📖 Lý thuyết — phạm vi intN / uintN</summary>
+    <div class="body">
+      <p>Với <strong>n bit</strong>, biểu diễn được:</p>
+      <ul>
+        <li><strong>signed</strong> (có dấu, two's complement): từ <code>-2^(n-1)</code> đến <code>2^(n-1) - 1</code></li>
+        <li><strong>unsigned</strong>: từ <code>0</code> đến <code>2^n - 1</code></li>
+      </ul>
+      <p>Lý do phần âm <em>nhiều hơn 1 số</em> so với phần dương: số <code>0</code> chiếm chỗ trong phần dương. Vd int8 = <code>-128..127</code> (không phải <code>-127..127</code>).</p>
+      <p>Đáp án cho câu <em>"vì sao int64 chỉ tới ~9.2·10¹⁸?"</em> chính là <code>2⁶³ - 1 ≈ 9.22 · 10¹⁸</code>.</p>
+      <p><em>👉 Thử nghiệm</em>: đổi dropdown bên dưới để highlight dòng tương ứng và so sánh phạm vi các kiểu.</p>
+    </div>
+  </details>
   <div class="card">
     <div class="row">
       <label>Chọn kiểu:</label>
@@ -161,6 +228,25 @@
   </div>
 
   <h2>3. Two's Complement (số âm)</h2>
+  <details class="theory" open>
+    <summary>📖 Lý thuyết — quy tắc 3 bước &amp; vì sao "đẹp"</summary>
+    <div class="body">
+      <p>Để tìm biểu diễn <code>-x</code> (với <code>x</code> dương) trong <code>n</code> bit:</p>
+      <ul>
+        <li><strong>Bước 1</strong>: viết <code>|x|</code> ở dạng binary, pad đủ <code>n</code> bit.</li>
+        <li><strong>Bước 2</strong>: đảo toàn bộ bit (NOT).</li>
+        <li><strong>Bước 3</strong>: cộng 1.</li>
+      </ul>
+      <p><strong>Vì sao chọn cách này?</strong> Để phép cộng dương+âm tự ra kết quả đúng mà CPU không cần biết dấu. Ví dụ <code>5 + (-5)</code> ở 8-bit:</p>
+      <span class="formula">  00000101   ( 5)
++ 11111011   (-5)
+----------
+ 100000000   ← bit thứ 9 tràn ra, bị cắt
+  00000000   = 0    ✓</span>
+      <p>Phép cộng tự đúng → CPU chỉ cần 1 mạch cộng cho cả số dương và âm, không cần mạch trừ riêng.</p>
+      <p><em>👉 Thử nghiệm</em>: nhập số âm bên dưới và đổi độ rộng để xem từng bước (|x| → đảo → +1).</p>
+    </div>
+  </details>
   <div class="card">
     <div class="row">
       <label>Số (signed):</label>
@@ -175,6 +261,21 @@
   </div>
 
   <h2>4. Overflow Playground (int8)</h2>
+  <details class="theory" open>
+    <summary>📖 Lý thuyết — wrap-around &amp; lý do Go không panic</summary>
+    <div class="body">
+      <p>Khi kết quả phép tính <strong>vượt khỏi phạm vi</strong> kiểu, các bit cao tràn ra ngoài bị cắt → giá trị "cuộn vòng" (wrap around).</p>
+      <p>Ví dụ với int8 (max = 127):</p>
+      <span class="formula">var x int8 = 127     // 01111111
+x = x + 1            // 10000000 = -128 (không panic, không lỗi!)</span>
+      <p>Bit thứ 8 bị tràn, bit dấu bị <strong>lật âm thầm</strong>. Đây là lý do code xử lý số lớn (hash, tổng prefix sum, nhân hai số gần <code>int32</code>) phải <em>ép sang kiểu rộng hơn</em> trước:</p>
+      <span class="formula">var a, b int32 = 2_000_000_000, 2
+c := int64(a) * int64(b)   // ✓ không overflow
+// vs
+c := a * b                 // ✗ wrap về số âm</span>
+      <p><em>👉 Thử nghiệm</em>: đặt x = 127, bấm <strong>+1</strong> để xem wrap → -128. Tương tự với -128 bấm <strong>−1</strong> → wrap về 127.</p>
+    </div>
+  </details>
   <div class="card">
     <div class="row">
       <label>x (int8):</label>

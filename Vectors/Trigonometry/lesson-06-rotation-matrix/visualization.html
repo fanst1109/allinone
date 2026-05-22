@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 06 — Ma trận xoay 2D/3D (Rotation Matrix)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  main { max-width: 1100px; margin: 0 auto; padding: 24px; }
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; font-size: 14px; }
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; padding: 6px 8px; width: 80px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    text-align: right;
+  }
+  input[type="range"] { width: 240px; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+
+  .col-pair { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+  .col-pair > div { flex: 1; min-width: 280px; }
+
+  svg.plane {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    display: block;
+  }
+  .matrix-display {
+    font-family: monospace; font-size: 14px;
+    background: #1a202c; color: #f7fafc;
+    padding: 12px 16px; border-radius: 6px;
+    margin: 8px 0; white-space: pre;
+  }
+  .matrix-display .accent { color: #f6ad55; font-weight: 700; }
+  .result-box {
+    margin-top: 12px; padding: 12px;
+    background: #edf2f7; border-radius: 6px;
+    font-family: monospace; font-size: 14px;
+    line-height: 1.6;
+  }
+  .result-box .good  { color: #22543d; font-weight: 700; }
+  .result-box .info  { color: #2c5282; }
+  .result-box .warn  { color: #9c4221; font-weight: 700; }
+
+  .hint { color: #718096; font-size: 13px; margin: 6px 0; }
+  .badge {
+    display: inline-block; padding: 2px 8px;
+    border-radius: 999px; font-size: 11px; font-weight: 600;
+    margin-left: 6px;
+    background: #bee3f8; color: #2a4365;
+  }
+  .axis-toggle { display: inline-flex; gap: 4px; margin: 6px 0; }
+  .axis-toggle button {
+    background: #e2e8f0; color: #2d3748; padding: 6px 12px;
+  }
+  .axis-toggle button.active { background: #4299e1; color: white; }
+
+  .slider-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 70px;
+    align-items: center; gap: 10px;
+    margin: 8px 0;
+  }
+  .slider-row .val {
+    font-family: monospace; font-size: 14px; text-align: right;
+    color: #2d3748; font-weight: 600;
+  }
+
+  table { border-collapse: collapse; margin: 8px 0; font-family: monospace; font-size: 13px; }
+  table th, table td { border: 1px solid #cbd5e0; padding: 6px 10px; text-align: right; }
+  table th { background: #edf2f7; font-weight: 700; }
+  table tr.same td { background: #c6f6d5; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-identities-cosine-law/visualization.html">← L5: Identity và định lý cosin</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Ma trận xoay 2D/3D</span>
+</nav>
+
+<main>
+  <h1>Lesson 06 — Ma trận xoay 2D/3D (Rotation Matrix)</h1>
+  <p>Công cụ tương tác: kéo slider xoay vector, ghép 2 phép xoay, quan sát ma trận xoay 3D, và <strong>RoPE demo</strong> — kỹ thuật được dùng trong LLM hiện đại (Llama, Mistral, Gemma).</p>
+
+  <!-- ============================================ -->
+  <h2>1. 2D Rotation Playground — Kéo góc, xoay tức thì</h2>
+  <div class="card">
+    <p class="hint">Vector ban đầu màu xanh, vector sau khi xoay màu cam. Kéo slider <code>θ</code> để xoay. Ma trận <code>R(θ)</code> và tọa độ mới hiển thị bên phải.</p>
+    <div class="col-pair">
+      <div>
+        <svg id="plane2d" class="plane" width="380" height="380" viewBox="-200 -200 400 400"></svg>
+      </div>
+      <div>
+        <div class="row">
+          <label>Vector ban đầu:</label>
+          <input type="number" id="vx" value="3" step="0.5" style="width:70px">
+          <span>,</span>
+          <input type="number" id="vy" value="1" step="0.5" style="width:70px">
+        </div>
+        <div class="slider-row">
+          <label>θ (độ):</label>
+          <input type="range" id="theta1" min="-180" max="360" value="60" step="1">
+          <div class="val" id="theta1Val">60°</div>
+        </div>
+        <div class="row" style="gap:6px">
+          <button onclick="setTheta(30)">30°</button>
+          <button onclick="setTheta(45)">45°</button>
+          <button onclick="setTheta(90)">90°</button>
+          <button onclick="setTheta(180)">180°</button>
+          <button onclick="setTheta(270)">270°</button>
+        </div>
+        <div class="matrix-display" id="rMatrix">R(60°) = ...</div>
+        <div class="result-box" id="rotResult">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <h2>2. Two-Rotation Composition <span class="badge">R(α)·R(β) = R(α+β)</span></h2>
+  <div class="card">
+    <p class="hint">Xoay vector bởi <code>θ₁</code> rồi bởi <code>θ₂</code>. So với xoay 1 phát góc <code>θ₁ + θ₂</code>. Hai mũi tên kết quả luôn trùng nhau — đó là nội dung của tính chất <code>R(α)·R(β) = R(α+β)</code>.</p>
+    <div class="col-pair">
+      <div>
+        <svg id="planeComp" class="plane" width="380" height="380" viewBox="-200 -200 400 400"></svg>
+        <div class="hint">Xanh: <code>v</code> ban đầu. Tím: sau <code>R(θ₁)</code>. Đỏ chấm: sau <code>R(θ₂)·R(θ₁)·v</code>. Vàng nét đứt: <code>R(θ₁+θ₂)·v</code>.</div>
+      </div>
+      <div>
+        <div class="slider-row">
+          <label>θ₁ (độ):</label>
+          <input type="range" id="theta_a" min="0" max="360" value="40" step="1">
+          <div class="val" id="theta_aVal">40°</div>
+        </div>
+        <div class="slider-row">
+          <label>θ₂ (độ):</label>
+          <input type="range" id="theta_b" min="0" max="360" value="50" step="1">
+          <div class="val" id="theta_bVal">50°</div>
+        </div>
+        <div class="row">
+          <label>Vector:</label>
+          <input type="number" id="cvx" value="4" step="0.5">
+          <input type="number" id="cvy" value="0" step="0.5">
+        </div>
+        <div class="result-box" id="compResult">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <h2>3. 3D Rotation Visualizer <span class="badge">orthographic projection</span></h2>
+  <div class="card">
+    <p class="hint">Chọn trục xoay (X / Y / Z) và góc. Ma trận 3×3 sẽ hiển thị; áp dụng cho vector <code>v</code>. Hình chiếu 2D dùng ortho projection đơn giản (x sang phải, z lên, y theo chéo).</p>
+    <div class="col-pair">
+      <div>
+        <svg id="plane3d" class="plane" width="380" height="380" viewBox="-200 -200 400 400"></svg>
+        <div class="hint">Trục X (đỏ), Y (xanh, chéo), Z (xanh dương, dọc).</div>
+      </div>
+      <div>
+        <div class="row">
+          <label>Trục xoay:</label>
+          <div class="axis-toggle">
+            <button id="axX" onclick="set3DAxis('X')">X</button>
+            <button id="axY" onclick="set3DAxis('Y')">Y</button>
+            <button id="axZ" class="active" onclick="set3DAxis('Z')">Z</button>
+          </div>
+        </div>
+        <div class="slider-row">
+          <label>θ (độ):</label>
+          <input type="range" id="theta3d" min="-180" max="360" value="60" step="1">
+          <div class="val" id="theta3dVal">60°</div>
+        </div>
+        <div class="row">
+          <label>v =</label>
+          <input type="number" id="v3x" value="1" step="0.5" style="width:65px">
+          <input type="number" id="v3y" value="1" step="0.5" style="width:65px">
+          <input type="number" id="v3z" value="1" step="0.5" style="width:65px">
+        </div>
+        <div class="matrix-display" id="r3Matrix">R_Z(60°) = ...</div>
+        <div class="result-box" id="rot3Result">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <h2>4. RoPE Demo — Attention chỉ phụ thuộc hiệu vị trí</h2>
+  <div class="card">
+    <p class="hint">
+      Có 2 vector <code>q</code> và <code>k</code>. RoPE xoay <code>q</code> theo vị trí <code>m</code> (góc <code>m·θ</code>), xoay <code>k</code> theo vị trí <code>n</code> (góc <code>n·θ</code>). Attention score = dot product sau xoay.
+      Bảng dưới so các cặp <code>(m, n)</code> khác nhau nhưng <strong>cùng hiệu</strong>: score giống nhau!
+    </p>
+    <div class="col-pair">
+      <div>
+        <svg id="planeRope" class="plane" width="380" height="380" viewBox="-200 -200 400 400"></svg>
+      </div>
+      <div>
+        <div class="row">
+          <label>q =</label>
+          <input type="number" id="qx" value="1" step="0.5" style="width:65px">
+          <input type="number" id="qy" value="0" step="0.5" style="width:65px">
+          <label style="margin-left:14px">k =</label>
+          <input type="number" id="kx" value="0" step="0.5" style="width:65px">
+          <input type="number" id="ky" value="1" step="0.5" style="width:65px">
+        </div>
+        <div class="slider-row">
+          <label>m (vị trí q):</label>
+          <input type="range" id="mPos" min="0" max="20" value="2" step="1">
+          <div class="val" id="mPosVal">2</div>
+        </div>
+        <div class="slider-row">
+          <label>n (vị trí k):</label>
+          <input type="range" id="nPos" min="0" max="20" value="5" step="1">
+          <div class="val" id="nPosVal">5</div>
+        </div>
+        <div class="slider-row">
+          <label>θ_base (độ):</label>
+          <input type="range" id="thetaBase" min="5" max="60" value="30" step="1">
+          <div class="val" id="thetaBaseVal">30°</div>
+        </div>
+        <div class="result-box" id="ropeResult">—</div>
+      </div>
+    </div>
+    <div style="margin-top:14px">
+      <div class="hint">Bảng <strong>các cặp (m, n) với cùng hiệu</strong> bằng giá trị slider <code>n − m</code> hiện tại — toàn bộ ra cùng score:</div>
+      <table id="ropeTable">
+        <thead><tr><th>m</th><th>n</th><th>n−m</th><th>q'</th><th>k'</th><th>q'·k'</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ===========================================================
+// Helpers
+// ===========================================================
+
+function $(id) { return document.getElementById(id); }
+const DEG = Math.PI / 180;
+
+function fmt(n, p) {
+  if (p === undefined) p = 4;
+  if (Math.abs(n) < 1e-10) return '0';
+  if (Math.abs(n - Math.round(n)) < 1e-9) return String(Math.round(n));
+  return n.toFixed(p);
+}
+
+function rotateVec2(x, y, theta) {
+  const c = Math.cos(theta), s = Math.sin(theta);
+  return [x * c - y * s, x * s + y * c];
+}
+
+function dot2(a, b) { return a[0]*b[0] + a[1]*b[1]; }
+
+// SVG: y mặc định hướng xuống → cần phản chiếu cho mặt phẳng toán học (y lên)
+function drawAxes(svg) {
+  svg.innerHTML = '';
+  const ns = 'http://www.w3.org/2000/svg';
+  // grid
+  for (let i = -180; i <= 180; i += 30) {
+    const g = document.createElementNS(ns, 'line');
+    g.setAttribute('x1', i); g.setAttribute('y1', -180);
+    g.setAttribute('x2', i); g.setAttribute('y2', 180);
+    g.setAttribute('stroke', '#e2e8f0'); g.setAttribute('stroke-width', '0.5');
+    svg.appendChild(g);
+    const h = document.createElementNS(ns, 'line');
+    h.setAttribute('x1', -180); h.setAttribute('y1', i);
+    h.setAttribute('x2', 180); h.setAttribute('y2', i);
+    h.setAttribute('stroke', '#e2e8f0'); h.setAttribute('stroke-width', '0.5');
+    svg.appendChild(h);
+  }
+  // axes
+  const xa = document.createElementNS(ns, 'line');
+  xa.setAttribute('x1', -180); xa.setAttribute('y1', 0);
+  xa.setAttribute('x2', 180); xa.setAttribute('y2', 0);
+  xa.setAttribute('stroke', '#4a5568'); xa.setAttribute('stroke-width', '1.5');
+  svg.appendChild(xa);
+  const ya = document.createElementNS(ns, 'line');
+  ya.setAttribute('x1', 0); ya.setAttribute('y1', -180);
+  ya.setAttribute('x2', 0); ya.setAttribute('y2', 180);
+  ya.setAttribute('stroke', '#4a5568'); ya.setAttribute('stroke-width', '1.5');
+  svg.appendChild(ya);
+  // labels
+  const xlb = document.createElementNS(ns, 'text');
+  xlb.setAttribute('x', 175); xlb.setAttribute('y', -8);
+  xlb.setAttribute('fill', '#4a5568'); xlb.setAttribute('font-size', '12');
+  xlb.textContent = 'x'; svg.appendChild(xlb);
+  const ylb = document.createElementNS(ns, 'text');
+  ylb.setAttribute('x', 8); ylb.setAttribute('y', -170);
+  ylb.setAttribute('fill', '#4a5568'); ylb.setAttribute('font-size', '12');
+  ylb.textContent = 'y'; svg.appendChild(ylb);
+}
+
+function drawVec(svg, x, y, color, label, opts) {
+  opts = opts || {};
+  const ns = 'http://www.w3.org/2000/svg';
+  const scale = opts.scale || 30;
+  const X = x * scale;
+  const Y = -y * scale; // phản chiếu vì SVG y hướng xuống
+  // arrow
+  const ln = document.createElementNS(ns, 'line');
+  ln.setAttribute('x1', 0); ln.setAttribute('y1', 0);
+  ln.setAttribute('x2', X); ln.setAttribute('y2', Y);
+  ln.setAttribute('stroke', color);
+  ln.setAttribute('stroke-width', opts.width || 2.5);
+  if (opts.dashed) ln.setAttribute('stroke-dasharray', '6 4');
+  svg.appendChild(ln);
+  // arrowhead
+  const angle = Math.atan2(Y, X);
+  const sz = 8;
+  const ah = document.createElementNS(ns, 'polygon');
+  const ax = X, ay = Y;
+  const p1 = [ax - sz * Math.cos(angle - Math.PI/6), ay - sz * Math.sin(angle - Math.PI/6)];
+  const p2 = [ax - sz * Math.cos(angle + Math.PI/6), ay - sz * Math.sin(angle + Math.PI/6)];
+  ah.setAttribute('points', `${ax},${ay} ${p1[0]},${p1[1]} ${p2[0]},${p2[1]}`);
+  ah.setAttribute('fill', color);
+  svg.appendChild(ah);
+  // label
+  if (label) {
+    const t = document.createElementNS(ns, 'text');
+    t.setAttribute('x', X + 6); t.setAttribute('y', Y - 6);
+    t.setAttribute('fill', color); t.setAttribute('font-size', '13');
+    t.setAttribute('font-weight', '700');
+    t.textContent = label;
+    svg.appendChild(t);
+  }
+}
+
+function drawArc(svg, theta, color, radius) {
+  if (Math.abs(theta) < 0.01) return;
+  const ns = 'http://www.w3.org/2000/svg';
+  const r = radius || 28;
+  const large = (Math.abs(theta) > Math.PI) ? 1 : 0;
+  const sweep = (theta > 0) ? 0 : 1; // SVG y down: positive math angle = counter-clockwise = SVG sweep 0
+  const x1 = r, y1 = 0;
+  const x2 = r * Math.cos(theta), y2 = -r * Math.sin(theta);
+  const path = document.createElementNS(ns, 'path');
+  path.setAttribute('d', `M ${x1} ${y1} A ${r} ${r} 0 ${large} ${sweep} ${x2} ${y2}`);
+  path.setAttribute('fill', 'none'); path.setAttribute('stroke', color);
+  path.setAttribute('stroke-width', '1.5');
+  svg.appendChild(path);
+}
+
+// ===========================================================
+// Component 1: 2D Rotation Playground
+// ===========================================================
+
+function update2D() {
+  const x = parseFloat($('vx').value);
+  const y = parseFloat($('vy').value);
+  const thetaDeg = parseFloat($('theta1').value);
+  const theta = thetaDeg * DEG;
+  $('theta1Val').textContent = thetaDeg + '°';
+
+  const [xp, yp] = rotateVec2(x, y, theta);
+  const c = Math.cos(theta), s = Math.sin(theta);
+
+  const svg = $('plane2d');
+  drawAxes(svg);
+  drawArc(svg, theta, '#cbd5e0', 24);
+  drawVec(svg, x, y, '#4299e1', 'v');
+  drawVec(svg, xp, yp, '#ed8936', "v'");
+
+  $('rMatrix').innerHTML =
+    `R(${thetaDeg}°) = [ ${fmt(c)}   ${fmt(-s)} ]\n` +
+    `         [ ${fmt(s)}   ${fmt(c)} ]`;
+
+  $('rotResult').innerHTML =
+    `<span class="info">v</span> = (${fmt(x)}, ${fmt(y)})\n` +
+    `<span class="info">v'</span> = R(${thetaDeg}°)·v = (${fmt(xp)}, ${fmt(yp)})\n` +
+    `|v|  = ${fmt(Math.hypot(x, y))}\n` +
+    `|v'| = ${fmt(Math.hypot(xp, yp))} <span class="good">(bảo toàn ✓)</span>`;
+}
+
+function setTheta(d) { $('theta1').value = d; update2D(); }
+
+['vx', 'vy', 'theta1'].forEach(id =>
+  $(id).addEventListener('input', update2D));
+
+// ===========================================================
+// Component 2: Two-Rotation Composition
+// ===========================================================
+
+function updateComp() {
+  const x = parseFloat($('cvx').value);
+  const y = parseFloat($('cvy').value);
+  const aDeg = parseFloat($('theta_a').value);
+  const bDeg = parseFloat($('theta_b').value);
+  const a = aDeg * DEG, b = bDeg * DEG;
+  $('theta_aVal').textContent = aDeg + '°';
+  $('theta_bVal').textContent = bDeg + '°';
+
+  const v1 = rotateVec2(x, y, a);            // sau R(θ₁)
+  const v2 = rotateVec2(v1[0], v1[1], b);    // sau R(θ₂)·R(θ₁)
+  const v3 = rotateVec2(x, y, a + b);        // sau R(θ₁+θ₂)
+
+  const svg = $('planeComp');
+  drawAxes(svg);
+  drawArc(svg, a, '#bee3f8', 24);
+  drawArc(svg, a + b, '#fed7aa', 40);
+  drawVec(svg, x, y, '#4299e1', 'v');
+  drawVec(svg, v1[0], v1[1], '#9f7aea', "R(θ₁)v");
+  drawVec(svg, v2[0], v2[1], '#e53e3e', "R(θ₂)R(θ₁)v", { width: 2.5 });
+  drawVec(svg, v3[0], v3[1], '#d69e2e', "R(θ₁+θ₂)v", { dashed: true, width: 3 });
+
+  const same = Math.abs(v2[0] - v3[0]) < 1e-9 && Math.abs(v2[1] - v3[1]) < 1e-9;
+  $('compResult').innerHTML =
+    `R(θ₂)·R(θ₁)·v = (${fmt(v2[0])}, ${fmt(v2[1])})\n` +
+    `R(θ₁+θ₂)·v    = (${fmt(v3[0])}, ${fmt(v3[1])})\n` +
+    (same
+      ? `<span class="good">→ trùng nhau ✓ (R(α)·R(β) = R(α+β))</span>`
+      : `<span class="warn">→ khác? (lỗi tính toán)</span>`);
+}
+
+['cvx', 'cvy', 'theta_a', 'theta_b'].forEach(id =>
+  $(id).addEventListener('input', updateComp));
+
+// ===========================================================
+// Component 3: 3D Rotation Visualizer
+// ===========================================================
+
+let cur3DAxis = 'Z';
+
+function set3DAxis(ax) {
+  cur3DAxis = ax;
+  ['axX', 'axY', 'axZ'].forEach(id => $(id).classList.remove('active'));
+  $('ax' + ax).classList.add('active');
+  update3D();
+}
+
+function rotateMat3(axis, theta) {
+  const c = Math.cos(theta), s = Math.sin(theta);
+  if (axis === 'X') return [[1,0,0],[0,c,-s],[0,s,c]];
+  if (axis === 'Y') return [[c,0,s],[0,1,0],[-s,0,c]];
+  return [[c,-s,0],[s,c,0],[0,0,1]];
+}
+
+function matVec3(M, v) {
+  return [
+    M[0][0]*v[0] + M[0][1]*v[1] + M[0][2]*v[2],
+    M[1][0]*v[0] + M[1][1]*v[1] + M[1][2]*v[2],
+    M[2][0]*v[0] + M[2][1]*v[1] + M[2][2]*v[2],
+  ];
+}
+
+// orthographic projection: x → ngang, z → dọc, y → chéo (lên-trái khoảng 30°)
+function project3D(v) {
+  const px = v[0] - 0.5 * v[1] * Math.cos(30 * DEG);
+  const py = v[2] + 0.5 * v[1] * Math.sin(30 * DEG);
+  return [px, py];
+}
+
+function drawAxes3D(svg) {
+  svg.innerHTML = '';
+  const ns = 'http://www.w3.org/2000/svg';
+  // grid background
+  for (let i = -180; i <= 180; i += 30) {
+    const g = document.createElementNS(ns, 'line');
+    g.setAttribute('x1', i); g.setAttribute('y1', -180);
+    g.setAttribute('x2', i); g.setAttribute('y2', 180);
+    g.setAttribute('stroke', '#edf2f7'); g.setAttribute('stroke-width', '0.5');
+    svg.appendChild(g);
+  }
+  // 3 axes
+  function drawAx(end, color, label) {
+    const [ex, ey] = project3D(end);
+    const scale = 30;
+    const ln = document.createElementNS(ns, 'line');
+    ln.setAttribute('x1', 0); ln.setAttribute('y1', 0);
+    ln.setAttribute('x2', ex * scale); ln.setAttribute('y2', -ey * scale);
+    ln.setAttribute('stroke', color); ln.setAttribute('stroke-width', '1.5');
+    svg.appendChild(ln);
+    const t = document.createElementNS(ns, 'text');
+    t.setAttribute('x', ex * scale + 6); t.setAttribute('y', -ey * scale + 4);
+    t.setAttribute('fill', color); t.setAttribute('font-size', '13');
+    t.setAttribute('font-weight', '700');
+    t.textContent = label;
+    svg.appendChild(t);
+  }
+  drawAx([5, 0, 0], '#e53e3e', 'X');
+  drawAx([0, 5, 0], '#38a169', 'Y');
+  drawAx([0, 0, 5], '#3182ce', 'Z');
+}
+
+function drawVec3D(svg, v, color, label, opts) {
+  opts = opts || {};
+  const [px, py] = project3D(v);
+  drawVec(svg, px, py, color, label, opts);
+}
+
+function update3D() {
+  const vx = parseFloat($('v3x').value);
+  const vy = parseFloat($('v3y').value);
+  const vz = parseFloat($('v3z').value);
+  const tDeg = parseFloat($('theta3d').value);
+  const theta = tDeg * DEG;
+  $('theta3dVal').textContent = tDeg + '°';
+
+  const M = rotateMat3(cur3DAxis, theta);
+  const v = [vx, vy, vz];
+  const vp = matVec3(M, v);
+
+  const svg = $('plane3d');
+  drawAxes3D(svg);
+  drawVec3D(svg, v, '#4299e1', 'v');
+  drawVec3D(svg, vp, '#ed8936', "v'");
+
+  const m = M.map(row => row.map(x => fmt(x))).map(r =>
+    `[ ${r[0].padStart(6)}  ${r[1].padStart(6)}  ${r[2].padStart(6)} ]`).join('\n');
+  $('r3Matrix').textContent = `R_${cur3DAxis}(${tDeg}°) =\n${m}`;
+  $('rot3Result').innerHTML =
+    `v  = (${fmt(vx)}, ${fmt(vy)}, ${fmt(vz)})\n` +
+    `v' = (${fmt(vp[0])}, ${fmt(vp[1])}, ${fmt(vp[2])})\n` +
+    `|v|  = ${fmt(Math.hypot(vx, vy, vz))}\n` +
+    `|v'| = ${fmt(Math.hypot(vp[0], vp[1], vp[2]))} <span class="good">(bảo toàn ✓)</span>`;
+}
+
+['v3x', 'v3y', 'v3z', 'theta3d'].forEach(id =>
+  $(id).addEventListener('input', update3D));
+
+// ===========================================================
+// Component 4: RoPE Demo
+// ===========================================================
+
+function updateRope() {
+  const qx = parseFloat($('qx').value);
+  const qy = parseFloat($('qy').value);
+  const kx = parseFloat($('kx').value);
+  const ky = parseFloat($('ky').value);
+  const m = parseInt($('mPos').value, 10);
+  const n = parseInt($('nPos').value, 10);
+  const tbDeg = parseFloat($('thetaBase').value);
+  const tb = tbDeg * DEG;
+  $('mPosVal').textContent = m;
+  $('nPosVal').textContent = n;
+  $('thetaBaseVal').textContent = tbDeg + '°';
+
+  const qp = rotateVec2(qx, qy, m * tb);
+  const kp = rotateVec2(kx, ky, n * tb);
+  const score = dot2(qp, kp);
+
+  // verify via "difference" formula
+  const Rkdiff = rotateVec2(kx, ky, (n - m) * tb);
+  const scoreDiff = qx * Rkdiff[0] + qy * Rkdiff[1];
+
+  // Draw
+  const svg = $('planeRope');
+  drawAxes(svg);
+  drawVec(svg, qx, qy, '#90cdf4', 'q');
+  drawVec(svg, kx, ky, '#fbb6ce', 'k');
+  drawVec(svg, qp[0], qp[1], '#3182ce', "q'");
+  drawVec(svg, kp[0], kp[1], '#d53f8c', "k'");
+
+  $('ropeResult').innerHTML =
+    `q  = (${fmt(qx)}, ${fmt(qy)})   ở vị trí m = ${m}\n` +
+    `k  = (${fmt(kx)}, ${fmt(ky)})   ở vị trí n = ${n}\n` +
+    `q' = R(${m * tbDeg}°)·q = (${fmt(qp[0])}, ${fmt(qp[1])})\n` +
+    `k' = R(${n * tbDeg}°)·k = (${fmt(kp[0])}, ${fmt(kp[1])})\n` +
+    `<span class="good">Attention score q'·k' = ${fmt(score, 6)}</span>\n` +
+    `<span class="info">Verify q·R((n-m)θ)·k = ${fmt(scoreDiff, 6)}  (cùng giá trị ✓)</span>\n` +
+    `Hiệu vị trí n − m = ${n - m}`;
+
+  // Cập nhật bảng: 5 cặp (m, n) với cùng hiệu
+  const diff = n - m;
+  const tbody = $('ropeTable').querySelector('tbody');
+  tbody.innerHTML = '';
+  const samples = [0, 2, 5, 10, 50];
+  for (const offset of samples) {
+    const mi = offset;
+    const ni = offset + diff;
+    if (mi < 0 || ni < 0) continue;
+    const qpi = rotateVec2(qx, qy, mi * tb);
+    const kpi = rotateVec2(kx, ky, ni * tb);
+    const si = dot2(qpi, kpi);
+    const tr = document.createElement('tr');
+    tr.className = 'same';
+    tr.innerHTML =
+      `<td>${mi}</td><td>${ni}</td><td>${diff}</td>` +
+      `<td>(${fmt(qpi[0])}, ${fmt(qpi[1])})</td>` +
+      `<td>(${fmt(kpi[0])}, ${fmt(kpi[1])})</td>` +
+      `<td>${fmt(si, 6)}</td>`;
+    tbody.appendChild(tr);
+  }
+}
+
+['qx', 'qy', 'kx', 'ky', 'mPos', 'nPos', 'thetaBase'].forEach(id =>
+  $(id).addEventListener('input', updateRope));
+
+// ===========================================================
+// Init
+// ===========================================================
+update2D();
+updateComp();
+update3D();
+updateRope();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+</body>
+</html>

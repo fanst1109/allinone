@@ -1,5 +1,5 @@
 // AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
-// Source: Vectors/Probability/lesson-02-conditional-bayes/README.md
+// Source: Vectors/05-Probability/lesson-02-conditional-bayes/README.md
 // Chạy lại: go run tools/build-readme-data.go
 window.README_MD = `# Lesson 02 — Xác suất có điều kiện + Bayes
 

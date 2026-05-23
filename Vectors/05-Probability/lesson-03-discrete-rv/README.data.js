@@ -1,5 +1,5 @@
 // AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
-// Source: Vectors/Probability/lesson-03-discrete-rv/README.md
+// Source: Vectors/05-Probability/lesson-03-discrete-rv/README.md
 // Chạy lại: go run tools/build-readme-data.go
 window.README_MD = `# Lesson 03 — Biến ngẫu nhiên rời rạc (Discrete Random Variables)
 

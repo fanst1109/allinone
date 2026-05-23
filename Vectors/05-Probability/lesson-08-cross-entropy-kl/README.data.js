@@ -1,5 +1,5 @@
 // AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
-// Source: Vectors/Probability/lesson-08-cross-entropy-kl/README.md
+// Source: Vectors/05-Probability/lesson-08-cross-entropy-kl/README.md
 // Chạy lại: go run tools/build-readme-data.go
 window.README_MD = `# Lesson 08 — Cross-entropy + KL divergence
 

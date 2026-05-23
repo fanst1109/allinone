@@ -1,5 +1,5 @@
 // AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
-// Source: Vectors/Probability/lesson-04-continuous-rv/README.md
+// Source: Vectors/05-Probability/lesson-04-continuous-rv/README.md
 // Chạy lại: go run tools/build-readme-data.go
 window.README_MD = `# Lesson 04 — Biến ngẫu nhiên liên tục (Continuous Random Variables)
 

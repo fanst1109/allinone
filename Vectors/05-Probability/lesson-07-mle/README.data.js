@@ -1,5 +1,5 @@
 // AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
-// Source: Vectors/Probability/lesson-07-mle/README.md
+// Source: Vectors/05-Probability/lesson-07-mle/README.md
 // Chạy lại: go run tools/build-readme-data.go
 window.README_MD = `# Lesson 07 — Maximum Likelihood Estimation (MLE)
 

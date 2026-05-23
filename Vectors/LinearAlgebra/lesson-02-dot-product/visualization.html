@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Dot product + Cosine similarity · Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  main { max-width: 1180px; margin: 0 auto; padding: 24px; }
+  h1 { color: #1a202c; margin-top: 8px; }
+  h2 {
+    color: #2d3748; margin-top: 40px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; margin-top: 18px; font-size: 17px; }
+  p.intro { color: #4a5568; max-width: 900px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; margin: 8px 0; }
+  .col { flex: 1 1 360px; min-width: 320px; }
+
+  canvas.plot {
+    background: #fafbfc; border: 1px solid #e2e8f0; border-radius: 6px;
+    display: block; width: 100%; max-width: 520px;
+    cursor: grab;
+    touch-action: none;
+  }
+  canvas.plot:active { cursor: grabbing; }
+
+  .stats {
+    background: #1a202c; color: #e2e8f0;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    padding: 12px 14px; border-radius: 4px;
+    font-size: 13px; line-height: 1.7;
+    white-space: pre-wrap;
+  }
+  .stats .key { color: #f6ad55; }
+  .stats .pos { color: #68d391; }
+  .stats .neg { color: #fc8181; }
+  .stats .neu { color: #90cdf4; }
+  .stats .acc { color: #f687b3; font-weight: 700; }
+
+  .label {
+    display: inline-block; padding: 3px 10px;
+    border-radius: 10px; font-size: 12px;
+    font-weight: 700;
+  }
+  .label.same { background: #c6f6d5; color: #22543d; }
+  .label.perp { background: #fefcbf; color: #744210; }
+  .label.opp  { background: #fed7d7; color: #742a2a; }
+  .label.other{ background: #bee3f8; color: #2c5282; }
+
+  button {
+    font-size: 13px; padding: 7px 12px; border-radius: 4px;
+    background: #4299e1; color: white; border: none;
+    font-weight: 600; cursor: pointer; margin-right: 6px; margin-top: 4px;
+  }
+  button:hover { background: #3182ce; }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+
+  table.heat { border-collapse: collapse; font-size: 13px; font-family: "SF Mono", Monaco, Consolas, monospace; }
+  table.heat th, table.heat td {
+    border: 1px solid #cbd5e0; padding: 8px 10px; text-align: center; min-width: 60px;
+    cursor: pointer;
+  }
+  table.heat th { background: #edf2f7; font-weight: 700; color: #2d3748; }
+  table.heat td.diag { background: #f7fafc; color: #a0aec0; cursor: default; }
+  table.heat td.selected { outline: 3px solid #b794f4; outline-offset: -3px; }
+
+  .detail-panel {
+    background: #f7fafc; border-left: 4px solid #b794f4;
+    padding: 12px 16px; border-radius: 4px;
+    margin-top: 12px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px;
+  }
+  .legend-bar { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #4a5568; margin-top: 8px; }
+  .legend-grad {
+    width: 220px; height: 14px; border-radius: 3px;
+    background: linear-gradient(to right, #fed7d7 0%, #fefcbf 50%, #c6f6d5 100%);
+    border: 1px solid #cbd5e0;
+  }
+
+  .small { font-size: 12px; color: #718096; }
+  .hint  { font-size: 12px; color: #4a5568; font-style: italic; }
+  ul.notes { margin: 6px 0 0 0; padding-left: 20px; color: #4a5568; font-size: 13px; line-height: 1.7; }
+  ul.notes li { margin: 4px 0; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-vectors/visualization.html">← L1: Vector chính thức</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Dot product + Cosine similarity</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-norm-distance/visualization.html">L3: Norm và khoảng cách →</a>
+</nav>
+
+<main>
+  <h1>Lesson 02 — Dot product + Cosine similarity</h1>
+  <p class="intro">
+    Bốn component tương tác để thấy <strong>dot product</strong> và <strong>cosine similarity</strong> hoạt động.
+    Kéo các vector trên canvas để thấy số liệu cập nhật theo thời gian thực.
+  </p>
+
+  <!-- =================== 1. Dot product playground =================== -->
+  <h2>1. Dot product 2D — Đại số vs. Hình học</h2>
+  <p class="intro">
+    Kéo đầu mũi tên <strong style="color:#3182ce">u</strong> và <strong style="color:#dd6b20">v</strong> để thay đổi vector. Hai cách tính <code>u·v</code> luôn cho cùng một số.
+  </p>
+  <div class="card">
+    <div class="row">
+      <div class="col">
+        <canvas id="dotCanvas" class="plot" width="520" height="520"></canvas>
+        <div class="hint">Kéo đầu mũi tên xanh (u) hoặc cam (v). Hai vector luôn xuất phát từ gốc tọa độ.</div>
+      </div>
+      <div class="col">
+        <div class="stats" id="dotStats"></div>
+        <ul class="notes">
+          <li><span class="label same">u · v &gt; 0</span> → góc nhọn, hai vector "đi chung hướng".</li>
+          <li><span class="label perp">u · v = 0</span> → vuông góc, "không liên quan".</li>
+          <li><span class="label opp">u · v &lt; 0</span> → góc tù, "đi ngược hướng".</li>
+          <li>Hai cách tính (đại số <code>Σuᵢvᵢ</code> và hình học <code>|u||v|cosθ</code>) luôn cho cùng kết quả — đó là định lý.</li>
+        </ul>
+        <div style="margin-top:12px">
+          <button onclick="setDot(4,0,3,0)">Cùng hướng (θ=0°)</button>
+          <button onclick="setDot(4,0,0,3)">Vuông góc (θ=90°)</button>
+          <button onclick="setDot(4,0,-3,0)">Ngược hướng (θ=180°)</button>
+          <button onclick="setDot(4,0,3,3)" class="ghost">Góc 45°</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== 2. Cosine similarity =================== -->
+  <h2>2. Cosine similarity — Đo "cùng hướng" bỏ qua độ lớn</h2>
+  <p class="intro">
+    Cosine similarity chuẩn hóa dot product bằng cách chia cho <code>|u|·|v|</code>. Kết quả ∈ [-1, 1].
+    Để ý: khi bạn <em>scale</em> một vector (giữ hướng), cos_sim KHÔNG đổi, dù dot product thay đổi.
+  </p>
+  <div class="card">
+    <div class="row">
+      <div class="col">
+        <canvas id="cosCanvas" class="plot" width="520" height="520"></canvas>
+      </div>
+      <div class="col">
+        <div class="stats" id="cosStats"></div>
+        <div id="cosLabel" style="margin-top:14px"></div>
+        <ul class="notes">
+          <li>cos_sim = 1: cùng hướng hoàn toàn.</li>
+          <li>cos_sim ≈ 0: vuông góc, "không liên quan".</li>
+          <li>cos_sim = -1: ngược hướng hoàn toàn.</li>
+          <li>Khi <code>|u| = |v| = 1</code> (đã normalize) → cos_sim = u·v trực tiếp.</li>
+        </ul>
+        <div style="margin-top:12px">
+          <button onclick="setCos(3,0,3,0)">cos = 1</button>
+          <button onclick="setCos(3,0,3,3)">cos ≈ 0.707</button>
+          <button onclick="setCos(3,0,0,3)">cos = 0</button>
+          <button onclick="setCos(3,0,-3,0)">cos = -1</button>
+          <button class="ghost" onclick="setCos(1,0,10,0)">Scale-invariance test</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== 3. Projection visualizer =================== -->
+  <h2>3. Projection — Hình chiếu của u lên v</h2>
+  <p class="intro">
+    <code>proj_v(u) = ((u·v)/|v|²)·v</code>. Kéo u (xanh) và v (cam). Đường nét đứt là phần dư <code>u − proj_v(u)</code>, luôn vuông góc với v.
+  </p>
+  <div class="card">
+    <div class="row">
+      <div class="col">
+        <canvas id="projCanvas" class="plot" width="520" height="520"></canvas>
+      </div>
+      <div class="col">
+        <div class="stats" id="projStats"></div>
+        <ul class="notes">
+          <li>Vector <strong style="color:#9f7aea">proj_v(u)</strong> nằm trên đường thẳng chứa v.</li>
+          <li>Đường <strong style="color:#a0aec0">nét đứt</strong> là <code>u − proj_v(u)</code>, vuông góc với v.</li>
+          <li>Khi u và v cùng phương, proj_v(u) = u (toàn bộ u trùng với bóng).</li>
+          <li>Khi u ⊥ v, proj_v(u) = 0 (vector không có "thành phần" theo hướng v).</li>
+        </ul>
+        <div style="margin-top:12px">
+          <button onclick="setProj(3,4,5,0)">u=(3,4), v=(5,0)</button>
+          <button onclick="setProj(2,2,4,0)">Góc 45°</button>
+          <button onclick="setProj(3,0,3,3)">u nằm trên Ox</button>
+          <button class="ghost" onclick="setProj(0,4,3,0)">u ⊥ v</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== 4. Embedding heatmap =================== -->
+  <h2>4. Embedding similarity heatmap — Mô phỏng word embedding 4D</h2>
+  <p class="intro">
+    6 "embedding" 4D giả lập đại diện cho 6 từ. Heatmap thể hiện cosine similarity từng cặp.
+    Click vào ô bất kỳ để xem chi tiết phép tính (giá trị embedding + công thức).
+  </p>
+  <div class="card">
+    <div class="row">
+      <div class="col" style="flex: 1 1 480px">
+        <table class="heat" id="heatTable"></table>
+        <div class="legend-bar">
+          <span>-1 (ngược hướng)</span>
+          <div class="legend-grad"></div>
+          <span>+1 (cùng hướng)</span>
+        </div>
+        <div class="hint" style="margin-top:8px">Click một ô không phải đường chéo để xem chi tiết.</div>
+      </div>
+      <div class="col">
+        <h3 style="margin-top: 0">Embedding (toy data)</h3>
+        <div class="stats" id="embList"></div>
+        <div id="cellDetail" class="detail-panel" style="display:none"></div>
+      </div>
+    </div>
+    <p class="small" style="margin-top: 16px">
+      <strong>Lưu ý</strong>: đây là embedding 4D giả lập (toy). Embedding thật từ OpenAI/SBERT có 384–3072 chiều,
+      mỗi tọa độ không tương ứng "trục có nghĩa" nào — mô hình phân phối thông tin qua nhiều trục cùng lúc.
+      Cosine similarity giữa embedding thật vẫn được tính theo CÙNG công thức bạn thấy ở đây, chỉ là vector cao chiều hơn.
+    </p>
+  </div>
+</main>
+
+<script>
+/* ==================== Shared helpers ==================== */
+function fmt(x, d) { d = d == null ? 3 : d; return (Math.abs(x) < 1e-12 ? 0 : x).toFixed(d); }
+function norm(v) { let s = 0; for (const x of v) s += x*x; return Math.sqrt(s); }
+function dot(a, b) { let s = 0; for (let i = 0; i < a.length; i++) s += a[i]*b[i]; return s; }
+
+/* Canvas with origin at center, y up. */
+function setupAxes(ctx, W, H, range) {
+  ctx.clearRect(0, 0, W, H);
+  const cx = W/2, cy = H/2;
+  const scale = (Math.min(W, H) - 50) / (2*range);
+
+  // grid
+  ctx.strokeStyle = '#edf2f7';
+  ctx.lineWidth = 1;
+  for (let i = -range; i <= range; i++) {
+    if (i === 0) continue;
+    ctx.beginPath();
+    ctx.moveTo(cx + i*scale, 0); ctx.lineTo(cx + i*scale, H);
+    ctx.moveTo(0, cy - i*scale); ctx.lineTo(W, cy - i*scale);
+    ctx.stroke();
+  }
+  // axes
+  ctx.strokeStyle = '#a0aec0';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(0, cy); ctx.lineTo(W, cy);
+  ctx.moveTo(cx, 0); ctx.lineTo(cx, H);
+  ctx.stroke();
+  // labels
+  ctx.fillStyle = '#a0aec0';
+  ctx.font = '11px sans-serif';
+  for (let i = -range; i <= range; i++) {
+    if (i === 0) continue;
+    ctx.fillText(i, cx + i*scale + 2, cy + 12);
+    ctx.fillText(i, cx + 4, cy - i*scale + 4);
+  }
+  return { cx, cy, scale,
+    toX: (x) => cx + x*scale,
+    toY: (y) => cy - y*scale,
+    fromX: (px) => (px - cx) / scale,
+    fromY: (py) => -(py - cy) / scale
+  };
+}
+
+function drawArrow(ctx, x0, y0, x1, y1, color, lw) {
+  ctx.strokeStyle = color; ctx.fillStyle = color;
+  ctx.lineWidth = lw || 2.5;
+  ctx.beginPath();
+  ctx.moveTo(x0, y0); ctx.lineTo(x1, y1);
+  ctx.stroke();
+  const ang = Math.atan2(y1 - y0, x1 - x0);
+  const ah = 10;
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x1 - ah*Math.cos(ang - 0.4), y1 - ah*Math.sin(ang - 0.4));
+  ctx.lineTo(x1 - ah*Math.cos(ang + 0.4), y1 - ah*Math.sin(ang + 0.4));
+  ctx.closePath();
+  ctx.fill();
+}
+
+function drawHandle(ctx, x, y, color) {
+  ctx.fillStyle = '#fff';
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(x, y, 7, 0, Math.PI*2);
+  ctx.fill(); ctx.stroke();
+}
+
+function drawLabel(ctx, text, x, y, color) {
+  ctx.font = 'bold 14px sans-serif';
+  ctx.fillStyle = color;
+  ctx.fillText(text, x + 8, y - 8);
+}
+
+/* Dragging logic shared. */
+function attachDrag(canvas, getHandles, onMove) {
+  let dragging = null;
+  function findHit(e) {
+    const r = canvas.getBoundingClientRect();
+    const sx = canvas.width / r.width, sy = canvas.height / r.height;
+    const px = (e.clientX - r.left) * sx, py = (e.clientY - r.top) * sy;
+    const handles = getHandles();
+    for (const h of handles) {
+      if ((h.px - px)**2 + (h.py - py)**2 <= 20*20) return { h, px, py };
+    }
+    return null;
+  }
+  canvas.addEventListener('pointerdown', e => {
+    const hit = findHit(e);
+    if (hit) {
+      dragging = hit.h;
+      canvas.setPointerCapture(e.pointerId);
+    }
+  });
+  canvas.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const r = canvas.getBoundingClientRect();
+    const sx = canvas.width / r.width, sy = canvas.height / r.height;
+    const px = (e.clientX - r.left) * sx, py = (e.clientY - r.top) * sy;
+    onMove(dragging, px, py);
+  });
+  canvas.addEventListener('pointerup', e => { dragging = null; });
+  canvas.addEventListener('pointercancel', e => { dragging = null; });
+}
+
+/* ==================== 1. Dot product playground ==================== */
+const dotCanvas = document.getElementById('dotCanvas');
+const dotCtx = dotCanvas.getContext('2d');
+let dotState = { u: [4, 0], v: [3, 2] };
+
+function renderDot() {
+  const W = dotCanvas.width, H = dotCanvas.height;
+  const ax = setupAxes(dotCtx, W, H, 6);
+  const u = dotState.u, v = dotState.v;
+  // arc to show angle
+  const au = Math.atan2(u[1], u[0]);
+  const av = Math.atan2(v[1], v[0]);
+  let theta = Math.abs(av - au);
+  if (theta > Math.PI) theta = 2*Math.PI - theta;
+  const arcR = 30;
+  dotCtx.strokeStyle = '#a0aec0';
+  dotCtx.lineWidth = 1.5;
+  dotCtx.beginPath();
+  dotCtx.arc(ax.cx, ax.cy, arcR, -Math.max(au, av), -Math.min(au, av));
+  dotCtx.stroke();
+  // arrows
+  drawArrow(dotCtx, ax.cx, ax.cy, ax.toX(u[0]), ax.toY(u[1]), '#3182ce', 3);
+  drawArrow(dotCtx, ax.cx, ax.cy, ax.toX(v[0]), ax.toY(v[1]), '#dd6b20', 3);
+  drawLabel(dotCtx, 'u', ax.toX(u[0]), ax.toY(u[1]), '#3182ce');
+  drawLabel(dotCtx, 'v', ax.toX(v[0]), ax.toY(v[1]), '#dd6b20');
+  drawHandle(dotCtx, ax.toX(u[0]), ax.toY(u[1]), '#3182ce');
+  drawHandle(dotCtx, ax.toX(v[0]), ax.toY(v[1]), '#dd6b20');
+  // theta label
+  const midA = (au + av) / 2;
+  dotCtx.fillStyle = '#2d3748';
+  dotCtx.font = '12px sans-serif';
+  dotCtx.fillText('θ', ax.cx + (arcR+12)*Math.cos(midA), ax.cy - (arcR+12)*Math.sin(midA));
+
+  // stats
+  const nu = norm(u), nv = norm(v);
+  const d = dot(u, v);
+  let cosT = (nu*nv === 0) ? 0 : d / (nu * nv);
+  cosT = Math.max(-1, Math.min(1, cosT));
+  const deg = Math.acos(cosT) * 180 / Math.PI;
+  const algEx = `${u[0]}·${v[0]} + ${u[1]}·${v[1]} = ${fmt(u[0]*v[0],2)} + ${fmt(u[1]*v[1],2)} = ${fmt(d,3)}`;
+  const geoEx = `${fmt(nu,3)} · ${fmt(nv,3)} · cos(${fmt(deg,2)}°) = ${fmt(nu*nv*cosT,3)}`;
+  let cls = 'neu';
+  if (d > 0.01) cls = 'pos';
+  else if (d < -0.01) cls = 'neg';
+  document.getElementById('dotStats').innerHTML =
+    `<span class="key">u</span> = (${fmt(u[0],2)}, ${fmt(u[1],2)})    |u| = ${fmt(nu,3)}\n` +
+    `<span class="key">v</span> = (${fmt(v[0],2)}, ${fmt(v[1],2)})    |v| = ${fmt(nv,3)}\n` +
+    `θ = ${fmt(deg,2)}°    cos θ = ${fmt(cosT,4)}\n\n` +
+    `<span class="key">Đại số:</span>  u·v = ${algEx}\n` +
+    `<span class="key">Hình học:</span> |u|·|v|·cosθ = ${geoEx}\n` +
+    `\n→ <span class="acc">u·v = ${fmt(d,3)}</span>   (<span class="${cls}">${cls==='pos'?'dương → góc nhọn':cls==='neg'?'âm → góc tù':'≈ 0 → vuông góc'}</span>)`;
+}
+function setDot(ux, uy, vx, vy) {
+  dotState.u = [ux, uy]; dotState.v = [vx, vy];
+  renderDot();
+}
+attachDrag(dotCanvas, () => {
+  const ax = { cx: dotCanvas.width/2, cy: dotCanvas.height/2, scale: (Math.min(dotCanvas.width, dotCanvas.height) - 50)/12 };
+  return [
+    { which: 'u', px: ax.cx + dotState.u[0]*ax.scale, py: ax.cy - dotState.u[1]*ax.scale },
+    { which: 'v', px: ax.cx + dotState.v[0]*ax.scale, py: ax.cy - dotState.v[1]*ax.scale }
+  ];
+}, (h, px, py) => {
+  const ax = { cx: dotCanvas.width/2, cy: dotCanvas.height/2, scale: (Math.min(dotCanvas.width, dotCanvas.height) - 50)/12 };
+  let x = (px - ax.cx) / ax.scale;
+  let y = -(py - ax.cy) / ax.scale;
+  x = Math.max(-6, Math.min(6, Math.round(x*10)/10));
+  y = Math.max(-6, Math.min(6, Math.round(y*10)/10));
+  if (h.which === 'u') dotState.u = [x, y];
+  else dotState.v = [x, y];
+  renderDot();
+});
+renderDot();
+
+/* ==================== 2. Cosine similarity ==================== */
+const cosCanvas = document.getElementById('cosCanvas');
+const cosCtx = cosCanvas.getContext('2d');
+let cosState = { u: [3, 1], v: [2, 3] };
+
+function renderCos() {
+  const W = cosCanvas.width, H = cosCanvas.height;
+  const ax = setupAxes(cosCtx, W, H, 6);
+  const u = cosState.u, v = cosState.v;
+  // unit-vector overlay (yellow dashed)
+  const nu = norm(u), nv = norm(v);
+  if (nu > 0.01) {
+    cosCtx.strokeStyle = '#bee3f8';
+    cosCtx.setLineDash([4, 4]);
+    cosCtx.lineWidth = 1.5;
+    cosCtx.beginPath();
+    cosCtx.moveTo(ax.cx, ax.cy);
+    cosCtx.lineTo(ax.toX(u[0]/nu*5), ax.toY(u[1]/nu*5));
+    cosCtx.stroke();
+  }
+  if (nv > 0.01) {
+    cosCtx.strokeStyle = '#feebc8';
+    cosCtx.beginPath();
+    cosCtx.moveTo(ax.cx, ax.cy);
+    cosCtx.lineTo(ax.toX(v[0]/nv*5), ax.toY(v[1]/nv*5));
+    cosCtx.stroke();
+  }
+  cosCtx.setLineDash([]);
+
+  drawArrow(cosCtx, ax.cx, ax.cy, ax.toX(u[0]), ax.toY(u[1]), '#3182ce', 3);
+  drawArrow(cosCtx, ax.cx, ax.cy, ax.toX(v[0]), ax.toY(v[1]), '#dd6b20', 3);
+  drawLabel(cosCtx, 'u', ax.toX(u[0]), ax.toY(u[1]), '#3182ce');
+  drawLabel(cosCtx, 'v', ax.toX(v[0]), ax.toY(v[1]), '#dd6b20');
+  drawHandle(cosCtx, ax.toX(u[0]), ax.toY(u[1]), '#3182ce');
+  drawHandle(cosCtx, ax.toX(v[0]), ax.toY(v[1]), '#dd6b20');
+
+  const d = dot(u, v);
+  let cosT = (nu*nv === 0) ? 0 : d / (nu*nv);
+  cosT = Math.max(-1, Math.min(1, cosT));
+  const deg = Math.acos(cosT) * 180 / Math.PI;
+  let labelClass, labelText;
+  if (cosT > 0.95)      { labelClass = 'same';  labelText = 'Cùng hướng (cos ≈ 1)'; }
+  else if (cosT < -0.95){ labelClass = 'opp';   labelText = 'Ngược hướng (cos ≈ -1)'; }
+  else if (Math.abs(cosT) < 0.05){ labelClass = 'perp'; labelText = 'Vuông góc (cos ≈ 0)'; }
+  else if (cosT > 0)    { labelClass = 'other'; labelText = `Góc nhọn — khá giống (cos = ${fmt(cosT,2)})`; }
+  else                  { labelClass = 'other'; labelText = `Góc tù — khá khác (cos = ${fmt(cosT,2)})`; }
+
+  document.getElementById('cosStats').innerHTML =
+    `<span class="key">u</span> = (${fmt(u[0],2)}, ${fmt(u[1],2)})   |u| = ${fmt(nu,3)}\n` +
+    `<span class="key">v</span> = (${fmt(v[0],2)}, ${fmt(v[1],2)})   |v| = ${fmt(nv,3)}\n` +
+    `\nu · v = ${fmt(d,3)}\n` +
+    `cos_sim = (u·v) / (|u|·|v|)\n` +
+    `        = ${fmt(d,3)} / (${fmt(nu,3)} · ${fmt(nv,3)})\n` +
+    `        = <span class="acc">${fmt(cosT,4)}</span>\n` +
+    `\nθ = arccos(${fmt(cosT,3)}) = ${fmt(deg,2)}°\n` +
+    `\n<span class="neu">Đường nét đứt = unit vector của u, v</span>`;
+
+  document.getElementById('cosLabel').innerHTML = `<span class="label ${labelClass}">${labelText}</span>`;
+}
+function setCos(ux, uy, vx, vy) {
+  cosState.u = [ux, uy]; cosState.v = [vx, vy];
+  renderCos();
+}
+attachDrag(cosCanvas, () => {
+  const ax = { cx: cosCanvas.width/2, cy: cosCanvas.height/2, scale: (Math.min(cosCanvas.width, cosCanvas.height) - 50)/12 };
+  return [
+    { which: 'u', px: ax.cx + cosState.u[0]*ax.scale, py: ax.cy - cosState.u[1]*ax.scale },
+    { which: 'v', px: ax.cx + cosState.v[0]*ax.scale, py: ax.cy - cosState.v[1]*ax.scale }
+  ];
+}, (h, px, py) => {
+  const ax = { cx: cosCanvas.width/2, cy: cosCanvas.height/2, scale: (Math.min(cosCanvas.width, cosCanvas.height) - 50)/12 };
+  let x = Math.max(-6, Math.min(6, Math.round((px - ax.cx)/ax.scale*10)/10));
+  let y = Math.max(-6, Math.min(6, Math.round(-(py - ax.cy)/ax.scale*10)/10));
+  if (h.which === 'u') cosState.u = [x, y];
+  else cosState.v = [x, y];
+  renderCos();
+});
+renderCos();
+
+/* ==================== 3. Projection ==================== */
+const projCanvas = document.getElementById('projCanvas');
+const projCtx = projCanvas.getContext('2d');
+let projState = { u: [3, 4], v: [5, 0] };
+
+function renderProj() {
+  const W = projCanvas.width, H = projCanvas.height;
+  const ax = setupAxes(projCtx, W, H, 6);
+  const u = projState.u, v = projState.v;
+  const vv = dot(v, v);
+  const alpha = vv === 0 ? 0 : dot(u, v) / vv;
+  const p = [alpha*v[0], alpha*v[1]];
+
+  // line through v (extended)
+  if (vv > 0.01) {
+    const nv = norm(v);
+    const ux_v = v[0]/nv, uy_v = v[1]/nv;
+    projCtx.strokeStyle = '#fed7aa';
+    projCtx.lineWidth = 1.5;
+    projCtx.setLineDash([6, 4]);
+    projCtx.beginPath();
+    projCtx.moveTo(ax.toX(-8*ux_v), ax.toY(-8*uy_v));
+    projCtx.lineTo(ax.toX(8*ux_v), ax.toY(8*uy_v));
+    projCtx.stroke();
+    projCtx.setLineDash([]);
+  }
+  // perpendicular from u to projection
+  projCtx.strokeStyle = '#a0aec0';
+  projCtx.lineWidth = 1.5;
+  projCtx.setLineDash([5, 5]);
+  projCtx.beginPath();
+  projCtx.moveTo(ax.toX(u[0]), ax.toY(u[1]));
+  projCtx.lineTo(ax.toX(p[0]), ax.toY(p[1]));
+  projCtx.stroke();
+  projCtx.setLineDash([]);
+
+  // arrows
+  drawArrow(projCtx, ax.cx, ax.cy, ax.toX(v[0]), ax.toY(v[1]), '#dd6b20', 3);
+  drawArrow(projCtx, ax.cx, ax.cy, ax.toX(u[0]), ax.toY(u[1]), '#3182ce', 3);
+  drawArrow(projCtx, ax.cx, ax.cy, ax.toX(p[0]), ax.toY(p[1]), '#9f7aea', 4);
+  drawLabel(projCtx, 'u', ax.toX(u[0]), ax.toY(u[1]), '#3182ce');
+  drawLabel(projCtx, 'v', ax.toX(v[0]), ax.toY(v[1]), '#dd6b20');
+  drawLabel(projCtx, 'proj_v(u)', ax.toX(p[0]), ax.toY(p[1]), '#9f7aea');
+  drawHandle(projCtx, ax.toX(u[0]), ax.toY(u[1]), '#3182ce');
+  drawHandle(projCtx, ax.toX(v[0]), ax.toY(v[1]), '#dd6b20');
+
+  const resid = [u[0]-p[0], u[1]-p[1]];
+  document.getElementById('projStats').innerHTML =
+    `<span class="key">u</span> = (${fmt(u[0],2)}, ${fmt(u[1],2)})\n` +
+    `<span class="key">v</span> = (${fmt(v[0],2)}, ${fmt(v[1],2)})\n\n` +
+    `u·v = ${fmt(dot(u,v),3)}\n` +
+    `v·v = |v|² = ${fmt(vv,3)}\n` +
+    `α = (u·v)/(v·v) = ${fmt(alpha,4)}\n\n` +
+    `<span class="acc">proj_v(u)</span> = α·v = (${fmt(p[0],3)}, ${fmt(p[1],3)})\n` +
+    `|proj_v(u)| = ${fmt(norm(p),3)}\n\n` +
+    `<span class="neu">Phần dư</span> u − proj_v(u) = (${fmt(resid[0],3)}, ${fmt(resid[1],3)})\n` +
+    `(u − proj_v(u))·v = ${fmt(dot(resid, v), 4)}  ← phải ≈ 0`;
+}
+function setProj(ux, uy, vx, vy) {
+  projState.u = [ux, uy]; projState.v = [vx, vy];
+  renderProj();
+}
+attachDrag(projCanvas, () => {
+  const ax = { cx: projCanvas.width/2, cy: projCanvas.height/2, scale: (Math.min(projCanvas.width, projCanvas.height) - 50)/12 };
+  return [
+    { which: 'u', px: ax.cx + projState.u[0]*ax.scale, py: ax.cy - projState.u[1]*ax.scale },
+    { which: 'v', px: ax.cx + projState.v[0]*ax.scale, py: ax.cy - projState.v[1]*ax.scale }
+  ];
+}, (h, px, py) => {
+  const ax = { cx: projCanvas.width/2, cy: projCanvas.height/2, scale: (Math.min(projCanvas.width, projCanvas.height) - 50)/12 };
+  let x = Math.max(-6, Math.min(6, Math.round((px - ax.cx)/ax.scale*10)/10));
+  let y = Math.max(-6, Math.min(6, Math.round(-(py - ax.cy)/ax.scale*10)/10));
+  if (h.which === 'u') projState.u = [x, y];
+  else projState.v = [x, y];
+  renderProj();
+});
+renderProj();
+
+/* ==================== 4. Embedding heatmap ==================== */
+const embeddings = [
+  { name: 'cat',     vec: [0.81, 0.59, 0.02, 0.03] },
+  { name: 'dog',     vec: [0.78, 0.62, 0.08, 0.05] },
+  { name: 'apple',   vec: [0.10, 0.20, 0.92, 0.30] },
+  { name: 'banana',  vec: [0.12, 0.18, 0.90, 0.35] },
+  { name: 'car',     vec: [0.05, 0.07, 0.30, 0.95] },
+  { name: 'plane',   vec: [0.08, 0.10, 0.32, 0.94] },
+];
+// normalize all
+embeddings.forEach(e => {
+  const n = norm(e.vec);
+  e.vec = e.vec.map(x => x / n);
+});
+
+function cosSim(a, b) {
+  return dot(a.vec, b.vec) / (norm(a.vec) * norm(b.vec));
+}
+
+function colorFor(c) {
+  // -1 → red, 0 → yellow, 1 → green
+  // interp between #fed7d7 → #fefcbf → #c6f6d5
+  const v = Math.max(-1, Math.min(1, c));
+  let r, g, b;
+  if (v < 0) {
+    const t = (v + 1); // 0 → 1
+    r = 254 + (254 - 254)*t;
+    g = 215 + (252 - 215)*t;
+    b = 215 + (191 - 215)*t;
+  } else {
+    const t = v;
+    r = 254 + (198 - 254)*t;
+    g = 252 + (246 - 252)*t;
+    b = 191 + (213 - 191)*t;
+  }
+  return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+}
+
+function buildHeatmap() {
+  const tbl = document.getElementById('heatTable');
+  let html = '<tr><th></th>';
+  for (const e of embeddings) html += `<th>${e.name}</th>`;
+  html += '</tr>';
+  for (let i = 0; i < embeddings.length; i++) {
+    html += `<tr><th>${embeddings[i].name}</th>`;
+    for (let j = 0; j < embeddings.length; j++) {
+      if (i === j) {
+        html += `<td class="diag">1.00</td>`;
+      } else {
+        const c = cosSim(embeddings[i], embeddings[j]);
+        html += `<td data-i="${i}" data-j="${j}" style="background:${colorFor(c)}">${fmt(c,3)}</td>`;
+      }
+    }
+    html += '</tr>';
+  }
+  tbl.innerHTML = html;
+  tbl.querySelectorAll('td[data-i]').forEach(td => {
+    td.addEventListener('click', () => {
+      tbl.querySelectorAll('td.selected').forEach(x => x.classList.remove('selected'));
+      td.classList.add('selected');
+      showCellDetail(+td.dataset.i, +td.dataset.j);
+    });
+  });
+}
+
+function showCellDetail(i, j) {
+  const a = embeddings[i], b = embeddings[j];
+  const av = a.vec, bv = b.vec;
+  const terms = av.map((x, k) => `${fmt(x,3)}·${fmt(bv[k],3)}`);
+  const products = av.map((x, k) => x*bv[k]);
+  const d = products.reduce((s, x) => s + x, 0);
+  const na = norm(av), nb = norm(bv);
+  const c = d / (na * nb);
+  const html =
+    `<strong>${a.name}</strong> = (${av.map(x => fmt(x,3)).join(', ')})    |${a.name}| = ${fmt(na,3)}\n` +
+    `<strong>${b.name}</strong> = (${bv.map(x => fmt(x,3)).join(', ')})    |${b.name}| = ${fmt(nb,3)}\n` +
+    `\n${a.name} · ${b.name}\n` +
+    `  = ${terms.join(' + ')}\n` +
+    `  = ${products.map(x => fmt(x,3)).join(' + ')}\n` +
+    `  = <span style="color:#b794f4;font-weight:700">${fmt(d,4)}</span>\n` +
+    `\ncos_sim = ${fmt(d,4)} / (${fmt(na,3)} · ${fmt(nb,3)})\n` +
+    `        = <span style="color:#b794f4;font-weight:700">${fmt(c,4)}</span>\n` +
+    `\n→ ${c > 0.9 ? 'Rất giống' : c > 0.5 ? 'Khá giống' : c > 0.2 ? 'Yếu' : 'Gần như không liên quan'}.`;
+  const panel = document.getElementById('cellDetail');
+  panel.style.display = 'block';
+  panel.innerHTML = `<pre style="margin:0;white-space:pre-wrap;font-family:inherit">${html}</pre>`;
+}
+
+function showEmbList() {
+  const lines = embeddings.map(e => `<span class="key">${e.name.padEnd(7)}</span> = (${e.vec.map(x => fmt(x,3)).join(', ')})`).join('\n');
+  document.getElementById('embList').innerHTML = lines;
+}
+
+showEmbList();
+buildHeatmap();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+</body>
+</html>

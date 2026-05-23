@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 11 — GDP & Các thước đo</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  main { max-width: 1040px; margin: 0 auto; padding: 24px; }
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .lead { color: #4a5568; margin-bottom: 24px; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 200px; }
+  input[type="number"] { font-family: monospace; padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 4px; width: 110px; }
+  .result { background: #f7fafc; border-left: 4px solid #c05621; padding: 14px 18px; margin-top: 14px; border-radius: 4px; font-family: monospace; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; background: #fff5eb; color: #c05621; font-weight: 700; margin-left: 6px; }
+  table { width: 100%; border-collapse: collapse; font-family: monospace; font-size: 14px; }
+  th, td { padding: 7px 10px; border-bottom: 1px solid #e2e8f0; text-align: right; }
+  th { background: #edf2f7; }
+  th:first-child, td:first-child { text-align: left; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../Tier2-Microeconomics/lesson-10-labor-capital/visualization.html">← L10: Labor & Capital</a>
+  <span class="sep">·</span>
+  <span class="current">L11: GDP</span>
+  <span class="sep">·</span>
+  <a href="../lesson-12-growth-models/visualization.html">L12: Growth →</a>
+</nav>
+
+<main>
+  <h1>Lesson 11 — GDP & Các thước đo</h1>
+  <div class="lead">Máy tính GDP qua cách chi tiêu, so sánh Nominal vs Real GDP, và deflator/CPI giữa hai năm.</div>
+
+  <h2>1. GDP cách chi tiêu <span class="pill">C + I + G + (X − M)</span></h2>
+  <div class="card">
+    <div class="row"><label>C (tiêu dùng)</label><input id="c" type="number" value="500" step="10"></div>
+    <div class="row"><label>I (đầu tư)</label><input id="i" type="number" value="120" step="10"></div>
+    <div class="row"><label>G (chính phủ)</label><input id="g" type="number" value="80" step="10"></div>
+    <div class="row"><label>X (xuất khẩu)</label><input id="x" type="number" value="90" step="10"></div>
+    <div class="row"><label>M (nhập khẩu)</label><input id="m" type="number" value="110" step="10"></div>
+    <div class="result" id="gdp-out"></div>
+  </div>
+
+  <h2>2. Nominal vs Real GDP <span class="pill">2 hàng hóa, 2 năm</span></h2>
+  <div class="card">
+    <p>Giả sử nền kinh tế chỉ có 2 hàng. Năm gốc = 2020.</p>
+    <table>
+      <tr><th></th><th>P apple 2020</th><th>Q apple 2020</th><th>P apple 2025</th><th>Q apple 2025</th></tr>
+      <tr><th>Apple</th>
+        <td><input id="pa0" type="number" value="5" style="width:70px"></td>
+        <td><input id="qa0" type="number" value="1000" style="width:70px"></td>
+        <td><input id="pa1" type="number" value="7" style="width:70px"></td>
+        <td><input id="qa1" type="number" value="1100" style="width:70px"></td>
+      </tr>
+      <tr><th>Orange</th>
+        <td><input id="po0" type="number" value="8" style="width:70px"></td>
+        <td><input id="qo0" type="number" value="500" style="width:70px"></td>
+        <td><input id="po1" type="number" value="10" style="width:70px"></td>
+        <td><input id="qo1" type="number" value="600" style="width:70px"></td>
+      </tr>
+    </table>
+    <div class="result" id="real-out"></div>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+function get(id) { return parseFloat($(id).value) || 0; }
+
+function calcGDP() {
+  const C = get('c'), I = get('i'), G = get('g'), X = get('x'), M = get('m');
+  const gdp = C + I + G + X - M;
+  const NX = X - M;
+  $('gdp-out').innerHTML =
+    `GDP = C + I + G + (X − M)\n` +
+    `    = ${C} + ${I} + ${G} + (${X} − ${M})\n` +
+    `    = ${C} + ${I} + ${G} + (${NX >= 0 ? '+' : ''}${NX})\n` +
+    `    = <strong>${gdp}</strong>\n\n` +
+    `Cấu trúc:\n` +
+    `  C: ${(C/gdp*100).toFixed(1)}%\n` +
+    `  I: ${(I/gdp*100).toFixed(1)}%\n` +
+    `  G: ${(G/gdp*100).toFixed(1)}%\n` +
+    `  NX: ${(NX/gdp*100).toFixed(1)}% ${NX < 0 ? '(thâm hụt)' : '(thặng dư)'}`;
+}
+
+function calcReal() {
+  const pa0 = get('pa0'), qa0 = get('qa0'), pa1 = get('pa1'), qa1 = get('qa1');
+  const po0 = get('po0'), qo0 = get('qo0'), po1 = get('po1'), qo1 = get('qo1');
+
+  const nom0 = pa0 * qa0 + po0 * qo0;
+  const nom1 = pa1 * qa1 + po1 * qo1;
+  const real1 = pa0 * qa1 + po0 * qo1;
+  const deflator1 = (nom1 / real1) * 100;
+  const realGrowth = ((real1 - nom0) / nom0) * 100;
+  const nomGrowth = ((nom1 - nom0) / nom0) * 100;
+  const inflation = ((deflator1 - 100) / 100) * 100;
+
+  $('real-out').innerHTML =
+    `<strong>Năm gốc (2020):</strong>\n` +
+    `  Nominal = Real GDP = ${nom0.toFixed(0)}\n` +
+    `  Deflator = 100\n\n` +
+    `<strong>Năm 2025:</strong>\n` +
+    `  Nominal GDP = ${pa1}×${qa1} + ${po1}×${qo1} = ${nom1.toFixed(0)}\n` +
+    `  Real GDP (giá 2020) = ${pa0}×${qa1} + ${po0}×${qo1} = ${real1.toFixed(0)}\n` +
+    `  Deflator = ${nom1.toFixed(0)}/${real1.toFixed(0)} × 100 = ${deflator1.toFixed(1)}\n\n` +
+    `<strong>Phân tích tăng trưởng:</strong>\n` +
+    `  Tăng trưởng nominal: ${nomGrowth.toFixed(1)}%\n` +
+    `  Tăng trưởng thực: ${realGrowth.toFixed(1)}% ← đây là cái quan trọng\n` +
+    `  Lạm phát tổng (deflator): ${inflation.toFixed(1)}%\n\n` +
+    `Kiểm tra xấp xỉ: nominal ≈ real + lạm phát\n` +
+    `  ${realGrowth.toFixed(1)} + ${inflation.toFixed(1)} = ${(realGrowth + inflation).toFixed(1)} ≈ ${nomGrowth.toFixed(1)} ✓`;
+}
+
+['c','i','g','x','m'].forEach(id => $(id).addEventListener('input', calcGDP));
+['pa0','qa0','pa1','qa1','po0','qo0','po1','qo1'].forEach(id => $(id).addEventListener('input', calcReal));
+calcGDP(); calcReal();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+</body>
+</html>

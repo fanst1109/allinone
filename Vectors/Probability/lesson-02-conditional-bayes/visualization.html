@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Xác suất có điều kiện + Bayes</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  main { max-width: 1100px; margin: 0 auto; padding: 24px; }
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 24px; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; font-size: 16px; margin-top: 18px; }
+  .card {
+    background: white; border-radius: 8px; padding: 18px 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .card .desc { color: #4a5568; font-size: 14px; margin-bottom: 12px; }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; font-size: 14px; min-width: 120px; }
+  input[type="number"], input[type="text"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; padding: 6px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 100px;
+  }
+  input[type="range"] { width: 240px; vertical-align: middle; }
+  .slider-val {
+    display: inline-block; font-family: monospace;
+    background: #edf2f7; padding: 2px 8px; border-radius: 4px;
+    font-weight: 600; color: #2b6cb0; min-width: 60px; text-align: center;
+  }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 6px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.toggle { background: #e2e8f0; color: #2d3748; }
+  button.toggle.active { background: #4299e1; color: white; }
+  svg { display: block; background: #fdfdfd; border: 1px solid #e2e8f0; border-radius: 6px; }
+  .stat-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px; margin-top: 12px;
+  }
+  .stat {
+    background: #edf2f7; padding: 8px 12px; border-radius: 4px;
+    font-family: monospace; font-size: 13px;
+  }
+  .stat .name { color: #4a5568; font-size: 11px; }
+  .stat .val { color: #2b6cb0; font-weight: 700; font-size: 14px; }
+  table { border-collapse: collapse; margin: 8px 0; width: 100%; }
+  table td, table th {
+    padding: 5px 12px; border: 1px solid #e2e8f0;
+    font-family: monospace; font-size: 13px;
+  }
+  table th { background: #edf2f7; text-align: left; }
+  table tr.highlight td { background: #fef5e7; font-weight: 700; }
+  .formula {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    background: #1a202c; color: #cbf36b;
+    padding: 8px 12px; border-radius: 4px;
+    font-size: 14px; margin: 8px 0;
+    overflow-x: auto; white-space: pre;
+  }
+  .big-result {
+    font-size: 32px; font-weight: 800; color: #2b6cb0;
+    font-family: monospace;
+  }
+  .big-result.warn { color: #e53e3e; }
+  .big-result.ok { color: #38a169; }
+  .hint { color: #718096; font-size: 13px; font-style: italic; margin: 4px 0; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; margin-top: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-swatch { width: 14px; height: 14px; border-radius: 2px; display: inline-block; }
+  details { margin: 8px 0; }
+  summary { cursor: pointer; font-weight: 600; color: #2b6cb0; }
+  code { background: #edf2f7; padding: 1px 4px; border-radius: 3px; font-size: 13px; }
+  .word-pill {
+    display: inline-block; background: #edf2f7; padding: 4px 10px;
+    border-radius: 16px; margin: 3px; font-family: monospace; font-size: 13px;
+    cursor: pointer; border: 1px solid #cbd5e0;
+  }
+  .word-pill.active { background: #4299e1; color: white; border-color: #2b6cb0; }
+  .bar-row {
+    display: flex; align-items: center; gap: 8px; margin: 4px 0;
+    font-family: monospace; font-size: 13px;
+  }
+  .bar-row .lbl { min-width: 100px; font-weight: 600; }
+  .bar-row .barbox { flex: 1; background: #edf2f7; height: 24px; border-radius: 3px; position: relative; overflow: hidden; }
+  .bar-row .bar-fill {
+    height: 100%; background: linear-gradient(90deg, #4299e1, #3182ce);
+    transition: width 0.3s;
+  }
+  .bar-row .bar-fill.spam { background: linear-gradient(90deg, #e53e3e, #c53030); }
+  .bar-row .bar-fill.ham { background: linear-gradient(90deg, #38a169, #2f855a); }
+  .bar-row .val-text { min-width: 110px; font-size: 12px; color: #4a5568; }
+  .grid-10x10 {
+    display: grid; grid-template-columns: repeat(20, 18px);
+    gap: 2px; margin: 12px 0;
+  }
+  .person-cell {
+    width: 18px; height: 18px; border-radius: 2px;
+    background: #e2e8f0; transition: all 0.15s;
+  }
+  .person-cell.disease-tp { background: #c53030; }
+  .person-cell.disease-fn { background: #fbb6ce; border: 1px solid #c53030; }
+  .person-cell.healthy-tn { background: #c6f6d5; }
+  .person-cell.healthy-fp { background: #f6ad55; }
+  .col-legend {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;
+    font-size: 12px; margin-top: 6px;
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-probability-basics/visualization.html">← L1: Xác suất cơ bản</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Xác suất có điều kiện + Bayes</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-discrete-rv/visualization.html">L3: Biến ngẫu nhiên rời rạc →</a>
+</nav>
+
+<main>
+  <h1>Lesson 02 — Xác suất có điều kiện + Bayes</h1>
+  <div class="subtitle">4 component tương tác: Venn diagram 2-event, Medical test Bayes calculator, Naive Bayes spam demo, Tree diagram.</div>
+
+  <!-- =============================================================== -->
+  <!-- Component 1: Venn Diagram 2-event                               -->
+  <!-- =============================================================== -->
+  <h2>1. Venn diagram 2 biến cố — kéo để xem P(A|B), P(B|A), độc lập</h2>
+  <div class="card">
+    <div class="desc">
+      Kéo slider để chọn |A|, |B|, và |A ∩ B|. Vùng A là vòng tròn vàng,
+      B là vòng tròn xanh, vùng giao là gradient. Bên dưới hiển thị các xác suất
+      P(A|B) = P(A∩B)/P(B), P(B|A) = P(A∩B)/P(A), và check độc lập.
+    </div>
+    <div class="row">
+      <label>|Ω| (kích thước):</label>
+      <input type="range" id="venn-omega" min="10" max="100" step="1" value="40">
+      <span class="slider-val" id="venn-omega-val">40</span>
+    </div>
+    <div class="row">
+      <label>|A|:</label>
+      <input type="range" id="venn-a" min="1" max="40" step="1" value="20">
+      <span class="slider-val" id="venn-a-val">20</span>
+    </div>
+    <div class="row">
+      <label>|B|:</label>
+      <input type="range" id="venn-b" min="1" max="40" step="1" value="16">
+      <span class="slider-val" id="venn-b-val">16</span>
+    </div>
+    <div class="row">
+      <label>|A ∩ B|:</label>
+      <input type="range" id="venn-ab" min="0" max="20" step="1" value="8">
+      <span class="slider-val" id="venn-ab-val">8</span>
+    </div>
+    <svg id="venn-svg" width="700" height="380" viewBox="0 0 700 380"></svg>
+    <div id="venn-stats" class="stat-grid"></div>
+    <div id="venn-indep" style="margin-top: 12px; padding: 10px; border-radius: 4px;"></div>
+    <details>
+      <summary>💡 Hint — thử các trường hợp đặc biệt</summary>
+      <ul style="font-size: 13px; color: #4a5568;">
+        <li><strong>Độc lập</strong>: kéo |A|=20, |B|=10, |A∩B|=5 (với Ω=40) → P(A∩B)=5/40, P(A)·P(B)=(20/40)(10/40)=5/40 ✓.</li>
+        <li><strong>A ⊆ B</strong>: kéo |A∩B| = |A| → P(B|A) = 1.</li>
+        <li><strong>Disjoint</strong>: kéo |A∩B| = 0 → P(A|B) = P(B|A) = 0, KHÔNG độc lập (trừ khi P(A) hoặc P(B) = 0).</li>
+      </ul>
+    </details>
+  </div>
+
+  <!-- =============================================================== -->
+  <!-- Component 2: Medical Test Bayes Calculator                      -->
+  <!-- =============================================================== -->
+  <h2>2. Medical test — máy tính Bayes</h2>
+  <div class="card">
+    <div class="desc">
+      Kéo 3 thông số: <strong>prevalence</strong> (tỷ lệ mắc bệnh trong dân số),
+      <strong>sensitivity</strong> (P(test+|bệnh)), <strong>specificity</strong> (P(test−|không bệnh)).
+      Bên dưới hiển thị P(bệnh | test dương) realtime, kèm minh hoạ 10 000 người dân.
+    </div>
+    <div class="row">
+      <label>Prevalence P(D):</label>
+      <input type="range" id="med-prev" min="0.001" max="0.5" step="0.001" value="0.01">
+      <span class="slider-val" id="med-prev-val">1.0%</span>
+    </div>
+    <div class="row">
+      <label>Sensitivity:</label>
+      <input type="range" id="med-sens" min="0.5" max="1" step="0.01" value="0.99">
+      <span class="slider-val" id="med-sens-val">99%</span>
+    </div>
+    <div class="row">
+      <label>Specificity:</label>
+      <input type="range" id="med-spec" min="0.5" max="1" step="0.01" value="0.95">
+      <span class="slider-val" id="med-spec-val">95%</span>
+    </div>
+
+    <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 16px; align-items: center;">
+      <div>
+        <div class="hint">Posterior P(bệnh | test+):</div>
+        <div class="big-result" id="med-posterior">—</div>
+        <div class="hint" id="med-intuit"></div>
+      </div>
+      <div>
+        <div class="hint">Bayes step-by-step:</div>
+        <div class="formula" id="med-formula"></div>
+      </div>
+    </div>
+
+    <h3 style="margin-top: 20px;">Minh họa 10 000 người</h3>
+    <div class="hint">Mỗi ô = 25 người. Tô đỏ đậm = bệnh+test+ (true positive). Cam = không bệnh+test+ (false positive). Xanh = không bệnh+test− (true negative). Hồng = bệnh+test− (false negative).</div>
+    <div id="med-grid" class="grid-10x10"></div>
+    <div class="col-legend">
+      <div><span class="legend-swatch" style="background:#c53030"></span> Bệnh + Test+ (TP): <span id="med-tp">—</span></div>
+      <div><span class="legend-swatch" style="background:#f6ad55"></span> Không bệnh + Test+ (FP): <span id="med-fp">—</span></div>
+      <div><span class="legend-swatch" style="background:#c6f6d5"></span> Không bệnh + Test− (TN): <span id="med-tn">—</span></div>
+      <div><span class="legend-swatch" style="background:#fbb6ce; border:1px solid #c53030"></span> Bệnh + Test− (FN): <span id="med-fn">—</span></div>
+    </div>
+    <div class="hint" style="margin-top:8px;">
+      P(bệnh | test+) = TP / (TP + FP) — chỉ những người dương tính, có bao nhiêu thực sự có bệnh.
+    </div>
+
+    <h3>Các kịch bản đáng nhớ</h3>
+    <div class="row">
+      <button class="toggle" data-preset="classic">1%·99%·95% → 16,7%</button>
+      <button class="toggle" data-preset="midprev">10%·99%·95% → 68,7%</button>
+      <button class="toggle" data-preset="bad">1%·95%·90% → 8,8%</button>
+      <button class="toggle" data-preset="symmetric">50%·90%·90% → 90%</button>
+      <button class="toggle" data-preset="perfect">5%·100%·100% → 100%</button>
+    </div>
+  </div>
+
+  <!-- =============================================================== -->
+  <!-- Component 3: Naive Bayes Spam Demo                              -->
+  <!-- =============================================================== -->
+  <h2>3. Naive Bayes spam — phân loại email với 5 từ</h2>
+  <div class="card">
+    <div class="desc">
+      Đặt prior P(spam), bật/tắt từng từ có trong email, slider để chỉnh likelihood.
+      Posterior tính bằng Naive Bayes hiển thị realtime. Bấm nút bên dưới để chuyển sang log-space.
+    </div>
+    <div class="row">
+      <label>Prior P(spam):</label>
+      <input type="range" id="nb-prior" min="0.05" max="0.95" step="0.01" value="0.30">
+      <span class="slider-val" id="nb-prior-val">30%</span>
+    </div>
+    <h3>Likelihood của từng từ</h3>
+    <table id="nb-table">
+      <thead>
+        <tr><th>Từ</th><th>P(từ | spam)</th><th>P(từ | ham)</th><th>Trong email?</th></tr>
+      </thead>
+      <tbody id="nb-tbody"></tbody>
+    </table>
+    <div class="row" style="margin-top: 12px;">
+      <button id="nb-toggle-log" class="toggle">Bật log-space</button>
+      <button id="nb-reset" class="toggle">Reset</button>
+    </div>
+
+    <h3>Kết quả</h3>
+    <div id="nb-bars"></div>
+    <div class="formula" id="nb-formula"></div>
+    <div class="row" style="margin-top: 12px;">
+      <div>
+        <div class="hint">Phân loại:</div>
+        <div class="big-result" id="nb-verdict">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================================================== -->
+  <!-- Component 4: Tree Diagram                                       -->
+  <!-- =============================================================== -->
+  <h2>4. Tree diagram — 2 cấp với P trên mỗi nhánh</h2>
+  <div class="card">
+    <div class="desc">
+      Cây 2 cấp: gốc → "Có bệnh / Không bệnh" → "Test+ / Test−".
+      Mỗi nhánh có P. Sản phẩm dọc đường = P joint của outcome. Tổng 4 đường = 1.
+      Kéo slider để thấy cây thay đổi.
+    </div>
+    <div class="row">
+      <label>P(bệnh):</label>
+      <input type="range" id="tree-prev" min="0.01" max="0.5" step="0.01" value="0.01">
+      <span class="slider-val" id="tree-prev-val">1%</span>
+    </div>
+    <div class="row">
+      <label>P(test+|bệnh):</label>
+      <input type="range" id="tree-sens" min="0.5" max="1" step="0.01" value="0.99">
+      <span class="slider-val" id="tree-sens-val">99%</span>
+    </div>
+    <div class="row">
+      <label>P(test−|không bệnh):</label>
+      <input type="range" id="tree-spec" min="0.5" max="1" step="0.01" value="0.95">
+      <span class="slider-val" id="tree-spec-val">95%</span>
+    </div>
+    <svg id="tree-svg" width="900" height="440" viewBox="0 0 900 440"></svg>
+    <table id="tree-table">
+      <thead>
+        <tr><th>Outcome</th><th>P joint</th><th>P(bệnh | outcome)</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div class="hint">Sản phẩm các nhánh = P joint. Tổng 4 P joint phải = 1. P(bệnh | test+) = P(bệnh ∩ test+) / [P(bệnh ∩ test+) + P(không bệnh ∩ test+)].</div>
+  </div>
+
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+
+// =================================================================
+// Component 1: Venn Diagram 2-event
+// =================================================================
+function vennClampInputs() {
+  const omega = +$('venn-omega').value;
+  let a = +$('venn-a').value;
+  let b = +$('venn-b').value;
+  let ab = +$('venn-ab').value;
+  // a, b in [0, omega]
+  a = Math.min(a, omega);
+  b = Math.min(b, omega);
+  // ab in [max(0, a+b-omega), min(a, b)]
+  ab = Math.min(ab, Math.min(a, b));
+  ab = Math.max(ab, Math.max(0, a + b - omega));
+  // update sliders
+  $('venn-a').max = omega;
+  $('venn-b').max = omega;
+  $('venn-ab').max = Math.min(a, b);
+  $('venn-a').value = a;
+  $('venn-b').value = b;
+  $('venn-ab').value = ab;
+  return { omega, a, b, ab };
+}
+
+function renderVenn() {
+  const { omega, a, b, ab } = vennClampInputs();
+  $('venn-omega-val').textContent = omega;
+  $('venn-a-val').textContent = a;
+  $('venn-b-val').textContent = b;
+  $('venn-ab-val').textContent = ab;
+
+  const pA = a / omega;
+  const pB = b / omega;
+  const pAB = ab / omega;
+  const pAgivenB = pB > 0 ? pAB / pB : null;
+  const pBgivenA = pA > 0 ? pAB / pA : null;
+  const pAtimesPB = pA * pB;
+
+  // Draw Venn
+  const svg = $('venn-svg');
+  svg.innerHTML = '';
+  const W = 700, H = 380;
+  // Universe box
+  svg.insertAdjacentHTML('beforeend', `
+    <rect x="20" y="20" width="${W-40}" height="${H-40}" fill="#f7fafc" stroke="#4a5568" stroke-width="1.5"/>
+    <text x="35" y="42" font-family="monospace" font-size="14" fill="#2d3748">Ω = ${omega}</text>
+  `);
+  // Two circles
+  const cxA = 270, cxB = 430, cy = 200;
+  const rA = Math.max(40, Math.sqrt(a/omega) * 130);
+  const rB = Math.max(40, Math.sqrt(b/omega) * 130);
+  // Adjust separation by overlap fraction
+  const overlapFrac = (a > 0 && b > 0) ? ab / Math.min(a, b) : 0;
+  const dx = (rA + rB) * (1 - 0.85 * overlapFrac);
+  const cxA2 = 350 - dx/2, cxB2 = 350 + dx/2;
+
+  // gradient for intersection
+  svg.insertAdjacentHTML('beforeend', `
+    <defs>
+      <linearGradient id="venn-int" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#fef5e7" stop-opacity="0.85"/>
+        <stop offset="100%" stop-color="#c6f6d5" stop-opacity="0.85"/>
+      </linearGradient>
+    </defs>
+    <circle cx="${cxA2}" cy="${cy}" r="${rA}" fill="#fef5e7" stroke="#d69e2e" stroke-width="2.5" fill-opacity="0.75"/>
+    <circle cx="${cxB2}" cy="${cy}" r="${rB}" fill="#c6f6d5" stroke="#38a169" stroke-width="2.5" fill-opacity="0.75"/>
+    <text x="${cxA2 - rA + 15}" y="${cy - rA + 20}" font-family="monospace" font-weight="700" font-size="16" fill="#744210">A</text>
+    <text x="${cxB2 + rB - 25}" y="${cy - rB + 20}" font-family="monospace" font-weight="700" font-size="16" fill="#22543d">B</text>
+    <text x="${cxA2 - rA/2}" y="${cy + 5}" font-family="monospace" font-size="13" fill="#744210">|A\\B|=${a-ab}</text>
+    <text x="${cxB2 + rB/3}" y="${cy + 5}" font-family="monospace" font-size="13" fill="#22543d">|B\\A|=${b-ab}</text>
+    <text x="${(cxA2+cxB2)/2 - 25}" y="${cy + 5}" font-family="monospace" font-weight="700" font-size="13" fill="#805ad5">|A∩B|=${ab}</text>
+    <text x="35" y="${H - 30}" font-family="monospace" font-size="13" fill="#2d3748">Ngoài A ∪ B: |Ω| − |A∪B| = ${omega - a - b + ab}</text>
+  `);
+
+  // Stats
+  let html = '';
+  html += `<div class="stat"><div class="name">P(A)</div><div class="val">${pA.toFixed(4)}</div></div>`;
+  html += `<div class="stat"><div class="name">P(B)</div><div class="val">${pB.toFixed(4)}</div></div>`;
+  html += `<div class="stat"><div class="name">P(A∩B)</div><div class="val">${pAB.toFixed(4)}</div></div>`;
+  html += `<div class="stat"><div class="name">P(A∪B)</div><div class="val">${(pA + pB - pAB).toFixed(4)}</div></div>`;
+  html += `<div class="stat"><div class="name">P(A|B) = P(A∩B)/P(B)</div><div class="val">${pAgivenB === null ? 'N/A' : pAgivenB.toFixed(4)}</div></div>`;
+  html += `<div class="stat"><div class="name">P(B|A) = P(A∩B)/P(A)</div><div class="val">${pBgivenA === null ? 'N/A' : pBgivenA.toFixed(4)}</div></div>`;
+  $('venn-stats').innerHTML = html;
+
+  // Independence check
+  const eps = 1e-6;
+  const indep = Math.abs(pAB - pAtimesPB) < eps + 0.5/omega;
+  const indepExact = Math.abs(pAB - pAtimesPB) < eps;
+  const div = $('venn-indep');
+  if (indepExact) {
+    div.style.background = '#c6f6d5'; div.style.color = '#22543d';
+    div.innerHTML = `<strong>✓ A và B độc lập</strong>: P(A∩B) = ${pAB.toFixed(4)} = ${pA.toFixed(4)} × ${pB.toFixed(4)} = P(A)·P(B)`;
+  } else if (indep) {
+    div.style.background = '#fef5e7'; div.style.color = '#744210';
+    div.innerHTML = `<strong>~ Gần độc lập</strong> (chênh ≤ 1/Ω = ${(1/omega).toFixed(3)}): P(A∩B) = ${pAB.toFixed(4)}, P(A)·P(B) = ${pAtimesPB.toFixed(4)}`;
+  } else {
+    div.style.background = '#fed7d7'; div.style.color = '#742a2a';
+    div.innerHTML = `<strong>✗ KHÔNG độc lập</strong>: P(A∩B) = ${pAB.toFixed(4)} ≠ ${pAtimesPB.toFixed(4)} = P(A)·P(B) <br>
+      <span style="font-size:12px">Hiệu = ${(pAB - pAtimesPB).toFixed(4)}. ${pAB > pAtimesPB ? "A và B xuất hiện cùng nhau nhiều hơn dự kiến (tương quan dương)." : "A và B xuất hiện cùng nhau ít hơn dự kiến (tương quan âm)."}</span>`;
+  }
+}
+
+['venn-omega', 'venn-a', 'venn-b', 'venn-ab'].forEach(id => {
+  $(id).addEventListener('input', renderVenn);
+});
+renderVenn();
+
+// =================================================================
+// Component 2: Medical Test Bayes Calculator
+// =================================================================
+function computeMed() {
+  const prev = +$('med-prev').value;
+  const sens = +$('med-sens').value;
+  const spec = +$('med-spec').value;
+  const fpr = 1 - spec; // P(T+|D̄)
+  const pT = sens * prev + fpr * (1 - prev);
+  const post = pT > 0 ? (sens * prev) / pT : 0;
+  return { prev, sens, spec, fpr, pT, post };
+}
+
+function renderMed() {
+  const { prev, sens, spec, fpr, pT, post } = computeMed();
+  $('med-prev-val').textContent = (prev*100).toFixed(2) + '%';
+  $('med-sens-val').textContent = (sens*100).toFixed(0) + '%';
+  $('med-spec-val').textContent = (spec*100).toFixed(0) + '%';
+  $('med-posterior').textContent = (post*100).toFixed(2) + '%';
+  // Color hint
+  const elPost = $('med-posterior');
+  elPost.className = 'big-result';
+  if (post < 0.3) elPost.classList.add('warn');
+  else if (post > 0.7) elPost.classList.add('ok');
+
+  // Intuition hint
+  let intuit = '';
+  if (post < 0.2) intuit = '⚠ Dù test dương, đa số (≥80%) là false positive — base rate quá thấp.';
+  else if (post < 0.5) intuit = '⚠ Test dương cho posterior <50% — vẫn nên nghi ngờ và test lại.';
+  else if (post < 0.85) intuit = '✓ Test dương cho posterior khá cao, nhưng vẫn có ~' + ((1-post)*100).toFixed(0) + '% xác suất là false positive.';
+  else intuit = '✓ Test dương rất tin được — base rate đủ cao và test chính xác.';
+  $('med-intuit').textContent = intuit;
+
+  // Formula
+  const num = sens * prev;
+  $('med-formula').textContent =
+    `P(T+) = P(T+|D)·P(D) + P(T+|D̄)·P(D̄)\n` +
+    `     = ${sens.toFixed(2)}·${prev.toFixed(4)} + ${fpr.toFixed(2)}·${(1-prev).toFixed(4)}\n` +
+    `     = ${(sens*prev).toFixed(5)} + ${(fpr*(1-prev)).toFixed(5)}\n` +
+    `     = ${pT.toFixed(5)}\n\n` +
+    `P(D|T+) = P(T+|D)·P(D) / P(T+)\n` +
+    `        = ${num.toFixed(5)} / ${pT.toFixed(5)}\n` +
+    `        = ${post.toFixed(5)} ≈ ${(post*100).toFixed(2)}%`;
+
+  // 10 000 people grid
+  const N = 10000;
+  const cellSize = 25;
+  const totalCells = 400; // 20x20
+  const nDisease = Math.round(prev * N);
+  const nHealthy = N - nDisease;
+  const nTP = Math.round(sens * nDisease);
+  const nFN = nDisease - nTP;
+  const nFP = Math.round(fpr * nHealthy);
+  const nTN = nHealthy - nFP;
+
+  // each cell = 25 people, render counts proportionally on the grid of 400 cells
+  const cellsTP = Math.round(nTP / cellSize);
+  const cellsFN = Math.round(nFN / cellSize);
+  const cellsFP = Math.round(nFP / cellSize);
+  const cellsTN = totalCells - cellsTP - cellsFN - cellsFP;
+  const grid = $('med-grid');
+  grid.innerHTML = '';
+  const order = [];
+  for (let i = 0; i < cellsTP; i++) order.push('disease-tp');
+  for (let i = 0; i < cellsFN; i++) order.push('disease-fn');
+  for (let i = 0; i < cellsFP; i++) order.push('healthy-fp');
+  for (let i = 0; i < Math.max(0, cellsTN); i++) order.push('healthy-tn');
+  for (let i = 0; i < totalCells; i++) {
+    const cls = order[i] || 'healthy-tn';
+    grid.insertAdjacentHTML('beforeend', `<div class="person-cell ${cls}" title="${cls}"></div>`);
+  }
+  $('med-tp').textContent = nTP.toLocaleString() + ' người';
+  $('med-fp').textContent = nFP.toLocaleString() + ' người';
+  $('med-tn').textContent = nTN.toLocaleString() + ' người';
+  $('med-fn').textContent = nFN.toLocaleString() + ' người';
+}
+
+['med-prev', 'med-sens', 'med-spec'].forEach(id => {
+  $(id).addEventListener('input', renderMed);
+});
+
+document.querySelectorAll('[data-preset]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const preset = btn.dataset.preset;
+    const presets = {
+      classic:   { prev: 0.01, sens: 0.99, spec: 0.95 },
+      midprev:   { prev: 0.10, sens: 0.99, spec: 0.95 },
+      bad:       { prev: 0.01, sens: 0.95, spec: 0.90 },
+      symmetric: { prev: 0.50, sens: 0.90, spec: 0.90 },
+      perfect:   { prev: 0.05, sens: 1.00, spec: 1.00 },
+    };
+    const p = presets[preset];
+    $('med-prev').value = p.prev;
+    $('med-sens').value = p.sens;
+    $('med-spec').value = p.spec;
+    renderMed();
+  });
+});
+
+renderMed();
+
+// =================================================================
+// Component 3: Naive Bayes Spam
+// =================================================================
+const NB_WORDS = [
+  { word: 'free',    pS: 0.50, pH: 0.02, on: true },
+  { word: 'money',   pS: 0.40, pH: 0.05, on: true },
+  { word: 'meeting', pS: 0.01, pH: 0.30, on: true },
+  { word: 'click',   pS: 0.35, pH: 0.08, on: false },
+  { word: 'project', pS: 0.05, pH: 0.40, on: false },
+];
+let nbUseLog = false;
+
+function renderNbTable() {
+  const tb = $('nb-tbody');
+  tb.innerHTML = '';
+  NB_WORDS.forEach((w, i) => {
+    tb.insertAdjacentHTML('beforeend', `
+      <tr>
+        <td><strong>${w.word}</strong></td>
+        <td>
+          <input type="range" min="0.001" max="0.99" step="0.01" value="${w.pS}" data-nb-idx="${i}" data-nb-field="pS" style="width:120px">
+          <span class="slider-val" id="nb-ps-${i}">${w.pS.toFixed(2)}</span>
+        </td>
+        <td>
+          <input type="range" min="0.001" max="0.99" step="0.01" value="${w.pH}" data-nb-idx="${i}" data-nb-field="pH" style="width:120px">
+          <span class="slider-val" id="nb-ph-${i}">${w.pH.toFixed(2)}</span>
+        </td>
+        <td>
+          <button class="toggle ${w.on ? 'active' : ''}" data-nb-toggle="${i}">${w.on ? '✓ có' : '○ không'}</button>
+        </td>
+      </tr>
+    `);
+  });
+  // bind range
+  tb.querySelectorAll('input[type="range"]').forEach(inp => {
+    inp.addEventListener('input', e => {
+      const i = +e.target.dataset.nbIdx;
+      const field = e.target.dataset.nbField;
+      NB_WORDS[i][field] = +e.target.value;
+      $(`nb-${field === 'pS' ? 'ps' : 'ph'}-${i}`).textContent = (+e.target.value).toFixed(2);
+      renderNbBars();
+    });
+  });
+  tb.querySelectorAll('[data-nb-toggle]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const i = +btn.dataset.nbToggle;
+      NB_WORDS[i].on = !NB_WORDS[i].on;
+      renderNbTable();
+      renderNbBars();
+    });
+  });
+}
+
+function renderNbBars() {
+  const prior = +$('nb-prior').value;
+  $('nb-prior-val').textContent = (prior*100).toFixed(0) + '%';
+  const active = NB_WORDS.filter(w => w.on);
+  if (active.length === 0) {
+    $('nb-bars').innerHTML = '<div class="hint">Chưa chọn từ nào — bật ít nhất 1 từ ở cột "Trong email?".</div>';
+    $('nb-formula').textContent = '';
+    $('nb-verdict').textContent = '—';
+    return;
+  }
+  let scoreS, scoreH, formula;
+  if (nbUseLog) {
+    scoreS = Math.log(prior) + active.reduce((a, w) => a + Math.log(w.pS), 0);
+    scoreH = Math.log(1-prior) + active.reduce((a, w) => a + Math.log(w.pH), 0);
+    formula =
+      `log P(S|email) ∝ log P(S) + Σ log P(wᵢ|S)\n` +
+      `              = log(${prior.toFixed(2)}) + ${active.map(w => `log(${w.pS.toFixed(2)})`).join(' + ')}\n` +
+      `              = ${Math.log(prior).toFixed(3)} + ${active.map(w => Math.log(w.pS).toFixed(3)).join(' + ')}\n` +
+      `              = ${scoreS.toFixed(3)}\n\n` +
+      `log P(H|email) ∝ log P(H) + Σ log P(wᵢ|H)\n` +
+      `              = log(${(1-prior).toFixed(2)}) + ${active.map(w => `log(${w.pH.toFixed(2)})`).join(' + ')}\n` +
+      `              = ${Math.log(1-prior).toFixed(3)} + ${active.map(w => Math.log(w.pH).toFixed(3)).join(' + ')}\n` +
+      `              = ${scoreH.toFixed(3)}`;
+  } else {
+    scoreS = prior * active.reduce((a, w) => a * w.pS, 1);
+    scoreH = (1-prior) * active.reduce((a, w) => a * w.pH, 1);
+    formula =
+      `P(S|email) ∝ P(S) · Π P(wᵢ|S)\n` +
+      `          = ${prior.toFixed(2)} · ${active.map(w => w.pS.toFixed(2)).join(' · ')}\n` +
+      `          = ${scoreS.toExponential(4)}\n\n` +
+      `P(H|email) ∝ P(H) · Π P(wᵢ|H)\n` +
+      `          = ${(1-prior).toFixed(2)} · ${active.map(w => w.pH.toFixed(2)).join(' · ')}\n` +
+      `          = ${scoreH.toExponential(4)}`;
+  }
+  // Normalize for probability display
+  let pS, pH;
+  if (nbUseLog) {
+    const maxS = Math.max(scoreS, scoreH);
+    const expS = Math.exp(scoreS - maxS);
+    const expH = Math.exp(scoreH - maxS);
+    pS = expS / (expS + expH);
+    pH = expH / (expS + expH);
+  } else {
+    pS = scoreS / (scoreS + scoreH);
+    pH = scoreH / (scoreS + scoreH);
+  }
+
+  $('nb-bars').innerHTML = `
+    <div class="bar-row">
+      <div class="lbl">P(SPAM)</div>
+      <div class="barbox"><div class="bar-fill spam" style="width: ${pS*100}%"></div></div>
+      <div class="val-text">${(pS*100).toFixed(2)}%</div>
+    </div>
+    <div class="bar-row">
+      <div class="lbl">P(HAM)</div>
+      <div class="barbox"><div class="bar-fill ham" style="width: ${pH*100}%"></div></div>
+      <div class="val-text">${(pH*100).toFixed(2)}%</div>
+    </div>
+  `;
+  $('nb-formula').textContent = formula;
+  $('nb-verdict').textContent = pS > pH ? '🚫 SPAM' : '✓ HAM';
+  $('nb-verdict').className = 'big-result ' + (pS > pH ? 'warn' : 'ok');
+}
+
+$('nb-prior').addEventListener('input', renderNbBars);
+$('nb-toggle-log').addEventListener('click', () => {
+  nbUseLog = !nbUseLog;
+  $('nb-toggle-log').classList.toggle('active');
+  $('nb-toggle-log').textContent = nbUseLog ? 'Tắt log-space' : 'Bật log-space';
+  renderNbBars();
+});
+$('nb-reset').addEventListener('click', () => {
+  NB_WORDS[0] = { word: 'free',    pS: 0.50, pH: 0.02, on: true };
+  NB_WORDS[1] = { word: 'money',   pS: 0.40, pH: 0.05, on: true };
+  NB_WORDS[2] = { word: 'meeting', pS: 0.01, pH: 0.30, on: true };
+  NB_WORDS[3] = { word: 'click',   pS: 0.35, pH: 0.08, on: false };
+  NB_WORDS[4] = { word: 'project', pS: 0.05, pH: 0.40, on: false };
+  $('nb-prior').value = 0.30;
+  renderNbTable();
+  renderNbBars();
+});
+
+renderNbTable();
+renderNbBars();
+
+// =================================================================
+// Component 4: Tree Diagram
+// =================================================================
+function renderTree() {
+  const prev = +$('tree-prev').value;
+  const sens = +$('tree-sens').value;
+  const spec = +$('tree-spec').value;
+  $('tree-prev-val').textContent = (prev*100).toFixed(1) + '%';
+  $('tree-sens-val').textContent = (sens*100).toFixed(0) + '%';
+  $('tree-spec-val').textContent = (spec*100).toFixed(0) + '%';
+
+  const p = {
+    DP: prev * sens,                  // bệnh & test+
+    DN: prev * (1 - sens),             // bệnh & test−
+    HP: (1-prev) * (1-spec),           // không bệnh & test+
+    HN: (1-prev) * spec,               // không bệnh & test−
+  };
+  const pTP = p.DP + p.HP;
+  const pDgivenP = pTP > 0 ? p.DP / pTP : 0;
+  const pDgivenN = (p.DN + p.HN) > 0 ? p.DN / (p.DN + p.HN) : 0;
+
+  // SVG draw
+  const svg = $('tree-svg');
+  svg.innerHTML = '';
+
+  // Root
+  const ROOT_X = 80, ROOT_Y = 220;
+  const L1_X = 360;
+  const L1_DY_TOP = 110, L1_DY_BOT = 330;
+  const L2_X = 680;
+  const L2_DY = [60, 180, 270, 380];
+
+  const node = (x, y, label, color) => `
+    <g>
+      <circle cx="${x}" cy="${y}" r="22" fill="${color}" stroke="#2d3748" stroke-width="2"/>
+      <text x="${x}" y="${y+4}" text-anchor="middle" font-family="monospace" font-size="11" font-weight="700" fill="white">${label}</text>
+    </g>
+  `;
+  const edge = (x1, y1, x2, y2, prob, color) => `
+    <line x1="${x1+22}" y1="${y1}" x2="${x2-22}" y2="${y2}" stroke="${color}" stroke-width="2"/>
+    <rect x="${(x1+x2)/2 - 32}" y="${(y1+y2)/2 - 12}" width="64" height="20" fill="white" stroke="${color}" rx="3"/>
+    <text x="${(x1+x2)/2}" y="${(y1+y2)/2 + 3}" text-anchor="middle" font-family="monospace" font-size="11" font-weight="700" fill="${color}">${prob}</text>
+  `;
+  const leaf = (x, y, jointLabel, joint, isPositive) => `
+    <g>
+      <rect x="${x+30}" y="${y-18}" width="180" height="36" rx="4" fill="${isPositive ? '#fef5e7' : '#c6f6d5'}" stroke="${isPositive ? '#d69e2e' : '#38a169'}" stroke-width="1.5"/>
+      <text x="${x+40}" y="${y-4}" font-family="monospace" font-size="11" font-weight="700" fill="#2d3748">${jointLabel}</text>
+      <text x="${x+40}" y="${y+12}" font-family="monospace" font-size="11" fill="#4a5568">P = ${joint.toFixed(5)}</text>
+    </g>
+  `;
+
+  let html = '';
+  // root
+  html += node(ROOT_X, ROOT_Y, 'Ω', '#4299e1');
+  // L1: D, D̄
+  html += edge(ROOT_X, ROOT_Y, L1_X, L1_DY_TOP, `P=${prev.toFixed(3)}`, '#c53030');
+  html += edge(ROOT_X, ROOT_Y, L1_X, L1_DY_BOT, `P=${(1-prev).toFixed(3)}`, '#38a169');
+  html += node(L1_X, L1_DY_TOP, 'D', '#c53030');
+  html += node(L1_X, L1_DY_BOT, 'D̄', '#38a169');
+  // L2: T+, T- under each
+  html += edge(L1_X, L1_DY_TOP, L2_X, L2_DY[0], `${sens.toFixed(2)}`, '#c53030');
+  html += edge(L1_X, L1_DY_TOP, L2_X, L2_DY[1], `${(1-sens).toFixed(2)}`, '#c53030');
+  html += edge(L1_X, L1_DY_BOT, L2_X, L2_DY[2], `${(1-spec).toFixed(2)}`, '#38a169');
+  html += edge(L1_X, L1_DY_BOT, L2_X, L2_DY[3], `${spec.toFixed(2)}`, '#38a169');
+  html += node(L2_X, L2_DY[0], 'T+', '#c53030');
+  html += node(L2_X, L2_DY[1], 'T−', '#c53030');
+  html += node(L2_X, L2_DY[2], 'T+', '#38a169');
+  html += node(L2_X, L2_DY[3], 'T−', '#38a169');
+  // Leaves
+  html += leaf(L2_X, L2_DY[0], 'D ∩ T+', p.DP, true);
+  html += leaf(L2_X, L2_DY[1], 'D ∩ T−', p.DN, false);
+  html += leaf(L2_X, L2_DY[2], 'D̄ ∩ T+', p.HP, true);
+  html += leaf(L2_X, L2_DY[3], 'D̄ ∩ T−', p.HN, false);
+
+  svg.innerHTML = html;
+
+  // Table
+  const tb = svg.parentElement.querySelector('#tree-table tbody');
+  tb.innerHTML = `
+    <tr class="${pDgivenP > 0.5 ? 'highlight' : ''}"><td>D ∩ T+</td><td>${p.DP.toFixed(5)}</td><td rowspan="2">P(D|T+) = ${p.DP.toFixed(5)} / ${pTP.toFixed(5)} = <strong>${(pDgivenP*100).toFixed(2)}%</strong></td></tr>
+    <tr><td>D̄ ∩ T+</td><td>${p.HP.toFixed(5)}</td></tr>
+    <tr><td>D ∩ T−</td><td>${p.DN.toFixed(5)}</td><td rowspan="2">P(D|T−) = ${p.DN.toFixed(5)} / ${(p.DN+p.HN).toFixed(5)} = <strong>${(pDgivenN*100).toFixed(3)}%</strong></td></tr>
+    <tr><td>D̄ ∩ T−</td><td>${p.HN.toFixed(5)}</td></tr>
+    <tr><td><strong>Tổng</strong></td><td><strong>${(p.DP+p.DN+p.HP+p.HN).toFixed(5)}</strong></td><td></td></tr>
+  `;
+}
+
+['tree-prev', 'tree-sens', 'tree-spec'].forEach(id => {
+  $(id).addEventListener('input', renderTree);
+});
+renderTree();
+
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+</body>
+</html>

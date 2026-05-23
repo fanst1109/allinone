@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Vector DB + RAG · Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  main { max-width: 1180px; margin: 0 auto; padding: 24px; }
+  h1 { color: #1a202c; margin-top: 8px; }
+  h2 {
+    color: #2d3748; margin-top: 40px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; margin-top: 18px; font-size: 17px; }
+  p.intro { color: #4a5568; max-width: 900px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; margin: 8px 0; }
+  .col { flex: 1 1 360px; min-width: 320px; }
+
+  canvas.plot {
+    background: #fafbfc; border: 1px solid #e2e8f0; border-radius: 6px;
+    display: block; width: 100%; max-width: 560px;
+  }
+
+  .stats {
+    background: #1a202c; color: #e2e8f0;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    padding: 12px 14px; border-radius: 4px;
+    font-size: 13px; line-height: 1.7;
+    white-space: pre-wrap;
+  }
+  .stats .key { color: #f6ad55; }
+  .stats .pos { color: #68d391; }
+  .stats .neg { color: #fc8181; }
+  .stats .neu { color: #90cdf4; }
+  .stats .acc { color: #f687b3; font-weight: 700; }
+
+  button {
+    font-size: 13px; padding: 7px 12px; border-radius: 4px;
+    background: #4299e1; color: white; border: none;
+    font-weight: 600; cursor: pointer; margin-right: 6px; margin-top: 4px;
+  }
+  button:hover { background: #3182ce; }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+
+  input[type=range] { width: 100%; max-width: 320px; }
+  input[type=text], textarea {
+    width: 100%; max-width: 520px; padding: 8px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    font-size: 14px; font-family: inherit;
+  }
+  textarea { min-height: 80px; resize: vertical; }
+  label.field { display: block; margin: 8px 0 4px; font-weight: 600; color: #2d3748; font-size: 13px; }
+
+  .small { font-size: 12px; color: #718096; }
+  .hint  { font-size: 12px; color: #4a5568; font-style: italic; margin-top: 4px; }
+  ul.notes { margin: 6px 0 0 0; padding-left: 20px; color: #4a5568; font-size: 13px; line-height: 1.7; }
+  ul.notes li { margin: 4px 0; }
+
+  .chunk-card {
+    background: #f7fafc; border-left: 4px solid #cbd5e0;
+    padding: 10px 14px; margin: 6px 0; border-radius: 4px;
+    font-size: 13px; line-height: 1.5;
+  }
+  .chunk-card.hit { border-left-color: #38a169; background: #f0fff4; }
+  .chunk-card.faded { opacity: 0.4; }
+  .chunk-card .meta { font-size: 11px; color: #718096; font-weight: 700; margin-bottom: 3px; }
+  .chunk-card .score { float: right; color: #2b6cb0; font-family: monospace; }
+
+  .prompt-box {
+    background: #1a202c; color: #e2e8f0;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    padding: 14px 16px; border-radius: 6px;
+    font-size: 12.5px; line-height: 1.6;
+    white-space: pre-wrap;
+    margin-top: 8px;
+  }
+  .prompt-box .ctx { color: #90cdf4; }
+  .prompt-box .q { color: #f6ad55; }
+  .prompt-box .ans { color: #68d391; }
+
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: #4a5568; margin-top: 6px; }
+  .legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+
+  table.codebook {
+    border-collapse: collapse; font-size: 12px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  table.codebook th, table.codebook td {
+    border: 1px solid #cbd5e0; padding: 4px 8px; text-align: center; min-width: 50px;
+  }
+  table.codebook th { background: #edf2f7; font-weight: 700; }
+  table.codebook td.match { background: #f0fff4; font-weight: 700; color: #22543d; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-word-embeddings/visualization.html">← L6: Word Embedding</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Vector DB + RAG</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-clip-multimodal/visualization.html">L8: CLIP Multimodal →</a>
+</nav>
+
+<main>
+  <h1>Lesson 07 — Vector Database + RAG</h1>
+  <p class="intro">
+    Bốn component tương tác: <strong>Brute force vs IVF</strong> để thấy lợi ích của cluster index,
+    <strong>HNSW</strong> visualizer mô phỏng greedy search nhiều tầng,
+    <strong>Product Quantization</strong> minh họa compression + sai số, và
+    <strong>RAG pipeline demo</strong> chạy retrieve + augment + generate trên 5 chunk pre-set.
+  </p>
+
+  <!-- ============= 1. BRUTE FORCE VS IVF ============= -->
+  <h2>1. Brute force vs IVF — đếm phép tính, đo recall</h2>
+  <p class="intro">
+    200 điểm 2D phân thành <code>c = 10</code> cluster bằng k-means. Query đặt ở một điểm bất kỳ.
+    Kéo slider <code>nprobe</code> để xem trade-off: tăng nprobe → recall tăng nhưng số distance computation cũng tăng.
+  </p>
+  <div class="card">
+    <div class="row">
+      <div class="col">
+        <canvas id="ivfCanvas" class="plot" width="560" height="480"></canvas>
+        <div class="hint">Chấm xám = điểm dữ liệu. Chấm vàng (◆) = centroid. Chấm đỏ (★) = query. Vùng tô màu = cluster đang probe. Chấm xanh = top-k tìm được. Vòng tròn xanh dương = top-k EXACT (ground truth).</div>
+        <div class="legend">
+          <span><span class="dot" style="background:#a0aec0"></span>data point</span>
+          <span><span class="dot" style="background:#d69e2e"></span>centroid</span>
+          <span><span class="dot" style="background:#e53e3e"></span>query</span>
+          <span><span class="dot" style="background:#38a169"></span>IVF top-k</span>
+          <span><span class="dot" style="background:#3182ce"></span>exact top-k</span>
+        </div>
+      </div>
+      <div class="col">
+        <label class="field">nprobe (số cluster probe): <span id="nprobeVal">2</span></label>
+        <input type="range" id="nprobeSlider" min="1" max="10" value="2">
+
+        <label class="field">k (top-k): <span id="kVal">5</span></label>
+        <input type="range" id="kSlider" min="1" max="20" value="5">
+
+        <div style="margin-top:10px">
+          <button onclick="newQuery()">🎲 Query khác</button>
+          <button onclick="newDataset()" class="ghost">↻ Sinh dataset mới</button>
+        </div>
+
+        <div class="stats" id="ivfStats" style="margin-top:14px"></div>
+
+        <ul class="notes">
+          <li>Brute force luôn đúng 100% nhưng phải compare với toàn bộ <code>N = 200</code> điểm.</li>
+          <li>IVF chỉ compare với <code>nprobe × N/c</code> điểm + <code>c</code> centroid.</li>
+          <li>Tăng nprobe → recall ↑, FLOP ↑.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============= 2. HNSW ============= -->
+  <h2>2. HNSW — multi-layer graph search</h2>
+  <p class="intro">
+    Graph 3 tầng. Tầng cao ít node, edge dài (đường cao tốc). Tầng thấp nhiều node, edge ngắn (đường nội đô).
+    Bấm <strong>▶ Search</strong> để thấy animation greedy từ entry point top-down tới target.
+  </p>
+  <div class="card">
+    <div class="row">
+      <div class="col">
+        <canvas id="hnswCanvas" class="plot" width="560" height="520"></canvas>
+        <div class="hint">3 tầng được vẽ chồng. Node xanh = layer 0 (full). Node tím = layer 1. Node cam = layer 2 (top). Đường chấm xanh lá = path search.</div>
+      </div>
+      <div class="col">
+        <div style="margin-top:6px">
+          <button onclick="hnswSearch()">▶ Search từ entry point</button>
+          <button onclick="hnswNewTarget()" class="ghost">🎯 Target mới</button>
+          <button onclick="hnswRebuild()" class="ghost">↻ Rebuild graph</button>
+        </div>
+        <div class="stats" id="hnswStats" style="margin-top:12px"></div>
+        <ul class="notes">
+          <li>Search bắt đầu ở entry point của top layer (cam).</li>
+          <li>Greedy: di chuyển sang neighbor gần target hơn, dừng khi không có cải thiện.</li>
+          <li>Khi dừng ở tầng N → entry point cho tầng N-1.</li>
+          <li>Ở layer 0 (xanh): expand <code>ef</code> candidate quanh greedy result.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============= 3. PQ ============= -->
+  <h2>3. Product Quantization — nén 8D thành 2 byte</h2>
+  <p class="intro">
+    Vector 8 chiều chia thành 2 sub-vector chiều 4. Mỗi sub-vector quantize bằng 1 byte (chọn centroid gần nhất trong codebook 4 entry để dễ nhìn — production dùng 256 entry).
+    Sửa vector input để thấy quá trình encode + sai số reconstruct.
+  </p>
+  <div class="card">
+    <div class="row">
+      <div class="col" style="flex: 1 1 460px;">
+        <label class="field">Vector input (8 số, cách bằng dấu phẩy):</label>
+        <input type="text" id="pqInput" value="0.4, 0.6, 0.2, 0.8, 0.7, 0.3, 0.5, 0.1">
+        <div style="margin-top:8px">
+          <button onclick="pqEncode()">▶ Encode</button>
+          <button onclick="pqRandom()" class="ghost">🎲 Vector random</button>
+        </div>
+
+        <h3>Sub-vector 1 (chiều 0-3) — codebook A</h3>
+        <table class="codebook" id="codebookA"></table>
+
+        <h3>Sub-vector 2 (chiều 4-7) — codebook B</h3>
+        <table class="codebook" id="codebookB"></table>
+      </div>
+      <div class="col">
+        <div class="stats" id="pqStats" style="margin-top:0"></div>
+        <ul class="notes">
+          <li>Codebook 4 entry → 2 bit/sub-vector (production 256 → 8 bit).</li>
+          <li>Vector gốc: 8 × 4 = 32 byte (float32).</li>
+          <li>PQ encode: 2 sub-vector × 1 byte = 2 byte.</li>
+          <li>Compression demo: <strong>16×</strong>. Production (768D, m=8): <strong>384×</strong>.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============= 4. RAG PIPELINE ============= -->
+  <h2>4. RAG pipeline — retrieve, augment, generate</h2>
+  <p class="intro">
+    5 chunk pre-set về Python. Nhập câu hỏi (tiếng Anh hoặc Việt). System dùng <strong>fake embedding</strong> dựa trên keyword overlap để mô phỏng cosine similarity — đủ để minh họa pipeline.
+    Click <strong>▶ Run RAG</strong> để thấy 4 bước.
+  </p>
+  <div class="card">
+    <label class="field">Query:</label>
+    <input type="text" id="ragQuery" value="What is Python used for in AI?">
+    <div style="margin-top:8px">
+      <button onclick="runRAG()">▶ Run RAG</button>
+      <button onclick="ragQuery('Who created Python?')" class="ghost">Sample: creator</button>
+      <button onclick="ragQuery('Python vs Java performance?')" class="ghost">Sample: vs Java</button>
+      <button onclick="ragQuery('How to install Python?')" class="ghost">Sample: install</button>
+      <button onclick="ragQuery('Recipe for pho?')" class="ghost">Sample: irrelevant</button>
+    </div>
+
+    <h3>Bước 1-2: Retrieve — top-3 chunks (cosine similarity)</h3>
+    <div id="ragChunks"></div>
+
+    <h3>Bước 3: Augmented prompt</h3>
+    <div class="prompt-box" id="ragPrompt"></div>
+
+    <h3>Bước 4: Simulated LLM output</h3>
+    <div class="prompt-box" id="ragAnswer"></div>
+  </div>
+
+</main>
+
+<script>
+/* ============================================================
+   COMPONENT 1 — BRUTE FORCE vs IVF
+   ============================================================ */
+const ivfCanvas = document.getElementById('ivfCanvas');
+const ivfCtx = ivfCanvas.getContext('2d');
+const ivfStats = document.getElementById('ivfStats');
+const nprobeSlider = document.getElementById('nprobeSlider');
+const kSlider = document.getElementById('kSlider');
+
+let ivfPoints = [];
+let ivfCentroids = [];
+let ivfClusters = [];
+let ivfQuery = { x: 0.5, y: 0.5 };
+const IVF_C = 10;
+const IVF_N = 200;
+const IVF_D = 2;
+
+function dist2(a, b) {
+  const dx = a.x - b.x, dy = a.y - b.y;
+  return dx*dx + dy*dy;
+}
+
+function genIVFDataset() {
+  ivfPoints = [];
+  // Mixture of gaussians
+  for (let i = 0; i < IVF_N; i++) {
+    const cluster = Math.floor(Math.random() * 8);
+    const cx = 0.15 + (cluster % 4) * 0.25;
+    const cy = 0.15 + Math.floor(cluster / 4) * 0.4;
+    const x = cx + (Math.random() - 0.5) * 0.18;
+    const y = cy + (Math.random() - 0.5) * 0.18;
+    ivfPoints.push({ x: Math.max(0.02, Math.min(0.98, x)), y: Math.max(0.02, Math.min(0.98, y)) });
+  }
+  runKMeans();
+}
+
+function runKMeans() {
+  // k-means with c=IVF_C
+  ivfCentroids = [];
+  // Init: take c random points
+  const shuffled = [...ivfPoints].sort(() => Math.random() - 0.5);
+  for (let i = 0; i < IVF_C; i++) ivfCentroids.push({ x: shuffled[i].x, y: shuffled[i].y });
+
+  for (let iter = 0; iter < 20; iter++) {
+    // Assign
+    const newClusters = Array.from({ length: IVF_C }, () => []);
+    for (const p of ivfPoints) {
+      let best = 0, bd = Infinity;
+      for (let j = 0; j < IVF_C; j++) {
+        const d = dist2(p, ivfCentroids[j]);
+        if (d < bd) { bd = d; best = j; }
+      }
+      p.cluster = best;
+      newClusters[best].push(p);
+    }
+    // Update
+    for (let j = 0; j < IVF_C; j++) {
+      if (newClusters[j].length === 0) continue;
+      let sx = 0, sy = 0;
+      for (const p of newClusters[j]) { sx += p.x; sy += p.y; }
+      ivfCentroids[j].x = sx / newClusters[j].length;
+      ivfCentroids[j].y = sy / newClusters[j].length;
+    }
+    ivfClusters = newClusters;
+  }
+}
+
+function drawIVF() {
+  const w = ivfCanvas.width, h = ivfCanvas.height;
+  ivfCtx.clearRect(0, 0, w, h);
+  ivfCtx.fillStyle = '#fafbfc';
+  ivfCtx.fillRect(0, 0, w, h);
+
+  const nprobe = parseInt(nprobeSlider.value);
+  const k = parseInt(kSlider.value);
+
+  // Find probed clusters
+  const centDists = ivfCentroids.map((c, idx) => ({ idx, d: dist2(ivfQuery, c) }));
+  centDists.sort((a, b) => a.d - b.d);
+  const probed = new Set(centDists.slice(0, nprobe).map(c => c.idx));
+
+  // Tint probed cluster regions (Voronoi-ish via assignment color)
+  // For each pixel? Too expensive. Just shade points in probed cluster.
+  // We'll draw probed-cluster background dot bigger/lighter.
+
+  // Compute exact top-k
+  const distsAll = ivfPoints.map((p, idx) => ({ idx, d: dist2(ivfQuery, p) }));
+  distsAll.sort((a, b) => a.d - b.d);
+  const exactTopK = new Set(distsAll.slice(0, k).map(d => d.idx));
+
+  // Compute IVF top-k
+  const candidates = [];
+  for (let i = 0; i < ivfPoints.length; i++) {
+    if (probed.has(ivfPoints[i].cluster)) {
+      candidates.push({ idx: i, d: dist2(ivfQuery, ivfPoints[i]) });
+    }
+  }
+  candidates.sort((a, b) => a.d - b.d);
+  const ivfTopK = new Set(candidates.slice(0, k).map(c => c.idx));
+
+  // Cluster colors
+  const clusterColors = ['#fed7d7','#feebc8','#fefcbf','#c6f6d5','#bee3f8','#e9d8fd','#fbd5e0','#b2f5ea','#d6f5d6','#fed7e2'];
+
+  // Draw points
+  for (let i = 0; i < ivfPoints.length; i++) {
+    const p = ivfPoints[i];
+    const px = p.x * w, py = p.y * h;
+    const inProbed = probed.has(p.cluster);
+    if (inProbed) {
+      ivfCtx.beginPath();
+      ivfCtx.arc(px, py, 8, 0, Math.PI * 2);
+      ivfCtx.fillStyle = clusterColors[p.cluster] + 'aa';
+      ivfCtx.fill();
+    }
+    ivfCtx.beginPath();
+    ivfCtx.arc(px, py, 3, 0, Math.PI * 2);
+    ivfCtx.fillStyle = inProbed ? '#4a5568' : '#cbd5e0';
+    ivfCtx.fill();
+  }
+
+  // Draw exact top-k (blue circles)
+  for (const idx of exactTopK) {
+    const p = ivfPoints[idx];
+    ivfCtx.beginPath();
+    ivfCtx.arc(p.x * w, p.y * h, 9, 0, Math.PI * 2);
+    ivfCtx.strokeStyle = '#3182ce';
+    ivfCtx.lineWidth = 2;
+    ivfCtx.stroke();
+  }
+
+  // Draw IVF top-k (green fill)
+  for (const idx of ivfTopK) {
+    const p = ivfPoints[idx];
+    ivfCtx.beginPath();
+    ivfCtx.arc(p.x * w, p.y * h, 5, 0, Math.PI * 2);
+    ivfCtx.fillStyle = '#38a169';
+    ivfCtx.fill();
+  }
+
+  // Draw centroids
+  for (let j = 0; j < IVF_C; j++) {
+    const c = ivfCentroids[j];
+    const px = c.x * w, py = c.y * h;
+    ivfCtx.fillStyle = probed.has(j) ? '#d69e2e' : '#a0aec0';
+    ivfCtx.beginPath();
+    ivfCtx.moveTo(px, py - 8);
+    ivfCtx.lineTo(px + 8, py);
+    ivfCtx.lineTo(px, py + 8);
+    ivfCtx.lineTo(px - 8, py);
+    ivfCtx.closePath();
+    ivfCtx.fill();
+    ivfCtx.strokeStyle = '#1a202c';
+    ivfCtx.lineWidth = 1;
+    ivfCtx.stroke();
+  }
+
+  // Draw query (red star)
+  const qx = ivfQuery.x * w, qy = ivfQuery.y * h;
+  ivfCtx.fillStyle = '#e53e3e';
+  drawStar(ivfCtx, qx, qy, 5, 11, 5);
+
+  // Stats
+  const intersect = [...ivfTopK].filter(x => exactTopK.has(x)).length;
+  const recall = (intersect / k * 100).toFixed(1);
+  const brute = IVF_N;
+  const ivfCompare = IVF_C + candidates.length;
+  const speedup = (brute / ivfCompare).toFixed(2);
+
+  ivfStats.innerHTML =
+    `<span class="key">N</span> = ${IVF_N}, <span class="key">d</span> = 2, <span class="key">c</span> = ${IVF_C}\n` +
+    `<span class="key">nprobe</span> = ${nprobe}, <span class="key">k</span> = ${k}\n` +
+    `\n` +
+    `Brute force compares: <span class="neg">${brute}</span>\n` +
+    `IVF compares: <span class="pos">${ivfCompare}</span> (${IVF_C} centroid + ${candidates.length} points)\n` +
+    `Speedup: <span class="acc">${speedup}×</span>\n` +
+    `\n` +
+    `Recall@${k}: <span class="acc">${recall}%</span> (${intersect}/${k} đúng)`;
+}
+
+function drawStar(ctx, x, y, inner, outer, points) {
+  ctx.beginPath();
+  for (let i = 0; i < points * 2; i++) {
+    const r = i % 2 === 0 ? outer : inner;
+    const a = (i / (points * 2)) * Math.PI * 2 - Math.PI / 2;
+    const px = x + Math.cos(a) * r;
+    const py = y + Math.sin(a) * r;
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+  ctx.fill();
+}
+
+function newQuery() {
+  ivfQuery = { x: 0.1 + Math.random() * 0.8, y: 0.1 + Math.random() * 0.8 };
+  drawIVF();
+}
+function newDataset() {
+  genIVFDataset();
+  drawIVF();
+}
+
+ivfCanvas.addEventListener('click', e => {
+  const rect = ivfCanvas.getBoundingClientRect();
+  ivfQuery = { x: (e.clientX - rect.left) / rect.width, y: (e.clientY - rect.top) / rect.height };
+  drawIVF();
+});
+
+nprobeSlider.addEventListener('input', () => {
+  document.getElementById('nprobeVal').textContent = nprobeSlider.value;
+  drawIVF();
+});
+kSlider.addEventListener('input', () => {
+  document.getElementById('kVal').textContent = kSlider.value;
+  drawIVF();
+});
+
+genIVFDataset();
+drawIVF();
+
+/* ============================================================
+   COMPONENT 2 — HNSW
+   ============================================================ */
+const hnswCanvas = document.getElementById('hnswCanvas');
+const hnswCtx = hnswCanvas.getContext('2d');
+const hnswStats = document.getElementById('hnswStats');
+
+let hnswNodes = [];     // {x, y, layer (max layer this node exists in)}
+let hnswEdges = [[], [], []]; // edges per layer
+let hnswEntry = 0;
+let hnswTarget = { x: 0.8, y: 0.7 };
+
+function buildHNSW() {
+  hnswNodes = [];
+  const N = 50;
+  for (let i = 0; i < N; i++) {
+    // Layer assignment: exponential decay
+    const u = Math.random();
+    let layer = 0;
+    if (u < 0.25) layer = 1;
+    if (u < 0.06) layer = 2;
+    hnswNodes.push({
+      x: 0.1 + Math.random() * 0.8,
+      y: 0.1 + Math.random() * 0.8,
+      layer
+    });
+  }
+  // Connect: for each layer, each node connects to M nearest in same layer
+  hnswEdges = [[], [], []];
+  for (let L = 0; L <= 2; L++) {
+    const M = L === 0 ? 5 : L === 1 ? 4 : 3;
+    const nodesAtL = hnswNodes.map((n, i) => ({ n, i })).filter(o => o.n.layer >= L);
+    for (const { n, i } of nodesAtL) {
+      const dists = nodesAtL.filter(o => o.i !== i).map(o => ({
+        j: o.i, d: dist2(n, o.n)
+      }));
+      dists.sort((a, b) => a.d - b.d);
+      for (let m = 0; m < Math.min(M, dists.length); m++) {
+        hnswEdges[L].push([i, dists[m].j]);
+      }
+    }
+  }
+  // Entry point: a node in top layer
+  const topNodes = hnswNodes.map((n, i) => ({ n, i })).filter(o => o.n.layer === 2);
+  hnswEntry = topNodes.length > 0 ? topNodes[0].i : 0;
+}
+
+let hnswPath = [];
+
+function drawHNSW(highlightPath = []) {
+  const w = hnswCanvas.width, h = hnswCanvas.height;
+  hnswCtx.clearRect(0, 0, w, h);
+  hnswCtx.fillStyle = '#fafbfc';
+  hnswCtx.fillRect(0, 0, w, h);
+
+  // Draw edges per layer (bottom to top)
+  const layerColors = ['#bee3f8', '#d6bcfa', '#fbd38d'];
+  const layerEdgeAlpha = ['80', 'aa', 'cc'];
+  for (let L = 0; L <= 2; L++) {
+    hnswCtx.strokeStyle = layerColors[L] + layerEdgeAlpha[L];
+    hnswCtx.lineWidth = L + 1;
+    for (const [a, b] of hnswEdges[L]) {
+      const na = hnswNodes[a], nb = hnswNodes[b];
+      hnswCtx.beginPath();
+      hnswCtx.moveTo(na.x * w, na.y * h);
+      hnswCtx.lineTo(nb.x * w, nb.y * h);
+      hnswCtx.stroke();
+    }
+  }
+
+  // Draw path
+  if (highlightPath.length > 1) {
+    hnswCtx.strokeStyle = '#38a169';
+    hnswCtx.lineWidth = 3;
+    hnswCtx.setLineDash([6, 4]);
+    hnswCtx.beginPath();
+    for (let i = 0; i < highlightPath.length; i++) {
+      const n = hnswNodes[highlightPath[i]];
+      const x = n.x * w, y = n.y * h;
+      if (i === 0) hnswCtx.moveTo(x, y); else hnswCtx.lineTo(x, y);
+    }
+    hnswCtx.stroke();
+    hnswCtx.setLineDash([]);
+  }
+
+  // Draw nodes
+  const nodeColors = ['#3182ce', '#805ad5', '#d69e2e'];
+  for (let i = 0; i < hnswNodes.length; i++) {
+    const n = hnswNodes[i];
+    const x = n.x * w, y = n.y * h;
+    hnswCtx.fillStyle = nodeColors[n.layer];
+    hnswCtx.beginPath();
+    hnswCtx.arc(x, y, n.layer === 2 ? 7 : n.layer === 1 ? 5 : 4, 0, Math.PI * 2);
+    hnswCtx.fill();
+    if (i === hnswEntry) {
+      hnswCtx.strokeStyle = '#1a202c';
+      hnswCtx.lineWidth = 2;
+      hnswCtx.stroke();
+    }
+  }
+
+  // Target
+  hnswCtx.fillStyle = '#e53e3e';
+  drawStar(hnswCtx, hnswTarget.x * w, hnswTarget.y * h, 5, 11, 5);
+  hnswCtx.fillStyle = '#742a2a';
+  hnswCtx.font = '11px sans-serif';
+  hnswCtx.fillText('target', hnswTarget.x * w + 12, hnswTarget.y * h - 10);
+}
+
+function hnswGreedyAtLayer(startIdx, layer) {
+  // Greedy on edges of this layer, find local min closest to target
+  let current = startIdx;
+  let path = [current];
+  const adj = {};
+  for (const [a, b] of hnswEdges[layer]) {
+    if (!adj[a]) adj[a] = [];
+    adj[a].push(b);
+    if (!adj[b]) adj[b] = [];
+    adj[b].push(a);
+  }
+  while (true) {
+    const cur = hnswNodes[current];
+    const curD = dist2(cur, hnswTarget);
+    let bestN = -1, bestD = curD;
+    for (const nb of (adj[current] || [])) {
+      const d = dist2(hnswNodes[nb], hnswTarget);
+      if (d < bestD) { bestD = d; bestN = nb; }
+    }
+    if (bestN === -1) break;
+    current = bestN;
+    path.push(current);
+  }
+  return path;
+}
+
+async function hnswSearch() {
+  let entry = hnswEntry;
+  let fullPath = [];
+  let cmpCount = 0;
+  for (let L = 2; L >= 0; L--) {
+    const sub = hnswGreedyAtLayer(entry, L);
+    cmpCount += sub.length * 3; // approx
+    fullPath.push(...sub);
+    entry = sub[sub.length - 1];
+    drawHNSW(fullPath);
+    await sleep(450);
+  }
+  // Final ef expansion at layer 0
+  const finalNode = hnswNodes[entry];
+  hnswStats.innerHTML =
+    `Entry point (top): node #${hnswEntry}\n` +
+    `Layers traversed: 3 → 2 → 1 → 0\n` +
+    `Path length: ${fullPath.length} hops\n` +
+    `Distance computations: ~${cmpCount}\n` +
+    `\n` +
+    `Final node: #${entry} at (${finalNode.x.toFixed(2)}, ${finalNode.y.toFixed(2)})\n` +
+    `Target at (${hnswTarget.x.toFixed(2)}, ${hnswTarget.y.toFixed(2)})\n` +
+    `Distance: ${Math.sqrt(dist2(finalNode, hnswTarget)).toFixed(3)}\n` +
+    `\n` +
+    `Brute force = compare với cả ${hnswNodes.length} node.\n` +
+    `HNSW = chỉ ~${cmpCount} ≈ <span class="acc">${(hnswNodes.length/cmpCount).toFixed(1)}×</span> speedup ở scale này.\n` +
+    `(Với N=10⁹, speedup thực tế ~10⁶×)`;
+}
+
+function hnswNewTarget() {
+  hnswTarget = { x: 0.1 + Math.random() * 0.8, y: 0.1 + Math.random() * 0.8 };
+  drawHNSW();
+  hnswStats.innerHTML = 'Target moved. Bấm "▶ Search" để chạy lại.';
+}
+
+function hnswRebuild() {
+  buildHNSW();
+  drawHNSW();
+  hnswStats.innerHTML = 'Graph rebuilt. Bấm "▶ Search".';
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+hnswCanvas.addEventListener('click', e => {
+  const rect = hnswCanvas.getBoundingClientRect();
+  hnswTarget = { x: (e.clientX - rect.left) / rect.width, y: (e.clientY - rect.top) / rect.height };
+  drawHNSW();
+});
+
+buildHNSW();
+drawHNSW();
+hnswStats.innerHTML = 'Bấm "▶ Search" để chạy greedy search từ entry point tới target.';
+
+/* ============================================================
+   COMPONENT 3 — PRODUCT QUANTIZATION
+   ============================================================ */
+// 2 codebook, mỗi codebook 4 entry (4 centroid), mỗi entry là vector 4D
+const codebookA = [
+  [0.1, 0.2, 0.1, 0.3],  // ID 0
+  [0.5, 0.5, 0.5, 0.5],  // ID 1
+  [0.8, 0.2, 0.7, 0.1],  // ID 2
+  [0.3, 0.8, 0.2, 0.9],  // ID 3
+];
+const codebookB = [
+  [0.2, 0.1, 0.3, 0.2],  // ID 0
+  [0.6, 0.4, 0.5, 0.5],  // ID 1
+  [0.9, 0.7, 0.8, 0.2],  // ID 2
+  [0.1, 0.9, 0.4, 0.8],  // ID 3
+];
+
+function renderCodebook(book, tableId, matchId) {
+  const table = document.getElementById(tableId);
+  let html = '<tr><th>ID</th><th>d₀</th><th>d₁</th><th>d₂</th><th>d₃</th></tr>';
+  for (let i = 0; i < book.length; i++) {
+    const cls = (i === matchId) ? 'match' : '';
+    html += `<tr><td class="${cls}">${i}</td>`;
+    for (let j = 0; j < 4; j++) html += `<td class="${cls}">${book[i][j].toFixed(2)}</td>`;
+    html += '</tr>';
+  }
+  table.innerHTML = html;
+}
+
+function l2(a, b) {
+  let s = 0;
+  for (let i = 0; i < a.length; i++) s += (a[i] - b[i]) ** 2;
+  return Math.sqrt(s);
+}
+
+function pqEncode() {
+  const inp = document.getElementById('pqInput').value;
+  const nums = inp.split(',').map(s => parseFloat(s.trim()));
+  if (nums.length !== 8 || nums.some(n => isNaN(n))) {
+    document.getElementById('pqStats').textContent = 'Lỗi: phải nhập đúng 8 số.';
+    return;
+  }
+  const sub1 = nums.slice(0, 4);
+  const sub2 = nums.slice(4, 8);
+
+  // Find nearest centroid
+  let bestA = 0, bdA = Infinity;
+  for (let i = 0; i < codebookA.length; i++) {
+    const d = l2(sub1, codebookA[i]);
+    if (d < bdA) { bdA = d; bestA = i; }
+  }
+  let bestB = 0, bdB = Infinity;
+  for (let i = 0; i < codebookB.length; i++) {
+    const d = l2(sub2, codebookB[i]);
+    if (d < bdB) { bdB = d; bestB = i; }
+  }
+
+  renderCodebook(codebookA, 'codebookA', bestA);
+  renderCodebook(codebookB, 'codebookB', bestB);
+
+  // Reconstruct + error
+  const recon = [...codebookA[bestA], ...codebookB[bestB]];
+  const err = l2(nums, recon);
+
+  document.getElementById('pqStats').innerHTML =
+    `<span class="key">Vector gốc</span>: [${nums.map(n => n.toFixed(2)).join(', ')}]\n` +
+    `\n` +
+    `Sub-vector 1 (d 0-3): [${sub1.map(n => n.toFixed(2)).join(', ')}]\n` +
+    `  → Nearest centroid: <span class="pos">ID ${bestA}</span> (dist=${bdA.toFixed(3)})\n` +
+    `\n` +
+    `Sub-vector 2 (d 4-7): [${sub2.map(n => n.toFixed(2)).join(', ')}]\n` +
+    `  → Nearest centroid: <span class="pos">ID ${bestB}</span> (dist=${bdB.toFixed(3)})\n` +
+    `\n` +
+    `<span class="key">PQ code</span>: [<span class="acc">${bestA}, ${bestB}</span>]  (2 byte)\n` +
+    `\n` +
+    `Reconstruct: [${recon.map(n => n.toFixed(2)).join(', ')}]\n` +
+    `Reconstruction error (L2): <span class="neg">${err.toFixed(3)}</span>\n` +
+    `\n` +
+    `<span class="key">Compression</span>: 32 byte → 2 byte = <span class="acc">16×</span>\n` +
+    `(Production 768D, m=8 → <span class="acc">384×</span>)`;
+}
+
+function pqRandom() {
+  const arr = Array.from({ length: 8 }, () => Math.random().toFixed(2));
+  document.getElementById('pqInput').value = arr.join(', ');
+  pqEncode();
+}
+
+renderCodebook(codebookA, 'codebookA', -1);
+renderCodebook(codebookB, 'codebookB', -1);
+pqEncode();
+
+/* ============================================================
+   COMPONENT 4 — RAG PIPELINE
+   ============================================================ */
+const ragKB = [
+  { id: 'C1', text: 'Python is a high-level, interpreted programming language created by Guido van Rossum in 1991. It emphasizes code readability.',
+    keywords: ['python','programming','language','guido','rossum','1991','created','readability','interpreted'] },
+  { id: 'C2', text: 'Python is the most popular language for AI and machine learning, with libraries like NumPy, PyTorch, TensorFlow, and scikit-learn.',
+    keywords: ['python','ai','machine','learning','ml','numpy','pytorch','tensorflow','scikit','libraries','popular'] },
+  { id: 'C3', text: 'To install Python, download from python.org or use a package manager like brew (macOS), apt (Linux), or chocolatey (Windows).',
+    keywords: ['install','python','download','brew','apt','chocolatey','package','manager','macos','linux','windows'] },
+  { id: 'C4', text: 'Python is slower than Java or C++ for raw CPU tasks but much faster to develop in. Modern interpreters and Cython mitigate the speed gap.',
+    keywords: ['python','slower','java','cpp','c++','performance','speed','develop','cython','interpreter','vs'] },
+  { id: 'C5', text: 'Python supports multiple paradigms: object-oriented, procedural, and functional programming. It has dynamic typing and automatic memory management.',
+    keywords: ['python','paradigms','object-oriented','procedural','functional','dynamic','typing','memory','management'] },
+];
+
+function fakeEmbed(text) {
+  return text.toLowerCase().match(/[a-z]+/g) || [];
+}
+
+function fakeCosine(qTokens, chunk) {
+  // Overlap-based similarity (Jaccard-like, normalized to look like cosine)
+  const qSet = new Set(qTokens);
+  let overlap = 0;
+  for (const k of chunk.keywords) if (qSet.has(k)) overlap++;
+  // Normalize: weight by sqrt(|q|*|chunk|)
+  const denom = Math.sqrt(qSet.size * chunk.keywords.length) || 1;
+  return overlap / denom;
+}
+
+function runRAG() {
+  const q = document.getElementById('ragQuery').value.trim();
+  if (!q) return;
+  const qTokens = fakeEmbed(q);
+
+  // Step 2: retrieve
+  const scored = ragKB.map(c => ({ ...c, score: fakeCosine(qTokens, c) }));
+  scored.sort((a, b) => b.score - a.score);
+  const topK = scored.slice(0, 3);
+
+  // Render chunks
+  let html = '';
+  for (const c of scored) {
+    const isHit = topK.includes(c);
+    const cls = isHit ? 'chunk-card hit' : 'chunk-card faded';
+    html += `<div class="${cls}"><div class="meta">${c.id}<span class="score">cos = ${c.score.toFixed(3)}</span></div>${c.text}</div>`;
+  }
+  document.getElementById('ragChunks').innerHTML = html;
+
+  // Step 3: prompt
+  let prompt = `<span class="ctx">[System]</span>
+You are a helpful assistant. Answer based ONLY on the context below.
+If the context doesn't contain the answer, say "I don't know."
+
+<span class="ctx">[Context]</span>
+`;
+  topK.forEach((c, i) => {
+    prompt += `<span class="ctx">[${i+1}]</span> ${c.text}\n`;
+  });
+  prompt += `\n<span class="q">[Question]</span>\n${q}`;
+  document.getElementById('ragPrompt').innerHTML = prompt;
+
+  // Step 4: simulated LLM answer (rule-based on top chunk)
+  let answer = '';
+  if (topK[0].score < 0.1) {
+    answer = `<span class="ans">I don't know — the retrieved context doesn't contain information to answer this question. (top-1 cosine ${topK[0].score.toFixed(3)} too low)</span>`;
+  } else {
+    // Build answer by stitching top chunks
+    const fragments = topK.filter(c => c.score > 0.1).map(c => c.text);
+    answer = `<span class="ans">Based on the retrieved context:\n\n`;
+    if (qTokens.includes('ai') || qTokens.includes('ml')) {
+      answer += `Python is the most popular language for AI and machine learning, supported by major libraries (NumPy, PyTorch, TensorFlow, scikit-learn). It's used because of its readability and rich ecosystem.`;
+    } else if (qTokens.includes('created') || qTokens.includes('creator') || qTokens.includes('who')) {
+      answer += `Python was created by Guido van Rossum in 1991. It is a high-level, interpreted programming language emphasizing code readability.`;
+    } else if (qTokens.includes('install') || qTokens.includes('how')) {
+      answer += `To install Python, download from python.org or use a package manager: brew (macOS), apt (Linux), or chocolatey (Windows).`;
+    } else if (qTokens.includes('java') || qTokens.includes('performance') || qTokens.includes('speed') || qTokens.includes('vs')) {
+      answer += `Python is slower than Java or C++ for raw CPU tasks but much faster for development. Tools like Cython and modern interpreters mitigate the speed gap.`;
+    } else {
+      answer += fragments[0] || 'No clear answer from context.';
+    }
+    answer += `</span>`;
+  }
+  document.getElementById('ragAnswer').innerHTML = answer;
+}
+
+function ragQuery(q) {
+  document.getElementById('ragQuery').value = q;
+  runRAG();
+}
+
+runRAG();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+</body>
+</html>

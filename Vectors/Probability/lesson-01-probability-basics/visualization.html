@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Xác suất cơ bản</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  main { max-width: 1100px; margin: 0 auto; padding: 24px; }
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 24px; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; font-size: 16px; margin-top: 18px; }
+  .card {
+    background: white; border-radius: 8px; padding: 18px 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .card .desc { color: #4a5568; font-size: 14px; margin-bottom: 12px; }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; font-size: 14px; min-width: 100px; }
+  input[type="number"], input[type="text"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; padding: 6px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 100px;
+  }
+  input[type="range"] { width: 240px; vertical-align: middle; }
+  .slider-val {
+    display: inline-block; font-family: monospace;
+    background: #edf2f7; padding: 2px 8px; border-radius: 4px;
+    font-weight: 600; color: #2b6cb0; min-width: 60px; text-align: center;
+  }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 6px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.toggle { background: #e2e8f0; color: #2d3748; }
+  button.toggle.active { background: #4299e1; color: white; }
+  button.danger { background: #e53e3e; }
+  button.danger:hover { background: #c53030; }
+  svg { display: block; background: #fdfdfd; border: 1px solid #e2e8f0; border-radius: 6px; }
+  .chart-axis { stroke: #a0aec0; stroke-width: 1; }
+  .chart-grid { stroke: #edf2f7; stroke-width: 1; }
+  .chart-label { font-size: 11px; fill: #718096; font-family: monospace; }
+  .chart-title { font-size: 13px; fill: #2d3748; font-weight: 600; }
+  .stat-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px; margin-top: 12px;
+  }
+  .stat {
+    background: #edf2f7; padding: 8px 12px; border-radius: 4px;
+    font-family: monospace; font-size: 13px;
+  }
+  .stat .name { color: #4a5568; font-size: 11px; }
+  .stat .val { color: #2b6cb0; font-weight: 700; font-size: 14px; }
+  table { border-collapse: collapse; margin: 8px 0; width: 100%; }
+  table td, table th {
+    padding: 5px 12px; border: 1px solid #e2e8f0;
+    font-family: monospace; font-size: 13px;
+  }
+  table th { background: #edf2f7; text-align: left; }
+  table tr.highlight td { background: #fef5e7; font-weight: 700; }
+  .bar-row {
+    display: flex; align-items: center; gap: 8px; margin: 4px 0;
+    font-family: monospace; font-size: 13px;
+  }
+  .bar-row .lbl { min-width: 80px; font-weight: 600; }
+  .bar-row .barbox { flex: 1; background: #edf2f7; height: 22px; border-radius: 3px; position: relative; overflow: hidden; }
+  .bar-row .bar-actual {
+    height: 100%; background: linear-gradient(90deg, #4299e1, #3182ce);
+    transition: width 0.25s;
+  }
+  .bar-row .bar-theory {
+    position: absolute; top: 0; height: 100%;
+    border-left: 2px dashed #e53e3e;
+  }
+  .bar-row .val-text { min-width: 110px; font-size: 12px; color: #4a5568; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; margin-top: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-swatch { width: 14px; height: 14px; border-radius: 2px; display: inline-block; }
+  .hint { color: #718096; font-size: 13px; font-style: italic; margin: 4px 0; }
+  .formula {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    background: #1a202c; color: #cbf36b;
+    padding: 8px 12px; border-radius: 4px;
+    font-size: 14px; margin: 8px 0;
+  }
+  .outcome-grid {
+    display: grid; gap: 6px;
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    margin: 12px 0;
+  }
+  .outcome-cell {
+    background: #edf2f7; padding: 8px;
+    text-align: center; border-radius: 4px;
+    font-family: monospace; font-weight: 600; font-size: 14px;
+    border: 2px solid transparent; transition: all 0.15s;
+  }
+  .outcome-cell.in-event { background: #fef5e7; border-color: #d69e2e; color: #744210; }
+  .outcome-cell.in-event-b { background: #c6f6d5; border-color: #38a169; color: #22543d; }
+  .outcome-cell.in-both { background: linear-gradient(135deg, #fef5e7 50%, #c6f6d5 50%); border-color: #805ad5; }
+  .die-face {
+    display: inline-block; width: 40px; height: 40px;
+    background: white; border: 2px solid #2d3748; border-radius: 6px;
+    font-size: 24px; line-height: 38px; text-align: center;
+    margin: 2px;
+  }
+  .coin {
+    display: inline-block; width: 36px; height: 36px;
+    border-radius: 50%; border: 2px solid #2d3748;
+    font-size: 18px; line-height: 32px; text-align: center;
+    margin: 2px; font-weight: 700;
+  }
+  .coin.h { background: #fef5e7; color: #744210; }
+  .coin.t { background: #e2e8f0; color: #2d3748; }
+  .roll-history {
+    max-height: 120px; overflow-y: auto;
+    background: #f7fafc; padding: 8px; border-radius: 4px;
+    font-family: monospace; font-size: 12px;
+    border: 1px solid #e2e8f0;
+  }
+  .roll-history .row-item {
+    display: inline-block; margin: 2px 6px; padding: 2px 6px;
+    background: white; border-radius: 3px;
+  }
+  .tree-node circle { fill: #4299e1; }
+  .tree-node text { font-family: monospace; font-size: 11px; fill: white; text-anchor: middle; }
+  .tree-leaf rect { fill: #fef5e7; stroke: #d69e2e; }
+  .tree-leaf text { font-family: monospace; font-size: 11px; fill: #744210; text-anchor: middle; font-weight: 700; }
+  .tree-edge { stroke: #cbd5e0; stroke-width: 1.5; fill: none; }
+  .tree-edge-label { font-family: monospace; font-size: 10px; fill: #4a5568; }
+  .big-result {
+    font-size: 28px; font-weight: 800; color: #2b6cb0;
+    font-family: monospace;
+  }
+  .big-result-pct {
+    font-size: 18px; color: #4a5568; font-weight: 600;
+  }
+  .event-selector {
+    display: inline-flex; gap: 4px; flex-wrap: wrap;
+  }
+  .event-selector button.toggle {
+    padding: 4px 10px; font-size: 12px;
+  }
+  details { margin: 8px 0; }
+  summary { cursor: pointer; font-weight: 600; color: #2b6cb0; }
+  code { background: #edf2f7; padding: 1px 4px; border-radius: 3px; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Xác suất cơ bản</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-conditional-bayes/visualization.html">L2: Xác suất có điều kiện + Bayes →</a>
+</nav>
+
+<main>
+  <h1>Lesson 01 — Xác suất cơ bản</h1>
+  <div class="subtitle">4 component tương tác: mô phỏng xu/xúc xắc, không gian mẫu, birthday paradox, máy tính tổ hợp.</div>
+
+  <!-- =============================================================== -->
+  <!-- Component 1: Coin / Dice Simulator                              -->
+  <!-- =============================================================== -->
+  <h2>1. Mô phỏng tung xu / gieo xúc xắc</h2>
+  <div class="card">
+    <div class="desc">
+      Chọn loại thí nghiệm, đặt số lần lặp, bấm <strong>Chạy</strong>. So sánh
+      <span style="color:#3182ce; font-weight:700">tần suất thực tế</span> (cột đặc) với
+      <span style="color:#e53e3e; font-weight:700">xác suất lý thuyết</span> (vạch đỏ).
+      Khi N lớn, tần suất hội tụ về xác suất — đó là <em>luật số lớn</em>.
+    </div>
+    <div class="row">
+      <label>Thí nghiệm:</label>
+      <div class="toggle-group">
+        <button class="toggle active" data-exp="coin1">1 xu</button>
+        <button class="toggle" data-exp="coin2">2 xu</button>
+        <button class="toggle" data-exp="coin3">3 xu</button>
+        <button class="toggle" data-exp="die1">1 xúc xắc</button>
+        <button class="toggle" data-exp="die2">2 xúc xắc (tổng)</button>
+      </div>
+    </div>
+    <div class="row">
+      <label>Số lần N:</label>
+      <input type="range" id="sim-n" min="10" max="100000" step="10" value="100">
+      <span class="slider-val" id="sim-n-val">100</span>
+      <button id="sim-run">Chạy</button>
+      <button id="sim-reset" class="toggle">Reset</button>
+      <button id="sim-step">+1 lần</button>
+    </div>
+    <div class="row">
+      <span class="hint">Lần gần nhất:</span>
+      <div id="sim-last" style="font-family: monospace; font-size: 18px; font-weight: 700;">—</div>
+    </div>
+    <div id="sim-history" class="roll-history" style="display:none"></div>
+    <div id="sim-bars" style="margin-top: 12px;"></div>
+    <div id="sim-summary" class="stat-grid"></div>
+    <div class="legend" style="margin-top: 12px;">
+      <div class="legend-item"><span class="legend-swatch" style="background: linear-gradient(90deg, #4299e1, #3182ce)"></span> Tần suất thực tế</div>
+      <div class="legend-item"><span class="legend-swatch" style="background: #e53e3e; width: 4px"></span> Xác suất lý thuyết</div>
+    </div>
+  </div>
+
+  <!-- =============================================================== -->
+  <!-- Component 2: Sample Space Visualizer                            -->
+  <!-- =============================================================== -->
+  <h2>2. Không gian mẫu &amp; biến cố</h2>
+  <div class="card">
+    <div class="desc">
+      Mỗi ô là một outcome trong Ω. Chọn biến cố A và B từ menu — các ô thuộc A
+      tô <span style="background:#fef5e7; padding:0 4px">vàng</span>,
+      thuộc B tô <span style="background:#c6f6d5; padding:0 4px">xanh</span>,
+      thuộc cả hai tô gradient. Xem ngay |A|, |B|, |A∩B|, |A∪B|, và xác suất.
+    </div>
+    <div class="row">
+      <label>Thí nghiệm:</label>
+      <div class="toggle-group">
+        <button class="toggle active" data-space="coin2">2 xu</button>
+        <button class="toggle" data-space="coin3">3 xu</button>
+        <button class="toggle" data-space="die1">1 xúc xắc</button>
+        <button class="toggle" data-space="die2">2 xúc xắc</button>
+      </div>
+    </div>
+    <div class="row">
+      <label>Biến cố A:</label>
+      <select id="event-a"></select>
+    </div>
+    <div class="row">
+      <label>Biến cố B:</label>
+      <select id="event-b"></select>
+    </div>
+    <div id="space-grid" class="outcome-grid"></div>
+    <div id="space-stats" class="stat-grid"></div>
+    <details>
+      <summary>📖 Xem dạng cây (tree) cho 2-3 xu</summary>
+      <svg id="tree-svg" width="700" height="320" viewBox="0 0 700 320" style="margin-top: 12px;"></svg>
+    </details>
+  </div>
+
+  <!-- =============================================================== -->
+  <!-- Component 3: Birthday Paradox                                   -->
+  <!-- =============================================================== -->
+  <h2>3. Birthday Paradox</h2>
+  <div class="card">
+    <div class="desc">
+      Kéo slider để chọn số người <code>n</code>. Đồ thị bên dưới vẽ P(ít nhất 2 người trùng ngày sinh)
+      theo n từ 1 đến 80. <strong>Lưu ý vị trí n = 23</strong>: đây là ngưỡng đầu tiên P &gt; 50%.
+    </div>
+    <div class="row">
+      <label>Số người n:</label>
+      <input type="range" id="bd-n" min="1" max="80" step="1" value="23">
+      <span class="slider-val" id="bd-n-val">23</span>
+    </div>
+    <div class="row">
+      <label>Số ngày trong năm:</label>
+      <input type="number" id="bd-days" value="365" min="2" step="1">
+      <span class="hint">(thử 366, 100, hoặc 30 để thấy ngưỡng đổi)</span>
+    </div>
+    <div class="row" style="margin-top: 12px;">
+      <div>
+        <div class="hint">P(không trùng):</div>
+        <div class="big-result" id="bd-pno">—</div>
+      </div>
+      <div style="margin-left: 24px;">
+        <div class="hint">P(có trùng):</div>
+        <div class="big-result" id="bd-pyes" style="color: #e53e3e">—</div>
+        <div class="big-result-pct" id="bd-pct">—</div>
+      </div>
+    </div>
+    <svg id="bd-svg" width="1040" height="360" viewBox="0 0 1040 360"></svg>
+    <div class="hint" style="margin-top: 12px;">
+      Công thức: P(trùng) = 1 − (D·(D−1)·...·(D−n+1)) / Dⁿ với D = số ngày.
+    </div>
+  </div>
+
+  <!-- =============================================================== -->
+  <!-- Component 4: Counting Calculator                                -->
+  <!-- =============================================================== -->
+  <h2>4. Máy tính tổ hợp: hoán vị / chỉnh hợp / tổ hợp</h2>
+  <div class="card">
+    <div class="desc">
+      Nhập n và k. Máy tính ba con số cùng lúc: <code>n!</code>, <code>P(n,k) = n!/(n−k)!</code>,
+      <code>C(n,k) = n!/[k!(n−k)!]</code>, kèm walk-through từng bước.
+    </div>
+    <div class="row">
+      <label>n =</label>
+      <input type="number" id="cnt-n" value="10" min="0" max="170">
+      <label>k =</label>
+      <input type="number" id="cnt-k" value="3" min="0" max="170">
+      <button id="cnt-calc">Tính</button>
+    </div>
+    <div class="stat-grid" id="cnt-result"></div>
+    <div id="cnt-walkthrough" style="margin-top: 16px;"></div>
+    <div class="hint" style="margin-top: 12px;">
+      Khi n &gt; 20, ta dùng log-factorial (lgamma) để tránh overflow. Kết quả hiển thị 4 chữ số có nghĩa.
+    </div>
+  </div>
+
+</main>
+
+<script>
+/* ============================================================
+ *  Helpers
+ * ============================================================ */
+function $(id) { return document.getElementById(id); }
+function fmt(x, digits = 4) {
+  if (x === 0) return '0';
+  if (Math.abs(x) >= 1e10 || Math.abs(x) < 1e-4) return x.toExponential(digits - 1);
+  return Number(x.toPrecision(digits)).toString();
+}
+function fmtPct(p) { return (p * 100).toFixed(2) + '%'; }
+function fmtFrac(num, den) {
+  if (den === 0) return 'NaN';
+  const g = gcd(Math.round(num), Math.round(den));
+  return `${num/g}/${den/g}`;
+}
+function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+
+// Log-gamma (Lanczos) for large factorials
+function logGamma(x) {
+  const g = 7;
+  const c = [0.99999999999980993, 676.5203681218851, -1259.1392167224028,
+             771.32342877765313, -176.61502916214059, 12.507343278686905,
+             -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+  if (x < 0.5) return Math.log(Math.PI / Math.sin(Math.PI * x)) - logGamma(1 - x);
+  x -= 1;
+  let a = c[0];
+  for (let i = 1; i < g + 2; i++) a += c[i] / (x + i);
+  const t = x + g + 0.5;
+  return 0.5 * Math.log(2 * Math.PI) + (x + 0.5) * Math.log(t) - t + Math.log(a);
+}
+function logFact(n) { return n <= 1 ? 0 : logGamma(n + 1); }
+function fact(n) {
+  if (n <= 1) return 1;
+  if (n <= 20) {
+    let r = 1; for (let i = 2; i <= n; i++) r *= i; return r;
+  }
+  return Math.exp(logFact(n)); // float for large n
+}
+function nPk(n, k) {
+  if (k > n || k < 0) return 0;
+  if (n <= 20) {
+    let r = 1; for (let i = 0; i < k; i++) r *= (n - i); return r;
+  }
+  return Math.exp(logFact(n) - logFact(n - k));
+}
+function nCk(n, k) {
+  if (k > n || k < 0) return 0;
+  if (k > n - k) k = n - k;
+  if (n <= 20) {
+    let r = 1; for (let i = 0; i < k; i++) { r = r * (n - i) / (i + 1); } return r;
+  }
+  return Math.exp(logFact(n) - logFact(k) - logFact(n - k));
+}
+
+/* ============================================================
+ *  Component 1: Coin/Dice Simulator
+ * ============================================================ */
+const SimState = {
+  exp: 'coin1',
+  counts: {},        // outcome -> count
+  total: 0,
+  history: [],       // last 50 rolls
+};
+
+const Experiments = {
+  coin1: { outcomes: ['H','T'], theory: {H:0.5,T:0.5}, label: 'Tung 1 xu' },
+  coin2: { outcomes: ['HH','HT','TH','TT'], theory: {HH:0.25,HT:0.25,TH:0.25,TT:0.25}, label: 'Tung 2 xu' },
+  coin3: { outcomes: ['HHH','HHT','HTH','HTT','THH','THT','TTH','TTT'],
+           theory: {HHH:1/8,HHT:1/8,HTH:1/8,HTT:1/8,THH:1/8,THT:1/8,TTH:1/8,TTT:1/8},
+           label: 'Tung 3 xu' },
+  die1: { outcomes: ['1','2','3','4','5','6'],
+          theory: {1:1/6,2:1/6,3:1/6,4:1/6,5:1/6,6:1/6}, label: 'Gieo 1 xúc xắc' },
+  die2: { outcomes: ['2','3','4','5','6','7','8','9','10','11','12'],
+          theory: {2:1/36,3:2/36,4:3/36,5:4/36,6:5/36,7:6/36,8:5/36,9:4/36,10:3/36,11:2/36,12:1/36},
+          label: 'Tổng 2 xúc xắc' },
+};
+
+function simRollOne() {
+  const exp = Experiments[SimState.exp];
+  let result;
+  if (SimState.exp === 'die2') {
+    const a = 1 + Math.floor(Math.random() * 6);
+    const b = 1 + Math.floor(Math.random() * 6);
+    result = (a + b).toString();
+  } else if (SimState.exp.startsWith('coin')) {
+    const n = parseInt(SimState.exp.slice(4));
+    let r = '';
+    for (let i = 0; i < n; i++) r += Math.random() < 0.5 ? 'H' : 'T';
+    result = r;
+  } else { // die1
+    result = (1 + Math.floor(Math.random() * 6)).toString();
+  }
+  SimState.counts[result] = (SimState.counts[result] || 0) + 1;
+  SimState.total += 1;
+  SimState.history.unshift(result);
+  if (SimState.history.length > 60) SimState.history.pop();
+  return result;
+}
+
+function simReset() {
+  SimState.counts = {};
+  SimState.total = 0;
+  SimState.history = [];
+  $('sim-last').textContent = '—';
+  renderSim();
+}
+
+function simRunN(n) {
+  for (let i = 0; i < n; i++) simRollOne();
+  $('sim-last').textContent = SimState.history[0] || '—';
+  renderSim();
+}
+
+function renderSim() {
+  const exp = Experiments[SimState.exp];
+  const total = SimState.total || 1;
+  const bars = $('sim-bars');
+  bars.innerHTML = '';
+  let maxObs = 0;
+  for (const o of exp.outcomes) {
+    const c = SimState.counts[o] || 0;
+    if (c / total > maxObs) maxObs = c / total;
+  }
+  const maxTheory = Math.max(...Object.values(exp.theory));
+  const scaleMax = Math.max(maxObs, maxTheory) * 1.1 + 0.01;
+
+  for (const o of exp.outcomes) {
+    const c = SimState.counts[o] || 0;
+    const freq = c / total;
+    const theo = exp.theory[o];
+    const row = document.createElement('div');
+    row.className = 'bar-row';
+    row.innerHTML = `
+      <div class="lbl">${o}</div>
+      <div class="barbox">
+        <div class="bar-actual" style="width: ${(freq / scaleMax * 100).toFixed(1)}%"></div>
+        <div class="bar-theory" style="left: ${(theo / scaleMax * 100).toFixed(1)}%"></div>
+      </div>
+      <div class="val-text">${c}/${total} = ${(freq*100).toFixed(2)}% (lý thuyết ${(theo*100).toFixed(2)}%)</div>
+    `;
+    bars.appendChild(row);
+  }
+
+  // summary stat
+  const sum = $('sim-summary');
+  let totalErr = 0;
+  for (const o of exp.outcomes) {
+    const c = SimState.counts[o] || 0;
+    const freq = c / total;
+    totalErr += Math.abs(freq - exp.theory[o]);
+  }
+  sum.innerHTML = `
+    <div class="stat"><div class="name">Tổng lần tung N</div><div class="val">${SimState.total}</div></div>
+    <div class="stat"><div class="name">|Ω|</div><div class="val">${exp.outcomes.length}</div></div>
+    <div class="stat"><div class="name">Sai số tổng (Σ |freq − P|)</div><div class="val">${totalErr.toFixed(4)}</div></div>
+    <div class="stat"><div class="name">Sai số trung bình</div><div class="val">${(totalErr / exp.outcomes.length).toFixed(4)}</div></div>
+  `;
+
+  // history (only show for low-cardinality experiments)
+  const hist = $('sim-history');
+  if (SimState.history.length > 0 && exp.outcomes.length <= 12) {
+    hist.style.display = 'block';
+    hist.innerHTML = SimState.history.slice(0, 50).map(r =>
+      `<span class="row-item">${r}</span>`).join('');
+  } else {
+    hist.style.display = 'none';
+  }
+}
+
+document.querySelectorAll('[data-exp]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-exp]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    SimState.exp = btn.dataset.exp;
+    simReset();
+  });
+});
+$('sim-n').addEventListener('input', e => $('sim-n-val').textContent = e.target.value);
+$('sim-run').addEventListener('click', () => simRunN(parseInt($('sim-n').value)));
+$('sim-reset').addEventListener('click', simReset);
+$('sim-step').addEventListener('click', () => { simRollOne(); $('sim-last').textContent = SimState.history[0]; renderSim(); });
+simReset();
+
+/* ============================================================
+ *  Component 2: Sample Space Visualizer
+ * ============================================================ */
+const Spaces = {
+  coin2: {
+    outcomes: ['HH','HT','TH','TT'],
+    events: [
+      { id: 'all',  label: 'Ω (tất cả)',           pred: o => true },
+      { id: 'h1',   label: 'Xu 1 ra H',            pred: o => o[0]==='H' },
+      { id: 'h2',   label: 'Xu 2 ra H',            pred: o => o[1]==='H' },
+      { id: 'atleast1h', label: 'Ít nhất 1 H',     pred: o => o.includes('H') },
+      { id: 'exact1h',   label: 'Đúng 1 H',        pred: o => [...o].filter(c=>c==='H').length===1 },
+      { id: 'allH',      label: 'Toàn H',          pred: o => [...o].every(c=>c==='H') },
+      { id: 'none',      label: '∅ (không có)',    pred: o => false },
+    ]
+  },
+  coin3: {
+    outcomes: ['HHH','HHT','HTH','HTT','THH','THT','TTH','TTT'],
+    events: [
+      { id: 'all',  label: 'Ω',                     pred: o => true },
+      { id: 'h1',   label: 'Xu 1 ra H',             pred: o => o[0]==='H' },
+      { id: 'exact2h', label: 'Đúng 2 H',           pred: o => [...o].filter(c=>c==='H').length===2 },
+      { id: 'atleast2h', label: 'Ít nhất 2 H',     pred: o => [...o].filter(c=>c==='H').length>=2 },
+      { id: 'allH',      label: 'Toàn H',           pred: o => o==='HHH' },
+      { id: 'allT',      label: 'Toàn T',           pred: o => o==='TTT' },
+    ]
+  },
+  die1: {
+    outcomes: ['1','2','3','4','5','6'],
+    events: [
+      { id: 'all',  label: 'Ω', pred: o => true },
+      { id: 'even', label: 'Chẵn',     pred: o => parseInt(o)%2===0 },
+      { id: 'odd',  label: 'Lẻ',       pred: o => parseInt(o)%2===1 },
+      { id: 'ge4',  label: '≥ 4',      pred: o => parseInt(o)>=4 },
+      { id: 'ge5',  label: '≥ 5',      pred: o => parseInt(o)>=5 },
+      { id: 'prime',label: 'Nguyên tố',pred: o => [2,3,5].includes(parseInt(o)) },
+      { id: 'div3', label: 'Chia hết 3',pred: o => parseInt(o)%3===0 },
+    ]
+  },
+  die2: {
+    outcomes: Array.from({length:36}, (_,i) => {
+      const a = 1 + Math.floor(i/6); const b = 1 + (i%6);
+      return `${a},${b}`;
+    }),
+    events: [
+      { id: 'all',  label: 'Ω', pred: o => true },
+      { id: 'sum7', label: 'Tổng = 7',   pred: o => { const [a,b] = o.split(',').map(Number); return a+b===7; } },
+      { id: 'sum2', label: 'Tổng = 2',   pred: o => { const [a,b] = o.split(',').map(Number); return a+b===2; } },
+      { id: 'sumGe10', label: 'Tổng ≥ 10', pred: o => { const [a,b] = o.split(',').map(Number); return a+b>=10; } },
+      { id: 'doubles', label: 'Hai số bằng nhau', pred: o => { const [a,b] = o.split(',').map(Number); return a===b; } },
+      { id: 'd1even', label: 'XX1 chẵn', pred: o => { const a = +o.split(',')[0]; return a%2===0; } },
+      { id: 'hasSix', label: 'Có ít nhất 1 mặt 6', pred: o => { const [a,b] = o.split(',').map(Number); return a===6||b===6; } },
+    ]
+  },
+};
+
+const SpaceState = { kind: 'coin2', a: 'h1', b: 'h2' };
+
+function populateEventSelectors() {
+  const sp = Spaces[SpaceState.kind];
+  for (const id of ['event-a','event-b']) {
+    const sel = $(id);
+    sel.innerHTML = '';
+    for (const ev of sp.events) {
+      const opt = document.createElement('option');
+      opt.value = ev.id; opt.textContent = ev.label;
+      sel.appendChild(opt);
+    }
+  }
+  // Set defaults that are sensible
+  const defaults = {
+    coin2: ['h1','h2'],
+    coin3: ['h1','exact2h'],
+    die1: ['even','ge4'],
+    die2: ['sum7','d1even'],
+  };
+  $('event-a').value = defaults[SpaceState.kind][0];
+  $('event-b').value = defaults[SpaceState.kind][1];
+  SpaceState.a = $('event-a').value;
+  SpaceState.b = $('event-b').value;
+}
+
+function renderSpace() {
+  const sp = Spaces[SpaceState.kind];
+  const evA = sp.events.find(e => e.id === SpaceState.a);
+  const evB = sp.events.find(e => e.id === SpaceState.b);
+  const grid = $('space-grid');
+  grid.innerHTML = '';
+  let cntA = 0, cntB = 0, cntBoth = 0, cntUnion = 0;
+  for (const o of sp.outcomes) {
+    const inA = evA.pred(o);
+    const inB = evB.pred(o);
+    if (inA) cntA++;
+    if (inB) cntB++;
+    if (inA && inB) cntBoth++;
+    if (inA || inB) cntUnion++;
+    const cell = document.createElement('div');
+    cell.className = 'outcome-cell';
+    if (inA && inB) cell.classList.add('in-both');
+    else if (inA) cell.classList.add('in-event');
+    else if (inB) cell.classList.add('in-event-b');
+    cell.textContent = o;
+    grid.appendChild(cell);
+  }
+  const total = sp.outcomes.length;
+  const pA = cntA/total, pB = cntB/total, pBoth = cntBoth/total, pUnion = cntUnion/total;
+  const independent = Math.abs(pBoth - pA*pB) < 1e-9;
+  $('space-stats').innerHTML = `
+    <div class="stat"><div class="name">|Ω|</div><div class="val">${total}</div></div>
+    <div class="stat"><div class="name">|A|</div><div class="val">${cntA}</div></div>
+    <div class="stat"><div class="name">|B|</div><div class="val">${cntB}</div></div>
+    <div class="stat"><div class="name">|A ∩ B|</div><div class="val">${cntBoth}</div></div>
+    <div class="stat"><div class="name">|A ∪ B|</div><div class="val">${cntUnion}</div></div>
+    <div class="stat"><div class="name">P(A)</div><div class="val">${fmtFrac(cntA,total)} = ${pA.toFixed(4)}</div></div>
+    <div class="stat"><div class="name">P(B)</div><div class="val">${fmtFrac(cntB,total)} = ${pB.toFixed(4)}</div></div>
+    <div class="stat"><div class="name">P(A∩B)</div><div class="val">${fmtFrac(cntBoth,total)} = ${pBoth.toFixed(4)}</div></div>
+    <div class="stat"><div class="name">P(A)·P(B)</div><div class="val">${(pA*pB).toFixed(4)}</div></div>
+    <div class="stat"><div class="name">P(A∪B) [I-E]</div><div class="val">${(pA+pB-pBoth).toFixed(4)}</div></div>
+    <div class="stat"><div class="name">Độc lập?</div><div class="val" style="color:${independent?'#22543d':'#742a2a'}">${independent?'CÓ ✓':'KHÔNG ✗'}</div></div>
+    <div class="stat"><div class="name">Disjoint?</div><div class="val" style="color:${cntBoth===0?'#22543d':'#742a2a'}">${cntBoth===0?'CÓ ✓':'KHÔNG ✗'}</div></div>
+  `;
+  renderTree();
+}
+
+function renderTree() {
+  const svg = $('tree-svg');
+  svg.innerHTML = '';
+  if (SpaceState.kind !== 'coin2' && SpaceState.kind !== 'coin3') {
+    svg.innerHTML = `<text x="350" y="160" text-anchor="middle" fill="#718096" font-family="monospace">Tree chỉ hiển thị cho 2-3 xu</text>`;
+    return;
+  }
+  const n = SpaceState.kind === 'coin2' ? 2 : 3;
+  const sp = Spaces[SpaceState.kind];
+  const evA = sp.events.find(e => e.id === SpaceState.a);
+  const evB = sp.events.find(e => e.id === SpaceState.b);
+  const NS = 'http://www.w3.org/2000/svg';
+
+  // Tree layout: root at top, branches down
+  const W = 700, H = 320;
+  const levelY = (lvl) => 30 + lvl * (H - 80) / n;
+
+  function drawTree(prefix, x, w, lvl) {
+    // node
+    const cy = levelY(lvl);
+    const g = document.createElementNS(NS, 'g');
+    g.setAttribute('class', 'tree-node');
+    const c = document.createElementNS(NS, 'circle');
+    c.setAttribute('cx', x); c.setAttribute('cy', cy); c.setAttribute('r', 12);
+    if (lvl === 0) c.setAttribute('fill', '#2d3748');
+    g.appendChild(c);
+    const t = document.createElementNS(NS, 'text');
+    t.setAttribute('x', x); t.setAttribute('y', cy + 4);
+    t.textContent = lvl === 0 ? '·' : prefix[prefix.length-1];
+    g.appendChild(t);
+    svg.appendChild(g);
+
+    if (lvl === n) {
+      // leaf box for outcome
+      const inA = evA.pred(prefix);
+      const inB = evB.pred(prefix);
+      const leaf = document.createElementNS(NS, 'g');
+      leaf.setAttribute('class', 'tree-leaf');
+      const rect = document.createElementNS(NS, 'rect');
+      rect.setAttribute('x', x - 22); rect.setAttribute('y', cy + 14);
+      rect.setAttribute('width', 44); rect.setAttribute('height', 22); rect.setAttribute('rx', 4);
+      if (inA && inB) { rect.setAttribute('fill','#e9d8fd'); rect.setAttribute('stroke','#805ad5'); }
+      else if (inA) { rect.setAttribute('fill','#fef5e7'); rect.setAttribute('stroke','#d69e2e'); }
+      else if (inB) { rect.setAttribute('fill','#c6f6d5'); rect.setAttribute('stroke','#38a169'); }
+      else { rect.setAttribute('fill','#edf2f7'); rect.setAttribute('stroke','#a0aec0'); }
+      leaf.appendChild(rect);
+      const lt = document.createElementNS(NS, 'text');
+      lt.setAttribute('x', x); lt.setAttribute('y', cy + 29);
+      lt.textContent = prefix;
+      leaf.appendChild(lt);
+      svg.appendChild(leaf);
+      return;
+    }
+    // two children: H left, T right
+    const childW = w / 2;
+    const lx = x - w/4, rx = x + w/4;
+    const cyChild = levelY(lvl + 1);
+    for (const [side, cx, ch] of [['L', lx, 'H'], ['R', rx, 'T']]) {
+      const edge = document.createElementNS(NS, 'line');
+      edge.setAttribute('x1', x); edge.setAttribute('y1', cy + 12);
+      edge.setAttribute('x2', cx); edge.setAttribute('y2', cyChild - 12);
+      edge.setAttribute('class', 'tree-edge');
+      svg.appendChild(edge);
+      const lbl = document.createElementNS(NS, 'text');
+      lbl.setAttribute('x', (x + cx) / 2 + (side === 'L' ? -6 : 6));
+      lbl.setAttribute('y', (cy + cyChild) / 2);
+      lbl.setAttribute('class', 'tree-edge-label');
+      lbl.textContent = '1/2';
+      svg.appendChild(lbl);
+      drawTree(prefix + ch, cx, childW, lvl + 1);
+    }
+  }
+  drawTree('', W/2, W * 0.85, 0);
+}
+
+document.querySelectorAll('[data-space]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-space]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    SpaceState.kind = btn.dataset.space;
+    populateEventSelectors();
+    renderSpace();
+  });
+});
+$('event-a').addEventListener('change', e => { SpaceState.a = e.target.value; renderSpace(); });
+$('event-b').addEventListener('change', e => { SpaceState.b = e.target.value; renderSpace(); });
+populateEventSelectors();
+renderSpace();
+
+/* ============================================================
+ *  Component 3: Birthday Paradox
+ * ============================================================ */
+function birthdayPNoMatch(n, D) {
+  // log-domain to avoid underflow
+  let logP = 0;
+  for (let i = 0; i < n; i++) {
+    if (i >= D) return 0;
+    logP += Math.log((D - i) / D);
+  }
+  return Math.exp(logP);
+}
+
+function renderBirthday() {
+  const n = parseInt($('bd-n').value);
+  const D = parseInt($('bd-days').value);
+  $('bd-n-val').textContent = n;
+  const pNo = birthdayPNoMatch(n, D);
+  const pYes = 1 - pNo;
+  $('bd-pno').textContent = pNo.toFixed(4);
+  $('bd-pyes').textContent = pYes.toFixed(4);
+  $('bd-pct').textContent = (pYes * 100).toFixed(2) + '%';
+
+  // chart
+  const svg = $('bd-svg');
+  svg.innerHTML = '';
+  const NS = 'http://www.w3.org/2000/svg';
+  const W = 1040, H = 360, padL = 50, padR = 20, padT = 20, padB = 40;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const NMAX = 80;
+
+  // grid
+  for (let yPct = 0; yPct <= 100; yPct += 10) {
+    const y = padT + plotH - (yPct / 100) * plotH;
+    const line = document.createElementNS(NS, 'line');
+    line.setAttribute('x1', padL); line.setAttribute('y1', y);
+    line.setAttribute('x2', padL + plotW); line.setAttribute('y2', y);
+    line.setAttribute('class', 'chart-grid');
+    svg.appendChild(line);
+    const lbl = document.createElementNS(NS, 'text');
+    lbl.setAttribute('x', padL - 5); lbl.setAttribute('y', y + 4);
+    lbl.setAttribute('text-anchor', 'end'); lbl.setAttribute('class', 'chart-label');
+    lbl.textContent = yPct + '%';
+    svg.appendChild(lbl);
+  }
+  // 50% line
+  const y50 = padT + plotH * 0.5;
+  const line50 = document.createElementNS(NS, 'line');
+  line50.setAttribute('x1', padL); line50.setAttribute('y1', y50);
+  line50.setAttribute('x2', padL + plotW); line50.setAttribute('y2', y50);
+  line50.setAttribute('stroke', '#e53e3e'); line50.setAttribute('stroke-dasharray', '4 4');
+  svg.appendChild(line50);
+
+  // x-axis labels
+  for (let nv = 0; nv <= NMAX; nv += 10) {
+    const x = padL + (nv / NMAX) * plotW;
+    const lbl = document.createElementNS(NS, 'text');
+    lbl.setAttribute('x', x); lbl.setAttribute('y', padT + plotH + 18);
+    lbl.setAttribute('text-anchor', 'middle'); lbl.setAttribute('class', 'chart-label');
+    lbl.textContent = nv;
+    svg.appendChild(lbl);
+    const tick = document.createElementNS(NS, 'line');
+    tick.setAttribute('x1', x); tick.setAttribute('y1', padT + plotH);
+    tick.setAttribute('x2', x); tick.setAttribute('y2', padT + plotH + 4);
+    tick.setAttribute('class', 'chart-axis');
+    svg.appendChild(tick);
+  }
+
+  // axes
+  const axX = document.createElementNS(NS, 'line');
+  axX.setAttribute('x1', padL); axX.setAttribute('y1', padT + plotH);
+  axX.setAttribute('x2', padL + plotW); axX.setAttribute('y2', padT + plotH);
+  axX.setAttribute('class', 'chart-axis');
+  svg.appendChild(axX);
+  const axY = document.createElementNS(NS, 'line');
+  axY.setAttribute('x1', padL); axY.setAttribute('y1', padT);
+  axY.setAttribute('x2', padL); axY.setAttribute('y2', padT + plotH);
+  axY.setAttribute('class', 'chart-axis');
+  svg.appendChild(axY);
+
+  // curve
+  let d = '';
+  for (let nv = 0; nv <= NMAX; nv++) {
+    const p = 1 - birthdayPNoMatch(nv, D);
+    const x = padL + (nv / NMAX) * plotW;
+    const y = padT + plotH - p * plotH;
+    d += (nv === 0 ? 'M' : 'L') + x + ',' + y;
+  }
+  const path = document.createElementNS(NS, 'path');
+  path.setAttribute('d', d); path.setAttribute('stroke', '#3182ce');
+  path.setAttribute('stroke-width', 2.5); path.setAttribute('fill', 'none');
+  svg.appendChild(path);
+
+  // n = 23 marker
+  if (D === 365) {
+    const x23 = padL + (23 / NMAX) * plotW;
+    const y23 = padT + plotH - (1 - birthdayPNoMatch(23, 365)) * plotH;
+    const mk = document.createElementNS(NS, 'circle');
+    mk.setAttribute('cx', x23); mk.setAttribute('cy', y23); mk.setAttribute('r', 5);
+    mk.setAttribute('fill', '#e53e3e');
+    svg.appendChild(mk);
+    const lbl = document.createElementNS(NS, 'text');
+    lbl.setAttribute('x', x23 + 8); lbl.setAttribute('y', y23 - 6);
+    lbl.setAttribute('fill', '#e53e3e'); lbl.setAttribute('font-size', 11); lbl.setAttribute('font-family','monospace');
+    lbl.textContent = `n=23, P≈${(1-birthdayPNoMatch(23,365)).toFixed(3)}`;
+    svg.appendChild(lbl);
+  }
+
+  // current n marker
+  const xCur = padL + (n / NMAX) * plotW;
+  const yCur = padT + plotH - pYes * plotH;
+  const mkC = document.createElementNS(NS, 'circle');
+  mkC.setAttribute('cx', xCur); mkC.setAttribute('cy', yCur); mkC.setAttribute('r', 7);
+  mkC.setAttribute('fill', '#48bb78'); mkC.setAttribute('stroke','white'); mkC.setAttribute('stroke-width',2);
+  svg.appendChild(mkC);
+  const lblC = document.createElementNS(NS, 'text');
+  lblC.setAttribute('x', xCur + 10); lblC.setAttribute('y', yCur + 4);
+  lblC.setAttribute('fill', '#22543d'); lblC.setAttribute('font-size', 13);
+  lblC.setAttribute('font-family','monospace'); lblC.setAttribute('font-weight','700');
+  lblC.textContent = `n=${n}, ${(pYes*100).toFixed(1)}%`;
+  svg.appendChild(lblC);
+
+  // axis title
+  const tx = document.createElementNS(NS, 'text');
+  tx.setAttribute('x', padL + plotW/2); tx.setAttribute('y', H - 4);
+  tx.setAttribute('text-anchor', 'middle'); tx.setAttribute('class', 'chart-title');
+  tx.textContent = 'n (số người)';
+  svg.appendChild(tx);
+}
+
+$('bd-n').addEventListener('input', renderBirthday);
+$('bd-days').addEventListener('input', renderBirthday);
+renderBirthday();
+
+/* ============================================================
+ *  Component 4: Counting Calculator
+ * ============================================================ */
+function renderCounting() {
+  const n = parseInt($('cnt-n').value);
+  const k = parseInt($('cnt-k').value);
+  const valid = !isNaN(n) && !isNaN(k) && n >= 0 && k >= 0 && k <= n;
+  const factN = valid ? fact(n) : NaN;
+  const pNK = valid ? nPk(n, k) : NaN;
+  const cNK = valid ? nCk(n, k) : NaN;
+
+  $('cnt-result').innerHTML = `
+    <div class="stat"><div class="name">n!</div><div class="val">${valid ? fmt(factN) : '—'}</div></div>
+    <div class="stat"><div class="name">P(n,k) = n!/(n−k)!</div><div class="val">${valid ? fmt(pNK) : '—'}</div></div>
+    <div class="stat"><div class="name">C(n,k) = n!/[k!(n−k)!]</div><div class="val">${valid ? fmt(cNK) : '—'}</div></div>
+    <div class="stat"><div class="name">log₁₀(n!)</div><div class="val">${valid ? (logFact(n)/Math.LN10).toFixed(3) : '—'}</div></div>
+  `;
+
+  const wt = $('cnt-walkthrough');
+  if (!valid) {
+    wt.innerHTML = '<div class="hint" style="color:#e53e3e">⚠ Cần n, k ≥ 0 và k ≤ n.</div>';
+    return;
+  }
+  let html = '<h3>Walk-through từng bước</h3>';
+  // n!
+  if (n <= 10) {
+    let exp1 = '';
+    if (n === 0) exp1 = '0! = 1 (quy ước)';
+    else {
+      exp1 = `${n}! = ` + Array.from({length:n}, (_,i)=>n-i).join(' · ') + ` = ${factN}`;
+    }
+    html += `<div class="formula">${exp1}</div>`;
+  } else {
+    html += `<div class="formula">${n}! ≈ ${factN.toExponential(4)} (n quá lớn để xem chi tiết)</div>`;
+  }
+  // P(n,k)
+  if (n <= 15 && k <= 8) {
+    const terms = Array.from({length:k}, (_,i) => n-i);
+    html += `<div class="formula">P(${n},${k}) = ${n}!/${n-k}! = ${terms.join(' · ') || '1'} = ${pNK}</div>`;
+  } else {
+    html += `<div class="formula">P(${n},${k}) ≈ ${pNK.toExponential ? pNK.toExponential(4) : pNK}</div>`;
+  }
+  // C(n,k)
+  if (n <= 15 && k <= 8) {
+    const terms = Array.from({length:k}, (_,i) => n-i);
+    const factK = fact(k);
+    html += `<div class="formula">C(${n},${k}) = P(${n},${k})/${k}! = (${terms.join('·')})/(${k===0?1:Array.from({length:k},(_,i)=>i+1).join('·')}) = ${cNK}</div>`;
+  } else {
+    html += `<div class="formula">C(${n},${k}) ≈ ${cNK.toExponential ? cNK.toExponential(4) : cNK}</div>`;
+  }
+  // sanity
+  html += `<div class="hint">Kiểm tra: P(n,k) = C(n,k) · k! → ${pNK} ≈ ${cNK} · ${fact(k)} = ${cNK * fact(k)} ${Math.abs(pNK - cNK*fact(k)) < 1e-6 ? '✓' : '(sai số float)'}</div>`;
+  // identity
+  if (k <= n) {
+    html += `<div class="hint">Đối xứng: C(${n},${k}) = C(${n},${n-k}) = ${nCk(n, n-k)} ${Math.abs(cNK - nCk(n,n-k)) < 1e-6 ? '✓' : ''}</div>`;
+  }
+  wt.innerHTML = html;
+}
+
+$('cnt-calc').addEventListener('click', renderCounting);
+$('cnt-n').addEventListener('input', renderCounting);
+$('cnt-k').addEventListener('input', renderCounting);
+renderCounting();
+
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+</body>
+</html>

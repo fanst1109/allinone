@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 08 — Cross-entropy + KL divergence</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  main { max-width: 1200px; margin: 0 auto; padding: 24px; }
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 28px; font-size: 15px; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 18px 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 14px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; color: #2d3748; font-size: 14px; }
+  input[type="range"] { width: 220px; vertical-align: middle; }
+  .num { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px; color: #2c5282; font-weight: 700; }
+  .lbl { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px; color: #4a5568; }
+  svg.viz {
+    display: block; background: #f7fafc;
+    border: 1px solid #e2e8f0; border-radius: 6px;
+    width: 100%; height: auto;
+  }
+  .info-box {
+    margin-top: 10px; padding: 10px 14px;
+    background: #edf2f7; border-radius: 6px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; color: #2d3748; line-height: 1.85;
+  }
+  .info-box .blue { color: #2b6cb0; font-weight: 700; }
+  .info-box .red { color: #c53030; font-weight: 700; }
+  .info-box .green { color: #2f855a; font-weight: 700; }
+  .info-box .purple { color: #6b46c1; font-weight: 700; }
+  .info-box .amber { color: #b7791f; font-weight: 700; }
+  .grid-2 {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start;
+  }
+  @media (max-width: 940px) { .grid-2 { grid-template-columns: 1fr; } }
+  .hint {
+    color: #4a5568; font-size: 13.5px;
+    background: #fefcbf; padding: 10px 12px;
+    border-left: 4px solid #ecc94b; border-radius: 4px;
+    margin: 12px 0;
+  }
+  .legend {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    font-size: 13px; margin-top: 8px; color: #4a5568;
+  }
+  .legend .item { display: flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 16px; height: 12px; border-radius: 3px; }
+  .pill {
+    display: inline-block; padding: 3px 9px; border-radius: 4px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 12px; font-weight: 700;
+  }
+  .pill.p { background: #bee3f8; color: #2b6cb0; }
+  .pill.q { background: #fed7d7; color: #c53030; }
+  .pill.m { background: #e9d8fd; color: #6b46c1; }
+  table.stats {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+    margin-top: 6px;
+  }
+  table.stats th, table.stats td {
+    padding: 6px 10px; border-bottom: 1px solid #e2e8f0;
+    text-align: left;
+  }
+  table.stats th { background: #edf2f7; }
+  table.stats td.num { font-family: "SF Mono", Monaco, Consolas, monospace; color: #2c5282; }
+  select { padding: 4px 8px; border-radius: 4px; border: 1px solid #cbd5e0; }
+  button.preset {
+    padding: 5px 11px; border-radius: 5px; border: 1px solid #cbd5e0;
+    background: #fff; cursor: pointer; font-size: 12.5px;
+  }
+  button.preset:hover { background: #edf2f7; }
+  button.preset.active { background: #4299e1; color: white; border-color: #4299e1; }
+  .control-group {
+    display: grid; grid-template-columns: 90px 1fr 60px; gap: 10px;
+    align-items: center; margin: 4px 0;
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-mle/visualization.html">← L7: MLE</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Cross-entropy + KL (cuối Tầng 5)</span>
+</nav>
+
+<main>
+<h1>Lesson 08 — Cross-entropy + KL divergence</h1>
+<div class="subtitle">Loss function trung tâm của classification và LLM — entropy, cross-entropy, KL, classification loss, perplexity.</div>
+
+<!-- ===================== 1. ENTROPY EXPLORER ===================== -->
+<h2>1. Entropy explorer — `H(p)`</h2>
+<div class="card">
+  <p>Trượt thanh để thay đổi <span class="pill p">p</span> của Bernoulli (xác suất outcome 0). Entropy <code>H(p) = -[p·log p + (1-p)·log(1-p)]</code> đạt max khi <code>p = 0.5</code> và giảm về 0 khi <code>p → 0</code> hoặc <code>p → 1</code>.</p>
+  <div class="grid-2">
+    <div>
+      <div class="control-group">
+        <label>p(outcome 0)</label>
+        <input type="range" id="ent-p" min="0.01" max="0.99" step="0.01" value="0.5">
+        <span class="num" id="ent-p-val">0.50</span>
+      </div>
+      <div class="row">
+        <label>Đơn vị:</label>
+        <select id="ent-unit">
+          <option value="bit" selected>bit (log₂)</option>
+          <option value="nat">nat (ln)</option>
+        </select>
+      </div>
+      <div class="info-box" id="ent-info"></div>
+    </div>
+    <div>
+      <svg id="ent-svg" class="viz" viewBox="0 0 460 280"></svg>
+      <div class="legend">
+        <div class="item"><div class="swatch" style="background:#4299e1"></div>H(p) curve</div>
+        <div class="item"><div class="swatch" style="background:#c53030"></div>Vị trí p hiện tại</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 2. CROSS-ENTROPY & KL ===================== -->
+<h2>2. Cross-entropy &amp; KL comparator — không đối xứng</h2>
+<div class="card">
+  <p>Hai phân phối Bernoulli <span class="pill p">p</span> và <span class="pill q">q</span>. Hiển thị: <code>H(p)</code>, <code>H(q)</code>, <code>H(p, q)</code>, <code>H(q, p)</code>, <code>D_KL(p||q)</code>, <code>D_KL(q||p)</code>, <code>JSD</code>. Chú ý <strong>KL hai chiều khác nhau</strong>.</p>
+  <div class="grid-2">
+    <div>
+      <div class="control-group">
+        <label>p(0)</label>
+        <input type="range" id="kl-p" min="0.01" max="0.99" step="0.01" value="0.9">
+        <span class="num" id="kl-p-val">0.90</span>
+      </div>
+      <div class="control-group">
+        <label>q(0)</label>
+        <input type="range" id="kl-q" min="0.01" max="0.99" step="0.01" value="0.5">
+        <span class="num" id="kl-q-val">0.50</span>
+      </div>
+      <div class="row">
+        <label>Preset:</label>
+        <button class="preset" data-p="0.9" data-q="0.9">p = q</button>
+        <button class="preset" data-p="0.9" data-q="0.1">đảo ngược</button>
+        <button class="preset" data-p="0.5" data-q="0.9">fair vs lệch</button>
+        <button class="preset" data-p="0.99" data-q="0.5">cực lệch</button>
+      </div>
+      <table class="stats" id="kl-table">
+        <thead><tr><th>Đại lượng</th><th>Giá trị (bit)</th><th>Diễn giải</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div>
+      <svg id="kl-svg" class="viz" viewBox="0 0 460 320"></svg>
+      <div class="legend">
+        <div class="item"><div class="swatch" style="background:#2b6cb0"></div>p</div>
+        <div class="item"><div class="swatch" style="background:#c53030"></div>q</div>
+        <div class="item"><div class="swatch" style="background:#6b46c1"></div>m = (p+q)/2</div>
+      </div>
+    </div>
+  </div>
+  <div class="hint">Verify: chuyển preset "p = q" — mọi KL = 0, JSD = 0. Chuyển "đảo ngược" — KL hai chiều có thể đối xứng do swap. Chuyển "fair vs lệch" — KL hai chiều khác hẳn nhau.</div>
+</div>
+
+<!-- ===================== 3. CLASSIFICATION LOSS DEMO ===================== -->
+<h2>3. Classification loss — 3 class</h2>
+<div class="card">
+  <p>True class one-hot. Trượt thanh điều chỉnh logits <code>z_1, z_2, z_3</code>, model output = <code>softmax(z)</code>. Loss = <code>-log q[y]</code>.</p>
+  <div class="grid-2">
+    <div>
+      <div class="row">
+        <label>True class y:</label>
+        <select id="cls-true">
+          <option value="0">Class 0</option>
+          <option value="1" selected>Class 1</option>
+          <option value="2">Class 2</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label>z_0</label>
+        <input type="range" id="cls-z0" min="-3" max="3" step="0.1" value="0">
+        <span class="num" id="cls-z0-val">0.0</span>
+      </div>
+      <div class="control-group">
+        <label>z_1</label>
+        <input type="range" id="cls-z1" min="-3" max="3" step="0.1" value="1.5">
+        <span class="num" id="cls-z1-val">1.5</span>
+      </div>
+      <div class="control-group">
+        <label>z_2</label>
+        <input type="range" id="cls-z2" min="-3" max="3" step="0.1" value="0">
+        <span class="num" id="cls-z2-val">0.0</span>
+      </div>
+      <div class="row">
+        <button class="preset" data-cfg="confident-right">Tự tin đúng</button>
+        <button class="preset" data-cfg="uniform">Uniform (chưa học)</button>
+        <button class="preset" data-cfg="confident-wrong">Tự tin SAI</button>
+        <button class="preset" data-cfg="slight">Đoán nhẹ đúng</button>
+      </div>
+      <div class="info-box" id="cls-info"></div>
+    </div>
+    <div>
+      <svg id="cls-svg" class="viz" viewBox="0 0 460 300"></svg>
+      <div class="legend">
+        <div class="item"><div class="swatch" style="background:#48bb78"></div>True class (one-hot)</div>
+        <div class="item"><div class="swatch" style="background:#4299e1"></div>Model output q</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 4. PERPLEXITY VISUALIZER ===================== -->
+<h2>4. Perplexity visualizer</h2>
+<div class="card">
+  <p>Vocab nhỏ V = 8. Phân phối thật <span class="pill p">p</span> tập trung ở token 0 (xác suất 0.5, các token khác chia đều 0.07). Model q được kiểm soát qua "temperature" τ — τ thấp = concentrated, τ cao = uniform.</p>
+  <div class="grid-2">
+    <div>
+      <div class="row">
+        <label>Model mode:</label>
+        <select id="pp-mode">
+          <option value="match" selected>Match p (lý tưởng)</option>
+          <option value="uniform">Uniform (chưa học)</option>
+          <option value="wrong">Concentrated SAI chỗ</option>
+          <option value="temperature">Tuỳ chỉnh τ (logits)</option>
+        </select>
+      </div>
+      <div class="control-group" id="pp-tau-row" style="display:none">
+        <label>τ</label>
+        <input type="range" id="pp-tau" min="0.1" max="5" step="0.05" value="1">
+        <span class="num" id="pp-tau-val">1.00</span>
+      </div>
+      <table class="stats" id="pp-table">
+        <thead><tr><th>Đại lượng</th><th>Giá trị</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="hint">PPL = exp(H(p, q)). Khi q = p (mode "Match"), PPL = exp(H(p)) là sàn lý thuyết. Khi q = uniform, PPL = V = 8. Khi q "tự tin sai", PPL có thể vượt V (tệ hơn random).</div>
+    </div>
+    <div>
+      <svg id="pp-svg" class="viz" viewBox="0 0 460 320"></svg>
+      <div class="legend">
+        <div class="item"><div class="swatch" style="background:#2b6cb0"></div>p (thật)</div>
+        <div class="item"><div class="swatch" style="background:#c53030"></div>q (model)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 5. LINKS ===================== -->
+<h2>5. Học tiếp</h2>
+<div class="card">
+  <ul>
+    <li>📖 Đọc README ngay tại đây — bấm nút "📖 Đọc README" bên dưới.</li>
+    <li>← Lesson 07 — <a href="../lesson-07-mle/visualization.html">MLE</a> (nguồn dẫn cross-entropy).</li>
+    <li>🏁 Đây là <strong>lesson cuối Tầng 5</strong>. Tiếp theo: <em>Tầng 6 — AI/ML</em>.</li>
+  </ul>
+</div>
+</main>
+
+<script>
+(function(){
+  // ============ Utilities ============
+  const LN2 = Math.log(2);
+  const log2 = (x) => Math.log(x) / LN2;
+  const safeLog2 = (x) => x <= 0 ? 0 : log2(x);
+  const safeLn = (x) => x <= 0 ? 0 : Math.log(x);
+
+  function entropy(p, unit) {
+    // p: array of probabilities
+    let s = 0;
+    for (const pi of p) {
+      if (pi > 0) s -= pi * (unit === 'bit' ? log2(pi) : Math.log(pi));
+    }
+    return s;
+  }
+  function crossEntropy(p, q, unit) {
+    let s = 0;
+    const eps = 1e-12;
+    for (let i = 0; i < p.length; i++) {
+      const qi = Math.max(q[i], eps);
+      s -= p[i] * (unit === 'bit' ? log2(qi) : Math.log(qi));
+    }
+    return s;
+  }
+  function kl(p, q, unit) {
+    return crossEntropy(p, q, unit) - entropy(p, unit);
+  }
+  function jsd(p, q, unit) {
+    const m = p.map((pi, i) => 0.5 * (pi + q[i]));
+    return 0.5 * kl(p, m, unit) + 0.5 * kl(q, m, unit);
+  }
+  function softmax(z) {
+    const m = Math.max(...z);
+    const e = z.map(zi => Math.exp(zi - m));
+    const s = e.reduce((a, b) => a + b, 0);
+    return e.map(ei => ei / s);
+  }
+
+  // ============================================================
+  // 1. ENTROPY EXPLORER
+  // ============================================================
+  const entP = document.getElementById('ent-p');
+  const entPv = document.getElementById('ent-p-val');
+  const entUnit = document.getElementById('ent-unit');
+  const entInfo = document.getElementById('ent-info');
+  const entSvg = document.getElementById('ent-svg');
+
+  function drawEntropy() {
+    const p = parseFloat(entP.value);
+    const unit = entUnit.value;
+    entPv.textContent = p.toFixed(2);
+    const H = entropy([p, 1 - p], unit);
+    const Hmax = unit === 'bit' ? 1 : Math.log(2);
+
+    // Curve
+    const W = 460, Hh = 280;
+    const padL = 50, padR = 20, padT = 20, padB = 40;
+    const w = W - padL - padR, h = Hh - padT - padB;
+    let svg = `<g stroke="#cbd5e0" stroke-width="1">`;
+    // axes
+    svg += `<line x1="${padL}" y1="${Hh - padB}" x2="${W - padR}" y2="${Hh - padB}"/>`;
+    svg += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${Hh - padB}"/>`;
+    svg += `</g>`;
+    // axis labels
+    svg += `<text x="${padL + w/2}" y="${Hh - 8}" text-anchor="middle" font-size="12" fill="#4a5568">p (xác suất outcome 0)</text>`;
+    svg += `<text x="14" y="${padT + h/2}" text-anchor="middle" font-size="12" fill="#4a5568" transform="rotate(-90 14 ${padT+h/2})">H(p)  [${unit}]</text>`;
+    // x ticks
+    for (let t = 0; t <= 1.0001; t += 0.25) {
+      const x = padL + t * w;
+      svg += `<line x1="${x}" y1="${Hh-padB}" x2="${x}" y2="${Hh-padB+4}" stroke="#a0aec0"/>`;
+      svg += `<text x="${x}" y="${Hh-padB+16}" text-anchor="middle" font-size="11" fill="#4a5568">${t.toFixed(2)}</text>`;
+    }
+    // y ticks
+    const yTicks = unit === 'bit' ? [0, 0.25, 0.5, 0.75, 1] : [0, 0.2, 0.4, 0.6];
+    for (const v of yTicks) {
+      const y = (Hh - padB) - (v / Hmax) * h;
+      svg += `<line x1="${padL-4}" y1="${y}" x2="${padL}" y2="${y}" stroke="#a0aec0"/>`;
+      svg += `<text x="${padL-7}" y="${y+4}" text-anchor="end" font-size="11" fill="#4a5568">${v.toFixed(2)}</text>`;
+    }
+    // entropy curve
+    let pts = [];
+    for (let i = 0; i <= 200; i++) {
+      const x = i / 200;
+      const hv = entropy([x, 1 - x], unit);
+      pts.push([padL + x * w, (Hh - padB) - (hv / Hmax) * h]);
+    }
+    svg += `<polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#4299e1" stroke-width="2.5"/>`;
+    // current point
+    const cx = padL + p * w;
+    const cy = (Hh - padB) - (H / Hmax) * h;
+    svg += `<line x1="${cx}" y1="${Hh-padB}" x2="${cx}" y2="${cy}" stroke="#c53030" stroke-dasharray="3 3"/>`;
+    svg += `<circle cx="${cx}" cy="${cy}" r="6" fill="#c53030"/>`;
+    svg += `<text x="${cx + 10}" y="${cy - 6}" font-size="12" fill="#c53030" font-weight="700">H = ${H.toFixed(3)}</text>`;
+
+    entSvg.innerHTML = svg;
+
+    // info box
+    const unitName = unit === 'bit' ? 'bit' : 'nat';
+    let interp = '';
+    if (Math.abs(p - 0.5) < 0.02) interp = '→ Phân phối <span class="green">cực đại entropy</span> (fair coin)';
+    else if (p < 0.05 || p > 0.95) interp = '→ Gần deterministic, entropy <span class="amber">rất thấp</span>';
+    else if (Math.abs(p - 0.5) < 0.15) interp = '→ Gần fair, entropy cao';
+    else interp = '→ Lệch rõ, entropy giảm';
+
+    entInfo.innerHTML = `
+      <div>p = (<span class="blue">${p.toFixed(2)}</span>, <span class="blue">${(1-p).toFixed(2)}</span>)</div>
+      <div>H(p) = −[p log p + (1−p) log(1−p)]</div>
+      <div>     = −[${p.toFixed(2)}·(${(unit==='bit'?log2(p):Math.log(p)).toFixed(3)}) + ${(1-p).toFixed(2)}·(${(unit==='bit'?log2(1-p):Math.log(1-p)).toFixed(3)})]</div>
+      <div>     = <span class="green">${H.toFixed(4)} ${unitName}</span></div>
+      <div style="margin-top:6px">${interp}</div>
+    `;
+  }
+  entP.addEventListener('input', drawEntropy);
+  entUnit.addEventListener('change', drawEntropy);
+  drawEntropy();
+
+  // ============================================================
+  // 2. KL COMPARATOR
+  // ============================================================
+  const klP = document.getElementById('kl-p');
+  const klQ = document.getElementById('kl-q');
+  const klPv = document.getElementById('kl-p-val');
+  const klQv = document.getElementById('kl-q-val');
+  const klSvg = document.getElementById('kl-svg');
+  const klTable = document.querySelector('#kl-table tbody');
+
+  function drawKL() {
+    const pp = parseFloat(klP.value);
+    const qq = parseFloat(klQ.value);
+    klPv.textContent = pp.toFixed(2);
+    klQv.textContent = qq.toFixed(2);
+    const p = [pp, 1 - pp];
+    const q = [qq, 1 - qq];
+    const m = [(pp + qq) / 2, (2 - pp - qq) / 2];
+    const Hp = entropy(p, 'bit');
+    const Hq = entropy(q, 'bit');
+    const Hpq = crossEntropy(p, q, 'bit');
+    const Hqp = crossEntropy(q, p, 'bit');
+    const Dpq = Hpq - Hp;
+    const Dqp = Hqp - Hq;
+    const J = jsd(p, q, 'bit');
+
+    // Draw bar chart
+    const W = 460, Hh = 320;
+    const padL = 50, padR = 20, padT = 30, padB = 50;
+    const w = W - padL - padR, h = Hh - padT - padB;
+
+    // Two-group bar chart: outcome 0 / outcome 1, p (blue), q (red), m (purple)
+    const groups = ['outcome 0', 'outcome 1'];
+    const bw = 25, gap = 12;
+    const groupW = bw * 3 + gap;
+    const span = w / 2;
+    let svg = `<g stroke="#cbd5e0" stroke-width="1">`;
+    svg += `<line x1="${padL}" y1="${Hh - padB}" x2="${W - padR}" y2="${Hh - padB}"/>`;
+    svg += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${Hh - padB}"/>`;
+    svg += `</g>`;
+    // y ticks
+    for (let t = 0; t <= 1.001; t += 0.2) {
+      const y = (Hh - padB) - t * h;
+      svg += `<line x1="${padL-4}" y1="${y}" x2="${padL}" y2="${y}" stroke="#a0aec0"/>`;
+      svg += `<text x="${padL-7}" y="${y+4}" text-anchor="end" font-size="11" fill="#4a5568">${t.toFixed(1)}</text>`;
+    }
+    svg += `<text x="14" y="${padT + h/2}" text-anchor="middle" font-size="12" fill="#4a5568" transform="rotate(-90 14 ${padT+h/2})">probability</text>`;
+    // bars
+    for (let g = 0; g < 2; g++) {
+      const baseX = padL + (g + 0.5) * span - groupW / 2;
+      const vals = [p[g], q[g], m[g]];
+      const cols = ['#2b6cb0', '#c53030', '#6b46c1'];
+      for (let i = 0; i < 3; i++) {
+        const x = baseX + i * bw;
+        const y = (Hh - padB) - vals[i] * h;
+        const bh = vals[i] * h;
+        svg += `<rect x="${x}" y="${y}" width="${bw - 2}" height="${bh}" fill="${cols[i]}" opacity="0.85"/>`;
+        svg += `<text x="${x + (bw-2)/2}" y="${y - 4}" text-anchor="middle" font-size="10" fill="#2d3748">${vals[i].toFixed(2)}</text>`;
+      }
+      svg += `<text x="${padL + (g + 0.5) * span}" y="${Hh - padB + 18}" text-anchor="middle" font-size="12" fill="#4a5568">${groups[g]}</text>`;
+    }
+
+    klSvg.innerHTML = svg;
+
+    // Table
+    const rows = [
+      ['H(p)', Hp, 'entropy của p (sàn tối ưu)'],
+      ['H(q)', Hq, 'entropy của q'],
+      ['H(p, q)', Hpq, 'chi phí mã hoá sample từ p khi dùng code cho q'],
+      ['H(q, p)', Hqp, 'chiều ngược lại (không bằng H(p, q))'],
+      ['D_KL(p || q)', Dpq, 'lãng phí bit do hiểu sai p thành q'],
+      ['D_KL(q || p)', Dqp, 'chiều ngược lại (không đối xứng)'],
+      ['JSD(p, q)', J, 'symmetric divergence ≤ 1 bit']
+    ];
+    klTable.innerHTML = rows.map(r => {
+      return `<tr><td><code>${r[0]}</code></td><td class="num">${r[1].toFixed(4)}</td><td>${r[2]}</td></tr>`;
+    }).join('');
+  }
+  klP.addEventListener('input', drawKL);
+  klQ.addEventListener('input', drawKL);
+  document.querySelectorAll('button.preset[data-p]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      klP.value = btn.dataset.p; klQ.value = btn.dataset.q; drawKL();
+    });
+  });
+  drawKL();
+
+  // ============================================================
+  // 3. CLASSIFICATION LOSS DEMO
+  // ============================================================
+  const clsTrue = document.getElementById('cls-true');
+  const clsZ = [document.getElementById('cls-z0'), document.getElementById('cls-z1'), document.getElementById('cls-z2')];
+  const clsZv = [document.getElementById('cls-z0-val'), document.getElementById('cls-z1-val'), document.getElementById('cls-z2-val')];
+  const clsSvg = document.getElementById('cls-svg');
+  const clsInfo = document.getElementById('cls-info');
+
+  function drawCls() {
+    const y = parseInt(clsTrue.value);
+    const z = clsZ.map(s => parseFloat(s.value));
+    for (let i = 0; i < 3; i++) clsZv[i].textContent = z[i].toFixed(1);
+    const q = softmax(z);
+    const p = [0, 0, 0]; p[y] = 1;
+    const loss_nat = -Math.log(Math.max(q[y], 1e-12));
+    const loss_bit = loss_nat / LN2;
+
+    // Bar chart 3-class: true (green) and model (blue)
+    const W = 460, Hh = 300;
+    const padL = 60, padR = 20, padT = 30, padB = 60;
+    const w = W - padL - padR, h = Hh - padT - padB;
+
+    let svg = `<g stroke="#cbd5e0" stroke-width="1">`;
+    svg += `<line x1="${padL}" y1="${Hh - padB}" x2="${W - padR}" y2="${Hh - padB}"/>`;
+    svg += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${Hh - padB}"/>`;
+    svg += `</g>`;
+    for (let t = 0; t <= 1.001; t += 0.2) {
+      const yy = (Hh - padB) - t * h;
+      svg += `<line x1="${padL-4}" y1="${yy}" x2="${padL}" y2="${yy}" stroke="#a0aec0"/>`;
+      svg += `<text x="${padL-7}" y="${yy+4}" text-anchor="end" font-size="11" fill="#4a5568">${t.toFixed(1)}</text>`;
+    }
+    svg += `<text x="14" y="${padT + h/2}" text-anchor="middle" font-size="12" fill="#4a5568" transform="rotate(-90 14 ${padT+h/2})">probability</text>`;
+    const bw = 28, gap = 6, groupW = 2 * bw + gap;
+    const span = w / 3;
+    for (let g = 0; g < 3; g++) {
+      const baseX = padL + (g + 0.5) * span - groupW / 2;
+      // true bar (green)
+      const tv = p[g];
+      const yT = (Hh - padB) - tv * h;
+      svg += `<rect x="${baseX}" y="${yT}" width="${bw}" height="${tv * h}" fill="#48bb78"/>`;
+      // model bar (blue)
+      const mv = q[g];
+      const yM = (Hh - padB) - mv * h;
+      svg += `<rect x="${baseX + bw + gap}" y="${yM}" width="${bw}" height="${mv * h}" fill="#4299e1"/>`;
+      svg += `<text x="${baseX + bw}" y="${yM - 4}" text-anchor="middle" font-size="10" fill="#2d3748">${mv.toFixed(3)}</text>`;
+      svg += `<text x="${padL + (g + 0.5) * span}" y="${Hh - padB + 18}" text-anchor="middle" font-size="12" fill="#4a5568">Class ${g}${g===y?' ★':''}</text>`;
+    }
+    // baseline line at log(K)
+    const baselineY = (Hh - padB) - (1/3) * h;
+    svg += `<line x1="${padL}" y1="${baselineY}" x2="${W-padR}" y2="${baselineY}" stroke="#a0aec0" stroke-dasharray="2 4"/>`;
+    svg += `<text x="${W-padR}" y="${baselineY-3}" text-anchor="end" font-size="10" fill="#718096">uniform = 1/3</text>`;
+
+    clsSvg.innerHTML = svg;
+
+    const baselineLoss = Math.log(3);
+    let verdict = '';
+    if (loss_nat < 0.2) verdict = '<span class="green">Tốt</span> — model rất tự tin đúng';
+    else if (loss_nat < baselineLoss) verdict = '<span class="blue">Khá</span> — tốt hơn random';
+    else if (loss_nat < baselineLoss * 1.5) verdict = '<span class="amber">Trung bình</span> — gần random';
+    else verdict = '<span class="red">Tệ</span> — tự tin sai, loss > log K';
+
+    clsInfo.innerHTML = `
+      <div>True class: <span class="green">y = ${y}</span> → one-hot p = (${p.join(', ')})</div>
+      <div>Logits z = (${z.map(v=>v.toFixed(1)).join(', ')})</div>
+      <div>q = softmax(z) = (<span class="blue">${q.map(v=>v.toFixed(3)).join(', ')}</span>)</div>
+      <div>q[y=${y}] = <span class="blue">${q[y].toFixed(4)}</span></div>
+      <div>Loss = −log q[y] = <span class="red">${loss_nat.toFixed(4)} nat</span> = ${loss_bit.toFixed(4)} bit</div>
+      <div>Baseline (random uniform) loss = log 3 = ${baselineLoss.toFixed(4)} nat = ${(baselineLoss/LN2).toFixed(4)} bit</div>
+      <div style="margin-top:4px">${verdict}</div>
+    `;
+  }
+  clsTrue.addEventListener('change', drawCls);
+  clsZ.forEach(s => s.addEventListener('input', drawCls));
+  document.querySelectorAll('button.preset[data-cfg]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cfg = btn.dataset.cfg;
+      const y = parseInt(clsTrue.value);
+      const others = [0, 1, 2].filter(i => i !== y);
+      if (cfg === 'confident-right') {
+        clsZ[y].value = 3; clsZ[others[0]].value = -1; clsZ[others[1]].value = -1;
+      } else if (cfg === 'uniform') {
+        clsZ.forEach(s => s.value = 0);
+      } else if (cfg === 'confident-wrong') {
+        clsZ[y].value = -1; clsZ[others[0]].value = 3; clsZ[others[1]].value = -1;
+      } else if (cfg === 'slight') {
+        clsZ[y].value = 1; clsZ[others[0]].value = 0.3; clsZ[others[1]].value = 0;
+      }
+      drawCls();
+    });
+  });
+  drawCls();
+
+  // ============================================================
+  // 4. PERPLEXITY VISUALIZER
+  // ============================================================
+  const V = 8;
+  const ppMode = document.getElementById('pp-mode');
+  const ppTau = document.getElementById('pp-tau');
+  const ppTauVal = document.getElementById('pp-tau-val');
+  const ppTauRow = document.getElementById('pp-tau-row');
+  const ppSvg = document.getElementById('pp-svg');
+  const ppTable = document.querySelector('#pp-table tbody');
+
+  // True distribution: token 0 = 0.5, others share 0.5 unevenly
+  const pTrue = [0.50, 0.18, 0.10, 0.08, 0.06, 0.04, 0.025, 0.015];
+  // sanity: sums to 1
+  // 0.50+0.18+0.10+0.08+0.06+0.04+0.025+0.015 = 1.0
+
+  function makeQ(mode, tau) {
+    if (mode === 'match') return pTrue.slice();
+    if (mode === 'uniform') return Array(V).fill(1/V);
+    if (mode === 'wrong') {
+      // concentrated at token V-1 (rare in true)
+      const q = Array(V).fill(0.05);
+      q[V - 1] = 1 - 0.05 * (V - 1);
+      return q;
+    }
+    if (mode === 'temperature') {
+      // logits derived from pTrue but scaled by 1/tau
+      const logits = pTrue.map(p => Math.log(Math.max(p, 1e-12)));
+      const scaled = logits.map(l => l / tau);
+      return softmax(scaled);
+    }
+    return pTrue.slice();
+  }
+
+  function drawPP() {
+    const mode = ppMode.value;
+    const tau = parseFloat(ppTau.value);
+    ppTauVal.textContent = tau.toFixed(2);
+    ppTauRow.style.display = (mode === 'temperature') ? 'grid' : 'none';
+    const q = makeQ(mode, tau);
+
+    const Hp_nat = entropy(pTrue, 'nat');
+    const Hpq_nat = crossEntropy(pTrue, q, 'nat');
+    const Dpq_nat = Hpq_nat - Hp_nat;
+    const PPL = Math.exp(Hpq_nat);
+    const PPL_floor = Math.exp(Hp_nat);
+    const PPL_random = V;
+
+    // Draw bars: token 0..V-1, two bars each (p, q)
+    const W = 460, Hh = 320;
+    const padL = 40, padR = 20, padT = 30, padB = 50;
+    const w = W - padL - padR, h = Hh - padT - padB;
+    let svg = `<g stroke="#cbd5e0" stroke-width="1">`;
+    svg += `<line x1="${padL}" y1="${Hh - padB}" x2="${W - padR}" y2="${Hh - padB}"/>`;
+    svg += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${Hh - padB}"/>`;
+    svg += `</g>`;
+    const maxY = 1.0;
+    for (let t = 0; t <= 1.001; t += 0.2) {
+      const yy = (Hh - padB) - (t / maxY) * h;
+      svg += `<line x1="${padL-4}" y1="${yy}" x2="${padL}" y2="${yy}" stroke="#a0aec0"/>`;
+      svg += `<text x="${padL-7}" y="${yy+4}" text-anchor="end" font-size="10" fill="#4a5568">${t.toFixed(1)}</text>`;
+    }
+    const span = w / V;
+    const bw = (span - 4) / 2;
+    for (let i = 0; i < V; i++) {
+      const xc = padL + (i + 0.5) * span;
+      const xP = xc - bw - 1;
+      const xQ = xc + 1;
+      const yP = (Hh - padB) - pTrue[i] * h;
+      const yQ = (Hh - padB) - q[i] * h;
+      svg += `<rect x="${xP}" y="${yP}" width="${bw}" height="${pTrue[i] * h}" fill="#2b6cb0" opacity="0.85"/>`;
+      svg += `<rect x="${xQ}" y="${yQ}" width="${bw}" height="${q[i] * h}" fill="#c53030" opacity="0.85"/>`;
+      svg += `<text x="${xc}" y="${Hh - padB + 14}" text-anchor="middle" font-size="10" fill="#4a5568">t${i}</text>`;
+    }
+
+    ppSvg.innerHTML = svg;
+
+    const rows = [
+      ['H(p) (entropy thật)', `${Hp_nat.toFixed(4)} nat`],
+      ['H(p, q) (cross-entropy)', `${Hpq_nat.toFixed(4)} nat`],
+      ['D_KL(p || q)', `${Dpq_nat.toFixed(4)} nat`],
+      ['PPL = exp(H(p, q))', `${PPL.toFixed(3)}`],
+      ['PPL sàn (= exp(H(p)))', `${PPL_floor.toFixed(3)}`],
+      ['PPL random (= V)', `${PPL_random}`],
+      ['Model so với random', PPL < PPL_random ? `tốt hơn ${(PPL_random / PPL).toFixed(2)}x` : `<span style="color:#c53030">TỆ hơn ${(PPL / PPL_random).toFixed(2)}x</span>`]
+    ];
+    ppTable.innerHTML = rows.map(r => `<tr><td>${r[0]}</td><td class="num">${r[1]}</td></tr>`).join('');
+  }
+  ppMode.addEventListener('change', drawPP);
+  ppTau.addEventListener('input', drawPP);
+  drawPP();
+})();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+</body>
+</html>

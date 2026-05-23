@@ -19,7 +19,7 @@ Lộ trình **6 tầng** đi từ đại số phổ thông cơ bản nhất tớ
 | 3 | [Calculus](./03-Calculus/) | ✅ Đã có | Giới hạn, đạo hàm, chain rule, gradient, tích phân |
 | 4 | [Linear Algebra](./04-LinearAlgebra/) | ✅ Đã có | Vector, ma trận, eigenvector, PCA, SVD |
 | 5 | [Probability](./05-Probability/) | ✅ Đã có | Xác suất, Bayes, phân phối, MLE, cross-entropy |
-| 6 | AI/ML | ⏳ Chưa | Linear regression → embedding → RAG → CLIP |
+| 6 | [AI/ML](./06-AI-ML/) | ✅ Đã có | Linear regression → embedding → RAG → CLIP |
 
 ## Cách học
 

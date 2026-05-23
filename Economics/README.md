@@ -34,35 +34,35 @@ Mỗi tier là một thư mục con, lesson được đánh số tăng dần *xu
 | Lesson 04 | Thặng dư tiêu dùng & sản xuất | Welfare, deadweight loss |
 | Lesson 05 | Market failures | Externality, public goods, asymmetric information |
 
-### Tier 2 — Microeconomics (sắp ra)
+### [Tier 2 — Microeconomics](./Tier2-Microeconomics/)
 
 | Bài | Chủ đề |
 |-----|--------|
-| Lesson 06 | Consumer theory — utility, đường bàng quan, budget constraint |
-| Lesson 07 | Production & cost — hàm sản xuất, MC/AC, returns to scale |
-| Lesson 08 | Market structures — cạnh tranh hoàn hảo, độc quyền, oligopoly |
-| Lesson 09 | Game theory — Nash equilibrium, prisoner's dilemma, signaling |
-| Lesson 10 | Labor & capital — thị trường lao động, PV/NPV, lãi suất |
+| [Lesson 06](./Tier2-Microeconomics/lesson-06-consumer-theory/) | Consumer theory — utility, đường bàng quan, budget constraint |
+| [Lesson 07](./Tier2-Microeconomics/lesson-07-production-cost/) | Production & cost — hàm sản xuất, MC/AC, returns to scale |
+| [Lesson 08](./Tier2-Microeconomics/lesson-08-market-structures/) | Market structures — cạnh tranh hoàn hảo, độc quyền, oligopoly |
+| [Lesson 09](./Tier2-Microeconomics/lesson-09-game-theory/) | Game theory — Nash equilibrium, prisoner's dilemma, TFT |
+| [Lesson 10](./Tier2-Microeconomics/lesson-10-labor-capital/) | Labor & capital — thị trường lao động, PV/NPV, lãi suất |
 
-### Tier 3 — Macroeconomics (sắp ra)
-
-| Bài | Chủ đề |
-|-----|--------|
-| Lesson 11 | GDP & các thước đo — nominal vs real, CPI, deflator |
-| Lesson 12 | Growth models — Solow, TFP, convergence |
-| Lesson 13 | IS-LM / AD-AS — chu kỳ kinh tế |
-| Lesson 14 | Monetary & fiscal policy — NHTW, Taylor rule, chính sách tài khóa |
-| Lesson 15 | Inflation & unemployment — Phillips curve, kỳ vọng, stagflation |
-
-### Tier 4 — Applied (Chuyên đề ứng dụng — sắp ra)
+### [Tier 3 — Macroeconomics](./Tier3-Macroeconomics/)
 
 | Bài | Chủ đề |
 |-----|--------|
-| Lesson 16+ | International trade — lợi thế so sánh, tỉ giá |
-| | Behavioral economics — biases, prospect theory, nudge |
-| | Development economics — thể chế, RCT |
-| | Econometrics intro — hồi quy, IV, DiD |
-| | Financial economics — CAPM, EMH, định giá tài sản |
+| [Lesson 11](./Tier3-Macroeconomics/lesson-11-gdp-measurement/) | GDP & các thước đo — nominal vs real, CPI, deflator |
+| [Lesson 12](./Tier3-Macroeconomics/lesson-12-growth-models/) | Growth models — Solow, TFP, convergence |
+| [Lesson 13](./Tier3-Macroeconomics/lesson-13-is-lm-ad-as/) | IS-LM / AD-AS — chu kỳ kinh tế |
+| [Lesson 14](./Tier3-Macroeconomics/lesson-14-monetary-fiscal-policy/) | Monetary & fiscal policy — NHTW, Taylor rule, multiplier |
+| [Lesson 15](./Tier3-Macroeconomics/lesson-15-inflation-unemployment/) | Inflation & unemployment — Phillips curve, kỳ vọng |
+
+### [Tier 4 — Applied](./Tier4-Applied/)
+
+| Bài | Chủ đề |
+|-----|--------|
+| [Lesson 16](./Tier4-Applied/lesson-16-international-trade/) | International trade — lợi thế so sánh, thuế quan, tỉ giá |
+| [Lesson 17](./Tier4-Applied/lesson-17-behavioral-economics/) | Behavioral economics — Prospect Theory, biases, nudge |
+| [Lesson 18](./Tier4-Applied/lesson-18-development-economics/) | Development economics — RCT, thể chế, bẫy thu nhập trung bình |
+| [Lesson 19](./Tier4-Applied/lesson-19-econometrics-intro/) | Econometrics intro — OLS, IV, DiD, causation |
+| [Lesson 20](./Tier4-Applied/lesson-20-financial-economics/) | Financial economics — CAPM, EMH, diversification, bubbles |
 
 ## Cấu trúc mỗi bài
 

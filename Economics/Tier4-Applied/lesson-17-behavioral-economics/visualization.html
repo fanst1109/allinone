@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 17 — Behavioral Economics</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  main { max-width: 1040px; margin: 0 auto; padding: 24px; }
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .lead { color: #4a5568; margin-bottom: 24px; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 220px; }
+  input[type="range"] { width: 240px; font-family: monospace; padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 4px; }
+  .result { background: #f7fafc; border-left: 4px solid #c05621; padding: 14px 18px; margin-top: 14px; border-radius: 4px; font-family: monospace; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  svg { display: block; margin: 0 auto; max-width: 100%; }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; background: #fff5eb; color: #c05621; font-weight: 700; margin-left: 6px; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-16-international-trade/visualization.html">← L16: Trade</a>
+  <span class="sep">·</span>
+  <span class="current">L17: Behavioral</span>
+  <span class="sep">·</span>
+  <a href="../lesson-18-development-economics/visualization.html">L18: Development →</a>
+</nav>
+
+<main>
+  <h1>Lesson 17 — Behavioral Economics</h1>
+  <div class="lead">Hàm giá trị Prospect Theory (Kahneman-Tversky): mất đau hơn lợi vui.</div>
+
+  <h2>Prospect Theory <span class="pill">v(x) lõm khi gain, lồi khi loss</span></h2>
+  <div class="card">
+    <div class="row"><label>λ (loss aversion, thường 2-2.5)</label><input id="lambda" type="range" min="1" max="4" step="0.1" value="2.25"><span id="lambda-v" style="font-family:monospace;"></span></div>
+    <div class="row"><label>α (lõm khi gain, ≤1)</label><input id="alpha" type="range" min="0.3" max="1" step="0.05" value="0.88"><span id="alpha-v" style="font-family:monospace;"></span></div>
+    <div class="row"><label>β (lồi khi loss, ≤1)</label><input id="beta" type="range" min="0.3" max="1" step="0.05" value="0.88"><span id="beta-v" style="font-family:monospace;"></span></div>
+
+    <svg id="svg" viewBox="0 0 600 440" style="background:#fff; border:1px solid #e2e8f0;"></svg>
+    <div class="result" id="out"></div>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+function get(id) { return parseFloat($(id).value) || 0; }
+
+function v(x, lambda, alpha, beta) {
+  if (x >= 0) return Math.pow(x, alpha);
+  return -lambda * Math.pow(-x, beta);
+}
+
+function calc() {
+  const lambda = get('lambda'), alpha = get('alpha'), beta = get('beta');
+  $('lambda-v').textContent = lambda.toFixed(2);
+  $('alpha-v').textContent = alpha.toFixed(2);
+  $('beta-v').textContent = beta.toFixed(2);
+
+  const W = 600, H = 440, padL = 60, padB = 50, padT = 30, padR = 30;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const xMin = -1000, xMax = 1000;
+  const yMin = v(xMin, lambda, alpha, beta) * 1.05;
+  const yMax = v(xMax, lambda, alpha, beta) * 1.05;
+  const sx = x => padL + ((x - xMin) / (xMax - xMin)) * plotW;
+  const sy = y => padT + plotH - ((y - yMin) / (yMax - yMin)) * plotH;
+
+  let svg = '';
+  // grid
+  for (let i = 1; i <= 4; i++) {
+    const x = xMin + (xMax - xMin) / 4 * i;
+    svg += `<line x1="${sx(x)}" y1="${padT}" x2="${sx(x)}" y2="${padT+plotH}" stroke="#f0f0f0"/>`;
+    svg += `<text x="${sx(x)}" y="${padT+plotH+16}" text-anchor="middle" font-size="11" fill="#718096">${x.toFixed(0)}</text>`;
+  }
+  // x=0 line
+  svg += `<line x1="${sx(0)}" y1="${padT}" x2="${sx(0)}" y2="${padT+plotH}" stroke="#a0aec0" stroke-width="1.5"/>`;
+  // y=0 line
+  svg += `<line x1="${padL}" y1="${sy(0)}" x2="${padL+plotW}" y2="${sy(0)}" stroke="#a0aec0" stroke-width="1.5"/>`;
+
+  // value function
+  let path = '';
+  let started = false;
+  for (let i = 0; i <= 200; i++) {
+    const x = xMin + (xMax - xMin) * i / 200;
+    const y = v(x, lambda, alpha, beta);
+    path += (started ? 'L' : 'M') + sx(x) + ',' + sy(y) + ' ';
+    started = true;
+  }
+  svg += `<path d="${path}" fill="none" stroke="#c05621" stroke-width="2.5"/>`;
+
+  // Mark gains and losses
+  svg += `<text x="${sx(500)}" y="${padT + 16}" text-anchor="middle" font-size="13" fill="#2f855a" font-weight="700">Gains (lõm)</text>`;
+  svg += `<text x="${sx(-500)}" y="${padT + 16}" text-anchor="middle" font-size="13" fill="#c53030" font-weight="700">Losses (lồi, dốc hơn)</text>`;
+
+  svg += `<line x1="${padL}" y1="${padT+plotH}" x2="${padL+plotW}" y2="${padT+plotH}" stroke="#cbd5e0"/>`;
+  svg += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+plotH}" stroke="#cbd5e0"/>`;
+  svg += `<text x="${padL+plotW/2}" y="${H-10}" text-anchor="middle" font-size="13" fill="#2d3748">x (gain/loss)</text>`;
+  svg += `<text x="20" y="${padT+plotH/2}" transform="rotate(-90 20 ${padT+plotH/2})" text-anchor="middle" font-size="13" fill="#2d3748">v(x)</text>`;
+
+  $('svg').innerHTML = svg;
+
+  // 50/50 bet -1000 / +1000
+  const vGain = v(1000, lambda, alpha, beta);
+  const vLoss = v(-1000, lambda, alpha, beta);
+  const expectedV = 0.5 * vGain + 0.5 * vLoss;
+
+  $('out').innerHTML =
+    `Hàm giá trị:\n` +
+    `  v(x) = x^${alpha.toFixed(2)} nếu x ≥ 0\n` +
+    `       = -${lambda.toFixed(2)} · (-x)^${beta.toFixed(2)} nếu x < 0\n\n` +
+    `<strong>Bet 50/50 ±1000:</strong>\n` +
+    `  v(+1000) = ${vGain.toFixed(1)}\n` +
+    `  v(-1000) = ${vLoss.toFixed(1)}\n` +
+    `  E[v] = 0.5·${vGain.toFixed(1)} + 0.5·${vLoss.toFixed(1)} = <strong>${expectedV.toFixed(1)}</strong>\n\n` +
+    (expectedV < 0 ?
+      `Kỳ vọng giá trị < 0 → người chơi tránh bet (loss aversion thắng), dù kỳ vọng TIỀN = 0.` :
+      `Bất thường — bet được chấp nhận (λ thấp).`) +
+    `\n\nLoss aversion ratio = |v(-1000)/v(+1000)| = ${(Math.abs(vLoss) / vGain).toFixed(2)}× — mất đau gấp ${(Math.abs(vLoss) / vGain).toFixed(2)} lần lợi.`;
+}
+['lambda','alpha','beta'].forEach(id => $(id).addEventListener('input', calc));
+calc();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+</body>
+</html>

@@ -214,7 +214,24 @@ Sai số ≈ 0.023. Tăng \`n\` lên 100 → sai số \`< 10⁻⁴\`.
 
 > **⚠ Lỗi thường gặp.** Quên rằng \`Δx = (b − a) / n\` chứ không phải \`1/n\`. Khi \`b − a ≠ 1\` thì nhân lộn ngay. Vd với \`[1, 2]\` thì \`Δx = 0.1\` khi \`n = 10\`, còn với \`[0, π]\` thì \`Δx = π/n\`.
 
-### 3.5. Vì sao cứ ngồi cộng tay mãi không xong?
+### 3.5. So sánh tốc độ hội tụ của 3 cách chọn — cùng hàm \`x²\` trên \`[0, 1]\`
+
+| \`n\` | Left | Right | Mid | Sai số mid |
+|-----|------|-------|-----|------------|
+| 4   | 0.21875  | 0.46875  | 0.328125 | 0.0052 |
+| 10  | 0.285000 | 0.385000 | 0.332500 | 0.0008 |
+| 50  | 0.323400 | 0.343400 | 0.333300 | 3.3e-5  |
+| 100 | 0.328350 | 0.338350 | 0.333325 | 8.3e-6  |
+| 1000| 0.332833 | 0.333833 | 0.333333 | 8.3e-8  |
+
+Nhận xét quan trọng:
+- **Left và Right hội tụ tuyến tính**: sai số ~ \`O(1/n)\`. Tăng \`n\` gấp 10 → sai số giảm 10 lần.
+- **Mid hội tụ bậc 2**: sai số ~ \`O(1/n²)\`. Tăng \`n\` gấp 10 → sai số giảm 100 lần.
+- **Left + Right ≈ 2·Mid** (chính xác với hàm tuyến tính) — đây là gốc của công thức Trapezoid (mục 11.1).
+
+> **💡 Trực giác.** Mid "tốt hơn" vì sai lệch ở nửa trái và nửa phải mỗi hình chữ nhật **triệt tiêu nhau** khi \`f\` không quá cong trong đoạn. Left/Right luôn lệch theo một hướng cố định khi \`f\` đơn điệu.
+
+### 3.6. Vì sao cứ ngồi cộng tay mãi không xong?
 
 Riemann sum giúp ta **định nghĩa** tích phân, và giúp tính bằng số. Nhưng để tính giải tích (lấy ra một biểu thức đóng), ta cần một công cụ mạnh hơn: **Định lý cơ bản của giải tích**.
 
@@ -890,6 +907,91 @@ E[X] = ∫_0^1 x · 3x² dx = ∫_0^1 3x³ dx
 \`\`\`
 
 (Trực giác: mật độ tập trung về phía \`x = 1\` vì \`p(x) = 3x²\` lớn dần, nên trung bình lệch phải so với 0.5.)
+
+### Bài 7 — \`∫_{−π/2}^{π/2} (sin x + cos x) dx\`
+
+Tách:
+\`\`\`
+∫_{−π/2}^{π/2} sin x dx + ∫_{−π/2}^{π/2} cos x dx
+\`\`\`
+
+\`sin x\` là hàm **lẻ** → tích phân trên đoạn đối xứng quanh 0 bằng 0.
+
+\`cos x\` là hàm **chẵn** → \`∫_{−π/2}^{π/2} cos x dx = 2 ∫_0^{π/2} cos x dx = 2 · [sin x]_0^{π/2} = 2 · (1 − 0) = 2\`.
+
+**Kết quả**: \`0 + 2 = 2\`.
+
+Verify thẳng (không dùng đối xứng): nguyên hàm là \`−cos x + sin x\`.
+- Tại \`π/2\`: \`−cos(π/2) + sin(π/2) = 0 + 1 = 1\`.
+- Tại \`−π/2\`: \`−cos(−π/2) + sin(−π/2) = 0 − 1 = −1\`.
+- Hiệu: \`1 − (−1) = 2\`. ✓
+
+### Bài 8 — \`∫_0^{+∞} e^{−x} dx\`
+
+Đây là tích phân suy rộng. Định nghĩa qua giới hạn:
+\`\`\`
+∫_0^{+∞} e^{−x} dx = lim (R → ∞) ∫_0^R e^{−x} dx
+                   = lim (R → ∞) [ −e^{−x} ]_0^R
+                   = lim (R → ∞) (−e^{−R} + e⁰)
+                   = 0 + 1 = 1
+\`\`\`
+
+**Kết luận**: hội tụ, giá trị = 1. Đây là PDF của phân phối Exponential(λ=1) — tích phân toàn miền phải = 1. ✓
+
+### Bài 9 — Simpson cho \`∫_0^1 e^{−x²} dx\`
+
+\`n = 4\`, \`Δx = 0.25\`. Các điểm \`x = 0, 0.25, 0.5, 0.75, 1\`.
+
+Tính \`f(x) = e^{−x²}\`:
+
+| \`x\` | \`−x²\` | \`e^{−x²}\` |
+|-----|-------|-----------|
+| 0    | 0       | 1.000000 |
+| 0.25 | −0.0625 | 0.939413 |
+| 0.5  | −0.25   | 0.778801 |
+| 0.75 | −0.5625 | 0.569783 |
+| 1.0  | −1      | 0.367879 |
+
+Simpson: \`(Δx/3) · [f₀ + 4f₁ + 2f₂ + 4f₃ + f₄]\`.
+
+\`\`\`
+= (0.25 / 3) · [1 + 4(0.939413) + 2(0.778801) + 4(0.569783) + 0.367879]
+= (0.083333) · [1 + 3.757652 + 1.557602 + 2.279132 + 0.367879]
+= (0.083333) · 8.962265
+= 0.746855
+\`\`\`
+
+Giá trị tham chiếu: \`≈ 0.74682\`. Sai số \`≈ 0.00003\` — chỉ với \`n = 4\`! Simpson rất hiệu quả.
+
+Lưu ý: \`e^{−x²}\` không có nguyên hàm sơ cấp — đây là **lý do** ta cần phương pháp số.
+
+### Bài 10 — Exponential \`p(x) = e^{−x}\` trên \`[0, +∞)\`
+
+**E[X]**: dùng tích phân từng phần.
+\`\`\`
+E[X] = ∫_0^{+∞} x · e^{−x} dx
+\`\`\`
+Với \`u = x\`, \`dv = e^{−x} dx\` → \`du = dx\`, \`v = −e^{−x}\`.
+\`\`\`
+= [−x e^{−x}]_0^{+∞} − ∫_0^{+∞} (−e^{−x}) dx
+= 0 − 0 + ∫_0^{+∞} e^{−x} dx
+= 0 + 1 = 1
+\`\`\`
+(Cận trên \`−x e^{−x} → 0\` khi \`x → ∞\` vì \`e^{−x}\` tắt nhanh hơn \`x\` tăng.)
+
+**E[X²]**: tích phân từng phần lần 2.
+\`\`\`
+E[X²] = ∫_0^{+∞} x² · e^{−x} dx
+\`\`\`
+\`u = x²\`, \`dv = e^{−x} dx\` → \`du = 2x dx\`, \`v = −e^{−x}\`.
+\`\`\`
+= [−x² e^{−x}]_0^{+∞} + ∫_0^{+∞} 2x e^{−x} dx
+= 0 + 2 · E[X] = 2
+\`\`\`
+
+**Var(X)** = \`E[X²] − (E[X])²\` = \`2 − 1 = 1\`.
+
+Kết quả khớp công thức chuẩn của Exponential(λ): \`E[X] = 1/λ = 1\`, \`Var = 1/λ² = 1\`. ✓
 
 ---
 

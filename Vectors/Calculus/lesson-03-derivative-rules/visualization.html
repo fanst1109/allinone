@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 03 — Quy tắc đạo hàm (Derivative Rules)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  main { max-width: 1100px; margin: 0 auto; padding: 24px; }
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; font-size: 14px; }
+  input[type="text"], input[type="number"], select {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; padding: 6px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+  }
+  input[type="text"] { width: 320px; }
+  input[type="range"] { width: 280px; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+
+  /* Rule cheatsheet */
+  .rule-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .rule-card {
+    border: 2px solid #cbd5e0;
+    border-radius: 8px;
+    padding: 12px 14px;
+    background: #f7fafc;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .rule-card:hover {
+    border-color: #4299e1;
+    background: #ebf8ff;
+    transform: translateY(-2px);
+  }
+  .rule-card.active {
+    border-color: #2b6cb0;
+    background: #bee3f8;
+  }
+  .rule-card .rname {
+    font-weight: 700; font-size: 14px; color: #2d3748; margin-bottom: 4px;
+  }
+  .rule-card .rform {
+    font-family: monospace; font-size: 13px; color: #2c5282;
+  }
+  #ruleDetail {
+    margin-top: 16px;
+    padding: 16px 18px;
+    background: #fffaf0;
+    border-left: 4px solid #ed8936;
+    border-radius: 6px;
+    font-size: 14px; line-height: 1.6;
+  }
+  #ruleDetail h3 { margin-top: 0; color: #7b341e; font-size: 15px; }
+  #ruleDetail code {
+    font-family: monospace;
+    background: #fff5e6;
+    padding: 2px 6px; border-radius: 3px;
+  }
+  #ruleDetail .step {
+    margin: 6px 0; padding: 6px 10px;
+    background: white; border-radius: 4px;
+  }
+
+  /* Differentiator */
+  .diff-out {
+    font-family: monospace; font-size: 14px;
+    background: #1a202c; color: #f7fafc;
+    padding: 14px 16px; border-radius: 6px;
+    margin-top: 10px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+  }
+  .diff-out .ok { color: #68d391; }
+  .diff-out .step { color: #f6ad55; }
+  .diff-out .res { color: #ffffff; font-weight: 700; }
+  .diff-out .err { color: #fc8181; }
+
+  /* Plotter */
+  svg.plot {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    display: block;
+    width: 100%; height: auto;
+  }
+  .plot-axis { stroke: #a0aec0; stroke-width: 1; }
+  .plot-grid { stroke: #edf2f7; stroke-width: 1; }
+  .plot-f { stroke: #2b6cb0; stroke-width: 2.5; fill: none; }
+  .plot-fp { stroke: #c53030; stroke-width: 2.5; fill: none; stroke-dasharray: 6 4; }
+  .legend {
+    display: flex; gap: 18px; font-size: 13px; margin-top: 6px;
+  }
+  .legend .sw {
+    display: inline-block; width: 26px; height: 3px; vertical-align: middle; margin-right: 6px;
+  }
+  .legend .sw.f { background: #2b6cb0; }
+  .legend .sw.fp { background: #c53030; border-top: 1px dashed white; }
+
+  /* Sigmoid demo */
+  #sigVal {
+    font-family: monospace; font-size: 14px;
+    background: #edf2f7; padding: 12px 14px; border-radius: 6px;
+    margin-top: 10px; line-height: 1.7;
+  }
+  #sigVal .lbl { color: #4a5568; font-weight: 600; }
+  #sigVal .val { color: #2b6cb0; font-weight: 700; }
+  #sigVal .check { color: #2f855a; font-weight: 700; }
+
+  .hint { color: #718096; font-size: 13px; margin: 6px 0; }
+  .formula {
+    font-family: monospace; font-size: 14px;
+    background: #edf2f7; padding: 6px 10px; border-radius: 4px;
+    display: inline-block; margin: 4px 0;
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-derivatives/visualization.html">← L2: Đạo hàm 1 biến</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Quy tắc đạo hàm</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-chain-rule/visualization.html">L4: Chain rule →</a>
+</nav>
+
+<main>
+  <h1>Lesson 03 — Quy tắc đạo hàm (Derivative Rules)</h1>
+  <p>Bốn công cụ tương tác: <strong>bảng quy tắc</strong> (click xem walk-through), <strong>máy đạo hàm symbolic</strong> (gõ biểu thức, thấy từng bước), <strong>plotter f vs f'</strong>, và <strong>sigmoid demo</strong> verify công thức <code>σ' = σ(1−σ)</code>.</p>
+
+  <!-- ===================== 1. RULE CHEATSHEET ===================== -->
+  <h2>1. Bảng quy tắc — click để xem ví dụ</h2>
+  <div class="card">
+    <div id="ruleGrid" class="rule-grid"></div>
+    <div id="ruleDetail">
+      <em>Click vào một card phía trên để xem chứng minh / walk-through ví dụ.</em>
+    </div>
+  </div>
+
+  <!-- ===================== 2. DIFFERENTIATOR ===================== -->
+  <h2>2. Máy đạo hàm symbolic (đơn giản)</h2>
+  <div class="card">
+    <p class="hint">Gõ biểu thức (chỉ hỗ trợ polynomial + <code>sin/cos/exp/ln</code> dạng đơn, không lồng vào nhau): vd <code>3x^2 + 5x - 7</code>, <code>x*sin(x)</code>, <code>x^3/(x+1)</code>, <code>exp(x)*x^2</code>.</p>
+    <div class="row">
+      <label>f(x) =</label>
+      <input type="text" id="exprInput" value="x^2 * sin(x)">
+      <button onclick="runDiff()">Tính đạo hàm</button>
+    </div>
+    <div class="row">
+      <span class="hint">Ví dụ nhanh:</span>
+      <button class="secondary" onclick="setExpr('3x^2 + 5x - 7')">3x²+5x−7</button>
+      <button class="secondary" onclick="setExpr('x^2 * sin(x)')">x²·sin(x)</button>
+      <button class="secondary" onclick="setExpr('x*ln(x)')">x·ln(x)</button>
+      <button class="secondary" onclick="setExpr('exp(x)/x')">e^x/x</button>
+      <button class="secondary" onclick="setExpr('sin(x)/cos(x)')">sin/cos</button>
+      <button class="secondary" onclick="setExpr('1/(x^2+1)')">1/(x²+1)</button>
+    </div>
+    <div id="diffOut" class="diff-out">Nhấn "Tính đạo hàm" để xem kết quả.</div>
+  </div>
+
+  <!-- ===================== 3. PLOTTER f vs f' ===================== -->
+  <h2>3. Plotter — vẽ f(x) và f'(x) song song</h2>
+  <div class="card">
+    <div class="row">
+      <label>Chọn hàm:</label>
+      <select id="plotFn">
+        <option value="poly3">f(x) = x³ − 3x</option>
+        <option value="parab">f(x) = x²</option>
+        <option value="sin">f(x) = sin(x)</option>
+        <option value="cos">f(x) = cos(x)</option>
+        <option value="exp">f(x) = e^x</option>
+        <option value="ln">f(x) = ln(x)</option>
+        <option value="tan">f(x) = tan(x)</option>
+        <option value="sqrtx">f(x) = √x</option>
+        <option value="inv">f(x) = 1/x</option>
+        <option value="sigmoid">f(x) = σ(x)</option>
+      </select>
+      <button onclick="drawPlot()">Vẽ</button>
+    </div>
+    <svg class="plot" id="plotSvg" viewBox="0 0 720 360" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="legend">
+      <span><span class="sw f"></span>f(x)</span>
+      <span><span class="sw fp"></span>f'(x)</span>
+    </div>
+    <div id="plotInfo" class="hint">Quan sát: chỗ f có đỉnh/đáy thì f' cắt trục x; chỗ f tăng nhanh thì f' lớn.</div>
+  </div>
+
+  <!-- ===================== 4. SIGMOID DEMO ===================== -->
+  <h2>4. Sigmoid demo — verify σ'(x) = σ(x)·(1 − σ(x))</h2>
+  <div class="card">
+    <p class="hint">Kéo slider, thấy hai cách tính đạo hàm khớp tới 6 chữ số thập phân.</p>
+    <div class="row">
+      <label>x =</label>
+      <input type="range" id="sigSlider" min="-6" max="6" step="0.05" value="0">
+      <span id="sigXLabel" style="font-family:monospace;font-size:14px;font-weight:700;">0.00</span>
+    </div>
+    <svg class="plot" id="sigSvg" viewBox="0 0 720 320" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="legend">
+      <span><span class="sw f"></span>σ(x)</span>
+      <span><span class="sw fp"></span>σ'(x) = σ(1−σ)</span>
+    </div>
+    <div id="sigVal"></div>
+  </div>
+
+</main>
+
+<script>
+// ============================================================
+// 1. RULE CHEATSHEET
+// ============================================================
+const RULES = [
+  {
+    name: "Sum rule",
+    form: "(f + g)' = f' + g'",
+    detail: `<h3>Quy tắc tổng</h3>
+<p>Đạo hàm của tổng = tổng các đạo hàm.</p>
+<div class="step">Ví dụ: <code>f(x) = 3x² + 5x</code></div>
+<div class="step">→ <code>f'(x) = (3x²)' + (5x)' = 6x + 5</code></div>
+<div class="step">Verify với <code>x=2</code>: <code>f'(2) = 17</code>. Số xấp xỉ (Δx=0.001): <code>(f(2.001)−f(1.999))/0.002 ≈ 17.000</code> ✓</div>`
+  },
+  {
+    name: "Constant multiple",
+    form: "(c · f)' = c · f'",
+    detail: `<h3>Hằng số nhân</h3>
+<p>Hằng số "trôi qua" được đạo hàm.</p>
+<div class="step"><code>(7 sin x)' = 7 · cos x</code></div>
+<div class="step"><code>((1/2) x⁴)' = (1/2)·4x³ = 2x³</code></div>`
+  },
+  {
+    name: "Power rule",
+    form: "(xⁿ)' = n·xⁿ⁻¹",
+    detail: `<h3>Power rule (mọi n thực)</h3>
+<div class="step"><code>(x²)' = 2x</code>, <code>(x⁵)' = 5x⁴</code></div>
+<div class="step"><code>(√x)' = (x^½)' = (1/2)·x⁻½ = 1/(2√x)</code></div>
+<div class="step"><code>(1/x)' = (x⁻¹)' = −x⁻² = −1/x²</code></div>
+<div class="step"><code>(x^π)' = π·x^(π−1)</code></div>`
+  },
+  {
+    name: "Product rule",
+    form: "(fg)' = f'g + fg'",
+    detail: `<h3>Quy tắc tích</h3>
+<div class="step"><code>(x²·sin x)' = 2x·sin x + x²·cos x</code></div>
+<div class="step"><code>(e^x · x³)' = e^x·x³ + e^x·3x² = e^x·(x³+3x²)</code></div>
+<div class="step"><code>(x·ln x)' = 1·ln x + x·(1/x) = ln x + 1</code></div>
+<div class="step">⚠ Sai lầm: <code>(fg)' ≠ f'·g'</code>. Verify với <code>x²·x³ = x⁵</code>: <code>2x·3x² = 6x³</code> nhưng đúng phải là <code>5x⁴</code>.</div>`
+  },
+  {
+    name: "Quotient rule",
+    form: "(f/g)' = (f'g − fg')/g²",
+    detail: `<h3>Quy tắc thương</h3>
+<div class="step"><code>(x/(x+1))' = [1·(x+1) − x·1]/(x+1)² = 1/(x+1)²</code></div>
+<div class="step"><code>(sin x / cos x)' = (cos²x + sin²x)/cos²x = 1/cos²x = sec²x = (tan x)'</code></div>
+<div class="step"><code>(1/g)' = −g'/g²</code> — trường hợp f = 1.</div>`
+  },
+  {
+    name: "Exp & Log",
+    form: "(eˣ)' = eˣ; (ln x)' = 1/x",
+    detail: `<h3>Hàm mũ và log</h3>
+<div class="step"><code>(e^x)' = e^x</code> — hàm bằng đạo hàm của chính nó.</div>
+<div class="step"><code>(a^x)' = a^x · ln a</code> — tổng quát. Vd <code>(2^x)' = 2^x · ln 2 ≈ 0.693·2^x</code>.</div>
+<div class="step"><code>(ln x)' = 1/x</code></div>
+<div class="step"><code>(log_b x)' = 1/(x·ln b)</code>. Vd <code>(log₁₀ x)' ≈ 0.4343/x</code>.</div>`
+  },
+  {
+    name: "Trig (6 hàm)",
+    form: "(sin)'=cos, (tan)'=sec²,...",
+    detail: `<h3>Đạo hàm 6 hàm lượng giác</h3>
+<div class="step"><code>(sin x)' = cos x</code></div>
+<div class="step"><code>(cos x)' = −sin x</code></div>
+<div class="step"><code>(tan x)' = sec² x</code></div>
+<div class="step"><code>(cot x)' = −csc² x</code></div>
+<div class="step"><code>(sec x)' = sec x · tan x</code></div>
+<div class="step"><code>(csc x)' = −csc x · cot x</code></div>
+<div class="step">💡 Mẹo: 3 hàm "co-" đều có dấu trừ trong đạo hàm.</div>`
+  },
+  {
+    name: "Inverse trig",
+    form: "(arctan x)' = 1/(1+x²)",
+    detail: `<h3>Hàm trig ngược</h3>
+<div class="step"><code>(arcsin x)' = 1/√(1−x²)</code></div>
+<div class="step"><code>(arccos x)' = −1/√(1−x²)</code></div>
+<div class="step"><code>(arctan x)' = 1/(1+x²)</code></div>
+<div class="step"><code>(arccot x)' = −1/(1+x²)</code></div>
+<div class="step">Công thức tổng quát: <code>(f⁻¹)'(y) = 1/f'(f⁻¹(y))</code>.</div>`
+  }
+];
+
+function renderRules() {
+  const grid = document.getElementById('ruleGrid');
+  grid.innerHTML = RULES.map((r, i) =>
+    `<div class="rule-card" data-i="${i}" onclick="showRule(${i})">
+       <div class="rname">${r.name}</div>
+       <div class="rform">${r.form}</div>
+     </div>`
+  ).join('');
+  showRule(0);
+}
+function showRule(i) {
+  document.querySelectorAll('.rule-card').forEach(c => c.classList.remove('active'));
+  document.querySelector(`.rule-card[data-i="${i}"]`).classList.add('active');
+  document.getElementById('ruleDetail').innerHTML = RULES[i].detail;
+}
+
+// ============================================================
+// 2. SYMBOLIC DIFFERENTIATOR — tiny parser + rule engine
+// ============================================================
+// Hỗ trợ: x, hằng số, +, -, *, /, ^ (mũ là số nguyên), sin, cos, exp, ln
+// Khá đơn giản: không nested function (ko hỗ trợ sin(x^2)) — đó là chain rule, sẽ ở L4.
+// Mục đích: minh họa CÁCH áp quy tắc theo từng bước.
+
+function tokenize(s) {
+  s = s.replace(/\s+/g, '');
+  const tokens = [];
+  let i = 0;
+  while (i < s.length) {
+    const c = s[i];
+    if ('+-*/^()'.includes(c)) { tokens.push({t:'op', v:c}); i++; }
+    else if (/[0-9.]/.test(c)) {
+      let j = i;
+      while (j < s.length && /[0-9.]/.test(s[j])) j++;
+      tokens.push({t:'num', v: parseFloat(s.slice(i,j))});
+      i = j;
+    }
+    else if (/[a-zA-Z]/.test(c)) {
+      let j = i;
+      while (j < s.length && /[a-zA-Z]/.test(s[j])) j++;
+      const name = s.slice(i,j);
+      if (['sin','cos','exp','ln'].includes(name)) {
+        tokens.push({t:'fn', v:name});
+      } else if (name === 'x') {
+        tokens.push({t:'var', v:'x'});
+      } else {
+        throw new Error("Tên không hỗ trợ: " + name);
+      }
+      i = j;
+    }
+    else throw new Error("Ký tự lạ: " + c);
+  }
+  // Insert implicit '*' giữa số/var/) và var/(/fn
+  const out = [];
+  for (let k = 0; k < tokens.length; k++) {
+    out.push(tokens[k]);
+    const cur = tokens[k], nxt = tokens[k+1];
+    if (!nxt) continue;
+    const curEnd = (cur.t==='num' || cur.t==='var' || (cur.t==='op' && cur.v===')'));
+    const nxtStart = (nxt.t==='var' || nxt.t==='fn' || (nxt.t==='op' && nxt.v==='('));
+    if (curEnd && nxtStart) out.push({t:'op', v:'*'});
+  }
+  return out;
+}
+
+// Recursive descent: expr = term ([+-] term)*
+let _toks, _pos;
+function peek() { return _toks[_pos]; }
+function consume() { return _toks[_pos++]; }
+function parse(s) {
+  _toks = tokenize(s); _pos = 0;
+  const e = parseExpr();
+  if (_pos !== _toks.length) throw new Error("Thừa ký tự");
+  return e;
+}
+function parseExpr() {
+  let left = parseTerm();
+  while (peek() && peek().t==='op' && (peek().v==='+' || peek().v==='-')) {
+    const op = consume().v;
+    const right = parseTerm();
+    left = {type:'bin', op, left, right};
+  }
+  return left;
+}
+function parseTerm() {
+  let left = parsePow();
+  while (peek() && peek().t==='op' && (peek().v==='*' || peek().v==='/')) {
+    const op = consume().v;
+    const right = parsePow();
+    left = {type:'bin', op, left, right};
+  }
+  return left;
+}
+function parsePow() {
+  let left = parseUnary();
+  if (peek() && peek().t==='op' && peek().v==='^') {
+    consume();
+    const right = parsePow();
+    left = {type:'pow', base: left, exp: right};
+  }
+  return left;
+}
+function parseUnary() {
+  if (peek() && peek().t==='op' && peek().v==='-') {
+    consume();
+    return {type:'neg', val: parseUnary()};
+  }
+  return parseAtom();
+}
+function parseAtom() {
+  const tk = peek();
+  if (!tk) throw new Error("Hết biểu thức");
+  if (tk.t==='num') { consume(); return {type:'num', val: tk.v}; }
+  if (tk.t==='var') { consume(); return {type:'var'}; }
+  if (tk.t==='fn') {
+    const name = consume().v;
+    if (!peek() || peek().v !== '(') throw new Error("Cần ( sau "+name);
+    consume();
+    const arg = parseExpr();
+    if (!peek() || peek().v !== ')') throw new Error("Cần )");
+    consume();
+    return {type:'fn', name, arg};
+  }
+  if (tk.t==='op' && tk.v==='(') {
+    consume();
+    const e = parseExpr();
+    if (!peek() || peek().v !== ')') throw new Error("Cần )");
+    consume();
+    return e;
+  }
+  throw new Error("Token bất ngờ");
+}
+
+// Pretty print
+function pp(node) {
+  if (node.type==='num') return Number.isInteger(node.val) ? String(node.val) : node.val.toFixed(4).replace(/\.?0+$/,'');
+  if (node.type==='var') return 'x';
+  if (node.type==='neg') return '(-' + pp(node.val) + ')';
+  if (node.type==='fn') return node.name + '(' + pp(node.arg) + ')';
+  if (node.type==='pow') return ppAtom(node.base) + '^' + ppAtom(node.exp);
+  if (node.type==='bin') {
+    const L = (node.op==='*'||node.op==='/') ? ppFactor(node.left) : pp(node.left);
+    const R = (node.op==='*'||node.op==='/') ? ppFactor(node.right) : pp(node.right);
+    return L + ' ' + node.op + ' ' + R;
+  }
+  return '?';
+}
+function ppAtom(n) {
+  if (n.type==='num' || n.type==='var' || n.type==='fn' || n.type==='pow') return pp(n);
+  return '(' + pp(n) + ')';
+}
+function ppFactor(n) {
+  if (n.type==='bin' && (n.op==='+' || n.op==='-')) return '(' + pp(n) + ')';
+  return pp(n);
+}
+
+// Derivative engine with step log
+function diff(node, steps) {
+  if (node.type==='num') {
+    steps.push(`(${pp(node)})' = 0  — hằng số`);
+    return {type:'num', val: 0};
+  }
+  if (node.type==='var') {
+    steps.push(`(x)' = 1`);
+    return {type:'num', val: 1};
+  }
+  if (node.type==='neg') {
+    const d = diff(node.val, steps);
+    return {type:'neg', val: d};
+  }
+  if (node.type==='pow') {
+    // chỉ hỗ trợ x^n hoặc f^n với n là số
+    if (node.exp.type !== 'num') throw new Error("Mũ phải là số (chain rule ở L4)");
+    const n = node.exp.val;
+    if (node.base.type === 'var') {
+      steps.push(`Power rule: (x^${n})' = ${n}·x^${n-1}`);
+      if (n === 1) return {type:'num', val:1};
+      if (n === 2) return {type:'bin', op:'*', left:{type:'num', val:2}, right:{type:'var'}};
+      return {type:'bin', op:'*',
+        left: {type:'num', val:n},
+        right: {type:'pow', base:{type:'var'}, exp:{type:'num', val:n-1}}
+      };
+    }
+    throw new Error("Chỉ hỗ trợ x^n trong viz này (lồng cần chain rule)");
+  }
+  if (node.type==='fn') {
+    if (node.arg.type !== 'var') {
+      throw new Error(`Hàm ${node.name}(...) chỉ hỗ trợ argument = x (chain rule ở L4)`);
+    }
+    if (node.name==='sin') {
+      steps.push(`(sin x)' = cos x`);
+      return {type:'fn', name:'cos', arg:{type:'var'}};
+    }
+    if (node.name==='cos') {
+      steps.push(`(cos x)' = -sin x`);
+      return {type:'neg', val:{type:'fn', name:'sin', arg:{type:'var'}}};
+    }
+    if (node.name==='exp') {
+      steps.push(`(e^x)' = e^x`);
+      return {type:'fn', name:'exp', arg:{type:'var'}};
+    }
+    if (node.name==='ln') {
+      steps.push(`(ln x)' = 1/x`);
+      return {type:'bin', op:'/', left:{type:'num', val:1}, right:{type:'var'}};
+    }
+  }
+  if (node.type==='bin') {
+    if (node.op==='+' || node.op==='-') {
+      steps.push(`Sum/diff rule: (${pp(node)})' = (${pp(node.left)})' ${node.op} (${pp(node.right)})'`);
+      const dL = diff(node.left, steps);
+      const dR = diff(node.right, steps);
+      return {type:'bin', op:node.op, left: dL, right: dR};
+    }
+    if (node.op==='*') {
+      // constant multiple if left or right is num
+      if (node.left.type==='num') {
+        steps.push(`Const mul: (${pp(node.left)}·${pp(node.right)})' = ${pp(node.left)}·(${pp(node.right)})'`);
+        const dR = diff(node.right, steps);
+        return {type:'bin', op:'*', left: node.left, right: dR};
+      }
+      if (node.right.type==='num') {
+        steps.push(`Const mul: (${pp(node.left)}·${pp(node.right)})' = ${pp(node.right)}·(${pp(node.left)})'`);
+        const dL = diff(node.left, steps);
+        return {type:'bin', op:'*', left: node.right, right: dL};
+      }
+      steps.push(`Product rule: (f·g)' = f'·g + f·g' với f=${pp(node.left)}, g=${pp(node.right)}`);
+      const dL = diff(node.left, steps);
+      const dR = diff(node.right, steps);
+      return {type:'bin', op:'+',
+        left: {type:'bin', op:'*', left: dL, right: node.right},
+        right: {type:'bin', op:'*', left: node.left, right: dR}
+      };
+    }
+    if (node.op==='/') {
+      steps.push(`Quotient rule: (f/g)' = (f'·g − f·g')/g² với f=${pp(node.left)}, g=${pp(node.right)}`);
+      const dL = diff(node.left, steps);
+      const dR = diff(node.right, steps);
+      return {type:'bin', op:'/',
+        left: {type:'bin', op:'-',
+          left: {type:'bin', op:'*', left: dL, right: node.right},
+          right: {type:'bin', op:'*', left: node.left, right: dR}
+        },
+        right: {type:'pow', base: node.right, exp:{type:'num', val:2}}
+      };
+    }
+  }
+  throw new Error("Node không hỗ trợ: " + node.type);
+}
+
+// Simplify a tiny bit (drop 0+, 1*, x*0)
+function simplify(n) {
+  if (!n) return n;
+  if (n.type==='neg') {
+    n.val = simplify(n.val);
+    if (n.val.type==='num') return {type:'num', val: -n.val.val};
+    return n;
+  }
+  if (n.type==='pow') {
+    n.base = simplify(n.base); n.exp = simplify(n.exp);
+    if (n.exp.type==='num' && n.exp.val===1) return n.base;
+    if (n.exp.type==='num' && n.exp.val===0) return {type:'num', val:1};
+    return n;
+  }
+  if (n.type==='fn') { n.arg = simplify(n.arg); return n; }
+  if (n.type==='bin') {
+    n.left = simplify(n.left); n.right = simplify(n.right);
+    if (n.op==='+') {
+      if (n.left.type==='num' && n.left.val===0) return n.right;
+      if (n.right.type==='num' && n.right.val===0) return n.left;
+    }
+    if (n.op==='-') {
+      if (n.right.type==='num' && n.right.val===0) return n.left;
+    }
+    if (n.op==='*') {
+      if (n.left.type==='num' && n.left.val===0) return {type:'num', val:0};
+      if (n.right.type==='num' && n.right.val===0) return {type:'num', val:0};
+      if (n.left.type==='num' && n.left.val===1) return n.right;
+      if (n.right.type==='num' && n.right.val===1) return n.left;
+    }
+    if (n.left.type==='num' && n.right.type==='num') {
+      if (n.op==='+') return {type:'num', val: n.left.val + n.right.val};
+      if (n.op==='-') return {type:'num', val: n.left.val - n.right.val};
+      if (n.op==='*') return {type:'num', val: n.left.val * n.right.val};
+      if (n.op==='/' && n.right.val !== 0) return {type:'num', val: n.left.val / n.right.val};
+    }
+    return n;
+  }
+  return n;
+}
+
+function setExpr(s) {
+  document.getElementById('exprInput').value = s;
+  runDiff();
+}
+function runDiff() {
+  const expr = document.getElementById('exprInput').value;
+  const out = document.getElementById('diffOut');
+  try {
+    const tree = parse(expr);
+    const steps = [];
+    let deriv = diff(tree, steps);
+    deriv = simplify(JSON.parse(JSON.stringify(deriv)));
+    const lines = [];
+    lines.push(`<span class="ok">Input:</span> f(x) = ${pp(tree)}`);
+    lines.push(``);
+    lines.push(`<span class="step">Các bước:</span>`);
+    steps.forEach((s, i) => lines.push(`  ${i+1}. ${s}`));
+    lines.push(``);
+    lines.push(`<span class="res">f'(x) = ${pp(deriv)}</span>`);
+    out.innerHTML = lines.join('\n');
+  } catch (e) {
+    out.innerHTML = `<span class="err">Lỗi: ${e.message}</span>\n\n` +
+      `<span class="ok">Mẹo:</span> chỉ dùng x, số, + - * / ^, sin/cos/exp/ln với đối số là x (không lồng).\n` +
+      `Lồng (vd sin(x^2)) cần chain rule — sẽ học ở L4.`;
+  }
+}
+
+// ============================================================
+// 3. PLOTTER f vs f'
+// ============================================================
+const PLOT_FNS = {
+  poly3:   { f: x => x*x*x - 3*x,            fp: x => 3*x*x - 3,                xmin:-2.5, xmax:2.5, ymin:-4, ymax:4, title:"f(x)=x³−3x, f'(x)=3x²−3" },
+  parab:   { f: x => x*x,                    fp: x => 2*x,                      xmin:-3,   xmax:3,   ymin:-2, ymax:9, title:"f(x)=x², f'(x)=2x" },
+  sin:     { f: x => Math.sin(x),            fp: x => Math.cos(x),              xmin:-2*Math.PI, xmax:2*Math.PI, ymin:-1.5, ymax:1.5, title:"f(x)=sin x, f'(x)=cos x" },
+  cos:     { f: x => Math.cos(x),            fp: x => -Math.sin(x),             xmin:-2*Math.PI, xmax:2*Math.PI, ymin:-1.5, ymax:1.5, title:"f(x)=cos x, f'(x)=−sin x" },
+  exp:     { f: x => Math.exp(x),            fp: x => Math.exp(x),              xmin:-2,   xmax:2,   ymin:-1, ymax:8, title:"f(x)=eˣ, f'(x)=eˣ (trùng nhau!)" },
+  ln:      { f: x => x>0?Math.log(x):NaN,    fp: x => x>0?1/x:NaN,              xmin:0.05, xmax:5,   ymin:-3, ymax:3, title:"f(x)=ln x, f'(x)=1/x" },
+  tan:     { f: x => Math.tan(x),            fp: x => 1/(Math.cos(x)*Math.cos(x)), xmin:-1.4, xmax:1.4, ymin:-6, ymax:6, title:"f(x)=tan x, f'(x)=sec²x" },
+  sqrtx:   { f: x => x>=0?Math.sqrt(x):NaN,  fp: x => x>0?1/(2*Math.sqrt(x)):NaN, xmin:0.01, xmax:6,   ymin:-1, ymax:3, title:"f(x)=√x, f'(x)=1/(2√x)" },
+  inv:     { f: x => Math.abs(x)>0.05?1/x:NaN, fp: x => Math.abs(x)>0.05?-1/(x*x):NaN, xmin:-3, xmax:3, ymin:-4, ymax:4, title:"f(x)=1/x, f'(x)=−1/x²" },
+  sigmoid: { f: x => 1/(1+Math.exp(-x)),     fp: x => { const s=1/(1+Math.exp(-x)); return s*(1-s); }, xmin:-6, xmax:6, ymin:-0.1, ymax:1.1, title:"f(x)=σ(x), f'(x)=σ(1−σ)" }
+};
+
+function drawPlot() {
+  const key = document.getElementById('plotFn').value;
+  const cfg = PLOT_FNS[key];
+  const svg = document.getElementById('plotSvg');
+  const W = 720, H = 360;
+  const pad = 40;
+  const xToPx = x => pad + (x - cfg.xmin)/(cfg.xmax - cfg.xmin) * (W - 2*pad);
+  const yToPx = y => H - pad - (y - cfg.ymin)/(cfg.ymax - cfg.ymin) * (H - 2*pad);
+
+  let s = '';
+  // grid
+  const xStep = (cfg.xmax - cfg.xmin) / 10;
+  const yStep = (cfg.ymax - cfg.ymin) / 8;
+  for (let i = 0; i <= 10; i++) {
+    const x = cfg.xmin + i*xStep;
+    s += `<line class="plot-grid" x1="${xToPx(x)}" y1="${pad}" x2="${xToPx(x)}" y2="${H-pad}"/>`;
+  }
+  for (let i = 0; i <= 8; i++) {
+    const y = cfg.ymin + i*yStep;
+    s += `<line class="plot-grid" x1="${pad}" y1="${yToPx(y)}" x2="${W-pad}" y2="${yToPx(y)}"/>`;
+  }
+  // axes
+  if (cfg.ymin <= 0 && cfg.ymax >= 0) {
+    s += `<line class="plot-axis" x1="${pad}" y1="${yToPx(0)}" x2="${W-pad}" y2="${yToPx(0)}"/>`;
+  }
+  if (cfg.xmin <= 0 && cfg.xmax >= 0) {
+    s += `<line class="plot-axis" x1="${xToPx(0)}" y1="${pad}" x2="${xToPx(0)}" y2="${H-pad}"/>`;
+  }
+  // curves
+  function pathFor(fn) {
+    const N = 600;
+    const parts = [];
+    let started = false;
+    for (let i = 0; i <= N; i++) {
+      const x = cfg.xmin + (cfg.xmax - cfg.xmin) * i/N;
+      const y = fn(x);
+      if (!isFinite(y)) { started = false; continue; }
+      const py = yToPx(Math.max(cfg.ymin, Math.min(cfg.ymax, y)));
+      if (Math.abs(y) > Math.max(Math.abs(cfg.ymin), Math.abs(cfg.ymax)) * 5) { started = false; continue; }
+      parts.push((started ? 'L' : 'M') + xToPx(x).toFixed(2) + ' ' + py.toFixed(2));
+      started = true;
+    }
+    return parts.join(' ');
+  }
+  s += `<path class="plot-f"  d="${pathFor(cfg.f)}"/>`;
+  s += `<path class="plot-fp" d="${pathFor(cfg.fp)}"/>`;
+  // title
+  s += `<text x="${W/2}" y="20" text-anchor="middle" font-size="14" font-weight="700" fill="#2d3748">${cfg.title}</text>`;
+  svg.innerHTML = s;
+
+  document.getElementById('plotInfo').innerHTML =
+    `<strong>Quan sát:</strong> chỗ <span style="color:#2b6cb0;font-weight:700">f</span> có đỉnh/đáy thì <span style="color:#c53030;font-weight:700">f'</span> cắt trục x. Chỗ f tăng → f' &gt; 0; chỗ f giảm → f' &lt; 0.`;
+}
+
+// ============================================================
+// 4. SIGMOID DEMO
+// ============================================================
+function sigmoid(x) { return 1 / (1 + Math.exp(-x)); }
+function sigmoidD_via_sigma(x) { const s = sigmoid(x); return s*(1-s); }
+function sigmoidD_raw(x) { return Math.exp(-x) / Math.pow(1 + Math.exp(-x), 2); }
+
+function drawSig() {
+  const x = parseFloat(document.getElementById('sigSlider').value);
+  document.getElementById('sigXLabel').textContent = x.toFixed(2);
+
+  const svg = document.getElementById('sigSvg');
+  const W = 720, H = 320, pad = 40;
+  const xmin = -6, xmax = 6, ymin = -0.05, ymax = 1.05;
+  const xToPx = u => pad + (u - xmin)/(xmax - xmin) * (W - 2*pad);
+  const yToPx = v => H - pad - (v - ymin)/(ymax - ymin) * (H - 2*pad);
+  let s = '';
+  // grid + axes
+  for (let i = -6; i <= 6; i++) {
+    s += `<line class="plot-grid" x1="${xToPx(i)}" y1="${pad}" x2="${xToPx(i)}" y2="${H-pad}"/>`;
+  }
+  for (let v = 0; v <= 1.0001; v += 0.25) {
+    s += `<line class="plot-grid" x1="${pad}" y1="${yToPx(v)}" x2="${W-pad}" y2="${yToPx(v)}"/>`;
+    s += `<text x="${pad-6}" y="${yToPx(v)+4}" text-anchor="end" font-size="11" fill="#718096">${v.toFixed(2)}</text>`;
+  }
+  s += `<line class="plot-axis" x1="${pad}" y1="${yToPx(0)}" x2="${W-pad}" y2="${yToPx(0)}"/>`;
+  s += `<line class="plot-axis" x1="${xToPx(0)}" y1="${pad}" x2="${xToPx(0)}" y2="${H-pad}"/>`;
+
+  function path(fn) {
+    const N = 400;
+    const parts = [];
+    for (let i = 0; i <= N; i++) {
+      const u = xmin + (xmax - xmin) * i/N;
+      const v = fn(u);
+      parts.push((i===0?'M':'L') + xToPx(u).toFixed(2) + ' ' + yToPx(v).toFixed(2));
+    }
+    return parts.join(' ');
+  }
+  s += `<path class="plot-f"  d="${path(sigmoid)}"/>`;
+  s += `<path class="plot-fp" d="${path(sigmoidD_via_sigma)}"/>`;
+
+  // markers at current x
+  const sigX = sigmoid(x), spX = sigmoidD_via_sigma(x);
+  s += `<line x1="${xToPx(x)}" y1="${pad}" x2="${xToPx(x)}" y2="${H-pad}" stroke="#ed8936" stroke-width="1.2" stroke-dasharray="3 3"/>`;
+  s += `<circle cx="${xToPx(x)}" cy="${yToPx(sigX)}" r="5" fill="#2b6cb0" stroke="white" stroke-width="2"/>`;
+  s += `<circle cx="${xToPx(x)}" cy="${yToPx(spX)}" r="5" fill="#c53030" stroke="white" stroke-width="2"/>`;
+  s += `<text x="${W/2}" y="20" text-anchor="middle" font-size="14" font-weight="700" fill="#2d3748">σ và σ' trên [−6, 6]</text>`;
+  svg.innerHTML = s;
+
+  const sigVal = sigmoid(x);
+  const oneMinus = 1 - sigVal;
+  const dViaProduct = sigVal * oneMinus;
+  const dRaw = sigmoidD_raw(x);
+  const diff = Math.abs(dViaProduct - dRaw);
+
+  document.getElementById('sigVal').innerHTML =
+    `<div><span class="lbl">σ(${x.toFixed(2)}) =</span> <span class="val">${sigVal.toFixed(6)}</span></div>
+     <div><span class="lbl">1 − σ(${x.toFixed(2)}) =</span> <span class="val">${oneMinus.toFixed(6)}</span></div>
+     <div><span class="lbl">σ·(1−σ) =</span> <span class="val">${dViaProduct.toFixed(6)}</span> &nbsp; ← công thức "trick đẹp"</div>
+     <div><span class="lbl">e⁻ˣ / (1+e⁻ˣ)² =</span> <span class="val">${dRaw.toFixed(6)}</span> &nbsp; ← công thức thô từ quotient rule</div>
+     <div><span class="lbl">|Sai số| =</span> <span class="check">${diff.toExponential(2)}</span> &nbsp; <span class="check">✓ hai cách khớp</span></div>`;
+}
+
+// ============================================================
+// INIT
+// ============================================================
+renderRules();
+runDiff();
+drawPlot();
+drawSig();
+document.getElementById('sigSlider').addEventListener('input', drawSig);
+document.getElementById('plotFn').addEventListener('change', drawPlot);
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+</body>
+</html>

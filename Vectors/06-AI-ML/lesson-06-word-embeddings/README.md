@@ -738,10 +738,50 @@ Extrinsic là thước đo **quan trọng nhất** vì cuối cùng ta dùng emb
 
 > ⚠ **Lỗi thường gặp.** Embedding tốt trên word similarity **không đảm bảo** tốt cho mọi task. Ví dụ embedding train trên Wikipedia tổng quát có thể yếu khi dùng cho text y khoa — đó là lý do có **domain-specific embedding** (BioBERT, FinBERT).
 
+### 9.4 Walk-through Spearman bằng tay
+
+Cho 4 cặp với điểm người chấm vs cosine của embedding:
+
+| | word1 | word2 | human | cos |
+|---|---|---|---|---|
+| a | dog | cat | 8.5 | 0.78 |
+| b | car | truck | 7.8 | 0.82 |
+| c | tree | book | 1.5 | 0.32 |
+| d | king | queen | 9.0 | 0.91 |
+
+**Bước 1.** Rank cột `human` (cao nhất = rank 1): d=1, a=2, b=3, c=4.
+
+**Bước 2.** Rank cột `cos`: d=1, b=2, a=3, c=4.
+
+**Bước 3.** Tính `d_i = rank_human − rank_cos` cho mỗi cặp:
+
+```
+a: 2 − 3 = −1, d² = 1
+b: 3 − 2 = +1, d² = 1
+c: 4 − 4 = 0,  d² = 0
+d: 1 − 1 = 0,  d² = 0
+Σ d² = 2
+```
+
+**Bước 4.** Spearman công thức ngắn (khi không có tie):
+
+```
+ρ = 1 − (6 · Σ d²) / (n · (n² − 1))
+  = 1 − (6 · 2) / (4 · 15)
+  = 1 − 12/60 = 1 − 0.2 = 0.8
+```
+
+Khá cao — embedding của bạn "đồng ý" với người về thứ tự, dù không khớp tuyệt đối.
+
+> ❓ **Câu hỏi tự nhiên.** *"Sao không dùng Pearson trực tiếp giữa human và cos?"*
+>
+> Vì Pearson đo **quan hệ tuyến tính**: nếu human ∈ [0, 10] và cos ∈ [-1, 1], scale khác nhau, Pearson kéo theo. Spearman chỉ quan tâm **thứ tự**, robust hơn nhiều khi 2 thang đo khác bản chất.
+
 > 📝 **Tóm tắt mục 9.**
 > - Intrinsic: word similarity (Spearman) + analogy (accuracy). Nhanh.
 > - Extrinsic: dùng cho downstream task, đo metric task. Thực chất hơn.
 > - Cả hai bổ sung lẫn nhau.
+> - Spearman = correlation trên rank — chuẩn cho word similarity benchmark.
 
 ---
 
@@ -1262,5 +1302,3 @@ Spearman = 0.8 → embedding "đồng ý" mạnh với người. ✓
 ## File liên quan
 
 - [`visualization.html`](./visualization.html) — 4 component tương tác: distributional viewer, vector arithmetic, t-SNE preset, mini skip-gram trainer.
-</content>
-</invoke>

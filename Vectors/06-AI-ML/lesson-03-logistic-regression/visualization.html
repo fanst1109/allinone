@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 03 — Logistic Regression</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  main { max-width: 1200px; margin: 0 auto; padding: 24px; }
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 28px; font-size: 15px; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 18px 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 14px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; color: #2d3748; font-size: 14px; }
+  input[type="range"] { width: 220px; vertical-align: middle; }
+  .num { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px; color: #2c5282; font-weight: 700; }
+  .lbl { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px; color: #4a5568; }
+  svg.viz {
+    display: block; background: #f7fafc;
+    border: 1px solid #e2e8f0; border-radius: 6px;
+    width: 100%; height: auto;
+  }
+  .info-box {
+    margin-top: 10px; padding: 10px 14px;
+    background: #edf2f7; border-radius: 6px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; color: #2d3748; line-height: 1.85;
+  }
+  .info-box .blue { color: #2b6cb0; font-weight: 700; }
+  .info-box .red { color: #c53030; font-weight: 700; }
+  .info-box .green { color: #2f855a; font-weight: 700; }
+  .info-box .purple { color: #6b46c1; font-weight: 700; }
+  .info-box .amber { color: #b7791f; font-weight: 700; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+  @media (max-width: 940px) { .grid-2 { grid-template-columns: 1fr; } }
+  .hint {
+    color: #4a5568; font-size: 13.5px;
+    background: #fefcbf; padding: 10px 12px;
+    border-left: 4px solid #ecc94b; border-radius: 4px;
+    margin: 12px 0;
+  }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; margin-top: 8px; color: #4a5568; }
+  .legend .item { display: flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 16px; height: 12px; border-radius: 3px; border: 1px solid rgba(0,0,0,0.1); }
+  .pill { display: inline-block; padding: 3px 9px; border-radius: 4px; font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 12px; font-weight: 700; }
+  .pill.pos { background: #c6f6d5; color: #22543d; }
+  .pill.neg { background: #fed7d7; color: #742a2a; }
+  table.stats { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+  table.stats th, table.stats td { padding: 6px 10px; border-bottom: 1px solid #e2e8f0; text-align: left; }
+  table.stats th { background: #edf2f7; }
+  table.stats td.num { font-family: "SF Mono", Monaco, Consolas, monospace; color: #2c5282; }
+  button.btn {
+    padding: 6px 12px; border-radius: 5px; border: 1px solid #4299e1;
+    background: #4299e1; color: white; cursor: pointer; font-size: 13px; font-weight: 600;
+  }
+  button.btn:hover { background: #3182ce; }
+  button.btn.ghost { background: #fff; color: #2b6cb0; }
+  button.btn.ghost:hover { background: #ebf8ff; }
+  .bar { height: 22px; border-radius: 4px; display: inline-block; vertical-align: middle; }
+  .barwrap { display: flex; align-items: center; gap: 8px; font-size: 13px; margin: 4px 0; }
+  .barwrap .lab { width: 80px; font-family: "SF Mono", Monaco, Consolas, monospace; }
+  .barwrap .val { width: 80px; font-family: "SF Mono", Monaco, Consolas, monospace; color: #2c5282; }
+  .cm { display: inline-grid; grid-template-columns: 110px 110px 110px; gap: 4px; font-size: 13px; }
+  .cm .head { background: #2d3748; color: white; padding: 8px; text-align: center; font-weight: 700; border-radius: 4px; }
+  .cm .row-head { background: #4a5568; color: white; padding: 8px; text-align: center; font-weight: 700; border-radius: 4px; }
+  .cm .cell { background: #edf2f7; padding: 10px; text-align: center; border-radius: 4px; }
+  .cm .cell.tp { background: #c6f6d5; }
+  .cm .cell.tn { background: #c6f6d5; }
+  .cm .cell.fp { background: #fed7d7; }
+  .cm .cell.fn { background: #fed7d7; }
+  .cm .cell .num { display: block; font-size: 22px; font-weight: 700; color: #1a202c; }
+  .cm .cell .name { color: #4a5568; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-linear-regression/visualization.html">← L2: Linear Regression</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Logistic Regression</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-neural-network/visualization.html">L4: Neural Network →</a>
+</nav>
+
+<main>
+<h1>Lesson 03 — Logistic Regression</h1>
+<div class="subtitle">Từ regression sang classification: sigmoid, BCE loss, decision boundary, softmax và ROC.</div>
+
+<!-- ============== 1. SIGMOID + DECISION BOUNDARY ============== -->
+<h2>1. Sigmoid + Decision Boundary — Logistic regression 2D</h2>
+<div class="card">
+  <p>Mỗi điểm là một mẫu với 2 feature <code>(x₁, x₂)</code> và label nhị phân (xanh = 1, đỏ = 0). Kéo điểm để di chuyển. Click vào điểm để đảo nhãn. Nút "Fit" chạy logistic regression bằng gradient descent rồi vẽ <b>decision boundary</b> và bản đồ xác suất <code>p = σ(wᵀx + b)</code>.</p>
+  <div class="row">
+    <button class="btn" id="fit-btn">▶ Fit logistic regression</button>
+    <button class="btn ghost" id="reset-btn">Reset preset</button>
+    <button class="btn ghost" id="add-pos-btn">+ thêm điểm xanh</button>
+    <button class="btn ghost" id="add-neg-btn">+ thêm điểm đỏ</button>
+    <span class="lbl">η: <span id="lr-val" class="num">0.5</span></span>
+    <input type="range" id="lr" min="0.05" max="2" step="0.05" value="0.5">
+    <span class="lbl">epochs: <span id="ep-val" class="num">300</span></span>
+    <input type="range" id="ep" min="20" max="1000" step="20" value="300">
+  </div>
+  <div class="grid-2">
+    <div>
+      <svg id="scatter" class="viz" viewBox="0 0 460 400"></svg>
+      <div class="legend">
+        <div class="item"><div class="swatch" style="background:#3182ce"></div>y = 1 (dương)</div>
+        <div class="item"><div class="swatch" style="background:#e53e3e"></div>y = 0 (âm)</div>
+        <div class="item"><div class="swatch" style="background: linear-gradient(to right, #fed7d7, #fff, #bee3f8)"></div>p từ thấp → cao</div>
+      </div>
+    </div>
+    <div>
+      <svg id="sigmoid" class="viz" viewBox="0 0 460 400"></svg>
+      <div class="hint">Bên phải: <code>p</code> của từng mẫu theo <code>z = wᵀx + b</code>. Khi training hội tụ, điểm dương dạt sang phải (p≈1), điểm âm dạt sang trái (p≈0).</div>
+    </div>
+  </div>
+  <div class="info-box" id="fit-info">
+    Chưa fit. Nhấn <span class="blue">"Fit logistic regression"</span> để chạy gradient descent.
+  </div>
+</div>
+
+<!-- ============== 2. CROSS-ENTROPY VS MSE ============== -->
+<h2>2. Cross-entropy vs MSE — vì sao BCE thắng cho classification</h2>
+<div class="card">
+  <p>Cho 1 sample với <span class="pill pos">y = 1</span>. Khi model dự đoán xác suất <code>p</code>, loss và gradient theo <code>z</code> (logit) khác nhau giữa BCE và MSE. Trượt thanh để xem.</p>
+  <div class="row">
+    <label>p = <span id="p-val" class="num">0.5</span></label>
+    <input type="range" id="p-slider" min="0.001" max="0.999" step="0.001" value="0.5">
+    <label>y =</label>
+    <select id="y-sel">
+      <option value="1" selected>1 (dương)</option>
+      <option value="0">0 (âm)</option>
+    </select>
+  </div>
+  <div class="grid-2">
+    <div>
+      <svg id="loss-chart" class="viz" viewBox="0 0 460 340"></svg>
+      <div class="legend">
+        <div class="item"><div class="swatch" style="background:#3182ce"></div>BCE = -log p (khi y=1)</div>
+        <div class="item"><div class="swatch" style="background:#dd6b20"></div>MSE = (p - y)²</div>
+      </div>
+    </div>
+    <div>
+      <svg id="grad-chart" class="viz" viewBox="0 0 460 340"></svg>
+      <div class="legend">
+        <div class="item"><div class="swatch" style="background:#3182ce"></div>|∂BCE/∂z| = |p - y|</div>
+        <div class="item"><div class="swatch" style="background:#dd6b20"></div>|∂MSE/∂z| = 2|p-y|·p(1-p)</div>
+      </div>
+    </div>
+  </div>
+  <div class="info-box" id="loss-info"></div>
+  <div class="hint">Chú ý: khi <code>p → 0</code> với <code>y = 1</code>, BCE tới ∞ nhưng MSE chỉ tới 1. Quan trọng hơn: gradient của MSE qua sigmoid có factor <code>p(1-p)</code> — biến mất khi <code>p</code> gần biên. BCE thì không.</div>
+</div>
+
+<!-- ============== 3. SOFTMAX DEMO ============== -->
+<h2>3. Softmax — biến `K` logit thành phân phối xác suất</h2>
+<div class="card">
+  <p>Trượt 3 thanh logit. Softmax tính <code>p_k = e^{z_k} / Σ e^{z_j}</code>. Quan sát: tăng 1 logit không chỉ tăng <code>p_k</code> đó mà còn giảm các <code>p_j</code> khác (vì tổng phải = 1).</p>
+  <div class="row">
+    <label>z₁ = <span id="z1-val" class="num">2.0</span></label>
+    <input type="range" id="z1" min="-5" max="5" step="0.1" value="2.0">
+  </div>
+  <div class="row">
+    <label>z₂ = <span id="z2-val" class="num">0.0</span></label>
+    <input type="range" id="z2" min="-5" max="5" step="0.1" value="0.0">
+  </div>
+  <div class="row">
+    <label>z₃ = <span id="z3-val" class="num">-1.0</span></label>
+    <input type="range" id="z3" min="-5" max="5" step="0.1" value="-1.0">
+  </div>
+  <div class="row">
+    <label>Lớp đúng:</label>
+    <select id="true-class">
+      <option value="0">k = 1</option>
+      <option value="1" selected>k = 2</option>
+      <option value="2">k = 3</option>
+    </select>
+  </div>
+  <div id="softmax-bars"></div>
+  <div class="info-box" id="softmax-info"></div>
+</div>
+
+<!-- ============== 4. ROC + AUC ============== -->
+<h2>4. ROC curve & AUC — quét threshold để đo chất lượng</h2>
+<div class="card">
+  <p>100 mẫu preset với điểm số model (1 thật, 0 thật phân phối khác nhau). Trượt threshold <code>τ</code> — xem confusion matrix, TPR, FPR và điểm hiện tại trên ROC curve.</p>
+  <div class="row">
+    <label>τ = <span id="tau-val" class="num">0.50</span></label>
+    <input type="range" id="tau" min="0" max="1" step="0.01" value="0.5">
+    <label>chất lượng model:</label>
+    <select id="quality">
+      <option value="perfect">hoàn hảo</option>
+      <option value="good" selected>tốt</option>
+      <option value="weak">yếu</option>
+      <option value="random">random</option>
+    </select>
+  </div>
+  <div class="grid-2">
+    <div>
+      <svg id="roc-svg" class="viz" viewBox="0 0 420 380"></svg>
+      <div class="hint">Điểm cam là <code>(FPR, TPR)</code> tại <code>τ</code> hiện tại. AUC = diện tích dưới đường cong.</div>
+    </div>
+    <div>
+      <div class="cm">
+        <div></div>
+        <div class="head">Pred 1</div>
+        <div class="head">Pred 0</div>
+        <div class="row-head">Real 1</div>
+        <div class="cell tp"><span class="num" id="tp">0</span><span class="name">TP</span></div>
+        <div class="cell fn"><span class="num" id="fn">0</span><span class="name">FN</span></div>
+        <div class="row-head">Real 0</div>
+        <div class="cell fp"><span class="num" id="fp">0</span><span class="name">FP</span></div>
+        <div class="cell tn"><span class="num" id="tn">0</span><span class="name">TN</span></div>
+      </div>
+      <table class="stats">
+        <tr><th>Metric</th><th>Công thức</th><th>Giá trị</th></tr>
+        <tr><td>Accuracy</td><td>(TP+TN)/n</td><td class="num" id="acc">—</td></tr>
+        <tr><td>Precision</td><td>TP/(TP+FP)</td><td class="num" id="prec">—</td></tr>
+        <tr><td>Recall (TPR)</td><td>TP/(TP+FN)</td><td class="num" id="rec">—</td></tr>
+        <tr><td>FPR</td><td>FP/(FP+TN)</td><td class="num" id="fpr">—</td></tr>
+        <tr><td>F1</td><td>2·P·R/(P+R)</td><td class="num" id="f1">—</td></tr>
+        <tr><td>AUC</td><td>diện tích ROC</td><td class="num" id="auc">—</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+/* ============================================================
+   Helpers
+   ============================================================ */
+function sigmoid(z) { return 1 / (1 + Math.exp(-z)); }
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+/* ============================================================
+   1. SIGMOID + DECISION BOUNDARY
+   ============================================================ */
+const scatterSvg = document.getElementById('scatter');
+const sigmoidSvg = document.getElementById('sigmoid');
+const W = 460, H = 400, PAD = 40;
+const xMin = 0, xMax = 1, yMin = 0, yMax = 1;
+function sx(x) { return PAD + (x - xMin) / (xMax - xMin) * (W - 2 * PAD); }
+function sy(y) { return H - PAD - (y - yMin) / (yMax - yMin) * (H - 2 * PAD); }
+function invx(px) { return xMin + (px - PAD) / (W - 2 * PAD) * (xMax - xMin); }
+function invy(py) { return yMin + (H - PAD - py) / (H - 2 * PAD) * (yMax - yMin); }
+
+let points = [];
+function presetPoints() {
+  points = [
+    {x: 0.2, y: 0.8, label: 1},
+    {x: 0.3, y: 0.7, label: 1},
+    {x: 0.15, y: 0.6, label: 1},
+    {x: 0.4, y: 0.9, label: 1},
+    {x: 0.25, y: 0.85, label: 1},
+    {x: 0.35, y: 0.65, label: 1},
+    {x: 0.7, y: 0.3, label: 0},
+    {x: 0.8, y: 0.2, label: 0},
+    {x: 0.65, y: 0.15, label: 0},
+    {x: 0.85, y: 0.4, label: 0},
+    {x: 0.75, y: 0.25, label: 0},
+    {x: 0.9, y: 0.35, label: 0}
+  ];
+}
+presetPoints();
+
+let model = { w1: 0, w2: 0, b: 0, fitted: false };
+
+function fitLogistic(lr, epochs) {
+  let w1 = 0, w2 = 0, b = 0;
+  const n = points.length;
+  for (let e = 0; e < epochs; e++) {
+    let gw1 = 0, gw2 = 0, gb = 0;
+    for (const p of points) {
+      const z = w1 * p.x + w2 * p.y + b;
+      const ph = sigmoid(z);
+      const err = ph - p.label;
+      gw1 += err * p.x;
+      gw2 += err * p.y;
+      gb += err;
+    }
+    gw1 /= n; gw2 /= n; gb /= n;
+    w1 -= lr * gw1;
+    w2 -= lr * gw2;
+    b -= lr * gb;
+  }
+  let loss = 0;
+  for (const p of points) {
+    const ph = clamp(sigmoid(w1 * p.x + w2 * p.y + b), 1e-9, 1 - 1e-9);
+    loss += -(p.label * Math.log(ph) + (1 - p.label) * Math.log(1 - ph));
+  }
+  loss /= n;
+  return { w1, w2, b, loss };
+}
+
+function drawScatter() {
+  let html = '';
+  // Background prob field (only when fitted)
+  if (model.fitted) {
+    const grid = 30;
+    for (let i = 0; i < grid; i++) {
+      for (let j = 0; j < grid; j++) {
+        const xv = xMin + (i + 0.5) / grid * (xMax - xMin);
+        const yv = yMin + (j + 0.5) / grid * (yMax - yMin);
+        const z = model.w1 * xv + model.w2 * yv + model.b;
+        const p = sigmoid(z);
+        // color: red to blue
+        const r = Math.round(255 - p * 80);
+        const g = Math.round(215 - Math.abs(p - 0.5) * 80);
+        const b = Math.round(215 + (p - 0.5) * 80);
+        const x0 = sx(xv) - (W - 2 * PAD) / grid / 2;
+        const y0 = sy(yv) - (H - 2 * PAD) / grid / 2;
+        const ww = (W - 2 * PAD) / grid + 1;
+        const hh = (H - 2 * PAD) / grid + 1;
+        html += `<rect x="${x0}" y="${y0}" width="${ww}" height="${hh}" fill="rgb(${r},${g},${b})" opacity="0.6"/>`;
+      }
+    }
+    // Decision boundary: w1·x + w2·y + b = 0 → y = -(w1 x + b)/w2
+    if (Math.abs(model.w2) > 1e-6) {
+      const y0 = -(model.w1 * xMin + model.b) / model.w2;
+      const y1 = -(model.w1 * xMax + model.b) / model.w2;
+      html += `<line x1="${sx(xMin)}" y1="${sy(y0)}" x2="${sx(xMax)}" y2="${sy(y1)}" stroke="#2d3748" stroke-width="2.5" stroke-dasharray="6,4"/>`;
+    }
+  }
+  // Axes
+  html += `<line x1="${PAD}" y1="${H - PAD}" x2="${W - PAD}" y2="${H - PAD}" stroke="#a0aec0"/>`;
+  html += `<line x1="${PAD}" y1="${PAD}" x2="${PAD}" y2="${H - PAD}" stroke="#a0aec0"/>`;
+  html += `<text x="${W / 2}" y="${H - 8}" text-anchor="middle" font-size="13" fill="#4a5568">x₁</text>`;
+  html += `<text x="14" y="${H / 2}" text-anchor="middle" font-size="13" fill="#4a5568" transform="rotate(-90 14 ${H / 2})">x₂</text>`;
+  // Points
+  points.forEach((p, i) => {
+    const cx = sx(p.x), cy = sy(p.y);
+    const col = p.label === 1 ? '#3182ce' : '#e53e3e';
+    html += `<circle cx="${cx}" cy="${cy}" r="8" fill="${col}" stroke="white" stroke-width="2" data-i="${i}" style="cursor:grab"/>`;
+  });
+  scatterSvg.innerHTML = html;
+  bindDrag();
+}
+
+function drawSigmoidPanel() {
+  // Plot σ(z) curve + sample points colored by label, x = z, y = p
+  let html = '';
+  const PAD2 = 40;
+  const zMin = -8, zMax = 8;
+  function tx(z) { return PAD2 + (z - zMin) / (zMax - zMin) * (W - 2 * PAD2); }
+  function ty(p) { return H - PAD2 - p * (H - 2 * PAD2); }
+  // Axes
+  html += `<line x1="${PAD2}" y1="${H - PAD2}" x2="${W - PAD2}" y2="${H - PAD2}" stroke="#a0aec0"/>`;
+  html += `<line x1="${PAD2}" y1="${PAD2}" x2="${PAD2}" y2="${H - PAD2}" stroke="#a0aec0"/>`;
+  // x = 0 vertical
+  html += `<line x1="${tx(0)}" y1="${PAD2}" x2="${tx(0)}" y2="${H - PAD2}" stroke="#cbd5e0" stroke-dasharray="3,3"/>`;
+  // y = 0.5 horizontal
+  html += `<line x1="${PAD2}" y1="${ty(0.5)}" x2="${W - PAD2}" y2="${ty(0.5)}" stroke="#cbd5e0" stroke-dasharray="3,3"/>`;
+  // sigmoid curve
+  let path = '';
+  for (let i = 0; i <= 200; i++) {
+    const z = zMin + (zMax - zMin) * i / 200;
+    const p = sigmoid(z);
+    path += (i === 0 ? 'M' : 'L') + tx(z) + ',' + ty(p);
+  }
+  html += `<path d="${path}" stroke="#4299e1" stroke-width="2.5" fill="none"/>`;
+  // labels
+  html += `<text x="${W / 2}" y="${H - 8}" text-anchor="middle" font-size="13" fill="#4a5568">z = w·x + b</text>`;
+  html += `<text x="14" y="${H / 2}" text-anchor="middle" font-size="13" fill="#4a5568" transform="rotate(-90 14 ${H / 2})">p = σ(z)</text>`;
+  html += `<text x="${tx(0) + 5}" y="${PAD2 + 12}" font-size="11" fill="#718096">z=0 → p=0.5</text>`;
+  // Sample points (only when fitted)
+  if (model.fitted) {
+    for (const p of points) {
+      const z = model.w1 * p.x + model.w2 * p.y + model.b;
+      const prob = sigmoid(z);
+      const col = p.label === 1 ? '#3182ce' : '#e53e3e';
+      const cx = tx(clamp(z, zMin, zMax));
+      const cy = ty(prob);
+      html += `<circle cx="${cx}" cy="${cy}" r="6" fill="${col}" stroke="white" stroke-width="2"/>`;
+    }
+  }
+  sigmoidSvg.innerHTML = html;
+}
+
+// Drag and click handling
+let dragging = null;
+function bindDrag() {
+  scatterSvg.querySelectorAll('circle').forEach(c => {
+    c.addEventListener('mousedown', e => {
+      e.preventDefault();
+      dragging = parseInt(c.dataset.i);
+    });
+    c.addEventListener('click', e => {
+      if (e.detail === 2) {
+        const i = parseInt(c.dataset.i);
+        points[i].label = 1 - points[i].label;
+        drawScatter();
+      }
+    });
+  });
+}
+scatterSvg.addEventListener('mousemove', e => {
+  if (dragging === null) return;
+  const rect = scatterSvg.getBoundingClientRect();
+  const px = (e.clientX - rect.left) / rect.width * W;
+  const py = (e.clientY - rect.top) / rect.height * H;
+  const newX = clamp(invx(px), xMin, xMax);
+  const newY = clamp(invy(py), yMin, yMax);
+  points[dragging].x = newX;
+  points[dragging].y = newY;
+  drawScatter();
+});
+window.addEventListener('mouseup', () => { dragging = null; });
+scatterSvg.addEventListener('dblclick', e => {
+  if (e.target.tagName === 'circle') {
+    const i = parseInt(e.target.dataset.i);
+    points[i].label = 1 - points[i].label;
+    drawScatter();
+  }
+});
+
+document.getElementById('fit-btn').onclick = () => {
+  const lr = parseFloat(document.getElementById('lr').value);
+  const ep = parseInt(document.getElementById('ep').value);
+  const res = fitLogistic(lr, ep);
+  model = { w1: res.w1, w2: res.w2, b: res.b, fitted: true };
+  const info = document.getElementById('fit-info');
+  let correct = 0;
+  for (const p of points) {
+    const ph = sigmoid(res.w1 * p.x + res.w2 * p.y + res.b);
+    if ((ph >= 0.5 ? 1 : 0) === p.label) correct++;
+  }
+  info.innerHTML = `Fit xong: <span class="blue">w₁ = ${res.w1.toFixed(3)}</span>, <span class="blue">w₂ = ${res.w2.toFixed(3)}</span>, <span class="blue">b = ${res.b.toFixed(3)}</span>. Loss = <span class="purple">${res.loss.toFixed(4)}</span>. Đúng <span class="green">${correct}/${points.length}</span> mẫu. Boundary: <span class="amber">${res.w1.toFixed(2)}·x₁ + ${res.w2.toFixed(2)}·x₂ + ${res.b.toFixed(2)} = 0</span>.`;
+  drawScatter();
+  drawSigmoidPanel();
+};
+document.getElementById('reset-btn').onclick = () => {
+  presetPoints();
+  model.fitted = false;
+  drawScatter();
+  drawSigmoidPanel();
+  document.getElementById('fit-info').innerHTML = 'Chưa fit. Nhấn <span class="blue">"Fit logistic regression"</span> để chạy.';
+};
+document.getElementById('add-pos-btn').onclick = () => {
+  points.push({ x: Math.random() * 0.8 + 0.1, y: Math.random() * 0.8 + 0.1, label: 1 });
+  drawScatter();
+};
+document.getElementById('add-neg-btn').onclick = () => {
+  points.push({ x: Math.random() * 0.8 + 0.1, y: Math.random() * 0.8 + 0.1, label: 0 });
+  drawScatter();
+};
+document.getElementById('lr').oninput = e => document.getElementById('lr-val').textContent = parseFloat(e.target.value).toFixed(2);
+document.getElementById('ep').oninput = e => document.getElementById('ep-val').textContent = e.target.value;
+
+drawScatter();
+drawSigmoidPanel();
+
+/* ============================================================
+   2. BCE vs MSE
+   ============================================================ */
+const lossSvg = document.getElementById('loss-chart');
+const gradSvg = document.getElementById('grad-chart');
+
+function drawLossChart() {
+  const y = parseInt(document.getElementById('y-sel').value);
+  const pCur = parseFloat(document.getElementById('p-slider').value);
+  const W2 = 460, H2 = 340, P2 = 40;
+  function tx(p) { return P2 + p * (W2 - 2 * P2); }
+  function ty(v, vmax) { return H2 - P2 - v / vmax * (H2 - 2 * P2); }
+  const vmax = 5;
+  let html = '';
+  html += `<line x1="${P2}" y1="${H2 - P2}" x2="${W2 - P2}" y2="${H2 - P2}" stroke="#a0aec0"/>`;
+  html += `<line x1="${P2}" y1="${P2}" x2="${P2}" y2="${H2 - P2}" stroke="#a0aec0"/>`;
+  // BCE
+  let bcePath = '';
+  for (let i = 1; i < 200; i++) {
+    const p = i / 200;
+    const v = -(y * Math.log(p) + (1 - y) * Math.log(1 - p));
+    bcePath += (i === 1 ? 'M' : 'L') + tx(p) + ',' + ty(Math.min(v, vmax), vmax);
+  }
+  html += `<path d="${bcePath}" stroke="#3182ce" stroke-width="2.5" fill="none"/>`;
+  // MSE
+  let msePath = '';
+  for (let i = 1; i < 200; i++) {
+    const p = i / 200;
+    const v = (p - y) * (p - y);
+    msePath += (i === 1 ? 'M' : 'L') + tx(p) + ',' + ty(v, vmax);
+  }
+  html += `<path d="${msePath}" stroke="#dd6b20" stroke-width="2.5" fill="none"/>`;
+  // current
+  const bceCur = -(y * Math.log(pCur) + (1 - y) * Math.log(1 - pCur));
+  const mseCur = (pCur - y) * (pCur - y);
+  html += `<line x1="${tx(pCur)}" y1="${P2}" x2="${tx(pCur)}" y2="${H2 - P2}" stroke="#a0aec0" stroke-dasharray="3,3"/>`;
+  html += `<circle cx="${tx(pCur)}" cy="${ty(Math.min(bceCur, vmax), vmax)}" r="5" fill="#3182ce"/>`;
+  html += `<circle cx="${tx(pCur)}" cy="${ty(mseCur, vmax)}" r="5" fill="#dd6b20"/>`;
+  // x ticks
+  for (let i = 0; i <= 5; i++) {
+    const p = i / 5;
+    html += `<text x="${tx(p)}" y="${H2 - 18}" text-anchor="middle" font-size="11" fill="#4a5568">${p.toFixed(1)}</text>`;
+  }
+  for (let v = 0; v <= 5; v++) {
+    html += `<text x="${P2 - 8}" y="${ty(v, vmax) + 4}" text-anchor="end" font-size="11" fill="#4a5568">${v}</text>`;
+  }
+  html += `<text x="${W2 / 2}" y="${H2 - 4}" text-anchor="middle" font-size="13" fill="#4a5568">predicted probability p</text>`;
+  html += `<text x="16" y="${H2 / 2}" text-anchor="middle" font-size="13" fill="#4a5568" transform="rotate(-90 16 ${H2 / 2})">loss</text>`;
+  html += `<text x="${W2 / 2}" y="${P2 - 14}" text-anchor="middle" font-size="14" font-weight="700" fill="#2d3748">Loss landscape (y = ${y})</text>`;
+  lossSvg.innerHTML = html;
+}
+
+function drawGradChart() {
+  const y = parseInt(document.getElementById('y-sel').value);
+  const pCur = parseFloat(document.getElementById('p-slider').value);
+  const W2 = 460, H2 = 340, P2 = 40;
+  function tx(p) { return P2 + p * (W2 - 2 * P2); }
+  function ty(v, vmax) { return H2 - P2 - v / vmax * (H2 - 2 * P2); }
+  const vmax = 1;
+  let html = '';
+  html += `<line x1="${P2}" y1="${H2 - P2}" x2="${W2 - P2}" y2="${H2 - P2}" stroke="#a0aec0"/>`;
+  html += `<line x1="${P2}" y1="${P2}" x2="${P2}" y2="${H2 - P2}" stroke="#a0aec0"/>`;
+  // BCE gradient |p - y|
+  let bcePath = '';
+  for (let i = 1; i < 200; i++) {
+    const p = i / 200;
+    const g = Math.abs(p - y);
+    bcePath += (i === 1 ? 'M' : 'L') + tx(p) + ',' + ty(Math.min(g, vmax), vmax);
+  }
+  html += `<path d="${bcePath}" stroke="#3182ce" stroke-width="2.5" fill="none"/>`;
+  // MSE gradient |2(p-y)·p(1-p)|
+  let msePath = '';
+  for (let i = 1; i < 200; i++) {
+    const p = i / 200;
+    const g = Math.abs(2 * (p - y) * p * (1 - p));
+    msePath += (i === 1 ? 'M' : 'L') + tx(p) + ',' + ty(Math.min(g, vmax), vmax);
+  }
+  html += `<path d="${msePath}" stroke="#dd6b20" stroke-width="2.5" fill="none"/>`;
+  // current
+  const bceG = Math.abs(pCur - y);
+  const mseG = Math.abs(2 * (pCur - y) * pCur * (1 - pCur));
+  html += `<line x1="${tx(pCur)}" y1="${P2}" x2="${tx(pCur)}" y2="${H2 - P2}" stroke="#a0aec0" stroke-dasharray="3,3"/>`;
+  html += `<circle cx="${tx(pCur)}" cy="${ty(bceG, vmax)}" r="5" fill="#3182ce"/>`;
+  html += `<circle cx="${tx(pCur)}" cy="${ty(mseG, vmax)}" r="5" fill="#dd6b20"/>`;
+  for (let i = 0; i <= 5; i++) {
+    const p = i / 5;
+    html += `<text x="${tx(p)}" y="${H2 - 18}" text-anchor="middle" font-size="11" fill="#4a5568">${p.toFixed(1)}</text>`;
+  }
+  for (let i = 0; i <= 4; i++) {
+    const v = i / 4;
+    html += `<text x="${P2 - 8}" y="${ty(v, vmax) + 4}" text-anchor="end" font-size="11" fill="#4a5568">${v.toFixed(2)}</text>`;
+  }
+  html += `<text x="${W2 / 2}" y="${H2 - 4}" text-anchor="middle" font-size="13" fill="#4a5568">predicted probability p</text>`;
+  html += `<text x="16" y="${H2 / 2}" text-anchor="middle" font-size="13" fill="#4a5568" transform="rotate(-90 16 ${H2 / 2})">|gradient w.r.t. z|</text>`;
+  html += `<text x="${W2 / 2}" y="${P2 - 14}" text-anchor="middle" font-size="14" font-weight="700" fill="#2d3748">Gradient theo z (y = ${y})</text>`;
+  gradSvg.innerHTML = html;
+}
+
+function updateLossInfo() {
+  const y = parseInt(document.getElementById('y-sel').value);
+  const p = parseFloat(document.getElementById('p-slider').value);
+  const bce = -(y * Math.log(Math.max(p, 1e-9)) + (1 - y) * Math.log(Math.max(1 - p, 1e-9)));
+  const mse = (p - y) * (p - y);
+  const bceG = Math.abs(p - y);
+  const mseG = Math.abs(2 * (p - y) * p * (1 - p));
+  document.getElementById('loss-info').innerHTML =
+    `<span class="blue">BCE</span> = ${bce.toFixed(4)} · <span class="red">MSE</span> = ${mse.toFixed(4)} · ` +
+    `<span class="blue">|∂BCE/∂z|</span> = ${bceG.toFixed(4)} · <span class="red">|∂MSE/∂z|</span> = ${mseG.toFixed(4)} · ` +
+    `Tỉ lệ gradient BCE/MSE = <span class="purple">${(bceG / (mseG + 1e-9)).toFixed(2)}×</span>`;
+}
+
+function updateAllLoss() {
+  document.getElementById('p-val').textContent = parseFloat(document.getElementById('p-slider').value).toFixed(3);
+  drawLossChart();
+  drawGradChart();
+  updateLossInfo();
+}
+document.getElementById('p-slider').oninput = updateAllLoss;
+document.getElementById('y-sel').onchange = updateAllLoss;
+updateAllLoss();
+
+/* ============================================================
+   3. SOFTMAX
+   ============================================================ */
+function softmax(zs) {
+  const m = Math.max(...zs);
+  const ex = zs.map(z => Math.exp(z - m));
+  const s = ex.reduce((a, b) => a + b, 0);
+  return ex.map(e => e / s);
+}
+
+function updateSoftmax() {
+  const z1 = parseFloat(document.getElementById('z1').value);
+  const z2 = parseFloat(document.getElementById('z2').value);
+  const z3 = parseFloat(document.getElementById('z3').value);
+  const yt = parseInt(document.getElementById('true-class').value);
+  document.getElementById('z1-val').textContent = z1.toFixed(2);
+  document.getElementById('z2-val').textContent = z2.toFixed(2);
+  document.getElementById('z3-val').textContent = z3.toFixed(2);
+  const ps = softmax([z1, z2, z3]);
+  const colors = ['#3182ce', '#38a169', '#d69e2e'];
+  const labels = ['k=1', 'k=2', 'k=3'];
+  const bars = ps.map((p, i) => {
+    const pct = (p * 100).toFixed(1);
+    const w = Math.max(p * 360, 2);
+    const star = (i === yt) ? ' ★ true' : '';
+    return `<div class="barwrap"><span class="lab">${labels[i]}${star}</span><div class="bar" style="background:${colors[i]};width:${w}px"></div><span class="val">${pct}%</span></div>`;
+  }).join('');
+  document.getElementById('softmax-bars').innerHTML = bars;
+  const ce = -Math.log(Math.max(ps[yt], 1e-9));
+  const grads = ps.map((p, i) => p - (i === yt ? 1 : 0));
+  document.getElementById('softmax-info').innerHTML =
+    `Tổng: <span class="purple">${ps.reduce((a, b) => a + b, 0).toFixed(4)}</span> (≈ 1 ✓). ` +
+    `Cross-entropy (lớp đúng k=${yt + 1}): <span class="red">-log(${ps[yt].toFixed(4)}) = ${ce.toFixed(4)}</span>. ` +
+    `Gradient ∂L/∂z = p - y_onehot = <span class="blue">(${grads.map(g => g.toFixed(3)).join(', ')})</span>. ` +
+    `Tổng gradient = <span class="amber">${grads.reduce((a, b) => a + b, 0).toFixed(4)}</span> (= 0 vì softmax có ràng buộc Σp=1).`;
+}
+['z1', 'z2', 'z3'].forEach(id => document.getElementById(id).oninput = updateSoftmax);
+document.getElementById('true-class').onchange = updateSoftmax;
+updateSoftmax();
+
+/* ============================================================
+   4. ROC + AUC
+   ============================================================ */
+function genSamples(quality) {
+  // 50 positives, 50 negatives. Score depends on quality preset
+  let posMean, negMean, std;
+  if (quality === 'perfect') { posMean = 0.85; negMean = 0.15; std = 0.05; }
+  else if (quality === 'good') { posMean = 0.72; negMean = 0.30; std = 0.13; }
+  else if (quality === 'weak') { posMean = 0.6; negMean = 0.4; std = 0.18; }
+  else { posMean = 0.5; negMean = 0.5; std = 0.2; }
+  // seeded random (LCG) for repeatability
+  let seed = 42;
+  function rnd() { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; }
+  function gauss() { const u = rnd(), v = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+  const samples = [];
+  for (let i = 0; i < 50; i++) samples.push({ score: clamp(posMean + std * gauss(), 0, 1), label: 1 });
+  for (let i = 0; i < 50; i++) samples.push({ score: clamp(negMean + std * gauss(), 0, 1), label: 0 });
+  return samples;
+}
+
+let rocSamples = genSamples('good');
+
+function confusionAt(samples, tau) {
+  let tp = 0, fp = 0, tn = 0, fn = 0;
+  for (const s of samples) {
+    const pred = s.score >= tau ? 1 : 0;
+    if (s.label === 1 && pred === 1) tp++;
+    else if (s.label === 1 && pred === 0) fn++;
+    else if (s.label === 0 && pred === 1) fp++;
+    else tn++;
+  }
+  return { tp, fp, tn, fn };
+}
+
+function computeROC(samples) {
+  // sort by score descending and sweep
+  const sorted = [...samples].sort((a, b) => b.score - a.score);
+  const pos = samples.filter(s => s.label === 1).length;
+  const neg = samples.length - pos;
+  const pts = [{ fpr: 0, tpr: 0 }];
+  let tp = 0, fp = 0;
+  for (const s of sorted) {
+    if (s.label === 1) tp++; else fp++;
+    pts.push({ fpr: fp / neg, tpr: tp / pos });
+  }
+  // AUC via trapezoid
+  let auc = 0;
+  for (let i = 1; i < pts.length; i++) {
+    auc += (pts[i].fpr - pts[i - 1].fpr) * (pts[i].tpr + pts[i - 1].tpr) / 2;
+  }
+  return { pts, auc };
+}
+
+function drawROC() {
+  const tau = parseFloat(document.getElementById('tau').value);
+  document.getElementById('tau-val').textContent = tau.toFixed(2);
+  const cm = confusionAt(rocSamples, tau);
+  document.getElementById('tp').textContent = cm.tp;
+  document.getElementById('fp').textContent = cm.fp;
+  document.getElementById('tn').textContent = cm.tn;
+  document.getElementById('fn').textContent = cm.fn;
+  const n = rocSamples.length;
+  const acc = (cm.tp + cm.tn) / n;
+  const prec = cm.tp + cm.fp > 0 ? cm.tp / (cm.tp + cm.fp) : 0;
+  const rec = cm.tp + cm.fn > 0 ? cm.tp / (cm.tp + cm.fn) : 0;
+  const fpr = cm.fp + cm.tn > 0 ? cm.fp / (cm.fp + cm.tn) : 0;
+  const f1 = (prec + rec) > 0 ? 2 * prec * rec / (prec + rec) : 0;
+  document.getElementById('acc').textContent = acc.toFixed(3);
+  document.getElementById('prec').textContent = prec.toFixed(3);
+  document.getElementById('rec').textContent = rec.toFixed(3);
+  document.getElementById('fpr').textContent = fpr.toFixed(3);
+  document.getElementById('f1').textContent = f1.toFixed(3);
+  const { pts, auc } = computeROC(rocSamples);
+  document.getElementById('auc').textContent = auc.toFixed(3);
+
+  // Draw ROC
+  const W3 = 420, H3 = 380, P3 = 50;
+  function tx(v) { return P3 + v * (W3 - 2 * P3); }
+  function ty(v) { return H3 - P3 - v * (H3 - 2 * P3); }
+  let html = '';
+  // grid
+  for (let i = 0; i <= 5; i++) {
+    const v = i / 5;
+    html += `<line x1="${tx(v)}" y1="${P3}" x2="${tx(v)}" y2="${H3 - P3}" stroke="#edf2f7"/>`;
+    html += `<line x1="${P3}" y1="${ty(v)}" x2="${W3 - P3}" y2="${ty(v)}" stroke="#edf2f7"/>`;
+    html += `<text x="${tx(v)}" y="${H3 - P3 + 16}" text-anchor="middle" font-size="11" fill="#4a5568">${v.toFixed(1)}</text>`;
+    html += `<text x="${P3 - 8}" y="${ty(v) + 4}" text-anchor="end" font-size="11" fill="#4a5568">${v.toFixed(1)}</text>`;
+  }
+  // axes
+  html += `<line x1="${P3}" y1="${H3 - P3}" x2="${W3 - P3}" y2="${H3 - P3}" stroke="#a0aec0"/>`;
+  html += `<line x1="${P3}" y1="${P3}" x2="${P3}" y2="${H3 - P3}" stroke="#a0aec0"/>`;
+  // diagonal
+  html += `<line x1="${tx(0)}" y1="${ty(0)}" x2="${tx(1)}" y2="${ty(1)}" stroke="#cbd5e0" stroke-dasharray="4,4"/>`;
+  // ROC curve - fill area
+  let area = `M ${tx(0)},${ty(0)}`;
+  for (const p of pts) area += ` L ${tx(p.fpr)},${ty(p.tpr)}`;
+  area += ` L ${tx(1)},${ty(0)} Z`;
+  html += `<path d="${area}" fill="#bee3f8" opacity="0.4"/>`;
+  // ROC line
+  let path = '';
+  for (let i = 0; i < pts.length; i++) {
+    path += (i === 0 ? 'M ' : ' L ') + tx(pts[i].fpr) + ',' + ty(pts[i].tpr);
+  }
+  html += `<path d="${path}" stroke="#3182ce" stroke-width="2.5" fill="none"/>`;
+  // current point
+  html += `<circle cx="${tx(fpr)}" cy="${ty(rec)}" r="7" fill="#dd6b20" stroke="white" stroke-width="2"/>`;
+  // labels
+  html += `<text x="${W3 / 2}" y="${H3 - 10}" text-anchor="middle" font-size="13" fill="#4a5568">False Positive Rate (FPR)</text>`;
+  html += `<text x="16" y="${H3 / 2}" text-anchor="middle" font-size="13" fill="#4a5568" transform="rotate(-90 16 ${H3 / 2})">True Positive Rate (TPR)</text>`;
+  html += `<text x="${W3 / 2}" y="${P3 - 18}" text-anchor="middle" font-size="14" font-weight="700" fill="#2d3748">ROC curve — AUC = ${auc.toFixed(3)}</text>`;
+  document.getElementById('roc-svg').innerHTML = html;
+}
+
+document.getElementById('tau').oninput = drawROC;
+document.getElementById('quality').onchange = e => {
+  rocSamples = genSamples(e.target.value);
+  drawROC();
+};
+drawROC();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+</body>
+</html>

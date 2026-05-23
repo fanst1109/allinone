@@ -17,7 +17,7 @@ Lộ trình **6 tầng** đi từ đại số phổ thông cơ bản nhất tớ
 | 1 | [Algebra](./Algebra/) | ✅ Đã có | Số, biến, phương trình, hàm số, lũy thừa/log, hệ phương trình |
 | 2 | [Trigonometry](./Trigonometry/) | ✅ Đã có | Góc, `sin/cos/tan`, đường tròn đơn vị, ma trận xoay, RoPE preview |
 | 3 | [Calculus](./Calculus/) | ✅ Đã có | Giới hạn, đạo hàm, chain rule, gradient, tích phân |
-| 4 | Linear Algebra | ⏳ Chưa | Vector, ma trận, eigenvector, PCA, SVD |
+| 4 | [Linear Algebra](./LinearAlgebra/) | ✅ Đã có | Vector, ma trận, eigenvector, PCA, SVD |
 | 5 | Probability | ⏳ Chưa | Xác suất, Bayes, phân phối, MLE, cross-entropy |
 | 6 | AI/ML | ⏳ Chưa | Linear regression → embedding → RAG → CLIP |
 

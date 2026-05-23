@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 06 — Word Embedding</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 24px; }
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; margin-top: 18px; }
+  .card {
+    background: white; border-radius: 8px; padding: 18px 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 14px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; color: #2d3748; font-size: 14px; }
+  input[type="text"], select {
+    padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 14px; font-family: inherit;
+  }
+  button {
+    padding: 7px 14px; background: #4299e1; color: white;
+    border: none; border-radius: 6px; font-size: 14px; font-weight: 600;
+    cursor: pointer;
+  }
+  button:hover { background: #3182ce; }
+  button.alt { background: #718096; }
+  button.alt:hover { background: #4a5568; }
+  .num { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px; color: #2c5282; font-weight: 700; }
+  .mono { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px; }
+  .info-box {
+    margin-top: 10px; padding: 10px 12px;
+    background: #edf2f7; border-radius: 6px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; color: #2d3748; line-height: 1.7;
+  }
+  .info-box .blue { color: #2b6cb0; font-weight: 700; }
+  .info-box .red { color: #c53030; font-weight: 700; }
+  .info-box .green { color: #2f855a; font-weight: 700; }
+  .info-box .purple { color: #6b46c1; font-weight: 700; }
+  svg.viz {
+    display: block; background: #f7fafc;
+    border: 1px solid #e2e8f0; border-radius: 6px;
+    width: 100%; height: auto;
+  }
+  .grid-2 {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start;
+  }
+  @media (max-width: 1000px) { .grid-2 { grid-template-columns: 1fr; } }
+  .hint {
+    color: #4a5568; font-size: 13.5px;
+    background: #fefcbf; padding: 10px 12px;
+    border-left: 4px solid #ecc94b; border-radius: 4px;
+    margin: 12px 0;
+  }
+  table.matrix {
+    border-collapse: collapse; font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 12px; margin: 8px 0;
+  }
+  table.matrix th, table.matrix td {
+    padding: 4px 8px; border: 1px solid #cbd5e0; text-align: center;
+    min-width: 36px;
+  }
+  table.matrix th {
+    background: #edf2f7; color: #2d3748; font-weight: 700;
+  }
+  table.matrix td.hi { background: #fed7aa; font-weight: 700; }
+  table.matrix td.mid { background: #fef3c7; }
+  .word-pill {
+    display: inline-block; padding: 4px 10px; border-radius: 4px;
+    background: #e2e8f0; color: #2d3748; font-weight: 600; font-size: 13px;
+    margin: 2px; cursor: pointer; user-select: none;
+  }
+  .word-pill.sel { background: #4299e1; color: white; }
+  .word-pill:hover { background: #bee3f8; }
+  .word-pill.sel:hover { background: #3182ce; }
+  .ranklist {
+    display: grid; grid-template-columns: 40px 110px 90px;
+    gap: 4px; font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px;
+  }
+  .ranklist .row-r { display: contents; }
+  .ranklist .row-r > div { padding: 4px 6px; }
+  .ranklist .row-r.top > div { background: #c6f6d5; font-weight: 700; }
+  .ranklist .row-r.expected > div { outline: 2px solid #ed8936; }
+  .doc {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 12.5px; background: #f7fafc; padding: 6px 10px;
+    border-radius: 4px; margin: 4px 0; border-left: 3px solid #cbd5e0;
+  }
+  .doc .ctx { background: #fef3c7; padding: 0 2px; }
+  .doc .center { background: #fed7aa; padding: 0 2px; font-weight: 700; }
+  .step-box {
+    background: #ebf8ff; border-left: 4px solid #4299e1;
+    padding: 10px 14px; margin: 8px 0; border-radius: 4px;
+    font-size: 14px;
+  }
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 10px;
+    font-size: 11px; font-weight: 700; margin-left: 4px;
+  }
+  .badge.green { background: #c6f6d5; color: #22543d; }
+  .badge.blue { background: #bee3f8; color: #2b6cb0; }
+  .badge.purple { background: #e9d8fd; color: #6b46c1; }
+  .badge.red { background: #fed7d7; color: #c53030; }
+  .badge.orange { background: #feebc8; color: #c05621; }
+  .legend {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    font-size: 13px; margin-top: 8px; color: #4a5568;
+  }
+  .legend .item { display: flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 14px; height: 14px; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-text-vectorization/visualization.html">← L5: Text vectorization</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Word embedding</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-vector-db-rag/visualization.html">L7: Vector DB + RAG →</a>
+</nav>
+
+<main>
+  <h1>Lesson 06 — Word Embedding</h1>
+  <p>4 công cụ tương tác để cảm nhận embedding: distributional viewer, vector arithmetic, t-SNE preset, mini skip-gram trainer.</p>
+
+  <!-- ==================== 1. Distributional viewer ==================== -->
+  <h2>1. Distributional viewer — "Biết từ qua bạn bè nó đi cùng"</h2>
+  <div class="card">
+    <p>Chọn 1 từ trong 6 từ dưới. Xem các <strong>câu chứa từ đó</strong> + đếm số lần các từ khác xuất hiện trong cửa sổ ngữ cảnh (window = ±2). Hai từ có context giống nhau → embedding nên gần nhau.</p>
+
+    <div class="row">
+      <label>Center word:</label>
+      <span id="distPills"></span>
+      <label style="margin-left:14px">Window:</label>
+      <select id="distWin">
+        <option value="1">±1</option>
+        <option value="2" selected>±2</option>
+        <option value="3">±3</option>
+      </select>
+    </div>
+
+    <div class="grid-2" style="margin-top:14px">
+      <div>
+        <h3 style="margin-top:0">Câu chứa từ <span id="distWord" class="mono" style="color:#c05621">cat</span></h3>
+        <div id="distDocs"></div>
+      </div>
+      <div>
+        <h3 style="margin-top:0">Co-occurrence count (top 10)</h3>
+        <table class="matrix" id="distTable" style="width:100%"></table>
+        <div class="info-box" id="distComp" style="margin-top:10px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 2. Vector arithmetic ==================== -->
+  <h2>2. Vector arithmetic — <span class="mono">king − man + woman = ?</span></h2>
+  <div class="card">
+    <p>Mini-embedding 4D được gán bằng tay cho 20 từ. Nhập 3 từ (<span class="mono">a − b + c</span>) để thấy hệ thống tính vector kết quả rồi tìm 5 từ <strong>gần nhất</strong> theo cosine similarity. Click vào preset để load nhanh.</p>
+
+    <div class="row">
+      <label>a =</label> <input type="text" id="varA" value="king" style="width:100px">
+      <label>−</label>
+      <label>b =</label> <input type="text" id="varB" value="man" style="width:100px">
+      <label>+</label>
+      <label>c =</label> <input type="text" id="varC" value="woman" style="width:100px">
+      <button id="varCompute">Compute</button>
+    </div>
+    <div class="row">
+      <span style="font-size:13px;color:#718096">Preset:</span>
+      <button class="alt" data-preset="king,man,woman">king − man + woman</button>
+      <button class="alt" data-preset="paris,france,italy">Paris − France + Italy</button>
+      <button class="alt" data-preset="tokyo,japan,germany">Tokyo − Japan + Germany</button>
+      <button class="alt" data-preset="walking,walked,swam">walking − walked + swam</button>
+    </div>
+
+    <div class="grid-2" style="margin-top:14px">
+      <div>
+        <h3 style="margin-top:0">Tính toán từng bước</h3>
+        <div class="info-box" id="varSteps"></div>
+      </div>
+      <div>
+        <h3 style="margin-top:0">Top 5 nearest (loại bỏ a, b, c)</h3>
+        <div class="ranklist" id="varRank">
+          <div class="row-r" style="font-weight:700;background:#edf2f7">
+            <div>#</div><div>word</div><div>cosine</div>
+          </div>
+        </div>
+        <p style="font-size:12.5px;color:#718096;margin-top:10px">Outline cam = đáp án mong đợi (nếu có preset).</p>
+      </div>
+    </div>
+
+    <h3>Từ điển 20 từ (click để load làm a):</h3>
+    <div id="varVocab"></div>
+  </div>
+
+  <!-- ==================== 3. t-SNE preset ==================== -->
+  <h2>3. t-SNE — 50 từ thật, chiếu xuống 2D</h2>
+  <div class="card">
+    <p>50 từ được embed sẵn 2D (pre-computed), thuộc 5 cluster: <span class="badge red">animals</span> <span class="badge green">countries</span> <span class="badge orange">foods</span> <span class="badge blue">sports</span> <span class="badge purple">colors</span>. Hover từ → highlight láng giềng gần nhất.</p>
+
+    <svg id="tsneSvg" class="viz" viewBox="0 0 800 500"></svg>
+
+    <div class="row" style="margin-top:8px">
+      <label>Highlight cluster:</label>
+      <select id="tsneFilter">
+        <option value="all">Tất cả</option>
+        <option value="animal">Animals</option>
+        <option value="country">Countries</option>
+        <option value="food">Foods</option>
+        <option value="sport">Sports</option>
+        <option value="color">Colors</option>
+      </select>
+      <label style="margin-left:14px">Hover từ:</label>
+      <span id="tsneHover" class="mono" style="color:#2c5282">—</span>
+      <span style="margin-left:14px;font-size:13px;color:#718096">Top 3 nearest:</span>
+      <span id="tsneNear" class="mono" style="color:#22543d">—</span>
+    </div>
+  </div>
+
+  <!-- ==================== 4. Skip-gram trainer mini ==================== -->
+  <h2>4. Skip-gram trainer — 5 từ, 2D embedding, từng bước</h2>
+  <div class="card">
+    <p>Vocab 5 từ {<span class="mono">cat, dog, fish, bone, water</span>}. Corpus: 3 câu. Embedding 2D, ngẫu nhiên khởi tạo. Mỗi bước training, embedding di chuyển gần các từ cùng context — bạn thấy điều đó trên canvas.</p>
+
+    <div class="row">
+      <button id="skStep">▶ 1 bước</button>
+      <button id="skBatch">▶▶ 50 bước</button>
+      <button class="alt" id="skReset">⟲ Reset</button>
+      <label style="margin-left:14px">Learning rate:</label>
+      <input type="range" id="skLR" min="0.01" max="0.5" step="0.01" value="0.15">
+      <span id="skLRv" class="num">0.15</span>
+      <label style="margin-left:14px">Step:</label>
+      <span id="skStepNum" class="num">0</span>
+    </div>
+
+    <div class="grid-2" style="margin-top:14px">
+      <div>
+        <h3 style="margin-top:0">Embedding 2D (center vectors)</h3>
+        <svg id="skSvg" class="viz" viewBox="0 0 400 400"></svg>
+        <div class="legend">
+          <span class="item"><span class="swatch" style="background:#e53e3e"></span>cat</span>
+          <span class="item"><span class="swatch" style="background:#dd6b20"></span>dog</span>
+          <span class="item"><span class="swatch" style="background:#3182ce"></span>fish</span>
+          <span class="item"><span class="swatch" style="background:#805ad5"></span>bone</span>
+          <span class="item"><span class="swatch" style="background:#319795"></span>water</span>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-top:0">Trạng thái</h3>
+        <div class="info-box" id="skState"></div>
+        <h3>Cặp training (window = 1)</h3>
+        <div class="info-box mono" id="skPairs" style="font-size:12px;max-height:120px;overflow-y:auto"></div>
+        <h3>Loss qua các bước</h3>
+        <svg id="skLossSvg" class="viz" viewBox="0 0 400 140"></svg>
+      </div>
+    </div>
+
+    <div class="hint" style="margin-top:14px">
+      <strong>Quan sát:</strong> sau ~50 bước, <span class="mono">cat</span> và <span class="mono">dog</span> sẽ tiến về cùng vùng (cùng có context "fish"/"bone"); <span class="mono">fish</span> và <span class="mono">water</span> gom lại (cùng context "swim"); <span class="mono">bone</span> nằm riêng (chỉ với dog).
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ==================== Component 1: Distributional viewer ====================
+(function() {
+  const docs = [
+    ["the", "cat", "sat", "on", "the", "mat"],
+    ["the", "dog", "ran", "to", "the", "park"],
+    ["a", "cat", "drinks", "milk", "every", "morning"],
+    ["the", "dog", "barks", "at", "the", "mailman"],
+    ["a", "cat", "and", "a", "dog", "are", "pets"],
+    ["the", "cat", "chases", "the", "mouse"],
+    ["my", "laptop", "needs", "a", "new", "battery"],
+    ["she", "bought", "a", "new", "laptop", "yesterday"],
+    ["a", "laptop", "and", "a", "phone", "on", "the", "table"],
+    ["he", "fixed", "the", "laptop", "screen"],
+    ["i", "love", "to", "eat", "pizza", "with", "cheese"],
+    ["the", "pizza", "was", "delicious", "and", "hot"],
+    ["pizza", "and", "pasta", "are", "italian", "foods"],
+    ["she", "ordered", "a", "large", "pizza", "for", "dinner"],
+    ["the", "car", "drives", "on", "the", "road"],
+    ["my", "car", "needs", "new", "tires"],
+    ["a", "fast", "car", "is", "dangerous"],
+    ["the", "dog", "chased", "the", "cat", "in", "the", "yard"],
+    ["a", "fast", "laptop", "with", "a", "powerful", "battery"],
+    ["the", "car", "and", "the", "laptop", "are", "expensive"]
+  ];
+
+  const centers = ["cat", "dog", "laptop", "pizza", "car", "mouse"];
+  let selected = "cat";
+  let win = 2;
+
+  const pillsEl = document.getElementById("distPills");
+  pillsEl.innerHTML = centers.map(w => `<span class="word-pill ${w===selected?'sel':''}" data-w="${w}">${w}</span>`).join("");
+  pillsEl.addEventListener("click", e => {
+    if (e.target.classList.contains("word-pill")) {
+      selected = e.target.dataset.w;
+      [...pillsEl.children].forEach(c => c.classList.toggle("sel", c.dataset.w === selected));
+      render();
+    }
+  });
+
+  document.getElementById("distWin").addEventListener("change", e => {
+    win = parseInt(e.target.value);
+    render();
+  });
+
+  function highlight(tokens, center, w) {
+    const idxs = tokens.map((t, i) => t === center ? i : -1).filter(i => i >= 0);
+    return tokens.map((t, i) => {
+      if (idxs.includes(i)) return `<span class="center">${t}</span>`;
+      if (idxs.some(j => Math.abs(j - i) <= w && j !== i)) return `<span class="ctx">${t}</span>`;
+      return t;
+    }).join(" ");
+  }
+
+  function cooccurrence(center, w) {
+    const counts = {};
+    docs.forEach(tokens => {
+      tokens.forEach((t, i) => {
+        if (t !== center) return;
+        for (let j = Math.max(0, i-w); j <= Math.min(tokens.length-1, i+w); j++) {
+          if (j === i) continue;
+          counts[tokens[j]] = (counts[tokens[j]] || 0) + 1;
+        }
+      });
+    });
+    return counts;
+  }
+
+  function compareCats() {
+    const c1 = cooccurrence("cat", win);
+    const c2 = cooccurrence("dog", win);
+    const allWords = new Set([...Object.keys(c1), ...Object.keys(c2)]);
+    let dot = 0, n1 = 0, n2 = 0;
+    allWords.forEach(w => {
+      const a = c1[w] || 0, b = c2[w] || 0;
+      dot += a * b; n1 += a*a; n2 += b*b;
+    });
+    if (n1 === 0 || n2 === 0) return 0;
+    return dot / (Math.sqrt(n1) * Math.sqrt(n2));
+  }
+
+  function render() {
+    document.getElementById("distWord").textContent = selected;
+    // docs
+    const matching = docs.filter(d => d.includes(selected));
+    document.getElementById("distDocs").innerHTML = matching.length
+      ? matching.map(d => `<div class="doc">${highlight(d, selected, win)}</div>`).join("")
+      : `<div class="doc">(không có câu nào chứa từ này)</div>`;
+
+    // table
+    const counts = cooccurrence(selected, win);
+    const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 10);
+    const max = sorted.length ? sorted[0][1] : 1;
+    const html = `
+      <tr><th>Từ</th><th>Count</th><th>Tỉ lệ</th></tr>
+      ${sorted.map(([w, c]) => {
+        const cls = c === max ? 'hi' : c >= max*0.5 ? 'mid' : '';
+        return `<tr><td>${w}</td><td class="${cls}">${c}</td><td>${(c/max*100).toFixed(0)}%</td></tr>`;
+      }).join("")}
+    `;
+    document.getElementById("distTable").innerHTML = html;
+
+    // comparison
+    const cosCD = compareCats().toFixed(3);
+    document.getElementById("distComp").innerHTML = `
+      <strong>So sánh đặc biệt:</strong> cosine similarity giữa <span class="red">cat</span> và <span class="blue">dog</span>
+      (dùng hàng co-occurrence làm "embedding") với window = ${win}:<br>
+      <span class="purple">cos(cat, dog) = ${cosCD}</span><br>
+      <span style="color:#718096">→ Khá cao vì cả 2 đều xuất hiện cạnh "the", "a", "and", "pets" — distributional hypothesis "đoán" cat ≈ dog.</span>
+    `;
+  }
+
+  render();
+})();
+
+// ==================== Component 2: Vector arithmetic ====================
+(function() {
+  // Mini 4D embedding: gán bằng tay [royalty, humanness, female, location/country]
+  // (cộng thêm 1 chiều phụ cho tense)
+  const embed = {
+    // royalty
+    "king":   [0.90, 0.95, 0.00, 0.10, 0.00],
+    "queen":  [0.90, 0.95, 1.00, 0.10, 0.00],
+    "prince": [0.80, 0.80, 0.00, 0.10, 0.00],
+    "princess":[0.80, 0.80, 1.00, 0.10, 0.00],
+    // humans
+    "man":    [0.10, 0.95, 0.00, 0.20, 0.00],
+    "woman":  [0.10, 0.95, 1.00, 0.20, 0.00],
+    "boy":    [0.10, 0.80, 0.00, 0.20, 0.00],
+    "girl":   [0.10, 0.80, 1.00, 0.20, 0.00],
+    // cities/countries
+    "paris":  [0.20, 0.10, 0.00, 0.90, 0.00], // city
+    "france": [0.15, 0.05, 0.00, 0.95, 0.00], // country, location chiều 4 cao
+    "rome":   [0.25, 0.10, 0.00, 0.92, 0.00],
+    "italy":  [0.15, 0.05, 0.00, 0.96, 0.00],
+    "tokyo":  [0.30, 0.10, 0.00, 0.88, 0.00],
+    "japan":  [0.20, 0.05, 0.00, 0.93, 0.00],
+    "berlin": [0.28, 0.10, 0.00, 0.91, 0.00],
+    "germany":[0.18, 0.05, 0.00, 0.95, 0.00],
+    // verbs tense (chiều 5 = past)
+    "walking":[0.05, 0.10, 0.00, 0.05, 0.00],
+    "walked": [0.05, 0.10, 0.00, 0.05, 1.00],
+    "swimming":[0.06, 0.10, 0.00, 0.06, 0.00],
+    "swam":   [0.06, 0.10, 0.00, 0.06, 1.00]
+  };
+  const expectedMap = {
+    "king,man,woman": "queen",
+    "paris,france,italy": "rome",
+    "tokyo,japan,germany": "berlin",
+    "walking,walked,swam": "swimming"
+  };
+
+  const vocabEl = document.getElementById("varVocab");
+  vocabEl.innerHTML = Object.keys(embed).map(w => `<span class="word-pill" data-w="${w}">${w}</span>`).join("");
+  vocabEl.addEventListener("click", e => {
+    if (e.target.classList.contains("word-pill")) {
+      document.getElementById("varA").value = e.target.dataset.w;
+      compute();
+    }
+  });
+
+  document.querySelectorAll("button[data-preset]").forEach(b => {
+    b.addEventListener("click", () => {
+      const [a,b2,c] = b.dataset.preset.split(",");
+      document.getElementById("varA").value = a;
+      document.getElementById("varB").value = b2;
+      document.getElementById("varC").value = c;
+      compute();
+    });
+  });
+
+  document.getElementById("varCompute").addEventListener("click", compute);
+
+  function cosine(u, v) {
+    let dot = 0, nu = 0, nv = 0;
+    for (let i = 0; i < u.length; i++) { dot += u[i]*v[i]; nu += u[i]*u[i]; nv += v[i]*v[i]; }
+    if (nu === 0 || nv === 0) return 0;
+    return dot / (Math.sqrt(nu) * Math.sqrt(nv));
+  }
+
+  function compute() {
+    const a = document.getElementById("varA").value.toLowerCase().trim();
+    const b = document.getElementById("varB").value.toLowerCase().trim();
+    const c = document.getElementById("varC").value.toLowerCase().trim();
+    const stepsEl = document.getElementById("varSteps");
+    const rankEl = document.getElementById("varRank");
+    rankEl.innerHTML = `<div class="row-r" style="font-weight:700;background:#edf2f7"><div>#</div><div>word</div><div>cosine</div></div>`;
+    if (!embed[a] || !embed[b] || !embed[c]) {
+      stepsEl.innerHTML = `<span class="red">Lỗi:</span> 1 trong 3 từ không có trong vocab. Dùng các từ trong danh sách dưới.`;
+      return;
+    }
+    const va = embed[a], vb = embed[b], vc = embed[c];
+    const res = va.map((x, i) => x - vb[i] + vc[i]);
+    stepsEl.innerHTML = `
+      <span class="blue">${a}</span> = (${va.map(x => x.toFixed(2)).join(", ")})<br>
+      <span class="red">${b}</span> = (${vb.map(x => x.toFixed(2)).join(", ")})<br>
+      <span class="green">${c}</span> = (${vc.map(x => x.toFixed(2)).join(", ")})<br>
+      <strong>Result = a − b + c</strong><br>
+        = (${res.map((x, i) => `${va[i].toFixed(2)} − ${vb[i].toFixed(2)} + ${vc[i].toFixed(2)}`).join(", ")})<br>
+        = <span class="purple">(${res.map(x => x.toFixed(3)).join(", ")})</span>
+    `;
+    // rank
+    const exp = expectedMap[`${a},${b},${c}`];
+    const scored = Object.entries(embed)
+      .filter(([w]) => w !== a && w !== b && w !== c)
+      .map(([w, v]) => ({w, cos: cosine(res, v)}))
+      .sort((x, y) => y.cos - x.cos).slice(0, 5);
+    scored.forEach((s, i) => {
+      const cls = (i === 0 ? "top" : "") + (s.w === exp ? " expected" : "");
+      const div = document.createElement("div");
+      div.className = "row-r " + cls;
+      div.innerHTML = `<div>${i+1}</div><div>${s.w}</div><div>${s.cos.toFixed(4)}</div>`;
+      rankEl.appendChild(div);
+    });
+  }
+
+  compute();
+})();
+
+// ==================== Component 3: t-SNE preset ====================
+(function() {
+  // 50 từ, 5 cluster × 10. Toạ độ 2D mô phỏng kết quả t-SNE (preset).
+  const data = [
+    // animals - cluster ở góc trên-trái
+    {w:"cat", c:"animal", x:100, y:90},
+    {w:"dog", c:"animal", x:115, y:80},
+    {w:"lion", c:"animal", x:135, y:95},
+    {w:"tiger", c:"animal", x:145, y:80},
+    {w:"elephant", c:"animal", x:165, y:90},
+    {w:"horse", c:"animal", x:120, y:110},
+    {w:"rabbit", c:"animal", x:90, y:110},
+    {w:"wolf", c:"animal", x:155, y:115},
+    {w:"bear", c:"animal", x:175, y:110},
+    {w:"fox", c:"animal", x:135, y:130},
+    // countries - top-right
+    {w:"france", c:"country", x:600, y:90},
+    {w:"germany", c:"country", x:620, y:80},
+    {w:"italy", c:"country", x:610, y:110},
+    {w:"japan", c:"country", x:640, y:90},
+    {w:"china", c:"country", x:655, y:110},
+    {w:"vietnam", c:"country", x:670, y:95},
+    {w:"brazil", c:"country", x:625, y:130},
+    {w:"canada", c:"country", x:595, y:130},
+    {w:"spain", c:"country", x:585, y:100},
+    {w:"india", c:"country", x:650, y:75},
+    // foods - bottom-left
+    {w:"pizza", c:"food", x:120, y:380},
+    {w:"pasta", c:"food", x:140, y:390},
+    {w:"sushi", c:"food", x:160, y:380},
+    {w:"burger", c:"food", x:100, y:395},
+    {w:"salad", c:"food", x:130, y:415},
+    {w:"bread", c:"food", x:155, y:415},
+    {w:"rice", c:"food", x:175, y:400},
+    {w:"soup", c:"food", x:115, y:425},
+    {w:"cheese", c:"food", x:145, y:430},
+    {w:"cake", c:"food", x:90, y:380},
+    // sports - bottom-right
+    {w:"football", c:"sport", x:600, y:380},
+    {w:"basketball", c:"sport", x:625, y:390},
+    {w:"tennis", c:"sport", x:645, y:380},
+    {w:"swimming", c:"sport", x:610, y:410},
+    {w:"running", c:"sport", x:635, y:415},
+    {w:"boxing", c:"sport", x:660, y:400},
+    {w:"cycling", c:"sport", x:595, y:415},
+    {w:"golf", c:"sport", x:665, y:425},
+    {w:"hockey", c:"sport", x:625, y:430},
+    {w:"baseball", c:"sport", x:600, y:430},
+    // colors - middle
+    {w:"red", c:"color", x:370, y:240},
+    {w:"blue", c:"color", x:390, y:230},
+    {w:"green", c:"color", x:405, y:245},
+    {w:"yellow", c:"color", x:355, y:255},
+    {w:"purple", c:"color", x:380, y:260},
+    {w:"orange", c:"color", x:395, y:215},
+    {w:"black", c:"color", x:420, y:230},
+    {w:"white", c:"color", x:340, y:230},
+    {w:"pink", c:"color", x:415, y:260},
+    {w:"brown", c:"color", x:360, y:215}
+  ];
+
+  const colors = {
+    animal: "#e53e3e",
+    country: "#38a169",
+    food: "#dd6b20",
+    sport: "#3182ce",
+    color: "#805ad5"
+  };
+
+  const svg = document.getElementById("tsneSvg");
+  const ns = "http://www.w3.org/2000/svg";
+  let filter = "all";
+
+  function dist(a, b) { return Math.sqrt((a.x-b.x)**2 + (a.y-b.y)**2); }
+
+  function render(hoverW = null) {
+    svg.innerHTML = "";
+    data.forEach(d => {
+      const visible = filter === "all" || d.c === filter;
+      const dimmed = hoverW && hoverW !== d.w && !nearestList(hoverW, 3).includes(d.w);
+      const opacity = visible ? (dimmed ? 0.18 : 1) : 0.12;
+      const r = (hoverW === d.w) ? 7 : 5;
+      const circle = document.createElementNS(ns, "circle");
+      circle.setAttribute("cx", d.x);
+      circle.setAttribute("cy", d.y);
+      circle.setAttribute("r", r);
+      circle.setAttribute("fill", colors[d.c]);
+      circle.setAttribute("opacity", opacity);
+      circle.style.cursor = "pointer";
+      circle.addEventListener("mouseenter", () => {
+        document.getElementById("tsneHover").textContent = d.w;
+        document.getElementById("tsneNear").textContent = nearestList(d.w, 3).join(", ");
+        render(d.w);
+      });
+      svg.appendChild(circle);
+
+      const text = document.createElementNS(ns, "text");
+      text.setAttribute("x", d.x + 8);
+      text.setAttribute("y", d.y + 4);
+      text.setAttribute("font-size", "11");
+      text.setAttribute("fill", "#2d3748");
+      text.setAttribute("opacity", opacity);
+      text.textContent = d.w;
+      svg.appendChild(text);
+    });
+    if (!hoverW) {
+      document.getElementById("tsneHover").textContent = "—";
+      document.getElementById("tsneNear").textContent = "—";
+    }
+  }
+
+  function nearestList(w, k) {
+    const target = data.find(d => d.w === w);
+    if (!target) return [];
+    return data
+      .filter(d => d.w !== w)
+      .map(d => ({w: d.w, d: dist(target, d)}))
+      .sort((a, b) => a.d - b.d)
+      .slice(0, k)
+      .map(x => x.w);
+  }
+
+  document.getElementById("tsneFilter").addEventListener("change", e => {
+    filter = e.target.value;
+    render();
+  });
+  svg.addEventListener("mouseleave", () => render());
+
+  render();
+})();
+
+// ==================== Component 4: Skip-gram mini trainer ====================
+(function() {
+  const vocab = ["cat", "dog", "fish", "bone", "water"];
+  const colors_sk = {cat:"#e53e3e", dog:"#dd6b20", fish:"#3182ce", bone:"#805ad5", water:"#319795"};
+
+  // Corpus 3 câu
+  const corpus = [
+    ["cat", "fish", "water"],
+    ["dog", "bone", "cat"],
+    ["fish", "water", "fish"]
+  ];
+
+  // Tạo cặp training với window=1
+  const pairs = [];
+  corpus.forEach(s => {
+    s.forEach((w, i) => {
+      for (let j = Math.max(0, i-1); j <= Math.min(s.length-1, i+1); j++) {
+        if (j !== i) pairs.push([w, s[j]]);
+      }
+    });
+  });
+
+  // W (center) và W' (context), 2D embedding
+  let W, Wp, step, lossHist;
+
+  function init() {
+    // Khởi tạo seed nhỏ ngẫu nhiên cố định (deterministic)
+    const seed = [
+      [0.3, -0.2],   // cat
+      [-0.1, 0.3],   // dog
+      [0.2, 0.4],    // fish
+      [-0.3, -0.1],  // bone
+      [0.4, 0.1]     // water
+    ];
+    const seedP = [
+      [0.1, 0.2],
+      [0.3, -0.1],
+      [-0.2, 0.3],
+      [0.2, -0.3],
+      [-0.1, 0.4]
+    ];
+    W = seed.map(v => [...v]);
+    Wp = seedP.map(v => [...v]);
+    step = 0;
+    lossHist = [];
+    render();
+    document.getElementById("skStepNum").textContent = "0";
+  }
+
+  function sigmoid(x) { return 1 / (1 + Math.exp(-x)); }
+  function dot(u, v) { return u[0]*v[0] + u[1]*v[1]; }
+
+  // 1 epoch = chạy qua tất cả cặp 1 lần với negative sampling k=2
+  function trainOnce() {
+    const lr = parseFloat(document.getElementById("skLR").value);
+    const k = 2;
+    let lossSum = 0;
+    pairs.forEach(([c, o]) => {
+      const ci = vocab.indexOf(c), oi = vocab.indexOf(o);
+      // Positive
+      const sPos = sigmoid(dot(W[ci], Wp[oi]));
+      lossSum += -Math.log(sPos + 1e-9);
+      const gradPos = (sPos - 1);
+      // Gradient cho W'[oi] và W[ci]
+      const dWpO = [gradPos * W[ci][0], gradPos * W[ci][1]];
+      const dWc  = [gradPos * Wp[oi][0], gradPos * Wp[oi][1]];
+
+      // Negative sampling
+      const negs = [];
+      while (negs.length < k) {
+        const ni = Math.floor(Math.random() * vocab.length);
+        if (ni !== oi && ni !== ci && !negs.includes(ni)) negs.push(ni);
+      }
+      negs.forEach(ni => {
+        const sNeg = sigmoid(dot(W[ci], Wp[ni]));
+        lossSum += -Math.log(1 - sNeg + 1e-9);
+        const gradNeg = sNeg;
+        Wp[ni][0] -= lr * gradNeg * W[ci][0];
+        Wp[ni][1] -= lr * gradNeg * W[ci][1];
+        dWc[0] += gradNeg * Wp[ni][0];
+        dWc[1] += gradNeg * Wp[ni][1];
+      });
+
+      Wp[oi][0] -= lr * dWpO[0];
+      Wp[oi][1] -= lr * dWpO[1];
+      W[ci][0]  -= lr * dWc[0];
+      W[ci][1]  -= lr * dWc[1];
+    });
+    step++;
+    lossHist.push(lossSum / pairs.length);
+    if (lossHist.length > 100) lossHist.shift();
+    document.getElementById("skStepNum").textContent = step;
+  }
+
+  function render() {
+    const svg = document.getElementById("skSvg");
+    const ns = "http://www.w3.org/2000/svg";
+    svg.innerHTML = "";
+    // axes
+    const ax = document.createElementNS(ns, "line");
+    ax.setAttribute("x1", 0); ax.setAttribute("y1", 200);
+    ax.setAttribute("x2", 400); ax.setAttribute("y2", 200);
+    ax.setAttribute("stroke", "#cbd5e0"); svg.appendChild(ax);
+    const ay = document.createElementNS(ns, "line");
+    ay.setAttribute("x1", 200); ay.setAttribute("y1", 0);
+    ay.setAttribute("x2", 200); ay.setAttribute("y2", 400);
+    ay.setAttribute("stroke", "#cbd5e0"); svg.appendChild(ay);
+
+    vocab.forEach((w, i) => {
+      const x = 200 + W[i][0] * 150;
+      const y = 200 - W[i][1] * 150;
+      const c = document.createElementNS(ns, "circle");
+      c.setAttribute("cx", x); c.setAttribute("cy", y);
+      c.setAttribute("r", 9); c.setAttribute("fill", colors_sk[w]);
+      svg.appendChild(c);
+      const t = document.createElementNS(ns, "text");
+      t.setAttribute("x", x + 12); t.setAttribute("y", y + 4);
+      t.setAttribute("font-size", "14");
+      t.setAttribute("font-weight", "700");
+      t.setAttribute("fill", colors_sk[w]);
+      t.textContent = w;
+      svg.appendChild(t);
+    });
+
+    // state info
+    const stateEl = document.getElementById("skState");
+    stateEl.innerHTML = vocab.map((w, i) =>
+      `<span style="color:${colors_sk[w]};font-weight:700">${w}</span>: (${W[i][0].toFixed(3)}, ${W[i][1].toFixed(3)})`
+    ).join("<br>");
+
+    // pairs
+    document.getElementById("skPairs").innerHTML = pairs.slice(0, 20).map(([c,o]) =>
+      `(${c}, ${o})`
+    ).join(" · ") + (pairs.length > 20 ? ` ... (${pairs.length} cặp)` : "");
+
+    // loss chart
+    const lossSvg = document.getElementById("skLossSvg");
+    lossSvg.innerHTML = "";
+    if (lossHist.length > 1) {
+      const minL = Math.min(...lossHist);
+      const maxL = Math.max(...lossHist);
+      const range = maxL - minL || 1;
+      const points = lossHist.map((l, i) => {
+        const px = 20 + (i / (lossHist.length - 1)) * 360;
+        const py = 120 - ((l - minL) / range) * 100;
+        return `${px},${py}`;
+      }).join(" ");
+      const poly = document.createElementNS(ns, "polyline");
+      poly.setAttribute("points", points);
+      poly.setAttribute("fill", "none");
+      poly.setAttribute("stroke", "#3182ce");
+      poly.setAttribute("stroke-width", "2");
+      lossSvg.appendChild(poly);
+      // axis labels
+      const lab = document.createElementNS(ns, "text");
+      lab.setAttribute("x", 5); lab.setAttribute("y", 15);
+      lab.setAttribute("font-size", "11");
+      lab.setAttribute("fill", "#718096");
+      lab.textContent = `Loss: ${lossHist[lossHist.length-1].toFixed(4)}`;
+      lossSvg.appendChild(lab);
+    }
+  }
+
+  document.getElementById("skStep").addEventListener("click", () => { trainOnce(); render(); });
+  document.getElementById("skBatch").addEventListener("click", () => {
+    for (let i = 0; i < 50; i++) trainOnce();
+    render();
+  });
+  document.getElementById("skReset").addEventListener("click", init);
+  document.getElementById("skLR").addEventListener("input", e => {
+    document.getElementById("skLRv").textContent = parseFloat(e.target.value).toFixed(2);
+  });
+
+  init();
+})();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+</body>
+</html>
+</content>
+</invoke>

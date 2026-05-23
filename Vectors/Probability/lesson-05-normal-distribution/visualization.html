@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Phân phối chuẩn (Gaussian)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  main { max-width: 1100px; margin: 0 auto; padding: 24px; }
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 24px; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; font-size: 16px; margin-top: 18px; }
+  .card {
+    background: white; border-radius: 8px; padding: 18px 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .card .desc { color: #4a5568; font-size: 14px; margin-bottom: 12px; }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; font-size: 14px; min-width: 90px; }
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; padding: 6px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 100px;
+  }
+  input[type="range"] { width: 240px; vertical-align: middle; }
+  select {
+    font-size: 14px; padding: 5px 8px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+  }
+  .slider-val {
+    display: inline-block; font-family: monospace;
+    background: #edf2f7; padding: 2px 8px; border-radius: 4px;
+    font-weight: 600; color: #2b6cb0; min-width: 60px; text-align: center;
+  }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 6px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.toggle { background: #e2e8f0; color: #2d3748; }
+  button.toggle.active { background: #4299e1; color: white; }
+  svg { display: block; background: #fdfdfd; border: 1px solid #e2e8f0; border-radius: 6px; }
+  .chart-axis { stroke: #a0aec0; stroke-width: 1; }
+  .chart-grid { stroke: #edf2f7; stroke-width: 1; }
+  .chart-label { font-size: 11px; fill: #718096; font-family: monospace; }
+  .stat-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px; margin-top: 12px;
+  }
+  .stat {
+    background: #edf2f7; padding: 8px 12px; border-radius: 4px;
+    font-family: monospace; font-size: 13px;
+  }
+  .stat .name { color: #4a5568; font-size: 11px; }
+  .stat .val { color: #2b6cb0; font-weight: 700; font-size: 14px; }
+  .legend {
+    display: flex; gap: 16px; font-size: 12px; color: #4a5568;
+    flex-wrap: wrap; margin-top: 6px;
+  }
+  .legend .item { display: flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 14px; height: 14px; border-radius: 2px; }
+  .formula {
+    background: #f7fafc; border-left: 3px solid #4299e1;
+    padding: 8px 14px; font-family: monospace;
+    font-size: 13px; margin: 8px 0;
+  }
+  .note { color: #718096; font-size: 12px; font-style: italic; margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-continuous-rv/visualization.html">← L4: Biến ngẫu nhiên liên tục</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Phân phối chuẩn (Gaussian)</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-expectation-variance/visualization.html">L6: Kỳ vọng & phương sai →</a>
+</nav>
+
+<main>
+  <h1>Lesson 05 — Phân phối chuẩn (Gaussian)</h1>
+  <div class="subtitle">4 component tương tác: shape PDF với 68/95/99.7, z-score calculator, CLT demo, multivariate ellipse.</div>
+
+  <!-- =============================================================== -->
+  <!-- Component 1: Gaussian shape + 68-95-99.7                         -->
+  <!-- =============================================================== -->
+  <h2>1. Hình dạng Gaussian — kéo μ và σ</h2>
+  <div class="card">
+    <div class="desc">PDF của <code>N(μ, σ²)</code>, kèm vùng 1σ (68.27%), 2σ (95.45%), 3σ (99.73%).</div>
+
+    <div class="row">
+      <label>μ (mean)</label>
+      <input type="range" id="g1-mu" min="-5" max="5" step="0.1" value="0">
+      <span class="slider-val" id="g1-mu-v">0.0</span>
+    </div>
+    <div class="row">
+      <label>σ (std)</label>
+      <input type="range" id="g1-sigma" min="0.3" max="3" step="0.05" value="1">
+      <span class="slider-val" id="g1-sigma-v">1.00</span>
+    </div>
+
+    <svg id="g1-svg" width="700" height="320"></svg>
+
+    <div class="legend">
+      <div class="item"><div class="swatch" style="background:#bee3f8"></div>±1σ ≈ 68.27%</div>
+      <div class="item"><div class="swatch" style="background:#90cdf4"></div>±2σ ≈ 95.45%</div>
+      <div class="item"><div class="swatch" style="background:#63b3ed"></div>±3σ ≈ 99.73%</div>
+      <div class="item"><div class="swatch" style="background:#2b6cb0"></div>PDF</div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat"><div class="name">PDF đỉnh f(μ)</div><div class="val" id="g1-peak">—</div></div>
+      <div class="stat"><div class="name">σ²</div><div class="val" id="g1-var">—</div></div>
+      <div class="stat"><div class="name">[μ−σ, μ+σ]</div><div class="val" id="g1-1sig">—</div></div>
+      <div class="stat"><div class="name">[μ−2σ, μ+2σ]</div><div class="val" id="g1-2sig">—</div></div>
+    </div>
+  </div>
+
+  <!-- =============================================================== -->
+  <!-- Component 2: z-score calculator                                  -->
+  <!-- =============================================================== -->
+  <h2>2. Máy tính z-score và xác suất</h2>
+  <div class="card">
+    <div class="desc">Nhập <code>X ~ N(μ, σ²)</code> và một giá trị <code>x</code>. Tính z và xác suất.</div>
+
+    <div class="row">
+      <label>μ</label>
+      <input type="number" id="z-mu" value="0" step="0.1">
+      <label>σ</label>
+      <input type="number" id="z-sigma" value="1" step="0.1" min="0.01">
+      <label>x</label>
+      <input type="number" id="z-x" value="1.96" step="0.01">
+    </div>
+
+    <div class="formula">
+      z = (x − μ) / σ = <span id="z-formula">—</span>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat"><div class="name">z-score</div><div class="val" id="z-val">—</div></div>
+      <div class="stat"><div class="name">Φ(z) = P(Z ≤ z)</div><div class="val" id="z-cdf">—</div></div>
+      <div class="stat"><div class="name">P(X ≤ x)</div><div class="val" id="z-px">—</div></div>
+      <div class="stat"><div class="name">P(X ≥ x)</div><div class="val" id="z-px-up">—</div></div>
+      <div class="stat"><div class="name">P(|Z| ≤ |z|)</div><div class="val" id="z-two-sided">—</div></div>
+      <div class="stat"><div class="name">PDF f(x)</div><div class="val" id="z-pdf">—</div></div>
+    </div>
+
+    <svg id="z-svg" width="700" height="220"></svg>
+    <div class="note">Vùng tô = <code>P(X ≤ x)</code>. Đường dọc đỏ = vị trí <code>x</code>.</div>
+  </div>
+
+  <!-- =============================================================== -->
+  <!-- Component 3: CLT demo                                            -->
+  <!-- =============================================================== -->
+  <h2>3. Định lý giới hạn trung tâm — CLT</h2>
+  <div class="card">
+    <div class="desc">
+      Chọn phân phối gốc, slider <code>n</code> (số sample / lần). Sinh nhiều mẫu trung bình → histogram → so với Gaussian lý thuyết.
+    </div>
+
+    <div class="row">
+      <label>Phân phối gốc</label>
+      <select id="clt-dist">
+        <option value="uniform">Uniform[0, 1]</option>
+        <option value="bernoulli">Bernoulli(0.3)</option>
+        <option value="exp">Exponential(λ=1)</option>
+        <option value="binary">Two-point {0, 1} đều</option>
+      </select>
+    </div>
+    <div class="row">
+      <label>n (sample / lần)</label>
+      <input type="range" id="clt-n" min="1" max="100" step="1" value="1">
+      <span class="slider-val" id="clt-n-v">1</span>
+    </div>
+    <div class="row">
+      <label>Số lần lấy</label>
+      <input type="range" id="clt-trials" min="500" max="20000" step="500" value="5000">
+      <span class="slider-val" id="clt-trials-v">5000</span>
+      <button id="clt-run">▶ Mô phỏng lại</button>
+    </div>
+
+    <svg id="clt-svg" width="700" height="320"></svg>
+
+    <div class="legend">
+      <div class="item"><div class="swatch" style="background:#4299e1"></div>Histogram trung bình mẫu</div>
+      <div class="item"><div class="swatch" style="background:#e53e3e"></div>Gaussian lý thuyết N(μ, σ²/n)</div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat"><div class="name">μ gốc</div><div class="val" id="clt-mu0">—</div></div>
+      <div class="stat"><div class="name">σ gốc</div><div class="val" id="clt-sigma0">—</div></div>
+      <div class="stat"><div class="name">σ của X̄ = σ/√n</div><div class="val" id="clt-se">—</div></div>
+      <div class="stat"><div class="name">Mean histogram</div><div class="val" id="clt-mean">—</div></div>
+      <div class="stat"><div class="name">SD histogram</div><div class="val" id="clt-sd">—</div></div>
+    </div>
+    <div class="note">Kéo slider n từ 1 lên 30+: thấy histogram "biến hình" từ shape gốc → chuông Gaussian. Đó là CLT.</div>
+  </div>
+
+  <!-- =============================================================== -->
+  <!-- Component 4: Multivariate Gaussian 2D                            -->
+  <!-- =============================================================== -->
+  <h2>4. Gaussian đa biến 2D — iso-density ellipse</h2>
+  <div class="card">
+    <div class="desc">
+      Slider σ₁, σ₂, ρ (correlation). Vẽ các iso-density contour. Kèm vài sample điểm để cảm nhận phân bố.
+    </div>
+
+    <div class="row">
+      <label>σ₁</label>
+      <input type="range" id="m-s1" min="0.3" max="2.5" step="0.05" value="1">
+      <span class="slider-val" id="m-s1-v">1.00</span>
+    </div>
+    <div class="row">
+      <label>σ₂</label>
+      <input type="range" id="m-s2" min="0.3" max="2.5" step="0.05" value="1">
+      <span class="slider-val" id="m-s2-v">1.00</span>
+    </div>
+    <div class="row">
+      <label>ρ (correlation)</label>
+      <input type="range" id="m-rho" min="-0.95" max="0.95" step="0.05" value="0">
+      <span class="slider-val" id="m-rho-v">0.00</span>
+    </div>
+    <div class="row">
+      <button id="m-resample">🎲 Resample 300 điểm</button>
+    </div>
+
+    <svg id="m-svg" width="600" height="500"></svg>
+
+    <div class="stat-grid">
+      <div class="stat"><div class="name">Σ₁₁ = σ₁²</div><div class="val" id="m-s11">—</div></div>
+      <div class="stat"><div class="name">Σ₂₂ = σ₂²</div><div class="val" id="m-s22">—</div></div>
+      <div class="stat"><div class="name">Σ₁₂ = Σ₂₁ = ρσ₁σ₂</div><div class="val" id="m-s12">—</div></div>
+      <div class="stat"><div class="name">|Σ| = σ₁²σ₂²(1−ρ²)</div><div class="val" id="m-det">—</div></div>
+    </div>
+    <div class="note">ρ → ±1 ⇒ ellipse co lại thành đường thẳng (Σ suy biến). ρ = 0 + σ₁=σ₂ ⇒ hình tròn (isotropic).</div>
+  </div>
+</main>
+
+<script>
+// ===== Helpers =====
+const $ = id => document.getElementById(id);
+const SQRT_2PI = Math.sqrt(2 * Math.PI);
+
+function normalPDF(x, mu, sigma) {
+  const z = (x - mu) / sigma;
+  return Math.exp(-0.5 * z * z) / (sigma * SQRT_2PI);
+}
+
+// Φ(z) = 0.5·(1 + erf(z/√2)). Abramowitz & Stegun 7.1.26 approximation.
+function erf(x) {
+  const sign = x < 0 ? -1 : 1;
+  x = Math.abs(x);
+  const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741;
+  const a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+  const t = 1 / (1 + p * x);
+  const y = 1 - (((((a5*t + a4)*t) + a3)*t + a2)*t + a1)*t * Math.exp(-x*x);
+  return sign * y;
+}
+function Phi(z) { return 0.5 * (1 + erf(z / Math.SQRT2)); }
+
+// Generate standard normal via Box-Muller
+function randn() {
+  let u = 0, v = 0;
+  while (u === 0) u = Math.random();
+  while (v === 0) v = Math.random();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+
+// ============================================================
+// Component 1: Gaussian shape
+// ============================================================
+function drawG1() {
+  const mu = parseFloat($('g1-mu').value);
+  const sigma = parseFloat($('g1-sigma').value);
+  $('g1-mu-v').textContent = mu.toFixed(1);
+  $('g1-sigma-v').textContent = sigma.toFixed(2);
+
+  const svg = $('g1-svg');
+  const W = 700, H = 320, PAD_L = 50, PAD_R = 20, PAD_T = 20, PAD_B = 40;
+  const w = W - PAD_L - PAD_R, h = H - PAD_T - PAD_B;
+
+  // X range: μ ± 4σ (with absolute limit)
+  const xMin = mu - 4 * sigma;
+  const xMax = mu + 4 * sigma;
+  const yMax = 1 / (sigma * SQRT_2PI) * 1.1; // peak * 1.1
+
+  function sx(x) { return PAD_L + (x - xMin) / (xMax - xMin) * w; }
+  function sy(y) { return PAD_T + h - y / yMax * h; }
+
+  let html = '';
+
+  // grid
+  for (let i = 0; i <= 8; i++) {
+    const x = xMin + i / 8 * (xMax - xMin);
+    html += `<line class="chart-grid" x1="${sx(x)}" y1="${PAD_T}" x2="${sx(x)}" y2="${PAD_T+h}"/>`;
+  }
+  for (let i = 0; i <= 4; i++) {
+    const y = i / 4 * yMax;
+    html += `<line class="chart-grid" x1="${PAD_L}" y1="${sy(y)}" x2="${PAD_L+w}" y2="${sy(y)}"/>`;
+  }
+
+  // Sigma band fills: 3σ, 2σ, 1σ
+  const bands = [
+    { k: 3, color: '#63b3ed' },
+    { k: 2, color: '#90cdf4' },
+    { k: 1, color: '#bee3f8' },
+  ];
+  bands.forEach(b => {
+    const xL = mu - b.k * sigma;
+    const xR = mu + b.k * sigma;
+    let path = `M ${sx(xL)} ${sy(0)} `;
+    const STEPS = 100;
+    for (let i = 0; i <= STEPS; i++) {
+      const x = xL + i / STEPS * (xR - xL);
+      const y = normalPDF(x, mu, sigma);
+      path += `L ${sx(x)} ${sy(y)} `;
+    }
+    path += `L ${sx(xR)} ${sy(0)} Z`;
+    html += `<path d="${path}" fill="${b.color}" opacity="0.7"/>`;
+  });
+
+  // PDF curve
+  let curve = '';
+  const N = 200;
+  for (let i = 0; i <= N; i++) {
+    const x = xMin + i / N * (xMax - xMin);
+    const y = normalPDF(x, mu, sigma);
+    curve += (i === 0 ? 'M ' : 'L ') + sx(x) + ' ' + sy(y) + ' ';
+  }
+  html += `<path d="${curve}" stroke="#2b6cb0" stroke-width="2.5" fill="none"/>`;
+
+  // mu line
+  html += `<line x1="${sx(mu)}" y1="${PAD_T}" x2="${sx(mu)}" y2="${PAD_T+h}" stroke="#e53e3e" stroke-width="1.5" stroke-dasharray="4,4"/>`;
+  html += `<text class="chart-label" x="${sx(mu)+4}" y="${PAD_T+12}" fill="#e53e3e">μ=${mu.toFixed(2)}</text>`;
+
+  // sigma markers at ±1σ, ±2σ, ±3σ
+  [1, 2, 3].forEach(k => {
+    [mu - k*sigma, mu + k*sigma].forEach(x => {
+      const y = normalPDF(x, mu, sigma);
+      html += `<line x1="${sx(x)}" y1="${sy(y)}" x2="${sx(x)}" y2="${sy(0)}" stroke="#4a5568" stroke-width="0.5" stroke-dasharray="2,2"/>`;
+    });
+  });
+
+  // axes
+  html += `<line class="chart-axis" x1="${PAD_L}" y1="${PAD_T+h}" x2="${PAD_L+w}" y2="${PAD_T+h}"/>`;
+  html += `<line class="chart-axis" x1="${PAD_L}" y1="${PAD_T}" x2="${PAD_L}" y2="${PAD_T+h}"/>`;
+
+  // x-axis labels
+  for (let k = -4; k <= 4; k++) {
+    const x = mu + k * sigma;
+    if (x < xMin - 0.01 || x > xMax + 0.01) continue;
+    html += `<text class="chart-label" x="${sx(x)}" y="${PAD_T+h+15}" text-anchor="middle">${x.toFixed(1)}</text>`;
+    if (k !== 0) {
+      html += `<text class="chart-label" x="${sx(x)}" y="${PAD_T+h+28}" text-anchor="middle" fill="#a0aec0">${k>0?'+':''}${k}σ</text>`;
+    }
+  }
+
+  // y-axis labels
+  for (let i = 0; i <= 4; i++) {
+    const y = i / 4 * yMax;
+    html += `<text class="chart-label" x="${PAD_L-6}" y="${sy(y)+4}" text-anchor="end">${y.toFixed(3)}</text>`;
+  }
+
+  svg.innerHTML = html;
+
+  // stats
+  $('g1-peak').textContent = (1 / (sigma * SQRT_2PI)).toFixed(4);
+  $('g1-var').textContent = (sigma * sigma).toFixed(3);
+  $('g1-1sig').textContent = `[${(mu-sigma).toFixed(2)}, ${(mu+sigma).toFixed(2)}] → 68.27%`;
+  $('g1-2sig').textContent = `[${(mu-2*sigma).toFixed(2)}, ${(mu+2*sigma).toFixed(2)}] → 95.45%`;
+}
+
+['g1-mu', 'g1-sigma'].forEach(id => $(id).addEventListener('input', drawG1));
+drawG1();
+
+// ============================================================
+// Component 2: z-score calculator
+// ============================================================
+function updateZ() {
+  const mu = parseFloat($('z-mu').value);
+  const sigma = parseFloat($('z-sigma').value);
+  const x = parseFloat($('z-x').value);
+
+  if (isNaN(mu) || isNaN(sigma) || isNaN(x) || sigma <= 0) {
+    ['z-val','z-cdf','z-px','z-px-up','z-two-sided','z-pdf'].forEach(id => $(id).textContent = '—');
+    return;
+  }
+
+  const z = (x - mu) / sigma;
+  const cdf = Phi(z);
+  const pdf = normalPDF(x, mu, sigma);
+
+  $('z-formula').textContent = `(${x} − ${mu}) / ${sigma} = ${z.toFixed(4)}`;
+  $('z-val').textContent = z.toFixed(4);
+  $('z-cdf').textContent = cdf.toFixed(5);
+  $('z-px').textContent = cdf.toFixed(5);
+  $('z-px-up').textContent = (1 - cdf).toFixed(5);
+  $('z-two-sided').textContent = (1 - 2 * (1 - Phi(Math.abs(z)))).toFixed(5);
+  $('z-pdf').textContent = pdf.toFixed(5);
+
+  // Draw
+  const svg = $('z-svg');
+  const W = 700, H = 220, PAD_L = 50, PAD_R = 20, PAD_T = 15, PAD_B = 35;
+  const w = W - PAD_L - PAD_R, h = H - PAD_T - PAD_B;
+
+  const xMin = mu - 4 * sigma;
+  const xMax = mu + 4 * sigma;
+  const yMax = 1 / (sigma * SQRT_2PI) * 1.15;
+
+  function sx(v) { return PAD_L + (v - xMin) / (xMax - xMin) * w; }
+  function sy(v) { return PAD_T + h - v / yMax * h; }
+
+  let html = '';
+
+  // grid
+  for (let i = 0; i <= 8; i++) {
+    const vx = xMin + i / 8 * (xMax - xMin);
+    html += `<line class="chart-grid" x1="${sx(vx)}" y1="${PAD_T}" x2="${sx(vx)}" y2="${PAD_T+h}"/>`;
+  }
+
+  // shaded area up to x
+  const xClamped = Math.min(Math.max(x, xMin), xMax);
+  let area = `M ${sx(xMin)} ${sy(0)} `;
+  const STEPS = 150;
+  for (let i = 0; i <= STEPS; i++) {
+    const vx = xMin + i / STEPS * (xClamped - xMin);
+    const vy = normalPDF(vx, mu, sigma);
+    area += `L ${sx(vx)} ${sy(vy)} `;
+  }
+  area += `L ${sx(xClamped)} ${sy(0)} Z`;
+  html += `<path d="${area}" fill="#90cdf4" opacity="0.7"/>`;
+
+  // curve
+  let curve = '';
+  const N = 200;
+  for (let i = 0; i <= N; i++) {
+    const vx = xMin + i / N * (xMax - xMin);
+    const vy = normalPDF(vx, mu, sigma);
+    curve += (i === 0 ? 'M ' : 'L ') + sx(vx) + ' ' + sy(vy) + ' ';
+  }
+  html += `<path d="${curve}" stroke="#2b6cb0" stroke-width="2" fill="none"/>`;
+
+  // x-line
+  html += `<line x1="${sx(xClamped)}" y1="${PAD_T}" x2="${sx(xClamped)}" y2="${PAD_T+h}" stroke="#e53e3e" stroke-width="1.5" stroke-dasharray="4,4"/>`;
+  html += `<text class="chart-label" x="${sx(xClamped)+4}" y="${PAD_T+12}" fill="#e53e3e">x=${x.toFixed(2)}</text>`;
+  html += `<text class="chart-label" x="${sx(xClamped)+4}" y="${PAD_T+24}" fill="#e53e3e">z=${z.toFixed(2)}</text>`;
+
+  // mu line
+  html += `<line x1="${sx(mu)}" y1="${PAD_T+h}" x2="${sx(mu)}" y2="${PAD_T+h-6}" stroke="#4a5568" stroke-width="1"/>`;
+  html += `<text class="chart-label" x="${sx(mu)}" y="${PAD_T+h+14}" text-anchor="middle">μ=${mu.toFixed(2)}</text>`;
+
+  // axes
+  html += `<line class="chart-axis" x1="${PAD_L}" y1="${PAD_T+h}" x2="${PAD_L+w}" y2="${PAD_T+h}"/>`;
+  for (let k = -3; k <= 3; k++) {
+    const vx = mu + k * sigma;
+    html += `<text class="chart-label" x="${sx(vx)}" y="${PAD_T+h+28}" text-anchor="middle" fill="#a0aec0">${k===0?'μ':(k>0?'+'+k:k)+'σ'}</text>`;
+  }
+
+  svg.innerHTML = html;
+}
+
+['z-mu', 'z-sigma', 'z-x'].forEach(id => $(id).addEventListener('input', updateZ));
+updateZ();
+
+// ============================================================
+// Component 3: CLT demo
+// ============================================================
+const CLT_DISTS = {
+  uniform:   { sample: () => Math.random(),
+               mu: 0.5, sigma: Math.sqrt(1/12),
+               range: [0, 1], label: 'Uniform[0,1]' },
+  bernoulli: { sample: () => Math.random() < 0.3 ? 1 : 0,
+               mu: 0.3, sigma: Math.sqrt(0.3 * 0.7),
+               range: [0, 1], label: 'Bernoulli(p=0.3)' },
+  exp:       { sample: () => -Math.log(Math.random()),
+               mu: 1, sigma: 1,
+               range: [0, 5], label: 'Exponential(λ=1)' },
+  binary:    { sample: () => Math.random() < 0.5 ? 0 : 1,
+               mu: 0.5, sigma: 0.5,
+               range: [0, 1], label: 'Two-point {0,1}' },
+};
+
+function runCLT() {
+  const distKey = $('clt-dist').value;
+  const n = parseInt($('clt-n').value);
+  const trials = parseInt($('clt-trials').value);
+  $('clt-n-v').textContent = n;
+  $('clt-trials-v').textContent = trials;
+
+  const dist = CLT_DISTS[distKey];
+  const means = [];
+  for (let t = 0; t < trials; t++) {
+    let s = 0;
+    for (let i = 0; i < n; i++) s += dist.sample();
+    means.push(s / n);
+  }
+
+  // empirical mean / sd
+  let m = 0;
+  means.forEach(v => m += v);
+  m /= trials;
+  let v = 0;
+  means.forEach(x => v += (x - m) * (x - m));
+  v /= trials;
+  const sd = Math.sqrt(v);
+  const se = dist.sigma / Math.sqrt(n);
+
+  $('clt-mu0').textContent = dist.mu.toFixed(4);
+  $('clt-sigma0').textContent = dist.sigma.toFixed(4);
+  $('clt-se').textContent = se.toFixed(4);
+  $('clt-mean').textContent = m.toFixed(4);
+  $('clt-sd').textContent = sd.toFixed(4);
+
+  // histogram: range = mu ± 4·se (clipped to dist range)
+  const lo = Math.max(dist.range[0], dist.mu - 4 * se);
+  const hi = Math.min(dist.range[1], dist.mu + 4 * se);
+  const BINS = 50;
+  const counts = new Array(BINS).fill(0);
+  const binW = (hi - lo) / BINS;
+  means.forEach(x => {
+    if (x < lo || x >= hi) return;
+    const b = Math.min(BINS - 1, Math.floor((x - lo) / binW));
+    counts[b]++;
+  });
+  // normalize to density (so it compares to PDF)
+  const density = counts.map(c => c / (trials * binW));
+
+  // draw
+  const svg = $('clt-svg');
+  const W = 700, H = 320, PAD_L = 50, PAD_R = 20, PAD_T = 20, PAD_B = 40;
+  const w = W - PAD_L - PAD_R, h = H - PAD_T - PAD_B;
+
+  // Gaussian theory peak
+  const peak = 1 / (se * SQRT_2PI);
+  const yMax = Math.max(peak, Math.max(...density)) * 1.1;
+
+  function sx(x) { return PAD_L + (x - lo) / (hi - lo) * w; }
+  function sy(y) { return PAD_T + h - y / yMax * h; }
+
+  let html = '';
+
+  // histogram bars
+  for (let b = 0; b < BINS; b++) {
+    const xL = lo + b * binW;
+    const d = density[b];
+    const barX = sx(xL);
+    const barW = sx(xL + binW) - barX - 0.5;
+    const barH = sy(0) - sy(d);
+    html += `<rect x="${barX}" y="${sy(d)}" width="${barW}" height="${barH}" fill="#4299e1" opacity="0.75"/>`;
+  }
+
+  // Gaussian theory curve N(mu, se²)
+  let curve = '';
+  const NSTEP = 200;
+  for (let i = 0; i <= NSTEP; i++) {
+    const x = lo + i / NSTEP * (hi - lo);
+    const y = normalPDF(x, dist.mu, se);
+    curve += (i === 0 ? 'M ' : 'L ') + sx(x) + ' ' + sy(y) + ' ';
+  }
+  html += `<path d="${curve}" stroke="#e53e3e" stroke-width="2.5" fill="none"/>`;
+
+  // mu line
+  html += `<line x1="${sx(dist.mu)}" y1="${PAD_T}" x2="${sx(dist.mu)}" y2="${PAD_T+h}" stroke="#4a5568" stroke-width="1" stroke-dasharray="4,4"/>`;
+  html += `<text class="chart-label" x="${sx(dist.mu)+4}" y="${PAD_T+12}">μ=${dist.mu.toFixed(2)}</text>`;
+
+  // axes
+  html += `<line class="chart-axis" x1="${PAD_L}" y1="${PAD_T+h}" x2="${PAD_L+w}" y2="${PAD_T+h}"/>`;
+  html += `<line class="chart-axis" x1="${PAD_L}" y1="${PAD_T}" x2="${PAD_L}" y2="${PAD_T+h}"/>`;
+
+  // x labels
+  for (let i = 0; i <= 6; i++) {
+    const x = lo + i / 6 * (hi - lo);
+    html += `<text class="chart-label" x="${sx(x)}" y="${PAD_T+h+15}" text-anchor="middle">${x.toFixed(2)}</text>`;
+  }
+
+  // title
+  html += `<text class="chart-label" x="${PAD_L+w/2}" y="${PAD_T+h+32}" text-anchor="middle" fill="#2d3748" style="font-size:12px">${dist.label} — trung bình của n=${n} sample, lặp ${trials} lần</text>`;
+
+  svg.innerHTML = html;
+}
+
+['clt-dist', 'clt-n', 'clt-trials'].forEach(id => $(id).addEventListener('input', runCLT));
+$('clt-run').addEventListener('click', runCLT);
+runCLT();
+
+// ============================================================
+// Component 4: Multivariate Gaussian 2D
+// ============================================================
+let multiSamples = [];
+function resampleMulti() {
+  const s1 = parseFloat($('m-s1').value);
+  const s2 = parseFloat($('m-s2').value);
+  const rho = parseFloat($('m-rho').value);
+  multiSamples = [];
+  for (let i = 0; i < 300; i++) {
+    const z1 = randn();
+    const z2 = randn();
+    // Cholesky for [[s1², ρs1s2],[ρs1s2, s2²]]
+    // L = [[s1, 0], [ρ·s2, s2·√(1−ρ²)]]
+    const x1 = s1 * z1;
+    const x2 = rho * s2 * z1 + s2 * Math.sqrt(1 - rho * rho) * z2;
+    multiSamples.push([x1, x2]);
+  }
+}
+
+function drawMulti() {
+  const s1 = parseFloat($('m-s1').value);
+  const s2 = parseFloat($('m-s2').value);
+  const rho = parseFloat($('m-rho').value);
+  $('m-s1-v').textContent = s1.toFixed(2);
+  $('m-s2-v').textContent = s2.toFixed(2);
+  $('m-rho-v').textContent = rho.toFixed(2);
+
+  const det = s1 * s1 * s2 * s2 * (1 - rho * rho);
+
+  $('m-s11').textContent = (s1 * s1).toFixed(3);
+  $('m-s22').textContent = (s2 * s2).toFixed(3);
+  $('m-s12').textContent = (rho * s1 * s2).toFixed(3);
+  $('m-det').textContent = det.toFixed(4);
+
+  const svg = $('m-svg');
+  const W = 600, H = 500, PAD = 40;
+  const w = W - 2 * PAD, h = H - 2 * PAD;
+  const RANGE = 4; // ±4 std-units
+
+  // Scale based on max sigma so ellipse always visible
+  const maxS = Math.max(s1, s2);
+  const halfRange = RANGE * maxS;
+  function sx(x) { return PAD + (x + halfRange) / (2 * halfRange) * w; }
+  function sy(y) { return PAD + h - (y + halfRange) / (2 * halfRange) * h; }
+
+  let html = '';
+
+  // grid
+  for (let i = -3; i <= 3; i++) {
+    const vx = i * maxS;
+    html += `<line class="chart-grid" x1="${sx(vx)}" y1="${PAD}" x2="${sx(vx)}" y2="${PAD+h}"/>`;
+    html += `<line class="chart-grid" x1="${PAD}" y1="${sy(vx)}" x2="${PAD+w}" y2="${sy(vx)}"/>`;
+  }
+
+  // Iso-density ellipses for k = 1, 2, 3 (Mahalanobis distance² = k²)
+  // Ellipse: x² /s1² − 2ρ xy /(s1 s2) + y² /s2² = k²·(1 − ρ²)
+  // Parametric using Cholesky: x = s1·k·cos t, y = s2·k·(ρ cos t + √(1−ρ²) sin t)
+  const colors = ['#bee3f8', '#90cdf4', '#63b3ed'];
+  const fills = ['rgba(190,227,248,0.25)', 'rgba(144,205,244,0.25)', 'rgba(99,179,237,0.2)'];
+  for (let kIdx = 2; kIdx >= 0; kIdx--) {
+    const k = kIdx + 1;
+    let path = '';
+    const NSTEP = 100;
+    for (let i = 0; i <= NSTEP; i++) {
+      const t = i / NSTEP * 2 * Math.PI;
+      const x = s1 * k * Math.cos(t);
+      const y = s2 * k * (rho * Math.cos(t) + Math.sqrt(1 - rho * rho) * Math.sin(t));
+      path += (i === 0 ? 'M ' : 'L ') + sx(x) + ' ' + sy(y) + ' ';
+    }
+    path += 'Z';
+    html += `<path d="${path}" fill="${fills[kIdx]}" stroke="${colors[kIdx]}" stroke-width="1.5"/>`;
+    // label
+    html += `<text class="chart-label" x="${sx(s1*k)+4}" y="${sy(0)-4}">${k}σ</text>`;
+  }
+
+  // sample points
+  html += '<g>';
+  multiSamples.forEach(([x, y]) => {
+    html += `<circle cx="${sx(x)}" cy="${sy(y)}" r="2" fill="#2b6cb0" opacity="0.55"/>`;
+  });
+  html += '</g>';
+
+  // center
+  html += `<circle cx="${sx(0)}" cy="${sy(0)}" r="3" fill="#e53e3e"/>`;
+  html += `<text class="chart-label" x="${sx(0)+6}" y="${sy(0)-6}" fill="#e53e3e">μ=(0,0)</text>`;
+
+  // axes
+  html += `<line class="chart-axis" x1="${PAD}" y1="${sy(0)}" x2="${PAD+w}" y2="${sy(0)}"/>`;
+  html += `<line class="chart-axis" x1="${sx(0)}" y1="${PAD}" x2="${sx(0)}" y2="${PAD+h}"/>`;
+  html += `<text class="chart-label" x="${PAD+w-6}" y="${sy(0)-6}" text-anchor="end">X₁</text>`;
+  html += `<text class="chart-label" x="${sx(0)+8}" y="${PAD+12}">X₂</text>`;
+
+  svg.innerHTML = html;
+}
+
+['m-s1', 'm-s2', 'm-rho'].forEach(id => $(id).addEventListener('input', () => {
+  resampleMulti();
+  drawMulti();
+}));
+$('m-resample').addEventListener('click', () => { resampleMulti(); drawMulti(); });
+resampleMulti();
+drawMulti();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+</body>
+</html>

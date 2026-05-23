@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 06 — Ma trận = biến đổi (Linear Transformation)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  main { max-width: 1080px; margin: 0 auto; padding: 24px; }
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; padding: 6px 8px; width: 70px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    text-align: right;
+  }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.preset {
+    background: #ed8936; padding: 6px 10px; font-size: 13px;
+  }
+  button.preset:hover { background: #dd6b20; }
+
+  .matrix-input {
+    display: inline-grid;
+    grid-template-columns: 70px 70px;
+    gap: 6px;
+    padding: 8px;
+    border-left: 2px solid #2d3748;
+    border-right: 2px solid #2d3748;
+    border-radius: 4px;
+    background: #f7fafc;
+    margin: 0 8px;
+  }
+  .matrix-display {
+    display: inline-block;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    padding: 8px 12px;
+    border-left: 2px solid #2d3748;
+    border-right: 2px solid #2d3748;
+    background: #f7fafc;
+    margin: 4px;
+    white-space: pre;
+  }
+
+  svg.plot {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    display: block;
+    margin-top: 12px;
+  }
+  .legend {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #4a5568;
+  }
+  .legend span.swatch {
+    display: inline-block;
+    width: 18px; height: 4px;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+  .info-box {
+    margin-top: 12px;
+    padding: 12px;
+    background: #edf2f7;
+    border-radius: 6px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .info-box .key { color: #2b6cb0; font-weight: 700; }
+  .info-box .det-pos { color: #22543d; font-weight: 700; }
+  .info-box .det-neg { color: #742a2a; font-weight: 700; }
+  .info-box .det-zero { color: #744210; font-weight: 700; }
+
+  .preset-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 8px;
+  }
+  @media (max-width: 700px) {
+    .preset-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  .hint {
+    background: #fff5f5; border-left: 4px solid #fc8181;
+    padding: 10px 14px; border-radius: 4px;
+    color: #742a2a; font-size: 14px; margin: 12px 0;
+  }
+  .hint.info {
+    background: #ebf8ff; border-color: #4299e1; color: #2c5282;
+  }
+  .two-col {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 16px; align-items: start;
+  }
+  @media (max-width: 800px) {
+    .two-col { grid-template-columns: 1fr; }
+  }
+  details { margin-top: 12px; }
+  summary { cursor: pointer; font-weight: 600; color: #2c5282; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-matrices/visualization.html">← L5: Ma trận: phép toán</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Ma trận = biến đổi</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-eigenvectors/visualization.html">L7: Eigenvector →</a>
+</nav>
+
+<main>
+  <h1>Lesson 06 — Ma trận = biến đổi (Linear Transformation)</h1>
+  <p>Mỗi ma trận 2×2 là một <strong>hàm</strong> biến đổi mặt phẳng. Tự nhập ma trận, chọn preset, ghép biến đổi và xem định thức.</p>
+
+  <!-- ============================================ -->
+  <h2>1. Transformation Playground — chơi với ma trận 2×2</h2>
+  <div class="card">
+    <p class="hint info">Nhập 4 số của ma trận <code>A</code>. Lưới đỏ là không gian gốc; lưới xanh là không gian sau biến đổi. Vector <span style="color:#e53e3e">đỏ</span> = ảnh của <code>e₁ = (1,0)</code>; <span style="color:#3182ce">xanh dương</span> = ảnh của <code>e₂ = (0,1)</code>; <span style="color:#805ad5">tím</span> = ảnh của <code>(1,1)</code>.</p>
+
+    <div class="row">
+      <label>A =</label>
+      <div class="matrix-input">
+        <input type="number" id="a11" value="1" step="any">
+        <input type="number" id="a12" value="0" step="any">
+        <input type="number" id="a21" value="0" step="any">
+        <input type="number" id="a22" value="1" step="any">
+      </div>
+      <button onclick="applyMatrix()">Áp dụng &amp; vẽ</button>
+      <button class="secondary" onclick="resetMatrix()">Reset = I</button>
+    </div>
+
+    <p style="margin-top:14px"><strong>Preset (click để tự fill):</strong></p>
+    <div class="preset-grid">
+      <button class="preset" onclick="setPreset(1,0,0,1)">Identity I</button>
+      <button class="preset" onclick="setPreset(2,0,0,2)">Scale ×2 đều</button>
+      <button class="preset" onclick="setPreset(2,0,0,0.5)">Scale x×2, y×½</button>
+      <button class="preset" onclick="setPreset(0.866,-0.5,0.5,0.866)">Rotate 30°</button>
+      <button class="preset" onclick="setPreset(0,-1,1,0)">Rotate 90°</button>
+      <button class="preset" onclick="setPreset(1,0,0,-1)">Reflect qua x</button>
+      <button class="preset" onclick="setPreset(0,1,1,0)">Reflect qua y=x</button>
+      <button class="preset" onclick="setPreset(1,1,0,1)">Shear (k=1)</button>
+      <button class="preset" onclick="setPreset(1,0,0,0)">Project lên x</button>
+      <button class="preset" onclick="setPreset(1,2,2,4)">Suy biến (det=0)</button>
+      <button class="preset" onclick="setPreset(1,2,3,4)">Random A</button>
+      <button class="preset" onclick="setPreset(-1,0,0,-1)">−I (rotate 180°)</button>
+    </div>
+
+    <svg id="playgroundSvg" class="plot" viewBox="-300 -250 600 500" width="100%" height="500"></svg>
+
+    <div class="info-box" id="playgroundInfo"></div>
+
+    <div class="legend">
+      <span class="swatch" style="background:#cbd5e0"></span>Lưới gốc &nbsp;
+      <span class="swatch" style="background:#4299e1"></span>Lưới biến đổi &nbsp;
+      <span class="swatch" style="background:#e53e3e"></span>T(e₁) &nbsp;
+      <span class="swatch" style="background:#3182ce"></span>T(e₂) &nbsp;
+      <span class="swatch" style="background:#805ad5"></span>T(1,1)
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <h2>2. Composition Demo — nhân ma trận = ghép biến đổi</h2>
+  <div class="card">
+    <p class="hint info">Áp <code>A</code> trước, rồi áp <code>B</code>. Quan sát: kết quả cuối = <code>(B·A)·x</code>. Đảo thứ tự thường ra kết quả khác.</p>
+
+    <div class="two-col">
+      <div>
+        <strong>Ma trận A (áp đầu tiên):</strong>
+        <div class="matrix-input" style="margin-top:6px">
+          <input type="number" id="ca11" value="1" step="any">
+          <input type="number" id="ca12" value="1" step="any">
+          <input type="number" id="ca21" value="0" step="any">
+          <input type="number" id="ca22" value="1" step="any">
+        </div>
+        <p style="font-size:12px; color:#718096; margin-top:6px">Mặc định: shear (k=1)</p>
+      </div>
+      <div>
+        <strong>Ma trận B (áp sau):</strong>
+        <div class="matrix-input" style="margin-top:6px">
+          <input type="number" id="cb11" value="0" step="any">
+          <input type="number" id="cb12" value="-1" step="any">
+          <input type="number" id="cb21" value="1" step="any">
+          <input type="number" id="cb22" value="0" step="any">
+        </div>
+        <p style="font-size:12px; color:#718096; margin-top:6px">Mặc định: rotation 90°</p>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:14px">
+      <button onclick="computeComposition()">Tính B·A và A·B</button>
+    </div>
+
+    <div class="info-box" id="compInfo"></div>
+
+    <svg id="compSvg" class="plot" viewBox="-300 -250 600 500" width="100%" height="500"></svg>
+    <div class="legend">
+      <span class="swatch" style="background:#cbd5e0"></span>Hình vuông gốc &nbsp;
+      <span class="swatch" style="background:#ed8936"></span>Sau A (bước 1) &nbsp;
+      <span class="swatch" style="background:#38a169"></span>Sau B(A·x) — tức B·A &nbsp;
+      <span class="swatch" style="background:#9f7aea"></span>So sánh A·B
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <h2>3. Determinant Visualizer — diện tích = |det|</h2>
+  <div class="card">
+    <p class="hint info">Hình vuông đơn vị (diện tích = 1) → hình bình hành có 2 cạnh là 2 cột của ma trận. Diện tích hình bình hành đó = |det(A)|.</p>
+
+    <div class="row">
+      <label>A =</label>
+      <div class="matrix-input">
+        <input type="number" id="da11" value="2" step="any">
+        <input type="number" id="da12" value="1" step="any">
+        <input type="number" id="da21" value="1" step="any">
+        <input type="number" id="da22" value="3" step="any">
+      </div>
+      <button onclick="computeDet()">Tính det &amp; vẽ</button>
+    </div>
+
+    <div class="info-box" id="detInfo"></div>
+
+    <svg id="detSvg" class="plot" viewBox="-300 -250 600 500" width="100%" height="500"></svg>
+
+    <details>
+      <summary>Một số trường hợp đặc biệt để thử</summary>
+      <ul style="margin-top:8px">
+        <li><code>[[2, 0], [0, 3]]</code> → diện tích = 6, det = +6 (giữ hướng).</li>
+        <li><code>[[1, 0], [0, -1]]</code> → reflection, det = −1.</li>
+        <li><code>[[1, 2], [2, 4]]</code> → det = 0, bóp dẹt thành đường thẳng.</li>
+        <li><code>[[0.707, -0.707], [0.707, 0.707]]</code> → rotation 45°, det = +1.</li>
+        <li><code>[[1, 1], [0, 1]]</code> → shear, det = +1 (bảo toàn diện tích).</li>
+      </ul>
+    </details>
+  </div>
+
+  <!-- ============================================ -->
+  <h2>4. Tóm tắt nhanh</h2>
+  <div class="card">
+    <ul>
+      <li><strong>Cột của ma trận = ảnh của vector cơ sở</strong>. Cột 1 = T(1,0), cột 2 = T(0,1).</li>
+      <li><strong>Composition = nhân ma trận</strong>. Đọc từ phải sang trái: <code>B·A·x</code> = A áp trước.</li>
+      <li><strong>det = +</strong>: giữ hướng &nbsp;|&nbsp; <strong>det = −</strong>: lật &nbsp;|&nbsp; <strong>det = 0</strong>: suy biến (mất chiều).</li>
+      <li>6 biến đổi cơ bản trong ℝ²: identity, scaling, rotation, reflection, shear, projection — combine được mọi linear transformation.</li>
+    </ul>
+  </div>
+
+</main>
+
+<script>
+// ============================================================
+// Common helpers
+// ============================================================
+const PX_PER_UNIT = 40;   // 1 đơn vị toán = 40px trong SVG
+const VIEW_HALF_X = 300, VIEW_HALF_Y = 250;
+
+function toSvgX(x) { return x * PX_PER_UNIT; }
+function toSvgY(y) { return -y * PX_PER_UNIT; } // đảo y (SVG y hướng xuống)
+
+function clearSvg(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+
+function svgEl(name, attrs) {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', name);
+  for (const k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+}
+
+function drawAxes(svg) {
+  // grid lines mảnh
+  for (let i = -7; i <= 7; i++) {
+    if (i === 0) continue;
+    svg.appendChild(svgEl('line', {
+      x1: toSvgX(i), y1: -VIEW_HALF_Y, x2: toSvgX(i), y2: VIEW_HALF_Y,
+      stroke: '#edf2f7', 'stroke-width': 0.5
+    }));
+    svg.appendChild(svgEl('line', {
+      x1: -VIEW_HALF_X, y1: toSvgY(i), x2: VIEW_HALF_X, y2: toSvgY(i),
+      stroke: '#edf2f7', 'stroke-width': 0.5
+    }));
+  }
+  // Axes
+  svg.appendChild(svgEl('line', {
+    x1: -VIEW_HALF_X, y1: 0, x2: VIEW_HALF_X, y2: 0,
+    stroke: '#2d3748', 'stroke-width': 1.2
+  }));
+  svg.appendChild(svgEl('line', {
+    x1: 0, y1: -VIEW_HALF_Y, x2: 0, y2: VIEW_HALF_Y,
+    stroke: '#2d3748', 'stroke-width': 1.2
+  }));
+  // Labels x, y
+  svg.appendChild(svgEl('text', {
+    x: VIEW_HALF_X - 14, y: -8, 'font-size': 12, 'font-family': 'monospace', fill: '#2d3748'
+  })).textContent = 'x';
+  svg.appendChild(svgEl('text', {
+    x: 8, y: -VIEW_HALF_Y + 16, 'font-size': 12, 'font-family': 'monospace', fill: '#2d3748'
+  })).textContent = 'y';
+}
+
+function drawArrow(svg, x1, y1, x2, y2, color, width = 2) {
+  // line
+  svg.appendChild(svgEl('line', {
+    x1: toSvgX(x1), y1: toSvgY(y1), x2: toSvgX(x2), y2: toSvgY(y2),
+    stroke: color, 'stroke-width': width
+  }));
+  // arrowhead
+  const angle = Math.atan2(toSvgY(y2) - toSvgY(y1), toSvgX(x2) - toSvgX(x1));
+  const ah = 8;
+  const ax = toSvgX(x2), ay = toSvgY(y2);
+  const p1x = ax - ah * Math.cos(angle - 0.4);
+  const p1y = ay - ah * Math.sin(angle - 0.4);
+  const p2x = ax - ah * Math.cos(angle + 0.4);
+  const p2y = ay - ah * Math.sin(angle + 0.4);
+  svg.appendChild(svgEl('polygon', {
+    points: `${ax},${ay} ${p1x},${p1y} ${p2x},${p2y}`,
+    fill: color
+  }));
+}
+
+function drawGrid(svg, A, color, opacity = 0.5) {
+  // Vẽ ảnh của lưới [-3..3] x [-3..3] qua A
+  const lo = -3, hi = 3;
+  for (let i = lo; i <= hi; i++) {
+    // Đường ngang (y = i)
+    const p1 = mul(A, [lo, i]);
+    const p2 = mul(A, [hi, i]);
+    svg.appendChild(svgEl('line', {
+      x1: toSvgX(p1[0]), y1: toSvgY(p1[1]), x2: toSvgX(p2[0]), y2: toSvgY(p2[1]),
+      stroke: color, 'stroke-width': 0.8, opacity
+    }));
+    // Đường dọc (x = i)
+    const p3 = mul(A, [i, lo]);
+    const p4 = mul(A, [i, hi]);
+    svg.appendChild(svgEl('line', {
+      x1: toSvgX(p3[0]), y1: toSvgY(p3[1]), x2: toSvgX(p4[0]), y2: toSvgY(p4[1]),
+      stroke: color, 'stroke-width': 0.8, opacity
+    }));
+  }
+}
+
+function mul(A, v) {
+  return [
+    A[0][0] * v[0] + A[0][1] * v[1],
+    A[1][0] * v[0] + A[1][1] * v[1],
+  ];
+}
+
+function matMul(B, A) {
+  // (B · A) — B đứng trước
+  return [
+    [
+      B[0][0] * A[0][0] + B[0][1] * A[1][0],
+      B[0][0] * A[0][1] + B[0][1] * A[1][1],
+    ],
+    [
+      B[1][0] * A[0][0] + B[1][1] * A[1][0],
+      B[1][0] * A[0][1] + B[1][1] * A[1][1],
+    ],
+  ];
+}
+
+function det(A) {
+  return A[0][0] * A[1][1] - A[0][1] * A[1][0];
+}
+
+function fmt(x) {
+  if (Math.abs(x) < 1e-9) return '0';
+  const r = Math.round(x * 1000) / 1000;
+  return Number.isInteger(r) ? String(r) : r.toFixed(3).replace(/\.?0+$/, '');
+}
+
+function matStr(A) {
+  return `[[${fmt(A[0][0])}, ${fmt(A[0][1])}], [${fmt(A[1][0])}, ${fmt(A[1][1])}]]`;
+}
+
+// ============================================================
+// 1. Playground
+// ============================================================
+function readMatrix(prefix) {
+  return [
+    [parseFloat(document.getElementById(prefix + '11').value),
+     parseFloat(document.getElementById(prefix + '12').value)],
+    [parseFloat(document.getElementById(prefix + '21').value),
+     parseFloat(document.getElementById(prefix + '22').value)],
+  ];
+}
+
+function applyMatrix() {
+  const A = readMatrix('a');
+  const svg = document.getElementById('playgroundSvg');
+  clearSvg(svg);
+
+  // Lưới gốc (identity)
+  drawGrid(svg, [[1,0],[0,1]], '#cbd5e0', 0.45);
+  // Lưới sau biến đổi
+  drawGrid(svg, A, '#4299e1', 0.7);
+  drawAxes(svg);
+
+  // Hình vuông đơn vị (gốc): tô nhạt
+  svg.appendChild(svgEl('polygon', {
+    points: `${toSvgX(0)},${toSvgY(0)} ${toSvgX(1)},${toSvgY(0)} ${toSvgX(1)},${toSvgY(1)} ${toSvgX(0)},${toSvgY(1)}`,
+    fill: '#cbd5e0', opacity: 0.3, stroke: '#a0aec0', 'stroke-width': 1
+  }));
+  // Hình vuông sau biến đổi (ảnh)
+  const e1 = mul(A, [1, 0]);
+  const e2 = mul(A, [0, 1]);
+  const e3 = mul(A, [1, 1]);
+  svg.appendChild(svgEl('polygon', {
+    points: `0,0 ${toSvgX(e1[0])},${toSvgY(e1[1])} ${toSvgX(e3[0])},${toSvgY(e3[1])} ${toSvgX(e2[0])},${toSvgY(e2[1])}`,
+    fill: '#4299e1', opacity: 0.25, stroke: '#2c5282', 'stroke-width': 1.5
+  }));
+
+  // Mũi tên cho e1, e2, (1,1)
+  drawArrow(svg, 0, 0, e1[0], e1[1], '#e53e3e', 2.5);
+  drawArrow(svg, 0, 0, e2[0], e2[1], '#3182ce', 2.5);
+  drawArrow(svg, 0, 0, e3[0], e3[1], '#805ad5', 2);
+
+  // Cũng vẽ e1, e2 gốc mảnh để compare
+  drawArrow(svg, 0, 0, 1, 0, '#fc8181', 1.2);
+  drawArrow(svg, 0, 0, 0, 1, '#90cdf4', 1.2);
+
+  // Info
+  const d = det(A);
+  const cls = d > 1e-9 ? 'det-pos' : (d < -1e-9 ? 'det-neg' : 'det-zero');
+  const orient = d > 1e-9 ? 'giữ hướng (counter-clockwise)' :
+                 d < -1e-9 ? 'ĐẢO HƯỚNG (đã lật)' :
+                 'SUY BIẾN — bóp dẹt thành đường thẳng hoặc điểm';
+  let html = `<div><span class="key">A</span> = ${matStr(A)}</div>`;
+  html += `<div><span class="key">T(e₁) = T(1,0)</span> = (${fmt(e1[0])}, ${fmt(e1[1])}) <em>← cột 1 của A</em></div>`;
+  html += `<div><span class="key">T(e₂) = T(0,1)</span> = (${fmt(e2[0])}, ${fmt(e2[1])}) <em>← cột 2 của A</em></div>`;
+  html += `<div><span class="key">T(1,1)</span> = (${fmt(e3[0])}, ${fmt(e3[1])})</div>`;
+  html += `<div><span class="key">det(A)</span> = <span class="${cls}">${fmt(d)}</span> → ${orient}</div>`;
+  // Phân loại
+  const tag = classify(A);
+  html += `<div style="margin-top:8px"><span class="key">Phân loại</span>: ${tag}</div>`;
+  document.getElementById('playgroundInfo').innerHTML = html;
+}
+
+function classify(A) {
+  const tags = [];
+  const eps = 1e-6;
+  // Identity
+  if (Math.abs(A[0][0]-1)<eps && Math.abs(A[0][1])<eps && Math.abs(A[1][0])<eps && Math.abs(A[1][1]-1)<eps)
+    return 'Identity (giữ nguyên)';
+  // Diagonal
+  if (Math.abs(A[0][1])<eps && Math.abs(A[1][0])<eps) tags.push('Diagonal/Scaling');
+  // Symmetric
+  if (Math.abs(A[0][1]-A[1][0])<eps) tags.push('Symmetric');
+  // Orthogonal: AᵀA = I
+  const ATA = [
+    [A[0][0]*A[0][0]+A[1][0]*A[1][0], A[0][0]*A[0][1]+A[1][0]*A[1][1]],
+    [A[0][1]*A[0][0]+A[1][1]*A[1][0], A[0][1]*A[0][1]+A[1][1]*A[1][1]],
+  ];
+  if (Math.abs(ATA[0][0]-1)<eps && Math.abs(ATA[1][1]-1)<eps && Math.abs(ATA[0][1])<eps) {
+    const d = det(A);
+    if (d > 0) tags.push('Orthogonal (rotation)');
+    else tags.push('Orthogonal (reflection)');
+  }
+  // Singular
+  if (Math.abs(det(A))<eps) tags.push('Suy biến (rank < 2)');
+  // Shear: hai phần tử trên chéo = 1, một phần tử ngoài chéo = 0
+  if (Math.abs(A[0][0]-1)<eps && Math.abs(A[1][1]-1)<eps && (Math.abs(A[0][1])<eps || Math.abs(A[1][0])<eps))
+    tags.push('Shear');
+  return tags.length ? tags.join(', ') : 'Linear transformation tổng quát';
+}
+
+function setPreset(a, b, c, d) {
+  document.getElementById('a11').value = a;
+  document.getElementById('a12').value = b;
+  document.getElementById('a21').value = c;
+  document.getElementById('a22').value = d;
+  applyMatrix();
+}
+
+function resetMatrix() { setPreset(1, 0, 0, 1); }
+
+// ============================================================
+// 2. Composition
+// ============================================================
+function computeComposition() {
+  const A = readMatrix('ca');
+  const B = readMatrix('cb');
+  const BA = matMul(B, A);
+  const AB = matMul(A, B);
+
+  const svg = document.getElementById('compSvg');
+  clearSvg(svg);
+  drawGrid(svg, [[1,0],[0,1]], '#cbd5e0', 0.3);
+  drawAxes(svg);
+
+  // Hình vuông gốc
+  const square = [[0,0],[1,0],[1,1],[0,1]];
+  function drawShape(svg, pts, fill, stroke, opacity) {
+    const ptStr = pts.map(p => `${toSvgX(p[0])},${toSvgY(p[1])}`).join(' ');
+    svg.appendChild(svgEl('polygon', {
+      points: ptStr, fill, stroke, opacity, 'stroke-width': 1.5
+    }));
+  }
+  drawShape(svg, square, '#cbd5e0', '#718096', 0.4);
+
+  // Sau A
+  const afterA = square.map(p => mul(A, p));
+  drawShape(svg, afterA, '#ed8936', '#9c4221', 0.4);
+
+  // Sau B·A
+  const afterBA = square.map(p => mul(BA, p));
+  drawShape(svg, afterBA, '#38a169', '#22543d', 0.5);
+
+  // Sau A·B (compare)
+  const afterAB = square.map(p => mul(AB, p));
+  drawShape(svg, afterAB, '#9f7aea', '#553c9a', 0.3);
+
+  // Info
+  let html = `<div><span class="key">A</span> = ${matStr(A)} (áp trước)</div>`;
+  html += `<div><span class="key">B</span> = ${matStr(B)} (áp sau)</div>`;
+  html += `<div style="margin-top:8px"><span class="key">B·A</span> = ${matStr(BA)} &nbsp; <em>(B áp sau A, đọc phải→trái)</em></div>`;
+  html += `<div><span class="key">A·B</span> = ${matStr(AB)} &nbsp; <em>(thử đảo thứ tự)</em></div>`;
+  const eq = Math.abs(BA[0][0]-AB[0][0])<1e-9 && Math.abs(BA[0][1]-AB[0][1])<1e-9 &&
+             Math.abs(BA[1][0]-AB[1][0])<1e-9 && Math.abs(BA[1][1]-AB[1][1])<1e-9;
+  html += `<div style="margin-top:8px"><span class="key">B·A = A·B?</span> ${eq ? '✓ Giao hoán (đặc biệt)' : '✗ KHÁC NHAU — thứ tự quan trọng'}</div>`;
+  html += `<div style="margin-top:8px"><span class="key">det(A)</span>=${fmt(det(A))}, <span class="key">det(B)</span>=${fmt(det(B))}, <span class="key">det(B·A)</span>=${fmt(det(BA))} = det(A)·det(B) = ${fmt(det(A)*det(B))} ✓</div>`;
+  document.getElementById('compInfo').innerHTML = html;
+}
+
+// ============================================================
+// 3. Determinant Visualizer
+// ============================================================
+function computeDet() {
+  const A = readMatrix('da');
+  const svg = document.getElementById('detSvg');
+  clearSvg(svg);
+  drawGrid(svg, [[1,0],[0,1]], '#cbd5e0', 0.3);
+  drawAxes(svg);
+
+  // Hình vuông đơn vị
+  svg.appendChild(svgEl('polygon', {
+    points: `${toSvgX(0)},${toSvgY(0)} ${toSvgX(1)},${toSvgY(0)} ${toSvgX(1)},${toSvgY(1)} ${toSvgX(0)},${toSvgY(1)}`,
+    fill: '#cbd5e0', opacity: 0.5, stroke: '#4a5568', 'stroke-width': 1.5
+  }));
+  svg.appendChild(svgEl('text', {
+    x: toSvgX(0.4), y: toSvgY(0.5) + 4, 'font-size': 11, fill: '#4a5568'
+  })).textContent = 'S=1';
+
+  // Hình bình hành ảnh
+  const e1 = mul(A, [1, 0]);
+  const e2 = mul(A, [0, 1]);
+  const e3 = mul(A, [1, 1]);
+  const d = det(A);
+  const fillC = d > 1e-9 ? '#48bb78' : (d < -1e-9 ? '#fc8181' : '#fbd38d');
+  const strokeC = d > 1e-9 ? '#22543d' : (d < -1e-9 ? '#742a2a' : '#744210');
+
+  svg.appendChild(svgEl('polygon', {
+    points: `0,0 ${toSvgX(e1[0])},${toSvgY(e1[1])} ${toSvgX(e3[0])},${toSvgY(e3[1])} ${toSvgX(e2[0])},${toSvgY(e2[1])}`,
+    fill: fillC, opacity: 0.45, stroke: strokeC, 'stroke-width': 2
+  }));
+
+  // Mũi tên 2 cột
+  drawArrow(svg, 0, 0, e1[0], e1[1], '#e53e3e', 2.5);
+  drawArrow(svg, 0, 0, e2[0], e2[1], '#3182ce', 2.5);
+
+  // Nhãn |det|
+  if (Math.abs(d) > 1e-6) {
+    const cx = (e1[0] + e2[0]) / 2 + 0.05;
+    const cy = (e1[1] + e2[1]) / 2 + 0.05;
+    svg.appendChild(svgEl('text', {
+      x: toSvgX(cx), y: toSvgY(cy), 'font-size': 13, 'font-weight': 700,
+      fill: strokeC, 'text-anchor': 'middle'
+    })).textContent = `S=${fmt(Math.abs(d))}`;
+  }
+
+  // Info
+  let html = `<div><span class="key">A</span> = ${matStr(A)}</div>`;
+  html += `<div><span class="key">Cột 1</span> = (${fmt(A[0][0])}, ${fmt(A[1][0])}) → một cạnh hình bình hành</div>`;
+  html += `<div><span class="key">Cột 2</span> = (${fmt(A[0][1])}, ${fmt(A[1][1])}) → cạnh kia</div>`;
+  html += `<div><span class="key">det(A)</span> = ${fmt(A[0][0])}·${fmt(A[1][1])} − ${fmt(A[0][1])}·${fmt(A[1][0])} = ${fmt(A[0][0]*A[1][1])} − ${fmt(A[0][1]*A[1][0])} = <strong>${fmt(d)}</strong></div>`;
+  html += `<div><span class="key">|det(A)|</span> = ${fmt(Math.abs(d))} = diện tích hình bình hành</div>`;
+  if (d > 1e-9) {
+    html += `<div class="det-pos" style="margin-top:8px">→ det DƯƠNG: giữ hướng. Hệ số phóng diện tích = ${fmt(d)}×.</div>`;
+  } else if (d < -1e-9) {
+    html += `<div class="det-neg" style="margin-top:8px">→ det ÂM: ĐẢO HƯỚNG (như reflection). Hệ số phóng diện tích = ${fmt(Math.abs(d))}×.</div>`;
+  } else {
+    html += `<div class="det-zero" style="margin-top:8px">→ det = 0: SUY BIẾN. Hình vuông bị bóp dẹt thành đường thẳng (rank=1) hoặc điểm (rank=0). KHÔNG có inverse.</div>`;
+  }
+  document.getElementById('detInfo').innerHTML = html;
+}
+
+// ============================================================
+// Khởi tạo ban đầu
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  applyMatrix();
+  computeComposition();
+  computeDet();
+});
+
+// Auto-update khi nhập input
+['a11','a12','a21','a22'].forEach(id => {
+  document.getElementById(id).addEventListener('input', applyMatrix);
+});
+['ca11','ca12','ca21','ca22','cb11','cb12','cb21','cb22'].forEach(id => {
+  document.getElementById(id).addEventListener('input', computeComposition);
+});
+['da11','da12','da21','da22'].forEach(id => {
+  document.getElementById(id).addEventListener('input', computeDet);
+});
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+</body>
+</html>

@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Giới hạn (Limits)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  main { max-width: 1080px; margin: 0 auto; padding: 24px; }
+  h1 { color: #1a202c; margin-top: 8px; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .card h3 { margin-top: 0; color: #2c5282; }
+  .desc { color: #4a5568; font-size: 14px; margin-bottom: 12px; }
+  .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 50px; color: #4a5568; }
+  input[type="number"], input[type="text"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 8px 12px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 110px;
+  }
+  input[type="range"] { width: 280px; }
+  input:focus { outline: none; border-color: #4299e1; box-shadow: 0 0 0 2px #bee3f8; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  select {
+    font-size: 14px; padding: 7px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    background: white;
+  }
+  .result {
+    background: #1a202c; color: #68d391;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    padding: 12px 16px; border-radius: 4px;
+    margin-top: 12px; font-size: 14px;
+    white-space: pre-wrap;
+  }
+  .result.warn { color: #f6ad55; }
+  .formula {
+    background: #edf2f7; padding: 10px 14px; border-radius: 4px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; color: #2d3748;
+    display: inline-block; margin: 8px 0;
+  }
+  table.tbl { border-collapse: collapse; margin: 10px 0; font-size: 14px; }
+  table.tbl th, table.tbl td {
+    padding: 6px 12px; border: 1px solid #e2e8f0;
+    text-align: right;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  table.tbl th { background: #edf2f7; text-align: center; }
+  .hint { color: #718096; font-size: 13px; margin: 6px 0; }
+  .val { font-family: "SF Mono", Monaco, Consolas, monospace; color: #2c5282; font-weight: 600; }
+  .val-big {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 28px; color: #2c5282; font-weight: 700;
+    background: #ebf8ff; padding: 10px 18px; border-radius: 6px;
+    display: inline-block;
+  }
+  svg { display: block; margin: 8px auto; }
+  .axis { stroke: #a0aec0; stroke-width: 1; }
+  .grid { stroke: #e2e8f0; stroke-width: 1; }
+  .curve { stroke: #2c5282; stroke-width: 2; fill: none; }
+  .band-eps { fill: #fed7d7; opacity: 0.5; }
+  .band-delta { fill: #bee3f8; opacity: 0.6; }
+  .point-a { fill: #e53e3e; }
+  .point-L { fill: #38a169; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: #4a5568; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-swatch { width: 14px; height: 14px; border-radius: 3px; }
+  .step-box {
+    background: #f7fafc; border-left: 4px solid #4299e1;
+    padding: 10px 14px; margin: 8px 0; font-family: "SF Mono", monospace; font-size: 13px;
+    white-space: pre-wrap;
+  }
+  .check-pass { color: #2f855a; font-weight: 700; }
+  .check-fail { color: #c53030; font-weight: 700; }
+  .small { font-size: 12px; color: #718096; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Giới hạn</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-derivatives/visualization.html">L2: Đạo hàm 1 biến →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 01 — Giới hạn (Limits)</h1>
+<p class="desc">
+  Mini-app đi kèm <a href="./README.md">README</a>. 4 phần:
+  ε-δ explorer cho <code>x²</code>, 0/0 simplifier, bảng <code>sin(x)/x</code>, và slider tính số <code>e</code>.
+</p>
+
+<!-- ============================================================ -->
+<h2>1. ε-δ explorer cho lim<sub>x→2</sub> x² = 4</h2>
+
+<div class="card">
+  <h3>Game ε-δ: cho ε, tìm δ</h3>
+  <p class="desc">
+    Slider <code>ε</code> (epsilon — dải dung sai cho <code>f(x) = x²</code> quanh L = 4).
+    App tự tính <code>δ = min(1, ε/5)</code> (như chứng minh ở README mục 2.3) và highlight vùng <code>|x − 2| &lt; δ</code> trên đồ thị.
+  </p>
+
+  <div class="row">
+    <label>ε =</label>
+    <input id="epsSlider" type="range" min="0.05" max="3" step="0.05" value="1" oninput="renderEpsDelta()">
+    <span class="val" id="epsLabel">1.00</span>
+    <span class="hint">(kéo slider để thử các ε)</span>
+  </div>
+
+  <div id="epsDeltaResult" class="result"></div>
+
+  <svg id="epsSvg" width="640" height="380" viewBox="0 0 640 380"></svg>
+
+  <div class="legend">
+    <span class="legend-item"><span class="legend-swatch" style="background:#fed7d7"></span> Dải ε quanh L = 4 (mục tiêu của f)</span>
+    <span class="legend-item"><span class="legend-swatch" style="background:#bee3f8"></span> Dải δ quanh a = 2 (vùng x được phép)</span>
+    <span class="legend-item"><span class="legend-swatch" style="background:#2c5282"></span> Đồ thị y = x²</span>
+  </div>
+
+  <div class="hint">
+    Khi ε giảm, δ giảm theo. Đó là ý nghĩa "với mọi ε, tồn tại δ" — bạn thua game nếu có ε nào đó không thể chọn được δ.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2>2. Bộ rút gọn 0/0</h2>
+
+<div class="card">
+  <h3>Chọn biểu thức → xem từng bước biến đổi</h3>
+  <p class="desc">
+    Chọn 1 biểu thức dạng <code>0/0</code> điển hình. App hiển thị các bước phân tích nhân tử hoặc nhân liên hợp, rồi tính giới hạn thực sự khi x → a.
+  </p>
+
+  <div class="row">
+    <label style="min-width: 80px;">Biểu thức:</label>
+    <select id="exprSelect" onchange="renderSimplifier()">
+      <option value="diff_sq">lim<sub>x→1</sub> (x² − 1)/(x − 1)</option>
+      <option value="diff_sq_a2">lim<sub>x→2</sub> (x² − 4)/(x − 2)</option>
+      <option value="cubic">lim<sub>x→1</sub> (x³ − 1)/(x − 1)</option>
+      <option value="quad_factor">lim<sub>x→3</sub> (x² − 5x + 6)/(x − 3)</option>
+      <option value="sqrt_x">lim<sub>x→4</sub> (√x − 2)/(x − 4)</option>
+      <option value="sqrt_xp1">lim<sub>x→0</sub> (√(x+1) − 1)/x</option>
+      <option value="sqrt_xp9">lim<sub>x→0</sub> x/(√(x+9) − 3)</option>
+    </select>
+  </div>
+
+  <div id="simplifierResult"></div>
+
+  <div class="hint">
+    Phân tích nhân tử cho đa thức; nhân liên hợp cho căn. Sau khi rút gọn, thay thẳng x = a vào biểu thức gọn.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2>3. sin(x)/x gần 0 — tiến tới 1</h2>
+
+<div class="card">
+  <h3>Bảng giá trị + minh họa đồ thị</h3>
+  <p class="desc">
+    Giới hạn đặc biệt số 1: <code>lim<sub>x→0</sub> (sin x)/x = 1</code>. Bảng dưới cho x = 1, 0.1, 0.01, 0.001 — tỉ số tiến rõ ràng về 1.
+    Slider để thử x bất kỳ trong khoảng (0, 1].
+  </p>
+
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>x (radian)</th>
+        <th>sin(x)</th>
+        <th>sin(x)/x</th>
+        <th>|sin(x)/x − 1|</th>
+      </tr>
+    </thead>
+    <tbody id="sinTbody"></tbody>
+  </table>
+
+  <div class="row">
+    <label>x =</label>
+    <input id="sinSlider" type="range" min="0.001" max="1.5" step="0.001" value="0.5" oninput="renderSinSlider()">
+    <span class="val" id="sinSliderLabel"></span>
+  </div>
+
+  <div id="sinSliderResult" class="result"></div>
+
+  <svg id="sinSvg" width="640" height="280" viewBox="0 0 640 280"></svg>
+  <div class="hint">
+    Đồ thị <code>y = sin(x)/x</code> (xanh đậm) và đường ngang <code>y = 1</code> (xanh nhạt). Hai đường gần như trùng khi x gần 0 — nhưng tỉ số không bao giờ vượt 1 (vì <code>cos(x) &lt; sin(x)/x &lt; 1</code> với x ∈ (0, π/2), theo bất đẳng thức kẹp ở README).
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2>4. e qua giới hạn (1 + 1/n)<sup>n</sup></h2>
+
+<div class="card">
+  <h3>Slider n (log scale) → giá trị tiến tới e ≈ 2.71828</h3>
+  <p class="desc">
+    Slider <code>log₁₀(n)</code> từ 0 đến 8 (tức <code>n</code> từ 1 đến 10⁸). Theo dõi <code>(1 + 1/n)^n</code> tiến tới <code>e</code> chậm chạp ra sao.
+  </p>
+
+  <div class="row">
+    <label>log₁₀(n) =</label>
+    <input id="eSlider" type="range" min="0" max="8" step="0.1" value="1" oninput="renderESlider()">
+    <span class="val" id="eSliderLabel"></span>
+  </div>
+
+  <div id="eDisplay" style="text-align:center; margin:14px 0;">
+    <div class="small">(1 + 1/n)<sup>n</sup> =</div>
+    <span class="val-big" id="eValueBig"></span>
+    <div class="small" style="margin-top:8px">Chính xác tới chữ số đầu tiên sai vị trí: <span id="eAccuracy"></span></div>
+  </div>
+
+  <table class="tbl" style="margin: 0 auto;">
+    <thead>
+      <tr>
+        <th>n</th>
+        <th>(1 + 1/n)<sup>n</sup></th>
+        <th>e − giá trị</th>
+      </tr>
+    </thead>
+    <tbody id="eTbody"></tbody>
+  </table>
+
+  <div class="hint">
+    e = 2.718281828459045... Hội tụ chậm: cần n ≈ 10⁸ để có 6 chữ số đúng. Đây là lý do định nghĩa <code>e</code> qua chuỗi giai thừa (<code>1 + 1/1! + 1/2! + ...</code>) thực dụng hơn trong tính toán.
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   PART 1 — ε-δ explorer
+   ========================================================================= */
+function renderEpsDelta() {
+  const eps = parseFloat(document.getElementById('epsSlider').value);
+  document.getElementById('epsLabel').textContent = eps.toFixed(2);
+  const delta = Math.min(1, eps / 5);
+
+  // Verify: max |x² − 4| khi |x − 2| < delta
+  const xLow = 2 - delta, xHigh = 2 + delta;
+  // x² đạt cực trị tại biên của (xLow, xHigh) vì x² monotonic trên (0, ∞)
+  const fLow = xLow * xLow, fHigh = xHigh * xHigh;
+  const maxDev = Math.max(Math.abs(fLow - 4), Math.abs(fHigh - 4));
+
+  const ok = maxDev < eps + 1e-9;
+  const okText = ok
+    ? `<span class="check-pass">✓ |f(x) − 4| ≤ ${maxDev.toFixed(4)} < ε = ${eps.toFixed(2)}</span>`
+    : `<span class="check-fail">✗ max |f(x) − 4| = ${maxDev.toFixed(4)} ≥ ε</span>`;
+
+  document.getElementById('epsDeltaResult').innerHTML =
+    `ε  = ${eps.toFixed(2)}\n` +
+    `δ  = min(1, ε/5) = ${delta.toFixed(4)}\n` +
+    `Vùng x được phép: (${xLow.toFixed(4)}, ${xHigh.toFixed(4)})\n` +
+    `Vùng f(x) tương ứng: (${fLow.toFixed(4)}, ${fHigh.toFixed(4)})\n` +
+    `max |x² − 4| trong vùng: ${maxDev.toFixed(4)}\n\n` +
+    `${ok ? 'KẾT QUẢ: ✓ Bạn thắng game (mọi x trong δ ⟹ |f(x) − 4| < ε)' : 'KẾT QUẢ: ✗ δ quá lớn, chưa thắng'}`;
+
+  drawEpsSvg(eps, delta);
+}
+
+function drawEpsSvg(eps, delta) {
+  const svg = document.getElementById('epsSvg');
+  // Coordinate system: x ∈ [0.5, 3.5], y ∈ [0, 12]
+  const w = 640, h = 380;
+  const padL = 50, padR = 20, padT = 20, padB = 40;
+  const xMin = 0.5, xMax = 3.5, yMin = 0, yMax = 12;
+  const xPx = x => padL + (x - xMin) / (xMax - xMin) * (w - padL - padR);
+  const yPx = y => h - padB - (y - yMin) / (yMax - yMin) * (h - padT - padB);
+
+  let s = '';
+  // Grid
+  for (let i = 0; i <= 6; i++) {
+    const xv = xMin + i * (xMax - xMin) / 6;
+    s += `<line class="grid" x1="${xPx(xv)}" y1="${padT}" x2="${xPx(xv)}" y2="${h - padB}"/>`;
+    s += `<text x="${xPx(xv)}" y="${h - padB + 14}" font-size="11" text-anchor="middle" fill="#718096">${xv.toFixed(1)}</text>`;
+  }
+  for (let j = 0; j <= 6; j++) {
+    const yv = yMin + j * (yMax - yMin) / 6;
+    s += `<line class="grid" x1="${padL}" y1="${yPx(yv)}" x2="${w - padR}" y2="${yPx(yv)}"/>`;
+    s += `<text x="${padL - 6}" y="${yPx(yv) + 4}" font-size="11" text-anchor="end" fill="#718096">${yv.toFixed(0)}</text>`;
+  }
+
+  // ε band horizontally around L = 4
+  const yEpsLow = Math.max(yMin, 4 - eps), yEpsHigh = Math.min(yMax, 4 + eps);
+  s += `<rect class="band-eps" x="${padL}" y="${yPx(yEpsHigh)}" width="${w - padL - padR}" height="${yPx(yEpsLow) - yPx(yEpsHigh)}"/>`;
+
+  // δ band vertically around a = 2
+  const xDeltaLow = 2 - delta, xDeltaHigh = 2 + delta;
+  s += `<rect class="band-delta" x="${xPx(xDeltaLow)}" y="${padT}" width="${xPx(xDeltaHigh) - xPx(xDeltaLow)}" height="${h - padT - padB}"/>`;
+
+  // Curve y = x²
+  let path = '';
+  for (let i = 0; i <= 200; i++) {
+    const xv = xMin + i * (xMax - xMin) / 200;
+    const yv = xv * xv;
+    if (yv >= yMin && yv <= yMax) {
+      path += (path === '' ? 'M' : 'L') + xPx(xv).toFixed(2) + ',' + yPx(yv).toFixed(2) + ' ';
+    }
+  }
+  s += `<path class="curve" d="${path}"/>`;
+
+  // Axes
+  s += `<line class="axis" x1="${padL}" y1="${h - padB}" x2="${w - padR}" y2="${h - padB}"/>`;
+  s += `<line class="axis" x1="${padL}" y1="${padT}" x2="${padL}" y2="${h - padB}"/>`;
+
+  // Point (a, L) = (2, 4)
+  s += `<circle class="point-a" cx="${xPx(2)}" cy="${yPx(4)}" r="5"/>`;
+  s += `<text x="${xPx(2) + 8}" y="${yPx(4) - 8}" font-size="12" fill="#c53030" font-weight="700">(2, 4)</text>`;
+
+  // L line
+  s += `<line stroke="#38a169" stroke-width="1" stroke-dasharray="4,3" x1="${padL}" y1="${yPx(4)}" x2="${w - padR}" y2="${yPx(4)}"/>`;
+  s += `<text x="${w - padR - 4}" y="${yPx(4) - 4}" font-size="11" fill="#38a169" text-anchor="end">L = 4</text>`;
+
+  // a line
+  s += `<line stroke="#e53e3e" stroke-width="1" stroke-dasharray="4,3" x1="${xPx(2)}" y1="${padT}" x2="${xPx(2)}" y2="${h - padB}"/>`;
+  s += `<text x="${xPx(2) + 4}" y="${padT + 12}" font-size="11" fill="#e53e3e">a = 2</text>`;
+
+  // Axis labels
+  s += `<text x="${w - padR}" y="${h - 4}" font-size="12" fill="#4a5568" text-anchor="end">x</text>`;
+  s += `<text x="${padL - 30}" y="${padT + 12}" font-size="12" fill="#4a5568">y</text>`;
+
+  svg.innerHTML = s;
+}
+
+/* =========================================================================
+   PART 2 — 0/0 simplifier
+   ========================================================================= */
+const exprDefs = {
+  diff_sq: {
+    label: 'lim_{x→1} (x² − 1)/(x − 1)',
+    a: 1,
+    f: x => (x * x - 1) / (x - 1),
+    steps: [
+      'Bước 1: Thay x = 1:  (1 − 1)/(1 − 1) = 0/0  → vô định.',
+      'Bước 2: Phân tích tử:  x² − 1 = (x − 1)(x + 1).',
+      'Bước 3: Rút gọn:  (x − 1)(x + 1) / (x − 1) = x + 1  (với x ≠ 1).',
+      'Bước 4: Thay x = 1 vào biểu thức gọn:  x + 1 = 1 + 1 = 2.',
+    ],
+    answer: 2,
+  },
+  diff_sq_a2: {
+    label: 'lim_{x→2} (x² − 4)/(x − 2)',
+    a: 2,
+    f: x => (x * x - 4) / (x - 2),
+    steps: [
+      'Bước 1: Thay x = 2:  (4 − 4)/(2 − 2) = 0/0.',
+      'Bước 2: Phân tích:  x² − 4 = (x − 2)(x + 2).',
+      'Bước 3: Rút gọn:  (x − 2)(x + 2) / (x − 2) = x + 2.',
+      'Bước 4: Thay x = 2:  x + 2 = 4.',
+    ],
+    answer: 4,
+  },
+  cubic: {
+    label: 'lim_{x→1} (x³ − 1)/(x − 1)',
+    a: 1,
+    f: x => (x ** 3 - 1) / (x - 1),
+    steps: [
+      'Bước 1: Thay x = 1:  0/0.',
+      'Bước 2: Hằng đẳng thức:  x³ − 1 = (x − 1)(x² + x + 1).',
+      'Bước 3: Rút gọn:  (x − 1)(x² + x + 1) / (x − 1) = x² + x + 1.',
+      'Bước 4: Thay x = 1:  1 + 1 + 1 = 3.',
+    ],
+    answer: 3,
+  },
+  quad_factor: {
+    label: 'lim_{x→3} (x² − 5x + 6)/(x − 3)',
+    a: 3,
+    f: x => (x * x - 5 * x + 6) / (x - 3),
+    steps: [
+      'Bước 1: Thay x = 3:  (9 − 15 + 6)/(3 − 3) = 0/0.',
+      'Bước 2: Phân tích:  x² − 5x + 6 = (x − 2)(x − 3).',
+      'Bước 3: Rút gọn:  (x − 2)(x − 3) / (x − 3) = x − 2.',
+      'Bước 4: Thay x = 3:  x − 2 = 1.',
+    ],
+    answer: 1,
+  },
+  sqrt_x: {
+    label: 'lim_{x→4} (√x − 2)/(x − 4)',
+    a: 4,
+    f: x => (Math.sqrt(x) - 2) / (x - 4),
+    steps: [
+      'Bước 1: Thay x = 4:  (2 − 2)/(4 − 4) = 0/0.',
+      'Bước 2: Nhân liên hợp √x + 2 lên tử và mẫu:',
+      '         (√x − 2)(√x + 2) = x − 4.',
+      'Bước 3: Biểu thức:  (x − 4) / ((x − 4)(√x + 2)) = 1/(√x + 2).',
+      'Bước 4: Thay x = 4:  1/(2 + 2) = 1/4 = 0.25.',
+    ],
+    answer: 0.25,
+  },
+  sqrt_xp1: {
+    label: 'lim_{x→0} (√(x+1) − 1)/x',
+    a: 0,
+    f: x => (Math.sqrt(x + 1) - 1) / x,
+    steps: [
+      'Bước 1: Thay x = 0:  (√1 − 1)/0 = 0/0.',
+      'Bước 2: Nhân liên hợp √(x+1) + 1:',
+      '         (√(x+1) − 1)(√(x+1) + 1) = (x + 1) − 1 = x.',
+      'Bước 3: Biểu thức:  x / (x · (√(x+1) + 1)) = 1/(√(x+1) + 1).',
+      'Bước 4: Thay x = 0:  1/(√1 + 1) = 1/2 = 0.5.',
+    ],
+    answer: 0.5,
+  },
+  sqrt_xp9: {
+    label: 'lim_{x→0} x / (√(x+9) − 3)',
+    a: 0,
+    f: x => x / (Math.sqrt(x + 9) - 3),
+    steps: [
+      'Bước 1: Thay x = 0:  0/(√9 − 3) = 0/0.',
+      'Bước 2: Nhân liên hợp √(x+9) + 3:',
+      '         (√(x+9) − 3)(√(x+9) + 3) = (x + 9) − 9 = x.',
+      'Bước 3: Biểu thức:  x(√(x+9) + 3) / x = √(x+9) + 3.',
+      'Bước 4: Thay x = 0:  √9 + 3 = 6.',
+    ],
+    answer: 6,
+  },
+};
+
+function renderSimplifier() {
+  const key = document.getElementById('exprSelect').value;
+  const def = exprDefs[key];
+
+  // Numerical verification: bảng x → a
+  const a = def.a;
+  const deltas = [-0.1, -0.01, -0.001, 0.001, 0.01, 0.1];
+  let rows = '';
+  for (const d of deltas) {
+    const x = a + d;
+    const fx = def.f(x);
+    rows += `<tr><td>${x.toFixed(4)}</td><td>${fx.toFixed(6)}</td></tr>`;
+  }
+
+  const stepsHtml = def.steps.map(s => `<div class="step-box">${s}</div>`).join('');
+
+  document.getElementById('simplifierResult').innerHTML =
+    `<div class="formula">${def.label}</div>` +
+    stepsHtml +
+    `<div style="margin-top:10px;">Đáp số:  <span class="val-big" style="font-size:22px">${def.answer}</span></div>` +
+    `<div style="margin-top:14px;"><b>Kiểm chứng số học</b> (bảng giá trị quanh a = ${a}):` +
+    `<table class="tbl"><thead><tr><th>x</th><th>f(x)</th></tr></thead><tbody>${rows}</tbody></table>` +
+    `→ Cả hai phía tiến về ${def.answer}. ✓</div>`;
+}
+
+/* =========================================================================
+   PART 3 — sin(x)/x near 0
+   ========================================================================= */
+function renderSinTable() {
+  const xs = [1, 0.5, 0.1, 0.05, 0.01, 0.001, 0.0001];
+  let html = '';
+  for (const x of xs) {
+    const s = Math.sin(x);
+    const ratio = s / x;
+    const dev = Math.abs(ratio - 1);
+    html += `<tr><td>${x}</td><td>${s.toFixed(8)}</td><td>${ratio.toFixed(8)}</td><td>${dev.toExponential(2)}</td></tr>`;
+  }
+  document.getElementById('sinTbody').innerHTML = html;
+}
+
+function renderSinSlider() {
+  const x = parseFloat(document.getElementById('sinSlider').value);
+  const s = Math.sin(x);
+  const ratio = s / x;
+  document.getElementById('sinSliderLabel').textContent = x.toFixed(3);
+  document.getElementById('sinSliderResult').textContent =
+    `x        = ${x.toFixed(6)}\n` +
+    `sin(x)   = ${s.toFixed(8)}\n` +
+    `sin(x)/x = ${ratio.toFixed(8)}\n` +
+    `|tỉ số − 1| = ${Math.abs(ratio - 1).toExponential(3)}\n` +
+    `→ ${ratio < 0.999 ? 'Còn cách 1 một chút.' : 'Rất gần 1.'}`;
+}
+
+function drawSinSvg() {
+  const svg = document.getElementById('sinSvg');
+  const w = 640, h = 280;
+  const padL = 50, padR = 20, padT = 20, padB = 40;
+  const xMin = -3, xMax = 3, yMin = -0.3, yMax = 1.2;
+  const xPx = x => padL + (x - xMin) / (xMax - xMin) * (w - padL - padR);
+  const yPx = y => h - padB - (y - yMin) / (yMax - yMin) * (h - padT - padB);
+
+  let s = '';
+  // grid
+  for (let i = -3; i <= 3; i++) {
+    s += `<line class="grid" x1="${xPx(i)}" y1="${padT}" x2="${xPx(i)}" y2="${h - padB}"/>`;
+    if (i !== 0) s += `<text x="${xPx(i)}" y="${h - padB + 14}" font-size="11" text-anchor="middle" fill="#718096">${i}</text>`;
+  }
+  [0, 0.5, 1].forEach(yv => {
+    s += `<line class="grid" x1="${padL}" y1="${yPx(yv)}" x2="${w - padR}" y2="${yPx(yv)}"/>`;
+    s += `<text x="${padL - 6}" y="${yPx(yv) + 4}" font-size="11" text-anchor="end" fill="#718096">${yv}</text>`;
+  });
+
+  // y = 1 line
+  s += `<line stroke="#90cdf4" stroke-width="2" stroke-dasharray="6,3" x1="${padL}" y1="${yPx(1)}" x2="${w - padR}" y2="${yPx(1)}"/>`;
+  s += `<text x="${w - padR - 4}" y="${yPx(1) - 4}" font-size="11" fill="#3182ce" text-anchor="end">y = 1 (giới hạn)</text>`;
+
+  // y = sin(x)/x
+  let path = '';
+  for (let i = 0; i <= 400; i++) {
+    const xv = xMin + i * (xMax - xMin) / 400;
+    let yv;
+    if (Math.abs(xv) < 1e-6) {
+      yv = 1; // limit at 0
+    } else {
+      yv = Math.sin(xv) / xv;
+    }
+    if (yv >= yMin && yv <= yMax) {
+      path += (path === '' ? 'M' : 'L') + xPx(xv).toFixed(2) + ',' + yPx(yv).toFixed(2) + ' ';
+    }
+  }
+  s += `<path class="curve" d="${path}"/>`;
+
+  // axes
+  s += `<line class="axis" x1="${padL}" y1="${yPx(0)}" x2="${w - padR}" y2="${yPx(0)}"/>`;
+  s += `<line class="axis" x1="${xPx(0)}" y1="${padT}" x2="${xPx(0)}" y2="${h - padB}"/>`;
+
+  // mark removable hole at x=0
+  s += `<circle cx="${xPx(0)}" cy="${yPx(1)}" r="4" fill="white" stroke="#2c5282" stroke-width="2"/>`;
+  s += `<text x="${xPx(0) + 8}" y="${yPx(1) - 6}" font-size="11" fill="#2c5282">lim = 1</text>`;
+
+  svg.innerHTML = s;
+}
+
+/* =========================================================================
+   PART 4 — e by limit
+   ========================================================================= */
+const E_TRUE = Math.E; // 2.718281828459045
+
+function renderESlider() {
+  const logN = parseFloat(document.getElementById('eSlider').value);
+  const n = Math.round(Math.pow(10, logN));
+  const v = Math.pow(1 + 1 / n, n);
+  document.getElementById('eSliderLabel').textContent =
+    `${logN.toFixed(1)}   →   n = ${n.toLocaleString()}`;
+  document.getElementById('eValueBig').textContent = v.toFixed(10);
+
+  // Find first differing decimal place
+  const trueStr = E_TRUE.toFixed(12);
+  const vStr = v.toFixed(12);
+  let diffPos = -1;
+  for (let i = 0; i < trueStr.length; i++) {
+    if (trueStr[i] !== vStr[i]) { diffPos = i; break; }
+  }
+  let accText;
+  if (diffPos < 0) {
+    accText = 'khớp tới 12 chữ số';
+  } else if (diffPos < 2) {
+    accText = 'chưa khớp chữ số hàng đơn vị';
+  } else {
+    accText = `khớp tới chữ số thập phân thứ ${diffPos - 2}, sai từ chữ số thứ ${diffPos - 1}`;
+  }
+  document.getElementById('eAccuracy').textContent = accText;
+}
+
+function renderETable() {
+  const ns = [1, 2, 5, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000];
+  let html = '';
+  for (const n of ns) {
+    const v = Math.pow(1 + 1 / n, n);
+    const diff = E_TRUE - v;
+    html += `<tr><td>${n.toLocaleString()}</td><td>${v.toFixed(10)}</td><td>${diff.toExponential(2)}</td></tr>`;
+  }
+  document.getElementById('eTbody').innerHTML = html;
+}
+
+/* =========================================================================
+   INIT
+   ========================================================================= */
+renderEpsDelta();
+renderSimplifier();
+renderSinTable();
+renderSinSlider();
+drawSinSvg();
+renderETable();
+renderESlider();
+</script>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+</body>
+</html>

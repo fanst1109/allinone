@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 07 — Production & Cost</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  main { max-width: 1040px; margin: 0 auto; padding: 24px; }
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .lead { color: #4a5568; margin-bottom: 24px; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 220px; }
+  input[type="number"], input[type="range"] { font-family: monospace; padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 4px; }
+  input[type="number"] { width: 100px; }
+  input[type="range"] { width: 240px; }
+  .result { background: #f7fafc; border-left: 4px solid #c05621; padding: 14px 18px; margin-top: 14px; border-radius: 4px; font-family: monospace; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  svg { display: block; margin: 0 auto; max-width: 100%; }
+  .legend { display: flex; gap: 14px; font-size: 13px; margin: 8px 0; color: #4a5568; flex-wrap: wrap; }
+  .legend .sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: 4px; }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; background: #fff5eb; color: #c05621; font-weight: 700; margin-left: 6px; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-consumer-theory/visualization.html">← L6: Consumer theory</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Production & Cost</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-market-structures/visualization.html">L8: Market Structures →</a>
+</nav>
+
+<main>
+  <h1>Lesson 07 — Production & Cost</h1>
+  <div class="lead">Vẽ TC, AFC, AVC, ATC, MC theo Q. Quan sát MC cắt ATC ở cực tiểu.</div>
+
+  <h2>Đường chi phí <span class="pill">TC = FC + aQ + bQ²</span></h2>
+  <div class="card">
+    <div class="row"><label>FC (chi phí cố định)</label><input id="fc" type="number" value="100" step="10"></div>
+    <div class="row"><label>a (chi phí biến tuyến tính)</label><input id="a" type="number" value="2" step="0.5"></div>
+    <div class="row"><label>b (chi phí biến bậc 2)</label><input id="b" type="number" value="0.5" step="0.1"></div>
+
+    <svg id="svg" viewBox="0 0 600 440" style="background:#fff; border:1px solid #e2e8f0;"></svg>
+    <div class="legend">
+      <span><span class="sw" style="background:#3182ce"></span>ATC</span>
+      <span><span class="sw" style="background:#c05621"></span>MC</span>
+      <span><span class="sw" style="background:#48bb78"></span>AVC</span>
+      <span><span class="sw" style="background:#a0aec0"></span>AFC</span>
+    </div>
+    <div class="result" id="out"></div>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+function get(id) { return parseFloat($(id).value) || 0; }
+
+function calc() {
+  const FC = get('fc'), a = get('a'), b = get('b');
+  // TC = FC + aQ + bQ². MC = a + 2bQ. ATC = FC/Q + a + bQ. AVC = a + bQ. AFC = FC/Q.
+  // ATC cực tiểu khi d/dQ (FC/Q + a + bQ) = 0 → -FC/Q² + b = 0 → Q = √(FC/b)
+  const Qmin = Math.sqrt(FC / b);
+  const ATCmin = FC / Qmin + a + b * Qmin;
+
+  const Qmax = Qmin * 3;
+  const yMax = ATCmin * 3;
+
+  const W = 600, H = 440, padL = 60, padB = 50, padT = 30, padR = 30;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const sx = q => padL + (q / Qmax) * plotW;
+  const sy = c => padT + plotH - (c / yMax) * plotH;
+
+  function plot(fn, color, width = 2) {
+    let path = '';
+    let started = false;
+    for (let i = 1; i <= 200; i++) {
+      const q = (Qmax * i) / 200;
+      const v = fn(q);
+      if (v > 0 && v < yMax * 2 && isFinite(v)) {
+        path += (started ? 'L' : 'M') + sx(q) + ',' + sy(v) + ' ';
+        started = true;
+      }
+    }
+    return `<path d="${path}" fill="none" stroke="${color}" stroke-width="${width}"/>`;
+  }
+
+  let svg = '';
+  // grid
+  for (let i = 1; i <= 5; i++) {
+    svg += `<line x1="${sx(Qmax/5*i)}" y1="${padT}" x2="${sx(Qmax/5*i)}" y2="${padT+plotH}" stroke="#f0f0f0"/>`;
+    svg += `<line x1="${padL}" y1="${sy(yMax/5*i)}" x2="${padL+plotW}" y2="${sy(yMax/5*i)}" stroke="#f0f0f0"/>`;
+    svg += `<text x="${sx(Qmax/5*i)}" y="${padT+plotH+16}" text-anchor="middle" font-size="11" fill="#718096">${(Qmax/5*i).toFixed(1)}</text>`;
+    svg += `<text x="${padL-8}" y="${sy(yMax/5*i)+4}" text-anchor="end" font-size="11" fill="#718096">${(yMax/5*i).toFixed(1)}</text>`;
+  }
+  svg += plot(q => FC / q, '#a0aec0', 1.5);
+  svg += plot(q => a + b * q, '#48bb78');
+  svg += plot(q => FC / q + a + b * q, '#3182ce', 2.5);
+  svg += plot(q => a + 2 * b * q, '#c05621', 2.5);
+
+  // Đánh dấu ATC cực tiểu
+  svg += `<circle cx="${sx(Qmin)}" cy="${sy(ATCmin)}" r="6" fill="#2f855a" stroke="#fff" stroke-width="2"/>`;
+  svg += `<line x1="${sx(Qmin)}" y1="${padT+plotH}" x2="${sx(Qmin)}" y2="${sy(ATCmin)}" stroke="#2f855a" stroke-dasharray="3,3"/>`;
+  svg += `<text x="${sx(Qmin) + 8}" y="${sy(ATCmin) - 6}" font-size="12" fill="#2f855a" font-weight="700">MC = ATC: Q*=${Qmin.toFixed(2)}, ATC*=${ATCmin.toFixed(2)}</text>`;
+
+  svg += `<line x1="${padL}" y1="${padT+plotH}" x2="${padL+plotW}" y2="${padT+plotH}" stroke="#cbd5e0"/>`;
+  svg += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+plotH}" stroke="#cbd5e0"/>`;
+  svg += `<text x="${padL+plotW/2}" y="${H-10}" text-anchor="middle" font-size="13" fill="#2d3748">Q</text>`;
+  svg += `<text x="20" y="${padT+plotH/2}" transform="rotate(-90 20 ${padT+plotH/2})" text-anchor="middle" font-size="13" fill="#2d3748">Chi phí / đơn vị</text>`;
+
+  $('svg').innerHTML = svg;
+
+  $('out').innerHTML =
+    `TC(Q) = ${FC} + ${a}Q + ${b}Q²\n` +
+    `MC = ${a} + ${(2*b).toFixed(1)}Q  (tăng tuyến tính)\n` +
+    `AVC = ${a} + ${b}Q  (cũng tăng tuyến tính)\n` +
+    `ATC = ${FC}/Q + ${a} + ${b}Q  (hình U)\n` +
+    `AFC = ${FC}/Q  (giảm)\n\n` +
+    `<strong>ATC cực tiểu</strong>: Q* = √(FC/b) = ${Qmin.toFixed(2)}\n` +
+    `Tại đó: ATC = ${ATCmin.toFixed(2)} và MC = ${(a + 2*b*Qmin).toFixed(2)}\n` +
+    `→ MC cắt ATC từ dưới lên tại Q* (chính xác bằng nhau).`;
+}
+['fc', 'a', 'b'].forEach(id => $(id).addEventListener('input', calc));
+calc();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+</body>
+</html>

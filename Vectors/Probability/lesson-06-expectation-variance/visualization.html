@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Kỳ vọng, Phương sai, Covariance</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  main { max-width: 1150px; margin: 0 auto; padding: 24px; }
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 24px; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; font-size: 16px; margin-top: 18px; }
+  .card {
+    background: white; border-radius: 8px; padding: 18px 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .card .desc { color: #4a5568; font-size: 14px; margin-bottom: 12px; }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; font-size: 14px; }
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; padding: 6px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 80px;
+  }
+  input[type="range"] { width: 240px; vertical-align: middle; }
+  .slider-val {
+    display: inline-block; font-family: monospace;
+    background: #edf2f7; padding: 2px 8px; border-radius: 4px;
+    font-weight: 600; color: #2b6cb0; min-width: 60px; text-align: center;
+  }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 6px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.toggle { background: #e2e8f0; color: #2d3748; }
+  button.toggle.active { background: #4299e1; color: white; }
+  svg { display: block; background: #fdfdfd; border: 1px solid #e2e8f0; border-radius: 6px; }
+  .chart-axis { stroke: #a0aec0; stroke-width: 1; }
+  .chart-grid { stroke: #edf2f7; stroke-width: 1; }
+  .chart-label { font-size: 11px; fill: #718096; font-family: monospace; }
+  .stat-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 8px; margin-top: 12px;
+  }
+  .stat {
+    background: #edf2f7; padding: 8px 12px; border-radius: 4px;
+    font-family: monospace; font-size: 13px;
+  }
+  .stat .name { color: #4a5568; font-size: 11px; }
+  .stat .val { color: #2b6cb0; font-weight: 700; font-size: 14px; }
+  .formula {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    background: #1a202c; color: #cbf36b;
+    padding: 8px 12px; border-radius: 4px;
+    font-size: 13px; margin: 8px 0; white-space: pre-wrap;
+  }
+  table { border-collapse: collapse; margin: 8px 0; }
+  table td, table th {
+    padding: 5px 12px; border: 1px solid #e2e8f0;
+    font-family: monospace; font-size: 13px;
+    text-align: right;
+  }
+  table th { background: #edf2f7; }
+  .matrix-grid {
+    display: inline-grid;
+    gap: 4px;
+    background: #2d3748;
+    padding: 6px;
+    border-radius: 6px;
+  }
+  .matrix-cell {
+    width: 60px;
+    padding: 6px 8px;
+    background: #f7fafc;
+    border-radius: 3px;
+    text-align: center;
+    font-family: monospace;
+    font-size: 13px;
+  }
+  .matrix-cell input {
+    width: 100%; border: none; background: transparent;
+    text-align: center; font-family: monospace;
+    font-size: 13px;
+  }
+  .matrix-cell.diag { background: #fef5e7; font-weight: 700; }
+  .badge {
+    display: inline-block; padding: 2px 8px;
+    border-radius: 999px; font-size: 12px; font-weight: 700;
+  }
+  .badge.ok { background: #c6f6d5; color: #22543d; }
+  .badge.bad { background: #fed7d7; color: #742a2a; }
+  .hint { color: #718096; font-size: 13px; font-style: italic; margin: 4px 0; }
+  details { margin: 8px 0; }
+  summary { cursor: pointer; font-weight: 600; color: #2b6cb0; }
+  code { background: #edf2f7; padding: 1px 4px; border-radius: 3px; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-normal-distribution/visualization.html">← L5: Phân phối chuẩn</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Kỳ vọng, phương sai, covariance</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-mle/visualization.html">L7: MLE →</a>
+</nav>
+
+<main>
+  <h1>Lesson 06 — Kỳ vọng, Phương sai, Covariance</h1>
+  <div class="subtitle">4 component tương tác: E và Var của các phân phối, tuyến tính của E, correlation 2D với ellipse, covariance matrix viewer.</div>
+
+  <!-- =============================================================== -->
+  <!-- Component 1: E[X] và Var[X] visualizer -->
+  <!-- =============================================================== -->
+  <h2>1. E[X] và Var[X] visualizer</h2>
+  <div class="card">
+    <div class="desc">
+      Chọn phân phối, chỉnh tham số. Đồ thị mark <strong style="color:#e53e3e">đường E[X]</strong> (đỏ) và <strong style="color:#805ad5">vùng ±σ</strong> (tím). Đọc giá trị tính toán bên dưới.
+    </div>
+    <div class="row">
+      <label>Phân phối:</label>
+      <div class="toggle-group">
+        <button class="toggle active" data-dist="dice">Xúc xắc đều</button>
+        <button class="toggle" data-dist="bernoulli">Bernoulli(p)</button>
+        <button class="toggle" data-dist="binomial">Binomial(n, p)</button>
+        <button class="toggle" data-dist="uniform">Uniform(a, b)</button>
+        <button class="toggle" data-dist="exp">Exponential(λ)</button>
+      </div>
+    </div>
+    <div class="row" id="dist-params"></div>
+    <svg id="dist-chart" width="1080" height="320"></svg>
+    <div class="formula" id="dist-formula"></div>
+    <div class="stat-grid" id="dist-stats"></div>
+  </div>
+
+  <!-- =============================================================== -->
+  <!-- Component 2: Linearity of E -->
+  <!-- =============================================================== -->
+  <h2>2. Tuyến tính của kỳ vọng — E[X + Y] = E[X] + E[Y]</h2>
+  <div class="card">
+    <div class="desc">
+      Sinh N mẫu cặp (X, Y). X = xúc xắc 6 mặt. Y = xúc xắc 6 mặt (có thể chọn độc lập hoặc <em>liên kết</em> Y = X). So sánh sample mean của X + Y với mean(X) + mean(Y). <strong>Đẳng thức luôn đúng kể cả khi liên kết</strong> — đó là điểm mạnh của tuyến tính.
+    </div>
+    <div class="row">
+      <label>Quan hệ X, Y:</label>
+      <div class="toggle-group">
+        <button class="toggle active" data-rel="indep">Độc lập</button>
+        <button class="toggle" data-rel="linked">Y = X (liên kết)</button>
+        <button class="toggle" data-rel="negative">Y = 7 - X (nghịch biến)</button>
+      </div>
+    </div>
+    <div class="row">
+      <label>Số mẫu N:</label>
+      <input type="range" id="lin-n" min="50" max="20000" step="50" value="2000">
+      <span class="slider-val" id="lin-n-val">2000</span>
+      <button id="lin-run">Resample</button>
+    </div>
+    <div class="stat-grid" id="lin-stats"></div>
+    <details><summary>Bảng so sánh chi tiết</summary>
+      <div id="lin-table"></div>
+    </details>
+  </div>
+
+  <!-- =============================================================== -->
+  <!-- Component 3: Correlation 2D với ellipse -->
+  <!-- =============================================================== -->
+  <h2>3. Covariance, correlation và scatter 2D</h2>
+  <div class="card">
+    <div class="desc">
+      Sinh dữ liệu 2D với correlation ρ chỉ định. Scatter cho thấy quan hệ. Ellipse màu tím = đường đồng mật độ 1σ của Gaussian 2D ứng với covariance matrix mẫu. Khi |ρ| → 1, ellipse dẹt lại thành đường thẳng.
+    </div>
+    <div class="row">
+      <label>ρ (mong muốn):</label>
+      <input type="range" id="corr-rho" min="-1" max="1" step="0.05" value="0.7">
+      <span class="slider-val" id="corr-rho-val">0.70</span>
+    </div>
+    <div class="row">
+      <label>σ_X:</label>
+      <input type="range" id="corr-sx" min="0.5" max="3" step="0.1" value="1.5">
+      <span class="slider-val" id="corr-sx-val">1.5</span>
+      <label>σ_Y:</label>
+      <input type="range" id="corr-sy" min="0.5" max="3" step="0.1" value="1.0">
+      <span class="slider-val" id="corr-sy-val">1.0</span>
+    </div>
+    <div class="row">
+      <label>Số điểm N:</label>
+      <input type="range" id="corr-n" min="50" max="2000" step="50" value="500">
+      <span class="slider-val" id="corr-n-val">500</span>
+      <button id="corr-resample">Resample</button>
+    </div>
+    <svg id="corr-chart" width="600" height="500"></svg>
+    <div class="stat-grid" id="corr-stats"></div>
+    <div class="hint">💡 Thử ρ = 0 và xem ellipse — nó thành hình tròn (nếu σ_X = σ_Y) hoặc ellipse thẳng trục (axis-aligned).</div>
+  </div>
+
+  <!-- =============================================================== -->
+  <!-- Component 4: Covariance matrix viewer -->
+  <!-- =============================================================== -->
+  <h2>4. Covariance matrix Σ — kiểm tra positive semi-definite</h2>
+  <div class="card">
+    <div class="desc">
+      Chỉnh các ô của Σ (3×3). Tool tự symmetrize (chỉ cần điền tam giác trên — dưới copy theo). Hiển thị eigenvalue, kiểm tra <strong>PSD</strong> (mọi eigenvalue ≥ 0) và <strong>PD</strong> (mọi eigenvalue > 0).
+    </div>
+    <div class="row">
+      <div class="matrix-grid" id="cov-matrix"></div>
+      <div style="margin-left: 24px;">
+        <button id="cov-preset-eye">Đơn vị I</button>
+        <button id="cov-preset-pos">Ví dụ PD</button>
+        <button id="cov-preset-singular">Ví dụ singular</button>
+        <button id="cov-preset-bad">Ví dụ KHÔNG PSD</button>
+      </div>
+    </div>
+    <div class="stat-grid" id="cov-stats"></div>
+    <div class="hint">💡 Khi tổng eigenvalue (trace) lớn → tổng phương sai lớn. Khi det = 0 → ma trận singular (có "hướng" mà phương sai = 0).</div>
+  </div>
+</main>
+
+<script>
+// =================================================================
+// Utility — math helpers
+// =================================================================
+function logGamma(x) {
+  // Stirling approximation
+  const c = [76.18009172947146, -86.50532032941677, 24.01409824083091,
+             -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5];
+  let t = x + 5.5;
+  t -= (x + 0.5) * Math.log(t);
+  let ser = 1.000000000190015;
+  let xx = x;
+  for (let j = 0; j < 6; j++) {
+    xx += 1;
+    ser += c[j] / xx;
+  }
+  return -t + Math.log(2.5066282746310005 * ser / x);
+}
+function binom(n, k) {
+  if (k < 0 || k > n) return 0;
+  return Math.exp(logGamma(n + 1) - logGamma(k + 1) - logGamma(n - k + 1));
+}
+function randn() {
+  // Box-Muller
+  let u = 0, v = 0;
+  while (u === 0) u = Math.random();
+  while (v === 0) v = Math.random();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+
+// =================================================================
+// Component 1 — E[X] + Var[X] visualizer
+// =================================================================
+const distState = {
+  dist: 'dice',
+  bernoulli: { p: 0.4 },
+  binomial: { n: 10, p: 0.4 },
+  uniform: { a: 0, b: 5 },
+  exp: { lambda: 1.0 }
+};
+
+function renderDistParams() {
+  const div = document.getElementById('dist-params');
+  const d = distState.dist;
+  let html = '';
+  if (d === 'bernoulli') {
+    html = `<label>p:</label><input type="range" id="p1" min="0" max="1" step="0.01" value="${distState.bernoulli.p}"><span class="slider-val" id="p1-val">${distState.bernoulli.p.toFixed(2)}</span>`;
+  } else if (d === 'binomial') {
+    html = `<label>n:</label><input type="range" id="p1" min="1" max="30" step="1" value="${distState.binomial.n}"><span class="slider-val" id="p1-val">${distState.binomial.n}</span>
+            <label>p:</label><input type="range" id="p2" min="0" max="1" step="0.01" value="${distState.binomial.p}"><span class="slider-val" id="p2-val">${distState.binomial.p.toFixed(2)}</span>`;
+  } else if (d === 'uniform') {
+    html = `<label>a:</label><input type="range" id="p1" min="-5" max="5" step="0.5" value="${distState.uniform.a}"><span class="slider-val" id="p1-val">${distState.uniform.a}</span>
+            <label>b:</label><input type="range" id="p2" min="-5" max="10" step="0.5" value="${distState.uniform.b}"><span class="slider-val" id="p2-val">${distState.uniform.b}</span>`;
+  } else if (d === 'exp') {
+    html = `<label>λ:</label><input type="range" id="p1" min="0.1" max="3" step="0.05" value="${distState.exp.lambda}"><span class="slider-val" id="p1-val">${distState.exp.lambda.toFixed(2)}</span>`;
+  }
+  div.innerHTML = html;
+  ['p1', 'p2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', () => {
+      const v = parseFloat(el.value);
+      document.getElementById(id + '-val').textContent = (Number.isInteger(v) ? v : v.toFixed(2));
+      if (d === 'bernoulli') distState.bernoulli.p = v;
+      else if (d === 'binomial') { if (id === 'p1') distState.binomial.n = v; else distState.binomial.p = v; }
+      else if (d === 'uniform') { if (id === 'p1') distState.uniform.a = v; else distState.uniform.b = v; }
+      else if (d === 'exp') distState.exp.lambda = v;
+      renderDistChart();
+    });
+  });
+}
+
+function distMoments() {
+  const d = distState.dist;
+  if (d === 'dice') {
+    const E = 3.5, EX2 = 91/6;
+    return { E, Var: EX2 - E*E, type: 'discrete', formula: 'E[X] = 3.5,  Var[X] = 35/12 ≈ 2.917' };
+  } else if (d === 'bernoulli') {
+    const p = distState.bernoulli.p;
+    return { E: p, Var: p*(1-p), type: 'discrete', formula: `E[X] = p = ${p.toFixed(3)},  Var[X] = p(1-p) = ${(p*(1-p)).toFixed(4)}` };
+  } else if (d === 'binomial') {
+    const { n, p } = distState.binomial;
+    return { E: n*p, Var: n*p*(1-p), type: 'discrete', formula: `E[X] = np = ${(n*p).toFixed(3)},  Var[X] = np(1-p) = ${(n*p*(1-p)).toFixed(3)}` };
+  } else if (d === 'uniform') {
+    const { a, b } = distState.uniform;
+    if (b <= a) return { E: 0, Var: 0, type: 'continuous', formula: 'Cần b > a' };
+    return { E: (a+b)/2, Var: (b-a)*(b-a)/12, type: 'continuous', formula: `E[X] = (a+b)/2 = ${((a+b)/2).toFixed(3)},  Var[X] = (b-a)²/12 = ${((b-a)*(b-a)/12).toFixed(4)}` };
+  } else if (d === 'exp') {
+    const l = distState.exp.lambda;
+    return { E: 1/l, Var: 1/(l*l), type: 'continuous', formula: `E[X] = 1/λ = ${(1/l).toFixed(3)},  Var[X] = 1/λ² = ${(1/(l*l)).toFixed(4)}` };
+  }
+}
+
+function distSupport() {
+  const d = distState.dist;
+  if (d === 'dice') return { xs: [1,2,3,4,5,6], pmf: x => 1/6, kind: 'pmf' };
+  if (d === 'bernoulli') {
+    const p = distState.bernoulli.p;
+    return { xs: [0,1], pmf: x => x === 1 ? p : 1-p, kind: 'pmf' };
+  }
+  if (d === 'binomial') {
+    const { n, p } = distState.binomial;
+    const xs = [];
+    for (let k = 0; k <= n; k++) xs.push(k);
+    return { xs, pmf: k => binom(n, k) * Math.pow(p, k) * Math.pow(1-p, n-k), kind: 'pmf' };
+  }
+  if (d === 'uniform') {
+    const { a, b } = distState.uniform;
+    return { a, b, pdf: x => (x >= a && x <= b) ? 1/(b-a) : 0, kind: 'pdf' };
+  }
+  if (d === 'exp') {
+    const l = distState.exp.lambda;
+    return { a: 0, b: 6/l, pdf: x => x < 0 ? 0 : l * Math.exp(-l*x), kind: 'pdf' };
+  }
+}
+
+function renderDistChart() {
+  const svg = document.getElementById('dist-chart');
+  svg.innerHTML = '';
+  const W = 1080, H = 320, pad = { l: 50, r: 30, t: 20, b: 40 };
+  const innerW = W - pad.l - pad.r;
+  const innerH = H - pad.t - pad.b;
+
+  const sup = distSupport();
+  const mom = distMoments();
+  const { E, Var } = mom;
+  const sigma = Math.sqrt(Var);
+
+  // axis ranges
+  let xMin, xMax, yMax;
+  if (sup.kind === 'pmf') {
+    xMin = Math.min(...sup.xs) - 0.5;
+    xMax = Math.max(...sup.xs) + 0.5;
+    yMax = Math.max(...sup.xs.map(x => sup.pmf(x))) * 1.15;
+  } else {
+    xMin = sup.a - 0.3 * (sup.b - sup.a);
+    xMax = sup.b + 0.3 * (sup.b - sup.a);
+    if (distState.dist === 'exp') { xMin = -0.2; xMax = sup.b; }
+    let ym = 0;
+    for (let i = 0; i <= 200; i++) {
+      const x = xMin + (xMax - xMin) * i / 200;
+      ym = Math.max(ym, sup.pdf(x));
+    }
+    yMax = ym * 1.15;
+  }
+  if (yMax <= 0) yMax = 1;
+
+  const xs = x => pad.l + (x - xMin) / (xMax - xMin) * innerW;
+  const ys = y => pad.t + innerH - y / yMax * innerH;
+
+  // grid
+  for (let i = 0; i <= 5; i++) {
+    const yy = pad.t + innerH * i / 5;
+    svg.insertAdjacentHTML('beforeend', `<line class="chart-grid" x1="${pad.l}" y1="${yy}" x2="${W-pad.r}" y2="${yy}"/>`);
+    const yv = yMax * (5 - i) / 5;
+    svg.insertAdjacentHTML('beforeend', `<text class="chart-label" x="${pad.l - 6}" y="${yy + 3}" text-anchor="end">${yv.toFixed(3)}</text>`);
+  }
+
+  // axes
+  svg.insertAdjacentHTML('beforeend', `<line class="chart-axis" x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${pad.t + innerH}"/>`);
+  svg.insertAdjacentHTML('beforeend', `<line class="chart-axis" x1="${pad.l}" y1="${pad.t + innerH}" x2="${W - pad.r}" y2="${pad.t + innerH}"/>`);
+
+  // ±σ shade
+  const sigmaL = Math.max(xMin, E - sigma);
+  const sigmaR = Math.min(xMax, E + sigma);
+  if (sigmaR > sigmaL) {
+    svg.insertAdjacentHTML('beforeend', `<rect x="${xs(sigmaL)}" y="${pad.t}" width="${xs(sigmaR) - xs(sigmaL)}" height="${innerH}" fill="#805ad5" fill-opacity="0.12"/>`);
+  }
+
+  // draw distribution
+  if (sup.kind === 'pmf') {
+    sup.xs.forEach(x => {
+      const p = sup.pmf(x);
+      const cx = xs(x), bot = ys(0), top = ys(p);
+      const barW = innerW / (xMax - xMin) * 0.7;
+      svg.insertAdjacentHTML('beforeend', `<rect x="${cx - barW/2}" y="${top}" width="${barW}" height="${bot - top}" fill="#4299e1" stroke="#2b6cb0"/>`);
+      svg.insertAdjacentHTML('beforeend', `<text class="chart-label" x="${cx}" y="${pad.t + innerH + 15}" text-anchor="middle">${x}</text>`);
+    });
+  } else {
+    let path = '';
+    for (let i = 0; i <= 300; i++) {
+      const x = xMin + (xMax - xMin) * i / 300;
+      const y = sup.pdf(x);
+      path += (i === 0 ? 'M' : 'L') + ' ' + xs(x).toFixed(2) + ' ' + ys(y).toFixed(2) + ' ';
+    }
+    path += `L ${xs(xMax).toFixed(2)} ${ys(0).toFixed(2)} L ${xs(xMin).toFixed(2)} ${ys(0).toFixed(2)} Z`;
+    svg.insertAdjacentHTML('beforeend', `<path d="${path}" fill="#4299e1" fill-opacity="0.4" stroke="#2b6cb0" stroke-width="2"/>`);
+    // tick marks
+    const numTicks = 6;
+    for (let i = 0; i <= numTicks; i++) {
+      const x = xMin + (xMax - xMin) * i / numTicks;
+      svg.insertAdjacentHTML('beforeend', `<text class="chart-label" x="${xs(x)}" y="${pad.t + innerH + 15}" text-anchor="middle">${x.toFixed(1)}</text>`);
+    }
+  }
+
+  // E[X] line
+  svg.insertAdjacentHTML('beforeend', `<line x1="${xs(E)}" y1="${pad.t}" x2="${xs(E)}" y2="${pad.t + innerH}" stroke="#e53e3e" stroke-width="2.5"/>`);
+  svg.insertAdjacentHTML('beforeend', `<text x="${xs(E) + 6}" y="${pad.t + 14}" fill="#e53e3e" font-family="monospace" font-weight="700" font-size="13">E[X] = ${E.toFixed(3)}</text>`);
+
+  // ±σ markers
+  if (sigma > 0) {
+    [E - sigma, E + sigma].forEach((v, i) => {
+      if (v >= xMin && v <= xMax) {
+        svg.insertAdjacentHTML('beforeend', `<line x1="${xs(v)}" y1="${pad.t + innerH - 30}" x2="${xs(v)}" y2="${pad.t + innerH}" stroke="#805ad5" stroke-width="2" stroke-dasharray="4,3"/>`);
+        svg.insertAdjacentHTML('beforeend', `<text x="${xs(v)}" y="${pad.t + innerH - 35}" fill="#553c9a" font-family="monospace" font-size="11" text-anchor="middle">${i === 0 ? 'μ-σ' : 'μ+σ'}</text>`);
+      }
+    });
+  }
+
+  document.getElementById('dist-formula').textContent = mom.formula;
+  document.getElementById('dist-stats').innerHTML = `
+    <div class="stat"><div class="name">E[X]</div><div class="val">${E.toFixed(4)}</div></div>
+    <div class="stat"><div class="name">Var[X]</div><div class="val">${Var.toFixed(4)}</div></div>
+    <div class="stat"><div class="name">σ = √Var</div><div class="val">${sigma.toFixed(4)}</div></div>
+    <div class="stat"><div class="name">Loại</div><div class="val">${mom.type}</div></div>
+  `;
+}
+
+document.querySelectorAll('[data-dist]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-dist]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    distState.dist = btn.dataset.dist;
+    renderDistParams();
+    renderDistChart();
+  });
+});
+
+renderDistParams();
+renderDistChart();
+
+// =================================================================
+// Component 2 — Linearity of E
+// =================================================================
+const linState = { rel: 'indep', N: 2000 };
+
+function runLinearity() {
+  const N = linState.N;
+  const xs = [], ys = [], zs = [];
+  for (let i = 0; i < N; i++) {
+    const X = Math.floor(Math.random() * 6) + 1;
+    let Y;
+    if (linState.rel === 'indep') Y = Math.floor(Math.random() * 6) + 1;
+    else if (linState.rel === 'linked') Y = X;
+    else Y = 7 - X;
+    xs.push(X); ys.push(Y); zs.push(X + Y);
+  }
+  const mean = a => a.reduce((s,x) => s+x, 0) / a.length;
+  const variance = (a, m) => a.reduce((s,x) => s + (x-m)*(x-m), 0) / a.length;
+  const EX = mean(xs), EY = mean(ys), EZ = mean(zs);
+  const VX = variance(xs, EX), VY = variance(ys, EY), VZ = variance(zs, EZ);
+  // Cov(X,Y) via samples
+  const covXY = xs.reduce((s, x, i) => s + (x - EX) * (ys[i] - EY), 0) / N;
+  document.getElementById('lin-stats').innerHTML = `
+    <div class="stat"><div class="name">N</div><div class="val">${N}</div></div>
+    <div class="stat"><div class="name">mean(X)</div><div class="val">${EX.toFixed(3)}</div></div>
+    <div class="stat"><div class="name">mean(Y)</div><div class="val">${EY.toFixed(3)}</div></div>
+    <div class="stat"><div class="name">mean(X+Y)</div><div class="val">${EZ.toFixed(3)}</div></div>
+    <div class="stat"><div class="name">mean(X)+mean(Y)</div><div class="val">${(EX+EY).toFixed(3)}</div></div>
+    <div class="stat"><div class="name">Var(X)</div><div class="val">${VX.toFixed(3)}</div></div>
+    <div class="stat"><div class="name">Var(Y)</div><div class="val">${VY.toFixed(3)}</div></div>
+    <div class="stat"><div class="name">Var(X+Y)</div><div class="val">${VZ.toFixed(3)}</div></div>
+    <div class="stat"><div class="name">Var(X)+Var(Y)+2Cov</div><div class="val">${(VX + VY + 2*covXY).toFixed(3)}</div></div>
+    <div class="stat"><div class="name">Cov(X, Y)</div><div class="val">${covXY.toFixed(3)}</div></div>
+  `;
+  document.getElementById('lin-table').innerHTML = `
+    <table>
+      <tr><th>Đại lượng</th><th>Sample</th><th>Lý thuyết</th><th>Khớp?</th></tr>
+      <tr><td>E[X]</td><td>${EX.toFixed(4)}</td><td>3.5</td><td>${Math.abs(EX-3.5)<0.1?'✓':'≈'}</td></tr>
+      <tr><td>E[Y]</td><td>${EY.toFixed(4)}</td><td>3.5</td><td>${Math.abs(EY-3.5)<0.1?'✓':'≈'}</td></tr>
+      <tr><td>E[X+Y]</td><td>${EZ.toFixed(4)}</td><td>7.0</td><td>${Math.abs(EZ-7)<0.2?'✓':'≈'}</td></tr>
+      <tr><td>Var[X]</td><td>${VX.toFixed(4)}</td><td>${(35/12).toFixed(4)}</td><td>${Math.abs(VX-35/12)<0.2?'✓':'≈'}</td></tr>
+      <tr><td>Cov(X,Y) (lý thuyết)</td><td>${covXY.toFixed(4)}</td><td>${linState.rel === 'indep' ? '0' : (linState.rel === 'linked' ? (35/12).toFixed(4) : (-35/12).toFixed(4))}</td><td></td></tr>
+      <tr><td>Var[X+Y]</td><td>${VZ.toFixed(4)}</td><td>${linState.rel === 'indep' ? (2*35/12).toFixed(4) : (linState.rel === 'linked' ? (4*35/12).toFixed(4) : '0')}</td><td></td></tr>
+    </table>
+  `;
+}
+
+document.querySelectorAll('[data-rel]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-rel]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    linState.rel = btn.dataset.rel;
+    runLinearity();
+  });
+});
+document.getElementById('lin-n').addEventListener('input', e => {
+  linState.N = parseInt(e.target.value);
+  document.getElementById('lin-n-val').textContent = linState.N;
+});
+document.getElementById('lin-run').addEventListener('click', runLinearity);
+runLinearity();
+
+// =================================================================
+// Component 3 — Correlation 2D
+// =================================================================
+const corrState = { rho: 0.7, sx: 1.5, sy: 1.0, N: 500, points: [] };
+
+function generateCorrData() {
+  const { rho, sx, sy, N } = corrState;
+  const pts = [];
+  for (let i = 0; i < N; i++) {
+    const z1 = randn(), z2 = randn();
+    const x = sx * z1;
+    const y = sy * (rho * z1 + Math.sqrt(Math.max(0, 1 - rho*rho)) * z2);
+    pts.push([x, y]);
+  }
+  corrState.points = pts;
+}
+
+function renderCorr() {
+  const svg = document.getElementById('corr-chart');
+  svg.innerHTML = '';
+  const W = 600, H = 500, pad = 50;
+  const innerW = W - 2 * pad, innerH = H - 2 * pad;
+
+  const pts = corrState.points;
+  if (!pts.length) return;
+  // bounds: use 3·max(σ) for stable view
+  const limX = 3 * corrState.sx + 1;
+  const limY = 3 * corrState.sy + 1;
+  const xs = x => pad + (x + limX) / (2 * limX) * innerW;
+  const ys = y => pad + innerH - (y + limY) / (2 * limY) * innerH;
+
+  // axes through 0
+  svg.insertAdjacentHTML('beforeend', `<line class="chart-axis" x1="${xs(-limX)}" y1="${ys(0)}" x2="${xs(limX)}" y2="${ys(0)}"/>`);
+  svg.insertAdjacentHTML('beforeend', `<line class="chart-axis" x1="${xs(0)}" y1="${ys(-limY)}" x2="${xs(0)}" y2="${ys(limY)}"/>`);
+
+  // axis labels
+  svg.insertAdjacentHTML('beforeend', `<text class="chart-label" x="${xs(limX)-6}" y="${ys(0)-6}" text-anchor="end">X</text>`);
+  svg.insertAdjacentHTML('beforeend', `<text class="chart-label" x="${xs(0)+6}" y="${ys(limY)+12}">Y</text>`);
+  for (let i = -3; i <= 3; i++) {
+    if (i === 0) continue;
+    svg.insertAdjacentHTML('beforeend', `<text class="chart-label" x="${xs(i)}" y="${ys(0)+14}" text-anchor="middle">${i}</text>`);
+    svg.insertAdjacentHTML('beforeend', `<text class="chart-label" x="${xs(0)-6}" y="${ys(i)+3}" text-anchor="end">${i}</text>`);
+  }
+
+  // sample stats
+  const mean = a => a.reduce((s,x) => s+x, 0) / a.length;
+  const xsArr = pts.map(p => p[0]), ysArr = pts.map(p => p[1]);
+  const mx = mean(xsArr), my = mean(ysArr);
+  const vx = mean(xsArr.map(x => (x-mx)*(x-mx)));
+  const vy = mean(ysArr.map(y => (y-my)*(y-my)));
+  const cxy = pts.reduce((s, p) => s + (p[0]-mx)*(p[1]-my), 0) / pts.length;
+  const sxS = Math.sqrt(vx), syS = Math.sqrt(vy);
+  const rhoS = cxy / (sxS * syS);
+
+  // points
+  pts.forEach(p => {
+    svg.insertAdjacentHTML('beforeend', `<circle cx="${xs(p[0]).toFixed(2)}" cy="${ys(p[1]).toFixed(2)}" r="2.2" fill="#4299e1" fill-opacity="0.55"/>`);
+  });
+
+  // ellipse from sample Σ — 1σ contour
+  // Eigen-decomposition for 2x2 [a b; b c]
+  const a = vx, b = cxy, c = vy;
+  const tr = a + c, det = a*c - b*b;
+  const disc = Math.sqrt(Math.max(0, tr*tr/4 - det));
+  const l1 = tr/2 + disc, l2 = tr/2 - disc;
+  // eigenvector for l1
+  let ang;
+  if (Math.abs(b) > 1e-9) ang = Math.atan2(l1 - a, b);
+  else ang = a >= c ? 0 : Math.PI/2;
+  const rA = Math.sqrt(Math.max(0, l1));
+  const rB = Math.sqrt(Math.max(0, l2));
+  // ellipse path — drawn at (mx, my) rotated by ang
+  const scaleX = innerW / (2 * limX);
+  const scaleY = innerH / (2 * limY);
+  const cxPix = xs(mx), cyPix = ys(my);
+  // SVG ellipse rotated by ang (note: SVG y flipped)
+  const angDeg = -ang * 180 / Math.PI;
+  svg.insertAdjacentHTML('beforeend', `<ellipse cx="${cxPix}" cy="${cyPix}" rx="${rA*scaleX}" ry="${rB*scaleY}" fill="none" stroke="#805ad5" stroke-width="2.5" transform="rotate(${angDeg} ${cxPix} ${cyPix})"/>`);
+  svg.insertAdjacentHTML('beforeend', `<ellipse cx="${cxPix}" cy="${cyPix}" rx="${2*rA*scaleX}" ry="${2*rB*scaleY}" fill="none" stroke="#805ad5" stroke-width="1.5" stroke-dasharray="5,4" transform="rotate(${angDeg} ${cxPix} ${cyPix})"/>`);
+
+  // center
+  svg.insertAdjacentHTML('beforeend', `<circle cx="${cxPix}" cy="${cyPix}" r="4" fill="#e53e3e"/>`);
+
+  document.getElementById('corr-stats').innerHTML = `
+    <div class="stat"><div class="name">ρ mong muốn</div><div class="val">${corrState.rho.toFixed(3)}</div></div>
+    <div class="stat"><div class="name">ρ sample</div><div class="val">${rhoS.toFixed(3)}</div></div>
+    <div class="stat"><div class="name">σ_X sample</div><div class="val">${sxS.toFixed(3)}</div></div>
+    <div class="stat"><div class="name">σ_Y sample</div><div class="val">${syS.toFixed(3)}</div></div>
+    <div class="stat"><div class="name">Cov(X, Y) sample</div><div class="val">${cxy.toFixed(3)}</div></div>
+    <div class="stat"><div class="name">Var(X) sample</div><div class="val">${vx.toFixed(3)}</div></div>
+    <div class="stat"><div class="name">Var(Y) sample</div><div class="val">${vy.toFixed(3)}</div></div>
+    <div class="stat"><div class="name">Eigen Σ (λ₁, λ₂)</div><div class="val">${l1.toFixed(2)}, ${l2.toFixed(2)}</div></div>
+  `;
+}
+
+['rho', 'sx', 'sy', 'n'].forEach(p => {
+  const el = document.getElementById(`corr-${p}`);
+  el.addEventListener('input', () => {
+    const v = parseFloat(el.value);
+    document.getElementById(`corr-${p}-val`).textContent = p === 'n' ? v : v.toFixed(2);
+    if (p === 'rho') corrState.rho = v;
+    else if (p === 'sx') corrState.sx = v;
+    else if (p === 'sy') corrState.sy = v;
+    else if (p === 'n') corrState.N = v;
+    generateCorrData();
+    renderCorr();
+  });
+});
+document.getElementById('corr-resample').addEventListener('click', () => {
+  generateCorrData();
+  renderCorr();
+});
+generateCorrData();
+renderCorr();
+
+// =================================================================
+// Component 4 — Covariance matrix viewer
+// =================================================================
+const covState = {
+  M: [
+    [2, 1, 0],
+    [1, 2, 1],
+    [0, 1, 2]
+  ]
+};
+
+function renderCovMatrix() {
+  const grid = document.getElementById('cov-matrix');
+  grid.style.gridTemplateColumns = `repeat(3, 60px)`;
+  grid.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 3; j++) {
+      const isDiag = i === j;
+      const v = covState.M[i][j];
+      grid.insertAdjacentHTML('beforeend', `<div class="matrix-cell ${isDiag ? 'diag' : ''}"><input type="number" step="0.1" data-i="${i}" data-j="${j}" value="${v}"></div>`);
+    }
+  }
+  grid.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('input', () => {
+      const i = parseInt(inp.dataset.i), j = parseInt(inp.dataset.j);
+      const v = parseFloat(inp.value) || 0;
+      covState.M[i][j] = v;
+      // symmetrize: if off-diagonal, also set transpose
+      if (i !== j) covState.M[j][i] = v;
+      analyzeCov();
+    });
+  });
+  analyzeCov();
+}
+
+// Compute eigenvalues of symmetric 3x3 via characteristic polynomial
+// Use closed-form by Smith's algorithm
+function eig3sym(A) {
+  const p1 = A[0][1]*A[0][1] + A[0][2]*A[0][2] + A[1][2]*A[1][2];
+  if (p1 < 1e-14) {
+    // diagonal
+    return [A[0][0], A[1][1], A[2][2]].sort((a,b) => b - a);
+  }
+  const q = (A[0][0] + A[1][1] + A[2][2]) / 3;
+  const p2 = (A[0][0]-q)**2 + (A[1][1]-q)**2 + (A[2][2]-q)**2 + 2*p1;
+  const p = Math.sqrt(p2 / 6);
+  // B = (1/p)(A - qI)
+  const B = [[0,0,0],[0,0,0],[0,0,0]];
+  for (let i = 0; i < 3; i++)
+    for (let j = 0; j < 3; j++)
+      B[i][j] = (A[i][j] - (i===j?q:0)) / p;
+  // det(B)
+  const detB = B[0][0]*(B[1][1]*B[2][2] - B[1][2]*B[2][1])
+             - B[0][1]*(B[1][0]*B[2][2] - B[1][2]*B[2][0])
+             + B[0][2]*(B[1][0]*B[2][1] - B[1][1]*B[2][0]);
+  let r = detB / 2;
+  r = Math.max(-1, Math.min(1, r));
+  const phi = Math.acos(r) / 3;
+  const eig1 = q + 2 * p * Math.cos(phi);
+  const eig3 = q + 2 * p * Math.cos(phi + (2 * Math.PI / 3));
+  const eig2 = 3 * q - eig1 - eig3;
+  return [eig1, eig2, eig3].sort((a,b) => b - a);
+}
+
+function det3(A) {
+  return A[0][0]*(A[1][1]*A[2][2] - A[1][2]*A[2][1])
+       - A[0][1]*(A[1][0]*A[2][2] - A[1][2]*A[2][0])
+       + A[0][2]*(A[1][0]*A[2][1] - A[1][1]*A[2][0]);
+}
+
+function isSymmetric(A) {
+  const tol = 1e-9;
+  return Math.abs(A[0][1]-A[1][0]) < tol && Math.abs(A[0][2]-A[2][0]) < tol && Math.abs(A[1][2]-A[2][1]) < tol;
+}
+
+function analyzeCov() {
+  const A = covState.M;
+  const eig = eig3sym(A);
+  const trace = A[0][0] + A[1][1] + A[2][2];
+  const det = det3(A);
+  const minEig = Math.min(...eig);
+  const isPSD = minEig >= -1e-9;
+  const isPD = minEig > 1e-9;
+  const symBadge = isSymmetric(A)
+    ? `<span class="badge ok">Symmetric ✓</span>`
+    : `<span class="badge bad">Not symmetric</span>`;
+  const psdBadge = isPSD
+    ? `<span class="badge ok">PSD ✓</span>`
+    : `<span class="badge bad">KHÔNG PSD ✗</span>`;
+  const pdBadge = isPD
+    ? `<span class="badge ok">PD ✓</span>`
+    : (isPSD ? `<span class="badge" style="background:#fed7aa;color:#7c2d12">Singular (PSD nhưng KHÔNG PD)</span>` : `<span class="badge bad">KHÔNG PD</span>`);
+
+  document.getElementById('cov-stats').innerHTML = `
+    <div class="stat"><div class="name">Eigenvalue λ₁ ≥ λ₂ ≥ λ₃</div><div class="val">${eig.map(v => v.toFixed(3)).join(', ')}</div></div>
+    <div class="stat"><div class="name">Trace (tr Σ)</div><div class="val">${trace.toFixed(3)}</div></div>
+    <div class="stat"><div class="name">Det Σ</div><div class="val">${det.toFixed(4)}</div></div>
+    <div class="stat"><div class="name">Min eigenvalue</div><div class="val">${minEig.toFixed(4)}</div></div>
+    <div class="stat" style="grid-column: span 2"><div class="name">Đối xứng</div><div>${symBadge}</div></div>
+    <div class="stat" style="grid-column: span 2"><div class="name">PSD (mọi λ ≥ 0)</div><div>${psdBadge}</div></div>
+    <div class="stat" style="grid-column: span 2"><div class="name">PD (mọi λ > 0)</div><div>${pdBadge}</div></div>
+  `;
+}
+
+document.getElementById('cov-preset-eye').addEventListener('click', () => {
+  covState.M = [[1,0,0],[0,1,0],[0,0,1]];
+  renderCovMatrix();
+});
+document.getElementById('cov-preset-pos').addEventListener('click', () => {
+  covState.M = [[4,2,1],[2,3,0.5],[1,0.5,2]];
+  renderCovMatrix();
+});
+document.getElementById('cov-preset-singular').addEventListener('click', () => {
+  covState.M = [[1,1,0],[1,1,0],[0,0,1]];   // hai cột 1 và 2 đồng nhất → singular
+  renderCovMatrix();
+});
+document.getElementById('cov-preset-bad').addEventListener('click', () => {
+  covState.M = [[1,2,0],[2,1,0],[0,0,1]];   // off-diag > diag → có eigenvalue âm
+  renderCovMatrix();
+});
+
+renderCovMatrix();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+</body>
+</html>

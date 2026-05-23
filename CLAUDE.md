@@ -79,7 +79,7 @@ Khi user yêu cầu tạo một bài học mới (ví dụ: *"tạo bài học v
 7. **Cập nhật `README.md` cấp gốc** nếu đây là lĩnh vực mới (chưa từng xuất hiện trong bảng danh sách lĩnh vực).
 8. **Liên kết với các bài học khác** (tránh khái niệm "treo"):
    - **Reference lại tiền đề**: khi nhắc một khái niệm đã học, link tới lesson tương ứng. Vd "đạo hàm là slope của tiếp tuyến" → link `../../Algebra/lesson-06-linear-quadratic/`.
-   - **Preview các bài sẽ dùng**: nếu khái niệm này sẽ gặp lại sâu hơn ở bài sau, ghi "Sẽ học kỹ ở Lesson X" + link nếu đã tồn tại. Áp dụng cả trong cùng lĩnh vực và giữa các tier (vd `Vectors/Algebra/` → `Vectors/Probability/`).
+   - **Preview các bài sẽ dùng**: nếu khái niệm này sẽ gặp lại sâu hơn ở bài sau, ghi "Sẽ học kỹ ở Lesson X" + link nếu đã tồn tại. Áp dụng cả trong cùng lĩnh vực và giữa các tier (vd `Vectors/01-Algebra/` → `Vectors/Probability/`).
 
 ## Quy ước đặt tên
 

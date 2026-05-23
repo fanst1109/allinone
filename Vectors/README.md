@@ -14,10 +14,10 @@ Lộ trình **6 tầng** đi từ đại số phổ thông cơ bản nhất tớ
 
 | # | Tầng | Trạng thái | Nội dung chính |
 |---|------|------------|----------------|
-| 1 | [Algebra](./Algebra/) | ✅ Đã có | Số, biến, phương trình, hàm số, lũy thừa/log, hệ phương trình |
-| 2 | [Trigonometry](./Trigonometry/) | ✅ Đã có | Góc, `sin/cos/tan`, đường tròn đơn vị, ma trận xoay, RoPE preview |
-| 3 | [Calculus](./Calculus/) | ✅ Đã có | Giới hạn, đạo hàm, chain rule, gradient, tích phân |
-| 4 | [Linear Algebra](./LinearAlgebra/) | ✅ Đã có | Vector, ma trận, eigenvector, PCA, SVD |
+| 1 | [Algebra](./01-Algebra/) | ✅ Đã có | Số, biến, phương trình, hàm số, lũy thừa/log, hệ phương trình |
+| 2 | [Trigonometry](./02-Trigonometry/) | ✅ Đã có | Góc, `sin/cos/tan`, đường tròn đơn vị, ma trận xoay, RoPE preview |
+| 3 | [Calculus](./03-Calculus/) | ✅ Đã có | Giới hạn, đạo hàm, chain rule, gradient, tích phân |
+| 4 | [Linear Algebra](./04-LinearAlgebra/) | ✅ Đã có | Vector, ma trận, eigenvector, PCA, SVD |
 | 5 | [Probability](./Probability/) | ✅ Đã có | Xác suất, Bayes, phân phối, MLE, cross-entropy |
 | 6 | AI/ML | ⏳ Chưa | Linear regression → embedding → RAG → CLIP |
 
@@ -28,7 +28,7 @@ Lộ trình **6 tầng** đi từ đại số phổ thông cơ bản nhất tớ
    - `README.md`: lý thuyết + ví dụ + bài tập + **lời giải chi tiết**.
    - `solutions.go`: code Go biên dịch được, minh họa từng khái niệm.
    - `visualization.html`: trang tương tác mở trực tiếp trong trình duyệt (không cần server).
-3. Mở `Vectors/Algebra/index.html` để xem danh sách lesson kèm link nhanh.
+3. Mở `Vectors/01-Algebra/index.html` để xem danh sách lesson kèm link nhanh.
 4. Mỗi `visualization.html` có nút **📖 Đọc README** để xem lý thuyết song song.
 
 ## Quy tắc viết tài liệu

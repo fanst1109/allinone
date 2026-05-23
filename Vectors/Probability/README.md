@@ -34,8 +34,8 @@ ML không có xác suất là không có gì. Tầng này dạy bạn:
 
 ## Kiến thức tiền đề
 
-- [Tầng 3 Calculus](../Calculus/): tích phân (Lesson 08) — cần cho PDF.
-- [Tầng 4 Linear Algebra](../LinearAlgebra/): vector và ma trận — cần cho covariance matrix.
+- [Tầng 3 Calculus](../03-Calculus/): tích phân (Lesson 08) — cần cho PDF.
+- [Tầng 4 Linear Algebra](../04-LinearAlgebra/): vector và ma trận — cần cho covariance matrix.
 
 ## Sau khi xong tầng này
 

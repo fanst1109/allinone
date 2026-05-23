@@ -72,7 +72,7 @@ Mỗi tier là một thư mục con, lesson được đánh số tăng dần *xu
 
 ## Liên hệ với các lĩnh vực khác trong repo
 
-- **Toán cần có**: đạo hàm cho tối ưu (sẽ học kỹ ở `Vectors/Calculus/`), xác suất cơ bản, đại số tuyến tính nhẹ.
+- **Toán cần có**: đạo hàm cho tối ưu (sẽ học kỹ ở `Vectors/03-Calculus/`), xác suất cơ bản, đại số tuyến tính nhẹ.
 
 ## Quay về
 

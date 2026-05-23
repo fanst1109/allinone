@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 08 — Tích phân (Integrals)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  main { max-width: 1080px; margin: 0 auto; padding: 24px; }
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  select, input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; padding: 6px 8px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+  }
+  input[type="number"] { width: 80px; text-align: right; }
+  input[type="range"] { width: 200px; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.active { background: #2c5282; }
+  .plot {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    display: block;
+    margin-top: 12px;
+  }
+  .result-box {
+    margin-top: 12px; padding: 12px;
+    background: #edf2f7; border-radius: 6px;
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 14px;
+    line-height: 1.7;
+  }
+  .result-box .label { color: #4a5568; font-weight: 600; }
+  .result-box .value { color: #2c5282; font-weight: 700; }
+  .result-box .err { color: #c53030; }
+  .result-box .ok { color: #2f855a; }
+  .hint { color: #4a5568; font-style: italic; font-size: 13px; }
+  .formula { font-family: "Cambria Math", "STIX Math", Georgia, serif; font-size: 16px; padding: 4px 0; }
+  .small { font-size: 12px; color: #718096; }
+  table.anti {
+    width: 100%; border-collapse: collapse; font-size: 14px;
+  }
+  table.anti th, table.anti td {
+    padding: 8px 12px; border: 1px solid #e2e8f0; text-align: left;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  table.anti th { background: #edf2f7; font-family: inherit; }
+  table.anti tr { cursor: pointer; transition: background 0.1s; }
+  table.anti tr.selected { background: #bee3f8; }
+  table.anti tbody tr:hover { background: #ebf8ff; }
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 999px;
+    font-size: 11px; font-weight: 700; margin-left: 4px;
+  }
+  .badge.ok { background: #c6f6d5; color: #22543d; }
+  .badge.err { background: #fed7d7; color: #742a2a; }
+  .legend { display: flex; gap: 16px; font-size: 12px; margin-top: 8px; flex-wrap: wrap; }
+  .legend span::before {
+    content: ""; display: inline-block; width: 12px; height: 12px;
+    margin-right: 4px; vertical-align: middle; border-radius: 2px;
+  }
+  .legend .lg-bar::before { background: #90cdf4; opacity: 0.7; }
+  .legend .lg-curve::before { background: #2c5282; height: 3px; }
+  .legend .lg-area::before { background: #fed7aa; }
+  .legend .lg-true::before { background: #38a169; }
+  .legend .lg-anti::before { background: #d69e2e; height: 3px; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-gradient-descent/visualization.html">← L7: Gradient descent</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Tích phân (Integrals)</span>
+</nav>
+
+<main>
+  <h1>Lesson 08 — Tích phân (Integrals)</h1>
+  <p>Lesson cuối <strong>Tầng 3 — Calculus</strong>. Tích phân = diện tích dưới đường cong, định nghĩa qua Riemann sum, kết nối với đạo hàm qua FTC, và là ngôn ngữ của xác suất liên tục.</p>
+
+  <!-- ============================== -->
+  <h2>1. Riemann sum visualizer</h2>
+  <div class="card">
+    <p class="hint">Chọn hàm <code>f</code>, đoạn <code>[a, b]</code>, số đoạn chia <code>n</code>, và cách chọn điểm. Các hình chữ nhật là tổng Riemann xấp xỉ diện tích. Khi <code>n</code> tăng → sai số giảm.</p>
+
+    <div class="row">
+      <label>Hàm:</label>
+      <select id="rmFn">
+        <option value="x">f(x) = x</option>
+        <option value="x2" selected>f(x) = x²</option>
+        <option value="invx">f(x) = 1/x</option>
+        <option value="sin">f(x) = sin(x)</option>
+        <option value="exp">f(x) = e^x</option>
+      </select>
+      <label>a:</label> <input type="number" id="rmA" value="0" step="0.1">
+      <label>b:</label> <input type="number" id="rmB" value="1" step="0.1">
+    </div>
+    <div class="row">
+      <label>n =</label> <input type="range" id="rmN" min="2" max="200" value="10">
+      <span id="rmNVal" style="font-weight:700">10</span>
+      <label>Điểm:</label>
+      <button id="rmLeft" class="secondary">Trái</button>
+      <button id="rmMid" class="active">Giữa</button>
+      <button id="rmRight" class="secondary">Phải</button>
+    </div>
+
+    <svg id="rmSvg" class="plot" width="100%" viewBox="0 0 720 400"></svg>
+
+    <div class="legend">
+      <span class="lg-bar">Hình chữ nhật Riemann</span>
+      <span class="lg-curve">Đồ thị f(x)</span>
+      <span class="lg-true">Diện tích thật</span>
+    </div>
+
+    <div class="result-box" id="rmResult"></div>
+  </div>
+
+  <!-- ============================== -->
+  <h2>2. FTC demo — kết nối đạo hàm và tích phân</h2>
+  <div class="card">
+    <p class="hint">Chọn nguyên hàm <code>F</code>. Tự động vẽ <code>f = F'</code>. So sánh <code>F(b) − F(a)</code> với Riemann sum của <code>f</code> trên [a, b]. <strong>Phải khớp</strong> — đó là FTC.</p>
+
+    <div class="row">
+      <label>F(x) =</label>
+      <select id="ftcF">
+        <option value="x2">x² (⇒ f = 2x)</option>
+        <option value="x3" selected>x³/3 (⇒ f = x²)</option>
+        <option value="ln">ln(x) (⇒ f = 1/x)</option>
+        <option value="sin">sin(x) (⇒ f = cos(x))</option>
+        <option value="negcos">−cos(x) (⇒ f = sin(x))</option>
+        <option value="exp">e^x (⇒ f = e^x)</option>
+      </select>
+      <label>a:</label> <input type="number" id="ftcA" value="0" step="0.1">
+      <label>b:</label> <input type="number" id="ftcB" value="1" step="0.1">
+      <label>n (Riemann):</label> <input type="number" id="ftcN" value="100" min="2" max="2000">
+    </div>
+
+    <svg id="ftcSvg" class="plot" width="100%" viewBox="0 0 720 400"></svg>
+
+    <div class="result-box" id="ftcResult"></div>
+  </div>
+
+  <!-- ============================== -->
+  <h2>3. Bảng nguyên hàm tương tác</h2>
+  <div class="card">
+    <p class="hint">Click một hàng để vẽ <code>f</code> và nguyên hàm <code>F</code>. Bên dưới sẽ verify số: <code>F'(x) ≈ f(x)</code> qua sai phân hữu hạn.</p>
+
+    <table class="anti" id="antiTable">
+      <thead>
+        <tr><th>f(x)</th><th>Nguyên hàm F(x) (+ C)</th><th>Ghi chú</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <svg id="antiSvg" class="plot" width="100%" viewBox="0 0 720 320" style="margin-top:16px"></svg>
+
+    <div class="legend">
+      <span class="lg-curve">f(x) (đường gốc)</span>
+      <span class="lg-anti">F(x) (nguyên hàm)</span>
+    </div>
+
+    <div class="result-box" id="antiResult"></div>
+  </div>
+
+  <!-- ============================== -->
+  <h2>4. PDF, xác suất, kỳ vọng — cây cầu sang Tầng 5</h2>
+  <div class="card">
+    <p class="hint">Phân phối liên tục: <code>P(c ≤ X ≤ d) = ∫_c^d p(x) dx</code> = diện tích dưới PDF. Kỳ vọng <code>E[X] = ∫ x · p(x) dx</code>. Chọn phân phối, kéo cận tô vùng xác suất.</p>
+
+    <div class="row">
+      <label>Phân phối:</label>
+      <select id="pdfDist">
+        <option value="uniform" selected>Uniform[a, b]</option>
+        <option value="normal">Normal(μ, σ)</option>
+        <option value="triangle">Triangle[a, b]</option>
+        <option value="exp">Exponential(λ)</option>
+      </select>
+      <span id="pdfParams"></span>
+    </div>
+    <div class="row">
+      <label>Cận c:</label> <input type="range" id="pdfC" min="-5" max="5" step="0.05" value="-1">
+      <span id="pdfCVal">−1.00</span>
+      <label>Cận d:</label> <input type="range" id="pdfD" min="-5" max="5" step="0.05" value="1">
+      <span id="pdfDVal">1.00</span>
+    </div>
+
+    <svg id="pdfSvg" class="plot" width="100%" viewBox="0 0 720 360"></svg>
+
+    <div class="legend">
+      <span class="lg-curve">PDF p(x)</span>
+      <span class="lg-area">Vùng P(c ≤ X ≤ d)</span>
+    </div>
+
+    <div class="result-box" id="pdfResult"></div>
+  </div>
+
+  <p style="margin-top:36px; padding:16px; background:#fffaf0; border-left:4px solid #d69e2e; border-radius:4px">
+    <strong>📝 Tổng kết Tầng 3 — Calculus.</strong> Bạn đã đi qua: Giới hạn → Đạo hàm → Quy tắc → Chain rule → Tối ưu 1D → Gradient → Gradient descent → Tích phân. Đủ giải tích để hiểu mọi loss/optimizer của ML. <strong>Tiếp theo: Tầng 4 — Linear Algebra</strong> (sắp ra).
+  </p>
+</main>
+
+<script>
+// ============== Helpers ==============
+const TAU = 2 * Math.PI;
+
+function clip(x, lo, hi) { return Math.max(lo, Math.min(hi, x)); }
+
+// SVG plot helper: scales (x, y) ranges into pixel coords
+function makeAxes(svg, padding, fnRangeY) {
+  const vb = svg.viewBox.baseVal;
+  const W = vb.width, H = vb.height;
+  return { W, H, padL: padding.l, padR: padding.r, padT: padding.t, padB: padding.b };
+}
+
+function scaleX(x, xMin, xMax, padL, W, padR) {
+  return padL + (x - xMin) / (xMax - xMin) * (W - padL - padR);
+}
+function scaleY(y, yMin, yMax, padT, H, padB) {
+  return H - padB - (y - yMin) / (yMax - yMin) * (H - padT - padB);
+}
+
+function drawAxes(svg, xMin, xMax, yMin, yMax, padL, padR, padT, padB, xTicks=5, yTicks=4) {
+  const W = svg.viewBox.baseVal.width, H = svg.viewBox.baseVal.height;
+  let s = '';
+  // Trục Ox (y = 0 nếu nằm trong khoảng)
+  const y0 = (yMin <= 0 && yMax >= 0) ? scaleY(0, yMin, yMax, padT, H, padB) : H - padB;
+  s += `<line x1="${padL}" y1="${y0}" x2="${W - padR}" y2="${y0}" stroke="#a0aec0" stroke-width="1"/>`;
+  // Trục Oy (x = 0 nếu nằm trong khoảng)
+  const x0 = (xMin <= 0 && xMax >= 0) ? scaleX(0, xMin, xMax, padL, W, padR) : padL;
+  s += `<line x1="${x0}" y1="${padT}" x2="${x0}" y2="${H - padB}" stroke="#a0aec0" stroke-width="1"/>`;
+  // X ticks
+  for (let i = 0; i <= xTicks; i++) {
+    const xv = xMin + (xMax - xMin) * i / xTicks;
+    const xp = scaleX(xv, xMin, xMax, padL, W, padR);
+    s += `<line x1="${xp}" y1="${y0 - 3}" x2="${xp}" y2="${y0 + 3}" stroke="#a0aec0"/>`;
+    s += `<text x="${xp}" y="${y0 + 15}" font-size="10" text-anchor="middle" fill="#718096">${xv.toFixed(2)}</text>`;
+  }
+  // Y ticks
+  for (let i = 0; i <= yTicks; i++) {
+    const yv = yMin + (yMax - yMin) * i / yTicks;
+    const yp = scaleY(yv, yMin, yMax, padT, H, padB);
+    s += `<line x1="${x0 - 3}" y1="${yp}" x2="${x0 + 3}" y2="${yp}" stroke="#a0aec0"/>`;
+    s += `<text x="${x0 - 6}" y="${yp + 3}" font-size="10" text-anchor="end" fill="#718096">${yv.toFixed(2)}</text>`;
+  }
+  return s;
+}
+
+function pathPoints(fn, xMin, xMax, padL, padR, padT, padB, yMin, yMax, W, H, n=400) {
+  let d = '';
+  for (let i = 0; i <= n; i++) {
+    const x = xMin + (xMax - xMin) * i / n;
+    const y = fn(x);
+    if (!isFinite(y)) continue;
+    const xp = scaleX(x, xMin, xMax, padL, W, padR);
+    const yc = clip(y, yMin, yMax);
+    const yp = scaleY(yc, yMin, yMax, padT, H, padB);
+    d += (d === '' ? 'M' : 'L') + xp.toFixed(2) + ',' + yp.toFixed(2);
+  }
+  return d;
+}
+
+// ============== Riemann visualizer ==============
+const RM_FNS = {
+  x:    { f: x => x, name: 'x', trueInt: (a,b) => (b*b - a*a)/2 },
+  x2:   { f: x => x*x, name: 'x²', trueInt: (a,b) => (b**3 - a**3)/3 },
+  invx: { f: x => 1/x, name: '1/x', trueInt: (a,b) => Math.log(b) - Math.log(a) },
+  sin:  { f: x => Math.sin(x), name: 'sin(x)', trueInt: (a,b) => -Math.cos(b) + Math.cos(a) },
+  exp:  { f: x => Math.exp(x), name: 'e^x', trueInt: (a,b) => Math.exp(b) - Math.exp(a) },
+};
+
+const rmState = { fn: 'x2', a: 0, b: 1, n: 10, pick: 'mid' };
+
+function riemannSum(fobj, a, b, n, pick) {
+  const dx = (b - a) / n;
+  let sum = 0;
+  const rects = [];
+  for (let i = 0; i < n; i++) {
+    const xL = a + i * dx;
+    const xR = xL + dx;
+    let xs;
+    if (pick === 'left') xs = xL;
+    else if (pick === 'right') xs = xR;
+    else xs = (xL + xR) / 2;
+    const h = fobj.f(xs);
+    sum += h * dx;
+    rects.push({ xL, xR, h, xs });
+  }
+  return { sum, rects, dx };
+}
+
+function renderRiemann() {
+  const svg = document.getElementById('rmSvg');
+  const fobj = RM_FNS[rmState.fn];
+  const a = +rmState.a, b = +rmState.b;
+  if (!(b > a)) {
+    svg.innerHTML = '<text x="360" y="200" text-anchor="middle" fill="#c53030">a phải nhỏ hơn b</text>';
+    document.getElementById('rmResult').innerHTML = '';
+    return;
+  }
+  // Riêng với 1/x cần a > 0
+  if (rmState.fn === 'invx' && a <= 0) {
+    svg.innerHTML = '<text x="360" y="200" text-anchor="middle" fill="#c53030">Với 1/x cần a > 0</text>';
+    document.getElementById('rmResult').innerHTML = '';
+    return;
+  }
+  const { sum, rects, dx } = riemannSum(fobj, a, b, +rmState.n, rmState.pick);
+
+  // Tự động tính yMin / yMax
+  let yMin = 0, yMax = 0;
+  const probeN = 200;
+  for (let i = 0; i <= probeN; i++) {
+    const x = a + (b - a) * i / probeN;
+    const y = fobj.f(x);
+    if (isFinite(y)) {
+      if (y < yMin) yMin = y;
+      if (y > yMax) yMax = y;
+    }
+  }
+  // Padding y
+  const yRange = yMax - yMin || 1;
+  yMin -= yRange * 0.1;
+  yMax += yRange * 0.1;
+  if (yMin > 0) yMin = 0;
+
+  const padL = 50, padR = 20, padT = 20, padB = 40;
+  const W = svg.viewBox.baseVal.width, H = svg.viewBox.baseVal.height;
+  let s = drawAxes(svg, a, b, yMin, yMax, padL, padR, padT, padB);
+
+  // Vẽ hình chữ nhật Riemann
+  const y0 = scaleY(0, yMin, yMax, padT, H, padB);
+  for (const r of rects) {
+    const x1 = scaleX(r.xL, a, b, padL, W, padR);
+    const x2 = scaleX(r.xR, a, b, padL, W, padR);
+    const yh = scaleY(r.h, yMin, yMax, padT, H, padB);
+    const yTop = Math.min(yh, y0);
+    const yBot = Math.max(yh, y0);
+    s += `<rect x="${x1}" y="${yTop}" width="${x2 - x1}" height="${yBot - yTop}" fill="#90cdf4" fill-opacity="0.6" stroke="#3182ce" stroke-width="0.5"/>`;
+  }
+
+  // Vẽ đồ thị f
+  const path = pathPoints(fobj.f, a, b, padL, padR, padT, padB, yMin, yMax, W, H);
+  s += `<path d="${path}" stroke="#2c5282" stroke-width="2.5" fill="none"/>`;
+
+  svg.innerHTML = s;
+
+  // Result
+  const trueVal = fobj.trueInt(a, b);
+  const err = sum - trueVal;
+  const rel = trueVal !== 0 ? Math.abs(err / trueVal) * 100 : 0;
+  document.getElementById('rmResult').innerHTML = `
+    <div><span class="label">Hàm:</span> <span class="value">f(x) = ${fobj.name}</span> trên [${a}, ${b}]</div>
+    <div><span class="label">n:</span> <span class="value">${rmState.n}</span> · <span class="label">Δx:</span> <span class="value">${dx.toFixed(5)}</span> · <span class="label">Cách chọn:</span> <span class="value">${rmState.pick}</span></div>
+    <div><span class="label">Riemann sum S_n:</span> <span class="value">${sum.toFixed(6)}</span></div>
+    <div><span class="label">Giá trị thật ∫:</span> <span class="value ok">${trueVal.toFixed(6)}</span></div>
+    <div><span class="label">Sai số:</span> <span class="${Math.abs(err) < 1e-4 ? 'value ok' : 'value err'}">${err.toFixed(6)}</span> (${rel.toFixed(3)}%)</div>
+  `;
+}
+
+document.getElementById('rmFn').onchange = e => { rmState.fn = e.target.value; renderRiemann(); };
+document.getElementById('rmA').oninput = e => { rmState.a = +e.target.value; renderRiemann(); };
+document.getElementById('rmB').oninput = e => { rmState.b = +e.target.value; renderRiemann(); };
+document.getElementById('rmN').oninput = e => {
+  rmState.n = +e.target.value;
+  document.getElementById('rmNVal').textContent = rmState.n;
+  renderRiemann();
+};
+['Left', 'Mid', 'Right'].forEach(p => {
+  document.getElementById('rm' + p).onclick = () => {
+    rmState.pick = p.toLowerCase();
+    ['Left','Mid','Right'].forEach(q => {
+      document.getElementById('rm' + q).classList.toggle('active', q === p);
+      document.getElementById('rm' + q).classList.toggle('secondary', q !== p);
+    });
+    renderRiemann();
+  };
+});
+
+// ============== FTC demo ==============
+const FTC_FNS = {
+  x2: { F: x => x*x, fname: '2x', f: x => 2*x, label: 'F(x) = x²' },
+  x3: { F: x => x**3/3, fname: 'x²', f: x => x*x, label: 'F(x) = x³/3' },
+  ln: { F: x => Math.log(x), fname: '1/x', f: x => 1/x, label: 'F(x) = ln(x)' },
+  sin: { F: x => Math.sin(x), fname: 'cos(x)', f: x => Math.cos(x), label: 'F(x) = sin(x)' },
+  negcos: { F: x => -Math.cos(x), fname: 'sin(x)', f: x => Math.sin(x), label: 'F(x) = −cos(x)' },
+  exp: { F: x => Math.exp(x), fname: 'e^x', f: x => Math.exp(x), label: 'F(x) = e^x' },
+};
+
+function renderFTC() {
+  const svg = document.getElementById('ftcSvg');
+  const key = document.getElementById('ftcF').value;
+  const fobj = FTC_FNS[key];
+  const a = +document.getElementById('ftcA').value;
+  const b = +document.getElementById('ftcB').value;
+  const n = +document.getElementById('ftcN').value;
+  if (!(b > a)) {
+    svg.innerHTML = '<text x="360" y="200" text-anchor="middle" fill="#c53030">Cần a < b</text>';
+    document.getElementById('ftcResult').innerHTML = '';
+    return;
+  }
+  if (key === 'ln' && a <= 0) {
+    svg.innerHTML = '<text x="360" y="200" text-anchor="middle" fill="#c53030">Với ln cần a > 0</text>';
+    document.getElementById('ftcResult').innerHTML = '';
+    return;
+  }
+
+  // Riemann (midpoint) của f trên [a, b]
+  const dx = (b - a) / n;
+  let sum = 0;
+  for (let i = 0; i < n; i++) {
+    const xs = a + (i + 0.5) * dx;
+    sum += fobj.f(xs) * dx;
+  }
+  const ftcVal = fobj.F(b) - fobj.F(a);
+
+  // Vẽ đồ thị của f và tô vùng dưới
+  let yMin = 0, yMax = 0;
+  for (let i = 0; i <= 200; i++) {
+    const x = a + (b - a) * i / 200;
+    const y = fobj.f(x);
+    if (isFinite(y)) {
+      if (y < yMin) yMin = y;
+      if (y > yMax) yMax = y;
+    }
+  }
+  const r = (yMax - yMin) || 1;
+  yMin -= r * 0.1; yMax += r * 0.1;
+  if (yMin > 0) yMin = 0;
+
+  const padL = 50, padR = 20, padT = 20, padB = 40;
+  const W = svg.viewBox.baseVal.width, H = svg.viewBox.baseVal.height;
+  let s = drawAxes(svg, a, b, yMin, yMax, padL, padR, padT, padB);
+
+  // Tô vùng dưới f(x) (với mọi x trong [a, b])
+  let area = `M${scaleX(a, a, b, padL, W, padR)},${scaleY(0, yMin, yMax, padT, H, padB)}`;
+  for (let i = 0; i <= 200; i++) {
+    const x = a + (b - a) * i / 200;
+    const y = fobj.f(x);
+    area += `L${scaleX(x, a, b, padL, W, padR)},${scaleY(clip(y, yMin, yMax), yMin, yMax, padT, H, padB)}`;
+  }
+  area += `L${scaleX(b, a, b, padL, W, padR)},${scaleY(0, yMin, yMax, padT, H, padB)} Z`;
+  s += `<path d="${area}" fill="#fbd38d" fill-opacity="0.6"/>`;
+
+  // Vẽ f(x)
+  const path = pathPoints(fobj.f, a, b, padL, padR, padT, padB, yMin, yMax, W, H);
+  s += `<path d="${path}" stroke="#2c5282" stroke-width="2.5" fill="none"/>`;
+
+  // Annotation
+  s += `<text x="${(scaleX(a, a, b, padL, W, padR) + scaleX(b, a, b, padL, W, padR))/2}" y="${padT + 14}" text-anchor="middle" fill="#2d3748" font-size="13">f(x) = ${fobj.fname}</text>`;
+
+  svg.innerHTML = s;
+
+  const err = sum - ftcVal;
+  const match = Math.abs(err) < Math.max(1e-3, Math.abs(ftcVal) * 1e-3);
+  document.getElementById('ftcResult').innerHTML = `
+    <div><span class="label">${fobj.label}</span>, <span class="label">f(x) = F'(x) =</span> <span class="value">${fobj.fname}</span></div>
+    <div><span class="label">FTC:</span> ∫_a^b f dx = F(b) − F(a) = F(${b}) − F(${a}) = <span class="value">${fobj.F(b).toFixed(6)} − ${fobj.F(a).toFixed(6)} = ${ftcVal.toFixed(6)}</span></div>
+    <div><span class="label">Riemann (mid, n=${n}):</span> <span class="value">${sum.toFixed(6)}</span></div>
+    <div><span class="label">Sai số:</span> <span class="${match ? 'value ok' : 'value err'}">${err.toExponential(3)}</span> ${match ? '<span class="badge ok">khớp ✓</span>' : '<span class="badge err">chưa hội tụ</span>'}</div>
+  `;
+}
+
+['ftcF', 'ftcA', 'ftcB', 'ftcN'].forEach(id => {
+  document.getElementById(id).addEventListener('input', renderFTC);
+  document.getElementById(id).addEventListener('change', renderFTC);
+});
+
+// ============== Antiderivative table ==============
+const ANTI = [
+  { f: 'x²', F: 'x³/3', fn: x => x*x, Fn: x => x**3/3, note: '∫ xⁿ = x^(n+1)/(n+1)' },
+  { f: 'x', F: 'x²/2', fn: x => x, Fn: x => x*x/2, note: 'Trường hợp n = 1' },
+  { f: 'x³', F: 'x⁴/4', fn: x => x**3, Fn: x => x**4/4, note: 'Trường hợp n = 3' },
+  { f: '1/x', F: 'ln|x|', fn: x => 1/x, Fn: x => Math.log(Math.abs(x)), note: 'Trường hợp đặc biệt n = −1' },
+  { f: 'eˣ', F: 'eˣ', fn: x => Math.exp(x), Fn: x => Math.exp(x), note: 'Hàm tự nguyên hàm' },
+  { f: '2ˣ', F: '2ˣ / ln 2', fn: x => 2**x, Fn: x => (2**x)/Math.log(2), note: 'aˣ → aˣ / ln a' },
+  { f: 'sin x', F: '−cos x', fn: x => Math.sin(x), Fn: x => -Math.cos(x), note: 'CHÚ Ý dấu trừ' },
+  { f: 'cos x', F: 'sin x', fn: x => Math.cos(x), Fn: x => Math.sin(x), note: '' },
+  { f: 'sec² x', F: 'tan x', fn: x => 1/(Math.cos(x)**2), Fn: x => Math.tan(x), note: '(tan x)′ = sec² x' },
+  { f: '1/(1+x²)', F: 'arctan x', fn: x => 1/(1+x*x), Fn: x => Math.atan(x), note: 'Dùng trong phân phối Cauchy' },
+];
+
+function renderAntiTable() {
+  const tb = document.querySelector('#antiTable tbody');
+  let s = '';
+  ANTI.forEach((row, i) => {
+    s += `<tr data-i="${i}" ${i === 0 ? 'class="selected"' : ''}><td>${row.f}</td><td>${row.F} + C</td><td><span class="small">${row.note}</span></td></tr>`;
+  });
+  tb.innerHTML = s;
+  tb.querySelectorAll('tr').forEach(tr => {
+    tr.onclick = () => {
+      tb.querySelectorAll('tr').forEach(t => t.classList.remove('selected'));
+      tr.classList.add('selected');
+      drawAntiRow(+tr.dataset.i);
+    };
+  });
+  drawAntiRow(0);
+}
+
+function drawAntiRow(i) {
+  const row = ANTI[i];
+  const svg = document.getElementById('antiSvg');
+  // Chọn miền hợp lý
+  let a = -2, b = 2;
+  if (row.f === '1/x' || row.f === 'ln x') { a = 0.3; b = 3; }
+  if (row.f === '2ˣ' || row.f === 'eˣ') { a = -1; b = 2; }
+  if (row.f === 'sec² x') { a = -1.4; b = 1.4; }
+
+  // Tính ymin/ymax
+  let yMin = Infinity, yMax = -Infinity;
+  for (let k = 0; k <= 200; k++) {
+    const x = a + (b - a) * k / 200;
+    const y1 = row.fn(x), y2 = row.Fn(x);
+    if (isFinite(y1)) { yMin = Math.min(yMin, y1); yMax = Math.max(yMax, y1); }
+    if (isFinite(y2)) { yMin = Math.min(yMin, y2); yMax = Math.max(yMax, y2); }
+  }
+  const r = (yMax - yMin) || 1;
+  yMin -= r * 0.1; yMax += r * 0.1;
+
+  const padL = 50, padR = 20, padT = 20, padB = 40;
+  const W = svg.viewBox.baseVal.width, H = svg.viewBox.baseVal.height;
+  let s = drawAxes(svg, a, b, yMin, yMax, padL, padR, padT, padB);
+  // f
+  s += `<path d="${pathPoints(row.fn, a, b, padL, padR, padT, padB, yMin, yMax, W, H)}" stroke="#2c5282" stroke-width="2.5" fill="none"/>`;
+  // F
+  s += `<path d="${pathPoints(row.Fn, a, b, padL, padR, padT, padB, yMin, yMax, W, H)}" stroke="#d69e2e" stroke-width="2.5" stroke-dasharray="5,3" fill="none"/>`;
+  svg.innerHTML = s;
+
+  // Verify F'(x) ≈ f(x) tại điểm giữa
+  const xMid = (a + b) / 2;
+  const h = 1e-5;
+  const FpNum = (row.Fn(xMid + h) - row.Fn(xMid - h)) / (2 * h);
+  const fVal = row.fn(xMid);
+  const diff = Math.abs(FpNum - fVal);
+  const ok = diff < 1e-4;
+  document.getElementById('antiResult').innerHTML = `
+    <div><span class="label">f(x) =</span> <span class="value">${row.f}</span> · <span class="label">F(x) =</span> <span class="value">${row.F}</span> + C</div>
+    <div><span class="label">Verify tại x = ${xMid.toFixed(3)}:</span> F'(x) (số) = <span class="value">${FpNum.toFixed(6)}</span>, f(x) = <span class="value">${fVal.toFixed(6)}</span></div>
+    <div><span class="label">Sai số:</span> <span class="${ok ? 'value ok' : 'value err'}">${diff.toExponential(3)}</span> ${ok ? '<span class="badge ok">F\' = f ✓</span>' : '<span class="badge err">lệch</span>'}</div>
+  `;
+}
+
+// ============== PDF demo ==============
+const PDF_DISTS = {
+  uniform: {
+    name: 'Uniform[a, b]',
+    paramsHTML: '<label>a:</label><input type="number" id="paramA" value="-2" step="0.1" style="width:60px"> <label>b:</label><input type="number" id="paramB" value="2" step="0.1" style="width:60px">',
+    pdf: (x, p) => (x >= p.a && x <= p.b) ? 1/(p.b - p.a) : 0,
+    range: p => [p.a - 1, p.b + 1],
+    mean: p => (p.a + p.b) / 2,
+    variance: p => (p.b - p.a)**2 / 12,
+    cdf: (x, p) => x < p.a ? 0 : x > p.b ? 1 : (x - p.a)/(p.b - p.a),
+    readParams: () => ({ a: +document.getElementById('paramA').value, b: +document.getElementById('paramB').value }),
+  },
+  normal: {
+    name: 'Normal(μ, σ)',
+    paramsHTML: '<label>μ:</label><input type="number" id="paramMu" value="0" step="0.1" style="width:60px"> <label>σ:</label><input type="number" id="paramSig" value="1" step="0.05" min="0.1" style="width:60px">',
+    pdf: (x, p) => Math.exp(-((x - p.mu)**2) / (2 * p.sig**2)) / (Math.sqrt(2 * Math.PI) * p.sig),
+    range: p => [p.mu - 4*p.sig, p.mu + 4*p.sig],
+    mean: p => p.mu,
+    variance: p => p.sig**2,
+    cdf: (x, p) => 0.5 * (1 + erf((x - p.mu) / (Math.SQRT2 * p.sig))),
+    readParams: () => ({ mu: +document.getElementById('paramMu').value, sig: +document.getElementById('paramSig').value }),
+  },
+  triangle: {
+    name: 'Triangle[a, b]',
+    paramsHTML: '<label>a:</label><input type="number" id="paramA" value="0" step="0.1" style="width:60px"> <label>b:</label><input type="number" id="paramB" value="4" step="0.1" style="width:60px">',
+    pdf: (x, p) => {
+      const m = (p.a + p.b)/2;
+      if (x < p.a || x > p.b) return 0;
+      const h = 2/(p.b - p.a);
+      if (x < m) return h * (x - p.a)/(m - p.a);
+      return h * (p.b - x)/(p.b - m);
+    },
+    range: p => [p.a - 0.5, p.b + 0.5],
+    mean: p => (p.a + p.b)/2,
+    variance: p => (p.b - p.a)**2 / 24,
+    cdf: null,  // dùng tích phân số
+    readParams: () => ({ a: +document.getElementById('paramA').value, b: +document.getElementById('paramB').value }),
+  },
+  exp: {
+    name: 'Exponential(λ)',
+    paramsHTML: '<label>λ:</label><input type="number" id="paramL" value="1" step="0.1" min="0.1" style="width:60px">',
+    pdf: (x, p) => x >= 0 ? p.l * Math.exp(-p.l * x) : 0,
+    range: p => [-0.5, 5/p.l],
+    mean: p => 1/p.l,
+    variance: p => 1/(p.l**2),
+    cdf: (x, p) => x < 0 ? 0 : 1 - Math.exp(-p.l * x),
+    readParams: () => ({ l: +document.getElementById('paramL').value }),
+  },
+};
+
+// Hàm sai số (erf) — xấp xỉ Abramowitz & Stegun 7.1.26
+function erf(x) {
+  const sign = x < 0 ? -1 : 1;
+  x = Math.abs(x);
+  const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741;
+  const a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+  const t = 1 / (1 + p * x);
+  const y = 1 - (((((a5*t + a4)*t) + a3)*t + a2)*t + a1) * t * Math.exp(-x*x);
+  return sign * y;
+}
+
+// Numerical integration (Simpson) — fallback khi không có CDF dạng đóng
+function simpson(f, a, b, n=200) {
+  if (n % 2) n++;
+  const dx = (b - a) / n;
+  let s = f(a) + f(b);
+  for (let i = 1; i < n; i++) {
+    s += (i % 2 ? 4 : 2) * f(a + i * dx);
+  }
+  return s * dx / 3;
+}
+
+function renderPDF() {
+  const key = document.getElementById('pdfDist').value;
+  const dist = PDF_DISTS[key];
+  document.getElementById('pdfParams').innerHTML = dist.paramsHTML;
+
+  // Re-attach onChange to params
+  document.querySelectorAll('#pdfParams input').forEach(inp => {
+    inp.addEventListener('input', drawPDF);
+  });
+  drawPDF();
+}
+
+function drawPDF() {
+  const key = document.getElementById('pdfDist').value;
+  const dist = PDF_DISTS[key];
+  const p = dist.readParams();
+  const [xMin, xMax] = dist.range(p);
+  let c = +document.getElementById('pdfC').value;
+  let d = +document.getElementById('pdfD').value;
+  document.getElementById('pdfCVal').textContent = c.toFixed(2);
+  document.getElementById('pdfDVal').textContent = d.toFixed(2);
+  if (c > d) [c, d] = [d, c];
+
+  // Tính ymax
+  let yMax = 0;
+  for (let i = 0; i <= 200; i++) {
+    const x = xMin + (xMax - xMin) * i / 200;
+    yMax = Math.max(yMax, dist.pdf(x, p));
+  }
+  yMax *= 1.15;
+  const yMin = 0;
+
+  const svg = document.getElementById('pdfSvg');
+  const padL = 50, padR = 20, padT = 20, padB = 40;
+  const W = svg.viewBox.baseVal.width, H = svg.viewBox.baseVal.height;
+  let s = drawAxes(svg, xMin, xMax, yMin, yMax, padL, padR, padT, padB);
+
+  // Tô vùng [c, d]
+  const cc = Math.max(c, xMin), dd = Math.min(d, xMax);
+  if (dd > cc) {
+    let area = `M${scaleX(cc, xMin, xMax, padL, W, padR)},${scaleY(0, yMin, yMax, padT, H, padB)}`;
+    const N = 100;
+    for (let i = 0; i <= N; i++) {
+      const x = cc + (dd - cc) * i / N;
+      const y = dist.pdf(x, p);
+      area += `L${scaleX(x, xMin, xMax, padL, W, padR)},${scaleY(y, yMin, yMax, padT, H, padB)}`;
+    }
+    area += `L${scaleX(dd, xMin, xMax, padL, W, padR)},${scaleY(0, yMin, yMax, padT, H, padB)} Z`;
+    s += `<path d="${area}" fill="#fbd38d" fill-opacity="0.7" stroke="#dd6b20" stroke-width="1"/>`;
+  }
+
+  // Đường PDF
+  s += `<path d="${pathPoints(x => dist.pdf(x, p), xMin, xMax, padL, padR, padT, padB, yMin, yMax, W, H, 400)}" stroke="#2c5282" stroke-width="2.5" fill="none"/>`;
+
+  // Đường dọc đánh dấu mean
+  const mu = dist.mean(p);
+  if (mu >= xMin && mu <= xMax) {
+    const xm = scaleX(mu, xMin, xMax, padL, W, padR);
+    s += `<line x1="${xm}" y1="${padT}" x2="${xm}" y2="${H - padB}" stroke="#38a169" stroke-dasharray="4,3" stroke-width="1.5"/>`;
+    s += `<text x="${xm}" y="${padT + 12}" text-anchor="middle" fill="#22543d" font-size="11">E[X] = ${mu.toFixed(3)}</text>`;
+  }
+
+  svg.innerHTML = s;
+
+  // Tính P(c ≤ X ≤ d)
+  let prob;
+  if (dist.cdf) {
+    prob = dist.cdf(d, p) - dist.cdf(c, p);
+  } else {
+    prob = simpson(x => dist.pdf(x, p), c, d, 200);
+  }
+
+  // Kiểm tra chuẩn hóa
+  const totalProb = simpson(x => dist.pdf(x, p), xMin, xMax, 400);
+
+  // Tính variance
+  const variance = dist.variance(p);
+  const std = Math.sqrt(variance);
+
+  document.getElementById('pdfResult').innerHTML = `
+    <div><span class="label">Phân phối:</span> <span class="value">${dist.name}</span></div>
+    <div><span class="label">Tích phân toàn miền (chuẩn hóa):</span> <span class="value ${Math.abs(totalProb - 1) < 0.01 ? 'ok' : 'err'}">${totalProb.toFixed(5)}</span> ${Math.abs(totalProb - 1) < 0.01 ? '<span class="badge ok">≈ 1 ✓</span>' : ''}</div>
+    <div><span class="label">P(${c.toFixed(2)} ≤ X ≤ ${d.toFixed(2)}) = ∫_c^d p(x) dx =</span> <span class="value">${prob.toFixed(5)}</span></div>
+    <div><span class="label">E[X] = ∫ x · p(x) dx =</span> <span class="value">${dist.mean(p).toFixed(5)}</span></div>
+    <div><span class="label">Var(X) =</span> <span class="value">${variance.toFixed(5)}</span> · <span class="label">σ =</span> <span class="value">${std.toFixed(5)}</span></div>
+  `;
+}
+
+document.getElementById('pdfDist').onchange = renderPDF;
+document.getElementById('pdfC').oninput = drawPDF;
+document.getElementById('pdfD').oninput = drawPDF;
+
+// ============== Init ==============
+renderRiemann();
+renderFTC();
+renderAntiTable();
+renderPDF();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+</body>
+</html>

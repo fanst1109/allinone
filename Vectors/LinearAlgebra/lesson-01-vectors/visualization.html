@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 01 — Vector chính thức</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  main { max-width: 1180px; margin: 0 auto; padding: 24px; }
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 18px 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 14px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; color: #2d3748; font-size: 14px; }
+  input[type="range"] { width: 200px; vertical-align: middle; }
+  .num { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px; color: #2c5282; font-weight: 700; }
+  .lbl { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px; color: #4a5568; }
+  svg.viz {
+    display: block; background: #f7fafc;
+    border: 1px solid #e2e8f0; border-radius: 6px;
+    width: 100%; height: auto; cursor: crosshair;
+  }
+  .info-box {
+    margin-top: 10px; padding: 10px 12px;
+    background: #edf2f7; border-radius: 6px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; color: #2d3748; line-height: 1.7;
+  }
+  .info-box .blue { color: #2b6cb0; font-weight: 700; }
+  .info-box .red { color: #c53030; font-weight: 700; }
+  .info-box .green { color: #2f855a; font-weight: 700; }
+  .info-box .purple { color: #6b46c1; font-weight: 700; }
+  .legend {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    font-size: 13px; margin-top: 8px; color: #4a5568;
+  }
+  .legend .item { display: flex; align-items: center; gap: 6px; }
+  .legend .swatch {
+    width: 22px; height: 4px; border-radius: 2px; display: inline-block;
+  }
+  .grid-2 {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start;
+  }
+  @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+  .hint {
+    color: #4a5568; font-size: 13.5px;
+    background: #fefcbf; padding: 10px 12px;
+    border-left: 4px solid #ecc94b; border-radius: 4px;
+    margin: 12px 0;
+  }
+  .vec-row {
+    display: grid; grid-template-columns: 70px 90px 90px 70px;
+    gap: 8px; align-items: center; margin: 4px 0;
+  }
+  .pill {
+    display: inline-block; padding: 3px 9px; border-radius: 4px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 12px; font-weight: 700;
+  }
+  .pill.u { background: #bee3f8; color: #2b6cb0; }
+  .pill.v { background: #fed7d7; color: #c53030; }
+  .pill.sum { background: #c6f6d5; color: #22543d; }
+  .pill.cv { background: #e9d8fd; color: #6b46c1; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Vector chính thức</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-dot-product/visualization.html">L2: Dot product →</a>
+</nav>
+
+<main>
+  <h1>Lesson 01 — Vector chính thức</h1>
+  <p>Bốn công cụ tương tác để cảm nhận vector: cộng 2D, scalar multiplication, vector 3D, và linear combination.</p>
+
+  <!-- ==================== 1. 2D vector playground ==================== -->
+  <h2>1. 2D Playground — Cộng hai vector</h2>
+  <div class="card">
+    <p style="margin: 0 0 10px; font-size: 14px;">
+      Kéo <span class="pill u">u</span> và <span class="pill v">v</span> (hoặc dùng slider) để thấy ngay
+      <span class="pill sum">u + v</span> được dựng theo <strong>quy tắc tam giác</strong> (head-to-tail) và
+      <strong>hình bình hành</strong>.
+    </p>
+    <div class="grid-2">
+      <div>
+        <svg id="svg2d" class="viz" viewBox="0 0 460 460"></svg>
+        <div class="legend">
+          <span class="item"><span class="swatch" style="background:#3182ce"></span>u (vector xanh)</span>
+          <span class="item"><span class="swatch" style="background:#e53e3e"></span>v (vector đỏ)</span>
+          <span class="item"><span class="swatch" style="background:#38a169"></span>u + v (xanh lá)</span>
+          <span class="item"><span class="swatch" style="background:#a0aec0"></span>v dịch (head-to-tail)</span>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin: 0;">
+          <h3 style="margin-top:0; font-size:15px;">Điều chỉnh thủ công</h3>
+          <div class="vec-row">
+            <span class="pill u">u</span>
+            <label>x: <input type="range" id="ux" min="-8" max="8" step="0.5" value="3"></label>
+            <label>y: <input type="range" id="uy" min="-8" max="8" step="0.5" value="2"></label>
+            <span class="num" id="uVal">(3, 2)</span>
+          </div>
+          <div class="vec-row">
+            <span class="pill v">v</span>
+            <label>x: <input type="range" id="vx" min="-8" max="8" step="0.5" value="4"></label>
+            <label>y: <input type="range" id="vy" min="-8" max="8" step="0.5" value="-1"></label>
+            <span class="num" id="vVal">(4, -1)</span>
+          </div>
+          <div class="info-box">
+            <div><span class="lbl">u =</span> <span class="num blue" id="uOut">(3, 2)</span></div>
+            <div><span class="lbl">v =</span> <span class="num red" id="vOut">(4, -1)</span></div>
+            <div><span class="lbl">u + v =</span> <span class="num green" id="sumOut">(7, 1)</span></div>
+            <div style="margin-top: 6px; color:#718096; font-size:12px;">
+              Verify: (<span id="uxV">3</span> + <span id="vxV">4</span>, <span id="uyV">2</span> + <span id="vyV">-1</span>) = (<span id="sxV">7</span>, <span id="syV">1</span>)
+            </div>
+          </div>
+        </div>
+        <div class="hint">
+          Đường mảnh xám = bản sao của <strong>v</strong> đặt tại đầu mút của <strong>u</strong> (quy tắc tam giác).
+          Hình bình hành (đường đứt nét) cho thấy <strong>u + v = v + u</strong> — đường chéo duy nhất.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 2. Scalar multiplication ==================== -->
+  <h2>2. Scalar multiplication — c · v</h2>
+  <div class="card">
+    <p style="margin: 0 0 10px; font-size: 14px;">
+      Kéo slider <code>c</code> từ −3 đến 3 để thấy <span class="pill cv">c · v</span> phóng / thu / đảo hướng.
+    </p>
+    <div class="grid-2">
+      <div>
+        <svg id="svgScale" class="viz" viewBox="0 0 460 460"></svg>
+        <div class="legend">
+          <span class="item"><span class="swatch" style="background:#e53e3e"></span>v (gốc)</span>
+          <span class="item"><span class="swatch" style="background:#6b46c1"></span>c · v</span>
+          <span class="item"><span class="swatch" style="background:#cbd5e0"></span>đường mang v (line through O)</span>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin: 0;">
+          <h3 style="margin-top:0; font-size:15px;">Cấu hình</h3>
+          <div class="vec-row">
+            <span class="pill v">v</span>
+            <label>x: <input type="range" id="svx" min="-6" max="6" step="0.5" value="3"></label>
+            <label>y: <input type="range" id="svy" min="-6" max="6" step="0.5" value="2"></label>
+            <span class="num" id="svVal">(3, 2)</span>
+          </div>
+          <div class="vec-row" style="grid-template-columns: 70px 200px 1fr;">
+            <label>c =</label>
+            <input type="range" id="cval" min="-3" max="3" step="0.1" value="1.5">
+            <span class="num" id="cValOut">1.5</span>
+          </div>
+          <div class="info-box">
+            <div><span class="lbl">v =</span> <span class="num red" id="svOut">(3, 2)</span></div>
+            <div><span class="lbl">c · v =</span> <span class="num purple" id="cvOut">(4.5, 3.0)</span></div>
+            <div style="margin-top: 6px; color:#718096; font-size:12px;" id="cvVerify">
+              Verify: (1.5 · 3, 1.5 · 2) = (4.5, 3.0)
+            </div>
+            <div style="margin-top: 8px;" id="cvDesc">📐 c &gt; 1 → phóng to, giữ hướng.</div>
+          </div>
+        </div>
+        <div class="hint">
+          Thử các giá trị đặc biệt: <code>c = 0</code> → vector 0 (thu về điểm).
+          <code>c = -1</code> → vector đối <code>−v</code>.
+          <code>c = 1</code> → giữ nguyên.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 3. 3D visualizer ==================== -->
+  <h2>3. Vector 3D — Ortho projection</h2>
+  <div class="card">
+    <p style="margin: 0 0 10px; font-size: 14px;">
+      Vector trong ℝ³ chiếu qua 3 trục `x` (đỏ), `y` (xanh lục), `z` (xanh dương). Hộp lưới minh họa vị trí điểm cuối.
+    </p>
+    <div class="grid-2">
+      <div>
+        <svg id="svg3d" class="viz" viewBox="0 0 460 460" style="background:#1a202c;"></svg>
+        <div class="legend">
+          <span class="item"><span class="swatch" style="background:#fc8181"></span>x</span>
+          <span class="item"><span class="swatch" style="background:#9ae6b4"></span>y</span>
+          <span class="item"><span class="swatch" style="background:#90cdf4"></span>z</span>
+          <span class="item"><span class="swatch" style="background:#f6e05e"></span>vector v</span>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin:0;">
+          <h3 style="margin-top:0; font-size:15px;">Tọa độ (x, y, z)</h3>
+          <div class="vec-row" style="grid-template-columns: 30px 1fr 70px;">
+            <label>x:</label>
+            <input type="range" id="v3x" min="-5" max="5" step="0.5" value="3">
+            <span class="num" id="v3xV">3</span>
+          </div>
+          <div class="vec-row" style="grid-template-columns: 30px 1fr 70px;">
+            <label>y:</label>
+            <input type="range" id="v3y" min="-5" max="5" step="0.5" value="2">
+            <span class="num" id="v3yV">2</span>
+          </div>
+          <div class="vec-row" style="grid-template-columns: 30px 1fr 70px;">
+            <label>z:</label>
+            <input type="range" id="v3z" min="-5" max="5" step="0.5" value="2">
+            <span class="num" id="v3zV">2</span>
+          </div>
+          <div class="vec-row" style="grid-template-columns: 70px 1fr 70px;">
+            <label>Xoay:</label>
+            <input type="range" id="rot3d" min="0" max="360" step="1" value="35">
+            <span class="num" id="rotV">35°</span>
+          </div>
+          <div class="info-box">
+            <div><span class="lbl">v =</span> <span class="num" id="v3Out">(3, 2, 2)</span></div>
+            <div style="color:#718096; font-size:12px; margin-top:4px;">
+              Vector 3D: 3 thành phần ⇒ <code>v ∈ ℝ³</code>.
+            </div>
+          </div>
+        </div>
+        <div class="hint">
+          Đường chấm chiếu xuống nền `xy` cho thấy thành phần `z` (chiều cao). Quay trục để nhìn từ góc khác.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 4. Linear combination ==================== -->
+  <h2>4. Linear combination — a · u + b · v</h2>
+  <div class="card">
+    <p style="margin: 0 0 10px; font-size: 14px;">
+      Hai vector <code>u, v</code> (cố định, có thể chỉnh). Kéo slider <code>a, b</code> để thấy
+      <strong>a · u + b · v</strong>. Khi <code>u, v</code> độc lập, mọi điểm trong mặt phẳng đều đạt được.
+    </p>
+    <div class="grid-2">
+      <div>
+        <svg id="svgComb" class="viz" viewBox="0 0 460 460"></svg>
+        <div class="legend">
+          <span class="item"><span class="swatch" style="background:#3182ce"></span>u</span>
+          <span class="item"><span class="swatch" style="background:#e53e3e"></span>v</span>
+          <span class="item"><span class="swatch" style="background:#d69e2e"></span>a·u</span>
+          <span class="item"><span class="swatch" style="background:#b794f4"></span>b·v</span>
+          <span class="item"><span class="swatch" style="background:#38a169"></span>a·u + b·v</span>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin:0;">
+          <h3 style="margin-top:0; font-size:15px;">Hai vector cơ sở</h3>
+          <div class="vec-row">
+            <span class="pill u">u</span>
+            <label>x: <input type="range" id="cux" min="-5" max="5" step="0.5" value="2"></label>
+            <label>y: <input type="range" id="cuy" min="-5" max="5" step="0.5" value="1"></label>
+            <span class="num" id="cuVal">(2, 1)</span>
+          </div>
+          <div class="vec-row">
+            <span class="pill v">v</span>
+            <label>x: <input type="range" id="cvx" min="-5" max="5" step="0.5" value="-1"></label>
+            <label>y: <input type="range" id="cvy" min="-5" max="5" step="0.5" value="2"></label>
+            <span class="num" id="cvVal">(-1, 2)</span>
+          </div>
+          <h3 style="font-size:15px;">Hệ số scalar</h3>
+          <div class="vec-row" style="grid-template-columns: 30px 1fr 70px;">
+            <label>a:</label>
+            <input type="range" id="aCoef" min="-3" max="3" step="0.1" value="1.5">
+            <span class="num" id="aCoefV">1.5</span>
+          </div>
+          <div class="vec-row" style="grid-template-columns: 30px 1fr 70px;">
+            <label>b:</label>
+            <input type="range" id="bCoef" min="-3" max="3" step="0.1" value="1.0">
+            <span class="num" id="bCoefV">1.0</span>
+          </div>
+          <div class="info-box">
+            <div><span class="lbl">a·u =</span> <span class="num" style="color:#d69e2e" id="auOut">(3.0, 1.5)</span></div>
+            <div><span class="lbl">b·v =</span> <span class="num" style="color:#805ad5" id="bvOut">(-1.0, 2.0)</span></div>
+            <div><span class="lbl">a·u + b·v =</span> <span class="num green" id="combOut">(2.0, 3.5)</span></div>
+            <div id="indepInfo" style="color:#718096; font-size:12px; margin-top:6px;">u, v độc lập → mọi điểm trong ℝ² đạt được.</div>
+          </div>
+        </div>
+        <div class="hint">
+          Thử cho <code>v = 2u</code> (vd <code>u=(2,1), v=(4,2)</code>) — kết quả <code>a·u + b·v</code> chỉ chạy trên một đường thẳng qua O.
+          Đó là <strong>phụ thuộc tuyến tính</strong> (Lesson 04).
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ============================================================
+// Helpers chung
+// ============================================================
+const SVG_NS = "http://www.w3.org/2000/svg";
+function el(tag, attrs) {
+  const e = document.createElementNS(SVG_NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+function fmt(x) { return (Math.round(x * 100) / 100).toString(); }
+
+// ============================================================
+// 1. 2D playground — Cộng hai vector
+// ============================================================
+(function() {
+  const svg = document.getElementById("svg2d");
+  const W = 460, H = 460;
+  const CX = W/2, CY = H/2;
+  const SCALE = 24; // 24 px per unit; range ±~9.5 units
+
+  function toSvg(x, y) { return { x: CX + x * SCALE, y: CY - y * SCALE }; }
+  function fromSvg(sx, sy) { return { x: (sx - CX) / SCALE, y: -(sy - CY) / SCALE }; }
+
+  function drawGrid() {
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    // grid
+    for (let i = -9; i <= 9; i++) {
+      svg.appendChild(el("line", {
+        x1: toSvg(i, -9).x, y1: toSvg(i, -9).y,
+        x2: toSvg(i, 9).x, y2: toSvg(i, 9).y,
+        stroke: "#e2e8f0", "stroke-width": i === 0 ? 1.5 : 0.5
+      }));
+      svg.appendChild(el("line", {
+        x1: toSvg(-9, i).x, y1: toSvg(-9, i).y,
+        x2: toSvg(9, i).x, y2: toSvg(9, i).y,
+        stroke: "#e2e8f0", "stroke-width": i === 0 ? 1.5 : 0.5
+      }));
+    }
+    // axes
+    svg.appendChild(el("line", { x1: 0, y1: CY, x2: W, y2: CY, stroke: "#4a5568", "stroke-width": 1.2 }));
+    svg.appendChild(el("line", { x1: CX, y1: 0, x2: CX, y2: H, stroke: "#4a5568", "stroke-width": 1.2 }));
+    // axis labels
+    svg.appendChild(el("text", { x: W-12, y: CY-6, "font-size": 11, fill: "#4a5568" })).textContent = "x";
+    svg.appendChild(el("text", { x: CX+6, y: 12, "font-size": 11, fill: "#4a5568" })).textContent = "y";
+  }
+
+  function drawArrow(from, to, color, width = 2.5, dashed = false, label = null) {
+    const p1 = toSvg(from.x, from.y);
+    const p2 = toSvg(to.x, to.y);
+    const dx = p2.x - p1.x, dy = p2.y - p1.y;
+    const len = Math.sqrt(dx*dx + dy*dy);
+    if (len < 1) return;
+    const ux = dx/len, uy = dy/len;
+    // line
+    const line = el("line", {
+      x1: p1.x, y1: p1.y, x2: p2.x - ux*8, y2: p2.y - uy*8,
+      stroke: color, "stroke-width": width,
+      "stroke-linecap": "round"
+    });
+    if (dashed) line.setAttribute("stroke-dasharray", "5 4");
+    svg.appendChild(line);
+    // arrowhead
+    const ah = 10;
+    const px = -uy, py = ux;
+    const tip = p2;
+    const left = { x: p2.x - ux*ah + px*ah*0.5, y: p2.y - uy*ah + py*ah*0.5 };
+    const right = { x: p2.x - ux*ah - px*ah*0.5, y: p2.y - uy*ah - py*ah*0.5 };
+    svg.appendChild(el("polygon", {
+      points: `${tip.x},${tip.y} ${left.x},${left.y} ${right.x},${right.y}`,
+      fill: color
+    }));
+    if (label) {
+      svg.appendChild(el("text", {
+        x: p2.x + 6, y: p2.y - 6, "font-size": 13, fill: color, "font-weight": "bold"
+      })).textContent = label;
+    }
+  }
+
+  // draggable endpoints
+  let u = { x: 3, y: 2 };
+  let v = { x: 4, y: -1 };
+  let dragging = null;
+
+  function render() {
+    drawGrid();
+    // parallelogram (dashed)
+    const p1 = toSvg(0,0), p2 = toSvg(u.x, u.y), p3 = toSvg(u.x+v.x, u.y+v.y), p4 = toSvg(v.x, v.y);
+    svg.appendChild(el("polygon", {
+      points: `${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y} ${p4.x},${p4.y}`,
+      fill: "rgba(56, 161, 105, 0.06)", stroke: "#a0aec0",
+      "stroke-width": 1, "stroke-dasharray": "3 3"
+    }));
+    // v translated to head of u (head-to-tail)
+    drawArrow({x: u.x, y: u.y}, {x: u.x+v.x, y: u.y+v.y}, "#a0aec0", 2, false);
+    // u
+    drawArrow({x:0,y:0}, u, "#3182ce", 3, false, "u");
+    // v from O
+    drawArrow({x:0,y:0}, v, "#e53e3e", 3, false, "v");
+    // u + v
+    drawArrow({x:0,y:0}, {x: u.x+v.x, y: u.y+v.y}, "#38a169", 3, false, "u+v");
+
+    // draggable handles
+    const uH = toSvg(u.x, u.y);
+    const vH = toSvg(v.x, v.y);
+    const huH = el("circle", { cx: uH.x, cy: uH.y, r: 8, fill: "#3182ce", "fill-opacity": 0.5, stroke: "#2c5282", "stroke-width": 2, cursor: "move" });
+    const hvH = el("circle", { cx: vH.x, cy: vH.y, r: 8, fill: "#e53e3e", "fill-opacity": 0.5, stroke: "#9b2c2c", "stroke-width": 2, cursor: "move" });
+    huH.dataset.target = "u";
+    hvH.dataset.target = "v";
+    svg.appendChild(huH);
+    svg.appendChild(hvH);
+
+    // update UI
+    document.getElementById("uVal").textContent = `(${fmt(u.x)}, ${fmt(u.y)})`;
+    document.getElementById("vVal").textContent = `(${fmt(v.x)}, ${fmt(v.y)})`;
+    document.getElementById("uOut").textContent = `(${fmt(u.x)}, ${fmt(u.y)})`;
+    document.getElementById("vOut").textContent = `(${fmt(v.x)}, ${fmt(v.y)})`;
+    document.getElementById("sumOut").textContent = `(${fmt(u.x+v.x)}, ${fmt(u.y+v.y)})`;
+    document.getElementById("uxV").textContent = fmt(u.x);
+    document.getElementById("uyV").textContent = fmt(u.y);
+    document.getElementById("vxV").textContent = fmt(v.x);
+    document.getElementById("vyV").textContent = fmt(v.y);
+    document.getElementById("sxV").textContent = fmt(u.x+v.x);
+    document.getElementById("syV").textContent = fmt(u.y+v.y);
+    // sync sliders
+    document.getElementById("ux").value = u.x;
+    document.getElementById("uy").value = u.y;
+    document.getElementById("vx").value = v.x;
+    document.getElementById("vy").value = v.y;
+  }
+
+  // sliders
+  ["ux","uy","vx","vy"].forEach(id => {
+    document.getElementById(id).addEventListener("input", e => {
+      const v_ = parseFloat(e.target.value);
+      if (id === "ux") u.x = v_;
+      if (id === "uy") u.y = v_;
+      if (id === "vx") v.x = v_;
+      if (id === "vy") v.y = v_;
+      render();
+    });
+  });
+
+  // drag handles
+  svg.addEventListener("mousedown", e => {
+    if (e.target.dataset && e.target.dataset.target) {
+      dragging = e.target.dataset.target;
+    }
+  });
+  window.addEventListener("mousemove", e => {
+    if (!dragging) return;
+    const rect = svg.getBoundingClientRect();
+    const sx = (e.clientX - rect.left) * (W / rect.width);
+    const sy = (e.clientY - rect.top) * (H / rect.height);
+    const pt = fromSvg(sx, sy);
+    // snap to 0.5
+    pt.x = Math.round(pt.x * 2) / 2;
+    pt.y = Math.round(pt.y * 2) / 2;
+    pt.x = Math.max(-9, Math.min(9, pt.x));
+    pt.y = Math.max(-9, Math.min(9, pt.y));
+    if (dragging === "u") u = pt;
+    else if (dragging === "v") v = pt;
+    render();
+  });
+  window.addEventListener("mouseup", () => dragging = null);
+
+  render();
+})();
+
+// ============================================================
+// 2. Scalar multiplication
+// ============================================================
+(function() {
+  const svg = document.getElementById("svgScale");
+  const W = 460, H = 460, CX = W/2, CY = H/2, SCALE = 24;
+  function toSvg(x, y) { return { x: CX + x * SCALE, y: CY - y * SCALE }; }
+
+  function drawGrid() {
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    for (let i = -9; i <= 9; i++) {
+      svg.appendChild(el("line", { x1: toSvg(i,-9).x, y1: toSvg(i,-9).y, x2: toSvg(i,9).x, y2: toSvg(i,9).y, stroke: "#e2e8f0", "stroke-width": i===0?1.5:0.5 }));
+      svg.appendChild(el("line", { x1: toSvg(-9,i).x, y1: toSvg(-9,i).y, x2: toSvg(9,i).x, y2: toSvg(9,i).y, stroke: "#e2e8f0", "stroke-width": i===0?1.5:0.5 }));
+    }
+    svg.appendChild(el("line", { x1:0,y1:CY,x2:W,y2:CY, stroke:"#4a5568","stroke-width":1.2 }));
+    svg.appendChild(el("line", { x1:CX,y1:0,x2:CX,y2:H, stroke:"#4a5568","stroke-width":1.2 }));
+  }
+
+  function drawArrow(from, to, color, width=2.5, label=null) {
+    const p1 = toSvg(from.x, from.y), p2 = toSvg(to.x, to.y);
+    const dx = p2.x-p1.x, dy = p2.y-p1.y, len = Math.sqrt(dx*dx+dy*dy);
+    if (len < 1) {
+      svg.appendChild(el("circle", { cx: p1.x, cy: p1.y, r: 4, fill: color }));
+      return;
+    }
+    const ux=dx/len, uy=dy/len;
+    svg.appendChild(el("line", { x1:p1.x, y1:p1.y, x2:p2.x-ux*8, y2:p2.y-uy*8, stroke:color, "stroke-width":width, "stroke-linecap":"round"}));
+    const ah=10, px=-uy, py=ux;
+    const left={x:p2.x-ux*ah+px*ah*0.5, y:p2.y-uy*ah+py*ah*0.5};
+    const right={x:p2.x-ux*ah-px*ah*0.5, y:p2.y-uy*ah-py*ah*0.5};
+    svg.appendChild(el("polygon",{points:`${p2.x},${p2.y} ${left.x},${left.y} ${right.x},${right.y}`,fill:color}));
+    if (label) svg.appendChild(el("text",{x:p2.x+6,y:p2.y-6,"font-size":13,fill:color,"font-weight":"bold"})).textContent = label;
+  }
+
+  let v = { x: 3, y: 2 };
+  let c = 1.5;
+
+  function render() {
+    drawGrid();
+    // line through O along v direction
+    const len = Math.sqrt(v.x*v.x + v.y*v.y);
+    if (len > 0.001) {
+      const ext = 10 / len;
+      const p1 = toSvg(-v.x*ext, -v.y*ext);
+      const p2 = toSvg(v.x*ext, v.y*ext);
+      svg.appendChild(el("line", { x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y, stroke:"#cbd5e0","stroke-width":1.5,"stroke-dasharray":"4 4" }));
+    }
+    // original v
+    drawArrow({x:0,y:0}, v, "#e53e3e", 3, "v");
+    // c*v
+    const cv = { x: c*v.x, y: c*v.y };
+    drawArrow({x:0,y:0}, cv, "#6b46c1", 4, `${fmt(c)}·v`);
+    // update UI
+    document.getElementById("svVal").textContent = `(${fmt(v.x)}, ${fmt(v.y)})`;
+    document.getElementById("svOut").textContent = `(${fmt(v.x)}, ${fmt(v.y)})`;
+    document.getElementById("cvOut").textContent = `(${fmt(cv.x)}, ${fmt(cv.y)})`;
+    document.getElementById("cValOut").textContent = fmt(c);
+    document.getElementById("cvVerify").textContent = `Verify: (${fmt(c)} · ${fmt(v.x)}, ${fmt(c)} · ${fmt(v.y)}) = (${fmt(cv.x)}, ${fmt(cv.y)})`;
+    let desc;
+    if (Math.abs(c) < 0.001) desc = "📍 c = 0 → c·v = 0 (vector 0, thu về một điểm tại gốc).";
+    else if (c === 1) desc = "= v (giữ nguyên).";
+    else if (c === -1) desc = "🔁 c = -1 → c·v = -v (vector đối, đảo hướng, cùng độ dài).";
+    else if (c > 1) desc = `📐 c = ${fmt(c)} > 1 → phóng to, GIỮ hướng.`;
+    else if (c > 0 && c < 1) desc = `📐 0 < c = ${fmt(c)} < 1 → THU NHỎ, giữ hướng.`;
+    else if (c < 0 && c > -1) desc = `🔁 -1 < c = ${fmt(c)} < 0 → đảo hướng, thu nhỏ.`;
+    else desc = `🔁 c = ${fmt(c)} < -1 → đảo hướng, PHÓNG TO.`;
+    document.getElementById("cvDesc").textContent = desc;
+  }
+
+  document.getElementById("svx").addEventListener("input", e => { v.x = parseFloat(e.target.value); render(); });
+  document.getElementById("svy").addEventListener("input", e => { v.y = parseFloat(e.target.value); render(); });
+  document.getElementById("cval").addEventListener("input", e => { c = parseFloat(e.target.value); render(); });
+
+  render();
+})();
+
+// ============================================================
+// 3. 3D vector visualizer (ortho projection)
+// ============================================================
+(function() {
+  const svg = document.getElementById("svg3d");
+  const W = 460, H = 460, CX = W/2, CY = H/2 + 40;
+  const SCALE = 36;
+
+  let vx = 3, vy = 2, vz = 2;
+  let yaw = 35 * Math.PI / 180;
+
+  // ortho projection: rotate around vertical (z) axis, then project
+  function project(x, y, z) {
+    const cy_ = Math.cos(yaw), sy_ = Math.sin(yaw);
+    const xr = x*cy_ - y*sy_;
+    const yr = x*sy_ + y*cy_;
+    // tilt for z (simulate slight pitch)
+    const pitch = 0.5;
+    const zproj = z - yr * Math.sin(pitch) * 0.0; // keep simple: project x,y to floor, z is straight up
+    return {
+      sx: CX + xr * SCALE,
+      sy: CY - z * SCALE - yr * Math.sin(pitch) * SCALE * 0.6
+    };
+  }
+
+  function drawLine(p1, p2, color, w=1.5, dashed=false) {
+    const a = project(p1.x, p1.y, p1.z);
+    const b = project(p2.x, p2.y, p2.z);
+    const line = el("line", { x1:a.sx, y1:a.sy, x2:b.sx, y2:b.sy, stroke:color, "stroke-width":w });
+    if (dashed) line.setAttribute("stroke-dasharray", "4 3");
+    svg.appendChild(line);
+  }
+  function drawArrow3d(p1, p2, color, w=3, label=null) {
+    const a = project(p1.x, p1.y, p1.z);
+    const b = project(p2.x, p2.y, p2.z);
+    const dx = b.sx-a.sx, dy = b.sy-a.sy, len = Math.sqrt(dx*dx+dy*dy);
+    if (len < 1) return;
+    const ux = dx/len, uy = dy/len;
+    svg.appendChild(el("line",{x1:a.sx,y1:a.sy,x2:b.sx-ux*8,y2:b.sy-uy*8,stroke:color,"stroke-width":w,"stroke-linecap":"round"}));
+    const ah=10, px=-uy, py=ux;
+    const left={x:b.sx-ux*ah+px*ah*0.5, y:b.sy-uy*ah+py*ah*0.5};
+    const right={x:b.sx-ux*ah-px*ah*0.5, y:b.sy-uy*ah-py*ah*0.5};
+    svg.appendChild(el("polygon",{points:`${b.sx},${b.sy} ${left.x},${left.y} ${right.x},${right.y}`,fill:color}));
+    if (label) {
+      svg.appendChild(el("text",{x:b.sx+6,y:b.sy-6,"font-size":13,fill:color,"font-weight":"bold"})).textContent = label;
+    }
+  }
+
+  function render() {
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    // grid on floor (xy plane, z=0)
+    for (let i = -5; i <= 5; i++) {
+      drawLine({x:i,y:-5,z:0},{x:i,y:5,z:0},"#2d3748",0.5);
+      drawLine({x:-5,y:i,z:0},{x:5,y:i,z:0},"#2d3748",0.5);
+    }
+    // axes
+    drawArrow3d({x:0,y:0,z:0}, {x:5,y:0,z:0}, "#fc8181", 2, "x");
+    drawArrow3d({x:0,y:0,z:0}, {x:0,y:5,z:0}, "#9ae6b4", 2, "y");
+    drawArrow3d({x:0,y:0,z:0}, {x:0,y:0,z:5}, "#90cdf4", 2, "z");
+
+    // box from (0,0,0) to (vx,vy,vz)
+    const corners = [
+      {x:0,y:0,z:0},{x:vx,y:0,z:0},{x:vx,y:vy,z:0},{x:0,y:vy,z:0},
+      {x:0,y:0,z:vz},{x:vx,y:0,z:vz},{x:vx,y:vy,z:vz},{x:0,y:vy,z:vz}
+    ];
+    const edges = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+    edges.forEach(e => drawLine(corners[e[0]], corners[e[1]], "#4a5568", 0.8, true));
+
+    // projection of vector onto xy plane (z=0)
+    drawArrow3d({x:0,y:0,z:0}, {x:vx,y:vy,z:0}, "#a0aec0", 1.5);
+    drawLine({x:vx,y:vy,z:0},{x:vx,y:vy,z:vz},"#a0aec0",1.2,true);
+
+    // main vector
+    drawArrow3d({x:0,y:0,z:0}, {x:vx,y:vy,z:vz}, "#f6e05e", 3.5, "v");
+
+    // origin
+    const o = project(0,0,0);
+    svg.appendChild(el("circle",{cx:o.sx, cy:o.sy, r:3, fill:"#fff"}));
+    svg.appendChild(el("text",{x:o.sx-12,y:o.sy+14,"font-size":11,fill:"#cbd5e0"})).textContent = "O";
+
+    // tick marks on axes (1..5)
+    for (let i=1; i<=5; i++) {
+      ["x","y","z"].forEach(ax => {
+        const p = ax==="x"?{x:i,y:0,z:0}:ax==="y"?{x:0,y:i,z:0}:{x:0,y:0,z:i};
+        const proj = project(p.x,p.y,p.z);
+        svg.appendChild(el("circle",{cx:proj.sx,cy:proj.sy,r:1.5,fill:"#718096"}));
+        if (i === Math.floor(Math.abs(ax==="x"?vx:ax==="y"?vy:vz)) && i > 0) {
+          // skip; we'll handle in label below
+        }
+      });
+    }
+
+    // UI sync
+    document.getElementById("v3xV").textContent = fmt(vx);
+    document.getElementById("v3yV").textContent = fmt(vy);
+    document.getElementById("v3zV").textContent = fmt(vz);
+    document.getElementById("v3Out").textContent = `(${fmt(vx)}, ${fmt(vy)}, ${fmt(vz)})`;
+    document.getElementById("rotV").textContent = `${Math.round(yaw*180/Math.PI)}°`;
+  }
+
+  document.getElementById("v3x").addEventListener("input", e => { vx = parseFloat(e.target.value); render(); });
+  document.getElementById("v3y").addEventListener("input", e => { vy = parseFloat(e.target.value); render(); });
+  document.getElementById("v3z").addEventListener("input", e => { vz = parseFloat(e.target.value); render(); });
+  document.getElementById("rot3d").addEventListener("input", e => { yaw = parseFloat(e.target.value) * Math.PI / 180; render(); });
+
+  render();
+})();
+
+// ============================================================
+// 4. Linear combination demo
+// ============================================================
+(function() {
+  const svg = document.getElementById("svgComb");
+  const W = 460, H = 460, CX = W/2, CY = H/2, SCALE = 28;
+  function toSvg(x, y) { return { x: CX + x * SCALE, y: CY - y * SCALE }; }
+
+  function drawGrid() {
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    for (let i = -8; i <= 8; i++) {
+      svg.appendChild(el("line", { x1: toSvg(i,-8).x, y1: toSvg(i,-8).y, x2: toSvg(i,8).x, y2: toSvg(i,8).y, stroke:"#e2e8f0", "stroke-width": i===0?1.5:0.5 }));
+      svg.appendChild(el("line", { x1: toSvg(-8,i).x, y1: toSvg(-8,i).y, x2: toSvg(8,i).x, y2: toSvg(8,i).y, stroke:"#e2e8f0", "stroke-width": i===0?1.5:0.5 }));
+    }
+    svg.appendChild(el("line", { x1:0,y1:CY,x2:W,y2:CY, stroke:"#4a5568","stroke-width":1.2 }));
+    svg.appendChild(el("line", { x1:CX,y1:0,x2:CX,y2:H, stroke:"#4a5568","stroke-width":1.2 }));
+  }
+
+  function drawArrow(from, to, color, width=2.5, label=null, dashed=false) {
+    const p1 = toSvg(from.x, from.y), p2 = toSvg(to.x, to.y);
+    const dx = p2.x-p1.x, dy = p2.y-p1.y, len = Math.sqrt(dx*dx+dy*dy);
+    if (len < 1) return;
+    const ux=dx/len, uy=dy/len;
+    const ln = el("line",{x1:p1.x,y1:p1.y,x2:p2.x-ux*8,y2:p2.y-uy*8,stroke:color,"stroke-width":width,"stroke-linecap":"round"});
+    if (dashed) ln.setAttribute("stroke-dasharray","5 3");
+    svg.appendChild(ln);
+    const ah=10, px=-uy, py=ux;
+    const left={x:p2.x-ux*ah+px*ah*0.5,y:p2.y-uy*ah+py*ah*0.5};
+    const right={x:p2.x-ux*ah-px*ah*0.5,y:p2.y-uy*ah-py*ah*0.5};
+    svg.appendChild(el("polygon",{points:`${p2.x},${p2.y} ${left.x},${left.y} ${right.x},${right.y}`,fill:color}));
+    if (label) svg.appendChild(el("text",{x:p2.x+6,y:p2.y-6,"font-size":13,fill:color,"font-weight":"bold"})).textContent = label;
+  }
+
+  let u = {x:2, y:1}, v = {x:-1, y:2};
+  let a = 1.5, b = 1.0;
+
+  function render() {
+    drawGrid();
+    // sample many (a,b) to show span
+    const samples = [];
+    for (let i = -3; i <= 3; i += 0.5) {
+      for (let j = -3; j <= 3; j += 0.5) {
+        samples.push({ ax: i, bx: j, x: i*u.x + j*v.x, y: i*u.y + j*v.y });
+      }
+    }
+    samples.forEach(s => {
+      const p = toSvg(s.x, s.y);
+      if (p.x >= 0 && p.x <= W && p.y >= 0 && p.y <= H)
+        svg.appendChild(el("circle",{cx:p.x,cy:p.y,r:1.2,fill:"#cbd5e0"}));
+    });
+    // detect dependence (cross product ~ 0)
+    const cross = u.x * v.y - u.y * v.x;
+    const dependent = Math.abs(cross) < 0.001;
+    document.getElementById("indepInfo").textContent = dependent
+      ? "⚠ u, v phụ thuộc tuyến tính → a·u + b·v chỉ chạy trên một đường thẳng qua O."
+      : "✓ u, v độc lập → a·u + b·v phủ toàn bộ ℝ².";
+
+    // u, v
+    drawArrow({x:0,y:0}, u, "#3182ce", 2.5, "u");
+    drawArrow({x:0,y:0}, v, "#e53e3e", 2.5, "v");
+    // a*u, b*v
+    const au = {x: a*u.x, y: a*u.y};
+    const bv = {x: b*v.x, y: b*v.y};
+    drawArrow({x:0,y:0}, au, "#d69e2e", 2, "a·u", true);
+    drawArrow({x:0,y:0}, bv, "#805ad5", 2, "b·v", true);
+    // a*u + b*v
+    const comb = {x: au.x + bv.x, y: au.y + bv.y};
+    drawArrow({x:0,y:0}, comb, "#38a169", 3.5, "a·u+b·v");
+    // parallelogram of a*u and b*v
+    const p1 = toSvg(0,0), p2 = toSvg(au.x, au.y), p3 = toSvg(comb.x, comb.y), p4 = toSvg(bv.x, bv.y);
+    svg.appendChild(el("polygon",{points:`${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y} ${p4.x},${p4.y}`,fill:"rgba(56,161,105,0.05)",stroke:"#38a169","stroke-width":0.8,"stroke-dasharray":"3 3"}));
+
+    // UI sync
+    document.getElementById("cuVal").textContent = `(${fmt(u.x)}, ${fmt(u.y)})`;
+    document.getElementById("cvVal").textContent = `(${fmt(v.x)}, ${fmt(v.y)})`;
+    document.getElementById("aCoefV").textContent = fmt(a);
+    document.getElementById("bCoefV").textContent = fmt(b);
+    document.getElementById("auOut").textContent = `(${fmt(au.x)}, ${fmt(au.y)})`;
+    document.getElementById("bvOut").textContent = `(${fmt(bv.x)}, ${fmt(bv.y)})`;
+    document.getElementById("combOut").textContent = `(${fmt(comb.x)}, ${fmt(comb.y)})`;
+  }
+
+  document.getElementById("cux").addEventListener("input", e => { u.x = parseFloat(e.target.value); render(); });
+  document.getElementById("cuy").addEventListener("input", e => { u.y = parseFloat(e.target.value); render(); });
+  document.getElementById("cvx").addEventListener("input", e => { v.x = parseFloat(e.target.value); render(); });
+  document.getElementById("cvy").addEventListener("input", e => { v.y = parseFloat(e.target.value); render(); });
+  document.getElementById("aCoef").addEventListener("input", e => { a = parseFloat(e.target.value); render(); });
+  document.getElementById("bCoef").addEventListener("input", e => { b = parseFloat(e.target.value); render(); });
+
+  render();
+})();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+</body>
+</html>

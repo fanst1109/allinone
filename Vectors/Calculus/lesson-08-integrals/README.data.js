@@ -305,7 +305,27 @@ F(x) = x³/3
 
 **Verify với Riemann sum** (mục 3.2): cùng ra \`1/3\`. ✓
 
-### 4.4. Vài ví dụ thêm
+### 4.4. Walk-through chi tiết — \`∫_0^π sin x dx\` bằng FTC
+
+Hỏi: vùng dưới \`sin x\` từ 0 đến \`π\` có diện tích bằng bao nhiêu?
+
+**Bước 1: tìm nguyên hàm.** Cần \`F(x)\` sao cho \`F'(x) = sin x\`. Nhớ rằng \`(cos x)' = −sin x\`, nên \`(−cos x)' = sin x\`. Vậy:
+\`\`\`
+F(x) = −cos x
+\`\`\`
+
+**Bước 2: tính \`F(π) − F(0)\`.**
+\`\`\`
+F(π) = −cos(π) = −(−1) = 1
+F(0) = −cos(0) = −1
+F(π) − F(0) = 1 − (−1) = 2
+\`\`\`
+
+**Verify với Riemann** (mục 3.4 đã làm): với \`n = 6\`, midpoint cho \`≈ 2.0233\`. Tăng \`n = 1000\` → kết quả \`≈ 1.99999958\`. Hội tụ về 2. ✓
+
+> **⚠ Lỗi thường gặp.** Quên dấu trừ: viết \`F(x) = cos x\` cho \`f(x) = sin x\` là **sai**. Verify: \`(cos x)' = −sin x ≠ sin x\`. Khi không chắc, đạo hàm ngược nguyên hàm để kiểm tra.
+
+### 4.5. Vài ví dụ thêm
 
 | Tích phân | Nguyên hàm \`F(x)\` | Kết quả |
 |-----------|-------------------|---------|
@@ -418,6 +438,29 @@ Khi đó: \`du = dx\`, \`v = eˣ\`.
 **Verify**: \`d/dx [(x−1)eˣ] = 1 · eˣ + (x−1) · eˣ = (1 + x − 1) eˣ = x · eˣ\` ✓
 
 > **❓ Câu hỏi tự nhiên: "Chọn \`u\` và \`dv\` thế nào?"** Mẹo LIATE — ưu tiên \`u\` theo thứ tự: **L**ogarithm > **I**nverse trig > **A**lgebraic > **T**rig > **E**xponential. Trong ví dụ trên, \`x\` là Algebraic, \`eˣ\` là Exponential → chọn \`u = x\`. Quy tắc này không tuyệt đối nhưng đúng phần lớn.
+
+### 6.3. Tích phân từng phần lặp — \`∫ x² eˣ dx\`
+
+Đôi khi phải áp by-parts **hai lần**. Lấy \`u = x²\` (vì đạo hàm 2 lần thì còn hằng số), \`dv = eˣ dx\`.
+
+Lần 1: \`du = 2x dx\`, \`v = eˣ\`. 
+\`\`\`
+∫ x² eˣ dx = x² eˣ − ∫ 2x · eˣ dx = x² eˣ − 2 ∫ x eˣ dx
+\`\`\`
+Từ mục 6.2: \`∫ x eˣ dx = (x − 1) eˣ + C\`. Thế vào:
+\`\`\`
+∫ x² eˣ dx = x² eˣ − 2(x − 1) eˣ + C = (x² − 2x + 2) eˣ + C
+\`\`\`
+
+Verify: \`d/dx [(x² − 2x + 2) eˣ] = (2x − 2) eˣ + (x² − 2x + 2) eˣ = (x² + 0x + 0) eˣ = x² eˣ\`. ✓
+
+### 6.4. Đối xứng — kỹ thuật "lười" nhưng cực hữu ích
+
+Khi đoạn \`[−a, a]\` đối xứng quanh 0, kiểm tra ngay xem \`f\` có **lẻ** hoặc **chẵn** không:
+- \`f\` lẻ → tích phân = 0 (không cần làm gì thêm!).
+- \`f\` chẵn → tích phân = \`2·∫_0^a f(x) dx\` (chỉ cần làm một nửa).
+
+**Ví dụ tiết kiệm**: \`∫_{−1}^1 x⁵ cos x dx\`. Cả \`x⁵\` và \`cos x\` đều có tính đối xứng, tích chúng là **hàm lẻ** (\`(−x)⁵ cos(−x) = −x⁵ cos x\`). Kết quả = 0 ngay, không cần biến đổi.
 
 ---
 
@@ -664,6 +707,44 @@ Giá trị thật: \`1/3 ≈ 0.333333...\`.
 Simpson "chạm đáy" ngay vì \`x²\` là polynomial bậc 2 — chính xác là đa thức mà Simpson dùng để xấp xỉ. Trapezoid cần \`n\` lớn hơn. Riemann left/right tệ nhất.
 
 > **⚠ Lỗi thường gặp với numerical integration.** Khi hàm có điểm gián đoạn hoặc dao động mạnh (vd \`sin(1/x)\` quanh 0), mọi phương pháp lưới đều phá sản. Phải dùng **adaptive quadrature** — chia mịn ở chỗ hàm dao động, thưa ở chỗ trơn. Các thư viện như \`scipy.integrate.quad\` (Python) hoặc \`gonum.integrate\` (Go) dùng adaptive.
+
+### 11.4. Khi nào dùng phương pháp nào? — bảng quyết định
+
+| Tình huống | Phương pháp |
+|------------|-------------|
+| Hàm trơn (smooth), ít dao động, miền hữu hạn | **Simpson** — hiệu quả, sai số \`O(1/n⁴)\` |
+| Hàm gần tuyến tính | **Trapezoid** — đơn giản, đủ dùng |
+| Hàm dao động mạnh hoặc có đỉnh nhọn | **Adaptive** (Gauss-Kronrod, vd \`scipy.quad\`) |
+| Tích phân nhiều chiều (\`d ≥ 4\`) | **Monte Carlo** — sai số \`O(1/√N)\` không phụ thuộc \`d\` |
+| Tích phân kỳ vọng trong ML | **Monte Carlo** với samples từ phân phối |
+
+> **💡 Trực giác Monte Carlo.** Thay vì chia lưới đều, **lấy mẫu ngẫu nhiên** \`x_1, …, x_N\` từ miền, tính \`(1/N) Σ f(xᵢ) · |D|\`. Khi \`N → ∞\`, hội tụ về tích phân thật. Tốc độ chậm (\`O(1/√N)\`) nhưng **không phụ thuộc số chiều** — đó là siêu năng lực của Monte Carlo, lý do nó là vũ khí chính của ML khi có chiều cao (d = 1000, 10000…). Sẽ học cụ thể ở Tầng 5 & 6.
+
+### 11.5. Walk-through Monte Carlo — \`∫_0^1 e^{−x²} dx\`
+
+Giá trị tham chiếu: \`≈ 0.7468\`.
+
+**Pseudo-code**:
+\`\`\`go
+func MonteCarlo(f func(float64) float64, a, b float64, N int) float64 {
+    sum := 0.0
+    for i := 0; i < N; i++ {
+        x := a + rand.Float64() * (b - a)
+        sum += f(x)
+    }
+    return sum / float64(N) * (b - a)
+}
+\`\`\`
+
+Kết quả mong đợi với các \`N\` khác nhau (chỉ là ví dụ, sẽ dao động):
+
+| \`N\` | Ước lượng | Sai số tuyệt đối |
+|-----|-----------|------------------|
+| 100   | ~0.74 | ~0.01 |
+| 10,000  | ~0.747 | ~0.001 |
+| 1,000,000 | ~0.7468 | ~0.0001 |
+
+Chậm hơn Simpson nhiều với hàm 1D này. Nhưng nếu thay bằng tích phân 1000 chiều, Simpson đòi \`n^{1000}\` mẫu (không khả thi) trong khi Monte Carlo vẫn dùng \`N = 10^6\` được. Đó là "curse of dimensionality" — và Monte Carlo phá lời nguyền.
 
 ---
 

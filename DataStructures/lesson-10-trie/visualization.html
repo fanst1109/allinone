@@ -19,6 +19,10 @@
   button { background: #3b82f6; color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; cursor: pointer; margin-right: 6px; }
   input { padding: 4px; width: 120px; }
   .log { color: #444; min-height: 22px; margin-top: 8px; font-family: monospace; font-size: 13px; }
+  .auto-list { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .auto-list .word { background: #d1fae5; border: 1px solid #10b981; color: #065f46; padding: 4px 10px; border-radius: 14px; font-family: monospace; font-weight: 600; }
+  button.danger { background: #ef4444; }
+  button.green { background: #10b981; }
 </style>
 </head>
 <body>
@@ -40,8 +44,11 @@
   <button onclick="doInsert()">Insert</button>
   <button onclick="doSearch()">Search</button>
   <button onclick="doStartsWith()">StartsWith</button>
+  <button class="green" onclick="doAutocomplete()">▶ Autocomplete (bài 3)</button>
+  <button class="danger" onclick="doDelete()">Delete word (bài 4)</button>
   <button onclick="reset()">Reset</button>
   <svg id="svg" width="1000" height="380"></svg>
+  <div>Gợi ý từ tìm được: <div class="auto-list" id="autoList"></div></div>
   <div class="log" id="log">Node vàng = kết thúc một từ. Đường xanh = đường đi của truy vấn.</div>
 </div>
 
@@ -163,7 +170,63 @@ async function doStartsWith() {
 function reset() {
   root = newNode();
   ['cat', 'car', 'cart', 'cup', 'cope', 'code', 'coder', 'dog'].forEach(insert);
-  render(); log('Reset.');
+  document.getElementById('autoList').innerHTML = '';
+  render(); log('Reset về 8 từ của README: cat, car, cart, cup, cope, code, coder, dog.');
+}
+
+async function doAutocomplete() {
+  const w = document.getElementById('word').value.toLowerCase();
+  if (!w) return;
+  let cur = root;
+  const path = [root];
+  for (const c of w) {
+    if (!cur.children[c]) {
+      log(`Autocomplete "${w}": dừng ở '${c}' → không có từ nào bắt đầu bằng prefix này.`);
+      render(path);
+      document.getElementById('autoList').innerHTML = '';
+      return;
+    }
+    cur = cur.children[c];
+    path.push(cur);
+    render(path);
+    await sleep(250);
+  }
+  // DFS from cur, collect all words
+  const found = [];
+  function dfs(n, acc) {
+    if (n.isEnd) found.push(acc);
+    for (const ch of Object.keys(n.children).sort()) dfs(n.children[ch], acc + ch);
+  }
+  dfs(cur, w);
+  log(`Autocomplete "${w}": tìm thấy ${found.length} từ — DFS từ node prefix gom mọi node isEnd.`);
+  document.getElementById('autoList').innerHTML = found.map(f => `<span class="word">${f}</span>`).join('');
+  render(path);
+}
+
+function doDelete() {
+  const w = document.getElementById('word').value.toLowerCase();
+  if (!w) { log('Cần nhập từ.'); return; }
+  // Verify exists
+  let cur = root;
+  const stack = [{ node: root, ch: null }];
+  for (const c of w) {
+    if (!cur.children[c]) { log(`"${w}" không có trong trie.`); return; }
+    cur = cur.children[c];
+    stack.push({ node: cur, ch: c });
+  }
+  if (!cur.isEnd) { log(`"${w}" chỉ là prefix, không phải từ → không xóa.`); return; }
+  cur.isEnd = false;
+  // Prune empty branches từ dưới lên
+  let pruned = 0;
+  for (let i = stack.length - 1; i > 0; i--) {
+    const { node, ch } = stack[i];
+    if (node.isEnd || Object.keys(node.children).length > 0) break;
+    delete stack[i - 1].node.children[ch];
+    pruned++;
+  }
+  document.getElementById('autoList').innerHTML = '';
+  render();
+  log(`Đã xóa "${w}". isEnd về false. Cắt ${pruned} node lá rỗng (không là prefix của từ khác).`);
 }
 function log(m) { document.getElementById('log').textContent = m; }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }

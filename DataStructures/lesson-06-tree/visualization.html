@@ -15,6 +15,13 @@
   text { font: 600 14px sans-serif; text-anchor: middle; dominant-baseline: central; }
   button { background: #3b82f6; color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; cursor: pointer; margin-right: 6px; }
   .order { background: #f3f4f6; padding: 10px; border-radius: 4px; margin-top: 12px; font-family: monospace; min-height: 24px; }
+  .node-c.height { fill: #dbeafe; stroke: #3b82f6; }
+  .height-lbl { font: 600 11px sans-serif; fill: #1e40af; text-anchor: middle; }
+  pre.code { background: #1e293b; color: #e2e8f0; padding: 10px 14px; border-radius: 6px; font-size: 12px; margin-top: 8px; }
+  pre.code .ln { display: block; padding: 1px 6px; margin: 0 -6px; border-radius: 3px; }
+  pre.code .ln.hit { background: #facc15; color: #1e293b; font-weight: 600; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+  select { padding: 4px 6px; }
 </style>
 </head>
 <body>
@@ -30,30 +37,60 @@
 <main>
 <h1>Binary Tree — Bốn cách duyệt</h1>
 <div class="panel">
+  <label>Cây:
+    <select id="treeSel" onchange="switchTree()">
+      <option value="readme">Cây của README (5 node: 1,2,3,4,5)</option>
+      <option value="extended">Cây mở rộng (6 node)</option>
+    </select>
+  </label>
   <button onclick="run('preorder')">Preorder</button>
   <button onclick="run('inorder')">Inorder</button>
   <button onclick="run('postorder')">Postorder</button>
   <button onclick="run('level')">Level-order</button>
+  <button onclick="runHeight()">Tính chiều cao</button>
   <button onclick="reset()">Reset</button>
-  <svg id="svg" width="720" height="380"></svg>
+  <div class="two-col">
+    <svg id="svg" width="600" height="320"></svg>
+    <pre class="code" id="pseudo">Chọn một cách duyệt để xem pseudocode.</pre>
+  </div>
   <div class="order" id="order">Thứ tự duyệt sẽ hiển thị ở đây.</div>
 </div>
 
 <script>
-// Cây mẫu (val, x, y, left_idx, right_idx)
-const T = [
-  { v: 1, x: 360, y: 40 },
-  { v: 2, x: 200, y: 120, p: 0 },
-  { v: 3, x: 520, y: 120, p: 0 },
-  { v: 4, x: 120, y: 220, p: 1 },
-  { v: 5, x: 280, y: 220, p: 1 },
-  { v: 6, x: 600, y: 220, p: 2 },
-];
-const children = { 0: [1,2], 1: [3,4], 2: [null,5] };
+// Hai cây — README dùng cây 5 node (preorder=1,2,4,5,3; inorder=4,2,5,1,3; postorder=4,5,2,3,1; level=1,2,3,4,5)
+const TREES = {
+  readme: {
+    T: [
+      { v: 1, x: 300, y: 40 },
+      { v: 2, x: 180, y: 120, p: 0 },
+      { v: 3, x: 420, y: 120, p: 0 },
+      { v: 4, x: 100, y: 220, p: 1 },
+      { v: 5, x: 260, y: 220, p: 1 },
+    ],
+    children: { 0: [1,2], 1: [3,4], 2: [null,null] }
+  },
+  extended: {
+    T: [
+      { v: 1, x: 300, y: 40 },
+      { v: 2, x: 180, y: 120, p: 0 },
+      { v: 3, x: 420, y: 120, p: 0 },
+      { v: 4, x: 100, y: 220, p: 1 },
+      { v: 5, x: 260, y: 220, p: 1 },
+      { v: 6, x: 500, y: 220, p: 2 },
+    ],
+    children: { 0: [1,2], 1: [3,4], 2: [null,5] }
+  }
+};
+let T = TREES.readme.T;
+let children = TREES.readme.children;
 const svg = document.getElementById('svg');
-function render(hl = {}) {
+function switchTree() {
+  const k = document.getElementById('treeSel').value;
+  T = TREES[k].T; children = TREES[k].children;
+  reset();
+}
+function render(hl = {}, heightMap = {}) {
   svg.innerHTML = '';
-  // edges
   T.forEach((n, i) => {
     if (n.p !== undefined) {
       const p = T[n.p];
@@ -61,12 +98,15 @@ function render(hl = {}) {
         `<line class="edge" x1="${p.x}" y1="${p.y}" x2="${n.x}" y2="${n.y}"/>`);
     }
   });
-  // nodes
   T.forEach((n, i) => {
     const klass = 'node-c ' + (hl[i] || '');
     svg.insertAdjacentHTML('beforeend',
       `<circle class="${klass}" cx="${n.x}" cy="${n.y}" r="22"/>
        <text x="${n.x}" y="${n.y}">${n.v}</text>`);
+    if (heightMap[i] !== undefined) {
+      svg.insertAdjacentHTML('beforeend',
+        `<text class="height-lbl" x="${n.x + 30}" y="${n.y - 18}">h=${heightMap[i]}</text>`);
+    }
   });
 }
 function left(i)  { return children[i] && children[i][0] !== undefined ? children[i][0] : null; }
@@ -93,15 +133,32 @@ function buildOrder(mode) {
   return order;
 }
 
+const PSEUDO = {
+  preorder: ['function preorder(node):', '    if node == null: return', '    visit(node)         # in ra', '    preorder(node.left)', '    preorder(node.right)'],
+  inorder:  ['function inorder(node):',  '    if node == null: return', '    inorder(node.left)',  '    visit(node)         # in ra', '    inorder(node.right)'],
+  postorder:['function postorder(node):','    if node == null: return', '    postorder(node.left)','    postorder(node.right)','    visit(node)         # in ra'],
+  level:    ['function levelOrder(root):', '    queue = [root]', '    while queue not empty:', '        node = queue.dequeue()', '        visit(node)', '        if node.left:  queue.enqueue(node.left)', '        if node.right: queue.enqueue(node.right)']
+};
+function renderPseudo(mode, hitLine = -1) {
+  const lines = PSEUDO[mode] || [];
+  document.getElementById('pseudo').innerHTML = lines.map((l, i) => {
+    const esc = l.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return `<span class="ln${i === hitLine ? ' hit' : ''}">${esc}</span>`;
+  }).join('');
+}
+
 let busy = false;
 async function run(mode) {
   if (busy) return; busy = true;
   const order = buildOrder(mode);
   const out = document.getElementById('order');
   out.textContent = `${mode}: `;
+  renderPseudo(mode);
   const hl = {};
+  const visitLine = mode === 'preorder' ? 2 : mode === 'inorder' ? 3 : mode === 'postorder' ? 4 : 4;
   for (const i of order) {
     hl[i] = 'current';
+    renderPseudo(mode, visitLine);
     render(hl);
     await sleep(550);
     hl[i] = 'visited';
@@ -110,7 +167,32 @@ async function run(mode) {
   }
   busy = false;
 }
-function reset() { render(); document.getElementById('order').textContent = 'Thứ tự duyệt sẽ hiển thị ở đây.'; }
+async function runHeight() {
+  if (busy) return; busy = true;
+  document.getElementById('pseudo').innerHTML =
+    `<span class="ln">function height(node):</span>` +
+    `<span class="ln">    if node == null: return -1</span>` +
+    `<span class="ln">    return 1 + max(height(left), height(right))</span>`;
+  const out = document.getElementById('order');
+  out.textContent = 'Tính chiều cao bottom-up: ';
+  const heightMap = {};
+  async function h(i) {
+    if (i === null) return -1;
+    const l = await h(left(i));
+    const r = await h(right(i));
+    const hv = 1 + Math.max(l, r);
+    heightMap[i] = hv;
+    render({ [i]: 'height' }, heightMap);
+    out.textContent += `h(${T[i].v})=${hv} `;
+    await sleep(450);
+    return hv;
+  }
+  const total = await h(0);
+  out.textContent += `→ chiều cao cây = ${total}.`;
+  render({}, heightMap);
+  busy = false;
+}
+function reset() { render(); document.getElementById('order').textContent = 'Thứ tự duyệt sẽ hiển thị ở đây.'; document.getElementById('pseudo').textContent = 'Chọn một cách duyệt để xem pseudocode.'; }
 render();
 </script></main>
 <!-- README modal (xem tools/readme-modal.js để biết chi tiết) -->

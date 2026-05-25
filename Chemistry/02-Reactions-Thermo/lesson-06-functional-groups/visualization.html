@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 06 (T2) — Nhóm chức</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 100px; }
+  select { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; }
+  .group-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .group-card {
+    padding: 14px; border: 2px solid #e2e8f0; border-radius: 8px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .group-card:hover { border-color: #be185d; transform: translateY(-2px); }
+  .group-card.active { border-color: #be185d; background: #fce7f3; }
+  .group-card .formula { font-family: monospace; font-size: 18px; font-weight: 700; color: #be185d; }
+  .group-card .name { font-size: 14px; font-weight: 600; margin-top: 4px; }
+  .group-card .ex { font-size: 12px; color: #475569; margin-top: 4px; }
+
+  .detail {
+    padding: 18px; background: #fef3c7; border-radius: 8px;
+    margin-top: 14px;
+  }
+  .detail h3 { margin: 0 0 8px; color: #92400e; }
+  .stat { display: inline-block; background: #fce7f3; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #be185d; }
+  table.summary {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+  }
+  table.summary th, table.summary td {
+    border: 1px solid #e2e8f0; padding: 6px 10px;
+    text-align: left;
+  }
+  table.summary th { background: #fce7f3; color: #be185d; }
+
+  svg.struct {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 480px; height: 200px;
+  }
+  svg.struct text { font-family: serif; font-size: 22px; font-weight: 700; text-anchor: middle; }
+  svg.struct .bond { stroke: #1a202c; stroke-width: 2; }
+  .ex-list {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-top: 10px;
+  }
+  .ex-item {
+    background: white; padding: 8px 12px;
+    border-left: 3px solid #be185d; border-radius: 4px;
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Chemistry</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-organic-hydrocarbons/visualization.html">← L5: Hydrocarbon</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Nhóm chức</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L7: Polymer (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 06 (T2) — Nhóm chức (Functional Groups)</h1>
+<p>Bộ công cụ: gallery 6 nhóm chức chính (click để xem chi tiết, ví dụ, SVG cấu trúc) và bảng tổng hợp mở rộng.</p>
+
+<h2>1. Nhóm chức cốt lõi — click để xem chi tiết</h2>
+<div class="card">
+  <div class="group-grid" id="groupGrid"></div>
+  <div class="detail" id="groupDetail"></div>
+  <svg class="struct" id="structSvg" viewBox="0 0 480 200"></svg>
+</div>
+
+<h2>2. Bảng tổng hợp 12 nhóm chức</h2>
+<div class="card">
+  <table class="summary" id="summaryTable"></table>
+</div>
+
+</main>
+
+<script>
+const GROUPS = {
+  alcohol: {
+    formula: "R−OH",
+    name: "Alcohol",
+    iupac: "-anol",
+    desc: "Nhóm hydroxyl −OH gắn vào C no. Tạo H-bond mạnh → tan trong H₂O, T_sôi cao.",
+    tính_chất: ["Phân cực", "Tạo H-bond (donor + acceptor)", "Acid rất yếu (pKa ~ 16)", "Oxy hóa được (bậc 1, 2)"],
+    examples: [
+      {f:"CH₃OH", name:"Methanol", use:"Dung môi, RẤT ĐỘC"},
+      {f:"C₂H₅OH", name:"Ethanol", use:"Rượu uống, nhiên liệu"},
+      {f:"(CH₃)₂CHOH", name:"Isopropanol", use:"Cồn khử trùng 70%"},
+      {f:"HOCH₂CH₂OH", name:"Ethylene glycol", use:"Chống đông radio"},
+      {f:"Glycerol", name:"Glycerol", use:"Mỹ phẩm, dược phẩm"}
+    ],
+    draw: drawAlcohol
+  },
+  aldehyde: {
+    formula: "R−CHO",
+    name: "Aldehyde",
+    iupac: "-anal",
+    desc: "Nhóm carbonyl C=O ở đầu chuỗi (luôn có 1 H trên C đó).",
+    tính_chất: ["Phân cực mạnh (C=O)", "Không H-bond mạnh", "Dễ bị oxy hóa → carboxylic acid"],
+    examples: [
+      {f:"HCHO", name:"Formaldehyde", use:"Bảo quản tiêu bản (formalin)"},
+      {f:"CH₃CHO", name:"Acetaldehyde", use:"Trung gian say rượu"},
+      {f:"C₆H₅CHO", name:"Benzaldehyde", use:"Mùi hạnh nhân"},
+      {f:"Cinnamaldehyde", name:"Cinnamaldehyde", use:"Mùi quế"}
+    ],
+    draw: drawAldehyde
+  },
+  ketone: {
+    formula: "R−CO−R'",
+    name: "Ketone",
+    iupac: "-anone",
+    desc: "Nhóm C=O ở giữa chuỗi (không ở đầu).",
+    tính_chất: ["Phân cực", "Không H-bond mạnh", "Không bị oxy hóa dễ"],
+    examples: [
+      {f:"(CH₃)₂CO", name:"Acetone (propan-2-one)", use:"Tẩy sơn móng tay"},
+      {f:"Cyclohexanone", name:"Cyclohexanone", use:"Trung gian nylon"},
+      {f:"β-hydroxybutyrate", name:"Ketone bodies", use:"Đường năng lượng khi đói/keto"}
+    ],
+    draw: drawKetone
+  },
+  carboxylic: {
+    formula: "R−COOH",
+    name: "Carboxylic Acid",
+    iupac: "-anoic acid",
+    desc: "Nhóm −COOH = C=O + O−H. Acid yếu (pKa ~ 4-5).",
+    tính_chất: ["Acid yếu mạnh nhất trong các nhóm chức cơ bản", "H-bond cực mạnh (tạo dimer)", "Phản ứng ester hóa với alcohol"],
+    examples: [
+      {f:"HCOOH", name:"Acid formic", use:"Nọc kiến, ong"},
+      {f:"CH₃COOH", name:"Acid axetic", use:"Giấm ăn"},
+      {f:"C₆H₅COOH", name:"Acid benzoic", use:"Bảo quản thực phẩm"},
+      {f:"CH₃(CH₂)₁₆COOH", name:"Acid stearic", use:"Mỡ động vật"}
+    ],
+    draw: drawCarboxylic
+  },
+  ester: {
+    formula: "R−COO−R'",
+    name: "Ester",
+    iupac: "-yl -anoate",
+    desc: "Sản phẩm acid + alcohol, mất nước. Mùi thơm đặc trưng.",
+    tính_chất: ["Phân cực vừa", "Không H-bond mạnh (không O-H tự do)", "T_sôi thấp hơn acid → bay hơi → mùi"],
+    examples: [
+      {f:"CH₃COOC₂H₅", name:"Ethyl acetate", use:"Mùi lê / chuối"},
+      {f:"CH₃(CH₂)₃COOCH₃", name:"Methyl butanoate", use:"Mùi dứa"},
+      {f:"C₆H₅COOCH₃", name:"Methyl benzoate", use:"Mùi hoa hồng"},
+      {f:"Triglyceride", name:"Triglyceride", use:"Cấu trúc dầu, mỡ"}
+    ],
+    draw: drawEster
+  },
+  amine: {
+    formula: "R−NH₂",
+    name: "Amine",
+    iupac: "-amine / amino-",
+    desc: "Nhóm −NH₂ thay 1 H trong NH₃. Bậc 1/2/3 tùy số H còn lại.",
+    tính_chất: ["Base yếu (giống NH₃)", "Tạo H-bond (bậc 1, 2)", "Mùi tanh đặc trưng"],
+    examples: [
+      {f:"CH₃NH₂", name:"Methylamine", use:"Mùi cá ươn nhẹ"},
+      {f:"(CH₃)₃N", name:"Trimethylamine", use:"Mùi tanh cá ươn"},
+      {f:"H₂N-CH₂-COOH", name:"Glycine", use:"Amino acid đơn giản nhất"},
+      {f:"H₂N-(CH₂)₆-NH₂", name:"Hexamethylenediamine", use:"Trung gian nylon"}
+    ],
+    draw: drawAmine
+  }
+};
+
+function buildGrid() {
+  const g = document.getElementById("groupGrid");
+  Object.entries(GROUPS).forEach(([key, grp]) => {
+    const item = document.createElement("div");
+    item.className = "group-card";
+    if (key === "alcohol") item.classList.add("active");
+    item.dataset.key = key;
+    item.innerHTML = `
+      <div class="formula">${grp.formula}</div>
+      <div class="name">${grp.name}</div>
+      <div class="ex">${grp.examples[0].name}</div>
+    `;
+    item.onclick = () => selectGroup(key);
+    g.appendChild(item);
+  });
+}
+
+function selectGroup(key) {
+  document.querySelectorAll(".group-card").forEach(c => c.classList.toggle("active", c.dataset.key === key));
+  const grp = GROUPS[key];
+  document.getElementById("groupDetail").innerHTML = `
+    <h3>${grp.name} (${grp.formula}) — IUPAC: ${grp.iupac}</h3>
+    <div>${grp.desc}</div>
+    <div style="margin-top:10px"><strong>Tính chất:</strong></div>
+    <ul style="margin:6px 0">${grp.tính_chất.map(t => `<li>${t}</li>`).join("")}</ul>
+    <div style="margin-top:10px"><strong>Ví dụ:</strong></div>
+    <div class="ex-list">
+      ${grp.examples.map(e => `<div class="ex-item"><strong>${e.f}</strong> — ${e.name}<br><small>${e.use}</small></div>`).join("")}
+    </div>
+  `;
+  grp.draw();
+}
+
+// ===== Structure drawers =====
+function clearStruct() {
+  const svg = document.getElementById("structSvg");
+  svg.innerHTML = "";
+  return svg;
+}
+
+function bond(svg, x1, y1, x2, y2, count = 1) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const len = Math.sqrt(dx*dx + dy*dy);
+  const nx = -dy / len, ny = dx / len;
+  const offsets = count === 1 ? [0] : count === 2 ? [-4, 4] : [-6, 0, 6];
+  offsets.forEach(o => {
+    const b = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    b.setAttribute("class", "bond");
+    b.setAttribute("x1", x1 + nx * o); b.setAttribute("y1", y1 + ny * o);
+    b.setAttribute("x2", x2 + nx * o); b.setAttribute("y2", y2 + ny * o);
+    svg.appendChild(b);
+  });
+}
+
+function text(svg, x, y, content, color = "#1a202c") {
+  const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  t.setAttribute("x", x); t.setAttribute("y", y + 7);
+  t.setAttribute("fill", color);
+  t.textContent = content;
+  svg.appendChild(t);
+}
+
+function drawAlcohol() {
+  const svg = clearStruct();
+  text(svg, 120, 100, "R");
+  bond(svg, 140, 100, 220, 100);
+  text(svg, 240, 100, "O", "#dc2626");
+  bond(svg, 260, 100, 340, 100);
+  text(svg, 360, 100, "H");
+  // Label
+  text(svg, 240, 60, "R−O−H", "#be185d");
+}
+
+function drawAldehyde() {
+  const svg = clearStruct();
+  text(svg, 120, 100, "R");
+  bond(svg, 140, 100, 220, 100);
+  text(svg, 240, 100, "C");
+  bond(svg, 240, 80, 240, 50, 2);
+  text(svg, 240, 30, "O", "#dc2626");
+  bond(svg, 260, 100, 340, 100);
+  text(svg, 360, 100, "H");
+}
+
+function drawKetone() {
+  const svg = clearStruct();
+  text(svg, 90, 100, "R");
+  bond(svg, 110, 100, 220, 100);
+  text(svg, 240, 100, "C");
+  bond(svg, 240, 80, 240, 50, 2);
+  text(svg, 240, 30, "O", "#dc2626");
+  bond(svg, 260, 100, 350, 100);
+  text(svg, 370, 100, "R'");
+}
+
+function drawCarboxylic() {
+  const svg = clearStruct();
+  text(svg, 90, 100, "R");
+  bond(svg, 110, 100, 220, 100);
+  text(svg, 240, 100, "C");
+  bond(svg, 240, 80, 240, 50, 2);
+  text(svg, 240, 30, "O", "#dc2626");
+  bond(svg, 260, 110, 320, 145);
+  text(svg, 340, 145, "O", "#dc2626");
+  bond(svg, 360, 145, 420, 145);
+  text(svg, 440, 145, "H");
+}
+
+function drawEster() {
+  const svg = clearStruct();
+  text(svg, 60, 100, "R");
+  bond(svg, 80, 100, 180, 100);
+  text(svg, 200, 100, "C");
+  bond(svg, 200, 80, 200, 50, 2);
+  text(svg, 200, 30, "O", "#dc2626");
+  bond(svg, 220, 110, 290, 145);
+  text(svg, 310, 145, "O", "#dc2626");
+  bond(svg, 330, 145, 410, 145);
+  text(svg, 430, 145, "R'");
+}
+
+function drawAmine() {
+  const svg = clearStruct();
+  text(svg, 120, 100, "R");
+  bond(svg, 140, 100, 220, 100);
+  text(svg, 240, 100, "N", "#1d4ed8");
+  bond(svg, 245, 110, 260, 150);
+  text(svg, 280, 150, "H");
+  bond(svg, 260, 100, 340, 100);
+  text(svg, 360, 100, "H");
+}
+
+// Summary table
+function buildSummary() {
+  const tbl = document.getElementById("summaryTable");
+  const rows = [
+    ["Nhóm chức", "Công thức", "Tên (IUPAC)", "Ví dụ"],
+    ["Alkane", "C−C", "-ane", "CH₄ methane"],
+    ["Alkene", "C=C", "-ene", "C₂H₄ ethene"],
+    ["Alkyne", "C≡C", "-yne", "C₂H₂ ethyne"],
+    ["Aromatic", "vòng 6 π", "(đặc biệt)", "C₆H₆ benzene"],
+    ["Alcohol", "R−OH", "-anol", "C₂H₅OH ethanol"],
+    ["Aldehyde", "R−CHO", "-anal", "CH₃CHO acetaldehyde"],
+    ["Ketone", "R−CO−R'", "-anone", "(CH₃)₂CO acetone"],
+    ["Carboxylic acid", "R−COOH", "-anoic acid", "CH₃COOH acetic acid"],
+    ["Ester", "R−COO−R'", "-yl -anoate", "CH₃COOC₂H₅ ethyl acetate"],
+    ["Amine", "R−NH₂", "-anamine", "CH₃NH₂ methylamine"],
+    ["Ether", "R−O−R'", "-yl -yl ether", "CH₃-O-CH₃ dimethyl ether"],
+    ["Amide", "R−CO−NH₂", "-anamide", "CH₃CONH₂ acetamide"]
+  ];
+  tbl.innerHTML = rows.map((r, i) => {
+    const tag = i === 0 ? "th" : "td";
+    return `<tr>${r.map(c => `<${tag}>${c}</${tag}>`).join("")}</tr>`;
+  }).join("");
+}
+
+// Init
+buildGrid();
+buildSummary();
+selectGroup("alcohol");
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 04 — Lực liên phân tử</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  h3 { color: #4a5568; margin-top: 20px; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 100px; }
+  select { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; background: white; }
+  button { background: #be185d; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button:hover { background: #9d174d; }
+  button.muted { background: #94a3b8; }
+  button.muted.active { background: #be185d; }
+  .stat { display: inline-block; background: #fce7f3; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #be185d; }
+
+  svg.chart {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 760px; height: 320px;
+  }
+  svg.chart .axis { stroke: #2d3748; stroke-width: 1.5; }
+  svg.chart .grid { stroke: #e2e8f0; stroke-width: 1; }
+  svg.chart .line { fill: none; stroke-width: 2.5; }
+  svg.chart .pt { stroke-width: 1.5; stroke: white; }
+  svg.chart .lbl { font: 11px sans-serif; fill: #475569; text-anchor: middle; }
+  svg.chart .ylbl { font: 12px sans-serif; fill: #1a202c; font-weight: 700; }
+  svg.chart .title { font: 14px sans-serif; fill: #1a202c; font-weight: 700; text-anchor: middle; }
+
+  svg.hbond {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 600px; height: 360px;
+    background: linear-gradient(135deg, #f8fafc, #fce7f3);
+    border-radius: 8px;
+  }
+  svg.hbond .atom-o { fill: #dc2626; stroke: #7f1d1d; stroke-width: 1.5; }
+  svg.hbond .atom-h { fill: #f3f4f6; stroke: #4b5563; stroke-width: 1.5; }
+  svg.hbond .atom-n { fill: #1d4ed8; stroke: #1e3a8a; stroke-width: 1.5; }
+  svg.hbond .bond { stroke: #1a202c; stroke-width: 3; }
+  svg.hbond .hbond { stroke: #be185d; stroke-width: 2.5; stroke-dasharray: 5 4; }
+  svg.hbond text { font: bold 14px sans-serif; }
+  svg.hbond .sym-o { fill: white; text-anchor: middle; }
+  svg.hbond .sym-h { fill: #1a202c; text-anchor: middle; }
+  svg.hbond .charge { fill: #047857; font-size: 11px; text-anchor: middle; }
+  svg.hbond .label { font: 11px sans-serif; fill: #475569; }
+
+  table.compare {
+    width: 100%; border-collapse: collapse; margin-top: 12px;
+    font-size: 14px;
+  }
+  table.compare th, table.compare td {
+    border: 1px solid #e2e8f0; padding: 8px 12px;
+    text-align: left;
+  }
+  table.compare th { background: #fce7f3; color: #be185d; }
+  table.compare tr.highlight { background: #fef3c7; }
+
+  .force-card {
+    border-left: 4px solid #be185d;
+    background: #fce7f3; padding: 14px;
+    border-radius: 6px; margin: 8px 0;
+  }
+  .force-card.london { border-left-color: #94a3b8; background: #f1f5f9; }
+  .force-card.dipole { border-left-color: #f59e0b; background: #fef3c7; }
+  .force-card.hbond { border-left-color: #be185d; background: #fce7f3; }
+  .force-card h4 { margin: 0 0 6px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Chemistry</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-ionic-covalent-bond/visualization.html">← L3: Liên kết</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Lực liên phân tử</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L5: VSEPR (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 04 — Lực liên phân tử (Intermolecular Forces)</h1>
+<p>Bộ công cụ: biểu đồ nhiệt độ sôi bất thường của hydride, mô phỏng liên kết hydrogen trong nước, và bộ dự đoán lực liên phân tử cho phân tử bất kỳ.</p>
+
+<h2>1. Nhiệt độ sôi bất thường — bằng chứng của H-bond</h2>
+<div class="card">
+  <p>Biểu đồ T_sôi của hydride các nhóm: nếu chỉ có London + dipole-dipole, T_sôi phải tăng đều theo M (khối lượng phân tử). Nhưng nhóm có H-bond (H₂O, NH₃, HF) <strong>bật cao bất thường</strong>.</p>
+  <div class="row">
+    <button class="muted active" onclick="showGroup('VIA')">Nhóm VIA: H₂O, H₂S, H₂Se, H₂Te</button>
+    <button class="muted" onclick="showGroup('VA')">Nhóm VA: NH₃, PH₃, AsH₃, SbH₃</button>
+    <button class="muted" onclick="showGroup('VIIA')">Nhóm VIIA: HF, HCl, HBr, HI</button>
+  </div>
+  <svg class="chart" id="chartSvg" viewBox="0 0 760 320"></svg>
+  <div id="chartNote" style="padding:10px; background:#fef3c7; border-radius:6px; margin-top:8px"></div>
+</div>
+
+<h2>2. Liên kết Hydrogen trong nước — mô phỏng</h2>
+<div class="card">
+  <p>Mỗi phân tử H₂O có 2 H (donor) + 2 lone pair O (acceptor) → tạo được <strong>4 liên kết hydrogen</strong> với 4 phân tử lân cận. Đường nét đứt = liên kết hydrogen.</p>
+  <svg class="hbond" id="hbondSvg" viewBox="0 0 600 360"></svg>
+  <div style="padding:10px; background:#fef3c7; border-radius:6px">
+    <strong>Quan sát:</strong> Phân tử trung tâm (đỏ đậm) tạo 4 H-bond. Trong nước đá, cấu trúc này lặp lại đều đặn, để lại nhiều không gian rỗng → mật độ &lt; nước lỏng → đá nổi.
+  </div>
+</div>
+
+<h2>3. Force Predictor — chọn phân tử, dự đoán lực inter</h2>
+<div class="card">
+  <div class="row">
+    <label>Chọn phân tử:</label>
+    <select id="forcePicker">
+      <option value="CH4">CH₄ (Methane)</option>
+      <option value="C5H12">C₅H₁₂ (Pentane)</option>
+      <option value="C8H18">C₈H₁₈ (Octane)</option>
+      <option value="I2">I₂</option>
+      <option value="CO2">CO₂</option>
+      <option value="HCl">HCl</option>
+      <option value="CH3Cl">CH₃Cl</option>
+      <option value="NH3" selected>NH₃ (Ammoniac)</option>
+      <option value="H2O">H₂O (Nước)</option>
+      <option value="HF">HF</option>
+      <option value="CH3OH">CH₃OH (Methanol)</option>
+      <option value="C2H5OH">C₂H₅OH (Etanol)</option>
+      <option value="CH3COOH">CH₃COOH (Acid axetic)</option>
+    </select>
+  </div>
+  <div id="forceResult" style="margin-top:14px"></div>
+</div>
+
+<h2>4. Bảng so sánh tổng hợp</h2>
+<div class="card">
+  <table class="compare">
+    <tr>
+      <th>Loại lực</th>
+      <th>Năng lượng (kJ/mol)</th>
+      <th>Phân tử minh họa</th>
+      <th>T_sôi</th>
+      <th>Ghi chú</th>
+    </tr>
+    <tr>
+      <td>London (rất nhỏ)</td>
+      <td>~ 0.05-2</td>
+      <td>He</td>
+      <td>−269°C</td>
+      <td>Khí trơ rất khó hóa lỏng</td>
+    </tr>
+    <tr>
+      <td>London (nhỏ)</td>
+      <td>~ 1-10</td>
+      <td>CH₄</td>
+      <td>−162°C</td>
+      <td>Phân tử nhỏ, không cực</td>
+    </tr>
+    <tr>
+      <td>London (lớn)</td>
+      <td>~ 20-40</td>
+      <td>I₂</td>
+      <td>184°C</td>
+      <td>Phân tử rất lớn, nhiều e</td>
+    </tr>
+    <tr>
+      <td>Dipole-dipole</td>
+      <td>~ 5-25</td>
+      <td>HCl</td>
+      <td>−85°C</td>
+      <td>Phân tử cực, không H-bond</td>
+    </tr>
+    <tr class="highlight">
+      <td>H-bond (trung bình)</td>
+      <td>~ 10-20</td>
+      <td>NH₃</td>
+      <td>−33°C</td>
+      <td>H + N</td>
+    </tr>
+    <tr class="highlight">
+      <td>H-bond (mạnh)</td>
+      <td>~ 20-40</td>
+      <td>H₂O, HF</td>
+      <td>100°C, 19.5°C</td>
+      <td>H + O hoặc F, 2-4 H-bond/phân tử</td>
+    </tr>
+  </table>
+</div>
+
+</main>
+
+<script>
+// Hydride boiling points
+const HYDRIDES = {
+  VIA: {
+    label: "Nhóm VIA (H₂X)",
+    note: "H₂O sôi cao bất thường (100°C) so với H₂S, H₂Se, H₂Te — vì O đủ điện âm để tạo H-bond.",
+    data: [
+      {sym:"H₂O", M:18, T:100, hbond:true},
+      {sym:"H₂S", M:34, T:-60},
+      {sym:"H₂Se", M:81, T:-41},
+      {sym:"H₂Te", M:130, T:-2}
+    ]
+  },
+  VA: {
+    label: "Nhóm VA (XH₃)",
+    note: "NH₃ sôi cao hơn PH₃ — H-bond với N.",
+    data: [
+      {sym:"NH₃", M:17, T:-33, hbond:true},
+      {sym:"PH₃", M:34, T:-88},
+      {sym:"AsH₃", M:78, T:-62},
+      {sym:"SbH₃", M:125, T:-17}
+    ]
+  },
+  VIIA: {
+    label: "Nhóm VIIA (HX)",
+    note: "HF sôi cao bất thường (19.5°C). HCl, HBr, HI không có H-bond nên T_sôi tăng đều theo M.",
+    data: [
+      {sym:"HF", M:20, T:19.5, hbond:true},
+      {sym:"HCl", M:36, T:-85},
+      {sym:"HBr", M:81, T:-67},
+      {sym:"HI", M:128, T:-35}
+    ]
+  }
+};
+
+let currentGroup = "VIA";
+
+function showGroup(g) {
+  currentGroup = g;
+  document.querySelectorAll("button.muted").forEach((b, i) => {
+    const groups = ["VIA","VA","VIIA"];
+    b.classList.toggle("active", groups[i] === g);
+  });
+  drawChart();
+}
+
+function drawChart() {
+  const grp = HYDRIDES[currentGroup];
+  const svg = document.getElementById("chartSvg");
+  svg.innerHTML = "";
+  const W = 760, H = 320;
+  const padL = 60, padR = 30, padT = 40, padB = 50;
+  const cw = W - padL - padR, ch = H - padT - padB;
+
+  // Title
+  const title = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  title.setAttribute("class", "title");
+  title.setAttribute("x", W / 2); title.setAttribute("y", 22);
+  title.textContent = `${grp.label} — Nhiệt độ sôi (°C)`;
+  svg.appendChild(title);
+
+  // Y range: -200 to 150
+  const yMin = -200, yMax = 150;
+  const yScale = (t) => padT + ((yMax - t) / (yMax - yMin)) * ch;
+  const xScale = (i) => padL + ((i + 0.5) / 4) * cw;
+
+  // Y gridlines
+  for (let t = yMin; t <= yMax; t += 50) {
+    const y = yScale(t);
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("class", "grid");
+    line.setAttribute("x1", padL); line.setAttribute("y1", y);
+    line.setAttribute("x2", W - padR); line.setAttribute("y2", y);
+    svg.appendChild(line);
+    const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lbl.setAttribute("class", "lbl");
+    lbl.setAttribute("x", padL - 8); lbl.setAttribute("y", y + 4);
+    lbl.setAttribute("text-anchor", "end");
+    lbl.textContent = t + "°C";
+    svg.appendChild(lbl);
+  }
+  // 0°C reference
+  const yZero = yScale(0);
+  const zeroLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  zeroLine.setAttribute("x1", padL); zeroLine.setAttribute("y1", yZero);
+  zeroLine.setAttribute("x2", W - padR); zeroLine.setAttribute("y2", yZero);
+  zeroLine.setAttribute("stroke", "#94a3b8"); zeroLine.setAttribute("stroke-width", 1.5);
+  zeroLine.setAttribute("stroke-dasharray", "4 3");
+  svg.appendChild(zeroLine);
+
+  // Connect line
+  let path = "";
+  grp.data.forEach((d, i) => {
+    const x = xScale(i), y = yScale(d.T);
+    path += (i === 0 ? "M " : " L ") + x + " " + y;
+  });
+  const line = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  line.setAttribute("class", "line");
+  line.setAttribute("stroke", "#be185d");
+  line.setAttribute("d", path);
+  svg.appendChild(line);
+
+  // Points + labels
+  grp.data.forEach((d, i) => {
+    const x = xScale(i), y = yScale(d.T);
+    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    c.setAttribute("class", "pt");
+    c.setAttribute("cx", x); c.setAttribute("cy", y);
+    c.setAttribute("r", d.hbond ? 9 : 6);
+    c.setAttribute("fill", d.hbond ? "#be185d" : "#475569");
+    svg.appendChild(c);
+    // Y label
+    const ylbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    ylbl.setAttribute("class", "ylbl");
+    ylbl.setAttribute("x", x); ylbl.setAttribute("y", y - 14);
+    ylbl.setAttribute("text-anchor", "middle");
+    ylbl.textContent = d.T + "°C";
+    if (d.hbond) ylbl.setAttribute("fill", "#be185d");
+    svg.appendChild(ylbl);
+    // X label
+    const xlbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    xlbl.setAttribute("class", "lbl");
+    xlbl.setAttribute("x", x); xlbl.setAttribute("y", H - padB + 18);
+    xlbl.textContent = d.sym;
+    if (d.hbond) {
+      xlbl.setAttribute("font-weight", "700");
+      xlbl.setAttribute("fill", "#be185d");
+    }
+    svg.appendChild(xlbl);
+    // M label
+    const mlbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    mlbl.setAttribute("class", "lbl");
+    mlbl.setAttribute("x", x); mlbl.setAttribute("y", H - padB + 34);
+    mlbl.setAttribute("font-size", "10");
+    mlbl.textContent = "M = " + d.M;
+    svg.appendChild(mlbl);
+  });
+
+  document.getElementById("chartNote").innerHTML = `<strong>Quan sát:</strong> ${grp.note}`;
+}
+
+// H-bond mosaic
+function drawHBond() {
+  const svg = document.getElementById("hbondSvg");
+  svg.innerHTML = "";
+  // 5 water molecules: center + 4 around
+  const centers = [
+    {x:300, y:180, central:true},
+    {x:300, y:80},   // top
+    {x:300, y:280},  // bottom
+    {x:160, y:180},  // left
+    {x:440, y:180}   // right
+  ];
+
+  // Draw central first
+  centers.forEach((c, i) => {
+    drawWater(svg, c.x, c.y, c.central);
+  });
+
+  // H-bonds from central to 4 others
+  // Central O at (300, 180). Its 2 H going up-right and up-left.
+  // For simplicity: draw 4 dashed H-bonds from center's perimeter to each neighbor
+  const ch = centers[0];
+  centers.slice(1).forEach(n => {
+    const dx = n.x - ch.x, dy = n.y - ch.y;
+    const len = Math.sqrt(dx*dx + dy*dy);
+    const startX = ch.x + (dx / len) * 38;
+    const startY = ch.y + (dy / len) * 38;
+    const endX = n.x - (dx / len) * 38;
+    const endY = n.y - (dy / len) * 38;
+    const hb = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    hb.setAttribute("class", "hbond");
+    hb.setAttribute("x1", startX); hb.setAttribute("y1", startY);
+    hb.setAttribute("x2", endX); hb.setAttribute("y2", endY);
+    svg.appendChild(hb);
+  });
+
+  // Labels
+  const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  lbl.setAttribute("class", "label");
+  lbl.setAttribute("x", 10); lbl.setAttribute("y", 22);
+  lbl.setAttribute("font-weight", "700"); lbl.setAttribute("font-size", "13");
+  lbl.textContent = "Mỗi H₂O tạo 4 liên kết hydrogen (đường nét đứt hồng).";
+  svg.appendChild(lbl);
+}
+
+function drawWater(svg, cx, cy, central) {
+  // O atom
+  const o = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  o.setAttribute("class", "atom-o");
+  o.setAttribute("cx", cx); o.setAttribute("cy", cy);
+  o.setAttribute("r", central ? 26 : 22);
+  if (central) o.setAttribute("stroke-width", "3");
+  svg.appendChild(o);
+  // O symbol
+  const oSym = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  oSym.setAttribute("class", "sym-o");
+  oSym.setAttribute("x", cx); oSym.setAttribute("y", cy + 6);
+  oSym.textContent = "O";
+  svg.appendChild(oSym);
+  // δ−
+  const delta = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  delta.setAttribute("class", "charge");
+  delta.setAttribute("x", cx); delta.setAttribute("y", cy + 24);
+  delta.textContent = "δ−";
+  svg.appendChild(delta);
+
+  // 2 H atoms at 104.5° angle
+  const angle = (104.5 / 2) * Math.PI / 180; // half angle from vertical
+  const bondLen = 32;
+  const positions = [
+    {x: cx - bondLen * Math.sin(angle), y: cy - bondLen * Math.cos(angle)},
+    {x: cx + bondLen * Math.sin(angle), y: cy - bondLen * Math.cos(angle)}
+  ];
+  positions.forEach(p => {
+    // Bond line
+    const bond = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    bond.setAttribute("class", "bond");
+    bond.setAttribute("x1", cx); bond.setAttribute("y1", cy);
+    bond.setAttribute("x2", p.x); bond.setAttribute("y2", p.y);
+    svg.appendChild(bond);
+    // H atom
+    const h = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    h.setAttribute("class", "atom-h");
+    h.setAttribute("cx", p.x); h.setAttribute("cy", p.y);
+    h.setAttribute("r", 12);
+    svg.appendChild(h);
+    // H symbol
+    const hSym = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    hSym.setAttribute("class", "sym-h");
+    hSym.setAttribute("x", p.x); hSym.setAttribute("y", p.y + 5);
+    hSym.setAttribute("font-size", "12");
+    hSym.textContent = "H";
+    svg.appendChild(hSym);
+    // δ+
+    const deltaH = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    deltaH.setAttribute("class", "charge");
+    deltaH.setAttribute("x", p.x); deltaH.setAttribute("y", p.y - 18);
+    deltaH.textContent = "δ+";
+    svg.appendChild(deltaH);
+  });
+}
+
+// Force predictor
+const FORCES = {
+  CH4: {name:"CH₄", M:16, Tboil:-162, forces:["london"], hbond:false, polar:false,
+    note:"Phân tử nhỏ, không cực, không H-bond. Chỉ có London yếu. T_sôi rất thấp."},
+  C5H12: {name:"C₅H₁₂", M:72, Tboil:36, forces:["london"], hbond:false, polar:false,
+    note:"Alkane lớn hơn, London mạnh hơn, đủ để là lỏng ở nhiệt độ phòng (xăng)."},
+  C8H18: {name:"C₈H₁₈", M:114, Tboil:126, forces:["london"], hbond:false, polar:false,
+    note:"Octane — thành phần xăng. London của phân tử dài → T_sôi cao."},
+  I2: {name:"I₂", M:254, Tboil:184, forces:["london"], hbond:false, polar:false,
+    note:"Phân tử rất lớn (106 e). London cực mạnh — sôi cao hơn cả nhiều phân tử có H-bond!"},
+  CO2: {name:"CO₂", M:44, Tboil:-78, forces:["london"], hbond:false, polar:false,
+    note:"Liên kết C=O cực nhưng phân tử thẳng đối xứng → moment dipole tổng = 0. Chỉ có London."},
+  HCl: {name:"HCl", M:36, Tboil:-85, forces:["london","dipole"], hbond:false, polar:true,
+    note:"Phân tử cực (Δχ = 0.96). Có dipole-dipole nhưng KHÔNG H-bond (Cl không thuộc N/O/F)."},
+  CH3Cl: {name:"CH₃Cl", M:50.5, Tboil:-24, forces:["london","dipole"], hbond:false, polar:true,
+    note:"Phân tử cực vì C-Cl. London + dipole-dipole. T_sôi cao hơn CH₄ cùng kích thước."},
+  NH3: {name:"NH₃", M:17, Tboil:-33, forces:["london","dipole","hbond"], hbond:true, polar:true,
+    note:"Có H-bond (H gắn N). Sôi cao hơn PH₃ (-88°C) cùng nhóm dù P nặng hơn N."},
+  H2O: {name:"H₂O", M:18, Tboil:100, forces:["london","dipole","hbond"], hbond:true, polar:true,
+    note:"H-bond MẠNH NHẤT (4 H-bond/phân tử: 2 cho + 2 nhận). T_sôi cao bất thường (100°C)."},
+  HF: {name:"HF", M:20, Tboil:19.5, forces:["london","dipole","hbond"], hbond:true, polar:true,
+    note:"H-bond mạnh (F độ âm điện cao nhất). Nhưng chỉ 1 H/phân tử → ít H-bond hơn H₂O."},
+  CH3OH: {name:"CH₃OH", M:32, Tboil:65, forces:["london","dipole","hbond"], hbond:true, polar:true,
+    note:"Có nhóm −OH → H-bond. Sôi cao hơn các phân tử cùng M không có H-bond."},
+  C2H5OH: {name:"C₂H₅OH", M:46, Tboil:78, forces:["london","dipole","hbond"], hbond:true, polar:true,
+    note:"Etanol. H-bond + chuỗi C dài hơn methanol → London mạnh hơn → T_sôi cao hơn."},
+  CH3COOH: {name:"CH₃COOH", M:60, Tboil:118, forces:["london","dipole","hbond"], hbond:true, polar:true,
+    note:"Acid axetic. Có cả O-H và C=O → tạo H-bond đôi (dimer). T_sôi rất cao."}
+};
+
+function showForce() {
+  const key = document.getElementById("forcePicker").value;
+  const f = FORCES[key];
+  let html = `
+    <div style="padding:14px; background:#f8fafc; border-radius:8px; margin-bottom:10px">
+      <h3 style="margin-top:0">${f.name}</h3>
+      <span class="stat">M = <strong>${f.M} u</strong></span>
+      <span class="stat">T_sôi = <strong>${f.Tboil}°C</strong></span>
+      <span class="stat">Phân cực: <strong>${f.polar ? "có" : "không"}</strong></span>
+    </div>
+  `;
+
+  // Each force present
+  const showLondon = f.forces.includes("london");
+  const showDipole = f.forces.includes("dipole");
+  const showH = f.forces.includes("hbond");
+
+  if (showLondon) html += `<div class="force-card london"><h4>✓ London Dispersion</h4>Có ở mọi chất. ${f.M < 30 ? 'Phân tử nhỏ → London yếu.' : f.M < 80 ? 'Phân tử trung bình → London trung bình.' : 'Phân tử lớn → London khá mạnh.'}</div>`;
+  if (showDipole) html += `<div class="force-card dipole"><h4>✓ Dipole-Dipole</h4>Phân tử có cực, không đối xứng → moment lưỡng cực ≠ 0.</div>`;
+  if (showH) html += `<div class="force-card hbond"><h4>✓ Liên kết Hydrogen</h4>Có H gắn trực tiếp N/O/F. Đây là lực inter mạnh nhất trong phân tử này.</div>`;
+
+  html += `<div style="margin-top:10px; padding:10px; background:#fef3c7; border-radius:6px"><strong>Phân tích:</strong> ${f.note}</div>`;
+
+  document.getElementById("forceResult").innerHTML = html;
+}
+
+document.getElementById("forcePicker").addEventListener("change", showForce);
+
+// Init
+drawChart();
+drawHBond();
+showForce();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

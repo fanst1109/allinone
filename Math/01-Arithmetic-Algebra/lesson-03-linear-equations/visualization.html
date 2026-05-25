@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 03 — Phương trình bậc 1</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 80px; }
+  button { background: #15803d; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 600px; height: 400px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-algebraic-expressions/visualization.html">← L2: Biểu thức</a>
+  <span class="sep">·</span>
+  <span class="current">L3: PT bậc 1</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L4: PT bậc 2 (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 03 — Phương trình bậc 1</h1>
+
+<h2>1. PT bậc 1 một ẩn (ax + b = c)</h2>
+<div class="card">
+  <div class="row">
+    <input type="number" id="lA" step="1" value="3"> x +
+    <input type="number" id="lB" step="1" value="-7"> =
+    <input type="number" id="lC" step="1" value="5">
+    <button onclick="solveLinear()">Giải</button>
+  </div>
+  <div class="result" id="linearResult"></div>
+</div>
+
+<h2>2. Hệ 2 PT 2 ẩn</h2>
+<div class="card">
+  <p>Vẽ 2 đường thẳng, tìm giao điểm = nghiệm.</p>
+  <div class="row">
+    <input type="number" id="a1" step="1" value="2"> x +
+    <input type="number" id="b1" step="1" value="1"> y =
+    <input type="number" id="c1" step="1" value="7">
+  </div>
+  <div class="row">
+    <input type="number" id="a2" step="1" value="1"> x +
+    <input type="number" id="b2" step="1" value="-1"> y =
+    <input type="number" id="c2" step="1" value="2">
+    <button onclick="solveSystem()">Giải</button>
+  </div>
+  <svg class="scene" id="sysSvg" viewBox="0 0 600 400"></svg>
+  <div class="result" id="sysResult"></div>
+</div>
+
+</main>
+
+<script>
+function solveLinear() {
+  const a = parseFloat(document.getElementById("lA").value);
+  const b = parseFloat(document.getElementById("lB").value);
+  const c = parseFloat(document.getElementById("lC").value);
+  let html = `<div style="font-family:monospace; font-size:15px">PT: ${a}x ${b>=0?"+":""}${b} = ${c}</div>`;
+  html += `<div style="font-family:monospace; font-size:14px; margin-top:6px">Chuyển vế: ${a}x = ${c} − (${b}) = ${c - b}</div>`;
+  if (a === 0) {
+    if (c - b === 0) html += `<div style="margin-top:8px"><strong>Vô số nghiệm</strong> (0 = 0)</div>`;
+    else html += `<div style="margin-top:8px"><strong>Vô nghiệm</strong> (0 ≠ ${c-b})</div>`;
+  } else {
+    const x = (c - b) / a;
+    html += `<div style="font-family:monospace; font-size:16px; margin-top:6px">x = ${c-b}/${a} = <strong>${x}</strong></div>`;
+  }
+  document.getElementById("linearResult").innerHTML = html;
+}
+
+function solveSystem() {
+  const a1 = parseFloat(document.getElementById("a1").value);
+  const b1 = parseFloat(document.getElementById("b1").value);
+  const c1 = parseFloat(document.getElementById("c1").value);
+  const a2 = parseFloat(document.getElementById("a2").value);
+  const b2 = parseFloat(document.getElementById("b2").value);
+  const c2 = parseFloat(document.getElementById("c2").value);
+
+  const det = a1 * b2 - a2 * b1;
+  let html = `
+    <div style="font-family:monospace; font-size:14px">PT1: ${a1}x ${b1>=0?"+":""}${b1}y = ${c1}</div>
+    <div style="font-family:monospace; font-size:14px">PT2: ${a2}x ${b2>=0?"+":""}${b2}y = ${c2}</div>
+    <div style="font-family:monospace; font-size:13px; margin-top:6px">Det = a₁b₂ − a₂b₁ = ${a1}·${b2} − ${a2}·${b1} = ${det}</div>
+  `;
+
+  let x, y;
+  if (det === 0) {
+    if (a1*c2 - a2*c1 === 0 && b1*c2 - b2*c1 === 0) {
+      html += `<div style="margin-top:8px"><strong>Vô số nghiệm</strong> (2 đường trùng nhau)</div>`;
+    } else {
+      html += `<div style="margin-top:8px"><strong>Vô nghiệm</strong> (2 đường song song)</div>`;
+    }
+  } else {
+    x = (c1*b2 - c2*b1) / det;
+    y = (a1*c2 - a2*c1) / det;
+    html += `<div style="font-family:monospace; font-size:16px; margin-top:8px"><strong>(x, y) = (${x.toFixed(3)}, ${y.toFixed(3)})</strong></div>`;
+  }
+  document.getElementById("sysResult").innerHTML = html;
+  drawSystem(a1, b1, c1, a2, b2, c2, det !== 0 ? {x, y} : null);
+}
+
+function drawSystem(a1, b1, c1, a2, b2, c2, sol) {
+  const svg = document.getElementById("sysSvg");
+  svg.innerHTML = "";
+  const W = 600, H = 400, cx = W/2, cy = H/2;
+  const scale = 20;
+
+  // Grid + axes
+  for (let i = -10; i <= 10; i++) {
+    const x = cx + i*scale;
+    const y = cy + i*scale;
+    const g1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    g1.setAttribute("x1", x); g1.setAttribute("y1", 0); g1.setAttribute("x2", x); g1.setAttribute("y2", H);
+    g1.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); g1.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+    svg.appendChild(g1);
+    const g2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    g2.setAttribute("x1", 0); g2.setAttribute("y1", y); g2.setAttribute("x2", W); g2.setAttribute("y2", y);
+    g2.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); g2.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+    svg.appendChild(g2);
+  }
+
+  // Draw line a·x + b·y = c
+  function drawLine(a, b, c, color) {
+    if (a === 0 && b === 0) return;
+    let x1, y1, x2, y2;
+    if (b === 0) {
+      // x = c/a, vertical
+      x1 = x2 = cx + (c/a) * scale;
+      y1 = 0; y2 = H;
+    } else {
+      // y = (c - ax)/b
+      const x_left = -15, x_right = 15;
+      const y_left = (c - a*x_left)/b;
+      const y_right = (c - a*x_right)/b;
+      x1 = cx + x_left*scale; y1 = cy - y_left*scale;
+      x2 = cx + x_right*scale; y2 = cy - y_right*scale;
+    }
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", x1); l.setAttribute("y1", y1); l.setAttribute("x2", x2); l.setAttribute("y2", y2);
+    l.setAttribute("stroke", color); l.setAttribute("stroke-width", 2);
+    svg.appendChild(l);
+  }
+  drawLine(a1, b1, c1, "#dc2626");
+  drawLine(a2, b2, c2, "#1d4ed8");
+
+  // Solution point
+  if (sol) {
+    const px = cx + sol.x * scale;
+    const py = cy - sol.y * scale;
+    if (px > 0 && px < W && py > 0 && py < H) {
+      const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      c.setAttribute("cx", px); c.setAttribute("cy", py); c.setAttribute("r", 6);
+      c.setAttribute("fill", "#15803d");
+      svg.appendChild(c);
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t.setAttribute("x", px + 8); t.setAttribute("y", py - 8);
+      t.setAttribute("fill", "#15803d"); t.setAttribute("font-weight", "700");
+      t.textContent = `(${sol.x.toFixed(2)}, ${sol.y.toFixed(2)})`;
+      svg.appendChild(t);
+    }
+  }
+}
+
+solveLinear();
+solveSystem();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

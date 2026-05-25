@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 07 — Vật rắn</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 120px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100px; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  select { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; }
+  button { background: #1e40af; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  .stat { display: inline-block; background: #dbeafe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #1e40af; }
+  .result { padding: 14px; background: #dbeafe; border-radius: 8px; margin-top: 12px; }
+
+  svg.scene {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 600px; height: 360px;
+    background: linear-gradient(135deg, #f8fafc, #dbeafe);
+    border-radius: 8px;
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Physics</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-circular-motion/visualization.html">← L6: Chuyển động tròn</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Vật rắn</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L8: Dao động (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 07 — Vật rắn</h1>
+<p>Bộ công cụ: Torque Calculator, Moment of Inertia Calculator (6 hình), Lever Balance simulator.</p>
+
+<h2>1. Torque Calculator</h2>
+<div class="card">
+  <div class="row">
+    <label>Lực F (N):</label>
+    <input type="number" id="torqF" step="1" value="50" oninput="calcTorque()">
+    <label>Bán kính r (m):</label>
+    <input type="number" id="torqR" step="0.05" value="0.3" oninput="calcTorque()">
+    <label>Góc θ (°):</label>
+    <input type="range" id="torqTheta" min="0" max="180" step="5" value="90" oninput="calcTorque()">
+    <span class="stat">θ = <strong id="torqThetaVal">90</strong>°</span>
+  </div>
+  <svg class="scene" id="torqueSvg" viewBox="0 0 600 360"></svg>
+  <div class="result" id="torqueResult"></div>
+</div>
+
+<h2>2. Moment of Inertia Calculator</h2>
+<div class="card">
+  <div class="row">
+    <label>Hình dạng:</label>
+    <select id="shape" onchange="calcI()">
+      <option value="hoop">Vòng tròn / vỏ trụ: I = m·r²</option>
+      <option value="disk" selected>Đĩa / trụ đặc: I = (1/2)·m·r²</option>
+      <option value="hollow_sphere">Cầu rỗng: I = (2/3)·m·r²</option>
+      <option value="solid_sphere">Cầu đặc: I = (2/5)·m·r²</option>
+      <option value="rod_center">Thanh dài (qua tâm): I = (1/12)·m·L²</option>
+      <option value="rod_end">Thanh dài (qua đầu): I = (1/3)·m·L²</option>
+    </select>
+  </div>
+  <div class="row">
+    <label>Khối lượng m (kg):</label>
+    <input type="number" id="inertM" step="0.1" value="2" oninput="calcI()">
+    <label id="dimLabel">Bán kính r (m):</label>
+    <input type="number" id="inertD" step="0.05" value="0.3" oninput="calcI()">
+    <label>Vận tốc góc ω (rad/s):</label>
+    <input type="number" id="inertW" step="1" value="10" oninput="calcI()">
+  </div>
+  <div class="result" id="inertResult"></div>
+</div>
+
+<h2>3. Lever Balance Simulator</h2>
+<div class="card">
+  <p>Đòn bẩy: 2 vật ở 2 bên điểm tựa. Tìm khoảng cách để cân bằng.</p>
+  <div class="row">
+    <label>Vật 1: m₁ (kg):</label>
+    <input type="number" id="leverM1" step="1" value="30" oninput="calcLever()">
+    <label>d₁ (m):</label>
+    <input type="number" id="leverD1" step="0.1" value="2" oninput="calcLever()">
+    <label>Vật 2: m₂ (kg):</label>
+    <input type="number" id="leverM2" step="1" value="70" oninput="calcLever()">
+  </div>
+  <svg class="scene" id="leverSvg" viewBox="0 0 600 360"></svg>
+  <div class="result" id="leverResult"></div>
+</div>
+
+</main>
+
+<script>
+const g = 9.8;
+
+// ===== Torque =====
+function calcTorque() {
+  const F = parseFloat(document.getElementById("torqF").value);
+  const r = parseFloat(document.getElementById("torqR").value);
+  const theta = parseFloat(document.getElementById("torqTheta").value);
+  document.getElementById("torqThetaVal").textContent = theta;
+  const tau = r * F * Math.sin(theta * Math.PI / 180);
+  const d = r * Math.sin(theta * Math.PI / 180);
+
+  document.getElementById("torqueResult").innerHTML = `
+    <div style="font-family:monospace; font-size:15px">τ = r · F · sin(θ) = ${r} × ${F} × sin(${theta}°) = <strong>${tau.toFixed(2)} N·m</strong></div>
+    <div style="font-family:monospace; font-size:14px; margin-top:4px">Cánh tay đòn d = r·sin(θ) = ${d.toFixed(3)} m → τ = F·d</div>
+    <div style="margin-top:8px; font-size:13px">
+      ${theta === 0 || theta === 180 ? '<strong>θ = 0° hoặc 180°:</strong> Lực dọc theo bán kính → không có moment quay (τ = 0).' :
+        theta === 90 ? '<strong>θ = 90°:</strong> Lực vuông góc bán kính → MOMENT TỐI ĐA.' :
+        'Lực có thành phần vuông góc → tạo moment, nhưng nhỏ hơn so với 90°.'}
+    </div>
+  `;
+  drawTorque(F, r, theta);
+}
+
+function drawTorque(F, r, theta) {
+  const svg = document.getElementById("torqueSvg");
+  svg.innerHTML = "";
+  const cx = 200, cy = 200;
+  const pxR = Math.min(160, r * 300);
+  // Pivot
+  const piv = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  piv.setAttribute("cx", cx); piv.setAttribute("cy", cy); piv.setAttribute("r", 8);
+  piv.setAttribute("fill", "#1a202c");
+  svg.appendChild(piv);
+  const pivLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  pivLbl.setAttribute("x", cx - 15); pivLbl.setAttribute("y", cy - 12);
+  pivLbl.setAttribute("font-weight", "700"); pivLbl.setAttribute("font-size", "12");
+  pivLbl.textContent = "Trục quay";
+  svg.appendChild(pivLbl);
+  // Lever
+  const lx = cx + pxR;
+  const ly = cy;
+  const lever = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  lever.setAttribute("x1", cx); lever.setAttribute("y1", cy);
+  lever.setAttribute("x2", lx); lever.setAttribute("y2", ly);
+  lever.setAttribute("stroke", "#475569"); lever.setAttribute("stroke-width", 4);
+  svg.appendChild(lever);
+  const rLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  rLbl.setAttribute("x", (cx + lx)/2); rLbl.setAttribute("y", cy + 16);
+  rLbl.setAttribute("text-anchor", "middle"); rLbl.setAttribute("font-weight", "700");
+  rLbl.textContent = `r = ${r} m`;
+  svg.appendChild(rLbl);
+  // End point (where force applied)
+  const endC = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  endC.setAttribute("cx", lx); endC.setAttribute("cy", ly); endC.setAttribute("r", 6);
+  endC.setAttribute("fill", "#dc2626");
+  svg.appendChild(endC);
+  // Force arrow at angle theta from lever
+  const fLen = Math.min(120, F * 2);
+  const angleRad = theta * Math.PI / 180;
+  const fx = lx + fLen * Math.cos(Math.PI/2 - angleRad);
+  const fy = ly - fLen * Math.sin(Math.PI/2 - angleRad);
+  const farr = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  farr.setAttribute("x1", lx); farr.setAttribute("y1", ly);
+  farr.setAttribute("x2", fx); farr.setAttribute("y2", fy);
+  farr.setAttribute("stroke", "#dc2626"); farr.setAttribute("stroke-width", 3); farr.setAttribute("marker-end", "url(#aF)");
+  svg.appendChild(farr);
+  const fLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  fLbl.setAttribute("x", fx + 10); fLbl.setAttribute("y", fy);
+  fLbl.setAttribute("fill", "#dc2626"); fLbl.setAttribute("font-weight", "700");
+  fLbl.textContent = `F = ${F} N`;
+  svg.appendChild(fLbl);
+  // Angle label
+  const aLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  aLbl.setAttribute("x", lx + 15); aLbl.setAttribute("y", ly - 5);
+  aLbl.setAttribute("font-weight", "700"); aLbl.setAttribute("font-size", "13");
+  aLbl.textContent = `θ = ${theta}°`;
+  svg.appendChild(aLbl);
+  // Markers
+  const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+  defs.innerHTML = `<marker id="aF" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626"/></marker>`;
+  svg.appendChild(defs);
+}
+
+// ===== Moment of Inertia =====
+const SHAPES = {
+  hoop: {label:"Vòng tròn / vỏ trụ", coef:1, dim:"r"},
+  disk: {label:"Đĩa / trụ đặc", coef:0.5, dim:"r"},
+  hollow_sphere: {label:"Cầu rỗng", coef:2/3, dim:"r"},
+  solid_sphere: {label:"Cầu đặc", coef:0.4, dim:"r"},
+  rod_center: {label:"Thanh qua tâm", coef:1/12, dim:"L"},
+  rod_end: {label:"Thanh qua đầu", coef:1/3, dim:"L"}
+};
+
+function calcI() {
+  const shape = document.getElementById("shape").value;
+  const m = parseFloat(document.getElementById("inertM").value);
+  const d = parseFloat(document.getElementById("inertD").value);
+  const w = parseFloat(document.getElementById("inertW").value);
+  const cfg = SHAPES[shape];
+  document.getElementById("dimLabel").textContent = cfg.dim === "r" ? "Bán kính r (m):" : "Chiều dài L (m):";
+  const I = cfg.coef * m * d * d;
+  const KE = 0.5 * I * w * w;
+  const L = I * w;
+  document.getElementById("inertResult").innerHTML = `
+    <div class="row">
+      <span class="stat">Hình: <strong>${cfg.label}</strong></span>
+      <span class="stat">I = <strong>${I.toFixed(4)} kg·m²</strong></span>
+    </div>
+    <div class="row">
+      <span class="stat">KE quay = ½Iω² = <strong>${KE.toFixed(3)} J</strong></span>
+      <span class="stat">Momen động lượng L = Iω = <strong>${L.toFixed(3)} kg·m²/s</strong></span>
+    </div>
+  `;
+}
+
+// ===== Lever =====
+function calcLever() {
+  const m1 = parseFloat(document.getElementById("leverM1").value);
+  const d1 = parseFloat(document.getElementById("leverD1").value);
+  const m2 = parseFloat(document.getElementById("leverM2").value);
+  const d2 = (m1 * d1) / m2;
+  const balanced = true;
+
+  document.getElementById("leverResult").innerHTML = `
+    <div style="font-family:monospace; font-size:15px">m₁·d₁ = m₂·d₂ → d₂ = m₁·d₁/m₂ = ${m1}·${d1}/${m2} = <strong>${d2.toFixed(2)} m</strong></div>
+    <div class="row" style="margin-top:8px">
+      <span class="stat">Momen vật 1: <strong>${(m1*g*d1).toFixed(1)} N·m</strong></span>
+      <span class="stat">Momen vật 2: <strong>${(m2*g*d2).toFixed(1)} N·m</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px">
+      ${m1 < m2 ? "Vật nhẹ hơn (m₁) phải ngồi <strong>xa điểm tựa hơn</strong> để cân bằng momen với vật nặng (m₂)." :
+       m1 > m2 ? "Vật nhẹ hơn (m₂) phải ngồi xa điểm tựa hơn." :
+       "Hai vật bằng nhau → d bằng nhau."}
+    </div>
+  `;
+
+  drawLever(m1, d1, m2, d2);
+}
+
+function drawLever(m1, d1, m2, d2) {
+  const svg = document.getElementById("leverSvg");
+  svg.innerHTML = "";
+  const W = 600, cy = 200;
+  const cx = W / 2;
+  const maxD = Math.max(d1, d2) * 1.2;
+  const scale = (W * 0.4) / maxD;
+
+  // Beam
+  const beam = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  beam.setAttribute("x1", cx - d1 * scale - 30); beam.setAttribute("y1", cy);
+  beam.setAttribute("x2", cx + d2 * scale + 30); beam.setAttribute("y2", cy);
+  beam.setAttribute("stroke", "#475569"); beam.setAttribute("stroke-width", 6);
+  svg.appendChild(beam);
+
+  // Pivot (triangle)
+  const piv = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  piv.setAttribute("points", `${cx-15},${cy+8} ${cx+15},${cy+8} ${cx},${cy-3}`);
+  piv.setAttribute("fill", "#475569");
+  svg.appendChild(piv);
+
+  // Object 1 (left)
+  const o1x = cx - d1 * scale;
+  const sz1 = 25 + m1 * 0.5;
+  const o1 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  o1.setAttribute("x", o1x - sz1/2); o1.setAttribute("y", cy - sz1);
+  o1.setAttribute("width", sz1); o1.setAttribute("height", sz1);
+  o1.setAttribute("fill", "#dc2626"); o1.setAttribute("rx", 3);
+  svg.appendChild(o1);
+  const l1 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  l1.setAttribute("x", o1x); l1.setAttribute("y", cy - sz1/2 + 5);
+  l1.setAttribute("text-anchor", "middle"); l1.setAttribute("fill", "white"); l1.setAttribute("font-weight", "700");
+  l1.textContent = m1 + " kg";
+  svg.appendChild(l1);
+  const d1lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  d1lbl.setAttribute("x", (cx + o1x)/2); d1lbl.setAttribute("y", cy + 28);
+  d1lbl.setAttribute("text-anchor", "middle"); d1lbl.setAttribute("font-weight", "700");
+  d1lbl.textContent = `d₁ = ${d1} m`;
+  svg.appendChild(d1lbl);
+
+  // Object 2 (right)
+  const o2x = cx + d2 * scale;
+  const sz2 = 25 + m2 * 0.5;
+  const o2 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  o2.setAttribute("x", o2x - sz2/2); o2.setAttribute("y", cy - sz2);
+  o2.setAttribute("width", sz2); o2.setAttribute("height", sz2);
+  o2.setAttribute("fill", "#1d4ed8"); o2.setAttribute("rx", 3);
+  svg.appendChild(o2);
+  const l2 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  l2.setAttribute("x", o2x); l2.setAttribute("y", cy - sz2/2 + 5);
+  l2.setAttribute("text-anchor", "middle"); l2.setAttribute("fill", "white"); l2.setAttribute("font-weight", "700");
+  l2.textContent = m2 + " kg";
+  svg.appendChild(l2);
+  const d2lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  d2lbl.setAttribute("x", (cx + o2x)/2); d2lbl.setAttribute("y", cy + 28);
+  d2lbl.setAttribute("text-anchor", "middle"); d2lbl.setAttribute("font-weight", "700");
+  d2lbl.textContent = `d₂ = ${d2.toFixed(2)} m`;
+  svg.appendChild(d2lbl);
+}
+
+// Init
+calcTorque();
+calcI();
+calcLever();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

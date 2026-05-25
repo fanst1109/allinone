@@ -16,6 +16,16 @@
   button { background: #3b82f6; color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; cursor: pointer; margin-right: 6px; }
   input { padding: 4px; width: 80px; }
   .log { color: #444; margin-top: 8px; min-height: 22px; }
+  .node-c.succ { fill: #dbeafe; stroke: #3b82f6; }
+  .node-c.del { fill: #fee2e2; stroke: #ef4444; }
+  pre.code { background: #1e293b; color: #e2e8f0; padding: 10px 14px; border-radius: 6px; font-size: 12px; }
+  pre.code .ln { display: block; padding: 1px 6px; margin: 0 -6px; border-radius: 3px; }
+  pre.code .ln.hit { background: #facc15; color: #1e293b; font-weight: 600; }
+  .two-col { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; align-items: start; }
+  .stats { font-family: monospace; font-size: 13px; color: #555; margin-top: 6px; }
+  select { padding: 4px 6px; }
+  button.danger { background: #ef4444; }
+  button.secondary { background: #64748b; }
 </style>
 </head>
 <body>
@@ -35,9 +45,21 @@
   <label>Giá trị: <input id="v" type="number" value="42"></label>
   <button onclick="doInsert()">Insert</button>
   <button onclick="doSearch()">Search</button>
-  <button onclick="reset()">Reset</button>
-  <button onclick="loadBad()">Nạp dãy lệch (1..7)</button>
-  <svg id="svg" width="800" height="420"></svg>
+  <button class="danger" onclick="doDelete()">Delete</button>
+  <button class="secondary" onclick="reset()">Reset</button>
+  <label style="margin-left:8px;">Preset:
+    <select id="preset" onchange="loadPreset()">
+      <option value="empty">— rỗng —</option>
+      <option value="demo" selected>Demo (50,30,70,20,40,60,80,35)</option>
+      <option value="bai1">Bài 1 README (5,3,8,1,4,7,9)</option>
+      <option value="bad">Suy biến (1,2,3,4,5,6,7)</option>
+    </select>
+  </label>
+  <div class="two-col" style="margin-top:10px;">
+    <svg id="svg" width="700" height="380"></svg>
+    <pre class="code" id="pseudo">Bấm Insert / Search / Delete để xem pseudocode.</pre>
+  </div>
+  <div class="stats" id="stats"></div>
   <div class="log" id="log"></div>
 </div>
 
@@ -76,15 +98,76 @@ function render(highlight = {}) {
        <text x="${n.__pos.x}" y="${n.__pos.y}">${n.v}</text>`);
   });
 }
+const PSEUDO = {
+  insert: ['function insert(node, key):', '    if node == null: return new Node(key)', '    if key < node.value: node.left  = insert(node.left, key)', '    else if key > node.value: node.right = insert(node.right, key)', '    return node'],
+  search: ['function search(node, key):', '    if node == null: return null', '    if key == node.value: return node', '    if key < node.value: return search(node.left, key)', '    else:                return search(node.right, key)'],
+  delete: ['function delete(node, key):', '    if node == null: return null', '    if key < node.value:  node.left  = delete(node.left, key)', '    else if key > node.value: node.right = delete(node.right, key)', '    else:', '        if node.left == null:  return node.right', '        if node.right == null: return node.left', '        succ = minNode(node.right)', '        node.value = succ.value', '        node.right = delete(node.right, succ.value)', '    return node']
+};
+function renderPseudo(mode, hitLine = -1) {
+  const lines = PSEUDO[mode] || [];
+  document.getElementById('pseudo').innerHTML = lines.map((l, i) => {
+    const esc = l.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return `<span class="ln${i === hitLine ? ' hit' : ''}">${esc}</span>`;
+  }).join('');
+}
+function treeHeight(n) { if (!n) return -1; return 1 + Math.max(treeHeight(n.l), treeHeight(n.r)); }
+function treeSize(n) { if (!n) return 0; return 1 + treeSize(n.l) + treeSize(n.r); }
+function updateStats() {
+  const n = treeSize(root), h = treeHeight(root);
+  document.getElementById('stats').textContent =
+    `n=${n} · chiều cao=${h} · ${n > 0 ? `tối ưu (cân bằng) = ⌈log₂(${n+1})⌉ = ${Math.ceil(Math.log2(n+1))}` : ''}` +
+    (n > 0 && h >= n - 1 ? ' · ⚠ cây bị suy biến!' : '');
+}
 function doInsert() {
   const v = parseInt(document.getElementById('v').value);
   root = ins(root, v);
   render({ [v]: 'hit' });
+  renderPseudo('insert');
+  updateStats();
   document.getElementById('log').textContent = `Insert ${v} — đi xuống tới chỗ null rồi gắn vào.`;
+}
+function delNode(n, v, log) {
+  if (!n) return null;
+  if (v < n.v) { n.l = delNode(n.l, v, log); return n; }
+  if (v > n.v) { n.r = delNode(n.r, v, log); return n; }
+  // found
+  if (!n.l) { log.push(`Node ${v}: không có con trái → nâng con phải lên thay.`); return n.r; }
+  if (!n.r) { log.push(`Node ${v}: không có con phải → nâng con trái lên thay.`); return n.l; }
+  // 2 children: find in-order successor
+  let s = n.r;
+  while (s.l) s = s.l;
+  log.push(`Node ${v}: có 2 con → tìm in-order successor = ${s.v} (min của subtree phải), gán giá trị, xóa successor.`);
+  n.v = s.v;
+  n.r = delNode(n.r, s.v, log);
+  return n;
+}
+function doDelete() {
+  const v = parseInt(document.getElementById('v').value);
+  const log = [];
+  root = delNode(root, v, log);
+  render();
+  renderPseudo('delete');
+  updateStats();
+  document.getElementById('log').textContent = log.length ? log.join(' | ') : `Không có ${v} trong cây.`;
+}
+function loadPreset() {
+  const k = document.getElementById('preset').value;
+  root = null;
+  const presets = {
+    empty: [], demo: [50,30,70,20,40,60,80,35], bai1: [5,3,8,1,4,7,9], bad: [1,2,3,4,5,6,7]
+  };
+  for (const x of presets[k]) root = ins(root, x);
+  render();
+  updateStats();
+  document.getElementById('log').textContent = k === 'bad'
+    ? 'Dãy 1..7 đã sắp xếp → cây suy biến thành linked list, chiều cao = n-1 (bài 5 README).'
+    : k === 'bai1' ? 'Đã chèn 5,3,8,1,4,7,9 đúng theo bài 1 README.'
+    : '';
 }
 async function doSearch() {
   const v = parseInt(document.getElementById('v').value);
   const gen = search(root, v, []);
+  renderPseudo('search');
   let last;
   for (const step of gen) {
     if (step.done) {
@@ -104,18 +187,13 @@ async function doSearch() {
     await sleep(500);
   }
 }
-function reset() { root = null; render(); document.getElementById('log').textContent = ''; }
-function loadBad() {
-  root = null;
-  for (let i = 1; i <= 7; i++) root = ins(root, i);
-  render();
-  document.getElementById('log').textContent = 'Chèn dãy 1..7 → cây bị lệch hoàn toàn (chiều cao = n-1).';
-}
+function reset() { root = null; render(); document.getElementById('log').textContent = ''; updateStats(); }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 // Khởi tạo demo
 [50, 30, 70, 20, 40, 60, 80, 35].forEach(x => root = ins(root, x));
 render();
+updateStats();
 </script></main>
 <!-- README modal (xem tools/readme-modal.js để biết chi tiết) -->
 <script src="../../tools/marked.min.js"></script>

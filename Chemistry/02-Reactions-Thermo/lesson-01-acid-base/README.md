@@ -33,10 +33,12 @@ Ví dụ:
 
 ### 1.2. Định nghĩa Brønsted-Lowry (1923) — chuẩn nhất
 
-- **Acid**: chất **cho** proton (H⁺).
-- **Base**: chất **nhận** proton.
+- **Acid (theo Brønsted)**: chất **cho proton (H⁺)**.
+- **Base (theo Brønsted)**: chất **nhận proton (H⁺)**.
 
-Hoạt động trong mọi dung môi (không chỉ nước). Ví dụ với ammonia:
+💡 **Tại sao gọi H⁺ là "proton"?** Nguyên tử hydrogen ¹H có cấu trúc đơn giản nhất bảng tuần hoàn: **1 proton + 1 electron**, KHÔNG có neutron. Khi mất 1 electron, chỉ còn lại **đúng 1 proton trần** — chính là ion H⁺. Vì vậy trong hóa học "proton" và "H⁺" là **cùng một thứ**, dùng thay thế được. (Trong vật lý hạt nhân thì "proton" là hạt cơ bản; trong hóa học, "proton" = H⁺ ion.)
+
+Mở rộng so với Arrhenius: Brønsted hoạt động trong **mọi dung môi** (không chỉ nước). Ví dụ với ammonia:
 
 ```
 NH₃ + H₂O → NH₄⁺ + OH⁻
@@ -57,16 +59,27 @@ H₂O nhận proton → H₂O là base.
 
 ### 1.3. Định nghĩa Lewis (1923) — tổng quát nhất
 
-- **Acid Lewis**: chất **nhận** cặp electron.
-- **Base Lewis**: chất **cho** cặp electron.
+- **Acid Lewis**: chất **nhận cặp electron** (vì thiếu e ở orbital ngoài, "muốn lấy" thêm).
+- **Base Lewis**: chất **cho cặp electron** (có cặp e tự do "sẵn sàng cho").
 
-Mở rộng hơn nữa — cả các phản ứng không có H⁺ vẫn được tính. Ví dụ:
+💡 **Vì sao đây vẫn là "acid-base" dù không có H⁺?** Lewis nhận ra: bản chất sâu nhất của phản ứng acid-base là **chia sẻ một cặp electron để tạo liên kết** — H⁺ chỉ là MỘT trong nhiều dạng "chất nhận cặp e". Khi H⁺ "nhận" cặp e từ base (vd H⁺ + NH₃ → NH₄⁺), đó cũng chính là chuyển cặp e — không khác bản chất Lewis. Lewis chỉ "tổng quát hóa" định nghĩa: không cần phải có H⁺ vẫn tính.
+
+Ví dụ phản ứng acid-base Lewis **KHÔNG có H⁺**:
 ```
-BF₃ + NH₃ → F₃B-NH₃
-(Lewis acid) (Lewis base)
+BF₃ + NH₃ → F₃B−NH₃
+(Lewis acid) (Lewis base) → adduct
 ```
 
-B (thiếu e) nhận cặp e từ N (có lone pair).
+- BF₃: B chỉ có 6 e ngoài (thiếu 2 e cho đủ octet) → **Lewis acid** (nhận).
+- NH₃: N có 1 cặp e tự do (lone pair) → **Lewis base** (cho).
+- Phản ứng: NH₃ "đẩy" cặp e tự do về phía B → tạo liên kết phối trí N→B → 2 chất ghép thành 1.
+
+**Hệ thống nào lớn hơn?**
+- Mọi **acid Brønsted ⊂ acid Lewis** (vì H⁺ luôn là chất nhận cặp e).
+- Mọi **base Brønsted ⊂ base Lewis** (vì base Brønsted dùng cặp e tự do để nhận H⁺).
+- Nhưng acid/base Lewis còn rộng hơn (BF₃, AlCl₃, các cation kim loại Cu²⁺, Fe³⁺ — đều là Lewis acid).
+
+→ **Lewis ⊃ Brønsted ⊃ Arrhenius**. Lewis dùng khi nào? Khi gặp phản ứng không có H⁺ chuyển dịch — đặc biệt là phức kim loại, xúc tác hữu cơ.
 
 ### 1.4. Cặp acid-base liên hợp
 
@@ -109,13 +122,35 @@ Trong nước tinh khiết: [H⁺] = [OH⁻] = √(10⁻¹⁴) = **10⁻⁷ M**.
 
 ### 2.2. Định nghĩa pH
 
+**pH** = viết tắt của "**p**ower of **H**ydrogen" — một con số gọn nhẹ để biểu diễn **nồng độ ion H⁺**. Định nghĩa:
+
 ```
 pH = −log₁₀[H⁺]
-pOH = −log₁₀[OH⁻]
-pH + pOH = 14 (tại 25°C)
 ```
 
-Tương tự: pKw = −log Kw = 14.
+trong đó `[H⁺]` là nồng độ ion H⁺ tính bằng mol/L (M).
+
+**Vì sao phải dùng log?** Vì [H⁺] có thể trải dài qua **14 bậc 10** (từ ~ 1 M đến ~ 10⁻¹⁴ M):
+- Acid dạ dày: [H⁺] ≈ 0.01 = **10⁻²** M.
+- Nước tinh khiết: [H⁺] = **10⁻⁷** M.
+- Nước rửa chén: [H⁺] ≈ **10⁻¹¹** M.
+
+Viết thẳng `[H⁺] = 0.00000001 M` thì rất bất tiện. Lấy `−log₁₀` biến nó thành mũ âm dễ đọc: `10⁻²` → pH = 2; `10⁻⁷` → pH = 7; `10⁻¹¹` → pH = 11.
+
+**Ký hiệu "p" = "−log₁₀"** (quy ước chung trong hóa học). Tương tự:
+- **pOH** = −log[OH⁻]
+- **pKa** = −log Ka
+- **pKw** = −log Kw = −log(10⁻¹⁴) = **14**
+
+**Vì sao thang đo từ 0 đến 14?** Vì trong nước luôn có `[H⁺] × [OH⁻] = Kw = 10⁻¹⁴`. Lấy −log cả 2 vế: **pH + pOH = 14**. Hai đầu mút:
+- [H⁺] = 1 M (acid đậm đặc nhất hợp lý) → pH = 0.
+- [OH⁻] = 1 M (base đậm đặc) → [H⁺] = 10⁻¹⁴ → pH = 14.
+- Trung tính: pH = pOH = 7.
+
+⚠ **Quan trọng — mỗi đơn vị pH = chênh 10 lần nồng độ H⁺**:
+- pH 2 (chanh) so với pH 5 (cafe): chênh **1000 lần** [H⁺] (acid chanh mạnh gấp 1000 lần cafe).
+- pH 4 (rượu vang) so với pH 7 (nước): chênh **1000 lần** [H⁺].
+- Đó là lý do thang pH "trông gọn" nhưng thực ra mỗi bước là 1 nhảy lớn.
 
 ### 2.3. Thang pH
 

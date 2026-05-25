@@ -40,15 +40,36 @@ trong đó ΔU = biến thiên nội năng của hệ.
 
 ### 1.2. Enthalpy
 
-Với phản ứng ở **áp suất hằng** (thường gặp nhất, vd phản ứng trong bình hở), nhiệt trao đổi = biến thiên **enthalpy** H:
+**Enthalpy** (ký hiệu **H**) là một đại lượng đo **tổng "năng lượng tích lũy" trong hệ** ở điều kiện áp suất hằng. Công thức:
+
 \`\`\`
-q_p = ΔH
+H = U + P·V
 \`\`\`
 
-- ΔH < 0: phản ứng **tỏa nhiệt** (hệ giải phóng nhiệt ra môi trường) → môi trường nóng lên.
-- ΔH > 0: phản ứng **thu nhiệt** (hệ hấp thụ nhiệt từ môi trường) → môi trường nguội đi.
+trong đó:
+- **U** = nội năng của hệ (tổng năng lượng các liên kết hóa học, chuyển động phân tử...).
+- **P·V** = "năng lượng cơ học" hệ phải bỏ ra để đẩy môi trường khi hệ chiếm thể tích V dưới áp suất P.
 
-Đơn vị: **kJ/mol** hoặc kJ (cho 1 mole phản ứng).
+💡 **Vì sao cần khái niệm H mà không chỉ dùng U?** Vì khi phản ứng diễn ra ở **áp suất hằng** (như trong bình hở, ngoài trời, trong cơ thể...), hệ làm 2 việc cùng lúc:
+1. Trao đổi nhiệt với môi trường.
+2. Đổi thể tích (nếu phản ứng sinh hoặc tiêu thụ khí).
+
+Đo nhiệt q ở áp suất hằng = đo cả 2 việc gộp lại. Người ta định nghĩa **H = U + P·V** để **q_P = ΔH** đúng bằng nhiệt trao đổi — thuận tiện hơn nội năng U (vốn chỉ liên quan giai đoạn (1)).
+
+**Cách dùng thực tế**: ở áp suất hằng, **biến thiên ΔH = nhiệt mà phản ứng trao đổi với môi trường**.
+
+- **ΔH < 0** → phản ứng **tỏa nhiệt**: hệ "có ít H hơn" sau phản ứng → phần H thừa thoát ra dưới dạng nhiệt → môi trường nóng lên. Vd đốt CH₄, trung hòa acid-base, đông đặc.
+- **ΔH > 0** → phản ứng **thu nhiệt**: hệ "có nhiều H hơn" sau phản ứng → phải vay nhiệt từ môi trường → môi trường nguội đi. Vd tan KNO₃, phân hủy CaCO₃, nóng chảy đá.
+
+**Ví dụ trực giác — đốt 1 mol CH₄**:
+\`\`\`
+CH₄ + 2O₂ → CO₂ + 2H₂O   ΔH = −890 kJ
+\`\`\`
+1 mol CH₄ + 2 mol O₂ "chứa" nhiều enthalpy hơn CO₂ + 2H₂O **đúng 890 kJ**. Khi phản ứng xảy ra, 890 kJ "dư thừa" này thoát ra dưới dạng nhiệt — đó chính là sức nóng của bếp gas đun sôi nồi cơm.
+
+Ngược lại với KNO₃: KNO₃(s) có ít enthalpy hơn K⁺(aq) + NO₃⁻(aq) (chênh 34.9 kJ/mol). Để biến đổi, hệ phải **vay** 34.9 kJ từ môi trường (nước, tay người) → tay/nước lạnh đi → ứng dụng làm túi đá lạnh tức thì.
+
+Đơn vị: **kJ/mol** (cho 1 mol phản ứng theo phương trình đã cân bằng).
 
 ### 1.3. Bốn ví dụ phản ứng
 
@@ -157,13 +178,32 @@ Khi cộng/trừ phản ứng để áp dụng Hess:
 
 ### 3.1. Entropy S
 
-**Entropy S** = thước đo "độ hỗn loạn" (disorder) hoặc "số cách sắp xếp" của hệ. Đơn vị: J/(mol·K).
+**Entropy S** đếm **số cách hệ có thể tự sắp xếp các phân tử** mà vẫn cho ra cùng một trạng thái nhìn từ ngoài. Đơn vị: J/(mol·K).
+
+💡 **Hình dung rất cụ thể**: bạn có 1 hộp đựng 4 phân tử khí.
+- Hộp **rất nhỏ** (vừa khít 4 phân tử): chỉ có **vài cách** sắp xếp → entropy thấp.
+- Hộp **rất lớn** (gấp 1000 lần): 4 phân tử có **hàng triệu cách** bay quanh, đụng nhau ở đâu cũng được → entropy cao.
+
+Liên hệ với trạng thái vật chất:
+- **Rắn**: các phân tử bị "khóa chặt" vào vị trí cố định trong mạng tinh thể. Mỗi nguyên tử chỉ rung lắc nhẹ quanh chỗ của nó → **rất ít cách sắp xếp** → entropy thấp nhất.
+- **Lỏng**: phân tử di chuyển tự do nhưng vẫn ở gần nhau (mật độ cao). Số cách sắp xếp trung bình → entropy trung bình.
+- **Khí**: phân tử bay tự do trong toàn bộ thể tích, va chạm ngẫu nhiên. Số cách sắp xếp **khổng lồ** → entropy cao nhất.
+
+Công thức Boltzmann: \`S = k_B · ln(W)\` trong đó W là số cấu hình ("microstates") tương ứng. Boltzmann tự hào với công thức này đến mức ông yêu cầu khắc lên bia mộ của mình.
+
+**Vì sao "entropy tự nhiên tăng"?** Hệ với entropy cao có **nhiều cấu hình tương đương** hơn → xác suất chọn ngẫu nhiên cũng cao hơn. Tưởng tượng tung 1 hộp xí ngầu: "tất cả mặt 6" chỉ có 1 cách; "tổng = 10" có nhiều cách → kết quả ngẫu nhiên thường ra tổng trung bình, không bao giờ ra "tất cả 6". Tự nhiên cũng vậy.
+
+**Số liệu cụ thể (J/(mol·K))**:
+- S°(nước đá rắn) ≈ 41
+- S°(nước lỏng) = 70.0
+- S°(hơi nước) = 188.7
+- → đun đá → nước → hơi: entropy tăng dần.
 
 Quy tắc nhanh để so sánh entropy:
-- **Khí > Lỏng > Rắn** (cùng chất). Vd S(H₂O g) > S(H₂O l) > S(H₂O s).
-- **Phân tử lớn > phân tử nhỏ** (cùng trạng thái).
-- **Hỗn hợp > tinh khiết**.
-- **Nhiều mol khí > ít mol khí** (cùng thể tích).
+- **Khí > Lỏng > Rắn** (cùng chất). Đã giải thích ở trên.
+- **Phân tử lớn > phân tử nhỏ** (cùng trạng thái) — phân tử lớn có nhiều cách "rung lắc" (vibration) hơn.
+- **Hỗn hợp > tinh khiết** — trộn 2 chất tăng số cấu hình so với cùng chất riêng biệt.
+- **Nhiều mol khí > ít mol khí** — nhiều hạt = nhiều cấu hình.
 
 ### 3.2. Định luật II nhiệt động
 

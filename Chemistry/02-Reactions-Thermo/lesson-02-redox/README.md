@@ -53,9 +53,27 @@ Ví dụ: `2Na + Cl₂ → 2NaCl`
 
 ### 2.1. Định nghĩa
 
-**Số oxy hóa** của một nguyên tử trong hợp chất = điện tích "giả định" nếu mọi liên kết đều là ion (electron chuyển hẳn cho nguyên tử âm điện hơn).
+**Số oxy hóa** = "điện tích giả định" gán cho mỗi nguyên tử trong hợp chất, tính theo quy ước **"nguyên tử có độ âm điện cao hơn lấy hết electron của liên kết dùng chung"**.
 
-Đây là **khái niệm hình thức**, không phải điện tích thật. Nhưng cực kỳ hữu ích để theo dõi e trong phản ứng redox.
+💡 **Vì sao cần khái niệm "giả định" này?** Trong liên kết cộng hóa trị, electron không thuộc về 1 bên — nó được **dùng chung**. Nhưng để **theo dõi** ai "mất e" và ai "nhận e" trong một phản ứng (= bản chất redox), ta cần một cách "kế toán electron" thống nhất. Số oxy hóa chính là công cụ kế toán đó: **giả vờ** rằng electron luôn thuộc bên âm điện hơn → từ đó tính được "trước phản ứng X có bao nhiêu e, sau phản ứng có bao nhiêu" → biết X mất hay nhận.
+
+**Ví dụ trực giác — phân tử H₂O**:
+- Liên kết thật: 2 cặp electron dùng chung giữa O và 2 H, lệch nhẹ về O (do O âm điện hơn). Phân cực δ−/δ+ chỉ là **một phần** electron lệch, không phải toàn bộ.
+- **Giả định** theo số oxy hóa: O **"nuốt cả 2 cặp" e** → O có 8 e "của riêng" (so với 6 e ngoài cùng khi tự do) → dư 2 e → số oxy hóa O = **−2**. Mỗi H **"mất hết" 1 e** → số oxy hóa H = **+1**.
+- Đây KHÔNG phải điện tích thật. Trong nước thật, O có điện tích thực khoảng −0.4 (chứ không phải −2). Nhưng "kế toán" theo số oxy hóa thì coi như −2.
+
+**Tại sao cách kế toán này lại có ích?** Vì nếu **số oxy hóa của một nguyên tố THAY ĐỔI** giữa trước và sau phản ứng, có nghĩa nguyên tố đó đã **mất** hoặc **nhận** electron (theo quy ước) → đây chính là phản ứng redox. Phản ứng nào không có nguyên tố nào đổi số oxy hóa = không phải redox.
+
+So sánh nhanh số oxy hóa vs điện tích thực:
+
+| Phân tử | Nguyên tử | Số oxy hóa (giả định) | Điện tích thực (đo được) |
+|---------|-----------|------------------------|----------------------------|
+| H₂O | O | −2 | ~ −0.4 |
+| H₂O | H | +1 | ~ +0.2 |
+| NaCl | Na (trong tinh thể) | +1 | gần đúng +1 (vì liên kết ion thật) |
+| O₂ | O | 0 | đúng 0 (đối xứng) |
+
+→ Với liên kết ion thật (NaCl), số oxy hóa ≈ điện tích thực. Với liên kết cộng hóa trị, số oxy hóa chỉ là quy ước.
 
 ### 2.2. Bảy quy tắc tính số oxy hóa
 

@@ -36,11 +36,22 @@ Lý do chọn con số này: 1 mol nguyên tử ¹²C nặng đúng **12 gam**. 
 
 ### 1.1. Định nghĩa chính thức
 
-**1 mol** = số nguyên tử trong **đúng 12 gam ¹²C** = **6.022 × 10²³** (số Avogadro Nₐ).
+**1 mol** = số nguyên tử có trong **đúng 12 gam của ¹²C** = **6.022 × 10²³ hạt** (số Avogadro Nₐ).
+
+💡 **Vì sao chọn con số kỳ cục \`6.022 × 10²³\`?** Không phải chọn ngẫu nhiên. Số này được "thiết kế" sao cho có một tính chất cực kỳ tiện lợi sau:
+
+> **Khi cân được số gam của một chất ĐÚNG BẰNG số khối lượng nguyên tử/phân tử của nó (tính bằng u), bạn có chính xác 1 mol = 6.022 × 10²³ hạt.**
+
+Ví dụ trực tiếp:
+- ¹²C có khối lượng 12 u → cân 12 gam ¹²C → có đúng 1 mol = 6.022 × 10²³ nguyên tử C.
+- O có khối lượng nguyên tử 16 u → cân 16 gam O → 1 mol = 6.022 × 10²³ nguyên tử O.
+- H₂O có khối lượng phân tử 18 u → cân 18 gam H₂O → 1 mol = 6.022 × 10²³ phân tử H₂O.
+
+→ **Mol là cầu nối giữa số u (vi mô, đếm hạt) và số gam (vĩ mô, cân được trên cân điện tử).** Không có mol, hóa học sẽ phải đếm từng phân tử riêng — bất khả thi.
 
 ### 1.2. Khối lượng mol M (g/mol)
 
-**Khối lượng mol M** của 1 chất = khối lượng (gam) của 1 mol chất đó. Trị số bằng khối lượng nguyên tử/phân tử (đơn vị u).
+**Khối lượng mol M của một chất** = khối lượng của 1 mol chất đó (tính bằng gam). Theo "phép thuật" ở §1.1, **M (g/mol) có trị số bằng khối lượng nguyên tử/phân tử (u)**.
 
 **Ví dụ tính khối lượng mol:**
 

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 04 — Công &amp; Năng lượng</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 120px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100px; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  button { background: #1e40af; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  .stat { display: inline-block; background: #dbeafe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #1e40af; }
+  .result { padding: 14px; background: #dbeafe; border-radius: 8px; margin-top: 12px; }
+
+  svg.scene {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 720px; height: 360px;
+    background: linear-gradient(135deg, #f8fafc, #dbeafe);
+    border-radius: 8px;
+  }
+
+  .energy-bar {
+    height: 30px; background: #e2e8f0; border-radius: 4px;
+    overflow: hidden; position: relative; margin: 6px 0;
+  }
+  .energy-bar .fill {
+    height: 100%; transition: width 0.2s;
+  }
+  .energy-bar .fill.ke { background: #dc2626; }
+  .energy-bar .fill.pe { background: #047857; }
+  .energy-bar .label {
+    position: absolute; top: 0; left: 8px;
+    line-height: 30px; color: white; font-weight: 700; font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Physics</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-forces/visualization.html">← L3: Các loại lực</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Công &amp; Năng lượng</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L5: Động lượng (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 04 — Công &amp; Năng lượng</h1>
+<p>Bộ công cụ: Work Calculator (W = F·d·cosθ), Energy Calculator (KE, PE), Pendulum Simulator (bảo toàn năng lượng).</p>
+
+<h2>1. Work Calculator — W = F·d·cos(θ)</h2>
+<div class="card">
+  <div class="row">
+    <label>Lực F (N):</label>
+    <input type="number" id="workF" step="1" value="50" oninput="calcWork()">
+    <label>Khoảng cách d (m):</label>
+    <input type="number" id="workD" step="0.5" value="5" oninput="calcWork()">
+    <label>Góc θ (°):</label>
+    <input type="range" id="workTheta" min="0" max="180" step="5" value="0" oninput="calcWork()">
+    <span class="stat">θ = <strong id="thetaVal">0</strong>°</span>
+  </div>
+  <svg class="scene" id="workSvg" viewBox="0 0 720 360"></svg>
+  <div class="result" id="workResult"></div>
+</div>
+
+<h2>2. Energy Calculator</h2>
+<div class="card">
+  <div class="row">
+    <label>Khối lượng (kg):</label>
+    <input type="number" id="energM" step="0.5" value="2" oninput="calcEnergy()">
+    <label>Vận tốc (m/s):</label>
+    <input type="number" id="energV" step="1" value="10" oninput="calcEnergy()">
+    <label>Độ cao h (m):</label>
+    <input type="number" id="energH" step="1" value="5" oninput="calcEnergy()">
+  </div>
+  <div class="result" id="energyResult"></div>
+</div>
+
+<h2>3. Pendulum Simulator — Bảo toàn năng lượng</h2>
+<div class="card">
+  <p>Con lắc đơn dao động. Quan sát KE ↔ PE chuyển đổi qua lại, tổng năng lượng không đổi.</p>
+  <div class="row">
+    <label>Chiều dài L (m):</label>
+    <input type="number" id="penL" step="0.1" value="1" oninput="resetPendulum()">
+    <label>Góc ban đầu (°):</label>
+    <input type="number" id="penTheta0" step="5" value="40" oninput="resetPendulum()">
+    <label>Khối lượng (kg):</label>
+    <input type="number" id="penM" step="0.1" value="1" oninput="resetPendulum()">
+    <button onclick="togglePendulum()" id="penBtn">▶ Bắt đầu</button>
+  </div>
+  <svg class="scene" id="pendulumSvg" viewBox="0 0 720 360"></svg>
+  <div class="result" id="penResult"></div>
+</div>
+
+</main>
+
+<script>
+const g = 9.8;
+
+// ===== Work Calculator =====
+function calcWork() {
+  const F = parseFloat(document.getElementById("workF").value);
+  const d = parseFloat(document.getElementById("workD").value);
+  const theta = parseFloat(document.getElementById("workTheta").value);
+  document.getElementById("thetaVal").textContent = theta;
+  const W = F * d * Math.cos(theta * Math.PI / 180);
+
+  document.getElementById("workResult").innerHTML = `
+    <div style="font-family:monospace; font-size:16px">W = F · d · cos(θ) = ${F} × ${d} × cos(${theta}°) = <strong>${W.toFixed(2)} J</strong></div>
+    <div style="margin-top:8px; font-size:13px">
+      ${theta === 0 ? "Lực cùng chiều chuyển động → công TỐI ĐA." :
+        theta === 90 ? "Lực vuông góc chuyển động → KHÔNG công (W = 0)." :
+        theta > 90 ? "Lực ngược chiều chuyển động → W âm (lấy năng lượng)." :
+        "Lực có thành phần dọc chuyển động → công dương."}
+    </div>
+  `;
+
+  // Draw scene
+  const svg = document.getElementById("workSvg");
+  svg.innerHTML = "";
+  // Floor
+  const floor = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  floor.setAttribute("x", 0); floor.setAttribute("y", 280); floor.setAttribute("width", 720); floor.setAttribute("height", 8);
+  floor.setAttribute("fill", "#475569"); svg.appendChild(floor);
+  // Box
+  const cx = 200, cy = 240;
+  const box = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  box.setAttribute("x", cx-25); box.setAttribute("y", cy); box.setAttribute("width", 50); box.setAttribute("height", 40);
+  box.setAttribute("fill", "#94a3b8"); box.setAttribute("stroke", "#1a202c"); box.setAttribute("stroke-width", 2);
+  svg.appendChild(box);
+  // Displacement arrow (horizontal, length proportional to d)
+  const dispLen = Math.min(300, d * 30);
+  const arr = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  arr.setAttribute("x1", cx); arr.setAttribute("y1", 320); arr.setAttribute("x2", cx + dispLen); arr.setAttribute("y2", 320);
+  arr.setAttribute("stroke", "#047857"); arr.setAttribute("stroke-width", 3); arr.setAttribute("marker-end", "url(#arrD)");
+  svg.appendChild(arr);
+  const dLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  dLbl.setAttribute("x", cx + dispLen/2); dLbl.setAttribute("y", 340);
+  dLbl.setAttribute("text-anchor", "middle"); dLbl.setAttribute("fill", "#047857"); dLbl.setAttribute("font-weight", "700");
+  dLbl.textContent = `d = ${d} m`;
+  svg.appendChild(dLbl);
+  // Force arrow
+  const forceLen = Math.min(150, F * 1.5);
+  const fx = cx + forceLen * Math.cos(theta * Math.PI / 180);
+  const fy = cy + 20 - forceLen * Math.sin(theta * Math.PI / 180);
+  const farr = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  farr.setAttribute("x1", cx); farr.setAttribute("y1", cy+20); farr.setAttribute("x2", fx); farr.setAttribute("y2", fy);
+  farr.setAttribute("stroke", "#dc2626"); farr.setAttribute("stroke-width", 3); farr.setAttribute("marker-end", "url(#arrF)");
+  svg.appendChild(farr);
+  const fLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  fLbl.setAttribute("x", fx + 10); fLbl.setAttribute("y", fy);
+  fLbl.setAttribute("fill", "#dc2626"); fLbl.setAttribute("font-weight", "700");
+  fLbl.textContent = `F = ${F} N`;
+  svg.appendChild(fLbl);
+  // Angle label
+  if (theta > 0 && theta < 180) {
+    const a = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    a.setAttribute("x", cx + 50); a.setAttribute("y", cy + 10);
+    a.setAttribute("fill", "#1a202c"); a.setAttribute("font-weight", "700"); a.setAttribute("font-size", "13");
+    a.textContent = `θ = ${theta}°`;
+    svg.appendChild(a);
+  }
+
+  // Markers
+  const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+  defs.innerHTML = `
+    <marker id="arrD" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#047857"/></marker>
+    <marker id="arrF" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626"/></marker>
+  `;
+  svg.appendChild(defs);
+}
+
+// ===== Energy Calculator =====
+function calcEnergy() {
+  const m = parseFloat(document.getElementById("energM").value);
+  const v = parseFloat(document.getElementById("energV").value);
+  const h = parseFloat(document.getElementById("energH").value);
+  const KE = 0.5 * m * v * v;
+  const PE = m * g * h;
+  document.getElementById("energyResult").innerHTML = `
+    <div class="row">
+      <span class="stat">KE = ½·m·v² = ½·${m}·${v}² = <strong>${KE.toFixed(2)} J</strong></span>
+      <span class="stat">PE = m·g·h = ${m}·9.8·${h} = <strong>${PE.toFixed(2)} J</strong></span>
+      <span class="stat">Tổng E = <strong>${(KE+PE).toFixed(2)} J</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px">
+      Lưu ý: nếu v gấp đôi → KE gấp 4 (không phải gấp 2!). Lý do tốc độ cao trong giao thông cực nguy hiểm.
+    </div>
+  `;
+}
+
+// ===== Pendulum =====
+let penState = { theta: 0, omega: 0, t: 0, running: false };
+let penInterval = null;
+
+function resetPendulum() {
+  const theta0 = parseFloat(document.getElementById("penTheta0").value) * Math.PI / 180;
+  penState = { theta: theta0, omega: 0, t: 0, running: false };
+  if (penInterval) { clearInterval(penInterval); penInterval = null; }
+  document.getElementById("penBtn").textContent = "▶ Bắt đầu";
+  drawPendulum();
+  updatePenResult();
+}
+
+function togglePendulum() {
+  if (penState.running) {
+    clearInterval(penInterval); penInterval = null;
+    penState.running = false;
+    document.getElementById("penBtn").textContent = "▶ Tiếp tục";
+  } else {
+    penState.running = true;
+    document.getElementById("penBtn").textContent = "⏸ Dừng";
+    penInterval = setInterval(stepPendulum, 30);
+  }
+}
+
+function stepPendulum() {
+  const L = parseFloat(document.getElementById("penL").value);
+  const dt = 0.02;
+  // Pendulum eq: theta'' = -(g/L) sin(theta)
+  const alpha = -(g/L) * Math.sin(penState.theta);
+  penState.omega += alpha * dt;
+  penState.theta += penState.omega * dt;
+  penState.t += dt;
+  drawPendulum();
+  updatePenResult();
+}
+
+function drawPendulum() {
+  const L = parseFloat(document.getElementById("penL").value);
+  const svg = document.getElementById("pendulumSvg");
+  svg.innerHTML = "";
+  const W = 720, H = 360;
+  const pivX = W/2, pivY = 60;
+  const pixL = Math.min(240, L * 100);
+
+  // Ceiling
+  const c = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  c.setAttribute("x", 0); c.setAttribute("y", 40); c.setAttribute("width", 720); c.setAttribute("height", 10);
+  c.setAttribute("fill", "#475569");
+  svg.appendChild(c);
+  // Pivot
+  const piv = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  piv.setAttribute("cx", pivX); piv.setAttribute("cy", pivY); piv.setAttribute("r", 4);
+  piv.setAttribute("fill", "#1a202c");
+  svg.appendChild(piv);
+  // String
+  const bx = pivX + pixL * Math.sin(penState.theta);
+  const by = pivY + pixL * Math.cos(penState.theta);
+  const str = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  str.setAttribute("x1", pivX); str.setAttribute("y1", pivY); str.setAttribute("x2", bx); str.setAttribute("y2", by);
+  str.setAttribute("stroke", "#1a202c"); str.setAttribute("stroke-width", 2);
+  svg.appendChild(str);
+  // Bob
+  const bob = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  bob.setAttribute("cx", bx); bob.setAttribute("cy", by); bob.setAttribute("r", 16);
+  bob.setAttribute("fill", "#dc2626"); bob.setAttribute("stroke", "#7f1d1d"); bob.setAttribute("stroke-width", 2);
+  svg.appendChild(bob);
+  // Reference: vertical line at center showing equilibrium
+  const refLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  refLine.setAttribute("x1", pivX); refLine.setAttribute("y1", pivY); refLine.setAttribute("x2", pivX); refLine.setAttribute("y2", pivY + pixL);
+  refLine.setAttribute("stroke", "#94a3b8"); refLine.setAttribute("stroke-dasharray", "4 4");
+  svg.appendChild(refLine);
+}
+
+function updatePenResult() {
+  const L = parseFloat(document.getElementById("penL").value);
+  const m = parseFloat(document.getElementById("penM").value);
+  const theta = penState.theta;
+  const omega = penState.omega;
+  const v = L * omega;
+  const KE = 0.5 * m * v * v;
+  const h = L * (1 - Math.cos(theta));
+  const PE = m * g * h;
+  const totalE = KE + PE;
+
+  // Initial energy
+  const theta0 = parseFloat(document.getElementById("penTheta0").value) * Math.PI / 180;
+  const h0 = L * (1 - Math.cos(theta0));
+  const initialE = m * g * h0;
+
+  const kePct = totalE > 0 ? (KE / initialE) * 100 : 0;
+  const pePct = totalE > 0 ? (PE / initialE) * 100 : 0;
+
+  document.getElementById("penResult").innerHTML = `
+    <div class="row">
+      <span class="stat">θ = <strong>${(theta * 180/Math.PI).toFixed(1)}°</strong></span>
+      <span class="stat">v = <strong>${Math.abs(v).toFixed(2)} m/s</strong></span>
+      <span class="stat">h = <strong>${h.toFixed(3)} m</strong></span>
+    </div>
+    <div style="margin-top:10px">
+      <div style="display:flex; align-items:center; gap:10px"><div style="min-width:50px"><strong>KE</strong></div><div class="energy-bar" style="flex:1"><div class="fill ke" style="width:${Math.min(100,kePct)}%"><div class="label">${KE.toFixed(2)} J</div></div></div></div>
+      <div style="display:flex; align-items:center; gap:10px"><div style="min-width:50px"><strong>PE</strong></div><div class="energy-bar" style="flex:1"><div class="fill pe" style="width:${Math.min(100,pePct)}%"><div class="label">${PE.toFixed(2)} J</div></div></div></div>
+    </div>
+    <div style="margin-top:8px"><strong>Tổng: ${totalE.toFixed(3)} J</strong> (xấp xỉ hằng số, sai số nhỏ do bước số học)</div>
+  `;
+}
+
+// Init
+calcWork();
+calcEnergy();
+resetPendulum();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

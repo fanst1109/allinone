@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 08 — Dao động &amp; Sóng cơ</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 120px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100px; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  button { background: #1e40af; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.muted { background: #94a3b8; }
+  .stat { display: inline-block; background: #dbeafe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #1e40af; }
+  .result { padding: 14px; background: #dbeafe; border-radius: 8px; margin-top: 12px; }
+
+  svg.scene {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 720px; height: 300px;
+    background: linear-gradient(135deg, #f8fafc, #dbeafe);
+    border-radius: 8px;
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Physics</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-rigid-body/visualization.html">← L7: Vật rắn</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Dao động &amp; Sóng</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">(Tier 2 sắp ra) →</span>
+</nav>
+
+<h1>Lesson 08 — Dao động &amp; Sóng cơ</h1>
+<p>Bộ công cụ: SHM Simulator (con lắc lò xo + đồ thị x-t, v-t, a-t), Pendulum Period Calculator, Wave Simulator (sóng ngang).</p>
+
+<h2>1. SHM Simulator — Con lắc lò xo</h2>
+<div class="card">
+  <div class="row">
+    <label>Khối lượng m (kg):</label>
+    <input type="number" id="shmM" step="0.1" value="0.5" oninput="resetSHM()">
+    <label>Độ cứng k (N/m):</label>
+    <input type="number" id="shmK" step="10" value="200" oninput="resetSHM()">
+    <label>Biên độ A (m):</label>
+    <input type="number" id="shmA" step="0.05" value="0.3" oninput="resetSHM()">
+  </div>
+  <div class="row">
+    <button onclick="toggleSHM()" id="shmBtn">▶ Bắt đầu</button>
+    <button onclick="resetSHM()" class="muted">Reset</button>
+  </div>
+  <svg class="scene" id="shmSvg" viewBox="0 0 720 300"></svg>
+  <div class="result" id="shmResult"></div>
+</div>
+
+<h2>2. Pendulum Period Calculator</h2>
+<div class="card">
+  <p>T = 2π·√(L/g). Tính chu kỳ con lắc đơn ở các hành tinh khác nhau.</p>
+  <div class="row">
+    <label>Chiều dài L (m):</label>
+    <input type="number" id="penL" step="0.1" value="1" oninput="calcPen()">
+    <label>g (m/s²):</label>
+    <input type="number" id="penG" step="0.1" value="9.8" oninput="calcPen()">
+  </div>
+  <div class="row">
+    <button class="muted" onclick="setG(9.8, 'Trái Đất')">Trái Đất (g=9.8)</button>
+    <button class="muted" onclick="setG(1.62, 'Mặt Trăng')">Mặt Trăng (g=1.62)</button>
+    <button class="muted" onclick="setG(3.71, 'Sao Hỏa')">Sao Hỏa (g=3.71)</button>
+    <button class="muted" onclick="setG(24.79, 'Sao Mộc')">Sao Mộc (g=24.79)</button>
+  </div>
+  <div class="result" id="penResult"></div>
+</div>
+
+<h2>3. Wave Simulator (sóng ngang)</h2>
+<div class="card">
+  <div class="row">
+    <label>Bước sóng λ (m):</label>
+    <input type="number" id="waveLambda" step="0.5" value="2" oninput="updateWave()">
+    <label>Tần số f (Hz):</label>
+    <input type="number" id="waveF" step="0.5" value="2" oninput="updateWave()">
+    <label>Biên độ A:</label>
+    <input type="number" id="waveA" step="5" value="40" oninput="updateWave()">
+  </div>
+  <svg class="scene" id="waveSvg" viewBox="0 0 720 300"></svg>
+  <div class="result" id="waveResult"></div>
+</div>
+
+</main>
+
+<script>
+// ===== SHM =====
+let shmState = { t: 0, running: false };
+let shmInterval = null;
+let shmHistory = [];
+
+function resetSHM() {
+  shmState = { t: 0, running: false };
+  shmHistory = [];
+  if (shmInterval) { clearInterval(shmInterval); shmInterval = null; }
+  document.getElementById("shmBtn").textContent = "▶ Bắt đầu";
+  updateSHMResult();
+  drawSHM();
+}
+
+function toggleSHM() {
+  if (shmState.running) {
+    clearInterval(shmInterval); shmInterval = null;
+    shmState.running = false;
+    document.getElementById("shmBtn").textContent = "▶ Tiếp tục";
+  } else {
+    shmState.running = true;
+    document.getElementById("shmBtn").textContent = "⏸ Dừng";
+    shmInterval = setInterval(stepSHM, 30);
+  }
+}
+
+function stepSHM() {
+  shmState.t += 0.03;
+  drawSHM();
+}
+
+function updateSHMResult() {
+  const m = parseFloat(document.getElementById("shmM").value);
+  const k = parseFloat(document.getElementById("shmK").value);
+  const A = parseFloat(document.getElementById("shmA").value);
+  const omega = Math.sqrt(k / m);
+  const T = 2 * Math.PI / omega;
+  const f = 1 / T;
+  const E = 0.5 * k * A * A;
+  const vMax = A * omega;
+
+  document.getElementById("shmResult").innerHTML = `
+    <div class="row">
+      <span class="stat">ω = √(k/m) = <strong>${omega.toFixed(2)} rad/s</strong></span>
+      <span class="stat">T = 2π/ω = <strong>${T.toFixed(3)} s</strong></span>
+      <span class="stat">f = 1/T = <strong>${f.toFixed(2)} Hz</strong></span>
+    </div>
+    <div class="row">
+      <span class="stat">v_max = A·ω = <strong>${vMax.toFixed(2)} m/s</strong></span>
+      <span class="stat">E_tổng = ½kA² = <strong>${E.toFixed(3)} J</strong></span>
+    </div>
+    <div style="margin-top:6px; font-size:13px">
+      <strong>Quan sát:</strong> T phụ thuộc m và k, KHÔNG phụ thuộc biên độ A. Năng lượng tổng E = ½kA² bảo toàn — chuyển qua lại giữa KE (tại vị trí cân bằng) và PE (tại biên).
+    </div>
+  `;
+}
+
+function drawSHM() {
+  const m = parseFloat(document.getElementById("shmM").value);
+  const k = parseFloat(document.getElementById("shmK").value);
+  const A = parseFloat(document.getElementById("shmA").value);
+  const omega = Math.sqrt(k / m);
+  const x = A * Math.cos(omega * shmState.t);
+  const v = -A * omega * Math.sin(omega * shmState.t);
+
+  const svg = document.getElementById("shmSvg");
+  svg.innerHTML = "";
+  // Wall (left)
+  const wall = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  wall.setAttribute("x", 30); wall.setAttribute("y", 100); wall.setAttribute("width", 12); wall.setAttribute("height", 100);
+  wall.setAttribute("fill", "#475569");
+  svg.appendChild(wall);
+  // Floor
+  const fl = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  fl.setAttribute("x1", 0); fl.setAttribute("y1", 220); fl.setAttribute("x2", 720); fl.setAttribute("y2", 220);
+  fl.setAttribute("stroke", "#475569"); fl.setAttribute("stroke-width", 2);
+  svg.appendChild(fl);
+
+  // Spring (zigzag)
+  const cx = 42 + 220 + x * 300; // px position
+  const massY = 150;
+  let path = `M 42 ${massY}`;
+  const segments = 10;
+  const span = cx - 42 - 30;
+  for (let i = 0; i < segments; i++) {
+    const dy = i % 2 === 0 ? -10 : 10;
+    path += ` L ${42 + (i + 0.5) * span / segments} ${massY + dy}`;
+  }
+  path += ` L ${cx - 25} ${massY}`;
+  const spring = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  spring.setAttribute("d", path);
+  spring.setAttribute("fill", "none"); spring.setAttribute("stroke", "#1a202c"); spring.setAttribute("stroke-width", 2);
+  svg.appendChild(spring);
+
+  // Mass
+  const mass = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  mass.setAttribute("x", cx - 25); mass.setAttribute("y", massY - 25);
+  mass.setAttribute("width", 50); mass.setAttribute("height", 50);
+  mass.setAttribute("fill", "#dc2626"); mass.setAttribute("stroke", "#7f1d1d"); mass.setAttribute("stroke-width", 2);
+  svg.appendChild(mass);
+  const mlbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  mlbl.setAttribute("x", cx); mlbl.setAttribute("y", massY + 5);
+  mlbl.setAttribute("text-anchor", "middle"); mlbl.setAttribute("fill", "white"); mlbl.setAttribute("font-weight", "700");
+  mlbl.textContent = m + " kg";
+  svg.appendChild(mlbl);
+
+  // Position indicator
+  const x0 = 42 + 220; // equilibrium x
+  const tick = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  tick.setAttribute("x1", x0); tick.setAttribute("y1", 215); tick.setAttribute("x2", x0); tick.setAttribute("y2", 225);
+  tick.setAttribute("stroke", "#1a202c"); tick.setAttribute("stroke-width", 2);
+  svg.appendChild(tick);
+  const eqLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  eqLbl.setAttribute("x", x0); eqLbl.setAttribute("y", 240);
+  eqLbl.setAttribute("text-anchor", "middle"); eqLbl.setAttribute("font-size", "12");
+  eqLbl.textContent = "cân bằng";
+  svg.appendChild(eqLbl);
+
+  // Current x
+  const xLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  xLbl.setAttribute("x", cx); xLbl.setAttribute("y", 100);
+  xLbl.setAttribute("text-anchor", "middle"); xLbl.setAttribute("fill", "#be185d"); xLbl.setAttribute("font-weight", "700");
+  xLbl.textContent = `x = ${x.toFixed(3)} m, v = ${v.toFixed(2)} m/s`;
+  svg.appendChild(xLbl);
+}
+
+// ===== Pendulum =====
+function setG(g_, name) {
+  document.getElementById("penG").value = g_;
+  calcPen(name);
+}
+
+function calcPen(planet) {
+  const L = parseFloat(document.getElementById("penL").value);
+  const g_ = parseFloat(document.getElementById("penG").value);
+  const T = 2 * Math.PI * Math.sqrt(L / g_);
+  const f = 1 / T;
+  document.getElementById("penResult").innerHTML = `
+    <div style="font-family:monospace; font-size:15px">T = 2π·√(L/g) = 2π·√(${L}/${g_}) = <strong>${T.toFixed(3)} s</strong></div>
+    <div class="row" style="margin-top:6px">
+      <span class="stat">f = <strong>${f.toFixed(3)} Hz</strong></span>
+      <span class="stat">${planet ? "Hành tinh: <strong>" + planet + "</strong>" : ""}</span>
+    </div>
+    <div style="margin-top:6px; font-size:13px">
+      <strong>Quan sát:</strong> T phụ thuộc L và g, KHÔNG phụ thuộc khối lượng vật treo. Đồng hồ quả lắc trên Mặt Trăng (g nhỏ) chạy chậm hơn — sai số tăng dần theo thời gian.
+    </div>
+  `;
+}
+
+// ===== Wave =====
+let waveT = 0;
+let waveInterval = setInterval(() => { waveT += 0.05; updateWave(); }, 30);
+
+function updateWave() {
+  const lambda = parseFloat(document.getElementById("waveLambda").value);
+  const f = parseFloat(document.getElementById("waveF").value);
+  const A = parseFloat(document.getElementById("waveA").value);
+  const v = lambda * f;
+  const T = 1 / f;
+
+  document.getElementById("waveResult").innerHTML = `
+    <div style="font-family:monospace; font-size:15px">v = λ·f = ${lambda} × ${f} = <strong>${v.toFixed(2)} m/s</strong></div>
+    <div class="row" style="margin-top:6px">
+      <span class="stat">Bước sóng λ = <strong>${lambda} m</strong></span>
+      <span class="stat">Tần số f = <strong>${f} Hz</strong></span>
+      <span class="stat">Chu kỳ T = <strong>${T.toFixed(3)} s</strong></span>
+    </div>
+  `;
+
+  // Draw wave
+  const svg = document.getElementById("waveSvg");
+  svg.innerHTML = "";
+  const W = 720, H = 300;
+  const cy = H / 2;
+  // Center line
+  const center = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  center.setAttribute("x1", 0); center.setAttribute("y1", cy); center.setAttribute("x2", W); center.setAttribute("y2", cy);
+  center.setAttribute("stroke", "#94a3b8"); center.setAttribute("stroke-dasharray", "4 4");
+  svg.appendChild(center);
+
+  // Wave function: y(x, t) = A·sin(2π(x/λ - t/T))
+  // Scale: 1 m = 80 pixels
+  const xScale = 80;
+  let path = "";
+  for (let xPx = 0; xPx <= W; xPx += 2) {
+    const xMeters = xPx / xScale;
+    const phase = 2 * Math.PI * (xMeters / lambda - waveT / T);
+    const y = cy - A * Math.sin(phase);
+    path += (xPx === 0 ? "M " : " L ") + xPx + " " + y;
+  }
+  const w = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  w.setAttribute("d", path);
+  w.setAttribute("fill", "none"); w.setAttribute("stroke", "#1e40af"); w.setAttribute("stroke-width", 3);
+  svg.appendChild(w);
+
+  // Wavelength indicator
+  const lambdaPx = lambda * xScale;
+  const startX = 50;
+  const indY = cy + A + 30;
+  const indStart = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  indStart.setAttribute("x1", startX); indStart.setAttribute("y1", indY - 5); indStart.setAttribute("x2", startX); indStart.setAttribute("y2", indY + 5);
+  indStart.setAttribute("stroke", "#be185d"); indStart.setAttribute("stroke-width", 2);
+  svg.appendChild(indStart);
+  const indEnd = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  indEnd.setAttribute("x1", startX + lambdaPx); indEnd.setAttribute("y1", indY - 5); indEnd.setAttribute("x2", startX + lambdaPx); indEnd.setAttribute("y2", indY + 5);
+  indEnd.setAttribute("stroke", "#be185d"); indEnd.setAttribute("stroke-width", 2);
+  svg.appendChild(indEnd);
+  const indLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  indLine.setAttribute("x1", startX); indLine.setAttribute("y1", indY); indLine.setAttribute("x2", startX + lambdaPx); indLine.setAttribute("y2", indY);
+  indLine.setAttribute("stroke", "#be185d"); indLine.setAttribute("stroke-width", 2);
+  svg.appendChild(indLine);
+  const indLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  indLbl.setAttribute("x", startX + lambdaPx/2); indLbl.setAttribute("y", indY + 18);
+  indLbl.setAttribute("text-anchor", "middle"); indLbl.setAttribute("fill", "#be185d"); indLbl.setAttribute("font-weight", "700");
+  indLbl.textContent = `λ = ${lambda} m`;
+  svg.appendChild(indLbl);
+}
+
+// Init
+resetSHM();
+calcPen();
+updateWave();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 08 (T2) — Hóa sinh preview</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 100px; }
+  select, input { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; }
+  input[type="text"] { min-width: 240px; }
+  button { background: #be185d; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  .stat { display: inline-block; background: #fce7f3; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #be185d; }
+  .result { padding: 14px; background: #fef3c7; border-radius: 8px; margin-top: 12px; }
+
+  .biomol-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .biomol-card {
+    border: 2px solid #e2e8f0; border-radius: 8px; padding: 14px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .biomol-card:hover { transform: translateY(-2px); border-color: #be185d; }
+  .biomol-card.active { border-color: #be185d; background: #fce7f3; }
+  .biomol-card h4 { margin: 0 0 6px; color: #be185d; }
+
+  svg.dna {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 600px; height: 280px;
+  }
+  svg.dna .strand { stroke-width: 3; fill: none; }
+  svg.dna .strand-1 { stroke: #1d4ed8; }
+  svg.dna .strand-2 { stroke: #dc2626; }
+  svg.dna .base-pair { stroke: #94a3b8; stroke-width: 1.5; }
+  svg.dna text { font: bold 11px sans-serif; text-anchor: middle; }
+
+  svg.protein {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 600px; height: 220px;
+  }
+  svg.protein .aa { fill: #be185d; stroke: #7f1d1d; stroke-width: 1.5; }
+  svg.protein .bond { stroke: #1a202c; stroke-width: 2; }
+  svg.protein text { font: bold 10px sans-serif; fill: white; text-anchor: middle; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Chemistry</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-polymers/visualization.html">← L7: Polymer</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Hóa sinh preview</span>
+</nav>
+
+<h1>Lesson 08 (T2) — Hóa sinh preview</h1>
+<p>🎉 <strong>Bài cuối Chemistry.</strong> Bộ công cụ: gallery 4 nhóm biomolecule, mô phỏng DNA helix với base pairs, codon translator (DNA → mRNA → amino acid).</p>
+
+<h2>1. 4 nhóm Biomolecule</h2>
+<div class="card">
+  <div class="biomol-grid" id="biomolGrid"></div>
+  <div class="result" id="biomolDetail"></div>
+</div>
+
+<h2>2. DNA Double Helix với Base Pairs</h2>
+<div class="card">
+  <p>Click nút để xem chuỗi DNA với 2 strands, các base pair nối qua H-bond (A-T: 2 H-bond, G-C: 3 H-bond).</p>
+  <svg class="dna" id="dnaSvg" viewBox="0 0 600 280"></svg>
+  <div style="padding:10px; background:#fce7f3; border-radius:6px">
+    <strong>Quan sát:</strong> 2 chuỗi xoắn ngược chiều (5'→3' và 3'→5'). Base pair A-T (đỏ-xanh) và G-C (xanh lá-tím). DNA con người dài ~ 2m nếu duỗi thẳng — gập gọn vào nhân tế bào 6μm.
+  </div>
+</div>
+
+<h2>3. Codon Translator (DNA → mRNA → Protein)</h2>
+<div class="card">
+  <p>Nhập chuỗi DNA (chỉ A, T, G, C). Viz sẽ phiên mã thành mRNA và dịch ra chuỗi amino acid.</p>
+  <div class="row">
+    <label>DNA template:</label>
+    <input type="text" id="dnaInput" value="TACCGATCCATTT" oninput="translate()">
+    <button onclick="document.getElementById('dnaInput').value='TACGGAACGTAAATT'; translate()">Ví dụ 1</button>
+    <button onclick="document.getElementById('dnaInput').value='TACAGCTACAAGCAT'; translate()">Ví dụ 2</button>
+  </div>
+  <div class="result" id="translateResult"></div>
+</div>
+
+</main>
+
+<script>
+const BIOMOL = {
+  carb: {
+    name: "Carbohydrate (Đường)",
+    monomer: "Monosaccharide (vd glucose C₆H₁₂O₆)",
+    role: "Nhiên liệu chính của tế bào, dự trữ ngắn hạn (glycogen), cấu trúc thực vật (cellulose).",
+    energy: "4 kcal/g",
+    examples: ["Glucose (đường đơn)", "Sucrose (đường mía = glucose + fructose)", "Tinh bột (chuỗi glucose α-1,4)", "Cellulose (chuỗi glucose β-1,4)", "Glycogen (dự trữ ở gan, cơ)"]
+  },
+  lipid: {
+    name: "Lipid (Chất béo)",
+    monomer: "Glycerol + 3 acid béo",
+    role: "Dự trữ năng lượng dài hạn (cao nhất/g), cấu trúc màng tế bào (phospholipid), hormone (steroid như cortisol, testosterone).",
+    energy: "9 kcal/g (cao nhất)",
+    examples: ["Triglyceride (mỡ, dầu)", "Acid béo bão hòa (mỡ động vật, rắn)", "Acid béo cis-không bão hòa (dầu thực vật, lỏng, tốt)", "Phospholipid (màng tế bào)", "Cholesterol (steroid)"]
+  },
+  protein: {
+    name: "Protein",
+    monomer: "Amino acid (20 loại chuẩn)",
+    role: "Enzyme, cấu trúc (collagen, keratin), vận chuyển (hemoglobin), kháng thể, hormone (insulin), cơ bắp (actin/myosin).",
+    energy: "4 kcal/g",
+    examples: ["Hemoglobin (vận chuyển O₂, 4 chuỗi)", "Insulin (hormone đường, 2 chuỗi)", "Collagen (sợi da, xương)", "Antibody (kháng thể chống bệnh)", "ATP synthase (enzyme tổng hợp ATP)"]
+  },
+  nucleic: {
+    name: "Nucleic Acid (DNA, RNA)",
+    monomer: "Nucleotide (đường + base + phosphate)",
+    role: "Lưu trữ thông tin di truyền (DNA), truyền tải và sản xuất protein (RNA).",
+    energy: "—",
+    examples: ["DNA (xoắn kép, deoxyribose + ATGC)", "mRNA (truyền thông tin từ DNA tới ribosome)", "tRNA (mang amino acid đến ribosome)", "rRNA (cấu thành ribosome)"]
+  }
+};
+
+function buildGrid() {
+  const g = document.getElementById("biomolGrid");
+  Object.entries(BIOMOL).forEach(([key, b], i) => {
+    const card = document.createElement("div");
+    card.className = "biomol-card";
+    if (i === 0) card.classList.add("active");
+    card.dataset.key = key;
+    card.innerHTML = `<h4>${b.name}</h4>
+      <div style="font-size:13px; color:#475569">${b.monomer}</div>
+      <div style="font-size:12px; margin-top:6px; color:#92400e"><strong>Năng lượng:</strong> ${b.energy}</div>`;
+    card.onclick = () => selectBiomol(key);
+    g.appendChild(card);
+  });
+}
+
+function selectBiomol(key) {
+  document.querySelectorAll(".biomol-card").forEach(c => c.classList.toggle("active", c.dataset.key === key));
+  const b = BIOMOL[key];
+  document.getElementById("biomolDetail").innerHTML = `
+    <h3 style="margin-top:0">${b.name}</h3>
+    <div><strong>Monomer:</strong> ${b.monomer}</div>
+    <div style="margin-top:6px"><strong>Vai trò:</strong> ${b.role}</div>
+    <div style="margin-top:6px"><strong>Năng lượng:</strong> ${b.energy}</div>
+    <div style="margin-top:6px"><strong>Ví dụ:</strong></div>
+    <ul style="margin:4px 0">${b.examples.map(e => `<li>${e}</li>`).join("")}</ul>
+  `;
+}
+
+// ===== DNA helix =====
+function drawDNA() {
+  const svg = document.getElementById("dnaSvg");
+  svg.innerHTML = "";
+  const W = 600, H = 280;
+  const cx = W / 2;
+  const bases = [
+    {l:"A", r:"T", color1:"#dc2626", color2:"#1d4ed8", hbonds:2},
+    {l:"G", r:"C", color1:"#047857", color2:"#7c3aed", hbonds:3},
+    {l:"T", r:"A", color1:"#1d4ed8", color2:"#dc2626", hbonds:2},
+    {l:"C", r:"G", color1:"#7c3aed", color2:"#047857", hbonds:3},
+    {l:"A", r:"T", color1:"#dc2626", color2:"#1d4ed8", hbonds:2},
+    {l:"G", r:"C", color1:"#047857", color2:"#7c3aed", hbonds:3},
+    {l:"T", r:"A", color1:"#1d4ed8", color2:"#dc2626", hbonds:2},
+    {l:"C", r:"G", color1:"#7c3aed", color2:"#047857", hbonds:3}
+  ];
+  const stepY = (H - 60) / bases.length;
+  const amplitude = 80;
+
+  // Two strand paths (sin waves)
+  let path1 = "", path2 = "";
+  for (let t = 0; t <= 1; t += 0.01) {
+    const y = 30 + t * (H - 60);
+    const angle = t * 4 * Math.PI;
+    const x1 = cx + amplitude * Math.cos(angle);
+    const x2 = cx - amplitude * Math.cos(angle);
+    path1 += (t === 0 ? "M " : " L ") + x1 + " " + y;
+    path2 += (t === 0 ? "M " : " L ") + x2 + " " + y;
+  }
+  const s1 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  s1.setAttribute("class", "strand strand-1");
+  s1.setAttribute("d", path1);
+  svg.appendChild(s1);
+  const s2 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  s2.setAttribute("class", "strand strand-2");
+  s2.setAttribute("d", path2);
+  svg.appendChild(s2);
+
+  // Base pairs
+  bases.forEach((b, i) => {
+    const t = (i + 0.5) / bases.length;
+    const y = 30 + t * (H - 60);
+    const angle = t * 4 * Math.PI;
+    const x1 = cx + amplitude * Math.cos(angle);
+    const x2 = cx - amplitude * Math.cos(angle);
+
+    // H-bond lines
+    for (let j = 0; j < b.hbonds; j++) {
+      const offsetY = (j - (b.hbonds - 1) / 2) * 3;
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("class", "base-pair");
+      line.setAttribute("x1", x1); line.setAttribute("y1", y + offsetY);
+      line.setAttribute("x2", x2); line.setAttribute("y2", y + offsetY);
+      line.setAttribute("stroke-dasharray", "2 2");
+      svg.appendChild(line);
+    }
+
+    // Base labels
+    const c1 = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    c1.setAttribute("cx", x1); c1.setAttribute("cy", y); c1.setAttribute("r", 9);
+    c1.setAttribute("fill", b.color1);
+    svg.appendChild(c1);
+    const t1 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t1.setAttribute("x", x1); t1.setAttribute("y", y + 4);
+    t1.setAttribute("fill", "white");
+    t1.textContent = b.l;
+    svg.appendChild(t1);
+
+    const c2 = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    c2.setAttribute("cx", x2); c2.setAttribute("cy", y); c2.setAttribute("r", 9);
+    c2.setAttribute("fill", b.color2);
+    svg.appendChild(c2);
+    const t2 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t2.setAttribute("x", x2); t2.setAttribute("y", y + 4);
+    t2.setAttribute("fill", "white");
+    t2.textContent = b.r;
+    svg.appendChild(t2);
+  });
+
+  // Labels
+  const lbl1 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  lbl1.setAttribute("x", 30); lbl1.setAttribute("y", 25);
+  lbl1.setAttribute("fill", "#1d4ed8"); lbl1.setAttribute("font-size", "12");
+  lbl1.textContent = "5'";
+  svg.appendChild(lbl1);
+  const lbl2 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  lbl2.setAttribute("x", 30); lbl2.setAttribute("y", H - 10);
+  lbl2.setAttribute("fill", "#1d4ed8"); lbl2.setAttribute("font-size", "12");
+  lbl2.textContent = "3'";
+  svg.appendChild(lbl2);
+}
+
+// ===== Codon Translator =====
+const CODON_TABLE = {
+  // Start
+  "AUG":"Met",
+  // Stop
+  "UAA":"STOP", "UAG":"STOP", "UGA":"STOP",
+  // Common amino acids
+  "GCU":"Ala", "GCC":"Ala", "GCA":"Ala", "GCG":"Ala",
+  "GAU":"Asp", "GAC":"Asp",
+  "GAA":"Glu", "GAG":"Glu",
+  "UUU":"Phe", "UUC":"Phe",
+  "GGU":"Gly", "GGC":"Gly", "GGA":"Gly", "GGG":"Gly",
+  "AAA":"Lys", "AAG":"Lys",
+  "AAU":"Asn", "AAC":"Asn",
+  "CCU":"Pro", "CCC":"Pro", "CCA":"Pro", "CCG":"Pro",
+  "CGU":"Arg", "CGC":"Arg", "CGA":"Arg", "CGG":"Arg",
+  "AGU":"Ser", "AGC":"Ser", "UCU":"Ser", "UCC":"Ser",
+  "ACU":"Thr", "ACC":"Thr", "ACA":"Thr", "ACG":"Thr",
+  "UAU":"Tyr", "UAC":"Tyr",
+  "UGU":"Cys", "UGC":"Cys",
+  "UGG":"Trp",
+  "GUU":"Val", "GUC":"Val", "GUA":"Val", "GUG":"Val",
+  "UUA":"Leu", "UUG":"Leu", "CUU":"Leu",
+  "CAU":"His", "CAC":"His",
+  "CAA":"Gln", "CAG":"Gln",
+  "AUU":"Ile", "AUC":"Ile", "AUA":"Ile"
+};
+
+function translate() {
+  const dna = document.getElementById("dnaInput").value.toUpperCase().replace(/[^ATGC]/g, "");
+  // DNA → mRNA: complementary + T→U
+  const mRNA = dna.split("").map(b => ({A:"U", T:"A", G:"C", C:"G"}[b])).join("");
+
+  // Split into codons
+  const codons = [];
+  for (let i = 0; i < mRNA.length - 2; i += 3) {
+    codons.push(mRNA.substr(i, 3));
+  }
+
+  // Translate
+  let proteinChain = [];
+  let started = false;
+  for (const cod of codons) {
+    const aa = CODON_TABLE[cod] || "?";
+    if (aa === "STOP") {
+      proteinChain.push("STOP");
+      break;
+    }
+    proteinChain.push(aa);
+  }
+
+  let html = `
+    <h3 style="margin-top:0">Phiên mã & Dịch mã</h3>
+    <div class="step" style="padding:8px; background:#f8fafc; border-left:3px solid #be185d; margin:6px 0">
+      <strong>DNA (template):</strong> <span style="font-family:monospace; font-size:16px">${dna}</span>
+    </div>
+    <div class="step" style="padding:8px; background:#f8fafc; border-left:3px solid #1d4ed8; margin:6px 0">
+      <strong>mRNA (sao chép bổ sung, T→U):</strong> <span style="font-family:monospace; font-size:16px">${mRNA}</span>
+    </div>
+    <div class="step" style="padding:8px; background:#fef3c7; border-left:3px solid #92400e; margin:6px 0">
+      <strong>Codons:</strong> ${codons.map(c => `<span class="stat">${c}</span>`).join("")}
+    </div>
+    <div class="step" style="padding:8px; background:#dcfce7; border-left:3px solid #047857; margin:6px 0">
+      <strong>Chuỗi amino acid:</strong> ${proteinChain.map(aa => `<span class="stat" style="background:${aa==='STOP'?'#fee2e2':'#dcfce7'}">${aa}</span>`).join(" - ")}
+    </div>
+  `;
+
+  // Visual protein chain
+  document.getElementById("translateResult").innerHTML = html;
+}
+
+// Init
+buildGrid();
+selectBiomol("carb");
+drawDNA();
+translate();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

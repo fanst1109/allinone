@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 03 (T3) — Quang sóng</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 130px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 110px; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  .stat { display: inline-block; background: #dbeafe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #1e40af; }
+  .result { padding: 14px; background: #dbeafe; border-radius: 8px; margin-top: 12px; }
+  svg.scene {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 720px; height: 360px;
+    background: #0f172a;
+    border-radius: 8px;
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Physics</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-lenses-mirrors/visualization.html">← L2: Thấu kính</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Quang sóng</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L4: Photon (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 03 (T3) — Quang sóng</h1>
+<p>Young Double Slit Simulator: chiếu ánh sáng đơn sắc qua 2 khe → quan sát vân giao thoa trên màn.</p>
+
+<h2>Young Double Slit Simulator</h2>
+<div class="card">
+  <div class="row">
+    <label>Bước sóng λ (nm):</label>
+    <input type="range" id="ysL" min="400" max="780" step="10" value="600" oninput="updateYS()">
+    <span class="stat">λ = <strong id="lVal">600</strong> nm</span>
+  </div>
+  <div class="row">
+    <label>Khoảng cách 2 khe d (mm):</label>
+    <input type="range" id="ysD" min="0.1" max="2" step="0.1" value="0.5" oninput="updateYS()">
+    <span class="stat">d = <strong id="dVal">0.5</strong> mm</span>
+  </div>
+  <div class="row">
+    <label>Khoảng cách màn L (m):</label>
+    <input type="range" id="ysLL" min="0.5" max="3" step="0.1" value="1.5" oninput="updateYS()">
+    <span class="stat">L = <strong id="LVal">1.5</strong> m</span>
+  </div>
+  <svg class="scene" id="ysSvg" viewBox="0 0 720 360"></svg>
+  <div class="result" id="ysResult"></div>
+</div>
+
+</main>
+
+<script>
+function wavelengthToColor(nm) {
+  if (nm < 450) return "#7c3aed";
+  if (nm < 490) return "#3b82f6";
+  if (nm < 570) return "#06b6d4";
+  if (nm < 590) return "#facc15";
+  if (nm < 620) return "#ea580c";
+  return "#dc2626";
+}
+
+function updateYS() {
+  const lambda = parseFloat(document.getElementById("ysL").value);
+  const d_mm = parseFloat(document.getElementById("ysD").value);
+  const L = parseFloat(document.getElementById("ysLL").value);
+  document.getElementById("lVal").textContent = lambda;
+  document.getElementById("dVal").textContent = d_mm;
+  document.getElementById("LVal").textContent = L;
+
+  const lambda_m = lambda * 1e-9;
+  const d_m = d_mm * 1e-3;
+  const dy = lambda_m * L / d_m; // m
+  const dy_mm = dy * 1000;
+
+  document.getElementById("ysResult").innerHTML = `
+    <div style="font-family:monospace; font-size:15px">Δy = λ·L/d = ${lambda_m.toExponential(2)}·${L}/${d_m.toExponential(2)} = <strong>${dy_mm.toFixed(2)} mm</strong></div>
+    <div style="margin-top:6px; font-size:13px">
+      Khoảng cách giữa 2 vân sáng liên tiếp trên màn. λ tăng → vân xa nhau. d tăng → vân sát nhau. L tăng → vân xa nhau.
+    </div>
+  `;
+
+  // Draw
+  const svg = document.getElementById("ysSvg");
+  svg.innerHTML = "";
+  const W = 720, H = 360;
+  const color = wavelengthToColor(lambda);
+  // Source (light, left)
+  const src = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  src.setAttribute("cx", 40); src.setAttribute("cy", 180); src.setAttribute("r", 12);
+  src.setAttribute("fill", color);
+  svg.appendChild(src);
+  // 2 slits
+  const slitX = 200;
+  const slit1 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  slit1.setAttribute("x", slitX); slit1.setAttribute("y", 0); slit1.setAttribute("width", 4); slit1.setAttribute("height", 150);
+  slit1.setAttribute("fill", "#94a3b8");
+  svg.appendChild(slit1);
+  const slit2 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  slit2.setAttribute("x", slitX); slit2.setAttribute("y", 165); slit2.setAttribute("width", 4); slit2.setAttribute("height", 30);
+  slit2.setAttribute("fill", "#94a3b8");
+  svg.appendChild(slit2);
+  const slit3 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  slit3.setAttribute("x", slitX); slit3.setAttribute("y", 210); slit3.setAttribute("width", 4); slit3.setAttribute("height", 150);
+  slit3.setAttribute("fill", "#94a3b8");
+  svg.appendChild(slit3);
+
+  // Screen (right)
+  const scrX = 660;
+  const scr = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  scr.setAttribute("x", scrX); scr.setAttribute("y", 30); scr.setAttribute("width", 30); scr.setAttribute("height", 300);
+  scr.setAttribute("fill", "#1e293b"); scr.setAttribute("stroke", "#475569"); scr.setAttribute("stroke-width", 2);
+  svg.appendChild(scr);
+
+  // Draw fringes on screen
+  // Center fringe at y=180 (matching slit center)
+  // Px per mm: assume screen represents ~ 100mm tall, 300px → 3 px/mm
+  const pxPerMm = 6;
+  const fringes = [];
+  for (let n = -10; n <= 10; n++) {
+    const y_mm = n * dy_mm;
+    const y_px = 180 + y_mm * pxPerMm;
+    if (y_px > 35 && y_px < 325) fringes.push({y: y_px, brightness: 1});
+  }
+  // Fringes
+  fringes.forEach(f => {
+    const r = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    r.setAttribute("x", scrX); r.setAttribute("y", f.y - 1); r.setAttribute("width", 30); r.setAttribute("height", 2);
+    r.setAttribute("fill", color);
+    svg.appendChild(r);
+  });
+  // Tia ray
+  [157, 197].forEach(slitY => {
+    const ray = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    ray.setAttribute("x1", 50); ray.setAttribute("y1", 180); ray.setAttribute("x2", slitX); ray.setAttribute("y2", slitY);
+    ray.setAttribute("stroke", color); ray.setAttribute("stroke-width", 1); ray.setAttribute("opacity", "0.5");
+    svg.appendChild(ray);
+    const ray2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    ray2.setAttribute("x1", slitX); ray2.setAttribute("y1", slitY); ray2.setAttribute("x2", scrX); ray2.setAttribute("y2", 180);
+    ray2.setAttribute("stroke", color); ray2.setAttribute("stroke-width", 0.5); ray2.setAttribute("opacity", "0.5");
+    svg.appendChild(ray2);
+  });
+
+  // Labels
+  const t1 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  t1.setAttribute("x", 40); t1.setAttribute("y", 215); t1.setAttribute("fill", "white"); t1.setAttribute("font-size", "11"); t1.setAttribute("text-anchor", "middle");
+  t1.textContent = "Nguồn";
+  svg.appendChild(t1);
+  const t2 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  t2.setAttribute("x", slitX + 2); t2.setAttribute("y", 22); t2.setAttribute("fill", "white"); t2.setAttribute("font-size", "11"); t2.setAttribute("text-anchor", "middle");
+  t2.textContent = "2 khe";
+  svg.appendChild(t2);
+  const t3 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  t3.setAttribute("x", scrX + 15); t3.setAttribute("y", 22); t3.setAttribute("fill", "white"); t3.setAttribute("font-size", "11"); t3.setAttribute("text-anchor", "middle");
+  t3.textContent = "Màn";
+  svg.appendChild(t3);
+}
+
+updateYS();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

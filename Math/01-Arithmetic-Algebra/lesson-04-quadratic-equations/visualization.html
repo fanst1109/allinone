@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 04 — Phương trình bậc 2</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 70px; }
+  button { background: #15803d; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 600px; height: 400px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-linear-equations/visualization.html">← L3: PT bậc 1</a>
+  <span class="sep">·</span>
+  <span class="current">L4: PT bậc 2</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L5: BPT (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 04 — Phương trình bậc 2</h1>
+
+<h2>Quadratic Solver — ax² + bx + c = 0</h2>
+<div class="card">
+  <div class="row">
+    <input type="number" id="qA" step="1" value="1"> x² +
+    <input type="number" id="qB" step="1" value="-5"> x +
+    <input type="number" id="qC" step="1" value="6">  = 0
+    <button onclick="solveQ()">Giải</button>
+  </div>
+  <svg class="scene" id="qSvg" viewBox="0 0 600 400"></svg>
+  <div class="result" id="qResult"></div>
+</div>
+
+</main>
+
+<script>
+function solveQ() {
+  const a = parseFloat(document.getElementById("qA").value);
+  const b = parseFloat(document.getElementById("qB").value);
+  const c = parseFloat(document.getElementById("qC").value);
+  if (a === 0) { document.getElementById("qResult").innerHTML = "<strong>a = 0 → KHÔNG phải bậc 2.</strong>"; return; }
+  const delta = b*b - 4*a*c;
+  let html = `<div style="font-family:monospace; font-size:15px">${a}x² ${b>=0?"+":""}${b}x ${c>=0?"+":""}${c} = 0</div>`;
+  html += `<div style="font-family:monospace; font-size:14px; margin-top:6px">Δ = b² − 4ac = ${b}² − 4·${a}·${c} = <strong>${delta}</strong></div>`;
+  let x1, x2;
+  if (delta > 0) {
+    x1 = (-b + Math.sqrt(delta))/(2*a);
+    x2 = (-b - Math.sqrt(delta))/(2*a);
+    html += `<div style="margin-top:8px"><strong>Δ > 0 → 2 NGHIỆM PHÂN BIỆT</strong></div>`;
+    html += `<div style="font-family:monospace; font-size:14px">x₁ = (−${b} + √${delta})/(2·${a}) = <strong>${x1.toFixed(4)}</strong></div>`;
+    html += `<div style="font-family:monospace; font-size:14px">x₂ = (−${b} − √${delta})/(2·${a}) = <strong>${x2.toFixed(4)}</strong></div>`;
+    html += `<div style="margin-top:6px; font-family:monospace; font-size:13px; background:#fef3c7; padding:6px">Viete kiểm tra: x₁+x₂ = ${(x1+x2).toFixed(3)} (= −b/a = ${(-b/a).toFixed(3)}) ✓ &nbsp; x₁·x₂ = ${(x1*x2).toFixed(3)} (= c/a = ${(c/a).toFixed(3)}) ✓</div>`;
+  } else if (delta === 0) {
+    x1 = -b/(2*a);
+    x2 = x1;
+    html += `<div style="margin-top:8px"><strong>Δ = 0 → NGHIỆM KÉP</strong></div>`;
+    html += `<div style="font-family:monospace; font-size:14px">x = −b/(2a) = <strong>${x1.toFixed(4)}</strong></div>`;
+  } else {
+    html += `<div style="margin-top:8px"><strong>Δ < 0 → VÔ NGHIỆM trong ℝ</strong></div>`;
+    html += `<div style="margin-top:4px; font-size:13px">Nghiệm phức: x = (−${b} ± i√${-delta})/(2·${a})</div>`;
+  }
+  document.getElementById("qResult").innerHTML = html;
+  drawParabola(a, b, c, delta >= 0 ? [x1, x2] : []);
+}
+
+function drawParabola(a, b, c, roots) {
+  const svg = document.getElementById("qSvg");
+  svg.innerHTML = "";
+  const W = 600, H = 400, cx = W/2, cy = H/2;
+  const scale = 25;
+
+  // Grid
+  for (let i = -10; i <= 10; i++) {
+    const x = cx + i*scale;
+    const y = cy + i*scale;
+    const g1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    g1.setAttribute("x1", x); g1.setAttribute("y1", 0); g1.setAttribute("x2", x); g1.setAttribute("y2", H);
+    g1.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); g1.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+    svg.appendChild(g1);
+    const g2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    g2.setAttribute("x1", 0); g2.setAttribute("y1", y); g2.setAttribute("x2", W); g2.setAttribute("y2", y);
+    g2.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); g2.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+    svg.appendChild(g2);
+  }
+
+  // Parabola
+  let path = "";
+  let started = false;
+  for (let xMath = -12; xMath <= 12; xMath += 0.1) {
+    const yMath = a*xMath*xMath + b*xMath + c;
+    const x = cx + xMath*scale;
+    const y = cy - yMath*scale;
+    if (y > -100 && y < H + 100) {
+      path += (started ? " L " : "M ") + x + " " + y;
+      started = true;
+    } else { started = false; }
+  }
+  const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  p.setAttribute("d", path); p.setAttribute("fill", "none"); p.setAttribute("stroke", "#15803d"); p.setAttribute("stroke-width", 2.5);
+  svg.appendChild(p);
+
+  // Roots (intersection with x-axis)
+  roots.forEach(r => {
+    const x = cx + r*scale;
+    if (x > 0 && x < W) {
+      const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      c.setAttribute("cx", x); c.setAttribute("cy", cy); c.setAttribute("r", 6);
+      c.setAttribute("fill", "#dc2626");
+      svg.appendChild(c);
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t.setAttribute("x", x); t.setAttribute("y", cy + 25);
+      t.setAttribute("text-anchor", "middle"); t.setAttribute("fill", "#dc2626"); t.setAttribute("font-weight", "700");
+      t.textContent = r.toFixed(2);
+      svg.appendChild(t);
+    }
+  });
+}
+
+solveQ();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

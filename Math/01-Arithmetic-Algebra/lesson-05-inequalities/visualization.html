@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 05 — Bất phương trình</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 70px; }
+  select { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; }
+  button { background: #15803d; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 720px; height: 200px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-quadratic-equations/visualization.html">← L4: PT bậc 2</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Bất phương trình</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L6: Lũy thừa (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 05 — Bất phương trình</h1>
+
+<h2>Quadratic Inequality Solver — ax² + bx + c [≷] 0</h2>
+<div class="card">
+  <div class="row">
+    <input type="number" id="iA" step="1" value="1"> x² +
+    <input type="number" id="iB" step="1" value="-5"> x +
+    <input type="number" id="iC" step="1" value="6">
+    <select id="iOp">
+      <option value=">">&gt; 0</option>
+      <option value=">=">≥ 0</option>
+      <option value="<" selected>&lt; 0</option>
+      <option value="<=">≤ 0</option>
+    </select>
+    <button onclick="solveIneq()">Giải</button>
+  </div>
+  <svg class="scene" id="iSvg" viewBox="0 0 720 200"></svg>
+  <div class="result" id="iResult"></div>
+</div>
+
+</main>
+
+<script>
+function solveIneq() {
+  const a = parseFloat(document.getElementById("iA").value);
+  const b = parseFloat(document.getElementById("iB").value);
+  const c = parseFloat(document.getElementById("iC").value);
+  const op = document.getElementById("iOp").value;
+  const delta = b*b - 4*a*c;
+  let html = `<div style="font-family:monospace; font-size:15px">${a}x² ${b>=0?"+":""}${b}x ${c>=0?"+":""}${c} ${op} 0</div>`;
+  html += `<div style="font-family:monospace; font-size:13px; margin-top:6px">Δ = ${delta}, a = ${a}</div>`;
+
+  let intervals = []; // intervals where condition is true
+  let roots = [];
+  if (delta > 0) {
+    const x1 = (-b - Math.sqrt(delta))/(2*a);
+    const x2 = (-b + Math.sqrt(delta))/(2*a);
+    const r1 = Math.min(x1, x2);
+    const r2 = Math.max(x1, x2);
+    roots = [r1, r2];
+    // Signs: outside = sign(a), inside = -sign(a)
+    const aPos = a > 0;
+    // For > 0 or ≥ 0: need + → outside if a > 0, inside if a < 0
+    if (op === ">" || op === ">=") {
+      if (aPos) {
+        html += `<div style="margin-top:8px">Nghiệm: <strong>x < ${r1.toFixed(3)} hoặc x > ${r2.toFixed(3)}</strong>${op === ">=" ? " (kể cả nghiệm)" : ""}</div>`;
+        intervals = [[-Infinity, r1], [r2, Infinity]];
+      } else {
+        html += `<div style="margin-top:8px">Nghiệm: <strong>${r1.toFixed(3)} < x < ${r2.toFixed(3)}</strong></div>`;
+        intervals = [[r1, r2]];
+      }
+    } else {
+      if (aPos) {
+        html += `<div style="margin-top:8px">Nghiệm: <strong>${r1.toFixed(3)} ${op === "<=" ? "≤" : "<"} x ${op === "<=" ? "≤" : "<"} ${r2.toFixed(3)}</strong></div>`;
+        intervals = [[r1, r2]];
+      } else {
+        html += `<div style="margin-top:8px">Nghiệm: <strong>x < ${r1.toFixed(3)} hoặc x > ${r2.toFixed(3)}</strong></div>`;
+        intervals = [[-Infinity, r1], [r2, Infinity]];
+      }
+    }
+  } else if (delta === 0) {
+    const x0 = -b/(2*a);
+    roots = [x0];
+    html += `<div style="margin-top:6px">Nghiệm kép x₀ = ${x0.toFixed(3)}</div>`;
+    if (a > 0) {
+      if (op === ">=" || op === ">") {
+        if (op === ">=") html += `<div>f(x) ≥ 0 cho mọi x → Tập nghiệm = <strong>ℝ</strong></div>`;
+        else html += `<div>f(x) > 0 mọi x trừ x₀ → <strong>x ≠ ${x0.toFixed(3)}</strong></div>`;
+      } else {
+        if (op === "<=") html += `<div>f(x) ≤ 0 chỉ tại x₀ → <strong>x = ${x0.toFixed(3)}</strong></div>`;
+        else html += `<div>f(x) < 0 không bao giờ → <strong>VÔ NGHIỆM</strong></div>`;
+      }
+    }
+  } else {
+    // Delta < 0: f(x) cùng dấu a
+    html += `<div style="margin-top:6px">Δ < 0 → f(x) cùng dấu a = ${a > 0 ? "DƯƠNG" : "ÂM"} cho mọi x</div>`;
+    if (a > 0) {
+      if (op === ">" || op === ">=") html += `<div>Tập nghiệm = <strong>ℝ</strong></div>`;
+      else html += `<div><strong>VÔ NGHIỆM</strong></div>`;
+    } else {
+      if (op === "<" || op === "<=") html += `<div>Tập nghiệm = <strong>ℝ</strong></div>`;
+      else html += `<div><strong>VÔ NGHIỆM</strong></div>`;
+    }
+  }
+  document.getElementById("iResult").innerHTML = html;
+  drawIneq(roots, intervals);
+}
+
+function drawIneq(roots, intervals) {
+  const svg = document.getElementById("iSvg");
+  svg.innerHTML = "";
+  const W = 720, H = 200;
+  const padding = 30;
+  const cy = H/2;
+  // Compute range
+  let minX = -10, maxX = 10;
+  if (roots.length > 0) {
+    const margin = Math.max(2, Math.max(...roots.map(Math.abs)) * 0.3);
+    minX = Math.min(...roots) - margin;
+    maxX = Math.max(...roots) + margin;
+  }
+  const range = maxX - minX;
+  const xScale = x => padding + ((x - minX) / range) * (W - 2*padding);
+
+  // Axis
+  const ax = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  ax.setAttribute("x1", padding); ax.setAttribute("y1", cy); ax.setAttribute("x2", W - padding); ax.setAttribute("y2", cy);
+  ax.setAttribute("stroke", "#1a202c"); ax.setAttribute("stroke-width", 2);
+  svg.appendChild(ax);
+
+  // Tick marks
+  for (let i = Math.ceil(minX); i <= Math.floor(maxX); i++) {
+    const x = xScale(i);
+    const tick = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    tick.setAttribute("x1", x); tick.setAttribute("y1", cy - 5); tick.setAttribute("x2", x); tick.setAttribute("y2", cy + 5);
+    tick.setAttribute("stroke", "#1a202c");
+    svg.appendChild(tick);
+    const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lbl.setAttribute("x", x); lbl.setAttribute("y", cy + 22);
+    lbl.setAttribute("text-anchor", "middle"); lbl.setAttribute("font-size", "11");
+    lbl.textContent = i;
+    svg.appendChild(lbl);
+  }
+
+  // Intervals (highlight)
+  intervals.forEach(([s, e]) => {
+    const x1 = isFinite(s) ? xScale(s) : padding;
+    const x2 = isFinite(e) ? xScale(e) : W - padding;
+    const r = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    r.setAttribute("x", x1); r.setAttribute("y", cy - 15);
+    r.setAttribute("width", x2 - x1); r.setAttribute("height", 30);
+    r.setAttribute("fill", "#15803d"); r.setAttribute("opacity", 0.3);
+    svg.appendChild(r);
+  });
+
+  // Roots (circles)
+  roots.forEach(r => {
+    const x = xScale(r);
+    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    c.setAttribute("cx", x); c.setAttribute("cy", cy); c.setAttribute("r", 7);
+    c.setAttribute("fill", "#dc2626");
+    svg.appendChild(c);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", x); t.setAttribute("y", cy - 15);
+    t.setAttribute("text-anchor", "middle"); t.setAttribute("fill", "#dc2626"); t.setAttribute("font-weight", "700"); t.setAttribute("font-size", "13");
+    t.textContent = r.toFixed(2);
+    svg.appendChild(t);
+  });
+}
+
+solveIneq();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

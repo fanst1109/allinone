@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 06 — Mol &amp; Phản ứng</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  h3 { color: #4a5568; margin-top: 20px; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 100px; }
+  input[type="text"], input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 15px; font-family: monospace; }
+  input[type="text"] { min-width: 200px; }
+  input[type="number"] { width: 110px; }
+  button { background: #be185d; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button:hover { background: #9d174d; }
+  button.muted { background: #94a3b8; }
+  .stat { display: inline-block; background: #fce7f3; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #be185d; }
+  .formula { font-family: "Times New Roman", serif; font-size: 20px; padding: 8px; background: #fef3c7; border-radius: 4px; display: inline-block; }
+  .result { padding: 14px; background: #fce7f3; border-radius: 8px; margin-top: 12px; }
+  .step { padding: 8px 12px; background: #f8fafc; border-left: 3px solid #be185d; margin: 6px 0; font-family: monospace; font-size: 14px; }
+  table.eqs { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  table.eqs td { padding: 6px 10px; border: 1px solid #e2e8f0; font-family: monospace; }
+  table.eqs td:first-child { background: #fce7f3; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Chemistry</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-molecular-geometry-vsepr/visualization.html">← L5: VSEPR</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Mol &amp; Phản ứng</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L7: Dung dịch (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 06 — Mol &amp; Phản ứng (Stoichiometry)</h1>
+<p>Bộ công cụ: Mol Calculator (chuyển đổi gam ↔ mol ↔ phân tử), Molar Mass Calculator (gõ công thức → tính M), và Stoichiometry Calculator cho phương trình bất kỳ.</p>
+
+<h2>1. Mol Calculator</h2>
+<div class="card">
+  <p>Nhập 1 trong 3 giá trị → tự tính 2 cái còn lại.</p>
+  <div class="row">
+    <label>Chất:</label>
+    <select id="molChem">
+      <option value="H2O" data-M="18.02">H₂O (M = 18.02)</option>
+      <option value="CO2" data-M="44.01">CO₂ (M = 44.01)</option>
+      <option value="O2" data-M="32.00">O₂ (M = 32.00)</option>
+      <option value="N2" data-M="28.02">N₂ (M = 28.02)</option>
+      <option value="NaCl" data-M="58.44">NaCl (M = 58.44)</option>
+      <option value="H2SO4" data-M="98.08">H₂SO₄ (M = 98.08)</option>
+      <option value="Glucose" data-M="180.16">C₆H₁₂O₆ — Glucose (M = 180.16)</option>
+      <option value="Fe" data-M="55.85">Fe (M = 55.85)</option>
+      <option value="CH4" data-M="16.04">CH₄ (M = 16.04)</option>
+    </select>
+  </div>
+  <div class="row">
+    <label>Khối lượng (g):</label>
+    <input type="number" id="molMass" step="0.01" value="18" oninput="calcMol('mass')">
+    <label>Số mol (n):</label>
+    <input type="number" id="molN" step="0.0001" value="1" oninput="calcMol('mol')">
+    <label>Số phân tử (N):</label>
+    <input type="text" id="molN_particles" value="6.022 × 10²³" oninput="calcMol('N')">
+  </div>
+  <div class="result" id="molResult"></div>
+</div>
+
+<h2>2. Molar Mass Calculator</h2>
+<div class="card">
+  <p>Gõ công thức hóa học (vd <code>H2SO4</code>, <code>Ca(OH)2</code>, <code>Al2(SO4)3</code>) → tính khối lượng mol M.</p>
+  <div class="row">
+    <label>Công thức:</label>
+    <input type="text" id="formulaInput" value="C12H22O11" placeholder="vd: H2O, NaCl, Ca(OH)2">
+    <button onclick="calcMolarMass()">Tính M</button>
+  </div>
+  <div id="formulaResult" class="result"></div>
+</div>
+
+<h2>3. Stoichiometry Walk-Through</h2>
+<div class="card">
+  <p>Chọn phản ứng có sẵn, nhập khối lượng chất đầu → tính ra khối lượng các sản phẩm.</p>
+  <div class="row">
+    <label>Phản ứng:</label>
+    <select id="reactionSelect"></select>
+  </div>
+  <div class="formula" id="reactionDisplay">—</div>
+
+  <div class="row" style="margin-top:12px">
+    <label>Khối lượng <span id="reactantSym">A</span> (g):</label>
+    <input type="number" id="reactantMass" step="0.01" value="10" oninput="calcStoich()">
+  </div>
+
+  <div id="stoichSteps"></div>
+</div>
+
+</main>
+
+<script>
+// ===== Atomic masses =====
+const ATOMIC = {
+  H:1.008, C:12.011, N:14.007, O:15.999, F:18.998, Na:22.990, Mg:24.305, Al:26.982,
+  Si:28.085, P:30.974, S:32.06, Cl:35.45, K:39.098, Ca:40.078, Mn:54.938, Fe:55.845,
+  Cu:63.546, Zn:65.38, Br:79.904, I:126.904, Ba:137.327
+};
+
+const NA = 6.022e23;
+
+// ===== Mol Calculator =====
+function getMolarMass() {
+  const sel = document.getElementById("molChem");
+  return parseFloat(sel.options[sel.selectedIndex].dataset.M);
+}
+
+function calcMol(source) {
+  const M = getMolarMass();
+  let m = parseFloat(document.getElementById("molMass").value);
+  let n = parseFloat(document.getElementById("molN").value);
+  let NStr = document.getElementById("molN_particles").value;
+  let N = parseFloat(NStr.replace(/[^\d.e+-]/g, ""));
+
+  if (source === "mass") {
+    n = m / M;
+    N = n * NA;
+    document.getElementById("molN").value = n.toFixed(4);
+    document.getElementById("molN_particles").value = N.toExponential(3).replace("e+", " × 10^").replace("e-", " × 10^-");
+  } else if (source === "mol") {
+    m = n * M;
+    N = n * NA;
+    document.getElementById("molMass").value = m.toFixed(3);
+    document.getElementById("molN_particles").value = N.toExponential(3).replace("e+", " × 10^").replace("e-", " × 10^-");
+  } else if (source === "N") {
+    n = N / NA;
+    m = n * M;
+    document.getElementById("molMass").value = m.toFixed(3);
+    document.getElementById("molN").value = n.toFixed(4);
+  }
+
+  document.getElementById("molResult").innerHTML = `
+    <strong>Tính toán:</strong><br>
+    <div class="step">n = m / M = ${m.toFixed(3)} / ${M} = <strong>${n.toFixed(4)} mol</strong></div>
+    <div class="step">N = n × Nₐ = ${n.toFixed(4)} × 6.022 × 10²³ = <strong>${N.toExponential(3)} phân tử</strong></div>
+  `;
+}
+
+document.getElementById("molChem").addEventListener("change", () => calcMol("mass"));
+
+// ===== Molar Mass Calculator =====
+function calcMolarMass() {
+  const formula = document.getElementById("formulaInput").value.trim();
+  const out = document.getElementById("formulaResult");
+  try {
+    const parsed = parseFormula(formula);
+    let total = 0;
+    let breakdown = [];
+    for (const [elem, count] of Object.entries(parsed)) {
+      if (!ATOMIC[elem]) throw new Error(`Không biết khối lượng nguyên tử của ${elem}`);
+      const contrib = ATOMIC[elem] * count;
+      total += contrib;
+      breakdown.push(`${count} × ${ATOMIC[elem]} (${elem}) = ${contrib.toFixed(3)}`);
+    }
+    out.innerHTML = `
+      <strong>Phân tích ${formula}:</strong>
+      <div style="margin-top:8px">
+        ${Object.entries(parsed).map(([e,c]) => `<span class="stat">${e} × ${c}</span>`).join("")}
+      </div>
+      <div style="margin-top:10px">
+        ${breakdown.map(b => `<div class="step">${b}</div>`).join("")}
+      </div>
+      <div style="margin-top:10px; font-size:18px"><strong>M = ${total.toFixed(3)} g/mol</strong></div>
+    `;
+  } catch (e) {
+    out.innerHTML = `<div style="color:#dc2626">Lỗi: ${e.message}</div>`;
+  }
+}
+
+function parseFormula(s) {
+  // Parses formula with parens: Ca(OH)2 → {Ca:1, O:2, H:2}
+  const result = {};
+  function merge(target, src, mult) {
+    for (const [k, v] of Object.entries(src)) {
+      target[k] = (target[k] || 0) + v * mult;
+    }
+  }
+  let i = 0;
+  function parseGroup() {
+    const local = {};
+    while (i < s.length) {
+      if (s[i] === '(') {
+        i++;
+        const inner = parseGroup();
+        if (s[i] !== ')') throw new Error("Thiếu dấu )");
+        i++;
+        let num = "";
+        while (i < s.length && /\d/.test(s[i])) num += s[i++];
+        merge(local, inner, num ? parseInt(num) : 1);
+      } else if (s[i] === ')') {
+        return local;
+      } else if (/[A-Z]/.test(s[i])) {
+        let elem = s[i++];
+        while (i < s.length && /[a-z]/.test(s[i])) elem += s[i++];
+        let num = "";
+        while (i < s.length && /\d/.test(s[i])) num += s[i++];
+        const count = num ? parseInt(num) : 1;
+        local[elem] = (local[elem] || 0) + count;
+      } else {
+        i++; // Skip unknown
+      }
+    }
+    return local;
+  }
+  return parseGroup();
+}
+
+// ===== Stoichiometry =====
+const REACTIONS = [
+  {
+    id: "combust_methane",
+    label: "Đốt methane",
+    formula: "CH₄ + 2O₂ → CO₂ + 2H₂O",
+    reactants: [{sym:"CH₄", coef:1, M:16.04}, {sym:"O₂", coef:2, M:32.00}],
+    products: [{sym:"CO₂", coef:1, M:44.01}, {sym:"H₂O", coef:2, M:18.02}],
+    primary: 0
+  },
+  {
+    id: "combust_ethanol",
+    label: "Đốt etanol",
+    formula: "C₂H₅OH + 3O₂ → 2CO₂ + 3H₂O",
+    reactants: [{sym:"C₂H₅OH", coef:1, M:46.07}, {sym:"O₂", coef:3, M:32.00}],
+    products: [{sym:"CO₂", coef:2, M:44.01}, {sym:"H₂O", coef:3, M:18.02}],
+    primary: 0
+  },
+  {
+    id: "rust",
+    label: "Sắt gỉ",
+    formula: "4Fe + 3O₂ → 2Fe₂O₃",
+    reactants: [{sym:"Fe", coef:4, M:55.85}, {sym:"O₂", coef:3, M:32.00}],
+    products: [{sym:"Fe₂O₃", coef:2, M:159.69}],
+    primary: 0
+  },
+  {
+    id: "water",
+    label: "Tạo nước",
+    formula: "2H₂ + O₂ → 2H₂O",
+    reactants: [{sym:"H₂", coef:2, M:2.016}, {sym:"O₂", coef:1, M:32.00}],
+    products: [{sym:"H₂O", coef:2, M:18.02}],
+    primary: 0
+  },
+  {
+    id: "neutral",
+    label: "Trung hòa H₂SO₄ + NaOH",
+    formula: "H₂SO₄ + 2NaOH → Na₂SO₄ + 2H₂O",
+    reactants: [{sym:"H₂SO₄", coef:1, M:98.08}, {sym:"NaOH", coef:2, M:40.00}],
+    products: [{sym:"Na₂SO₄", coef:1, M:142.04}, {sym:"H₂O", coef:2, M:18.02}],
+    primary: 0
+  },
+  {
+    id: "carbonate",
+    label: "Vôi tôi: CaCO₃ → CaO + CO₂",
+    formula: "CaCO₃ → CaO + CO₂",
+    reactants: [{sym:"CaCO₃", coef:1, M:100.09}],
+    products: [{sym:"CaO", coef:1, M:56.08}, {sym:"CO₂", coef:1, M:44.01}],
+    primary: 0
+  }
+];
+
+function populateReactions() {
+  const sel = document.getElementById("reactionSelect");
+  REACTIONS.forEach(r => {
+    const opt = document.createElement("option");
+    opt.value = r.id;
+    opt.textContent = r.label;
+    sel.appendChild(opt);
+  });
+  sel.addEventListener("change", () => calcStoich());
+}
+
+function calcStoich() {
+  const id = document.getElementById("reactionSelect").value;
+  const r = REACTIONS.find(rx => rx.id === id);
+  document.getElementById("reactionDisplay").textContent = r.formula;
+  document.getElementById("reactantSym").textContent = r.reactants[r.primary].sym;
+  const massA = parseFloat(document.getElementById("reactantMass").value);
+  const A = r.reactants[r.primary];
+  const nA = massA / A.M;
+
+  let html = `
+    <div class="step">Bước 1: Phương trình cân bằng: ${r.formula}</div>
+    <div class="step">Bước 2: n(${A.sym}) = m / M = ${massA} / ${A.M} = <strong>${nA.toFixed(4)} mol</strong></div>
+    <div class="step">Bước 3: Tỉ lệ mol từ phương trình, tính các chất khác:</div>
+  `;
+  // Other reactants
+  r.reactants.forEach((rr, i) => {
+    if (i === r.primary) return;
+    const nReq = nA * (rr.coef / A.coef);
+    const mReq = nReq * rr.M;
+    html += `<div class="step" style="margin-left:20px">n(${rr.sym}) = ${nA.toFixed(4)} × ${rr.coef}/${A.coef} = ${nReq.toFixed(4)} mol → m(${rr.sym}) = ${nReq.toFixed(4)} × ${rr.M} = <strong>${mReq.toFixed(3)} g cần có</strong></div>`;
+  });
+  // Products
+  r.products.forEach(p => {
+    const nP = nA * (p.coef / A.coef);
+    const mP = nP * p.M;
+    html += `<div class="step" style="margin-left:20px; background:#fef3c7">n(${p.sym}) = ${nA.toFixed(4)} × ${p.coef}/${A.coef} = ${nP.toFixed(4)} mol → m(${p.sym}) = ${nP.toFixed(4)} × ${p.M} = <strong>${mP.toFixed(3)} g sản phẩm</strong></div>`;
+  });
+
+  // Check mass conservation
+  const totalReactant = massA + r.reactants.filter((_,i)=>i!==r.primary).reduce((s,rr)=>s+nA*(rr.coef/A.coef)*rr.M,0);
+  const totalProduct = r.products.reduce((s,p)=>s+nA*(p.coef/A.coef)*p.M,0);
+  html += `<div class="step" style="background:#dcfce7">✓ Bảo toàn KL: tổng phản ứng ${totalReactant.toFixed(3)} g ≈ tổng sản phẩm ${totalProduct.toFixed(3)} g</div>`;
+
+  document.getElementById("stoichSteps").innerHTML = html;
+}
+
+// Init
+populateReactions();
+calcMol("mass");
+calcMolarMass();
+calcStoich();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

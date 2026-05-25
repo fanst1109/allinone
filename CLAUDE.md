@@ -66,14 +66,16 @@ Khi user yêu cầu tạo một bài học mới (ví dụ: *"tạo bài học v
    - Component đặc thù của viz (chart, audio toggle, table...) tự định nghĩa trong `<style>` nội bộ — chỉ chrome (nav, body base) dùng chung từ `viz-base.css`.
    - **Bắt buộc tích hợp readme-modal**: Mọi `visualization.html` **phải** có nút "📖 Đọc README" để xem README ngay trong trang. Thực hiện theo 2 bước:
      1. Sinh file `README.data.js` bằng cách chạy `go run tools/build-readme-data.go` từ thư mục gốc repo (hoặc `go run tools/build-readme-data.go <Lĩnh vực>` để giới hạn phạm vi). File này chứa nội dung README dưới dạng `window.README_MD`.
-     2. Thêm 3 dòng script vào cuối `visualization.html`, ngay trước `</body>`:
+     2. Thêm 4 dòng script vào cuối `visualization.html`, ngay trước `</body>`:
         ```html
         <script src="../../tools/marked.min.js"></script>
         <script src="./README.data.js"></script>
         <script src="../../tools/readme-modal.js"></script>
+        <script src="../../tools/viz-toc.js"></script>
         ```
         Đường dẫn `../../tools/` đúng cho cấu trúc `<Lĩnh vực>/lesson-XX-yyy/visualization.html`. Nếu viz nằm ở cấp khác thì điều chỉnh số `../` cho phù hợp.
-   - readme-modal tự inject nút floating, panel đọc README với 3 chế độ: Modal / Sidebar (chia đôi màn hình, kéo resize được) / Full. Không cần thêm markup gì khác vào viz.
+   - readme-modal tự inject nút floating, panel đọc README với 3 chế độ: Modal / Sidebar (chia đôi màn hình, kéo resize được) / Full. TOC sidebar bên trong panel tự sinh từ `<h2>/<h3>` của README. Không cần thêm markup gì khác vào viz.
+   - viz-toc.js tự sinh nút "📑 Mục lục" cho viz, scan `<h2>/<h3>` trong `<main>`. Tự skip nếu viz có < 2 mục `<h2>`. Vị trí nút tự điều chỉnh nếu trang có ipa-reader (English/).
    - Khi đã tạo: README liên kết tới file `[visualization.html](./visualization.html)`.
 6. **Cập nhật `README.md` của lĩnh vực**: Thêm dòng mới vào bảng/danh sách bài học, kèm link tới thư mục bài học vừa tạo.
 7. **Cập nhật `README.md` cấp gốc** nếu đây là lĩnh vực mới (chưa từng xuất hiện trong bảng danh sách lĩnh vực).
@@ -95,7 +97,8 @@ Thư mục `tools/` ở cấp gốc chứa các file dùng chung cho toàn bộ 
 |------|----------|
 | `tools/viz-base.css` | Chrome chung cho mọi **viz lẫn index.html**: body/token màu/box-sizing, sticky nav `nav.viz-nav`, **layout index** (`.container`, `header h1`, `.intro`, `.branch-title`, `.card-grid`, `.card`, footer). Load qua `<link>` |
 | `tools/marked.min.js` | Markdown parser (marked v12, local copy — không fetch CDN để hoạt động được với `file://`) |
-| `tools/readme-modal.js` | Script tự inject nút "📖 Đọc README" + panel hiển thị README với 3 chế độ Modal / Sidebar / Full |
+| `tools/readme-modal.js` | Script tự inject nút "📖 Đọc README" + panel hiển thị README với 3 chế độ Modal / Sidebar / Full, kèm TOC sidebar bên trong panel |
+| `tools/viz-toc.js` | Script tự sinh **Table of Contents** cho viz: scan `<h2>/<h3>` trong `<main>`, inject nút "📑 Mục lục" floating bên trái, popup panel với scroll-spy. Tự skip nếu < 2 h2 |
 | `tools/build-readme-data.go` | Go script sinh `README.data.js` cạnh mỗi cặp `README.md + visualization.html`. Chạy: `go run tools/build-readme-data.go` |
 | `tools/ipa-reader.js` | Floating IPA Reader widget — nút "🔤 IPA" góc dưới-trái cho phép nhập text, hiển thị phiên âm IPA từng từ, click nghe TTS (Web Speech API). Chỉ tự inject khi path chứa `/English/`. Lazy-load `ipa-dict.js` lần đầu user mở panel |
 | `tools/ipa-dict.js` | Từ điển IPA local (~4.6MB, ~147k entries, US + UK). Auto-generated — KHÔNG sửa tay |

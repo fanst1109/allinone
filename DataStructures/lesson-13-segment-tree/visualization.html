@@ -43,8 +43,13 @@
   <div class="row">
     L = <input id="ql" type="number" value="2" min="0" max="7">
     R = <input id="qr" type="number" value="5" min="0" max="7">
-    <button onclick="doQuery()">Query Sum [L..R]</button>
-    <button onclick="doUpdate()">Update arr[L] += R (giá trị)</button>
+    <label>Op: <select id="op" onchange="changeOp()">
+      <option value="sum">Sum (mục 2 README)</option>
+      <option value="min">Min (bài 2 README)</option>
+      <option value="max">Max</option>
+    </select></label>
+    <button onclick="doQuery()">Query [L..R]</button>
+    <button onclick="doUpdate()">Update arr[L] = R (set giá trị)</button>
     <button onclick="reset()">Reset</button>
   </div>
   <div>Mảng gốc:</div>
@@ -58,30 +63,45 @@ let arr = [1, 3, 5, 7, 9, 11, 13, 15];
 const N = arr.length;
 let tree = new Array(4 * N).fill(0);
 let visited = new Set(), taken = new Set();
+let op = 'sum';
+
+const OPS = {
+  sum: { combine: (a, b) => a + b, identity: 0 },
+  min: { combine: (a, b) => Math.min(a, b), identity: Infinity },
+  max: { combine: (a, b) => Math.max(a, b), identity: -Infinity },
+};
 
 function build(node, l, r) {
   if (l === r) { tree[node] = arr[l]; return; }
   const m = (l + r) >> 1;
   build(2 * node, l, m); build(2 * node + 1, m + 1, r);
-  tree[node] = tree[2 * node] + tree[2 * node + 1];
+  tree[node] = OPS[op].combine(tree[2 * node], tree[2 * node + 1]);
 }
 build(1, 0, N - 1);
 
-function querySum(node, l, r, ql, qr) {
-  if (qr < l || r < ql) return 0;
+function query(node, l, r, ql, qr) {
+  if (qr < l || r < ql) return OPS[op].identity;
   visited.add(node);
   if (ql <= l && r <= qr) { taken.add(node); return tree[node]; }
   const m = (l + r) >> 1;
-  return querySum(2 * node, l, m, ql, qr) + querySum(2 * node + 1, m + 1, r, ql, qr);
+  return OPS[op].combine(query(2 * node, l, m, ql, qr), query(2 * node + 1, m + 1, r, ql, qr));
 }
 
-function pointUpdate(node, l, r, i, delta) {
+function pointSet(node, l, r, i, val) {
   visited.add(node);
-  if (l === r) { tree[node] += delta; return; }
+  if (l === r) { tree[node] = val; return; }
   const m = (l + r) >> 1;
-  if (i <= m) pointUpdate(2 * node, l, m, i, delta);
-  else pointUpdate(2 * node + 1, m + 1, r, i, delta);
-  tree[node] = tree[2 * node] + tree[2 * node + 1];
+  if (i <= m) pointSet(2 * node, l, m, i, val);
+  else pointSet(2 * node + 1, m + 1, r, i, val);
+  tree[node] = OPS[op].combine(tree[2 * node], tree[2 * node + 1]);
+}
+function changeOp() {
+  op = document.getElementById('op').value;
+  tree = new Array(4 * N).fill(OPS[op].identity);
+  build(1, 0, N - 1);
+  visited = new Set(); taken = new Set();
+  render();
+  log(`Đổi op = ${op}. Tree được build lại với combine(${op === 'sum' ? '+' : op === 'min' ? 'min' : 'max'}).`);
 }
 
 function layoutNode(node, l, r, x, y, dx, list, edges) {
@@ -128,28 +148,28 @@ function doQuery() {
   const r = parseInt(document.getElementById('qr').value);
   if (l > r || l < 0 || r >= N) { log('L/R không hợp lệ'); return; }
   visited = new Set(); taken = new Set();
-  const sum = querySum(1, 0, N - 1, l, r);
-  log(`Sum [${l}..${r}] = ${sum}. Đã duyệt ${visited.size} node trong tổng (so với ${r - l + 1} phần tử).`);
+  const res = query(1, 0, N - 1, l, r);
+  log(`${op}([${l}..${r}]) = ${res}. Đã duyệt ${visited.size} node, lấy giá trị từ ${taken.size} node (so với ${r - l + 1} phần tử) → O(log n).`);
   render({ l, r });
 }
 
 function doUpdate() {
   const i = parseInt(document.getElementById('ql').value);
-  const delta = parseInt(document.getElementById('qr').value);
+  const val = parseInt(document.getElementById('qr').value);
   visited = new Set(); taken = new Set();
-  arr[i] += delta;
-  pointUpdate(1, 0, N - 1, i, delta);
-  log(`Update arr[${i}] += ${delta} (giá trị mới = ${arr[i]}). Đi xuống lá theo đường ${visited.size} node, cập nhật lên gốc.`);
+  arr[i] = val;
+  pointSet(1, 0, N - 1, i, val);
+  log(`Update arr[${i}] = ${val}. Đi xuống lá theo đường ${visited.size} node, cập nhật lên gốc bằng combine(${op}).`);
   render({ l: i, r: i });
 }
 
 function reset() {
   arr = [1, 3, 5, 7, 9, 11, 13, 15];
-  tree = new Array(4 * N).fill(0);
+  tree = new Array(4 * N).fill(OPS[op].identity);
   build(1, 0, N - 1);
   visited = new Set(); taken = new Set();
   render();
-  log('Reset.');
+  log('Reset về mảng [1,3,5,7,9,11,13,15] của README.');
 }
 function log(m) { document.getElementById('log').textContent = m; }
 render();

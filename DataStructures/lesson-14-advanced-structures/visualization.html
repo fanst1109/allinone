@@ -65,6 +65,17 @@
   .warn.show { display: block; }
 
   .intro-text { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 10px 14px; border-radius: 4px; font-size: 13px; margin-bottom: 12px; }
+
+  /* Skip List */
+  .skiplist { font-family: ui-monospace, monospace; font-size: 13px; line-height: 1.8; padding: 12px; background: #fafafa; border-radius: 6px; }
+  .sl-row { display: flex; align-items: center; gap: 0; }
+  .sl-label { width: 60px; color: #666; font-weight: 600; }
+  .sl-cell { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; height: 30px; border: 2px solid transparent; border-radius: 4px; }
+  .sl-node { background: #fff; border: 2px solid #333 !important; padding: 0 6px; font-weight: 600; }
+  .sl-node.visited { background: #dbeafe; border-color: #3b82f6 !important; }
+  .sl-node.found { background: #d1fae5; border-color: #10b981 !important; }
+  .sl-arrow { color: #888; }
+  .sl-arrow.skip { color: #3b82f6; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -157,6 +168,24 @@
     <div class="bits-design" id="dsnBits"></div>
     <div class="density-note" id="dsnDensity">…</div>
   </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PHẦN 3: Skip List — minh họa search nhảy tầng (mục 2 README)  -->
+<!-- ============================================================ -->
+<div class="panel">
+  <h2 class="section">3. Skip List — search nhảy tầng (mục 2 README)</h2>
+  <div class="intro-text">
+    Linked list nhiều tầng: L0 chứa tất cả phần tử đã sắp xếp; tầng trên chỉ giữ một số node, mỗi tầng bỏ qua một nửa (xác suất).
+    Search đi từ tầng cao xuống, mỗi tầng nhảy phải tối đa khi còn ≤ target, rồi xuống tầng dưới. Trung bình O(log n) — chính là cách Redis ZSET tìm trong sorted set.
+  </div>
+  <div class="row">
+    <label>Tìm: <input id="slTarget" type="number" value="19" min="1" max="30"></label>
+    <button onclick="slSearch()">▶ Chạy search từng bước</button>
+    <button onclick="renderSkipList()" class="ghost">Reset</button>
+  </div>
+  <div class="skiplist" id="skipList"></div>
+  <div class="log" id="slLog">Mảng 10 phần tử [3,6,7,9,12,17,19,21,25,26] với 4 tầng (xây minh họa). Mỗi node vẽ ô vuông; '─────' = bỏ qua (skip).</div>
 </div>
 
 <script>
@@ -392,6 +421,92 @@ document.querySelectorAll('.target-btns button').forEach(b => {
 });
 
 dsnRebuild();
+
+// ============================================================
+// PHẦN 3: Skip List — minh họa search nhảy tầng (mục 2 README)
+// ============================================================
+const SL_VALUES = [3, 6, 7, 9, 12, 17, 19, 21, 25, 26]; // sorted
+// Level matrix: levels[i][j] = node value tại level i hay null nếu không có
+// Cao nhất ở trên. Level 0 chứa tất cả.
+const SL_LEVELS = [
+  [3, null, null, null, null, null, null, 21, null, null],   // L3
+  [3, null, null, 9, null, null, null, 21, null, null],      // L2
+  [3, null, 7, 9, null, 17, null, 21, null, 26],             // L1
+  [3, 6, 7, 9, 12, 17, 19, 21, 25, 26],                       // L0
+];
+function renderSkipList(visited = new Set(), foundIdx = -1, foundLevel = -1) {
+  const root = document.getElementById('skipList');
+  root.innerHTML = '';
+  SL_LEVELS.forEach((row, lv) => {
+    const div = document.createElement('div');
+    div.className = 'sl-row';
+    div.innerHTML = `<div class="sl-label">L${SL_LEVELS.length - 1 - lv}</div>`;
+    let prev = null;
+    row.forEach((v, j) => {
+      const cell = document.createElement('div');
+      const key = `${lv}-${j}`;
+      cell.className = 'sl-cell';
+      if (v !== null) {
+        cell.classList.add('sl-node');
+        if (foundIdx === j && (foundLevel === lv || foundLevel === -1)) cell.classList.add('found');
+        else if (visited.has(key)) cell.classList.add('visited');
+        cell.textContent = v;
+      } else {
+        // dashed line indicates skip
+        if (prev !== null) {
+          cell.innerHTML = '<span class="sl-arrow skip">─────</span>';
+        }
+      }
+      div.appendChild(cell);
+      if (v !== null) prev = j;
+    });
+    root.appendChild(div);
+  });
+}
+async function slSearch() {
+  const target = parseInt(document.getElementById('slTarget').value);
+  const log = document.getElementById('slLog');
+  const visited = new Set();
+  // search top-down: bắt đầu tại level cao nhất (index 0), tại node đầu tiên
+  let lv = 0, j = 0;
+  visited.add(`${lv}-${j}`);
+  renderSkipList(visited);
+  log.textContent = `Bắt đầu tại L${SL_LEVELS.length - 1 - lv}, node ${SL_LEVELS[lv][0]}.`;
+  await new Promise(r => setTimeout(r, 700));
+  while (true) {
+    // tìm next node ở cùng level
+    let next = -1;
+    for (let k = j + 1; k < SL_LEVELS[lv].length; k++) {
+      if (SL_LEVELS[lv][k] !== null) { next = k; break; }
+    }
+    if (next !== -1 && SL_LEVELS[lv][next] <= target) {
+      j = next;
+      visited.add(`${lv}-${j}`);
+      const v = SL_LEVELS[lv][j];
+      log.textContent = `L${SL_LEVELS.length - 1 - lv}: nhảy phải tới ${v} (≤ ${target}).`;
+      renderSkipList(visited);
+      if (v === target) {
+        log.textContent = `Tìm thấy ${target} tại L${SL_LEVELS.length - 1 - lv} sau ${visited.size} bước duyệt (so với ${SL_VALUES.length} node ở L0 nếu duyệt tuyến tính).`;
+        renderSkipList(visited, j, lv);
+        return;
+      }
+      await new Promise(r => setTimeout(r, 700));
+    } else {
+      // đi xuống level dưới
+      if (lv === SL_LEVELS.length - 1) {
+        log.textContent = `Đã ở L0 mà next > ${target} (hoặc hết) → KHÔNG có ${target}.`;
+        renderSkipList(visited);
+        return;
+      }
+      lv++;
+      visited.add(`${lv}-${j}`);
+      log.textContent = `Next > ${target}, đi xuống L${SL_LEVELS.length - 1 - lv}.`;
+      renderSkipList(visited);
+      await new Promise(r => setTimeout(r, 700));
+    }
+  }
+}
+renderSkipList();
 </script></main>
 <!-- README modal (xem tools/readme-modal.js để biết chi tiết) -->
 <script src="../../tools/marked.min.js"></script>

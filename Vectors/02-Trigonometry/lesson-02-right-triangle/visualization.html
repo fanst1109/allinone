@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Tam giác vuông · Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; margin-top: 8px; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; margin-top: 16px; font-size: 17px; }
+  p.intro { color: #4a5568; max-width: 880px; }
+
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  .col { flex: 1 1 320px; min-width: 280px; }
+
+  label.slider-label {
+    display: flex; align-items: center; gap: 10px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; margin: 6px 0;
+  }
+  label.slider-label .name { font-weight: 700; width: 60px; color: #2b6cb0; }
+  label.slider-label input[type="range"] { flex: 1; min-width: 160px; }
+  label.slider-label .val {
+    display: inline-block; width: 80px; text-align: right;
+    color: #1a202c; font-weight: 700;
+  }
+
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; margin-right: 6px;
+  }
+  button:hover { background: #3182ce; }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+
+  svg.triangle {
+    background: #fafbfc; border: 1px solid #e2e8f0; border-radius: 6px;
+    display: block; max-width: 100%;
+  }
+
+  .stats {
+    background: #1a202c; color: #68d391;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    padding: 12px 14px; border-radius: 4px;
+    font-size: 13px; line-height: 1.65;
+    white-space: pre-wrap;
+  }
+  .stats .key { color: #f6ad55; }
+  .stats .pos { color: #68d391; }
+  .stats .neu { color: #90cdf4; }
+
+  /* Pythagoras bar */
+  .pyth-bar {
+    display: flex; height: 36px; border-radius: 6px; overflow: hidden;
+    border: 1px solid #cbd5e0; background: #f7fafc;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; font-weight: 700; color: white;
+    margin: 12px 0 6px 0;
+  }
+  .pyth-bar .sin-part {
+    background: #4299e1; display: flex; align-items: center; justify-content: center;
+    transition: width 0.15s ease-out;
+  }
+  .pyth-bar .cos-part {
+    background: #ed8936; display: flex; align-items: center; justify-content: center;
+    transition: width 0.15s ease-out;
+  }
+
+  /* Bảng giá trị đặc biệt */
+  table.values {
+    border-collapse: collapse; margin-top: 12px; font-family: "SF Mono", Monaco, monospace; font-size: 14px;
+  }
+  table.values th, table.values td {
+    border: 1px solid #cbd5e0; padding: 8px 12px; text-align: center;
+  }
+  table.values th { background: #edf2f7; }
+  table.values td.clickable { cursor: pointer; transition: background 0.15s; }
+  table.values td.clickable:hover { background: #ebf8ff; color: #2b6cb0; font-weight: 700; }
+  table.values td.active {
+    background: #bee3f8; color: #2c5282; font-weight: 700;
+  }
+
+  /* Solver inputs */
+  .solver-row { display: grid; grid-template-columns: 100px 1fr 90px; gap: 12px; align-items: center; margin: 6px 0; }
+  .solver-row label { font-family: "SF Mono", Monaco, monospace; font-weight: 700; color: #2d3748; }
+  .solver-row input {
+    padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 4px;
+    font-family: "SF Mono", Monaco, monospace; font-size: 14px;
+  }
+  .solver-row .unit { color: #718096; font-size: 13px; }
+  .solver-output {
+    background: #f0fff4; border-left: 4px solid #38a169;
+    padding: 10px 14px; margin-top: 12px; border-radius: 4px;
+    font-family: "SF Mono", Monaco, monospace; font-size: 14px;
+    line-height: 1.7; white-space: pre-wrap;
+  }
+  .solver-output.error {
+    background: #fff5f5; border-left-color: #c53030; color: #742a2a;
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-angles/visualization.html">← L1: Góc — độ và radian</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Tam giác vuông</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-unit-circle/visualization.html">L3: Đường tròn đơn vị →</a>
+</nav>
+  <h1>Lesson 02 — Tam giác vuông: sin, cos, tan</h1>
+  <p class="intro">
+    Bốn playground tương tác: kéo góc thay đổi tam giác, hover bảng giá trị
+    đặc biệt để thấy tam giác tương ứng, ngắm <strong>sin²θ + cos²θ = 1</strong>
+    luôn cộng tròn về 1, và giải tam giác vuông từ bất kỳ 2 thông số trong 3.
+  </p>
+
+  <!-- =================== 1. INTERACTIVE TRIANGLE =================== -->
+  <h2>1. Tam giác vuông tương tác</h2>
+  <p>Kéo slider để đổi góc nhọn θ. Hiển thị tỉ số đối/kề/huyền theo định nghĩa SOH-CAH-TOA.</p>
+  <div class="card">
+    <div class="row">
+      <div class="col">
+        <label class="slider-label">
+          <span class="name">θ (deg)</span>
+          <input type="range" id="t1-theta" min="5" max="85" step="1" value="36">
+          <span class="val" id="t1-theta-val">36°</span>
+        </label>
+        <label class="slider-label">
+          <span class="name">hyp</span>
+          <input type="range" id="t1-hyp" min="3" max="10" step="0.5" value="5">
+          <span class="val" id="t1-hyp-val">5</span>
+        </label>
+        <div class="stats" id="t1-stats">...</div>
+      </div>
+      <div class="col">
+        <svg class="triangle" id="t1-svg" viewBox="0 0 360 280" width="380" height="300"></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== 2. SPECIAL VALUES =================== -->
+  <h2>2. Bảng giá trị đặc biệt — hover để highlight tam giác</h2>
+  <p>Click một ô trong bảng để xem tam giác hình học tương ứng.</p>
+  <div class="card">
+    <div class="row">
+      <div class="col">
+        <table class="values" id="t2-table">
+          <thead>
+            <tr><th>θ</th><th>sin θ</th><th>cos θ</th><th>tan θ</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="clickable" data-angle="0">0°</td><td>0</td><td>1</td><td>0</td></tr>
+            <tr><td class="clickable" data-angle="30">30°</td><td>1/2</td><td>√3/2</td><td>√3/3</td></tr>
+            <tr><td class="clickable" data-angle="45">45°</td><td>√2/2</td><td>√2/2</td><td>1</td></tr>
+            <tr><td class="clickable" data-angle="60">60°</td><td>√3/2</td><td>1/2</td><td>√3</td></tr>
+            <tr><td class="clickable" data-angle="90">90°</td><td>1</td><td>0</td><td>undef</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="col">
+        <svg class="triangle" id="t2-svg" viewBox="0 0 360 280" width="380" height="300"></svg>
+        <div class="stats" id="t2-stats">Click vào một góc trong bảng...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== 3. PYTHAGOREAN IDENTITY =================== -->
+  <h2>3. Đẳng thức Pythagoras: sin²θ + cos²θ = 1</h2>
+  <p>Kéo θ — hai phần (xanh = sin²θ, cam = cos²θ) luôn cộng tròn về 1.</p>
+  <div class="card">
+    <label class="slider-label">
+      <span class="name">θ (deg)</span>
+      <input type="range" id="t3-theta" min="0" max="360" step="1" value="60">
+      <span class="val" id="t3-theta-val">60°</span>
+    </label>
+
+    <div class="pyth-bar" id="t3-bar">
+      <div class="sin-part" id="t3-sin" style="width: 75%;">sin²θ</div>
+      <div class="cos-part" id="t3-cos" style="width: 25%;">cos²θ</div>
+    </div>
+
+    <div class="stats" id="t3-stats">...</div>
+  </div>
+
+  <!-- =================== 4. TRIANGLE SOLVER =================== -->
+  <h2>4. Solver tam giác vuông</h2>
+  <p>Nhập <strong>2 trong 3</strong> tham số (1 cạnh + 1 góc, hoặc 2 cạnh) để suy ra cái còn lại. Bỏ trống ô bạn muốn tính.</p>
+  <div class="card">
+    <div class="solver-row">
+      <label>opp (đối):</label>
+      <input type="number" id="sv-opp" step="0.01" placeholder="trống = tính">
+      <span class="unit">đơn vị</span>
+    </div>
+    <div class="solver-row">
+      <label>adj (kề):</label>
+      <input type="number" id="sv-adj" step="0.01" placeholder="trống = tính">
+      <span class="unit">đơn vị</span>
+    </div>
+    <div class="solver-row">
+      <label>hyp (huyền):</label>
+      <input type="number" id="sv-hyp" step="0.01" placeholder="trống = tính">
+      <span class="unit">đơn vị</span>
+    </div>
+    <div class="solver-row">
+      <label>θ (góc):</label>
+      <input type="number" id="sv-theta" step="0.1" placeholder="trống = tính">
+      <span class="unit">độ</span>
+    </div>
+    <div style="margin-top: 12px;">
+      <button id="sv-solve">Giải</button>
+      <button class="ghost" id="sv-clear">Xóa</button>
+      <button class="ghost" id="sv-345">3-4-5</button>
+      <button class="ghost" id="sv-5-12-13">5-12-13</button>
+      <button class="ghost" id="sv-45deg">Vuông cân (hyp=10, θ=45°)</button>
+    </div>
+    <div class="solver-output" id="sv-output">Nhập đúng 2 giá trị rồi bấm "Giải".</div>
+  </div>
+</main>
+
+<script>
+// =========================================================
+// Helpers
+// =========================================================
+function $(id) { return document.getElementById(id); }
+function deg2rad(d) { return d * Math.PI / 180; }
+function rad2deg(r) { return r * 180 / Math.PI; }
+function fmt(x, n=4) {
+  if (!isFinite(x)) return "undef";
+  return x.toFixed(n);
+}
+
+// Vẽ tam giác vuông trong một SVG, từ (margin) đến (W-margin), (H-margin).
+// θ là góc nhọn tại đỉnh phải (góc gốc bên phải dưới).
+function drawTriangle(svgEl, theta, label) {
+  // SVG coordinates: 360x280. Margin 30. Đặt góc vuông ở góc trái dưới.
+  const W = 360, H = 280, M = 40;
+  // Chọn scale để tam giác fill được khung.
+  const maxW = W - 2*M;
+  const maxH = H - 2*M;
+  // hyp normalized: chọn adj và opp sao cho:
+  //   adj = cos(theta), opp = sin(theta) khi hyp = 1.
+  // Scale = min(maxW/cos, maxH/sin) so triangle fits.
+  let s;
+  const c = Math.cos(theta);
+  const sV = Math.sin(theta);
+  if (theta < 1e-6) {
+    s = maxW; // degenerate
+  } else {
+    const sBy = (sV > 1e-6) ? maxH/sV : Infinity;
+    const sBx = (c > 1e-6) ? maxW/c : Infinity;
+    s = Math.min(sBx, sBy) * 0.9;
+  }
+  const adj = s * c;
+  const opp = s * sV;
+
+  // Đỉnh:
+  //  C (góc vuông) ở dưới trái:  (M, H-M)
+  //  A (góc θ) ở dưới phải:      (M+adj, H-M)
+  //  B (góc 90-θ) ở trên trái:   (M, H-M-opp)
+  const Cx = M, Cy = H-M;
+  const Ax = M+adj, Ay = H-M;
+  const Bx = M, By = H-M-opp;
+
+  // Hyp length to display
+  const hypLen = Math.sqrt(adj*adj + opp*opp);
+
+  let html = '';
+  // Triangle
+  html += `<polygon points="${Cx},${Cy} ${Ax},${Ay} ${Bx},${By}" fill="#bee3f8" stroke="#2b6cb0" stroke-width="2"/>`;
+  // Right angle marker
+  const rm = 14;
+  html += `<polyline points="${Cx+rm},${Cy} ${Cx+rm},${Cy-rm} ${Cx},${Cy-rm}" fill="none" stroke="#2b6cb0" stroke-width="2"/>`;
+  // Arc for theta at A
+  const arcR = 28;
+  const arcEndX = Ax - arcR;
+  const arcEndY = Ay;
+  const arcStartX = Ax - arcR*Math.cos(theta);
+  const arcStartY = Ay - arcR*Math.sin(theta);
+  html += `<path d="M ${arcEndX} ${arcEndY} A ${arcR} ${arcR} 0 0 0 ${arcStartX} ${arcStartY}" fill="none" stroke="#c53030" stroke-width="2"/>`;
+  html += `<text x="${Ax - arcR - 4}" y="${Ay - 8}" fill="#c53030" font-weight="700" font-size="14">θ</text>`;
+  // Labels for sides
+  html += `<text x="${(Cx+Ax)/2}" y="${Cy + 22}" text-anchor="middle" fill="#2d3748" font-size="13">kề = ${fmt(adj/s, 3)}·s</text>`;
+  html += `<text x="${Cx - 8}" y="${(Cy+By)/2}" text-anchor="end" fill="#2d3748" font-size="13">đối = ${fmt(opp/s, 3)}·s</text>`;
+  // Hyp label (midpoint of AB)
+  const midX = (Ax+Bx)/2;
+  const midY = (Ay+By)/2;
+  html += `<text x="${midX + 10}" y="${midY - 6}" fill="#2d3748" font-size="13" font-weight="700">huyền</text>`;
+  // Title
+  if (label) {
+    html += `<text x="${W/2}" y="20" text-anchor="middle" fill="#1a202c" font-weight="700" font-size="14">${label}</text>`;
+  }
+  svgEl.innerHTML = html;
+}
+
+// =========================================================
+// 1. Interactive triangle
+// =========================================================
+function updateT1() {
+  const deg = +$("t1-theta").value;
+  const hyp = +$("t1-hyp").value;
+  $("t1-theta-val").textContent = deg + "°";
+  $("t1-hyp-val").textContent = hyp;
+  const th = deg2rad(deg);
+  const opp = hyp * Math.sin(th);
+  const adj = hyp * Math.cos(th);
+  const sinV = Math.sin(th);
+  const cosV = Math.cos(th);
+  const tanV = Math.tan(th);
+  drawTriangle($("t1-svg"), th, "θ = " + deg + "°, hyp = " + hyp);
+  $("t1-stats").innerHTML =
+    `<span class="key">θ          </span> = ${deg}° = ${fmt(th, 4)} rad\n` +
+    `<span class="key">opp (đối)  </span> = ${fmt(opp, 4)}   (= ${hyp} · sin θ)\n` +
+    `<span class="key">adj (kề)   </span> = ${fmt(adj, 4)}   (= ${hyp} · cos θ)\n` +
+    `<span class="key">hyp (huyền)</span> = ${fmt(hyp, 4)}\n` +
+    `\n` +
+    `<span class="pos">sin θ</span> = opp/hyp = ${fmt(opp,3)}/${hyp} = ${fmt(sinV, 4)}\n` +
+    `<span class="pos">cos θ</span> = adj/hyp = ${fmt(adj,3)}/${hyp} = ${fmt(cosV, 4)}\n` +
+    `<span class="pos">tan θ</span> = opp/adj = ${fmt(opp,3)}/${fmt(adj,3)} = ${fmt(tanV, 4)}\n` +
+    `\n` +
+    `<span class="neu">Pythagoras</span>: opp² + adj² = ${fmt(opp*opp + adj*adj, 4)} (= hyp² = ${fmt(hyp*hyp, 4)})`;
+}
+$("t1-theta").addEventListener("input", updateT1);
+$("t1-hyp").addEventListener("input", updateT1);
+updateT1();
+
+// =========================================================
+// 2. Special values
+// =========================================================
+function showSpecial(angleDeg) {
+  // Highlight cell
+  document.querySelectorAll("#t2-table td").forEach(td => td.classList.remove("active"));
+  document.querySelectorAll("#t2-table td[data-angle='" + angleDeg + "']").forEach(td => td.classList.add("active"));
+
+  const th = deg2rad(angleDeg);
+  drawTriangle($("t2-svg"), th, "θ = " + angleDeg + "°");
+  const sV = Math.sin(th);
+  const cV = Math.cos(th);
+
+  let lines = `<span class="key">θ = ${angleDeg}°  = ${fmt(th, 4)} rad</span>\n`;
+  if (angleDeg === 0) {
+    lines += `sin 0° = 0   (cạnh đối = 0)\n`;
+    lines += `cos 0° = 1   (cạnh kề ≈ huyền)\n`;
+    lines += `tan 0° = 0\n`;
+  } else if (angleDeg === 30) {
+    lines += `Tam giác 30-60-90, tỉ lệ cạnh 1 : √3 : 2\n`;
+    lines += `<span class="pos">sin 30°</span> = 1/2     = ${fmt(sV)}\n`;
+    lines += `<span class="pos">cos 30°</span> = √3/2    = ${fmt(cV)}\n`;
+    lines += `<span class="pos">tan 30°</span> = 1/√3    = ${fmt(Math.tan(th))}\n`;
+  } else if (angleDeg === 45) {
+    lines += `Tam giác vuông cân, tỉ lệ cạnh 1 : 1 : √2\n`;
+    lines += `<span class="pos">sin 45°</span> = √2/2    = ${fmt(sV)}\n`;
+    lines += `<span class="pos">cos 45°</span> = √2/2    = ${fmt(cV)}\n`;
+    lines += `<span class="pos">tan 45°</span> = 1       = ${fmt(Math.tan(th))}\n`;
+  } else if (angleDeg === 60) {
+    lines += `Tam giác 30-60-90 (góc 60° đối diện cạnh √3)\n`;
+    lines += `<span class="pos">sin 60°</span> = √3/2    = ${fmt(sV)}\n`;
+    lines += `<span class="pos">cos 60°</span> = 1/2     = ${fmt(cV)}\n`;
+    lines += `<span class="pos">tan 60°</span> = √3      = ${fmt(Math.tan(th))}\n`;
+  } else if (angleDeg === 90) {
+    lines += `Trường hợp giới hạn: cạnh kề = 0\n`;
+    lines += `sin 90° = 1\n`;
+    lines += `cos 90° = 0\n`;
+    lines += `tan 90° = <span style="color:#fc8181">không xác định</span> (chia 0)\n`;
+  }
+  lines += `\nVerify: sin² + cos² = ${fmt(sV*sV + cV*cV, 6)}`;
+  $("t2-stats").innerHTML = lines;
+}
+document.querySelectorAll("#t2-table td.clickable").forEach(td => {
+  td.addEventListener("click", () => showSpecial(+td.dataset.angle));
+});
+showSpecial(30);
+
+// =========================================================
+// 3. Pythagorean identity bar
+// =========================================================
+function updateT3() {
+  const deg = +$("t3-theta").value;
+  $("t3-theta-val").textContent = deg + "°";
+  const th = deg2rad(deg);
+  const sV = Math.sin(th);
+  const cV = Math.cos(th);
+  const s2 = sV*sV;
+  const c2 = cV*cV;
+  $("t3-sin").style.width = (s2*100) + "%";
+  $("t3-cos").style.width = (c2*100) + "%";
+  $("t3-sin").textContent = "sin²θ = " + fmt(s2, 3);
+  $("t3-cos").textContent = "cos²θ = " + fmt(c2, 3);
+  $("t3-stats").innerHTML =
+    `<span class="key">θ = ${deg}°</span> (= ${fmt(th,3)} rad)\n` +
+    `sin θ = ${fmt(sV, 6)}   →   <span class="pos">sin²θ = ${fmt(s2, 6)}</span>\n` +
+    `cos θ = ${fmt(cV, 6)}   →   <span class="pos">cos²θ = ${fmt(c2, 6)}</span>\n` +
+    `<span class="key">tổng         = ${fmt(s2 + c2, 12)}</span>\n` +
+    `\n` +
+    `Bất kể θ thuộc [0, 360]: tổng LUÔN = 1. Đó là đẳng thức Pythagoras lượng giác.`;
+}
+$("t3-theta").addEventListener("input", updateT3);
+updateT3();
+
+// =========================================================
+// 4. Triangle solver
+// =========================================================
+function readNum(id) {
+  const v = $(id).value.trim();
+  return v === "" ? null : +v;
+}
+function solveTriangle() {
+  const opp = readNum("sv-opp");
+  const adj = readNum("sv-adj");
+  const hyp = readNum("sv-hyp");
+  const thD = readNum("sv-theta");
+
+  const out = $("sv-output");
+  out.classList.remove("error");
+
+  const given = [opp, adj, hyp, thD].filter(x => x !== null).length;
+  if (given !== 2) {
+    out.classList.add("error");
+    out.textContent = "Cần đúng 2 giá trị trong 4 ô (opp, adj, hyp, θ). Đang có: " + given + ".";
+    return;
+  }
+
+  let O = opp, A = adj, H = hyp, T = thD;
+  let steps = [];
+
+  // Case 1: hyp + θ
+  if (H !== null && T !== null) {
+    const r = deg2rad(T);
+    O = H * Math.sin(r);
+    A = H * Math.cos(r);
+    steps.push(`Cho: hyp=${H}, θ=${T}°`);
+    steps.push(`opp = hyp · sin θ = ${H} · sin(${T}°) = ${fmt(O, 4)}`);
+    steps.push(`adj = hyp · cos θ = ${H} · cos(${T}°) = ${fmt(A, 4)}`);
+  }
+  // Case 2: opp + adj
+  else if (O !== null && A !== null) {
+    H = Math.sqrt(O*O + A*A);
+    T = rad2deg(Math.atan2(O, A));
+    steps.push(`Cho: opp=${O}, adj=${A}`);
+    steps.push(`hyp = √(opp² + adj²) = √(${O*O} + ${A*A}) = ${fmt(H, 4)}`);
+    steps.push(`θ   = arctan(opp/adj) = arctan(${O}/${A}) = ${fmt(T, 4)}°`);
+  }
+  // Case 3: opp + hyp
+  else if (O !== null && H !== null) {
+    if (O > H) { out.classList.add("error"); out.textContent = "Lỗi: opp không thể > hyp."; return; }
+    A = Math.sqrt(H*H - O*O);
+    T = rad2deg(Math.asin(O/H));
+    steps.push(`Cho: opp=${O}, hyp=${H}`);
+    steps.push(`adj = √(hyp² − opp²) = √(${H*H} − ${O*O}) = ${fmt(A, 4)}`);
+    steps.push(`θ   = arcsin(opp/hyp) = arcsin(${O}/${H}) = ${fmt(T, 4)}°`);
+  }
+  // Case 4: adj + hyp
+  else if (A !== null && H !== null) {
+    if (A > H) { out.classList.add("error"); out.textContent = "Lỗi: adj không thể > hyp."; return; }
+    O = Math.sqrt(H*H - A*A);
+    T = rad2deg(Math.acos(A/H));
+    steps.push(`Cho: adj=${A}, hyp=${H}`);
+    steps.push(`opp = √(hyp² − adj²) = √(${H*H} − ${A*A}) = ${fmt(O, 4)}`);
+    steps.push(`θ   = arccos(adj/hyp) = arccos(${A}/${H}) = ${fmt(T, 4)}°`);
+  }
+  // Case 5: opp + θ
+  else if (O !== null && T !== null) {
+    const r = deg2rad(T);
+    H = O / Math.sin(r);
+    A = O / Math.tan(r);
+    steps.push(`Cho: opp=${O}, θ=${T}°`);
+    steps.push(`hyp = opp / sin θ = ${O} / sin(${T}°) = ${fmt(H, 4)}`);
+    steps.push(`adj = opp / tan θ = ${O} / tan(${T}°) = ${fmt(A, 4)}`);
+  }
+  // Case 6: adj + θ
+  else if (A !== null && T !== null) {
+    const r = deg2rad(T);
+    H = A / Math.cos(r);
+    O = A * Math.tan(r);
+    steps.push(`Cho: adj=${A}, θ=${T}°`);
+    steps.push(`hyp = adj / cos θ = ${A} / cos(${T}°) = ${fmt(H, 4)}`);
+    steps.push(`opp = adj · tan θ = ${A} · tan(${T}°) = ${fmt(O, 4)}`);
+  } else {
+    out.classList.add("error");
+    out.textContent = "Cặp đầu vào không hợp lệ (vd: chỉ có θ + ... ? hoặc 2 góc).";
+    return;
+  }
+
+  // Verify Pythagoras
+  const ck = O*O + A*A;
+  steps.push("");
+  steps.push("─ Kết quả đầy đủ ─");
+  steps.push(`opp = ${fmt(O, 4)}   adj = ${fmt(A, 4)}   hyp = ${fmt(H, 4)}   θ = ${fmt(T, 3)}°`);
+  steps.push(`Verify Pythagoras: opp² + adj² = ${fmt(ck, 4)},   hyp² = ${fmt(H*H, 4)}`);
+
+  out.textContent = steps.join("\n");
+}
+
+$("sv-solve").addEventListener("click", solveTriangle);
+$("sv-clear").addEventListener("click", () => {
+  ["sv-opp", "sv-adj", "sv-hyp", "sv-theta"].forEach(id => $(id).value = "");
+  $("sv-output").textContent = "Nhập đúng 2 giá trị rồi bấm \"Giải\".";
+  $("sv-output").classList.remove("error");
+});
+$("sv-345").addEventListener("click", () => {
+  $("sv-opp").value = 3; $("sv-adj").value = 4;
+  $("sv-hyp").value = ""; $("sv-theta").value = "";
+  solveTriangle();
+});
+$("sv-5-12-13").addEventListener("click", () => {
+  $("sv-opp").value = 5; $("sv-adj").value = 12;
+  $("sv-hyp").value = ""; $("sv-theta").value = "";
+  solveTriangle();
+});
+$("sv-45deg").addEventListener("click", () => {
+  $("sv-opp").value = ""; $("sv-adj").value = "";
+  $("sv-hyp").value = 10; $("sv-theta").value = 45;
+  solveTriangle();
+});
+
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

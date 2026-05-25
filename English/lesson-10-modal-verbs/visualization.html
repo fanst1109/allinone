@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modal Verbs</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f5f6f8; --panel: #fff; --ink: #1a1a1a; --muted: #6a6a6a; --line: #e3e1dc;
+    --accent: #b45309; --accent-soft: #fef3c7;
+    --can: #1d4ed8; --can-soft: #dbeafe;
+    --must: #b91c1c; --must-soft: #fee2e2;
+    --should: #15803d; --should-soft: #dcfce7;
+    --may: #d97706; --may-soft: #fef3c7;
+    --will: #7c3aed; --will-soft: #ede9fe;
+    --ok: #15803d; --error: #b91c1c;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.55; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px 80px; }
+  header h1 { margin: 0 0 4px; font-size: 24px; }
+  header p { margin: 0 0 20px; color: var(--muted); font-size: 14px; }
+
+  .accent-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin-left: 8px; }
+  .accent-toggle button { background: var(--panel); border: none; padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; }
+  .accent-toggle button + button { border-left: 1px solid var(--line); }
+  .accent-toggle button.active { background: var(--accent); color: white; }
+
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 24px; flex-wrap: wrap; }
+  .tab { padding: 10px 16px; cursor: pointer; background: none; border: none; font-size: 14px; font-weight: 500; color: var(--muted); border-bottom: 2px solid transparent; }
+  .tab.active { color: var(--ink); border-bottom-color: var(--accent); }
+  .pane { display: none; }
+  .pane.active { display: block; }
+
+  .section-note { color: var(--muted); font-size: 13px; margin: 0 0 16px; background: var(--accent-soft); padding: 10px 14px; border-radius: 8px; border-left: 3px solid var(--accent); }
+
+  .modal-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 16px; border-left: 5px solid var(--accent); }
+  .modal-card .modal-name { font-size: 22px; font-weight: 800; margin-bottom: 12px; }
+  .modal-card .modal-uses { display: flex; flex-direction: column; gap: 10px; }
+  .modal-use { padding: 12px 14px; border-radius: 8px; background: #fafaf7; border: 1px solid var(--line); }
+  .modal-use .use-label { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .modal-use .use-examples { display: flex; flex-direction: column; gap: 6px; }
+  .ex-row { display: flex; align-items: center; gap: 10px; padding: 6px 10px; background: white; border: 1px solid var(--line); border-radius: 6px; font-size: 14px; }
+  .ex-row .sentence { flex: 1; }
+  .play-pill { padding: 5px 10px; background: var(--accent); color: white; border-radius: 14px; font-size: 12px; cursor: pointer; border: none; }
+  .play-pill:hover { background: #92400e; }
+  .play-pill.speaking { background: var(--ok); }
+
+  .pair-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 16px; }
+  .pair-title { font-size: 16px; font-weight: 700; color: var(--accent); margin-bottom: 12px; }
+  .pair-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .pair-side { padding: 12px 14px; background: #fafaf7; border: 1px solid var(--line); border-radius: 8px; }
+  .pair-side h4 { margin: 0 0 8px; color: var(--ink); font-size: 15px; }
+  .pair-side .desc { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .pair-side .ex { font-size: 14px; padding: 6px 10px; background: white; border-radius: 4px; margin-top: 4px; cursor: pointer; }
+  .pair-side .ex:hover { background: var(--accent-soft); }
+
+  .perf-table { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .perf-table th { background: #f5f4f0; padding: 10px; text-align: left; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .perf-table td { padding: 10px 12px; border-top: 1px solid var(--line); font-size: 14px; vertical-align: top; }
+  .perf-table .modal-cell { font-weight: 700; color: var(--accent); white-space: nowrap; }
+  .perf-table .meaning { color: var(--muted); font-size: 13px; }
+  .perf-table .ex-cell { display: flex; align-items: center; gap: 8px; }
+  .perf-table .ex-cell .sentence { flex: 1; }
+
+  /* Quiz */
+  .quiz-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
+  .quiz-controls { display: flex; gap: 8px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+  .quiz-controls button { padding: 8px 14px; font-size: 13px; border: 1px solid var(--line); border-radius: 6px; background: white; cursor: pointer; font-weight: 500; }
+  .quiz-controls button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+  .quiz-stats { color: var(--muted); font-size: 13px; margin-left: auto; }
+  .quiz-question { text-align: center; padding: 20px 16px; background: var(--accent-soft); border-radius: 10px; margin-bottom: 20px; }
+  .quiz-context { font-size: 13px; color: var(--accent); margin-bottom: 10px; font-weight: 500; }
+  .quiz-sentence { font-size: 18px; line-height: 1.6; }
+  .quiz-sentence .blank { display: inline-block; min-width: 80px; padding: 2px 8px; background: var(--accent); color: white; border-radius: 4px; font-weight: 600; }
+  .quiz-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+  .opt-btn { padding: 12px; font-size: 13px; font-weight: 600; border: 2px solid var(--line); background: white; border-radius: 8px; cursor: pointer; }
+  .opt-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .opt-btn.correct { border-color: var(--ok); background: #f0fdf4; color: var(--ok); }
+  .opt-btn.wrong { border-color: var(--error); background: #fef2f2; color: var(--error); }
+  .quiz-feedback { margin-top: 14px; padding: 12px 16px; border-radius: 8px; font-size: 14px; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok { background: #f0fdf4; color: var(--ok); }
+  .quiz-feedback.err { background: #fef2f2; color: var(--error); }
+
+  .speech-status { font-size: 11px; color: var(--muted); margin-top: 12px; padding: 8px 12px; background: #f5f4f0; border-radius: 6px; }
+
+  footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); text-align: center; }
+  footer a { color: var(--accent); }
+
+  @media (max-width: 640px) { .pair-grid { grid-template-columns: 1fr; } }
+
+</style>
+</head>
+<body>
+<div class="container">
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-09-passive-voice/visualization.html">← L09: Passive</a>
+  <span class="sep">·</span>
+  <span class="current">L10: Modal verbs</span>
+  <span class="sep">·</span>
+  <a href="../lesson-11-reported-speech/visualization.html">L11: Reported speech →</a>
+</nav>
+
+<header>
+  <h1>Modal Verbs — Động từ khuyết thiếu</h1>
+  <p>9 modal cốt lõi + ý nghĩa. Click ▶ nghe câu bằng Web Speech.
+    Giọng:
+    <span class="accent-toggle">
+      <button id="btn-accent-us" class="active" data-variant="us">US</button>
+      <button id="btn-accent-uk" data-variant="uk">UK</button>
+    </span>
+  </p>
+</header>
+
+<div class="tabs">
+  <button class="tab active" data-tab="modals">9 Modals</button>
+  <button class="tab" data-tab="pairs">So sánh cặp</button>
+  <button class="tab" data-tab="perfect">Modal Perfect</button>
+  <button class="tab" data-tab="quiz">Quiz</button>
+</div>
+
+<section class="pane active" id="pane-modals">
+  <div class="section-note">9 modal chính với ý nghĩa và ví dụ. Cùng 1 modal có thể mang nhiều sắc thái.</div>
+  <div id="modals-list"></div>
+  <div class="speech-status" id="speech-status">⏳ Đang kiểm tra Web Speech API...</div>
+</section>
+
+<section class="pane" id="pane-pairs">
+  <div class="section-note">Các cặp dễ nhầm — so sánh trực tiếp side-by-side.</div>
+  <div id="pairs-list"></div>
+</section>
+
+<section class="pane" id="pane-perfect">
+  <div class="section-note">Modal + have + V3 — bình luận về quá khứ.</div>
+  <table class="perf-table" id="perf-table"></table>
+</section>
+
+<section class="pane" id="pane-quiz">
+  <div class="quiz-wrap">
+    <div class="quiz-controls">
+      <button class="primary" id="btn-new-quiz">▶ Câu mới</button>
+      <button id="btn-replay-quiz" disabled>↻ Nghe lại</button>
+      <span class="quiz-stats" id="quiz-stats">Đúng: 0 / 0</span>
+    </div>
+    <div id="quiz-display"></div>
+    <div class="quiz-feedback" id="quiz-feedback"></div>
+  </div>
+</section>
+
+<footer>Web Speech API đọc câu. Mặc định US. <a href="https://www.oxfordlearnersdictionaries.com" target="_blank">Oxford</a> cho từ rời.</footer>
+
+<audio id="audio-el" preload="none"></audio>
+</div>
+
+<script>
+const synth = window.speechSynthesis;
+let voices = [];
+let currentVariant = localStorage.getItem('audioVariant') || 'us';
+
+function loadVoices() { voices = synth ? synth.getVoices() : []; updateSpeechStatus(); }
+if (synth) { loadVoices(); if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = loadVoices; }
+
+function pickVoice(variant) {
+  if (!voices.length) return null;
+  const langPrefix = variant === 'uk' ? 'en-GB' : 'en-US';
+  const candidates = voices.filter(v => v.lang.startsWith(langPrefix));
+  if (!candidates.length) return voices.find(v => v.lang.startsWith('en')) || voices[0];
+  const premium = candidates.find(v => /premium|enhanced|natural|samantha|alex|daniel|kate|fiona/i.test(v.name));
+  return premium || candidates[0];
+}
+
+function speak(text, btn) {
+  if (!synth) { alert("Trình duyệt không hỗ trợ Web Speech API."); return; }
+  synth.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const v = pickVoice(currentVariant);
+  if (v) { u.voice = v; u.lang = v.lang; } else { u.lang = currentVariant === 'uk' ? 'en-GB' : 'en-US'; }
+  u.rate = 0.95;
+  if (btn) { btn.classList.add('speaking'); u.onend = () => btn.classList.remove('speaking'); u.onerror = () => btn.classList.remove('speaking'); }
+  synth.speak(u);
+}
+
+function updateSpeechStatus() {
+  const el = document.getElementById('speech-status'); if (!el) return;
+  if (!synth) { el.textContent = "⚠ Không hỗ trợ Web Speech API."; return; }
+  if (!voices.length) { el.textContent = "⏳ Đang tải giọng..."; return; }
+  const v = pickVoice(currentVariant);
+  el.textContent = `✓ Giọng đang chọn: ${v ? v.name + ' (' + v.lang + ')' : 'mặc định'}.`;
+}
+function setVariant(v) {
+  currentVariant = v;
+  localStorage.setItem('audioVariant', v);
+  document.querySelectorAll('.accent-toggle button').forEach(b => b.classList.toggle('active', b.dataset.variant === v));
+  updateSpeechStatus();
+}
+document.querySelectorAll('.accent-toggle button').forEach(btn => btn.addEventListener('click', () => setVariant(btn.dataset.variant)));
+setVariant(currentVariant);
+
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('pane-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ============== Modals data ==============
+const MODALS = [
+  { name: "can", color: "var(--can)",
+    uses: [
+      { label: "Ability (khả năng)", examples: ["I can swim.", "She can speak three languages."] },
+      { label: "Permission (informal)", examples: ["Can I leave early today?", "You can use my computer."] },
+      { label: "Possibility (general)", examples: ["It can be very cold here in winter."] },
+      { label: "Impossibility (negative)", examples: ["That can't be true!", "She can't have left already."] },
+    ] },
+  { name: "could", color: "var(--can)",
+    uses: [
+      { label: "Past ability", examples: ["When I was young, I could run fast.", "She could read at age 4."] },
+      { label: "Polite request", examples: ["Could you help me, please?", "Could you pass the salt?"] },
+      { label: "Possibility (weak)", examples: ["It could rain tomorrow.", "He could be at the office."] },
+      { label: "Hypothetical (Second conditional)", examples: ["If I had money, I could travel.", "If she tried, she could succeed."] },
+    ] },
+  { name: "may / might", color: "var(--may)",
+    uses: [
+      { label: "Possibility — may (50%) vs might (30%)", examples: ["It may rain tomorrow.", "I might go to the party. I'm not sure."] },
+      { label: "Permission (formal)", examples: ["May I come in?", "Students may not use phones in class."] },
+      { label: "Polite suggestion (might)", examples: ["You might want to consider this option."] },
+    ] },
+  { name: "must / have to", color: "var(--must)",
+    uses: [
+      { label: "Obligation — must (inner) vs have to (outer)", examples: ["I must finish this book — it's so interesting!", "I have to finish this report by Friday."] },
+      { label: "Strong deduction", examples: ["She must be tired — she worked all day.", "He must have forgotten."] },
+      { label: "Prohibition — mustn't (cấm)", examples: ["You mustn't smoke here.", "You mustn't tell anyone."] },
+      { label: "No obligation — don't have to", examples: ["You don't have to come if you don't want to."] },
+    ] },
+  { name: "should / ought to", color: "var(--should)",
+    uses: [
+      { label: "Advice", examples: ["You should see a doctor.", "You ought to apologize."] },
+      { label: "Expectation", examples: ["The package should arrive tomorrow.", "She should be home by now."] },
+      { label: "Moral 'should'", examples: ["He shouldn't have lied.", "We should help those in need."] },
+    ] },
+  { name: "will / would", color: "var(--will)",
+    uses: [
+      { label: "Future (will)", examples: ["I will see you tomorrow.", "It will rain this afternoon."] },
+      { label: "Determination (will)", examples: ["I will pass this exam!", "I will not give up."] },
+      { label: "Polite request / offer (would)", examples: ["Would you like some tea?", "I would like to apply."] },
+      { label: "Past habit (would)", examples: ["When I was young, I would play in the garden every day."] },
+      { label: "Hypothetical (would)", examples: ["If I were rich, I would travel.", "I would help if I could."] },
+    ] },
+  { name: "shall", color: "var(--will)",
+    uses: [
+      { label: "Suggestion (with I/we)", examples: ["Shall we dance?", "Shall I open the window?"] },
+      { label: "Formal future (UK)", examples: ["I shall return.", "We shall overcome."] },
+      { label: "Legal English", examples: ["The buyer shall pay within 30 days."] },
+    ] },
+];
+
+const modalsList = document.getElementById('modals-list');
+MODALS.forEach(m => {
+  const card = document.createElement('div'); card.className = 'modal-card';
+  card.style.borderLeftColor = m.color;
+  let usesHtml = m.uses.map(u => {
+    const exHtml = u.examples.map(e => `
+      <div class="ex-row">
+        <div class="sentence">${e}</div>
+        <button class="play-pill" data-text="${e.replace(/"/g, '&quot;')}">▶</button>
+      </div>
+    `).join('');
+    return `<div class="modal-use">
+      <div class="use-label" style="color: ${m.color};">${u.label}</div>
+      <div class="use-examples">${exHtml}</div>
+    </div>`;
+  }).join('');
+  card.innerHTML = `<div class="modal-name" style="color: ${m.color};">${m.name}</div><div class="modal-uses">${usesHtml}</div>`;
+  card.querySelectorAll('.play-pill').forEach(b => b.addEventListener('click', () => speak(b.dataset.text, b)));
+  modalsList.appendChild(card);
+});
+
+// ============== Pairs comparison ==============
+const PAIRS = [
+  { title: "must vs have to",
+    left: { name: "must", desc: "Bắt buộc TỪ TRONG — bản thân cảm thấy phải.", examples: ["I must finish this book — it's so interesting!"] },
+    right: { name: "have to", desc: "Bắt buộc TỪ BÊN NGOÀI — luật, sếp, hoàn cảnh.", examples: ["I have to finish this report by Friday."] },
+    note: "Phủ định KHÁC RỜI RỜI: mustn't = cấm; don't have to = không cần." },
+  { title: "can vs may (xin phép)",
+    left: { name: "can", desc: "Informal — bạn bè, người quen.", examples: ["Can I borrow your pen?", "Can I leave early?"] },
+    right: { name: "may", desc: "Formal — lịch sự, trang trọng.", examples: ["May I come in?", "May I ask a question?"] },
+    note: "Trong câu hỏi xin phép, dùng 'may' với người lạ/cấp trên; 'can' với bạn." },
+  { title: "should vs ought to",
+    left: { name: "should", desc: "Phổ biến, dùng hàng ngày.", examples: ["You should see a doctor.", "I should call my mother."] },
+    right: { name: "ought to", desc: "Formal hơn, hiếm dùng trong nói thường.", examples: ["You ought to apologize.", "We ought to leave now."] },
+    note: "Nghĩa gần như giống nhau — should phổ biến hơn nhiều." },
+  { title: "will vs would (polite request)",
+    left: { name: "will", desc: "Trực tiếp, ít lịch sự hơn.", examples: ["Will you help me?", "Will you close the door?"] },
+    right: { name: "would", desc: "Lịch sự, formal, an toàn.", examples: ["Would you help me?", "Would you mind closing the door?"] },
+    note: "Trong tình huống lịch sự, would là lựa chọn an toàn nhất." },
+  { title: "may vs might (possibility)",
+    left: { name: "may", desc: "Xác suất ~50% — có khả năng.", examples: ["It may rain tomorrow."] },
+    right: { name: "might", desc: "Xác suất thấp hơn ~30% — có thể, không chắc.", examples: ["I might go, but probably not."] },
+    note: "Trong văn nói thường, hai từ này gần như thay được cho nhau." },
+];
+
+const pairsList = document.getElementById('pairs-list');
+PAIRS.forEach(p => {
+  const card = document.createElement('div'); card.className = 'pair-card';
+  card.innerHTML = `
+    <div class="pair-title">${p.title}</div>
+    <div class="pair-grid">
+      <div class="pair-side">
+        <h4>${p.left.name}</h4>
+        <div class="desc">${p.left.desc}</div>
+        ${p.left.examples.map(e => `<div class="ex" data-text="${e.replace(/"/g, '&quot;')}">${e}</div>`).join('')}
+      </div>
+      <div class="pair-side">
+        <h4>${p.right.name}</h4>
+        <div class="desc">${p.right.desc}</div>
+        ${p.right.examples.map(e => `<div class="ex" data-text="${e.replace(/"/g, '&quot;')}">${e}</div>`).join('')}
+      </div>
+    </div>
+    <div style="margin-top: 10px; font-size: 13px; color: var(--muted); font-style: italic;">${p.note}</div>
+  `;
+  card.querySelectorAll('.ex').forEach(el => el.addEventListener('click', () => speak(el.dataset.text, el)));
+  pairsList.appendChild(card);
+});
+
+// ============== Modal Perfect ==============
+const PERFECTS = [
+  { modal: "must have + V3", meaning: "Suy đoán CHẮC CHẮN về QK",
+    examples: ["She must have been asleep.", "He must have forgotten our meeting."] },
+  { modal: "can't have + V3", meaning: "Phủ định MẠNH về QK",
+    examples: ["She can't have stolen the money — she was with me.", "He can't have known about it."] },
+  { modal: "could have + V3", meaning: "Đã có thể (nhưng không làm) / có lẽ đã",
+    examples: ["You could have called me!", "She could have missed the bus."] },
+  { modal: "may have / might have + V3", meaning: "Có lẽ đã",
+    examples: ["He may have left already.", "She might have forgotten."] },
+  { modal: "should have + V3", meaning: "LẼ RA NÊN (hối tiếc)",
+    examples: ["I should have studied harder.", "You shouldn't have lied to him."] },
+  { modal: "would have + V3", meaning: "Đã có thể (Third Conditional)",
+    examples: ["If I had known, I would have helped.", "I would have come, but I was sick."] },
+];
+
+const perfTbl = document.getElementById('perf-table');
+perfTbl.innerHTML = `<thead><tr><th>Form</th><th>Ý nghĩa</th><th>Ví dụ</th></tr></thead>`;
+const perfBody = document.createElement('tbody');
+PERFECTS.forEach(p => {
+  const exHtml = p.examples.map(e => `
+    <div class="ex-cell">
+      <div class="sentence">${e}</div>
+      <button class="play-pill" data-text="${e.replace(/"/g, '&quot;')}">▶</button>
+    </div>
+  `).join('');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td class="modal-cell">${p.modal}</td><td class="meaning">${p.meaning}</td><td>${exHtml}</td>`;
+  perfBody.appendChild(tr);
+});
+perfTbl.appendChild(perfBody);
+perfTbl.querySelectorAll('.play-pill').forEach(b => b.addEventListener('click', () => speak(b.dataset.text, b)));
+
+// ============== Quiz ==============
+const QUIZ = [
+  { sentence: "You ___ smoke in the hospital (cấm).", options: ["mustn't", "don't have to", "shouldn't", "couldn't"], correct: 0,
+    full: "You mustn't smoke in the hospital.", explain: "Cấm tuyệt đối → mustn't. 'don't have to' = không cần (nghĩa khác)." },
+  { sentence: "She ___ speak Japanese, German, and French.", options: ["must", "should", "can", "may"], correct: 2,
+    full: "She can speak Japanese, German, and French.", explain: "Khả năng hiện tại → can." },
+  { sentence: "When I was young, I ___ ride a bike.", options: ["can", "could", "may", "should"], correct: 1,
+    full: "When I was young, I could ride a bike.", explain: "Khả năng QK → could (không 'can')." },
+  { sentence: "___ you help me with this bag, please?", options: ["May", "Could", "Should", "Must"], correct: 1,
+    full: "Could you help me with this bag, please?", explain: "Polite request → could (hoặc would). 'May' chỉ xin phép." },
+  { sentence: "She ___ be tired — she worked all day.", options: ["may", "must", "could", "should"], correct: 1,
+    full: "She must be tired — she worked all day.", explain: "Suy đoán chắc chắn → must." },
+  { sentence: "I ___ apologize to her. I feel bad.", options: ["have to", "must", "can", "may"], correct: 1,
+    full: "I must apologize to her. I feel bad.", explain: "Bắt buộc TỪ TRONG (tự cảm thấy) → must." },
+  { sentence: "I ___ wear a uniform at my new job.", options: ["must", "have to", "should", "may"], correct: 1,
+    full: "I have to wear a uniform at my new job.", explain: "Bắt buộc TỪ BÊN NGOÀI (luật công ty) → have to." },
+  { sentence: "Câu nào ĐÚNG?", options: ["She musts go now.", "She must go now.", "She must to go now.", "She must goes now."], correct: 1,
+    full: "She must go now.", explain: "Modal: không -s, không 'to', V base. 'must go' đúng." },
+  { sentence: "If I had known, I ___ helped.", options: ["would", "would have", "could", "should"], correct: 1,
+    full: "If I had known, I would have helped.", explain: "Third Conditional → would have + V3." },
+  { sentence: "I ___ studied harder. Now I regret it.", options: ["must have", "could have", "should have", "might have"], correct: 2,
+    full: "I should have studied harder.", explain: "Hối tiếc về QK → should have + V3." },
+  { sentence: "Câu nào ĐÚNG?", options: ["You should to see a doctor.", "You ought to see a doctor.", "You ought see a doctor.", "You should seeing a doctor."], correct: 1,
+    full: "You ought to see a doctor.", explain: "'ought to' đi với 'to' (ngoại lệ). 'should' KHÔNG có 'to'." },
+  { sentence: "He didn't come. He ___ been sick.", options: ["should have", "must have", "can't have", "would have"], correct: 1,
+    full: "He must have been sick.", explain: "Suy đoán chắc chắn về QK → must have + V3." },
+  { sentence: "___ I come in?", options: ["May", "Must", "Should", "Would"], correct: 0,
+    full: "May I come in?", explain: "Xin phép formal → may (hoặc 'Could I come in?')." },
+  { sentence: "Câu nào ĐÚNG?", options: ["I will can finish it.", "I will be able to finish it.", "I will could finish it.", "I can will finish it."], correct: 1,
+    full: "I will be able to finish it.", explain: "Không dùng 2 modal liên tiếp. 'will + can' → 'will be able to'." },
+  { sentence: "You ___ smoke if you don't want to. (không cần)", options: ["mustn't", "don't have to", "can't", "shouldn't"], correct: 1,
+    full: "You don't have to smoke if you don't want to.", explain: "Không cần = don't have to. 'mustn't' = cấm (nghĩa khác)." },
+];
+
+const quizDisplay = document.getElementById('quiz-display');
+const quizFeedback = document.getElementById('quiz-feedback');
+const quizStatsEl = document.getElementById('quiz-stats');
+let qStats = { correct: 0, total: 0 };
+let currentQ = null;
+let answered = false;
+
+function newQuiz() {
+  currentQ = QUIZ[Math.floor(Math.random() * QUIZ.length)];
+  answered = false;
+  const opts = currentQ.options.map((o, i) => `<button class="opt-btn" data-i="${i}">${o}</button>`).join('');
+  quizDisplay.innerHTML = `
+    <div class="quiz-question">
+      <div class="quiz-context">Chọn modal phù hợp:</div>
+      <div class="quiz-sentence">${currentQ.sentence.replace('___', '<span class="blank">___</span>')}</div>
+    </div>
+    <div class="quiz-options">${opts}</div>
+  `;
+  quizDisplay.querySelectorAll('.opt-btn').forEach(b => b.addEventListener('click', () => handleQuiz(parseInt(b.dataset.i), b)));
+  quizFeedback.classList.remove('show', 'ok', 'err');
+  document.getElementById('btn-replay-quiz').disabled = false;
+}
+
+function handleQuiz(i, btn) {
+  if (answered) return; answered = true;
+  qStats.total++;
+  quizDisplay.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+  if (i === currentQ.correct) {
+    qStats.correct++;
+    btn.classList.add('correct');
+    quizFeedback.innerHTML = `<strong>Đúng!</strong> "${currentQ.full}" — ${currentQ.explain} <button class="play-pill" style="margin-left:8px;" onclick="speak('${currentQ.full.replace(/'/g, "\\'")}', this)">▶ Nghe</button>`;
+    quizFeedback.className = 'quiz-feedback show ok';
+  } else {
+    btn.classList.add('wrong');
+    quizDisplay.querySelectorAll('.opt-btn')[currentQ.correct].classList.add('correct');
+    quizFeedback.innerHTML = `<strong>Sai.</strong> Đáp án: "<em>${currentQ.options[currentQ.correct]}</em>". "${currentQ.full}" — ${currentQ.explain} <button class="play-pill" style="margin-left:8px;" onclick="speak('${currentQ.full.replace(/'/g, "\\'")}', this)">▶ Nghe</button>`;
+    quizFeedback.className = 'quiz-feedback show err';
+  }
+  quizStatsEl.textContent = `Đúng: ${qStats.correct} / ${qStats.total}`;
+}
+document.getElementById('btn-new-quiz').addEventListener('click', newQuiz);
+document.getElementById('btn-replay-quiz').addEventListener('click', () => { if (currentQ) speak(currentQ.full, null); });
+</script>
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/ipa-reader.js"></script>
+</body>
+</html>

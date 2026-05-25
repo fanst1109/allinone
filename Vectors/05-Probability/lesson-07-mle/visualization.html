@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 07 — MLE</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 28px; font-size: 15px; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 18px 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 14px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; color: #2d3748; font-size: 14px; }
+  input[type="range"] { width: 220px; vertical-align: middle; }
+  .num { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px; color: #2c5282; font-weight: 700; }
+  .lbl { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px; color: #4a5568; }
+  svg.viz {
+    display: block; background: #f7fafc;
+    border: 1px solid #e2e8f0; border-radius: 6px;
+    width: 100%; height: auto;
+  }
+  .info-box {
+    margin-top: 10px; padding: 10px 14px;
+    background: #edf2f7; border-radius: 6px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; color: #2d3748; line-height: 1.85;
+  }
+  .info-box .blue { color: #2b6cb0; font-weight: 700; }
+  .info-box .red { color: #c53030; font-weight: 700; }
+  .info-box .green { color: #2f855a; font-weight: 700; }
+  .info-box .purple { color: #6b46c1; font-weight: 700; }
+  .info-box .amber { color: #b7791f; font-weight: 700; }
+  .grid-2 {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start;
+  }
+  @media (max-width: 940px) { .grid-2 { grid-template-columns: 1fr; } }
+  .hint {
+    color: #4a5568; font-size: 13.5px;
+    background: #fefcbf; padding: 10px 12px;
+    border-left: 4px solid #ecc94b; border-radius: 4px;
+    margin: 12px 0;
+  }
+  .legend {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    font-size: 13px; margin-top: 8px; color: #4a5568;
+  }
+  .legend .item { display: flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 16px; height: 12px; border-radius: 3px; }
+  button.preset {
+    padding: 5px 11px; border-radius: 5px; border: 1px solid #cbd5e0;
+    background: #fff; cursor: pointer; font-size: 12.5px;
+  }
+  button.preset:hover { background: #edf2f7; }
+  button.preset.active { background: #4299e1; color: white; border-color: #4299e1; }
+  .draggable circle { cursor: ns-resize; }
+  .draggable circle:hover { stroke-width: 2.5; }
+  table.kv { font-size: 13px; border-collapse: collapse; }
+  table.kv td { padding: 3px 10px 3px 0; }
+  table.kv td.num { font-family: "SF Mono", Monaco, Consolas, monospace; color: #2c5282; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-expectation-variance/visualization.html">← L6: Kỳ vọng, phương sai</a>
+  <span class="sep">·</span>
+  <span class="current">L7: MLE</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-cross-entropy-kl/visualization.html">L8: Cross-entropy + KL →</a>
+</nav>
+<h1>Lesson 07 — Maximum Likelihood Estimation</h1>
+<div class="subtitle">Cho data, đoán tham số. MLE = θ làm data quan sát có khả năng nhất.</div>
+
+<!-- ============================================== -->
+<!-- 1. MLE Bernoulli (coin flip) -->
+<!-- ============================================== -->
+<h2>1. MLE cho Bernoulli — đồng xu</h2>
+
+<div class="card">
+  <div class="hint">Kéo slider để đổi <code>n</code> (số lần tung) và <code>k</code> (số mặt ngửa). Đồ thị bên trái vẽ <strong>L(p)</strong>, bên phải vẽ <strong>log L(p)</strong>. MLE = đỉnh = `k/n`.</div>
+
+  <div class="row">
+    <label>n = <span class="num" id="bn-n-val">10</span></label>
+    <input type="range" id="bn-n" min="1" max="100" value="10">
+    <label style="margin-left:18px">k = <span class="num" id="bn-k-val">6</span></label>
+    <input type="range" id="bn-k" min="0" max="10" value="6">
+    <span class="lbl" style="margin-left:18px">k ≤ n</span>
+  </div>
+
+  <div class="grid-2">
+    <svg class="viz" id="bn-svg-L" viewBox="0 0 460 320"></svg>
+    <svg class="viz" id="bn-svg-logL" viewBox="0 0 460 320"></svg>
+  </div>
+
+  <div class="info-box" id="bn-info"></div>
+</div>
+
+<!-- ============================================== -->
+<!-- 2. MLE Gaussian -->
+<!-- ============================================== -->
+<h2>2. MLE cho Gaussian — `μ̂` và `σ̂²`</h2>
+
+<div class="card">
+  <div class="hint">Kéo các điểm dữ liệu lên xuống (theo trục x). PDF Gaussian fit tự cập nhật. `μ̂` = trung bình, `σ̂²` = trung bình bình phương lệch.</div>
+
+  <div class="row">
+    <button class="preset" data-gpreset="tight">Tight cluster</button>
+    <button class="preset" data-gpreset="spread">Spread out</button>
+    <button class="preset" data-gpreset="bimodal">Bimodal (lưu ý: 1 Gaussian fit kém)</button>
+    <button class="preset" data-gpreset="reset">Reset</button>
+  </div>
+
+  <svg class="viz" id="g-svg" viewBox="0 0 900 360"></svg>
+
+  <div class="info-box" id="g-info"></div>
+</div>
+
+<!-- ============================================== -->
+<!-- 3. Linear regression MLE -->
+<!-- ============================================== -->
+<h2>3. Linear regression MLE — MSE từ Gaussian noise</h2>
+
+<div class="card">
+  <div class="hint">Kéo các điểm theo trục y. Đường fit closed-form `ŵ = Cov(x,y)/Var(x)`, `b̂ = ȳ − ŵx̄`. Residuals (đoạn dọc) là `yᵢ - ŷᵢ`. SSE và `σ̂²` tự cập nhật.</div>
+
+  <svg class="viz" id="lr-svg" viewBox="0 0 900 380"></svg>
+
+  <div class="info-box" id="lr-info"></div>
+
+  <div class="legend">
+    <div class="item"><div class="swatch" style="background:#3182ce"></div> Data points (kéo dọc)</div>
+    <div class="item"><div class="swatch" style="background:#c53030"></div> Đường fit ŷ = ŵx + b̂</div>
+    <div class="item"><div class="swatch" style="background:#dd6b20"></div> Residual (sai số)</div>
+  </div>
+</div>
+
+<!-- ============================================== -->
+<!-- 4. MAP vs MLE -->
+<!-- ============================================== -->
+<h2>4. MAP vs MLE — sức mạnh của prior</h2>
+
+<div class="card">
+  <div class="hint">Coin flip với prior Beta(α, β). Slider `prior strength` = α+β (kéo α, β cùng tỷ lệ). `prior center` đặt mean prior. MLE và MAP cùng được vẽ. Khi prior yếu → MAP ≈ MLE; khi prior mạnh → MAP kéo về prior center.</div>
+
+  <div class="row">
+    <label>n = <span class="num" id="map-n-val">10</span></label>
+    <input type="range" id="map-n" min="1" max="50" value="10">
+    <label style="margin-left:14px">k = <span class="num" id="map-k-val">8</span></label>
+    <input type="range" id="map-k" min="0" max="10" value="8">
+  </div>
+  <div class="row">
+    <label>Prior center μ₀ = <span class="num" id="map-mu-val">0.50</span></label>
+    <input type="range" id="map-mu" min="0.05" max="0.95" step="0.01" value="0.5">
+    <label style="margin-left:14px">Prior strength (α+β) = <span class="num" id="map-s-val">10</span></label>
+    <input type="range" id="map-s" min="2" max="200" value="10">
+  </div>
+
+  <svg class="viz" id="map-svg" viewBox="0 0 900 360"></svg>
+
+  <div class="info-box" id="map-info"></div>
+
+  <div class="legend">
+    <div class="item"><div class="swatch" style="background:#3182ce"></div> Likelihood L(p) (chuẩn hoá để hiện thị)</div>
+    <div class="item"><div class="swatch" style="background:#805ad5"></div> Prior P(p) ~ Beta(α,β)</div>
+    <div class="item"><div class="swatch" style="background:#2f855a"></div> Posterior ∝ L · P</div>
+    <div class="item"><div class="swatch" style="background:#c53030"></div> p̂_MLE</div>
+    <div class="item"><div class="swatch" style="background:#dd6b20"></div> p̂_MAP</div>
+  </div>
+</div>
+
+<script>
+// ============================================
+// Helpers
+// ============================================
+function clip(v, a, b) { return Math.max(a, Math.min(b, v)); }
+function fmt(x, d) { d = d || 4; return (Math.abs(x) > 1e6 || (Math.abs(x) < 1e-3 && x !== 0)) ? x.toExponential(2) : x.toFixed(d); }
+function logSafe(p) { return Math.log(Math.max(p, 1e-300)); }
+
+// Plot a function y=f(x) on an SVG with axes
+function plotFn(svg, opts) {
+  // opts: {x0, x1, fn, yMin, yMax, color, lineWidth, padding{l,r,t,b}, width, height, xLabel, yLabel, samples, marks: [{x, color, label}], title}
+  const w = opts.width, h = opts.height, P = opts.padding;
+  const plotW = w - P.l - P.r, plotH = h - P.t - P.b;
+  const samples = opts.samples || 200;
+
+  let yMin = opts.yMin, yMax = opts.yMax;
+  const pts = [];
+  for (let i = 0; i <= samples; i++) {
+    const x = opts.x0 + (opts.x1 - opts.x0) * i / samples;
+    const y = opts.fn(x);
+    pts.push([x, y]);
+  }
+  if (yMin === undefined || yMax === undefined) {
+    let lo = Infinity, hi = -Infinity;
+    for (const [, y] of pts) { if (isFinite(y)) { if (y < lo) lo = y; if (y > hi) hi = y; } }
+    if (yMin === undefined) yMin = lo;
+    if (yMax === undefined) yMax = hi;
+    const pad = (yMax - yMin) * 0.08 || 1;
+    yMin -= pad; yMax += pad;
+  }
+
+  function X(x) { return P.l + (x - opts.x0) / (opts.x1 - opts.x0) * plotW; }
+  function Y(y) { return P.t + plotH - (y - yMin) / (yMax - yMin) * plotH; }
+
+  let html = '';
+
+  // Axes
+  html += `<rect x="${P.l}" y="${P.t}" width="${plotW}" height="${plotH}" fill="white" stroke="#cbd5e0"/>`;
+
+  // Grid + xticks
+  const nxt = 5;
+  for (let i = 0; i <= nxt; i++) {
+    const x = opts.x0 + (opts.x1 - opts.x0) * i / nxt;
+    const xp = X(x);
+    html += `<line x1="${xp}" y1="${P.t}" x2="${xp}" y2="${P.t + plotH}" stroke="#edf2f7"/>`;
+    html += `<text x="${xp}" y="${P.t + plotH + 14}" font-size="10" text-anchor="middle" fill="#718096">${fmt(x, 2)}</text>`;
+  }
+  // y ticks
+  const nyt = 4;
+  for (let i = 0; i <= nyt; i++) {
+    const y = yMin + (yMax - yMin) * i / nyt;
+    const yp = Y(y);
+    html += `<line x1="${P.l}" y1="${yp}" x2="${P.l + plotW}" y2="${yp}" stroke="#edf2f7"/>`;
+    html += `<text x="${P.l - 4}" y="${yp + 3}" font-size="10" text-anchor="end" fill="#718096">${fmt(y, 2)}</text>`;
+  }
+
+  // Curve
+  let d = '';
+  for (let i = 0; i <= samples; i++) {
+    const [x, y] = pts[i];
+    if (!isFinite(y)) { d = ''; continue; }
+    const xp = X(x), yp = Y(clip(y, yMin, yMax));
+    d += (d ? 'L' : 'M') + xp.toFixed(2) + ',' + yp.toFixed(2) + ' ';
+  }
+  html += `<path d="${d}" fill="none" stroke="${opts.color || '#3182ce'}" stroke-width="${opts.lineWidth || 2}"/>`;
+
+  // Marks
+  if (opts.marks) {
+    for (const m of opts.marks) {
+      const xp = X(m.x);
+      html += `<line x1="${xp}" y1="${P.t}" x2="${xp}" y2="${P.t + plotH}" stroke="${m.color}" stroke-width="2" stroke-dasharray="4,3"/>`;
+      if (m.label) {
+        html += `<text x="${xp}" y="${P.t - 4}" font-size="11" font-weight="700" text-anchor="middle" fill="${m.color}">${m.label}</text>`;
+      }
+    }
+  }
+
+  // Title
+  if (opts.title) {
+    html += `<text x="${w / 2}" y="14" font-size="13" font-weight="700" text-anchor="middle" fill="#2d3748">${opts.title}</text>`;
+  }
+
+  // Axis labels
+  if (opts.xLabel) html += `<text x="${P.l + plotW / 2}" y="${h - 4}" font-size="11" text-anchor="middle" fill="#4a5568">${opts.xLabel}</text>`;
+  if (opts.yLabel) html += `<text x="14" y="${P.t + plotH / 2}" font-size="11" text-anchor="middle" fill="#4a5568" transform="rotate(-90 14 ${P.t + plotH / 2})">${opts.yLabel}</text>`;
+
+  svg.innerHTML = html;
+  return { X, Y, yMin, yMax };
+}
+
+
+// ============================================
+// 1. Bernoulli MLE
+// ============================================
+const bnN = document.getElementById('bn-n');
+const bnK = document.getElementById('bn-k');
+const bnNVal = document.getElementById('bn-n-val');
+const bnKVal = document.getElementById('bn-k-val');
+const bnSvgL = document.getElementById('bn-svg-L');
+const bnSvgLogL = document.getElementById('bn-svg-logL');
+const bnInfo = document.getElementById('bn-info');
+
+function updateBernoulli() {
+  let n = +bnN.value;
+  let k = +bnK.value;
+  bnK.max = n;
+  if (k > n) { k = n; bnK.value = k; }
+  bnNVal.textContent = n;
+  bnKVal.textContent = k;
+
+  const pHat = n === 0 ? 0 : k / n;
+
+  // L(p) = p^k (1-p)^(n-k)
+  function L(p) {
+    if (p <= 0 || p >= 1) {
+      if (p === 0) return (k === 0) ? 1 : 0;
+      if (p === 1) return (k === n) ? 1 : 0;
+    }
+    return Math.pow(p, k) * Math.pow(1 - p, n - k);
+  }
+  function logL(p) {
+    if (p <= 0 || p >= 1) return -Infinity;
+    return k * Math.log(p) + (n - k) * Math.log(1 - p);
+  }
+
+  // Plot L
+  plotFn(bnSvgL, {
+    x0: 0.001, x1: 0.999,
+    fn: L,
+    color: '#3182ce',
+    width: 460, height: 320,
+    padding: { l: 50, r: 16, t: 28, b: 32 },
+    xLabel: 'p', yLabel: 'L(p)',
+    title: 'Likelihood  L(p) = p^k (1−p)^(n−k)',
+    marks: [{ x: pHat, color: '#c53030', label: `p̂ = ${pHat.toFixed(3)}` }]
+  });
+
+  // Plot log L  (skip extremes for nicer y-axis)
+  const lMax = logL(pHat);
+  // pick y range about max
+  const yLo = lMax - Math.max(10, 0.6 * Math.abs(lMax));
+  plotFn(bnSvgLogL, {
+    x0: 0.001, x1: 0.999,
+    fn: logL,
+    yMin: yLo, yMax: lMax + 1,
+    color: '#2f855a',
+    width: 460, height: 320,
+    padding: { l: 50, r: 16, t: 28, b: 32 },
+    xLabel: 'p', yLabel: 'log L(p)',
+    title: 'Log-likelihood  ℓ(p) = k·log p + (n−k)·log(1−p)',
+    marks: [{ x: pHat, color: '#c53030', label: `p̂ = ${pHat.toFixed(3)}` }]
+  });
+
+  const lAt = L(pHat);
+  const logLAt = logL(pHat);
+  const logLHalf = logL(0.5);
+
+  bnInfo.innerHTML = `
+    Data: <span class="blue">n = ${n}</span>, ngửa <span class="blue">k = ${k}</span>, sấp <span class="blue">${n - k}</span><br>
+    <span class="red">p̂_MLE = k/n = ${k}/${n} = ${pHat.toFixed(4)}</span><br>
+    L(p̂) = ${fmt(lAt, 4)} &nbsp;&nbsp; log L(p̂) = <span class="green">${fmt(logLAt, 4)}</span><br>
+    So sánh: log L(0.5) = ${fmt(logLHalf, 4)} &nbsp;&nbsp; <span class="amber">Δℓ = ${fmt(logLAt - logLHalf, 4)}</span> (xu công bằng kém khả năng hơn p̂ bằng e^Δℓ = ${fmt(Math.exp(logLAt - logLHalf), 2)} lần)
+  `;
+}
+bnN.oninput = updateBernoulli;
+bnK.oninput = updateBernoulli;
+updateBernoulli();
+
+
+// ============================================
+// 2. Gaussian MLE  (draggable data points)
+// ============================================
+const gSvg = document.getElementById('g-svg');
+const gInfo = document.getElementById('g-info');
+
+// data points: array of x-values
+let gData = [4, 5, 5, 6, 6, 7, 8];
+const gPresets = {
+  tight:   [4.6, 4.8, 5.0, 5.0, 5.0, 5.2, 5.4],
+  spread:  [1, 3, 4, 5, 6, 7, 9],
+  bimodal: [2, 2.2, 2.5, 7.5, 7.8, 8],
+  reset:   [4, 5, 5, 6, 6, 7, 8]
+};
+document.querySelectorAll('[data-gpreset]').forEach(b => {
+  b.onclick = () => {
+    gData = [...gPresets[b.dataset.gpreset]];
+    drawG();
+  };
+});
+
+// Layout
+const G_X0 = 0, G_X1 = 10;
+const G_W = 900, G_H = 360;
+const G_PAD = { l: 50, r: 20, t: 24, b: 70 };
+function gX(x) { return G_PAD.l + (x - G_X0) / (G_X1 - G_X0) * (G_W - G_PAD.l - G_PAD.r); }
+function gXinv(px) { return G_X0 + (px - G_PAD.l) / (G_W - G_PAD.l - G_PAD.r) * (G_X1 - G_X0); }
+
+function drawG() {
+  // compute mu, sigma^2
+  const n = gData.length;
+  const mu = gData.reduce((a, b) => a + b, 0) / n;
+  const sse = gData.reduce((a, x) => a + (x - mu) * (x - mu), 0);
+  const sigma2 = sse / n;
+  const sigma = Math.sqrt(sigma2);
+
+  // Find max pdf for normalization
+  function pdf(x) {
+    return Math.exp(-(x - mu) ** 2 / (2 * sigma2)) / Math.sqrt(2 * Math.PI * sigma2);
+  }
+  const pdfMax = sigma2 > 0 ? pdf(mu) : 1;
+  const yMax = Math.max(pdfMax * 1.15, 0.1);
+
+  const plotH = G_H - G_PAD.t - G_PAD.b;
+  function gY(p) { return G_PAD.t + plotH - p / yMax * plotH; }
+
+  let html = '';
+  // Box
+  html += `<rect x="${G_PAD.l}" y="${G_PAD.t}" width="${G_W - G_PAD.l - G_PAD.r}" height="${plotH}" fill="white" stroke="#cbd5e0"/>`;
+
+  // x-axis ticks
+  for (let i = 0; i <= 10; i++) {
+    const xp = gX(i);
+    html += `<line x1="${xp}" y1="${G_PAD.t}" x2="${xp}" y2="${G_PAD.t + plotH}" stroke="#edf2f7"/>`;
+    html += `<text x="${xp}" y="${G_PAD.t + plotH + 14}" font-size="10" text-anchor="middle" fill="#718096">${i}</text>`;
+  }
+  html += `<text x="${G_W / 2}" y="${G_H - 38}" font-size="11" text-anchor="middle" fill="#4a5568">x</text>`;
+
+  // Gaussian curve
+  let d = '';
+  for (let i = 0; i <= 300; i++) {
+    const x = G_X0 + (G_X1 - G_X0) * i / 300;
+    const p = pdf(x);
+    const xp = gX(x), yp = gY(p);
+    d += (d ? 'L' : 'M') + xp.toFixed(2) + ',' + yp.toFixed(2) + ' ';
+  }
+  html += `<path d="${d}" fill="#3182ce22" stroke="#3182ce" stroke-width="2"/>`;
+
+  // mu line
+  html += `<line x1="${gX(mu)}" y1="${G_PAD.t}" x2="${gX(mu)}" y2="${G_PAD.t + plotH}" stroke="#c53030" stroke-width="2" stroke-dasharray="5,4"/>`;
+  html += `<text x="${gX(mu)}" y="${G_PAD.t - 6}" font-size="11" font-weight="700" fill="#c53030" text-anchor="middle">μ̂ = ${mu.toFixed(3)}</text>`;
+
+  // sigma ±
+  html += `<line x1="${gX(mu - sigma)}" y1="${gY(pdf(mu - sigma))}" x2="${gX(mu + sigma)}" y2="${gY(pdf(mu - sigma))}" stroke="#dd6b20" stroke-width="2"/>`;
+  html += `<line x1="${gX(mu - sigma)}" y1="${gY(pdf(mu - sigma)) - 6}" x2="${gX(mu - sigma)}" y2="${gY(pdf(mu - sigma)) + 6}" stroke="#dd6b20" stroke-width="2"/>`;
+  html += `<line x1="${gX(mu + sigma)}" y1="${gY(pdf(mu - sigma)) - 6}" x2="${gX(mu + sigma)}" y2="${gY(pdf(mu - sigma)) + 6}" stroke="#dd6b20" stroke-width="2"/>`;
+  html += `<text x="${gX(mu)}" y="${gY(pdf(mu - sigma)) - 8}" font-size="10" fill="#dd6b20" text-anchor="middle">±σ̂ = ${sigma.toFixed(3)}</text>`;
+
+  // data points along x-axis with small jitter circles draggable
+  const yLine = G_PAD.t + plotH + 28;
+  for (let i = 0; i < gData.length; i++) {
+    const xp = gX(gData[i]);
+    html += `<g class="draggable" data-i="${i}">`;
+    html += `<line x1="${xp}" y1="${G_PAD.t + plotH}" x2="${xp}" y2="${yLine}" stroke="#2c5282" stroke-width="1"/>`;
+    html += `<circle cx="${xp}" cy="${yLine}" r="8" fill="#3182ce" stroke="#1e4a7a" stroke-width="1.5"/>`;
+    html += `<text x="${xp}" y="${yLine + 22}" font-size="10" text-anchor="middle" fill="#2c5282">${gData[i].toFixed(1)}</text>`;
+    html += `</g>`;
+  }
+  html += `<text x="${G_PAD.l}" y="${yLine + 4}" font-size="11" fill="#4a5568">data (kéo →/← để di chuyển)</text>`;
+
+  gSvg.innerHTML = html;
+  // Attach drag
+  gSvg.querySelectorAll('.draggable').forEach(g => {
+    const idx = +g.dataset.i;
+    g.querySelector('circle').addEventListener('mousedown', e => startGDrag(e, idx));
+    g.querySelector('circle').addEventListener('touchstart', e => startGDrag(e.touches[0], idx), { passive: true });
+  });
+
+  // info
+  const sumX = gData.reduce((a, b) => a + b, 0);
+  const sumSq = gData.reduce((a, x) => a + (x - mu) ** 2, 0);
+  const sUnbiased = n > 1 ? sumSq / (n - 1) : NaN;
+  gInfo.innerHTML = `
+    n = <span class="blue">${n}</span> &nbsp; Σxᵢ = <span class="blue">${sumX.toFixed(3)}</span> &nbsp; Σ(xᵢ−μ̂)² = <span class="blue">${sumSq.toFixed(3)}</span><br>
+    <span class="red">μ̂_MLE = (1/n) Σxᵢ = ${mu.toFixed(4)}</span><br>
+    <span class="purple">σ̂²_MLE = (1/n) Σ(xᵢ−μ̂)² = ${sigma2.toFixed(4)}</span> &nbsp; <span class="purple">σ̂_MLE = ${sigma.toFixed(4)}</span><br>
+    So sánh unbiased: s² = (1/(n−1)) Σ(xᵢ−μ̂)² = <span class="amber">${sUnbiased.toFixed(4)}</span> &nbsp; tỷ lệ σ̂²/s² = ${(sigma2 / sUnbiased).toFixed(4)} = ${n - 1}/${n}
+  `;
+}
+
+let gDragIdx = null;
+function startGDrag(e, idx) {
+  gDragIdx = idx;
+  e.preventDefault && e.preventDefault();
+}
+function gOnMove(e) {
+  if (gDragIdx === null) return;
+  const ev = e.touches ? e.touches[0] : e;
+  const rect = gSvg.getBoundingClientRect();
+  const svgX = (ev.clientX - rect.left) * (G_W / rect.width);
+  const x = clip(gXinv(svgX), G_X0 + 0.2, G_X1 - 0.2);
+  gData[gDragIdx] = x;
+  drawG();
+}
+function gOnUp() { gDragIdx = null; }
+window.addEventListener('mousemove', gOnMove);
+window.addEventListener('mouseup', gOnUp);
+window.addEventListener('touchmove', gOnMove, { passive: true });
+window.addEventListener('touchend', gOnUp);
+
+drawG();
+
+
+// ============================================
+// 3. Linear regression MLE
+// ============================================
+const lrSvg = document.getElementById('lr-svg');
+const lrInfo = document.getElementById('lr-info');
+
+// fixed x, draggable y
+let lrPts = [
+  { x: 1, y: 2 },
+  { x: 2, y: 3 },
+  { x: 3, y: 5 },
+  { x: 4, y: 6 },
+  { x: 5, y: 8 }
+];
+
+const LR_W = 900, LR_H = 380;
+const LR_PAD = { l: 60, r: 30, t: 24, b: 60 };
+const LR_X0 = 0, LR_X1 = 6;
+const LR_Y0 = 0, LR_Y1 = 10;
+
+function lrX(x) { return LR_PAD.l + (x - LR_X0) / (LR_X1 - LR_X0) * (LR_W - LR_PAD.l - LR_PAD.r); }
+function lrY(y) { return LR_PAD.t + (LR_H - LR_PAD.t - LR_PAD.b) - (y - LR_Y0) / (LR_Y1 - LR_Y0) * (LR_H - LR_PAD.t - LR_PAD.b); }
+function lrYinv(py) {
+  const plotH = LR_H - LR_PAD.t - LR_PAD.b;
+  return LR_Y0 + (LR_PAD.t + plotH - py) / plotH * (LR_Y1 - LR_Y0);
+}
+
+function drawLR() {
+  const n = lrPts.length;
+  const sumX = lrPts.reduce((a, p) => a + p.x, 0);
+  const sumY = lrPts.reduce((a, p) => a + p.y, 0);
+  const sumXY = lrPts.reduce((a, p) => a + p.x * p.y, 0);
+  const sumX2 = lrPts.reduce((a, p) => a + p.x * p.x, 0);
+  const xBar = sumX / n;
+  const yBar = sumY / n;
+  const denom = n * sumX2 - sumX * sumX;
+  const w = denom !== 0 ? (n * sumXY - sumX * sumY) / denom : 0;
+  const b = yBar - w * xBar;
+
+  function yhat(x) { return w * x + b; }
+  const sse = lrPts.reduce((a, p) => a + (p.y - yhat(p.x)) ** 2, 0);
+  const sigma2 = sse / n;
+
+  let html = '';
+  const plotH = LR_H - LR_PAD.t - LR_PAD.b;
+  // box
+  html += `<rect x="${LR_PAD.l}" y="${LR_PAD.t}" width="${LR_W - LR_PAD.l - LR_PAD.r}" height="${plotH}" fill="white" stroke="#cbd5e0"/>`;
+  // grid
+  for (let i = LR_X0; i <= LR_X1; i++) {
+    html += `<line x1="${lrX(i)}" y1="${LR_PAD.t}" x2="${lrX(i)}" y2="${LR_PAD.t + plotH}" stroke="#edf2f7"/>`;
+    html += `<text x="${lrX(i)}" y="${LR_PAD.t + plotH + 14}" font-size="10" text-anchor="middle" fill="#718096">${i}</text>`;
+  }
+  for (let i = LR_Y0; i <= LR_Y1; i += 2) {
+    html += `<line x1="${LR_PAD.l}" y1="${lrY(i)}" x2="${LR_W - LR_PAD.r}" y2="${lrY(i)}" stroke="#edf2f7"/>`;
+    html += `<text x="${LR_PAD.l - 6}" y="${lrY(i) + 3}" font-size="10" text-anchor="end" fill="#718096">${i}</text>`;
+  }
+  html += `<text x="${LR_W / 2}" y="${LR_H - 30}" font-size="11" text-anchor="middle" fill="#4a5568">x</text>`;
+  html += `<text x="20" y="${LR_PAD.t + plotH / 2}" font-size="11" fill="#4a5568" transform="rotate(-90 20 ${LR_PAD.t + plotH / 2})">y</text>`;
+
+  // regression line
+  const y0 = yhat(LR_X0), y1 = yhat(LR_X1);
+  // clip line to box
+  html += `<line x1="${lrX(LR_X0)}" y1="${lrY(clip(y0, LR_Y0, LR_Y1))}" x2="${lrX(LR_X1)}" y2="${lrY(clip(y1, LR_Y0, LR_Y1))}" stroke="#c53030" stroke-width="2.5"/>`;
+  // formula floating
+  html += `<text x="${LR_W - LR_PAD.r - 10}" y="${LR_PAD.t + 18}" font-size="13" font-weight="700" text-anchor="end" fill="#c53030">ŷ = ${w.toFixed(3)}·x + ${b.toFixed(3)}</text>`;
+
+  // residuals
+  for (let i = 0; i < lrPts.length; i++) {
+    const p = lrPts[i];
+    const yh = yhat(p.x);
+    html += `<line x1="${lrX(p.x)}" y1="${lrY(p.y)}" x2="${lrX(p.x)}" y2="${lrY(yh)}" stroke="#dd6b20" stroke-width="2" stroke-dasharray="3,2"/>`;
+  }
+  // data points (last so on top)
+  for (let i = 0; i < lrPts.length; i++) {
+    const p = lrPts[i];
+    html += `<g class="draggable" data-i="${i}">`;
+    html += `<circle cx="${lrX(p.x)}" cy="${lrY(p.y)}" r="8" fill="#3182ce" stroke="#1e4a7a" stroke-width="1.5"/>`;
+    html += `</g>`;
+  }
+
+  lrSvg.innerHTML = html;
+  lrSvg.querySelectorAll('.draggable').forEach(g => {
+    const idx = +g.dataset.i;
+    g.querySelector('circle').addEventListener('mousedown', e => startLRDrag(e, idx));
+    g.querySelector('circle').addEventListener('touchstart', e => startLRDrag(e.touches[0], idx), { passive: true });
+  });
+
+  // info
+  let resHtml = lrPts.map((p, i) => {
+    const yh = yhat(p.x);
+    const r = p.y - yh;
+    return `(${p.x.toFixed(1)},${p.y.toFixed(2)}) → ŷ=${yh.toFixed(3)} → r=${r.toFixed(3)}`;
+  }).join(' &nbsp;|&nbsp; ');
+  lrInfo.innerHTML = `
+    Closed-form MLE: <span class="red">ŵ = (n·Σxy − Σx·Σy) / (n·Σx² − (Σx)²) = ${w.toFixed(4)}</span>, <span class="red">b̂ = ȳ − ŵ·x̄ = ${b.toFixed(4)}</span><br>
+    Trung gian: n=${n}, Σx=${sumX.toFixed(2)}, Σy=${sumY.toFixed(2)}, Σxy=${sumXY.toFixed(2)}, Σx²=${sumX2.toFixed(2)}, x̄=${xBar.toFixed(3)}, ȳ=${yBar.toFixed(3)}<br>
+    <span class="amber">SSE = Σ(yᵢ−ŷᵢ)² = ${sse.toFixed(4)}</span> &nbsp; <span class="amber">MSE = SSE/n = ${(sse/n).toFixed(4)}</span> &nbsp; <span class="purple">σ̂²_MLE = SSE/n = ${sigma2.toFixed(4)}</span><br>
+    NLL = (n/2)·log(2πσ̂²) + SSE/(2σ̂²) = <span class="green">${(n/2*Math.log(2*Math.PI*Math.max(sigma2,1e-10)) + sse/(2*Math.max(sigma2,1e-10))).toFixed(4)}</span><br>
+    <span style="font-size:12px; color:#4a5568">Residuals: ${resHtml}</span>
+  `;
+}
+
+let lrDragIdx = null;
+function startLRDrag(e, idx) { lrDragIdx = idx; e.preventDefault && e.preventDefault(); }
+function lrOnMove(e) {
+  if (lrDragIdx === null) return;
+  const ev = e.touches ? e.touches[0] : e;
+  const rect = lrSvg.getBoundingClientRect();
+  const svgY = (ev.clientY - rect.top) * (LR_H / rect.height);
+  const y = clip(lrYinv(svgY), LR_Y0 + 0.1, LR_Y1 - 0.1);
+  lrPts[lrDragIdx].y = y;
+  drawLR();
+}
+function lrOnUp() { lrDragIdx = null; }
+window.addEventListener('mousemove', lrOnMove);
+window.addEventListener('mouseup', lrOnUp);
+window.addEventListener('touchmove', lrOnMove, { passive: true });
+window.addEventListener('touchend', lrOnUp);
+
+drawLR();
+
+
+// ============================================
+// 4. MAP vs MLE
+// ============================================
+const mapN = document.getElementById('map-n');
+const mapK = document.getElementById('map-k');
+const mapMu = document.getElementById('map-mu');
+const mapS = document.getElementById('map-s');
+const mapNVal = document.getElementById('map-n-val');
+const mapKVal = document.getElementById('map-k-val');
+const mapMuVal = document.getElementById('map-mu-val');
+const mapSVal = document.getElementById('map-s-val');
+const mapSvg = document.getElementById('map-svg');
+const mapInfo = document.getElementById('map-info');
+
+function updateMAP() {
+  let n = +mapN.value;
+  let k = +mapK.value;
+  mapK.max = n;
+  if (k > n) { k = n; mapK.value = k; }
+  const mu0 = +mapMu.value;
+  const s = +mapS.value;  // alpha + beta
+  const alpha = mu0 * s;
+  const beta = (1 - mu0) * s;
+
+  mapNVal.textContent = n;
+  mapKVal.textContent = k;
+  mapMuVal.textContent = mu0.toFixed(2);
+  mapSVal.textContent = s;
+
+  const pMLE = n === 0 ? 0 : k / n;
+  // p_MAP = (k + alpha - 1) / (n + alpha + beta - 2)
+  const pMAP = (k + alpha - 1) / (n + alpha + beta - 2);
+
+  // Sample functions on grid 200 points
+  const N = 240;
+  const xs = [];
+  const Ls = [];
+  const Ps = [];
+  const Posts = [];
+  for (let i = 1; i < N; i++) {
+    const p = i / N;
+    xs.push(p);
+    const lp = k * Math.log(p) + (n - k) * Math.log(1 - p);
+    Ls.push(Math.exp(lp));
+    const pp = (alpha - 1) * Math.log(p) + (beta - 1) * Math.log(1 - p);
+    Ps.push(Math.exp(pp));
+    Posts.push(Math.exp(lp + pp));
+  }
+  function maxOf(a) { let m = 0; for (const v of a) if (isFinite(v) && v > m) m = v; return m || 1; }
+  const Lmax = maxOf(Ls);
+  const Pmax = maxOf(Ps);
+  const Postmax = maxOf(Posts);
+
+  const W = 900, H = 360;
+  const PAD = { l: 50, r: 30, t: 24, b: 50 };
+  const plotW = W - PAD.l - PAD.r, plotH = H - PAD.t - PAD.b;
+  function X(x) { return PAD.l + x * plotW; }
+  function Y(y) { return PAD.t + plotH - y * plotH; }  // y in [0,1]
+
+  let html = '';
+  html += `<rect x="${PAD.l}" y="${PAD.t}" width="${plotW}" height="${plotH}" fill="white" stroke="#cbd5e0"/>`;
+
+  for (let i = 0; i <= 10; i++) {
+    const xp = X(i / 10);
+    html += `<line x1="${xp}" y1="${PAD.t}" x2="${xp}" y2="${PAD.t + plotH}" stroke="#edf2f7"/>`;
+    html += `<text x="${xp}" y="${PAD.t + plotH + 14}" font-size="10" text-anchor="middle" fill="#718096">${(i/10).toFixed(1)}</text>`;
+  }
+  html += `<text x="${W / 2}" y="${H - 18}" font-size="11" text-anchor="middle" fill="#4a5568">p</text>`;
+
+  function pathFor(arr, scale) {
+    let d = '';
+    for (let i = 0; i < xs.length; i++) {
+      const v = arr[i] / scale;
+      const xp = X(xs[i]);
+      const yp = Y(clip(v, 0, 1));
+      d += (d ? 'L' : 'M') + xp.toFixed(2) + ',' + yp.toFixed(2) + ' ';
+    }
+    return d;
+  }
+
+  html += `<path d="${pathFor(Ls, Lmax)}" fill="none" stroke="#3182ce" stroke-width="2"/>`;
+  html += `<path d="${pathFor(Ps, Pmax)}" fill="none" stroke="#805ad5" stroke-width="2"/>`;
+  html += `<path d="${pathFor(Posts, Postmax)}" fill="none" stroke="#2f855a" stroke-width="2.5"/>`;
+
+  // markers
+  if (pMLE >= 0 && pMLE <= 1) {
+    html += `<line x1="${X(pMLE)}" y1="${PAD.t}" x2="${X(pMLE)}" y2="${PAD.t + plotH}" stroke="#c53030" stroke-width="2" stroke-dasharray="5,3"/>`;
+    html += `<text x="${X(pMLE)}" y="${PAD.t - 6}" font-size="11" font-weight="700" fill="#c53030" text-anchor="middle">p̂_MLE=${pMLE.toFixed(3)}</text>`;
+  }
+  if (pMAP >= 0 && pMAP <= 1 && isFinite(pMAP)) {
+    html += `<line x1="${X(pMAP)}" y1="${PAD.t}" x2="${X(pMAP)}" y2="${PAD.t + plotH}" stroke="#dd6b20" stroke-width="2" stroke-dasharray="5,3"/>`;
+    html += `<text x="${X(pMAP)}" y="${PAD.t + plotH + 30}" font-size="11" font-weight="700" fill="#dd6b20" text-anchor="middle">p̂_MAP=${pMAP.toFixed(3)}</text>`;
+  }
+
+  mapSvg.innerHTML = html;
+
+  // info
+  const shift = pMAP - pMLE;
+  mapInfo.innerHTML = `
+    Prior Beta(α=${alpha.toFixed(2)}, β=${beta.toFixed(2)}) — mean prior = α/(α+β) = ${(alpha/(alpha+beta)).toFixed(3)} = μ₀<br>
+    Data: n=${n}, k=${k} → <span class="red">p̂_MLE = k/n = ${pMLE.toFixed(4)}</span><br>
+    <span class="amber">p̂_MAP = (k + α − 1)/(n + α + β − 2) = (${k} + ${(alpha-1).toFixed(2)})/(${n} + ${(alpha+beta-2).toFixed(2)}) = ${pMAP.toFixed(4)}</span><br>
+    Prior kéo p̂ <span class="purple">${shift > 0 ? '+' : ''}${shift.toFixed(4)}</span> về phía μ₀=${mu0.toFixed(2)}. &nbsp;
+    Khi α+β nhỏ (yếu) → MAP ≈ MLE. &nbsp; Khi α+β lớn (mạnh) → MAP ≈ μ₀ (kệ data).<br>
+    <span style="font-size:12px;color:#4a5568">MLE = MAP với prior uniform = Beta(1,1). Đặt μ₀=0.5, prior strength=2 → α=β=1 → MAP = MLE.</span>
+  `;
+}
+[mapN, mapK, mapMu, mapS].forEach(el => el.oninput = updateMAP);
+updateMAP();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

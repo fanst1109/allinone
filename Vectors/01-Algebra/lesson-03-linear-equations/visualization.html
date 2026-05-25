@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 03 — Phương trình bậc 1</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  p.lead { color: #4a5568; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 30px; }
+  input[type="number"], input[type="text"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 6px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 80px;
+  }
+  input[type="text"].wide { width: 280px; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.alt { background: #38a169; }
+  button.alt:hover { background: #2f855a; }
+  button.warn { background: #ed8936; }
+  button.warn:hover { background: #dd6b20; }
+  button.ghost { background: #e2e8f0; color: #2d3748; }
+  button.ghost:hover { background: #cbd5e0; }
+  button:disabled { background: #cbd5e0 !important; cursor: not-allowed; }
+  .eq-display {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 22px; font-weight: 700;
+    background: #edf2f7; padding: 12px 16px; border-radius: 6px;
+    color: #1a202c; text-align: center;
+    margin: 12px 0;
+  }
+  .step-log {
+    background: #1a202c; color: #68d391;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    padding: 12px; border-radius: 4px;
+    white-space: pre-wrap; max-height: 320px; overflow-y: auto;
+    font-size: 13px; line-height: 1.6;
+  }
+  .step-log .explain { color: #f6e05e; }
+  .step-log .result { color: #fc8181; font-weight: 700; }
+
+  /* Cân thăng bằng */
+  .scale-wrap { display: flex; justify-content: center; }
+  svg.scale { width: 560px; max-width: 100%; height: 280px; }
+  .pan-label {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 18px; font-weight: 700; fill: #1a202c;
+  }
+  .pan-side {
+    font-size: 11px; fill: #718096; font-family: sans-serif;
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .pan { fill: #f7fafc; stroke: #4a5568; stroke-width: 2; }
+  .beam { stroke: #4a5568; stroke-width: 4; stroke-linecap: round; }
+  .pillar { stroke: #4a5568; stroke-width: 5; stroke-linecap: round; }
+  .base { fill: #4a5568; }
+  .rope { stroke: #4a5568; stroke-width: 1.5; }
+
+  /* Word problem cards */
+  .wp-list { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .wp-card {
+    background: #ebf8ff; border: 1px solid #90cdf4; border-radius: 6px;
+    padding: 12px; cursor: pointer; transition: transform .1s;
+  }
+  .wp-card:hover { transform: translateY(-2px); background: #bee3f8; }
+  .wp-card.active { background: #4299e1; color: white; border-color: #2b6cb0; }
+  .wp-card .wp-title { font-weight: 700; margin-bottom: 4px; }
+  .wp-card .wp-snippet { font-size: 13px; opacity: 0.85; }
+
+  .wp-detail {
+    background: #f0fff4; border: 1px solid #9ae6b4; border-radius: 6px;
+    padding: 14px; margin-top: 12px; font-size: 14px; line-height: 1.7;
+  }
+  .wp-detail h4 { margin: 8px 0 4px 0; color: #22543d; }
+  .wp-detail code { background: #c6f6d5; padding: 2px 6px; border-radius: 3px; }
+  .hint { color: #718096; font-size: 13px; margin: 4px 0; }
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 10px;
+    font-size: 12px; font-weight: 700;
+  }
+  .badge.unique { background: #c6f6d5; color: #22543d; }
+  .badge.none { background: #fed7d7; color: #742a2a; }
+  .badge.many { background: #feebc8; color: #7b341e; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-variables-expressions/visualization.html">← L2: Biến và biểu thức</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Phương trình bậc 1</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-powers-roots-logs/visualization.html">L4: Lũy thừa, căn, logarit →</a>
+</nav>
+  <h1>Lesson 03 — Phương trình bậc 1</h1>
+  <p class="lead">Ba công cụ tương tác: <strong>cân thăng bằng</strong> để cảm nhận quy tắc biến đổi, <strong>step solver</strong> để xem từng bước, và <strong>word problem playground</strong> để luyện dịch bài toán sang phương trình.</p>
+
+  <!-- ====================== 1. Balance scale ====================== -->
+  <h2>1. Cân thăng bằng — `ax + b = c`</h2>
+  <div class="card">
+    <p class="hint">Nhập 3 hệ số rồi bấm các nút bên dưới. Cân hiển thị 2 vế phương trình, mỗi thao tác ép thay đổi đồng thời ở cả 2 đĩa.</p>
+    <div class="row">
+      <label>a =</label>
+      <input type="number" id="bs-a" value="3" step="1">
+      <label>b =</label>
+      <input type="number" id="bs-b" value="5" step="1">
+      <label>c =</label>
+      <input type="number" id="bs-c" value="17" step="1">
+      <button class="ghost" id="bs-reset">Reset</button>
+    </div>
+
+    <div class="eq-display" id="bs-eq">3x + 5 = 17</div>
+
+    <div class="scale-wrap">
+      <svg class="scale" viewBox="0 0 560 280" xmlns="http://www.w3.org/2000/svg">
+        <!-- chân -->
+        <rect class="base" x="240" y="240" width="80" height="14" rx="3"/>
+        <line class="pillar" x1="280" y1="240" x2="280" y2="80"/>
+        <!-- thanh ngang -->
+        <line class="beam" id="bs-beam" x1="100" y1="80" x2="460" y2="80"/>
+        <!-- dây -->
+        <line class="rope" id="bs-rope-l" x1="120" y1="80" x2="120" y2="140"/>
+        <line class="rope" id="bs-rope-r" x1="440" y1="80" x2="440" y2="140"/>
+        <!-- đĩa trái -->
+        <g id="bs-pan-l">
+          <ellipse class="pan" cx="120" cy="160" rx="80" ry="14"/>
+          <text class="pan-side" x="120" y="200" text-anchor="middle">VẾ TRÁI</text>
+          <text class="pan-label" id="bs-label-l" x="120" y="155" text-anchor="middle">3x + 5</text>
+        </g>
+        <!-- đĩa phải -->
+        <g id="bs-pan-r">
+          <ellipse class="pan" cx="440" cy="160" rx="80" ry="14"/>
+          <text class="pan-side" x="440" y="200" text-anchor="middle">VẾ PHẢI</text>
+          <text class="pan-label" id="bs-label-r" x="440" y="155" text-anchor="middle">17</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="row" style="justify-content:center;">
+      <button class="alt" id="bs-sub-b">Trừ b cả 2 vế</button>
+      <button class="alt" id="bs-div-a">Chia a cả 2 vế</button>
+      <button class="warn" id="bs-solve">Giải tự động</button>
+    </div>
+    <div class="step-log" id="bs-log">Sẵn sàng. Bấm "Trừ b cả 2 vế" để bắt đầu.</div>
+  </div>
+
+  <!-- ====================== 2. Step solver ====================== -->
+  <h2>2. Step solver — `ax + b = cx + d`</h2>
+  <div class="card">
+    <p class="hint">Nhập 4 hệ số cho phương trình dạng <code>ax + b = cx + d</code>. Bấm "Giải từng bước" để xem cách rút gọn về dạng chuẩn rồi tìm nghiệm. Thử <code>2 3 2 5</code> để gặp vô nghiệm, <code>2 3 2 3</code> để gặp vô số nghiệm.</p>
+    <div class="row">
+      <label>a =</label><input type="number" id="ss-a" value="5" step="1">
+      <label>b =</label><input type="number" id="ss-b" value="-7" step="1">
+      <span style="font-size:22px;font-weight:700;">=</span>
+      <label>c =</label><input type="number" id="ss-c" value="2" step="1">
+      <label>d =</label><input type="number" id="ss-d" value="8" step="1">
+      <button id="ss-solve">Giải từng bước</button>
+    </div>
+    <div class="eq-display" id="ss-eq">5x − 7 = 2x + 8</div>
+    <div class="row" style="justify-content:center;">
+      <span class="badge unique" id="ss-badge">nghiệm duy nhất</span>
+    </div>
+    <div class="step-log" id="ss-log">Nhập phương trình và bấm "Giải từng bước".</div>
+  </div>
+
+  <!-- ====================== 3. Word problem playground ====================== -->
+  <h2>3. Word problem playground</h2>
+  <div class="card">
+    <p class="hint">Click một bài toán để xem cách <strong>đặt ẩn → lập phương trình → giải</strong>.</p>
+    <div class="wp-list" id="wp-list"><!-- generated --></div>
+    <div class="wp-detail" id="wp-detail" style="display:none;"></div>
+  </div>
+
+</main>
+
+<script>
+// ===== Helpers =====
+function fmt(v) {
+  if (!isFinite(v)) return String(v);
+  if (Math.abs(v - Math.round(v)) < 1e-9) return String(Math.round(v));
+  return (Math.round(v * 1000) / 1000).toString();
+}
+function termSide(a, b) {
+  // a*x + b dưới dạng chuỗi gọn
+  const parts = [];
+  if (a !== 0) {
+    if (a === 1) parts.push('x');
+    else if (a === -1) parts.push('−x');
+    else parts.push(fmt(a) + 'x');
+  }
+  if (b !== 0 || a === 0) {
+    if (parts.length === 0) parts.push(fmt(b));
+    else if (b > 0) parts.push('+ ' + fmt(b));
+    else parts.push('− ' + fmt(-b));
+  }
+  return parts.join(' ');
+}
+
+// ====== 1. Balance scale ======
+const BS = {
+  a0: 3, b0: 5, c0: 17,
+  // state: panLeft = aL*x + bL ; panRight = aR*x + bR
+  aL: 3, bL: 5, aR: 0, bR: 17,
+  reset() {
+    this.a0 = parseFloat(document.getElementById('bs-a').value) || 0;
+    this.b0 = parseFloat(document.getElementById('bs-b').value) || 0;
+    this.c0 = parseFloat(document.getElementById('bs-c').value) || 0;
+    this.aL = this.a0; this.bL = this.b0;
+    this.aR = 0; this.bR = this.c0;
+    this.log = [];
+    this.render();
+    document.getElementById('bs-log').textContent = 'Reset. Phương trình: ' + termSide(this.aL, this.bL) + ' = ' + termSide(this.aR, this.bR);
+  },
+  render() {
+    const left = termSide(this.aL, this.bL) || '0';
+    const right = termSide(this.aR, this.bR) || '0';
+    document.getElementById('bs-eq').textContent = left + ' = ' + right;
+    document.getElementById('bs-label-l').textContent = left;
+    document.getElementById('bs-label-r').textContent = right;
+    // tilt beam: so sánh "kích thước" 2 đĩa theo aL*x_est + bL vs aR*x_est + bR
+    // chỉ là minh hoạ trực giác — vì cân luôn thăng bằng nếu giữ đúng quy tắc,
+    // ta giữ thanh nằm ngang khi tương đương; vì state luôn tương đương → ngang
+    const beam = document.getElementById('bs-beam');
+    beam.setAttribute('x1', 100); beam.setAttribute('y1', 80);
+    beam.setAttribute('x2', 460); beam.setAttribute('y2', 80);
+  },
+  subB() {
+    if (this.bL === 0) {
+      this.append('Không còn hằng số ở vế trái để trừ.', true);
+      return;
+    }
+    const v = this.bL;
+    this.bL -= v; this.bR -= v;
+    this.append('Trừ ' + fmt(v) + ' cả 2 vế:  ' + termSide(this.aL, this.bL) + ' = ' + termSide(this.aR, this.bR));
+    this.render();
+  },
+  divA() {
+    if (this.aL === 0) {
+      this.append('Hệ số của x ở vế trái đã là 0 — không cần chia.', true);
+      return;
+    }
+    if (this.bL !== 0) {
+      this.append('Cần khử hằng số ở vế trái trước (Trừ b cả 2 vế).', true);
+      return;
+    }
+    const k = this.aL;
+    this.aL /= k; this.aR /= k; this.bR /= k;
+    this.append('Chia ' + fmt(k) + ' cả 2 vế:  ' + termSide(this.aL, this.bL) + ' = ' + termSide(this.aR, this.bR));
+    this.append('→ x = ' + fmt(this.bR), false, true);
+    this.render();
+  },
+  solveAuto() {
+    this.reset();
+    setTimeout(() => { this.subB(); setTimeout(() => this.divA(), 600); }, 300);
+  },
+  append(line, isWarn=false, isResult=false) {
+    const log = document.getElementById('bs-log');
+    const span = document.createElement('div');
+    if (isWarn) span.className = 'explain';
+    if (isResult) span.className = 'result';
+    span.textContent = line;
+    log.appendChild(span);
+    log.scrollTop = log.scrollHeight;
+  }
+};
+document.getElementById('bs-reset').onclick = () => BS.reset();
+document.getElementById('bs-sub-b').onclick = () => BS.subB();
+document.getElementById('bs-div-a').onclick = () => BS.divA();
+document.getElementById('bs-solve').onclick = () => BS.solveAuto();
+['bs-a','bs-b','bs-c'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => BS.reset());
+});
+BS.reset();
+
+// ====== 2. Step solver ======
+function stepSolve() {
+  const a = parseFloat(document.getElementById('ss-a').value) || 0;
+  const b = parseFloat(document.getElementById('ss-b').value) || 0;
+  const c = parseFloat(document.getElementById('ss-c').value) || 0;
+  const d = parseFloat(document.getElementById('ss-d').value) || 0;
+  document.getElementById('ss-eq').textContent = termSide(a, b) + ' = ' + termSide(c, d);
+
+  const log = [];
+  log.push({t: 'Phương trình: ' + termSide(a, b) + ' = ' + termSide(c, d)});
+
+  // Bước 1: chuyển c*x sang trái
+  const A = a - c;
+  log.push({t: 'Chuyển ' + fmt(c) + 'x sang trái (đổi dấu thành ' + fmt(-c) + 'x):'});
+  log.push({t: '  ' + termSide(A, b) + ' = ' + fmt(d), c: 'explain'});
+
+  // Bước 2: chuyển b sang phải
+  const B = d - b;
+  log.push({t: 'Chuyển ' + fmt(b) + ' sang phải (đổi dấu thành ' + fmt(-b) + '):'});
+  log.push({t: '  ' + termSide(A, 0) + ' = ' + fmt(B), c: 'explain'});
+
+  let badgeText, badgeCls;
+  if (Math.abs(A) < 1e-12) {
+    if (Math.abs(B) < 1e-12) {
+      log.push({t: 'Còn lại 0·x = 0 → đúng với mọi x.', c: 'result'});
+      log.push({t: 'KẾT LUẬN: vô số nghiệm (S = ℝ)', c: 'result'});
+      badgeText = 'vô số nghiệm'; badgeCls = 'many';
+    } else {
+      log.push({t: 'Còn lại 0·x = ' + fmt(B) + ' → vô lý.', c: 'result'});
+      log.push({t: 'KẾT LUẬN: vô nghiệm (S = ∅)', c: 'result'});
+      badgeText = 'vô nghiệm'; badgeCls = 'none';
+    }
+  } else {
+    log.push({t: 'Chia ' + fmt(A) + ' cả 2 vế: x = ' + fmt(B) + ' / ' + fmt(A)});
+    const x = B / A;
+    log.push({t: 'KẾT LUẬN: x = ' + fmt(x), c: 'result'});
+    badgeText = 'nghiệm duy nhất'; badgeCls = 'unique';
+  }
+
+  const elem = document.getElementById('ss-log');
+  elem.innerHTML = '';
+  log.forEach(line => {
+    const div = document.createElement('div');
+    if (line.c) div.className = line.c;
+    div.textContent = line.t;
+    elem.appendChild(div);
+  });
+  const badge = document.getElementById('ss-badge');
+  badge.textContent = badgeText;
+  badge.className = 'badge ' + badgeCls;
+}
+document.getElementById('ss-solve').onclick = stepSolve;
+['ss-a','ss-b','ss-c','ss-d'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => {
+    const a = parseFloat(document.getElementById('ss-a').value) || 0;
+    const b = parseFloat(document.getElementById('ss-b').value) || 0;
+    const c = parseFloat(document.getElementById('ss-c').value) || 0;
+    const d = parseFloat(document.getElementById('ss-d').value) || 0;
+    document.getElementById('ss-eq').textContent = termSide(a, b) + ' = ' + termSide(c, d);
+  });
+});
+stepSolve();
+
+// ====== 3. Word problems ======
+const WP = [
+  {
+    id: 'sum-diff',
+    title: 'Tổng và hiệu',
+    snippet: 'Tổng 2 số là 30, hiệu là 8',
+    statement: 'Tổng hai số là 30, hiệu hai số là 8. Tìm hai số.',
+    setup: 'Gọi số bé là x. Số lớn = x + 8 (vì hiệu là 8).',
+    eq: 'x + (x + 8) = 30',
+    simplify: '2x + 8 = 30  →  2x = 22  →  x = 11',
+    answer: 'Số bé = 11, số lớn = 19. Kiểm: 11 + 19 = 30 ✓, 19 − 11 = 8 ✓.'
+  },
+  {
+    id: 'sum-ratio',
+    title: 'Tỉ lệ tổng',
+    snippet: 'Tổng = 50, số lớn = 4 × số nhỏ',
+    statement: 'Hai số có tổng là 50. Số lớn gấp 4 lần số nhỏ. Tìm hai số.',
+    setup: 'Gọi số nhỏ là x (x > 0). Số lớn = 4x.',
+    eq: 'x + 4x = 50',
+    simplify: '5x = 50  →  x = 10',
+    answer: 'Số nhỏ = 10, số lớn = 40. Kiểm: 10 + 40 = 50 ✓, 40 = 4·10 ✓.'
+  },
+  {
+    id: 'age',
+    title: 'Bài toán tuổi',
+    snippet: 'Hiện cha 40, con 10. Sau bao năm tuổi cha gấp 3 con?',
+    statement: 'Hiện nay cha 40 tuổi, con 10 tuổi. Hỏi sau bao nhiêu năm nữa thì tuổi cha gấp 3 lần tuổi con?',
+    setup: 'Gọi số năm cần tìm là x (x ≥ 0). Sau x năm: cha = 40 + x, con = 10 + x.',
+    eq: '40 + x = 3·(10 + x)',
+    simplify: '40 + x = 30 + 3x  →  10 = 2x  →  x = 5',
+    answer: 'Sau 5 năm. Khi đó cha = 45, con = 15, và 45 = 3·15 ✓.'
+  },
+  {
+    id: 'work',
+    title: 'Hai vòi nước',
+    snippet: 'Vòi A 4 giờ đầy bể, vòi B 6 giờ. Mở cùng lúc bao lâu đầy?',
+    statement: 'Một bể nước: vòi A chảy riêng 4 giờ thì đầy, vòi B chảy riêng 6 giờ thì đầy. Nếu mở cả hai vòi cùng lúc, sau bao lâu thì bể đầy?',
+    setup: 'Gọi thời gian cần tìm là x giờ. Mỗi giờ A đổ được 1/4 bể, B đổ 1/6 bể.',
+    eq: 'x/4 + x/6 = 1',
+    simplify: 'Nhân 12: 3x + 2x = 12  →  5x = 12  →  x = 12/5 = 2.4 giờ',
+    answer: 'Khoảng 2 giờ 24 phút thì đầy bể.'
+  }
+];
+
+const wpList = document.getElementById('wp-list');
+WP.forEach(w => {
+  const card = document.createElement('div');
+  card.className = 'wp-card';
+  card.dataset.id = w.id;
+  card.innerHTML = '<div class="wp-title">' + w.title + '</div><div class="wp-snippet">' + w.snippet + '</div>';
+  card.onclick = () => showWP(w.id);
+  wpList.appendChild(card);
+});
+
+function showWP(id) {
+  const w = WP.find(x => x.id === id);
+  if (!w) return;
+  document.querySelectorAll('.wp-card').forEach(c => {
+    c.classList.toggle('active', c.dataset.id === id);
+  });
+  const d = document.getElementById('wp-detail');
+  d.style.display = 'block';
+  d.innerHTML =
+    '<h4>Đề bài</h4><div>' + w.statement + '</div>' +
+    '<h4>① Đặt ẩn</h4><div>' + w.setup + '</div>' +
+    '<h4>② Lập phương trình</h4><div><code>' + w.eq + '</code></div>' +
+    '<h4>③ Giải</h4><div><code>' + w.simplify + '</code></div>' +
+    '<h4>Kết luận</h4><div>' + w.answer + '</div>';
+}
+// mở sẵn bài đầu để user thấy ngay layout
+showWP('sum-diff');
+</script>
+
+<!-- README modal -->
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,311 @@
+/* viz-base.css — Chrome chung cho TẤT CẢ visualization.html VÀ index.html trong repo.
+ *
+ * Cách dùng (cả viz và index đều load cùng file này):
+ *   <link rel="stylesheet" href="../../tools/viz-base.css">   (cấp 2: <Lĩnh vực>/lesson-XX/visualization.html)
+ *   <link rel="stylesheet" href="../tools/viz-base.css">      (cấp 1: <Lĩnh vực>/index.html)
+ *   <link rel="stylesheet" href="../../tools/viz-base.css">   (cấp 2: <Lĩnh vực>/<Tier>/index.html)
+ *
+ * Mỗi trang chỉ cần override các CSS variable phù hợp (--bg, --accent...) trong
+ * <style> nội bộ:
+ *
+ *   <style>
+ *     :root {
+ *       --bg: #fafaf7;            // warm cream cho index pages
+ *       --accent: #6b46c1;        // tone riêng của lĩnh vực
+ *       --accent-soft: #f3eafd;
+ *       --accent-hover: #553c9a;
+ *     }
+ *   </style>
+ *
+ * Khi cần card variant (vd basic / mid / adv trong DataStructures), thêm modifier
+ * class override --card-accent:
+ *
+ *   <style>
+ *     .card.basic { --card-accent: #38a169; --card-accent-hover: #2f855a; }
+ *   </style>
+ *
+ * File này có 2 phần:
+ *   1) Base tokens + body + viz-nav sticky (dùng cho visualization.html)
+ *   2) Index chrome — .container, header, .intro, .card-grid, .card, footer
+ *      (dùng cho index.html, không xuất hiện trong viz, không ảnh hưởng nhau)
+ *
+ * Khi đổi token/rule ở đây → ảnh hưởng toàn repo, kiểm tra kỹ.
+ */
+
+/* ===========================================================================
+ * 1. ROOT TOKENS + BODY
+ * =========================================================================== */
+:root {
+  /* Surfaces & ink */
+  --bg: #f5f6f8;            /* mặc định cool grey (viz); index override sang #fafaf7 */
+  --panel: #ffffff;
+  --ink: #1f2328;
+  --ink-soft: #4a5568;
+  --muted: #718096;
+  --line: #e2e8f0;
+  --line-strong: #cbd5e0;
+
+  /* Accent (per-page override) */
+  --accent: #4299e1;
+  --accent-soft: #ebf8ff;
+  --accent-hover: #3182ce;
+
+  /* Viz-only — sticky nav strip (chỉ dùng trong visualization.html) */
+  --viz-nav-bg: #ffffff;
+  --viz-nav-ink: #475569;
+  --viz-nav-link: #3b82f6;
+  --viz-nav-link-hover: #1d4ed8;
+  --viz-nav-current-bg: #1e293b;
+  --viz-nav-current-ink: #ffffff;
+  --viz-nav-border: #e2e8f0;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.55;
+}
+
+/* ===========================================================================
+ * 2. STICKY NAV (visualization.html)
+ * ===========================================================================
+ * Markup chuẩn:
+ *   <nav class="viz-nav">
+ *     <a href="../index.html">🏠 Trang chính</a>
+ *     <span class="sep">·</span>
+ *     <a href="../lesson-XX-prev/visualization.html">← L(N-1): Tiêu đề</a>
+ *     <span class="sep">·</span>
+ *     <span class="current">L(N): Tiêu đề hiện tại</span>
+ *     <span class="sep">·</span>
+ *     <a href="../lesson-XX-next/visualization.html">L(N+1): Tiêu đề →</a>
+ *   </nav>
+ */
+nav.viz-nav {
+  position: fixed; top: 0;
+  left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 1100px;
+  z-index: 100;
+  background: linear-gradient(135deg, #ffffff 0%, #f1f5fe 25%, #ffffff 50%, #fef9f3 75%, #ffffff 100%);
+  background-size: 300% 300%;
+  animation: viz-nav-shift 22s ease-in-out infinite;
+  color: var(--viz-nav-ink);
+  padding: 10px 20px;
+  font-size: 14px;
+  border: 1px solid var(--viz-nav-border);
+  border-top: 0;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  /* Đồng bộ với body padding-right transition khi sidebar README đóng/mở.
+   * Chỉ animate width + transform (cả 2 đều animatable mượt). KHÔNG đổi left/right/auto
+   * vì 'auto' là keyword, không nội suy được → gây glitch trước khi trượt. */
+  transition: transform 0.28s cubic-bezier(.4,0,.2,1),
+              width 0.28s cubic-bezier(.4,0,.2,1);
+}
+@keyframes viz-nav-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+/* Khi sidebar README mở (html.rm-sidebar-open + body padding-right) → nav phải thu hẹp
+ * vào vùng visible bên trái, không đè lên sidebar panel. */
+html.rm-sidebar-open nav.viz-nav {
+  /* Width co lại bằng vùng visible (viewport - sidebar) — animate được từ 100% → calc(100% - w). */
+  width: calc(100% - var(--rm-sidebar-w, 400px));
+  /* Center của nav từ vw/2 dịch sang (vw - sidebar)/2 → thêm translateX(-sidebar/2). */
+  transform: translateX(calc(-50% - var(--rm-sidebar-w, 400px) / 2));
+}
+nav.viz-nav a {
+  color: var(--viz-nav-link);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 3px 6px;
+  border-radius: 4px;
+  transition: color 0.12s, background 0.12s;
+}
+nav.viz-nav a:hover { color: var(--viz-nav-link-hover); background: rgba(59,130,246,0.08); text-decoration: none; }
+nav.viz-nav .current {
+  background: var(--viz-nav-current-bg);
+  color: var(--viz-nav-current-ink);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+nav.viz-nav .sep { opacity: 0.35; font-weight: 400; }
+
+/* Content wrapper trong visualization.html.
+ * Markup: <body><nav class="viz-nav">...</nav><main>...content...</main></body>
+ * Mỗi viz có thể override max-width nếu cần (vd: main { max-width: 1240px; })
+ */
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 64px 24px 24px;
+}
+
+/* ===========================================================================
+ * 3. INDEX PAGE CHROME (index.html)
+ * ===========================================================================
+ * Markup tổng thể:
+ *   <body>
+ *     <div class="container">
+ *       <header>
+ *         <div class="back">← <a href="...">🏠 Trang chính</a></div>
+ *         <h1>...</h1>
+ *         <div class="subtitle">...</div>
+ *       </header>
+ *       <section class="intro"> ... </section>
+ *       <h2 class="branch-title">Tên section <small>chú thích</small></h2>
+ *       <div class="card-grid">
+ *         <div class="card">
+ *           <div class="num">Tier 1</div>
+ *           <div class="title">...</div>
+ *           <div class="desc">...</div>
+ *           <div class="links">
+ *             <a class="link-primary" href="...">▶ Trang chính</a>
+ *             <a class="link-readme" href="...">📖 README</a>
+ *           </div>
+ *         </div>
+ *       </div>
+ *       <footer> ... </footer>
+ *     </div>
+ *   </body>
+ */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+/* Viz dùng <div class="container"> (English/Vectors) — chừa chỗ cho fixed nav */
+body:has(nav.viz-nav) .container { padding-top: 68px; }
+
+/* Header */
+header { margin-bottom: 28px; }
+header h1 { margin: 0 0 8px; font-size: 32px; font-weight: 800; color: var(--ink); }
+header .subtitle { color: var(--muted); font-size: 16px; }
+header .back { font-size: 13px; margin-bottom: 12px; }
+header .back a { color: var(--accent); text-decoration: none; font-weight: 600; }
+header .back a:hover { text-decoration: underline; }
+
+/* Intro card */
+.intro {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 28px;
+}
+.intro h2 { margin: 0 0 12px; font-size: 18px; }
+.intro p, .intro li { font-size: 14px; }
+.intro ul { margin: 8px 0 0; padding-left: 20px; }
+.intro li { margin-bottom: 4px; }
+
+/* Branch / section title (cho sub-page có nhiều nhánh) */
+.branch-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 32px 0 16px;
+  padding-left: 12px;
+  border-left: 4px solid var(--accent);
+}
+.branch-title:first-of-type { margin-top: 0; }
+.branch-title small {
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 14px;
+  margin-left: 8px;
+}
+
+/* Card grid */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 18px;
+  border-left: 4px solid var(--card-accent, var(--accent));
+  transition: all 0.15s;
+  display: flex;
+  flex-direction: column;
+}
+.card:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
+}
+.card.pending {
+  opacity: 0.55;
+  border-left-color: var(--line);
+}
+.card.pending:hover {
+  box-shadow: none;
+  transform: none;
+}
+
+.card .num {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.card .title { font-size: 17px; font-weight: 700; margin: 4px 0 8px; color: var(--ink); }
+.card .desc {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 12px;
+  flex: 1;
+}
+.card .status {
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.card .links { display: flex; gap: 8px; flex-wrap: wrap; }
+.card .links a {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.12s;
+}
+.card .links .link-primary {
+  background: var(--card-accent, var(--accent));
+  color: #fff;
+}
+.card .links .link-primary:hover {
+  background: var(--card-accent-hover, var(--accent-hover));
+}
+.card .links .link-readme {
+  background: #f5f4f0;
+  color: var(--muted);
+}
+.card .links .link-readme:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* Footer */
+footer {
+  margin-top: 48px;
+  font-size: 13px;
+  color: var(--muted);
+}
+footer a { color: var(--accent); text-decoration: none; }
+footer a:hover { text-decoration: underline; }

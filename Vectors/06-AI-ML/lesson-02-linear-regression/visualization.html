@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 02 — Linear Regression</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 28px; font-size: 15px; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 18px 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 14px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; color: #2d3748; font-size: 14px; }
+  input[type="range"] { width: 220px; vertical-align: middle; }
+  .num {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; color: #2c5282; font-weight: 700;
+    display: inline-block; min-width: 60px;
+  }
+  .lbl { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px; color: #4a5568; }
+  svg.viz {
+    display: block; background: #f7fafc;
+    border: 1px solid #e2e8f0; border-radius: 6px;
+    width: 100%; height: auto;
+  }
+  .info-box {
+    margin-top: 10px; padding: 10px 14px;
+    background: #edf2f7; border-radius: 6px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; color: #2d3748; line-height: 1.85;
+  }
+  .info-box .blue { color: #2b6cb0; font-weight: 700; }
+  .info-box .red { color: #c53030; font-weight: 700; }
+  .info-box .green { color: #2f855a; font-weight: 700; }
+  .info-box .purple { color: #6b46c1; font-weight: 700; }
+  .info-box .amber { color: #b7791f; font-weight: 700; }
+  .grid-2 {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start;
+  }
+  @media (max-width: 940px) { .grid-2 { grid-template-columns: 1fr; } }
+  .hint {
+    color: #4a5568; font-size: 13.5px;
+    background: #fefcbf; padding: 10px 12px;
+    border-left: 4px solid #ecc94b; border-radius: 4px;
+    margin: 12px 0;
+  }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; margin-top: 8px; color: #4a5568; }
+  .legend .item { display: flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 16px; height: 12px; border-radius: 3px; }
+  button.preset, button.action {
+    padding: 6px 12px; border-radius: 5px; border: 1px solid #cbd5e0;
+    background: #fff; cursor: pointer; font-size: 12.5px; font-weight: 600;
+    color: #2d3748;
+  }
+  button.action.primary {
+    background: #4299e1; border-color: #4299e1; color: white;
+  }
+  button.action.primary:hover { background: #2b6cb0; }
+  button.preset:hover, button.action:hover { background: #edf2f7; }
+  .bar-row {
+    display: flex; align-items: center; gap: 8px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 12.5px; margin: 4px 0;
+  }
+  .bar-row .lbl { width: 40px; color: #4a5568; }
+  .bar-row .bar-pos, .bar-row .bar-neg {
+    height: 18px; min-width: 1px; border-radius: 3px;
+  }
+  .bar-row .bar-pos { background: #4299e1; }
+  .bar-row .bar-neg { background: #f56565; }
+  .bar-row .val { width: 70px; text-align: right; color: #2d3748; font-weight: 700; }
+  table.compare {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  table.compare th, table.compare td {
+    border: 1px solid #e2e8f0; padding: 6px 10px; text-align: right;
+  }
+  table.compare th { background: #edf2f7; color: #2d3748; font-weight: 700; }
+  table.compare td.label { text-align: left; color: #4a5568; }
+  .pt-handle { cursor: grab; }
+  .pt-handle:active { cursor: grabbing; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-ml-pipeline/visualization.html">← L1: Pipeline ML</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Linear regression</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-logistic-regression/visualization.html">L3: Logistic regression →</a>
+</nav>
+<h1>Lesson 02 — Linear Regression</h1>
+<div class="subtitle">y = Xw + b · MSE loss · Closed-form (Normal Equation) vs Gradient Descent · Ridge &amp; Lasso · R²</div>
+
+<!-- ============================================================ -->
+<h2>1. Interactive scatter + fit (closed-form tự động)</h2>
+
+<div class="card">
+  <p style="color:#4a5568;margin-top:0;">
+    Kéo các điểm xanh để di chuyển. Đường đỏ là <b>đường hồi quy tốt nhất</b> tính lại tức thời bằng normal equation.
+    Theo dõi <span class="num" style="color:#c53030;">w, b, MSE, R²</span> ở bên dưới.
+  </p>
+  <div class="row">
+    <button class="preset" id="preset-line">Reset: gần thẳng hàng</button>
+    <button class="preset" id="preset-noisy">Reset: nhiều nhiễu</button>
+    <button class="preset" id="preset-outlier">Reset: có outlier</button>
+    <button class="preset" id="preset-flat">Reset: y hằng</button>
+    <span class="lbl" style="margin-left:auto;">n = <span class="num" id="scatter-n">5</span></span>
+  </div>
+  <div class="grid-2" style="margin-top:14px;">
+    <div>
+      <svg class="viz" id="scatter-svg" viewBox="0 0 480 360"></svg>
+      <div class="legend">
+        <div class="item"><div class="swatch" style="background:#4299e1;"></div>Data point (kéo được)</div>
+        <div class="item"><div class="swatch" style="background:#c53030;"></div>Đường hồi quy ŷ = b + w·x</div>
+        <div class="item"><div class="swatch" style="background:#a0aec0;"></div>Residual yᵢ - ŷᵢ</div>
+      </div>
+    </div>
+    <div>
+      <div class="info-box">
+        <div><span class="lbl">b (intercept) = </span><span class="blue" id="sc-b">0.00</span></div>
+        <div><span class="lbl">w (slope)     = </span><span class="blue" id="sc-w">0.00</span></div>
+        <div><span class="lbl">đường: ŷ = </span><span class="purple" id="sc-eq">0 + 0·x</span></div>
+        <hr style="border:0;border-top:1px solid #cbd5e0;margin:6px 0;">
+        <div><span class="lbl">MSE  = </span><span class="red" id="sc-mse">0.000</span></div>
+        <div><span class="lbl">RMSE = </span><span class="red" id="sc-rmse">0.000</span></div>
+        <div><span class="lbl">R²   = </span><span class="green" id="sc-r2">0.000</span></div>
+      </div>
+      <div class="hint">
+        Cách tính: <span class="lbl">XᵀX · w̃ = Xᵀy</span> → <span class="lbl">w̃ = (XᵀX)⁻¹ Xᵀy</span>. Với n=5 ma trận 2×2, ngay khi bạn nhả chuột là tính xong.
+      </div>
+      <div id="sc-matrix" class="info-box" style="background:#fffaf0;font-size:12px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2>2. Gradient descent animation trên loss landscape</h2>
+
+<div class="card">
+  <p style="color:#4a5568;margin-top:0;">
+    Cùng dataset hiện tại. Loss landscape là một paraboloid <span class="lbl">L(b, w)</span> — luôn lồi.
+    Bấm <b>Chạy GD</b> để xem trajectory `(b, w)` chạy về điểm tối ưu (★ đỏ).
+    Đổi <span class="lbl">η</span> để thấy: quá lớn → dao động; quá nhỏ → chậm.
+  </p>
+  <div class="row">
+    <label>Learning rate η = <span class="num" id="lr-val">0.05</span></label>
+    <input type="range" id="lr-slider" min="-4" max="0.5" step="0.05" value="-1.3">
+    <label style="margin-left:18px;">Bắt đầu (b₀, w₀): drag điểm trắng</label>
+    <button class="action primary" id="gd-run">▶ Chạy GD</button>
+    <button class="action" id="gd-step">Step 1 lần</button>
+    <button class="action" id="gd-reset">↺ Reset</button>
+    <span class="lbl" style="margin-left:auto;">epoch = <span class="num" id="gd-epoch">0</span></span>
+  </div>
+  <div class="grid-2" style="margin-top:14px;">
+    <div>
+      <svg class="viz" id="gd-svg" viewBox="0 0 480 380"></svg>
+      <div class="legend">
+        <div class="item"><div class="swatch" style="background:#fbd38d;"></div>L thấp</div>
+        <div class="item"><div class="swatch" style="background:#c53030;"></div>L cao</div>
+        <div class="item"><div class="swatch" style="background:#2d3748;"></div>Trajectory GD</div>
+        <div class="item"><div class="swatch" style="background:gold;border:1px solid #b7791f;"></div>Closed-form ★</div>
+      </div>
+    </div>
+    <div>
+      <div class="info-box">
+        <div><span class="lbl">b hiện tại = </span><span class="blue" id="gd-b">0.00</span></div>
+        <div><span class="lbl">w hiện tại = </span><span class="blue" id="gd-w">0.00</span></div>
+        <div><span class="lbl">grad_b = </span><span class="purple" id="gd-gb">0.00</span></div>
+        <div><span class="lbl">grad_w = </span><span class="purple" id="gd-gw">0.00</span></div>
+        <div><span class="lbl">Loss   = </span><span class="red" id="gd-loss">0.000</span></div>
+        <hr style="border:0;border-top:1px solid #cbd5e0;margin:6px 0;">
+        <div><span class="lbl">Optimal b* = </span><span class="green" id="gd-bstar">0.00</span></div>
+        <div><span class="lbl">Optimal w* = </span><span class="green" id="gd-wstar">0.00</span></div>
+        <div><span class="lbl">||(b,w) - (b*,w*)|| = </span><span class="amber" id="gd-dist">0.000</span></div>
+      </div>
+      <div class="hint">
+        Công thức: <span class="lbl">∇L = (2/n)·Xᵀ(Xw - y)</span> → <span class="lbl">w ← w - η·∇L</span>.
+        Quan sát mũi tên gradient (đen) chỉ về hướng tăng L; bước nhảy `-η·∇L` ngược chiều.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2>3. Closed-form vs GD — cùng dataset, hai phương pháp khớp</h2>
+
+<div class="card">
+  <p style="color:#4a5568;margin-top:0;">
+    Mục tiêu: chứng minh GD (chạy đủ epoch) ra <b>đúng</b> nghiệm normal equation. Hai cột dưới đây tính độc lập trên cùng dataset.
+  </p>
+  <div class="row">
+    <label>GD epochs:</label>
+    <input type="range" id="cf-epochs" min="1" max="3000" step="50" value="800">
+    <span class="num" id="cf-epochs-val">800</span>
+    <label style="margin-left:18px;">η =</label>
+    <input type="range" id="cf-eta" min="-3" max="0" step="0.05" value="-1.3">
+    <span class="num" id="cf-eta-val">0.050</span>
+    <button class="action primary" id="cf-run">▶ Tính lại</button>
+  </div>
+  <table class="compare" style="margin-top:14px;">
+    <tr>
+      <th style="text-align:left;">Đại lượng</th>
+      <th>Closed-form (Normal Eq.)</th>
+      <th>Gradient Descent</th>
+      <th>Sai khác |Δ|</th>
+    </tr>
+    <tr><td class="label">b (intercept)</td><td id="cmp-b-cf">—</td><td id="cmp-b-gd">—</td><td id="cmp-b-d">—</td></tr>
+    <tr><td class="label">w (slope)</td><td id="cmp-w-cf">—</td><td id="cmp-w-gd">—</td><td id="cmp-w-d">—</td></tr>
+    <tr><td class="label">MSE</td><td id="cmp-mse-cf">—</td><td id="cmp-mse-gd">—</td><td id="cmp-mse-d">—</td></tr>
+    <tr><td class="label">Thời gian (ms)</td><td id="cmp-t-cf">—</td><td id="cmp-t-gd">—</td><td>—</td></tr>
+  </table>
+  <div class="hint" style="margin-top:14px;">
+    Khi `epochs` còn nhỏ, GD chưa hội tụ → sai khác lớn. Tăng epochs → sai khác về 0 (lên đến floating-point error).
+    Closed-form O(d³) chỉ chạy 1 phép tính ⇒ luôn nhanh hơn ở `d` nhỏ.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2>4. Ridge / Lasso — slider λ và sparse weights</h2>
+
+<div class="card">
+  <p style="color:#4a5568;margin-top:0;">
+    Dataset 6 feature (tạo synth): chỉ 2 feature thực sự có ý nghĩa, 4 feature còn lại là noise.
+    Ridge và Lasso đều shrink trọng số khi λ tăng — nhưng <b>Lasso đẩy hẳn về 0</b>, Ridge chỉ co lại.
+  </p>
+  <div class="row">
+    <label>λ (regularization strength) = <span class="num" id="lam-val">0.10</span></label>
+    <input type="range" id="lam-slider" min="-3" max="2" step="0.05" value="-1">
+    <span class="lbl" style="margin-left:18px;">Số feature thật = <b>2</b> (idx 0, 1) — còn lại là noise</span>
+  </div>
+  <div class="grid-2" style="margin-top:16px;">
+    <div>
+      <h3 style="margin:0 0 8px;color:#2b6cb0;">Ridge (L2)</h3>
+      <div id="ridge-bars"></div>
+      <div class="info-box" style="margin-top:8px;">
+        <div><span class="lbl">||w||₂² = </span><span class="purple" id="ridge-l2">0.000</span></div>
+        <div><span class="lbl">||w||₀ (số phần tử ≠ 0) = </span><span class="green" id="ridge-l0">6</span></div>
+        <div><span class="lbl">MSE train = </span><span class="red" id="ridge-mse">0.000</span></div>
+      </div>
+    </div>
+    <div>
+      <h3 style="margin:0 0 8px;color:#c53030;">Lasso (L1)</h3>
+      <div id="lasso-bars"></div>
+      <div class="info-box" style="margin-top:8px;">
+        <div><span class="lbl">||w||₁ = </span><span class="purple" id="lasso-l1">0.000</span></div>
+        <div><span class="lbl">||w||₀ (số phần tử ≠ 0) = </span><span class="green" id="lasso-l0">6</span></div>
+        <div><span class="lbl">MSE train = </span><span class="red" id="lasso-mse">0.000</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="hint" style="margin-top:14px;">
+    Tăng λ từ 0.01 → 100. Quan sát: Ridge mọi cột vẫn dương nhỏ; Lasso các cột noise (idx 2-5) sụp về 0 trước, các cột tín hiệu thật (0, 1) vẫn sống — đây là <b>feature selection tự động</b>.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2>5. Tổng kết</h2>
+
+<div class="card">
+  <ul style="line-height:1.85;">
+    <li><b>Linear regression</b> tìm hyperplane `ŷ = Xw + b` tốt nhất theo MSE.</li>
+    <li><b>MSE</b> không phải tuỳ chọn — nó đến từ MLE với Gaussian noise (Tầng 5 Lesson 07).</li>
+    <li><b>Closed-form</b> `w* = (XᵀX)⁻¹ Xᵀy` chính xác, `O(d³)`. <b>GD</b> `O(epochs·n·d)` — bắt buộc khi `d` lớn.</li>
+    <li><b>Loss lồi</b> → mọi điểm khởi tạo GD đều hội tụ về cùng nghiệm closed-form.</li>
+    <li><b>Ridge (L2)</b>: shrink đều, có closed-form. <b>Lasso (L1)</b>: shrink + sparse, không closed-form.</li>
+    <li>Linear regression = NN 0 hidden layer + linear activation — là <b>building block</b> cho mọi model phức tạp hơn.</li>
+  </ul>
+</div>
+
+</main>
+
+<script>
+/* ============================================================
+   Helpers: ma trận nhỏ (2×2, 3×3) — đủ cho linear regression UI
+   ============================================================ */
+function dot(a, b) { let s = 0; for (let i = 0; i < a.length; i++) s += a[i] * b[i]; return s; }
+
+function transpose(M) {
+  const r = M.length, c = M[0].length;
+  const T = Array.from({ length: c }, () => new Array(r).fill(0));
+  for (let i = 0; i < r; i++) for (let j = 0; j < c; j++) T[j][i] = M[i][j];
+  return T;
+}
+function matMul(A, B) {
+  const r = A.length, k = A[0].length, c = B[0].length;
+  const C = Array.from({ length: r }, () => new Array(c).fill(0));
+  for (let i = 0; i < r; i++) for (let j = 0; j < c; j++) {
+    let s = 0;
+    for (let p = 0; p < k; p++) s += A[i][p] * B[p][j];
+    C[i][j] = s;
+  }
+  return C;
+}
+function matVec(A, v) {
+  const r = A.length, c = A[0].length;
+  const out = new Array(r).fill(0);
+  for (let i = 0; i < r; i++) for (let j = 0; j < c; j++) out[i] += A[i][j] * v[j];
+  return out;
+}
+// Inverse cho ma trận d×d (Gauss-Jordan); đủ cho d ≤ 8
+function matInv(M) {
+  const n = M.length;
+  const A = M.map((row, i) => row.concat(Array.from({ length: n }, (_, j) => (i === j ? 1 : 0))));
+  for (let i = 0; i < n; i++) {
+    // tìm pivot
+    let piv = i;
+    for (let k = i + 1; k < n; k++) if (Math.abs(A[k][i]) > Math.abs(A[piv][i])) piv = k;
+    if (Math.abs(A[piv][i]) < 1e-12) return null; // singular
+    [A[i], A[piv]] = [A[piv], A[i]];
+    const d = A[i][i];
+    for (let j = 0; j < 2 * n; j++) A[i][j] /= d;
+    for (let k = 0; k < n; k++) {
+      if (k === i) continue;
+      const f = A[k][i];
+      for (let j = 0; j < 2 * n; j++) A[k][j] -= f * A[i][j];
+    }
+  }
+  return A.map(row => row.slice(n));
+}
+
+/* ============================================================
+   1. Interactive scatter + fit
+   ============================================================ */
+const scSvg = document.getElementById("scatter-svg");
+const SC_W = 480, SC_H = 360, SC_PAD = 36;
+const sc_xmin = 0, sc_xmax = 10, sc_ymin = 0, sc_ymax = 10;
+function sx(x) { return SC_PAD + (x - sc_xmin) / (sc_xmax - sc_xmin) * (SC_W - 2 * SC_PAD); }
+function sy(y) { return SC_H - SC_PAD - (y - sc_ymin) / (sc_ymax - sc_ymin) * (SC_H - 2 * SC_PAD); }
+function ix(px) { return sc_xmin + (px - SC_PAD) / (SC_W - 2 * SC_PAD) * (sc_xmax - sc_xmin); }
+function iy(py) { return sc_ymin + (SC_H - SC_PAD - py) / (SC_H - 2 * SC_PAD) * (sc_ymax - sc_ymin); }
+
+let scPoints = [];
+function presetLine() {
+  scPoints = [{x:1,y:1.2},{x:3,y:2.8},{x:5,y:5.1},{x:7,y:6.9},{x:9,y:9.0}];
+}
+function presetNoisy() {
+  scPoints = [{x:1,y:2.8},{x:3,y:1.5},{x:5,y:5.8},{x:7,y:4.2},{x:9,y:7.5}];
+}
+function presetOutlier() {
+  scPoints = [{x:1,y:1.2},{x:3,y:2.8},{x:5,y:4.9},{x:7,y:9.5},{x:9,y:7.0}];
+}
+function presetFlat() {
+  scPoints = [{x:1,y:4.8},{x:3,y:5.2},{x:5,y:5.0},{x:7,y:4.9},{x:9,y:5.1}];
+}
+
+function fitClosedForm(pts) {
+  // X = [[1, x_i]], y = [y_i]; trả về [b, w]
+  const n = pts.length;
+  let s1=n, sx=0, sxx=0, sy=0, sxy=0;
+  for (const p of pts) { sx+=p.x; sxx+=p.x*p.x; sy+=p.y; sxy+=p.x*p.y; }
+  const det = s1*sxx - sx*sx;
+  if (Math.abs(det) < 1e-12) return { b: sy/n, w: 0, det: det, XtX: [[s1,sx],[sx,sxx]], Xty: [sy, sxy] };
+  const b = (sxx*sy - sx*sxy) / det;
+  const w = (s1*sxy - sx*sy) / det;
+  return { b, w, det, XtX: [[s1,sx],[sx,sxx]], Xty: [sy, sxy] };
+}
+
+function metrics(pts, b, w) {
+  const n = pts.length;
+  let ssRes = 0, ssTot = 0;
+  let ymean = 0; for (const p of pts) ymean += p.y; ymean /= n;
+  for (const p of pts) {
+    const yhat = b + w*p.x;
+    ssRes += (p.y - yhat)*(p.y - yhat);
+    ssTot += (p.y - ymean)*(p.y - ymean);
+  }
+  const mse = ssRes / n;
+  const rmse = Math.sqrt(mse);
+  const r2 = ssTot < 1e-12 ? 0 : 1 - ssRes/ssTot;
+  return { mse, rmse, r2, ssRes, ssTot };
+}
+
+function renderScatter() {
+  const { b, w, XtX, Xty, det } = fitClosedForm(scPoints);
+  const m = metrics(scPoints, b, w);
+  // axes
+  let svg = '';
+  // grid
+  for (let g = 0; g <= 10; g += 2) {
+    svg += `<line x1="${sx(g)}" y1="${sy(0)}" x2="${sx(g)}" y2="${sy(10)}" stroke="#e2e8f0" stroke-width="1"/>`;
+    svg += `<line x1="${sx(0)}" y1="${sy(g)}" x2="${sx(10)}" y2="${sy(g)}" stroke="#e2e8f0" stroke-width="1"/>`;
+  }
+  svg += `<line x1="${sx(0)}" y1="${sy(0)}" x2="${sx(10)}" y2="${sy(0)}" stroke="#2d3748" stroke-width="1.4"/>`;
+  svg += `<line x1="${sx(0)}" y1="${sy(0)}" x2="${sx(0)}" y2="${sy(10)}" stroke="#2d3748" stroke-width="1.4"/>`;
+  // axis labels
+  for (let g = 0; g <= 10; g += 2) {
+    svg += `<text x="${sx(g)}" y="${sy(0)+14}" font-size="10" text-anchor="middle" fill="#4a5568">${g}</text>`;
+    svg += `<text x="${sx(0)-6}" y="${sy(g)+4}" font-size="10" text-anchor="end" fill="#4a5568">${g}</text>`;
+  }
+  svg += `<text x="${SC_W-20}" y="${sy(0)+24}" font-size="11" fill="#4a5568">x</text>`;
+  svg += `<text x="${sx(0)-22}" y="${sy(10)-2}" font-size="11" fill="#4a5568">y</text>`;
+  // regression line
+  const x0 = 0, x1 = 10;
+  const y0 = b + w*x0, y1 = b + w*x1;
+  // clip y to [0, 10] for nicer drawing
+  function clipLine(x0, y0, x1, y1) {
+    // simple Liang-Barsky-ish for y bounds [0,10]
+    const dy = y1 - y0;
+    let t0 = 0, t1 = 1;
+    if (Math.abs(dy) > 1e-9) {
+      if (dy > 0) {
+        t0 = Math.max(t0, (0 - y0) / dy);
+        t1 = Math.min(t1, (10 - y0) / dy);
+      } else {
+        t0 = Math.max(t0, (10 - y0) / dy);
+        t1 = Math.min(t1, (0 - y0) / dy);
+      }
+    }
+    if (t0 > t1) return null;
+    return [x0 + t0*(x1-x0), y0 + t0*dy, x0 + t1*(x1-x0), y0 + t1*dy];
+  }
+  const seg = clipLine(x0, y0, x1, y1);
+  if (seg) {
+    svg += `<line x1="${sx(seg[0])}" y1="${sy(seg[1])}" x2="${sx(seg[2])}" y2="${sy(seg[3])}" stroke="#c53030" stroke-width="2.5"/>`;
+  }
+  // residuals
+  for (const p of scPoints) {
+    const yhat = b + w*p.x;
+    svg += `<line x1="${sx(p.x)}" y1="${sy(p.y)}" x2="${sx(p.x)}" y2="${sy(yhat)}" stroke="#a0aec0" stroke-width="1.5" stroke-dasharray="3 2"/>`;
+  }
+  // points
+  for (let i = 0; i < scPoints.length; i++) {
+    const p = scPoints[i];
+    svg += `<circle class="pt-handle" data-i="${i}" cx="${sx(p.x)}" cy="${sy(p.y)}" r="7" fill="#4299e1" stroke="#2b6cb0" stroke-width="2"/>`;
+  }
+  scSvg.innerHTML = svg;
+
+  // wire dragging
+  scSvg.querySelectorAll(".pt-handle").forEach(el => {
+    el.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      const i = +el.dataset.i;
+      const move = (ev) => {
+        const rect = scSvg.getBoundingClientRect();
+        const px = (ev.clientX - rect.left) / rect.width * SC_W;
+        const py = (ev.clientY - rect.top) / rect.height * SC_H;
+        scPoints[i] = { x: Math.max(0.2, Math.min(9.8, ix(px))), y: Math.max(0.2, Math.min(9.8, iy(py))) };
+        renderScatter();
+      };
+      const up = () => { window.removeEventListener("mousemove", move); window.removeEventListener("mouseup", up); };
+      window.addEventListener("mousemove", move);
+      window.addEventListener("mouseup", up);
+    });
+  });
+
+  document.getElementById("scatter-n").textContent = scPoints.length;
+  document.getElementById("sc-b").textContent = b.toFixed(3);
+  document.getElementById("sc-w").textContent = w.toFixed(3);
+  document.getElementById("sc-eq").textContent = `${b.toFixed(3)} + ${w.toFixed(3)}·x`;
+  document.getElementById("sc-mse").textContent = m.mse.toFixed(4);
+  document.getElementById("sc-rmse").textContent = m.rmse.toFixed(4);
+  document.getElementById("sc-r2").textContent = m.r2.toFixed(4);
+  document.getElementById("sc-matrix").innerHTML =
+    `XᵀX = [[${XtX[0][0].toFixed(2)}, ${XtX[0][1].toFixed(2)}], [${XtX[1][0].toFixed(2)}, ${XtX[1][1].toFixed(2)}]] · ` +
+    `Xᵀy = [${Xty[0].toFixed(2)}, ${Xty[1].toFixed(2)}] · det = ${det.toFixed(3)}`;
+
+  // notify other panels that use scPoints
+  renderGD();
+  recomputeCompare();
+}
+
+document.getElementById("preset-line").addEventListener("click", () => { presetLine(); renderScatter(); });
+document.getElementById("preset-noisy").addEventListener("click", () => { presetNoisy(); renderScatter(); });
+document.getElementById("preset-outlier").addEventListener("click", () => { presetOutlier(); renderScatter(); });
+document.getElementById("preset-flat").addEventListener("click", () => { presetFlat(); renderScatter(); });
+
+/* ============================================================
+   2. Gradient descent visualization (loss landscape)
+   ============================================================ */
+const gdSvg = document.getElementById("gd-svg");
+const GD_W = 480, GD_H = 380, GD_PAD = 40;
+// (b, w) plane: b in [bmin, bmax], w in [wmin, wmax]
+let gd_bmin = -2, gd_bmax = 4, gd_wmin = -2, gd_wmax = 3;
+function gpx(b) { return GD_PAD + (b - gd_bmin) / (gd_bmax - gd_bmin) * (GD_W - 2 * GD_PAD); }
+function gpy(w) { return GD_H - GD_PAD - (w - gd_wmin) / (gd_wmax - gd_wmin) * (GD_H - 2 * GD_PAD); }
+function gix(px) { return gd_bmin + (px - GD_PAD) / (GD_W - 2 * GD_PAD) * (gd_bmax - gd_bmin); }
+function giy(py) { return gd_wmin + (GD_H - GD_PAD - py) / (GD_H - 2 * GD_PAD) * (gd_wmax - gd_wmin); }
+
+function lossAt(b, w) {
+  let s = 0;
+  for (const p of scPoints) {
+    const r = p.y - (b + w * p.x);
+    s += r * r;
+  }
+  return s / scPoints.length;
+}
+function gradAt(b, w) {
+  // d L / d b = (2/n)·Σ (b + w x - y)
+  // d L / d w = (2/n)·Σ (b + w x - y)·x
+  let gb = 0, gw = 0;
+  for (const p of scPoints) {
+    const r = (b + w * p.x) - p.y;
+    gb += r;
+    gw += r * p.x;
+  }
+  const n = scPoints.length;
+  return [2 * gb / n, 2 * gw / n];
+}
+
+let gdState = { b: 0, w: 0, epoch: 0, running: false };
+
+function renderGD() {
+  // optimal
+  const { b: bs, w: ws } = fitClosedForm(scPoints);
+  // adjust plot bounds to keep optimum in view
+  gd_bmin = Math.min(-2, bs - 2);
+  gd_bmax = Math.max(4,  bs + 2);
+  gd_wmin = Math.min(-2, ws - 2);
+  gd_wmax = Math.max(3,  ws + 2);
+
+  // compute loss range for color scaling
+  const NX = 40, NY = 40;
+  let lmin = Infinity, lmax = -Infinity;
+  const grid = [];
+  for (let j = 0; j < NY; j++) {
+    const row = [];
+    for (let i = 0; i < NX; i++) {
+      const b = gd_bmin + (i + 0.5) / NX * (gd_bmax - gd_bmin);
+      const w = gd_wmin + (j + 0.5) / NY * (gd_wmax - gd_wmin);
+      const L = lossAt(b, w);
+      row.push(L);
+      if (L < lmin) lmin = L;
+      if (L > lmax) lmax = L;
+    }
+    grid.push(row);
+  }
+
+  let svg = '';
+  // heatmap: use log scale so low region visible
+  const dx = (GD_W - 2 * GD_PAD) / NX;
+  const dy = (GD_H - 2 * GD_PAD) / NY;
+  for (let j = 0; j < NY; j++) for (let i = 0; i < NX; i++) {
+    const L = grid[j][i];
+    const t = lmax > lmin ? (Math.log(L + 1e-3) - Math.log(lmin + 1e-3)) / (Math.log(lmax + 1e-3) - Math.log(lmin + 1e-3)) : 0;
+    // colormap: light yellow → red
+    const r = Math.round(255 * (0.5 + 0.5 * t));
+    const g = Math.round(255 * (1 - 0.7 * t));
+    const bl = Math.round(255 * (0.3 * (1 - t)));
+    const color = `rgb(${r},${g},${bl})`;
+    const x = GD_PAD + i * dx;
+    const y = GD_H - GD_PAD - (j + 1) * dy;
+    svg += `<rect x="${x}" y="${y}" width="${dx+0.5}" height="${dy+0.5}" fill="${color}"/>`;
+  }
+
+  // contour lines (a few levels)
+  // simple: just draw isolines along grid
+  const levels = [];
+  for (let k = 1; k <= 6; k++) {
+    levels.push(lmin + (k / 7) * (lmax - lmin));
+  }
+  // (skip fancy contour — heatmap is enough)
+
+  // axes
+  svg += `<line x1="${gpx(gd_bmin)}" y1="${gpy(0)}" x2="${gpx(gd_bmax)}" y2="${gpy(0)}" stroke="#2d3748" stroke-width="1" stroke-dasharray="3 3"/>`;
+  svg += `<line x1="${gpx(0)}" y1="${gpy(gd_wmin)}" x2="${gpx(0)}" y2="${gpy(gd_wmax)}" stroke="#2d3748" stroke-width="1" stroke-dasharray="3 3"/>`;
+  // ticks
+  for (let b = Math.ceil(gd_bmin); b <= Math.floor(gd_bmax); b++) {
+    svg += `<text x="${gpx(b)}" y="${GD_H - 14}" font-size="10" text-anchor="middle" fill="#2d3748">${b}</text>`;
+  }
+  for (let w = Math.ceil(gd_wmin); w <= Math.floor(gd_wmax); w++) {
+    svg += `<text x="14" y="${gpy(w)+4}" font-size="10" fill="#2d3748">${w}</text>`;
+  }
+  svg += `<text x="${GD_W - 8}" y="${GD_H - 16}" font-size="11" fill="#2d3748" text-anchor="end">b →</text>`;
+  svg += `<text x="6" y="14" font-size="11" fill="#2d3748">↑ w</text>`;
+
+  // trajectory
+  if (gdState.traj && gdState.traj.length > 1) {
+    let path = `M ${gpx(gdState.traj[0][0])} ${gpy(gdState.traj[0][1])}`;
+    for (let k = 1; k < gdState.traj.length; k++) {
+      path += ` L ${gpx(gdState.traj[k][0])} ${gpy(gdState.traj[k][1])}`;
+    }
+    svg += `<path d="${path}" fill="none" stroke="#2d3748" stroke-width="2"/>`;
+    for (const [b, w] of gdState.traj) {
+      svg += `<circle cx="${gpx(b)}" cy="${gpy(w)}" r="2" fill="#2d3748"/>`;
+    }
+  }
+
+  // current point
+  svg += `<circle id="gd-current" cx="${gpx(gdState.b)}" cy="${gpy(gdState.w)}" r="7" fill="white" stroke="#2d3748" stroke-width="2.5" class="pt-handle"/>`;
+  // gradient arrow at current point
+  const [gb, gw] = gradAt(gdState.b, gdState.w);
+  const arrLen = 0.4;
+  const gn = Math.sqrt(gb*gb + gw*gw);
+  if (gn > 1e-3) {
+    const ub = -gb / gn * arrLen, uw = -gw / gn * arrLen;
+    const x1 = gpx(gdState.b), y1 = gpy(gdState.w);
+    const x2 = gpx(gdState.b + ub), y2 = gpy(gdState.w + uw);
+    svg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#2c5282" stroke-width="2" marker-end="url(#ar)"/>`;
+  }
+
+  // optimum
+  svg += `<polygon points="${gpx(bs)},${gpy(ws)-9} ${gpx(bs)+3},${gpy(ws)-3} ${gpx(bs)+9},${gpy(ws)-3} ${gpx(bs)+4},${gpy(ws)+1} ${gpx(bs)+6},${gpy(ws)+7} ${gpx(bs)},${gpy(ws)+3} ${gpx(bs)-6},${gpy(ws)+7} ${gpx(bs)-4},${gpy(ws)+1} ${gpx(bs)-9},${gpy(ws)-3} ${gpx(bs)-3},${gpy(ws)-3}" fill="gold" stroke="#b7791f" stroke-width="1.5"/>`;
+
+  // arrow marker def
+  svg = `<defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+           <path d="M 0 0 L 10 5 L 0 10 z" fill="#2c5282"/></marker></defs>` + svg;
+
+  gdSvg.innerHTML = svg;
+
+  // text info
+  const L = lossAt(gdState.b, gdState.w);
+  const dist = Math.sqrt((gdState.b - bs)**2 + (gdState.w - ws)**2);
+  document.getElementById("gd-b").textContent = gdState.b.toFixed(3);
+  document.getElementById("gd-w").textContent = gdState.w.toFixed(3);
+  document.getElementById("gd-gb").textContent = gb.toFixed(3);
+  document.getElementById("gd-gw").textContent = gw.toFixed(3);
+  document.getElementById("gd-loss").textContent = L.toFixed(4);
+  document.getElementById("gd-bstar").textContent = bs.toFixed(3);
+  document.getElementById("gd-wstar").textContent = ws.toFixed(3);
+  document.getElementById("gd-dist").textContent = dist.toFixed(4);
+  document.getElementById("gd-epoch").textContent = gdState.epoch;
+
+  // drag current point
+  const cur = document.getElementById("gd-current");
+  if (cur) {
+    cur.addEventListener("mousedown", (e) => {
+      if (gdState.running) return;
+      e.preventDefault();
+      const move = (ev) => {
+        const rect = gdSvg.getBoundingClientRect();
+        const px = (ev.clientX - rect.left) / rect.width * GD_W;
+        const py = (ev.clientY - rect.top) / rect.height * GD_H;
+        gdState.b = Math.max(gd_bmin, Math.min(gd_bmax, gix(px)));
+        gdState.w = Math.max(gd_wmin, Math.min(gd_wmax, giy(py)));
+        gdState.epoch = 0;
+        gdState.traj = [[gdState.b, gdState.w]];
+        renderGD();
+      };
+      const up = () => { window.removeEventListener("mousemove", move); window.removeEventListener("mouseup", up); };
+      window.addEventListener("mousemove", move);
+      window.addEventListener("mouseup", up);
+    });
+  }
+}
+
+const lrSlider = document.getElementById("lr-slider");
+function curEta() { return Math.pow(10, +lrSlider.value); }
+function refreshLr() { document.getElementById("lr-val").textContent = curEta().toFixed(4); }
+lrSlider.addEventListener("input", refreshLr);
+refreshLr();
+
+function gdOneStep() {
+  const eta = curEta();
+  const [gb, gw] = gradAt(gdState.b, gdState.w);
+  gdState.b -= eta * gb;
+  gdState.w -= eta * gw;
+  // clamp to viewbox so we don't fly off
+  gdState.b = Math.max(gd_bmin, Math.min(gd_bmax, gdState.b));
+  gdState.w = Math.max(gd_wmin, Math.min(gd_wmax, gdState.w));
+  gdState.epoch++;
+  if (!gdState.traj) gdState.traj = [];
+  gdState.traj.push([gdState.b, gdState.w]);
+  // keep trajectory length bounded
+  if (gdState.traj.length > 300) gdState.traj.shift();
+}
+
+document.getElementById("gd-step").addEventListener("click", () => {
+  if (gdState.running) return;
+  if (!gdState.traj) gdState.traj = [[gdState.b, gdState.w]];
+  gdOneStep();
+  renderGD();
+});
+document.getElementById("gd-reset").addEventListener("click", () => {
+  gdState = { b: 0, w: 0, epoch: 0, running: false, traj: [[0, 0]] };
+  renderGD();
+});
+document.getElementById("gd-run").addEventListener("click", () => {
+  if (gdState.running) {
+    gdState.running = false;
+    document.getElementById("gd-run").textContent = "▶ Chạy GD";
+    return;
+  }
+  gdState.running = true;
+  if (!gdState.traj) gdState.traj = [[gdState.b, gdState.w]];
+  document.getElementById("gd-run").textContent = "⏸ Dừng";
+  let stepsPerFrame = 2;
+  function loop() {
+    if (!gdState.running) return;
+    for (let k = 0; k < stepsPerFrame; k++) gdOneStep();
+    renderGD();
+    if (gdState.epoch > 1500) {
+      gdState.running = false;
+      document.getElementById("gd-run").textContent = "▶ Chạy GD";
+      return;
+    }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+});
+
+/* ============================================================
+   3. Closed-form vs GD comparison
+   ============================================================ */
+function runGDFlat(pts, eta, epochs) {
+  let b = 0, w = 0;
+  const n = pts.length;
+  for (let e = 0; e < epochs; e++) {
+    let gb = 0, gw = 0;
+    for (const p of pts) {
+      const r = (b + w * p.x) - p.y;
+      gb += r; gw += r * p.x;
+    }
+    gb = 2 * gb / n; gw = 2 * gw / n;
+    b -= eta * gb;
+    w -= eta * gw;
+    if (!isFinite(b) || !isFinite(w)) return { b: NaN, w: NaN };
+  }
+  return { b, w };
+}
+
+function recomputeCompare() {
+  const epochs = +document.getElementById("cf-epochs").value;
+  const eta = Math.pow(10, +document.getElementById("cf-eta").value);
+  document.getElementById("cf-epochs-val").textContent = epochs;
+  document.getElementById("cf-eta-val").textContent = eta.toFixed(4);
+
+  let t1 = performance.now();
+  const cf = fitClosedForm(scPoints);
+  let tCF = performance.now() - t1;
+  const mCF = metrics(scPoints, cf.b, cf.w);
+
+  let t2 = performance.now();
+  const gd = runGDFlat(scPoints, eta, epochs);
+  let tGD = performance.now() - t2;
+  const mGD = isFinite(gd.b) ? metrics(scPoints, gd.b, gd.w) : { mse: NaN };
+
+  document.getElementById("cmp-b-cf").textContent = cf.b.toFixed(4);
+  document.getElementById("cmp-b-gd").textContent = isFinite(gd.b) ? gd.b.toFixed(4) : "div ∞";
+  document.getElementById("cmp-b-d").textContent = isFinite(gd.b) ? Math.abs(cf.b - gd.b).toFixed(6) : "—";
+  document.getElementById("cmp-w-cf").textContent = cf.w.toFixed(4);
+  document.getElementById("cmp-w-gd").textContent = isFinite(gd.w) ? gd.w.toFixed(4) : "div ∞";
+  document.getElementById("cmp-w-d").textContent = isFinite(gd.w) ? Math.abs(cf.w - gd.w).toFixed(6) : "—";
+  document.getElementById("cmp-mse-cf").textContent = mCF.mse.toFixed(6);
+  document.getElementById("cmp-mse-gd").textContent = isFinite(mGD.mse) ? mGD.mse.toFixed(6) : "—";
+  document.getElementById("cmp-mse-d").textContent = isFinite(mGD.mse) ? Math.abs(mCF.mse - mGD.mse).toFixed(6) : "—";
+  document.getElementById("cmp-t-cf").textContent = tCF.toFixed(3);
+  document.getElementById("cmp-t-gd").textContent = tGD.toFixed(3);
+}
+document.getElementById("cf-run").addEventListener("click", recomputeCompare);
+document.getElementById("cf-epochs").addEventListener("input", () => {
+  document.getElementById("cf-epochs-val").textContent = document.getElementById("cf-epochs").value;
+});
+document.getElementById("cf-eta").addEventListener("input", () => {
+  const e = Math.pow(10, +document.getElementById("cf-eta").value);
+  document.getElementById("cf-eta-val").textContent = e.toFixed(4);
+});
+
+/* ============================================================
+   4. Ridge / Lasso
+   ============================================================ */
+// Generate synthetic dataset: y = 1.5·x1 + (-2)·x2 + 0·(x3..x6) + noise
+function genSynthetic() {
+  const n = 40, d = 6;
+  const X = [], y = [];
+  const wTrue = [1.5, -2.0, 0, 0, 0, 0];
+  let seed = 42;
+  function rand() { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; }
+  function randn() {
+    let u = 0, v = 0;
+    while (u === 0) u = rand();
+    while (v === 0) v = rand();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  }
+  for (let i = 0; i < n; i++) {
+    const xi = [];
+    for (let j = 0; j < d; j++) xi.push(randn());
+    let yi = 0;
+    for (let j = 0; j < d; j++) yi += wTrue[j] * xi[j];
+    yi += 0.3 * randn();
+    X.push(xi);
+    y.push(yi);
+  }
+  return { X, y, d, n, wTrue };
+}
+const synth = genSynthetic();
+
+function ridgeFit(X, y, lam) {
+  const n = X.length, d = X[0].length;
+  const Xt = transpose(X);
+  const XtX = matMul(Xt, X);
+  // add λ·I (no scale by n to match common convention)
+  for (let j = 0; j < d; j++) XtX[j][j] += lam;
+  const Xty = matVec(Xt, y);
+  const Inv = matInv(XtX);
+  if (!Inv) return new Array(d).fill(0);
+  return matVec(Inv, Xty);
+}
+
+// Lasso via coordinate descent (no intercept; features assumed centered-ish)
+function lassoFit(X, y, lam, iters = 200) {
+  const n = X.length, d = X[0].length;
+  const w = new Array(d).fill(0);
+  // precompute column norms
+  const colSqNorm = new Array(d).fill(0);
+  for (let j = 0; j < d; j++) for (let i = 0; i < n; i++) colSqNorm[j] += X[i][j]*X[i][j];
+  // residuals
+  const r = y.slice();
+  function soft(z, t) { if (z > t) return z - t; if (z < -t) return z + t; return 0; }
+  for (let it = 0; it < iters; it++) {
+    for (let j = 0; j < d; j++) {
+      if (colSqNorm[j] < 1e-12) { w[j] = 0; continue; }
+      // partial residual with w_j put back
+      let rho = 0;
+      for (let i = 0; i < n; i++) {
+        const rij = r[i] + X[i][j] * w[j];
+        rho += X[i][j] * rij;
+      }
+      const wjNew = soft(rho, lam * n / 2) / colSqNorm[j];
+      const delta = wjNew - w[j];
+      if (Math.abs(delta) > 1e-12) {
+        for (let i = 0; i < n; i++) r[i] -= X[i][j] * delta;
+        w[j] = wjNew;
+      }
+    }
+  }
+  return w;
+}
+
+function computeMSEMulti(X, y, w) {
+  const n = X.length;
+  let s = 0;
+  for (let i = 0; i < n; i++) {
+    let yhat = 0;
+    for (let j = 0; j < X[i].length; j++) yhat += X[i][j] * w[j];
+    s += (y[i] - yhat) * (y[i] - yhat);
+  }
+  return s / n;
+}
+
+function barRow(label, val, maxAbs) {
+  const w = Math.min(140, Math.abs(val) / maxAbs * 140);
+  const cls = val >= 0 ? "bar-pos" : "bar-neg";
+  const half = val >= 0
+    ? `<div style="width:140px;text-align:right;"></div><div class="${cls}" style="width:${w}px;"></div>`
+    : `<div style="width:140px;text-align:right;"><div class="${cls}" style="width:${w}px;margin-left:auto;"></div></div><div></div>`;
+  return `<div class="bar-row"><span class="lbl">${label}</span>${half}<span class="val">${val.toFixed(3)}</span></div>`;
+}
+
+function refreshRegularization() {
+  const lam = Math.pow(10, +document.getElementById("lam-slider").value);
+  document.getElementById("lam-val").textContent = lam.toFixed(3);
+
+  const wRidge = ridgeFit(synth.X, synth.y, lam);
+  const wLasso = lassoFit(synth.X, synth.y, lam, 300);
+
+  const maxAbs = Math.max(0.1, ...wRidge.map(Math.abs), ...wLasso.map(Math.abs));
+  let ridgeHTML = '', lassoHTML = '';
+  for (let j = 0; j < synth.d; j++) {
+    const tag = `w${j+1}${j < 2 ? ' ★' : ''}`;
+    ridgeHTML += barRow(tag, wRidge[j], maxAbs);
+    lassoHTML += barRow(tag, wLasso[j], maxAbs);
+  }
+  document.getElementById("ridge-bars").innerHTML = ridgeHTML;
+  document.getElementById("lasso-bars").innerHTML = lassoHTML;
+
+  const l2 = wRidge.reduce((s, v) => s + v*v, 0);
+  const l1 = wLasso.reduce((s, v) => s + Math.abs(v), 0);
+  const l0Ridge = wRidge.filter(v => Math.abs(v) > 1e-6).length;
+  const l0Lasso = wLasso.filter(v => Math.abs(v) > 1e-6).length;
+  document.getElementById("ridge-l2").textContent = l2.toFixed(3);
+  document.getElementById("ridge-l0").textContent = l0Ridge;
+  document.getElementById("ridge-mse").textContent = computeMSEMulti(synth.X, synth.y, wRidge).toFixed(4);
+  document.getElementById("lasso-l1").textContent = l1.toFixed(3);
+  document.getElementById("lasso-l0").textContent = l0Lasso;
+  document.getElementById("lasso-mse").textContent = computeMSEMulti(synth.X, synth.y, wLasso).toFixed(4);
+}
+document.getElementById("lam-slider").addEventListener("input", refreshRegularization);
+
+/* ============================================================
+   Initial render
+   ============================================================ */
+presetLine();
+renderScatter();
+gdState = { b: 0, w: 0, epoch: 0, running: false, traj: [[0, 0]] };
+renderGD();
+recomputeCompare();
+refreshRegularization();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

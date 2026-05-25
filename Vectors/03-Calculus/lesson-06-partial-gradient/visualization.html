@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 06 — Đạo hàm riêng + Gradient</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; color: #2d3748; }
+  select, input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; padding: 6px 8px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+  }
+  input[type="range"] { width: 200px; vertical-align: middle; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.toggle.active { background: #2c5282; }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+
+  svg.viz {
+    display: block;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    width: 100%;
+    height: auto;
+    cursor: crosshair;
+  }
+  svg.viz-3d {
+    background: #1a202c;
+    border-radius: 6px;
+    cursor: default;
+  }
+
+  .info-box {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: #edf2f7;
+    border-radius: 6px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px;
+    color: #2d3748;
+  }
+  .info-box .lbl { color: #718096; font-weight: 600; }
+  .info-box .val { color: #2c5282; font-weight: 700; }
+
+  .legend {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    font-size: 13px; margin-top: 8px;
+    color: #4a5568;
+  }
+  .legend .item { display: flex; align-items: center; gap: 6px; }
+  .legend .swatch {
+    width: 20px; height: 4px; border-radius: 2px;
+    display: inline-block;
+  }
+  .legend .arrow {
+    display: inline-block; color: #e53e3e; font-size: 16px; font-weight: 700;
+  }
+
+  code.fn {
+    background: #2d3748; color: #fbd38d;
+    padding: 2px 8px; border-radius: 4px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px;
+  }
+
+  .hint {
+    color: #4a5568; font-size: 13.5px;
+    background: #fefcbf; padding: 10px 12px;
+    border-left: 4px solid #ecc94b; border-radius: 4px;
+    margin: 12px 0;
+  }
+
+  .field-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .field-controls .group {
+    background: #f7fafc;
+    padding: 8px 12px;
+    border-radius: 6px;
+    display: flex; gap: 8px; align-items: center;
+  }
+
+  table.compare {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 10px;
+  }
+  table.compare th, table.compare td {
+    padding: 6px 10px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: left;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  table.compare th { background: #edf2f7; color: #2d3748; }
+  table.compare tr.highlight { background: #c6f6d5; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-optimization-1d/visualization.html">← L5: Tối ưu hóa 1D</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Đạo hàm riêng + Gradient</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-gradient-descent/visualization.html">L7: Gradient descent →</a>
+</nav>
+  <h1>Lesson 06 — Đạo hàm riêng &amp; Gradient</h1>
+  <p>Bốn công cụ tương tác để cảm nhận đạo hàm riêng và gradient: contour + 3D, vector gradient tại điểm, trường gradient, và đạo hàm hướng.</p>
+
+  <!-- ============================================================== -->
+  <h2>1. Surface + Contour — chọn hàm <code class="fn">f(x, y)</code></h2>
+  <div class="card">
+    <div class="row">
+      <label for="fnSelect">Hàm số:</label>
+      <select id="fnSelect">
+        <option value="bowl">x² + y² — bát úp ngược</option>
+        <option value="saddle">xy — yên ngựa</option>
+        <option value="sinCos">sin(x)·cos(y) — sóng 2D</option>
+        <option value="quad1">x² − 2xy + 3y²</option>
+        <option value="gaussian">e^(−(x²+y²)/4) — chuông Gauss</option>
+        <option value="ridge">sin(x²+y²) — gợn sóng tròn</option>
+        <option value="hyperbol">x² − y² — yên ngựa đối xứng</option>
+        <option value="loss">(x−2)² + 3(y+1)² — loss giả lập</option>
+      </select>
+      <button id="resetBtn" class="secondary">Reset</button>
+    </div>
+    <div class="info-box">
+      <span class="lbl">Công thức:</span> <span class="val" id="formulaDisplay">f(x, y) = x² + y²</span>
+      &nbsp;·&nbsp; <span class="lbl">∇f =</span> <span class="val" id="gradFormula">(2x, 2y)</span>
+    </div>
+
+    <div class="grid-2" style="margin-top: 14px;">
+      <div>
+        <h3 style="margin: 0 0 6px; color: #2d3748;">Contour 2D</h3>
+        <svg id="contourSvg" class="viz" viewBox="0 0 360 360"></svg>
+        <div class="legend">
+          <div class="item"><span class="swatch" style="background: #4299e1;"></span> đường mức</div>
+          <div class="item"><span class="swatch" style="background: #2c5282;"></span> giá trị thấp</div>
+          <div class="item"><span class="swatch" style="background: #fc8181;"></span> giá trị cao</div>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin: 0 0 6px; color: #2d3748;">Ortho-projection 3D (rotate bằng slider)</h3>
+        <svg id="surface3d" class="viz viz-3d" viewBox="0 0 360 360"></svg>
+        <div class="row" style="margin-top: 6px;">
+          <label>Góc nhìn: </label>
+          <input type="range" id="azimuth" min="0" max="360" value="45" step="5">
+          <span id="azimuthVal" style="font-family: monospace; color: #4a5568;">45°</span>
+        </div>
+      </div>
+    </div>
+    <p class="hint">Mỗi đường tròn/cong trong panel trái là một <em>đường mức</em> — tập hợp các điểm có cùng giá trị f. Bát: đường tròn đồng tâm. Saddle: hyperbol.</p>
+  </div>
+
+  <!-- ============================================================== -->
+  <h2>2. Gradient tại một điểm — click vào contour</h2>
+  <div class="card">
+    <p>Click bất kỳ chỗ nào trên panel contour bên dưới. Hệ thống tính <code>∇f(x, y)</code> tại điểm đó và vẽ mũi tên đỏ chỉ hướng tăng nhanh nhất. So với contour đi qua điểm đó — luôn vuông góc.</p>
+
+    <div class="grid-2">
+      <div>
+        <svg id="gradPointSvg" class="viz" viewBox="0 0 360 360"></svg>
+        <div class="legend">
+          <div class="item"><span class="arrow">→</span> ∇f (hướng tăng nhanh nhất)</div>
+          <div class="item"><span class="arrow" style="color: #38a169;">→</span> -∇f (giảm nhanh nhất)</div>
+          <div class="item"><span class="swatch" style="background: #ed8936;"></span> contour đi qua điểm</div>
+        </div>
+      </div>
+      <div>
+        <div class="info-box">
+          <div><span class="lbl">Điểm P:</span> (<span class="val" id="ptX">1.00</span>, <span class="val" id="ptY">2.00</span>)</div>
+          <div><span class="lbl">f(P):</span> <span class="val" id="ptF">5.00</span></div>
+          <div><span class="lbl">∂f/∂x:</span> <span class="val" id="ptDfdx">2.00</span></div>
+          <div><span class="lbl">∂f/∂y:</span> <span class="val" id="ptDfdy">4.00</span></div>
+          <div><span class="lbl">∇f(P):</span> <span class="val" id="ptGrad">(2.00, 4.00)</span></div>
+          <div><span class="lbl">|∇f|:</span> <span class="val" id="ptGradMag">4.47</span></div>
+          <div><span class="lbl">Góc gradient:</span> <span class="val" id="ptGradAngle">63.4°</span></div>
+        </div>
+        <p class="hint" style="margin-top: 14px;">
+          Quan sát: <br>
+          • Mũi tên đỏ luôn vuông góc với contour cam.<br>
+          • Ở chỗ contour dày đặc (dốc) → mũi tên dài (|∇f| lớn).<br>
+          • Ở chỗ contour thưa (phẳng) → mũi tên ngắn.<br>
+          • Ở cực trị (đáy bát, đỉnh chuông) → mũi tên biến mất (∇f = 0).
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <h2>3. Gradient Field — toàn cảnh "dòng chảy"</h2>
+  <div class="card">
+    <p>Vẽ vector gradient tại lưới điểm rộng. Quan sát các đặc trưng của hàm — đỉnh, đáy, saddle.</p>
+
+    <div class="field-controls">
+      <div class="group">
+        <label>Density:</label>
+        <input type="range" id="densityRange" min="6" max="18" value="11" step="1">
+        <span id="densityVal" style="font-family: monospace; color: #4a5568;">11</span>
+      </div>
+      <div class="group">
+        <label>Scale:</label>
+        <input type="range" id="scaleRange" min="5" max="40" value="18" step="1">
+        <span id="scaleVal" style="font-family: monospace; color: #4a5568;">18</span>
+      </div>
+      <div class="group">
+        <button id="toggleNegative" class="toggle">Đảo dấu (vẽ -∇f)</button>
+      </div>
+    </div>
+
+    <svg id="fieldSvg" class="viz" viewBox="0 0 720 360" style="margin-top: 12px;"></svg>
+    <p class="hint">Với hàm bát <code>x² + y²</code>: mọi mũi tên chỉ ra ngoài, độ dài tăng dần. Khi bấm "Đảo dấu" sẽ thấy mũi tên chỉ vào tâm — đây chính là quỹ đạo gradient descent (đi NGƯỢC gradient = đi xuống cực tiểu).</p>
+  </div>
+
+  <!-- ============================================================== -->
+  <h2>4. Directional Derivative — đạo hàm hướng</h2>
+  <div class="card">
+    <p>Tại một điểm cố định, chọn hướng đơn vị <code>û</code> bằng slider góc. Hệ thống tính <code>D_û f = ∇f · û</code> và so sánh với giá trị max <code>|∇f|</code> (khi û cùng hướng gradient).</p>
+
+    <div class="grid-2">
+      <div>
+        <svg id="dirDerivSvg" class="viz" viewBox="0 0 360 360"></svg>
+        <div class="row" style="margin-top: 8px;">
+          <label>Điểm P:</label>
+          <label style="margin-left: 8px;">x = <input type="number" id="dirPtX" value="1" step="0.1" style="width: 60px;"></label>
+          <label>y = <input type="number" id="dirPtY" value="2" step="0.1" style="width: 60px;"></label>
+        </div>
+        <div class="row">
+          <label>Góc û:</label>
+          <input type="range" id="angleRange" min="0" max="360" value="0" step="1">
+          <span id="angleVal" style="font-family: monospace; color: #4a5568; min-width: 50px;">0°</span>
+        </div>
+      </div>
+      <div>
+        <div class="info-box">
+          <div><span class="lbl">∇f(P):</span> <span class="val" id="dirGrad">(2, 4)</span></div>
+          <div><span class="lbl">|∇f|:</span> <span class="val" id="dirGradMag">4.47</span> (max khả dĩ)</div>
+          <div><span class="lbl">û:</span> <span class="val" id="dirUhat">(1.000, 0.000)</span></div>
+          <div><span class="lbl">D_û f = ∇f · û:</span> <span class="val" id="dirDfu" style="font-size: 16px;">2.000</span></div>
+          <div><span class="lbl">Tỉ lệ so với max:</span> <span class="val" id="dirRatio">44.7%</span></div>
+          <div><span class="lbl">cos(θ):</span> <span class="val" id="dirCos">0.447</span> (θ giữa û và ∇f)</div>
+        </div>
+
+        <table class="compare" id="dirTable">
+          <thead><tr><th>Hướng û</th><th>Góc θ</th><th>D_û f</th><th>So với |∇f|</th></tr></thead>
+          <tbody>
+            <tr><td>Cùng ∇f</td><td>0°</td><td id="r1">+4.47</td><td>+100%</td></tr>
+            <tr><td>(1, 0) Đông</td><td>—</td><td id="r2">2.00</td><td>—</td></tr>
+            <tr><td>Vuông góc ∇f</td><td>90°</td><td>0.00</td><td>0%</td></tr>
+            <tr><td>Ngược ∇f</td><td>180°</td><td id="r3">-4.47</td><td>−100%</td></tr>
+          </tbody>
+        </table>
+
+        <p class="hint">Khi slider chạm đúng góc của gradient, <code>D_û f</code> chạm <code>|∇f|</code> → khẳng định "gradient là hướng tăng nhanh nhất". Khi vuông góc → D = 0 (tiếp tuyến đường mức).</p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+/* ===================== Hàm số & đạo hàm riêng ===================== */
+const FUNCTIONS = {
+  bowl: {
+    label: "x² + y²",
+    f: (x, y) => x*x + y*y,
+    fx: (x, y) => 2*x,
+    fy: (x, y) => 2*y,
+    formula: "f(x, y) = x² + y²",
+    gradFormula: "(2x, 2y)",
+    range: { xmin: -3, xmax: 3, ymin: -3, ymax: 3 },
+    levels: [0.5, 1, 2, 4, 6, 9, 12, 16]
+  },
+  saddle: {
+    label: "xy",
+    f: (x, y) => x*y,
+    fx: (x, y) => y,
+    fy: (x, y) => x,
+    formula: "f(x, y) = xy",
+    gradFormula: "(y, x)",
+    range: { xmin: -3, xmax: 3, ymin: -3, ymax: 3 },
+    levels: [-6, -4, -2, -1, 0, 1, 2, 4, 6]
+  },
+  sinCos: {
+    label: "sin(x)cos(y)",
+    f: (x, y) => Math.sin(x) * Math.cos(y),
+    fx: (x, y) => Math.cos(x) * Math.cos(y),
+    fy: (x, y) => -Math.sin(x) * Math.sin(y),
+    formula: "f(x, y) = sin(x)·cos(y)",
+    gradFormula: "(cos x · cos y, −sin x · sin y)",
+    range: { xmin: -3.2, xmax: 3.2, ymin: -3.2, ymax: 3.2 },
+    levels: [-0.8, -0.5, -0.2, 0, 0.2, 0.5, 0.8]
+  },
+  quad1: {
+    label: "x²−2xy+3y²",
+    f: (x, y) => x*x - 2*x*y + 3*y*y,
+    fx: (x, y) => 2*x - 2*y,
+    fy: (x, y) => -2*x + 6*y,
+    formula: "f(x, y) = x² − 2xy + 3y²",
+    gradFormula: "(2x − 2y, −2x + 6y)",
+    range: { xmin: -3, xmax: 3, ymin: -3, ymax: 3 },
+    levels: [0.5, 1, 2, 4, 8, 14, 22, 32]
+  },
+  gaussian: {
+    label: "e^(−(x²+y²)/4)",
+    f: (x, y) => Math.exp(-(x*x + y*y) / 4),
+    fx: (x, y) => -x/2 * Math.exp(-(x*x + y*y) / 4),
+    fy: (x, y) => -y/2 * Math.exp(-(x*x + y*y) / 4),
+    formula: "f(x, y) = e^(−(x²+y²)/4)",
+    gradFormula: "(−x/2 · e^(...), −y/2 · e^(...))",
+    range: { xmin: -3.5, xmax: 3.5, ymin: -3.5, ymax: 3.5 },
+    levels: [0.1, 0.2, 0.35, 0.5, 0.7, 0.85, 0.95]
+  },
+  ridge: {
+    label: "sin(x²+y²)",
+    f: (x, y) => Math.sin(x*x + y*y),
+    fx: (x, y) => 2*x * Math.cos(x*x + y*y),
+    fy: (x, y) => 2*y * Math.cos(x*x + y*y),
+    formula: "f(x, y) = sin(x² + y²)",
+    gradFormula: "(2x · cos(x²+y²), 2y · cos(x²+y²))",
+    range: { xmin: -3, xmax: 3, ymin: -3, ymax: 3 },
+    levels: [-0.8, -0.4, 0, 0.4, 0.8]
+  },
+  hyperbol: {
+    label: "x²−y²",
+    f: (x, y) => x*x - y*y,
+    fx: (x, y) => 2*x,
+    fy: (x, y) => -2*y,
+    formula: "f(x, y) = x² − y²",
+    gradFormula: "(2x, −2y)",
+    range: { xmin: -3, xmax: 3, ymin: -3, ymax: 3 },
+    levels: [-6, -3, -1, 0, 1, 3, 6]
+  },
+  loss: {
+    label: "(x−2)²+3(y+1)²",
+    f: (x, y) => (x-2)*(x-2) + 3*(y+1)*(y+1),
+    fx: (x, y) => 2*(x-2),
+    fy: (x, y) => 6*(y+1),
+    formula: "L(x, y) = (x − 2)² + 3(y + 1)²",
+    gradFormula: "(2(x−2), 6(y+1))",
+    range: { xmin: -2, xmax: 5, ymin: -4, ymax: 2 },
+    levels: [0.5, 1, 2, 4, 8, 14, 22]
+  }
+};
+
+let currentFn = "bowl";
+
+/* ===================== Helpers ===================== */
+function getFn() { return FUNCTIONS[currentFn]; }
+
+function worldToScreen(x, y, W, H, range) {
+  const sx = (x - range.xmin) / (range.xmax - range.xmin) * W;
+  const sy = H - (y - range.ymin) / (range.ymax - range.ymin) * H;
+  return [sx, sy];
+}
+function screenToWorld(sx, sy, W, H, range) {
+  const x = range.xmin + sx / W * (range.xmax - range.xmin);
+  const y = range.ymin + (H - sy) / H * (range.ymax - range.ymin);
+  return [x, y];
+}
+
+/* ===================== 1. Contour 2D ===================== */
+function drawContour(svgId, fnObj, options = {}) {
+  const svg = document.getElementById(svgId);
+  const W = 360, H = 360;
+  svg.innerHTML = "";
+  const r = fnObj.range;
+  const N = 90;
+  // Heatmap background
+  const fMin = options.fMin ?? -1, fMax = options.fMax ?? 1;
+  // Sample to estimate min/max for coloring
+  let lo = Infinity, hi = -Infinity;
+  for (let i = 0; i <= 30; i++) for (let j = 0; j <= 30; j++) {
+    const x = r.xmin + (i/30)*(r.xmax - r.xmin);
+    const y = r.ymin + (j/30)*(r.ymax - r.ymin);
+    const v = fnObj.f(x, y);
+    if (isFinite(v)) { if (v < lo) lo = v; if (v > hi) hi = v; }
+  }
+  if (!isFinite(lo) || !isFinite(hi) || hi === lo) { lo = -1; hi = 1; }
+
+  // Heatmap as rectangles
+  const cell = W / 60;
+  for (let i = 0; i < 60; i++) {
+    for (let j = 0; j < 60; j++) {
+      const x = r.xmin + (i/60 + 0.5/60) * (r.xmax - r.xmin);
+      const y = r.ymax - (j/60 + 0.5/60) * (r.ymax - r.ymin);
+      const v = fnObj.f(x, y);
+      const t = Math.max(0, Math.min(1, (v - lo) / (hi - lo)));
+      // gradient: blue (low) -> white -> red (high)
+      let R, G, B;
+      if (t < 0.5) {
+        const k = t * 2;
+        R = Math.floor(44 + (247 - 44) * k);
+        G = Math.floor(82 + (250 - 82) * k);
+        B = Math.floor(130 + (252 - 130) * k);
+      } else {
+        const k = (t - 0.5) * 2;
+        R = Math.floor(247 + (252 - 247) * k);
+        G = Math.floor(250 - (250 - 129) * k);
+        B = Math.floor(252 - (252 - 129) * k);
+      }
+      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      rect.setAttribute("x", i * cell);
+      rect.setAttribute("y", j * cell);
+      rect.setAttribute("width", cell + 0.5);
+      rect.setAttribute("height", cell + 0.5);
+      rect.setAttribute("fill", `rgb(${R},${G},${B})`);
+      rect.setAttribute("opacity", "0.55");
+      svg.appendChild(rect);
+    }
+  }
+
+  // Contour lines using marching squares (simplified)
+  drawContourLines(svg, fnObj, W, H);
+
+  // Axes
+  const [ox, oy] = worldToScreen(0, 0, W, H, r);
+  if (ox >= 0 && ox <= W) {
+    const ax = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    ax.setAttribute("x1", ox); ax.setAttribute("y1", 0);
+    ax.setAttribute("x2", ox); ax.setAttribute("y2", H);
+    ax.setAttribute("stroke", "#a0aec0"); ax.setAttribute("stroke-width", "1"); ax.setAttribute("stroke-dasharray", "3,3");
+    svg.appendChild(ax);
+  }
+  if (oy >= 0 && oy <= H) {
+    const ay = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    ay.setAttribute("x1", 0); ay.setAttribute("y1", oy);
+    ay.setAttribute("x2", W); ay.setAttribute("y2", oy);
+    ay.setAttribute("stroke", "#a0aec0"); ay.setAttribute("stroke-width", "1"); ay.setAttribute("stroke-dasharray", "3,3");
+    svg.appendChild(ay);
+  }
+
+  // Labels
+  for (let v = Math.ceil(r.xmin); v <= Math.floor(r.xmax); v++) {
+    if (v === 0) continue;
+    const [sx, sy] = worldToScreen(v, 0, W, H, r);
+    if (sx >= 8 && sx <= W-8 && sy >= 0 && sy <= H) {
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t.setAttribute("x", sx); t.setAttribute("y", Math.min(H-2, sy+12));
+      t.setAttribute("font-size", "10"); t.setAttribute("fill", "#4a5568");
+      t.setAttribute("text-anchor", "middle");
+      t.textContent = v;
+      svg.appendChild(t);
+    }
+  }
+  for (let v = Math.ceil(r.ymin); v <= Math.floor(r.ymax); v++) {
+    if (v === 0) continue;
+    const [sx, sy] = worldToScreen(0, v, W, H, r);
+    if (sy >= 8 && sy <= H-8) {
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t.setAttribute("x", Math.max(8, sx+4)); t.setAttribute("y", sy+3);
+      t.setAttribute("font-size", "10"); t.setAttribute("fill", "#4a5568");
+      t.textContent = v;
+      svg.appendChild(t);
+    }
+  }
+}
+
+function drawContourLines(svg, fnObj, W, H, highlightLevel = null) {
+  const r = fnObj.range;
+  const N = 80;
+  const grid = [];
+  for (let i = 0; i <= N; i++) {
+    grid[i] = [];
+    for (let j = 0; j <= N; j++) {
+      const x = r.xmin + (i/N) * (r.xmax - r.xmin);
+      const y = r.ymin + (j/N) * (r.ymax - r.ymin);
+      grid[i][j] = fnObj.f(x, y);
+    }
+  }
+  const levels = fnObj.levels;
+  levels.forEach(level => {
+    const isHighlight = highlightLevel !== null && Math.abs(level - highlightLevel) < 0.001;
+    const color = isHighlight ? "#ed8936" : "#2b6cb0";
+    const width = isHighlight ? 2.5 : 1.2;
+    for (let i = 0; i < N; i++) {
+      for (let j = 0; j < N; j++) {
+        const v00 = grid[i][j], v10 = grid[i+1][j], v01 = grid[i][j+1], v11 = grid[i+1][j+1];
+        const cx0 = r.xmin + (i/N) * (r.xmax - r.xmin);
+        const cx1 = r.xmin + ((i+1)/N) * (r.xmax - r.xmin);
+        const cy0 = r.ymin + (j/N) * (r.ymax - r.ymin);
+        const cy1 = r.ymin + ((j+1)/N) * (r.ymax - r.ymin);
+        const points = [];
+        // Edge bottom
+        if ((v00 - level) * (v10 - level) < 0) {
+          const t = (level - v00) / (v10 - v00);
+          points.push([cx0 + t * (cx1 - cx0), cy0]);
+        }
+        // Edge right
+        if ((v10 - level) * (v11 - level) < 0) {
+          const t = (level - v10) / (v11 - v10);
+          points.push([cx1, cy0 + t * (cy1 - cy0)]);
+        }
+        // Edge top
+        if ((v01 - level) * (v11 - level) < 0) {
+          const t = (level - v01) / (v11 - v01);
+          points.push([cx0 + t * (cx1 - cx0), cy1]);
+        }
+        // Edge left
+        if ((v00 - level) * (v01 - level) < 0) {
+          const t = (level - v00) / (v01 - v00);
+          points.push([cx0, cy0 + t * (cy1 - cy0)]);
+        }
+        if (points.length >= 2) {
+          const [sx1, sy1] = worldToScreen(points[0][0], points[0][1], W, H, r);
+          const [sx2, sy2] = worldToScreen(points[1][0], points[1][1], W, H, r);
+          const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          line.setAttribute("x1", sx1); line.setAttribute("y1", sy1);
+          line.setAttribute("x2", sx2); line.setAttribute("y2", sy2);
+          line.setAttribute("stroke", color);
+          line.setAttribute("stroke-width", width);
+          line.setAttribute("opacity", isHighlight ? "0.95" : "0.55");
+          svg.appendChild(line);
+        }
+      }
+    }
+  });
+}
+
+/* ===================== 1b. 3D ortho-projection ===================== */
+let azimuth = 45;
+function draw3D() {
+  const svg = document.getElementById("surface3d");
+  const W = 360, H = 360;
+  svg.innerHTML = "";
+  const fnObj = getFn();
+  const r = fnObj.range;
+  const N = 28;
+  // Compute z values
+  let zMin = Infinity, zMax = -Infinity;
+  const grid = [];
+  for (let i = 0; i <= N; i++) {
+    grid[i] = [];
+    for (let j = 0; j <= N; j++) {
+      const x = r.xmin + (i/N) * (r.xmax - r.xmin);
+      const y = r.ymin + (j/N) * (r.ymax - r.ymin);
+      const z = fnObj.f(x, y);
+      grid[i][j] = { x, y, z };
+      if (isFinite(z)) {
+        if (z < zMin) zMin = z;
+        if (z > zMax) zMax = z;
+      }
+    }
+  }
+  if (zMax === zMin) zMax = zMin + 1;
+  const dz = zMax - zMin;
+
+  const az = azimuth * Math.PI / 180;
+  const elev = 30 * Math.PI / 180;
+  const cosA = Math.cos(az), sinA = Math.sin(az);
+  const cosE = Math.cos(elev), sinE = Math.sin(elev);
+  function project(x, y, z) {
+    // Rotate around z-axis by az
+    const xr = x * cosA - y * sinA;
+    const yr = x * sinA + y * cosA;
+    // Tilt
+    const yp = yr * cosE - z * sinE;
+    const zp = yr * sinE + z * cosE;
+    // Ortho to screen
+    const cx = W / 2;
+    const cy = H / 2 + 60;
+    const scale = 38;
+    return [cx + xr * scale, cy - yp * scale];
+  }
+
+  // Draw grid lines + colored fills
+  const polys = [];
+  for (let i = 0; i < N; i++) {
+    for (let j = 0; j < N; j++) {
+      const p1 = grid[i][j], p2 = grid[i+1][j], p3 = grid[i+1][j+1], p4 = grid[i][j+1];
+      const [s1x, s1y] = project(p1.x, p1.y, (p1.z - zMin)/dz * 2 - 1);
+      const [s2x, s2y] = project(p2.x, p2.y, (p2.z - zMin)/dz * 2 - 1);
+      const [s3x, s3y] = project(p3.x, p3.y, (p3.z - zMin)/dz * 2 - 1);
+      const [s4x, s4y] = project(p4.x, p4.y, (p4.z - zMin)/dz * 2 - 1);
+      const zavg = (p1.z + p2.z + p3.z + p4.z) / 4;
+      // For depth sorting, use average projected y
+      const depthKey = (p1.x + p2.x + p3.x + p4.x) * (-sinA) + (p1.y + p2.y + p3.y + p4.y) * cosA;
+      polys.push({ pts: [[s1x,s1y],[s2x,s2y],[s3x,s3y],[s4x,s4y]], z: zavg, depth: depthKey });
+    }
+  }
+  polys.sort((a, b) => a.depth - b.depth);
+  polys.forEach(p => {
+    const t = (p.z - zMin) / dz;
+    let R, G, B;
+    if (t < 0.5) {
+      const k = t * 2;
+      R = Math.floor(44 + (247 - 44) * k);
+      G = Math.floor(82 + (250 - 82) * k);
+      B = Math.floor(130 + (252 - 130) * k);
+    } else {
+      const k = (t - 0.5) * 2;
+      R = Math.floor(247 + (252 - 247) * k);
+      G = Math.floor(250 - (250 - 129) * k);
+      B = Math.floor(252 - (252 - 129) * k);
+    }
+    const poly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    poly.setAttribute("points", p.pts.map(pt => pt.join(",")).join(" "));
+    poly.setAttribute("fill", `rgb(${R},${G},${B})`);
+    poly.setAttribute("stroke", "#1a202c");
+    poly.setAttribute("stroke-width", "0.4");
+    poly.setAttribute("opacity", "0.92");
+    svg.appendChild(poly);
+  });
+
+  // Axes labels
+  const axesPts = [
+    { name: "x", end: [r.xmax * 1.1, 0, -1] },
+    { name: "y", end: [0, r.ymax * 1.1, -1] },
+    { name: "z", end: [0, 0, 1.15] }
+  ];
+  axesPts.forEach(a => {
+    const [s1x, s1y] = project(0, 0, -1);
+    const [s2x, s2y] = project(a.end[0], a.end[1], a.end[2]);
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", s1x); line.setAttribute("y1", s1y);
+    line.setAttribute("x2", s2x); line.setAttribute("y2", s2y);
+    line.setAttribute("stroke", "#f6ad55"); line.setAttribute("stroke-width", "1.2");
+    svg.appendChild(line);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", s2x); t.setAttribute("y", s2y - 3);
+    t.setAttribute("fill", "#fbd38d"); t.setAttribute("font-size", "12"); t.setAttribute("font-weight", "700");
+    t.textContent = a.name;
+    svg.appendChild(t);
+  });
+}
+
+/* ===================== 2. Gradient at point ===================== */
+let pointX = 1, pointY = 2;
+function drawGradPoint() {
+  const svg = document.getElementById("gradPointSvg");
+  const W = 360, H = 360;
+  svg.innerHTML = "";
+  const fnObj = getFn();
+  const r = fnObj.range;
+
+  // Adjust point if out of range
+  pointX = Math.max(r.xmin + 0.1, Math.min(r.xmax - 0.1, pointX));
+  pointY = Math.max(r.ymin + 0.1, Math.min(r.ymax - 0.1, pointY));
+
+  // Compute f value at point
+  const fVal = fnObj.f(pointX, pointY);
+  const dfdx = fnObj.fx(pointX, pointY);
+  const dfdy = fnObj.fy(pointX, pointY);
+  const gradMag = Math.sqrt(dfdx*dfdx + dfdy*dfdy);
+
+  // Background heatmap (lighter)
+  drawHeatmapBG(svg, fnObj, W, H, 0.3);
+  // Contour lines, highlight the one through the point
+  drawContourLines(svg, fnObj, W, H, fVal);
+  // Also draw a custom contour through the exact point
+  drawContourLines(svg, { ...fnObj, levels: [fVal] }, W, H, fVal);
+
+  // Axes
+  drawAxes(svg, fnObj, W, H);
+
+  // Point
+  const [px, py] = worldToScreen(pointX, pointY, W, H, r);
+  const pt = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  pt.setAttribute("cx", px); pt.setAttribute("cy", py); pt.setAttribute("r", 5);
+  pt.setAttribute("fill", "#2d3748"); pt.setAttribute("stroke", "white"); pt.setAttribute("stroke-width", "2");
+  svg.appendChild(pt);
+
+  // Gradient arrow
+  if (gradMag > 0.001) {
+    // Arrow length proportional to gradient, capped
+    const arrowLen = Math.min(gradMag, 4) * 30;
+    const dirx = dfdx / gradMag, diry = dfdy / gradMag;
+    const ex = px + dirx * arrowLen;
+    const ey = py - diry * arrowLen;
+    drawArrow(svg, px, py, ex, ey, "#e53e3e", 3);
+    // -gradient (downhill)
+    const ex2 = px - dirx * arrowLen * 0.7;
+    const ey2 = py + diry * arrowLen * 0.7;
+    drawArrow(svg, px, py, ex2, ey2, "#38a169", 2);
+  }
+
+  // Update info
+  document.getElementById("ptX").textContent = pointX.toFixed(2);
+  document.getElementById("ptY").textContent = pointY.toFixed(2);
+  document.getElementById("ptF").textContent = fVal.toFixed(3);
+  document.getElementById("ptDfdx").textContent = dfdx.toFixed(3);
+  document.getElementById("ptDfdy").textContent = dfdy.toFixed(3);
+  document.getElementById("ptGrad").textContent = `(${dfdx.toFixed(2)}, ${dfdy.toFixed(2)})`;
+  document.getElementById("ptGradMag").textContent = gradMag.toFixed(3);
+  const angle = Math.atan2(dfdy, dfdx) * 180 / Math.PI;
+  document.getElementById("ptGradAngle").textContent = angle.toFixed(1) + "°";
+}
+
+function drawHeatmapBG(svg, fnObj, W, H, opacity = 0.45) {
+  const r = fnObj.range;
+  let lo = Infinity, hi = -Infinity;
+  for (let i = 0; i <= 30; i++) for (let j = 0; j <= 30; j++) {
+    const x = r.xmin + (i/30)*(r.xmax - r.xmin);
+    const y = r.ymin + (j/30)*(r.ymax - r.ymin);
+    const v = fnObj.f(x, y);
+    if (isFinite(v)) { if (v < lo) lo = v; if (v > hi) hi = v; }
+  }
+  if (!isFinite(lo) || hi === lo) { lo = -1; hi = 1; }
+  const cell = W / 60;
+  for (let i = 0; i < 60; i++) {
+    for (let j = 0; j < 60; j++) {
+      const x = r.xmin + (i/60 + 0.5/60) * (r.xmax - r.xmin);
+      const y = r.ymax - (j/60 + 0.5/60) * (r.ymax - r.ymin);
+      const v = fnObj.f(x, y);
+      const t = Math.max(0, Math.min(1, (v - lo) / (hi - lo)));
+      let R, G, B;
+      if (t < 0.5) {
+        const k = t * 2;
+        R = Math.floor(44 + (247 - 44) * k);
+        G = Math.floor(82 + (250 - 82) * k);
+        B = Math.floor(130 + (252 - 130) * k);
+      } else {
+        const k = (t - 0.5) * 2;
+        R = Math.floor(247 + (252 - 247) * k);
+        G = Math.floor(250 - (250 - 129) * k);
+        B = Math.floor(252 - (252 - 129) * k);
+      }
+      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      rect.setAttribute("x", i * cell);
+      rect.setAttribute("y", j * cell);
+      rect.setAttribute("width", cell + 0.5);
+      rect.setAttribute("height", cell + 0.5);
+      rect.setAttribute("fill", `rgb(${R},${G},${B})`);
+      rect.setAttribute("opacity", opacity);
+      svg.appendChild(rect);
+    }
+  }
+}
+
+function drawAxes(svg, fnObj, W, H) {
+  const r = fnObj.range;
+  const [ox, oy] = worldToScreen(0, 0, W, H, r);
+  if (ox >= 0 && ox <= W) {
+    const ax = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    ax.setAttribute("x1", ox); ax.setAttribute("y1", 0);
+    ax.setAttribute("x2", ox); ax.setAttribute("y2", H);
+    ax.setAttribute("stroke", "#718096"); ax.setAttribute("stroke-width", "1"); ax.setAttribute("stroke-dasharray", "3,3");
+    svg.appendChild(ax);
+  }
+  if (oy >= 0 && oy <= H) {
+    const ay = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    ay.setAttribute("x1", 0); ay.setAttribute("y1", oy);
+    ay.setAttribute("x2", W); ay.setAttribute("y2", oy);
+    ay.setAttribute("stroke", "#718096"); ay.setAttribute("stroke-width", "1"); ay.setAttribute("stroke-dasharray", "3,3");
+    svg.appendChild(ay);
+  }
+}
+
+function drawArrow(svg, x1, y1, x2, y2, color, width = 2) {
+  const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  line.setAttribute("x1", x1); line.setAttribute("y1", y1);
+  line.setAttribute("x2", x2); line.setAttribute("y2", y2);
+  line.setAttribute("stroke", color); line.setAttribute("stroke-width", width);
+  line.setAttribute("stroke-linecap", "round");
+  svg.appendChild(line);
+
+  // Arrowhead
+  const dx = x2 - x1, dy = y2 - y1;
+  const len = Math.sqrt(dx*dx + dy*dy);
+  if (len < 0.1) return;
+  const ux = dx/len, uy = dy/len;
+  const headLen = Math.min(10, len * 0.4);
+  const headW = headLen * 0.6;
+  const px = x2 - ux * headLen, py = y2 - uy * headLen;
+  // Perp
+  const pxL = px + uy * headW * 0.5, pyL = py - ux * headW * 0.5;
+  const pxR = px - uy * headW * 0.5, pyR = py + ux * headW * 0.5;
+  const tri = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  tri.setAttribute("points", `${x2},${y2} ${pxL},${pyL} ${pxR},${pyR}`);
+  tri.setAttribute("fill", color);
+  svg.appendChild(tri);
+}
+
+/* ===================== 3. Gradient field ===================== */
+let fieldDensity = 11, fieldScale = 18, fieldNegative = false;
+function drawField() {
+  const svg = document.getElementById("fieldSvg");
+  const W = 720, H = 360;
+  svg.innerHTML = "";
+  const fnObj = getFn();
+  const r = fnObj.range;
+
+  // Background heatmap
+  drawHeatmapBG(svg, fnObj, W, H, 0.4);
+  // Contour lines
+  drawContourLines(svg, fnObj, W, H);
+  drawAxes(svg, fnObj, W, H);
+
+  // Grid of arrows
+  const N = fieldDensity;
+  // Compute max gradient magnitude for normalization
+  let maxMag = 0;
+  for (let i = 0; i < N; i++) {
+    for (let j = 0; j < N; j++) {
+      const x = r.xmin + (i + 0.5)/N * (r.xmax - r.xmin);
+      const y = r.ymin + (j + 0.5)/N * (r.ymax - r.ymin);
+      const gx = fnObj.fx(x, y), gy = fnObj.fy(x, y);
+      const mag = Math.sqrt(gx*gx + gy*gy);
+      if (isFinite(mag) && mag > maxMag) maxMag = mag;
+    }
+  }
+  if (maxMag === 0) maxMag = 1;
+
+  const sign = fieldNegative ? -1 : 1;
+  for (let i = 0; i < N; i++) {
+    for (let j = 0; j < N; j++) {
+      const x = r.xmin + (i + 0.5)/N * (r.xmax - r.xmin);
+      const y = r.ymin + (j + 0.5)/N * (r.ymax - r.ymin);
+      const gx = fnObj.fx(x, y) * sign, gy = fnObj.fy(x, y) * sign;
+      const mag = Math.sqrt(gx*gx + gy*gy);
+      if (!isFinite(mag) || mag < 1e-6) continue;
+      const [sx, sy] = worldToScreen(x, y, W, H, r);
+      const len = (mag / maxMag) * fieldScale;
+      const ex = sx + (gx / mag) * len;
+      const ey = sy - (gy / mag) * len;
+      // Color: scaled by magnitude
+      const intensity = Math.min(1, mag / maxMag);
+      const color = fieldNegative
+        ? `rgb(${Math.floor(34+intensity*100)}, ${Math.floor(120+intensity*60)}, ${Math.floor(50+intensity*50)})`
+        : `rgb(${Math.floor(180+intensity*60)}, ${Math.floor(50)}, ${Math.floor(50)})`;
+      drawArrow(svg, sx, sy, ex, ey, color, 1.4);
+    }
+  }
+}
+
+/* ===================== 4. Directional derivative ===================== */
+let dirAngle = 0, dirPtX = 1, dirPtY = 2;
+function drawDirDeriv() {
+  const svg = document.getElementById("dirDerivSvg");
+  const W = 360, H = 360;
+  svg.innerHTML = "";
+  const fnObj = getFn();
+  const r = fnObj.range;
+
+  // Adjust point
+  dirPtX = Math.max(r.xmin + 0.1, Math.min(r.xmax - 0.1, dirPtX));
+  dirPtY = Math.max(r.ymin + 0.1, Math.min(r.ymax - 0.1, dirPtY));
+
+  drawHeatmapBG(svg, fnObj, W, H, 0.35);
+  const fVal = fnObj.f(dirPtX, dirPtY);
+  drawContourLines(svg, fnObj, W, H, fVal);
+  drawContourLines(svg, { ...fnObj, levels: [fVal] }, W, H, fVal);
+  drawAxes(svg, fnObj, W, H);
+
+  const [px, py] = worldToScreen(dirPtX, dirPtY, W, H, r);
+
+  const dfdx = fnObj.fx(dirPtX, dirPtY);
+  const dfdy = fnObj.fy(dirPtX, dirPtY);
+  const gradMag = Math.sqrt(dfdx*dfdx + dfdy*dfdy);
+
+  // Gradient (red)
+  if (gradMag > 0.001) {
+    const arrowLen = Math.min(gradMag, 4) * 25;
+    const ex = px + (dfdx / gradMag) * arrowLen;
+    const ey = py - (dfdy / gradMag) * arrowLen;
+    drawArrow(svg, px, py, ex, ey, "#e53e3e", 2.5);
+    const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    txt.setAttribute("x", ex + 4); txt.setAttribute("y", ey - 4);
+    txt.setAttribute("fill", "#9b2c2c"); txt.setAttribute("font-size", "11"); txt.setAttribute("font-weight", "700");
+    txt.textContent = "∇f";
+    svg.appendChild(txt);
+  }
+
+  // û (blue) - chosen direction, length 50
+  const ang = dirAngle * Math.PI / 180;
+  const ux = Math.cos(ang), uy = Math.sin(ang);
+  const uLen = 60;
+  const uex = px + ux * uLen;
+  const uey = py - uy * uLen;
+  drawArrow(svg, px, py, uex, uey, "#3182ce", 2.5);
+  const utxt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  utxt.setAttribute("x", uex + 4); utxt.setAttribute("y", uey + 4);
+  utxt.setAttribute("fill", "#1a365d"); utxt.setAttribute("font-size", "11"); utxt.setAttribute("font-weight", "700");
+  utxt.textContent = "û";
+  svg.appendChild(utxt);
+
+  // Point
+  const pt = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  pt.setAttribute("cx", px); pt.setAttribute("cy", py); pt.setAttribute("r", 5);
+  pt.setAttribute("fill", "#2d3748"); pt.setAttribute("stroke", "white"); pt.setAttribute("stroke-width", "2");
+  svg.appendChild(pt);
+
+  // Update info
+  const dfu = dfdx * ux + dfdy * uy;
+  const ratio = gradMag > 0 ? dfu / gradMag : 0;
+  document.getElementById("dirGrad").textContent = `(${dfdx.toFixed(2)}, ${dfdy.toFixed(2)})`;
+  document.getElementById("dirGradMag").textContent = gradMag.toFixed(3);
+  document.getElementById("dirUhat").textContent = `(${ux.toFixed(3)}, ${uy.toFixed(3)})`;
+  document.getElementById("dirDfu").textContent = dfu.toFixed(3);
+  document.getElementById("dirRatio").textContent = (ratio * 100).toFixed(1) + "%";
+  document.getElementById("dirCos").textContent = ratio.toFixed(3);
+
+  // Update table
+  document.getElementById("r1").textContent = "+" + gradMag.toFixed(2);
+  document.getElementById("r2").textContent = dfdx.toFixed(2);
+  document.getElementById("r3").textContent = "-" + gradMag.toFixed(2);
+}
+
+/* ===================== Wire-up ===================== */
+function refreshAll() {
+  const fnObj = getFn();
+  document.getElementById("formulaDisplay").textContent = fnObj.formula;
+  document.getElementById("gradFormula").textContent = fnObj.gradFormula;
+  drawContour("contourSvg", fnObj);
+  draw3D();
+  drawGradPoint();
+  drawField();
+  drawDirDeriv();
+}
+
+document.getElementById("fnSelect").addEventListener("change", e => {
+  currentFn = e.target.value;
+  const r = getFn().range;
+  // Reset point to a sensible default inside range
+  pointX = (r.xmin + r.xmax) / 2 + 0.5;
+  pointY = (r.ymin + r.ymax) / 2 + 0.5;
+  dirPtX = pointX;
+  dirPtY = pointY;
+  document.getElementById("dirPtX").value = dirPtX.toFixed(1);
+  document.getElementById("dirPtY").value = dirPtY.toFixed(1);
+  refreshAll();
+});
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  currentFn = "bowl";
+  document.getElementById("fnSelect").value = "bowl";
+  pointX = 1; pointY = 2;
+  dirPtX = 1; dirPtY = 2;
+  dirAngle = 0;
+  document.getElementById("angleRange").value = 0;
+  document.getElementById("angleVal").textContent = "0°";
+  document.getElementById("dirPtX").value = 1;
+  document.getElementById("dirPtY").value = 2;
+  refreshAll();
+});
+
+document.getElementById("azimuth").addEventListener("input", e => {
+  azimuth = parseFloat(e.target.value);
+  document.getElementById("azimuthVal").textContent = azimuth + "°";
+  draw3D();
+});
+
+document.getElementById("gradPointSvg").addEventListener("click", e => {
+  const svg = document.getElementById("gradPointSvg");
+  const rect = svg.getBoundingClientRect();
+  const sx = (e.clientX - rect.left) / rect.width * 360;
+  const sy = (e.clientY - rect.top) / rect.height * 360;
+  const [wx, wy] = screenToWorld(sx, sy, 360, 360, getFn().range);
+  pointX = wx; pointY = wy;
+  drawGradPoint();
+});
+
+document.getElementById("densityRange").addEventListener("input", e => {
+  fieldDensity = parseInt(e.target.value);
+  document.getElementById("densityVal").textContent = fieldDensity;
+  drawField();
+});
+document.getElementById("scaleRange").addEventListener("input", e => {
+  fieldScale = parseInt(e.target.value);
+  document.getElementById("scaleVal").textContent = fieldScale;
+  drawField();
+});
+document.getElementById("toggleNegative").addEventListener("click", e => {
+  fieldNegative = !fieldNegative;
+  e.target.classList.toggle("active", fieldNegative);
+  e.target.textContent = fieldNegative ? "Đang vẽ -∇f (đảo lại)" : "Đảo dấu (vẽ -∇f)";
+  drawField();
+});
+document.getElementById("angleRange").addEventListener("input", e => {
+  dirAngle = parseInt(e.target.value);
+  document.getElementById("angleVal").textContent = dirAngle + "°";
+  drawDirDeriv();
+});
+document.getElementById("dirPtX").addEventListener("input", e => {
+  dirPtX = parseFloat(e.target.value) || 0;
+  drawDirDeriv();
+});
+document.getElementById("dirPtY").addEventListener("input", e => {
+  dirPtY = parseFloat(e.target.value) || 0;
+  drawDirDeriv();
+});
+
+// Initial render
+refreshAll();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

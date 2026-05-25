@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 18 — Development Economics</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .lead { color: #4a5568; margin-bottom: 24px; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 220px; }
+  input[type="number"], input[type="range"] { font-family: monospace; padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 4px; }
+  input[type="number"] { width: 100px; }
+  .result { background: #f7fafc; border-left: 4px solid #c05621; padding: 14px 18px; margin-top: 14px; border-radius: 4px; font-family: monospace; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  svg { display: block; margin: 0 auto; max-width: 100%; }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; background: #fff5eb; color: #c05621; font-weight: 700; margin-left: 6px; }
+  button { background: #c05621; color: white; border: none; padding: 7px 14px; border-radius: 4px; cursor: pointer; font-weight: 600; }
+  button:hover { background: #9c4221; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-17-behavioral-economics/visualization.html">← L17: Behavioral</a>
+  <span class="sep">·</span>
+  <span class="current">L18: Development</span>
+  <span class="sep">·</span>
+  <a href="../lesson-19-econometrics-intro/visualization.html">L19: Econometrics →</a>
+</nav>
+  <h1>Lesson 18 — Development Economics</h1>
+  <div class="lead">Mô phỏng RCT đơn giản — đo tác động chính sách so với placebo có nhiễu ngẫu nhiên.</div>
+
+  <h2>Mô phỏng RCT <span class="pill">Randomized Controlled Trial</span></h2>
+  <div class="card">
+    <p>Phát học bổng tiền mặt cho học sinh — đo tỉ lệ tốt nghiệp THPT. Treatment group có nhận, control không.</p>
+    <div class="row"><label>Cỡ mẫu mỗi nhóm</label><input id="n" type="number" value="500" step="50"></div>
+    <div class="row"><label>Tỉ lệ tốt nghiệp gốc (%)</label><input id="base" type="range" min="20" max="90" step="5" value="60"><span id="base-v" style="font-family:monospace;"></span></div>
+    <div class="row"><label>Hiệu ứng thật của học bổng (% điểm)</label><input id="effect" type="range" min="0" max="30" step="1" value="8"><span id="effect-v" style="font-family:monospace;"></span></div>
+    <div class="row"><label>Nhiễu (độ lệch chuẩn % điểm)</label><input id="noise" type="range" min="0" max="20" step="1" value="5"><span id="noise-v" style="font-family:monospace;"></span></div>
+    <div class="row"><button id="run">Chạy 1 RCT</button> <button id="run100">Chạy 100 RCT</button></div>
+    <div class="result" id="out"></div>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+function get(id) { return parseFloat($(id).value) || 0; }
+
+// Box-Muller for normal random
+function normalRandom(mean, std) {
+  const u1 = Math.random(), u2 = Math.random();
+  return mean + std * Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+}
+
+function runOne() {
+  const N = Math.floor(get('n'));
+  const base = get('base') / 100;
+  const effect = get('effect') / 100;
+  const noise = get('noise') / 100;
+
+  // Treatment: rate ~ base + effect, nhiễu cá nhân chuyển thành xác suất
+  let treatedGrad = 0, controlGrad = 0;
+  for (let i = 0; i < N; i++) {
+    const p_t = Math.max(0, Math.min(1, base + effect + normalRandom(0, noise)));
+    const p_c = Math.max(0, Math.min(1, base + normalRandom(0, noise)));
+    if (Math.random() < p_t) treatedGrad++;
+    if (Math.random() < p_c) controlGrad++;
+  }
+  const rate_t = treatedGrad / N;
+  const rate_c = controlGrad / N;
+  const diff = rate_t - rate_c;
+  // Standard error approximate
+  const se = Math.sqrt(rate_t * (1 - rate_t) / N + rate_c * (1 - rate_c) / N);
+  const z = diff / se;
+  const significant = Math.abs(z) > 1.96;
+
+  return { rate_t, rate_c, diff, se, z, significant };
+}
+
+function display(r) {
+  const trueEffect = get('effect') / 100;
+  $('out').innerHTML =
+    `<strong>Kết quả 1 RCT:</strong>\n` +
+    `  Treatment: ${(r.rate_t * 100).toFixed(1)}% tốt nghiệp\n` +
+    `  Control:   ${(r.rate_c * 100).toFixed(1)}% tốt nghiệp\n` +
+    `  Hiệu số (chính sách): ${(r.diff * 100).toFixed(2)}% điểm\n` +
+    `  SE: ${(r.se * 100).toFixed(2)}\n` +
+    `  z-stat: ${r.z.toFixed(2)} ${r.significant ? '(p<0.05 ✓)' : '(không có ý nghĩa thống kê)'}\n\n` +
+    `Hiệu ứng thật (oracle): ${(trueEffect * 100).toFixed(1)}%\n` +
+    `RCT ước lượng: ${(r.diff * 100).toFixed(2)}% — sai số = ${(r.diff * 100 - trueEffect * 100).toFixed(2)}`;
+}
+
+$('run').addEventListener('click', () => display(runOne()));
+
+$('run100').addEventListener('click', () => {
+  const results = [];
+  for (let i = 0; i < 100; i++) results.push(runOne());
+  const diffs = results.map(r => r.diff);
+  const mean = diffs.reduce((a, b) => a + b, 0) / diffs.length;
+  const std = Math.sqrt(diffs.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / diffs.length);
+  const sigCount = results.filter(r => r.significant).length;
+  $('out').innerHTML =
+    `<strong>100 RCT độc lập:</strong>\n` +
+    `Hiệu số trung bình: ${(mean * 100).toFixed(2)}% (thật: ${get('effect').toFixed(1)}%)\n` +
+    `Độ lệch chuẩn: ${(std * 100).toFixed(2)}%\n` +
+    `Số RCT có ý nghĩa thống kê: ${sigCount}/100\n\n` +
+    (sigCount > 80 ? `→ Power cao, dễ phát hiện hiệu ứng.` :
+     sigCount < 30 ? `→ Power thấp, cần cỡ mẫu lớn hơn hoặc hiệu ứng rõ hơn.` :
+     `→ Power trung bình.`);
+});
+
+['base','effect','noise'].forEach(id => $(id).addEventListener('input', () => {
+  $('base-v').textContent = get('base').toFixed(0) + '%';
+  $('effect-v').textContent = get('effect').toFixed(0) + '%';
+  $('noise-v').textContent = get('noise').toFixed(0) + '%';
+}));
+['base','effect','noise'].forEach(id => $(id).dispatchEvent(new Event('input')));
+display(runOne());
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

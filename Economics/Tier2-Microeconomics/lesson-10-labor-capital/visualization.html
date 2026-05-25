@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 10 — Labor & Capital</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .lead { color: #4a5568; margin-bottom: 24px; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 220px; }
+  input[type="number"], input[type="range"] { font-family: monospace; padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 4px; }
+  input[type="number"] { width: 110px; }
+  input[type="range"] { width: 220px; }
+  .result { background: #f7fafc; border-left: 4px solid #c05621; padding: 14px 18px; margin-top: 14px; border-radius: 4px; font-family: monospace; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  svg { display: block; margin: 0 auto; max-width: 100%; }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; background: #fff5eb; color: #c05621; font-weight: 700; margin-left: 6px; }
+  textarea { width: 100%; min-height: 80px; font-family: monospace; font-size: 13.5px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-09-game-theory/visualization.html">← L9: Game Theory</a>
+  <span class="sep">·</span>
+  <span class="current">L10: Labor & Capital</span>
+  <span class="sep">·</span>
+  <a href="../../Tier3-Macroeconomics/lesson-11-gdp-measurement/visualization.html">L11: GDP →</a>
+</nav>
+  <h1>Lesson 10 — Labor & Capital</h1>
+  <div class="lead">Lãi kép qua thời gian, máy tính NPV cho dự án, và demo lương tối thiểu trên thị trường lao động.</div>
+
+  <h2>1. Lãi kép vs lãi đơn <span class="pill">Compound Interest</span></h2>
+  <div class="card">
+    <div class="row"><label>Số tiền gốc (triệu)</label><input id="p" type="number" value="100" step="10"></div>
+    <div class="row"><label>Lãi suất / năm (%)</label><input id="r" type="range" min="1" max="20" step="0.5" value="8"><span id="r-v" style="font-family:monospace;"></span></div>
+    <div class="row"><label>Số năm</label><input id="n" type="range" min="1" max="50" step="1" value="20"><span id="n-v" style="font-family:monospace;"></span></div>
+    <svg id="comp-svg" viewBox="0 0 600 320" style="background:#fff; border:1px solid #e2e8f0;"></svg>
+    <div class="result" id="comp-out"></div>
+  </div>
+
+  <h2>2. Máy tính NPV <span class="pill">Net Present Value</span></h2>
+  <div class="card">
+    <div class="row"><label>Đầu tư ban đầu (âm)</label><input id="c0" type="number" value="-500" step="50"></div>
+    <div class="row"><label>Dòng tiền các năm (phẩy)</label></div>
+    <textarea id="cashflow">200, 200, 200, 200</textarea>
+    <div class="row"><label>Discount rate (%)</label><input id="rate" type="range" min="0" max="30" step="0.5" value="10"><span id="rate-v" style="font-family:monospace;"></span></div>
+    <div class="result" id="npv-out"></div>
+  </div>
+
+  <h2>3. Lương tối thiểu <span class="pill">Labor Market</span></h2>
+  <div class="card">
+    <p>Cung lao động <code>L_s = a·w − b</code>, cầu <code>L_d = c − d·w</code>.</p>
+    <div class="row"><label>a</label><input id="la" type="number" value="0.5" step="0.1"></div>
+    <div class="row"><label>b</label><input id="lb" type="number" value="5" step="1"></div>
+    <div class="row"><label>c</label><input id="lc" type="number" value="50" step="5"></div>
+    <div class="row"><label>d</label><input id="ld" type="number" value="0.5" step="0.1"></div>
+    <div class="row"><label>Min wage</label><input id="wmin" type="range" min="0" max="120" step="1" value="0"><span id="wmin-v" style="font-family:monospace;"></span></div>
+    <div class="result" id="lab-out"></div>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+function get(id) { return parseFloat($(id).value) || 0; }
+
+// Compound
+function calcComp() {
+  const P = get('p'), r = get('r') / 100, n = Math.floor(get('n'));
+  $('r-v').textContent = (r * 100).toFixed(1) + '%';
+  $('n-v').textContent = n;
+
+  const simple = P * (1 + n * r);
+  const compound = P * Math.pow(1 + r, n);
+
+  // SVG: vẽ 2 đường qua n năm
+  const W = 600, H = 320, padL = 60, padB = 50, padT = 30, padR = 30;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const yMax = compound * 1.1;
+  const sx = t => padL + (t / n) * plotW;
+  const sy = v => padT + plotH - (v / yMax) * plotH;
+
+  let svg = '';
+  // grid
+  for (let i = 1; i <= 5; i++) {
+    svg += `<text x="${padL-8}" y="${sy(yMax/5*i)+4}" text-anchor="end" font-size="11" fill="#718096">${(yMax/5*i).toFixed(0)}</text>`;
+  }
+  // simple line
+  let p1 = '', p2 = '';
+  for (let t = 0; t <= n; t++) {
+    p1 += (t === 0 ? 'M' : 'L') + sx(t) + ',' + sy(P * (1 + t * r)) + ' ';
+    p2 += (t === 0 ? 'M' : 'L') + sx(t) + ',' + sy(P * Math.pow(1 + r, t)) + ' ';
+  }
+  svg += `<path d="${p1}" fill="none" stroke="#a0aec0" stroke-width="2"/>`;
+  svg += `<path d="${p2}" fill="none" stroke="#c05621" stroke-width="2.5"/>`;
+  svg += `<text x="${sx(n)-30}" y="${sy(simple)-6}" font-size="11" fill="#718096">Lãi đơn</text>`;
+  svg += `<text x="${sx(n)-30}" y="${sy(compound)+14}" font-size="11" fill="#c05621" font-weight="700">Lãi kép</text>`;
+
+  svg += `<line x1="${padL}" y1="${padT+plotH}" x2="${padL+plotW}" y2="${padT+plotH}" stroke="#cbd5e0"/>`;
+  svg += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+plotH}" stroke="#cbd5e0"/>`;
+  svg += `<text x="${padL+plotW/2}" y="${H-10}" text-anchor="middle" font-size="13" fill="#2d3748">Năm</text>`;
+  $('comp-svg').innerHTML = svg;
+
+  $('comp-out').innerHTML =
+    `Sau ${n} năm với r = ${(r*100).toFixed(1)}%:\n` +
+    `  Lãi đơn: ${simple.toFixed(2)} triệu (gấp ${(simple/P).toFixed(2)}× gốc)\n` +
+    `  Lãi kép: ${compound.toFixed(2)} triệu (gấp ${(compound/P).toFixed(2)}× gốc)\n` +
+    `  Chênh lệch: ${(compound - simple).toFixed(2)} triệu (${((compound/simple - 1) * 100).toFixed(1)}% nhiều hơn)\n\n` +
+    `Quy tắc 72 (xấp xỉ): tiền nhân đôi sau ~${(72/(r*100)).toFixed(1)} năm với lãi kép.`;
+}
+['p','r','n'].forEach(id => $(id).addEventListener('input', calcComp));
+
+// NPV
+function calcNPV() {
+  const c0 = get('c0');
+  const flows = $('cashflow').value.split(',').map(s => parseFloat(s.trim())).filter(x => !isNaN(x));
+  const r = get('rate') / 100;
+  $('rate-v').textContent = (r * 100).toFixed(1) + '%';
+
+  let npv = c0;
+  let detail = `Đầu tư ban đầu: ${c0}\n`;
+  flows.forEach((cf, i) => {
+    const pv = cf / Math.pow(1 + r, i + 1);
+    npv += pv;
+    detail += `Năm ${i+1}: ${cf} → PV = ${pv.toFixed(2)}\n`;
+  });
+
+  $('npv-out').innerHTML =
+    detail + `\n<strong>NPV = ${npv.toFixed(2)}</strong>\n` +
+    (npv > 0 ? `→ NPV > 0: <span style="color:#2f855a; font-weight:700">CHẤP NHẬN</span> dự án.` :
+     npv < 0 ? `→ NPV < 0: <span style="color:#c53030; font-weight:700">TỪ CHỐI</span> dự án.` :
+     `→ NPV = 0: hoà vốn, không có incentive rõ ràng.`);
+}
+['c0','rate'].forEach(id => $(id).addEventListener('input', calcNPV));
+$('cashflow').addEventListener('input', calcNPV);
+
+// Labor market
+function calcLab() {
+  const a = get('la'), b = get('lb'), c = get('lc'), d = get('ld');
+  const wmin = get('wmin');
+  $('wmin-v').textContent = wmin;
+  // L_s = aw - b; L_d = c - dw. Cân bằng: aw - b = c - dw → w = (c + b)/(a + d)
+  const wStar = (c + b) / (a + d);
+  const Lstar = a * wStar - b;
+  const binding = wmin > wStar;
+  const Ld = c - d * wmin;
+  const Ls = a * wmin - b;
+  const unemp = binding ? (Ls - Ld) : 0;
+
+  $('lab-out').innerHTML =
+    `Cân bằng: w* = ${wStar.toFixed(2)}, L* = ${Lstar.toFixed(2)}\n\n` +
+    (wmin === 0 ? `Không áp min wage.` :
+     binding ? `<strong>Min wage = ${wmin} (binding, trên w*):</strong>\n  L_d (việc làm) = ${Ld.toFixed(2)}\n  L_s (muốn làm) = ${Ls.toFixed(2)}\n  → Thất nghiệp = ${unemp.toFixed(2)} người` :
+     `Min wage = ${wmin} không binding (dưới w*).`);
+}
+['la','lb','lc','ld','wmin'].forEach(id => $(id).addEventListener('input', calcLab));
+
+calcComp(); calcNPV(); calcLab();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

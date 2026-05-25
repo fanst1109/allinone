@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IPA — 44 âm vị tiếng Anh (audio từ Oxford)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --panel: #ffffff;
+    --ink: #1a1a1a;
+    --muted: #6a6a6a;
+    --line: #e3e1dc;
+    --accent: #b45309;
+    --accent-soft: #fef3c7;
+    --vowel: #1e40af;
+    --vowel-soft: #dbeafe;
+    --conson: #166534;
+    --conson-soft: #dcfce7;
+    --voiceless: #fff;
+    --voiced: #f1f5f9;
+    --error: #b91c1c;
+    --ok: #15803d;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--ink);
+    line-height: 1.55;
+  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px 80px; }
+  header h1 { margin: 0 0 4px; font-size: 26px; font-weight: 700; }
+  header p { margin: 0 0 20px; color: var(--muted); font-size: 14px; }
+  header p code {
+    background: var(--accent-soft); color: var(--accent);
+    padding: 1px 6px; border-radius: 4px; font-size: 12px;
+  }
+  .tabs {
+    display: flex; gap: 4px; border-bottom: 1px solid var(--line);
+    margin-bottom: 24px; flex-wrap: wrap;
+  }
+  .tab {
+    padding: 10px 16px; cursor: pointer; background: none; border: none;
+    font-size: 14px; font-weight: 500; color: var(--muted);
+    border-bottom: 2px solid transparent; transition: all 0.15s;
+  }
+  .tab:hover { color: var(--ink); }
+  .tab.active { color: var(--ink); border-bottom-color: var(--accent); }
+  .pane { display: none; }
+  .pane.active { display: block; }
+
+  .ipa-symbol {
+    font-family: "Charis SIL", "Doulos SIL", "Lucida Grande", "Lucida Sans Unicode", "DejaVu Sans", sans-serif;
+  }
+
+  /* Vowel chart */
+  .vowel-section { margin-bottom: 32px; }
+  .vowel-section h2 { font-size: 18px; margin: 0 0 4px; }
+  .vowel-section p.note { color: var(--muted); font-size: 13px; margin: 0 0 16px; }
+  .quad-wrap {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 12px; padding: 24px; position: relative;
+  }
+  .quad-svg { display: block; margin: 0 auto; max-width: 100%; }
+  .axis-label { font-size: 11px; fill: var(--muted); font-style: italic; }
+  .quad-line { stroke: var(--line); stroke-width: 1.5; fill: none; }
+  .vowel-dot {
+    cursor: pointer;
+    transition: transform 0.12s;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .vowel-dot:hover { transform: scale(1.15); }
+  .vowel-dot circle { fill: var(--vowel-soft); stroke: var(--vowel); stroke-width: 1.5; }
+  .vowel-dot text {
+    font-size: 16px; font-weight: 600; fill: var(--vowel);
+    text-anchor: middle; dominant-baseline: central;
+    pointer-events: none;
+  }
+  .vowel-dot:hover circle { fill: var(--vowel); }
+  .vowel-dot:hover text { fill: #fff; }
+
+  /* Diphthongs */
+  .dipth-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px; margin-top: 16px;
+  }
+  .dipth-card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px; padding: 14px; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .dipth-card:hover { border-color: var(--vowel); box-shadow: 0 2px 8px rgba(30,64,175,0.08); }
+  .dipth-card .sym {
+    font-size: 22px; font-weight: 700; color: var(--vowel);
+    margin-bottom: 4px;
+  }
+  .dipth-card .word { font-size: 14px; color: var(--ink); }
+  .dipth-card .ipa-word { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* Consonant chart */
+  .conson-wrap { overflow-x: auto; }
+  table.conson {
+    border-collapse: collapse; width: 100%; min-width: 720px;
+    background: var(--panel); border-radius: 12px; overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  table.conson th, table.conson td {
+    border: 1px solid var(--line); padding: 0; text-align: center;
+    font-size: 13px; vertical-align: middle;
+  }
+  table.conson th {
+    background: #f5f4f0; font-weight: 600; padding: 8px;
+    font-size: 12px; color: var(--muted); text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  table.conson td.row-label {
+    background: #f5f4f0; font-weight: 600; padding: 8px;
+    text-align: left; color: var(--muted); font-size: 12px;
+  }
+  .conson-cell {
+    display: flex; height: 56px; align-items: stretch;
+  }
+  .conson-half {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; cursor: pointer; padding: 4px;
+    transition: background 0.12s; position: relative;
+  }
+  .conson-half:hover { background: var(--conson-soft); }
+  .conson-half.voiceless { background: var(--voiceless); }
+  .conson-half.voiced { background: var(--voiced); border-left: 1px dashed var(--line); }
+  .conson-half .sym {
+    font-size: 18px; font-weight: 700; color: var(--conson);
+  }
+  .conson-half .word {
+    font-size: 10px; color: var(--muted); margin-top: 1px;
+  }
+  .conson-legend {
+    margin-top: 12px; font-size: 12px; color: var(--muted); display: flex; gap: 16px; flex-wrap: wrap;
+  }
+  .conson-legend span {
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .legend-box {
+    display: inline-block; width: 14px; height: 14px;
+    border: 1px solid var(--line); border-radius: 3px;
+  }
+
+  /* Selected detail panel */
+  .detail-card {
+    margin-top: 16px; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px; padding: 16px; min-height: 80px;
+  }
+  .detail-card.empty { color: var(--muted); font-style: italic; }
+  .detail-card .head {
+    display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+  }
+  .detail-card .big-sym {
+    font-size: 38px; font-weight: 700; color: var(--accent);
+  }
+  .detail-card .ex-word { font-size: 18px; font-weight: 600; }
+  .detail-card .ex-ipa { font-size: 16px; color: var(--muted); }
+  .detail-card .desc { margin-top: 10px; font-size: 14px; color: #333; }
+  .play-btn {
+    background: var(--accent); color: white; border: none;
+    padding: 6px 12px; border-radius: 6px; cursor: pointer;
+    font-size: 13px; font-weight: 500;
+  }
+  .play-btn:hover { background: #92400e; }
+  .play-btn:disabled { opacity: 0.5; cursor: wait; }
+  .audio-status { font-size: 11px; color: var(--muted); margin-top: 6px; }
+  .audio-status.error { color: var(--error); }
+
+  /* Minimal pairs quiz */
+  .quiz-wrap {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 12px; padding: 24px;
+  }
+  .quiz-prompt { font-size: 15px; margin-bottom: 16px; color: var(--muted); }
+  .pair-display {
+    display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px;
+  }
+  .pair-btn {
+    flex: 1; min-width: 140px; padding: 22px 16px;
+    border: 2px solid var(--line); background: var(--panel);
+    border-radius: 12px; cursor: pointer; transition: all 0.15s;
+    font-size: 22px; font-weight: 700;
+  }
+  .pair-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .pair-btn.correct { border-color: var(--ok); background: #f0fdf4; }
+  .pair-btn.wrong { border-color: var(--error); background: #fef2f2; }
+  .pair-btn small { display: block; font-size: 13px; color: var(--muted); font-weight: 400; margin-top: 4px; }
+  .quiz-controls { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; align-items: center; }
+  .quiz-stats { color: var(--muted); font-size: 13px; }
+  select, button.btn {
+    padding: 8px 12px; font-size: 13px; border: 1px solid var(--line);
+    border-radius: 6px; background: white; cursor: pointer;
+  }
+  button.btn.primary { background: var(--accent); color: white; border-color: var(--accent); }
+  button.btn.primary:hover { background: #92400e; }
+  .quiz-feedback {
+    margin-top: 12px; padding: 10px 14px; border-radius: 8px;
+    font-size: 14px; display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok { background: #f0fdf4; color: var(--ok); }
+  .quiz-feedback.err { background: #fef2f2; color: var(--error); }
+
+  /* Stress visualization */
+  .stress-list { display: flex; flex-direction: column; gap: 12px; }
+  .stress-item {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px; padding: 14px 16px; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .stress-item:hover { border-color: var(--accent); }
+  .stress-word { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+  .stress-ipa { font-size: 14px; color: var(--muted); margin-bottom: 8px; }
+  .syllables { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .syll {
+    padding: 4px 10px; border-radius: 6px; background: #f5f4f0;
+    font-size: 14px; color: var(--muted);
+  }
+  .syll.primary {
+    background: var(--accent); color: white; font-weight: 700;
+    font-size: 18px; padding: 8px 14px;
+  }
+  .syll.secondary {
+    background: var(--accent-soft); color: var(--accent); font-weight: 500;
+    font-size: 15px; padding: 6px 12px;
+  }
+
+  /* Accent toggle */
+  .accent-toggle {
+    display: inline-flex; gap: 0; border: 1px solid var(--line);
+    border-radius: 8px; overflow: hidden; vertical-align: middle;
+    margin-left: 8px;
+  }
+  .accent-toggle button {
+    background: var(--panel); border: none; padding: 6px 14px;
+    font-size: 13px; font-weight: 600; color: var(--muted);
+    cursor: pointer; transition: all 0.12s;
+  }
+  .accent-toggle button + button { border-left: 1px solid var(--line); }
+  .accent-toggle button:hover { background: var(--accent-soft); color: var(--accent); }
+  .accent-toggle button.active {
+    background: var(--accent); color: white;
+  }
+
+  footer {
+    margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--line);
+    font-size: 12px; color: var(--muted); text-align: center;
+  }
+  footer a { color: var(--accent); }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .quad-svg { width: 100% !important; height: auto !important; }
+    .detail-card .big-sym { font-size: 28px; }
+    .pair-btn { font-size: 18px; padding: 18px 12px; }
+  }
+
+</style>
+</head>
+<body>
+<div class="container">
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <span class="current">L01: IPA</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-word-stress/visualization.html">L02: Trọng âm →</a>
+</nav>
+
+<header>
+  <h1>IPA — 44 âm vị tiếng Anh</h1>
+  <p>Bảng phiên âm chuẩn quốc tế. Click bất kỳ ký hiệu nào để nghe audio từ <code>oxfordlearnersdictionaries.com</code>.
+    Giọng:
+    <span class="accent-toggle" role="tablist" aria-label="Chọn giọng">
+      <button id="btn-accent-us" class="active" data-variant="us" title="American (GA) — Anh-Mỹ">US</button>
+      <button id="btn-accent-uk" data-variant="uk" title="British (RP) — Anh-Anh">UK</button>
+    </span>
+  </p>
+</header>
+
+<div class="tabs">
+  <button class="tab active" data-tab="vowels">Nguyên âm</button>
+  <button class="tab" data-tab="consonants">Phụ âm</button>
+  <button class="tab" data-tab="pairs">Minimal pairs</button>
+  <button class="tab" data-tab="stress">Trọng âm</button>
+</div>
+
+<!-- ============ VOWELS PANE ============ -->
+<section class="pane active" id="pane-vowels">
+
+  <div class="vowel-section">
+    <h2>Nguyên âm đơn (Monophthongs) — 12 âm</h2>
+    <p class="note">Sơ đồ tứ giác mô phỏng vị trí lưỡi trong miệng (trục dọc = cao/thấp, trục ngang = trước/sau). Click vào âm vị để nghe ví dụ.</p>
+    <div class="quad-wrap">
+      <svg class="quad-svg" viewBox="0 0 600 380" width="600" height="380">
+        <!-- Axis labels -->
+        <text x="300" y="14" class="axis-label" text-anchor="middle">← Trước (front) ────────── Sau (back) →</text>
+        <text x="14" y="190" class="axis-label" transform="rotate(-90 14 190)" text-anchor="middle">← Cao (close) ────────── Thấp (open) →</text>
+
+        <!-- Quadrilateral outline (slightly trapezoid like real vowel chart) -->
+        <polygon class="quad-line" points="90,40 510,40 470,330 130,330" />
+        <!-- Mid horizontal hint lines -->
+        <line class="quad-line" x1="98" y1="135" x2="503" y2="135" stroke-dasharray="3,4" stroke-opacity="0.5"/>
+        <line class="quad-line" x1="107" y1="232" x2="496" y2="232" stroke-dasharray="3,4" stroke-opacity="0.5"/>
+
+        <!-- Vowel dots: positioned by tongue position
+             High front to back, then low.
+             Coordinates approximate the IPA vowel quadrilateral. -->
+        <!-- iː (high-front) -->
+        <g class="vowel-dot" data-ipa="iː" data-word="sheep" data-ipaword="/ʃiːp/" data-audio="s/she/sheep/sheep__gb_1.mp3" data-desc="Nguyên âm trước, cao, dài. Cười rộng môi, lưỡi đẩy về trước và lên cao. Kéo dài âm.">
+          <circle cx="110" cy="55" r="20"/><text x="110" y="55">iː</text>
+        </g>
+        <!-- ɪ (near-high front) -->
+        <g class="vowel-dot" data-ipa="ɪ" data-word="sit" data-ipaword="/sɪt/" data-audio="s/sit/sit__/sit__gb_1.mp3" data-desc="Nguyên âm trước, gần cao, NGẮN. Miệng mở hơn /iː/ một chút, lưỡi không đẩy lên hết. Phải đọc ngắn cụt — đây là khác biệt chính với /iː/.">
+          <circle cx="155" cy="80" r="20"/><text x="155" y="80">ɪ</text>
+        </g>
+        <!-- e (mid front) -->
+        <g class="vowel-dot" data-ipa="e" data-word="ten" data-ipaword="/ten/" data-audio="t/ten/ten__/ten__gb_1.mp3" data-desc="Nguyên âm trước, giữa, ngắn. Miệng mở vừa, lưỡi ở giữa-trước. Không kéo dài, không trượt.">
+          <circle cx="155" cy="180" r="20"/><text x="155" y="180">e</text>
+        </g>
+        <!-- æ (low front) -->
+        <g class="vowel-dot" data-ipa="æ" data-word="bad" data-ipaword="/bæd/" data-audio="b/bad/bad__/bad__gb_1.mp3" data-desc="Nguyên âm trước, thấp, ngắn. Miệng mở rộng theo chiều ngang, lưỡi hạ thấp về trước. Âm sắc nằm giữa /e/ và /ɑː/.">
+          <circle cx="180" cy="305" r="20"/><text x="180" y="305">æ</text>
+        </g>
+        <!-- ʌ (mid-central) -->
+        <g class="vowel-dot" data-ipa="ʌ" data-word="sun" data-ipaword="/sʌn/" data-audio="s/sun/sun__/sun__gb_1.mp3" data-desc="Nguyên âm giữa, gần thấp, ngắn. Miệng mở vừa, lưỡi nằm giữa khoang miệng. Dứt khoát.">
+          <circle cx="335" cy="255" r="20"/><text x="335" y="255">ʌ</text>
+        </g>
+        <!-- ə schwa (mid central) -->
+        <g class="vowel-dot" data-ipa="ə" data-word="about" data-ipaword="/əˈbaʊt/" data-audio="a/abo/about/about__gb_1.mp3" data-desc="SCHWA — âm trung tính, phổ biến nhất trong tiếng Anh (~30% âm tiết). Miệng thả lỏng, lưỡi giữa, RẤT ngắn, không nhấn. Mọi âm tiết không nhấn đều có xu hướng rơi về schwa.">
+          <circle cx="320" cy="190" r="20"/><text x="320" y="190">ə</text>
+        </g>
+        <!-- ɜː (mid central long) -->
+        <g class="vowel-dot" data-ipa="ɜː" data-word="bird" data-ipaword="/bɜːd/" data-audio="b/bir/bird_/bird__gb_1_8.mp3" data-desc="Nguyên âm giữa, dài. Miệng hơi mở, lưỡi nằm giữa, môi thả lỏng. KÉO DÀI rõ. Anh-Mỹ thêm r-coloring (lưỡi cong).">
+          <circle cx="320" cy="155" r="20"/><text x="320" y="155">ɜː</text>
+        </g>
+        <!-- uː (high back) -->
+        <g class="vowel-dot" data-ipa="uː" data-word="food" data-ipaword="/fuːd/" data-audio="f/foo/food_/food__gb_1.mp3" data-desc="Nguyên âm sau, cao, dài. Môi tròn nhỏ, lưỡi sau và lên cao, kéo dài. Chu môi mạnh.">
+          <circle cx="490" cy="55" r="20"/><text x="490" y="55">uː</text>
+        </g>
+        <!-- ʊ (near-high back) -->
+        <g class="vowel-dot" data-ipa="ʊ" data-word="foot" data-ipaword="/fʊt/" data-audio="f/foo/foot_/foot__gb_1.mp3" data-desc="Nguyên âm sau, gần cao, NGẮN. Môi hơi tròn (không chu mạnh như /uː/), lưỡi sau gần cao. Ngắn cụt.">
+          <circle cx="445" cy="80" r="20"/><text x="445" y="80">ʊ</text>
+        </g>
+        <!-- ɔː (mid back) -->
+        <g class="vowel-dot" data-ipa="ɔː" data-word="four" data-ipaword="/fɔː(r)/" data-audio="f/fou/four_/four__gb_1.mp3" data-desc="Nguyên âm sau, giữa, dài. Môi tròn rõ, lưỡi sau ở độ cao trung bình. Kéo dài.">
+          <circle cx="465" cy="180" r="20"/><text x="465" y="180">ɔː</text>
+        </g>
+        <!-- ɒ (low back) -->
+        <g class="vowel-dot" data-ipa="ɒ" data-word="hot" data-ipaword="/hɒt/" data-audio="h/hot/hot__/hot__gb_1.mp3" data-desc="Nguyên âm sau, thấp, NGẮN. Miệng mở khá rộng, môi hơi tròn, lưỡi sau. Chỉ có trong Anh-Anh — Anh-Mỹ hợp nhất với /ɑː/.">
+          <circle cx="455" cy="305" r="20"/><text x="455" y="305">ɒ</text>
+        </g>
+        <!-- ɑː (low back long) -->
+        <g class="vowel-dot" data-ipa="ɑː" data-word="father" data-ipaword="/ˈfɑːðə(r)/" data-audio="f/fat/fathe/father__gb_1.mp3" data-desc="Nguyên âm sau, thấp, DÀI. Miệng mở RỘNG NHẤT, lưỡi rút sâu về sau và hạ xuống. Kéo dài. Không tròn môi.">
+          <circle cx="400" cy="320" r="20"/><text x="400" y="320">ɑː</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="vowel-section">
+    <h2>Nguyên âm đôi (Diphthongs) — 8 âm</h2>
+    <p class="note">Hai âm trong MỘT âm tiết: bắt đầu ở vị trí A, trượt sang vị trí B. Click để nghe.</p>
+    <div class="dipth-grid" id="dipth-grid"></div>
+  </div>
+
+  <div class="detail-card empty" id="detail-vowel">
+    Click vào một âm vị ở trên để xem chi tiết và nghe phát âm.
+  </div>
+</section>
+
+<!-- ============ CONSONANTS PANE ============ -->
+<section class="pane" id="pane-consonants">
+  <p class="note" style="color: var(--muted); font-size: 13px; margin-bottom: 12px;">
+    24 phụ âm xếp theo <strong>vị trí cản</strong> (cột) × <strong>cách cản</strong> (hàng).
+    Mỗi ô có thể có 2 nửa: <strong>trái = voiceless</strong> (không rung), <strong>phải = voiced</strong> (có rung).
+  </p>
+  <div class="conson-wrap">
+    <table class="conson" id="conson-table">
+      <!-- Filled by JS -->
+    </table>
+  </div>
+  <div class="conson-legend">
+    <span><span class="legend-box" style="background: var(--voiceless);"></span>Voiceless (không rung dây thanh)</span>
+    <span><span class="legend-box" style="background: var(--voiced);"></span>Voiced (có rung dây thanh)</span>
+  </div>
+  <div class="detail-card empty" id="detail-conson">
+    Click vào một phụ âm ở trên để nghe phát âm và xem mô tả.
+  </div>
+</section>
+
+<!-- ============ MINIMAL PAIRS PANE ============ -->
+<section class="pane" id="pane-pairs">
+  <div class="quiz-wrap">
+    <div class="quiz-prompt">
+      <strong>Cách chơi:</strong> Chọn cặp âm muốn luyện → bấm <em>Phát ngẫu nhiên</em> → nghe → click vào từ bạn nghĩ vừa nghe được. Có thống kê đúng/sai.
+    </div>
+    <div class="quiz-controls">
+      <label style="font-size: 13px; color: var(--muted);">Cặp:</label>
+      <select id="pair-select"></select>
+      <button class="btn primary" id="btn-play-pair">▶ Phát ngẫu nhiên</button>
+      <button class="btn" id="btn-replay" disabled>↻ Nghe lại</button>
+      <span class="quiz-stats" id="quiz-stats">Đúng: 0 / 0</span>
+      <button class="btn" id="btn-reset-stats">Reset</button>
+    </div>
+    <div class="pair-display" id="pair-display"></div>
+    <div class="quiz-feedback" id="quiz-feedback"></div>
+  </div>
+</section>
+
+<!-- ============ STRESS PANE ============ -->
+<section class="pane" id="pane-stress">
+  <p class="note" style="color: var(--muted); font-size: 13px; margin-bottom: 12px;">
+    Âm tiết được <strong style="background: var(--accent); color: white; padding: 1px 6px; border-radius: 3px;">nhấn chính</strong> (primary stress, ký hiệu <code>ˈ</code>) phóng to và đậm.
+    Âm tiết <span style="background: var(--accent-soft); color: var(--accent); padding: 1px 6px; border-radius: 3px;">nhấn phụ</span> (secondary, ký hiệu <code>ˌ</code>) nhạt hơn.
+    Click vào từ để nghe.
+  </p>
+  <div class="stress-list" id="stress-list"></div>
+</section>
+
+<footer>
+  Audio: <a href="https://www.oxfordlearnersdictionaries.com" target="_blank" rel="noopener">Oxford Learner's Dictionaries</a>
+  — chuyển UK / US ở đầu trang.
+  Cần kết nối Internet. Nếu file US không có sẵn, tự động fallback về UK.
+</footer>
+
+<audio id="audio-el" preload="none"></audio>
+
+</div>
+
+<script>
+// =================== Audio playback ===================
+// Mỗi audio data trong toàn file là relPath kiểu UK: "s/she/sheep/sheep__gb_1.mp3".
+// Khi user chọn US, ta transform: uk_pron→us_pron và __gb_→__us_ trong khi giữ folder structure.
+const DOMAIN_NEW = "https://www.oxfordlearnersdictionaries.com/media/english/";
+const DOMAIN_OLD = "https://www.oxforddictionaries.com/media/english/";
+const audioEl = document.getElementById('audio-el');
+
+let currentVariant = localStorage.getItem('audioVariant') || 'us';
+
+function ukToVariantPath(ukRel, variant) {
+  // ukRel ví dụ: "s/she/sheep/sheep__gb_1.mp3"
+  if (variant === 'us') {
+    return "us_pron/" + ukRel.replace(/__gb_/, '__us_');
+  }
+  return "uk_pron/" + ukRel;
+}
+
+function buildCandidates(ukRel, variant) {
+  const list = [];
+  // 1. Variant hiện tại trên domain mới
+  list.push(DOMAIN_NEW + ukToVariantPath(ukRel, variant));
+  // 2. Variant hiện tại trên domain cũ
+  list.push(DOMAIN_OLD + ukToVariantPath(ukRel, variant));
+  // 3. Nếu user chọn US và file US không tồn tại → fallback về UK (vẫn còn audio để học)
+  if (variant === 'us') {
+    list.push(DOMAIN_NEW + ukToVariantPath(ukRel, 'uk'));
+    list.push(DOMAIN_OLD + ukToVariantPath(ukRel, 'uk'));
+  }
+  return list;
+}
+
+function playAudio(ukRel, statusEl) {
+  if (!ukRel) {
+    if (statusEl) { statusEl.textContent = "Không có file audio cho âm này."; statusEl.classList.add('error'); }
+    return;
+  }
+  const candidates = buildCandidates(ukRel, currentVariant);
+  let idx = 0;
+  if (statusEl) { statusEl.textContent = "Đang tải audio..."; statusEl.classList.remove('error'); }
+
+  function tryNext() {
+    if (idx >= candidates.length) {
+      if (statusEl) {
+        statusEl.textContent = "Không tải được audio. Tra trực tiếp trên Oxford.";
+        statusEl.classList.add('error');
+      }
+      return;
+    }
+    const url = candidates[idx++];
+    audioEl.onerror = tryNext;
+    audioEl.onplaying = () => {
+      if (statusEl) {
+        const playingUs = url.includes('/us_pron/');
+        const fellBack = (currentVariant === 'us') !== playingUs;
+        const label = playingUs ? 'US' : 'UK';
+        statusEl.textContent = `▶ Đang phát Oxford ${label}${fellBack ? ' (fallback — file US không có sẵn)' : ''}.`;
+        statusEl.classList.remove('error');
+      }
+    };
+    audioEl.src = url;
+    const p = audioEl.play();
+    if (p && p.catch) p.catch(() => tryNext());
+  }
+  tryNext();
+}
+
+// Wire up the UK/US toggle
+function setVariant(v) {
+  currentVariant = v;
+  localStorage.setItem('audioVariant', v);
+  document.querySelectorAll('.accent-toggle button').forEach(b => {
+    b.classList.toggle('active', b.dataset.variant === v);
+  });
+}
+document.querySelectorAll('.accent-toggle button').forEach(btn => {
+  btn.addEventListener('click', () => setVariant(btn.dataset.variant));
+});
+// Apply persisted preference on load
+setVariant(currentVariant);
+
+// =================== Tabs ===================
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('pane-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// =================== Vowel chart interactions ===================
+const detailVowel = document.getElementById('detail-vowel');
+document.querySelectorAll('.vowel-dot').forEach(dot => {
+  dot.addEventListener('click', () => {
+    const ipa = dot.dataset.ipa;
+    const word = dot.dataset.word;
+    const ipaword = dot.dataset.ipaword;
+    const audio = dot.dataset.audio;
+    const desc = dot.dataset.desc;
+    showVowelDetail(ipa, word, ipaword, audio, desc);
+    playAudio(audio, document.getElementById('vowel-audio-status'));
+  });
+});
+
+function showVowelDetail(ipa, word, ipaword, audio, desc) {
+  detailVowel.classList.remove('empty');
+  detailVowel.innerHTML = `
+    <div class="head">
+      <div class="big-sym ipa-symbol">/${ipa}/</div>
+      <div>
+        <div class="ex-word">${word}</div>
+        <div class="ex-ipa ipa-symbol">${ipaword}</div>
+      </div>
+      <button class="play-btn" onclick="playAudio('${audio}', document.getElementById('vowel-audio-status'))">▶ Phát lại</button>
+    </div>
+    <div class="desc">${desc}</div>
+    <div class="audio-status" id="vowel-audio-status">Đang tải audio...</div>
+  `;
+}
+
+// =================== Diphthongs ===================
+const diphthongs = [
+  { ipa: "eɪ",  word: "name",  ipaword: "/neɪm/",    audio: "n/nam/name_/name__gb_1.mp3",   desc: "Bắt đầu ở /e/ (miệng mở vừa) → trượt khép dần lên /ɪ/. Hai âm nối liền không nghỉ." },
+  { ipa: "aɪ",  word: "kite",  ipaword: "/kaɪt/",    audio: "k/kit/kite_/kite__gb_1.mp3",   desc: "Bắt đầu ở /a/ (miệng mở rộng) → trượt khép lên /ɪ/." },
+  { ipa: "ɔɪ",  word: "boy",   ipaword: "/bɔɪ/",     audio: "b/boy/boy__/boy__gb_1.mp3",    desc: "Bắt đầu ở /ɔ/ (môi tròn) → trượt sang /ɪ/ (môi dẹt, lưỡi trước)." },
+  { ipa: "aʊ",  word: "house", ipaword: "/haʊs/",    audio: "h/hou/house/house__gb_2.mp3",  desc: "Bắt đầu ở /a/ (miệng mở rộng) → trượt sang /ʊ/ (môi tròn lại)." },
+  { ipa: "oʊ",  word: "goal",  ipaword: "/ɡoʊl/",    audio: "g/goa/goal_/goal__gb_1.mp3",   desc: "Anh-Mỹ: bắt đầu ở /o/ (môi tròn) → trượt sang /ʊ/. RP đọc /əʊ/ — bắt đầu bằng schwa." },
+  { ipa: "ɪər", word: "near",  ipaword: "/nɪər/",    audio: "n/nea/near_/near__gb_1.mp3",   desc: "Bắt đầu ở /ɪ/ → trượt sang /ə/, kèm r-coloring (Anh-Mỹ). RP: /ɪə/." },
+  { ipa: "eər", word: "chair", ipaword: "/tʃeər/",   audio: "c/cha/chair/chair__gb_1_8.mp3",desc: "Bắt đầu ở /e/ → trượt sang /ə/, kèm r-coloring (Anh-Mỹ). RP: /eə/." },
+  { ipa: "ʊər", word: "tour",  ipaword: "/tʊər/",    audio: "t/tou/tour_/tour__gb_1.mp3",   desc: "Bắt đầu ở /ʊ/ → trượt sang /ə/, kèm r-coloring (Anh-Mỹ). RP: /ʊə/." },
+];
+const dipthGrid = document.getElementById('dipth-grid');
+diphthongs.forEach(d => {
+  const card = document.createElement('div');
+  card.className = 'dipth-card';
+  card.innerHTML = `
+    <div class="sym ipa-symbol">/${d.ipa}/</div>
+    <div class="word">${d.word}</div>
+    <div class="ipa-word ipa-symbol">${d.ipaword}</div>
+  `;
+  card.addEventListener('click', () => {
+    showVowelDetail(d.ipa, d.word, d.ipaword, d.audio, d.desc);
+    playAudio(d.audio, document.getElementById('vowel-audio-status'));
+  });
+  dipthGrid.appendChild(card);
+});
+
+// =================== Consonant table ===================
+// Layout: rows = manner, cols = place
+// Each cell: { voiceless: {sym, word, audio, desc}, voiced: {...} }  (one or both may be null)
+
+const places = ["Hai môi", "Môi-răng", "Răng", "Lợi", "Sau lợi", "Vòm cứng", "Vòm mềm", "Thanh hầu"];
+const manners = ["Tắc (plosive)", "Tắc-xát (affricate)", "Xát (fricative)", "Mũi (nasal)", "Bên (lateral)", "Cận âm (approximant)"];
+
+// Cells indexed [manner][place]
+const C = {};
+function addC(manner, place, voicing, sym, word, ipaword, audio, desc) {
+  const key = `${manner}|${place}`;
+  if (!C[key]) C[key] = { voiceless: null, voiced: null };
+  C[key][voicing] = { sym, word, ipaword, audio, desc };
+}
+
+// Plosives
+addC("Tắc (plosive)", "Hai môi", "voiceless", "p", "put",  "/pʊt/",  "p/put/put__/put__gb_1.mp3",   "Mím hai môi chặt → bật mạnh hơi ra. Ở đầu từ trọng âm có hơi bật rõ (aspirated).");
+addC("Tắc (plosive)", "Hai môi", "voiced",    "b", "big",  "/bɪɡ/",  "b/big/big__/big__gb_1.mp3",   "Mím hai môi rồi nhả, dây thanh rung. Không có hơi bật.");
+addC("Tắc (plosive)", "Lợi",      "voiceless", "t", "ten",  "/ten/",  "t/ten/ten__/ten__gb_1.mp3",   "Đầu lưỡi áp lợi trên → bật ra. Ở đầu từ trọng âm có hơi bật rõ.");
+addC("Tắc (plosive)", "Lợi",      "voiced",    "d", "dog",  "/dɔːɡ/", "d/dog/dog__/dog__gb_1.mp3",   "Đầu lưỡi áp lợi → nhả, dây thanh rung.");
+addC("Tắc (plosive)", "Vòm mềm",  "voiceless", "k", "cake", "/keɪk/", "c/cak/cake_/cake__gb_1.mp3",  "Lưng lưỡi chặn vòm mềm → bật. Có hơi bật ở đầu từ trọng âm.");
+addC("Tắc (plosive)", "Vòm mềm",  "voiced",    "ɡ", "good", "/ɡʊd/",  "g/goo/good_/good__gb_1.mp3",  "Lưng lưỡi chặn vòm mềm → nhả, dây thanh rung.");
+
+// Affricates
+addC("Tắc-xát (affricate)", "Sau lợi", "voiceless", "tʃ", "chair", "/tʃer/",   "c/cha/chair/chair__gb_1_8.mp3", "Đầu lưỡi áp lợi (như /t/), nhả ra thành ma sát rộng (như /ʃ/). Hai bước nối liền không nghỉ.");
+addC("Tắc-xát (affricate)", "Sau lợi", "voiced",    "dʒ", "judge", "/dʒʌdʒ/",  "j/jud/judge/judge__gb_1.mp3",   "Như /tʃ/ nhưng dây thanh rung.");
+
+// Fricatives
+addC("Xát (fricative)", "Môi-răng", "voiceless", "f", "four",     "/fɔːr/",         "f/fou/four_/four__gb_1.mp3",          "Răng trên chạm môi dưới, thổi hơi qua khe hẹp.");
+addC("Xát (fricative)", "Môi-răng", "voiced",    "v", "voice",    "/vɔɪs/",         "v/voi/voice/voice__gb_1.mp3",         "Răng trên chạm môi dưới, thổi hơi, dây thanh rung. PHẢI cắn nhẹ môi dưới — không chỉ chu môi.");
+addC("Xát (fricative)", "Răng",      "voiceless", "θ", "thin",     "/θɪn/",          "t/thi/thin_/thin__gb_1.mp3",          "ĐẦU LƯỠI ĐẶT GIỮA HAI HÀM RĂNG, thổi hơi qua. Cảm nhận hơi đi qua khe răng-lưỡi.");
+addC("Xát (fricative)", "Răng",      "voiced",    "ð", "then",     "/ðen/",          "t/the/then_/then__gb_1.mp3",          "Đầu lưỡi giữa hai hàm răng, thổi hơi, dây thanh rung.");
+addC("Xát (fricative)", "Lợi",       "voiceless", "s", "sit",      "/sɪt/",          "s/sit/sit__/sit__gb_1.mp3",           "Đầu lưỡi gần lợi (không chạm), thổi hơi tạo tiếng 'xít' sắc.");
+addC("Xát (fricative)", "Lợi",       "voiced",    "z", "zoo",      "/zuː/",          "z/zoo/zoo__/zoo__gb_1.mp3",           "Vị trí lưỡi như /s/, dây thanh rung.");
+addC("Xát (fricative)", "Sau lợi",   "voiceless", "ʃ", "shoe",     "/ʃuː/",          "s/sho/shoe_/shoe__gb_1.mp3",          "Lưỡi lùi nhẹ về sau, môi hơi tròn, thổi hơi rộng tạo tiếng 'sh'.");
+addC("Xát (fricative)", "Sau lợi",   "voiced",    "ʒ", "pleasure", "/ˈpleʒər/",      "p/ple/pleas/pleasure__gb_1.mp3",      "Vị trí như /ʃ/, dây thanh rung. Hiếm — chủ yếu trong từ vay (measure, vision, pleasure).");
+addC("Xát (fricative)", "Thanh hầu","voiceless", "h", "hello",    "/həˈloʊ/",       "h/hel/hello/hello__gb_1.mp3",         "Thổi hơi ra như hà hơi vào tay. Không có cản ở miệng, chỉ siết nhẹ thanh môn.");
+
+// Nasals
+addC("Mũi (nasal)", "Hai môi", "voiced", "m", "man",  "/mæn/", "m/man/man__/man__gb_1.mp3",   "Hai môi mím, hơi thoát qua mũi.");
+addC("Mũi (nasal)", "Lợi",      "voiced", "n", "noon", "/nuːn/","n/noo/noon_/noon__gb_1.mp3", "Đầu lưỡi áp lợi, hơi thoát qua mũi.");
+addC("Mũi (nasal)", "Vòm mềm",  "voiced", "ŋ", "sing", "/sɪŋ/", "s/sin/sing_/sing__gb_1.mp3", "Lưng lưỡi chặn vòm mềm, hơi thoát qua mũi. Ở cuối từ KHÔNG đọc 'g' rời sau đó.");
+
+// Lateral
+addC("Bên (lateral)", "Lợi", "voiced", "l", "leg", "/leɡ/", "l/leg/leg__/leg__gb_1.mp3", "Đầu lưỡi áp lợi, hơi đi qua HAI BÊN lưỡi. Ở cuối âm tiết (Anh-Mỹ) lưỡi cong sâu hơn (dark l).");
+
+// Approximants
+addC("Cận âm (approximant)", "Lợi",      "voiced", "r", "red",   "/red/",       "r/red/red__/red__gb_1.mp3",        "Lưỡi cong KHÔNG chạm vòm miệng, môi hơi tròn. Anh-Mỹ: đọc /r/ ở mọi vị trí; Anh-Anh: không đọc /r/ cuối/trước phụ âm.");
+addC("Cận âm (approximant)", "Vòm cứng", "voiced", "j", "yes",   "/jes/",       "y/yes/yes__/yes__gb_1.mp3",        "Lưỡi gần vòm cứng, môi dẹt. Như âm bắt đầu của 'yes'.");
+addC("Cận âm (approximant)", "Hai môi",  "voiced", "w", "water", "/ˈwɔːtər/",   "w/wat/water/water__gb_1.mp3",      "Chu môi tròn nhỏ → mở dần.");
+
+// Build table
+const consonTable = document.getElementById('conson-table');
+let html = "<thead><tr><th></th>";
+places.forEach(p => html += `<th>${p}</th>`);
+html += "</tr></thead><tbody>";
+manners.forEach(m => {
+  html += `<tr><td class="row-label">${m}</td>`;
+  places.forEach(p => {
+    const cell = C[`${m}|${p}`];
+    if (!cell) {
+      html += `<td></td>`;
+    } else {
+      html += `<td><div class="conson-cell">`;
+      if (cell.voiceless) {
+        const c = cell.voiceless;
+        html += `<div class="conson-half voiceless" data-ipa="${c.sym}" data-word="${c.word}" data-ipaword="${c.ipaword}" data-audio="${c.audio}" data-desc="${c.desc.replace(/"/g,'&quot;')}">
+          <div class="sym ipa-symbol">${c.sym}</div><div class="word">${c.word}</div></div>`;
+      } else {
+        html += `<div class="conson-half voiceless" style="cursor:default;"></div>`;
+      }
+      if (cell.voiced) {
+        const c = cell.voiced;
+        html += `<div class="conson-half voiced" data-ipa="${c.sym}" data-word="${c.word}" data-ipaword="${c.ipaword}" data-audio="${c.audio}" data-desc="${c.desc.replace(/"/g,'&quot;')}">
+          <div class="sym ipa-symbol">${c.sym}</div><div class="word">${c.word}</div></div>`;
+      } else {
+        html += `<div class="conson-half voiced" style="cursor:default;"></div>`;
+      }
+      html += `</div></td>`;
+    }
+  });
+  html += `</tr>`;
+});
+html += "</tbody>";
+consonTable.innerHTML = html;
+
+// Attach click handlers for consonants
+const detailConson = document.getElementById('detail-conson');
+document.querySelectorAll('.conson-half').forEach(half => {
+  if (!half.dataset.ipa) return;
+  half.addEventListener('click', () => {
+    const ipa = half.dataset.ipa;
+    const word = half.dataset.word;
+    const ipaword = half.dataset.ipaword;
+    const audio = half.dataset.audio;
+    const desc = half.dataset.desc;
+    detailConson.classList.remove('empty');
+    detailConson.innerHTML = `
+      <div class="head">
+        <div class="big-sym ipa-symbol">/${ipa}/</div>
+        <div>
+          <div class="ex-word">${word}</div>
+          <div class="ex-ipa ipa-symbol">${ipaword}</div>
+        </div>
+        <button class="play-btn" onclick="playAudio('${audio}', document.getElementById('conson-audio-status'))">▶ Phát lại</button>
+      </div>
+      <div class="desc">${desc}</div>
+      <div class="audio-status" id="conson-audio-status">Đang tải audio...</div>
+    `;
+    playAudio(audio, document.getElementById('conson-audio-status'));
+  });
+});
+
+// =================== Minimal pairs quiz ===================
+const pairs = [
+  { contrast: "/iː/ vs /ɪ/ — nguyên âm trước cao, dài vs ngắn",
+    a: { word: "seat", ipa: "/siːt/",  audio: "s/sea/seat_/seat__gb_1.mp3" },
+    b: { word: "sit",  ipa: "/sɪt/",   audio: "s/sit/sit__/sit__gb_1.mp3" } },
+  { contrast: "/iː/ vs /ɪ/ — beat vs sit",
+    a: { word: "beat", ipa: "/biːt/",  audio: "b/bea/beat_/beat__gb_1.mp3" },
+    b: { word: "sit",  ipa: "/sɪt/",   audio: "s/sit/sit__/sit__gb_1.mp3" } },
+  { contrast: "/æ/ vs /e/ — bad vs ten",
+    a: { word: "bad",  ipa: "/bæd/",   audio: "b/bad/bad__/bad__gb_1.mp3" },
+    b: { word: "ten",  ipa: "/ten/",   audio: "t/ten/ten__/ten__gb_1.mp3" } },
+  { contrast: "/uː/ vs /ʊ/ — food vs foot",
+    a: { word: "food", ipa: "/fuːd/",  audio: "f/foo/food_/food__gb_1.mp3" },
+    b: { word: "foot", ipa: "/fʊt/",   audio: "f/foo/foot_/foot__gb_1.mp3" } },
+  { contrast: "/θ/ vs /t/ — thin vs ten",
+    a: { word: "thin", ipa: "/θɪn/",   audio: "t/thi/thin_/thin__gb_1.mp3" },
+    b: { word: "ten",  ipa: "/ten/",   audio: "t/ten/ten__/ten__gb_1.mp3" } },
+  { contrast: "/θ/ vs /s/ — thing vs sun",
+    a: { word: "thing",ipa: "/θɪŋ/",   audio: "t/thi/thing/thing__gb_1.mp3" },
+    b: { word: "sun",  ipa: "/sʌn/",   audio: "s/sun/sun__/sun__gb_1.mp3" } },
+  { contrast: "/ð/ vs /d/ — then vs dog",
+    a: { word: "then", ipa: "/ðen/",   audio: "t/the/then_/then__gb_1.mp3" },
+    b: { word: "dog",  ipa: "/dɒɡ/",   audio: "d/dog/dog__/dog__gb_1.mp3" } },
+  { contrast: "/θr/ vs /tr/ — three vs tree",
+    a: { word: "three",ipa: "/θriː/",  audio: "t/thr/three/three__gb_1.mp3" },
+    b: { word: "tree", ipa: "/triː/",  audio: "t/tre/tree_/tree__gb_1.mp3" } },
+  { contrast: "/v/ vs /b/ — voice vs boy",
+    a: { word: "voice",ipa: "/vɔɪs/",  audio: "v/voi/voice/voice__gb_1.mp3" },
+    b: { word: "boy",  ipa: "/bɔɪ/",   audio: "b/boy/boy__/boy__gb_1.mp3" } },
+  { contrast: "/ɪə/ vs /eə/ — beer vs hair",
+    a: { word: "beer", ipa: "/bɪə(r)/",audio: "b/bee/beer_/beer__gb_1.mp3" },
+    b: { word: "hair", ipa: "/heə(r)/",audio: "h/hai/hair_/hair__gb_1_8.mp3" } },
+  { contrast: "/ʃ/ vs /tʃ/ — shoe vs chair",
+    a: { word: "shoe", ipa: "/ʃuː/",   audio: "s/sho/shoe_/shoe__gb_1.mp3" },
+    b: { word: "chair",ipa: "/tʃeə(r)/",audio: "c/cha/chair/chair__gb_1_8.mp3" } },
+  { contrast: "/ʒ/ vs /ʃ/ — pleasure vs shoe",
+    a: { word: "pleasure",ipa: "/ˈpleʒə(r)/",audio: "p/ple/pleas/pleasure__gb_1.mp3" },
+    b: { word: "shoe", ipa: "/ʃuː/",   audio: "s/sho/shoe_/shoe__gb_1.mp3" } },
+];
+
+const pairSelect = document.getElementById('pair-select');
+pairs.forEach((p, i) => {
+  const opt = document.createElement('option');
+  opt.value = i; opt.textContent = p.contrast;
+  pairSelect.appendChild(opt);
+});
+
+const pairDisplay = document.getElementById('pair-display');
+const quizFeedback = document.getElementById('quiz-feedback');
+const quizStats = document.getElementById('quiz-stats');
+let currentPair = null;
+let currentTarget = null; // 'a' or 'b' — null after guessed (locks until next play)
+let lastPlayed = null;   // remembers what was just played for replay
+let stats = { correct: 0, total: 0 };
+
+function renderPair(p) {
+  pairDisplay.innerHTML = `
+    <button class="pair-btn" data-which="a">${p.a.word}<small class="ipa-symbol">${p.a.ipa}</small></button>
+    <button class="pair-btn" data-which="b">${p.b.word}<small class="ipa-symbol">${p.b.ipa}</small></button>
+  `;
+  pairDisplay.querySelectorAll('.pair-btn').forEach(btn => {
+    btn.addEventListener('click', () => handlePairGuess(btn));
+  });
+}
+
+function playRandomFromPair() {
+  const idx = parseInt(pairSelect.value);
+  currentPair = pairs[idx];
+  renderPair(currentPair);
+  currentTarget = Math.random() < 0.5 ? 'a' : 'b';
+  lastPlayed = currentPair[currentTarget];
+  playAudio(lastPlayed.audio, null);
+  quizFeedback.classList.remove('show', 'ok', 'err');
+  document.getElementById('btn-replay').disabled = false;
+}
+
+function handlePairGuess(btn) {
+  if (!currentPair || !currentTarget) return;
+  const which = btn.dataset.which;
+  stats.total++;
+  pairDisplay.querySelectorAll('.pair-btn').forEach(b => b.classList.remove('correct', 'wrong'));
+  if (which === currentTarget) {
+    btn.classList.add('correct');
+    stats.correct++;
+    quizFeedback.textContent = `Đúng! Vừa nghe là "${currentPair[currentTarget].word}" ${currentPair[currentTarget].ipa}.`;
+    quizFeedback.className = 'quiz-feedback show ok';
+  } else {
+    btn.classList.add('wrong');
+    pairDisplay.querySelector(`[data-which="${currentTarget}"]`).classList.add('correct');
+    quizFeedback.textContent = `Sai. Vừa nghe là "${currentPair[currentTarget].word}" ${currentPair[currentTarget].ipa}, không phải "${currentPair[which].word}" ${currentPair[which].ipa}.`;
+    quizFeedback.className = 'quiz-feedback show err';
+  }
+  quizStats.textContent = `Đúng: ${stats.correct} / ${stats.total}`;
+  currentTarget = null;
+}
+
+document.getElementById('btn-play-pair').addEventListener('click', playRandomFromPair);
+document.getElementById('btn-replay').addEventListener('click', () => {
+  if (lastPlayed) playAudio(lastPlayed.audio, null);
+});
+document.getElementById('btn-reset-stats').addEventListener('click', () => {
+  stats = { correct: 0, total: 0 };
+  quizStats.textContent = `Đúng: 0 / 0`;
+  quizFeedback.classList.remove('show');
+  pairDisplay.innerHTML = '';
+  document.getElementById('btn-replay').disabled = true;
+});
+
+// =================== Stress visualization ===================
+// syllables format: array of { text, level: 'primary' | 'secondary' | 'none' }
+// audio: null = không có file Oxford → chỉ minh họa trực quan; "path" = có thể click nghe.
+const stressWords = [
+  // Có audio Oxford — click để nghe:
+  { word: "happy", ipa: "/ˈhæpi/", audio: "h/hap/happy/happy__gb_1.mp3", syllables: [
+    { text: "ˈhæ", level: "primary" }, { text: "pi", level: "none" }
+  ], note: "2 âm tiết, nhấn âm 1 (HAP-py). Click để nghe — chú ý âm 2 rất nhẹ." },
+  { word: "about", ipa: "/əˈbaʊt/", audio: "a/abo/about/about__gb_1.mp3", syllables: [
+    { text: "ə", level: "none" }, { text: "ˈbaʊt", level: "primary" }
+  ], note: "2 âm tiết, nhấn âm 2 (a-BOUT). Âm 1 là schwa /ə/ — gần như nuốt." },
+  { word: "hello", ipa: "/həˈləʊ/", audio: "h/hel/hello/hello__gb_1.mp3", syllables: [
+    { text: "hə", level: "none" }, { text: "ˈləʊ", level: "primary" }
+  ], note: "2 âm tiết, nhấn âm 2 (he-LLO). Người Việt thường nhấn sai vào 'HE'." },
+  { word: "father", ipa: "/ˈfɑːðə(r)/", audio: "f/fat/fathe/father__gb_1.mp3", syllables: [
+    { text: "ˈfɑː", level: "primary" }, { text: "ðə(r)", level: "none" }
+  ], note: "Danh từ 2 âm tiết → nhấn âm 1 (quy luật chung)." },
+  { word: "nature", ipa: "/ˈneɪtʃə(r)/", audio: "n/nat/natur/nature__gb_1.mp3", syllables: [
+    { text: "ˈneɪ", level: "primary" }, { text: "tʃə(r)", level: "none" }
+  ], note: "Danh từ 2 âm tiết — nhấn âm 1." },
+  { word: "pleasure", ipa: "/ˈpleʒə(r)/", audio: "p/ple/pleas/pleasure__gb_1.mp3", syllables: [
+    { text: "ˈple", level: "primary" }, { text: "ʒə(r)", level: "none" }
+  ], note: "Danh từ — nhấn âm 1. Âm 1 chứa /ʒ/ hiếm gặp." },
+  // Không có audio Oxford — chỉ minh họa trực quan quy luật:
+  { word: "banana", ipa: "/bəˈnɑːnə/", audio: null, syllables: [
+    { text: "bə", level: "none" }, { text: "ˈnɑː", level: "primary" }, { text: "nə", level: "none" }
+  ], note: "3 âm tiết, nhấn âm 2. Hai âm tiết không nhấn (bə, nə) đều rơi về schwa /ə/ — không phải 'a' rõ." },
+  { word: "photograph", ipa: "/ˈfəʊtəɡrɑːf/", audio: null, syllables: [
+    { text: "ˈfəʊ", level: "primary" }, { text: "tə", level: "none" }, { text: "ɡrɑːf", level: "none" }
+  ], note: "Danh từ — nhấn âm 1. So sánh với hai từ tiếp theo cùng gốc nhưng trọng âm dịch chuyển." },
+  { word: "photographer", ipa: "/fəˈtɒɡrəfə(r)/", audio: null, syllables: [
+    { text: "fə", level: "none" }, { text: "ˈtɒɡ", level: "primary" }, { text: "rə", level: "none" }, { text: "fə(r)", level: "none" }
+  ], note: "Thêm hậu tố -er → trọng âm dịch sang âm 2 (tɒɡ)." },
+  { word: "photographic", ipa: "/ˌfəʊtəˈɡræfɪk/", audio: null, syllables: [
+    { text: "ˌfəʊ", level: "secondary" }, { text: "tə", level: "none" }, { text: "ˈɡræ", level: "primary" }, { text: "fɪk", level: "none" }
+  ], note: "Thêm hậu tố -ic → trọng âm vào âm tiết ngay trước (ɡræ). Âm 1 giữ trọng âm phụ." },
+  { word: "information", ipa: "/ˌɪnfəˈmeɪʃn/", audio: null, syllables: [
+    { text: "ˌɪn", level: "secondary" }, { text: "fə", level: "none" }, { text: "ˈmeɪ", level: "primary" }, { text: "ʃn", level: "none" }
+  ], note: "Hậu tố -ation → nhấn ngay trước (-mei-). Quy luật chung với mọi từ kết thúc -tion/-sion." },
+  { word: "record (n.)", ipa: "/ˈrekɔːd/", audio: null, syllables: [
+    { text: "ˈre", level: "primary" }, { text: "kɔːd", level: "none" }
+  ], note: "Danh từ — nhấn âm 1: 'a RE-cord'." },
+  { word: "record (v.)", ipa: "/rɪˈkɔːd/", audio: null, syllables: [
+    { text: "rɪ", level: "none" }, { text: "ˈkɔːd", level: "primary" }
+  ], note: "Động từ — nhấn âm 2: 'to re-CORD'. Cùng chính tả với 'record' danh từ, khác trọng âm → khác nghĩa." },
+];
+
+const stressList = document.getElementById('stress-list');
+stressWords.forEach(s => {
+  const item = document.createElement('div');
+  item.className = 'stress-item';
+  const syllHtml = s.syllables.map(syll => {
+    return `<span class="syll ${syll.level === 'primary' ? 'primary' : syll.level === 'secondary' ? 'secondary' : ''}">${syll.text}</span>`;
+  }).join('');
+  const playHint = s.audio ? `<span style="float: right; font-size: 12px; color: var(--accent);">▶ Click để nghe</span>` : '';
+  item.innerHTML = `
+    <div class="stress-word">${s.word}${playHint}</div>
+    <div class="stress-ipa ipa-symbol">${s.ipa}</div>
+    <div class="syllables">${syllHtml}</div>
+    <div style="font-size: 13px; color: var(--muted); margin-top: 8px;">${s.note}</div>
+  `;
+  if (s.audio) {
+    item.addEventListener('click', () => playAudio(s.audio, null));
+  } else {
+    item.style.cursor = 'default';
+  }
+  stressList.appendChild(item);
+});
+</script>
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/ipa-reader.js"></script>
+</body>
+</html>

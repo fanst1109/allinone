@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Norm và khoảng cách</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; margin-top: 8px; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .card h3 { margin-top: 0; color: #2c5282; }
+  .desc { color: #4a5568; font-size: 14px; margin-bottom: 12px; }
+
+  .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #4a5568; }
+
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; padding: 6px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 80px;
+  }
+  input[type="range"] { width: 220px; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 7px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.alt { background: #718096; }
+  button.alt:hover { background: #4a5568; }
+  button.active { background: #2c5282; box-shadow: 0 0 0 2px #bee3f8; }
+
+  .result {
+    background: #1a202c; color: #68d391;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    padding: 12px 16px; border-radius: 4px;
+    margin-top: 12px; font-size: 14px;
+    white-space: pre-wrap;
+    line-height: 1.55;
+  }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+  @media (max-width: 800px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  svg.canvas {
+    background: #f7fafc;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    display: block;
+    width: 100%;
+    height: auto;
+    touch-action: none;
+  }
+
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; margin-top: 8px; }
+  .legend .item { display: flex; align-items: center; gap: 6px; }
+  .legend .sw { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+
+  .stat-table {
+    width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px;
+  }
+  .stat-table th, .stat-table td {
+    padding: 6px 10px; border: 1px solid #e2e8f0;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  .stat-table th { background: #edf2f7; text-align: left; }
+  .stat-table td.val { text-align: right; color: #2c5282; font-weight: 600; }
+
+  .hint { color: #718096; font-size: 13px; margin: 6px 0; }
+  .badge {
+    display: inline-block;
+    background: #ebf8ff; color: #2c5282;
+    padding: 2px 8px; border-radius: 999px;
+    font-size: 12px; font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-dot-product/visualization.html">← L2: Dot product</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Norm và khoảng cách</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-linear-independence/visualization.html">L4: Linear independence →</a>
+</nav>
+
+<h1>Lesson 03 — Norm và khoảng cách</h1>
+<p class="desc">
+  Mini-app tương tác kèm <a href="./README.md">README</a>.
+  4 phần: (1) Norm comparator — kéo vector, đo L1/L2/L∞ song song;
+  (2) Unit ball — vẽ hình thoi/tròn/vuông với slider p;
+  (3) Distance — kéo 2 vector, đo d₁/d₂/d∞;
+  (4) Normalize — chia vector cho norm để ra vector unit.
+</p>
+
+<!-- =============================================================== -->
+<h2>1. Norm comparator — kéo vector, đọc 3 norm</h2>
+
+<div class="card">
+  <div class="grid-2">
+    <div>
+      <svg id="cmpSvg" class="canvas" viewBox="0 0 400 400"></svg>
+      <p class="hint">Kéo đầu mũi tên xanh để thay đổi vector.</p>
+    </div>
+    <div>
+      <div class="row">
+        <label>v = (</label>
+        <input id="cmpX" type="number" value="3" step="0.1">,
+        <input id="cmpY" type="number" value="4" step="0.1">
+        <label>)</label>
+        <button onclick="cmpUpdateFromInput()">Áp dụng</button>
+      </div>
+      <table class="stat-table">
+        <tr><th>Norm</th><th>Công thức</th><th>Giá trị</th></tr>
+        <tr><td>L1 (Manhattan)</td><td>|x|+|y|</td><td class="val" id="cmpL1">—</td></tr>
+        <tr><td>L2 (Euclidean)</td><td>√(x²+y²)</td><td class="val" id="cmpL2">—</td></tr>
+        <tr><td>L∞ (Chebyshev)</td><td>max(|x|,|y|)</td><td class="val" id="cmpLinf">—</td></tr>
+      </table>
+      <div class="legend">
+        <div class="item"><span class="sw" style="background:#4299e1"></span>vector v</div>
+        <div class="item"><span class="sw" style="background:#ed8936"></span>đường L1 (đi ngang dọc)</div>
+        <div class="item"><span class="sw" style="background:#48bb78"></span>L2 (mũi tên thẳng)</div>
+        <div class="item"><span class="sw" style="background:#9f7aea"></span>L∞ (cạnh dài nhất)</div>
+      </div>
+      <div class="result" id="cmpExplain"></div>
+    </div>
+  </div>
+</div>
+
+<!-- =============================================================== -->
+<h2>2. Unit ball — hình dạng theo p</h2>
+
+<div class="card">
+  <div class="grid-2">
+    <div>
+      <svg id="ballSvg" class="canvas" viewBox="0 0 400 400"></svg>
+    </div>
+    <div>
+      <div class="row">
+        <button id="bp1" onclick="setP(1)">L1 (thoi)</button>
+        <button id="bp2" onclick="setP(2)" class="active">L2 (tròn)</button>
+        <button id="binf" onclick="setP(Infinity)">L∞ (vuông)</button>
+      </div>
+      <div class="row">
+        <label>p =</label>
+        <input id="pSlider" type="range" min="1" max="10" step="0.1" value="2" oninput="setP(parseFloat(this.value))">
+        <span id="pVal" style="font-family:monospace;font-weight:600;color:#2c5282;">2.0</span>
+      </div>
+      <p class="hint">Slider p từ 1 (thoi) qua 2 (tròn) đến 10 (gần vuông). Chuyển từ thoi → vuông một cách mượt mà.</p>
+      <div class="result" id="ballInfo"></div>
+      <p class="hint">
+        Mọi unit ball Lₚ chứa 4 điểm góc trục: (±1, 0), (0, ±1). Phần "phình ra" hay "co lại" giữa các góc phụ thuộc p.
+        p → ∞: chạm tới các góc (±1, ±1) — hình vuông.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- =============================================================== -->
+<h2>3. Distance — khoảng cách giữa 2 vector</h2>
+
+<div class="card">
+  <div class="grid-2">
+    <div>
+      <svg id="distSvg" class="canvas" viewBox="0 0 400 400"></svg>
+      <p class="hint">Kéo điểm đỏ (u) hoặc điểm xanh (v) để đổi vị trí.</p>
+    </div>
+    <div>
+      <div class="row">
+        <label>u = (</label>
+        <input id="duX" type="number" value="1" step="0.1">,
+        <input id="duY" type="number" value="2" step="0.1">
+        <label>)</label>
+      </div>
+      <div class="row">
+        <label>v = (</label>
+        <input id="dvX" type="number" value="5" step="0.1">,
+        <input id="dvY" type="number" value="5" step="0.1">
+        <label>)</label>
+        <button onclick="distUpdateFromInput()">Áp dụng</button>
+      </div>
+      <table class="stat-table">
+        <tr><th>Loại</th><th>Công thức</th><th>Giá trị</th></tr>
+        <tr><td>d₁ Manhattan</td><td>‖u−v‖₁</td><td class="val" id="dD1">—</td></tr>
+        <tr><td>d₂ Euclidean</td><td>‖u−v‖₂</td><td class="val" id="dD2">—</td></tr>
+        <tr><td>d∞ Chebyshev</td><td>‖u−v‖∞</td><td class="val" id="dDinf">—</td></tr>
+      </table>
+      <div class="result" id="distExplain"></div>
+      <p class="hint">Đường gấp khúc cam = đường taxi (L1); đường thẳng xanh = đường chim bay (L2); đoạn tím = max trục (L∞).</p>
+    </div>
+  </div>
+</div>
+
+<!-- =============================================================== -->
+<h2>4. Normalize — chia cho norm để ra vector unit</h2>
+
+<div class="card">
+  <div class="grid-2">
+    <div>
+      <svg id="normSvg" class="canvas" viewBox="0 0 400 400"></svg>
+      <p class="hint">Kéo đầu mũi tên xanh. Mũi tên đỏ là v̂ = v/‖v‖₂, luôn nằm trên đường tròn đơn vị.</p>
+    </div>
+    <div>
+      <div class="row">
+        <label>v = (</label>
+        <input id="nrX" type="number" value="3" step="0.1">,
+        <input id="nrY" type="number" value="4" step="0.1">
+        <label>)</label>
+        <button onclick="normUpdateFromInput()">Áp dụng</button>
+      </div>
+      <table class="stat-table">
+        <tr><th>Đại lượng</th><th>Giá trị</th></tr>
+        <tr><td>v</td><td class="val" id="nrV">—</td></tr>
+        <tr><td>‖v‖₂</td><td class="val" id="nrNorm">—</td></tr>
+        <tr><td>v̂ = v/‖v‖₂</td><td class="val" id="nrUnit">—</td></tr>
+        <tr><td>‖v̂‖₂ (kiểm)</td><td class="val" id="nrCheck">—</td></tr>
+        <tr><td>Góc θ</td><td class="val" id="nrTheta">—</td></tr>
+      </table>
+      <div class="result" id="normExplain"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// Tiện ích chung: chuyển toạ độ toán (origin tại tâm) ↔ SVG
+// ============================================================
+const W = 400, H = 400, ORIG_X = 200, ORIG_Y = 200;
+const SCALE = 40; // 1 đơn vị = 40 px
+
+function mathToSvg(x, y) { return [ORIG_X + x * SCALE, ORIG_Y - y * SCALE]; }
+function svgToMath(sx, sy) { return [(sx - ORIG_X) / SCALE, -(sy - ORIG_Y) / SCALE]; }
+
+function drawAxes(svg, opts = {}) {
+  const grid = opts.grid !== false;
+  let html = '';
+  if (grid) {
+    for (let i = -5; i <= 5; i++) {
+      if (i === 0) continue;
+      const [x1] = mathToSvg(i, 0);
+      const [, y1] = mathToSvg(0, i);
+      html += `<line x1="${x1}" y1="0" x2="${x1}" y2="${H}" stroke="#e2e8f0" stroke-width="1"/>`;
+      html += `<line x1="0" y1="${y1}" x2="${W}" y2="${y1}" stroke="#e2e8f0" stroke-width="1"/>`;
+    }
+  }
+  html += `<line x1="0" y1="${ORIG_Y}" x2="${W}" y2="${ORIG_Y}" stroke="#a0aec0" stroke-width="1.5"/>`;
+  html += `<line x1="${ORIG_X}" y1="0" x2="${ORIG_X}" y2="${H}" stroke="#a0aec0" stroke-width="1.5"/>`;
+  html += `<text x="${W - 12}" y="${ORIG_Y - 6}" font-size="12" fill="#718096">x</text>`;
+  html += `<text x="${ORIG_X + 6}" y="14" font-size="12" fill="#718096">y</text>`;
+  for (let i = -4; i <= 4; i++) {
+    if (i === 0) continue;
+    const [x1] = mathToSvg(i, 0);
+    html += `<text x="${x1 - 4}" y="${ORIG_Y + 14}" font-size="10" fill="#718096">${i}</text>`;
+    const [, y1] = mathToSvg(0, i);
+    html += `<text x="${ORIG_X + 4}" y="${y1 + 3}" font-size="10" fill="#718096">${i}</text>`;
+  }
+  return html;
+}
+
+function arrow(x1, y1, x2, y2, color, w = 2) {
+  // Mũi tên đơn giản: line + đầu mũi
+  const dx = x2 - x1, dy = y2 - y1;
+  const len = Math.hypot(dx, dy);
+  if (len < 0.5) return `<circle cx="${x2}" cy="${y2}" r="3" fill="${color}"/>`;
+  const ux = dx / len, uy = dy / len;
+  const hx = x2 - ux * 10, hy = y2 - uy * 10;
+  const px = -uy, py = ux;
+  const a1x = hx + px * 5, a1y = hy + py * 5;
+  const a2x = hx - px * 5, a2y = hy - py * 5;
+  return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${w}"/>
+          <polygon points="${x2},${y2} ${a1x},${a1y} ${a2x},${a2y}" fill="${color}"/>`;
+}
+
+// ============================================================
+// 1. Norm comparator
+// ============================================================
+let cmpV = [3, 4];
+
+function cmpRender() {
+  const [x, y] = cmpV;
+  const svg = document.getElementById('cmpSvg');
+  let html = drawAxes(svg);
+
+  // L1 path (đi ngang rồi dọc)
+  const [ox, oy] = mathToSvg(0, 0);
+  const [mx, my] = mathToSvg(x, 0);
+  const [tx, ty] = mathToSvg(x, y);
+  html += `<polyline points="${ox},${oy} ${mx},${my} ${tx},${ty}" fill="none" stroke="#ed8936" stroke-width="3" stroke-dasharray="6 3"/>`;
+  // nhãn L1
+  html += `<text x="${(ox+mx)/2}" y="${oy + 14}" font-size="11" fill="#c05621" font-weight="600">|x|=${Math.abs(x).toFixed(2)}</text>`;
+  html += `<text x="${mx + 4}" y="${(my+ty)/2}" font-size="11" fill="#c05621" font-weight="600">|y|=${Math.abs(y).toFixed(2)}</text>`;
+
+  // L∞: vẽ trục dài hơn (max chiều)
+  const maxAbs = Math.max(Math.abs(x), Math.abs(y));
+  const isXMax = Math.abs(x) >= Math.abs(y);
+  if (isXMax) {
+    const [mxe, mye] = mathToSvg(x, 0);
+    html += `<line x1="${ox}" y1="${oy}" x2="${mxe}" y2="${mye}" stroke="#9f7aea" stroke-width="6" opacity="0.45"/>`;
+  } else {
+    const [mxe, mye] = mathToSvg(0, y);
+    html += `<line x1="${ox}" y1="${oy}" x2="${mxe}" y2="${mye}" stroke="#9f7aea" stroke-width="6" opacity="0.45"/>`;
+  }
+
+  // L2 vector (vẽ đè trên cùng)
+  html += arrow(ox, oy, tx, ty, '#48bb78', 3);
+
+  // Endpoint draggable
+  html += `<circle id="cmpHandle" cx="${tx}" cy="${ty}" r="8" fill="#4299e1" stroke="white" stroke-width="2" style="cursor:grab"/>`;
+  html += `<text x="${tx + 10}" y="${ty - 6}" font-size="12" fill="#2c5282" font-weight="600">v=(${x.toFixed(1)}, ${y.toFixed(1)})</text>`;
+
+  svg.innerHTML = html;
+  attachDrag('cmpSvg', 'cmpHandle', (mx, my) => {
+    cmpV = [+mx.toFixed(2), +my.toFixed(2)];
+    document.getElementById('cmpX').value = cmpV[0];
+    document.getElementById('cmpY').value = cmpV[1];
+    cmpRender();
+    cmpUpdateStats();
+  });
+}
+
+function cmpUpdateStats() {
+  const [x, y] = cmpV;
+  const l1 = Math.abs(x) + Math.abs(y);
+  const l2 = Math.hypot(x, y);
+  const linf = Math.max(Math.abs(x), Math.abs(y));
+  document.getElementById('cmpL1').textContent = l1.toFixed(4);
+  document.getElementById('cmpL2').textContent = l2.toFixed(4);
+  document.getElementById('cmpLinf').textContent = linf.toFixed(4);
+  const ratio = (l1 / Math.max(l2, 1e-9)).toFixed(3);
+  document.getElementById('cmpExplain').textContent =
+    `Đi 'taxi' (L1) = ${l1.toFixed(3)} block.\n` +
+    `Đi 'chim bay' (L2) = ${l2.toFixed(3)} đơn vị (đường thẳng).\n` +
+    `Đi 'vua' (L∞) = ${linf.toFixed(3)} nước (max trục).\n` +
+    `Kiểm: L∞ ≤ L2 ≤ L1 ⟺ ${linf.toFixed(3)} ≤ ${l2.toFixed(3)} ≤ ${l1.toFixed(3)} ✓\n` +
+    `Tỉ số L1/L2 = ${ratio} (lý thuyết ≤ √2 ≈ 1.414 trong ℝ²).`;
+}
+
+function cmpUpdateFromInput() {
+  cmpV = [parseFloat(document.getElementById('cmpX').value) || 0,
+          parseFloat(document.getElementById('cmpY').value) || 0];
+  cmpRender();
+  cmpUpdateStats();
+}
+
+// ============================================================
+// 2. Unit ball Lp
+// ============================================================
+let currentP = 2;
+
+function setP(p) {
+  currentP = p;
+  // Đồng bộ slider + button active
+  if (Number.isFinite(p)) {
+    document.getElementById('pSlider').value = Math.min(10, p);
+    document.getElementById('pVal').textContent = p.toFixed(2);
+  } else {
+    document.getElementById('pSlider').value = 10;
+    document.getElementById('pVal').textContent = '∞';
+  }
+  document.getElementById('bp1').classList.toggle('active', p === 1);
+  document.getElementById('bp2').classList.toggle('active', p === 2);
+  document.getElementById('binf').classList.toggle('active', p === Infinity);
+  ballRender();
+}
+
+function ballRender() {
+  const svg = document.getElementById('ballSvg');
+  let html = drawAxes(svg);
+  const p = currentP;
+
+  // Vẽ unit ball của Lp: tham số hóa qua góc nhưng dùng x = cos^(2/p)*sign + ...
+  // Cách đơn giản: với mỗi góc θ, điểm trên unit sphere Lp có dạng
+  // (|cos|^(2/p)*sign(cos), |sin|^(2/p)*sign(sin))? — không đúng cho Lp tổng quát.
+  // Cách đúng: parametric theo θ, đặt r(θ) sao cho |r cos|^p + |r sin|^p = 1
+  //   r = 1 / (|cos θ|^p + |sin θ|^p)^(1/p)
+  // Riêng p = ∞: r = 1 / max(|cos|, |sin|)
+  const pts = [];
+  const N = 360;
+  for (let i = 0; i <= N; i++) {
+    const th = (i / N) * Math.PI * 2;
+    const c = Math.cos(th), s = Math.sin(th);
+    let r;
+    if (!Number.isFinite(p)) {
+      r = 1 / Math.max(Math.abs(c), Math.abs(s), 1e-9);
+    } else {
+      r = 1 / Math.pow(Math.pow(Math.abs(c), p) + Math.pow(Math.abs(s), p), 1 / p);
+    }
+    const x = r * c, y = r * s;
+    const [sx, sy] = mathToSvg(x, y);
+    pts.push(`${sx.toFixed(2)},${sy.toFixed(2)}`);
+  }
+  // Vẽ overlay L1 (thoi), L2 (tròn), L∞ (vuông) mờ để so sánh
+  const pts1 = [], pts2 = [], ptsInf = [];
+  for (let i = 0; i <= N; i++) {
+    const th = (i / N) * Math.PI * 2;
+    const c = Math.cos(th), s = Math.sin(th);
+    const r1 = 1 / (Math.abs(c) + Math.abs(s) || 1e-9);
+    const r2 = 1;
+    const rInf = 1 / Math.max(Math.abs(c), Math.abs(s), 1e-9);
+    const [sx1, sy1] = mathToSvg(r1 * c, r1 * s);
+    const [sx2, sy2] = mathToSvg(r2 * c, r2 * s);
+    const [sxI, syI] = mathToSvg(rInf * c, rInf * s);
+    pts1.push(`${sx1.toFixed(1)},${sy1.toFixed(1)}`);
+    pts2.push(`${sx2.toFixed(1)},${sy2.toFixed(1)}`);
+    ptsInf.push(`${sxI.toFixed(1)},${syI.toFixed(1)}`);
+  }
+  html += `<polygon points="${ptsInf.join(' ')}" fill="none" stroke="#cbd5e0" stroke-width="1" stroke-dasharray="3 3"/>`;
+  html += `<polygon points="${pts2.join(' ')}" fill="none" stroke="#cbd5e0" stroke-width="1" stroke-dasharray="3 3"/>`;
+  html += `<polygon points="${pts1.join(' ')}" fill="none" stroke="#cbd5e0" stroke-width="1" stroke-dasharray="3 3"/>`;
+
+  // Unit ball hiện tại — fill nhẹ
+  html += `<polygon points="${pts.join(' ')}" fill="#bee3f8" fill-opacity="0.45" stroke="#2c5282" stroke-width="2.5"/>`;
+
+  // 4 điểm trục
+  for (const [x, y] of [[1,0], [-1,0], [0,1], [0,-1]]) {
+    const [sx, sy] = mathToSvg(x, y);
+    html += `<circle cx="${sx}" cy="${sy}" r="3.5" fill="#2c5282"/>`;
+  }
+
+  // Nhãn
+  const pLabel = Number.isFinite(p) ? `p = ${p.toFixed(2)}` : 'p = ∞';
+  html += `<text x="20" y="24" font-size="14" fill="#2c5282" font-weight="700">L${pLabel.slice(4)}</text>`;
+  html += `<text x="20" y="42" font-size="11" fill="#718096">Đường mờ: L1, L2, L∞ (tham chiếu)</text>`;
+
+  svg.innerHTML = html;
+
+  // Tính diện tích đơn vị ball (chỉ để info)
+  let area = 0;
+  for (let i = 0; i < N; i++) {
+    const th1 = (i / N) * Math.PI * 2, th2 = ((i + 1) / N) * Math.PI * 2;
+    const c1 = Math.cos(th1), s1 = Math.sin(th1);
+    const c2 = Math.cos(th2), s2 = Math.sin(th2);
+    let r1, r2;
+    if (!Number.isFinite(p)) {
+      r1 = 1 / Math.max(Math.abs(c1), Math.abs(s1), 1e-9);
+      r2 = 1 / Math.max(Math.abs(c2), Math.abs(s2), 1e-9);
+    } else {
+      r1 = 1 / Math.pow(Math.pow(Math.abs(c1), p) + Math.pow(Math.abs(s1), p), 1 / p);
+      r2 = 1 / Math.pow(Math.pow(Math.abs(c2), p) + Math.pow(Math.abs(s2), p), 1 / p);
+    }
+    area += 0.5 * r1 * r2 * Math.sin(th2 - th1);
+  }
+  const shapeName = !Number.isFinite(p) ? 'hình vuông' :
+                    Math.abs(p - 1) < 0.05 ? 'hình thoi' :
+                    Math.abs(p - 2) < 0.05 ? 'hình tròn' :
+                    p > 4 ? 'gần hình vuông' :
+                    p < 2 ? 'thoi tròn' : 'tròn vuốt vuông';
+  document.getElementById('ballInfo').textContent =
+    `p = ${Number.isFinite(p) ? p.toFixed(2) : '∞'}\n` +
+    `Hình dạng: ${shapeName}\n` +
+    `Diện tích unit ball ≈ ${area.toFixed(4)}\n` +
+    `(Tham khảo: L1 = 2, L2 = π ≈ 3.1416, L∞ = 4)`;
+}
+
+// ============================================================
+// 3. Distance
+// ============================================================
+let distU = [1, 2], distV = [5, 5];
+
+function distRender() {
+  const svg = document.getElementById('distSvg');
+  let html = drawAxes(svg);
+  const [ux, uy] = distU, [vx, vy] = distV;
+  const [sx1, sy1] = mathToSvg(ux, uy);
+  const [sx2, sy2] = mathToSvg(vx, vy);
+
+  // L1 path từ u đến v (đi ngang rồi dọc)
+  const [mx, my] = mathToSvg(vx, uy);
+  html += `<polyline points="${sx1},${sy1} ${mx},${my} ${sx2},${sy2}" fill="none" stroke="#ed8936" stroke-width="3" stroke-dasharray="6 3"/>`;
+
+  // L∞: đoạn theo trục có max
+  const dx = vx - ux, dy = vy - uy;
+  const isXMax = Math.abs(dx) >= Math.abs(dy);
+  if (isXMax) {
+    html += `<line x1="${sx1}" y1="${sy1}" x2="${mx}" y2="${my}" stroke="#9f7aea" stroke-width="6" opacity="0.45"/>`;
+  } else {
+    html += `<line x1="${mx}" y1="${my}" x2="${sx2}" y2="${sy2}" stroke="#9f7aea" stroke-width="6" opacity="0.45"/>`;
+  }
+
+  // L2 line
+  html += `<line x1="${sx1}" y1="${sy1}" x2="${sx2}" y2="${sy2}" stroke="#48bb78" stroke-width="3"/>`;
+
+  // Vẽ 2 vector từ gốc (nhạt)
+  const [ox, oy] = mathToSvg(0, 0);
+  html += `<line x1="${ox}" y1="${oy}" x2="${sx1}" y2="${sy1}" stroke="#fc8181" stroke-width="1.5" opacity="0.5"/>`;
+  html += `<line x1="${ox}" y1="${oy}" x2="${sx2}" y2="${sy2}" stroke="#4299e1" stroke-width="1.5" opacity="0.5"/>`;
+
+  // Handles
+  html += `<circle id="distHandleU" cx="${sx1}" cy="${sy1}" r="9" fill="#e53e3e" stroke="white" stroke-width="2" style="cursor:grab"/>`;
+  html += `<text x="${sx1 + 11}" y="${sy1 + 4}" font-size="12" fill="#9b2c2c" font-weight="600">u(${ux.toFixed(1)},${uy.toFixed(1)})</text>`;
+  html += `<circle id="distHandleV" cx="${sx2}" cy="${sy2}" r="9" fill="#4299e1" stroke="white" stroke-width="2" style="cursor:grab"/>`;
+  html += `<text x="${sx2 + 11}" y="${sy2 + 4}" font-size="12" fill="#2c5282" font-weight="600">v(${vx.toFixed(1)},${vy.toFixed(1)})</text>`;
+
+  svg.innerHTML = html;
+  attachDrag('distSvg', 'distHandleU', (mx, my) => {
+    distU = [+mx.toFixed(2), +my.toFixed(2)];
+    document.getElementById('duX').value = distU[0];
+    document.getElementById('duY').value = distU[1];
+    distRender();
+    distUpdateStats();
+  });
+  attachDrag('distSvg', 'distHandleV', (mx, my) => {
+    distV = [+mx.toFixed(2), +my.toFixed(2)];
+    document.getElementById('dvX').value = distV[0];
+    document.getElementById('dvY').value = distV[1];
+    distRender();
+    distUpdateStats();
+  });
+}
+
+function distUpdateStats() {
+  const dx = distU[0] - distV[0], dy = distU[1] - distV[1];
+  const d1 = Math.abs(dx) + Math.abs(dy);
+  const d2 = Math.hypot(dx, dy);
+  const dInf = Math.max(Math.abs(dx), Math.abs(dy));
+  document.getElementById('dD1').textContent = d1.toFixed(4);
+  document.getElementById('dD2').textContent = d2.toFixed(4);
+  document.getElementById('dDinf').textContent = dInf.toFixed(4);
+  document.getElementById('distExplain').textContent =
+    `u − v = (${dx.toFixed(2)}, ${dy.toFixed(2)})\n` +
+    `d₁ = |${dx.toFixed(2)}| + |${dy.toFixed(2)}| = ${d1.toFixed(3)}\n` +
+    `d₂ = √(${(dx*dx).toFixed(2)} + ${(dy*dy).toFixed(2)}) = ${d2.toFixed(3)}\n` +
+    `d∞ = max(|${dx.toFixed(2)}|, |${dy.toFixed(2)}|) = ${dInf.toFixed(3)}\n` +
+    `Quan hệ d∞ ≤ d₂ ≤ d₁: ${dInf.toFixed(3)} ≤ ${d2.toFixed(3)} ≤ ${d1.toFixed(3)} ✓`;
+}
+
+function distUpdateFromInput() {
+  distU = [parseFloat(document.getElementById('duX').value) || 0,
+           parseFloat(document.getElementById('duY').value) || 0];
+  distV = [parseFloat(document.getElementById('dvX').value) || 0,
+           parseFloat(document.getElementById('dvY').value) || 0];
+  distRender();
+  distUpdateStats();
+}
+
+// ============================================================
+// 4. Normalize
+// ============================================================
+let normV = [3, 4];
+
+function normRender() {
+  const svg = document.getElementById('normSvg');
+  let html = drawAxes(svg);
+  const [x, y] = normV;
+  const [ox, oy] = mathToSvg(0, 0);
+  const norm = Math.hypot(x, y);
+
+  // Vẽ unit circle
+  const [ucx, ucy] = mathToSvg(0, 0);
+  html += `<circle cx="${ucx}" cy="${ucy}" r="${SCALE}" fill="none" stroke="#cbd5e0" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+  html += `<text x="${ucx + SCALE + 4}" y="${ucy - 4}" font-size="11" fill="#718096">unit circle</text>`;
+
+  // Vẽ v
+  const [tx, ty] = mathToSvg(x, y);
+  html += arrow(ox, oy, tx, ty, '#4299e1', 3);
+
+  // Vẽ v̂ (đỏ) nếu norm > 0
+  if (norm > 1e-6) {
+    const ux = x / norm, uy = y / norm;
+    const [hx, hy] = mathToSvg(ux, uy);
+    html += arrow(ox, oy, hx, hy, '#e53e3e', 4);
+    html += `<text x="${hx + 6}" y="${hy - 6}" font-size="12" fill="#9b2c2c" font-weight="700">v̂</text>`;
+  }
+
+  // Handle ở đầu v
+  html += `<circle id="normHandle" cx="${tx}" cy="${ty}" r="8" fill="#4299e1" stroke="white" stroke-width="2" style="cursor:grab"/>`;
+  html += `<text x="${tx + 10}" y="${ty + 4}" font-size="12" fill="#2c5282" font-weight="600">v</text>`;
+
+  svg.innerHTML = html;
+  attachDrag('normSvg', 'normHandle', (mx, my) => {
+    normV = [+mx.toFixed(2), +my.toFixed(2)];
+    document.getElementById('nrX').value = normV[0];
+    document.getElementById('nrY').value = normV[1];
+    normRender();
+    normUpdateStats();
+  });
+}
+
+function normUpdateStats() {
+  const [x, y] = normV;
+  const norm = Math.hypot(x, y);
+  document.getElementById('nrV').textContent = `(${x.toFixed(3)}, ${y.toFixed(3)})`;
+  document.getElementById('nrNorm').textContent = norm.toFixed(4);
+  if (norm < 1e-6) {
+    document.getElementById('nrUnit').textContent = 'không xác định (chia cho 0)';
+    document.getElementById('nrCheck').textContent = '—';
+    document.getElementById('nrTheta').textContent = '—';
+    document.getElementById('normExplain').textContent = 'Vector 0 không normalize được (chia cho 0). Hãy kéo điểm ra xa gốc.';
+    return;
+  }
+  const ux = x / norm, uy = y / norm;
+  const check = Math.hypot(ux, uy);
+  const theta = Math.atan2(uy, ux) * 180 / Math.PI;
+  document.getElementById('nrUnit').textContent = `(${ux.toFixed(4)}, ${uy.toFixed(4)})`;
+  document.getElementById('nrCheck').textContent = check.toFixed(6) + ' ≈ 1 ✓';
+  document.getElementById('nrTheta').textContent = `${theta.toFixed(2)}°`;
+  document.getElementById('normExplain').textContent =
+    `‖v‖₂ = √(${(x*x).toFixed(3)} + ${(y*y).toFixed(3)}) = ${norm.toFixed(4)}\n` +
+    `v̂ = (${x.toFixed(3)}/${norm.toFixed(3)}, ${y.toFixed(3)}/${norm.toFixed(3)}) = (${ux.toFixed(4)}, ${uy.toFixed(4)})\n` +
+    `Kiểm: ‖v̂‖₂ = ${check.toFixed(6)} (sai số float, thực chất = 1)\n` +
+    `Góc: ${theta.toFixed(2)}° — v̂ = (cos θ, sin θ).`;
+}
+
+function normUpdateFromInput() {
+  normV = [parseFloat(document.getElementById('nrX').value) || 0,
+           parseFloat(document.getElementById('nrY').value) || 0];
+  normRender();
+  normUpdateStats();
+}
+
+// ============================================================
+// Drag helper
+// ============================================================
+function attachDrag(svgId, handleId, onMove) {
+  const svg = document.getElementById(svgId);
+  const handle = document.getElementById(handleId);
+  if (!handle) return;
+  let dragging = false;
+
+  function getSvgPoint(evt) {
+    const rect = svg.getBoundingClientRect();
+    const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+    const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+    const sx = (clientX - rect.left) * (W / rect.width);
+    const sy = (clientY - rect.top) * (H / rect.height);
+    return svgToMath(sx, sy);
+  }
+
+  function start(e) { dragging = true; e.preventDefault(); }
+  function move(e) {
+    if (!dragging) return;
+    const [mx, my] = getSvgPoint(e);
+    // Giới hạn trong vùng -4.5 .. 4.5 để không tràn
+    const cx = Math.max(-4.5, Math.min(4.5, mx));
+    const cy = Math.max(-4.5, Math.min(4.5, my));
+    onMove(cx, cy);
+  }
+  function end() { dragging = false; }
+
+  handle.addEventListener('mousedown', start);
+  window.addEventListener('mousemove', move);
+  window.addEventListener('mouseup', end);
+  handle.addEventListener('touchstart', start);
+  window.addEventListener('touchmove', move, { passive: false });
+  window.addEventListener('touchend', end);
+}
+
+// ============================================================
+// Init
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  cmpRender(); cmpUpdateStats();
+  ballRender();
+  distRender(); distUpdateStats();
+  normRender(); normUpdateStats();
+});
+</script>
+
+<!-- README modal -->
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+
+</main>
+</body>
+</html>

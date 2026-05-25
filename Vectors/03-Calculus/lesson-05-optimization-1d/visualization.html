@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Cực trị 1 biến (Optimization)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --panel: #ffffff;
+    --line: #e3e1dc;
+    --ink: #1a1a1a;
+    --muted: #6a6a6a;
+    --accent: #047857;
+    --accent-soft: #d1fae5;
+    --max-color: #dc2626;
+    --min-color: #2563eb;
+    --saddle-color: #b45309;
+    --grid: #ececec;
+  }
+  body { margin: 0; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px 18px 80px; font-size: 14.5px; }
+  h1 { font-size: 26px; margin: 0 0 6px; font-weight: 800; }
+  h2 { font-size: 19px; margin: 32px 0 12px; padding-left: 10px; border-left: 4px solid var(--accent); }
+  .subtitle { color: var(--muted); margin-bottom: 18px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 22px; }
+  .panel h3 { margin: 0 0 12px; font-size: 15px; color: var(--accent); }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin-bottom: 14px; }
+  .controls label { font-size: 12.5px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+  .controls select, .controls input[type=number] { padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; font-size: 13px; }
+  .controls input[type=range] { width: 200px; vertical-align: middle; }
+  .controls button { padding: 6px 12px; background: var(--accent); color: white; border: none; border-radius: 6px; font-size: 12.5px; cursor: pointer; font-weight: 600; }
+  .controls button:hover { background: #065f46; }
+  .controls .value { font-family: ui-monospace, "SF Mono", monospace; font-weight: 600; color: var(--ink); }
+  svg { background: #fafaf7; border: 1px solid var(--line); border-radius: 8px; display: block; }
+  .info { background: #f7f6f1; border-left: 3px solid var(--accent); padding: 10px 14px; border-radius: 6px; font-size: 13px; margin: 12px 0; }
+  .info code { background: #ecebe5; padding: 1px 6px; border-radius: 4px; font-size: 12.5px; }
+  table.report { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+  table.report th, table.report td { padding: 6px 10px; border: 1px solid var(--line); text-align: center; }
+  table.report th { background: #f5f4f0; font-weight: 700; }
+  table.report td.max { background: #fee2e2; color: var(--max-color); font-weight: 600; }
+  table.report td.min { background: #dbeafe; color: var(--min-color); font-weight: 600; }
+  table.report td.saddle { background: #fef3c7; color: var(--saddle-color); font-weight: 600; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); margin: 8px 0; }
+  .legend .item { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 14px; height: 14px; border-radius: 3px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-chain-rule/visualization.html">← L4: Chain rule</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Cực trị 1 biến</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-partial-gradient/visualization.html">L6: Đạo hàm riêng + gradient →</a>
+</nav>
+  <h1>Lesson 05 — Cực trị 1 biến (Optimization)</h1>
+  <div class="subtitle">Tìm critical points <code>f'(x) = 0</code>, phân loại bằng f'', tối ưu hóa trên đoạn đóng, ứng dụng linear regression.</div>
+
+  <!-- ====================================================== -->
+  <h2>1. Critical Points Finder</h2>
+  <div class="panel">
+    <h3>Chọn hàm — viz tự vẽ f(x), f'(x) và đánh dấu critical points</h3>
+    <div class="controls">
+      <label>Hàm:
+        <select id="fnSelect"></select>
+      </label>
+      <label><input type="checkbox" id="showDerivative" checked> Hiển thị f'(x)</label>
+      <label><input type="checkbox" id="showSecondD"> Hiển thị f''(x)</label>
+    </div>
+    <svg id="critSvg" viewBox="0 0 900 420" width="100%" style="height:auto;"></svg>
+    <div class="legend">
+      <div class="item"><div class="swatch" style="background:#1f2937"></div>f(x)</div>
+      <div class="item"><div class="swatch" style="background:#2563eb"></div>f'(x)</div>
+      <div class="item"><div class="swatch" style="background:#9333ea"></div>f''(x)</div>
+      <div class="item"><div class="swatch" style="background:var(--max-color)"></div>cực đại (max)</div>
+      <div class="item"><div class="swatch" style="background:var(--min-color)"></div>cực tiểu (min)</div>
+      <div class="item"><div class="swatch" style="background:var(--saddle-color)"></div>không phải cực trị (saddle)</div>
+    </div>
+    <div id="critReport"></div>
+  </div>
+
+  <!-- ====================================================== -->
+  <h2>2. First vs Second Derivative Test</h2>
+  <div class="panel">
+    <h3>Chọn một critical point, viz hiển thị xét dấu f' và giá trị f''</h3>
+    <div class="controls">
+      <label>Hàm:
+        <select id="testFn"></select>
+      </label>
+      <label>Critical point:
+        <select id="testCrit"></select>
+      </label>
+    </div>
+    <div class="two-col">
+      <div>
+        <svg id="testSvg" viewBox="0 0 460 340" width="100%" style="height:auto;"></svg>
+      </div>
+      <div>
+        <div class="info" id="testResult"></div>
+        <table class="report" id="testTable"></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================== -->
+  <h2>3. Cực trị toàn cục trên đoạn đóng [a, b]</h2>
+  <div class="panel">
+    <h3>Tìm max/min toàn cục — luôn ở critical point HOẶC ở biên</h3>
+    <div class="controls">
+      <label>Hàm:
+        <select id="ivlFn"></select>
+      </label>
+      <label>a: <input type="number" id="ivlA" value="0" step="0.5" style="width:80px"></label>
+      <label>b: <input type="number" id="ivlB" value="3" step="0.5" style="width:80px"></label>
+      <button id="ivlReset">Reset</button>
+    </div>
+    <svg id="ivlSvg" viewBox="0 0 900 380" width="100%" style="height:auto;"></svg>
+    <table class="report" id="ivlTable"></table>
+    <div class="info" id="ivlResult"></div>
+  </div>
+
+  <!-- ====================================================== -->
+  <h2>4. Linear Regression — MSE Loss</h2>
+  <div class="panel">
+    <h3>3 điểm cố định. Trượt slope <code>a</code> để xem residuals và loss L(a).</h3>
+    <div class="controls">
+      <label>a = <span class="value" id="regAVal">1.0</span></label>
+      <input type="range" id="regA" min="0" max="3" step="0.01" value="1.0">
+      <button id="regOpt">Giải đóng a* = (Σxy)/(Σx²)</button>
+    </div>
+    <div class="two-col">
+      <div>
+        <h4 style="margin:0 0 8px;font-size:13px;color:var(--muted);">Đường thẳng y = a·x với 3 điểm dữ liệu</h4>
+        <svg id="regSvg" viewBox="0 0 460 380" width="100%" style="height:auto;"></svg>
+      </div>
+      <div>
+        <h4 style="margin:0 0 8px;font-size:13px;color:var(--muted);">Loss L(a) là parabol — đáy chính là a*</h4>
+        <svg id="lossSvg" viewBox="0 0 460 380" width="100%" style="height:auto;"></svg>
+      </div>
+    </div>
+    <div class="info" id="regInfo"></div>
+  </div>
+
+  <div class="info" style="margin-top: 28px;">
+    <strong>💡 Ghi nhớ.</strong> Mọi bài toán tối ưu hóa 1D đều quy về tìm <code>f'(x) = 0</code> + phân loại + xét biên. ML chỉ là mở rộng lên nhiều chiều — bạn sẽ học Lesson 06-07.
+  </div>
+</div>
+
+<script>
+// ============== Hàm số mẫu ==============
+const functions = {
+  parabol: {
+    label: "f(x) = x² − 4x + 7",
+    f: x => x*x - 4*x + 7,
+    df: x => 2*x - 4,
+    d2f: x => 2,
+    domain: [-1, 5],
+    crits: [{ x: 2, type: 'min' }]
+  },
+  cubic: {
+    label: "f(x) = x³ − 3x + 1",
+    f: x => x*x*x - 3*x + 1,
+    df: x => 3*x*x - 3,
+    d2f: x => 6*x,
+    domain: [-2.5, 2.5],
+    crits: [{ x: -1, type: 'max' }, { x: 1, type: 'min' }]
+  },
+  cubicSaddle: {
+    label: "f(x) = x³ (saddle tại 0)",
+    f: x => x*x*x,
+    df: x => 3*x*x,
+    d2f: x => 6*x,
+    domain: [-2, 2],
+    crits: [{ x: 0, type: 'saddle' }]
+  },
+  quartic: {
+    label: "f(x) = x⁴ − 2x² (W-shape)",
+    f: x => x*x*x*x - 2*x*x,
+    df: x => 4*x*x*x - 4*x,
+    d2f: x => 12*x*x - 4,
+    domain: [-2, 2],
+    crits: [{ x: -1, type: 'min' }, { x: 0, type: 'max' }, { x: 1, type: 'min' }]
+  },
+  xExp: {
+    label: "f(x) = x · e^(−x)",
+    f: x => x * Math.exp(-x),
+    df: x => Math.exp(-x) * (1 - x),
+    d2f: x => Math.exp(-x) * (x - 2),
+    domain: [-0.5, 5],
+    crits: [{ x: 1, type: 'max' }]
+  },
+  xLnx: {
+    label: "f(x) = x · ln(x)",
+    f: x => x > 0 ? x * Math.log(x) : NaN,
+    df: x => x > 0 ? Math.log(x) + 1 : NaN,
+    d2f: x => x > 0 ? 1/x : NaN,
+    domain: [0.05, 3],
+    crits: [{ x: 1/Math.E, type: 'min' }]
+  },
+  cubic2: {
+    label: "f(x) = 2x³ − 9x² + 12x − 3",
+    f: x => 2*x*x*x - 9*x*x + 12*x - 3,
+    df: x => 6*x*x - 18*x + 12,
+    d2f: x => 12*x - 18,
+    domain: [-0.5, 4],
+    crits: [{ x: 1, type: 'max' }, { x: 2, type: 'min' }]
+  },
+  cubicMinus: {
+    label: "f(x) = x³ − 3x² + 2",
+    f: x => x*x*x - 3*x*x + 2,
+    df: x => 3*x*x - 6*x,
+    d2f: x => 6*x - 6,
+    domain: [-1, 4],
+    crits: [{ x: 0, type: 'max' }, { x: 2, type: 'min' }]
+  },
+  bell: {
+    label: "f(x) = e^(−x²) (bell curve)",
+    f: x => Math.exp(-x*x),
+    df: x => -2*x*Math.exp(-x*x),
+    d2f: x => (4*x*x - 2) * Math.exp(-x*x),
+    domain: [-3, 3],
+    crits: [{ x: 0, type: 'max' }]
+  },
+  quarticBig: {
+    label: "f(x) = x⁴ − 6x² + 5",
+    f: x => x*x*x*x - 6*x*x + 5,
+    df: x => 4*x*x*x - 12*x,
+    d2f: x => 12*x*x - 12,
+    domain: [-3, 3],
+    crits: [
+      { x: -Math.sqrt(3), type: 'min' },
+      { x: 0, type: 'max' },
+      { x: Math.sqrt(3), type: 'min' }
+    ]
+  }
+};
+
+// ============== Phần 1: Critical Points Finder ==============
+function buildSelect(id, options, selected) {
+  const el = document.getElementById(id);
+  el.innerHTML = '';
+  for (const [key, info] of Object.entries(options)) {
+    const opt = document.createElement('option');
+    opt.value = key; opt.textContent = info.label;
+    if (key === selected) opt.selected = true;
+    el.appendChild(opt);
+  }
+}
+
+buildSelect('fnSelect', functions, 'cubic');
+buildSelect('testFn', functions, 'cubic');
+buildSelect('ivlFn', functions, 'cubicMinus');
+
+function drawCritPlot() {
+  const key = document.getElementById('fnSelect').value;
+  const fn = functions[key];
+  const showD = document.getElementById('showDerivative').checked;
+  const showD2 = document.getElementById('showSecondD').checked;
+  const svg = document.getElementById('critSvg');
+  svg.innerHTML = '';
+
+  const W = 900, H = 420;
+  const padL = 60, padR = 30, padT = 28, padB = 40;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+
+  const [xMin, xMax] = fn.domain;
+
+  // Tìm yMin, yMax
+  let yMin = Infinity, yMax = -Infinity;
+  const N = 400;
+  const samples = [];
+  for (let i = 0; i <= N; i++) {
+    const x = xMin + (xMax - xMin) * i / N;
+    const y = fn.f(x);
+    const dy = fn.df(x);
+    const d2y = fn.d2f(x);
+    samples.push({ x, y, dy, d2y });
+    if (Number.isFinite(y)) { yMin = Math.min(yMin, y); yMax = Math.max(yMax, y); }
+    if (showD && Number.isFinite(dy)) { yMin = Math.min(yMin, dy); yMax = Math.max(yMax, dy); }
+    if (showD2 && Number.isFinite(d2y)) { yMin = Math.min(yMin, d2y); yMax = Math.max(yMax, d2y); }
+  }
+  // padding
+  const pad = (yMax - yMin) * 0.1;
+  yMin -= pad; yMax += pad;
+
+  const xScale = x => padL + (x - xMin) / (xMax - xMin) * plotW;
+  const yScale = y => padT + (1 - (y - yMin) / (yMax - yMin)) * plotH;
+
+  // axes/grid
+  let svgContent = '';
+  // grid
+  const xTicks = 8, yTicks = 6;
+  for (let i = 0; i <= xTicks; i++) {
+    const x = xMin + (xMax - xMin) * i / xTicks;
+    const X = xScale(x);
+    svgContent += `<line x1="${X}" y1="${padT}" x2="${X}" y2="${padT+plotH}" stroke="#ececec" stroke-width="1"/>`;
+    svgContent += `<text x="${X}" y="${padT+plotH+18}" text-anchor="middle" font-size="11" fill="#6a6a6a">${x.toFixed(1)}</text>`;
+  }
+  for (let i = 0; i <= yTicks; i++) {
+    const y = yMin + (yMax - yMin) * i / yTicks;
+    const Y = yScale(y);
+    svgContent += `<line x1="${padL}" y1="${Y}" x2="${padL+plotW}" y2="${Y}" stroke="#ececec" stroke-width="1"/>`;
+    svgContent += `<text x="${padL-6}" y="${Y+4}" text-anchor="end" font-size="11" fill="#6a6a6a">${y.toFixed(1)}</text>`;
+  }
+  // axes lines (y=0 if in range)
+  if (yMin <= 0 && yMax >= 0) {
+    const Y0 = yScale(0);
+    svgContent += `<line x1="${padL}" y1="${Y0}" x2="${padL+plotW}" y2="${Y0}" stroke="#444" stroke-width="1.5" stroke-dasharray="4 4"/>`;
+  }
+  // border
+  svgContent += `<rect x="${padL}" y="${padT}" width="${plotW}" height="${plotH}" fill="none" stroke="#888" stroke-width="1"/>`;
+
+  // f(x)
+  let path = '';
+  for (let i = 0; i < samples.length; i++) {
+    const s = samples[i];
+    if (Number.isFinite(s.y)) path += (path ? 'L' : 'M') + xScale(s.x) + ',' + yScale(s.y);
+  }
+  svgContent += `<path d="${path}" stroke="#1f2937" stroke-width="2.5" fill="none"/>`;
+
+  // f'(x)
+  if (showD) {
+    let pathD = '';
+    for (let i = 0; i < samples.length; i++) {
+      const s = samples[i];
+      if (Number.isFinite(s.dy)) pathD += (pathD ? 'L' : 'M') + xScale(s.x) + ',' + yScale(s.dy);
+    }
+    svgContent += `<path d="${pathD}" stroke="#2563eb" stroke-width="2" fill="none" stroke-dasharray="6 4"/>`;
+  }
+  // f''(x)
+  if (showD2) {
+    let pathD2 = '';
+    for (let i = 0; i < samples.length; i++) {
+      const s = samples[i];
+      if (Number.isFinite(s.d2y)) pathD2 += (pathD2 ? 'L' : 'M') + xScale(s.x) + ',' + yScale(s.d2y);
+    }
+    svgContent += `<path d="${pathD2}" stroke="#9333ea" stroke-width="1.5" fill="none" stroke-dasharray="3 3"/>`;
+  }
+
+  // critical points
+  for (const c of fn.crits) {
+    const X = xScale(c.x), Y = yScale(fn.f(c.x));
+    const color = c.type === 'max' ? 'var(--max-color)' : c.type === 'min' ? 'var(--min-color)' : 'var(--saddle-color)';
+    const fill = c.type === 'max' ? '#dc2626' : c.type === 'min' ? '#2563eb' : '#b45309';
+    svgContent += `<circle cx="${X}" cy="${Y}" r="7" fill="${fill}" stroke="white" stroke-width="2"/>`;
+    // tiếp tuyến nằm ngang
+    svgContent += `<line x1="${X-30}" y1="${Y}" x2="${X+30}" y2="${Y}" stroke="${fill}" stroke-width="2"/>`;
+    const labelText = c.type === 'max' ? 'MAX' : c.type === 'min' ? 'MIN' : 'SADDLE';
+    svgContent += `<text x="${X}" y="${Y - 14}" text-anchor="middle" font-size="11" fill="${fill}" font-weight="700">${labelText}</text>`;
+    svgContent += `<text x="${X}" y="${Y + 22}" text-anchor="middle" font-size="10" fill="#444">x=${c.x.toFixed(2)}</text>`;
+  }
+
+  // titles
+  svgContent += `<text x="${W/2}" y="${padT-10}" text-anchor="middle" font-size="13" font-weight="700" fill="#333">${fn.label}</text>`;
+  svgContent += `<text x="${W-padR}" y="${H-12}" text-anchor="end" font-size="11" fill="#6a6a6a">x</text>`;
+
+  svg.innerHTML = svgContent;
+
+  // report
+  let html = '<table class="report"><tr><th>Critical point x</th><th>f(x)</th><th>f\'(x)</th><th>f\'\'(x)</th><th>Loại</th></tr>';
+  for (const c of fn.crits) {
+    const yv = fn.f(c.x), dyv = fn.df(c.x), d2v = fn.d2f(c.x);
+    const cls = c.type;
+    const label = c.type === 'max' ? 'Cực đại' : c.type === 'min' ? 'Cực tiểu' : 'Không phải cực trị (saddle)';
+    html += `<tr><td>${c.x.toFixed(4)}</td><td>${yv.toFixed(4)}</td><td>${dyv.toFixed(4)}</td><td>${d2v.toFixed(4)}</td><td class="${cls}">${label}</td></tr>`;
+  }
+  html += '</table>';
+  document.getElementById('critReport').innerHTML = html;
+}
+
+document.getElementById('fnSelect').addEventListener('change', drawCritPlot);
+document.getElementById('showDerivative').addEventListener('change', drawCritPlot);
+document.getElementById('showSecondD').addEventListener('change', drawCritPlot);
+
+// ============== Phần 2: First vs Second Derivative Test ==============
+function updateTestCrits() {
+  const key = document.getElementById('testFn').value;
+  const fn = functions[key];
+  const sel = document.getElementById('testCrit');
+  sel.innerHTML = '';
+  fn.crits.forEach((c, idx) => {
+    const opt = document.createElement('option');
+    opt.value = idx;
+    opt.textContent = `x = ${c.x.toFixed(4)}`;
+    sel.appendChild(opt);
+  });
+  drawTestPlot();
+}
+
+function drawTestPlot() {
+  const key = document.getElementById('testFn').value;
+  const fn = functions[key];
+  const idx = parseInt(document.getElementById('testCrit').value);
+  const crit = fn.crits[idx];
+  if (!crit) return;
+
+  const svg = document.getElementById('testSvg');
+  const W = 460, H = 340;
+  const padL = 50, padR = 20, padT = 26, padB = 36;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+
+  // zoom quanh crit point
+  const span = (fn.domain[1] - fn.domain[0]) * 0.4;
+  const xMin = crit.x - span/2;
+  const xMax = crit.x + span/2;
+
+  const N = 200;
+  const samples = [];
+  let yMin = Infinity, yMax = -Infinity;
+  for (let i = 0; i <= N; i++) {
+    const x = xMin + (xMax - xMin) * i / N;
+    const y = fn.f(x), dy = fn.df(x);
+    samples.push({ x, y, dy });
+    if (Number.isFinite(y)) { yMin = Math.min(yMin, y); yMax = Math.max(yMax, y); }
+    if (Number.isFinite(dy)) { yMin = Math.min(yMin, dy); yMax = Math.max(yMax, dy); }
+  }
+  const pad = (yMax - yMin) * 0.15;
+  yMin -= pad; yMax += pad;
+
+  const xScale = x => padL + (x - xMin) / (xMax - xMin) * plotW;
+  const yScale = y => padT + (1 - (y - yMin) / (yMax - yMin)) * plotH;
+
+  let content = `<rect x="${padL}" y="${padT}" width="${plotW}" height="${plotH}" fill="none" stroke="#888"/>`;
+
+  // shaded regions trái/phải critical point (dấu của f')
+  const dyLeft = fn.df(crit.x - span*0.1);
+  const dyRight = fn.df(crit.x + span*0.1);
+  const X0 = xScale(crit.x);
+  content += `<rect x="${padL}" y="${padT}" width="${X0-padL}" height="${plotH}" fill="${dyLeft>0?'#fee2e2':'#dbeafe'}" opacity="0.35"/>`;
+  content += `<rect x="${X0}" y="${padT}" width="${padL+plotW-X0}" height="${plotH}" fill="${dyRight>0?'#fee2e2':'#dbeafe'}" opacity="0.35"/>`;
+
+  // y=0 line
+  if (yMin <= 0 && yMax >= 0) {
+    const Y0 = yScale(0);
+    content += `<line x1="${padL}" y1="${Y0}" x2="${padL+plotW}" y2="${Y0}" stroke="#444" stroke-width="1" stroke-dasharray="3 3"/>`;
+  }
+
+  // f curve
+  let path = '';
+  samples.forEach(s => {
+    if (Number.isFinite(s.y)) path += (path ? 'L' : 'M') + xScale(s.x) + ',' + yScale(s.y);
+  });
+  content += `<path d="${path}" stroke="#1f2937" stroke-width="2.5" fill="none"/>`;
+
+  // f' curve
+  let pathD = '';
+  samples.forEach(s => {
+    if (Number.isFinite(s.dy)) pathD += (pathD ? 'L' : 'M') + xScale(s.x) + ',' + yScale(s.dy);
+  });
+  content += `<path d="${pathD}" stroke="#2563eb" stroke-width="2" fill="none" stroke-dasharray="6 3"/>`;
+
+  // critical point
+  const fcrit = fn.f(crit.x);
+  content += `<line x1="${X0}" y1="${padT}" x2="${X0}" y2="${padT+plotH}" stroke="#888" stroke-width="1" stroke-dasharray="2 4"/>`;
+  const colorMap = { max: '#dc2626', min: '#2563eb', saddle: '#b45309' };
+  content += `<circle cx="${X0}" cy="${yScale(fcrit)}" r="6" fill="${colorMap[crit.type]}" stroke="white" stroke-width="2"/>`;
+
+  // arrows showing slope direction in each region
+  const leftSign = dyLeft > 0 ? '↗ tăng (f\'>0)' : '↘ giảm (f\'<0)';
+  const rightSign = dyRight > 0 ? '↗ tăng (f\'>0)' : '↘ giảm (f\'<0)';
+  content += `<text x="${(padL+X0)/2}" y="${padT+18}" text-anchor="middle" font-size="11" font-weight="700" fill="#444">${leftSign}</text>`;
+  content += `<text x="${(X0+padL+plotW)/2}" y="${padT+18}" text-anchor="middle" font-size="11" font-weight="700" fill="#444">${rightSign}</text>`;
+
+  content += `<text x="${W/2}" y="${H-8}" text-anchor="middle" font-size="11" fill="#6a6a6a">x (zoom quanh critical point)</text>`;
+
+  svg.innerHTML = content;
+
+  // Bảng kết quả
+  const d2v = fn.d2f(crit.x);
+  let d2Conclusion;
+  if (d2v > 0.001) d2Conclusion = '<span class="min" style="background:#dbeafe;padding:2px 6px;border-radius:4px;color:#2563eb;font-weight:700;">CỰC TIỂU</span> (f\'\' > 0)';
+  else if (d2v < -0.001) d2Conclusion = '<span style="background:#fee2e2;padding:2px 6px;border-radius:4px;color:#dc2626;font-weight:700;">CỰC ĐẠI</span> (f\'\' < 0)';
+  else d2Conclusion = '<span style="background:#fef3c7;padding:2px 6px;border-radius:4px;color:#b45309;font-weight:700;">BÍ</span> (f\'\' = 0, dùng first test)';
+
+  let firstConclusion;
+  if (dyLeft > 0 && dyRight < 0) firstConclusion = '<span style="background:#fee2e2;padding:2px 6px;border-radius:4px;color:#dc2626;font-weight:700;">CỰC ĐẠI</span>';
+  else if (dyLeft < 0 && dyRight > 0) firstConclusion = '<span style="background:#dbeafe;padding:2px 6px;border-radius:4px;color:#2563eb;font-weight:700;">CỰC TIỂU</span>';
+  else firstConclusion = '<span style="background:#fef3c7;padding:2px 6px;border-radius:4px;color:#b45309;font-weight:700;">KHÔNG PHẢI CỰC TRỊ</span>';
+
+  document.getElementById('testResult').innerHTML = `
+    <strong>Critical point</strong>: x = ${crit.x.toFixed(4)}<br>
+    <strong>f(x)</strong> = ${fcrit.toFixed(4)}<br>
+    <strong>f'(x)</strong> = ${fn.df(crit.x).toFixed(4)} (= 0 vì là critical point)<br>
+    <strong>f''(x)</strong> = ${d2v.toFixed(4)}
+  `;
+
+  document.getElementById('testTable').innerHTML = `
+    <tr><th colspan="2">First Derivative Test</th></tr>
+    <tr><td>Dấu f'(x) bên trái</td><td>${dyLeft > 0 ? '+' : '−'} (${dyLeft.toFixed(3)})</td></tr>
+    <tr><td>Dấu f'(x) bên phải</td><td>${dyRight > 0 ? '+' : '−'} (${dyRight.toFixed(3)})</td></tr>
+    <tr><td>Kết luận</td><td>${firstConclusion}</td></tr>
+    <tr><th colspan="2">Second Derivative Test</th></tr>
+    <tr><td>f''(x) tại critical point</td><td>${d2v.toFixed(4)}</td></tr>
+    <tr><td>Kết luận</td><td>${d2Conclusion}</td></tr>
+  `;
+}
+
+document.getElementById('testFn').addEventListener('change', updateTestCrits);
+document.getElementById('testCrit').addEventListener('change', drawTestPlot);
+
+// ============== Phần 3: Interval optimization ==============
+function drawInterval() {
+  const key = document.getElementById('ivlFn').value;
+  const fn = functions[key];
+  const a = parseFloat(document.getElementById('ivlA').value);
+  const b = parseFloat(document.getElementById('ivlB').value);
+  if (!Number.isFinite(a) || !Number.isFinite(b) || a >= b) return;
+
+  const svg = document.getElementById('ivlSvg');
+  const W = 900, H = 380;
+  const padL = 55, padR = 30, padT = 30, padB = 40;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+
+  // mở rộng domain để show context
+  const margin = (b - a) * 0.2;
+  const xMin = a - margin, xMax = b + margin;
+
+  const N = 400;
+  const samples = [];
+  let yMin = Infinity, yMax = -Infinity;
+  for (let i = 0; i <= N; i++) {
+    const x = xMin + (xMax - xMin) * i / N;
+    const y = fn.f(x);
+    samples.push({ x, y });
+    if (Number.isFinite(y)) { yMin = Math.min(yMin, y); yMax = Math.max(yMax, y); }
+  }
+  const pad = (yMax - yMin) * 0.15;
+  yMin -= pad; yMax += pad;
+
+  const xScale = x => padL + (x - xMin) / (xMax - xMin) * plotW;
+  const yScale = y => padT + (1 - (y - yMin) / (yMax - yMin)) * plotH;
+
+  let content = '';
+  // grid
+  const xT = 8, yT = 6;
+  for (let i = 0; i <= xT; i++) {
+    const x = xMin + (xMax-xMin)*i/xT;
+    const X = xScale(x);
+    content += `<line x1="${X}" y1="${padT}" x2="${X}" y2="${padT+plotH}" stroke="#ececec"/>`;
+    content += `<text x="${X}" y="${padT+plotH+18}" text-anchor="middle" font-size="11" fill="#6a6a6a">${x.toFixed(1)}</text>`;
+  }
+  for (let i = 0; i <= yT; i++) {
+    const y = yMin + (yMax-yMin)*i/yT;
+    const Y = yScale(y);
+    content += `<line x1="${padL}" y1="${Y}" x2="${padL+plotW}" y2="${Y}" stroke="#ececec"/>`;
+    content += `<text x="${padL-6}" y="${Y+4}" text-anchor="end" font-size="11" fill="#6a6a6a">${y.toFixed(1)}</text>`;
+  }
+  // shading [a, b]
+  content += `<rect x="${xScale(a)}" y="${padT}" width="${xScale(b)-xScale(a)}" height="${plotH}" fill="#d1fae5" opacity="0.4"/>`;
+  content += `<rect x="${padL}" y="${padT}" width="${plotW}" height="${plotH}" fill="none" stroke="#888"/>`;
+
+  // curve outside [a,b] - dotted
+  let pathIn = '', pathOut1 = '', pathOut2 = '';
+  samples.forEach(s => {
+    if (!Number.isFinite(s.y)) return;
+    const seg = `${xScale(s.x)},${yScale(s.y)}`;
+    if (s.x < a) pathOut1 += (pathOut1 ? 'L' : 'M') + seg;
+    else if (s.x > b) pathOut2 += (pathOut2 ? 'L' : 'M') + seg;
+    else pathIn += (pathIn ? 'L' : 'M') + seg;
+  });
+  content += `<path d="${pathOut1}" stroke="#aaa" stroke-width="2" fill="none" stroke-dasharray="4 4"/>`;
+  content += `<path d="${pathOut2}" stroke="#aaa" stroke-width="2" fill="none" stroke-dasharray="4 4"/>`;
+  content += `<path d="${pathIn}" stroke="#1f2937" stroke-width="2.5" fill="none"/>`;
+
+  // candidates: critical points trong (a,b) + biên
+  const candidates = [];
+  candidates.push({ x: a, type: 'boundary', label: `biên a=${a}` });
+  candidates.push({ x: b, type: 'boundary', label: `biên b=${b}` });
+  for (const c of fn.crits) {
+    if (c.x > a && c.x < b) candidates.push({ x: c.x, type: 'critical', label: `crit x=${c.x.toFixed(2)}` });
+  }
+  candidates.forEach(c => c.y = fn.f(c.x));
+
+  // find global max, min
+  let gMax = -Infinity, gMin = Infinity, gMaxIdx = -1, gMinIdx = -1;
+  candidates.forEach((c, i) => {
+    if (c.y > gMax) { gMax = c.y; gMaxIdx = i; }
+    if (c.y < gMin) { gMin = c.y; gMinIdx = i; }
+  });
+
+  // vẽ candidates
+  candidates.forEach((c, i) => {
+    const X = xScale(c.x), Y = yScale(c.y);
+    let fill = '#888';
+    if (i === gMaxIdx) fill = '#dc2626';
+    if (i === gMinIdx) fill = '#2563eb';
+    content += `<circle cx="${X}" cy="${Y}" r="7" fill="${fill}" stroke="white" stroke-width="2"/>`;
+    if (i === gMaxIdx) content += `<text x="${X}" y="${Y-14}" text-anchor="middle" font-size="11" font-weight="700" fill="#dc2626">GLOBAL MAX</text>`;
+    if (i === gMinIdx) content += `<text x="${X}" y="${Y+22}" text-anchor="middle" font-size="11" font-weight="700" fill="#2563eb">GLOBAL MIN</text>`;
+  });
+  // verticals at a, b
+  content += `<line x1="${xScale(a)}" y1="${padT}" x2="${xScale(a)}" y2="${padT+plotH}" stroke="#047857" stroke-width="1.5"/>`;
+  content += `<line x1="${xScale(b)}" y1="${padT}" x2="${xScale(b)}" y2="${padT+plotH}" stroke="#047857" stroke-width="1.5"/>`;
+  content += `<text x="${xScale(a)}" y="${padT-8}" text-anchor="middle" font-size="11" fill="#047857" font-weight="700">a</text>`;
+  content += `<text x="${xScale(b)}" y="${padT-8}" text-anchor="middle" font-size="11" fill="#047857" font-weight="700">b</text>`;
+
+  content += `<text x="${W/2}" y="${padT-14}" text-anchor="middle" font-size="13" font-weight="700" fill="#333">${fn.label} trên [${a}, ${b}]</text>`;
+
+  svg.innerHTML = content;
+
+  // bảng
+  let html = '<tr><th>Loại</th><th>x</th><th>f(x)</th><th>Vai trò</th></tr>';
+  candidates.forEach((c, i) => {
+    let role = '';
+    if (i === gMaxIdx) role = '<span style="background:#fee2e2;color:#dc2626;padding:2px 8px;border-radius:4px;font-weight:700">MAX toàn cục</span>';
+    else if (i === gMinIdx) role = '<span style="background:#dbeafe;color:#2563eb;padding:2px 8px;border-radius:4px;font-weight:700">MIN toàn cục</span>';
+    else role = '—';
+    html += `<tr><td>${c.type === 'boundary' ? 'Biên' : 'Critical'}</td><td>${c.x.toFixed(4)}</td><td>${c.y.toFixed(4)}</td><td>${role}</td></tr>`;
+  });
+  document.getElementById('ivlTable').innerHTML = html;
+
+  document.getElementById('ivlResult').innerHTML = `
+    <strong>Kết luận trên [${a}, ${b}]:</strong><br>
+    Cực đại toàn cục = <strong>${gMax.toFixed(4)}</strong> tại x = ${candidates[gMaxIdx].x.toFixed(4)} (${candidates[gMaxIdx].type === 'boundary' ? 'biên' : 'critical point'}).<br>
+    Cực tiểu toàn cục = <strong>${gMin.toFixed(4)}</strong> tại x = ${candidates[gMinIdx].x.toFixed(4)} (${candidates[gMinIdx].type === 'boundary' ? 'biên' : 'critical point'}).
+  `;
+}
+
+document.getElementById('ivlFn').addEventListener('change', () => {
+  const key = document.getElementById('ivlFn').value;
+  const fn = functions[key];
+  document.getElementById('ivlA').value = fn.domain[0].toFixed(1);
+  document.getElementById('ivlB').value = fn.domain[1].toFixed(1);
+  drawInterval();
+});
+document.getElementById('ivlA').addEventListener('input', drawInterval);
+document.getElementById('ivlB').addEventListener('input', drawInterval);
+document.getElementById('ivlReset').addEventListener('click', () => {
+  const key = document.getElementById('ivlFn').value;
+  const fn = functions[key];
+  document.getElementById('ivlA').value = fn.domain[0].toFixed(1);
+  document.getElementById('ivlB').value = fn.domain[1].toFixed(1);
+  drawInterval();
+});
+
+// ============== Phần 4: Linear Regression ==============
+const regData = [
+  { x: 1, y: 2 },
+  { x: 2, y: 3.5 },
+  { x: 3, y: 5.5 }
+];
+
+function regLoss(a) {
+  return regData.reduce((acc, p) => acc + (p.y - a*p.x)**2, 0);
+}
+const regOpt = regData.reduce((acc, p) => acc + p.x*p.y, 0) / regData.reduce((acc, p) => acc + p.x*p.x, 0);
+
+function drawReg() {
+  const a = parseFloat(document.getElementById('regA').value);
+  document.getElementById('regAVal').textContent = a.toFixed(3);
+
+  // ----- bên trái: scatter + line -----
+  const svg = document.getElementById('regSvg');
+  const W = 460, H = 380;
+  const padL = 45, padR = 20, padT = 24, padB = 36;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const xMax = 4, yMax = 8;
+  const xScale = x => padL + x/xMax * plotW;
+  const yScale = y => padT + (1 - y/yMax) * plotH;
+
+  let c = `<rect x="${padL}" y="${padT}" width="${plotW}" height="${plotH}" fill="white" stroke="#888"/>`;
+  // grid
+  for (let i = 0; i <= 4; i++) {
+    const X = xScale(i);
+    c += `<line x1="${X}" y1="${padT}" x2="${X}" y2="${padT+plotH}" stroke="#eee"/>`;
+    c += `<text x="${X}" y="${padT+plotH+16}" text-anchor="middle" font-size="11" fill="#888">${i}</text>`;
+  }
+  for (let i = 0; i <= 8; i++) {
+    const Y = yScale(i);
+    c += `<line x1="${padL}" y1="${Y}" x2="${padL+plotW}" y2="${Y}" stroke="#eee"/>`;
+    c += `<text x="${padL-5}" y="${Y+4}" text-anchor="end" font-size="11" fill="#888">${i}</text>`;
+  }
+  // line y = a*x
+  const xEnd = Math.min(xMax, yMax/Math.max(a, 0.001));
+  c += `<line x1="${xScale(0)}" y1="${yScale(0)}" x2="${xScale(xEnd)}" y2="${yScale(a*xEnd)}" stroke="#047857" stroke-width="2.5"/>`;
+  // residuals
+  regData.forEach(p => {
+    const X = xScale(p.x), Y = yScale(p.y);
+    const yHat = a * p.x;
+    const Yh = yScale(yHat);
+    c += `<line x1="${X}" y1="${Y}" x2="${X}" y2="${Yh}" stroke="#dc2626" stroke-width="2" stroke-dasharray="3 3"/>`;
+    c += `<circle cx="${X}" cy="${Y}" r="6" fill="#2563eb" stroke="white" stroke-width="2"/>`;
+    c += `<circle cx="${X}" cy="${Yh}" r="4" fill="#047857"/>`;
+    c += `<text x="${X+10}" y="${(Y+Yh)/2}" font-size="10" fill="#dc2626">${(p.y-yHat).toFixed(2)}</text>`;
+  });
+  c += `<text x="${W/2}" y="${padT-8}" text-anchor="middle" font-size="12" font-weight="700" fill="#333">y = ${a.toFixed(3)}·x (xanh: residual)</text>`;
+  c += `<text x="${W-padR}" y="${H-8}" text-anchor="end" font-size="11" fill="#6a6a6a">x</text>`;
+  svg.innerHTML = c;
+
+  // ----- bên phải: L(a) -----
+  const svgL = document.getElementById('lossSvg');
+  const aMin = 0, aMaxV = 3;
+  const lossSamples = [];
+  let lMin = Infinity, lMax = -Infinity;
+  for (let i = 0; i <= 200; i++) {
+    const aa = aMin + (aMaxV - aMin) * i / 200;
+    const ll = regLoss(aa);
+    lossSamples.push({ a: aa, l: ll });
+    lMin = Math.min(lMin, ll); lMax = Math.max(lMax, ll);
+  }
+  const lPad = (lMax - lMin) * 0.1;
+  const lMinP = Math.max(0, lMin - lPad), lMaxP = lMax + lPad;
+
+  const padL2 = 50, padR2 = 20, padT2 = 24, padB2 = 36;
+  const pW2 = W - padL2 - padR2, pH2 = H - padT2 - padB2;
+  const aScale = aa => padL2 + (aa - aMin)/(aMaxV - aMin) * pW2;
+  const lScale = ll => padT2 + (1 - (ll - lMinP)/(lMaxP - lMinP)) * pH2;
+
+  let cL = `<rect x="${padL2}" y="${padT2}" width="${pW2}" height="${pH2}" fill="white" stroke="#888"/>`;
+  // grid
+  for (let i = 0; i <= 6; i++) {
+    const aa = aMin + (aMaxV-aMin)*i/6;
+    const X = aScale(aa);
+    cL += `<line x1="${X}" y1="${padT2}" x2="${X}" y2="${padT2+pH2}" stroke="#eee"/>`;
+    cL += `<text x="${X}" y="${padT2+pH2+16}" text-anchor="middle" font-size="11" fill="#888">${aa.toFixed(1)}</text>`;
+  }
+  for (let i = 0; i <= 5; i++) {
+    const ll = lMinP + (lMaxP-lMinP)*i/5;
+    const Y = lScale(ll);
+    cL += `<line x1="${padL2}" y1="${Y}" x2="${padL2+pW2}" y2="${Y}" stroke="#eee"/>`;
+    cL += `<text x="${padL2-5}" y="${Y+4}" text-anchor="end" font-size="10" fill="#888">${ll.toFixed(1)}</text>`;
+  }
+  // L(a) curve
+  let path = '';
+  lossSamples.forEach(s => path += (path ? 'L' : 'M') + aScale(s.a) + ',' + lScale(s.l));
+  cL += `<path d="${path}" stroke="#9333ea" stroke-width="2.5" fill="none"/>`;
+  // optimum
+  const aoptX = aScale(regOpt), aoptY = lScale(regLoss(regOpt));
+  cL += `<line x1="${aoptX}" y1="${padT2}" x2="${aoptX}" y2="${padT2+pH2}" stroke="#047857" stroke-width="1.5" stroke-dasharray="4 4"/>`;
+  cL += `<circle cx="${aoptX}" cy="${aoptY}" r="7" fill="#047857" stroke="white" stroke-width="2"/>`;
+  cL += `<text x="${aoptX}" y="${aoptY-12}" text-anchor="middle" font-size="11" font-weight="700" fill="#047857">a* = ${regOpt.toFixed(4)}</text>`;
+  // current a marker
+  const curX = aScale(a), curY = lScale(regLoss(a));
+  cL += `<line x1="${curX}" y1="${padT2}" x2="${curX}" y2="${padT2+pH2}" stroke="#dc2626" stroke-width="1.5"/>`;
+  cL += `<circle cx="${curX}" cy="${curY}" r="6" fill="#dc2626" stroke="white" stroke-width="2"/>`;
+  cL += `<text x="${curX}" y="${curY-12}" text-anchor="middle" font-size="11" font-weight="700" fill="#dc2626">a = ${a.toFixed(3)}</text>`;
+
+  cL += `<text x="${W/2}" y="${padT2-8}" text-anchor="middle" font-size="12" font-weight="700" fill="#333">L(a) = Σ(yᵢ − a·xᵢ)²</text>`;
+  cL += `<text x="${W-padR2}" y="${H-8}" text-anchor="end" font-size="11" fill="#6a6a6a">a</text>`;
+  svgL.innerHTML = cL;
+
+  // info
+  const curLoss = regLoss(a);
+  const optLoss = regLoss(regOpt);
+  document.getElementById('regInfo').innerHTML = `
+    <strong>3 điểm dữ liệu:</strong> (1, 2), (2, 3.5), (3, 5.5).
+    <strong>Closed-form:</strong> a* = (Σxᵢyᵢ)/(Σxᵢ²) = ${(regData.reduce((a,p)=>a+p.x*p.y,0)).toFixed(2)}/${(regData.reduce((a,p)=>a+p.x*p.x,0))} = <strong>${regOpt.toFixed(4)}</strong>.<br>
+    <strong>Loss hiện tại:</strong> L(${a.toFixed(3)}) = ${curLoss.toFixed(4)} — <strong>Loss tối thiểu:</strong> L(a*) = ${optLoss.toFixed(4)}.
+    ${Math.abs(a - regOpt) < 0.01 ? ' ✓ Bạn đang ở đáy!' : ''}
+  `;
+}
+document.getElementById('regA').addEventListener('input', drawReg);
+document.getElementById('regOpt').addEventListener('click', () => {
+  document.getElementById('regA').value = regOpt;
+  drawReg();
+});
+
+// ============== Init ==============
+drawCritPlot();
+updateTestCrits();
+document.getElementById('ivlA').value = functions['cubicMinus'].domain[0].toFixed(1);
+document.getElementById('ivlB').value = functions['cubicMinus'].domain[1].toFixed(1);
+drawInterval();
+drawReg();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

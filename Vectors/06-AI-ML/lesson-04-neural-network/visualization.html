@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Neural Network 1-hidden-layer</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --panel: #ffffff;
+    --line: #e3e1dc;
+    --ink: #1a1a1a;
+    --muted: #6a6a6a;
+    --accent: #be123c;
+    --accent-soft: #ffe4e6;
+    --hidden-color: #d97706;
+    --output-color: #2563eb;
+    --input-color: #16a34a;
+    --grad-color: #dc2626;
+    --grid: #ececec;
+    --ok: #16a34a;
+    --bad: #dc2626;
+  }
+  body { margin: 0; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px 18px 80px; font-size: 14.5px; line-height: 1.55; }
+  h1 { font-size: 26px; margin: 0 0 6px; font-weight: 800; }
+  h2 { font-size: 19px; margin: 32px 0 12px; padding-left: 10px; border-left: 4px solid var(--accent); }
+  h3 { font-size: 15px; margin: 0 0 12px; color: var(--accent); }
+  .subtitle { color: var(--muted); margin-bottom: 18px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 22px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin-bottom: 14px; }
+  .controls label { font-size: 12.5px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+  .controls select, .controls input[type=number], .controls input[type=text] {
+    padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; font-size: 13px; font-family: ui-monospace, "SF Mono", monospace;
+  }
+  .controls input[type=range] { width: 180px; vertical-align: middle; }
+  .controls button {
+    padding: 6px 14px; background: var(--accent); color: white; border: none; border-radius: 6px;
+    font-size: 12.5px; cursor: pointer; font-weight: 600;
+  }
+  .controls button:hover { background: #9f1239; }
+  .controls button.secondary { background: #f5f4f0; color: var(--ink); }
+  .controls button.secondary:hover { background: var(--accent-soft); color: var(--accent); }
+  .controls .value { font-family: ui-monospace, "SF Mono", monospace; font-weight: 600; color: var(--ink); }
+  svg { background: #fafaf7; border: 1px solid var(--line); border-radius: 8px; display: block; }
+  .info { background: #f7f6f1; border-left: 3px solid var(--accent); padding: 10px 14px; border-radius: 6px; font-size: 13px; margin: 12px 0; }
+  .info code { background: #ecebe5; padding: 1px 6px; border-radius: 4px; font-size: 12.5px; }
+  table.report { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+  table.report th, table.report td { padding: 6px 10px; border: 1px solid var(--line); text-align: center; font-family: ui-monospace, monospace; }
+  table.report th { background: #f5f4f0; font-weight: 700; font-family: inherit; }
+  table.report td.highlight { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); margin: 8px 0; }
+  .legend .item { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 14px; height: 14px; border-radius: 3px; }
+  .step-display { font-family: ui-monospace, monospace; font-size: 12.5px; white-space: pre-wrap; background: #f7f6f1; padding: 12px; border-radius: 6px; margin: 8px 0; line-height: 1.55; }
+  .two-col { display: grid; grid-template-columns: 1.2fr 1fr; gap: 14px; }
+  @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+  .step-badge {
+    display: inline-block; padding: 2px 10px; background: var(--accent-soft); color: var(--accent);
+    border-radius: 12px; font-size: 12px; font-weight: 700; margin-right: 8px;
+  }
+  .neuron { stroke-width: 1.5px; cursor: pointer; transition: all 0.2s; }
+  .neuron:hover { stroke-width: 2.5px; }
+  .neuron-input { fill: #dcfce7; stroke: var(--input-color); }
+  .neuron-hidden { fill: #fef3c7; stroke: var(--hidden-color); }
+  .neuron-output { fill: #dbeafe; stroke: var(--output-color); }
+  .neuron-label { font-family: ui-monospace, monospace; font-size: 11px; pointer-events: none; }
+  .weight-line { stroke: #999; stroke-width: 1.2px; opacity: 0.7; transition: all 0.2s; }
+  .weight-line.positive { stroke: #16a34a; }
+  .weight-line.negative { stroke: #dc2626; }
+  .weight-line.flow-forward { stroke: var(--accent); stroke-width: 3px; opacity: 1; }
+  .weight-line.flow-backward { stroke: var(--grad-color); stroke-width: 3px; opacity: 1; stroke-dasharray: 4 2; }
+  .weight-label { font-family: ui-monospace, monospace; font-size: 10px; fill: var(--muted); pointer-events: none; }
+  .axis line, .axis path { stroke: #999; }
+  .axis text { font-size: 11px; fill: var(--muted); }
+  .xor-point { stroke: white; stroke-width: 1.5px; cursor: pointer; }
+  .xor-point.class0 { fill: var(--output-color); }
+  .xor-point.class1 { fill: var(--accent); }
+  .nav-tabs { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  .nav-tabs button {
+    padding: 6px 12px; background: #f5f4f0; color: var(--ink); border: 1px solid var(--line);
+    border-radius: 6px; cursor: pointer; font-size: 12.5px; font-weight: 500;
+  }
+  .nav-tabs button.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .activation-curves path.fn { fill: none; stroke-width: 2px; }
+  .activation-curves path.deriv { fill: none; stroke-width: 1.5px; stroke-dasharray: 4 2; }
+  .formula { font-family: ui-monospace, monospace; background: #f7f6f1; padding: 6px 10px; border-radius: 4px; display: inline-block; }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; margin-left: 4px; }
+  .pill.ok { background: #dcfce7; color: var(--ok); }
+  .pill.bad { background: #fee2e2; color: var(--bad); }
+  .grid-cell { stroke: white; stroke-width: 0.5; }
+</style>
+</head>
+<body>
+<div class="container">
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-logistic-regression/visualization.html">← L3: Logistic regression</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Neural network</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-text-vectorization/visualization.html">L5: Text vectorization →</a>
+</nav>
+  <h1>Lesson 04 — Neural Network 1-hidden-layer</h1>
+  <div class="subtitle">4 component: kiến trúc mạng (click neuron), train XOR (vẽ decision boundary), forward + backward stepper, so sánh activation và vanishing gradient demo.</div>
+
+  <!-- =================================================================== -->
+  <h2>1. Kiến trúc mạng — click vào neuron để xem chi tiết</h2>
+  <div class="panel">
+    <h3>Mạng 2-3-1: input (2) → hidden (3, sigmoid) → output (1, linear)</h3>
+    <div class="controls">
+      <label>Input x₁: <input type="range" id="netX1" min="-2" max="2" step="0.1" value="1.0"><span class="value" id="netX1V">1.0</span></label>
+      <label>Input x₂: <input type="range" id="netX2" min="-2" max="2" step="0.1" value="2.0"><span class="value" id="netX2V">2.0</span></label>
+      <button id="netReset" class="secondary">Reset weights (số ví dụ)</button>
+      <button id="netRand" class="secondary">Random weights</button>
+    </div>
+    <div class="two-col">
+      <svg id="netSvg" width="100%" viewBox="0 0 640 400"></svg>
+      <div>
+        <div class="info">Click vào bất kỳ <b>neuron</b> để xem giá trị (z, h hoặc activation) và đường weight đến nó được highlight. Đường weight tô <span style="color:#16a34a">xanh</span> = dương, <span style="color:#dc2626">đỏ</span> = âm; độ dày tỉ lệ với |weight|.</div>
+        <div id="netDetail" class="step-display">Click một neuron để xem chi tiết.</div>
+        <div class="legend">
+          <span class="item"><span class="swatch" style="background:#dcfce7;border:1.5px solid var(--input-color)"></span> Input</span>
+          <span class="item"><span class="swatch" style="background:#fef3c7;border:1.5px solid var(--hidden-color)"></span> Hidden (sigmoid)</span>
+          <span class="item"><span class="swatch" style="background:#dbeafe;border:1.5px solid var(--output-color)"></span> Output (linear)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================================================================== -->
+  <h2>2. XOR demo — train mạng, vẽ decision boundary cong</h2>
+  <div class="panel">
+    <h3>4 điểm XOR. Tự train mạng 2-3-1 và xem decision boundary biến đổi qua epoch.</h3>
+    <div class="controls">
+      <label>Learning rate: <input type="range" id="xorLr" min="0.05" max="2.0" step="0.05" value="0.5"><span class="value" id="xorLrV">0.50</span></label>
+      <label>Max epoch: <input type="number" id="xorEpoch" min="100" max="20000" step="100" value="3000" style="width:80px"></label>
+      <label>Activation:
+        <select id="xorAct">
+          <option value="tanh" selected>tanh</option>
+          <option value="sigmoid">sigmoid</option>
+          <option value="relu">ReLU</option>
+        </select>
+      </label>
+      <label>Hidden units: <input type="number" id="xorH" min="2" max="16" step="1" value="3" style="width:60px"></label>
+      <label>Seed: <input type="number" id="xorSeed" min="0" max="999" step="1" value="42" style="width:60px"></label>
+      <button id="xorTrain">▶ Train</button>
+      <button id="xorStop" class="secondary">⏹ Stop</button>
+      <button id="xorReset" class="secondary">↺ Reset</button>
+    </div>
+    <div class="two-col">
+      <svg id="xorSvg" width="100%" viewBox="0 0 460 460"></svg>
+      <div>
+        <div id="xorStatus" class="step-display">Click <b>Train</b> để bắt đầu. Mỗi điểm XOR tô màu theo class; vùng nền tô theo prediction.</div>
+        <svg id="xorLoss" width="100%" viewBox="0 0 460 200"></svg>
+        <table class="report" id="xorPreds">
+          <thead><tr><th>x</th><th>y target</th><th>ŷ predict</th><th>OK?</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================================================================== -->
+  <h2>3. Forward + Backward stepper — chạy từng phép một</h2>
+  <div class="panel">
+    <h3>Cùng mạng 2-3-1, weights ví dụ trong mục 3-4 của README. Bấm Next để đi qua từng bước.</h3>
+    <div class="controls">
+      <label>Input x₁: <input type="number" id="stepX1" value="1.0" step="0.1" style="width:60px"></label>
+      <label>Input x₂: <input type="number" id="stepX2" value="2.0" step="0.1" style="width:60px"></label>
+      <label>Target y: <input type="number" id="stepY" value="1.0" step="0.1" style="width:60px"></label>
+      <button id="stepNext">▶ Next step</button>
+      <button id="stepReset" class="secondary">↺ Reset</button>
+      <button id="stepRunAll" class="secondary">⏭ Run all</button>
+    </div>
+    <div class="two-col">
+      <svg id="stepSvg" width="100%" viewBox="0 0 640 380"></svg>
+      <div>
+        <div id="stepBadge"><span class="step-badge" id="stepLabel">Step 0/10</span></div>
+        <div id="stepDetail" class="step-display">Bấm <b>Next</b> để chạy step 1: tính z₁.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================================================================== -->
+  <h2>4. Activation comparison + vanishing gradient demo</h2>
+  <div class="panel">
+    <h3>4 activation và đạo hàm trên cùng trục. Demo: gradient bị ép xuống 0 khi qua nhiều lớp sigmoid.</h3>
+    <div class="nav-tabs">
+      <button class="active" data-tab="actcurve">Đồ thị 4 activation</button>
+      <button data-tab="vanish">Vanishing gradient (deep sigmoid)</button>
+      <button data-tab="dead">Dead ReLU demo</button>
+    </div>
+
+    <div class="tab-content active" id="tab-actcurve">
+      <svg id="actSvg" width="100%" viewBox="0 0 720 380"></svg>
+      <div class="legend">
+        <span class="item"><span class="swatch" style="background:#2563eb"></span> sigmoid</span>
+        <span class="item"><span class="swatch" style="background:#16a34a"></span> tanh</span>
+        <span class="item"><span class="swatch" style="background:#be123c"></span> ReLU</span>
+        <span class="item"><span class="swatch" style="background:#d97706"></span> leaky-ReLU</span>
+        <span class="item"><span class="swatch" style="background:transparent;border:1.5px dashed #555"></span> đạo hàm</span>
+      </div>
+      <div class="info">
+        Đường <b>liền</b>: hàm; đường <b>đứt nét</b>: đạo hàm. Sigmoid đạo hàm cực đại ≈ 0.25; tanh cực đại = 1.0; ReLU = 1 cho z > 0, 0 cho z < 0. Cost tính: sigmoid/tanh cần <code>exp()</code>, ReLU chỉ cần so sánh — rẻ hơn rất nhiều.
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-vanish">
+      <div class="controls">
+        <label>Số lớp N: <input type="range" id="vanishN" min="1" max="15" step="1" value="5"><span class="value" id="vanishNV">5</span></label>
+        <label>Activation:
+          <select id="vanishAct">
+            <option value="sigmoid" selected>sigmoid</option>
+            <option value="tanh">tanh</option>
+            <option value="relu">ReLU</option>
+          </select>
+        </label>
+      </div>
+      <svg id="vanishSvg" width="100%" viewBox="0 0 720 320"></svg>
+      <div class="info">
+        Mỗi cột là 1 lớp. Trục y = ước lượng <code>||∂L/∂W(l)||</code> theo upper bound từ chain rule. Với sigmoid, mỗi lớp nhân thêm tối đa 0.25 → sau 10 lớp gradient giảm ~10⁶× — tức input layer học chậm hơn output layer 1 triệu lần.
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-dead">
+      <div class="controls">
+        <label>W·x + b cố định (ép âm): <input type="range" id="deadB" min="-3" max="3" step="0.1" value="-1.5"><span class="value" id="deadBV">-1.5</span></label>
+        <button id="deadRunGD" class="secondary">▶ Run 50 steps GD</button>
+      </div>
+      <svg id="deadSvg" width="100%" viewBox="0 0 720 320"></svg>
+      <div class="info">
+        Với input cho ra <code>z &lt; 0</code> luôn, ReLU(z) = 0, ReLU'(z) = 0 → gradient = 0 → weight đứng yên mãi mãi. Leaky-ReLU (đường vàng) có leak 0.01 phía âm → gradient nhỏ nhưng vẫn ≠ 0 → vẫn học được. Đây là lý do leaky-ReLU sinh ra.
+      </div>
+    </div>
+  </div>
+
+  <div class="info" style="margin-top:30px">
+    <b>Liên hệ bài học</b>: Sau bài này, bạn có toàn bộ machinery — forward + backprop + GD — để hiểu CNN (Lesson 08 CLIP), RNN, Transformer. Tất cả chỉ là biến thể của template này.
+  </div>
+</div>
+
+<!-- ===================================================================== -->
+<!-- SCRIPTS                                                                 -->
+<!-- ===================================================================== -->
+<script>
+// ==================== Utility ====================
+function sigmoid(z){ return 1/(1+Math.exp(-z)); }
+function tanh(z){ return Math.tanh(z); }
+function relu(z){ return Math.max(0,z); }
+function leakyRelu(z){ return z>0?z:0.01*z; }
+function sigmoidD(z){ const s=sigmoid(z); return s*(1-s); }
+function tanhD(z){ const t=tanh(z); return 1-t*t; }
+function reluD(z){ return z>0?1:0; }
+function leakyReluD(z){ return z>0?1:0.01; }
+function fmt(x, n=3){ return (Math.round(x*Math.pow(10,n))/Math.pow(10,n)).toFixed(n); }
+
+// Seeded RNG (mulberry32)
+function rng(seed){
+  let t = seed + 0x6D2B79F5;
+  return function(){
+    t = (t + 0x6D2B79F5) | 0;
+    let r = Math.imul(t ^ (t >>> 15), 1 | t);
+    r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r;
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// ==================== COMPONENT 1: Network diagram ====================
+const netSvg = document.getElementById('netSvg');
+const NW = 640, NH = 400;
+const layerX = [80, 320, 560];
+
+// Default weights (từ README)
+const exampleW1 = [[0.5,-0.3],[0.2,0.8],[-0.4,0.1]];
+const exampleB1 = [0.1,-0.2,0.0];
+const exampleW2 = [0.3,-0.5,0.7];
+const exampleB2 = 0.1;
+
+let netW1 = exampleW1.map(r=>r.slice());
+let netB1 = exampleB1.slice();
+let netW2 = exampleW2.slice();
+let netB2 = exampleB2;
+let selectedNeuron = null;
+
+function netForward(x){
+  const z1 = [0,0,0], h = [0,0,0];
+  for(let j=0;j<3;j++){
+    z1[j] = netW1[j][0]*x[0] + netW1[j][1]*x[1] + netB1[j];
+    h[j] = sigmoid(z1[j]);
+  }
+  let z2 = netB2;
+  for(let j=0;j<3;j++) z2 += netW2[j]*h[j];
+  return { z1, h, z2 };
+}
+
+function drawNet(){
+  netSvg.innerHTML = '';
+  const x1 = +document.getElementById('netX1').value;
+  const x2 = +document.getElementById('netX2').value;
+  document.getElementById('netX1V').textContent = fmt(x1,1);
+  document.getElementById('netX2V').textContent = fmt(x2,1);
+  const f = netForward([x1,x2]);
+
+  // Layer labels
+  const labels = ['INPUT', 'HIDDEN (σ=sigmoid)', 'OUTPUT'];
+  layerX.forEach((lx,i)=>{
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x', lx); t.setAttribute('y', 30); t.setAttribute('text-anchor','middle');
+    t.setAttribute('font-size','13'); t.setAttribute('font-weight','700'); t.setAttribute('fill','#555');
+    t.textContent = labels[i];
+    netSvg.appendChild(t);
+  });
+
+  // Positions
+  const inputs = [[layerX[0], 130, x1, 'x₁'], [layerX[0], 270, x2, 'x₂']];
+  const hidden = [[layerX[1], 100], [layerX[1], 200], [layerX[1], 300]];
+  const output = [[layerX[2], 200]];
+
+  // Draw weight lines INPUT -> HIDDEN
+  for(let j=0;j<3;j++){
+    for(let i=0;i<2;i++){
+      const w = netW1[j][i];
+      const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+      line.setAttribute('x1', inputs[i][0]+24); line.setAttribute('y1', inputs[i][1]);
+      line.setAttribute('x2', hidden[j][0]-24); line.setAttribute('y2', hidden[j][1]);
+      line.setAttribute('class', 'weight-line ' + (w>=0?'positive':'negative'));
+      line.setAttribute('stroke-width', 1 + Math.min(3, Math.abs(w)*3));
+      line.dataset.target = 'h'+j;
+      line.dataset.from = 'x'+i;
+      netSvg.appendChild(line);
+
+      const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+      const mx = (inputs[i][0]+hidden[j][0])/2;
+      const my = (inputs[i][1]+hidden[j][1])/2 - 4;
+      lbl.setAttribute('x', mx); lbl.setAttribute('y', my); lbl.setAttribute('class','weight-label');
+      lbl.setAttribute('text-anchor','middle');
+      lbl.textContent = fmt(w,2);
+      netSvg.appendChild(lbl);
+    }
+  }
+  // HIDDEN -> OUTPUT
+  for(let j=0;j<3;j++){
+    const w = netW2[j];
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', hidden[j][0]+24); line.setAttribute('y1', hidden[j][1]);
+    line.setAttribute('x2', output[0][0]-24); line.setAttribute('y2', output[0][1]);
+    line.setAttribute('class', 'weight-line ' + (w>=0?'positive':'negative'));
+    line.setAttribute('stroke-width', 1 + Math.min(3, Math.abs(w)*3));
+    line.dataset.target = 'y';
+    line.dataset.from = 'h'+j;
+    netSvg.appendChild(line);
+
+    const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+    const mx = (hidden[j][0]+output[0][0])/2;
+    const my = (hidden[j][1]+output[0][1])/2 - 4;
+    lbl.setAttribute('x', mx); lbl.setAttribute('y', my); lbl.setAttribute('class','weight-label');
+    lbl.setAttribute('text-anchor','middle');
+    lbl.textContent = fmt(w,2);
+    netSvg.appendChild(lbl);
+  }
+
+  // Draw neurons
+  function drawNeuron(cx, cy, cls, label, value, id){
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx', cx); c.setAttribute('cy', cy); c.setAttribute('r', 22);
+    c.setAttribute('class', 'neuron '+cls);
+    c.dataset.id = id;
+    g.appendChild(c);
+    const t1 = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t1.setAttribute('x', cx); t1.setAttribute('y', cy-3); t1.setAttribute('text-anchor','middle');
+    t1.setAttribute('class','neuron-label'); t1.setAttribute('font-weight','700');
+    t1.textContent = label; g.appendChild(t1);
+    const t2 = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t2.setAttribute('x', cx); t2.setAttribute('y', cy+11); t2.setAttribute('text-anchor','middle');
+    t2.setAttribute('class','neuron-label');
+    t2.textContent = fmt(value,2); g.appendChild(t2);
+    netSvg.appendChild(g);
+    c.addEventListener('click', ()=>selectNeuron(id));
+  }
+  drawNeuron(inputs[0][0], inputs[0][1], 'neuron-input', 'x₁', x1, 'x0');
+  drawNeuron(inputs[1][0], inputs[1][1], 'neuron-input', 'x₂', x2, 'x1');
+  for(let j=0;j<3;j++){
+    drawNeuron(hidden[j][0], hidden[j][1], 'neuron-hidden', 'h'+(j+1), f.h[j], 'h'+j);
+  }
+  drawNeuron(output[0][0], output[0][1], 'neuron-output', 'ŷ', f.z2, 'y');
+
+  // Re-apply selection
+  if(selectedNeuron){
+    netSvg.querySelectorAll('.weight-line').forEach(l=>{
+      if(l.dataset.target === selectedNeuron || l.dataset.from === selectedNeuron){
+        l.classList.add('flow-forward');
+      }
+    });
+  }
+
+  function selectNeuron(id){
+    selectedNeuron = id;
+    drawNet();
+    let html = '';
+    if(id.startsWith('x')){
+      const i = +id.slice(1);
+      html = `<b>Input neuron x${i+1}</b>\nGiá trị: ${fmt([x1,x2][i],3)}\nĐóng vai trò: input thô, không tính gì.`;
+    } else if(id.startsWith('h')){
+      const j = +id.slice(1);
+      html = `<b>Hidden neuron h${j+1}</b> (sigmoid)\n`+
+        `z₁[${j}] = ${fmt(netW1[j][0],2)}·${fmt(x1,2)} + ${fmt(netW1[j][1],2)}·${fmt(x2,2)} + ${fmt(netB1[j],2)}\n`+
+        `     = ${fmt(f.z1[j],4)}\n`+
+        `h[${j}]   = σ(${fmt(f.z1[j],4)}) = ${fmt(f.h[j],4)}\n\n`+
+        `Weights vào: ${netW1[j].map(w=>fmt(w,2)).join(', ')}\nBias: ${fmt(netB1[j],2)}`;
+    } else if(id === 'y'){
+      html = `<b>Output neuron ŷ</b> (linear)\n`+
+        `z₂ = ${fmt(netW2[0],2)}·${fmt(f.h[0],3)} + ${fmt(netW2[1],2)}·${fmt(f.h[1],3)} + ${fmt(netW2[2],2)}·${fmt(f.h[2],3)} + ${fmt(netB2,2)}\n`+
+        `   = ${fmt(f.z2,4)}\nŷ = z₂ (regression, no activation)`;
+    }
+    document.getElementById('netDetail').innerHTML = html.replace(/\n/g,'<br>');
+  }
+}
+document.getElementById('netX1').addEventListener('input', drawNet);
+document.getElementById('netX2').addEventListener('input', drawNet);
+document.getElementById('netReset').addEventListener('click', ()=>{
+  netW1 = exampleW1.map(r=>r.slice()); netB1 = exampleB1.slice();
+  netW2 = exampleW2.slice(); netB2 = exampleB2;
+  selectedNeuron = null;
+  drawNet();
+});
+document.getElementById('netRand').addEventListener('click', ()=>{
+  const r = rng(Math.floor(Math.random()*1000));
+  for(let j=0;j<3;j++){
+    for(let i=0;i<2;i++) netW1[j][i] = (r()-0.5)*2;
+    netB1[j] = (r()-0.5)*2;
+    netW2[j] = (r()-0.5)*2;
+  }
+  netB2 = (r()-0.5)*2;
+  selectedNeuron = null;
+  drawNet();
+});
+drawNet();
+
+// ==================== COMPONENT 2: XOR Training ====================
+const xorSvg = document.getElementById('xorSvg');
+const xorLossSvg = document.getElementById('xorLoss');
+const XW = 460, XH = 460;
+const lossW = 460, lossH = 200;
+
+const X_DATA = [[0,0],[0,1],[1,0],[1,1]];
+const Y_DATA = [0,1,1,0];
+
+let xorNet = null;
+let xorTraining = false;
+let xorLossHist = [];
+
+function initXorNet(seed, H){
+  const r = rng(seed);
+  const W1 = [];
+  for(let j=0;j<H;j++){
+    W1.push([(r()-0.5)*2, (r()-0.5)*2]);
+  }
+  const B1 = new Array(H).fill(0).map(()=>(r()-0.5)*2);
+  const W2 = new Array(H).fill(0).map(()=>(r()-0.5)*2);
+  const B2 = (r()-0.5)*2;
+  return { W1, B1, W2, B2, H };
+}
+
+function xorForward(net, x){
+  const z1 = new Array(net.H);
+  const h = new Array(net.H);
+  const act = document.getElementById('xorAct').value;
+  const af = act==='sigmoid'?sigmoid: act==='relu'?relu: tanh;
+  for(let j=0;j<net.H;j++){
+    z1[j] = net.W1[j][0]*x[0] + net.W1[j][1]*x[1] + net.B1[j];
+    h[j] = af(z1[j]);
+  }
+  let z2 = net.B2;
+  for(let j=0;j<net.H;j++) z2 += net.W2[j]*h[j];
+  // For XOR, use sigmoid output for prob
+  const yhat = sigmoid(z2);
+  return { z1, h, z2, yhat };
+}
+
+function xorTrainStep(net, lr){
+  const act = document.getElementById('xorAct').value;
+  const ad = act==='sigmoid'?sigmoidD: act==='relu'?reluD: tanhD;
+  let totalLoss = 0;
+
+  // Accumulate gradients over 4 samples
+  const gW1 = Array.from({length:net.H}, ()=>[0,0]);
+  const gB1 = new Array(net.H).fill(0);
+  const gW2 = new Array(net.H).fill(0);
+  let gB2 = 0;
+
+  for(let i=0;i<4;i++){
+    const x = X_DATA[i], y = Y_DATA[i];
+    const f = xorForward(net, x);
+    // BCE loss: L = -(y log yhat + (1-y) log(1-yhat))
+    const eps = 1e-9;
+    totalLoss += -(y*Math.log(f.yhat+eps) + (1-y)*Math.log(1-f.yhat+eps));
+    // dL/dz2 = yhat - y (sigmoid + BCE)
+    const d2 = f.yhat - y;
+    for(let j=0;j<net.H;j++) gW2[j] += d2 * f.h[j];
+    gB2 += d2;
+    for(let j=0;j<net.H;j++){
+      const dh = d2 * net.W2[j];
+      const d1 = dh * ad(f.z1[j]);
+      gW1[j][0] += d1 * x[0];
+      gW1[j][1] += d1 * x[1];
+      gB1[j] += d1;
+    }
+  }
+  // Average + update
+  for(let j=0;j<net.H;j++){
+    net.W1[j][0] -= lr * gW1[j][0]/4;
+    net.W1[j][1] -= lr * gW1[j][1]/4;
+    net.B1[j] -= lr * gB1[j]/4;
+    net.W2[j] -= lr * gW2[j]/4;
+  }
+  net.B2 -= lr * gB2/4;
+  return totalLoss / 4;
+}
+
+function drawXorDecisionBoundary(){
+  xorSvg.innerHTML = '';
+  // Background grid of predictions
+  const GRID = 30;
+  const cell = XW / GRID;
+  for(let gi=0; gi<GRID; gi++){
+    for(let gj=0; gj<GRID; gj++){
+      const xx = gi/(GRID-1);
+      const yy = 1 - gj/(GRID-1);
+      const f = xorForward(xorNet, [xx, yy]);
+      const r = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      r.setAttribute('x', gi*cell);
+      r.setAttribute('y', gj*cell);
+      r.setAttribute('width', cell+0.5);
+      r.setAttribute('height', cell+0.5);
+      // Blue for class 0, rose for class 1
+      const t = Math.max(0, Math.min(1, f.yhat));
+      const rcol = Math.round(37 + (190-37)*t);
+      const gcol = Math.round(99 + (18-99)*t);
+      const bcol = Math.round(235 + (60-235)*t);
+      r.setAttribute('fill', `rgba(${rcol},${gcol},${bcol},0.55)`);
+      r.setAttribute('class', 'grid-cell');
+      xorSvg.appendChild(r);
+    }
+  }
+  // Axes
+  const ax = document.createElementNS('http://www.w3.org/2000/svg','g');
+  ax.innerHTML = `
+    <line x1="0" y1="${XH-1}" x2="${XW}" y2="${XH-1}" stroke="#555"/>
+    <line x1="0" y1="0" x2="0" y2="${XH}" stroke="#555"/>
+    <text x="${XW-20}" y="${XH-6}" font-size="11" fill="#666">x₁</text>
+    <text x="6" y="14" font-size="11" fill="#666">x₂</text>
+  `;
+  xorSvg.appendChild(ax);
+  // XOR points
+  X_DATA.forEach((p,i)=>{
+    const cx = p[0]*XW;
+    const cy = (1-p[1])*XH;
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx', cx); c.setAttribute('cy', cy); c.setAttribute('r', 14);
+    c.setAttribute('class', 'xor-point class'+Y_DATA[i]);
+    xorSvg.appendChild(c);
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x', cx); t.setAttribute('y', cy+4); t.setAttribute('text-anchor','middle');
+    t.setAttribute('font-size','11'); t.setAttribute('fill','white'); t.setAttribute('font-weight','700');
+    t.textContent = Y_DATA[i];
+    xorSvg.appendChild(t);
+  });
+}
+
+function drawLossCurve(){
+  xorLossSvg.innerHTML = '';
+  if(xorLossHist.length < 2) return;
+  const maxL = Math.max(...xorLossHist, 0.1);
+  const padL = 30, padR = 10, padT = 10, padB = 22;
+  const innerW = lossW - padL - padR;
+  const innerH = lossH - padT - padB;
+  let pathD = '';
+  xorLossHist.forEach((l, i)=>{
+    const x = padL + (i / (xorLossHist.length - 1)) * innerW;
+    const y = padT + innerH - (l/maxL) * innerH;
+    pathD += (i===0?'M':'L') + x + ',' + y + ' ';
+  });
+  const p = document.createElementNS('http://www.w3.org/2000/svg','path');
+  p.setAttribute('d', pathD); p.setAttribute('fill','none');
+  p.setAttribute('stroke','var(--accent)'); p.setAttribute('stroke-width','2');
+  xorLossSvg.appendChild(p);
+  // Axes
+  const ax = document.createElementNS('http://www.w3.org/2000/svg','g');
+  ax.innerHTML = `
+    <line x1="${padL}" y1="${padT+innerH}" x2="${padL+innerW}" y2="${padT+innerH}" stroke="#999"/>
+    <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+innerH}" stroke="#999"/>
+    <text x="${padL}" y="${padT+innerH+14}" font-size="10" fill="#666">epoch 0</text>
+    <text x="${padL+innerW-10}" y="${padT+innerH+14}" font-size="10" fill="#666" text-anchor="end">${xorLossHist.length}</text>
+    <text x="${padL-4}" y="${padT+10}" font-size="10" fill="#666" text-anchor="end">${fmt(maxL,3)}</text>
+    <text x="${padL-4}" y="${padT+innerH}" font-size="10" fill="#666" text-anchor="end">0</text>
+    <text x="${padL+innerW/2}" y="${padT+innerH+18}" font-size="11" fill="#444" text-anchor="middle" font-weight="600">Loss vs epoch</text>
+  `;
+  xorLossSvg.appendChild(ax);
+}
+
+function updateXorPredTable(){
+  const tbody = document.querySelector('#xorPreds tbody');
+  tbody.innerHTML = '';
+  X_DATA.forEach((p,i)=>{
+    const f = xorForward(xorNet, p);
+    const cls = (f.yhat > 0.5) ? 1 : 0;
+    const ok = (cls === Y_DATA[i]);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>(${p[0]},${p[1]})</td><td>${Y_DATA[i]}</td><td>${fmt(f.yhat,3)}</td><td>${ok?'<span class="pill ok">✓</span>':'<span class="pill bad">✗</span>'}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function startXorTrain(){
+  if(xorTraining) return;
+  xorTraining = true;
+  const lr = +document.getElementById('xorLr').value;
+  const maxEpoch = +document.getElementById('xorEpoch').value;
+  const seed = +document.getElementById('xorSeed').value;
+  const H = +document.getElementById('xorH').value;
+  xorNet = initXorNet(seed, H);
+  xorLossHist = [];
+  let ep = 0;
+  function loop(){
+    if(!xorTraining || ep >= maxEpoch){
+      xorTraining = false;
+      document.getElementById('xorStatus').innerHTML = `Trained <b>${ep}</b> epoch. Final loss: <b>${fmt(xorLossHist[xorLossHist.length-1]||0, 5)}</b>. Decision boundary đã hội tụ.`;
+      return;
+    }
+    const stepsPerFrame = Math.max(1, Math.floor(maxEpoch/200));
+    for(let s=0; s<stepsPerFrame && ep<maxEpoch; s++){
+      const L = xorTrainStep(xorNet, lr);
+      ep++;
+      if(ep % Math.max(1, Math.floor(maxEpoch/100)) === 0) xorLossHist.push(L);
+    }
+    drawXorDecisionBoundary();
+    drawLossCurve();
+    updateXorPredTable();
+    document.getElementById('xorStatus').innerHTML = `Epoch <b>${ep}/${maxEpoch}</b> · loss <b>${fmt(xorLossHist[xorLossHist.length-1]||0,5)}</b> · LR <b>${fmt(lr,2)}</b>`;
+    requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+document.getElementById('xorLr').addEventListener('input', e=>{ document.getElementById('xorLrV').textContent = fmt(+e.target.value, 2); });
+document.getElementById('xorTrain').addEventListener('click', startXorTrain);
+document.getElementById('xorStop').addEventListener('click', ()=>{ xorTraining = false; });
+document.getElementById('xorReset').addEventListener('click', ()=>{
+  xorTraining = false;
+  xorLossHist = [];
+  const H = +document.getElementById('xorH').value;
+  const seed = +document.getElementById('xorSeed').value;
+  xorNet = initXorNet(seed, H);
+  drawXorDecisionBoundary();
+  drawLossCurve();
+  updateXorPredTable();
+  document.getElementById('xorStatus').innerHTML = 'Reset. Click <b>Train</b> để chạy.';
+});
+// initial
+xorNet = initXorNet(42, 3);
+drawXorDecisionBoundary();
+updateXorPredTable();
+
+// ==================== COMPONENT 3: Forward/Backward Stepper ====================
+const stepSvg = document.getElementById('stepSvg');
+const stepW = 640, stepH = 380;
+let stepState = 0;
+let stepCtx = null;
+
+function computeStep(){
+  const x1 = +document.getElementById('stepX1').value;
+  const x2 = +document.getElementById('stepX2').value;
+  const y = +document.getElementById('stepY').value;
+  const x = [x1, x2];
+  const W1 = exampleW1, B1 = exampleB1, W2 = exampleW2, B2 = exampleB2;
+  // Forward
+  const z1 = [0,0,0], h = [0,0,0];
+  for(let j=0;j<3;j++){
+    z1[j] = W1[j][0]*x[0] + W1[j][1]*x[1] + B1[j];
+    h[j] = sigmoid(z1[j]);
+  }
+  let z2 = B2;
+  for(let j=0;j<3;j++) z2 += W2[j]*h[j];
+  const yhat = z2;
+  const L = 0.5*(yhat - y)*(yhat - y);
+  // Backward
+  const d2 = yhat - y;
+  const dW2 = [d2*h[0], d2*h[1], d2*h[2]];
+  const db2 = d2;
+  const dh = [d2*W2[0], d2*W2[1], d2*W2[2]];
+  const sp = [sigmoidD(z1[0]), sigmoidD(z1[1]), sigmoidD(z1[2])];
+  const d1 = [dh[0]*sp[0], dh[1]*sp[1], dh[2]*sp[2]];
+  const dW1 = [
+    [d1[0]*x[0], d1[0]*x[1]],
+    [d1[1]*x[0], d1[1]*x[1]],
+    [d1[2]*x[0], d1[2]*x[1]]
+  ];
+  const db1 = d1.slice();
+  return { x, y, W1, B1, W2, B2, z1, h, z2, yhat, L, d2, dW2, db2, dh, sp, d1, dW1, db1 };
+}
+
+function drawStepDiagram(highlight){
+  stepSvg.innerHTML = '';
+  // Same layout as component 1
+  const layerX2 = [80, 320, 560];
+  const inputs = [[layerX2[0], 120], [layerX2[0], 260]];
+  const hidden = [[layerX2[1], 90], [layerX2[1], 190], [layerX2[1], 290]];
+  const output = [[layerX2[2], 190]];
+
+  // Weight lines
+  const W1 = exampleW1, W2 = exampleW2;
+  for(let j=0;j<3;j++){
+    for(let i=0;i<2;i++){
+      const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+      line.setAttribute('x1', inputs[i][0]+24); line.setAttribute('y1', inputs[i][1]);
+      line.setAttribute('x2', hidden[j][0]-24); line.setAttribute('y2', hidden[j][1]);
+      let cls = 'weight-line';
+      if(highlight === 'fw1') cls += ' flow-forward';
+      else if(highlight === 'bw1') cls += ' flow-backward';
+      else cls += ' ' + (W1[j][i]>=0?'positive':'negative');
+      line.setAttribute('class', cls);
+      line.setAttribute('stroke-width', 1 + Math.min(3, Math.abs(W1[j][i])*3));
+      stepSvg.appendChild(line);
+    }
+  }
+  for(let j=0;j<3;j++){
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', hidden[j][0]+24); line.setAttribute('y1', hidden[j][1]);
+    line.setAttribute('x2', output[0][0]-24); line.setAttribute('y2', output[0][1]);
+    let cls = 'weight-line';
+    if(highlight === 'fw2') cls += ' flow-forward';
+    else if(highlight === 'bw2') cls += ' flow-backward';
+    else cls += ' ' + (W2[j]>=0?'positive':'negative');
+    line.setAttribute('class', cls);
+    line.setAttribute('stroke-width', 1 + Math.min(3, Math.abs(W2[j])*3));
+    stepSvg.appendChild(line);
+  }
+  // Neurons
+  function drawN(cx, cy, cls, label, value){
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx', cx); c.setAttribute('cy', cy); c.setAttribute('r', 22);
+    c.setAttribute('class', 'neuron '+cls);
+    stepSvg.appendChild(c);
+    const t1 = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t1.setAttribute('x', cx); t1.setAttribute('y', cy-3); t1.setAttribute('text-anchor','middle');
+    t1.setAttribute('class','neuron-label'); t1.setAttribute('font-weight','700');
+    t1.textContent = label; stepSvg.appendChild(t1);
+    const t2 = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t2.setAttribute('x', cx); t2.setAttribute('y', cy+11); t2.setAttribute('text-anchor','middle');
+    t2.setAttribute('class','neuron-label');
+    t2.textContent = fmt(value,2); stepSvg.appendChild(t2);
+  }
+  drawN(inputs[0][0], inputs[0][1], 'neuron-input', 'x₁', stepCtx.x[0]);
+  drawN(inputs[1][0], inputs[1][1], 'neuron-input', 'x₂', stepCtx.x[1]);
+  for(let j=0;j<3;j++){
+    const showH = stepState >= 2;
+    drawN(hidden[j][0], hidden[j][1], 'neuron-hidden', 'h'+(j+1), showH?stepCtx.h[j]:stepCtx.z1[j]);
+  }
+  if(stepState >= 4) drawN(output[0][0], output[0][1], 'neuron-output', 'ŷ', stepCtx.yhat);
+  else drawN(output[0][0], output[0][1], 'neuron-output', 'ŷ', 0);
+
+  // Loss bubble
+  if(stepState >= 5){
+    const lg = document.createElementNS('http://www.w3.org/2000/svg','g');
+    lg.innerHTML = `
+      <rect x="${output[0][0]+40}" y="${output[0][1]-20}" rx="6" ry="6" width="130" height="40" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+      <text x="${output[0][0]+105}" y="${output[0][1]-4}" text-anchor="middle" font-size="11" font-family="ui-monospace" font-weight="600">L = ${fmt(stepCtx.L,4)}</text>
+      <text x="${output[0][0]+105}" y="${output[0][1]+10}" text-anchor="middle" font-size="10" fill="#666">target y=${fmt(stepCtx.y,1)}</text>
+    `;
+    stepSvg.appendChild(lg);
+  }
+
+  // Direction arrow at top
+  const arr = document.createElementNS('http://www.w3.org/2000/svg','g');
+  if(stepState <= 5){
+    arr.innerHTML = `<text x="${stepW/2}" y="30" text-anchor="middle" font-size="13" font-weight="700" fill="var(--accent)">→ FORWARD →</text>`;
+  } else {
+    arr.innerHTML = `<text x="${stepW/2}" y="30" text-anchor="middle" font-size="13" font-weight="700" fill="var(--grad-color)">← BACKWARD ←</text>`;
+  }
+  stepSvg.appendChild(arr);
+}
+
+const STEPS = [
+  { label: 'Step 0/10 — Init', highlight: 'none', desc: ()=>`Mạng 2-3-1, weights ví dụ (xem README mục 3).\nInput x = [${stepCtx.x[0]}, ${stepCtx.x[1]}], target y = ${stepCtx.y}.\nBấm Next để bắt đầu Forward.` },
+  { label: 'Step 1/10 — z₁ = W₁·x + b₁', highlight: 'fw1', desc: ()=>`z₁[0] = 0.5·${stepCtx.x[0]} + (-0.3)·${stepCtx.x[1]} + 0.1 = ${fmt(stepCtx.z1[0],4)}\nz₁[1] = 0.2·${stepCtx.x[0]} + 0.8·${stepCtx.x[1]} + (-0.2) = ${fmt(stepCtx.z1[1],4)}\nz₁[2] = -0.4·${stepCtx.x[0]} + 0.1·${stepCtx.x[1]} + 0.0 = ${fmt(stepCtx.z1[2],4)}` },
+  { label: 'Step 2/10 — h = σ(z₁)', highlight: 'none', desc: ()=>`h[0] = σ(${fmt(stepCtx.z1[0],3)}) = ${fmt(stepCtx.h[0],4)}\nh[1] = σ(${fmt(stepCtx.z1[1],3)}) = ${fmt(stepCtx.h[1],4)}\nh[2] = σ(${fmt(stepCtx.z1[2],3)}) = ${fmt(stepCtx.h[2],4)}` },
+  { label: 'Step 3/10 — z₂ = W₂·h + b₂', highlight: 'fw2', desc: ()=>`z₂ = 0.3·${fmt(stepCtx.h[0],3)} + (-0.5)·${fmt(stepCtx.h[1],3)} + 0.7·${fmt(stepCtx.h[2],3)} + 0.1\n   = ${fmt(stepCtx.z2,4)}` },
+  { label: 'Step 4/10 — ŷ = z₂', highlight: 'none', desc: ()=>`Regression, output không activation:\nŷ = z₂ = ${fmt(stepCtx.yhat,4)}` },
+  { label: 'Step 5/10 — Loss L = (1/2)(ŷ-y)²', highlight: 'none', desc: ()=>`L = (1/2)·(${fmt(stepCtx.yhat,3)} - ${stepCtx.y})²\n  = (1/2)·(${fmt(stepCtx.yhat - stepCtx.y,4)})²\n  = ${fmt(stepCtx.L,4)}` },
+  { label: 'Step 6/10 — δ₂ = ŷ - y', highlight: 'none', desc: ()=>`δ₂ = ∂L/∂z₂ = ${fmt(stepCtx.yhat,3)} - ${stepCtx.y} = ${fmt(stepCtx.d2,4)}\n(với MSE và regression: ∂L/∂ŷ · ∂ŷ/∂z₂ = (ŷ-y) · 1)` },
+  { label: 'Step 7/10 — dW₂, db₂', highlight: 'bw2', desc: ()=>`dW₂[0] = δ₂·h[0] = ${fmt(stepCtx.d2,3)}·${fmt(stepCtx.h[0],3)} = ${fmt(stepCtx.dW2[0],4)}\ndW₂[1] = δ₂·h[1] = ${fmt(stepCtx.dW2[1],4)}\ndW₂[2] = δ₂·h[2] = ${fmt(stepCtx.dW2[2],4)}\ndb₂ = δ₂ = ${fmt(stepCtx.db2,4)}` },
+  { label: 'Step 8/10 — ∂L/∂h = W₂ᵀ·δ₂', highlight: 'none', desc: ()=>`∂L/∂h[0] = W₂[0]·δ₂ = ${fmt(stepCtx.W2[0],2)}·${fmt(stepCtx.d2,3)} = ${fmt(stepCtx.dh[0],4)}\n∂L/∂h[1] = ${fmt(stepCtx.dh[1],4)}\n∂L/∂h[2] = ${fmt(stepCtx.dh[2],4)}` },
+  { label: 'Step 9/10 — δ₁ = ∂L/∂h ⊙ σ\'(z₁)', highlight: 'none', desc: ()=>`σ'(z) = h·(1-h)\nσ'(z₁[0]) = ${fmt(stepCtx.h[0],3)}·${fmt(1-stepCtx.h[0],3)} = ${fmt(stepCtx.sp[0],4)}\nδ₁[0] = ${fmt(stepCtx.dh[0],3)} · ${fmt(stepCtx.sp[0],3)} = ${fmt(stepCtx.d1[0],4)}\nδ₁[1] = ${fmt(stepCtx.d1[1],4)}\nδ₁[2] = ${fmt(stepCtx.d1[2],4)}` },
+  { label: 'Step 10/10 — dW₁, db₁', highlight: 'bw1', desc: ()=>`dW₁[0,0] = δ₁[0]·x[0] = ${fmt(stepCtx.d1[0],3)}·${stepCtx.x[0]} = ${fmt(stepCtx.dW1[0][0],4)}\ndW₁[0,1] = δ₁[0]·x[1] = ${fmt(stepCtx.dW1[0][1],4)}\ndW₁[1,0] = ${fmt(stepCtx.dW1[1][0],4)}\ndW₁[1,1] = ${fmt(stepCtx.dW1[1][1],4)}\ndW₁[2,0] = ${fmt(stepCtx.dW1[2][0],4)}\ndW₁[2,1] = ${fmt(stepCtx.dW1[2][1],4)}\ndb₁ = δ₁ = [${stepCtx.db1.map(d=>fmt(d,3)).join(', ')}]\n\n✓ Hoàn tất backprop. Bây giờ update: W ← W - η·dW.` }
+];
+
+function renderStep(){
+  stepCtx = computeStep();
+  const s = STEPS[stepState];
+  drawStepDiagram(s.highlight);
+  document.getElementById('stepLabel').textContent = s.label;
+  document.getElementById('stepDetail').innerHTML = s.desc().replace(/\n/g,'<br>');
+}
+
+document.getElementById('stepNext').addEventListener('click', ()=>{
+  stepState = (stepState + 1) % STEPS.length;
+  renderStep();
+});
+document.getElementById('stepReset').addEventListener('click', ()=>{ stepState = 0; renderStep(); });
+document.getElementById('stepRunAll').addEventListener('click', ()=>{ stepState = STEPS.length-1; renderStep(); });
+document.getElementById('stepX1').addEventListener('input', renderStep);
+document.getElementById('stepX2').addEventListener('input', renderStep);
+document.getElementById('stepY').addEventListener('input', renderStep);
+renderStep();
+
+// ==================== COMPONENT 4: Activation comparison + vanishing demo ====================
+
+// 4a — activation curves
+function drawActCurves(){
+  const svg = document.getElementById('actSvg');
+  svg.innerHTML = '';
+  const W = 720, H = 380;
+  const pad = 40;
+  const xMin = -4, xMax = 4;
+  const yMin = -1.5, yMax = 2;
+  function mapX(x){ return pad + (x - xMin)/(xMax - xMin)*(W - 2*pad); }
+  function mapY(y){ return H - pad - (y - yMin)/(yMax - yMin)*(H - 2*pad); }
+  // Axes
+  svg.innerHTML += `
+    <line x1="${mapX(xMin)}" y1="${mapY(0)}" x2="${mapX(xMax)}" y2="${mapY(0)}" stroke="#999"/>
+    <line x1="${mapX(0)}" y1="${mapY(yMin)}" x2="${mapX(0)}" y2="${mapY(yMax)}" stroke="#999"/>
+    <text x="${mapX(xMax)-12}" y="${mapY(0)-6}" font-size="11" fill="#666">z</text>
+    <text x="${mapX(0)+4}" y="${mapY(yMax)+10}" font-size="11" fill="#666">σ(z)</text>
+  `;
+  const fns = [
+    { name: 'sigmoid', f: sigmoid, d: sigmoidD, color: '#2563eb' },
+    { name: 'tanh', f: tanh, d: tanhD, color: '#16a34a' },
+    { name: 'ReLU', f: relu, d: reluD, color: '#be123c' },
+    { name: 'leaky-ReLU', f: leakyRelu, d: leakyReluD, color: '#d97706' }
+  ];
+  fns.forEach(fn=>{
+    let d1 = '', d2 = '';
+    for(let i=0;i<=160;i++){
+      const z = xMin + (xMax-xMin)*i/160;
+      const yv = Math.max(yMin, Math.min(yMax, fn.f(z)));
+      const dv = Math.max(yMin, Math.min(yMax, fn.d(z)));
+      d1 += (i===0?'M':'L') + mapX(z) + ',' + mapY(yv) + ' ';
+      d2 += (i===0?'M':'L') + mapX(z) + ',' + mapY(dv) + ' ';
+    }
+    svg.innerHTML += `<path d="${d1}" class="fn" stroke="${fn.color}" fill="none" stroke-width="2"/>`;
+    svg.innerHTML += `<path d="${d2}" class="deriv" stroke="${fn.color}" fill="none" stroke-width="1.5" stroke-dasharray="4 2" opacity="0.7"/>`;
+  });
+  // Grid labels
+  for(let g=-1;g<=2;g++){
+    svg.innerHTML += `<text x="${mapX(0)-6}" y="${mapY(g)+4}" text-anchor="end" font-size="10" fill="#999">${g}</text>`;
+    svg.innerHTML += `<line x1="${mapX(0)-3}" y1="${mapY(g)}" x2="${mapX(0)+3}" y2="${mapY(g)}" stroke="#999"/>`;
+  }
+  for(let g=-3;g<=3;g++){
+    if(g===0) continue;
+    svg.innerHTML += `<text x="${mapX(g)}" y="${mapY(0)+14}" text-anchor="middle" font-size="10" fill="#999">${g}</text>`;
+  }
+}
+drawActCurves();
+
+// 4b — vanishing gradient
+function drawVanish(){
+  const svg = document.getElementById('vanishSvg');
+  svg.innerHTML = '';
+  const W = 720, H = 320;
+  const N = +document.getElementById('vanishN').value;
+  document.getElementById('vanishNV').textContent = N;
+  const act = document.getElementById('vanishAct').value;
+  // Upper bound max derivative
+  const maxD = act==='sigmoid'?0.25: act==='tanh'?1.0: 1.0;
+  // Compute gradient magnitude per layer (output = 1, multiply backward)
+  const grads = [];
+  let g = 1.0;
+  for(let l=N; l>=1; l--){
+    grads.unshift(g);
+    g *= maxD;
+  }
+  // Log scale
+  const logMax = 0;
+  const logMin = Math.min(-12, Math.log10(grads[0]+1e-15));
+  const pad = 50;
+  const barW = (W - 2*pad) / N * 0.7;
+  const gap = (W - 2*pad) / N;
+  // Axes
+  svg.innerHTML += `
+    <line x1="${pad}" y1="${H-40}" x2="${W-pad}" y2="${H-40}" stroke="#555"/>
+    <line x1="${pad}" y1="20" x2="${pad}" y2="${H-40}" stroke="#555"/>
+    <text x="${W/2}" y="${H-12}" text-anchor="middle" font-size="12" fill="#444" font-weight="600">Layer index (1 = đầu, ${N} = output)</text>
+    <text x="${pad-8}" y="22" text-anchor="end" font-size="10" fill="#666">10⁰</text>
+    <text x="${pad-8}" y="${H-40}" text-anchor="end" font-size="10" fill="#666">10^${Math.round(logMin)}</text>
+    <text x="14" y="${H/2}" font-size="11" fill="#444" transform="rotate(-90, 14, ${H/2})" text-anchor="middle">||∂L/∂W(l)|| (log)</text>
+  `;
+  grads.forEach((g, i)=>{
+    const lx = pad + i*gap + (gap-barW)/2;
+    const logV = Math.log10(g + 1e-15);
+    const t = (logV - logMin) / (logMax - logMin);
+    const bh = Math.max(2, t * (H - 60));
+    const ty = (H - 40) - bh;
+    svg.innerHTML += `<rect x="${lx}" y="${ty}" width="${barW}" height="${bh}" fill="var(--accent)" opacity="0.85"/>`;
+    svg.innerHTML += `<text x="${lx + barW/2}" y="${ty - 4}" text-anchor="middle" font-size="10" fill="#444">${g.toExponential(2)}</text>`;
+    svg.innerHTML += `<text x="${lx + barW/2}" y="${H-26}" text-anchor="middle" font-size="11" fill="#666">${i+1}</text>`;
+  });
+  // Annotation
+  svg.innerHTML += `<text x="${W-pad-10}" y="36" text-anchor="end" font-size="11" fill="var(--grad-color)" font-weight="600">${act}: max σ' = ${maxD}</text>`;
+  svg.innerHTML += `<text x="${W-pad-10}" y="54" text-anchor="end" font-size="11" fill="#666">tỉ lệ L₁/Lₙ = ${grads[0].toExponential(2)}</text>`;
+}
+document.getElementById('vanishN').addEventListener('input', drawVanish);
+document.getElementById('vanishAct').addEventListener('change', drawVanish);
+drawVanish();
+
+// 4c — Dead ReLU demo
+let deadW = 0.5, deadHist = [];
+function deadForward(b){
+  // sample data: 4 points
+  const pts = [[1,1],[2,0],[0.5,1],[1,0]];
+  return pts.map(p => deadW*p[0] - 0.3*p[1] + b);
+}
+function drawDead(){
+  const svg = document.getElementById('deadSvg');
+  svg.innerHTML = '';
+  const W = 720, H = 320;
+  const b = +document.getElementById('deadB').value;
+  document.getElementById('deadBV').textContent = fmt(b,1);
+  const zs = deadForward(b);
+  const pad = 50;
+  // Plot ReLU and leaky on the same axes
+  const xMin = -3, xMax = 3, yMin = -0.5, yMax = 3;
+  function mapX(x){ return pad + (x-xMin)/(xMax-xMin)*(W-2*pad); }
+  function mapY(y){ return H-pad - (y-yMin)/(yMax-yMin)*(H-2*pad); }
+  svg.innerHTML += `<line x1="${mapX(xMin)}" y1="${mapY(0)}" x2="${mapX(xMax)}" y2="${mapY(0)}" stroke="#999"/>`;
+  svg.innerHTML += `<line x1="${mapX(0)}" y1="${mapY(yMin)}" x2="${mapX(0)}" y2="${mapY(yMax)}" stroke="#999"/>`;
+  let d1='', d2='';
+  for(let i=0;i<=120;i++){
+    const z = xMin + (xMax-xMin)*i/120;
+    d1 += (i===0?'M':'L') + mapX(z) + ',' + mapY(Math.max(0,z)) + ' ';
+    d2 += (i===0?'M':'L') + mapX(z) + ',' + mapY(z>0?z:0.01*z) + ' ';
+  }
+  svg.innerHTML += `<path d="${d1}" stroke="var(--accent)" fill="none" stroke-width="2"/>`;
+  svg.innerHTML += `<path d="${d2}" stroke="#d97706" fill="none" stroke-width="2" stroke-dasharray="5 2"/>`;
+  // Points
+  zs.forEach((z, i)=>{
+    const cx = mapX(z);
+    const cyR = mapY(Math.max(0,z));
+    const cyL = mapY(z>0?z:0.01*z);
+    svg.innerHTML += `<circle cx="${cx}" cy="${cyR}" r="6" fill="var(--accent)" stroke="white" stroke-width="1.5"/>`;
+    svg.innerHTML += `<circle cx="${cx}" cy="${cyL}" r="4" fill="#d97706" stroke="white" stroke-width="1"/>`;
+    svg.innerHTML += `<text x="${cx+8}" y="${cyR+4}" font-size="10" fill="#666">z=${fmt(z,2)}</text>`;
+  });
+  const allDead = zs.every(z => z <= 0);
+  svg.innerHTML += `<text x="${W-pad-10}" y="32" text-anchor="end" font-size="12" font-weight="700" fill="${allDead?'var(--bad)':'var(--ok)'}">${allDead?'☠ NEURON DEAD (all z ≤ 0)':'Active'}</text>`;
+  svg.innerHTML += `<text x="${W-pad-10}" y="50" text-anchor="end" font-size="11" fill="#666">W=${fmt(deadW,2)}, b=${fmt(b,2)}</text>`;
+  svg.innerHTML += `<text x="${W-pad-10}" y="68" text-anchor="end" font-size="11" fill="var(--accent)">━ ReLU</text>`;
+  svg.innerHTML += `<text x="${W-pad-10}" y="84" text-anchor="end" font-size="11" fill="#d97706">┅ Leaky-ReLU (α=0.01)</text>`;
+}
+document.getElementById('deadB').addEventListener('input', drawDead);
+document.getElementById('deadRunGD').addEventListener('click', ()=>{
+  // Simulate 50 GD steps for ReLU vs Leaky on same data, target y=1
+  const b = +document.getElementById('deadB').value;
+  const pts = [[1,1],[2,0],[0.5,1],[1,0]];
+  const ys = [1,0,1,0];
+  let w_r = 0.5, w_l = 0.5;
+  let log = `Run 50 SGD steps, target ŷ = ${ys.join(',')}\n\nW (ReLU) → W (LeakyReLU)\n`;
+  for(let step=0; step<50; step++){
+    let g_r = 0, g_l = 0;
+    for(let i=0;i<4;i++){
+      const z_r = w_r*pts[i][0] - 0.3*pts[i][1] + b;
+      const z_l = w_l*pts[i][0] - 0.3*pts[i][1] + b;
+      const h_r = Math.max(0, z_r);
+      const h_l = z_l>0?z_l:0.01*z_l;
+      const d_r = h_r - ys[i];
+      const d_l = h_l - ys[i];
+      const dz_r = z_r>0?1:0;
+      const dz_l = z_l>0?1:0.01;
+      g_r += d_r * dz_r * pts[i][0];
+      g_l += d_l * dz_l * pts[i][0];
+    }
+    w_r -= 0.05 * g_r / 4;
+    w_l -= 0.05 * g_l / 4;
+  }
+  log += `Sau 50 step: ReLU W = ${fmt(w_r,4)} (gần như đứng yên nếu dead) | Leaky W = ${fmt(w_l,4)} (đã chuyển động)`;
+  alert(log);
+});
+drawDead();
+
+// Tab switching
+document.querySelectorAll('.nav-tabs button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.nav-tabs button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

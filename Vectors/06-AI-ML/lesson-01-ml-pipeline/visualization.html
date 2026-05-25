@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Pipeline ML end-to-end</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 24px; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; font-size: 16px; margin-top: 18px; }
+  .card {
+    background: white; border-radius: 8px; padding: 18px 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .card .desc { color: #4a5568; font-size: 14px; margin-bottom: 12px; }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; font-size: 14px; }
+  input[type="range"] { width: 220px; vertical-align: middle; }
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; padding: 4px 8px;
+    border: 1px solid #cbd5e0; border-radius: 4px; width: 80px;
+  }
+  .slider-val {
+    display: inline-block; font-family: monospace;
+    background: #edf2f7; padding: 2px 8px; border-radius: 4px;
+    font-weight: 600; color: #2b6cb0; min-width: 60px; text-align: center;
+  }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 6px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  svg { display: block; background: #fdfdfd; border: 1px solid #e2e8f0; border-radius: 6px; }
+  .stat-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 8px; margin-top: 12px;
+  }
+  .stat {
+    background: #edf2f7; padding: 8px 12px; border-radius: 4px;
+    font-family: monospace; font-size: 13px;
+  }
+  .stat .name { color: #4a5568; font-size: 11px; }
+  .stat .val { color: #2b6cb0; font-weight: 700; font-size: 14px; }
+  table { border-collapse: collapse; margin: 8px 0; }
+  table td, table th {
+    padding: 6px 12px; border: 1px solid #e2e8f0;
+    font-family: monospace; font-size: 13px; text-align: center;
+  }
+  table th { background: #edf2f7; }
+  .formula {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    background: #1a202c; color: #cbf36b;
+    padding: 8px 12px; border-radius: 4px;
+    font-size: 14px; margin: 8px 0;
+  }
+  .warn {
+    background: #fff5f5; border-left: 4px solid #e53e3e;
+    padding: 8px 12px; margin: 8px 0; color: #742a2a;
+    font-size: 13px; border-radius: 4px;
+  }
+  .ok {
+    background: #f0fff4; border-left: 4px solid #38a169;
+    padding: 8px 12px; margin: 8px 0; color: #22543d;
+    font-size: 13px; border-radius: 4px;
+  }
+  /* Pipeline animator */
+  .pipeline {
+    display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+    margin: 16px 0;
+  }
+  .pipe-step {
+    flex: 1; min-width: 130px;
+    background: #f7fafc; border: 2px solid #cbd5e0;
+    border-radius: 8px; padding: 10px 12px; text-align: center;
+    cursor: pointer; transition: all 0.2s;
+    position: relative;
+  }
+  .pipe-step.active {
+    background: #ebf8ff; border-color: #4299e1;
+    box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
+    transform: translateY(-3px);
+  }
+  .pipe-step .num {
+    font-size: 11px; color: #718096; font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .pipe-step .title {
+    font-size: 14px; font-weight: 700; color: #2d3748;
+    margin: 2px 0;
+  }
+  .pipe-step .icon {
+    font-size: 22px; margin: 4px 0;
+  }
+  .pipe-detail {
+    margin-top: 16px; padding: 14px;
+    background: #ebf8ff; border-radius: 6px;
+    min-height: 110px;
+    font-size: 14px; color: #2c5282;
+    border-left: 4px solid #4299e1;
+  }
+  .pipe-detail .title { font-weight: 700; margin-bottom: 6px; font-size: 15px; }
+  .pipe-detail code { background: white; padding: 1px 5px; border-radius: 3px; font-size: 13px; }
+  /* Split bar */
+  .split-bar {
+    display: flex; height: 36px; border-radius: 6px; overflow: hidden;
+    border: 1px solid #cbd5e0; margin: 12px 0;
+  }
+  .split-bar .seg {
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-family: monospace; font-size: 13px;
+    transition: width 0.3s;
+  }
+  .seg-train { background: #4299e1; }
+  .seg-val { background: #ed8936; }
+  .seg-test { background: #48bb78; }
+  /* Confusion matrix */
+  .cm-grid {
+    display: inline-grid;
+    grid-template-columns: auto repeat(2, 90px);
+    gap: 4px;
+    margin: 12px 0;
+    font-family: monospace; font-size: 14px;
+  }
+  .cm-grid .cm-cell {
+    padding: 14px; text-align: center;
+    border-radius: 4px; font-weight: 700;
+  }
+  .cm-grid .cm-label {
+    padding: 8px; font-weight: 600; color: #4a5568; font-size: 12px;
+  }
+  .cm-tp { background: #c6f6d5; color: #22543d; }
+  .cm-fp { background: #fed7d7; color: #742a2a; }
+  .cm-fn { background: #fed7d7; color: #742a2a; }
+  .cm-tn { background: #c6f6d5; color: #22543d; }
+  .metric-card {
+    display: inline-block; padding: 10px 14px;
+    background: white; border: 1px solid #e2e8f0;
+    border-radius: 6px; margin: 4px;
+    text-align: center; min-width: 110px;
+  }
+  .metric-card .name { font-size: 11px; color: #4a5568; }
+  .metric-card .val { font-size: 22px; font-weight: 800; color: #2b6cb0; }
+  .metric-card .formula { background: none; color: #718096; font-size: 11px; padding: 0; margin: 0; }
+  details { margin: 8px 0; }
+  summary { cursor: pointer; font-weight: 600; color: #2b6cb0; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Pipeline ML end-to-end</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-linear-regression/visualization.html">L2: Linear regression →</a>
+</nav>
+  <h1>Lesson 01 — Pipeline ML end-to-end</h1>
+  <div class="subtitle">4 component tương tác: pipeline animator · train/val/test split · bias-variance demo · confusion matrix.</div>
+
+  <!-- ============================================================ -->
+  <!-- 1. Pipeline animator -->
+  <!-- ============================================================ -->
+  <h2>1. Pipeline 6 bước — click từng step</h2>
+  <div class="card">
+    <div class="desc">
+      Mỗi ML project đều đi qua 6 bước này. Click vào ô để xem chi tiết và ví dụ Iris.
+      Hover/click pause animation. Bấm "▶ Auto" để xem tuần tự.
+    </div>
+    <div class="pipeline" id="pipeline">
+      <div class="pipe-step" data-step="1">
+        <div class="num">STEP 1</div><div class="icon">📊</div>
+        <div class="title">Data</div>
+      </div>
+      <div class="pipe-step" data-step="2">
+        <div class="num">STEP 2</div><div class="icon">🔧</div>
+        <div class="title">Feature</div>
+      </div>
+      <div class="pipe-step" data-step="3">
+        <div class="num">STEP 3</div><div class="icon">🧠</div>
+        <div class="title">Model</div>
+      </div>
+      <div class="pipe-step" data-step="4">
+        <div class="num">STEP 4</div><div class="icon">📏</div>
+        <div class="title">Loss</div>
+      </div>
+      <div class="pipe-step" data-step="5">
+        <div class="num">STEP 5</div><div class="icon">🔁</div>
+        <div class="title">Train</div>
+      </div>
+      <div class="pipe-step" data-step="6">
+        <div class="num">STEP 6</div><div class="icon">✅</div>
+        <div class="title">Evaluate</div>
+      </div>
+    </div>
+    <div class="pipe-detail" id="pipeDetail">
+      <div class="title">Click một step để xem chi tiết</div>
+      <div>Pipeline: data → feature → model → loss → train → evaluate. Mọi ML project (linear regression, neural net, CLIP...) đều theo khung này.</div>
+    </div>
+    <div class="row" style="margin-top: 12px;">
+      <button id="autoPlay">▶ Auto-play</button>
+      <button id="stopPlay">⏸ Stop</button>
+      <span class="slider-val" id="autoState">stopped</span>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 2. Train/Val/Test split -->
+  <!-- ============================================================ -->
+  <h2>2. Train / Val / Test split</h2>
+  <div class="card">
+    <div class="desc">
+      Kéo 2 slider để thay đổi tỉ lệ. Hiển thị số mẫu mỗi tập + cảnh báo khi val/test quá nhỏ.
+      Iris có 150 mẫu — quá ít → cảnh báo dùng k-fold CV thay vì split đơn lẻ.
+    </div>
+    <div class="row">
+      <label>Tổng số mẫu N:</label>
+      <input type="number" id="totalN" min="10" max="10000000" step="100" value="150">
+      <button id="presetIris">Iris (150)</button>
+      <button id="presetMid">Medium (10k)</button>
+      <button id="presetBig">Big (1M)</button>
+    </div>
+    <div class="row">
+      <label>% Train:</label>
+      <input type="range" id="pctTrain" min="40" max="98" step="1" value="60">
+      <span class="slider-val" id="pctTrainVal">60%</span>
+      <label>% Val:</label>
+      <input type="range" id="pctVal" min="1" max="40" step="1" value="20">
+      <span class="slider-val" id="pctValVal">20%</span>
+      <span class="slider-val">% Test = <span id="pctTestVal">20%</span></span>
+    </div>
+    <div class="split-bar" id="splitBar">
+      <div class="seg seg-train" style="width: 60%">60%</div>
+      <div class="seg seg-val" style="width: 20%">20%</div>
+      <div class="seg seg-test" style="width: 20%">20%</div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat"><div class="name">Train (học)</div><div class="val" id="nTrain">90</div></div>
+      <div class="stat"><div class="name">Val (chọn model)</div><div class="val" id="nVal">30</div></div>
+      <div class="stat"><div class="name">Test (đo cuối)</div><div class="val" id="nTest">30</div></div>
+    </div>
+    <div id="splitWarning"></div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 3. Bias-variance demo -->
+  <!-- ============================================================ -->
+  <h2>3. Bias-variance: polynomial fit</h2>
+  <div class="card">
+    <div class="desc">
+      Hàm thật <code>y = sin(x)</code> với nhiễu. Chọn bậc đa thức (1 → 15) để fit.
+      Bậc thấp → underfit (bias cao). Bậc cao → overfit (variance cao).
+      Bấm "🎲 Resample data" để thấy variance: bậc 15 nhảy mạnh, bậc 3 ổn định.
+    </div>
+    <div class="row">
+      <label>Bậc đa thức:</label>
+      <input type="range" id="polyDeg" min="1" max="15" step="1" value="3">
+      <span class="slider-val" id="polyDegVal">3</span>
+      <label>Noise σ:</label>
+      <input type="range" id="noiseLvl" min="0" max="50" step="1" value="20">
+      <span class="slider-val" id="noiseLvlVal">0.20</span>
+      <label>N points:</label>
+      <input type="range" id="numPts" min="10" max="100" step="5" value="30">
+      <span class="slider-val" id="numPtsVal">30</span>
+      <button id="resamplePoly">🎲 Resample data</button>
+    </div>
+    <svg id="polySvg" width="900" height="380"></svg>
+    <div class="stat-grid">
+      <div class="stat"><div class="name">Train MSE</div><div class="val" id="bvTrainMse">—</div></div>
+      <div class="stat"><div class="name">Test MSE</div><div class="val" id="bvTestMse">—</div></div>
+      <div class="stat"><div class="name">Bias² (ước lượng)</div><div class="val" id="bvBias">—</div></div>
+      <div class="stat"><div class="name">Variance (ước lượng)</div><div class="val" id="bvVar">—</div></div>
+      <div class="stat"><div class="name">Tổng error</div><div class="val" id="bvTotal">—</div></div>
+      <div class="stat"><div class="name">Số params</div><div class="val" id="bvParams">—</div></div>
+    </div>
+    <div id="bvDiagnosis"></div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 4. Confusion matrix + metrics -->
+  <!-- ============================================================ -->
+  <h2>4. Confusion matrix + metrics</h2>
+  <div class="card">
+    <div class="desc">
+      Kéo slider TP/FP/FN/TN. Tự tính accuracy, precision, recall, F1.
+      Thử bài toán imbalance (TN=950, FN=40, TP=10, FP=0) — accuracy 96% nhưng recall thảm họa.
+    </div>
+    <div class="row">
+      <label>TP (đoán 1, thật 1):</label>
+      <input type="range" id="cmTP" min="0" max="500" step="1" value="40">
+      <span class="slider-val" id="cmTPVal">40</span>
+    </div>
+    <div class="row">
+      <label>FP (đoán 1, thật 0):</label>
+      <input type="range" id="cmFP" min="0" max="500" step="1" value="20">
+      <span class="slider-val" id="cmFPVal">20</span>
+    </div>
+    <div class="row">
+      <label>FN (đoán 0, thật 1):</label>
+      <input type="range" id="cmFN" min="0" max="500" step="1" value="10">
+      <span class="slider-val" id="cmFNVal">10</span>
+    </div>
+    <div class="row">
+      <label>TN (đoán 0, thật 0):</label>
+      <input type="range" id="cmTN" min="0" max="2000" step="10" value="930">
+      <span class="slider-val" id="cmTNVal">930</span>
+    </div>
+    <div class="row">
+      <button id="presetBalanced">Preset: Cân bằng</button>
+      <button id="presetImbalance">Preset: Imbalance "lừa"</button>
+      <button id="presetPerfect">Preset: Perfect</button>
+    </div>
+
+    <div class="cm-grid">
+      <div></div>
+      <div class="cm-label">Pred = 1</div>
+      <div class="cm-label">Pred = 0</div>
+      <div class="cm-label">Actual = 1</div>
+      <div class="cm-cell cm-tp"><div style="font-size:11px;font-weight:600">TP</div><div id="cmDisplayTP">40</div></div>
+      <div class="cm-cell cm-fn"><div style="font-size:11px;font-weight:600">FN</div><div id="cmDisplayFN">10</div></div>
+      <div class="cm-label">Actual = 0</div>
+      <div class="cm-cell cm-fp"><div style="font-size:11px;font-weight:600">FP</div><div id="cmDisplayFP">20</div></div>
+      <div class="cm-cell cm-tn"><div style="font-size:11px;font-weight:600">TN</div><div id="cmDisplayTN">930</div></div>
+    </div>
+
+    <div>
+      <div class="metric-card">
+        <div class="name">Accuracy</div>
+        <div class="val" id="mAcc">—</div>
+        <div class="formula">(TP+TN)/total</div>
+      </div>
+      <div class="metric-card">
+        <div class="name">Precision</div>
+        <div class="val" id="mPrec">—</div>
+        <div class="formula">TP/(TP+FP)</div>
+      </div>
+      <div class="metric-card">
+        <div class="name">Recall</div>
+        <div class="val" id="mRec">—</div>
+        <div class="formula">TP/(TP+FN)</div>
+      </div>
+      <div class="metric-card">
+        <div class="name">F1</div>
+        <div class="val" id="mF1">—</div>
+        <div class="formula">2·P·R/(P+R)</div>
+      </div>
+      <div class="metric-card">
+        <div class="name">Specificity</div>
+        <div class="val" id="mSpec">—</div>
+        <div class="formula">TN/(TN+FP)</div>
+      </div>
+    </div>
+    <div id="cmDiagnosis" style="margin-top: 12px;"></div>
+  </div>
+
+</main>
+
+<script>
+/* ========================================================== */
+/* 1. Pipeline animator */
+/* ========================================================== */
+const pipeDetails = {
+  1: {
+    title: "Step 1 — Data",
+    body: `Lấy data, tách thành <code>train / val / test</code>.
+           <b>Iris</b>: 150 mẫu → 90/30/30 (stratified).<br>
+           ⚠ Tránh data leakage: tách trước khi preprocess. Với chuỗi thời gian, tách theo thời gian.`
+  },
+  2: {
+    title: "Step 2 — Feature",
+    body: `Biến mỗi mẫu thành vector số <code>x ∈ ℝᵈ</code>.<br>
+           <b>Iris</b>: 4 chiều (sepal/petal length+width). Standardize bằng <code>μ, σ</code> tính trên train.<br>
+           Categorical → one-hot. Ảnh → pixel hoặc CNN feature. Text → embedding.`
+  },
+  3: {
+    title: "Step 3 — Model",
+    body: `Hàm dự đoán <code>ŷ = f_θ(x)</code> với params <code>θ</code>.<br>
+           <b>Iris</b>: logistic multinomial <code>softmax(Wx + b)</code> với <code>W ∈ ℝ³ˣ⁴, b ∈ ℝ³</code> (15 params).<br>
+           Chọn model = chọn inductive bias.`
+  },
+  4: {
+    title: "Step 4 — Loss",
+    body: `Đo "sai bao nhiêu" — một số thực ≥ 0.<br>
+           Regression: <code>MSE = mean((ŷ−y)²)</code>.<br>
+           Classification: <code>cross-entropy = −Σ y·log(ŷ)</code>.<br>
+           <b>Iris</b>: cross-entropy 3 lớp.`
+  },
+  5: {
+    title: "Step 5 — Train",
+    body: `Tối ưu params bằng gradient descent: <code>θ ← θ − η·∇L</code>.<br>
+           <b>Iris</b>: 500 epoch, batch 32, lr 0.1. Loss giảm từ ~1.10 (random) xuống ~0.05.<br>
+           Mini-batch SGD là chuẩn. Adam = SGD adaptive.`
+  },
+  6: {
+    title: "Step 6 — Evaluate",
+    body: `Đo trên test set (1 lần duy nhất).<br>
+           Classification: accuracy, precision, recall, F1, confusion matrix, AUC.<br>
+           Regression: MSE, RMSE, MAE, R².<br>
+           <b>Iris</b>: accuracy ≈ 96.7% (29/30 đúng).`
+  }
+};
+const pipeSteps = document.querySelectorAll('.pipe-step');
+const pipeDetailEl = document.getElementById('pipeDetail');
+function showStep(s) {
+  pipeSteps.forEach(el => el.classList.toggle('active', +el.dataset.step === s));
+  const d = pipeDetails[s];
+  pipeDetailEl.innerHTML = `<div class="title">${d.title}</div><div>${d.body}</div>`;
+}
+pipeSteps.forEach(el => el.addEventListener('click', () => showStep(+el.dataset.step)));
+showStep(1);
+
+let autoTimer = null, autoIdx = 1;
+document.getElementById('autoPlay').addEventListener('click', () => {
+  if (autoTimer) return;
+  document.getElementById('autoState').textContent = 'playing';
+  autoTimer = setInterval(() => {
+    autoIdx = autoIdx % 6 + 1;
+    showStep(autoIdx);
+  }, 1800);
+});
+document.getElementById('stopPlay').addEventListener('click', () => {
+  if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+  document.getElementById('autoState').textContent = 'stopped';
+});
+
+/* ========================================================== */
+/* 2. Train/Val/Test split */
+/* ========================================================== */
+const totalN = document.getElementById('totalN');
+const pctTrain = document.getElementById('pctTrain');
+const pctVal = document.getElementById('pctVal');
+function updateSplit() {
+  let pt = +pctTrain.value;
+  let pv = +pctVal.value;
+  // ensure pt + pv <= 99
+  if (pt + pv > 99) { pv = 99 - pt; pctVal.value = pv; }
+  const ptest = 100 - pt - pv;
+  const N = Math.max(0, +totalN.value);
+  document.getElementById('pctTrainVal').textContent = pt + '%';
+  document.getElementById('pctValVal').textContent = pv + '%';
+  document.getElementById('pctTestVal').textContent = ptest + '%';
+  const bar = document.getElementById('splitBar');
+  bar.innerHTML =
+    `<div class="seg seg-train" style="width:${pt}%">${pt}%</div>` +
+    `<div class="seg seg-val" style="width:${pv}%">${pv}%</div>` +
+    `<div class="seg seg-test" style="width:${ptest}%">${ptest}%</div>`;
+  const nT = Math.floor(N * pt / 100);
+  const nV = Math.floor(N * pv / 100);
+  const nTe = N - nT - nV;
+  document.getElementById('nTrain').textContent = nT.toLocaleString();
+  document.getElementById('nVal').textContent = nV.toLocaleString();
+  document.getElementById('nTest').textContent = nTe.toLocaleString();
+  const w = document.getElementById('splitWarning');
+  let msgs = [];
+  if (nV < 30) msgs.push(`⚠ Val chỉ ${nV} mẫu — quá nhỏ để đo tin cậy. Cân nhắc k-fold CV.`);
+  if (nTe < 30) msgs.push(`⚠ Test chỉ ${nTe} mẫu — 1 sai ≈ ${(100/Math.max(nTe,1)).toFixed(1)}% accuracy noise.`);
+  if (N >= 1000000 && pt < 90) msgs.push(`💡 Dataset rất lớn (${N.toLocaleString()}) — có thể giảm val/test xuống 1% mỗi tập (vẫn còn ${(N*0.01).toLocaleString()} mẫu).`);
+  if (nT < 50) msgs.push(`⚠ Train chỉ ${nT} mẫu — model khó học pattern.`);
+  if (ptest === 0) msgs.push(`⚠ Test = 0 — không có cách đo lần cuối!`);
+  if (msgs.length === 0) {
+    w.innerHTML = `<div class="ok">✓ Split hợp lý. Train đủ để học, val/test đủ để đo.</div>`;
+  } else {
+    w.innerHTML = msgs.map(m => `<div class="warn">${m}</div>`).join('');
+  }
+}
+[totalN, pctTrain, pctVal].forEach(el => el.addEventListener('input', updateSplit));
+document.getElementById('presetIris').addEventListener('click', () => {
+  totalN.value = 150; pctTrain.value = 60; pctVal.value = 20; updateSplit();
+});
+document.getElementById('presetMid').addEventListener('click', () => {
+  totalN.value = 10000; pctTrain.value = 80; pctVal.value = 10; updateSplit();
+});
+document.getElementById('presetBig').addEventListener('click', () => {
+  totalN.value = 1000000; pctTrain.value = 98; pctVal.value = 1; updateSplit();
+});
+updateSplit();
+
+/* ========================================================== */
+/* 3. Bias-variance polynomial fit */
+/* ========================================================== */
+// Generate data y = sin(2*pi*x) + noise on x in [0,1]
+let polyData = null;
+function genPolyData(n, sigma) {
+  const seed = Math.random() * 1000;
+  const pts = [];
+  for (let i = 0; i < n; i++) {
+    const x = i / (n - 1);
+    const yTrue = Math.sin(2 * Math.PI * x);
+    const noise = sigma * (Math.random() * 2 - 1) * 1.5; // pseudo-noise
+    pts.push({x, y: yTrue + noise, yTrue});
+  }
+  return pts;
+}
+// Solve normal equations for polynomial fit: A^T A w = A^T y
+function polyFit(pts, deg) {
+  const n = pts.length;
+  const k = deg + 1;
+  // Build A (n x k)
+  const A = pts.map(p => {
+    const row = []; let xp = 1;
+    for (let j = 0; j < k; j++) { row.push(xp); xp *= p.x; }
+    return row;
+  });
+  const yVec = pts.map(p => p.y);
+  // AtA (k x k)
+  const AtA = [];
+  for (let i = 0; i < k; i++) {
+    const r = [];
+    for (let j = 0; j < k; j++) {
+      let s = 0;
+      for (let m = 0; m < n; m++) s += A[m][i] * A[m][j];
+      r.push(s);
+    }
+    AtA.push(r);
+  }
+  // ridge tiny for stability
+  for (let i = 0; i < k; i++) AtA[i][i] += 1e-8;
+  // Aty
+  const Aty = [];
+  for (let i = 0; i < k; i++) {
+    let s = 0;
+    for (let m = 0; m < n; m++) s += A[m][i] * yVec[m];
+    Aty.push(s);
+  }
+  // Solve via Gauss-Jordan
+  return solve(AtA, Aty);
+}
+function solve(M, b) {
+  const n = M.length;
+  const A = M.map((r, i) => r.concat([b[i]]));
+  for (let i = 0; i < n; i++) {
+    // pivot
+    let maxRow = i;
+    for (let k = i + 1; k < n; k++) if (Math.abs(A[k][i]) > Math.abs(A[maxRow][i])) maxRow = k;
+    [A[i], A[maxRow]] = [A[maxRow], A[i]];
+    if (Math.abs(A[i][i]) < 1e-12) A[i][i] = 1e-12;
+    for (let k = i + 1; k < n; k++) {
+      const f = A[k][i] / A[i][i];
+      for (let j = i; j <= n; j++) A[k][j] -= f * A[i][j];
+    }
+  }
+  const x = new Array(n);
+  for (let i = n - 1; i >= 0; i--) {
+    let s = A[i][n];
+    for (let j = i + 1; j < n; j++) s -= A[i][j] * x[j];
+    x[i] = s / A[i][i];
+  }
+  return x;
+}
+function polyEval(coefs, x) {
+  let s = 0, xp = 1;
+  for (let j = 0; j < coefs.length; j++) { s += coefs[j] * xp; xp *= x; }
+  return s;
+}
+
+function renderPoly() {
+  const deg = +document.getElementById('polyDeg').value;
+  const sigma = +document.getElementById('noiseLvl').value / 100;
+  const n = +document.getElementById('numPts').value;
+  document.getElementById('polyDegVal').textContent = deg;
+  document.getElementById('noiseLvlVal').textContent = sigma.toFixed(2);
+  document.getElementById('numPtsVal').textContent = n;
+
+  if (!polyData || polyData.length !== n || polyData.sigma !== sigma) {
+    polyData = genPolyData(n, sigma);
+    polyData.sigma = sigma;
+  }
+  // train/test split 70/30
+  const train = polyData.filter((_, i) => i % 10 < 7);
+  const test = polyData.filter((_, i) => i % 10 >= 7);
+  const coefs = polyFit(train, deg);
+
+  // Compute MSEs
+  const trainMse = train.reduce((s, p) => s + Math.pow(polyEval(coefs, p.x) - p.y, 2), 0) / train.length;
+  const testMse = test.reduce((s, p) => s + Math.pow(polyEval(coefs, p.x) - p.y, 2), 0) / test.length;
+  // Bias² ≈ E[(f̂(x) - f_true(x))²] over test points
+  const bias2 = test.reduce((s, p) => s + Math.pow(polyEval(coefs, p.x) - p.yTrue, 2), 0) / test.length;
+  // Variance estimate via bootstrap: refit 8 times on resampled train, measure spread
+  const fits = [];
+  for (let b = 0; b < 8; b++) {
+    const sample = [];
+    for (let i = 0; i < train.length; i++) sample.push(train[Math.floor(Math.random() * train.length)]);
+    fits.push(polyFit(sample, deg));
+  }
+  let variance = 0;
+  for (const p of test) {
+    const preds = fits.map(c => polyEval(c, p.x));
+    const mean = preds.reduce((a, b) => a + b, 0) / preds.length;
+    variance += preds.reduce((a, b) => a + (b - mean) * (b - mean), 0) / preds.length;
+  }
+  variance /= test.length;
+  const totalErr = bias2 + variance + sigma * sigma;
+
+  document.getElementById('bvTrainMse').textContent = trainMse.toFixed(4);
+  document.getElementById('bvTestMse').textContent = testMse.toFixed(4);
+  document.getElementById('bvBias').textContent = bias2.toFixed(4);
+  document.getElementById('bvVar').textContent = variance.toFixed(4);
+  document.getElementById('bvTotal').textContent = totalErr.toFixed(4);
+  document.getElementById('bvParams').textContent = (deg + 1);
+
+  // Diagnose
+  let diag = '';
+  if (trainMse > 0.1 && testMse > 0.1) {
+    diag = `<div class="warn">⚠ UNDERFIT — cả train (${trainMse.toFixed(3)}) lẫn test (${testMse.toFixed(3)}) đều cao. Tăng bậc đa thức / dùng model mạnh hơn.</div>`;
+  } else if (testMse > 5 * trainMse && testMse > 0.05) {
+    diag = `<div class="warn">⚠ OVERFIT — train (${trainMse.toFixed(3)}) thấp nhưng test (${testMse.toFixed(3)}) cao gấp ${(testMse/trainMse).toFixed(1)}×. Giảm bậc / thêm data / regularize.</div>`;
+  } else {
+    diag = `<div class="ok">✓ Just right — train (${trainMse.toFixed(3)}) ≈ test (${testMse.toFixed(3)}). Bias-variance cân bằng.</div>`;
+  }
+  document.getElementById('bvDiagnosis').innerHTML = diag;
+
+  // Draw SVG
+  const svg = document.getElementById('polySvg');
+  const W = 900, H = 380, padX = 50, padY = 30;
+  const xMin = 0, xMax = 1, yMin = -2, yMax = 2;
+  const sx = x => padX + (x - xMin) / (xMax - xMin) * (W - 2 * padX);
+  const sy = y => H - padY - (y - yMin) / (yMax - yMin) * (H - 2 * padY);
+  let html = '';
+  // grid
+  for (let i = 0; i <= 5; i++) {
+    const x = xMin + (xMax - xMin) * i / 5;
+    html += `<line x1="${sx(x)}" y1="${sy(yMin)}" x2="${sx(x)}" y2="${sy(yMax)}" stroke="#edf2f7"/>`;
+  }
+  for (let i = -2; i <= 2; i++) {
+    html += `<line x1="${sx(xMin)}" y1="${sy(i)}" x2="${sx(xMax)}" y2="${sy(i)}" stroke="#edf2f7"/>`;
+    html += `<text x="${padX - 8}" y="${sy(i) + 4}" font-size="11" fill="#718096" text-anchor="end" font-family="monospace">${i}</text>`;
+  }
+  // axes
+  html += `<line x1="${sx(xMin)}" y1="${sy(0)}" x2="${sx(xMax)}" y2="${sy(0)}" stroke="#a0aec0"/>`;
+  html += `<line x1="${sx(xMin)}" y1="${sy(yMin)}" x2="${sx(xMin)}" y2="${sy(yMax)}" stroke="#a0aec0"/>`;
+  // true sin curve
+  let pathTrue = '';
+  for (let i = 0; i <= 200; i++) {
+    const x = xMin + (xMax - xMin) * i / 200;
+    const y = Math.sin(2 * Math.PI * x);
+    pathTrue += (i === 0 ? 'M' : 'L') + sx(x) + ',' + sy(y);
+  }
+  html += `<path d="${pathTrue}" stroke="#48bb78" stroke-width="2" fill="none" stroke-dasharray="6,4"/>`;
+  // fitted polynomial
+  let pathFit = '';
+  for (let i = 0; i <= 300; i++) {
+    const x = xMin + (xMax - xMin) * i / 300;
+    let y = polyEval(coefs, x);
+    y = Math.max(yMin, Math.min(yMax, y));
+    pathFit += (i === 0 ? 'M' : 'L') + sx(x) + ',' + sy(y);
+  }
+  html += `<path d="${pathFit}" stroke="#e53e3e" stroke-width="2.5" fill="none"/>`;
+  // train data points
+  for (const p of train) {
+    if (p.y < yMin || p.y > yMax) continue;
+    html += `<circle cx="${sx(p.x)}" cy="${sy(p.y)}" r="4" fill="#4299e1" stroke="white" stroke-width="1"/>`;
+  }
+  for (const p of test) {
+    if (p.y < yMin || p.y > yMax) continue;
+    html += `<circle cx="${sx(p.x)}" cy="${sy(p.y)}" r="4" fill="none" stroke="#ed8936" stroke-width="2"/>`;
+  }
+  // legend
+  html += `<g transform="translate(${W - 220}, 20)">
+    <rect width="200" height="100" fill="white" stroke="#cbd5e0"/>
+    <line x1="10" y1="20" x2="40" y2="20" stroke="#48bb78" stroke-width="2" stroke-dasharray="6,4"/>
+    <text x="48" y="24" font-size="12" font-family="monospace">y = sin(2πx) (thật)</text>
+    <line x1="10" y1="40" x2="40" y2="40" stroke="#e53e3e" stroke-width="2.5"/>
+    <text x="48" y="44" font-size="12" font-family="monospace">polynomial fit</text>
+    <circle cx="22" cy="60" r="4" fill="#4299e1"/>
+    <text x="48" y="64" font-size="12" font-family="monospace">train data</text>
+    <circle cx="22" cy="80" r="4" fill="none" stroke="#ed8936" stroke-width="2"/>
+    <text x="48" y="84" font-size="12" font-family="monospace">test data</text>
+  </g>`;
+  svg.innerHTML = html;
+}
+['polyDeg','noiseLvl','numPts'].forEach(id => document.getElementById(id).addEventListener('input', () => {
+  if (id !== 'polyDeg') polyData = null;
+  renderPoly();
+}));
+document.getElementById('resamplePoly').addEventListener('click', () => {
+  polyData = null;
+  renderPoly();
+});
+renderPoly();
+
+/* ========================================================== */
+/* 4. Confusion matrix + metrics */
+/* ========================================================== */
+function updateCM() {
+  const TP = +document.getElementById('cmTP').value;
+  const FP = +document.getElementById('cmFP').value;
+  const FN = +document.getElementById('cmFN').value;
+  const TN = +document.getElementById('cmTN').value;
+  document.getElementById('cmTPVal').textContent = TP;
+  document.getElementById('cmFPVal').textContent = FP;
+  document.getElementById('cmFNVal').textContent = FN;
+  document.getElementById('cmTNVal').textContent = TN;
+  document.getElementById('cmDisplayTP').textContent = TP;
+  document.getElementById('cmDisplayFP').textContent = FP;
+  document.getElementById('cmDisplayFN').textContent = FN;
+  document.getElementById('cmDisplayTN').textContent = TN;
+  const total = TP + FP + FN + TN;
+  const acc = total === 0 ? 0 : (TP + TN) / total;
+  const prec = (TP + FP) === 0 ? 0 : TP / (TP + FP);
+  const rec = (TP + FN) === 0 ? 0 : TP / (TP + FN);
+  const f1 = (prec + rec) === 0 ? 0 : 2 * prec * rec / (prec + rec);
+  const spec = (TN + FP) === 0 ? 0 : TN / (TN + FP);
+  const fmt = v => (v * 100).toFixed(1) + '%';
+  document.getElementById('mAcc').textContent = fmt(acc);
+  document.getElementById('mPrec').textContent = fmt(prec);
+  document.getElementById('mRec').textContent = fmt(rec);
+  document.getElementById('mF1').textContent = fmt(f1);
+  document.getElementById('mSpec').textContent = fmt(spec);
+
+  // Diagnose
+  let diag = '';
+  const posRate = (TP + FN) / Math.max(total, 1);
+  if (posRate < 0.1 && acc > 0.9 && rec < 0.5) {
+    diag = `<div class="warn">⚠ IMBALANCE LỪA — chỉ ${(posRate*100).toFixed(1)}% positive. Accuracy ${fmt(acc)} đẹp nhưng recall ${fmt(rec)} thảm họa — model gần như luôn đoán 0. Báo cáo F1 / recall, không phải accuracy.</div>`;
+  } else if (prec > 0.9 && rec < 0.5) {
+    diag = `<div class="warn">⚠ High precision, low recall — model chỉ kêu khi RẤT chắc → bỏ sót nhiều positive thật. Hạ ngưỡng quyết định nếu "không bỏ sót" quan trọng.</div>`;
+  } else if (rec > 0.9 && prec < 0.5) {
+    diag = `<div class="warn">⚠ High recall, low precision — model kêu loạn → nhiều báo động giả. Nâng ngưỡng nếu "không báo bậy" quan trọng.</div>`;
+  } else if (f1 > 0.85) {
+    diag = `<div class="ok">✓ Cân bằng tốt: F1 = ${fmt(f1)}.</div>`;
+  } else {
+    diag = `<div style="background:#fffbeb;border-left:4px solid #d69e2e;padding:8px 12px;color:#744210;font-size:13px;border-radius:4px">📊 Cân nhắc tradeoff precision/recall theo business case.</div>`;
+  }
+  document.getElementById('cmDiagnosis').innerHTML = diag;
+}
+['cmTP','cmFP','cmFN','cmTN'].forEach(id => document.getElementById(id).addEventListener('input', updateCM));
+document.getElementById('presetBalanced').addEventListener('click', () => {
+  document.getElementById('cmTP').value = 80;
+  document.getElementById('cmFP').value = 15;
+  document.getElementById('cmFN').value = 20;
+  document.getElementById('cmTN').value = 885;
+  updateCM();
+});
+document.getElementById('presetImbalance').addEventListener('click', () => {
+  document.getElementById('cmTP').value = 10;
+  document.getElementById('cmFP').value = 0;
+  document.getElementById('cmFN').value = 40;
+  document.getElementById('cmTN').value = 950;
+  updateCM();
+});
+document.getElementById('presetPerfect').addEventListener('click', () => {
+  document.getElementById('cmTP').value = 100;
+  document.getElementById('cmFP').value = 0;
+  document.getElementById('cmFN').value = 0;
+  document.getElementById('cmTN').value = 900;
+  updateCM();
+});
+updateCM();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

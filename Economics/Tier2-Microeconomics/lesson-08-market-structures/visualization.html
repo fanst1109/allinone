@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 08 — Market Structures</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .lead { color: #4a5568; margin-bottom: 24px; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 220px; }
+  input[type="number"], input[type="range"] { font-family: monospace; padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 4px; }
+  input[type="number"] { width: 100px; }
+  .result { background: #f7fafc; border-left: 4px solid #c05621; padding: 14px 18px; margin-top: 14px; border-radius: 4px; font-family: monospace; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  svg { display: block; margin: 0 auto; max-width: 100%; }
+  .legend { display: flex; gap: 14px; font-size: 13px; margin: 8px 0; color: #4a5568; flex-wrap: wrap; }
+  .legend .sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: 4px; }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; background: #fff5eb; color: #c05621; font-weight: 700; margin-left: 6px; }
+  table { width:100%; border-collapse: collapse; font-family: monospace; font-size: 13.5px; margin-top: 10px; }
+  th, td { padding: 7px 10px; border-bottom: 1px solid #e2e8f0; text-align: right; }
+  th { background: #edf2f7; }
+  th:first-child, td:first-child { text-align: left; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-production-cost/visualization.html">← L7: Production & Cost</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Market Structures</span>
+  <span class="sep">·</span>
+  <a href="../lesson-09-game-theory/visualization.html">L9: Game theory →</a>
+</nav>
+  <h1>Lesson 08 — Market Structures</h1>
+  <div class="lead">So sánh cạnh tranh hoàn hảo, độc quyền, và Cournot duopoly trên cùng đồ thị. Quan sát DWL khi quyền lực thị trường tăng.</div>
+
+  <h2>So sánh 3 cấu trúc <span class="pill">Perfect / Monopoly / Cournot</span></h2>
+  <div class="card">
+    <p>Cầu thị trường <code>P = a − b·Q</code>, MC cố định.</p>
+    <div class="row"><label>a (cầu intercept)</label><input id="a" type="number" value="100" step="5"></div>
+    <div class="row"><label>b (độ dốc cầu)</label><input id="b" type="number" value="1" step="0.1"></div>
+    <div class="row"><label>MC</label><input id="mc" type="number" value="20" step="2"></div>
+
+    <svg id="svg" viewBox="0 0 600 440" style="background:#fff; border:1px solid #e2e8f0;"></svg>
+    <div class="legend">
+      <span><span class="sw" style="background:#3182ce"></span>Cầu (D)</span>
+      <span><span class="sw" style="background:#9c4221"></span>MR</span>
+      <span><span class="sw" style="background:#c05621"></span>MC</span>
+      <span><span class="sw" style="background:#e53e3e"></span>DWL độc quyền</span>
+    </div>
+    <table id="tbl"></table>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+function get(id) { return parseFloat($(id).value) || 0; }
+
+function calc() {
+  const a = get('a'), b = get('b'), mc = get('mc');
+
+  // Cạnh tranh hoàn hảo: P = MC → Q_c = (a - mc) / b
+  const Qc = (a - mc) / b;
+  const Pc = mc;
+
+  // Độc quyền: MR = a - 2bQ = MC → Q_m = (a - mc) / (2b)
+  const Qm = (a - mc) / (2 * b);
+  const Pm = a - b * Qm;
+  const profitM = (Pm - mc) * Qm;
+  const DWL = 0.5 * (Qc - Qm) * (Pm - mc);
+
+  // Cournot duopoly đối xứng: Q_i = (a - mc) / (3b), tổng Q = 2(a-mc)/(3b)
+  const Qi = (a - mc) / (3 * b);
+  const Qcournot = 2 * Qi;
+  const Pcournot = a - b * Qcournot;
+  const profitCournot = (Pcournot - mc) * Qi;
+
+  // SVG
+  const W = 600, H = 440, padL = 60, padB = 50, padT = 30, padR = 30;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const Qmax = (a / b) * 1.1;
+  const Pmax = a * 1.1;
+  const sx = q => padL + (q / Qmax) * plotW;
+  const sy = p => padT + plotH - (p / Pmax) * plotH;
+
+  let svg = '';
+  for (let i = 1; i <= 5; i++) {
+    svg += `<line x1="${sx(Qmax/5*i)}" y1="${padT}" x2="${sx(Qmax/5*i)}" y2="${padT+plotH}" stroke="#f0f0f0"/>`;
+    svg += `<line x1="${padL}" y1="${sy(Pmax/5*i)}" x2="${padL+plotW}" y2="${sy(Pmax/5*i)}" stroke="#f0f0f0"/>`;
+    svg += `<text x="${sx(Qmax/5*i)}" y="${padT+plotH+16}" text-anchor="middle" font-size="11" fill="#718096">${(Qmax/5*i).toFixed(0)}</text>`;
+    svg += `<text x="${padL-8}" y="${sy(Pmax/5*i)+4}" text-anchor="end" font-size="11" fill="#718096">${(Pmax/5*i).toFixed(0)}</text>`;
+  }
+
+  // DWL polygon
+  svg += `<polygon points="${sx(Qm)},${sy(Pm)} ${sx(Qc)},${sy(mc)} ${sx(Qm)},${sy(mc)}" fill="#e53e3e" fill-opacity="0.45"/>`;
+
+  // D
+  svg += `<line x1="${sx(0)}" y1="${sy(a)}" x2="${sx(a/b)}" y2="${sy(0)}" stroke="#3182ce" stroke-width="2.5"/>`;
+  // MR
+  svg += `<line x1="${sx(0)}" y1="${sy(a)}" x2="${sx(a/(2*b))}" y2="${sy(0)}" stroke="#9c4221" stroke-width="2" stroke-dasharray="5,3"/>`;
+  // MC
+  svg += `<line x1="${padL}" y1="${sy(mc)}" x2="${sx(Qmax)}" y2="${sy(mc)}" stroke="#c05621" stroke-width="2.5"/>`;
+  svg += `<text x="${sx(Qmax)+4}" y="${sy(mc)+4}" font-size="12" fill="#c05621" font-weight="700">MC</text>`;
+
+  // Điểm
+  function pt(q, p, c, label) {
+    return `<circle cx="${sx(q)}" cy="${sy(p)}" r="6" fill="${c}"/><text x="${sx(q)+8}" y="${sy(p)-6}" font-size="11" fill="${c}" font-weight="700">${label}</text>`;
+  }
+  svg += pt(Qm, Pm, '#9c4221', `Mon (${Qm.toFixed(1)}, ${Pm.toFixed(1)})`);
+  svg += pt(Qc, Pc, '#48bb78', `Comp (${Qc.toFixed(1)}, ${Pc.toFixed(1)})`);
+  svg += pt(Qcournot, Pcournot, '#3182ce', `Cournot (${Qcournot.toFixed(1)}, ${Pcournot.toFixed(1)})`);
+
+  svg += `<line x1="${padL}" y1="${padT+plotH}" x2="${padL+plotW}" y2="${padT+plotH}" stroke="#cbd5e0"/>`;
+  svg += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+plotH}" stroke="#cbd5e0"/>`;
+  svg += `<text x="${padL+plotW/2}" y="${H-10}" text-anchor="middle" font-size="13" fill="#2d3748">Q</text>`;
+  svg += `<text x="20" y="${padT+plotH/2}" transform="rotate(-90 20 ${padT+plotH/2})" text-anchor="middle" font-size="13" fill="#2d3748">P</text>`;
+
+  $('svg').innerHTML = svg;
+
+  $('tbl').innerHTML =
+    '<tr><th>Cấu trúc</th><th>Q</th><th>P</th><th>Π hãng</th><th>Markup</th></tr>' +
+    `<tr><td>Cạnh tranh hoàn hảo</td><td>${Qc.toFixed(2)}</td><td>${Pc.toFixed(2)}</td><td>0 (LR)</td><td>0%</td></tr>` +
+    `<tr><td>Độc quyền</td><td>${Qm.toFixed(2)}</td><td>${Pm.toFixed(2)}</td><td>${profitM.toFixed(1)}</td><td>${((Pm-mc)/Pm*100).toFixed(1)}%</td></tr>` +
+    `<tr><td>Cournot duopoly</td><td>${Qcournot.toFixed(2)}</td><td>${Pcournot.toFixed(2)}</td><td>${profitCournot.toFixed(1)} mỗi hãng</td><td>${((Pcournot-mc)/Pcournot*100).toFixed(1)}%</td></tr>` +
+    `<tr style="background:#fff5f5;"><td colspan="5"><strong>DWL độc quyền = ${DWL.toFixed(1)}</strong></td></tr>`;
+}
+['a', 'b', 'mc'].forEach(id => $(id).addEventListener('input', calc));
+calc();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

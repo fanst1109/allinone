@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<title>Lesson 09 — AVL Tree trực quan</title>
+<style>
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 16px; }
+  h1 { margin: 0 0 8px 0; } h2 { margin: 4px 0 8px 0; }
+  svg { background: #fafafa; border: 1px solid #eee; border-radius: 6px; display: block; width: 100%; max-width: 900px; }
+  .node-c { fill: #fff; stroke: #333; stroke-width: 2; transition: all .35s; }
+  .node-c.new { fill: #d1fae5; stroke: #10b981; }
+  .node-c.unbalanced { fill: #fee2e2; stroke: #ef4444; }
+  .node-c.rotated { fill: #fef08a; stroke: #ca8a04; }
+  .edge { stroke: #888; stroke-width: 2; transition: all .35s; }
+  text { font: 600 13px sans-serif; text-anchor: middle; dominant-baseline: central; }
+  .balance { font: 400 10px sans-serif; fill: #888; }
+  button { background: #3b82f6; color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; cursor: pointer; margin-right: 6px; }
+  input { padding: 4px; width: 80px; }
+  .log { color: #444; min-height: 22px; margin-top: 8px; font-family: monospace; font-size: 13px; }
+  .row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-08-heap-priority-queue/visualization.html">← L8: Heap & PQ</a>
+  <span class="sep">·</span>
+  <span class="current">L9: AVL / RB</span>
+  <span class="sep">·</span>
+  <a href="../lesson-10-trie/visualization.html">L10: Trie →</a>
+</nav>
+
+<h1>AVL Tree — Cân bằng tự động</h1>
+
+<div class="panel">
+  <div class="row">
+    <label>Giá trị: <input id="val" type="number" value="25"></label>
+    <button onclick="doInsert()">Insert</button>
+    <button onclick="loadDemo()">Bài 1 README: 10,20,30,40,50,25</button>
+    <button onclick="loadBad()">Chèn dãy 1..7 (cây thường sẽ lệch)</button>
+    <button onclick="reset()">Reset</button>
+  </div>
+  <div class="row" style="margin-top:8px;">
+    <span style="font-weight:600;">4 case rotation:</span>
+    <button onclick="demoCase('LL')">LL → rotate Right</button>
+    <button onclick="demoCase('RR')">RR → rotate Left</button>
+    <button onclick="demoCase('LR')">LR → Left rồi Right</button>
+    <button onclick="demoCase('RL')">RL → Right rồi Left</button>
+  </div>
+  <div class="row" style="margin-top:6px; font-family: monospace; font-size:13px; color:#555;">
+    Số rotation đã thực hiện: <span id="rotCount" style="font-weight:700;">0</span> · Số node: <span id="nodeCount" style="font-weight:700;">0</span> · Chiều cao: <span id="treeH" style="font-weight:700;">0</span>
+  </div>
+  <svg id="svg" width="900" height="420" viewBox="0 0 900 420" preserveAspectRatio="xMidYMid meet"></svg>
+  <div class="log" id="log">Chèn từng số. Nếu cân bằng vượt ±1 → tự động rotation.</div>
+  <p style="color:#666;font-size:13px">Số nhỏ bên dưới node: balance factor = height(left) - height(right). Node ĐỎ: balance vượt ±1 trước khi rotation. Node VÀNG: sau rotation.</p>
+</div>
+
+<script>
+let root = null;
+
+function height(n) { return n ? n.h : -1; }
+function balance(n) { return height(n.left) - height(n.right); }
+function update(n) { n.h = 1 + Math.max(height(n.left), height(n.right)); }
+
+function rotateRight(y) {
+  const x = y.left; y.left = x.right; x.right = y;
+  update(y); update(x); return x;
+}
+function rotateLeft(x) {
+  const y = x.right; x.right = y.left; y.left = x;
+  update(x); update(y); return y;
+}
+
+let lastRotation = null; // { type, atVal }
+let totalRotations = 0;
+function insert(n, v) {
+  if (!n) return { v, h: 0, left: null, right: null, fresh: true };
+  if (v < n.v) n.left = insert(n.left, v);
+  else if (v > n.v) n.right = insert(n.right, v);
+  else return n;
+  update(n);
+  const b = balance(n);
+  if (b > 1 && v < n.left.v) { lastRotation = { type: 'LL → rotate Right tại ' + n.v, atVal: n.v }; totalRotations++; return rotateRight(n); }
+  if (b < -1 && v > n.right.v) { lastRotation = { type: 'RR → rotate Left tại ' + n.v, atVal: n.v }; totalRotations++; return rotateLeft(n); }
+  if (b > 1 && v > n.left.v) {
+    lastRotation = { type: 'LR → rotate Left ở con trái, Right ở ' + n.v, atVal: n.v };
+    totalRotations += 2;
+    n.left = rotateLeft(n.left); return rotateRight(n);
+  }
+  if (b < -1 && v < n.right.v) {
+    lastRotation = { type: 'RL → rotate Right ở con phải, Left ở ' + n.v, atVal: n.v };
+    totalRotations += 2;
+    n.right = rotateRight(n.right); return rotateLeft(n);
+  }
+  return n;
+}
+function nodeCount(n) { return n ? 1 + nodeCount(n.left) + nodeCount(n.right) : 0; }
+function updateCounters() {
+  document.getElementById('rotCount').textContent = totalRotations;
+  document.getElementById('nodeCount').textContent = nodeCount(root);
+  document.getElementById('treeH').textContent = height(root) >= 0 ? height(root) : '–';
+}
+
+function layout(n, x, y, dx, nodes, edges) {
+  if (!n) return;
+  n.__pos = { x, y };
+  nodes.push(n);
+  if (n.left)  { edges.push([n, n.left]);  layout(n.left,  x - dx, y + 70, Math.max(dx / 1.8, 25), nodes, edges); }
+  if (n.right) { edges.push([n, n.right]); layout(n.right, x + dx, y + 70, Math.max(dx / 1.8, 25), nodes, edges); }
+}
+
+function render(highlightVal = null, klass = '') {
+  const svg = document.getElementById('svg');
+  svg.innerHTML = '';
+  if (!root) return;
+  const nodes = [], edges = [];
+  layout(root, 450, 40, 220, nodes, edges);
+  // Auto-fit viewBox theo bounding box thực của cây (chừa chỗ cho text 'b=' dưới node)
+  const PAD = 36, R = 22;
+  let xMin = Infinity, xMax = -Infinity, yMin = Infinity, yMax = -Infinity;
+  nodes.forEach(n => {
+    xMin = Math.min(xMin, n.__pos.x - R); xMax = Math.max(xMax, n.__pos.x + R);
+    yMin = Math.min(yMin, n.__pos.y - R); yMax = Math.max(yMax, n.__pos.y + R);
+  });
+  svg.setAttribute('viewBox', `${xMin - PAD} ${yMin - PAD} ${(xMax - xMin) + PAD * 2} ${(yMax - yMin) + PAD * 2}`);
+  edges.forEach(([a, b]) => {
+    svg.insertAdjacentHTML('beforeend',
+      `<line class="edge" x1="${a.__pos.x}" y1="${a.__pos.y}" x2="${b.__pos.x}" y2="${b.__pos.y}"/>`);
+  });
+  nodes.forEach(n => {
+    const k = (highlightVal === n.v) ? klass : (n.fresh ? 'new' : '');
+    svg.insertAdjacentHTML('beforeend',
+      `<circle class="node-c ${k}" cx="${n.__pos.x}" cy="${n.__pos.y}" r="${R}"/>
+       <text x="${n.__pos.x}" y="${n.__pos.y}">${n.v}</text>
+       <text class="balance" x="${n.__pos.x}" y="${n.__pos.y + 30}">b=${balance(n)}</text>`);
+  });
+}
+
+async function doInsert() {
+  const v = parseInt(document.getElementById('val').value);
+  lastRotation = null;
+  function clear(n) { if (!n) return; n.fresh = false; clear(n.left); clear(n.right); }
+  clear(root);
+  root = insert(root, v);
+  render();
+  if (lastRotation) {
+    document.getElementById('log').textContent = `Insert ${v} → mất cân bằng → ${lastRotation.type}`;
+    render(lastRotation.atVal, 'rotated');
+  } else {
+    document.getElementById('log').textContent = `Insert ${v} (không cần rotation).`;
+  }
+  updateCounters();
+}
+function demoCase(type) {
+  root = null; totalRotations = 0;
+  let seq;
+  if (type === 'LL') seq = [30, 20, 10]; // chèn 10 vào con trái-trái của 30 → LL
+  else if (type === 'RR') seq = [10, 20, 30];
+  else if (type === 'LR') seq = [30, 10, 20]; // 20 vào con trái-phải
+  else if (type === 'RL') seq = [10, 30, 20];
+  for (const v of seq) { lastRotation = null; root = insert(root, v); }
+  render(lastRotation ? lastRotation.atVal : null, 'rotated');
+  updateCounters();
+  document.getElementById('log').textContent =
+    `Case ${type}: chèn lần lượt ${seq.join(' → ')}. ${lastRotation ? lastRotation.type : '(không rotation?)'} Sau rotation: cây cao 1, balance = 0.`;
+}
+
+async function loadDemo() {
+  root = null; totalRotations = 0;
+  for (const v of [10, 20, 30, 40, 50, 25]) {
+    function clear(n) { if (!n) return; n.fresh = false; clear(n.left); clear(n.right); }
+    clear(root);
+    lastRotation = null;
+    root = insert(root, v);
+    render();
+    document.getElementById('log').textContent =
+      `Chèn ${v}` + (lastRotation ? ` → ${lastRotation.type}` : ' (cân bằng ok)');
+    await sleep(900);
+    updateCounters();
+  }
+}
+
+async function loadBad() {
+  root = null; totalRotations = 0;
+  for (let v = 1; v <= 7; v++) {
+    function clear(n) { if (!n) return; n.fresh = false; clear(n.left); clear(n.right); }
+    clear(root);
+    lastRotation = null;
+    root = insert(root, v);
+    render();
+    document.getElementById('log').textContent =
+      `Chèn ${v}` + (lastRotation ? ` → ${lastRotation.type}` : ' (cân bằng ok)');
+    await sleep(800);
+    updateCounters();
+  }
+  document.getElementById('log').textContent +=
+    ` — Cây cao ${height(root)} (BST thường: 6). Trade-off: ${totalRotations} rotation đã thực hiện.`;
+}
+
+function reset() { root = null; totalRotations = 0; render(); updateCounters(); document.getElementById('log').textContent = 'Reset.'; }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+loadDemo();
+</script></main>
+<!-- README modal (xem tools/readme-modal.js để biết chi tiết) -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

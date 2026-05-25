@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trọng âm tiếng Anh — Word Stress (audio từ Oxford)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --panel: #ffffff;
+    --ink: #1a1a1a;
+    --muted: #6a6a6a;
+    --line: #e3e1dc;
+    --accent: #b45309;
+    --accent-soft: #fef3c7;
+    --primary: #1d4ed8;
+    --primary-soft: #dbeafe;
+    --secondary: #6d28d9;
+    --secondary-soft: #ede9fe;
+    --ok: #15803d;
+    --error: #b91c1c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--ink); line-height: 1.55;
+  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px 80px; }
+  header h1 { margin: 0 0 4px; font-size: 24px; font-weight: 700; }
+  header p { margin: 0 0 20px; color: var(--muted); font-size: 14px; }
+  header p code { background: var(--accent-soft); color: var(--accent); padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+
+  .accent-toggle {
+    display: inline-flex; gap: 0; border: 1px solid var(--line);
+    border-radius: 8px; overflow: hidden; vertical-align: middle; margin-left: 8px;
+  }
+  .accent-toggle button {
+    background: var(--panel); border: none; padding: 6px 14px;
+    font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; transition: all 0.12s;
+  }
+  .accent-toggle button + button { border-left: 1px solid var(--line); }
+  .accent-toggle button:hover { background: var(--accent-soft); color: var(--accent); }
+  .accent-toggle button.active { background: var(--accent); color: white; }
+
+  .tabs {
+    display: flex; gap: 4px; border-bottom: 1px solid var(--line);
+    margin-bottom: 24px; flex-wrap: wrap;
+  }
+  .tab {
+    padding: 10px 16px; cursor: pointer; background: none; border: none;
+    font-size: 14px; font-weight: 500; color: var(--muted);
+    border-bottom: 2px solid transparent; transition: all 0.15s;
+  }
+  .tab:hover { color: var(--ink); }
+  .tab.active { color: var(--ink); border-bottom-color: var(--accent); }
+  .pane { display: none; }
+  .pane.active { display: block; }
+
+  .ipa-symbol { font-family: "Charis SIL", "Doulos SIL", "Lucida Grande", "DejaVu Sans", sans-serif; }
+
+  .section-note {
+    color: var(--muted); font-size: 13px; margin: 0 0 16px;
+    background: var(--accent-soft); padding: 10px 14px; border-radius: 8px;
+    border-left: 3px solid var(--accent);
+  }
+
+  /* Word card grid */
+  .word-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+  }
+  .word-card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px; padding: 12px 14px; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .word-card:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(180,83,9,0.08); }
+  .word-card .word { font-size: 16px; font-weight: 600; }
+  .word-card .ipa { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .word-card .stress-syll {
+    color: var(--accent); font-weight: 700;
+  }
+
+  /* Group headers */
+  .group-title {
+    margin: 24px 0 10px; font-size: 16px; font-weight: 600; color: var(--ink);
+    padding-bottom: 6px; border-bottom: 1px solid var(--line);
+  }
+  .group-title small { color: var(--muted); font-weight: 400; font-size: 13px; margin-left: 8px; }
+
+  /* N/V pair display */
+  .nv-pair {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px; padding: 14px 16px; margin-bottom: 10px;
+    display: grid; grid-template-columns: 110px 1fr 1fr; gap: 12px; align-items: center;
+  }
+  .nv-pair .pair-word { font-size: 18px; font-weight: 700; }
+  .nv-pair .nv-side {
+    cursor: pointer; padding: 8px 12px; border-radius: 8px;
+    transition: background 0.12s; border: 1px dashed transparent;
+  }
+  .nv-pair .nv-side:hover { background: var(--accent-soft); border-color: var(--accent); }
+  .nv-pair .nv-side .label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .nv-pair .nv-side .ipa { font-size: 14px; margin-top: 2px; }
+  .nv-pair .nv-side .meaning { font-size: 12px; color: var(--muted); margin-top: 4px; font-style: italic; }
+
+  /* Word family display */
+  .family-card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px; padding: 16px; margin-bottom: 16px;
+  }
+  .family-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--secondary); }
+  .family-words {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+  }
+  .family-word {
+    background: var(--secondary-soft); border: 1px solid var(--secondary);
+    border-radius: 8px; padding: 10px 12px; cursor: pointer; transition: all 0.12s;
+  }
+  .family-word:hover { background: var(--secondary); color: white; }
+  .family-word:hover .stress-syll { color: white; }
+  .family-word .word { font-size: 15px; font-weight: 600; }
+  .family-word .ipa { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .family-word .stress-syll { color: var(--secondary); font-weight: 700; }
+  .family-word:hover .ipa { color: rgba(255,255,255,0.85); }
+  .family-note { color: var(--muted); font-size: 13px; margin-top: 10px; font-style: italic; }
+
+  /* Quiz - syllable click */
+  .quiz-wrap {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 12px; padding: 24px;
+  }
+  .quiz-controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 20px; }
+  .quiz-controls button {
+    padding: 8px 14px; font-size: 13px; border: 1px solid var(--line);
+    border-radius: 6px; background: white; cursor: pointer; font-weight: 500;
+  }
+  .quiz-controls button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+  .quiz-controls button.primary:hover { background: #92400e; }
+  .quiz-stats { color: var(--muted); font-size: 13px; margin-left: auto; }
+  .quiz-question {
+    text-align: center; padding: 20px 16px; background: var(--accent-soft);
+    border-radius: 10px; margin-bottom: 16px;
+  }
+  .quiz-prompt-text { font-size: 14px; color: var(--accent); margin-bottom: 12px; font-weight: 500; }
+  .quiz-word-display {
+    font-size: 28px; font-weight: 700; margin-bottom: 8px;
+  }
+  .quiz-ipa { font-size: 18px; color: var(--muted); }
+  .syllable-row { display: flex; gap: 8px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+  .syll-btn {
+    padding: 12px 20px; font-size: 18px; font-weight: 600;
+    border: 2px solid var(--line); background: white; border-radius: 8px;
+    cursor: pointer; transition: all 0.15s;
+    font-family: "Charis SIL", "Lucida Grande", sans-serif;
+  }
+  .syll-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .syll-btn.correct { border-color: var(--ok); background: #f0fdf4; color: var(--ok); }
+  .syll-btn.wrong { border-color: var(--error); background: #fef2f2; color: var(--error); }
+  .quiz-feedback {
+    margin-top: 16px; padding: 10px 14px; border-radius: 8px;
+    font-size: 14px; display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok { background: #f0fdf4; color: var(--ok); }
+  .quiz-feedback.err { background: #fef2f2; color: var(--error); }
+
+  .audio-status { font-size: 11px; color: var(--muted); margin-top: 8px; text-align: center; }
+  .audio-status.error { color: var(--error); }
+
+  footer {
+    margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--line);
+    font-size: 12px; color: var(--muted); text-align: center;
+  }
+  footer a { color: var(--accent); }
+
+  @media (max-width: 640px) {
+    .nv-pair { grid-template-columns: 1fr; }
+    .word-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  }
+
+</style>
+</head>
+<body>
+<div class="container">
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-phonetics-ipa/visualization.html">← L01: IPA</a>
+  <span class="sep">·</span>
+  <span class="current">L02: Trọng âm</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-sentence-rhythm/visualization.html">L03: Nhịp & Intonation →</a>
+</nav>
+
+<header>
+  <h1>Word Stress — Trọng âm trong từ</h1>
+  <p>Click bất kỳ từ nào để nghe phát âm và cảm nhận trọng âm. Audio: <code>oxfordlearnersdictionaries.com</code>.
+    Giọng:
+    <span class="accent-toggle">
+      <button id="btn-accent-us" class="active" data-variant="us" title="American (GA)">US</button>
+      <button id="btn-accent-uk" data-variant="uk" title="British (RP)">UK</button>
+    </span>
+  </p>
+</header>
+
+<div class="tabs">
+  <button class="tab active" data-tab="two-syll">2 âm tiết</button>
+  <button class="tab" data-tab="nv-pairs">N/V pairs</button>
+  <button class="tab" data-tab="suffix">Hậu tố</button>
+  <button class="tab" data-tab="family">Word family</button>
+  <button class="tab" data-tab="quiz">Đoán nhấn</button>
+</div>
+
+<section class="pane active" id="pane-two-syll">
+  <div class="section-note">
+    Quy tắc: <strong>Danh từ 2 âm tiết</strong> hầu hết nhấn <strong>âm 1</strong>. <strong>Động từ 2 âm tiết</strong> hầu hết nhấn <strong>âm 2</strong>.
+    Click vào từng từ để nghe và xác nhận.
+  </div>
+  <div class="group-title">Danh từ — nhấn âm 1 <small>(quy tắc 2.1)</small></div>
+  <div class="word-grid" id="grid-nouns"></div>
+  <div class="group-title">Động từ — nhấn âm 2 <small>(quy tắc 2.2)</small></div>
+  <div class="word-grid" id="grid-verbs"></div>
+  <div class="audio-status" id="status-two-syll">Click từ bất kỳ để nghe.</div>
+</section>
+
+<section class="pane" id="pane-nv-pairs">
+  <div class="section-note">
+    Cặp danh từ / động từ cùng chính tả: <strong>danh từ nhấn âm 1</strong>, <strong>động từ nhấn âm 2</strong>. Click từng bên để nghe.
+  </div>
+  <div id="nv-pair-list"></div>
+  <div class="audio-status" id="status-nv">Click bất kỳ bên để nghe.</div>
+</section>
+
+<section class="pane" id="pane-suffix">
+  <div class="section-note">
+    Hậu tố <strong>kéo trọng âm vào âm tiết NGAY TRƯỚC</strong> nó: <code>-tion</code>, <code>-ic</code>, <code>-ity</code>, <code>-ian</code>...
+    Hậu tố <strong>trung tính</strong> giữ trọng âm gốc từ: <code>-er</code>, <code>-ly</code>, <code>-ness</code>...
+  </div>
+  <div id="suffix-groups"></div>
+  <div class="audio-status" id="status-suffix">Click từ bất kỳ để nghe.</div>
+</section>
+
+<section class="pane" id="pane-family">
+  <div class="section-note">
+    <strong>Stress shift</strong>: cùng word family nhưng trọng âm dịch chuyển khi đổi hậu tố. Click lần lượt các từ trong cùng family để cảm nhận sự dịch chuyển.
+  </div>
+  <div id="family-list"></div>
+  <div class="audio-status" id="status-family">Click từ bất kỳ để nghe.</div>
+</section>
+
+<section class="pane" id="pane-quiz">
+  <div class="quiz-wrap">
+    <div class="quiz-controls">
+      <button class="primary" id="btn-new-quiz">▶ Bắt đầu / Từ mới</button>
+      <button id="btn-replay-quiz" disabled>↻ Nghe lại</button>
+      <span class="quiz-stats" id="quiz-stats">Đúng: 0 / 0</span>
+    </div>
+    <div id="quiz-display"></div>
+    <div class="quiz-feedback" id="quiz-feedback"></div>
+  </div>
+</section>
+
+<footer>
+  Audio: <a href="https://www.oxfordlearnersdictionaries.com" target="_blank" rel="noopener">Oxford Learner's Dictionaries</a>. Mặc định US — toggle UK ở header.
+</footer>
+
+<audio id="audio-el" preload="none"></audio>
+</div>
+
+<script>
+// =================== Audio (shared logic with L01) ===================
+const DOMAIN_NEW = "https://www.oxfordlearnersdictionaries.com/media/english/";
+const DOMAIN_OLD = "https://www.oxforddictionaries.com/media/english/";
+const audioEl = document.getElementById('audio-el');
+let currentVariant = localStorage.getItem('audioVariant') || 'us';
+
+function ukToVariantPath(ukRel, variant) {
+  if (variant === 'us') return "us_pron/" + ukRel.replace(/__gb_/, '__us_');
+  return "uk_pron/" + ukRel;
+}
+function buildCandidates(ukRel, variant) {
+  const list = [
+    DOMAIN_NEW + ukToVariantPath(ukRel, variant),
+    DOMAIN_OLD + ukToVariantPath(ukRel, variant),
+  ];
+  if (variant === 'us') {
+    list.push(DOMAIN_NEW + ukToVariantPath(ukRel, 'uk'));
+    list.push(DOMAIN_OLD + ukToVariantPath(ukRel, 'uk'));
+  }
+  return list;
+}
+function playAudio(ukRel, statusEl) {
+  if (!ukRel) {
+    if (statusEl) { statusEl.textContent = "Không có audio cho từ này."; statusEl.classList.add('error'); }
+    return;
+  }
+  const candidates = buildCandidates(ukRel, currentVariant);
+  let idx = 0;
+  if (statusEl) { statusEl.textContent = "Đang tải audio..."; statusEl.classList.remove('error'); }
+  function tryNext() {
+    if (idx >= candidates.length) {
+      if (statusEl) { statusEl.textContent = "Không tải được audio."; statusEl.classList.add('error'); }
+      return;
+    }
+    const url = candidates[idx++];
+    audioEl.onerror = tryNext;
+    audioEl.onplaying = () => {
+      if (statusEl) {
+        const playingUs = url.includes('/us_pron/');
+        const fellBack = (currentVariant === 'us') !== playingUs;
+        statusEl.textContent = `▶ Oxford ${playingUs ? 'US' : 'UK'}${fellBack ? ' (fallback)' : ''}.`;
+        statusEl.classList.remove('error');
+      }
+    };
+    audioEl.src = url;
+    const p = audioEl.play();
+    if (p && p.catch) p.catch(() => tryNext());
+  }
+  tryNext();
+}
+function setVariant(v) {
+  currentVariant = v;
+  localStorage.setItem('audioVariant', v);
+  document.querySelectorAll('.accent-toggle button').forEach(b => {
+    b.classList.toggle('active', b.dataset.variant === v);
+  });
+}
+document.querySelectorAll('.accent-toggle button').forEach(btn => {
+  btn.addEventListener('click', () => setVariant(btn.dataset.variant));
+});
+setVariant(currentVariant);
+
+// =================== Tabs ===================
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('pane-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// Highlight stressed syllable in displayed IPA: split at "ˈ" position
+function highlightStress(ipa) {
+  // Replace "ˈX" with span around X (the stressed syllable approximation)
+  // Find ˈ and everything until next ˈ/ˌ/end → that's the stressed syllable.
+  return ipa.replace(/(ˈ)([^ˈˌ\/]+)/, (_, sym, syl) => `${sym}<span class="stress-syll">${syl}</span>`);
+}
+
+function makeCard(word, ipa, audio, statusElId) {
+  const card = document.createElement('div');
+  card.className = 'word-card';
+  card.innerHTML = `<div class="word">${word}</div><div class="ipa ipa-symbol">${highlightStress(ipa)}</div>`;
+  card.addEventListener('click', () => playAudio(audio, document.getElementById(statusElId)));
+  return card;
+}
+
+// =================== Data ===================
+// 2-syllable nouns (stress on syllable 1)
+const nouns2 = [
+  { w: "table",   ipa: "/ˈteɪbl/",     a: "t/tab/table/table__gb_1.mp3" },
+  { w: "picture", ipa: "/ˈpɪktʃər/",   a: "p/pic/pictu/picture__gb_1.mp3" },
+  { w: "window",  ipa: "/ˈwɪndoʊ/",    a: "w/win/windo/window__gb_1.mp3" },
+  { w: "mother",  ipa: "/ˈmʌðər/",     a: "m/mot/mothe/mother__gb_1.mp3" },
+  { w: "father",  ipa: "/ˈfɑːðər/",    a: "f/fat/fathe/father__gb_1.mp3" },
+  { w: "doctor",  ipa: "/ˈdɑːktər/",   a: "d/doc/docto/doctor__gb_1.mp3" },
+  { w: "music",   ipa: "/ˈmjuːzɪk/",   a: "m/mus/music/music__gb_1.mp3" },
+  { w: "market",  ipa: "/ˈmɑːrkɪt/",   a: "m/mar/marke/market__gb_1.mp3" },
+  { w: "garden",  ipa: "/ˈɡɑːrdn/",    a: "g/gar/garde/garden__gb_1.mp3" },
+  { w: "kitchen", ipa: "/ˈkɪtʃɪn/",    a: "k/kit/kitch/kitchen__gb_1.mp3" },
+  { w: "sister",  ipa: "/ˈsɪstər/",    a: "s/sis/siste/sister__gb_1.mp3" },
+  { w: "winter",  ipa: "/ˈwɪntər/",    a: "w/win/winte/winter__gb_1.mp3" },
+];
+
+// 2-syllable verbs (stress on syllable 2)
+const verbs2 = [
+  { w: "decide",   ipa: "/dɪˈsaɪd/",     a: "d/dec/decid/decide__gb_1.mp3" },
+  { w: "begin",    ipa: "/bɪˈɡɪn/",      a: "b/beg/begin/begin__gb_1.mp3" },
+  { w: "forget",   ipa: "/fərˈɡet/",     a: "f/for/forge/forget__gb_1.mp3" },
+  { w: "accept",   ipa: "/əkˈsept/",     a: "a/acc/accep/accept__gb_1.mp3" },
+  { w: "complete", ipa: "/kəmˈpliːt/",   a: "c/com/compl/complete__gb_1.mp3" },
+  { w: "arrive",   ipa: "/əˈraɪv/",      a: "a/arr/arriv/arrive__gb_1.mp3" },
+  { w: "become",   ipa: "/bɪˈkʌm/",      a: "b/bec/becom/become__gb_1.mp3" },
+  { w: "enjoy",    ipa: "/ɪnˈdʒɔɪ/",     a: "e/enj/enjoy/enjoy__gb_1.mp3" },
+  { w: "explain",  ipa: "/ɪkˈspleɪn/",   a: "e/exp/expla/explain__gb_1.mp3" },
+  { w: "agree",    ipa: "/əˈɡriː/",      a: "a/agr/agree/agree__gb_1.mp3" },
+  { w: "depend",   ipa: "/dɪˈpend/",     a: "d/dep/depen/depend__gb_1.mp3" },
+  { w: "prepare",  ipa: "/prɪˈper/",     a: "p/pre/prepa/prepare__gb_1_8.mp3" },
+];
+
+const gridNouns = document.getElementById('grid-nouns');
+nouns2.forEach(n => gridNouns.appendChild(makeCard(n.w, n.ipa, n.a, 'status-two-syll')));
+const gridVerbs = document.getElementById('grid-verbs');
+verbs2.forEach(v => gridVerbs.appendChild(makeCard(v.w, v.ipa, v.a, 'status-two-syll')));
+
+// =================== N/V pairs ===================
+const nvPairs = [
+  { word: "record",   noun: { ipa: "/ˈrekərd/",   meaning: "bản ghi",    a: "r/rec/recor/record__gb_1.mp3" },
+                       verb: { ipa: "/rɪˈkɔːrd/",  meaning: "ghi lại",    a: "r/rec/recor/record__gb_2.mp3" } },
+  { word: "object",   noun: { ipa: "/ˈɑːbdʒekt/", meaning: "vật",        a: "o/obj/objec/object__gb_1.mp3" },
+                       verb: { ipa: "/əbˈdʒekt/",  meaning: "phản đối",   a: "o/obj/objec/object__gb_2.mp3" } },
+  { word: "import",   noun: { ipa: "/ˈɪmpɔːrt/",  meaning: "hàng nhập",  a: "i/imp/impor/import__gb_1.mp3" },
+                       verb: { ipa: "/ɪmˈpɔːrt/",  meaning: "nhập khẩu",  a: "i/imp/impor/import__gb_2.mp3" } },
+  { word: "export",   noun: { ipa: "/ˈekspɔːrt/", meaning: "hàng xuất",  a: "e/exp/expor/export__gb_1.mp3" },
+                       verb: { ipa: "/ɪkˈspɔːrt/", meaning: "xuất khẩu",  a: "e/exp/expor/export__gb_2.mp3" } },
+  { word: "increase", noun: { ipa: "/ˈɪŋkriːs/",  meaning: "sự tăng",    a: "i/inc/incre/increase__gb_1.mp3" },
+                       verb: { ipa: "/ɪnˈkriːs/",  meaning: "tăng lên",   a: "i/inc/incre/increase__gb_2.mp3" } },
+  { word: "progress", noun: { ipa: "/ˈprɑːɡres/", meaning: "tiến bộ",    a: "p/pro/progr/progress__gb_1.mp3" },
+                       verb: { ipa: "/prəˈɡres/",  meaning: "tiến triển", a: "p/pro/progr/progress__gb_2.mp3" } },
+  { word: "transfer", noun: { ipa: "/ˈtrænsfər/", meaning: "sự chuyển",  a: "t/tra/trans/transfer__gb_1_8.mp3" },
+                       verb: { ipa: "/trænsˈfɜːr/",meaning: "chuyển",     a: "t/tra/trans/transfer__gb_2.mp3" } },
+];
+
+const nvList = document.getElementById('nv-pair-list');
+nvPairs.forEach(p => {
+  const row = document.createElement('div');
+  row.className = 'nv-pair';
+  row.innerHTML = `
+    <div class="pair-word">${p.word}</div>
+    <div class="nv-side" data-audio="${p.noun.a}">
+      <div class="label">Danh từ — nhấn 1</div>
+      <div class="ipa ipa-symbol">${highlightStress(p.noun.ipa)}</div>
+      <div class="meaning">${p.noun.meaning}</div>
+    </div>
+    <div class="nv-side" data-audio="${p.verb.a}">
+      <div class="label">Động từ — nhấn 2</div>
+      <div class="ipa ipa-symbol">${highlightStress(p.verb.ipa)}</div>
+      <div class="meaning">${p.verb.meaning}</div>
+    </div>
+  `;
+  row.querySelectorAll('.nv-side').forEach(side => {
+    side.addEventListener('click', () => playAudio(side.dataset.audio, document.getElementById('status-nv')));
+  });
+  nvList.appendChild(row);
+});
+
+// =================== Suffix groups ===================
+const suffixGroups = [
+  { title: "-tion / -sion — nhấn ngay TRƯỚC hậu tố", note: "Quy tắc đáng tin nhất.",
+    words: [
+      { w: "information", ipa: "/ˌɪnfərˈmeɪʃn/", a: "i/inf/infor/information__gb_1.mp3" },
+      { w: "education",   ipa: "/ˌedʒəˈkeɪʃn/",  a: "e/edu/educa/education__gb_1_8.mp3" },
+      { w: "communication", ipa: "/kəˌmjuːnɪˈkeɪʃn/", a: "c/com/commu/communication__gb_1.mp3" },
+      { w: "situation",   ipa: "/ˌsɪtʃuˈeɪʃn/",  a: "s/sit/situa/situation__gb_1_8.mp3" },
+      { w: "solution",    ipa: "/səˈluːʃn/",     a: "s/sol/solut/solution__gb_1.mp3" },
+      { w: "attention",   ipa: "/əˈtenʃn/",      a: "a/att/atten/attention__gb_1.mp3" },
+      { w: "question",    ipa: "/ˈkwestʃən/",    a: "q/que/quest/question__gb_1.mp3" },
+      { w: "nation",      ipa: "/ˈneɪʃn/",       a: "n/nat/natio/nation__gb_1.mp3" },
+      { w: "station",     ipa: "/ˈsteɪʃn/",      a: "s/sta/stati/station__gb_1.mp3" },
+    ] },
+  { title: "-ic — nhấn ngay TRƯỚC hậu tố",
+    words: [
+      { w: "electric",  ipa: "/ɪˈlektrɪk/",   a: "e/ele/elect/electric__gb_1.mp3" },
+      { w: "fantastic", ipa: "/fænˈtæstɪk/",  a: "f/fan/fanta/fantastic__gb_1.mp3" },
+      { w: "academic",  ipa: "/ˌækəˈdemɪk/",  a: "a/aca/acade/academic__gb_1.mp3" },
+      { w: "realistic", ipa: "/ˌriːəˈlɪstɪk/",a: "r/rea/reali/realistic__gb_2.mp3" },
+      { w: "specific",  ipa: "/spəˈsɪfɪk/",   a: "s/spe/speci/specific__gb_1.mp3" },
+      { w: "traffic",   ipa: "/ˈtræfɪk/",     a: "t/tra/traff/traffic__gb_1.mp3" },
+      { w: "classic",   ipa: "/ˈklæsɪk/",     a: "c/cla/class/classic__gb_1.mp3" },
+      { w: "plastic",   ipa: "/ˈplæstɪk/",    a: "p/pla/plast/plastic__gb_1.mp3" },
+      { w: "public",    ipa: "/ˈpʌblɪk/",     a: "p/pub/publi/public__gb_1.mp3" },
+    ] },
+  { title: "-ity — nhấn ngay TRƯỚC hậu tố",
+    words: [
+      { w: "activity",       ipa: "/ækˈtɪvəti/",         a: "a/act/activ/activity__gb_1_8.mp3" },
+      { w: "university",     ipa: "/ˌjuːnɪˈvɜːrsəti/",   a: "u/uni/unive/university__gb_1_8.mp3" },
+      { w: "ability",        ipa: "/əˈbɪləti/",          a: "a/abi/abili/ability__gb_1_8.mp3" },
+      { w: "community",      ipa: "/kəˈmjuːnəti/",       a: "c/com/commu/community__gb_1_8.mp3" },
+      { w: "quality",        ipa: "/ˈkwɑːləti/",         a: "q/qua/quali/quality__gb_1_8.mp3" },
+      { w: "reality",        ipa: "/riˈæləti/",          a: "r/rea/reali/reality__gb_1_8.mp3" },
+      { w: "possibility",    ipa: "/ˌpɑːsəˈbɪləti/",     a: "p/pos/possi/possibility__gb_1_8.mp3" },
+      { w: "responsibility", ipa: "/rɪˌspɑːnsəˈbɪləti/", a: "r/res/respo/responsibility__gb_1_8.mp3" },
+    ] },
+  { title: "Hậu tố TRUNG TÍNH — giữ trọng âm gốc", note: "Thêm -er, -ing, -ly, -ness, -ment không đổi vị trí nhấn.",
+    words: [
+      { w: "manager",    ipa: "/ˈmænɪdʒər/",     a: "m/man/manag/manager__gb_1.mp3" },
+      { w: "management", ipa: "/ˈmænɪdʒmənt/",   a: "m/man/manag/management__gb_1.mp3" },
+      { w: "happy → happiness", ipa: "/ˈhæpinəs/", a: "h/hap/happy/happy__gb_1.mp3" },
+      { w: "quickly",    ipa: "/ˈkwɪkli/",       a: "q/qui/quick/quickly__gb_1.mp3" },
+      { w: "slowly",     ipa: "/ˈsloʊli/",       a: "s/slo/slowl/slowly__gb_1.mp3" },
+    ] },
+];
+
+const sgEl = document.getElementById('suffix-groups');
+suffixGroups.forEach(g => {
+  const title = document.createElement('div');
+  title.className = 'group-title';
+  title.innerHTML = `${g.title}${g.note ? `<small>${g.note}</small>` : ''}`;
+  sgEl.appendChild(title);
+  const grid = document.createElement('div');
+  grid.className = 'word-grid';
+  g.words.forEach(w => grid.appendChild(makeCard(w.w, w.ipa, w.a, 'status-suffix')));
+  sgEl.appendChild(grid);
+});
+
+// =================== Word families ===================
+const families = [
+  { title: "Family photo-",
+    note: "Trọng âm nhảy 3 vị trí khác nhau: âm 1 (photograph) → âm 2 (photographer) → âm 3 (photographic).",
+    words: [
+      { w: "photo",        ipa: "/ˈfoʊtoʊ/",        a: "p/pho/photo/photo__gb_1.mp3",        rule: "n. 2 âm tiết, nhấn 1" },
+      { w: "photograph",   ipa: "/ˈfoʊtəɡræf/",     a: "p/pho/photo/photograph__gb_1.mp3",   rule: "Gốc giữ nhấn 1" },
+      { w: "photographer", ipa: "/fəˈtɑːɡrəfər/",   a: "p/pho/photo/photographer__gb_1.mp3", rule: "-grapher đặc biệt → nhấn 2" },
+      { w: "photographic", ipa: "/ˌfoʊtəˈɡræfɪk/",  a: "p/pho/photo/photographic__gb_1.mp3", rule: "-ic → nhấn 3" },
+    ] },
+  { title: "Family politic-",
+    note: "Stress shift theo hậu tố.",
+    words: [
+      { w: "politics",   ipa: "/ˈpɑːlətɪks/",   a: "p/pol/polit/politics__gb_1_8.mp3",   rule: "Gốc nhấn 1" },
+      { w: "political",  ipa: "/pəˈlɪtɪkl/",    a: "p/pol/polit/political__gb_1.mp3",    rule: "-al → nhấn 2" },
+      { w: "politician", ipa: "/ˌpɑːləˈtɪʃn/",  a: "p/pol/polit/politician__gb_1_8.mp3", rule: "-ian → nhấn 3" },
+    ] },
+  { title: "Family economy",
+    words: [
+      { w: "economy",   ipa: "/ɪˈkɑːnəmi/",   a: "e/eco/econo/economy__gb_1.mp3",   rule: "Gốc nhấn 2" },
+      { w: "economic",  ipa: "/ˌekəˈnɑːmɪk/", a: "e/eco/econo/economic__gb_1.mp3",  rule: "-ic → nhấn 3" },
+      { w: "economist", ipa: "/ɪˈkɑːnəmɪst/", a: "e/eco/econo/economist__gb_1.mp3", rule: "-ist trung tính → giữ nhấn 2" },
+    ] },
+  { title: "Family industry",
+    words: [
+      { w: "industry",   ipa: "/ˈɪndəstri/",     a: "i/ind/indus/industry__gb_1.mp3",      rule: "Gốc nhấn 1" },
+      { w: "industrial", ipa: "/ɪnˈdʌstriəl/",   a: "i/ind/indus/industrial__gb_1_8.mp3",  rule: "-ial → nhấn 2" },
+    ] },
+  { title: "Family origin",
+    words: [
+      { w: "origin",      ipa: "/ˈɔːrɪdʒɪn/",          a: "o/ori/origi/origin__gb_1.mp3",       rule: "Gốc nhấn 1" },
+      { w: "original",    ipa: "/əˈrɪdʒənl/",          a: "o/ori/origi/original__gb_1_8.mp3",   rule: "-al → nhấn 2" },
+      { w: "originality", ipa: "/əˌrɪdʒəˈnæləti/",     a: "o/ori/origi/originality__gb_1_8.mp3",rule: "-ity → nhấn 4" },
+    ] },
+  { title: "Family democracy",
+    words: [
+      { w: "democracy",  ipa: "/dɪˈmɑːkrəsi/",  a: "d/dem/democ/democracy__gb_1.mp3",  rule: "-cy hút trọng âm về 2 trước nó" },
+      { w: "democratic", ipa: "/ˌdeməˈkrætɪk/", a: "d/dem/democ/democratic__gb_1.mp3", rule: "-ic → nhấn 3" },
+    ] },
+];
+
+const familyList = document.getElementById('family-list');
+families.forEach(fam => {
+  const card = document.createElement('div');
+  card.className = 'family-card';
+  let html = `<div class="family-title">${fam.title}</div><div class="family-words">`;
+  fam.words.forEach(w => {
+    html += `<div class="family-word" data-audio="${w.a}">
+      <div class="word">${w.w}</div>
+      <div class="ipa ipa-symbol">${highlightStress(w.ipa)}</div>
+      <div style="font-size: 11px; color: var(--muted); margin-top: 4px;">${w.rule}</div>
+    </div>`;
+  });
+  html += `</div>`;
+  if (fam.note) html += `<div class="family-note">${fam.note}</div>`;
+  card.innerHTML = html;
+  card.querySelectorAll('.family-word').forEach(el => {
+    el.addEventListener('click', () => playAudio(el.dataset.audio, document.getElementById('status-family')));
+  });
+  familyList.appendChild(card);
+});
+
+// =================== Quiz - đoán nhấn ===================
+// Each item: { word, ipaWithoutStress, syllables: ["sɪt","u","eɪ","ʃn"], correctIdx, audio }
+const quizItems = [
+  { word: "information", syllables: ["ˌɪn","fər","meɪ","ʃn"], correct: 2, audio: "i/inf/infor/information__gb_1.mp3" },
+  { word: "computer",    syllables: ["kəm","pjuː","tər"],        correct: 1, audio: "c/com/compu/computer__gb_1.mp3" },
+  { word: "umbrella",    syllables: ["ʌm","brel","ə"],           correct: 1, audio: "u/umb/umbre/umbrella__gb_1.mp3" },
+  { word: "banana",      syllables: ["bə","næ","nə"],            correct: 1, audio: "b/ban/banan/banana__gb_1.mp3" },
+  { word: "university",  syllables: ["ˌjuː","nɪ","vɜːr","sə","ti"], correct: 2, audio: "u/uni/unive/university__gb_1_8.mp3" },
+  { word: "photographer",syllables: ["fə","tɑː","ɡrə","fər"],    correct: 1, audio: "p/pho/photo/photographer__gb_1.mp3" },
+  { word: "photographic",syllables: ["ˌfoʊ","tə","ɡræ","fɪk"],   correct: 2, audio: "p/pho/photo/photographic__gb_1.mp3" },
+  { word: "fantastic",   syllables: ["fæn","tæs","tɪk"],          correct: 1, audio: "f/fan/fanta/fantastic__gb_1.mp3" },
+  { word: "important",   syllables: ["ɪm","pɔːr","tnt"],          correct: 1, audio: "i/imp/impor/important__gb_1.mp3" },
+  { word: "potato",      syllables: ["pə","teɪ","toʊ"],           correct: 1, audio: "p/pot/potat/potato__gb_1.mp3" },
+  { word: "communicate", syllables: ["kə","mjuː","nɪ","keɪt"],    correct: 1, audio: "c/com/commu/communicate__gb_1.mp3" },
+  { word: "explain",     syllables: ["ɪk","spleɪn"],              correct: 1, audio: "e/exp/expla/explain__gb_1.mp3" },
+  { word: "manager",     syllables: ["mæ","nɪ","dʒər"],           correct: 0, audio: "m/man/manag/manager__gb_1.mp3" },
+  { word: "creativity",  syllables: ["ˌkriː","eɪ","tɪv","ə","ti"],correct: 2, audio: "c/cre/creat/creativity__gb_1_8.mp3" },
+  { word: "democratic",  syllables: ["ˌde","mə","kræ","tɪk"],     correct: 2, audio: "d/dem/democ/democratic__gb_1.mp3" },
+  { word: "elephant",    syllables: ["e","lə","fənt"],            correct: 0, audio: "e/ele/eleph/elephant__gb_1.mp3" },
+  { word: "academic",    syllables: ["ˌæ","kə","de","mɪk"],       correct: 2, audio: "a/aca/acade/academic__gb_1.mp3" },
+  { word: "transfer (v.)", syllables: ["træns","fɜːr"],           correct: 1, audio: "t/tra/trans/transfer__gb_2.mp3" },
+];
+
+const quizDisplay = document.getElementById('quiz-display');
+const quizFeedback = document.getElementById('quiz-feedback');
+const quizStatsEl = document.getElementById('quiz-stats');
+let qStats = { correct: 0, total: 0 };
+let currentQ = null;
+let answered = false;
+
+function newQuiz() {
+  currentQ = quizItems[Math.floor(Math.random() * quizItems.length)];
+  answered = false;
+  renderQuiz();
+  playAudio(currentQ.audio, null);
+  document.getElementById('btn-replay-quiz').disabled = false;
+  quizFeedback.classList.remove('show', 'ok', 'err');
+}
+
+function renderQuiz() {
+  const sylls = currentQ.syllables.map((s, i) =>
+    `<button class="syll-btn ipa-symbol" data-idx="${i}">${s}</button>`
+  ).join('');
+  quizDisplay.innerHTML = `
+    <div class="quiz-question">
+      <div class="quiz-prompt-text">▶ Nghe từ rồi click vào âm tiết được NHẤN:</div>
+      <div class="quiz-word-display">${currentQ.word}</div>
+      <div class="quiz-ipa ipa-symbol">/ ${currentQ.syllables.join(' · ')} /</div>
+    </div>
+    <div class="syllable-row">${sylls}</div>
+  `;
+  quizDisplay.querySelectorAll('.syll-btn').forEach(b => {
+    b.addEventListener('click', () => handleGuess(parseInt(b.dataset.idx)));
+  });
+}
+
+function handleGuess(idx) {
+  if (answered) return;
+  answered = true;
+  qStats.total++;
+  const buttons = quizDisplay.querySelectorAll('.syll-btn');
+  if (idx === currentQ.correct) {
+    qStats.correct++;
+    buttons[idx].classList.add('correct');
+    quizFeedback.textContent = `Đúng! Trọng âm rơi vào "${currentQ.syllables[idx]}".`;
+    quizFeedback.className = 'quiz-feedback show ok';
+  } else {
+    buttons[idx].classList.add('wrong');
+    buttons[currentQ.correct].classList.add('correct');
+    quizFeedback.textContent = `Sai. Trọng âm rơi vào "${currentQ.syllables[currentQ.correct]}" (âm ${currentQ.correct + 1}), không phải "${currentQ.syllables[idx]}".`;
+    quizFeedback.className = 'quiz-feedback show err';
+  }
+  quizStatsEl.textContent = `Đúng: ${qStats.correct} / ${qStats.total}`;
+}
+
+document.getElementById('btn-new-quiz').addEventListener('click', newQuiz);
+document.getElementById('btn-replay-quiz').addEventListener('click', () => {
+  if (currentQ) playAudio(currentQ.audio, null);
+});
+</script>
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/ipa-reader.js"></script>
+</body>
+</html>

@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Đạo hàm 1 biến · Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; margin-top: 8px; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; margin-top: 18px; font-size: 17px; }
+  p.intro { color: #4a5568; max-width: 880px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; margin: 8px 0; }
+  .col { flex: 1 1 360px; min-width: 320px; }
+
+  label.slider-label {
+    display: flex; align-items: center; gap: 10px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; margin: 6px 0;
+  }
+  label.slider-label .name { font-weight: 700; min-width: 60px; color: #2b6cb0; }
+  label.slider-label input[type="range"] { flex: 1; min-width: 160px; }
+  label.slider-label .val {
+    display: inline-block; min-width: 70px; text-align: right;
+    color: #1a202c; font-weight: 700;
+  }
+
+  select, button {
+    font-size: 14px; padding: 6px 10px; border-radius: 4px;
+    border: 1px solid #cbd5e0;
+  }
+  select { background: white; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; font-weight: 600; cursor: pointer; margin-right: 6px;
+  }
+  button:hover { background: #3182ce; }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+
+  canvas.plot {
+    background: #fafbfc; border: 1px solid #e2e8f0; border-radius: 6px;
+    display: block; width: 100%; max-width: 560px;
+  }
+
+  .stats {
+    background: #1a202c; color: #68d391;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    padding: 12px 14px; border-radius: 4px;
+    font-size: 13px; line-height: 1.65;
+    white-space: pre-wrap;
+  }
+  .stats .key { color: #f6ad55; }
+  .stats .pos { color: #68d391; }
+  .stats .neg { color: #fc8181; }
+  .stats .neu { color: #90cdf4; }
+
+  table.secant-table {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    margin-top: 10px;
+  }
+  table.secant-table th, table.secant-table td {
+    padding: 5px 8px; border-bottom: 1px solid #e2e8f0;
+    text-align: right;
+  }
+  table.secant-table th {
+    background: #f7fafc; font-weight: 700; color: #2d3748;
+    text-align: right;
+  }
+  table.secant-table tr.highlight td { background: #ebf8ff; font-weight: 700; }
+
+  table.deriv-table {
+    width: 100%; border-collapse: collapse; font-size: 14px;
+    margin-top: 6px;
+  }
+  table.deriv-table th, table.deriv-table td {
+    padding: 8px 10px; border-bottom: 1px solid #e2e8f0;
+    text-align: left;
+  }
+  table.deriv-table th { background: #f7fafc; font-weight: 700; }
+  table.deriv-table tr { cursor: pointer; transition: background 0.12s; }
+  table.deriv-table tr:hover { background: #ebf8ff; }
+  table.deriv-table tr.open { background: #fef5e7; }
+  table.deriv-table tr.proof td {
+    background: #1a202c; color: #e2e8f0;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 12.5px; padding: 14px 18px;
+    white-space: pre-wrap; cursor: default;
+  }
+  table.deriv-table tr.proof.hidden { display: none; }
+
+  .legend { display: flex; gap: 14px; font-size: 13px; margin: 8px 0; flex-wrap: wrap; }
+  .legend-item { display: inline-flex; align-items: center; gap: 5px; }
+  .legend-swatch { width: 14px; height: 4px; border-radius: 2px; }
+
+  .note {
+    background: #fffaf0; border-left: 4px solid #ed8936;
+    padding: 10px 14px; border-radius: 0 6px 6px 0;
+    font-size: 13.5px; color: #5c4814; margin: 10px 0;
+  }
+  .note strong { color: #744210; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-limits/visualization.html">← L1: Giới hạn</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Đạo hàm 1 biến</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-derivative-rules/visualization.html">L3: Quy tắc đạo hàm →</a>
+</nav>
+  <h1>Lesson 02 — Đạo hàm 1 biến</h1>
+  <p class="intro">
+    Bốn playground tương tác để "thấy" đạo hàm:
+    (1) <strong>tiếp tuyến</strong> trượt dọc đồ thị,
+    (2) <strong>cát tuyến → tiếp tuyến</strong> khi h → 0,
+    (3) đồ thị <strong>f và f'</strong> cùng lúc, và
+    (4) bảng <strong>10 đạo hàm cơ bản</strong> với chứng minh nở ra.
+  </p>
+
+  <!-- ====== 1. TANGENT LINE VISUALIZER ====== -->
+  <h2>1. Tangent line — trượt tiếp tuyến dọc theo đồ thị</h2>
+  <div class="card">
+    <div class="row">
+      <div class="col">
+        <label class="slider-label">
+          <span class="name">f(x)</span>
+          <select id="func1">
+            <option value="x2">x²</option>
+            <option value="x3">x³</option>
+            <option value="sin">sin x</option>
+            <option value="cos">cos x</option>
+            <option value="exp">eˣ</option>
+            <option value="ln">ln x</option>
+            <option value="inv">1/x</option>
+            <option value="sqrt">√x</option>
+          </select>
+        </label>
+        <label class="slider-label">
+          <span class="name">a</span>
+          <input type="range" id="a1" min="-4" max="4" step="0.05" value="1">
+          <span class="val" id="a1val">1.00</span>
+        </label>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-swatch" style="background:#2b6cb0"></span> f(x)</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:#dd6b20"></span> tiếp tuyến</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:#38a169;border-radius:50%;width:8px;height:8px"></span> (a, f(a))</span>
+        </div>
+      </div>
+      <div class="col">
+        <canvas id="canvas1" class="plot" width="560" height="380"></canvas>
+      </div>
+    </div>
+    <div class="stats" id="stats1"></div>
+    <div class="note">
+      <strong>Cách đọc:</strong> điểm xanh lá là <code>(a, f(a))</code>. Đường cam đi qua điểm đó với slope = <code>f'(a)</code>. Kéo slider để thấy: ở chỗ f tăng, slope dương (cam đi lên); ở cực trị, slope = 0 (cam nằm ngang); ở chỗ f giảm, slope âm.
+    </div>
+  </div>
+
+  <!-- ====== 2. SECANT → TANGENT ====== -->
+  <h2>2. Cát tuyến → tiếp tuyến (h → 0)</h2>
+  <div class="card">
+    <div class="row">
+      <div class="col">
+        <label class="slider-label">
+          <span class="name">f(x)</span>
+          <select id="func2">
+            <option value="x2">x²</option>
+            <option value="x3">x³</option>
+            <option value="sin">sin x</option>
+            <option value="exp">eˣ</option>
+            <option value="inv">1/x</option>
+            <option value="sqrt">√x</option>
+          </select>
+        </label>
+        <label class="slider-label">
+          <span class="name">a</span>
+          <input type="range" id="a2" min="-3" max="3" step="0.05" value="1">
+          <span class="val" id="a2val">1.00</span>
+        </label>
+        <label class="slider-label">
+          <span class="name">h</span>
+          <input type="range" id="h2" min="-2" max="2" step="0.01" value="1">
+          <span class="val" id="h2val">1.00</span>
+        </label>
+        <div>
+          <button id="shrinkH">Cho h → 0 (animate)</button>
+          <button class="ghost" id="resetH">Reset h = 1</button>
+        </div>
+        <div class="legend" style="margin-top:10px;">
+          <span class="legend-item"><span class="legend-swatch" style="background:#2b6cb0"></span> f(x)</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:#dd6b20"></span> tiếp tuyến (slope f'(a))</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:#9f7aea"></span> cát tuyến</span>
+        </div>
+      </div>
+      <div class="col">
+        <canvas id="canvas2" class="plot" width="560" height="380"></canvas>
+      </div>
+    </div>
+    <div class="stats" id="stats2"></div>
+
+    <h3>Bảng slope cát tuyến khi h → 0</h3>
+    <table class="secant-table" id="secantTable">
+      <thead><tr><th>h</th><th>f(a + h)</th><th>(f(a+h) − f(a)) / h</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="note">
+      Bảng cố định a, biến h. Quan sát cột cuối khi h tiến về 0 từ 2 phía — slope cát tuyến hội tụ về <code>f'(a)</code>. Đây <strong>chính là</strong> định nghĩa đạo hàm.
+    </div>
+  </div>
+
+  <!-- ====== 3. f AND f' TOGETHER ====== -->
+  <h2>3. f và f' trên cùng một đồ thị</h2>
+  <div class="card">
+    <div class="row">
+      <div class="col">
+        <label class="slider-label">
+          <span class="name">f(x)</span>
+          <select id="func3">
+            <option value="x2">x²</option>
+            <option value="x3">x³</option>
+            <option value="x4">x⁴</option>
+            <option value="sin">sin x</option>
+            <option value="cos">cos x</option>
+            <option value="exp">eˣ</option>
+            <option value="ln">ln x</option>
+            <option value="inv">1/x</option>
+            <option value="sqrt">√x</option>
+            <option value="abs">|x|</option>
+          </select>
+        </label>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-swatch" style="background:#2b6cb0"></span> f(x)</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:#e53e3e"></span> f'(x)</span>
+        </div>
+        <div class="note" id="note3">Chú thích sẽ cập nhật theo hàm đang chọn.</div>
+      </div>
+      <div class="col">
+        <canvas id="canvas3" class="plot" width="560" height="380"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 4. DERIVATIVES TABLE ====== -->
+  <h2>4. Bảng 10 đạo hàm cơ bản — click vào dòng để xem chứng minh</h2>
+  <div class="card">
+    <table class="deriv-table" id="derivTable">
+      <thead><tr><th>f(x)</th><th>f'(x)</th><th>Verify (số)</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+</main>
+
+<script>
+/* ============ HÀM SỐ MẪU ============ */
+const FUNCS = {
+  x2:   { f: x => x*x,           df: x => 2*x,            label: "x²",     dlabel: "2x",        domain: [-4,4] },
+  x3:   { f: x => x*x*x,         df: x => 3*x*x,          label: "x³",     dlabel: "3x²",       domain: [-3,3] },
+  x4:   { f: x => x*x*x*x,       df: x => 4*x*x*x,        label: "x⁴",     dlabel: "4x³",       domain: [-2.5,2.5] },
+  sin:  { f: Math.sin,           df: Math.cos,            label: "sin x",  dlabel: "cos x",     domain: [-2*Math.PI, 2*Math.PI] },
+  cos:  { f: Math.cos,           df: x => -Math.sin(x),   label: "cos x",  dlabel: "−sin x",    domain: [-2*Math.PI, 2*Math.PI] },
+  exp:  { f: Math.exp,           df: Math.exp,            label: "eˣ",     dlabel: "eˣ",        domain: [-2.5, 2.5] },
+  ln:   { f: x => x>0?Math.log(x):NaN, df: x => x>0?1/x:NaN, label: "ln x", dlabel: "1/x",    domain: [0.05, 6] },
+  inv:  { f: x => x!==0?1/x:NaN, df: x => x!==0?-1/(x*x):NaN, label: "1/x", dlabel: "−1/x²", domain: [-4,4], skip0: true },
+  sqrt: { f: x => x>=0?Math.sqrt(x):NaN, df: x => x>0?1/(2*Math.sqrt(x)):NaN, label: "√x", dlabel: "1/(2√x)", domain: [0, 9] },
+  abs:  { f: Math.abs,           df: x => x>0?1:(x<0?-1:NaN), label: "|x|", dlabel: "±1 (không khả vi tại 0)", domain: [-3,3] },
+};
+
+/* ============ HÀM VẼ TRỤC + LƯỚI ============ */
+function setupAxes(ctx, W, H, xmin, xmax, ymin, ymax) {
+  ctx.clearRect(0,0,W,H);
+  // grid
+  ctx.strokeStyle = "#edf2f7";
+  ctx.lineWidth = 1;
+  for (let gx = Math.ceil(xmin); gx <= xmax; gx++) {
+    const px = ((gx - xmin) / (xmax - xmin)) * W;
+    ctx.beginPath(); ctx.moveTo(px,0); ctx.lineTo(px,H); ctx.stroke();
+  }
+  for (let gy = Math.ceil(ymin); gy <= ymax; gy++) {
+    const py = H - ((gy - ymin) / (ymax - ymin)) * H;
+    ctx.beginPath(); ctx.moveTo(0,py); ctx.lineTo(W,py); ctx.stroke();
+  }
+  // axes
+  ctx.strokeStyle = "#a0aec0";
+  ctx.lineWidth = 1.5;
+  // x-axis (y=0)
+  if (ymin <= 0 && ymax >= 0) {
+    const py = H - ((0 - ymin) / (ymax - ymin)) * H;
+    ctx.beginPath(); ctx.moveTo(0,py); ctx.lineTo(W,py); ctx.stroke();
+  }
+  // y-axis (x=0)
+  if (xmin <= 0 && xmax >= 0) {
+    const px = ((0 - xmin) / (xmax - xmin)) * W;
+    ctx.beginPath(); ctx.moveTo(px,0); ctx.lineTo(px,H); ctx.stroke();
+  }
+  // labels
+  ctx.fillStyle = "#718096";
+  ctx.font = "11px Monaco, monospace";
+  for (let gx = Math.ceil(xmin); gx <= xmax; gx++) {
+    if (gx===0) continue;
+    const px = ((gx - xmin) / (xmax - xmin)) * W;
+    const py0 = H - ((0 - ymin) / (ymax - ymin)) * H;
+    ctx.fillText(gx.toString(), px+2, Math.min(Math.max(py0+12, 12), H-2));
+  }
+  for (let gy = Math.ceil(ymin); gy <= ymax; gy++) {
+    if (gy===0) continue;
+    const px0 = ((0 - xmin) / (xmax - xmin)) * W;
+    const py = H - ((gy - ymin) / (ymax - ymin)) * H;
+    ctx.fillText(gy.toString(), Math.min(Math.max(px0+3, 2), W-15), py-2);
+  }
+}
+
+function plotFn(ctx, W, H, xmin, xmax, ymin, ymax, fn, color, lw, skipZero) {
+  ctx.strokeStyle = color; ctx.lineWidth = lw||2;
+  ctx.beginPath();
+  let drawing = false;
+  const N = 600;
+  for (let i = 0; i <= N; i++) {
+    const x = xmin + (xmax - xmin) * i / N;
+    const y = fn(x);
+    if (!isFinite(y)) { drawing = false; continue; }
+    if (skipZero && Math.abs(x) < 0.05) { drawing = false; continue; }
+    const px = ((x - xmin)/(xmax - xmin)) * W;
+    const py = H - ((y - ymin)/(ymax - ymin)) * H;
+    if (!drawing) { ctx.moveTo(px,py); drawing = true; }
+    else { ctx.lineTo(px,py); }
+  }
+  ctx.stroke();
+}
+
+function drawLine(ctx, W, H, xmin, xmax, ymin, ymax, slope, x0, y0, color, lw, dash) {
+  // line: y = slope*(x - x0) + y0
+  ctx.strokeStyle = color; ctx.lineWidth = lw||2;
+  if (dash) ctx.setLineDash(dash); else ctx.setLineDash([]);
+  ctx.beginPath();
+  const yLeft = slope*(xmin - x0) + y0;
+  const yRight = slope*(xmax - x0) + y0;
+  const pxL = 0, pyL = H - ((yLeft - ymin)/(ymax - ymin)) * H;
+  const pxR = W, pyR = H - ((yRight - ymin)/(ymax - ymin)) * H;
+  ctx.moveTo(pxL,pyL); ctx.lineTo(pxR,pyR); ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function drawDot(ctx, W, H, xmin, xmax, ymin, ymax, x, y, color, r) {
+  if (!isFinite(y)) return;
+  const px = ((x - xmin)/(xmax - xmin)) * W;
+  const py = H - ((y - ymin)/(ymax - ymin)) * H;
+  ctx.fillStyle = color;
+  ctx.beginPath(); ctx.arc(px,py,r||5,0,2*Math.PI); ctx.fill();
+}
+
+/* ============ 1. TANGENT VISUALIZER ============ */
+const cv1 = document.getElementById('canvas1');
+const ctx1 = cv1.getContext('2d');
+const sel1 = document.getElementById('func1');
+const a1 = document.getElementById('a1');
+const a1val = document.getElementById('a1val');
+const stats1 = document.getElementById('stats1');
+
+function render1() {
+  const key = sel1.value;
+  const F = FUNCS[key];
+  let a = parseFloat(a1.value);
+  // clamp a vào domain
+  if (key === "ln" || key === "sqrt") a = Math.max(0.1, a);
+  if (key === "inv" && Math.abs(a) < 0.1) a = a >= 0 ? 0.1 : -0.1;
+
+  a1val.textContent = a.toFixed(2);
+  const [xmin, xmax] = F.domain;
+  let ymin = -4, ymax = 4;
+  if (key === "exp") { ymin = -1; ymax = 8; }
+  if (key === "ln")  { ymin = -3; ymax = 3; }
+  if (key === "x2" || key === "x4") { ymin = -1; ymax = 8; }
+  if (key === "sqrt") { ymin = -1; ymax = 4; }
+
+  setupAxes(ctx1, cv1.width, cv1.height, xmin, xmax, ymin, ymax);
+  plotFn(ctx1, cv1.width, cv1.height, xmin, xmax, ymin, ymax, F.f, "#2b6cb0", 2.5, F.skip0);
+  const fa = F.f(a), dfa = F.df(a);
+  if (isFinite(fa) && isFinite(dfa)) {
+    drawLine(ctx1, cv1.width, cv1.height, xmin, xmax, ymin, ymax, dfa, a, fa, "#dd6b20", 2.5);
+    drawDot(ctx1, cv1.width, cv1.height, xmin, xmax, ymin, ymax, a, fa, "#38a169", 6);
+  }
+  stats1.innerHTML =
+    `<span class="key">f(x)</span> = ${F.label}    <span class="key">f'(x)</span> = ${F.dlabel}\n` +
+    `<span class="key">a</span> = <span class="neu">${a.toFixed(3)}</span>\n` +
+    `<span class="key">f(a)</span> = <span class="neu">${isFinite(fa)?fa.toFixed(4):"undefined"}</span>\n` +
+    `<span class="key">f'(a)</span> = <span class="pos">${isFinite(dfa)?dfa.toFixed(4):"undefined"}</span>   ← slope của tiếp tuyến\n` +
+    `Tiếp tuyến:  y = ${isFinite(dfa)?dfa.toFixed(3):"?"}·(x − ${a.toFixed(2)}) + ${isFinite(fa)?fa.toFixed(3):"?"}`;
+}
+sel1.addEventListener('change', render1);
+a1.addEventListener('input', render1);
+render1();
+
+/* ============ 2. SECANT → TANGENT ============ */
+const cv2 = document.getElementById('canvas2');
+const ctx2 = cv2.getContext('2d');
+const sel2 = document.getElementById('func2');
+const a2 = document.getElementById('a2');
+const a2val = document.getElementById('a2val');
+const h2 = document.getElementById('h2');
+const h2val = document.getElementById('h2val');
+const stats2 = document.getElementById('stats2');
+const secantTable = document.querySelector('#secantTable tbody');
+
+function render2() {
+  const key = sel2.value;
+  const F = FUNCS[key];
+  let a = parseFloat(a2.value);
+  let h = parseFloat(h2.value);
+  if (key === "ln" || key === "sqrt") a = Math.max(0.5, a);
+  if (key === "inv" && Math.abs(a) < 0.3) a = a>=0?0.3:-0.3;
+  // tránh a + h vào vùng cấm
+  if (key === "ln" || key === "sqrt") {
+    if (a + h <= 0.05) h = 0.05 - a;
+  }
+  if (key === "inv") {
+    if ((a < 0 && a + h > -0.05) || (a > 0 && a + h < 0.05)) {
+      h = (a > 0 ? 0.05 : -0.05) - a;
+    }
+  }
+  a2val.textContent = a.toFixed(2);
+  h2val.textContent = h.toFixed(3);
+
+  const [xmin, xmax] = F.domain;
+  let ymin = -4, ymax = 4;
+  if (key === "exp") { ymin = -1; ymax = 8; }
+  if (key === "x2") { ymin = -1; ymax = 8; }
+  if (key === "sqrt") { ymin = -1; ymax = 4; }
+
+  setupAxes(ctx2, cv2.width, cv2.height, xmin, xmax, ymin, ymax);
+  plotFn(ctx2, cv2.width, cv2.height, xmin, xmax, ymin, ymax, F.f, "#2b6cb0", 2.5, F.skip0);
+  const fa = F.f(a), fah = F.f(a+h), dfa = F.df(a);
+  const secantSlope = (Math.abs(h) > 1e-9) ? (fah - fa) / h : NaN;
+
+  if (isFinite(dfa)) {
+    drawLine(ctx2, cv2.width, cv2.height, xmin, xmax, ymin, ymax, dfa, a, fa, "#dd6b20", 2.5);
+  }
+  if (isFinite(secantSlope)) {
+    drawLine(ctx2, cv2.width, cv2.height, xmin, xmax, ymin, ymax, secantSlope, a, fa, "#9f7aea", 2, [6,4]);
+  }
+  drawDot(ctx2, cv2.width, cv2.height, xmin, xmax, ymin, ymax, a, fa, "#38a169", 6);
+  drawDot(ctx2, cv2.width, cv2.height, xmin, xmax, ymin, ymax, a+h, fah, "#805ad5", 5);
+
+  stats2.innerHTML =
+    `<span class="key">f(x)</span> = ${F.label}    <span class="key">a</span> = ${a.toFixed(3)}    <span class="key">h</span> = ${h.toFixed(4)}\n` +
+    `<span class="key">f(a)</span>     = <span class="neu">${fa.toFixed(5)}</span>\n` +
+    `<span class="key">f(a+h)</span>   = <span class="neu">${fah.toFixed(5)}</span>\n` +
+    `<span class="key">slope cát tuyến</span> = (f(a+h) − f(a)) / h = <span class="neg">${isFinite(secantSlope)?secantSlope.toFixed(5):"?"}</span>\n` +
+    `<span class="key">f'(a) (tiếp tuyến)</span>      = <span class="pos">${isFinite(dfa)?dfa.toFixed(5):"?"}</span>\n` +
+    `<span class="key">sai số</span>       = |slope − f'(a)| = ${(isFinite(secantSlope)&&isFinite(dfa))?Math.abs(secantSlope-dfa).toFixed(5):"?"}`;
+
+  // table với h dần về 0
+  const hs = [1, 0.5, 0.1, 0.01, 0.001, -0.001, -0.01, -0.1, -0.5, -1];
+  secantTable.innerHTML = '';
+  for (const hv of hs) {
+    const fahv = F.f(a + hv);
+    if (!isFinite(fahv)) continue;
+    const sl = (fahv - fa) / hv;
+    const tr = document.createElement('tr');
+    if (Math.abs(hv - h) < 0.005) tr.classList.add('highlight');
+    tr.innerHTML = `<td>${hv}</td><td>${fahv.toFixed(5)}</td><td>${sl.toFixed(5)}</td>`;
+    secantTable.appendChild(tr);
+  }
+  // dòng cuối: limit
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td><strong>h → 0</strong></td><td>—</td><td><strong style="color:#dd6b20">${isFinite(dfa)?dfa.toFixed(5):"?"}</strong> = f'(a)</td>`;
+  secantTable.appendChild(tr);
+}
+sel2.addEventListener('change', render2);
+a2.addEventListener('input', render2);
+h2.addEventListener('input', render2);
+
+let shrinkTimer = null;
+document.getElementById('shrinkH').addEventListener('click', () => {
+  if (shrinkTimer) { clearInterval(shrinkTimer); shrinkTimer = null; }
+  let val = parseFloat(h2.value);
+  const sign = val >= 0 ? 1 : -1;
+  let mag = Math.abs(val) || 1;
+  shrinkTimer = setInterval(() => {
+    mag *= 0.85;
+    if (mag < 0.01) { mag = 0.01; clearInterval(shrinkTimer); shrinkTimer = null; }
+    h2.value = (sign * mag).toFixed(3);
+    render2();
+  }, 90);
+});
+document.getElementById('resetH').addEventListener('click', () => {
+  h2.value = 1; render2();
+});
+render2();
+
+/* ============ 3. f và f' ============ */
+const cv3 = document.getElementById('canvas3');
+const ctx3 = cv3.getContext('2d');
+const sel3 = document.getElementById('func3');
+const note3 = document.getElementById('note3');
+
+const NOTES3 = {
+  x2:  "<strong>x² → 2x</strong>: f là parabol lồi xuống; f' là đường thẳng đi qua gốc, slope dương khi x>0 (f đang tăng), âm khi x<0.",
+  x3:  "<strong>x³ → 3x²</strong>: f đi xuyên gốc, có điểm uốn tại 0; f' = 3x² ≥ 0 luôn (= 0 tại x=0). f không có cực trị mặc dù f'(0)=0 — đây là điểm uốn ngang.",
+  x4:  "<strong>x⁴ → 4x³</strong>: f rất phẳng quanh 0; f' đi qua gốc, dốc cao ở 2 đầu.",
+  sin: "<strong>sin x → cos x</strong>: hai sóng lệch pha 90°. Đỉnh sin (x=π/2) ↔ cos = 0. Đáy sin ↔ cos = 0.",
+  cos: "<strong>cos x → −sin x</strong>: hai sóng lệch pha 90°, dấu ngược. Quy luật chu kỳ: sin→cos→−sin→−cos→sin.",
+  exp: "<strong>eˣ → eˣ</strong>: TRÙNG NHAU. Đây là tính chất độc nhất của e — hàm bằng đạo hàm của chính nó.",
+  ln:  "<strong>ln x → 1/x</strong> (x>0): ln tăng chậm dần, slope giảm về 0. f' = 1/x → +∞ khi x → 0⁺, → 0 khi x → ∞.",
+  inv: "<strong>1/x → −1/x²</strong>: f' luôn âm (1/x luôn giảm trên mỗi nhánh). |f'| lớn gần 0, nhỏ ở xa.",
+  sqrt:"<strong>√x → 1/(2√x)</strong>: √x tăng chậm dần; f'(x) → +∞ khi x→0⁺ (tiếp tuyến đứng tại 0), giảm dần.",
+  abs: "<strong>|x| → ±1</strong>: f' = 1 ở x>0, f' = −1 ở x<0, KHÔNG TỒN TẠI tại x=0 (góc nhọn). Đồ thị f' là hàm bậc thang — gián đoạn tại 0."
+};
+
+function render3() {
+  const key = sel3.value;
+  const F = FUNCS[key];
+  const [xmin, xmax] = F.domain;
+  let ymin = -4, ymax = 6;
+  if (key === "x2") { ymin = -3; ymax = 8; }
+  if (key === "x4") { ymin = -2; ymax = 8; }
+  if (key === "x3") { ymin = -8; ymax = 8; }
+  if (key === "exp") { ymin = -2; ymax = 8; }
+  if (key === "ln") { ymin = -3; ymax = 4; }
+  if (key === "sqrt") { ymin = -1; ymax = 4; }
+  if (key === "abs") { ymin = -2; ymax = 3; }
+
+  setupAxes(ctx3, cv3.width, cv3.height, xmin, xmax, ymin, ymax);
+  plotFn(ctx3, cv3.width, cv3.height, xmin, xmax, ymin, ymax, F.f, "#2b6cb0", 2.5, F.skip0);
+  plotFn(ctx3, cv3.width, cv3.height, xmin, xmax, ymin, ymax, F.df, "#e53e3e", 2.5, F.skip0 || key === "abs");
+  note3.innerHTML = NOTES3[key] || '';
+}
+sel3.addEventListener('change', render3);
+render3();
+
+/* ============ 4. BẢNG ĐẠO HÀM ============ */
+const DERIVS = [
+  {f: "c (hằng)",       df: "0",            verify: "mọi hằng → 0",
+    proof: "f(x) = c\n[f(x+h) − f(x)] / h = (c − c)/h = 0/h = 0\nlim h→0  0 = 0   ∎"},
+  {f: "x",              df: "1",            verify: "mọi x → 1",
+    proof: "f(x) = x\n[f(x+h) − f(x)] / h = ((x+h) − x)/h = h/h = 1\nlim h→0  1 = 1   ∎"},
+  {f: "x² ",            df: "2x",           verify: "x=3→6;  x=−2→−4;  x=0→0;  x=0.5→1",
+    proof: "(x+h)² − x² = 2xh + h²\n[(x+h)² − x²] / h = 2x + h\nlim h→0 (2x + h) = 2x   ∎"},
+  {f: "x³",             df: "3x²",          verify: "x=2→12;  x=1→3;  x=−1→3;  x=0.5→0.75",
+    proof: "(x+h)³ − x³ = 3x²h + 3xh² + h³   (nhị thức Newton)\n[(x+h)³ − x³] / h = 3x² + 3xh + h²\nlim h→0 (3x² + 3xh + h²) = 3x²   ∎"},
+  {f: "xⁿ  (n nguyên)", df: "n·x^(n−1)",   verify: "n=4,x=2→32;  n=5,x=1→5;  n=2,x=3→6;  n=7,x=1→7",
+    proof: "(x+h)ⁿ = xⁿ + n·x^(n−1)·h + C(n,2)·x^(n−2)·h² + …   (Newton)\n[(x+h)ⁿ − xⁿ]/h = n·x^(n−1) + [C(n,2)·x^(n−2) + …]·h\nlim h→0 = n·x^(n−1)   ∎\n(Mở rộng cho n thực: sẽ chứng minh ở Lesson 03)"},
+  {f: "√x = x^(1/2)",   df: "1/(2√x)",      verify: "x=1→0.5;  x=4→0.25;  x=9→0.167;  x=16→0.125",
+    proof: "[√(x+h) − √x] / h  (nhân tử mẫu với liên hợp √(x+h)+√x)\n= [(x+h) − x] / [h·(√(x+h) + √x)]\n= 1 / [√(x+h) + √x]\nlim h→0 = 1 / (2√x)   ∎"},
+  {f: "1/x = x⁻¹",      df: "−1/x²",        verify: "x=1→−1;  x=2→−0.25;  x=−1→−1;  x=0.5→−4",
+    proof: "1/(x+h) − 1/x = [x − (x+h)] / [x(x+h)] = −h / [x(x+h)]\n[…] / h = −1 / [x(x+h)]\nlim h→0 = −1/x²   ∎"},
+  {f: "sin x",          df: "cos x",        verify: "x=0→1;  x=π/2→0;  x=π→−1;  x=π/4→√2/2",
+    proof: "sin(x+h) = sin x cos h + cos x sin h   (công thức cộng)\nsin(x+h) − sin x = sin x (cos h − 1) + cos x sin h\n[…]/h = sin x · (cos h − 1)/h + cos x · (sin h)/h\nDùng 2 giới hạn (Lesson 01):\n  lim (sin h)/h = 1\n  lim (cos h − 1)/h = 0\n→ (sin x)' = sin x · 0 + cos x · 1 = cos x   ∎"},
+  {f: "cos x",          df: "−sin x",       verify: "x=0→0;  x=π/2→−1;  x=π→0;  x=π/4→−√2/2",
+    proof: "cos(x+h) = cos x cos h − sin x sin h\ncos(x+h) − cos x = cos x (cos h − 1) − sin x sin h\n[…]/h = cos x · (cos h − 1)/h − sin x · (sin h)/h\nh→0:  = cos x · 0 − sin x · 1 = −sin x   ∎"},
+  {f: "eˣ",             df: "eˣ",           verify: "x=0→1;  x=1→e≈2.718;  x=2→e²≈7.389;  x=−1→1/e≈0.368",
+    proof: "[e^(x+h) − eˣ] / h = eˣ · (eʰ − 1)/h\nDùng giới hạn đặc biệt (Lesson 01):  lim h→0 (eʰ − 1)/h = 1\n→ (eˣ)' = eˣ · 1 = eˣ   ∎\nHàm DUY NHẤT bằng chính đạo hàm của nó (sai khác hằng số nhân)."},
+  {f: "ln x  (x>0)",    df: "1/x",          verify: "x=1→1;  x=2→0.5;  x=e→1/e;  x=10→0.1",
+    proof: "[ln(x+h) − ln x] / h = ln(1 + h/x) / h\nĐặt u = h/x → h = ux:\n  = ln(1 + u) / (ux) = (1/x) · ln(1 + u)/u\nGiới hạn đặc biệt:  lim u→0  ln(1 + u)/u = 1\n→ (ln x)' = 1/x · 1 = 1/x   ∎"}
+];
+
+const tbody = document.querySelector('#derivTable tbody');
+DERIVS.forEach((d, idx) => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td><code>${d.f}</code></td><td><code>${d.df}</code></td><td style="font-size:12.5px;color:#4a5568">${d.verify}</td>`;
+  tbody.appendChild(tr);
+  const proofTr = document.createElement('tr');
+  proofTr.className = 'proof hidden';
+  proofTr.innerHTML = `<td colspan="3">${d.proof}</td>`;
+  tbody.appendChild(proofTr);
+  tr.addEventListener('click', () => {
+    const wasOpen = !proofTr.classList.contains('hidden');
+    // close all
+    tbody.querySelectorAll('tr.proof').forEach(p => p.classList.add('hidden'));
+    tbody.querySelectorAll('tr').forEach(t => t.classList.remove('open'));
+    if (!wasOpen) {
+      proofTr.classList.remove('hidden');
+      tr.classList.add('open');
+    }
+  });
+});
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

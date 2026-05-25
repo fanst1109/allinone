@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Ma trận: phép toán</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  body { padding: 0; }
+  h1 { margin: 0 0 4px; font-size: 26px; color: #1a202c; }
+  .subtitle { color: #4a5568; margin-bottom: 28px; font-size: 14px; }
+  section {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 22px 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  section h2 {
+    margin: 0 0 10px;
+    font-size: 19px;
+    color: #2d3748;
+    border-bottom: 2px solid #4299e1;
+    padding-bottom: 6px;
+    display: inline-block;
+  }
+  section .desc { color: #4a5568; margin: 4px 0 16px; font-size: 14px; }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .controls label { font-size: 13px; color: #2d3748; }
+  button {
+    background: #4299e1;
+    color: white;
+    border: none;
+    padding: 7px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background 0.15s;
+  }
+  button:hover { background: #3182ce; }
+  button:disabled { background: #a0aec0; cursor: not-allowed; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+
+  /* Matrix grid */
+  .matrix-grid {
+    display: inline-grid;
+    gap: 4px;
+    padding: 8px 12px;
+    border-left: 2px solid #2d3748;
+    border-right: 2px solid #2d3748;
+    background: #fafbfc;
+    border-radius: 4px;
+  }
+  .matrix-row {
+    display: flex;
+    gap: 4px;
+  }
+  .cell {
+    width: 56px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    font-family: 'Menlo', 'Monaco', monospace;
+    font-size: 14px;
+    color: #2d3748;
+    transition: all 0.25s;
+  }
+  .cell.editable {
+    background: #fff;
+  }
+  .cell input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    text-align: center;
+    background: transparent;
+    font-family: 'Menlo', 'Monaco', monospace;
+    font-size: 14px;
+    color: #2d3748;
+    outline: none;
+  }
+  .cell.hl-row { background: #fed7aa; border-color: #f97316; }
+  .cell.hl-col { background: #bfdbfe; border-color: #3b82f6; }
+  .cell.hl-both { background: #fef08a; border-color: #ca8a04; }
+  .cell.hl-result { background: #bbf7d0; border-color: #16a34a; font-weight: 700; }
+  .matrix-label {
+    text-align: center;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 6px;
+    font-family: 'Menlo', 'Monaco', monospace;
+    font-size: 15px;
+  }
+  .matrix-wrap { display: inline-block; vertical-align: top; margin: 0 8px; }
+
+  .layout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    align-items: flex-start;
+  }
+  .op {
+    display: flex;
+    align-items: center;
+    font-size: 22px;
+    color: #2d3748;
+    font-weight: 700;
+    padding-top: 30px;
+  }
+
+  .computation-log {
+    background: #1a202c;
+    color: #e2e8f0;
+    padding: 14px 18px;
+    border-radius: 8px;
+    font-family: 'Menlo', 'Monaco', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    margin-top: 14px;
+    min-height: 60px;
+    max-height: 260px;
+    overflow-y: auto;
+  }
+  .computation-log .step { padding: 2px 0; }
+  .computation-log .step .target { color: #fcd34d; font-weight: 700; }
+  .computation-log .step .row-part { color: #fdba74; }
+  .computation-log .step .col-part { color: #93c5fd; }
+  .computation-log .step .result { color: #86efac; font-weight: 700; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .badge.ok { background: #c6f6d5; color: #22543d; }
+  .badge.fail { background: #fed7d7; color: #742a2a; }
+
+  .formula {
+    background: #f7fafc;
+    border-left: 4px solid #4299e1;
+    padding: 10px 14px;
+    margin: 12px 0;
+    font-family: 'Menlo', 'Monaco', monospace;
+    font-size: 13px;
+    color: #2d3748;
+    border-radius: 0 6px 6px 0;
+  }
+
+  .row-flex { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start; }
+  .col-pair { display: flex; gap: 18px; flex-wrap: wrap; }
+  .pair-label {
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 4px;
+    font-size: 14px;
+  }
+  .verdict {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+  .verdict.different { background: #fef3c7; color: #78350f; border: 1px solid #f59e0b; }
+  .verdict.equal { background: #d1fae5; color: #064e3b; border: 1px solid #10b981; }
+
+  .small { font-size: 12px; color: #718096; }
+  .scalar-input {
+    width: 56px;
+    padding: 4px 6px;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 13px;
+    text-align: center;
+  }
+  .info-line {
+    font-family: 'Menlo', monospace;
+    font-size: 13px;
+    color: #2d3748;
+    margin: 6px 0;
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-linear-independence/visualization.html">← L4: Độc lập tuyến tính</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Ma trận - phép toán</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-matrix-as-transform/visualization.html">L6: Ma trận như phép biến đổi →</a>
+</nav>
+  <h1>Lesson 05 — Ma trận: phép toán</h1>
+  <div class="subtitle">Nhân ma trận từng bước · Non-commutativity · Inverse 2×2 · Giải Ax = b</div>
+
+  <!-- ============== SECTION 1: MATRIX MULTIPLICATION STEP-BY-STEP ============== -->
+  <section>
+    <h2>1. Nhân ma trận từng bước (A · B)</h2>
+    <p class="desc">
+      Nhập ma trận <b>A</b> (cấp 2×3) và <b>B</b> (cấp 3×2). Bấm <b>Tính từng bước</b> để xem animation
+      tính từng phần tử của <b>AB</b> (cấp 2×2) bằng quy tắc "hàng × cột". Hàng của A và cột của B
+      đang được dùng sẽ được highlight bằng màu.
+    </p>
+
+    <div class="formula">
+      Quy tắc: (AB)<sub>ij</sub> = (hàng i của A) · (cột j của B) = Σ A<sub>ik</sub> · B<sub>kj</sub>
+    </div>
+
+    <div class="layout">
+      <div class="matrix-wrap">
+        <div class="matrix-label">A (2 × 3)</div>
+        <div class="matrix-grid" id="mm-A"></div>
+      </div>
+      <div class="op">×</div>
+      <div class="matrix-wrap">
+        <div class="matrix-label">B (3 × 2)</div>
+        <div class="matrix-grid" id="mm-B"></div>
+      </div>
+      <div class="op">=</div>
+      <div class="matrix-wrap">
+        <div class="matrix-label">AB (2 × 2)</div>
+        <div class="matrix-grid" id="mm-C"></div>
+      </div>
+    </div>
+
+    <div class="controls" style="margin-top: 18px;">
+      <button id="mm-step">▶ Tính bước tiếp theo</button>
+      <button id="mm-auto" class="secondary">▶▶ Tự động chạy hết</button>
+      <button id="mm-reset" class="secondary">↺ Reset</button>
+      <button id="mm-preset" class="secondary">🎲 Đổi giá trị</button>
+      <span class="small">Tip: nhấn vào ô A hoặc B để sửa giá trị.</span>
+    </div>
+
+    <div class="computation-log" id="mm-log">Bấm "Tính bước tiếp theo" để bắt đầu...</div>
+  </section>
+
+  <!-- ============== SECTION 2: NON-COMMUTATIVITY DEMO ============== -->
+  <section>
+    <h2>2. Non-commutativity: AB ≠ BA</h2>
+    <p class="desc">
+      So sánh trực tiếp <b>AB</b> và <b>BA</b> với 2 ma trận vuông 2×2. Quan sát: trong hầu hết trường hợp,
+      hai ma trận tích <b>khác nhau</b>. Đổi giá trị để tự tìm ra một cặp đặc biệt mà <b>AB = BA</b> (gợi ý: thử B = I, hoặc B = c·A).
+    </p>
+
+    <div class="row-flex">
+      <div class="matrix-wrap">
+        <div class="matrix-label">A</div>
+        <div class="matrix-grid" id="nc-A"></div>
+      </div>
+      <div class="matrix-wrap">
+        <div class="matrix-label">B</div>
+        <div class="matrix-grid" id="nc-B"></div>
+      </div>
+    </div>
+
+    <div class="controls" style="margin-top: 16px;">
+      <button id="nc-compute">▶ Tính AB và BA</button>
+      <button id="nc-preset" class="secondary">🎲 Đổi cặp ngẫu nhiên</button>
+      <button id="nc-equal" class="secondary">🎯 Thử cặp giao hoán (B = I)</button>
+    </div>
+
+    <div class="col-pair" style="margin-top: 18px;">
+      <div class="matrix-wrap">
+        <div class="pair-label">AB</div>
+        <div class="matrix-grid" id="nc-AB"></div>
+      </div>
+      <div class="matrix-wrap">
+        <div class="pair-label">BA</div>
+        <div class="matrix-grid" id="nc-BA"></div>
+      </div>
+    </div>
+
+    <div class="verdict different" id="nc-verdict">— Bấm "Tính" để so sánh —</div>
+  </section>
+
+  <!-- ============== SECTION 3: INVERSE 2x2 CALCULATOR ============== -->
+  <section>
+    <h2>3. Tính nghịch đảo A⁻¹ cho ma trận 2×2</h2>
+    <p class="desc">
+      Nhập 4 phần tử a, b, c, d của ma trận <b>A = [[a, b], [c, d]]</b>. Công cụ tính:
+      định thức <b>det(A) = ad − bc</b>, nghịch đảo <b>A⁻¹</b>, và verify <b>A · A⁻¹ = I</b>.
+    </p>
+
+    <div class="formula">
+      det(A) = ad − bc &nbsp;|&nbsp; A⁻¹ = (1/det) · [[d, −b], [−c, a]] &nbsp;(chỉ tồn tại khi det ≠ 0)
+    </div>
+
+    <div class="row-flex">
+      <div class="matrix-wrap">
+        <div class="matrix-label">A</div>
+        <div class="matrix-grid" id="inv-A"></div>
+      </div>
+      <div style="padding-top: 30px;">
+        <div class="info-line">det(A) = <span id="inv-det">—</span></div>
+        <div class="info-line" id="inv-status"></div>
+      </div>
+      <div class="matrix-wrap">
+        <div class="matrix-label">A⁻¹</div>
+        <div class="matrix-grid" id="inv-Ainv"></div>
+      </div>
+      <div class="matrix-wrap">
+        <div class="matrix-label">A · A⁻¹</div>
+        <div class="matrix-grid" id="inv-check"></div>
+      </div>
+    </div>
+
+    <div class="controls" style="margin-top: 16px;">
+      <button id="inv-preset1" class="secondary">🎲 Preset 1: [[4,7],[2,6]]</button>
+      <button id="inv-preset2" class="secondary">🎲 Preset 2: [[1,2],[3,4]]</button>
+      <button id="inv-singular" class="secondary">⚠ Thử ma trận suy biến [[1,2],[2,4]]</button>
+    </div>
+  </section>
+
+  <!-- ============== SECTION 4: Ax = b SOLVER ============== -->
+  <section>
+    <h2>4. Giải hệ Ax = b bằng A⁻¹</h2>
+    <p class="desc">
+      Nhập ma trận hệ số <b>A</b> (2×2) và vector vế phải <b>b</b>. Công cụ tính
+      <b>x = A⁻¹ · b</b>, sau đó verify bằng cách thay lại tính <b>A·x</b> và so với <b>b</b>.
+    </p>
+
+    <div class="formula">
+      Ax = b &nbsp;⇒&nbsp; x = A⁻¹ · b &nbsp;(yêu cầu det(A) ≠ 0)
+    </div>
+
+    <div class="row-flex">
+      <div class="matrix-wrap">
+        <div class="matrix-label">A</div>
+        <div class="matrix-grid" id="solve-A"></div>
+      </div>
+      <div class="op">·</div>
+      <div class="matrix-wrap">
+        <div class="matrix-label">x</div>
+        <div class="matrix-grid" id="solve-x"></div>
+      </div>
+      <div class="op">=</div>
+      <div class="matrix-wrap">
+        <div class="matrix-label">b</div>
+        <div class="matrix-grid" id="solve-b"></div>
+      </div>
+    </div>
+
+    <div class="controls" style="margin-top: 16px;">
+      <button id="solve-go">▶ Giải</button>
+      <button id="solve-preset1" class="secondary">🎲 Preset: 2x+y=5, x+3y=10</button>
+      <button id="solve-preset2" class="secondary">🎲 Preset: 4x+7y=23, 2x+6y=16</button>
+    </div>
+
+    <div class="info-line" id="solve-detline" style="margin-top: 12px;"></div>
+    <div class="computation-log" id="solve-log" style="min-height: 40px;">Bấm "Giải" để xem chi tiết các bước...</div>
+
+    <div class="row-flex" style="margin-top: 14px;">
+      <div class="matrix-wrap">
+        <div class="pair-label">Verify A·x</div>
+        <div class="matrix-grid" id="solve-verify"></div>
+      </div>
+      <div style="padding-top: 30px;" id="solve-verdict"></div>
+    </div>
+  </section>
+
+  <p class="small" style="text-align:center; margin-top:30px;">
+    Đọc kèm <a href="./README.md">README.md</a> để xem lý thuyết đầy đủ + bài tập + lời giải.
+  </p>
+</main>
+
+<script>
+/* ============================ Utilities ============================ */
+function fmt(v) {
+  if (!isFinite(v)) return '—';
+  if (Math.abs(v) < 1e-9) return '0';
+  const r = Math.round(v * 1000) / 1000;
+  if (Math.abs(r - Math.round(r)) < 1e-9) return String(Math.round(r));
+  return r.toString();
+}
+
+function makeGrid(container, rows, cols, opts) {
+  opts = opts || {};
+  const editable = !!opts.editable;
+  const onChange = opts.onChange || null;
+  container.innerHTML = '';
+  container.style.gridTemplateColumns = 'repeat(' + cols + ', 56px)';
+  const cells = [];
+  for (let i = 0; i < rows; i++) {
+    const rowArr = [];
+    for (let j = 0; j < cols; j++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell' + (editable ? ' editable' : '');
+      cell.dataset.i = i;
+      cell.dataset.j = j;
+      if (editable) {
+        const inp = document.createElement('input');
+        inp.type = 'text';
+        inp.value = '0';
+        inp.addEventListener('input', () => { if (onChange) onChange(); });
+        cell.appendChild(inp);
+      } else {
+        cell.textContent = '·';
+      }
+      container.appendChild(cell);
+      rowArr.push(cell);
+    }
+    cells.push(rowArr);
+  }
+  return cells;
+}
+
+function readGrid(cells) {
+  return cells.map(row => row.map(c => {
+    const inp = c.querySelector('input');
+    if (inp) {
+      const v = parseFloat(inp.value);
+      return isFinite(v) ? v : 0;
+    }
+    const t = parseFloat(c.textContent);
+    return isFinite(t) ? t : 0;
+  }));
+}
+
+function writeGrid(cells, mat) {
+  for (let i = 0; i < cells.length; i++) {
+    for (let j = 0; j < cells[i].length; j++) {
+      const cell = cells[i][j];
+      const inp = cell.querySelector('input');
+      if (inp) inp.value = fmt(mat[i][j]);
+      else cell.textContent = fmt(mat[i][j]);
+    }
+  }
+}
+
+function clearGrid(cells, placeholder) {
+  for (let i = 0; i < cells.length; i++) {
+    for (let j = 0; j < cells[i].length; j++) {
+      const cell = cells[i][j];
+      const inp = cell.querySelector('input');
+      if (inp) inp.value = '';
+      else cell.textContent = placeholder == null ? '·' : placeholder;
+    }
+  }
+}
+
+function clearHighlights(cells) {
+  for (const row of cells) for (const c of row) {
+    c.classList.remove('hl-row', 'hl-col', 'hl-both', 'hl-result');
+  }
+}
+
+function matmul(A, B) {
+  const m = A.length, k = A[0].length, n = B[0].length;
+  const C = Array.from({length: m}, () => new Array(n).fill(0));
+  for (let i = 0; i < m; i++)
+    for (let j = 0; j < n; j++) {
+      let s = 0;
+      for (let r = 0; r < k; r++) s += A[i][r] * B[r][j];
+      C[i][j] = s;
+    }
+  return C;
+}
+
+function matEqual(A, B, eps) {
+  eps = eps || 1e-6;
+  if (A.length !== B.length) return false;
+  for (let i = 0; i < A.length; i++) {
+    if (A[i].length !== B[i].length) return false;
+    for (let j = 0; j < A[i].length; j++)
+      if (Math.abs(A[i][j] - B[i][j]) > eps) return false;
+  }
+  return true;
+}
+
+/* ============================ Section 1: Matmul step-by-step ============================ */
+const mmACells = makeGrid(document.getElementById('mm-A'), 2, 3, { editable: true, onChange: mmReset });
+const mmBCells = makeGrid(document.getElementById('mm-B'), 3, 2, { editable: true, onChange: mmReset });
+const mmCCells = makeGrid(document.getElementById('mm-C'), 2, 2, { editable: false });
+
+const PRESETS_MM = [
+  { A: [[1,2,3],[4,5,6]], B: [[7,8],[9,10],[11,12]] },
+  { A: [[1,-1,2],[0,2,1]], B: [[0,3],[1,2],[-2,1]] },
+  { A: [[2,0,1],[1,3,-1]], B: [[1,2],[3,1],[0,4]] },
+  { A: [[1,0,0],[0,1,0]], B: [[5,6],[7,8],[9,10]] },
+];
+let mmPresetIdx = 0;
+function mmLoadPreset(i) {
+  const p = PRESETS_MM[i];
+  writeGrid(mmACells, p.A);
+  writeGrid(mmBCells, p.B);
+  mmReset();
+}
+mmLoadPreset(0);
+
+let mmStepIdx = 0; // 0..3 (positions in 2x2 result)
+const mmLog = document.getElementById('mm-log');
+
+function mmReset() {
+  mmStepIdx = 0;
+  clearGrid(mmCCells, '·');
+  clearHighlights(mmACells);
+  clearHighlights(mmBCells);
+  clearHighlights(mmCCells);
+  mmLog.innerHTML = 'Reset. Bấm "Tính bước tiếp theo" để bắt đầu.';
+  document.getElementById('mm-step').disabled = false;
+}
+
+function mmDoStep() {
+  if (mmStepIdx >= 4) return;
+  clearHighlights(mmACells);
+  clearHighlights(mmBCells);
+  clearHighlights(mmCCells);
+  const A = readGrid(mmACells), B = readGrid(mmBCells);
+  const i = Math.floor(mmStepIdx / 2);
+  const j = mmStepIdx % 2;
+
+  // Highlight row i of A
+  for (let r = 0; r < 3; r++) mmACells[i][r].classList.add('hl-row');
+  // Highlight col j of B
+  for (let r = 0; r < 3; r++) mmBCells[r][j].classList.add('hl-col');
+  // Highlight result cell
+  mmCCells[i][j].classList.add('hl-result');
+
+  // Compute
+  const terms = [];
+  let sum = 0;
+  for (let r = 0; r < 3; r++) {
+    const a = A[i][r], b = B[r][j];
+    terms.push(fmt(a) + '·' + fmt(b));
+    sum += a * b;
+  }
+  mmCCells[i][j].textContent = fmt(sum);
+
+  const stepHtml = '<div class="step">'
+    + '<span class="target">(AB)<sub>' + (i+1) + (j+1) + '</sub></span> = '
+    + '<span class="row-part">hàng ' + (i+1) + ' của A</span> · '
+    + '<span class="col-part">cột ' + (j+1) + ' của B</span> = '
+    + terms.join(' + ') + ' = <span class="result">' + fmt(sum) + '</span>'
+    + '</div>';
+  if (mmStepIdx === 0) mmLog.innerHTML = '';
+  mmLog.innerHTML += stepHtml;
+  mmLog.scrollTop = mmLog.scrollHeight;
+
+  mmStepIdx++;
+  if (mmStepIdx >= 4) {
+    document.getElementById('mm-step').disabled = true;
+    mmLog.innerHTML += '<div class="step" style="margin-top:6px; color:#86efac;">✓ Hoàn tất 4 phần tử của AB.</div>';
+  }
+}
+
+document.getElementById('mm-step').addEventListener('click', mmDoStep);
+document.getElementById('mm-reset').addEventListener('click', mmReset);
+document.getElementById('mm-auto').addEventListener('click', async () => {
+  mmReset();
+  for (let s = 0; s < 4; s++) {
+    mmDoStep();
+    await new Promise(r => setTimeout(r, 750));
+  }
+});
+document.getElementById('mm-preset').addEventListener('click', () => {
+  mmPresetIdx = (mmPresetIdx + 1) % PRESETS_MM.length;
+  mmLoadPreset(mmPresetIdx);
+});
+
+/* ============================ Section 2: Non-commutativity ============================ */
+const ncACells = makeGrid(document.getElementById('nc-A'), 2, 2, { editable: true });
+const ncBCells = makeGrid(document.getElementById('nc-B'), 2, 2, { editable: true });
+const ncABCells = makeGrid(document.getElementById('nc-AB'), 2, 2, { editable: false });
+const ncBACells = makeGrid(document.getElementById('nc-BA'), 2, 2, { editable: false });
+
+function ncSet(A, B) {
+  writeGrid(ncACells, A);
+  writeGrid(ncBCells, B);
+  clearGrid(ncABCells, '·');
+  clearGrid(ncBACells, '·');
+  document.getElementById('nc-verdict').textContent = '— Bấm "Tính" để so sánh —';
+  document.getElementById('nc-verdict').className = 'verdict different';
+}
+
+ncSet([[1,2],[3,4]], [[0,1],[1,0]]);
+
+document.getElementById('nc-compute').addEventListener('click', () => {
+  const A = readGrid(ncACells), B = readGrid(ncBCells);
+  const AB = matmul(A, B), BA = matmul(B, A);
+  writeGrid(ncABCells, AB);
+  writeGrid(ncBACells, BA);
+  const eq = matEqual(AB, BA);
+  const v = document.getElementById('nc-verdict');
+  if (eq) {
+    v.className = 'verdict equal';
+    v.innerHTML = '✓ AB = BA — cặp này <b>giao hoán</b>. Hiếm gặp! (vd: B = I, hoặc B đường chéo cùng cấu trúc với A)';
+  } else {
+    v.className = 'verdict different';
+    v.innerHTML = '✗ AB ≠ BA — đây là trường hợp <b>thông thường</b>. Nhân ma trận không giao hoán.';
+  }
+});
+
+const NC_PRESETS = [
+  { A: [[1,2],[3,4]], B: [[0,1],[1,0]] },
+  { A: [[2,1],[0,3]], B: [[1,4],[5,2]] },
+  { A: [[1,1],[0,1]], B: [[1,0],[1,1]] },
+  { A: [[2,0],[0,3]], B: [[5,7],[1,-2]] },
+];
+let ncIdx = 0;
+document.getElementById('nc-preset').addEventListener('click', () => {
+  ncIdx = (ncIdx + 1) % NC_PRESETS.length;
+  ncSet(NC_PRESETS[ncIdx].A, NC_PRESETS[ncIdx].B);
+});
+document.getElementById('nc-equal').addEventListener('click', () => {
+  const A = readGrid(ncACells);
+  ncSet(A, [[1,0],[0,1]]);
+});
+
+/* ============================ Section 3: Inverse 2x2 ============================ */
+const invACells = makeGrid(document.getElementById('inv-A'), 2, 2, { editable: true, onChange: invUpdate });
+const invAinvCells = makeGrid(document.getElementById('inv-Ainv'), 2, 2, { editable: false });
+const invCheckCells = makeGrid(document.getElementById('inv-check'), 2, 2, { editable: false });
+
+function invUpdate() {
+  const A = readGrid(invACells);
+  const a = A[0][0], b = A[0][1], c = A[1][0], d = A[1][1];
+  const det = a * d - b * c;
+  const detEl = document.getElementById('inv-det');
+  const statusEl = document.getElementById('inv-status');
+  detEl.innerHTML = fmt(a) + '·' + fmt(d) + ' − ' + fmt(b) + '·' + fmt(c)
+                 + ' = <b>' + fmt(det) + '</b>';
+  if (Math.abs(det) < 1e-9) {
+    statusEl.innerHTML = '<span class="badge fail">det = 0 → suy biến, KHÔNG có A⁻¹</span>';
+    clearGrid(invAinvCells, '—');
+    clearGrid(invCheckCells, '—');
+    return;
+  }
+  statusEl.innerHTML = '<span class="badge ok">det ≠ 0 → khả nghịch</span>';
+  const inv = [[d / det, -b / det], [-c / det, a / det]];
+  writeGrid(invAinvCells, inv);
+  const check = matmul(A, inv);
+  writeGrid(invCheckCells, check);
+}
+
+function invSetA(A) {
+  writeGrid(invACells, A);
+  invUpdate();
+}
+invSetA([[4,7],[2,6]]);
+
+document.getElementById('inv-preset1').addEventListener('click', () => invSetA([[4,7],[2,6]]));
+document.getElementById('inv-preset2').addEventListener('click', () => invSetA([[1,2],[3,4]]));
+document.getElementById('inv-singular').addEventListener('click', () => invSetA([[1,2],[2,4]]));
+
+/* ============================ Section 4: Ax = b solver ============================ */
+const solveACells = makeGrid(document.getElementById('solve-A'), 2, 2, { editable: true });
+const solveXCells = makeGrid(document.getElementById('solve-x'), 2, 1, { editable: false });
+const solveBCells = makeGrid(document.getElementById('solve-b'), 2, 1, { editable: true });
+const solveVerifyCells = makeGrid(document.getElementById('solve-verify'), 2, 1, { editable: false });
+
+function solveSet(A, b) {
+  writeGrid(solveACells, A);
+  writeGrid(solveBCells, b);
+  clearGrid(solveXCells, '·');
+  clearGrid(solveVerifyCells, '·');
+  document.getElementById('solve-detline').textContent = '';
+  document.getElementById('solve-log').textContent = 'Bấm "Giải" để xem chi tiết các bước...';
+  document.getElementById('solve-verdict').innerHTML = '';
+}
+
+solveSet([[2,1],[1,3]], [[5],[10]]);
+
+document.getElementById('solve-go').addEventListener('click', () => {
+  const A = readGrid(solveACells);
+  const bMat = readGrid(solveBCells);
+  const b = [bMat[0][0], bMat[1][0]];
+  const a = A[0][0], B = A[0][1], c = A[1][0], d = A[1][1];
+  const det = a * d - B * c;
+  const detLine = document.getElementById('solve-detline');
+  const log = document.getElementById('solve-log');
+  const verdict = document.getElementById('solve-verdict');
+
+  detLine.innerHTML = 'det(A) = ' + fmt(a) + '·' + fmt(d) + ' − ' + fmt(B) + '·' + fmt(c) + ' = <b>' + fmt(det) + '</b>';
+
+  if (Math.abs(det) < 1e-9) {
+    log.innerHTML = '<span style="color:#fca5a5;">det(A) = 0 → A không khả nghịch. Hệ vô nghiệm hoặc vô số nghiệm. Phải dùng khử Gauss.</span>';
+    clearGrid(solveXCells, '—');
+    clearGrid(solveVerifyCells, '—');
+    verdict.innerHTML = '<span class="badge fail">Không giải được bằng A⁻¹</span>';
+    return;
+  }
+
+  const inv = [[d / det, -B / det], [-c / det, a / det]];
+  const x1 = inv[0][0] * b[0] + inv[0][1] * b[1];
+  const x2 = inv[1][0] * b[0] + inv[1][1] * b[1];
+  writeGrid(solveXCells, [[x1],[x2]]);
+
+  const lines = [];
+  lines.push('<div class="step">A⁻¹ = (1/' + fmt(det) + ') · [[' + fmt(d) + ',' + fmt(-B) + '],[' + fmt(-c) + ',' + fmt(a) + ']]</div>');
+  lines.push('<div class="step">    = [[' + fmt(inv[0][0]) + ',' + fmt(inv[0][1]) + '],[' + fmt(inv[1][0]) + ',' + fmt(inv[1][1]) + ']]</div>');
+  lines.push('<div class="step"><span class="target">x₁</span> = ' + fmt(inv[0][0]) + '·' + fmt(b[0]) + ' + ' + fmt(inv[0][1]) + '·' + fmt(b[1]) + ' = <span class="result">' + fmt(x1) + '</span></div>');
+  lines.push('<div class="step"><span class="target">x₂</span> = ' + fmt(inv[1][0]) + '·' + fmt(b[0]) + ' + ' + fmt(inv[1][1]) + '·' + fmt(b[1]) + ' = <span class="result">' + fmt(x2) + '</span></div>');
+  log.innerHTML = lines.join('');
+
+  // Verify Ax
+  const v1 = a * x1 + B * x2;
+  const v2 = c * x1 + d * x2;
+  writeGrid(solveVerifyCells, [[v1],[v2]]);
+  const ok = Math.abs(v1 - b[0]) < 1e-6 && Math.abs(v2 - b[1]) < 1e-6;
+  if (ok) verdict.innerHTML = '<span class="badge ok">✓ A·x = b — nghiệm đúng</span>';
+  else verdict.innerHTML = '<span class="badge fail">✗ Sai số làm tròn quá lớn</span>';
+});
+
+document.getElementById('solve-preset1').addEventListener('click', () => solveSet([[2,1],[1,3]], [[5],[10]]));
+document.getElementById('solve-preset2').addEventListener('click', () => solveSet([[4,7],[2,6]], [[23],[16]]));
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

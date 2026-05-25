@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Hàm bậc 1 và hàm bậc 2 · Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; margin-top: 8px; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; margin-top: 18px; font-size: 17px; }
+  p.intro { color: #4a5568; max-width: 880px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  .col { flex: 1 1 320px; min-width: 280px; }
+
+  label.slider-label {
+    display: flex; align-items: center; gap: 10px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; margin: 6px 0;
+  }
+  label.slider-label .name { font-weight: 700; width: 24px; color: #2b6cb0; }
+  label.slider-label input[type="range"] { flex: 1; min-width: 160px; }
+  label.slider-label .val {
+    display: inline-block; width: 70px; text-align: right;
+    color: #1a202c; font-weight: 700;
+  }
+
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; margin-right: 6px;
+  }
+  button:hover { background: #3182ce; }
+  button.warn { background: #ed8936; }
+  button.warn:hover { background: #dd6b20; }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+
+  canvas.plot {
+    background: #fafbfc; border: 1px solid #e2e8f0; border-radius: 6px;
+    display: block; width: 100%; max-width: 520px;
+  }
+
+  .stats {
+    background: #1a202c; color: #68d391;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    padding: 12px 14px; border-radius: 4px;
+    font-size: 13px; line-height: 1.65;
+    white-space: pre-wrap;
+  }
+  .stats .key { color: #f6ad55; }
+  .stats .pos { color: #68d391; }
+  .stats .neg { color: #fc8181; }
+  .stats .neu { color: #90cdf4; }
+
+  .delta-card {
+    border: 2px solid transparent; border-radius: 8px;
+    padding: 14px; margin: 10px 0;
+    transition: all 0.2s;
+  }
+  .delta-card.active { border-color: #4299e1; background: #ebf8ff; }
+  .delta-card .title { font-weight: 700; margin-bottom: 6px; }
+  .delta-card.pos .title { color: #2f855a; }
+  .delta-card.zero .title { color: #b7791f; }
+  .delta-card.neg .title { color: #c53030; }
+
+  .step-log {
+    background: #f7fafc; border: 1px solid #e2e8f0;
+    padding: 12px; border-radius: 4px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px;
+    white-space: pre-wrap;
+    line-height: 1.7;
+  }
+  .step-log .formula { color: #2b6cb0; font-weight: 700; }
+  .step-log .note { color: #718096; font-style: italic; }
+
+  .data-input {
+    width: 100%; min-height: 90px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; padding: 8px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    resize: vertical;
+  }
+
+  .hint { color: #718096; font-size: 13px; margin: 4px 0; }
+
+  .ml-callout {
+    background: #fefcbf; border-left: 4px solid #d69e2e;
+    padding: 12px 16px; margin: 12px 0; border-radius: 4px;
+    font-size: 14px; color: #5c4814;
+  }
+  .ml-callout strong { color: #744210; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-functions/visualization.html">← L5: Hàm số là gì</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Hàm bậc 1 và bậc 2</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-exp-log-functions/visualization.html">L7: Hàm mũ và hàm log →</a>
+</nav>
+  <h1>Lesson 06 — Hàm bậc 1 và hàm bậc 2</h1>
+  <p class="intro">
+    Bốn playground tương tác: kéo slider để thấy <strong>y = ax + b</strong> và
+    <strong>y = ax² + bx + c</strong> thay đổi realtime. Xem cách Δ quyết định
+    số nghiệm và xem từng bước "completing the square".
+  </p>
+
+  <!-- =================== 1. LINEAR PLAYGROUND =================== -->
+  <h2>1. Linear playground — y = ax + b</h2>
+  <div class="card">
+    <div class="row">
+      <div class="col">
+        <label class="slider-label">
+          <span class="name">a</span>
+          <input type="range" id="lin-a" min="-5" max="5" step="0.1" value="2">
+          <span class="val" id="lin-a-val">2.0</span>
+        </label>
+        <label class="slider-label">
+          <span class="name">b</span>
+          <input type="range" id="lin-b" min="-10" max="10" step="0.5" value="1">
+          <span class="val" id="lin-b-val">1.0</span>
+        </label>
+        <div class="stats" id="lin-stats"></div>
+        <div class="row" style="margin-top:12px;">
+          <button id="lin-toggle-data" class="ghost">▼ Hiện scatter & regression</button>
+        </div>
+        <div id="lin-data-panel" style="display:none; margin-top:12px;">
+          <p class="hint">Nhập dữ liệu (mỗi dòng: <code>x y</code>) rồi bấm "Fit". Nút "Demo" tải bộ 5 điểm mẫu.</p>
+          <textarea class="data-input" id="lin-data" placeholder="1 2
+2 3
+3 5
+4 6
+5 8"></textarea>
+          <div class="row" style="margin-top:6px;">
+            <button id="lin-fit">Fit regression</button>
+            <button id="lin-demo" class="ghost">Demo dữ liệu</button>
+            <button id="lin-clear" class="ghost">Xoá</button>
+          </div>
+          <div class="stats" id="lin-fit-stats" style="margin-top:8px; display:none;"></div>
+        </div>
+      </div>
+      <div class="col">
+        <canvas id="lin-canvas" class="plot" width="520" height="420"></canvas>
+      </div>
+    </div>
+    <div class="ml-callout">
+      <strong>Liên hệ ML:</strong> Khi bật "scatter & regression", nút <em>Fit</em> tìm
+      <code>a*, b*</code> bằng công thức đóng (closed-form) — đây chính là linear
+      regression. Đường liền là model dự đoán; đoạn nét đứt từ mỗi điểm xuống đường
+      chính là <em>residual</em> (sai lệch). Loss = trung bình bình phương các đoạn này.
+    </div>
+  </div>
+
+  <!-- =================== 2. QUADRATIC PLAYGROUND =================== -->
+  <h2>2. Quadratic playground — y = ax² + bx + c</h2>
+  <div class="card">
+    <div class="row">
+      <div class="col">
+        <label class="slider-label">
+          <span class="name">a</span>
+          <input type="range" id="q-a" min="-3" max="3" step="0.1" value="1">
+          <span class="val" id="q-a-val">1.0</span>
+        </label>
+        <label class="slider-label">
+          <span class="name">b</span>
+          <input type="range" id="q-b" min="-10" max="10" step="0.5" value="-4">
+          <span class="val" id="q-b-val">-4.0</span>
+        </label>
+        <label class="slider-label">
+          <span class="name">c</span>
+          <input type="range" id="q-c" min="-10" max="10" step="0.5" value="3">
+          <span class="val" id="q-c-val">3.0</span>
+        </label>
+        <div class="stats" id="q-stats"></div>
+        <div class="row" style="margin-top:10px;">
+          <button id="q-preset-1" class="ghost">x²−4x+3</button>
+          <button id="q-preset-2" class="ghost">x²−4x+4</button>
+          <button id="q-preset-3" class="ghost">x²+x+1</button>
+          <button id="q-preset-4" class="ghost">-x²+2x+3</button>
+        </div>
+      </div>
+      <div class="col">
+        <canvas id="q-canvas" class="plot" width="520" height="420"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== 3. DELTA VISUALIZER =================== -->
+  <h2>3. Delta visualizer — Δ quyết định số giao điểm với Ox</h2>
+  <div class="card">
+    <p class="hint">
+      Giữ a = 1, b = -4. Kéo c để Δ = 16 − 4c thay đổi qua 3 vùng:
+      <strong>Δ&gt;0</strong> (cắt 2 chỗ),
+      <strong>Δ=0</strong> (tiếp xúc),
+      <strong>Δ&lt;0</strong> (không cắt).
+    </p>
+    <div class="row">
+      <div class="col">
+        <label class="slider-label">
+          <span class="name">c</span>
+          <input type="range" id="d-c" min="-2" max="8" step="0.1" value="3">
+          <span class="val" id="d-c-val">3.0</span>
+        </label>
+        <div class="stats" id="d-stats"></div>
+        <div class="delta-card pos" id="dc-pos">
+          <div class="title">Δ &gt; 0 — Parabol cắt Ox tại 2 điểm</div>
+          <div class="hint">2 nghiệm phân biệt. Đỉnh nằm dưới trục Ox (khi a&gt;0).</div>
+        </div>
+        <div class="delta-card zero" id="dc-zero">
+          <div class="title">Δ = 0 — Parabol tiếp xúc Ox</div>
+          <div class="hint">1 nghiệm kép. Đỉnh nằm đúng trên trục Ox.</div>
+        </div>
+        <div class="delta-card neg" id="dc-neg">
+          <div class="title">Δ &lt; 0 — Parabol không cắt Ox</div>
+          <div class="hint">Vô nghiệm thực. Đỉnh nằm trên Ox (khi a&gt;0).</div>
+        </div>
+      </div>
+      <div class="col">
+        <canvas id="d-canvas" class="plot" width="520" height="420"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== 4. COMPLETE THE SQUARE STEPPER =================== -->
+  <h2>4. Completing the square — từng bước biến sang dạng đỉnh</h2>
+  <div class="card">
+    <p class="hint">Nhập a, b, c → xem 4 bước biến <code>ax² + bx + c</code> thành <code>a(x − h)² + k</code>.</p>
+    <div class="row">
+      <label class="slider-label" style="max-width:280px;">
+        <span class="name">a</span>
+        <input type="number" id="cs-a" value="3" step="1" style="width:80px;">
+      </label>
+      <label class="slider-label" style="max-width:280px;">
+        <span class="name">b</span>
+        <input type="number" id="cs-b" value="12" step="1" style="width:80px;">
+      </label>
+      <label class="slider-label" style="max-width:280px;">
+        <span class="name">c</span>
+        <input type="number" id="cs-c" value="7" step="1" style="width:80px;">
+      </label>
+      <button id="cs-go">Biến đổi</button>
+      <button id="cs-preset1" class="ghost">x²−6x+5</button>
+      <button id="cs-preset2" class="ghost">3x²+12x+7</button>
+    </div>
+    <div class="step-log" id="cs-log"></div>
+  </div>
+
+</main>
+
+<script>
+/* ============================================================================
+   Helper — toạ độ canvas: chuyển từ tọa độ toán (math) sang pixel.
+============================================================================ */
+function makeAxes(canvas, opts) {
+  // opts: {xMin, xMax, yMin, yMax}
+  const w = canvas.width, h = canvas.height;
+  const pad = 36;
+  const xMin = opts.xMin, xMax = opts.xMax;
+  const yMin = opts.yMin, yMax = opts.yMax;
+  function toPx(x, y) {
+    const px = pad + (x - xMin) / (xMax - xMin) * (w - 2 * pad);
+    const py = h - pad - (y - yMin) / (yMax - yMin) * (h - 2 * pad);
+    return [px, py];
+  }
+  return { w, h, pad, xMin, xMax, yMin, yMax, toPx };
+}
+
+function drawGrid(ctx, ax) {
+  ctx.clearRect(0, 0, ax.w, ax.h);
+
+  // Grid lines mỗi đơn vị
+  ctx.strokeStyle = "#edf2f7";
+  ctx.lineWidth = 1;
+  for (let x = Math.ceil(ax.xMin); x <= Math.floor(ax.xMax); x++) {
+    const [px] = ax.toPx(x, 0);
+    ctx.beginPath();
+    ctx.moveTo(px, ax.pad);
+    ctx.lineTo(px, ax.h - ax.pad);
+    ctx.stroke();
+  }
+  for (let y = Math.ceil(ax.yMin); y <= Math.floor(ax.yMax); y++) {
+    const [, py] = ax.toPx(0, y);
+    ctx.beginPath();
+    ctx.moveTo(ax.pad, py);
+    ctx.lineTo(ax.w - ax.pad, py);
+    ctx.stroke();
+  }
+
+  // Trục Ox, Oy
+  ctx.strokeStyle = "#a0aec0";
+  ctx.lineWidth = 1.5;
+  const [, py0] = ax.toPx(0, 0);
+  ctx.beginPath();
+  ctx.moveTo(ax.pad, py0); ctx.lineTo(ax.w - ax.pad, py0);
+  ctx.stroke();
+  const [px0] = ax.toPx(0, 0);
+  ctx.beginPath();
+  ctx.moveTo(px0, ax.pad); ctx.lineTo(px0, ax.h - ax.pad);
+  ctx.stroke();
+
+  // Nhãn đơn vị (mỗi 2 đơn vị cho gọn)
+  ctx.fillStyle = "#718096";
+  ctx.font = "11px monospace";
+  ctx.textAlign = "center"; ctx.textBaseline = "top";
+  for (let x = Math.ceil(ax.xMin); x <= Math.floor(ax.xMax); x++) {
+    if (x === 0) continue;
+    if (x % 2 !== 0) continue;
+    const [px] = ax.toPx(x, 0);
+    ctx.fillText(x, px, py0 + 4);
+  }
+  ctx.textAlign = "right"; ctx.textBaseline = "middle";
+  for (let y = Math.ceil(ax.yMin); y <= Math.floor(ax.yMax); y++) {
+    if (y === 0) continue;
+    if (y % 2 !== 0) continue;
+    const [, py] = ax.toPx(0, y);
+    ctx.fillText(y, px0 - 4, py);
+  }
+  ctx.textAlign = "left"; ctx.textBaseline = "bottom";
+  ctx.fillStyle = "#4a5568";
+  ctx.fillText("x", ax.w - ax.pad + 4, py0 + 14);
+  ctx.fillText("y", px0 - 12, ax.pad - 4);
+}
+
+function plotFunction(ctx, ax, fn, style) {
+  ctx.strokeStyle = style.color || "#4299e1";
+  ctx.lineWidth = style.width || 2.5;
+  ctx.beginPath();
+  let started = false;
+  const steps = 400;
+  for (let i = 0; i <= steps; i++) {
+    const x = ax.xMin + (ax.xMax - ax.xMin) * i / steps;
+    const y = fn(x);
+    if (!isFinite(y) || y < ax.yMin - 100 || y > ax.yMax + 100) {
+      started = false; continue;
+    }
+    const [px, py] = ax.toPx(x, y);
+    if (!started) { ctx.moveTo(px, py); started = true; }
+    else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+}
+
+function dot(ctx, ax, x, y, color, r) {
+  const [px, py] = ax.toPx(x, y);
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.arc(px, py, r || 5, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function labelPoint(ctx, ax, x, y, text, color) {
+  const [px, py] = ax.toPx(x, y);
+  ctx.fillStyle = color || "#1a202c";
+  ctx.font = "bold 12px monospace";
+  ctx.textAlign = "left"; ctx.textBaseline = "bottom";
+  ctx.fillText(text, px + 6, py - 4);
+}
+
+function vline(ctx, ax, x, color) {
+  const [px] = ax.toPx(x, 0);
+  ctx.strokeStyle = color || "#c53030";
+  ctx.setLineDash([4, 4]);
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(px, ax.pad);
+  ctx.lineTo(px, ax.h - ax.pad);
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function fmt(x, digits) {
+  if (!isFinite(x)) return "—";
+  const d = digits == null ? 3 : digits;
+  return Number(x).toFixed(d).replace(/\.?0+$/, "") || "0";
+}
+
+/* ============================================================================
+   1. LINEAR PLAYGROUND
+============================================================================ */
+const linCanvas = document.getElementById("lin-canvas");
+const linCtx = linCanvas.getContext("2d");
+const linAx = makeAxes(linCanvas, { xMin: -10, xMax: 10, yMin: -12, yMax: 12 });
+
+let linData = [];   // scatter points [{x, y}]
+let linFit = null;  // {a, b}
+
+function linUpdate() {
+  const a = parseFloat(document.getElementById("lin-a").value);
+  const b = parseFloat(document.getElementById("lin-b").value);
+  document.getElementById("lin-a-val").textContent = fmt(a, 1);
+  document.getElementById("lin-b-val").textContent = fmt(b, 1);
+
+  drawGrid(linCtx, linAx);
+
+  // Vẽ scatter (nếu có)
+  for (const p of linData) dot(linCtx, linAx, p.x, p.y, "#ed8936", 5);
+
+  // Vẽ residual nếu có fit
+  if (linFit) {
+    linCtx.strokeStyle = "#a0aec0";
+    linCtx.setLineDash([3, 3]); linCtx.lineWidth = 1;
+    for (const p of linData) {
+      const yhat = linFit.a * p.x + linFit.b;
+      const [px, py1] = linAx.toPx(p.x, p.y);
+      const [, py2] = linAx.toPx(p.x, yhat);
+      linCtx.beginPath();
+      linCtx.moveTo(px, py1); linCtx.lineTo(px, py2);
+      linCtx.stroke();
+    }
+    linCtx.setLineDash([]);
+    // Vẽ đường regression (mỏng, màu khác)
+    plotFunction(linCtx, linAx, x => linFit.a * x + linFit.b,
+      { color: "#38a169", width: 2 });
+  }
+
+  // Vẽ đường y = ax + b chính
+  plotFunction(linCtx, linAx, x => a * x + b, { color: "#4299e1", width: 2.8 });
+
+  // y-intercept
+  dot(linCtx, linAx, 0, b, "#2b6cb0", 5);
+  labelPoint(linCtx, linAx, 0, b, `(0, ${fmt(b, 2)})`, "#2b6cb0");
+
+  // x-intercept (nếu a ≠ 0)
+  if (Math.abs(a) > 1e-9) {
+    const xr = -b / a;
+    dot(linCtx, linAx, xr, 0, "#c53030", 5);
+    labelPoint(linCtx, linAx, xr, 0, `(${fmt(xr, 2)}, 0)`, "#c53030");
+  }
+
+  // Stats
+  const slopeDesc = a > 0 ? "đi lên ↗" : a < 0 ? "đi xuống ↘" : "nằm ngang →";
+  let s = "";
+  s += `<span class="key">y = ${fmt(a, 2)}x + ${fmt(b, 2)}</span>\n`;
+  s += `slope a = <span class="neu">${fmt(a, 2)}</span>   (${slopeDesc})\n`;
+  s += `y-intercept = (0, <span class="neu">${fmt(b, 2)}</span>)\n`;
+  if (Math.abs(a) > 1e-9) {
+    s += `x-intercept = (<span class="neu">${fmt(-b/a, 3)}</span>, 0)\n`;
+  } else {
+    s += `a = 0 → đường nằm ngang, không có x-intercept (trừ khi b cũng = 0)\n`;
+  }
+  s += `x tăng 1 đơn vị → y tăng ${fmt(a, 2)} đơn vị`;
+  document.getElementById("lin-stats").innerHTML = s;
+}
+
+document.getElementById("lin-a").addEventListener("input", linUpdate);
+document.getElementById("lin-b").addEventListener("input", linUpdate);
+
+document.getElementById("lin-toggle-data").addEventListener("click", function() {
+  const panel = document.getElementById("lin-data-panel");
+  const open = panel.style.display === "none";
+  panel.style.display = open ? "block" : "none";
+  this.textContent = open ? "▲ Ẩn scatter & regression" : "▼ Hiện scatter & regression";
+});
+
+function parseData(text) {
+  const out = [];
+  for (const line of text.split("\n")) {
+    const m = line.trim().match(/^(-?\d*\.?\d+)\s+(-?\d*\.?\d+)$/);
+    if (m) out.push({ x: parseFloat(m[1]), y: parseFloat(m[2]) });
+  }
+  return out;
+}
+
+function fitLinearRegression(data) {
+  if (data.length < 2) return null;
+  let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+  const n = data.length;
+  for (const p of data) {
+    sumX += p.x; sumY += p.y;
+    sumXY += p.x * p.y; sumX2 += p.x * p.x;
+  }
+  const denom = n * sumX2 - sumX * sumX;
+  if (denom === 0) return null;
+  const a = (n * sumXY - sumX * sumY) / denom;
+  const b = (sumY - a * sumX) / n;
+  // MSE
+  let mse = 0;
+  for (const p of data) {
+    const e = p.y - (a * p.x + b);
+    mse += e * e;
+  }
+  mse /= n;
+  return { a, b, mse };
+}
+
+document.getElementById("lin-fit").addEventListener("click", () => {
+  const text = document.getElementById("lin-data").value;
+  linData = parseData(text);
+  linFit = fitLinearRegression(linData);
+  const statsBox = document.getElementById("lin-fit-stats");
+  if (linFit) {
+    statsBox.style.display = "block";
+    statsBox.innerHTML =
+      `<span class="key">Closed-form fit</span>: y* = <span class="pos">${fmt(linFit.a, 4)}</span>·x + <span class="pos">${fmt(linFit.b, 4)}</span>\n` +
+      `MSE = <span class="neu">${fmt(linFit.mse, 4)}</span>   (n = ${linData.length} điểm)\n` +
+      `Đường xanh lá = đường khớp nhất. Đoạn nét đứt = residual.`;
+  } else {
+    statsBox.style.display = "block";
+    statsBox.innerHTML = `<span class="neg">Cần ≥ 2 điểm với x khác nhau.</span>`;
+  }
+  linUpdate();
+});
+
+document.getElementById("lin-demo").addEventListener("click", () => {
+  document.getElementById("lin-data").value =
+    "1 2\n2 3.2\n3 4.8\n4 6.5\n5 7.9\n6 9.4\n7 10.6";
+});
+
+document.getElementById("lin-clear").addEventListener("click", () => {
+  document.getElementById("lin-data").value = "";
+  linData = []; linFit = null;
+  document.getElementById("lin-fit-stats").style.display = "none";
+  linUpdate();
+});
+
+linUpdate();
+
+/* ============================================================================
+   2. QUADRATIC PLAYGROUND
+============================================================================ */
+const qCanvas = document.getElementById("q-canvas");
+const qCtx = qCanvas.getContext("2d");
+const qAx = makeAxes(qCanvas, { xMin: -8, xMax: 8, yMin: -8, yMax: 12 });
+
+function qUpdate() {
+  const a = parseFloat(document.getElementById("q-a").value);
+  const b = parseFloat(document.getElementById("q-b").value);
+  const c = parseFloat(document.getElementById("q-c").value);
+  document.getElementById("q-a-val").textContent = fmt(a, 1);
+  document.getElementById("q-b-val").textContent = fmt(b, 1);
+  document.getElementById("q-c-val").textContent = fmt(c, 1);
+
+  drawGrid(qCtx, qAx);
+
+  // Parabol (chỉ khi a ≠ 0)
+  if (Math.abs(a) < 1e-9) {
+    plotFunction(qCtx, qAx, x => b * x + c, { color: "#ed8936", width: 2.5 });
+    qCtx.fillStyle = "#c53030"; qCtx.font = "14px sans-serif";
+    qCtx.fillText("a = 0 → suy biến thành đường thẳng (cam)", 50, 24);
+    document.getElementById("q-stats").innerHTML =
+      `<span class="neg">a = 0 → không phải parabol nữa, mà là đường thẳng y = ${fmt(b,2)}x + ${fmt(c,2)}.</span>`;
+    return;
+  }
+
+  plotFunction(qCtx, qAx, x => a * x * x + b * x + c,
+    { color: "#4299e1", width: 2.8 });
+
+  // Đỉnh
+  const h = -b / (2 * a);
+  const k = c - b * b / (4 * a);
+  // Trục đối xứng
+  vline(qCtx, qAx, h, "#a0aec0");
+  // Vẽ đỉnh
+  dot(qCtx, qAx, h, k, "#d69e2e", 6);
+  labelPoint(qCtx, qAx, h, k, `Đỉnh (${fmt(h,2)}, ${fmt(k,2)})`, "#b7791f");
+
+  // Giao Oy
+  dot(qCtx, qAx, 0, c, "#2b6cb0", 5);
+
+  // Δ và nghiệm
+  const delta = b * b - 4 * a * c;
+  let rootsText = "";
+  if (delta > 1e-9) {
+    const s = Math.sqrt(delta);
+    const x1 = (-b + s) / (2 * a);
+    const x2 = (-b - s) / (2 * a);
+    dot(qCtx, qAx, x1, 0, "#c53030", 5);
+    dot(qCtx, qAx, x2, 0, "#c53030", 5);
+    rootsText = `x₁ = <span class="pos">${fmt(x1, 4)}</span>,  x₂ = <span class="pos">${fmt(x2, 4)}</span>`;
+  } else if (Math.abs(delta) < 1e-9) {
+    dot(qCtx, qAx, h, 0, "#c53030", 6);
+    rootsText = `nghiệm kép x = <span class="pos">${fmt(h, 4)}</span>`;
+  } else {
+    rootsText = `<span class="neg">vô nghiệm thực</span> (parabol không cắt Ox)`;
+  }
+
+  const shape = a > 0 ? "mở lên ∪ (có min)" : "mở xuống ∩ (có max)";
+  let s = "";
+  s += `<span class="key">y = ${fmt(a,2)}x² + ${fmt(b,2)}x + ${fmt(c,2)}</span>\n`;
+  s += `a = ${fmt(a,2)} → ${shape}\n`;
+  s += `Đỉnh: (<span class="neu">${fmt(h,3)}</span>, <span class="neu">${fmt(k,3)}</span>)\n`;
+  s += `Trục đối xứng: x = ${fmt(h,3)}\n`;
+  s += `Δ = b² − 4ac = ${fmt(b*b,2)} − ${fmt(4*a*c,2)} = <span class="neu">${fmt(delta,3)}</span>\n`;
+  s += `Nghiệm: ${rootsText}`;
+  document.getElementById("q-stats").innerHTML = s;
+}
+
+["q-a","q-b","q-c"].forEach(id =>
+  document.getElementById(id).addEventListener("input", qUpdate));
+
+function qSet(a, b, c) {
+  document.getElementById("q-a").value = a;
+  document.getElementById("q-b").value = b;
+  document.getElementById("q-c").value = c;
+  qUpdate();
+}
+document.getElementById("q-preset-1").addEventListener("click", () => qSet(1, -4, 3));
+document.getElementById("q-preset-2").addEventListener("click", () => qSet(1, -4, 4));
+document.getElementById("q-preset-3").addEventListener("click", () => qSet(1, 1, 1));
+document.getElementById("q-preset-4").addEventListener("click", () => qSet(-1, 2, 3));
+
+qUpdate();
+
+/* ============================================================================
+   3. DELTA VISUALIZER (a=1, b=-4 cố định, kéo c)
+============================================================================ */
+const dCanvas = document.getElementById("d-canvas");
+const dCtx = dCanvas.getContext("2d");
+const dAx = makeAxes(dCanvas, { xMin: -2, xMax: 8, yMin: -6, yMax: 10 });
+
+function dUpdate() {
+  const a = 1, b = -4;
+  const c = parseFloat(document.getElementById("d-c").value);
+  document.getElementById("d-c-val").textContent = fmt(c, 1);
+
+  drawGrid(dCtx, dAx);
+  plotFunction(dCtx, dAx, x => a * x * x + b * x + c,
+    { color: "#4299e1", width: 2.8 });
+
+  const delta = b * b - 4 * a * c;
+  const h = -b / (2 * a), k = c - b * b / (4 * a);
+
+  // Đỉnh
+  dot(dCtx, dAx, h, k, "#d69e2e", 6);
+  labelPoint(dCtx, dAx, h, k, `(${fmt(h,1)}, ${fmt(k,2)})`, "#b7791f");
+
+  // Nghiệm
+  let kind;
+  if (delta > 1e-6) {
+    const s = Math.sqrt(delta);
+    const x1 = (-b + s) / (2 * a), x2 = (-b - s) / (2 * a);
+    dot(dCtx, dAx, x1, 0, "#2f855a", 6);
+    dot(dCtx, dAx, x2, 0, "#2f855a", 6);
+    labelPoint(dCtx, dAx, x1, 0, fmt(x1,2), "#2f855a");
+    labelPoint(dCtx, dAx, x2, 0, fmt(x2,2), "#2f855a");
+    kind = "pos";
+  } else if (Math.abs(delta) < 1e-6) {
+    dot(dCtx, dAx, h, 0, "#b7791f", 7);
+    labelPoint(dCtx, dAx, h, 0, "nghiệm kép " + fmt(h,2), "#b7791f");
+    kind = "zero";
+  } else {
+    // Vẽ thông báo
+    dCtx.fillStyle = "#c53030"; dCtx.font = "bold 13px sans-serif";
+    dCtx.fillText("Parabol không cắt Ox (Δ < 0)", 60, 24);
+    kind = "neg";
+  }
+
+  // Active card
+  for (const id of ["dc-pos", "dc-zero", "dc-neg"])
+    document.getElementById(id).classList.remove("active");
+  document.getElementById("dc-" + kind).classList.add("active");
+
+  let s = "";
+  s += `<span class="key">y = x² − 4x + ${fmt(c,2)}</span>\n`;
+  s += `Δ = 16 − 4·${fmt(c,2)} = <span class="neu">${fmt(delta,3)}</span>\n`;
+  s += `Đỉnh: (2, ${fmt(k,3)})  ·  k = c − 4 = ${fmt(c-4,3)}\n`;
+  if (kind === "pos")  s += `→ <span class="pos">2 nghiệm thực phân biệt</span>`;
+  if (kind === "zero") s += `→ <span class="neu">1 nghiệm kép tại x = 2</span>`;
+  if (kind === "neg")  s += `→ <span class="neg">vô nghiệm thực</span>`;
+  document.getElementById("d-stats").innerHTML = s;
+}
+
+document.getElementById("d-c").addEventListener("input", dUpdate);
+dUpdate();
+
+/* ============================================================================
+   4. COMPLETING THE SQUARE STEPPER
+============================================================================ */
+function csStep() {
+  const a = parseFloat(document.getElementById("cs-a").value);
+  const b = parseFloat(document.getElementById("cs-b").value);
+  const c = parseFloat(document.getElementById("cs-c").value);
+  const log = document.getElementById("cs-log");
+
+  if (!isFinite(a) || !isFinite(b) || !isFinite(c)) {
+    log.innerHTML = `<span class="note">Nhập số hợp lệ cho a, b, c.</span>`;
+    return;
+  }
+  if (a === 0) {
+    log.innerHTML = `<span class="note">a = 0 → đây là hàm bậc 1, không có dạng đỉnh parabol. Nhập a ≠ 0.</span>`;
+    return;
+  }
+
+  const bOverA = b / a;
+  const half = bOverA / 2;        // (b/(2a))
+  const halfSq = half * half;     // (b/(2a))²
+  const h = -b / (2 * a);
+  const k = c - b * b / (4 * a);
+
+  // Render từng bước
+  const lines = [];
+  lines.push(`<span class="note">Mục tiêu: ${a}x² + ${b}x + ${c} = a·(x − h)² + k</span>`);
+  lines.push(``);
+  lines.push(`<span class="formula">Bước 1.</span> Đưa a = ${a} ra ngoài (chỉ với 2 hạng tử đầu):`);
+  lines.push(`   ${a}x² + ${b}x + ${c} = ${a}·(x² + ${fmt(bOverA,3)}·x) + ${c}`);
+  lines.push(``);
+  lines.push(`<span class="formula">Bước 2.</span> Thêm và bớt (b/(2a))² = ${fmt(half,3)}² = ${fmt(halfSq,4)} bên trong ngoặc:`);
+  lines.push(`   = ${a}·(x² + ${fmt(bOverA,3)}·x + ${fmt(halfSq,4)} − ${fmt(halfSq,4)}) + ${c}`);
+  lines.push(``);
+  lines.push(`<span class="formula">Bước 3.</span> Gom ba số hạng đầu thành bình phương đầy đủ (x + b/(2a))²:`);
+  lines.push(`   = ${a}·((x + ${fmt(half,3)})² − ${fmt(halfSq,4)}) + ${c}`);
+  lines.push(``);
+  const shift = -a * halfSq + c;
+  lines.push(`<span class="formula">Bước 4.</span> Phân phối a vào −(b/(2a))² và rút gọn:`);
+  lines.push(`   = ${a}·(x + ${fmt(half,3)})² − ${fmt(a*halfSq,4)} + ${c}`);
+  lines.push(`   = ${a}·(x + ${fmt(half,3)})² + ${fmt(shift,4)}`);
+  lines.push(`   = <span class="formula">${a}·(x − (${fmt(h,3)}))² + (${fmt(k,4)})</span>`);
+  lines.push(``);
+  lines.push(`<span class="note">Đọc đỉnh: (h, k) = (${fmt(h,3)}, ${fmt(k,4)}).</span>`);
+  if (a > 0) {
+    lines.push(`<span class="note">Vì a > 0, parabol mở lên → giá trị min của f(x) là ${fmt(k,4)}, đạt tại x = ${fmt(h,3)}.</span>`);
+  } else {
+    lines.push(`<span class="note">Vì a < 0, parabol mở xuống → giá trị max của f(x) là ${fmt(k,4)}, đạt tại x = ${fmt(h,3)}.</span>`);
+  }
+
+  log.innerHTML = lines.join("\n");
+}
+
+document.getElementById("cs-go").addEventListener("click", csStep);
+document.getElementById("cs-preset1").addEventListener("click", () => {
+  document.getElementById("cs-a").value = 1;
+  document.getElementById("cs-b").value = -6;
+  document.getElementById("cs-c").value = 5;
+  csStep();
+});
+document.getElementById("cs-preset2").addEventListener("click", () => {
+  document.getElementById("cs-a").value = 3;
+  document.getElementById("cs-b").value = 12;
+  document.getElementById("cs-c").value = 7;
+  csStep();
+});
+csStep();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

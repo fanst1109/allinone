@@ -1,0 +1,1500 @@
+# Lesson 04 — Lũy thừa, căn, logarit
+
+## Mục tiêu học tập
+
+Sau bài này bạn sẽ:
+
+- Hiểu **lũy thừa** (`a^n`), **căn** (`√a`, `√[n]{a}`), **logarit** (`log_b(x)`) — định nghĩa và ý nghĩa.
+- Vận dụng thành thạo **các quy luật** liên quan: nhân/chia/lũy thừa của lũy thừa, đổi cơ số log.
+- Trả lời được câu hỏi *"vì sao log biến phép nhân thành phép cộng?"* — và vì sao điều đó cực kỳ quan trọng trong ML.
+- Hiểu vì sao `log` xuất hiện khắp nơi: Big-O của binary search, entropy, cross-entropy loss, log-likelihood.
+- Implement được `logSumExp` ổn định số (numerically stable) trong Go — kỹ thuật chuẩn để tránh overflow khi cộng nhiều số mũ.
+
+## Kiến thức tiền đề
+
+- [Lesson 03 — Phương trình bậc 1](../lesson-03-linear-equations/): biết biến đổi đại số, hiểu ký hiệu `x`, `y`, hằng số.
+- Phép cộng/trừ/nhân/chia số thực; ý niệm về số dương/âm, số hữu tỉ.
+- Khái niệm "phép tính ngược": trừ là ngược của cộng, chia là ngược của nhân — bài này sẽ thêm: **căn** là ngược của lũy thừa, **log** cũng là ngược của lũy thừa (nhưng theo trục khác).
+
+> **Ghi nhớ chính của cả bài**: lũy thừa, căn, log là **ba góc nhìn của cùng một phép biến đổi**.
+>
+> Cho `b^x = y`:
+> - Nếu biết `b` và `x`, hỏi `y` → đó là **lũy thừa**: `y = b^x`.
+> - Nếu biết `b` và `y`, hỏi `x` → đó là **logarit**: `x = log_b(y)`.
+> - Nếu biết `x` và `y`, hỏi `b` → đó là **căn**: `b = y^(1/x) = √[x]{y}`.
+>
+> Đừng coi 3 thứ này là 3 chủ đề rời. Chúng là một.
+
+---
+
+## 1. Lũy thừa (power / exponent)
+
+### 1.1. Định nghĩa cơ bản
+
+💡 **Trực giác trước**: lũy thừa = **phép nhân lặp**. Cũng giống như nhân là phép cộng lặp (`3 · 4 = 4 + 4 + 4`), lũy thừa là nhân lặp (`3^4 = 3 · 3 · 3 · 3`). Cứ "leo lên một bậc" của phép tính: cộng → nhân → lũy thừa.
+
+`a^n` với `n` là số nguyên dương: nhân `a` với chính nó `n` lần.
+
+```
+a^n = a · a · a · ... · a   (n lần)
+```
+
+- `a` gọi là **cơ số** (base).
+- `n` gọi là **số mũ** (exponent).
+
+Ví dụ tính tay:
+
+| Biểu thức | Tính toán | Kết quả |
+|-----------|-----------|---------|
+| `2^3` | `2 · 2 · 2` | `8` |
+| `5^4` | `5 · 5 · 5 · 5 = 25 · 25` | `625` |
+| `10^6` | `10 · 10 · 10 · 10 · 10 · 10` | `1 000 000` (1 triệu) |
+| `3^5` | `3 · 3 · 3 · 3 · 3 = 9 · 27` | `243` |
+| `(−2)^4` | `(−2)(−2)(−2)(−2) = 4 · 4` | `16` (dương vì 4 dấu âm) |
+| `(−2)^3` | `(−2)(−2)(−2) = 4 · (−2)` | `−8` (âm vì 3 dấu âm) |
+
+**Quy tắc dấu**: cơ số âm + số mũ chẵn = dương; cơ số âm + số mũ lẻ = âm.
+
+**Lũy thừa "bùng nổ" nhanh thế nào?** Một cảm giác cụ thể:
+
+| `n` | `2^n` | `10^n` |
+|-----|-------|--------|
+| `1` | `2` | `10` |
+| `5` | `32` | `100 000` |
+| `10` | `1 024` | `10 tỷ` |
+| `20` | `≈ 1 triệu` | `10^20` (vô cùng lớn) |
+| `30` | `≈ 1 tỷ` | `10^30` |
+
+So với hàm tuyến tính `2n` (chỉ ra `60` khi `n = 30`), lũy thừa nuốt mọi tốc độ tuyến tính chỉ sau vài bước. Đây là lý do thuật toán `O(2^n)` thực tế **không chạy nổi** với `n > 30`.
+
+### 1.2. Số mũ đặc biệt: 0 và 1
+
+- `a^1 = a` — hiển nhiên, nhân `a` "1 lần" là chính nó.
+- `a^0 = 1` với mọi `a ≠ 0` — đây là **quy ước**, nhưng có lý do chặt chẽ.
+
+**Vì sao `a^0 = 1`?** Xuất phát từ quy luật `a^m / a^n = a^(m−n)` (sẽ chứng minh ở mục 2). Cho `m = n`:
+
+```
+a^n / a^n = a^(n−n) = a^0
+```
+
+Vế trái rõ ràng bằng `1` (số nào chia cho chính nó cũng bằng 1, miễn khác 0). Nên `a^0 = 1`.
+
+Ví dụ: `5^0 = 1`, `(−7)^0 = 1`, `(0.5)^0 = 1`, `1000^0 = 1`.
+
+Trường hợp `0^0` là **không xác định** (toán học) hoặc **quy ước là 1** (lập trình, tổ hợp) — tùy ngữ cảnh. Trong Go, `math.Pow(0, 0) = 1`.
+
+**Walk-through 3 ví dụ kiểm chứng `a^0 = 1`** (bằng cách dùng dãy đếm ngược, mỗi bước giảm 1 đơn vị mũ = chia cho cơ số):
+
+```
+Ví dụ a: 3^0
+  3^3 = 27
+  3^2 = 27 / 3 = 9
+  3^1 = 9 / 3 = 3
+  3^0 = 3 / 3 = 1   ✓
+
+Ví dụ b: 7^0
+  7^2 = 49
+  7^1 = 49 / 7 = 7
+  7^0 = 7 / 7 = 1   ✓
+
+Ví dụ c: (-4)^0
+  (-4)^2 = 16
+  (-4)^1 = 16 / (-4) = -4
+  (-4)^0 = (-4) / (-4) = 1   ✓
+```
+
+Cả ba đều "kết thúc" tại `1` — đó là lý do `a^0 = 1` không phải quy ước tùy tiện, mà là điều kiện duy nhất giữ cho dãy nhất quán.
+
+#### ❓ Câu hỏi tự nhiên: "Sao `0^0` không xác định?"
+
+Vì có **hai cách kéo dài** tới điểm này, và chúng cho ra hai đáp án khác nhau:
+
+- Đường 1: cố định cơ số `0`, cho mũ tiến về `0`. Với mọi mũ dương: `0^1 = 0`, `0^0.5 = 0`, `0^0.01 = 0`, ... → giới hạn là `0`.
+- Đường 2: cố định mũ `0`, cho cơ số tiến về `0`. Với mọi cơ số dương: `1^0 = 1`, `0.5^0 = 1`, `0.01^0 = 1`, ... → giới hạn là `1`.
+
+Hai đường cho hai đáp án → toán học không gán giá trị nhất quán. Tuy nhiên trong **tổ hợp** (combinatorics), `0^0 = 1` rất tiện (số cách "chọn không gì từ không gì" = 1 cách: cách trống), nên hầu hết ngôn ngữ lập trình theo quy ước này.
+
+### 1.3. Số mũ âm
+
+`a^(-n) = 1 / a^n` với `a ≠ 0`.
+
+**Vì sao?** Cũng từ quy luật `a^m / a^n = a^(m−n)`. Lấy `m = 0`, `n` dương:
+
+```
+a^0 / a^n = a^(0−n) = a^(−n)
+```
+
+Vế trái = `1 / a^n`. Nên `a^(−n) = 1/a^n`.
+
+Ví dụ:
+
+| Biểu thức | Tính | Kết quả |
+|-----------|------|---------|
+| `2^(-1)` | `1/2^1 = 1/2` | `0.5` |
+| `2^(-3)` | `1/2^3 = 1/8` | `0.125` |
+| `10^(-2)` | `1/10^2 = 1/100` | `0.01` |
+| `5^(-4)` | `1/5^4 = 1/625` | `0.0016` |
+
+**Walk-through 3 ví dụ kiểm chứng `a^(-n) = 1/a^n` bằng quy luật `a^m / a^n = a^(m-n)`**:
+
+```
+Ví dụ a: 2^(-3)
+  Cách 1 (định nghĩa số mũ âm):  2^(-3) = 1 / 2^3 = 1/8 = 0.125
+  Cách 2 (qua chia cùng cơ số):  2^2 / 2^5 = 4 / 32 = 0.125 = 1/8
+  Mặt khác:                       2^(2-5) = 2^(-3)
+  ✓ Cả hai con đường cho 0.125.
+
+Ví dụ b: 5^(-2)
+  Cách 1: 5^(-2) = 1 / 5^2 = 1/25 = 0.04
+  Cách 2: 5^0 / 5^2 = 1 / 25 = 0.04
+  Mặt khác: 5^(0-2) = 5^(-2)
+  ✓ Khớp 0.04.
+
+Ví dụ c: 10^(-5)
+  Cách 1: 10^(-5) = 1 / 10^5 = 1/100000 = 0.00001
+  Cách 2: 10^3 / 10^8 = 1000 / 100000000 = 0.00001
+  Mặt khác: 10^(3-8) = 10^(-5)
+  ✓ Khớp 0.00001.
+```
+
+#### ❓ Câu hỏi tự nhiên: "Sao `a^(-1) = 1/a`?"
+
+Cách hiểu trực giác bằng **dãy đếm ngược**: mỗi khi số mũ giảm 1, ta **chia cho `a`**:
+
+```
+2^3 = 8
+2^2 = 8 / 2 = 4
+2^1 = 4 / 2 = 2
+2^0 = 2 / 2 = 1     ← Đây là lý do a^0 = 1
+2^(-1) = 1 / 2 = 0.5
+2^(-2) = 0.5 / 2 = 0.25
+2^(-3) = 0.25 / 2 = 0.125
+```
+
+Số mũ âm không có gì "lạ" — nó chỉ là sự tiếp diễn tự nhiên của dãy. Mỗi bước xuống = chia cho `a`.
+
+#### 🔁 Dừng lại tự kiểm tra (mục 1.2-1.3)
+
+Tính nhẩm các giá trị sau (không nhìn đáp án):
+
+1. `7^0` = ?
+2. `(−1)^100` = ?
+3. `3^(-2)` = ?
+4. `10^(-4)` = ?
+5. `(0.5)^(-1)` = ?
+
+<details>
+<summary>Đáp án</summary>
+
+1. `1` (bất kỳ số nào khác 0 mũ 0 đều bằng 1).
+2. `1` (cơ số âm + mũ chẵn = dương; cụ thể `(-1)^chẵn = 1`).
+3. `1/9 ≈ 0.111`.
+4. `0.0001` (`1/10000`).
+5. `2` (`1 / 0.5 = 2`).
+
+</details>
+
+### 1.4. Số mũ phân số (căn)
+
+`a^(1/n) = √[n]{a}` (căn bậc `n` của `a`).
+
+Cụ thể:
+- `a^(1/2) = √a` (căn bậc 2, thường viết tắt là `√a`).
+- `a^(1/3) = √[3]{a}` (căn bậc 3, hay "cube root").
+
+**Vì sao?** Từ quy luật `(a^m)^n = a^(mn)`. Cho `m = 1/n`:
+
+```
+(a^(1/n))^n = a^(1/n · n) = a^1 = a
+```
+
+Tức là số `a^(1/n)` khi lũy thừa lên `n` sẽ ra `a` — đó chính là định nghĩa căn bậc `n`.
+
+Ví dụ tính:
+
+| Biểu thức | Vì sao | Kết quả |
+|-----------|--------|---------|
+| `9^(1/2)` | `3 · 3 = 9` | `3` |
+| `8^(1/3)` | `2 · 2 · 2 = 8` | `2` |
+| `16^(1/4)` | `2^4 = 16` | `2` |
+| `32^(1/5)` | `2^5 = 32` | `2` |
+
+Tổng quát: `a^(m/n) = (a^(1/n))^m = √[n]{a^m}`.
+
+Ví dụ `8^(2/3) = (8^(1/3))^2 = 2^2 = 4`. Hoặc `16^(3/4) = (16^(1/4))^3 = 2^3 = 8`. Hoặc `16^0.75 = 16^(3/4) = 8`.
+
+**Walk-through 3 ví dụ kiểm chứng `a^(m/n) = (√[n]{a})^m`**:
+
+```
+Ví dụ a: 27^(2/3)
+  Cách 1 (căn trước, mũ sau): (27^(1/3))^2 = 3^2 = 9
+  Cách 2 (mũ trước, căn sau): (27^2)^(1/3) = 729^(1/3) = 9 (vì 9^3 = 729)
+  ✓ Cả hai bằng 9. Cách 1 dễ tính tay hơn (số nhỏ hơn).
+
+Ví dụ b: 32^(3/5)
+  Cách 1: (32^(1/5))^3 = 2^3 = 8 (vì 2^5 = 32)
+  Cách 2: (32^3)^(1/5) = 32768^(1/5) = 8 (vì 8^5 = 32768)
+  ✓ Bằng 8.
+
+Ví dụ c: 81^(3/4)
+  Cách 1: (81^(1/4))^3 = 3^3 = 27 (vì 3^4 = 81)
+  Cách 2: (81^3)^(1/4) = 531441^(1/4) = 27 (vì 27^4 = 531441)
+  ✓ Bằng 27.
+```
+
+**Bài học**: với mũ phân số `m/n`, **luôn lấy căn trước, mũ sau** — số trung gian nhỏ, dễ tính tay.
+
+#### ❓ Câu hỏi tự nhiên: "Số mũ là phân số có nghĩa lý gì?"
+
+Nhân `a` với chính nó "1/2 lần" nghe vô nghĩa. Nhưng nếu nhìn bằng **quy luật bảo toàn**:
+
+- Muốn `a^(1/2) · a^(1/2) = a^(1/2 + 1/2) = a^1 = a` (theo quy luật `a^m · a^n = a^(m+n)`).
+- Tức là `a^(1/2)` là "số nào nhân với chính nó được `a`" — đúng định nghĩa **căn bậc 2**.
+
+Mở rộng: `a^(1/3) · a^(1/3) · a^(1/3) = a^1 = a` → `a^(1/3)` là căn bậc 3.
+
+→ Số mũ phân số không phải "nhân nửa lần" mà là **mở rộng quy luật** sao cho mọi công thức lũy thừa vẫn đúng cho mọi số mũ thực, không chỉ số nguyên.
+
+#### ❓ Câu hỏi tự nhiên: "Vậy còn số mũ là số vô tỉ như `√2` hoặc `π` thì sao?"
+
+`2^π ≈ 8.825` — máy tính trả về một con số cụ thể. Nhưng `π = 3.14159...` không kết thúc, làm sao "nhân `2` với chính nó `π` lần"?
+
+Trả lời: dùng **giới hạn** (limit). Lấy chuỗi số hữu tỉ tiến về `π`:
+
+```
+2^3       = 8
+2^3.1     ≈ 8.574
+2^3.14    ≈ 8.815
+2^3.141   ≈ 8.821
+2^3.1415  ≈ 8.824
+2^3.14159 ≈ 8.8249
+...       → 2^π ≈ 8.82497...
+```
+
+Dãy hội tụ. Ta định nghĩa `2^π` chính là giới hạn này. Quy luật `a^m · a^n = a^(m+n)` vẫn giữ — đó là vẻ đẹp của lũy thừa: nó "mở rộng liên tục" từ số nguyên ra mọi số thực.
+
+→ Trong Go, `math.Pow(2, math.Pi)` trả về `8.824977827076287` — chính là giới hạn này được tính sẵn.
+
+#### ⚠ Lỗi thường gặp với lũy thừa
+
+- **Nhầm `a^m + a^n = a^(m+n)`** — sai. Cộng và lũy thừa không giao hoán theo cách đó. Vd `2^3 + 2^4 = 24`, không phải `2^7 = 128`.
+- **Nhầm `(a+b)^n = a^n + b^n`** — sai. Đây là lỗi rất phổ biến với bình phương: `(a+b)^2 = a^2 + 2ab + b^2`, **không** = `a^2 + b^2`. Vd `(3+4)^2 = 49`, không phải `9 + 16 = 25`.
+- **Nhầm dấu khi mũ âm**: `2^(-3) = -8` (sai). Đúng: `2^(-3) = 1/8`. Số mũ âm **không** làm kết quả âm — nó làm kết quả nhỏ (nghịch đảo).
+- **Nhầm `(-2)^2` với `-2^2`**: `(-2)^2 = 4` (bình phương của `-2`), còn `-2^2 = -4` (lấy âm của `2^2`). Thứ tự ưu tiên: lũy thừa trước, dấu âm sau.
+
+#### 🔁 Dừng lại tự kiểm tra (mục 1.4)
+
+1. `27^(1/3)` = ?
+2. `81^(1/4)` = ?
+3. `25^(3/2)` = ?
+4. `(-8)^(1/3)` = ?
+5. `100^(-1/2)` = ?
+
+<details>
+<summary>Đáp án</summary>
+
+1. `3` (vì `3^3 = 27`).
+2. `3` (vì `3^4 = 81`).
+3. `(25^(1/2))^3 = 5^3 = 125`.
+4. `-2` (căn bậc lẻ của số âm có nghĩa: `(-2)^3 = -8`).
+5. `1 / 100^(1/2) = 1/10 = 0.1`.
+
+</details>
+
+#### Tóm tắt mục 1
+
+- Lũy thừa = nhân lặp. `a^n` "leo bậc" rất nhanh.
+- `a^0 = 1` (a ≠ 0), `a^(-n) = 1/a^n`, `a^(1/n) = √[n]{a}` — tất cả suy ra từ quy luật `a^m · a^n = a^(m+n)`.
+- Số mũ có thể là nguyên, âm, phân số, hay số thực bất kỳ — quy luật vẫn nhất quán.
+
+---
+
+## 2. Quy luật lũy thừa (laws of exponents)
+
+Đây là 5 quy luật **phải thuộc**. Mỗi quy luật đều có ví dụ số cụ thể để bạn tự kiểm chứng.
+
+| # | Quy luật | Tên |
+|---|----------|-----|
+| 1 | `a^m · a^n = a^(m+n)` | Nhân cùng cơ số → cộng số mũ |
+| 2 | `a^m / a^n = a^(m−n)` | Chia cùng cơ số → trừ số mũ |
+| 3 | `(a^m)^n = a^(m·n)` | Lũy thừa của lũy thừa → nhân số mũ |
+| 4 | `(a · b)^n = a^n · b^n` | Lũy thừa của tích → tích các lũy thừa |
+| 5 | `(a / b)^n = a^n / b^n` | Lũy thừa của thương → thương các lũy thừa |
+
+### Kiểm chứng từng quy luật bằng số
+
+**Quy luật 1**: `a^m · a^n = a^(m+n)`
+
+Ví dụ 1.1:
+```
+2^3 · 2^4 = 8 · 16 = 128
+2^(3+4) = 2^7 = 128
+✓ Bằng nhau.
+```
+
+Ví dụ 1.2:
+```
+5^2 · 5^3 = 25 · 125 = 3125
+5^(2+3) = 5^5 = 3125
+✓
+```
+
+Ví dụ 1.3 (mũ âm):
+```
+10^4 · 10^(-2) = 10000 · 0.01 = 100
+10^(4 + (-2)) = 10^2 = 100
+✓
+```
+
+Ví dụ 1.4 (mũ phân số):
+```
+2^(1/2) · 2^(1/2) = √2 · √2 = 2
+2^(1/2 + 1/2) = 2^1 = 2
+✓
+```
+
+**Trực giác**: `2^3` là 3 thừa số 2, `2^4` là 4 thừa số 2, ghép lại là 7 thừa số 2 = `2^7`.
+
+**Quy luật 2**: `a^m / a^n = a^(m−n)`
+
+Ví dụ 2.1:
+```
+3^5 / 3^2 = 243 / 9 = 27
+3^(5−2) = 3^3 = 27
+✓
+```
+
+Ví dụ 2.2:
+```
+10^6 / 10^4 = 1 000 000 / 10 000 = 100
+10^(6-4) = 10^2 = 100
+✓
+```
+
+Ví dụ 2.3 (kết quả âm số mũ):
+```
+2^3 / 2^5 = 8 / 32 = 0.25 = 1/4
+2^(3-5) = 2^(-2) = 1/4
+✓
+```
+
+**Trực giác**: `(3·3·3·3·3) / (3·3) = 3·3·3` — triệt tiêu 2 thừa số.
+
+**Quy luật 3**: `(a^m)^n = a^(m·n)`
+
+Ví dụ 3.1:
+```
+(2^3)^2 = 8^2 = 64
+2^(3·2) = 2^6 = 64
+✓
+```
+
+Ví dụ 3.2:
+```
+(10^2)^3 = 100^3 = 1 000 000
+10^(2·3) = 10^6 = 1 000 000
+✓
+```
+
+Ví dụ 3.3 (mũ phân số):
+```
+(4^(1/2))^4 = 2^4 = 16
+4^(1/2 · 4) = 4^2 = 16
+✓
+```
+
+**Trực giác**: `(2^3)^2 = 2^3 · 2^3` (theo định nghĩa lũy thừa), mà `2^3 · 2^3 = 2^(3+3) = 2^6` theo quy luật 1.
+
+**Quy luật 4**: `(a · b)^n = a^n · b^n`
+
+Ví dụ 4.1:
+```
+(2 · 3)^4 = 6^4 = 1296
+2^4 · 3^4 = 16 · 81 = 1296
+✓
+```
+
+Ví dụ 4.2:
+```
+(5 · 2)^3 = 10^3 = 1000
+5^3 · 2^3 = 125 · 8 = 1000
+✓
+```
+
+Ví dụ 4.3:
+```
+(4 · 25)^(1/2) = 100^(1/2) = 10
+4^(1/2) · 25^(1/2) = 2 · 5 = 10
+✓
+```
+
+**Trực giác**: `(2·3)^4 = (2·3)(2·3)(2·3)(2·3)` — đổi vị trí → `(2·2·2·2)(3·3·3·3) = 2^4 · 3^4`.
+
+**Quy luật 5**: `(a / b)^n = a^n / b^n`
+
+Ví dụ 5.1:
+```
+(6 / 2)^3 = 3^3 = 27
+6^3 / 2^3 = 216 / 8 = 27
+✓
+```
+
+Ví dụ 5.2:
+```
+(10 / 5)^4 = 2^4 = 16
+10^4 / 5^4 = 10000 / 625 = 16
+✓
+```
+
+Ví dụ 5.3:
+```
+(4 / 9)^(1/2) = √(4/9) = 2/3
+4^(1/2) / 9^(1/2) = 2/3
+✓
+```
+
+### Cảnh báo: những thứ KHÔNG đúng
+
+Người mới hay nhầm các "quy luật giả" sau:
+
+- **`a^m + a^n ≠ a^(m+n)`** — **sai**. `2^3 + 2^4 = 8 + 16 = 24`, không phải `2^7 = 128`.
+- **`(a + b)^n ≠ a^n + b^n`** — **sai**. `(2+3)^2 = 25`, không phải `4 + 9 = 13`. (Đúng: `(a+b)^2 = a^2 + 2ab + b^2`.)
+- **`a^m · b^n ≠ (a·b)^(m+n)`** khi cơ số khác nhau — quy luật 1 chỉ áp dụng khi **cùng cơ số**. Ví dụ `2^3 · 3^2 = 8 · 9 = 72`, không thể "gộp" thành `(2·3)^5 = 6^5 = 7776`.
+- **Nhầm `a^(m·n)` với `a^(m^n)`** — `2^(3·2) = 2^6 = 64`, còn `2^(3^2) = 2^9 = 512`. Khác hẳn.
+- **Quên rằng quy luật chia chỉ đúng với `a ≠ 0`** — `0^m / 0^n` không xác định.
+
+#### 🔁 Dừng lại tự kiểm tra (mục 2)
+
+Rút gọn (không tính ra số cuối) hoặc tính nhanh:
+
+1. `2^7 · 2^3` = ?
+2. `5^10 / 5^7` = ?
+3. `(3^2)^4` = ?
+4. `(2 · 5)^6` = ? (so với `2^6 · 5^6`)
+5. `x^5 · x^(-3)` = ?
+6. `(x^2 · y^3)^2` = ?
+
+<details>
+<summary>Đáp án</summary>
+
+1. `2^(7+3) = 2^10 = 1024`.
+2. `5^(10-7) = 5^3 = 125`.
+3. `3^(2·4) = 3^8 = 6561`.
+4. Cả hai = `10^6 = 1 000 000` (quy luật 4 đảm bảo bằng nhau).
+5. `x^(5+(-3)) = x^2`.
+6. `(x^2)^2 · (y^3)^2 = x^4 · y^6` (kết hợp quy luật 4 và 3).
+
+</details>
+
+#### Tóm tắt mục 2
+
+- 5 quy luật lũy thừa đều bắt nguồn từ **định nghĩa nhân lặp**.
+- Nhân/chia/lũy thừa của lũy thừa = các phép cộng/trừ/nhân trên số mũ.
+- KHÔNG có "quy luật" cho `+` hay `-` của hai lũy thừa — đó là cái bẫy lớn nhất.
+
+---
+
+## 3. Căn (root)
+
+💡 **Trực giác trước**: căn là **phép tính ngược của lũy thừa theo bậc**. Nếu bình phương "đưa số đi lên": `3 → 9`, thì căn bậc 2 "đưa ngược về": `9 → 3`. Bậc lũy thừa và bậc căn phải khớp: căn bậc 2 ngược với mũ 2, căn bậc 3 ngược với mũ 3, ...
+
+### 3.1. Định nghĩa
+
+`√a` (căn bậc 2) là số `x ≥ 0` sao cho `x² = a`. Yêu cầu `a ≥ 0` (trong số thực — số âm có căn phức nhưng không thuộc phạm vi bài này).
+
+Tổng quát: `√[n]{a}` (căn bậc `n`) là số `x` sao cho `x^n = a`.
+
+- Với `n` chẵn: cần `a ≥ 0`.
+- Với `n` lẻ: `a` có thể âm. Ví dụ `√[3]{−8} = −2`.
+
+Như đã nói ở mục 1.4, đây chỉ là cách viết khác của lũy thừa phân số: `√[n]{a} = a^(1/n)`.
+
+### 3.2. Quy luật căn
+
+Suy ra trực tiếp từ quy luật lũy thừa (vì căn là lũy thừa với mũ `1/n`):
+
+| Quy luật | Ví dụ |
+|----------|-------|
+| `√(a · b) = √a · √b` | `√36 = √(4·9) = √4 · √9 = 2·3 = 6` ✓ |
+| `√(a / b) = √a / √b` | `√(25/16) = √25 / √16 = 5/4` ✓ |
+| `√(a^2) = |a|` | `√((-3)^2) = √9 = 3 = |−3|` ✓ |
+
+**Walk-through 3 ví dụ kiểm chứng `√(a·b) = √a · √b`**:
+
+```
+Ví dụ a: √(4 · 9)
+  VT: √(4·9) = √36 = 6
+  VP: √4 · √9 = 2 · 3 = 6
+  ✓ Bằng 6.
+
+Ví dụ b: √(2 · 8)
+  VT: √(2·8) = √16 = 4
+  VP: √2 · √8 = 1.414... · 2.828... ≈ 4.0
+  ✓ Bằng 4 (kiểm tra chính xác: √2 · √8 = √2 · √(4·2) = √2 · 2·√2 = 2 · 2 = 4)
+
+Ví dụ c: √(0.25 · 16)
+  VT: √(0.25 · 16) = √4 = 2
+  VP: √0.25 · √16 = 0.5 · 4 = 2
+  ✓ Bằng 2.
+```
+
+### 3.3. Cảnh báo phổ biến
+
+#### ⚠ Lỗi thường gặp với căn
+
+- **`√(a + b) ≠ √a + √b`** — đây là lỗi sai **cực kỳ hay gặp**. Thử số: `√(9 + 16) = √25 = 5`, nhưng `√9 + √16 = 3 + 4 = 7`. **Không bằng nhau.** Tổng quát: căn chỉ "phân phối" qua **nhân/chia**, không qua **cộng/trừ**.
+- **`√(a − b) ≠ √a − √b`** — sai tương tự. `√(25 - 9) = √16 = 4`, nhưng `√25 - √9 = 5 - 3 = 2`. Khác hẳn.
+- **`√(a^2) = a`** — sai khi `a < 0`. Đúng: `√(a^2) = |a|`. Ví dụ `√((-3)^2) = √9 = 3`, không phải `-3`.
+- **Nhầm `√(-x)` với `-√x`** — `√(-4)` không tồn tại trong số thực (vì không có số thực bình phương bằng `-4`). Còn `-√4 = -2` (lấy âm của căn) thì tồn tại.
+- **Lấy căn cả tử lẫn mẫu nhưng quên điều kiện mẫu ≠ 0** — `√(a/b)` đòi `b ≠ 0` và (nếu căn bậc chẵn) cả `a/b ≥ 0`.
+
+### 3.4. Đơn giản hóa căn
+
+Khi gặp `√72`, ta tách thừa số chính phương:
+
+```
+72 = 36 · 2 = 6^2 · 2
+√72 = √(6^2 · 2) = √(6^2) · √2 = 6√2
+```
+
+Tương tự `√48 = √(16·3) = 4√3`, `√50 = √(25·2) = 5√2`.
+
+#### 🔁 Dừng lại tự kiểm tra (mục 3)
+
+1. `√(16 · 25)` = ?
+2. `√(49 + 0)` so với `√49 + √0`?
+3. `√98` đơn giản hóa = ?
+4. `√((-5)^2)` = ?
+5. `√(144/9)` = ?
+
+<details>
+<summary>Đáp án</summary>
+
+1. `√400 = 20`. (Hoặc `√16 · √25 = 4·5 = 20`.)
+2. Cả hai bằng `7` (vì cộng với `0` không thay đổi). Đây là trường hợp đặc biệt khi quy tắc sai "tình cờ đúng" — đừng tổng quát hóa!
+3. `√98 = √(49·2) = 7√2 ≈ 9.899`.
+4. `|-5| = 5`. Lưu ý lấy giá trị tuyệt đối.
+5. `√144 / √9 = 12/3 = 4`.
+
+</details>
+
+#### Tóm tắt mục 3
+
+- Căn bậc `n` = lũy thừa với mũ `1/n`, là phép ngược của lũy thừa theo bậc.
+- Phân phối qua **nhân/chia**, KHÔNG qua **cộng/trừ** — đây là lỗi #1.
+- Căn bậc chẵn của số âm không tồn tại trong số thực; căn bậc lẻ thì có.
+- `√(a²) = |a|`, không phải `a`.
+
+---
+
+## 4. Logarit — định nghĩa và trực giác
+
+💡 **Trực giác trước**: log là **phép tính ngược của lũy thừa theo số mũ**. Lũy thừa hỏi: "cơ số `b` mũ `y` bằng bao nhiêu?" → log đảo lại: "cơ số `b` phải mũ bao nhiêu để được `x`?". Căn cũng ngược của lũy thừa, nhưng theo trục khác (theo **bậc**, không phải theo **mũ**).
+
+| Phép gốc | Ngược lại (giải `x`) | Ngược lại (giải `b`) |
+|----------|----------------------|----------------------|
+| `b^y = x` | `y = log_b(x)` ← log | `b = x^(1/y) = √[y]{x}` ← căn |
+
+→ Log và căn là **hai cách "đảo"** cùng phép lũy thừa, chỉ khác chỗ ẩn nằm ở đâu.
+
+### 4.1. Trực giác trước
+
+**Câu hỏi gốc**: *"Phải nâng `b` lên lũy thừa bao nhiêu để được `x`?"*
+
+Câu trả lời chính là `log_b(x)`.
+
+Ví dụ rất cụ thể:
+
+| Câu hỏi | Trả lời | Viết bằng log |
+|---------|---------|---------------|
+| `2` mũ mấy bằng `8`? | `3` (vì `2^3 = 8`) | `log_2(8) = 3` |
+| `2` mũ mấy bằng `1024`? | `10` (vì `2^10 = 1024`) | `log_2(1024) = 10` |
+| `10` mũ mấy bằng `1000`? | `3` (vì `10^3 = 1000`) | `log_10(1000) = 3` |
+| `10` mũ mấy bằng `1 000 000`? | `6` | `log_10(1 000 000) = 6` |
+| `5` mũ mấy bằng `25`? | `2` | `log_5(25) = 2` |
+| `3` mũ mấy bằng `1`? | `0` (vì `3^0 = 1`) | `log_3(1) = 0` |
+
+**Một câu thần chú để nhớ**: *"log đếm xem cơ số phải lũy thừa bao nhiêu lần."*
+
+### 4.2. Định nghĩa chính thức
+
+```
+log_b(x) = y   ⟺   b^y = x
+```
+
+Điều kiện:
+
+- `b > 0` và `b ≠ 1` (vì `1^y = 1` mãi mãi, không thể "giải" được).
+- `x > 0` (vì `b^y` luôn dương khi `b > 0`).
+
+**Lưu ý quan trọng**: log chỉ định nghĩa cho số **dương**. `log(0)` và `log(số âm)` đều **không xác định** trong số thực.
+
+- `log(0)` → "không tồn tại" (giới hạn là `−∞` khi `x → 0^+`).
+- `log(−5)` → "không tồn tại" (trong số phức thì có, nhưng không trong bài này).
+
+### 4.3. Hai giá trị log phải thuộc lòng
+
+- `log_b(1) = 0` với mọi `b` hợp lệ. Vì `b^0 = 1`.
+- `log_b(b) = 1` với mọi `b`. Vì `b^1 = b`.
+
+Hai phép kiểm tra này cực kỳ hữu ích để bắt lỗi: nếu bạn tính `log_5(1)` ra khác `0`, chắc chắn sai.
+
+### 4.4. Xây trực giác bằng bảng `log_2`
+
+Đây là bảng **phải nhìn cho đến khi thuộc** — log_2 là log dùng nhiều nhất trong CS:
+
+| `x` | `log_2(x)` | Vì sao |
+|-----|------------|--------|
+| `1` | `0` | `2^0 = 1` |
+| `2` | `1` | `2^1 = 2` |
+| `4` | `2` | `2^2 = 4` |
+| `8` | `3` | `2^3 = 8` |
+| `16` | `4` | `2^4 = 16` |
+| `32` | `5` | `2^5 = 32` |
+| `64` | `6` | `2^6 = 64` |
+| `128` | `7` | `2^7 = 128` |
+| `256` | `8` | `2^8 = 256` |
+| `512` | `9` | `2^9 = 512` |
+| `1024` | `10` | `2^10 = 1024` |
+| `2048` | `11` | `2^11 = 2048` |
+| `4096` | `12` | `2^12 = 4096` |
+| `1 048 576` | `20` | `2^20 ≈ 1 triệu` |
+| `1 073 741 824` | `30` | `2^30 ≈ 1 tỷ` |
+
+**Nhận xét quan trọng**: `x` tăng **gấp đôi** thì `log_2(x)` chỉ tăng **+1**. Đây là bản chất của log — *tăng theo bậc nhân của input, không phải theo lượng cộng*.
+
+#### Walk-through: tính nhẩm `log_2(1000)`
+
+Hỏi: `2` mũ mấy bằng `1000`?
+
+Tra bảng quanh `1000`:
+
+```
+2^9  = 512    (nhỏ hơn 1000)
+2^10 = 1024   (lớn hơn 1000)
+```
+
+Nên `log_2(1000)` nằm giữa `9` và `10`, gần `10` hơn (vì `1024` rất gần `1000`).
+
+Tính chính xác hơn: dùng quy luật đổi cơ số (mục 6):
+
+```
+log_2(1000) = log_10(1000) / log_10(2)
+            = 3 / 0.30103
+            ≈ 9.9658
+```
+
+Hoặc dùng `ln`: `log_2(1000) = ln(1000)/ln(2) ≈ 6.9078/0.6931 ≈ 9.9658`.
+
+→ Đáp số `≈ 9.97`. Trực giác: cần `2` nhân với chính nó ~10 lần (chính xác 9.97) để vượt 1000.
+
+#### ASCII đồ thị: log_2(x) tăng cực chậm so với x tuyến tính
+
+```
+y
+↑
+20│                                                    · linear y = x/50
+  │                                            ·
+  │                                    ·
+15│                            ·
+  │                    ·
+  │              ·
+10│        ·                                        ━━━ log_2(x) (đoạn cuối)
+  │    ·                                  ━━━━━━━━━
+  │  ·                       ━━━━━━━━━━━━
+ 5│ ·              ━━━━━━━━━━
+  │·       ━━━━━━━
+  │  ━━━━━━
+ 0└─━━━────┬────────┬────────┬────────┬────────┬───────→ x
+  1       64       256     1024     16K    1 triệu
+```
+
+- Khi `x = 1` → `log_2(x) = 0`.
+- Khi `x = 1024` → `log_2(x) = 10` (chỉ mới `10` sau khi `x` đã đi cả ngàn đơn vị).
+- Khi `x = 1 triệu` → `log_2(x) = 20`. Để log tăng từ `10` lên `20` cần `x` đi từ `1024` lên `1 triệu` (tăng ~1000 lần).
+
+So sánh: linear `y = x/50` vượt log_2 rất nhanh và phóng lên trời, trong khi log_2 "bò" gần như nằm ngang ở phía trên.
+
+→ Đây là lý do thuật toán `O(log n)` "nhanh như miễn phí": kể cả `n = 1 tỷ`, log chỉ là `30`.
+
+#### ❓ Câu hỏi tự nhiên: "Sao log không tồn tại với số âm hoặc 0?"
+
+Nhớ định nghĩa: `log_b(x) = y` nghĩa là tìm `y` sao cho `b^y = x`.
+
+- Với `b > 0` (mặc định, vd `b = 10`): `b^y` luôn **dương** với mọi `y` thực. Ví dụ `10^(-100)` rất nhỏ nhưng vẫn dương; `10^100` rất lớn cũng dương. **Không có `y` nào** làm `10^y = -5` hay `10^y = 0`.
+- `log(0)`: hỏi "10 mũ mấy bằng 0?" → không có đáp án hữu hạn. Nhưng `10^y → 0` khi `y → -∞`. Nên người ta nói **`log(0) = -∞`** (giới hạn), không phải "không tồn tại tuyệt đối", mà là vô cùng.
+- `log(-5)`: hỏi "10 mũ mấy bằng -5?" → không có cả giới hạn. Trong số thực, **không xác định**.
+
+→ Quy tắc nhớ: **log chỉ định nghĩa với số > 0**. Khi viết code, luôn check `x > 0` trước khi gọi `math.Log(x)` — nếu không Go sẽ trả `NaN` (`-Inf` cho `Log(0)`).
+
+#### ❓ Câu hỏi tự nhiên: "Khi nào dùng `ln`, khi nào dùng `log_10`, khi nào dùng `log_2`?"
+
+Quy tắc thực dụng:
+
+| Ngữ cảnh | Log nào | Vì sao |
+|----------|---------|--------|
+| Calculus, đạo hàm, tích phân | `ln` | Vì `(ln x)' = 1/x`, công thức đẹp nhất |
+| Xác suất, ML loss, log-likelihood | `ln` | Theo truyền thống thống kê và vì calculus dễ |
+| Đo order of magnitude ("số này cỡ mấy số 0?") | `log_10` | Vì hệ thập phân |
+| Vật lý / hóa: dB, Richter, pH | `log_10` | Quy ước ngành |
+| Big-O của binary search, cây, heap | `log_2` (hoặc log không cơ số) | Vì cấu trúc là chia đôi |
+| Information theory: entropy bit | `log_2` | Đơn vị `bit` định nghĩa qua `log_2` |
+| Số bit cần để mã hóa `n` giá trị | `log_2` | `⌈log_2(n)⌉` bit |
+
+**Chuyển đổi**: ba log chỉ khác nhau **một hằng số nhân**:
+
+```
+log_10(x) = ln(x) / ln(10)  ≈ ln(x) / 2.303
+log_2(x)  = ln(x) / ln(2)   ≈ ln(x) / 0.693
+log_2(x)  = log_10(x) / log_10(2)  ≈ log_10(x) / 0.301
+```
+
+Trong Big-O thì hằng số bị nuốt, nên `O(log n)` viết không cơ số là OK.
+
+#### ❓ Câu hỏi tự nhiên: "Có 'log của log' không?"
+
+Có. `log(log x)` là phép log lồng log. Nó tăng **cực kỳ chậm** — chậm hơn cả log đơn.
+
+```
+x         log_2(x)    log_2(log_2(x))
+1         0           không xác định (log của 0)
+2         1           0
+4         2           1
+16        4           2
+65536     16          4
+2^65536   65536       16      ← x lớn không tưởng nhưng log log chỉ 16
+```
+
+Xuất hiện trong: thuật toán `Union-Find` với inverse Ackermann ≈ `O(log* n)` (log lặp), một số thuật toán phân tích string (suffix tree).
+
+**Trong thực tế**: `log log` của bất kỳ giá trị nào phù hợp vũ trụ này (số nguyên tử ≈ 10^80, `log_2 ≈ 266`, `log_2(266) ≈ 8`) đều ≤ 10. Coi như "hằng số".
+
+#### ⚠ Lỗi thường gặp với log
+
+- **Quên điều kiện `x > 0`** — viết `log(x)` mà không kiểm tra → khi `x ≤ 0` chương trình toang. Trong Go: `math.Log(-1) = NaN`, `math.Log(0) = -Inf`.
+- **Nhầm `log(x²) = (log x)²`** — **sai**. Đúng: `log(x²) = 2·log(x)` (quy luật 3). Ví dụ `log_10(100) = 2`, nhưng `(log_10(10))² = 1² = 1`. Khác hẳn.
+- **Nhầm `log(x+y) = log(x) + log(y)`** — **sai**. Đúng: `log(x·y) = log(x) + log(y)` (NHÂN bên trong, không phải CỘNG). Ví dụ `log_10(10 + 100) = log_10(110) ≈ 2.04`, nhưng `log_10(10) + log_10(100) = 1 + 2 = 3`. Khác.
+- **Nhầm `log(x) / log(y) = log(x/y)`** — **sai**. Đúng: `log(x) − log(y) = log(x/y)` (HIỆU, không phải THƯƠNG). Còn `log(x)/log(y)` là **đổi cơ số** `log_y(x)`.
+- **Nhầm `log` (không cơ số) trong Go là `log_10`** — **sai**. Trong Go, `math.Log` là `ln` (cơ số `e`). `math.Log10` mới là log thập phân, `math.Log2` là log nhị phân.
+- **Nhầm `log(1/x) = 1/log(x)`** — **sai**. Đúng: `log(1/x) = -log(x)` (quy luật 2 với tử = 1).
+
+#### 🔁 Dừng lại tự kiểm tra (mục 4)
+
+1. `log_3(81)` = ?
+2. `log_10(0.0001)` = ?
+3. `log_2(1)` = ?
+4. `log_5(5)` = ?
+5. `log_2(x)` nằm giữa số nguyên nào nếu `x = 100`?
+6. `log(-3)` (theo số thực) = ?
+
+<details>
+<summary>Đáp án</summary>
+
+1. `4` (vì `3^4 = 81`).
+2. `-4` (vì `0.0001 = 10^(-4)`).
+3. `0` (mọi log của 1 đều bằng 0).
+4. `1` (log của chính cơ số = 1).
+5. Nằm giữa `6` và `7`, vì `2^6 = 64 < 100 < 128 = 2^7`. Chính xác `≈ 6.644`.
+6. Không xác định trong số thực.
+
+</details>
+
+#### Tóm tắt mục 4
+
+- `log_b(x) = y ⟺ b^y = x`. Log là **phép ngược của lũy thừa theo số mũ**.
+- Điều kiện: `b > 0`, `b ≠ 1`, `x > 0`.
+- Hai giá trị "vàng": `log_b(1) = 0`, `log_b(b) = 1`.
+- Log tăng cực chậm — `x` gấp đôi chỉ làm log tăng `+1`. Đây là gốc của "thuật toán log n nhanh như miễn phí".
+
+---
+
+## 5. Ba loại log phổ biến
+
+Trong toán học và CS, **chỉ 3 cơ số được dùng thường xuyên**:
+
+### 5.1. `log_10(x)` — log thập phân
+
+Còn ghi tắt là `log(x)` (không có chỉ số). Đặc biệt hữu ích cho:
+
+- Đo *order of magnitude* (bậc độ lớn): nếu `log_10(N) ≈ 6` thì `N` cỡ 1 triệu.
+- Đại lượng vật lý: Richter (động đất), decibel (âm thanh), pH (hóa học) đều là log_10.
+
+Bảng phải nhớ:
+
+| `x` | `log_10(x)` |
+|-----|-------------|
+| `1` | `0` |
+| `10` | `1` |
+| `100` | `2` |
+| `1 000` | `3` |
+| `1 000 000` (1 triệu) | `6` |
+| `1 000 000 000` (1 tỷ) | `9` |
+| `0.1` | `−1` |
+| `0.01` | `−2` |
+| `0.001` | `−3` |
+
+### 5.2. `log_e(x) = ln(x)` — log tự nhiên
+
+`e ≈ 2.71828...` là **hằng số Euler**, xuất hiện tự nhiên trong giải tích (đạo hàm của `e^x` là chính nó). Khi học calculus, log tự nhiên là log "mặc định" — mọi công thức tích phân/đạo hàm dùng `ln` cho đẹp.
+
+Trong ML/AI, hầu hết các loss function viết bằng `ln` (`cross-entropy`, `log-likelihood` mặc định dùng `ln`). Trong Go: `math.Log(x)` chính là `ln(x)` (đừng nhầm với `log_10`).
+
+Bảng phải nhớ:
+
+| `x` | `ln(x)` |
+|-----|---------|
+| `1` | `0` |
+| `e ≈ 2.71828` | `1` |
+| `e² ≈ 7.389` | `2` |
+| `e^3 ≈ 20.086` | `3` |
+| `1/e ≈ 0.368` | `−1` |
+
+### 5.3. `log_2(x)` — log nhị phân
+
+Trong CS, đây là log phổ biến nhất. Xuất hiện ở:
+
+- **Big-O của binary search**: O(log₂ n).
+- **Depth của cây nhị phân cân bằng** chứa `n` nút: ≈ log₂(n).
+- **Entropy bit** (thông tin học): `H = −Σ p · log_2(p)`.
+- **Số bit cần để biểu diễn `n` giá trị**: `⌈log₂(n)⌉`.
+
+Bảng phải thuộc (vì 2^k là số quen):
+
+| `x` | `log_2(x)` |
+|-----|------------|
+| `1` | `0` |
+| `2` | `1` |
+| `4` | `2` |
+| `8` | `3` |
+| `16` | `4` |
+| `32` | `5` |
+| `64` | `6` |
+| `128` | `7` |
+| `256` | `8` |
+| `1024` | `10` |
+| `1 048 576` (≈ 1 triệu) | `20` |
+
+**Mẹo**: nếu nhớ `2^10 = 1024 ≈ 10^3`, suy ra `log_2(10^3) ≈ 10`, hay `log_2(10) ≈ 3.32`.
+
+#### Tóm tắt mục 5
+
+- `log_10` cho order of magnitude và vật lý/hóa.
+- `ln` cho calculus và ML loss.
+- `log_2` cho CS (binary search, cây, bit, entropy).
+- Ba log khác nhau **chỉ một hằng số nhân** — đổi cơ số dễ.
+
+---
+
+## 6. Quy luật logarit — phần quan trọng nhất
+
+Đây là phần **làm cho log đáng giá**. Lý do log tồn tại và xuất hiện khắp mọi nơi là vì nó biến **nhân thành cộng**, **chia thành trừ**, **lũy thừa thành nhân**.
+
+### 6.1. Bảng quy luật
+
+| # | Quy luật | Đọc là |
+|---|----------|--------|
+| 1 | `log_b(x · y) = log_b(x) + log_b(y)` | Log của tích = tổng các log |
+| 2 | `log_b(x / y) = log_b(x) − log_b(y)` | Log của thương = hiệu các log |
+| 3 | `log_b(x^n) = n · log_b(x)` | Log của lũy thừa = số mũ nhân log |
+| 4 | `log_b(x) = log_c(x) / log_c(b)` | Đổi cơ số |
+
+### 6.2. Vì sao quy luật 1 đúng? (chứng minh trực quan)
+
+Đặt `u = log_b(x)` và `v = log_b(y)`. Theo định nghĩa:
+
+```
+b^u = x
+b^v = y
+```
+
+Nhân hai vế:
+
+```
+x · y = b^u · b^v = b^(u+v)   (theo quy luật lũy thừa 1)
+```
+
+Lấy log_b hai vế:
+
+```
+log_b(x · y) = u + v = log_b(x) + log_b(y)
+```
+
+→ Quy luật 1 chính là quy luật lũy thừa 1 nhìn ngược lại. Tương tự cho 2 và 3.
+
+### 6.3. Kiểm chứng bằng số cụ thể
+
+**Quy luật 1**: `log_b(x · y) = log_b(x) + log_b(y)` — kiểm chứng với 4 ví dụ:
+
+```
+Ví dụ 1.1: log_10(100 · 1000)
+  VT: log_10(100 · 1000) = log_10(100 000) = 5
+  VP: log_10(100) + log_10(1000) = 2 + 3 = 5
+  ✓ Bằng 5.
+
+Ví dụ 1.2: log_10(20 · 5)
+  VT: log_10(20 · 5) = log_10(100) = 2
+  VP: log_10(20) + log_10(5)
+      ≈ 1.3010 + 0.6990 = 2.0000
+  ✓ Bằng 2.
+
+Ví dụ 1.3: log_2(8 · 4)
+  VT: log_2(8 · 4) = log_2(32) = 5
+  VP: log_2(8) + log_2(4) = 3 + 2 = 5
+  ✓ Bằng 5.
+
+Ví dụ 1.4: ln(e · e^3)
+  VT: ln(e · e^3) = ln(e^4) = 4
+  VP: ln(e) + ln(e^3) = 1 + 3 = 4
+  ✓ Bằng 4.
+```
+
+**Quy luật 2**: `log_b(x / y) = log_b(x) − log_b(y)` — kiểm chứng với 4 ví dụ:
+
+```
+Ví dụ 2.1: log_2(32 / 4)
+  VT: log_2(8) = 3
+  VP: log_2(32) − log_2(4) = 5 − 2 = 3
+  ✓
+
+Ví dụ 2.2: log_10(1000 / 10)
+  VT: log_10(100) = 2
+  VP: log_10(1000) − log_10(10) = 3 − 1 = 2
+  ✓
+
+Ví dụ 2.3: log_10(1 / 100)
+  VT: log_10(0.01) = -2
+  VP: log_10(1) − log_10(100) = 0 − 2 = -2
+  ✓ (đặc biệt: log của nghịch đảo = âm log của số gốc)
+
+Ví dụ 2.4: ln(e^5 / e^2)
+  VT: ln(e^3) = 3
+  VP: ln(e^5) − ln(e^2) = 5 − 2 = 3
+  ✓
+```
+
+**Quy luật 3**: `log_b(x^n) = n · log_b(x)` — kiểm chứng với 4 ví dụ:
+
+```
+Ví dụ 3.1: log_10(1000^2)
+  VT: log_10(1 000 000) = 6
+  VP: 2 · log_10(1000) = 2 · 3 = 6
+  ✓
+
+Ví dụ 3.2: log_2(8^3)
+  VT: log_2(512) = 9 (vì 2^9 = 512)
+  VP: 3 · log_2(8) = 3 · 3 = 9
+  ✓
+
+Ví dụ 3.3: log_10(10^(-4))
+  VT: log_10(0.0001) = -4
+  VP: -4 · log_10(10) = -4 · 1 = -4
+  ✓ (số mũ âm cũng OK)
+
+Ví dụ 3.4: log_2(√16) = log_2(16^(1/2))
+  VT: log_2(4) = 2
+  VP: (1/2) · log_2(16) = (1/2) · 4 = 2
+  ✓ (số mũ phân số cũng OK — quy luật 3 hoạt động với mọi số thực)
+```
+
+**Quy luật 4 (đổi cơ số)**: tính `log_2(10)` bằng máy tính chỉ có `ln`:
+
+```
+log_2(10) = ln(10) / ln(2) ≈ 2.3026 / 0.6931 ≈ 3.3219
+```
+
+Kiểm chứng: `2^3.3219 ≈ 10` (đúng).
+
+Thêm 2 ví dụ đổi cơ số:
+
+```
+Ví dụ 4.1: log_3(81) qua log_10
+  log_3(81) = log_10(81) / log_10(3)
+            ≈ 1.9085 / 0.4771
+            ≈ 4.0000
+  Kiểm tra: 3^4 = 81 ✓
+
+Ví dụ 4.2: log_5(125) qua ln
+  log_5(125) = ln(125) / ln(5)
+             ≈ 4.8283 / 1.6094
+             ≈ 3.0000
+  Kiểm tra: 5^3 = 125 ✓
+```
+
+#### ⚠ Lỗi thường gặp với quy luật log
+
+- **Nhầm `log(x+y) = log(x) + log(y)`** — sai. Đúng phải là `log(x·y) = log(x) + log(y)` (nhân bên trong, không cộng).
+- **Nhầm `(log x)² = log(x²)`** — sai. Đúng: `log(x²) = 2·log(x)`. Ví dụ `(log_10(10))² = 1`, nhưng `log_10(100) = 2`. Khác hẳn.
+- **Nhầm `log(x) · log(y) = log(x·y)`** — sai. Quy luật 1 nói **tổng** = log của tích, không phải tích.
+- **Đổi cơ số chia nhầm chiều**: nhớ `log_b(x) = log_c(x) / log_c(b)` — **base mới** ở dưới, **argument** ở trên. Đảo lại sẽ ra sai số.
+- **Áp quy luật 3 nhầm dấu**: `log(x^(-n)) = -n · log(x)`, không phải `1/(n·log x)`.
+
+#### 🔁 Dừng lại tự kiểm tra (mục 6)
+
+1. Rút gọn: `log_10(50) + log_10(2)` = ?
+2. Rút gọn: `log_2(96) − log_2(3)` = ?
+3. Rút gọn: `3 · log_10(2) + log_10(125)` = ? (gợi ý: dùng quy luật 3 ngược)
+4. Tính `log_2(100)` bằng `log_10` (cho biết `log_10(2) ≈ 0.301`).
+5. `log_b(b^k)` = ? (với mọi `b`, `k`)
+
+<details>
+<summary>Đáp án</summary>
+
+1. `log_10(50 · 2) = log_10(100) = 2`.
+2. `log_2(96/3) = log_2(32) = 5`.
+3. `3·log_10(2) = log_10(2^3) = log_10(8)`. Cộng: `log_10(8) + log_10(125) = log_10(1000) = 3`.
+4. `log_2(100) = log_10(100)/log_10(2) = 2/0.301 ≈ 6.644`.
+5. `k` (theo quy luật 3: `log_b(b^k) = k · log_b(b) = k · 1 = k`). Đây là phép kiểm tra cực mạnh.
+
+</details>
+
+#### Tóm tắt mục 6
+
+- 4 quy luật log đều suy ra từ quy luật lũy thừa tương ứng (vì log là nghịch đảo).
+- Log biến **nhân → cộng**, **chia → trừ**, **lũy thừa → nhân hằng số**. Đây là lý do log "đáng giá".
+- Đổi cơ số: `log_b(x) = log_c(x) / log_c(b)`. Cho phép tính log mọi cơ số bằng `ln` hoặc `log_10` sẵn trong thư viện.
+- Lỗi #1 cần tránh: nhầm `log(x+y)` với `log(x)+log(y)`. Phải là **nhân** bên trong.
+
+### 6.4. Vì sao "biến nhân thành cộng" lại quý?
+
+Đây là lý do log gắn liền với khoa học và kỹ thuật:
+
+- **Trước máy tính**, người ta nhân hai số 5 chữ số bằng cách... tra **bảng log**, **cộng** kết quả, rồi tra ngược về (antilog). Cộng dễ hơn nhân — đó là cả cuộc cách mạng.
+- **Trong xác suất** (mục 7), khi nhân nhiều xác suất nhỏ với nhau (`P(A) · P(B) · P(C) · ...`), tích trở nên cực kỳ nhỏ và máy tính tràn số dưới (underflow). Lấy log: chuyển thành cộng các log-xác suất → an toàn.
+
+---
+
+## 7. Vì sao log xuất hiện khắp nơi trong ML/AI và CS?
+
+### 7.1. Log-likelihood — chuyển nhân thành cộng
+
+Trong ML, ta thường nhân nhiều xác suất rất nhỏ:
+
+```
+L(θ) = P(x_1 | θ) · P(x_2 | θ) · ... · P(x_N | θ)
+```
+
+Nếu `N = 1000` và mỗi `P ≈ 0.01`, thì `L ≈ 10^(-2000)` — số này nhỏ tới mức `float64` không lưu được (underflow xuống `0`).
+
+**Walk-through cụ thể**: nhân 100 xác suất, mỗi xác suất `0.1`:
+
+```
+L = 0.1 · 0.1 · ... · 0.1  (100 lần)
+  = 0.1^100
+  = 10^(-100)
+```
+
+`float64` tối thiểu khoảng `5 × 10^(-324)` (denormal) hay `2.225 × 10^(-308)` (normal). `10^(-100)` thì vẫn lưu được, nhưng nếu mỗi `P = 0.001` thay vì `0.1`, ta có `10^(-300)` — bắt đầu chạm sàn. Với `N = 200`, `(0.001)^200 = 10^(-600)` → **underflow xuống 0**. Khi `L = 0`, mọi phép tối ưu sau đó vô nghĩa (gradient = 0, không học được gì).
+
+**Giải pháp**: lấy log. Tích thành tổng:
+
+```
+log L = log(0.1) + log(0.1) + ... + log(0.1)   (100 lần)
+      = 100 · log(0.1)
+      = 100 · (-2.3026)   (vì ln(0.1) ≈ -2.3026)
+      ≈ -230.26
+```
+
+`-230.26` là số bình thường, lưu trong float64 không vấn đề. Tổng quát hơn:
+
+```
+log L = log P(x_1) + log P(x_2) + ... + log P(x_N)
+```
+
+Mỗi `log P` là số âm cỡ −5 tới −10, cộng 1000 cái lại ra số cỡ −5000 tới −10000 — `float64` lưu được dễ dàng (max khoảng `1.8 × 10^308`, đủ chỗ).
+
+**Lý do log-likelihood KHÔNG làm mất argmax**: vì `log` là **hàm tăng nghiêm ngặt**, nên `argmax_θ L(θ) = argmax_θ log L(θ)`. Tối ưu cái nào cũng ra cùng `θ*`.
+
+→ Đây là **lý do** mọi maximum likelihood estimation đều tối ưu **log-likelihood**, không phải likelihood gốc.
+
+### 7.2. Cross-entropy loss — chứa `−log(p)`
+
+Loss function phổ biến nhất cho classification:
+
+```
+loss = −(1/N) · Σ_i  log(p_yi)
+```
+
+trong đó `p_yi` là xác suất mô hình gán cho nhãn đúng của mẫu `i`.
+
+**Tại sao là `-log(p)` chứ không phải `1-p` hay `(1-p)^2`?**
+
+Walk-through giá trị `-ln(p)` với `p` từ "chắc đúng" tới "chắc sai":
+
+| `p` (xác suất gán cho nhãn đúng) | `-ln(p)` | Diễn giải |
+|---|---|---|
+| `1.0` | `0` | Mô hình hoàn toàn chắc và đúng → không phạt |
+| `0.99` | `0.010` | Gần đúng → phạt nhẹ |
+| `0.9` | `0.105` | Khá đúng → phạt nhỏ |
+| `0.5` | `0.693` | Lưỡng lự (chỉ 50%) → phạt vừa |
+| `0.1` | `2.303` | Sai nặng → phạt mạnh |
+| `0.01` | `4.605` | Sai rất nặng → phạt rất mạnh |
+| `0.001` | `6.908` | Sai cực kỳ → phạt cực kỳ mạnh |
+| `→ 0` | `→ +∞` | Sai chắc chắn → phạt vô cùng |
+
+Quan sát hai tính chất tuyệt vời:
+
+- **Khi `p → 1`** (mô hình đúng), `-log(p) → 0`. Đúng càng chắc, phạt càng nhẹ — hợp lý.
+- **Khi `p → 0`** (mô hình sai chắc), `-log(p) → +∞`. Sai mà còn tự tin, phạt **không có giới hạn**.
+
+Phép phạt vô hạn này không có ở `1-p` (chỉ phạt tối đa `1`) hay `(1-p)^2` (tối đa `1`). Cross-entropy "ép" mô hình **không được tự tin sai** — chỉ cần một mẫu mà mô hình gán xác suất `0.001` cho nhãn đúng là loss đã `≈ 7`, kéo trung bình lên cao.
+
+**Walk-through ví dụ thực**: 3 mẫu, mô hình gán cho nhãn đúng các xác suất `p = [0.9, 0.5, 0.1]`:
+
+```
+-ln(0.9) ≈ 0.105
+-ln(0.5) ≈ 0.693
+-ln(0.1) ≈ 2.303
+
+loss = (0.105 + 0.693 + 2.303) / 3 ≈ 3.101 / 3 ≈ 1.034
+```
+
+Mẫu thứ 3 (gán `0.1` cho nhãn đúng) đóng góp gần 75% loss → gradient sẽ chủ yếu sửa mẫu này. Đây là cơ chế "tự lo việc khó" của cross-entropy.
+
+→ Hành vi (phạt nặng khi sai chắc) chính là cái ta muốn — sẽ học kỹ ở Tầng 5.
+
+### 7.3. Log scale plot — nhìn được dải rộng
+
+Một số dữ liệu trải qua nhiều **order of magnitude**:
+
+- Tần suất từ trong ngôn ngữ: "the" xuất hiện 1 tỷ lần, từ hiếm xuất hiện 1 lần. Vẽ linear → "the" ngốn toàn bộ trục, từ hiếm tịt thành điểm.
+- Số citation của bài báo: 1 → 100 000.
+- Phân phối thu nhập, dân số quốc gia.
+
+Vẽ trên **log scale**: trục y là `log_10(value)` → các giá trị `1, 10, 100, 1000, ...` cách đều nhau. Quan sát được toàn bộ dải.
+
+### 7.4. Big-O với `log` — binary search và cây cân bằng
+
+Trong CS:
+
+- **Binary search** trên mảng đã sort kích thước `n`: O(log₂ n) so sánh. Vì sao `log_2`? Vì mỗi bước cắt đôi mảng — cắt được tối đa `log_2(n)` lần trước khi còn 1 phần tử.
+- **Cây BST cân bằng** (AVL, red-black): chiều cao = O(log n).
+- **Heap**: insert/extract-min = O(log n).
+
+Khi viết Big-O với `log` mà không ghi cơ số, **cơ số không quan trọng** — vì đổi cơ số chỉ khác hằng số (quy luật 4): `log_2(n) = ln(n) / ln(2)`, hằng số `1/ln(2)` bị nuốt trong O().
+
+### 7.5. Tóm tắt
+
+| Lĩnh vực | Vai trò của log |
+|----------|-----------------|
+| Probability / Statistics | Log-likelihood, tránh underflow |
+| Deep Learning | Cross-entropy loss, log-softmax |
+| Information Theory | Entropy `H = −Σ p log p` |
+| Data Visualization | Log scale plot |
+| Algorithms | Big-O của binary search, cây cân bằng |
+| Vật lý / Hóa học | dB, Richter, pH |
+
+---
+
+## 8. Bảng giá trị tính tay phải nhớ
+
+### 8.1. `log_2(x)` cho `x` là lũy thừa của 2
+
+| `x` | `log_2(x)` | Cách nhớ |
+|-----|------------|----------|
+| `1` | `0` | `2^0 = 1` |
+| `2` | `1` | `2^1 = 2` |
+| `4` | `2` | `2^2 = 4` |
+| `8` | `3` | `2^3 = 8` |
+| `16` | `4` | `2^4 = 16` |
+| `32` | `5` | `2^5 = 32` |
+| `64` | `6` | `2^6 = 64` |
+| `128` | `7` | `2^7 = 128` |
+| `256` | `8` | `2^8 = 256` (1 byte) |
+| `1024` | `10` | `2^10 ≈ 1K` |
+
+### 8.2. `log_10(x)` cho `x` là lũy thừa của 10
+
+| `x` | `log_10(x)` |
+|-----|-------------|
+| `1` | `0` |
+| `10` | `1` |
+| `100` | `2` |
+| `1 000` (1 nghìn) | `3` |
+| `1 000 000` (1 triệu) | `6` |
+| `1 000 000 000` (1 tỷ) | `9` |
+
+### 8.3. `ln(x)` cho `x` là lũy thừa của `e`
+
+| `x` | `ln(x)` |
+|-----|---------|
+| `1` | `0` |
+| `e` | `1` |
+| `e²` | `2` |
+| `e^k` | `k` |
+
+(Vì `e^k → ln(e^k) = k · ln(e) = k · 1 = k`, theo quy luật 3.)
+
+---
+
+## 9. Bài tập
+
+### Bài 1 — Tính lũy thừa, căn, mũ phân số
+
+Tính các biểu thức sau bằng tay (không dùng máy tính):
+
+a) `2^10`
+
+b) `3^4`
+
+c) `5^(−2)`
+
+d) `8^(1/3)`
+
+e) `16^0.75`
+
+### Bài 2 — Đơn giản hóa biểu thức lũy thừa
+
+Rút gọn các biểu thức sau (dùng quy luật mục 2):
+
+a) `(x^3 · x^5) / x^2`
+
+b) `(2x^2)^3`
+
+c) `√(4x^6)`
+
+### Bài 3 — Tính log
+
+Tính giá trị các biểu thức log sau:
+
+a) `log_2(32)`
+
+b) `log_10(0.001)`
+
+c) `log_5(125)`
+
+d) `ln(e^7)`
+
+e) `log_2(1024)`
+
+### Bài 4 — Dùng quy luật log
+
+Tính/biến đổi (dùng quy luật mục 6):
+
+a) `log_10(200) − log_10(2)`
+
+b) `log_2(48) − log_2(3)`
+
+c) Khai triển `log(x² · y³)` thành tổng các log đơn.
+
+### Bài 5 — Code Go: `logSumExp` ổn định số
+
+**Bối cảnh**: `logSumExp(x) = log(Σ exp(x_i))` xuất hiện khắp ML — softmax, log-softmax, marginalization của mixture models, partition function. Nhưng tính trực tiếp **không hoạt động** với số lớn.
+
+#### Tại sao naive `log(Σ exp(x_i))` overflow?
+
+`float64` của IEEE 754 lưu được số dương tối đa khoảng `1.7977 × 10^308` (gọi là `math.MaxFloat64`). Vượt qua → `+Inf`.
+
+Nhưng `exp(x)` tăng cực kỳ nhanh:
+
+```
+exp(10)   ≈ 2.2 × 10^4
+exp(100)  ≈ 2.7 × 10^43
+exp(700)  ≈ 1.0 × 10^304   (vẫn lưu được, suýt soát)
+exp(710)  ≈ 2.2 × 10^308   (vẫn được, gần sát mép)
+exp(720)  = +Inf            (overflow! tràn float64)
+exp(1000) = +Inf
+```
+
+Với input `[1000, 1001, 999]`:
+
+```
+exp(1000) = +Inf
+exp(1001) = +Inf
+exp(999)  = +Inf
+Σ exp(...) = +Inf
+log(+Inf) = +Inf       ← kết quả sai, đúng phải là ~1001.4
+```
+
+Naive version **hỏng hoàn toàn**.
+
+#### Trick: rút max ra ngoài
+
+Quan sát đẳng thức (dùng quy luật log + quy luật lũy thừa):
+
+```
+log(Σ exp(x_i)) 
+  = log(Σ exp(x_i − M + M))                  (cộng và trừ M)
+  = log(Σ exp(x_i − M) · exp(M))             (quy luật lũy thừa: e^(a+b) = e^a · e^b)
+  = log(exp(M) · Σ exp(x_i − M))             (đưa exp(M) ra ngoài, vì không phụ thuộc i)
+  = log(exp(M)) + log(Σ exp(x_i − M))        (quy luật log 1: log(xy) = log x + log y)
+  = M + log(Σ exp(x_i − M))                  (log(exp(M)) = M)
+```
+
+→ **Công thức ổn định**:
+
+```
+logSumExp(xs) = M + log(Σ exp(x_i − M))   với M = max(xs)
+```
+
+Sau khi trừ `M`:
+- Mọi `x_i − M ≤ 0` (vì `M` là max).
+- `exp(x_i − M) ∈ (0, 1]`.
+- `Σ exp(...) ∈ (0, n]` (n là số phần tử) — không bao giờ overflow.
+- `log(Σ) ∈ (-∞, ln(n)]` — số nhỏ, an toàn.
+
+#### Walk-through chi tiết với input `[1000, 1001, 999]`
+
+**Bước 1**: tìm max.
+
+```
+M = max(1000, 1001, 999) = 1001
+```
+
+**Bước 2**: trừ M từ mỗi phần tử.
+
+```
+1000 − 1001 = −1
+1001 − 1001 = 0
+999 − 1001  = −2
+
+→ shifted = [−1, 0, −2]
+```
+
+**Bước 3**: tính `exp` của từng số (giờ đều ≤ 0, an toàn).
+
+```
+exp(−1) ≈ 0.36788
+exp(0)  = 1.00000
+exp(−2) ≈ 0.13534
+```
+
+**Bước 4**: tổng.
+
+```
+S = 0.36788 + 1.00000 + 0.13534 ≈ 1.50321
+```
+
+**Bước 5**: log.
+
+```
+log(S) = ln(1.50321) ≈ 0.40760
+```
+
+**Bước 6**: cộng M lại.
+
+```
+logSumExp = M + log(S) = 1001 + 0.40760 ≈ 1001.40760
+```
+
+**Kiểm tra trực giác**: `exp(1001)` thống trị tổng vì lớn hơn nhiều so với `exp(1000)` (gấp `e ≈ 2.718` lần) và `exp(999)` (gấp `e^2 ≈ 7.389` lần). Nên `Σ exp(...) ≈ exp(1001)` với "hệ số" hơn 1 chút (chính xác `≈ 1.503 · exp(1001)`), và log của nó ≈ `1001 + 0.408 = 1001.408` — khớp kết quả tính ra.
+
+Yêu cầu code:
+
+- Implement `logSumExp(xs []float64) float64` đúng và ổn định số.
+- Cũng implement `logSumExpNaive(xs []float64) float64` bằng cách tính trực tiếp `math.Log(Σ math.Exp(x_i))`.
+- So sánh kết quả với input `[]float64{1000, 1001, 999}`.
+
+---
+
+## 10. Lời giải chi tiết
+
+### Bài 1
+
+a) `2^10 = 1024`. Cách nhớ: `2^10 ≈ 1K`.
+
+b) `3^4 = 3·3·3·3 = 9·9 = 81`.
+
+c) `5^(−2) = 1/5^2 = 1/25 = 0.04`.
+
+d) `8^(1/3) = √[3]{8} = 2` (vì `2^3 = 8`).
+
+e) `16^0.75 = 16^(3/4) = (16^(1/4))^3 = 2^3 = 8`.
+
+Cách tiếp cận chung cho mũ phân số `a^(m/n)`: tính căn bậc `n` của `a` trước, rồi mũ `m` — số sẽ nhỏ và dễ tính tay.
+
+### Bài 2
+
+a) `(x^3 · x^5) / x^2 = x^(3+5) / x^2 = x^8 / x^2 = x^(8−2) = x^6`.
+
+  Dùng quy luật 1 (nhân cùng cơ số) rồi quy luật 2 (chia cùng cơ số).
+
+b) `(2x^2)^3 = 2^3 · (x^2)^3 = 8 · x^(2·3) = 8x^6`.
+
+  Dùng quy luật 4 (lũy thừa của tích) rồi quy luật 3 (lũy thừa của lũy thừa).
+
+c) `√(4x^6) = √4 · √(x^6) = 2 · x^3 = 2x^3` (giả sử `x ≥ 0`).
+
+  Dùng quy luật `√(ab) = √a · √b` và `√(x^6) = (x^6)^(1/2) = x^3`.
+
+  **Lưu ý**: nếu không giả sử `x ≥ 0`, đáp án đúng là `2|x^3| = 2|x|^3`.
+
+### Bài 3
+
+a) `log_2(32) = 5` vì `2^5 = 32`.
+
+b) `log_10(0.001) = log_10(10^(−3)) = −3`. (Dùng định nghĩa: hỏi 10 mũ mấy bằng 0.001, đáp `−3`.)
+
+c) `log_5(125) = 3` vì `125 = 5^3`.
+
+d) `ln(e^7) = 7` (dùng quy luật 3: `ln(e^7) = 7 · ln(e) = 7 · 1 = 7`).
+
+e) `log_2(1024) = 10` vì `1024 = 2^10`.
+
+### Bài 4
+
+a) `log_10(200) − log_10(2)`
+
+  Dùng quy luật 2 (ngược lại): `log_10(200) − log_10(2) = log_10(200/2) = log_10(100) = 2`.
+
+  → Đáp số: **2**.
+
+b) `log_2(48) − log_2(3)`
+
+  `= log_2(48/3) = log_2(16) = 4`.
+
+  → Đáp số: **4**.
+
+c) Khai triển `log(x² · y³)`:
+
+  Bước 1, quy luật 1: `log(x² · y³) = log(x²) + log(y³)`.
+
+  Bước 2, quy luật 3: `= 2·log(x) + 3·log(y)`.
+
+  → Đáp số: **`2·log(x) + 3·log(y)`**.
+
+### Bài 5
+
+**Cách tiếp cận**:
+
+Với input `[1000, 1001, 999]`, tính trực tiếp `exp(1000)` đã ra `Inf` (vì `math.MaxFloat64 ≈ 1.8 · 10^308`, mà `exp(1000) ≈ 10^434`). Tổng → `Inf`, `log(Inf) → Inf`. Naive version **hỏng**.
+
+Trick: chuyển trục về `M = max(xs) = 1001`. Tính:
+
+```
+exp(1000 − 1001) + exp(1001 − 1001) + exp(999 − 1001)
+= exp(−1) + exp(0) + exp(−2)
+≈ 0.3679 + 1.0 + 0.1353
+≈ 1.5032
+```
+
+`log(1.5032) ≈ 0.4076`. Cộng `M = 1001` lại:
+
+```
+logSumExp([1000, 1001, 999]) ≈ 1001 + 0.4076 ≈ 1001.4076
+```
+
+Số này khớp trực giác: tổng `e^1000 + e^1001 + e^999` bị thống trị bởi `e^1001`, nên log của tổng xấp xỉ `1001` (chỉ chênh chút do hai số kia đóng góp thêm).
+
+**Tại sao trick này ổn định?** Sau khi trừ `M`, mọi số mũ ≤ 0 → `exp(...) ∈ (0, 1]` → tổng ∈ `(0, n]` → `log(tổng) ∈ (−∞, ln(n)]`, không bao giờ overflow. Cộng lại `M` chỉ là dịch trục số, không gây mất chính xác.
+
+**Code đầy đủ**: xem [`solutions.go`](./solutions.go), hàm `logSumExp` và `logSumExpNaive`. Khi chạy:
+
+```
+logSumExpNaive([1000, 1001, 999]) = +Inf    ← hỏng
+logSumExp([1000, 1001, 999]) ≈ 1001.4076    ← ổn định
+```
+
+**Độ phức tạp**: O(n) cho cả hai (mỗi cái duyệt mảng vài lần). Stable version chỉ thêm 1 lượt duyệt để tìm max + 1 lượt nữa để trừ — vẫn O(n).
+
+---
+
+## Code và minh họa
+
+- Code Go đầy đủ: [`solutions.go`](./solutions.go) — chạy `go run solutions.go` để xem bảng giá trị log và demo logSumExp.
+- Trang minh họa tương tác: [`visualization.html`](./visualization.html) — máy tính power/root/log, kiểm chứng quy luật, log-scale demo, logSumExp playground.
+
+## Bài tiếp theo
+
+- **Trước**: [Lesson 03 — Phương trình bậc 1](../lesson-03-linear-equations/)
+- **Tiếp**: [Lesson 05 — Hàm số là gì](../lesson-05-functions/) — đưa các thứ vừa học vào khung "hàm `f(x)`", học cách đọc đồ thị, domain/range, hàm hợp.

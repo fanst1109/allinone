@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 04 — Chain rule (Quy tắc dây xích)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 24px; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 18px 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .card .desc { color: #4a5568; font-size: 14px; margin-bottom: 12px; }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; font-size: 14px; min-width: 110px; }
+  input[type="number"], input[type="text"], select {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; padding: 6px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+  }
+  select { background: white; }
+  input[type="range"] { width: 240px; vertical-align: middle; }
+  .slider-val {
+    display: inline-block; font-family: monospace;
+    background: #edf2f7; padding: 2px 8px; border-radius: 4px;
+    font-weight: 600; color: #2b6cb0; min-width: 60px; text-align: center;
+  }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 6px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.toggle { background: #e2e8f0; color: #2d3748; }
+  button.toggle.active { background: #4299e1; color: white; }
+  svg { display: block; background: #fdfdfd; border: 1px solid #e2e8f0; border-radius: 6px; }
+  .stat-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 8px; margin-top: 12px;
+  }
+  .stat {
+    background: #edf2f7; padding: 8px 12px; border-radius: 4px;
+    font-family: monospace; font-size: 13px;
+  }
+  .stat .name { color: #4a5568; font-size: 11px; }
+  .stat .val { color: #2b6cb0; font-weight: 700; font-size: 14px; }
+  .stat.highlight { background: #fef5e7; }
+  .stat.highlight .val { color: #b7791f; }
+  table { border-collapse: collapse; margin: 8px 0; width: 100%; }
+  table td, table th {
+    padding: 6px 10px; border: 1px solid #e2e8f0;
+    font-family: monospace; font-size: 13px;
+  }
+  table th { background: #edf2f7; text-align: left; }
+  table tr.highlight td { background: #fef5e7; font-weight: 700; }
+  .hint { color: #718096; font-size: 13px; font-style: italic; margin: 4px 0; }
+  .formula {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    background: #1a202c; color: #cbf36b;
+    padding: 8px 12px; border-radius: 4px;
+    font-size: 14px; margin: 8px 0; line-height: 1.6;
+  }
+  .formula .hl { color: #fbb454; font-weight: 700; }
+  .pipeline {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    font-family: monospace; font-size: 14px; margin: 12px 0;
+  }
+  .pipeline .stage {
+    background: #ebf8ff; border: 2px solid #4299e1;
+    padding: 8px 12px; border-radius: 6px; min-width: 90px; text-align: center;
+  }
+  .pipeline .stage .lbl { font-size: 11px; color: #2c5282; }
+  .pipeline .stage .val { font-weight: 700; color: #1a365d; font-size: 14px; }
+  .pipeline .arrow { color: #4a5568; font-weight: 700; font-size: 18px; }
+  .pipeline .deriv {
+    font-size: 11px; color: #c05621; font-weight: 600;
+    background: #fffaf0; padding: 2px 6px; border-radius: 3px;
+  }
+  .grad-flow {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    font-family: monospace; font-size: 13px; margin: 12px 0;
+    padding: 12px; background: #fef5e7; border-radius: 6px;
+  }
+  .grad-flow .gnode {
+    background: white; border: 2px solid #b7791f;
+    padding: 6px 10px; border-radius: 6px; min-width: 80px; text-align: center;
+  }
+  .grad-flow .gnode .lbl { font-size: 10px; color: #744210; }
+  .grad-flow .gnode .val { font-weight: 700; color: #744210; font-size: 13px; }
+  .grad-flow .garrow { color: #b7791f; font-weight: 700; font-size: 18px; }
+  .grad-flow .mul { font-size: 11px; color: #c53030; font-style: italic; }
+  .layer-box {
+    display: inline-block; border: 2px solid #4299e1; background: white;
+    padding: 6px 12px; border-radius: 6px; margin: 4px;
+    font-family: monospace; font-size: 13px;
+  }
+  .layer-box.active { background: #fef5e7; border-color: #b7791f; }
+  .step-banner {
+    background: #ebf8ff; border-left: 4px solid #4299e1;
+    padding: 10px 14px; margin: 8px 0; border-radius: 4px;
+    font-size: 13px;
+  }
+  .step-banner.done { background: #f0fff4; border-color: #38a169; }
+  .step-banner.active { background: #fef5e7; border-color: #b7791f; }
+  .warn { color: #c53030; font-weight: 600; }
+  .ok { color: #2f855a; font-weight: 600; }
+  .nn-diagram { display: block; margin: 12px auto; }
+  .nn-diagram .node {
+    fill: #ebf8ff; stroke: #4299e1; stroke-width: 2;
+  }
+  .nn-diagram .node.input { fill: #fef5e7; stroke: #b7791f; }
+  .nn-diagram .node.output { fill: #f0fff4; stroke: #38a169; }
+  .nn-diagram .edge { stroke: #718096; stroke-width: 1.5; fill: none; }
+  .nn-diagram .edge-grad { stroke: #c53030; stroke-width: 2; fill: none; stroke-dasharray: 4 3; }
+  .nn-diagram text { font-family: monospace; font-size: 12px; }
+  .anim-step {
+    padding: 4px 10px; background: #edf2f7; border-radius: 3px;
+    margin: 4px 4px 4px 0; display: inline-block; font-family: monospace;
+    font-size: 12px; cursor: pointer;
+  }
+  .anim-step.current { background: #b7791f; color: white; }
+  .anim-step.done { background: #38a169; color: white; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-derivative-rules/visualization.html">← L3: Quy tắc đạo hàm</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Chain rule</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-optimization-1d/visualization.html">L5: Cực trị 1 biến →</a>
+</nav>
+  <h1>Lesson 04 — Chain rule (Quy tắc dây xích)</h1>
+  <div class="subtitle">4 component tương tác: composition pipeline, step-by-step chain rule, backpropagation NN 2 lớp, chain nhiều lớp với vanishing/exploding.</div>
+
+  <!-- =========================================================== -->
+  <!-- Component 1: Composition Visualizer                         -->
+  <!-- =========================================================== -->
+  <h2>1. Composition pipeline: <code>x → f(x) → g(f(x))</code></h2>
+  <div class="card">
+    <div class="desc">
+      Chọn hàm <code>f</code> (lớp trong) và <code>g</code> (lớp ngoài) từ dropdown. Kéo slider <code>x</code>.
+      Mỗi stage hiển thị giá trị và đạo hàm địa phương. Chain rule = nhân các đạo hàm.
+    </div>
+    <div class="row">
+      <label>f(x) =</label>
+      <select id="c1-f">
+        <option value="lin">3x + 1</option>
+        <option value="sq">x²</option>
+        <option value="cu">x³</option>
+        <option value="sin">sin(x)</option>
+        <option value="cos">cos(x)</option>
+        <option value="exp">e^x</option>
+      </select>
+      <label>g(u) =</label>
+      <select id="c1-g">
+        <option value="sq">u²</option>
+        <option value="lin">2u + 3</option>
+        <option value="sin">sin(u)</option>
+        <option value="cos">cos(u)</option>
+        <option value="exp">e^u</option>
+        <option value="ln">ln(u)</option>
+      </select>
+    </div>
+    <div class="row">
+      <label>x =</label>
+      <input type="range" id="c1-x" min="-3" max="3" step="0.05" value="1">
+      <span class="slider-val" id="c1-x-val">1.00</span>
+    </div>
+    <div class="pipeline" id="c1-pipe"></div>
+    <div class="formula" id="c1-formula"></div>
+    <svg id="c1-svg" width="1040" height="280" viewBox="0 0 1040 280"></svg>
+    <div class="hint">Đường xanh: <code>g ∘ f</code> theo x. Đường cam: tiếp tuyến tại x hiện tại với slope = <code>g'(f(x)) · f'(x)</code>.</div>
+  </div>
+
+  <!-- =========================================================== -->
+  <!-- Component 2: Step-by-step Chain Rule                        -->
+  <!-- =========================================================== -->
+  <h2>2. Step-by-step chain rule (lựa chọn biểu thức)</h2>
+  <div class="card">
+    <div class="desc">
+      Chọn 1 trong 6 biểu thức ví dụ. Viz tự động tách các lớp, hiển thị đạo hàm từng lớp,
+      và verify bằng giá trị số tại <code>x</code> cho trước.
+    </div>
+    <div class="row">
+      <label>Biểu thức:</label>
+      <select id="c2-expr">
+        <option value="poly2">y = (3x + 1)²</option>
+        <option value="sinxsq">y = sin(x²)</option>
+        <option value="e2x">y = e^(2x)</option>
+        <option value="lnsin">y = ln(sin x)</option>
+        <option value="poly10">y = (x² + 1)^10</option>
+        <option value="esinxsq" selected>y = e^(sin(x²)) (chain 3 lớp)</option>
+      </select>
+    </div>
+    <div class="row">
+      <label>x =</label>
+      <input type="range" id="c2-x" min="-2" max="2" step="0.01" value="1">
+      <span class="slider-val" id="c2-x-val">1.00</span>
+    </div>
+    <div id="c2-layers"></div>
+    <div class="formula" id="c2-formula"></div>
+    <div class="stat-grid" id="c2-stats"></div>
+    <div class="hint" id="c2-verify"></div>
+  </div>
+
+  <!-- =========================================================== -->
+  <!-- Component 3: Backprop demo                                  -->
+  <!-- =========================================================== -->
+  <h2>3. Backpropagation demo (NN 2 lớp, animation từng bước)</h2>
+  <div class="card">
+    <div class="desc">
+      Kiến trúc: <code>x → W₁·+b₁ → z₁ → σ → a₁ → W₂·+b₂ → z₂ = y → L = (y−t)²</code>.
+      Kéo slider tham số, nhấn <strong>Forward</strong> rồi <strong>Backprop</strong> để animation gradient flow ngược qua từng node.
+      Nhấn <strong>1 Step GD</strong> để cập nhật tham số và verify loss giảm.
+    </div>
+    <div class="row">
+      <label>x (input):</label>
+      <input type="range" id="bp-x" min="-2" max="2" step="0.05" value="2">
+      <span class="slider-val" id="bp-x-val">2.00</span>
+      <label>target:</label>
+      <input type="range" id="bp-t" min="-1" max="3" step="0.05" value="1.5">
+      <span class="slider-val" id="bp-t-val">1.50</span>
+    </div>
+    <div class="row">
+      <label>W₁:</label>
+      <input type="range" id="bp-W1" min="-2" max="2" step="0.05" value="0.5">
+      <span class="slider-val" id="bp-W1-val">0.50</span>
+      <label>b₁:</label>
+      <input type="range" id="bp-b1" min="-1" max="1" step="0.05" value="0.1">
+      <span class="slider-val" id="bp-b1-val">0.10</span>
+    </div>
+    <div class="row">
+      <label>W₂:</label>
+      <input type="range" id="bp-W2" min="-2" max="2" step="0.05" value="1.5">
+      <span class="slider-val" id="bp-W2-val">1.50</span>
+      <label>b₂:</label>
+      <input type="range" id="bp-b2" min="-1" max="1" step="0.05" value="-0.2">
+      <span class="slider-val" id="bp-b2-val">-0.20</span>
+    </div>
+    <div class="row">
+      <label>η (lr):</label>
+      <input type="range" id="bp-eta" min="0.01" max="1" step="0.01" value="0.1">
+      <span class="slider-val" id="bp-eta-val">0.10</span>
+    </div>
+    <div class="row">
+      <button id="bp-forward">Forward pass</button>
+      <button id="bp-backward">Backprop (gradient flow)</button>
+      <button id="bp-step">1 Step GD</button>
+      <button id="bp-reset" class="toggle">Reset tham số</button>
+    </div>
+
+    <svg class="nn-diagram" id="bp-svg" width="900" height="280" viewBox="0 0 900 280"></svg>
+
+    <h3 style="margin-top:8px;font-size:15px;color:#2d3748">Forward pass (tính từ trái sang phải)</h3>
+    <div class="stat-grid" id="bp-fwd"></div>
+
+    <h3 style="margin-top:12px;font-size:15px;color:#c53030">Backward pass (gradient flow ngược)</h3>
+    <div class="grad-flow" id="bp-bwd"></div>
+    <div id="bp-bwd-table"></div>
+
+    <div id="bp-log" class="step-banner"></div>
+  </div>
+
+  <!-- =========================================================== -->
+  <!-- Component 4: Multi-layer Chain                              -->
+  <!-- =========================================================== -->
+  <h2>4. Chain rule nhiều lớp — vanishing / exploding gradient</h2>
+  <div class="card">
+    <div class="desc">
+      Mô phỏng chain rule cho NN sâu <code>n</code> lớp. Mỗi lớp đóng góp 1 thừa số đạo hàm cấp 1.
+      Tích các thừa số → gradient cuối. Thử <code>σ'</code> nhỏ (≤ 0.25) → vanishing, hoặc <code>|W|</code> lớn → exploding.
+    </div>
+    <div class="row">
+      <label>Số lớp n:</label>
+      <input type="range" id="ml-n" min="2" max="50" step="1" value="10">
+      <span class="slider-val" id="ml-n-val">10</span>
+    </div>
+    <div class="row">
+      <label>Activation:</label>
+      <select id="ml-act">
+        <option value="sigmoid">sigmoid (σ' ≤ 0.25)</option>
+        <option value="tanh">tanh (tanh' ≤ 1)</option>
+        <option value="relu">ReLU (1 nếu z&gt;0, 0 nếu z≤0)</option>
+        <option value="linear">linear (1)</option>
+      </select>
+    </div>
+    <div class="row">
+      <label>|W| trung bình:</label>
+      <input type="range" id="ml-w" min="0.1" max="3" step="0.05" value="1.0">
+      <span class="slider-val" id="ml-w-val">1.00</span>
+    </div>
+    <div class="row">
+      <button id="ml-resample">Sample lại W ngẫu nhiên</button>
+    </div>
+    <svg id="ml-svg" width="1040" height="320" viewBox="0 0 1040 320"></svg>
+    <div class="stat-grid" id="ml-stats"></div>
+    <div class="hint" id="ml-verdict"></div>
+  </div>
+
+</main>
+
+<script>
+// =================================================================
+// Helpers
+// =================================================================
+function fmt(x, d=4) {
+  if (!isFinite(x)) return String(x);
+  if (Math.abs(x) >= 1e6 || (Math.abs(x) > 0 && Math.abs(x) < 1e-4)) {
+    return x.toExponential(d-1);
+  }
+  return x.toFixed(d);
+}
+function sigmoid(z) { return 1 / (1 + Math.exp(-z)); }
+function dsigmoid(a) { return a * (1 - a); }   // a = sigmoid(z)
+
+// =================================================================
+// Component 1: Composition Pipeline
+// =================================================================
+(function(){
+  const FUNCS = {
+    lin: { f: x => 3*x + 1, df: x => 3, label: '3x+1', dlabel: '3' },
+    sq:  { f: x => x*x, df: x => 2*x, label: 'x²', dlabel: '2x' },
+    cu:  { f: x => x*x*x, df: x => 3*x*x, label: 'x³', dlabel: '3x²' },
+    sin: { f: x => Math.sin(x), df: x => Math.cos(x), label: 'sin(x)', dlabel: 'cos(x)' },
+    cos: { f: x => Math.cos(x), df: x => -Math.sin(x), label: 'cos(x)', dlabel: '−sin(x)' },
+    exp: { f: x => Math.exp(x), df: x => Math.exp(x), label: 'e^x', dlabel: 'e^x' },
+    ln:  { f: x => Math.log(x), df: x => 1/x, label: 'ln(x)', dlabel: '1/x' },
+  };
+  function gname(key, varSym='u') {
+    const lbl = FUNCS[key].label;
+    return lbl.replaceAll('x', varSym);
+  }
+  function gdname(key, varSym='u') {
+    const lbl = FUNCS[key].dlabel;
+    return lbl.replaceAll('x', varSym);
+  }
+
+  const fEl = document.getElementById('c1-f');
+  const gEl = document.getElementById('c1-g');
+  const xEl = document.getElementById('c1-x');
+  const xValEl = document.getElementById('c1-x-val');
+  const pipeEl = document.getElementById('c1-pipe');
+  const formulaEl = document.getElementById('c1-formula');
+  const svg = document.getElementById('c1-svg');
+
+  function render() {
+    const fk = fEl.value, gk = gEl.value;
+    const F = FUNCS[fk], G = FUNCS[gk];
+    const x = parseFloat(xEl.value);
+    xValEl.textContent = x.toFixed(2);
+
+    const u = F.f(x);
+    let y = G.f(u);
+    const dfx = F.df(x);
+    const dgu = G.df(u);
+    const dydx = dgu * dfx;
+
+    pipeEl.innerHTML = `
+      <div class="stage"><div class="lbl">x</div><div class="val">${fmt(x,3)}</div></div>
+      <div>
+        <div class="arrow">→</div>
+        <div class="deriv">f'(x) = ${gdname(fk,'x')} = ${fmt(dfx,3)}</div>
+      </div>
+      <div class="stage"><div class="lbl">u = f(x)</div><div class="val">${fmt(u,3)}</div></div>
+      <div>
+        <div class="arrow">→</div>
+        <div class="deriv">g'(u) = ${gdname(gk,'u')} = ${fmt(dgu,3)}</div>
+      </div>
+      <div class="stage" style="background:#fef5e7;border-color:#b7791f">
+        <div class="lbl">y = g(f(x))</div>
+        <div class="val">${fmt(y,3)}</div>
+      </div>
+    `;
+    formulaEl.innerHTML = `
+      dy/dx = <span class="hl">g'(f(x))</span> · <span class="hl">f'(x)</span>
+            = ${fmt(dgu,4)} · ${fmt(dfx,4)}
+            = <span class="hl">${fmt(dydx,4)}</span>
+    `;
+
+    // Plot composition curve + tangent
+    const W = 1040, H = 280, PAD = 40;
+    const xs = [], ys = [];
+    let ymin = Infinity, ymax = -Infinity;
+    for (let i = 0; i <= 200; i++) {
+      const xi = -3 + (6 * i / 200);
+      const yi = G.f(F.f(xi));
+      if (isFinite(yi)) {
+        xs.push(xi);
+        ys.push(yi);
+        if (yi < ymin) ymin = yi;
+        if (yi > ymax) ymax = yi;
+      }
+    }
+    if (!isFinite(ymin) || !isFinite(ymax) || ymin === ymax) { ymin = -1; ymax = 1; }
+    const pad = (ymax - ymin) * 0.1;
+    ymin -= pad; ymax += pad;
+    const xScale = v => PAD + ((v + 3) / 6) * (W - 2*PAD);
+    const yScale = v => H - PAD - ((v - ymin) / (ymax - ymin)) * (H - 2*PAD);
+
+    let path = '';
+    for (let i = 0; i < xs.length; i++) {
+      path += (i === 0 ? 'M' : 'L') + xScale(xs[i]) + ',' + yScale(ys[i]) + ' ';
+    }
+    // tangent line at current x
+    const x0 = xScale(x), y0 = yScale(y);
+    const tx1 = -3, tx2 = 3;
+    const ty1 = y + dydx * (tx1 - x);
+    const ty2 = y + dydx * (tx2 - x);
+    svg.innerHTML = `
+      <line x1="${PAD}" y1="${yScale(0)}" x2="${W-PAD}" y2="${yScale(0)}" stroke="#cbd5e0" stroke-width="1"/>
+      <line x1="${xScale(0)}" y1="${PAD}" x2="${xScale(0)}" y2="${H-PAD}" stroke="#cbd5e0" stroke-width="1"/>
+      <path d="${path}" fill="none" stroke="#3182ce" stroke-width="2"/>
+      <line x1="${xScale(tx1)}" y1="${yScale(ty1)}" x2="${xScale(tx2)}" y2="${yScale(ty2)}" stroke="#dd6b20" stroke-width="2" stroke-dasharray="5 3"/>
+      <circle cx="${x0}" cy="${y0}" r="6" fill="#dd6b20"/>
+      <text x="${x0 + 8}" y="${y0 - 8}" font-size="12" font-family="monospace" fill="#1a202c">slope = ${fmt(dydx,3)}</text>
+      <text x="${W-PAD-50}" y="${H-PAD-5}" font-size="11" font-family="monospace" fill="#718096">x</text>
+      <text x="${xScale(0)+5}" y="${PAD+12}" font-size="11" font-family="monospace" fill="#718096">y</text>
+    `;
+  }
+
+  fEl.addEventListener('change', render);
+  gEl.addEventListener('change', render);
+  xEl.addEventListener('input', render);
+  render();
+})();
+
+// =================================================================
+// Component 2: Step-by-step chain rule
+// =================================================================
+(function(){
+  const EXPRS = {
+    poly2: {
+      label: '(3x+1)²',
+      layers: [
+        { name: 'u', expr: '3x+1', val: x => 3*x + 1, d: x => 3, dlbl: '3' },
+        { name: 'y', expr: 'u²',   val: u => u*u,    d: u => 2*u, dlbl: '2u' },
+      ],
+      direct: x => Math.pow(3*x+1, 2),
+      directD: x => 6*(3*x+1),
+      finalFormula: 'dy/dx = 2u · 3 = 6(3x+1)',
+    },
+    sinxsq: {
+      label: 'sin(x²)',
+      layers: [
+        { name: 'u', expr: 'x²', val: x => x*x, d: x => 2*x, dlbl: '2x' },
+        { name: 'y', expr: 'sin u', val: u => Math.sin(u), d: u => Math.cos(u), dlbl: 'cos u' },
+      ],
+      direct: x => Math.sin(x*x),
+      directD: x => 2*x*Math.cos(x*x),
+      finalFormula: 'dy/dx = cos(x²) · 2x = 2x cos(x²)',
+    },
+    e2x: {
+      label: 'e^(2x)',
+      layers: [
+        { name: 'u', expr: '2x', val: x => 2*x, d: x => 2, dlbl: '2' },
+        { name: 'y', expr: 'e^u', val: u => Math.exp(u), d: u => Math.exp(u), dlbl: 'e^u' },
+      ],
+      direct: x => Math.exp(2*x),
+      directD: x => 2*Math.exp(2*x),
+      finalFormula: 'dy/dx = e^(2x) · 2 = 2 e^(2x)',
+    },
+    lnsin: {
+      label: 'ln(sin x)',
+      layers: [
+        { name: 'u', expr: 'sin x', val: x => Math.sin(x), d: x => Math.cos(x), dlbl: 'cos x' },
+        { name: 'y', expr: 'ln u', val: u => Math.log(u), d: u => 1/u, dlbl: '1/u' },
+      ],
+      direct: x => Math.log(Math.sin(x)),
+      directD: x => Math.cos(x)/Math.sin(x),
+      finalFormula: 'dy/dx = (1/sin x) · cos x = cot x',
+    },
+    poly10: {
+      label: '(x²+1)^10',
+      layers: [
+        { name: 'u', expr: 'x²+1', val: x => x*x+1, d: x => 2*x, dlbl: '2x' },
+        { name: 'y', expr: 'u^10', val: u => Math.pow(u,10), d: u => 10*Math.pow(u,9), dlbl: '10 u^9' },
+      ],
+      direct: x => Math.pow(x*x+1, 10),
+      directD: x => 20*x*Math.pow(x*x+1, 9),
+      finalFormula: 'dy/dx = 10 u^9 · 2x = 20x (x²+1)^9',
+    },
+    esinxsq: {
+      label: 'e^(sin(x²))',
+      layers: [
+        { name: 'v', expr: 'x²', val: x => x*x, d: x => 2*x, dlbl: '2x' },
+        { name: 'u', expr: 'sin v', val: v => Math.sin(v), d: v => Math.cos(v), dlbl: 'cos v' },
+        { name: 'y', expr: 'e^u', val: u => Math.exp(u), d: u => Math.exp(u), dlbl: 'e^u' },
+      ],
+      direct: x => Math.exp(Math.sin(x*x)),
+      directD: x => 2*x*Math.cos(x*x)*Math.exp(Math.sin(x*x)),
+      finalFormula: 'dy/dx = e^(sin(x²)) · cos(x²) · 2x',
+    },
+  };
+  const exprEl = document.getElementById('c2-expr');
+  const xEl = document.getElementById('c2-x');
+  const xValEl = document.getElementById('c2-x-val');
+  const layersEl = document.getElementById('c2-layers');
+  const formulaEl = document.getElementById('c2-formula');
+  const statsEl = document.getElementById('c2-stats');
+  const verifyEl = document.getElementById('c2-verify');
+
+  function render() {
+    const E = EXPRS[exprEl.value];
+    const x = parseFloat(xEl.value);
+    xValEl.textContent = x.toFixed(2);
+
+    // Compute all intermediate values
+    const vals = [x];
+    const derivs = [];
+    let prev = x;
+    for (const L of E.layers) {
+      const v = L.val(prev);
+      const d = L.d(prev);
+      vals.push(v);
+      derivs.push(d);
+      prev = v;
+    }
+    let product = 1;
+    for (const d of derivs) product *= d;
+
+    // Render layers
+    let html = '';
+    const symbols = ['x', ...E.layers.map(L => L.name)];
+    for (let i = 0; i < E.layers.length; i++) {
+      const L = E.layers[i];
+      html += `<div class="layer-box ${i === E.layers.length - 1 ? 'active' : ''}">
+        <b>Lớp ${i+1}:</b> ${L.name} = ${L.expr}
+        &nbsp;|&nbsp; d${L.name}/d${symbols[i]} = ${L.dlbl} = ${fmt(derivs[i],3)}
+      </div>`;
+    }
+    layersEl.innerHTML = html;
+
+    // Formula display
+    const parts = derivs.map(d => fmt(d, 3));
+    formulaEl.innerHTML = `${E.finalFormula}<br>
+      Tại x = ${fmt(x,3)}: <span class="hl">${parts.join(' · ')}</span> = <span class="hl">${fmt(product, 5)}</span>`;
+
+    // Stats
+    let statHtml = '';
+    for (let i = 0; i < symbols.length; i++) {
+      statHtml += `<div class="stat"><div class="name">${symbols[i]}</div><div class="val">${fmt(vals[i],4)}</div></div>`;
+    }
+    statHtml += `<div class="stat highlight"><div class="name">dy/dx (chain rule)</div><div class="val">${fmt(product,4)}</div></div>`;
+    statHtml += `<div class="stat highlight"><div class="name">dy/dx (đạo hàm trực tiếp)</div><div class="val">${fmt(E.directD(x),4)}</div></div>`;
+    statsEl.innerHTML = statHtml;
+
+    // Verify with numerical derivative
+    const h = 1e-5;
+    const numD = (E.direct(x+h) - E.direct(x-h)) / (2*h);
+    const err = Math.abs(numD - product);
+    const status = err < 0.01 ? 'ok' : 'warn';
+    verifyEl.innerHTML = `Kiểm tra số (giới hạn h=1e-5): <code>(y(x+h)−y(x−h))/(2h) = ${fmt(numD,5)}</code>. So với chain rule = ${fmt(product,5)}. <span class="${status}">Khớp (sai số ${fmt(err,2)}).</span>`;
+  }
+  exprEl.addEventListener('change', render);
+  xEl.addEventListener('input', render);
+  render();
+})();
+
+// =================================================================
+// Component 3: Backprop demo
+// =================================================================
+(function(){
+  const ids = ['x','t','W1','b1','W2','b2','eta'];
+  const els = {}, valEls = {};
+  ids.forEach(k => {
+    els[k] = document.getElementById('bp-'+k);
+    valEls[k] = document.getElementById('bp-'+k+'-val');
+  });
+  const fwdEl = document.getElementById('bp-fwd');
+  const bwdEl = document.getElementById('bp-bwd');
+  const bwdTblEl = document.getElementById('bp-bwd-table');
+  const logEl = document.getElementById('bp-log');
+  const svg = document.getElementById('bp-svg');
+
+  const initial = { x: 2, t: 1.5, W1: 0.5, b1: 0.1, W2: 1.5, b2: -0.2, eta: 0.1 };
+
+  function readState() {
+    const s = {};
+    ids.forEach(k => { s[k] = parseFloat(els[k].value); valEls[k].textContent = s[k].toFixed(2); });
+    return s;
+  }
+  function forward(s) {
+    const z1 = s.W1 * s.x + s.b1;
+    const a1 = sigmoid(z1);
+    const z2 = s.W2 * a1 + s.b2;
+    const y = z2;
+    const L = (y - s.t) * (y - s.t);
+    return { z1, a1, z2, y, L };
+  }
+  function backward(s, fwd) {
+    const dy = 2 * (fwd.y - s.t);
+    const dz2 = dy;
+    const dW2 = dz2 * fwd.a1;
+    const db2 = dz2;
+    const da1 = dz2 * s.W2;
+    const sp = fwd.a1 * (1 - fwd.a1);
+    const dz1 = da1 * sp;
+    const dW1 = dz1 * s.x;
+    const db1 = dz1;
+    return { dy, dz2, dW2, db2, da1, sp, dz1, dW1, db1 };
+  }
+
+  function drawDiagram(s, fwd, bwd, mode) {
+    // mode: 'forward' or 'backward' or 'idle'
+    const nodes = [
+      { id: 'x', x: 50,  y: 140, label: 'x', val: fmt(s.x,3), cls: 'input' },
+      { id: 'z1', x: 220, y: 140, label: 'z₁', val: fwd ? fmt(fwd.z1,3) : '?', cls: '' },
+      { id: 'a1', x: 380, y: 140, label: 'a₁', val: fwd ? fmt(fwd.a1,3) : '?', cls: '' },
+      { id: 'z2', x: 540, y: 140, label: 'z₂', val: fwd ? fmt(fwd.z2,3) : '?', cls: '' },
+      { id: 'y',  x: 700, y: 140, label: 'y', val: fwd ? fmt(fwd.y,3) : '?', cls: 'output' },
+      { id: 'L',  x: 840, y: 140, label: 'L', val: fwd ? fmt(fwd.L,3) : '?', cls: 'output' },
+    ];
+    const edges = [
+      { from: 'x', to: 'z1', label: 'W₁·+b₁', fLabel: 'W₁=' + fmt(s.W1,2), bLabel: bwd ? '∂z₁/∂x=W₁' : '' },
+      { from: 'z1', to: 'a1', label: 'σ', fLabel: '', bLabel: bwd ? "σ'=" + fmt(bwd.sp,3) : '' },
+      { from: 'a1', to: 'z2', label: 'W₂·+b₂', fLabel: 'W₂=' + fmt(s.W2,2), bLabel: bwd ? '∂z₂/∂a₁=W₂' : '' },
+      { from: 'z2', to: 'y', label: '=', fLabel: '', bLabel: '' },
+      { from: 'y', to: 'L', label: '(·−t)²', fLabel: 't=' + fmt(s.t,2), bLabel: bwd ? '2(y−t)' : '' },
+    ];
+    let svgHtml = '';
+    // edges first (under nodes)
+    for (const e of edges) {
+      const a = nodes.find(n => n.id === e.from);
+      const b = nodes.find(n => n.id === e.to);
+      svgHtml += `<line class="edge" x1="${a.x+30}" y1="${a.y}" x2="${b.x-30}" y2="${b.y}"/>`;
+      svgHtml += `<text x="${(a.x+b.x)/2}" y="${a.y-10}" text-anchor="middle" fill="#4a5568">${e.label}</text>`;
+      if (mode === 'forward' && e.fLabel) {
+        svgHtml += `<text x="${(a.x+b.x)/2}" y="${a.y+22}" text-anchor="middle" fill="#2b6cb0" font-size="10">${e.fLabel}</text>`;
+      }
+      if (mode === 'backward' && e.bLabel) {
+        // draw backward arrow
+        svgHtml += `<line class="edge-grad" x1="${b.x-30}" y1="${a.y+8}" x2="${a.x+30}" y2="${b.y+8}" marker-end="url(#arrow)"/>`;
+        svgHtml += `<text x="${(a.x+b.x)/2}" y="${a.y+30}" text-anchor="middle" fill="#c53030" font-size="10">×${e.bLabel}</text>`;
+      }
+    }
+    // arrow marker
+    svgHtml = `<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><polygon points="0 0, 10 3, 0 6" fill="#c53030"/></marker></defs>` + svgHtml;
+    // nodes
+    for (const n of nodes) {
+      svgHtml += `<circle class="node ${n.cls}" cx="${n.x}" cy="${n.y}" r="28"/>`;
+      svgHtml += `<text x="${n.x}" y="${n.y-2}" text-anchor="middle" font-weight="700" fill="#1a202c">${n.label}</text>`;
+      svgHtml += `<text x="${n.x}" y="${n.y+14}" text-anchor="middle" fill="#4a5568" font-size="11">${n.val}</text>`;
+    }
+    // legend
+    svgHtml += `<text x="30" y="40" fill="#2b6cb0" font-size="12">▶ Forward (đen)</text>`;
+    svgHtml += `<text x="30" y="60" fill="#c53030" font-size="12">◀ Backward / gradient (đỏ đứt)</text>`;
+
+    if (mode === 'backward' && bwd) {
+      // display dW1, dW2 boxes
+      svgHtml += `<text x="135" y="220" font-family="monospace" fill="#c53030" font-size="11">∂L/∂W₁ = δ_z₁·x = ${fmt(bwd.dW1,3)}</text>`;
+      svgHtml += `<text x="455" y="220" font-family="monospace" fill="#c53030" font-size="11">∂L/∂W₂ = δ_z₂·a₁ = ${fmt(bwd.dW2,3)}</text>`;
+    }
+    svg.innerHTML = svgHtml;
+  }
+
+  function renderForwardTable(fwd) {
+    fwdEl.innerHTML = `
+      <div class="stat"><div class="name">z₁ = W₁ x + b₁</div><div class="val">${fmt(fwd.z1,4)}</div></div>
+      <div class="stat"><div class="name">a₁ = σ(z₁)</div><div class="val">${fmt(fwd.a1,4)}</div></div>
+      <div class="stat"><div class="name">z₂ = W₂ a₁ + b₂</div><div class="val">${fmt(fwd.z2,4)}</div></div>
+      <div class="stat"><div class="name">y = z₂</div><div class="val">${fmt(fwd.y,4)}</div></div>
+      <div class="stat highlight"><div class="name">L = (y−t)²</div><div class="val">${fmt(fwd.L,4)}</div></div>
+    `;
+  }
+  function renderBackwardFlow(bwd) {
+    bwdEl.innerHTML = `
+      <div class="gnode"><div class="lbl">δ_y = 2(y−t)</div><div class="val">${fmt(bwd.dy,3)}</div></div>
+      <div class="garrow">→</div>
+      <div class="mul">× 1 (∂y/∂z₂)</div>
+      <div class="garrow">→</div>
+      <div class="gnode"><div class="lbl">δ_z₂</div><div class="val">${fmt(bwd.dz2,3)}</div></div>
+      <div class="garrow">→</div>
+      <div class="mul">× W₂ (∂z₂/∂a₁)</div>
+      <div class="garrow">→</div>
+      <div class="gnode"><div class="lbl">δ_a₁</div><div class="val">${fmt(bwd.da1,3)}</div></div>
+      <div class="garrow">→</div>
+      <div class="mul">× σ'(z₁) = ${fmt(bwd.sp,3)}</div>
+      <div class="garrow">→</div>
+      <div class="gnode"><div class="lbl">δ_z₁</div><div class="val">${fmt(bwd.dz1,3)}</div></div>
+    `;
+    bwdTblEl.innerHTML = `
+      <table>
+        <tr><th>Gradient</th><th>Công thức (chain rule)</th><th>Giá trị</th></tr>
+        <tr><td>∂L/∂W₂</td><td>δ_z₂ · a₁</td><td>${fmt(bwd.dW2,5)}</td></tr>
+        <tr><td>∂L/∂b₂</td><td>δ_z₂</td><td>${fmt(bwd.db2,5)}</td></tr>
+        <tr><td>∂L/∂W₁</td><td>δ_z₁ · x</td><td>${fmt(bwd.dW1,5)}</td></tr>
+        <tr><td>∂L/∂b₁</td><td>δ_z₁</td><td>${fmt(bwd.db1,5)}</td></tr>
+      </table>
+    `;
+  }
+
+  function actionForward() {
+    const s = readState();
+    const fwd = forward(s);
+    renderForwardTable(fwd);
+    drawDiagram(s, fwd, null, 'forward');
+    bwdEl.innerHTML = '<em style="color:#718096">Nhấn Backprop để chạy gradient flow ngược.</em>';
+    bwdTblEl.innerHTML = '';
+    logEl.className = 'step-banner';
+    logEl.innerHTML = `<strong>Forward done.</strong> Loss L = ${fmt(fwd.L, 4)}. Bây giờ chain rule sẽ đi ngược từ L về tham số.`;
+  }
+  function actionBackward() {
+    const s = readState();
+    const fwd = forward(s);
+    const bwd = backward(s, fwd);
+    renderForwardTable(fwd);
+    renderBackwardFlow(bwd);
+    drawDiagram(s, fwd, bwd, 'backward');
+    logEl.className = 'step-banner active';
+    logEl.innerHTML = `<strong>Backprop done.</strong> Mỗi mũi tên ngược nhân thêm 1 local gradient. Đó là <em>chain rule áp tuần tự</em>.<br>
+      ∂L/∂W₁ = ${fmt(bwd.dW1,4)}, ∂L/∂b₁ = ${fmt(bwd.db1,4)}, ∂L/∂W₂ = ${fmt(bwd.dW2,4)}, ∂L/∂b₂ = ${fmt(bwd.db2,4)}.`;
+  }
+  function actionStep() {
+    const s = readState();
+    const fwd = forward(s);
+    const bwd = backward(s, fwd);
+    // update
+    els.W1.value = (s.W1 - s.eta * bwd.dW1).toFixed(4);
+    els.b1.value = (s.b1 - s.eta * bwd.db1).toFixed(4);
+    els.W2.value = (s.W2 - s.eta * bwd.dW2).toFixed(4);
+    els.b2.value = (s.b2 - s.eta * bwd.db2).toFixed(4);
+    const s2 = readState();
+    const fwd2 = forward(s2);
+    renderForwardTable(fwd2);
+    drawDiagram(s2, fwd2, null, 'forward');
+    bwdEl.innerHTML = '';
+    bwdTblEl.innerHTML = '';
+    const delta = fwd.L - fwd2.L;
+    const cls = delta > 0 ? 'done' : 'active';
+    logEl.className = 'step-banner ' + cls;
+    logEl.innerHTML = `<strong>1 step GD (η=${fmt(s.eta,2)}).</strong>
+      Loss: ${fmt(fwd.L,4)} → ${fmt(fwd2.L,4)}
+      (Δ = ${delta >= 0 ? '−' : '+'}${fmt(Math.abs(delta),4)}).
+      ${delta > 0 ? '<span class="ok">Giảm ✓</span>' : '<span class="warn">Tăng (η có thể quá lớn)</span>'}`;
+  }
+  function actionReset() {
+    for (const k in initial) {
+      if (els[k]) els[k].value = initial[k];
+    }
+    readState();
+    drawDiagram(initial, null, null, 'idle');
+    fwdEl.innerHTML = '<em style="color:#718096">Nhấn Forward để chạy forward pass.</em>';
+    bwdEl.innerHTML = '';
+    bwdTblEl.innerHTML = '';
+    logEl.className = 'step-banner';
+    logEl.innerHTML = '';
+  }
+
+  document.getElementById('bp-forward').addEventListener('click', actionForward);
+  document.getElementById('bp-backward').addEventListener('click', actionBackward);
+  document.getElementById('bp-step').addEventListener('click', actionStep);
+  document.getElementById('bp-reset').addEventListener('click', actionReset);
+  ids.forEach(k => els[k].addEventListener('input', () => { readState(); }));
+
+  // initial
+  actionReset();
+})();
+
+// =================================================================
+// Component 4: Multi-layer Chain (vanishing/exploding)
+// =================================================================
+(function(){
+  const nEl = document.getElementById('ml-n');
+  const nValEl = document.getElementById('ml-n-val');
+  const actEl = document.getElementById('ml-act');
+  const wEl = document.getElementById('ml-w');
+  const wValEl = document.getElementById('ml-w-val');
+  const resampleBtn = document.getElementById('ml-resample');
+  const svg = document.getElementById('ml-svg');
+  const statsEl = document.getElementById('ml-stats');
+  const verdictEl = document.getElementById('ml-verdict');
+
+  let weights = [];
+  function sampleWeights(n, mean) {
+    const arr = [];
+    for (let i = 0; i < n; i++) {
+      // gaussian-ish via mean of two uniforms, sign random
+      const r = (Math.random() + Math.random() + Math.random()) / 3;
+      const sign = Math.random() < 0.5 ? -1 : 1;
+      arr.push(sign * mean * (0.5 + r));
+    }
+    return arr;
+  }
+
+  function actDeriv(kind) {
+    switch (kind) {
+      case 'sigmoid': return () => 0.2 + 0.05 * Math.random(); // typical ~0.2-0.25
+      case 'tanh': return () => 0.5 + 0.5 * Math.random();      // 0.5..1
+      case 'relu': return () => Math.random() < 0.5 ? 0 : 1;
+      case 'linear': return () => 1;
+    }
+  }
+
+  function render() {
+    const n = parseInt(nEl.value);
+    nValEl.textContent = n;
+    const mean = parseFloat(wEl.value);
+    wValEl.textContent = mean.toFixed(2);
+    if (weights.length !== n) weights = sampleWeights(n, mean);
+    const actK = actEl.value;
+    const dAct = actDeriv(actK);
+
+    // Compute product of factors per layer: factor_k = |W_k * σ'_k|
+    const factors = [];
+    for (let i = 0; i < n; i++) {
+      const w = weights[i];
+      const dsig = dAct();
+      factors.push(Math.abs(w) * dsig);
+    }
+    // running product
+    const running = [1];
+    let p = 1;
+    for (const f of factors) {
+      p *= f;
+      running.push(p);
+    }
+
+    // SVG bar chart of running product on log scale
+    const W = 1040, H = 320, PAD = 50;
+    const xmax = n;
+    const ys = running.slice(1); // length n
+    const logYs = ys.map(v => v > 0 ? Math.log10(v) : -20);
+    let logMin = Math.min(...logYs, 0);
+    let logMax = Math.max(...logYs, 0);
+    if (logMax === logMin) { logMax += 1; logMin -= 1; }
+    const ymarg = (logMax - logMin) * 0.1;
+    logMax += ymarg; logMin -= ymarg;
+    const xScale = i => PAD + (i / xmax) * (W - 2*PAD);
+    const yScale = v => H - PAD - ((v - logMin) / (logMax - logMin)) * (H - 2*PAD);
+
+    let html = '';
+    // axes
+    html += `<line x1="${PAD}" y1="${yScale(0)}" x2="${W-PAD}" y2="${yScale(0)}" stroke="#a0aec0" stroke-width="1.5" stroke-dasharray="3 3"/>`;
+    html += `<text x="${W-PAD+5}" y="${yScale(0)+4}" fill="#a0aec0" font-size="11" font-family="monospace">y=1</text>`;
+    html += `<line x1="${PAD}" y1="${PAD}" x2="${PAD}" y2="${H-PAD}" stroke="#a0aec0" stroke-width="1"/>`;
+    html += `<line x1="${PAD}" y1="${H-PAD}" x2="${W-PAD}" y2="${H-PAD}" stroke="#a0aec0" stroke-width="1"/>`;
+    // gridlines
+    for (let g = Math.ceil(logMin); g <= Math.floor(logMax); g++) {
+      html += `<line x1="${PAD}" y1="${yScale(g)}" x2="${W-PAD}" y2="${yScale(g)}" stroke="#edf2f7" stroke-width="1"/>`;
+      html += `<text x="${PAD-8}" y="${yScale(g)+4}" text-anchor="end" font-size="11" fill="#718096" font-family="monospace">10^${g}</text>`;
+    }
+    // line of running product
+    let path = '';
+    for (let i = 0; i < logYs.length; i++) {
+      const px = xScale(i+1);
+      const py = yScale(logYs[i]);
+      path += (i === 0 ? 'M' : 'L') + px + ',' + py + ' ';
+    }
+    html += `<path d="${path}" fill="none" stroke="#3182ce" stroke-width="2.5"/>`;
+    // dots
+    for (let i = 0; i < logYs.length; i++) {
+      const px = xScale(i+1);
+      const py = yScale(logYs[i]);
+      html += `<circle cx="${px}" cy="${py}" r="3" fill="#2b6cb0"/>`;
+    }
+    // axis labels
+    html += `<text x="${W/2}" y="${H-10}" text-anchor="middle" fill="#2d3748" font-size="12">Số lớp (k) — tích đạo hàm tới lớp k (log scale)</text>`;
+    html += `<text x="15" y="${H/2}" transform="rotate(-90 15,${H/2})" text-anchor="middle" fill="#2d3748" font-size="12">log₁₀ |∂L/∂W₁ factor|</text>`;
+    svg.innerHTML = html;
+
+    // Stats
+    const finalP = running[running.length - 1];
+    const avgFactor = factors.reduce((a,b)=>a+b,0) / n;
+    statsEl.innerHTML = `
+      <div class="stat"><div class="name">Số lớp n</div><div class="val">${n}</div></div>
+      <div class="stat"><div class="name">|W| trung bình (config)</div><div class="val">${fmt(mean,3)}</div></div>
+      <div class="stat"><div class="name">Thừa số trung bình</div><div class="val">${fmt(avgFactor,4)}</div></div>
+      <div class="stat highlight"><div class="name">Tích cuối (gradient)</div><div class="val">${fmt(finalP, 4)}</div></div>
+    `;
+
+    // Verdict
+    let v = '';
+    if (finalP < 1e-6) v = `<span class="warn">⚠ Vanishing gradient</span>: tích = ${fmt(finalP,3)} ≪ 1 → các lớp đầu gần như không học được.`;
+    else if (finalP > 1e6) v = `<span class="warn">⚠ Exploding gradient</span>: tích = ${fmt(finalP,3)} ≫ 1 → cập nhật parameters vọt, training không ổn định.`;
+    else v = `<span class="ok">✓ Gradient ổn định</span>: tích = ${fmt(finalP,3)} ở thang dùng được. Đây là region "lành" cho training.`;
+
+    let extra = '';
+    if (actK === 'sigmoid' && n >= 10) {
+      extra = ` Sigmoid có σ' ≤ 0.25, nên với n=${n} thừa số, gradient dễ vanish. Đó là lý do NN sâu hiện đại dùng ReLU/GELU thay vì sigmoid ở hidden layer.`;
+    } else if (actK === 'relu') {
+      extra = ` ReLU: nửa số neuron có σ'=0 (input âm) → cắt gradient hoàn toàn ở những đường đó ("dying ReLU"). Đường còn lại σ'=1 → không vanish trên đường đó.`;
+    }
+    verdictEl.innerHTML = v + extra;
+  }
+
+  nEl.addEventListener('input', () => { weights = []; render(); });
+  actEl.addEventListener('change', render);
+  wEl.addEventListener('input', () => { weights = []; render(); });
+  resampleBtn.addEventListener('click', () => { weights = []; render(); });
+  render();
+})();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

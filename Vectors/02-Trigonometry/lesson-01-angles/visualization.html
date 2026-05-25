@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>L1 — Góc: độ và radian</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* --- Component đặc thù cho lesson này --- */
+  h1 { margin-top: 0; color: #2d3748; }
+  h2 { color: #2d3748; border-bottom: 2px solid #cbd5e0; padding-bottom: 6px; margin-top: 36px; }
+  .card {
+    background: white;
+    border-radius: 8px;
+    padding: 22px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    margin-bottom: 28px;
+  }
+  .row { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+  .col { flex: 1; min-width: 280px; }
+
+  /* Đường tròn đơn vị SVG */
+  .circle-wrap { display: flex; justify-content: center; }
+  svg.unit-circle { background: #fafbfc; border-radius: 8px; }
+  .axis { stroke: #a0aec0; stroke-width: 1; }
+  .circle-line { stroke: #4299e1; stroke-width: 2; fill: none; }
+  .arc-fill { fill: rgba(66, 153, 225, 0.25); stroke: #2b6cb0; stroke-width: 2; }
+  .radius-line { stroke: #e53e3e; stroke-width: 2.5; }
+  .point-on-circle { fill: #e53e3e; stroke: white; stroke-width: 2; }
+  .axis-label { fill: #4a5568; font-size: 13px; font-family: monospace; }
+  .arrow-head { fill: #2b6cb0; }
+
+  /* Slider + display */
+  .slider-row { display: flex; align-items: center; gap: 14px; margin: 14px 0; }
+  .slider-row label { min-width: 110px; font-weight: 600; color: #2d3748; }
+  .slider-row input[type=range] { flex: 1; }
+  .slider-row input[type=number] { width: 90px; padding: 6px; border: 1px solid #cbd5e0; border-radius: 4px; }
+  .info-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px 16px;
+    background: #f7fafc;
+    padding: 14px;
+    border-radius: 6px;
+    margin-top: 12px;
+    font-family: 'SF Mono', Monaco, monospace;
+    font-size: 14px;
+  }
+  .info-grid .key { color: #4a5568; font-weight: 600; }
+  .info-grid .val { color: #2d3748; }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 6px;
+  }
+  .badge-pos { background: #c6f6d5; color: #22543d; }
+  .badge-neg { background: #fed7d7; color: #742a2a; }
+
+  /* Converter */
+  .converter { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px; align-items: center; }
+  .converter input[type=number] {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #cbd5e0;
+    border-radius: 6px;
+    font-family: monospace;
+  }
+  .converter input[type=number]:focus {
+    border-color: #4299e1;
+    outline: none;
+  }
+  .converter .arrow { font-size: 22px; color: #4299e1; }
+  .nice-form {
+    margin-top: 10px;
+    padding: 10px;
+    background: #edf2f7;
+    border-radius: 4px;
+    font-family: monospace;
+    color: #2b6cb0;
+    min-height: 20px;
+  }
+
+  /* Sin demo */
+  table.sin-demo { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  table.sin-demo th, table.sin-demo td { padding: 10px 12px; border: 1px solid #e2e8f0; text-align: left; }
+  table.sin-demo th { background: #edf2f7; color: #2d3748; font-weight: 600; }
+  table.sin-demo td { font-family: monospace; }
+  table.sin-demo .bad { color: #c53030; font-weight: 600; }
+  table.sin-demo .good { color: #22543d; font-weight: 600; }
+
+  /* Normalize */
+  .normalize-input { display: flex; gap: 10px; margin-bottom: 14px; }
+  .normalize-input input { padding: 8px; flex: 1; border: 1px solid #cbd5e0; border-radius: 4px; font-family: monospace; }
+  .normalize-input button {
+    padding: 8px 18px;
+    background: #4299e1;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .normalize-input button:hover { background: #2b6cb0; }
+  .normalize-step {
+    padding: 8px 12px;
+    background: #f7fafc;
+    border-left: 3px solid #4299e1;
+    margin: 6px 0;
+    font-family: monospace;
+    font-size: 14px;
+  }
+
+  .note {
+    background: #fffaf0;
+    border-left: 4px solid #ed8936;
+    padding: 12px 16px;
+    margin: 14px 0;
+    border-radius: 0 6px 6px 0;
+    font-size: 14px;
+    color: #744210;
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Góc — độ và radian</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-right-triangle/visualization.html">L2: Tam giác vuông sin/cos/tan →</a>
+</nav>
+  <h1>Lesson 01 — Góc: độ và radian</h1>
+  <p>Minh hoạ tương tác cho 4 chủ đề chính: <strong>đường tròn đơn vị</strong>, <strong>chuyển đổi độ ↔ radian</strong>, <strong>so sánh <code>sin(x rad)</code> vs <code>sin(x°)</code></strong>, và <strong>quy gọn góc</strong>.</p>
+
+  <!-- ====================================================================== -->
+  <h2>1. Đường tròn đơn vị tương tác</h2>
+  <div class="card">
+    <div class="row">
+      <div class="col circle-wrap">
+        <svg class="unit-circle" id="circleSvg" width="380" height="380" viewBox="-200 -200 400 400">
+          <!-- trục -->
+          <line class="axis" x1="-180" y1="0" x2="180" y2="0"></line>
+          <line class="axis" x1="0" y1="-180" x2="0" y2="180"></line>
+          <!-- mũi tên trục -->
+          <polygon class="axis-head" points="180,0 172,-5 172,5" fill="#a0aec0"></polygon>
+          <polygon class="axis-head" points="0,-180 -5,-172 5,-172" fill="#a0aec0"></polygon>
+          <!-- nhãn trục -->
+          <text class="axis-label" x="184" y="14">x (0°)</text>
+          <text class="axis-label" x="6" y="-184">y (90°)</text>
+          <text class="axis-label" x="-180" y="14">180°</text>
+          <text class="axis-label" x="6" y="195">270°</text>
+
+          <!-- đường tròn -->
+          <circle class="circle-line" cx="0" cy="0" r="150"></circle>
+
+          <!-- arc fill (sẽ cập nhật theo góc) -->
+          <path class="arc-fill" id="arcPath" d=""></path>
+
+          <!-- bán kính tới điểm chọn -->
+          <line class="radius-line" id="radiusLine" x1="0" y1="0" x2="150" y2="0"></line>
+
+          <!-- điểm trên đường tròn -->
+          <circle class="point-on-circle" id="pointCircle" cx="150" cy="0" r="7"></circle>
+
+          <!-- nhãn góc -->
+          <text class="axis-label" id="angleLabel" x="40" y="-10" style="font-weight: 700; fill: #2b6cb0;">θ=0°</text>
+        </svg>
+      </div>
+      <div class="col">
+        <div class="slider-row">
+          <label for="angleSlider">Góc (độ):</label>
+          <input type="range" id="angleSlider" min="-360" max="720" value="60" step="1">
+          <input type="number" id="angleInput" min="-360" max="720" value="60" step="1">
+        </div>
+        <p style="font-size: 13px; color: #4a5568; margin: 4px 0 14px;">Kéo slider hoặc gõ trực tiếp. Cho phép góc âm và &gt; 360°.</p>
+
+        <div class="info-grid">
+          <div class="key">Độ:</div>            <div class="val" id="infoDeg">60°</div>
+          <div class="key">Radian (số):</div>   <div class="val" id="infoRadNum">1.0472</div>
+          <div class="key">Radian (đẹp):</div>  <div class="val" id="infoRadNice">π/3</div>
+          <div class="key">Hướng quay:</div>    <div class="val" id="infoDirection">ngược kim ↺</div>
+          <div class="key">Vòng quét:</div>     <div class="val" id="infoTurns">0.17 vòng</div>
+          <div class="key">x = cos θ:</div>     <div class="val" id="infoCos">0.5000</div>
+          <div class="key">y = sin θ:</div>     <div class="val" id="infoSin">0.8660</div>
+        </div>
+
+        <div class="note">
+          Toạ độ <code>(cos θ, sin θ)</code> ở đây là <strong>preview Lesson 03</strong> — đường tròn đơn vị. Lesson 02 sẽ định nghĩa <code>sin</code>, <code>cos</code> qua tam giác vuông; Lesson 03 mở rộng cho mọi góc.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================== -->
+  <h2>2. Bộ chuyển đổi độ ↔ radian</h2>
+  <div class="card">
+    <p>Gõ vào một ô, ô kia sẽ tự cập nhật. Nếu là góc đặc biệt (30°, 45°, 60°, ...) sẽ hiện dạng phân số <code>π</code>.</p>
+    <div class="converter">
+      <div>
+        <label style="font-weight: 600;">Độ (°)</label>
+        <input type="number" id="degInput" value="60" step="any">
+      </div>
+      <div class="arrow">↔</div>
+      <div>
+        <label style="font-weight: 600;">Radian</label>
+        <input type="number" id="radInput" value="1.047198" step="any">
+      </div>
+    </div>
+    <div class="nice-form" id="niceFormDisplay">Dạng đẹp: <strong>π/3</strong></div>
+    <p style="font-size: 13px; color: #4a5568; margin-top: 10px;">
+      Công thức: <code>rad = deg · π/180</code>, &nbsp; <code>deg = rad · 180/π</code>.
+    </p>
+  </div>
+
+  <!-- ====================================================================== -->
+  <h2>3. Demo <code>math.Sin</code> với độ vs radian — bug điển hình</h2>
+  <div class="card">
+    <p>Nhập một số <code>x</code>. Bảng cho thấy 2 cách tính: (a) coi <code>x</code> là radian (cách Go ngầm hiểu) và (b) đổi <code>x</code> độ → radian rồi tính.</p>
+    <div class="slider-row">
+      <label for="sinInput">Giá trị x:</label>
+      <input type="number" id="sinInput" value="30" step="any" style="width: 140px;">
+    </div>
+    <table class="sin-demo">
+      <thead>
+        <tr>
+          <th>Cách gọi</th>
+          <th>Biểu thức</th>
+          <th>Kết quả</th>
+          <th>Đánh giá</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>math.Sin(x)</code></td>
+          <td id="sinRawExpr">sin(30 rad)</td>
+          <td id="sinRawResult" class="bad">-0.988032</td>
+          <td class="bad">❌ Sai (Go hiểu x là rad)</td>
+        </tr>
+        <tr>
+          <td><code>math.Sin(deg2rad(x))</code></td>
+          <td id="sinDegExpr">sin(30° → π/6 rad)</td>
+          <td id="sinDegResult" class="good">0.500000</td>
+          <td class="good">✓ Đúng (đổi sang rad trước)</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="note">
+      Thử với <code>x = 180</code>: cách (a) cho ra số gần <code>−0.8</code> chứ <strong>không phải 0</strong> (vì 180 rad ≈ 28.6 vòng + đoạn lẻ). Cách (b) đổi 180° → π rad cho ra <code>≈ 1.22e-16 ≈ 0</code>.
+    </div>
+  </div>
+
+  <!-- ====================================================================== -->
+  <h2>4. Quy gọn góc về dải chuẩn</h2>
+  <div class="card">
+    <p>Nhập một góc bất kỳ (có thể âm, có thể &gt; 360°). Bấm <strong>Quy gọn</strong> để xem từng bước cộng/trừ <code>2π</code> (hoặc <code>360°</code>) đến khi vào <code>[0°, 360°)</code>.</p>
+    <div class="normalize-input">
+      <input type="number" id="normInput" placeholder="Vd: 750, -210, 1080..." value="750" step="any">
+      <select id="normUnit" style="padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+        <option value="deg">độ</option>
+        <option value="rad">rad</option>
+      </select>
+      <button id="normBtn">Quy gọn ▶</button>
+    </div>
+    <div id="normSteps"></div>
+    <div class="note" style="margin-top: 14px;">
+      Trong Go, dùng <code>math.Mod(rad, 2*math.Pi)</code> để lấy phần dư (nó giữ dấu của số bị chia, nên còn phải <code>if r &lt; 0 { r += 2π }</code> để đẩy về dương). Toán tử <code>%</code> trong Go <strong>không áp dụng cho float</strong> — phải dùng <code>math.Mod</code>.
+    </div>
+  </div>
+</main>
+
+<script>
+// ============================================================================
+// Tiện ích
+// ============================================================================
+const TwoPi = 2 * Math.PI;
+const deg2rad = d => d * Math.PI / 180;
+const rad2deg = r => r * 180 / Math.PI;
+
+// Đưa rad về [0, 2π)
+function normalizeRad(r) {
+  let x = r % TwoPi;
+  if (x < 0) x += TwoPi;
+  return x;
+}
+function normalizeDeg(d) {
+  let x = d % 360;
+  if (x < 0) x += 360;
+  return x;
+}
+
+// Cố gắng nhận diện radian → dạng đẹp k·π/n cho mẫu số ≤ 12 và tử ≤ 12.
+function radToNiceFraction(rad) {
+  // Trả về string. Quy về dải (-2π, 2π] trước để tránh phân số quá lớn.
+  if (Math.abs(rad) < 1e-10) return '0';
+  // Thử khớp rad = k * π / n với n trong [1..12], k nguyên trong [-24, 24].
+  for (let n = 1; n <= 12; n++) {
+    const k = Math.round(rad * n / Math.PI);
+    if (Math.abs(rad - k * Math.PI / n) < 1e-6) {
+      // Tạo string đẹp
+      if (k === 0) return '0';
+      let num = Math.abs(k);
+      const sign = k < 0 ? '-' : '';
+      // Rút gọn k/n
+      const g = gcd(num, n);
+      num /= g;
+      const den = n / g;
+      const numStr = num === 1 ? 'π' : `${num}π`;
+      if (den === 1) return `${sign}${numStr}`;
+      return `${sign}${numStr}/${den}`;
+    }
+  }
+  return null;
+}
+function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+
+// ============================================================================
+// 1. Đường tròn đơn vị
+// ============================================================================
+const slider = document.getElementById('angleSlider');
+const angleInput = document.getElementById('angleInput');
+const arcPath = document.getElementById('arcPath');
+const radiusLine = document.getElementById('radiusLine');
+const pointCircle = document.getElementById('pointCircle');
+const angleLabel = document.getElementById('angleLabel');
+const R = 150;
+
+function updateCircle(deg) {
+  // SVG: y dương đi xuống → ta dùng -sin để vẽ trục y hướng lên
+  const rad = deg2rad(deg);
+  const x = R * Math.cos(rad);
+  const y = -R * Math.sin(rad);
+  radiusLine.setAttribute('x2', x);
+  radiusLine.setAttribute('y2', y);
+  pointCircle.setAttribute('cx', x);
+  pointCircle.setAttribute('cy', y);
+
+  // Vẽ cung từ 0 tới deg (có thể nhiều vòng — chỉ vẽ phần đầu vòng cuối cho gọn)
+  const normalized = ((deg % 360) + 360) % 360;
+  const largeArc = normalized > 180 ? 1 : 0;
+  // Hướng: nếu deg dương → ngược kim đồng hồ → sweepFlag = 0 (vì SVG y ngược)
+  const sweep = deg >= 0 ? 0 : 1;
+  const arcRad = normalized * Math.PI / 180;
+  const arcX = (R - 30) * Math.cos(deg >= 0 ? arcRad : -arcRad);
+  const arcY = -(R - 30) * Math.sin(deg >= 0 ? arcRad : -arcRad);
+  const r2 = R - 30;
+  // Đơn giản: vẽ arc theo normalized angle (luôn dương) nhưng dùng sweep theo hướng
+  let pathRad = deg >= 0 ? arcRad : -arcRad;
+  if (deg < 0) {
+    // Vẽ ngược: từ 0 tới -|normalized|
+    const negRad = -((Math.abs(deg) % 360) * Math.PI / 180);
+    const ex = r2 * Math.cos(negRad);
+    const ey = -r2 * Math.sin(negRad);
+    const la = Math.abs(deg) % 360 > 180 ? 1 : 0;
+    arcPath.setAttribute('d', `M ${r2} 0 A ${r2} ${r2} 0 ${la} 1 ${ex} ${ey} L 0 0 Z`);
+  } else {
+    const ex = r2 * Math.cos(arcRad);
+    const ey = -r2 * Math.sin(arcRad);
+    const la = normalized > 180 ? 1 : 0;
+    arcPath.setAttribute('d', `M ${r2} 0 A ${r2} ${r2} 0 ${la} 0 ${ex} ${ey} L 0 0 Z`);
+  }
+
+  // Nhãn góc
+  angleLabel.textContent = `θ=${deg}°`;
+
+  // Info panel
+  document.getElementById('infoDeg').textContent = `${deg}°`;
+  document.getElementById('infoRadNum').textContent = rad.toFixed(4);
+  const nice = radToNiceFraction(rad);
+  document.getElementById('infoRadNice').textContent = nice || '(không phải góc đặc biệt)';
+  document.getElementById('infoDirection').innerHTML = deg >= 0
+    ? 'ngược kim ↺ <span class="badge badge-pos">+</span>'
+    : 'xuôi kim ↻ <span class="badge badge-neg">−</span>';
+  document.getElementById('infoTurns').textContent = (deg / 360).toFixed(3) + ' vòng';
+  document.getElementById('infoCos').textContent = Math.cos(rad).toFixed(4);
+  document.getElementById('infoSin').textContent = Math.sin(rad).toFixed(4);
+}
+
+slider.addEventListener('input', () => {
+  angleInput.value = slider.value;
+  updateCircle(parseFloat(slider.value));
+});
+angleInput.addEventListener('input', () => {
+  const v = parseFloat(angleInput.value);
+  if (!isNaN(v)) {
+    slider.value = Math.max(-360, Math.min(720, v));
+    updateCircle(v);
+  }
+});
+updateCircle(60);
+
+// ============================================================================
+// 2. Bộ chuyển đổi độ ↔ radian
+// ============================================================================
+const degInput = document.getElementById('degInput');
+const radInput = document.getElementById('radInput');
+const niceForm = document.getElementById('niceFormDisplay');
+
+let converterLock = false;
+degInput.addEventListener('input', () => {
+  if (converterLock) return;
+  converterLock = true;
+  const d = parseFloat(degInput.value);
+  if (!isNaN(d)) {
+    const r = deg2rad(d);
+    radInput.value = r.toFixed(6);
+    updateNiceForm(r);
+  }
+  converterLock = false;
+});
+radInput.addEventListener('input', () => {
+  if (converterLock) return;
+  converterLock = true;
+  const r = parseFloat(radInput.value);
+  if (!isNaN(r)) {
+    degInput.value = rad2deg(r).toFixed(4);
+    updateNiceForm(r);
+  }
+  converterLock = false;
+});
+function updateNiceForm(rad) {
+  const nice = radToNiceFraction(rad);
+  niceForm.innerHTML = nice
+    ? `Dạng đẹp: <strong>${nice}</strong>`
+    : `Không phải góc đặc biệt (không có dạng <code>k·π/n</code> với <code>n ≤ 12</code>).`;
+}
+updateNiceForm(parseFloat(radInput.value));
+
+// ============================================================================
+// 3. Demo sin với độ vs radian
+// ============================================================================
+const sinInput = document.getElementById('sinInput');
+function updateSinDemo() {
+  const x = parseFloat(sinInput.value);
+  if (isNaN(x)) return;
+  const sinRaw = Math.sin(x);
+  const sinDeg = Math.sin(deg2rad(x));
+
+  document.getElementById('sinRawExpr').textContent = `sin(${x} rad)`;
+  document.getElementById('sinRawResult').textContent = sinRaw.toFixed(6);
+
+  const niceR = radToNiceFraction(deg2rad(x));
+  document.getElementById('sinDegExpr').textContent = niceR
+    ? `sin(${x}° → ${niceR} rad)`
+    : `sin(${x}° → ${deg2rad(x).toFixed(4)} rad)`;
+  document.getElementById('sinDegResult').textContent = sinDeg.toFixed(6);
+}
+sinInput.addEventListener('input', updateSinDemo);
+updateSinDemo();
+
+// ============================================================================
+// 4. Quy gọn góc
+// ============================================================================
+const normInput = document.getElementById('normInput');
+const normUnit = document.getElementById('normUnit');
+const normBtn = document.getElementById('normBtn');
+const normStepsDiv = document.getElementById('normSteps');
+
+normBtn.addEventListener('click', () => {
+  const v = parseFloat(normInput.value);
+  if (isNaN(v)) {
+    normStepsDiv.innerHTML = '<div class="normalize-step" style="border-color:#e53e3e;color:#742a2a;">Nhập số hợp lệ.</div>';
+    return;
+  }
+  const unit = normUnit.value;
+  let cur = v;
+  let step = 1;
+  let html = '';
+  const period = unit === 'deg' ? 360 : TwoPi;
+  const periodLabel = unit === 'deg' ? '360°' : '2π';
+  const unitLabel = unit === 'deg' ? '°' : ' rad';
+
+  html += `<div class="normalize-step">Bắt đầu: <strong>${cur.toFixed(unit === 'deg' ? 2 : 4)}${unitLabel}</strong></div>`;
+
+  // Bước 1: nếu ≥ period, trừ liên tục
+  while (cur >= period) {
+    cur -= period;
+    html += `<div class="normalize-step">Bước ${step++}: ≥ ${periodLabel} → trừ ${periodLabel} → <strong>${cur.toFixed(unit === 'deg' ? 2 : 4)}${unitLabel}</strong></div>`;
+    if (step > 20) break;
+  }
+  // Bước 2: nếu < 0, cộng liên tục
+  while (cur < 0) {
+    cur += period;
+    html += `<div class="normalize-step">Bước ${step++}: &lt; 0 → cộng ${periodLabel} → <strong>${cur.toFixed(unit === 'deg' ? 2 : 4)}${unitLabel}</strong></div>`;
+    if (step > 20) break;
+  }
+
+  const dispNice = unit === 'rad' ? radToNiceFraction(cur) : null;
+  html += `<div class="normalize-step" style="border-color:#38a169;background:#f0fff4;">
+    <strong>✓ Quy gọn xong:</strong> ${cur.toFixed(unit === 'deg' ? 2 : 4)}${unitLabel}
+    ${dispNice ? ` &nbsp;(= <strong>${dispNice}</strong>)` : ''}
+    ${unit === 'rad' ? ` &nbsp;= <strong>${rad2deg(cur).toFixed(2)}°</strong>` : ` &nbsp;= <strong>${deg2rad(cur).toFixed(4)} rad</strong>`}
+  </div>`;
+
+  normStepsDiv.innerHTML = html;
+});
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

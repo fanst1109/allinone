@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 04 — Thặng dư & DWL</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .lead { color: #4a5568; margin-bottom: 24px; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 240px; color: #2d3748; }
+  input[type="number"] { font-family: monospace; padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 4px; width: 100px; }
+  input[type="range"] { width: 240px; }
+  .result { background: #f7fafc; border-left: 4px solid #c05621; padding: 14px 18px; margin-top: 14px; border-radius: 4px; font-family: monospace; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  svg { display: block; margin: 0 auto; max-width: 100%; }
+  .legend { display: flex; gap: 14px; font-size: 13px; margin: 8px 0; color: #4a5568; flex-wrap: wrap; }
+  .legend .sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: 4px; opacity: 0.7; }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; background: #fff5eb; color: #c05621; font-weight: 700; margin-left: 6px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-elasticity/visualization.html">← L3: Co giãn</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Thặng dư & DWL</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.55">L5: Market failures → (sắp ra)</span>
+</nav>
+  <h1>Lesson 04 — Thặng dư & DWL</h1>
+  <div class="lead">Tô diện tích CS, PS, Revenue, DWL trên đồ thị cung-cầu. Áp thuế hoặc trần giá và quan sát các vùng diện tích thay đổi.</div>
+
+  <h2>Thị trường + can thiệp <span class="pill">CS / PS / Rev / DWL</span></h2>
+  <div class="card">
+    <div class="row"><label>a (cầu intercept)</label><input id="a" type="number" value="100" step="5"></div>
+    <div class="row"><label>b (độ dốc cầu)</label><input id="b" type="number" value="2" step="0.1"></div>
+    <div class="row"><label>c (cung intercept)</label><input id="c" type="number" value="-10" step="5"></div>
+    <div class="row"><label>d (độ dốc cung)</label><input id="d" type="number" value="2" step="0.1"></div>
+    <div class="row"><label>Thuế T (lên người bán)</label><input id="T" type="range" min="0" max="40" step="1" value="10"><span id="T-v" style="font-family:monospace;"></span></div>
+
+    <svg id="svg" viewBox="0 0 600 440" style="background:#fff; border:1px solid #e2e8f0;"></svg>
+    <div class="legend">
+      <span><span class="sw" style="background:#3182ce"></span>CS</span>
+      <span><span class="sw" style="background:#c05621"></span>PS</span>
+      <span><span class="sw" style="background:#48bb78"></span>Revenue (chuyển dịch)</span>
+      <span><span class="sw" style="background:#e53e3e"></span>DWL (mất hẳn)</span>
+    </div>
+    <div class="result" id="out"></div>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+function get(id) { return parseFloat($(id).value) || 0; }
+
+function calc() {
+  const a = get('a'), b = get('b'), c = get('c'), d = get('d');
+  const T = get('T');
+  $('T-v').textContent = T.toFixed(1);
+
+  const Pstar = (a - c) / (b + d);
+  const Qstar = a - b * Pstar;
+  const Pmax = a / b;
+  const Pmin = Math.max(0, -c / d);
+
+  // Sau thuế T
+  let Pb = Pstar, Ps = Pstar, Qnew = Qstar;
+  if (T > 0) {
+    Pb = (a - c + d * T) / (b + d);
+    Ps = Pb - T;
+    Qnew = a - b * Pb;
+  }
+
+  const CS = 0.5 * Qnew * (Pmax - Pb);
+  const PS = 0.5 * Qnew * (Ps - Pmin);
+  const Rev = T * Qnew;
+  const DWL = 0.5 * T * (Qstar - Qnew);
+  const CS0 = 0.5 * Qstar * (Pmax - Pstar);
+  const PS0 = 0.5 * Qstar * (Pstar - Pmin);
+
+  // SVG
+  const W = 600, H = 440, padL = 60, padB = 50, padT = 30, padR = 30;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const Pview = Math.max(Pmax * 1.1, 60);
+  const Qview = Math.max(a, 100);
+  const sx = q => padL + (q / Qview) * plotW;
+  const sy = p => padT + plotH - (p / Pview) * plotH;
+
+  let svg = '';
+  // grid
+  for (let i = 1; i <= 5; i++) {
+    svg += `<line x1="${sx(Qview/5*i)}" y1="${padT}" x2="${sx(Qview/5*i)}" y2="${padT+plotH}" stroke="#f0f0f0"/>`;
+    svg += `<line x1="${padL}" y1="${sy(Pview/5*i)}" x2="${padL+plotW}" y2="${sy(Pview/5*i)}" stroke="#f0f0f0"/>`;
+    svg += `<text x="${sx(Qview/5*i)}" y="${padT+plotH+16}" text-anchor="middle" font-size="11" fill="#718096">${(Qview/5*i).toFixed(0)}</text>`;
+    svg += `<text x="${padL-8}" y="${sy(Pview/5*i)+4}" text-anchor="end" font-size="11" fill="#718096">${(Pview/5*i).toFixed(0)}</text>`;
+  }
+
+  // CS area (xanh): từ Pb lên Pmax, từ Q=0 đến Q=Qnew
+  svg += `<polygon points="${sx(0)},${sy(Pb)} ${sx(Qnew)},${sy(Pb)} ${sx(0)},${sy(Pmax)}" fill="#3182ce" fill-opacity="0.35"/>`;
+  // PS area (cam): từ Pmin lên Ps, từ Q=0 đến Q=Qnew
+  svg += `<polygon points="${sx(0)},${sy(Ps)} ${sx(Qnew)},${sy(Ps)} ${sx(0)},${sy(Pmin)}" fill="#c05621" fill-opacity="0.35"/>`;
+  // Revenue: chữ nhật Ps→Pb × Qnew
+  if (T > 0) {
+    svg += `<rect x="${sx(0)}" y="${sy(Pb)}" width="${sx(Qnew)-sx(0)}" height="${sy(Ps)-sy(Pb)}" fill="#48bb78" fill-opacity="0.5"/>`;
+    // DWL: tam giác Qnew, Qstar
+    const Pd_at_Qstar = (a - Qstar) / b; // = Pstar
+    svg += `<polygon points="${sx(Qnew)},${sy(Pb)} ${sx(Qstar)},${sy(Pstar)} ${sx(Qnew)},${sy(Ps)}" fill="#e53e3e" fill-opacity="0.6"/>`;
+  }
+
+  // Đường cầu
+  svg += `<line x1="${sx(a)}" y1="${sy(0)}" x2="${sx(0)}" y2="${sy(Pmax)}" stroke="#3182ce" stroke-width="2.5"/>`;
+  // Đường cung
+  const s_p_start = Pmin;
+  const s_q_end = c + d * Pview;
+  svg += `<line x1="${sx(Math.max(0, c))}" y1="${sy(s_p_start)}" x2="${sx(s_q_end)}" y2="${sy(Pview)}" stroke="#c05621" stroke-width="2.5"/>`;
+  // Cân bằng
+  svg += `<circle cx="${sx(Qstar)}" cy="${sy(Pstar)}" r="5" fill="#2f855a"/>`;
+  // P_b, P_s lines
+  if (T > 0) {
+    svg += `<line x1="${padL}" y1="${sy(Pb)}" x2="${sx(Qnew)}" y2="${sy(Pb)}" stroke="#444" stroke-dasharray="2,3"/>`;
+    svg += `<line x1="${padL}" y1="${sy(Ps)}" x2="${sx(Qnew)}" y2="${sy(Ps)}" stroke="#444" stroke-dasharray="2,3"/>`;
+    svg += `<text x="${padL-8}" y="${sy(Pb)+4}" text-anchor="end" font-size="11" fill="#1a202c" font-weight="700">P_b</text>`;
+    svg += `<text x="${padL-8}" y="${sy(Ps)+4}" text-anchor="end" font-size="11" fill="#1a202c" font-weight="700">P_s</text>`;
+  }
+
+  svg += `<line x1="${padL}" y1="${padT+plotH}" x2="${padL+plotW}" y2="${padT+plotH}" stroke="#cbd5e0"/>`;
+  svg += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+plotH}" stroke="#cbd5e0"/>`;
+  svg += `<text x="${padL+plotW/2}" y="${H-10}" text-anchor="middle" font-size="13" fill="#2d3748">Q</text>`;
+  svg += `<text x="20" y="${padT+plotH/2}" transform="rotate(-90 20 ${padT+plotH/2})" text-anchor="middle" font-size="13" fill="#2d3748">P</text>`;
+
+  $('svg').innerHTML = svg;
+
+  $('out').innerHTML =
+    `<strong>Trước thuế:</strong>\n` +
+    `  P* = ${Pstar.toFixed(2)}, Q* = ${Qstar.toFixed(2)}\n` +
+    `  CS = ${CS0.toFixed(1)}, PS = ${PS0.toFixed(1)}, W = ${(CS0+PS0).toFixed(1)}\n\n` +
+    `<strong>Sau thuế T = ${T.toFixed(1)}:</strong>\n` +
+    `  P_b = ${Pb.toFixed(2)} (mua trả), P_s = ${Ps.toFixed(2)} (bán nhận), Q' = ${Qnew.toFixed(2)}\n` +
+    `  CS = ${CS.toFixed(1)} (Δ ${(CS-CS0).toFixed(1)})\n` +
+    `  PS = ${PS.toFixed(1)} (Δ ${(PS-PS0).toFixed(1)})\n` +
+    `  Revenue = ${Rev.toFixed(1)} (chuyển sang chính phủ)\n` +
+    `  DWL = ${DWL.toFixed(1)} (mất hẳn)\n` +
+    `  Tổng = ${(CS+PS+Rev+DWL).toFixed(1)} ≈ W_gốc = ${(CS0+PS0).toFixed(1)} ✓`;
+}
+['a','b','c','d','T'].forEach(id => $(id).addEventListener('input', calc));
+calc();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

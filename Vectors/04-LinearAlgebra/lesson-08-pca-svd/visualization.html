@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — PCA và SVD</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --panel: #ffffff;
+    --line: #e3e1dc;
+    --ink: #1a1a1a;
+    --muted: #6a6a6a;
+    --accent: #6d28d9;
+    --accent-soft: #ede9fe;
+    --pc1-color: #dc2626;
+    --pc2-color: #2563eb;
+    --mean-color: #f59e0b;
+    --grid: #ececec;
+    --ok: #16a34a;
+  }
+  body { margin: 0; }
+  .container { max-width: 1180px; margin: 0 auto; padding: 24px 18px 80px; font-size: 14.5px; line-height: 1.55; }
+  h1 { font-size: 26px; margin: 0 0 6px; font-weight: 800; }
+  h2 { font-size: 19px; margin: 32px 0 12px; padding-left: 10px; border-left: 4px solid var(--accent); }
+  .subtitle { color: var(--muted); margin-bottom: 18px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 22px; }
+  .panel h3 { margin: 0 0 12px; font-size: 15px; color: var(--accent); }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin-bottom: 14px; }
+  .controls label { font-size: 12.5px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+  .controls select, .controls input[type=number], .controls input[type=text] {
+    padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; font-size: 13px; font-family: ui-monospace, "SF Mono", monospace;
+  }
+  .controls input[type=range] { width: 180px; vertical-align: middle; }
+  .controls button {
+    padding: 6px 14px; background: var(--accent); color: white; border: none; border-radius: 6px;
+    font-size: 12.5px; cursor: pointer; font-weight: 600;
+  }
+  .controls button:hover { background: #5b21b6; }
+  .controls button.secondary { background: #f5f4f0; color: var(--ink); }
+  .controls button.secondary:hover { background: var(--accent-soft); color: var(--accent); }
+  .controls .value { font-family: ui-monospace, "SF Mono", monospace; font-weight: 600; color: var(--ink); }
+  svg { background: #fafaf7; border: 1px solid var(--line); border-radius: 8px; display: block; }
+  .info { background: #f7f6f1; border-left: 3px solid var(--accent); padding: 10px 14px; border-radius: 6px; font-size: 13px; margin: 12px 0; }
+  .info code { background: #ecebe5; padding: 1px 6px; border-radius: 4px; font-size: 12.5px; }
+  table.report { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+  table.report th, table.report td { padding: 6px 10px; border: 1px solid var(--line); text-align: center; font-family: ui-monospace, monospace; }
+  table.report th { background: #f5f4f0; font-weight: 700; font-family: inherit; }
+  table.report td.highlight { background: #ede9fe; color: var(--accent); font-weight: 700; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); margin: 8px 0; }
+  .legend .item { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 14px; height: 14px; border-radius: 3px; }
+  .step-display { font-family: ui-monospace, monospace; font-size: 13px; white-space: pre-wrap; background: #f7f6f1; padding: 12px; border-radius: 6px; margin: 8px 0; line-height: 1.5; }
+  .two-col { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; }
+  .img-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
+  @media (max-width: 900px) { .two-col, .img-pair { grid-template-columns: 1fr; } }
+  .step-badge {
+    display: inline-block; padding: 2px 10px; background: var(--accent-soft); color: var(--accent);
+    border-radius: 12px; font-size: 12px; font-weight: 700; margin-right: 8px;
+  }
+  .scree-bar { fill: var(--accent); opacity: 0.85; cursor: pointer; }
+  .scree-bar:hover { opacity: 1; }
+  .scree-bar.selected { fill: var(--pc1-color); opacity: 1; }
+  .matrix-grid {
+    display: inline-grid; gap: 4px; padding: 10px; background: #f7f6f1;
+    border-radius: 8px; font-family: ui-monospace, monospace; font-size: 12.5px;
+  }
+  .matrix-grid .cell {
+    width: 56px; height: 32px; display: flex; align-items: center; justify-content: center;
+    background: white; border-radius: 4px; border: 1px solid var(--line);
+  }
+  .matrix-grid .cell.diag { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+  .matrix-grid .cell.zero { color: #bbb; }
+  .matrix-block { display: inline-flex; flex-direction: column; align-items: center; margin: 6px 10px; vertical-align: top; }
+  .matrix-block .label { font-weight: 700; color: var(--accent); margin-bottom: 4px; font-size: 13px; }
+  .matrix-block .shape { color: var(--muted); font-size: 11px; margin-top: 2px; }
+  .heatmap-cell { stroke: white; stroke-width: 1; }
+  .verify-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; }
+  .verify-ok { background: #dcfce7; color: var(--ok); }
+  .verify-bad { background: #fee2e2; color: #dc2626; }
+</style>
+</head>
+<body>
+<div class="container">
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-eigenvectors/visualization.html">← L7: Eigenvector</a>
+  <span class="sep">·</span>
+  <span class="current">L8: PCA và SVD</span>
+</nav>
+  <h1>Lesson 08 — PCA và SVD</h1>
+  <div class="subtitle">Giảm chiều dữ liệu: tìm trục có phương sai lớn nhất (PCA), khai triển ma trận thành xoay-co-xoay (SVD), nén ảnh, và 4 bước animation từ cloud điểm 2D đến projection 1D.</div>
+
+  <!-- ====================================================== -->
+  <h2>1. PCA 2D — animation từng bước</h2>
+  <div class="panel">
+    <h3>Chọn cloud điểm → "Run PCA" để xem 5 bước: mean → center → covariance ellipse → PC1/PC2 → project lên PC1</h3>
+    <div class="controls">
+      <label>Dataset:
+        <select id="pcaPreset">
+          <option value="linear">Linear cloud (gần y = x)</option>
+          <option value="blob">Blob tròn (no preferred direction)</option>
+          <option value="clusters">Two clusters</option>
+          <option value="ellipse" selected>Anisotropic ellipse</option>
+          <option value="line">Gần như 1 đường thẳng</option>
+        </select>
+      </label>
+      <button id="pcaRunBtn">▶ Run PCA</button>
+      <button id="pcaStepBtn" class="secondary">Next step</button>
+      <button id="pcaResetBtn" class="secondary">Reset</button>
+      <span class="value">Bước: <span id="pcaStepLabel">0 / 5</span></span>
+    </div>
+    <div class="two-col">
+      <svg id="pcaSvg" width="640" height="460" viewBox="0 0 640 460"></svg>
+      <div>
+        <div id="pcaStepText" class="info">Chọn dataset và nhấn <b>Run PCA</b>.</div>
+        <table class="report" id="pcaReport">
+          <thead><tr><th>Đại lượng</th><th>Giá trị</th></tr></thead>
+          <tbody>
+            <tr><td>μ (mean)</td><td id="pcaMean">—</td></tr>
+            <tr><td>λ₁ (variance theo PC1)</td><td id="pcaLam1">—</td></tr>
+            <tr><td>λ₂ (variance theo PC2)</td><td id="pcaLam2">—</td></tr>
+            <tr><td>PC1 direction</td><td id="pcaV1">—</td></tr>
+            <tr><td>PC2 direction</td><td id="pcaV2">—</td></tr>
+            <tr><td>Explained variance ratio</td><td id="pcaRatio" class="highlight">—</td></tr>
+          </tbody>
+        </table>
+        <div class="legend">
+          <span class="item"><span class="swatch" style="background:#6b7280"></span>Điểm gốc</span>
+          <span class="item"><span class="swatch" style="background:var(--mean-color)"></span>Mean</span>
+          <span class="item"><span class="swatch" style="background:var(--pc1-color)"></span>PC1</span>
+          <span class="item"><span class="swatch" style="background:var(--pc2-color)"></span>PC2</span>
+          <span class="item"><span class="swatch" style="background:#16a34a"></span>Projection (1D)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================== -->
+  <h2>2. Scree plot — chọn k giữ bao nhiêu phương sai?</h2>
+  <div class="panel">
+    <h3>Dataset 8D mô phỏng (như Iris extended). Mỗi cột là một PC, cột càng cao = giữ càng nhiều variance. Slider k để chọn số PC giữ lại.</h3>
+    <div class="controls">
+      <label>Profile eigenvalue:
+        <select id="screePreset">
+          <option value="sharp" selected>Sharp drop (signal mạnh)</option>
+          <option value="gradual">Gradual decay</option>
+          <option value="flat">Flat (no clear structure)</option>
+          <option value="elbow">Elbow ở PC3</option>
+        </select>
+      </label>
+      <label>Giữ k PC:
+        <input type="range" id="screeK" min="1" max="8" value="2">
+        <span class="value">k = <span id="screeKLabel">2</span></span>
+      </label>
+    </div>
+    <div class="two-col">
+      <svg id="screeSvg" width="640" height="380" viewBox="0 0 640 380"></svg>
+      <div>
+        <div id="screeSummary" class="info">—</div>
+        <table class="report" id="screeTable">
+          <thead><tr><th>PC</th><th>λᵢ</th><th>Ratio</th><th>Cumulative</th></tr></thead>
+          <tbody id="screeTbody"></tbody>
+        </table>
+        <div class="legend">
+          <span class="item"><span class="swatch" style="background:var(--accent)"></span>Variance bị giữ</span>
+          <span class="item"><span class="swatch" style="background:#cbd5e1"></span>Variance bị bỏ</span>
+          <span class="item"><span class="swatch" style="background:var(--pc2-color);border-radius:50%;width:8px;height:8px;"></span>Cumulative ratio</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================== -->
+  <h2>3. Image compression bằng truncated SVD</h2>
+  <div class="panel">
+    <h3>Ảnh grayscale 32×32. Giữ k singular values đầu → rank-k approximation. Trượt k để xem chất lượng vs dung lượng.</h3>
+    <div class="controls">
+      <label>Ảnh:
+        <select id="imgPreset">
+          <option value="smiley" selected>Smiley face</option>
+          <option value="cross">Chữ X</option>
+          <option value="stripes">Sọc ngang</option>
+          <option value="checker">Caro 4×4</option>
+          <option value="circle">Hình tròn</option>
+        </select>
+      </label>
+      <label>k (số singular values):
+        <input type="range" id="imgK" min="1" max="32" value="6">
+        <span class="value">k = <span id="imgKLabel">6</span></span>
+      </label>
+    </div>
+    <div class="img-pair">
+      <div>
+        <div style="text-align:center; font-weight:700; margin-bottom:6px; color:var(--muted);">Ảnh gốc (rank đầy đủ)</div>
+        <svg id="imgOrigSvg" width="320" height="320" viewBox="0 0 320 320"></svg>
+      </div>
+      <div>
+        <div style="text-align:center; font-weight:700; margin-bottom:6px; color:var(--accent);">Xấp xỉ rank-k</div>
+        <svg id="imgApproxSvg" width="320" height="320" viewBox="0 0 320 320"></svg>
+      </div>
+    </div>
+    <div style="margin-top:14px;">
+      <div id="imgStats" class="info">—</div>
+      <svg id="imgSingularSvg" width="640" height="160" viewBox="0 0 640 160"></svg>
+      <div class="legend" style="margin-top:6px;">
+        <span class="item"><span class="swatch" style="background:var(--pc1-color)"></span>Singular values bị giữ (σ₁..σₖ)</span>
+        <span class="item"><span class="swatch" style="background:#cbd5e1"></span>Bị bỏ</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================== -->
+  <h2>4. SVD decomposition viewer — A = U·Σ·Vᵀ</h2>
+  <div class="panel">
+    <h3>Chọn ma trận 3×3 preset hoặc nhập tay. Xem U, Σ, Vᵀ dưới dạng heatmap, verify lại tích = A.</h3>
+    <div class="controls">
+      <label>Preset:
+        <select id="svdPreset">
+          <option value="diag">Đường chéo [[3,0,0],[0,2,0],[0,0,1]]</option>
+          <option value="sym" selected>Đối xứng [[4,1,0],[1,3,1],[0,1,2]]</option>
+          <option value="rank2">Rank-2 [[1,2,3],[2,4,6],[1,1,1]]</option>
+          <option value="rotate">Xoay 30° (3D)</option>
+          <option value="shear">Shear [[1,2,0],[0,1,0],[0,0,1]]</option>
+        </select>
+      </label>
+      <label>Custom A (3×3):</label>
+      <span id="svdInput" class="matrix-grid" style="grid-template-columns: repeat(3, 60px); padding: 6px;"></span>
+      <button id="svdRunBtn">Decompose</button>
+    </div>
+    <div style="overflow-x:auto; white-space:nowrap; padding: 10px 4px;">
+      <div class="matrix-block">
+        <div class="label">A</div>
+        <svg id="svdAHeat" width="160" height="160" viewBox="0 0 160 160"></svg>
+        <div class="shape">3 × 3</div>
+      </div>
+      <span style="display:inline-block; vertical-align:middle; font-size:24px; color:var(--muted); margin: 0 6px;">=</span>
+      <div class="matrix-block">
+        <div class="label">U</div>
+        <svg id="svdUHeat" width="160" height="160" viewBox="0 0 160 160"></svg>
+        <div class="shape">3 × 3 (orthogonal)</div>
+      </div>
+      <span style="display:inline-block; vertical-align:middle; font-size:24px; color:var(--muted); margin: 0 6px;">·</span>
+      <div class="matrix-block">
+        <div class="label">Σ</div>
+        <svg id="svdSHeat" width="160" height="160" viewBox="0 0 160 160"></svg>
+        <div class="shape">3 × 3 (diagonal)</div>
+      </div>
+      <span style="display:inline-block; vertical-align:middle; font-size:24px; color:var(--muted); margin: 0 6px;">·</span>
+      <div class="matrix-block">
+        <div class="label">Vᵀ</div>
+        <svg id="svdVtHeat" width="160" height="160" viewBox="0 0 160 160"></svg>
+        <div class="shape">3 × 3 (orthogonal)</div>
+      </div>
+    </div>
+    <div class="two-col" style="margin-top:14px;">
+      <div>
+        <div style="font-weight:700; margin-bottom:6px; color:var(--accent);">Singular values σ (đường chéo của Σ)</div>
+        <table class="report" id="svdSigmaTable">
+          <thead><tr><th>i</th><th>σᵢ</th><th>σᵢ²</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div id="svdRank" class="info">—</div>
+      </div>
+      <div>
+        <div style="font-weight:700; margin-bottom:6px; color:var(--accent);">Verify: U·Σ·Vᵀ ≟ A</div>
+        <svg id="svdVerifyHeat" width="160" height="160" viewBox="0 0 160 160"></svg>
+        <div id="svdVerifyBadge" style="margin-top:8px;"></div>
+        <div id="svdMaxErr" class="info">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info" style="margin-top:30px; text-align:center;">
+    📖 Lesson <b>cuối</b> của Tầng 4 — Linear Algebra. Sang tầng tiếp theo để dùng PCA/SVD trong ML thực tế.
+  </div>
+</div>
+
+<script>
+"use strict";
+
+const $ = (id) => document.getElementById(id);
+
+// ===================== Math helpers =====================
+function mat(rows) { return rows.map(r => r.slice()); }
+function shape(M) { return [M.length, M[0].length]; }
+function zeros(r, c) { return Array.from({length: r}, () => Array(c).fill(0)); }
+function matmul(A, B) {
+  const [r, k] = shape(A); const [k2, c] = shape(B);
+  const C = zeros(r, c);
+  for (let i = 0; i < r; i++)
+    for (let j = 0; j < c; j++) {
+      let s = 0;
+      for (let m = 0; m < k; m++) s += A[i][m] * B[m][j];
+      C[i][j] = s;
+    }
+  return C;
+}
+function transpose(M) {
+  const [r, c] = shape(M);
+  const T = zeros(c, r);
+  for (let i = 0; i < r; i++) for (let j = 0; j < c; j++) T[j][i] = M[i][j];
+  return T;
+}
+function eye(n) { const I = zeros(n, n); for (let i = 0; i < n; i++) I[i][i] = 1; return I; }
+function copyMat(M) { return M.map(r => r.slice()); }
+
+// 2x2 eigendecomposition (symmetric)
+function eig2x2Sym(C) {
+  const a = C[0][0], b = C[0][1], d = C[1][1];
+  const tr = a + d, det = a * d - b * b;
+  const disc = Math.max(0, tr * tr / 4 - det);
+  const s = Math.sqrt(disc);
+  const l1 = tr / 2 + s, l2 = tr / 2 - s;
+  // eigenvector for l1
+  let v1;
+  if (Math.abs(b) > 1e-9) v1 = [l1 - d, b];
+  else v1 = (a >= d) ? [1, 0] : [0, 1];
+  const n1 = Math.hypot(v1[0], v1[1]);
+  v1 = [v1[0] / n1, v1[1] / n1];
+  const v2 = [-v1[1], v1[0]]; // perpendicular
+  return { lambdas: [l1, l2], vecs: [v1, v2] };
+}
+
+// Jacobi eigendecomposition for symmetric n×n (used for small matrices)
+function jacobiEigen(M) {
+  const n = M.length;
+  const A = copyMat(M);
+  const V = eye(n);
+  const maxIter = 100;
+  for (let iter = 0; iter < maxIter; iter++) {
+    // find largest off-diagonal
+    let p = 0, q = 1, max = 0;
+    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+      if (Math.abs(A[i][j]) > max) { max = Math.abs(A[i][j]); p = i; q = j; }
+    }
+    if (max < 1e-12) break;
+    const theta = (A[q][q] - A[p][p]) / (2 * A[p][q]);
+    const t = (theta >= 0 ? 1 : -1) / (Math.abs(theta) + Math.sqrt(theta * theta + 1));
+    const c = 1 / Math.sqrt(1 + t * t);
+    const s = t * c;
+    // rotate
+    const App = A[p][p], Aqq = A[q][q], Apq = A[p][q];
+    A[p][p] = c * c * App - 2 * s * c * Apq + s * s * Aqq;
+    A[q][q] = s * s * App + 2 * s * c * Apq + c * c * Aqq;
+    A[p][q] = 0; A[q][p] = 0;
+    for (let i = 0; i < n; i++) {
+      if (i !== p && i !== q) {
+        const Aip = A[i][p], Aiq = A[i][q];
+        A[i][p] = c * Aip - s * Aiq; A[p][i] = A[i][p];
+        A[i][q] = s * Aip + c * Aiq; A[q][i] = A[i][q];
+      }
+      const Vip = V[i][p], Viq = V[i][q];
+      V[i][p] = c * Vip - s * Viq;
+      V[i][q] = s * Vip + c * Viq;
+    }
+  }
+  const lambdas = []; for (let i = 0; i < n; i++) lambdas.push(A[i][i]);
+  // sort descending
+  const idx = lambdas.map((_, i) => i).sort((a, b) => lambdas[b] - lambdas[a]);
+  const sortedL = idx.map(i => lambdas[i]);
+  const sortedV = zeros(n, n);
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) sortedV[i][j] = V[i][idx[j]];
+  return { lambdas: sortedL, vecs: sortedV }; // vecs cols are eigenvectors
+}
+
+// SVD via A^T A eigendecomposition (works for small square real matrices for demo)
+function svd(A) {
+  const At = transpose(A);
+  const AtA = matmul(At, A);
+  const { lambdas, vecs: V } = jacobiEigen(AtA);
+  const n = A.length;
+  const sigmas = lambdas.map(l => Math.sqrt(Math.max(0, l)));
+  // U columns: u_i = A v_i / sigma_i
+  const U = zeros(n, n);
+  for (let j = 0; j < n; j++) {
+    const v = V.map(row => row[j]);
+    const Av = zeros(n, 1);
+    for (let i = 0; i < n; i++) {
+      let s = 0;
+      for (let k = 0; k < n; k++) s += A[i][k] * v[k];
+      Av[i][0] = s;
+    }
+    if (sigmas[j] > 1e-9) {
+      for (let i = 0; i < n; i++) U[i][j] = Av[i][0] / sigmas[j];
+    } else {
+      // fallback: use ej then re-orthogonalize (rough for demo)
+      U[j][j] = 1;
+    }
+  }
+  // re-orthogonalize U with Gram-Schmidt (safety)
+  for (let j = 0; j < n; j++) {
+    for (let k = 0; k < j; k++) {
+      let dot = 0;
+      for (let i = 0; i < n; i++) dot += U[i][j] * U[i][k];
+      for (let i = 0; i < n; i++) U[i][j] -= dot * U[i][k];
+    }
+    let norm = 0; for (let i = 0; i < n; i++) norm += U[i][j] * U[i][j];
+    norm = Math.sqrt(norm);
+    if (norm > 1e-9) for (let i = 0; i < n; i++) U[i][j] /= norm;
+  }
+  return { U, sigmas, V, Vt: transpose(V) };
+}
+
+// ===================== Section 1: PCA 2D animation =====================
+const pcaState = { step: 0, points: [], mean: [0, 0], v1: [1, 0], v2: [0, 1], l1: 0, l2: 0 };
+
+function genDataset(name) {
+  const rng = (() => {
+    let s = 42;
+    return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
+  })();
+  const normal = () => {
+    const u1 = Math.max(1e-9, rng()), u2 = rng();
+    return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+  };
+  const pts = [];
+  if (name === "linear") {
+    for (let i = 0; i < 40; i++) {
+      const t = (i - 20) * 0.3;
+      pts.push([t + normal() * 0.4, t + normal() * 0.4]);
+    }
+  } else if (name === "blob") {
+    for (let i = 0; i < 40; i++) pts.push([normal() * 2, normal() * 2]);
+  } else if (name === "clusters") {
+    for (let i = 0; i < 20; i++) pts.push([-3 + normal() * 0.5, -2 + normal() * 0.5]);
+    for (let i = 0; i < 20; i++) pts.push([3 + normal() * 0.5, 2 + normal() * 0.5]);
+  } else if (name === "ellipse") {
+    const c = Math.cos(0.5), s = Math.sin(0.5);
+    for (let i = 0; i < 40; i++) {
+      const x = normal() * 3, y = normal() * 0.7;
+      pts.push([x * c - y * s, x * s + y * c]);
+    }
+  } else if (name === "line") {
+    for (let i = 0; i < 40; i++) {
+      const t = (i - 20) * 0.3;
+      pts.push([t + normal() * 0.05, 0.7 * t + normal() * 0.05]);
+    }
+  }
+  return pts;
+}
+
+function computePca(pts) {
+  const n = pts.length;
+  const mx = pts.reduce((a, p) => a + p[0], 0) / n;
+  const my = pts.reduce((a, p) => a + p[1], 0) / n;
+  let sxx = 0, syy = 0, sxy = 0;
+  for (const [x, y] of pts) {
+    sxx += (x - mx) * (x - mx);
+    syy += (y - my) * (y - my);
+    sxy += (x - mx) * (y - my);
+  }
+  sxx /= (n - 1); syy /= (n - 1); sxy /= (n - 1);
+  const { lambdas, vecs } = eig2x2Sym([[sxx, sxy], [sxy, syy]]);
+  return { mean: [mx, my], l1: lambdas[0], l2: lambdas[1], v1: vecs[0], v2: vecs[1] };
+}
+
+function drawPca() {
+  const svg = $("pcaSvg");
+  svg.innerHTML = "";
+  const W = 640, H = 460;
+  const pad = 40;
+  const cx = W / 2, cy = H / 2;
+  const scale = 30;
+
+  // grid + axes
+  const xToPx = (x) => cx + x * scale;
+  const yToPx = (y) => cy - y * scale;
+
+  // grid lines
+  for (let i = -8; i <= 8; i++) {
+    const x = xToPx(i), y = yToPx(i);
+    svg.insertAdjacentHTML("beforeend", `<line x1="${x}" y1="${pad}" x2="${x}" y2="${H - pad}" stroke="#ececec"/>`);
+    svg.insertAdjacentHTML("beforeend", `<line x1="${pad}" y1="${y}" x2="${W - pad}" y2="${y}" stroke="#ececec"/>`);
+  }
+  // axes
+  svg.insertAdjacentHTML("beforeend", `<line x1="${pad}" y1="${cy}" x2="${W - pad}" y2="${cy}" stroke="#888" stroke-width="1"/>`);
+  svg.insertAdjacentHTML("beforeend", `<line x1="${cx}" y1="${pad}" x2="${cx}" y2="${H - pad}" stroke="#888" stroke-width="1"/>`);
+
+  const { step, points, mean, l1, l2, v1, v2 } = pcaState;
+
+  // points (original)
+  for (const [x, y] of points) {
+    svg.insertAdjacentHTML("beforeend", `<circle cx="${xToPx(x)}" cy="${yToPx(y)}" r="3.5" fill="#6b7280" opacity="0.85"/>`);
+  }
+
+  if (step >= 1) {
+    // mark mean
+    svg.insertAdjacentHTML("beforeend",
+      `<circle cx="${xToPx(mean[0])}" cy="${yToPx(mean[1])}" r="7" fill="var(--mean-color)" stroke="white" stroke-width="2"/>`);
+    svg.insertAdjacentHTML("beforeend",
+      `<text x="${xToPx(mean[0]) + 10}" y="${yToPx(mean[1]) - 6}" font-size="11" fill="var(--mean-color)" font-weight="700">μ</text>`);
+  }
+
+  if (step >= 2) {
+    // centered points (drawn at gốc tọa độ)
+    for (const [x, y] of points) {
+      const cx2 = x - mean[0], cy2 = y - mean[1];
+      svg.insertAdjacentHTML("beforeend",
+        `<circle cx="${xToPx(cx2)}" cy="${yToPx(cy2)}" r="3" fill="var(--accent)" opacity="0.7"/>`);
+    }
+  }
+
+  if (step >= 3) {
+    // covariance ellipse
+    // ellipse axes lengths = 2 * sqrt(lambda)
+    const a = 2 * Math.sqrt(Math.max(0, l1));
+    const b = 2 * Math.sqrt(Math.max(0, l2));
+    const angle = Math.atan2(v1[1], v1[0]);
+    const ex = (step >= 2) ? 0 : mean[0]; // if centered, around 0
+    const ey = (step >= 2) ? 0 : mean[1];
+    svg.insertAdjacentHTML("beforeend",
+      `<ellipse cx="${xToPx(ex)}" cy="${yToPx(ey)}" rx="${a * scale}" ry="${b * scale}"
+         transform="rotate(${-angle * 180 / Math.PI}, ${xToPx(ex)}, ${yToPx(ey)})"
+         fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="6,4"/>`);
+  }
+
+  if (step >= 4) {
+    // PC1 arrow
+    const len1 = 2 * Math.sqrt(Math.max(0, l1));
+    const ox = (step >= 2) ? 0 : mean[0];
+    const oy = (step >= 2) ? 0 : mean[1];
+    drawArrow(svg, xToPx(ox), yToPx(oy),
+      xToPx(ox + v1[0] * len1), yToPx(oy + v1[1] * len1),
+      "var(--pc1-color)", 3, "PC1");
+    drawArrow(svg, xToPx(ox), yToPx(oy),
+      xToPx(ox + v1[0] * -len1), yToPx(oy + v1[1] * -len1),
+      "var(--pc1-color)", 3, null);
+    // PC2 arrow
+    const len2 = 2 * Math.sqrt(Math.max(0, l2));
+    drawArrow(svg, xToPx(ox), yToPx(oy),
+      xToPx(ox + v2[0] * len2), yToPx(oy + v2[1] * len2),
+      "var(--pc2-color)", 3, "PC2");
+    drawArrow(svg, xToPx(ox), yToPx(oy),
+      xToPx(ox + v2[0] * -len2), yToPx(oy + v2[1] * -len2),
+      "var(--pc2-color)", 3, null);
+  }
+
+  if (step >= 5) {
+    // projection: project centered points onto PC1, draw on the PC1 line
+    const ox = 0, oy = 0;
+    // Draw PC1 axis line full
+    const farLen = 10;
+    svg.insertAdjacentHTML("beforeend",
+      `<line x1="${xToPx(-v1[0] * farLen)}" y1="${yToPx(-v1[1] * farLen)}"
+         x2="${xToPx(v1[0] * farLen)}" y2="${yToPx(v1[1] * farLen)}"
+         stroke="#16a34a" stroke-width="2"/>`);
+    for (const [x, y] of points) {
+      const cx2 = x - mean[0], cy2 = y - mean[1];
+      const t = cx2 * v1[0] + cy2 * v1[1]; // dot product
+      const px = v1[0] * t, py = v1[1] * t;
+      // line from centered point to its projection
+      svg.insertAdjacentHTML("beforeend",
+        `<line x1="${xToPx(cx2)}" y1="${yToPx(cy2)}" x2="${xToPx(px)}" y2="${yToPx(py)}"
+           stroke="#16a34a" stroke-width="1" stroke-dasharray="2,2" opacity="0.5"/>`);
+      svg.insertAdjacentHTML("beforeend",
+        `<circle cx="${xToPx(px)}" cy="${yToPx(py)}" r="3.5" fill="#16a34a"/>`);
+    }
+  }
+}
+
+function drawArrow(svg, x1, y1, x2, y2, color, w, label) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const len = Math.hypot(dx, dy);
+  if (len < 1) return;
+  const ux = dx / len, uy = dy / len;
+  const hx = x2 - ux * 10, hy = y2 - uy * 10;
+  const px1 = hx - uy * 6, py1 = hy + ux * 6;
+  const px2 = hx + uy * 6, py2 = hy - ux * 6;
+  svg.insertAdjacentHTML("beforeend",
+    `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${w}" stroke-linecap="round"/>`);
+  svg.insertAdjacentHTML("beforeend",
+    `<polygon points="${x2},${y2} ${px1},${py1} ${px2},${py2}" fill="${color}"/>`);
+  if (label) {
+    svg.insertAdjacentHTML("beforeend",
+      `<text x="${x2 + ux * 12}" y="${y2 + uy * 12 + 4}" font-size="12" font-weight="700" fill="${color}">${label}</text>`);
+  }
+}
+
+function pcaUpdate() {
+  const { step, mean, l1, l2, v1, v2 } = pcaState;
+  $("pcaStepLabel").textContent = step + " / 5";
+  const fmt = (x) => x.toFixed(3);
+  $("pcaMean").textContent = `(${fmt(mean[0])}, ${fmt(mean[1])})`;
+  $("pcaLam1").textContent = fmt(l1);
+  $("pcaLam2").textContent = fmt(l2);
+  $("pcaV1").textContent = `(${fmt(v1[0])}, ${fmt(v1[1])})`;
+  $("pcaV2").textContent = `(${fmt(v2[0])}, ${fmt(v2[1])})`;
+  const ratio = l1 / (l1 + l2);
+  $("pcaRatio").textContent = `PC1: ${(ratio * 100).toFixed(1)}% · PC2: ${((1 - ratio) * 100).toFixed(1)}%`;
+
+  const texts = [
+    `Chọn dataset và nhấn <b>Run PCA</b>.`,
+    `<span class="step-badge">Bước 1</span> Tính <b>mean</b> μ — điểm trung bình của dữ liệu (chấm cam). Mọi PCA bắt đầu từ đây.`,
+    `<span class="step-badge">Bước 2</span> <b>Center</b> dữ liệu — dời cloud sao cho mean ở gốc tọa độ. Cần thiết để variance đo đúng "độ trải quanh trung bình".`,
+    `<span class="step-badge">Bước 3</span> <b>Covariance ellipse</b> — vẽ ellipse với bán kính = √λᵢ. Đây là "hình dáng" hiệp phương sai của dữ liệu.`,
+    `<span class="step-badge">Bước 4</span> <b>PC1</b> (đỏ) = trục dài của ellipse = hướng phương sai lớn nhất. <b>PC2</b> (xanh) vuông góc, chứa phần còn lại.`,
+    `<span class="step-badge">Bước 5</span> <b>Project</b> mỗi điểm xuống PC1 (chấm xanh lá trên đường xanh). Dữ liệu 2D → 1D, giữ <b>${(ratio * 100).toFixed(1)}%</b> variance.`
+  ];
+  $("pcaStepText").innerHTML = texts[step];
+}
+
+function pcaReset() {
+  pcaState.points = genDataset($("pcaPreset").value);
+  const r = computePca(pcaState.points);
+  Object.assign(pcaState, r);
+  pcaState.step = 0;
+  drawPca();
+  pcaUpdate();
+}
+
+function pcaRunAnim() {
+  pcaState.step = 0;
+  const tick = () => {
+    if (pcaState.step >= 5) return;
+    pcaState.step++;
+    drawPca();
+    pcaUpdate();
+    setTimeout(tick, 900);
+  };
+  drawPca(); pcaUpdate();
+  setTimeout(tick, 200);
+}
+
+// ===================== Section 2: Scree plot =====================
+const screeProfiles = {
+  sharp:   [4.20, 1.85, 0.95, 0.45, 0.22, 0.15, 0.10, 0.08],
+  gradual: [2.50, 2.10, 1.70, 1.30, 1.00, 0.80, 0.60, 0.40],
+  flat:    [1.40, 1.30, 1.20, 1.15, 1.05, 1.00, 0.95, 0.90],
+  elbow:   [3.80, 3.20, 2.80, 0.60, 0.40, 0.30, 0.20, 0.15],
+};
+
+function drawScree() {
+  const svg = $("screeSvg");
+  svg.innerHTML = "";
+  const W = 640, H = 380;
+  const pad = { l: 50, r: 30, t: 24, b: 50 };
+  const profile = screeProfiles[$("screePreset").value];
+  const total = profile.reduce((a, b) => a + b, 0);
+  const k = +$("screeK").value;
+  const n = profile.length;
+  const barW = (W - pad.l - pad.r) / n * 0.7;
+  const gap = (W - pad.l - pad.r) / n * 0.3;
+  const maxL = Math.max(...profile);
+
+  // y axis: ratio (0..0.5)
+  const yMax = Math.max(0.55, maxL / total + 0.05);
+  const yScale = (H - pad.t - pad.b) / yMax;
+  // grid + y ticks
+  for (let t = 0; t <= 5; t++) {
+    const v = t / 10;
+    if (v > yMax) break;
+    const y = H - pad.b - v * yScale;
+    svg.insertAdjacentHTML("beforeend", `<line x1="${pad.l}" y1="${y}" x2="${W - pad.r}" y2="${y}" stroke="#ececec"/>`);
+    svg.insertAdjacentHTML("beforeend", `<text x="${pad.l - 6}" y="${y + 4}" font-size="10.5" fill="#6a6a6a" text-anchor="end">${(v * 100).toFixed(0)}%</text>`);
+  }
+
+  // bars
+  let cum = 0;
+  const cumPoints = [];
+  for (let i = 0; i < n; i++) {
+    const ratio = profile[i] / total;
+    const x = pad.l + i * (barW + gap) + gap / 2;
+    const h = ratio * yScale;
+    const y = H - pad.b - h;
+    const kept = (i + 1) <= k;
+    svg.insertAdjacentHTML("beforeend",
+      `<rect class="scree-bar ${kept ? "selected" : ""}" x="${x}" y="${y}" width="${barW}" height="${h}"
+         fill="${kept ? "var(--accent)" : "#cbd5e1"}" data-i="${i}"/>`);
+    svg.insertAdjacentHTML("beforeend",
+      `<text x="${x + barW / 2}" y="${H - pad.b + 14}" font-size="11" text-anchor="middle" fill="#1a1a1a" font-weight="700">PC${i + 1}</text>`);
+    svg.insertAdjacentHTML("beforeend",
+      `<text x="${x + barW / 2}" y="${y - 4}" font-size="10" text-anchor="middle" fill="#6a6a6a">${(ratio * 100).toFixed(1)}%</text>`);
+    cum += ratio;
+    cumPoints.push([x + barW / 2, H - pad.b - cum * yScale]);
+  }
+  // cumulative line
+  const path = cumPoints.map((p, i) => (i === 0 ? "M" : "L") + p[0] + "," + p[1]).join(" ");
+  svg.insertAdjacentHTML("beforeend", `<path d="${path}" stroke="var(--pc2-color)" stroke-width="2" fill="none"/>`);
+  for (const [px, py] of cumPoints) {
+    svg.insertAdjacentHTML("beforeend", `<circle cx="${px}" cy="${py}" r="3.5" fill="var(--pc2-color)"/>`);
+  }
+
+  // k line
+  const xK = pad.l + k * (barW + gap) + gap / 2;
+  svg.insertAdjacentHTML("beforeend",
+    `<line x1="${xK}" y1="${pad.t}" x2="${xK}" y2="${H - pad.b}" stroke="var(--pc1-color)" stroke-width="1.5" stroke-dasharray="5,4"/>`);
+  svg.insertAdjacentHTML("beforeend",
+    `<text x="${xK + 4}" y="${pad.t + 12}" font-size="11" fill="var(--pc1-color)" font-weight="700">k = ${k}</text>`);
+
+  // x axis label
+  svg.insertAdjacentHTML("beforeend",
+    `<text x="${W / 2}" y="${H - 12}" font-size="12" text-anchor="middle" fill="#6a6a6a">Principal Components (sắp xếp theo λ giảm dần)</text>`);
+  svg.insertAdjacentHTML("beforeend",
+    `<text x="${15}" y="${H / 2}" font-size="12" text-anchor="middle" fill="#6a6a6a" transform="rotate(-90, 15, ${H / 2})">Explained variance ratio</text>`);
+
+  // summary
+  let kept = 0;
+  for (let i = 0; i < k; i++) kept += profile[i] / total;
+  const tbody = $("screeTbody");
+  tbody.innerHTML = "";
+  let cum2 = 0;
+  for (let i = 0; i < n; i++) {
+    const r = profile[i] / total;
+    cum2 += r;
+    tbody.insertAdjacentHTML("beforeend",
+      `<tr style="${i < k ? 'background:#ede9fe;' : ''}"><td>PC${i + 1}</td><td>${profile[i].toFixed(2)}</td><td>${(r * 100).toFixed(1)}%</td><td>${(cum2 * 100).toFixed(1)}%</td></tr>`);
+  }
+  $("screeSummary").innerHTML =
+    `Giữ <b>k = ${k}</b> trong tổng ${n} PC → <b>${(kept * 100).toFixed(1)}%</b> variance được bảo toàn. Bỏ <b>${((1 - kept) * 100).toFixed(1)}%</b> phương sai (giả định ≈ noise). Giảm chiều: <b>${n}D → ${k}D</b>.`;
+}
+
+// ===================== Section 3: Image compression =====================
+function genImage(name, size) {
+  // returns size x size matrix of values in [0,1]
+  const M = zeros(size, size);
+  const cx = (size - 1) / 2, cy = (size - 1) / 2;
+  for (let i = 0; i < size; i++) {
+    for (let j = 0; j < size; j++) {
+      const x = j - cx, y = i - cy;
+      const r = Math.hypot(x, y);
+      let v = 0;
+      if (name === "smiley") {
+        // face circle
+        if (r < size * 0.42 && r > size * 0.36) v = 0.85;
+        // eyes
+        if (Math.hypot(x + size * 0.13, y + size * 0.10) < size * 0.05) v = 0.9;
+        if (Math.hypot(x - size * 0.13, y + size * 0.10) < size * 0.05) v = 0.9;
+        // mouth (arc)
+        const ang = Math.atan2(y - size * 0.05, x);
+        if (Math.abs(r - size * 0.22) < 1.5 && ang > 0.2 && ang < Math.PI - 0.2) v = 0.85;
+      } else if (name === "cross") {
+        if (Math.abs(x - y) < 1.5 || Math.abs(x + y) < 1.5) v = 0.85;
+      } else if (name === "stripes") {
+        v = (i % 4 < 2) ? 0.85 : 0.1;
+      } else if (name === "checker") {
+        const block = Math.floor(size / 4);
+        v = ((Math.floor(i / block) + Math.floor(j / block)) % 2 === 0) ? 0.85 : 0.1;
+      } else if (name === "circle") {
+        if (r < size * 0.38) v = 0.85 - r / size * 0.5;
+        else v = 0.05;
+      }
+      M[i][j] = v + 0.05; // small offset
+    }
+  }
+  return M;
+}
+
+// Reduced SVD via Jacobi for square matrix
+function svdSquare(A) {
+  return svd(A);
+}
+
+// Truncated rank-k reconstruction
+function rankKApprox(U, sigmas, Vt, k) {
+  const n = U.length;
+  const out = zeros(n, n);
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      let s = 0;
+      for (let t = 0; t < k; t++) s += U[i][t] * sigmas[t] * Vt[t][j];
+      out[i][j] = s;
+    }
+  }
+  return out;
+}
+
+function drawImageMatrix(svgId, M, size) {
+  const svg = $(svgId);
+  svg.innerHTML = "";
+  const W = 320;
+  const cell = W / size;
+  for (let i = 0; i < size; i++) {
+    for (let j = 0; j < size; j++) {
+      const v = Math.max(0, Math.min(1, M[i][j]));
+      const g = Math.round(255 * (1 - v));
+      svg.insertAdjacentHTML("beforeend",
+        `<rect x="${j * cell}" y="${i * cell}" width="${cell + 0.5}" height="${cell + 0.5}" fill="rgb(${g},${g},${g})"/>`);
+    }
+  }
+}
+
+let imgCache = { name: null, size: 32, M: null, U: null, sigmas: null, Vt: null };
+
+function refreshImage() {
+  const name = $("imgPreset").value;
+  const size = imgCache.size;
+  if (imgCache.name !== name) {
+    const M = genImage(name, size);
+    const { U, sigmas, V, Vt } = svdSquare(M);
+    imgCache = { name, size, M, U, sigmas, Vt };
+  }
+  const k = +$("imgK").value;
+  drawImageMatrix("imgOrigSvg", imgCache.M, size);
+  const approx = rankKApprox(imgCache.U, imgCache.sigmas, imgCache.Vt, k);
+  drawImageMatrix("imgApproxSvg", approx, size);
+
+  // Frobenius error
+  let err = 0, total = 0;
+  for (let i = 0; i < size; i++) for (let j = 0; j < size; j++) {
+    err += (imgCache.M[i][j] - approx[i][j]) ** 2;
+    total += imgCache.M[i][j] ** 2;
+  }
+  const errRel = Math.sqrt(err / total) * 100;
+
+  const origCount = size * size;
+  const compCount = k * (size + size + 1);
+  const saving = ((origCount - compCount) / origCount) * 100;
+  $("imgStats").innerHTML =
+    `Ảnh gốc ${size}×${size} = <b>${origCount}</b> giá trị. ` +
+    `Rank-${k} chỉ cần <b>${compCount}</b> giá trị (= k·(m+n+1) = ${k}·${size + size + 1}). ` +
+    (saving >= 0
+      ? `<b style="color:var(--ok)">Tiết kiệm ${saving.toFixed(1)}%.</b> `
+      : `<b style="color:#dc2626">Lãng phí ${Math.abs(saving).toFixed(1)}%</b> (k quá lớn, lưu cả U/Σ/V còn tốn hơn lưu A). `) +
+    `Sai số tương đối (Frobenius) ≈ <b>${errRel.toFixed(2)}%</b>.`;
+
+  // singular value bar chart
+  const svg = $("imgSingularSvg");
+  svg.innerHTML = "";
+  const W = 640, H = 160;
+  const pad = { l: 40, r: 20, t: 14, b: 30 };
+  const n = imgCache.sigmas.length;
+  const barW = (W - pad.l - pad.r) / n * 0.85;
+  const gap = (W - pad.l - pad.r) / n * 0.15;
+  const maxS = Math.max(...imgCache.sigmas);
+  for (let i = 0; i < n; i++) {
+    const x = pad.l + i * (barW + gap);
+    const h = (imgCache.sigmas[i] / maxS) * (H - pad.t - pad.b);
+    const y = H - pad.b - h;
+    const kept = i < k;
+    svg.insertAdjacentHTML("beforeend",
+      `<rect x="${x}" y="${y}" width="${barW}" height="${h}" fill="${kept ? 'var(--pc1-color)' : '#cbd5e1'}"/>`);
+  }
+  svg.insertAdjacentHTML("beforeend",
+    `<text x="${W / 2}" y="${H - 8}" font-size="11" text-anchor="middle" fill="#6a6a6a">Singular values σ₁, σ₂, ..., σ${n} (sắp xếp giảm dần)</text>`);
+  // k line
+  const xK = pad.l + k * (barW + gap) - gap / 2;
+  svg.insertAdjacentHTML("beforeend",
+    `<line x1="${xK}" y1="${pad.t}" x2="${xK}" y2="${H - pad.b}" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="4,3"/>`);
+  svg.insertAdjacentHTML("beforeend",
+    `<text x="${xK + 3}" y="${pad.t + 10}" font-size="10" fill="var(--accent)" font-weight="700">k = ${k}</text>`);
+}
+
+// ===================== Section 4: SVD viewer =====================
+const svdPresets = {
+  diag:   [[3, 0, 0], [0, 2, 0], [0, 0, 1]],
+  sym:    [[4, 1, 0], [1, 3, 1], [0, 1, 2]],
+  rank2:  [[1, 2, 3], [2, 4, 6], [1, 1, 1]],
+  rotate: (() => {
+    const c = Math.cos(Math.PI / 6), s = Math.sin(Math.PI / 6);
+    return [[c, -s, 0], [s, c, 0], [0, 0, 1]];
+  })(),
+  shear:  [[1, 2, 0], [0, 1, 0], [0, 0, 1]],
+};
+
+function buildSvdInputs() {
+  const cont = $("svdInput");
+  cont.innerHTML = "";
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 3; j++) {
+      cont.insertAdjacentHTML("beforeend",
+        `<input type="number" step="0.5" id="svd_${i}_${j}" style="width:50px; padding:4px; border:1px solid var(--line); border-radius:4px; font-family:ui-monospace,monospace; font-size:12px; text-align:center;">`);
+    }
+  }
+}
+
+function setSvdInputs(M) {
+  for (let i = 0; i < 3; i++)
+    for (let j = 0; j < 3; j++)
+      $(`svd_${i}_${j}`).value = M[i][j].toFixed(2);
+}
+
+function readSvdInputs() {
+  const M = zeros(3, 3);
+  for (let i = 0; i < 3; i++)
+    for (let j = 0; j < 3; j++) {
+      const v = parseFloat($(`svd_${i}_${j}`).value);
+      M[i][j] = isNaN(v) ? 0 : v;
+    }
+  return M;
+}
+
+function drawHeatmap(svgId, M, options = {}) {
+  const svg = $(svgId);
+  svg.innerHTML = "";
+  const W = 160, H = 160;
+  const n = M.length;
+  const c = W / n;
+  // find range
+  let maxAbs = 0;
+  for (const r of M) for (const v of r) maxAbs = Math.max(maxAbs, Math.abs(v));
+  if (maxAbs < 1e-6) maxAbs = 1;
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      const v = M[i][j];
+      const t = v / maxAbs;
+      // diverging colormap: red (negative) → white (0) → purple (positive)
+      let color;
+      if (t >= 0) {
+        const k = t;
+        const r2 = Math.round(255 - k * 146);
+        const g = Math.round(255 - k * 215);
+        const b = Math.round(255 - k * 38);
+        color = `rgb(${r2},${g},${b})`;
+      } else {
+        const k = -t;
+        const r2 = Math.round(255 - k * 35);
+        const g = Math.round(255 - k * 220);
+        const b = Math.round(255 - k * 220);
+        color = `rgb(${r2},${g},${b})`;
+      }
+      const isZero = Math.abs(v) < 1e-6;
+      const fillCol = isZero ? "#f7f6f1" : color;
+      svg.insertAdjacentHTML("beforeend",
+        `<rect class="heatmap-cell" x="${j * c}" y="${i * c}" width="${c}" height="${c}" fill="${fillCol}"/>`);
+      svg.insertAdjacentHTML("beforeend",
+        `<text x="${j * c + c / 2}" y="${i * c + c / 2 + 4}" font-size="11" text-anchor="middle" fill="${Math.abs(t) > 0.55 ? 'white' : '#1a1a1a'}" font-family="ui-monospace,monospace">${v.toFixed(2)}</text>`);
+    }
+  }
+}
+
+function runSvd() {
+  const A = readSvdInputs();
+  const { U, sigmas, V, Vt } = svdSquare(A);
+  // build Σ as diagonal
+  const S = zeros(3, 3);
+  for (let i = 0; i < 3; i++) S[i][i] = sigmas[i];
+
+  drawHeatmap("svdAHeat", A);
+  drawHeatmap("svdUHeat", U);
+  drawHeatmap("svdSHeat", S);
+  drawHeatmap("svdVtHeat", Vt);
+
+  // verify
+  const reconstructed = matmul(matmul(U, S), Vt);
+  drawHeatmap("svdVerifyHeat", reconstructed);
+  let maxErr = 0;
+  for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++)
+    maxErr = Math.max(maxErr, Math.abs(reconstructed[i][j] - A[i][j]));
+  const ok = maxErr < 1e-3;
+  $("svdVerifyBadge").innerHTML = ok
+    ? `<span class="verify-badge verify-ok">✓ U·Σ·Vᵀ = A (sai số &lt; 0.001)</span>`
+    : `<span class="verify-badge verify-bad">✗ Sai số ${maxErr.toFixed(4)}</span>`;
+  $("svdMaxErr").innerHTML = `Max |U·Σ·Vᵀ − A| = <b>${maxErr.toExponential(2)}</b>. SVD đúng cho mọi ma trận thực (kể cả singular hoặc chữ nhật).`;
+
+  // sigma table
+  const tbody = document.querySelector("#svdSigmaTable tbody");
+  tbody.innerHTML = "";
+  for (let i = 0; i < sigmas.length; i++) {
+    const tr = `<tr><td>${i + 1}</td><td>${sigmas[i].toFixed(4)}</td><td>${(sigmas[i] ** 2).toFixed(4)}</td></tr>`;
+    tbody.insertAdjacentHTML("beforeend", tr);
+  }
+
+  // rank
+  const rank = sigmas.filter(s => s > 1e-6).length;
+  const tracesq = sigmas.reduce((a, b) => a + b * b, 0);
+  $("svdRank").innerHTML =
+    `<b>rank(A) = ${rank}</b> (số σ &gt; 0). ` +
+    `<b>||A||_F² = Σσᵢ² = ${tracesq.toFixed(3)}</b> — Frobenius norm bình phương = tổng σ bình phương.` +
+    (rank < 3 ? ` Ma trận <b>singular</b> (det = 0).` : ` Ma trận <b>full-rank</b>, khả nghịch.`);
+}
+
+// ===================== Event wiring =====================
+function bindEvents() {
+  // Section 1
+  $("pcaPreset").addEventListener("change", pcaReset);
+  $("pcaRunBtn").addEventListener("click", () => { pcaReset(); pcaRunAnim(); });
+  $("pcaStepBtn").addEventListener("click", () => {
+    if (pcaState.step < 5) pcaState.step++; else pcaState.step = 0;
+    drawPca(); pcaUpdate();
+  });
+  $("pcaResetBtn").addEventListener("click", pcaReset);
+
+  // Section 2
+  $("screePreset").addEventListener("change", drawScree);
+  $("screeK").addEventListener("input", () => {
+    $("screeKLabel").textContent = $("screeK").value;
+    drawScree();
+  });
+
+  // Section 3
+  $("imgPreset").addEventListener("change", () => { imgCache.name = null; refreshImage(); });
+  $("imgK").addEventListener("input", () => {
+    $("imgKLabel").textContent = $("imgK").value;
+    refreshImage();
+  });
+
+  // Section 4
+  $("svdPreset").addEventListener("change", () => {
+    setSvdInputs(svdPresets[$("svdPreset").value]);
+    runSvd();
+  });
+  $("svdRunBtn").addEventListener("click", runSvd);
+}
+
+// ===================== Init =====================
+buildSvdInputs();
+setSvdInputs(svdPresets.sym);
+bindEvents();
+pcaReset();
+drawScree();
+refreshImage();
+runSvd();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 16 — International Trade</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .lead { color: #4a5568; margin-bottom: 24px; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 220px; }
+  input[type="number"], input[type="range"] { font-family: monospace; padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 4px; }
+  input[type="number"] { width: 100px; }
+  input[type="range"] { width: 240px; }
+  .result { background: #f7fafc; border-left: 4px solid #c05621; padding: 14px 18px; margin-top: 14px; border-radius: 4px; font-family: monospace; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; background: #fff5eb; color: #c05621; font-weight: 700; margin-left: 6px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../Tier3-Macroeconomics/lesson-15-inflation-unemployment/visualization.html">← L15: Inflation</a>
+  <span class="sep">·</span>
+  <span class="current">L16: International Trade</span>
+  <span class="sep">·</span>
+  <a href="../lesson-17-behavioral-economics/visualization.html">L17: Behavioral →</a>
+</nav>
+  <h1>Lesson 16 — International Trade</h1>
+  <div class="lead">Máy tính lợi thế so sánh giữa 2 nước + welfare của thuế quan lên một mặt hàng.</div>
+
+  <h2>1. Lợi thế so sánh <span class="pill">Comparative Advantage</span></h2>
+  <div class="card">
+    <div class="row"><label>Nước A — sản lượng/giờ lúa</label><input id="a-rice" type="number" value="5" step="0.5"></div>
+    <div class="row"><label>Nước A — sản lượng/giờ cá</label><input id="a-fish" type="number" value="10" step="0.5"></div>
+    <div class="row"><label>Nước B — sản lượng/giờ lúa</label><input id="b-rice" type="number" value="8" step="0.5"></div>
+    <div class="row"><label>Nước B — sản lượng/giờ cá</label><input id="b-fish" type="number" value="4" step="0.5"></div>
+    <div class="row"><label>Số giờ mỗi nước có</label><input id="hours" type="number" value="4" step="1"></div>
+    <div class="result" id="ca-out"></div>
+  </div>
+
+  <h2>2. Welfare thuế quan <span class="pill">Tariff</span></h2>
+  <div class="card">
+    <p>Cầu nội địa <code>Q_d = a − P</code>, cung <code>Q_s = P</code>, giá thế giới <code>P_w</code>, thuế <code>T</code>.</p>
+    <div class="row"><label>a (cầu intercept)</label><input id="a" type="number" value="80" step="5"></div>
+    <div class="row"><label>P_w (giá thế giới)</label><input id="pw" type="number" value="20" step="2"></div>
+    <div class="row"><label>Thuế T</label><input id="tax" type="range" min="0" max="40" step="1" value="10"><span id="tax-v" style="font-family:monospace;"></span></div>
+    <div class="result" id="tariff-out"></div>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+function get(id) { return parseFloat($(id).value) || 0; }
+
+function calcCA() {
+  const ar = get('a-rice'), af = get('a-fish'), br = get('b-rice'), bf = get('b-fish');
+  const h = get('hours');
+  // Chi phí cơ hội 1 lúa = bao nhiêu cá (giành 1h từ lúa sang cá thì mất ar lúa, được af cá → 1 lúa = af/ar cá)
+  const ocA_rice = af / ar; // 1 lúa ở A = bao nhiêu cá
+  const ocB_rice = bf / br;
+  const ocA_fish = ar / af; // 1 cá ở A = bao nhiêu lúa
+  const ocB_fish = br / bf;
+
+  let spec = '';
+  if (ocA_rice < ocB_rice) {
+    spec = `A chuyên LÚA (chi phí cơ hội thấp hơn: ${ocA_rice.toFixed(2)} < ${ocB_rice.toFixed(2)}).\nB chuyên CÁ.`;
+  } else {
+    spec = `B chuyên LÚA (chi phí cơ hội thấp hơn: ${ocB_rice.toFixed(2)} < ${ocA_rice.toFixed(2)}).\nA chuyên CÁ.`;
+  }
+
+  // Không thương mại — chia đôi
+  const noTrade_A_r = ar * h / 2;
+  const noTrade_A_f = af * h / 2;
+  const noTrade_B_r = br * h / 2;
+  const noTrade_B_f = bf * h / 2;
+  const total_noTrade_r = noTrade_A_r + noTrade_B_r;
+  const total_noTrade_f = noTrade_A_f + noTrade_B_f;
+
+  // Chuyên môn hóa
+  let trade_A_r = 0, trade_A_f = 0, trade_B_r = 0, trade_B_f = 0;
+  if (ocA_rice < ocB_rice) {
+    trade_A_r = ar * h; trade_B_f = bf * h;
+  } else {
+    trade_B_r = br * h; trade_A_f = af * h;
+  }
+  const total_trade_r = trade_A_r + trade_B_r;
+  const total_trade_f = trade_A_f + trade_B_f;
+
+  $('ca-out').innerHTML =
+    `<strong>Chi phí cơ hội:</strong>\n` +
+    `  Ở A: 1 lúa = ${ocA_rice.toFixed(2)} cá; 1 cá = ${ocA_fish.toFixed(2)} lúa\n` +
+    `  Ở B: 1 lúa = ${ocB_rice.toFixed(2)} cá; 1 cá = ${ocB_fish.toFixed(2)} lúa\n\n` +
+    `<strong>Chuyên môn hóa:</strong>\n${spec}\n\n` +
+    `<strong>So sánh ${h}h/nước:</strong>\n` +
+    `  Không thương mại: ${total_noTrade_r.toFixed(0)} lúa + ${total_noTrade_f.toFixed(0)} cá\n` +
+    `  Chuyên môn hóa: ${total_trade_r.toFixed(0)} lúa + ${total_trade_f.toFixed(0)} cá\n` +
+    `  Lợi: +${(total_trade_r - total_noTrade_r).toFixed(0)} lúa + ${(total_trade_f - total_noTrade_f).toFixed(0)} cá`;
+}
+['a-rice','a-fish','b-rice','b-fish','hours'].forEach(id => $(id).addEventListener('input', calcCA));
+
+function calcTariff() {
+  const a = get('a'), pw = get('pw'), T = get('tax');
+  $('tax-v').textContent = T;
+  // Trước thuế: P = P_w
+  // Q_d = a - P_w; Q_s = P_w; nhập = Q_d - Q_s
+  const Qd0 = a - pw, Qs0 = pw, imp0 = Qd0 - Qs0;
+  // Sau thuế: P = P_w + T (giả định không vượt giá tự cấp)
+  const P1 = pw + T;
+  const Qd1 = a - P1, Qs1 = P1, imp1 = Math.max(0, Qd1 - Qs1);
+  // Revenue
+  const rev = T * imp1;
+  // DWL: 2 tam giác
+  const dwl1 = 0.5 * (Qs1 - Qs0) * T; // bên cung (overproduction)
+  const dwl2 = 0.5 * (Qd0 - Qd1) * T; // bên cầu (underconsumption)
+  // Welfare changes
+  const dCS = -((P1 - pw) * (Qd0 + Qd1) / 2); // approx
+  const dPS = (P1 - pw) * (Qs0 + Qs1) / 2;
+
+  $('tariff-out').innerHTML =
+    `<strong>Trước thuế (giá thế giới ${pw}):</strong>\n` +
+    `  Q_d = ${Qd0}, Q_s = ${Qs0}, nhập khẩu = ${imp0}\n\n` +
+    `<strong>Sau thuế T = ${T} (giá nội địa ${P1}):</strong>\n` +
+    `  Q_d = ${Qd1}, Q_s = ${Qs1}, nhập khẩu = ${imp1.toFixed(0)}\n\n` +
+    `<strong>Phân tích welfare:</strong>\n` +
+    `  ΔCS ≈ ${dCS.toFixed(1)} (người mua thiệt)\n` +
+    `  ΔPS ≈ +${dPS.toFixed(1)} (người bán trong nước lợi)\n` +
+    `  Revenue thuế = ${rev.toFixed(1)}\n` +
+    `  DWL = ${(dwl1 + dwl2).toFixed(1)} (mất hẳn)\n\n` +
+    (T === 0 ? 'Không có thuế.' :
+     imp1 === 0 ? 'Thuế đủ cao để chặn hoàn toàn nhập khẩu.' :
+     'Nhập khẩu giảm, người sản xuất nội địa lợi, người tiêu dùng thiệt, ngân sách thu thuế.');
+}
+['a','pw','tax'].forEach(id => $(id).addEventListener('input', calcTariff));
+
+calcCA(); calcTariff();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

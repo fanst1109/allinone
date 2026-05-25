@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 13 — IS-LM / AD-AS</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .lead { color: #4a5568; margin-bottom: 24px; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 220px; }
+  input[type="range"] { width: 220px; font-family: monospace; }
+  .result { background: #f7fafc; border-left: 4px solid #c05621; padding: 14px 18px; margin-top: 14px; border-radius: 4px; font-family: monospace; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  svg { display: block; margin: 0 auto; max-width: 100%; }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; background: #fff5eb; color: #c05621; font-weight: 700; margin-left: 6px; }
+  .legend { display: flex; gap: 14px; font-size: 13px; margin: 8px 0; color: #4a5568; flex-wrap: wrap; }
+  .legend .sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: 4px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-12-growth-models/visualization.html">← L12: Growth</a>
+  <span class="sep">·</span>
+  <span class="current">L13: IS-LM / AD-AS</span>
+  <span class="sep">·</span>
+  <a href="../lesson-14-monetary-fiscal-policy/visualization.html">L14: Policy →</a>
+</nav>
+  <h1>Lesson 13 — IS-LM / AD-AS</h1>
+  <div class="lead">IS-LM tương tác: trượt slider G, M để xem cân bằng dịch chuyển, quan sát crowding out.</div>
+
+  <h2>IS-LM cân bằng <span class="pill">(Y*, r*)</span></h2>
+  <div class="card">
+    <p>IS: <code>Y = A − e·r</code> &nbsp;&nbsp; LM: <code>r = (k/h)·Y − (M/P)/h</code></p>
+    <div class="row"><label>A (intercept IS, ~G ảnh hưởng)</label><input id="A" type="range" min="400" max="1200" step="20" value="800"><span id="A-v" style="font-family:monospace;"></span></div>
+    <div class="row"><label>e (độ dốc IS)</label><input id="e" type="range" min="20" max="200" step="10" value="100"><span id="e-v" style="font-family:monospace;"></span></div>
+    <div class="row"><label>M/P (cung tiền thực)</label><input id="M" type="range" min="100" max="800" step="20" value="400"><span id="M-v" style="font-family:monospace;"></span></div>
+    <div class="row"><label>k (cầu tiền theo Y)</label><input id="k" type="range" min="0.1" max="1" step="0.05" value="0.5"><span id="k-v" style="font-family:monospace;"></span></div>
+    <div class="row"><label>h (cầu tiền theo r)</label><input id="h" type="range" min="20" max="200" step="10" value="100"><span id="h-v" style="font-family:monospace;"></span></div>
+
+    <svg id="svg" viewBox="0 0 600 440" style="background:#fff; border:1px solid #e2e8f0;"></svg>
+    <div class="legend">
+      <span><span class="sw" style="background:#c05621"></span>IS</span>
+      <span><span class="sw" style="background:#3182ce"></span>LM</span>
+      <span><span class="sw" style="background:#2f855a"></span>Cân bằng</span>
+    </div>
+    <div class="result" id="out"></div>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+function get(id) { return parseFloat($(id).value) || 0; }
+
+function calc() {
+  const A = get('A'), e = get('e'), M = get('M'), k = get('k'), h = get('h');
+  $('A-v').textContent = A;
+  $('e-v').textContent = e;
+  $('M-v').textContent = M;
+  $('k-v').textContent = k.toFixed(2);
+  $('h-v').textContent = h;
+
+  // IS: Y = A - e*r → r = (A - Y)/e
+  // LM: r = (k/h) * Y - M/h
+  // (A - Y)/e = (k/h)*Y - M/h
+  // h(A - Y) = ek*Y - eM
+  // hA + eM = (ek + h)*Y
+  // Y* = (hA + eM) / (ek + h)
+  const Y = (h * A + e * M) / (e * k + h);
+  const r = (A - Y) / e;
+
+  const W = 600, H = 440, padL = 60, padB = 50, padT = 30, padR = 30;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const Ymax = A * 1.2;
+  const rmax = Math.max(20, r * 2);
+  const sx = y => padL + (y / Ymax) * plotW;
+  const sy = rv => padT + plotH - (rv / rmax) * plotH;
+
+  let svg = '';
+  for (let i = 1; i <= 5; i++) {
+    svg += `<line x1="${sx(Ymax/5*i)}" y1="${padT}" x2="${sx(Ymax/5*i)}" y2="${padT+plotH}" stroke="#f0f0f0"/>`;
+    svg += `<line x1="${padL}" y1="${sy(rmax/5*i)}" x2="${padL+plotW}" y2="${sy(rmax/5*i)}" stroke="#f0f0f0"/>`;
+    svg += `<text x="${sx(Ymax/5*i)}" y="${padT+plotH+16}" text-anchor="middle" font-size="11" fill="#718096">${(Ymax/5*i).toFixed(0)}</text>`;
+    svg += `<text x="${padL-8}" y="${sy(rmax/5*i)+4}" text-anchor="end" font-size="11" fill="#718096">${(rmax/5*i).toFixed(1)}</text>`;
+  }
+  // IS: Y = A - e*r → 2 điểm: (A, 0) và (A - e*rmax, rmax)
+  svg += `<line x1="${sx(A)}" y1="${sy(0)}" x2="${sx(Math.max(0, A - e * rmax))}" y2="${sy(rmax)}" stroke="#c05621" stroke-width="2.5"/>`;
+  svg += `<text x="${sx(A) - 30}" y="${sy(0) - 6}" font-size="12" fill="#c05621" font-weight="700">IS</text>`;
+  // LM: r = (k/h)*Y - M/h. Tại Y=0: r = -M/h. Tại Y=Ymax: r = (k/h)*Ymax - M/h
+  const r_at_0 = -M / h;
+  const r_at_Ymax = (k / h) * Ymax - M / h;
+  // Chỉ vẽ phần r ≥ 0
+  const y_at_r0 = M / k; // r = 0 khi (k/h)Y = M/h → Y = M/k
+  svg += `<line x1="${sx(y_at_r0)}" y1="${sy(0)}" x2="${sx(Ymax)}" y2="${sy(Math.max(0, r_at_Ymax))}" stroke="#3182ce" stroke-width="2.5"/>`;
+  svg += `<text x="${sx(Ymax) - 30}" y="${sy(r_at_Ymax) - 6}" font-size="12" fill="#3182ce" font-weight="700">LM</text>`;
+
+  // Cân bằng
+  svg += `<line x1="${sx(Y)}" y1="${padT+plotH}" x2="${sx(Y)}" y2="${sy(r)}" stroke="#2f855a" stroke-dasharray="3,3"/>`;
+  svg += `<line x1="${padL}" y1="${sy(r)}" x2="${sx(Y)}" y2="${sy(r)}" stroke="#2f855a" stroke-dasharray="3,3"/>`;
+  svg += `<circle cx="${sx(Y)}" cy="${sy(r)}" r="7" fill="#2f855a" stroke="#fff" stroke-width="2"/>`;
+  svg += `<text x="${sx(Y) + 8}" y="${sy(r) - 8}" font-size="12" fill="#2f855a" font-weight="700">(${Y.toFixed(1)}, ${r.toFixed(2)})</text>`;
+
+  svg += `<line x1="${padL}" y1="${padT+plotH}" x2="${padL+plotW}" y2="${padT+plotH}" stroke="#cbd5e0"/>`;
+  svg += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+plotH}" stroke="#cbd5e0"/>`;
+  svg += `<text x="${padL+plotW/2}" y="${H-10}" text-anchor="middle" font-size="13" fill="#2d3748">Y (sản lượng)</text>`;
+  svg += `<text x="20" y="${padT+plotH/2}" transform="rotate(-90 20 ${padT+plotH/2})" text-anchor="middle" font-size="13" fill="#2d3748">r (%)</text>`;
+
+  $('svg').innerHTML = svg;
+
+  $('out').innerHTML =
+    `<strong>Cân bằng IS-LM:</strong>\n` +
+    `  Y* = (h·A + e·M) / (e·k + h)\n` +
+    `      = (${h}×${A} + ${e}×${M}) / (${e}×${k.toFixed(2)} + ${h})\n` +
+    `      = ${Y.toFixed(2)}\n` +
+    `  r* = ${r.toFixed(3)}%\n\n` +
+    `Trượt A để mô phỏng <strong>fiscal expansion</strong> (G tăng) → IS dịch phải → Y↑, r↑.\n` +
+    `Trượt M để mô phỏng <strong>monetary expansion</strong> → LM dịch xuống → Y↑, r↓.`;
+}
+['A','e','M','k','h'].forEach(id => $(id).addEventListener('input', calc));
+calc();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

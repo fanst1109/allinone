@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 05 — Text vectorization (One-hot, BoW, TF-IDF)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 28px; font-size: 15px; }
+  h2 {
+    color: #2d3748; margin-top: 40px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; margin-top: 22px; font-size: 17px; }
+  .card {
+    background: white; border-radius: 8px; padding: 18px 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 14px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; color: #2d3748; font-size: 14px; }
+  textarea, input[type="text"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13.5px;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    padding: 8px 10px;
+    width: 100%;
+    box-sizing: border-box;
+    background: #fdfdfd;
+  }
+  textarea { resize: vertical; min-height: 80px; }
+  textarea:focus, input[type="text"]:focus {
+    outline: none; border-color: #4299e1; box-shadow: 0 0 0 3px rgba(66,153,225,0.18);
+  }
+  button {
+    padding: 6px 14px; border-radius: 6px; border: 1px solid #cbd5e0;
+    background: #fff; cursor: pointer; font-size: 13px; font-weight: 600;
+    color: #2d3748;
+  }
+  button:hover { background: #edf2f7; }
+  button.primary {
+    background: #4299e1; color: white; border-color: #4299e1;
+  }
+  button.primary:hover { background: #3182ce; }
+  button.active {
+    background: #2b6cb0; color: white; border-color: #2b6cb0;
+  }
+  .token-chip {
+    display: inline-block;
+    margin: 3px 4px;
+    padding: 4px 10px;
+    background: #ebf8ff;
+    border: 1px solid #bee3f8;
+    border-radius: 4px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px;
+    color: #2c5282;
+  }
+  .vocab-chip {
+    display: inline-block;
+    margin: 3px 4px;
+    padding: 4px 10px;
+    background: #faf5ff;
+    border: 1px solid #d6bcfa;
+    border-radius: 4px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px;
+    color: #553c9a;
+  }
+  table.matrix {
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 12.5px;
+    width: 100%;
+  }
+  table.matrix th, table.matrix td {
+    border: 1px solid #e2e8f0;
+    padding: 5px 9px;
+    text-align: center;
+    background: white;
+  }
+  table.matrix th {
+    background: #edf2f7;
+    color: #2d3748;
+    font-weight: 700;
+  }
+  table.matrix td.label {
+    background: #f7fafc;
+    font-weight: 700;
+    color: #2d3748;
+    text-align: left;
+  }
+  table.matrix td.zero { color: #cbd5e0; }
+  table.matrix td.hi { background: #fefcbf; font-weight: 700; color: #744210; }
+  table.matrix td.hi2 { background: #c6f6d5; font-weight: 700; color: #22543d; }
+  .info-box {
+    margin-top: 10px; padding: 10px 14px;
+    background: #edf2f7; border-radius: 6px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; color: #2d3748; line-height: 1.85;
+  }
+  .info-box .blue { color: #2b6cb0; font-weight: 700; }
+  .info-box .red { color: #c53030; font-weight: 700; }
+  .info-box .green { color: #2f855a; font-weight: 700; }
+  .info-box .purple { color: #6b46c1; font-weight: 700; }
+  .hint {
+    color: #4a5568; font-size: 13.5px;
+    background: #fefcbf; padding: 10px 12px;
+    border-left: 4px solid #ecc94b; border-radius: 4px;
+    margin: 12px 0;
+  }
+  .doc-input { margin: 6px 0; }
+  .doc-input label { display: inline-block; width: 36px; }
+  .doc-input input { width: calc(100% - 50px); display: inline-block; }
+  .toggle-grp button { margin-right: 4px; }
+  .vec {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 12.5px;
+    color: #2c5282;
+    background: #f7fafc;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    margin: 2px 0;
+  }
+  .ranking-card {
+    display: grid;
+    grid-template-columns: 36px 1fr 80px;
+    gap: 10px;
+    padding: 8px 12px;
+    margin: 6px 0;
+    border-radius: 6px;
+    align-items: center;
+    background: #f7fafc;
+    border-left: 4px solid #cbd5e0;
+  }
+  .ranking-card.rank1 { background: #fefcbf; border-left-color: #d69e2e; }
+  .ranking-card.rank2 { background: #fed7d7; border-left-color: #c53030; }
+  .ranking-card.rank3 { background: #c6f6d5; border-left-color: #38a169; }
+  .ranking-card .rk { font-weight: 800; font-size: 18px; text-align: center; color: #2d3748; }
+  .ranking-card .doc { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px; color: #2d3748; }
+  .ranking-card .sc { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 14px; color: #2b6cb0; font-weight: 700; text-align: right; }
+  .step-bar {
+    margin: 8px 0;
+    height: 18px;
+    background: linear-gradient(90deg, #4299e1 0%, #4299e1 var(--w, 0%), #edf2f7 var(--w, 0%));
+    border-radius: 4px;
+    position: relative;
+  }
+  .step-bar span {
+    position: absolute;
+    right: 8px;
+    top: 0;
+    line-height: 18px;
+    font-size: 11.5px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    color: #2d3748;
+    font-weight: 700;
+  }
+  .tab-bar {
+    display: flex;
+    gap: 4px;
+    border-bottom: 2px solid #e2e8f0;
+    margin-bottom: 14px;
+  }
+  .tab-bar button {
+    border-radius: 6px 6px 0 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    border-color: transparent;
+    color: #4a5568;
+  }
+  .tab-bar button.active {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-bottom: 2px solid white;
+    color: #2b6cb0;
+    margin-bottom: -2px;
+  }
+  .scroll-x { overflow-x: auto; max-width: 100%; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-neural-network/visualization.html">← L4: Neural network</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Text vectorization</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-word-embeddings/visualization.html">L6: Word embeddings →</a>
+</nav>
+<h1>Lesson 05 — Text vectorization cổ điển</h1>
+<div class="subtitle">Tương tác với Tokenizer · One-hot · Bag-of-Words · TF-IDF · Mini search engine.</div>
+
+<!-- =================== COMPONENT 1: TOKENIZER =================== -->
+<h2>1. Tokenizer playground</h2>
+<div class="card">
+  <p style="margin:0 0 10px;font-size:14px;color:#4a5568">Nhập câu, chọn mức token. Xem các đoạn được cắt thành "đơn vị" để vectorize.</p>
+  <div class="row">
+    <input type="text" id="tokInput" value="Hôm nay trời đẹp, máy tính rất vui." style="flex:1; min-width:280px;">
+  </div>
+  <div class="row toggle-grp">
+    <label>Mức token:</label>
+    <button id="tmWord" class="active" onclick="setTokMode('word')">Word</button>
+    <button id="tmChar" onclick="setTokMode('char')">Character</button>
+    <button id="tmBpe" onclick="setTokMode('bpe')">Subword (BPE demo)</button>
+    <button onclick="renderTokens()">Tokenize</button>
+  </div>
+  <div id="tokOut" style="margin-top:10px;"></div>
+  <div id="tokStats" class="info-box" style="margin-top:10px;"></div>
+  <div class="hint">
+    <b>Word</b>: split theo space + bỏ dấu câu + lowercase.
+    <b>Char</b>: từng ký tự (bao gồm space).
+    <b>BPE demo</b>: gộp các cặp ký tự xuất hiện nhiều nhất trong corpus (3 lần merge mẫu) — minh họa ý tưởng, không phải BPE thực sự.
+  </div>
+</div>
+
+<!-- =================== COMPONENT 2: ONE-HOT + BOW =================== -->
+<h2>2. One-hot encoding + Bag-of-Words</h2>
+<div class="card">
+  <p style="margin:0 0 10px;font-size:14px;color:#4a5568">5 documents preset (có thể sửa). Xem vocab union, one-hot của từng từ, và BoW của từng doc.</p>
+
+  <div id="docsBow"></div>
+
+  <div class="row">
+    <button class="primary" onclick="computeBow()">Tính vocab + One-hot + BoW</button>
+    <button onclick="resetBow()">Reset 5 doc mặc định</button>
+  </div>
+
+  <div id="bowVocab" style="margin-top:14px;"></div>
+  <div id="bowOnehot" style="margin-top:14px;"></div>
+  <div id="bowMatrix" style="margin-top:14px;"></div>
+
+  <div class="hint" style="margin-top:14px;">
+    <b>Mẹo đọc bảng</b>: cột = từ trong vocab, dòng = document. Ô = count(t, d). Vector BoW(d) = đọc theo hàng.
+  </div>
+</div>
+
+<!-- =================== COMPONENT 3: TF-IDF =================== -->
+<h2>3. TF-IDF calculator</h2>
+<div class="card">
+  <p style="margin:0 0 10px;font-size:14px;color:#4a5568">Cùng 5 doc ở trên. Xem TF (normalized), DF, IDF, và bảng TF-IDF cuối cùng.</p>
+
+  <div class="tab-bar" id="tfidfTabs">
+    <button class="active" data-tab="tf" onclick="switchTab('tf')">TF (normalized)</button>
+    <button data-tab="df" onclick="switchTab('df')">DF + IDF</button>
+    <button data-tab="tfidf" onclick="switchTab('tfidf')">TF-IDF</button>
+    <button data-tab="vec" onclick="switchTab('vec')">Vector TF-IDF mỗi doc</button>
+  </div>
+
+  <div id="tabContent"></div>
+
+  <div class="row" style="margin-top:14px;">
+    <button class="primary" onclick="computeTfidf()">Tính lại TF-IDF</button>
+  </div>
+
+  <div class="hint">
+    <b>Cách đọc</b>: TF cao → từ xuất hiện nhiều trong doc đó. IDF cao → từ hiếm trong cả corpus.
+    TF-IDF = TF · IDF, nổi bật những từ "đặc trưng" cho doc.
+  </div>
+</div>
+
+<!-- =================== COMPONENT 4: SIMILARITY SEARCH =================== -->
+<h2>4. Mini search engine (cosine TF-IDF)</h2>
+<div class="card">
+  <p style="margin:0 0 10px;font-size:14px;color:#4a5568">Dùng corpus 5 doc ở trên. Gõ query → vectorize bằng IDF của corpus → tính cosine với từng doc → rank.</p>
+
+  <div class="row">
+    <input type="text" id="queryInput" value="cat sat" style="flex:1; min-width:240px;" placeholder="Gõ query, vd 'cat sat'">
+    <button class="primary" onclick="runSearch()">🔍 Search</button>
+  </div>
+
+  <div id="queryVec" class="info-box" style="margin-top:10px;display:none;"></div>
+
+  <h3 id="rankTitle" style="display:none;">Bảng xếp hạng (top-5)</h3>
+  <div id="ranking"></div>
+
+  <div class="hint" style="margin-top:14px;">
+    <b>Thử query khác</b>: "log dog", "the cat", "machine learning", v.v. Quan sát doc nào lên top khi query có từ hiếm (IDF cao).
+  </div>
+</div>
+
+<!-- =================== COMPONENT 5: LIMITATIONS =================== -->
+<h2>5. Hạn chế: cosine = 0 giữa cặp từ gần nghĩa</h2>
+<div class="card">
+  <p style="margin:0 0 10px;font-size:14px;color:#4a5568">Với one-hot/TF-IDF, hai từ khác chữ luôn vuông góc dù gần nghĩa. Đây là động lực cho embedding (Lesson 06).</p>
+
+  <table class="matrix" style="max-width:520px;">
+    <tr><th></th><th>car</th><th>automobile</th><th>vehicle</th><th>banana</th></tr>
+    <tr><td class="label">car</td><td class="hi2">1.000</td><td class="zero">0.000</td><td class="zero">0.000</td><td class="zero">0.000</td></tr>
+    <tr><td class="label">automobile</td><td class="zero">0.000</td><td class="hi2">1.000</td><td class="zero">0.000</td><td class="zero">0.000</td></tr>
+    <tr><td class="label">vehicle</td><td class="zero">0.000</td><td class="zero">0.000</td><td class="hi2">1.000</td><td class="zero">0.000</td></tr>
+    <tr><td class="label">banana</td><td class="zero">0.000</td><td class="zero">0.000</td><td class="zero">0.000</td><td class="hi2">1.000</td></tr>
+  </table>
+  <div class="info-box" style="font-family:inherit;">
+    <span class="red">car · automobile = 0</span> mặc dù gần nghĩa.
+    <span class="red">car · banana = 0</span> dù khác nghĩa hoàn toàn.
+    → Vectorization cổ điển <b>không phân biệt</b> được synonym. Lesson 06 dùng embedding để đạt <span class="green">cos(car, automobile) ≈ 0.85</span> trong khi <span class="blue">cos(car, banana) ≈ 0.05</span>.
+  </div>
+</div>
+
+<script>
+/* =================== Utilities =================== */
+function tokenizeWord(s) {
+  return s.toLowerCase()
+    .replace(/[.,!?;:"'()\[\]{}]/g, ' ')
+    .split(/\s+/)
+    .filter(t => t.length > 0);
+}
+function tokenizeChar(s) {
+  return s.toLowerCase().split('').filter(c => c.length > 0);
+}
+// Toy BPE: merge top 3 cặp ký tự xuất hiện nhiều nhất
+function tokenizeBpe(s) {
+  let toks = s.toLowerCase().replace(/[.,!?;:"'()\[\]{}]/g, ' ').split(/\s+/).filter(t => t.length);
+  // mỗi token bắt đầu = list ký tự
+  let cur = toks.map(t => t.split(''));
+  for (let iter = 0; iter < 3; iter++) {
+    const pairs = {};
+    cur.forEach(arr => {
+      for (let i = 0; i < arr.length - 1; i++) {
+        const k = arr[i] + '|' + arr[i+1];
+        pairs[k] = (pairs[k] || 0) + 1;
+      }
+    });
+    let best = null, bestCnt = 1;
+    for (const k in pairs) if (pairs[k] > bestCnt) { best = k; bestCnt = pairs[k]; }
+    if (!best) break;
+    const [a, b] = best.split('|');
+    cur = cur.map(arr => {
+      const out = [];
+      let i = 0;
+      while (i < arr.length) {
+        if (i < arr.length - 1 && arr[i] === a && arr[i+1] === b) {
+          out.push(a + b); i += 2;
+        } else { out.push(arr[i]); i++; }
+      }
+      return out;
+    });
+  }
+  // flatten thành list token
+  return cur.flat();
+}
+function dot(a, b) { let s = 0; for (let i = 0; i < a.length; i++) s += a[i] * b[i]; return s; }
+function norm(a) { let s = 0; for (let i = 0; i < a.length; i++) s += a[i] * a[i]; return Math.sqrt(s); }
+function cosine(a, b) {
+  const na = norm(a), nb = norm(b);
+  if (na === 0 || nb === 0) return 0;
+  return dot(a, b) / (na * nb);
+}
+function fmt(x, d = 4) { return x.toFixed(d); }
+function escapeHtml(s) { return s.replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;" }[c])); }
+
+/* =================== COMPONENT 1: Tokenizer =================== */
+let tokMode = 'word';
+function setTokMode(m) {
+  tokMode = m;
+  ['tmWord','tmChar','tmBpe'].forEach(id => document.getElementById(id).classList.remove('active'));
+  document.getElementById(m === 'word' ? 'tmWord' : m === 'char' ? 'tmChar' : 'tmBpe').classList.add('active');
+  renderTokens();
+}
+function renderTokens() {
+  const s = document.getElementById('tokInput').value;
+  let toks;
+  if (tokMode === 'word') toks = tokenizeWord(s);
+  else if (tokMode === 'char') toks = tokenizeChar(s);
+  else toks = tokenizeBpe(s);
+  const out = document.getElementById('tokOut');
+  out.innerHTML = toks.map(t => `<span class="token-chip">${escapeHtml(t === ' ' ? '·' : t)}</span>`).join('');
+  const stats = document.getElementById('tokStats');
+  const uniq = new Set(toks);
+  stats.innerHTML = `<span class="blue">Số token = ${toks.length}</span>, <span class="green">Vocab size (unique) = ${uniq.size}</span>, <span class="purple">Mode = ${tokMode}</span>`;
+}
+document.getElementById('tokInput').addEventListener('input', renderTokens);
+
+/* =================== COMPONENT 2: Docs / BoW =================== */
+const DEFAULT_DOCS = [
+  "the cat sat on the mat",
+  "the dog sat on the log",
+  "cat and dog are friends",
+  "the cat the cat the dog",
+  "fish swim in the sea"
+];
+function renderDocsBowInputs() {
+  const el = document.getElementById('docsBow');
+  el.innerHTML = DEFAULT_DOCS.map((d, i) =>
+    `<div class="doc-input"><label>d${i+1}</label><input type="text" id="doc${i}" value="${escapeHtml(d)}"></div>`
+  ).join('');
+}
+function resetBow() {
+  DEFAULT_DOCS.forEach((d, i) => { document.getElementById('doc' + i).value = d; });
+  computeBow();
+}
+function getDocsTokens() {
+  const docs = [];
+  for (let i = 0; i < 5; i++) {
+    const v = document.getElementById('doc' + i).value;
+    docs.push(tokenizeWord(v));
+  }
+  return docs;
+}
+function buildVocab(docsTokens) {
+  const s = new Set();
+  docsTokens.forEach(toks => toks.forEach(t => s.add(t)));
+  return Array.from(s).sort();
+}
+function computeBow() {
+  const docs = getDocsTokens();
+  const vocab = buildVocab(docs);
+  // Vocab display
+  document.getElementById('bowVocab').innerHTML =
+    `<h3>Vocab (V = ${vocab.length})</h3>` +
+    vocab.map(w => `<span class="vocab-chip">${escapeHtml(w)}</span>`).join('');
+
+  // One-hot table (show first 8 words to avoid huge table)
+  const showOH = vocab.slice(0, 8);
+  let ohHtml = `<h3>One-hot (hiển thị ${showOH.length}/${vocab.length} từ đầu)</h3><div class="scroll-x"><table class="matrix"><tr><th>Từ</th>`;
+  for (let i = 0; i < showOH.length; i++) ohHtml += `<th>${i}</th>`;
+  ohHtml += '</tr>';
+  showOH.forEach((w, i) => {
+    ohHtml += `<tr><td class="label">${escapeHtml(w)}</td>`;
+    for (let j = 0; j < showOH.length; j++) {
+      if (j === i) ohHtml += '<td class="hi">1</td>';
+      else ohHtml += '<td class="zero">0</td>';
+    }
+    ohHtml += '</tr>';
+  });
+  ohHtml += '</table></div>';
+  document.getElementById('bowOnehot').innerHTML = ohHtml;
+
+  // BoW count matrix
+  let bowHtml = `<h3>BoW count matrix (5 doc × ${vocab.length} từ)</h3><div class="scroll-x"><table class="matrix"><tr><th></th>`;
+  vocab.forEach(w => { bowHtml += `<th>${escapeHtml(w)}</th>`; });
+  bowHtml += '</tr>';
+  docs.forEach((toks, di) => {
+    bowHtml += `<tr><td class="label">d${di+1}</td>`;
+    vocab.forEach(w => {
+      const c = toks.filter(t => t === w).length;
+      bowHtml += `<td class="${c === 0 ? 'zero' : c > 1 ? 'hi' : ''}">${c}</td>`;
+    });
+    bowHtml += '</tr>';
+  });
+  bowHtml += '</table></div>';
+
+  // BoW vectors
+  bowHtml += '<h3 style="margin-top:18px;">Vector BoW của mỗi doc</h3>';
+  docs.forEach((toks, di) => {
+    const vec = vocab.map(w => toks.filter(t => t === w).length);
+    bowHtml += `<div><b>BoW(d${di+1})</b> = <span class="vec">[${vec.join(', ')}]</span></div>`;
+  });
+
+  document.getElementById('bowMatrix').innerHTML = bowHtml;
+
+  // also refresh TFIDF
+  computeTfidf();
+}
+
+/* =================== COMPONENT 3: TF-IDF =================== */
+let TFIDF_STATE = null;
+function computeTfidf() {
+  const docs = getDocsTokens();
+  const vocab = buildVocab(docs);
+  const N = docs.length;
+  const lens = docs.map(d => d.length);
+
+  // count
+  const count = vocab.map(w => docs.map(d => d.filter(t => t === w).length));
+  // TF normalized
+  const tf = vocab.map((w, wi) => docs.map((d, di) => lens[di] ? count[wi][di] / lens[di] : 0));
+  // DF
+  const df = vocab.map((w, wi) => count[wi].filter(c => c > 0).length);
+  // IDF = log10(N/DF)
+  const idf = df.map(d => d > 0 ? Math.log10(N / d) : 0);
+  // TF-IDF
+  const tfidf = vocab.map((w, wi) => docs.map((d, di) => tf[wi][di] * idf[wi]));
+
+  TFIDF_STATE = { docs, vocab, N, lens, count, tf, df, idf, tfidf };
+  renderTab(activeTab);
+}
+
+let activeTab = 'tf';
+function switchTab(t) {
+  activeTab = t;
+  document.querySelectorAll('#tfidfTabs button').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === t);
+  });
+  renderTab(t);
+}
+function renderTab(t) {
+  if (!TFIDF_STATE) return;
+  const el = document.getElementById('tabContent');
+  const { vocab, N, lens, count, tf, df, idf, tfidf } = TFIDF_STATE;
+
+  if (t === 'tf') {
+    let h = `<div class="scroll-x"><table class="matrix"><tr><th>Từ</th>`;
+    for (let i = 0; i < N; i++) h += `<th>d${i+1} (|d|=${lens[i]})</th>`;
+    h += '</tr>';
+    vocab.forEach((w, wi) => {
+      h += `<tr><td class="label">${escapeHtml(w)}</td>`;
+      for (let di = 0; di < N; di++) {
+        const v = tf[wi][di];
+        h += `<td class="${v === 0 ? 'zero' : v > 0.4 ? 'hi' : ''}">${v === 0 ? '0' : fmt(v, 3)}</td>`;
+      }
+      h += '</tr>';
+    });
+    h += '</table></div>';
+    el.innerHTML = h;
+  } else if (t === 'df') {
+    let h = `<div class="scroll-x"><table class="matrix"><tr><th>Từ</th><th>DF (số doc chứa)</th><th>N/DF</th><th>IDF = log10(N/DF)</th></tr>`;
+    vocab.forEach((w, wi) => {
+      const dfv = df[wi];
+      const ratio = dfv ? N / dfv : 0;
+      h += `<tr><td class="label">${escapeHtml(w)}</td><td>${dfv}</td><td>${fmt(ratio, 3)}</td><td class="${idf[wi] > 0.4 ? 'hi' : ''}">${fmt(idf[wi], 4)}</td></tr>`;
+    });
+    h += '</table></div>';
+    h += `<div class="info-box" style="margin-top:10px;">N = <span class="blue">${N}</span> doc. IDF = 0 nếu từ xuất hiện ở mọi doc. IDF cao = từ hiếm = đặc trưng.</div>`;
+    el.innerHTML = h;
+  } else if (t === 'tfidf') {
+    let h = `<div class="scroll-x"><table class="matrix"><tr><th>Từ</th>`;
+    for (let i = 0; i < N; i++) h += `<th>d${i+1}</th>`;
+    h += '</tr>';
+    vocab.forEach((w, wi) => {
+      h += `<tr><td class="label">${escapeHtml(w)}</td>`;
+      for (let di = 0; di < N; di++) {
+        const v = tfidf[wi][di];
+        h += `<td class="${v === 0 ? 'zero' : v > 0.15 ? 'hi' : ''}">${v === 0 ? '0' : fmt(v, 4)}</td>`;
+      }
+      h += '</tr>';
+    });
+    h += '</table></div>';
+    el.innerHTML = h;
+  } else if (t === 'vec') {
+    let h = '';
+    for (let di = 0; di < N; di++) {
+      const vec = vocab.map((w, wi) => tfidf[wi][di]);
+      const ln = norm(vec);
+      h += `<div style="margin:8px 0;"><b>TFIDF(d${di+1})</b> = <span class="vec">[${vec.map(x => fmt(x, 4)).join(', ')}]</span><br><span style="font-size:12px;color:#718096;">||·|| = ${fmt(ln, 4)}</span></div>`;
+    }
+    h += `<div class="info-box" style="margin-top:10px;">Thứ tự chiều: <span class="purple">[${vocab.map(escapeHtml).join(', ')}]</span></div>`;
+    el.innerHTML = h;
+  }
+}
+
+/* =================== COMPONENT 4: Search =================== */
+function runSearch() {
+  if (!TFIDF_STATE) computeTfidf();
+  const { vocab, idf, tfidf, N } = TFIDF_STATE;
+  const q = document.getElementById('queryInput').value;
+  const qToks = tokenizeWord(q);
+  if (qToks.length === 0) {
+    document.getElementById('ranking').innerHTML = '<div class="hint">Query rỗng.</div>';
+    document.getElementById('queryVec').style.display = 'none';
+    document.getElementById('rankTitle').style.display = 'none';
+    return;
+  }
+  // TF for query (normalized)
+  const qTf = vocab.map(w => qToks.filter(t => t === w).length / qToks.length);
+  const qVec = vocab.map((w, i) => qTf[i] * idf[i]);
+  const qNorm = norm(qVec);
+
+  // breakdown
+  const nonzero = vocab.map((w, i) => ({ w, tf: qTf[i], idf: idf[i], v: qVec[i] }))
+    .filter(x => x.v > 0);
+  const ignored = qToks.filter(t => !vocab.includes(t));
+
+  let qHtml = `<b>Query tokens</b>: ${qToks.map(t => `<span class="token-chip">${escapeHtml(t)}</span>`).join('')}<br>`;
+  if (ignored.length) qHtml += `<span class="red">Bỏ qua (không có trong vocab)</span>: ${ignored.map(t => `<span class="token-chip" style="background:#fed7d7;border-color:#fc8181;color:#822727;">${escapeHtml(t)}</span>`).join('')}<br>`;
+  qHtml += `<b>Vector TF-IDF(q)</b> (chỉ chiều ≠ 0):<br>`;
+  if (nonzero.length === 0) {
+    qHtml += `<span class="red">Không có chiều nào ≠ 0 → cosine = 0 với mọi doc.</span>`;
+  } else {
+    nonzero.forEach(x => {
+      qHtml += `&nbsp;&nbsp;<span class="purple">${escapeHtml(x.w)}</span>: TF=${fmt(x.tf,3)} × IDF=${fmt(x.idf,4)} = <span class="blue">${fmt(x.v,4)}</span><br>`;
+    });
+  }
+  qHtml += `<b>||q||</b> = ${fmt(qNorm, 4)}`;
+  const qBox = document.getElementById('queryVec');
+  qBox.innerHTML = qHtml;
+  qBox.style.display = 'block';
+
+  // cosine vs each doc
+  const scores = [];
+  for (let di = 0; di < N; di++) {
+    const dvec = vocab.map((w, wi) => tfidf[wi][di]);
+    const cos = cosine(qVec, dvec);
+    scores.push({ di, cos, dvec });
+  }
+  scores.sort((a, b) => b.cos - a.cos);
+
+  let rk = '';
+  scores.forEach((s, idx) => {
+    const cls = idx === 0 ? 'rank1' : idx === 1 ? 'rank2' : idx === 2 ? 'rank3' : '';
+    const docText = TFIDF_STATE.docs[s.di].join(' ');
+    rk += `<div class="ranking-card ${cls}">
+      <div class="rk">#${idx + 1}</div>
+      <div class="doc"><b>d${s.di + 1}</b>: ${escapeHtml(docText)}</div>
+      <div class="sc">${fmt(s.cos, 4)}</div>
+    </div>`;
+  });
+  document.getElementById('ranking').innerHTML = rk;
+  document.getElementById('rankTitle').style.display = 'block';
+}
+
+/* =================== Init =================== */
+renderDocsBowInputs();
+renderTokens();
+computeBow();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

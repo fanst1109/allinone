@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reported Speech</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f5f6f8; --panel: #fff; --ink: #1a1a1a; --muted: #6a6a6a; --line: #e3e1dc;
+    --accent: #b45309; --accent-soft: #fef3c7;
+    --direct: #15803d; --direct-soft: #dcfce7;
+    --reported: #1d4ed8; --reported-soft: #dbeafe;
+    --ok: #15803d; --error: #b91c1c;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.55; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px 80px; }
+  header h1 { margin: 0 0 4px; font-size: 24px; }
+  header p { margin: 0 0 20px; color: var(--muted); font-size: 14px; }
+
+  .accent-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin-left: 8px; }
+  .accent-toggle button { background: var(--panel); border: none; padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; }
+  .accent-toggle button + button { border-left: 1px solid var(--line); }
+  .accent-toggle button.active { background: var(--accent); color: white; }
+
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 24px; flex-wrap: wrap; }
+  .tab { padding: 10px 16px; cursor: pointer; background: none; border: none; font-size: 14px; font-weight: 500; color: var(--muted); border-bottom: 2px solid transparent; }
+  .tab.active { color: var(--ink); border-bottom-color: var(--accent); }
+  .pane { display: none; }
+  .pane.active { display: block; }
+
+  .section-note { color: var(--muted); font-size: 13px; margin: 0 0 16px; background: var(--accent-soft); padding: 10px 14px; border-radius: 8px; border-left: 3px solid var(--accent); }
+
+  .bs-table { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .bs-table th { background: #f5f4f0; padding: 10px; text-align: left; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .bs-table td { padding: 10px 12px; border-top: 1px solid var(--line); font-size: 14px; vertical-align: middle; }
+  .bs-table .label { font-weight: 600; color: var(--accent); white-space: nowrap; }
+  .bs-table .direct-cell em { background: var(--direct-soft); color: var(--direct); padding: 1px 5px; border-radius: 3px; font-style: normal; font-weight: 700; }
+  .bs-table .reported-cell em { background: var(--reported-soft); color: var(--reported); padding: 1px 5px; border-radius: 3px; font-style: normal; font-weight: 700; }
+  .bs-table .play-cell { width: 80px; text-align: center; }
+  .play-pill { padding: 5px 9px; background: var(--accent); color: white; border-radius: 14px; font-size: 11px; cursor: pointer; border: none; white-space: nowrap; }
+  .play-pill:hover { background: #92400e; }
+  .play-pill.speaking { background: var(--ok); }
+  .play-pill.reported { background: var(--reported); }
+  .play-pill.reported:hover { background: #1e3a8a; }
+
+  .type-section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 16px; }
+  .type-title { font-size: 16px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+  .type-pattern { background: #f5f4f0; padding: 8px 12px; border-radius: 6px; font-family: monospace; font-size: 13px; margin-bottom: 12px; }
+  .conv-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px; }
+  .conv-side { padding: 10px 12px; border-radius: 8px; cursor: pointer; }
+  .conv-side.direct { background: var(--direct-soft); border: 1px solid var(--direct); }
+  .conv-side.reported { background: var(--reported-soft); border: 1px solid var(--reported); }
+  .conv-side .label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .conv-side.direct .label { color: var(--direct); }
+  .conv-side.reported .label { color: var(--reported); }
+  .conv-side .text { font-size: 14px; }
+
+  .nbs-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 14px; }
+  .nbs-title { font-size: 15px; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+  .nbs-desc { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
+  .nbs-example { padding: 10px 12px; background: #fafaf7; border: 1px solid var(--line); border-radius: 6px; margin-bottom: 6px; }
+  .nbs-example .label-tag { font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; margin-right: 6px; }
+  .label-tag.dir { background: var(--direct-soft); color: var(--direct); }
+  .label-tag.rep { background: var(--reported-soft); color: var(--reported); }
+
+  /* Quiz */
+  .quiz-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
+  .quiz-controls { display: flex; gap: 8px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+  .quiz-controls button { padding: 8px 14px; font-size: 13px; border: 1px solid var(--line); border-radius: 6px; background: white; cursor: pointer; font-weight: 500; }
+  .quiz-controls button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+  .quiz-stats { color: var(--muted); font-size: 13px; margin-left: auto; }
+  .quiz-question { text-align: center; padding: 20px 16px; background: var(--accent-soft); border-radius: 10px; margin-bottom: 20px; }
+  .quiz-context { font-size: 13px; color: var(--accent); margin-bottom: 10px; font-weight: 500; }
+  .quiz-sentence { font-size: 17px; line-height: 1.6; }
+  .quiz-sentence .blank { display: inline-block; min-width: 80px; padding: 2px 8px; background: var(--accent); color: white; border-radius: 4px; font-weight: 600; }
+  .quiz-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+  .opt-btn { padding: 12px; font-size: 13px; font-weight: 500; border: 2px solid var(--line); background: white; border-radius: 8px; cursor: pointer; text-align: left; }
+  .opt-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .opt-btn.correct { border-color: var(--ok); background: #f0fdf4; color: var(--ok); }
+  .opt-btn.wrong { border-color: var(--error); background: #fef2f2; color: var(--error); }
+  .quiz-feedback { margin-top: 14px; padding: 12px 16px; border-radius: 8px; font-size: 14px; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok { background: #f0fdf4; color: var(--ok); }
+  .quiz-feedback.err { background: #fef2f2; color: var(--error); }
+
+  .speech-status { font-size: 11px; color: var(--muted); margin-top: 12px; padding: 8px 12px; background: #f5f4f0; border-radius: 6px; }
+
+  footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); text-align: center; }
+  footer a { color: var(--accent); }
+
+  @media (max-width: 640px) {
+    .conv-pair { grid-template-columns: 1fr; }
+  }
+
+</style>
+</head>
+<body>
+<div class="container">
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-10-modal-verbs/visualization.html">← L10: Modal verbs</a>
+  <span class="sep">·</span>
+  <span class="current">L11: Reported speech</span>
+  <span class="sep">·</span>
+  <a href="../lesson-12-vocab-oxford3000-a1/visualization.html">L12: Vocab A1 →</a>
+</nav>
+
+<header>
+  <h1>Reported Speech — Lời nói gián tiếp</h1>
+  <p>Backshift rule + 3 loại câu. Click ▶ nghe câu bằng Web Speech.
+    Giọng:
+    <span class="accent-toggle">
+      <button id="btn-accent-us" class="active" data-variant="us">US</button>
+      <button id="btn-accent-uk" data-variant="uk">UK</button>
+    </span>
+  </p>
+</header>
+
+<div class="tabs">
+  <button class="tab active" data-tab="backshift">Backshift</button>
+  <button class="tab" data-tab="types">3 loại câu</button>
+  <button class="tab" data-tab="nobackshift">Khi không backshift</button>
+  <button class="tab" data-tab="quiz">Quiz</button>
+</div>
+
+<section class="pane active" id="pane-backshift">
+  <div class="section-note">Lùi thì khi reporting verb ở quá khứ. <span style="color:var(--direct);font-weight:600;">Xanh lá = direct</span>, <span style="color:var(--reported);font-weight:600;">Xanh dương = reported</span>.</div>
+  <table class="bs-table" id="bs-table"></table>
+  <div class="speech-status" id="speech-status">⏳ Đang kiểm tra Web Speech API...</div>
+</section>
+
+<section class="pane" id="pane-types">
+  <div class="section-note">3 loại câu khi báo cáo: statements, questions, commands. Mỗi loại có pattern riêng.</div>
+  <div id="types-list"></div>
+</section>
+
+<section class="pane" id="pane-nobackshift">
+  <div class="section-note">3 trường hợp giữ nguyên thì — không cần lùi.</div>
+  <div id="nbs-list"></div>
+</section>
+
+<section class="pane" id="pane-quiz">
+  <div class="quiz-wrap">
+    <div class="quiz-controls">
+      <button class="primary" id="btn-new-quiz">▶ Câu mới</button>
+      <button id="btn-replay-quiz" disabled>↻ Nghe lại</button>
+      <span class="quiz-stats" id="quiz-stats">Đúng: 0 / 0</span>
+    </div>
+    <div id="quiz-display"></div>
+    <div class="quiz-feedback" id="quiz-feedback"></div>
+  </div>
+</section>
+
+<footer>Web Speech API đọc câu. Mặc định US. <a href="https://www.oxfordlearnersdictionaries.com" target="_blank">Oxford</a> cho từ rời.</footer>
+
+<audio id="audio-el" preload="none"></audio>
+</div>
+
+<script>
+const synth = window.speechSynthesis;
+let voices = [];
+let currentVariant = localStorage.getItem('audioVariant') || 'us';
+
+function loadVoices() { voices = synth ? synth.getVoices() : []; updateSpeechStatus(); }
+if (synth) { loadVoices(); if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = loadVoices; }
+
+function pickVoice(variant) {
+  if (!voices.length) return null;
+  const langPrefix = variant === 'uk' ? 'en-GB' : 'en-US';
+  const candidates = voices.filter(v => v.lang.startsWith(langPrefix));
+  if (!candidates.length) return voices.find(v => v.lang.startsWith('en')) || voices[0];
+  const premium = candidates.find(v => /premium|enhanced|natural|samantha|alex|daniel|kate|fiona/i.test(v.name));
+  return premium || candidates[0];
+}
+
+function speak(text, btn) {
+  if (!synth) { alert("Trình duyệt không hỗ trợ Web Speech API."); return; }
+  synth.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const v = pickVoice(currentVariant);
+  if (v) { u.voice = v; u.lang = v.lang; } else { u.lang = currentVariant === 'uk' ? 'en-GB' : 'en-US'; }
+  u.rate = 0.95;
+  if (btn) { btn.classList.add('speaking'); u.onend = () => btn.classList.remove('speaking'); u.onerror = () => btn.classList.remove('speaking'); }
+  synth.speak(u);
+}
+
+function updateSpeechStatus() {
+  const el = document.getElementById('speech-status'); if (!el) return;
+  if (!synth) { el.textContent = "⚠ Không hỗ trợ Web Speech API."; return; }
+  if (!voices.length) { el.textContent = "⏳ Đang tải giọng..."; return; }
+  const v = pickVoice(currentVariant);
+  el.textContent = `✓ Giọng đang chọn: ${v ? v.name + ' (' + v.lang + ')' : 'mặc định'}.`;
+}
+function setVariant(v) {
+  currentVariant = v;
+  localStorage.setItem('audioVariant', v);
+  document.querySelectorAll('.accent-toggle button').forEach(b => b.classList.toggle('active', b.dataset.variant === v));
+  updateSpeechStatus();
+}
+document.querySelectorAll('.accent-toggle button').forEach(btn => btn.addEventListener('click', () => setVariant(btn.dataset.variant)));
+setVariant(currentVariant);
+
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('pane-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+const stripHTML = s => s.replace(/<[^>]+>/g, '');
+
+// ============== Backshift table ==============
+const BS = [
+  { label: "Present Simple → Past Simple", d: 'He said, "I <em>work</em> in a bank."', r: 'He said (that) he <em>worked</em> in a bank.' },
+  { label: "Present Continuous → Past Continuous", d: 'She said, "I <em>am studying</em>."', r: 'She said (that) she <em>was studying</em>.' },
+  { label: "Present Perfect → Past Perfect", d: 'Tom said, "I <em>have finished</em>."', r: 'Tom said (that) he <em>had finished</em>.' },
+  { label: "Past Simple → Past Perfect", d: 'Mary said, "I <em>saw</em> him."', r: 'Mary said (that) she <em>had seen</em> him.' },
+  { label: "Past Continuous → Past Perfect Cont.", d: 'He said, "I <em>was sleeping</em>."', r: 'He said (that) he <em>had been sleeping</em>.' },
+  { label: "will → would", d: 'She said, "I <em>will call</em> you."', r: 'She said (that) she <em>would call</em> me.' },
+  { label: "can → could", d: 'He said, "I <em>can swim</em>."', r: 'He said (that) he <em>could swim</em>.' },
+  { label: "may → might", d: 'Tom said, "I <em>may go</em>."', r: 'Tom said (that) he <em>might go</em>.' },
+  { label: "must → had to", d: 'She said, "I <em>must leave</em>."', r: 'She said (that) she <em>had to leave</em>.' },
+  { label: "should / could / would — giữ nguyên", d: 'He said, "I <em>should study</em>."', r: 'He said (that) he <em>should study</em>.' },
+];
+
+const bsTable = document.getElementById('bs-table');
+bsTable.innerHTML = `<thead><tr><th>Quy luật</th><th>Direct</th><th>Reported</th><th></th></tr></thead>`;
+const bsBody = document.createElement('tbody');
+BS.forEach(row => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="label">${row.label}</td>
+    <td class="direct-cell">${row.d}</td>
+    <td class="reported-cell">${row.r}</td>
+    <td class="play-cell">
+      <button class="play-pill" data-text="${stripHTML(row.d).replace(/"/g, '&quot;')}">▶ D</button>
+      <button class="play-pill reported" style="margin-top:4px;" data-text="${stripHTML(row.r).replace(/"/g, '&quot;')}">▶ R</button>
+    </td>
+  `;
+  bsBody.appendChild(tr);
+});
+bsTable.appendChild(bsBody);
+bsTable.querySelectorAll('.play-pill').forEach(b => b.addEventListener('click', () => speak(b.dataset.text, b)));
+
+// ============== Types ==============
+const TYPES = [
+  { title: "Statements (Khẳng định)",
+    pattern: "S + said (+ that) + reported clause",
+    pairs: [
+      { d: 'Mary said, "I am tired."', r: 'Mary said (that) she was tired.' },
+      { d: 'He said, "I will call you tomorrow."', r: 'He said (that) he would call me the next day.' },
+      { d: 'They said, "We have finished."', r: 'They said (that) they had finished.' },
+      { d: 'She said, "I love this city."', r: 'She said (that) she loved that city.' },
+    ] },
+  { title: "Yes/No Questions",
+    pattern: "S + asked (+ object) + if/whether + S + V (backshift)",
+    pairs: [
+      { d: 'He asked, "Are you tired?"', r: 'He asked if I was tired.' },
+      { d: 'She asked, "Do you speak English?"', r: 'She asked whether I spoke English.' },
+      { d: 'Tom asked, "Have you finished?"', r: 'Tom asked if I had finished.' },
+      { d: 'They asked, "Will you come?"', r: 'They asked whether I would come.' },
+    ] },
+  { title: "Wh-Questions",
+    pattern: "S + asked (+ object) + wh-word + S + V (backshift)",
+    pairs: [
+      { d: 'He asked, "What do you want?"', r: 'He asked what I wanted.' },
+      { d: 'She asked, "Where do you live?"', r: 'She asked where I lived.' },
+      { d: 'Tom asked, "Why are you crying?"', r: 'Tom asked why I was crying.' },
+      { d: 'Mary asked, "How did you do it?"', r: 'Mary asked how I had done it.' },
+    ] },
+  { title: "Commands / Requests (Mệnh lệnh)",
+    pattern: "S + told/asked + object + (not) to + V (base)",
+    pairs: [
+      { d: 'The teacher said, "Open your books."', r: 'The teacher told us to open our books.' },
+      { d: 'Mom said, "Don\'t play in the rain."', r: 'Mom told me not to play in the rain.' },
+      { d: 'He said, "Please call me later."', r: 'He asked me to call him later.' },
+      { d: 'She said, "Go away!"', r: 'She ordered me to go away.' },
+    ] },
+];
+
+const typesList = document.getElementById('types-list');
+TYPES.forEach(t => {
+  const section = document.createElement('div'); section.className = 'type-section';
+  let html = `<div class="type-title">${t.title}</div><div class="type-pattern">${t.pattern}</div>`;
+  t.pairs.forEach(p => {
+    html += `
+      <div class="conv-pair">
+        <div class="conv-side direct" data-text="${p.d.replace(/"/g, '&quot;').replace(/'/g, "&apos;")}">
+          <div class="label">Direct</div>
+          <div class="text">${p.d}</div>
+        </div>
+        <div class="conv-side reported" data-text="${p.r.replace(/"/g, '&quot;').replace(/'/g, "&apos;")}">
+          <div class="label">Reported</div>
+          <div class="text">${p.r}</div>
+        </div>
+      </div>
+    `;
+  });
+  section.innerHTML = html;
+  section.querySelectorAll('.conv-side').forEach(s => s.addEventListener('click', () => speak(s.dataset.text, s)));
+  typesList.appendChild(section);
+});
+
+// ============== No backshift ==============
+const NBS = [
+  { title: "1. Reporting verb ở HIỆN TẠI / TƯƠNG LAI",
+    desc: "Khi 'says/says/will say' ở present hoặc future, không backshift.",
+    examples: [
+      { d: 'Mary says, "I am tired."', r: 'Mary says (that) she is tired. ← KHÔNG lùi' },
+      { d: 'Tom will say, "I am coming."', r: 'Tom will say (that) he is coming.' },
+    ] },
+  { title: "2. Chân lý / Sự thật vĩnh viễn",
+    desc: "Quy luật khoa học, sự thật chung — luôn đúng, không cần lùi.",
+    examples: [
+      { d: 'The teacher said, "The Earth revolves around the Sun."', r: 'The teacher said (that) the Earth revolves around the Sun.' },
+      { d: 'Mom said, "Water boils at 100°C."', r: 'Mom said (that) water boils at 100°C.' },
+    ] },
+  { title: "3. Việc VẪN ĐÚNG tới giờ",
+    desc: "Nếu việc được báo cáo vẫn còn đúng lúc kể, có thể giữ nguyên thì (cả 2 cách đều đúng).",
+    examples: [
+      { d: 'He said, "I live in Hanoi." (vẫn đang sống)', r: 'He said (that) he lives in Hanoi. (giữ) HOẶC he lived in Hanoi. (lùi)' },
+      { d: 'She said, "I work at Google."', r: 'She said (that) she works at Google. (vẫn đang làm)' },
+    ] },
+];
+
+const nbsList = document.getElementById('nbs-list');
+NBS.forEach(c => {
+  const card = document.createElement('div'); card.className = 'nbs-card';
+  let exHtml = c.examples.map(e => `
+    <div class="nbs-example">
+      <span class="label-tag dir">Direct</span>${e.d}
+      <button class="play-pill" style="margin-left:8px;" data-text="${stripHTML(e.d).replace(/"/g, '&quot;').replace(/'/g, "&apos;")}">▶</button>
+    </div>
+    <div class="nbs-example">
+      <span class="label-tag rep">Reported</span>${e.r}
+      <button class="play-pill reported" style="margin-left:8px;" data-text="${stripHTML(e.r).replace(/"/g, '&quot;').replace(/'/g, "&apos;")}">▶</button>
+    </div>
+  `).join('');
+  card.innerHTML = `<div class="nbs-title">${c.title}</div><div class="nbs-desc">${c.desc}</div>${exHtml}`;
+  card.querySelectorAll('.play-pill').forEach(b => b.addEventListener('click', () => speak(b.dataset.text, b)));
+  nbsList.appendChild(card);
+});
+
+// ============== Quiz ==============
+const QUIZ = [
+  { sentence: 'He said, "I am tired." → He said that he ___ tired.', options: ["am", "was", "is", "were"], correct: 1,
+    full: 'He said that he was tired.', explain: 'Backshift: am → was (Present → Past Simple).' },
+  { sentence: 'She said, "I will come." → She said that she ___ come.', options: ["will", "would", "should", "may"], correct: 1,
+    full: 'She said that she would come.', explain: 'Backshift: will → would.' },
+  { sentence: 'He asked, "Are you tired?" → He asked ___ I was tired.', options: ["that", "what", "if/whether", "where"], correct: 2,
+    full: 'He asked if I was tired.', explain: 'Yes/No question → if/whether.' },
+  { sentence: 'She asked, "Where do you live?" → She asked ___', options: ["where do I live", "where I live", "where I lived", "where did I live"], correct: 2,
+    full: 'She asked where I lived.', explain: 'Reported question: bỏ "do", đảo về S+V, backshift live → lived.' },
+  { sentence: 'Mom said, "Don\'t touch it." → Mom told me ___ touch it.', options: ["to don\'t", "not to", "don\'t to", "to not"], correct: 1,
+    full: 'Mom told me not to touch it.', explain: 'Mệnh lệnh phủ định: not + to + V.' },
+  { sentence: 'Câu nào ĐÚNG?', options: ["He told that he was tired.", "He said me that he was tired.", "He told me that he was tired.", "He told to me that he was tired."], correct: 2,
+    full: 'He told me that he was tired.', explain: "'tell' bắt buộc kèm object (me, him...). 'said' KHÔNG kèm object trực tiếp." },
+  { sentence: 'The teacher said the Earth ___ around the Sun.', options: ["revolved", "revolves", "had revolved", "was revolving"], correct: 1,
+    full: 'The teacher said the Earth revolves around the Sun.', explain: 'Chân lý khoa học — KHÔNG backshift.' },
+  { sentence: 'He said, "I bought it yesterday." → He said he ___ it ___.', options: ["bought / yesterday", "had bought / the day before", "bought / the day before", "buys / yesterday"], correct: 1,
+    full: 'He said he had bought it the day before.', explain: 'Past Simple → Past Perfect; yesterday → the day before.' },
+  { sentence: 'Mary asked, "Have you finished?" → Mary asked if I ___ .', options: ["have finished", "had finished", "finished", "was finished"], correct: 1,
+    full: 'Mary asked if I had finished.', explain: 'Present Perfect → Past Perfect.' },
+  { sentence: 'Mary says, "I am happy." → Mary says that she ___ happy.', options: ["is", "was", "had been", "would be"], correct: 0,
+    full: 'Mary says that she is happy.', explain: "Reporting verb 'says' ở hiện tại → KHÔNG backshift." },
+  { sentence: 'Câu nào ĐÚNG về reported question?', options: ['She asked me when did I come.', 'She asked me when I came.', 'She asked me when do I come.', 'She asked me when I come.'], correct: 1,
+    full: 'She asked me when I came.', explain: 'Reported question không dùng cấu trúc câu hỏi (không "did")— theo trật tự S+V.' },
+  { sentence: 'He said, "I can swim." → He said that he ___ swim.', options: ["can", "could", "may", "would"], correct: 1,
+    full: 'He said that he could swim.', explain: 'Backshift: can → could.' },
+  { sentence: 'She said, "I must finish now." → She said that she ___ finish ___.', options: ["must / now", "had to / then", "must / then", "had / then"], correct: 1,
+    full: 'She said that she had to finish then.', explain: 'must → had to (modal); now → then (time marker).' },
+  { sentence: 'He ordered, "Leave immediately!" → He ordered me ___ immediately.', options: ["leaving", "leave", "to leave", "had to leave"], correct: 2,
+    full: 'He ordered me to leave immediately.', explain: 'Mệnh lệnh: order + sb + to + V.' },
+  { sentence: 'She said, "I am studying right now." → She said that she ___ ___ ___.', options: ["was studying / then", "is studying / now", "had studied / then", "studied / then"], correct: 0,
+    full: 'She said that she was studying then.', explain: 'Present Continuous → Past Continuous; right now → then.' },
+];
+
+const quizDisplay = document.getElementById('quiz-display');
+const quizFeedback = document.getElementById('quiz-feedback');
+const quizStatsEl = document.getElementById('quiz-stats');
+let qStats = { correct: 0, total: 0 };
+let currentQ = null;
+let answered = false;
+
+function newQuiz() {
+  currentQ = QUIZ[Math.floor(Math.random() * QUIZ.length)];
+  answered = false;
+  const opts = currentQ.options.map((o, i) => `<button class="opt-btn" data-i="${i}">${o}</button>`).join('');
+  quizDisplay.innerHTML = `
+    <div class="quiz-question">
+      <div class="quiz-context">Chọn đáp án đúng:</div>
+      <div class="quiz-sentence">${currentQ.sentence.replace(/___/g, '<span class="blank">___</span>')}</div>
+    </div>
+    <div class="quiz-options">${opts}</div>
+  `;
+  quizDisplay.querySelectorAll('.opt-btn').forEach(b => b.addEventListener('click', () => handleQuiz(parseInt(b.dataset.i), b)));
+  quizFeedback.classList.remove('show', 'ok', 'err');
+  document.getElementById('btn-replay-quiz').disabled = false;
+}
+
+function handleQuiz(i, btn) {
+  if (answered) return; answered = true;
+  qStats.total++;
+  quizDisplay.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+  if (i === currentQ.correct) {
+    qStats.correct++;
+    btn.classList.add('correct');
+    quizFeedback.innerHTML = `<strong>Đúng!</strong> "${currentQ.full}" — ${currentQ.explain} <button class="play-pill" style="margin-left:8px;" onclick="speak('${currentQ.full.replace(/'/g, "\\'")}', this)">▶ Nghe</button>`;
+    quizFeedback.className = 'quiz-feedback show ok';
+  } else {
+    btn.classList.add('wrong');
+    quizDisplay.querySelectorAll('.opt-btn')[currentQ.correct].classList.add('correct');
+    quizFeedback.innerHTML = `<strong>Sai.</strong> Đáp án: "<em>${currentQ.options[currentQ.correct]}</em>". "${currentQ.full}" — ${currentQ.explain} <button class="play-pill" style="margin-left:8px;" onclick="speak('${currentQ.full.replace(/'/g, "\\'")}', this)">▶ Nghe</button>`;
+    quizFeedback.className = 'quiz-feedback show err';
+  }
+  quizStatsEl.textContent = `Đúng: ${qStats.correct} / ${qStats.total}`;
+}
+document.getElementById('btn-new-quiz').addEventListener('click', newQuiz);
+document.getElementById('btn-replay-quiz').addEventListener('click', () => { if (currentQ) speak(currentQ.full, null); });
+</script>
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/ipa-reader.js"></script>
+</body>
+</html>

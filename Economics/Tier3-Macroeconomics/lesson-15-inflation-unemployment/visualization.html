@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 15 — Inflation & Unemployment</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .lead { color: #4a5568; margin-bottom: 24px; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 220px; }
+  input[type="range"] { width: 240px; }
+  input[type="range"] { font-family: monospace; padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 4px; }
+  .result { background: #f7fafc; border-left: 4px solid #c05621; padding: 14px 18px; margin-top: 14px; border-radius: 4px; font-family: monospace; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  svg { display: block; margin: 0 auto; max-width: 100%; }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; background: #fff5eb; color: #c05621; font-weight: 700; margin-left: 6px; }
+  .legend { display: flex; gap: 14px; font-size: 13px; margin: 8px 0; color: #4a5568; flex-wrap: wrap; }
+  .legend .sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: 4px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-14-monetary-fiscal-policy/visualization.html">← L14: Policy</a>
+  <span class="sep">·</span>
+  <span class="current">L15: Inflation</span>
+  <span class="sep">·</span>
+  <a href="../../Tier4-Applied/lesson-16-international-trade/visualization.html">L16: International Trade →</a>
+</nav>
+  <h1>Lesson 15 — Inflation & Unemployment</h1>
+  <div class="lead">Phillips curve ngắn hạn vs dài hạn — kéo slider π^e để xem SRPC dịch chuyển.</div>
+
+  <h2>Phillips Curve <span class="pill">π = π^e − β·(u − u*)</span></h2>
+  <div class="card">
+    <div class="row"><label>π^e (kỳ vọng lạm phát %)</label><input id="pe" type="range" min="0" max="10" step="0.5" value="2"><span id="pe-v" style="font-family:monospace;"></span></div>
+    <div class="row"><label>u* (NAIRU %)</label><input id="ustar" type="range" min="3" max="8" step="0.5" value="5"><span id="ustar-v" style="font-family:monospace;"></span></div>
+    <div class="row"><label>β (độ dốc SRPC)</label><input id="beta" type="range" min="0.1" max="2" step="0.1" value="0.5"><span id="beta-v" style="font-family:monospace;"></span></div>
+    <div class="row"><label>u thực tế (%)</label><input id="u" type="range" min="2" max="12" step="0.2" value="4"><span id="u-v" style="font-family:monospace;"></span></div>
+
+    <svg id="svg" viewBox="0 0 600 440" style="background:#fff; border:1px solid #e2e8f0;"></svg>
+    <div class="legend">
+      <span><span class="sw" style="background:#c05621"></span>SRPC (ngắn hạn)</span>
+      <span><span class="sw" style="background:#3182ce"></span>LRPC (dài hạn)</span>
+      <span><span class="sw" style="background:#2f855a"></span>Điểm hiện tại</span>
+    </div>
+    <div class="result" id="out"></div>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+function get(id) { return parseFloat($(id).value) || 0; }
+
+function calc() {
+  const pe = get('pe'), ustar = get('ustar'), beta = get('beta'), u = get('u');
+  $('pe-v').textContent = pe.toFixed(1) + '%';
+  $('ustar-v').textContent = ustar.toFixed(1) + '%';
+  $('beta-v').textContent = beta.toFixed(2);
+  $('u-v').textContent = u.toFixed(1) + '%';
+
+  const pi = pe - beta * (u - ustar);
+
+  const W = 600, H = 440, padL = 60, padB = 50, padT = 30, padR = 30;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const uMin = 1, uMax = 12;
+  const piMin = -3, piMax = 12;
+  const sx = uv => padL + ((uv - uMin) / (uMax - uMin)) * plotW;
+  const sy = pv => padT + plotH - ((pv - piMin) / (piMax - piMin)) * plotH;
+
+  let svg = '';
+  // grid
+  for (let i = 1; i <= 5; i++) {
+    svg += `<line x1="${sx(uMin + (uMax-uMin)/5*i)}" y1="${padT}" x2="${sx(uMin + (uMax-uMin)/5*i)}" y2="${padT+plotH}" stroke="#f0f0f0"/>`;
+    svg += `<text x="${sx(uMin + (uMax-uMin)/5*i)}" y="${padT+plotH+16}" text-anchor="middle" font-size="11" fill="#718096">${(uMin + (uMax-uMin)/5*i).toFixed(1)}</text>`;
+    svg += `<text x="${padL-8}" y="${sy(piMin + (piMax-piMin)/5*i)+4}" text-anchor="end" font-size="11" fill="#718096">${(piMin + (piMax-piMin)/5*i).toFixed(1)}</text>`;
+  }
+  // SRPC: π = π^e − β(u − u*). Tại u=uMin: π = π^e − β(uMin − u*). Tại u=uMax: tương tự.
+  const piAtUmin = pe - beta * (uMin - ustar);
+  const piAtUmax = pe - beta * (uMax - ustar);
+  svg += `<line x1="${sx(uMin)}" y1="${sy(piAtUmin)}" x2="${sx(uMax)}" y2="${sy(piAtUmax)}" stroke="#c05621" stroke-width="2.5"/>`;
+  svg += `<text x="${sx(uMax) - 60}" y="${sy(piAtUmax) - 6}" font-size="12" fill="#c05621" font-weight="700">SRPC (π^e=${pe.toFixed(1)})</text>`;
+  // LRPC: vertical at u*
+  svg += `<line x1="${sx(ustar)}" y1="${padT}" x2="${sx(ustar)}" y2="${padT+plotH}" stroke="#3182ce" stroke-width="2.5" stroke-dasharray="6,3"/>`;
+  svg += `<text x="${sx(ustar) + 4}" y="${padT + 12}" font-size="12" fill="#3182ce" font-weight="700">LRPC (u*=${ustar.toFixed(1)})</text>`;
+
+  // điểm
+  svg += `<circle cx="${sx(u)}" cy="${sy(pi)}" r="7" fill="#2f855a" stroke="#fff" stroke-width="2"/>`;
+  svg += `<line x1="${sx(u)}" y1="${padT+plotH}" x2="${sx(u)}" y2="${sy(pi)}" stroke="#2f855a" stroke-dasharray="3,3"/>`;
+  svg += `<line x1="${padL}" y1="${sy(pi)}" x2="${sx(u)}" y2="${sy(pi)}" stroke="#2f855a" stroke-dasharray="3,3"/>`;
+  svg += `<text x="${sx(u) + 8}" y="${sy(pi) - 8}" font-size="12" fill="#2f855a" font-weight="700">(${u.toFixed(1)}, ${pi.toFixed(2)})</text>`;
+
+  // π=0 line
+  svg += `<line x1="${padL}" y1="${sy(0)}" x2="${padL+plotW}" y2="${sy(0)}" stroke="#cbd5e0" stroke-width="1.5"/>`;
+
+  svg += `<line x1="${padL}" y1="${padT+plotH}" x2="${padL+plotW}" y2="${padT+plotH}" stroke="#cbd5e0"/>`;
+  svg += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+plotH}" stroke="#cbd5e0"/>`;
+  svg += `<text x="${padL+plotW/2}" y="${H-10}" text-anchor="middle" font-size="13" fill="#2d3748">u (thất nghiệp %)</text>`;
+  svg += `<text x="20" y="${padT+plotH/2}" transform="rotate(-90 20 ${padT+plotH/2})" text-anchor="middle" font-size="13" fill="#2d3748">π (lạm phát %)</text>`;
+
+  $('svg').innerHTML = svg;
+
+  $('out').innerHTML =
+    `π = π^e − β·(u − u*)\n` +
+    `  = ${pe.toFixed(1)} − ${beta.toFixed(2)}·(${u.toFixed(1)} − ${ustar.toFixed(1)})\n` +
+    `  = ${pe.toFixed(1)} − ${(beta * (u - ustar)).toFixed(2)}\n` +
+    `  = <strong>${pi.toFixed(2)}%</strong>\n\n` +
+    (u < ustar ? `Nền kinh tế NÓNG: u < u* → lạm phát > kỳ vọng → áp lực giá tăng.\n` :
+     u > ustar ? `Nền kinh tế LẠNH: u > u* → lạm phát < kỳ vọng → áp lực giá giảm.\n` :
+     `u = u*: lạm phát = kỳ vọng (steady state).\n`) +
+    `\nDài hạn: kỳ vọng điều chỉnh → SRPC dịch tới gặp LRPC tại u*. → KHÔNG có trade-off dài hạn.`;
+}
+['pe','ustar','beta','u'].forEach(id => $(id).addEventListener('input', calc));
+calc();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

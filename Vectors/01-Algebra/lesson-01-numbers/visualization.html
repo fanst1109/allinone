@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 01 — Số và trục số</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  input[type="text"], input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 11px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    min-width: 220px;
+  }
+  input.bad { border-color: #e53e3e; background: #fff5f5; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.muted { background: #a0aec0; }
+  button.muted:hover { background: #718096; }
+  button.warn { background: #ed8936; }
+  button.warn:hover { background: #dd6b20; }
+  .hint { color: #718096; font-size: 13px; margin: 4px 0; }
+  .step-log {
+    background: #1a202c; color: #68d391;
+    font-family: monospace; padding: 12px; border-radius: 4px;
+    white-space: pre-wrap; max-height: 240px; overflow-y: auto;
+    font-size: 13px;
+  }
+  .stat {
+    display: inline-block; background: #edf2f7;
+    padding: 4px 10px; border-radius: 4px; margin: 4px 6px 4px 0;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #2b6cb0; }
+  .badge {
+    display: inline-block; padding: 4px 10px; border-radius: 999px;
+    font-size: 13px; font-weight: 700; margin-right: 6px;
+  }
+  .badge.nat { background: #c6f6d5; color: #22543d; }
+  .badge.int { background: #bee3f8; color: #2a4365; }
+  .badge.rat { background: #fefcbf; color: #744210; }
+  .badge.irr { background: #fed7d7; color: #742a2a; }
+  .badge.unk { background: #e2e8f0; color: #4a5568; }
+  /* Trục số SVG */
+  svg.numline {
+    display: block; width: 100%; max-width: 920px;
+    height: 160px; user-select: none;
+  }
+  svg.numline .axis { stroke: #2d3748; stroke-width: 2; }
+  svg.numline .tick { stroke: #4a5568; stroke-width: 1; }
+  svg.numline .tick-label { font: 12px monospace; fill: #4a5568; }
+  svg.numline .zero-label { font: 12px monospace; fill: #1a202c; font-weight: 700; }
+  svg.numline .pt-a { fill: #4299e1; }
+  svg.numline .pt-b { fill: #ed8936; }
+  svg.numline .pt-label { font: 13px sans-serif; font-weight: 700; }
+  svg.numline .dist-bracket { stroke: #38a169; stroke-width: 2; fill: none; }
+  svg.numline .dist-label { font: 14px sans-serif; fill: #22543d; font-weight: 700; }
+  svg.numline .hover-line { stroke: #cbd5e0; stroke-width: 1; stroke-dasharray: 3 3; }
+  table.compare { border-collapse: collapse; margin-top: 8px; width: 100%; }
+  table.compare td, table.compare th {
+    padding: 8px 12px; border: 1px solid #e2e8f0;
+    font-family: monospace; font-size: 13px;
+  }
+  table.compare th { background: #edf2f7; text-align: left; }
+  .formula {
+    font-family: "Cambria Math", "Times New Roman", serif;
+    font-size: 18px; padding: 6px 0;
+  }
+  .pill-set {
+    display: inline-block; font-weight: 700;
+    padding: 2px 8px; border-radius: 4px;
+    background: #edf2f7; margin: 2px;
+    font-family: monospace;
+  }
+  .float-result {
+    font-family: monospace; font-size: 16px;
+    padding: 10px 14px; background: #fef5e7;
+    border-left: 4px solid #ed8936;
+    margin: 10px 0; border-radius: 4px;
+    white-space: pre-wrap; word-break: break-all;
+  }
+  .ok-mark { color: #2f855a; font-weight: 700; }
+  .bad-mark { color: #c53030; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Số và trục số</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-variables-expressions/visualization.html">L2: Biến và biểu thức →</a>
+</nav>
+  <h1>Lesson 01 — Số và trục số</h1>
+  <p>Bộ công cụ tương tác: trục số, phân loại số theo ℕ/ℤ/ℚ/ℝ\ℚ, và demo sai số float trong máy tính.</p>
+
+  <h2>1. Trục số tương tác</h2>
+  <div class="card">
+    <p>Click bất kỳ điểm nào trên trục để chọn <strong style="color:#4299e1">A</strong>. Click tiếp để chọn <strong style="color:#ed8936">B</strong>. Lần click thứ ba reset về A. Trục hiển thị từ −10 đến 10.</p>
+
+    <svg class="numline" id="numlineSvg" viewBox="0 0 920 160" preserveAspectRatio="xMidYMid meet"></svg>
+
+    <div style="margin-top: 12px">
+      <span class="stat">A = <strong id="ptAVal">—</strong></span>
+      <span class="stat">|A| = <strong id="ptAAbs">—</strong></span>
+      <span class="stat">B = <strong id="ptBVal">—</strong></span>
+      <span class="stat">|B| = <strong id="ptBAbs">—</strong></span>
+      <span class="stat">Khoảng cách |A − B| = <strong id="distVal">—</strong></span>
+    </div>
+    <div class="row" style="margin-top: 12px">
+      <button class="muted" onclick="resetPoints()">Reset</button>
+      <button onclick="setSnap(true)" id="snapBtn">Snap = ON (số nguyên)</button>
+      <span class="hint">Snap on: chọn số nguyên. Snap off: chọn số thực tới 1 chữ số thập phân.</span>
+    </div>
+  </div>
+
+  <h2>2. Phân loại số</h2>
+  <div class="card">
+    <div class="row">
+      <label>Nhập số:</label>
+      <input type="text" id="classifyInput" value="22/7" placeholder="vd: 3, -7, 0.5, 22/7, sqrt(2), pi">
+      <button onclick="doClassify()">Phân loại</button>
+    </div>
+    <div class="hint">Hỗ trợ: số nguyên (<code>3</code>, <code>-7</code>), số thập phân (<code>0.5</code>), phân số (<code>22/7</code>), căn (<code>sqrt(2)</code>, <code>sqrt(4)</code>), hằng số (<code>pi</code>, <code>e</code>), tuần hoàn (<code>0.333...</code>).</div>
+
+    <div id="classifyResult" style="margin-top: 14px"></div>
+
+    <p class="hint" style="margin-top: 16px">Một số <strong>tự nhiên</strong> cũng đồng thời là nguyên, hữu tỉ, thực — vì <code>ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ</code>. Mọi nhãn tô đậm bên dưới là tập <em>nhỏ nhất</em> chứa số đó.</p>
+
+    <table class="compare">
+      <tr><th>Tập</th><th>Ký hiệu</th><th>Ví dụ click thử</th></tr>
+      <tr>
+        <td>Tự nhiên</td><td><span class="pill-set">ℕ</span></td>
+        <td>
+          <button class="muted" onclick="quickClassify('0')">0</button>
+          <button class="muted" onclick="quickClassify('42')">42</button>
+          <button class="muted" onclick="quickClassify('sqrt(4)')">sqrt(4)</button>
+        </td>
+      </tr>
+      <tr>
+        <td>Nguyên</td><td><span class="pill-set">ℤ</span></td>
+        <td>
+          <button class="muted" onclick="quickClassify('-3')">−3</button>
+          <button class="muted" onclick="quickClassify('-100')">−100</button>
+        </td>
+      </tr>
+      <tr>
+        <td>Hữu tỉ</td><td><span class="pill-set">ℚ</span></td>
+        <td>
+          <button class="muted" onclick="quickClassify('0.5')">0.5</button>
+          <button class="muted" onclick="quickClassify('22/7')">22/7</button>
+          <button class="muted" onclick="quickClassify('-1.25')">−1.25</button>
+          <button class="muted" onclick="quickClassify('0.333...')">0.333…</button>
+        </td>
+      </tr>
+      <tr>
+        <td>Vô tỉ</td><td><span class="pill-set">ℝ\ℚ</span></td>
+        <td>
+          <button class="muted" onclick="quickClassify('sqrt(2)')">sqrt(2)</button>
+          <button class="muted" onclick="quickClassify('sqrt(3)')">sqrt(3)</button>
+          <button class="muted" onclick="quickClassify('pi')">π</button>
+          <button class="muted" onclick="quickClassify('e')">e</button>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <h2>3. Demo sai số float — vì sao <code>0.1 + 0.2 ≠ 0.3</code>?</h2>
+  <div class="card">
+    <p>Trong máy tính, <code>float64</code> lưu số dưới dạng nhị phân với 52 bit định trị. <code>0.1₁₀</code> trong hệ 2 là chuỗi tuần hoàn vô hạn <code>0.000110011001100…₂</code>, phải cắt sau 52 bit → lệch một chút. Khi cộng, sai số tích lũy.</p>
+
+    <div class="row">
+      <button onclick="demoBasic()">Tính 0.1 + 0.2</button>
+      <button onclick="demoSum10()">Cộng 0.1 mười lần</button>
+      <button onclick="demoSafe()">Số "an toàn": 0.5 + 0.25</button>
+      <button class="muted" onclick="$('floatLog').textContent = ''">Clear log</button>
+    </div>
+
+    <div class="step-log" id="floatLog">Bấm các nút trên để xem demo. Mỗi thí nghiệm in cả phép `==` trực tiếp và `almostEqual` với epsilon.</div>
+
+    <h3 style="color:#2d3748; margin-top: 20px">Tự thử phép tính</h3>
+    <div class="row">
+      <label>a =</label>
+      <input type="text" id="customA" value="0.1" style="min-width: 100px">
+      <label>op</label>
+      <select id="customOp">
+        <option value="+">+</option>
+        <option value="-">−</option>
+        <option value="*">×</option>
+        <option value="/">÷</option>
+      </select>
+      <label>b =</label>
+      <input type="text" id="customB" value="0.2" style="min-width: 100px">
+      <label>expected =</label>
+      <input type="text" id="customExp" value="0.3" style="min-width: 100px">
+      <button onclick="customCalc()">Tính</button>
+    </div>
+    <div id="customResult" style="margin-top: 12px"></div>
+
+    <h3 style="color:#2d3748; margin-top: 20px">Cách so sánh đúng: <code>almostEqual</code></h3>
+    <pre style="background:#f7fafc; padding:12px; border-radius:4px; overflow-x:auto"><code>func almostEqual(a, b, eps float64) bool {
+    diff := a - b
+    if diff &lt; 0 { diff = -diff }
+    return diff &lt; eps
+}
+
+// Dùng:
+almostEqual(0.1+0.2, 0.3, 1e-9)  // true ✓</code></pre>
+  </div>
+
+</main>
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+
+// ============== Section 1: Trục số ==============
+const NL_MIN = -10, NL_MAX = 10;
+const NL_W = 920, NL_H = 160;
+const PAD_L = 40, PAD_R = 40;
+const AXIS_Y = 80;
+
+let snap = true;
+let ptA = null, ptB = null;
+let nextSlot = 'A'; // luân phiên A → B → reset
+
+function valueToX(v) {
+  return PAD_L + (v - NL_MIN) / (NL_MAX - NL_MIN) * (NL_W - PAD_L - PAD_R);
+}
+function xToValue(x) {
+  let v = NL_MIN + (x - PAD_L) / (NL_W - PAD_L - PAD_R) * (NL_MAX - NL_MIN);
+  if (snap) v = Math.round(v);
+  else v = Math.round(v * 10) / 10;
+  if (v < NL_MIN) v = NL_MIN;
+  if (v > NL_MAX) v = NL_MAX;
+  return v;
+}
+
+function renderNumline() {
+  const svg = $('numlineSvg');
+  svg.innerHTML = '';
+  const ns = 'http://www.w3.org/2000/svg';
+
+  // Axis arrow line
+  const axis = document.createElementNS(ns, 'line');
+  axis.setAttribute('x1', PAD_L - 10);
+  axis.setAttribute('x2', NL_W - PAD_R + 10);
+  axis.setAttribute('y1', AXIS_Y);
+  axis.setAttribute('y2', AXIS_Y);
+  axis.setAttribute('class', 'axis');
+  axis.setAttribute('marker-end', 'url(#arrow)');
+  svg.appendChild(axis);
+
+  // Arrow marker definition
+  const defs = document.createElementNS(ns, 'defs');
+  defs.innerHTML = '<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#2d3748"/></marker>';
+  svg.appendChild(defs);
+
+  // Ticks
+  for (let v = NL_MIN; v <= NL_MAX; v++) {
+    const x = valueToX(v);
+    const tick = document.createElementNS(ns, 'line');
+    tick.setAttribute('x1', x); tick.setAttribute('x2', x);
+    tick.setAttribute('y1', AXIS_Y - 6); tick.setAttribute('y2', AXIS_Y + 6);
+    tick.setAttribute('class', 'tick');
+    svg.appendChild(tick);
+
+    const lbl = document.createElementNS(ns, 'text');
+    lbl.setAttribute('x', x); lbl.setAttribute('y', AXIS_Y + 22);
+    lbl.setAttribute('text-anchor', 'middle');
+    lbl.setAttribute('class', v === 0 ? 'zero-label' : 'tick-label');
+    lbl.textContent = v.toString();
+    svg.appendChild(lbl);
+  }
+
+  // Distance bracket (if both points exist)
+  if (ptA !== null && ptB !== null) {
+    const xa = valueToX(ptA), xb = valueToX(ptB);
+    const xl = Math.min(xa, xb), xr = Math.max(xa, xb);
+    const by = AXIS_Y - 36;
+    const bracket = document.createElementNS(ns, 'path');
+    bracket.setAttribute('d', `M ${xl} ${by + 8} L ${xl} ${by} L ${xr} ${by} L ${xr} ${by + 8}`);
+    bracket.setAttribute('class', 'dist-bracket');
+    svg.appendChild(bracket);
+
+    const dist = Math.abs(ptA - ptB);
+    const distLbl = document.createElementNS(ns, 'text');
+    distLbl.setAttribute('x', (xl + xr) / 2);
+    distLbl.setAttribute('y', by - 6);
+    distLbl.setAttribute('text-anchor', 'middle');
+    distLbl.setAttribute('class', 'dist-label');
+    distLbl.textContent = `d = ${formatNum(dist)}`;
+    svg.appendChild(distLbl);
+  }
+
+  // Point A
+  if (ptA !== null) drawPoint(svg, ns, ptA, 'A', '#4299e1');
+  // Point B
+  if (ptB !== null) drawPoint(svg, ns, ptB, 'B', '#ed8936');
+
+  // Update stats
+  $('ptAVal').textContent = ptA === null ? '—' : formatNum(ptA);
+  $('ptAAbs').textContent = ptA === null ? '—' : formatNum(Math.abs(ptA));
+  $('ptBVal').textContent = ptB === null ? '—' : formatNum(ptB);
+  $('ptBAbs').textContent = ptB === null ? '—' : formatNum(Math.abs(ptB));
+  $('distVal').textContent = (ptA !== null && ptB !== null) ? formatNum(Math.abs(ptA - ptB)) : '—';
+}
+
+function drawPoint(svg, ns, val, label, color) {
+  const x = valueToX(val);
+  const c = document.createElementNS(ns, 'circle');
+  c.setAttribute('cx', x); c.setAttribute('cy', AXIS_Y);
+  c.setAttribute('r', 7); c.setAttribute('fill', color);
+  c.setAttribute('stroke', 'white'); c.setAttribute('stroke-width', 2);
+  svg.appendChild(c);
+  const t = document.createElementNS(ns, 'text');
+  t.setAttribute('x', x); t.setAttribute('y', AXIS_Y - 14);
+  t.setAttribute('text-anchor', 'middle');
+  t.setAttribute('class', 'pt-label');
+  t.setAttribute('fill', color);
+  t.textContent = `${label}=${formatNum(val)}`;
+  svg.appendChild(t);
+}
+
+function formatNum(v) {
+  if (Number.isInteger(v)) return v.toString();
+  return v.toFixed(1);
+}
+
+$('numlineSvg').addEventListener('click', (e) => {
+  const svg = $('numlineSvg');
+  const rect = svg.getBoundingClientRect();
+  // Convert from screen coords to SVG viewBox coords
+  const xVB = (e.clientX - rect.left) / rect.width * NL_W;
+  const v = xToValue(xVB);
+  if (nextSlot === 'A') {
+    ptA = v; nextSlot = 'B';
+  } else if (nextSlot === 'B') {
+    ptB = v; nextSlot = 'A_RESET';
+  } else {
+    ptA = v; ptB = null; nextSlot = 'B';
+  }
+  renderNumline();
+});
+
+function resetPoints() {
+  ptA = null; ptB = null; nextSlot = 'A';
+  renderNumline();
+}
+function setSnap(forceVal) {
+  if (forceVal === undefined) snap = !snap;
+  else snap = !snap;
+  $('snapBtn').textContent = snap ? 'Snap = ON (số nguyên)' : 'Snap = OFF (1 chữ số thập phân)';
+}
+$('snapBtn').onclick = () => setSnap();
+
+// ============== Section 2: Phân loại số ==============
+function classify(s) {
+  s = s.trim();
+  if (s === 'pi' || s === 'π' || s === 'e') {
+    return { set: 'irrational', detail: `${s} là hằng số vô tỉ (siêu việt). Phần thập phân vô hạn, không tuần hoàn.` };
+  }
+  // sqrt(n)
+  const sqrtMatch = s.match(/^sqrt\((\d+)\)$/);
+  if (sqrtMatch) {
+    const n = parseInt(sqrtMatch[1], 10);
+    if (n < 0) return { set: 'unknown', detail: 'Căn của số âm không phải số thực.' };
+    const r = Math.round(Math.sqrt(n));
+    if (r * r === n) {
+      return { set: r === 0 || r > 0 ? 'natural' : 'integer',
+               detail: `${n} là số chính phương → sqrt(${n}) = ${r}, là số tự nhiên.` };
+    }
+    return { set: 'irrational', detail: `${n} không phải số chính phương → sqrt(${n}) vô tỉ (chứng minh phản chứng tương tự √2).` };
+  }
+  // p/q
+  if (s.includes('/')) {
+    const parts = s.split('/');
+    if (parts.length !== 2) return { set: 'unknown', detail: 'Phân số phải có dạng p/q.' };
+    const p = parseInt(parts[0].trim(), 10);
+    const q = parseInt(parts[1].trim(), 10);
+    if (isNaN(p) || isNaN(q)) return { set: 'unknown', detail: 'Tử/mẫu phải là số nguyên.' };
+    if (q === 0) return { set: 'unknown', detail: 'Mẫu = 0, vô nghĩa.' };
+    if (p % q === 0) {
+      const r = p / q;
+      return { set: r >= 0 ? 'natural' : 'integer',
+               detail: `${p}/${q} = ${r}, là số nguyên.` };
+    }
+    return { set: 'rational', detail: `${p}/${q} là phân số (mẫu ≠ 0, tử không chia hết mẫu) → hữu tỉ.` };
+  }
+  // 0.333...
+  if (s.endsWith('...')) {
+    const core = s.slice(0, -3);
+    if (!isNaN(parseFloat(core))) {
+      return { set: 'rational', detail: `${s} là số thập phân tuần hoàn → có thể viết thành p/q → hữu tỉ.` };
+    }
+    return { set: 'unknown', detail: 'Phần trước "..." phải là số.' };
+  }
+  // Integer
+  if (/^-?\d+$/.test(s)) {
+    const n = parseInt(s, 10);
+    return { set: n >= 0 ? 'natural' : 'integer',
+             detail: n >= 0 ? `${n} ≥ 0 → số tự nhiên.` : `${n} < 0 → số nguyên âm.` };
+  }
+  // Decimal hữu hạn
+  if (/^-?\d+\.\d+$/.test(s)) {
+    return { set: 'rational', detail: `${s} là số thập phân hữu hạn → bằng p/10^k → hữu tỉ.` };
+  }
+  return { set: 'unknown', detail: 'Không nhận diện được. Thử: 3, -7, 0.5, 22/7, sqrt(2), pi, e.' };
+}
+
+function badgeChain(set) {
+  // Trả về chuỗi badges thể hiện tất cả tập mà số đó thuộc.
+  if (set === 'natural') {
+    return '<span class="badge nat">ℕ</span><span class="badge int">ℤ</span><span class="badge rat">ℚ</span><span class="badge irr" style="background:#cbd5e0;color:#2d3748">ℝ</span>';
+  }
+  if (set === 'integer') {
+    return '<span class="badge int">ℤ</span><span class="badge rat">ℚ</span><span class="badge irr" style="background:#cbd5e0;color:#2d3748">ℝ</span>';
+  }
+  if (set === 'rational') {
+    return '<span class="badge rat">ℚ</span><span class="badge irr" style="background:#cbd5e0;color:#2d3748">ℝ</span>';
+  }
+  if (set === 'irrational') {
+    return '<span class="badge irr">ℝ\\ℚ</span><span class="badge irr" style="background:#cbd5e0;color:#2d3748">ℝ</span>';
+  }
+  return '<span class="badge unk">?</span>';
+}
+
+function doClassify() {
+  const s = $('classifyInput').value;
+  const r = classify(s);
+  $('classifyResult').innerHTML = `
+    <div class="formula"><strong>${escapeHtml(s)}</strong> thuộc: ${badgeChain(r.set)}</div>
+    <div class="hint" style="margin-top:6px">${escapeHtml(r.detail)}</div>
+  `;
+}
+function quickClassify(s) {
+  $('classifyInput').value = s;
+  doClassify();
+}
+function escapeHtml(s) {
+  return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+
+// ============== Section 3: Float demo ==============
+function appendLog(line) {
+  $('floatLog').textContent += (line + '\n');
+}
+
+function demoBasic() {
+  $('floatLog').textContent = '';
+  appendLog('--- Tính 0.1 + 0.2 ---');
+  const a = 0.1, b = 0.2, c = a + b;
+  appendLog(`a = 0.1`);
+  appendLog(`b = 0.2`);
+  appendLog(`c = a + b = ${c}`);
+  appendLog(`c == 0.3 → ${c === 0.3}   ← false! Vì 0.1, 0.2 trong nhị phân là chuỗi vô hạn,`);
+  appendLog(`                              máy cắt còn 52 bit định trị → lệch chữ số 17.`);
+  appendLog(`|c - 0.3| = ${Math.abs(c - 0.3)}`);
+  appendLog(`almostEqual(c, 0.3, 1e-9) → ${Math.abs(c - 0.3) < 1e-9}   ← cách so sánh đúng`);
+}
+
+function demoSum10() {
+  $('floatLog').textContent = '';
+  appendLog('--- Cộng 0.1 mười lần ---');
+  let s = 0.0;
+  for (let i = 1; i <= 10; i++) {
+    s += 0.1;
+    appendLog(`sau ${i.toString().padStart(2)} lần: s = ${s}`);
+  }
+  appendLog(`s == 1.0 → ${s === 1.0}   ← false, dù về toán phải là 1.0`);
+  appendLog(`almostEqual(s, 1.0, 1e-9) → ${Math.abs(s - 1.0) < 1e-9}`);
+  appendLog('');
+  appendLog('Sai số tích lũy: mỗi lần cộng đưa thêm ~1e-17 lệch, sau 10 lần ~1e-16.');
+  appendLog('Trong neural network: hàng tỷ phép cộng → sai số có thể đáng kể.');
+}
+
+function demoSafe() {
+  $('floatLog').textContent = '';
+  appendLog('--- Số "an toàn" trong float: 0.5 + 0.25 ---');
+  appendLog('Vì 0.5 = 2⁻¹ và 0.25 = 2⁻² đều có biểu diễn nhị phân HỮU HẠN,');
+  appendLog('mọi phép tính giữa chúng cho kết quả CHÍNH XÁC.');
+  appendLog('');
+  appendLog(`0.5 + 0.25 = ${0.5 + 0.25}`);
+  appendLog(`(0.5 + 0.25) == 0.75 → ${(0.5 + 0.25) === 0.75}   ← true!`);
+  appendLog('');
+  appendLog('Quy luật: số dạng m × 2^e (m, e nguyên) với m ≤ 2^52 → chính xác.');
+  appendLog('Ví dụ chính xác: 0.5, 0.25, 0.125, 1.5, 3.75, 0.1875.');
+  appendLog('Ví dụ KHÔNG chính xác: 0.1, 0.2, 0.3, 1/3, 0.7.');
+}
+
+function customCalc() {
+  const sa = $('customA').value.trim();
+  const sb = $('customB').value.trim();
+  const op = $('customOp').value;
+  const sexp = $('customExp').value.trim();
+  const a = parseFloat(sa), b = parseFloat(sb), expected = parseFloat(sexp);
+  if (isNaN(a) || isNaN(b)) {
+    $('customResult').innerHTML = '<div class="float-result"><span class="bad-mark">Nhập a và b là số.</span></div>';
+    return;
+  }
+  let c, opSym;
+  switch (op) {
+    case '+': c = a + b; opSym = '+'; break;
+    case '-': c = a - b; opSym = '−'; break;
+    case '*': c = a * b; opSym = '×'; break;
+    case '/': c = a / b; opSym = '÷'; break;
+  }
+  const eq = !isNaN(expected) && c === expected;
+  const close = !isNaN(expected) && Math.abs(c - expected) < 1e-9;
+  let expectedLine = '';
+  if (!isNaN(expected)) {
+    expectedLine = `\nexpected = ${expected}\n` +
+                   `result === expected  →  ${eq ? '<span class="ok-mark">true</span>' : '<span class="bad-mark">false</span>'}` +
+                   `\nalmostEqual(result, expected, 1e-9)  →  ${close ? '<span class="ok-mark">true</span>' : '<span class="bad-mark">false</span>'}`;
+    if (!isNaN(expected)) {
+      expectedLine += `\n|result − expected| = ${Math.abs(c - expected)}`;
+    }
+  }
+  $('customResult').innerHTML = `<div class="float-result">a = ${a}\nb = ${b}\na ${opSym} b = ${c}${expectedLine}</div>`;
+}
+
+// ============== Init ==============
+renderNumline();
+doClassify();
+</script>
+
+<!-- README modal -->
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+
+</body>
+</html>

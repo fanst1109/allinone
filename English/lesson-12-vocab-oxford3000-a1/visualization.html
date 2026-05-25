@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vocab Oxford 3000 A1 — Flashcard</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f5f6f8; --panel: #fff; --ink: #1a1a1a; --muted: #6a6a6a; --line: #e3e1dc;
+    --accent: #b45309; --accent-soft: #fef3c7;
+    --easy: #15803d; --easy-soft: #dcfce7;
+    --medium: #d97706; --medium-soft: #fef3c7;
+    --hard: #b91c1c; --hard-soft: #fee2e2;
+    --ok: #15803d; --error: #b91c1c;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.55; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 24px 20px 80px; }
+  header h1 { margin: 0 0 4px; font-size: 24px; }
+  header p { margin: 0 0 20px; color: var(--muted); font-size: 14px; }
+
+  .accent-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin-left: 8px; }
+  .accent-toggle button { background: var(--panel); border: none; padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; }
+  .accent-toggle button + button { border-left: 1px solid var(--line); }
+  .accent-toggle button.active { background: var(--accent); color: white; }
+
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 24px; flex-wrap: wrap; }
+  .tab { padding: 10px 16px; cursor: pointer; background: none; border: none; font-size: 14px; font-weight: 500; color: var(--muted); border-bottom: 2px solid transparent; }
+  .tab.active { color: var(--ink); border-bottom-color: var(--accent); }
+  .pane { display: none; }
+  .pane.active { display: block; }
+
+  .section-note { color: var(--muted); font-size: 13px; margin: 0 0 16px; background: var(--accent-soft); padding: 10px 14px; border-radius: 8px; border-left: 3px solid var(--accent); }
+
+  /* List view */
+  .group-title { font-size: 16px; font-weight: 700; color: var(--accent); margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+  .word-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+  .word-card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; cursor: pointer; transition: all 0.15s; }
+  .word-card:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(180,83,9,0.08); }
+  .word-card .word { font-size: 17px; font-weight: 700; }
+  .word-card .ipa { font-size: 13px; color: var(--muted); margin-top: 2px; font-family: "Charis SIL", sans-serif; }
+  .word-card .meaning { font-size: 13px; margin-top: 6px; }
+
+  /* Detail panel */
+  .detail-panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-top: 16px; min-height: 120px; }
+  .detail-panel.empty { color: var(--muted); font-style: italic; text-align: center; padding: 40px; }
+  .detail-panel .word-big { font-size: 28px; font-weight: 800; }
+  .detail-panel .ipa-big { font-size: 16px; color: var(--accent); font-family: "Charis SIL", sans-serif; margin-bottom: 8px; }
+  .detail-panel .meaning-big { font-size: 17px; margin-bottom: 12px; }
+  .detail-panel .example-big { font-size: 14px; color: var(--muted); font-style: italic; padding: 10px 14px; background: #fafaf7; border-left: 3px solid var(--accent); border-radius: 4px; }
+  .detail-panel .play-row { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .play-pill { padding: 8px 16px; background: var(--accent); color: white; border-radius: 20px; font-size: 13px; cursor: pointer; border: none; font-weight: 600; }
+  .play-pill:hover { background: #92400e; }
+  .play-pill.speaking { background: var(--ok); }
+
+  /* Flashcard */
+  .fc-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
+  .fc-progress { display: flex; gap: 6px; margin-bottom: 20px; }
+  .fc-box-tag { padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+  .fc-box-tag.easy { background: var(--easy-soft); color: var(--easy); }
+  .fc-box-tag.medium { background: var(--medium-soft); color: var(--medium); }
+  .fc-box-tag.hard { background: var(--hard-soft); color: var(--hard); }
+  .fc-box-tag.unseen { background: #f5f4f0; color: var(--muted); }
+  .fc-card {
+    min-height: 280px; background: linear-gradient(135deg, #fff 0%, #fafaf7 100%);
+    border: 2px solid var(--accent-soft); border-radius: 16px; padding: 32px 20px;
+    text-align: center; cursor: pointer; transition: transform 0.2s;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+  }
+  .fc-card:hover { transform: translateY(-2px); }
+  .fc-word { font-size: 36px; font-weight: 800; margin-bottom: 8px; }
+  .fc-ipa { font-size: 18px; color: var(--accent); font-family: "Charis SIL", sans-serif; margin-bottom: 16px; }
+  .fc-meaning { font-size: 22px; color: var(--ink); margin-bottom: 12px; }
+  .fc-example { font-size: 14px; color: var(--muted); font-style: italic; margin-bottom: 16px; max-width: 500px; }
+  .fc-hint { font-size: 12px; color: var(--muted); margin-top: 12px; }
+  .fc-controls { display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+  .fc-btn { padding: 12px 20px; border: 2px solid var(--line); background: white; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; }
+  .fc-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .fc-btn.show { background: var(--accent); color: white; border-color: var(--accent); }
+  .fc-btn.hard { color: var(--hard); border-color: var(--hard); }
+  .fc-btn.medium { color: var(--medium); border-color: var(--medium); }
+  .fc-btn.easy { color: var(--easy); border-color: var(--easy); }
+  .fc-stats { font-size: 13px; color: var(--muted); margin-top: 12px; text-align: center; }
+
+  /* Quiz */
+  .quiz-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
+  .quiz-controls { display: flex; gap: 8px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+  .quiz-controls button { padding: 8px 14px; font-size: 13px; border: 1px solid var(--line); border-radius: 6px; background: white; cursor: pointer; font-weight: 500; }
+  .quiz-controls button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+  .quiz-stats { color: var(--muted); font-size: 13px; margin-left: auto; }
+  .quiz-question { text-align: center; padding: 20px 16px; background: var(--accent-soft); border-radius: 10px; margin-bottom: 20px; }
+  .quiz-context { font-size: 13px; color: var(--accent); margin-bottom: 10px; font-weight: 500; }
+  .quiz-prompt { font-size: 20px; font-weight: 700; }
+  .quiz-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .opt-btn { padding: 14px; font-size: 15px; font-weight: 600; border: 2px solid var(--line); background: white; border-radius: 8px; cursor: pointer; }
+  .opt-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .opt-btn.correct { border-color: var(--ok); background: #f0fdf4; color: var(--ok); }
+  .opt-btn.wrong { border-color: var(--error); background: #fef2f2; color: var(--error); }
+  .quiz-feedback { margin-top: 14px; padding: 12px 16px; border-radius: 8px; font-size: 14px; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok { background: #f0fdf4; color: var(--ok); }
+  .quiz-feedback.err { background: #fef2f2; color: var(--error); }
+
+  footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); text-align: center; }
+  footer a { color: var(--accent); }
+
+</style>
+</head>
+<body>
+<div class="container">
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-11-reported-speech/visualization.html">← L11: Reported speech</a>
+  <span class="sep">·</span>
+  <span class="current">L12: Vocab A1</span>
+  <span class="sep">·</span>
+  <a href="../lesson-13-vocab-oxford3000-a2/visualization.html">L13: Vocab A2 →</a>
+</nav>
+
+<header>
+  <h1>Oxford 3000 — Level A1 (50 từ thiết yếu)</h1>
+  <p>50 từ A1 chia 5 nhóm. Click ▶ để nghe audio Oxford. Flashcard SRS lưu trong localStorage.
+    Giọng:
+    <span class="accent-toggle">
+      <button id="btn-accent-us" class="active" data-variant="us">US</button>
+      <button id="btn-accent-uk" data-variant="uk">UK</button>
+    </span>
+  </p>
+</header>
+
+<div class="tabs">
+  <button class="tab active" data-tab="list">Danh sách</button>
+  <button class="tab" data-tab="flashcard">Flashcard</button>
+  <button class="tab" data-tab="quiz">Quiz</button>
+</div>
+
+<section class="pane active" id="pane-list">
+  <div class="section-note">5 nhóm chủ đề, click từ để xem chi tiết và nghe audio.</div>
+  <div id="list-groups"></div>
+  <div class="detail-panel empty" id="word-detail">Click từ ở trên để xem chi tiết và nghe phát âm.</div>
+</section>
+
+<section class="pane" id="pane-flashcard">
+  <div class="fc-wrap">
+    <div class="fc-progress" id="fc-progress"></div>
+    <div class="fc-card" id="fc-card">
+      <div class="fc-word">Sẵn sàng học?</div>
+      <div class="fc-hint">Click "▶ Bắt đầu" để bắt đầu lượt học.</div>
+    </div>
+    <div class="fc-controls" id="fc-controls">
+      <button class="fc-btn show" id="btn-start-fc">▶ Bắt đầu</button>
+      <button class="fc-btn" id="btn-reset-fc">🗑 Reset tất cả tiến độ</button>
+    </div>
+    <div class="fc-stats" id="fc-stats"></div>
+  </div>
+</section>
+
+<section class="pane" id="pane-quiz">
+  <div class="quiz-wrap">
+    <div class="quiz-controls">
+      <button class="primary" id="btn-new-quiz">▶ Câu mới</button>
+      <span class="quiz-stats" id="quiz-stats">Đúng: 0 / 0</span>
+    </div>
+    <div id="quiz-display"></div>
+    <div class="quiz-feedback" id="quiz-feedback"></div>
+  </div>
+</section>
+
+<footer>Audio Oxford. Mặc định US. <a href="https://www.oxfordlearnersdictionaries.com" target="_blank">Oxford Learner's Dictionaries</a>.</footer>
+
+<audio id="audio-el" preload="none"></audio>
+</div>
+
+<script>
+const DOMAIN_NEW = "https://www.oxfordlearnersdictionaries.com/media/english/";
+const DOMAIN_OLD = "https://www.oxforddictionaries.com/media/english/";
+const audioEl = document.getElementById('audio-el');
+let currentVariant = localStorage.getItem('audioVariant') || 'us';
+
+function ukToVariantPath(ukRel, v) { return v === 'us' ? "us_pron/" + ukRel.replace(/__gb_/, '__us_') : "uk_pron/" + ukRel; }
+function playAudio(ukRel, btn, fallbackText) {
+  if (!ukRel) {
+    if (fallbackText) speak(fallbackText, btn);
+    return;
+  }
+  const cands = [DOMAIN_NEW + ukToVariantPath(ukRel, currentVariant), DOMAIN_OLD + ukToVariantPath(ukRel, currentVariant)];
+  if (currentVariant === 'us') { cands.push(DOMAIN_NEW + ukToVariantPath(ukRel, 'uk')); cands.push(DOMAIN_OLD + ukToVariantPath(ukRel, 'uk')); }
+  let idx = 0;
+  if (btn) btn.classList.add('speaking');
+  function tryNext() {
+    if (idx >= cands.length) {
+      // All Oxford URLs failed → fallback to Web Speech
+      if (btn) btn.classList.remove('speaking');
+      if (fallbackText) speak(fallbackText, btn);
+      return;
+    }
+    audioEl.onerror = tryNext;
+    audioEl.onended = () => { if (btn) btn.classList.remove('speaking'); };
+    audioEl.src = cands[idx++];
+    const p = audioEl.play(); if (p && p.catch) p.catch(() => tryNext());
+  }
+  tryNext();
+}
+function setVariant(v) {
+  currentVariant = v;
+  localStorage.setItem('audioVariant', v);
+  document.querySelectorAll('.accent-toggle button').forEach(b => b.classList.toggle('active', b.dataset.variant === v));
+}
+document.querySelectorAll('.accent-toggle button').forEach(btn => btn.addEventListener('click', () => setVariant(btn.dataset.variant)));
+setVariant(currentVariant);
+// Web Speech API fallback for words without Oxford audio
+const synth = window.speechSynthesis;
+let voices = [];
+function loadVoices() { voices = synth ? synth.getVoices() : []; }
+if (synth) { loadVoices(); if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = loadVoices; }
+function pickVoice(variant) {
+  if (!voices.length) return null;
+  const langPrefix = variant === 'uk' ? 'en-GB' : 'en-US';
+  const candidates = voices.filter(v => v.lang.startsWith(langPrefix));
+  if (!candidates.length) return voices.find(v => v.lang.startsWith('en')) || voices[0];
+  return candidates.find(v => /premium|enhanced|natural|samantha|alex|daniel|kate|fiona/i.test(v.name)) || candidates[0];
+}
+function speak(text, btn) {
+  if (!synth) return;
+  synth.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const v = pickVoice(currentVariant);
+  if (v) { u.voice = v; u.lang = v.lang; } else { u.lang = currentVariant === 'uk' ? 'en-GB' : 'en-US'; }
+  u.rate = 0.9;
+  if (btn) { btn.classList.add('speaking'); u.onend = () => btn.classList.remove('speaking'); u.onerror = () => btn.classList.remove('speaking'); }
+  synth.speak(u);
+}
+
+
+
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('pane-' + btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'flashcard') renderProgress();
+  });
+});
+
+// ============== Vocab data ==============
+const VOCAB = {
+  "People & Family": [
+    { w: "mother",  ipa: "/ˈmʌðər/",   meaning: "mẹ",                  ex: "My mother is a teacher.",         a: "m/mot/mothe/mother__gb_1.mp3" },
+    { w: "father",  ipa: "/ˈfɑːðər/",  meaning: "bố",                  ex: "His father works at a bank.",     a: "f/fat/fathe/father__gb_1.mp3" },
+    { w: "brother", ipa: "/ˈbrʌðər/",  meaning: "anh/em trai",         ex: "I have one brother.",             a: "b/bro/broth/brother__gb_1.mp3" },
+    { w: "sister",  ipa: "/ˈsɪstər/",  meaning: "chị/em gái",          ex: "Her sister lives in Paris.",      a: "s/sis/siste/sister__gb_1.mp3" },
+    { w: "family",  ipa: "/ˈfæməli/",  meaning: "gia đình",            ex: "I love spending time with my family.", a: "f/fam/famil/family__gb_1_8.mp3" },
+    { w: "friend",  ipa: "/frend/",    meaning: "bạn",                 ex: "She is my best friend.",          a: "" },
+    { w: "people",  ipa: "/ˈpiːpl/",   meaning: "người (số nhiều)",    ex: "Many people live in the city.",   a: "p/peo/peopl/people__gb_1.mp3" },
+    { w: "child",   ipa: "/tʃaɪld/",   meaning: "trẻ con",             ex: "The child is playing.",           a: "" },
+    { w: "man",     ipa: "/mæn/",      meaning: "đàn ông",             ex: "The man is reading a book.",      a: "m/man/man__/man__gb_1.mp3" },
+    { w: "woman",   ipa: "/ˈwʊmən/",   meaning: "phụ nữ",              ex: "The woman is a doctor.",          a: "" },
+  ],
+  "Daily Activities": [
+    { w: "work",    ipa: "/wɜːrk/",    meaning: "làm việc",            ex: "I work from 9 to 5.",             a: "w/wor/work_/work__gb_1_8.mp3" },
+    { w: "study",   ipa: "/ˈstʌdi/",   meaning: "học",                 ex: "She studies English.",            a: "" },
+    { w: "eat",     ipa: "/iːt/",      meaning: "ăn",                  ex: "We eat dinner at 7 PM.",          a: "" },
+    { w: "drink",   ipa: "/drɪŋk/",    meaning: "uống",                ex: "He drinks coffee every morning.", a: "d/dri/drink/drink__gb_1.mp3" },
+    { w: "sleep",   ipa: "/sliːp/",    meaning: "ngủ",                 ex: "Children sleep 10 hours.",        a: "" },
+    { w: "read",    ipa: "/riːd/",     meaning: "đọc",                 ex: "I read books at night.",          a: "" },
+    { w: "write",   ipa: "/raɪt/",     meaning: "viết",                ex: "She writes in her diary.",        a: "w/wri/write/write__gb_1.mp3" },
+    { w: "listen",  ipa: "/ˈlɪsən/",   meaning: "nghe",                ex: "Listen to the music!",            a: "l/lis/liste/listen__gb_1.mp3" },
+    { w: "talk",    ipa: "/tɔːk/",     meaning: "nói chuyện",          ex: "They talk every day.",            a: "" },
+    { w: "walk",    ipa: "/wɔːk/",     meaning: "đi bộ",               ex: "I walk to school.",               a: "w/wal/walk_/walk__gb_1.mp3" },
+  ],
+  "Food & Drink": [
+    { w: "water",   ipa: "/ˈwɔːtər/",  meaning: "nước",                ex: "Drink more water every day.",     a: "w/wat/water/water__gb_1.mp3" },
+    { w: "coffee",  ipa: "/ˈkɔːfi/",   meaning: "cà phê",              ex: "I love coffee in the morning.",   a: "c/cof/coffe/coffee__gb_1.mp3" },
+    { w: "tea",     ipa: "/tiː/",      meaning: "trà",                 ex: "Would you like some tea?",        a: "t/tea/tea__/tea__gb_1.mp3" },
+    { w: "bread",   ipa: "/bred/",     meaning: "bánh mì",             ex: "We have bread for breakfast.",    a: "b/bre/bread/bread__gb_1.mp3" },
+    { w: "rice",    ipa: "/raɪs/",     meaning: "cơm/gạo",             ex: "I eat rice every day.",           a: "" },
+    { w: "meat",    ipa: "/miːt/",     meaning: "thịt",                ex: "She doesn't eat meat.",           a: "m/mea/meat_/meat__gb_1.mp3" },
+    { w: "fish",    ipa: "/fɪʃ/",      meaning: "cá",                  ex: "The fish is fresh.",              a: "" },
+    { w: "fruit",   ipa: "/fruːt/",    meaning: "trái cây",            ex: "Eat more fruit for health.",      a: "f/fru/fruit/fruit__gb_1.mp3" },
+    { w: "apple",   ipa: "/ˈæpl/",     meaning: "quả táo",             ex: "An apple a day keeps the doctor away.", a: "a/app/apple/apple__gb_1.mp3" },
+    { w: "milk",    ipa: "/mɪlk/",     meaning: "sữa",                 ex: "I drink milk every morning.",     a: "m/mil/milk_/milk__gb_1.mp3" },
+  ],
+  "Places & Travel": [
+    { w: "home",    ipa: "/hoʊm/",     meaning: "nhà (mình)",          ex: "I go home at 6 PM.",              a: "" },
+    { w: "school",  ipa: "/skuːl/",    meaning: "trường học",          ex: "Children go to school.",          a: "" },
+    { w: "market",  ipa: "/ˈmɑːrkɪt/", meaning: "chợ",                 ex: "I buy fruit at the market.",      a: "m/mar/marke/market__gb_1.mp3" },
+    { w: "city",    ipa: "/ˈsɪti/",    meaning: "thành phố",           ex: "Hanoi is a big city.",            a: "" },
+    { w: "country", ipa: "/ˈkʌntri/",  meaning: "đất nước",            ex: "Vietnam is a beautiful country.", a: "" },
+    { w: "road",    ipa: "/roʊd/",     meaning: "đường",               ex: "This road is busy.",              a: "" },
+    { w: "car",     ipa: "/kɑːr/",     meaning: "xe hơi",              ex: "His car is new.",                 a: "c/car/car__/car__gb_1.mp3" },
+    { w: "bus",     ipa: "/bʌs/",      meaning: "xe buýt",             ex: "I take the bus to work.",         a: "" },
+    { w: "train",   ipa: "/treɪn/",    meaning: "tàu hỏa",             ex: "The train leaves at 8 AM.",       a: "" },
+    { w: "airport", ipa: "/ˈerpɔːrt/", meaning: "sân bay",             ex: "We're at the airport.",           a: "" },
+  ],
+  "Common Adjectives": [
+    { w: "big",     ipa: "/bɪɡ/",      meaning: "to",                  ex: "This is a big house.",            a: "b/big/big__/big__gb_1.mp3" },
+    { w: "small",   ipa: "/smɔːl/",    meaning: "nhỏ",                 ex: "A small dog ran past.",           a: "s/sma/small/small__gb_1.mp3" },
+    { w: "good",    ipa: "/ɡʊd/",      meaning: "tốt",                 ex: "That's a good idea.",             a: "g/goo/good_/good__gb_1.mp3" },
+    { w: "bad",     ipa: "/bæd/",      meaning: "xấu",                 ex: "The weather is bad today.",       a: "b/bad/bad__/bad__gb_1.mp3" },
+    { w: "new",     ipa: "/nuː/",      meaning: "mới",                 ex: "I have a new phone.",             a: "n/new/new__/new__gb_1.mp3" },
+    { w: "old",     ipa: "/oʊld/",     meaning: "cũ/già",              ex: "My old car still works.",         a: "o/old/old__/old__gb_1.mp3" },
+    { w: "happy",   ipa: "/ˈhæpi/",    meaning: "hạnh phúc",           ex: "She looks happy today.",          a: "h/hap/happy/happy__gb_1.mp3" },
+    { w: "sad",     ipa: "/sæd/",      meaning: "buồn",                ex: "Why are you so sad?",             a: "" },
+    { w: "hot",     ipa: "/hɑːt/",     meaning: "nóng",                ex: "It's hot in summer.",             a: "h/hot/hot__/hot__gb_1.mp3" },
+    { w: "cold",    ipa: "/koʊld/",    meaning: "lạnh",                ex: "Winter is cold here.",            a: "c/col/cold_/cold__gb_1.mp3" },
+  ],
+};
+
+// Flatten for global access
+const ALL_WORDS = [];
+Object.entries(VOCAB).forEach(([group, words]) => {
+  words.forEach(w => ALL_WORDS.push({ ...w, group }));
+});
+
+// ============== List view ==============
+const listGroups = document.getElementById('list-groups');
+const detailPanel = document.getElementById('word-detail');
+Object.entries(VOCAB).forEach(([group, words]) => {
+  const title = document.createElement('div'); title.className = 'group-title'; title.textContent = group;
+  listGroups.appendChild(title);
+  const grid = document.createElement('div'); grid.className = 'word-grid';
+  words.forEach(word => {
+    const card = document.createElement('div'); card.className = 'word-card';
+    card.innerHTML = `<div class="word">${word.w}</div><div class="ipa">${word.ipa}</div><div class="meaning">${word.meaning}</div>`;
+    card.addEventListener('click', () => { showWordDetail(word); playAudio(word.a, card, word.w); });
+    grid.appendChild(card);
+  });
+  listGroups.appendChild(grid);
+});
+
+function showWordDetail(word) {
+  detailPanel.classList.remove('empty');
+  detailPanel.innerHTML = `
+    <div class="word-big">${word.w}</div>
+    <div class="ipa-big">${word.ipa}</div>
+    <div class="meaning-big">${word.meaning}</div>
+    <div class="example-big">${word.ex}</div>
+    <div class="play-row">
+      <button class="play-pill" id="play-btn-detail">▶ Nghe ${word.a ? "(Oxford)" : "(no audio)"}</button>
+    </div>
+  `;
+  document.getElementById('play-btn-detail').addEventListener('click', (e) => playAudio(word.a, e.target, word.w));
+}
+
+// ============== Flashcard SRS (Leitner box) ==============
+// Box 1: hard (every session), Box 2: medium (every 2 sessions), Box 3: easy (every 4 sessions)
+// Stored in localStorage as { word: { box: 1|2|3, lastSeen: sessionNum } }
+const FC_KEY = 'vocab-srs-state';
+let fcState = JSON.parse(localStorage.getItem(FC_KEY) || '{}');
+let fcSession = 0;
+let fcQueue = [];
+let fcCurrentIdx = 0;
+let fcCurrentWord = null;
+let fcRevealed = false;
+
+function getFcBox(w) { return (fcState[w.w] && fcState[w.w].box) || 1; }
+function setFcBox(w, box) {
+  if (!fcState[w.w]) fcState[w.w] = {};
+  fcState[w.w].box = box;
+  fcState[w.w].lastSeen = fcSession;
+  localStorage.setItem(FC_KEY, JSON.stringify(fcState));
+}
+
+function buildQueue() {
+  // Box 1: always include
+  // Box 2: include if lastSeen < session - 1
+  // Box 3: include if lastSeen < session - 3
+  // Unseen: treat as box 1
+  fcQueue = ALL_WORDS.filter(w => {
+    const state = fcState[w.w];
+    if (!state) return true; // unseen
+    const box = state.box || 1;
+    const last = state.lastSeen || 0;
+    if (box === 1) return true;
+    if (box === 2) return (fcSession - last) >= 1;
+    if (box === 3) return (fcSession - last) >= 3;
+    return true;
+  });
+  // Shuffle
+  for (let i = fcQueue.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [fcQueue[i], fcQueue[j]] = [fcQueue[j], fcQueue[i]];
+  }
+}
+
+function renderProgress() {
+  const counts = { 1: 0, 2: 0, 3: 0, unseen: 0 };
+  ALL_WORDS.forEach(w => {
+    if (!fcState[w.w]) counts.unseen++;
+    else counts[fcState[w.w].box || 1]++;
+  });
+  document.getElementById('fc-progress').innerHTML = `
+    <span class="fc-box-tag hard">📕 Hard (Box 1): ${counts[1]}</span>
+    <span class="fc-box-tag medium">📒 Medium (Box 2): ${counts[2]}</span>
+    <span class="fc-box-tag easy">📗 Easy (Box 3): ${counts[3]}</span>
+    <span class="fc-box-tag unseen">⚪ Chưa học: ${counts.unseen}</span>
+  `;
+}
+renderProgress();
+
+document.getElementById('btn-start-fc').addEventListener('click', startFlashcard);
+document.getElementById('btn-reset-fc').addEventListener('click', () => {
+  if (confirm('Reset toàn bộ tiến độ flashcard?')) {
+    fcState = {};
+    localStorage.removeItem(FC_KEY);
+    fcSession = 0;
+    renderProgress();
+    document.getElementById('fc-stats').textContent = '';
+    showFcReady();
+  }
+});
+
+function showFcReady() {
+  document.getElementById('fc-card').innerHTML = `
+    <div class="fc-word">Sẵn sàng học?</div>
+    <div class="fc-hint">Click "▶ Bắt đầu" để bắt đầu lượt học.</div>
+  `;
+  document.getElementById('fc-controls').innerHTML = `
+    <button class="fc-btn show" id="btn-start-fc">▶ Bắt đầu</button>
+    <button class="fc-btn" id="btn-reset-fc">🗑 Reset tất cả tiến độ</button>
+  `;
+  document.getElementById('btn-start-fc').addEventListener('click', startFlashcard);
+  document.getElementById('btn-reset-fc').addEventListener('click', () => {
+    if (confirm('Reset toàn bộ tiến độ flashcard?')) {
+      fcState = {}; localStorage.removeItem(FC_KEY); fcSession = 0; renderProgress();
+      document.getElementById('fc-stats').textContent = ''; showFcReady();
+    }
+  });
+}
+
+function startFlashcard() {
+  fcSession++;
+  buildQueue();
+  if (fcQueue.length === 0) {
+    document.getElementById('fc-card').innerHTML = `<div class="fc-word">🎉 Tuyệt vời!</div><div class="fc-hint">Tất cả từ đã ở Box 2/3. Quay lại sau để ôn.</div>`;
+    return;
+  }
+  fcCurrentIdx = 0;
+  showFcCard();
+}
+
+function showFcCard() {
+  if (fcCurrentIdx >= fcQueue.length) {
+    document.getElementById('fc-card').innerHTML = `<div class="fc-word">✓ Xong lượt!</div><div class="fc-hint">${fcQueue.length} từ đã ôn. Click bắt đầu để học lại.</div>`;
+    document.getElementById('fc-controls').innerHTML = `<button class="fc-btn show" onclick="location.reload()">↻ Quay lại</button>`;
+    renderProgress();
+    return;
+  }
+  fcCurrentWord = fcQueue[fcCurrentIdx];
+  fcRevealed = false;
+  document.getElementById('fc-card').innerHTML = `
+    <div class="fc-word">${fcCurrentWord.w}</div>
+    <div class="fc-ipa">${fcCurrentWord.ipa}</div>
+    <div class="fc-hint">Nghĩa là gì? Suy nghĩ xong, click "Lật".</div>
+  `;
+  document.getElementById('fc-controls').innerHTML = `
+    <button class="fc-btn" id="btn-fc-listen">▶ Nghe</button>
+    <button class="fc-btn show" id="btn-fc-reveal">🔄 Lật xem nghĩa</button>
+  `;
+  document.getElementById('fc-stats').textContent = `Từ ${fcCurrentIdx + 1} / ${fcQueue.length} — Box hiện tại: ${getFcBox(fcCurrentWord)}`;
+  document.getElementById('btn-fc-listen').addEventListener('click', (e) => playAudio(fcCurrentWord.a, e.target, fcCurrentWord.w));
+  document.getElementById('btn-fc-reveal').addEventListener('click', revealFc);
+}
+
+function revealFc() {
+  fcRevealed = true;
+  document.getElementById('fc-card').innerHTML = `
+    <div class="fc-word">${fcCurrentWord.w}</div>
+    <div class="fc-ipa">${fcCurrentWord.ipa}</div>
+    <div class="fc-meaning">${fcCurrentWord.meaning}</div>
+    <div class="fc-example">"${fcCurrentWord.ex}"</div>
+  `;
+  document.getElementById('fc-controls').innerHTML = `
+    <button class="fc-btn hard" data-rate="hard">😓 Hard (Box 1)</button>
+    <button class="fc-btn medium" data-rate="medium">😐 Medium (Box 2)</button>
+    <button class="fc-btn easy" data-rate="easy">😊 Easy (Box 3)</button>
+  `;
+  document.querySelectorAll('.fc-btn[data-rate]').forEach(b => b.addEventListener('click', () => rateAndNext(b.dataset.rate)));
+}
+
+function rateAndNext(rate) {
+  const newBox = rate === 'hard' ? 1 : rate === 'medium' ? 2 : 3;
+  setFcBox(fcCurrentWord, newBox);
+  fcCurrentIdx++;
+  showFcCard();
+}
+
+// ============== Quiz ==============
+function buildQuiz() {
+  const w = ALL_WORDS[Math.floor(Math.random() * ALL_WORDS.length)];
+  // 3 types: VN→EN, IPA→EN, EN→VN
+  const type = Math.floor(Math.random() * 3);
+  let prompt, correct, options;
+
+  // Get 3 distractors from same group (or random)
+  const sameGroup = ALL_WORDS.filter(x => x.group === w.group && x.w !== w.w);
+  const distractors = [];
+  while (distractors.length < 3) {
+    const d = sameGroup[Math.floor(Math.random() * sameGroup.length)];
+    if (!distractors.includes(d)) distractors.push(d);
+  }
+
+  if (type === 0) {
+    // VN → EN
+    prompt = `Từ tiếng Anh nghĩa là <em>"${w.meaning}"</em>?`;
+    correct = w.w;
+    options = [w.w, ...distractors.map(d => d.w)];
+  } else if (type === 1) {
+    // IPA → EN
+    prompt = `Từ có phiên âm <em>${w.ipa}</em>?`;
+    correct = w.w;
+    options = [w.w, ...distractors.map(d => d.w)];
+  } else {
+    // EN → VN
+    prompt = `Từ <em>"${w.w}"</em> nghĩa là gì?`;
+    correct = w.meaning;
+    options = [w.meaning, ...distractors.map(d => d.meaning)];
+  }
+  // Shuffle options
+  for (let i = options.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [options[i], options[j]] = [options[j], options[i]];
+  }
+  return { prompt, correct, options, word: w, type };
+}
+
+const quizDisplay = document.getElementById('quiz-display');
+const quizFeedback = document.getElementById('quiz-feedback');
+const quizStatsEl = document.getElementById('quiz-stats');
+let qStats = { correct: 0, total: 0 };
+let currentQ = null;
+let answered = false;
+
+function newQuiz() {
+  currentQ = buildQuiz();
+  answered = false;
+  const opts = currentQ.options.map((o, i) => `<button class="opt-btn" data-i="${i}">${o}</button>`).join('');
+  quizDisplay.innerHTML = `
+    <div class="quiz-question">
+      <div class="quiz-context">Chọn đáp án đúng:</div>
+      <div class="quiz-prompt">${currentQ.prompt}</div>
+    </div>
+    <div class="quiz-options">${opts}</div>
+  `;
+  quizDisplay.querySelectorAll('.opt-btn').forEach(b => b.addEventListener('click', () => handleQuiz(b.textContent, b)));
+  quizFeedback.classList.remove('show', 'ok', 'err');
+}
+
+function handleQuiz(ans, btn) {
+  if (answered) return; answered = true;
+  qStats.total++;
+  quizDisplay.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+  if (ans === currentQ.correct) {
+    qStats.correct++;
+    btn.classList.add('correct');
+    quizFeedback.innerHTML = `<strong>Đúng!</strong> ${currentQ.word.w} ${currentQ.word.ipa} = ${currentQ.word.meaning}. <em>"${currentQ.word.ex}"</em> <button class=\"play-pill\" style=\"margin-left:8px;\" onclick=\"playAudio('${currentQ.word.a}', this, '${currentQ.word.w}')\">▶ Nghe</button>`;
+    quizFeedback.className = 'quiz-feedback show ok';
+  } else {
+    btn.classList.add('wrong');
+    quizDisplay.querySelectorAll('.opt-btn').forEach(b => { if (b.textContent === currentQ.correct) b.classList.add('correct'); });
+    quizFeedback.innerHTML = `<strong>Sai.</strong> Đáp án: <em>${currentQ.correct}</em>. ${currentQ.word.w} ${currentQ.word.ipa} = ${currentQ.word.meaning}. <em>"${currentQ.word.ex}"</em> <button class=\"play-pill\" style=\"margin-left:8px;\" onclick=\"playAudio('${currentQ.word.a}', this, '${currentQ.word.w}')\">▶ Nghe</button>`;
+    quizFeedback.className = 'quiz-feedback show err';
+  }
+  quizStatsEl.textContent = `Đúng: ${qStats.correct} / ${qStats.total}`;
+}
+document.getElementById('btn-new-quiz').addEventListener('click', newQuiz);
+</script>
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/ipa-reader.js"></script>
+</body>
+</html>

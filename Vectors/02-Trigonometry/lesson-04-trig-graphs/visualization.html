@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 04 — Đồ thị hàm lượng giác</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 24px; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 18px 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .desc { color: #4a5568; font-size: 14px; margin-bottom: 12px; }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; font-size: 14px; min-width: 140px; }
+  input[type="range"] { width: 240px; vertical-align: middle; }
+  .slider-val {
+    display: inline-block; font-family: monospace;
+    background: #edf2f7; padding: 2px 8px; border-radius: 4px;
+    font-weight: 600; color: #2b6cb0; min-width: 60px; text-align: center;
+  }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 6px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.toggle { background: #e2e8f0; color: #2d3748; }
+  button.toggle.active { background: #4299e1; color: white; }
+  svg { display: block; background: #fdfdfd; border: 1px solid #e2e8f0; border-radius: 6px; }
+  .chart-axis { stroke: #a0aec0; stroke-width: 1; }
+  .chart-grid { stroke: #edf2f7; stroke-width: 1; }
+  .chart-label { font-size: 11px; fill: #718096; font-family: monospace; }
+  .chart-title { font-size: 13px; fill: #2d3748; font-weight: 600; }
+  .stat-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 8px; margin-top: 12px;
+  }
+  .stat {
+    background: #edf2f7; padding: 8px 12px; border-radius: 4px;
+    font-family: monospace; font-size: 13px;
+  }
+  .stat .name { color: #4a5568; font-size: 11px; }
+  .stat .val { color: #2b6cb0; font-weight: 700; font-size: 14px; }
+  .formula {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    background: #1a202c; color: #cbf36b;
+    padding: 8px 12px; border-radius: 4px;
+    font-size: 14px; margin: 8px 0;
+  }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; margin-top: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-swatch { width: 14px; height: 14px; border-radius: 2px; display: inline-block; }
+  .split-2 {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  }
+  @media (max-width: 800px) {
+    .split-2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-unit-circle/visualization.html">← L3: Đường tròn đơn vị</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Đồ thị hàm lượng giác</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-identities-cosine-law/visualization.html">L5: Identity và định lý cosin →</a>
+</nav>
+  <h1>Lesson 04 — Đồ thị hàm lượng giác</h1>
+  <div class="subtitle">4 component tương tác: wave playground, sin/cos/tan overlay, đường tròn ↔ sóng đồng bộ, và Fourier sóng vuông.</div>
+
+  <!-- ============================================================ -->
+  <!-- Component 1: Wave Playground                                -->
+  <!-- ============================================================ -->
+  <h2>1. Wave Playground — <code>y = A·sin(B·x + C) + D</code></h2>
+  <div class="card">
+    <div class="desc">
+      Kéo 4 slider để thay đổi <code>A</code> (biên độ), <code>B</code> (tần số góc),
+      <code>C</code> (pha), <code>D</code> (dịch dọc). Đồ thị, chu kỳ, tần số và range cập nhật realtime.
+    </div>
+    <div class="row">
+      <label>A (biên độ): <span id="vAval" class="slider-val">1.0</span></label>
+      <input id="vA" type="range" min="-3" max="3" step="0.1" value="1">
+    </div>
+    <div class="row">
+      <label>B (tần số góc): <span id="vBval" class="slider-val">1.0</span></label>
+      <input id="vB" type="range" min="0.2" max="5" step="0.1" value="1">
+    </div>
+    <div class="row">
+      <label>C (pha): <span id="vCval" class="slider-val">0.0</span></label>
+      <input id="vC" type="range" min="-6.28" max="6.28" step="0.05" value="0">
+    </div>
+    <div class="row">
+      <label>D (dịch dọc): <span id="vDval" class="slider-val">0.0</span></label>
+      <input id="vD" type="range" min="-3" max="3" step="0.1" value="0">
+    </div>
+    <svg id="wave-svg" width="1100" height="320" viewBox="0 0 1100 320"></svg>
+    <div class="stat-grid">
+      <div class="stat"><div class="name">Chu kỳ T = 2π/|B|</div><div id="vPeriod" class="val">6.28</div></div>
+      <div class="stat"><div class="name">Tần số f = 1/T</div><div id="vFreq" class="val">0.159</div></div>
+      <div class="stat"><div class="name">Tần số góc ω = B</div><div id="vOmega" class="val">1.00</div></div>
+      <div class="stat"><div class="name">Range</div><div id="vRange" class="val">[-1, 1]</div></div>
+      <div class="stat"><div class="name">Dịch ngang -C/B</div><div id="vShift" class="val">0</div></div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- Component 2: sin vs cos vs tan overlay                      -->
+  <!-- ============================================================ -->
+  <h2>2. So sánh <code>sin</code>, <code>cos</code>, <code>tan</code></h2>
+  <div class="card">
+    <div class="desc">
+      Ba đồ thị trên cùng trục <code>[-2π, 2π]</code>. Nhấn vào nhãn để ẩn/hiện từng đường.
+      Để ý <strong>tiệm cận đứng</strong> của tan tại <code>π/2 + kπ</code>.
+    </div>
+    <div class="row">
+      <button id="toggleSin" class="toggle active">sin x</button>
+      <button id="toggleCos" class="toggle active">cos x</button>
+      <button id="toggleTan" class="toggle active">tan x</button>
+    </div>
+    <svg id="trio-svg" width="1100" height="360" viewBox="0 0 1100 360"></svg>
+    <div class="legend">
+      <span class="legend-item"><span class="legend-swatch" style="background:#3182ce;"></span> sin x — chu kỳ 2π, range [-1, 1]</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#dd6b20;"></span> cos x — chu kỳ 2π, range [-1, 1]</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#38a169;"></span> tan x — chu kỳ π, range ℝ</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#e53e3e; opacity:0.5"></span> tiệm cận của tan</span>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- Component 3: Unit circle ↔ sin wave (đồng bộ)               -->
+  <!-- ============================================================ -->
+  <h2>3. Đường tròn đơn vị ↔ đồ thị sin (đồng bộ)</h2>
+  <div class="card">
+    <div class="desc">
+      Kéo slider <code>θ</code> để xoay điểm trên đường tròn (trái). Đồ thị <code>y = sin θ</code> bên phải
+      cập nhật, đánh dấu điểm hiện tại. Hai panel đồng bộ — bạn sẽ thấy rõ tọa độ tung của điểm = giá trị
+      hiển thị trên đồ thị.
+    </div>
+    <div class="row">
+      <label>θ (rad): <span id="thetaVal" class="slider-val">0.00</span></label>
+      <input id="theta" type="range" min="0" max="6.2832" step="0.01" value="0">
+      <button id="thetaPlay">▶ Auto-rotate</button>
+    </div>
+    <div class="split-2">
+      <svg id="circle-svg" width="400" height="400" viewBox="0 0 400 400"></svg>
+      <svg id="circle-wave-svg" width="540" height="400" viewBox="0 0 540 400"></svg>
+    </div>
+    <div class="stat-grid">
+      <div class="stat"><div class="name">θ (rad)</div><div id="cTheta" class="val">0.00</div></div>
+      <div class="stat"><div class="name">θ (deg)</div><div id="cThetaDeg" class="val">0°</div></div>
+      <div class="stat"><div class="name">cos θ (toạ độ hoành)</div><div id="cCos" class="val">1.00</div></div>
+      <div class="stat"><div class="name">sin θ (toạ độ tung)</div><div id="cSin" class="val">0.00</div></div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- Component 4: Fourier square wave                            -->
+  <!-- ============================================================ -->
+  <h2>4. Xấp xỉ sóng vuông bằng chuỗi Fourier</h2>
+  <div class="card">
+    <div class="desc">
+      Sóng vuông xấp xỉ bằng <code>(4/π) · Σ sin((2k+1)·x)/(2k+1)</code> với <code>k = 0, 1, ..., n-1</code>.
+      Kéo slider số hài <code>n</code> để thấy đường cong dần biến thành sóng vuông.
+      Đường nét đứt là sóng vuông "thật" để so sánh.
+    </div>
+    <div class="row">
+      <label>Số hài n: <span id="nHval" class="slider-val">1</span></label>
+      <input id="nH" type="range" min="1" max="30" step="1" value="1">
+    </div>
+    <svg id="fourier-svg" width="1100" height="320" viewBox="0 0 1100 320"></svg>
+    <div class="stat-grid">
+      <div class="stat"><div class="name">Sai số tại x = π/2</div><div id="fErr" class="val">--</div></div>
+      <div class="stat"><div class="name">Sai số RMS</div><div id="fRMS" class="val">--</div></div>
+    </div>
+    <p class="desc" style="margin-top:12px;">
+      Khi <code>n = 1</code>: chỉ có <code>sin x</code> — đường cong tròn trơn. <code>n = 3</code>: bắt đầu
+      "vuông hóa". <code>n = 10+</code>: đỉnh/đáy đã rất phẳng, nhưng có "tai" Gibbs ở góc nhảy — đó là
+      hiện tượng nội tại không khử được dù cộng vô hạn hài.
+    </p>
+  </div>
+
+</main>
+
+<script>
+// ============================================================
+// Tiện ích chung
+// ============================================================
+const TAU = 2 * Math.PI;
+function fmt(v, d = 2) {
+  if (!Number.isFinite(v)) return "∞";
+  return Number(v).toFixed(d);
+}
+function svgPath(points) {
+  return points.map((p, i) => (i === 0 ? "M" : "L") + p[0] + " " + p[1]).join(" ");
+}
+
+// ============================================================
+// Component 1: Wave Playground
+// ============================================================
+const vA = document.getElementById("vA");
+const vB = document.getElementById("vB");
+const vC = document.getElementById("vC");
+const vD = document.getElementById("vD");
+
+function drawWavePlayground() {
+  const A = parseFloat(vA.value);
+  const B = parseFloat(vB.value);
+  const C = parseFloat(vC.value);
+  const D = parseFloat(vD.value);
+  document.getElementById("vAval").textContent = fmt(A, 1);
+  document.getElementById("vBval").textContent = fmt(B, 1);
+  document.getElementById("vCval").textContent = fmt(C, 2);
+  document.getElementById("vDval").textContent = fmt(D, 1);
+
+  const svg = document.getElementById("wave-svg");
+  const W = 1100, H = 320;
+  const padL = 50, padR = 20, padT = 20, padB = 30;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const xMin = -TAU, xMax = TAU;
+  const absA = Math.abs(A);
+  const yMin = Math.min(-4, D - absA - 0.5);
+  const yMax = Math.max(4, D + absA + 0.5);
+
+  const sx = x => padL + (x - xMin) / (xMax - xMin) * plotW;
+  const sy = y => padT + (yMax - y) / (yMax - yMin) * plotH;
+
+  let html = '';
+  // grid
+  for (let k = -2; k <= 2; k++) {
+    const x = k * Math.PI;
+    html += `<line class="chart-grid" x1="${sx(x)}" y1="${padT}" x2="${sx(x)}" y2="${padT + plotH}"/>`;
+    const lbl = k === 0 ? "0" : (k === 1 ? "π" : (k === -1 ? "-π" : (k + "π")));
+    html += `<text class="chart-label" x="${sx(x)}" y="${H - 12}" text-anchor="middle">${lbl}</text>`;
+  }
+  for (let yv = Math.ceil(yMin); yv <= Math.floor(yMax); yv++) {
+    html += `<line class="chart-grid" x1="${padL}" y1="${sy(yv)}" x2="${padL + plotW}" y2="${sy(yv)}"/>`;
+    html += `<text class="chart-label" x="${padL - 6}" y="${sy(yv) + 4}" text-anchor="end">${yv}</text>`;
+  }
+  // axes
+  html += `<line class="chart-axis" x1="${padL}" y1="${sy(0)}" x2="${padL + plotW}" y2="${sy(0)}"/>`;
+  html += `<line class="chart-axis" x1="${sx(0)}" y1="${padT}" x2="${sx(0)}" y2="${padT + plotH}"/>`;
+  // baseline (y = D)
+  if (D !== 0) {
+    html += `<line stroke="#dd6b20" stroke-dasharray="4 4" stroke-width="1" x1="${padL}" y1="${sy(D)}" x2="${padL + plotW}" y2="${sy(D)}"/>`;
+    html += `<text class="chart-label" x="${padL + plotW - 4}" y="${sy(D) - 4}" text-anchor="end" fill="#dd6b20">y = ${fmt(D, 1)}</text>`;
+  }
+  // wave
+  const pts = [];
+  for (let i = 0; i <= 600; i++) {
+    const x = xMin + (xMax - xMin) * i / 600;
+    const y = A * Math.sin(B * x + C) + D;
+    pts.push([sx(x).toFixed(1), sy(y).toFixed(1)]);
+  }
+  html += `<path d="${svgPath(pts)}" fill="none" stroke="#3182ce" stroke-width="2.4"/>`;
+
+  // reference: y = sin x for comparison
+  const refPts = [];
+  for (let i = 0; i <= 300; i++) {
+    const x = xMin + (xMax - xMin) * i / 300;
+    refPts.push([sx(x).toFixed(1), sy(Math.sin(x)).toFixed(1)]);
+  }
+  html += `<path d="${svgPath(refPts)}" fill="none" stroke="#a0aec0" stroke-width="1" stroke-dasharray="3 4"/>`;
+  html += `<text class="chart-label" x="${padL + 8}" y="${padT + 14}" fill="#a0aec0">--- sin x (tham chiếu)</text>`;
+  html += `<text class="chart-label" x="${padL + 8}" y="${padT + 28}" fill="#3182ce">— y = ${fmt(A,1)}·sin(${fmt(B,1)}x + ${fmt(C,2)}) + ${fmt(D,1)}</text>`;
+
+  svg.innerHTML = html;
+
+  // stats
+  const period = TAU / Math.abs(B);
+  const freq = 1 / period;
+  document.getElementById("vPeriod").textContent = fmt(period, 3);
+  document.getElementById("vFreq").textContent = fmt(freq, 3);
+  document.getElementById("vOmega").textContent = fmt(B, 2);
+  document.getElementById("vRange").textContent = `[${fmt(D - absA, 2)}, ${fmt(D + absA, 2)}]`;
+  document.getElementById("vShift").textContent = fmt(-C / B, 3);
+}
+[vA, vB, vC, vD].forEach(s => s.addEventListener("input", drawWavePlayground));
+drawWavePlayground();
+
+// ============================================================
+// Component 2: trio (sin / cos / tan)
+// ============================================================
+const showSin = { v: true }, showCos = { v: true }, showTan = { v: true };
+document.getElementById("toggleSin").addEventListener("click", e => {
+  showSin.v = !showSin.v; e.target.classList.toggle("active", showSin.v); drawTrio();
+});
+document.getElementById("toggleCos").addEventListener("click", e => {
+  showCos.v = !showCos.v; e.target.classList.toggle("active", showCos.v); drawTrio();
+});
+document.getElementById("toggleTan").addEventListener("click", e => {
+  showTan.v = !showTan.v; e.target.classList.toggle("active", showTan.v); drawTrio();
+});
+
+function drawTrio() {
+  const svg = document.getElementById("trio-svg");
+  const W = 1100, H = 360;
+  const padL = 50, padR = 20, padT = 20, padB = 30;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const xMin = -TAU, xMax = TAU;
+  const yMin = -3, yMax = 3;
+  const sx = x => padL + (x - xMin) / (xMax - xMin) * plotW;
+  const sy = y => padT + (yMax - y) / (yMax - yMin) * plotH;
+
+  let html = '';
+  // grid x = kπ/2
+  for (let k = -4; k <= 4; k++) {
+    const x = k * Math.PI / 2;
+    html += `<line class="chart-grid" x1="${sx(x)}" y1="${padT}" x2="${sx(x)}" y2="${padT + plotH}"/>`;
+    let lbl = "";
+    if (k === 0) lbl = "0";
+    else if (k === 2) lbl = "π";
+    else if (k === -2) lbl = "-π";
+    else if (k === 4) lbl = "2π";
+    else if (k === -4) lbl = "-2π";
+    else if (k === 1) lbl = "π/2";
+    else if (k === -1) lbl = "-π/2";
+    else if (k === 3) lbl = "3π/2";
+    else if (k === -3) lbl = "-3π/2";
+    html += `<text class="chart-label" x="${sx(x)}" y="${H - 12}" text-anchor="middle">${lbl}</text>`;
+  }
+  for (let yv = yMin; yv <= yMax; yv++) {
+    html += `<line class="chart-grid" x1="${padL}" y1="${sy(yv)}" x2="${padL + plotW}" y2="${sy(yv)}"/>`;
+    html += `<text class="chart-label" x="${padL - 6}" y="${sy(yv) + 4}" text-anchor="end">${yv}</text>`;
+  }
+  html += `<line class="chart-axis" x1="${padL}" y1="${sy(0)}" x2="${padL + plotW}" y2="${sy(0)}"/>`;
+  html += `<line class="chart-axis" x1="${sx(0)}" y1="${padT}" x2="${sx(0)}" y2="${padT + plotH}"/>`;
+
+  // tan asymptotes
+  if (showTan.v) {
+    for (let k = -3; k <= 3; k += 2) {
+      const x = k * Math.PI / 2;
+      html += `<line stroke="#e53e3e" stroke-width="1" stroke-dasharray="4 3" opacity="0.5" x1="${sx(x)}" y1="${padT}" x2="${sx(x)}" y2="${padT + plotH}"/>`;
+    }
+  }
+
+  // sin
+  if (showSin.v) {
+    const pts = [];
+    for (let i = 0; i <= 600; i++) {
+      const x = xMin + (xMax - xMin) * i / 600;
+      pts.push([sx(x).toFixed(1), sy(Math.sin(x)).toFixed(1)]);
+    }
+    html += `<path d="${svgPath(pts)}" fill="none" stroke="#3182ce" stroke-width="2.2"/>`;
+  }
+  // cos
+  if (showCos.v) {
+    const pts = [];
+    for (let i = 0; i <= 600; i++) {
+      const x = xMin + (xMax - xMin) * i / 600;
+      pts.push([sx(x).toFixed(1), sy(Math.cos(x)).toFixed(1)]);
+    }
+    html += `<path d="${svgPath(pts)}" fill="none" stroke="#dd6b20" stroke-width="2.2"/>`;
+  }
+  // tan — vẽ từng branch giữa các tiệm cận
+  if (showTan.v) {
+    // branches: (-3π/2, -π/2), (-π/2, π/2), (π/2, 3π/2)
+    const branches = [[-3 * Math.PI / 2, -Math.PI / 2], [-Math.PI / 2, Math.PI / 2], [Math.PI / 2, 3 * Math.PI / 2]];
+    for (const [lo, hi] of branches) {
+      const eps = 0.04;
+      const pts = [];
+      const N = 200;
+      for (let i = 0; i <= N; i++) {
+        const x = lo + eps + (hi - eps - lo - eps) * i / N;
+        const y = Math.tan(x);
+        if (Math.abs(y) <= yMax + 0.3) pts.push([sx(x).toFixed(1), sy(Math.max(yMin, Math.min(yMax, y))).toFixed(1)]);
+      }
+      if (pts.length > 1) html += `<path d="${svgPath(pts)}" fill="none" stroke="#38a169" stroke-width="2.2"/>`;
+    }
+  }
+
+  svg.innerHTML = html;
+}
+drawTrio();
+
+// ============================================================
+// Component 3: Unit circle ↔ sin wave (đồng bộ)
+// ============================================================
+const thetaSlider = document.getElementById("theta");
+const thetaVal = document.getElementById("thetaVal");
+let autoPlay = false, autoId = null;
+
+document.getElementById("thetaPlay").addEventListener("click", e => {
+  autoPlay = !autoPlay;
+  e.target.textContent = autoPlay ? "⏸ Pause" : "▶ Auto-rotate";
+  if (autoPlay) {
+    autoId = setInterval(() => {
+      let v = parseFloat(thetaSlider.value) + 0.04;
+      if (v > TAU) v = 0;
+      thetaSlider.value = v;
+      drawCircleSync();
+    }, 30);
+  } else {
+    clearInterval(autoId);
+  }
+});
+
+function drawCircleSync() {
+  const theta = parseFloat(thetaSlider.value);
+  thetaVal.textContent = fmt(theta, 2);
+  const cosV = Math.cos(theta);
+  const sinV = Math.sin(theta);
+  document.getElementById("cTheta").textContent = fmt(theta, 3);
+  document.getElementById("cThetaDeg").textContent = fmt(theta * 180 / Math.PI, 1) + "°";
+  document.getElementById("cCos").textContent = fmt(cosV, 3);
+  document.getElementById("cSin").textContent = fmt(sinV, 3);
+
+  // --- Đường tròn (trái) ---
+  const cSvg = document.getElementById("circle-svg");
+  const cx = 200, cy = 200, r = 150;
+  const px = cx + r * cosV, py = cy - r * sinV;
+  let html = '';
+  // trục
+  html += `<line class="chart-axis" x1="${cx - r - 20}" y1="${cy}" x2="${cx + r + 20}" y2="${cy}"/>`;
+  html += `<line class="chart-axis" x1="${cx}" y1="${cy - r - 20}" x2="${cx}" y2="${cy + r + 20}"/>`;
+  html += `<text class="chart-label" x="${cx + r + 24}" y="${cy + 4}">x</text>`;
+  html += `<text class="chart-label" x="${cx + 4}" y="${cy - r - 22}">y</text>`;
+  // đường tròn
+  html += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#cbd5e0" stroke-width="2"/>`;
+  // tia bán kính
+  html += `<line x1="${cx}" y1="${cy}" x2="${px}" y2="${py}" stroke="#3182ce" stroke-width="2"/>`;
+  // hình chiếu sin (đường dọc)
+  html += `<line x1="${px}" y1="${py}" x2="${px}" y2="${cy}" stroke="#dd6b20" stroke-width="2" stroke-dasharray="4 3"/>`;
+  // hình chiếu cos (đường ngang)
+  html += `<line x1="${cx}" y1="${cy}" x2="${px}" y2="${cy}" stroke="#38a169" stroke-width="2"/>`;
+  // điểm
+  html += `<circle cx="${px}" cy="${py}" r="6" fill="#3182ce"/>`;
+  // nhãn
+  html += `<text class="chart-label" x="${px + 8}" y="${py - 6}" fill="#3182ce">P</text>`;
+  html += `<text class="chart-label" x="${(cx + px) / 2}" y="${cy + 14}" fill="#38a169" text-anchor="middle">cos θ = ${fmt(cosV, 2)}</text>`;
+  html += `<text class="chart-label" x="${px + 6}" y="${(py + cy) / 2}" fill="#dd6b20">sin θ = ${fmt(sinV, 2)}</text>`;
+  // cung góc
+  const arcR = 25;
+  const arcEnd = [cx + arcR * cosV, cy - arcR * sinV];
+  const largeArc = theta > Math.PI ? 1 : 0;
+  html += `<path d="M ${cx + arcR} ${cy} A ${arcR} ${arcR} 0 ${largeArc} 0 ${arcEnd[0]} ${arcEnd[1]}" fill="none" stroke="#805ad5" stroke-width="1.6"/>`;
+  cSvg.innerHTML = html;
+
+  // --- Đồ thị y = sin x (phải), đánh dấu điểm hiện tại ---
+  const wSvg = document.getElementById("circle-wave-svg");
+  const W = 540, H = 400;
+  const padL = 40, padR = 20, padT = 20, padB = 30;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const xMin = 0, xMax = TAU;
+  const yMin = -1.3, yMax = 1.3;
+  const sx = x => padL + (x - xMin) / (xMax - xMin) * plotW;
+  const sy = y => padT + (yMax - y) / (yMax - yMin) * plotH;
+  let wh = '';
+  // grid
+  for (let k = 0; k <= 4; k++) {
+    const x = k * Math.PI / 2;
+    wh += `<line class="chart-grid" x1="${sx(x)}" y1="${padT}" x2="${sx(x)}" y2="${padT + plotH}"/>`;
+    const lbl = k === 0 ? "0" : (k === 1 ? "π/2" : (k === 2 ? "π" : (k === 3 ? "3π/2" : "2π")));
+    wh += `<text class="chart-label" x="${sx(x)}" y="${H - 12}" text-anchor="middle">${lbl}</text>`;
+  }
+  for (let yv = -1; yv <= 1; yv++) {
+    wh += `<line class="chart-grid" x1="${padL}" y1="${sy(yv)}" x2="${padL + plotW}" y2="${sy(yv)}"/>`;
+    wh += `<text class="chart-label" x="${padL - 6}" y="${sy(yv) + 4}" text-anchor="end">${yv}</text>`;
+  }
+  wh += `<line class="chart-axis" x1="${padL}" y1="${sy(0)}" x2="${padL + plotW}" y2="${sy(0)}"/>`;
+  // vẽ sin từ 0 tới theta (đậm), phần sau (mờ)
+  const ptsDone = [], ptsFuture = [];
+  for (let i = 0; i <= 300; i++) {
+    const x = xMin + (xMax - xMin) * i / 300;
+    const y = Math.sin(x);
+    if (x <= theta) ptsDone.push([sx(x).toFixed(1), sy(y).toFixed(1)]);
+    else ptsFuture.push([sx(x).toFixed(1), sy(y).toFixed(1)]);
+  }
+  wh += `<path d="${svgPath(ptsFuture)}" fill="none" stroke="#cbd5e0" stroke-width="1.5" stroke-dasharray="3 3"/>`;
+  wh += `<path d="${svgPath(ptsDone)}" fill="none" stroke="#3182ce" stroke-width="2.4"/>`;
+  // điểm hiện tại
+  wh += `<line x1="${sx(theta)}" y1="${sy(0)}" x2="${sx(theta)}" y2="${sy(sinV)}" stroke="#dd6b20" stroke-width="2" stroke-dasharray="4 3"/>`;
+  wh += `<circle cx="${sx(theta)}" cy="${sy(sinV)}" r="6" fill="#3182ce"/>`;
+  wh += `<text class="chart-label" x="${sx(theta) + 8}" y="${sy(sinV) - 6}" fill="#3182ce">y = ${fmt(sinV, 2)}</text>`;
+
+  wSvg.innerHTML = wh;
+}
+thetaSlider.addEventListener("input", drawCircleSync);
+drawCircleSync();
+
+// ============================================================
+// Component 4: Fourier square wave
+// ============================================================
+const nH = document.getElementById("nH");
+function fourierSq(x, n) {
+  let s = 0;
+  for (let k = 0; k < n; k++) {
+    const odd = 2 * k + 1;
+    s += Math.sin(odd * x) / odd;
+  }
+  return (4 / Math.PI) * s;
+}
+function trueSquare(x) {
+  // sóng vuông chu kỳ 2π, biên độ ±1
+  let r = x % TAU;
+  if (r < 0) r += TAU;
+  return r < Math.PI ? 1 : -1;
+}
+function drawFourier() {
+  const n = parseInt(nH.value);
+  document.getElementById("nHval").textContent = n;
+  const svg = document.getElementById("fourier-svg");
+  const W = 1100, H = 320;
+  const padL = 50, padR = 20, padT = 20, padB = 30;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const xMin = -TAU, xMax = TAU;
+  const yMin = -1.6, yMax = 1.6;
+  const sx = x => padL + (x - xMin) / (xMax - xMin) * plotW;
+  const sy = y => padT + (yMax - y) / (yMax - yMin) * plotH;
+  let html = '';
+  for (let k = -2; k <= 2; k++) {
+    const x = k * Math.PI;
+    html += `<line class="chart-grid" x1="${sx(x)}" y1="${padT}" x2="${sx(x)}" y2="${padT + plotH}"/>`;
+    const lbl = k === 0 ? "0" : (k === 1 ? "π" : (k === -1 ? "-π" : (k + "π")));
+    html += `<text class="chart-label" x="${sx(x)}" y="${H - 12}" text-anchor="middle">${lbl}</text>`;
+  }
+  for (let yv of [-1, 0, 1]) {
+    html += `<line class="chart-grid" x1="${padL}" y1="${sy(yv)}" x2="${padL + plotW}" y2="${sy(yv)}"/>`;
+    html += `<text class="chart-label" x="${padL - 6}" y="${sy(yv) + 4}" text-anchor="end">${yv}</text>`;
+  }
+  html += `<line class="chart-axis" x1="${padL}" y1="${sy(0)}" x2="${padL + plotW}" y2="${sy(0)}"/>`;
+  // sóng vuông thật (đứt nét)
+  const truePts = [];
+  for (let i = 0; i <= 800; i++) {
+    const x = xMin + (xMax - xMin) * i / 800;
+    truePts.push([sx(x).toFixed(1), sy(trueSquare(x)).toFixed(1)]);
+  }
+  html += `<path d="${svgPath(truePts)}" fill="none" stroke="#a0aec0" stroke-width="1" stroke-dasharray="4 3"/>`;
+  // xấp xỉ
+  const apPts = [];
+  let rmsSum = 0, rmsN = 0;
+  for (let i = 0; i <= 800; i++) {
+    const x = xMin + (xMax - xMin) * i / 800;
+    const y = fourierSq(x, n);
+    apPts.push([sx(x).toFixed(1), sy(y).toFixed(1)]);
+    const t = trueSquare(x);
+    rmsSum += (y - t) * (y - t);
+    rmsN++;
+  }
+  html += `<path d="${svgPath(apPts)}" fill="none" stroke="#3182ce" stroke-width="2.2"/>`;
+  html += `<text class="chart-label" x="${padL + 8}" y="${padT + 14}" fill="#a0aec0">--- sóng vuông thật</text>`;
+  html += `<text class="chart-label" x="${padL + 8}" y="${padT + 28}" fill="#3182ce">— xấp xỉ với n = ${n}</text>`;
+  svg.innerHTML = html;
+
+  const rms = Math.sqrt(rmsSum / rmsN);
+  const errAtHalfPi = Math.abs(fourierSq(Math.PI / 2, n) - 1);
+  document.getElementById("fErr").textContent = fmt(errAtHalfPi, 5);
+  document.getElementById("fRMS").textContent = fmt(rms, 5);
+}
+nH.addEventListener("input", drawFourier);
+drawFourier();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

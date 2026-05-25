@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Câu bị động — Passive Voice</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f5f6f8; --panel: #fff; --ink: #1a1a1a; --muted: #6a6a6a; --line: #e3e1dc;
+    --accent: #b45309; --accent-soft: #fef3c7;
+    --active: #15803d; --active-soft: #dcfce7;
+    --passive: #1d4ed8; --passive-soft: #dbeafe;
+    --ok: #15803d; --error: #b91c1c;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.55; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px 80px; }
+  header h1 { margin: 0 0 4px; font-size: 24px; }
+  header p { margin: 0 0 20px; color: var(--muted); font-size: 14px; }
+
+  .accent-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin-left: 8px; }
+  .accent-toggle button { background: var(--panel); border: none; padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; }
+  .accent-toggle button + button { border-left: 1px solid var(--line); }
+  .accent-toggle button.active { background: var(--accent); color: white; }
+
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 24px; flex-wrap: wrap; }
+  .tab { padding: 10px 16px; cursor: pointer; background: none; border: none; font-size: 14px; font-weight: 500; color: var(--muted); border-bottom: 2px solid transparent; }
+  .tab.active { color: var(--ink); border-bottom-color: var(--accent); }
+  .pane { display: none; }
+  .pane.active { display: block; }
+
+  .section-note { color: var(--muted); font-size: 13px; margin: 0 0 16px; background: var(--accent-soft); padding: 10px 14px; border-radius: 8px; border-left: 3px solid var(--accent); }
+
+  .ap-table { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .ap-table th { background: #f5f4f0; padding: 10px; text-align: left; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .ap-table td { padding: 10px 12px; border-top: 1px solid var(--line); font-size: 14px; vertical-align: middle; }
+  .ap-table .tn { font-weight: 600; color: var(--accent); white-space: nowrap; }
+  .ap-table .sentence { font-size: 14px; }
+  .ap-table .active-cell em { background: var(--active-soft); color: var(--active); padding: 1px 5px; border-radius: 3px; font-weight: 600; font-style: normal; }
+  .ap-table .passive-cell em { background: var(--passive-soft); color: var(--passive); padding: 1px 5px; border-radius: 3px; font-weight: 600; font-style: normal; }
+  .ap-table .play-cell { width: 70px; text-align: center; }
+  .play-pill { padding: 5px 10px; background: var(--accent); color: white; border-radius: 14px; font-size: 12px; cursor: pointer; border: none; }
+  .play-pill:hover { background: #92400e; }
+  .play-pill.speaking { background: var(--ok); }
+
+  .use-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 14px; }
+  .use-title { font-size: 16px; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+  .use-desc { color: var(--muted); font-size: 14px; margin-bottom: 12px; }
+  .use-examples { display: flex; flex-direction: column; gap: 6px; }
+  .ex-row { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #fafaf7; border: 1px solid var(--line); border-radius: 6px; }
+  .ex-row .sentence { flex: 1; font-size: 14px; }
+
+  /* Transform tool */
+  .transform-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .tf-active { padding: 14px 16px; background: var(--active-soft); border: 2px solid var(--active); border-radius: 8px; margin-bottom: 12px; font-size: 16px; }
+  .tf-active em { font-style: normal; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+  .tf-active em.subj { background: var(--active); color: white; }
+  .tf-active em.verb { background: var(--accent); color: white; }
+  .tf-active em.obj { background: var(--passive); color: white; }
+  .tf-arrow { text-align: center; color: var(--muted); font-size: 24px; margin: 12px 0; }
+  .tf-passive { padding: 14px 16px; background: var(--passive-soft); border: 2px solid var(--passive); border-radius: 8px; font-size: 16px; }
+  .tf-passive em { font-style: normal; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+  .tf-passive em.subj { background: var(--passive); color: white; }
+  .tf-passive em.verb { background: var(--accent); color: white; }
+  .tf-passive em.byagent { background: var(--active); color: white; }
+  .tf-note { margin-top: 10px; font-size: 13px; color: var(--muted); }
+  .tf-controls { margin-top: 10px; text-align: right; }
+
+  /* Quiz */
+  .quiz-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
+  .quiz-controls { display: flex; gap: 8px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+  .quiz-controls button { padding: 8px 14px; font-size: 13px; border: 1px solid var(--line); border-radius: 6px; background: white; cursor: pointer; font-weight: 500; }
+  .quiz-controls button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+  .quiz-stats { color: var(--muted); font-size: 13px; margin-left: auto; }
+  .quiz-question { text-align: center; padding: 20px 16px; background: var(--accent-soft); border-radius: 10px; margin-bottom: 20px; }
+  .quiz-context { font-size: 13px; color: var(--accent); margin-bottom: 10px; font-weight: 500; }
+  .quiz-sentence { font-size: 18px; line-height: 1.6; }
+  .quiz-sentence .blank { display: inline-block; min-width: 80px; padding: 2px 8px; background: var(--accent); color: white; border-radius: 4px; font-weight: 600; }
+  .quiz-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+  .opt-btn { padding: 12px; font-size: 13px; font-weight: 600; border: 2px solid var(--line); background: white; border-radius: 8px; cursor: pointer; text-align: left; }
+  .opt-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .opt-btn.correct { border-color: var(--ok); background: #f0fdf4; color: var(--ok); }
+  .opt-btn.wrong { border-color: var(--error); background: #fef2f2; color: var(--error); }
+  .quiz-feedback { margin-top: 14px; padding: 12px 16px; border-radius: 8px; font-size: 14px; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok { background: #f0fdf4; color: var(--ok); }
+  .quiz-feedback.err { background: #fef2f2; color: var(--error); }
+
+  .speech-status { font-size: 11px; color: var(--muted); margin-top: 12px; padding: 8px 12px; background: #f5f4f0; border-radius: 6px; }
+
+  footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); text-align: center; }
+  footer a { color: var(--accent); }
+
+</style>
+</head>
+<body>
+<div class="container">
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-08-relative-clauses/visualization.html">← L08: Relative clauses</a>
+  <span class="sep">·</span>
+  <span class="current">L09: Passive</span>
+  <span class="sep">·</span>
+  <a href="../lesson-10-modal-verbs/visualization.html">L10: Modal verbs →</a>
+</nav>
+
+<header>
+  <h1>Câu bị động — Passive Voice</h1>
+  <p>Active↔Passive cho 12 thì. Click ▶ nghe câu bằng Web Speech API.
+    Giọng:
+    <span class="accent-toggle">
+      <button id="btn-accent-us" class="active" data-variant="us">US</button>
+      <button id="btn-accent-uk" data-variant="uk">UK</button>
+    </span>
+  </p>
+</header>
+
+<div class="tabs">
+  <button class="tab active" data-tab="ap-table">Active ↔ Passive</button>
+  <button class="tab" data-tab="when">Khi nào dùng</button>
+  <button class="tab" data-tab="transform">Chuyển đổi</button>
+  <button class="tab" data-tab="quiz">Quiz</button>
+</div>
+
+<section class="pane active" id="pane-ap-table">
+  <div class="section-note">12 thì với cặp active/passive song song. <span style="color:var(--active);font-weight:600;">Xanh lá = active</span>, <span style="color:var(--passive);font-weight:600;">Xanh dương = passive</span>.</div>
+  <table class="ap-table" id="ap-table"></table>
+  <div class="speech-status" id="speech-status">⏳ Đang kiểm tra Web Speech API...</div>
+</section>
+
+<section class="pane" id="pane-when">
+  <div class="section-note">4 trường hợp dùng passive — có lý do, không tùy hứng.</div>
+  <div id="when-list"></div>
+</section>
+
+<section class="pane" id="pane-transform">
+  <div class="section-note">Xem từng bước chuyển active → passive. Mỗi card hiện 1 ví dụ với màu phân chia subject / verb / object.</div>
+  <div id="transform-list"></div>
+</section>
+
+<section class="pane" id="pane-quiz">
+  <div class="quiz-wrap">
+    <div class="quiz-controls">
+      <button class="primary" id="btn-new-quiz">▶ Câu mới</button>
+      <button id="btn-replay-quiz" disabled>↻ Nghe lại</button>
+      <span class="quiz-stats" id="quiz-stats">Đúng: 0 / 0</span>
+    </div>
+    <div id="quiz-display"></div>
+    <div class="quiz-feedback" id="quiz-feedback"></div>
+  </div>
+</section>
+
+<footer>Web Speech API đọc câu. Mặc định US. <a href="https://www.oxfordlearnersdictionaries.com" target="_blank">Oxford</a> cho từ rời.</footer>
+
+<audio id="audio-el" preload="none"></audio>
+</div>
+
+<script>
+const synth = window.speechSynthesis;
+let voices = [];
+let currentVariant = localStorage.getItem('audioVariant') || 'us';
+
+function loadVoices() { voices = synth ? synth.getVoices() : []; updateSpeechStatus(); }
+if (synth) { loadVoices(); if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = loadVoices; }
+
+function pickVoice(variant) {
+  if (!voices.length) return null;
+  const langPrefix = variant === 'uk' ? 'en-GB' : 'en-US';
+  const candidates = voices.filter(v => v.lang.startsWith(langPrefix));
+  if (!candidates.length) return voices.find(v => v.lang.startsWith('en')) || voices[0];
+  const premium = candidates.find(v => /premium|enhanced|natural|samantha|alex|daniel|kate|fiona/i.test(v.name));
+  return premium || candidates[0];
+}
+
+function speak(text, btn) {
+  if (!synth) { alert("Trình duyệt không hỗ trợ Web Speech API."); return; }
+  synth.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const v = pickVoice(currentVariant);
+  if (v) { u.voice = v; u.lang = v.lang; } else { u.lang = currentVariant === 'uk' ? 'en-GB' : 'en-US'; }
+  u.rate = 0.95;
+  if (btn) { btn.classList.add('speaking'); u.onend = () => btn.classList.remove('speaking'); u.onerror = () => btn.classList.remove('speaking'); }
+  synth.speak(u);
+}
+
+function updateSpeechStatus() {
+  const el = document.getElementById('speech-status'); if (!el) return;
+  if (!synth) { el.textContent = "⚠ Không hỗ trợ Web Speech API."; return; }
+  if (!voices.length) { el.textContent = "⏳ Đang tải giọng..."; return; }
+  const v = pickVoice(currentVariant);
+  el.textContent = `✓ Giọng đang chọn: ${v ? v.name + ' (' + v.lang + ')' : 'mặc định'}.`;
+}
+function setVariant(v) {
+  currentVariant = v;
+  localStorage.setItem('audioVariant', v);
+  document.querySelectorAll('.accent-toggle button').forEach(b => b.classList.toggle('active', b.dataset.variant === v));
+  updateSpeechStatus();
+}
+document.querySelectorAll('.accent-toggle button').forEach(btn => btn.addEventListener('click', () => setVariant(btn.dataset.variant)));
+setVariant(currentVariant);
+
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('pane-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+const stripHTML = s => s.replace(/<[^>]+>/g, '');
+
+// =================== Active-Passive table ===================
+const AP = [
+  { tn: "1. Present Simple", a: "She <em>cooks</em> the meal.", p: "The meal <em>is cooked</em> (by her)." },
+  { tn: "2. Present Continuous", a: "She <em>is cooking</em> the meal.", p: "The meal <em>is being cooked</em>." },
+  { tn: "3. Present Perfect", a: "She <em>has cooked</em> the meal.", p: "The meal <em>has been cooked</em>." },
+  { tn: "5. Past Simple", a: "She <em>cooked</em> the meal.", p: "The meal <em>was cooked</em>." },
+  { tn: "6. Past Continuous", a: "She <em>was cooking</em> the meal.", p: "The meal <em>was being cooked</em>." },
+  { tn: "7. Past Perfect", a: "She <em>had cooked</em> the meal.", p: "The meal <em>had been cooked</em>." },
+  { tn: "9. Future Simple", a: "She <em>will cook</em> the meal.", p: "The meal <em>will be cooked</em>." },
+  { tn: "11. Future Perfect", a: "She <em>will have cooked</em> the meal.", p: "The meal <em>will have been cooked</em>." },
+  { tn: "Modal: can", a: "She <em>can cook</em> the meal.", p: "The meal <em>can be cooked</em>." },
+  { tn: "Modal: must", a: "She <em>must cook</em> the meal.", p: "The meal <em>must be cooked</em>." },
+  { tn: "Modal: should", a: "She <em>should cook</em> the meal.", p: "The meal <em>should be cooked</em>." },
+  { tn: "Modal perfect", a: "She <em>must have cooked</em> the meal.", p: "The meal <em>must have been cooked</em>." },
+];
+
+const apTbl = document.getElementById('ap-table');
+apTbl.innerHTML = `<thead><tr><th>Thì</th><th>Active</th><th>Passive</th><th></th></tr></thead>`;
+const apBody = document.createElement('tbody');
+AP.forEach(row => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="tn">${row.tn}</td>
+    <td class="active-cell sentence">${row.a}</td>
+    <td class="passive-cell sentence">${row.p}</td>
+    <td class="play-cell">
+      <button class="play-pill" data-text="${stripHTML(row.a).replace(/"/g, '&quot;')}">▶ A</button>
+      <button class="play-pill" data-text="${stripHTML(row.p).replace(/"/g, '&quot;')}" style="margin-top: 4px; background: var(--passive);">▶ P</button>
+    </td>
+  `;
+  apBody.appendChild(tr);
+});
+apTbl.appendChild(apBody);
+apTbl.querySelectorAll('.play-pill').forEach(b => b.addEventListener('click', () => speak(b.dataset.text, b)));
+
+// =================== When to use passive ===================
+const WHEN_CASES = [
+  { title: "1. Không biết / không quan trọng ai làm",
+    desc: "Khi người thực hiện không xác định hoặc không cần nêu.",
+    examples: [
+      "My bike was stolen yesterday.",
+      "The Eiffel Tower was built in 1889.",
+      "English is spoken all over the world.",
+    ] },
+  { title: "2. Đối tượng chịu tác động quan trọng hơn",
+    desc: "Tiêu đề báo, văn khoa học, hợp đồng — đối tượng là tâm điểm.",
+    examples: [
+      "Three people were killed in the accident.",
+      "The experiment was conducted under controlled conditions.",
+      "The vaccine is being developed by a team in Hanoi.",
+    ] },
+  { title: "3. Muốn tránh nhắc người làm (lịch sự / né trách)",
+    desc: "Không nêu 'ai' để tránh chỉ tay hoặc giữ formal.",
+    examples: [
+      "Mistakes were made.",
+      "Your application has been rejected.",
+      "The decision has been postponed.",
+    ] },
+  { title: "4. Văn phong formal / impersonal",
+    desc: "Học thuật, báo chí, công văn — tránh chủ ngữ 'people / they'.",
+    examples: [
+      "It is widely believed that climate change is accelerating.",
+      "The results will be announced next week.",
+      "This phenomenon is known as the greenhouse effect.",
+    ] },
+];
+
+const whenList = document.getElementById('when-list');
+WHEN_CASES.forEach(c => {
+  const card = document.createElement('div'); card.className = 'use-card';
+  card.innerHTML = `
+    <div class="use-title">${c.title}</div>
+    <div class="use-desc">${c.desc}</div>
+    <div class="use-examples">
+      ${c.examples.map(e => `<div class="ex-row"><div class="sentence">${e}</div><button class="play-pill" data-text="${e.replace(/"/g, '&quot;')}">▶ Đọc</button></div>`).join('')}
+    </div>
+  `;
+  card.querySelectorAll('.play-pill').forEach(b => b.addEventListener('click', () => speak(b.dataset.text, b)));
+  whenList.appendChild(card);
+});
+
+// =================== Transform examples ===================
+const TRANSFORM_EX = [
+  { active: "<em class='subj'>The students</em> <em class='verb'>will finish</em> <em class='obj'>the homework</em> tonight.",
+    passive: "<em class='subj'>The homework</em> <em class='verb'>will be finished</em> tonight <em class='byagent'>(by the students)</em>.",
+    note: "Object lên đầu → 'will' + 'be' + 'finished' (V3). 'By the students' tùy chọn." },
+  { active: "<em class='subj'>Shakespeare</em> <em class='verb'>wrote</em> <em class='obj'>Hamlet</em>.",
+    passive: "<em class='subj'>Hamlet</em> <em class='verb'>was written</em> <em class='byagent'>by Shakespeare</em>.",
+    note: "Past Simple → 'was' + V3 (written). 'By Shakespeare' giữ vì cần thông tin." },
+  { active: "<em class='subj'>Someone</em> <em class='verb'>has stolen</em> <em class='obj'>my bag</em>.",
+    passive: "<em class='subj'>My bag</em> <em class='verb'>has been stolen</em>.",
+    note: "Present Perfect → 'has been' + V3. 'Someone' bỏ vì không xác định." },
+  { active: "<em class='subj'>They</em> <em class='verb'>are building</em> <em class='obj'>a new bridge</em>.",
+    passive: "<em class='subj'>A new bridge</em> <em class='verb'>is being built</em>.",
+    note: "Present Continuous → 'is being' + V3 (built). 'They' bỏ — chung chung." },
+  { active: "<em class='subj'>She</em> <em class='verb'>must finish</em> <em class='obj'>the report</em>.",
+    passive: "<em class='subj'>The report</em> <em class='verb'>must be finished</em>.",
+    note: "Modal must → 'must be' + V3 (finished)." },
+];
+
+const transformList = document.getElementById('transform-list');
+TRANSFORM_EX.forEach(ex => {
+  const card = document.createElement('div'); card.className = 'transform-card';
+  card.innerHTML = `
+    <div class="tf-active">Active: ${ex.active} <button class="play-pill" style="margin-left:8px;" data-text="${stripHTML(ex.active).replace(/"/g, '&quot;')}">▶</button></div>
+    <div class="tf-arrow">↓</div>
+    <div class="tf-passive">Passive: ${ex.passive} <button class="play-pill" style="margin-left:8px; background: var(--passive);" data-text="${stripHTML(ex.passive).replace(/"/g, '&quot;')}">▶</button></div>
+    <div class="tf-note">${ex.note}</div>
+  `;
+  card.querySelectorAll('.play-pill').forEach(b => b.addEventListener('click', () => speak(b.dataset.text, b)));
+  transformList.appendChild(card);
+});
+
+// =================== Quiz ===================
+const QUIZ = [
+  { sentence: "The book ___ by Hemingway in 1952.", options: ["wrote", "was written", "is written", "has written"], correct: 1,
+    full: "The book was written by Hemingway in 1952.", explain: "Past Simple passive: was + V3 (written, không phải wrote)." },
+  { sentence: "English ___ in many countries.", options: ["speaks", "is spoken", "is speaking", "has spoken"], correct: 1,
+    full: "English is spoken in many countries.", explain: "Present Simple passive — quy luật / sự thật chung." },
+  { sentence: "A new bridge ___ now.", options: ["is built", "is being built", "is being build", "builds"], correct: 1,
+    full: "A new bridge is being built now.", explain: "Present Continuous passive: is being + V3 (built)." },
+  { sentence: "My bag ___ at the market yesterday.", options: ["stole", "was stolen", "is stolen", "has been stolen"], correct: 1,
+    full: "My bag was stolen at the market yesterday.", explain: "Past Simple passive — 'yesterday' yêu cầu QK." },
+  { sentence: "The report ___ before Friday.", options: ["must finish", "must be finished", "must been finished", "is must finished"], correct: 1,
+    full: "The report must be finished before Friday.", explain: "Modal + passive: must + be + V3." },
+  { sentence: "Câu nào ĐÚNG?", options: ["The accident was happened.", "The accident happened.", "The accident has happened by us.", "The accident is happen."], correct: 1,
+    full: "The accident happened.", explain: "'Happen' là intransitive — KHÔNG có passive." },
+  { sentence: "By 2030, this technology ___ widely.", options: ["will use", "will be used", "will have been used", "is being used"], correct: 2,
+    full: "By 2030, this technology will have been used widely.", explain: "Future Perfect passive: will have been + V3. 'By + future time' báo hiệu." },
+  { sentence: "Chuyển sang active: 'The cake was eaten by John.'", options: ["John ate the cake.", "John was eating the cake.", "John has eaten the cake.", "The cake ate John."], correct: 0,
+    full: "John ate the cake.", explain: "Past Simple passive → Past Simple active." },
+  { sentence: "The meal ___ when I arrived.", options: ["cooked", "was cooked", "was being cooked", "had cooked"], correct: 2,
+    full: "The meal was being cooked when I arrived.", explain: "Past Continuous passive — đang nấu lúc tôi tới." },
+  { sentence: "He ___ a present yesterday (cho anh ấy).", options: ["gave", "was given", "has given", "is given"], correct: 1,
+    full: "He was given a present yesterday.", explain: "Passive ditransitive: người nhận lên đầu. 'Someone gave him a present' → 'He was given a present.'" },
+  { sentence: "It ___ that climate change is accelerating.", options: ["believes", "is believing", "is believed", "has believing"], correct: 2,
+    full: "It is believed that climate change is accelerating.", explain: "Reporting passive: 'It is + V3 + that...'." },
+  { sentence: "Câu nào TỰ NHIÊN nhất khi tả: 'Cha tôi xây nhà này năm 1950'?", options: ["This house was built by my father in 1950.", "My father built this house in 1950.", "This house has been built.", "Built this house was by my father."], correct: 1,
+    full: "My father built this house in 1950.", explain: "Người làm (father) quan trọng → ACTIVE tự nhiên hơn. Passive phù hợp khi người làm không quan trọng." },
+  { sentence: "I ___ my car ___ yesterday (nhờ ai đó rửa xe).", options: ["had / washed", "have / washed", "had / wash", "have / wash"], correct: 0,
+    full: "I had my car washed yesterday.", explain: "Have/get something done — pattern nhờ ai làm gì." },
+  { sentence: "The window ___ by the children.", options: ["was broke", "was breaked", "was broken", "is breaked"], correct: 2,
+    full: "The window was broken by the children.", explain: "V3 của break là broken (không phải broke = V2)." },
+  { sentence: "Mistakes ___ in the past.", options: ["made", "were made", "have made", "are making"], correct: 1,
+    full: "Mistakes were made in the past.", explain: "Passive cố tình ẩn người làm — văn phong tránh chỉ trách nhiệm." },
+];
+
+const quizDisplay = document.getElementById('quiz-display');
+const quizFeedback = document.getElementById('quiz-feedback');
+const quizStatsEl = document.getElementById('quiz-stats');
+let qStats = { correct: 0, total: 0 };
+let currentQ = null;
+let answered = false;
+
+function newQuiz() {
+  currentQ = QUIZ[Math.floor(Math.random() * QUIZ.length)];
+  answered = false;
+  const opts = currentQ.options.map((o, i) => `<button class="opt-btn" data-i="${i}">${o}</button>`).join('');
+  quizDisplay.innerHTML = `
+    <div class="quiz-question">
+      <div class="quiz-context">Chọn đáp án đúng:</div>
+      <div class="quiz-sentence">${currentQ.sentence.replace('___', '<span class="blank">___</span>')}</div>
+    </div>
+    <div class="quiz-options">${opts}</div>
+  `;
+  quizDisplay.querySelectorAll('.opt-btn').forEach(b => b.addEventListener('click', () => handleQuiz(parseInt(b.dataset.i), b)));
+  quizFeedback.classList.remove('show', 'ok', 'err');
+  document.getElementById('btn-replay-quiz').disabled = false;
+}
+
+function handleQuiz(i, btn) {
+  if (answered) return; answered = true;
+  qStats.total++;
+  quizDisplay.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+  if (i === currentQ.correct) {
+    qStats.correct++;
+    btn.classList.add('correct');
+    quizFeedback.innerHTML = `<strong>Đúng!</strong> "${currentQ.full}" — ${currentQ.explain} <button class="play-pill" style="margin-left:8px;" onclick="speak('${currentQ.full.replace(/'/g, "\\'")}', this)">▶ Nghe</button>`;
+    quizFeedback.className = 'quiz-feedback show ok';
+  } else {
+    btn.classList.add('wrong');
+    quizDisplay.querySelectorAll('.opt-btn')[currentQ.correct].classList.add('correct');
+    quizFeedback.innerHTML = `<strong>Sai.</strong> Đáp án: "<em>${currentQ.options[currentQ.correct]}</em>". "${currentQ.full}" — ${currentQ.explain} <button class="play-pill" style="margin-left:8px;" onclick="speak('${currentQ.full.replace(/'/g, "\\'")}', this)">▶ Nghe</button>`;
+    quizFeedback.className = 'quiz-feedback show err';
+  }
+  quizStatsEl.textContent = `Đúng: ${qStats.correct} / ${qStats.total}`;
+}
+document.getElementById('btn-new-quiz').addEventListener('click', newQuiz);
+document.getElementById('btn-replay-quiz').addEventListener('click', () => { if (currentQ) speak(currentQ.full, null); });
+</script>
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/ipa-reader.js"></script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 14 — Monetary & Fiscal Policy</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .lead { color: #4a5568; margin-bottom: 24px; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 220px; }
+  input[type="range"] { width: 240px; }
+  input[type="number"] { width: 110px; }
+  input[type="range"], input[type="number"] { font-family: monospace; padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 4px; }
+  .result { background: #f7fafc; border-left: 4px solid #c05621; padding: 14px 18px; margin-top: 14px; border-radius: 4px; font-family: monospace; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; background: #fff5eb; color: #c05621; font-weight: 700; margin-left: 6px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-13-is-lm-ad-as/visualization.html">← L13: IS-LM</a>
+  <span class="sep">·</span>
+  <span class="current">L14: Policy</span>
+  <span class="sep">·</span>
+  <a href="../lesson-15-inflation-unemployment/visualization.html">L15: Inflation →</a>
+</nav>
+  <h1>Lesson 14 — Monetary & Fiscal Policy</h1>
+  <div class="lead">Máy tính Taylor rule cho lãi suất NHTW, và multiplier tài khóa với crowding out.</div>
+
+  <h2>1. Taylor Rule <span class="pill">i = r* + π + 0.5(π − π*) + 0.5·gap</span></h2>
+  <div class="card">
+    <div class="row"><label>r* (lãi thực cân bằng %)</label><input id="rstar" type="number" value="2" step="0.5"></div>
+    <div class="row"><label>Mục tiêu lạm phát π* (%)</label><input id="pistar" type="number" value="2" step="0.5"></div>
+    <div class="row"><label>Lạm phát thực π (%)</label><input id="pi" type="range" min="-5" max="15" step="0.5" value="3"><span id="pi-v" style="font-family:monospace;"></span></div>
+    <div class="row"><label>Output gap (%)</label><input id="gap" type="range" min="-10" max="10" step="0.5" value="1"><span id="gap-v" style="font-family:monospace;"></span></div>
+    <div class="result" id="taylor-out"></div>
+  </div>
+
+  <h2>2. Fiscal Multiplier <span class="pill">ΔY / ΔG</span></h2>
+  <div class="card">
+    <div class="row"><label>MPC (xu hướng tiêu dùng biên)</label><input id="mpc" type="range" min="0.1" max="0.95" step="0.05" value="0.7"><span id="mpc-v" style="font-family:monospace;"></span></div>
+    <div class="row"><label>% crowding out (do r tăng)</label><input id="co" type="range" min="0" max="80" step="5" value="30"><span id="co-v" style="font-family:monospace;"></span></div>
+    <div class="row"><label>ΔG (chi tiêu CP tăng)</label><input id="dG" type="number" value="100" step="10"></div>
+    <div class="result" id="mult-out"></div>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+function get(id) { return parseFloat($(id).value) || 0; }
+
+function calcTaylor() {
+  const rs = get('rstar'), pis = get('pistar'), pi = get('pi'), gap = get('gap');
+  $('pi-v').textContent = pi.toFixed(1) + '%';
+  $('gap-v').textContent = gap.toFixed(1) + '%';
+  const i = rs + pi + 0.5 * (pi - pis) + 0.5 * gap;
+  const stance = i > rs + pis + 1 ? 'thắt chặt (siết)' :
+                 i < rs + pis - 1 ? 'nới lỏng' : 'trung tính';
+  $('taylor-out').innerHTML =
+    `i = r* + π + 0.5(π − π*) + 0.5·gap\n` +
+    `  = ${rs} + ${pi.toFixed(1)} + 0.5(${pi.toFixed(1)} − ${pis}) + 0.5(${gap.toFixed(1)})\n` +
+    `  = ${rs} + ${pi.toFixed(1)} + ${(0.5*(pi-pis)).toFixed(2)} + ${(0.5*gap).toFixed(2)}\n` +
+    `  = <strong>${i.toFixed(2)}%</strong>\n\n` +
+    `Đánh giá: NHTW nên đặt lãi suất ${i.toFixed(2)}% — chính sách <strong>${stance}</strong>.\n` +
+    (i < 0 ? `\n⚠ Lãi suất Taylor ÂM → gặp zero lower bound, cần QE/forward guidance.` : '');
+}
+['rstar','pistar','pi','gap'].forEach(id => $(id).addEventListener('input', calcTaylor));
+
+function calcMult() {
+  const mpc = get('mpc'), co = get('co') / 100, dG = get('dG');
+  $('mpc-v').textContent = mpc.toFixed(2);
+  $('co-v').textContent = (co * 100).toFixed(0) + '%';
+  const mult = 1 / (1 - mpc);
+  const dY_full = mult * dG;
+  const dY_actual = dY_full * (1 - co);
+  const crowded = dY_full - dY_actual;
+  $('mult-out').innerHTML =
+    `Multiplier đơn giản = 1/(1−MPC) = 1/${(1-mpc).toFixed(2)} = ${mult.toFixed(2)}\n\n` +
+    `ΔY (không crowding out) = ${mult.toFixed(2)} × ${dG} = ${dY_full.toFixed(1)}\n` +
+    `Crowding out ${(co*100).toFixed(0)}% → giảm ${crowded.toFixed(1)}\n` +
+    `<strong>ΔY thực tế = ${dY_actual.toFixed(1)}</strong>\n\n` +
+    `Tỉ lệ: ΔY/ΔG = ${(dY_actual/dG).toFixed(2)}\n` +
+    (dY_actual/dG > 1 ? `→ Multiplier > 1: kích thích hiệu quả.` :
+     dY_actual/dG > 0 ? `→ Multiplier < 1: G tăng nhưng Y tăng ít hơn (crowding out mạnh).` :
+     `→ Không hiệu quả.`);
+}
+['mpc','co','dG'].forEach(id => $(id).addEventListener('input', calcMult));
+
+calcTaylor(); calcMult();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

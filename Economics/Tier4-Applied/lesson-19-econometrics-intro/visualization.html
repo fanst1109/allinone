@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 19 — Econometrics Intro</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .lead { color: #4a5568; margin-bottom: 24px; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 200px; }
+  input[type="range"] { width: 240px; font-family: monospace; padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 4px; }
+  .result { background: #f7fafc; border-left: 4px solid #c05621; padding: 14px 18px; margin-top: 14px; border-radius: 4px; font-family: monospace; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  svg { display: block; margin: 0 auto; max-width: 100%; cursor: crosshair; }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; background: #fff5eb; color: #c05621; font-weight: 700; margin-left: 6px; }
+  button { background: #c05621; color: white; border: none; padding: 7px 14px; border-radius: 4px; cursor: pointer; font-weight: 600; }
+  button:hover { background: #9c4221; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-18-development-economics/visualization.html">← L18: Development</a>
+  <span class="sep">·</span>
+  <span class="current">L19: Econometrics</span>
+  <span class="sep">·</span>
+  <a href="../lesson-20-financial-economics/visualization.html">L20: Finance →</a>
+</nav>
+  <h1>Lesson 19 — Econometrics Intro</h1>
+  <div class="lead">Tạo data, sinh nhiễu, và xem đường hồi quy OLS tính lại tự động.</div>
+
+  <h2>Hồi quy tuyến tính <span class="pill">y = β₀ + β₁·x + ε</span></h2>
+  <div class="card">
+    <div class="row"><label>Số điểm</label><input id="n" type="range" min="10" max="200" step="10" value="50"><span id="n-v" style="font-family:monospace;"></span></div>
+    <div class="row"><label>β₁ thật (slope)</label><input id="b1" type="range" min="-3" max="3" step="0.1" value="1.5"><span id="b1-v" style="font-family:monospace;"></span></div>
+    <div class="row"><label>β₀ thật (intercept)</label><input id="b0" type="range" min="-10" max="10" step="0.5" value="2"><span id="b0-v" style="font-family:monospace;"></span></div>
+    <div class="row"><label>Nhiễu σ</label><input id="sigma" type="range" min="0.1" max="5" step="0.1" value="1.5"><span id="sigma-v" style="font-family:monospace;"></span></div>
+    <div class="row"><button id="regen">Tạo lại dữ liệu</button></div>
+
+    <svg id="svg" viewBox="0 0 600 440" style="background:#fff; border:1px solid #e2e8f0;"></svg>
+    <div class="result" id="out"></div>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+function get(id) { return parseFloat($(id).value) || 0; }
+
+function normalRandom() {
+  return Math.sqrt(-2 * Math.log(Math.random())) * Math.cos(2 * Math.PI * Math.random());
+}
+
+let data = [];
+
+function regenerate() {
+  const n = Math.floor(get('n'));
+  const b1 = get('b1');
+  const b0 = get('b0');
+  const sigma = get('sigma');
+  data = [];
+  for (let i = 0; i < n; i++) {
+    const x = (Math.random() * 20) - 10;
+    const y = b0 + b1 * x + sigma * normalRandom();
+    data.push({ x, y });
+  }
+  $('n-v').textContent = n;
+  $('b1-v').textContent = b1.toFixed(2);
+  $('b0-v').textContent = b0.toFixed(2);
+  $('sigma-v').textContent = sigma.toFixed(2);
+  render();
+}
+
+function render() {
+  // OLS
+  const n = data.length;
+  const mx = data.reduce((s, p) => s + p.x, 0) / n;
+  const my = data.reduce((s, p) => s + p.y, 0) / n;
+  let cov = 0, varx = 0;
+  data.forEach(p => { cov += (p.x - mx) * (p.y - my); varx += (p.x - mx) ** 2; });
+  const b1Hat = cov / varx;
+  const b0Hat = my - b1Hat * mx;
+
+  // R²
+  let ssr = 0, sst = 0;
+  data.forEach(p => {
+    const yHat = b0Hat + b1Hat * p.x;
+    ssr += (p.y - yHat) ** 2;
+    sst += (p.y - my) ** 2;
+  });
+  const r2 = 1 - ssr / sst;
+
+  // SE of β₁
+  const sigmaHat = Math.sqrt(ssr / (n - 2));
+  const seB1 = sigmaHat / Math.sqrt(varx);
+  const tStat = b1Hat / seB1;
+
+  // SVG
+  const W = 600, H = 440, padL = 60, padB = 50, padT = 30, padR = 30;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const xs = data.map(p => p.x), ys = data.map(p => p.y);
+  const xMin = Math.min(...xs, -10), xMax = Math.max(...xs, 10);
+  const yMin = Math.min(...ys), yMax = Math.max(...ys);
+  const sx = x => padL + ((x - xMin) / (xMax - xMin)) * plotW;
+  const sy = y => padT + plotH - ((y - yMin) / (yMax - yMin)) * plotH;
+
+  let svg = '';
+  // grid
+  for (let i = 1; i <= 4; i++) {
+    const x = xMin + (xMax - xMin) / 4 * i;
+    const y = yMin + (yMax - yMin) / 4 * i;
+    svg += `<line x1="${sx(x)}" y1="${padT}" x2="${sx(x)}" y2="${padT+plotH}" stroke="#f0f0f0"/>`;
+    svg += `<line x1="${padL}" y1="${sy(y)}" x2="${padL+plotW}" y2="${sy(y)}" stroke="#f0f0f0"/>`;
+    svg += `<text x="${sx(x)}" y="${padT+plotH+16}" text-anchor="middle" font-size="11" fill="#718096">${x.toFixed(1)}</text>`;
+    svg += `<text x="${padL-8}" y="${sy(y)+4}" text-anchor="end" font-size="11" fill="#718096">${y.toFixed(1)}</text>`;
+  }
+  // điểm
+  data.forEach(p => {
+    svg += `<circle cx="${sx(p.x)}" cy="${sy(p.y)}" r="3.5" fill="#3182ce" fill-opacity="0.6"/>`;
+  });
+  // đường hồi quy
+  svg += `<line x1="${sx(xMin)}" y1="${sy(b0Hat + b1Hat * xMin)}" x2="${sx(xMax)}" y2="${sy(b0Hat + b1Hat * xMax)}" stroke="#c05621" stroke-width="2.5"/>`;
+  // đường thật
+  const b1True = get('b1'), b0True = get('b0');
+  svg += `<line x1="${sx(xMin)}" y1="${sy(b0True + b1True * xMin)}" x2="${sx(xMax)}" y2="${sy(b0True + b1True * xMax)}" stroke="#2f855a" stroke-width="2" stroke-dasharray="5,3"/>`;
+
+  svg += `<line x1="${padL}" y1="${padT+plotH}" x2="${padL+plotW}" y2="${padT+plotH}" stroke="#cbd5e0"/>`;
+  svg += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+plotH}" stroke="#cbd5e0"/>`;
+  svg += `<text x="${padL+plotW/2}" y="${H-10}" text-anchor="middle" font-size="13" fill="#2d3748">x</text>`;
+  svg += `<text x="20" y="${padT+plotH/2}" transform="rotate(-90 20 ${padT+plotH/2})" text-anchor="middle" font-size="13" fill="#2d3748">y</text>`;
+  $('svg').innerHTML = svg;
+
+  $('out').innerHTML =
+    `<strong>OLS ước lượng:</strong>\n` +
+    `  ŷ = ${b0Hat.toFixed(3)} + ${b1Hat.toFixed(3)}·x\n` +
+    `  (giá trị thật: ${b0True.toFixed(2)} + ${b1True.toFixed(2)}·x)\n\n` +
+    `  R² = ${r2.toFixed(3)}\n` +
+    `  σ̂ (ước lượng nhiễu) = ${sigmaHat.toFixed(3)}\n` +
+    `  SE(β₁) = ${seB1.toFixed(4)}\n` +
+    `  t-stat = ${tStat.toFixed(2)} ${Math.abs(tStat) > 1.96 ? '(p < 0.05 ✓)' : '(không có ý nghĩa)'}\n\n` +
+    `Đường cam = OLS estimate; đường xanh đứt = đường thật.\n` +
+    `Càng nhiều điểm + nhiễu thấp → OLS càng gần đường thật.`;
+}
+
+['n','b1','b0','sigma'].forEach(id => $(id).addEventListener('input', regenerate));
+$('regen').addEventListener('click', regenerate);
+regenerate();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

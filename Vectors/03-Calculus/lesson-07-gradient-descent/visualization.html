@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Gradient Descent</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  body { color: #1a1a1a; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px 20px 100px; }
+  h1 { margin: 0 0 6px; font-size: 28px; font-weight: 800; }
+  .subtitle { color: #6a6a6a; font-size: 14px; margin-bottom: 24px; }
+
+  .section {
+    background: #fff;
+    border: 1px solid #e3e1dc;
+    border-radius: 12px;
+    padding: 22px 24px;
+    margin-bottom: 24px;
+  }
+  .section h2 {
+    margin: 0 0 6px;
+    font-size: 20px;
+    border-left: 4px solid #047857;
+    padding-left: 12px;
+  }
+  .section .intro {
+    color: #6a6a6a;
+    font-size: 13px;
+    margin: 0 0 16px;
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 12px;
+    padding: 12px 14px;
+    background: #f5f4f0;
+    border-radius: 8px;
+  }
+  .control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+  }
+  .control-group label {
+    color: #6a6a6a;
+    font-weight: 600;
+  }
+  .control-group input[type=number] {
+    width: 80px;
+    padding: 4px 6px;
+    border: 1px solid #d4d2cd;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  .control-group input[type=range] {
+    width: 160px;
+  }
+  .control-group select {
+    padding: 4px 6px;
+    border: 1px solid #d4d2cd;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  .btn {
+    padding: 7px 14px;
+    background: #047857;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn:hover { background: #065f46; }
+  .btn.secondary { background: #6a6a6a; }
+  .btn.secondary:hover { background: #4a4a4a; }
+
+  .canvas-wrap {
+    background: #fafaf7;
+    border: 1px solid #e3e1dc;
+    border-radius: 8px;
+    padding: 8px;
+    text-align: center;
+  }
+  canvas { display: block; margin: 0 auto; max-width: 100%; }
+
+  .info {
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: #f0fdf4;
+    border-left: 3px solid #047857;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: ui-monospace, monospace;
+  }
+  .info .row { display: flex; gap: 16px; flex-wrap: wrap; }
+  .info .label { color: #6a6a6a; }
+
+  .status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+    font-size: 12px;
+  }
+  .status-card {
+    background: #fff;
+    padding: 8px 10px;
+    border: 1px solid #e3e1dc;
+    border-radius: 6px;
+  }
+  .status-card .name { color: #6a6a6a; font-size: 11px; }
+  .status-card .val { font-family: ui-monospace, monospace; font-size: 14px; font-weight: 600; }
+
+  .diverged { color: #b91c1c; font-weight: 700; }
+  .converged { color: #047857; font-weight: 700; }
+
+  table.steps {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    font-family: ui-monospace, monospace;
+    margin-top: 12px;
+  }
+  table.steps th, table.steps td {
+    border: 1px solid #e3e1dc;
+    padding: 4px 8px;
+    text-align: right;
+  }
+  table.steps th { background: #f5f4f0; font-weight: 600; }
+  table.steps td:first-child, table.steps th:first-child { text-align: center; }
+
+  .lr-explorer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 12px;
+  }
+  .lr-card {
+    background: #fafaf7;
+    border: 1px solid #e3e1dc;
+    border-radius: 8px;
+    padding: 10px;
+  }
+  .lr-card h4 { margin: 0 0 4px; font-size: 14px; }
+  .lr-card .meta { color: #6a6a6a; font-size: 11px; margin-bottom: 6px; }
+
+  .reg-data-help {
+    font-size: 12px;
+    color: #6a6a6a;
+    margin: 8px 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-partial-gradient/visualization.html">← L6: Đạo hàm riêng + gradient</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Gradient descent</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-integrals/visualization.html">L8: Tích phân →</a>
+</nav>
+
+<h1>Lesson 07 — Gradient Descent</h1>
+<div class="subtitle">
+  Thuật toán "đi ngược dốc" — nuôi sống mọi neural network. Bốn demo tương tác: 1D walker, learning rate explorer, 2D contour walker, và linear regression GD.
+</div>
+
+<!-- ============================ DEMO 1: 1D GD ============================ -->
+<section class="section">
+  <h2>1. Gradient Descent 1 biến — đi từng bước</h2>
+  <div class="intro">Chọn hàm, điểm khởi tạo, learning rate. Nhấn "Bước 1" để thực hiện một bước. "Auto" để chạy tự động. Xem cách <code>x_{t+1} = x_t − η·f'(x_t)</code> tiến về đáy.</div>
+
+  <div class="controls">
+    <div class="control-group">
+      <label>f(x)</label>
+      <select id="d1-func">
+        <option value="x2">x²</option>
+        <option value="x2_shift">(x − 3)²</option>
+        <option value="x4">x⁴/4</option>
+        <option value="cosh">cosh(x) − 1</option>
+        <option value="poly">x⁴ − 4x² + 1 (2 local min)</option>
+      </select>
+    </div>
+    <div class="control-group">
+      <label>x₀</label>
+      <input type="number" id="d1-x0" value="5" step="0.5">
+    </div>
+    <div class="control-group">
+      <label>η (learning rate)</label>
+      <input type="number" id="d1-eta" value="0.1" step="0.01" min="0.001">
+    </div>
+    <div class="control-group">
+      <label>&nbsp;</label>
+      <div>
+        <button class="btn" id="d1-step">▶ Bước 1</button>
+        <button class="btn" id="d1-auto">⏵ Auto (×20)</button>
+        <button class="btn secondary" id="d1-reset">↺ Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="canvas-wrap">
+    <canvas id="d1-canvas" width="900" height="380"></canvas>
+  </div>
+
+  <div class="info">
+    <div class="row">
+      <span><span class="label">Bước t:</span> <b id="d1-t">0</b></span>
+      <span><span class="label">x_t:</span> <b id="d1-x">5.0000</b></span>
+      <span><span class="label">f(x_t):</span> <b id="d1-fx">25.0000</b></span>
+      <span><span class="label">f'(x_t):</span> <b id="d1-gx">10.0000</b></span>
+      <span><span class="label">Δx = −η·g:</span> <b id="d1-dx">−1.0000</b></span>
+      <span id="d1-status"></span>
+    </div>
+  </div>
+
+  <table class="steps" id="d1-table">
+    <thead>
+      <tr><th>t</th><th>x_t</th><th>f(x_t)</th><th>f'(x_t)</th><th>Δx</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</section>
+
+<!-- ============================ DEMO 2: LR EXPLORER ============================ -->
+<section class="section">
+  <h2>2. Learning Rate Explorer — 4 chế độ song song</h2>
+  <div class="intro">Cùng hàm <code>f(x) = x²</code>, cùng <code>x₀ = 5</code>, nhưng 4 giá trị η khác nhau. Quan sát: quá nhỏ → bò chậm, vừa → tốt, hơi lớn → đu, quá lớn → diverge.</div>
+
+  <div class="controls">
+    <div class="control-group">
+      <label>x₀ chung</label>
+      <input type="number" id="d2-x0" value="5" step="0.5">
+    </div>
+    <div class="control-group">
+      <label>Số bước</label>
+      <input type="range" id="d2-steps" min="0" max="40" value="10">
+      <span style="font-size:12px;">t = <span id="d2-steps-val">10</span></span>
+    </div>
+    <div class="control-group">
+      <label>&nbsp;</label>
+      <button class="btn secondary" id="d2-reset">↺ Reset</button>
+    </div>
+  </div>
+
+  <div class="lr-explorer" id="d2-grid">
+    <!-- 4 cards injected via JS -->
+  </div>
+</section>
+
+<!-- ============================ DEMO 3: 2D CONTOUR ============================ -->
+<section class="section">
+  <h2>3. Gradient Descent 2D trên contour map</h2>
+  <div class="intro">Hàm <code>f(x, y) = x² + 2y²</code> (hoặc các preset khác). Click vào contour để chọn <code>(x₀, y₀)</code>. Kéo slider η. Xem trajectory đi về (0, 0).</div>
+
+  <div class="controls">
+    <div class="control-group">
+      <label>f(x, y)</label>
+      <select id="d3-func">
+        <option value="x2_2y2">x² + 2y²</option>
+        <option value="x2_y2">x² + y² (tròn)</option>
+        <option value="x2_9y2">x² + 9y² (ill-conditioned)</option>
+        <option value="rosen">(1−x)² + 100·(y−x²)² (Rosenbrock, khó)</option>
+      </select>
+    </div>
+    <div class="control-group">
+      <label>x₀</label>
+      <input type="number" id="d3-x0" value="5" step="0.5">
+    </div>
+    <div class="control-group">
+      <label>y₀</label>
+      <input type="number" id="d3-y0" value="5" step="0.5">
+    </div>
+    <div class="control-group">
+      <label>η</label>
+      <input type="range" id="d3-eta" min="0.001" max="0.5" value="0.1" step="0.001">
+      <span style="font-size:12px;">η = <span id="d3-eta-val">0.100</span></span>
+    </div>
+    <div class="control-group">
+      <label>&nbsp;</label>
+      <div>
+        <button class="btn" id="d3-step">▶ Bước 1</button>
+        <button class="btn" id="d3-auto">⏵ Auto (×30)</button>
+        <button class="btn secondary" id="d3-reset">↺ Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="canvas-wrap">
+    <canvas id="d3-canvas" width="900" height="500"></canvas>
+  </div>
+
+  <div class="info">
+    <div class="row">
+      <span><span class="label">t:</span> <b id="d3-t">0</b></span>
+      <span><span class="label">(x, y):</span> <b id="d3-pt">(5, 5)</b></span>
+      <span><span class="label">f:</span> <b id="d3-f">75</b></span>
+      <span><span class="label">∇f:</span> <b id="d3-grad">(10, 20)</b></span>
+      <span id="d3-status"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ DEMO 4: LINEAR REGRESSION GD ============================ -->
+<section class="section">
+  <h2>4. Linear Regression bằng Gradient Descent</h2>
+  <div class="intro">Kéo các điểm dữ liệu trên scatter (trái) để thay đổi dataset. Nhấn "Run GD" — xem đường <code>y = ax + b</code> cập nhật, đồng thời điểm <code>(a, b)</code> di chuyển trên contour của loss MSE (phải).</div>
+
+  <div class="reg-data-help">Có thể kéo điểm (chấm đen) trên đồ thị trái. Closed-form (đường xanh) cập nhật ngay; GD (đường đỏ) học dần.</div>
+
+  <div class="controls">
+    <div class="control-group">
+      <label>a₀</label>
+      <input type="number" id="d4-a0" value="0" step="0.1">
+    </div>
+    <div class="control-group">
+      <label>b₀</label>
+      <input type="number" id="d4-b0" value="0" step="0.1">
+    </div>
+    <div class="control-group">
+      <label>η</label>
+      <input type="range" id="d4-eta" min="0.001" max="0.3" value="0.05" step="0.001">
+      <span style="font-size:12px;">η = <span id="d4-eta-val">0.050</span></span>
+    </div>
+    <div class="control-group">
+      <label>&nbsp;</label>
+      <div>
+        <button class="btn" id="d4-step">▶ Bước 1</button>
+        <button class="btn" id="d4-auto">⏵ Run GD (200)</button>
+        <button class="btn secondary" id="d4-reset">↺ Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
+    <div class="canvas-wrap">
+      <canvas id="d4-data" width="450" height="380"></canvas>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="d4-loss" width="450" height="380"></canvas>
+    </div>
+  </div>
+
+  <div class="info">
+    <div class="row">
+      <span><span class="label">t:</span> <b id="d4-t">0</b></span>
+      <span><span class="label">a:</span> <b id="d4-a">0.0000</b></span>
+      <span><span class="label">b:</span> <b id="d4-b">0.0000</b></span>
+      <span><span class="label">Loss MSE:</span> <b id="d4-loss-val">—</b></span>
+      <span><span class="label">Closed-form:</span> <b id="d4-cf">—</b></span>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<script>
+/* ========================================================================
+   DEMO 1: 1D GD VISUALIZER
+   ======================================================================== */
+(function() {
+  const FUNCS = {
+    x2:       { f: x => x*x, df: x => 2*x, range: [-6, 6], yMax: 36, name: 'x²' },
+    x2_shift: { f: x => (x-3)**2, df: x => 2*(x-3), range: [-3, 9], yMax: 36, name: '(x-3)²' },
+    x4:       { f: x => (x**4)/4, df: x => x**3, range: [-3, 3], yMax: 20, name: 'x⁴/4' },
+    cosh:     { f: x => Math.cosh(x) - 1, df: x => Math.sinh(x), range: [-3, 3], yMax: 10, name: 'cosh(x)-1' },
+    poly:     { f: x => x**4 - 4*x**2 + 1, df: x => 4*x**3 - 8*x, range: [-2.5, 2.5], yMax: 8, name: 'x⁴-4x²+1' },
+  };
+
+  const canvas = document.getElementById('d1-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const PAD = { l: 50, r: 30, t: 24, b: 40 };
+  const PW = W - PAD.l - PAD.r;
+  const PH = H - PAD.t - PAD.b;
+
+  let funcKey = 'x2';
+  let x0 = 5, eta = 0.1;
+  let history = []; // {x, f, g, dx}
+  let autoTimer = null;
+
+  function reset() {
+    funcKey = document.getElementById('d1-func').value;
+    x0 = parseFloat(document.getElementById('d1-x0').value);
+    eta = parseFloat(document.getElementById('d1-eta').value);
+    const fn = FUNCS[funcKey];
+    history = [{ x: x0, f: fn.f(x0), g: fn.df(x0), dx: -eta * fn.df(x0), t: 0 }];
+    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+    render();
+  }
+
+  function step() {
+    const fn = FUNCS[funcKey];
+    const last = history[history.length-1];
+    const newX = last.x + last.dx;
+    if (!isFinite(newX) || Math.abs(newX) > 1e6) {
+      history.push({ x: NaN, f: NaN, g: NaN, dx: NaN, t: last.t+1, diverged: true });
+    } else {
+      const g = fn.df(newX);
+      history.push({ x: newX, f: fn.f(newX), g, dx: -eta * g, t: last.t+1 });
+    }
+    if (history.length > 100) history.shift();
+    render();
+  }
+
+  function auto() {
+    if (autoTimer) return;
+    let n = 20;
+    autoTimer = setInterval(() => {
+      step();
+      n--;
+      if (n <= 0 || (history[history.length-1].diverged)) {
+        clearInterval(autoTimer); autoTimer = null;
+      }
+    }, 200);
+  }
+
+  function render() {
+    const fn = FUNCS[funcKey];
+    const [xa, xb] = fn.range;
+    const yMax = fn.yMax;
+
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#fafaf7'; ctx.fillRect(0, 0, W, H);
+
+    // Adjust range if history goes wider
+    let xMin = xa, xMax = xb;
+    history.forEach(h => {
+      if (isFinite(h.x)) {
+        if (h.x < xMin) xMin = h.x;
+        if (h.x > xMax) xMax = h.x;
+      }
+    });
+    xMin = Math.min(xMin, xa); xMax = Math.max(xMax, xb);
+    // Re-evaluate yMax based on visible
+    let yvMax = 0;
+    for (let i = 0; i < 200; i++) {
+      const x = xMin + i*(xMax-xMin)/199;
+      const y = fn.f(x);
+      if (isFinite(y) && y > yvMax) yvMax = y;
+    }
+    yvMax = Math.max(yvMax, yMax);
+    if (yvMax > 200) yvMax = 200;
+
+    const X2px = x => PAD.l + ((x - xMin)/(xMax - xMin)) * PW;
+    const Y2px = y => PAD.t + PH - (Math.min(y, yvMax) / yvMax) * PH;
+
+    // axes
+    ctx.strokeStyle = '#cbd5e0'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(PAD.l, PAD.t+PH); ctx.lineTo(PAD.l+PW, PAD.t+PH); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(PAD.l, PAD.t); ctx.lineTo(PAD.l, PAD.t+PH); ctx.stroke();
+    // labels
+    ctx.fillStyle = '#6a6a6a'; ctx.font = '11px sans-serif';
+    ctx.fillText('x', PAD.l+PW+5, PAD.t+PH+4);
+    ctx.fillText('f(x) — ' + fn.name, PAD.l+5, PAD.t-8);
+    // x ticks
+    for (let i = 0; i <= 6; i++) {
+      const x = xMin + i*(xMax-xMin)/6;
+      const px = X2px(x);
+      ctx.beginPath(); ctx.moveTo(px, PAD.t+PH); ctx.lineTo(px, PAD.t+PH+4); ctx.stroke();
+      ctx.fillText(x.toFixed(1), px-8, PAD.t+PH+16);
+    }
+
+    // function curve
+    ctx.strokeStyle = '#047857'; ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    let first = true;
+    for (let i = 0; i <= 300; i++) {
+      const x = xMin + i*(xMax-xMin)/300;
+      const y = fn.f(x);
+      if (!isFinite(y)) continue;
+      const px = X2px(x), py = Y2px(y);
+      if (first) { ctx.moveTo(px, py); first = false; } else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+
+    // trajectory: draw arrows from x_t to x_{t+1} along curve
+    for (let i = 0; i < history.length - 1; i++) {
+      const a = history[i], b = history[i+1];
+      if (!isFinite(a.x) || !isFinite(b.x)) continue;
+      ctx.strokeStyle = '#dc2626'; ctx.lineWidth = 1.6;
+      ctx.setLineDash([4, 3]);
+      ctx.beginPath();
+      ctx.moveTo(X2px(a.x), Y2px(a.f));
+      ctx.lineTo(X2px(b.x), Y2px(b.f));
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // tangent at last point
+    const last = history[history.length-1];
+    if (isFinite(last.x)) {
+      const slope = last.g;
+      const x1 = last.x - 0.5, x2 = last.x + 0.5;
+      const y1 = last.f + slope*(x1 - last.x);
+      const y2 = last.f + slope*(x2 - last.x);
+      ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(X2px(x1), Y2px(y1));
+      ctx.lineTo(X2px(x2), Y2px(y2));
+      ctx.stroke();
+    }
+
+    // points
+    history.forEach((h, i) => {
+      if (!isFinite(h.x)) return;
+      const px = X2px(h.x), py = Y2px(h.f);
+      ctx.fillStyle = i === history.length-1 ? '#dc2626' : '#047857';
+      ctx.beginPath(); ctx.arc(px, py, i === history.length-1 ? 6 : 3.5, 0, Math.PI*2); ctx.fill();
+      if (i === 0 || i === history.length-1) {
+        ctx.fillStyle = '#1a1a1a'; ctx.font = 'bold 11px sans-serif';
+        ctx.fillText('t=' + h.t, px+8, py-6);
+      }
+    });
+
+    // update info
+    document.getElementById('d1-t').textContent = last.t;
+    document.getElementById('d1-x').textContent = isFinite(last.x) ? last.x.toFixed(4) : 'NaN';
+    document.getElementById('d1-fx').textContent = isFinite(last.f) ? last.f.toFixed(4) : 'NaN';
+    document.getElementById('d1-gx').textContent = isFinite(last.g) ? last.g.toFixed(4) : 'NaN';
+    document.getElementById('d1-dx').textContent = isFinite(last.dx) ? (last.dx>=0?'+':'') + last.dx.toFixed(4) : 'NaN';
+
+    const stat = document.getElementById('d1-status');
+    if (last.diverged || Math.abs(last.x) > 50) {
+      stat.innerHTML = '<span class="diverged">⚠ DIVERGED</span>';
+    } else if (isFinite(last.g) && Math.abs(last.g) < 0.001) {
+      stat.innerHTML = '<span class="converged">✓ HỘI TỤ (|f\'| &lt; 0.001)</span>';
+    } else {
+      stat.innerHTML = '';
+    }
+
+    // update table
+    const tbody = document.querySelector('#d1-table tbody');
+    tbody.innerHTML = '';
+    history.slice(-12).forEach(h => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${h.t}</td>
+        <td>${isFinite(h.x) ? h.x.toFixed(4) : 'NaN'}</td>
+        <td>${isFinite(h.f) ? h.f.toFixed(4) : 'NaN'}</td>
+        <td>${isFinite(h.g) ? h.g.toFixed(4) : 'NaN'}</td>
+        <td>${isFinite(h.dx) ? h.dx.toFixed(4) : 'NaN'}</td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  document.getElementById('d1-func').addEventListener('change', reset);
+  document.getElementById('d1-x0').addEventListener('change', reset);
+  document.getElementById('d1-eta').addEventListener('change', reset);
+  document.getElementById('d1-step').addEventListener('click', step);
+  document.getElementById('d1-auto').addEventListener('click', auto);
+  document.getElementById('d1-reset').addEventListener('click', reset);
+  reset();
+})();
+
+/* ========================================================================
+   DEMO 2: LR EXPLORER — 4 cards
+   ======================================================================== */
+(function() {
+  const SETUPS = [
+    { eta: 0.01, label: 'η = 0.01 — quá nhỏ',  color: '#0891b2' },
+    { eta: 0.1,  label: 'η = 0.1 — tốt',      color: '#047857' },
+    { eta: 0.5,  label: 'η = 0.5 — 1 bước',    color: '#7c3aed' },
+    { eta: 1.05, label: 'η = 1.05 — diverge',  color: '#dc2626' },
+  ];
+  const grid = document.getElementById('d2-grid');
+
+  function build() {
+    grid.innerHTML = '';
+    SETUPS.forEach((s, idx) => {
+      const card = document.createElement('div');
+      card.className = 'lr-card';
+      card.innerHTML = `
+        <h4 style="color:${s.color}">${s.label}</h4>
+        <div class="meta">Hệ số nhân: <code>1 − 2η = ${(1-2*s.eta).toFixed(3)}</code></div>
+        <canvas id="d2-c${idx}" width="280" height="160"></canvas>
+        <div style="font-family:ui-monospace,monospace;font-size:11px;color:#444;margin-top:4px;" id="d2-info${idx}"></div>
+      `;
+      grid.appendChild(card);
+    });
+    render();
+  }
+
+  function render() {
+    const x0 = parseFloat(document.getElementById('d2-x0').value);
+    const T = parseInt(document.getElementById('d2-steps').value);
+    document.getElementById('d2-steps-val').textContent = T;
+
+    SETUPS.forEach((s, idx) => {
+      // run
+      const xs = [x0]; const fs = [x0*x0];
+      let x = x0;
+      for (let t = 0; t < T; t++) {
+        x = x - s.eta * 2 * x;
+        xs.push(x); fs.push(x*x);
+        if (Math.abs(x) > 1e6) break;
+      }
+      // draw
+      const c = document.getElementById('d2-c'+idx);
+      const ctx = c.getContext('2d');
+      const W = c.width, H = c.height;
+      ctx.clearRect(0,0,W,H);
+      ctx.fillStyle = '#fff'; ctx.fillRect(0,0,W,H);
+
+      // log scale for fs
+      const logFs = fs.map(v => Math.log10(Math.max(v, 1e-8)));
+      const fMin = Math.min(-8, ...logFs);
+      const fMax = Math.max(2, ...logFs);
+
+      const PAD = 24;
+      const px = (i) => PAD + (i / Math.max(1, T)) * (W - 2*PAD);
+      const py = (lf) => H - PAD - ((lf - fMin) / (fMax - fMin)) * (H - 2*PAD);
+
+      ctx.strokeStyle = '#e3e1dc'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(PAD, H-PAD); ctx.lineTo(W-PAD, H-PAD); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(PAD, PAD); ctx.lineTo(PAD, H-PAD); ctx.stroke();
+
+      ctx.fillStyle = '#6a6a6a'; ctx.font = '9px sans-serif';
+      ctx.fillText('log₁₀ f(x_t)', 3, 12);
+      ctx.fillText('t →', W-20, H-6);
+
+      // draw
+      ctx.strokeStyle = s.color; ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let i = 0; i < logFs.length; i++) {
+        const X = px(i), Y = py(logFs[i]);
+        if (i === 0) ctx.moveTo(X, Y); else ctx.lineTo(X, Y);
+      }
+      ctx.stroke();
+
+      // dots
+      ctx.fillStyle = s.color;
+      for (let i = 0; i < logFs.length; i++) {
+        ctx.beginPath(); ctx.arc(px(i), py(logFs[i]), 2, 0, Math.PI*2); ctx.fill();
+      }
+
+      const lastX = xs[xs.length-1];
+      const lastF = fs[fs.length-1];
+      const info = document.getElementById('d2-info'+idx);
+      let status = '';
+      if (!isFinite(lastX) || Math.abs(lastX) > 1e6) status = ' <span class="diverged">DIVERGE</span>';
+      else if (Math.abs(lastX) < 1e-4) status = ' <span class="converged">✓</span>';
+      info.innerHTML = `x_${xs.length-1} = ${isFinite(lastX) ? lastX.toExponential(2) : 'NaN'}, f = ${isFinite(lastF) ? lastF.toExponential(2) : 'NaN'}${status}`;
+    });
+  }
+
+  document.getElementById('d2-x0').addEventListener('change', render);
+  document.getElementById('d2-steps').addEventListener('input', render);
+  document.getElementById('d2-reset').addEventListener('click', () => {
+    document.getElementById('d2-x0').value = 5;
+    document.getElementById('d2-steps').value = 10;
+    render();
+  });
+  build();
+})();
+
+/* ========================================================================
+   DEMO 3: 2D GD ON CONTOUR
+   ======================================================================== */
+(function() {
+  const FUNCS2D = {
+    x2_2y2:  { f: (x,y) => x*x + 2*y*y, grad: (x,y) => [2*x, 4*y], range: [-6, 6], min: [0,0], name: 'x² + 2y²' },
+    x2_y2:   { f: (x,y) => x*x + y*y, grad: (x,y) => [2*x, 2*y], range: [-6, 6], min: [0,0], name: 'x² + y²' },
+    x2_9y2:  { f: (x,y) => x*x + 9*y*y, grad: (x,y) => [2*x, 18*y], range: [-6, 6], min: [0,0], name: 'x² + 9y² (ill-cond)' },
+    rosen:   { f: (x,y) => (1-x)**2 + 100*(y-x*x)**2, grad: (x,y) => [-2*(1-x) - 400*x*(y-x*x), 200*(y-x*x)], range: [-2, 2], min: [1,1], name: 'Rosenbrock' },
+  };
+
+  const canvas = document.getElementById('d3-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  let funcKey = 'x2_2y2';
+  let history = [];
+  let autoTimer = null;
+
+  function reset() {
+    funcKey = document.getElementById('d3-func').value;
+    const x0 = parseFloat(document.getElementById('d3-x0').value);
+    const y0 = parseFloat(document.getElementById('d3-y0').value);
+    const eta = parseFloat(document.getElementById('d3-eta').value);
+    document.getElementById('d3-eta-val').textContent = eta.toFixed(3);
+    const fn = FUNCS2D[funcKey];
+    const g = fn.grad(x0, y0);
+    history = [{ x: x0, y: y0, f: fn.f(x0, y0), g, t: 0 }];
+    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+    render();
+  }
+
+  function step() {
+    const fn = FUNCS2D[funcKey];
+    const eta = parseFloat(document.getElementById('d3-eta').value);
+    const last = history[history.length-1];
+    const nx = last.x - eta * last.g[0];
+    const ny = last.y - eta * last.g[1];
+    if (!isFinite(nx) || !isFinite(ny) || Math.abs(nx) > 1e6 || Math.abs(ny) > 1e6) {
+      history.push({ x: NaN, y: NaN, f: NaN, g: [NaN,NaN], t: last.t+1, diverged: true });
+    } else {
+      const g = fn.grad(nx, ny);
+      history.push({ x: nx, y: ny, f: fn.f(nx, ny), g, t: last.t+1 });
+    }
+    render();
+  }
+
+  function auto() {
+    if (autoTimer) return;
+    let n = 30;
+    autoTimer = setInterval(() => {
+      step();
+      n--;
+      const last = history[history.length-1];
+      if (n <= 0 || last.diverged) { clearInterval(autoTimer); autoTimer = null; }
+    }, 150);
+  }
+
+  function render() {
+    const fn = FUNCS2D[funcKey];
+    let [a, b] = fn.range;
+    // adjust range to fit trajectory
+    history.forEach(h => {
+      if (isFinite(h.x)) { a = Math.min(a, h.x - 0.5); b = Math.max(b, h.x + 0.5); }
+      if (isFinite(h.y)) { a = Math.min(a, h.y - 0.5); b = Math.max(b, h.y + 0.5); }
+    });
+    const xMin = a, xMax = b, yMin = a, yMax = b;
+
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#fafaf7'; ctx.fillRect(0, 0, W, H);
+
+    const PAD = 50;
+    const PW = W - 2*PAD, PH = H - 2*PAD;
+    const X2px = x => PAD + ((x - xMin)/(xMax - xMin)) * PW;
+    const Y2px = y => PAD + PH - ((y - yMin)/(yMax - yMin)) * PH;
+
+    // contour heatmap
+    const N = 100;
+    let fMin = Infinity, fMax = -Infinity;
+    const grid = new Array(N);
+    for (let i = 0; i < N; i++) {
+      grid[i] = new Array(N);
+      for (let j = 0; j < N; j++) {
+        const x = xMin + (i/(N-1))*(xMax-xMin);
+        const y = yMin + (j/(N-1))*(yMax-yMin);
+        const v = fn.f(x, y);
+        grid[i][j] = v;
+        if (isFinite(v)) {
+          if (v < fMin) fMin = v;
+          if (v > fMax) fMax = v;
+        }
+      }
+    }
+    // use log-ish scale for nicer contour
+    const cellW = PW / (N-1), cellH = PH / (N-1);
+    for (let i = 0; i < N-1; i++) {
+      for (let j = 0; j < N-1; j++) {
+        const v = grid[i][j];
+        if (!isFinite(v)) continue;
+        const t = Math.log(1 + v - fMin) / Math.log(1 + fMax - fMin);
+        const c = Math.round(255 * (1 - t*0.85));
+        ctx.fillStyle = `rgb(${c}, ${Math.round(c*0.93 + 16)}, ${Math.round(c*0.85 + 25)})`;
+        ctx.fillRect(PAD + i*cellW, PAD + PH - (j+1)*cellH, cellW+1, cellH+1);
+      }
+    }
+
+    // contour lines
+    const levels = [];
+    for (let k = 1; k <= 8; k++) {
+      levels.push(fMin + (k/8)**2 * (fMax - fMin));
+    }
+    ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = 0.6;
+    for (const L of levels) {
+      for (let i = 0; i < N-1; i++) {
+        for (let j = 0; j < N-1; j++) {
+          const v00 = grid[i][j], v10 = grid[i+1][j], v01 = grid[i][j+1], v11 = grid[i+1][j+1];
+          const above = [v00 > L, v10 > L, v01 > L, v11 > L];
+          const count = above.filter(b => b).length;
+          if (count === 0 || count === 4) continue;
+          const x0 = PAD + i*cellW, x1 = PAD + (i+1)*cellW;
+          const y0 = PAD + PH - (j+1)*cellH, y1 = PAD + PH - j*cellH;
+          // simple draw center cross
+          ctx.beginPath();
+          ctx.arc((x0+x1)/2, (y0+y1)/2, 0.5, 0, Math.PI*2);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // axes
+    ctx.strokeStyle = '#1a1a1a'; ctx.lineWidth = 1;
+    ctx.strokeRect(PAD, PAD, PW, PH);
+    ctx.fillStyle = '#1a1a1a'; ctx.font = '11px sans-serif';
+    ctx.fillText(`f(x, y) = ${fn.name}`, PAD, PAD - 10);
+    ctx.fillText('x →', PAD + PW - 22, PAD + PH + 22);
+    ctx.save();
+    ctx.translate(PAD - 24, PAD + 18);
+    ctx.rotate(-Math.PI/2);
+    ctx.fillText('y', 0, 0);
+    ctx.restore();
+
+    // ticks
+    ctx.font = '10px sans-serif'; ctx.fillStyle = '#444';
+    for (let i = 0; i <= 6; i++) {
+      const x = xMin + i*(xMax-xMin)/6;
+      ctx.fillText(x.toFixed(1), X2px(x) - 8, PAD + PH + 14);
+      const y = yMin + i*(yMax-yMin)/6;
+      ctx.fillText(y.toFixed(1), 8, Y2px(y) + 4);
+    }
+
+    // minimum
+    ctx.fillStyle = '#fef9c3'; ctx.strokeStyle = '#854d0e'; ctx.lineWidth = 1.5;
+    const mpx = X2px(fn.min[0]), mpy = Y2px(fn.min[1]);
+    ctx.beginPath(); ctx.arc(mpx, mpy, 7, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#854d0e'; ctx.font = 'bold 10px sans-serif';
+    ctx.fillText('★', mpx-4, mpy+4);
+
+    // trajectory
+    ctx.strokeStyle = '#dc2626'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    let first = true;
+    history.forEach(h => {
+      if (!isFinite(h.x)) return;
+      const px = X2px(h.x), py = Y2px(h.y);
+      if (first) { ctx.moveTo(px, py); first = false; } else ctx.lineTo(px, py);
+    });
+    ctx.stroke();
+
+    history.forEach((h, i) => {
+      if (!isFinite(h.x)) return;
+      const px = X2px(h.x), py = Y2px(h.y);
+      ctx.fillStyle = i === history.length-1 ? '#dc2626' : '#fff';
+      ctx.strokeStyle = '#dc2626'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(px, py, i === history.length-1 ? 6 : 3, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+    });
+
+    // gradient arrow at last
+    const last = history[history.length-1];
+    if (isFinite(last.x)) {
+      const px = X2px(last.x), py = Y2px(last.y);
+      const gnorm = Math.hypot(last.g[0], last.g[1]);
+      if (gnorm > 1e-6) {
+        const eta = parseFloat(document.getElementById('d3-eta').value);
+        const dx = -eta * last.g[0], dy = -eta * last.g[1];
+        // draw -η∇f vector (scaled)
+        const sx = X2px(last.x + dx), sy = Y2px(last.y + dy);
+        ctx.strokeStyle = '#7c3aed'; ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(sx, sy); ctx.stroke();
+        // arrowhead
+        const ang = Math.atan2(sy - py, sx - px);
+        ctx.beginPath();
+        ctx.moveTo(sx, sy);
+        ctx.lineTo(sx - 8*Math.cos(ang - 0.4), sy - 8*Math.sin(ang - 0.4));
+        ctx.lineTo(sx - 8*Math.cos(ang + 0.4), sy - 8*Math.sin(ang + 0.4));
+        ctx.fillStyle = '#7c3aed';
+        ctx.closePath(); ctx.fill();
+      }
+    }
+
+    // info
+    document.getElementById('d3-t').textContent = last.t;
+    document.getElementById('d3-pt').textContent = isFinite(last.x) ? `(${last.x.toFixed(3)}, ${last.y.toFixed(3)})` : 'DIVERGED';
+    document.getElementById('d3-f').textContent = isFinite(last.f) ? last.f.toFixed(4) : 'NaN';
+    document.getElementById('d3-grad').textContent = isFinite(last.g[0]) ? `(${last.g[0].toFixed(3)}, ${last.g[1].toFixed(3)})` : 'NaN';
+    const stat = document.getElementById('d3-status');
+    if (last.diverged || (isFinite(last.x) && (Math.abs(last.x) > 100 || Math.abs(last.y) > 100))) {
+      stat.innerHTML = '<span class="diverged">⚠ DIVERGED</span>';
+    } else if (isFinite(last.g[0]) && Math.hypot(last.g[0], last.g[1]) < 0.001) {
+      stat.innerHTML = '<span class="converged">✓ HỘI TỤ</span>';
+    } else stat.innerHTML = '';
+  }
+
+  canvas.addEventListener('click', e => {
+    const fn = FUNCS2D[funcKey];
+    const rect = canvas.getBoundingClientRect();
+    const cx = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const cy = (e.clientY - rect.top) * (canvas.height / rect.height);
+    const PAD = 50;
+    const PW = W - 2*PAD, PH = H - 2*PAD;
+    if (cx < PAD || cx > PAD+PW || cy < PAD || cy > PAD+PH) return;
+    let [a, b] = fn.range;
+    history.forEach(h => {
+      if (isFinite(h.x)) { a = Math.min(a, h.x - 0.5); b = Math.max(b, h.x + 0.5); }
+      if (isFinite(h.y)) { a = Math.min(a, h.y - 0.5); b = Math.max(b, h.y + 0.5); }
+    });
+    const x = a + ((cx - PAD)/PW)*(b - a);
+    const y = a + ((PAD + PH - cy)/PH)*(b - a);
+    document.getElementById('d3-x0').value = x.toFixed(2);
+    document.getElementById('d3-y0').value = y.toFixed(2);
+    reset();
+  });
+
+  document.getElementById('d3-func').addEventListener('change', reset);
+  document.getElementById('d3-x0').addEventListener('change', reset);
+  document.getElementById('d3-y0').addEventListener('change', reset);
+  document.getElementById('d3-eta').addEventListener('input', () => {
+    document.getElementById('d3-eta-val').textContent = parseFloat(document.getElementById('d3-eta').value).toFixed(3);
+    render();
+  });
+  document.getElementById('d3-step').addEventListener('click', step);
+  document.getElementById('d3-auto').addEventListener('click', auto);
+  document.getElementById('d3-reset').addEventListener('click', reset);
+  reset();
+})();
+
+/* ========================================================================
+   DEMO 4: LINEAR REGRESSION GD
+   ======================================================================== */
+(function() {
+  const cData = document.getElementById('d4-data');
+  const cLoss = document.getElementById('d4-loss');
+  const dCtx = cData.getContext('2d');
+  const lCtx = cLoss.getContext('2d');
+
+  let points = [
+    { x: 1, y: 2 },
+    { x: 2, y: 3.5 },
+    { x: 3, y: 5.5 },
+    { x: 4, y: 6.8 },
+  ];
+
+  let a = 0, b = 0, t = 0;
+  let history = [];
+  let autoTimer = null;
+  let dragIdx = -1;
+
+  function lossFn(a, b) {
+    let s = 0;
+    for (const p of points) s += (a*p.x + b - p.y)**2;
+    return s / points.length;
+  }
+  function gradFn(a, b) {
+    let ga = 0, gb = 0;
+    for (const p of points) {
+      const e = a*p.x + b - p.y;
+      ga += e * p.x;
+      gb += e;
+    }
+    return [2*ga/points.length, 2*gb/points.length];
+  }
+  function closedForm() {
+    const n = points.length;
+    const sx = points.reduce((s,p) => s+p.x, 0);
+    const sy = points.reduce((s,p) => s+p.y, 0);
+    const sxy = points.reduce((s,p) => s+p.x*p.y, 0);
+    const sxx = points.reduce((s,p) => s+p.x*p.x, 0);
+    const aStar = (n*sxy - sx*sy) / (n*sxx - sx*sx);
+    const bStar = (sy - aStar*sx) / n;
+    return [aStar, bStar];
+  }
+
+  function reset() {
+    a = parseFloat(document.getElementById('d4-a0').value);
+    b = parseFloat(document.getElementById('d4-b0').value);
+    t = 0;
+    history = [{ a, b, t: 0, loss: lossFn(a, b) }];
+    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+    render();
+  }
+
+  function step() {
+    const eta = parseFloat(document.getElementById('d4-eta').value);
+    document.getElementById('d4-eta-val').textContent = eta.toFixed(3);
+    const [ga, gb] = gradFn(a, b);
+    a -= eta * ga;
+    b -= eta * gb;
+    t += 1;
+    history.push({ a, b, t, loss: lossFn(a, b) });
+    if (history.length > 300) history.shift();
+    render();
+  }
+
+  function auto() {
+    if (autoTimer) return;
+    let n = 200;
+    autoTimer = setInterval(() => {
+      step();
+      n--;
+      if (n <= 0 || !isFinite(a) || !isFinite(b) || Math.abs(a) > 1e6) {
+        clearInterval(autoTimer); autoTimer = null;
+      }
+    }, 30);
+  }
+
+  function renderData() {
+    const W = cData.width, H = cData.height;
+    dCtx.clearRect(0, 0, W, H);
+    dCtx.fillStyle = '#fafaf7'; dCtx.fillRect(0, 0, W, H);
+    const PAD = 36;
+    const PW = W - 2*PAD, PH = H - 2*PAD;
+    // determine range
+    const xs = points.map(p=>p.x), ys = points.map(p=>p.y);
+    let xMin = Math.min(0, ...xs) - 0.5, xMax = Math.max(...xs) + 0.5;
+    let yMin = Math.min(0, ...ys) - 0.5, yMax = Math.max(...ys) + 1;
+    const X2px = x => PAD + ((x - xMin)/(xMax - xMin)) * PW;
+    const Y2px = y => PAD + PH - ((y - yMin)/(yMax - yMin)) * PH;
+
+    dCtx.strokeStyle = '#cbd5e0'; dCtx.lineWidth = 1;
+    dCtx.beginPath(); dCtx.moveTo(PAD, PAD+PH); dCtx.lineTo(PAD+PW, PAD+PH); dCtx.stroke();
+    dCtx.beginPath(); dCtx.moveTo(PAD, PAD); dCtx.lineTo(PAD, PAD+PH); dCtx.stroke();
+    dCtx.fillStyle = '#1a1a1a'; dCtx.font = '11px sans-serif';
+    dCtx.fillText('Dữ liệu + đường fit', PAD, PAD - 8);
+    dCtx.fillText('x →', PAD+PW-18, PAD+PH+18);
+    dCtx.fillText('y', 6, PAD+12);
+
+    // ticks
+    dCtx.fillStyle = '#666'; dCtx.font = '10px sans-serif';
+    for (let i = 0; i <= 4; i++) {
+      const x = xMin + i*(xMax-xMin)/4;
+      dCtx.fillText(x.toFixed(1), X2px(x)-8, PAD+PH+14);
+      const y = yMin + i*(yMax-yMin)/4;
+      dCtx.fillText(y.toFixed(1), 6, Y2px(y)+4);
+    }
+
+    // closed-form line
+    const [aStar, bStar] = closedForm();
+    dCtx.strokeStyle = '#0891b2'; dCtx.lineWidth = 2;
+    dCtx.setLineDash([5, 4]);
+    dCtx.beginPath();
+    dCtx.moveTo(X2px(xMin), Y2px(aStar*xMin + bStar));
+    dCtx.lineTo(X2px(xMax), Y2px(aStar*xMax + bStar));
+    dCtx.stroke();
+    dCtx.setLineDash([]);
+
+    // GD line
+    dCtx.strokeStyle = '#dc2626'; dCtx.lineWidth = 2.5;
+    dCtx.beginPath();
+    dCtx.moveTo(X2px(xMin), Y2px(a*xMin + b));
+    dCtx.lineTo(X2px(xMax), Y2px(a*xMax + b));
+    dCtx.stroke();
+
+    // points
+    points.forEach((p, i) => {
+      const px = X2px(p.x), py = Y2px(p.y);
+      dCtx.fillStyle = '#1a1a1a';
+      dCtx.beginPath(); dCtx.arc(px, py, 6, 0, Math.PI*2); dCtx.fill();
+      // residual
+      const pyFit = Y2px(a*p.x + b);
+      dCtx.strokeStyle = 'rgba(220,38,38,0.35)'; dCtx.lineWidth = 1;
+      dCtx.beginPath(); dCtx.moveTo(px, py); dCtx.lineTo(px, pyFit); dCtx.stroke();
+    });
+
+    // legend
+    dCtx.font = '11px sans-serif';
+    dCtx.fillStyle = '#dc2626'; dCtx.fillText('━ GD: y = ' + a.toFixed(3) + 'x + ' + b.toFixed(3), PAD + 6, PAD + 14);
+    dCtx.fillStyle = '#0891b2'; dCtx.fillText('┄ Closed-form', PAD + 6, PAD + 28);
+
+    // store for drag
+    cData._xform = { PAD, PW, PH, xMin, xMax, yMin, yMax, X2px, Y2px };
+  }
+
+  function renderLoss() {
+    const W = cLoss.width, H = cLoss.height;
+    lCtx.clearRect(0, 0, W, H);
+    lCtx.fillStyle = '#fafaf7'; lCtx.fillRect(0, 0, W, H);
+    const PAD = 40;
+    const PW = W - 2*PAD, PH = H - 2*PAD;
+
+    // contour in (a, b) space
+    const [aStar, bStar] = closedForm();
+    let aMin = Math.min(aStar - 1.5, ...history.map(h=>h.a)) - 0.5;
+    let aMax = Math.max(aStar + 1.5, ...history.map(h=>h.a)) + 0.5;
+    let bMin = Math.min(bStar - 1.5, ...history.map(h=>h.b)) - 0.5;
+    let bMax = Math.max(bStar + 1.5, ...history.map(h=>h.b)) + 0.5;
+
+    const A2px = aa => PAD + ((aa - aMin)/(aMax - aMin)) * PW;
+    const B2px = bb => PAD + PH - ((bb - bMin)/(bMax - bMin)) * PH;
+
+    // heatmap
+    const N = 60;
+    let lMin = Infinity, lMax = -Infinity;
+    const grid = new Array(N);
+    for (let i = 0; i < N; i++) {
+      grid[i] = new Array(N);
+      for (let j = 0; j < N; j++) {
+        const aa = aMin + (i/(N-1))*(aMax-aMin);
+        const bb = bMin + (j/(N-1))*(bMax-bMin);
+        const L = lossFn(aa, bb);
+        grid[i][j] = L;
+        if (L < lMin) lMin = L; if (L > lMax) lMax = L;
+      }
+    }
+    const cellW = PW / (N-1), cellH = PH / (N-1);
+    for (let i = 0; i < N-1; i++) {
+      for (let j = 0; j < N-1; j++) {
+        const v = grid[i][j];
+        const tval = Math.log(1 + v - lMin) / Math.log(1 + lMax - lMin);
+        const c = Math.round(255 * (1 - tval*0.85));
+        lCtx.fillStyle = `rgb(${c}, ${Math.round(c*0.93 + 16)}, ${Math.round(c*0.85 + 25)})`;
+        lCtx.fillRect(PAD + i*cellW, PAD + PH - (j+1)*cellH, cellW+1, cellH+1);
+      }
+    }
+
+    // contour lines
+    const levels = [];
+    for (let k = 1; k <= 7; k++) levels.push(lMin + (k/7)**2 * (lMax - lMin));
+    lCtx.strokeStyle = 'rgba(0,0,0,0.3)'; lCtx.lineWidth = 0.6;
+    for (const L of levels) {
+      for (let i = 0; i < N-1; i++) {
+        for (let j = 0; j < N-1; j++) {
+          const v00 = grid[i][j], v10 = grid[i+1][j], v01 = grid[i][j+1], v11 = grid[i+1][j+1];
+          const above = [v00 > L, v10 > L, v01 > L, v11 > L];
+          const count = above.filter(b => b).length;
+          if (count === 0 || count === 4) continue;
+          const x0 = PAD + i*cellW, x1 = PAD + (i+1)*cellW;
+          const y0 = PAD + PH - (j+1)*cellH, y1 = PAD + PH - j*cellH;
+          lCtx.beginPath();
+          lCtx.arc((x0+x1)/2, (y0+y1)/2, 0.5, 0, Math.PI*2);
+          lCtx.stroke();
+        }
+      }
+    }
+
+    // axes
+    lCtx.strokeStyle = '#1a1a1a'; lCtx.lineWidth = 1;
+    lCtx.strokeRect(PAD, PAD, PW, PH);
+    lCtx.fillStyle = '#1a1a1a'; lCtx.font = '11px sans-serif';
+    lCtx.fillText('Loss landscape L(a, b)', PAD, PAD - 8);
+    lCtx.fillText('a →', PAD+PW-18, PAD+PH+18);
+    lCtx.save(); lCtx.translate(PAD-22, PAD+18); lCtx.rotate(-Math.PI/2);
+    lCtx.fillText('b', 0, 0); lCtx.restore();
+
+    lCtx.fillStyle = '#666'; lCtx.font = '10px sans-serif';
+    for (let i = 0; i <= 4; i++) {
+      const aa = aMin + i*(aMax-aMin)/4;
+      lCtx.fillText(aa.toFixed(2), A2px(aa)-10, PAD+PH+14);
+      const bb = bMin + i*(bMax-bMin)/4;
+      lCtx.fillText(bb.toFixed(2), 4, B2px(bb)+4);
+    }
+
+    // closed-form star
+    lCtx.fillStyle = '#fef9c3'; lCtx.strokeStyle = '#854d0e'; lCtx.lineWidth = 1.5;
+    lCtx.beginPath(); lCtx.arc(A2px(aStar), B2px(bStar), 7, 0, Math.PI*2); lCtx.fill(); lCtx.stroke();
+    lCtx.fillStyle = '#854d0e'; lCtx.font = 'bold 12px sans-serif';
+    lCtx.fillText('★', A2px(aStar)-4, B2px(bStar)+4);
+
+    // GD trajectory
+    lCtx.strokeStyle = '#dc2626'; lCtx.lineWidth = 2;
+    lCtx.beginPath();
+    history.forEach((h, i) => {
+      const px = A2px(h.a), py = B2px(h.b);
+      if (i === 0) lCtx.moveTo(px, py); else lCtx.lineTo(px, py);
+    });
+    lCtx.stroke();
+
+    history.forEach((h, i) => {
+      const px = A2px(h.a), py = B2px(h.b);
+      lCtx.fillStyle = i === history.length-1 ? '#dc2626' : 'rgba(220,38,38,0.5)';
+      lCtx.beginPath(); lCtx.arc(px, py, i === history.length-1 ? 5 : 2.5, 0, Math.PI*2); lCtx.fill();
+    });
+  }
+
+  function render() {
+    renderData();
+    renderLoss();
+    document.getElementById('d4-t').textContent = t;
+    document.getElementById('d4-a').textContent = a.toFixed(4);
+    document.getElementById('d4-b').textContent = b.toFixed(4);
+    document.getElementById('d4-loss-val').textContent = lossFn(a, b).toFixed(4);
+    const [aS, bS] = closedForm();
+    document.getElementById('d4-cf').textContent = `a* = ${aS.toFixed(4)}, b* = ${bS.toFixed(4)}`;
+  }
+
+  cData.addEventListener('mousedown', e => {
+    const xf = cData._xform; if (!xf) return;
+    const rect = cData.getBoundingClientRect();
+    const cx = (e.clientX - rect.left) * (cData.width / rect.width);
+    const cy = (e.clientY - rect.top) * (cData.height / rect.height);
+    for (let i = 0; i < points.length; i++) {
+      const px = xf.X2px(points[i].x), py = xf.Y2px(points[i].y);
+      if ((cx-px)**2 + (cy-py)**2 < 100) { dragIdx = i; return; }
+    }
+  });
+  cData.addEventListener('mousemove', e => {
+    if (dragIdx < 0) return;
+    const xf = cData._xform; if (!xf) return;
+    const rect = cData.getBoundingClientRect();
+    const cx = (e.clientX - rect.left) * (cData.width / rect.width);
+    const cy = (e.clientY - rect.top) * (cData.height / rect.height);
+    const nx = xf.xMin + ((cx - xf.PAD)/xf.PW) * (xf.xMax - xf.xMin);
+    const ny = xf.yMin + ((xf.PAD + xf.PH - cy)/xf.PH) * (xf.yMax - xf.yMin);
+    points[dragIdx].y = ny;
+    // keep x roughly fixed but allow drag freely
+    points[dragIdx].x = nx;
+    render();
+  });
+  window.addEventListener('mouseup', () => { dragIdx = -1; });
+
+  document.getElementById('d4-a0').addEventListener('change', reset);
+  document.getElementById('d4-b0').addEventListener('change', reset);
+  document.getElementById('d4-eta').addEventListener('input', () => {
+    document.getElementById('d4-eta-val').textContent = parseFloat(document.getElementById('d4-eta').value).toFixed(3);
+  });
+  document.getElementById('d4-step').addEventListener('click', step);
+  document.getElementById('d4-auto').addEventListener('click', auto);
+  document.getElementById('d4-reset').addEventListener('click', reset);
+  reset();
+})();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

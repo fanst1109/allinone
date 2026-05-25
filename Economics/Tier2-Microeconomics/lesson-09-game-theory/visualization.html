@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 09 — Game Theory</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .lead { color: #4a5568; margin-bottom: 24px; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 200px; }
+  input[type="number"], select { font-family: monospace; padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 4px; }
+  input[type="number"] { width: 80px; }
+  .result { background: #f7fafc; border-left: 4px solid #c05621; padding: 14px 18px; margin-top: 14px; border-radius: 4px; font-family: monospace; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  table.payoff { border-collapse: collapse; margin: 16px auto; font-family: monospace; font-size: 14px; }
+  table.payoff th, table.payoff td { border: 1px solid #cbd5e0; padding: 12px 18px; text-align: center; min-width: 100px; }
+  table.payoff th { background: #edf2f7; }
+  table.payoff td.nash { background: #c6f6d5; font-weight: 700; }
+  table.payoff td.dom { background: #fed7aa; }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; background: #fff5eb; color: #c05621; font-weight: 700; margin-left: 6px; }
+  button { background: #c05621; color: white; border: none; padding: 7px 14px; border-radius: 4px; cursor: pointer; font-weight: 600; }
+  button:hover { background: #9c4221; }
+  button.alt { background: #4a5568; }
+  .log { background: #1a202c; color: #cbd5e0; padding: 14px; border-radius: 4px; font-family: monospace; font-size: 13px; max-height: 280px; overflow-y: auto; white-space: pre-wrap; margin-top: 10px; }
+  .log .c { color: #68d391; }
+  .log .d { color: #fc8181; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-08-market-structures/visualization.html">← L8: Market Structures</a>
+  <span class="sep">·</span>
+  <span class="current">L9: Game Theory</span>
+  <span class="sep">·</span>
+  <a href="../lesson-10-labor-capital/visualization.html">L10: Labor & Capital →</a>
+</nav>
+  <h1>Lesson 09 — Game Theory</h1>
+  <div class="lead">Máy tìm Nash equilibrium cho game 2x2, và mô phỏng PD lặp lại với chiến lược tit-for-tat.</div>
+
+  <h2>1. Tìm Nash equilibrium <span class="pill">2x2 game</span></h2>
+  <div class="card">
+    <p>Nhập payoff (A, B) cho mỗi ô. Ô <strong>xanh</strong> = Nash. <strong>Cam</strong> = chiến lược thống trị.</p>
+    <div class="row"><label>(C,C): A=</label><input id="cc-a" type="number" value="-1"><label>B=</label><input id="cc-b" type="number" value="-1"></div>
+    <div class="row"><label>(C,D): A=</label><input id="cd-a" type="number" value="-10"><label>B=</label><input id="cd-b" type="number" value="0"></div>
+    <div class="row"><label>(D,C): A=</label><input id="dc-a" type="number" value="0"><label>B=</label><input id="dc-b" type="number" value="-10"></div>
+    <div class="row"><label>(D,D): A=</label><input id="dd-a" type="number" value="-5"><label>B=</label><input id="dd-b" type="number" value="-5"></div>
+    <table class="payoff" id="payoff"></table>
+    <div class="result" id="nash-out"></div>
+  </div>
+
+  <h2>2. PD lặp lại với Tit-for-Tat <span class="pill">Iterated PD</span></h2>
+  <div class="card">
+    <p>Mô phỏng 20 vòng PD. So sánh các chiến lược của hãng A; B luôn chơi TFT.</p>
+    <div class="row"><label>Chiến lược của A</label>
+      <select id="strat">
+        <option value="always-c">Always Cooperate</option>
+        <option value="always-d">Always Defect</option>
+        <option value="tft">Tit-for-Tat</option>
+        <option value="random">Random 50/50</option>
+        <option value="grim">Grim Trigger</option>
+      </select>
+    </div>
+    <div class="row"><button id="run">Chạy 20 vòng</button></div>
+    <div class="log" id="log"></div>
+    <div class="result" id="result"></div>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+function get(id) { return parseFloat($(id).value); }
+
+function renderPayoff() {
+  const ccA = get('cc-a'), ccB = get('cc-b');
+  const cdA = get('cd-a'), cdB = get('cd-b');
+  const dcA = get('dc-a'), dcB = get('dc-b');
+  const ddA = get('dd-a'), ddB = get('dd-b');
+
+  // Nash check
+  function isNash(row, col) {
+    const payA = [[ccA, cdA], [dcA, ddA]];
+    const payB = [[ccB, cdB], [dcB, ddB]];
+    const otherRow = 1 - row, otherCol = 1 - col;
+    // A không muốn đổi: payA[row][col] >= payA[otherRow][col]
+    // B không muốn đổi: payB[row][col] >= payB[row][otherCol]
+    return payA[row][col] >= payA[otherRow][col] && payB[row][col] >= payB[row][otherCol];
+  }
+
+  const nash = [];
+  if (isNash(0, 0)) nash.push('(C, C)');
+  if (isNash(0, 1)) nash.push('(C, D)');
+  if (isNash(1, 0)) nash.push('(D, C)');
+  if (isNash(1, 1)) nash.push('(D, D)');
+
+  // Dominant strategy
+  // A dominant C if ccA > dcA và cdA > ddA
+  let aDom = '';
+  if (ccA > dcA && cdA > ddA) aDom = 'C';
+  else if (dcA > ccA && ddA > cdA) aDom = 'D';
+  let bDom = '';
+  if (ccB > cdB && dcB > ddB) bDom = 'C';
+  else if (cdB > ccB && ddB > dcB) bDom = 'D';
+
+  function cellClass(r, c) {
+    let cls = '';
+    if (isNash(r, c)) cls = 'nash';
+    return cls;
+  }
+
+  $('payoff').innerHTML =
+    `<tr><th></th><th>B chơi C</th><th>B chơi D</th></tr>` +
+    `<tr><th>A chơi C</th><td class="${cellClass(0,0)}">${ccA}, ${ccB}</td><td class="${cellClass(0,1)}">${cdA}, ${cdB}</td></tr>` +
+    `<tr><th>A chơi D</th><td class="${cellClass(1,0)}">${dcA}, ${dcB}</td><td class="${cellClass(1,1)}">${ddA}, ${ddB}</td></tr>`;
+
+  $('nash-out').innerHTML =
+    `<strong>Nash equilibria:</strong> ${nash.length ? nash.join(', ') : 'Không có Nash thuần (cần Nash hỗn hợp)'}\n` +
+    `Chiến lược dominant của A: ${aDom || 'không có'}\n` +
+    `Chiến lược dominant của B: ${bDom || 'không có'}\n` +
+    (nash.includes('(D, D)') && ccA > ddA && ccB > ddB ?
+      `\n<strong>⚠ Đây là Prisoner's Dilemma</strong>: Nash (D,D) tệ hơn (C,C) cho cả hai.` : '');
+}
+['cc-a','cc-b','cd-a','cd-b','dc-a','dc-b','dd-a','dd-b'].forEach(id => $(id).addEventListener('input', renderPayoff));
+renderPayoff();
+
+// Iterated PD
+function runGame() {
+  const strat = $('strat').value;
+  const payoffs = { CC: [-1, -1], CD: [-10, 0], DC: [0, -10], DD: [-5, -5] };
+  let aScore = 0, bScore = 0;
+  let lastA = 'C', lastB = 'C', betrayed = false;
+  let log = '';
+  for (let t = 1; t <= 20; t++) {
+    let aMove;
+    if (strat === 'always-c') aMove = 'C';
+    else if (strat === 'always-d') aMove = 'D';
+    else if (strat === 'tft') aMove = t === 1 ? 'C' : lastB;
+    else if (strat === 'random') aMove = Math.random() < 0.5 ? 'C' : 'D';
+    else if (strat === 'grim') { if (betrayed) aMove = 'D'; else aMove = 'C'; }
+    const bMove = t === 1 ? 'C' : lastA; // B luôn TFT
+
+    const key = aMove + bMove;
+    const [pA, pB] = payoffs[key];
+    aScore += pA;
+    bScore += pB;
+    log += `T${t.toString().padStart(2)}: A=<span class="${aMove==='C'?'c':'d'}">${aMove}</span> B=<span class="${bMove==='C'?'c':'d'}">${bMove}</span>  →  A=${pA}, B=${pB}  (total: ${aScore}, ${bScore})\n`;
+    lastA = aMove;
+    lastB = bMove;
+    if (bMove === 'D') betrayed = true;
+  }
+  $('log').innerHTML = log;
+  $('result').innerHTML =
+    `<strong>Tổng kết 20 vòng (vs TFT):</strong>\n` +
+    `  A (${strat}): ${aScore}\n` +
+    `  B (TFT): ${bScore}\n` +
+    (Math.abs(aScore - bScore) < 2 ? `→ Cân bằng — chiến lược ổn định.` :
+     aScore > bScore ? `→ A thắng — nhưng cẩn thận, B có thể trả thù dài hạn.` :
+     `→ B thắng — A đã không khai thác được hợp tác.`);
+}
+$('run').addEventListener('click', runGame);
+runGame();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

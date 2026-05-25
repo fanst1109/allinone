@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Biến ngẫu nhiên rời rạc</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 24px; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; font-size: 16px; margin-top: 18px; }
+  .card {
+    background: white; border-radius: 8px; padding: 18px 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .card .desc { color: #4a5568; font-size: 14px; margin-bottom: 12px; }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; font-size: 14px; min-width: 60px; }
+  input[type="number"], input[type="text"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; padding: 6px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 80px;
+  }
+  input[type="range"] { width: 220px; vertical-align: middle; }
+  .slider-val {
+    display: inline-block; font-family: monospace;
+    background: #edf2f7; padding: 2px 8px; border-radius: 4px;
+    font-weight: 600; color: #2b6cb0; min-width: 50px; text-align: center;
+  }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 6px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.toggle { background: #e2e8f0; color: #2d3748; }
+  button.toggle.active { background: #4299e1; color: white; }
+  button.danger { background: #e53e3e; }
+  button.danger:hover { background: #c53030; }
+  svg { display: block; background: #fdfdfd; border: 1px solid #e2e8f0; border-radius: 6px; }
+  .chart-axis { stroke: #a0aec0; stroke-width: 1; }
+  .chart-grid { stroke: #edf2f7; stroke-width: 1; }
+  .chart-label { font-size: 11px; fill: #718096; font-family: monospace; }
+  .chart-title { font-size: 13px; fill: #2d3748; font-weight: 600; }
+  .stat-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 8px; margin-top: 12px;
+  }
+  .stat {
+    background: #edf2f7; padding: 8px 12px; border-radius: 4px;
+    font-family: monospace; font-size: 13px;
+  }
+  .stat .name { color: #4a5568; font-size: 11px; }
+  .stat .val { color: #2b6cb0; font-weight: 700; font-size: 14px; }
+  table { border-collapse: collapse; margin: 8px 0; width: 100%; }
+  table td, table th {
+    padding: 5px 12px; border: 1px solid #e2e8f0;
+    font-family: monospace; font-size: 13px;
+  }
+  table th { background: #edf2f7; text-align: left; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; margin-top: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-swatch { width: 14px; height: 14px; border-radius: 2px; display: inline-block; }
+  .hint { color: #718096; font-size: 13px; font-style: italic; margin: 4px 0; }
+  .formula {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    background: #1a202c; color: #cbf36b;
+    padding: 8px 12px; border-radius: 4px;
+    font-size: 14px; margin: 8px 0; white-space: pre-wrap;
+  }
+  .pill-row { display: flex; gap: 4px; flex-wrap: wrap; margin: 8px 0; }
+  .pill {
+    background: #e2e8f0; color: #2d3748; padding: 4px 10px;
+    border-radius: 12px; font-size: 13px; cursor: pointer;
+    border: 2px solid transparent;
+  }
+  .pill.active { background: #4299e1; color: white; border-color: #2b6cb0; }
+  .bar {
+    fill: #4299e1; transition: opacity 0.2s;
+  }
+  .bar:hover { fill: #3182ce; }
+  .bar-poi { fill: #f6ad55; }
+  .bar-sample { fill: #48bb78; }
+  .bar-theory { fill: rgba(229, 62, 62, 0.6); }
+  .step-line { stroke: #2b6cb0; stroke-width: 2; fill: none; }
+  .step-circle-closed { fill: #2b6cb0; stroke: #2b6cb0; }
+  .step-circle-open { fill: white; stroke: #2b6cb0; stroke-width: 1.5; }
+  .query-line { stroke: #e53e3e; stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .info-box {
+    background: #fef5e7; border-left: 3px solid #f6ad55;
+    padding: 8px 12px; margin: 8px 0; border-radius: 4px;
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-conditional-bayes/visualization.html">← L2: Xác suất có điều kiện</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Biến ngẫu nhiên rời rạc</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-continuous-rv/visualization.html">L4: Biến ngẫu nhiên liên tục →</a>
+</nav>
+  <h1>Lesson 03 — Biến ngẫu nhiên rời rạc</h1>
+  <div class="subtitle">4 component tương tác: PMF Bernoulli/Binomial, PMF Poisson + so sánh, sample generator, CDF bậc thang.</div>
+
+  <h2>1. Bernoulli / Binomial PMF</h2>
+  <div class="card">
+    <div class="desc">
+      Bin(n, p) là tổng n Bernoulli độc lập. Khi n = 1 → trùng Bernoulli. Trục x là số thành công k, trục y là P(X = k).
+      Đường đứt đỏ là kỳ vọng E[X] = n·p.
+    </div>
+    <div class="row">
+      <label>n:</label>
+      <input type="range" id="bin-n" min="1" max="50" value="10" step="1">
+      <span class="slider-val" id="bin-n-v">10</span>
+      <label>p:</label>
+      <input type="range" id="bin-p" min="0" max="1" value="0.5" step="0.01">
+      <span class="slider-val" id="bin-p-v">0.50</span>
+    </div>
+    <svg id="bin-svg" width="1040" height="320"></svg>
+    <div class="stat-grid">
+      <div class="stat"><div class="name">Phân phối</div><div class="val" id="bin-name">Bin(10, 0.50)</div></div>
+      <div class="stat"><div class="name">E[X] = n·p</div><div class="val" id="bin-mean">5.00</div></div>
+      <div class="stat"><div class="name">Var(X) = n·p·(1-p)</div><div class="val" id="bin-var">2.50</div></div>
+      <div class="stat"><div class="name">Std(X)</div><div class="val" id="bin-std">1.58</div></div>
+      <div class="stat"><div class="name">Mode</div><div class="val" id="bin-mode">5</div></div>
+      <div class="stat"><div class="name">P(X = mode)</div><div class="val" id="bin-pmax">0.2461</div></div>
+    </div>
+    <div class="hint">Thử: kéo n = 1 → biểu đồ chỉ có 2 cọc 0 và 1 (Bernoulli). Tăng p → "khối" PMF dịch sang phải.</div>
+  </div>
+
+  <h2>2. Poisson PMF — và so sánh với Binomial khi n→∞</h2>
+  <div class="card">
+    <div class="desc">
+      Poi(λ) mô hình sự kiện hiếm trong khoảng cố định. Khi n lớn, p nhỏ, n·p = λ → Bin(n, λ/n) ≈ Poi(λ).
+      Bật toggle "So sánh với Bin" để xem Binomial xếp chồng cùng λ.
+    </div>
+    <div class="row">
+      <label>λ:</label>
+      <input type="range" id="poi-l" min="0.1" max="30" value="3" step="0.1">
+      <span class="slider-val" id="poi-l-v">3.0</span>
+      <button class="toggle active" id="poi-cmp">So sánh với Bin (n=20)</button>
+      <label>n (Bin):</label>
+      <input type="range" id="poi-binn" min="2" max="200" value="20" step="1">
+      <span class="slider-val" id="poi-binn-v">20</span>
+    </div>
+    <svg id="poi-svg" width="1040" height="320"></svg>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-swatch" style="background:#f6ad55"></span> Poisson(λ)</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:#4299e1"></span> Bin(n, λ/n)</div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat"><div class="name">Phân phối</div><div class="val" id="poi-name">Poi(3.0)</div></div>
+      <div class="stat"><div class="name">E[X] = λ</div><div class="val" id="poi-mean">3.00</div></div>
+      <div class="stat"><div class="name">Var(X) = λ</div><div class="val" id="poi-var">3.00</div></div>
+      <div class="stat"><div class="name">Bin p = λ/n</div><div class="val" id="poi-p">0.150</div></div>
+      <div class="stat"><div class="name">Sai lệch max |Bin - Poi|</div><div class="val" id="poi-diff">—</div></div>
+    </div>
+    <div class="hint">Thử: tăng n từ 20 lên 200 → các cọc Bin "ép sát" với Poi. Hạ n xuống &lt; 10 và λ lớn → khác hẳn (xấp xỉ tệ).</div>
+  </div>
+
+  <h2>3. Sample generator — rút mẫu thật và so PMF lý thuyết</h2>
+  <div class="card">
+    <div class="desc">
+      Chọn phân phối, đặt tham số, rút N mẫu rồi xem histogram (xanh lá) so với PMF lý thuyết (cọc đỏ trong suốt).
+      Khi N nhỏ histogram lệch ngẫu nhiên; N lớn → áp sát PMF (đây là Law of Large Numbers — sẽ học Lesson 06).
+    </div>
+    <div class="pill-row">
+      <span class="pill active" data-dist="bernoulli">Bernoulli</span>
+      <span class="pill" data-dist="binomial">Binomial</span>
+      <span class="pill" data-dist="geometric">Geometric</span>
+      <span class="pill" data-dist="poisson">Poisson</span>
+    </div>
+    <div class="row" id="sm-params"></div>
+    <div class="row">
+      <label>N mẫu:</label>
+      <input type="range" id="sm-n" min="10" max="10000" value="500" step="10">
+      <span class="slider-val" id="sm-n-v">500</span>
+      <button id="sm-go">🎲 Rút mẫu</button>
+      <button class="danger" id="sm-reset">Reset</button>
+    </div>
+    <svg id="sm-svg" width="1040" height="320"></svg>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-swatch" style="background:#48bb78"></span> Tần suất mẫu</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:rgba(229,62,62,0.6)"></span> PMF lý thuyết</div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat"><div class="name">N hiện tại</div><div class="val" id="sm-cur-n">0</div></div>
+      <div class="stat"><div class="name">Trung bình mẫu</div><div class="val" id="sm-mean">—</div></div>
+      <div class="stat"><div class="name">Phương sai mẫu</div><div class="val" id="sm-var">—</div></div>
+      <div class="stat"><div class="name">E lý thuyết</div><div class="val" id="sm-emean">—</div></div>
+      <div class="stat"><div class="name">Var lý thuyết</div><div class="val" id="sm-evar">—</div></div>
+    </div>
+    <div class="hint">Thử: N = 50 vài lần → histogram khác nhau mỗi lần. N = 10000 → ổn định, sát PMF.</div>
+  </div>
+
+  <h2>4. CDF visualizer — bậc thang và truy vấn F(x)</h2>
+  <div class="card">
+    <div class="desc">
+      CDF F(x) = P(X ≤ x) — hàm bậc thang. Chọn phân phối, kéo thanh truy vấn để xem F(x) tại x bất kỳ.
+      Mỗi bước nhảy có chiều cao bằng PMF p(x) tại điểm đó.
+    </div>
+    <div class="pill-row">
+      <span class="pill active" data-cdf="binomial">Binomial(10, 0.5)</span>
+      <span class="pill" data-cdf="poisson">Poisson(4)</span>
+      <span class="pill" data-cdf="geometric">Geometric(0.3)</span>
+    </div>
+    <div class="row">
+      <label>Truy vấn x:</label>
+      <input type="range" id="cdf-x" min="0" max="20" value="5" step="0.1">
+      <span class="slider-val" id="cdf-x-v">5.0</span>
+    </div>
+    <svg id="cdf-svg" width="1040" height="340"></svg>
+    <div class="info-box" id="cdf-info">F(5.0) = ...</div>
+    <table id="cdf-table">
+      <thead><tr><th>k</th><th>p(k)</th><th>F(k)</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <h2>Ghi chú</h2>
+  <div class="card">
+    <p style="margin: 4px 0;">Mọi tham số đều thay đổi được realtime. Khi đọc lý thuyết trong README, đối chiếu lại trên các component này để thấy cụ thể bằng số.</p>
+    <p style="margin: 4px 0;">⚠ Khi λ hoặc np quá lớn, một số phép tính dùng log-space để tránh tràn số — chi tiết trong code.</p>
+  </div>
+
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+
+// ===== Math helpers =====
+// Tổ hợp C(n, k) — dùng log để tránh tràn khi n lớn
+function logFact(n) {
+  if (n < 2) return 0;
+  let s = 0;
+  for (let i = 2; i <= n; i++) s += Math.log(i);
+  return s;
+}
+function logChoose(n, k) {
+  if (k < 0 || k > n) return -Infinity;
+  return logFact(n) - logFact(k) - logFact(n - k);
+}
+function binomPMF(n, p, k) {
+  if (k < 0 || k > n) return 0;
+  if (p === 0) return k === 0 ? 1 : 0;
+  if (p === 1) return k === n ? 1 : 0;
+  const lp = logChoose(n, k) + k * Math.log(p) + (n - k) * Math.log(1 - p);
+  return Math.exp(lp);
+}
+function poissonPMF(lambda, k) {
+  if (k < 0) return 0;
+  const lp = -lambda + k * Math.log(lambda) - logFact(k);
+  return Math.exp(lp);
+}
+function geomPMF(p, k) {
+  // Quy ước (A): k = 1, 2, ...
+  if (k < 1) return 0;
+  return Math.pow(1 - p, k - 1) * p;
+}
+function bernoulliPMF(p, k) {
+  if (k === 0) return 1 - p;
+  if (k === 1) return p;
+  return 0;
+}
+
+// ===== Sampling =====
+function sampleBernoulli(p) { return Math.random() < p ? 1 : 0; }
+function sampleBinomial(n, p) {
+  let s = 0;
+  for (let i = 0; i < n; i++) s += sampleBernoulli(p);
+  return s;
+}
+function sampleGeometric(p) {
+  // (A): trả về 1, 2, 3, ... — đợi đến thành công đầu tiên
+  let k = 1;
+  while (Math.random() >= p) {
+    k++;
+    if (k > 100000) break;
+  }
+  return k;
+}
+function samplePoisson(lambda) {
+  // Knuth algorithm
+  if (lambda < 30) {
+    const L = Math.exp(-lambda);
+    let k = 0, p = 1;
+    do { k++; p *= Math.random(); } while (p > L);
+    return k - 1;
+  } else {
+    // approximate by inverse CDF for large lambda
+    let cum = 0; const u = Math.random();
+    let k = 0;
+    let pmf = poissonPMF(lambda, 0);
+    while (cum + pmf < u && k < 10 * lambda) {
+      cum += pmf;
+      k++;
+      pmf = poissonPMF(lambda, k);
+    }
+    return k;
+  }
+}
+
+// ===== Generic bar chart =====
+function drawBarChart(svg, data, opts) {
+  // data: array of {x, y, color?}
+  // opts: {width, height, title, xLabel, yLabel, yMax?, meanLine?, secondData?}
+  const W = opts.width || 1040;
+  const H = opts.height || 320;
+  const PAD = { l: 56, r: 20, t: 30, b: 40 };
+  const innerW = W - PAD.l - PAD.r;
+  const innerH = H - PAD.t - PAD.b;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.innerHTML = '';
+
+  if (!data.length) return;
+  const yMax = opts.yMax || Math.max(...data.map(d => d.y), ...(opts.secondData ? opts.secondData.map(d => d.y) : [0])) * 1.1 || 0.1;
+  const xs = data.map(d => d.x);
+  const xMin = Math.min(...xs);
+  const xMax = Math.max(...xs);
+  const xRange = Math.max(xMax - xMin, 1);
+
+  // Title
+  if (opts.title) {
+    const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    t.setAttribute('x', W / 2); t.setAttribute('y', 18); t.setAttribute('text-anchor', 'middle');
+    t.setAttribute('class', 'chart-title');
+    t.textContent = opts.title;
+    svg.appendChild(t);
+  }
+
+  // y-axis labels (grid)
+  const ySteps = 5;
+  for (let i = 0; i <= ySteps; i++) {
+    const yVal = (yMax * i) / ySteps;
+    const yPx = PAD.t + innerH - (yVal / yMax) * innerH;
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', PAD.l); line.setAttribute('x2', W - PAD.r);
+    line.setAttribute('y1', yPx); line.setAttribute('y2', yPx);
+    line.setAttribute('class', 'chart-grid');
+    svg.appendChild(line);
+    const lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    lbl.setAttribute('x', PAD.l - 6); lbl.setAttribute('y', yPx + 3); lbl.setAttribute('text-anchor', 'end');
+    lbl.setAttribute('class', 'chart-label');
+    lbl.textContent = yVal.toFixed(3);
+    svg.appendChild(lbl);
+  }
+
+  // x-axis
+  const axisLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  axisLine.setAttribute('x1', PAD.l); axisLine.setAttribute('x2', W - PAD.r);
+  axisLine.setAttribute('y1', PAD.t + innerH); axisLine.setAttribute('y2', PAD.t + innerH);
+  axisLine.setAttribute('class', 'chart-axis');
+  svg.appendChild(axisLine);
+
+  // x positions
+  const slotW = innerW / (xRange + 1);
+  function xPx(x) { return PAD.l + (x - xMin + 0.5) * slotW; }
+
+  // x labels
+  const labelEvery = Math.max(1, Math.ceil(xRange / 20));
+  for (let i = 0; i <= xRange; i++) {
+    const x = xMin + i;
+    if (x % labelEvery !== 0 && i !== 0 && i !== xRange) continue;
+    const xp = xPx(x);
+    const lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    lbl.setAttribute('x', xp); lbl.setAttribute('y', PAD.t + innerH + 15); lbl.setAttribute('text-anchor', 'middle');
+    lbl.setAttribute('class', 'chart-label');
+    lbl.textContent = x;
+    svg.appendChild(lbl);
+  }
+
+  // bars (data)
+  const barW = Math.max(2, slotW * 0.8);
+  data.forEach(d => {
+    if (d.y <= 0) return;
+    const xp = xPx(d.x);
+    const h = (d.y / yMax) * innerH;
+    const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    r.setAttribute('x', xp - barW / 2); r.setAttribute('y', PAD.t + innerH - h);
+    r.setAttribute('width', barW); r.setAttribute('height', h);
+    r.setAttribute('fill', d.color || '#4299e1');
+    r.setAttribute('class', 'bar');
+    r.setAttribute('rx', 1);
+    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    title.textContent = `x=${d.x}, y=${d.y.toFixed(5)}`;
+    r.appendChild(title);
+    svg.appendChild(r);
+  });
+
+  // second data overlaid
+  if (opts.secondData) {
+    const sBarW = barW * 0.5;
+    opts.secondData.forEach(d => {
+      if (d.y <= 0) return;
+      const xp = xPx(d.x);
+      const h = (d.y / yMax) * innerH;
+      const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      r.setAttribute('x', xp - sBarW / 2); r.setAttribute('y', PAD.t + innerH - h);
+      r.setAttribute('width', sBarW); r.setAttribute('height', h);
+      r.setAttribute('fill', d.color || 'rgba(229,62,62,0.6)');
+      r.setAttribute('rx', 1);
+      const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      title.textContent = `x=${d.x}, y=${d.y.toFixed(5)}`;
+      r.appendChild(title);
+      svg.appendChild(r);
+    });
+  }
+
+  // mean line
+  if (opts.meanLine !== undefined) {
+    const xp = xPx(opts.meanLine);
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', xp); line.setAttribute('x2', xp);
+    line.setAttribute('y1', PAD.t); line.setAttribute('y2', PAD.t + innerH);
+    line.setAttribute('class', 'query-line');
+    svg.appendChild(line);
+    const lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    lbl.setAttribute('x', xp + 4); lbl.setAttribute('y', PAD.t + 14);
+    lbl.setAttribute('class', 'chart-label'); lbl.setAttribute('fill', '#e53e3e');
+    lbl.textContent = `E[X]=${opts.meanLine.toFixed(2)}`;
+    svg.appendChild(lbl);
+  }
+}
+
+// ===== 1. Binomial =====
+function renderBin() {
+  const n = parseInt($('bin-n').value);
+  const p = parseFloat($('bin-p').value);
+  $('bin-n-v').textContent = n;
+  $('bin-p-v').textContent = p.toFixed(2);
+
+  const data = [];
+  for (let k = 0; k <= n; k++) data.push({ x: k, y: binomPMF(n, p, k) });
+
+  drawBarChart($('bin-svg'), data, {
+    width: 1040, height: 320,
+    title: `PMF của Bin(n=${n}, p=${p.toFixed(2)})`,
+    meanLine: n * p,
+  });
+
+  const mean = n * p;
+  const variance = n * p * (1 - p);
+  const std = Math.sqrt(variance);
+  // mode
+  let mode = 0, pmax = data[0].y;
+  data.forEach(d => { if (d.y > pmax) { pmax = d.y; mode = d.x; } });
+
+  $('bin-name').textContent = n === 1 ? `Ber(${p.toFixed(2)})` : `Bin(${n}, ${p.toFixed(2)})`;
+  $('bin-mean').textContent = mean.toFixed(2);
+  $('bin-var').textContent = variance.toFixed(2);
+  $('bin-std').textContent = std.toFixed(2);
+  $('bin-mode').textContent = mode;
+  $('bin-pmax').textContent = pmax.toFixed(4);
+}
+$('bin-n').addEventListener('input', renderBin);
+$('bin-p').addEventListener('input', renderBin);
+renderBin();
+
+// ===== 2. Poisson + Bin compare =====
+let poiCmp = true;
+$('poi-cmp').addEventListener('click', () => {
+  poiCmp = !poiCmp;
+  $('poi-cmp').classList.toggle('active', poiCmp);
+  renderPoi();
+});
+function renderPoi() {
+  const lambda = parseFloat($('poi-l').value);
+  const binn = parseInt($('poi-binn').value);
+  $('poi-l-v').textContent = lambda.toFixed(1);
+  $('poi-binn-v').textContent = binn;
+
+  const kMax = Math.min(60, Math.max(10, Math.ceil(lambda * 3)));
+  const poiData = [];
+  for (let k = 0; k <= kMax; k++) poiData.push({ x: k, y: poissonPMF(lambda, k), color: '#f6ad55' });
+
+  let binData = null;
+  let p = lambda / binn;
+  if (poiCmp && p <= 1) {
+    binData = [];
+    for (let k = 0; k <= Math.min(binn, kMax); k++) {
+      binData.push({ x: k, y: binomPMF(binn, p, k), color: '#4299e1' });
+    }
+  }
+
+  drawBarChart($('poi-svg'), poiData, {
+    width: 1040, height: 320,
+    title: `PMF Poisson(λ=${lambda.toFixed(1)})` + (poiCmp ? ` so với Bin(n=${binn}, p=${p.toFixed(3)})` : ''),
+    meanLine: lambda,
+    secondData: binData,
+  });
+
+  $('poi-name').textContent = `Poi(${lambda.toFixed(1)})`;
+  $('poi-mean').textContent = lambda.toFixed(2);
+  $('poi-var').textContent = lambda.toFixed(2);
+  $('poi-p').textContent = p.toFixed(3);
+  if (binData) {
+    let maxDiff = 0;
+    for (let k = 0; k < Math.min(poiData.length, binData.length); k++) {
+      maxDiff = Math.max(maxDiff, Math.abs(poiData[k].y - binData[k].y));
+    }
+    $('poi-diff').textContent = maxDiff.toFixed(5);
+  } else {
+    $('poi-diff').textContent = '—';
+  }
+}
+$('poi-l').addEventListener('input', renderPoi);
+$('poi-binn').addEventListener('input', renderPoi);
+renderPoi();
+
+// ===== 3. Sample generator =====
+let smDist = 'bernoulli';
+let smSamples = [];
+
+function smRenderParams() {
+  const wrap = $('sm-params');
+  let html = '';
+  if (smDist === 'bernoulli') {
+    html = `<label>p:</label><input type="range" id="sm-p" min="0.01" max="0.99" value="0.5" step="0.01"><span class="slider-val" id="sm-p-v">0.50</span>`;
+  } else if (smDist === 'binomial') {
+    html = `<label>n:</label><input type="range" id="sm-bn" min="1" max="50" value="10" step="1"><span class="slider-val" id="sm-bn-v">10</span>
+            <label>p:</label><input type="range" id="sm-p" min="0.01" max="0.99" value="0.4" step="0.01"><span class="slider-val" id="sm-p-v">0.40</span>`;
+  } else if (smDist === 'geometric') {
+    html = `<label>p:</label><input type="range" id="sm-p" min="0.05" max="0.95" value="0.3" step="0.01"><span class="slider-val" id="sm-p-v">0.30</span>`;
+  } else if (smDist === 'poisson') {
+    html = `<label>λ:</label><input type="range" id="sm-l" min="0.5" max="20" value="4" step="0.1"><span class="slider-val" id="sm-l-v">4.0</span>`;
+  }
+  wrap.innerHTML = html;
+  // bind sliders
+  const updateVals = () => {
+    if ($('sm-p')) $('sm-p-v').textContent = parseFloat($('sm-p').value).toFixed(2);
+    if ($('sm-bn')) $('sm-bn-v').textContent = $('sm-bn').value;
+    if ($('sm-l')) $('sm-l-v').textContent = parseFloat($('sm-l').value).toFixed(1);
+    smRender();
+  };
+  ['sm-p', 'sm-bn', 'sm-l'].forEach(id => { if ($(id)) $(id).addEventListener('input', updateVals); });
+  smSamples = [];
+  smRender();
+}
+
+document.querySelectorAll('[data-dist]').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('[data-dist]').forEach(e => e.classList.remove('active'));
+    el.classList.add('active');
+    smDist = el.dataset.dist;
+    smRenderParams();
+  });
+});
+
+function smGetParams() {
+  if (smDist === 'bernoulli') return { p: parseFloat($('sm-p').value) };
+  if (smDist === 'binomial') return { n: parseInt($('sm-bn').value), p: parseFloat($('sm-p').value) };
+  if (smDist === 'geometric') return { p: parseFloat($('sm-p').value) };
+  if (smDist === 'poisson') return { l: parseFloat($('sm-l').value) };
+}
+function smSample() {
+  const pr = smGetParams();
+  if (smDist === 'bernoulli') return sampleBernoulli(pr.p);
+  if (smDist === 'binomial') return sampleBinomial(pr.n, pr.p);
+  if (smDist === 'geometric') return sampleGeometric(pr.p);
+  if (smDist === 'poisson') return samplePoisson(pr.l);
+}
+function smTheoryPMF(k) {
+  const pr = smGetParams();
+  if (smDist === 'bernoulli') return bernoulliPMF(pr.p, k);
+  if (smDist === 'binomial') return binomPMF(pr.n, pr.p, k);
+  if (smDist === 'geometric') return geomPMF(pr.p, k);
+  if (smDist === 'poisson') return poissonPMF(pr.l, k);
+}
+function smTheoryMeanVar() {
+  const pr = smGetParams();
+  if (smDist === 'bernoulli') return [pr.p, pr.p * (1 - pr.p)];
+  if (smDist === 'binomial') return [pr.n * pr.p, pr.n * pr.p * (1 - pr.p)];
+  if (smDist === 'geometric') return [1 / pr.p, (1 - pr.p) / (pr.p * pr.p)];
+  if (smDist === 'poisson') return [pr.l, pr.l];
+}
+
+function smRender() {
+  const N = parseInt($('sm-n').value);
+  $('sm-n-v').textContent = N;
+
+  // bucket samples
+  const counts = {};
+  smSamples.forEach(s => { counts[s] = (counts[s] || 0) + 1; });
+  let keys = Object.keys(counts).map(Number);
+
+  // x range
+  const pr = smGetParams();
+  let xMin = 0, xMax = 10;
+  if (smDist === 'bernoulli') { xMin = 0; xMax = 1; }
+  else if (smDist === 'binomial') { xMin = 0; xMax = pr.n; }
+  else if (smDist === 'geometric') {
+    xMin = 1;
+    xMax = Math.max(15, Math.ceil(3 / pr.p));
+    if (keys.length) xMax = Math.max(xMax, Math.max(...keys));
+  }
+  else if (smDist === 'poisson') {
+    xMin = 0;
+    xMax = Math.max(15, Math.ceil(pr.l * 3));
+    if (keys.length) xMax = Math.max(xMax, Math.max(...keys));
+  }
+  xMax = Math.min(xMax, 60);
+
+  const sampleData = [];
+  const theoryData = [];
+  for (let k = xMin; k <= xMax; k++) {
+    const freq = smSamples.length ? (counts[k] || 0) / smSamples.length : 0;
+    sampleData.push({ x: k, y: freq, color: '#48bb78' });
+    theoryData.push({ x: k, y: smTheoryPMF(k), color: 'rgba(229,62,62,0.6)' });
+  }
+
+  drawBarChart($('sm-svg'), sampleData, {
+    width: 1040, height: 320,
+    title: `${smDist}: N=${smSamples.length} mẫu — histogram vs PMF lý thuyết`,
+    secondData: theoryData,
+  });
+
+  $('sm-cur-n').textContent = smSamples.length;
+  if (smSamples.length) {
+    const m = smSamples.reduce((a, b) => a + b, 0) / smSamples.length;
+    const v = smSamples.reduce((a, b) => a + (b - m) ** 2, 0) / smSamples.length;
+    $('sm-mean').textContent = m.toFixed(3);
+    $('sm-var').textContent = v.toFixed(3);
+  } else {
+    $('sm-mean').textContent = '—';
+    $('sm-var').textContent = '—';
+  }
+  const [emean, evar] = smTheoryMeanVar();
+  $('sm-emean').textContent = emean.toFixed(3);
+  $('sm-evar').textContent = evar.toFixed(3);
+}
+$('sm-n').addEventListener('input', () => {
+  $('sm-n-v').textContent = $('sm-n').value;
+});
+$('sm-go').addEventListener('click', () => {
+  const N = parseInt($('sm-n').value);
+  for (let i = 0; i < N; i++) smSamples.push(smSample());
+  smRender();
+});
+$('sm-reset').addEventListener('click', () => { smSamples = []; smRender(); });
+smRenderParams();
+
+// ===== 4. CDF =====
+let cdfDist = 'binomial';
+document.querySelectorAll('[data-cdf]').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('[data-cdf]').forEach(e => e.classList.remove('active'));
+    el.classList.add('active');
+    cdfDist = el.dataset.cdf;
+    renderCDF();
+  });
+});
+
+function cdfPMFAt(k) {
+  if (cdfDist === 'binomial') return binomPMF(10, 0.5, k);
+  if (cdfDist === 'poisson') return poissonPMF(4, k);
+  if (cdfDist === 'geometric') return geomPMF(0.3, k);
+}
+function cdfRange() {
+  if (cdfDist === 'binomial') return [0, 10];
+  if (cdfDist === 'poisson') return [0, 18];
+  if (cdfDist === 'geometric') return [1, 20];
+}
+
+function renderCDF() {
+  const svg = $('cdf-svg');
+  svg.innerHTML = '';
+  const W = 1040, H = 340;
+  const PAD = { l: 56, r: 20, t: 30, b: 40 };
+  const innerW = W - PAD.l - PAD.r;
+  const innerH = H - PAD.t - PAD.b;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+  const [kMin, kMax] = cdfRange();
+  // build cumulative
+  const points = [];
+  let cum = 0;
+  for (let k = kMin; k <= kMax; k++) {
+    const p = cdfPMFAt(k);
+    points.push({ k, p, F_before: cum, F_after: cum + p });
+    cum += p;
+  }
+
+  const xMin = kMin - 1, xMax = kMax + 1;
+  function xPx(x) { return PAD.l + ((x - xMin) / (xMax - xMin)) * innerW; }
+  function yPx(y) { return PAD.t + innerH - y * innerH; }
+
+  // title
+  const tnames = { binomial: 'CDF Bin(10, 0.5)', poisson: 'CDF Poi(4)', geometric: 'CDF Geo(0.3)' };
+  const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  t.setAttribute('x', W / 2); t.setAttribute('y', 18); t.setAttribute('text-anchor', 'middle');
+  t.setAttribute('class', 'chart-title');
+  t.textContent = tnames[cdfDist];
+  svg.appendChild(t);
+
+  // y grid + labels (0 to 1)
+  for (let i = 0; i <= 10; i++) {
+    const y = i / 10;
+    const yp = yPx(y);
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', PAD.l); line.setAttribute('x2', W - PAD.r);
+    line.setAttribute('y1', yp); line.setAttribute('y2', yp);
+    line.setAttribute('class', 'chart-grid');
+    svg.appendChild(line);
+    if (i % 2 === 0) {
+      const lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      lbl.setAttribute('x', PAD.l - 6); lbl.setAttribute('y', yp + 3); lbl.setAttribute('text-anchor', 'end');
+      lbl.setAttribute('class', 'chart-label');
+      lbl.textContent = y.toFixed(1);
+      svg.appendChild(lbl);
+    }
+  }
+  // x labels
+  for (let k = kMin; k <= kMax; k++) {
+    const xp = xPx(k);
+    const lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    lbl.setAttribute('x', xp); lbl.setAttribute('y', PAD.t + innerH + 15); lbl.setAttribute('text-anchor', 'middle');
+    lbl.setAttribute('class', 'chart-label');
+    lbl.textContent = k;
+    svg.appendChild(lbl);
+  }
+
+  // axis
+  const axL = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  axL.setAttribute('x1', PAD.l); axL.setAttribute('x2', W - PAD.r);
+  axL.setAttribute('y1', PAD.t + innerH); axL.setAttribute('y2', PAD.t + innerH);
+  axL.setAttribute('class', 'chart-axis');
+  svg.appendChild(axL);
+
+  // Draw step CDF
+  // From x = xMin → first k: F = 0
+  // At each k: jump from F_before to F_after
+  // Horizontal segment from k to next k at F_after
+  let prevX = xMin, prevY = 0;
+  // initial horizontal at y=0 (left tail)
+  const seg0 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  seg0.setAttribute('x1', xPx(xMin)); seg0.setAttribute('x2', xPx(kMin));
+  seg0.setAttribute('y1', yPx(0)); seg0.setAttribute('y2', yPx(0));
+  seg0.setAttribute('class', 'step-line');
+  svg.appendChild(seg0);
+
+  points.forEach((pt, i) => {
+    // jump (vertical)
+    const v = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    v.setAttribute('x1', xPx(pt.k)); v.setAttribute('x2', xPx(pt.k));
+    v.setAttribute('y1', yPx(pt.F_before)); v.setAttribute('y2', yPx(pt.F_after));
+    v.setAttribute('class', 'step-line');
+    v.setAttribute('stroke-dasharray', '2 2');
+    svg.appendChild(v);
+    // horizontal after the jump until next k (or right edge)
+    const nextX = (i < points.length - 1) ? points[i + 1].k : xMax;
+    const h = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    h.setAttribute('x1', xPx(pt.k)); h.setAttribute('x2', xPx(nextX));
+    h.setAttribute('y1', yPx(pt.F_after)); h.setAttribute('y2', yPx(pt.F_after));
+    h.setAttribute('class', 'step-line');
+    svg.appendChild(h);
+    // closed circle at (k, F_after) — F is right-continuous
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('cx', xPx(pt.k)); c.setAttribute('cy', yPx(pt.F_after)); c.setAttribute('r', 3.5);
+    c.setAttribute('class', 'step-circle-closed');
+    svg.appendChild(c);
+    // open circle at (k, F_before) showing jump
+    if (pt.p > 0.001) {
+      const co = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      co.setAttribute('cx', xPx(pt.k)); co.setAttribute('cy', yPx(pt.F_before)); co.setAttribute('r', 3.5);
+      co.setAttribute('class', 'step-circle-open');
+      svg.appendChild(co);
+    }
+  });
+
+  // Query line
+  const qx = parseFloat($('cdf-x').value);
+  // adjust range of slider
+  const slider = $('cdf-x');
+  slider.min = xMin;
+  slider.max = xMax;
+  if (qx < xMin || qx > xMax) slider.value = (xMin + xMax) / 2;
+  const x_query = parseFloat(slider.value);
+  $('cdf-x-v').textContent = x_query.toFixed(1);
+
+  const ql = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  ql.setAttribute('x1', xPx(x_query)); ql.setAttribute('x2', xPx(x_query));
+  ql.setAttribute('y1', PAD.t); ql.setAttribute('y2', PAD.t + innerH);
+  ql.setAttribute('class', 'query-line');
+  svg.appendChild(ql);
+
+  // compute F(x_query)
+  let F = 0;
+  let lastK = null;
+  points.forEach(pt => {
+    if (pt.k <= x_query) { F = pt.F_after; lastK = pt.k; }
+  });
+  // horizontal from query down to y, also a dashed marker
+  const qh = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  qh.setAttribute('x1', PAD.l); qh.setAttribute('x2', xPx(x_query));
+  qh.setAttribute('y1', yPx(F)); qh.setAttribute('y2', yPx(F));
+  qh.setAttribute('class', 'query-line');
+  svg.appendChild(qh);
+
+  const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  dot.setAttribute('cx', xPx(x_query)); dot.setAttribute('cy', yPx(F)); dot.setAttribute('r', 5);
+  dot.setAttribute('fill', '#e53e3e');
+  svg.appendChild(dot);
+
+  $('cdf-info').innerHTML = `F(${x_query.toFixed(1)}) = P(X ≤ ${x_query.toFixed(1)}) = <strong>${F.toFixed(4)}</strong>. Bậc cao nhất ≤ ${x_query.toFixed(1)} là k = ${lastK === null ? '(không có, F = 0)' : lastK}.`;
+
+  // table
+  const tbody = document.querySelector('#cdf-table tbody');
+  tbody.innerHTML = '';
+  let cumF = 0;
+  for (let k = kMin; k <= Math.min(kMax, kMin + 15); k++) {
+    const p = cdfPMFAt(k);
+    cumF += p;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${k}</td><td>${p.toFixed(5)}</td><td>${cumF.toFixed(5)}</td>`;
+    if (k === lastK) tr.style.background = '#fef5e7';
+    tbody.appendChild(tr);
+  }
+}
+$('cdf-x').addEventListener('input', renderCDF);
+renderCDF();
+
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

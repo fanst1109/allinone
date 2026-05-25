@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Biến và biểu thức</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; margin-bottom: 6px; }
+  .lead { color: #4a5568; margin-top: 0; margin-bottom: 24px; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 10px; padding: 20px 22px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .card .desc { font-size: 14px; color: #4a5568; margin-top: 0; }
+  .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 110px; }
+  input[type="text"], input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 11px;
+    border: 1px solid #cbd5e0; border-radius: 5px;
+  }
+  input[type="text"] { min-width: 280px; }
+  input[type="number"] { width: 90px; }
+  input.bad { border-color: #e53e3e; background: #fff5f5; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 5px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+  button.accent { background: #6b46c1; }
+  button.accent:hover { background: #553c9a; }
+  .result {
+    font-family: monospace; font-size: 17px; font-weight: 700;
+    color: #2b6cb0;
+    background: #ebf8ff; padding: 8px 14px; border-radius: 5px;
+    display: inline-block;
+  }
+  .error { color: #c53030; font-weight: 700; }
+  table {
+    border-collapse: collapse; margin-top: 10px; font-family: monospace;
+    font-size: 14px;
+  }
+  table th, table td {
+    border: 1px solid #e2e8f0; padding: 5px 12px; text-align: right;
+  }
+  table th { background: #edf2f7; color: #2d3748; text-align: center; }
+  table tr.highlight td { background: #fef5e7; font-weight: 700; }
+  .step-list {
+    background: #1a202c; color: #68d391;
+    font-family: monospace; padding: 14px 16px; border-radius: 6px;
+    margin-top: 12px; font-size: 14px; line-height: 1.7;
+    white-space: pre-wrap;
+  }
+  .term-strip {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0;
+    padding: 10px; background: #f7fafc; border-radius: 6px;
+    min-height: 50px; align-items: center;
+  }
+  .term {
+    display: inline-block; padding: 8px 14px;
+    border-radius: 6px;
+    font-family: monospace; font-size: 18px; font-weight: 700;
+    border: 2px solid; transition: all 0.4s ease;
+  }
+  .term.x  { background: #ebf8ff; border-color: #4299e1; color: #2c5282; }
+  .term.y  { background: #fef5e7; border-color: #d69e2e; color: #744210; }
+  .term.x2 { background: #f0fff4; border-color: #48bb78; color: #22543d; }
+  .term.k  { background: #faf5ff; border-color: #9f7aea; color: #553c9a; }
+  .term.faded { opacity: 0.25; transform: scale(0.8); }
+  .arrow { font-size: 22px; color: #718096; margin: 0 6px; }
+  .preset-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .preset-row button { padding: 5px 10px; font-size: 12px; }
+  .hint { color: #718096; font-size: 13px; margin-top: 4px; }
+  .substep {
+    background: white; border: 1px solid #cbd5e0; border-radius: 6px;
+    padding: 10px 14px; margin: 6px 0;
+    font-family: monospace; font-size: 16px;
+  }
+  .substep .label {
+    display: inline-block; min-width: 28px; color: #6b46c1;
+    font-weight: 700;
+  }
+  .substep .arrow-inline { color: #4299e1; margin: 0 8px; }
+  .substep.fresh { animation: slideIn 0.35s ease-out; }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-numbers/visualization.html">← L1: Số và trục số</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Biến và biểu thức</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-linear-equations/visualization.html">L3: Phương trình bậc 1 →</a>
+</nav>
+  <h1>Lesson 02 — Biến và biểu thức</h1>
+  <p class="lead">
+    Ba công cụ tương tác: <strong>đánh giá biểu thức</strong> theo nhiều giá trị x,
+    <strong>xem từng bước thay số</strong>, và <strong>gom hạng tử đồng dạng</strong> bằng animation.
+  </p>
+
+  <!-- ==================================================================== -->
+  <h2>1. Bộ đánh giá biểu thức (Expression Evaluator)</h2>
+  <div class="card">
+    <p class="desc">
+      Nhập biểu thức theo cú pháp toán quen thuộc: dùng <code>^</code> cho lũy thừa
+      (<code>x^2</code>), được phép viết <code>2x</code> không có dấu nhân,
+      hỗ trợ <code>+ − × ÷</code> và ngoặc. Bấm <em>Tính</em> để xem giá trị
+      tại x từ −5 đến 5.
+    </p>
+    <div class="row">
+      <label>Biểu thức f(x):</label>
+      <input type="text" id="exprInput" value="2x^2 + 3x - 1" />
+      <button onclick="evalAll()">Tính bảng</button>
+    </div>
+    <div class="row">
+      <label>Hoặc tính 1 giá trị, x =</label>
+      <input type="number" id="singleX" value="2" step="0.5" />
+      <button class="ghost" onclick="evalSingle()">Tính</button>
+      <span id="singleResult" class="result" style="display:none;"></span>
+    </div>
+    <div class="preset-row">
+      <span class="hint" style="margin-right:6px;">Ví dụ:</span>
+      <button class="ghost" onclick="setExpr('2x^2 + 3x - 1')">2x² + 3x − 1</button>
+      <button class="ghost" onclick="setExpr('x^3 - 4x')">x³ − 4x</button>
+      <button class="ghost" onclick="setExpr('(x-1)(x+2)')">(x−1)(x+2)</button>
+      <button class="ghost" onclick="setExpr('-x^2 + 4')">−x² + 4</button>
+      <button class="ghost" onclick="setExpr('(x+1)^2')">(x+1)²</button>
+    </div>
+    <div id="exprError" class="error" style="margin-top:8px;"></div>
+    <div id="exprTable"></div>
+  </div>
+
+  <!-- ==================================================================== -->
+  <h2>2. Stepper thay số (Substitution Stepper)</h2>
+  <div class="card">
+    <p class="desc">
+      Biểu thức cố định: <code>3(x + 2) − 2(x − 1)</code>. Nhập x và xem từng
+      bước thay số — phân phối — gom — tính.
+    </p>
+    <div class="row">
+      <label>x =</label>
+      <input type="number" id="stepperX" value="4" step="1" />
+      <button class="accent" onclick="runStepper()">Chạy từng bước</button>
+      <button class="ghost" onclick="clearStepper()">Xóa</button>
+    </div>
+    <div id="stepperOutput"></div>
+  </div>
+
+  <!-- ==================================================================== -->
+  <h2>3. Gom hạng tử đồng dạng (Like Terms Collector)</h2>
+  <div class="card">
+    <p class="desc">
+      Chọn một biểu thức từ preset (hoặc gõ tay). Bấm <em>Gom</em> để xem các
+      hạng tử cùng "phần biến" được gom lại thành một.
+    </p>
+    <div class="row">
+      <label>Biểu thức:</label>
+      <input type="text" id="ltExpr" value="2x + 3y - x + 4y - 5" />
+      <button class="accent" onclick="collectLikeTerms()">Gom hạng tử</button>
+      <button class="ghost" onclick="resetLikeTerms()">Reset</button>
+    </div>
+    <div class="preset-row">
+      <span class="hint" style="margin-right:6px;">Preset:</span>
+      <button class="ghost" onclick="setLT('2x + 3y - x + 4y - 5')">2x + 3y − x + 4y − 5</button>
+      <button class="ghost" onclick="setLT('3x^2 + 2x - x^2 + 5x + 7')">3x² + 2x − x² + 5x + 7</button>
+      <button class="ghost" onclick="setLT('5a - 3b + 2a + b - 4')">5a − 3b + 2a + b − 4</button>
+      <button class="ghost" onclick="setLT('4xy + 3x - 2xy + x + 6')">4xy + 3x − 2xy + x + 6</button>
+    </div>
+    <div id="ltError" class="error" style="margin-top:8px;"></div>
+    <p class="hint" style="margin-top:14px;">Trước khi gom:</p>
+    <div id="ltStripBefore" class="term-strip"></div>
+    <p class="hint">Sau khi gom:</p>
+    <div id="ltStripAfter" class="term-strip"></div>
+    <div id="ltSummary"></div>
+  </div>
+
+</main>
+
+<script>
+// ==========================================================================
+// PHẦN A — Đánh giá biểu thức bằng cách viết một tokenizer + parser nhỏ.
+// Hỗ trợ:
+//   - số thực: 12, 3.14, -2.5
+//   - biến x (chỉ 1 biến)
+//   - phép: + - * / ^
+//   - hằng số bỏ dấu nhân ngầm: 2x, 3(x+1), -(x+2)
+//   - ngoặc đơn ()
+// ==========================================================================
+
+// Tokenize: chuyển chuỗi thành danh sách token, đồng thời chèn dấu *
+// vào các vị trí có nhân ngầm (số kề biến, số kề ngoặc, biến kề ngoặc, ngoặc kề ngoặc).
+function tokenize(s) {
+  s = s.replace(/\s+/g, '');
+  s = s.replace(/×/g, '*').replace(/÷/g, '/');
+  // Chuẩn hóa dấu trừ Unicode về '-'.
+  s = s.replace(/[−–—]/g, '-');
+  const tokens = [];
+  let i = 0;
+  while (i < s.length) {
+    const c = s[i];
+    if (/[0-9.]/.test(c)) {
+      let j = i;
+      while (j < s.length && /[0-9.]/.test(s[j])) j++;
+      tokens.push({ type: 'num', val: parseFloat(s.slice(i, j)) });
+      i = j;
+    } else if (/[a-zA-Z]/.test(c)) {
+      // Chỉ chấp nhận x (một ký tự) — không hỗ trợ biến nhiều ký tự ở viz này.
+      if (c !== 'x' && c !== 'X') {
+        throw new Error("Chỉ chấp nhận biến 'x'. Gặp ký tự lạ: " + c);
+      }
+      tokens.push({ type: 'var' });
+      i++;
+    } else if ('+-*/^()'.includes(c)) {
+      tokens.push({ type: 'op', val: c });
+      i++;
+    } else {
+      throw new Error("Ký tự không hợp lệ: " + c);
+    }
+  }
+  // Chèn '*' giữa các cặp nhân ngầm.
+  const out = [];
+  for (let k = 0; k < tokens.length; k++) {
+    out.push(tokens[k]);
+    if (k + 1 < tokens.length) {
+      const a = tokens[k], b = tokens[k + 1];
+      const aIsValue = (a.type === 'num' || a.type === 'var' || (a.type === 'op' && a.val === ')'));
+      const bIsValue = (b.type === 'num' || b.type === 'var' || (b.type === 'op' && b.val === '('));
+      if (aIsValue && bIsValue) {
+        out.push({ type: 'op', val: '*' });
+      }
+    }
+  }
+  return out;
+}
+
+// Parser: shunting-yard chuyển sang RPN rồi evaluate.
+function toRPN(tokens) {
+  const output = [];
+  const ops = [];
+  const prec = { '+': 1, '-': 1, '*': 2, '/': 2, '^': 3, 'u-': 4 };
+  const rightAssoc = { '^': true, 'u-': true };
+  for (let i = 0; i < tokens.length; i++) {
+    const t = tokens[i];
+    if (t.type === 'num' || t.type === 'var') {
+      output.push(t);
+    } else if (t.type === 'op') {
+      let op = t.val;
+      // Phát hiện unary minus: dấu '-' ở đầu hoặc sau '(' hoặc sau toán tử.
+      if (op === '-' || op === '+') {
+        const prev = tokens[i - 1];
+        if (!prev || (prev.type === 'op' && prev.val !== ')')) {
+          if (op === '-') op = 'u-';
+          else continue;  // unary '+' bỏ qua
+        }
+      }
+      if (op === '(') {
+        ops.push(op);
+      } else if (op === ')') {
+        while (ops.length && ops[ops.length - 1] !== '(') {
+          output.push({ type: 'op', val: ops.pop() });
+        }
+        if (!ops.length) throw new Error("Thiếu '(' tương ứng");
+        ops.pop();  // bỏ '('
+      } else {
+        while (ops.length) {
+          const top = ops[ops.length - 1];
+          if (top === '(') break;
+          if (prec[top] > prec[op] || (prec[top] === prec[op] && !rightAssoc[op])) {
+            output.push({ type: 'op', val: ops.pop() });
+          } else break;
+        }
+        ops.push(op);
+      }
+    }
+  }
+  while (ops.length) {
+    const o = ops.pop();
+    if (o === '(' || o === ')') throw new Error("Ngoặc không cân");
+    output.push({ type: 'op', val: o });
+  }
+  return output;
+}
+
+function evalRPN(rpn, x) {
+  const stack = [];
+  for (const t of rpn) {
+    if (t.type === 'num') stack.push(t.val);
+    else if (t.type === 'var') stack.push(x);
+    else {
+      if (t.val === 'u-') {
+        const a = stack.pop();
+        stack.push(-a);
+        continue;
+      }
+      const b = stack.pop(), a = stack.pop();
+      switch (t.val) {
+        case '+': stack.push(a + b); break;
+        case '-': stack.push(a - b); break;
+        case '*': stack.push(a * b); break;
+        case '/': stack.push(a / b); break;
+        case '^': stack.push(Math.pow(a, b)); break;
+      }
+    }
+  }
+  if (stack.length !== 1) throw new Error("Biểu thức không hợp lệ");
+  return stack[0];
+}
+
+function evalExpr(s, x) {
+  const tokens = tokenize(s);
+  const rpn = toRPN(tokens);
+  return evalRPN(rpn, x);
+}
+
+function setExpr(s) {
+  document.getElementById('exprInput').value = s;
+  evalAll();
+}
+
+function evalAll() {
+  const s = document.getElementById('exprInput').value;
+  const errEl = document.getElementById('exprError');
+  const tableEl = document.getElementById('exprTable');
+  errEl.textContent = '';
+  try {
+    // Compile một lần (tokenize + RPN), evaluate nhiều giá trị.
+    const tokens = tokenize(s);
+    const rpn = toRPN(tokens);
+    let html = '<table><thead><tr><th>x</th><th>f(x)</th></tr></thead><tbody>';
+    for (let x = -5; x <= 5; x++) {
+      const v = evalRPN(rpn, x);
+      const display = Math.abs(v - Math.round(v)) < 1e-9 ? v.toFixed(0) : v.toFixed(3);
+      html += `<tr><td>${x}</td><td>${display}</td></tr>`;
+    }
+    html += '</tbody></table>';
+    tableEl.innerHTML = html;
+  } catch (e) {
+    errEl.textContent = '✗ ' + e.message;
+    tableEl.innerHTML = '';
+  }
+}
+
+function evalSingle() {
+  const s = document.getElementById('exprInput').value;
+  const x = parseFloat(document.getElementById('singleX').value);
+  const out = document.getElementById('singleResult');
+  const errEl = document.getElementById('exprError');
+  errEl.textContent = '';
+  try {
+    const v = evalExpr(s, x);
+    const display = Math.abs(v - Math.round(v)) < 1e-9 ? v.toFixed(0) : v.toFixed(4);
+    out.textContent = `f(${x}) = ${display}`;
+    out.style.display = 'inline-block';
+  } catch (e) {
+    out.style.display = 'none';
+    errEl.textContent = '✗ ' + e.message;
+  }
+}
+
+// Tự chạy lần đầu để có bảng sẵn.
+evalAll();
+
+// ==========================================================================
+// PHẦN B — Substitution stepper cho 3(x+2) − 2(x−1).
+// ==========================================================================
+
+function runStepper() {
+  const x = parseFloat(document.getElementById('stepperX').value);
+  if (isNaN(x)) return;
+  const out = document.getElementById('stepperOutput');
+  // Tính từng bước thủ công để show ra rõ ràng.
+  // 3(x+2) - 2(x-1)
+  const a = x + 2;
+  const b = x - 1;
+  const t1 = 3 * a;
+  const t2 = 2 * b;
+  const result = t1 - t2;
+  // Khai triển: 3(x+2) = 3x + 6; 2(x-1) = 2x - 2; tổng = 3x + 6 - 2x + 2 = x + 8.
+  // Kiểm tra: tại x đã chọn, x + 8 = result.
+  const xFmt = x < 0 ? `(${x})` : `${x}`;
+  const steps = [
+    { label: 'Gốc', text: `3(x + 2) − 2(x − 1)` },
+    { label: '①', text: `3(${xFmt} + 2) − 2(${xFmt} − 1)`, note: `thay x = ${x}` },
+    { label: '②', text: `3·(${a}) − 2·(${b})`, note: `tính trong ngoặc` },
+    { label: '③', text: `${t1} − ${t2}`, note: `nhân` },
+    { label: '④', text: `${result}`, note: `trừ` },
+    { label: '✓', text: `Cách rút gọn trước rồi thay: 3(x+2) − 2(x−1) = 3x + 6 − 2x + 2 = x + 8`, note: '' },
+    { label: '✓', text: `Thay x = ${x}: x + 8 = ${x + 8} → trùng với ④`, note: 'kiểm tra chéo' },
+  ];
+  let html = '';
+  steps.forEach((s, idx) => {
+    const note = s.note ? `<span style="color:#718096; margin-left:8px; font-family:sans-serif; font-size:13px;">(${s.note})</span>` : '';
+    html += `<div class="substep fresh" style="animation-delay:${idx * 0.08}s;"><span class="label">${s.label}</span> ${s.text} ${note}</div>`;
+  });
+  out.innerHTML = html;
+}
+
+function clearStepper() {
+  document.getElementById('stepperOutput').innerHTML = '';
+}
+
+// ==========================================================================
+// PHẦN C — Like terms collector.
+// ==========================================================================
+// Mỗi hạng tử có dạng coefficient + variablePart (chuỗi đã chuẩn hóa).
+// Tách biểu thức bằng cách quét và bắt từng hạng tử có dấu.
+
+function parseTerms(s) {
+  s = s.replace(/\s+/g, '');
+  s = s.replace(/−/g, '-');
+  // Thêm + ở đầu nếu chuỗi bắt đầu không phải dấu - hoặc +.
+  if (s.length === 0) return [];
+  if (s[0] !== '+' && s[0] !== '-') s = '+' + s;
+  const terms = [];
+  let i = 0;
+  while (i < s.length) {
+    if (s[i] !== '+' && s[i] !== '-') {
+      throw new Error("Sai cú pháp tại vị trí " + i);
+    }
+    const sign = s[i] === '+' ? 1 : -1;
+    i++;
+    // Đọc phần số (nếu có).
+    let numStr = '';
+    while (i < s.length && /[0-9.]/.test(s[i])) {
+      numStr += s[i];
+      i++;
+    }
+    // Đọc phần biến: chuỗi gồm chữ cái và lũy thừa ^d.
+    let varPart = '';
+    while (i < s.length && (/[a-zA-Z]/.test(s[i]) || s[i] === '^')) {
+      if (s[i] === '^') {
+        varPart += s[i];
+        i++;
+        while (i < s.length && /[0-9]/.test(s[i])) {
+          varPart += s[i];
+          i++;
+        }
+      } else {
+        varPart += s[i];
+        i++;
+      }
+    }
+    let coef = numStr === '' ? 1 : parseFloat(numStr);
+    if (numStr === '' && varPart === '') {
+      throw new Error("Hạng tử rỗng");
+    }
+    coef *= sign;
+    terms.push({ coef: coef, varPart: varPart });
+  }
+  return terms;
+}
+
+function termHTML(term, idx, faded) {
+  const { coef, varPart } = term;
+  let display;
+  if (varPart === '') {
+    display = (coef >= 0 ? '' : '') + coef;
+  } else {
+    if (coef === 1) display = varPart;
+    else if (coef === -1) display = '−' + varPart;
+    else display = (coef < 0 ? '−' + Math.abs(coef) : coef) + varPart;
+  }
+  // Chuyển ^2 → ²
+  display = display.replace(/\^2/g, '²').replace(/\^3/g, '³');
+  // Class theo phần biến để màu hóa.
+  let cls = 'k';
+  if (varPart === 'x') cls = 'x';
+  else if (varPart === 'y') cls = 'y';
+  else if (varPart === 'x^2' || varPart === 'x²') cls = 'x2';
+  else if (varPart !== '') cls = 'k';
+  if (varPart === '') cls = 'k';
+  return `<span class="term ${cls}${faded ? ' faded' : ''}" data-idx="${idx}">${display}</span>`;
+}
+
+function setLT(s) {
+  document.getElementById('ltExpr').value = s;
+  resetLikeTerms();
+}
+
+function resetLikeTerms() {
+  document.getElementById('ltError').textContent = '';
+  document.getElementById('ltSummary').innerHTML = '';
+  document.getElementById('ltStripAfter').innerHTML = '';
+  try {
+    const s = document.getElementById('ltExpr').value;
+    const terms = parseTerms(s);
+    const before = document.getElementById('ltStripBefore');
+    let html = '';
+    terms.forEach((t, i) => {
+      if (i > 0) {
+        html += '<span class="arrow">+</span>';
+      }
+      html += termHTML(t, i, false);
+    });
+    before.innerHTML = html;
+  } catch (e) {
+    document.getElementById('ltError').textContent = '✗ ' + e.message;
+    document.getElementById('ltStripBefore').innerHTML = '';
+  }
+}
+
+function collectLikeTerms() {
+  document.getElementById('ltError').textContent = '';
+  try {
+    const s = document.getElementById('ltExpr').value;
+    const terms = parseTerms(s);
+    // Gom theo varPart.
+    const groups = new Map();
+    const order = [];
+    terms.forEach((t, idx) => {
+      const key = t.varPart;
+      if (!groups.has(key)) {
+        groups.set(key, { coef: 0, varPart: key, members: [] });
+        order.push(key);
+      }
+      const g = groups.get(key);
+      g.coef += t.coef;
+      g.members.push(idx);
+    });
+    // Cập nhật strip "after" và hiển thị tổng kết.
+    const after = document.getElementById('ltStripAfter');
+    const final = order
+      .map(k => groups.get(k))
+      .filter(g => g.coef !== 0);
+    let html = '';
+    final.forEach((g, i) => {
+      if (i > 0) html += '<span class="arrow">+</span>';
+      html += termHTML(g, i, false);
+    });
+    after.innerHTML = html;
+
+    // Tổng kết bằng văn bản.
+    let summary = '<div class="step-list">';
+    order.forEach(k => {
+      const g = groups.get(k);
+      const label = k === '' ? '(hạng tự do)' : k.replace(/\^2/g, '²').replace(/\^3/g, '³');
+      const detail = g.members.map(i => {
+        const t = terms[i];
+        return (t.coef >= 0 ? '+' : '−') + Math.abs(t.coef);
+      }).join(' ');
+      summary += `Phần biến ${label}: hệ số ${detail} = ${g.coef}\n`;
+    });
+    summary += '\nKết quả gom:\n';
+    summary += final.map(g => {
+      const sign = g.coef >= 0 ? '+ ' : '− ';
+      const abs = Math.abs(g.coef);
+      let body;
+      if (g.varPart === '') body = abs;
+      else if (abs === 1) body = g.varPart.replace(/\^2/g, '²').replace(/\^3/g, '³');
+      else body = abs + g.varPart.replace(/\^2/g, '²').replace(/\^3/g, '³');
+      return sign + body;
+    }).join(' ').replace(/^\+ /, '');
+    summary += '</div>';
+    document.getElementById('ltSummary').innerHTML = summary;
+
+    // Mờ hóa các hạng tử ban đầu để minh họa "đã được gom".
+    const before = document.getElementById('ltStripBefore');
+    [...before.querySelectorAll('.term')].forEach(el => el.classList.add('faded'));
+  } catch (e) {
+    document.getElementById('ltError').textContent = '✗ ' + e.message;
+  }
+}
+
+// Khởi tạo phần C.
+resetLikeTerms();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

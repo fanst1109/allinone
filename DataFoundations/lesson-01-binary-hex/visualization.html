@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 01 — Binary & Hex Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 80px; }
+  input[type="text"], input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 16px; padding: 8px 12px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    min-width: 280px;
+  }
+  input.bad { border-color: #e53e3e; background: #fff5f5; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.warn { background: #ed8936; }
+  button.warn:hover { background: #dd6b20; }
+  .bit-grid { display: flex; flex-wrap: wrap; gap: 2px; margin: 8px 0; }
+  .bit {
+    width: 34px; height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: monospace; font-size: 16px; font-weight: 700;
+    border-radius: 4px; cursor: pointer;
+    user-select: none;
+    transition: transform 0.1s;
+  }
+  .bit:hover { transform: scale(1.1); }
+  .bit.on { background: #38a169; color: white; }
+  .bit.off { background: #e2e8f0; color: #4a5568; }
+  .bit.sep { background: transparent; cursor: default; width: 8px; }
+  .bit.sep:hover { transform: none; }
+  .bit-label {
+    width: 34px; text-align: center; font-size: 10px; color: #718096;
+  }
+  .bit-row { display: flex; gap: 2px; align-items: center; margin: 4px 0; }
+  .step-log {
+    background: #1a202c; color: #68d391;
+    font-family: monospace; padding: 12px; border-radius: 4px;
+    white-space: pre-wrap; max-height: 240px; overflow-y: auto;
+    font-size: 13px;
+  }
+  .stat {
+    display: inline-block; background: #edf2f7;
+    padding: 4px 10px; border-radius: 4px; margin-right: 8px;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #2b6cb0; }
+  .warn-text { color: #c53030; font-weight: 700; }
+  .ok-text { color: #2f855a; font-weight: 700; }
+  select {
+    font-size: 15px; padding: 7px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    background: white;
+  }
+  table.range { border-collapse: collapse; margin-top: 8px; }
+  table.range td, table.range th {
+    padding: 6px 12px; border: 1px solid #e2e8f0;
+    font-family: monospace; font-size: 13px;
+  }
+  table.range th { background: #edf2f7; text-align: left; }
+  table.range tr.active td { background: #fef5e7; font-weight: 700; }
+  .hint { color: #718096; font-size: 13px; margin: 4px 0; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Binary & Hex</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-bitwise-ops/visualization.html">L2: Bitwise Operations →</a>
+</nav>
+  <h1>Lesson 01 — Binary &amp; Hex</h1>
+  <p>Bộ công cụ tương tác: chuyển đổi cơ số, two's complement, và demo overflow. Mọi thay đổi đồng bộ ngay tức thì.</p>
+
+  <h2>1. Bộ chuyển đổi Decimal ↔ Binary ↔ Hex</h2>
+  <div class="card">
+    <div class="row">
+      <label>Decimal:</label>
+      <input type="text" id="dec" value="42">
+    </div>
+    <div class="row">
+      <label>Binary:</label>
+      <input type="text" id="bin" value="101010">
+    </div>
+    <div class="row">
+      <label>Hex:</label>
+      <input type="text" id="hex" value="2A">
+    </div>
+    <div class="hint">Gõ vào ô bất kỳ, 2 ô còn lại tự cập nhật. Hoặc click các bit bên dưới để toggle.</div>
+
+    <div style="margin-top:16px; overflow-x:auto; padding-bottom:6px">
+      <div class="bit-row" id="bitLabels" style="min-width:max-content"></div>
+      <div class="bit-row" id="bitGrid" style="min-width:max-content"></div>
+    </div>
+
+    <div style="margin-top:12px">
+      <span class="stat">Số bit 1: <strong id="popcount">3</strong></span>
+      <span class="stat">Bit cao nhất: <strong id="msb">5</strong></span>
+      <span class="stat">Là power-of-2? <strong id="ispow2">no</strong></span>
+    </div>
+  </div>
+
+  <h2>2. Kích thước kiểu số nguyên (intN)</h2>
+  <div class="card">
+    <div class="row">
+      <label>Chọn kiểu:</label>
+      <select id="typeSel">
+        <option value="8">int8 / uint8 (1 byte)</option>
+        <option value="16">int16 / uint16 (2 byte)</option>
+        <option value="32" selected>int32 / uint32 (4 byte)</option>
+        <option value="64">int64 / uint64 (8 byte)</option>
+      </select>
+    </div>
+    <table class="range" id="rangeTable">
+      <tr><th>Kiểu</th><th>min</th><th>max</th></tr>
+    </table>
+    <div class="hint" style="margin-top:8px">
+      Quy luật: với <code>n</code> bit, signed min = <code>-2^(n-1)</code>, signed max = <code>2^(n-1) - 1</code>, unsigned max = <code>2^n - 1</code>.
+    </div>
+  </div>
+
+  <h2>3. Two's Complement (số âm)</h2>
+  <div class="card">
+    <div class="row">
+      <label>Số (signed):</label>
+      <input type="number" id="signedInput" value="-5">
+      <select id="signedWidth">
+        <option value="8" selected>8-bit</option>
+        <option value="16">16-bit</option>
+        <option value="32">32-bit</option>
+      </select>
+    </div>
+    <div class="step-log" id="twosLog"></div>
+  </div>
+
+  <h2>4. Overflow Playground (int8)</h2>
+  <div class="card">
+    <div class="row">
+      <label>x (int8):</label>
+      <input type="number" id="ovInput" value="127" min="-128" max="127">
+      <button onclick="ovApply(1)">+1</button>
+      <button onclick="ovApply(-1)">−1</button>
+      <button class="warn" onclick="ovApply(64)">+64</button>
+      <button class="warn" onclick="ovApply(-64)">−64</button>
+      <button onclick="ovReset(127)">reset 127</button>
+      <button onclick="ovReset(-128)">reset −128</button>
+    </div>
+    <div class="step-log" id="ovLog">Bấm các nút phía trên để xem overflow xảy ra.</div>
+  </div>
+
+</main>
+
+<script>
+'use strict';
+
+// ============== Section 1: converter ==============
+const $ = id => document.getElementById(id);
+const dec = $('dec'), bin = $('bin'), hex = $('hex');
+const bitGrid = $('bitGrid'), bitLabels = $('bitLabels');
+
+let value = 42n; // BigInt to support 64-bit cleanly
+const MAX = (1n << 64n) - 1n;
+
+function setValue(v) {
+  if (typeof v !== 'bigint') v = BigInt(v);
+  if (v < 0n) v = 0n;
+  if (v > MAX) v = MAX;
+  value = v;
+  render();
+}
+
+function render() {
+  dec.value = value.toString(10);
+  bin.value = value.toString(2);
+  hex.value = value.toString(16).toUpperCase();
+
+  // Render bit grid (64 bits, MSB on left)
+  bitGrid.innerHTML = '';
+  bitLabels.innerHTML = '';
+  for (let i = 63; i >= 0; i--) {
+    const bit = (value >> BigInt(i)) & 1n;
+    const el = document.createElement('div');
+    el.className = 'bit ' + (bit === 1n ? 'on' : 'off');
+    el.textContent = bit.toString();
+    el.onclick = () => {
+      value ^= (1n << BigInt(i));
+      render();
+    };
+    bitGrid.appendChild(el);
+
+    const lbl = document.createElement('div');
+    lbl.className = 'bit-label';
+    lbl.textContent = i;
+    bitLabels.appendChild(lbl);
+
+    // separator every 8 bits (after appending current, before continuing)
+    if (i % 8 === 0 && i > 0) {
+      const sep1 = document.createElement('div'); sep1.className = 'bit sep';
+      bitGrid.appendChild(sep1);
+      const sep2 = document.createElement('div'); sep2.className = 'bit sep';
+      bitLabels.appendChild(sep2);
+    }
+  }
+
+  // Stats
+  let pc = 0; let msb = -1;
+  for (let i = 63; i >= 0; i--) {
+    if (((value >> BigInt(i)) & 1n) === 1n) {
+      pc++;
+      if (msb === -1) msb = i;
+    }
+  }
+  $('popcount').textContent = pc;
+  $('msb').textContent = msb === -1 ? '—' : msb;
+  $('ispow2').textContent = (value > 0n && (value & (value - 1n)) === 0n) ? 'YES' : 'no';
+}
+
+dec.oninput = () => {
+  const s = dec.value.trim();
+  if (/^\d+$/.test(s)) {
+    dec.classList.remove('bad');
+    try { setValue(BigInt(s)); } catch { dec.classList.add('bad'); }
+  } else { dec.classList.add('bad'); }
+};
+bin.oninput = () => {
+  const s = bin.value.trim().replace(/[\s_]/g, '');
+  if (/^[01]+$/.test(s)) {
+    bin.classList.remove('bad');
+    try { setValue(BigInt('0b' + s)); } catch { bin.classList.add('bad'); }
+  } else { bin.classList.add('bad'); }
+};
+hex.oninput = () => {
+  const s = hex.value.trim().replace(/^0x/i, '').replace(/[\s_]/g, '');
+  if (/^[0-9a-fA-F]+$/.test(s)) {
+    hex.classList.remove('bad');
+    try { setValue(BigInt('0x' + s)); } catch { hex.classList.add('bad'); }
+  } else { hex.classList.add('bad'); }
+};
+
+// ============== Section 2: int ranges ==============
+function renderRanges() {
+  const t = $('rangeTable');
+  const cur = parseInt($('typeSel').value, 10);
+  t.innerHTML = '<tr><th>Kiểu</th><th>min</th><th>max</th></tr>';
+  for (const n of [8, 16, 32, 64]) {
+    const N = BigInt(n);
+    const sMin = -(1n << (N - 1n));
+    const sMax = (1n << (N - 1n)) - 1n;
+    const uMax = (1n << N) - 1n;
+    const active = n === cur ? ' class="active"' : '';
+    const row = `<tr${active}><td>int${n}</td><td>${sMin.toString()}</td><td>${sMax.toString()}</td></tr>` +
+                `<tr${active}><td>uint${n}</td><td>0</td><td>${uMax.toString()}</td></tr>`;
+    t.insertAdjacentHTML('beforeend', row);
+  }
+}
+$('typeSel').onchange = renderRanges;
+
+// ============== Section 3: two's complement ==============
+function renderTwos() {
+  const x = parseInt($('signedInput').value, 10);
+  const n = parseInt($('signedWidth').value, 10);
+  if (isNaN(x)) { $('twosLog').textContent = 'Nhập số nguyên hợp lệ.'; return; }
+  const min = -Math.pow(2, n - 1);
+  const max = Math.pow(2, n - 1) - 1;
+  if (x < min || x > max) {
+    $('twosLog').textContent = `Số ${x} ngoài phạm vi int${n} (${min}..${max}).`;
+    return;
+  }
+  let log = `Tìm biểu diễn ${n}-bit của ${x}:\n\n`;
+  if (x >= 0) {
+    const bits = x.toString(2).padStart(n, '0');
+    log += `${x} dương → trực tiếp viết binary, pad đủ ${n} bit:\n  ${bits}\n`;
+  } else {
+    const abs = Math.abs(x);
+    const absBits = abs.toString(2).padStart(n, '0');
+    let inv = '';
+    for (const c of absBits) inv += (c === '0' ? '1' : '0');
+    // +1 to inv as BigInt
+    const result = ((BigInt(inv === '' ? 0 : '0b' + inv) + 1n) & ((1n << BigInt(n)) - 1n)).toString(2).padStart(n, '0');
+    log += `Bước 1: |${x}| = ${abs}, viết binary ${n}-bit:\n  ${absBits}\n\n`;
+    log += `Bước 2: đảo bit (NOT):\n  ${inv}\n\n`;
+    log += `Bước 3: cộng 1 → biểu diễn two's complement của ${x}:\n  ${result}\n`;
+  }
+  $('twosLog').textContent = log;
+}
+$('signedInput').oninput = renderTwos;
+$('signedWidth').onchange = renderTwos;
+
+// ============== Section 4: overflow ==============
+function toInt8(n) {
+  // n is JS number, wrap to int8
+  let r = ((n % 256) + 256) % 256; // 0..255
+  return r >= 128 ? r - 256 : r;
+}
+function toBits8(n) {
+  const u = n < 0 ? n + 256 : n;
+  return u.toString(2).padStart(8, '0');
+}
+function ovApply(delta) {
+  const before = parseInt($('ovInput').value, 10) || 0;
+  const sum = before + delta;
+  const after = toInt8(sum);
+  const wrapped = (sum !== after);
+  let log = `Trước: x = ${before}    bits = ${toBits8(before)}\n`;
+  log += `Thao tác: x ${delta >= 0 ? '+' : '−'} ${Math.abs(delta)}\n`;
+  log += `Sum thực (số học): ${sum}\n`;
+  log += `Sau khi cắt còn 8 bit (wrap): ${after}    bits = ${toBits8(after)}\n`;
+  log += wrapped
+    ? `\n⚠ OVERFLOW: ${sum} ngoài phạm vi int8 (-128..127), bit thứ 9 bị bỏ → wrap thành ${after}.`
+    : `\n✓ Không overflow.`;
+  $('ovInput').value = after;
+  $('ovLog').textContent = log;
+}
+function ovReset(v) {
+  $('ovInput').value = v;
+  $('ovLog').textContent = `x đặt về ${v}. Bấm +1/−1 để thử.`;
+}
+
+// ============== Init ==============
+render();
+renderRanges();
+renderTwos();
+</script>
+
+<!-- README modal (xem tools/readme-modal.js để biết chi tiết) -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+
+</body>
+</html>

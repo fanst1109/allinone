@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Identity và định lý cosin</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; margin-top: 8px; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .card h3 { margin-top: 0; color: #2c5282; }
+  .desc { color: #4a5568; font-size: 14px; margin-bottom: 12px; }
+  .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 60px; color: #4a5568; }
+  input[type="range"] { width: 240px; }
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; padding: 6px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 90px;
+  }
+  .val {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; color: #2c5282; font-weight: 600;
+    min-width: 60px; text-align: right;
+  }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  .result {
+    background: #1a202c; color: #68d391;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    padding: 12px 16px; border-radius: 4px;
+    margin-top: 12px; font-size: 13px;
+    white-space: pre-wrap; line-height: 1.55;
+  }
+  svg { background: #fafafa; border-radius: 4px; display: block; }
+  .ax { stroke: #cbd5e0; stroke-width: 1; }
+  .grid { stroke: #edf2f7; stroke-width: 0.5; }
+  .vec-u { stroke: #e53e3e; stroke-width: 2.5; fill: none; }
+  .vec-v { stroke: #3182ce; stroke-width: 2.5; fill: none; }
+  .vec-uv { stroke: #38a169; stroke-width: 2; fill: none; stroke-dasharray: 4 4; }
+  .arrow-head-u { fill: #e53e3e; }
+  .arrow-head-v { fill: #3182ce; }
+  .dot { fill: #1a202c; }
+  .label-text {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; fill: #2d3748;
+  }
+  .draggable { cursor: grab; }
+  .draggable:active { cursor: grabbing; }
+  .hint { color: #718096; font-size: 13px; margin: 6px 0; }
+  .formula {
+    background: #edf2f7; padding: 8px 12px; border-radius: 4px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; color: #2d3748;
+    display: inline-block; margin: 6px 0;
+  }
+  table.tbl { border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+  table.tbl th, table.tbl td {
+    padding: 6px 10px; border: 1px solid #e2e8f0;
+    text-align: center;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  table.tbl th { background: #edf2f7; }
+  /* Heatmap */
+  .heat-cell {
+    width: 84px; height: 36px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 12px; font-weight: 600;
+    border-radius: 3px;
+    margin: 1px;
+  }
+  .heat-row { display: flex; align-items: center; }
+  .heat-label {
+    width: 80px; font-family: "SF Mono", monospace; font-size: 12px;
+    color: #4a5568; font-weight: 600; text-align: right; padding-right: 8px;
+  }
+  .heat-col-header {
+    width: 84px; text-align: center; font-family: "SF Mono", monospace;
+    font-size: 12px; font-weight: 600; color: #4a5568;
+    margin: 0 1px;
+  }
+  .check-true { color: #2f855a; font-weight: 700; }
+  .check-false { color: #c53030; font-weight: 700; }
+  details { margin-top: 8px; }
+  details summary { cursor: pointer; color: #2c5282; font-weight: 600; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-trig-graphs/visualization.html">← L4: Đồ thị hàm lượng giác</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Identity và định lý cosin</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-rotation-matrix/visualization.html">L6: Ma trận xoay →</a>
+</nav>
+
+<h1>Lesson 05 — Identity và định lý cosin</h1>
+<p class="desc">
+  Mini-app tương tác đi kèm <a href="./README.md">README</a>. Gồm 4 phần:
+  (1) Sum formula visualizer, (2) Law of cosines solver, (3) Cosine similarity 2D playground,
+  (4) Embedding similarity heatmap.
+</p>
+
+<!-- =================================================================== -->
+<h2>1. Sum formula visualizer — sin(α+β) = sin α cos β + cos α sin β</h2>
+
+<div class="card">
+  <h3>Kéo 2 thanh trượt α và β. Verify công thức số học bằng số.</h3>
+  <div class="row">
+    <label>α =</label>
+    <input id="sumAlpha" type="range" min="-180" max="180" value="30" step="1" oninput="renderSum()">
+    <span id="sumAlphaVal" class="val">30°</span>
+  </div>
+  <div class="row">
+    <label>β =</label>
+    <input id="sumBeta" type="range" min="-180" max="180" value="45" step="1" oninput="renderSum()">
+    <span id="sumBetaVal" class="val">45°</span>
+  </div>
+
+  <svg id="sumSvg" width="380" height="380" viewBox="-190 -190 380 380"></svg>
+
+  <div id="sumResult" class="result"></div>
+  <div class="hint">
+    Thử: α=30°, β=45° → α+β=75°. Thử α=20°, β=70° → α+β=90° → sin = 1.
+  </div>
+</div>
+
+<!-- =================================================================== -->
+<h2>2. Law of cosines solver — tính cạnh thứ 3</h2>
+
+<div class="card">
+  <h3>Nhập 2 cạnh + góc xen giữa. App tính cạnh thứ 3 và vẽ tam giác.</h3>
+  <div class="row">
+    <label>a =</label>
+    <input id="locA" type="number" value="5" min="0.1" step="0.1" oninput="renderLoc()">
+    <label>b =</label>
+    <input id="locB" type="number" value="7" min="0.1" step="0.1" oninput="renderLoc()">
+    <label>C =</label>
+    <input id="locC" type="number" value="60" min="1" max="179" step="1" oninput="renderLoc()">
+    <span class="hint">(độ)</span>
+  </div>
+
+  <svg id="locSvg" width="460" height="320" viewBox="-230 -160 460 320"></svg>
+
+  <div id="locResult" class="result"></div>
+  <div class="hint">
+    Thử: a=3, b=4, C=90° → c=5 (Pythagoras). C=60° → c≈3.61. C=120° → c≈6.08.
+  </div>
+</div>
+
+<!-- =================================================================== -->
+<h2>3. Cosine similarity 2D — kéo 2 vector, thấy ngay góc và similarity</h2>
+
+<div class="card">
+  <h3>Kéo đầu mũi tên (chấm đen) để thay đổi 2 vector. Tính u·v, |u|, |v|, cos θ, θ.</h3>
+  <div class="hint">u (đỏ) và v (xanh) cùng gốc tại O. Đường nét đứt = vector u−v.</div>
+
+  <svg id="cosSvg" width="480" height="480" viewBox="-240 -240 480 480"></svg>
+
+  <div id="cosResult" class="result"></div>
+  <div class="hint">
+    Hai vector cùng hướng → cos≈1. Vuông góc → cos=0. Ngược hướng → cos=−1.
+  </div>
+</div>
+
+<!-- =================================================================== -->
+<h2>4. Embedding similarity heatmap — ma trận cos sim giữa 4 vector "có tên"</h2>
+
+<div class="card">
+  <h3>4 vector preset giả lập 4 embedding. Tính ma trận cos sim 4×4 và vẽ heatmap.</h3>
+  <div class="hint">
+    Các vector preset là minh họa giả lập (4 chiều), KHÔNG phải embedding thực. Trong thực tế,
+    word embedding 768+ chiều và có quan hệ <code>king − man + woman ≈ queen</code>.
+  </div>
+
+  <div class="row">
+    <button onclick="loadPreset('semantic')">Preset semantic-like</button>
+    <button onclick="loadPreset('random')">Random vectors</button>
+    <button onclick="loadPreset('cluster')">2 cluster rõ</button>
+  </div>
+
+  <table class="tbl" id="vecTable"></table>
+
+  <div id="heatmap" style="margin-top: 12px;"></div>
+
+  <div id="heatResult" class="result"></div>
+  <div class="hint">
+    Đỏ đậm = cos sim gần 1 (rất giống). Xanh = gần 0 (không liên quan).
+    Tím = âm (ngược nghĩa). Thử preset "cluster" để thấy 2 nhóm tách biệt.
+  </div>
+
+  <details>
+    <summary>Cách dùng trong vector database thực tế</summary>
+    <p style="font-size: 13px; line-height: 1.6;">
+      Trong RAG: embedding query bằng model (vd OpenAI text-embedding-3), đem so cos sim với
+      hàng triệu embedding document đã lưu, lấy top-K cao nhất, đưa vào prompt LLM.
+      Vector database (Pinecone, Qdrant, Weaviate...) tăng tốc bằng cấu trúc xấp xỉ
+      (HNSW, IVF), thay vì so toàn bộ — đổi chính xác lấy tốc độ.
+    </p>
+  </details>
+</div>
+
+<script>
+// ============================================================
+// Helpers chung
+// ============================================================
+const DEG2RAD = Math.PI / 180;
+function fmt(x, n = 4) {
+  if (!isFinite(x)) return String(x);
+  return Number(x.toPrecision(n+2)).toFixed(n).replace(/\.?0+$/, m => m.includes('.') ? '' : m);
+}
+function deg2rad(d) { return d * DEG2RAD; }
+function rad2deg(r) { return r / DEG2RAD; }
+
+function svgEl(name, attrs) {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', name);
+  for (const k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+}
+
+// ============================================================
+// 1. Sum formula visualizer
+// ============================================================
+function renderSum() {
+  const aDeg = +document.getElementById('sumAlpha').value;
+  const bDeg = +document.getElementById('sumBeta').value;
+  document.getElementById('sumAlphaVal').textContent = aDeg + '°';
+  document.getElementById('sumBetaVal').textContent = bDeg + '°';
+
+  const svg = document.getElementById('sumSvg');
+  svg.innerHTML = '';
+
+  const R = 140; // bán kính vẽ đường tròn
+  // grid + axes
+  svg.appendChild(svgEl('line', {x1:-180, y1:0, x2:180, y2:0, class:'ax'}));
+  svg.appendChild(svgEl('line', {x1:0, y1:-180, x2:0, y2:180, class:'ax'}));
+  svg.appendChild(svgEl('circle', {cx:0, cy:0, r:R, fill:'none', stroke:'#cbd5e0', 'stroke-width':1}));
+
+  // điểm tại α (đỏ), β (xanh), α+β (tím)
+  const aRad = deg2rad(aDeg);
+  const bRad = deg2rad(bDeg);
+  const sumRad = aRad + bRad;
+  // Lưu ý: trong SVG, y dương đi xuống → để góc đúng toán học, dùng −sin.
+  const pA = [R*Math.cos(aRad),  -R*Math.sin(aRad)];
+  const pB = [R*Math.cos(bRad),  -R*Math.sin(bRad)];
+  const pS = [R*Math.cos(sumRad), -R*Math.sin(sumRad)];
+
+  // Đường nối từ gốc tới điểm
+  svg.appendChild(svgEl('line', {x1:0, y1:0, x2:pA[0], y2:pA[1], stroke:'#e53e3e', 'stroke-width':2}));
+  svg.appendChild(svgEl('line', {x1:0, y1:0, x2:pB[0], y2:pB[1], stroke:'#3182ce', 'stroke-width':2}));
+  svg.appendChild(svgEl('line', {x1:0, y1:0, x2:pS[0], y2:pS[1], stroke:'#805ad5', 'stroke-width':2.5}));
+
+  svg.appendChild(svgEl('circle', {cx:pA[0], cy:pA[1], r:5, fill:'#e53e3e'}));
+  svg.appendChild(svgEl('circle', {cx:pB[0], cy:pB[1], r:5, fill:'#3182ce'}));
+  svg.appendChild(svgEl('circle', {cx:pS[0], cy:pS[1], r:5, fill:'#805ad5'}));
+
+  // Labels
+  const lblA = svgEl('text', {x:pA[0]*1.15, y:pA[1]*1.15, class:'label-text', fill:'#e53e3e'});
+  lblA.textContent = `α=${aDeg}°`;
+  svg.appendChild(lblA);
+  const lblB = svgEl('text', {x:pB[0]*1.15, y:pB[1]*1.15, class:'label-text', fill:'#3182ce'});
+  lblB.textContent = `β=${bDeg}°`;
+  svg.appendChild(lblB);
+  const lblS = svgEl('text', {x:pS[0]*1.15, y:pS[1]*1.15, class:'label-text', fill:'#805ad5'});
+  lblS.textContent = `α+β=${aDeg+bDeg}°`;
+  svg.appendChild(lblS);
+
+  // Tính verify
+  const sinSum = Math.sin(sumRad);
+  const cosSum = Math.cos(sumRad);
+  const sinRhs = Math.sin(aRad)*Math.cos(bRad) + Math.cos(aRad)*Math.sin(bRad);
+  const cosRhs = Math.cos(aRad)*Math.cos(bRad) - Math.sin(aRad)*Math.sin(bRad);
+
+  const sinOk = Math.abs(sinSum - sinRhs) < 1e-9;
+  const cosOk = Math.abs(cosSum - cosRhs) < 1e-9;
+
+  document.getElementById('sumResult').textContent =
+`α = ${aDeg}°,  β = ${bDeg}°,  α+β = ${aDeg+bDeg}°
+
+sin(α+β) = ${fmt(sinSum, 6)}
+  RHS = sin α cos β + cos α sin β
+      = ${fmt(Math.sin(aRad), 4)}·${fmt(Math.cos(bRad), 4)} + ${fmt(Math.cos(aRad), 4)}·${fmt(Math.sin(bRad), 4)}
+      = ${fmt(sinRhs, 6)}   ${sinOk ? '✓ khớp' : '✗ lệch'}
+
+cos(α+β) = ${fmt(cosSum, 6)}
+  RHS = cos α cos β − sin α sin β
+      = ${fmt(Math.cos(aRad), 4)}·${fmt(Math.cos(bRad), 4)} − ${fmt(Math.sin(aRad), 4)}·${fmt(Math.sin(bRad), 4)}
+      = ${fmt(cosRhs, 6)}   ${cosOk ? '✓ khớp' : '✗ lệch'}`;
+}
+
+// ============================================================
+// 2. Law of cosines solver
+// ============================================================
+function renderLoc() {
+  const a = +document.getElementById('locA').value;
+  const b = +document.getElementById('locB').value;
+  const Cdeg = +document.getElementById('locC').value;
+  const svg = document.getElementById('locSvg');
+  svg.innerHTML = '';
+
+  if (!(a > 0) || !(b > 0) || !(Cdeg > 0 && Cdeg < 180)) {
+    document.getElementById('locResult').textContent =
+      'Nhập a, b > 0 và 0 < C < 180.';
+    return;
+  }
+
+  // Định lý cosin
+  const Crad = deg2rad(Cdeg);
+  const cSq = a*a + b*b - 2*a*b*Math.cos(Crad);
+  const c = Math.sqrt(cSq);
+
+  // Đặt tam giác:
+  //   C = (0, 0)  ở gốc
+  //   B = (a, 0)  trên trục x dương
+  //   A = (b·cosC, −b·sinC) (svg y đi xuống → âm)
+  const scale = Math.min(180 / Math.max(a, b, c), 60); // px per unit
+  const C2 = [0, 0];
+  const B2 = [a * scale, 0];
+  const A2 = [b * Math.cos(Crad) * scale, -b * Math.sin(Crad) * scale];
+
+  // Dịch tam giác về center
+  const cx = (C2[0] + B2[0] + A2[0]) / 3;
+  const cy = (C2[1] + B2[1] + A2[1]) / 3;
+  const shift = (p) => [p[0] - cx, p[1] - cy];
+  const Cv = shift(C2), Bv = shift(B2), Av = shift(A2);
+
+  // Vẽ tam giác
+  const tri = svgEl('polygon', {
+    points: `${Cv[0]},${Cv[1]} ${Bv[0]},${Bv[1]} ${Av[0]},${Av[1]}`,
+    fill: '#bee3f8', stroke: '#2c5282', 'stroke-width': 2
+  });
+  svg.appendChild(tri);
+
+  // Label đỉnh
+  const labelVertex = (p, name) => {
+    const t = svgEl('text', {x:p[0]+8, y:p[1]+4, class:'label-text', 'font-weight':'bold'});
+    t.textContent = name;
+    svg.appendChild(t);
+  };
+  labelVertex(Cv, 'C');
+  labelVertex(Bv, 'B');
+  labelVertex(Av, 'A');
+
+  // Label cạnh (midpoint)
+  const labelEdge = (p1, p2, name, val) => {
+    const mx = (p1[0]+p2[0])/2;
+    const my = (p1[1]+p2[1])/2;
+    const t = svgEl('text', {x:mx, y:my-4, class:'label-text', 'text-anchor':'middle'});
+    t.textContent = `${name}=${fmt(val, 3)}`;
+    svg.appendChild(t);
+  };
+  labelEdge(Cv, Bv, 'a', a);  // CB
+  labelEdge(Cv, Av, 'b', b);  // CA
+  labelEdge(Av, Bv, 'c', c);  // AB
+
+  // Vẽ cung góc C
+  const arcR = 22;
+  // Góc tại C giữa hướng CB (sang phải) và CA (lên trái-trên)
+  const ang0 = 0; // hướng CB
+  const ang1 = Crad; // hướng CA so với x
+  // Trong svg y-down, để vẽ cung "ngược kim đồng hồ" từ ang0 → ang1 (theo toán học):
+  const ap0 = [Cv[0] + arcR * Math.cos(ang0), Cv[1] - arcR * Math.sin(ang0)];
+  const ap1 = [Cv[0] + arcR * Math.cos(ang1), Cv[1] - arcR * Math.sin(ang1)];
+  const arc = svgEl('path', {
+    d: `M ${ap0[0]} ${ap0[1]} A ${arcR} ${arcR} 0 ${Cdeg > 180 ? 1 : 0} 0 ${ap1[0]} ${ap1[1]}`,
+    fill: 'none', stroke: '#d69e2e', 'stroke-width': 2
+  });
+  svg.appendChild(arc);
+  const angLbl = svgEl('text', {
+    x: Cv[0] + (arcR+10) * Math.cos(Crad/2),
+    y: Cv[1] - (arcR+10) * Math.sin(Crad/2) + 4,
+    class: 'label-text', fill: '#975a16'
+  });
+  angLbl.textContent = `C=${Cdeg}°`;
+  svg.appendChild(angLbl);
+
+  // Tính 2 góc còn lại
+  const cosA = (b*b + c*c - a*a) / (2*b*c);
+  const cosB = (a*a + c*c - b*b) / (2*a*c);
+  const Adeg = rad2deg(Math.acos(Math.max(-1, Math.min(1, cosA))));
+  const Bdeg = rad2deg(Math.acos(Math.max(-1, Math.min(1, cosB))));
+
+  // So sánh với Pythagoras
+  let cmp = '';
+  if (Cdeg < 90) cmp = `(C<90° → c < √(a²+b²)=${fmt(Math.sqrt(a*a+b*b), 4)} ✓ vì ${fmt(c, 4)} < ${fmt(Math.sqrt(a*a+b*b), 4)})`;
+  else if (Cdeg == 90) cmp = '(C=90° → Pythagoras: c = √(a²+b²))';
+  else cmp = `(C>90° → c > √(a²+b²)=${fmt(Math.sqrt(a*a+b*b), 4)} ✓ vì ${fmt(c, 4)} > ${fmt(Math.sqrt(a*a+b*b), 4)})`;
+
+  document.getElementById('locResult').textContent =
+`Step-by-step:
+  c² = a² + b² − 2ab cos C
+     = ${a}² + ${b}² − 2·${a}·${b}·cos ${Cdeg}°
+     = ${fmt(a*a, 4)} + ${fmt(b*b, 4)} − ${fmt(2*a*b, 4)}·${fmt(Math.cos(Crad), 4)}
+     = ${fmt(a*a + b*b, 4)} − ${fmt(2*a*b*Math.cos(Crad), 4)}
+     = ${fmt(cSq, 6)}
+  c = √${fmt(cSq, 6)} = ${fmt(c, 6)}
+
+Các góc còn lại:
+  A = arccos((b² + c² − a²)/(2bc)) = ${fmt(Adeg, 4)}°
+  B = arccos((a² + c² − b²)/(2ac)) = ${fmt(Bdeg, 4)}°
+  Tổng A+B+C = ${fmt(Adeg+Bdeg+Cdeg, 2)}° (kỳ vọng 180°)
+
+${cmp}`;
+}
+
+// ============================================================
+// 3. Cosine similarity 2D playground
+// ============================================================
+const cosState = {
+  u: [120, -80],   // svg coords (y-down)
+  v: [-60, -140],
+};
+let cosDrag = null;
+
+function renderCos() {
+  const svg = document.getElementById('cosSvg');
+  svg.innerHTML = '';
+
+  // Grid + axes
+  for (let g = -200; g <= 200; g += 40) {
+    svg.appendChild(svgEl('line', {x1:-220, y1:g, x2:220, y2:g, class:'grid'}));
+    svg.appendChild(svgEl('line', {x1:g, y1:-220, x2:g, y2:220, class:'grid'}));
+  }
+  svg.appendChild(svgEl('line', {x1:-220, y1:0, x2:220, y2:0, class:'ax'}));
+  svg.appendChild(svgEl('line', {x1:0, y1:-220, x2:0, y2:220, class:'ax'}));
+
+  const u = cosState.u, v = cosState.v;
+
+  // Vẽ vector u (đỏ) và v (xanh)
+  const drawVec = (vec, cls, color, label) => {
+    svg.appendChild(svgEl('line', {
+      x1:0, y1:0, x2:vec[0], y2:vec[1],
+      stroke: color, 'stroke-width': 2.5
+    }));
+    // Arrow head
+    const ang = Math.atan2(vec[1], vec[0]);
+    const tip = vec;
+    const a1 = [tip[0] - 10*Math.cos(ang - 0.4), tip[1] - 10*Math.sin(ang - 0.4)];
+    const a2 = [tip[0] - 10*Math.cos(ang + 0.4), tip[1] - 10*Math.sin(ang + 0.4)];
+    svg.appendChild(svgEl('polygon', {
+      points: `${tip[0]},${tip[1]} ${a1[0]},${a1[1]} ${a2[0]},${a2[1]}`,
+      fill: color
+    }));
+    // Dot at tip (draggable)
+    const d = svgEl('circle', {
+      cx:vec[0], cy:vec[1], r:8,
+      fill: 'white', stroke: color, 'stroke-width': 2.5,
+      class: 'draggable',
+      'data-vec': label
+    });
+    svg.appendChild(d);
+    // Label
+    const t = svgEl('text', {
+      x: vec[0] + 14, y: vec[1] - 8,
+      class: 'label-text', fill: color, 'font-weight': 'bold'
+    });
+    t.textContent = label;
+    svg.appendChild(t);
+  };
+
+  // Vẽ u−v (dashed) từ ngọn v tới ngọn u
+  svg.appendChild(svgEl('line', {
+    x1:v[0], y1:v[1], x2:u[0], y2:u[1],
+    class: 'vec-uv'
+  }));
+
+  drawVec(u, '', '#e53e3e', 'u');
+  drawVec(v, '', '#3182ce', 'v');
+
+  // Tính toán (convert svg y → math y: ngược dấu)
+  const ux = u[0] / 40, uy = -u[1] / 40;  // 1 unit = 40 px
+  const vx = v[0] / 40, vy = -v[1] / 40;
+
+  const normU = Math.sqrt(ux*ux + uy*uy);
+  const normV = Math.sqrt(vx*vx + vy*vy);
+  const dot = ux*vx + uy*vy;
+  let cosTheta = (normU > 0 && normV > 0) ? dot / (normU*normV) : 0;
+  cosTheta = Math.max(-1, Math.min(1, cosTheta));
+  const thetaDeg = rad2deg(Math.acos(cosTheta));
+
+  // Khoảng cách |u−v|
+  const dx = ux - vx, dy = uy - vy;
+  const distUV = Math.sqrt(dx*dx + dy*dy);
+
+  document.getElementById('cosResult').textContent =
+`u = (${fmt(ux, 3)}, ${fmt(uy, 3)})
+v = (${fmt(vx, 3)}, ${fmt(vy, 3)})
+
+|u|     = √(${fmt(ux*ux, 3)} + ${fmt(uy*uy, 3)}) = ${fmt(normU, 4)}
+|v|     = √(${fmt(vx*vx, 3)} + ${fmt(vy*vy, 3)}) = ${fmt(normV, 4)}
+u · v   = ${fmt(ux, 3)}·${fmt(vx, 3)} + ${fmt(uy, 3)}·${fmt(vy, 3)} = ${fmt(dot, 4)}
+
+cos θ   = u·v / (|u||v|) = ${fmt(dot, 4)} / (${fmt(normU, 4)} · ${fmt(normV, 4)}) = ${fmt(cosTheta, 6)}
+θ       = arccos(${fmt(cosTheta, 4)}) = ${fmt(thetaDeg, 3)}°
+
+Verify định lý cosin: |u−v|² = |u|² + |v|² − 2(u·v)
+  |u−v|² (trực tiếp)      = ${fmt(distUV*distUV, 4)}
+  |u|² + |v|² − 2(u·v)    = ${fmt(normU*normU, 4)} + ${fmt(normV*normV, 4)} − ${fmt(2*dot, 4)} = ${fmt(normU*normU + normV*normV - 2*dot, 4)}
+  ${Math.abs(distUV*distUV - (normU*normU + normV*normV - 2*dot)) < 1e-6 ? '✓ KHỚP' : '✗ LỆCH'}`;
+}
+
+function attachCosDrag() {
+  const svg = document.getElementById('cosSvg');
+  svg.addEventListener('mousedown', e => {
+    if (e.target.classList.contains('draggable')) {
+      cosDrag = e.target.getAttribute('data-vec');
+    }
+  });
+  window.addEventListener('mouseup', () => { cosDrag = null; });
+  svg.addEventListener('mousemove', e => {
+    if (!cosDrag) return;
+    const rect = svg.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 480 - 240;
+    const y = ((e.clientY - rect.top) / rect.height) * 480 - 240;
+    if (cosDrag === 'u') cosState.u = [x, y];
+    if (cosDrag === 'v') cosState.v = [x, y];
+    renderCos();
+  });
+}
+
+// ============================================================
+// 4. Embedding similarity heatmap
+// ============================================================
+const PRESETS = {
+  semantic: {
+    labels: ['king', 'queen', 'man', 'woman'],
+    vecs: [
+      [0.8, 0.3, 0.5, 0.2],   // king
+      [0.7, 0.4, 0.4, 0.6],   // queen
+      [0.6, 0.1, 0.6, 0.1],   // man
+      [0.5, 0.2, 0.5, 0.7],   // woman
+    ],
+  },
+  random: {
+    labels: ['vec_A', 'vec_B', 'vec_C', 'vec_D'],
+    vecs: [
+      [Math.random(), Math.random(), Math.random(), Math.random()],
+      [Math.random(), Math.random(), Math.random(), Math.random()],
+      [Math.random(), Math.random(), Math.random(), Math.random()],
+      [Math.random(), Math.random(), Math.random(), Math.random()],
+    ],
+  },
+  cluster: {
+    labels: ['cat', 'dog', 'car', 'truck'],
+    vecs: [
+      // Cluster 1: động vật (chiều 0, 1 cao)
+      [0.9, 0.8, 0.1, 0.1],   // cat
+      [0.85, 0.75, 0.15, 0.05],// dog
+      // Cluster 2: xe (chiều 2, 3 cao)
+      [0.1, 0.05, 0.9, 0.8],  // car
+      [0.05, 0.1, 0.85, 0.9], // truck
+    ],
+  },
+};
+
+let currentPreset = null;
+
+function cosSim(u, v) {
+  let dot = 0, nu = 0, nv = 0;
+  for (let i = 0; i < u.length; i++) {
+    dot += u[i] * v[i];
+    nu += u[i] * u[i];
+    nv += v[i] * v[i];
+  }
+  if (nu === 0 || nv === 0) return 0;
+  return dot / (Math.sqrt(nu) * Math.sqrt(nv));
+}
+
+function heatColor(x) {
+  // x in [-1, 1]
+  // x = 1 → đỏ đậm; x = 0 → xanh nhạt; x = -1 → tím
+  if (x >= 0) {
+    // 0 → light teal; 1 → strong red
+    const r = Math.round(180 + 75 * x);
+    const g = Math.round(220 - 180 * x);
+    const b = Math.round(220 - 200 * x);
+    return `rgb(${r},${g},${b})`;
+  } else {
+    // -1 → purple; 0 → light
+    const r = Math.round(180 + 50 * Math.abs(x));
+    const g = Math.round(220 - 100 * Math.abs(x));
+    const b = Math.round(220 + 30 * Math.abs(x));
+    return `rgb(${r},${g},${b})`;
+  }
+}
+
+function loadPreset(name) {
+  currentPreset = JSON.parse(JSON.stringify(PRESETS[name]));
+  if (name === 'random') {
+    // refresh random
+    currentPreset.vecs = currentPreset.vecs.map(() =>
+      [Math.random(), Math.random(), Math.random(), Math.random()]);
+  }
+  renderHeatmap();
+}
+
+function renderHeatmap() {
+  if (!currentPreset) return;
+  const {labels, vecs} = currentPreset;
+  const n = labels.length;
+
+  // Render vector table
+  const tbl = document.getElementById('vecTable');
+  let html = '<tr><th>label</th>';
+  for (let d = 0; d < vecs[0].length; d++) html += `<th>d${d}</th>`;
+  html += '<th>|v|</th></tr>';
+  for (let i = 0; i < n; i++) {
+    html += `<tr><td><b>${labels[i]}</b></td>`;
+    for (const x of vecs[i]) html += `<td>${fmt(x, 3)}</td>`;
+    const nrm = Math.sqrt(vecs[i].reduce((s, x) => s + x*x, 0));
+    html += `<td>${fmt(nrm, 3)}</td></tr>`;
+  }
+  tbl.innerHTML = html;
+
+  // Render heatmap
+  const hm = document.getElementById('heatmap');
+  let h = '<div class="heat-row"><div class="heat-label"></div>';
+  for (const lbl of labels) h += `<div class="heat-col-header">${lbl}</div>`;
+  h += '</div>';
+  for (let i = 0; i < n; i++) {
+    h += `<div class="heat-row"><div class="heat-label">${labels[i]}</div>`;
+    for (let j = 0; j < n; j++) {
+      const s = cosSim(vecs[i], vecs[j]);
+      h += `<div class="heat-cell" style="background:${heatColor(s)}">${fmt(s, 3)}</div>`;
+    }
+    h += '</div>';
+  }
+  hm.innerHTML = h;
+
+  // Tìm cặp giống nhau nhất (i≠j)
+  let bestI=-1, bestJ=-1, bestS=-Infinity;
+  for (let i = 0; i < n; i++) for (let j = i+1; j < n; j++) {
+    const s = cosSim(vecs[i], vecs[j]);
+    if (s > bestS) { bestS = s; bestI = i; bestJ = j; }
+  }
+  // Cặp khác nhất
+  let worstI=-1, worstJ=-1, worstS=Infinity;
+  for (let i = 0; i < n; i++) for (let j = i+1; j < n; j++) {
+    const s = cosSim(vecs[i], vecs[j]);
+    if (s < worstS) { worstS = s; worstI = i; worstJ = j; }
+  }
+
+  document.getElementById('heatResult').textContent =
+`Ma trận cos sim (4×4) — đường chéo luôn = 1 (vector tự so với chính nó).
+
+Cặp giống nhau nhất:  ${labels[bestI]}  ↔  ${labels[bestJ]}   cos sim = ${fmt(bestS, 4)}
+Cặp khác nhất:        ${labels[worstI]}  ↔  ${labels[worstJ]}   cos sim = ${fmt(worstS, 4)}
+
+Với preset "cluster": cat ↔ dog cao, car ↔ truck cao, nhưng cat ↔ car thấp.
+→ Đây chính là cách vector DB phân loại / tìm kiếm: gom theo cos sim.`;
+}
+
+// ============================================================
+// Init
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  renderSum();
+  renderLoc();
+  renderCos();
+  attachCosDrag();
+  loadPreset('semantic');
+});
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Eigenvector & Eigenvalue</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --panel: #ffffff;
+    --line: #e3e1dc;
+    --ink: #1a1a1a;
+    --muted: #6a6a6a;
+    --accent: #be185d;
+    --accent-soft: #fce7f3;
+    --eigen-color: #dc2626;
+    --normal-color: #2563eb;
+    --grid: #ececec;
+  }
+  body { margin: 0; }
+  .container { max-width: 1180px; margin: 0 auto; padding: 24px 18px 80px; font-size: 14.5px; line-height: 1.55; }
+  h1 { font-size: 26px; margin: 0 0 6px; font-weight: 800; }
+  h2 { font-size: 19px; margin: 32px 0 12px; padding-left: 10px; border-left: 4px solid var(--accent); }
+  .subtitle { color: var(--muted); margin-bottom: 18px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 22px; }
+  .panel h3 { margin: 0 0 12px; font-size: 15px; color: var(--accent); }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin-bottom: 14px; }
+  .controls label { font-size: 12.5px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+  .controls select, .controls input[type=number], .controls input[type=text] {
+    padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; font-size: 13px; font-family: ui-monospace, "SF Mono", monospace;
+  }
+  .controls input[type=range] { width: 180px; vertical-align: middle; }
+  .controls button { padding: 6px 14px; background: var(--accent); color: white; border: none; border-radius: 6px; font-size: 12.5px; cursor: pointer; font-weight: 600; }
+  .controls button:hover { background: #9d174d; }
+  .controls button.secondary { background: #f5f4f0; color: var(--ink); }
+  .controls button.secondary:hover { background: var(--accent-soft); color: var(--accent); }
+  .controls .value { font-family: ui-monospace, "SF Mono", monospace; font-weight: 600; color: var(--ink); }
+  svg { background: #fafaf7; border: 1px solid var(--line); border-radius: 8px; display: block; }
+  .info { background: #f7f6f1; border-left: 3px solid var(--accent); padding: 10px 14px; border-radius: 6px; font-size: 13px; margin: 12px 0; }
+  .info code { background: #ecebe5; padding: 1px 6px; border-radius: 4px; font-size: 12.5px; }
+  table.report { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+  table.report th, table.report td { padding: 6px 10px; border: 1px solid var(--line); text-align: center; }
+  table.report th { background: #f5f4f0; font-weight: 700; }
+  table.report td.highlight { background: #fee2e2; color: var(--eigen-color); font-weight: 700; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); margin: 8px 0; }
+  .legend .item { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 14px; height: 14px; border-radius: 3px; }
+  .matrix-input { display: inline-grid; grid-template-columns: repeat(2, 64px); gap: 6px; padding: 8px; background: #f7f6f1; border-radius: 6px; }
+  .matrix-input input { padding: 6px; font-family: ui-monospace, monospace; font-size: 13px; text-align: center; border: 1px solid var(--line); border-radius: 4px; }
+  .step-display { font-family: ui-monospace, monospace; font-size: 13px; white-space: pre-wrap; background: #f7f6f1; padding: 12px; border-radius: 6px; margin: 8px 0; line-height: 1.5; }
+  .two-col { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; }
+  @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+  .web-node {
+    fill: white; stroke: var(--accent); stroke-width: 2; cursor: pointer;
+  }
+  .web-node.dangling { stroke: #999; stroke-dasharray: 3,3; }
+  .rank-bar { fill: var(--accent); opacity: 0.85; }
+</style>
+</head>
+<body>
+<div class="container">
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-matrix-as-transform/visualization.html">← L6: Ma trận = biến đổi</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Eigenvector & eigenvalue</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-pca-svd/visualization.html">L8: PCA & SVD →</a>
+</nav>
+  <h1>Lesson 07 — Eigenvector & Eigenvalue</h1>
+  <div class="subtitle">Hướng "không bị xoay" khi áp ma trận. Phương trình đặc trưng. Diagonalization. Power iteration. PageRank mini.</div>
+
+  <!-- ====================================================== -->
+  <h2>1. Eigenvector finder — Vẽ Av cho nhiều hướng v</h2>
+  <div class="panel">
+    <h3>Nhập ma trận 2×2. Mỗi vector v trên đường tròn đơn vị được áp A; nếu Av cùng phương v → eigenvector (highlight đỏ)</h3>
+    <div class="controls">
+      <label>A =
+        <span class="matrix-input">
+          <input id="a11" type="number" step="0.5" value="2">
+          <input id="a12" type="number" step="0.5" value="1">
+          <input id="a21" type="number" step="0.5" value="1">
+          <input id="a22" type="number" step="0.5" value="2">
+        </span>
+      </label>
+      <label>Mẫu:
+        <select id="presetA">
+          <option value="2,1,1,2">Đối xứng [[2,1],[1,2]]</option>
+          <option value="3,0,0,2">Chéo [[3,0],[0,2]]</option>
+          <option value="3,1,0,2">Tam giác [[3,1],[0,2]]</option>
+          <option value="4,1,2,3">[[4,1],[2,3]]</option>
+          <option value="0,-1,1,0">Xoay 90° [[0,-1],[1,0]]</option>
+          <option value="1,1,0,1">Shear [[1,1],[0,1]]</option>
+        </select>
+      </label>
+      <label><input type="checkbox" id="showAv" checked> Vẽ Av cho 36 hướng</label>
+      <label><input type="checkbox" id="showEigen" checked> Highlight eigenvector</label>
+    </div>
+    <svg id="finderSvg" viewBox="0 0 900 460" width="100%" style="height:auto;"></svg>
+    <div class="legend">
+      <div class="item"><div class="swatch" style="background:var(--normal-color)"></div>v (đầu vào, trên đường tròn đơn vị)</div>
+      <div class="item"><div class="swatch" style="background:#94a3b8"></div>Av (đầu ra)</div>
+      <div class="item"><div class="swatch" style="background:var(--eigen-color)"></div>Eigenvector (Av // v)</div>
+    </div>
+    <div id="finderInfo" class="info"></div>
+  </div>
+
+  <!-- ====================================================== -->
+  <h2>2. Phương trình đặc trưng — Tính det(A − λI) = 0</h2>
+  <div class="panel">
+    <h3>Bước-từng-bước cho ma trận 2×2 đang chọn ở mục 1</h3>
+    <div id="charPolyDisplay" class="step-display"></div>
+    <table class="report" id="rootsTable">
+      <thead>
+        <tr><th>λ</th><th>Giá trị</th><th>Eigenvector v</th><th>Kiểm tra Av = λv</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div class="info">
+      💡 Hệ thức kiểm tra: <code>λ₁ + λ₂ = trace(A)</code>, <code>λ₁ · λ₂ = det(A)</code>.
+    </div>
+    <div id="checkInfo" class="info"></div>
+  </div>
+
+  <!-- ====================================================== -->
+  <h2>3. Power Iteration — Hội tụ về eigenvector dominant</h2>
+  <div class="panel">
+    <h3>Kéo vector v₀ trên đường tròn đơn vị. Click "Step" để áp A và normalize. Lặp lại để thấy hội tụ</h3>
+    <div class="controls">
+      <label>Ma trận:
+        <select id="powerPreset">
+          <option value="2,1,1,2">Đối xứng [[2,1],[1,2]] (λ=1, 3)</option>
+          <option value="4,1,2,3">[[4,1],[2,3]] (λ=2, 5)</option>
+          <option value="5,4,1,2">[[5,4],[1,2]] (λ=1, 6)</option>
+          <option value="3,0,0,2">Chéo [[3,0],[0,2]] (λ=2, 3)</option>
+          <option value="0.85,0.3,0.15,0.7">Stochastic [[0.85,0.3],[0.15,0.7]]</option>
+        </select>
+      </label>
+      <button id="stepBtn">▶ Step</button>
+      <button id="step10Btn" class="secondary">+10 steps</button>
+      <button id="resetBtn" class="secondary">↺ Reset</button>
+      <label>Bước: <span id="stepCount" class="value">0</span></label>
+    </div>
+    <div class="two-col">
+      <div>
+        <svg id="powerSvg" viewBox="0 0 520 420" width="100%" style="height:auto;"></svg>
+      </div>
+      <div>
+        <div id="powerHistory" class="step-display" style="max-height: 380px; overflow-y: auto;"></div>
+      </div>
+    </div>
+    <div class="info">
+      💡 Mỗi bước: <code>v ← A·v / ‖A·v‖</code>. Eigenvalue ước lượng = Rayleigh quotient <code>vᵀ A v</code>.
+    </div>
+  </div>
+
+  <!-- ====================================================== -->
+  <h2>4. PageRank mini demo — Eigenvector của λ=1</h2>
+  <div class="panel">
+    <h3>5 trang web với link. Ma trận chuyển M. Power iteration cho ranking ổn định</h3>
+    <div class="controls">
+      <label>Sơ đồ:
+        <select id="webPreset">
+          <option value="default">Mặc định (A→B,C; B→C; C→A; D→A,B,C; E→D)</option>
+          <option value="hub">Hub (A↔mọi trang)</option>
+          <option value="chain">Chuỗi (A→B→C→D→E→A)</option>
+          <option value="custom">[Tùy chỉnh]</option>
+        </select>
+      </label>
+      <button id="pageRankStepBtn">▶ Step</button>
+      <button id="pageRank20Btn" class="secondary">+20 steps</button>
+      <button id="pageRankResetBtn" class="secondary">↺ Reset</button>
+      <label>Bước: <span id="pageRankStep" class="value">0</span></label>
+    </div>
+    <div class="two-col">
+      <div>
+        <svg id="webSvg" viewBox="0 0 520 420" width="100%" style="height:auto;"></svg>
+      </div>
+      <div>
+        <h4 style="margin: 4px 0 8px; font-size: 14px;">Ma trận chuyển M (cột i = phân phối từ trang i)</h4>
+        <div id="transMatrix" class="step-display" style="font-size: 12px;"></div>
+        <h4 style="margin: 16px 0 8px; font-size: 14px;">Phân phối π hiện tại</h4>
+        <svg id="rankSvg" viewBox="0 0 520 180" width="100%" style="height:auto;"></svg>
+      </div>
+    </div>
+    <div class="info">
+      💡 Phân phối ổn định <code>π</code> thỏa <code>M·π = π</code> = eigenvector của <code>λ = 1</code>. Là engine ban đầu của Google PageRank.
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ===== utility =====
+const $ = (id) => document.getElementById(id);
+function fmt(x, d=3) { return Number.isFinite(x) ? x.toFixed(d) : "—"; }
+
+function matVec(A, v) {
+  return [A[0][0]*v[0] + A[0][1]*v[1], A[1][0]*v[0] + A[1][1]*v[1]];
+}
+function dot(u, v) { return u[0]*v[0] + u[1]*v[1]; }
+function norm(v) { return Math.sqrt(v[0]*v[0] + v[1]*v[1]); }
+function normalize(v) {
+  const n = norm(v);
+  return n < 1e-12 ? [0,0] : [v[0]/n, v[1]/n];
+}
+
+function getMatrix() {
+  return [
+    [parseFloat($("a11").value)||0, parseFloat($("a12").value)||0],
+    [parseFloat($("a21").value)||0, parseFloat($("a22").value)||0]
+  ];
+}
+
+function eigenvalues2x2(A) {
+  const T = A[0][0] + A[1][1];
+  const D = A[0][0]*A[1][1] - A[0][1]*A[1][0];
+  const disc = T*T - 4*D;
+  if (disc < -1e-9) {
+    const re = T/2;
+    const im = Math.sqrt(-disc)/2;
+    return { real: false, l1: {re, im}, l2: {re, im: -im}, T, D, disc };
+  }
+  const s = Math.sqrt(Math.max(0, disc));
+  return { real: true, l1: (T + s)/2, l2: (T - s)/2, T, D, disc };
+}
+
+function eigenvector2x2(A, lam) {
+  // Solve (A - lam I) v = 0. Try row 1 first.
+  const a = A[0][0] - lam, b = A[0][1];
+  const c = A[1][0], d = A[1][1] - lam;
+  // From a*x + b*y = 0 → v = (-b, a) (if not both zero)
+  if (Math.abs(a) > 1e-9 || Math.abs(b) > 1e-9) {
+    const v = [-b, a];
+    if (norm(v) > 1e-9) return normalize(v);
+  }
+  if (Math.abs(c) > 1e-9 || Math.abs(d) > 1e-9) {
+    const v = [-d, c];
+    if (norm(v) > 1e-9) return normalize(v);
+  }
+  // (A - lam I) is zero matrix => any vector works
+  return [1, 0];
+}
+
+// ===== Section 1: Eigenvector finder =====
+function drawFinder() {
+  const svg = $("finderSvg");
+  svg.innerHTML = "";
+  const A = getMatrix();
+  const W = 900, H = 460;
+  const cx = 240, cy = H/2, scale = 70;
+
+  // helper
+  function ns(tag, attrs={}) {
+    const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (const k in attrs) el.setAttribute(k, attrs[k]);
+    return el;
+  }
+
+  // axes & grid for left view
+  function drawAxes(cx, cy, label) {
+    for (let i = -3; i <= 3; i++) {
+      svg.appendChild(ns("line", { x1: cx + i*scale, y1: cy - 3*scale, x2: cx + i*scale, y2: cy + 3*scale, stroke: "#ececec" }));
+      svg.appendChild(ns("line", { x1: cx - 3*scale, y1: cy + i*scale, x2: cx + 3*scale, y2: cy + i*scale, stroke: "#ececec" }));
+    }
+    svg.appendChild(ns("line", { x1: cx - 3*scale, y1: cy, x2: cx + 3*scale, y2: cy, stroke: "#888", "stroke-width": 1.2 }));
+    svg.appendChild(ns("line", { x1: cx, y1: cy - 3*scale, x2: cx, y2: cy + 3*scale, stroke: "#888", "stroke-width": 1.2 }));
+    const t = ns("text", { x: cx, y: cy - 3*scale - 6, "text-anchor": "middle", "font-size": 14, "font-weight": 700, fill: "#444" });
+    t.textContent = label;
+    svg.appendChild(t);
+  }
+  drawAxes(cx, cy, "Vectors v và Av");
+
+  // unit circle
+  svg.appendChild(ns("circle", { cx, cy, r: scale, fill: "none", stroke: "#3b82f6", "stroke-width": 1.2, "stroke-dasharray": "3,3", opacity: 0.7 }));
+
+  // compute eigen
+  const eig = eigenvalues2x2(A);
+
+  // 36 directions
+  const N = 36;
+  const showAv = $("showAv").checked;
+  const showEigen = $("showEigen").checked;
+
+  for (let i = 0; i < N; i++) {
+    const theta = (i / N) * 2 * Math.PI;
+    const v = [Math.cos(theta), Math.sin(theta)];
+    const Av = matVec(A, v);
+    const isEigen = (norm(Av) > 1e-9) && (Math.abs(v[0]*Av[1] - v[1]*Av[0]) / norm(Av) < 0.05);
+
+    // line from origin to Av (in screen coords: y flipped)
+    if (showAv) {
+      svg.appendChild(ns("line", {
+        x1: cx, y1: cy,
+        x2: cx + Av[0]*scale, y2: cy - Av[1]*scale,
+        stroke: "#cbd5e1", "stroke-width": 0.8, opacity: 0.6
+      }));
+      svg.appendChild(ns("circle", {
+        cx: cx + Av[0]*scale, cy: cy - Av[1]*scale,
+        r: 2.2, fill: "#94a3b8"
+      }));
+    }
+    // dot at v on unit circle
+    svg.appendChild(ns("circle", { cx: cx + v[0]*scale, cy: cy - v[1]*scale, r: 2, fill: "#2563eb" }));
+  }
+
+  // Draw exact eigenvectors highlighted
+  if (showEigen && eig.real) {
+    for (const lam of [eig.l1, eig.l2]) {
+      const v = eigenvector2x2(A, lam);
+      const Av = matVec(A, v);
+      // line through origin in direction v
+      svg.appendChild(ns("line", {
+        x1: cx - v[0]*scale*3, y1: cy + v[1]*scale*3,
+        x2: cx + v[0]*scale*3, y2: cy - v[1]*scale*3,
+        stroke: "var(--eigen-color)", "stroke-width": 1.8, opacity: 0.5, "stroke-dasharray": "5,4"
+      }));
+      // v arrow
+      drawArrow(svg, cx, cy, cx + v[0]*scale, cy - v[1]*scale, "var(--eigen-color)", 2.5);
+      // Av arrow
+      drawArrow(svg, cx, cy, cx + Av[0]*scale, cy - Av[1]*scale, "#7f1d1d", 2);
+      // label
+      const lx = cx + v[0]*scale*1.3, ly = cy - v[1]*scale*1.3;
+      const t = ns("text", { x: lx, y: ly, "font-size": 12, "font-weight": 700, fill: "var(--eigen-color)", "text-anchor": "middle" });
+      t.textContent = `λ=${fmt(lam, 2)}`;
+      svg.appendChild(t);
+    }
+  }
+
+  // Right panel: textual summary
+  const px = 540, py = 60;
+  const tHeader = ns("text", { x: px, y: py - 20, "font-size": 14, "font-weight": 700, fill: "#444" });
+  tHeader.textContent = "Phân tích";
+  svg.appendChild(tHeader);
+
+  const lines = [];
+  lines.push(`A = [[${A[0][0]}, ${A[0][1]}], [${A[1][0]}, ${A[1][1]}]]`);
+  lines.push(`trace(A) = ${A[0][0] + A[1][1]}`);
+  lines.push(`det(A) = ${A[0][0]*A[1][1] - A[0][1]*A[1][0]}`);
+  lines.push(`Discriminant T² − 4D = ${fmt(eig.disc, 3)}`);
+  lines.push("");
+  if (eig.real) {
+    lines.push(`λ₁ = ${fmt(eig.l1, 4)}`);
+    lines.push(`λ₂ = ${fmt(eig.l2, 4)}`);
+    lines.push("");
+    const v1 = eigenvector2x2(A, eig.l1);
+    const v2 = eigenvector2x2(A, eig.l2);
+    lines.push(`v₁ ≈ (${fmt(v1[0],3)}, ${fmt(v1[1],3)})`);
+    lines.push(`v₂ ≈ (${fmt(v2[0],3)}, ${fmt(v2[1],3)})`);
+    const orth = Math.abs(dot(v1, v2)) < 1e-4;
+    lines.push(`v₁ · v₂ = ${fmt(dot(v1, v2), 4)} ${orth ? "(trực giao)" : ""}`);
+  } else {
+    lines.push(`Eigenvalue PHỨC:`);
+    lines.push(`λ = ${fmt(eig.l1.re,3)} ± ${fmt(Math.abs(eig.l1.im),3)}i`);
+    lines.push(`→ Không có eigenvector THỰC.`);
+    lines.push(`(Ma trận này thể hiện một phép xoay).`);
+  }
+
+  lines.forEach((line, i) => {
+    const t = ns("text", { x: px, y: py + i*22, "font-size": 13, "font-family": "ui-monospace, monospace", fill: "#1a1a1a" });
+    t.textContent = line;
+    svg.appendChild(t);
+  });
+
+  // Update info
+  let info = "";
+  if (eig.real) {
+    info = `Có 2 eigenvalue thực: λ₁ = ${fmt(eig.l1, 3)}, λ₂ = ${fmt(eig.l2, 3)}. Các đường nét đứt đỏ là eigenspace.`;
+    if (Math.abs(eig.l1 - eig.l2) < 1e-6) info += " (Eigenvalue bội — kiểm tra eigenspace).";
+  } else {
+    info = `Eigenvalue PHỨC ${fmt(eig.l1.re,3)} ± ${fmt(Math.abs(eig.l1.im),3)}i. Không có eigenvector trên ℝ². Hình dung: A xoay không gian, không có hướng nào "bất biến".`;
+  }
+  $("finderInfo").innerHTML = info;
+
+  drawCharPoly(A, eig);
+}
+
+function drawArrow(svg, x1, y1, x2, y2, color="#000", w=2) {
+  const ns = (tag, attrs) => {
+    const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (const k in attrs) el.setAttribute(k, attrs[k]);
+    return el;
+  };
+  const dx = x2 - x1, dy = y2 - y1;
+  const len = Math.sqrt(dx*dx + dy*dy);
+  if (len < 1e-6) return;
+  const ux = dx/len, uy = dy/len;
+  const headSize = Math.min(10, len*0.3);
+  const tx = x2 - ux * headSize;
+  const ty = y2 - uy * headSize;
+  svg.appendChild(ns("line", { x1, y1, x2: tx, y2: ty, stroke: color, "stroke-width": w, "stroke-linecap": "round" }));
+  const px = -uy, py = ux;
+  const hx1 = x2 - ux*headSize + px*headSize*0.5;
+  const hy1 = y2 - uy*headSize + py*headSize*0.5;
+  const hx2 = x2 - ux*headSize - px*headSize*0.5;
+  const hy2 = y2 - uy*headSize - py*headSize*0.5;
+  svg.appendChild(ns("polygon", { points: `${x2},${y2} ${hx1},${hy1} ${hx2},${hy2}`, fill: color }));
+}
+
+// ===== Section 2: Characteristic polynomial =====
+function drawCharPoly(A, eig) {
+  const T = A[0][0] + A[1][1];
+  const D = A[0][0]*A[1][1] - A[0][1]*A[1][0];
+  let s = "";
+  s += `A − λI = [[${A[0][0]}−λ, ${A[0][1]}], [${A[1][0]}, ${A[1][1]}−λ]]\n\n`;
+  s += `det(A − λI) = (${A[0][0]}−λ)(${A[1][1]}−λ) − (${A[0][1]})(${A[1][0]})\n`;
+  s += `            = λ² − (${A[0][0]}+${A[1][1]})·λ + (${A[0][0]}·${A[1][1]} − ${A[0][1]}·${A[1][0]})\n`;
+  s += `            = λ² − ${T}·λ + ${D}\n\n`;
+  if (eig.real) {
+    s += `Discriminant Δ = T² − 4D = ${T*T} − ${4*D} = ${T*T - 4*D}\n`;
+    s += `√Δ = ${fmt(Math.sqrt(eig.disc), 4)}\n\n`;
+    s += `λ = (T ± √Δ) / 2 = (${T} ± ${fmt(Math.sqrt(eig.disc), 3)}) / 2\n`;
+    s += `λ₁ = ${fmt(eig.l1, 4)}\n`;
+    s += `λ₂ = ${fmt(eig.l2, 4)}\n`;
+  } else {
+    s += `Discriminant Δ = ${T*T} − ${4*D} = ${T*T - 4*D} < 0\n`;
+    s += `→ Eigenvalue PHỨC: ${fmt(eig.l1.re,3)} ± ${fmt(Math.abs(eig.l1.im),3)}i\n`;
+  }
+  $("charPolyDisplay").textContent = s;
+
+  // Roots table
+  const tbody = $("rootsTable").querySelector("tbody");
+  tbody.innerHTML = "";
+  if (eig.real) {
+    for (const lam of [eig.l1, eig.l2]) {
+      const v = eigenvector2x2(A, lam);
+      const Av = matVec(A, v);
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="highlight">${fmt(lam, 4)}</td>
+        <td>${fmt(lam, 4)}</td>
+        <td>(${fmt(v[0],3)}, ${fmt(v[1],3)})</td>
+        <td>Av = (${fmt(Av[0],3)}, ${fmt(Av[1],3)}); λv = (${fmt(lam*v[0],3)}, ${fmt(lam*v[1],3)}) ${Math.abs(Av[0]-lam*v[0])<1e-3 && Math.abs(Av[1]-lam*v[1])<1e-3 ? "✓" : "✗"}</td>
+      `;
+      tbody.appendChild(tr);
+    }
+  } else {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td colspan="4" style="color:#666; font-style: italic;">Eigenvalue phức — không có nghiệm thực trên ℝ²</td>`;
+    tbody.appendChild(tr);
+  }
+
+  // check trace/det
+  let chk = "";
+  if (eig.real) {
+    chk = `Kiểm tra: λ₁ + λ₂ = ${fmt(eig.l1 + eig.l2, 4)} vs trace = ${T} ${Math.abs(eig.l1 + eig.l2 - T) < 1e-4 ? "✓" : "✗"};  λ₁ · λ₂ = ${fmt(eig.l1 * eig.l2, 4)} vs det = ${D} ${Math.abs(eig.l1 * eig.l2 - D) < 1e-4 ? "✓" : "✗"}.`;
+  } else {
+    chk = `Kiểm tra (eigenvalue phức): Re(λ₁) + Re(λ₂) = ${2*eig.l1.re} = trace ${T} ${Math.abs(2*eig.l1.re - T) < 1e-4 ? "✓" : "✗"};  |λ|² = ${fmt(eig.l1.re*eig.l1.re + eig.l1.im*eig.l1.im, 3)} = det ${D} ${Math.abs(eig.l1.re*eig.l1.re + eig.l1.im*eig.l1.im - D) < 1e-3 ? "✓" : "✗"}.`;
+  }
+  $("checkInfo").textContent = chk;
+}
+
+// ===== Section 3: Power iteration =====
+let powerState = {
+  A: [[2,1],[1,2]],
+  v: [1, 0],
+  step: 0,
+  history: []
+};
+
+function powerReset() {
+  const parts = $("powerPreset").value.split(",").map(Number);
+  powerState.A = [[parts[0], parts[1]], [parts[2], parts[3]]];
+  powerState.v = [1, 0];
+  powerState.step = 0;
+  powerState.history = [];
+  // add initial
+  const lam = dot(powerState.v, matVec(powerState.A, powerState.v));
+  powerState.history.push({ step: 0, v: [...powerState.v], lam });
+  drawPower();
+}
+
+function powerStep(times=1) {
+  for (let i = 0; i < times; i++) {
+    const Av = matVec(powerState.A, powerState.v);
+    const n = norm(Av);
+    if (n < 1e-12) break;
+    powerState.v = [Av[0]/n, Av[1]/n];
+    powerState.step++;
+    const lam = dot(powerState.v, matVec(powerState.A, powerState.v));
+    powerState.history.push({ step: powerState.step, v: [...powerState.v], lam });
+  }
+  drawPower();
+}
+
+function drawPower() {
+  const svg = $("powerSvg");
+  svg.innerHTML = "";
+  const W = 520, H = 420;
+  const cx = W/2, cy = H/2, scale = 90;
+  function ns(tag, attrs={}) {
+    const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (const k in attrs) el.setAttribute(k, attrs[k]);
+    return el;
+  }
+  // grid
+  for (let i = -2; i <= 2; i++) {
+    svg.appendChild(ns("line", { x1: cx + i*scale, y1: cy - 2*scale, x2: cx + i*scale, y2: cy + 2*scale, stroke: "#ececec" }));
+    svg.appendChild(ns("line", { x1: cx - 2*scale, y1: cy + i*scale, x2: cx + 2*scale, y2: cy + i*scale, stroke: "#ececec" }));
+  }
+  // axes
+  svg.appendChild(ns("line", { x1: cx - 2*scale, y1: cy, x2: cx + 2*scale, y2: cy, stroke: "#888" }));
+  svg.appendChild(ns("line", { x1: cx, y1: cy - 2*scale, x2: cx, y2: cy + 2*scale, stroke: "#888" }));
+  // unit circle
+  svg.appendChild(ns("circle", { cx, cy, r: scale, fill: "none", stroke: "#3b82f6", "stroke-width": 1, "stroke-dasharray": "3,3", opacity: 0.5 }));
+
+  // True eigenvector(s)
+  const eig = eigenvalues2x2(powerState.A);
+  if (eig.real) {
+    const dominantLam = Math.abs(eig.l1) >= Math.abs(eig.l2) ? eig.l1 : eig.l2;
+    const v_dom = eigenvector2x2(powerState.A, dominantLam);
+    svg.appendChild(ns("line", {
+      x1: cx - v_dom[0]*scale*1.5, y1: cy + v_dom[1]*scale*1.5,
+      x2: cx + v_dom[0]*scale*1.5, y2: cy - v_dom[1]*scale*1.5,
+      stroke: "var(--eigen-color)", "stroke-width": 1.5, opacity: 0.4, "stroke-dasharray": "6,4"
+    }));
+    const t = ns("text", {
+      x: cx + v_dom[0]*scale*1.6, y: cy - v_dom[1]*scale*1.6,
+      "font-size": 11, "fill": "var(--eigen-color)", "font-weight": 700
+    });
+    t.textContent = `Eigenvector λ_max=${fmt(dominantLam, 2)}`;
+    svg.appendChild(t);
+  }
+
+  // Trail
+  const hist = powerState.history.slice(-15);
+  for (let i = 0; i < hist.length - 1; i++) {
+    const v1 = hist[i].v, v2 = hist[i+1].v;
+    svg.appendChild(ns("line", {
+      x1: cx + v1[0]*scale, y1: cy - v1[1]*scale,
+      x2: cx + v2[0]*scale, y2: cy - v2[1]*scale,
+      stroke: "#94a3b8", "stroke-width": 1.5, opacity: 0.3 + 0.7*(i / Math.max(1, hist.length))
+    }));
+  }
+  // Past points
+  hist.forEach((h, i) => {
+    svg.appendChild(ns("circle", {
+      cx: cx + h.v[0]*scale, cy: cy - h.v[1]*scale,
+      r: 3, fill: "#64748b", opacity: 0.3 + 0.7*(i / Math.max(1, hist.length))
+    }));
+  });
+  // Current v
+  drawArrow(svg, cx, cy, cx + powerState.v[0]*scale, cy - powerState.v[1]*scale, "var(--accent)", 2.5);
+  // label
+  const tCur = ns("text", { x: cx + powerState.v[0]*scale*1.1 + 6, y: cy - powerState.v[1]*scale*1.1, "font-size": 12, "font-weight": 700, "fill": "var(--accent)" });
+  tCur.textContent = `v_${powerState.step}`;
+  svg.appendChild(tCur);
+
+  $("stepCount").textContent = powerState.step;
+
+  // history text
+  let s = `A = [[${powerState.A[0][0]}, ${powerState.A[0][1]}], [${powerState.A[1][0]}, ${powerState.A[1][1]}]]\n\n`;
+  s += "Bước | v (chuẩn hóa)              | λ ≈ vᵀAv\n";
+  s += "-----|----------------------------|----------\n";
+  powerState.history.slice(-12).forEach(h => {
+    s += `${String(h.step).padStart(4)} | (${fmt(h.v[0], 4)}, ${fmt(h.v[1], 4)}) | ${fmt(h.lam, 4)}\n`;
+  });
+  if (eig.real) {
+    const dominantLam = Math.abs(eig.l1) >= Math.abs(eig.l2) ? eig.l1 : eig.l2;
+    s += `\nλ_max chính xác = ${fmt(dominantLam, 6)}`;
+  }
+  $("powerHistory").textContent = s;
+}
+
+// ===== Section 4: PageRank =====
+let pageRankState = {
+  pages: [],  // {id, x, y, links: [otherId, ...]}
+  M: [],
+  pi: [],
+  step: 0
+};
+
+function setupWeb(preset) {
+  let pages = [];
+  if (preset === "default") {
+    pages = [
+      { id: "A", x: 120, y: 90,  links: ["B", "C"] },
+      { id: "B", x: 380, y: 90,  links: ["C"] },
+      { id: "C", x: 380, y: 320, links: ["A"] },
+      { id: "D", x: 120, y: 320, links: ["A", "B", "C"] },
+      { id: "E", x: 250, y: 200, links: ["D"] },
+    ];
+  } else if (preset === "hub") {
+    pages = [
+      { id: "A", x: 250, y: 210, links: ["B", "C", "D", "E"] },
+      { id: "B", x: 250, y: 60,  links: ["A"] },
+      { id: "C", x: 430, y: 210, links: ["A"] },
+      { id: "D", x: 250, y: 360, links: ["A"] },
+      { id: "E", x: 70,  y: 210, links: ["A"] },
+    ];
+  } else if (preset === "chain") {
+    pages = [
+      { id: "A", x: 80,  y: 200, links: ["B"] },
+      { id: "B", x: 180, y: 80,  links: ["C"] },
+      { id: "C", x: 320, y: 80,  links: ["D"] },
+      { id: "D", x: 420, y: 200, links: ["E"] },
+      { id: "E", x: 250, y: 350, links: ["A"] },
+    ];
+  } else {
+    pages = pageRankState.pages.length ? pageRankState.pages : setupWeb("default");
+  }
+  pageRankState.pages = pages;
+  rebuildM();
+  pageRankState.pi = pages.map(_ => 1 / pages.length);
+  pageRankState.step = 0;
+  drawWeb();
+}
+
+function rebuildM() {
+  const n = pageRankState.pages.length;
+  const M = Array.from({length: n}, () => Array(n).fill(0));
+  const idIdx = {};
+  pageRankState.pages.forEach((p, i) => { idIdx[p.id] = i; });
+  pageRankState.pages.forEach((p, i) => {
+    const outs = p.links.filter(l => idIdx[l] !== undefined);
+    if (outs.length === 0) {
+      // dangling — distribute uniformly
+      for (let j = 0; j < n; j++) M[j][i] = 1/n;
+    } else {
+      outs.forEach(l => { M[idIdx[l]][i] = 1 / outs.length; });
+    }
+  });
+  pageRankState.M = M;
+}
+
+function pageRankStep(times=1) {
+  for (let t = 0; t < times; t++) {
+    const n = pageRankState.pi.length;
+    const newpi = Array(n).fill(0);
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < n; j++) {
+        newpi[i] += pageRankState.M[i][j] * pageRankState.pi[j];
+      }
+    }
+    // damping with d=0.85
+    const d = 0.85;
+    for (let i = 0; i < n; i++) {
+      newpi[i] = d * newpi[i] + (1 - d) / n;
+    }
+    // normalize (should already be near 1)
+    const sum = newpi.reduce((a,b) => a+b, 0);
+    pageRankState.pi = newpi.map(x => x / sum);
+    pageRankState.step++;
+  }
+  drawWeb();
+}
+
+function pageRankReset() {
+  pageRankState.pi = pageRankState.pages.map(_ => 1 / pageRankState.pages.length);
+  pageRankState.step = 0;
+  drawWeb();
+}
+
+function drawWeb() {
+  const svg = $("webSvg");
+  svg.innerHTML = "";
+  function ns(tag, attrs={}, text) {
+    const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (const k in attrs) el.setAttribute(k, attrs[k]);
+    if (text !== undefined) el.textContent = text;
+    return el;
+  }
+  // Define arrowhead
+  const defs = ns("defs");
+  const marker = ns("marker", { id: "arrowhead", markerWidth: 10, markerHeight: 8, refX: 9, refY: 4, orient: "auto" });
+  const path = ns("polygon", { points: "0 0, 10 4, 0 8", fill: "#666" });
+  marker.appendChild(path);
+  defs.appendChild(marker);
+  svg.appendChild(defs);
+
+  // Edges
+  const idMap = {};
+  pageRankState.pages.forEach(p => { idMap[p.id] = p; });
+  pageRankState.pages.forEach(p => {
+    p.links.forEach(l => {
+      const q = idMap[l];
+      if (!q) return;
+      const dx = q.x - p.x, dy = q.y - p.y;
+      const len = Math.sqrt(dx*dx + dy*dy);
+      const ux = dx/len, uy = dy/len;
+      const r = 28;
+      svg.appendChild(ns("line", {
+        x1: p.x + ux*r, y1: p.y + uy*r,
+        x2: q.x - ux*r, y2: q.y - uy*r,
+        stroke: "#666", "stroke-width": 1.5,
+        "marker-end": "url(#arrowhead)"
+      }));
+    });
+  });
+  // Nodes
+  const maxPi = Math.max(...pageRankState.pi);
+  pageRankState.pages.forEach((p, i) => {
+    const r = 22 + 14 * (pageRankState.pi[i] / Math.max(maxPi, 0.001));
+    svg.appendChild(ns("circle", {
+      cx: p.x, cy: p.y, r,
+      fill: `rgba(190, 24, 93, ${0.15 + 0.6 * (pageRankState.pi[i] / Math.max(maxPi, 0.001))})`,
+      stroke: "var(--accent)", "stroke-width": 2
+    }));
+    svg.appendChild(ns("text", { x: p.x, y: p.y + 5, "text-anchor": "middle", "font-size": 16, "font-weight": 800, fill: "#1a1a1a" }, p.id));
+    svg.appendChild(ns("text", { x: p.x, y: p.y + r + 14, "text-anchor": "middle", "font-size": 11, fill: "var(--accent)", "font-weight": 600 }, fmt(pageRankState.pi[i], 3)));
+  });
+
+  // Matrix
+  const n = pageRankState.pages.length;
+  let s = "       ";
+  pageRankState.pages.forEach(p => { s += p.id.padStart(7); });
+  s += "\n";
+  for (let i = 0; i < n; i++) {
+    s += "  " + pageRankState.pages[i].id + " | ";
+    for (let j = 0; j < n; j++) {
+      s += fmt(pageRankState.M[i][j], 2).padStart(7);
+    }
+    s += "\n";
+  }
+  $("transMatrix").textContent = s;
+  $("pageRankStep").textContent = pageRankState.step;
+
+  // Rank bar
+  drawRankBars();
+}
+
+function drawRankBars() {
+  const svg = $("rankSvg");
+  svg.innerHTML = "";
+  function ns(tag, attrs={}, text) {
+    const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (const k in attrs) el.setAttribute(k, attrs[k]);
+    if (text !== undefined) el.textContent = text;
+    return el;
+  }
+  const W = 520, H = 180;
+  const n = pageRankState.pages.length;
+  const sorted = pageRankState.pages.map((p, i) => ({ id: p.id, pi: pageRankState.pi[i] })).sort((a, b) => b.pi - a.pi);
+  const maxPi = sorted[0].pi || 1;
+  const barW = (W - 60) / n - 8;
+  sorted.forEach((d, i) => {
+    const x = 40 + i * (barW + 8);
+    const h = (H - 50) * (d.pi / maxPi);
+    svg.appendChild(ns("rect", { x, y: H - 30 - h, width: barW, height: h, fill: "var(--accent)", opacity: 0.85 }));
+    svg.appendChild(ns("text", { x: x + barW/2, y: H - 12, "text-anchor": "middle", "font-size": 13, "font-weight": 700 }, d.id));
+    svg.appendChild(ns("text", { x: x + barW/2, y: H - 36 - h, "text-anchor": "middle", "font-size": 11, fill: "#444" }, fmt(d.pi, 3)));
+  });
+  svg.appendChild(ns("text", { x: W/2, y: 18, "text-anchor": "middle", "font-size": 12, fill: "#666", "font-weight": 600 }, "Ranking (cao → thấp)"));
+}
+
+// ===== Event bindings =====
+function bindEvents() {
+  ["a11","a12","a21","a22"].forEach(id => $(id).addEventListener("input", drawFinder));
+  $("presetA").addEventListener("change", (e) => {
+    const parts = e.target.value.split(",").map(Number);
+    $("a11").value = parts[0]; $("a12").value = parts[1];
+    $("a21").value = parts[2]; $("a22").value = parts[3];
+    drawFinder();
+  });
+  $("showAv").addEventListener("change", drawFinder);
+  $("showEigen").addEventListener("change", drawFinder);
+
+  $("powerPreset").addEventListener("change", powerReset);
+  $("stepBtn").addEventListener("click", () => powerStep(1));
+  $("step10Btn").addEventListener("click", () => powerStep(10));
+  $("resetBtn").addEventListener("click", powerReset);
+
+  $("webPreset").addEventListener("change", (e) => setupWeb(e.target.value));
+  $("pageRankStepBtn").addEventListener("click", () => pageRankStep(1));
+  $("pageRank20Btn").addEventListener("click", () => pageRankStep(20));
+  $("pageRankResetBtn").addEventListener("click", pageRankReset);
+}
+
+// ===== Init =====
+bindEvents();
+drawFinder();
+powerReset();
+setupWeb("default");
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

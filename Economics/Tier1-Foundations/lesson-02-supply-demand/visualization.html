@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 02 — Cung và cầu</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .lead { color: #4a5568; margin-bottom: 24px; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 260px; color: #2d3748; }
+  input[type="number"] { font-family: monospace; font-size: 15px; padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 4px; width: 100px; }
+  input[type="range"] { width: 220px; }
+  .result { background: #f7fafc; border-left: 4px solid #c05621; padding: 14px 18px; margin-top: 14px; border-radius: 4px; font-family: monospace; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+  .result strong { color: #c05621; }
+  .pos { color: #2f855a; font-weight: 700; }
+  .neg { color: #c53030; font-weight: 700; }
+  svg { display: block; margin: 0 auto; max-width: 100%; }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; background: #fff5eb; color: #c05621; font-weight: 700; margin-left: 6px; }
+  .legend { display: flex; gap: 16px; font-size: 13px; margin: 8px 0; color: #4a5568; flex-wrap: wrap; }
+  .legend .sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: 4px; }
+  button { background: #c05621; color: white; border: none; padding: 7px 14px; border-radius: 4px; font-size: 13px; cursor: pointer; font-weight: 600; }
+  button:hover { background: #9c4221; }
+  button.alt { background: #4a5568; }
+  button.alt:hover { background: #2d3748; }
+  .hint { color: #718096; font-size: 13px; margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-thinking-like-economist/visualization.html">← L1: Tư duy</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Cung và cầu</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.55">L3: Co giãn → (sắp ra)</span>
+</nav>
+  <h1>Lesson 02 — Cung và cầu</h1>
+  <div class="lead">Vẽ đường cầu, cung tương tác, tìm cân bằng, dịch chuyển đường, áp trần/sàn giá và quan sát thiếu hụt / dư cung.</div>
+
+  <h2>1. Cân bằng cung - cầu <span class="pill">Equilibrium</span></h2>
+  <div class="card">
+    <p>Cầu: <code>Q_d = a − b·P</code> &nbsp;&nbsp;&nbsp; Cung: <code>Q_s = c + d·P</code></p>
+    <div class="row"><label>a (cầu intercept)</label><input id="a" type="number" value="100" step="5"></div>
+    <div class="row"><label>b (độ dốc cầu)</label><input id="b" type="number" value="2" step="0.1"></div>
+    <div class="row"><label>c (cung intercept)</label><input id="c" type="number" value="-10" step="5"></div>
+    <div class="row"><label>d (độ dốc cung)</label><input id="d" type="number" value="2" step="0.1"></div>
+    <div class="row"><label>Áp trần giá (P_ceiling, 0 = không)</label><input id="ceil" type="number" value="0" step="1"></div>
+    <div class="row"><label>Áp sàn giá (P_floor, 0 = không)</label><input id="floor" type="number" value="0" step="1"></div>
+
+    <svg id="svg" viewBox="0 0 600 440" style="background:#fff; border:1px solid #e2e8f0;"></svg>
+    <div class="legend">
+      <span><span class="sw" style="background:#3182ce"></span>Cầu (D)</span>
+      <span><span class="sw" style="background:#c05621"></span>Cung (S)</span>
+      <span><span class="sw" style="background:#2f855a"></span>Cân bằng (P*, Q*)</span>
+      <span><span class="sw" style="background:#e53e3e"></span>Giá áp đặt</span>
+    </div>
+    <div class="result" id="out"></div>
+  </div>
+
+  <h2>2. Mô phỏng dịch chuyển đường <span class="pill">Shift vs Movement</span></h2>
+  <div class="card">
+    <p>Chọn sự kiện và xem đường nào dịch (cầu / cung), hướng (phải / trái), và cân bằng mới.</p>
+    <div class="row" style="gap:6px;">
+      <button data-shift="d-right">Thu nhập tăng (cầu →)</button>
+      <button data-shift="d-left">Sở thích giảm (cầu ←)</button>
+      <button data-shift="s-right">Công nghệ cải tiến (cung →)</button>
+      <button data-shift="s-left">Đầu vào đắt hơn (cung ←)</button>
+      <button class="alt" data-shift="reset">Reset</button>
+    </div>
+    <div class="result" id="shift-out">Bấm một sự kiện để xem tác động.</div>
+    <div class="hint">Phân biệt: thay đổi <em>giá chính</em> = di chuyển dọc đường; thay đổi yếu tố khác = dịch cả đường.</div>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+function get(id) { return parseFloat($(id).value) || 0; }
+
+let shiftA = 0, shiftC = 0; // offset cho a và c khi dịch đường
+
+function calc() {
+  const a = get('a') + shiftA, b = get('b'), c = get('c') + shiftC, d = get('d');
+  const ceil = get('ceil'), floor = get('floor');
+
+  // P* = (a - c) / (b + d)
+  const Pstar = (a - c) / (b + d);
+  const Qstar = a - b * Pstar;
+
+  // Vẽ SVG
+  const W = 600, H = 440;
+  const padL = 60, padB = 50, padT = 30, padR = 30;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const Pmax = Math.max(a / b, Pstar * 1.8, 60);
+  const Qmax = Math.max(a, c + d * Pmax, Qstar * 1.8, 100);
+  const sx = q => padL + (q / Qmax) * plotW;
+  const sy = p => padT + plotH - (p / Pmax) * plotH;
+
+  let svg = '';
+  // Grid
+  for (let i = 1; i <= 5; i++) {
+    const qx = (Qmax / 5) * i, py = (Pmax / 5) * i;
+    svg += `<line x1="${sx(qx)}" y1="${padT}" x2="${sx(qx)}" y2="${padT + plotH}" stroke="#f0f0f0"/>`;
+    svg += `<line x1="${padL}" y1="${sy(py)}" x2="${padL + plotW}" y2="${sy(py)}" stroke="#f0f0f0"/>`;
+    svg += `<text x="${sx(qx)}" y="${padT + plotH + 16}" text-anchor="middle" font-size="11" fill="#718096">${qx.toFixed(0)}</text>`;
+    svg += `<text x="${padL - 8}" y="${sy(py) + 4}" text-anchor="end" font-size="11" fill="#718096">${py.toFixed(0)}</text>`;
+  }
+  // Axes
+  svg += `<line x1="${padL}" y1="${padT + plotH}" x2="${padL + plotW}" y2="${padT + plotH}" stroke="#cbd5e0" stroke-width="1.5"/>`;
+  svg += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + plotH}" stroke="#cbd5e0" stroke-width="1.5"/>`;
+  svg += `<text x="${padL + plotW / 2}" y="${H - 10}" text-anchor="middle" font-size="13" fill="#2d3748">Q (Lượng)</text>`;
+  svg += `<text x="${20}" y="${padT + plotH / 2}" transform="rotate(-90 20 ${padT + plotH / 2})" text-anchor="middle" font-size="13" fill="#2d3748">P (Giá)</text>`;
+
+  // Đường cầu: Q_d = a - b*P → tại P=0: Q=a; tại Q=0: P=a/b
+  const d_p1 = { q: a, p: 0 };
+  const d_p2 = { q: 0, p: a / b };
+  svg += `<line x1="${sx(d_p1.q)}" y1="${sy(d_p1.p)}" x2="${sx(d_p2.q)}" y2="${sy(d_p2.p)}" stroke="#3182ce" stroke-width="2.5"/>`;
+  svg += `<text x="${sx(d_p1.q) - 10}" y="${sy(d_p1.p) - 6}" font-size="13" fill="#3182ce" font-weight="700">D</text>`;
+
+  // Đường cung: Q_s = c + d*P. P khi Q=0: P = -c/d
+  const s_pStart = Math.max(0, -c / d);
+  const s_q1 = c + d * s_pStart;
+  const s_q2 = c + d * Pmax;
+  svg += `<line x1="${sx(s_q1)}" y1="${sy(s_pStart)}" x2="${sx(s_q2)}" y2="${sy(Pmax)}" stroke="#c05621" stroke-width="2.5"/>`;
+  svg += `<text x="${sx(s_q2) + 6}" y="${sy(Pmax) + 12}" font-size="13" fill="#c05621" font-weight="700">S</text>`;
+
+  // Điểm cân bằng
+  if (Pstar > 0 && Qstar > 0) {
+    svg += `<line x1="${sx(Qstar)}" y1="${padT + plotH}" x2="${sx(Qstar)}" y2="${sy(Pstar)}" stroke="#2f855a" stroke-dasharray="3,3"/>`;
+    svg += `<line x1="${padL}" y1="${sy(Pstar)}" x2="${sx(Qstar)}" y2="${sy(Pstar)}" stroke="#2f855a" stroke-dasharray="3,3"/>`;
+    svg += `<circle cx="${sx(Qstar)}" cy="${sy(Pstar)}" r="7" fill="#2f855a" stroke="#fff" stroke-width="2"/>`;
+    svg += `<text x="${sx(Qstar) + 10}" y="${sy(Pstar) - 8}" font-size="12" fill="#2f855a" font-weight="700">(${Qstar.toFixed(1)}, ${Pstar.toFixed(1)})</text>`;
+  }
+
+  // Giá áp đặt
+  let intervention = '';
+  if (ceil > 0 && ceil < Pstar) {
+    svg += `<line x1="${padL}" y1="${sy(ceil)}" x2="${padL + plotW}" y2="${sy(ceil)}" stroke="#e53e3e" stroke-width="2" stroke-dasharray="6,3"/>`;
+    svg += `<text x="${padL + plotW - 60}" y="${sy(ceil) - 6}" font-size="12" fill="#e53e3e" font-weight="700">Trần ${ceil}</text>`;
+    const qd = a - b * ceil, qs = c + d * ceil;
+    intervention = `\n<strong>Trần giá ${ceil}</strong> (binding, dưới P*):\n  Lượng cầu: ${qd.toFixed(1)}\n  Lượng cung: ${qs.toFixed(1)}\n  <span class="neg">→ Thiếu hụt: ${(qd - qs).toFixed(1)}</span>`;
+  } else if (ceil > 0) {
+    intervention = `\nTrần giá ${ceil} không binding (trên P*).`;
+  }
+  if (floor > 0 && floor > Pstar) {
+    svg += `<line x1="${padL}" y1="${sy(floor)}" x2="${padL + plotW}" y2="${sy(floor)}" stroke="#e53e3e" stroke-width="2" stroke-dasharray="6,3"/>`;
+    svg += `<text x="${padL + plotW - 60}" y="${sy(floor) - 6}" font-size="12" fill="#e53e3e" font-weight="700">Sàn ${floor}</text>`;
+    const qd = a - b * floor, qs = c + d * floor;
+    intervention += `\n<strong>Sàn giá ${floor}</strong> (binding, trên P*):\n  Lượng cầu: ${qd.toFixed(1)}\n  Lượng cung: ${qs.toFixed(1)}\n  <span class="neg">→ Dư cung: ${(qs - qd).toFixed(1)}</span>`;
+  } else if (floor > 0) {
+    intervention += `\nSàn giá ${floor} không binding (dưới P*).`;
+  }
+
+  $('svg').innerHTML = svg;
+  $('out').innerHTML =
+    `<strong>Cân bằng:</strong> P* = ${Pstar.toFixed(2)}, Q* = ${Qstar.toFixed(2)}` +
+    (shiftA !== 0 ? `\n(Cầu đã dịch ${shiftA > 0 ? '+' : ''}${shiftA})` : '') +
+    (shiftC !== 0 ? `\n(Cung đã dịch ${shiftC > 0 ? '+' : ''}${shiftC})` : '') +
+    intervention;
+}
+
+['a', 'b', 'c', 'd', 'ceil', 'floor'].forEach(id => $(id).addEventListener('input', calc));
+
+document.querySelectorAll('[data-shift]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const t = btn.dataset.shift;
+    let msg = '';
+    if (t === 'd-right') { shiftA += 20; msg = 'Thu nhập tăng → cầu dịch PHẢI (a tăng 20). P* và Q* đều TĂNG.'; }
+    else if (t === 'd-left') { shiftA -= 20; msg = 'Sở thích giảm → cầu dịch TRÁI. P* và Q* đều GIẢM.'; }
+    else if (t === 's-right') { shiftC += 20; msg = 'Công nghệ cải tiến → cung dịch PHẢI. P* GIẢM, Q* TĂNG.'; }
+    else if (t === 's-left') { shiftC -= 20; msg = 'Đầu vào đắt → cung dịch TRÁI. P* TĂNG, Q* GIẢM.'; }
+    else { shiftA = 0; shiftC = 0; msg = 'Đã reset về cân bằng gốc.'; }
+    $('shift-out').textContent = msg;
+    calc();
+  });
+});
+
+calc();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

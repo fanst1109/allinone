@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — CLIP và Multimodal Embedding</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --panel: #ffffff;
+    --line: #e3e1dc;
+    --ink: #1a1a1a;
+    --muted: #6a6a6a;
+    --accent: #be123c;
+    --accent-soft: #ffe4e6;
+    --img-color: #2563eb;
+    --txt-color: #16a34a;
+    --diag-color: #be123c;
+    --grid: #ececec;
+    --warn: #f59e0b;
+    --ok: #16a34a;
+  }
+  body { margin: 0; }
+  .container { max-width: 1180px; margin: 0 auto; padding: 24px 18px 80px; font-size: 14.5px; line-height: 1.55; }
+  h1 { font-size: 26px; margin: 0 0 6px; font-weight: 800; }
+  h2 { font-size: 19px; margin: 32px 0 12px; padding-left: 10px; border-left: 4px solid var(--accent); }
+  .subtitle { color: var(--muted); margin-bottom: 18px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 22px; }
+  .panel h3 { margin: 0 0 12px; font-size: 15px; color: var(--accent); }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin-bottom: 14px; }
+  .controls label { font-size: 12.5px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+  .controls select, .controls input[type=text] {
+    padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; font-size: 13px; font-family: ui-monospace, "SF Mono", monospace;
+  }
+  .controls input[type=range] { width: 180px; vertical-align: middle; }
+  .controls input[type=text] { width: 280px; font-family: inherit; }
+  .controls button {
+    padding: 6px 14px; background: var(--accent); color: white; border: none; border-radius: 6px;
+    font-size: 12.5px; cursor: pointer; font-weight: 600;
+  }
+  .controls button:hover { background: #9f1239; }
+  .controls button.secondary { background: #f5f4f0; color: var(--ink); }
+  .controls button.secondary:hover { background: var(--accent-soft); color: var(--accent); }
+  .controls .value { font-family: ui-monospace, "SF Mono", monospace; font-weight: 600; color: var(--ink); }
+  svg { background: #fafaf7; border: 1px solid var(--line); border-radius: 8px; display: block; }
+  .info { background: #f7f6f1; border-left: 3px solid var(--accent); padding: 10px 14px; border-radius: 6px; font-size: 13px; margin: 12px 0; }
+  .info code { background: #ecebe5; padding: 1px 6px; border-radius: 4px; font-size: 12.5px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* Similarity matrix grid */
+  .simmat-wrap { overflow-x: auto; padding: 4px; }
+  table.simmat { border-collapse: separate; border-spacing: 3px; font-family: ui-monospace, monospace; font-size: 12.5px; }
+  table.simmat th, table.simmat td {
+    text-align: center; vertical-align: middle;
+    min-width: 60px; height: 40px; padding: 4px 6px;
+    border-radius: 6px;
+  }
+  table.simmat th.col-label { background: #e0f2fe; color: var(--txt-color); font-weight: 700; }
+  table.simmat th.row-label { background: #dbeafe; color: var(--img-color); font-weight: 700; }
+  table.simmat th.corner { background: transparent; }
+  table.simmat td.cell { background: var(--bg-cell, #eee); color: var(--ink); transition: all 0.18s; }
+  table.simmat td.cell.diag { box-shadow: 0 0 0 2px var(--accent) inset; font-weight: 700; }
+  table.simmat td.cell:hover { transform: scale(1.05); }
+  .legend-row { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); margin: 10px 0; }
+  .legend-row .item { display: inline-flex; align-items: center; gap: 6px; }
+  .legend-row .swatch { width: 14px; height: 14px; border-radius: 3px; border: 1px solid var(--line); }
+
+  .stat-row { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px; margin: 8px 0; }
+  .stat-row .stat { background: #f7f6f1; padding: 6px 12px; border-radius: 6px; }
+  .stat-row .stat b { color: var(--accent); }
+
+  /* Training animation */
+  .train-frame { position: relative; }
+  .scenario-tag {
+    position: absolute; top: 12px; left: 14px;
+    background: var(--accent-soft); color: var(--accent);
+    padding: 4px 10px; border-radius: 14px; font-size: 12px; font-weight: 700;
+  }
+
+  /* Zero-shot demo */
+  .zsc-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 16px; align-items: start; }
+  @media (max-width: 800px) { .zsc-grid { grid-template-columns: 1fr; } }
+  .zsc-img {
+    width: 100%; aspect-ratio: 1; background: #f7f6f1; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; font-size: 140px;
+    border: 2px solid var(--line);
+  }
+  .zsc-rank-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .zsc-rank-table th, .zsc-rank-table td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; }
+  .zsc-rank-table th { background: #f5f4f0; font-weight: 700; }
+  .zsc-rank-table tr.winner td { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+  .zsc-rank-table .bar-wrap { display: inline-block; width: 100px; height: 8px; background: #eee; border-radius: 4px; vertical-align: middle; margin-left: 8px; overflow: hidden; }
+  .zsc-rank-table .bar { height: 100%; background: var(--accent); border-radius: 4px; }
+
+  /* Retrieval */
+  .retr-img-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  @media (max-width: 700px) { .retr-img-grid { grid-template-columns: repeat(2, 1fr); } }
+  .retr-img {
+    aspect-ratio: 1; background: #f7f6f1; border-radius: 10px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 50px; padding: 6px; border: 2px solid var(--line); transition: all 0.2s;
+    position: relative; cursor: default;
+  }
+  .retr-img .emoji { font-size: 56px; line-height: 1; }
+  .retr-img .name { font-size: 11px; color: var(--muted); margin-top: 4px; font-family: ui-monospace, monospace; }
+  .retr-img .score { font-size: 11px; font-family: ui-monospace, monospace; color: var(--ink); margin-top: 2px; }
+  .retr-img.top { border-color: var(--accent); background: var(--accent-soft); }
+  .retr-img.top .rank-badge { position: absolute; top: 4px; right: 4px; background: var(--accent); color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+
+  .pill-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .pill {
+    padding: 4px 10px; border: 1px solid var(--line); border-radius: 14px;
+    font-size: 12px; cursor: pointer; background: white;
+  }
+  .pill:hover { border-color: var(--accent); color: var(--accent); }
+  .pill.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+  details { margin: 8px 0; }
+  details summary { cursor: pointer; font-weight: 600; color: var(--accent); padding: 6px 0; }
+  details pre { background: #f7f6f1; padding: 10px; border-radius: 6px; font-size: 12px; overflow-x: auto; }
+</style>
+</head>
+<body>
+<div class="container">
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-vector-db-rag/visualization.html">← L7: Vector DB và RAG</a>
+  <span class="sep">·</span>
+  <span class="current">L8: CLIP multimodal (CUỐI LỘ TRÌNH)</span>
+</nav>
+  <h1>Lesson 08 — CLIP và Multimodal Embedding</h1>
+  <div class="subtitle">Bài cuối của lộ trình Vectors. 4 component tương tác: similarity matrix, training animation, zero-shot classification và CLIP retrieval. Ráp toàn bộ những gì đã học — cosine, softmax, embedding — thành một model đa modality.</div>
+
+  <div class="info">
+    <b>Note.</b> Embedding trong các demo dưới được "giả lập" — không phải output từ CLIP thật, mà là vector 4D được chế ra cho phù hợp ngữ nghĩa. Mục đích là minh họa <i>cơ chế tính toán</i> của CLIP loss, softmax, retrieval. Để chạy CLIP thật, tham khảo <code>openai/CLIP</code> hoặc <code>open_clip</code> trên GitHub.
+  </div>
+
+  <!-- ====================================================== -->
+  <h2>1. Contrastive similarity matrix N×N</h2>
+  <div class="panel">
+    <h3>Click cell để xem chi tiết. Diagonal (viền đỏ) = cặp đúng. Temperature scale logits trước khi softmax.</h3>
+    <div class="controls">
+      <label>Batch size:
+        <select id="batchSize">
+          <option value="4">N = 4</option>
+          <option value="6" selected>N = 6</option>
+        </select>
+      </label>
+      <label>Training stage:
+        <select id="trainStage">
+          <option value="random">Random init (chưa train)</option>
+          <option value="mid">Giữa training</option>
+          <option value="trained" selected>Đã train tốt</option>
+        </select>
+      </label>
+      <label>1/τ: <input type="range" id="tauInv" min="1" max="30" step="1" value="10"><span class="value" id="tauInvVal">10</span></label>
+      <button id="recomputeBtn">Recompute</button>
+    </div>
+    <div class="simmat-wrap"><table class="simmat" id="simmatTable"></table></div>
+    <div class="legend-row">
+      <div class="item"><span class="swatch" style="background:#dbeafe"></span>Image (hàng — v<sub>i</sub>)</div>
+      <div class="item"><span class="swatch" style="background:#e0f2fe"></span>Text (cột — u<sub>j</sub>)</div>
+      <div class="item"><span class="swatch" style="background:#fee2e2;box-shadow:0 0 0 2px var(--accent) inset"></span>Diagonal — cặp đúng</div>
+    </div>
+    <div class="stat-row">
+      <div class="stat">Diagonal trung bình: <b id="diagAvg">—</b></div>
+      <div class="stat">Off-diagonal trung bình: <b id="offdiagAvg">—</b></div>
+      <div class="stat">Loss I→T: <b id="lossIT">—</b></div>
+      <div class="stat">Loss T→I: <b id="lossTI">—</b></div>
+      <div class="stat">Tổng loss: <b id="lossTotal">—</b></div>
+    </div>
+    <div id="cellDetail" class="info">Click một ô bất kỳ để xem chi tiết tính toán.</div>
+    <details>
+      <summary>Giải thích loss</summary>
+      <pre>Mỗi hàng (image i):
+  logits = S[i, :] * (1/τ)
+  softmax → prob[j]
+  loss_i = -log(prob[i])   (label = i)
+
+Mỗi cột (text j):
+  logits = S[:, j] * (1/τ)
+  softmax → prob[i]
+  loss_j = -log(prob[j])   (label = j)
+
+Tổng = mean(loss_i + loss_j) / 2</pre>
+    </details>
+  </div>
+
+  <!-- ====================================================== -->
+  <h2>2. Training animation — embedding di chuyển trong 2D space</h2>
+  <div class="panel">
+    <h3>Animation 4 cặp (ảnh-text) trong không gian 2D đã giảm chiều. Click "Train" → embedding di chuyển: cặp đúng kéo gần, cặp sai đẩy xa.</h3>
+    <div class="controls">
+      <button id="animTrainBtn">▶ Train (animate)</button>
+      <button id="animResetBtn" class="secondary">Reset</button>
+      <label>Tốc độ: <input type="range" id="animSpeed" min="1" max="10" step="1" value="5"></label>
+      <span class="value" id="animStepLabel">Step: 0 / 30</span>
+    </div>
+    <div class="two-col">
+      <div class="train-frame">
+        <div class="scenario-tag" id="animStageTag">Random init</div>
+        <svg id="animSvg" width="540" height="440" viewBox="0 0 540 440"></svg>
+      </div>
+      <div>
+        <div class="info" id="animInfo">Hai modality bắt đầu ở vị trí random. Mỗi step gradient descent kéo cặp đúng (cùng index) lại gần và đẩy cặp sai ra xa.</div>
+        <div class="stat-row">
+          <div class="stat">Avg cosine cặp đúng: <b id="animCosOk">—</b></div>
+          <div class="stat">Avg cosine cặp sai: <b id="animCosBad">—</b></div>
+          <div class="stat">Contrastive loss: <b id="animLoss">—</b></div>
+        </div>
+        <div class="legend-row">
+          <div class="item"><span class="swatch" style="background:#2563eb;border-radius:50%"></span>Image (v<sub>i</sub>)</div>
+          <div class="item"><span class="swatch" style="background:#16a34a;border-radius:0"></span>Text (u<sub>i</sub>)</div>
+          <div class="item">Cùng số = cặp đúng</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================== -->
+  <h2>3. Zero-shot classification demo</h2>
+  <div class="panel">
+    <h3>Chọn ảnh test → CLIP cosine với mỗi class prompt → argmax = predicted class. Thử đổi prompt template để xem hiệu ứng prompt engineering.</h3>
+    <div class="controls">
+      <label>Ảnh test:
+        <select id="zscImage">
+          <option value="cat">🐱 Mèo</option>
+          <option value="dog">🐶 Chó</option>
+          <option value="car">🚗 Xe hơi</option>
+          <option value="pizza">🍕 Pizza</option>
+          <option value="tree">🌲 Cây thông</option>
+          <option value="airplane">✈️ Máy bay</option>
+        </select>
+      </label>
+      <label>Prompt template:
+        <select id="zscPrompt">
+          <option value="bare">{class}</option>
+          <option value="photo" selected>a photo of a {class}</option>
+          <option value="rich">a high quality photograph of a {class}</option>
+          <option value="bad">picture {class} thing</option>
+        </select>
+      </label>
+    </div>
+    <div class="zsc-grid">
+      <div>
+        <div class="zsc-img" id="zscImgPanel">🐱</div>
+        <div class="info" style="font-size: 12.5px; margin-top: 8px;" id="zscPromptList"></div>
+      </div>
+      <div>
+        <table class="zsc-rank-table" id="zscRankTable"></table>
+        <div class="info" id="zscExplain"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================== -->
+  <h2>4. CLIP retrieval — text query → top-3 ảnh</h2>
+  <div class="panel">
+    <h3>Database 8 ảnh. Nhập query text, CLIP tính cosine với từng ảnh, trả top-3.</h3>
+    <div class="controls">
+      <label>Query:
+        <input type="text" id="retrQuery" value="a cute kitten" placeholder="vd: a black cat sleeping">
+      </label>
+      <button id="retrSearchBtn">🔍 Search</button>
+    </div>
+    <div class="pill-list" id="retrPresets"></div>
+    <div class="retr-img-grid" id="retrImgGrid"></div>
+    <div class="info" id="retrExplain" style="margin-top: 14px;">Click một preset query hoặc gõ tự do, rồi nhấn <b>Search</b>.</div>
+  </div>
+
+  <!-- ====================================================== -->
+  <h2>5. Tổng kết</h2>
+  <div class="panel">
+    <p>CLIP ráp toàn bộ những gì lộ trình Vectors đã dạy:</p>
+    <ul>
+      <li><b>Vector (Tầng 1, 4)</b>: ảnh và text đều là vector trong ℝ<sup>d</sup>.</li>
+      <li><b>Cosine (Tầng 4 L02)</b>: thước đo giống nhau giữa hai vector.</li>
+      <li><b>Softmax + cross-entropy (Tầng 5 L08, Tầng 6 L03)</b>: contrastive loss = cross-entropy trên cosine matrix.</li>
+      <li><b>Gradient descent (Tầng 3, Tầng 6 L02)</b>: backprop kéo 2 encoder hội tụ về joint space.</li>
+      <li><b>Embedding (Tầng 6 L06)</b>: ý nghĩa hóa thành vector — giờ cả ảnh lẫn text.</li>
+      <li><b>Vector DB (Tầng 6 L07)</b>: lưu embedding ảnh + tìm bằng text query = engine của Google Photos, Stable Diffusion.</li>
+    </ul>
+    <p>Không có lesson tiếp theo. Bước tiếp theo là <b>rời khỏi tài liệu này và đi xây cái gì đó</b>.</p>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// Utility
+// ============================================================
+function norm(v) { return Math.sqrt(v.reduce((s, x) => s + x*x, 0)); }
+function normalize(v) { const n = norm(v); return n > 0 ? v.map(x => x/n) : v; }
+function dot(a, b) { return a.reduce((s, x, i) => s + x*b[i], 0); }
+function softmax(arr) {
+  const m = Math.max(...arr);
+  const ex = arr.map(x => Math.exp(x - m));
+  const s = ex.reduce((a, b) => a + b, 0);
+  return ex.map(x => x/s);
+}
+function fmt(x, d=3) { return x.toFixed(d); }
+
+// Color cell theo similarity
+function cellColor(sim) {
+  // sim in roughly [-0.2, 1.0]
+  const t = Math.max(0, Math.min(1, (sim + 0.2) / 1.2));
+  // gradient: light gray -> red (accent)
+  const r = Math.round(245 - (245 - 190) * t);
+  const g = Math.round(245 - (245 - 18) * t);
+  const b = Math.round(245 - (245 - 60) * t);
+  return `rgb(${r},${g},${b})`;
+}
+
+// ============================================================
+// Component 1: Similarity matrix
+// ============================================================
+// Each "concept" has a 4D vector. Image and text version are close but not identical.
+const conceptBank = {
+  cat:   { emoji: '🐱', label: 'cat',  base: [0.85, 0.40, 0.20, 0.20] },
+  dog:   { emoji: '🐶', label: 'dog',  base: [0.75, 0.55, 0.20, 0.30] },
+  car:   { emoji: '🚗', label: 'car',  base: [0.20, 0.20, 0.85, 0.40] },
+  tree:  { emoji: '🌲', label: 'tree', base: [0.25, 0.30, 0.40, 0.80] },
+  pizza: { emoji: '🍕', label: 'pizza',base: [0.30, 0.85, 0.30, 0.20] },
+  plane: { emoji: '✈️', label: 'plane',base: [0.20, 0.30, 0.60, 0.65] },
+};
+const conceptOrder6 = ['cat', 'dog', 'car', 'tree', 'pizza', 'plane'];
+const conceptOrder4 = ['cat', 'dog', 'car', 'tree'];
+
+function generateEmbeddings(stage, batch) {
+  const order = batch === 4 ? conceptOrder4 : conceptOrder6;
+  const N = order.length;
+  let imgs = [], txts = [];
+  for (let i = 0; i < N; i++) {
+    const base = conceptBank[order[i]].base.slice();
+    let imgV, txtV;
+    if (stage === 'random') {
+      // Random Gaussian
+      imgV = base.map(() => (Math.random() - 0.5));
+      txtV = base.map(() => (Math.random() - 0.5));
+    } else if (stage === 'mid') {
+      // Partially aligned: 50% base + 50% noise
+      imgV = base.map(x => x * 0.5 + (Math.random() - 0.5) * 0.5);
+      txtV = base.map(x => x * 0.5 + (Math.random() - 0.5) * 0.5);
+    } else {
+      // Trained: near base with small noise
+      imgV = base.map(x => x + (Math.random() - 0.5) * 0.08);
+      txtV = base.map(x => x + (Math.random() - 0.5) * 0.08);
+    }
+    imgs.push(normalize(imgV));
+    txts.push(normalize(txtV));
+  }
+  return { imgs, txts, order };
+}
+
+let simState = null;
+
+function renderSimMatrix() {
+  const N = parseInt(document.getElementById('batchSize').value);
+  const stage = document.getElementById('trainStage').value;
+  const tauInv = parseInt(document.getElementById('tauInv').value);
+  document.getElementById('tauInvVal').textContent = tauInv;
+
+  const { imgs, txts, order } = generateEmbeddings(stage, N);
+
+  // similarity matrix
+  const S = imgs.map(v => txts.map(u => dot(v, u)));
+  simState = { N, S, imgs, txts, order, tauInv };
+
+  // build table
+  const tbl = document.getElementById('simmatTable');
+  let html = '<tr><th class="corner"></th>';
+  for (let j = 0; j < N; j++) {
+    html += `<th class="col-label">${conceptBank[order[j]].emoji}<br>"${conceptBank[order[j]].label}"</th>`;
+  }
+  html += '</tr>';
+  for (let i = 0; i < N; i++) {
+    html += `<tr><th class="row-label">${conceptBank[order[i]].emoji}<br>v<sub>${i+1}</sub></th>`;
+    for (let j = 0; j < N; j++) {
+      const s = S[i][j];
+      const cls = i === j ? 'cell diag' : 'cell';
+      html += `<td class="${cls}" style="background:${cellColor(s)}" data-i="${i}" data-j="${j}">${fmt(s)}</td>`;
+    }
+    html += '</tr>';
+  }
+  tbl.innerHTML = html;
+
+  // attach click handlers
+  tbl.querySelectorAll('td.cell').forEach(td => {
+    td.addEventListener('click', () => showCellDetail(parseInt(td.dataset.i), parseInt(td.dataset.j)));
+  });
+
+  // stats
+  let diagSum = 0, offSum = 0, offCount = 0;
+  for (let i = 0; i < N; i++) {
+    for (let j = 0; j < N; j++) {
+      if (i === j) diagSum += S[i][j];
+      else { offSum += S[i][j]; offCount++; }
+    }
+  }
+  document.getElementById('diagAvg').textContent = fmt(diagSum / N);
+  document.getElementById('offdiagAvg').textContent = fmt(offSum / offCount);
+
+  // loss
+  const logits = S.map(row => row.map(x => x * tauInv));
+  let lossIT = 0;
+  for (let i = 0; i < N; i++) {
+    const p = softmax(logits[i]);
+    lossIT += -Math.log(Math.max(p[i], 1e-9));
+  }
+  lossIT /= N;
+  // T → I: softmax theo cột
+  let lossTI = 0;
+  for (let j = 0; j < N; j++) {
+    const col = logits.map(r => r[j]);
+    const p = softmax(col);
+    lossTI += -Math.log(Math.max(p[j], 1e-9));
+  }
+  lossTI /= N;
+  document.getElementById('lossIT').textContent = fmt(lossIT);
+  document.getElementById('lossTI').textContent = fmt(lossTI);
+  document.getElementById('lossTotal').textContent = fmt((lossIT + lossTI) / 2);
+
+  document.getElementById('cellDetail').innerHTML = 'Click một ô bất kỳ để xem chi tiết tính toán.';
+}
+
+function showCellDetail(i, j) {
+  const { S, imgs, txts, order, tauInv, N } = simState;
+  const vi = imgs[i], uj = txts[j];
+  const ci = conceptBank[order[i]], cj = conceptBank[order[j]];
+
+  // dot product breakdown
+  const terms = vi.map((x, k) => `${fmt(x, 2)}·${fmt(uj[k], 2)}`);
+  const products = vi.map((x, k) => x * uj[k]);
+  const sim = S[i][j];
+  const correct = i === j;
+
+  // softmax row i to show prob for cell (i, j) under I→T
+  const rowLogits = S[i].map(x => x * tauInv);
+  const rowProb = softmax(rowLogits);
+
+  const html = `
+    <b>Cell S[${i+1},${j+1}]</b> — Image ${ci.emoji} <code>v<sub>${i+1}</sub></code> · Text "${cj.label}" <code>u<sub>${j+1}</sub></code>
+    ${correct ? ' &nbsp; <span style="background:var(--accent-soft);color:var(--accent);padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;">DIAGONAL · CẶP ĐÚNG</span>' : ''}
+    <br><br>
+    <b>Dot product:</b><br>
+    <code>v<sub>${i+1}</sub> · u<sub>${j+1}</sub> = ${terms.join(' + ')}</code><br>
+    <code>= ${products.map(p => fmt(p, 3)).join(' + ')}</code><br>
+    <code>= <b>${fmt(sim)}</b></code> &nbsp;(cosine, vì cả 2 đã normalize)<br><br>
+
+    <b>Trong softmax row ${i+1} (image → text):</b><br>
+    Logits row ${i+1} · (1/τ=${tauInv}): [${rowLogits.map(x => fmt(x, 2)).join(', ')}]<br>
+    Softmax: [${rowProb.map(x => fmt(x, 3)).join(', ')}]<br>
+    P(text=${j+1} | image=${i+1}) = <b>${fmt(rowProb[j], 3)}</b>
+    ${i === j ? `<br>→ Loss row ${i+1} = -log(${fmt(rowProb[i], 3)}) = <b>${fmt(-Math.log(Math.max(rowProb[i], 1e-9)))}</b>` : ''}
+  `;
+  document.getElementById('cellDetail').innerHTML = html;
+}
+
+document.getElementById('batchSize').addEventListener('change', renderSimMatrix);
+document.getElementById('trainStage').addEventListener('change', renderSimMatrix);
+document.getElementById('tauInv').addEventListener('input', renderSimMatrix);
+document.getElementById('recomputeBtn').addEventListener('click', renderSimMatrix);
+
+// ============================================================
+// Component 2: Training animation
+// ============================================================
+const animConcepts = ['cat', 'dog', 'car', 'tree'];
+const animColors = ['#dc2626', '#2563eb', '#059669', '#7c3aed'];
+let animState = null;
+let animTimer = null;
+
+function initAnimState() {
+  // 4 pairs in 2D space
+  // Target positions: spread on unit circle, angles 0, 90, 180, 270
+  const N = 4;
+  const targets = [];
+  for (let i = 0; i < N; i++) {
+    const a = (i / N) * 2 * Math.PI;
+    targets.push([Math.cos(a), Math.sin(a)]);
+  }
+  // Start random in [-1, 1]
+  const imgs = [], txts = [];
+  for (let i = 0; i < N; i++) {
+    imgs.push([(Math.random() - 0.5) * 1.6, (Math.random() - 0.5) * 1.6]);
+    txts.push([(Math.random() - 0.5) * 1.6, (Math.random() - 0.5) * 1.6]);
+  }
+  animState = { N, targets, imgs, txts, step: 0, maxStep: 30 };
+  return animState;
+}
+
+function drawAnim() {
+  const svg = document.getElementById('animSvg');
+  const W = 540, H = 440;
+  const cx = W / 2, cy = H / 2;
+  const scale = 150;
+  const { N, imgs, txts, step, maxStep } = animState;
+
+  // grid + axes
+  let html = '';
+  html += `<rect x="0" y="0" width="${W}" height="${H}" fill="#fafaf7"/>`;
+  // grid lines
+  for (let k = -2; k <= 2; k++) {
+    const x = cx + k * scale;
+    const y = cy + k * scale;
+    html += `<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="#ececec" stroke-width="1"/>`;
+    html += `<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="#ececec" stroke-width="1"/>`;
+  }
+  // axes
+  html += `<line x1="0" y1="${cy}" x2="${W}" y2="${cy}" stroke="#888" stroke-width="1.4"/>`;
+  html += `<line x1="${cx}" y1="0" x2="${cx}" y2="${H}" stroke="#888" stroke-width="1.4"/>`;
+  // unit circle (sphere boundary after L2 normalize)
+  html += `<circle cx="${cx}" cy="${cy}" r="${scale}" fill="none" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.6"/>`;
+  html += `<text x="${cx + scale + 6}" y="${cy - 4}" font-size="10" fill="var(--accent)" font-family="monospace">unit sphere</text>`;
+
+  // draw pairs
+  for (let i = 0; i < N; i++) {
+    const v = imgs[i], u = txts[i];
+    const vx = cx + v[0] * scale, vy = cy - v[1] * scale;
+    const ux = cx + u[0] * scale, uy = cy - u[1] * scale;
+    const color = animColors[i];
+
+    // line connecting (cặp đúng)
+    html += `<line x1="${vx}" y1="${vy}" x2="${ux}" y2="${uy}" stroke="${color}" stroke-width="1.2" opacity="0.4" stroke-dasharray="3 2"/>`;
+
+    // image = circle
+    html += `<circle cx="${vx}" cy="${vy}" r="9" fill="${color}" stroke="white" stroke-width="2"/>`;
+    html += `<text x="${vx}" y="${vy + 3}" text-anchor="middle" font-size="10" fill="white" font-weight="700">${i+1}</text>`;
+    // text = square
+    html += `<rect x="${ux-9}" y="${uy-9}" width="18" height="18" fill="${color}" stroke="white" stroke-width="2" rx="2"/>`;
+    html += `<text x="${ux}" y="${uy + 3}" text-anchor="middle" font-size="10" fill="white" font-weight="700">${i+1}</text>`;
+
+    // labels nearby
+    html += `<text x="${vx + 14}" y="${vy + 4}" font-size="11" fill="${color}" font-weight="600">v${i+1} (${conceptBank[animConcepts[i]].emoji})</text>`;
+    html += `<text x="${ux + 14}" y="${uy + 4}" font-size="11" fill="${color}" font-weight="600">u${i+1}</text>`;
+  }
+
+  // step counter at top right
+  html += `<text x="${W - 12}" y="20" text-anchor="end" font-size="12" fill="var(--muted)" font-family="monospace">step ${step}/${maxStep}</text>`;
+
+  svg.innerHTML = html;
+
+  // compute stats
+  let okCos = 0, badCos = 0, badCount = 0;
+  const okList = [];
+  for (let i = 0; i < N; i++) {
+    const vN = normalize(imgs[i].slice());
+    for (let j = 0; j < N; j++) {
+      const uN = normalize(txts[j].slice());
+      const c = dot(vN, uN);
+      if (i === j) { okCos += c; okList.push(c); }
+      else { badCos += c; badCount++; }
+    }
+  }
+  okCos /= N;
+  badCos /= badCount;
+
+  // contrastive loss approximation: -log(softmax diag)
+  let loss = 0;
+  const tauInv = 5;
+  for (let i = 0; i < N; i++) {
+    const vN = normalize(imgs[i].slice());
+    const logits = txts.map(u => dot(vN, normalize(u.slice())) * tauInv);
+    const p = softmax(logits);
+    loss += -Math.log(Math.max(p[i], 1e-9));
+  }
+  loss /= N;
+
+  document.getElementById('animCosOk').textContent = fmt(okCos);
+  document.getElementById('animCosBad').textContent = fmt(badCos);
+  document.getElementById('animLoss').textContent = fmt(loss);
+  document.getElementById('animStepLabel').textContent = `Step: ${step} / ${maxStep}`;
+
+  // stage tag
+  let stageName;
+  if (step === 0) stageName = 'Random init';
+  else if (step < 10) stageName = 'Early training';
+  else if (step < 20) stageName = 'Mid training';
+  else stageName = 'Converged';
+  document.getElementById('animStageTag').textContent = stageName;
+
+  // info text update
+  if (step === 0) {
+    document.getElementById('animInfo').innerHTML = 'Hai modality bắt đầu ở vị trí random. Mỗi step gradient descent kéo cặp đúng (cùng index) lại gần và đẩy cặp sai ra xa.';
+  } else if (step < maxStep) {
+    document.getElementById('animInfo').innerHTML = `Sau ${step} step: cặp đúng cosine trung bình <b>${fmt(okCos)}</b>, cặp sai <b>${fmt(badCos)}</b>. Khi cặp đúng tách rõ khỏi cặp sai, loss giảm.`;
+  } else {
+    document.getElementById('animInfo').innerHTML = `Đã hội tụ. Cặp đúng cosine ≈ <b>${fmt(okCos)}</b>, cặp sai cosine ≈ <b>${fmt(badCos)}</b>. Image và text giờ chia sẻ joint embedding space.`;
+  }
+}
+
+function animStep() {
+  const { N, targets, imgs, txts, step, maxStep } = animState;
+  if (step >= maxStep) return false;
+
+  const lr = 0.07;
+
+  // Move toward "ideal" positions: each pair toward its target,
+  // but also push away from other pairs.
+  for (let i = 0; i < N; i++) {
+    const tgt = targets[i];
+    // attract image toward target
+    imgs[i][0] += lr * (tgt[0] - imgs[i][0]);
+    imgs[i][1] += lr * (tgt[1] - imgs[i][1]);
+    // text toward target (slightly offset to keep visual distinct)
+    txts[i][0] += lr * (tgt[0] * 0.92 - txts[i][0]);
+    txts[i][1] += lr * (tgt[1] * 0.92 - txts[i][1]);
+
+    // repulse from other pairs slightly
+    for (let j = 0; j < N; j++) {
+      if (j === i) continue;
+      const dx = imgs[i][0] - imgs[j][0];
+      const dy = imgs[i][1] - imgs[j][1];
+      const d2 = dx*dx + dy*dy + 0.01;
+      const repel = 0.01 / d2;
+      imgs[i][0] += repel * dx;
+      imgs[i][1] += repel * dy;
+    }
+  }
+
+  animState.step = step + 1;
+  return true;
+}
+
+function startAnim() {
+  if (animTimer) { clearInterval(animTimer); animTimer = null; }
+  initAnimState();
+  drawAnim();
+  const speed = parseInt(document.getElementById('animSpeed').value);
+  const interval = Math.max(40, 280 - speed * 25);
+  animTimer = setInterval(() => {
+    if (!animStep()) { clearInterval(animTimer); animTimer = null; }
+    drawAnim();
+  }, interval);
+}
+
+document.getElementById('animTrainBtn').addEventListener('click', startAnim);
+document.getElementById('animResetBtn').addEventListener('click', () => {
+  if (animTimer) { clearInterval(animTimer); animTimer = null; }
+  initAnimState();
+  drawAnim();
+});
+
+// ============================================================
+// Component 3: Zero-shot classification
+// ============================================================
+const zscClasses = ['cat', 'dog', 'car', 'tree', 'pizza', 'plane'];
+const zscPromptQuality = {
+  bare:  { mult: 0.85, name: '{class}',                            note: 'Caption training set hiếm khi chỉ là 1 từ rời, text encoder ít sharp.' },
+  photo: { mult: 1.00, name: 'a photo of a {class}',               note: 'Caption template phổ biến trên Internet → text encoder hiểu rất rõ.' },
+  rich:  { mult: 1.03, name: 'a high quality photograph of a {class}', note: 'Caption mô tả chi tiết hơn → tăng nhẹ accuracy với một số class.' },
+  bad:   { mult: 0.72, name: 'picture {class} thing',              note: 'Grammar lệch chuẩn → text encoder bối rối, accuracy giảm.' },
+};
+
+function zscEncode(classKey, promptType) {
+  // Simulate CLIP text encoder: take concept vector, perturb by prompt quality
+  const base = conceptBank[classKey].base.slice();
+  const q = zscPromptQuality[promptType];
+  // Better prompts pull text closer to image; worse push away
+  return normalize(base.map(x => x * q.mult + (Math.random() - 0.5) * 0.04));
+}
+
+function renderZsc() {
+  const imgKey = document.getElementById('zscImage').value;
+  const promptType = document.getElementById('zscPrompt').value;
+  const q = zscPromptQuality[promptType];
+
+  // image embedding
+  const imgEmb = normalize(conceptBank[imgKey].base.slice().map(x => x + (Math.random() - 0.5) * 0.03));
+  // map UI image key
+  const conceptMap = { cat: 'cat', dog: 'dog', car: 'car', pizza: 'pizza', tree: 'tree', airplane: 'plane' };
+  const trueClass = conceptMap[imgKey];
+
+  document.getElementById('zscImgPanel').textContent = conceptBank[trueClass].emoji;
+
+  // encode each class with the prompt template
+  const ranks = zscClasses.map(c => {
+    const u = zscEncode(c, promptType);
+    return { cls: c, sim: dot(imgEmb, u) };
+  });
+  ranks.sort((a, b) => b.sim - a.sim);
+
+  // prompt list display
+  const promptList = zscClasses.map(c => `<code>${q.name.replace('{class}', c)}</code>`).join('<br>');
+  document.getElementById('zscPromptList').innerHTML = `<b>Prompt template áp dụng:</b><br>${promptList}`;
+
+  // table
+  const maxSim = ranks[0].sim;
+  let html = '<thead><tr><th>Rank</th><th>Class</th><th>Cosine</th><th>Visualize</th></tr></thead><tbody>';
+  ranks.forEach((r, idx) => {
+    const cls = idx === 0 ? 'winner' : '';
+    const barW = Math.max(0, Math.min(100, (r.sim / Math.max(maxSim, 0.001)) * 100));
+    html += `<tr class="${cls}"><td>${idx+1}</td><td>${conceptBank[r.cls].emoji} ${r.cls}</td><td>${fmt(r.sim)}</td><td><span class="bar-wrap"><span class="bar" style="width:${barW}%"></span></span></td></tr>`;
+  });
+  html += '</tbody>';
+  document.getElementById('zscRankTable').innerHTML = html;
+
+  const correct = ranks[0].cls === trueClass;
+  const expl = `
+    <b>Kết quả</b>: predicted <code>${ranks[0].cls}</code> (cosine ${fmt(ranks[0].sim)})
+    ${correct ? '<span style="color:var(--ok);font-weight:700"> ✓ ĐÚNG</span>' : '<span style="color:#dc2626;font-weight:700"> ✗ SAI (true: ' + trueClass + ')</span>'}<br>
+    <b>Prompt template</b>: ${q.note}
+  `;
+  document.getElementById('zscExplain').innerHTML = expl;
+}
+
+document.getElementById('zscImage').addEventListener('change', renderZsc);
+document.getElementById('zscPrompt').addEventListener('change', renderZsc);
+
+// ============================================================
+// Component 4: CLIP retrieval
+// ============================================================
+const retrDB = [
+  { id: 'kitten',  emoji: '🐱', name: 'kitten',   base: [0.85, 0.40, 0.20, 0.20], tags: ['cat', 'kitten', 'cute', 'pet'] },
+  { id: 'tabby',   emoji: '😼', name: 'tabby cat', base: [0.80, 0.45, 0.25, 0.18], tags: ['cat', 'tabby', 'pet'] },
+  { id: 'puppy',   emoji: '🐶', name: 'puppy',    base: [0.75, 0.55, 0.20, 0.30], tags: ['dog', 'puppy', 'cute', 'pet'] },
+  { id: 'shiba',   emoji: '🦊', name: 'shiba inu',base: [0.70, 0.60, 0.25, 0.32], tags: ['dog', 'shiba'] },
+  { id: 'sedan',   emoji: '🚗', name: 'red sedan',base: [0.20, 0.20, 0.85, 0.40], tags: ['car', 'red', 'vehicle'] },
+  { id: 'truck',   emoji: '🚚', name: 'delivery truck', base: [0.18, 0.18, 0.82, 0.45], tags: ['truck', 'vehicle'] },
+  { id: 'pine',    emoji: '🌲', name: 'pine tree',base: [0.25, 0.30, 0.40, 0.80], tags: ['tree', 'forest', 'pine'] },
+  { id: 'palm',    emoji: '🌴', name: 'palm tree',base: [0.30, 0.32, 0.42, 0.78], tags: ['tree', 'tropical', 'palm'] },
+];
+const retrPresets = [
+  'a cute kitten',
+  'a small dog',
+  'a red car on the road',
+  'a tree in the forest',
+  'a tropical beach',
+  'a pet animal',
+];
+
+function encodeQuery(q) {
+  // Build a 4D vector by matching keywords to concept axes
+  // Axis interpretation:
+  //   d0: "cat/dog/animal" axis
+  //   d1: "animal/pet" axis
+  //   d2: "vehicle" axis
+  //   d3: "plant/tree" axis
+  const v = [0.0, 0.0, 0.0, 0.0];
+  const ql = q.toLowerCase();
+  const rules = [
+    [['cat', 'kitten', 'feline'], [0.85, 0.35, 0.15, 0.10]],
+    [['dog', 'puppy', 'canine', 'shiba'], [0.65, 0.60, 0.20, 0.25]],
+    [['pet', 'animal'], [0.55, 0.55, 0.18, 0.18]],
+    [['car', 'sedan', 'vehicle', 'road'], [0.15, 0.20, 0.85, 0.30]],
+    [['truck'], [0.15, 0.20, 0.82, 0.35]],
+    [['tree', 'forest', 'pine'], [0.20, 0.25, 0.35, 0.85]],
+    [['tropical', 'palm', 'beach'], [0.25, 0.28, 0.40, 0.75]],
+    [['cute', 'small', 'little'], [0.30, 0.30, 0.10, 0.10]],
+    [['red'], [0.10, 0.15, 0.30, 0.10]],
+  ];
+  for (const [keys, vec] of rules) {
+    for (const k of keys) {
+      if (ql.includes(k)) {
+        for (let i = 0; i < 4; i++) v[i] += vec[i];
+      }
+    }
+  }
+  // fallback: tiny noise if query doesn't match anything
+  if (v.every(x => Math.abs(x) < 0.05)) {
+    for (let i = 0; i < 4; i++) v[i] = Math.random() * 0.1;
+  }
+  return normalize(v);
+}
+
+function renderRetrPresets() {
+  const wrap = document.getElementById('retrPresets');
+  wrap.innerHTML = '';
+  retrPresets.forEach(p => {
+    const el = document.createElement('span');
+    el.className = 'pill';
+    el.textContent = p;
+    el.addEventListener('click', () => {
+      document.getElementById('retrQuery').value = p;
+      runRetrieval();
+    });
+    wrap.appendChild(el);
+  });
+}
+
+function renderRetrGrid(scores) {
+  const grid = document.getElementById('retrImgGrid');
+  grid.innerHTML = '';
+  // sort score-aware
+  const ranked = scores.map((s, i) => ({ i, s })).sort((a, b) => b.s - a.s);
+  const topIds = new Set(ranked.slice(0, 3).map(r => r.i));
+
+  // Build cards in DB order
+  retrDB.forEach((item, idx) => {
+    const score = scores[idx];
+    const isTop = topIds.has(idx);
+    const rank = isTop ? ranked.findIndex(r => r.i === idx) + 1 : null;
+    const div = document.createElement('div');
+    div.className = 'retr-img' + (isTop ? ' top' : '');
+    div.innerHTML = `
+      ${rank ? `<div class="rank-badge">${rank}</div>` : ''}
+      <div class="emoji">${item.emoji}</div>
+      <div class="name">${item.name}</div>
+      <div class="score">cos=${fmt(score)}</div>
+    `;
+    grid.appendChild(div);
+  });
+}
+
+function runRetrieval() {
+  const q = document.getElementById('retrQuery').value;
+  const qVec = encodeQuery(q);
+  const scores = retrDB.map(item => dot(qVec, normalize(item.base.slice())));
+  renderRetrGrid(scores);
+  // build explanation
+  const ranked = scores.map((s, i) => ({ i, s })).sort((a, b) => b.s - a.s);
+  const top3 = ranked.slice(0, 3).map((r, k) => `${k+1}. ${retrDB[r.i].emoji} ${retrDB[r.i].name} (cos=${fmt(r.s)})`).join('  ·  ');
+  document.getElementById('retrExplain').innerHTML = `
+    <b>Query</b>: "${q}"<br>
+    <b>Top 3</b>: ${top3}<br>
+    <span style="color:var(--muted);font-size:12.5px">CLIP encode query thành vector, cosine với mỗi ảnh trong DB, sort. Đây là cách Google Photos/Pinterest search hoạt động — chỉ khác là DB của họ có hàng tỷ ảnh + ANN index.</span>
+  `;
+}
+
+document.getElementById('retrSearchBtn').addEventListener('click', runRetrieval);
+document.getElementById('retrQuery').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') runRetrieval();
+});
+
+// ============================================================
+// Init all
+// ============================================================
+renderSimMatrix();
+initAnimState();
+drawAnim();
+renderZsc();
+renderRetrPresets();
+runRetrieval();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

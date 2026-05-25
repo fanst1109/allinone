@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 06 (T2) — Dòng điện &amp; Mạch</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 120px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100px; }
+  button { background: #1e40af; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.muted { background: #94a3b8; }
+  button.muted.active { background: #1e40af; }
+  .stat { display: inline-block; background: #dbeafe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #1e40af; }
+  .result { padding: 14px; background: #dbeafe; border-radius: 8px; margin-top: 12px; }
+
+  svg.scene {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 720px; height: 300px;
+    background: #f8fafc;
+    border-radius: 8px;
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Physics</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-electric-field-potential/visualization.html">← L5: Điện trường</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Dòng điện &amp; Mạch</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L7: Từ trường (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 06 (T2) — Dòng điện &amp; Mạch</h1>
+<p>Bộ công cụ: Ohm's Law Calculator, Power Calculator, Circuit Builder (nối tiếp/song song).</p>
+
+<h2>1. Ohm's Law &amp; Power Calculator</h2>
+<div class="card">
+  <p>V = IR, P = UI. Để 1 ô = 0 để biết cần tính.</p>
+  <div class="row">
+    <label>V (V):</label>
+    <input type="number" id="ohV" step="1" value="220" oninput="calcOhm()">
+    <label>I (A):</label>
+    <input type="number" id="ohI" step="0.1" value="0" oninput="calcOhm()">
+    <label>R (Ω):</label>
+    <input type="number" id="ohR" step="10" value="806" oninput="calcOhm()">
+  </div>
+  <div class="result" id="ohmResult"></div>
+</div>
+
+<h2>2. Circuit Builder — 3 điện trở</h2>
+<div class="card">
+  <div class="row">
+    <label>Cách nối:</label>
+    <button class="muted active" onclick="setMode('series')">Nối tiếp</button>
+    <button class="muted" onclick="setMode('parallel')">Song song</button>
+  </div>
+  <div class="row">
+    <label>R₁ (Ω):</label>
+    <input type="number" id="cbR1" step="5" value="10" oninput="calcCircuit()">
+    <label>R₂ (Ω):</label>
+    <input type="number" id="cbR2" step="5" value="20" oninput="calcCircuit()">
+    <label>R₃ (Ω):</label>
+    <input type="number" id="cbR3" step="5" value="30" oninput="calcCircuit()">
+    <label>V pin (V):</label>
+    <input type="number" id="cbV" step="1" value="12" oninput="calcCircuit()">
+  </div>
+  <svg class="scene" id="cbSvg" viewBox="0 0 720 300"></svg>
+  <div class="result" id="cbResult"></div>
+</div>
+
+</main>
+
+<script>
+function calcOhm() {
+  let V = parseFloat(document.getElementById("ohV").value);
+  let I = parseFloat(document.getElementById("ohI").value);
+  let R = parseFloat(document.getElementById("ohR").value);
+  let result = "";
+  if (V === 0 && I && R) { V = I * R; result = `V = I·R = ${I} × ${R} = <strong>${V.toFixed(2)} V</strong>`; }
+  else if (I === 0 && V && R) { I = V / R; result = `I = V/R = ${V}/${R} = <strong>${I.toFixed(3)} A</strong>`; }
+  else if (R === 0 && V && I) { R = V / I; result = `R = V/I = ${V}/${I} = <strong>${R.toFixed(2)} Ω</strong>`; }
+  else { I = V / R; result = `I = V/R = ${V}/${R} = <strong>${I.toFixed(3)} A</strong> (cả 3 đều có, tính I)`; }
+  const P = V * I;
+  document.getElementById("ohmResult").innerHTML = `
+    ${result}
+    <div style="margin-top:8px; font-family:monospace; font-size:14px">P = V·I = ${V.toFixed(1)}·${I.toFixed(3)} = <strong>${P.toFixed(2)} W</strong></div>
+  `;
+}
+
+let circuitMode = 'series';
+function setMode(m) {
+  circuitMode = m;
+  document.querySelectorAll("button.muted").forEach(b => {
+    let match = b.getAttribute("onclick")?.includes(`'${m}'`);
+    b.classList.toggle("active", match);
+  });
+  calcCircuit();
+}
+
+function calcCircuit() {
+  const R1 = parseFloat(document.getElementById("cbR1").value);
+  const R2 = parseFloat(document.getElementById("cbR2").value);
+  const R3 = parseFloat(document.getElementById("cbR3").value);
+  const V = parseFloat(document.getElementById("cbV").value);
+  let Rtotal;
+  if (circuitMode === 'series') Rtotal = R1 + R2 + R3;
+  else Rtotal = 1 / (1/R1 + 1/R2 + 1/R3);
+
+  const Itotal = V / Rtotal;
+  let html = `
+    <div style="font-family:monospace; font-size:15px">
+      ${circuitMode === 'series' ?
+        `R_tổng = R₁ + R₂ + R₃ = ${R1} + ${R2} + ${R3} = <strong>${Rtotal.toFixed(2)} Ω</strong>` :
+        `1/R_tổng = 1/${R1} + 1/${R2} + 1/${R3} → R_tổng = <strong>${Rtotal.toFixed(2)} Ω</strong>`}
+    </div>
+    <div style="margin-top:8px; font-family:monospace; font-size:15px">I_tổng = V / R_tổng = ${V} / ${Rtotal.toFixed(2)} = <strong>${Itotal.toFixed(3)} A</strong></div>
+  `;
+  // Per-resistor
+  if (circuitMode === 'series') {
+    [R1, R2, R3].forEach((R, i) => {
+      const VR = Itotal * R;
+      html += `<div class="step" style="padding:6px 12px; background:#f1f5f9; margin:4px 0; border-left:3px solid #1e40af; font-family:monospace; font-size:13px">R${i+1}: V = I·R = ${Itotal.toFixed(3)}·${R} = <strong>${VR.toFixed(2)} V</strong></div>`;
+    });
+  } else {
+    [R1, R2, R3].forEach((R, i) => {
+      const IR = V / R;
+      html += `<div class="step" style="padding:6px 12px; background:#f1f5f9; margin:4px 0; border-left:3px solid #1e40af; font-family:monospace; font-size:13px">R${i+1}: I = V/R = ${V}/${R} = <strong>${IR.toFixed(3)} A</strong></div>`;
+    });
+  }
+  document.getElementById("cbResult").innerHTML = html;
+  drawCircuit(R1, R2, R3, V);
+}
+
+function drawCircuit(R1, R2, R3, V) {
+  const svg = document.getElementById("cbSvg");
+  svg.innerHTML = "";
+  // Battery
+  const batX = 60, batY = 150;
+  // Battery symbol (long + short line)
+  const bat1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  bat1.setAttribute("x1", batX); bat1.setAttribute("y1", batY-25); bat1.setAttribute("x2", batX); bat1.setAttribute("y2", batY+25);
+  bat1.setAttribute("stroke", "#1a202c"); bat1.setAttribute("stroke-width", 4);
+  svg.appendChild(bat1);
+  const bat2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  bat2.setAttribute("x1", batX+10); bat2.setAttribute("y1", batY-15); bat2.setAttribute("x2", batX+10); bat2.setAttribute("y2", batY+15);
+  bat2.setAttribute("stroke", "#1a202c"); bat2.setAttribute("stroke-width", 2);
+  svg.appendChild(bat2);
+  const vL = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  vL.setAttribute("x", batX); vL.setAttribute("y", batY+45); vL.setAttribute("text-anchor", "middle"); vL.setAttribute("font-weight", "700");
+  vL.textContent = V + " V";
+  svg.appendChild(vL);
+
+  if (circuitMode === 'series') {
+    // Wire from battery+, through R1, R2, R3, back
+    const xs = [batX+10, 220, 360, 500, 660];
+    const ys = [50, 50, 50, 50, 50];
+    // Top wire
+    drawLine(svg, batX+10, batY-25, batX+10, 50);
+    drawLine(svg, batX+10, 50, 660, 50);
+    // Resistors at 220, 360, 500
+    drawR(svg, 220, 50, "R₁=" + R1);
+    drawR(svg, 360, 50, "R₂=" + R2);
+    drawR(svg, 500, 50, "R₃=" + R3);
+    // Back wire
+    drawLine(svg, 660, 50, 660, 250);
+    drawLine(svg, 660, 250, batX, 250);
+    drawLine(svg, batX, 250, batX, batY+25);
+  } else {
+    // Parallel: 3 branches
+    drawLine(svg, batX+10, batY-25, batX+10, 50);
+    drawLine(svg, batX+10, 50, 660, 50);
+    drawLine(svg, 660, 50, 660, 250);
+    drawLine(svg, 660, 250, batX, 250);
+    drawLine(svg, batX, 250, batX, batY+25);
+    // 3 branches with R
+    [[150, "R₁=" + R1], [350, "R₂=" + R2], [550, "R₃=" + R3]].forEach(([x, lbl]) => {
+      drawLine(svg, x, 50, x, 250);
+      drawR(svg, x, 150, lbl, 'vertical');
+    });
+  }
+}
+
+function drawLine(svg, x1, y1, x2, y2) {
+  const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  l.setAttribute("x1", x1); l.setAttribute("y1", y1); l.setAttribute("x2", x2); l.setAttribute("y2", y2);
+  l.setAttribute("stroke", "#1a202c"); l.setAttribute("stroke-width", 2);
+  svg.appendChild(l);
+}
+
+function drawR(svg, cx, cy, label, orient = 'horizontal') {
+  const w = 50, h = 20;
+  const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  if (orient === 'horizontal') {
+    rect.setAttribute("x", cx-w/2); rect.setAttribute("y", cy-h/2);
+    rect.setAttribute("width", w); rect.setAttribute("height", h);
+  } else {
+    rect.setAttribute("x", cx-h/2); rect.setAttribute("y", cy-w/2);
+    rect.setAttribute("width", h); rect.setAttribute("height", w);
+  }
+  rect.setAttribute("fill", "#fef3c7"); rect.setAttribute("stroke", "#1a202c"); rect.setAttribute("stroke-width", 2);
+  svg.appendChild(rect);
+  // Erase wire under R
+  const erase = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  if (orient === 'horizontal') {
+    erase.setAttribute("x", cx-w/2+2); erase.setAttribute("y", cy-2); erase.setAttribute("width", w-4); erase.setAttribute("height", 4);
+  } else {
+    erase.setAttribute("x", cx-2); erase.setAttribute("y", cy-w/2+2); erase.setAttribute("width", 4); erase.setAttribute("height", w-4);
+  }
+  erase.setAttribute("fill", "#fef3c7");
+  // (Not really needed)
+  const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  if (orient === 'horizontal') {
+    t.setAttribute("x", cx); t.setAttribute("y", cy + h + 18);
+  } else {
+    t.setAttribute("x", cx + h + 10); t.setAttribute("y", cy + 5);
+  }
+  t.setAttribute("text-anchor", "middle"); t.setAttribute("font-weight", "700"); t.setAttribute("font-size", "12");
+  t.textContent = label;
+  svg.appendChild(t);
+}
+
+// Init
+calcOhm();
+calcCircuit();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

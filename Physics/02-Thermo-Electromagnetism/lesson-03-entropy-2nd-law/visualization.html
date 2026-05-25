@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 03 (T2) — Entropy &amp; Định luật II</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 130px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100px; }
+  button { background: #1e40af; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.muted { background: #94a3b8; }
+  .stat { display: inline-block; background: #dbeafe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #1e40af; }
+  .result { padding: 14px; background: #dbeafe; border-radius: 8px; margin-top: 12px; }
+
+  svg.scene {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 720px; height: 280px;
+    background: linear-gradient(135deg, #f8fafc, #dbeafe);
+    border-radius: 8px;
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Physics</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-ideal-gas/visualization.html">← L2: Khí lý tưởng</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Entropy</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L4: Coulomb (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 03 (T2) — Entropy &amp; Định luật II</h1>
+<p>Bộ công cụ: Diffusion Simulator (mô phỏng khí khuếch tán → entropy tăng), Heat Engine Calculator, Carnot Efficiency Chart.</p>
+
+<h2>1. Gas Diffusion Simulator — Entropy tăng</h2>
+<div class="card">
+  <p>Mở vách giữa 2 ngăn → các phân tử khí khuếch tán đều. Quan sát chúng KHÔNG bao giờ tự gom lại.</p>
+  <div class="row">
+    <button onclick="resetDiff()" class="muted">Reset (tất cả bên trái)</button>
+    <button onclick="openWall()" id="diffBtn">▶ Mở vách</button>
+  </div>
+  <svg class="scene" id="diffSvg" viewBox="0 0 720 280"></svg>
+  <div class="result" id="diffResult"></div>
+</div>
+
+<h2>2. Heat Engine Calculator</h2>
+<div class="card">
+  <div class="row">
+    <label>T_nóng (K):</label>
+    <input type="number" id="Th" step="10" value="773" oninput="calcEngine()">
+    <label>T_lạnh (K):</label>
+    <input type="number" id="Tc" step="10" value="303" oninput="calcEngine()">
+    <label>Q_h nhận (J):</label>
+    <input type="number" id="Qh" step="100" value="1000" oninput="calcEngine()">
+  </div>
+  <div class="row">
+    <button class="muted" onclick="setEng('steam')">Nhà máy hơi nước (T_h=773, T_c=303)</button>
+    <button class="muted" onclick="setEng('car')">Động cơ ô tô (T_h=2000, T_c=800)</button>
+    <button class="muted" onclick="setEng('fridge')">Tủ lạnh (T_h=298, T_c=278)</button>
+  </div>
+  <svg class="scene" id="engineSvg" viewBox="0 0 720 280"></svg>
+  <div class="result" id="engineResult"></div>
+</div>
+
+<h2>3. Hiệu suất Carnot vs T_lạnh / T_nóng</h2>
+<div class="card">
+  <p>η_Carnot = 1 − T_c/T_h. Để tăng η: tăng T_h hoặc giảm T_c.</p>
+  <svg class="scene" id="carnotSvg" viewBox="0 0 720 280" style="background:white"></svg>
+</div>
+
+</main>
+
+<script>
+// ===== Diffusion =====
+let diffState = { particles: [], opened: false, running: false };
+let diffInterval = null;
+
+function resetDiff() {
+  const N = 30;
+  diffState.particles = [];
+  for (let i = 0; i < N; i++) {
+    diffState.particles.push({
+      x: 20 + Math.random() * 320,
+      y: 20 + Math.random() * 240,
+      vx: (Math.random() - 0.5) * 4,
+      vy: (Math.random() - 0.5) * 4
+    });
+  }
+  diffState.opened = false;
+  if (diffInterval) { clearInterval(diffInterval); diffInterval = null; }
+  diffState.running = false;
+  document.getElementById("diffBtn").textContent = "▶ Mở vách";
+  drawDiff();
+}
+
+function openWall() {
+  if (diffState.running) {
+    clearInterval(diffInterval); diffInterval = null;
+    diffState.running = false;
+    document.getElementById("diffBtn").textContent = "▶ Tiếp tục";
+  } else {
+    diffState.opened = true;
+    diffState.running = true;
+    document.getElementById("diffBtn").textContent = "⏸ Dừng";
+    diffInterval = setInterval(stepDiff, 30);
+  }
+}
+
+function stepDiff() {
+  for (const p of diffState.particles) {
+    p.x += p.vx;
+    p.y += p.vy;
+    // Bounce off walls
+    if (p.x < 10 || p.x > 710) p.vx *= -1;
+    if (p.y < 10 || p.y > 270) p.vy *= -1;
+    // If wall closed, bounce off center wall
+    if (!diffState.opened && p.x > 350 && p.x < 370) {
+      p.x = 350; p.vx *= -1;
+    }
+  }
+  drawDiff();
+}
+
+function drawDiff() {
+  const svg = document.getElementById("diffSvg");
+  svg.innerHTML = "";
+  // Wall divider
+  if (!diffState.opened) {
+    const w = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    w.setAttribute("x", 358); w.setAttribute("y", 0); w.setAttribute("width", 4); w.setAttribute("height", 280);
+    w.setAttribute("fill", "#475569");
+    svg.appendChild(w);
+  }
+  // Particles
+  for (const p of diffState.particles) {
+    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    c.setAttribute("cx", p.x); c.setAttribute("cy", p.y); c.setAttribute("r", 4);
+    c.setAttribute("fill", "#dc2626");
+    svg.appendChild(c);
+  }
+
+  // Count
+  const left = diffState.particles.filter(p => p.x < 360).length;
+  const right = diffState.particles.length - left;
+  const total = diffState.particles.length;
+  const W_left = combinations(total, left);
+  document.getElementById("diffResult").innerHTML = `
+    <div class="row">
+      <span class="stat">Bên trái: <strong>${left}</strong> phân tử</span>
+      <span class="stat">Bên phải: <strong>${right}</strong></span>
+      <span class="stat">W (số cấu hình tương đương): <strong>${W_left.toExponential(2)}</strong></span>
+      <span class="stat">S ∝ ln(W) ≈ <strong>${Math.log(W_left).toFixed(2)}</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px">
+      ${diffState.opened ?
+        `Khí đang khuếch tán. Quan sát: số lượng "đều" (15-15) có ${combinations(30, 15)} cấu hình, "lệch hết" (30-0) chỉ có 1 cấu hình. Theo xác suất → đi về "đều" → S tăng. KHÔNG BAO GIỜ tự gom lại bên trái.` :
+        "Tất cả 30 phân tử bên trái — chỉ có 1 cấu hình → S nhỏ nhất. Click 'Mở vách' để xem khuếch tán."}
+    </div>
+  `;
+}
+
+function combinations(n, k) {
+  if (k < 0 || k > n) return 0;
+  let r = 1;
+  for (let i = 0; i < k; i++) r = r * (n - i) / (i + 1);
+  return r;
+}
+
+// ===== Heat Engine =====
+function setEng(scen) {
+  if (scen === 'steam') { document.getElementById("Th").value = 773; document.getElementById("Tc").value = 303; }
+  if (scen === 'car') { document.getElementById("Th").value = 2000; document.getElementById("Tc").value = 800; }
+  if (scen === 'fridge') { document.getElementById("Th").value = 298; document.getElementById("Tc").value = 278; }
+  calcEngine();
+}
+
+function calcEngine() {
+  const Th = parseFloat(document.getElementById("Th").value);
+  const Tc = parseFloat(document.getElementById("Tc").value);
+  const Qh = parseFloat(document.getElementById("Qh").value);
+  const eta = 1 - Tc / Th;
+  const W = eta * Qh;
+  const Qc = Qh - W;
+
+  document.getElementById("engineResult").innerHTML = `
+    <div style="font-family:monospace; font-size:15px">η_Carnot = 1 − T_c/T_h = 1 − ${Tc}/${Th} = <strong>${(eta*100).toFixed(2)}%</strong></div>
+    <div class="row" style="margin-top:8px">
+      <span class="stat" style="background:#fee2e2">Q_h = <strong>${Qh.toFixed(0)} J</strong></span>
+      <span class="stat" style="background:#dcfce7">W = η·Q_h = <strong>${W.toFixed(0)} J</strong></span>
+      <span class="stat" style="background:#dbeafe">Q_c = Q_h − W = <strong>${Qc.toFixed(0)} J</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px">
+      ${eta > 0.5 ? "Hiệu suất CAO — nhờ chênh T lớn." :
+        eta > 0.3 ? "Hiệu suất trung bình — như nhà máy điện thông thường." :
+        "Hiệu suất THẤP — chênh T nhỏ. Tủ lạnh là máy nhiệt ngược: cấp công để chuyển nhiệt từ lạnh ra ấm."}
+    </div>
+  `;
+  drawEngine(Qh, W, Qc, Th, Tc);
+}
+
+function drawEngine(Qh, W, Qc, Th, Tc) {
+  const svg = document.getElementById("engineSvg");
+  svg.innerHTML = "";
+  // Hot reservoir
+  const hot = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  hot.setAttribute("x", 50); hot.setAttribute("y", 40); hot.setAttribute("width", 180); hot.setAttribute("height", 60);
+  hot.setAttribute("fill", "#dc2626"); hot.setAttribute("rx", 4);
+  svg.appendChild(hot);
+  const hLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  hLbl.setAttribute("x", 140); hLbl.setAttribute("y", 75);
+  hLbl.setAttribute("text-anchor", "middle"); hLbl.setAttribute("fill", "white"); hLbl.setAttribute("font-weight", "700");
+  hLbl.textContent = `Nóng T_h = ${Th} K`;
+  svg.appendChild(hLbl);
+
+  // Engine
+  const eng = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  eng.setAttribute("cx", 360); eng.setAttribute("cy", 140); eng.setAttribute("r", 55);
+  eng.setAttribute("fill", "#fbbf24"); eng.setAttribute("stroke", "#1a202c"); eng.setAttribute("stroke-width", 2);
+  svg.appendChild(eng);
+  const eLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  eLbl.setAttribute("x", 360); eLbl.setAttribute("y", 144);
+  eLbl.setAttribute("text-anchor", "middle"); eLbl.setAttribute("font-weight", "700"); eLbl.setAttribute("fill", "#1a202c");
+  eLbl.textContent = "Máy nhiệt";
+  svg.appendChild(eLbl);
+
+  // Cold
+  const cold = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  cold.setAttribute("x", 490); cold.setAttribute("y", 40); cold.setAttribute("width", 180); cold.setAttribute("height", 60);
+  cold.setAttribute("fill", "#1d4ed8"); cold.setAttribute("rx", 4);
+  svg.appendChild(cold);
+  const cLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  cLbl.setAttribute("x", 580); cLbl.setAttribute("y", 75);
+  cLbl.setAttribute("text-anchor", "middle"); cLbl.setAttribute("fill", "white"); cLbl.setAttribute("font-weight", "700");
+  cLbl.textContent = `Lạnh T_c = ${Tc} K`;
+  svg.appendChild(cLbl);
+
+  // Q_h arrow
+  drawEngArrow(svg, 230, 80, 305, 140, "#dc2626", `Q_h = ${Qh.toFixed(0)} J`);
+  drawEngArrow(svg, 415, 140, 490, 80, "#1d4ed8", `Q_c = ${Qc.toFixed(0)} J`);
+  drawEngArrow(svg, 360, 195, 360, 250, "#047857", `W = ${W.toFixed(0)} J`);
+}
+
+function drawEngArrow(svg, x1, y1, x2, y2, color, label) {
+  const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  l.setAttribute("x1", x1); l.setAttribute("y1", y1); l.setAttribute("x2", x2); l.setAttribute("y2", y2);
+  l.setAttribute("stroke", color); l.setAttribute("stroke-width", 3);
+  svg.appendChild(l);
+  const dx = x2-x1, dy = y2-y1, len = Math.sqrt(dx*dx+dy*dy);
+  const ux = dx/len, uy = dy/len;
+  const hx = x2 - ux*8, hy = y2 - uy*8;
+  const wx = -uy*4, wy = ux*4;
+  const head = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  head.setAttribute("points", `${x2},${y2} ${hx+wx},${hy+wy} ${hx-wx},${hy-wy}`);
+  head.setAttribute("fill", color);
+  svg.appendChild(head);
+  const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  t.setAttribute("x", (x1+x2)/2 + 10); t.setAttribute("y", (y1+y2)/2);
+  t.setAttribute("fill", color); t.setAttribute("font-weight", "700"); t.setAttribute("font-size", "13");
+  t.textContent = label;
+  svg.appendChild(t);
+}
+
+// ===== Carnot chart =====
+function drawCarnot() {
+  const svg = document.getElementById("carnotSvg");
+  svg.innerHTML = "";
+  const W = 720, H = 280;
+  const padL = 60, padR = 30, padT = 30, padB = 50;
+  const cw = W-padL-padR, ch = H-padT-padB;
+
+  // Axes
+  for (let r = 0; r <= 1; r += 0.2) {
+    const x = padL + r * cw;
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", x); l.setAttribute("y1", padT); l.setAttribute("x2", x); l.setAttribute("y2", H-padB);
+    l.setAttribute("stroke", "#e2e8f0");
+    svg.appendChild(l);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", x); t.setAttribute("y", H-padB+16); t.setAttribute("text-anchor", "middle"); t.setAttribute("font-size", "11");
+    t.textContent = r.toFixed(1);
+    svg.appendChild(t);
+  }
+  for (let e = 0; e <= 100; e += 20) {
+    const y = padT + ch - (e/100) * ch;
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", padL); l.setAttribute("y1", y); l.setAttribute("x2", W-padR); l.setAttribute("y2", y);
+    l.setAttribute("stroke", "#e2e8f0");
+    svg.appendChild(l);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", padL-6); t.setAttribute("y", y+4); t.setAttribute("text-anchor", "end"); t.setAttribute("font-size", "11");
+    t.textContent = e + "%";
+    svg.appendChild(t);
+  }
+  // Curve η = 1 - r
+  let path = "";
+  for (let r = 0; r <= 1; r += 0.01) {
+    const eta = 1 - r;
+    const x = padL + r * cw;
+    const y = padT + ch - eta * ch;
+    path += (r === 0 ? "M " : " L ") + x + " " + y;
+  }
+  const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  p.setAttribute("d", path);
+  p.setAttribute("fill", "none"); p.setAttribute("stroke", "#1e40af"); p.setAttribute("stroke-width", 2.5);
+  svg.appendChild(p);
+
+  // Annotate
+  const ann = [
+    {r: 0.39, label: "Nhà máy hơi nước (η≈60%)"},
+    {r: 0.40, label: "Động cơ ô tô (η≈60%)"},
+    {r: 0.93, label: "Tủ lạnh: chênh T nhỏ, η<10%"}
+  ];
+  ann.forEach(a => {
+    const eta = 1 - a.r;
+    const x = padL + a.r * cw;
+    const y = padT + ch - eta * ch;
+    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", 5);
+    c.setAttribute("fill", "#dc2626");
+    svg.appendChild(c);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", x + 8); t.setAttribute("y", y - 5); t.setAttribute("font-size", "11"); t.setAttribute("fill", "#dc2626");
+    t.textContent = a.label;
+    svg.appendChild(t);
+  });
+
+  // Axis labels
+  const xLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  xLbl.setAttribute("x", W/2); xLbl.setAttribute("y", H-8); xLbl.setAttribute("text-anchor", "middle"); xLbl.setAttribute("font-weight", "700"); xLbl.setAttribute("font-size", "13");
+  xLbl.textContent = "T_c / T_h →";
+  svg.appendChild(xLbl);
+  const yLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  yLbl.setAttribute("x", 20); yLbl.setAttribute("y", 20); yLbl.setAttribute("font-weight", "700");
+  yLbl.textContent = "η_Carnot";
+  svg.appendChild(yLbl);
+}
+
+// Init
+resetDiff();
+calcEngine();
+drawCarnot();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

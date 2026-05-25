@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 02 — 3 định luật Newton</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  h3 { color: #4a5568; margin-top: 20px; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 130px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100px; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  button { background: #1e40af; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.muted { background: #94a3b8; }
+  button.muted.active { background: #1e40af; }
+  .stat { display: inline-block; background: #dbeafe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #1e40af; }
+  .result { padding: 14px; background: #dbeafe; border-radius: 8px; margin-top: 12px; }
+
+  svg.fbd, svg.fma, svg.elevator {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 560px; height: 360px;
+    background: linear-gradient(135deg, #f8fafc, #dbeafe);
+    border-radius: 8px;
+  }
+  svg.fbd .object, svg.fma .object, svg.elevator .object { fill: #94a3b8; stroke: #1a202c; stroke-width: 2; }
+  svg.fbd .force-arrow, svg.fma .force-arrow { stroke-width: 2.5; fill: none; }
+  svg.fbd .force-label, svg.fma .force-label { font: bold 13px sans-serif; }
+
+  table.law-compare {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+  }
+  table.law-compare th, table.law-compare td {
+    border: 1px solid #e2e8f0; padding: 8px 12px;
+    text-align: left;
+  }
+  table.law-compare th { background: #dbeafe; color: #1e40af; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Physics</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-kinematics/visualization.html">← L1: Động học</a>
+  <span class="sep">·</span>
+  <span class="current">L2: 3 định luật Newton</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L3: Các loại lực (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 02 — 3 định luật Newton</h1>
+<p>Bộ công cụ: F = m·a Calculator + visualization, Free Body Diagram cho 3 tình huống cổ điển, Elevator Simulator (lực biểu kiến).</p>
+
+<h2>1. F = m·a Calculator</h2>
+<div class="card">
+  <p>Cho 2 trong 3 đại lượng F, m, a → tính cái còn lại. Đặt 1 ô = 0.</p>
+  <div class="row">
+    <label>Lực F (N):</label>
+    <input type="number" id="fmaF" step="1" value="50" oninput="calcFMA()">
+    <label>Khối lượng m (kg):</label>
+    <input type="number" id="fmaM" step="0.5" value="10" oninput="calcFMA()">
+    <label>Gia tốc a (m/s²):</label>
+    <input type="number" id="fmaA" step="0.5" value="0" oninput="calcFMA()">
+  </div>
+
+  <svg class="fma" id="fmaSvg" viewBox="0 0 560 360"></svg>
+
+  <div class="result" id="fmaResult"></div>
+</div>
+
+<h2>2. Free Body Diagram</h2>
+<div class="card">
+  <div class="row">
+    <label>Tình huống:</label>
+    <button class="muted active" onclick="setFBD('book')">Sách trên bàn</button>
+    <button class="muted" onclick="setFBD('pull')">Kéo hộp (có ma sát)</button>
+    <button class="muted" onclick="setFBD('incline')">Mặt phẳng nghiêng</button>
+    <button class="muted" onclick="setFBD('hanging')">Vật treo dây</button>
+  </div>
+
+  <svg class="fbd" id="fbdSvg" viewBox="0 0 560 360"></svg>
+
+  <div class="result" id="fbdInfo"></div>
+</div>
+
+<h2>3. Elevator Simulator — Trọng lượng biểu kiến</h2>
+<div class="card">
+  <p>Khi thang máy tăng/giảm tốc, bạn cảm thấy "nặng" hoặc "nhẹ" hơn bình thường. Lực sàn thang đẩy bạn (N) = trọng lượng biểu kiến.</p>
+  <div class="row">
+    <label>Khối lượng (kg):</label>
+    <input type="number" id="elevM" step="1" value="70" oninput="updateElevator()">
+    <label>Gia tốc thang (m/s²):</label>
+    <input type="range" id="elevA" min="-9.8" max="5" step="0.1" value="0" oninput="updateElevator()">
+    <span class="stat">a = <strong id="elevAVal">0</strong> m/s²</span>
+  </div>
+  <div class="row">
+    <button class="muted" onclick="setElevA(0)">Đứng yên (a = 0)</button>
+    <button class="muted" onclick="setElevA(2)">Tăng tốc lên (a = +2)</button>
+    <button class="muted" onclick="setElevA(-2)">Tăng tốc xuống (a = −2)</button>
+    <button class="muted" onclick="setElevA(-9.8)">Rơi tự do (a = −g)</button>
+  </div>
+
+  <svg class="elevator" id="elevatorSvg" viewBox="0 0 560 360"></svg>
+
+  <div class="result" id="elevResult"></div>
+</div>
+
+<h2>4. Bảng so sánh 3 định luật</h2>
+<div class="card">
+  <table class="law-compare">
+    <tr>
+      <th>Định luật</th>
+      <th>Phát biểu</th>
+      <th>Ví dụ trực giác</th>
+    </tr>
+    <tr>
+      <td><strong>I — Quán tính</strong></td>
+      <td>F_net = 0 → v không đổi (đứng yên hoặc chuyển động đều)</td>
+      <td>Xe phanh đột ngột — thân bị xô về trước</td>
+    </tr>
+    <tr>
+      <td><strong>II — F = m·a</strong></td>
+      <td>F = m·a; gia tốc tỉ lệ thuận với lực, tỉ lệ nghịch khối lượng</td>
+      <td>Đẩy xe đạp dễ hơn ô tô (m khác nhau)</td>
+    </tr>
+    <tr>
+      <td><strong>III — Lực và phản lực</strong></td>
+      <td>F(A→B) = −F(B→A), 2 lực bằng nhau ngược chiều, trên <strong>2 vật khác</strong></td>
+      <td>Tên lửa: khí phụt xuống → khí đẩy tên lửa lên</td>
+    </tr>
+  </table>
+</div>
+
+</main>
+
+<script>
+// ===== F = m·a Calculator =====
+function calcFMA() {
+  let F = parseFloat(document.getElementById("fmaF").value);
+  let m = parseFloat(document.getElementById("fmaM").value);
+  let a = parseFloat(document.getElementById("fmaA").value);
+
+  let result = "";
+  if (a === 0 && F !== 0 && m !== 0) {
+    a = F / m;
+    result = `a = F / m = ${F} / ${m} = <strong>${a.toFixed(3)} m/s²</strong>`;
+  } else if (F === 0 && m !== 0 && a !== 0) {
+    F = m * a;
+    result = `F = m · a = ${m} × ${a} = <strong>${F.toFixed(2)} N</strong>`;
+  } else if (m === 0 && F !== 0 && a !== 0) {
+    m = F / a;
+    result = `m = F / a = ${F} / ${a} = <strong>${m.toFixed(2)} kg</strong>`;
+  } else {
+    result = "Đặt 1 ô = 0 để biết cần tính cái nào.";
+  }
+
+  document.getElementById("fmaResult").innerHTML = result;
+  drawFMA(F, m, a);
+}
+
+function drawFMA(F, m, a) {
+  const svg = document.getElementById("fmaSvg");
+  svg.innerHTML = "";
+  // Box (object)
+  const sz = Math.max(40, Math.min(120, m * 2));
+  const cx = 280, cy = 180;
+  const box = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  box.setAttribute("class", "object");
+  box.setAttribute("x", cx - sz/2); box.setAttribute("y", cy - sz/2);
+  box.setAttribute("width", sz); box.setAttribute("height", sz);
+  box.setAttribute("rx", 4);
+  svg.appendChild(box);
+  const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  lbl.setAttribute("x", cx); lbl.setAttribute("y", cy + 5);
+  lbl.setAttribute("text-anchor", "middle"); lbl.setAttribute("font-weight", "700");
+  lbl.textContent = m + " kg";
+  svg.appendChild(lbl);
+
+  // Force arrow (right)
+  if (F !== 0) {
+    const arrowLen = Math.min(150, Math.abs(F) * 3);
+    const dir = F > 0 ? 1 : -1;
+    const x1 = cx + dir * sz / 2;
+    const x2 = x1 + dir * arrowLen;
+    const arrow = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    arrow.setAttribute("class", "force-arrow");
+    arrow.setAttribute("x1", x1); arrow.setAttribute("y1", cy);
+    arrow.setAttribute("x2", x2); arrow.setAttribute("y2", cy);
+    arrow.setAttribute("stroke", "#dc2626");
+    arrow.setAttribute("marker-end", "url(#arr_F)");
+    svg.appendChild(arrow);
+    const fLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    fLbl.setAttribute("x", (x1 + x2) / 2); fLbl.setAttribute("y", cy - 10);
+    fLbl.setAttribute("text-anchor", "middle"); fLbl.setAttribute("fill", "#dc2626"); fLbl.setAttribute("font-weight", "700"); fLbl.setAttribute("font-size", "14");
+    fLbl.textContent = "F = " + Math.abs(F) + " N";
+    svg.appendChild(fLbl);
+  }
+
+  // Acceleration arrow (below)
+  if (a !== 0) {
+    const arrowLen = Math.min(120, Math.abs(a) * 15);
+    const dir = a > 0 ? 1 : -1;
+    const x1 = cx + dir * sz / 2;
+    const x2 = x1 + dir * arrowLen;
+    const arrow = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    arrow.setAttribute("class", "force-arrow");
+    arrow.setAttribute("x1", x1); arrow.setAttribute("y1", cy + sz);
+    arrow.setAttribute("x2", x2); arrow.setAttribute("y2", cy + sz);
+    arrow.setAttribute("stroke", "#047857");
+    arrow.setAttribute("marker-end", "url(#arr_a)");
+    svg.appendChild(arrow);
+    const aLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    aLbl.setAttribute("x", (x1 + x2) / 2); aLbl.setAttribute("y", cy + sz + 25);
+    aLbl.setAttribute("text-anchor", "middle"); aLbl.setAttribute("fill", "#047857"); aLbl.setAttribute("font-weight", "700"); aLbl.setAttribute("font-size", "14");
+    aLbl.textContent = "a = " + a.toFixed(2) + " m/s²";
+    svg.appendChild(aLbl);
+  }
+
+  // Marker defs
+  const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+  defs.innerHTML = `
+    <marker id="arr_F" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626"/></marker>
+    <marker id="arr_a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#047857"/></marker>
+  `;
+  svg.appendChild(defs);
+}
+
+// ===== FBD =====
+const FBD_CONFIGS = {
+  book: {
+    title: "Sách trên bàn (đứng yên)",
+    draw: (svg) => {
+      // Table
+      const table = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      table.setAttribute("x", 100); table.setAttribute("y", 240);
+      table.setAttribute("width", 360); table.setAttribute("height", 12);
+      table.setAttribute("fill", "#92400e");
+      svg.appendChild(table);
+      // Book
+      drawObject(svg, 280, 220, 80, 30, "Sách");
+      // Forces: N (up), W (down)
+      drawArrow(svg, 280, 205, 280, 130, "#1d4ed8", "N (pháp tuyến)");
+      drawArrow(svg, 280, 250, 280, 325, "#dc2626", "W (trọng lực)");
+    },
+    info: "<strong>Phân tích lực:</strong> Sách đứng yên → tổng lực = 0 → <strong>N = W = m·g</strong>. Đây là 2 lực CÂN BẰNG (cùng tác dụng lên sách) — KHÔNG phải cặp lực-phản lực Newton III."
+  },
+  pull: {
+    title: "Kéo hộp trên sàn có ma sát",
+    draw: (svg) => {
+      // Floor
+      const floor = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      floor.setAttribute("x", 0); floor.setAttribute("y", 250);
+      floor.setAttribute("width", 560); floor.setAttribute("height", 8);
+      floor.setAttribute("fill", "#475569");
+      svg.appendChild(floor);
+      drawObject(svg, 280, 220, 80, 60, "Hộp");
+      // Forces
+      drawArrow(svg, 320, 220, 420, 220, "#dc2626", "T (kéo)");
+      drawArrow(svg, 240, 220, 170, 220, "#7c3aed", "f (ma sát)");
+      drawArrow(svg, 280, 190, 280, 110, "#1d4ed8", "N");
+      drawArrow(svg, 280, 250, 280, 340, "#dc2626", "W");
+    },
+    info: "<strong>Phân tích:</strong> Trục y: N − W = 0 → N = W. Trục x: T − f = m·a → a = (T − f)/m. Nếu T > f thì hộp tăng tốc, ngược lại thì giảm tốc."
+  },
+  incline: {
+    title: "Vật trên mặt phẳng nghiêng (30°)",
+    draw: (svg) => {
+      // Incline
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", "M 60 280 L 460 100 L 460 290 Z");
+      path.setAttribute("fill", "#92400e");
+      svg.appendChild(path);
+      // Object on incline (rotated)
+      const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      g.setAttribute("transform", "translate(260,190) rotate(-24)");
+      const obj = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      obj.setAttribute("class", "object");
+      obj.setAttribute("x", -25); obj.setAttribute("y", -15);
+      obj.setAttribute("width", 50); obj.setAttribute("height", 30);
+      g.appendChild(obj);
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t.setAttribute("x", 0); t.setAttribute("y", 5);
+      t.setAttribute("text-anchor", "middle"); t.setAttribute("font-weight", "700"); t.setAttribute("font-size", "11");
+      t.textContent = "Vật";
+      g.appendChild(t);
+      svg.appendChild(g);
+      // Forces: N (perpendicular to incline), W (down)
+      drawArrow(svg, 260, 190, 200, 60, "#1d4ed8", "N");
+      drawArrow(svg, 260, 190, 260, 320, "#dc2626", "W");
+      // W components
+      drawArrow(svg, 260, 190, 320, 230, "#047857", "W·sinθ (kéo xuống dốc)");
+      // Angle label
+      const ang = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      ang.setAttribute("x", 110); ang.setAttribute("y", 295);
+      ang.setAttribute("font-weight", "700");
+      ang.textContent = "θ = 30°";
+      svg.appendChild(ang);
+    },
+    info: "<strong>Phân tích W theo 2 trục:</strong><br>• Song song dốc (xuống): W·sinθ = m·g·sin30° = 0.5 m·g.<br>• Vuông góc dốc: W·cosθ = m·g·cos30° ≈ 0.866 m·g (cân bằng N).<br><strong>Gia tốc trượt xuống (không ma sát)</strong> = g·sinθ = 9.8 × 0.5 = <strong>4.9 m/s²</strong>."
+  },
+  hanging: {
+    title: "Vật treo dây (đứng yên)",
+    draw: (svg) => {
+      // Ceiling
+      const c = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      c.setAttribute("x", 0); c.setAttribute("y", 50);
+      c.setAttribute("width", 560); c.setAttribute("height", 12);
+      c.setAttribute("fill", "#475569");
+      svg.appendChild(c);
+      // String
+      const str = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      str.setAttribute("x1", 280); str.setAttribute("y1", 62);
+      str.setAttribute("x2", 280); str.setAttribute("y2", 200);
+      str.setAttribute("stroke", "#1a202c"); str.setAttribute("stroke-width", 1.5);
+      svg.appendChild(str);
+      drawObject(svg, 280, 220, 60, 40, "Vật");
+      // Forces
+      drawArrow(svg, 280, 200, 280, 110, "#1d4ed8", "T (dây)");
+      drawArrow(svg, 280, 250, 280, 330, "#dc2626", "W");
+    },
+    info: "<strong>Phân tích:</strong> Vật đứng yên → T = W = m·g.<br><strong>Cặp định luật III thật sự:</strong> dây kéo vật lên (T) ↔ vật kéo dây xuống (T'). Đây là 2 lực bằng nhau ngược chiều TRÊN 2 vật khác."
+  }
+};
+
+function drawObject(svg, cx, cy, w, h, label) {
+  const r = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  r.setAttribute("class", "object");
+  r.setAttribute("x", cx - w/2); r.setAttribute("y", cy - h/2);
+  r.setAttribute("width", w); r.setAttribute("height", h);
+  r.setAttribute("rx", 4);
+  svg.appendChild(r);
+  const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  t.setAttribute("x", cx); t.setAttribute("y", cy + 5);
+  t.setAttribute("text-anchor", "middle"); t.setAttribute("font-weight", "700");
+  t.textContent = label;
+  svg.appendChild(t);
+}
+
+function drawArrow(svg, x1, y1, x2, y2, color, label) {
+  const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  line.setAttribute("x1", x1); line.setAttribute("y1", y1);
+  line.setAttribute("x2", x2); line.setAttribute("y2", y2);
+  line.setAttribute("stroke", color); line.setAttribute("stroke-width", 3);
+  // Arrow head manually
+  const dx = x2 - x1, dy = y2 - y1, len = Math.sqrt(dx*dx + dy*dy);
+  const ux = dx / len, uy = dy / len;
+  const hx = x2 - ux * 12, hy = y2 - uy * 12;
+  const wx = -uy * 6, wy = ux * 6;
+  const head = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  head.setAttribute("points", `${x2},${y2} ${hx + wx},${hy + wy} ${hx - wx},${hy - wy}`);
+  head.setAttribute("fill", color);
+  svg.appendChild(line);
+  svg.appendChild(head);
+  // Label
+  const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  t.setAttribute("x", x2 + ux * 10 + (y2 < y1 ? 0 : 0));
+  t.setAttribute("y", y2 + (y2 > y1 ? 18 : -8));
+  t.setAttribute("fill", color); t.setAttribute("font-weight", "700"); t.setAttribute("font-size", "13");
+  t.setAttribute("text-anchor", "middle");
+  t.textContent = label;
+  svg.appendChild(t);
+}
+
+function setFBD(key) {
+  document.querySelectorAll("button.muted").forEach(b => {
+    let modeMatch = b.getAttribute("onclick")?.includes(`'${key}'`);
+    b.classList.toggle("active", modeMatch);
+  });
+  const cfg = FBD_CONFIGS[key];
+  const svg = document.getElementById("fbdSvg");
+  svg.innerHTML = "";
+  cfg.draw(svg);
+  document.getElementById("fbdInfo").innerHTML = `<h3 style="margin-top:0">${cfg.title}</h3>${cfg.info}`;
+}
+
+// ===== Elevator =====
+function setElevA(a) {
+  document.getElementById("elevA").value = a;
+  updateElevator();
+}
+
+function updateElevator() {
+  const m = parseFloat(document.getElementById("elevM").value);
+  const a = parseFloat(document.getElementById("elevA").value);
+  document.getElementById("elevAVal").textContent = a.toFixed(1);
+  const W = m * 9.8;
+  const N = m * (9.8 + a); // = m·g + m·a
+  const ratio = N / W;
+
+  let feel = "";
+  if (Math.abs(a) < 0.05) feel = "Cảm giác bình thường (N = W).";
+  else if (a > 0) feel = `Cảm giác <strong>nặng hơn ${(ratio * 100 - 100).toFixed(0)}%</strong> (thang máy tăng tốc lên).`;
+  else if (a > -9.8) feel = `Cảm giác <strong>nhẹ hơn ${((1 - ratio) * 100).toFixed(0)}%</strong> (thang máy tăng tốc xuống).`;
+  else feel = `<strong>Mất trọng lượng hoàn toàn!</strong> (N = 0, rơi tự do)`;
+
+  document.getElementById("elevResult").innerHTML = `
+    <h3 style="margin-top:0">Lực sàn thang đẩy bạn (= trọng lượng biểu kiến)</h3>
+    <div class="row">
+      <span class="stat">Trọng lượng thật W = m·g = <strong>${W.toFixed(1)} N</strong></span>
+      <span class="stat">Lực N = m·(g + a) = <strong>${Math.max(0, N).toFixed(1)} N</strong></span>
+    </div>
+    <div style="margin-top:8px">${feel}</div>
+    <div class="step" style="margin-top:8px; font-size:13px; padding:8px; background:#f8fafc; border-left:3px solid #1e40af">
+      Áp dụng F = m·a trên người: N − W = m·a → N = W + m·a = m·(g + a).
+    </div>
+  `;
+
+  drawElevator(a, ratio);
+}
+
+function drawElevator(a, ratio) {
+  const svg = document.getElementById("elevatorSvg");
+  svg.innerHTML = "";
+  // Elevator box
+  const eBox = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  eBox.setAttribute("x", 180); eBox.setAttribute("y", 50);
+  eBox.setAttribute("width", 200); eBox.setAttribute("height", 280);
+  eBox.setAttribute("fill", "none"); eBox.setAttribute("stroke", "#475569"); eBox.setAttribute("stroke-width", 3);
+  svg.appendChild(eBox);
+  // Floor (with shading by N)
+  const fcolor = ratio > 1 ? "#fee2e2" : ratio < 1 ? "#dbeafe" : "#f1f5f9";
+  const floor = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  floor.setAttribute("x", 184); floor.setAttribute("y", 280);
+  floor.setAttribute("width", 192); floor.setAttribute("height", 48);
+  floor.setAttribute("fill", fcolor);
+  svg.appendChild(floor);
+  // Person (stick figure)
+  const px = 280;
+  const head = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  head.setAttribute("cx", px); head.setAttribute("cy", 170); head.setAttribute("r", 16);
+  head.setAttribute("fill", "#fbbf24"); head.setAttribute("stroke", "#1a202c"); head.setAttribute("stroke-width", 2);
+  svg.appendChild(head);
+  // Body
+  const body = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  body.setAttribute("x1", px); body.setAttribute("y1", 186);
+  body.setAttribute("x2", px); body.setAttribute("y2", 260);
+  body.setAttribute("stroke", "#1a202c"); body.setAttribute("stroke-width", 3);
+  svg.appendChild(body);
+  // Arms
+  ["-30","30"].forEach(dx => {
+    const a = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    a.setAttribute("x1", px); a.setAttribute("y1", 210);
+    a.setAttribute("x2", px + parseInt(dx)); a.setAttribute("y2", 240);
+    a.setAttribute("stroke", "#1a202c"); a.setAttribute("stroke-width", 3);
+    svg.appendChild(a);
+  });
+  // Legs
+  ["-20","20"].forEach(dx => {
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", px); l.setAttribute("y1", 260);
+    l.setAttribute("x2", px + parseInt(dx)); l.setAttribute("y2", 280);
+    l.setAttribute("stroke", "#1a202c"); l.setAttribute("stroke-width", 3);
+    svg.appendChild(l);
+  });
+
+  // N arrow (up from feet)
+  const nLen = Math.max(20, ratio * 80);
+  drawArrow(svg, 260, 280, 260, 280 - nLen, "#1d4ed8", "N");
+  drawArrow(svg, 300, 280, 300, 360, "#dc2626", "W");
+
+  // Acceleration arrow on elevator
+  if (Math.abs(a) > 0.1) {
+    drawArrow(svg, 380, 190, 380, 190 + Math.sign(a) * -50, "#047857", "a thang");
+  }
+}
+
+// Init
+calcFMA();
+setFBD("book");
+updateElevator();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

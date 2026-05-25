@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 05 — Hình học phân tử (VSEPR)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  h3 { color: #4a5568; margin-top: 20px; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 100px; }
+  select, input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; background: white; font-family: monospace; }
+  input[type="number"] { width: 70px; }
+  button { background: #be185d; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button:hover { background: #9d174d; }
+  .stat { display: inline-block; background: #fce7f3; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #be185d; }
+
+  svg.geo {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 480px; height: 360px;
+    background: linear-gradient(135deg, #f8fafc, #fce7f3);
+    border-radius: 8px;
+  }
+  svg.geo .center { fill: #be185d; stroke: #1a202c; stroke-width: 2; }
+  svg.geo .atom { fill: #3b82f6; stroke: #1e3a8a; stroke-width: 1.5; }
+  svg.geo .lone { fill: none; stroke: #f59e0b; stroke-width: 2; stroke-dasharray: 4 3; }
+  svg.geo .lone-dot { fill: #f59e0b; }
+  svg.geo .bond { stroke: #1a202c; stroke-width: 2; }
+  svg.geo .bond-back { stroke: #94a3b8; stroke-width: 1.5; stroke-dasharray: 3 3; }
+  svg.geo .lbl { font: bold 14px sans-serif; fill: #1a202c; text-anchor: middle; }
+  svg.geo .ang-label { font: 11px sans-serif; fill: #be185d; text-anchor: middle; font-weight: 700; }
+
+  .gallery {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .gallery .item {
+    border: 2px solid #e2e8f0; border-radius: 8px; padding: 10px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .gallery .item:hover { border-color: #be185d; transform: translateY(-2px); }
+  .gallery .item.active { border-color: #be185d; background: #fce7f3; }
+  .gallery .item .formula { font-size: 16px; font-weight: 700; color: #be185d; }
+  .gallery .item .shape { font-size: 13px; color: #475569; margin-top: 4px; }
+
+  .summary-table {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+  }
+  .summary-table th, .summary-table td {
+    border: 1px solid #e2e8f0; padding: 6px 10px;
+    text-align: left;
+  }
+  .summary-table th { background: #fce7f3; color: #be185d; }
+  .summary-table tr:hover { background: #fef3c7; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Chemistry</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-intermolecular-forces/visualization.html">← L4: Lực liên phân tử</a>
+  <span class="sep">·</span>
+  <span class="current">L5: VSEPR</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L6: Mol &amp; phản ứng (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 05 — Hình học phân tử (VSEPR)</h1>
+<p>Bộ công cụ: 3D viewer cho 12 hình học khác nhau, gallery click-to-view, và bảng tra cứu nhanh SN/lone pair → hình học.</p>
+
+<h2>1. VSEPR Viewer — chọn SN & lone pair</h2>
+<div class="card">
+  <div class="row">
+    <label>SN (steric number):</label>
+    <input type="number" id="snInput" min="2" max="6" value="4">
+    <label>Số lone pair:</label>
+    <input type="number" id="lpInput" min="0" max="3" value="0">
+    <button onclick="updateGeo()">Vẽ</button>
+  </div>
+  <svg class="geo" id="geoSvg" viewBox="0 0 480 360"></svg>
+  <div id="geoInfo" style="padding:14px; background:#fce7f3; border-radius:6px"></div>
+</div>
+
+<h2>2. Gallery — 12 phân tử thường gặp</h2>
+<div class="card">
+  <div class="gallery" id="gallery"></div>
+</div>
+
+<h2>3. Bảng tra cứu hình học</h2>
+<div class="card">
+  <table class="summary-table" id="summaryTable"></table>
+</div>
+
+</main>
+
+<script>
+// Geometry data: SN, LP → name + position fn (2D projection)
+const GEOMETRIES = {
+  "2-0": {name:"Linear", angle:"180°", positions: [{a:0}, {a:180}], lp:[]},
+  "3-0": {name:"Trigonal planar", angle:"120°", positions: [{a:90},{a:210},{a:330}], lp:[]},
+  "3-1": {name:"Bent (V-shape)", angle:"~ 119°", positions: [{a:210},{a:330}], lp:[{a:90}]},
+  "4-0": {name:"Tetrahedral", angle:"109.5°", positions: [
+    {a:90, r:1, depth:1}, {a:210, r:1, depth:1}, {a:330, r:1, depth:1}, {a:270, r:0.8, depth:-1}], lp:[]},
+  "4-1": {name:"Trigonal pyramidal", angle:"~ 107°", positions: [
+    {a:90, r:1}, {a:210, r:1}, {a:330, r:1}], lp:[{a:270, r:0.8, depth:-1}]},
+  "4-2": {name:"Bent", angle:"~ 104.5°", positions: [
+    {a:30}, {a:150}], lp:[{a:240, r:0.8}, {a:300, r:0.8}]},
+  "5-0": {name:"Trigonal bipyramidal", angle:"90°, 120°", positions: [
+    {a:90, label:"axial"},
+    {a:210, r:0.9, label:"eq"}, {a:330, r:0.9, label:"eq"}, {a:270, r:0.9, label:"eq"},
+    {a:270, dy:-100, label:"axial"}
+  ], lp:[]},
+  "5-1": {name:"See-saw", angle:"~ 89°, 119°", positions: [
+    {a:90}, {a:210, r:0.9}, {a:330, r:0.9}, {a:270, dy:-100}
+  ], lp:[{a:180}]},
+  "5-2": {name:"T-shape", angle:"~ 87°", positions: [
+    {a:90}, {a:330, r:0.9}, {a:270, dy:-100}
+  ], lp:[{a:210}, {a:180, r:0.8}]},
+  "5-3": {name:"Linear", angle:"180°", positions: [{a:90}, {a:270, dy:-100}], lp:[{a:210},{a:330},{a:180}]},
+  "6-0": {name:"Octahedral", angle:"90°", positions: [
+    {a:90}, {a:270}, {a:0}, {a:180}, {a:135, r:0.6, depth:1}, {a:315, r:0.6, depth:-1}
+  ], lp:[]},
+  "6-1": {name:"Square pyramidal", angle:"~ 90°", positions: [
+    {a:90}, {a:0}, {a:180}, {a:135, r:0.6, depth:1}, {a:315, r:0.6, depth:-1}
+  ], lp:[{a:270}]},
+  "6-2": {name:"Square planar", angle:"90°", positions: [
+    {a:0}, {a:90}, {a:180}, {a:270}
+  ], lp:[{a:135, r:0.6, depth:1}, {a:315, r:0.6, depth:-1}]}
+};
+
+// Examples for each
+const EXAMPLES = {
+  "2-0": "CO₂, BeCl₂, HCN",
+  "3-0": "BF₃, BCl₃, HCHO",
+  "3-1": "SO₂, O₃",
+  "4-0": "CH₄, CCl₄, NH₄⁺",
+  "4-1": "NH₃, PH₃, H₃O⁺",
+  "4-2": "H₂O, H₂S",
+  "5-0": "PCl₅, PF₅",
+  "5-1": "SF₄",
+  "5-2": "ClF₃",
+  "5-3": "XeF₂",
+  "6-0": "SF₆, SeF₆",
+  "6-1": "BrF₅",
+  "6-2": "XeF₄"
+};
+
+function drawGeo(svgId, sn, lp) {
+  const key = `${sn}-${lp}`;
+  const g = GEOMETRIES[key];
+  const svg = document.getElementById(svgId);
+  svg.innerHTML = "";
+  if (!g) {
+    const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    txt.setAttribute("x", 240); txt.setAttribute("y", 180);
+    txt.setAttribute("text-anchor", "middle");
+    txt.textContent = `Không có hình học nào với SN=${sn}, LP=${lp}`;
+    svg.appendChild(txt);
+    return;
+  }
+
+  const cx = 240, cy = 180;
+  const R = 110;
+
+  // Center atom
+  const center = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  center.setAttribute("class", "center");
+  center.setAttribute("cx", cx); center.setAttribute("cy", cy); center.setAttribute("r", 22);
+  svg.appendChild(center);
+  const cLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  cLbl.setAttribute("class", "lbl");
+  cLbl.setAttribute("x", cx); cLbl.setAttribute("y", cy + 5);
+  cLbl.setAttribute("fill", "white");
+  cLbl.textContent = "A";
+  svg.appendChild(cLbl);
+
+  // Bonded atoms
+  g.positions.forEach((p, i) => {
+    const r = (p.r || 1) * R;
+    const ang = (p.a) * Math.PI / 180;
+    const x = cx + r * Math.cos(ang);
+    const y = cy - r * Math.sin(ang) + (p.dy || 0);
+    const depth = p.depth || 0;
+    // Bond
+    const bond = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    bond.setAttribute("class", depth < 0 ? "bond-back" : "bond");
+    bond.setAttribute("x1", cx); bond.setAttribute("y1", cy);
+    bond.setAttribute("x2", x); bond.setAttribute("y2", y);
+    svg.appendChild(bond);
+    // Atom
+    const atom = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    atom.setAttribute("class", "atom");
+    atom.setAttribute("cx", x); atom.setAttribute("cy", y); atom.setAttribute("r", 16);
+    svg.appendChild(atom);
+    const aLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    aLbl.setAttribute("class", "lbl");
+    aLbl.setAttribute("x", x); aLbl.setAttribute("y", y + 4);
+    aLbl.setAttribute("fill", "white");
+    aLbl.setAttribute("font-size", "12");
+    aLbl.textContent = "X";
+    svg.appendChild(aLbl);
+  });
+
+  // Lone pairs
+  (g.lp || []).forEach(lpInfo => {
+    const r = (lpInfo.r || 1) * R * 0.7;
+    const ang = lpInfo.a * Math.PI / 180;
+    const x = cx + r * Math.cos(ang);
+    const y = cy - r * Math.sin(ang) + (lpInfo.dy || 0);
+    // Dashed cloud
+    const cloud = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
+    cloud.setAttribute("class", "lone");
+    cloud.setAttribute("cx", x); cloud.setAttribute("cy", y);
+    cloud.setAttribute("rx", 16); cloud.setAttribute("ry", 11);
+    svg.appendChild(cloud);
+    // 2 dots
+    [-5, 5].forEach(dx => {
+      const d = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      d.setAttribute("class", "lone-dot");
+      d.setAttribute("cx", x + dx); d.setAttribute("cy", y);
+      d.setAttribute("r", 2.5);
+      svg.appendChild(d);
+    });
+    // Label
+    const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lbl.setAttribute("class", "ang-label");
+    lbl.setAttribute("x", x); lbl.setAttribute("y", y + 28);
+    lbl.setAttribute("fill", "#f59e0b");
+    lbl.textContent = "lone pair";
+    svg.appendChild(lbl);
+  });
+
+  // Angle label at top
+  const angLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  angLbl.setAttribute("class", "ang-label");
+  angLbl.setAttribute("x", cx); angLbl.setAttribute("y", 28);
+  angLbl.setAttribute("font-size", "16");
+  angLbl.textContent = `${g.name} — ${g.angle}`;
+  svg.appendChild(angLbl);
+}
+
+function updateGeo() {
+  const sn = parseInt(document.getElementById("snInput").value);
+  const lp = parseInt(document.getElementById("lpInput").value);
+  drawGeo("geoSvg", sn, lp);
+  const key = `${sn}-${lp}`;
+  const g = GEOMETRIES[key];
+  const info = document.getElementById("geoInfo");
+  if (g) {
+    info.innerHTML = `
+      <h3 style="margin:0 0 8px">${g.name}</h3>
+      <div class="row">
+        <span class="stat">SN = <strong>${sn}</strong></span>
+        <span class="stat">Bonding pair = <strong>${sn - lp}</strong></span>
+        <span class="stat">Lone pair = <strong>${lp}</strong></span>
+        <span class="stat">Góc = <strong>${g.angle}</strong></span>
+      </div>
+      <div style="margin-top:8px"><strong>Ví dụ phân tử:</strong> ${EXAMPLES[key]}</div>
+    `;
+  } else {
+    info.textContent = "Cấu hình không hợp lệ.";
+  }
+}
+
+document.getElementById("snInput").addEventListener("input", updateGeo);
+document.getElementById("lpInput").addEventListener("input", updateGeo);
+
+// Build gallery
+function buildGallery() {
+  const examples = [
+    {sn:2, lp:0, label:"CO₂"},
+    {sn:3, lp:0, label:"BF₃"},
+    {sn:3, lp:1, label:"SO₂"},
+    {sn:4, lp:0, label:"CH₄"},
+    {sn:4, lp:1, label:"NH₃"},
+    {sn:4, lp:2, label:"H₂O"},
+    {sn:5, lp:0, label:"PCl₅"},
+    {sn:5, lp:1, label:"SF₄"},
+    {sn:5, lp:2, label:"ClF₃"},
+    {sn:6, lp:0, label:"SF₆"},
+    {sn:6, lp:1, label:"BrF₅"},
+    {sn:6, lp:2, label:"XeF₄"}
+  ];
+  const gal = document.getElementById("gallery");
+  examples.forEach(e => {
+    const item = document.createElement("div");
+    item.className = "item";
+    const key = `${e.sn}-${e.lp}`;
+    const g = GEOMETRIES[key];
+    item.innerHTML = `
+      <div class="formula">${e.label}</div>
+      <div class="shape">${g.name}<br><small style="color:#94a3b8">SN=${e.sn}, LP=${e.lp}, ${g.angle}</small></div>
+    `;
+    item.onclick = () => {
+      document.querySelectorAll(".gallery .item").forEach(i => i.classList.remove("active"));
+      item.classList.add("active");
+      document.getElementById("snInput").value = e.sn;
+      document.getElementById("lpInput").value = e.lp;
+      updateGeo();
+      window.scrollTo({top: 200, behavior: "smooth"});
+    };
+    gal.appendChild(item);
+  });
+}
+
+// Summary table
+function buildSummary() {
+  const tbl = document.getElementById("summaryTable");
+  const rows = [
+    ["SN", "LP", "Hình học cặp e", "Hình học phân tử", "Góc", "Ví dụ"],
+    [2,0,"Linear","Linear","180°","CO₂, BeCl₂, HCN"],
+    [3,0,"Trigonal planar","Trigonal planar","120°","BF₃, BCl₃"],
+    [3,1,"Trigonal planar","Bent","~ 119°","SO₂, O₃"],
+    [4,0,"Tetrahedral","Tetrahedral","109.5°","CH₄, CCl₄"],
+    [4,1,"Tetrahedral","Trigonal pyramidal","~ 107°","NH₃, PH₃"],
+    [4,2,"Tetrahedral","Bent","~ 104.5°","H₂O, H₂S"],
+    [5,0,"Trigonal bipyramidal","Trigonal bipyramidal","90°, 120°","PCl₅, PF₅"],
+    [5,1,"Trigonal bipyramidal","See-saw","~ 89°, 119°","SF₄"],
+    [5,2,"Trigonal bipyramidal","T-shape","~ 87°","ClF₃"],
+    [5,3,"Trigonal bipyramidal","Linear","180°","XeF₂"],
+    [6,0,"Octahedral","Octahedral","90°","SF₆, SeF₆"],
+    [6,1,"Octahedral","Square pyramidal","~ 90°","BrF₅"],
+    [6,2,"Octahedral","Square planar","90°","XeF₄"]
+  ];
+  tbl.innerHTML = rows.map((r, i) => {
+    const tag = i === 0 ? "th" : "td";
+    return `<tr>${r.map(c => `<${tag}>${c}</${tag}>`).join("")}</tr>`;
+  }).join("");
+}
+
+// Init
+buildGallery();
+buildSummary();
+updateGeo();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 06 (T3) — Hạt nhân &amp; Phóng xạ</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 130px; }
+  input[type="number"], select { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; }
+  input[type="number"] { width: 110px; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  .stat { display: inline-block; background: #dbeafe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #1e40af; }
+  .result { padding: 14px; background: #dbeafe; border-radius: 8px; margin-top: 12px; }
+  svg.scene {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 720px; height: 280px;
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Physics</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-atom-bohr-orbital/visualization.html">← L5: Bohr</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Hạt nhân &amp; Phóng xạ</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L7: Fission/Fusion (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 06 (T3) — Hạt nhân &amp; Phóng xạ</h1>
+<p>Bộ công cụ: Half-Life Decay Simulator, Isotope Decay Calculator.</p>
+
+<h2>1. Half-Life Decay Simulator</h2>
+<div class="card">
+  <div class="row">
+    <label>Đồng vị:</label>
+    <select id="decayIso" onchange="setHalfLife()">
+      <option value="5730,C-14">C-14 (t½ = 5730 năm)</option>
+      <option value="4.5e9,U-238">U-238 (t½ = 4.5 tỷ năm)</option>
+      <option value="0.022,I-131">I-131 (t½ = 8 ngày = 0.022 năm)</option>
+      <option value="6.85e-4,Tc-99m">Tc-99m (t½ = 6 giờ)</option>
+      <option value="138,Po-210">Po-210 (t½ = 138 ngày = 0.378 năm)</option>
+      <option value="3.8,Rn-222">Rn-222 (t½ = 3.8 ngày = 0.0104 năm)</option>
+    </select>
+  </div>
+  <div class="row">
+    <label>Thời gian (đơn vị tương ứng):</label>
+    <input type="range" id="decayT" min="0" max="40000" step="100" value="11460" oninput="updateDecay()">
+    <span class="stat">t = <strong id="tVal">11460</strong></span>
+  </div>
+  <div class="result" id="decayResult"></div>
+</div>
+
+</main>
+
+<script>
+let halfLife = 5730;
+let halfLifeUnit = "năm";
+
+function setHalfLife() {
+  const [t, name] = document.getElementById("decayIso").value.split(",");
+  halfLife = parseFloat(t);
+  // Set unit
+  if (name === "I-131" || name === "Po-210" || name === "Rn-222") halfLifeUnit = "ngày";
+  else if (name === "Tc-99m") halfLifeUnit = "giờ";
+  else halfLifeUnit = "năm";
+  // Adjust range
+  const slider = document.getElementById("decayT");
+  slider.max = halfLife * 8;
+  slider.step = halfLife / 100;
+  slider.value = halfLife * 2;
+  updateDecay();
+}
+
+function updateDecay() {
+  const t = parseFloat(document.getElementById("decayT").value);
+  document.getElementById("tVal").textContent = t.toFixed(t < 10 ? 2 : 0) + " " + halfLifeUnit;
+  const halves = t / halfLife;
+  const remaining = Math.pow(0.5, halves) * 100;
+
+  document.getElementById("decayResult").innerHTML = `
+    <div class="row">
+      <span class="stat">t / t½ = <strong>${halves.toFixed(3)}</strong> chu kỳ</span>
+      <span class="stat">Còn lại: <strong>${remaining.toFixed(3)}%</strong></span>
+      <span class="stat">Đã phân rã: <strong>${(100-remaining).toFixed(3)}%</strong></span>
+    </div>
+    <div style="margin-top:8px; font-family:monospace; font-size:14px">
+      N(t) = N₀ · (1/2)^(${halves.toFixed(2)}) = N₀ × ${(remaining/100).toFixed(4)}
+    </div>
+  `;
+}
+
+setHalfLife();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

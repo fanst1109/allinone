@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 01 — Động học</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 130px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100px; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  button { background: #1e40af; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button:hover { background: #1e3a8a; }
+  button.muted { background: #94a3b8; }
+  button.muted.active { background: #1e40af; }
+  .stat { display: inline-block; background: #dbeafe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #1e40af; }
+  .result { padding: 14px; background: #dbeafe; border-radius: 8px; margin-top: 12px; }
+
+  svg.kinematic-chart {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 720px; height: 280px;
+  }
+  svg.kinematic-chart .axis { stroke: #1a202c; stroke-width: 1.5; }
+  svg.kinematic-chart .grid { stroke: #e2e8f0; stroke-width: 1; }
+  svg.kinematic-chart .curve { fill: none; stroke-width: 2.5; }
+  svg.kinematic-chart .marker { stroke: #1a202c; stroke-width: 1; }
+  svg.kinematic-chart .label { font: 11px sans-serif; fill: #475569; }
+  svg.kinematic-chart .title { font: 13px sans-serif; fill: #1a202c; font-weight: 700; text-anchor: middle; }
+
+  svg.motion-track {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 720px; height: 100px;
+    background: linear-gradient(to right, #f8fafc, #dbeafe);
+    border-radius: 8px;
+  }
+  svg.motion-track .road { stroke: #475569; stroke-width: 3; }
+  svg.motion-track .marker { stroke: #1a202c; stroke-width: 1; }
+  svg.motion-track .car { fill: #dc2626; }
+  svg.motion-track text { font: 11px sans-serif; fill: #1a202c; text-anchor: middle; }
+
+  svg.projectile {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 720px; height: 320px;
+    background: linear-gradient(to bottom, #93c5fd, #dbeafe 60%, #84cc16);
+    border-radius: 8px;
+  }
+  svg.projectile .trajectory { fill: none; stroke: #be185d; stroke-width: 2.5; }
+  svg.projectile .ball { fill: #dc2626; stroke: #1a202c; stroke-width: 1.5; }
+  svg.projectile text { font: 11px sans-serif; fill: #1a202c; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Physics</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Động học</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L2: Định luật Newton (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 01 — Động học (Kinematics)</h1>
+<p>Bộ công cụ: simulator chuyển động thẳng (xem 3 đồ thị x-t, v-t, a-t cùng lúc + animation xe chạy), calculator 3 phương trình chuyển động, simulator ném ngang/ném xiên.</p>
+
+<h2>1. Motion Simulator — Chuyển động thẳng biến đổi đều</h2>
+<div class="card">
+  <div class="row">
+    <label>Vị trí đầu x₀ (m):</label>
+    <input type="number" id="x0" step="1" value="0" oninput="updateMotion()">
+    <label>Vận tốc đầu v₀ (m/s):</label>
+    <input type="number" id="v0" step="0.5" value="0" oninput="updateMotion()">
+    <label>Gia tốc a (m/s²):</label>
+    <input type="number" id="a" step="0.5" value="2" oninput="updateMotion()">
+  </div>
+  <div class="row">
+    <label>Thời gian quan sát (s):</label>
+    <input type="range" id="tCurrent" min="0" max="10" step="0.1" value="3" oninput="updateMotion()">
+    <span class="stat">t = <strong id="tVal">3.0</strong> s</span>
+  </div>
+
+  <svg class="motion-track" id="motionTrackSvg" viewBox="0 0 720 100"></svg>
+
+  <div class="row">
+    <span class="stat">x(t) = <strong id="xResult">9.0</strong> m</span>
+    <span class="stat">v(t) = <strong id="vResult">6.0</strong> m/s</span>
+    <span class="stat">a = <strong id="aResult">2.0</strong> m/s²</span>
+  </div>
+
+  <h3 style="margin-top:20px">3 đồ thị liên hệ — x-t, v-t, a-t</h3>
+  <svg class="kinematic-chart" id="xtSvg" viewBox="0 0 720 280"></svg>
+  <svg class="kinematic-chart" id="vtSvg" viewBox="0 0 720 280"></svg>
+  <svg class="kinematic-chart" id="atSvg" viewBox="0 0 720 280"></svg>
+</div>
+
+<h2>2. Equation Solver — 3 phương trình chuyển động</h2>
+<div class="card">
+  <p>Cho 3 trong 5 đại lượng (v₀, v, a, t, Δx), tính 2 cái còn lại.</p>
+  <div class="row">
+    <label>Phương trình:</label>
+    <button class="muted active" onclick="setEqMode('vt')">v = v₀ + at</button>
+    <button class="muted" onclick="setEqMode('xt')">x = x₀ + v₀t + ½at²</button>
+    <button class="muted" onclick="setEqMode('vx')">v² = v₀² + 2aΔx</button>
+  </div>
+  <div id="eqInputs"></div>
+  <div class="result" id="eqResult"></div>
+</div>
+
+<h2>3. Free Fall &amp; Projectile Motion</h2>
+<div class="card">
+  <p>Mô phỏng vật rơi (1D) hoặc ném ngang/ném xiên (2D).</p>
+  <div class="row">
+    <label>Loại chuyển động:</label>
+    <button class="muted active" onclick="setProjMode('fall')">Rơi tự do</button>
+    <button class="muted" onclick="setProjMode('horizontal')">Ném ngang</button>
+    <button class="muted" onclick="setProjMode('angle')">Ném xiên</button>
+  </div>
+  <div class="row">
+    <label>Độ cao h (m):</label>
+    <input type="number" id="projH" step="1" value="20" oninput="drawProjectile()">
+    <label>Vận tốc đầu v₀ (m/s):</label>
+    <input type="number" id="projV0" step="1" value="15" oninput="drawProjectile()">
+    <label id="angleLabel" style="display:none">Góc (độ):</label>
+    <input type="number" id="projAngle" step="5" value="45" min="0" max="90" oninput="drawProjectile()" style="display:none">
+  </div>
+
+  <svg class="projectile" id="projectileSvg" viewBox="0 0 720 320"></svg>
+
+  <div class="result" id="projResult"></div>
+</div>
+
+</main>
+
+<script>
+const G = 9.8;
+
+// ===== Motion Simulator =====
+function updateMotion() {
+  const x0 = parseFloat(document.getElementById("x0").value);
+  const v0 = parseFloat(document.getElementById("v0").value);
+  const a = parseFloat(document.getElementById("a").value);
+  const t = parseFloat(document.getElementById("tCurrent").value);
+
+  const x = x0 + v0 * t + 0.5 * a * t * t;
+  const v = v0 + a * t;
+
+  document.getElementById("tVal").textContent = t.toFixed(1);
+  document.getElementById("xResult").textContent = x.toFixed(2);
+  document.getElementById("vResult").textContent = v.toFixed(2);
+  document.getElementById("aResult").textContent = a.toFixed(1);
+
+  drawTrack(x0, v0, a, t);
+  drawChart("xtSvg", "Vị trí x (m) theo thời gian t (s)", (t_) => x0 + v0 * t_ + 0.5 * a * t_ * t_, t, x, "#1e40af");
+  drawChart("vtSvg", "Vận tốc v (m/s) theo thời gian t (s)", (t_) => v0 + a * t_, t, v, "#dc2626");
+  drawChart("atSvg", "Gia tốc a (m/s²) theo thời gian t (s)", (t_) => a, t, a, "#047857");
+}
+
+function drawTrack(x0, v0, a, t) {
+  const svg = document.getElementById("motionTrackSvg");
+  svg.innerHTML = "";
+  // Road
+  const road = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  road.setAttribute("class", "road");
+  road.setAttribute("x1", 30); road.setAttribute("y1", 60);
+  road.setAttribute("x2", 690); road.setAttribute("y2", 60);
+  svg.appendChild(road);
+  // Markers every 10m
+  for (let m = 0; m <= 100; m += 10) {
+    const x = 30 + (m / 100) * 660;
+    const tick = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    tick.setAttribute("class", "marker");
+    tick.setAttribute("x1", x); tick.setAttribute("y1", 55);
+    tick.setAttribute("x2", x); tick.setAttribute("y2", 65);
+    svg.appendChild(tick);
+    if (m % 20 === 0) {
+      const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      lbl.setAttribute("x", x); lbl.setAttribute("y", 80);
+      lbl.textContent = m + " m";
+      svg.appendChild(lbl);
+    }
+  }
+  // Calculate position
+  const x = x0 + v0 * t + 0.5 * a * t * t;
+  let xClamped = Math.max(0, Math.min(100, x));
+  const carX = 30 + (xClamped / 100) * 660;
+  // Car
+  const car = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  car.setAttribute("class", "car");
+  car.setAttribute("x", carX - 14); car.setAttribute("y", 45);
+  car.setAttribute("width", 28); car.setAttribute("height", 16);
+  car.setAttribute("rx", 4);
+  svg.appendChild(car);
+  // Wheels
+  [-8, 8].forEach(dx => {
+    const w = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    w.setAttribute("cx", carX + dx); w.setAttribute("cy", 64);
+    w.setAttribute("r", 3); w.setAttribute("fill", "#1a202c");
+    svg.appendChild(w);
+  });
+  // Position label
+  const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  lbl.setAttribute("x", carX); lbl.setAttribute("y", 30);
+  lbl.setAttribute("font-weight", "700"); lbl.setAttribute("fill", "#dc2626");
+  lbl.textContent = "x = " + x.toFixed(1) + " m";
+  svg.appendChild(lbl);
+}
+
+function drawChart(svgId, title, fn, tMark, valMark, color) {
+  const svg = document.getElementById(svgId);
+  svg.innerHTML = "";
+  const W = 720, H = 280;
+  const padL = 60, padR = 30, padT = 40, padB = 50;
+  const cw = W - padL - padR, ch = H - padT - padB;
+
+  // Sample fn from 0 to 10
+  const samples = [];
+  for (let t = 0; t <= 10; t += 0.1) samples.push({t, v: fn(t)});
+  const vmin = Math.min(0, ...samples.map(s => s.v));
+  const vmax = Math.max(...samples.map(s => s.v));
+  const range = (vmax - vmin) || 1;
+
+  const xScale = t => padL + (t / 10) * cw;
+  const yScale = v => padT + ch - ((v - vmin) / range) * ch;
+
+  // Grid + axes
+  for (let t = 0; t <= 10; t += 1) {
+    const x = xScale(t);
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    g.setAttribute("class", "grid");
+    g.setAttribute("x1", x); g.setAttribute("y1", padT);
+    g.setAttribute("x2", x); g.setAttribute("y2", H - padB);
+    svg.appendChild(g);
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    l.setAttribute("class", "label");
+    l.setAttribute("x", x); l.setAttribute("y", H - padB + 16);
+    l.setAttribute("text-anchor", "middle");
+    l.textContent = t;
+    svg.appendChild(l);
+  }
+  for (let i = 0; i <= 4; i++) {
+    const v = vmin + range * i / 4;
+    const y = yScale(v);
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    g.setAttribute("class", "grid");
+    g.setAttribute("x1", padL); g.setAttribute("y1", y);
+    g.setAttribute("x2", W - padR); g.setAttribute("y2", y);
+    svg.appendChild(g);
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    l.setAttribute("class", "label");
+    l.setAttribute("x", padL - 8); l.setAttribute("y", y + 4);
+    l.setAttribute("text-anchor", "end");
+    l.textContent = v.toFixed(1);
+    svg.appendChild(l);
+  }
+
+  // Zero line
+  if (vmin < 0 && vmax > 0) {
+    const z = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    z.setAttribute("x1", padL); z.setAttribute("y1", yScale(0));
+    z.setAttribute("x2", W - padR); z.setAttribute("y2", yScale(0));
+    z.setAttribute("stroke", "#94a3b8"); z.setAttribute("stroke-width", 1.5);
+    svg.appendChild(z);
+  }
+
+  // Curve
+  let path = "";
+  samples.forEach((s, i) => {
+    path += (i === 0 ? "M " : " L ") + xScale(s.t) + " " + yScale(s.v);
+  });
+  const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  p.setAttribute("class", "curve");
+  p.setAttribute("stroke", color);
+  p.setAttribute("d", path);
+  svg.appendChild(p);
+
+  // Marker at current t
+  const mx = xScale(tMark), my = yScale(valMark);
+  const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  dot.setAttribute("cx", mx); dot.setAttribute("cy", my);
+  dot.setAttribute("r", 6); dot.setAttribute("fill", color);
+  dot.setAttribute("stroke", "white"); dot.setAttribute("stroke-width", 2);
+  svg.appendChild(dot);
+  // Dashed lines to axes
+  ["#94a3b8"].forEach(c => {
+    const l1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l1.setAttribute("x1", mx); l1.setAttribute("y1", my);
+    l1.setAttribute("x2", mx); l1.setAttribute("y2", H - padB);
+    l1.setAttribute("stroke", c); l1.setAttribute("stroke-dasharray", "3 3");
+    svg.appendChild(l1);
+    const l2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l2.setAttribute("x1", padL); l2.setAttribute("y1", my);
+    l2.setAttribute("x2", mx); l2.setAttribute("y2", my);
+    l2.setAttribute("stroke", c); l2.setAttribute("stroke-dasharray", "3 3");
+    svg.appendChild(l2);
+  });
+
+  // Title
+  const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  t.setAttribute("class", "title");
+  t.setAttribute("x", W / 2); t.setAttribute("y", 20);
+  t.textContent = title;
+  svg.appendChild(t);
+}
+
+// ===== Equation Solver =====
+let eqMode = "vt";
+const EQ_CONFIGS = {
+  vt: {label:"v = v₀ + a·t", inputs:["v0","v","a","t"], unknowns:1},
+  xt: {label:"x = x₀ + v₀·t + ½·a·t²", inputs:["x0","x","v0","a","t"], unknowns:1},
+  vx: {label:"v² = v₀² + 2·a·(x − x₀)", inputs:["v0","v","a","dx"], unknowns:1}
+};
+
+function setEqMode(m) {
+  eqMode = m;
+  document.querySelectorAll("button.muted").forEach(b => {
+    const handlers = ["vt","xt","vx"];
+    let modeMatch = b.getAttribute("onclick")?.includes(`'${m}'`);
+    b.classList.toggle("active", modeMatch);
+  });
+  renderEqInputs();
+}
+
+function renderEqInputs() {
+  const cfg = EQ_CONFIGS[eqMode];
+  const div = document.getElementById("eqInputs");
+  const fields = {
+    x0: "Vị trí đầu x₀ (m)", x: "Vị trí cuối x (m)",
+    v0: "Vận tốc đầu v₀ (m/s)", v: "Vận tốc cuối v (m/s)",
+    a: "Gia tốc a (m/s²)", t: "Thời gian t (s)",
+    dx: "Độ dịch chuyển Δx = x − x₀ (m)"
+  };
+  div.innerHTML = `<div style="font-family:monospace; font-size:16px; padding:10px; background:#f8fafc; border-radius:6px; margin:10px 0">
+    ${cfg.label}
+  </div>
+  <p>Để 1 ô trống (= 0) để tính giá trị đó:</p>
+  <div class="row">` +
+  cfg.inputs.map(f => `<label>${fields[f]}:</label><input type="number" step="0.1" id="eqIn_${f}" value="0" oninput="solveEq()">`).join("") +
+  `</div>`;
+  solveEq();
+}
+
+function solveEq() {
+  const cfg = EQ_CONFIGS[eqMode];
+  const vals = {};
+  cfg.inputs.forEach(f => vals[f] = parseFloat(document.getElementById(`eqIn_${f}`).value));
+
+  let result = "";
+  try {
+    if (eqMode === "vt") {
+      // v = v0 + a*t
+      if (vals.v === 0) { vals.v = vals.v0 + vals.a * vals.t; result = `v = v₀ + a·t = ${vals.v0} + ${vals.a}·${vals.t} = <strong>${vals.v.toFixed(2)} m/s</strong>`; }
+      else if (vals.v0 === 0) { vals.v0 = vals.v - vals.a * vals.t; result = `v₀ = v − a·t = ${vals.v} − ${vals.a}·${vals.t} = <strong>${vals.v0.toFixed(2)} m/s</strong>`; }
+      else if (vals.a === 0) { vals.a = (vals.v - vals.v0) / vals.t; result = `a = (v − v₀)/t = (${vals.v} − ${vals.v0})/${vals.t} = <strong>${vals.a.toFixed(2)} m/s²</strong>`; }
+      else if (vals.t === 0) { vals.t = (vals.v - vals.v0) / vals.a; result = `t = (v − v₀)/a = (${vals.v} − ${vals.v0})/${vals.a} = <strong>${vals.t.toFixed(2)} s</strong>`; }
+      else result = "Để 1 ô = 0 để biết cần tính cái nào.";
+    }
+    else if (eqMode === "xt") {
+      // x = x0 + v0*t + 0.5*a*t^2
+      const x = vals.x0 + vals.v0 * vals.t + 0.5 * vals.a * vals.t * vals.t;
+      if (vals.x === 0) { result = `x = x₀ + v₀·t + ½·a·t² = ${vals.x0} + ${vals.v0}·${vals.t} + ½·${vals.a}·${vals.t}² = <strong>${x.toFixed(2)} m</strong>`; }
+      else result = "Mode này tự động tính x — đặt x = 0.";
+    }
+    else if (eqMode === "vx") {
+      // v² = v0² + 2a*dx
+      if (vals.v === 0) { vals.v = Math.sqrt(vals.v0 * vals.v0 + 2 * vals.a * vals.dx); result = `v² = v₀² + 2·a·Δx = ${vals.v0}² + 2·${vals.a}·${vals.dx} = ${(vals.v0*vals.v0 + 2*vals.a*vals.dx).toFixed(2)} → v = <strong>${vals.v.toFixed(2)} m/s</strong>`; }
+      else if (vals.dx === 0) { vals.dx = (vals.v * vals.v - vals.v0 * vals.v0) / (2 * vals.a); result = `Δx = (v² − v₀²)/(2a) = (${vals.v}² − ${vals.v0}²)/(2·${vals.a}) = <strong>${vals.dx.toFixed(2)} m</strong>`; }
+      else if (vals.a === 0) { vals.a = (vals.v * vals.v - vals.v0 * vals.v0) / (2 * vals.dx); result = `a = (v² − v₀²)/(2·Δx) = <strong>${vals.a.toFixed(2)} m/s²</strong>`; }
+      else result = "Để 1 ô = 0.";
+    }
+  } catch (e) {
+    result = `Lỗi: ${e.message}`;
+  }
+  document.getElementById("eqResult").innerHTML = result;
+}
+
+// ===== Projectile =====
+let projMode = "fall";
+function setProjMode(m) {
+  projMode = m;
+  document.querySelectorAll("#projInputs button.muted, button[onclick*=\"setProjMode\"]").forEach(b => {
+    let modeMatch = b.getAttribute("onclick")?.includes(`'${m}'`);
+    b.classList.toggle("active", modeMatch);
+  });
+  // Toggle angle input
+  document.getElementById("angleLabel").style.display = m === "angle" ? "inline" : "none";
+  document.getElementById("projAngle").style.display = m === "angle" ? "inline-block" : "none";
+  drawProjectile();
+}
+
+function drawProjectile() {
+  const h = parseFloat(document.getElementById("projH").value);
+  const v0 = parseFloat(document.getElementById("projV0").value);
+  const angle = parseFloat(document.getElementById("projAngle").value) * Math.PI / 180;
+
+  let v0x, v0y, tFlight, xLand;
+  if (projMode === "fall") {
+    v0x = 0; v0y = 0;
+    tFlight = Math.sqrt(2 * h / G);
+    xLand = 0;
+  } else if (projMode === "horizontal") {
+    v0x = v0; v0y = 0;
+    tFlight = Math.sqrt(2 * h / G);
+    xLand = v0x * tFlight;
+  } else {
+    v0x = v0 * Math.cos(angle); v0y = v0 * Math.sin(angle);
+    // From height h: solve y(t) = h + v0y*t - 0.5*g*t² = 0
+    // t = (v0y + sqrt(v0y² + 2gh)) / g
+    tFlight = (v0y + Math.sqrt(v0y * v0y + 2 * G * h)) / G;
+    xLand = v0x * tFlight;
+  }
+  const vxLand = v0x;
+  const vyLand = v0y - G * tFlight;
+  const vLand = Math.sqrt(vxLand * vxLand + vyLand * vyLand);
+
+  const svg = document.getElementById("projectileSvg");
+  svg.innerHTML = "";
+  const W = 720, H = 320;
+  const padL = 40, padR = 20, padT = 20, padB = 30;
+
+  // Scale: 0..xLand or default 100m on x; 0..h or default 50m on y
+  const xMax = Math.max(50, xLand * 1.1);
+  const yMax = Math.max(h, h + (v0y * v0y) / (2 * G)) * 1.1;
+  const xScale = x => padL + (x / xMax) * (W - padL - padR);
+  const yScale = y => H - padB - (y / yMax) * (H - padT - padB);
+
+  // Ground
+  const ground = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  ground.setAttribute("x", 0); ground.setAttribute("y", H - 20);
+  ground.setAttribute("width", W); ground.setAttribute("height", 20);
+  ground.setAttribute("fill", "#84cc16");
+  svg.appendChild(ground);
+  // Wall (left)
+  const wall = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  wall.setAttribute("x", 0); wall.setAttribute("y", yScale(h));
+  wall.setAttribute("width", padL); wall.setAttribute("height", H - 20 - yScale(h));
+  wall.setAttribute("fill", "#9ca3af");
+  svg.appendChild(wall);
+
+  // Trajectory
+  let path = "";
+  for (let t = 0; t <= tFlight; t += tFlight / 80) {
+    const x = v0x * t;
+    const y = h + v0y * t - 0.5 * G * t * t;
+    if (y < 0) break;
+    path += (path === "" ? "M " : " L ") + xScale(x) + " " + yScale(y);
+  }
+  const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  p.setAttribute("class", "trajectory");
+  p.setAttribute("d", path);
+  svg.appendChild(p);
+
+  // Ball at start
+  const ball = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  ball.setAttribute("class", "ball");
+  ball.setAttribute("cx", xScale(0)); ball.setAttribute("cy", yScale(h));
+  ball.setAttribute("r", 8);
+  svg.appendChild(ball);
+
+  // Labels
+  const lbl1 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  lbl1.setAttribute("x", xScale(0) + 12); lbl1.setAttribute("y", yScale(h) - 5);
+  lbl1.setAttribute("font-weight", "700"); lbl1.setAttribute("fill", "#dc2626");
+  lbl1.textContent = `h = ${h} m`;
+  svg.appendChild(lbl1);
+
+  if (xLand > 0) {
+    const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    dot.setAttribute("cx", xScale(xLand)); dot.setAttribute("cy", yScale(0) - 5);
+    dot.setAttribute("r", 5); dot.setAttribute("fill", "#dc2626");
+    svg.appendChild(dot);
+    const dlbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    dlbl.setAttribute("x", xScale(xLand)); dlbl.setAttribute("y", yScale(0) - 12);
+    dlbl.setAttribute("text-anchor", "middle"); dlbl.setAttribute("font-weight", "700");
+    dlbl.textContent = `x = ${xLand.toFixed(1)} m`;
+    svg.appendChild(dlbl);
+  }
+
+  // Result
+  document.getElementById("projResult").innerHTML = `
+    <h3 style="margin-top:0">Kết quả</h3>
+    <div class="row">
+      <span class="stat">Thời gian rơi: <strong>${tFlight.toFixed(2)} s</strong></span>
+      ${projMode !== "fall" ? `<span class="stat">Khoảng cách ngang: <strong>${xLand.toFixed(2)} m</strong></span>` : ""}
+      <span class="stat">Tốc độ chạm đất: <strong>${vLand.toFixed(2)} m/s</strong></span>
+    </div>
+    <div class="row">
+      <span class="stat">v_x cuối: <strong>${vxLand.toFixed(2)} m/s</strong></span>
+      <span class="stat">v_y cuối: <strong>${vyLand.toFixed(2)} m/s</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px">
+      ${projMode === "fall" ? "Rơi tự do từ độ cao h: t = √(2h/g)." :
+        projMode === "horizontal" ? "Ném ngang: trục dọc rơi tự do, trục ngang đều. t độc lập với v₀." :
+        "Ném xiên từ độ cao h: phân tích thành v_x = v₀cosθ, v_y = v₀sinθ."}
+    </div>
+  `;
+}
+
+// Init
+updateMotion();
+renderEqInputs();
+drawProjectile();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

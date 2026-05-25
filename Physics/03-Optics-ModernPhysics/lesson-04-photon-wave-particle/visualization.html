@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 04 (T3) — Photon &amp; Lưỡng tính</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 130px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 110px; }
+  select { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; }
+  .stat { display: inline-block; background: #dbeafe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #1e40af; }
+  .result { padding: 14px; background: #dbeafe; border-radius: 8px; margin-top: 12px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Physics</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-wave-optics/visualization.html">← L3: Quang sóng</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Photon &amp; Lưỡng tính</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L5: Bohr (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 04 (T3) — Photon &amp; Lưỡng tính sóng-hạt</h1>
+<p>Bộ công cụ: Photon Energy Calculator, Photoelectric Effect Simulator, de Broglie Wavelength Calculator.</p>
+
+<h2>1. Photon Energy (E = h·f)</h2>
+<div class="card">
+  <div class="row">
+    <label>Bước sóng λ (nm):</label>
+    <input type="number" id="phL" step="10" value="500" oninput="calcPhoton()">
+  </div>
+  <div class="result" id="phResult"></div>
+</div>
+
+<h2>2. Hiệu ứng quang điện</h2>
+<div class="card">
+  <div class="row">
+    <label>Kim loại (Φ):</label>
+    <select id="peMetal" onchange="calcPE()">
+      <option value="2.3,Na">Sodium (Φ = 2.3 eV)</option>
+      <option value="2.7,K">Potassium (Φ = 2.7 eV)</option>
+      <option value="4.3,Zn">Zinc (Φ = 4.3 eV)</option>
+      <option value="4.5,Fe">Iron (Φ = 4.5 eV)</option>
+      <option value="5.1,Au">Gold (Φ = 5.1 eV)</option>
+      <option value="4.7,Cu">Copper (Φ = 4.7 eV)</option>
+    </select>
+    <label>Bước sóng λ (nm):</label>
+    <input type="number" id="peL" step="10" value="400" oninput="calcPE()">
+  </div>
+  <div class="result" id="peResult"></div>
+</div>
+
+<h2>3. de Broglie Wavelength</h2>
+<div class="card">
+  <div class="row">
+    <label>Hạt:</label>
+    <select id="dbObj" onchange="setDB()">
+      <option value="9.11e-31,e">Electron (m = 9.11e-31 kg)</option>
+      <option value="1.67e-27,proton">Proton (m = 1.67e-27 kg)</option>
+      <option value="6.64e-27,He">Hạt α / He (m = 6.64e-27 kg)</option>
+      <option value="6.6e-26,buckyball">Buckyball C₆₀ (m = 6.6e-26 kg)</option>
+      <option value="0.5,ball" selected>Quả bóng 0.5 kg</option>
+      <option value="1000,car">Ô tô 1000 kg</option>
+    </select>
+    <label>Vận tốc v (m/s):</label>
+    <input type="number" id="dbV" step="1" value="10" oninput="calcDB()">
+  </div>
+  <div class="result" id="dbResult"></div>
+</div>
+
+</main>
+
+<script>
+const h = 6.626e-34;
+const c = 3e8;
+const eV = 1.602e-19;
+
+function calcPhoton() {
+  const lambda = parseFloat(document.getElementById("phL").value) * 1e-9;
+  const E_J = h * c / lambda;
+  const E_eV = E_J / eV;
+  document.getElementById("phResult").innerHTML = `
+    <div style="font-family:monospace; font-size:15px">E = hc/λ = ${h.toExponential(2)}·${c.toExponential(1)}/${lambda.toExponential(2)}</div>
+    <div style="font-family:monospace; font-size:16px; margin-top:6px"><strong>E = ${E_J.toExponential(3)} J = ${E_eV.toFixed(2)} eV</strong></div>
+  `;
+}
+
+function calcPE() {
+  const [Phi_str, name] = document.getElementById("peMetal").value.split(",");
+  const Phi = parseFloat(Phi_str);
+  const lambda = parseFloat(document.getElementById("peL").value) * 1e-9;
+  const E_J = h * c / lambda;
+  const E_eV = E_J / eV;
+  const KEmax = E_eV - Phi;
+  const lambda0 = h * c / (Phi * eV) * 1e9;
+  let html = `
+    <div class="row">
+      <span class="stat">Năng lượng photon: <strong>${E_eV.toFixed(2)} eV</strong></span>
+      <span class="stat">Công thoát Φ: <strong>${Phi} eV</strong></span>
+      <span class="stat">Bước sóng tới hạn λ₀: <strong>${lambda0.toFixed(0)} nm</strong></span>
+    </div>
+  `;
+  if (KEmax > 0) {
+    html += `<div style="margin-top:8px; padding:10px; background:#dcfce7; border-radius:6px">
+      <strong>✓ Electron BẬT RA</strong><br>KE_max = h·f − Φ = ${E_eV.toFixed(2)} − ${Phi} = <strong>${KEmax.toFixed(2)} eV</strong>
+    </div>`;
+  } else {
+    html += `<div style="margin-top:8px; padding:10px; background:#fee2e2; border-radius:6px">
+      <strong>✗ KHÔNG có electron bật ra</strong><br>E_photon (${E_eV.toFixed(2)} eV) < Φ (${Phi} eV). Cần λ < ${lambda0.toFixed(0)} nm.
+    </div>`;
+  }
+  document.getElementById("peResult").innerHTML = html;
+}
+
+function setDB() {
+  const [m, name] = document.getElementById("dbObj").value.split(",");
+  // Default v for each
+  const vals = {e: 1e6, proton: 1e5, He: 1e4, buckyball: 200, ball: 10, car: 30};
+  document.getElementById("dbV").value = vals[name] || 10;
+  calcDB();
+}
+
+function calcDB() {
+  const [m_str, name] = document.getElementById("dbObj").value.split(",");
+  const m = parseFloat(m_str);
+  const v = parseFloat(document.getElementById("dbV").value);
+  const lambda = h / (m * v);
+  const sizeCompare = name === "e" || name === "proton" || name === "He" ? "kích thước nguyên tử (~ 10⁻¹⁰ m)" :
+                      name === "buckyball" ? "kích thước phân tử C₆₀ (~ 10⁻⁹ m)" :
+                      "kích thước vật (~ 10⁻¹ m)";
+
+  let interp = "";
+  if (lambda > 1e-11) interp = "λ đáng kể, tính sóng nổi bật. Có thể quan sát giao thoa.";
+  else if (lambda > 1e-20) interp = "λ rất nhỏ nhưng vẫn có ý nghĩa với hạt vi mô.";
+  else interp = "λ cực kỳ nhỏ — không thể đo được. Vật trông như hạt thuần.";
+
+  document.getElementById("dbResult").innerHTML = `
+    <div style="font-family:monospace; font-size:15px">λ = h/p = h/(m·v) = ${h.toExponential(2)}/(${m}·${v})</div>
+    <div style="font-family:monospace; font-size:16px; margin-top:6px"><strong>λ = ${lambda.toExponential(3)} m</strong></div>
+    <div style="margin-top:8px; font-size:13px">
+      So với ${sizeCompare}: tỉ lệ ${(lambda / (name === 'car' || name === 'ball' ? 0.1 : 1e-10)).toExponential(2)}.
+    </div>
+    <div style="margin-top:6px; padding:10px; background:#fef3c7; border-radius:6px">${interp}</div>
+  `;
+}
+
+// Init
+calcPhoton();
+calcPE();
+setDB();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

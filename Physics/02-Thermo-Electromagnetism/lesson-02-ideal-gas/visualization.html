@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 02 (T2) — Khí lý tưởng</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 130px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 110px; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  button { background: #1e40af; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.muted { background: #94a3b8; }
+  button.muted.active { background: #1e40af; }
+  .stat { display: inline-block; background: #dbeafe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #1e40af; }
+  .result { padding: 14px; background: #dbeafe; border-radius: 8px; margin-top: 12px; }
+
+  svg.scene {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 720px; height: 320px;
+    background: linear-gradient(135deg, #f8fafc, #dbeafe);
+    border-radius: 8px;
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Physics</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-temperature-heat/visualization.html">← L1: Nhiệt độ</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Khí lý tưởng</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L3: Entropy (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 02 (T2) — Khí lý tưởng</h1>
+<p>Bộ công cụ: PV=nRT Calculator, Ideal Gas Simulator (đẳng nhiệt/áp/tích), v_rms calculator.</p>
+
+<h2>1. PV = nRT Calculator</h2>
+<div class="card">
+  <p>Để 1 ô = 0 để tự tính.</p>
+  <div class="row">
+    <label>P (Pa):</label>
+    <input type="number" id="gP" step="1000" value="101325" oninput="calcPV()">
+    <label>V (L):</label>
+    <input type="number" id="gV" step="0.1" value="22.4" oninput="calcPV()">
+    <label>n (mol):</label>
+    <input type="number" id="gN" step="0.1" value="1" oninput="calcPV()">
+    <label>T (K):</label>
+    <input type="number" id="gT" step="1" value="0" oninput="calcPV()">
+  </div>
+  <div class="row">
+    <button class="muted" onclick="setPV('STP')">STP (0°C, 1 atm)</button>
+    <button class="muted" onclick="setPV('room')">Phòng (25°C, 1 atm)</button>
+    <button class="muted" onclick="setPV('tire')">Lốp xe (40°C, 2 atm)</button>
+  </div>
+  <div class="result" id="pvResult"></div>
+</div>
+
+<h2>2. Quá trình đặc biệt — Boyle / Charles / Gay-Lussac</h2>
+<div class="card">
+  <div class="row">
+    <label>Quá trình:</label>
+    <button class="muted active" onclick="setProc('boyle')">Đẳng nhiệt (Boyle: PV = const)</button>
+    <button class="muted" onclick="setProc('charles')">Đẳng áp (Charles: V/T = const)</button>
+    <button class="muted" onclick="setProc('gayLussac')">Đẳng tích (Gay-Lussac: P/T = const)</button>
+  </div>
+  <div class="row">
+    <label>Trạng thái 1 — P₁ (atm):</label>
+    <input type="number" id="p1" step="0.1" value="1" oninput="calcProc()">
+    <label>V₁ (L):</label>
+    <input type="number" id="v1" step="0.1" value="1" oninput="calcProc()">
+    <label>T₁ (K):</label>
+    <input type="number" id="t1" step="10" value="293" oninput="calcProc()">
+  </div>
+  <div class="row">
+    <label>Trạng thái 2 — đổi:</label>
+    <input type="number" id="change" step="0.1" value="0.25" oninput="calcProc()">
+    <span class="stat" id="changeLbl">V₂ = ? L</span>
+  </div>
+  <div class="result" id="procResult"></div>
+</div>
+
+<h2>3. v_rms — Vận tốc trung bình của phân tử khí</h2>
+<div class="card">
+  <p>v_rms = √(3·k_B·T / m_phân_tử). Tính tốc độ các phân tử khí ở T xác định.</p>
+  <div class="row">
+    <label>Khí:</label>
+    <select id="vrmsGas" onchange="calcVrms()">
+      <option value="2,H₂">H₂ (M = 2)</option>
+      <option value="4,He">He (M = 4)</option>
+      <option value="14,N">N (M = 14)</option>
+      <option value="16,O">O (M = 16)</option>
+      <option value="28,N₂" selected>N₂ (M = 28, 78% khí quyển)</option>
+      <option value="32,O₂">O₂ (M = 32, 21% khí quyển)</option>
+      <option value="44,CO₂">CO₂ (M = 44)</option>
+      <option value="146,SF₆">SF₆ (M = 146)</option>
+    </select>
+    <label>T (K):</label>
+    <input type="number" id="vrmsT" step="10" value="300" oninput="calcVrms()">
+  </div>
+  <div class="result" id="vrmsResult"></div>
+</div>
+
+</main>
+
+<script>
+const R = 8.314;
+const kB = 1.38e-23;
+const NA = 6.022e23;
+
+// ===== PV = nRT =====
+function calcPV() {
+  let P = parseFloat(document.getElementById("gP").value);
+  let V = parseFloat(document.getElementById("gV").value);
+  let n = parseFloat(document.getElementById("gN").value);
+  let T = parseFloat(document.getElementById("gT").value);
+  const V_m3 = V * 1e-3;
+  let result = "";
+  if (P === 0) { P = n * R * T / V_m3; result = `P = nRT/V = ${(n*R*T).toFixed(2)}/${V_m3.toFixed(5)} = <strong>${P.toFixed(0)} Pa = ${(P/101325).toFixed(2)} atm</strong>`; }
+  else if (V === 0) { V = n * R * T / P * 1000; result = `V = nRT/P = ${(n*R*T).toFixed(2)}/${P} = <strong>${V.toFixed(3)} L</strong>`; }
+  else if (n === 0) { n = P * V_m3 / (R * T); result = `n = PV/(RT) = ${(P*V_m3).toFixed(3)}/${(R*T).toFixed(2)} = <strong>${n.toFixed(4)} mol</strong>`; }
+  else if (T === 0) { T = P * V_m3 / (n * R); result = `T = PV/(nR) = ${(P*V_m3).toFixed(3)}/${(n*R).toFixed(2)} = <strong>${T.toFixed(2)} K = ${(T-273.15).toFixed(2)}°C</strong>`; }
+  else { result = "Đặt 1 ô = 0 để biết cần tính cái nào."; }
+  document.getElementById("pvResult").innerHTML = result;
+}
+
+function setPV(scen) {
+  if (scen === 'STP') { document.getElementById("gP").value = 101325; document.getElementById("gT").value = 273.15; document.getElementById("gN").value = 1; document.getElementById("gV").value = 0; }
+  if (scen === 'room') { document.getElementById("gP").value = 101325; document.getElementById("gT").value = 298; document.getElementById("gN").value = 1; document.getElementById("gV").value = 0; }
+  if (scen === 'tire') { document.getElementById("gP").value = 202650; document.getElementById("gT").value = 313; document.getElementById("gV").value = 30; document.getElementById("gN").value = 0; }
+  calcPV();
+}
+
+// ===== Quá trình =====
+let currentProc = 'boyle';
+function setProc(p) {
+  currentProc = p;
+  document.querySelectorAll("button.muted").forEach(b => {
+    let m = b.getAttribute("onclick")?.includes(`'${p}'`);
+    b.classList.toggle("active", m);
+  });
+  // Update label
+  if (p === 'boyle') document.getElementById("changeLbl").innerHTML = "V₂ (L)";
+  if (p === 'charles') document.getElementById("changeLbl").innerHTML = "T₂ (K)";
+  if (p === 'gayLussac') document.getElementById("changeLbl").innerHTML = "T₂ (K)";
+  calcProc();
+}
+
+function calcProc() {
+  const p1 = parseFloat(document.getElementById("p1").value);
+  const v1 = parseFloat(document.getElementById("v1").value);
+  const t1 = parseFloat(document.getElementById("t1").value);
+  const change = parseFloat(document.getElementById("change").value);
+  let html = "";
+  if (currentProc === 'boyle') {
+    // PV const, change = V2 → P2 = P1*V1/V2
+    const v2 = change;
+    const p2 = p1 * v1 / v2;
+    html = `<div style="font-family:monospace; font-size:15px">P₁V₁ = P₂V₂ (T const)</div>
+            <div style="font-family:monospace; font-size:14px; margin-top:6px">P₂ = P₁·V₁/V₂ = ${p1}·${v1}/${v2} = <strong>${p2.toFixed(3)} atm</strong></div>
+            <div style="margin-top:6px">${v2 < v1 ? `Nén V xuống ${(v1/v2).toFixed(1)}× → P tăng ${(p2/p1).toFixed(1)}×.` : `Giãn V lên ${(v2/v1).toFixed(1)}× → P giảm ${(p1/p2).toFixed(1)}×.`}</div>`;
+  } else if (currentProc === 'charles') {
+    const t2 = change;
+    const v2 = v1 * t2 / t1;
+    html = `<div style="font-family:monospace; font-size:15px">V₁/T₁ = V₂/T₂ (P const)</div>
+            <div style="font-family:monospace; font-size:14px; margin-top:6px">V₂ = V₁·T₂/T₁ = ${v1}·${t2}/${t1} = <strong>${v2.toFixed(3)} L</strong></div>
+            <div style="margin-top:6px">${t2 > t1 ? `Nóng lên → khí giãn nở (${(v2/v1*100-100).toFixed(0)}%).` : `Lạnh đi → khí co lại.`}</div>`;
+  } else {
+    const t2 = change;
+    const p2 = p1 * t2 / t1;
+    html = `<div style="font-family:monospace; font-size:15px">P₁/T₁ = P₂/T₂ (V const)</div>
+            <div style="font-family:monospace; font-size:14px; margin-top:6px">P₂ = P₁·T₂/T₁ = ${p1}·${t2}/${t1} = <strong>${p2.toFixed(3)} atm</strong></div>
+            <div style="margin-top:6px">${t2 > t1 ? `Nóng → P tăng (${(p2/p1*100-100).toFixed(0)}%). Cẩn thận với bình kín!` : `Lạnh → P giảm.`}</div>`;
+  }
+  document.getElementById("procResult").innerHTML = html;
+}
+
+// ===== v_rms =====
+function calcVrms() {
+  const [M_str, name] = document.getElementById("vrmsGas").value.split(",");
+  const M = parseFloat(M_str);
+  const T = parseFloat(document.getElementById("vrmsT").value);
+  const m = M * 1e-3 / NA; // mass per molecule
+  const vrms = Math.sqrt(3 * kB * T / m);
+  const ke = 0.5 * m * vrms * vrms;
+  document.getElementById("vrmsResult").innerHTML = `
+    <div style="font-family:monospace; font-size:15px">v_rms = √(3·k_B·T/m) = √(3·${kB.toExponential(2)}·${T}/${m.toExponential(2)})</div>
+    <div style="font-family:monospace; font-size:18px; margin-top:6px"><strong>v_rms = ${vrms.toFixed(0)} m/s = ${(vrms*3.6).toFixed(0)} km/h</strong></div>
+    <div class="row" style="margin-top:8px">
+      <span class="stat">Phân tử: <strong>${name}</strong></span>
+      <span class="stat">KE/phân tử: <strong>${ke.toExponential(2)} J</strong></span>
+      <span class="stat">KE = (3/2)·k_B·T = <strong>${((3/2)*kB*T).toExponential(2)} J</strong></span>
+    </div>
+    <div style="margin-top:6px; font-size:13px">
+      Trong phòng (T ≈ 300 K), các phân tử khí lao với tốc độ hàng trăm m/s. Phân tử nhẹ hơn (H₂, He) bay nhanh hơn → He thoát khỏi khí quyển Trái Đất.
+    </div>
+  `;
+}
+
+// Init
+calcPV();
+setProc('boyle');
+calcVrms();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

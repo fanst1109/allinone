@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 03 — Các loại lực</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 120px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100px; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  button { background: #1e40af; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.muted { background: #94a3b8; }
+  .stat { display: inline-block; background: #dbeafe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #1e40af; }
+  .result { padding: 14px; background: #dbeafe; border-radius: 8px; margin-top: 12px; }
+
+  svg.scene {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 720px; height: 360px;
+    background: linear-gradient(135deg, #f8fafc, #dbeafe);
+    border-radius: 8px;
+  }
+
+  table.mu {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+  }
+  table.mu th, table.mu td {
+    border: 1px solid #e2e8f0; padding: 6px 10px;
+    text-align: left;
+  }
+  table.mu th { background: #dbeafe; color: #1e40af; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Physics</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-newton-laws/visualization.html">← L2: Định luật Newton</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Các loại lực</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L4: Công &amp; năng lượng (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 03 — Các loại lực</h1>
+<p>Bộ công cụ: Gravity Calculator (Newton vạn vật hấp dẫn), Friction Simulator (tĩnh/động trên mặt nghiêng), Hooke's Law spring, Atwood machine.</p>
+
+<h2>1. Gravity Calculator</h2>
+<div class="card">
+  <p>Tính lực hấp dẫn F = G·m₁·m₂/r² giữa 2 vật.</p>
+  <div class="row">
+    <label>m₁ (kg):</label>
+    <input type="number" id="gravM1" step="0.1" value="5.97e24" oninput="calcGravity()">
+    <label>m₂ (kg):</label>
+    <input type="number" id="gravM2" step="0.1" value="7.35e22" oninput="calcGravity()">
+    <label>r (m):</label>
+    <input type="number" id="gravR" step="1" value="3.84e8" oninput="calcGravity()">
+  </div>
+  <div class="row">
+    <button class="muted" onclick="setGrav('earth_moon')">Trái Đất - Mặt Trăng</button>
+    <button class="muted" onclick="setGrav('earth_sun')">Trái Đất - Mặt Trời</button>
+    <button class="muted" onclick="setGrav('two_people')">2 người (60 kg, cách 1 m)</button>
+    <button class="muted" onclick="setGrav('apple_earth')">Quả táo (0.1 kg) trên mặt đất</button>
+  </div>
+  <div class="result" id="gravResult"></div>
+</div>
+
+<h2>2. Friction Simulator — Mặt phẳng nghiêng</h2>
+<div class="card">
+  <div class="row">
+    <label>Khối lượng (kg):</label>
+    <input type="number" id="fricM" step="1" value="5" oninput="updateFriction()">
+    <label>Góc nghiêng (°):</label>
+    <input type="range" id="fricAngle" min="0" max="60" step="1" value="30" oninput="updateFriction()">
+    <span class="stat">θ = <strong id="angleVal">30</strong>°</span>
+  </div>
+  <div class="row">
+    <label>μ_s (tĩnh):</label>
+    <input type="number" id="fricMuS" step="0.05" value="0.5" oninput="updateFriction()">
+    <label>μ_k (động):</label>
+    <input type="number" id="fricMuK" step="0.05" value="0.3" oninput="updateFriction()">
+  </div>
+
+  <svg class="scene" id="frictionSvg" viewBox="0 0 720 360"></svg>
+
+  <div class="result" id="fricResult"></div>
+</div>
+
+<h2>3. Hooke's Law Spring</h2>
+<div class="card">
+  <div class="row">
+    <label>Độ cứng k (N/m):</label>
+    <input type="number" id="springK" step="10" value="100" oninput="updateSpring()">
+    <label>Khối lượng (kg):</label>
+    <input type="number" id="springM" step="0.1" value="1" oninput="updateSpring()">
+  </div>
+  <svg class="scene" id="springSvg" viewBox="0 0 720 360"></svg>
+  <div class="result" id="springResult"></div>
+</div>
+
+<h2>4. Atwood Machine</h2>
+<div class="card">
+  <div class="row">
+    <label>m₁ (kg):</label>
+    <input type="number" id="atwM1" step="0.5" value="3" oninput="updateAtwood()">
+    <label>m₂ (kg):</label>
+    <input type="number" id="atwM2" step="0.5" value="5" oninput="updateAtwood()">
+  </div>
+  <svg class="scene" id="atwoodSvg" viewBox="0 0 720 360"></svg>
+  <div class="result" id="atwResult"></div>
+</div>
+
+<h2>5. Bảng hệ số ma sát phổ biến</h2>
+<div class="card">
+  <table class="mu">
+    <tr><th>Bề mặt</th><th>μ_s</th><th>μ_k</th></tr>
+    <tr><td>Cao su / bê tông khô</td><td>1.0</td><td>0.8</td></tr>
+    <tr><td>Cao su / bê tông ướt</td><td>0.7</td><td>0.5</td></tr>
+    <tr><td>Gỗ / gỗ</td><td>0.5</td><td>0.3</td></tr>
+    <tr><td>Thép / thép (khô)</td><td>0.7</td><td>0.5</td></tr>
+    <tr><td>Thép / thép (có dầu)</td><td>0.1</td><td>0.05</td></tr>
+    <tr><td>Băng / băng</td><td>0.1</td><td>0.03</td></tr>
+    <tr><td>Teflon / Teflon</td><td>0.04</td><td>0.04</td></tr>
+  </table>
+</div>
+
+</main>
+
+<script>
+const G = 6.674e-11;
+const g = 9.8;
+
+function calcGravity() {
+  const m1 = parseFloat(document.getElementById("gravM1").value);
+  const m2 = parseFloat(document.getElementById("gravM2").value);
+  const r = parseFloat(document.getElementById("gravR").value);
+  const F = G * m1 * m2 / (r * r);
+  document.getElementById("gravResult").innerHTML = `
+    <div style="font-family:monospace; font-size:15px">F = G · m₁ · m₂ / r²</div>
+    <div style="font-family:monospace; font-size:14px; margin-top:6px">= ${G.toExponential(3)} × ${m1.toExponential(2)} × ${m2.toExponential(2)} / (${r.toExponential(2)})²</div>
+    <div style="font-family:monospace; font-size:18px; font-weight:700; color:#1e40af; margin-top:10px">F = ${F.toExponential(3)} N</div>
+  `;
+}
+function setGrav(scen) {
+  if (scen === "earth_moon") { document.getElementById("gravM1").value = 5.97e24; document.getElementById("gravM2").value = 7.35e22; document.getElementById("gravR").value = 3.84e8; }
+  if (scen === "earth_sun") { document.getElementById("gravM1").value = 5.97e24; document.getElementById("gravM2").value = 1.989e30; document.getElementById("gravR").value = 1.496e11; }
+  if (scen === "two_people") { document.getElementById("gravM1").value = 60; document.getElementById("gravM2").value = 60; document.getElementById("gravR").value = 1; }
+  if (scen === "apple_earth") { document.getElementById("gravM1").value = 5.97e24; document.getElementById("gravM2").value = 0.1; document.getElementById("gravR").value = 6.371e6; }
+  calcGravity();
+}
+
+// ===== Friction =====
+function updateFriction() {
+  const m = parseFloat(document.getElementById("fricM").value);
+  const theta = parseFloat(document.getElementById("fricAngle").value);
+  const muS = parseFloat(document.getElementById("fricMuS").value);
+  const muK = parseFloat(document.getElementById("fricMuK").value);
+  document.getElementById("angleVal").textContent = theta;
+
+  const thetaRad = theta * Math.PI / 180;
+  const W = m * g;
+  const Wpara = W * Math.sin(thetaRad);
+  const Wperp = W * Math.cos(thetaRad);
+  const N = Wperp;
+  const fStaticMax = muS * N;
+  const fKinetic = muK * N;
+  const willSlide = Wpara > fStaticMax;
+  const a = willSlide ? (Wpara - fKinetic) / m : 0;
+
+  document.getElementById("fricResult").innerHTML = `
+    <div class="row">
+      <span class="stat">W = m·g = <strong>${W.toFixed(1)} N</strong></span>
+      <span class="stat">W·sinθ = <strong>${Wpara.toFixed(2)} N</strong> (kéo xuống dốc)</span>
+      <span class="stat">N = W·cosθ = <strong>${N.toFixed(2)} N</strong></span>
+    </div>
+    <div class="row">
+      <span class="stat" style="background:#fef3c7">f_s_max = μ_s·N = <strong>${fStaticMax.toFixed(2)} N</strong></span>
+      <span class="stat" style="background:#fee2e2">f_k = μ_k·N = <strong>${fKinetic.toFixed(2)} N</strong></span>
+    </div>
+    <div style="margin-top:8px; padding:10px; background:${willSlide ? '#fee2e2' : '#dcfce7'}; border-radius:6px">
+      <strong>${willSlide ? '↘ VẬT TRƯỢT XUỐNG' : '⏸ VẬT ĐỨNG YÊN'}</strong>
+      ${willSlide
+        ? `<br>W·sinθ (${Wpara.toFixed(2)}) > f_s_max (${fStaticMax.toFixed(2)}) → vật bắt đầu trượt.<br><strong>Gia tốc a = (W·sinθ − f_k)/m = ${a.toFixed(2)} m/s²</strong>`
+        : `<br>W·sinθ (${Wpara.toFixed(2)}) ≤ f_s_max (${fStaticMax.toFixed(2)}) → ma sát tĩnh đủ giữ vật yên.`}
+    </div>
+  `;
+
+  drawIncline(theta, m, willSlide);
+}
+
+function drawIncline(theta, m, sliding) {
+  const svg = document.getElementById("frictionSvg");
+  svg.innerHTML = "";
+  const W = 720, H = 360;
+  const thetaRad = theta * Math.PI / 180;
+  // Triangle
+  const xLeft = 100, xRight = 620, yBase = 320;
+  const yTop = yBase - (xRight - xLeft) * Math.tan(thetaRad);
+  const triangle = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  triangle.setAttribute("points", `${xLeft},${yBase} ${xRight},${yBase} ${xRight},${yTop}`);
+  triangle.setAttribute("fill", "#92400e");
+  triangle.setAttribute("stroke", "#7c2d12"); triangle.setAttribute("stroke-width", 2);
+  svg.appendChild(triangle);
+  // Object on slope (midpoint)
+  const objX = (xLeft + xRight) / 2 + 100;
+  const slopeStartY = yBase - (objX - xLeft) * Math.tan(thetaRad);
+  const objY = slopeStartY - 20;
+  // Rotate group
+  const g_el = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  g_el.setAttribute("transform", `translate(${objX}, ${objY}) rotate(${-theta})`);
+  const obj = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  obj.setAttribute("x", -25); obj.setAttribute("y", -20);
+  obj.setAttribute("width", 50); obj.setAttribute("height", 30);
+  obj.setAttribute("fill", "#94a3b8"); obj.setAttribute("stroke", "#1a202c"); obj.setAttribute("stroke-width", 2);
+  obj.setAttribute("rx", 3);
+  g_el.appendChild(obj);
+  const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  lbl.setAttribute("x", 0); lbl.setAttribute("y", 0);
+  lbl.setAttribute("text-anchor", "middle"); lbl.setAttribute("font-weight", "700"); lbl.setAttribute("font-size", "11");
+  lbl.textContent = m + " kg";
+  g_el.appendChild(lbl);
+  svg.appendChild(g_el);
+
+  // Angle label
+  const ang = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  ang.setAttribute("x", xLeft + 60); ang.setAttribute("y", yBase - 8);
+  ang.setAttribute("font-weight", "700");
+  ang.textContent = `θ = ${theta}°`;
+  svg.appendChild(ang);
+
+  // Sliding indicator
+  if (sliding) {
+    const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    txt.setAttribute("x", W/2); txt.setAttribute("y", 30);
+    txt.setAttribute("text-anchor", "middle"); txt.setAttribute("font-size", "16"); txt.setAttribute("fill", "#dc2626"); txt.setAttribute("font-weight", "700");
+    txt.textContent = "↘ ĐANG TRƯỢT";
+    svg.appendChild(txt);
+  } else {
+    const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    txt.setAttribute("x", W/2); txt.setAttribute("y", 30);
+    txt.setAttribute("text-anchor", "middle"); txt.setAttribute("font-size", "16"); txt.setAttribute("fill", "#047857"); txt.setAttribute("font-weight", "700");
+    txt.textContent = "⏸ ĐỨNG YÊN";
+    svg.appendChild(txt);
+  }
+}
+
+// ===== Spring =====
+function updateSpring() {
+  const k = parseFloat(document.getElementById("springK").value);
+  const m = parseFloat(document.getElementById("springM").value);
+  const x = m * g / k;
+  document.getElementById("springResult").innerHTML = `
+    <div class="row">
+      <span class="stat">Trọng lực kéo xuống: <strong>${(m*g).toFixed(2)} N</strong></span>
+      <span class="stat">Độ giãn cân bằng x = m·g/k = <strong>${(x*100).toFixed(2)} cm</strong></span>
+      <span class="stat">Năng lượng đàn hồi (sẽ học L4): ½kx² = <strong>${(0.5*k*x*x).toFixed(3)} J</strong></span>
+    </div>
+  `;
+
+  drawSpring(x, m);
+}
+
+function drawSpring(x, m) {
+  const svg = document.getElementById("springSvg");
+  svg.innerHTML = "";
+  // Ceiling
+  const c = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  c.setAttribute("x", 0); c.setAttribute("y", 30); c.setAttribute("width", 720); c.setAttribute("height", 10);
+  c.setAttribute("fill", "#475569");
+  svg.appendChild(c);
+  // Spring (zigzag)
+  const cx = 360;
+  const yStart = 40;
+  const xScale = 200; // 1m = 200 px
+  const yMass = yStart + 60 + Math.min(200, x * xScale);
+  // Draw spring as zigzag
+  const coils = 8;
+  const zigW = 16;
+  let path = `M ${cx} ${yStart}`;
+  const coilH = (yMass - 20 - yStart) / coils;
+  for (let i = 0; i < coils; i++) {
+    const y1 = yStart + i * coilH + coilH/4;
+    const y2 = yStart + i * coilH + 3*coilH/4;
+    path += ` L ${cx - zigW} ${y1} L ${cx + zigW} ${y2}`;
+  }
+  path += ` L ${cx} ${yMass - 20}`;
+  const spring = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  spring.setAttribute("d", path);
+  spring.setAttribute("fill", "none"); spring.setAttribute("stroke", "#1a202c"); spring.setAttribute("stroke-width", 2);
+  svg.appendChild(spring);
+  // Mass
+  const massSz = 20 + m * 5;
+  const mass = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  mass.setAttribute("x", cx - massSz/2); mass.setAttribute("y", yMass - 20);
+  mass.setAttribute("width", massSz); mass.setAttribute("height", massSz);
+  mass.setAttribute("fill", "#dc2626"); mass.setAttribute("stroke", "#7f1d1d"); mass.setAttribute("stroke-width", 2);
+  svg.appendChild(mass);
+  const mlbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  mlbl.setAttribute("x", cx); mlbl.setAttribute("y", yMass + 5);
+  mlbl.setAttribute("text-anchor", "middle"); mlbl.setAttribute("fill", "white"); mlbl.setAttribute("font-weight", "700");
+  mlbl.textContent = m + " kg";
+  svg.appendChild(mlbl);
+  // Indicator for x
+  const xLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  xLbl.setAttribute("x", cx + 60); xLbl.setAttribute("y", yMass);
+  xLbl.setAttribute("font-weight", "700"); xLbl.setAttribute("fill", "#be185d");
+  xLbl.textContent = `x = ${(x*100).toFixed(1)} cm`;
+  svg.appendChild(xLbl);
+}
+
+// ===== Atwood =====
+function updateAtwood() {
+  const m1 = parseFloat(document.getElementById("atwM1").value);
+  const m2 = parseFloat(document.getElementById("atwM2").value);
+  const heavier = m2 > m1 ? "m₂" : (m1 > m2 ? "m₁" : "(cân bằng)");
+  const a = Math.abs(m2 - m1) * g / (m1 + m2);
+  const T = m1 * (g + (m2 > m1 ? a : -a));
+
+  document.getElementById("atwResult").innerHTML = `
+    <div class="row">
+      <span class="stat">Vật nặng hơn: <strong>${heavier}</strong></span>
+      <span class="stat">Gia tốc a = |m₂−m₁|·g / (m₁+m₂) = <strong>${a.toFixed(2)} m/s²</strong></span>
+      <span class="stat">Lực căng dây T = <strong>${T.toFixed(2)} N</strong></span>
+    </div>
+  `;
+
+  drawAtwood(m1, m2);
+}
+
+function drawAtwood(m1, m2) {
+  const svg = document.getElementById("atwoodSvg");
+  svg.innerHTML = "";
+  // Ceiling
+  const c = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  c.setAttribute("x", 0); c.setAttribute("y", 40); c.setAttribute("width", 720); c.setAttribute("height", 10);
+  c.setAttribute("fill", "#475569");
+  svg.appendChild(c);
+  // Pulley
+  const pulley = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  pulley.setAttribute("cx", 360); pulley.setAttribute("cy", 80);
+  pulley.setAttribute("r", 25); pulley.setAttribute("fill", "#94a3b8"); pulley.setAttribute("stroke", "#1a202c"); pulley.setAttribute("stroke-width", 2);
+  svg.appendChild(pulley);
+  // Strings
+  const heavier = m2 > m1 ? 2 : 1;
+  const yM1 = m1 < m2 ? 130 : 280;
+  const yM2 = m2 < m1 ? 130 : 280;
+  ["m1","m2"].forEach((id, i) => {
+    const cx = i === 0 ? 335 : 385;
+    const y = i === 0 ? yM1 : yM2;
+    const m = i === 0 ? m1 : m2;
+    // String
+    const str = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    str.setAttribute("x1", cx); str.setAttribute("y1", 105);
+    str.setAttribute("x2", cx); str.setAttribute("y2", y);
+    str.setAttribute("stroke", "#1a202c"); str.setAttribute("stroke-width", 1.5);
+    svg.appendChild(str);
+    // Mass
+    const sz = 25 + m * 4;
+    const mass = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    mass.setAttribute("x", cx - sz/2); mass.setAttribute("y", y);
+    mass.setAttribute("width", sz); mass.setAttribute("height", sz);
+    mass.setAttribute("fill", i === 0 ? "#dc2626" : "#1d4ed8"); mass.setAttribute("rx", 3);
+    svg.appendChild(mass);
+    const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lbl.setAttribute("x", cx); lbl.setAttribute("y", y + sz/2 + 5);
+    lbl.setAttribute("text-anchor", "middle"); lbl.setAttribute("fill", "white"); lbl.setAttribute("font-weight", "700");
+    lbl.textContent = m + " kg";
+    svg.appendChild(lbl);
+    // Arrow showing motion
+    if ((i === 0 && heavier === 2) || (i === 1 && heavier === 1)) {
+      // This one goes up
+      const arr = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      arr.setAttribute("d", `M ${cx + sz/2 + 10} ${y + sz/2 + 10} L ${cx + sz/2 + 10} ${y - 10}`);
+      arr.setAttribute("stroke", "#047857"); arr.setAttribute("stroke-width", 3); arr.setAttribute("fill", "none"); arr.setAttribute("marker-end", "url(#arrUp)");
+      svg.appendChild(arr);
+    } else if ((i === 0 && heavier === 1) || (i === 1 && heavier === 2)) {
+      // Down
+      const arr = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      arr.setAttribute("d", `M ${cx + sz/2 + 10} ${y - 10} L ${cx + sz/2 + 10} ${y + sz/2 + 10}`);
+      arr.setAttribute("stroke", "#dc2626"); arr.setAttribute("stroke-width", 3); arr.setAttribute("fill", "none"); arr.setAttribute("marker-end", "url(#arrDown)");
+      svg.appendChild(arr);
+    }
+  });
+
+  // Markers
+  const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+  defs.innerHTML = `
+    <marker id="arrUp" viewBox="0 0 10 10" refX="5" refY="9" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 10 L 5 0 L 10 10 z" fill="#047857"/></marker>
+    <marker id="arrDown" viewBox="0 0 10 10" refX="5" refY="9" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 5 10 L 10 0 z" fill="#dc2626"/></marker>
+  `;
+  svg.appendChild(defs);
+}
+
+// Init
+calcGravity();
+updateFriction();
+updateSpring();
+updateAtwood();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 01 (T2) — Acid-Base</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 130px; }
+  input[type="number"], select { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; }
+  input[type="number"] { width: 110px; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  button { background: #be185d; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.muted { background: #94a3b8; }
+  button.muted.active { background: #be185d; }
+  .stat { display: inline-block; background: #fce7f3; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #be185d; }
+  .result { padding: 14px; background: #fef3c7; border-radius: 8px; margin-top: 12px; }
+
+  /* pH scale */
+  .ph-scale {
+    height: 50px;
+    background: linear-gradient(to right,
+      #dc2626 0%, #ea580c 14%, #f59e0b 28%, #facc15 35%,
+      #84cc16 50%, #22c55e 57%, #10b981 64%,
+      #06b6d4 71%, #3b82f6 79%, #6366f1 86%, #7c3aed 100%);
+    border-radius: 25px; position: relative; margin: 14px 0;
+  }
+  .ph-marker {
+    position: absolute; top: -6px;
+    width: 4px; height: 62px;
+    background: #1a202c; border-radius: 2px;
+  }
+  .ph-marker .lbl {
+    position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
+    font-size: 13px; font-weight: 700;
+    background: white; padding: 2px 8px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    white-space: nowrap;
+  }
+  .ph-ticks { display: flex; justify-content: space-between; margin-top: 6px; }
+  .ph-ticks span { font-size: 11px; color: #475569; }
+
+  svg.titration {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 760px; height: 360px;
+  }
+  svg.titration .grid { stroke: #e2e8f0; stroke-width: 1; }
+  svg.titration .curve { fill: none; stroke-width: 2.5; }
+  svg.titration .ep-line { stroke: #be185d; stroke-width: 1.5; stroke-dasharray: 4 3; }
+  svg.titration .axis { stroke: #1a202c; stroke-width: 1.5; }
+  svg.titration .lbl { font: 11px sans-serif; fill: #475569; }
+  svg.titration .title { font: 13px sans-serif; fill: #1a202c; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Chemistry</a>
+  <span class="sep">·</span>
+  <a href="../../01-Structure/lesson-08-kinetics-equilibrium/visualization.html">← T1-L8</a>
+  <span class="sep">·</span>
+  <span class="current">T2-L1: Acid-Base</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L2: Redox (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 01 (T2) — Acid-Base (Axit-Bazơ)</h1>
+<p>Bộ công cụ: pH Calculator (acid mạnh/yếu/base), Buffer Designer (Henderson-Hasselbalch), Titration Curve (acid mạnh + base mạnh vs acid yếu + base mạnh).</p>
+
+<h2>1. pH Scale & Calculator</h2>
+<div class="card">
+  <div class="row">
+    <label>Loại dung dịch:</label>
+    <select id="solType">
+      <option value="strong_acid">Acid mạnh (HCl, HNO₃...)</option>
+      <option value="weak_acid">Acid yếu (Ka)</option>
+      <option value="strong_base">Base mạnh (NaOH, KOH...)</option>
+      <option value="weak_base">Base yếu (Kb)</option>
+    </select>
+  </div>
+  <div class="row">
+    <label>Nồng độ C (M):</label>
+    <input type="number" id="conc" step="0.001" value="0.01">
+    <label id="kLabel" style="display:none">Ka / Kb:</label>
+    <input type="number" id="kVal" step="0.0001" value="1.8e-5" style="display:none">
+    <button onclick="calcPH()">Tính pH</button>
+  </div>
+
+  <div class="ph-scale">
+    <div class="ph-marker" id="phMarker" style="left:0%">
+      <span class="lbl" id="phMarkerLbl">pH = ?</span>
+    </div>
+  </div>
+  <div class="ph-ticks">
+    <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span>
+    <span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span>
+  </div>
+
+  <div class="result" id="phResult"></div>
+</div>
+
+<h2>2. Buffer Designer (Henderson-Hasselbalch)</h2>
+<div class="card">
+  <p>Cho cặp acid yếu (HA) + base liên hợp (A⁻), điều chỉnh tỉ lệ để xem pH thay đổi.</p>
+  <div class="row">
+    <label>Acid:</label>
+    <select id="bufferAcid">
+      <option value="4.74">CH₃COOH (pKa = 4.74)</option>
+      <option value="3.18">HF (pKa = 3.18)</option>
+      <option value="6.37">H₂CO₃ (pKa = 6.37)</option>
+      <option value="2.12">H₃PO₄ (pKa = 2.12)</option>
+      <option value="9.25">NH₄⁺ (pKa = 9.25)</option>
+    </select>
+  </div>
+  <div class="row">
+    <label>[HA] (M):</label>
+    <input type="number" id="HA" step="0.01" value="0.1" oninput="calcBuffer()">
+    <label>[A⁻] (M):</label>
+    <input type="number" id="A" step="0.01" value="0.1" oninput="calcBuffer()">
+  </div>
+  <div class="result" id="bufferResult"></div>
+</div>
+
+<h2>3. Titration Curve</h2>
+<div class="card">
+  <p>Đường chuẩn độ pH theo lượng base thêm vào — so sánh acid mạnh vs acid yếu.</p>
+  <div class="row">
+    <label>Loại chuẩn độ:</label>
+    <button class="muted active" onclick="setTitration('strong')">Acid mạnh + Base mạnh</button>
+    <button class="muted" onclick="setTitration('weak')">Acid yếu + Base mạnh</button>
+  </div>
+  <svg class="titration" id="titrationSvg" viewBox="0 0 760 360"></svg>
+  <div id="titrationNote" style="padding:10px; background:#fce7f3; border-radius:6px"></div>
+</div>
+
+</main>
+
+<script>
+// ===== pH Calculator =====
+function calcPH() {
+  const type = document.getElementById("solType").value;
+  const C = parseFloat(document.getElementById("conc").value);
+  const Kval = parseFloat(document.getElementById("kVal").value);
+  let pH = 0, html = "";
+
+  if (type === "strong_acid") {
+    pH = -Math.log10(C);
+    html = `<div>Acid mạnh: phân ly 100% → [H⁺] = C = ${C} M</div><div>pH = −log(${C}) = <strong>${pH.toFixed(2)}</strong></div>`;
+  } else if (type === "weak_acid") {
+    // Ka = x² / (C − x) ≈ x²/C if x small
+    const x = Math.sqrt(Kval * C);
+    pH = -Math.log10(x);
+    html = `<div>Acid yếu với Ka = ${Kval.toExponential(2)}, C = ${C} M</div>
+            <div>Ka ≈ [H⁺]² / C → [H⁺] = √(Ka·C) = √(${(Kval*C).toExponential(2)}) = ${x.toExponential(3)} M</div>
+            <div>pH = <strong>${pH.toFixed(2)}</strong></div>
+            <div>% phân ly = ${(x/C*100).toFixed(2)}%</div>`;
+  } else if (type === "strong_base") {
+    const pOH = -Math.log10(C);
+    pH = 14 - pOH;
+    html = `<div>Base mạnh: phân ly 100% → [OH⁻] = ${C} M</div>
+            <div>pOH = −log(${C}) = ${pOH.toFixed(2)}</div>
+            <div>pH = 14 − pOH = <strong>${pH.toFixed(2)}</strong></div>`;
+  } else { // weak_base
+    const x = Math.sqrt(Kval * C);
+    const pOH = -Math.log10(x);
+    pH = 14 - pOH;
+    html = `<div>Base yếu với Kb = ${Kval.toExponential(2)}, C = ${C} M</div>
+            <div>[OH⁻] = √(Kb·C) = ${x.toExponential(3)} M → pOH = ${pOH.toFixed(2)}</div>
+            <div>pH = 14 − pOH = <strong>${pH.toFixed(2)}</strong></div>`;
+  }
+
+  document.getElementById("phResult").innerHTML = html;
+  const pct = Math.max(0, Math.min(100, pH / 14 * 100));
+  document.getElementById("phMarker").style.left = pct + "%";
+  document.getElementById("phMarkerLbl").textContent = "pH = " + pH.toFixed(2);
+}
+
+document.getElementById("solType").addEventListener("change", () => {
+  const t = document.getElementById("solType").value;
+  const show = (t === "weak_acid" || t === "weak_base");
+  document.getElementById("kLabel").style.display = show ? "inline" : "none";
+  document.getElementById("kVal").style.display = show ? "inline-block" : "none";
+  calcPH();
+});
+
+// ===== Buffer =====
+function calcBuffer() {
+  const pKa = parseFloat(document.getElementById("bufferAcid").value);
+  const HA = parseFloat(document.getElementById("HA").value);
+  const A = parseFloat(document.getElementById("A").value);
+  const pH = pKa + Math.log10(A / HA);
+  let html = `
+    <div>Henderson-Hasselbalch:</div>
+    <div style="font-family:monospace; padding:8px; background:#f8fafc; margin:6px 0">pH = pKa + log([A⁻]/[HA])</div>
+    <div>= ${pKa} + log(${A}/${HA}) = ${pKa} + log(${(A/HA).toFixed(3)}) = ${pKa} + ${Math.log10(A/HA).toFixed(3)}</div>
+    <div style="margin-top:6px"><strong>pH = ${pH.toFixed(2)}</strong></div>
+  `;
+  if (Math.abs(Math.log10(A/HA)) < 1) {
+    html += `<div style="margin-top:8px; color:#047857"><strong>✓ Đệm tốt:</strong> tỉ lệ [A⁻]/[HA] gần 1 → khả năng kháng pH cao nhất.</div>`;
+  } else {
+    html += `<div style="margin-top:8px; color:#dc2626"><strong>⚠ Đệm yếu:</strong> tỉ lệ lệch xa 1 → khả năng đệm bị giảm.</div>`;
+  }
+  document.getElementById("bufferResult").innerHTML = html;
+}
+document.getElementById("bufferAcid").addEventListener("change", calcBuffer);
+
+// ===== Titration =====
+let currentTitration = "strong";
+function setTitration(type) {
+  currentTitration = type;
+  document.querySelectorAll("button.muted").forEach((b, i) => {
+    const types = ["strong","weak"];
+    b.classList.toggle("active", types[i] === type);
+  });
+  drawTitration();
+}
+
+function drawTitration() {
+  const svg = document.getElementById("titrationSvg");
+  svg.innerHTML = "";
+  const W = 760, H = 360;
+  const padL = 60, padR = 30, padT = 40, padB = 50;
+  const cw = W - padL - padR, ch = H - padT - padB;
+
+  const xMax = 100; // mL base added
+  const xScale = v => padL + (v / xMax) * cw;
+  const yScale = pH => padT + ch - (pH / 14) * ch;
+
+  // Grid + axes
+  for (let v = 0; v <= 100; v += 10) {
+    const x = xScale(v);
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    g.setAttribute("class", "grid");
+    g.setAttribute("x1", x); g.setAttribute("y1", padT);
+    g.setAttribute("x2", x); g.setAttribute("y2", H - padB);
+    svg.appendChild(g);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("class", "lbl"); t.setAttribute("x", x); t.setAttribute("y", H - padB + 16);
+    t.setAttribute("text-anchor", "middle");
+    t.textContent = v;
+    svg.appendChild(t);
+  }
+  for (let p = 0; p <= 14; p += 2) {
+    const y = yScale(p);
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    g.setAttribute("class", "grid");
+    g.setAttribute("x1", padL); g.setAttribute("y1", y);
+    g.setAttribute("x2", W - padR); g.setAttribute("y2", y);
+    svg.appendChild(g);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("class", "lbl"); t.setAttribute("x", padL - 6); t.setAttribute("y", y + 4);
+    t.setAttribute("text-anchor", "end");
+    t.textContent = p;
+    svg.appendChild(t);
+  }
+
+  // Compute curve
+  const Vacid = 50; // 50 mL acid 0.1 M
+  const Macid = 0.1, Mbase = 0.1;
+  let pHs = [];
+  for (let v = 0; v <= 100; v += 0.5) {
+    let pH;
+    const nA = Macid * Vacid / 1000; // mol acid
+    const nB = Mbase * v / 1000;     // mol base
+    const totalV = (Vacid + v) / 1000;
+
+    if (currentTitration === "strong") {
+      if (nB < nA) {
+        const excessAcid = (nA - nB) / totalV;
+        pH = -Math.log10(excessAcid);
+      } else if (nB === nA) {
+        pH = 7;
+      } else {
+        const excessBase = (nB - nA) / totalV;
+        pH = 14 + Math.log10(excessBase);
+      }
+    } else { // weak acid (Ka = 1.8e-5)
+      const Ka = 1.8e-5;
+      const pKa = 4.74;
+      if (v === 0) {
+        const x = Math.sqrt(Ka * Macid);
+        pH = -Math.log10(x);
+      } else if (nB < nA) {
+        // buffer region: HA + A-
+        const ratio = nB / (nA - nB);
+        pH = pKa + Math.log10(ratio);
+      } else if (Math.abs(nB - nA) < 1e-6) {
+        // equivalence: only A- (basic)
+        const C_A = nA / totalV;
+        const Kb = 1e-14 / Ka;
+        const OH = Math.sqrt(Kb * C_A);
+        pH = 14 + Math.log10(OH);
+      } else {
+        const excessBase = (nB - nA) / totalV;
+        pH = 14 + Math.log10(excessBase);
+      }
+    }
+    pHs.push({v, pH});
+  }
+
+  let path = "";
+  pHs.forEach((p, i) => {
+    const x = xScale(p.v), y = yScale(Math.max(0, Math.min(14, p.pH)));
+    path += (i === 0 ? "M " : " L ") + x + " " + y;
+  });
+  const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  p.setAttribute("class", "curve");
+  p.setAttribute("stroke", currentTitration === "strong" ? "#1d4ed8" : "#be185d");
+  p.setAttribute("d", path);
+  svg.appendChild(p);
+
+  // Equivalence point line
+  const epX = xScale(50);
+  const epLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  epLine.setAttribute("class", "ep-line");
+  epLine.setAttribute("x1", epX); epLine.setAttribute("y1", padT);
+  epLine.setAttribute("x2", epX); epLine.setAttribute("y2", H - padB);
+  svg.appendChild(epLine);
+  const epLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  epLbl.setAttribute("class", "lbl");
+  epLbl.setAttribute("x", epX); epLbl.setAttribute("y", padT - 6);
+  epLbl.setAttribute("text-anchor", "middle"); epLbl.setAttribute("fill", "#be185d"); epLbl.setAttribute("font-weight", "700");
+  epLbl.textContent = "Điểm tương đương (50 mL)";
+  svg.appendChild(epLbl);
+
+  // Title
+  const title = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  title.setAttribute("class", "title");
+  title.setAttribute("x", W / 2); title.setAttribute("y", 22);
+  title.setAttribute("text-anchor", "middle");
+  title.textContent = currentTitration === "strong" ?
+    "50 mL HCl 0.1 M + NaOH 0.1 M" : "50 mL CH₃COOH 0.1 M + NaOH 0.1 M";
+  svg.appendChild(title);
+
+  // Axis labels
+  const xAx = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  xAx.setAttribute("class", "title");
+  xAx.setAttribute("x", W / 2); xAx.setAttribute("y", H - 8);
+  xAx.setAttribute("text-anchor", "middle");
+  xAx.textContent = "V NaOH thêm vào (mL)";
+  svg.appendChild(xAx);
+
+  // Notes
+  document.getElementById("titrationNote").innerHTML = currentTitration === "strong"
+    ? "<strong>Acid mạnh + Base mạnh:</strong> bắt đầu pH thấp (acid mạnh, pH ≈ 1). Tăng chậm. Tại điểm tương đương: pH = 7 (NaCl trung tính). Sau đó tăng mạnh."
+    : "<strong>Acid yếu + Base mạnh:</strong> bắt đầu pH cao hơn (acid yếu chỉ phân ly ít). Có VÙNG ĐỆM ở giữa (pH ≈ pKa = 4.74 tại 25 mL). Tại điểm tương đương: pH > 7 (vì CH₃COONa là base yếu).";
+}
+
+// ===== Init =====
+calcPH();
+calcBuffer();
+drawTitration();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

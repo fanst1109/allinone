@@ -93,7 +93,7 @@ Thư mục `tools/` ở cấp gốc chứa các file dùng chung cho toàn bộ 
 
 | File | Mục đích |
 |------|----------|
-| `tools/viz-base.css` | Chrome chung cho mọi viz: body bg/font, sticky nav strip (`nav.viz-nav`), token màu (`--viz-bg`, `--viz-nav-bg`, ...). Load qua `<link>` |
+| `tools/viz-base.css` | Chrome chung cho mọi **viz lẫn index.html**: body/token màu/box-sizing, sticky nav `nav.viz-nav`, **layout index** (`.container`, `header h1`, `.intro`, `.branch-title`, `.card-grid`, `.card`, footer). Load qua `<link>` |
 | `tools/marked.min.js` | Markdown parser (marked v12, local copy — không fetch CDN để hoạt động được với `file://`) |
 | `tools/readme-modal.js` | Script tự inject nút "📖 Đọc README" + panel hiển thị README với 3 chế độ Modal / Sidebar / Full |
 | `tools/build-readme-data.go` | Go script sinh `README.data.js` cạnh mỗi cặp `README.md + visualization.html`. Chạy: `go run tools/build-readme-data.go` |
@@ -107,6 +107,7 @@ Thư mục `tools/` ở cấp gốc chứa các file dùng chung cho toàn bộ 
 - Mỗi khi tạo `visualization.html` mới: **luôn** thêm `<link rel="stylesheet" href="../../tools/viz-base.css">` vào `<head>` (chrome chuẩn), chạy `go run tools/build-readme-data.go` để sinh `README.data.js`, rồi thêm 3 script tags readme-modal vào cuối `<body>` (xem mục 5 ở trên).
 - **Mỗi khi sửa `README.md` của một lesson đã có `visualization.html`, BẮT BUỘC chạy lại `go run tools/build-readme-data.go` (hoặc giới hạn phạm vi `go run tools/build-readme-data.go <Lĩnh vực>`) để regenerate `README.data.js` tương ứng**, rồi commit cả `README.md` và `README.data.js` trong cùng một commit. `README.data.js` là file auto-generated — nếu quên sync, readme-modal sẽ hiển thị nội dung cũ. Không bao giờ sửa `README.data.js` bằng tay.
 - Không tự định nghĩa lại style cho `nav.viz-nav` trong viz — viz-base đã handle. Nếu cần biến thể chrome khác, thêm vào `viz-base.css` chứ không inline.
+- **Mọi `index.html`** (cả lĩnh vực và sub-page) **bắt buộc load `tools/viz-base.css`** và dùng markup chuẩn: `.container > header (h1 + .subtitle + .back) + .intro + .branch-title + .card-grid > .card (.num + .title + .desc + .links > .link-primary + .link-readme) + footer`. Không copy lại CSS cho các selector này. Chỉ override CSS variable trong `<style>` nội bộ: `--bg`, `--accent`, `--accent-soft`, `--accent-hover` (và `--card-accent` cho variant card nếu cần). Cấu trúc nhất quán → mọi lĩnh vực nhìn giống nhau, không bị "vỡ giao diện" giữa các trang.
 - **IPA Reader tự động xuất hiện trong mọi `English/lesson-*/visualization.html`** — chỉ cần đảm bảo viz có dòng `<script src="../../tools/ipa-reader.js"></script>` ở cuối `<body>` (đặt SAU readme-modal). Không cần markup gì khác — widget tự inject nút floating + panel + load dict.
 - Khi tạo viz mới trong `English/`: thêm dòng `<script src="../../tools/ipa-reader.js"></script>` ngay sau readme-modal. Lĩnh vực khác KHÔNG thêm dòng này (widget sẽ skip nếu path không chứa `/English/`, nhưng để rõ ý đồ thì chỉ thêm trong English/).
 

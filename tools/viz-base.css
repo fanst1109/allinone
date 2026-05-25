@@ -1,55 +1,76 @@
-/* viz-base.css — Chrome chung cho mọi visualization.html trong repo.
+/* viz-base.css — Chrome chung cho TẤT CẢ visualization.html VÀ index.html trong repo.
  *
- * Cách dùng: thêm vào <head> của visualization.html, TRƯỚC <style> nội bộ:
- *   <link rel="stylesheet" href="../../tools/viz-base.css">
+ * Cách dùng (cả viz và index đều load cùng file này):
+ *   <link rel="stylesheet" href="../../tools/viz-base.css">   (cấp 2: <Lĩnh vực>/lesson-XX/visualization.html)
+ *   <link rel="stylesheet" href="../tools/viz-base.css">      (cấp 1: <Lĩnh vực>/index.html)
+ *   <link rel="stylesheet" href="../../tools/viz-base.css">   (cấp 2: <Lĩnh vực>/<Tier>/index.html)
  *
- * File này chỉ định nghĩa "chrome" — phần khung dùng chung cho mọi viz:
- *   - Reset box-sizing và body base (font, bg, color)
- *   - Nav strip sticky ở đầu trang (class "viz-nav")
- *   - Token màu chuẩn dưới dạng CSS variables (--viz-*)
+ * Mỗi trang chỉ cần override các CSS variable phù hợp (--bg, --accent...) trong
+ * <style> nội bộ:
  *
- * KHÔNG đụng tới các component đặc thù (vowel chart, audio toggle, table dữ liệu,
- * v.v.) — mỗi viz tự định nghĩa trong <style> nội bộ.
+ *   <style>
+ *     :root {
+ *       --bg: #fafaf7;            // warm cream cho index pages
+ *       --accent: #6b46c1;        // tone riêng của lĩnh vực
+ *       --accent-soft: #f3eafd;
+ *       --accent-hover: #553c9a;
+ *     }
+ *   </style>
  *
- * Khi rename hay đổi token màu ở đây → ảnh hưởng toàn repo, kiểm tra kỹ.
+ * Khi cần card variant (vd basic / mid / adv trong DataStructures), thêm modifier
+ * class override --card-accent:
+ *
+ *   <style>
+ *     .card.basic { --card-accent: #38a169; --card-accent-hover: #2f855a; }
+ *   </style>
+ *
+ * File này có 2 phần:
+ *   1) Base tokens + body + viz-nav sticky (dùng cho visualization.html)
+ *   2) Index chrome — .container, header, .intro, .card-grid, .card, footer
+ *      (dùng cho index.html, không xuất hiện trong viz, không ảnh hưởng nhau)
+ *
+ * Khi đổi token/rule ở đây → ảnh hưởng toàn repo, kiểm tra kỹ.
  */
 
+/* ===========================================================================
+ * 1. ROOT TOKENS + BODY
+ * =========================================================================== */
 :root {
-  --viz-bg: #f5f6f8;
-  --viz-ink: #1f2328;
-  --viz-ink-soft: #4a5568;
-  --viz-muted: #718096;
-  --viz-line: #e2e8f0;
-  --viz-line-strong: #cbd5e0;
+  /* Surfaces & ink */
+  --bg: #f5f6f8;            /* mặc định cool grey (viz); index override sang #fafaf7 */
+  --panel: #ffffff;
+  --ink: #1f2328;
+  --ink-soft: #4a5568;
+  --muted: #718096;
+  --line: #e2e8f0;
+  --line-strong: #cbd5e0;
 
+  /* Accent (per-page override) */
+  --accent: #4299e1;
+  --accent-soft: #ebf8ff;
+  --accent-hover: #3182ce;
+
+  /* Viz-only — sticky nav strip (chỉ dùng trong visualization.html) */
   --viz-nav-bg: #2d3748;
   --viz-nav-ink: #e2e8f0;
   --viz-nav-link: #90cdf4;
   --viz-nav-current-bg: #ffffff;
   --viz-nav-current-ink: #1a202c;
-
-  --viz-heading: #1a202c;
-  --viz-heading-soft: #2d3748;
-
-  --viz-accent: #4299e1;
-  --viz-accent-hover: #3182ce;
 }
 
 * { box-sizing: border-box; }
-
-html, body {
-  margin: 0;
-  padding: 0;
-}
+html, body { margin: 0; padding: 0; }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: var(--viz-bg);
-  color: var(--viz-ink);
+  background: var(--bg);
+  color: var(--ink);
   line-height: 1.55;
 }
 
-/* Sticky navigation strip
+/* ===========================================================================
+ * 2. STICKY NAV (visualization.html)
+ * ===========================================================================
  * Markup chuẩn:
  *   <nav class="viz-nav">
  *     <a href="../index.html">🏠 Trang chính</a>
@@ -88,3 +109,160 @@ nav.viz-nav .current {
   font-weight: 700;
 }
 nav.viz-nav .sep { opacity: 0.45; }
+
+/* ===========================================================================
+ * 3. INDEX PAGE CHROME (index.html)
+ * ===========================================================================
+ * Markup tổng thể:
+ *   <body>
+ *     <div class="container">
+ *       <header>
+ *         <div class="back">← <a href="...">🏠 Trang chính</a></div>
+ *         <h1>...</h1>
+ *         <div class="subtitle">...</div>
+ *       </header>
+ *       <section class="intro"> ... </section>
+ *       <h2 class="branch-title">Tên section <small>chú thích</small></h2>
+ *       <div class="card-grid">
+ *         <div class="card">
+ *           <div class="num">Tier 1</div>
+ *           <div class="title">...</div>
+ *           <div class="desc">...</div>
+ *           <div class="links">
+ *             <a class="link-primary" href="...">▶ Trang chính</a>
+ *             <a class="link-readme" href="...">📖 README</a>
+ *           </div>
+ *         </div>
+ *       </div>
+ *       <footer> ... </footer>
+ *     </div>
+ *   </body>
+ */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+
+/* Header */
+header { margin-bottom: 28px; }
+header h1 { margin: 0 0 8px; font-size: 32px; font-weight: 800; color: var(--ink); }
+header .subtitle { color: var(--muted); font-size: 16px; }
+header .back { font-size: 13px; margin-bottom: 12px; }
+header .back a { color: var(--accent); text-decoration: none; font-weight: 600; }
+header .back a:hover { text-decoration: underline; }
+
+/* Intro card */
+.intro {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 28px;
+}
+.intro h2 { margin: 0 0 12px; font-size: 18px; }
+.intro p, .intro li { font-size: 14px; }
+.intro ul { margin: 8px 0 0; padding-left: 20px; }
+.intro li { margin-bottom: 4px; }
+
+/* Branch / section title (cho sub-page có nhiều nhánh) */
+.branch-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 32px 0 16px;
+  padding-left: 12px;
+  border-left: 4px solid var(--accent);
+}
+.branch-title:first-of-type { margin-top: 0; }
+.branch-title small {
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 14px;
+  margin-left: 8px;
+}
+
+/* Card grid */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 18px;
+  border-left: 4px solid var(--card-accent, var(--accent));
+  transition: all 0.15s;
+  display: flex;
+  flex-direction: column;
+}
+.card:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
+}
+.card.pending {
+  opacity: 0.55;
+  border-left-color: var(--line);
+}
+.card.pending:hover {
+  box-shadow: none;
+  transform: none;
+}
+
+.card .num {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.card .title { font-size: 17px; font-weight: 700; margin: 4px 0 8px; color: var(--ink); }
+.card .desc {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 12px;
+  flex: 1;
+}
+.card .status {
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.card .links { display: flex; gap: 8px; flex-wrap: wrap; }
+.card .links a {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.12s;
+}
+.card .links .link-primary {
+  background: var(--card-accent, var(--accent));
+  color: #fff;
+}
+.card .links .link-primary:hover {
+  background: var(--card-accent-hover, var(--accent-hover));
+}
+.card .links .link-readme {
+  background: #f5f4f0;
+  color: var(--muted);
+}
+.card .links .link-readme:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* Footer */
+footer {
+  margin-top: 48px;
+  font-size: 13px;
+  color: var(--muted);
+}
+footer a { color: var(--accent); text-decoration: none; }
+footer a:hover { text-decoration: underline; }

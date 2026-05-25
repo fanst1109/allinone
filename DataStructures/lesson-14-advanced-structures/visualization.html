@@ -3,23 +3,58 @@
 <head>
 <meta charset="UTF-8">
 <link rel="stylesheet" href="../../tools/viz-base.css">
-<title>Lesson 14 — Bloom Filter trực quan</title>
+<title>Lesson 14 — Bloom Filter: thiết kế chống saturation</title>
 <style>
   .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 16px; }
   h1 { margin: 0 0 8px 0; }
-  .bits { display: grid; grid-template-columns: repeat(32, 1fr); gap: 3px; margin: 14px 0; }
-  .bit { aspect-ratio: 1; min-height: 18px; border: 1px solid #ccc; background: #fff; display: flex; align-items: center; justify-content: center;
-         font-size: 11px; color: #555; border-radius: 3px; transition: all .3s; }
-  .bit.set { background: #1e293b; color: #fff; }
-  .bit.hashed { box-shadow: 0 0 0 3px #f59e0b; z-index: 1; }
-  .bit.fresh { background: #10b981; color: #fff; }
-  button { background: #3b82f6; color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; cursor: pointer; margin-right: 6px; }
-  input { padding: 4px; width: 140px; }
-  .log { color: #444; min-height: 22px; margin-top: 8px; font-family: monospace; font-size: 13px; }
-  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
-  .stats { background: #f3f4f6; padding: 8px 12px; border-radius: 6px; font-size: 13px; }
-  .added { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
-  .chip { background: #eff6ff; color: #1e40af; padding: 2px 8px; border-radius: 12px; font-size: 12px; }
+  h2 { margin: 18px 0 8px; font-size: 18px; }
+  .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 720px) { .controls { grid-template-columns: 1fr; } }
+  .controls .field { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px 14px; }
+  .controls label { font-weight: 600; font-size: 13px; display: block; margin-bottom: 6px; color: #4a5568; }
+  .controls input[type=range] { width: 100%; }
+  .controls .target-btns { display: flex; gap: 6px; }
+  .controls .target-btns button {
+    flex: 1; background: #fff; color: #2d3748; border: 2px solid #cbd5e0;
+    padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600;
+  }
+  .controls .target-btns button.active { background: #2c5282; color: #fff; border-color: #2c5282; }
+
+  .design {
+    background: #ebf8ff; border: 1px solid #4299e1; border-radius: 6px;
+    padding: 12px 16px; margin-top: 14px; font-size: 14px;
+  }
+  .design strong { color: #2c5282; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; margin: 12px 0; }
+  .stat { background: #f3f4f6; padding: 10px 14px; border-radius: 6px; }
+  .stat .label { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.3px; }
+  .stat .value { font-size: 18px; font-weight: 700; color: #1a202c; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .stat.alert { background: #fff5f5; border: 1px solid #fc8181; }
+  .stat.alert .value { color: #c53030; }
+  .stat.good { background: #f0fff4; border: 1px solid #68d391; }
+  .stat.good .value { color: #276749; }
+
+  .actions { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
+  .actions button {
+    background: #3b82f6; color: #fff; border: 0;
+    padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: 600;
+  }
+  .actions button:hover { background: #2563eb; }
+  .actions button.danger { background: #e53e3e; }
+  .actions button.danger:hover { background: #c53030; }
+  .actions button.ghost { background: #e2e8f0; color: #2d3748; }
+  .actions button.ghost:hover { background: #cbd5e0; }
+
+  .bits-wrap { background: #fafafa; border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px; }
+  .bits { display: grid; gap: 2px; }
+  .bit { aspect-ratio: 1; min-width: 6px; min-height: 6px; background: #fff; border: 1px solid #e2e8f0; border-radius: 2px; transition: background .15s; }
+  .bit.set { background: #1e293b; border-color: #1e293b; }
+  .density-note { font-size: 12px; color: #6b7280; margin-top: 6px; }
+
+  .log { background: #1a202c; color: #e2e8f0; padding: 10px 14px; border-radius: 6px; font-family: ui-monospace, monospace; font-size: 13px; min-height: 22px; margin-top: 10px; }
+  .warn { background: #fef3c7; border-left: 4px solid #d97706; padding: 10px 14px; border-radius: 4px; font-size: 13px; margin-top: 10px; display: none; }
+  .warn.show { display: block; }
 </style>
 </head>
 <body>
@@ -34,78 +69,249 @@
 </nav>
 <main>
 
-<h1>Bloom Filter — Bộ lọc xác suất</h1>
+<h1>Bloom Filter — Thiết kế đúng kích thước để giữ FP rate trong tầm kiểm soát</h1>
+<p style="color:#4a5568;font-size:14px">
+  Trong demo trước, ta thấy bảng 64 bit / k=3 saturate rất nhanh (n=20 đã có FP ~23%).
+  Lần này: cho biết <strong>n dự kiến</strong> và <strong>FP target</strong> →
+  tự động tính <em>m</em> và <em>k</em> theo công thức, build bảng đúng kích thước,
+  và đo FP rate thực để xác nhận giữ được target.
+</p>
 
 <div class="panel">
-  <div class="stats" id="stats">Bảng 64 bit, k = 3 hàm hash. Thêm và kiểm tra bằng cách hash bằng 3 hàm khác nhau.</div>
-  <div class="row" style="margin-top:10px">
-    <input id="key" type="text" value="alice">
-    <button onclick="doAdd()">Add</button>
-    <button onclick="doCheck()">Check</button>
-    <button onclick="reset()">Reset</button>
+  <h2 style="margin-top:0">1. Thiết kế bảng</h2>
+  <div class="controls">
+    <div class="field">
+      <label>n dự kiến (số phần tử sẽ add): <span id="nLabel">100</span></label>
+      <input id="nSlider" type="range" min="10" max="500" step="10" value="100">
+    </div>
+    <div class="field">
+      <label>FP target (sai dương chấp nhận được)</label>
+      <div class="target-btns">
+        <button id="btn1" class="active" data-p="0.01">1% — tiết kiệm</button>
+        <button id="btn01" data-p="0.001">0.1% — nghiêm ngặt</button>
+      </div>
+    </div>
   </div>
-  <div class="bits" id="bits"></div>
-  <div>Đã thêm: <div class="added" id="added"></div></div>
-  <div class="log" id="log">Add: bật 3 bit ứng với 3 hash. Check: cả 3 bit cùng bật → "có thể có"; có bit nào tắt → "chắc chắn không có".</div>
+  <div class="design" id="design">…</div>
+</div>
+
+<div class="panel">
+  <h2 style="margin-top:0">2. Trạng thái hiện tại</h2>
+  <div class="stats-grid">
+    <div class="stat"><div class="label">Đã add</div><div class="value" id="statN">0 / 100</div></div>
+    <div class="stat"><div class="label">Bit bật</div><div class="value" id="statBits">0%</div></div>
+    <div class="stat"><div class="label">FP dự đoán (công thức)</div><div class="value" id="statFPCalc">0%</div></div>
+    <div class="stat" id="statFPMeas"><div class="label">FP đo thực (1000 probe)</div><div class="value">—</div></div>
+  </div>
+  <div class="actions">
+    <button onclick="addRandom(1)">+ Add 1 key ngẫu nhiên</button>
+    <button onclick="addRandom(10)">+ Add 10</button>
+    <button onclick="addRandom(50)">+ Add 50</button>
+    <button onclick="addUntilTarget()" class="ghost">Add đến lúc đạt n dự kiến</button>
+    <button onclick="addUntilSaturate()" class="danger">Add đến lúc FP đo &gt; target × 5 (saturate)</button>
+    <button onclick="rebuild()" class="ghost">Rebuild (xóa hết)</button>
+  </div>
+  <div class="warn" id="warnBox"></div>
+  <div class="log" id="log">Thiết lập n=100, FP 1% → bảng được tính tự động. Bắt đầu add key để xem FP rate.</div>
+</div>
+
+<div class="panel">
+  <h2 style="margin-top:0">3. Bảng bit (đen = bật)</h2>
+  <div class="bits-wrap">
+    <div class="bits" id="bitsGrid"></div>
+    <div class="density-note" id="densityNote">…</div>
+  </div>
 </div>
 
 <script>
-const M = 64, K = 3;
-let bits = new Array(M).fill(false);
-let added = new Set();
+// ===== State =====
+let n_expected = 100;
+let p_target = 0.01;
+let m = 0, k = 0;
+let bits = [];
+let addedKeys = new Set(); // theo dõi để probe FP đúng (chỉ probe key chưa add)
 
-// Ba hàm hash đơn giản, đủ khác biệt
-function h1(s) { let h = 5381; for (const c of s) h = ((h << 5) + h + c.charCodeAt(0)) >>> 0; return h % M; }
-function h2(s) { let h = 2166136261; for (const c of s) { h ^= c.charCodeAt(0); h = (h * 16777619) >>> 0; } return h % M; }
-function h3(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i) * 7 + 13) >>> 0; return h % M; }
+// ===== Thiết kế bảng theo công thức =====
+function computeMK(n, p) {
+  // m = -n * ln(p) / (ln 2)^2
+  const mRaw = -n * Math.log(p) / (Math.log(2) ** 2);
+  const m = Math.ceil(mRaw);
+  const k = Math.max(1, Math.round((m / n) * Math.log(2)));
+  return { m, k };
+}
 
-function hashes(s) { return [h1(s), h2(s), h3(s)]; }
+function rebuild() {
+  const d = computeMK(n_expected, p_target);
+  m = d.m; k = d.k;
+  bits = new Array(m).fill(false);
+  addedKeys = new Set();
+  document.getElementById('design').innerHTML =
+    `n = <strong>${n_expected}</strong>, FP target = <strong>${(p_target*100).toFixed(p_target===0.001?1:0)}%</strong>
+     → công thức cho ra <strong>m = ${m} bit</strong> (~${(m/n_expected).toFixed(1)} bit/key),
+     <strong>k = ${k} hàm hash</strong>.`;
+  renderBits();
+  updateStats();
+  setLog(`Rebuild xong. Bảng mới ${m} bit, ${k} hash function. Sẵn sàng add ${n_expected} key.`);
+  hideWarn();
+}
 
-function renderBits(highlighted = [], fresh = []) {
-  const root = document.getElementById('bits');
-  root.innerHTML = '';
-  const hSet = new Set(highlighted), fSet = new Set(fresh);
-  for (let i = 0; i < M; i++) {
-    const d = document.createElement('div');
-    d.className = 'bit' + (bits[i] ? ' set' : '') + (hSet.has(i) ? ' hashed' : '') + (fSet.has(i) ? ' fresh' : '');
-    d.textContent = i;
-    root.appendChild(d);
+// ===== Hash function: dùng nhiều seed khác nhau =====
+function fnv1a(s, seed) {
+  let h = 2166136261 ^ seed;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = (h * 16777619) >>> 0;
   }
-  const a = document.getElementById('added');
-  a.innerHTML = '';
-  [...added].forEach(k => { const c = document.createElement('span'); c.className = 'chip'; c.textContent = k; a.appendChild(c); });
-  document.getElementById('stats').textContent =
-    `Bảng 64 bit · k = 3 hàm · Đã add ${added.size} key · Bit đã bật: ${bits.filter(x => x).length}/${M}`;
+  return h;
+}
+function hashes(s) {
+  const out = new Array(k);
+  for (let i = 0; i < k; i++) out[i] = fnv1a(s, i * 2654435761) % m;
+  return out;
 }
 
-function doAdd() {
-  const s = document.getElementById('key').value.trim();
-  if (!s) return;
-  const idxs = hashes(s);
-  const beforeFresh = idxs.filter(i => !bits[i]);
-  idxs.forEach(i => bits[i] = true);
-  added.add(s);
-  renderBits(idxs, beforeFresh);
-  document.getElementById('log').textContent =
-    `Add "${s}": h1=${idxs[0]}, h2=${idxs[1]}, h3=${idxs[2]} → bật 3 bit này.`;
+function addKey(s) {
+  hashes(s).forEach(i => bits[i] = true);
+  addedKeys.add(s);
 }
 
-function doCheck() {
-  const s = document.getElementById('key').value.trim();
-  if (!s) return;
-  const idxs = hashes(s);
-  const allSet = idxs.every(i => bits[i]);
-  renderBits(idxs);
-  const reallyHas = added.has(s);
-  let msg = `Check "${s}": h1=${idxs[0]} (${bits[idxs[0]] ? '✓' : '✗'}), h2=${idxs[1]} (${bits[idxs[1]] ? '✓' : '✗'}), h3=${idxs[2]} (${bits[idxs[2]] ? '✓' : '✗'}) → `;
-  if (!allSet) msg += `CHẮC CHẮN không có (có bit tắt).`;
-  else if (reallyHas) msg += `"có thể có" → đúng (đã add trước đó).`;
-  else msg += `"có thể có" → nhưng THỰC TẾ chưa add — FALSE POSITIVE!`;
-  document.getElementById('log').textContent = msg;
+function contains(s) {
+  return hashes(s).every(i => bits[i]);
 }
 
-function reset() { bits = new Array(M).fill(false); added = new Set(); renderBits(); document.getElementById('log').textContent = 'Reset.'; }
-renderBits();
+// ===== Rendering =====
+function renderBits() {
+  const grid = document.getElementById('bitsGrid');
+  // Chọn số cột phù hợp: ~32-64 cột
+  const cols = m <= 256 ? 32 : (m <= 1024 ? 48 : 64);
+  grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  // Tạo từng bit; với m lớn (>2000) cũng OK trên màn hình hiện đại
+  if (grid.childElementCount !== m) {
+    grid.innerHTML = '';
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < m; i++) {
+      const d = document.createElement('div');
+      d.className = 'bit';
+      frag.appendChild(d);
+    }
+    grid.appendChild(frag);
+  }
+  const children = grid.children;
+  for (let i = 0; i < m; i++) {
+    children[i].className = 'bit' + (bits[i] ? ' set' : '');
+  }
+  const setCount = bits.filter(b => b).length;
+  document.getElementById('densityNote').textContent =
+    `Tổng ${m} bit, đang bật ${setCount} (${(100*setCount/m).toFixed(1)}%). ` +
+    (m > 1024 ? `Bảng lớn — mỗi ô bit hiển thị nhỏ; nhìn mật độ tổng thể.` : '');
+}
+
+function fpFormula(nAdded) {
+  return Math.pow(1 - Math.exp(-k * nAdded / m), k);
+}
+
+function fpMeasured() {
+  // Probe 1000 chuỗi chưa add, đếm số "có thể có"
+  const trials = 1000;
+  let fp = 0;
+  for (let i = 0; i < trials; i++) {
+    const s = `probe_${i}_${Math.random().toString(36).slice(2)}`;
+    if (addedKeys.has(s)) continue;
+    if (contains(s)) fp++;
+  }
+  return fp / trials;
+}
+
+function updateStats() {
+  const nAdded = addedKeys.size;
+  document.getElementById('statN').textContent = `${nAdded} / ${n_expected}`;
+  const setCount = bits.filter(b => b).length;
+  document.getElementById('statBits').textContent = `${(100*setCount/m).toFixed(1)}%`;
+  const fpC = fpFormula(nAdded);
+  document.getElementById('statFPCalc').textContent =
+    fpC < 0.001 ? (fpC*100).toExponential(1) + '%' : (fpC*100).toFixed(2) + '%';
+  const fpM = nAdded === 0 ? 0 : fpMeasured();
+  const measEl = document.getElementById('statFPMeas');
+  measEl.querySelector('.value').textContent =
+    nAdded === 0 ? '—' : (fpM*100).toFixed(2) + '%';
+  // Đánh dấu màu dựa trên target
+  measEl.classList.remove('alert', 'good');
+  if (nAdded > 0) {
+    if (fpM > p_target * 2) measEl.classList.add('alert');
+    else if (fpM <= p_target * 1.5) measEl.classList.add('good');
+  }
+  // Warning khi vượt target nhiều
+  if (nAdded > 0 && fpM > p_target * 2) {
+    showWarn(`FP đo (${(fpM*100).toFixed(2)}%) đã vượt 2× target (${(p_target*100).toFixed(p_target===0.001?1:0)}%). ` +
+             (nAdded > n_expected ? `Đã add ${nAdded} > n dự kiến ${n_expected} — bảng đã saturate. ` : '') +
+             `Cần Rebuild với m lớn hơn hoặc dùng Scalable Bloom Filter.`);
+  } else if (nAdded > n_expected) {
+    showWarn(`Đã vượt n dự kiến (${nAdded}/${n_expected}) — FP rate sẽ tăng dần. Trong production: monitor 'bits_set/m', rebuild khi vượt 50%.`);
+  } else {
+    hideWarn();
+  }
+}
+
+function showWarn(msg) {
+  const w = document.getElementById('warnBox');
+  w.textContent = '⚠ ' + msg;
+  w.classList.add('show');
+}
+function hideWarn() {
+  document.getElementById('warnBox').classList.remove('show');
+}
+
+function setLog(msg) { document.getElementById('log').textContent = msg; }
+
+// ===== Actions =====
+function randomKey() {
+  return `user_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function addRandom(count) {
+  for (let i = 0; i < count; i++) addKey(randomKey());
+  renderBits(); updateStats();
+  setLog(`Đã add ${count} key ngẫu nhiên. Tổng: ${addedKeys.size}.`);
+}
+
+function addUntilTarget() {
+  const need = n_expected - addedKeys.size;
+  if (need <= 0) { setLog(`Đã đủ ${n_expected} key.`); return; }
+  for (let i = 0; i < need; i++) addKey(randomKey());
+  renderBits(); updateStats();
+  setLog(`Đã add đủ ${n_expected} key như thiết kế. Quan sát FP đo so với target.`);
+}
+
+function addUntilSaturate() {
+  // Add từng đợt 20, dừng khi FP > target × 5
+  const limit = 50000;
+  let added = 0;
+  while (added < limit) {
+    for (let i = 0; i < 20; i++) { addKey(randomKey()); added++; }
+    if (fpMeasured() > p_target * 5) break;
+  }
+  renderBits(); updateStats();
+  setLog(`Add đến khi FP > target×5. Tổng: ${addedKeys.size} key (vượt n dự kiến ${(addedKeys.size/n_expected).toFixed(1)}×).`);
+}
+
+// ===== Wire controls =====
+document.getElementById('nSlider').addEventListener('input', e => {
+  n_expected = parseInt(e.target.value);
+  document.getElementById('nLabel').textContent = n_expected;
+  rebuild();
+});
+
+document.querySelectorAll('.target-btns button').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.target-btns button').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    p_target = parseFloat(b.dataset.p);
+    rebuild();
+  });
+});
+
+// Initial build
+rebuild();
 </script></main>
 <!-- README modal (xem tools/readme-modal.js để biết chi tiết) -->
 <script src="../../tools/marked.min.js"></script>

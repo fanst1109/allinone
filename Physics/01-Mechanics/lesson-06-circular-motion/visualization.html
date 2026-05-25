@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 06 — Chuyển động tròn</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 130px; }
+  input[type="number"], select { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 110px; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  button { background: #1e40af; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.muted { background: #94a3b8; }
+  .stat { display: inline-block; background: #dbeafe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #1e40af; }
+  .result { padding: 14px; background: #dbeafe; border-radius: 8px; margin-top: 12px; }
+
+  svg.scene {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 600px; height: 400px;
+    background: radial-gradient(circle, #1e293b, #0f172a);
+    border-radius: 8px;
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Physics</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-momentum-collisions/visualization.html">← L5: Động lượng</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Chuyển động tròn</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L7: Vật rắn (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 06 — Chuyển động tròn</h1>
+<p>Bộ công cụ: Circular Motion Animator (vẽ vận tốc + gia tốc hướng tâm), Satellite Orbit Calculator, Kepler III demo.</p>
+
+<h2>1. Circular Motion Animator</h2>
+<div class="card">
+  <div class="row">
+    <label>Bán kính r (m):</label>
+    <input type="number" id="cmR" step="0.5" value="3" oninput="updateCM()">
+    <label>Chu kỳ T (s):</label>
+    <input type="number" id="cmT" step="0.5" value="4" oninput="updateCM()">
+    <label>Khối lượng (kg):</label>
+    <input type="number" id="cmM" step="0.5" value="1" oninput="updateCM()">
+  </div>
+  <div class="row">
+    <button onclick="toggleCM()" id="cmBtn">▶ Bắt đầu</button>
+  </div>
+  <svg class="scene" id="cmSvg" viewBox="0 0 600 400"></svg>
+  <div class="result" id="cmResult"></div>
+</div>
+
+<h2>2. Satellite Orbit Calculator</h2>
+<div class="card">
+  <p>Cho bán kính quỹ đạo r → tính vận tốc v và chu kỳ T. Dùng v = √(GM/r), T = 2πr/v.</p>
+  <div class="row">
+    <label>Độ cao (km):</label>
+    <input type="number" id="satH" step="100" value="400" oninput="calcSat()">
+  </div>
+  <div class="row">
+    <button class="muted" onclick="setSat('ISS')">ISS (400 km)</button>
+    <button class="muted" onclick="setSat('GPS')">GPS (20,200 km)</button>
+    <button class="muted" onclick="setSat('GEO')">Địa tĩnh GEO (35,786 km)</button>
+    <button class="muted" onclick="setSat('Moon')">Mặt Trăng (378,000 km)</button>
+  </div>
+  <div class="result" id="satResult"></div>
+</div>
+
+<h2>3. Định luật Kepler III — T² ∝ r³</h2>
+<div class="card">
+  <p>Bảng 8 hành tinh hệ Mặt Trời: kiểm tra T²/r³ ≈ const (đơn vị: r AU, T năm).</p>
+  <table style="width:100%; border-collapse:collapse; font-size:14px">
+    <tr><th style="background:#dbeafe; padding:8px; border:1px solid #e2e8f0">Hành tinh</th><th style="background:#dbeafe; padding:8px; border:1px solid #e2e8f0">r (AU)</th><th style="background:#dbeafe; padding:8px; border:1px solid #e2e8f0">T (năm)</th><th style="background:#dbeafe; padding:8px; border:1px solid #e2e8f0">T²/r³</th></tr>
+    <tr><td style="padding:6px 12px; border:1px solid #e2e8f0">Sao Thủy</td><td>0.39</td><td>0.241</td><td>0.978</td></tr>
+    <tr><td style="padding:6px 12px; border:1px solid #e2e8f0">Sao Kim</td><td>0.72</td><td>0.615</td><td>1.013</td></tr>
+    <tr style="background:#fef3c7"><td style="padding:6px 12px; border:1px solid #e2e8f0"><strong>Trái Đất</strong></td><td>1.00</td><td>1.000</td><td><strong>1.000</strong></td></tr>
+    <tr><td style="padding:6px 12px; border:1px solid #e2e8f0">Sao Hỏa</td><td>1.52</td><td>1.881</td><td>1.005</td></tr>
+    <tr><td style="padding:6px 12px; border:1px solid #e2e8f0">Sao Mộc</td><td>5.20</td><td>11.862</td><td>1.000</td></tr>
+    <tr><td style="padding:6px 12px; border:1px solid #e2e8f0">Sao Thổ</td><td>9.54</td><td>29.457</td><td>1.000</td></tr>
+    <tr><td style="padding:6px 12px; border:1px solid #e2e8f0">Sao Thiên Vương</td><td>19.18</td><td>84.011</td><td>1.000</td></tr>
+    <tr><td style="padding:6px 12px; border:1px solid #e2e8f0">Sao Hải Vương</td><td>30.07</td><td>164.79</td><td>1.000</td></tr>
+  </table>
+  <div style="margin-top:10px; padding:10px; background:#dcfce7; border-radius:6px">
+    <strong>Quan sát:</strong> T²/r³ ≈ 1.00 cho mọi hành tinh — đây là Kepler III. Newton sau đó chứng minh hằng số này = 4π²/(G·M_Sun).
+  </div>
+</div>
+
+</main>
+
+<script>
+const G = 6.674e-11;
+const M_EARTH = 5.97e24;
+const R_EARTH = 6371000;
+
+// ===== Circular Motion =====
+let cmState = { angle: 0, running: false };
+let cmInterval = null;
+
+function updateCM() {
+  const r = parseFloat(document.getElementById("cmR").value);
+  const T = parseFloat(document.getElementById("cmT").value);
+  const m = parseFloat(document.getElementById("cmM").value);
+  const omega = 2 * Math.PI / T;
+  const v = omega * r;
+  const ac = v * v / r;
+  const Fc = m * ac;
+
+  document.getElementById("cmResult").innerHTML = `
+    <div class="row">
+      <span class="stat">ω = 2π/T = <strong>${omega.toFixed(2)} rad/s</strong></span>
+      <span class="stat">v = ω·r = <strong>${v.toFixed(2)} m/s</strong></span>
+      <span class="stat">a_c = v²/r = <strong>${ac.toFixed(2)} m/s²</strong></span>
+      <span class="stat">F_c = m·a_c = <strong>${Fc.toFixed(2)} N</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px">
+      <strong>Quan sát:</strong> Vector vận tốc v (xanh) luôn vuông góc với bán kính (= tiếp tuyến). Gia tốc a (đỏ) và lực F_c luôn hướng vào tâm. |v| không đổi nhưng hướng đổi → có gia tốc!
+    </div>
+  `;
+  drawCM();
+}
+
+function toggleCM() {
+  if (cmState.running) {
+    clearInterval(cmInterval); cmInterval = null;
+    cmState.running = false;
+    document.getElementById("cmBtn").textContent = "▶ Tiếp tục";
+  } else {
+    cmState.running = true;
+    document.getElementById("cmBtn").textContent = "⏸ Dừng";
+    cmInterval = setInterval(stepCM, 30);
+  }
+}
+
+function stepCM() {
+  const T = parseFloat(document.getElementById("cmT").value);
+  cmState.angle += (2 * Math.PI / T) * 0.03;
+  if (cmState.angle > 2 * Math.PI) cmState.angle -= 2 * Math.PI;
+  drawCM();
+}
+
+function drawCM() {
+  const r = parseFloat(document.getElementById("cmR").value);
+  const svg = document.getElementById("cmSvg");
+  svg.innerHTML = "";
+  const cx = 300, cy = 200;
+  const pxR = Math.min(160, r * 30);
+
+  // Center (force point)
+  const center = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  center.setAttribute("cx", cx); center.setAttribute("cy", cy); center.setAttribute("r", 5);
+  center.setAttribute("fill", "#fbbf24");
+  svg.appendChild(center);
+  const ctxt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  ctxt.setAttribute("x", cx + 10); ctxt.setAttribute("y", cy + 5);
+  ctxt.setAttribute("fill", "#fbbf24"); ctxt.setAttribute("font-size", "12");
+  ctxt.textContent = "Tâm";
+  svg.appendChild(ctxt);
+
+  // Orbit circle
+  const orbit = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  orbit.setAttribute("cx", cx); orbit.setAttribute("cy", cy); orbit.setAttribute("r", pxR);
+  orbit.setAttribute("fill", "none"); orbit.setAttribute("stroke", "#475569"); orbit.setAttribute("stroke-dasharray", "4 4");
+  svg.appendChild(orbit);
+
+  // Object position
+  const a = cmState.angle;
+  const ox = cx + pxR * Math.cos(a);
+  const oy = cy + pxR * Math.sin(a);
+  const obj = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  obj.setAttribute("cx", ox); obj.setAttribute("cy", oy); obj.setAttribute("r", 14);
+  obj.setAttribute("fill", "#dc2626"); obj.setAttribute("stroke", "white"); obj.setAttribute("stroke-width", 2);
+  svg.appendChild(obj);
+
+  // Velocity vector (tangent)
+  const vLen = 60;
+  const vx = ox - vLen * Math.sin(a);
+  const vy = oy + vLen * Math.cos(a);
+  drawCMArrow(svg, ox, oy, vx, vy, "#22c55e", "v");
+
+  // Acceleration vector (toward center)
+  const aLen = 50;
+  const ax = cx + (pxR - aLen) * Math.cos(a);
+  const ay = cy + (pxR - aLen) * Math.sin(a);
+  drawCMArrow(svg, ox, oy, ax, ay, "#fbbf24", "a_c (hướng tâm)");
+
+  // Radius line
+  const rad = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  rad.setAttribute("x1", cx); rad.setAttribute("y1", cy);
+  rad.setAttribute("x2", ox); rad.setAttribute("y2", oy);
+  rad.setAttribute("stroke", "#94a3b8"); rad.setAttribute("stroke-width", 1.5);
+  svg.appendChild(rad);
+  const rLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  rLbl.setAttribute("x", (cx + ox)/2); rLbl.setAttribute("y", (cy + oy)/2 - 5);
+  rLbl.setAttribute("fill", "#94a3b8"); rLbl.setAttribute("font-size", "12");
+  rLbl.textContent = "r = " + r + " m";
+  svg.appendChild(rLbl);
+}
+
+function drawCMArrow(svg, x1, y1, x2, y2, color, label) {
+  const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  line.setAttribute("x1", x1); line.setAttribute("y1", y1);
+  line.setAttribute("x2", x2); line.setAttribute("y2", y2);
+  line.setAttribute("stroke", color); line.setAttribute("stroke-width", 2.5);
+  svg.appendChild(line);
+  // Arrowhead
+  const dx = x2 - x1, dy = y2 - y1, len = Math.sqrt(dx*dx + dy*dy);
+  const ux = dx/len, uy = dy/len;
+  const hx = x2 - ux*10, hy = y2 - uy*10;
+  const wx = -uy*5, wy = ux*5;
+  const head = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  head.setAttribute("points", `${x2},${y2} ${hx+wx},${hy+wy} ${hx-wx},${hy-wy}`);
+  head.setAttribute("fill", color);
+  svg.appendChild(head);
+  // Label
+  const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  t.setAttribute("x", x2 + ux*8); t.setAttribute("y", y2 + uy*8 + 4);
+  t.setAttribute("fill", color); t.setAttribute("font-weight", "700"); t.setAttribute("font-size", "13");
+  t.textContent = label;
+  svg.appendChild(t);
+}
+
+// ===== Satellite =====
+function setSat(scen) {
+  if (scen === "ISS") document.getElementById("satH").value = 400;
+  if (scen === "GPS") document.getElementById("satH").value = 20200;
+  if (scen === "GEO") document.getElementById("satH").value = 35786;
+  if (scen === "Moon") document.getElementById("satH").value = 378000;
+  calcSat();
+}
+
+function calcSat() {
+  const h = parseFloat(document.getElementById("satH").value) * 1000;
+  const r = R_EARTH + h;
+  const v = Math.sqrt(G * M_EARTH / r);
+  const T = 2 * Math.PI * r / v;
+  const ac = v * v / r;
+  const Tdays = T / 86400;
+  const Tlbl = T > 86400 ? `${Tdays.toFixed(3)} ngày` : `${(T/3600).toFixed(2)} giờ ≈ ${(T/60).toFixed(1)} phút`;
+
+  document.getElementById("satResult").innerHTML = `
+    <div class="row">
+      <span class="stat">r = R_T + h = <strong>${(r/1000).toFixed(0)} km</strong></span>
+      <span class="stat">v = √(GM/r) = <strong>${(v/1000).toFixed(3)} km/s</strong></span>
+      <span class="stat">T = <strong>${Tlbl}</strong></span>
+    </div>
+    <div class="row">
+      <span class="stat">a_c = v²/r = <strong>${ac.toFixed(2)} m/s²</strong> (= g ở độ cao này)</span>
+    </div>
+    <div style="margin-top:6px; font-size:13px">
+      ${h < 1000 ? "Quỹ đạo thấp (LEO) — ISS, vệ tinh quan sát Trái Đất, chu kỳ ~90 phút." :
+       h < 30000 ? "Quỹ đạo trung (MEO) — GPS, Galileo." :
+       h < 40000 ? "Quỹ đạo địa tĩnh (GEO) — T = 1 ngày, vệ tinh đứng yên trên 1 điểm Trái Đất." :
+       "Quỹ đạo Mặt Trăng — T ≈ 27 ngày."}
+    </div>
+  `;
+}
+
+// Init
+updateCM();
+calcSat();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

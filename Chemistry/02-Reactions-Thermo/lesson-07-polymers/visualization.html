@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 07 (T2) — Polymer</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  label { font-weight: 600; min-width: 100px; }
+  .stat { display: inline-block; background: #fce7f3; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #be185d; }
+  .recycle-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+  }
+  .recycle-card {
+    padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;
+    cursor: pointer; transition: all 0.15s;
+    text-align: center;
+  }
+  .recycle-card:hover { transform: translateY(-2px); border-color: #be185d; }
+  .recycle-card.active { border-color: #be185d; background: #fce7f3; }
+  .recycle-number {
+    display: inline-block; width: 50px; height: 50px;
+    border: 3px solid #1a202c; border-radius: 50%;
+    line-height: 44px; font-weight: 700; font-size: 22px;
+  }
+  .recycle-code { margin-top: 4px; font-weight: 700; color: #be185d; }
+  .recycle-name { font-size: 13px; color: #475569; }
+
+  .detail {
+    padding: 16px; background: #fef3c7; border-radius: 8px;
+    margin-top: 14px;
+  }
+  .ease-easy { color: #047857; font-weight: 700; }
+  .ease-med { color: #92400e; font-weight: 700; }
+  .ease-hard { color: #b91c1c; font-weight: 700; }
+
+  svg.chain {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 720px; height: 140px;
+  }
+  svg.chain text { font: bold 14px sans-serif; fill: #1a202c; text-anchor: middle; }
+  svg.chain .bond { stroke: #1a202c; stroke-width: 2; }
+  svg.chain .monomer-bg { fill: #fce7f3; opacity: 0.5; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Chemistry</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-functional-groups/visualization.html">← L6: Nhóm chức</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Polymer</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L8: Hóa sinh preview (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 07 (T2) — Polymer</h1>
+<p>Bộ công cụ: Polymer Chain Builder (xem chuỗi PE/PP/PVC theo số mắt xích), Gallery 7 mã tái chế nhựa, So sánh 2 cơ chế polymer hóa.</p>
+
+<h2>1. Polymer Chain Builder</h2>
+<div class="card">
+  <div class="row">
+    <label>Polymer:</label>
+    <select id="polymerSelect" onchange="drawChain()">
+      <option value="PE">PE — Polyethylene (-(CH₂-CH₂)ₙ-)</option>
+      <option value="PP">PP — Polypropylene (-(CH₂-CH(CH₃))ₙ-)</option>
+      <option value="PVC">PVC — Polyvinyl chloride (-(CH₂-CHCl)ₙ-)</option>
+      <option value="PS">PS — Polystyrene (-(CH₂-CH(C₆H₅))ₙ-)</option>
+    </select>
+  </div>
+  <div class="row">
+    <label>Số mắt xích n:</label>
+    <input type="range" id="nChain" min="2" max="10" value="5" oninput="drawChain()">
+    <span class="stat">n = <strong id="nChainVal">5</strong></span>
+    <span class="stat">M ≈ <strong id="MChain">140</strong> g/mol</span>
+  </div>
+  <svg class="chain" id="chainSvg" viewBox="0 0 720 140"></svg>
+  <div id="polymerInfo" style="padding:10px; background:#fef3c7; border-radius:6px; font-size:13px"></div>
+</div>
+
+<h2>2. Mã tái chế nhựa</h2>
+<div class="card">
+  <p>Click để xem chi tiết. Trong tam giác mũi tên trên đáy chai nhựa, số chỉ loại nhựa.</p>
+  <div class="recycle-grid" id="recycleGrid"></div>
+  <div class="detail" id="recycleDetail"></div>
+</div>
+
+<h2>3. So sánh 2 cơ chế polymer hóa</h2>
+<div class="card">
+  <table style="width:100%; border-collapse:collapse; font-size:14px">
+    <tr>
+      <th style="background:#fce7f3; padding:10px; border:1px solid #e2e8f0">Tính chất</th>
+      <th style="background:#dbeafe; padding:10px; border:1px solid #e2e8f0">Cộng (Addition)</th>
+      <th style="background:#dcfce7; padding:10px; border:1px solid #e2e8f0">Ngưng tụ (Condensation)</th>
+    </tr>
+    <tr>
+      <td style="padding:10px; border:1px solid #e2e8f0; font-weight:600">Monomer</td>
+      <td style="padding:10px; border:1px solid #e2e8f0">1 loại, có liên kết đôi C=C</td>
+      <td style="padding:10px; border:1px solid #e2e8f0">2 loại, mỗi monomer có 2 nhóm chức ở 2 đầu</td>
+    </tr>
+    <tr>
+      <td style="padding:10px; border:1px solid #e2e8f0; font-weight:600">Sản phẩm phụ</td>
+      <td style="padding:10px; border:1px solid #e2e8f0">Không (mọi nguyên tử monomer đều trong polymer)</td>
+      <td style="padding:10px; border:1px solid #e2e8f0">Có (H₂O ở mỗi nối, đôi khi HCl)</td>
+    </tr>
+    <tr>
+      <td style="padding:10px; border:1px solid #e2e8f0; font-weight:600">Cơ chế</td>
+      <td style="padding:10px; border:1px solid #e2e8f0">Mở C=C, nối tiếp tục</td>
+      <td style="padding:10px; border:1px solid #e2e8f0">Ester hóa / amide hóa lặp lại</td>
+    </tr>
+    <tr>
+      <td style="padding:10px; border:1px solid #e2e8f0; font-weight:600">Ví dụ</td>
+      <td style="padding:10px; border:1px solid #e2e8f0">PE, PP, PVC, PS, PTFE</td>
+      <td style="padding:10px; border:1px solid #e2e8f0">PET, Nylon, Polyester, Bakelite</td>
+    </tr>
+    <tr>
+      <td style="padding:10px; border:1px solid #e2e8f0; font-weight:600">Loại liên kết trong polymer</td>
+      <td style="padding:10px; border:1px solid #e2e8f0">C-C (cộng hóa trị thuần)</td>
+      <td style="padding:10px; border:1px solid #e2e8f0">Ester (-COO-) hoặc amide (-CONH-)</td>
+    </tr>
+  </table>
+</div>
+
+</main>
+
+<script>
+const POLYMERS = {
+  PE: {
+    monomer: "CH₂=CH₂",
+    monomerName: "Ethylene",
+    repeat: "[-CH₂-CH₂-]",
+    Mmono: 28,
+    use: "Túi nylon, chai sữa, ống nước (HDPE chai cứng, LDPE túi mỏng).",
+    drawUnit: (svg, x, y) => {
+      const t1 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t1.setAttribute("x", x); t1.setAttribute("y", y); t1.textContent = "CH₂";
+      svg.appendChild(t1);
+      const b = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      b.setAttribute("class", "bond"); b.setAttribute("x1", x + 18); b.setAttribute("y1", y - 5);
+      b.setAttribute("x2", x + 42); b.setAttribute("y2", y - 5);
+      svg.appendChild(b);
+      const t2 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t2.setAttribute("x", x + 60); t2.setAttribute("y", y); t2.textContent = "CH₂";
+      svg.appendChild(t2);
+    },
+    unitW: 80
+  },
+  PP: {
+    monomer: "CH₂=CH-CH₃",
+    monomerName: "Propylene",
+    repeat: "[-CH₂-CH(CH₃)-]",
+    Mmono: 42,
+    use: "Hộp đựng thức ăn vi sóng, sợi thảm, ống hút.",
+    drawUnit: (svg, x, y) => {
+      const t1 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t1.setAttribute("x", x); t1.setAttribute("y", y); t1.textContent = "CH₂";
+      svg.appendChild(t1);
+      const b = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      b.setAttribute("class", "bond"); b.setAttribute("x1", x + 18); b.setAttribute("y1", y - 5);
+      b.setAttribute("x2", x + 42); b.setAttribute("y2", y - 5);
+      svg.appendChild(b);
+      const t2 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t2.setAttribute("x", x + 60); t2.setAttribute("y", y); t2.textContent = "CH";
+      svg.appendChild(t2);
+      // CH3 branch
+      const b2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      b2.setAttribute("class", "bond"); b2.setAttribute("x1", x + 60); b2.setAttribute("y1", y + 6);
+      b2.setAttribute("x2", x + 60); b2.setAttribute("y2", y + 24);
+      svg.appendChild(b2);
+      const t3 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t3.setAttribute("x", x + 60); t3.setAttribute("y", y + 38); t3.textContent = "CH₃";
+      t3.setAttribute("fill", "#be185d");
+      svg.appendChild(t3);
+    },
+    unitW: 80
+  },
+  PVC: {
+    monomer: "CH₂=CHCl",
+    monomerName: "Vinyl chloride",
+    repeat: "[-CH₂-CHCl-]",
+    Mmono: 62.5,
+    use: "Ống nước cứng, áo mưa, sàn vinyl. CẢNH BÁO: đốt sinh dioxin độc.",
+    drawUnit: (svg, x, y) => {
+      const t1 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t1.setAttribute("x", x); t1.setAttribute("y", y); t1.textContent = "CH₂";
+      svg.appendChild(t1);
+      const b = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      b.setAttribute("class", "bond"); b.setAttribute("x1", x + 18); b.setAttribute("y1", y - 5);
+      b.setAttribute("x2", x + 42); b.setAttribute("y2", y - 5);
+      svg.appendChild(b);
+      const t2 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t2.setAttribute("x", x + 60); t2.setAttribute("y", y); t2.textContent = "CH";
+      svg.appendChild(t2);
+      const b2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      b2.setAttribute("class", "bond"); b2.setAttribute("x1", x + 60); b2.setAttribute("y1", y + 6);
+      b2.setAttribute("x2", x + 60); b2.setAttribute("y2", y + 24);
+      svg.appendChild(b2);
+      const t3 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t3.setAttribute("x", x + 60); t3.setAttribute("y", y + 38); t3.textContent = "Cl";
+      t3.setAttribute("fill", "#22c55e");
+      svg.appendChild(t3);
+    },
+    unitW: 80
+  },
+  PS: {
+    monomer: "CH₂=CH-C₆H₅",
+    monomerName: "Styrene",
+    repeat: "[-CH₂-CH(C₆H₅)-]",
+    Mmono: 104,
+    use: "Cốc cà phê, hộp xốp, vật liệu cách nhiệt.",
+    drawUnit: (svg, x, y) => {
+      const t1 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t1.setAttribute("x", x); t1.setAttribute("y", y); t1.textContent = "CH₂";
+      svg.appendChild(t1);
+      const b = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      b.setAttribute("class", "bond"); b.setAttribute("x1", x + 18); b.setAttribute("y1", y - 5);
+      b.setAttribute("x2", x + 42); b.setAttribute("y2", y - 5);
+      svg.appendChild(b);
+      const t2 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t2.setAttribute("x", x + 60); t2.setAttribute("y", y); t2.textContent = "CH";
+      svg.appendChild(t2);
+      const b2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      b2.setAttribute("class", "bond"); b2.setAttribute("x1", x + 60); b2.setAttribute("y1", y + 6);
+      b2.setAttribute("x2", x + 60); b2.setAttribute("y2", y + 24);
+      svg.appendChild(b2);
+      // Benzene ring symbol
+      const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      c.setAttribute("cx", x + 60); c.setAttribute("cy", y + 40); c.setAttribute("r", 10);
+      c.setAttribute("fill", "none"); c.setAttribute("stroke", "#be185d"); c.setAttribute("stroke-width", 2);
+      svg.appendChild(c);
+      const t3 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t3.setAttribute("x", x + 60); t3.setAttribute("y", y + 44); t3.textContent = "Ph";
+      t3.setAttribute("fill", "#be185d"); t3.setAttribute("font-size", "10");
+      svg.appendChild(t3);
+    },
+    unitW: 80
+  }
+};
+
+function drawChain() {
+  const key = document.getElementById("polymerSelect").value;
+  const p = POLYMERS[key];
+  const n = parseInt(document.getElementById("nChain").value);
+  document.getElementById("nChainVal").textContent = n;
+  document.getElementById("MChain").textContent = (n * p.Mmono).toFixed(0);
+
+  const svg = document.getElementById("chainSvg");
+  svg.innerHTML = "";
+  // Background highlight per monomer
+  const startX = 40;
+  const y = 60;
+  for (let i = 0; i < n; i++) {
+    const x = startX + i * p.unitW;
+    const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    bg.setAttribute("class", "monomer-bg");
+    bg.setAttribute("x", x - 4); bg.setAttribute("y", 20);
+    bg.setAttribute("width", p.unitW - 4); bg.setAttribute("height", 100);
+    svg.appendChild(bg);
+    // Draw monomer
+    p.drawUnit(svg, x, y);
+    // Bond between units (except after last)
+    if (i < n - 1) {
+      const b = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      b.setAttribute("class", "bond");
+      b.setAttribute("x1", x + 78); b.setAttribute("y1", y - 5);
+      b.setAttribute("x2", x + p.unitW + 4); b.setAttribute("y2", y - 5);
+      svg.appendChild(b);
+    }
+  }
+
+  document.getElementById("polymerInfo").innerHTML = `
+    <strong>Monomer:</strong> ${p.monomer} (${p.monomerName}, M = ${p.Mmono}) ·
+    <strong>Đơn vị lặp:</strong> ${p.repeat}<br>
+    <strong>Ứng dụng:</strong> ${p.use}
+  `;
+}
+
+// Recycle codes
+const RECYCLE = [
+  {code:1, name:"PET", full:"Polyethylene terephthalate", use:"Chai nước ngọt, chai dầu ăn", ease:"easy", easeText:"DỄ (mã 1 dễ tái chế nhất)"},
+  {code:2, name:"HDPE", full:"High-Density Polyethylene", use:"Chai sữa, chai dầu gội, túi mua hàng", ease:"easy", easeText:"DỄ"},
+  {code:3, name:"PVC", full:"Polyvinyl Chloride", use:"Ống nước, áo mưa, sàn vinyl", ease:"hard", easeText:"KHÓ (sinh khí độc khi đốt, không tái chế cho thực phẩm)"},
+  {code:4, name:"LDPE", full:"Low-Density Polyethylene", use:"Túi nylon mỏng, màng bọc thực phẩm", ease:"med", easeText:"TRUNG BÌNH (mềm, khó phân loại)"},
+  {code:5, name:"PP", full:"Polypropylene", use:"Hộp đựng thức ăn, ống hút, sợi thảm", ease:"med", easeText:"TRUNG BÌNH"},
+  {code:6, name:"PS", full:"Polystyrene", use:"Cốc cà phê dùng 1 lần, hộp xốp", ease:"hard", easeText:"KHÓ"},
+  {code:7, name:"OTHER", full:"Khác (PC, PLA, hỗn hợp...)", use:"Đa dạng — chai polycarbonate, nhựa sinh học PLA", ease:"hard", easeText:"THƯỜNG KHÔNG"}
+];
+
+function buildRecycle() {
+  const g = document.getElementById("recycleGrid");
+  RECYCLE.forEach(r => {
+    const item = document.createElement("div");
+    item.className = "recycle-card";
+    item.dataset.code = r.code;
+    if (r.code === 1) item.classList.add("active");
+    item.innerHTML = `
+      <div class="recycle-number">${r.code}</div>
+      <div class="recycle-code">${r.name}</div>
+      <div class="recycle-name">${r.full}</div>
+    `;
+    item.onclick = () => showRecycle(r.code);
+    g.appendChild(item);
+  });
+}
+
+function showRecycle(code) {
+  document.querySelectorAll(".recycle-card").forEach(c => c.classList.toggle("active", parseInt(c.dataset.code) === code));
+  const r = RECYCLE.find(x => x.code === code);
+  document.getElementById("recycleDetail").innerHTML = `
+    <h3 style="margin-top:0">Mã ${r.code}: ${r.name} — ${r.full}</h3>
+    <div><strong>Ứng dụng:</strong> ${r.use}</div>
+    <div style="margin-top:6px"><strong>Khả năng tái chế:</strong> <span class="ease-${r.ease}">${r.easeText}</span></div>
+  `;
+}
+
+// Init
+buildRecycle();
+showRecycle(1);
+drawChain();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

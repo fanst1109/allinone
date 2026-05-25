@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 07 (T2) — Từ trường &amp; Cảm ứng</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 120px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 110px; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  button { background: #1e40af; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  .stat { display: inline-block; background: #dbeafe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #1e40af; }
+  .result { padding: 14px; background: #dbeafe; border-radius: 8px; margin-top: 12px; }
+
+  svg.scene {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 720px; height: 320px;
+    background: linear-gradient(135deg, #f8fafc, #dbeafe);
+    border-radius: 8px;
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Physics</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-current-circuits/visualization.html">← L6: Dòng điện</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Từ trường &amp; Cảm ứng</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L8: Sóng EM (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 07 (T2) — Từ trường &amp; Cảm ứng</h1>
+<p>Bộ công cụ: Magnetic Field Calculator, Generator Simulator (AC sin wave).</p>
+
+<h2>1. Magnetic Field Calculator</h2>
+<div class="card">
+  <div class="row">
+    <label>Loại nguồn:</label>
+    <select id="bSrc" onchange="calcB()">
+      <option value="wire">Dây thẳng (B = μ₀I/(2πr))</option>
+      <option value="solenoid">Solenoid (B = μ₀nI)</option>
+    </select>
+  </div>
+  <div class="row" id="bInputs">
+    <label>I (A):</label>
+    <input type="number" id="bI" step="0.5" value="5" oninput="calcB()">
+    <label id="bRLabel">r (cm):</label>
+    <input type="number" id="bR" step="1" value="10" oninput="calcB()">
+  </div>
+  <div class="result" id="bResult"></div>
+</div>
+
+<h2>2. AC Generator Simulator</h2>
+<div class="card">
+  <p>Cuộn dây quay đều trong B đều → ε = εmax·sin(ωt). Đây là nguyên lý mọi nhà máy điện.</p>
+  <div class="row">
+    <label>B (T):</label>
+    <input type="number" id="genB" step="0.1" value="0.5" oninput="updateGen()">
+    <label>A (m²):</label>
+    <input type="number" id="genA" step="0.01" value="0.1" oninput="updateGen()">
+    <label>N (vòng):</label>
+    <input type="number" id="genN" step="10" value="100" oninput="updateGen()">
+    <label>ω (rad/s):</label>
+    <input type="number" id="genW" step="10" value="100" oninput="updateGen()">
+  </div>
+  <svg class="scene" id="genSvg" viewBox="0 0 720 320"></svg>
+  <div class="result" id="genResult"></div>
+</div>
+
+</main>
+
+<script>
+const mu0 = 4 * Math.PI * 1e-7;
+
+function calcB() {
+  const src = document.getElementById("bSrc").value;
+  const I = parseFloat(document.getElementById("bI").value);
+  const r = parseFloat(document.getElementById("bR").value);
+  let B, formula;
+  if (src === 'wire') {
+    document.getElementById("bRLabel").textContent = "r (cm):";
+    B = mu0 * I / (2 * Math.PI * r * 0.01);
+    formula = `B = μ₀·I/(2π·r) = ${mu0.toExponential(2)}·${I}/(2π·${r*0.01}) = <strong>${B.toExponential(3)} T</strong>`;
+  } else {
+    document.getElementById("bRLabel").textContent = "n (vòng/m):";
+    B = mu0 * r * I;
+    formula = `B = μ₀·n·I = ${mu0.toExponential(2)}·${r}·${I} = <strong>${B.toExponential(3)} T</strong>`;
+  }
+  let comp = "";
+  if (B < 1e-4) comp = "≈ từ trường Trái Đất.";
+  else if (B < 0.01) comp = "Nhỏ hơn nam châm tủ lạnh.";
+  else if (B < 1) comp = "Cỡ nam châm neodymium nhỏ.";
+  else if (B < 10) comp = "Cỡ máy MRI bệnh viện.";
+  else comp = "Rất mạnh — quy mô phòng thí nghiệm vật lý.";
+
+  document.getElementById("bResult").innerHTML = `
+    <div style="font-family:monospace; font-size:15px">${formula}</div>
+    <div style="margin-top:6px; font-size:13px">${comp}</div>
+  `;
+}
+
+let genT = 0;
+let genInterval = setInterval(() => { genT += 0.04; updateGen(); }, 30);
+
+function updateGen() {
+  const B = parseFloat(document.getElementById("genB").value);
+  const A = parseFloat(document.getElementById("genA").value);
+  const N = parseFloat(document.getElementById("genN").value);
+  const w = parseFloat(document.getElementById("genW").value);
+  const eMax = B * A * w * N;
+  const e = eMax * Math.sin(w * genT);
+  const flux = B * A * N * Math.cos(w * genT);
+
+  document.getElementById("genResult").innerHTML = `
+    <div class="row">
+      <span class="stat">ε_max = B·A·ω·N = <strong>${eMax.toFixed(1)} V</strong></span>
+      <span class="stat">ε(t) hiện tại = <strong>${e.toFixed(1)} V</strong></span>
+      <span class="stat">Tần số = ω/(2π) = <strong>${(w/(2*Math.PI)).toFixed(2)} Hz</strong></span>
+    </div>
+    <div style="margin-top:6px; font-size:13px">
+      ε là sóng sin (AC). Khi cuộn ở vị trí // B → Φ max, dε/dt = 0 nên ε = 0. Khi cuộn ⊥ B → Φ = 0 nhưng đang đổi nhanh nhất → ε max.
+    </div>
+  `;
+
+  // Draw
+  const svg = document.getElementById("genSvg");
+  svg.innerHTML = "";
+  // Left: rotating coil in B field
+  const cx = 200, cy = 160;
+  // Field arrows (background)
+  for (let yy = 50; yy < 280; yy += 35) {
+    for (let xx = 80; xx < 320; xx += 30) {
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t.setAttribute("x", xx); t.setAttribute("y", yy);
+      t.setAttribute("text-anchor", "middle"); t.setAttribute("fill", "#cbd5e0"); t.setAttribute("font-size", "14");
+      t.textContent = "→";
+      svg.appendChild(t);
+    }
+  }
+  // Coil (rotating)
+  const angle = w * genT;
+  const rW = 80, rH = 50;
+  const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  g.setAttribute("transform", `translate(${cx},${cy}) rotate(${angle*180/Math.PI})`);
+  const r = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  r.setAttribute("x", -rW/2); r.setAttribute("y", -rH/2);
+  r.setAttribute("width", rW); r.setAttribute("height", rH);
+  r.setAttribute("fill", "none"); r.setAttribute("stroke", "#dc2626"); r.setAttribute("stroke-width", 3);
+  g.appendChild(r);
+  svg.appendChild(g);
+  const lblB = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  lblB.setAttribute("x", cx); lblB.setAttribute("y", 30);
+  lblB.setAttribute("text-anchor", "middle"); lblB.setAttribute("font-weight", "700");
+  lblB.textContent = `Cuộn quay trong B = ${B} T`;
+  svg.appendChild(lblB);
+
+  // Right: sine curve
+  const W = 720;
+  const cyG = 160;
+  const padR_G = 400;
+  // Axes
+  const ax = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  ax.setAttribute("x1", padR_G); ax.setAttribute("y1", cyG); ax.setAttribute("x2", W-20); ax.setAttribute("y2", cyG);
+  ax.setAttribute("stroke", "#475569");
+  svg.appendChild(ax);
+  // Sine curve
+  let path = "";
+  for (let i = 0; i <= 280; i++) {
+    const t = i * 0.01;
+    const y = cyG - 80 * Math.sin(w * (genT - 2.8 + t));
+    const x = padR_G + i;
+    path += (i === 0 ? "M " : " L ") + x + " " + y;
+  }
+  const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  p.setAttribute("d", path); p.setAttribute("fill", "none"); p.setAttribute("stroke", "#1e40af"); p.setAttribute("stroke-width", 2.5);
+  svg.appendChild(p);
+  // Marker at current value (right edge)
+  const my = cyG - 80 * Math.sin(w * genT);
+  const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  dot.setAttribute("cx", W-20); dot.setAttribute("cy", my); dot.setAttribute("r", 6);
+  dot.setAttribute("fill", "#dc2626");
+  svg.appendChild(dot);
+  const eLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  eLbl.setAttribute("x", padR_G + 130); eLbl.setAttribute("y", 30);
+  eLbl.setAttribute("font-weight", "700"); eLbl.setAttribute("text-anchor", "middle");
+  eLbl.textContent = `ε(t) = ${eMax.toFixed(0)}·sin(ωt) V`;
+  svg.appendChild(eLbl);
+}
+
+// Init
+calcB();
+updateGen();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

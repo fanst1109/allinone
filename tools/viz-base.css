@@ -103,12 +103,11 @@ nav.viz-nav {
   gap: 12px;
   align-items: center;
   flex-wrap: wrap;
-  /* Đồng bộ với body padding-right transition khi sidebar README đóng/mở */
-  transition: left 0.28s cubic-bezier(.4,0,.2,1),
-              right 0.28s cubic-bezier(.4,0,.2,1),
-              transform 0.28s cubic-bezier(.4,0,.2,1),
-              width 0.28s cubic-bezier(.4,0,.2,1),
-              max-width 0.28s cubic-bezier(.4,0,.2,1);
+  /* Đồng bộ với body padding-right transition khi sidebar README đóng/mở.
+   * Chỉ animate width + transform (cả 2 đều animatable mượt). KHÔNG đổi left/right/auto
+   * vì 'auto' là keyword, không nội suy được → gây glitch trước khi trượt. */
+  transition: transform 0.28s cubic-bezier(.4,0,.2,1),
+              width 0.28s cubic-bezier(.4,0,.2,1);
 }
 @keyframes viz-nav-shift {
   0%   { background-position: 0% 50%; }
@@ -118,11 +117,10 @@ nav.viz-nav {
 /* Khi sidebar README mở (html.rm-sidebar-open + body padding-right) → nav phải thu hẹp
  * vào vùng visible bên trái, không đè lên sidebar panel. */
 html.rm-sidebar-open nav.viz-nav {
-  left: 0;
-  right: var(--rm-sidebar-w, 400px);
-  width: auto;
-  transform: none;
-  margin: 0 auto;
+  /* Width co lại bằng vùng visible (viewport - sidebar) — animate được từ 100% → calc(100% - w). */
+  width: calc(100% - var(--rm-sidebar-w, 400px));
+  /* Center của nav từ vw/2 dịch sang (vw - sidebar)/2 → thêm translateX(-sidebar/2). */
+  transform: translateX(calc(-50% - var(--rm-sidebar-w, 400px) / 2));
 }
 nav.viz-nav a {
   color: var(--viz-nav-link);

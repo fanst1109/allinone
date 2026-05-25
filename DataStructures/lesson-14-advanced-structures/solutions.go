@@ -4,7 +4,53 @@ package main
 import (
 	"fmt"
 	"hash/fnv"
+	"math"
+	"math/rand"
 )
+
+// demoSaturation đo FP rate thực tế khi add n key vào Bloom m=64, k=3.
+// So sánh với công thức (1 - e^(-kn/m))^k.
+func demoSaturation() {
+	const m, k = 64, 3
+	fmt.Printf("%-6s %-12s %-15s %-15s\n", "n", "bits bật", "FP thực đo", "FP công thức")
+	for _, n := range []int{5, 10, 20, 30, 50, 100} {
+		bf := NewBloom(uint32(m), k)
+		// Add n key ngẫu nhiên
+		rng := rand.New(rand.NewSource(1))
+		added := make(map[string]bool)
+		for i := 0; i < n; i++ {
+			s := fmt.Sprintf("k%d_%d", rng.Intn(1<<30), i)
+			bf.Add(s)
+			added[s] = true
+		}
+		// Đếm bit bật
+		set := 0
+		for _, b := range bf.bits {
+			if b {
+				set++
+			}
+		}
+		// Thử 10000 key chưa add, đếm tỷ lệ "trả về true" (false positive)
+		fp := 0
+		const trials = 10000
+		for i := 0; i < trials; i++ {
+			s := fmt.Sprintf("miss_%d_%d", i, rng.Intn(1<<30))
+			if added[s] {
+				continue
+			}
+			if bf.Contains(s) {
+				fp++
+			}
+		}
+		fpReal := float64(fp) / trials
+		fpFormula := math.Pow(1-math.Exp(-float64(k*n)/float64(m)), float64(k))
+		fmt.Printf("%-6d %-12s %-15s %-15s\n",
+			n,
+			fmt.Sprintf("%d/%d (%.0f%%)", set, m, float64(set)*100/float64(m)),
+			fmt.Sprintf("%.1f%%", fpReal*100),
+			fmt.Sprintf("%.1f%%", fpFormula*100))
+	}
+}
 
 // --- Bloom Filter ---
 type Bloom struct {
@@ -97,6 +143,9 @@ func main() {
 	for _, w := range []string{"alice", "bob", "eve", "frank", "grace"} {
 		fmt.Printf("Contains(%s) = %v\n", w, bf.Contains(w))
 	}
+
+	fmt.Println("\n=== Bloom Saturation: m=64, k=3 (giống viz) ===")
+	demoSaturation()
 
 	fmt.Println("\n=== Count-Min Sketch (đếm xấp xỉ) ===")
 	cms := NewCMS(5, 1024)

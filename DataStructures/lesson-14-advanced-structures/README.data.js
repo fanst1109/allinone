@@ -102,6 +102,60 @@ Dùng \`k\` hàm hash, đẩy mỗi key vào \`k\` vị trí trong một mảng 
 - Trước khi tra đĩa: kiểm tra nhanh "key có khả năng tồn tại không" → tránh IO vô ích.
 - Web crawler: tránh thăm URL trùng.
 - Cassandra, HBase, Bigtable.
+- **Kiểm tra username**: sign-up form local trong browser (~1 MB cho 1 triệu username), trước tra DB phân shard, chống credential stuffing (Have I Been Pwned).
+
+### 4.4. Saturation — vì sao "đầy bít = luôn false positive"
+
+Câu hỏi tự nhiên: nếu add quá nhiều phần tử, mọi bit đều bật → check gì cũng nói "có thể có" → còn ý nghĩa gì?
+
+**Đúng, đó là saturation** — và là lý do thiết kế kích thước rất quan trọng.
+
+#### Toán cụ thể
+
+Bảng \`m\` bit, \`k\` hash function, đã add \`n\` key:
+- Xác suất một bit **vẫn tắt**: \`(1 - 1/m)^(kn) ≈ e^(-kn/m)\`
+- Tỷ lệ **false positive**: \`(1 - e^(-kn/m))^k\`
+
+Khi \`n/m\` lớn → \`e^(-kn/m) → 0\` → FP rate **→ 100%**.
+
+#### Số cụ thể với bảng nhỏ trong viz (m=64, k=3)
+
+| Đã add \`n\` | Bit bật xấp xỉ | FP rate xấp xỉ |
+| --- | --- | --- |
+| 5 | 21% | 0.9% |
+| 10 | 38% | 5.5% |
+| 20 | 61% | 23% |
+| 30 | 76% | 44% |
+| 50 | 90% | **73%** |
+| 100 | 99% | **97%** |
+
+→ Bảng 64 bit chỉ đáng tin với ~10 phần tử. Add 100 phần tử là **trả về "có" gần như luôn luôn**.
+
+#### Cách thiết kế kích thước đúng
+
+Công thức ngược: cho trước \`n\` (số phần tử dự kiến) và \`p\` (FP rate chấp nhận được):
+\`\`\`
+m = - n · ln(p) / (ln 2)²
+k = (m/n) · ln 2 ≈ 0.693 · (m/n)
+\`\`\`
+
+**Ví dụ — 1 tỷ username, FP rate 1%**:
+- \`m ≈ 10⁹ · 4.6 / 0.48 ≈ 9.6 × 10⁹ bit ≈ 1.2 GB\`
+- \`k ≈ 0.693 · 9.6 ≈ 7\` hàm hash
+
+**Quy tắc gọn**: ~**10 bit/phần tử** cho FP ~1%; ~14 bit cho 0.1%.
+
+#### Khi \`n\` vượt dự kiến (Bloom đã saturate)
+
+| Cách | Mô tả |
+| --- | --- |
+| Resize/rebuild | Tạo Bloom mới lớn hơn, rehash toàn bộ key. \`O(n)\` một lần. |
+| **Scalable Bloom Filter (SBF)** | Chuỗi nhiều Bloom lớn dần. Khi cái hiện tại đầy → tạo cái mới gấp đôi. Query duyệt cả chuỗi. Không cần biết \`n\` từ đầu. |
+| **Cuckoo Filter** | Thay thế hiện đại: tương đương memory, **hỗ trợ xóa**, khi đầy thì *thực sự* đầy (reject \`add\` ngay, không saturate ngầm). RocksDB, ScyllaDB đang chuyển sang. |
+
+#### Phòng saturate trong production
+
+Hệ thống thực luôn monitor \`bits_set / m\`. Vượt ngưỡng (vd 50%) → cảnh báo, lên kế hoạch rebuild. **Bloom không tự bảo vệ — người vận hành phải biết \`n\` xấp xỉ trước, hoặc dùng SBF/Cuckoo.**
 
 ## 5. Các cấu trúc khác (chỉ điểm danh)
 

@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 08 — Động học &amp; Cân bằng</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 130px; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  button { background: #be185d; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button:hover { background: #9d174d; }
+  button.toggle { background: #94a3b8; }
+  button.toggle.active { background: #be185d; }
+  .stat { display: inline-block; background: #fce7f3; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #be185d; }
+
+  svg.activation {
+    display: block; width: 100%; max-width: 720px; height: 320px;
+    margin: 12px auto;
+  }
+  svg.activation .grid { stroke: #e2e8f0; stroke-width: 1; }
+  svg.activation .curve { fill: none; stroke-width: 2.5; }
+  svg.activation .axis { stroke: #1a202c; stroke-width: 1.5; }
+  svg.activation .lbl { font: 11px sans-serif; fill: #475569; }
+  svg.activation .energy-label { font: 13px sans-serif; fill: #1a202c; font-weight: 700; }
+
+  svg.equilibrium {
+    display: block; width: 100%; max-width: 720px; height: 300px;
+    margin: 12px auto;
+  }
+  svg.equilibrium .grid { stroke: #e2e8f0; stroke-width: 1; }
+  svg.equilibrium .curve { fill: none; stroke-width: 2.5; }
+  svg.equilibrium .label { font: 12px sans-serif; fill: #1a202c; }
+
+  .lecha-card {
+    border-left: 4px solid #be185d;
+    background: #fce7f3;
+    padding: 12px;
+    border-radius: 6px;
+    margin: 6px 0;
+  }
+  .lecha-card.left { border-left-color: #1d4ed8; background: #dbeafe; }
+  .lecha-card.right { border-left-color: #047857; background: #dcfce7; }
+  .lecha-card.none { border-left-color: #94a3b8; background: #f1f5f9; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Chemistry</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-solutions-concentration/visualization.html">← L7: Dung dịch</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Động học &amp; Cân bằng</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">(Tier 2 sắp ra)</span>
+</nav>
+
+<h1>Lesson 08 — Động học &amp; Cân bằng</h1>
+<p>Bộ công cụ: biểu đồ Năng lượng Hoạt hóa (xúc tác giảm Eₐ), mô phỏng đạt cân bằng động (rate thuận = nghịch), Le Chatelier Explorer (đổi C/T/P → dự đoán dịch chuyển).</p>
+
+<h2>1. Activation Energy — vai trò của xúc tác</h2>
+<div class="card">
+  <div class="row">
+    <label>Nhiệt độ (T):</label>
+    <input type="range" id="tempSlider" min="200" max="800" value="400" step="10">
+    <span class="stat">T = <strong id="tempVal">400</strong> K</span>
+  </div>
+  <div class="row">
+    <label>Xúc tác:</label>
+    <button class="toggle active" id="catNone" onclick="setCatalyst(false)">Không xúc tác</button>
+    <button class="toggle" id="catYes" onclick="setCatalyst(true)">Có xúc tác</button>
+  </div>
+
+  <svg class="activation" id="activationSvg" viewBox="0 0 720 320"></svg>
+
+  <div style="padding:12px; background:#fef3c7; border-radius:6px; margin-top:8px">
+    <strong>Phương trình Arrhenius:</strong> k = A · exp(−Eₐ/RT)<br>
+    <span class="stat">Eₐ = <strong id="EaVal">75</strong> kJ/mol</span>
+    <span class="stat">k (tương đối) = <strong id="kVal">—</strong></span>
+    <div class="hint" id="catNote" style="margin-top:8px"></div>
+  </div>
+</div>
+
+<h2>2. Cân bằng động — rate thuận vs rate nghịch</h2>
+<div class="card">
+  <p>Phản ứng <code>A + B ⇌ C + D</code> bắt đầu chỉ với A và B. Theo thời gian, rate thuận giảm (C giảm), rate nghịch tăng (C tăng). Đến khi 2 rate bằng nhau → cân bằng.</p>
+  <div class="row">
+    <button onclick="resetEquilibrium()" class="muted">Reset</button>
+    <button onclick="toggleEquilibrium()" id="eqPlayBtn">▶ Chạy</button>
+  </div>
+  <svg class="equilibrium" id="equilibriumSvg" viewBox="0 0 720 300"></svg>
+  <div style="margin-top:8px">
+    <span class="stat">[A]: <strong id="cA">1.00</strong> M</span>
+    <span class="stat">[B]: <strong id="cB">1.00</strong> M</span>
+    <span class="stat">[C]: <strong id="cC">0.00</strong> M</span>
+    <span class="stat">[D]: <strong id="cD">0.00</strong> M</span>
+    <span class="stat" style="background:#dbeafe">Rate thuận: <strong id="rF">—</strong></span>
+    <span class="stat" style="background:#dcfce7">Rate nghịch: <strong id="rR">—</strong></span>
+  </div>
+</div>
+
+<h2>3. Le Chatelier Explorer</h2>
+<div class="card">
+  <p>Phản ứng: <code style="font-size:18px">N₂(g) + 3H₂(g) ⇌ 2NH₃(g)</code>, ΔH = −92 kJ (tỏa nhiệt). Click các tác động để xem cân bằng dịch chuyển:</p>
+  <div class="row" style="margin-top:10px">
+    <button onclick="leCha('addN2')">+ Thêm N₂</button>
+    <button onclick="leCha('addH2')">+ Thêm H₂</button>
+    <button onclick="leCha('removeNH3')">− Bớt NH₃</button>
+    <button onclick="leCha('addNH3')">+ Thêm NH₃</button>
+    <button onclick="leCha('increaseT')">↑ Tăng T</button>
+    <button onclick="leCha('decreaseT')">↓ Giảm T</button>
+    <button onclick="leCha('increaseP')">↑ Tăng P</button>
+    <button onclick="leCha('decreaseP')">↓ Giảm P</button>
+    <button onclick="leCha('catalyst')" style="background:#94a3b8">+ Xúc tác Fe</button>
+  </div>
+  <div id="leResult" style="margin-top:14px"></div>
+</div>
+
+</main>
+
+<script>
+// ===== Activation Energy =====
+let useCatalyst = false;
+
+function setCatalyst(yes) {
+  useCatalyst = yes;
+  document.getElementById("catNone").classList.toggle("active", !yes);
+  document.getElementById("catYes").classList.toggle("active", yes);
+  drawActivation();
+}
+
+function drawActivation() {
+  const T = parseInt(document.getElementById("tempSlider").value);
+  document.getElementById("tempVal").textContent = T;
+
+  const Ea = useCatalyst ? 35 : 75;
+  document.getElementById("EaVal").textContent = Ea;
+  const R = 8.314 / 1000; // kJ/(mol·K)
+  const k = Math.exp(-Ea / (R * T));
+  document.getElementById("kVal").textContent = (k * 1e10).toExponential(2);
+
+  document.getElementById("catNote").innerHTML = useCatalyst
+    ? "<strong>Có xúc tác:</strong> Eₐ giảm xuống ~ 35 kJ/mol. Đường phản ứng có 'shortcut'. Rate tăng đáng kể."
+    : "<strong>Không xúc tác:</strong> Eₐ ~ 75 kJ/mol. Cần năng lượng đủ lớn để vượt qua 'đỉnh' năng lượng.";
+
+  // Draw energy diagram
+  const svg = document.getElementById("activationSvg");
+  svg.innerHTML = "";
+  const W = 720, H = 320;
+  const padL = 60, padR = 30, padT = 30, padB = 50;
+  const cw = W - padL - padR, ch = H - padT - padB;
+
+  // Energy curve: reactants → transition state (peak) → products
+  // Y-axis: energy. Reactants at y=180, products at y=240, peak at y=180-Ea*2 (without cat), peak at y=180-35*2 (with cat)
+  const reactantY = 200;
+  const productY = 250;
+  const peakY = reactantY - Ea * 1.8;
+  const peakX = padL + cw * 0.5;
+
+  // Curve
+  let path = `M ${padL} ${reactantY}`;
+  path += ` L ${padL + 100} ${reactantY}`; // flat reactants
+  path += ` Q ${padL + 200} ${reactantY}, ${padL + 250} ${(reactantY + peakY) / 2}`; // up
+  path += ` Q ${padL + 300} ${peakY}, ${peakX} ${peakY}`; // peak
+  path += ` Q ${padL + 400} ${peakY}, ${padL + 450} ${(peakY + productY) / 2}`; // down
+  path += ` Q ${padL + 500} ${productY}, ${padL + cw - 100} ${productY}`;
+  path += ` L ${padL + cw} ${productY}`;
+
+  const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  p.setAttribute("class", "curve");
+  p.setAttribute("stroke", useCatalyst ? "#047857" : "#dc2626");
+  p.setAttribute("d", path);
+  svg.appendChild(p);
+
+  // Labels
+  const reLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  reLbl.setAttribute("class", "energy-label");
+  reLbl.setAttribute("x", padL + 50); reLbl.setAttribute("y", reactantY - 12);
+  reLbl.setAttribute("text-anchor", "middle");
+  reLbl.textContent = "Chất phản ứng";
+  svg.appendChild(reLbl);
+
+  const prLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  prLbl.setAttribute("class", "energy-label");
+  prLbl.setAttribute("x", padL + cw - 50); prLbl.setAttribute("y", productY + 20);
+  prLbl.setAttribute("text-anchor", "middle");
+  prLbl.textContent = "Sản phẩm";
+  svg.appendChild(prLbl);
+
+  const peakLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  peakLbl.setAttribute("class", "energy-label");
+  peakLbl.setAttribute("x", peakX); peakLbl.setAttribute("y", peakY - 8);
+  peakLbl.setAttribute("text-anchor", "middle");
+  peakLbl.setAttribute("fill", useCatalyst ? "#047857" : "#dc2626");
+  peakLbl.textContent = `Eₐ = ${Ea} kJ/mol`;
+  svg.appendChild(peakLbl);
+
+  // Arrow showing Ea
+  const arrow = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  arrow.setAttribute("x1", peakX - 110); arrow.setAttribute("y1", reactantY);
+  arrow.setAttribute("x2", peakX - 110); arrow.setAttribute("y2", peakY);
+  arrow.setAttribute("stroke", "#be185d"); arrow.setAttribute("stroke-width", 1.5);
+  arrow.setAttribute("marker-end", "url(#arrowEa)");
+  arrow.setAttribute("marker-start", "url(#arrowEaStart)");
+  svg.appendChild(arrow);
+
+  // ΔH arrow
+  const dh = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  dh.setAttribute("x1", padL + cw - 30); dh.setAttribute("y1", reactantY);
+  dh.setAttribute("x2", padL + cw - 30); dh.setAttribute("y2", productY);
+  dh.setAttribute("stroke", "#94a3b8"); dh.setAttribute("stroke-width", 1.5);
+  svg.appendChild(dh);
+  const dhLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  dhLbl.setAttribute("class", "lbl");
+  dhLbl.setAttribute("x", padL + cw - 25); dhLbl.setAttribute("y", (reactantY + productY) / 2);
+  dhLbl.textContent = "ΔH";
+  svg.appendChild(dhLbl);
+
+  // Y axis label
+  const yAx = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  yAx.setAttribute("class", "energy-label");
+  yAx.setAttribute("x", 20); yAx.setAttribute("y", 20);
+  yAx.textContent = "Năng lượng →";
+  svg.appendChild(yAx);
+
+  const xAx = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  xAx.setAttribute("class", "energy-label");
+  xAx.setAttribute("x", W / 2); xAx.setAttribute("y", H - 10);
+  xAx.setAttribute("text-anchor", "middle");
+  xAx.textContent = "Tiến trình phản ứng →";
+  svg.appendChild(xAx);
+}
+
+document.getElementById("tempSlider").addEventListener("input", drawActivation);
+
+// ===== Equilibrium animation =====
+let eqState = { t: 0, cA: 1.0, cB: 1.0, cC: 0, cD: 0, running: false, kForward: 0.05, kReverse: 0.02 };
+let eqInterval = null;
+let eqHistory = [];
+
+function resetEquilibrium() {
+  eqState = { t: 0, cA: 1.0, cB: 1.0, cC: 0, cD: 0, running: false, kForward: 0.05, kReverse: 0.02 };
+  eqHistory = [{t:0, cA:1.0, cB:1.0, cC:0, cD:0, rF: 0.05*1*1, rR: 0}];
+  if (eqInterval) { clearInterval(eqInterval); eqInterval = null; }
+  document.getElementById("eqPlayBtn").textContent = "▶ Chạy";
+  updateEquilibriumDisplay();
+  drawEquilibrium();
+}
+
+function toggleEquilibrium() {
+  if (eqState.running) {
+    clearInterval(eqInterval); eqInterval = null;
+    eqState.running = false;
+    document.getElementById("eqPlayBtn").textContent = "▶ Chạy";
+  } else {
+    eqState.running = true;
+    document.getElementById("eqPlayBtn").textContent = "⏸ Tạm dừng";
+    eqInterval = setInterval(stepEquilibrium, 100);
+  }
+}
+
+function stepEquilibrium() {
+  const dt = 0.5;
+  const rForward = eqState.kForward * eqState.cA * eqState.cB;
+  const rReverse = eqState.kReverse * eqState.cC * eqState.cD;
+  const net = rForward - rReverse;
+  eqState.cA -= net * dt;
+  eqState.cB -= net * dt;
+  eqState.cC += net * dt;
+  eqState.cD += net * dt;
+  eqState.t += dt;
+  eqHistory.push({t: eqState.t, cA: eqState.cA, cB: eqState.cB, cC: eqState.cC, cD: eqState.cD, rF: rForward, rR: rReverse});
+  if (eqHistory.length > 200) eqHistory.shift();
+  updateEquilibriumDisplay();
+  drawEquilibrium();
+  // Stop when at equilibrium
+  if (Math.abs(net) < 0.0005) toggleEquilibrium();
+}
+
+function updateEquilibriumDisplay() {
+  document.getElementById("cA").textContent = eqState.cA.toFixed(3);
+  document.getElementById("cB").textContent = eqState.cB.toFixed(3);
+  document.getElementById("cC").textContent = eqState.cC.toFixed(3);
+  document.getElementById("cD").textContent = eqState.cD.toFixed(3);
+  const rF = eqState.kForward * eqState.cA * eqState.cB;
+  const rR = eqState.kReverse * eqState.cC * eqState.cD;
+  document.getElementById("rF").textContent = rF.toFixed(4);
+  document.getElementById("rR").textContent = rR.toFixed(4);
+}
+
+function drawEquilibrium() {
+  const svg = document.getElementById("equilibriumSvg");
+  svg.innerHTML = "";
+  const W = 720, H = 300;
+  const padL = 60, padR = 30, padT = 20, padB = 50;
+  const cw = W - padL - padR, ch = H - padT - padB;
+
+  const xMax = Math.max(50, eqState.t + 5);
+  const yMax = 1.2;
+  const xScale = t => padL + (t / xMax) * cw;
+  const yScale = c => padT + ch - (c / yMax) * ch;
+
+  // Axes
+  // Y labels
+  for (let v = 0; v <= 1; v += 0.25) {
+    const y = yScale(v);
+    const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lbl.setAttribute("class", "label");
+    lbl.setAttribute("x", padL - 6); lbl.setAttribute("y", y + 4);
+    lbl.setAttribute("text-anchor", "end");
+    lbl.textContent = v.toFixed(2) + " M";
+    svg.appendChild(lbl);
+    const grid = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    grid.setAttribute("class", "grid");
+    grid.setAttribute("x1", padL); grid.setAttribute("y1", y);
+    grid.setAttribute("x2", W - padR); grid.setAttribute("y2", y);
+    svg.appendChild(grid);
+  }
+
+  const colors = {cA:"#1d4ed8", cB:"#3b82f6", cC:"#047857", cD:"#16a34a"};
+  ["cA","cB","cC","cD"].forEach(key => {
+    if (eqHistory.length < 2) return;
+    let path = "";
+    eqHistory.forEach((h, i) => {
+      const x = xScale(h.t), y = yScale(h[key]);
+      path += (i === 0 ? "M " : " L ") + x + " " + y;
+    });
+    const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    p.setAttribute("class", "curve"); p.setAttribute("stroke", colors[key]);
+    p.setAttribute("d", path);
+    svg.appendChild(p);
+  });
+
+  // Legend
+  let lx = padL + 20;
+  Object.entries(colors).forEach(([k, c]) => {
+    const sq = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    sq.setAttribute("x", lx); sq.setAttribute("y", 10);
+    sq.setAttribute("width", 14); sq.setAttribute("height", 4); sq.setAttribute("fill", c);
+    svg.appendChild(sq);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("class", "label");
+    t.setAttribute("x", lx + 18); t.setAttribute("y", 16);
+    t.textContent = "[" + k.substring(1) + "]";
+    svg.appendChild(t);
+    lx += 80;
+  });
+
+  // X label
+  const xAx = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  xAx.setAttribute("class", "label");
+  xAx.setAttribute("x", W / 2); xAx.setAttribute("y", H - 10);
+  xAx.setAttribute("text-anchor", "middle");
+  xAx.textContent = "Thời gian";
+  svg.appendChild(xAx);
+}
+
+// ===== Le Chatelier =====
+const LE_CHA_RESPONSES = {
+  addN2: {dir:"right", text:"Thêm N₂ → cân bằng dịch PHẢI để tiêu thụ N₂ → tạo thêm NH₃."},
+  addH2: {dir:"right", text:"Thêm H₂ → dịch PHẢI để tiêu thụ H₂ → tạo thêm NH₃."},
+  removeNH3: {dir:"right", text:"Bớt NH₃ → dịch PHẢI để bù lại NH₃."},
+  addNH3: {dir:"left", text:"Thêm NH₃ → dịch TRÁI để tiêu thụ NH₃ → tạo lại N₂ và H₂."},
+  increaseT: {dir:"left", text:"Tăng T. Phản ứng tỏa nhiệt (ΔH < 0) → nhiệt coi như sản phẩm. T↑ → dịch TRÁI để hấp thụ nhiệt. K giảm."},
+  decreaseT: {dir:"right", text:"Giảm T → tỏa nhiệt được tạo thuận lợi → dịch PHẢI. K tăng."},
+  increaseP: {dir:"right", text:"Tăng P. Trái có 4 mol khí (1 N₂ + 3 H₂), phải có 2 mol khí (2 NH₃). P↑ → dịch về phía ít mol khí → dịch PHẢI."},
+  decreaseP: {dir:"left", text:"Giảm P → dịch về phía nhiều mol khí → dịch TRÁI."},
+  catalyst: {dir:"none", text:"Thêm xúc tác Fe → KHÔNG dịch chuyển. Chỉ làm rate cả 2 chiều tăng cùng tỉ lệ → cân bằng đạt nhanh hơn nhưng vị trí giống cũ."}
+};
+
+function leCha(action) {
+  const r = LE_CHA_RESPONSES[action];
+  const dirArrow = r.dir === "left" ? "←" : r.dir === "right" ? "→" : "○";
+  const cls = r.dir === "left" ? "left" : r.dir === "right" ? "right" : "none";
+  document.getElementById("leResult").innerHTML = `
+    <div class="lecha-card ${cls}">
+      <strong>Hướng dịch chuyển: ${dirArrow}</strong><br>
+      ${r.text}
+    </div>
+  `;
+}
+
+// Init
+drawActivation();
+resetEquilibrium();
+leCha("addN2");
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

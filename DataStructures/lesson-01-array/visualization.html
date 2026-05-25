@@ -22,6 +22,13 @@
   input[type=number] { width: 80px; padding: 4px; }
   pre { background: #f3f4f6; padding: 12px; border-radius: 6px; overflow-x: auto; }
   .log { color: #444; min-height: 20px; }
+  .cell.left { border-color: #3b82f6; background: #dbeafe; }
+  .cell.right { border-color: #f59e0b; background: #fef3c7; }
+  .cell.cap { border-style: dashed; opacity: .5; background: #f3f4f6; }
+  .stats { font-size: 13px; color: #555; margin-top: 6px; font-family: monospace; }
+  .grow-history { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; font-size: 12px; }
+  .grow-history span { background: #e2e8f0; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
+  .grow-history span.resize { background: #fee2e2; color: #991b1b; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -63,6 +70,42 @@
   <button onclick="bsStep()" id="bsStepBtn" disabled>Bước tiếp</button>
   <button onclick="bsReset()">Reset</button>
   <div class="log" id="log3"></div>
+  <pre style="margin-top:10px; font-size:12px;">function binarySearch(arr, target):
+    lo, hi = 0, len(arr)-1
+    while lo &lt;= hi:
+        mid = (lo + hi) / 2
+        if arr[mid] == target: return mid
+        if arr[mid] &lt; target:  lo = mid + 1
+        else:                  hi = mid - 1
+    return -1</pre>
+</div>
+
+<div class="panel">
+  <h2>Đảo ngược mảng tại chỗ — two pointer: O(n)</h2>
+  <div class="array" id="arr4"></div>
+  <button onclick="revStart()">▶ Chạy reverse</button>
+  <button onclick="revReset()">Reset</button>
+  <div class="log" id="log4"></div>
+  <pre style="margin-top:10px; font-size:12px;">function reverse(arr):
+    left, right = 0, len(arr)-1
+    while left &lt; right:
+        swap(arr[left], arr[right])
+        left += 1
+        right -= 1</pre>
+</div>
+
+<div class="panel">
+  <h2>Dynamic array — resize doubling (vì sao amortized O(1)?)</h2>
+  <p style="margin:0 0 8px 0; font-size:14px; color:#555;">Khi <code>size == capacity</code>, cấp mảng mới gấp đôi và copy toàn bộ → lần đó tốn O(n). Nhưng tổng cost của n lần push = O(n), nên trung bình mỗi lần = O(1).</p>
+  <div class="array" id="arr5"></div>
+  <div class="stats" id="stats5">size=0 · capacity=1</div>
+  <div>
+    <button onclick="pushDyn()">Push value++</button>
+    <button onclick="resetDyn()">Reset</button>
+  </div>
+  <div class="log" id="log5"></div>
+  <div class="grow-history" id="hist5"></div>
+  <div class="stats" id="amortized5"></div>
 </div>
 
 <script>
@@ -163,6 +206,82 @@ function renderBS(mid = -1) {
 }
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// === Phần 4: Reverse two-pointer ===
+let A4 = [10, 20, 30, 40, 50, 60, 70];
+render('arr4', A4);
+let revRunning = false;
+async function revStart() {
+  if (revRunning) return;
+  revRunning = true;
+  let l = 0, r = A4.length - 1, swaps = 0;
+  const log = document.getElementById('log4');
+  while (l < r) {
+    render('arr4', A4, { [l]: 'left', [r]: 'right' });
+    log.textContent = `swap(arr[${l}]=${A4[l]}, arr[${r}]=${A4[r]})`;
+    await sleep(450);
+    [A4[l], A4[r]] = [A4[r], A4[l]];
+    swaps++;
+    render('arr4', A4, { [l]: 'left', [r]: 'right' });
+    await sleep(350);
+    l++; r--;
+  }
+  render('arr4', A4);
+  log.textContent = `Đảo xong sau ${swaps} swap (~n/2 = ${Math.floor(A4.length/2)} swap với n=${A4.length}). O(n) thời gian, O(1) bộ nhớ phụ.`;
+  revRunning = false;
+}
+function revReset() {
+  if (revRunning) return;
+  A4 = [10, 20, 30, 40, 50, 60, 70];
+  render('arr4', A4);
+  document.getElementById('log4').textContent = '';
+}
+
+// === Phần 5: Dynamic array resize ===
+let dynArr = [], dynCap = 1, dynNext = 1, dynTotalCost = 0, dynHistory = [];
+function renderDyn(highlight = -1) {
+  const root = document.getElementById('arr5');
+  root.innerHTML = '';
+  for (let i = 0; i < dynCap; i++) {
+    const c = document.createElement('div');
+    let cls = i < dynArr.length ? '' : 'cap';
+    if (i === highlight) cls = 'hit';
+    c.className = 'cell ' + cls;
+    c.innerHTML = `<span class="idx">${i}</span>${i < dynArr.length ? dynArr[i] : ''}`;
+    root.appendChild(c);
+  }
+  document.getElementById('stats5').textContent =
+    `size=${dynArr.length} · capacity=${dynCap} · tổng cost = ${dynTotalCost} · amortized = ${dynArr.length > 0 ? (dynTotalCost/dynArr.length).toFixed(2) : '–'} cost/push`;
+  document.getElementById('hist5').innerHTML = dynHistory.map(h =>
+    `<span class="${h.resize ? 'resize' : ''}">${h.label}</span>`).join('');
+  document.getElementById('amortized5').textContent = dynArr.length >= 4
+    ? `Quan sát: amortized = tổng cost / số push hội tụ về ~2-3 (hằng số) khi n lớn → O(1).` : '';
+}
+function pushDyn() {
+  const val = dynNext++;
+  if (dynArr.length === dynCap) {
+    const oldCap = dynCap;
+    dynCap = dynCap * 2;
+    dynArr.push(val);
+    const copyCost = oldCap;
+    dynTotalCost += copyCost + 1;
+    dynHistory.push({ label: `push ${val} → resize ${oldCap}→${dynCap} (copy ${copyCost}+1=${copyCost+1})`, resize: true });
+    document.getElementById('log5').innerHTML =
+      `<b>RESIZE!</b> capacity ${oldCap} → ${dynCap}. Copy ${oldCap} phần tử cũ + thêm ${val}. Lần này tốn ${copyCost+1} ops (O(n)).`;
+  } else {
+    dynArr.push(val);
+    dynTotalCost += 1;
+    dynHistory.push({ label: `push ${val} (1)`, resize: false });
+    document.getElementById('log5').textContent = `push ${val} vào slot trống, 1 op (O(1)).`;
+  }
+  renderDyn(dynArr.length - 1);
+}
+function resetDyn() {
+  dynArr = []; dynCap = 1; dynNext = 1; dynTotalCost = 0; dynHistory = [];
+  renderDyn();
+  document.getElementById('log5').textContent = '';
+}
+resetDyn();
 </script></main>
 <!-- README modal (xem tools/readme-modal.js để biết chi tiết) -->
 <script src="../../tools/marked.min.js"></script>

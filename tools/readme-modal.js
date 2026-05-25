@@ -28,6 +28,9 @@
   var MAX_W_RATIO   = 0.65;  // tối đa 65% viewport
 
   var STYLE = `
+    /* ── Reset: ngăn viz inline <style> (vd 'button { margin-right: 6px }') leak vào modal ── */
+    .rm-btn, .rm-panel button, .rm-panel input, .rm-panel select { margin: 0; }
+
     /* ── Nút floating ── */
     .rm-btn {
       position: fixed; bottom: 24px; right: 24px; z-index: 200;

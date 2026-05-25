@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 01 (T3) — Quang hình</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 120px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100px; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  select { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; }
+  .stat { display: inline-block; background: #dbeafe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #1e40af; }
+  .result { padding: 14px; background: #dbeafe; border-radius: 8px; margin-top: 12px; }
+
+  svg.scene {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 720px; height: 360px;
+    border-radius: 8px;
+    background: linear-gradient(to bottom, #fef3c7 0%, #fef3c7 50%, #93c5fd 50%, #93c5fd 100%);
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Physics</a>
+  <span class="sep">·</span>
+  <a href="../../02-Thermo-Electromagnetism/lesson-08-em-waves/visualization.html">← T2-L8</a>
+  <span class="sep">·</span>
+  <span class="current">T3-L1: Quang hình</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L2: Thấu kính (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 01 (T3) — Quang hình</h1>
+<p>Bộ công cụ: Snell's Law Simulator (phản xạ + khúc xạ tương tác), Phản xạ toàn phần demo.</p>
+
+<h2>1. Snell's Law Simulator</h2>
+<div class="card">
+  <div class="row">
+    <label>n₁ (trên):</label>
+    <select id="snN1" onchange="updateSnell()">
+      <option value="1.0">Không khí (n=1)</option>
+      <option value="1.33" selected>Nước (n=1.33)</option>
+      <option value="1.5">Thủy tinh (n=1.5)</option>
+      <option value="2.42">Kim cương (n=2.42)</option>
+    </select>
+    <label>n₂ (dưới):</label>
+    <select id="snN2" onchange="updateSnell()">
+      <option value="1.0" selected>Không khí (n=1)</option>
+      <option value="1.33">Nước (n=1.33)</option>
+      <option value="1.5">Thủy tinh (n=1.5)</option>
+      <option value="2.42">Kim cương (n=2.42)</option>
+    </select>
+  </div>
+  <div class="row">
+    <label>Góc tới θ₁ (°):</label>
+    <input type="range" id="snTheta" min="0" max="89" step="1" value="30" oninput="updateSnell()">
+    <span class="stat">θ₁ = <strong id="thetaVal">30</strong>°</span>
+  </div>
+  <svg class="scene" id="snSvg" viewBox="0 0 720 360"></svg>
+  <div class="result" id="snResult"></div>
+</div>
+
+</main>
+
+<script>
+function updateSnell() {
+  const n1 = parseFloat(document.getElementById("snN1").value);
+  const n2 = parseFloat(document.getElementById("snN2").value);
+  const t1 = parseFloat(document.getElementById("snTheta").value);
+  document.getElementById("thetaVal").textContent = t1;
+  const t1r = t1 * Math.PI / 180;
+  const sinT2 = (n1/n2) * Math.sin(t1r);
+  let t2 = 0;
+  let tir = false;
+  if (Math.abs(sinT2) > 1) {
+    // Total internal reflection
+    tir = true;
+  } else {
+    t2 = Math.asin(sinT2) * 180 / Math.PI;
+  }
+
+  let html = `
+    <div style="font-family:monospace; font-size:15px">n₁·sin(θ₁) = n₂·sin(θ₂)</div>
+    <div style="font-family:monospace; font-size:14px; margin-top:4px">${n1}·sin(${t1}°) = ${n2}·sin(θ₂) → sin(θ₂) = ${(n1/n2*Math.sin(t1r)).toFixed(3)}</div>
+  `;
+  if (tir) {
+    html += `<div style="margin-top:8px; padding:10px; background:#fee2e2; border-radius:6px; font-weight:700">
+      ⚠ PHẢN XẠ TOÀN PHẦN: sin(θ₂) > 1 không có nghĩa → ánh sáng bị phản xạ HẾT trở lại môi trường 1.
+      <br>Góc tới hạn: θ_c = arcsin(${n2}/${n1}) = ${(Math.asin(n2/n1)*180/Math.PI).toFixed(2)}°.
+    </div>`;
+  } else {
+    html += `<div style="margin-top:8px"><span class="stat">θ₂ = <strong>${t2.toFixed(2)}°</strong></span></div>`;
+    if (n2 > n1) html += `<div style="margin-top:6px; font-size:13px">Đi vào môi trường đậm hơn → tia khúc xạ BẺ VỀ pháp tuyến.</div>`;
+    else html += `<div style="margin-top:6px; font-size:13px">Đi sang loãng hơn → tia khúc xạ BẺ XA pháp tuyến.</div>`;
+  }
+  document.getElementById("snResult").innerHTML = html;
+
+  // Draw
+  const svg = document.getElementById("snSvg");
+  svg.innerHTML = "";
+  const W = 720, H = 360, cy = H/2, cx = W/2;
+  // Interface line
+  const inter = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  inter.setAttribute("x1", 0); inter.setAttribute("y1", cy); inter.setAttribute("x2", W); inter.setAttribute("y2", cy);
+  inter.setAttribute("stroke", "#1a202c"); inter.setAttribute("stroke-width", 2);
+  svg.appendChild(inter);
+  // Normal (dashed)
+  const norm = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  norm.setAttribute("x1", cx); norm.setAttribute("y1", 30); norm.setAttribute("x2", cx); norm.setAttribute("y2", H-30);
+  norm.setAttribute("stroke", "#94a3b8"); norm.setAttribute("stroke-dasharray", "4 4");
+  svg.appendChild(norm);
+  // Labels
+  const lbl1 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  lbl1.setAttribute("x", 30); lbl1.setAttribute("y", 30); lbl1.setAttribute("font-weight", "700");
+  lbl1.textContent = `Môi trường 1 (n₁ = ${n1})`;
+  svg.appendChild(lbl1);
+  const lbl2 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  lbl2.setAttribute("x", 30); lbl2.setAttribute("y", H-15); lbl2.setAttribute("font-weight", "700");
+  lbl2.textContent = `Môi trường 2 (n₂ = ${n2})`;
+  svg.appendChild(lbl2);
+
+  // Incident ray (top, from upper left)
+  const rayLen = 150;
+  const ix = cx - rayLen * Math.sin(t1r);
+  const iy = cy - rayLen * Math.cos(t1r);
+  const inc = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  inc.setAttribute("x1", ix); inc.setAttribute("y1", iy); inc.setAttribute("x2", cx); inc.setAttribute("y2", cy);
+  inc.setAttribute("stroke", "#dc2626"); inc.setAttribute("stroke-width", 3); inc.setAttribute("marker-end", "url(#aInc)");
+  svg.appendChild(inc);
+  const ilbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  ilbl.setAttribute("x", ix - 40); ilbl.setAttribute("y", iy + 5);
+  ilbl.setAttribute("fill", "#dc2626"); ilbl.setAttribute("font-weight", "700");
+  ilbl.textContent = `θ₁ = ${t1}°`;
+  svg.appendChild(ilbl);
+
+  // Reflected ray (always)
+  const rx = cx + rayLen * Math.sin(t1r);
+  const ry = cy - rayLen * Math.cos(t1r);
+  const refl = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  refl.setAttribute("x1", cx); refl.setAttribute("y1", cy); refl.setAttribute("x2", rx); refl.setAttribute("y2", ry);
+  refl.setAttribute("stroke", "#ea580c"); refl.setAttribute("stroke-width", tir ? 3 : 1.5); refl.setAttribute("stroke-dasharray", tir ? "" : "3 3");
+  refl.setAttribute("marker-end", "url(#aRefl)");
+  svg.appendChild(refl);
+  const rlbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  rlbl.setAttribute("x", rx + 5); rlbl.setAttribute("y", ry + 5);
+  rlbl.setAttribute("fill", "#ea580c"); rlbl.setAttribute("font-weight", "700");
+  rlbl.textContent = `Phản xạ`;
+  svg.appendChild(rlbl);
+
+  // Refracted ray (if not TIR)
+  if (!tir) {
+    const t2r = t2 * Math.PI / 180;
+    const fx = cx + rayLen * Math.sin(t2r);
+    const fy = cy + rayLen * Math.cos(t2r);
+    const refr = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    refr.setAttribute("x1", cx); refr.setAttribute("y1", cy); refr.setAttribute("x2", fx); refr.setAttribute("y2", fy);
+    refr.setAttribute("stroke", "#047857"); refr.setAttribute("stroke-width", 3); refr.setAttribute("marker-end", "url(#aRefr)");
+    svg.appendChild(refr);
+    const flbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    flbl.setAttribute("x", fx + 10); flbl.setAttribute("y", fy);
+    flbl.setAttribute("fill", "#047857"); flbl.setAttribute("font-weight", "700");
+    flbl.textContent = `θ₂ = ${t2.toFixed(1)}°`;
+    svg.appendChild(flbl);
+  }
+
+  // Markers
+  const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+  defs.innerHTML = `
+    <marker id="aInc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626"/></marker>
+    <marker id="aRefl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ea580c"/></marker>
+    <marker id="aRefr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#047857"/></marker>
+  `;
+  svg.appendChild(defs);
+}
+
+// Init
+updateSnell();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

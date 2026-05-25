@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 02 — Cấu hình electron &amp; Bảng tuần hoàn</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  h3 { color: #4a5568; margin-top: 20px; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 100px; }
+  input[type="number"] { font-family: monospace; font-size: 15px; padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; width: 90px; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  button { background: #be185d; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button:hover { background: #9d174d; }
+  button.muted { background: #a0aec0; }
+  button.muted:hover { background: #718096; }
+  button.toggle { background: #94a3b8; }
+  button.toggle.active { background: #047857; }
+  .hint { color: #718096; font-size: 13px; margin: 4px 0; }
+  .stat { display: inline-block; background: #fce7f3; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #be185d; }
+
+  /* Periodic table */
+  .ptable {
+    display: grid;
+    grid-template-columns: repeat(18, minmax(28px, 1fr));
+    gap: 2px;
+    margin-top: 12px;
+  }
+  .pt-cell {
+    aspect-ratio: 1;
+    border: 1px solid #cbd5e0; border-radius: 3px;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    font-size: 9px; cursor: pointer;
+    transition: all 0.12s;
+    background: white;
+  }
+  .pt-cell:hover { transform: scale(1.15); z-index: 2; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+  .pt-cell .z { font-size: 7px; color: #718096; }
+  .pt-cell .sym { font-weight: 700; font-size: 11px; color: #1a202c; }
+  .pt-cell.selected { background: #be185d; color: white; transform: scale(1.15); z-index: 2; box-shadow: 0 2px 8px rgba(190, 24, 93, 0.4); }
+  .pt-cell.selected .sym, .pt-cell.selected .z { color: white; }
+  .pt-cell.empty { border: none; background: transparent; cursor: default; }
+  .pt-cell.empty:hover { transform: none; box-shadow: none; }
+  .pt-cell.block-s { background: #fee2e2; }
+  .pt-cell.block-p { background: #fef3c7; }
+  .pt-cell.block-d { background: #dbeafe; }
+  .pt-cell.block-f { background: #dcfce7; }
+  .pt-cell.block-s.selected, .pt-cell.block-p.selected, .pt-cell.block-d.selected, .pt-cell.block-f.selected {
+    background: #be185d;
+  }
+  .pt-legend { margin-top: 14px; font-size: 13px; }
+  .pt-legend span { display: inline-block; padding: 3px 10px; border-radius: 4px; margin-right: 8px; font-weight: 600; }
+  .pt-legend .leg-s { background: #fee2e2; color: #991b1b; }
+  .pt-legend .leg-p { background: #fef3c7; color: #92400e; }
+  .pt-legend .leg-d { background: #dbeafe; color: #1e3a8a; }
+  .pt-legend .leg-f { background: #dcfce7; color: #166534; }
+
+  /* Orbital diagram */
+  .orbital-row { display: flex; align-items: center; gap: 6px; margin: 4px 0; font-family: monospace; }
+  .orbital-row .lbl { width: 32px; font-weight: 700; color: #be185d; }
+  .orbital-box {
+    display: inline-flex; gap: 0;
+    border: 1px solid #475569; border-radius: 3px;
+    overflow: hidden;
+  }
+  .orbital-cell {
+    width: 26px; height: 26px;
+    border-right: 1px solid #475569;
+    display: flex; justify-content: center; align-items: center;
+    font-size: 16px; background: #f1f5f9;
+  }
+  .orbital-cell:last-child { border-right: none; }
+  .arrow-up { color: #1d4ed8; }
+  .arrow-down { color: #dc2626; }
+  .orbital-energy {
+    margin-left: 12px; font-size: 12px; color: #718096;
+  }
+
+  /* Trend chart */
+  svg.trend {
+    display: block; width: 100%; max-width: 800px;
+    height: 280px; margin: 12px auto;
+  }
+  svg.trend .axis { stroke: #2d3748; stroke-width: 1.5; }
+  svg.trend .grid { stroke: #e2e8f0; stroke-width: 1; }
+  svg.trend .bar { fill: #be185d; }
+  svg.trend .bar:hover { fill: #9d174d; }
+  svg.trend .lbl { font: 10px sans-serif; fill: #475569; text-anchor: middle; }
+  svg.trend .val { font: 9px monospace; fill: #475569; text-anchor: middle; }
+  svg.trend .title { font: 13px sans-serif; fill: #1a202c; font-weight: 700; text-anchor: middle; }
+
+  /* Config display */
+  .config-display {
+    font-family: "Times New Roman", serif; font-size: 22px;
+    padding: 12px; background: #fef3c7; border-radius: 6px;
+    margin: 12px 0;
+  }
+  .config-display .superscript { font-size: 14px; vertical-align: super; color: #92400e; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Chemistry</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-atom-structure/visualization.html">← L1: Cấu trúc nguyên tử</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Cấu hình electron</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L3: Liên kết (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 02 — Cấu hình electron &amp; Bảng tuần hoàn</h1>
+<p>Bộ công cụ tương tác: bảng tuần hoàn click-to-view, sơ đồ orbital (Aufbau + Hund + Pauli), trình tự Madelung, và biểu đồ 4 xu hướng tuần hoàn.</p>
+
+<h2>1. Bảng tuần hoàn tương tác</h2>
+<div class="card">
+  <p>Click vào ô bất kỳ để xem chi tiết. 4 màu = 4 khối: <span class="leg-s" style="background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:3px">s</span> <span class="leg-p" style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:3px">p</span> <span class="leg-d" style="background:#dbeafe;color:#1e3a8a;padding:2px 8px;border-radius:3px">d</span> <span class="leg-f" style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:3px">f</span>.</p>
+  <div class="ptable" id="ptableGrid"></div>
+
+  <div style="margin-top:18px" id="elementDetail"></div>
+</div>
+
+<h2>2. Orbital Filler — điền electron theo Aufbau + Hund + Pauli</h2>
+<div class="card">
+  <div class="row">
+    <label>Số electron:</label>
+    <input type="range" id="eCountSlider" min="1" max="36" value="6">
+    <span class="stat">e = <strong id="eCountVal">6</strong></span>
+    <span class="stat" id="elemMatch">Carbon (C)</span>
+  </div>
+  <div class="row">
+    <button class="muted" onclick="setECount(1)">H</button>
+    <button class="muted" onclick="setECount(6)">C</button>
+    <button class="muted" onclick="setECount(8)">O</button>
+    <button class="muted" onclick="setECount(11)">Na</button>
+    <button class="muted" onclick="setECount(17)">Cl</button>
+    <button class="muted" onclick="setECount(18)">Ar</button>
+    <button class="muted" onclick="setECount(20)">Ca</button>
+    <button class="muted" onclick="setECount(26)">Fe</button>
+  </div>
+
+  <div id="orbitalDiagram" style="margin-top:14px"></div>
+
+  <div class="config-display" id="configDisplay">—</div>
+  <div id="configShort" class="hint" style="font-size:14px"></div>
+</div>
+
+<h2>3. Madelung Order — thứ tự điền phân lớp</h2>
+<div class="card">
+  <p>Đây là sơ đồ Madelung để tra thứ tự năng lượng các phân lớp. Đọc theo các đường chéo từ trên xuống.</p>
+  <div id="madelungGrid" style="font-family:monospace; font-size:18px; line-height:2; text-align:center; padding:16px; background:#f8fafc; border-radius:8px"></div>
+  <div style="margin-top:12px">
+    <strong>Thứ tự năng lượng tăng dần:</strong>
+    <div id="madelungOrder" style="font-family:monospace; font-size:14px; padding:10px; background:#fef3c7; border-radius:6px; margin-top:6px"></div>
+  </div>
+</div>
+
+<h2>4. Xu hướng tuần hoàn — biểu đồ chu kỳ 2 và 3</h2>
+<div class="card">
+  <div class="row">
+    <label>Đại lượng:</label>
+    <button class="toggle active" data-prop="radius" onclick="setTrend('radius')">Bán kính (pm)</button>
+    <button class="toggle" data-prop="ie1" onclick="setTrend('ie1')">Năng lượng ion hóa I₁ (kJ/mol)</button>
+    <button class="toggle" data-prop="en" onclick="setTrend('en')">Độ âm điện (Pauling)</button>
+  </div>
+  <div class="row">
+    <label>Chu kỳ:</label>
+    <button class="toggle active" data-period="2" onclick="setPeriod(2)">Chu kỳ 2</button>
+    <button class="toggle" data-period="3" onclick="setPeriod(3)">Chu kỳ 3</button>
+  </div>
+
+  <svg class="trend" id="trendSvg" viewBox="0 0 800 280"></svg>
+
+  <div id="trendNote" class="hint" style="padding:10px; background:#f0f9ff; border-radius:6px"></div>
+</div>
+
+</main>
+
+<script>
+// ===== Element Data (Z = 1..36 detailed) =====
+const ELEMENTS = {
+  1:  {sym:"H",  name:"Hydrogen",   block:"s", period:1, group:1,  config:"1s¹", short:"1s¹"},
+  2:  {sym:"He", name:"Helium",     block:"s", period:1, group:18, config:"1s²", short:"1s²"},
+  3:  {sym:"Li", name:"Lithium",    block:"s", period:2, group:1,  config:"1s² 2s¹", short:"[He] 2s¹"},
+  4:  {sym:"Be", name:"Beryllium",  block:"s", period:2, group:2,  config:"1s² 2s²", short:"[He] 2s²"},
+  5:  {sym:"B",  name:"Boron",      block:"p", period:2, group:13, config:"1s² 2s² 2p¹", short:"[He] 2s² 2p¹"},
+  6:  {sym:"C",  name:"Carbon",     block:"p", period:2, group:14, config:"1s² 2s² 2p²", short:"[He] 2s² 2p²"},
+  7:  {sym:"N",  name:"Nitrogen",   block:"p", period:2, group:15, config:"1s² 2s² 2p³", short:"[He] 2s² 2p³"},
+  8:  {sym:"O",  name:"Oxygen",     block:"p", period:2, group:16, config:"1s² 2s² 2p⁴", short:"[He] 2s² 2p⁴"},
+  9:  {sym:"F",  name:"Fluorine",   block:"p", period:2, group:17, config:"1s² 2s² 2p⁵", short:"[He] 2s² 2p⁵"},
+  10: {sym:"Ne", name:"Neon",       block:"p", period:2, group:18, config:"1s² 2s² 2p⁶", short:"[He] 2s² 2p⁶"},
+  11: {sym:"Na", name:"Sodium",     block:"s", period:3, group:1,  config:"1s² 2s² 2p⁶ 3s¹", short:"[Ne] 3s¹"},
+  12: {sym:"Mg", name:"Magnesium",  block:"s", period:3, group:2,  config:"1s² 2s² 2p⁶ 3s²", short:"[Ne] 3s²"},
+  13: {sym:"Al", name:"Aluminum",   block:"p", period:3, group:13, config:"... 3s² 3p¹", short:"[Ne] 3s² 3p¹"},
+  14: {sym:"Si", name:"Silicon",    block:"p", period:3, group:14, config:"... 3s² 3p²", short:"[Ne] 3s² 3p²"},
+  15: {sym:"P",  name:"Phosphorus", block:"p", period:3, group:15, config:"... 3s² 3p³", short:"[Ne] 3s² 3p³"},
+  16: {sym:"S",  name:"Sulfur",     block:"p", period:3, group:16, config:"... 3s² 3p⁴", short:"[Ne] 3s² 3p⁴"},
+  17: {sym:"Cl", name:"Chlorine",   block:"p", period:3, group:17, config:"... 3s² 3p⁵", short:"[Ne] 3s² 3p⁵"},
+  18: {sym:"Ar", name:"Argon",      block:"p", period:3, group:18, config:"... 3s² 3p⁶", short:"[Ne] 3s² 3p⁶"},
+  19: {sym:"K",  name:"Potassium",  block:"s", period:4, group:1,  config:"... 4s¹", short:"[Ar] 4s¹"},
+  20: {sym:"Ca", name:"Calcium",    block:"s", period:4, group:2,  config:"... 4s²", short:"[Ar] 4s²"},
+  21: {sym:"Sc", name:"Scandium",   block:"d", period:4, group:3,  config:"... 3d¹ 4s²", short:"[Ar] 3d¹ 4s²"},
+  22: {sym:"Ti", name:"Titanium",   block:"d", period:4, group:4,  config:"... 3d² 4s²", short:"[Ar] 3d² 4s²"},
+  23: {sym:"V",  name:"Vanadium",   block:"d", period:4, group:5,  config:"... 3d³ 4s²", short:"[Ar] 3d³ 4s²"},
+  24: {sym:"Cr", name:"Chromium",   block:"d", period:4, group:6,  config:"... 3d⁵ 4s¹ (anomaly!)", short:"[Ar] 3d⁵ 4s¹"},
+  25: {sym:"Mn", name:"Manganese",  block:"d", period:4, group:7,  config:"... 3d⁵ 4s²", short:"[Ar] 3d⁵ 4s²"},
+  26: {sym:"Fe", name:"Iron",       block:"d", period:4, group:8,  config:"... 3d⁶ 4s²", short:"[Ar] 3d⁶ 4s²"},
+  27: {sym:"Co", name:"Cobalt",     block:"d", period:4, group:9,  config:"... 3d⁷ 4s²", short:"[Ar] 3d⁷ 4s²"},
+  28: {sym:"Ni", name:"Nickel",     block:"d", period:4, group:10, config:"... 3d⁸ 4s²", short:"[Ar] 3d⁸ 4s²"},
+  29: {sym:"Cu", name:"Copper",     block:"d", period:4, group:11, config:"... 3d¹⁰ 4s¹ (anomaly!)", short:"[Ar] 3d¹⁰ 4s¹"},
+  30: {sym:"Zn", name:"Zinc",       block:"d", period:4, group:12, config:"... 3d¹⁰ 4s²", short:"[Ar] 3d¹⁰ 4s²"},
+  31: {sym:"Ga", name:"Gallium",    block:"p", period:4, group:13, config:"... 4s² 4p¹", short:"[Ar] 3d¹⁰ 4s² 4p¹"},
+  32: {sym:"Ge", name:"Germanium",  block:"p", period:4, group:14, config:"... 4s² 4p²", short:"[Ar] 3d¹⁰ 4s² 4p²"},
+  33: {sym:"As", name:"Arsenic",    block:"p", period:4, group:15, config:"... 4s² 4p³", short:"[Ar] 3d¹⁰ 4s² 4p³"},
+  34: {sym:"Se", name:"Selenium",   block:"p", period:4, group:16, config:"... 4s² 4p⁴", short:"[Ar] 3d¹⁰ 4s² 4p⁴"},
+  35: {sym:"Br", name:"Bromine",    block:"p", period:4, group:17, config:"... 4s² 4p⁵", short:"[Ar] 3d¹⁰ 4s² 4p⁵"},
+  36: {sym:"Kr", name:"Krypton",    block:"p", period:4, group:18, config:"... 4s² 4p⁶", short:"[Ar] 3d¹⁰ 4s² 4p⁶"}
+};
+
+// Periodic table layout (row, col 1-18) — only first 4 periods
+const PT_LAYOUT = {
+  1:  [1,1],  2:  [1,18],
+  3:  [2,1],  4:  [2,2],
+  5:  [2,13], 6:  [2,14], 7: [2,15], 8: [2,16], 9: [2,17], 10:[2,18],
+  11: [3,1],  12: [3,2],
+  13: [3,13], 14: [3,14], 15:[3,15], 16:[3,16], 17:[3,17], 18:[3,18],
+  19: [4,1],  20: [4,2],
+  21: [4,3],  22: [4,4],  23:[4,5],  24:[4,6],  25:[4,7],  26:[4,8],
+  27: [4,9],  28: [4,10], 29:[4,11], 30:[4,12],
+  31: [4,13], 32: [4,14], 33:[4,15], 34:[4,16], 35:[4,17], 36:[4,18]
+};
+
+// Build periodic table grid
+function buildPTable() {
+  const grid = document.getElementById("ptableGrid");
+  grid.innerHTML = "";
+  // Create 4 rows × 18 cols cells
+  for (let row = 1; row <= 4; row++) {
+    for (let col = 1; col <= 18; col++) {
+      const cell = document.createElement("div");
+      cell.className = "pt-cell empty";
+      cell.dataset.row = row; cell.dataset.col = col;
+      grid.appendChild(cell);
+    }
+  }
+  // Place elements
+  Object.entries(PT_LAYOUT).forEach(([z, [r, c]]) => {
+    const idx = (r - 1) * 18 + (c - 1);
+    const cell = grid.children[idx];
+    const elem = ELEMENTS[z];
+    cell.className = `pt-cell block-${elem.block}`;
+    cell.dataset.z = z;
+    cell.innerHTML = `<div class="z">${z}</div><div class="sym">${elem.sym}</div>`;
+    cell.onclick = () => selectElement(z);
+  });
+}
+
+let selectedZ = 6;
+
+function selectElement(z) {
+  selectedZ = z;
+  document.querySelectorAll(".pt-cell").forEach(c => c.classList.remove("selected"));
+  const cells = document.querySelectorAll(".pt-cell[data-z]");
+  cells.forEach(c => { if (parseInt(c.dataset.z) === parseInt(z)) c.classList.add("selected"); });
+
+  const elem = ELEMENTS[z];
+  document.getElementById("elementDetail").innerHTML = `
+    <div style="padding:16px; background:#fce7f3; border-radius:8px; border-left:4px solid #be185d">
+      <h3 style="margin-top:0">${elem.sym} — ${elem.name} (Z = ${z})</h3>
+      <div class="row">
+        <span class="stat">Khối: <strong>${elem.block}</strong></span>
+        <span class="stat">Chu kỳ: <strong>${elem.period}</strong></span>
+        <span class="stat">Nhóm: <strong>${elem.group}</strong></span>
+      </div>
+      <div style="margin-top:8px">
+        <strong>Cấu hình:</strong> <code style="font-size:15px">${elem.config}</code>
+      </div>
+      <div style="margin-top:4px">
+        <strong>Rút gọn:</strong> <code style="font-size:15px">${elem.short}</code>
+      </div>
+    </div>
+  `;
+
+  // Sync with orbital filler
+  document.getElementById("eCountSlider").value = z;
+  updateOrbital();
+}
+
+// ===== Orbital Filler =====
+// Madelung order: 1s, 2s, 2p, 3s, 3p, 4s, 3d, 4p, 5s, 4d, 5p, 6s, 4f, 5d, 6p, 7s
+const SUBSHELL_ORDER = [
+  {label: "1s", l: 0, max: 2, energy: 1},
+  {label: "2s", l: 0, max: 2, energy: 2},
+  {label: "2p", l: 1, max: 6, energy: 3},
+  {label: "3s", l: 0, max: 2, energy: 4},
+  {label: "3p", l: 1, max: 6, energy: 5},
+  {label: "4s", l: 0, max: 2, energy: 6},
+  {label: "3d", l: 2, max: 10, energy: 7},
+  {label: "4p", l: 1, max: 6, energy: 8}
+];
+
+function setECount(z) {
+  document.getElementById("eCountSlider").value = z;
+  updateOrbital();
+}
+
+function updateOrbital() {
+  const total = parseInt(document.getElementById("eCountSlider").value);
+  document.getElementById("eCountVal").textContent = total;
+
+  // Distribute electrons
+  let remaining = total;
+  const filled = [];
+  for (const ss of SUBSHELL_ORDER) {
+    const inThis = Math.min(remaining, ss.max);
+    filled.push({...ss, count: inThis});
+    remaining -= inThis;
+    if (remaining === 0) break;
+  }
+
+  // Render diagram
+  const diag = document.getElementById("orbitalDiagram");
+  diag.innerHTML = "";
+  filled.forEach(ss => {
+    if (ss.count === 0) return;
+    const row = document.createElement("div");
+    row.className = "orbital-row";
+    const numOrbitals = (2 * ss.l + 1);
+    let html = `<div class="lbl">${ss.label}</div><div class="orbital-box">`;
+    // Apply Hund's rule: distribute single ups first, then pair
+    let singles = Math.min(ss.count, numOrbitals);
+    let pairs = ss.count - singles;
+    for (let i = 0; i < numOrbitals; i++) {
+      let cell = "";
+      if (i < singles) cell += '<span class="arrow-up">↑</span>';
+      if (i < pairs) cell += '<span class="arrow-down">↓</span>';
+      html += `<div class="orbital-cell">${cell}</div>`;
+    }
+    html += `</div><div class="orbital-energy">${ss.count} / ${ss.max} electron</div>`;
+    row.innerHTML = html;
+    diag.appendChild(row);
+  });
+
+  // Config display
+  const configParts = filled.filter(f => f.count > 0).map(f => {
+    return `${f.label}<span class="superscript">${superscript(f.count)}</span>`;
+  });
+  document.getElementById("configDisplay").innerHTML = configParts.join(" ");
+
+  // Find element match + short config
+  const elem = ELEMENTS[total];
+  if (elem) {
+    document.getElementById("elemMatch").innerHTML = `<strong>${elem.name} (${elem.sym})</strong>`;
+    document.getElementById("configShort").textContent = "Cấu hình rút gọn: " + elem.short;
+  } else {
+    document.getElementById("elemMatch").textContent = "—";
+    document.getElementById("configShort").textContent = "";
+  }
+}
+
+function superscript(n) {
+  const map = {"0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"};
+  return String(n).split("").map(c => map[c]).join("");
+}
+
+document.getElementById("eCountSlider").addEventListener("input", updateOrbital);
+
+// ===== Madelung Diagram =====
+function renderMadelung() {
+  const layout = [
+    ["1s"],
+    ["2s", "2p"],
+    ["3s", "3p", "3d"],
+    ["4s", "4p", "4d", "4f"],
+    ["5s", "5p", "5d", "5f"],
+    ["6s", "6p", "6d"],
+    ["7s", "7p"]
+  ];
+  const grid = document.getElementById("madelungGrid");
+  let html = "";
+  layout.forEach(row => {
+    html += "<div>" + row.map(ss => `<span style="display:inline-block; min-width:48px; padding:4px 10px; background:#fce7f3; color:#be185d; border-radius:4px; margin:2px; font-weight:700">${ss}</span>`).join("") + "</div>";
+  });
+  grid.innerHTML = html;
+
+  // Order display
+  const order = ["1s","2s","2p","3s","3p","4s","3d","4p","5s","4d","5p","6s","4f","5d","6p","7s","5f","6d","7p"];
+  document.getElementById("madelungOrder").textContent = order.join("  →  ");
+}
+
+// ===== Trend Chart =====
+const TRENDS = {
+  radius: {
+    title: "Bán kính nguyên tử (pm)",
+    data: {
+      2: {Li:152, Be:112, B:85, C:77, N:75, O:73, F:71},
+      3: {Na:186, Mg:160, Al:143, Si:117, P:110, S:104, Cl:99}
+    },
+    note: "Trong chu kỳ, bán kính GIẢM từ trái sang phải (do Z tăng → hạt nhân hút electron mạnh hơn)."
+  },
+  ie1: {
+    title: "Năng lượng ion hóa thứ nhất I₁ (kJ/mol)",
+    data: {
+      2: {Li:520, Be:899, B:800, C:1086, N:1402, O:1314, F:1681, Ne:2081},
+      3: {Na:496, Mg:738, Al:578, Si:786, P:1012, S:1000, Cl:1251, Ar:1521}
+    },
+    note: "Trong chu kỳ, I₁ TĂNG (e bị giữ chặt hơn). Để ý 2 bất thường: B<Be (e ở 2p dễ bứt hơn 2s ghép cặp), O<N (N có 2p³ half-filled bền)."
+  },
+  en: {
+    title: "Độ âm điện (Pauling scale)",
+    data: {
+      2: {Li:0.98, Be:1.57, B:2.04, C:2.55, N:3.04, O:3.44, F:3.98},
+      3: {Na:0.93, Mg:1.31, Al:1.61, Si:1.90, P:2.19, S:2.58, Cl:3.16}
+    },
+    note: "Độ âm điện TĂNG từ trái sang phải. F (3.98) cao nhất. Khí trơ không có giá trị (không tạo liên kết thường)."
+  }
+};
+
+let currentTrend = "radius";
+let currentPeriod = 2;
+
+function setTrend(prop) {
+  currentTrend = prop;
+  document.querySelectorAll("[data-prop]").forEach(b => b.classList.toggle("active", b.dataset.prop === prop));
+  drawTrend();
+}
+function setPeriod(p) {
+  currentPeriod = p;
+  document.querySelectorAll("[data-period]").forEach(b => b.classList.toggle("active", parseInt(b.dataset.period) === p));
+  drawTrend();
+}
+
+function drawTrend() {
+  const t = TRENDS[currentTrend];
+  const data = t.data[currentPeriod];
+  const svg = document.getElementById("trendSvg");
+  svg.innerHTML = "";
+  const W = 800, H = 280;
+  const padL = 50, padR = 30, padT = 40, padB = 50;
+  const cw = W - padL - padR, ch = H - padT - padB;
+
+  const entries = Object.entries(data);
+  const maxVal = Math.max(...entries.map(([_, v]) => v));
+  const barW = cw / entries.length * 0.7;
+  const barGap = cw / entries.length * 0.3;
+
+  // Title
+  const title = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  title.setAttribute("class", "title");
+  title.setAttribute("x", W / 2); title.setAttribute("y", 20);
+  title.textContent = `${t.title} — Chu kỳ ${currentPeriod}`;
+  svg.appendChild(title);
+
+  // Bars
+  entries.forEach(([sym, val], i) => {
+    const x = padL + i * (barW + barGap);
+    const barH = (val / maxVal) * ch * 0.85;
+    const y = H - padB - barH;
+    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    rect.setAttribute("class", "bar");
+    rect.setAttribute("x", x); rect.setAttribute("y", y);
+    rect.setAttribute("width", barW); rect.setAttribute("height", barH);
+    svg.appendChild(rect);
+
+    // Label
+    const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lbl.setAttribute("class", "lbl");
+    lbl.setAttribute("x", x + barW / 2); lbl.setAttribute("y", H - padB + 16);
+    lbl.textContent = sym;
+    svg.appendChild(lbl);
+
+    // Value
+    const valLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    valLbl.setAttribute("class", "val");
+    valLbl.setAttribute("x", x + barW / 2); valLbl.setAttribute("y", y - 4);
+    valLbl.textContent = val;
+    svg.appendChild(valLbl);
+  });
+
+  document.getElementById("trendNote").textContent = t.note;
+}
+
+// ===== Init =====
+buildPTable();
+selectElement(6);
+updateOrbital();
+renderMadelung();
+drawTrend();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

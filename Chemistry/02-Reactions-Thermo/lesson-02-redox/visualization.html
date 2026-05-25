@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 02 (T2) — Phản ứng Redox</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 120px; }
+  input[type="text"], select { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 15px; font-family: monospace; }
+  input[type="text"] { min-width: 200px; }
+  button { background: #be185d; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  .stat { display: inline-block; background: #fce7f3; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #be185d; }
+  .result { padding: 14px; background: #fef3c7; border-radius: 8px; margin-top: 12px; }
+  .step { padding: 8px 12px; background: #f8fafc; border-left: 3px solid #be185d; margin: 6px 0; font-family: monospace; font-size: 14px; }
+  .step.oxidation { border-left-color: #dc2626; background: #fee2e2; }
+  .step.reduction { border-left-color: #1d4ed8; background: #dbeafe; }
+  table.ox {
+    width: 100%; border-collapse: collapse; margin-top: 12px;
+  }
+  table.ox th, table.ox td {
+    border: 1px solid #e2e8f0; padding: 8px 12px;
+    text-align: left;
+  }
+  table.ox th { background: #fce7f3; color: #be185d; }
+  .ox-state {
+    display: inline-block; padding: 4px 12px;
+    border-radius: 999px; font-family: monospace; font-weight: 700;
+  }
+  .ox-state.pos { background: #fee2e2; color: #b91c1c; }
+  .ox-state.neg { background: #dbeafe; color: #1e3a8a; }
+  .ox-state.zero { background: #f1f5f9; color: #475569; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Chemistry</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-acid-base/visualization.html">← L1: Acid-Base</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Redox</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L3: Điện hóa (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 02 (T2) — Phản ứng Redox</h1>
+<p>Bộ công cụ: Oxidation State Calculator (gõ công thức, hiển thị số ox mỗi nguyên tố), Redox Identifier (kiểm tra phản ứng có phải redox), thư viện 6 phản ứng redox kinh điển.</p>
+
+<h2>1. Oxidation State Calculator</h2>
+<div class="card">
+  <p>Chọn hợp chất, viz tính số oxy hóa cho từng nguyên tố theo 7 quy tắc.</p>
+  <div class="row">
+    <label>Chọn hợp chất:</label>
+    <select id="compoundSelect">
+      <option value="H2SO4">H₂SO₄ (Acid sulfuric)</option>
+      <option value="HNO3">HNO₃ (Acid nitric)</option>
+      <option value="KMnO4">KMnO₄ (Kali permanganat)</option>
+      <option value="K2Cr2O7">K₂Cr₂O₇ (Kali dichromat)</option>
+      <option value="NaClO">NaClO (Natri hypochloride)</option>
+      <option value="NH3">NH₃ (Ammoniac)</option>
+      <option value="NH4">NH₄⁺ (ion ammonium)</option>
+      <option value="CO3">CO₃²⁻ (ion carbonate)</option>
+      <option value="SO4">SO₄²⁻ (ion sulfate)</option>
+      <option value="ClO4">ClO₄⁻ (ion perchlorate)</option>
+      <option value="H2O2">H₂O₂ (peroxide — ngoại lệ)</option>
+      <option value="NaH">NaH (hydride — ngoại lệ)</option>
+    </select>
+  </div>
+  <div class="result" id="oxResult"></div>
+</div>
+
+<h2>2. Redox Identifier</h2>
+<div class="card">
+  <p>Chọn phản ứng để xem có phải redox không, ai oxy hóa ai khử.</p>
+  <div class="row">
+    <label>Phản ứng:</label>
+    <select id="reactionPicker">
+      <option value="zn_cu">Zn + CuSO₄ → ZnSO₄ + Cu</option>
+      <option value="hcl_naoh">HCl + NaOH → NaCl + H₂O</option>
+      <option value="fe_o2">4Fe + 3O₂ → 2Fe₂O₃ (gỉ sét)</option>
+      <option value="caco3">CaCO₃ → CaO + CO₂ (vôi tôi)</option>
+      <option value="cu_agno3">Cu + 2AgNO₃ → Cu(NO₃)₂ + 2Ag</option>
+      <option value="combustion">CH₄ + 2O₂ → CO₂ + 2H₂O (đốt methane)</option>
+      <option value="kmno4_fe">MnO₄⁻ + Fe²⁺ + H⁺ → Mn²⁺ + Fe³⁺ + H₂O</option>
+      <option value="2na_cl2">2Na + Cl₂ → 2NaCl</option>
+    </select>
+  </div>
+  <div class="result" id="reactionResult"></div>
+</div>
+
+<h2>3. Half-Reaction Library</h2>
+<div class="card">
+  <p>Bộ sưu tập các phản ứng redox được phân tích đầy đủ (2 nửa + cân bằng cuối).</p>
+  <div class="row">
+    <label>Chọn phản ứng:</label>
+    <select id="halfPicker">
+      <option value="mnFe">MnO₄⁻ + Fe²⁺ → Mn²⁺ + Fe³⁺ (acid)</option>
+      <option value="crFe">Cr₂O₇²⁻ + Fe²⁺ → Cr³⁺ + Fe³⁺ (acid)</option>
+      <option value="mnC2O4">MnO₄⁻ + C₂O₄²⁻ → Mn²⁺ + CO₂ (acid)</option>
+      <option value="cuAg">Cu + 2AgNO₃ → Cu(NO₃)₂ + 2Ag</option>
+      <option value="znHCl">Zn + 2HCl → ZnCl₂ + H₂</option>
+    </select>
+  </div>
+  <div id="halfResult"></div>
+</div>
+
+</main>
+
+<script>
+// ===== Oxidation State Data =====
+const COMPOUNDS = {
+  H2SO4: {
+    label: "H₂SO₄",
+    atoms: [{sym:"H",count:2}, {sym:"S",count:1}, {sym:"O",count:4}],
+    states: {H:1, S:6, O:-2},
+    explanation: "H = +1 (×2 = +2); O = −2 (×4 = −8); 2 + S − 8 = 0 → S = +6"
+  },
+  HNO3: {
+    label: "HNO₃",
+    atoms: [{sym:"H",count:1}, {sym:"N",count:1}, {sym:"O",count:3}],
+    states: {H:1, N:5, O:-2},
+    explanation: "H = +1; O = −2 (×3 = −6); 1 + N − 6 = 0 → N = +5"
+  },
+  KMnO4: {
+    label: "KMnO₄",
+    atoms: [{sym:"K",count:1}, {sym:"Mn",count:1}, {sym:"O",count:4}],
+    states: {K:1, Mn:7, O:-2},
+    explanation: "K = +1 (nhóm IA); O = −2 (×4 = −8); 1 + Mn − 8 = 0 → Mn = +7"
+  },
+  K2Cr2O7: {
+    label: "K₂Cr₂O₇",
+    atoms: [{sym:"K",count:2}, {sym:"Cr",count:2}, {sym:"O",count:7}],
+    states: {K:1, Cr:6, O:-2},
+    explanation: "K = +1 (×2 = +2); O = −2 (×7 = −14); 2 + 2Cr − 14 = 0 → 2Cr = +12 → Cr = +6"
+  },
+  NaClO: {
+    label: "NaClO",
+    atoms: [{sym:"Na",count:1}, {sym:"Cl",count:1}, {sym:"O",count:1}],
+    states: {Na:1, Cl:1, O:-2},
+    explanation: "Na = +1; O = −2; 1 + Cl − 2 = 0 → Cl = +1"
+  },
+  NH3: {
+    label: "NH₃",
+    atoms: [{sym:"N",count:1}, {sym:"H",count:3}],
+    states: {N:-3, H:1},
+    explanation: "H = +1 (×3 = +3); N + 3 = 0 → N = −3"
+  },
+  NH4: {
+    label: "NH₄⁺ (điện tích +1)",
+    atoms: [{sym:"N",count:1}, {sym:"H",count:4}],
+    states: {N:-3, H:1},
+    explanation: "H = +1 (×4 = +4); N + 4 = +1 → N = −3"
+  },
+  CO3: {
+    label: "CO₃²⁻ (điện tích −2)",
+    atoms: [{sym:"C",count:1}, {sym:"O",count:3}],
+    states: {C:4, O:-2},
+    explanation: "O = −2 (×3 = −6); C − 6 = −2 → C = +4"
+  },
+  SO4: {
+    label: "SO₄²⁻ (điện tích −2)",
+    atoms: [{sym:"S",count:1}, {sym:"O",count:4}],
+    states: {S:6, O:-2},
+    explanation: "O = −2 (×4 = −8); S − 8 = −2 → S = +6"
+  },
+  ClO4: {
+    label: "ClO₄⁻ (điện tích −1)",
+    atoms: [{sym:"Cl",count:1}, {sym:"O",count:4}],
+    states: {Cl:7, O:-2},
+    explanation: "O = −2 (×4 = −8); Cl − 8 = −1 → Cl = +7"
+  },
+  H2O2: {
+    label: "H₂O₂ (peroxide — NGOẠI LỆ O = −1)",
+    atoms: [{sym:"H",count:2}, {sym:"O",count:2}],
+    states: {H:1, O:-1},
+    explanation: "H = +1 (×2 = +2); 2 + 2O = 0 → O = −1 (đây là peroxide, ngoại lệ — O thường = −2)"
+  },
+  NaH: {
+    label: "NaH (hydride — NGOẠI LỆ H = −1)",
+    atoms: [{sym:"Na",count:1}, {sym:"H",count:1}],
+    states: {Na:1, H:-1},
+    explanation: "Na = +1 (nhóm IA); 1 + H = 0 → H = −1 (hydride kim loại, ngoại lệ — H thường = +1)"
+  }
+};
+
+function calcOxState() {
+  const key = document.getElementById("compoundSelect").value;
+  const c = COMPOUNDS[key];
+  let html = `<h3 style="margin-top:0">${c.label}</h3>
+    <table class="ox">
+      <tr><th>Nguyên tố</th><th>Số lượng</th><th>Số oxy hóa</th><th>Đóng góp tổng</th></tr>`;
+  let total = 0;
+  c.atoms.forEach(a => {
+    const ox = c.states[a.sym];
+    const cls = ox > 0 ? "pos" : ox < 0 ? "neg" : "zero";
+    const sign = ox > 0 ? "+" : "";
+    html += `<tr><td><strong>${a.sym}</strong></td><td>${a.count}</td><td><span class="ox-state ${cls}">${sign}${ox}</span></td><td>${a.count} × (${sign}${ox}) = ${(a.count * ox > 0 ? "+" : "") + (a.count * ox)}</td></tr>`;
+    total += a.count * ox;
+  });
+  html += `</table>
+    <div class="step" style="margin-top:12px"><strong>Tổng:</strong> ${total} (= điện tích chất hoặc 0 cho trung hòa)</div>
+    <div class="step"><strong>Phân tích:</strong> ${c.explanation}</div>`;
+  document.getElementById("oxResult").innerHTML = html;
+}
+document.getElementById("compoundSelect").addEventListener("change", calcOxState);
+
+// ===== Redox Identifier =====
+const REACTIONS = {
+  zn_cu: {
+    eq: "Zn + CuSO₄ → ZnSO₄ + Cu",
+    changes: [
+      {atom:"Zn", before:0, after:2, role:"oxidized"},
+      {atom:"Cu", before:2, after:0, role:"reduced"},
+      {atom:"S", before:6, after:6, role:"no_change"},
+      {atom:"O", before:-2, after:-2, role:"no_change"}
+    ],
+    isRedox: true,
+    reducer: "Zn",
+    oxidizer: "Cu²⁺ (trong CuSO₄)"
+  },
+  hcl_naoh: {
+    eq: "HCl + NaOH → NaCl + H₂O",
+    changes: [
+      {atom:"H", before:1, after:1, role:"no_change"},
+      {atom:"Cl", before:-1, after:-1, role:"no_change"},
+      {atom:"Na", before:1, after:1, role:"no_change"},
+      {atom:"O", before:-2, after:-2, role:"no_change"}
+    ],
+    isRedox: false
+  },
+  fe_o2: {
+    eq: "4Fe + 3O₂ → 2Fe₂O₃",
+    changes: [
+      {atom:"Fe", before:0, after:3, role:"oxidized"},
+      {atom:"O", before:0, after:-2, role:"reduced"}
+    ],
+    isRedox: true, reducer:"Fe", oxidizer:"O₂"
+  },
+  caco3: {
+    eq: "CaCO₃ → CaO + CO₂",
+    changes: [
+      {atom:"Ca", before:2, after:2, role:"no_change"},
+      {atom:"C", before:4, after:4, role:"no_change"},
+      {atom:"O", before:-2, after:-2, role:"no_change"}
+    ],
+    isRedox: false
+  },
+  cu_agno3: {
+    eq: "Cu + 2AgNO₃ → Cu(NO₃)₂ + 2Ag",
+    changes: [
+      {atom:"Cu", before:0, after:2, role:"oxidized"},
+      {atom:"Ag", before:1, after:0, role:"reduced"},
+      {atom:"N", before:5, after:5, role:"no_change"},
+      {atom:"O", before:-2, after:-2, role:"no_change"}
+    ],
+    isRedox: true, reducer:"Cu", oxidizer:"Ag⁺"
+  },
+  combustion: {
+    eq: "CH₄ + 2O₂ → CO₂ + 2H₂O",
+    changes: [
+      {atom:"C (trong CH₄)", before:-4, after:4, role:"oxidized"},
+      {atom:"O (trong O₂)", before:0, after:-2, role:"reduced"},
+      {atom:"H", before:1, after:1, role:"no_change"}
+    ],
+    isRedox: true, reducer:"CH₄", oxidizer:"O₂"
+  },
+  kmno4_fe: {
+    eq: "MnO₄⁻ + Fe²⁺ + H⁺ → Mn²⁺ + Fe³⁺ + H₂O",
+    changes: [
+      {atom:"Mn", before:7, after:2, role:"reduced"},
+      {atom:"Fe", before:2, after:3, role:"oxidized"},
+      {atom:"O", before:-2, after:-2, role:"no_change"},
+      {atom:"H", before:1, after:1, role:"no_change"}
+    ],
+    isRedox: true, reducer:"Fe²⁺", oxidizer:"MnO₄⁻"
+  },
+  "2na_cl2": {
+    eq: "2Na + Cl₂ → 2NaCl",
+    changes: [
+      {atom:"Na", before:0, after:1, role:"oxidized"},
+      {atom:"Cl", before:0, after:-1, role:"reduced"}
+    ],
+    isRedox: true, reducer:"Na", oxidizer:"Cl₂"
+  }
+};
+
+function showReaction() {
+  const key = document.getElementById("reactionPicker").value;
+  const r = REACTIONS[key];
+  let html = `<h3 style="margin-top:0; font-family:monospace">${r.eq}</h3>`;
+  html += `<table class="ox"><tr><th>Nguyên tố</th><th>Số ox trước</th><th>Số ox sau</th><th>Thay đổi</th></tr>`;
+  r.changes.forEach(c => {
+    const before = c.before > 0 ? "+" + c.before : c.before;
+    const after = c.after > 0 ? "+" + c.after : c.after;
+    let icon = "—", color = "#94a3b8";
+    if (c.role === "oxidized") { icon = "↑ Oxy hóa (mất e)"; color = "#dc2626"; }
+    else if (c.role === "reduced") { icon = "↓ Khử (nhận e)"; color = "#1d4ed8"; }
+    else { icon = "= không đổi"; }
+    html += `<tr><td>${c.atom}</td><td>${before}</td><td>${after}</td><td style="color:${color}; font-weight:600">${icon}</td></tr>`;
+  });
+  html += `</table>`;
+  if (r.isRedox) {
+    html += `<div style="margin-top:12px; padding:14px; background:#fee2e2; border-left:4px solid #dc2626; border-radius:6px">
+      <strong>✓ ĐÂY LÀ PHẢN ỨNG REDOX</strong><br>
+      <span class="stat" style="background:#fee2e2">Chất khử (cho e, bị oxy hóa): <strong>${r.reducer}</strong></span>
+      <span class="stat" style="background:#dbeafe">Chất oxy hóa (nhận e, bị khử): <strong>${r.oxidizer}</strong></span>
+    </div>`;
+  } else {
+    html += `<div style="margin-top:12px; padding:14px; background:#dcfce7; border-left:4px solid #047857; border-radius:6px">
+      <strong>✗ KHÔNG PHẢI REDOX</strong> — không có nguyên tố nào thay đổi số oxy hóa. Đây có thể là acid-base hoặc phân hủy.
+    </div>`;
+  }
+  document.getElementById("reactionResult").innerHTML = html;
+}
+document.getElementById("reactionPicker").addEventListener("change", showReaction);
+
+// ===== Half-Reaction Library =====
+const HALF_REACTIONS = {
+  mnFe: {
+    eq: "MnO₄⁻ + 8H⁺ + 5Fe²⁺ → Mn²⁺ + 4H₂O + 5Fe³⁺",
+    reduction: "MnO₄⁻ + 8H⁺ + 5e⁻ → Mn²⁺ + 4H₂O (Mn: +7 → +2, nhận 5 e)",
+    oxidation: "Fe²⁺ → Fe³⁺ + e⁻ (Fe: +2 → +3, mất 1 e)",
+    note: "Nhân nửa oxy hóa × 5 để cân bằng e (5 e mỗi nửa)."
+  },
+  crFe: {
+    eq: "Cr₂O₇²⁻ + 14H⁺ + 6Fe²⁺ → 2Cr³⁺ + 7H₂O + 6Fe³⁺",
+    reduction: "Cr₂O₇²⁻ + 14H⁺ + 6e⁻ → 2Cr³⁺ + 7H₂O (Cr: +6 → +3, mỗi Cr nhận 3 e, 2 Cr = 6 e)",
+    oxidation: "Fe²⁺ → Fe³⁺ + e⁻",
+    note: "Nhân oxy hóa × 6 để cân bằng 6 e."
+  },
+  mnC2O4: {
+    eq: "2MnO₄⁻ + 16H⁺ + 5C₂O₄²⁻ → 2Mn²⁺ + 8H₂O + 10CO₂",
+    reduction: "MnO₄⁻ + 8H⁺ + 5e⁻ → Mn²⁺ + 4H₂O",
+    oxidation: "C₂O₄²⁻ → 2CO₂ + 2e⁻ (C: +3 → +4, mỗi C mất 1 e, 2 C = 2 e)",
+    note: "Nhân khử × 2, oxy hóa × 5 (LCM = 10 e)."
+  },
+  cuAg: {
+    eq: "Cu + 2Ag⁺ → Cu²⁺ + 2Ag",
+    reduction: "Ag⁺ + e⁻ → Ag (Ag: +1 → 0)",
+    oxidation: "Cu → Cu²⁺ + 2e⁻ (Cu: 0 → +2)",
+    note: "Nhân khử × 2 để khớp 2 e với oxy hóa."
+  },
+  znHCl: {
+    eq: "Zn + 2HCl → ZnCl₂ + H₂",
+    reduction: "2H⁺ + 2e⁻ → H₂ (H: +1 → 0)",
+    oxidation: "Zn → Zn²⁺ + 2e⁻ (Zn: 0 → +2)",
+    note: "2 nửa đều có 2 e — không cần nhân thêm."
+  }
+};
+
+function showHalfReaction() {
+  const key = document.getElementById("halfPicker").value;
+  const h = HALF_REACTIONS[key];
+  document.getElementById("halfResult").innerHTML = `
+    <div class="step reduction"><strong>Nửa khử (reduction):</strong> ${h.reduction}</div>
+    <div class="step oxidation"><strong>Nửa oxy hóa (oxidation):</strong> ${h.oxidation}</div>
+    <div class="step" style="background:#fef3c7"><strong>Ghi chú:</strong> ${h.note}</div>
+    <div class="step" style="background:#dcfce7; font-size:15px; font-weight:600"><strong>Phương trình cân bằng:</strong> ${h.eq}</div>
+  `;
+}
+document.getElementById("halfPicker").addEventListener("change", showHalfReaction);
+
+// Init
+calcOxState();
+showReaction();
+showHalfReaction();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

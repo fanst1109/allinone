@@ -89,6 +89,16 @@ function render(highlight = {}) {
   if (!root) return;
   const nodes = [], edges = [];
   layout(root, 400, 40, 180, nodes, edges);
+  // Auto-fit viewBox theo bounding box thực của cây (đảm bảo node biên không bị crop)
+  const PAD = 30, R = 22;
+  let xMin = Infinity, xMax = -Infinity, yMin = Infinity, yMax = -Infinity;
+  nodes.forEach(n => {
+    xMin = Math.min(xMin, n.__pos.x - R); xMax = Math.max(xMax, n.__pos.x + R);
+    yMin = Math.min(yMin, n.__pos.y - R); yMax = Math.max(yMax, n.__pos.y + R);
+  });
+  const vbX = xMin - PAD, vbY = yMin - PAD;
+  const vbW = (xMax - xMin) + PAD * 2, vbH = (yMax - yMin) + PAD * 2;
+  svg.setAttribute('viewBox', `${vbX} ${vbY} ${vbW} ${vbH}`);
   edges.forEach(([a, b]) => {
     svg.insertAdjacentHTML('beforeend',
       `<line class="edge" x1="${a.__pos.x}" y1="${a.__pos.y}" x2="${b.__pos.x}" y2="${b.__pos.y}"/>`);
@@ -96,7 +106,7 @@ function render(highlight = {}) {
   nodes.forEach(n => {
     const k = highlight[n.v] || '';
     svg.insertAdjacentHTML('beforeend',
-      `<circle class="node-c ${k}" cx="${n.__pos.x}" cy="${n.__pos.y}" r="22"/>
+      `<circle class="node-c ${k}" cx="${n.__pos.x}" cy="${n.__pos.y}" r="${R}"/>
        <text x="${n.__pos.x}" y="${n.__pos.y}">${n.v}</text>`);
   });
 }

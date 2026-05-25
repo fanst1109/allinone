@@ -89,6 +89,16 @@ function render(highlightPath = []) {
   svg.innerHTML = '';
   const list = [], edges = [], labels = [];
   layout(root, 500, 30, 220, list, edges, labels);
+  // Auto-fit viewBox theo bounding box thực của trie
+  if (list.length > 0) {
+    const PAD = 24, R = 14;
+    let xMin = Infinity, xMax = -Infinity, yMin = Infinity, yMax = -Infinity;
+    list.forEach(n => {
+      xMin = Math.min(xMin, n.__pos.x - R); xMax = Math.max(xMax, n.__pos.x + R);
+      yMin = Math.min(yMin, n.__pos.y - R); yMax = Math.max(yMax, n.__pos.y + R);
+    });
+    svg.setAttribute('viewBox', `${xMin - PAD} ${yMin - PAD} ${(xMax - xMin) + PAD * 2} ${(yMax - yMin) + PAD * 2}`);
+  }
   // Build set of edges in path
   const pathSet = new Set();
   for (let i = 0; i < highlightPath.length - 1; i++) {

@@ -118,6 +118,14 @@ function render(highlightVal = null, klass = '') {
   if (!root) return;
   const nodes = [], edges = [];
   layout(root, 450, 40, 220, nodes, edges);
+  // Auto-fit viewBox theo bounding box thực của cây (chừa chỗ cho text 'b=' dưới node)
+  const PAD = 36, R = 22;
+  let xMin = Infinity, xMax = -Infinity, yMin = Infinity, yMax = -Infinity;
+  nodes.forEach(n => {
+    xMin = Math.min(xMin, n.__pos.x - R); xMax = Math.max(xMax, n.__pos.x + R);
+    yMin = Math.min(yMin, n.__pos.y - R); yMax = Math.max(yMax, n.__pos.y + R);
+  });
+  svg.setAttribute('viewBox', `${xMin - PAD} ${yMin - PAD} ${(xMax - xMin) + PAD * 2} ${(yMax - yMin) + PAD * 2}`);
   edges.forEach(([a, b]) => {
     svg.insertAdjacentHTML('beforeend',
       `<line class="edge" x1="${a.__pos.x}" y1="${a.__pos.y}" x2="${b.__pos.x}" y2="${b.__pos.y}"/>`);
@@ -125,7 +133,7 @@ function render(highlightVal = null, klass = '') {
   nodes.forEach(n => {
     const k = (highlightVal === n.v) ? klass : (n.fresh ? 'new' : '');
     svg.insertAdjacentHTML('beforeend',
-      `<circle class="node-c ${k}" cx="${n.__pos.x}" cy="${n.__pos.y}" r="22"/>
+      `<circle class="node-c ${k}" cx="${n.__pos.x}" cy="${n.__pos.y}" r="${R}"/>
        <text x="${n.__pos.x}" y="${n.__pos.y}">${n.v}</text>
        <text class="balance" x="${n.__pos.x}" y="${n.__pos.y + 30}">b=${balance(n)}</text>`);
   });

@@ -15,6 +15,26 @@
   .legend span { display: inline-block; padding: 2px 8px; border-radius: 4px; margin-right: 8px; color: #fff; font-size: 13px; }
   canvas { display: block; width: 100%; max-width: 900px; height: 420px; }
   .note { color: #666; font-size: 14px; margin-top: 10px; }
+  pre.code { background: #1e293b; color: #e2e8f0; padding: 12px 16px; border-radius: 6px; font-size: 13px; overflow-x: auto; }
+  pre.code .ln { display: block; padding: 2px 6px; margin: 0 -6px; border-radius: 3px; }
+  pre.code .ln.hit { background: #facc15; color: #1e293b; font-weight: 600; }
+  pre.code .count { color: #94a3b8; font-style: italic; margin-left: 8px; }
+  .ds-table { width: 100%; border-collapse: collapse; }
+  .ds-table th, .ds-table td { padding: 6px 10px; border-bottom: 1px solid #eee; text-align: center; font-size: 13px; }
+  .ds-table th { background: #f0f2f5; }
+  .ds-table td:first-child { text-align: left; font-weight: 600; }
+  .ds-table td.best { background: #d1fae5; color: #065f46; font-weight: 700; }
+  .ds-table td.good { background: #ecfccb; color: #365314; }
+  .ds-table td.bad { background: #fee2e2; color: #991b1b; }
+  .op-toggle button { background: #e2e8f0; color: #1e293b; margin-right: 4px; padding: 4px 10px; border: 0; border-radius: 4px; cursor: pointer; font-size: 13px; }
+  .op-toggle button.active { background: #3b82f6; color: #fff; }
+  button.primary { background: #3b82f6; color: #fff; border: 0; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
+  input[type=number] { padding: 4px 6px; width: 70px; }
+  .linear-arr { display: flex; gap: 4px; margin-top: 10px; flex-wrap: wrap; }
+  .linear-arr .cell { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: 2px solid #333; border-radius: 4px; background: #fff; font-weight: 600; }
+  .linear-arr .cell.scan { background: #fef08a; border-color: #ca8a04; }
+  .linear-arr .cell.found { background: #d1fae5; border-color: #10b981; }
+  select { padding: 4px 6px; }
 </style>
 </head>
 <body>
@@ -54,6 +74,57 @@
     <tbody></tbody>
   </table>
   <div class="note">Khi n = 50, O(2ⁿ) đã vượt mọi máy tính trên Trái Đất xử lý nổi trong vũ trụ thời.</div>
+</div>
+
+<div class="panel">
+  <h2 style="margin-top:0">Đếm thao tác từ pseudocode (mục 5.3 README)</h2>
+  <div>
+    <label>Chọn ví dụ:
+      <select id="exSelect">
+        <option value="0">VD1: return arr[i] — O(1)</option>
+        <option value="1">VD2: for i in 0..n-1: print(arr[i]) — O(n)</option>
+        <option value="2">VD3: hai vòng lồng nhau — O(n²)</option>
+        <option value="3">VD4: while i &gt; 1: i = i/2 — O(log n)</option>
+        <option value="4">VD5: hai vòng nối tiếp (không lồng) — O(n)</option>
+        <option value="5">VD6 (mục 5.10): n + n² + 2 — O(n²)</option>
+      </select>
+    </label>
+    <label>n = <input id="nInput" type="number" value="8" min="1" max="100"></label>
+    <button class="primary" onclick="runExample()">▶ Đếm thao tác</button>
+  </div>
+  <pre class="code" id="exCode"></pre>
+  <div class="note" id="exTotal" style="font-size:15px; color:#1e293b;"></div>
+</div>
+
+<div class="panel">
+  <h2 style="margin-top:0">Best / Average / Worst case — Linear Search</h2>
+  <div>
+    <label>Tìm giá trị: <input id="targetInput" type="number" value="7"></label>
+    <div class="op-toggle" style="display:inline-block; margin-left:8px;">
+      <button class="active" data-case="best" onclick="setCase(this,'best')">Best</button>
+      <button data-case="avg" onclick="setCase(this,'avg')">Average</button>
+      <button data-case="worst" onclick="setCase(this,'worst')">Worst</button>
+      <button data-case="miss" onclick="setCase(this,'miss')">Không tồn tại</button>
+    </div>
+    <button class="primary" onclick="runLinear()" style="margin-left:8px;">▶ Chạy</button>
+  </div>
+  <div class="linear-arr" id="linearArr"></div>
+  <div class="note" id="linearLog"></div>
+</div>
+
+<div class="panel">
+  <h2 style="margin-top:0">Bảng so sánh cấu trúc (mục 6 README)</h2>
+  <div class="op-toggle" style="margin-bottom:8px;">
+    <button class="active" data-op="access" onclick="setOp(this,'access')">Truy cập</button>
+    <button data-op="search" onclick="setOp(this,'search')">Tìm kiếm</button>
+    <button data-op="insert" onclick="setOp(this,'insert')">Thêm</button>
+    <button data-op="delete" onclick="setOp(this,'delete')">Xóa</button>
+  </div>
+  <table class="ds-table" id="dsTable">
+    <thead><tr><th>Cấu trúc</th><th>Truy cập</th><th>Tìm kiếm</th><th>Thêm</th><th>Xóa</th><th>Ghi chú</th></tr></thead>
+    <tbody></tbody>
+  </table>
+  <div class="note">Cột thao tác đang chọn được highlight: <span style="background:#d1fae5;padding:1px 6px;border-radius:3px">xanh = tối ưu nhất</span>, <span style="background:#fee2e2;padding:1px 6px;border-radius:3px">đỏ = chậm nhất</span>.</div>
 </div>
 
 <script>
@@ -125,6 +196,151 @@ function updateTable() {
 nRange.addEventListener('input', () => { nValue.textContent = nRange.value; draw(); });
 document.querySelectorAll('input[type=checkbox][data-key]').forEach(c => c.addEventListener('change', draw));
 draw(); updateTable();
+
+// ===== Panel 2: Đếm thao tác từ pseudocode =====
+const EXAMPLES = [
+  {
+    title: "VD1: O(1)",
+    lines: ["return arr[i]"],
+    countFn: n => [1],
+    bigO: "O(1)",
+  },
+  {
+    title: "VD2: O(n)",
+    lines: ["for i from 0 to n-1:", "    print(arr[i])"],
+    countFn: n => [n, n],
+    bigO: "O(n)",
+  },
+  {
+    title: "VD3: O(n²)",
+    lines: ["for i from 0 to n-1:", "    for j from 0 to n-1:", "        print(i, j)"],
+    countFn: n => [n, n*n, n*n],
+    bigO: "O(n²)",
+  },
+  {
+    title: "VD4: O(log n)",
+    lines: ["i = n", "while i > 1:", "    i = i / 2"],
+    countFn: n => [1, Math.floor(Math.log2(Math.max(1,n)))+1, Math.floor(Math.log2(Math.max(1,n)))],
+    bigO: "O(log n)",
+  },
+  {
+    title: "VD5: O(n) — hai vòng nối tiếp",
+    lines: ["for i from 0 to n-1: ...", "for j from 0 to n-1: ..."],
+    countFn: n => [n, n],
+    bigO: "O(n) (= O(2n) bỏ hằng số)",
+  },
+  {
+    title: "VD6 (mục 5.10): O(n²)",
+    lines: ["sum = 0", "for x in arr:", "    sum = sum + x", "for i in arr:", "    for j in arr:", "        print(i, j)", "return sum"],
+    countFn: n => [1, n, n, n, n*n, n*n, 1],
+    bigO: "O(n²) (giữ bậc cao nhất từ n² + n + 2)",
+  },
+];
+function runExample() {
+  const idx = parseInt(document.getElementById('exSelect').value);
+  const n = Math.max(1, parseInt(document.getElementById('nInput').value) || 1);
+  const ex = EXAMPLES[idx];
+  const counts = ex.countFn(n);
+  const total = counts.reduce((a,b) => a+b, 0);
+  const codeEl = document.getElementById('exCode');
+  codeEl.innerHTML = ex.lines.map((ln, i) => {
+    const c = counts[i];
+    const isHot = c >= Math.max(...counts) && c > 1;
+    const escaped = ln.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return `<span class="ln${isHot ? ' hit' : ''}">${escaped}<span class="count">→ ${c.toLocaleString()} thao tác</span></span>`;
+  }).join('');
+  document.getElementById('exTotal').innerHTML =
+    `<b>Tổng:</b> ${total.toLocaleString()} thao tác với n=${n} · <b>Big-O = ${ex.bigO}</b>`;
+}
+document.getElementById('exSelect').addEventListener('change', runExample);
+runExample();
+
+// ===== Panel 3: Linear search Best/Avg/Worst =====
+const ARR = [5, 2, 9, 7, 3, 8, 1, 6, 4, 0];
+let currentCase = 'best';
+function setCase(btn, c) {
+  document.querySelectorAll('.op-toggle button[data-case]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentCase = c;
+  if (c === 'best') document.getElementById('targetInput').value = ARR[0];
+  else if (c === 'worst') document.getElementById('targetInput').value = ARR[ARR.length - 1];
+  else if (c === 'avg') document.getElementById('targetInput').value = ARR[Math.floor(ARR.length/2)];
+  else document.getElementById('targetInput').value = 99;
+  renderLinear();
+}
+function renderLinear(scanned = -1, foundAt = -1) {
+  const el = document.getElementById('linearArr');
+  el.innerHTML = ARR.map((v, i) => {
+    let cls = '';
+    if (i === foundAt) cls = 'found';
+    else if (i <= scanned) cls = 'scan';
+    return `<div class="cell ${cls}">${v}</div>`;
+  }).join('');
+}
+async function runLinear() {
+  const target = parseInt(document.getElementById('targetInput').value);
+  document.getElementById('linearLog').textContent = '';
+  renderLinear();
+  for (let i = 0; i < ARR.length; i++) {
+    renderLinear(i);
+    await new Promise(r => setTimeout(r, 250));
+    if (ARR[i] === target) {
+      renderLinear(i, i);
+      document.getElementById('linearLog').innerHTML =
+        `Tìm thấy ${target} ở index ${i} sau <b>${i+1}</b> phép so sánh. ` +
+        (i === 0 ? 'Best case O(1).' : i === ARR.length-1 ? 'Worst case O(n).' : `Trung bình ~n/2 = ${ARR.length/2}.`);
+      return;
+    }
+  }
+  document.getElementById('linearLog').innerHTML =
+    `Không tìm thấy ${target} sau <b>${ARR.length}</b> phép so sánh (duyệt cả mảng). Worst case O(n).`;
+}
+renderLinear();
+
+// ===== Panel 4: Bảng so sánh cấu trúc =====
+const DS_DATA = [
+  { name: "Array",          access: "O(1)",     search: "O(n)",     insert: "O(n)",     delete: "O(n)",     note: "Kích thước cố định" },
+  { name: "Dynamic Array",  access: "O(1)",     search: "O(n)",     insert: "O(1)*",    delete: "O(n)",     note: "*amortized khi thêm ở cuối" },
+  { name: "Linked List",    access: "O(n)",     search: "O(n)",     insert: "O(1)",     delete: "O(1)",     note: "Nếu đã có con trỏ tới vị trí" },
+  { name: "Stack",          access: "—",        search: "—",        insert: "O(1)",     delete: "O(1)",     note: "LIFO" },
+  { name: "Queue",          access: "—",        search: "—",        insert: "O(1)",     delete: "O(1)",     note: "FIFO" },
+  { name: "Hash Table",     access: "O(1)*",    search: "O(1)*",    insert: "O(1)*",    delete: "O(1)*",    note: "*trung bình; xấu nhất O(n)" },
+  { name: "BST (cân bằng)", access: "O(log n)", search: "O(log n)", insert: "O(log n)", delete: "O(log n)", note: "*khi cây cân bằng" },
+  { name: "Heap",           access: "—",        search: "O(n)",     insert: "O(log n)", delete: "O(log n)", note: "Truy cập nhanh phần tử lớn/nhỏ nhất" },
+];
+// rank: lower index = better; "—" treated as not applicable
+const RANK = { "O(1)": 0, "O(1)*": 1, "O(log n)": 2, "O(log n)*": 2, "O(n)": 3, "O(n)*": 3, "—": 99 };
+let currentOp = 'access';
+function setOp(btn, op) {
+  document.querySelectorAll('.op-toggle button[data-op]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentOp = op;
+  renderDsTable();
+}
+function renderDsTable() {
+  const applicable = DS_DATA.filter(d => d[currentOp] !== "—").map(d => RANK[d[currentOp]] ?? 4);
+  const minR = Math.min(...applicable);
+  const maxR = Math.max(...applicable);
+  const tbody = document.querySelector('#dsTable tbody');
+  tbody.innerHTML = DS_DATA.map(d => {
+    return '<tr>' +
+      `<td>${d.name}</td>` +
+      ['access','search','insert','delete'].map(op => {
+        const val = d[op];
+        let cls = '';
+        if (op === currentOp && val !== "—") {
+          const r = RANK[val] ?? 4;
+          if (r === minR) cls = 'best';
+          else if (r === maxR) cls = 'bad';
+          else cls = 'good';
+        }
+        return `<td class="${cls}">${val}</td>`;
+      }).join('') +
+      `<td style="text-align:left; font-weight:normal; font-size:12px; color:#666;">${d.note}</td>` +
+      '</tr>';
+  }).join('');
+}
+renderDsTable();
 </script></main>
 <!-- README modal (xem tools/readme-modal.js để biết chi tiết) -->
 <script src="../../tools/marked.min.js"></script>

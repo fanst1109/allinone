@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 03 (T2) — Điện hóa</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 130px; }
+  input[type="number"], select { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; }
+  input[type="number"] { width: 100px; }
+  button { background: #be185d; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  .stat { display: inline-block; background: #fce7f3; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #be185d; }
+  .result { padding: 14px; background: #fef3c7; border-radius: 8px; margin-top: 12px; }
+  .step { padding: 8px 12px; background: #f8fafc; border-left: 3px solid #be185d; margin: 6px 0; font-family: monospace; font-size: 14px; }
+
+  svg.cell {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 680px; height: 380px;
+    background: linear-gradient(135deg, #f8fafc, #fef3c7);
+    border-radius: 8px;
+  }
+  svg.cell .electrode { fill: #94a3b8; stroke: #1a202c; stroke-width: 2; }
+  svg.cell .electrode-zn { fill: #d1d5db; }
+  svg.cell .electrode-cu { fill: #fb923c; }
+  svg.cell .liquid { fill: #93c5fd; opacity: 0.5; }
+  svg.cell .salt-bridge { fill: #fef3c7; stroke: #92400e; stroke-width: 2; }
+  svg.cell .wire { fill: none; stroke: #1a202c; stroke-width: 2; }
+  svg.cell .label { font: 12px sans-serif; fill: #1a202c; }
+  svg.cell .symbol { font: bold 16px sans-serif; fill: #1a202c; text-anchor: middle; }
+  svg.cell .voltage { font: bold 22px sans-serif; fill: #be185d; text-anchor: middle; }
+
+  table.estd {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+  }
+  table.estd th, table.estd td {
+    border: 1px solid #e2e8f0; padding: 6px 10px;
+  }
+  table.estd th { background: #fce7f3; color: #be185d; }
+  table.estd tr.selected { background: #fef3c7; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Chemistry</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-redox/visualization.html">← L2: Redox</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Điện hóa</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L4: Nhiệt động hóa (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 03 (T2) — Điện hóa (Electrochemistry)</h1>
+<p>Bộ công cụ: Galvanic Cell Viewer (pin Daniell tương tác), EMF Calculator (chọn 2 nửa từ bảng E° → tính E°cell), Faraday Calculator (mạ điện).</p>
+
+<h2>1. Galvanic Cell Viewer</h2>
+<div class="card">
+  <p>Chọn 2 cặp redox để thấy pin galvanic và sức điện động.</p>
+  <div class="row">
+    <label>Anode (oxy hóa):</label>
+    <select id="anodeSelect"></select>
+  </div>
+  <div class="row">
+    <label>Cathode (khử):</label>
+    <select id="cathodeSelect"></select>
+  </div>
+
+  <svg class="cell" id="cellSvg" viewBox="0 0 680 380"></svg>
+
+  <div class="result" id="cellResult"></div>
+</div>
+
+<h2>2. Bảng thế điện cực chuẩn E°</h2>
+<div class="card">
+  <p>Click một dòng để chọn làm anode/cathode trong viewer phía trên.</p>
+  <table class="estd" id="estdTable"></table>
+</div>
+
+<h2>3. Faraday Calculator — Tính khối lượng điện phân</h2>
+<div class="card">
+  <p>Tính khối lượng chất tạo ra khi điện phân: <code>m = (I·t·M) / (n·F)</code>.</p>
+  <div class="row">
+    <label>Chất ở cathode:</label>
+    <select id="faraReac">
+      <option value="Cu" data-n="2" data-M="63.55">Cu²⁺ + 2e⁻ → Cu (mạ đồng)</option>
+      <option value="Ag" data-n="1" data-M="107.87">Ag⁺ + e⁻ → Ag (mạ bạc)</option>
+      <option value="Au" data-n="3" data-M="196.97">Au³⁺ + 3e⁻ → Au (mạ vàng)</option>
+      <option value="Ni" data-n="2" data-M="58.69">Ni²⁺ + 2e⁻ → Ni</option>
+      <option value="H2" data-n="2" data-M="2.016">2H⁺ + 2e⁻ → H₂</option>
+      <option value="Cl2" data-n="2" data-M="70.90">2Cl⁻ → Cl₂ + 2e⁻ (anode)</option>
+    </select>
+  </div>
+  <div class="row">
+    <label>Cường độ dòng I (A):</label>
+    <input type="number" id="faraI" step="0.1" value="2" oninput="calcFaraday()">
+    <label>Thời gian t (phút):</label>
+    <input type="number" id="faraT" step="1" value="30" oninput="calcFaraday()">
+  </div>
+  <div class="result" id="faradayResult"></div>
+</div>
+
+</main>
+
+<script>
+// ===== E° data =====
+const E_STANDARD = [
+  {label:"F₂/F⁻ (F₂ + 2e⁻ → 2F⁻)", elem:"F2", E:2.87, n:2, oxidized:"F₂", reduced:"2F⁻"},
+  {label:"Au³⁺/Au", elem:"Au", E:1.50, n:3, oxidized:"Au³⁺", reduced:"Au"},
+  {label:"Cl₂/Cl⁻", elem:"Cl2", E:1.36, n:2, oxidized:"Cl₂", reduced:"2Cl⁻"},
+  {label:"O₂/H₂O (+H⁺)", elem:"O2", E:1.23, n:4, oxidized:"O₂", reduced:"2H₂O"},
+  {label:"Ag⁺/Ag", elem:"Ag", E:0.80, n:1, oxidized:"Ag⁺", reduced:"Ag"},
+  {label:"Fe³⁺/Fe²⁺", elem:"Fe3", E:0.77, n:1, oxidized:"Fe³⁺", reduced:"Fe²⁺"},
+  {label:"Cu²⁺/Cu", elem:"Cu", E:0.34, n:2, oxidized:"Cu²⁺", reduced:"Cu"},
+  {label:"H⁺/H₂ (SHE)", elem:"H", E:0.00, n:2, oxidized:"2H⁺", reduced:"H₂"},
+  {label:"Pb²⁺/Pb", elem:"Pb", E:-0.13, n:2, oxidized:"Pb²⁺", reduced:"Pb"},
+  {label:"Sn²⁺/Sn", elem:"Sn", E:-0.14, n:2, oxidized:"Sn²⁺", reduced:"Sn"},
+  {label:"Ni²⁺/Ni", elem:"Ni", E:-0.25, n:2, oxidized:"Ni²⁺", reduced:"Ni"},
+  {label:"Fe²⁺/Fe", elem:"Fe", E:-0.44, n:2, oxidized:"Fe²⁺", reduced:"Fe"},
+  {label:"Zn²⁺/Zn", elem:"Zn", E:-0.76, n:2, oxidized:"Zn²⁺", reduced:"Zn"},
+  {label:"Al³⁺/Al", elem:"Al", E:-1.66, n:3, oxidized:"Al³⁺", reduced:"Al"},
+  {label:"Mg²⁺/Mg", elem:"Mg", E:-2.37, n:2, oxidized:"Mg²⁺", reduced:"Mg"},
+  {label:"Na⁺/Na", elem:"Na", E:-2.71, n:1, oxidized:"Na⁺", reduced:"Na"},
+  {label:"Li⁺/Li", elem:"Li", E:-3.04, n:1, oxidized:"Li⁺", reduced:"Li"}
+];
+
+function populateSelectors() {
+  ["anodeSelect","cathodeSelect"].forEach((id, idx) => {
+    const sel = document.getElementById(id);
+    E_STANDARD.forEach(e => {
+      const opt = document.createElement("option");
+      opt.value = e.elem;
+      opt.textContent = `${e.label} — E° = ${e.E > 0 ? "+" : ""}${e.E} V`;
+      sel.appendChild(opt);
+    });
+    sel.value = idx === 0 ? "Zn" : "Cu";
+  });
+}
+
+function findStd(elem) {
+  return E_STANDARD.find(e => e.elem === elem);
+}
+
+function updateCell() {
+  const aStd = findStd(document.getElementById("anodeSelect").value);
+  const cStd = findStd(document.getElementById("cathodeSelect").value);
+  const Ecell = cStd.E - aStd.E;
+  const isSpontaneous = Ecell > 0;
+
+  // Draw cell
+  const svg = document.getElementById("cellSvg");
+  svg.innerHTML = "";
+
+  // Beaker outlines
+  const beaker = (cx, color, fillColor) => {
+    const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    bg.setAttribute("x", cx - 90); bg.setAttribute("y", 180);
+    bg.setAttribute("width", 180); bg.setAttribute("height", 150);
+    bg.setAttribute("fill", fillColor); bg.setAttribute("opacity", 0.5);
+    bg.setAttribute("stroke", "#475569"); bg.setAttribute("stroke-width", 2);
+    svg.appendChild(bg);
+  };
+  beaker(160, "#94a3b8", "#dbeafe");
+  beaker(520, "#94a3b8", "#fed7aa");
+
+  // Electrode (anode, cathode)
+  const elec = (cx, color, sym) => {
+    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    rect.setAttribute("x", cx - 12); rect.setAttribute("y", 150);
+    rect.setAttribute("width", 24); rect.setAttribute("height", 130);
+    rect.setAttribute("fill", color); rect.setAttribute("stroke", "#1a202c"); rect.setAttribute("stroke-width", 2);
+    svg.appendChild(rect);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("class", "symbol");
+    t.setAttribute("x", cx); t.setAttribute("y", 140); t.textContent = sym;
+    svg.appendChild(t);
+  };
+  elec(160, "#a3a3a3", aStd.reduced);
+  elec(520, "#fb923c", cStd.reduced);
+
+  // Wire (top) from electrodes
+  const wire = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  wire.setAttribute("class", "wire");
+  wire.setAttribute("d", "M 160 150 L 160 80 L 520 80 L 520 150");
+  svg.appendChild(wire);
+
+  // Light bulb in middle
+  const bulb = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  bulb.setAttribute("cx", 340); bulb.setAttribute("cy", 80);
+  bulb.setAttribute("r", 18); bulb.setAttribute("fill", "#fde047"); bulb.setAttribute("stroke", "#1a202c"); bulb.setAttribute("stroke-width", 2);
+  svg.appendChild(bulb);
+
+  // Electron arrow (anode → cathode)
+  for (let i = 0; i < 3; i++) {
+    const arrow = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    arrow.setAttribute("x", 250 + i * 60); arrow.setAttribute("y", 70);
+    arrow.setAttribute("font-size", "14"); arrow.setAttribute("fill", "#1d4ed8"); arrow.setAttribute("font-weight", "700");
+    arrow.textContent = "→ e⁻";
+    svg.appendChild(arrow);
+  }
+
+  // Voltmeter
+  const volt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  volt.setAttribute("class", "voltage");
+  volt.setAttribute("x", 340); volt.setAttribute("y", 40);
+  volt.textContent = `E°cell = ${Ecell > 0 ? "+" : ""}${Ecell.toFixed(2)} V`;
+  svg.appendChild(volt);
+
+  // Salt bridge
+  const sb = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  sb.setAttribute("class", "salt-bridge");
+  sb.setAttribute("x", 250); sb.setAttribute("y", 180);
+  sb.setAttribute("width", 180); sb.setAttribute("height", 30);
+  svg.appendChild(sb);
+  const sbLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  sbLbl.setAttribute("class", "label");
+  sbLbl.setAttribute("x", 340); sbLbl.setAttribute("y", 200);
+  sbLbl.setAttribute("text-anchor", "middle");
+  sbLbl.textContent = "Cầu muối (KNO₃)";
+  svg.appendChild(sbLbl);
+
+  // Labels
+  const lblA = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  lblA.setAttribute("class", "label");
+  lblA.setAttribute("x", 160); lblA.setAttribute("y", 350);
+  lblA.setAttribute("text-anchor", "middle"); lblA.setAttribute("font-weight", "700");
+  lblA.textContent = `Anode (−): ${aStd.reduced} → ${aStd.oxidized}`;
+  svg.appendChild(lblA);
+  const lblC = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  lblC.setAttribute("class", "label");
+  lblC.setAttribute("x", 520); lblC.setAttribute("y", 350);
+  lblC.setAttribute("text-anchor", "middle"); lblC.setAttribute("font-weight", "700");
+  lblC.textContent = `Cathode (+): ${cStd.oxidized} → ${cStd.reduced}`;
+  svg.appendChild(lblC);
+
+  // Solution labels inside beaker
+  const solA = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  solA.setAttribute("class", "label");
+  solA.setAttribute("x", 160); solA.setAttribute("y", 320);
+  solA.setAttribute("text-anchor", "middle");
+  solA.textContent = `Dung dịch chứa ${aStd.oxidized}`;
+  svg.appendChild(solA);
+  const solC = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  solC.setAttribute("class", "label");
+  solC.setAttribute("x", 520); solC.setAttribute("y", 320);
+  solC.setAttribute("text-anchor", "middle");
+  solC.textContent = `Dung dịch chứa ${cStd.oxidized}`;
+  svg.appendChild(solC);
+
+  // Result
+  const out = document.getElementById("cellResult");
+  out.innerHTML = `
+    <div class="step"><strong>Nửa oxy hóa (anode):</strong> ${aStd.reduced} → ${aStd.oxidized} + ${aStd.n}e⁻ (E° = ${aStd.E})</div>
+    <div class="step"><strong>Nửa khử (cathode):</strong> ${cStd.oxidized} + ${cStd.n}e⁻ → ${cStd.reduced} (E° = ${cStd.E})</div>
+    <div class="step"><strong>E°cell:</strong> ${cStd.E} − (${aStd.E}) = <strong>${Ecell > 0 ? "+" : ""}${Ecell.toFixed(2)} V</strong></div>
+    <div style="margin-top:10px; padding:12px; background:${isSpontaneous ? "#dcfce7" : "#fee2e2"}; border-radius:6px">
+      <strong>${isSpontaneous ? "✓ Phản ứng TỰ XẢY RA (spontaneous)" : "✗ Phản ứng KHÔNG TỰ XẢY RA (cần điện phân)"}</strong>
+    </div>
+    <div class="step" style="background:#f1f5f9"><strong>Ký hiệu pin:</strong> ${aStd.reduced} | ${aStd.oxidized}(1 M) || ${cStd.oxidized}(1 M) | ${cStd.reduced}</div>
+  `;
+
+  // Update table highlight
+  document.querySelectorAll("#estdTable tr").forEach(tr => tr.classList.remove("selected"));
+  document.querySelectorAll(`#estdTable tr[data-elem="${aStd.elem}"], #estdTable tr[data-elem="${cStd.elem}"]`).forEach(tr => tr.classList.add("selected"));
+}
+
+document.getElementById("anodeSelect").addEventListener("change", updateCell);
+document.getElementById("cathodeSelect").addEventListener("change", updateCell);
+
+// Build E° table
+function buildTable() {
+  const tbl = document.getElementById("estdTable");
+  let html = "<tr><th>Nửa phản ứng khử</th><th>E° (V)</th><th>Loại</th></tr>";
+  E_STANDARD.forEach(e => {
+    const type = e.E > 0 ? "Oxy hóa mạnh" : e.E < 0 ? "Khử mạnh" : "Chuẩn SHE";
+    html += `<tr data-elem="${e.elem}"><td><strong>${e.label}</strong></td><td>${e.E > 0 ? "+" : ""}${e.E}</td><td>${type}</td></tr>`;
+  });
+  tbl.innerHTML = html;
+}
+
+// Faraday
+const F_CONST = 96485;
+function calcFaraday() {
+  const sel = document.getElementById("faraReac");
+  const opt = sel.options[sel.selectedIndex];
+  const n = parseInt(opt.dataset.n);
+  const M = parseFloat(opt.dataset.M);
+  const I = parseFloat(document.getElementById("faraI").value);
+  const t = parseFloat(document.getElementById("faraT").value) * 60;
+  const m = (I * t * M) / (n * F_CONST);
+  const Q = I * t;
+  const nMol = Q / (n * F_CONST);
+
+  document.getElementById("faradayResult").innerHTML = `
+    <div class="step">Điện lượng Q = I × t = ${I} × ${t} = <strong>${Q.toFixed(1)} C</strong></div>
+    <div class="step">Số mol electron = Q / F = ${Q.toFixed(0)} / 96485 = <strong>${(Q/F_CONST).toFixed(5)} mol e⁻</strong></div>
+    <div class="step">Số mol chất = mol_e / n = ${(Q/F_CONST).toFixed(5)} / ${n} = <strong>${nMol.toFixed(5)} mol</strong></div>
+    <div class="step" style="background:#dcfce7; font-size:15px"><strong>Khối lượng = ${m.toFixed(4)} g</strong></div>
+  `;
+}
+
+// Init
+populateSelectors();
+buildTable();
+updateCell();
+calcFaraday();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

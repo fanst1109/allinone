@@ -18,6 +18,13 @@
   .col { flex: 1; min-width: 280px; }
   .log { color: #444; min-height: 20px; margin-top: 8px; }
   .label { font-size: 12px; color: #888; text-align: center; margin-top: 4px; }
+  .two-stack { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .two-stack > div h3 { margin: 0 0 4px 0; font-size: 13px; text-align: center; color: #555; }
+  .item.min { background: #dbeafe; border-color: #3b82f6; }
+  .token-row { display: flex; gap: 4px; flex-wrap: wrap; margin: 8px 0; }
+  .token { background: #fff; border: 1px solid #ccc; border-radius: 4px; padding: 4px 8px; font-family: monospace; font-weight: 600; }
+  .token.done { background: #d1fae5; border-color: #10b981; color: #065f46; }
+  .token.current { background: #fef08a; border-color: #ca8a04; }
 </style>
 </head>
 <body>
@@ -56,6 +63,32 @@
       <div class="log" id="log2"></div>
     </div>
   </div>
+</div>
+
+<div class="panel">
+  <h2 style="margin-top:0">Min Stack — getMin() O(1) (bài 2 README)</h2>
+  <p style="margin:0 0 8px 0; font-size:14px; color:#555;">Mỗi lần push x, push thêm <code>min(x, top(mins))</code> vào stack phụ. getMin = top stack phụ.</p>
+  <label>Giá trị: <input id="minVal" type="number" value="5"></label>
+  <button onclick="minPush()">Push</button>
+  <button onclick="minPop()">Pop</button>
+  <button onclick="minReset()">Reset</button>
+  <span style="margin-left:12px;">getMin() = <b id="curMin">–</b></span>
+  <div class="two-stack" style="margin-top:10px;">
+    <div><h3>data</h3><div class="stack" id="stackData"></div></div>
+    <div><h3>mins (stack phụ)</h3><div class="stack" id="stackMins"></div></div>
+  </div>
+  <div class="log" id="logMin"></div>
+</div>
+
+<div class="panel">
+  <h2 style="margin-top:0">Tính biểu thức postfix (bài 3 README)</h2>
+  <p style="margin:0 0 8px 0; font-size:14px; color:#555;">Gặp số → push. Gặp toán tử → pop 2 số, tính, push lại.</p>
+  <label>Biểu thức: <input id="postfix" type="text" value="2 3 + 4 *" style="width:200px"></label>
+  <button onclick="runPostfix()">▶ Chạy từng bước</button>
+  <button onclick="resetPostfix()">Reset</button>
+  <div class="token-row" id="tokens"></div>
+  <div class="stack" id="stackPost"></div>
+  <div class="log" id="logPost"></div>
 </div>
 
 <script>
@@ -120,6 +153,93 @@ async function runCheck() {
 }
 function resetCheck() { renderStack('stack2', []); document.getElementById('log2').textContent = ''; }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ===== Min Stack =====
+let mData = [], mMins = [];
+function renderMin(hl = '') {
+  const dataRoot = document.getElementById('stackData');
+  const minsRoot = document.getElementById('stackMins');
+  dataRoot.innerHTML = ''; minsRoot.innerHTML = '';
+  mData.forEach((v, i) => {
+    const d = document.createElement('div');
+    d.className = 'item' + (i === mData.length - 1 && hl === 'top' ? ' top' : '');
+    d.textContent = v;
+    dataRoot.appendChild(d);
+  });
+  mMins.forEach((v, i) => {
+    const d = document.createElement('div');
+    d.className = 'item min' + (i === mMins.length - 1 && hl === 'top' ? ' top' : '');
+    d.textContent = v;
+    minsRoot.appendChild(d);
+  });
+  document.getElementById('curMin').textContent = mMins.length ? mMins[mMins.length-1] : '–';
+}
+function minPush() {
+  const x = parseInt(document.getElementById('minVal').value);
+  mData.push(x);
+  const newMin = mMins.length === 0 ? x : Math.min(x, mMins[mMins.length-1]);
+  mMins.push(newMin);
+  renderMin('top');
+  document.getElementById('logMin').textContent =
+    `push(${x}): data push ${x}; mins push min(${x}, top mins) = ${newMin}. Tất cả O(1).`;
+}
+function minPop() {
+  if (!mData.length) { document.getElementById('logMin').textContent = 'Stack rỗng.'; return; }
+  const x = mData.pop(); mMins.pop();
+  renderMin();
+  document.getElementById('logMin').textContent = `pop() = ${x}: pop cả 2 stack. getMin() = ${mMins.length ? mMins[mMins.length-1] : '–'} vẫn O(1).`;
+}
+function minReset() { mData = []; mMins = []; renderMin(); document.getElementById('logMin').textContent = ''; }
+minReset();
+
+// ===== Postfix evaluation =====
+let postBusy = false;
+async function runPostfix() {
+  if (postBusy) return;
+  postBusy = true;
+  const expr = document.getElementById('postfix').value.trim();
+  const tokens = expr.split(/\s+/);
+  const tokensEl = document.getElementById('tokens');
+  tokensEl.innerHTML = tokens.map(t => `<span class="token">${t}</span>`).join('');
+  const log = document.getElementById('logPost');
+  let stk = [];
+  renderStack('stackPost', stk);
+  for (let i = 0; i < tokens.length; i++) {
+    [...tokensEl.children].forEach((el, j) => {
+      el.classList.toggle('current', j === i);
+      el.classList.toggle('done', j < i);
+    });
+    const t = tokens[i];
+    if (/^-?\d+(\.\d+)?$/.test(t)) {
+      stk.push(parseFloat(t));
+      log.textContent = `Token '${t}' là số → push. Stack: [${stk.join(', ')}]`;
+    } else if ('+-*/'.includes(t)) {
+      if (stk.length < 2) { log.textContent = `Lỗi: cần ≥ 2 số cho toán tử '${t}'`; postBusy = false; return; }
+      const b = stk.pop(), a = stk.pop();
+      let r;
+      if (t === '+') r = a + b;
+      else if (t === '-') r = a - b;
+      else if (t === '*') r = a * b;
+      else r = a / b;
+      stk.push(r);
+      log.textContent = `Token '${t}': pop ${b}, pop ${a}, tính ${a} ${t} ${b} = ${r}, push. Stack: [${stk.join(', ')}]`;
+    } else {
+      log.textContent = `Bỏ qua token '${t}' (không hợp lệ).`;
+    }
+    renderStack('stackPost', stk);
+    await sleep(800);
+  }
+  [...tokensEl.children].forEach((el) => { el.classList.remove('current'); el.classList.add('done'); });
+  log.textContent = stk.length === 1
+    ? `Hoàn thành. Kết quả = ${stk[0]}.`
+    : `Lỗi: stack còn ${stk.length} phần tử thay vì 1.`;
+  postBusy = false;
+}
+function resetPostfix() {
+  document.getElementById('tokens').innerHTML = '';
+  renderStack('stackPost', []);
+  document.getElementById('logPost').textContent = '';
+}
 </script></main>
 <!-- README modal (xem tools/readme-modal.js để biết chi tiết) -->
 <script src="../../tools/marked.min.js"></script>

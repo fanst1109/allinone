@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 05 (T2) — Điện trường &amp; Điện thế</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 120px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 110px; }
+  button { background: #1e40af; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  .stat { display: inline-block; background: #dbeafe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #1e40af; }
+  .result { padding: 14px; background: #dbeafe; border-radius: 8px; margin-top: 12px; }
+
+  svg.scene {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 720px; height: 360px;
+    background: linear-gradient(135deg, #f8fafc, #dbeafe);
+    border-radius: 8px;
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Physics</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-coulomb-charge/visualization.html">← L4: Coulomb</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Điện trường &amp; Điện thế</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L6: Dòng điện (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 05 (T2) — Điện trường &amp; Điện thế</h1>
+<p>Bộ công cụ: Field/Potential Calculator, Field Lines Visualizer (điện tích điểm), Capacitor Calculator.</p>
+
+<h2>1. Điện trường &amp; Điện thế từ Q điểm</h2>
+<div class="card">
+  <div class="row">
+    <label>Q (μC):</label>
+    <input type="number" id="fpQ" step="1" value="5" oninput="calcFP()">
+    <label>r (cm):</label>
+    <input type="number" id="fpR" step="1" value="10" oninput="calcFP()">
+    <label>q_thử (μC):</label>
+    <input type="number" id="fpQt" step="0.1" value="1" oninput="calcFP()">
+  </div>
+  <svg class="scene" id="fpSvg" viewBox="0 0 720 360"></svg>
+  <div class="result" id="fpResult"></div>
+</div>
+
+<h2>2. Capacitor Calculator</h2>
+<div class="card">
+  <div class="row">
+    <label>Điện dung C (μF):</label>
+    <input type="number" id="capC" step="10" value="100" oninput="calcCap()">
+    <label>Hiệu điện thế U (V):</label>
+    <input type="number" id="capU" step="1" value="10" oninput="calcCap()">
+  </div>
+  <div class="result" id="capResult"></div>
+</div>
+
+</main>
+
+<script>
+const k = 8.99e9;
+
+function calcFP() {
+  const Q = parseFloat(document.getElementById("fpQ").value) * 1e-6;
+  const r = parseFloat(document.getElementById("fpR").value) * 0.01;
+  const qt = parseFloat(document.getElementById("fpQt").value) * 1e-6;
+  const E = k * Math.abs(Q) / (r * r);
+  const V = k * Q / r;
+  const F = qt * E;
+
+  document.getElementById("fpResult").innerHTML = `
+    <div class="row">
+      <span class="stat">E = kQ/r² = <strong>${E.toExponential(3)} V/m</strong></span>
+      <span class="stat">V = kQ/r = <strong>${V.toFixed(2)} V</strong></span>
+    </div>
+    <div class="row">
+      <span class="stat">Lực lên q_thử: F = q·E = <strong>${F.toExponential(3)} N</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px">
+      Quan sát: E ∝ 1/r² (giảm nhanh theo khoảng cách), V ∝ 1/r (giảm chậm hơn).
+    </div>
+  `;
+
+  // Draw
+  const svg = document.getElementById("fpSvg");
+  svg.innerHTML = "";
+  const cx = 360, cy = 180;
+  // Source Q
+  const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  c.setAttribute("cx", cx); c.setAttribute("cy", cy); c.setAttribute("r", 25);
+  c.setAttribute("fill", Q > 0 ? "#dc2626" : "#1d4ed8");
+  svg.appendChild(c);
+  const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  t.setAttribute("x", cx); t.setAttribute("y", cy + 7);
+  t.setAttribute("text-anchor", "middle"); t.setAttribute("fill", "white"); t.setAttribute("font-weight", "700"); t.setAttribute("font-size", "20");
+  t.textContent = Q > 0 ? "+" : "−";
+  svg.appendChild(t);
+
+  // Field lines (radial)
+  for (let a = 0; a < 360; a += 22.5) {
+    const rad = a * Math.PI / 180;
+    const x1 = cx + 30 * Math.cos(rad);
+    const y1 = cy + 30 * Math.sin(rad);
+    const x2 = cx + 150 * Math.cos(rad);
+    const y2 = cy + 150 * Math.sin(rad);
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", x1); line.setAttribute("y1", y1); line.setAttribute("x2", x2); line.setAttribute("y2", y2);
+    line.setAttribute("stroke", "#64748b"); line.setAttribute("stroke-width", 1);
+    // Arrow at end (if Q > 0, away; if Q < 0, toward)
+    const arrEndX = Q > 0 ? x2 : x1;
+    const arrEndY = Q > 0 ? y2 : y1;
+    line.setAttribute("marker-end", "url(#arrField)");
+    svg.appendChild(line);
+  }
+
+  // Test charge at distance r (in pixels: scale to fit)
+  const pxR = Math.min(150, r * 1000);
+  const qtX = cx + pxR;
+  const qtY = cy;
+  const qtC = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  qtC.setAttribute("cx", qtX); qtC.setAttribute("cy", qtY); qtC.setAttribute("r", 14);
+  qtC.setAttribute("fill", qt > 0 ? "#fbbf24" : "#7c3aed");
+  svg.appendChild(qtC);
+  const qtT = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  qtT.setAttribute("x", qtX); qtT.setAttribute("y", qtY + 5);
+  qtT.setAttribute("text-anchor", "middle"); qtT.setAttribute("fill", "white"); qtT.setAttribute("font-weight", "700");
+  qtT.textContent = "q";
+  svg.appendChild(qtT);
+
+  // Defs
+  const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+  defs.innerHTML = `<marker id="arrField" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/></marker>`;
+  svg.appendChild(defs);
+}
+
+function calcCap() {
+  const C = parseFloat(document.getElementById("capC").value) * 1e-6;
+  const U = parseFloat(document.getElementById("capU").value);
+  const Q = C * U;
+  const W = 0.5 * C * U * U;
+  document.getElementById("capResult").innerHTML = `
+    <div class="row">
+      <span class="stat">Q = C·U = <strong>${Q.toExponential(3)} C = ${(Q*1000).toFixed(2)} mC</strong></span>
+      <span class="stat">Năng lượng W = ½CU² = <strong>${W.toFixed(4)} J = ${(W*1000).toFixed(2)} mJ</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px">
+      So sánh: pin AA 1.5 V chứa ~10,000 J — nhiều hơn ${(10000/W).toFixed(0)}× tụ này. Tụ dùng để xả nhanh (mili-giây), không lưu trữ lâu.
+    </div>
+  `;
+}
+
+// Init
+calcFP();
+calcCap();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 04 (T2) — Nhiệt động hóa</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 130px; }
+  input[type="number"], select { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; }
+  input[type="number"] { width: 110px; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  button { background: #be185d; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  .stat { display: inline-block; background: #fce7f3; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #be185d; }
+  .result { padding: 14px; background: #fef3c7; border-radius: 8px; margin-top: 12px; }
+  .step { padding: 8px 12px; background: #f8fafc; border-left: 3px solid #be185d; margin: 6px 0; font-family: monospace; font-size: 14px; }
+
+  svg.gibbs {
+    display: block; width: 100%; max-width: 720px;
+    height: 320px; margin: 12px auto;
+  }
+  svg.gibbs .axis { stroke: #1a202c; stroke-width: 1.5; }
+  svg.gibbs .grid { stroke: #e2e8f0; stroke-width: 1; }
+  svg.gibbs .zero { stroke: #94a3b8; stroke-dasharray: 4 4; }
+  svg.gibbs .curve { fill: none; stroke-width: 2.5; }
+  svg.gibbs .lbl { font: 11px sans-serif; fill: #475569; }
+  svg.gibbs .title { font: 13px sans-serif; fill: #1a202c; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Chemistry</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-electrochemistry/visualization.html">← L3: Điện hóa</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Nhiệt động hóa</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L5: Hữu cơ (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 04 (T2) — Nhiệt động hóa học (Thermochemistry)</h1>
+<p>Bộ công cụ: ΔH Calculator từ ΔH°f, ΔG Calculator + biểu đồ ΔG vs T, và bảng liên hệ ΔG ↔ K ↔ E°.</p>
+
+<h2>1. ΔH°rxn Calculator (từ ΔH°f)</h2>
+<div class="card">
+  <p>Chọn 1 phản ứng có sẵn, viz tính ΔH° từ enthalpy hình thành chuẩn.</p>
+  <div class="row">
+    <label>Phản ứng:</label>
+    <select id="rxnSelect">
+      <option value="combust_methane">Đốt CH₄ + 2O₂ → CO₂ + 2H₂O(l)</option>
+      <option value="combust_ethanol">Đốt C₂H₅OH + 3O₂ → 2CO₂ + 3H₂O(l)</option>
+      <option value="combust_glucose">Đốt C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O(l) (hô hấp)</option>
+      <option value="formation_water">2H₂ + O₂ → 2H₂O(l)</option>
+      <option value="ammonia">N₂ + 3H₂ → 2NH₃ (Haber)</option>
+      <option value="caco3">CaCO₃ → CaO + CO₂</option>
+    </select>
+  </div>
+  <div class="result" id="hRxnResult"></div>
+</div>
+
+<h2>2. ΔG vs T Explorer</h2>
+<div class="card">
+  <p>ΔG = ΔH − T·ΔS là hàm tuyến tính của T. Trục dọc = ΔG; trục ngang = T. Nhập ΔH và ΔS để vẽ.</p>
+  <div class="row">
+    <label>ΔH (kJ):</label>
+    <input type="number" id="dH" step="1" value="-92" oninput="drawGibbs()">
+    <label>ΔS (J/K):</label>
+    <input type="number" id="dS" step="1" value="-198" oninput="drawGibbs()">
+  </div>
+  <div class="row">
+    <button onclick="setCase('case1')">Tỏa nhiệt + Tăng entropy</button>
+    <button onclick="setCase('case2')">Thu nhiệt + Giảm entropy</button>
+    <button onclick="setCase('case3')">Tỏa nhiệt + Giảm entropy (Haber)</button>
+    <button onclick="setCase('case4')">Thu nhiệt + Tăng entropy (CaCO₃)</button>
+  </div>
+  <svg class="gibbs" id="gibbsSvg" viewBox="0 0 720 320"></svg>
+  <div class="result" id="gibbsResult"></div>
+</div>
+
+<h2>3. ΔG ↔ K ↔ E° Calculator</h2>
+<div class="card">
+  <p>Cho 1 trong 3, tính 2 cái còn lại (n = số mol electron cho phản ứng redox).</p>
+  <div class="row">
+    <label>Nhập:</label>
+    <select id="inputType" onchange="resetCalc3()">
+      <option value="dG">ΔG° (kJ)</option>
+      <option value="K">Hằng số K</option>
+      <option value="E">E°cell (V)</option>
+    </select>
+  </div>
+  <div class="row">
+    <label>Giá trị:</label>
+    <input type="number" id="calc3Val" step="0.1" value="-110">
+    <label>n (số e):</label>
+    <input type="number" id="calc3N" step="1" value="2">
+    <button onclick="calc3()">Tính</button>
+  </div>
+  <div class="result" id="calc3Result"></div>
+</div>
+
+</main>
+
+<script>
+// ===== Hf data =====
+const Hf = {
+  "H2O(l)": -285.8, "H2O(g)": -241.8,
+  "CO2(g)": -393.5, "CO(g)": -110.5,
+  "CH4(g)": -74.8, "NH3(g)": -45.9,
+  "C2H5OH(l)": -277.7, "C6H12O6(s)": -1273.3,
+  "NO(g)": 90.4, "NO2(g)": 33.2,
+  "O2(g)": 0, "H2(g)": 0, "N2(g)": 0, "C(s)": 0,
+  "CaCO3(s)": -1207.6, "CaO(s)": -635.1
+};
+
+const RXNS = {
+  combust_methane: {
+    eq: "CH₄ + 2O₂ → CO₂ + 2H₂O(l)",
+    reactants: [{c:"CH4(g)", n:1}, {c:"O2(g)", n:2}],
+    products: [{c:"CO2(g)", n:1}, {c:"H2O(l)", n:2}]
+  },
+  combust_ethanol: {
+    eq: "C₂H₅OH + 3O₂ → 2CO₂ + 3H₂O(l)",
+    reactants: [{c:"C2H5OH(l)", n:1}, {c:"O2(g)", n:3}],
+    products: [{c:"CO2(g)", n:2}, {c:"H2O(l)", n:3}]
+  },
+  combust_glucose: {
+    eq: "C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O(l)",
+    reactants: [{c:"C6H12O6(s)", n:1}, {c:"O2(g)", n:6}],
+    products: [{c:"CO2(g)", n:6}, {c:"H2O(l)", n:6}]
+  },
+  formation_water: {
+    eq: "2H₂ + O₂ → 2H₂O(l)",
+    reactants: [{c:"H2(g)", n:2}, {c:"O2(g)", n:1}],
+    products: [{c:"H2O(l)", n:2}]
+  },
+  ammonia: {
+    eq: "N₂ + 3H₂ → 2NH₃",
+    reactants: [{c:"N2(g)", n:1}, {c:"H2(g)", n:3}],
+    products: [{c:"NH3(g)", n:2}]
+  },
+  caco3: {
+    eq: "CaCO₃ → CaO + CO₂",
+    reactants: [{c:"CaCO3(s)", n:1}],
+    products: [{c:"CaO(s)", n:1}, {c:"CO2(g)", n:1}]
+  }
+};
+
+function calcH() {
+  const id = document.getElementById("rxnSelect").value;
+  const r = RXNS[id];
+  let sumProd = 0, sumReac = 0;
+  let html = `<h3 style="margin-top:0; font-family:monospace">${r.eq}</h3>`;
+
+  html += `<div><strong>Sản phẩm:</strong></div>`;
+  r.products.forEach(p => {
+    const contrib = p.n * Hf[p.c];
+    sumProd += contrib;
+    html += `<div class="step">${p.n} × ΔH°f(${p.c}) = ${p.n} × (${Hf[p.c]}) = <strong>${contrib} kJ</strong></div>`;
+  });
+  html += `<div class="step" style="background:#dbeafe"><strong>Tổng SP = ${sumProd.toFixed(1)} kJ</strong></div>`;
+
+  html += `<div style="margin-top:8px"><strong>Chất phản ứng:</strong></div>`;
+  r.reactants.forEach(p => {
+    const contrib = p.n * Hf[p.c];
+    sumReac += contrib;
+    html += `<div class="step">${p.n} × ΔH°f(${p.c}) = ${p.n} × (${Hf[p.c]}) = <strong>${contrib} kJ</strong></div>`;
+  });
+  html += `<div class="step" style="background:#fed7aa"><strong>Tổng CPƯ = ${sumReac.toFixed(1)} kJ</strong></div>`;
+
+  const dH = sumProd - sumReac;
+  html += `<div style="margin-top:10px; padding:12px; background:${dH < 0 ? '#dcfce7' : '#fee2e2'}; border-radius:6px; font-size:16px">
+    <strong>ΔH°rxn = ΣSP − ΣCPƯ = ${sumProd.toFixed(1)} − (${sumReac.toFixed(1)}) = ${dH.toFixed(1)} kJ</strong>
+    <div style="margin-top:4px">${dH < 0 ? '🔥 Phản ứng TỎA NHIỆT' : '❄ Phản ứng THU NHIỆT'}</div>
+  </div>`;
+
+  document.getElementById("hRxnResult").innerHTML = html;
+}
+document.getElementById("rxnSelect").addEventListener("change", calcH);
+
+// ΔG vs T
+function setCase(c) {
+  if (c === "case1") { document.getElementById("dH").value = -100; document.getElementById("dS").value = +200; }
+  if (c === "case2") { document.getElementById("dH").value = +100; document.getElementById("dS").value = -200; }
+  if (c === "case3") { document.getElementById("dH").value = -92; document.getElementById("dS").value = -198; }
+  if (c === "case4") { document.getElementById("dH").value = +178; document.getElementById("dS").value = +161; }
+  drawGibbs();
+}
+
+function drawGibbs() {
+  const dH = parseFloat(document.getElementById("dH").value);
+  const dS = parseFloat(document.getElementById("dS").value);
+  const svg = document.getElementById("gibbsSvg");
+  svg.innerHTML = "";
+  const W = 720, H = 320;
+  const padL = 60, padR = 30, padT = 40, padB = 50;
+  const cw = W - padL - padR, ch = H - padT - padB;
+
+  const Tmin = 0, Tmax = 2000;
+  // Compute G range
+  const G0 = dH, G2k = dH - 2000 * dS / 1000;
+  const yMax = Math.max(Math.abs(G0), Math.abs(G2k)) * 1.2;
+  const yMin = -yMax;
+  const xScale = T => padL + (T - Tmin) / (Tmax - Tmin) * cw;
+  const yScale = G => padT + ch - ((G - yMin) / (yMax - yMin)) * ch;
+
+  // Grid
+  for (let T = 0; T <= 2000; T += 250) {
+    const x = xScale(T);
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    g.setAttribute("class", "grid");
+    g.setAttribute("x1", x); g.setAttribute("y1", padT);
+    g.setAttribute("x2", x); g.setAttribute("y2", H - padB);
+    svg.appendChild(g);
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    l.setAttribute("class", "lbl");
+    l.setAttribute("x", x); l.setAttribute("y", H - padB + 16);
+    l.setAttribute("text-anchor", "middle");
+    l.textContent = T;
+    svg.appendChild(l);
+  }
+  for (let i = 0; i <= 4; i++) {
+    const G = yMin + (yMax - yMin) * i / 4;
+    const y = yScale(G);
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    g.setAttribute("class", "grid");
+    g.setAttribute("x1", padL); g.setAttribute("y1", y);
+    g.setAttribute("x2", W - padR); g.setAttribute("y2", y);
+    svg.appendChild(g);
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    l.setAttribute("class", "lbl");
+    l.setAttribute("x", padL - 6); l.setAttribute("y", y + 4);
+    l.setAttribute("text-anchor", "end");
+    l.textContent = G.toFixed(0);
+    svg.appendChild(l);
+  }
+
+  // Zero line
+  const zeroY = yScale(0);
+  const zero = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  zero.setAttribute("class", "zero");
+  zero.setAttribute("x1", padL); zero.setAttribute("y1", zeroY);
+  zero.setAttribute("x2", W - padR); zero.setAttribute("y2", zeroY);
+  svg.appendChild(zero);
+
+  // Curve ΔG = ΔH − T·ΔS/1000
+  const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  p.setAttribute("class", "curve");
+  p.setAttribute("stroke", "#be185d");
+  let path = "";
+  for (let T = 0; T <= 2000; T += 50) {
+    const G = dH - T * dS / 1000;
+    path += (T === 0 ? "M " : " L ") + xScale(T) + " " + yScale(G);
+  }
+  p.setAttribute("d", path);
+  svg.appendChild(p);
+
+  // Tspontaneous = ΔH/ΔS · 1000 (when ΔG = 0)
+  let Tspont = null;
+  if (Math.abs(dS) > 0.001) {
+    const t = (dH * 1000) / dS;
+    if (t > 0 && t < 2000) {
+      Tspont = t;
+      const x = xScale(t);
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("stroke", "#047857"); line.setAttribute("stroke-width", 2); line.setAttribute("stroke-dasharray", "4 4");
+      line.setAttribute("x1", x); line.setAttribute("y1", padT);
+      line.setAttribute("x2", x); line.setAttribute("y2", H - padB);
+      svg.appendChild(line);
+      const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      lbl.setAttribute("class", "lbl");
+      lbl.setAttribute("x", x); lbl.setAttribute("y", padT - 8);
+      lbl.setAttribute("text-anchor", "middle"); lbl.setAttribute("fill", "#047857"); lbl.setAttribute("font-weight", "700");
+      lbl.textContent = `T = ${t.toFixed(0)} K (ΔG = 0)`;
+      svg.appendChild(lbl);
+    }
+  }
+
+  // Title
+  const title = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  title.setAttribute("class", "title");
+  title.setAttribute("x", W / 2); title.setAttribute("y", 20);
+  title.setAttribute("text-anchor", "middle");
+  title.textContent = "ΔG vs Nhiệt độ (K)";
+  svg.appendChild(title);
+
+  // Axis labels
+  const xAx = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  xAx.setAttribute("class", "lbl");
+  xAx.setAttribute("x", W / 2); xAx.setAttribute("y", H - 8);
+  xAx.setAttribute("text-anchor", "middle"); xAx.setAttribute("font-weight", "700");
+  xAx.textContent = "T (K)";
+  svg.appendChild(xAx);
+
+  const yAx = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  yAx.setAttribute("class", "lbl");
+  yAx.setAttribute("x", 20); yAx.setAttribute("y", padT - 8);
+  yAx.setAttribute("font-weight", "700");
+  yAx.textContent = "ΔG (kJ)";
+  svg.appendChild(yAx);
+
+  // Result analysis
+  let analysis = "";
+  if (dH < 0 && dS > 0) analysis = "ΔH < 0, ΔS > 0 → ΔG luôn < 0. Phản ứng <strong>TỰ XẢY RA Ở MỌI T</strong>.";
+  else if (dH > 0 && dS < 0) analysis = "ΔH > 0, ΔS < 0 → ΔG luôn > 0. Phản ứng <strong>KHÔNG TỰ XẢY RA Ở MỌI T</strong>.";
+  else if (dH < 0 && dS < 0) analysis = `ΔH < 0, ΔS < 0 → tự xảy ra ở <strong>T THẤP</strong> (T < ${Tspont ? Tspont.toFixed(0) : '?'} K).`;
+  else analysis = `ΔH > 0, ΔS > 0 → tự xảy ra ở <strong>T CAO</strong> (T > ${Tspont ? Tspont.toFixed(0) : '?'} K).`;
+
+  // ΔG ở vài T cụ thể
+  const G298 = dH - 298 * dS / 1000;
+  const G500 = dH - 773 * dS / 1000;
+  document.getElementById("gibbsResult").innerHTML = `
+    <div><strong>Phân tích:</strong> ${analysis}</div>
+    <div style="margin-top:8px">
+      <span class="stat">ΔG(25°C) = ${G298.toFixed(1)} kJ</span>
+      <span class="stat">ΔG(500°C) = ${G500.toFixed(1)} kJ</span>
+      ${Tspont ? `<span class="stat" style="background:#dcfce7">T(ΔG=0) = ${Tspont.toFixed(0)} K = ${(Tspont-273).toFixed(0)}°C</span>` : ''}
+    </div>
+  `;
+}
+
+// ===== ΔG ↔ K ↔ E° =====
+const R = 8.314, F_ = 96485;
+function resetCalc3() { document.getElementById("calc3Result").innerHTML = ""; }
+
+function calc3() {
+  const type = document.getElementById("inputType").value;
+  const val = parseFloat(document.getElementById("calc3Val").value);
+  const n = parseInt(document.getElementById("calc3N").value);
+  const T = 298;
+
+  let dG, K, E;
+  if (type === "dG") {
+    dG = val;
+    K = Math.exp(-dG * 1000 / (R * T));
+    E = -dG * 1000 / (n * F_);
+  } else if (type === "K") {
+    K = val;
+    dG = -R * T * Math.log(K) / 1000;
+    E = -dG * 1000 / (n * F_);
+  } else {
+    E = val;
+    dG = -n * F_ * E / 1000;
+    K = Math.exp(-dG * 1000 / (R * T));
+  }
+
+  const spontaneous = dG < 0;
+  document.getElementById("calc3Result").innerHTML = `
+    <div class="step"><strong>ΔG° = </strong>${dG.toFixed(2)} kJ</div>
+    <div class="step"><strong>K = </strong>${K > 1e10 ? K.toExponential(3) : K.toFixed(4)}</div>
+    <div class="step"><strong>E°cell = </strong>${E.toFixed(3)} V (với n = ${n})</div>
+    <div style="margin-top:8px; padding:10px; background:${spontaneous ? '#dcfce7' : '#fee2e2'}; border-radius:6px">
+      <strong>${spontaneous ? '✓ Tự xảy ra (ΔG < 0, K > 1, E° > 0)' : '✗ Không tự xảy ra (ΔG > 0, K < 1, E° < 0)'}</strong>
+    </div>
+  `;
+}
+
+// Init
+calcH();
+drawGibbs();
+calc3();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

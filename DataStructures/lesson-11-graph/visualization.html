@@ -3,23 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <link rel="stylesheet" href="../../tools/viz-base.css">
-<title>Lesson 11 — Graph BFS/DFS trực quan</title>
+<title>Lesson 11 — Graph BFS / DFS / Dijkstra / Topo / Cycle</title>
 <style>
   .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 16px; }
   h1 { margin: 0 0 8px 0; } h2 { margin: 4px 0 8px 0; }
+  .tab-bar { display: flex; gap: 4px; margin-bottom: 12px; border-bottom: 2px solid #e2e8f0; flex-wrap: wrap; }
+  .tab-bar button { background: #f3f4f6; color: #555; border: 0; padding: 8px 14px; border-radius: 6px 6px 0 0; cursor: pointer; font-weight: 600; }
+  .tab-bar button.active { background: #3b82f6; color: #fff; }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
   svg { background: #fafafa; border: 1px solid #eee; border-radius: 6px; display: block; width: 100%; max-width: 760px; }
   .node-c { fill: #fff; stroke: #333; stroke-width: 2; transition: all .3s; }
   .node-c.visited { fill: #d1fae5; stroke: #10b981; }
   .node-c.current { fill: #fef08a; stroke: #ca8a04; stroke-width: 3; }
   .node-c.frontier { fill: #dbeafe; stroke: #3b82f6; }
+  .node-c.gray { fill: #e5e7eb; stroke: #6b7280; stroke-width: 3; }
+  .node-c.black { fill: #1f2937; stroke: #1f2937; }
+  .node-c.black + text { fill: #fff; }
+  .node-c.cycle { fill: #fee2e2; stroke: #ef4444; stroke-width: 4; }
   .edge { stroke: #888; stroke-width: 2; }
   .edge.used { stroke: #10b981; stroke-width: 3; }
+  .edge.cycle { stroke: #ef4444; stroke-width: 3; }
+  .edge-label { font: 600 12px sans-serif; fill: #1e40af; }
   text { font: 600 14px sans-serif; text-anchor: middle; dominant-baseline: central; }
   button { background: #3b82f6; color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; cursor: pointer; margin-right: 6px; }
   button:disabled { background: #aaa; }
-  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-  .frontier-box { background: #f3f4f6; padding: 8px 12px; border-radius: 6px; margin-top: 10px; font-family: monospace; min-height: 24px; }
+  button.secondary { background: #64748b; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
+  .frontier-box { background: #f3f4f6; padding: 8px 12px; border-radius: 6px; margin-top: 8px; font-family: monospace; min-height: 24px; }
   .log { color: #444; min-height: 22px; margin-top: 8px; font-family: monospace; font-size: 13px; }
+  table.dist { border-collapse: collapse; margin-top: 8px; font-family: monospace; font-size: 13px; }
+  table.dist th, table.dist td { border: 1px solid #ccc; padding: 4px 10px; text-align: center; }
+  table.dist th { background: #f0f2f5; }
+  table.dist td.updated { background: #fef08a; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -34,118 +50,408 @@
 </nav>
 <main>
 
-<h1>Graph — BFS vs DFS</h1>
+<h1>Graph — BFS / DFS / Dijkstra / Topo sort / Cycle</h1>
 
 <div class="panel">
-  <div class="row">
-    <label>Bắt đầu từ: <select id="start"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label>
-    <button onclick="runBFS()">Chạy BFS</button>
-    <button onclick="runDFS()">Chạy DFS</button>
-    <button onclick="reset()">Reset</button>
+  <div class="tab-bar">
+    <button class="active" onclick="setTab(0,this)">① BFS / DFS</button>
+    <button onclick="setTab(1,this)">② BFS shortest path (bài 3)</button>
+    <button onclick="setTab(2,this)">③ Dijkstra (§6 README)</button>
+    <button onclick="setTab(3,this)">④ Topo sort (bài 4)</button>
+    <button onclick="setTab(4,this)">⑤ Cycle 3 màu (bài 2)</button>
   </div>
-  <svg id="svg" width="760" height="380"></svg>
-  <div>Frontier (queue cho BFS / stack cho DFS): <div class="frontier-box" id="frontier">[]</div></div>
-  <div>Thứ tự thăm: <div class="frontier-box" id="order"></div></div>
-  <div class="log" id="log">BFS dùng queue: thăm gần trước xa sau. DFS dùng stack/đệ quy: đi sâu một nhánh trước khi quay lại.</div>
+
+  <!-- TAB 0: BFS/DFS -->
+  <div class="tab-pane active" id="pane0">
+    <div class="row">
+      <label>Bắt đầu từ: <select id="start0"></select></label>
+      <button onclick="runBFS()">Chạy BFS</button>
+      <button onclick="runDFS()">Chạy DFS</button>
+      <button class="secondary" onclick="reset0()">Reset</button>
+    </div>
+    <svg id="svg0" width="760" height="380"></svg>
+    <div>Frontier (queue/stack): <div class="frontier-box" id="frontier0">[]</div></div>
+    <div>Thứ tự thăm: <div class="frontier-box" id="order0"></div></div>
+    <div class="log" id="log0">BFS dùng queue: thăm gần trước xa sau. DFS dùng stack/đệ quy: đi sâu một nhánh trước khi quay lại.</div>
+  </div>
+
+  <!-- TAB 1: BFS shortest path -->
+  <div class="tab-pane" id="pane1">
+    <div class="row">
+      <label>Từ: <select id="start1"></select></label>
+      <label>Đến: <select id="end1"></select></label>
+      <button onclick="runBFSPath()">Chạy BFS shortest path</button>
+      <button class="secondary" onclick="reset1()">Reset</button>
+    </div>
+    <svg id="svg1" width="760" height="380"></svg>
+    <div>parent[]: <div class="frontier-box" id="parent1"></div></div>
+    <div>Path: <div class="frontier-box" id="path1"></div></div>
+    <div class="log" id="log1">Lưu parent[v] khi enqueue. Sau BFS, truy ngược t → s qua parent để dựng path.</div>
+  </div>
+
+  <!-- TAB 2: Dijkstra -->
+  <div class="tab-pane" id="pane2">
+    <div class="row">
+      <label>Source: <select id="start2"></select></label>
+      <button onclick="runDijkstra()">Chạy Dijkstra</button>
+      <button class="secondary" onclick="reset2()">Reset</button>
+    </div>
+    <svg id="svg2" width="760" height="380"></svg>
+    <div>Priority queue (sắp xếp theo dist): <div class="frontier-box" id="pq2">[]</div></div>
+    <table class="dist" id="distTable"><thead><tr><th>node</th></tr></thead><tbody><tr></tr></tbody></table>
+    <div class="log" id="log2">Dùng min-heap. Mỗi bước: pop node có dist nhỏ nhất, relax mọi cạnh ra ngoài. O((V+E) log V).</div>
+  </div>
+
+  <!-- TAB 3: Topo sort -->
+  <div class="tab-pane" id="pane3">
+    <div class="row">
+      <button onclick="runTopo()">Chạy DFS topo sort</button>
+      <button class="secondary" onclick="reset3()">Reset</button>
+    </div>
+    <svg id="svg3" width="760" height="320"></svg>
+    <div>Postorder DFS (rồi đảo ngược): <div class="frontier-box" id="post3"></div></div>
+    <div>Topological order: <div class="frontier-box" id="topo3"></div></div>
+    <div class="log" id="log3">DAG. DFS, sau khi hoàn thành node u (mọi con đã xong) → append vào danh sách. Đảo ngược cuối cùng.</div>
+  </div>
+
+  <!-- TAB 4: Cycle 3 color -->
+  <div class="tab-pane" id="pane4">
+    <div class="row">
+      <label>Đồ thị:
+        <select id="cycleSel">
+          <option value="dag">DAG (không chu trình)</option>
+          <option value="cyc">Có chu trình 1→2→3→1</option>
+        </select>
+      </label>
+      <button onclick="runCycle()">Chạy DFS 3 màu</button>
+      <button class="secondary" onclick="reset4()">Reset</button>
+    </div>
+    <svg id="svg4" width="760" height="320"></svg>
+    <div>color[]: <div class="frontier-box" id="color4"></div></div>
+    <div class="log" id="log4">Trắng=chưa thăm · Xám=đang trong stack đệ quy · Đen=đã xong. Trong DFS, gặp node XÁM → CÓ chu trình (đi ngược về tổ tiên).</div>
+  </div>
 </div>
 
 <script>
-const positions = [
-  { x: 100, y: 80 }, { x: 280, y: 80 }, { x: 460, y: 80 }, { x: 640, y: 80 },
-  { x: 190, y: 280 }, { x: 370, y: 280 }, { x: 550, y: 280 }
-];
-const edges = [
-  [0, 1], [1, 2], [2, 3], [0, 4], [1, 4], [1, 5], [2, 5], [2, 6], [3, 6], [4, 5], [5, 6]
-];
-const adj = {};
-for (let i = 0; i < 7; i++) adj[i] = [];
-edges.forEach(([u, v]) => { adj[u].push(v); adj[v].push(u); });
-
-let visited = new Set(), current = -1, frontier = [], order = [], usedEdges = new Set();
-
-function render() {
-  const svg = document.getElementById('svg');
-  svg.innerHTML = '';
-  edges.forEach(([u, v]) => {
-    const k = u + '-' + v, rk = v + '-' + u;
-    const used = usedEdges.has(k) || usedEdges.has(rk);
-    const p = positions[u], q = positions[v];
-    svg.insertAdjacentHTML('beforeend',
-      `<line class="edge ${used ? 'used' : ''}" x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}"/>`);
-  });
-  for (let i = 0; i < 7; i++) {
-    let cls = '';
-    if (i === current) cls = 'current';
-    else if (visited.has(i)) cls = 'visited';
-    else if (frontier.includes(i)) cls = 'frontier';
-    svg.insertAdjacentHTML('beforeend',
-      `<circle class="node-c ${cls}" cx="${positions[i].x}" cy="${positions[i].y}" r="22"/>
-       <text x="${positions[i].x}" y="${positions[i].y}">${i}</text>`);
-  }
-  document.getElementById('frontier').textContent = '[' + frontier.join(', ') + ']';
-  document.getElementById('order').textContent = order.join(' → ');
+function setTab(i, btn) {
+  document.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tab-pane').forEach((p, j) => p.classList.toggle('active', j === i));
 }
 
+// ===== Đồ thị 1: 7 đỉnh không trọng số (cho BFS/DFS/Path) =====
+const G1 = {
+  pos: [
+    { x: 100, y: 80 }, { x: 280, y: 80 }, { x: 460, y: 80 }, { x: 640, y: 80 },
+    { x: 190, y: 280 }, { x: 370, y: 280 }, { x: 550, y: 280 }
+  ],
+  edges: [[0,1],[1,2],[2,3],[0,4],[1,4],[1,5],[2,5],[2,6],[3,6],[4,5],[5,6]],
+};
+G1.adj = {}; for (let i = 0; i < 7; i++) G1.adj[i] = [];
+G1.edges.forEach(([u, v]) => { G1.adj[u].push(v); G1.adj[v].push(u); });
+
+// ===== Đồ thị 2: 6 đỉnh CÓ trọng số (Dijkstra) =====
+const G2 = {
+  pos: [
+    { x: 100, y: 80 }, { x: 380, y: 60 }, { x: 660, y: 80 },
+    { x: 100, y: 280 }, { x: 380, y: 300 }, { x: 660, y: 280 }
+  ],
+  edges: [[0,1,4],[0,3,2],[1,2,3],[1,4,1],[2,5,5],[3,4,7],[4,5,2],[1,3,5],[2,4,8]],
+};
+G2.adj = {}; for (let i = 0; i < 6; i++) G2.adj[i] = [];
+G2.edges.forEach(([u, v, w]) => { G2.adj[u].push([v, w]); G2.adj[v].push([u, w]); });
+
+// ===== Đồ thị 3: DAG cho topo sort (6 đỉnh) =====
+const G3 = {
+  pos: [
+    { x: 100, y: 60 }, { x: 280, y: 60 }, { x: 460, y: 60 },
+    { x: 180, y: 240 }, { x: 380, y: 240 }, { x: 580, y: 240 }
+  ],
+  edges: [[0,3],[1,3],[1,4],[2,4],[2,5],[3,4]],
+};
+G3.adj = {}; for (let i = 0; i < 6; i++) G3.adj[i] = [];
+G3.edges.forEach(([u, v]) => { G3.adj[u].push(v); });
+
+// ===== Đồ thị 4: 4 đỉnh, hai biến thể (DAG / có chu trình) =====
+const G4_DAG = { pos: [{x:120,y:60},{x:320,y:60},{x:520,y:60},{x:320,y:240}], edges: [[0,1],[1,2],[1,3],[0,3]] };
+const G4_CYC = { pos: [{x:120,y:60},{x:320,y:60},{x:520,y:60},{x:320,y:240}], edges: [[0,1],[1,2],[2,0],[1,3]] };
+function buildAdj(g, n) { const a = {}; for (let i = 0; i < n; i++) a[i] = []; g.edges.forEach(([u,v]) => a[u].push(v)); return a; }
+G4_DAG.adj = buildAdj(G4_DAG, 4); G4_CYC.adj = buildAdj(G4_CYC, 4);
+
+// ===== Render generic =====
+function renderGraph(svgId, g, n, opts = {}) {
+  const svg = document.getElementById(svgId);
+  svg.innerHTML = '';
+  const { current = -1, visited = new Set(), frontier = [], used = new Set(), colors = {}, cycleNodes = new Set(), cycleEdges = new Set(), directed = false } = opts;
+  // edges
+  g.edges.forEach(e => {
+    const [u, v, w] = e;
+    const k = `${u}-${v}`, rk = `${v}-${u}`;
+    const isUsed = used.has(k) || used.has(rk);
+    const isCycle = cycleEdges.has(k);
+    const p = g.pos[u], q = g.pos[v];
+    let cls = 'edge';
+    if (isCycle) cls += ' cycle';
+    else if (isUsed) cls += ' used';
+    if (directed) {
+      // simple line with arrow marker — render arrow as a triangle near v
+      const dx = q.x - p.x, dy = q.y - p.y;
+      const len = Math.hypot(dx, dy);
+      const ex = q.x - (dx / len) * 24, ey = q.y - (dy / len) * 24;
+      svg.insertAdjacentHTML('beforeend', `<line class="${cls}" x1="${p.x}" y1="${p.y}" x2="${ex}" y2="${ey}" marker-end="url(#arr)"/>`);
+    } else {
+      svg.insertAdjacentHTML('beforeend', `<line class="${cls}" x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}"/>`);
+    }
+    if (w !== undefined) {
+      const mx = (p.x + q.x) / 2, my = (p.y + q.y) / 2 - 6;
+      svg.insertAdjacentHTML('beforeend', `<text class="edge-label" x="${mx}" y="${my}">${w}</text>`);
+    }
+  });
+  // arrow marker for directed
+  if (directed) {
+    svg.insertAdjacentHTML('afterbegin',
+      '<defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#888"/></marker></defs>');
+  }
+  // nodes
+  for (let i = 0; i < n; i++) {
+    let cls = 'node-c';
+    if (cycleNodes.has(i)) cls += ' cycle';
+    else if (colors[i] === 'gray') cls += ' gray';
+    else if (colors[i] === 'black') cls += ' black';
+    else if (i === current) cls += ' current';
+    else if (visited.has(i)) cls += ' visited';
+    else if (frontier.includes(i)) cls += ' frontier';
+    const { x, y } = g.pos[i];
+    svg.insertAdjacentHTML('beforeend',
+      `<circle class="${cls}" cx="${x}" cy="${y}" r="22"/>
+       <text x="${x}" y="${y}" ${colors[i]==='black'?'fill="#fff"':''}>${i}</text>`);
+  }
+}
+
+function fillSel(id, n) {
+  const sel = document.getElementById(id);
+  sel.innerHTML = '';
+  for (let i = 0; i < n; i++) sel.innerHTML += `<option>${i}</option>`;
+}
+['start0','start1','end1','start2'].forEach((id, i) => fillSel(id, i === 3 ? 6 : 7));
+document.getElementById('end1').value = '6';
+
+// ===== TAB 0: BFS / DFS =====
+let s0 = { visited: new Set(), current: -1, frontier: [], order: [], used: new Set() };
+function render0() {
+  renderGraph('svg0', G1, 7, { ...s0 });
+  document.getElementById('frontier0').textContent = '[' + s0.frontier.join(', ') + ']';
+  document.getElementById('order0').textContent = s0.order.join(' → ');
+}
+function reset0() { s0 = { visited: new Set(), current: -1, frontier: [], order: [], used: new Set() }; render0(); document.getElementById('log0').textContent = ''; }
 async function runBFS() {
-  reset();
-  const start = parseInt(document.getElementById('start').value);
-  frontier = [start]; visited.add(start);
-  log('BFS: queue khởi tạo = [' + start + '].');
-  render();
-  await sleep(700);
-  while (frontier.length) {
-    current = frontier.shift();
-    order.push(current);
-    log(`Lấy ${current} ra khỏi queue, thăm. Tìm hàng xóm chưa thăm.`);
-    render();
-    await sleep(600);
-    for (const nb of adj[current]) {
-      if (!visited.has(nb)) {
-        visited.add(nb); frontier.push(nb);
-        usedEdges.add(current + '-' + nb);
-        log(`Thêm ${nb} vào queue (cạnh ${current}-${nb}).`);
-        render();
-        await sleep(400);
+  reset0();
+  const start = parseInt(document.getElementById('start0').value);
+  s0.frontier = [start]; s0.visited.add(start);
+  document.getElementById('log0').textContent = `BFS: queue khởi tạo = [${start}].`;
+  render0(); await sleep(700);
+  while (s0.frontier.length) {
+    s0.current = s0.frontier.shift();
+    s0.order.push(s0.current);
+    document.getElementById('log0').textContent = `Lấy ${s0.current} ra khỏi queue, thăm. Tìm hàng xóm chưa thăm.`;
+    render0(); await sleep(500);
+    for (const nb of G1.adj[s0.current]) {
+      if (!s0.visited.has(nb)) {
+        s0.visited.add(nb); s0.frontier.push(nb); s0.used.add(`${s0.current}-${nb}`);
+        render0(); await sleep(300);
       }
     }
-    current = -1;
+    s0.current = -1;
   }
-  log('BFS xong. Thứ tự thăm: ' + order.join(' → '));
-  render();
+  document.getElementById('log0').textContent = `BFS xong. Thứ tự: ${s0.order.join(' → ')}.`;
+  render0();
 }
-
 async function runDFS() {
-  reset();
-  const start = parseInt(document.getElementById('start').value);
-  frontier = [start]; visited.add(start);
-  log('DFS: stack khởi tạo = [' + start + '].');
-  render();
-  await sleep(700);
-  while (frontier.length) {
-    current = frontier.pop();
-    order.push(current);
-    log(`Lấy ${current} từ đỉnh stack, thăm.`);
-    render();
-    await sleep(600);
-    // Push neighbors (reverse for natural order)
-    const nbs = adj[current].filter(n => !visited.has(n)).reverse();
+  reset0();
+  const start = parseInt(document.getElementById('start0').value);
+  s0.frontier = [start]; s0.visited.add(start);
+  document.getElementById('log0').textContent = `DFS: stack = [${start}].`;
+  render0(); await sleep(700);
+  while (s0.frontier.length) {
+    s0.current = s0.frontier.pop();
+    s0.order.push(s0.current);
+    render0(); await sleep(500);
+    const nbs = G1.adj[s0.current].filter(n => !s0.visited.has(n)).reverse();
     for (const nb of nbs) {
-      visited.add(nb); frontier.push(nb);
-      usedEdges.add(current + '-' + nb);
+      s0.visited.add(nb); s0.frontier.push(nb); s0.used.add(`${s0.current}-${nb}`);
     }
-    log(`Đẩy hàng xóm chưa thăm vào stack: [${adj[current].filter(n => usedEdges.has(current + '-' + n)).join(', ')}]`);
-    render();
-    await sleep(500);
-    current = -1;
+    render0(); await sleep(400);
+    s0.current = -1;
   }
-  log('DFS xong. Thứ tự thăm: ' + order.join(' → '));
-  render();
+  document.getElementById('log0').textContent = `DFS xong. Thứ tự: ${s0.order.join(' → ')}.`;
+  render0();
 }
+reset0();
 
-function reset() { visited = new Set(); current = -1; frontier = []; order = []; usedEdges = new Set(); render(); }
-function log(m) { document.getElementById('log').textContent = m; }
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-render();
+// ===== TAB 1: BFS shortest path =====
+let s1 = { visited: new Set(), current: -1, frontier: [], used: new Set(), parent: {} };
+function render1(pathSet = new Set()) {
+  const used = new Set([...s1.used, ...[...pathSet].flatMap(k => [k])]);
+  renderGraph('svg1', G1, 7, { ...s1, used });
+  document.getElementById('parent1').textContent =
+    Object.keys(s1.parent).length ? '{' + Object.entries(s1.parent).map(([k,v]) => `${k}←${v}`).join(', ') + '}' : '';
+}
+function reset1() { s1 = { visited: new Set(), current: -1, frontier: [], used: new Set(), parent: {} }; render1(); document.getElementById('path1').textContent = ''; document.getElementById('log1').textContent = ''; }
+async function runBFSPath() {
+  reset1();
+  const s = parseInt(document.getElementById('start1').value);
+  const t = parseInt(document.getElementById('end1').value);
+  s1.frontier = [s]; s1.visited.add(s); s1.parent[s] = s;
+  render1(); await sleep(600);
+  while (s1.frontier.length) {
+    s1.current = s1.frontier.shift();
+    render1(); await sleep(450);
+    if (s1.current === t) break;
+    for (const nb of G1.adj[s1.current]) {
+      if (!s1.visited.has(nb)) {
+        s1.visited.add(nb); s1.frontier.push(nb); s1.parent[nb] = s1.current; s1.used.add(`${s1.current}-${nb}`);
+      }
+    }
+    render1(); await sleep(300);
+    s1.current = -1;
+  }
+  // dựng path
+  if (!(t in s1.parent)) {
+    document.getElementById('log1').textContent = `Không có path từ ${s} đến ${t}.`;
+    return;
+  }
+  const path = [t];
+  while (path[0] !== s) path.unshift(s1.parent[path[0]]);
+  const pathSet = new Set();
+  for (let i = 0; i < path.length - 1; i++) pathSet.add(`${path[i]}-${path[i+1]}`);
+  // highlight path bằng cách clear used khác
+  s1.used = pathSet;
+  s1.current = -1;
+  render1(pathSet);
+  document.getElementById('path1').textContent = path.join(' → ');
+  document.getElementById('log1').textContent = `Path ngắn nhất ${s} → ${t}: ${path.length - 1} cạnh.`;
+}
+reset1();
+
+// ===== TAB 2: Dijkstra =====
+let s2 = { visited: new Set(), current: -1, dist: [], used: new Set() };
+function render2(pq = [], lastUpdate = -1) {
+  renderGraph('svg2', G2, 6, { visited: s2.visited, current: s2.current, used: s2.used });
+  document.getElementById('pq2').textContent = pq.length ? pq.map(([d, u]) => `(${d}, n${u})`).join(', ') : '[]';
+  // dist table
+  const tbl = document.getElementById('distTable');
+  tbl.innerHTML = '<thead><tr><th>node</th>' + Array.from({length: 6}, (_, i) => `<th>${i}</th>`).join('') + '</tr></thead>';
+  const row = '<tr><td>dist</td>' + s2.dist.map((d, i) => `<td class="${i === lastUpdate ? 'updated' : ''}">${d === Infinity ? '∞' : d}</td>`).join('') + '</tr>';
+  tbl.innerHTML += '<tbody>' + row + '</tbody>';
+}
+function reset2() {
+  s2 = { visited: new Set(), current: -1, dist: new Array(6).fill(Infinity), used: new Set() };
+  render2();
+  document.getElementById('log2').textContent = '';
+}
+async function runDijkstra() {
+  reset2();
+  const src = parseInt(document.getElementById('start2').value);
+  s2.dist[src] = 0;
+  let pq = [[0, src]]; // min by first
+  render2(pq, src); await sleep(600);
+  while (pq.length) {
+    pq.sort((a, b) => a[0] - b[0]);
+    const [d, u] = pq.shift();
+    if (s2.visited.has(u)) continue;
+    s2.visited.add(u); s2.current = u;
+    document.getElementById('log2').textContent = `Pop (d=${d}, n${u}). Relax cạnh ra ngoài.`;
+    render2(pq); await sleep(500);
+    for (const [v, w] of G2.adj[u]) {
+      if (s2.dist[u] + w < s2.dist[v]) {
+        s2.dist[v] = s2.dist[u] + w;
+        s2.used.add(`${u}-${v}`);
+        pq.push([s2.dist[v], v]);
+        render2(pq, v);
+        await sleep(350);
+      }
+    }
+    s2.current = -1;
+  }
+  render2();
+  document.getElementById('log2').textContent =
+    `Dijkstra xong. dist từ ${src}: ${s2.dist.map((d, i) => `${i}=${d===Infinity?'∞':d}`).join(', ')}.`;
+}
+reset2();
+
+// ===== TAB 3: Topo sort =====
+let s3 = { visited: new Set(), current: -1, postorder: [] };
+function render3() {
+  renderGraph('svg3', G3, 6, { ...s3, directed: true });
+  document.getElementById('post3').textContent = s3.postorder.join(', ');
+  document.getElementById('topo3').textContent = [...s3.postorder].reverse().join(' → ');
+}
+function reset3() { s3 = { visited: new Set(), current: -1, postorder: [] }; render3(); document.getElementById('log3').textContent = ''; }
+async function dfsTopo(u) {
+  s3.visited.add(u); s3.current = u;
+  render3(); await sleep(450);
+  for (const v of G3.adj[u]) {
+    if (!s3.visited.has(v)) await dfsTopo(v);
+  }
+  s3.postorder.push(u);
+  document.getElementById('log3').textContent = `Hoàn thành n${u} (mọi con đã xong) → append vào postorder.`;
+  render3(); await sleep(400);
+}
+async function runTopo() {
+  reset3();
+  for (let i = 0; i < 6; i++) {
+    if (!s3.visited.has(i)) await dfsTopo(i);
+  }
+  s3.current = -1;
+  render3();
+  document.getElementById('log3').textContent = `Topo order = đảo ngược postorder = ${[...s3.postorder].reverse().join(' → ')}.`;
+}
+reset3();
+
+// ===== TAB 4: Cycle 3 màu =====
+let s4 = { colors: {}, cycleNodes: new Set(), cycleEdges: new Set(), current: -1 };
+function render4() {
+  const g = document.getElementById('cycleSel').value === 'cyc' ? G4_CYC : G4_DAG;
+  renderGraph('svg4', g, 4, { colors: s4.colors, cycleNodes: s4.cycleNodes, cycleEdges: s4.cycleEdges, current: s4.current, directed: true });
+  document.getElementById('color4').textContent =
+    [0,1,2,3].map(i => `n${i}=${s4.colors[i] || 'trắng'}`).join(' · ');
+}
+function reset4() { s4 = { colors: {}, cycleNodes: new Set(), cycleEdges: new Set(), current: -1 }; render4(); document.getElementById('log4').textContent = ''; }
+document.getElementById('cycleSel').addEventListener('change', reset4);
+async function dfsCycle(g, u) {
+  s4.colors[u] = 'gray'; s4.current = u;
+  document.getElementById('log4').textContent = `Vào n${u}, đánh xám (đang trong stack).`;
+  render4(); await sleep(600);
+  for (const v of g.adj[u]) {
+    if (s4.colors[v] === 'gray') {
+      s4.cycleNodes.add(v); s4.cycleNodes.add(u); s4.cycleEdges.add(`${u}-${v}`);
+      document.getElementById('log4').textContent = `Từ n${u}, đi tới n${v} đang XÁM → CHU TRÌNH phát hiện!`;
+      render4();
+      return true;
+    }
+    if (!s4.colors[v]) {
+      if (await dfsCycle(g, v)) return true;
+    }
+  }
+  s4.colors[u] = 'black'; s4.current = -1;
+  document.getElementById('log4').textContent = `Xong n${u}, đánh đen.`;
+  render4(); await sleep(400);
+  return false;
+}
+async function runCycle() {
+  reset4();
+  const g = document.getElementById('cycleSel').value === 'cyc' ? G4_CYC : G4_DAG;
+  for (let i = 0; i < 4; i++) {
+    if (!s4.colors[i]) {
+      if (await dfsCycle(g, i)) {
+        document.getElementById('log4').innerHTML = '<b>Có chu trình!</b> Cạnh đỏ là cạnh "back edge" tới node tổ tiên xám.';
+        return;
+      }
+    }
+  }
+  document.getElementById('log4').textContent = 'Hoàn thành DFS, không gặp node xám → KHÔNG có chu trình.';
+}
+reset4();
 </script></main>
 <!-- README modal (xem tools/readme-modal.js để biết chi tiết) -->
 <script src="../../tools/marked.min.js"></script>

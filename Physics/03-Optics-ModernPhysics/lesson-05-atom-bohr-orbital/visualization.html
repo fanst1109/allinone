@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 05 (T3) — Nguyên tử Bohr</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 130px; }
+  input[type="number"], select { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; }
+  input[type="number"] { width: 60px; }
+  .stat { display: inline-block; background: #dbeafe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #1e40af; }
+  .result { padding: 14px; background: #dbeafe; border-radius: 8px; margin-top: 12px; }
+  svg.scene {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 600px; height: 400px;
+    background: radial-gradient(circle, #1e293b, #0f172a);
+    border-radius: 8px;
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Physics</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-photon-wave-particle/visualization.html">← L4: Photon</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Bohr</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L6: Hạt nhân (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 05 (T3) — Nguyên tử Bohr</h1>
+<p>Bohr Atom Simulator: chọn 2 mức năng lượng, tính λ photon phát/hấp thụ, xác định vạch trong phổ.</p>
+
+<h2>Bohr Atom Simulator</h2>
+<div class="card">
+  <div class="row">
+    <label>Từ mức n_đầu:</label>
+    <input type="number" id="nFrom" min="1" max="7" value="3" oninput="calcBohr()">
+    <label>Đến mức n_cuối:</label>
+    <input type="number" id="nTo" min="1" max="7" value="2" oninput="calcBohr()">
+  </div>
+  <svg class="scene" id="bohrSvg" viewBox="0 0 600 400"></svg>
+  <div class="result" id="bohrResult"></div>
+</div>
+
+</main>
+
+<script>
+function calcBohr() {
+  const ni = parseInt(document.getElementById("nFrom").value);
+  const nf = parseInt(document.getElementById("nTo").value);
+  const Ei = -13.6 / (ni * ni);
+  const Ef = -13.6 / (nf * nf);
+  const dE = ni > nf ? Ei - Ef : Ef - Ei;
+  const dE_J = Math.abs(dE) * 1.6e-19;
+  const lambda = (6.626e-34 * 3e8) / dE_J * 1e9;
+  const emit = ni > nf;
+  // Series
+  let series = "";
+  if (nf === 1) series = "Lyman (UV)";
+  else if (nf === 2) series = "Balmer (nhìn thấy)";
+  else if (nf === 3) series = "Paschen (IR)";
+  else if (nf === 4) series = "Brackett (IR xa)";
+  if (ni === nf) {
+    document.getElementById("bohrResult").innerHTML = `<div style="color:#dc2626">⚠ n_đầu = n_cuối — không có nhảy mức.</div>`;
+    return;
+  }
+
+  document.getElementById("bohrResult").innerHTML = `
+    <div class="row">
+      <span class="stat">E_${ni} = −13.6/${ni*ni} = <strong>${Ei.toFixed(2)} eV</strong></span>
+      <span class="stat">E_${nf} = <strong>${Ef.toFixed(2)} eV</strong></span>
+      <span class="stat">ΔE = <strong>${Math.abs(dE).toFixed(2)} eV</strong></span>
+    </div>
+    <div class="row">
+      <span class="stat" style="background:${emit ? '#dcfce7' : '#fef3c7'}">${emit ? "📤 PHÁT" : "📥 HẤP THỤ"} photon</span>
+      <span class="stat">λ = <strong>${lambda.toFixed(1)} nm</strong></span>
+      <span class="stat">Dãy: <strong>${series}</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px">
+      ${ni === 3 && nf === 2 ? "Đây là vạch <strong>Hα đỏ</strong> (656 nm) — vạch nổi tiếng trong phổ Hydrogen, thấy rõ trong ánh sáng từ Mặt Trời." :
+       ni === 4 && nf === 2 ? "Đây là vạch <strong>Hβ</strong> (486 nm) — xanh lá trong Balmer." :
+       ni === 2 && nf === 1 ? "Vạch <strong>Lyman α</strong> (121.6 nm) — UV cực mạnh từ các sao trẻ." :
+       "Vạch trong dãy " + series + "."}
+    </div>
+  `;
+
+  drawBohr(ni, nf);
+}
+
+function drawBohr(ni, nf) {
+  const svg = document.getElementById("bohrSvg");
+  svg.innerHTML = "";
+  const W = 600, H = 400;
+  const cx = W/2, cy = H/2;
+  // Nucleus
+  const nuc = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  nuc.setAttribute("cx", cx); nuc.setAttribute("cy", cy); nuc.setAttribute("r", 12);
+  nuc.setAttribute("fill", "#dc2626");
+  svg.appendChild(nuc);
+
+  // 5 orbits
+  const orbits = [40, 70, 110, 155, 195];
+  orbits.forEach((r, i) => {
+    const o = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    o.setAttribute("cx", cx); o.setAttribute("cy", cy); o.setAttribute("r", r);
+    o.setAttribute("fill", "none"); o.setAttribute("stroke", "#475569"); o.setAttribute("stroke-dasharray", "3 3");
+    svg.appendChild(o);
+    const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lbl.setAttribute("x", cx + r + 5); lbl.setAttribute("y", cy + 4);
+    lbl.setAttribute("fill", "#94a3b8"); lbl.setAttribute("font-size", "12");
+    lbl.textContent = `n=${i+1}`;
+    svg.appendChild(lbl);
+  });
+
+  // Electron at ni
+  const niR = orbits[Math.min(ni-1, 4)];
+  const eAng = -Math.PI / 4;
+  const ex = cx + niR * Math.cos(eAng);
+  const ey = cy + niR * Math.sin(eAng);
+  const e = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  e.setAttribute("cx", ex); e.setAttribute("cy", ey); e.setAttribute("r", 8);
+  e.setAttribute("fill", "#3b82f6");
+  svg.appendChild(e);
+
+  // Electron at nf (lighter)
+  const nfR = orbits[Math.min(nf-1, 4)];
+  const eAng2 = Math.PI / 4;
+  const ex2 = cx + nfR * Math.cos(eAng2);
+  const ey2 = cy + nfR * Math.sin(eAng2);
+  const e2 = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  e2.setAttribute("cx", ex2); e2.setAttribute("cy", ey2); e2.setAttribute("r", 8);
+  e2.setAttribute("fill", "#1d4ed8"); e2.setAttribute("opacity", "0.5");
+  svg.appendChild(e2);
+
+  // Transition arrow
+  const arr = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  arr.setAttribute("x1", ex); arr.setAttribute("y1", ey); arr.setAttribute("x2", ex2); arr.setAttribute("y2", ey2);
+  arr.setAttribute("stroke", "#fbbf24"); arr.setAttribute("stroke-width", 2);
+  svg.appendChild(arr);
+
+  // Photon (squiggle) — show emission or absorption
+  const emit = ni > nf;
+  // Just a label
+  const photLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  photLbl.setAttribute("x", 30); photLbl.setAttribute("y", 30);
+  photLbl.setAttribute("fill", "#fbbf24"); photLbl.setAttribute("font-weight", "700"); photLbl.setAttribute("font-size", "14");
+  photLbl.textContent = emit ? "📤 Phát photon" : "📥 Hấp thụ photon";
+  svg.appendChild(photLbl);
+}
+
+calcBohr();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

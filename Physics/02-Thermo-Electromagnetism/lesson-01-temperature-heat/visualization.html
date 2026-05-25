@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 01 (T2) — Nhiệt độ &amp; Nhiệt lượng</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 130px; }
+  input[type="number"], select { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 110px; }
+  button { background: #1e40af; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.muted { background: #94a3b8; }
+  .stat { display: inline-block; background: #dbeafe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #1e40af; }
+  .result { padding: 14px; background: #dbeafe; border-radius: 8px; margin-top: 12px; }
+  table.cTable { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.cTable th, table.cTable td { border: 1px solid #e2e8f0; padding: 6px 12px; }
+  table.cTable th { background: #dbeafe; color: #1e40af; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Physics</a>
+  <span class="sep">·</span>
+  <a href="../../01-Mechanics/lesson-08-oscillation-waves/visualization.html">← T1-L8</a>
+  <span class="sep">·</span>
+  <span class="current">T2-L1: Nhiệt độ &amp; Nhiệt lượng</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L2: Khí lý tưởng (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 01 (T2) — Nhiệt độ &amp; Nhiệt lượng</h1>
+<p>Bộ công cụ: Temperature Converter (3 thang), Heat Calculator (Q = mcΔT), Thermal Equilibrium Solver (cân bằng nhiệt 2 vật), Phase Change Calculator.</p>
+
+<h2>1. Temperature Converter</h2>
+<div class="card">
+  <div class="row">
+    <label>°C:</label>
+    <input type="number" id="tC" step="0.1" value="25" oninput="convertTemp('C')">
+    <label>°F:</label>
+    <input type="number" id="tF" step="0.1" value="77" oninput="convertTemp('F')">
+    <label>K:</label>
+    <input type="number" id="tK" step="0.1" value="298.15" oninput="convertTemp('K')">
+  </div>
+  <div class="result" id="tempResult"></div>
+</div>
+
+<h2>2. Heat Calculator (Q = m·c·ΔT)</h2>
+<div class="card">
+  <div class="row">
+    <label>Chất:</label>
+    <select id="heatChem" onchange="updateHeatC()">
+      <option value="4186">Nước lỏng (c = 4186)</option>
+      <option value="2090">Nước đá (c = 2090)</option>
+      <option value="2080">Hơi nước (c = 2080)</option>
+      <option value="1005">Không khí (c = 1005)</option>
+      <option value="449">Sắt (c = 449)</option>
+      <option value="385">Đồng (c = 385)</option>
+      <option value="897">Nhôm (c = 897)</option>
+      <option value="129">Vàng (c = 129)</option>
+    </select>
+  </div>
+  <div class="row">
+    <label>Khối lượng (kg):</label>
+    <input type="number" id="heatM" step="0.1" value="1" oninput="calcHeat()">
+    <label>ΔT (K hoặc °C):</label>
+    <input type="number" id="heatDT" step="1" value="80" oninput="calcHeat()">
+  </div>
+  <div class="result" id="heatResult"></div>
+</div>
+
+<h2>3. Thermal Equilibrium — Pha 2 lượng nước/chất</h2>
+<div class="card">
+  <p>Bỏ 2 vật vào với nhau, tính nhiệt độ cân bằng (giả sử cách nhiệt với ngoài).</p>
+  <div class="row">
+    <label>Vật 1: m₁ (kg):</label>
+    <input type="number" id="eqM1" step="0.1" value="0.1" oninput="calcEq()">
+    <label>c₁:</label>
+    <input type="number" id="eqC1" step="50" value="449" oninput="calcEq()">
+    <label>T₁ (°C):</label>
+    <input type="number" id="eqT1" step="5" value="200" oninput="calcEq()">
+  </div>
+  <div class="row">
+    <label>Vật 2: m₂ (kg):</label>
+    <input type="number" id="eqM2" step="0.1" value="0.5" oninput="calcEq()">
+    <label>c₂:</label>
+    <input type="number" id="eqC2" step="50" value="4186" oninput="calcEq()">
+    <label>T₂ (°C):</label>
+    <input type="number" id="eqT2" step="5" value="20" oninput="calcEq()">
+  </div>
+  <div class="result" id="eqResult"></div>
+</div>
+
+<h2>4. Phase Change Calculator</h2>
+<div class="card">
+  <p>Tính Q cần để chuyển vật từ trạng thái A → trạng thái B (cùng chất, có thể qua nhiều giai đoạn).</p>
+  <div class="row">
+    <label>Khối lượng nước (kg):</label>
+    <input type="number" id="pcM" step="0.1" value="1" oninput="calcPC()">
+    <label>T đầu (°C):</label>
+    <input type="number" id="pcT1" step="5" value="-20" oninput="calcPC()">
+    <label>T cuối (°C):</label>
+    <input type="number" id="pcT2" step="5" value="120" oninput="calcPC()">
+  </div>
+  <div class="result" id="pcResult"></div>
+</div>
+
+<h2>5. Bảng nhiệt dung riêng</h2>
+<div class="card">
+  <table class="cTable">
+    <tr><th>Chất</th><th>c (J/(kg·K))</th><th>Ghi chú</th></tr>
+    <tr style="background:#fef3c7"><td><strong>Nước lỏng</strong></td><td><strong>4186</strong></td><td>Cao nhất trong các chất phổ biến</td></tr>
+    <tr><td>Hơi nước</td><td>2080</td><td></td></tr>
+    <tr><td>Nước đá</td><td>2090</td><td></td></tr>
+    <tr><td>Ethanol</td><td>2440</td><td></td></tr>
+    <tr><td>Dầu ăn</td><td>~ 1670</td><td></td></tr>
+    <tr><td>Không khí</td><td>1005</td><td></td></tr>
+    <tr><td>Nhôm</td><td>897</td><td></td></tr>
+    <tr><td>Sắt</td><td>449</td><td></td></tr>
+    <tr><td>Đồng</td><td>385</td><td></td></tr>
+    <tr><td>Vàng</td><td>129</td><td>Nóng/nguội nhanh</td></tr>
+  </table>
+</div>
+
+</main>
+
+<script>
+// ===== Temperature =====
+function convertTemp(src) {
+  let C, F, K;
+  if (src === 'C') {
+    C = parseFloat(document.getElementById("tC").value);
+    F = (9/5)*C + 32;
+    K = C + 273.15;
+    document.getElementById("tF").value = F.toFixed(2);
+    document.getElementById("tK").value = K.toFixed(2);
+  } else if (src === 'F') {
+    F = parseFloat(document.getElementById("tF").value);
+    C = (5/9)*(F - 32);
+    K = C + 273.15;
+    document.getElementById("tC").value = C.toFixed(2);
+    document.getElementById("tK").value = K.toFixed(2);
+  } else {
+    K = parseFloat(document.getElementById("tK").value);
+    C = K - 273.15;
+    F = (9/5)*C + 32;
+    document.getElementById("tC").value = C.toFixed(2);
+    document.getElementById("tF").value = F.toFixed(2);
+  }
+  let info = "";
+  if (K < 0) info = "<strong style='color:#dc2626'>⚠ Dưới 0 K không tồn tại!</strong>";
+  else if (K < 100) info = "Cực lạnh — môi trường nghiên cứu siêu dẫn.";
+  else if (K < 250) info = "Lạnh dưới mức Mặt Trăng vào đêm.";
+  else if (K < 273) info = "Đông đá (nước).";
+  else if (K < 310) info = "Nhiệt độ thường (cơ thể, phòng).";
+  else if (K < 373) info = "Nước lỏng nhưng ấm.";
+  else if (K < 500) info = "Trên điểm sôi nước.";
+  else if (K < 2000) info = "Đỏ nóng đến trắng nóng (kim loại).";
+  else info = "Cực nóng — như bề mặt sao.";
+  document.getElementById("tempResult").innerHTML = info;
+}
+
+// ===== Heat =====
+function updateHeatC() { calcHeat(); }
+function calcHeat() {
+  const c = parseFloat(document.getElementById("heatChem").value);
+  const m = parseFloat(document.getElementById("heatM").value);
+  const dT = parseFloat(document.getElementById("heatDT").value);
+  const Q = m * c * dT;
+  document.getElementById("heatResult").innerHTML = `
+    <div style="font-family:monospace; font-size:15px">Q = m·c·ΔT = ${m} · ${c} · ${dT} = <strong>${Q.toFixed(0)} J = ${(Q/1000).toFixed(2)} kJ</strong></div>
+    <div style="margin-top:6px; font-size:13px">
+      ${Math.abs(Q) > 1000000 ? "Năng lượng rất lớn — quy mô đun nồi cơm thương mại." :
+       Math.abs(Q) > 100000 ? "Năng lượng đáng kể — đun nước cho cốc cà phê đến nồi cơm nhỏ." :
+       "Năng lượng nhỏ."}
+    </div>
+  `;
+}
+
+// ===== Thermal Equilibrium =====
+function calcEq() {
+  const m1 = parseFloat(document.getElementById("eqM1").value);
+  const c1 = parseFloat(document.getElementById("eqC1").value);
+  const T1 = parseFloat(document.getElementById("eqT1").value);
+  const m2 = parseFloat(document.getElementById("eqM2").value);
+  const c2 = parseFloat(document.getElementById("eqC2").value);
+  const T2 = parseFloat(document.getElementById("eqT2").value);
+  // m1c1(T1-T) = m2c2(T-T2)
+  const T = (m1*c1*T1 + m2*c2*T2) / (m1*c1 + m2*c2);
+  const Q_exchange = m1 * c1 * (T1 - T);
+  document.getElementById("eqResult").innerHTML = `
+    <div style="font-family:monospace; font-size:15px">m₁c₁(T₁−T) = m₂c₂(T−T₂)</div>
+    <div style="font-family:monospace; font-size:14px; margin-top:4px">→ T = (m₁c₁T₁ + m₂c₂T₂) / (m₁c₁ + m₂c₂)</div>
+    <div class="row" style="margin-top:8px">
+      <span class="stat">T cân bằng = <strong>${T.toFixed(2)}°C</strong></span>
+      <span class="stat">Năng lượng trao đổi: <strong>${Q_exchange.toFixed(0)} J</strong></span>
+    </div>
+  `;
+}
+
+// ===== Phase Change =====
+function calcPC() {
+  const m = parseFloat(document.getElementById("pcM").value);
+  const T1 = parseFloat(document.getElementById("pcT1").value);
+  const T2 = parseFloat(document.getElementById("pcT2").value);
+  const c_ice = 2090, c_water = 4186, c_steam = 2080;
+  const L_f = 334000, L_v = 2260000;
+  let totalQ = 0;
+  let steps = [];
+  let T = T1;
+  function add(dQ, label) { totalQ += dQ; steps.push({Q: dQ, label}); }
+  // Warming ice from T1 to 0 if T1 < 0
+  if (T1 < 0 && T2 > T1) {
+    const dT = Math.min(0, T2) - T1;
+    if (dT > 0) { add(m * c_ice * dT, `Đá ${T1}°C → ${T1 + dT}°C: m·c_ice·ΔT = ${(m*c_ice*dT/1000).toFixed(2)} kJ`); T = T1 + dT; }
+  }
+  // Melt at 0 if crossing
+  if (T < 0.5 && T2 > 0) {
+    add(m * L_f, `Tan đá tại 0°C: m·L_f = ${(m*L_f/1000).toFixed(2)} kJ`);
+    T = 0;
+  }
+  // Warm water 0 to 100 if applicable
+  if (T < 100 && T2 > T) {
+    const dT = Math.min(100, T2) - T;
+    if (dT > 0) { add(m * c_water * dT, `Nước ${T}°C → ${T + dT}°C: m·c_water·ΔT = ${(m*c_water*dT/1000).toFixed(2)} kJ`); T = T + dT; }
+  }
+  // Boil at 100
+  if (T < 100.5 && T2 > 100) {
+    add(m * L_v, `Hóa hơi tại 100°C: m·L_v = ${(m*L_v/1000).toFixed(2)} kJ`);
+    T = 100;
+  }
+  // Warm steam
+  if (T2 > 100) {
+    const dT = T2 - 100;
+    add(m * c_steam * dT, `Hơi 100°C → ${T2}°C: m·c_steam·ΔT = ${(m*c_steam*dT/1000).toFixed(2)} kJ`);
+  }
+
+  let html = `<h3 style="margin-top:0">Các giai đoạn:</h3>`;
+  steps.forEach(s => {
+    html += `<div style="padding:6px 12px; background:#f8fafc; border-left:3px solid #1e40af; margin:4px 0; font-family:monospace; font-size:13px">${s.label}</div>`;
+  });
+  html += `<div style="margin-top:10px; padding:12px; background:#fef3c7; border-radius:6px; font-size:16px"><strong>Tổng Q = ${(totalQ/1000).toFixed(2)} kJ = ${(totalQ/1e6).toFixed(3)} MJ</strong></div>`;
+  document.getElementById("pcResult").innerHTML = html;
+}
+
+// Init
+convertTemp('C');
+calcHeat();
+calcEq();
+calcPC();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

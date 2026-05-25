@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 01 — Cấu trúc nguyên tử</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #4a5568; margin-top: 20px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 120px; }
+  input[type="text"], input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 11px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+  }
+  input[type="number"] { width: 80px; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  select {
+    padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px;
+    font-size: 14px; background: white;
+  }
+  button {
+    background: #be185d; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #9d174d; }
+  button.muted { background: #a0aec0; }
+  button.muted:hover { background: #718096; }
+  button.active { background: #047857; }
+  .hint { color: #718096; font-size: 13px; margin: 4px 0; }
+  .stat {
+    display: inline-block; background: #fce7f3;
+    padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #be185d; }
+  .stat.proton { background: #fee2e2; }
+  .stat.proton strong { color: #b91c1c; }
+  .stat.neutron { background: #f1f5f9; }
+  .stat.neutron strong { color: #475569; }
+  .stat.electron { background: #dbeafe; }
+  .stat.electron strong { color: #1d4ed8; }
+  .stat.mass { background: #fef3c7; }
+  .stat.mass strong { color: #92400e; }
+
+  /* Atom SVG */
+  svg.atom {
+    display: block; margin: 0 auto;
+    width: 100%; max-width: 480px; height: 420px;
+    background: radial-gradient(circle, #fff 0%, #fafafa 100%);
+    border-radius: 8px;
+  }
+  svg.atom .nucleus-bg { fill: #fef3c7; stroke: #f59e0b; stroke-width: 1; opacity: 0.4; }
+  svg.atom .proton { fill: #ef4444; stroke: #991b1b; stroke-width: 1; }
+  svg.atom .neutron { fill: #64748b; stroke: #1e293b; stroke-width: 1; }
+  svg.atom .electron { fill: #3b82f6; stroke: #1e3a8a; stroke-width: 1; }
+  svg.atom .orbit { fill: none; stroke: #94a3b8; stroke-width: 1; stroke-dasharray: 4 4; }
+  svg.atom .label { font: 11px sans-serif; fill: #475569; }
+  svg.atom .symbol { font: bold 18px sans-serif; fill: #be185d; text-anchor: middle; }
+
+  /* Notation display */
+  .notation {
+    display: inline-block;
+    font-family: "Times New Roman", serif; font-size: 24px;
+    margin: 0 12px;
+  }
+  .notation .A { font-size: 14px; vertical-align: super; color: #be185d; font-weight: 700; }
+  .notation .Z { font-size: 14px; vertical-align: sub; color: #1d4ed8; font-weight: 700; margin-left: -8px; }
+  .notation .X { font-weight: 700; }
+  .notation .charge { font-size: 14px; vertical-align: super; color: #047857; font-weight: 700; }
+
+  /* Isotope table */
+  table.iso {
+    border-collapse: collapse; width: 100%; margin-top: 12px;
+    font-size: 13px;
+  }
+  table.iso th, table.iso td {
+    padding: 8px 10px; border: 1px solid #e2e8f0;
+    text-align: left;
+  }
+  table.iso th { background: #fce7f3; font-weight: 700; }
+  table.iso tr.highlight { background: #fef3c7; }
+
+  /* Decay chart */
+  svg.decay {
+    display: block; width: 100%; max-width: 720px;
+    height: 280px; margin: 12px auto;
+  }
+  svg.decay .axis { stroke: #2d3748; stroke-width: 1.5; }
+  svg.decay .grid { stroke: #e2e8f0; stroke-width: 1; }
+  svg.decay .curve { fill: none; stroke: #be185d; stroke-width: 2.5; }
+  svg.decay .marker { fill: #be185d; }
+  svg.decay .marker-line { stroke: #be185d; stroke-width: 1.5; stroke-dasharray: 3 3; }
+  svg.decay .label { font: 12px sans-serif; fill: #475569; }
+
+  /* History cards */
+  .history-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px; margin-top: 12px;
+  }
+  .history-card {
+    border: 2px solid #e2e8f0; border-radius: 8px; padding: 12px;
+    cursor: pointer; transition: all 0.15s;
+    text-align: center;
+  }
+  .history-card:hover { border-color: #be185d; transform: translateY(-2px); }
+  .history-card.active { border-color: #be185d; background: #fce7f3; }
+  .history-card .year { font-size: 12px; color: #718096; font-weight: 700; }
+  .history-card .name { font-size: 16px; font-weight: 700; color: #1a202c; margin: 4px 0; }
+  .history-card .model { font-size: 12px; color: #4a5568; }
+  .history-detail {
+    background: #f8fafc; border-radius: 8px; padding: 16px; margin-top: 12px;
+    min-height: 80px;
+  }
+  svg.history-viz {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 320px; height: 200px;
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Chemistry</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Cấu trúc nguyên tử</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L2: Cấu hình electron (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 01 — Cấu trúc nguyên tử</h1>
+<p>Bộ công cụ tương tác: dựng nguyên tử bất kỳ (Z = 1..20), xem ký hiệu, trộn đồng vị, mô phỏng phân rã C-14, duyệt 4 mô hình lịch sử.</p>
+
+<h2>1. Atom Builder — dựng nguyên tử bất kỳ</h2>
+<div class="card">
+  <div class="row">
+    <label>Chọn nguyên tố:</label>
+    <select id="elemPicker"></select>
+    <label style="min-width:60px">hoặc Z:</label>
+    <input type="number" id="zInput" min="1" max="20" value="6">
+  </div>
+  <div class="row">
+    <label>Số neutron (N):</label>
+    <input type="range" id="nSlider" min="0" max="30" value="6">
+    <span class="stat">N = <strong id="nVal">6</strong></span>
+  </div>
+  <div class="row">
+    <label>Điện tích (ion):</label>
+    <input type="range" id="qSlider" min="-3" max="3" value="0" step="1">
+    <span class="stat">điện tích = <strong id="qVal">0</strong></span>
+  </div>
+
+  <svg class="atom" id="atomSvg" viewBox="0 0 480 420"></svg>
+
+  <div class="row" style="margin-top:12px">
+    <span class="stat proton">Proton (Z) = <strong id="pCount">6</strong></span>
+    <span class="stat neutron">Neutron (N) = <strong id="nCount">6</strong></span>
+    <span class="stat electron">Electron = <strong id="eCount">6</strong></span>
+    <span class="stat mass">Số khối A = <strong id="aCount">12</strong></span>
+  </div>
+  <div style="margin-top:8px">
+    Ký hiệu:
+    <span class="notation"><span class="A" id="notA">12</span><span class="Z" id="notZ">6</span><span class="X" id="notX">C</span><span class="charge" id="notCharge"></span></span>
+    <span class="hint" id="elemHint">Carbon — nguyên tố của sự sống.</span>
+  </div>
+  <div class="hint" style="margin-top:8px" id="ionHint"></div>
+</div>
+
+<h2>2. Notation Parser — đọc ký hiệu nguyên tử</h2>
+<div class="card">
+  <p>Nhập ký hiệu nguyên tử, viz sẽ tách ra Z, A, N, số electron. Cú pháp: <code>A,Z,X[,charge]</code>. Ví dụ <code>40,20,Ca</code> hoặc <code>23,11,Na,+1</code> hoặc <code>35,17,Cl,-1</code>.</p>
+  <div class="row">
+    <label>Input:</label>
+    <input type="text" id="parserInput" value="40,20,Ca" style="min-width:200px">
+    <button onclick="parseNotation()">Phân tích</button>
+  </div>
+  <div id="parserOutput" style="margin-top:12px"></div>
+</div>
+
+<h2>3. Isotope Mixer — trộn đồng vị, tính khối lượng TB</h2>
+<div class="card">
+  <div class="row">
+    <label>Chọn nguyên tố:</label>
+    <select id="isoElem">
+      <option value="H">Hydrogen (H)</option>
+      <option value="C" selected>Carbon (C)</option>
+      <option value="Cl">Chlorine (Cl)</option>
+      <option value="Br">Bromine (Br)</option>
+      <option value="Mg">Magnesium (Mg)</option>
+      <option value="B">Boron (B)</option>
+      <option value="U">Uranium (U)</option>
+    </select>
+  </div>
+
+  <div id="isoControls" style="margin-top:12px"></div>
+
+  <table class="iso" id="isoTable"></table>
+
+  <div style="margin-top:14px; padding:12px; background:#fef3c7; border-radius:6px">
+    <strong>Khối lượng nguyên tử trung bình tính được:</strong>
+    <span style="font-size:18px; font-weight:700; color:#92400e" id="avgMass">—</span>
+    <div class="hint" id="avgCompare"></div>
+  </div>
+</div>
+
+<h2>4. Carbon-14 Decay — mô phỏng phóng xạ định tuổi</h2>
+<div class="card">
+  <p>Cây sống có lượng C-14 chuẩn (100%). Khi chết, C-14 phân rã theo `N(t) = N₀ · (1/2)^(t/5730)`. Kéo slider thời gian:</p>
+  <div class="row">
+    <label>Thời gian (năm):</label>
+    <input type="range" id="timeSlider" min="0" max="40000" value="5730" step="100">
+    <span class="stat">t = <strong id="timeVal">5,730</strong> năm</span>
+  </div>
+  <div class="row">
+    <span class="stat">% còn lại: <strong id="pctRemain">50.00%</strong></span>
+    <span class="stat">Số chu kỳ bán rã: <strong id="hlCount">1.00</strong></span>
+  </div>
+
+  <svg class="decay" id="decaySvg" viewBox="0 0 720 280"></svg>
+
+  <div style="margin-top:8px; padding:10px; background:#f0f9ff; border-radius:6px">
+    <strong>Ví dụ thực tế:</strong>
+    <ul style="margin:4px 0 0 20px">
+      <li>Xác ướp Ai Cập (~ 3000 năm): còn ~ 70% C-14</li>
+      <li>Cuộn sách Biển Chết (~ 2000 năm): còn ~ 78%</li>
+      <li>Người băng Ötzi (~ 5300 năm): còn ~ 52%</li>
+      <li>Tranh hang Lascaux (~ 17000 năm): còn ~ 12.7%</li>
+    </ul>
+  </div>
+</div>
+
+<h2>5. History Timeline — 4 mô hình lịch sử</h2>
+<div class="card">
+  <div class="history-grid">
+    <div class="history-card active" data-model="dalton" onclick="showModel('dalton')">
+      <div class="year">1803</div>
+      <div class="name">Dalton</div>
+      <div class="model">Viên bi đặc</div>
+    </div>
+    <div class="history-card" data-model="thomson" onclick="showModel('thomson')">
+      <div class="year">1897</div>
+      <div class="name">Thomson</div>
+      <div class="model">Plum pudding</div>
+    </div>
+    <div class="history-card" data-model="rutherford" onclick="showModel('rutherford')">
+      <div class="year">1911</div>
+      <div class="name">Rutherford</div>
+      <div class="model">Hành tinh</div>
+    </div>
+    <div class="history-card" data-model="bohr" onclick="showModel('bohr')">
+      <div class="year">1913</div>
+      <div class="name">Bohr</div>
+      <div class="model">Quỹ đạo lượng tử</div>
+    </div>
+  </div>
+  <div class="history-detail" id="historyDetail"></div>
+</div>
+
+</main>
+
+<script>
+// ===== Element data (Z = 1..20) =====
+const ELEMENTS = [
+  null, // index 0 unused
+  {sym:"H",  name:"Hydrogen",  defaultN:0,  mass:1.008,  desc:"Nguyên tố nhẹ nhất, chiếm ~75% khối lượng vũ trụ."},
+  {sym:"He", name:"Helium",    defaultN:2,  mass:4.003,  desc:"Khí trơ, dùng làm bóng bay, ngôi sao 2nd phổ biến nhất."},
+  {sym:"Li", name:"Lithium",   defaultN:4,  mass:6.94,   desc:"Kim loại nhẹ nhất, dùng làm pin lithium-ion."},
+  {sym:"Be", name:"Beryllium", defaultN:5,  mass:9.012,  desc:"Kim loại độc, dùng trong hợp kim."},
+  {sym:"B",  name:"Boron",     defaultN:6,  mass:10.81,  desc:"Á kim, dùng làm thủy tinh Pyrex."},
+  {sym:"C",  name:"Carbon",    defaultN:6,  mass:12.011, desc:"Carbon — nguyên tố của sự sống."},
+  {sym:"N",  name:"Nitrogen",  defaultN:7,  mass:14.007, desc:"78% khí quyển Trái Đất."},
+  {sym:"O",  name:"Oxygen",    defaultN:8,  mass:15.999, desc:"21% khí quyển, cần cho hô hấp."},
+  {sym:"F",  name:"Fluorine",  defaultN:10, mass:18.998, desc:"Halogen độc, dùng trong kem đánh răng (F⁻)."},
+  {sym:"Ne", name:"Neon",      defaultN:10, mass:20.180, desc:"Khí trơ, dùng đèn neon."},
+  {sym:"Na", name:"Sodium",    defaultN:12, mass:22.990, desc:"Kim loại kiềm, có trong muối ăn NaCl."},
+  {sym:"Mg", name:"Magnesium", defaultN:12, mass:24.305, desc:"Kim loại nhẹ, có trong chlorophyll."},
+  {sym:"Al", name:"Aluminum",  defaultN:14, mass:26.982, desc:"Kim loại phổ biến nhất trong vỏ Trái Đất."},
+  {sym:"Si", name:"Silicon",   defaultN:14, mass:28.085, desc:"Nguyên liệu chính làm chip bán dẫn."},
+  {sym:"P",  name:"Phosphorus",defaultN:16, mass:30.974, desc:"Trong DNA, ATP, xương."},
+  {sym:"S",  name:"Sulfur",    defaultN:16, mass:32.06,  desc:"Lưu huỳnh, có trong protein."},
+  {sym:"Cl", name:"Chlorine",  defaultN:18, mass:35.45,  desc:"Halogen, khử trùng nước, có trong muối NaCl."},
+  {sym:"Ar", name:"Argon",     defaultN:22, mass:39.948, desc:"Khí trơ, ~1% khí quyển."},
+  {sym:"K",  name:"Potassium", defaultN:20, mass:39.098, desc:"Kim loại kiềm, cần cho tế bào thần kinh."},
+  {sym:"Ca", name:"Calcium",   defaultN:20, mass:40.078, desc:"Trong xương, răng, vỏ ốc."}
+];
+
+// Populate element picker
+const elemPicker = document.getElementById("elemPicker");
+for (let z = 1; z <= 20; z++) {
+  const opt = document.createElement("option");
+  opt.value = z;
+  opt.textContent = `${z} — ${ELEMENTS[z].sym} (${ELEMENTS[z].name})`;
+  if (z === 6) opt.selected = true;
+  elemPicker.appendChild(opt);
+}
+
+// ===== Atom Builder =====
+const zInput = document.getElementById("zInput");
+const nSlider = document.getElementById("nSlider");
+const qSlider = document.getElementById("qSlider");
+const nVal = document.getElementById("nVal");
+const qVal = document.getElementById("qVal");
+
+function updateAtom() {
+  const z = parseInt(zInput.value);
+  const n = parseInt(nSlider.value);
+  const q = parseInt(qSlider.value);
+  const elem = ELEMENTS[z];
+  if (!elem) return;
+
+  const eCount = z - q;
+  const aCount = z + n;
+
+  document.getElementById("pCount").textContent = z;
+  document.getElementById("nCount").textContent = n;
+  document.getElementById("eCount").textContent = eCount;
+  document.getElementById("aCount").textContent = aCount;
+  document.getElementById("nVal").textContent = n;
+  document.getElementById("qVal").textContent = q > 0 ? "+" + q : q;
+
+  document.getElementById("notA").textContent = aCount;
+  document.getElementById("notZ").textContent = z;
+  document.getElementById("notX").textContent = elem.sym;
+  document.getElementById("notCharge").textContent =
+    q === 0 ? "" : (q > 0 ? (q === 1 ? "+" : q + "+") : (q === -1 ? "−" : Math.abs(q) + "−"));
+
+  document.getElementById("elemHint").textContent = `${elem.name} — ${elem.desc}`;
+
+  // Ion hint
+  const ionHint = document.getElementById("ionHint");
+  if (q === 0) ionHint.textContent = "";
+  else if (q > 0) ionHint.textContent = `Cation: mất ${q} electron → còn ${eCount} electron.`;
+  else ionHint.textContent = `Anion: nhận ${-q} electron → có ${eCount} electron.`;
+
+  drawAtom(z, n, eCount, elem.sym);
+}
+
+function drawAtom(z, n, eCount, sym) {
+  const svg = document.getElementById("atomSvg");
+  svg.innerHTML = "";
+  const cx = 240, cy = 210;
+  const nuclR = Math.min(45, 14 + Math.sqrt(z + n) * 3);
+
+  // Nucleus background
+  const bg = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  bg.setAttribute("class", "nucleus-bg");
+  bg.setAttribute("cx", cx); bg.setAttribute("cy", cy); bg.setAttribute("r", nuclR + 4);
+  svg.appendChild(bg);
+
+  // Draw protons and neutrons inside nucleus
+  const total = z + n;
+  const items = [];
+  for (let i = 0; i < z; i++) items.push("p");
+  for (let i = 0; i < n; i++) items.push("n");
+  // Pack in spiral
+  items.forEach((type, i) => {
+    const angle = i * 0.6;
+    const r = Math.sqrt(i) * 4.5;
+    const x = cx + r * Math.cos(angle);
+    const y = cy + r * Math.sin(angle);
+    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    c.setAttribute("class", type === "p" ? "proton" : "neutron");
+    c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", 4);
+    svg.appendChild(c);
+  });
+
+  // Symbol overlay (faint)
+  // Removed to avoid clutter when nucleus small
+
+  // Electron shells (Bohr-like, simplified)
+  const shellCapacity = [2, 8, 8, 2]; // for Z <= 20
+  let remaining = eCount;
+  const shells = [];
+  for (let s = 0; s < shellCapacity.length && remaining > 0; s++) {
+    const inThis = Math.min(remaining, shellCapacity[s]);
+    shells.push(inThis);
+    remaining -= inThis;
+  }
+  shells.forEach((nElec, sIdx) => {
+    const shellR = nuclR + 30 + sIdx * 35;
+    // Draw orbit
+    const orbit = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    orbit.setAttribute("class", "orbit");
+    orbit.setAttribute("cx", cx); orbit.setAttribute("cy", cy); orbit.setAttribute("r", shellR);
+    svg.appendChild(orbit);
+    // Draw electrons
+    for (let i = 0; i < nElec; i++) {
+      const a = (i / nElec) * 2 * Math.PI - Math.PI / 2;
+      const ex = cx + shellR * Math.cos(a);
+      const ey = cy + shellR * Math.sin(a);
+      const e = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      e.setAttribute("class", "electron");
+      e.setAttribute("cx", ex); e.setAttribute("cy", ey); e.setAttribute("r", 5);
+      svg.appendChild(e);
+    }
+  });
+
+  // Legend (top-left)
+  const legendY = 20;
+  const legend = [
+    {color: "#ef4444", label: `Proton × ${z}`, x: 10},
+    {color: "#64748b", label: `Neutron × ${n}`, x: 130},
+    {color: "#3b82f6", label: `Electron × ${eCount}`, x: 260}
+  ];
+  legend.forEach(L => {
+    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    c.setAttribute("cx", L.x); c.setAttribute("cy", legendY); c.setAttribute("r", 5);
+    c.setAttribute("fill", L.color);
+    svg.appendChild(c);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", L.x + 10); t.setAttribute("y", legendY + 4);
+    t.setAttribute("class", "label");
+    t.textContent = L.label;
+    svg.appendChild(t);
+  });
+}
+
+elemPicker.addEventListener("change", () => {
+  const z = parseInt(elemPicker.value);
+  zInput.value = z;
+  nSlider.value = ELEMENTS[z].defaultN;
+  qSlider.value = 0;
+  updateAtom();
+});
+zInput.addEventListener("input", () => {
+  let z = parseInt(zInput.value);
+  if (z < 1) z = 1;
+  if (z > 20) z = 20;
+  zInput.value = z;
+  elemPicker.value = z;
+  nSlider.value = ELEMENTS[z].defaultN;
+  updateAtom();
+});
+nSlider.addEventListener("input", updateAtom);
+qSlider.addEventListener("input", updateAtom);
+
+// ===== Notation Parser =====
+function parseNotation() {
+  const inp = document.getElementById("parserInput").value.trim();
+  const parts = inp.split(",").map(s => s.trim());
+  const out = document.getElementById("parserOutput");
+  if (parts.length < 3) {
+    out.innerHTML = `<div style="color:#dc2626">Lỗi: cần ít nhất 3 phần A,Z,X (vd <code>40,20,Ca</code>).</div>`;
+    return;
+  }
+  const A = parseInt(parts[0]);
+  const Z = parseInt(parts[1]);
+  const X = parts[2];
+  let charge = 0;
+  if (parts[3]) charge = parseInt(parts[3]);
+  if (isNaN(A) || isNaN(Z)) {
+    out.innerHTML = `<div style="color:#dc2626">Lỗi: A và Z phải là số.</div>`;
+    return;
+  }
+  const N = A - Z;
+  const electrons = Z - charge;
+
+  const chargeStr = charge === 0 ? "(trung hòa)" :
+    charge > 0 ? `(cation ${charge}+)` : `(anion ${Math.abs(charge)}−)`;
+
+  out.innerHTML = `
+    <div style="font-family:monospace; line-height:1.8">
+      <div>📥 Input: <strong>${A}, ${Z}, ${X}${charge !== 0 ? ", " + (charge > 0 ? "+" : "") + charge : ""}</strong></div>
+      <div>🔢 Số khối A = <strong style="color:#92400e">${A}</strong></div>
+      <div>🔢 Số nguyên tử Z = <strong style="color:#b91c1c">${Z}</strong> proton</div>
+      <div>🔢 Số neutron N = A − Z = ${A} − ${Z} = <strong style="color:#475569">${N}</strong> neutron</div>
+      <div>🔢 Điện tích = <strong style="color:#047857">${charge > 0 ? "+" + charge : charge}</strong> ${chargeStr}</div>
+      <div>🔢 Số electron = Z − điện tích = ${Z} − (${charge}) = <strong style="color:#1d4ed8">${electrons}</strong></div>
+      <div style="margin-top:8px">
+        Ký hiệu: <span class="notation"><span class="A">${A}</span><span class="Z">${Z}</span><span class="X">${X}</span><span class="charge">${charge === 0 ? "" : (charge > 0 ? (charge === 1 ? "+" : charge + "+") : (charge === -1 ? "−" : Math.abs(charge) + "−"))}</span></span>
+      </div>
+    </div>`;
+}
+
+// ===== Isotope Mixer =====
+const ISOTOPES = {
+  H: [
+    {sym:"^1H",  A:1, mass:1.00783,  natural:99.985},
+    {sym:"^2H",  A:2, mass:2.01410,  natural:0.015}
+  ],
+  C: [
+    {sym:"^12C", A:12, mass:12.000,  natural:98.93},
+    {sym:"^13C", A:13, mass:13.00335,natural:1.07}
+  ],
+  Cl: [
+    {sym:"^35Cl",A:35, mass:34.96885,natural:75.77},
+    {sym:"^37Cl",A:37, mass:36.96590,natural:24.23}
+  ],
+  Br: [
+    {sym:"^79Br",A:79, mass:78.91834,natural:50.69},
+    {sym:"^81Br",A:81, mass:80.91629,natural:49.31}
+  ],
+  Mg: [
+    {sym:"^24Mg",A:24, mass:23.98504,natural:78.99},
+    {sym:"^25Mg",A:25, mass:24.98584,natural:10.00},
+    {sym:"^26Mg",A:26, mass:25.98259,natural:11.01}
+  ],
+  B: [
+    {sym:"^10B", A:10, mass:10.01294,natural:19.9},
+    {sym:"^11B", A:11, mass:11.00931,natural:80.1}
+  ],
+  U: [
+    {sym:"^234U",A:234,mass:234.0410,natural:0.0054},
+    {sym:"^235U",A:235,mass:235.0439,natural:0.7204},
+    {sym:"^238U",A:238,mass:238.0508,natural:99.2742}
+  ]
+};
+
+const REAL_MASS = {H:1.008, C:12.011, Cl:35.45, Br:79.904, Mg:24.305, B:10.81, U:238.029};
+
+function renderIsotopes() {
+  const elem = document.getElementById("isoElem").value;
+  const isos = ISOTOPES[elem];
+  const ctrl = document.getElementById("isoControls");
+  ctrl.innerHTML = "";
+  const tbl = document.getElementById("isoTable");
+
+  // Sliders, each controls % of one isotope. Last one auto-balances.
+  isos.forEach((iso, i) => {
+    const div = document.createElement("div");
+    div.className = "row";
+    div.innerHTML = `
+      <label>${iso.sym} (mass ${iso.mass.toFixed(4)} u):</label>
+      <input type="range" min="0" max="100" step="0.1" value="${iso.natural}" data-iso="${i}" id="isoR${i}">
+      <span class="stat" style="min-width:80px">% = <strong id="isoP${i}">${iso.natural.toFixed(2)}</strong></span>
+    `;
+    ctrl.appendChild(div);
+  });
+
+  // Reset button
+  const reset = document.createElement("button");
+  reset.className = "muted";
+  reset.textContent = "Reset về tỉ lệ tự nhiên";
+  reset.onclick = () => { renderIsotopes(); };
+  ctrl.appendChild(reset);
+
+  // Add listeners
+  isos.forEach((iso, i) => {
+    document.getElementById(`isoR${i}`).addEventListener("input", () => {
+      // Auto-normalize: simple approach — show raw, calculate average with raw values
+      updateIsotopeMix();
+    });
+  });
+
+  // Build table header
+  tbl.innerHTML = `
+    <tr>
+      <th>Đồng vị</th>
+      <th>A</th>
+      <th>Khối lượng (u)</th>
+      <th>% tự nhiên</th>
+      <th>% bạn chọn</th>
+    </tr>
+    ${isos.map((iso, i) => `
+      <tr id="isoRow${i}">
+        <td><strong>${iso.sym}</strong></td>
+        <td>${iso.A}</td>
+        <td>${iso.mass.toFixed(5)}</td>
+        <td>${iso.natural}%</td>
+        <td id="isoChosen${i}">${iso.natural.toFixed(2)}%</td>
+      </tr>
+    `).join("")}
+  `;
+
+  updateIsotopeMix();
+}
+
+function updateIsotopeMix() {
+  const elem = document.getElementById("isoElem").value;
+  const isos = ISOTOPES[elem];
+
+  // Read sliders, normalize sum to 100
+  const raw = isos.map((iso, i) => parseFloat(document.getElementById(`isoR${i}`).value));
+  const sum = raw.reduce((a, b) => a + b, 0);
+  const pct = sum === 0 ? raw.map(() => 0) : raw.map(v => (v / sum) * 100);
+
+  let avg = 0;
+  isos.forEach((iso, i) => {
+    avg += iso.mass * (pct[i] / 100);
+    document.getElementById(`isoP${i}`).textContent = pct[i].toFixed(2);
+    document.getElementById(`isoChosen${i}`).textContent = pct[i].toFixed(2) + "%";
+  });
+
+  document.getElementById("avgMass").textContent = avg.toFixed(4) + " u";
+  const real = REAL_MASS[elem];
+  const diff = avg - real;
+  const compareEl = document.getElementById("avgCompare");
+  if (Math.abs(diff) < 0.01) {
+    compareEl.textContent = `✓ Khớp khối lượng thực tế (${real} u trong bảng tuần hoàn)`;
+    compareEl.style.color = "#047857";
+  } else {
+    compareEl.textContent = `Khối lượng thật trong bảng tuần hoàn: ${real} u. Chênh: ${diff.toFixed(4)} u (do bạn đổi tỉ lệ).`;
+    compareEl.style.color = "#92400e";
+  }
+}
+
+document.getElementById("isoElem").addEventListener("change", renderIsotopes);
+
+// ===== Carbon-14 Decay =====
+const HALF_LIFE = 5730;
+
+function updateDecay() {
+  const t = parseInt(document.getElementById("timeSlider").value);
+  const remaining = Math.pow(0.5, t / HALF_LIFE);
+  const hl = t / HALF_LIFE;
+
+  document.getElementById("timeVal").textContent = t.toLocaleString();
+  document.getElementById("pctRemain").textContent = (remaining * 100).toFixed(2) + "%";
+  document.getElementById("hlCount").textContent = hl.toFixed(2);
+
+  drawDecayChart(t, remaining);
+}
+
+function drawDecayChart(t, remaining) {
+  const svg = document.getElementById("decaySvg");
+  svg.innerHTML = "";
+  const W = 720, H = 280;
+  const padL = 50, padR = 30, padT = 20, padB = 40;
+  const cw = W - padL - padR, ch = H - padT - padB;
+
+  // X: time 0..40000, Y: % 0..1
+  const xMax = 40000;
+  const xScale = (year) => padL + (year / xMax) * cw;
+  const yScale = (pct) => padT + (1 - pct) * ch;
+
+  // Grid
+  for (let p = 0; p <= 1.0; p += 0.25) {
+    const y = yScale(p);
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("class", "grid");
+    line.setAttribute("x1", padL); line.setAttribute("y1", y);
+    line.setAttribute("x2", W - padR); line.setAttribute("y2", y);
+    svg.appendChild(line);
+    const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lbl.setAttribute("class", "label");
+    lbl.setAttribute("x", padL - 8); lbl.setAttribute("y", y + 4);
+    lbl.setAttribute("text-anchor", "end");
+    lbl.textContent = (p * 100).toFixed(0) + "%";
+    svg.appendChild(lbl);
+  }
+
+  for (let yr = 0; yr <= xMax; yr += 5730) {
+    const x = xScale(yr);
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("class", "grid");
+    line.setAttribute("x1", x); line.setAttribute("y1", padT);
+    line.setAttribute("x2", x); line.setAttribute("y2", H - padB);
+    svg.appendChild(line);
+    const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lbl.setAttribute("class", "label");
+    lbl.setAttribute("x", x); lbl.setAttribute("y", H - padB + 16);
+    lbl.setAttribute("text-anchor", "middle");
+    lbl.textContent = (yr / 1000).toFixed(yr === 5730 || yr === 17190 ? 1 : 0) + "k";
+    svg.appendChild(lbl);
+  }
+
+  // Axis labels
+  const xLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  xLbl.setAttribute("class", "label");
+  xLbl.setAttribute("x", W / 2); xLbl.setAttribute("y", H - 8);
+  xLbl.setAttribute("text-anchor", "middle");
+  xLbl.textContent = "Thời gian (năm)";
+  svg.appendChild(xLbl);
+
+  // Curve
+  let path = "M ";
+  for (let yr = 0; yr <= xMax; yr += 100) {
+    const pct = Math.pow(0.5, yr / HALF_LIFE);
+    path += xScale(yr) + "," + yScale(pct) + " ";
+  }
+  const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  p.setAttribute("class", "curve");
+  p.setAttribute("d", path);
+  svg.appendChild(p);
+
+  // Marker at current t
+  const mx = xScale(t), my = yScale(remaining);
+  const vline = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  vline.setAttribute("class", "marker-line");
+  vline.setAttribute("x1", mx); vline.setAttribute("y1", my);
+  vline.setAttribute("x2", mx); vline.setAttribute("y2", H - padB);
+  svg.appendChild(vline);
+  const hline = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  hline.setAttribute("class", "marker-line");
+  hline.setAttribute("x1", padL); hline.setAttribute("y1", my);
+  hline.setAttribute("x2", mx); hline.setAttribute("y2", my);
+  svg.appendChild(hline);
+  const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  dot.setAttribute("class", "marker");
+  dot.setAttribute("cx", mx); dot.setAttribute("cy", my); dot.setAttribute("r", 6);
+  svg.appendChild(dot);
+}
+
+document.getElementById("timeSlider").addEventListener("input", updateDecay);
+
+// ===== History =====
+const HISTORY = {
+  dalton: {
+    title: "Dalton (1803) — Mô hình viên bi đặc",
+    desc: "Nguyên tử là hình cầu nhỏ, đặc, không thể chia. Mỗi nguyên tố có 1 loại nguyên tử riêng. Giải thích được định luật bảo toàn khối lượng nhưng không có cấu trúc bên trong.",
+    svg: (svg) => {
+      const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      c.setAttribute("cx", 160); c.setAttribute("cy", 100); c.setAttribute("r", 70);
+      c.setAttribute("fill", "#94a3b8"); c.setAttribute("stroke", "#475569"); c.setAttribute("stroke-width", 2);
+      svg.appendChild(c);
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t.setAttribute("x", 160); t.setAttribute("y", 105); t.setAttribute("text-anchor", "middle");
+      t.setAttribute("font-size", "14"); t.setAttribute("fill", "white");
+      t.textContent = "viên bi đặc";
+      svg.appendChild(t);
+    }
+  },
+  thomson: {
+    title: "Thomson (1897) — Mô hình bánh pudding",
+    desc: "Phát hiện electron qua thí nghiệm tia âm cực. Mô hình: nguyên tử là khối cầu mang điện dương đều, electron rải rác bên trong như nho trong bánh pudding.",
+    svg: (svg) => {
+      const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      c.setAttribute("cx", 160); c.setAttribute("cy", 100); c.setAttribute("r", 75);
+      c.setAttribute("fill", "#fecaca"); c.setAttribute("stroke", "#dc2626"); c.setAttribute("stroke-width", 2);
+      svg.appendChild(c);
+      // Electrons sprinkled
+      const positions = [[120,70],[200,75],[140,110],[180,130],[100,100],[220,110],[160,85],[180,70]];
+      positions.forEach(([x,y]) => {
+        const e = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        e.setAttribute("cx", x); e.setAttribute("cy", y); e.setAttribute("r", 5);
+        e.setAttribute("fill", "#1d4ed8");
+        svg.appendChild(e);
+      });
+    }
+  },
+  rutherford: {
+    title: "Rutherford (1911) — Mô hình hành tinh",
+    desc: "Thí nghiệm bắn hạt α qua lá vàng: phần lớn xuyên qua, ~1/8000 bật ngược. Kết luận: có hạt nhân nhỏ, đặc, dương ở giữa; electron quay quanh như hành tinh. Vấn đề: electron lẽ ra phải rơi vào nhân trong 10⁻¹¹ giây.",
+    svg: (svg) => {
+      // Orbit
+      const orbit = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
+      orbit.setAttribute("cx", 160); orbit.setAttribute("cy", 100);
+      orbit.setAttribute("rx", 75); orbit.setAttribute("ry", 60);
+      orbit.setAttribute("fill", "none"); orbit.setAttribute("stroke", "#94a3b8"); orbit.setAttribute("stroke-dasharray", "4 4");
+      svg.appendChild(orbit);
+      // Nucleus
+      const n = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      n.setAttribute("cx", 160); n.setAttribute("cy", 100); n.setAttribute("r", 12);
+      n.setAttribute("fill", "#dc2626");
+      svg.appendChild(n);
+      // Electrons
+      [[235,100],[160,40],[85,100]].forEach(([x,y]) => {
+        const e = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        e.setAttribute("cx", x); e.setAttribute("cy", y); e.setAttribute("r", 5);
+        e.setAttribute("fill", "#1d4ed8");
+        svg.appendChild(e);
+      });
+    }
+  },
+  bohr: {
+    title: "Bohr (1913) — Quỹ đạo lượng tử hóa",
+    desc: "Electron chỉ tồn tại trên các quỹ đạo cố định với năng lượng rời rạc E_n = −13.6/n² eV (cho H). Nhảy mức = hấp thụ/phát xạ photon. Giải thích chính xác phổ vạch Hydrogen — nhưng chỉ đúng cho H, nguyên tử khác cần cơ học lượng tử (Schrödinger 1926).",
+    svg: (svg) => {
+      // 3 shells
+      [40, 60, 80].forEach((r, i) => {
+        const orbit = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        orbit.setAttribute("cx", 160); orbit.setAttribute("cy", 100); orbit.setAttribute("r", r);
+        orbit.setAttribute("fill", "none"); orbit.setAttribute("stroke", "#94a3b8"); orbit.setAttribute("stroke-dasharray", "3 3");
+        svg.appendChild(orbit);
+        const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        lbl.setAttribute("x", 160 + r + 4); lbl.setAttribute("y", 104);
+        lbl.setAttribute("font-size", "10"); lbl.setAttribute("fill", "#64748b");
+        lbl.textContent = `n=${i+1}`;
+        svg.appendChild(lbl);
+      });
+      // Nucleus
+      const n = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      n.setAttribute("cx", 160); n.setAttribute("cy", 100); n.setAttribute("r", 10);
+      n.setAttribute("fill", "#dc2626");
+      svg.appendChild(n);
+      // Electrons on shells
+      const shells = [[2, 40], [8, 60], [3, 80]];
+      shells.forEach(([nE, r]) => {
+        for (let i = 0; i < nE; i++) {
+          const a = (i / nE) * 2 * Math.PI;
+          const x = 160 + r * Math.cos(a);
+          const y = 100 + r * Math.sin(a);
+          const e = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          e.setAttribute("cx", x); e.setAttribute("cy", y); e.setAttribute("r", 4);
+          e.setAttribute("fill", "#1d4ed8");
+          svg.appendChild(e);
+        }
+      });
+    }
+  }
+};
+
+function showModel(key) {
+  // Toggle active class
+  document.querySelectorAll(".history-card").forEach(c => {
+    c.classList.toggle("active", c.dataset.model === key);
+  });
+  const m = HISTORY[key];
+  const det = document.getElementById("historyDetail");
+  det.innerHTML = `
+    <h3 style="margin-top:0">${m.title}</h3>
+    <p>${m.desc}</p>
+    <svg class="history-viz" viewBox="0 0 320 200"></svg>
+  `;
+  m.svg(det.querySelector("svg"));
+}
+
+// ===== Init =====
+updateAtom();
+renderIsotopes();
+updateDecay();
+showModel("dalton");
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 07 — Dung dịch &amp; Nồng độ</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 130px; }
+  input[type="number"], select { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 15px; font-family: monospace; }
+  input[type="number"] { width: 100px; }
+  button { background: #be185d; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button:hover { background: #9d174d; }
+  .stat { display: inline-block; background: #fce7f3; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #be185d; }
+  .result { padding: 14px; background: #fef3c7; border-radius: 8px; margin-top: 12px; }
+  .step { padding: 8px 12px; background: #f8fafc; border-left: 3px solid #be185d; margin: 6px 0; font-family: monospace; font-size: 14px; }
+
+  svg.solubility {
+    display: block; width: 100%; max-width: 720px;
+    height: 320px; margin: 12px auto;
+  }
+  svg.solubility .axis { stroke: #2d3748; stroke-width: 1.5; }
+  svg.solubility .grid { stroke: #e2e8f0; stroke-width: 1; }
+  svg.solubility .curve { fill: none; stroke-width: 2.5; }
+  svg.solubility .lbl { font: 11px sans-serif; fill: #475569; }
+  svg.solubility .title { font: 13px sans-serif; fill: #1a202c; font-weight: 700; }
+  svg.solubility .point { stroke: white; stroke-width: 1.5; }
+
+  /* Beaker visual */
+  svg.beaker {
+    display: block; margin: 12px auto;
+    width: 240px; height: 240px;
+  }
+  svg.beaker .glass { fill: none; stroke: #94a3b8; stroke-width: 2; }
+  svg.beaker .liquid { fill: #93c5fd; opacity: 0.7; }
+  svg.beaker .solid { fill: #be185d; }
+  svg.beaker text { font: 11px sans-serif; fill: #475569; text-anchor: middle; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Chemistry</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-mole-stoichiometry/visualization.html">← L6: Mol</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Dung dịch &amp; Nồng độ</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L8: Động học (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 07 — Dung dịch &amp; Nồng độ</h1>
+<p>Bộ công cụ: Concentration Calculator (4 loại nồng độ + chuyển đổi), Dilution Calculator (M₁V₁ = M₂V₂), Solubility Chart vs nhiệt độ.</p>
+
+<h2>1. Concentration Calculator</h2>
+<div class="card">
+  <div class="row">
+    <label>Chất tan:</label>
+    <select id="soluteSelect">
+      <option value="NaCl" data-M="58.44">NaCl (M = 58.44)</option>
+      <option value="KNO3" data-M="101.10">KNO₃ (M = 101.10)</option>
+      <option value="HCl" data-M="36.46">HCl (M = 36.46)</option>
+      <option value="NaOH" data-M="40.00">NaOH (M = 40.00)</option>
+      <option value="Glucose" data-M="180.16">Glucose (M = 180.16)</option>
+      <option value="H2SO4" data-M="98.08">H₂SO₄ (M = 98.08)</option>
+      <option value="CaCl2" data-M="110.98">CaCl₂ (M = 110.98)</option>
+    </select>
+  </div>
+  <div class="row">
+    <label>Khối lượng tan (g):</label>
+    <input type="number" id="mSolute" step="0.01" value="5.85" oninput="calcConc()">
+    <label>Thể tích dd (mL):</label>
+    <input type="number" id="vSolution" step="1" value="1000" oninput="calcConc()">
+    <label>Mật độ dd (g/mL):</label>
+    <input type="number" id="density" step="0.001" value="1.00" oninput="calcConc()">
+  </div>
+
+  <div class="row" style="margin-top:10px">
+    <svg class="beaker" id="beakerSvg" viewBox="0 0 240 240"></svg>
+  </div>
+
+  <div class="result" id="concResult"></div>
+</div>
+
+<h2>2. Dilution Calculator (M₁V₁ = M₂V₂)</h2>
+<div class="card">
+  <p>Cho 3 trong 4 đại lượng, tính cái còn lại. Nhập 0 vào ô cần tính.</p>
+  <div class="row">
+    <label>M₁ (mol/L):</label>
+    <input type="number" id="M1" step="0.01" value="2" oninput="calcDilution()">
+    <label>V₁ (mL):</label>
+    <input type="number" id="V1" step="1" value="100" oninput="calcDilution()">
+  </div>
+  <div class="row">
+    <label>M₂ (mol/L):</label>
+    <input type="number" id="M2" step="0.01" value="0.5" oninput="calcDilution()">
+    <label>V₂ (mL):</label>
+    <input type="number" id="V2" step="1" value="0" oninput="calcDilution()">
+  </div>
+  <div class="result" id="dilutionResult"></div>
+</div>
+
+<h2>3. Solubility vs Temperature</h2>
+<div class="card">
+  <p>Độ tan (g chất / 100 g H₂O) theo nhiệt độ — chất rắn thường tăng, khí giảm.</p>
+  <div class="row">
+    <label>Chất:</label>
+    <select id="solubilityChem" onchange="drawSolubility()">
+      <option value="KNO3">KNO₃ (chất rắn, tăng mạnh)</option>
+      <option value="NaCl">NaCl (chất rắn, tăng nhẹ)</option>
+      <option value="NH4Cl">NH₄Cl (chất rắn)</option>
+      <option value="O2">O₂ (khí, GIẢM)</option>
+      <option value="CO2">CO₂ (khí, GIẢM)</option>
+    </select>
+  </div>
+  <svg class="solubility" id="solubilitySvg" viewBox="0 0 720 320"></svg>
+  <div id="solubilityNote" style="padding:10px; background:#fce7f3; border-radius:6px"></div>
+</div>
+
+</main>
+
+<script>
+// ===== Concentration calculator =====
+function getSoluteM() {
+  const sel = document.getElementById("soluteSelect");
+  return parseFloat(sel.options[sel.selectedIndex].dataset.M);
+}
+
+function calcConc() {
+  const mSolute = parseFloat(document.getElementById("mSolute").value);
+  const vSolution = parseFloat(document.getElementById("vSolution").value);
+  const density = parseFloat(document.getElementById("density").value);
+  const Mw = getSoluteM();
+  const sym = document.getElementById("soluteSelect").value;
+
+  const nSolute = mSolute / Mw;
+  const vL = vSolution / 1000;
+  const molarity = nSolute / vL;
+
+  const mSolution = vSolution * density; // g
+  const mSolvent = mSolution - mSolute; // g
+  const pctWW = (mSolute / mSolution) * 100;
+  const molality = nSolute / (mSolvent / 1000); // mol/kg
+
+  // ppm = mg/L (for dilute solutions)
+  const ppm = (mSolute * 1000) / vL;
+
+  document.getElementById("concResult").innerHTML = `
+    <strong>Kết quả tính nồng độ:</strong>
+    <div class="step">n(${sym}) = m/M = ${mSolute}/${Mw} = <strong>${nSolute.toFixed(4)} mol</strong></div>
+    <div class="step">m(dung dịch) = V × ρ = ${vSolution} mL × ${density} g/mL = <strong>${mSolution.toFixed(2)} g</strong></div>
+    <div class="step">m(dung môi) = m(dd) − m(tan) = ${mSolution.toFixed(2)} − ${mSolute} = <strong>${mSolvent.toFixed(2)} g</strong></div>
+    <div style="margin-top:8px">
+      <span class="stat">Molarity M = <strong>${molarity.toFixed(3)} mol/L</strong></span>
+      <span class="stat">% w/w = <strong>${pctWW.toFixed(2)}%</strong></span>
+      <span class="stat">Molality m = <strong>${molality.toFixed(3)} mol/kg</strong></span>
+      <span class="stat">ppm = <strong>${ppm.toFixed(0)} mg/L</strong></span>
+    </div>
+  `;
+
+  drawBeaker(mSolute, mSolution);
+}
+
+function drawBeaker(mSolute, mSol) {
+  const svg = document.getElementById("beakerSvg");
+  svg.innerHTML = "";
+  // Glass outline
+  const glass = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  glass.setAttribute("class", "glass");
+  glass.setAttribute("d", "M 50 30 L 50 200 L 190 200 L 190 30");
+  svg.appendChild(glass);
+  // Liquid
+  const ratio = Math.min(1, mSol / 1200);
+  const liquidH = 160 * ratio;
+  const liquidY = 200 - liquidH;
+  const liq = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  liq.setAttribute("class", "liquid");
+  liq.setAttribute("x", 51); liq.setAttribute("y", liquidY);
+  liq.setAttribute("width", 138); liq.setAttribute("height", liquidH);
+  svg.appendChild(liq);
+  // Dots for solute (random distribution)
+  const numDots = Math.min(80, Math.floor(mSolute * 2));
+  for (let i = 0; i < numDots; i++) {
+    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    c.setAttribute("cx", 55 + Math.random() * 130);
+    c.setAttribute("cy", liquidY + 5 + Math.random() * (liquidH - 10));
+    c.setAttribute("r", 2);
+    c.setAttribute("class", "solid");
+    svg.appendChild(c);
+  }
+  // Label
+  const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  lbl.setAttribute("x", 120); lbl.setAttribute("y", 225);
+  lbl.textContent = `Chất tan (đỏ) trong dung môi (xanh)`;
+  svg.appendChild(lbl);
+}
+
+document.getElementById("soluteSelect").addEventListener("change", calcConc);
+
+// ===== Dilution =====
+function calcDilution() {
+  const M1 = parseFloat(document.getElementById("M1").value);
+  const V1 = parseFloat(document.getElementById("V1").value);
+  const M2 = parseFloat(document.getElementById("M2").value);
+  const V2 = parseFloat(document.getElementById("V2").value);
+
+  let missing = "";
+  let result = 0;
+  if (M1 === 0) { missing = "M₁"; result = (M2 * V2) / V1; }
+  else if (V1 === 0) { missing = "V₁"; result = (M2 * V2) / M1; }
+  else if (M2 === 0) { missing = "M₂"; result = (M1 * V1) / V2; }
+  else if (V2 === 0) { missing = "V₂"; result = (M1 * V1) / M2; }
+  else { missing = "(không có ô = 0)"; result = NaN; }
+
+  const out = document.getElementById("dilutionResult");
+  if (isNaN(result)) {
+    out.innerHTML = `<strong>${missing}</strong> Đặt 1 trong 4 ô = 0 để biết cái nào cần tính.`;
+  } else {
+    const unit = (missing === "V₁" || missing === "V₂") ? "mL" : "mol/L";
+    let html = `<strong>Tính ${missing}:</strong>
+      <div class="step">M₁ × V₁ = M₂ × V₂</div>
+      <div class="step">${missing === "M₁" ? "?" : M1} × ${missing === "V₁" ? "?" : V1} = ${missing === "M₂" ? "?" : M2} × ${missing === "V₂" ? "?" : V2}</div>
+      <div class="step">${missing} = <strong>${result.toFixed(3)} ${unit}</strong></div>`;
+
+    // Practical info
+    if (missing === "V₁") {
+      const waterToAdd = parseFloat(document.getElementById("V2").value) - result;
+      html += `<div style="margin-top:8px"><strong>Quy trình:</strong> Lấy ${result.toFixed(2)} mL dung dịch gốc ${M1} M, thêm nước cho đủ ${document.getElementById("V2").value} mL.</div>`;
+    } else if (missing === "V₂") {
+      const waterToAdd = result - parseFloat(document.getElementById("V1").value);
+      html += `<div style="margin-top:8px"><strong>Quy trình:</strong> Lấy ${V1} mL dung dịch ${M1} M, thêm ${waterToAdd.toFixed(2)} mL nước → tổng ${result.toFixed(2)} mL ${M2} M.</div>`;
+    }
+
+    out.innerHTML = html;
+  }
+}
+
+// ===== Solubility =====
+const SOLUBILITY_DATA = {
+  KNO3: {label:"KNO₃", color:"#be185d",
+    data:[[0,13.3],[10,21.3],[20,31.6],[30,45.8],[40,63.9],[50,85.5],[60,110],[80,169],[100,247]],
+    note:"KNO₃ — độ tan TĂNG mạnh theo nhiệt độ. Ứng dụng: kết tinh tinh khiết bằng cách hạ nhiệt độ dung dịch nóng bão hòa."},
+  NaCl: {label:"NaCl", color:"#1d4ed8",
+    data:[[0,35.7],[10,35.8],[20,36.0],[30,36.3],[40,36.6],[60,37.3],[80,38.4],[100,39.2]],
+    note:"NaCl — tăng RẤT ÍT theo T. Đây là lý do nước biển nóng hay lạnh đều có nồng độ muối tương tự."},
+  NH4Cl: {label:"NH₄Cl", color:"#f59e0b",
+    data:[[0,29.4],[10,33.3],[20,37.2],[30,41.4],[40,45.8],[60,55.2],[80,65.6],[100,77.3]],
+    note:"NH₄Cl (muối ammonia) — tăng đều theo T."},
+  O2: {label:"O₂", color:"#047857",
+    data:[[0,14.6],[10,11.3],[20,9.1],[25,8.3],[30,7.6],[40,6.5],[50,5.6],[60,4.9],[80,3.9],[100,3.0]],
+    note:"O₂ (khí) — GIẢM theo T. Đơn vị mg/L (không phải g/100g). Cá khó thở trong nước nóng."},
+  CO2: {label:"CO₂", color:"#7c3aed",
+    data:[[0,3.35],[10,2.32],[20,1.69],[25,1.45],[30,1.26],[40,0.97],[50,0.76],[60,0.58]],
+    note:"CO₂ (khí) — GIẢM theo T. Đơn vị g/L. Đó là lý do nước có gas mất gas nhanh khi nóng."}
+};
+
+function drawSolubility() {
+  const key = document.getElementById("solubilityChem").value;
+  const d = SOLUBILITY_DATA[key];
+  const svg = document.getElementById("solubilitySvg");
+  svg.innerHTML = "";
+  const W = 720, H = 320;
+  const padL = 60, padR = 30, padT = 30, padB = 50;
+  const cw = W - padL - padR, ch = H - padT - padB;
+
+  const xMax = 100;
+  const yMax = Math.max(...d.data.map(p => p[1])) * 1.1;
+  const xScale = t => padL + (t / xMax) * cw;
+  const yScale = v => padT + ch - (v / yMax) * ch;
+
+  // Grid
+  for (let t = 0; t <= 100; t += 20) {
+    const x = xScale(t);
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("class", "grid");
+    line.setAttribute("x1", x); line.setAttribute("y1", padT);
+    line.setAttribute("x2", x); line.setAttribute("y2", H - padB);
+    svg.appendChild(line);
+    const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lbl.setAttribute("class", "lbl");
+    lbl.setAttribute("x", x); lbl.setAttribute("y", H - padB + 16);
+    lbl.setAttribute("text-anchor", "middle");
+    lbl.textContent = t + "°C";
+    svg.appendChild(lbl);
+  }
+  for (let i = 0; i <= 5; i++) {
+    const v = yMax * i / 5;
+    const y = yScale(v);
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("class", "grid");
+    line.setAttribute("x1", padL); line.setAttribute("y1", y);
+    line.setAttribute("x2", W - padR); line.setAttribute("y2", y);
+    svg.appendChild(line);
+    const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lbl.setAttribute("class", "lbl");
+    lbl.setAttribute("x", padL - 8); lbl.setAttribute("y", y + 4);
+    lbl.setAttribute("text-anchor", "end");
+    lbl.textContent = v.toFixed(1);
+    svg.appendChild(lbl);
+  }
+
+  // Curve
+  let path = "";
+  d.data.forEach(([t, v], i) => {
+    const x = xScale(t), y = yScale(v);
+    path += (i === 0 ? "M " : " L ") + x + " " + y;
+  });
+  const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  p.setAttribute("class", "curve");
+  p.setAttribute("stroke", d.color);
+  p.setAttribute("d", path);
+  svg.appendChild(p);
+
+  // Points
+  d.data.forEach(([t, v]) => {
+    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    c.setAttribute("class", "point");
+    c.setAttribute("cx", xScale(t)); c.setAttribute("cy", yScale(v));
+    c.setAttribute("r", 5); c.setAttribute("fill", d.color);
+    svg.appendChild(c);
+  });
+
+  // Title
+  const title = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  title.setAttribute("class", "title");
+  title.setAttribute("x", W / 2); title.setAttribute("y", 18);
+  title.setAttribute("text-anchor", "middle");
+  title.textContent = `Độ tan của ${d.label} theo nhiệt độ`;
+  svg.appendChild(title);
+
+  document.getElementById("solubilityNote").innerHTML = `<strong>${d.label}:</strong> ${d.note}`;
+}
+
+// Init
+calcConc();
+calcDilution();
+drawSolubility();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 05 — Động lượng &amp; Va chạm</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 120px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100px; }
+  button { background: #1e40af; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.muted { background: #94a3b8; }
+  button.muted.active { background: #1e40af; }
+  .stat { display: inline-block; background: #dbeafe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #1e40af; }
+  .result { padding: 14px; background: #dbeafe; border-radius: 8px; margin-top: 12px; }
+
+  svg.scene {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 720px; height: 200px;
+    background: linear-gradient(to bottom, #f8fafc 70%, #84cc16 100%);
+    border-radius: 8px;
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Physics</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-work-energy/visualization.html">← L4: Công &amp; Năng lượng</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Động lượng &amp; Va chạm</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L6: Chuyển động tròn (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 05 — Động lượng &amp; Va chạm</h1>
+<p>Bộ công cụ: Collision Simulator (đàn hồi vs mềm), Momentum Calculator, Impulse Calculator (túi khí ô tô).</p>
+
+<h2>1. Collision Simulator (1D)</h2>
+<div class="card">
+  <p>2 vật va chạm trên đường thẳng. Chọn loại va chạm.</p>
+  <div class="row">
+    <label>Loại:</label>
+    <button class="muted active" onclick="setColl('elastic')">Đàn hồi</button>
+    <button class="muted" onclick="setColl('perfect_inelastic')">Hoàn toàn mềm (dính)</button>
+  </div>
+  <div class="row">
+    <label>m₁ (kg):</label>
+    <input type="number" id="m1" step="0.5" value="2" oninput="resetColl()">
+    <label>v₁ (m/s):</label>
+    <input type="number" id="v1" step="0.5" value="4" oninput="resetColl()">
+    <label>m₂ (kg):</label>
+    <input type="number" id="m2" step="0.5" value="3" oninput="resetColl()">
+    <label>v₂ (m/s):</label>
+    <input type="number" id="v2" step="0.5" value="0" oninput="resetColl()">
+  </div>
+  <div class="row">
+    <button onclick="toggleColl()" id="collBtn">▶ Bắt đầu</button>
+    <button onclick="resetColl()" class="muted">Reset</button>
+  </div>
+  <svg class="scene" id="collSvg" viewBox="0 0 720 200"></svg>
+  <div class="result" id="collResult"></div>
+</div>
+
+<h2>2. Momentum &amp; Impulse Calculator</h2>
+<div class="card">
+  <p>Tính F trong va chạm theo định lý xung lượng J = F·Δt = Δp.</p>
+  <div class="row">
+    <label>Khối lượng (kg):</label>
+    <input type="number" id="impM" step="1" value="70" oninput="calcImp()">
+    <label>v trước (m/s):</label>
+    <input type="number" id="impV1" step="1" value="20" oninput="calcImp()">
+    <label>v sau (m/s):</label>
+    <input type="number" id="impV2" step="1" value="0" oninput="calcImp()">
+    <label>Δt (giây):</label>
+    <input type="number" id="impDT" step="0.01" value="0.3" oninput="calcImp()">
+  </div>
+  <div class="row">
+    <button class="muted" onclick="setImp('crash_noBag', 70, 20, 0, 0.05)">Va chạm không túi khí (70kg, 20m/s, 0.05s)</button>
+    <button class="muted" onclick="setImp('crash_bag', 70, 20, 0, 0.3)">Có túi khí (Δt = 0.3s)</button>
+    <button class="muted" onclick="setImp('ball_wall', 0.4, 10, -8, 0.05)">Bóng đập tường (dội)</button>
+  </div>
+  <div class="result" id="impResult"></div>
+</div>
+
+</main>
+
+<script>
+// ===== Collision =====
+let collState = { x1: 0, x2: 0, v1: 0, v2: 0, m1: 0, m2: 0, type: 'elastic', running: false, collided: false };
+let collInterval = null;
+
+function setColl(type) {
+  collState.type = type;
+  document.querySelectorAll("button.muted").forEach(b => {
+    let modeMatch = b.getAttribute("onclick")?.includes(`'${type}'`);
+    b.classList.toggle("active", modeMatch);
+  });
+  resetColl();
+}
+
+function resetColl() {
+  const m1 = parseFloat(document.getElementById("m1").value);
+  const v1 = parseFloat(document.getElementById("v1").value);
+  const m2 = parseFloat(document.getElementById("m2").value);
+  const v2 = parseFloat(document.getElementById("v2").value);
+  collState = { x1: 100, x2: 500, v1, v2, m1, m2, type: collState.type, running: false, collided: false };
+  if (collInterval) { clearInterval(collInterval); collInterval = null; }
+  document.getElementById("collBtn").textContent = "▶ Bắt đầu";
+  drawColl();
+  updateCollResult();
+}
+
+function toggleColl() {
+  if (collState.running) {
+    clearInterval(collInterval); collInterval = null;
+    collState.running = false;
+    document.getElementById("collBtn").textContent = "▶ Tiếp tục";
+  } else {
+    collState.running = true;
+    document.getElementById("collBtn").textContent = "⏸ Dừng";
+    collInterval = setInterval(stepColl, 30);
+  }
+}
+
+function stepColl() {
+  const dt = 0.05;
+  collState.x1 += collState.v1 * 10 * dt;
+  collState.x2 += collState.v2 * 10 * dt;
+
+  // Check collision (when x1 + radius1 >= x2 - radius2)
+  const r1 = 15 + collState.m1 * 4;
+  const r2 = 15 + collState.m2 * 4;
+  if (!collState.collided && (collState.x1 + r1 >= collState.x2 - r2) && collState.v1 > collState.v2) {
+    // Apply collision
+    if (collState.type === 'elastic') {
+      const u1 = ((collState.m1 - collState.m2)*collState.v1 + 2*collState.m2*collState.v2) / (collState.m1 + collState.m2);
+      const u2 = ((collState.m2 - collState.m1)*collState.v2 + 2*collState.m1*collState.v1) / (collState.m1 + collState.m2);
+      collState.v1 = u1; collState.v2 = u2;
+    } else if (collState.type === 'perfect_inelastic') {
+      const vCommon = (collState.m1*collState.v1 + collState.m2*collState.v2)/(collState.m1 + collState.m2);
+      collState.v1 = vCommon; collState.v2 = vCommon;
+    }
+    collState.collided = true;
+  }
+
+  // Stop if off-screen
+  if (collState.x1 < 0 || collState.x1 > 720 || collState.x2 < 0 || collState.x2 > 720) {
+    toggleColl();
+  }
+  drawColl();
+  updateCollResult();
+}
+
+function drawColl() {
+  const svg = document.getElementById("collSvg");
+  svg.innerHTML = "";
+  const r1 = 15 + collState.m1 * 4;
+  const r2 = 15 + collState.m2 * 4;
+  // Floor
+  const fl = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  fl.setAttribute("x1", 0); fl.setAttribute("y1", 140); fl.setAttribute("x2", 720); fl.setAttribute("y2", 140);
+  fl.setAttribute("stroke", "#475569"); fl.setAttribute("stroke-width", 2);
+  svg.appendChild(fl);
+  // Ball 1
+  const b1 = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  b1.setAttribute("cx", collState.x1); b1.setAttribute("cy", 140 - r1);
+  b1.setAttribute("r", r1); b1.setAttribute("fill", "#dc2626"); b1.setAttribute("stroke", "#7f1d1d"); b1.setAttribute("stroke-width", 2);
+  svg.appendChild(b1);
+  const t1 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  t1.setAttribute("x", collState.x1); t1.setAttribute("y", 140 - r1 + 5);
+  t1.setAttribute("text-anchor", "middle"); t1.setAttribute("fill", "white"); t1.setAttribute("font-weight", "700"); t1.setAttribute("font-size", "11");
+  t1.textContent = collState.m1 + " kg";
+  svg.appendChild(t1);
+  // Ball 2
+  const b2 = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  b2.setAttribute("cx", collState.x2); b2.setAttribute("cy", 140 - r2);
+  b2.setAttribute("r", r2); b2.setAttribute("fill", "#1d4ed8"); b2.setAttribute("stroke", "#1e3a8a"); b2.setAttribute("stroke-width", 2);
+  svg.appendChild(b2);
+  const t2 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  t2.setAttribute("x", collState.x2); t2.setAttribute("y", 140 - r2 + 5);
+  t2.setAttribute("text-anchor", "middle"); t2.setAttribute("fill", "white"); t2.setAttribute("font-weight", "700"); t2.setAttribute("font-size", "11");
+  t2.textContent = collState.m2 + " kg";
+  svg.appendChild(t2);
+  // Velocity labels
+  const v1lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  v1lbl.setAttribute("x", collState.x1); v1lbl.setAttribute("y", 140 - r1 - r1 - 6);
+  v1lbl.setAttribute("text-anchor", "middle"); v1lbl.setAttribute("fill", "#dc2626"); v1lbl.setAttribute("font-weight", "700");
+  v1lbl.textContent = `v₁ = ${collState.v1.toFixed(2)} m/s`;
+  svg.appendChild(v1lbl);
+  const v2lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  v2lbl.setAttribute("x", collState.x2); v2lbl.setAttribute("y", 140 - r2 - r2 - 6);
+  v2lbl.setAttribute("text-anchor", "middle"); v2lbl.setAttribute("fill", "#1d4ed8"); v2lbl.setAttribute("font-weight", "700");
+  v2lbl.textContent = `v₂ = ${collState.v2.toFixed(2)} m/s`;
+  svg.appendChild(v2lbl);
+}
+
+function updateCollResult() {
+  const pBefore_orig = parseFloat(document.getElementById("m1").value) * parseFloat(document.getElementById("v1").value) +
+                       parseFloat(document.getElementById("m2").value) * parseFloat(document.getElementById("v2").value);
+  const pCur = collState.m1 * collState.v1 + collState.m2 * collState.v2;
+  const KE_orig = 0.5 * parseFloat(document.getElementById("m1").value) * parseFloat(document.getElementById("v1").value)**2 +
+                  0.5 * parseFloat(document.getElementById("m2").value) * parseFloat(document.getElementById("v2").value)**2;
+  const KE_cur = 0.5 * collState.m1 * collState.v1**2 + 0.5 * collState.m2 * collState.v2**2;
+
+  document.getElementById("collResult").innerHTML = `
+    <div class="row">
+      <span class="stat">Tổng p: <strong>${pCur.toFixed(2)} kg·m/s</strong> (ban đầu: ${pBefore_orig.toFixed(2)})</span>
+      <span class="stat">Tổng KE: <strong>${KE_cur.toFixed(2)} J</strong> (ban đầu: ${KE_orig.toFixed(2)})</span>
+      <span class="stat" style="background:${collState.collided ? '#dcfce7' : '#fef3c7'}">${collState.collided ? '✓ Đã va chạm' : '⏳ Chưa va chạm'}</span>
+    </div>
+    <div style="margin-top:8px; font-size:13px">
+      ${collState.type === 'elastic' ? '<strong>Va chạm đàn hồi:</strong> p VÀ KE đều bảo toàn.' :
+        '<strong>Va chạm hoàn toàn mềm:</strong> p bảo toàn, KE giảm (1 phần mất thành nhiệt). 2 vật dính nhau cùng v.'}
+    </div>
+  `;
+}
+
+// ===== Impulse =====
+function setImp(scen, m, v1, v2, dt) {
+  document.getElementById("impM").value = m;
+  document.getElementById("impV1").value = v1;
+  document.getElementById("impV2").value = v2;
+  document.getElementById("impDT").value = dt;
+  calcImp();
+}
+
+function calcImp() {
+  const m = parseFloat(document.getElementById("impM").value);
+  const v1 = parseFloat(document.getElementById("impV1").value);
+  const v2 = parseFloat(document.getElementById("impV2").value);
+  const dt = parseFloat(document.getElementById("impDT").value);
+  const dp = m * (v2 - v1);
+  const F = dp / dt;
+  document.getElementById("impResult").innerHTML = `
+    <div style="font-family:monospace; font-size:15px">Δp = m·(v₂ − v₁) = ${m}·(${v2} − ${v1}) = ${dp.toFixed(2)} kg·m/s</div>
+    <div style="font-family:monospace; font-size:15px; margin-top:4px">F = Δp/Δt = ${dp.toFixed(2)}/${dt} = <strong>${F.toFixed(0)} N</strong></div>
+    <div style="margin-top:10px">
+      ${Math.abs(F) > 20000 ? '<strong style="color:#dc2626">⚠ Lực rất nguy hiểm</strong> — có thể gây gãy xương nặng.' :
+       Math.abs(F) > 5000 ? '<strong style="color:#92400e">Lực đáng kể</strong> — gây thương tích nhưng còn sống.' :
+       '<strong style="color:#047857">Lực vừa phải</strong>.'}
+    </div>
+    <div style="margin-top:6px; font-size:13px">
+      Định lý xung lượng: kéo dài Δt (nhờ túi khí, đệm xốp...) → giảm F dù Δp không đổi.
+    </div>
+  `;
+}
+
+// Init
+resetColl();
+calcImp();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

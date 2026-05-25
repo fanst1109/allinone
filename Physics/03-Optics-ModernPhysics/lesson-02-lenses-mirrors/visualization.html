@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 02 (T3) — Thấu kính &amp; Gương</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 130px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100px; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  .stat { display: inline-block; background: #dbeafe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #1e40af; }
+  .result { padding: 14px; background: #dbeafe; border-radius: 8px; margin-top: 12px; }
+
+  svg.scene {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 720px; height: 360px;
+    background: linear-gradient(135deg, #f8fafc, #dbeafe);
+    border-radius: 8px;
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Physics</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-geometric-optics/visualization.html">← L1: Quang hình</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Thấu kính &amp; Gương</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L3: Quang sóng (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 02 (T3) — Thấu kính &amp; Gương</h1>
+<p>Thin Lens Simulator: kéo slider vị trí vật và tiêu cự → xem ảnh hình thành (thật/ảo, lớn/nhỏ, cùng/ngược chiều).</p>
+
+<h2>Thin Lens Simulator</h2>
+<div class="card">
+  <div class="row">
+    <label>Tiêu cự f (cm):</label>
+    <input type="range" id="lensF" min="-30" max="30" step="1" value="20" oninput="updateLens()">
+    <span class="stat">f = <strong id="fVal">20</strong> cm</span>
+  </div>
+  <div class="row">
+    <label>Vị trí vật d_o (cm):</label>
+    <input type="range" id="lensDo" min="2" max="80" step="1" value="60" oninput="updateLens()">
+    <span class="stat">d_o = <strong id="doVal">60</strong> cm</span>
+  </div>
+  <div class="row">
+    <label>Chiều cao vật h_o (cm):</label>
+    <input type="number" id="lensHo" step="0.5" value="3" oninput="updateLens()">
+  </div>
+  <svg class="scene" id="lensSvg" viewBox="0 0 720 360"></svg>
+  <div class="result" id="lensResult"></div>
+</div>
+
+</main>
+
+<script>
+function updateLens() {
+  const f = parseFloat(document.getElementById("lensF").value);
+  const d_o = parseFloat(document.getElementById("lensDo").value);
+  const h_o = parseFloat(document.getElementById("lensHo").value);
+  document.getElementById("fVal").textContent = f;
+  document.getElementById("doVal").textContent = d_o;
+
+  let d_i = 1 / (1/f - 1/d_o);
+  let m = -d_i / d_o;
+  let h_i = m * h_o;
+
+  const type = f > 0 ? "hội tụ (lồi)" : "phân kỳ (lõm)";
+  const realVirtual = d_i > 0 ? "ẢNH THẬT" : "ẢNH ẢO";
+  const orient = m > 0 ? "cùng chiều vật" : "ngược chiều vật";
+  const size = Math.abs(m) > 1 ? "lớn hơn" : "nhỏ hơn";
+
+  document.getElementById("lensResult").innerHTML = `
+    <div style="font-family:monospace; font-size:15px">1/d_i = 1/f − 1/d_o = 1/${f} − 1/${d_o} → d_i = <strong>${d_i.toFixed(2)} cm</strong></div>
+    <div style="font-family:monospace; font-size:14px; margin-top:4px">m = −d_i/d_o = <strong>${m.toFixed(3)}</strong> → h_i = m·h_o = <strong>${h_i.toFixed(2)} cm</strong></div>
+    <div class="row" style="margin-top:8px">
+      <span class="stat">Thấu kính: <strong>${type}</strong></span>
+      <span class="stat" style="background:${d_i > 0 ? '#dcfce7' : '#fef3c7'}">${realVirtual}</span>
+      <span class="stat">${orient}, ${size} ${Math.abs(m).toFixed(2)}×</span>
+    </div>
+  `;
+
+  drawLens(f, d_o, d_i, h_o, h_i);
+}
+
+function drawLens(f, d_o, d_i, h_o, h_i) {
+  const svg = document.getElementById("lensSvg");
+  svg.innerHTML = "";
+  const W = 720, H = 360, cy = H/2, cx = 400;
+  const scale = 3; // cm → px
+
+  // Axis
+  const ax = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  ax.setAttribute("x1", 20); ax.setAttribute("y1", cy); ax.setAttribute("x2", W-20); ax.setAttribute("y2", cy);
+  ax.setAttribute("stroke", "#475569"); ax.setAttribute("stroke-width", 1);
+  svg.appendChild(ax);
+
+  // Lens
+  const lens = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
+  lens.setAttribute("cx", cx); lens.setAttribute("cy", cy); lens.setAttribute("rx", f > 0 ? 15 : 8); lens.setAttribute("ry", 100);
+  lens.setAttribute("fill", "#dbeafe"); lens.setAttribute("stroke", "#1e40af"); lens.setAttribute("stroke-width", 2);
+  svg.appendChild(lens);
+  const lLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  lLbl.setAttribute("x", cx); lLbl.setAttribute("y", cy + 120); lLbl.setAttribute("text-anchor", "middle"); lLbl.setAttribute("font-weight", "700");
+  lLbl.textContent = f > 0 ? "Lồi" : "Lõm";
+  svg.appendChild(lLbl);
+
+  // Focal points
+  const F1x = cx - Math.abs(f) * scale, F2x = cx + Math.abs(f) * scale;
+  [F1x, F2x].forEach(fx => {
+    const fp = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    fp.setAttribute("cx", fx); fp.setAttribute("cy", cy); fp.setAttribute("r", 4);
+    fp.setAttribute("fill", "#dc2626");
+    svg.appendChild(fp);
+  });
+  const fLbl1 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  fLbl1.setAttribute("x", F1x); fLbl1.setAttribute("y", cy + 15); fLbl1.setAttribute("text-anchor", "middle"); fLbl1.setAttribute("font-size", "11"); fLbl1.setAttribute("fill", "#dc2626");
+  fLbl1.textContent = "F";
+  svg.appendChild(fLbl1);
+
+  // Object (vertical arrow to left)
+  const objX = cx - d_o * scale;
+  const objY = cy;
+  const objTopY = cy - h_o * 10;
+  const obj = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  obj.setAttribute("x1", objX); obj.setAttribute("y1", objY); obj.setAttribute("x2", objX); obj.setAttribute("y2", objTopY);
+  obj.setAttribute("stroke", "#047857"); obj.setAttribute("stroke-width", 3); obj.setAttribute("marker-end", "url(#aObj)");
+  svg.appendChild(obj);
+  const oLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  oLbl.setAttribute("x", objX); oLbl.setAttribute("y", objY + 20); oLbl.setAttribute("text-anchor", "middle"); oLbl.setAttribute("fill", "#047857"); oLbl.setAttribute("font-weight", "700");
+  oLbl.textContent = `Vật d_o=${d_o}`;
+  svg.appendChild(oLbl);
+
+  // Image
+  if (isFinite(d_i)) {
+    const imgX = cx + d_i * scale;
+    const imgY = cy;
+    const imgTopY = cy - h_i * 10;
+    if (imgX > 0 && imgX < W && Math.abs(d_i) < 100) {
+      const img = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      img.setAttribute("x1", imgX); img.setAttribute("y1", imgY); img.setAttribute("x2", imgX); img.setAttribute("y2", imgTopY);
+      img.setAttribute("stroke", d_i > 0 ? "#be185d" : "#94a3b8"); img.setAttribute("stroke-width", 3);
+      if (d_i < 0) img.setAttribute("stroke-dasharray", "4 4");
+      img.setAttribute("marker-end", "url(#aImg)");
+      svg.appendChild(img);
+      const iLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      iLbl.setAttribute("x", imgX); iLbl.setAttribute("y", imgY + 20); iLbl.setAttribute("text-anchor", "middle"); iLbl.setAttribute("fill", "#be185d"); iLbl.setAttribute("font-weight", "700");
+      iLbl.textContent = `Ảnh d_i=${d_i.toFixed(1)}`;
+      svg.appendChild(iLbl);
+
+      // Trace 2 rays for understanding
+      // Ray 1: parallel to axis, then through F2
+      const r1a = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      r1a.setAttribute("x1", objX); r1a.setAttribute("y1", objTopY); r1a.setAttribute("x2", cx); r1a.setAttribute("y2", objTopY);
+      r1a.setAttribute("stroke", "#1d4ed8"); r1a.setAttribute("stroke-width", 1.5);
+      svg.appendChild(r1a);
+      const r1b = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      r1b.setAttribute("x1", cx); r1b.setAttribute("y1", objTopY); r1b.setAttribute("x2", imgX); r1b.setAttribute("y2", imgTopY);
+      r1b.setAttribute("stroke", "#1d4ed8"); r1b.setAttribute("stroke-width", 1.5);
+      if (d_i < 0) r1b.setAttribute("stroke-dasharray", "3 3");
+      svg.appendChild(r1b);
+      // Ray 2: through center, unchanged
+      const r2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      r2.setAttribute("x1", objX); r2.setAttribute("y1", objTopY); r2.setAttribute("x2", imgX); r2.setAttribute("y2", imgTopY);
+      r2.setAttribute("stroke", "#fbbf24"); r2.setAttribute("stroke-width", 1.5);
+      svg.appendChild(r2);
+    }
+  }
+
+  // Markers
+  const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+  defs.innerHTML = `
+    <marker id="aObj" viewBox="0 0 10 10" refX="5" refY="0" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 10 L 5 0 L 10 10 z" fill="#047857"/></marker>
+    <marker id="aImg" viewBox="0 0 10 10" refX="5" refY="0" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 10 L 5 0 L 10 10 z" fill="#be185d"/></marker>
+  `;
+  svg.appendChild(defs);
+}
+
+// Init
+updateLens();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

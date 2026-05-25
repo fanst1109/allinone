@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 03 — Liên kết ion &amp; cộng hóa trị</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  h3 { color: #4a5568; margin-top: 20px; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 100px; }
+  select { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; background: white; }
+  button { background: #be185d; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button:hover { background: #9d174d; }
+  button.muted { background: #a0aec0; }
+  button.muted:hover { background: #718096; }
+  button.toggle { background: #94a3b8; }
+  button.toggle.active { background: #be185d; }
+  .stat { display: inline-block; background: #fce7f3; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #be185d; }
+
+  /* Bond animation SVG */
+  svg.bond-anim {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 720px; height: 280px;
+    background: linear-gradient(135deg, #f8fafc, #fef3c7);
+    border-radius: 8px;
+  }
+  svg.bond-anim .atom { stroke: #1a202c; stroke-width: 2; }
+  svg.bond-anim .atom-na { fill: #fbbf24; }
+  svg.bond-anim .atom-cl { fill: #22c55e; }
+  svg.bond-anim .electron { fill: #1d4ed8; }
+  svg.bond-anim .lbl { font: bold 18px sans-serif; fill: #1a202c; text-anchor: middle; }
+  svg.bond-anim .sublbl { font: 12px sans-serif; fill: #475569; text-anchor: middle; }
+  svg.bond-anim .arrow { stroke: #be185d; stroke-width: 2.5; fill: none; marker-end: url(#arrowhead); }
+
+  /* EN comparator */
+  .en-scale {
+    position: relative; height: 50px;
+    background: linear-gradient(to right, #dbeafe 0%, #fef3c7 40%, #fee2e2 100%);
+    border-radius: 25px; margin: 16px 0;
+  }
+  .en-marker {
+    position: absolute; top: -8px;
+    width: 4px; height: 66px;
+    background: #1a202c; border-radius: 2px;
+  }
+  .en-marker .label {
+    position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
+    font-size: 12px; font-weight: 700; white-space: nowrap;
+  }
+  .en-zones {
+    display: flex; font-size: 11px; color: #475569;
+    margin-top: 4px;
+  }
+  .en-zones div { flex: 1; text-align: center; }
+  .en-zones .nonpolar { background: #dbeafe; padding: 4px; border-radius: 4px 0 0 4px; }
+  .en-zones .polar { background: #fef3c7; padding: 4px; }
+  .en-zones .ionic { background: #fee2e2; padding: 4px; border-radius: 0 4px 4px 0; }
+
+  /* Lewis structures */
+  .lewis-svg {
+    display: block; margin: 12px auto;
+    max-width: 480px; min-height: 200px;
+  }
+  .lewis-svg text { font: 18px serif; fill: #1a202c; }
+  .lewis-svg .dot { fill: #1d4ed8; }
+  .lewis-svg .bond { stroke: #1a202c; stroke-width: 2; }
+  .molecule-info {
+    padding: 12px; background: #f8fafc; border-radius: 6px;
+    margin-top: 8px;
+  }
+  .info-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 8px; margin-top: 8px;
+  }
+  .info-cell {
+    background: white; border-left: 3px solid #be185d;
+    padding: 6px 10px; font-size: 13px;
+  }
+  .info-cell strong { display: block; color: #be185d; font-size: 11px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Chemistry</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-electron-config-periodic/visualization.html">← L2: Cấu hình electron</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Liên kết ion &amp; cộng hóa trị</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L4: Lực liên phân tử (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 03 — Liên kết ion &amp; cộng hóa trị</h1>
+<p>Bộ công cụ: animation hình thành liên kết ion (NaCl), so sánh độ âm điện để xác định loại liên kết, và bộ sưu tập công thức Lewis cho các phân tử thường gặp.</p>
+
+<h2>1. Animation — Hình thành liên kết NaCl</h2>
+<div class="card">
+  <p>Click nút bên dưới để xem 3 giai đoạn: nguyên tử riêng → chuyển e → ion liên kết.</p>
+  <div class="row">
+    <button onclick="setStage(0)" class="toggle active" id="stage0">1. Nguyên tử riêng lẻ</button>
+    <button onclick="setStage(1)" class="toggle" id="stage1">2. Chuyển electron</button>
+    <button onclick="setStage(2)" class="toggle" id="stage2">3. Ion liên kết</button>
+  </div>
+
+  <svg class="bond-anim" id="bondAnimSvg" viewBox="0 0 720 280">
+    <defs>
+      <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#be185d"/>
+      </marker>
+    </defs>
+  </svg>
+
+  <div id="stageDesc" style="padding:12px; background:#fce7f3; border-radius:6px; margin-top:8px"></div>
+</div>
+
+<h2>2. Electronegativity Comparator — xác định loại liên kết</h2>
+<div class="card">
+  <p>Chọn 2 nguyên tố để tính hiệu độ âm điện (Δχ) và xác định loại liên kết.</p>
+  <div class="row">
+    <label>Nguyên tố A:</label>
+    <select id="atomA"></select>
+    <label>Nguyên tố B:</label>
+    <select id="atomB"></select>
+  </div>
+
+  <div class="row" style="margin-top:14px">
+    <span class="stat">χ(A) = <strong id="enA">—</strong></span>
+    <span class="stat">χ(B) = <strong id="enB">—</strong></span>
+    <span class="stat">Δχ = |χ(A) − χ(B)| = <strong id="deltaEN">—</strong></span>
+  </div>
+
+  <div style="margin-top:14px">
+    <div class="en-scale">
+      <div class="en-marker" id="enMarker" style="left:50%">
+        <span class="label" id="enMarkerLabel">Δχ = 0</span>
+      </div>
+    </div>
+    <div class="en-zones">
+      <div class="nonpolar">Cộng hóa trị KHÔNG cực<br>Δχ: 0 — 0.4</div>
+      <div class="polar">Cộng hóa trị CÓ cực<br>Δχ: 0.4 — 1.7</div>
+      <div class="ionic">Ion<br>Δχ: ≥ 1.7</div>
+    </div>
+  </div>
+
+  <div id="bondTypeResult" style="margin-top:14px; padding:14px; border-radius:8px; font-size:16px; font-weight:600"></div>
+</div>
+
+<h2>3. Lewis Structure Library</h2>
+<div class="card">
+  <p>Chọn phân tử để xem công thức Lewis với điện tử rõ ràng.</p>
+  <div class="row">
+    <label>Phân tử:</label>
+    <select id="moleculeSelect">
+      <option value="H2">H₂ — Hydrogen</option>
+      <option value="Cl2">Cl₂ — Chlorine</option>
+      <option value="HCl" selected>HCl — Hydrogen chloride</option>
+      <option value="H2O">H₂O — Nước</option>
+      <option value="NH3">NH₃ — Ammoniac</option>
+      <option value="CH4">CH₄ — Methane</option>
+      <option value="CO2">CO₂ — Carbon dioxide</option>
+      <option value="O2">O₂ — Oxygen</option>
+      <option value="N2">N₂ — Nitrogen</option>
+      <option value="HCN">HCN — Hydrogen cyanide</option>
+      <option value="H2S">H₂S — Hydrogen sulfide</option>
+    </select>
+  </div>
+
+  <svg class="lewis-svg" id="lewisSvg" viewBox="0 0 480 220"></svg>
+
+  <div class="molecule-info" id="moleculeInfo"></div>
+</div>
+
+</main>
+
+<script>
+// ===== Electronegativity Data =====
+const EN = {
+  H:2.20, He:0,
+  Li:0.98, Be:1.57, B:2.04, C:2.55, N:3.04, O:3.44, F:3.98, Ne:0,
+  Na:0.93, Mg:1.31, Al:1.61, Si:1.90, P:2.19, S:2.58, Cl:3.16, Ar:0,
+  K:0.82, Ca:1.00, Fe:1.83, Cu:1.90, Zn:1.65, Br:2.96, I:2.66
+};
+
+// ===== Stage Animation =====
+function setStage(s) {
+  ["stage0","stage1","stage2"].forEach((id,i) => {
+    document.getElementById(id).classList.toggle("active", i === s);
+  });
+  drawStage(s);
+}
+
+function drawStage(s) {
+  const svg = document.getElementById("bondAnimSvg");
+  // Clear except defs
+  const defs = svg.querySelector("defs");
+  svg.innerHTML = "";
+  svg.appendChild(defs);
+
+  const naX = 180, clX = 540, y = 140;
+  const desc = document.getElementById("stageDesc");
+
+  if (s === 0) {
+    // Na: 11 protons, 11 electrons (2-8-1). Show outer shell 1 electron
+    drawAtom(svg, naX, y, "Na", "atom-na", 1, [
+      "Z = 11", "[Ne] 3s¹", "1 e ngoài cùng",
+      "→ MUỐN cho 1 e để giống [Ne]"
+    ]);
+    drawAtom(svg, clX, y, "Cl", "atom-cl", 7, [
+      "Z = 17", "[Ne] 3s² 3p⁵", "7 e ngoài cùng",
+      "→ MUỐN nhận 1 e để giống [Ar]"
+    ]);
+    desc.innerHTML = "<strong>Giai đoạn 1:</strong> Na có 1 e ngoài cùng (`[Ne] 3s¹`), Cl có 7 e ngoài cùng (`[Ne] 3s² 3p⁵`). Cả hai đều \"muốn\" đạt cấu hình khí trơ — Na muốn cho 1 e, Cl muốn nhận 1 e. Hợp duyên!";
+  }
+  else if (s === 1) {
+    drawAtom(svg, naX, y, "Na", "atom-na", 1, ["[Ne] 3s¹"]);
+    drawAtom(svg, clX, y, "Cl", "atom-cl", 7, ["[Ne] 3s² 3p⁵"]);
+    // Arrow showing electron transfer
+    const arrow = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    arrow.setAttribute("class", "arrow");
+    arrow.setAttribute("d", `M ${naX + 60} ${y - 30} Q ${(naX + clX) / 2} ${y - 80} ${clX - 70} ${y - 30}`);
+    svg.appendChild(arrow);
+    // Electron in transit
+    const e = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    e.setAttribute("cx", (naX + clX) / 2); e.setAttribute("cy", y - 70);
+    e.setAttribute("r", 8); e.setAttribute("class", "electron");
+    svg.appendChild(e);
+    const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lbl.setAttribute("x", (naX + clX) / 2); lbl.setAttribute("y", y - 90);
+    lbl.setAttribute("class", "sublbl"); lbl.textContent = "1 e⁻ chuyển từ Na sang Cl";
+    svg.appendChild(lbl);
+    desc.innerHTML = "<strong>Giai đoạn 2:</strong> Na đưa 1 e cho Cl. Bây giờ Na thiếu 1 e → mang điện +1 (cation Na⁺). Cl thừa 1 e → mang điện −1 (anion Cl⁻).";
+  }
+  else {
+    // Stage 2: Na+ and Cl- bonded
+    drawAtom(svg, naX + 80, y, "Na⁺", "atom-na", 0, ["[Ne]", "10 e", "Cation +1"]);
+    drawAtom(svg, clX - 80, y, "Cl⁻", "atom-cl", 8, ["[Ar]", "18 e", "Anion −1"]);
+    // Bond (electrostatic attraction)
+    const bond = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    bond.setAttribute("x1", naX + 130); bond.setAttribute("y1", y);
+    bond.setAttribute("x2", clX - 130); bond.setAttribute("y2", y);
+    bond.setAttribute("stroke", "#be185d"); bond.setAttribute("stroke-width", 4);
+    bond.setAttribute("stroke-dasharray", "6 6");
+    svg.appendChild(bond);
+    const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lbl.setAttribute("x", (naX + clX) / 2); lbl.setAttribute("y", y - 12);
+    lbl.setAttribute("class", "sublbl"); lbl.setAttribute("fill", "#be185d"); lbl.setAttribute("font-weight", "700");
+    lbl.textContent = "Lực hút điện (Coulomb)";
+    svg.appendChild(lbl);
+    desc.innerHTML = "<strong>Giai đoạn 3:</strong> Na⁺ và Cl⁻ trái dấu → hút nhau bằng lực điện. Đây là <strong>liên kết ion</strong>. Cả 2 ion giờ có cấu hình giống khí trơ (Na⁺ giống Ne, Cl⁻ giống Ar). Trong tinh thể NaCl thật, mỗi Na⁺ được vây quanh bởi 6 Cl⁻ và ngược lại.";
+  }
+}
+
+function drawAtom(svg, cx, cy, label, cls, outerE, infoLines) {
+  // Main circle
+  const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  c.setAttribute("cx", cx); c.setAttribute("cy", cy); c.setAttribute("r", 50);
+  c.setAttribute("class", `atom ${cls}`);
+  svg.appendChild(c);
+  // Symbol
+  const sym = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  sym.setAttribute("x", cx); sym.setAttribute("y", cy + 6);
+  sym.setAttribute("class", "lbl");
+  sym.textContent = label;
+  svg.appendChild(sym);
+  // Outer electrons
+  if (outerE > 0) {
+    for (let i = 0; i < outerE; i++) {
+      const a = (i / outerE) * 2 * Math.PI - Math.PI / 2;
+      const ex = cx + 65 * Math.cos(a);
+      const ey = cy + 65 * Math.sin(a);
+      const e = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      e.setAttribute("cx", ex); e.setAttribute("cy", ey); e.setAttribute("r", 5);
+      e.setAttribute("class", "electron");
+      svg.appendChild(e);
+    }
+  }
+  // Info text below
+  infoLines.forEach((line, i) => {
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", cx); t.setAttribute("y", cy + 90 + i * 16);
+    t.setAttribute("class", "sublbl");
+    t.textContent = line;
+    svg.appendChild(t);
+  });
+}
+
+// ===== EN Comparator =====
+function populateAtomSelectors() {
+  const opts = Object.keys(EN).filter(e => EN[e] > 0);
+  ["atomA","atomB"].forEach((id, idx) => {
+    const sel = document.getElementById(id);
+    opts.forEach(e => {
+      const o = document.createElement("option");
+      o.value = e; o.textContent = `${e} (χ = ${EN[e]})`;
+      sel.appendChild(o);
+    });
+    sel.value = idx === 0 ? "Na" : "Cl";
+  });
+}
+
+function updateEN() {
+  const A = document.getElementById("atomA").value;
+  const B = document.getElementById("atomB").value;
+  const xA = EN[A], xB = EN[B];
+  const delta = Math.abs(xA - xB);
+
+  document.getElementById("enA").textContent = xA;
+  document.getElementById("enB").textContent = xB;
+  document.getElementById("deltaEN").textContent = delta.toFixed(2);
+
+  // Marker position: scale 0..3.5
+  const maxScale = 3.5;
+  const pct = Math.min(100, (delta / maxScale) * 100);
+  document.getElementById("enMarker").style.left = pct + "%";
+  document.getElementById("enMarkerLabel").textContent = `Δχ = ${delta.toFixed(2)}`;
+
+  // Determine bond type
+  let type, color, desc;
+  if (delta < 0.4) {
+    type = "Cộng hóa trị KHÔNG cực";
+    color = "#dbeafe";
+    desc = `Δχ = ${delta.toFixed(2)} < 0.4. Cặp electron dùng chung được chia đều giữa 2 nguyên tử.`;
+  } else if (delta < 1.7) {
+    type = "Cộng hóa trị CÓ cực";
+    color = "#fef3c7";
+    const more = xA > xB ? A : B;
+    const less = xA > xB ? B : A;
+    desc = `Δχ = ${delta.toFixed(2)} trong khoảng (0.4, 1.7). Cặp e lệch về ${more} (δ⁻), ${less} mang δ⁺.`;
+  } else {
+    type = "Ion";
+    color = "#fee2e2";
+    const cation = xA < xB ? A : B;
+    const anion = xA < xB ? B : A;
+    desc = `Δχ = ${delta.toFixed(2)} ≥ 1.7. Electron chuyển hẳn từ ${cation} sang ${anion}: ${cation}⁺ + ${anion}⁻.`;
+  }
+
+  const res = document.getElementById("bondTypeResult");
+  res.style.background = color;
+  res.innerHTML = `<strong>${type}</strong><div style="font-size:14px; font-weight:400; margin-top:6px">${desc}</div>`;
+}
+
+document.getElementById("atomA").addEventListener("change", updateEN);
+document.getElementById("atomB").addEventListener("change", updateEN);
+
+// ===== Lewis Structures =====
+const MOLECULES = {
+  H2: {
+    name: "H₂",
+    fullName: "Hydrogen",
+    totalE: 2,
+    bonds: "1 đơn",
+    bondLen: "0.74 Å",
+    bondEnergy: "436 kJ/mol",
+    draw: (svg) => {
+      drawAtomLabel(svg, 180, 110, "H");
+      drawAtomLabel(svg, 300, 110, "H");
+      drawBond(svg, 200, 110, 280, 110, 1);
+    }
+  },
+  Cl2: {
+    name: "Cl₂",
+    fullName: "Chlorine",
+    totalE: 14,
+    bonds: "1 đơn",
+    bondLen: "1.99 Å",
+    bondEnergy: "243 kJ/mol",
+    draw: (svg) => {
+      drawAtomLabel(svg, 160, 110, "Cl");
+      drawAtomLabel(svg, 320, 110, "Cl");
+      drawBond(svg, 180, 110, 300, 110, 1);
+      // Lone pairs: 3 each
+      drawDotPair(svg, 145, 90, "top");
+      drawDotPair(svg, 145, 130, "bot");
+      drawDotPair(svg, 130, 110, "left");
+      drawDotPair(svg, 335, 90, "top");
+      drawDotPair(svg, 335, 130, "bot");
+      drawDotPair(svg, 350, 110, "right");
+    }
+  },
+  HCl: {
+    name: "HCl",
+    fullName: "Hydrogen chloride",
+    totalE: 8,
+    bonds: "1 đơn (có cực)",
+    bondLen: "1.27 Å",
+    bondEnergy: "431 kJ/mol",
+    draw: (svg) => {
+      drawAtomLabel(svg, 180, 110, "H");
+      drawAtomLabel(svg, 320, 110, "Cl");
+      drawBond(svg, 200, 110, 300, 110, 1);
+      drawDotPair(svg, 335, 90, "top");
+      drawDotPair(svg, 335, 130, "bot");
+      drawDotPair(svg, 350, 110, "right");
+      addText(svg, 180, 80, "δ+", "#1d4ed8", 13);
+      addText(svg, 320, 80, "δ−", "#dc2626", 13);
+    }
+  },
+  H2O: {
+    name: "H₂O",
+    fullName: "Nước",
+    totalE: 8,
+    bonds: "2 đơn (có cực)",
+    bondLen: "0.96 Å",
+    bondAngle: "104.5° (gấp khúc)",
+    draw: (svg) => {
+      drawAtomLabel(svg, 240, 130, "O");
+      drawAtomLabel(svg, 160, 75, "H");
+      drawAtomLabel(svg, 320, 75, "H");
+      drawBond(svg, 180, 87, 222, 122, 1);
+      drawBond(svg, 300, 87, 258, 122, 1);
+      // 2 lone pairs on O
+      drawDotPair(svg, 230, 155, "bot");
+      drawDotPair(svg, 250, 155, "bot");
+    }
+  },
+  NH3: {
+    name: "NH₃",
+    fullName: "Ammoniac",
+    totalE: 8,
+    bonds: "3 đơn",
+    bondAngle: "107° (chóp tam giác)",
+    draw: (svg) => {
+      drawAtomLabel(svg, 240, 130, "N");
+      drawAtomLabel(svg, 160, 80, "H");
+      drawAtomLabel(svg, 320, 80, "H");
+      drawAtomLabel(svg, 240, 200, "H");
+      drawBond(svg, 180, 92, 222, 122, 1);
+      drawBond(svg, 300, 92, 258, 122, 1);
+      drawBond(svg, 240, 145, 240, 188, 1);
+      drawDotPair(svg, 240, 105, "top");
+    }
+  },
+  CH4: {
+    name: "CH₄",
+    fullName: "Methane",
+    totalE: 8,
+    bonds: "4 đơn",
+    geometry: "Tetrahedron, 109.5°",
+    draw: (svg) => {
+      drawAtomLabel(svg, 240, 110, "C");
+      drawAtomLabel(svg, 160, 60, "H");
+      drawAtomLabel(svg, 320, 60, "H");
+      drawAtomLabel(svg, 160, 160, "H");
+      drawAtomLabel(svg, 320, 160, "H");
+      drawBond(svg, 180, 72, 222, 102, 1);
+      drawBond(svg, 300, 72, 258, 102, 1);
+      drawBond(svg, 180, 148, 222, 118, 1);
+      drawBond(svg, 300, 148, 258, 118, 1);
+    }
+  },
+  CO2: {
+    name: "CO₂",
+    fullName: "Carbon dioxide",
+    totalE: 16,
+    bonds: "2 đôi",
+    geometry: "Tuyến tính, 180°",
+    draw: (svg) => {
+      drawAtomLabel(svg, 240, 110, "C");
+      drawAtomLabel(svg, 130, 110, "O");
+      drawAtomLabel(svg, 350, 110, "O");
+      drawBond(svg, 150, 110, 222, 110, 2);
+      drawBond(svg, 258, 110, 330, 110, 2);
+      drawDotPair(svg, 115, 90, "top");
+      drawDotPair(svg, 115, 130, "bot");
+      drawDotPair(svg, 365, 90, "top");
+      drawDotPair(svg, 365, 130, "bot");
+    }
+  },
+  O2: {
+    name: "O₂",
+    fullName: "Oxygen",
+    totalE: 12,
+    bonds: "1 đôi",
+    bondLen: "1.21 Å",
+    bondEnergy: "498 kJ/mol",
+    draw: (svg) => {
+      drawAtomLabel(svg, 180, 110, "O");
+      drawAtomLabel(svg, 300, 110, "O");
+      drawBond(svg, 200, 110, 280, 110, 2);
+      drawDotPair(svg, 165, 90, "top");
+      drawDotPair(svg, 165, 130, "bot");
+      drawDotPair(svg, 315, 90, "top");
+      drawDotPair(svg, 315, 130, "bot");
+    }
+  },
+  N2: {
+    name: "N₂",
+    fullName: "Nitrogen",
+    totalE: 10,
+    bonds: "1 ba",
+    bondLen: "1.10 Å",
+    bondEnergy: "945 kJ/mol — cực mạnh",
+    draw: (svg) => {
+      drawAtomLabel(svg, 180, 110, "N");
+      drawAtomLabel(svg, 300, 110, "N");
+      drawBond(svg, 200, 110, 280, 110, 3);
+      drawDotPair(svg, 160, 110, "left");
+      drawDotPair(svg, 320, 110, "right");
+    }
+  },
+  HCN: {
+    name: "HCN",
+    fullName: "Hydrogen cyanide",
+    totalE: 10,
+    bonds: "1 đơn, 1 ba",
+    geometry: "Tuyến tính",
+    draw: (svg) => {
+      drawAtomLabel(svg, 130, 110, "H");
+      drawAtomLabel(svg, 240, 110, "C");
+      drawAtomLabel(svg, 350, 110, "N");
+      drawBond(svg, 150, 110, 222, 110, 1);
+      drawBond(svg, 258, 110, 330, 110, 3);
+      drawDotPair(svg, 370, 110, "right");
+    }
+  },
+  H2S: {
+    name: "H₂S",
+    fullName: "Hydrogen sulfide",
+    totalE: 8,
+    bonds: "2 đơn",
+    bondAngle: "92° (gấp khúc)",
+    draw: (svg) => {
+      drawAtomLabel(svg, 240, 130, "S");
+      drawAtomLabel(svg, 160, 75, "H");
+      drawAtomLabel(svg, 320, 75, "H");
+      drawBond(svg, 180, 87, 222, 122, 1);
+      drawBond(svg, 300, 87, 258, 122, 1);
+      drawDotPair(svg, 230, 155, "bot");
+      drawDotPair(svg, 250, 155, "bot");
+    }
+  }
+};
+
+function drawAtomLabel(svg, x, y, sym) {
+  const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  t.setAttribute("x", x); t.setAttribute("y", y + 6);
+  t.setAttribute("text-anchor", "middle");
+  t.setAttribute("font-size", "24"); t.setAttribute("font-weight", "700");
+  t.setAttribute("fill", "#1a202c");
+  t.textContent = sym;
+  svg.appendChild(t);
+}
+function drawBond(svg, x1, y1, x2, y2, count) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const len = Math.sqrt(dx*dx + dy*dy);
+  const nx = -dy / len, ny = dx / len;
+  const offsets = count === 1 ? [0] : count === 2 ? [-4, 4] : [-6, 0, 6];
+  offsets.forEach(o => {
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("class", "bond");
+    line.setAttribute("x1", x1 + nx * o);
+    line.setAttribute("y1", y1 + ny * o);
+    line.setAttribute("x2", x2 + nx * o);
+    line.setAttribute("y2", y2 + ny * o);
+    svg.appendChild(line);
+  });
+}
+function drawDotPair(svg, x, y, dir) {
+  // Two dots
+  const offsets = (dir === "top" || dir === "bot") ? [[-5, 0], [5, 0]] : [[0, -5], [0, 5]];
+  offsets.forEach(([dx, dy]) => {
+    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    c.setAttribute("cx", x + dx); c.setAttribute("cy", y + dy);
+    c.setAttribute("r", 2.5); c.setAttribute("class", "dot");
+    svg.appendChild(c);
+  });
+}
+function addText(svg, x, y, txt, color, size) {
+  const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  t.setAttribute("x", x); t.setAttribute("y", y);
+  t.setAttribute("text-anchor", "middle");
+  t.setAttribute("font-size", size); t.setAttribute("font-weight", "700");
+  t.setAttribute("fill", color);
+  t.textContent = txt;
+  svg.appendChild(t);
+}
+
+function showMolecule() {
+  const key = document.getElementById("moleculeSelect").value;
+  const m = MOLECULES[key];
+  const svg = document.getElementById("lewisSvg");
+  svg.innerHTML = "";
+  m.draw(svg);
+
+  // Info
+  const info = document.getElementById("moleculeInfo");
+  let html = `<h3 style="margin-top:0">${m.name} — ${m.fullName}</h3><div class="info-grid">`;
+  ["totalE", "bonds", "bondLen", "bondEnergy", "bondAngle", "geometry"].forEach(k => {
+    if (m[k]) {
+      const labels = {totalE:"Tổng e ngoài", bonds:"Liên kết", bondLen:"Độ dài", bondEnergy:"Năng lượng", bondAngle:"Góc liên kết", geometry:"Hình học"};
+      html += `<div class="info-cell"><strong>${labels[k]}</strong>${m[k]}</div>`;
+    }
+  });
+  html += "</div>";
+  info.innerHTML = html;
+}
+
+document.getElementById("moleculeSelect").addEventListener("change", showMolecule);
+
+// ===== Init =====
+drawStage(0);
+populateAtomSelectors();
+updateEN();
+showMolecule();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

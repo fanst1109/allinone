@@ -123,6 +123,14 @@ window.README_MD = `# Lesson 07 — Logic, tập hợp, ánh xạ
 | **Toàn ánh** (surjective, onto) | ∀b ∈ B, ∃a: f(a)=b | Ảnh = B |
 | **Song ánh** (bijective, 1-1 onto) | Cả đơn ánh và toàn ánh | Mỗi b ∈ B ứng với đúng 1 a |
 
+> 📐 **Định nghĩa đầy đủ — Đơn ánh / Toàn ánh / Song ánh**
+>
+> **(a) Là gì**: 3 mức độ "tốt" của ánh xạ f: A → B. **Đơn ánh** = không có 2 đầu vào ra cùng đầu ra (mỗi a có ảnh riêng). **Toàn ánh** = mọi b ∈ B đều có ít nhất 1 a "tạo ra" nó (ảnh = B). **Song ánh** = vừa đơn ánh vừa toàn ánh = tương ứng 1-1 hoàn hảo.
+>
+> **(b) Vì sao cần**: Song ánh là điều kiện CẦN và ĐỦ để f có **hàm ngược** f⁻¹. Trong mã hoá, nén dữ liệu: phải song ánh (mã hoá ngược được). Trong toán: dùng để định nghĩa "đếm được" (tập đếm được = có song ánh với ℕ → ℕ, ℤ, ℚ đếm được; ℝ KHÔNG đếm được — chứng minh Cantor). Trong AI: muốn invert layer của neural network → cần song ánh (lưu lượng thông tin).
+>
+> **(c) Ví dụ số**: f: ℕ → ℕ, f(n) = 2n. Đơn ánh ✓ (n₁≠n₂ → 2n₁≠2n₂). Toàn ánh ✗ (số lẻ không có nguồn). f: ℝ → ℝ, f(x) = x². Đơn ánh ✗ (f(2)=f(-2)=4). Toàn ánh ✗ (số âm không có nguồn). f: ℝ → ℝ, f(x) = x³. Đơn ✓ (tăng nghiêm ngặt), Toàn ✓ → **song ánh**. Ngược f⁻¹(y) = ∛y. f: ℝ → ℝ, f(x) = 2x+1: song ánh (mọi đường thẳng a≠0), f⁻¹(y) = (y−1)/2.
+
 💡 **Trực giác**:
 - Đơn ánh = "không có 2 đầu vào ra cùng đầu ra".
 - Toàn ánh = "mọi đầu ra trong B đều có 1 nguồn".

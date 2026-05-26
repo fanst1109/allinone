@@ -33,6 +33,14 @@ window.README_MD = `# Lesson 04 — Nhị thức Newton & Tam giác Pascal
 
 ❓ **Vì sao C(n, k) xuất hiện?** Vì khi khai triển (a+b)(a+b)...(a+b) n lần, mỗi số hạng = chọn b từ k thừa số và a từ n-k thừa số. **Có đúng C(n, k) cách chọn**.
 
+> 📐 **Định nghĩa đầy đủ — Nhị thức Newton**
+>
+> **(a) Là gì**: Công thức khai triển (a+b)^n thành 1 tổng n+1 số hạng, với **hệ số là C(n,k)** từ tam giác Pascal. Tổng quát hoá từ (a+b)² = a²+2ab+b² (mọi người biết) lên mọi bậc n.
+>
+> **(b) Vì sao cần**: Không có công thức này, khai triển (a+b)^10 phải nhân 10 lần — vô cùng phiền. Newton cho công thức đóng. Quan trọng hơn — hệ số C(n,k) liên kết đại số ↔ tổ hợp, cho phép giải bài đại số bằng đếm. Ứng dụng: nhị thức xác suất P(X=k) = C(n,k)·p^k·(1−p)^(n−k), khai triển Taylor (mở rộng cho n không nguyên qua chuỗi), số tập con (2^n = Σ C(n,k) lấy a=b=1), ước lượng (1+x)^n ≈ 1+nx khi x nhỏ (mở rộng đầu tiên).
+>
+> **(c) Ví dụ số**: (a+b)³ = 1·a³ + 3·a²b + 3·ab² + 1·b³ (hệ số tầng 3 Pascal: 1,3,3,1). (x+1)^5 = x⁵ + 5x⁴ + 10x³ + 10x² + 5x + 1. Tính (1.01)^10 ≈ 1 + 10·0.01 + 45·0.0001 + ... ≈ 1.10462 (máy tính: 1.10462 ✓). Hệ số x^3 trong (2x−3)^7 = C(7,4)·(2x)³·(−3)⁴ = 35·8·81 = **22,680**. Σ_{k=0}^{n} C(n,k) = (1+1)^n = **2^n** = số tập con tập n phần tử ✓.
+
 ---
 
 ## 2. Tam giác Pascal

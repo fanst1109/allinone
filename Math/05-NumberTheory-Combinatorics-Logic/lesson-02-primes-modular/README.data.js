@@ -96,6 +96,14 @@ Cho a = ∏ pᵢ^aᵢ, b = ∏ pᵢ^bᵢ:
 
 ⟶ **Có thể "làm số học mod m" như số học thường** (gần như).
 
+> 📐 **Định nghĩa đầy đủ — Đồng dư a ≡ b (mod m)**
+>
+> **(a) Là gì**: a và b "đồng dư" mod m khi chúng chia m cho cùng số dư. Tương đương: m chia hết hiệu (a − b). Đây là quan hệ phân tập ℤ thành m "lớp" tương đương (mod 5 chia ℤ thành 5 lớp: ...,−5,0,5,10,..., ...,−4,1,6,11,..., v.v.).
+>
+> **(b) Vì sao cần**: Cho phép làm "số học vô hạn nhỏ" — thay vì làm việc với cả ℤ, chỉ cần làm việc với m số đại diện. Đặc biệt với số khổng lồ: 7^100 mod 4 không cần tính 7^100 (số 84 chữ số) — chỉ cần thấy 7 ≡ -1 → 7^100 ≡ 1. Nền tảng của **mật mã** (RSA dùng mũ mod N với N ~ 600 chữ số), **CRC/checksum** (kiểm lỗi truyền dữ liệu), **giờ đồng hồ** (24 giờ = mod 24), **lịch tuần** (mod 7).
+>
+> **(c) Ví dụ số**: 17 ≡ 2 (mod 5) vì 17−2=15, 5|15. 23 ≡ −1 ≡ 7 (mod 8). 100 ≡ 0 (mod 10). Tính 7^100 mod 4: 7 ≡ -1 → 7^100 ≡ (-1)^100 = **1** (mod 4). 3^50 mod 7: dùng Fermat (3^6 ≡ 1 mod 7), 50 = 6·8+2 → 3^50 ≡ 3² = **9 ≡ 2** (mod 7). Kiểm: hôm nay là thứ 3, 100 ngày nữa thứ mấy? 100 mod 7 = 2 → thứ 3 + 2 = thứ 5.
+
 ### Ứng dụng — Kiểm tra số dư
 
 **Bài**: 7^100 chia 4 dư bao nhiêu?

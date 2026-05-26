@@ -22,6 +22,14 @@
 
 **Dạng tổng quát**: Đặt N vật vào k hộp → ít nhất 1 hộp có ≥ ⌈N/k⌉ vật.
 
+> 📐 **Định nghĩa đầy đủ — Nguyên lý Dirichlet**
+>
+> **(a) Là gì**: 1 phát biểu cực kỳ đơn giản: "không thể nhét nhiều vật hơn số hộp mà KHÔNG có 2 vật cùng hộp". Hình thức: hàm f: A → B với |A| > |B| → f không thể đơn ánh.
+>
+> **(b) Vì sao cần**: Tưởng quá hiển nhiên nhưng cực kỳ mạnh — dùng để chứng minh **sự tồn tại** mà không cần xây dựng. Ví dụ: 367 người, có ít nhất 2 trùng ngày sinh (366 ngày trong 1 năm). Trong 8 chữ số bất kỳ → có 2 số có hiệu chia hết cho 7. Trong 1 nhóm n người → ít nhất 2 người có cùng số bạn bè. Nhiều định lý sâu (Erdős-Ko-Rado, Schur) dựa trên pigeonhole.
+>
+> **(c) Ví dụ số**: 30 sinh viên, 12 tháng: ⌈30/12⌉ = **3** → ít nhất 3 cùng tháng. 5 điểm trong tam giác đều cạnh 2 → ít nhất 2 điểm cách nhau ≤ 1 (chia tam giác thành 4 tam giác nhỏ, pigeonhole → 2 điểm cùng tam giác con). 100 số nguyên dương ≤ 200 → có 2 số là bội nhau (chia thành 100 hộp dạng {1,2,4,...}, {3,6,12,...}). Trong 13 số chia 12 → 2 có cùng số dư.
+
 ---
 
 ## 2. Ví dụ áp dụng Dirichlet

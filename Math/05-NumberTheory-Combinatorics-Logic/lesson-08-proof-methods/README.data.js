@@ -43,6 +43,14 @@ window.README_MD = `# Lesson 08 — Phương pháp chứng minh
 
 🎯 **Mẫu**: Cần CM P. Giả sử **¬P**, suy ra mâu thuẫn → ¬P sai → P đúng.
 
+> 📐 **Định nghĩa đầy đủ — Chứng minh phản chứng**
+>
+> **(a) Là gì**: Để chứng minh P đúng, giả sử ngược lại (¬P), suy luận đến 1 mâu thuẫn (1 mệnh đề luôn sai, hoặc trái giả thiết, hoặc trái 1 định lý đã biết). Vì logic không cho phép cả P và ¬P cùng sai, kết luận ¬P sai → P đúng. Tiếng Latin: "reductio ad absurdum".
+>
+> **(b) Vì sao cần**: Đôi khi chứng minh trực tiếp P rất khó, nhưng giả sử ¬P và "đập" nó dễ hơn. Đặc biệt mạnh cho mệnh đề **phủ định** ("X KHÔNG phải Y", "không tồn tại X thoả Y"). Ví dụ kinh điển √2 vô tỉ: trực tiếp khó (làm sao chứng minh "không có a/b"?), nhưng phản chứng cho ngay kết quả. Tương tự: vô hạn số nguyên tố (Euclid), không có hàm liên tục tại mọi điểm hữu tỉ và gián đoạn tại mọi điểm vô tỉ. Cảnh báo: phản chứng không cho ví dụ cụ thể — chỉ chứng minh sự tồn tại/không tồn tại.
+>
+> **(c) Ví dụ số**: CM √2 vô tỉ. Giả sử √2 = a/b tối giản → 2b² = a² → a chẵn → a = 2c → b² = 2c² → b chẵn → 2|gcd(a,b) trái tối giản. ✓. CM vô hạn nguyên tố: giả sử hữu hạn p₁,...,pₙ. Xét N = p₁·...·pₙ + 1. N chia mỗi pᵢ dư 1 → N có ước nguyên tố mới → trái giả thiết. CM √3 vô tỉ (tương tự): nếu √3 = a/b tối giản, 3b² = a² → 3|a → a = 3c → b² = 3c² → 3|b → trái tối giản.
+
 ### Ví dụ kinh điển — √2 vô tỉ
 
 CM √2 không phải số hữu tỉ.

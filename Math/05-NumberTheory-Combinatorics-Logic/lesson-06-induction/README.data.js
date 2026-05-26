@@ -37,6 +37,14 @@ Trong toán: chứng minh P(n) đúng với mọi n ≥ n₀ bằng cách:
 
 Thì P(n) đúng ∀n ≥ n₀.
 
+> 📐 **Định nghĩa đầy đủ — Quy nạp toán học**
+>
+> **(a) Là gì**: 1 phương pháp chứng minh mệnh đề P(n) đúng với **vô hạn** số tự nhiên, bằng cách chỉ kiểm tra 2 điều: (1) P(n₀) đúng, (2) P(k) → P(k+1). Khi đó P đúng với mọi n ≥ n₀ — không cần kiểm từng cái.
+>
+> **(b) Vì sao cần**: Vì có vô hạn số tự nhiên — không thể kiểm tra mọi giá trị. Quy nạp là **cách duy nhất** chứng minh nghiêm túc các mệnh đề "∀n ∈ ℕ, P(n)". Là tiên đề thứ 5 của Peano (định nghĩa ℕ). Áp dụng khắp toán: chứng minh công thức tổng (Σi = n(n+1)/2), bất đẳng thức, chia hết, thuật toán đúng (correctness), đệ quy. Trong CS: chứng minh thuật toán đệ quy đúng (tower of Hanoi, merge sort) bằng quy nạp.
+>
+> **(c) Ví dụ số**: CM 1+2+...+n = n(n+1)/2. Cơ sở n=1: 1 = 1·2/2 ✓. Quy nạp: giả sử 1+...+k = k(k+1)/2, thì 1+...+k+(k+1) = k(k+1)/2 + (k+1) = (k+1)(k+2)/2 ✓. CM 2^n > n với n ≥ 1: cơ sở 2 > 1 ✓. Quy nạp: 2^k > k → 2^(k+1) = 2·2^k > 2k ≥ k+1 (khi k≥1) ✓. CM n³ + 2n chia hết 3: cơ sở 1+2 = 3 ✓. Quy nạp: (k+1)³+2(k+1) = (k³+2k) + 3(k²+k+1) — cả 2 phần chia hết 3 ✓. **Pitfall**: "Mọi n: n²+n+41 nguyên tố" — đúng n=0..39, SAI tại n=40 (= 41²). Quy nạp không thay được bằng "kiểm vài giá trị".
+
 ---
 
 ## 3. Ví dụ kinh điển — Tổng 1 + 2 + ... + n = n(n+1)/2

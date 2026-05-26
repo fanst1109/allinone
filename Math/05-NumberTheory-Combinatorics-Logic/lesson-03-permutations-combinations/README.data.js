@@ -73,6 +73,14 @@ Ký hiệu khác: **(n choose k)** hoặc nCk hoặc C^k_n.
 
 ⟶ So với chỉnh hợp (720), tổ hợp ít hơn k! lần (vì các thứ tự khác nhau gộp thành 1).
 
+> 📐 **Định nghĩa đầy đủ — C(n, k) — Tổ hợp**
+>
+> **(a) Là gì**: Số cách chọn 1 tập con k phần tử từ tập n phần tử, **không quan tâm thứ tự**. Công thức = n!/(k!·(n−k)!). Khác chỉnh hợp A(n,k): tổ hợp "BCD = BDC = CDB" tất cả tính 1 cách, chỉnh hợp coi 6 cách khác nhau.
+>
+> **(b) Vì sao cần**: Mọi bài toán đếm "chọn nhóm không phân vai" → tổ hợp. Xác suất rút bài (đếm tay), xổ số (chọn 6/45), số tập con của tập n (= 2^n = Σ C(n,k)), khai triển nhị thức Newton (hệ số = C(n,k)), thiết kế thí nghiệm. Trong xác suất nhị thức P(X=k) = C(n,k)·p^k·(1−p)^(n−k) — phân phối quan trọng nhất rời rạc.
+>
+> **(c) Ví dụ số**: C(10, 3) = 120. Kiểm: A(10,3) = 720, chia 3! = 6 → 120 ✓. C(52, 5) = 2,598,960 (số tay bài poker). C(5, 0) = 1, C(5, 5) = 1, C(5, 1) = C(5, 4) = 5 (đối xứng), C(5, 2) = C(5, 3) = 10. Tổng tầng 5 Pascal = 1+5+10+10+5+1 = 32 = 2^5 ✓. Vietlott 6/45: C(45, 6) = **8,145,060** → xác suất trúng 1/8.1M ≈ 1.23·10⁻⁷.
+
 ### Tính chất
 
 - C(n, 0) = C(n, n) = 1.

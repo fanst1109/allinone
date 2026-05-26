@@ -55,6 +55,14 @@ q = thương, r = số dư.
 - Ước 36: 1, 2, 3, 4, 6, 9, 12, 18, 36.
 - Chung lớn nhất: **12**.
 
+> 📐 **Định nghĩa đầy đủ — GCD (Greatest Common Divisor)**
+>
+> **(a) Là gì**: Số nguyên dương **lớn nhất** chia hết đồng thời cả 2 số a, b. Tương đương = tích các thừa số nguyên tố chung (lấy số mũ nhỏ hơn). Khi gcd(a, b) = 1 → a và b **nguyên tố cùng nhau** (coprime).
+>
+> **(b) Vì sao cần**: Rất nhiều bài toán quy về GCD: rút gọn phân số (chia tử mẫu cho gcd), tìm chu kỳ chung của 2 sự kiện tuần hoàn, xác định khi nào hệ PT Diophantine có nghiệm (định lý Bezout). Trong **mật mã RSA**: chọn e sao cho gcd(e, φ(N)) = 1 — cốt lõi an toàn bảo mật. Thuật toán Euclid tính GCD trong O(log n) — cực nhanh, dùng được với số 1000+ chữ số.
+>
+> **(c) Ví dụ số**: gcd(24, 36) = 12. Verify: 24 = 12·2, 36 = 12·3 ✓. gcd(15, 28) = 1 (coprime — không có ước chung nào > 1). gcd(48, 60) bằng Euclid: 60 = 48·1 + 12, 48 = 12·4 + 0 → gcd = **12**. Rút gọn 48/60 = 4/5. Phân tích thừa số: 24 = 2³·3, 36 = 2²·3² → gcd = 2²·3 = 12 ✓. lcm(24, 36) = 24·36/12 = **72** (= 2³·3²).
+
 ### Thuật toán Euclid — Cực nhanh
 
 💡 **Ý tưởng**: gcd(a, b) = gcd(b, a mod b). Lặp đến khi b = 0.

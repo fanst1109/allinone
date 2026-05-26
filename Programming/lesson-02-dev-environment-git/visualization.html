@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<title>L2 — Môi trường dev & Git · Visualization</title>
+<style>
+  h1 { margin-top: 0; }
+  h2 { margin-top: 32px; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 20px; }
+  .intro-note { color: #475569; font-size: 14px; margin-bottom: 16px; }
+  button { background: #4299e1; color: #fff; border: 0; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500; }
+  button:hover { background: #3182ce; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  button.ghost { background: #e2e8f0; color: #2d3748; }
+  button.ghost:hover { background: #cbd5e0; }
+  button.danger { background: #e53e3e; }
+  button.danger:hover { background: #c53030; }
+  .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  pre.term { background: #1a202c; color: #e2e8f0; padding: 10px 14px; border-radius: 6px; font-size: 13px; overflow-x: auto; margin: 0; }
+
+  /* Module 1: Git simulator */
+  .git-zones { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .zone { background: #f7fafc; border: 2px solid #cbd5e0; border-radius: 6px; padding: 10px; min-height: 160px; }
+  .zone h4 { margin: 0 0 8px; font-size: 14px; color: #2d3748; text-align: center; }
+  .zone.working { border-color: #f6ad55; background: #fffaf0; }
+  .zone.staging { border-color: #4299e1; background: #ebf8ff; }
+  .zone.repo { border-color: #48bb78; background: #f0fff4; }
+  .file-card { background: #fff; border: 1px solid #cbd5e0; border-radius: 4px; padding: 6px 8px; margin-bottom: 6px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; transition: all .35s ease; }
+  .file-card.changed { background: #fefcbf; border-color: #d69e2e; }
+  .file-card .name { font-family: monospace; font-weight: 600; }
+  .file-card .content { color: #718096; font-size: 11px; font-style: italic; }
+  .commit-card { background: #fff; border: 1px solid #48bb78; border-radius: 4px; padding: 6px 8px; margin-bottom: 6px; font-size: 12px; }
+  .commit-card .hash { font-family: monospace; color: #2f855a; font-weight: 700; }
+  .commit-card .msg { color: #2d3748; }
+  .commit-card .files { color: #718096; font-size: 11px; font-family: monospace; }
+  .git-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; align-items: center; }
+  .git-controls input { padding: 4px 8px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 13px; font-family: monospace; }
+  .git-log { background: #1a202c; color: #e2e8f0; padding: 10px 14px; border-radius: 6px; font-size: 12px; min-height: 60px; font-family: monospace; white-space: pre-wrap; }
+  .git-log .ok { color: #68d391; }
+  .git-log .err { color: #fc8181; }
+  .git-log .info { color: #63b3ed; }
+
+  /* Module 2: Branch tree */
+  .branch-svg-wrap { overflow-x: auto; background: #f7fafc; border-radius: 6px; padding: 10px; }
+  svg.branch { background: #fff; border-radius: 4px; display: block; max-width: 100%; height: auto; }
+  .scenario-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .scenario-btns button.active { background: #2c5282; }
+  .branch-explain { background: #ebf8ff; border-left: 4px solid #4299e1; padding: 8px 12px; border-radius: 4px; margin-top: 10px; font-size: 14px; color: #2c5282; }
+
+  /* Module 3: Conflict resolver */
+  .conflict-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .conflict-col { background: #fff; border: 2px solid #cbd5e0; border-radius: 6px; padding: 10px; }
+  .conflict-col h4 { margin: 0 0 6px; font-size: 14px; }
+  .conflict-col.yours { border-color: #4299e1; }
+  .conflict-col.theirs { border-color: #ed8936; }
+  .conflict-col pre { background: #f7fafc; padding: 8px; border-radius: 4px; font-size: 12px; margin: 0; max-height: 200px; overflow: auto; }
+  .conflict-col.yours pre { background: #ebf8ff; }
+  .conflict-col.theirs pre { background: #fffaf0; }
+  .conflict-result { background: #f0fff4; border: 2px solid #48bb78; border-radius: 6px; padding: 10px; margin-bottom: 12px; }
+  .conflict-result h4 { margin: 0 0 6px; font-size: 14px; color: #22543d; }
+  .conflict-result pre { background: #fff; padding: 8px; border-radius: 4px; font-size: 12px; margin: 0; max-height: 220px; overflow: auto; }
+  .status-pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; margin-left: 8px; }
+  .status-pill.unresolved { background: #fed7d7; color: #822727; }
+  .status-pill.resolved { background: #c6f6d5; color: #22543d; }
+
+  @media (max-width: 768px) {
+    .git-zones { grid-template-columns: 1fr; }
+    .conflict-cols { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .git-controls { flex-direction: column; align-items: stretch; }
+    .git-controls input { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-thinking-like-programmer/visualization.html">← L1: Tư duy lập trình</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Dev Env & Git</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-command-line-mastery/visualization.html">L3: Command Line →</a>
+</nav>
+
+<h1>Lesson 02 — Môi trường dev & Git</h1>
+<p class="intro-note">3 module tương tác: <strong>Git Simulator</strong> (3 vùng), <strong>Branch Tree</strong> (fast-forward vs 3-way merge), <strong>Conflict Resolver</strong>. Click thử các nút, đọc kèm README để hiểu.</p>
+
+<!-- ============ MODULE 1: GIT SIMULATOR ============ -->
+<h2>1. Git Simulator — 3 vùng working / staging / repo</h2>
+<div class="panel">
+  <p class="intro-note">Sửa file ở working directory, <code>git add</code> đẩy vào staging, <code>git commit</code> tạo snapshot vào repo. Click các nút để thấy file di chuyển giữa các vùng.</p>
+
+  <div class="git-controls">
+    <label>File:
+      <select id="sim-file">
+        <option value="main.go">main.go</option>
+        <option value="README.md">README.md</option>
+        <option value="config.yml">config.yml</option>
+      </select>
+    </label>
+    <button class="ghost" id="sim-edit">✏️ Sửa file (working)</button>
+    <button id="sim-add">git add</button>
+    <button id="sim-commit">git commit</button>
+    <button class="ghost" id="sim-status">git status</button>
+    <button class="danger" id="sim-reset-soft">reset --soft HEAD~1</button>
+    <button class="danger" id="sim-checkout">checkout -- file</button>
+    <button class="ghost" id="sim-reset-all">↻ Reset demo</button>
+  </div>
+
+  <div class="git-zones">
+    <div class="zone working">
+      <h4>🟡 Working Directory</h4>
+      <div id="zone-working"></div>
+    </div>
+    <div class="zone staging">
+      <h4>🔵 Staging Area</h4>
+      <div id="zone-staging"></div>
+    </div>
+    <div class="zone repo">
+      <h4>🟢 Repository (HEAD)</h4>
+      <div id="zone-repo"></div>
+    </div>
+  </div>
+
+  <div class="git-log" id="sim-log">$ # click các nút trên để bắt đầu...</div>
+</div>
+
+<!-- ============ MODULE 2: BRANCH TREE ============ -->
+<h2>2. Branch Tree — Fast-Forward vs 3-Way Merge</h2>
+<div class="panel">
+  <p class="intro-note">Chọn kịch bản, ấn "Bắt đầu" rồi click các nút commit/merge để xem cây branch tiến triển. Quan sát: khi nào Git tạo merge commit (M), khi nào chỉ tua thẳng.</p>
+
+  <div class="scenario-btns">
+    <button id="sc-ff" class="active">Kịch bản A: Fast-Forward</button>
+    <button id="sc-3way">Kịch bản B: 3-Way Merge</button>
+    <button class="ghost" id="sc-reset">↻ Reset cây</button>
+  </div>
+
+  <div class="btn-row">
+    <button id="b-commit-main">commit on main</button>
+    <button id="b-branch">checkout -b feature</button>
+    <button id="b-commit-feature">commit on feature</button>
+    <button id="b-merge">git merge feature (vào main)</button>
+  </div>
+
+  <div class="branch-svg-wrap">
+    <svg class="branch" id="branch-svg" width="720" height="260" viewBox="0 0 720 260"></svg>
+  </div>
+
+  <div class="branch-explain" id="branch-explain">
+    Bắt đầu kịch bản A: ấn "commit on main" 2 lần, "checkout -b feature", "commit on feature" 2 lần, rồi "merge". Vì main không tiến thêm sau khi feature rẽ → Git fast-forward (không có merge commit).
+  </div>
+</div>
+
+<!-- ============ MODULE 3: CONFLICT RESOLVER ============ -->
+<h2>3. Conflict Resolver — Giải quyết xung đột</h2>
+<div class="panel">
+  <p class="intro-note">File <code>greet.go</code> bị conflict giữa branch của bạn (yours) và branch main (theirs). Click "Accept Yours / Theirs / Both" để chọn cách giải quyết, xem kết quả ở dưới, rồi <code>git add</code> + <code>git commit</code>.</p>
+
+  <div class="btn-row">
+    <button id="cf-yours">Accept Yours (giữ "Xin chào")</button>
+    <button id="cf-theirs">Accept Theirs (giữ "Hola")</button>
+    <button id="cf-both">Accept Both (gộp cả 2)</button>
+    <button class="ghost" id="cf-reset">↻ Reset</button>
+  </div>
+
+  <div class="conflict-cols">
+    <div class="conflict-col yours">
+      <h4>🔵 Yours — branch <code>feat/vi</code></h4>
+      <pre id="cf-yours-content"></pre>
+    </div>
+    <div class="conflict-col theirs">
+      <h4>🟠 Theirs — branch <code>main</code> (đã có "es")</h4>
+      <pre id="cf-theirs-content"></pre>
+    </div>
+  </div>
+
+  <div class="conflict-result">
+    <h4>Kết quả sau khi resolve <span id="cf-status" class="status-pill unresolved">UNRESOLVED</span></h4>
+    <pre id="cf-result"></pre>
+  </div>
+
+  <div class="btn-row">
+    <button id="cf-add" disabled>git add greet.go</button>
+    <button id="cf-commit" disabled>git commit</button>
+  </div>
+
+  <div class="git-log" id="cf-log">$ git status
+both modified:   greet.go
+$ # chọn cách resolve...</div>
+</div>
+
+<script>
+// ============ MODULE 1: GIT SIMULATOR ============
+const filesInit = () => ({
+  'main.go':    { working: 'v1', staging: null, repo: 'v1' },
+  'README.md':  { working: 'v1', staging: null, repo: 'v1' },
+  'config.yml': { working: 'v1', staging: null, repo: 'v1' },
+});
+let simFiles = filesInit();
+let simCommits = [{ hash: 'a1b2c3', msg: 'init project', snap: { 'main.go': 'v1', 'README.md': 'v1', 'config.yml': 'v1' } }];
+let simEditCounter = { 'main.go': 1, 'README.md': 1, 'config.yml': 1 };
+
+const $ = id => document.getElementById(id);
+const log = (msg, cls='') => {
+  const el = $('sim-log');
+  const line = document.createElement('div');
+  if (cls) line.className = cls;
+  line.textContent = msg;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+};
+
+function renderZones() {
+  const w = $('zone-working'); w.innerHTML = '';
+  const s = $('zone-staging'); s.innerHTML = '';
+  const r = $('zone-repo'); r.innerHTML = '';
+  for (const [name, st] of Object.entries(simFiles)) {
+    const headVal = simCommits[simCommits.length-1].snap[name];
+    const workingChanged = st.working !== headVal && (st.staging === null || st.staging !== st.working);
+    const wCard = document.createElement('div');
+    wCard.className = 'file-card' + (st.working !== headVal && st.working !== st.staging ? ' changed' : '');
+    wCard.innerHTML = `<span class="name">${name}</span><span class="content">${st.working}</span>`;
+    w.appendChild(wCard);
+    if (st.staging !== null) {
+      const sCard = document.createElement('div');
+      sCard.className = 'file-card' + (st.staging !== headVal ? ' changed' : '');
+      sCard.innerHTML = `<span class="name">${name}</span><span class="content">${st.staging}</span>`;
+      s.appendChild(sCard);
+    }
+  }
+  // repo = list commits
+  for (const c of simCommits.slice().reverse()) {
+    const card = document.createElement('div');
+    card.className = 'commit-card';
+    const filesList = Object.entries(c.snap).map(([n,v]) => `${n}=${v}`).join(', ');
+    card.innerHTML = `<div><span class="hash">${c.hash}</span> <span class="msg">${c.msg}</span></div><div class="files">${filesList}</div>`;
+    r.appendChild(card);
+  }
+}
+
+$('sim-edit').onclick = () => {
+  const f = $('sim-file').value;
+  simEditCounter[f]++;
+  const newVal = 'v' + simEditCounter[f];
+  simFiles[f].working = newVal;
+  log(`$ # sửa ${f} → "${newVal}" (working dir)`, 'info');
+  renderZones();
+};
+
+$('sim-add').onclick = () => {
+  const f = $('sim-file').value;
+  if (simFiles[f].working === simFiles[f].staging) {
+    log(`$ git add ${f}\n  (nothing to add — đã giống staging)`, 'err');
+    return;
+  }
+  simFiles[f].staging = simFiles[f].working;
+  log(`$ git add ${f}`, 'ok');
+  renderZones();
+};
+
+$('sim-commit').onclick = () => {
+  const head = simCommits[simCommits.length-1].snap;
+  const anyStaged = Object.entries(simFiles).some(([n, st]) => st.staging !== null && st.staging !== head[n]);
+  if (!anyStaged) {
+    log('$ git commit\n  nothing to commit, working tree clean', 'err');
+    return;
+  }
+  const newSnap = {...head};
+  for (const [n, st] of Object.entries(simFiles)) {
+    if (st.staging !== null) newSnap[n] = st.staging;
+  }
+  const hash = Math.random().toString(16).slice(2,8);
+  const stagedNames = Object.entries(simFiles).filter(([n,st]) => st.staging !== null && st.staging !== head[n]).map(([n]) => n).join(', ');
+  simCommits.push({ hash, msg: `update ${stagedNames}`, snap: newSnap });
+  // staging được clear sau commit (giữ giá trị đã commit = head mới)
+  for (const n of Object.keys(simFiles)) simFiles[n].staging = null;
+  log(`$ git commit -m "update ${stagedNames}"\n  [main ${hash}] update ${stagedNames}`, 'ok');
+  renderZones();
+};
+
+$('sim-status').onclick = () => {
+  const head = simCommits[simCommits.length-1].snap;
+  const lines = ['$ git status'];
+  const staged = [], notStaged = [];
+  for (const [n, st] of Object.entries(simFiles)) {
+    if (st.staging !== null && st.staging !== head[n]) staged.push(n);
+    if (st.working !== head[n] && st.working !== st.staging) notStaged.push(n);
+  }
+  if (staged.length) {
+    lines.push('Changes to be committed:');
+    for (const n of staged) lines.push(`  modified: ${n}`);
+  }
+  if (notStaged.length) {
+    lines.push('Changes not staged for commit:');
+    for (const n of notStaged) lines.push(`  modified: ${n}`);
+  }
+  if (!staged.length && !notStaged.length) lines.push('nothing to commit, working tree clean');
+  log(lines.join('\n'), 'info');
+};
+
+$('sim-reset-soft').onclick = () => {
+  if (simCommits.length <= 1) {
+    log('$ git reset --soft HEAD~1\n  fatal: ambiguous argument (đang ở commit đầu)', 'err');
+    return;
+  }
+  const removed = simCommits.pop();
+  // các file trong commit đó di chuyển lại vào staging
+  const newHead = simCommits[simCommits.length-1].snap;
+  for (const [n, v] of Object.entries(removed.snap)) {
+    if (v !== newHead[n]) simFiles[n].staging = v;
+  }
+  log(`$ git reset --soft HEAD~1\n  (huỷ commit ${removed.hash}, code vẫn ở staging)`, 'ok');
+  renderZones();
+};
+
+$('sim-checkout').onclick = () => {
+  const f = $('sim-file').value;
+  const headVal = simCommits[simCommits.length-1].snap[f];
+  if (simFiles[f].working === headVal) {
+    log(`$ git checkout -- ${f}\n  (no change)`, 'err');
+    return;
+  }
+  simFiles[f].working = headVal;
+  log(`$ git checkout -- ${f}\n  (working dir của ${f} trở về "${headVal}")`, 'ok');
+  renderZones();
+};
+
+$('sim-reset-all').onclick = () => {
+  simFiles = filesInit();
+  simCommits = [{ hash: 'a1b2c3', msg: 'init project', snap: { 'main.go': 'v1', 'README.md': 'v1', 'config.yml': 'v1' } }];
+  simEditCounter = { 'main.go': 1, 'README.md': 1, 'config.yml': 1 };
+  $('sim-log').innerHTML = '$ # demo đã reset';
+  renderZones();
+};
+
+renderZones();
+
+// ============ MODULE 2: BRANCH TREE ============
+// commit nodes: { id, x, y, branch, parents: [ids] }
+// branch HEADs: main, feature
+let scenario = 'ff';  // 'ff' or '3way'
+let nodes = [];
+let mainHead = null;
+let featureHead = null;
+let featureExists = false;
+let nextId = 0;
+let mainAfterBranch = 0;  // commits added on main AFTER branch was created (for 3-way detection)
+
+const svg = $('branch-svg');
+const NS = 'http://www.w3.org/2000/svg';
+const Y_MAIN = 80;
+const Y_FEAT = 180;
+const X_START = 60;
+const X_STEP = 80;
+
+function svgEl(tag, attrs) {
+  const el = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  return el;
+}
+
+function drawBranches() {
+  svg.innerHTML = '';
+  // branch labels
+  const mainLbl = svgEl('text', { x: 8, y: Y_MAIN+4, fill: '#2c5282', 'font-weight': '700', 'font-size': '13' });
+  mainLbl.textContent = 'main';
+  svg.appendChild(mainLbl);
+  if (featureExists) {
+    const fLbl = svgEl('text', { x: 8, y: Y_FEAT+4, fill: '#c05621', 'font-weight': '700', 'font-size': '13' });
+    fLbl.textContent = 'feature';
+    svg.appendChild(fLbl);
+  }
+  // edges
+  for (const n of nodes) {
+    for (const pid of n.parents) {
+      const p = nodes.find(x => x.id === pid);
+      if (!p) continue;
+      const isMerge = n.parents.length >= 2;
+      const line = svgEl('line', {
+        x1: p.x, y1: p.y, x2: n.x, y2: n.y,
+        stroke: isMerge ? '#9f7aea' : (n.branch === 'feature' || p.branch === 'feature' ? '#ed8936' : '#4299e1'),
+        'stroke-width': isMerge ? 2.5 : 2
+      });
+      svg.appendChild(line);
+    }
+  }
+  // nodes
+  for (const n of nodes) {
+    const isMerge = n.parents.length >= 2;
+    const color = isMerge ? '#9f7aea' : (n.branch === 'feature' ? '#ed8936' : '#4299e1');
+    const circ = svgEl('circle', { cx: n.x, cy: n.y, r: 14, fill: color, stroke: '#fff', 'stroke-width': 2 });
+    svg.appendChild(circ);
+    const txt = svgEl('text', { x: n.x, y: n.y+4, fill: '#fff', 'text-anchor': 'middle', 'font-size': '11', 'font-weight': '700' });
+    txt.textContent = n.label;
+    svg.appendChild(txt);
+  }
+  // HEAD markers
+  if (mainHead) {
+    const head = nodes.find(n => n.id === mainHead);
+    if (head) {
+      const tag = svgEl('rect', { x: head.x-18, y: head.y-38, width: 36, height: 18, rx: 4, fill: '#2c5282' });
+      svg.appendChild(tag);
+      const txt = svgEl('text', { x: head.x, y: head.y-25, fill: '#fff', 'text-anchor': 'middle', 'font-size': '10', 'font-weight': '700' });
+      txt.textContent = 'main';
+      svg.appendChild(txt);
+    }
+  }
+  if (featureHead && featureExists) {
+    const head = nodes.find(n => n.id === featureHead);
+    if (head) {
+      const tag = svgEl('rect', { x: head.x-22, y: head.y+22, width: 44, height: 18, rx: 4, fill: '#c05621' });
+      svg.appendChild(tag);
+      const txt = svgEl('text', { x: head.x, y: head.y+35, fill: '#fff', 'text-anchor': 'middle', 'font-size': '10', 'font-weight': '700' });
+      txt.textContent = 'feature';
+      svg.appendChild(txt);
+    }
+  }
+}
+
+function nextX() {
+  return X_START + nodes.length * X_STEP;
+}
+
+function resetBranches() {
+  nodes = [];
+  mainHead = null;
+  featureHead = null;
+  featureExists = false;
+  nextId = 0;
+  mainAfterBranch = 0;
+  // initial commit
+  const id0 = nextId++;
+  nodes.push({ id: id0, x: X_START, y: Y_MAIN, branch: 'main', parents: [], label: 'A' });
+  mainHead = id0;
+  drawBranches();
+  setExplain(scenario === 'ff'
+    ? 'Kịch bản A (Fast-Forward): commit thêm vài lần trên main, rẽ feature, commit feature, rồi merge — main không tiến sau rẽ → fast-forward, không có merge commit.'
+    : 'Kịch bản B (3-Way): commit trên main, rẽ feature, sau đó commit cả 2 phía → khi merge phải tạo merge commit M có 2 cha.');
+}
+
+function setExplain(t) { $('branch-explain').textContent = t; }
+
+function labelFor(idx) {
+  return String.fromCharCode(65 + idx);  // A, B, C...
+}
+
+$('b-commit-main').onclick = () => {
+  const id = nextId++;
+  const x = nextX();
+  const parentId = mainHead;
+  const label = labelFor(nodes.length);
+  nodes.push({ id, x, y: Y_MAIN, branch: 'main', parents: [parentId], label });
+  mainHead = id;
+  if (featureExists) mainAfterBranch++;
+  drawBranches();
+  setExplain(`Thêm commit ${label} trên main. main HEAD = ${label}.`);
+};
+
+$('b-branch').onclick = () => {
+  if (featureExists) {
+    setExplain('Branch feature đã tồn tại rồi. Reset nếu muốn làm lại.');
+    return;
+  }
+  featureExists = true;
+  featureHead = mainHead;  // feature bắt đầu từ chỗ main đang đứng
+  mainAfterBranch = 0;
+  drawBranches();
+  const cur = nodes.find(n => n.id === mainHead);
+  setExplain(`Tạo branch feature từ commit ${cur.label}. Cả 2 branch HEAD đang ở ${cur.label}.`);
+};
+
+$('b-commit-feature').onclick = () => {
+  if (!featureExists) {
+    setExplain('Chưa có branch feature. Ấn "checkout -b feature" trước.');
+    return;
+  }
+  const id = nextId++;
+  const x = nextX();
+  const parentId = featureHead;
+  const label = labelFor(nodes.length);
+  nodes.push({ id, x, y: Y_FEAT, branch: 'feature', parents: [parentId], label });
+  featureHead = id;
+  drawBranches();
+  setExplain(`Thêm commit ${label} trên feature.`);
+};
+
+$('b-merge').onclick = () => {
+  if (!featureExists || featureHead === mainHead) {
+    setExplain('Không có gì để merge (feature chưa có commit khác).');
+    return;
+  }
+  // Fast-forward only if main has not advanced since branch
+  if (mainAfterBranch === 0) {
+    // FF: main jumps to featureHead
+    mainHead = featureHead;
+    drawBranches();
+    setExplain('Fast-forward! main không tiến thêm sau khi feature rẽ → Git chỉ tua main lên commit cuối của feature. Không có merge commit.');
+  } else {
+    // 3-way: create merge commit
+    const id = nextId++;
+    const x = nextX();
+    const label = 'M';
+    nodes.push({ id, x, y: Y_MAIN, branch: 'main', parents: [mainHead, featureHead], label });
+    mainHead = id;
+    drawBranches();
+    setExplain('3-way merge! main đã tiến (mainAfterBranch>0) → Git tạo merge commit M có 2 cha (đỉnh main cũ + đỉnh feature). Cây có ngã ba.');
+  }
+};
+
+$('sc-ff').onclick = () => { scenario = 'ff'; $('sc-ff').classList.add('active'); $('sc-3way').classList.remove('active'); resetBranches(); };
+$('sc-3way').onclick = () => { scenario = '3way'; $('sc-3way').classList.add('active'); $('sc-ff').classList.remove('active'); resetBranches(); };
+$('sc-reset').onclick = resetBranches;
+
+resetBranches();
+
+// ============ MODULE 3: CONFLICT RESOLVER ============
+const YOURS = `func greet(name string) string {
+    return "Xin chào, " + name
+}`;
+
+const THEIRS = `func greet(name string) string {
+    return "Hola, " + name
+}`;
+
+const BOTH = `func greet(name string, lang string) string {
+    switch lang {
+    case "vi":
+        return "Xin chào, " + name
+    case "es":
+        return "Hola, " + name
+    default:
+        return "Hello, " + name
+    }
+}`;
+
+const INITIAL_CONFLICT = `func greet(name string) string {
+<<<<<<< HEAD
+    return "Xin chào, " + name
+=======
+    return "Hola, " + name
+>>>>>>> main
+}`;
+
+let cfResolved = false;
+let cfStaged = false;
+let cfChoice = null;
+
+function cfLog(msg, cls='') {
+  const el = $('cf-log');
+  const line = document.createElement('div');
+  if (cls) line.className = cls;
+  line.textContent = msg;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+function setCfStatus(text, resolved) {
+  const p = $('cf-status');
+  p.textContent = text;
+  p.className = 'status-pill ' + (resolved ? 'resolved' : 'unresolved');
+}
+
+function resetCf() {
+  cfResolved = false;
+  cfStaged = false;
+  cfChoice = null;
+  $('cf-result').textContent = INITIAL_CONFLICT;
+  setCfStatus('UNRESOLVED', false);
+  $('cf-add').disabled = true;
+  $('cf-commit').disabled = true;
+  $('cf-log').innerHTML = '';
+  cfLog('$ git status\n  both modified:   greet.go');
+  cfLog('$ # chọn cách resolve...');
+}
+
+$('cf-yours-content').textContent = YOURS;
+$('cf-theirs-content').textContent = THEIRS;
+
+$('cf-yours').onclick = () => { cfChoice = 'yours'; $('cf-result').textContent = YOURS; setCfStatus('RESOLVED (yours)', true); cfResolved = true; $('cf-add').disabled = false; cfLog('$ # đã chọn YOURS — giữ "Xin chào"', 'info'); };
+$('cf-theirs').onclick = () => { cfChoice = 'theirs'; $('cf-result').textContent = THEIRS; setCfStatus('RESOLVED (theirs)', true); cfResolved = true; $('cf-add').disabled = false; cfLog('$ # đã chọn THEIRS — giữ "Hola"', 'info'); };
+$('cf-both').onclick = () => { cfChoice = 'both'; $('cf-result').textContent = BOTH; setCfStatus('RESOLVED (both)', true); cfResolved = true; $('cf-add').disabled = false; cfLog('$ # đã chọn BOTH — gộp cả 2 phiên bản thành function nhận lang', 'info'); };
+
+$('cf-add').onclick = () => {
+  if (!cfResolved) return;
+  cfStaged = true;
+  $('cf-commit').disabled = false;
+  $('cf-add').disabled = true;
+  cfLog('$ git add greet.go\n$ git status\n  changes to be committed:\n    modified: greet.go', 'ok');
+};
+
+$('cf-commit').onclick = () => {
+  if (!cfStaged) return;
+  const hash = Math.random().toString(16).slice(2,8);
+  cfLog(`$ git commit\n  [main ${hash}] Merge branch 'main' into feat/vi`, 'ok');
+  cfLog('$ # Conflict đã giải quyết xong. Push lên remote bằng git push.', 'info');
+  $('cf-commit').disabled = true;
+};
+
+$('cf-reset').onclick = resetCf;
+
+resetCf();
+</script>
+</main>
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

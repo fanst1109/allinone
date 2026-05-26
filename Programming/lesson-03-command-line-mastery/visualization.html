@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<title>L3 — Command Line Mastery</title>
+<style>
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  h1 { margin-top: 0; }
+  h2 { margin-top: 0; font-size: 18px; color: #2d3748; }
+  .row { display: flex; gap: 20px; flex-wrap: wrap; }
+  .col { flex: 1; min-width: 0; }
+  button { background: #4299e1; color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; cursor: pointer; margin-right: 4px; font-size: 14px; }
+  button:hover { background: #3182ce; }
+  button.ghost { background: #e2e8f0; color: #2d3748; }
+  button.ghost:hover { background: #cbd5e0; }
+  button.danger { background: #e53e3e; }
+  input[type="text"], select { padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 14px; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+  input[type="text"] { width: 100%; max-width: 360px; box-sizing: border-box; }
+  .term { background: #1a202c; color: #e2e8f0; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; padding: 12px 14px; border-radius: 6px; overflow-x: auto; white-space: pre; line-height: 1.5; min-height: 60px; }
+  .term .prompt { color: #68d391; }
+  .term .out { color: #cbd5e0; }
+  .term .err { color: #fc8181; }
+  .term .stage { color: #f6ad55; }
+  .pipe-stages { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; align-items: center; }
+  .stage-chip { background: #ebf8ff; border: 1px solid #4299e1; color: #2c5282; padding: 6px 10px; border-radius: 6px; font-family: ui-monospace, monospace; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
+  .stage-chip .x { color: #c53030; cursor: pointer; font-weight: 700; }
+  .pipe-sep { color: #a0aec0; font-weight: 700; }
+  .quiz-card { border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; margin-bottom: 10px; }
+  .quiz-card.ok { border-color: #48bb78; background: #f0fff4; }
+  .quiz-card.bad { border-color: #fc8181; background: #fff5f5; }
+  .quiz-card h4 { margin: 0 0 6px 0; font-size: 14px; color: #2d3748; }
+  .quiz-card .expected { background: #edf2f7; padding: 6px 8px; border-radius: 4px; font-family: ui-monospace, monospace; font-size: 12px; color: #4a5568; margin: 6px 0; }
+  .quiz-card .feedback { font-size: 13px; margin-top: 6px; }
+  .perm-grid { display: grid; grid-template-columns: auto repeat(3, 1fr); gap: 6px; align-items: center; margin: 12px 0; }
+  .perm-grid .role { font-weight: 700; color: #4a5568; padding: 4px 8px; }
+  .perm-cell { background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 6px; text-align: center; cursor: pointer; user-select: none; font-family: ui-monospace, monospace; font-size: 14px; }
+  .perm-cell.on { background: #c6f6d5; border-color: #48bb78; color: #22543d; font-weight: 700; }
+  .perm-display { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+  .perm-display .big { font-family: ui-monospace, monospace; font-size: 22px; font-weight: 700; background: #fff; border: 1px solid #cbd5e0; padding: 8px 12px; border-radius: 6px; }
+  .hint { font-size: 13px; color: #718096; margin: 6px 0; }
+  .who-can { font-size: 13px; color: #2d3748; background: #fef9e7; border-left: 3px solid #d69e2e; padding: 8px 12px; border-radius: 4px; margin-top: 10px; }
+  details { margin-top: 6px; }
+  summary { cursor: pointer; color: #4299e1; font-size: 13px; }
+  .preset-btn { background: #edf2f7; color: #4a5568; padding: 4px 8px; font-size: 12px; }
+  .preset-btn:hover { background: #cbd5e0; }
+  code { background: #edf2f7; padding: 1px 5px; border-radius: 3px; font-family: ui-monospace, monospace; font-size: 13px; }
+  @media (max-width: 480px) {
+    .perm-grid { grid-template-columns: auto repeat(3, 1fr); gap: 4px; }
+    .perm-cell { padding: 4px; font-size: 13px; }
+    .term { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-dev-environment-git/visualization.html">← L2: Dev Env</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Command Line</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-reading-code-debugging/visualization.html">L4: Đọc code & Debug →</a>
+</nav>
+
+<h1>Command Line Mastery — 3 module tương tác</h1>
+<p style="color:#4a5568; font-size:14px;">Module 1: build pipe chain trên log giả lập · Module 2: quiz find/grep · Module 3: visualize permission rwx/octal.</p>
+
+<!-- ============================ MODULE 1: PIPE BUILDER ============================ -->
+<div class="panel">
+  <h2>Module 1 — Pipe Builder</h2>
+  <p class="hint">Chọn lệnh từ dropdown, "Thêm" để build chain. Mỗi lệnh chạy trên output của lệnh trước. Click "Chạy" để xem từng bước.</p>
+
+  <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:10px;">
+    <label>Dataset:
+      <select id="datasetSel">
+        <option value="access">access.log (web log)</option>
+        <option value="ps">ps aux output</option>
+        <option value="ls">ls -la output</option>
+      </select>
+    </label>
+  </div>
+
+  <div style="margin-bottom:10px;">
+    <label>Lệnh tiếp theo:
+      <select id="cmdSel">
+        <option value="grep_ERROR">grep "ERROR"</option>
+        <option value="grep_500">grep "500"</option>
+        <option value="grep_200">grep "200"</option>
+        <option value="grep_node">grep "node"</option>
+        <option value="grep_v_DEBUG">grep -v "DEBUG"</option>
+        <option value="awk_1">awk '{print $1}'</option>
+        <option value="awk_2">awk '{print $2}'</option>
+        <option value="awk_9">awk '{print $9}'</option>
+        <option value="sort">sort</option>
+        <option value="sort_rn">sort -rn</option>
+        <option value="uniq_c">uniq -c</option>
+        <option value="wc_l">wc -l</option>
+        <option value="head_5">head -5</option>
+        <option value="tail_5">tail -5</option>
+      </select>
+    </label>
+    <button onclick="addStage()">+ Thêm vào pipe</button>
+    <button class="ghost" onclick="clearStages()">Xoá hết</button>
+  </div>
+
+  <div style="margin-bottom:10px;">
+    <span class="hint">Preset:</span>
+    <button class="preset-btn" onclick="loadPreset('count_errors')">Đếm ERROR</button>
+    <button class="preset-btn" onclick="loadPreset('top_status')">Top status code</button>
+    <button class="preset-btn" onclick="loadPreset('top_ips')">Top IP gửi nhiều req</button>
+    <button class="preset-btn" onclick="loadPreset('pids_node')">PID node processes</button>
+  </div>
+
+  <div class="pipe-stages" id="stages"></div>
+
+  <button onclick="runPipe()">▶ Chạy</button>
+  <button class="ghost" onclick="runStep()">Step (từng bước)</button>
+
+  <div style="margin-top:12px;">
+    <div class="hint">Pipe đang build:</div>
+    <div class="term" id="pipeCmd">cat dataset.txt</div>
+  </div>
+
+  <div style="margin-top:10px;">
+    <div class="hint">Output (mỗi giai đoạn hiển thị tối đa 10 dòng đầu):</div>
+    <div class="term" id="pipeOut">(click Chạy để xem)</div>
+  </div>
+</div>
+
+<!-- ============================ MODULE 2: FIND/GREP QUIZ ============================ -->
+<div class="panel">
+  <h2>Module 2 — find / grep Quiz</h2>
+  <p class="hint">Đọc đề, gõ lệnh vào input. Click "Kiểm tra" — viz so sánh các thành phần lệnh của bạn với mẫu (so khớp linh hoạt: thứ tự flag không quan trọng, dấu ngoặc tuỳ chọn).</p>
+
+  <div id="quizzes"></div>
+</div>
+
+<!-- ============================ MODULE 3: PERMISSION VISUALIZER ============================ -->
+<div class="panel">
+  <h2>Module 3 — Permission Visualizer (chmod)</h2>
+  <p class="hint">Click vào ô r/w/x để bật/tắt. Hệ thống tự tính octal + giải thích ai có quyền gì.</p>
+
+  <div class="perm-grid" id="permGrid"></div>
+
+  <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin: 10px 0;">
+    <span class="hint">Hoặc nhập trực tiếp:</span>
+    <input type="text" id="permInput" placeholder="755 hoặc rwxr-xr--" style="max-width: 240px;">
+    <button onclick="applyPermInput()">Áp dụng</button>
+  </div>
+
+  <div style="margin-top:8px;">
+    <span class="hint">Preset:</span>
+    <button class="preset-btn" onclick="loadPerm(755)">755 (script)</button>
+    <button class="preset-btn" onclick="loadPerm(644)">644 (text file)</button>
+    <button class="preset-btn" onclick="loadPerm(600)">600 (private key)</button>
+    <button class="preset-btn" onclick="loadPerm(777)">777 (⚠ nguy hiểm)</button>
+    <button class="preset-btn" onclick="loadPerm(750)">750</button>
+  </div>
+
+  <div class="perm-display">
+    <div>Octal: <span class="big" id="permOctal">000</span></div>
+    <div>Symbolic: <span class="big" id="permSymb">---------</span></div>
+    <div>chmod: <span class="big" id="permCmd">chmod 000 file</span></div>
+  </div>
+
+  <div class="who-can" id="whoCan">Chưa có quyền nào.</div>
+
+  <details>
+    <summary>Quy tắc tính: r=4, w=2, x=1 — cộng từng nhóm</summary>
+    <p style="font-size:13px; color:#4a5568;">
+      Mỗi nhóm (u/g/o) có 3 bit. r=4, w=2, x=1.<br>
+      Vd <code>rwxr-x---</code>: u = 4+2+1 = 7, g = 4+0+1 = 5, o = 0 → <code>750</code>.
+    </p>
+  </details>
+</div>
+
+<script>
+/* ============================ MODULE 1: PIPE BUILDER ============================ */
+
+const DATASETS = {
+  access: [
+    '1.2.3.4 - - [26/May:14:00:01] "GET /api/users HTTP/1.1" 200 1532',
+    '5.6.7.8 - - [26/May:14:00:02] "POST /login HTTP/1.1" 401 89',
+    '1.2.3.4 - - [26/May:14:00:03] "GET /home HTTP/1.1" 200 4521',
+    '9.10.11.12 - - [26/May:14:00:04] "GET /api/x HTTP/1.1" 500 230',
+    '1.2.3.4 - - [26/May:14:00:05] "GET /api/y HTTP/1.1" 500 198',
+    '5.6.7.8 - - [26/May:14:00:06] "GET /static/a.css HTTP/1.1" 200 8421',
+    '9.10.11.12 - - [26/May:14:00:07] "POST /api/z HTTP/1.1" 500 412',
+    '13.14.15.16 - - [26/May:14:00:08] "GET / HTTP/1.1" 200 1024',
+    '5.6.7.8 - - [26/May:14:00:09] "GET /api/users HTTP/1.1" 200 1532',
+    '9.10.11.12 - - [26/May:14:00:10] "GET /api/q HTTP/1.1" 500 87',
+    'DEBUG: connection pool size 10',
+    'ERROR: connection refused 9.10.11.12',
+    'ERROR: timeout in service-x',
+    '1.2.3.4 - - [26/May:14:00:11] "GET /api HTTP/1.1" 200 256'
+  ],
+  ps: [
+    'USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND',
+    'root         1  0.0  0.1 168936 11876 ?       Ss   May01   0:12 /sbin/init',
+    'alice     1245  2.1  3.4 854212 138420 pts/0  Sl   10:30   0:45 node server.js',
+    'alice     1289  0.5  1.2 234108  49320 pts/0  Sl   10:31   0:08 node worker.js',
+    'alice     1301  1.0  2.0 412048  82196 pts/0  Sl   10:31   0:21 node api.js',
+    'postgres  1456  0.8  4.5 1234560 184320 ?     Ss   May01   2:15 postgres: main',
+    'alice     1502  0.0  0.1   8124   3204 pts/1  R+   14:00   0:00 ps aux',
+    'bob       2001  0.2  0.5 102348  20488 pts/2  S    11:00   0:03 python script.py'
+  ],
+  ls: [
+    'total 48',
+    'drwxr-xr-x  5 alice users  4096 May 26 14:00 .',
+    'drwxr-xr-x 20 alice users  4096 May 26 13:00 ..',
+    '-rw-r--r--  1 alice users   215 May 26 14:00 README.md',
+    '-rwxr-xr-x  1 alice users  2048 May 26 14:01 deploy.sh',
+    '-rw-r--r--  1 alice users 12453 May 26 14:02 main.go',
+    '-rw-r--r--  1 alice users  3421 May 26 14:02 util.go',
+    '-rw-r--r--  1 alice users   512 May 26 14:00 config.yaml',
+    'drwxr-xr-x  2 alice users  4096 May 26 14:00 tests'
+  ]
+};
+
+const STAGE_DEFS = {
+  grep_ERROR:  { label: 'grep "ERROR"',    fn: a => a.filter(l => l.includes('ERROR')) },
+  grep_500:    { label: 'grep "500"',      fn: a => a.filter(l => l.includes('500')) },
+  grep_200:    { label: 'grep "200"',      fn: a => a.filter(l => l.includes('200')) },
+  grep_node:   { label: 'grep "node"',     fn: a => a.filter(l => l.includes('node')) },
+  grep_v_DEBUG:{ label: 'grep -v "DEBUG"', fn: a => a.filter(l => !l.includes('DEBUG')) },
+  awk_1:       { label: "awk '{print $1}'",fn: a => a.map(l => l.trim().split(/\s+/)[0] || '') },
+  awk_2:       { label: "awk '{print $2}'",fn: a => a.map(l => l.trim().split(/\s+/)[1] || '') },
+  awk_9:       { label: "awk '{print $9}'",fn: a => a.map(l => l.trim().split(/\s+/)[8] || '') },
+  sort:        { label: 'sort',            fn: a => [...a].sort() },
+  sort_rn:     { label: 'sort -rn',        fn: a => [...a].sort((x,y) => parseFloat(y) - parseFloat(x)) },
+  uniq_c:      { label: 'uniq -c',         fn: a => {
+                  const out = []; let last = null, cnt = 0;
+                  for (const l of a) {
+                    if (l === last) cnt++;
+                    else { if (last !== null) out.push(`  ${cnt} ${last}`); last = l; cnt = 1; }
+                  }
+                  if (last !== null) out.push(`  ${cnt} ${last}`);
+                  return out;
+                }},
+  wc_l:        { label: 'wc -l',           fn: a => [String(a.length)] },
+  head_5:      { label: 'head -5',         fn: a => a.slice(0, 5) },
+  tail_5:      { label: 'tail -5',         fn: a => a.slice(-5) }
+};
+
+const PRESETS = {
+  count_errors: ['grep_ERROR', 'wc_l'],
+  top_status: ['awk_9', 'sort', 'uniq_c', 'sort_rn', 'head_5'],
+  top_ips: ['grep_500', 'awk_1', 'sort', 'uniq_c', 'sort_rn'],
+  pids_node: ['grep_node', 'awk_2']
+};
+
+let stages = [];
+
+function renderStages() {
+  const root = document.getElementById('stages');
+  root.innerHTML = '';
+  stages.forEach((s, i) => {
+    if (i > 0) {
+      const sep = document.createElement('span');
+      sep.className = 'pipe-sep'; sep.textContent = '|';
+      root.appendChild(sep);
+    }
+    const chip = document.createElement('span');
+    chip.className = 'stage-chip';
+    chip.innerHTML = `${STAGE_DEFS[s].label} <span class="x" title="Xoá">×</span>`;
+    chip.querySelector('.x').onclick = () => { stages.splice(i, 1); renderStages(); updatePipeCmd(); };
+    root.appendChild(chip);
+  });
+  updatePipeCmd();
+}
+
+function updatePipeCmd() {
+  const ds = document.getElementById('datasetSel').value;
+  const fileName = { access: 'access.log', ps: '(ps aux)', ls: '(ls -la)' }[ds];
+  const cmd = stages.length
+    ? `cat ${fileName} | ${stages.map(s => STAGE_DEFS[s].label).join(' | ')}`
+    : `cat ${fileName}`;
+  document.getElementById('pipeCmd').textContent = cmd;
+}
+
+function addStage() {
+  stages.push(document.getElementById('cmdSel').value);
+  renderStages();
+}
+
+function clearStages() {
+  stages = [];
+  renderStages();
+  document.getElementById('pipeOut').textContent = '(click Chạy để xem)';
+}
+
+function loadPreset(key) {
+  stages = [...PRESETS[key]];
+  if (key === 'pids_node') document.getElementById('datasetSel').value = 'ps';
+  else document.getElementById('datasetSel').value = 'access';
+  renderStages();
+}
+
+function runPipe() {
+  const ds = document.getElementById('datasetSel').value;
+  let cur = [...DATASETS[ds]];
+  const out = document.getElementById('pipeOut');
+  let html = `<span class="stage">Stage 0: cat (${cur.length} dòng)</span>\n`;
+  html += cur.slice(0, 10).map(l => `  ${escapeHtml(l)}`).join('\n');
+  if (cur.length > 10) html += `\n  ... (${cur.length - 10} dòng nữa)`;
+  for (let i = 0; i < stages.length; i++) {
+    const s = stages[i];
+    cur = STAGE_DEFS[s].fn(cur);
+    html += `\n<span class="stage">Stage ${i+1}: ${escapeHtml(STAGE_DEFS[s].label)} → ${cur.length} dòng</span>\n`;
+    if (cur.length === 0) html += '  (rỗng)';
+    else {
+      html += cur.slice(0, 10).map(l => `  ${escapeHtml(l)}`).join('\n');
+      if (cur.length > 10) html += `\n  ... (${cur.length - 10} dòng nữa)`;
+    }
+  }
+  out.innerHTML = html;
+}
+
+let stepIdx = 0;
+let stepCur = null;
+function runStep() {
+  const ds = document.getElementById('datasetSel').value;
+  const out = document.getElementById('pipeOut');
+  if (stepIdx === 0 || stepCur === null) {
+    stepCur = [...DATASETS[ds]];
+    stepIdx = 0;
+    out.innerHTML = `<span class="stage">Stage 0: cat (${stepCur.length} dòng)</span>\n` +
+      stepCur.slice(0, 10).map(l => `  ${escapeHtml(l)}`).join('\n') +
+      (stepCur.length > 10 ? `\n  ... (${stepCur.length - 10} dòng nữa)` : '');
+    stepIdx = 1;
+    return;
+  }
+  if (stepIdx > stages.length) {
+    stepIdx = 0; stepCur = null;
+    out.innerHTML += '\n<span class="stage">— Hết pipe. Click Step để chạy lại từ đầu.</span>';
+    return;
+  }
+  const s = stages[stepIdx - 1];
+  stepCur = STAGE_DEFS[s].fn(stepCur);
+  let html = out.innerHTML;
+  html += `\n<span class="stage">Stage ${stepIdx}: ${escapeHtml(STAGE_DEFS[s].label)} → ${stepCur.length} dòng</span>\n`;
+  if (stepCur.length === 0) html += '  (rỗng)';
+  else {
+    html += stepCur.slice(0, 10).map(l => `  ${escapeHtml(l)}`).join('\n');
+    if (stepCur.length > 10) html += `\n  ... (${stepCur.length - 10} dòng nữa)`;
+  }
+  out.innerHTML = html;
+  stepIdx++;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+document.getElementById('datasetSel').addEventListener('change', updatePipeCmd);
+renderStages();
+
+/* ============================ MODULE 2: FIND/GREP QUIZ ============================ */
+
+const QUIZZES = [
+  {
+    q: 'Tìm mọi file <code>.go</code> dưới thư mục hiện tại (đệ quy).',
+    expected: 'find . -name "*.go"',
+    keywords: ['find', '.', '-name', '*.go'],
+    hint: 'Dùng find với flag -name + glob *.go.'
+  },
+  {
+    q: 'Tìm mọi file lớn hơn 100MB trong <code>/var/log</code>.',
+    expected: 'find /var/log -size +100M',
+    keywords: ['find', '/var/log', '-size', '+100M'],
+    hint: 'Dùng -size +100M (M = megabyte, dấu + nghĩa là "lớn hơn").'
+  },
+  {
+    q: 'Tìm mọi file <code>.tmp</code> dưới cwd và xoá chúng.',
+    expected: 'find . -name "*.tmp" -delete',
+    keywords: ['find', '.', '-name', '*.tmp', '-delete'],
+    hint: 'find ... -delete (cẩn thận: chạy ngay, không hỏi!).'
+  },
+  {
+    q: 'Tìm chuỗi <code>TODO</code> trong mọi file đệ quy từ cwd, hiển thị tên file + số dòng.',
+    expected: 'grep -rn "TODO" .',
+    keywords: ['grep', '-r', '-n', 'TODO', '.'],
+    hint: 'grep -r (recursive) -n (line number).'
+  },
+  {
+    q: 'Tìm <code>error</code> trong file <code>log.txt</code>, không phân biệt hoa thường.',
+    expected: 'grep -i "error" log.txt',
+    keywords: ['grep', '-i', 'error', 'log.txt'],
+    hint: 'grep -i = case insensitive.'
+  },
+  {
+    q: 'Tìm dòng KHÔNG chứa <code>DEBUG</code> trong <code>app.log</code>.',
+    expected: 'grep -v "DEBUG" app.log',
+    keywords: ['grep', '-v', 'DEBUG', 'app.log'],
+    hint: 'grep -v = invert match (loại bỏ dòng match).'
+  }
+];
+
+function renderQuizzes() {
+  const root = document.getElementById('quizzes');
+  root.innerHTML = '';
+  QUIZZES.forEach((q, i) => {
+    const card = document.createElement('div');
+    card.className = 'quiz-card';
+    card.id = `qz-${i}`;
+    card.innerHTML = `
+      <h4>Câu ${i+1}. ${q.q}</h4>
+      <input type="text" id="qzin-${i}" placeholder="gõ lệnh vào đây..." spellcheck="false">
+      <button onclick="checkQuiz(${i})" style="margin-left:6px;">Kiểm tra</button>
+      <button class="ghost" onclick="showAnswer(${i})">Đáp án</button>
+      <div class="feedback" id="qzfb-${i}"></div>
+    `;
+    root.appendChild(card);
+  });
+}
+
+function normalize(s) {
+  return s.toLowerCase().replace(/['"]/g, '').replace(/\s+/g, ' ').trim();
+}
+
+function checkQuiz(i) {
+  const q = QUIZZES[i];
+  const input = document.getElementById(`qzin-${i}`).value;
+  const fb = document.getElementById(`qzfb-${i}`);
+  const card = document.getElementById(`qz-${i}`);
+  const norm = normalize(input);
+  const missing = q.keywords.filter(k => !norm.includes(normalize(k)));
+  if (missing.length === 0) {
+    card.classList.remove('bad'); card.classList.add('ok');
+    fb.innerHTML = `<span style="color:#22543d;">✓ Đúng! Mẫu: <code>${q.expected}</code></span>`;
+  } else {
+    card.classList.remove('ok'); card.classList.add('bad');
+    fb.innerHTML = `<span style="color:#c53030;">✗ Thiếu/sai: <code>${missing.join('</code>, <code>')}</code>. Gợi ý: ${q.hint}</span>`;
+  }
+}
+
+function showAnswer(i) {
+  const q = QUIZZES[i];
+  const fb = document.getElementById(`qzfb-${i}`);
+  fb.innerHTML = `<div class="expected">Mẫu: ${q.expected}</div><div style="color:#718096;font-size:12px;">${q.hint}</div>`;
+}
+
+renderQuizzes();
+
+/* ============================ MODULE 3: PERMISSION VISUALIZER ============================ */
+
+let perm = { u: { r:0, w:0, x:0 }, g: { r:0, w:0, x:0 }, o: { r:0, w:0, x:0 } };
+
+function renderPermGrid() {
+  const root = document.getElementById('permGrid');
+  const roles = [['u', 'Owner (u)'], ['g', 'Group (g)'], ['o', 'Others (o)']];
+  const bits = ['r', 'w', 'x'];
+  root.innerHTML = `<div></div><div class="role" style="text-align:center;">r (4)</div><div class="role" style="text-align:center;">w (2)</div><div class="role" style="text-align:center;">x (1)</div>`;
+  roles.forEach(([key, label]) => {
+    root.innerHTML += `<div class="role">${label}</div>`;
+    bits.forEach(b => {
+      const on = perm[key][b];
+      root.innerHTML += `<div class="perm-cell ${on ? 'on' : ''}" data-role="${key}" data-bit="${b}">${on ? b : '–'}</div>`;
+    });
+  });
+  // attach click handlers
+  root.querySelectorAll('.perm-cell').forEach(cell => {
+    cell.onclick = () => {
+      const r = cell.dataset.role, b = cell.dataset.bit;
+      perm[r][b] = perm[r][b] ? 0 : 1;
+      renderPermGrid();
+      updatePermDisplay();
+    };
+  });
+}
+
+function octalDigit(g) { return g.r*4 + g.w*2 + g.x*1; }
+
+function updatePermDisplay() {
+  const ou = octalDigit(perm.u), og = octalDigit(perm.g), oo = octalDigit(perm.o);
+  const octal = `${ou}${og}${oo}`;
+  const sym = ['u','g','o'].map(k =>
+    (perm[k].r ? 'r' : '-') + (perm[k].w ? 'w' : '-') + (perm[k].x ? 'x' : '-')
+  ).join('');
+  document.getElementById('permOctal').textContent = octal;
+  document.getElementById('permSymb').textContent = sym;
+  document.getElementById('permCmd').textContent = `chmod ${octal} file`;
+
+  // who-can
+  const who = [];
+  ['u','g','o'].forEach((k, i) => {
+    const role = ['Owner','Group','Others'][i];
+    const acts = [];
+    if (perm[k].r) acts.push('đọc');
+    if (perm[k].w) acts.push('ghi');
+    if (perm[k].x) acts.push('chạy');
+    if (acts.length) who.push(`<b>${role}</b>: ${acts.join(', ')}`);
+    else who.push(`<b>${role}</b>: không có quyền nào`);
+  });
+  let warn = '';
+  if (octal === '777') warn = '<br><span style="color:#c53030;font-weight:700;">⚠ 777 là cực kỳ nguy hiểm — ai cũng làm gì cũng được. Tránh dùng trên file thật.</span>';
+  else if (perm.o.w) warn = '<br><span style="color:#d69e2e;">⚠ Others có quyền ghi — cân nhắc kỹ.</span>';
+  document.getElementById('whoCan').innerHTML = who.join(' · ') + warn;
+}
+
+function loadPerm(num) {
+  const digits = String(num).padStart(3, '0').split('').map(Number);
+  ['u','g','o'].forEach((k, i) => {
+    const d = digits[i];
+    perm[k].r = d & 4 ? 1 : 0;
+    perm[k].w = d & 2 ? 1 : 0;
+    perm[k].x = d & 1 ? 1 : 0;
+  });
+  renderPermGrid();
+  updatePermDisplay();
+}
+
+function applyPermInput() {
+  const v = document.getElementById('permInput').value.trim();
+  if (/^\d{3}$/.test(v)) {
+    loadPerm(parseInt(v, 10));
+    return;
+  }
+  if (/^[rwx-]{9}$/.test(v)) {
+    ['u','g','o'].forEach((k, i) => {
+      const seg = v.substring(i*3, i*3+3);
+      perm[k].r = seg[0] === 'r' ? 1 : 0;
+      perm[k].w = seg[1] === 'w' ? 1 : 0;
+      perm[k].x = seg[2] === 'x' ? 1 : 0;
+    });
+    renderPermGrid();
+    updatePermDisplay();
+    return;
+  }
+  alert('Định dạng không đúng. Nhập 3 chữ số (vd 755) hoặc 9 ký tự rwx-- (vd rwxr-xr--).');
+}
+
+loadPerm(644); // default
+</script>
+
+</main>
+<!-- README modal -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

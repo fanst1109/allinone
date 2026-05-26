@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Tư duy lập trình (Programming)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --tier0: #6b7280;
+    --tier0-soft: #f3f4f6;
+    --tier0-hover: #4b5563;
+    --ok: #10b981;
+    --warn: #f59e0b;
+    --err: #ef4444;
+    --hi: #fde68a;
+    --code-bg: #1e293b;
+    --code-fg: #e2e8f0;
+  }
+  main { max-width: 980px; margin: 0 auto; padding: 18px; }
+  h1 { margin-top: 4px; }
+  .lead { color: #475569; font-size: 15px; margin-bottom: 18px; }
+  .module {
+    background: #fff;
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-bottom: 22px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    border-left: 4px solid var(--tier0);
+  }
+  .module h2 {
+    margin: 0 0 6px 0;
+    font-size: 19px;
+    color: #1e293b;
+  }
+  .module .sub {
+    color: #64748b;
+    font-size: 14px;
+    margin-bottom: 14px;
+  }
+  /* Generic controls */
+  button {
+    background: var(--tier0);
+    color: #fff;
+    border: 0;
+    padding: 7px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  button:hover { background: var(--tier0-hover); }
+  button.ghost { background: #e2e8f0; color: #1e293b; }
+  button.ghost:hover { background: #cbd5e1; }
+  button.primary { background: #3b82f6; }
+  button.primary:hover { background: #2563eb; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  input[type="text"], select, textarea {
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-size: 14px;
+    font-family: inherit;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 360px;
+  }
+  textarea { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; min-height: 60px; }
+  label { font-size: 14px; color: #334155; display: block; margin-bottom: 4px; font-weight: 500; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 12px; }
+  .row > div { flex: 1; min-width: 0; }
+
+  /* Module 1 — Decompose */
+  .scenario-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .pill {
+    background: var(--tier0-soft);
+    border: 1px solid #cbd5e1;
+    padding: 5px 11px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #334155;
+  }
+  .pill.active { background: var(--tier0); color: #fff; border-color: var(--tier0); }
+  .tree { margin-top: 12px; }
+  .tree-node {
+    background: #f8fafc;
+    border-left: 3px solid var(--tier0);
+    padding: 8px 12px;
+    margin: 4px 0;
+    border-radius: 0 6px 6px 0;
+    font-size: 14px;
+    opacity: 0;
+    transform: translateX(-6px);
+    transition: opacity .35s, transform .35s;
+  }
+  .tree-node.lv1 { font-weight: 600; color: #1e293b; }
+  .tree-node.lv2 { margin-left: 22px; font-size: 13px; color: #475569; border-left-color: #94a3b8; background: #f1f5f9; }
+  .tree-node.shown { opacity: 1; transform: translateX(0); }
+
+  /* Module 2 — Pseudocode Runner */
+  pre.pseudo {
+    background: var(--code-bg);
+    color: var(--code-fg);
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    overflow-x: auto;
+    line-height: 1.55;
+    margin: 0;
+  }
+  pre.pseudo .ln {
+    display: block;
+    padding: 1px 6px;
+    margin: 0 -6px;
+    border-radius: 3px;
+    white-space: pre;
+  }
+  pre.pseudo .ln.hit {
+    background: var(--hi);
+    color: #1e293b;
+    font-weight: 600;
+  }
+  pre.pseudo .ln .cmt { color: #94a3b8; font-style: italic; }
+  .vars {
+    margin-top: 12px;
+    background: #f1f5f9;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 13px;
+    color: #334155;
+    min-height: 80px;
+  }
+  .var-row { padding: 2px 0; }
+  .var-row .name { color: #0369a1; font-weight: 600; }
+  .var-row .val { color: #1e293b; }
+  .var-row.fresh { background: #fef3c7; padding: 2px 6px; margin: 0 -6px; border-radius: 3px; }
+  .controls-bar { display: flex; gap: 8px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+  .step-info { color: #64748b; font-size: 13px; }
+
+  /* Module 3 — 6-step walkthrough */
+  .step-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .step-tab {
+    background: #e2e8f0;
+    color: #475569;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    border: 0;
+    transition: background .15s;
+  }
+  .step-tab.active {
+    background: #3b82f6;
+    color: #fff;
+  }
+  .step-tab.done { background: #10b981; color: #fff; }
+  .step-content {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 16px 20px;
+    min-height: 180px;
+  }
+  .step-content h3 { margin: 0 0 10px 0; font-size: 16px; color: #1e293b; }
+  .ex-table { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 8px; }
+  .ex-table th, .ex-table td {
+    border: 1px solid #cbd5e1;
+    padding: 6px 10px;
+    text-align: left;
+  }
+  .ex-table th { background: #e2e8f0; font-weight: 600; }
+  .ex-table code { background: #f1f5f9; padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .badge.ok { background: #d1fae5; color: #065f46; }
+  .badge.warn { background: #fef3c7; color: #78350f; }
+
+  /* Mobile */
+  @media (max-width: 480px) {
+    main { padding: 12px; }
+    .module { padding: 14px 16px; }
+    .module h2 { font-size: 17px; }
+    .row { flex-direction: column; align-items: stretch; }
+    .row > div { width: 100%; }
+    input[type="text"], select, textarea { max-width: 100%; }
+    .scenario-pills { gap: 4px; }
+    .pill { font-size: 12px; padding: 4px 8px; }
+    .tree-node.lv2 { margin-left: 12px; }
+    pre.pseudo { font-size: 12px; padding: 10px 12px; }
+    .step-tabs { gap: 4px; }
+    .step-tab { font-size: 12px; padding: 6px 9px; }
+    .step-content { padding: 12px 14px; }
+  }
+</style>
+</head>
+<body>
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../tier-0-foundation/index.html">← Tier 0</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Tư duy lập trình</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-dev-environment-git/visualization.html">L2: Dev Env →</a>
+</nav>
+
+<h1>Lesson 01 — Tư duy lập trình</h1>
+<p class="lead">
+  Ba module tương tác cho bạn cảm nhận trực tiếp ba kỹ năng cốt lõi: <strong>decompose</strong>,
+  <strong>chạy pseudocode bằng tay</strong>, và <strong>quy trình 6 bước giải bài toán mới</strong>.
+  Chưa cần code. Click thử là hiểu.
+</p>
+
+<!-- ================== MODULE 1 — DECOMPOSE ================== -->
+<div class="module" id="m1">
+  <h2>Module 1 — Decompose: chia bài toán to thành bài con</h2>
+  <div class="sub">Chọn một bài toán to. Nhấn "Decompose" để xem cách tách thành các bài con (mức 1) rồi tách tiếp 1 bài con thành mức 2. Mục tiêu: tạo phản xạ "đụng bài to → cắt nhỏ".</div>
+
+  <div class="scenario-pills" id="scenarios"></div>
+
+  <div class="row">
+    <div>
+      <label>Bài toán đang xem</label>
+      <div id="curScenario" style="font-weight: 600; color: #1e293b; padding: 6px 0;">—</div>
+    </div>
+    <div style="flex: 0 0 auto;">
+      <button id="btnDecompose" class="primary">Decompose →</button>
+      <button id="btnReset" class="ghost">Reset</button>
+    </div>
+  </div>
+
+  <div class="tree" id="tree"></div>
+
+  <div style="margin-top: 14px; font-size: 13px; color: #64748b;">
+    💡 Để ý: mức 1 vẫn chưa code được — vẫn phải tách tiếp. Mức 2 đã đủ nhỏ để hình dung 1 lập trình viên ngồi 1-2 tiếng làm xong.
+  </div>
+</div>
+
+<!-- ================== MODULE 2 — PSEUDOCODE RUNNER ================== -->
+<div class="module" id="m2">
+  <h2>Module 2 — Pseudocode runner: chạy pseudocode bằng tay</h2>
+  <div class="sub">Chọn 1 bài. Nhập input. Bấm "Bước tiếp" để chạy từng dòng pseudocode, xem giá trị biến đổi từng bước. Đây là cách <em>trace bằng tay</em> mà mục 5.1 trong README nói tới.</div>
+
+  <div class="row">
+    <div>
+      <label for="probSelect">Bài toán</label>
+      <select id="probSelect">
+        <option value="bmi">Tính BMI</option>
+        <option value="count-words">Đếm số từ trong câu</option>
+        <option value="palindrome">Kiểm tra chuỗi đối xứng (palindrome)</option>
+      </select>
+    </div>
+    <div>
+      <label for="probInput">Input</label>
+      <input id="probInput" type="text" value="">
+    </div>
+  </div>
+
+  <pre class="pseudo" id="pseudoView"></pre>
+
+  <div class="controls-bar">
+    <button id="btnStart" class="primary">▶ Bắt đầu / Reset</button>
+    <button id="btnStep">Bước tiếp →</button>
+    <button id="btnRunAll" class="ghost">Chạy hết</button>
+    <span class="step-info" id="stepInfo">Bấm "Bắt đầu" để load input</span>
+  </div>
+
+  <div class="vars" id="varsView">
+    <div style="color: #94a3b8;">(biến sẽ hiện ở đây sau khi bắt đầu)</div>
+  </div>
+</div>
+
+<!-- ================== MODULE 3 — 6-STEP WALKTHROUGH ================== -->
+<div class="module" id="m3">
+  <h2>Module 3 — Quy trình 6 bước (live walkthrough)</h2>
+  <div class="sub">Bài: <strong>Đếm số lần xuất hiện của ký tự <code>'a'</code> trong chuỗi <code>"banana"</code></strong>. Click qua từng bước để thấy output cụ thể của mỗi bước trong quy trình ở mục 4.2 README.</div>
+
+  <div class="step-tabs" id="stepTabs"></div>
+  <div class="step-content" id="stepContent"></div>
+
+  <div style="margin-top: 12px; font-size: 13px; color: #64748b;">
+    💡 Sau khi xem qua 6 bước cho bài này, hãy thử áp dụng cho bài <em>"đảo ngược chuỗi"</em> ở bài tập 5 — không có hint, làm thật.
+  </div>
+</div>
+
+<!-- ===================== SCRIPTS ===================== -->
+<script>
+/* ============ MODULE 1 — DECOMPOSE ============ */
+const SCENARIOS = [
+  {
+    key: "grab",
+    name: "Build app đặt Grab",
+    lv1: [
+      "1. Đăng ký / đăng nhập (SĐT + OTP)",
+      "2. Hiển thị bản đồ + vị trí hiện tại",
+      "3. Nhập điểm đón và điểm đến",
+      "4. Tính giá ước lượng theo loại xe",
+      "5. Tìm tài xế gần nhất",
+      "6. Gửi yêu cầu + chờ tài xế nhận",
+      "7. Track xe đến + chuyến đi realtime",
+      "8. Thanh toán + đánh giá",
+    ],
+    zoomIdx: 0,
+    lv2: [
+      "1a. Form nhập số điện thoại + validate format",
+      "1b. Gọi service SMS gửi OTP 6 số",
+      "1c. User nhập OTP + verify với server",
+      "1d. Sinh JWT token, lưu vào device",
+      "1e. Tạo / load user trong database",
+    ],
+  },
+  {
+    key: "tinder",
+    name: "Build app Tinder",
+    lv1: [
+      "1. Đăng ký / profile (ảnh, bio, sở thích)",
+      "2. Swipe deck (kéo trái/phải / lên)",
+      "3. Match logic (cả 2 like nhau → match)",
+      "4. Chat sau khi match",
+      "5. Lọc theo độ tuổi / khoảng cách / giới tính",
+      "6. Premium features + thanh toán",
+      "7. Báo cáo / chặn user",
+    ],
+    zoomIdx: 1,
+    lv2: [
+      "2a. Card stack UI (3 card chồng nhau)",
+      "2b. Animation kéo + gesture detect",
+      "2c. Khi rời ngón tay: tính hướng → fire 'like' / 'pass' / 'super'",
+      "2d. Gọi API gửi swipe lên server",
+      "2e. Load thêm 10 card khi sắp hết",
+      "2f. Khi server báo match → show 'It's a match!' modal",
+    ],
+  },
+  {
+    key: "slackbot",
+    name: "Bot Slack báo sinh nhật team",
+    lv1: [
+      "1. Lưu danh sách thành viên + ngày sinh",
+      "2. Cron job chạy 9h sáng mỗi ngày",
+      "3. Query: ai sinh nhật hôm nay?",
+      "4. Format message chúc mừng",
+      "5. Gọi Slack API gửi vào channel",
+    ],
+    zoomIdx: 2,
+    lv2: [
+      "3a. Lấy ngày hôm nay (dd-mm)",
+      "3b. SELECT name FROM members WHERE DATE_FORMAT(dob, '%d-%m') = today",
+      "3c. Trả về list 0 hoặc nhiều người",
+      "3d. Nếu list rỗng → không gửi gì",
+    ],
+  },
+  {
+    key: "payroll",
+    name: "Tính lương cuối tháng (50 nhân viên)",
+    lv1: [
+      "1. Đọc bảng chấm công (số giờ/ngày của mỗi người)",
+      "2. Tính lương gross = giờ × mức lương",
+      "3. Trừ thuế thu nhập theo bậc",
+      "4. Cộng thưởng nếu đạt KPI",
+      "5. Trừ bảo hiểm + công đoàn",
+      "6. Xuất file PDF từng người + tổng hợp Excel",
+    ],
+    zoomIdx: 2,
+    lv2: [
+      "3a. Lấy tổng thu nhập tháng = gross + thưởng",
+      "3b. Trừ giảm trừ bản thân (11tr) + người phụ thuộc",
+      "3c. Áp bậc thuế: 5% / 10% / 15% / 20% / 25% / 30% / 35%",
+      "3d. Cộng dồn thuế từng bậc",
+      "3e. Trả số thuế phải đóng",
+    ],
+  },
+];
+
+let curScenario = SCENARIOS[0];
+let decomposeStage = 0; // 0 = chưa, 1 = đã hiện lv1, 2 = đã hiện lv2
+
+function renderScenarios() {
+  const wrap = document.getElementById("scenarios");
+  wrap.innerHTML = "";
+  SCENARIOS.forEach((s, i) => {
+    const p = document.createElement("div");
+    p.className = "pill" + (s.key === curScenario.key ? " active" : "");
+    p.textContent = s.name;
+    p.onclick = () => {
+      curScenario = s;
+      decomposeStage = 0;
+      document.getElementById("tree").innerHTML = "";
+      document.getElementById("btnDecompose").textContent = "Decompose →";
+      renderScenarios();
+      document.getElementById("curScenario").textContent = s.name;
+    };
+    wrap.appendChild(p);
+  });
+  document.getElementById("curScenario").textContent = curScenario.name;
+}
+
+function decompose() {
+  const tree = document.getElementById("tree");
+  const btn = document.getElementById("btnDecompose");
+  if (decomposeStage === 0) {
+    tree.innerHTML = "";
+    curScenario.lv1.forEach((txt, i) => {
+      const n = document.createElement("div");
+      n.className = "tree-node lv1";
+      n.textContent = txt;
+      tree.appendChild(n);
+      setTimeout(() => n.classList.add("shown"), i * 120 + 40);
+    });
+    decomposeStage = 1;
+    btn.textContent = "Zoom vào 1 bài con →";
+  } else if (decomposeStage === 1) {
+    const zoomItem = tree.children[curScenario.zoomIdx];
+    if (zoomItem) zoomItem.style.background = "#fde68a";
+    const insertAfter = (zoomItem && zoomItem.nextSibling) || null;
+    curScenario.lv2.forEach((txt, i) => {
+      const n = document.createElement("div");
+      n.className = "tree-node lv2";
+      n.textContent = txt;
+      if (insertAfter) tree.insertBefore(n, insertAfter);
+      else tree.appendChild(n);
+      setTimeout(() => n.classList.add("shown"), i * 120 + 40);
+    });
+    decomposeStage = 2;
+    btn.textContent = "Xong (Reset để thử bài khác)";
+    btn.disabled = true;
+  }
+}
+
+function resetDecompose() {
+  decomposeStage = 0;
+  document.getElementById("tree").innerHTML = "";
+  const btn = document.getElementById("btnDecompose");
+  btn.textContent = "Decompose →";
+  btn.disabled = false;
+}
+
+document.getElementById("btnDecompose").onclick = decompose;
+document.getElementById("btnReset").onclick = resetDecompose;
+renderScenarios();
+
+/* ============ MODULE 2 — PSEUDOCODE RUNNER ============ */
+
+// Each problem: lines (display), defaultInput, runner (function returning array of steps)
+// A step = { lineIdx, vars, note? }
+const PROBLEMS = {
+  bmi: {
+    name: "Tính BMI",
+    defaultInput: "70,1.75",
+    inputHint: "cân nặng (kg), chiều cao (m) — vd: 70,1.75",
+    lines: [
+      "INPUT: kg, m",
+      "bmi = kg / (m * m)",
+      "if bmi < 18.5:",
+      "    loai = 'Gầy'",
+      "elif bmi < 25:",
+      "    loai = 'Bình thường'",
+      "elif bmi < 30:",
+      "    loai = 'Thừa cân'",
+      "else:",
+      "    loai = 'Béo phì'",
+      "return (bmi, loai)",
+    ],
+    run(input) {
+      const parts = input.split(",").map(s => s.trim());
+      const kg = parseFloat(parts[0]);
+      const m = parseFloat(parts[1]);
+      if (!isFinite(kg) || !isFinite(m) || m <= 0) {
+        return [{ lineIdx: 0, vars: { error: "Input không hợp lệ (cần 'kg,m')" } }];
+      }
+      const steps = [];
+      steps.push({ lineIdx: 0, vars: { kg, m }, note: "Đọc input" });
+      const bmi = kg / (m * m);
+      steps.push({ lineIdx: 1, vars: { kg, m, bmi: +bmi.toFixed(2) }, note: `bmi = ${kg}/${m}² = ${bmi.toFixed(2)}` });
+      let loai;
+      if (bmi < 18.5) {
+        steps.push({ lineIdx: 2, vars: { bmi: +bmi.toFixed(2) }, note: `${bmi.toFixed(2)} < 18.5 → vào nhánh` });
+        loai = "Gầy";
+        steps.push({ lineIdx: 3, vars: { bmi: +bmi.toFixed(2), loai } });
+      } else if (bmi < 25) {
+        steps.push({ lineIdx: 2, vars: { bmi: +bmi.toFixed(2) }, note: `${bmi.toFixed(2)} < 18.5? Không` });
+        steps.push({ lineIdx: 4, vars: { bmi: +bmi.toFixed(2) }, note: `${bmi.toFixed(2)} < 25 → vào nhánh` });
+        loai = "Bình thường";
+        steps.push({ lineIdx: 5, vars: { bmi: +bmi.toFixed(2), loai } });
+      } else if (bmi < 30) {
+        steps.push({ lineIdx: 2, vars: { bmi: +bmi.toFixed(2) }, note: `${bmi.toFixed(2)} < 18.5? Không` });
+        steps.push({ lineIdx: 4, vars: { bmi: +bmi.toFixed(2) }, note: `${bmi.toFixed(2)} < 25? Không` });
+        steps.push({ lineIdx: 6, vars: { bmi: +bmi.toFixed(2) }, note: `${bmi.toFixed(2)} < 30 → vào nhánh` });
+        loai = "Thừa cân";
+        steps.push({ lineIdx: 7, vars: { bmi: +bmi.toFixed(2), loai } });
+      } else {
+        steps.push({ lineIdx: 2, vars: { bmi: +bmi.toFixed(2) }, note: `${bmi.toFixed(2)} < 18.5? Không` });
+        steps.push({ lineIdx: 4, vars: { bmi: +bmi.toFixed(2) }, note: `${bmi.toFixed(2)} < 25? Không` });
+        steps.push({ lineIdx: 6, vars: { bmi: +bmi.toFixed(2) }, note: `${bmi.toFixed(2)} < 30? Không` });
+        steps.push({ lineIdx: 8, vars: { bmi: +bmi.toFixed(2) } });
+        loai = "Béo phì";
+        steps.push({ lineIdx: 9, vars: { bmi: +bmi.toFixed(2), loai } });
+      }
+      steps.push({ lineIdx: 10, vars: { bmi: +bmi.toFixed(2), loai }, note: `Return: BMI=${bmi.toFixed(2)}, Loại="${loai}"` });
+      return steps;
+    },
+  },
+  "count-words": {
+    name: "Đếm số từ",
+    defaultInput: "tôi học lập trình",
+    inputHint: "một câu — vd: tôi học lập trình",
+    lines: [
+      "INPUT: s (chuỗi)",
+      "words = split(s, ' ')",
+      "count = 0",
+      "for w in words:",
+      "    if w != '':",
+      "        count = count + 1",
+      "return count",
+    ],
+    run(input) {
+      const steps = [];
+      steps.push({ lineIdx: 0, vars: { s: `"${input}"` }, note: "Đọc input" });
+      const words = input.split(" ");
+      steps.push({ lineIdx: 1, vars: { s: `"${input}"`, words: JSON.stringify(words) }, note: `Cắt theo dấu cách → ${words.length} phần tử` });
+      let count = 0;
+      steps.push({ lineIdx: 2, vars: { words: JSON.stringify(words), count } });
+      for (let i = 0; i < words.length; i++) {
+        steps.push({ lineIdx: 3, vars: { i, w: `"${words[i]}"`, count }, note: `Vòng ${i + 1}/${words.length}` });
+        if (words[i] !== "") {
+          steps.push({ lineIdx: 4, vars: { w: `"${words[i]}"`, count }, note: `"${words[i]}" ≠ "" → tăng count` });
+          count++;
+          steps.push({ lineIdx: 5, vars: { w: `"${words[i]}"`, count } });
+        } else {
+          steps.push({ lineIdx: 4, vars: { w: `""`, count }, note: `chuỗi rỗng → bỏ qua` });
+        }
+      }
+      steps.push({ lineIdx: 6, vars: { count }, note: `Return: ${count} từ` });
+      return steps;
+    },
+  },
+  palindrome: {
+    name: "Palindrome",
+    defaultInput: "abcba",
+    inputHint: "chuỗi cần kiểm tra — vd: abcba, hello",
+    lines: [
+      "INPUT: s",
+      "left = 0",
+      "right = len(s) - 1",
+      "while left < right:",
+      "    if s[left] != s[right]:",
+      "        return false",
+      "    left = left + 1",
+      "    right = right - 1",
+      "return true",
+    ],
+    run(input) {
+      const s = input;
+      const steps = [];
+      steps.push({ lineIdx: 0, vars: { s: `"${s}"` }, note: `Độ dài = ${s.length}` });
+      let left = 0;
+      steps.push({ lineIdx: 1, vars: { s: `"${s}"`, left } });
+      let right = s.length - 1;
+      steps.push({ lineIdx: 2, vars: { s: `"${s}"`, left, right } });
+      let result = true;
+      while (left < right) {
+        steps.push({ lineIdx: 3, vars: { left, right }, note: `${left} < ${right}? Có → vào loop` });
+        const a = s[left], b = s[right];
+        steps.push({ lineIdx: 4, vars: { left, right, "s[left]": `'${a}'`, "s[right]": `'${b}'` }, note: `So '${a}' vs '${b}'` });
+        if (a !== b) {
+          steps.push({ lineIdx: 5, vars: { "s[left]": `'${a}'`, "s[right]": `'${b}'`, result: false }, note: `Khác nhau → return false` });
+          result = false;
+          break;
+        }
+        steps.push({ lineIdx: 6, vars: { left: left + 1, right }, note: `left++` });
+        left++;
+        steps.push({ lineIdx: 7, vars: { left, right: right - 1 }, note: `right--` });
+        right--;
+      }
+      if (result) {
+        steps.push({ lineIdx: 3, vars: { left, right }, note: `${left} < ${right}? Không → thoát loop` });
+        steps.push({ lineIdx: 8, vars: { result: true }, note: `Return: true (là palindrome)` });
+      }
+      return steps;
+    },
+  },
+};
+
+let curProb = "bmi";
+let curSteps = [];
+let curStepIdx = -1;
+
+function loadProblem(key) {
+  curProb = key;
+  const p = PROBLEMS[key];
+  document.getElementById("probInput").value = p.defaultInput;
+  document.getElementById("probInput").title = p.inputHint;
+  curSteps = [];
+  curStepIdx = -1;
+  renderPseudo(-1);
+  document.getElementById("varsView").innerHTML = '<div style="color: #94a3b8;">(bấm "Bắt đầu" để chạy)</div>';
+  document.getElementById("stepInfo").textContent = "Sẵn sàng — bấm 'Bắt đầu'";
+}
+
+function renderPseudo(hitIdx) {
+  const p = PROBLEMS[curProb];
+  const view = document.getElementById("pseudoView");
+  view.innerHTML = p.lines.map((l, i) => {
+    const cls = "ln" + (i === hitIdx ? " hit" : "");
+    // escape <
+    const safe = l.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+    return `<span class="${cls}">${safe}</span>`;
+  }).join("");
+}
+
+function renderVars(step) {
+  const view = document.getElementById("varsView");
+  const rows = [];
+  if (step.note) rows.push(`<div class="var-row" style="color:#0369a1;margin-bottom:6px">// ${step.note}</div>`);
+  const vars = step.vars || {};
+  const keys = Object.keys(vars);
+  if (keys.length === 0) {
+    rows.push('<div style="color:#94a3b8">(chưa có biến)</div>');
+  } else {
+    for (const k of keys) {
+      rows.push(`<div class="var-row"><span class="name">${k}</span> = <span class="val">${vars[k]}</span></div>`);
+    }
+  }
+  view.innerHTML = rows.join("");
+}
+
+function startRunner() {
+  const input = document.getElementById("probInput").value;
+  curSteps = PROBLEMS[curProb].run(input);
+  curStepIdx = 0;
+  if (curSteps.length > 0) {
+    renderPseudo(curSteps[0].lineIdx);
+    renderVars(curSteps[0]);
+    document.getElementById("stepInfo").textContent = `Bước 1/${curSteps.length}`;
+  }
+}
+
+function stepNext() {
+  if (curStepIdx < 0) { startRunner(); return; }
+  if (curStepIdx >= curSteps.length - 1) {
+    document.getElementById("stepInfo").textContent = `Hết — ${curSteps.length}/${curSteps.length} bước`;
+    return;
+  }
+  curStepIdx++;
+  renderPseudo(curSteps[curStepIdx].lineIdx);
+  renderVars(curSteps[curStepIdx]);
+  document.getElementById("stepInfo").textContent = `Bước ${curStepIdx + 1}/${curSteps.length}`;
+}
+
+function runAll() {
+  if (curStepIdx < 0) startRunner();
+  curStepIdx = curSteps.length - 1;
+  renderPseudo(curSteps[curStepIdx].lineIdx);
+  renderVars(curSteps[curStepIdx]);
+  document.getElementById("stepInfo").textContent = `Hết — ${curSteps.length}/${curSteps.length} bước`;
+}
+
+document.getElementById("probSelect").onchange = (e) => loadProblem(e.target.value);
+document.getElementById("btnStart").onclick = startRunner;
+document.getElementById("btnStep").onclick = stepNext;
+document.getElementById("btnRunAll").onclick = runAll;
+loadProblem("bmi");
+
+/* ============ MODULE 3 — 6-STEP WALKTHROUGH ============ */
+const STEPS_6 = [
+  {
+    title: "Bước 1 — Hiểu đề (diễn đạt lại)",
+    body: `
+      <p>Bài: <strong>Đếm số lần ký tự <code>'a'</code> xuất hiện trong chuỗi <code>"banana"</code></strong>.</p>
+      <p>Diễn đạt lại bằng lời mình:</p>
+      <blockquote style="border-left:3px solid #94a3b8;padding-left:12px;margin:8px 0;color:#475569;font-style:italic">
+        "Tôi có chuỗi <code>"banana"</code> và ký tự <code>'a'</code>. Tôi đi qua từng ký tự trong chuỗi.
+        Mỗi lần ký tự đang xét đúng bằng <code>'a'</code>, tôi cộng 1 vào biến đếm. Cuối cùng trả về biến đếm."
+      </blockquote>
+      <p>Câu hỏi cần làm rõ:</p>
+      <ul>
+        <li>Phân biệt hoa-thường? → Có ('A' khác 'a').</li>
+        <li>Chuỗi rỗng → trả về 0.</li>
+        <li>Ký tự Unicode? → Chỉ ASCII (đơn giản hoá).</li>
+      </ul>
+    `,
+  },
+  {
+    title: "Bước 2 — Tạo ví dụ cụ thể",
+    body: `
+      <table class="ex-table">
+        <thead><tr><th>Input</th><th>Output</th><th>Ghi chú</th></tr></thead>
+        <tbody>
+          <tr><td><code>s="banana", c='a'</code></td><td><strong>3</strong></td><td>3 chữ a (vị trí 1, 3, 5)</td></tr>
+          <tr><td><code>s="hello", c='l'</code></td><td><strong>2</strong></td><td>2 chữ l liền nhau</td></tr>
+          <tr><td><code>s="abc", c='z'</code></td><td><strong>0</strong></td><td>không có 'z'</td></tr>
+          <tr><td><code>s="", c='a'</code></td><td><strong>0</strong></td><td>edge: chuỗi rỗng</td></tr>
+          <tr><td><code>s="AAAA", c='a'</code></td><td><strong>0</strong></td><td>edge: hoa-thường khác nhau</td></tr>
+          <tr><td><code>s="aaaaa", c='a'</code></td><td><strong>5</strong></td><td>edge: toàn match</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:10px;font-size:13px;color:#64748b">💡 Để ý có 3 edge case: empty, hoa-thường, toàn match. Đây là "vùng nguy hiểm" code dễ sai.</p>
+    `,
+  },
+  {
+    title: "Bước 3 — Tìm pattern",
+    body: `
+      <p>Đối chiếu 4 pattern phổ biến (mục 2.2 README):</p>
+      <ul>
+        <li><strong>Loop làm gì đó với từng phần tử</strong> — gần đúng, nhưng output không phải "làm gì đó", là 1 con số.</li>
+        <li><strong>Search</strong> — không hẳn, ta không "tìm và dừng", ta đi hết.</li>
+        <li><strong>Transform</strong> — không, output không phải list mới.</li>
+        <li><strong>Aggregate (gom list thành 1 giá trị)</strong> — <span class="badge ok">✓ KHỚP</span> — gom list ký tự thành 1 con số (count).</li>
+      </ul>
+      <p>Cụ thể là <strong>biến thể "đếm thoả điều kiện"</strong>: <code>count = 0; for x: if cond(x): count++; return count</code>.</p>
+      <p>Bài tương tự ta đã thấy trong bài tập 3 (đếm đơn hàng > 1tr, đếm điểm ≥ 5, đếm log ERROR). Cùng khung, khác <code>cond</code>.</p>
+    `,
+  },
+  {
+    title: "Bước 4 — Pseudocode",
+    body: `
+      <pre class="pseudo"><span class="ln">count = 0</span>
+<span class="ln">với mỗi ký_tự ch trong s:</span>
+<span class="ln">    nếu ch == c:</span>
+<span class="ln">        count = count + 1</span>
+<span class="ln">trả về count</span></pre>
+      <p style="margin-top:10px">Logic gọn. 5 dòng. Không nhắc kiểu dữ liệu, không nhắc Go, không nhắc syntax. Chỉ ý.</p>
+      <p>Để ý đây là khung "đếm thoả điều kiện" ở bước 3 — chỉ thay <code>cond(x)</code> bằng <code>ch == c</code>.</p>
+    `,
+  },
+  {
+    title: "Bước 5 — Code (Go preview)",
+    body: `
+      <p>Lesson này chưa dạy Go, nhưng để bạn thấy ánh xạ:</p>
+      <pre class="pseudo">func demKyTu(s string, c byte) int {
+    count := 0
+    for i := 0; i &lt; len(s); i++ {
+        if s[i] == c {
+            count++
+        }
+    }
+    return count
+}</pre>
+      <p style="margin-top:10px;font-size:13px;color:#64748b">
+        Khác pseudocode: thêm kiểu (<code>string</code>, <code>byte</code>, <code>int</code>), syntax for index, dấu <code>{</code><code>}</code>.
+        <strong>Logic giống hệt.</strong> Khi học Go ở Tier 1, bước này chỉ là "dịch", không phải "nghĩ lại".
+      </p>
+    `,
+  },
+  {
+    title: "Bước 6 — Test với edge case",
+    body: `
+      <table class="ex-table">
+        <thead><tr><th>Input</th><th>Expected</th><th>Trace</th><th>Kết quả</th></tr></thead>
+        <tbody>
+          <tr><td><code>"banana", 'a'</code></td><td>3</td><td>b(0)→a(1)→n(1)→a(2)→n(2)→a(3)</td><td><span class="badge ok">✓ 3</span></td></tr>
+          <tr><td><code>"hello", 'l'</code></td><td>2</td><td>h(0)→e(0)→l(1)→l(2)→o(2)</td><td><span class="badge ok">✓ 2</span></td></tr>
+          <tr><td><code>"abc", 'z'</code></td><td>0</td><td>không match nào</td><td><span class="badge ok">✓ 0</span></td></tr>
+          <tr><td><code>"", 'a'</code></td><td>0</td><td>loop không chạy → count=0</td><td><span class="badge ok">✓ 0</span></td></tr>
+          <tr><td><code>"AAAA", 'a'</code></td><td>0</td><td>'A' (65) ≠ 'a' (97)</td><td><span class="badge ok">✓ 0</span></td></tr>
+          <tr><td><code>"aaaaa", 'a'</code></td><td>5</td><td>5 vòng tăng count</td><td><span class="badge ok">✓ 5</span></td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:10px;font-size:14px;color:#065f46;font-weight:600">🎉 Cả 6 case pass — bài giải xong.</p>
+      <p style="font-size:13px;color:#64748b">
+        Để ý: nếu bỏ Bước 6, bạn sẽ không phát hiện được trường hợp <code>"AAAA"</code> + <code>'a'</code> — hầu hết người
+        viết code lần đầu sẽ nhầm là 4. Đó là lý do edge case không phải bonus.
+      </p>
+    `,
+  },
+];
+
+let cur6Step = 0;
+function render6Steps() {
+  const tabs = document.getElementById("stepTabs");
+  tabs.innerHTML = "";
+  STEPS_6.forEach((s, i) => {
+    const b = document.createElement("button");
+    b.className = "step-tab" + (i === cur6Step ? " active" : (i < cur6Step ? " done" : ""));
+    b.textContent = `Bước ${i + 1}`;
+    b.onclick = () => { cur6Step = i; render6Steps(); };
+    tabs.appendChild(b);
+  });
+  const content = document.getElementById("stepContent");
+  const s = STEPS_6[cur6Step];
+  content.innerHTML = `<h3>${s.title}</h3>${s.body}`;
+}
+render6Steps();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</main>
+</body>
+</html>

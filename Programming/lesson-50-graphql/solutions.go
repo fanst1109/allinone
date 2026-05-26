@@ -170,10 +170,10 @@ type queryField struct {
 
 // Executor giữ state cho MỘT request: db + loader (loader scope theo request).
 type Executor struct {
-	schema    *Schema
-	db        *fakeDB
-	userLoad  *DataLoader // dùng ở module DataLoader; nil khi chạy naive
-	postLoad  *DataLoader
+	schema   *Schema
+	db       *fakeDB
+	userLoad *DataLoader // dùng ở module DataLoader; nil khi chạy naive
+	postLoad *DataLoader
 }
 
 // execute duyệt cây query, gọi resolver từng field — đây là "resolver chain".
@@ -276,11 +276,11 @@ func defaultResolve(parent any, field string) (any, error) {
 // dataloader.NewBatchedLoader trong thư viện graph-gophers/dataloader.
 
 type DataLoader struct {
-	mu       sync.Mutex
-	pending  []string             // id đang chờ batch
-	seen     map[string]bool      // tránh thêm trùng vào pending
-	cache    map[string]any       // id → value đã load
-	batchFn  func(ids []string) map[string]any
+	mu      sync.Mutex
+	pending []string        // id đang chờ batch
+	seen    map[string]bool // tránh thêm trùng vào pending
+	cache   map[string]any  // id → value đã load
+	batchFn func(ids []string) map[string]any
 }
 
 func NewDataLoader(batchFn func(ids []string) map[string]any) *DataLoader {
@@ -400,8 +400,9 @@ func demoNPlusOne() {
 
 // demoDataLoaderFix: chạy lại cùng query nhưng resolver posts dùng DataLoader.
 // Vì engine tối giản chạy tuần tự, ta áp dụng pattern 2 pha thủ công:
-//   Pha 1: lấy danh sách user, gọi loader.Load cho mọi user ID.
-//   Pha 2: loader.Dispatch() → 1 batch query duy nhất cho posts.
+//
+//	Pha 1: lấy danh sách user, gọi loader.Load cho mọi user ID.
+//	Pha 2: loader.Dispatch() → 1 batch query duy nhất cho posts.
 func demoDataLoaderFix() {
 	fmt.Println("=== DEMO 2b: Fix N+1 bằng DataLoader (batch + cache) ===")
 	db := newDB()
@@ -416,9 +417,18 @@ func demoDataLoaderFix() {
 		return out
 	})
 
+	// Pha 1 — collect: lấy users (1 query) + ghi nhận id vào loader.
+	users := db.queryAllUsers()
+	for _, u := range users {
+		postLoader.Load(u.ID)
+	}
+	// Pha 2 — dispatch: gom tất cả thành 1 query.
+	postLoader.Dispatch()
+
 	schema := NewSchema()
+	// Query.users trả lại đúng slice đã fetch ở pha 1 — KHÔNG query DB lần nữa.
 	schema.Field("Query", "users", func(_ any, _ map[string]any, e *Executor) (any, error) {
-		return e.db.queryAllUsers(), nil
+		return users, nil
 	})
 	schema.Field("User", "posts", func(parent any, _ map[string]any, e *Executor) (any, error) {
 		// Resolver KHÔNG chạm DB; chỉ đọc từ cache loader đã batch sẵn.
@@ -427,14 +437,6 @@ func demoDataLoaderFix() {
 	})
 
 	exec := &Executor{schema: schema, db: db, postLoad: postLoader}
-
-	// Pha 1 — collect: lấy users + ghi nhận id vào loader.
-	users := db.queryAllUsers()
-	for _, u := range users {
-		postLoader.Load(u.ID)
-	}
-	// Pha 2 — dispatch: gom tất cả thành 1 query.
-	postLoader.Dispatch()
 
 	// Bây giờ resolver chỉ đọc cache, không sinh thêm DB query nào.
 	query := []queryField{

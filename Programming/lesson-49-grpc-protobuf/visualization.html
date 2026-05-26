@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 49 — gRPC &amp; Protobuf · Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #16a34a;       /* gRPC xanh lá */
+    --accent-soft: #ecfdf5;
+    --accent-hover: #15803d;
+  }
+  main { max-width: 1080px; margin: 0 auto; padding: 24px 16px 80px; }
+  h1 { font-size: 28px; margin: 8px 0 4px; }
+  .subtitle { color: #6b7280; margin-bottom: 24px; }
+
+  .module {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 28px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .module h2 { margin: 0 0 6px; font-size: 22px; color: #1f2937; }
+  .module .lead { color: #4b5563; margin-bottom: 16px; font-size: 14px; }
+
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center;
+    background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;
+    padding: 12px; margin-bottom: 16px;
+  }
+  button {
+    background: var(--accent); color: #fff; border: none; border-radius: 6px;
+    padding: 8px 14px; font-size: 14px; cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost { background: #fff; color: var(--accent); border: 1px solid var(--accent); }
+  button.ghost:hover { background: var(--accent-soft); }
+
+  /* ---- Module 1: proto schema ---- */
+  .proto-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  pre.proto {
+    background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 14px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px;
+    line-height: 1.7; overflow-x: auto; margin: 0; cursor: default;
+  }
+  pre.proto .kw { color: #f472b6; }
+  pre.proto .typ { color: #38bdf8; }
+  pre.proto .num { color: #fbbf24; }
+  pre.proto .cm { color: #64748b; font-style: italic; }
+  pre.proto .field { transition: background .15s; border-radius: 3px; }
+  pre.proto .field:hover, pre.proto .field.hot { background: #334155; }
+  .wire-box {
+    background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px;
+    font-size: 13px;
+  }
+  .wire-box h3 { margin: 0 0 10px; font-size: 15px; }
+  .byte {
+    display: inline-block; min-width: 30px; text-align: center; padding: 5px 6px;
+    margin: 3px 2px; border-radius: 5px; font-family: ui-monospace, monospace;
+    font-size: 13px; background: #e2e8f0; color: #1e293b;
+  }
+  .byte.tag { background: #fde68a; }
+  .byte.val { background: #bbf7d0; }
+  .byte.len { background: #bfdbfe; }
+  .legend { font-size: 12px; color: #64748b; margin-top: 10px; }
+  .legend .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: middle; margin-right: 3px; }
+  .hint { font-size: 12px; color: #64748b; margin-top: 8px; }
+
+  /* ---- Module 2: RPC types animation ---- */
+  .rpc-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .rpc-tab {
+    background: #fff; color: #334155; border: 1px solid #cbd5e0; border-radius: 999px;
+    padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .rpc-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .stage {
+    position: relative; height: 220px; background: #f8fafc; border: 1px solid #e5e7eb;
+    border-radius: 10px; overflow: hidden;
+  }
+  .node {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 110px; text-align: center; padding: 14px 8px; border-radius: 10px;
+    font-weight: 700; font-size: 14px; color: #fff;
+  }
+  .node.client { left: 18px; background: #2563eb; }
+  .node.server { right: 18px; background: #16a34a; }
+  .node small { display: block; font-weight: 400; font-size: 11px; opacity: .85; margin-top: 2px; }
+  .packet {
+    position: absolute; top: 50%; width: 22px; height: 22px; border-radius: 6px;
+    margin-top: -11px; box-shadow: 0 2px 6px rgba(0,0,0,.2); opacity: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 12px; color: #fff;
+  }
+  .packet.req { background: #2563eb; }
+  .packet.resp { background: #16a34a; }
+  .rpc-desc { font-size: 13px; color: #475569; margin-top: 12px; min-height: 38px; }
+  .rpc-desc b { color: #1f2937; }
+
+  /* ---- Module 3: perf bar chart ---- */
+  .chart-controls label { font-size: 13px; color: #334155; }
+  input[type=range] { vertical-align: middle; max-width: 100%; }
+  .bars { display: grid; gap: 18px; margin-top: 8px; }
+  .bar-row { }
+  .bar-row .barlabel { font-size: 13px; font-weight: 600; margin-bottom: 5px; display: flex; justify-content: space-between; }
+  .bar-track { background: #eef2f7; border-radius: 6px; height: 30px; overflow: hidden; }
+  .bar-fill {
+    height: 100%; border-radius: 6px; transition: width .5s ease;
+    display: flex; align-items: center; padding-left: 10px; color: #fff;
+    font-size: 13px; font-weight: 700; white-space: nowrap;
+  }
+  .bar-fill.rest { background: #f59e0b; }
+  .bar-fill.grpc { background: #16a34a; }
+  .metric-tabs { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .ratio { font-size: 13px; color: #475569; margin-top: 12px; }
+  .ratio b { color: var(--accent-hover); }
+
+  @media (max-width: 720px) {
+    .proto-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-48-websocket-streaming/visualization.html">← L48: WebSocket</a>
+  <span class="sep">·</span>
+  <span class="current">L49: gRPC</span>
+  <span class="sep">·</span>
+  <a href="../lesson-50-graphql/visualization.html">L50: GraphQL →</a>
+</nav>
+
+<main>
+  <h1>Lesson 49 — gRPC &amp; Protocol Buffers</h1>
+  <p class="subtitle">Proto schema → wire format · 4 loại RPC · gRPC vs REST hiệu năng.</p>
+
+  <!-- ============ MODULE 1 ============ -->
+  <section class="module">
+    <h2>1. Proto schema → wire format</h2>
+    <p class="lead">Hover (hoặc bấm) một <b>field</b> trong file <code>.proto</code> để xem nó encode thành bytes ra sao. Wire = <code>tag (field_number&lt;&lt;3 | wire_type)</code> + value. Đây là vì sao binary nhỏ ~3× JSON.</p>
+    <div class="proto-grid">
+      <pre class="proto" id="protoSrc"></pre>
+      <div class="wire-box">
+        <h3 id="wireTitle">Bấm vào field bất kỳ</h3>
+        <div id="wireBytes"></div>
+        <div id="wireExplain" class="hint"></div>
+        <div class="legend">
+          <span class="sw" style="background:#fde68a"></span>tag (field# + wire_type) &nbsp;
+          <span class="sw" style="background:#bfdbfe"></span>length &nbsp;
+          <span class="sw" style="background:#bbf7d0"></span>value
+        </div>
+        <div id="jsonCompare" class="hint"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MODULE 2 ============ -->
+  <section class="module">
+    <h2>2. Bốn loại RPC — animate</h2>
+    <p class="lead">Bốn loại = tổ hợp (client gửi 1/N) × (server trả 1/N). Chọn loại rồi bấm <b>Chạy</b> để xem dòng message.</p>
+    <div class="rpc-tabs" id="rpcTabs">
+      <button class="rpc-tab active" data-type="unary">Unary</button>
+      <button class="rpc-tab" data-type="server">Server-streaming</button>
+      <button class="rpc-tab" data-type="client">Client-streaming</button>
+      <button class="rpc-tab" data-type="bidi">Bidirectional</button>
+    </div>
+    <div class="controls">
+      <button id="rpcRun">▶ Chạy</button>
+      <button class="ghost" id="rpcReset">Reset</button>
+    </div>
+    <div class="stage" id="rpcStage">
+      <div class="node client">Client<small>NewClient</small></div>
+      <div class="node server">Server<small>:50051</small></div>
+    </div>
+    <div class="rpc-desc" id="rpcDesc"></div>
+  </section>
+
+  <!-- ============ MODULE 3 ============ -->
+  <section class="module">
+    <h2>3. gRPC vs REST — hiệu năng</h2>
+    <p class="lead">Kéo số lượng message để thấy chênh lệch wire bytes / thời gian / throughput. Số dựa trên benchmark localhost (README mục 14), tỷ lệ ~3× băng thông, ~5× tốc độ — co giãn theo N.</p>
+    <div class="metric-tabs" id="metricTabs">
+      <button class="rpc-tab active" data-metric="bytes">Wire bytes</button>
+      <button class="rpc-tab" data-metric="time">Thời gian</button>
+      <button class="rpc-tab" data-metric="tput">Throughput</button>
+    </div>
+    <div class="controls chart-controls">
+      <label>Số message: <b id="nLabel">100,000</b></label>
+      <input type="range" id="nRange" min="10000" max="500000" step="10000" value="100000" style="width:240px;">
+    </div>
+    <div class="bars">
+      <div class="bar-row">
+        <div class="barlabel"><span>REST + JSON</span><span id="restVal"></span></div>
+        <div class="bar-track"><div class="bar-fill rest" id="restBar"></div></div>
+      </div>
+      <div class="bar-row">
+        <div class="barlabel"><span>gRPC + protobuf</span><span id="grpcVal"></span></div>
+        <div class="bar-track"><div class="bar-fill grpc" id="grpcBar"></div></div>
+      </div>
+    </div>
+    <div class="ratio" id="ratioText"></div>
+  </section>
+</main>
+
+<script>
+(function () {
+  const $ = id => document.getElementById(id);
+
+  /* ===================== MODULE 1: proto → wire ===================== */
+  // Mỗi field: tên hiển thị, field_number, wire_type, ví dụ value + bytes encode.
+  const fields = {
+    id:    { num: 1, wt: 0, wtName: 'varint (0)', typ: 'int64',  sample: '5',
+             bytes: [['08','tag'],['05','val']],
+             explain: 'tag = (1&lt;&lt;3)|0 = 0x08 · value = varint(5) = 0x05' },
+    name:  { num: 2, wt: 2, wtName: 'length-delim (2)', typ: 'string', sample: '"ada"',
+             bytes: [['12','tag'],['03','len'],['61','val'],['64','val'],['61','val']],
+             explain: 'tag = (2&lt;&lt;3)|2 = 0x12 · len = 3 · "ada" = 61 64 61' },
+    email: { num: 3, wt: 2, wtName: 'length-delim (2)', typ: 'string', sample: '"a@x.io"',
+             bytes: [['1a','tag'],['06','len'],['61','val'],['40','val'],['78','val'],['2e','val'],['69','val'],['6f','val']],
+             explain: 'tag = (3&lt;&lt;3)|2 = 0x1a · len = 6 · "a@x.io" bytes' },
+    role:  { num: 4, wt: 0, wtName: 'varint (0)', typ: 'Role', sample: 'ROLE_ADMIN (2)',
+             bytes: [['20','tag'],['02','val']],
+             explain: 'tag = (4&lt;&lt;3)|0 = 0x20 · value = varint(2) = 0x02' },
+  };
+
+  function buildProto() {
+    const f = (name) =>
+      `  <span class="typ">${fields[name].typ}</span> ` +
+      `<span class="field" data-f="${name}">${name}</span> = ` +
+      `<span class="num">${fields[name].num}</span>;`;
+    const lines = [
+      `<span class="kw">syntax</span> = <span class="num">"proto3"</span>;`,
+      `<span class="kw">package</span> user.v1;`,
+      ``,
+      `<span class="cm">// User = một tài khoản</span>`,
+      `<span class="kw">message</span> <span class="typ">User</span> {`,
+      f('id'),
+      f('name'),
+      f('email'),
+      f('role'),
+      `}`,
+      ``,
+      `<span class="kw">service</span> <span class="typ">UserService</span> {`,
+      `  <span class="kw">rpc</span> GetUser(GetUserRequest) <span class="kw">returns</span> (User);`,
+      `  <span class="kw">rpc</span> ListUsers(Req) <span class="kw">returns</span> (<span class="kw">stream</span> User);`,
+      `}`,
+    ];
+    $('protoSrc').innerHTML = lines.join('\n');
+    document.querySelectorAll('.field').forEach(el => {
+      el.addEventListener('mouseenter', () => showWire(el.dataset.f, el));
+      el.addEventListener('click', () => showWire(el.dataset.f, el));
+    });
+  }
+
+  function showWire(name, el) {
+    const f = fields[name];
+    document.querySelectorAll('.field').forEach(e => e.classList.remove('hot'));
+    if (el) el.classList.add('hot');
+    $('wireTitle').innerHTML = `<span class="typ" style="color:#0ea5e9">${f.typ}</span> ${name} = ${f.num} &nbsp; <small style="color:#64748b">${f.sample}</small>`;
+    $('wireBytes').innerHTML = f.bytes
+      .map(([b, cls]) => `<span class="byte ${cls}">${b}</span>`)
+      .join('');
+    $('wireExplain').innerHTML = f.explain;
+    const total = f.bytes.length;
+    $('jsonCompare').innerHTML =
+      `Protobuf field này: <b>${total} byte</b>. ` +
+      `JSON <code>"${name}":${f.sample}</code> ≈ <b>${(name.length + String(f.sample).length + 4)} byte</b> ` +
+      `(chưa kể <code>{}</code>, <code>,</code>).`;
+  }
+
+  buildProto();
+  showWire('name');
+
+  /* ===================== MODULE 2: 4 RPC types ===================== */
+  let rpcType = 'unary';
+  const stage = $('rpcStage');
+  const descs = {
+    unary:  '<b>Unary</b>: client gửi <b>1</b> request, server trả <b>1</b> response. 90% RPC thực tế. VD <code>GetUser(id) → User</code>.',
+    server: '<b>Server-streaming</b>: client gửi <b>1</b>, server trả <b>N</b> (stream) qua thời gian. VD <code>ListUsers → stream User</code>. Client đọc đến EOF.',
+    client: '<b>Client-streaming</b>: client gửi <b>N</b> (stream), server trả <b>1</b>. VD upload file từng chunk → <code>UploadResult</code>.',
+    bidi:   '<b>Bidirectional</b>: cả hai gửi <b>N</b>, độc lập. VD <code>Chat → stream</code>. Coi chừng backpressure nếu một bên ngừng đọc.',
+  };
+
+  $('rpcTabs').addEventListener('click', e => {
+    const t = e.target.closest('.rpc-tab');
+    if (!t) return;
+    document.querySelectorAll('#rpcTabs .rpc-tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    rpcType = t.dataset.type;
+    resetRpc();
+  });
+
+  function resetRpc() {
+    stage.querySelectorAll('.packet').forEach(p => p.remove());
+    $('rpcDesc').innerHTML = descs[rpcType];
+  }
+
+  // Tạo 1 packet bay từ x1→x2 (% của stage width). dir: 'req'|'resp'.
+  function fly(dir, delay, label) {
+    const p = document.createElement('div');
+    p.className = 'packet ' + dir;
+    p.textContent = label || '';
+    stage.appendChild(p);
+    const fromLeft = dir === 'req';
+    const startX = fromLeft ? 135 : stage.clientWidth - 157;
+    const endX   = fromLeft ? stage.clientWidth - 157 : 135;
+    p.style.left = startX + 'px';
+    p.style.opacity = '0';
+    setTimeout(() => {
+      p.style.transition = 'left .9s linear, opacity .2s';
+      p.style.opacity = '1';
+      p.style.left = endX + 'px';
+      setTimeout(() => { p.style.opacity = '0'; setTimeout(() => p.remove(), 250); }, 900);
+    }, delay);
+  }
+
+  function runRpc() {
+    stage.querySelectorAll('.packet').forEach(p => p.remove());
+    if (rpcType === 'unary') {
+      fly('req', 0, 'req');
+      fly('resp', 1100, 'resp');
+    } else if (rpcType === 'server') {
+      fly('req', 0, 'req');
+      [0,1,2,3].forEach(i => fly('resp', 1100 + i * 600, '#' + (i+1)));
+    } else if (rpcType === 'client') {
+      [0,1,2,3].forEach(i => fly('req', i * 600, '#' + (i+1)));
+      fly('resp', 600 * 4 + 600, 'res');
+    } else { // bidi
+      [0,1,2].forEach(i => fly('req', i * 800, '↑' + (i+1)));
+      [0,1,2].forEach(i => fly('resp', 400 + i * 800, '↓' + (i+1)));
+    }
+  }
+
+  $('rpcRun').addEventListener('click', runRpc);
+  $('rpcReset').addEventListener('click', resetRpc);
+  resetRpc();
+
+  /* ===================== MODULE 3: perf chart ===================== */
+  // Baseline per-message (localhost benchmark, README mục 14):
+  //   REST+JSON: ~550 byte/msg, ~42µs/msg → ~24k req/s
+  //   gRPC:      ~180 byte/msg, ~8µs/msg  → ~125k req/s
+  let metric = 'bytes';
+  const PER = {
+    bytes: { rest: 550,    grpc: 180,    unit: 'MB', conv: n => (n / 1e6),    fmt: v => v.toFixed(1) + ' MB' },
+    time:  { rest: 42e-6,  grpc: 8e-6,   unit: 's',  conv: n => n,            fmt: v => v.toFixed(2) + ' s'  },
+  };
+
+  function fmtNum(n) { return n.toLocaleString('en-US'); }
+
+  function render() {
+    const n = +$('nRange').value;
+    $('nLabel').textContent = fmtNum(n);
+
+    let restRaw, grpcRaw, restTxt, grpcTxt, higherBetter = false;
+    if (metric === 'bytes') {
+      restRaw = n * 550 / 1e6; grpcRaw = n * 180 / 1e6;
+      restTxt = restRaw.toFixed(1) + ' MB'; grpcTxt = grpcRaw.toFixed(1) + ' MB';
+    } else if (metric === 'time') {
+      restRaw = n * 42e-6; grpcRaw = n * 8e-6;
+      restTxt = restRaw.toFixed(2) + ' s'; grpcTxt = grpcRaw.toFixed(2) + ' s';
+    } else { // throughput — cao hơn = tốt hơn
+      higherBetter = true;
+      restRaw = 24000; grpcRaw = 125000;
+      restTxt = fmtNum(restRaw) + ' req/s'; grpcTxt = fmtNum(grpcRaw) + ' req/s';
+    }
+
+    const max = Math.max(restRaw, grpcRaw);
+    $('restBar').style.width = (restRaw / max * 100) + '%';
+    $('grpcBar').style.width = (grpcRaw / max * 100) + '%';
+    $('restBar').textContent = restTxt;
+    $('grpcBar').textContent = grpcTxt;
+    $('restVal').textContent = restTxt;
+    $('grpcVal').textContent = grpcTxt;
+
+    let ratio, verb;
+    if (higherBetter) { ratio = (grpcRaw / restRaw); verb = 'throughput cao gấp'; }
+    else if (metric === 'bytes') { ratio = (restRaw / grpcRaw); verb = 'tiết kiệm băng thông'; }
+    else { ratio = (restRaw / grpcRaw); verb = 'nhanh hơn'; }
+    $('ratioText').innerHTML = `gRPC <b>${ratio.toFixed(1)}×</b> ${verb} so với REST/JSON ở mức này.`;
+  }
+
+  $('metricTabs').addEventListener('click', e => {
+    const t = e.target.closest('.rpc-tab');
+    if (!t) return;
+    document.querySelectorAll('#metricTabs .rpc-tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    metric = t.dataset.metric;
+    render();
+  });
+  $('nRange').addEventListener('input', render);
+  render();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L43 — REST API Design</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #0d9488;
+    --accent-hover: #0f766e;
+    --accent-soft: #ccfbf1;
+    --ok: #10b981;
+    --warn: #f59e0b;
+    --err: #ef4444;
+    --info: #3b82f6;
+    --border: #cbd5e0;
+    --code-bg: #1e293b;
+    --code-fg: #e2e8f0;
+  }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 80px; }
+  h1 { color: #2d3748; margin-top: 0; }
+  .intro { color: #4a5568; line-height: 1.55; max-width: 800px; }
+
+  .module {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 28px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+  .module h2 {
+    margin-top: 0;
+    color: #2d3748;
+    border-bottom: 2px solid var(--accent-soft);
+    padding-bottom: 8px;
+  }
+  .module .desc { color: #4a5568; line-height: 1.55; }
+  .module .desc code,
+  .desc code { background: #f1f5f9; padding: 1px 5px; border-radius: 3px; font-size: 0.92em; }
+
+  button.viz-btn {
+    padding: 8px 16px; border: 0;
+    background: var(--accent); color: #fff;
+    border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;
+  }
+  button.viz-btn:hover { background: var(--accent-hover); }
+  button.viz-btn.secondary { background: #6b7280; }
+  button.viz-btn.secondary:hover { background: #4b5563; }
+  button.viz-btn:disabled { background: #cbd5e0; cursor: not-allowed; }
+
+  /* ============ Module 1: Method picker ============ */
+  .action-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+    margin: 16px 0;
+  }
+  .action-card {
+    background: #f8fafc;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .action-card:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .action-card.selected { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 3px rgba(13,148,136,.18); }
+  .action-card .title { font-weight: 700; color: #1e293b; font-size: 14px; }
+
+  .pick-result {
+    margin-top: 16px;
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    min-height: 100px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 14px;
+    line-height: 1.7;
+    overflow-x: auto;
+  }
+  .pick-result.empty { color: #64748b; font-style: italic; font-family: inherit; }
+  .pill {
+    display: inline-block; padding: 2px 9px; border-radius: 5px;
+    font-weight: 700; font-size: 13px; color: #fff;
+  }
+  .m-GET { background: #2563eb; }
+  .m-POST { background: #16a34a; }
+  .m-PUT { background: #d97706; }
+  .m-PATCH { background: #9333ea; }
+  .m-DELETE { background: #dc2626; }
+  .flag {
+    display: inline-block; font-size: 12px; padding: 1px 7px; border-radius: 10px;
+    margin-right: 6px; font-weight: 600;
+  }
+  .flag.yes { background: #dcfce7; color: #166534; }
+  .flag.no { background: #fee2e2; color: #991b1b; }
+
+  /* ============ Module 2: Pagination ============ */
+  .pg-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 14px 0; }
+  .pg-controls label { font-size: 13px; color: #475569; font-weight: 600; }
+  .seg { display: inline-flex; border: 2px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .seg button {
+    border: 0; background: #fff; padding: 7px 14px; cursor: pointer;
+    font-weight: 600; font-size: 13px; color: #475569;
+  }
+  .seg button.active { background: var(--accent); color: #fff; }
+  .pg-svg-wrap { overflow-x: auto; margin: 8px 0; }
+  .pg-note {
+    background: #f1f5f9; border-left: 4px solid var(--accent);
+    padding: 10px 14px; border-radius: 0 6px 6px 0; font-size: 13.5px;
+    color: #334155; line-height: 1.55; margin-top: 10px;
+  }
+  .pg-query {
+    font-family: ui-monospace, monospace; font-size: 13px;
+    background: #0f172a; color: #7dd3fc; padding: 8px 12px; border-radius: 6px;
+    margin: 8px 0; overflow-x: auto; white-space: nowrap;
+  }
+
+  /* ============ Module 3: Status quiz ============ */
+  .sc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 10px;
+    margin: 16px 0;
+  }
+  .sc-card {
+    background: #f8fafc; border: 2px solid var(--border); border-radius: 8px;
+    padding: 12px; cursor: pointer; transition: all .15s; font-size: 13.5px; color: #334155;
+  }
+  .sc-card:hover { border-color: var(--accent); }
+  .sc-card.selected { border-color: var(--accent); background: var(--accent-soft); }
+  .sc-card .qn { font-weight: 700; color: #0f766e; }
+  .sc-answer {
+    margin-top: 14px; background: #f1f5f9; border-radius: 8px; padding: 16px; min-height: 90px;
+  }
+  .sc-answer.empty { color: #94a3b8; font-style: italic; }
+  .code-badge {
+    display: inline-block; font-weight: 800; font-size: 18px; padding: 3px 12px;
+    border-radius: 6px; color: #fff; margin-right: 8px;
+  }
+  .c2xx { background: #16a34a; }
+  .c3xx { background: #0891b2; }
+  .c4xx { background: #d97706; }
+  .c5xx { background: #dc2626; }
+
+  @media (max-width: 480px) {
+    .action-grid, .sc-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-42-http-net-deep/visualization.html">← L42: net/http Deep</a>
+  <span class="sep">·</span>
+  <span class="current">L43: REST API Design</span>
+  <span class="sep">·</span>
+  <a href="../lesson-44-routing-frameworks/visualization.html">L44: Routing Frameworks →</a>
+</nav>
+
+<main>
+  <h1>L43 — REST API Design</h1>
+  <p class="intro">
+    Ba module tương tác để nắm vững thiết kế REST: (1) chọn <b>action</b> → suy ra <b>HTTP method + URL + status</b>;
+    (2) so sánh <b>3 kiểu pagination</b> (offset / page / cursor) bằng animation; (3) <b>quiz status code</b> với 15 tình huống thực tế.
+  </p>
+
+  <!-- ================= Module 1: Method picker ================= -->
+  <div class="module" id="m1">
+    <h2>1. HTTP Method Picker — action → method + URL + status</h2>
+    <p class="desc">
+      URL mô tả <b>resource</b> (danh từ), HTTP method mô tả <b>action</b>. Chọn một mục đích bên dưới để xem
+      cách map đúng chuẩn REST, kèm cờ <b>safe</b> / <b>idempotent</b>.
+    </p>
+    <div class="action-grid" id="actionGrid"></div>
+    <div class="pick-result empty" id="pickResult">Chọn một action ở trên để xem mapping REST chuẩn.</div>
+  </div>
+
+  <!-- ================= Module 2: Pagination ================= -->
+  <div class="module" id="m2">
+    <h2>2. Pagination Comparison — offset vs page vs cursor</h2>
+    <p class="desc">
+      Bảng có <b>20 record</b> (id 1..20). Chọn kiểu pagination rồi bấm <b>Trang sau</b> để xem cách mỗi chiến lược
+      lấy dữ liệu — và vì sao cursor ổn định khi insert/delete.
+    </p>
+    <div class="pg-controls">
+      <label>Kiểu:</label>
+      <div class="seg" id="pgSeg">
+        <button data-mode="offset" class="active">Offset/Limit</button>
+        <button data-mode="page">Page</button>
+        <button data-mode="cursor">Cursor</button>
+      </div>
+      <label>Page size:</label>
+      <div class="seg" id="pgSize">
+        <button data-size="3">3</button>
+        <button data-size="5" class="active">5</button>
+      </div>
+      <button class="viz-btn" id="pgPrev">← Trang trước</button>
+      <button class="viz-btn" id="pgNext">Trang sau →</button>
+      <button class="viz-btn secondary" id="pgReset">Reset</button>
+    </div>
+    <div class="pg-query" id="pgQuery"></div>
+    <div class="pg-svg-wrap">
+      <svg id="pgSvg" width="660" height="170" viewBox="0 0 660 170" role="img" aria-label="Pagination visualization"></svg>
+    </div>
+    <div class="pg-note" id="pgNote"></div>
+  </div>
+
+  <!-- ================= Module 3: Status quiz ================= -->
+  <div class="module" id="m3">
+    <h2>3. Status Code Picker — 15 tình huống</h2>
+    <p class="desc">
+      Chọn một tình huống để xem <b>status code đúng</b> và lý do. Bao trùm 2xx / 3xx / 4xx / 5xx.
+    </p>
+    <div class="sc-grid" id="scGrid"></div>
+    <div class="sc-answer empty" id="scAnswer">Chọn một tình huống ở trên để xem status đúng.</div>
+  </div>
+</main>
+
+<script>
+// ============ Module 1 data ============
+const ACTIONS = [
+  { t: "Lấy 1 user (id=42)",          m: "GET",    url: "/users/42",          st: "200 OK",            safe: 1, idem: 1, note: "Đọc — không side effect, gọi N lần như 1 lần." },
+  { t: "Lấy danh sách user",          m: "GET",    url: "/users?limit=20",    st: "200 OK",            safe: 1, idem: 1, note: "Collection rỗng vẫn trả 200 với body [], KHÔNG phải 404." },
+  { t: "Tạo user mới",                m: "POST",   url: "/users",             st: "201 Created",       safe: 0, idem: 0, note: "Kèm header Location: /users/<id>. POST không idempotent — retry tạo bản trùng." },
+  { t: "Thay TOÀN BỘ user 42",        m: "PUT",    url: "/users/42",          st: "200 OK / 204",      safe: 0, idem: 1, note: "Body chứa MỌI field. Thiếu field = field đó bị xoá. Idempotent." },
+  { t: "Update 1 phần user 42",       m: "PATCH",  url: "/users/42",          st: "200 OK",            safe: 0, idem: 1, note: "Body chỉ field cần đổi. Field khác giữ nguyên." },
+  { t: "Xoá user 42",                 m: "DELETE", url: "/users/42",          st: "204 No Content",    safe: 0, idem: 1, note: "Idempotent: xoá lần 2 → 404/204, state cuối vẫn là 'đã xoá'." },
+  { t: "Lấy đơn hàng của user 42",    m: "GET",    url: "/users/42/orders",   st: "200 OK",            safe: 1, idem: 1, note: "Nesting 1 cấp — OK. Đừng lồng quá 2 cấp." },
+  { t: "Like post 42 (toggle)",       m: "PUT",    url: "/posts/42/likes/me", st: "204 No Content",    safe: 0, idem: 1, note: "Dùng PUT cho like-state: gọi 5 lần vẫn là 'liked'. POST sẽ tạo row trùng." },
+  { t: "Tìm kiếm phức tạp",           m: "POST",   url: "/users/search",      st: "200 OK",            safe: 0, idem: 0, note: "Query phức tạp → POST /search vì GET không nên có body (RFC 9110)." },
+];
+const grid = document.getElementById("actionGrid");
+const pick = document.getElementById("pickResult");
+ACTIONS.forEach((a, i) => {
+  const c = document.createElement("div");
+  c.className = "action-card";
+  c.innerHTML = `<div class="title">${a.t}</div>`;
+  c.onclick = () => {
+    document.querySelectorAll("#actionGrid .action-card").forEach(x => x.classList.remove("selected"));
+    c.classList.add("selected");
+    pick.classList.remove("empty");
+    const sf = a.safe ? '<span class="flag yes">safe ✓</span>' : '<span class="flag no">safe ✗</span>';
+    const id = a.idem ? '<span class="flag yes">idempotent ✓</span>' : '<span class="flag no">idempotent ✗</span>';
+    pick.innerHTML =
+      `<span class="pill m-${a.m}">${a.m}</span> ${a.url}\n` +
+      `Status: ${a.st}\n` +
+      `${sf}${id}\n\n` +
+      `<span style="color:#94a3b8">// ${a.note}</span>`;
+  };
+  grid.appendChild(c);
+});
+
+// ============ Module 2: Pagination ============
+const TOTAL = 20;
+let pgMode = "offset", pgSize = 5, pgCursor = 0, pgOffset = 0, pgPage = 1;
+const svg = document.getElementById("pgSvg");
+const SVGNS = "http://www.w3.org/2000/svg";
+
+function pgFetch() {
+  // Trả về { ids:[...], note, query }
+  let ids = [], q = "", note = "";
+  if (pgMode === "cursor") {
+    for (let id = pgCursor + 1; id <= TOTAL && ids.length < pgSize; id++) ids.push(id);
+    const nextCur = ids.length ? ids[ids.length - 1] : pgCursor;
+    q = `GET /users?cursor=${pgCursor === 0 ? "(start)" : "id>" + pgCursor}&limit=${pgSize}`;
+    note = `Cursor = WHERE id > ${pgCursor} LIMIT ${pgSize}. Index seek O(log n) — nhanh ổn định kể cả ở trang sâu. ` +
+           `next_cursor → id>${nextCur}. Không jump page bất kỳ, không cần COUNT(*).`;
+  } else if (pgMode === "page") {
+    const off = (pgPage - 1) * pgSize;
+    for (let i = 0; i < pgSize && off + i < TOTAL; i++) ids.push(off + i + 1);
+    q = `GET /users?page=${pgPage}&size=${pgSize}`;
+    note = `Page ${pgPage} ⇔ offset = (page-1)*size = ${off}. Cùng cơ chế offset, ergonomic cho UI "đi tới trang N".`;
+  } else {
+    for (let i = 0; i < pgSize && pgOffset + i < TOTAL; i++) ids.push(pgOffset + i + 1);
+    q = `GET /users?offset=${pgOffset}&limit=${pgSize}`;
+    note = `SELECT ... LIMIT ${pgSize} OFFSET ${pgOffset}. DB phải skim qua ${pgOffset} row rồi bỏ → offset lớn = chậm. ` +
+           `Insert/delete giữa các page có thể làm record nhảy/lặp.`;
+  }
+  return { ids, q, note };
+}
+
+function pgRender() {
+  const { ids, q, note } = pgFetch();
+  document.getElementById("pgQuery").textContent = q;
+  document.getElementById("pgNote").textContent = note;
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+  const cols = 10, cw = 60, ch = 52, gx = 4, gy = 8, ox = 14, oy = 18;
+  const sel = new Set(ids);
+  for (let id = 1; id <= TOTAL; id++) {
+    const r = Math.floor((id - 1) / cols), c = (id - 1) % cols;
+    const x = ox + c * (cw + gx), y = oy + r * (ch + gy);
+    const rect = document.createElementNS(SVGNS, "rect");
+    rect.setAttribute("x", x); rect.setAttribute("y", y);
+    rect.setAttribute("width", cw); rect.setAttribute("height", ch);
+    rect.setAttribute("rx", 6);
+    const on = sel.has(id);
+    rect.setAttribute("fill", on ? "#0d9488" : "#e2e8f0");
+    rect.setAttribute("stroke", on ? "#0f766e" : "#cbd5e0");
+    rect.setAttribute("stroke-width", "2");
+    svg.appendChild(rect);
+    const tx = document.createElementNS(SVGNS, "text");
+    tx.setAttribute("x", x + cw / 2); tx.setAttribute("y", y + ch / 2 + 5);
+    tx.setAttribute("text-anchor", "middle");
+    tx.setAttribute("font-size", "16"); tx.setAttribute("font-weight", "700");
+    tx.setAttribute("fill", on ? "#fff" : "#64748b");
+    tx.textContent = id;
+    svg.appendChild(tx);
+  }
+}
+
+document.querySelectorAll("#pgSeg button").forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll("#pgSeg button").forEach(x => x.classList.remove("active"));
+    b.classList.add("active");
+    pgMode = b.dataset.mode;
+    pgReset();
+  };
+});
+document.querySelectorAll("#pgSize button").forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll("#pgSize button").forEach(x => x.classList.remove("active"));
+    b.classList.add("active");
+    pgSize = parseInt(b.dataset.size, 10);
+    pgReset();
+  };
+});
+function pgReset() { pgCursor = 0; pgOffset = 0; pgPage = 1; pgRender(); }
+document.getElementById("pgNext").onclick = () => {
+  if (pgMode === "cursor") {
+    const { ids } = pgFetch();
+    if (ids.length) pgCursor = ids[ids.length - 1];
+  } else if (pgMode === "page") {
+    if ((pgPage) * pgSize < TOTAL) pgPage++;
+  } else {
+    if (pgOffset + pgSize < TOTAL) pgOffset += pgSize;
+  }
+  pgRender();
+};
+document.getElementById("pgPrev").onclick = () => {
+  if (pgMode === "cursor") {
+    pgCursor = Math.max(0, pgCursor - pgSize); // demo đơn giản: cursor thật chỉ next/prev liền kề
+  } else if (pgMode === "page") {
+    if (pgPage > 1) pgPage--;
+  } else {
+    pgOffset = Math.max(0, pgOffset - pgSize);
+  }
+  pgRender();
+};
+document.getElementById("pgReset").onclick = pgReset;
+pgRender();
+
+// ============ Module 3: Status quiz ============
+const SCEN = [
+  { q: "Tạo user mới thành công",                         code: "201", cls: "c2xx", why: "POST + tạo mới ⇒ 201 Created + header Location trỏ tới resource mới." },
+  { q: "Lấy danh sách user (kể cả khi empty)",            code: "200", cls: "c2xx", why: "Có body [] → 200, KHÔNG phải 404. Collection rỗng vẫn là 'tìm thấy collection'." },
+  { q: "DELETE thành công, không trả body",               code: "204", cls: "c2xx", why: "No Content — thành công nhưng không có gì để trả." },
+  { q: "Upload xử lý bất đồng bộ (kéo dài)",               code: "202", cls: "c2xx", why: "Accepted — đã nhận, sẽ xử lý sau. Kèm Location để poll progress." },
+  { q: "Cache còn tươi (If-None-Match trùng ETag)",       code: "304", cls: "c3xx", why: "Not Modified — không gửi body, tiết kiệm bandwidth." },
+  { q: "Client gửi JSON sai cú pháp { name:",             code: "400", cls: "c4xx", why: "Bad Request — body malformed về SYNTAX." },
+  { q: "Endpoint cần token, client không gửi",            code: "401", cls: "c4xx", why: "Unauthorized — auth thiếu/sai (token missing/expired)." },
+  { q: "Đã login nhưng role không đủ để DELETE",          code: "403", cls: "c4xx", why: "Forbidden — đã auth nhưng thiếu PERMISSION. Đừng trả 404 (leak)." },
+  { q: "Lấy user id=999 không tồn tại",                   code: "404", cls: "c4xx", why: "Not Found — resource không tồn tại." },
+  { q: "Endpoint chỉ nhận POST, client gửi GET",          code: "405", cls: "c4xx", why: "Method Not Allowed — kèm header Allow: POST." },
+  { q: "Tạo user trùng email đã có",                      code: "409", cls: "c4xx", why: "Conflict — xung đột với state hiện tại của collection." },
+  { q: 'JSON OK nhưng "email" sai format / age âm',       code: "422", cls: "c4xx", why: "Unprocessable Entity — đúng cú pháp, fail validation BUSINESS." },
+  { q: "Vượt quota 1000 req/giờ",                         code: "429", cls: "c4xx", why: "Too Many Requests — kèm header Retry-After." },
+  { q: "Server panic do bug",                             code: "500", cls: "c5xx", why: "Internal Server Error — lỗi server, không liên quan client." },
+  { q: "DB connection pool cạn / đang maintenance",       code: "503", cls: "c5xx", why: "Service Unavailable — kèm Retry-After." },
+];
+const scGrid = document.getElementById("scGrid");
+const scAns = document.getElementById("scAnswer");
+SCEN.forEach((s, i) => {
+  const c = document.createElement("div");
+  c.className = "sc-card";
+  c.innerHTML = `<span class="qn">#${i + 1}.</span> ${s.q}`;
+  c.onclick = () => {
+    document.querySelectorAll("#scGrid .sc-card").forEach(x => x.classList.remove("selected"));
+    c.classList.add("selected");
+    scAns.classList.remove("empty");
+    scAns.innerHTML = `<span class="code-badge ${s.cls}">${s.code}</span>` +
+      `<b>${s.q}</b><br><br><span style="color:#475569">${s.why}</span>`;
+  };
+  scGrid.appendChild(c);
+});
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

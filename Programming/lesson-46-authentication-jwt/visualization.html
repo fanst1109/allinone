@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L46 — Authentication & JWT</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #8b5cf6;
+    --accent-hover: #7c3aed;
+    --accent-soft: #ede9fe;
+    --ok: #10b981;
+    --warn: #f59e0b;
+    --err: #ef4444;
+    --info: #3b82f6;
+    --border: #cbd5e0;
+    --code-bg: #1e293b;
+    --code-fg: #e2e8f0;
+  }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 80px; }
+  h1 { color: #2d3748; margin-top: 0; }
+  .intro { color: #4a5568; line-height: 1.55; max-width: 820px; }
+
+  .module {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 28px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+  .module h2 {
+    margin-top: 0;
+    color: #2d3748;
+    border-bottom: 2px solid var(--accent-soft);
+    padding-bottom: 8px;
+  }
+  .module .desc { color: #4a5568; line-height: 1.55; }
+  .module .desc code { background: #f1f5f9; padding: 1px 5px; border-radius: 3px; font-size: 0.92em; }
+
+  button.viz-btn {
+    padding: 8px 16px; border: 0;
+    background: var(--accent); color: white;
+    border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;
+  }
+  button.viz-btn:hover { background: var(--accent-hover); }
+  button.viz-btn.secondary { background: #6b7280; }
+  button.viz-btn.secondary:hover { background: #4b5563; }
+  button.viz-btn:disabled { background: #cbd5e0; cursor: not-allowed; }
+
+  label.field { display: block; font-weight: 600; color: #334155; margin: 12px 0 4px; font-size: 14px; }
+  textarea, input[type=text] {
+    width: 100%; max-width: 100%; box-sizing: border-box;
+    padding: 10px; border: 1px solid var(--border); border-radius: 6px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px;
+  }
+  textarea { resize: vertical; }
+
+  .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+  .pill.ok  { background: #dcfce7; color: #166534; }
+  .pill.bad { background: #fee2e2; color: #991b1b; }
+
+  /* ============ Module 1: JWT decoder ============ */
+  .jwt-parts { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 10px 0; word-break: break-all; }
+  .jwt-seg { padding: 6px 4px; border-radius: 4px; font-family: ui-monospace, monospace; font-size: 13px; line-height: 1.4; }
+  .seg-header  { color: #be123c; background: #ffe4e6; }
+  .seg-payload { color: #7c3aed; background: var(--accent-soft); }
+  .seg-sig     { color: #0369a1; background: #e0f2fe; }
+  .jwt-dot { color: #94a3b8; font-weight: 700; }
+
+  .decode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+  .decode-box { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .decode-box .head { padding: 6px 10px; font-weight: 700; font-size: 13px; color: white; }
+  .decode-box.h .head { background: #e11d48; }
+  .decode-box.p .head { background: var(--accent); }
+  .decode-box pre { margin: 0; padding: 10px; font-size: 12.5px; background: #fafafa; overflow-x: auto; white-space: pre-wrap; word-break: break-word; }
+
+  .verify-row { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+  .verify-row .grow { flex: 1 1 240px; min-width: 0; }
+  .verify-result { margin-top: 12px; padding: 12px; border-radius: 8px; font-size: 14px; line-height: 1.5; }
+  .verify-result.ok  { background: #f0fdf4; border: 1px solid #86efac; }
+  .verify-result.bad { background: #fef2f2; border: 1px solid #fca5a5; }
+  .verify-result ul { margin: 6px 0 0; padding-left: 20px; }
+
+  /* ============ Module 2: token timeline ============ */
+  .tl-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .timeline-svg { width: 100%; height: auto; display: block; }
+  .tl-log { margin-top: 12px; max-height: 220px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; padding: 6px; background: #fafafa; }
+  .tl-log .line { font-family: ui-monospace, monospace; font-size: 12.5px; padding: 3px 6px; border-radius: 4px; margin-bottom: 2px; }
+  .tl-log .line.req  { color: #1e3a8a; }
+  .tl-log .line.ok   { color: #166534; background: #f0fdf4; }
+  .tl-log .line.fail { color: #991b1b; background: #fef2f2; }
+  .tl-log .line.rot  { color: #7c3aed; background: var(--accent-soft); }
+  .tl-clock { font-family: ui-monospace, monospace; font-weight: 700; color: #334155; }
+
+  /* ============ Module 3: hash compare ============ */
+  .hash-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+  .hash-table th, .hash-table td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; text-align: left; }
+  .hash-table th { background: #f1f5f9; color: #334155; }
+  .bar-wrap { background: #e2e8f0; border-radius: 4px; height: 18px; overflow: hidden; min-width: 60px; }
+  .bar { height: 100%; border-radius: 4px; }
+  .speed-fast { background: var(--err); }
+  .speed-mid  { background: var(--warn); }
+  .speed-slow { background: var(--ok); }
+  .sec-label { font-weight: 700; }
+  .sec-bad  { color: var(--err); }
+  .sec-weak { color: var(--warn); }
+  .sec-good { color: var(--ok); }
+  .note { font-size: 13px; color: #64748b; margin-top: 10px; line-height: 1.5; }
+
+  @media (max-width: 640px) {
+    .decode-grid { grid-template-columns: 1fr; }
+    .module { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-45-request-validation/visualization.html">← L45: Validation</a>
+  <span class="sep">·</span>
+  <span class="current">L46: Auth & JWT</span>
+  <span class="sep">·</span>
+  <a href="../lesson-47-tls-crypto-basics/visualization.html">L47: TLS & Crypto →</a>
+</nav>
+
+<main>
+  <h1>L46 — Authentication & JWT</h1>
+  <p class="intro">
+    Ba module tương tác để hiểu authentication trong thực tế:
+    <b>1)</b> JWT decoder — dán token, tách <code>header.payload.signature</code>, decode base64url, verify HMAC-SHA256 ngay trong trình duyệt;
+    <b>2)</b> Access vs Refresh timeline — mô phỏng vòng đời 2 loại token, rotation, expire;
+    <b>3)</b> Password hash compare — so sánh tốc độ và độ an toàn của plain / SHA-256 / bcrypt / argon2id.
+  </p>
+
+  <!-- ================= Module 1: JWT decoder ================= -->
+  <section class="module">
+    <h2>1. JWT decoder & verifier (HS256)</h2>
+    <p class="desc">
+      Dán một JWT (hoặc bấm "Token mẫu"). Trang tách 3 phần, decode base64url, hiển thị header + payload,
+      rồi tính lại <code>HMAC-SHA256(header.payload, secret)</code> và so sánh chữ ký. Tất cả chạy bằng
+      <code>Web Crypto API</code> — không gửi token đi đâu cả.
+    </p>
+
+    <label class="field" for="jwt-in">JWT token</label>
+    <textarea id="jwt-in" rows="4" spellcheck="false" placeholder="eyJhbGci...header.eyJzdWIi...payload.signature"></textarea>
+
+    <div class="jwt-parts" id="jwt-parts"></div>
+
+    <div class="decode-grid">
+      <div class="decode-box h">
+        <div class="head">HEADER · thuật toán</div>
+        <pre id="out-header">(chưa có token)</pre>
+      </div>
+      <div class="decode-box p">
+        <div class="head">PAYLOAD · claims</div>
+        <pre id="out-payload">(chưa có token)</pre>
+      </div>
+    </div>
+
+    <div class="verify-row">
+      <div class="grow">
+        <label class="field" for="jwt-secret">Secret (HS256)</label>
+        <input type="text" id="jwt-secret" spellcheck="false" value="a-very-long-secret-at-least-32-bytes!!">
+      </div>
+      <button class="viz-btn" id="btn-verify">Verify chữ ký</button>
+      <button class="viz-btn secondary" id="btn-sample">Token mẫu</button>
+    </div>
+
+    <div id="verify-result"></div>
+  </section>
+
+  <!-- ================= Module 2: Access vs Refresh timeline ================= -->
+  <section class="module">
+    <h2>2. Access token vs Refresh token — timeline</h2>
+    <p class="desc">
+      Access token sống ngắn (ở đây <b>15 "phút"</b> mô phỏng), refresh sống dài và <b>rotation</b> mỗi lần dùng.
+      Bấm <b>Tick</b> để nhảy 5 phút. Khi access hết hạn, request API trả 401 → client tự gọi <code>/refresh</code> để lấy
+      pair mới (refresh cũ bị vô hiệu ngay).
+    </p>
+
+    <div class="tl-controls">
+      <button class="viz-btn" id="tl-login">Login (cấp pair)</button>
+      <button class="viz-btn" id="tl-api">Gọi API /me</button>
+      <button class="viz-btn secondary" id="tl-tick">Tick +5 phút</button>
+      <button class="viz-btn secondary" id="tl-reset">Reset</button>
+      <span class="tl-clock">⏱ t = <span id="tl-now">0</span> phút</span>
+    </div>
+
+    <svg class="timeline-svg" viewBox="0 0 760 200" width="760" height="200" aria-label="token timeline">
+      <!-- trục thời gian -->
+      <line x1="40" y1="170" x2="740" y2="170" stroke="#94a3b8" stroke-width="2"/>
+      <g id="tl-ticks"></g>
+      <!-- thanh access -->
+      <text x="40" y="50" font-size="12" fill="#334155" font-weight="700">Access (15')</text>
+      <rect id="bar-access" x="40" y="58" width="0" height="22" rx="4" fill="#fca5a5"/>
+      <!-- thanh refresh -->
+      <text x="40" y="110" font-size="12" fill="#334155" font-weight="700">Refresh (60')</text>
+      <rect id="bar-refresh" x="40" y="118" width="0" height="22" rx="4" fill="#86efac"/>
+      <!-- con trỏ now -->
+      <line id="now-line" x1="40" y1="40" x2="40" y2="180" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="4 3"/>
+    </svg>
+
+    <div class="tl-log" id="tl-log"></div>
+  </section>
+
+  <!-- ================= Module 3: password hash compare ================= -->
+  <section class="module">
+    <h2>3. Password hash — tốc độ vs an toàn</h2>
+    <p class="desc">
+      Hàm hash password tốt phải <b>chậm có chủ đích</b>. Cột tốc độ là thời gian/hash điển hình trên 1 CPU thread;
+      brute-force ước tính cho 1 tỷ (10⁹) lần thử. Nhập password để xem ước tính thời gian bẻ khóa offline.
+    </p>
+
+    <label class="field" for="pw-in">Password thử (chỉ để ước tính độ dài/charset)</label>
+    <input type="text" id="pw-in" spellcheck="false" value="hunter2">
+
+    <table class="hash-table">
+      <thead>
+        <tr><th>Thuật toán</th><th>Thời gian/hash</th><th>Tốc độ tương đối</th><th>An toàn</th><th>Brute 10⁹</th></tr>
+      </thead>
+      <tbody id="hash-body"></tbody>
+    </table>
+
+    <p class="note" id="pw-note"></p>
+    <p class="note">
+      ⚠ <b>Đừng</b> dùng plain / MD5 / SHA-256 cho password. Dùng <b>bcrypt cost 12</b> hoặc <b>argon2id</b>.
+      "Chậm" là tính năng: user login 1 lần/100ms không sao, nhưng attacker brute-force 10⁹ lần thì tốn hàng năm.
+    </p>
+  </section>
+</main>
+
+<script>
+// ===================== util: base64url + Web Crypto HMAC =====================
+function b64urlToBytes(s) {
+  s = s.replace(/-/g, '+').replace(/_/g, '/');
+  while (s.length % 4) s += '=';
+  const bin = atob(s);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+function bytesToB64url(bytes) {
+  let bin = '';
+  bytes.forEach(b => bin += String.fromCharCode(b));
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function b64urlDecodeText(s) {
+  try { return new TextDecoder().decode(b64urlToBytes(s)); }
+  catch (e) { return null; }
+}
+function prettyJSON(text) {
+  try { return JSON.stringify(JSON.parse(text), null, 2); }
+  catch (e) { return text; }
+}
+async function hmacSha256B64url(message, secret) {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const sig = await crypto.subtle.sign('HMAC', key, enc.encode(message));
+  return bytesToB64url(new Uint8Array(sig));
+}
+
+// ===================== Module 1: JWT decoder =====================
+const jwtIn      = document.getElementById('jwt-in');
+const jwtParts   = document.getElementById('jwt-parts');
+const outHeader  = document.getElementById('out-header');
+const outPayload = document.getElementById('out-payload');
+const verifyOut  = document.getElementById('verify-result');
+
+function renderParts(token) {
+  jwtParts.innerHTML = '';
+  const parts = token.split('.');
+  const names = ['header', 'payload', 'sig'];
+  const cls   = ['seg-header', 'seg-payload', 'seg-sig'];
+  parts.forEach((p, i) => {
+    if (i > 0) {
+      const dot = document.createElement('span');
+      dot.className = 'jwt-dot'; dot.textContent = '.';
+      jwtParts.appendChild(dot);
+    }
+    const span = document.createElement('span');
+    span.className = 'jwt-seg ' + (cls[i] || 'seg-sig');
+    span.title = names[i] || 'extra';
+    span.textContent = p || '(rỗng)';
+    jwtParts.appendChild(span);
+  });
+}
+
+function decodeToken() {
+  const token = jwtIn.value.trim();
+  verifyOut.innerHTML = '';
+  if (!token) {
+    jwtParts.innerHTML = '';
+    outHeader.textContent = outPayload.textContent = '(chưa có token)';
+    return;
+  }
+  renderParts(token);
+  const parts = token.split('.');
+  if (parts.length < 2) {
+    outHeader.textContent = 'token không hợp lệ (cần ≥ 2 phần)';
+    outPayload.textContent = '—';
+    return;
+  }
+  const h = b64urlDecodeText(parts[0]);
+  const p = b64urlDecodeText(parts[1]);
+  outHeader.textContent  = h ? prettyJSON(h) : '(không decode được header)';
+  outPayload.textContent = p ? prettyJSON(p) : '(không decode được payload)';
+}
+
+async function verifyToken() {
+  const token = jwtIn.value.trim();
+  const secret = document.getElementById('jwt-secret').value;
+  const parts = token.split('.');
+  const checks = [];
+  let ok = true;
+
+  // (1) cấu trúc 3 phần
+  if (parts.length !== 3) {
+    show(false, ['Cấu trúc: <span class="pill bad">FAIL</span> — cần đúng 3 phần header.payload.signature']);
+    return;
+  }
+  checks.push('Cấu trúc 3 phần: <span class="pill ok">OK</span>');
+
+  // (2) alg
+  let alg = '?';
+  try { alg = JSON.parse(b64urlDecodeText(parts[0])).alg; } catch (e) {}
+  if (alg === 'HS256') {
+    checks.push('alg = HS256: <span class="pill ok">OK</span>');
+  } else {
+    ok = false;
+    checks.push(`alg = ${alg}: <span class="pill bad">FAIL</span> — chỉ chấp nhận HS256 (chặn alg:none / alg-confusion)`);
+  }
+
+  // (3) signature
+  if (alg === 'HS256') {
+    const expected = await hmacSha256B64url(parts[0] + '.' + parts[1], secret);
+    if (expected === parts[2]) {
+      checks.push('Chữ ký HMAC-SHA256: <span class="pill ok">OK</span>');
+    } else {
+      ok = false;
+      checks.push('Chữ ký HMAC-SHA256: <span class="pill bad">FAIL</span> — sai secret hoặc payload bị sửa');
+    }
+  }
+
+  // (4) exp
+  try {
+    const claims = JSON.parse(b64urlDecodeText(parts[1]));
+    if (claims.exp) {
+      const now = Math.floor(Date.now() / 1000);
+      if (now > claims.exp) { ok = false; checks.push('exp: <span class="pill bad">FAIL</span> — token đã hết hạn'); }
+      else checks.push(`exp > now: <span class="pill ok">OK</span> (còn ${Math.round((claims.exp - now)/60)} phút)`);
+    } else {
+      checks.push('exp: <span class="pill bad">cảnh báo</span> — không có exp → token sống mãi');
+    }
+  } catch (e) {}
+
+  show(ok, checks);
+
+  function show(valid, lines) {
+    verifyOut.className = 'verify-result ' + (valid ? 'ok' : 'bad');
+    verifyOut.innerHTML = `<b>${valid ? '✓ Token HỢP LỆ' : '✗ Token KHÔNG hợp lệ'}</b><ul><li>` +
+      lines.join('</li><li>') + '</li></ul>';
+  }
+}
+
+async function loadSample() {
+  const secret = document.getElementById('jwt-secret').value;
+  const header  = bytesToB64url(new TextEncoder().encode('{"alg":"HS256","typ":"JWT"}'));
+  const exp = Math.floor(Date.now() / 1000) + 900; // +15 phút
+  const payload = bytesToB64url(new TextEncoder().encode(
+    JSON.stringify({ sub: "42", role: "admin", iat: Math.floor(Date.now()/1000), exp })));
+  const sig = await hmacSha256B64url(header + '.' + payload, secret);
+  jwtIn.value = header + '.' + payload + '.' + sig;
+  decodeToken();
+}
+
+jwtIn.addEventListener('input', decodeToken);
+document.getElementById('btn-verify').addEventListener('click', verifyToken);
+document.getElementById('btn-sample').addEventListener('click', loadSample);
+
+// ===================== Module 2: timeline =====================
+const ACCESS_TTL = 15, REFRESH_TTL = 60, SCALE = 700 / REFRESH_TTL; // px per phút (trục 40..740)
+let tl = { now: 0, accessIssued: null, refreshIssued: null, refreshGen: 0, hasSession: false };
+
+const tlNow   = document.getElementById('tl-now');
+const tlLog   = document.getElementById('tl-log');
+const barA    = document.getElementById('bar-access');
+const barR    = document.getElementById('bar-refresh');
+const nowLine = document.getElementById('now-line');
+const ticks   = document.getElementById('tl-ticks');
+
+// vẽ mốc thời gian 0,15,30,45,60
+for (let m = 0; m <= REFRESH_TTL; m += 15) {
+  const x = 40 + m * SCALE;
+  const ln = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  ln.setAttribute('x1', x); ln.setAttribute('x2', x);
+  ln.setAttribute('y1', 165); ln.setAttribute('y2', 175);
+  ln.setAttribute('stroke', '#94a3b8');
+  ticks.appendChild(ln);
+  const tx = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  tx.setAttribute('x', x); tx.setAttribute('y', 190);
+  tx.setAttribute('font-size', '11'); tx.setAttribute('fill', '#64748b');
+  tx.setAttribute('text-anchor', 'middle'); tx.textContent = m + "'";
+  ticks.appendChild(tx);
+}
+
+function tlLogLine(cls, msg) {
+  const d = document.createElement('div');
+  d.className = 'line ' + cls;
+  d.textContent = `[t=${tl.now}'] ${msg}`;
+  tlLog.prepend(d);
+}
+function accessAlive() { return tl.hasSession && tl.accessIssued !== null && (tl.now - tl.accessIssued) < ACCESS_TTL; }
+function refreshAlive() { return tl.hasSession && tl.refreshIssued !== null && (tl.now - tl.refreshIssued) < REFRESH_TTL; }
+
+function renderTL() {
+  tlNow.textContent = tl.now;
+  nowLine.setAttribute('x1', 40 + tl.now * SCALE);
+  nowLine.setAttribute('x2', 40 + tl.now * SCALE);
+
+  // access bar
+  if (accessAlive()) {
+    barA.setAttribute('x', 40 + tl.accessIssued * SCALE);
+    barA.setAttribute('width', Math.max(0, (tl.now - tl.accessIssued)) * SCALE + 2);
+    barA.setAttribute('fill', '#ef4444');
+  } else if (tl.hasSession && tl.accessIssued !== null) {
+    barA.setAttribute('x', 40 + tl.accessIssued * SCALE);
+    barA.setAttribute('width', ACCESS_TTL * SCALE);
+    barA.setAttribute('fill', '#fecaca'); // expired = nhạt
+  } else { barA.setAttribute('width', 0); }
+
+  // refresh bar
+  if (refreshAlive()) {
+    barR.setAttribute('x', 40 + tl.refreshIssued * SCALE);
+    barR.setAttribute('width', Math.min(REFRESH_TTL, tl.now - tl.refreshIssued) * SCALE + 2);
+    barR.setAttribute('fill', '#22c55e');
+  } else { barR.setAttribute('width', 0); }
+}
+
+document.getElementById('tl-login').addEventListener('click', () => {
+  tl.hasSession = true; tl.accessIssued = tl.now; tl.refreshIssued = tl.now; tl.refreshGen++;
+  tlLogLine('ok', `LOGIN → cấp access(JWT, hết hạn t=${tl.now + ACCESS_TTL}') + refresh#${tl.refreshGen}(hết hạn t=${tl.now + REFRESH_TTL}')`);
+  renderTL();
+});
+document.getElementById('tl-api').addEventListener('click', () => {
+  if (!tl.hasSession) { tlLogLine('fail', 'GET /me → 401: chưa login'); return; }
+  if (accessAlive()) {
+    tlLogLine('req', 'GET /me  (Bearer access) → 200 OK');
+  } else {
+    tlLogLine('fail', 'GET /me → 401: access HẾT HẠN');
+    if (refreshAlive()) {
+      // auto refresh + rotation
+      const old = tl.refreshGen;
+      tl.accessIssued = tl.now; tl.refreshIssued = tl.now; tl.refreshGen++;
+      tlLogLine('rot', `POST /refresh(refresh#${old}) → ROTATION: vô hiệu #${old}, cấp access mới + refresh#${tl.refreshGen}`);
+      tlLogLine('req', 'GET /me (retry, access mới) → 200 OK');
+    } else {
+      tlLogLine('fail', 'POST /refresh → 401: refresh cũng hết hạn → buộc LOGIN lại');
+      tl.hasSession = false;
+    }
+  }
+  renderTL();
+});
+document.getElementById('tl-tick').addEventListener('click', () => {
+  tl.now += 5;
+  if (tl.now > REFRESH_TTL + 5) tl.now = REFRESH_TTL + 5;
+  tlLogLine('req', `⏱ thời gian +5 phút → t=${tl.now}'`);
+  renderTL();
+});
+document.getElementById('tl-reset').addEventListener('click', () => {
+  tl = { now: 0, accessIssued: null, refreshIssued: null, refreshGen: 0, hasSession: false };
+  tlLog.innerHTML = ''; renderTL();
+});
+renderTL();
+
+// ===================== Module 3: hash compare =====================
+const HASHES = [
+  { name: 'plaintext',        ns: 0,            speed: 'fast', bar: 100, sec: 'bad',  secLabel: 'TỰ SÁT', note: 'không hash gì cả' },
+  { name: 'MD5',              ns: 250,          speed: 'fast', bar: 96,  sec: 'bad',  secLabel: 'vỡ',     note: 'collision dễ, quá nhanh' },
+  { name: 'SHA-256 (unsalt)', ns: 1000,         speed: 'fast', bar: 90,  sec: 'bad',  secLabel: 'sai',    note: 'an toàn collision nhưng quá nhanh + rainbow table' },
+  { name: 'bcrypt cost=12',   ns: 320_000_000,  speed: 'slow', bar: 30,  sec: 'good', secLabel: 'tốt',    note: 'chuẩn 20+ năm, có salt + cost' },
+  { name: 'argon2id t=2,64MB',ns: 100_000_000,  speed: 'slow', bar: 38,  sec: 'good', secLabel: 'tốt nhất', note: 'PHC winner, RAM-bound chống GPU' },
+];
+
+function fmtTime(ns) {
+  if (ns === 0) return '0 (không hash)';
+  if (ns < 1000) return ns + ' ns';
+  if (ns < 1e6) return (ns / 1000).toFixed(1) + ' µs';
+  return (ns / 1e6).toFixed(0) + ' ms';
+}
+function fmtDuration(seconds) {
+  if (seconds < 1) return '< 1 giây';
+  if (seconds < 60) return seconds.toFixed(0) + ' giây';
+  if (seconds < 3600) return (seconds / 60).toFixed(0) + ' phút';
+  if (seconds < 86400) return (seconds / 3600).toFixed(1) + ' giờ';
+  if (seconds < 31536000) return (seconds / 86400).toFixed(0) + ' ngày';
+  return (seconds / 31536000).toFixed(0) + ' năm';
+}
+
+function renderHashes() {
+  const body = document.getElementById('hash-body');
+  body.innerHTML = '';
+  HASHES.forEach(h => {
+    const bruteSeconds = (h.ns === 0 ? 1 : h.ns) * 1e9 / 1e9; // ns/hash * 10^9 hash / 10^9 ns
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="mono">${h.name}</span><div class="note" style="margin:2px 0 0">${h.note}</div></td>
+      <td class="mono">${fmtTime(h.ns)}</td>
+      <td><div class="bar-wrap"><div class="bar speed-${h.speed}" style="width:${h.bar}%"></div></div></td>
+      <td class="sec-label sec-${h.sec}">${h.secLabel}</td>
+      <td>${h.ns === 0 ? '—' : fmtDuration(bruteSeconds)}</td>`;
+    body.appendChild(tr);
+  });
+}
+renderHashes();
+
+function updatePwNote() {
+  const pw = document.getElementById('pw-in').value;
+  let charset = 0;
+  if (/[a-z]/.test(pw)) charset += 26;
+  if (/[A-Z]/.test(pw)) charset += 26;
+  if (/[0-9]/.test(pw)) charset += 10;
+  if (/[^a-zA-Z0-9]/.test(pw)) charset += 33;
+  const note = document.getElementById('pw-note');
+  if (!pw) { note.textContent = ''; return; }
+  const space = Math.pow(charset || 1, pw.length);
+  // bcrypt cost 12 ~ 3 hash/giây
+  const sha = space / 1e9;          // SHA-256: 10^9 hash/giây trên GPU
+  const bcrypt = space / 3;         // bcrypt cost 12: ~3 hash/giây
+  note.innerHTML =
+    `Password <span class="mono">"${pw}"</span> dài ${pw.length}, charset ≈ ${charset} → không gian ≈ ${charset}^${pw.length}. ` +
+    `Brute-force (lý thuyết, không lock): với <b>SHA-256</b> ≈ <b>${fmtDuration(sha)}</b>; ` +
+    `với <b>bcrypt cost 12</b> ≈ <b>${fmtDuration(bcrypt)}</b>. ` +
+    `Cùng password, hash chậm biến vài giây thành hàng năm.`;
+}
+document.getElementById('pw-in').addEventListener('input', updatePwNote);
+updatePwNote();
+
+// auto-load token mẫu khi mở trang
+loadSample();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

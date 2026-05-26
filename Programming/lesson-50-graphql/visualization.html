@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 50 — GraphQL Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #e535ab;          /* hồng GraphQL */
+    --accent-soft: #fdeaf7;
+    --accent-hover: #c026a0;
+  }
+  main { max-width: 960px; margin: 0 auto; padding: 16px; }
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 40px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .intro { color: var(--ink-soft); line-height: 1.6; }
+  .card {
+    background: #fff; border: 1px solid var(--line);
+    border-radius: 10px; padding: 20px; margin: 18px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0; align-items: center; }
+  button {
+    background: var(--accent); color: #fff; border: none;
+    padding: 9px 16px; border-radius: 7px; font-size: 14px;
+    font-weight: 600; cursor: pointer;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost { background: #edf2f7; color: var(--ink); }
+  button.ghost:hover { background: #e2e8f0; }
+  .stat {
+    display: inline-block; background: var(--accent-soft); color: var(--accent-hover);
+    border-radius: 6px; padding: 4px 10px; font-weight: 700; font-size: 14px;
+  }
+  .stat.good { background: #e6fffa; color: #2c7a7b; }
+  .stat.bad  { background: #fff5f5; color: #c53030; }
+
+  /* ---- Module 1: REST vs GraphQL ---- */
+  .vs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .lane { border: 1px solid var(--line); border-radius: 8px; padding: 12px; background: #fafbfc; }
+  .lane h3 { margin: 0 0 8px; font-size: 15px; }
+  .pkt {
+    font-family: ui-monospace, monospace; font-size: 12px;
+    background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--muted);
+    border-radius: 5px; padding: 6px 8px; margin: 6px 0;
+    opacity: .25; transition: opacity .25s, border-color .25s, transform .25s;
+    transform: translateX(-6px);
+  }
+  .pkt.on { opacity: 1; transform: translateX(0); border-left-color: var(--accent); }
+  .lane.rest .pkt.on { border-left-color: #dd6b20; }
+
+  /* ---- Module 2: N+1 / DataLoader ---- */
+  .db-wrap { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start; }
+  .col { flex: 1 1 280px; min-width: 0; }
+  .node-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+  .node {
+    width: 64px; text-align: center; font-size: 12px;
+    border: 1px solid var(--line); border-radius: 7px; padding: 8px 4px; background: #fff;
+    transition: transform .25s, border-color .25s, background .25s;
+  }
+  .node.active { border-color: var(--accent); background: var(--accent-soft); transform: scale(1.06); }
+  .db-box {
+    border: 2px dashed var(--line-strong); border-radius: 10px;
+    padding: 14px; text-align: center; background: #fff; min-height: 70px;
+  }
+  .db-box.hit { border-color: var(--accent); background: var(--accent-soft); }
+  .arrow-log {
+    font-family: ui-monospace, monospace; font-size: 12px; color: var(--ink-soft);
+    background: #1a202c; color: #cbd5e0; border-radius: 8px; padding: 10px 12px;
+    max-height: 170px; overflow-y: auto; margin-top: 10px; line-height: 1.7;
+  }
+  .arrow-log .q   { color: #f6ad55; }
+  .arrow-log .ok  { color: #68d391; }
+
+  /* ---- Module 3: depth limit ---- */
+  textarea {
+    width: 100%; max-width: 100%; box-sizing: border-box;
+    font-family: ui-monospace, monospace; font-size: 13px;
+    border: 1px solid var(--line-strong); border-radius: 8px; padding: 10px; min-height: 150px;
+  }
+  .depth-out { margin-top: 12px; font-size: 15px; }
+  .depth-tree { font-family: ui-monospace, monospace; font-size: 13px; line-height: 1.8; }
+  .depth-tree .lvl { color: var(--accent-hover); font-weight: 700; }
+
+  @media (max-width: 600px) {
+    .vs-grid { grid-template-columns: 1fr; }
+    .node { width: 54px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-49-grpc-protobuf/visualization.html">← L49: gRPC</a>
+  <span class="sep">·</span>
+  <span class="current">L50: GraphQL</span>
+  <span class="sep">·</span>
+  <a href="../lesson-51-graceful-shutdown/visualization.html">L51: Graceful Shutdown →</a>
+</nav>
+
+<main>
+<h1>Lesson 50 — GraphQL</h1>
+<p class="intro">
+  Ba mô-đun tương tác: (1) <b>GraphQL vs REST</b> — 1 query thay N request;
+  (2) <b>N+1 → DataLoader</b> — gom ID batch 1 query; (3) <b>Query depth limit</b> — chặn query đệ quy sâu.
+</p>
+
+<!-- =================== MODULE 1: REST vs GraphQL =================== -->
+<h2>1. GraphQL vs REST — 1 query thay N request</h2>
+<div class="card">
+  <p class="intro">
+    Cùng một màn hình cần: <b>user + 3 post + mỗi post 2 comment</b>.
+    REST phải đi nhiều round-trip; GraphQL gom thành 1 query duy nhất. Bấm "Fetch" để xem.
+  </p>
+  <div class="controls">
+    <button id="m1-run">▶ Fetch dữ liệu</button>
+    <button class="ghost" id="m1-reset">↺ Reset</button>
+    <span class="stat bad"  id="m1-rest-stat">REST: 0 request</span>
+    <span class="stat good" id="m1-gql-stat">GraphQL: 0 request</span>
+  </div>
+  <div class="vs-grid">
+    <div class="lane rest" id="m1-rest">
+      <h3>🔴 REST — nhiều endpoint</h3>
+    </div>
+    <div class="lane gql" id="m1-gql">
+      <h3>🟣 GraphQL — 1 endpoint</h3>
+    </div>
+  </div>
+</div>
+
+<!-- =================== MODULE 2: N+1 / DataLoader =================== -->
+<h2>2. N+1 problem → DataLoader (batch + cache)</h2>
+<div class="card">
+  <p class="intro">
+    Query <code>{ users { posts } }</code> với 4 user. Resolver naive gọi DB cho từng user (1+N).
+    DataLoader gom toàn bộ user-ID rồi batch <code>WHERE user_id IN (...)</code> chỉ 1 query.
+  </p>
+  <div class="controls">
+    <button id="m2-naive">▶ Chạy naive (N+1)</button>
+    <button id="m2-loader">▶ Chạy DataLoader</button>
+    <button class="ghost" id="m2-reset">↺ Reset</button>
+    <span class="stat" id="m2-stat">DB query: 0</span>
+  </div>
+  <div class="db-wrap">
+    <div class="col">
+      <div style="font-size:13px;font-weight:600;margin-bottom:4px">Users (parent)</div>
+      <div class="node-row" id="m2-users"></div>
+    </div>
+    <div class="col">
+      <div style="font-size:13px;font-weight:600;margin-bottom:4px">Database</div>
+      <div class="db-box" id="m2-db">chờ query...</div>
+    </div>
+  </div>
+  <div class="arrow-log" id="m2-log">log...</div>
+</div>
+
+<!-- =================== MODULE 3: depth limit =================== -->
+<h2>3. Query depth limit — chống DoS</h2>
+<div class="card">
+  <p class="intro">
+    Nhập query (kiểu rút gọn, dùng <code>{ }</code> lồng nhau). Trang tính <b>depth</b> = số cấp lồng sâu nhất,
+    so với limit. Query đệ quy <code>friends { friends { ... } }</code> sẽ vượt limit và bị reject.
+  </p>
+  <div class="controls">
+    <label>Limit depth: <input type="number" id="m3-limit" value="5" min="1" max="20" style="width:60px;padding:5px;border:1px solid #cbd5e0;border-radius:6px"></label>
+    <button id="m3-shallow" class="ghost">Mẫu nông</button>
+    <button id="m3-deep" class="ghost">Mẫu sâu</button>
+    <button id="m3-check">✓ Kiểm tra</button>
+  </div>
+  <textarea id="m3-q">query {
+  users {
+    posts {
+      title
+    }
+  }
+}</textarea>
+  <div class="depth-out" id="m3-out"></div>
+</div>
+</main>
+
+<script>
+// ===================== MODULE 1: REST vs GraphQL =====================
+(function () {
+  const restLane = document.getElementById('m1-rest');
+  const gqlLane = document.getElementById('m1-gql');
+  const restStat = document.getElementById('m1-rest-stat');
+  const gqlStat = document.getElementById('m1-gql-stat');
+
+  // REST: 1 user + 1 posts-list + 3 comment-list = 5 round-trip (under-fetch)
+  const restReqs = [
+    'GET /users/42',
+    'GET /users/42/posts?limit=3',
+    'GET /posts/101/comments?limit=2',
+    'GET /posts/102/comments?limit=2',
+    'GET /posts/103/comments?limit=2',
+  ];
+  // GraphQL: 1 POST /graphql với query lồng
+  const gqlReqs = [
+    'POST /graphql\n  { user(id:42){ name posts(limit:3){ title comments(limit:2){ text } } } }',
+  ];
+
+  function build() {
+    restLane.innerHTML = '<h3>🔴 REST — nhiều endpoint</h3>' +
+      restReqs.map(r => `<div class="pkt">${escapeHtml(r)}</div>`).join('');
+    gqlLane.innerHTML = '<h3>🟣 GraphQL — 1 endpoint</h3>' +
+      gqlReqs.map(r => `<div class="pkt">${escapeHtml(r)}</div>`).join('');
+    restStat.textContent = 'REST: 0 request';
+    gqlStat.textContent = 'GraphQL: 0 request';
+  }
+  function escapeHtml(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+
+  let timers = [];
+  function clearTimers(){ timers.forEach(clearTimeout); timers = []; }
+
+  function run() {
+    clearTimers(); build();
+    const rPkts = restLane.querySelectorAll('.pkt');
+    const gPkts = gqlLane.querySelectorAll('.pkt');
+    // REST: lần lượt (round-trip nối tiếp)
+    rPkts.forEach((p, i) => {
+      timers.push(setTimeout(() => {
+        p.classList.add('on');
+        restStat.textContent = `REST: ${i + 1} request`;
+      }, 450 * (i + 1)));
+    });
+    // GraphQL: 1 phát
+    timers.push(setTimeout(() => {
+      gPkts.forEach(p => p.classList.add('on'));
+      gqlStat.textContent = 'GraphQL: 1 request';
+    }, 450));
+  }
+
+  document.getElementById('m1-run').onclick = run;
+  document.getElementById('m1-reset').onclick = () => { clearTimers(); build(); };
+  build();
+})();
+
+// ===================== MODULE 2: N+1 / DataLoader =====================
+(function () {
+  const userIDs = ['u1', 'u2', 'u3', 'u4'];
+  const usersEl = document.getElementById('m2-users');
+  const dbEl = document.getElementById('m2-db');
+  const logEl = document.getElementById('m2-log');
+  const statEl = document.getElementById('m2-stat');
+
+  function build() {
+    usersEl.innerHTML = userIDs.map(id => `<div class="node" data-id="${id}">${id}</div>`).join('');
+    dbEl.className = 'db-box';
+    dbEl.textContent = 'chờ query...';
+    logEl.innerHTML = 'log...';
+    statEl.textContent = 'DB query: 0';
+    statEl.className = 'stat';
+  }
+  function log(html){ if(logEl.innerHTML==='log...')logEl.innerHTML=''; logEl.innerHTML += html + '<br>'; logEl.scrollTop = logEl.scrollHeight; }
+  function node(id){ return usersEl.querySelector(`[data-id="${id}"]`); }
+
+  let timers = [];
+  function clearTimers(){ timers.forEach(clearTimeout); timers = []; }
+
+  function runNaive() {
+    clearTimers(); build();
+    let q = 0;
+    // 1 query lấy users
+    timers.push(setTimeout(() => {
+      q++; statEl.textContent = `DB query: ${q}`;
+      dbEl.className = 'db-box hit'; dbEl.textContent = 'SELECT * FROM users';
+      log('<span class="q">DB query #'+q+'</span> SELECT * FROM users → <span class="ok">'+userIDs.length+' user</span>');
+    }, 400));
+    // N query: 1 cho mỗi user
+    userIDs.forEach((id, i) => {
+      timers.push(setTimeout(() => {
+        q++; statEl.textContent = `DB query: ${q}`;
+        node(id).classList.add('active');
+        dbEl.className = 'db-box hit';
+        dbEl.textContent = `SELECT * FROM posts WHERE user_id='${id}'`;
+        log('<span class="q">DB query #'+q+'</span> posts WHERE user_id=\''+id+'\'');
+      }, 900 + 550 * i));
+    });
+    timers.push(setTimeout(() => {
+      statEl.className = 'stat bad';
+      log('→ Tổng <b>'+(userIDs.length+1)+'</b> query = <b>N+1</b> (N='+userIDs.length+'). Chậm!');
+    }, 900 + 550 * userIDs.length));
+  }
+
+  function runLoader() {
+    clearTimers(); build();
+    let q = 0;
+    timers.push(setTimeout(() => {
+      q++; statEl.textContent = `DB query: ${q}`;
+      dbEl.className = 'db-box hit'; dbEl.textContent = 'SELECT * FROM users';
+      log('<span class="q">DB query #'+q+'</span> SELECT * FROM users → <span class="ok">'+userIDs.length+' user</span>');
+    }, 400));
+    // Pha collect: gom tất cả ID, chưa chạm DB
+    userIDs.forEach((id, i) => {
+      timers.push(setTimeout(() => {
+        node(id).classList.add('active');
+        log('loader.Load(\''+id+'\') → gom vào batch (chưa query)');
+      }, 900 + 280 * i));
+    });
+    // Pha dispatch: 1 batch query
+    timers.push(setTimeout(() => {
+      q++; statEl.textContent = `DB query: ${q}`;
+      dbEl.className = 'db-box hit';
+      dbEl.textContent = "SELECT * FROM posts WHERE user_id IN ('u1','u2','u3','u4')";
+      log('<span class="q">DB query #'+q+'</span> <b>BATCH</b> posts WHERE user_id IN (...) → <span class="ok">1 query cho cả nhóm</span>');
+    }, 900 + 280 * userIDs.length + 300));
+    timers.push(setTimeout(() => {
+      statEl.className = 'stat good';
+      log('→ Tổng <b>2</b> query (giảm từ '+(userIDs.length+1)+'). DataLoader cache theo request.');
+    }, 900 + 280 * userIDs.length + 800));
+  }
+
+  document.getElementById('m2-naive').onclick = runNaive;
+  document.getElementById('m2-loader').onclick = runLoader;
+  document.getElementById('m2-reset').onclick = () => { clearTimers(); build(); };
+  build();
+})();
+
+// ===================== MODULE 3: depth limit =====================
+(function () {
+  const qEl = document.getElementById('m3-q');
+  const limitEl = document.getElementById('m3-limit');
+  const outEl = document.getElementById('m3-out');
+
+  const shallow = `query {
+  users {
+    posts {
+      title
+    }
+  }
+}`;
+  const deep = `query {
+  user(id:"1") {
+    friends {
+      friends {
+        friends {
+          friends {
+            name
+          }
+        }
+      }
+    }
+  }
+}`;
+
+  // Tính depth bằng cách quét dấu { } — depth = độ lồng sâu nhất của các selection set.
+  // Bỏ qua cặp { } đầu tiên của 'query {' không tính là 1 cấp data thực:
+  // ta đếm độ sâu rồi trừ 1 (cấp operation root).
+  function computeDepth(src) {
+    let depth = 0, max = 0;
+    for (const ch of src) {
+      if (ch === '{') { depth++; if (depth > max) max = depth; }
+      else if (ch === '}') { depth--; }
+    }
+    // cấp ngoài cùng là 'query { ... }' → trừ 1 để tính depth của data tree
+    return Math.max(0, max - 1);
+  }
+
+  function check() {
+    const limit = parseInt(limitEl.value, 10) || 5;
+    const d = computeDepth(qEl.value);
+    const pass = d <= limit;
+    outEl.innerHTML =
+      `<span class="stat">depth = ${d}</span> &nbsp; vs limit ${limit} &nbsp;→&nbsp; ` +
+      (pass
+        ? `<span class="stat good">✓ ACCEPT</span>`
+        : `<span class="stat bad">✗ REJECT — query quá sâu, từ chối để tránh DoS</span>`);
+  }
+
+  document.getElementById('m3-check').onclick = check;
+  document.getElementById('m3-shallow').onclick = () => { qEl.value = shallow; check(); };
+  document.getElementById('m3-deep').onclick = () => { qEl.value = deep; check(); };
+  check();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

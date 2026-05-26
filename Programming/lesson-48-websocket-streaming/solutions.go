@@ -74,9 +74,10 @@ func sseTimeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// writeSSE viết một event SSE đầy đủ (id / event / data nhiều dòng).
-// Dùng cho hub broadcast bên dưới.
-func writeSSE(w io.WriterFlusher, id, evType, data string) {
+// writeSSE viết một event SSE đầy đủ (id / event / data nhiều dòng) ra w rồi Flush.
+// Format đầy đủ: "id: N\n", "event: type\n", mỗi dòng payload "data: ...\n",
+// kết thúc bằng một dòng trống "\n".
+func writeSSE(w http.ResponseWriter, flusher http.Flusher, id, evType, data string) {
 	if id != "" {
 		fmt.Fprintf(w, "id: %s\n", id)
 	}
@@ -88,14 +89,7 @@ func writeSSE(w io.WriterFlusher, id, evType, data string) {
 		fmt.Fprintf(w, "data: %s\n", line)
 	}
 	fmt.Fprint(w, "\n") // dòng trống đóng event
-	w.Flush()
-}
-
-// io.WriterFlusher gộp Write + Flush — alias tiện cho chữ ký writeSSE.
-// (Định nghĩa cục bộ thay vì import io để chữ ký rõ ràng.)
-type ioWriterFlusher interface {
-	Write([]byte) (int, error)
-	Flush()
+	flusher.Flush()
 }
 
 // ============================================================================
@@ -288,8 +282,7 @@ func (h *Hub) sseHandler(w http.ResponseWriter, r *http.Request) {
 			if !alive {
 				return // hub đã close(c.send) → client bị unregister/drop
 			}
-			fmt.Fprintf(w, "data: %s\n\n", msg)
-			flusher.Flush()
+			writeSSE(w, flusher, "", "", msg)
 		case <-heartbeat.C:
 			fmt.Fprint(w, ":keepalive\n\n") // comment line, browser bỏ qua
 			flusher.Flush()

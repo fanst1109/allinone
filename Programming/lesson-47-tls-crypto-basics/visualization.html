@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 47 — TLS & Crypto Basics Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 40px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; margin-top: 24px; }
+  .intro { color: #4a5568; line-height: 1.7; max-width: 760px; }
+
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 9px 16px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+
+  .explain {
+    background: #ebf8ff; border-left: 4px solid #4299e1;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.65; margin: 12px 0;
+    color: #2c5282;
+  }
+  code.inline, .explain code {
+    background: #edf2f7; padding: 1px 5px; border-radius: 3px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
+    color: #2d3748;
+  }
+
+  /* ---------- Module 1: TLS handshake ---------- */
+  .hs-wrap { display: flex; gap: 16px; align-items: stretch; flex-wrap: wrap; }
+  .hs-party {
+    flex: 1 1 180px; min-width: 0;
+    border: 2px solid #cbd5e0; border-radius: 8px; padding: 14px;
+    text-align: center; background: #f7fafc;
+    transition: border-color .25s, box-shadow .25s;
+  }
+  .hs-party.active { border-color: #4299e1; box-shadow: 0 0 0 3px rgba(66,153,225,.25); }
+  .hs-party .who { font-weight: 700; font-size: 16px; margin-bottom: 6px; }
+  .hs-party .icon { font-size: 34px; }
+  .hs-state {
+    margin-top: 10px; font-size: 12px; text-align: left;
+    background: white; border-radius: 6px; padding: 8px 10px;
+    min-height: 70px; line-height: 1.5; color: #2d3748;
+    font-family: ui-monospace, Menlo, monospace;
+  }
+  .hs-arrow {
+    flex: 1 1 130px; min-width: 0; align-self: center;
+    text-align: center; font-size: 13px; color: #2d3748;
+    padding: 6px;
+  }
+  .hs-msg {
+    background: #fffaf0; border: 1px solid #f6ad55; border-radius: 6px;
+    padding: 8px 10px; font-size: 12px; min-height: 48px;
+    font-family: ui-monospace, Menlo, monospace; line-height: 1.45;
+    opacity: .35; transition: opacity .25s;
+  }
+  .hs-msg.show { opacity: 1; }
+  .hs-dir { font-size: 20px; letter-spacing: 2px; }
+  .hs-step-info {
+    background: #2d3748; color: #e2e8f0; border-radius: 6px;
+    padding: 12px 14px; margin-top: 14px; font-size: 14px; line-height: 1.6;
+    min-height: 48px;
+  }
+  .hs-step-info b { color: #90cdf4; }
+  .lock { font-size: 13px; color: #38a169; font-weight: 700; }
+
+  /* ---------- Module 2: cert chain ---------- */
+  .chain { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .cert-box {
+    width: 100%; max-width: 420px; box-sizing: border-box;
+    border: 2px solid #cbd5e0; border-radius: 8px; padding: 12px 16px;
+    background: white; cursor: pointer; transition: border-color .2s, transform .1s;
+  }
+  .cert-box:hover { border-color: #4299e1; transform: translateY(-1px); }
+  .cert-box.selected { border-color: #4299e1; box-shadow: 0 0 0 3px rgba(66,153,225,.2); }
+  .cert-box .ctype { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+  .cert-box.leaf .ctype { color: #3182ce; }
+  .cert-box.inter .ctype { color: #805ad5; }
+  .cert-box.root .ctype { color: #38a169; }
+  .cert-box .cn { font-weight: 600; margin-top: 2px; }
+  .cert-box .sub { font-size: 12px; color: #718096; }
+  .chain-link { color: #a0aec0; font-size: 13px; padding: 6px 0; text-align: center; }
+  .chain-link .arrow { font-size: 20px; display: block; }
+  .trust-badge {
+    margin-top: 6px; font-size: 12px; color: #2f855a; background: #f0fff4;
+    border: 1px dashed #9ae6b4; border-radius: 6px; padding: 6px 10px; text-align: center;
+    max-width: 420px; box-sizing: border-box; width: 100%;
+  }
+  .cert-detail {
+    margin-top: 14px; background: #1a202c; color: #e2e8f0; border-radius: 8px;
+    padding: 14px 16px; font-family: ui-monospace, Menlo, monospace;
+    font-size: 12.5px; line-height: 1.65; white-space: pre-wrap;
+    overflow-x: auto;
+  }
+  .cert-detail .k { color: #90cdf4; }
+  .cert-detail .v { color: #faf089; }
+
+  /* ---------- Module 3: hash compare ---------- */
+  input[type=text] {
+    width: 100%; max-width: 360px; box-sizing: border-box;
+    padding: 8px 10px; border: 1px solid #cbd5e0; border-radius: 4px;
+    font-size: 14px; font-family: inherit;
+  }
+  .hash-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13.5px; }
+  .hash-table th, .hash-table td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+  .hash-table th { color: #4a5568; font-size: 12px; text-transform: uppercase; letter-spacing: .4px; }
+  .speed-bar-wrap { background: #edf2f7; border-radius: 4px; height: 18px; width: 100%; max-width: 220px; overflow: hidden; }
+  .speed-bar { height: 100%; border-radius: 4px; transition: width .6s ease; }
+  .digest { font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; color: #2d3748; word-break: break-all; }
+  .risk { font-weight: 700; font-size: 12.5px; }
+  .risk.bad { color: #c53030; }
+  .risk.warn { color: #c05621; }
+  .risk.ok { color: #2f855a; }
+  .note-mini { font-size: 12px; color: #718096; margin-top: 4px; }
+
+  @media (max-width: 480px) {
+    .hs-wrap { flex-direction: column; }
+    .hs-arrow { flex-basis: auto; }
+    .hash-table th:nth-child(4), .hash-table td:nth-child(4) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-46-authentication-jwt/visualization.html">← L46: Auth & JWT</a>
+  <span class="sep">·</span>
+  <span class="current">L47: TLS & Crypto</span>
+  <span class="sep">·</span>
+  <a href="../lesson-48-websocket-streaming/visualization.html">L48: WebSocket →</a>
+</nav>
+
+<div class="container">
+<header>
+  <h1>Lesson 47 — TLS &amp; Crypto Basics</h1>
+  <p class="intro">
+    Ba module tương tác: (1) xem từng message của <b>TLS 1.3 handshake</b> giữa client và server;
+    (2) lần theo <b>certificate chain</b> leaf → intermediate → root; (3) so sánh tốc độ &amp; nguy cơ
+    của <b>MD5 / SHA-256 / bcrypt</b> để hiểu vì sao mỗi hàm hash dùng cho mục đích khác nhau.
+  </p>
+</header>
+
+<!-- ============ MODULE 1 ============ -->
+<h2>1. TLS 1.3 Handshake</h2>
+<div class="card">
+  <p class="intro" style="margin-top:0">
+    Bấm <b>Bước tiếp →</b> để đi qua từng message. TLS 1.3 chỉ cần <b>1 round-trip</b> trước khi gửi
+    data; session key được derive bằng <b>ECDHE</b> nên có forward secrecy.
+  </p>
+
+  <div class="hs-wrap">
+    <div class="hs-party" id="hsClient">
+      <div class="icon">💻</div>
+      <div class="who">Client</div>
+      <div class="hs-state" id="hsClientState">chưa biết gì về server</div>
+    </div>
+
+    <div class="hs-arrow">
+      <div class="hs-msg" id="hsMsg"> </div>
+      <div class="hs-dir" id="hsDir"> </div>
+    </div>
+
+    <div class="hs-party" id="hsServer">
+      <div class="icon">🖥️</div>
+      <div class="who">Server (bank.com)</div>
+      <div class="hs-state" id="hsServerState">đợi ClientHello</div>
+    </div>
+  </div>
+
+  <div class="hs-step-info" id="hsInfo">Nhấn <b>Bước tiếp →</b> để bắt đầu handshake.</div>
+
+  <div class="row" style="margin-top:14px">
+    <button id="hsNext">Bước tiếp →</button>
+    <button id="hsReset" class="secondary">↺ Reset</button>
+    <span id="hsProgress" style="font-size:13px;color:#718096"></span>
+  </div>
+</div>
+
+<!-- ============ MODULE 2 ============ -->
+<h2>2. Certificate Chain Visualizer</h2>
+<div class="card">
+  <p class="intro" style="margin-top:0">
+    Server gửi <b>leaf + intermediate</b> (không gửi root — client đã có sẵn). Client verify từng chữ ký
+    đi lên cho tới root nằm trong <b>trust store</b> của OS/browser. Click vào mỗi cert để xem chi tiết.
+  </p>
+
+  <div class="chain">
+    <div class="cert-box leaf selected" data-cert="leaf">
+      <div class="ctype">Leaf · end-entity</div>
+      <div class="cn">CN = bank.com</div>
+      <div class="sub">do server trình ra · chứa public key của bank.com</div>
+    </div>
+    <div class="chain-link"><span class="arrow">▲</span> signed by</div>
+    <div class="cert-box inter" data-cert="inter">
+      <div class="ctype">Intermediate · CA</div>
+      <div class="cn">CN = GlobalSign RSA OV SSL CA 2018</div>
+      <div class="sub">cũng do server gửi kèm</div>
+    </div>
+    <div class="chain-link"><span class="arrow">▲</span> signed by</div>
+    <div class="cert-box root" data-cert="root">
+      <div class="ctype">Root · trust anchor</div>
+      <div class="cn">CN = GlobalSign Root CA - R3</div>
+      <div class="sub">KHÔNG gửi qua mạng</div>
+    </div>
+    <div class="trust-badge">🔒 Root nằm sẵn trong trust store OS / browser → cả chuỗi được tin</div>
+  </div>
+
+  <div class="cert-detail" id="certDetail"></div>
+  <div class="explain" style="margin-top:14px">
+    <b>Thử nghĩ:</b> một <code class="inline">self-signed</code> cert chính là leaf tự ký cho mình (issuer = subject),
+    không có cha trong trust store → browser báo <code class="inline">NET::ERR_CERT_AUTHORITY_INVALID</code>.
+  </div>
+</div>
+
+<!-- ============ MODULE 3 ============ -->
+<h2>3. Hash Compare — MD5 / SHA-256 / bcrypt</h2>
+<div class="card">
+  <p class="intro" style="margin-top:0">
+    Nhập text rồi bấm <b>Hash</b>. Bảng so sánh <b>tốc độ</b> (nhanh = tốt cho checksum nhưng tệ cho
+    password) và <b>nguy cơ</b>. Lưu ý: digest ở đây tính bằng JS minh hoạ — bcrypt hiển thị định dạng
+    mẫu, không thực thi vòng lặp cost.
+  </p>
+
+  <div class="row">
+    <input type="text" id="hashInput" value="p@ssw0rd" placeholder="nhập text...">
+    <button id="hashBtn">Hash</button>
+  </div>
+
+  <table class="hash-table">
+    <thead>
+      <tr><th>Thuật toán</th><th>Tốc độ (hash/giây)</th><th>Nguy cơ</th><th>Digest</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><b>MD5</b><div class="note-mini">128-bit · 1991</div></td>
+        <td>
+          <div class="speed-bar-wrap"><div class="speed-bar" id="barMd5" style="background:#e53e3e"></div></div>
+          <div class="note-mini">~10 tỉ/s (GPU)</div>
+        </td>
+        <td><span class="risk bad">Collision đã bị phá</span><div class="note-mini">cấm dùng cho security</div></td>
+        <td class="digest" id="digMd5">—</td>
+      </tr>
+      <tr>
+        <td><b>SHA-256</b><div class="note-mini">256-bit · 2001</div></td>
+        <td>
+          <div class="speed-bar-wrap"><div class="speed-bar" id="barSha" style="background:#dd6b20"></div></div>
+          <div class="note-mini">~1 tỉ/s (GPU)</div>
+        </td>
+        <td><span class="risk warn">An toàn cho checksum<br>nhưng quá nhanh cho password</span></td>
+        <td class="digest" id="digSha">—</td>
+      </tr>
+      <tr>
+        <td><b>bcrypt</b><div class="note-mini">cost 10 · adaptive</div></td>
+        <td>
+          <div class="speed-bar-wrap"><div class="speed-bar" id="barBcrypt" style="background:#38a169;width:2%"></div></div>
+          <div class="note-mini">~12/s (cố tình chậm)</div>
+        </td>
+        <td><span class="risk ok">Tốt cho password</span><div class="note-mini">có salt + cost</div></td>
+        <td class="digest" id="digBcrypt">—</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="explain" style="margin-top:14px">
+    <b>Điểm mấu chốt:</b> hash <b>nhanh</b> tốt cho integrity/checksum (kiểm tra file tải về), nhưng
+    <b>tệ cho password</b> — attacker brute-force hàng tỉ candidate/giây. Password cần hash <b>cố tình
+    chậm</b> + có salt: bcrypt, scrypt, argon2id.
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+/* =================== MODULE 1: TLS handshake =================== */
+(function () {
+  const steps = [
+    {
+      dir: "→", msg: "ClientHello\n random_c\n cipher_list\n key_share (pub_c)\n SNI=bank.com",
+      active: "client",
+      client: "tạo cặp ECDHE tạm\n(priv_c, pub_c)\nrandom_c = 0x7f3a…",
+      server: "đợi ClientHello",
+      info: "<b>ClientHello (plaintext).</b> Client gửi số ngẫu nhiên, danh sách cipher, key_share ECDHE và SNI (\"bank.com\"). Tất cả chưa mã hoá."
+    },
+    {
+      dir: "←", msg: "ServerHello\n random_s\n cipher_chosen\n key_share (pub_s)",
+      active: "server",
+      client: "nhận pub_s",
+      server: "tạo (priv_s, pub_s)\nchọn TLS_AES_128_GCM\nrandom_s = 0xa192…",
+      info: "<b>ServerHello.</b> Server chọn cipher, gửi key_share của mình. Giờ cả hai bên có đủ pub của đối phương."
+    },
+    {
+      dir: "↔", msg: "(tính nội bộ)\nshared = ECDH(priv, peer_pub)\nsession_key = HKDF(shared,…)",
+      active: "both",
+      client: "session_key ✓\n(chưa verify server)",
+      server: "session_key ✓",
+      info: "<b>Key agreement (ECDHE).</b> Hai bên độc lập tính ra cùng một <code class='inline'>shared</code> secret rồi derive session_key qua HKDF. Khoá này chỉ tồn tại 1 lần → forward secrecy."
+    },
+    {
+      dir: "←", msg: "{Certificate}\n{CertVerify}\n{Finished}\n(đã mã hoá)",
+      active: "server",
+      client: "đang verify cert…",
+      server: "ký transcript bằng\nprivate key của leaf cert",
+      info: "<b>Certificate + CertVerify + Finished (đã mã hoá).</b> Server gửi chain cert và ký toàn bộ transcript bằng private key tương ứng public key trong cert → chứng minh \"chính chủ\"."
+    },
+    {
+      dir: "✓", msg: "Client verify:\n chain hợp lệ?\n SAN có bank.com?\n CertVerify đúng?\n Finished khớp?",
+      active: "client",
+      client: "cert OK ✓\nSAN=bank.com ✓\nchữ ký ✓",
+      server: "đợi Client Finished",
+      info: "<b>Client verify.</b> Kiểm chain tới root tin cậy, tên trong SAN khớp \"bank.com\", chữ ký CertVerify đúng, chưa hết hạn. Sai bất kỳ điều nào → cảnh báo đỏ."
+    },
+    {
+      dir: "→", msg: "{Finished}\n+ application data\n(AES-GCM)",
+      active: "client",
+      client: "🔒 kênh an toàn",
+      server: "🔒 kênh an toàn",
+      info: "<b>Client Finished + data.</b> Từ đây mọi byte HTTP được mã hoá bằng AES-GCM với session_key. Handshake xong — chỉ 1 round-trip thực sự."
+    }
+  ];
+
+  let i = -1;
+  const el = (id) => document.getElementById(id);
+  const msg = el("hsMsg"), dir = el("hsDir"), info = el("hsInfo");
+  const cState = el("hsClientState"), sState = el("hsServerState");
+  const cParty = el("hsClient"), sParty = el("hsServer");
+  const prog = el("hsProgress"), nextBtn = el("hsNext");
+
+  function render() {
+    if (i < 0) {
+      msg.textContent = " "; msg.classList.remove("show"); dir.textContent = " ";
+      info.innerHTML = "Nhấn <b>Bước tiếp →</b> để bắt đầu handshake.";
+      cState.textContent = "chưa biết gì về server";
+      sState.textContent = "đợi ClientHello";
+      cParty.classList.remove("active"); sParty.classList.remove("active");
+      prog.textContent = ""; nextBtn.disabled = false;
+      nextBtn.textContent = "Bước tiếp →";
+      return;
+    }
+    const s = steps[i];
+    msg.textContent = s.msg; msg.classList.add("show");
+    dir.textContent = s.dir;
+    info.innerHTML = s.info;
+    cState.textContent = s.client;
+    sState.textContent = s.server;
+    cParty.classList.toggle("active", s.active === "client" || s.active === "both");
+    sParty.classList.toggle("active", s.active === "server" || s.active === "both");
+    prog.textContent = "Bước " + (i + 1) + " / " + steps.length;
+    if (i === steps.length - 1) { nextBtn.textContent = "✓ Xong"; nextBtn.disabled = true; }
+  }
+
+  nextBtn.onclick = () => { if (i < steps.length - 1) { i++; render(); } };
+  el("hsReset").onclick = () => { i = -1; render(); };
+  render();
+})();
+
+/* =================== MODULE 2: cert chain =================== */
+(function () {
+  const data = {
+    leaf: {
+      title: "LEAF CERTIFICATE",
+      lines: [
+        ["Subject", "CN=bank.com, O=Big Bank Inc, C=US"],
+        ["SubjectAltName", "DNS:bank.com, DNS:www.bank.com, DNS:*.bank.com"],
+        ["Issuer", "CN=GlobalSign RSA OV SSL CA 2018"],
+        ["NotAfter", "2025-09-30T23:59:59Z"],
+        ["PublicKey", "ECDSA P-256"],
+        ["Signed by", "→ private key của Intermediate"]
+      ]
+    },
+    inter: {
+      title: "INTERMEDIATE CA",
+      lines: [
+        ["Subject", "CN=GlobalSign RSA OV SSL CA 2018"],
+        ["Issuer", "CN=GlobalSign Root CA - R3"],
+        ["NotAfter", "2028-01-28T00:00:00Z"],
+        ["KeyUsage", "Certificate Sign, CRL Sign"],
+        ["Signed by", "→ private key của Root CA"]
+      ]
+    },
+    root: {
+      title: "ROOT CA (trust anchor)",
+      lines: [
+        ["Subject", "CN=GlobalSign Root CA - R3"],
+        ["Issuer", "CN=GlobalSign Root CA - R3  (self-signed)"],
+        ["NotAfter", "2029-03-18T10:00:00Z"],
+        ["Trust", "✓ có sẵn trong OS / browser store"],
+        ["Signed by", "→ chính nó (đỉnh của chuỗi)"]
+      ]
+    }
+  };
+
+  const detail = document.getElementById("certDetail");
+  function show(key) {
+    const d = data[key];
+    let html = "<b>" + d.title + "</b>\n";
+    d.lines.forEach(([k, v]) => {
+      html += '<span class="k">' + k.padEnd(15) + '</span>: <span class="v">' + v + "</span>\n";
+    });
+    detail.innerHTML = html;
+  }
+  document.querySelectorAll(".cert-box").forEach((box) => {
+    box.onclick = () => {
+      document.querySelectorAll(".cert-box").forEach((b) => b.classList.remove("selected"));
+      box.classList.add("selected");
+      show(box.dataset.cert);
+    };
+  });
+  show("leaf");
+})();
+
+/* =================== MODULE 3: hash compare =================== */
+(function () {
+  // Hàm hash minh hoạ (KHÔNG dùng cho production) — chỉ để hiển thị digest khác nhau.
+  function fakeHash(str, hexLen) {
+    // FNV-1a 32-bit mở rộng thành chuỗi hex dài hexLen ký tự (deterministic).
+    let out = "";
+    let seed = 0x811c9dc5;
+    for (let block = 0; out.length < hexLen; block++) {
+      let h = (seed ^ (block * 0x01000193)) >>> 0;
+      for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 0x01000193) >>> 0;
+      }
+      out += h.toString(16).padStart(8, "0");
+    }
+    return out.slice(0, hexLen);
+  }
+
+  const el = (id) => document.getElementById(id);
+  function run() {
+    const txt = el("hashInput").value || "";
+    el("digMd5").textContent = fakeHash(txt + "md5", 32);   // MD5 = 128 bit = 32 hex
+    el("digSha").textContent = fakeHash(txt + "sha", 64);   // SHA-256 = 256 bit = 64 hex
+    // bcrypt: định dạng $2a$cost$salt+digest (22+31 ký tự base64) — hiển thị mẫu.
+    const salt = fakeHash(txt + "salt", 22);
+    const dig = fakeHash(txt + "bcrypt", 31);
+    el("digBcrypt").textContent = "$2a$10$" + salt + dig;
+
+    // Animate thanh tốc độ (log-scale tương đối: MD5 nhanh nhất, bcrypt gần như 0).
+    el("barMd5").style.width = "100%";
+    el("barSha").style.width = "62%";
+    el("barBcrypt").style.width = "2%";
+  }
+  el("hashBtn").onclick = run;
+  el("hashInput").addEventListener("keydown", (e) => { if (e.key === "Enter") run(); });
+  run();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

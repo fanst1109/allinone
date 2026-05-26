@@ -619,6 +619,9 @@ func main() {
 	}
 
 	addr := ":8080"
+	if p := os.Getenv("ADDR"); p != "" {
+		addr = p
+	}
 	log.Printf("REST API listening on %s (RUN_SERVER mode)", addr)
 	if err := http.ListenAndServe(addr, a.routes()); err != nil {
 		log.Fatal(err)

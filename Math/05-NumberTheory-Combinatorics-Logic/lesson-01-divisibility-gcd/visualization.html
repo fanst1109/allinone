@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 01 — Chia hết & GCD</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100px; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-family: monospace; font-size: 13px; }
+  td, th { border: 1px solid #cbd5e0; padding: 6px 10px; text-align: left; }
+  th { background: #f1f5f9; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../../04-Calculus-1var/lesson-08-integral-applications/visualization.html">← T4-L8</a>
+  <span class="sep">·</span>
+  <span class="current">T5-L1: GCD</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L2: Nguyên tố (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 01 (T5) — Thuật toán Euclid tìm GCD</h1>
+
+<h2>GCD + Bezout (Euclid mở rộng)</h2>
+<div class="card">
+  <div class="row">
+    <strong>a:</strong> <input type="number" id="a" value="252" oninput="calc()">
+    <strong>b:</strong> <input type="number" id="b" value="105" oninput="calc()">
+  </div>
+  <div class="result" id="res"></div>
+  <div id="steps"></div>
+</div>
+
+<script>
+function calc() {
+  let a = parseInt(document.getElementById("a").value);
+  let b = parseInt(document.getElementById("b").value);
+  if (!a || !b || a <= 0 || b <= 0) {
+    document.getElementById("res").innerHTML = "<strong>Nhập a, b dương.</strong>";
+    document.getElementById("steps").innerHTML = "";
+    return;
+  }
+  const a0 = a, b0 = b;
+
+  // Run Euclidean Algorithm
+  const steps = [];
+  let oldR = a, r = b, oldS = 1, s = 0, oldT = 0, t = 1;
+  while (r !== 0) {
+    const q = Math.floor(oldR / r);
+    const rem = oldR - q * r;
+    steps.push({oldR, r, q, rem, oldS, s, oldT, t});
+    [oldR, r] = [r, rem];
+    [oldS, s] = [s, oldS - q*s];
+    [oldT, t] = [t, oldT - q*t];
+  }
+  const gcd = oldR;
+  const x = oldS, y = oldT;
+  const lcm = (a0 * b0) / gcd;
+
+  // Render steps
+  let html = "<h3>Bước Euclid:</h3><table><thead><tr><th>Bước</th><th>Phép chia</th><th>Thương q</th><th>Số dư r</th></tr></thead><tbody>";
+  steps.forEach((s, i) => {
+    html += `<tr><td>${i+1}</td><td>${s.oldR} = ${s.r}·${s.q} + ${s.rem}</td><td>${s.q}</td><td>${s.rem}</td></tr>`;
+  });
+  html += "</tbody></table>";
+
+  // Show Bezout backward
+  html += "<h3>Bezout (lùi ngược):</h3><div style='font-family:monospace; font-size:13px'>";
+  html += `Cuối Euclid: gcd = ${gcd}.<br>`;
+  html += `Lùi từng bước, ta được: <strong>${a0}·(${x}) + ${b0}·(${y}) = ${gcd}</strong>.<br>`;
+  html += `Kiểm tra: ${a0}·${x} + ${b0}·${y} = ${a0*x} + ${b0*y} = ${a0*x + b0*y} ${a0*x + b0*y === gcd ? "✓" : "✗"}`;
+  html += "</div>";
+
+  document.getElementById("steps").innerHTML = html;
+
+  document.getElementById("res").innerHTML = `
+    <div style="font-family:monospace; font-size:15px"><strong>gcd(${a0}, ${b0}) = ${gcd}</strong></div>
+    <div style="font-family:monospace; font-size:14px; margin-top:4px">LCM(${a0}, ${b0}) = a·b/gcd = ${a0*b0}/${gcd} = <strong>${lcm}</strong></div>
+    <div style="font-family:monospace; font-size:14px; margin-top:4px">Bezout: <strong>${a0}·(${x}) + ${b0}·(${y}) = ${gcd}</strong></div>
+    <div style="margin-top:6px; font-size:13px">Số bước Euclid: <strong>${steps.length}</strong> (rất nhanh — O(log min(a,b)))</div>
+  `;
+}
+
+calc();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

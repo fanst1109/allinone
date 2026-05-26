@@ -113,6 +113,95 @@ function update(node, l, r, i, v):
     tree[node] = tree[2*node] + tree[2*node+1]
 \`\`\`
 
+### 2.5. Walk-through — build trên mảng \`[1, 3, 5, 7, 9, 11]\`
+
+Build từ root (node 1, đoạn \`[0, 5]\`):
+
+\`\`\`
+build(1, 0, 5):
+  mid = 2
+  build(2, 0, 2):
+    mid = 1
+    build(4, 0, 1):
+      mid = 0
+      build(8, 0, 0): tree[8] = a[0] = 1
+      build(9, 1, 1): tree[9] = a[1] = 3
+      tree[4] = 1 + 3 = 4
+    build(5, 2, 2): tree[5] = a[2] = 5
+    tree[2] = 4 + 5 = 9
+  build(3, 3, 5):
+    mid = 4
+    build(6, 3, 4):
+      mid = 3
+      build(12, 3, 3): tree[12] = 7
+      build(13, 4, 4): tree[13] = 9
+      tree[6] = 7 + 9 = 16
+    build(7, 5, 5): tree[7] = 11
+    tree[3] = 16 + 11 = 27
+  tree[1] = 9 + 27 = 36
+\`\`\`
+
+Mảng \`tree\` cuối:
+
+| index | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 12 | 13 |
+|-------|---|---|---|---|---|---|---|---|---|----|----|
+| đoạn | \`[0,5]\` | \`[0,2]\` | \`[3,5]\` | \`[0,1]\` | \`[2,2]\` | \`[3,4]\` | \`[5,5]\` | \`[0,0]\` | \`[1,1]\` | \`[3,3]\` | \`[4,4]\` |
+| value | 36 | 9 | 27 | 4 | 5 | 16 | 11 | 1 | 3 | 7 | 9 |
+
+### 2.6. Walk-through — query \`sum [1, 4]\`
+
+Gọi \`query(1, 0, 5, 1, 4)\`:
+
+\`\`\`
+node 1 [0,5]: KHÔNG nằm trọn → đi tiếp
+  node 2 [0,2]: KHÔNG nằm trọn → đi tiếp
+    node 4 [0,1]: KHÔNG nằm trọn → đi tiếp
+      node 8 [0,0]: KHÔNG giao [1,4] → 0
+      node 9 [1,1]: NẰM TRỌN → 3
+      → trả về 3
+    node 5 [2,2]: NẰM TRỌN trong [1,4] → 5
+    → trả về 3 + 5 = 8
+  node 3 [3,5]: KHÔNG nằm trọn → đi tiếp
+    node 6 [3,4]: NẰM TRỌN → 16
+    node 7 [5,5]: KHÔNG giao → 0
+    → trả về 16
+  → trả về 8 + 16 = 24
+\`\`\`
+
+Kiểm tra: \`a[1]+a[2]+a[3]+a[4] = 3+5+7+9 = 24\` ✓.
+
+Số node ghé thăm: **8 node** (1, 2, 4, 8, 9, 5, 3, 6, 7) trên cây cao 4. Vẫn \`O(log n)\`, không phải 5 node \`a[1..4]\`.
+
+### 2.7. Walk-through — update \`a[2] += 10\`
+
+Gọi \`update(1, 0, 5, 2, +10)\`:
+
+\`\`\`
+node 1 [0,5]: 2 ≤ mid=2 → đi trái
+  node 2 [0,2]: 2 > mid=1 → đi phải
+    node 5 [2,2]: lá → tree[5] += 10 → 5 + 10 = 15
+  tree[2] = tree[4] + tree[5] = 4 + 15 = 19
+tree[1] = tree[2] + tree[3] = 19 + 27 = 46
+\`\`\`
+
+Chỉ **3 node** trên đường được sửa: 5, 2, 1 — đúng chiều cao cây. Các nhánh không liên quan giữ nguyên.
+
+### 2.8. ❓ Câu hỏi tự nhiên
+
+- **"Sao phải \`4n\` chứ không phải \`2n\`?"** — Nếu \`n\` là lũy thừa của 2, \`2n\` đủ. Nhưng với \`n = 5\` (vd ở trên), cây không cân hoàn hảo → các node "ảo" làm tăng index lên đến \`~4n\`. An toàn nhất: cấp \`4n\`. Có cách dùng \`2^⌈log n⌉ × 2\` chính xác hơn nhưng phức tạp hơn.
+- **"Tại sao dùng \`2*node\` và \`2*node+1\` cho con?"** — Cùng kỹ thuật như heap (lesson 08): mảng biểu diễn cây nhị phân hoàn chỉnh, con trái = \`2i\`, con phải = \`2i+1\`, cha = \`i/2\`. Tránh phải lưu con trỏ.
+- **"Khác gì so với cây nhị phân thông thường (lesson 06)?"** — Segment tree **luôn cân**, **mỗi node lưu thông tin tổng hợp** của một đoạn (không phải 1 giá trị), **lá tương ứng phần tử mảng**. Cây nhị phân thông thường tự do cấu trúc.
+- **"Có thể tổng hợp gì khác ngoài sum?"** — Bất kỳ phép kết hợp associative: \`min\`, \`max\`, \`gcd\`, \`xor\`, \`product mod p\`, "có bao nhiêu phần tử lẻ", thậm chí lưu matrix nhỏ (Lazy on matrix mul).
+
+### 2.9. ⚠ Lỗi thường gặp với segment tree cơ bản
+
+| Lỗi | Hậu quả | Cách sửa |
+|------|---------|----------|
+| Cấp \`tree\` size = \`n\` thay vì \`4n\` | \`index out of range\` với \`n\` lẻ / không phải lũy thừa 2 | Luôn cấp \`4*n\` (hoặc dùng size động) |
+| Trong query, không xử lý "không giao" → trả \`tree[node]\` luôn | Cộng nhầm các đoạn ngoài \`[ql, qr]\` | Phải check \`qr < l || r < ql\` → return 0 |
+| Update xong quên cập nhật node cha (\`tree[node] = tree[2n] + tree[2n+1]\`) | Cha không đồng bộ → query sai | Bổ sung dòng "merge from children" sau khi đệ quy |
+| Off-by-one \`mid+1\` thành \`mid\` trong nhánh phải | Đoạn \`[mid, r]\` đè lên \`[l, mid]\` → duplicate / vô hạn | Cẩn thận: trái \`[l, mid]\`, phải \`[mid+1, r]\` |
+
 ## 3. Lazy Propagation
 
 Khi cập nhật **cả đoạn \`[ql, qr]\`** (chứ không phải một điểm), nếu update từng phần tử thì tốn \`O(n log n)\`. **Lazy** giải quyết:

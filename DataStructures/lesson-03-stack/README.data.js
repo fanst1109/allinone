@@ -169,6 +169,35 @@ Ngược lại, với \`"([)]"\`:
 - **Stack overflow**: đệ quy không có điều kiện dừng hoặc dữ liệu quá lớn.
 - Cài đặt bằng array tĩnh → có thể tràn nếu vượt capacity.
 
+### 5.1. ⚠ Lỗi thường gặp (bảng chi tiết)
+
+| Lỗi | Hậu quả | Cách sửa |
+|------|---------|----------|
+| \`pop()\` / \`peek()\` không check \`isEmpty()\` | Crash (panic, index out of range, NPE) | Check \`if !stack.isEmpty()\` hoặc trả về \`(value, ok)\` style |
+| Đệ quy quá sâu không có base case → **stack overflow** | Crash chương trình (thường ~10⁴-10⁵ frame tùy ngôn ngữ) | Đảm bảo base case đúng; với input rất lớn, chuyển sang stack tường minh (iteration) |
+| Cài đặt bằng array tĩnh, không kiểm tra capacity | \`push\` ghi đè bộ nhớ kế bên → undefined behavior | Dùng dynamic array, hoặc kiểm \`size < capacity\` trước \`push\` |
+| Khi cài Min Stack, quên rằng \`pop\` phải pop cả stack chính **lẫn** stack phụ | \`getMin()\` trả sai sau vài lần pop | Đảm bảo mọi thao tác \`pop\`/\`push\` đồng bộ trên cả 2 stack |
+| Trong kiểm tra ngoặc: gặp ngoặc đóng mà stack rỗng → coi như hợp lệ | Chuỗi \`")("\` được tính là hợp lệ ❌ | Stack rỗng + gặp đóng → return \`false\` ngay |
+| Trong kiểm tra ngoặc: kết thúc mà quên check stack có rỗng không | Chuỗi \`"((("\` bị coi là hợp lệ ❌ | Cuối hàm: \`return stack.isEmpty()\`, không phải \`return true\` |
+| Dùng \`slice[:len-1]\` trong Go để "pop" nhưng giữ tham chiếu tới phần tử cuối | Phần tử bị giữ trong bộ nhớ (memory leak nhẹ với object lớn) | Gán \`slice[len-1] = zeroValue\` trước khi \`slice = slice[:len-1]\` |
+
+### 5.2. 🔁 Tự kiểm tra
+
+1. Dãy thao tác \`push(1), push(2), pop, push(3), pop, pop\`. Stack cuối cùng có gì? Pop ra lần lượt giá trị nào?
+   <details><summary>Đáp án</summary>Trace: \`[]\` → \`[1]\` → \`[1,2]\` → \`[1]\` (pop=2) → \`[1,3]\` → \`[1]\` (pop=3) → \`[]\` (pop=1). Stack cuối rỗng. Thứ tự pop: **2, 3, 1**.</details>
+2. Chuỗi \`"({[}])"\` có hợp lệ không? Trace bằng stack.
+   <details><summary>Đáp án</summary>\`(\` push → \`[(]\`. \`{\` push → \`[(, {]\`. \`[\` push → \`[(, {, []\`. Gặp \`}\` → pop đỉnh \`[\`, so với \`pairs[}] = {\` → **không khớp** → \`false\`. Chuỗi không hợp lệ vì các ngoặc lồng chéo nhau.</details>
+3. Vì sao đệ quy fibonacci \`fib(n) = fib(n-1) + fib(n-2)\` với \`n = 10000\` gây stack overflow, trong khi vòng for tính được dễ dàng?
+   <details><summary>Đáp án</summary>Mỗi lần gọi đệ quy đẩy 1 frame vào **call stack** của runtime. Với \`n = 10000\`, độ sâu đệ quy ~10000 frame, vượt giới hạn call stack (~10000 trong Java/Go, ~1000 trong Python). Vòng for chỉ dùng 1 frame + vài biến local → không phụ thuộc \`n\`.</details>
+
+### 5.3. 📝 Tóm tắt mục — Stack
+
+- Stack là **ADT** theo nguyên tắc **LIFO**; thao tác chính: \`push\`, \`pop\`, \`peek\`, \`isEmpty\` — tất cả \`O(1)\`.
+- Cài đặt: **dynamic array** (cache-friendly, \`O(1)\` amortized) hoặc **linked list** (\`O(1)\` thật, tốn thêm con trỏ).
+- Ứng dụng cốt lõi: **call stack** runtime, **kiểm tra ngoặc cân bằng**, **postfix evaluation**, **undo/redo**, **DFS**, khử đệ quy.
+- Bẫy thường gặp: pop trên rỗng, stack overflow do đệ quy, quên check rỗng cuối hàm kiểm tra ngoặc, tràn array tĩnh.
+- Quy luật: bất cứ khi nào bài toán có cấu trúc "lồng nhau" hoặc "việc bắt đầu sau phải xong trước" → nghĩ tới stack.
+
 ## Bài tập
 
 1. Viết hàm kiểm tra một chuỗi ngoặc \`()[]{}\` có hợp lệ không.

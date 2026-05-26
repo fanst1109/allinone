@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 06 — Quy nạp toán học</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  button { background: #94a3b8; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.active { background: #15803d; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0; font-family: monospace; font-size: 13px; }
+  td, th { border: 1px solid #cbd5e0; padding: 6px 10px; text-align: right; }
+  th { background: #f1f5f9; }
+  .ok { background: #dcfce7; color: #15803d; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-pigeonhole-inclusion-exclusion/visualization.html">← L5: Dirichlet</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Quy nạp</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L7: Logic (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 06 (T5) — Quy nạp toán học</h1>
+
+<h2>Kiểm chứng đồng nhất thức bằng số</h2>
+<div class="card">
+  <p>Mỗi đồng nhất thức được chứng minh bằng quy nạp. Bảng minh hoạ với các giá trị n cụ thể.</p>
+  <div class="row">
+    <button id="b1" onclick="setF('sum')" class="active">1+2+...+n = n(n+1)/2</button>
+    <button id="b2" onclick="setF('sumsq')">1²+2²+...+n² = n(n+1)(2n+1)/6</button>
+    <button id="b3" onclick="setF('sumcube')">1³+2³+...+n³ = (n(n+1)/2)²</button>
+    <button id="b4" onclick="setF('pow2')">1+2+4+...+2^n = 2^(n+1)−1</button>
+  </div>
+  <div id="tbl"></div>
+  <div class="result" id="res"></div>
+</div>
+
+<script>
+const probs = {
+  sum:     {fn: n => n*(n+1)/2,                                  sumFn: n => { let s = 0; for (let i = 1; i <= n; i++) s += i; return s; },         label: "Σ i = n(n+1)/2"},
+  sumsq:   {fn: n => n*(n+1)*(2*n+1)/6,                          sumFn: n => { let s = 0; for (let i = 1; i <= n; i++) s += i*i; return s; },     label: "Σ i² = n(n+1)(2n+1)/6"},
+  sumcube: {fn: n => Math.pow(n*(n+1)/2, 2),                     sumFn: n => { let s = 0; for (let i = 1; i <= n; i++) s += i*i*i; return s; },   label: "Σ i³ = (n(n+1)/2)²"},
+  pow2:    {fn: n => Math.pow(2, n+1) - 1,                       sumFn: n => { let s = 0; for (let i = 0; i <= n; i++) s += Math.pow(2,i); return s; }, label: "Σ 2^i (i=0..n) = 2^(n+1)−1"}
+};
+let cur = "sum";
+
+function setF(f) {
+  cur = f;
+  ["1","2","3","4"].forEach(c => document.getElementById("b"+c).classList.remove("active"));
+  const m = {sum:"1", sumsq:"2", sumcube:"3", pow2:"4"};
+  document.getElementById("b" + m[f]).classList.add("active");
+  draw();
+}
+
+function draw() {
+  const def = probs[cur];
+  let html = '<table><thead><tr><th>n</th><th>Vế trái (tổng trực tiếp)</th><th>Vế phải (công thức)</th><th>Khớp?</th></tr></thead><tbody>';
+  let ok = true;
+  for (let n = 1; n <= 10; n++) {
+    const lhs = def.sumFn(n);
+    const rhs = def.fn(n);
+    const match = Math.abs(lhs - rhs) < 1e-6;
+    if (!match) ok = false;
+    html += `<tr><td>${n}</td><td>${lhs}</td><td>${rhs}</td><td class="${match ? "ok" : ""}">${match ? "✓" : "✗"}</td></tr>`;
+  }
+  html += "</tbody></table>";
+  document.getElementById("tbl").innerHTML = html;
+
+  document.getElementById("res").innerHTML = `
+    <div style="font-family:monospace; font-size:15px"><strong>${def.label}</strong></div>
+    <div style="margin-top:6px">Khớp 100% trong bảng. Quy nạp chứng minh mệnh đề đúng cho <strong>MỌI n</strong>, không chỉ vài giá trị.</div>
+    <div style="margin-top:8px; padding:10px; background:#fef3c7; border-radius:6px; font-size:13px"><strong>Bài học:</strong> Kiểm tra vài giá trị KHÔNG thay được chứng minh quy nạp. Ví dụ "n² + n + 41 nguyên tố ∀n" — đúng từ n=0 đến n=39, nhưng sai tại n=40 (= 41²).</div>
+  `;
+}
+
+draw();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

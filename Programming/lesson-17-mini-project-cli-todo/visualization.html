@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 17 — Mini-project: CLI Todo Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+    font-family: inherit;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.danger { background: #e53e3e; }
+  button.danger:hover { background: #c53030; }
+
+  .explain {
+    background: #ebf8ff; border-left: 4px solid #4299e1;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6;
+    margin-top: 10px;
+  }
+  .explain code {
+    background: white; padding: 1px 5px; border-radius: 3px;
+    font-family: monospace; color: #2b6cb0;
+  }
+  .warn {
+    background: #fffaf0; border-left: 4px solid #ed8936;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6;
+  }
+
+  /* ========== Module 1: Terminal simulator ========== */
+  .terminal {
+    background: #1a202c;
+    color: #e2e8f0;
+    padding: 14px;
+    border-radius: 8px;
+    font-family: 'Menlo', 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    height: 360px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    box-sizing: border-box;
+  }
+  .terminal .prompt { color: #68d391; font-weight: 700; }
+  .terminal .cmd-input { color: #fbd38d; }
+  .terminal .output-line { color: #e2e8f0; }
+  .terminal .err-line { color: #fc8181; }
+  .terminal .ok-line { color: #9ae6b4; }
+  .terminal .sep-line { color: #4a5568; }
+
+  .input-row {
+    display: flex; gap: 8px; align-items: center;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .input-row .prompt-static {
+    color: #2d3748; font-weight: 700; font-family: monospace;
+    flex-shrink: 0;
+  }
+  .input-row input[type="text"] {
+    flex: 1 1 200px;
+    min-width: 0;
+    font-family: monospace;
+    font-size: 14px;
+    padding: 8px 10px;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  .quick-buttons {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .quick-buttons button {
+    font-size: 12px; padding: 5px 10px;
+    background: #4a5568;
+  }
+  .quick-buttons button:hover { background: #2d3748; }
+
+  /* ========== Module 2: Architecture diagram ========== */
+  .arch-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+  @media (max-width: 720px) {
+    .arch-wrap { grid-template-columns: 1fr; }
+  }
+  .arch-svg-wrap {
+    width: 100%; overflow-x: auto;
+    background: #f7fafc; padding: 10px; border-radius: 6px;
+  }
+  .file-box {
+    fill: #fff; stroke: #4a5568; stroke-width: 2;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .file-box:hover, .file-box.active {
+    fill: #4299e1; stroke: #2b6cb0;
+  }
+  .file-box.active + text { fill: white; }
+  .file-label {
+    font-family: monospace; font-size: 14px; font-weight: 700;
+    fill: #1a202c; text-anchor: middle;
+    pointer-events: none;
+  }
+  .file-box.active ~ .file-label,
+  .file-box.active + text {
+    fill: white;
+  }
+  .arrow { stroke: #718096; stroke-width: 2; fill: none; }
+  .code-snippet {
+    background: #2d3748;
+    color: #e2e8f0;
+    padding: 14px;
+    border-radius: 6px;
+    font-family: 'Menlo', 'Consolas', monospace;
+    font-size: 12px;
+    line-height: 1.55;
+    max-height: 380px;
+    overflow-y: auto;
+    white-space: pre;
+    box-sizing: border-box;
+  }
+  .code-snippet .kw { color: #f687b3; }
+  .code-snippet .str { color: #fbd38d; }
+  .code-snippet .com { color: #a0aec0; font-style: italic; }
+  .code-snippet .fn { color: #63b3ed; }
+  .file-tabs {
+    display: flex; gap: 4px; flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .file-tabs button {
+    background: #e2e8f0; color: #2d3748;
+    font-size: 12px; padding: 5px 10px;
+  }
+  .file-tabs button.active {
+    background: #4299e1; color: white;
+  }
+
+  /* ========== Module 3: JSON storage viewer ========== */
+  .json-view {
+    background: #2d3748;
+    color: #e2e8f0;
+    padding: 14px;
+    border-radius: 8px;
+    font-family: 'Menlo', 'Consolas', monospace;
+    font-size: 12px;
+    line-height: 1.55;
+    max-height: 360px;
+    overflow-y: auto;
+    white-space: pre;
+    box-sizing: border-box;
+  }
+  .json-view .k { color: #fbd38d; }
+  .json-view .s { color: #9ae6b4; }
+  .json-view .n { color: #f687b3; }
+  .json-view .b { color: #63b3ed; }
+
+  .diff-add { background: rgba(72, 187, 120, 0.25); }
+  .diff-del { background: rgba(229, 62, 62, 0.25); }
+
+  .task-list {
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .task-row {
+    padding: 8px 12px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex; gap: 10px; align-items: center;
+    font-family: monospace;
+    font-size: 13px;
+    background: white;
+  }
+  .task-row:last-child { border-bottom: none; }
+  .task-row.done { background: #f0fff4; color: #2f855a; }
+  .task-row .id { color: #718096; min-width: 32px; }
+  .task-row .icon { min-width: 28px; }
+  .task-row .title { flex: 1; word-break: break-word; }
+  .task-row .meta { color: #a0aec0; font-size: 11px; }
+
+  details summary {
+    cursor: pointer; font-weight: 700; color: #2b6cb0;
+    margin: 8px 0;
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-16-pointers/visualization.html">← L16: Pointer</a>
+  <span class="sep">·</span>
+  <span class="current">L17: Mini-project CLI Todo</span>
+  <span class="sep">·</span>
+  <a href="../tier-2-intermediate/index.html">Tier 2 →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 17 — Mini-project: CLI Todo App</h1>
+<p>
+  Lesson tổng kết Tier 1. 3 module dưới đây cho phép bạn (1) <strong>chạy thử app todo</strong> ngay trong trang
+  (terminal mô phỏng — gõ <code>add "Mua sữa"</code>, <code>list</code>, ... thấy output thật và state lưu vào localStorage);
+  (2) <strong>khám phá kiến trúc</strong> 4-file (main / storage / task / commands); (3) xem <strong>file JSON storage</strong>
+  cập nhật real-time mỗi khi thực hiện thao tác ở module 1.
+</p>
+
+<h2>1. Interactive Todo CLI — gõ lệnh thật</h2>
+<div class="card">
+  <p>
+    Đây là <strong>simulator của binary <code>todo</code></strong> chạy thẳng trong browser (JS port của
+    code Go ở <code>solutions/</code>). Gõ lệnh giống hệt như trong terminal, ấn Enter hoặc click nút "Run".
+    State lưu trong <code>localStorage</code> nên reload trang vẫn còn task.
+  </p>
+
+  <div id="terminal" class="terminal"></div>
+
+  <div class="input-row">
+    <span class="prompt-static">$ todo</span>
+    <input type="text" id="cmd-input" placeholder='add "Mua sữa"' autocomplete="off" spellcheck="false">
+    <button onclick="runCommand()">Run</button>
+    <button class="secondary" onclick="clearTerminal()">Clear terminal</button>
+    <button class="danger" onclick="resetStore()">Reset .todo.json</button>
+  </div>
+
+  <div class="quick-buttons">
+    <span style="font-size:12px;color:#4a5568;align-self:center;">Demo nhanh:</span>
+    <button onclick="quick('add &quot;Mua sữa&quot;')">add "Mua sữa"</button>
+    <button onclick="quick('add &quot;Đi tập gym&quot;')">add "Đi tập gym"</button>
+    <button onclick="quick('add &quot;Học Go lesson 17&quot;')">add "Học Go"</button>
+    <button onclick="quick('list')">list</button>
+    <button onclick="quick('done 1')">done 1</button>
+    <button onclick="quick('list --done')">list --done</button>
+    <button onclick="quick('list --pending')">list --pending</button>
+    <button onclick="quick('edit 2 &quot;Đi tập sáng 6h&quot;')">edit 2 ...</button>
+    <button onclick="quick('remove 3')">remove 3</button>
+    <button onclick="quick('clear')">clear</button>
+    <button onclick="quick('help')">help</button>
+  </div>
+
+  <div class="explain">
+    Toàn bộ logic ở đây map 1-1 với code Go thật trong <code>solutions/</code>: cùng cách parse args,
+    cùng cách filter, cùng format bảng. Bạn có thể đọc <code>solutions/commands.go</code> rồi quay lại
+    đây thử lệnh để xác nhận hành vi.
+  </div>
+</div>
+
+<h2>2. Architecture diagram — click vào file để xem code</h2>
+<div class="card">
+  <p>4 file Go trong project, mũi tên = phụ thuộc ("file A dùng file B"). Click vào ô file để xem code snippet.</p>
+
+  <div class="arch-wrap">
+    <div class="arch-svg-wrap">
+      <svg width="380" height="420" viewBox="0 0 380 420" xmlns="http://www.w3.org/2000/svg">
+        <!-- main.go -->
+        <rect class="file-box" data-file="main" x="110" y="20" width="160" height="60" rx="6"/>
+        <text class="file-label" x="190" y="48">main.go</text>
+        <text class="file-label" x="190" y="68" style="font-size:11px;font-weight:400;">entry + dispatch</text>
+
+        <!-- commands.go -->
+        <rect class="file-box" data-file="commands" x="20" y="160" width="160" height="60" rx="6"/>
+        <text class="file-label" x="100" y="188">commands.go</text>
+        <text class="file-label" x="100" y="208" style="font-size:11px;font-weight:400;">cmdAdd/List/...</text>
+
+        <!-- storage.go -->
+        <rect class="file-box" data-file="storage" x="200" y="160" width="160" height="60" rx="6"/>
+        <text class="file-label" x="280" y="188">storage.go</text>
+        <text class="file-label" x="280" y="208" style="font-size:11px;font-weight:400;">Load/Save JSON</text>
+
+        <!-- task.go -->
+        <rect class="file-box" data-file="task" x="110" y="320" width="160" height="60" rx="6"/>
+        <text class="file-label" x="190" y="348">task.go</text>
+        <text class="file-label" x="190" y="368" style="font-size:11px;font-weight:400;">type Task struct</text>
+
+        <!-- arrows main → commands, main → storage -->
+        <path class="arrow" d="M 150 80 L 100 160" marker-end="url(#arrow)"/>
+        <path class="arrow" d="M 230 80 L 280 160" marker-end="url(#arrow)"/>
+        <!-- arrows commands → task, storage → task -->
+        <path class="arrow" d="M 130 220 L 175 320" marker-end="url(#arrow)"/>
+        <path class="arrow" d="M 250 220 L 205 320" marker-end="url(#arrow)"/>
+        <!-- arrow commands ↔ storage -->
+        <path class="arrow" d="M 180 190 L 200 190" marker-end="url(#arrow)"/>
+
+        <defs>
+          <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L9,3 z" fill="#718096"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+
+    <div>
+      <div class="file-tabs">
+        <button class="active" data-tab="main" onclick="showFile('main')">main.go</button>
+        <button data-tab="commands" onclick="showFile('commands')">commands.go</button>
+        <button data-tab="storage" onclick="showFile('storage')">storage.go</button>
+        <button data-tab="task" onclick="showFile('task')">task.go</button>
+      </div>
+      <div id="code-snippet" class="code-snippet"></div>
+    </div>
+  </div>
+
+  <div class="explain">
+    Quy tắc phụ thuộc: <strong>luôn đi một chiều xuống dưới</strong>. Task không biết về Storage, Storage
+    không biết về Commands. Nếu vẽ ra mũi tên thấy có vòng (A → B → A), đó là smell cần refactor.
+  </div>
+</div>
+
+<h2>3. JSON storage viewer — file <code>.todo.json</code> đổi real-time</h2>
+<div class="card">
+  <p>
+    Mỗi khi bạn chạy lệnh ở Module 1, file <code>.todo.json</code> được serialize lại. Bên dưới là raw JSON
+    + view "đẹp" của task list. Highlight <span class="diff-add" style="padding:0 4px;">xanh</span> = vừa thêm,
+    <span class="diff-del" style="padding:0 4px;">đỏ</span> = vừa xóa/đổi.
+  </p>
+
+  <div class="row" style="margin-bottom:10px;">
+    <strong>Raw <code>.todo.json</code>:</strong>
+  </div>
+  <div id="json-view" class="json-view"></div>
+
+  <div class="row" style="margin: 16px 0 8px;">
+    <strong>Pretty view:</strong>
+  </div>
+  <div id="task-list-view" class="task-list"></div>
+
+  <div class="explain">
+    Lưu JSON pretty-printed (<code>json.MarshalIndent</code>) thay vì compact để file dễ đọc/sửa tay khi
+    debug. Trade-off: file lớn hơn ~30%. Với todo nhỏ không vấn đề; nếu storage thật có 100k entry mới cần
+    compact.
+  </div>
+
+  <details>
+    <summary>Tại sao lưu cả <code>nextId</code> riêng?</summary>
+    <p>
+      Nếu dùng <code>len(tasks)+1</code> để sinh ID mới, sẽ bug khi user xóa task. Ví dụ: có task #1, #2, #3.
+      Xóa #3 → <code>len = 2</code>. Thêm task mới → ID = 3 (trùng với task vừa xóa, nếu user quay lại undo
+      sẽ conflict). Lưu <code>nextId</code> riêng giúp ID <strong>strictly monotonic</strong> — chỉ tăng,
+      không bao giờ tái sử dụng.
+    </p>
+  </details>
+</div>
+
+<h2>4. Tổng kết — chuyển sang Tier 2</h2>
+<div class="card">
+  <p>Sau lesson này bạn đã có:</p>
+  <ul>
+    <li>Một CLI Go thực tế dùng được — <code>go install</code> rồi xài hằng ngày.</li>
+    <li>Trải nghiệm chia 1 project thành nhiều file theo trách nhiệm (main / domain / storage / commands).</li>
+    <li>Áp dụng <strong>tất cả</strong> syntax Tier 1: struct, slice, map, pointer, string, function, control flow, package, file I/O.</li>
+  </ul>
+  <p>
+    <strong>Tier 2 — Go Intermediate</strong> sẽ học interface (tách app khỏi storage cụ thể), goroutine + channel
+    (process task song song), error wrapping, generic. Đó là phần Go "Go nhất" — khác Java/Python rõ rệt.
+  </p>
+  <p>
+    → Xem <a href="../tier-2-intermediate/index.html">Tier 2 — Intermediate</a>.
+  </p>
+</div>
+
+</main>
+
+<script>
+// ============================================================
+// Module 1: Terminal simulator — JS port của Go CLI
+// ============================================================
+
+const STORAGE_KEY = 'lesson17.todo.store';
+const TERMINAL_KEY = 'lesson17.todo.terminal';
+
+function loadStore() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { nextId: 1, tasks: [] };
+    return JSON.parse(raw);
+  } catch (e) {
+    return { nextId: 1, tasks: [] };
+  }
+}
+
+function saveStore(s) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+  renderJsonView(s);
+  renderTaskList(s);
+}
+
+let store = loadStore();
+
+// State để highlight diff trên JSON view
+let lastDiff = { added: null, removed: null, edited: null };
+
+// Parse args với support quotes: add "Mua sữa" → ["add", "Mua sữa"]
+function parseArgs(line) {
+  const out = [];
+  let cur = '';
+  let inQuote = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') { inQuote = !inQuote; continue; }
+    if (c === ' ' && !inQuote) {
+      if (cur) { out.push(cur); cur = ''; }
+      continue;
+    }
+    cur += c;
+  }
+  if (cur) out.push(cur);
+  return out;
+}
+
+function pad(s, w) {
+  s = String(s);
+  // Đếm code-point gần đúng cho UTF-8 (đơn giản, không hoàn hảo với ZWJ)
+  const len = [...s].length;
+  if (len >= w) return s;
+  return s + ' '.repeat(w - len);
+}
+
+function truncate(s, max) {
+  const arr = [...s];
+  if (arr.length <= max) return s;
+  return arr.slice(0, max - 1).join('') + '…';
+}
+
+function formatDate(iso) {
+  const d = new Date(iso);
+  const pad2 = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+}
+
+function printTable(tasks) {
+  const lines = [];
+  lines.push(`${pad('ID',4)}  ${pad('ST',3)}  ${pad('Title',40)}  Created`);
+  lines.push('─'.repeat(70));
+  for (const t of tasks) {
+    const icon = t.status === 'done' ? '[x]' : '[ ]';
+    lines.push(`${pad('#'+t.id,4)}  ${icon}  ${pad(truncate(t.title,40),40)}  ${formatDate(t.createdAt)}`);
+  }
+  lines.push('─'.repeat(70));
+  const done = tasks.filter(t => t.status==='done').length;
+  lines.push(`Tổng ${tasks.length} task — ${done} done, ${tasks.length-done} pending`);
+  return lines.join('\n');
+}
+
+// ===== Commands =====
+
+const commands = {
+  add(args) {
+    if (args.length === 0) return { err: 'thiếu tiêu đề task. Cú pháp: add <title>' };
+    const title = args.join(' ').trim();
+    if (!title) return { err: 'tiêu đề không được rỗng' };
+    const task = {
+      id: store.nextId,
+      title,
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+    };
+    store.tasks.push(task);
+    store.nextId++;
+    lastDiff = { added: task.id, removed: null, edited: null };
+    return { ok: `Đã thêm task #${task.id}: ${task.title}` };
+  },
+  list(args) {
+    const flag = args[0] || '';
+    const filters = {
+      '':         t => true,
+      '--all':    t => true,
+      '--done':   t => t.status === 'done',
+      '--pending':t => t.status !== 'done',
+    };
+    if (!(flag in filters)) {
+      return { err: `flag không hỗ trợ: ${flag} (chỉ có --done, --pending, --all)` };
+    }
+    const visible = store.tasks.filter(filters[flag]);
+    if (visible.length === 0) return { ok: 'Không có task nào.' };
+    return { ok: printTable(visible) };
+  },
+  ls(args) { return commands.list(args); },
+  done(args) {
+    if (args.length === 0) return { err: 'cú pháp: done <id>' };
+    const id = parseInt(args[0], 10);
+    if (isNaN(id)) return { err: `ID phải là số nguyên, nhận: "${args[0]}"` };
+    const t = store.tasks.find(x => x.id === id);
+    if (!t) return { err: `không tìm thấy task #${id}` };
+    if (t.status === 'done') return { ok: `Task #${id} đã done từ trước.` };
+    t.status = 'done';
+    lastDiff = { added: null, removed: null, edited: id };
+    return { ok: `Đã đánh dấu xong task #${id}: ${t.title}` };
+  },
+  undone(args) {
+    if (args.length === 0) return { err: 'cú pháp: undone <id>' };
+    const id = parseInt(args[0], 10);
+    const t = store.tasks.find(x => x.id === id);
+    if (!t) return { err: `không tìm thấy task #${id}` };
+    t.status = 'pending';
+    lastDiff = { added: null, removed: null, edited: id };
+    return { ok: `Đã chuyển task #${id} về pending.` };
+  },
+  remove(args) {
+    if (args.length === 0) return { err: 'cú pháp: remove <id>' };
+    const id = parseInt(args[0], 10);
+    const idx = store.tasks.findIndex(x => x.id === id);
+    if (idx === -1) return { err: `không tìm thấy task #${id}` };
+    const removed = store.tasks[idx];
+    store.tasks.splice(idx, 1);
+    lastDiff = { added: null, removed: id, edited: null };
+    return { ok: `Đã xóa task #${id}: ${removed.title}` };
+  },
+  rm(args) { return commands.remove(args); },
+  edit(args) {
+    if (args.length < 2) return { err: 'cú pháp: edit <id> <new title>' };
+    const id = parseInt(args[0], 10);
+    const t = store.tasks.find(x => x.id === id);
+    if (!t) return { err: `không tìm thấy task #${id}` };
+    const newTitle = args.slice(1).join(' ').trim();
+    if (!newTitle) return { err: 'tiêu đề mới không được rỗng' };
+    const old = t.title;
+    t.title = newTitle;
+    lastDiff = { added: null, removed: null, edited: id };
+    return { ok: `Đã sửa task #${id}: "${old}" → "${newTitle}"` };
+  },
+  clear() {
+    const before = store.tasks.length;
+    store.tasks = store.tasks.filter(t => t.status !== 'done');
+    const cleared = before - store.tasks.length;
+    lastDiff = { added: null, removed: 'multiple', edited: null };
+    return { ok: `Đã xóa ${cleared} task done.` };
+  },
+  help() {
+    return { ok: `todo — CLI todo app (lesson 17).
+
+Lệnh:
+  add <title>           Thêm task mới
+  list [--all|--done|--pending]
+  ls                    Alias của list
+  done <id>             Đánh dấu task hoàn thành
+  undone <id>           Đưa task về pending
+  edit <id> <title>     Sửa tiêu đề
+  remove <id>           Xóa task
+  rm <id>               Alias của remove
+  clear                 Xóa hết task done
+  help                  In hướng dẫn này` };
+  },
+};
+
+function executeCommand(line) {
+  const trimmed = line.trim();
+  if (!trimmed) return null;
+  const tokens = parseArgs(trimmed);
+  const cmd = tokens[0];
+  const args = tokens.slice(1);
+  // Reset diff
+  lastDiff = { added: null, removed: null, edited: null };
+  if (!commands[cmd]) {
+    return { err: `Lệnh không hỗ trợ: ${cmd}. Gõ "help" để xem.` };
+  }
+  return commands[cmd](args);
+}
+
+// ===== Terminal rendering =====
+
+let terminalHistory = [];
+try {
+  terminalHistory = JSON.parse(localStorage.getItem(TERMINAL_KEY) || '[]');
+} catch(e) { terminalHistory = []; }
+
+function appendTerminal(entry) {
+  terminalHistory.push(entry);
+  // Giới hạn 200 entries để không phình localStorage
+  if (terminalHistory.length > 200) terminalHistory.shift();
+  localStorage.setItem(TERMINAL_KEY, JSON.stringify(terminalHistory));
+  renderTerminal();
+}
+
+function renderTerminal() {
+  const el = document.getElementById('terminal');
+  if (!el) return;
+  let html = '';
+  if (terminalHistory.length === 0) {
+    html = '<span class="output-line">Gõ lệnh bên dưới (ví dụ: <span class="cmd-input">add "Mua sữa"</span>) rồi ấn Enter.\nLệnh đầy đủ: gõ <span class="cmd-input">help</span>.</span>';
+  } else {
+    for (const e of terminalHistory) {
+      if (e.type === 'cmd') {
+        html += `<span class="prompt">$ todo</span> <span class="cmd-input">${escapeHtml(e.text)}</span>\n`;
+      } else if (e.type === 'ok') {
+        html += `<span class="ok-line">${escapeHtml(e.text)}</span>\n`;
+      } else if (e.type === 'err') {
+        html += `<span class="err-line">Lỗi: ${escapeHtml(e.text)}</span>\n`;
+      } else if (e.type === 'sep') {
+        html += `<span class="sep-line">${'─'.repeat(60)}</span>\n`;
+      }
+    }
+  }
+  el.innerHTML = html;
+  el.scrollTop = el.scrollHeight;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function runCommand() {
+  const input = document.getElementById('cmd-input');
+  const line = input.value;
+  if (!line.trim()) return;
+  appendTerminal({ type: 'cmd', text: line });
+  const result = executeCommand(line);
+  if (result === null) return;
+  if (result.err) {
+    appendTerminal({ type: 'err', text: result.err });
+  } else if (result.ok) {
+    appendTerminal({ type: 'ok', text: result.ok });
+  }
+  saveStore(store);
+  input.value = '';
+  input.focus();
+}
+
+function quick(line) {
+  // decode HTML entities (vì onclick string đã được escape)
+  const tmp = document.createElement('textarea');
+  tmp.innerHTML = line;
+  document.getElementById('cmd-input').value = tmp.value;
+  runCommand();
+}
+
+function clearTerminal() {
+  terminalHistory = [];
+  localStorage.removeItem(TERMINAL_KEY);
+  renderTerminal();
+}
+
+function resetStore() {
+  if (!confirm('Xóa toàn bộ task trong .todo.json?')) return;
+  store = { nextId: 1, tasks: [] };
+  saveStore(store);
+  appendTerminal({ type: 'sep' });
+  appendTerminal({ type: 'ok', text: '(reset .todo.json)' });
+}
+
+// Enter key submits
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('cmd-input');
+  if (input) {
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); runCommand(); }
+    });
+  }
+  renderTerminal();
+  saveStore(store);   // initial render for module 3
+  showFile('main');   // initial code for module 2
+});
+
+// ============================================================
+// Module 2: Architecture diagram + code snippets
+// ============================================================
+
+const SNIPPETS = {
+  main: `<span class="com">// main.go — entry point, parse args, dispatch</span>
+<span class="kw">package</span> main
+
+<span class="kw">import</span> (
+    <span class="str">"fmt"</span>
+    <span class="str">"os"</span>
+)
+
+<span class="kw">type</span> handler <span class="kw">func</span>(s *Store, args []<span class="kw">string</span>) <span class="kw">error</span>
+
+<span class="kw">var</span> commandTable = <span class="kw">map</span>[<span class="kw">string</span>]handler{
+    <span class="str">"add"</span>:    cmdAdd,
+    <span class="str">"list"</span>:   cmdList,
+    <span class="str">"done"</span>:   cmdDone,
+    <span class="str">"remove"</span>: cmdRemove,
+    <span class="str">"edit"</span>:   cmdEdit,
+    <span class="str">"clear"</span>:  cmdClear,
+    <span class="com">// ...</span>
+}
+
+<span class="kw">func</span> <span class="fn">main</span>() {
+    <span class="kw">if</span> <span class="fn">len</span>(os.Args) &lt; 2 { <span class="fn">printUsage</span>(); os.<span class="fn">Exit</span>(1) }
+    cmd := os.Args[1]
+    args := os.Args[2:]
+
+    fn, ok := commandTable[cmd]
+    <span class="kw">if</span> !ok { <span class="fn">printUsage</span>(); os.<span class="fn">Exit</span>(1) }
+
+    store, err := <span class="fn">LoadStore</span>()
+    <span class="kw">if</span> err != <span class="kw">nil</span> { <span class="com">/* report */</span> }
+
+    <span class="kw">if</span> err := <span class="fn">fn</span>(store, args); err != <span class="kw">nil</span> {
+        fmt.<span class="fn">Fprintf</span>(os.Stderr, <span class="str">"Lỗi: %v\\n"</span>, err)
+        os.<span class="fn">Exit</span>(1)
+    }
+
+    store.<span class="fn">Save</span>()
+}`,
+
+  commands: `<span class="com">// commands.go — mỗi command 1 function</span>
+<span class="kw">package</span> main
+
+<span class="kw">func</span> <span class="fn">cmdAdd</span>(s *Store, args []<span class="kw">string</span>) <span class="kw">error</span> {
+    <span class="kw">if</span> <span class="fn">len</span>(args) == 0 {
+        <span class="kw">return</span> fmt.<span class="fn">Errorf</span>(<span class="str">"thiếu tiêu đề"</span>)
+    }
+    title := strings.<span class="fn">TrimSpace</span>(strings.<span class="fn">Join</span>(args, <span class="str">" "</span>))
+    s.Tasks = <span class="fn">append</span>(s.Tasks, Task{
+        ID:        s.NextID,
+        Title:     title,
+        Status:    StatusPending,
+        CreatedAt: time.<span class="fn">Now</span>(),
+    })
+    s.NextID++
+    <span class="kw">return</span> <span class="kw">nil</span>
+}
+
+<span class="kw">func</span> <span class="fn">cmdDone</span>(s *Store, args []<span class="kw">string</span>) <span class="kw">error</span> {
+    id, _ := strconv.<span class="fn">Atoi</span>(args[0])
+    task := s.<span class="fn">FindByID</span>(id)  <span class="com">// trả *Task</span>
+    <span class="kw">if</span> task == <span class="kw">nil</span> {
+        <span class="kw">return</span> fmt.<span class="fn">Errorf</span>(<span class="str">"không tìm thấy #%d"</span>, id)
+    }
+    task.<span class="fn">MarkDone</span>()  <span class="com">// pointer → sửa được task trong slice</span>
+    <span class="kw">return</span> <span class="kw">nil</span>
+}
+
+<span class="kw">func</span> <span class="fn">cmdList</span>(s *Store, args []<span class="kw">string</span>) <span class="kw">error</span> {
+    <span class="com">// Map filter: dispatch table biến thể</span>
+    filters := <span class="kw">map</span>[<span class="kw">string</span>]<span class="kw">func</span>(Task) <span class="kw">bool</span>{
+        <span class="str">""</span>:          <span class="kw">func</span>(t Task) <span class="kw">bool</span> { <span class="kw">return</span> <span class="kw">true</span> },
+        <span class="str">"--done"</span>:    <span class="kw">func</span>(t Task) <span class="kw">bool</span> { <span class="kw">return</span> t.<span class="fn">IsDone</span>() },
+        <span class="str">"--pending"</span>: <span class="kw">func</span>(t Task) <span class="kw">bool</span> { <span class="kw">return</span> !t.<span class="fn">IsDone</span>() },
+    }
+    keep := filters[<span class="fn">flag</span>(args)]
+    <span class="kw">for</span> _, t := <span class="kw">range</span> s.Tasks {
+        <span class="kw">if</span> <span class="fn">keep</span>(t) { fmt.<span class="fn">Println</span>(t) }
+    }
+    <span class="kw">return</span> <span class="kw">nil</span>
+}`,
+
+  storage: `<span class="com">// storage.go — đọc/ghi JSON</span>
+<span class="kw">package</span> main
+
+<span class="kw">const</span> dataFile = <span class="str">".todo.json"</span>
+
+<span class="kw">type</span> Store <span class="kw">struct</span> {
+    NextID <span class="kw">int</span>    \`json:<span class="str">"nextId"</span>\`
+    Tasks  []Task \`json:<span class="str">"tasks"</span>\`
+}
+
+<span class="kw">func</span> <span class="fn">LoadStore</span>() (*Store, <span class="kw">error</span>) {
+    data, err := os.<span class="fn">ReadFile</span>(dataFile)
+    <span class="kw">if</span> err != <span class="kw">nil</span> {
+        <span class="com">// File chưa có lần đầu — KHÔNG phải lỗi</span>
+        <span class="kw">if</span> errors.<span class="fn">Is</span>(err, os.ErrNotExist) {
+            <span class="kw">return</span> &amp;Store{NextID: 1}, <span class="kw">nil</span>
+        }
+        <span class="kw">return</span> <span class="kw">nil</span>, err
+    }
+    <span class="kw">var</span> s Store
+    json.<span class="fn">Unmarshal</span>(data, &amp;s)
+    <span class="kw">return</span> &amp;s, <span class="kw">nil</span>
+}
+
+<span class="kw">func</span> (s *Store) <span class="fn">Save</span>() <span class="kw">error</span> {
+    data, _ := json.<span class="fn">MarshalIndent</span>(s, <span class="str">""</span>, <span class="str">"  "</span>)
+    <span class="kw">return</span> os.<span class="fn">WriteFile</span>(dataFile, data, 0644)
+}
+
+<span class="kw">func</span> (s *Store) <span class="fn">FindByID</span>(id <span class="kw">int</span>) *Task {
+    <span class="com">// CHÚ Ý: dùng index, không phải biến range,</span>
+    <span class="com">// vì biến range là copy, &amp;t trỏ vào biến tạm.</span>
+    <span class="kw">for</span> i := <span class="kw">range</span> s.Tasks {
+        <span class="kw">if</span> s.Tasks[i].ID == id {
+            <span class="kw">return</span> &amp;s.Tasks[i]
+        }
+    }
+    <span class="kw">return</span> <span class="kw">nil</span>
+}`,
+
+  task: `<span class="com">// task.go — domain type</span>
+<span class="kw">package</span> main
+
+<span class="kw">import</span> <span class="str">"time"</span>
+
+<span class="kw">type</span> Status <span class="kw">string</span>
+<span class="kw">const</span> (
+    StatusPending Status = <span class="str">"pending"</span>
+    StatusDone    Status = <span class="str">"done"</span>
+)
+
+<span class="kw">type</span> Task <span class="kw">struct</span> {
+    ID        <span class="kw">int</span>       \`json:<span class="str">"id"</span>\`
+    Title     <span class="kw">string</span>    \`json:<span class="str">"title"</span>\`
+    Status    Status    \`json:<span class="str">"status"</span>\`
+    CreatedAt time.Time \`json:<span class="str">"createdAt"</span>\`
+}
+
+<span class="com">// Pointer receiver — SỬA state</span>
+<span class="kw">func</span> (t *Task) <span class="fn">MarkDone</span>()    { t.Status = StatusDone }
+<span class="kw">func</span> (t *Task) <span class="fn">MarkPending</span>() { t.Status = StatusPending }
+
+<span class="com">// Value receiver — chỉ ĐỌC</span>
+<span class="kw">func</span> (t Task) <span class="fn">IsDone</span>() <span class="kw">bool</span> {
+    <span class="kw">return</span> t.Status == StatusDone
+}
+
+<span class="kw">func</span> (t Task) <span class="fn">Icon</span>() <span class="kw">string</span> {
+    <span class="kw">if</span> t.<span class="fn">IsDone</span>() { <span class="kw">return</span> <span class="str">"[x]"</span> }
+    <span class="kw">return</span> <span class="str">"[ ]"</span>
+}
+
+<span class="com">// Implement fmt.Stringer → fmt.Println(t) tự gọi</span>
+<span class="kw">func</span> (t Task) <span class="fn">String</span>() <span class="kw">string</span> {
+    <span class="kw">return</span> fmt.<span class="fn">Sprintf</span>(<span class="str">"#%d %s %s"</span>,
+        t.ID, t.<span class="fn">Icon</span>(), t.Title)
+}`,
+};
+
+function showFile(name) {
+  const el = document.getElementById('code-snippet');
+  if (!el) return;
+  el.innerHTML = SNIPPETS[name] || '';
+  // Update active state on diagram + tabs
+  document.querySelectorAll('.file-box').forEach(b => {
+    b.classList.toggle('active', b.dataset.file === name);
+  });
+  document.querySelectorAll('.file-tabs button').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === name);
+  });
+}
+
+// Diagram click handlers
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.file-box').forEach(box => {
+    box.addEventListener('click', () => showFile(box.dataset.file));
+  });
+});
+
+// ============================================================
+// Module 3: JSON storage viewer
+// ============================================================
+
+function renderJsonView(s) {
+  const el = document.getElementById('json-view');
+  if (!el) return;
+
+  // Pretty JSON với syntax highlight
+  const json = JSON.stringify(s, null, 2);
+  const highlighted = escapeHtml(json)
+    .replace(/&quot;([^&]+)&quot;:/g, '<span class="k">"$1"</span>:')
+    .replace(/: &quot;([^&]*)&quot;/g, ': <span class="s">"$1"</span>')
+    .replace(/: (\d+)/g, ': <span class="n">$1</span>')
+    .replace(/: (true|false|null)/g, ': <span class="b">$1</span>');
+
+  // Mark diff lines (added/removed/edited)
+  let lines = highlighted.split('\n');
+  if (lastDiff.added !== null) {
+    lines = lines.map(line => {
+      // Bao quanh block của task vừa thêm
+      if (line.match(new RegExp(`"id"</span>: <span class="n">${lastDiff.added}</span>`))) {
+        return `<span class="diff-add">${line}</span>`;
+      }
+      return line;
+    });
+  }
+  if (lastDiff.edited !== null) {
+    lines = lines.map(line => {
+      if (line.match(new RegExp(`"id"</span>: <span class="n">${lastDiff.edited}</span>`))) {
+        return `<span class="diff-add">${line}</span>`;
+      }
+      return line;
+    });
+  }
+
+  el.innerHTML = lines.join('\n');
+}
+
+function renderTaskList(s) {
+  const el = document.getElementById('task-list-view');
+  if (!el) return;
+  if (s.tasks.length === 0) {
+    el.innerHTML = '<div class="task-row" style="color:#a0aec0;">Không có task — gõ <code>add "..."</code> ở Module 1 để thêm.</div>';
+    return;
+  }
+  let html = '';
+  for (const t of s.tasks) {
+    const isDone = t.status === 'done';
+    const cls = isDone ? 'task-row done' : 'task-row';
+    const icon = isDone ? '✓' : '○';
+    html += `<div class="${cls}">
+      <span class="id">#${t.id}</span>
+      <span class="icon">${icon}</span>
+      <span class="title">${escapeHtml(t.title)}</span>
+      <span class="meta">${formatDate(t.createdAt)}</span>
+    </div>`;
+  }
+  el.innerHTML = html;
+}
+</script>
+
+<!-- README modal -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+
+</body>
+</html>

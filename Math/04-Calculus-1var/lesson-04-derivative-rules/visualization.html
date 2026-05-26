@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 04 — Quy tắc đạo hàm</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  button { background: #94a3b8; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.active { background: #15803d; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 700px; height: 400px; background: #f8fafc; border-radius: 8px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-family: monospace; font-size: 13px; }
+  td, th { border: 1px solid #cbd5e0; padding: 6px 10px; text-align: left; }
+  th { background: #f1f5f9; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-derivative-definition/visualization.html">← L3: Đạo hàm</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Quy tắc</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L5: Ứng dụng (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 04 (T4) — Quy tắc đạo hàm</h1>
+
+<h2>So sánh f(x) và f'(x)</h2>
+<div class="card">
+  <p>Quan sát: chỗ f tăng → f' dương, f giảm → f' âm, cực trị → f' = 0.</p>
+  <div class="row">
+    <button id="b1" onclick="setF('xsq')" class="active">f = x²</button>
+    <button id="b2" onclick="setF('sinx')">f = sin x</button>
+    <button id="b3" onclick="setF('ex')">f = e^x</button>
+    <button id="b4" onclick="setF('lnx')">f = ln x</button>
+    <button id="b5" onclick="setF('xcube')">f = x³ - 3x</button>
+    <button id="b6" onclick="setF('sinsq')">f = sin(x²)</button>
+  </div>
+  <svg class="scene" id="svg" viewBox="0 0 700 400"></svg>
+  <div class="result" id="res"></div>
+</div>
+
+<h2>Bảng đạo hàm cơ bản</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>f(x)</th><th>f'(x)</th></tr></thead>
+    <tbody>
+      <tr><td>x^n</td><td>n·x^(n-1)</td></tr>
+      <tr><td>√x</td><td>1/(2√x)</td></tr>
+      <tr><td>1/x</td><td>-1/x²</td></tr>
+      <tr><td>e^x</td><td>e^x</td></tr>
+      <tr><td>a^x</td><td>a^x · ln a</td></tr>
+      <tr><td>ln x</td><td>1/x</td></tr>
+      <tr><td>sin x</td><td>cos x</td></tr>
+      <tr><td>cos x</td><td>-sin x</td></tr>
+      <tr><td>tan x</td><td>1/cos²x</td></tr>
+      <tr><td>arctan x</td><td>1/(1+x²)</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+const defs = {
+  xsq:   {fn: x => x*x, der: x => 2*x, fLabel: "x²", dLabel: "2x"},
+  sinx:  {fn: x => Math.sin(x), der: x => Math.cos(x), fLabel: "sin x", dLabel: "cos x"},
+  ex:    {fn: x => Math.exp(x), der: x => Math.exp(x), fLabel: "eˣ", dLabel: "eˣ"},
+  lnx:   {fn: x => x > 0 ? Math.log(x) : NaN, der: x => x > 0 ? 1/x : NaN, fLabel: "ln x", dLabel: "1/x"},
+  xcube: {fn: x => x*x*x - 3*x, der: x => 3*x*x - 3, fLabel: "x³ - 3x", dLabel: "3x² - 3"},
+  sinsq: {fn: x => Math.sin(x*x), der: x => 2*x*Math.cos(x*x), fLabel: "sin(x²)", dLabel: "2x·cos(x²)"}
+};
+let cur = "xsq";
+
+function setF(f) {
+  cur = f;
+  ["1","2","3","4","5","6"].forEach(c => document.getElementById("b"+c).classList.remove("active"));
+  const m = {xsq:"1", sinx:"2", ex:"3", lnx:"4", xcube:"5", sinsq:"6"};
+  document.getElementById("b" + m[f]).classList.add("active");
+  draw();
+}
+
+function draw() {
+  const def = defs[cur];
+  const svg = document.getElementById("svg");
+  svg.innerHTML = "";
+  const W = 700, H = 400, cx = 350, cy = 200, scale = 40, yScale = 35;
+
+  for (let i = -8; i <= 8; i++) {
+    const x = cx + i*scale;
+    if (x > 0 && x < W) {
+      const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      l.setAttribute("x1", x); l.setAttribute("y1", 15); l.setAttribute("x2", x); l.setAttribute("y2", H-15);
+      l.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); l.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+      svg.appendChild(l);
+    }
+  }
+  for (let i = -5; i <= 5; i++) {
+    const y = cy - i*yScale;
+    if (y > 15 && y < H-15) {
+      const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      l.setAttribute("x1", 30); l.setAttribute("y1", y); l.setAttribute("x2", W-20); l.setAttribute("y2", y);
+      l.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); l.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+      svg.appendChild(l);
+    }
+  }
+
+  const plot = (fn, color, label, idx) => {
+    let path = "";
+    let started = false;
+    for (let x = -7; x <= 7; x += 0.02) {
+      const y = fn(x);
+      if (!isFinite(y) || y > 5 || y < -5) { started = false; continue; }
+      const px = cx + x*scale, py = cy - y*yScale;
+      path += (started ? "L" : "M") + px + " " + py + " ";
+      started = true;
+    }
+    const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    p.setAttribute("d", path); p.setAttribute("fill", "none"); p.setAttribute("stroke", color); p.setAttribute("stroke-width", 2.5);
+    svg.appendChild(p);
+    const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lbl.setAttribute("x", W-130); lbl.setAttribute("y", 30 + idx*22); lbl.setAttribute("fill", color); lbl.setAttribute("font-weight", "700"); lbl.setAttribute("font-size", "14");
+    lbl.textContent = label;
+    svg.appendChild(lbl);
+  };
+
+  plot(def.fn, "#1d4ed8", "f = " + def.fLabel, 0);
+  plot(def.der, "#dc2626", "f' = " + def.dLabel, 1);
+
+  document.getElementById("res").innerHTML = `
+    <div style="font-family:monospace; font-size:15px">f(x) = <strong style="color:#1d4ed8">${def.fLabel}</strong>, f'(x) = <strong style="color:#dc2626">${def.dLabel}</strong></div>
+    <div style="margin-top:6px; font-size:13px">Quan sát các điểm f'(x) = 0 (đường đỏ cắt trục x) — đó là cực trị của f.</div>
+  `;
+}
+
+draw();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

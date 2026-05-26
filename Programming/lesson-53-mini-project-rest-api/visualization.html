@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 53 — Mini-project: REST API Blog (Visualization)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 40px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; margin-top: 24px; }
+  p { line-height: 1.65; }
+  .card {
+    background: #fff; border-radius: 10px; padding: 18px 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #4299e1; color: #fff; border: none;
+    padding: 9px 15px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  .explain {
+    background: #ebf8ff; border-left: 4px solid #4299e1;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6; margin: 10px 0;
+  }
+  code.inline {
+    background: #edf2f7; padding: 1px 6px; border-radius: 4px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px;
+  }
+
+  /* ---- Module 1: Architecture diagram ---- */
+  .arch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .layer {
+    border-radius: 8px; padding: 14px; cursor: pointer;
+    border: 2px solid transparent; transition: transform .12s, box-shadow .12s;
+    color: #1a202c;
+  }
+  .layer:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+  .layer.active { border-color: #2d3748; box-shadow: 0 4px 14px rgba(0,0,0,0.18); }
+  .layer h4 { margin: 0 0 4px; font-size: 15px; }
+  .layer .pkg { font-size: 12px; color: #4a5568; font-family: ui-monospace, monospace; }
+  .l-mw   { background: #fed7d7; }
+  .l-hand { background: #feebc8; }
+  .l-svc  { background: #c6f6d5; }
+  .l-store{ background: #bee3f8; }
+  .l-auth { background: #e9d8fd; }
+  .arch-detail {
+    background: #f7fafc; border: 1px solid #e2e8f0;
+    border-radius: 8px; padding: 14px 16px; margin-top: 10px;
+    font-size: 14px; line-height: 1.6; min-height: 60px;
+  }
+  .arch-detail b { color: #1a202c; }
+
+  /* ---- Module 2 & 3: flow ---- */
+  .flow-track {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+    margin: 16px 0;
+  }
+  .node {
+    background: #edf2f7; border: 2px solid #cbd5e0;
+    border-radius: 8px; padding: 10px 12px; font-size: 13px;
+    min-width: 0; text-align: center; transition: all .25s;
+    flex: 0 1 auto;
+  }
+  .node.on { background: #4299e1; color: #fff; border-color: #2b6cb0; transform: scale(1.06); }
+  .node.err { background: #e53e3e; color: #fff; border-color: #c53030; }
+  .arrow { color: #a0aec0; font-weight: 700; font-size: 18px; }
+  .log {
+    background: #1a202c; color: #e2e8f0; border-radius: 8px;
+    padding: 12px 14px; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 12.5px; line-height: 1.7; min-height: 90px;
+    white-space: pre-wrap; word-break: break-word; margin-top: 12px;
+  }
+  .log .ok { color: #68d391; }
+  .log .no { color: #fc8181; }
+  .log .dim { color: #718096; }
+  .seg {
+    display: inline-flex; gap: 6px; flex-wrap: wrap; margin: 8px 0;
+  }
+  .seg button { background: #718096; }
+  .seg button.sel { background: #4299e1; }
+
+  /* ---- token box ---- */
+  .token {
+    font-family: ui-monospace, monospace; font-size: 11.5px;
+    background: #edf2f7; border-radius: 6px; padding: 8px 10px;
+    word-break: break-all; margin: 8px 0; line-height: 1.5;
+  }
+  .token .h { color: #d53f8c; }
+  .token .p { color: #2b6cb0; }
+  .token .s { color: #718096; }
+
+  @media (max-width: 480px) {
+    .arch-grid { grid-template-columns: 1fr 1fr; }
+    .node { padding: 8px 9px; font-size: 12px; }
+    .arrow { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-52-rate-limiting-circuit-breaker/visualization.html">← L52: Rate Limit & Circuit Breaker</a>
+  <span class="sep">·</span>
+  <span class="current">L53: Mini-project REST API</span>
+  <span class="sep">·</span>
+  <a href="../tier-5-data/index.html">Tier 5: Data →</a>
+</nav>
+
+<main>
+<h1>Lesson 53 — Mini-project: REST API Blog</h1>
+<p>
+  Dự án cuối Tier 4: một REST API blog hoàn chỉnh bằng <b>thuần stdlib Go</b> — xác thực
+  JWT, CRUD users/posts, chuỗi middleware (log, recover, rate limit, CORS), validation và
+  định dạng lỗi chuẩn RFC 7807. Ba module dưới đây mô phỏng tương tác để bạn "thấy" kiến
+  trúc và luồng request hoạt động ra sao.
+</p>
+
+<h2>1. Kiến trúc phân lớp — bấm vào từng lớp</h2>
+<p>API được chia thành các lớp tách bạch. Mỗi lớp chỉ phụ thuộc lớp ngay dưới nó (qua
+  interface), nên đổi storage từ in-memory sang Postgres không đụng tới handler/service.</p>
+
+<div class="card">
+  <div class="arch-grid">
+    <div class="layer l-mw"   data-k="mw"><h4>Middleware</h4><span class="pkg">internal/middleware</span></div>
+    <div class="layer l-hand" data-k="hand"><h4>Handler</h4><span class="pkg">users / posts handler.go</span></div>
+    <div class="layer l-svc"  data-k="svc"><h4>Service</h4><span class="pkg">users / posts service.go</span></div>
+    <div class="layer l-store" data-k="store"><h4>Storage</h4><span class="pkg">internal/storage</span></div>
+    <div class="layer l-auth" data-k="auth"><h4>Auth</h4><span class="pkg">internal/auth</span></div>
+  </div>
+  <div class="arch-detail" id="archDetail">Bấm vào một lớp để xem vai trò của nó.</div>
+</div>
+
+<h2>2. Luồng xử lý một request</h2>
+<p>Request đi xuyên từng lớp từ ngoài vào trong, rồi response đi ngược ra. Chọn một kịch
+  bản rồi bấm <b>Chạy</b> để xem từng bước sáng lên.</p>
+
+<div class="card">
+  <div class="seg" id="reqScenarios">
+    <button data-s="ok" class="sel">GET /v1/posts (thành công)</button>
+    <button data-s="ratelimit">Bị rate limit (429)</button>
+    <button data-s="panic">Handler panic (recover → 500)</button>
+  </div>
+  <div class="flow-track" id="reqFlow"></div>
+  <div class="row"><button id="reqRun">▶ Chạy luồng</button>
+    <button class="secondary" id="reqReset">Reset</button></div>
+  <div class="log" id="reqLog">Sẵn sàng.</div>
+  <div class="explain" id="reqExplain">
+    Thứ tự middleware (ngoài → trong): <code class="inline">Recover → Logger → CORS → RateLimit → router</code>.
+    Recover ngoài cùng để bắt được panic của mọi lớp.
+  </div>
+</div>
+
+<h2>3. Luồng xác thực: register → login → JWT → endpoint bảo vệ</h2>
+<p>Mô phỏng vòng đời token. Nhập mật khẩu rồi bấm lần lượt các bước; xem token JWT được
+  tạo, giải mã và dùng để truy cập route bảo vệ.</p>
+
+<div class="card">
+  <div class="row">
+    <label>Mật khẩu: <input id="authPw" type="text" value="password123" style="max-width:200px;width:100%"></label>
+  </div>
+  <div class="flow-track" id="authFlow">
+    <div class="node" data-k="reg">1. Register</div><span class="arrow">→</span>
+    <div class="node" data-k="hash">2. Hash + lưu</div><span class="arrow">→</span>
+    <div class="node" data-k="login">3. Login</div><span class="arrow">→</span>
+    <div class="node" data-k="jwt">4. Cấp JWT</div><span class="arrow">→</span>
+    <div class="node" data-k="prot">5. GET /users/me</div>
+  </div>
+  <div class="row">
+    <button id="aReg">1 · Đăng ký</button>
+    <button id="aLogin" disabled>3 · Đăng nhập</button>
+    <button id="aMe" disabled>5 · Gọi /users/me</button>
+    <button id="aMeNo" class="secondary">Gọi /users/me KHÔNG token</button>
+    <button class="secondary" id="aReset">Reset</button>
+  </div>
+  <div id="tokenBox" class="token" style="display:none"></div>
+  <div class="log" id="authLog">Bấm "Đăng ký" để bắt đầu.</div>
+  <div class="explain">
+    JWT gồm 3 phần ngăn bởi dấu chấm: <span style="color:#d53f8c">header</span>.<span style="color:#2b6cb0">payload</span>.<span style="color:#718096">signature</span>.
+    Chữ ký = <code class="inline">HMAC-SHA256(header.payload, secret)</code> — sửa payload mà
+    không có secret thì chữ ký không khớp → bị từ chối.
+  </div>
+</div>
+
+</main>
+
+<script>
+// ---------- Module 1: Architecture ----------
+const archInfo = {
+  mw:   "<b>Middleware</b> — các lớp bọc handler: <code>Logger</code> (ghi log mỗi request), <code>Recover</code> (bắt panic → 500), <code>RateLimit</code> (token bucket theo IP → 429), <code>CORS</code> (cho phép origin khác). Ghép theo thứ tự: Recover → Logger → CORS → RateLimit → router.",
+  hand: "<b>Handler</b> — chỉ lo I/O: decode JSON request, gọi service, encode response + status code. KHÔNG chứa logic nghiệp vụ. Đọc <code>Claims</code> từ context để biết \"ai đang gọi\".",
+  svc:  "<b>Service</b> — chứa toàn bộ logic nghiệp vụ: validate, kiểm tra trùng username, kiểm tra quyền sở hữu bài viết (chỉ tác giả mới sửa/xoá → 403). Phụ thuộc <code>Repo</code> interface, không biết dữ liệu nằm đâu.",
+  store:"<b>Storage</b> — hiện thực <code>Repo</code> bằng map + sync.RWMutex (in-memory, an toàn đồng thời). Đổi sang Postgres chỉ cần struct mới thoả cùng interface — service không đổi.",
+  auth: "<b>Auth</b> — hash mật khẩu (PBKDF2-HMAC-SHA256, có salt), ký/verify JWT (HMAC-SHA256 thủ công), và middleware bắt buộc Bearer token gắn Claims vào context."
+};
+let curLayer = null;
+document.querySelectorAll('.layer').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.layer').forEach(x => x.classList.remove('active'));
+    el.classList.add('active');
+    curLayer = el.dataset.k;
+    document.getElementById('archDetail').innerHTML = archInfo[el.dataset.k];
+  });
+});
+
+// ---------- Module 2: Request flow ----------
+const flows = {
+  ok: {
+    nodes: ["Client", "Recover", "Logger", "CORS", "RateLimit", "router", "handler", "service", "storage", "200 OK"],
+    steps: [
+      ["Client", "→ GET /v1/posts"],
+      ["Recover", "đặt defer bắt panic"],
+      ["Logger", "bắt đầu đo thời gian"],
+      ["CORS", "gắn header Access-Control-*"],
+      ["RateLimit", "<span class='ok'>còn token → cho qua</span>"],
+      ["router", "khớp GET /v1/posts"],
+      ["handler", "list(): gọi service"],
+      ["service", "List(): đọc repo"],
+      ["storage", "trả slice posts (RLock)"],
+      ["200 OK", "<span class='ok'>JSON {items, total}, log status=200</span>"]
+    ]
+  },
+  ratelimit: {
+    nodes: ["Client", "Recover", "Logger", "CORS", "RateLimit", "429"],
+    errAt: 5,
+    steps: [
+      ["Client", "→ request thứ N (vượt ngưỡng)"],
+      ["Recover", "defer sẵn sàng"],
+      ["Logger", "đo thời gian"],
+      ["CORS", "gắn header"],
+      ["RateLimit", "<span class='no'>hết token!</span>"],
+      ["429", "<span class='no'>Retry-After: 1 · RFC 7807 rate_limited</span>"]
+    ]
+  },
+  panic: {
+    nodes: ["Client", "Recover", "Logger", "CORS", "RateLimit", "handler", "PANIC", "500"],
+    errAt: 6,
+    steps: [
+      ["Client", "→ request gây lỗi nội bộ"],
+      ["Recover", "defer recover() đã cài"],
+      ["Logger", "đo thời gian"],
+      ["CORS", "gắn header"],
+      ["RateLimit", "<span class='ok'>cho qua</span>"],
+      ["handler", "đang xử lý..."],
+      ["PANIC", "<span class='no'>nil pointer / lỗi runtime</span>"],
+      ["500", "<span class='ok'>Recover bắt được → log stack → 500 RFC 7807</span>"]
+    ]
+  }
+};
+let curScenario = "ok";
+const reqFlow = document.getElementById('reqFlow');
+const reqLog = document.getElementById('reqLog');
+function renderReqNodes() {
+  const f = flows[curScenario];
+  reqFlow.innerHTML = "";
+  f.nodes.forEach((n, i) => {
+    const d = document.createElement('div');
+    d.className = 'node'; d.textContent = n; d.dataset.i = i;
+    reqFlow.appendChild(d);
+    if (i < f.nodes.length - 1) {
+      const a = document.createElement('span');
+      a.className = 'arrow'; a.textContent = '→';
+      reqFlow.appendChild(a);
+    }
+  });
+}
+document.querySelectorAll('#reqScenarios button').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('#reqScenarios button').forEach(x => x.classList.remove('sel'));
+    b.classList.add('sel');
+    curScenario = b.dataset.s;
+    renderReqNodes();
+    reqLog.textContent = "Sẵn sàng.";
+  });
+});
+let reqTimer = null;
+document.getElementById('reqReset').addEventListener('click', () => {
+  clearInterval(reqTimer);
+  renderReqNodes(); reqLog.textContent = "Sẵn sàng.";
+});
+document.getElementById('reqRun').addEventListener('click', () => {
+  clearInterval(reqTimer);
+  const f = flows[curScenario];
+  const nodes = reqFlow.querySelectorAll('.node');
+  nodes.forEach(n => n.className = 'node');
+  reqLog.innerHTML = "";
+  let i = 0;
+  reqTimer = setInterval(() => {
+    if (i >= f.steps.length) { clearInterval(reqTimer); return; }
+    nodes.forEach(n => n.classList.remove('on'));
+    const isErr = (f.errAt !== undefined && i >= f.errAt);
+    nodes[i].classList.add(isErr ? 'err' : 'on');
+    const [name, msg] = f.steps[i];
+    reqLog.innerHTML += `<span class="dim">[${String(i+1).padStart(2,' ')}]</span> <b>${name}</b> — ${msg}\n`;
+    reqLog.scrollTop = reqLog.scrollHeight;
+    i++;
+  }, 650);
+});
+renderReqNodes();
+
+// ---------- Module 3: Auth flow (mô phỏng JWT thật trong trình duyệt) ----------
+const authLog = document.getElementById('authLog');
+const tokenBox = document.getElementById('tokenBox');
+let state = { hash: null, token: null, claims: null };
+
+function b64url(buf) {
+  const bytes = new Uint8Array(buf);
+  let bin = "";
+  bytes.forEach(b => bin += String.fromCharCode(b));
+  return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function strToBuf(s) { return new TextEncoder().encode(s); }
+
+async function hmacSign(secret, data) {
+  const key = await crypto.subtle.importKey("raw", strToBuf(secret),
+    { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  return crypto.subtle.sign("HMAC", key, strToBuf(data));
+}
+async function sha256hex(s) {
+  const d = await crypto.subtle.digest("SHA-256", strToBuf(s));
+  return Array.from(new Uint8Array(d)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+function nodeOn(k) {
+  document.querySelectorAll('#authFlow .node').forEach(n => {
+    if (n.dataset.k === k) n.classList.add('on'); else n.classList.remove('on');
+  });
+}
+function log(line) { authLog.innerHTML += line + "\n"; authLog.scrollTop = authLog.scrollHeight; }
+
+const SECRET = "dev-secret-doi-trong-production";
+
+document.getElementById('aReg').addEventListener('click', async () => {
+  const pw = document.getElementById('authPw').value || "";
+  authLog.innerHTML = "";
+  nodeOn('reg');
+  log(`<span class="dim">POST /v1/auth/register {username:"alice", password:"${pw}"}</span>`);
+  if (pw.length < 8) {
+    log(`<span class="no">400 validation_failed → password: tối thiểu 8 ký tự</span>`);
+    return;
+  }
+  nodeOn('hash');
+  // Demo hash (PBKDF2 thật chạy server-side; ở đây minh hoạ digest có salt).
+  const salt = "a1b2c3d4";
+  state.hash = "pbkdf2$100000$" + salt + "$" + (await sha256hex(pw + salt)).slice(0, 24);
+  log(`<span class="ok">201 Created</span> — lưu user, PasswordHash = <span class="dim">${state.hash}</span>`);
+  log(`(server hash bằng PBKDF2-HMAC-SHA256 100k vòng + salt ngẫu nhiên — KHÔNG lưu plaintext)`);
+  document.getElementById('aLogin').disabled = false;
+});
+
+document.getElementById('aLogin').addEventListener('click', async () => {
+  const pw = document.getElementById('authPw').value || "";
+  nodeOn('login');
+  log(`\n<span class="dim">POST /v1/auth/login {username:"alice", password:"${pw}"}</span>`);
+  log(`VerifyPassword(pw, hash) → so sánh constant-time...`);
+  nodeOn('jwt');
+  // Tạo JWT thật bằng Web Crypto (giống server: HS256).
+  const header = b64url(strToBuf(JSON.stringify({ alg: "HS256", typ: "JWT" })));
+  const now = Math.floor(Date.now()/1000);
+  const payload = b64url(strToBuf(JSON.stringify({
+    sub: "u-alice-001", username: "alice", iat: now, exp: now + 86400, iss: "blog-api"
+  })));
+  const sig = b64url(await hmacSign(SECRET, header + "." + payload));
+  state.token = header + "." + payload + "." + sig;
+  state.claims = { sub: "u-alice-001", username: "alice" };
+  log(`<span class="ok">200 OK</span> — cấp JWT (hết hạn sau 24h).`);
+  tokenBox.style.display = "block";
+  tokenBox.innerHTML = `<span class="h">${header}</span>.<span class="p">${payload}</span>.<span class="s">${sig}</span>`;
+  document.getElementById('aMe').disabled = false;
+});
+
+async function verifyToken(tok) {
+  const parts = tok.split('.');
+  if (parts.length !== 3) return false;
+  const expected = b64url(await hmacSign(SECRET, parts[0] + "." + parts[1]));
+  return expected === parts[2];
+}
+
+document.getElementById('aMe').addEventListener('click', async () => {
+  nodeOn('prot');
+  log(`\n<span class="dim">GET /v1/users/me  (Authorization: Bearer ...)</span>`);
+  log(`auth middleware: tách Bearer token → verify chữ ký HMAC...`);
+  const ok = await verifyToken(state.token);
+  if (ok) {
+    log(`<span class="ok">chữ ký khớp ✓</span> → gắn Claims{sub, username} vào context`);
+    log(`<span class="ok">200 OK</span> — {id, username:"alice", email, created_at} (KHÔNG có password_hash)`);
+  } else {
+    log(`<span class="no">401 chữ ký không hợp lệ</span>`);
+  }
+});
+
+document.getElementById('aMeNo').addEventListener('click', () => {
+  nodeOn('prot');
+  log(`\n<span class="dim">GET /v1/users/me  (KHÔNG có header Authorization)</span>`);
+  log(`<span class="no">401 unauthorized</span> — thiếu header Authorization: Bearer <token> (RFC 7807)`);
+});
+
+document.getElementById('aReset').addEventListener('click', () => {
+  state = { hash: null, token: null, claims: null };
+  authLog.textContent = 'Bấm "Đăng ký" để bắt đầu.';
+  tokenBox.style.display = "none";
+  document.getElementById('aLogin').disabled = true;
+  document.getElementById('aMe').disabled = true;
+  document.querySelectorAll('#authFlow .node').forEach(n => n.classList.remove('on'));
+});
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -30,11 +30,11 @@ type jwtHeader struct {
 
 // Claims là payload — thông tin về người dùng + thời hạn token.
 type Claims struct {
-	Subject  string `json:"sub"`             // user ID
-	Username string `json:"username"`        // tên đăng nhập (tiện hiển thị)
-	IssuedAt int64  `json:"iat"`             // thời điểm phát hành (unix seconds)
-	Expires  int64  `json:"exp"`             // thời điểm hết hạn (unix seconds)
-	Issuer   string `json:"iss,omitempty"`   // bên phát hành
+	Subject  string `json:"sub"`           // user ID
+	Username string `json:"username"`      // tên đăng nhập (tiện hiển thị)
+	IssuedAt int64  `json:"iat"`           // thời điểm phát hành (unix seconds)
+	Expires  int64  `json:"exp"`           // thời điểm hết hạn (unix seconds)
+	Issuer   string `json:"iss,omitempty"` // bên phát hành
 }
 
 // Signer ký và xác thực token bằng một secret + thời hạn (TTL) cấu hình sẵn.

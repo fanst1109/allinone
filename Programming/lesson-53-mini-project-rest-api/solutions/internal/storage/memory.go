@@ -18,9 +18,9 @@ var ErrNotFound = errors.New("record không tồn tại")
 
 // UserRepo lưu user trong memory, an toàn cho truy cập đồng thời nhờ sync.RWMutex.
 type UserRepo struct {
-	mu       sync.RWMutex
-	byID     map[string]*users.User
-	byName   map[string]string // username -> id
+	mu     sync.RWMutex
+	byID   map[string]*users.User
+	byName map[string]string // username -> id
 }
 
 // NewUserRepo tạo repo rỗng.
@@ -71,8 +71,8 @@ func (r *UserRepo) GetByUsername(_ context.Context, username string) (*users.Use
 
 // PostRepo lưu post trong memory.
 type PostRepo struct {
-	mu    sync.RWMutex
-	byID  map[string]*posts.Post
+	mu   sync.RWMutex
+	byID map[string]*posts.Post
 }
 
 // NewPostRepo tạo repo rỗng.

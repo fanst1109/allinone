@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 15 — Struct & Method Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --acc: #4299e1;
+    --acc-hover: #3182ce;
+    --bool: #fde68a;
+    --bool-b: #d97706;
+    --int32: #bee3f8;
+    --int32-b: #3182ce;
+    --int64: #c6f6d5;
+    --int64-b: #38a169;
+    --string: #fbb6ce;
+    --string-b: #d53f8c;
+    --pad: #e2e8f0;
+    --pad-b: #a0aec0;
+  }
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 10px 0; }
+  button {
+    cursor: pointer; padding: 8px 14px; border: none; border-radius: 6px;
+    background: var(--acc); color: white; font-weight: 600; font-size: 14px;
+  }
+  button:hover { background: var(--acc-hover); }
+  button.preset { background: #718096; }
+  button.preset:hover { background: #4a5568; }
+  input[type="text"], input[type="number"] {
+    padding: 8px 12px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 14px; max-width: 100%; box-sizing: border-box;
+  }
+  code {
+    background: #edf2f7; padding: 2px 6px; border-radius: 3px;
+    font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 0.92em;
+  }
+  pre code { background: transparent; padding: 0; }
+  pre {
+    background: #1a202c; color: #e2e8f0; padding: 14px; border-radius: 6px;
+    overflow-x: auto; font-size: 13px;
+  }
+
+  /* Module 1: Memory layout */
+  .field-list {
+    list-style: none; padding: 0; margin: 12px 0;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .field-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; background: #f7fafc;
+    border: 1px solid #cbd5e0; border-radius: 6px;
+    cursor: grab; user-select: none;
+  }
+  .field-item.dragging { opacity: 0.4; }
+  .field-item:active { cursor: grabbing; }
+  .field-grip { color: #a0aec0; font-size: 18px; line-height: 1; }
+  .field-badge {
+    padding: 3px 10px; border-radius: 4px; font-weight: 600;
+    font-family: monospace; font-size: 13px;
+  }
+  .field-badge.bool { background: var(--bool); color: #744210; }
+  .field-badge.int32 { background: var(--int32); color: #1a365d; }
+  .field-badge.int64 { background: var(--int64); color: #1c4532; }
+  .field-badge.string { background: var(--string); color: #702459; }
+  .field-name { font-family: monospace; font-weight: 600; }
+  .field-size { color: #4a5568; margin-left: auto; font-size: 13px; }
+
+  .mem-strip-wrap { overflow-x: auto; padding: 6px 0; margin: 10px 0; }
+  .mem-strip {
+    display: flex; min-width: max-content; border-radius: 6px; overflow: hidden;
+    border: 2px solid #2d3748;
+  }
+  .mem-cell {
+    width: 36px; height: 60px; display: flex;
+    flex-direction: column; align-items: center; justify-content: center;
+    border-right: 1px solid #2d3748; font-size: 11px; font-family: monospace;
+    text-align: center;
+  }
+  .mem-cell:last-child { border-right: none; }
+  .mem-cell.bool { background: var(--bool); }
+  .mem-cell.int32 { background: var(--int32); }
+  .mem-cell.int64 { background: var(--int64); }
+  .mem-cell.string { background: var(--string); }
+  .mem-cell.pad { background: var(--pad); color: #4a5568; font-style: italic; }
+  .mem-cell .offset { color: #4a5568; font-size: 9px; opacity: 0.7; }
+
+  .size-summary {
+    display: flex; gap: 16px; flex-wrap: wrap; margin: 12px 0;
+    font-size: 14px;
+  }
+  .size-stat {
+    background: #edf2f7; padding: 8px 14px; border-radius: 6px;
+    border-left: 4px solid var(--acc);
+  }
+  .size-stat b { color: var(--acc-hover); font-size: 18px; }
+
+  /* Module 2: Receiver picker */
+  .picker-form {
+    display: grid; gap: 16px; max-width: 500px;
+  }
+  .picker-row label { font-weight: 600; display: block; margin-bottom: 6px; }
+  .slider-row { display: flex; align-items: center; gap: 12px; }
+  input[type="range"] { flex: 1; max-width: 280px; }
+  .slider-val {
+    font-family: monospace; font-weight: 700; color: var(--acc-hover);
+    min-width: 60px;
+  }
+  .recommend {
+    margin-top: 12px; padding: 16px; border-radius: 8px;
+    border-left: 6px solid var(--acc);
+  }
+  .recommend.value { background: #c6f6d5; border-left-color: #38a169; }
+  .recommend.pointer { background: #bee3f8; border-left-color: #3182ce; }
+  .recommend h3 { margin-top: 0; }
+  .recommend code { background: rgba(255,255,255,0.7); }
+
+  /* Module 3: Embedding */
+  .embed-svg-wrap { max-width: 100%; overflow-x: auto; }
+  svg.embed-vis { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+  .embed-controls {
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+    margin: 12px 0;
+  }
+  .log-box {
+    background: #1a202c; color: #c6f6d5; padding: 12px;
+    border-radius: 6px; font-family: monospace; font-size: 13px;
+    min-height: 80px; white-space: pre-wrap;
+  }
+  .log-box .step { display: block; margin: 3px 0; }
+
+  /* Legend */
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin: 8px 0; font-size: 13px; }
+  .legend span { display: flex; align-items: center; gap: 6px; }
+  .legend i {
+    display: inline-block; width: 14px; height: 14px;
+    border: 1px solid #2d3748; border-radius: 2px;
+  }
+
+  @media (max-width: 480px) {
+    .mem-cell { width: 28px; height: 54px; font-size: 10px; }
+    button { padding: 8px 10px; font-size: 13px; }
+    .field-item { padding: 8px 10px; font-size: 13px; gap: 6px; }
+    .field-size { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-14-strings-runes-utf8/visualization.html">← L14: String &amp; Rune</a>
+  <span class="sep">·</span>
+  <span class="current">L15: Struct &amp; Method</span>
+  <span class="sep">·</span>
+  <a href="../lesson-16-pointers/visualization.html">L16: Pointer →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 15 — Struct &amp; Method</h1>
+<p>Ba module tương tác: (1) <b>Memory layout</b> — drag reorder field thấy padding co lại, (2) <b>Receiver picker</b> — slider để chọn value/pointer receiver, (3) <b>Embedding visualizer</b> — animate gọi method qua promotion + toggle override.</p>
+
+<h2>1. Memory layout — thứ tự field ảnh hưởng size</h2>
+<div class="card">
+  <p>Chọn 1 preset, hoặc <b>drag field</b> để đổi thứ tự. Memory strip phía dưới cập nhật real-time, ô <span style="background:var(--pad);padding:1px 6px;border:1px solid var(--pad-b);border-radius:3px;">padding</span> tự thêm để giữ alignment.</p>
+
+  <div class="row">
+    <button class="preset" data-preset="A">Preset A (mixed)</button>
+    <button class="preset" data-preset="B">Preset B (4 field)</button>
+    <button class="preset" data-preset="C">Preset C (DB record)</button>
+  </div>
+
+  <div class="legend">
+    <span><i style="background:var(--bool)"></i>bool (1B)</span>
+    <span><i style="background:var(--int32)"></i>int32 (4B)</span>
+    <span><i style="background:var(--int64)"></i>int64 (8B)</span>
+    <span><i style="background:var(--string)"></i>string (16B)</span>
+    <span><i style="background:var(--pad)"></i>padding</span>
+  </div>
+
+  <ul id="field-list" class="field-list"></ul>
+
+  <div class="strip-label" style="font-size:13px; color:#4a5568;">Memory layout (mỗi cell = 1 byte):</div>
+  <div class="mem-strip-wrap"><div id="mem-strip" class="mem-strip"></div></div>
+
+  <div class="size-summary">
+    <div class="size-stat">Size hiện tại: <b id="size-current">?</b> byte</div>
+    <div class="size-stat">Tối ưu (lớn→nhỏ): <b id="size-optimal">?</b> byte</div>
+    <div class="size-stat">Padding lãng phí: <b id="size-waste">?</b> byte</div>
+  </div>
+
+  <div style="margin-top:14px;">
+    <button id="btn-optimize">⚡ Sắp xếp tối ưu (lớn→nhỏ)</button>
+  </div>
+
+  <details style="margin-top:14px;">
+    <summary>Vì sao có padding?</summary>
+    <p>CPU 64-bit đọc RAM nhanh nhất khi <b>address chia hết cho 8</b> (alignment 8 byte cho <code>int64</code>). Compiler chèn padding để mỗi field có offset đúng alignment. Sắp lớn→nhỏ giảm "kẽ hở".</p>
+    <p>Tổng size cuối cùng cũng phải chia hết cho alignment lớn nhất của struct (tail padding).</p>
+  </details>
+</div>
+
+<h2>2. Receiver picker — value hay pointer?</h2>
+<div class="card">
+  <p>Slider chọn <b>kích thước struct</b> (byte) và checkbox "method có mutate không?". Hệ thống suggest receiver phù hợp + giải thích trade-off.</p>
+
+  <div class="picker-form">
+    <div class="picker-row">
+      <label>Kích thước struct: <span id="size-val" class="slider-val">64 byte</span></label>
+      <div class="slider-row">
+        <input type="range" id="size-slider" min="8" max="1024" step="8" value="64">
+      </div>
+    </div>
+
+    <div class="picker-row">
+      <label><input type="checkbox" id="mutate-check"> Method có <b>mutate</b> struct không?</label>
+    </div>
+
+    <div class="picker-row">
+      <label><input type="checkbox" id="mutex-check"> Struct chứa <code>sync.Mutex</code> hoặc field không nên copy?</label>
+    </div>
+  </div>
+
+  <div id="recommend" class="recommend value">
+    <h3 id="rec-title">→ Value receiver</h3>
+    <p id="rec-reason">Struct nhỏ, không mutate — value receiver OK.</p>
+    <pre id="rec-code"><code>func (s Struct) Method() { ... }</code></pre>
+    <p id="rec-tradeoff" style="font-size:13px;color:#4a5568;"></p>
+  </div>
+</div>
+
+<h2>3. Embedding — promotion &amp; override</h2>
+<div class="card">
+  <p>SVG dưới hiển thị <b>Manager</b> embed <b>Employee</b>. Bấm <b>Gọi m.Greet()</b> để xem Go chọn method nào — qua promotion hay qua override.</p>
+
+  <div class="embed-controls">
+    <label><input type="checkbox" id="override-toggle"> Manager có <code>Greet()</code> riêng (override)</label>
+    <button id="btn-greet">▶ Gọi m.Greet()</button>
+    <button id="btn-greet-employee" class="preset">Gọi m.Employee.Greet()</button>
+  </div>
+
+  <div class="embed-svg-wrap">
+    <svg class="embed-vis" width="560" height="320" viewBox="0 0 560 320">
+      <!-- Manager box -->
+      <rect x="20" y="20" width="520" height="280" rx="12"
+            fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+      <text x="40" y="50" font-family="monospace" font-weight="700" fill="#744210" font-size="16">type Manager struct {</text>
+
+      <!-- Employee box (embedded) -->
+      <rect x="50" y="70" width="460" height="120" rx="10"
+            fill="#dbeafe" stroke="#3182ce" stroke-width="2"/>
+      <text x="70" y="95" font-family="monospace" font-weight="700" fill="#1e3a8a" font-size="14">Employee {  // embedded</text>
+      <text x="100" y="120" font-family="monospace" fill="#1e3a8a" font-size="13">Name   string  // "Alice"</text>
+      <text x="100" y="140" font-family="monospace" fill="#1e3a8a" font-size="13">Salary float64 // 50000</text>
+      <text x="100" y="165" font-family="monospace" fill="#1e3a8a" font-size="13" font-style="italic">method Greet() (value receiver)</text>
+      <text x="70" y="185" font-family="monospace" fill="#1e3a8a" font-size="14">}</text>
+
+      <!-- Manager-specific fields -->
+      <text x="40" y="220" font-family="monospace" fill="#744210" font-size="13">Reports int  // 5</text>
+      <text x="40" y="280" font-family="monospace" font-weight="700" fill="#744210" font-size="16">}</text>
+
+      <!-- override label (toggleable) -->
+      <text id="override-label" x="40" y="245" font-family="monospace" fill="#9f1239" font-size="13" font-style="italic" style="display:none;">method Manager.Greet() (override)</text>
+
+      <!-- Call arrow (animated) -->
+      <g id="call-arrow" style="display:none;">
+        <line id="arrow-line" x1="0" y1="0" x2="0" y2="0" stroke="#e53e3e" stroke-width="3" marker-end="url(#arrowhead)"/>
+        <circle id="arrow-dot" cx="0" cy="0" r="8" fill="#e53e3e"/>
+      </g>
+
+      <defs>
+        <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+          <polygon points="0 0, 10 3, 0 6" fill="#e53e3e"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+
+  <div class="log-box" id="embed-log">Bấm nút để bắt đầu trace...</div>
+
+  <details style="margin-top:14px;">
+    <summary>Vì sao embedding ≠ inheritance?</summary>
+    <p><b>Embedding</b> là "has-a" — Manager <b>chứa</b> Employee. <b>Inheritance</b> (Java/C++) là "is-a" — Manager <b>là</b> Employee. Trong Go, <code>Manager</code> KHÔNG dùng được như <code>Employee</code> (không assign sang biến <code>Employee</code> được). Polymorphism phải qua <b>interface</b> (L18).</p>
+    <p>Khi gọi <code>m.Greet()</code>: nếu Manager có method <code>Greet()</code> riêng → gọi method đó (shadow). Nếu không → gọi method của Employee qua <b>promotion</b>.</p>
+  </details>
+</div>
+
+<h2>Tham khảo nhanh — receiver cheat sheet</h2>
+<div class="card">
+  <table style="width:100%; border-collapse: collapse;">
+    <thead style="background:#edf2f7;">
+      <tr>
+        <th style="text-align:left; padding:8px;">Tình huống</th>
+        <th style="text-align:left; padding:8px;">Receiver</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td style="padding:6px;">Cần mutate struct</td><td style="padding:6px;"><b>*T (pointer)</b></td></tr>
+      <tr><td style="padding:6px;">Struct &gt; 64 byte (cache line)</td><td style="padding:6px;"><b>*T</b></td></tr>
+      <tr><td style="padding:6px;">Struct chứa <code>sync.Mutex</code></td><td style="padding:6px;"><b>*T</b> (Mutex không nên copy)</td></tr>
+      <tr><td style="padding:6px;">Type đã có 1 method *T → các method khác</td><td style="padding:6px;"><b>*T</b> (nhất quán)</td></tr>
+      <tr><td style="padding:6px;">Struct nhỏ (Point, time.Time), không mutate</td><td style="padding:6px;"><b>T (value)</b></td></tr>
+      <tr><td style="padding:6px;">Method read-only và type chưa có pointer method nào</td><td style="padding:6px;"><b>T</b></td></tr>
+    </tbody>
+  </table>
+</div>
+
+</main>
+
+<script>
+// ============================================================
+// Module 1: Memory layout
+// ============================================================
+const FIELD_TYPES = {
+  bool:   { name: 'bool',   size: 1, align: 1 },
+  int32:  { name: 'int32',  size: 4, align: 4 },
+  int64:  { name: 'int64',  size: 8, align: 8 },
+  string: { name: 'string', size: 16, align: 8 } // 64-bit: ptr+len
+};
+
+const PRESETS = {
+  A: [
+    { name: 'flag', type: 'bool' },
+    { name: 'id',   type: 'int64' },
+    { name: 'name', type: 'string' },
+    { name: 'age',  type: 'int32' }
+  ],
+  B: [
+    { name: 'active',  type: 'bool' },
+    { name: 'level',   type: 'int32' },
+    { name: 'salary',  type: 'int64' },
+    { name: 'deleted', type: 'bool' }
+  ],
+  C: [
+    { name: 'isAdmin', type: 'bool' },
+    { name: 'id',      type: 'int64' },
+    { name: 'name',    type: 'string' },
+    { name: 'verified',type: 'bool' },
+    { name: 'count',   type: 'int32' }
+  ]
+};
+
+let currentFields = [...PRESETS.A];
+
+function alignUp(n, a) { return Math.ceil(n / a) * a; }
+
+function computeLayout(fields) {
+  let offset = 0;
+  let maxAlign = 1;
+  const cells = [];
+  for (const f of fields) {
+    const ft = FIELD_TYPES[f.type];
+    const aligned = alignUp(offset, ft.align);
+    // padding cells
+    for (let i = offset; i < aligned; i++) {
+      cells.push({ kind: 'pad', name: 'pad', offset: i });
+    }
+    for (let i = 0; i < ft.size; i++) {
+      cells.push({ kind: f.type, name: f.name, offset: aligned + i, label: i === 0 ? f.name : '' });
+    }
+    offset = aligned + ft.size;
+    if (ft.align > maxAlign) maxAlign = ft.align;
+  }
+  // tail padding
+  const total = alignUp(offset, maxAlign);
+  for (let i = offset; i < total; i++) {
+    cells.push({ kind: 'pad', name: 'pad', offset: i });
+  }
+  return { cells, total };
+}
+
+function renderFieldList() {
+  const ul = document.getElementById('field-list');
+  ul.innerHTML = '';
+  currentFields.forEach((f, idx) => {
+    const ft = FIELD_TYPES[f.type];
+    const li = document.createElement('li');
+    li.className = 'field-item';
+    li.draggable = true;
+    li.dataset.idx = idx;
+    li.innerHTML = `
+      <span class="field-grip">⋮⋮</span>
+      <span class="field-badge ${f.type}">${ft.name}</span>
+      <span class="field-name">${f.name}</span>
+      <span class="field-size">${ft.size}B</span>
+    `;
+    li.addEventListener('dragstart', onDragStart);
+    li.addEventListener('dragover', onDragOver);
+    li.addEventListener('drop', onDrop);
+    li.addEventListener('dragend', onDragEnd);
+    // Touch support: tap to move up
+    li.addEventListener('dblclick', () => moveUp(idx));
+    ul.appendChild(li);
+  });
+}
+
+function moveUp(idx) {
+  if (idx === 0) return;
+  [currentFields[idx-1], currentFields[idx]] = [currentFields[idx], currentFields[idx-1]];
+  renderAll();
+}
+
+let dragSrcIdx = null;
+function onDragStart(e) {
+  dragSrcIdx = parseInt(e.currentTarget.dataset.idx);
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+function onDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
+function onDrop(e) {
+  e.preventDefault();
+  const dstIdx = parseInt(e.currentTarget.dataset.idx);
+  if (dragSrcIdx === null || dragSrcIdx === dstIdx) return;
+  const [moved] = currentFields.splice(dragSrcIdx, 1);
+  currentFields.splice(dstIdx, 0, moved);
+  renderAll();
+}
+function onDragEnd(e) {
+  e.currentTarget.classList.remove('dragging');
+  dragSrcIdx = null;
+}
+
+function renderStrip() {
+  const { cells, total } = computeLayout(currentFields);
+  const strip = document.getElementById('mem-strip');
+  strip.innerHTML = '';
+  cells.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'mem-cell ' + c.kind;
+    div.innerHTML = `<div class="offset">${c.offset}</div><div>${c.kind === 'pad' ? '·' : (c.label || '')}</div>`;
+    div.title = `offset ${c.offset}: ${c.kind === 'pad' ? 'padding' : c.name + ' (' + c.kind + ')'}`;
+    strip.appendChild(div);
+  });
+  document.getElementById('size-current').textContent = total;
+  // Compute optimal (sort by size desc)
+  const sorted = [...currentFields].sort((a, b) => FIELD_TYPES[b.type].size - FIELD_TYPES[a.type].size);
+  const optimal = computeLayout(sorted).total;
+  document.getElementById('size-optimal').textContent = optimal;
+  const sumFieldBytes = currentFields.reduce((s, f) => s + FIELD_TYPES[f.type].size, 0);
+  const waste = total - sumFieldBytes;
+  document.getElementById('size-waste').textContent = waste;
+}
+
+function renderAll() { renderFieldList(); renderStrip(); }
+
+document.querySelectorAll('.preset[data-preset]').forEach(b => {
+  b.addEventListener('click', () => {
+    currentFields = JSON.parse(JSON.stringify(PRESETS[b.dataset.preset]));
+    renderAll();
+  });
+});
+document.getElementById('btn-optimize').addEventListener('click', () => {
+  currentFields.sort((a, b) => FIELD_TYPES[b.type].size - FIELD_TYPES[a.type].size);
+  renderAll();
+});
+
+renderAll();
+
+// ============================================================
+// Module 2: Receiver picker
+// ============================================================
+const sizeSlider = document.getElementById('size-slider');
+const sizeVal = document.getElementById('size-val');
+const mutateCheck = document.getElementById('mutate-check');
+const mutexCheck = document.getElementById('mutex-check');
+const rec = document.getElementById('recommend');
+const recTitle = document.getElementById('rec-title');
+const recReason = document.getElementById('rec-reason');
+const recCode = document.getElementById('rec-code');
+const recTradeoff = document.getElementById('rec-tradeoff');
+
+function updateRecommend() {
+  const size = parseInt(sizeSlider.value);
+  const mutate = mutateCheck.checked;
+  const hasMutex = mutexCheck.checked;
+  sizeVal.textContent = size + ' byte';
+
+  let usePointer = false;
+  let reason = '';
+  if (mutate) { usePointer = true; reason = 'Method MUTATE struct → bắt buộc <b>pointer</b> để thay đổi có hiệu lực.'; }
+  else if (hasMutex) { usePointer = true; reason = 'Struct chứa Mutex / không nên copy → <b>pointer</b> để tránh copy lock.'; }
+  else if (size > 64) { usePointer = true; reason = 'Struct ' + size + ' byte > 64B (cache line) → copy mỗi call tốn — dùng <b>pointer</b>.'; }
+  else { usePointer = false; reason = 'Struct nhỏ (' + size + 'B), không mutate, không có Mutex → <b>value</b> receiver OK.'; }
+
+  if (usePointer) {
+    rec.className = 'recommend pointer';
+    recTitle.textContent = '→ Pointer receiver (*T)';
+    recCode.innerHTML = '<code>func (s *Struct) Method() { ... }</code>';
+    recTradeoff.innerHTML = 'Trade-off: tốn 1 dereference khi access field (~1 CPU cycle, không đáng lo). Đổi lại: mutate được + không copy ' + size + ' byte mỗi call.';
+  } else {
+    rec.className = 'recommend value';
+    recTitle.textContent = '→ Value receiver (T)';
+    recCode.innerHTML = '<code>func (s Struct) Method() { ... }</code>';
+    recTradeoff.innerHTML = 'Trade-off: copy ' + size + ' byte mỗi call (rất rẻ với struct nhỏ). Đổi lại: rõ ý đồ "không mutate" + caller không cần &.';
+  }
+  recReason.innerHTML = reason;
+}
+sizeSlider.addEventListener('input', updateRecommend);
+mutateCheck.addEventListener('change', updateRecommend);
+mutexCheck.addEventListener('change', updateRecommend);
+updateRecommend();
+
+// ============================================================
+// Module 3: Embedding visualizer
+// ============================================================
+const overrideToggle = document.getElementById('override-toggle');
+const overrideLabel = document.getElementById('override-label');
+const callArrow = document.getElementById('call-arrow');
+const arrowLine = document.getElementById('arrow-line');
+const arrowDot = document.getElementById('arrow-dot');
+const embedLog = document.getElementById('embed-log');
+
+overrideToggle.addEventListener('change', () => {
+  overrideLabel.style.display = overrideToggle.checked ? 'block' : 'none';
+});
+
+function logStep(msg) {
+  const span = document.createElement('span');
+  span.className = 'step';
+  span.textContent = '→ ' + msg;
+  embedLog.appendChild(span);
+}
+
+function animateArrow(x1, y1, x2, y2, label, cb) {
+  arrowLine.setAttribute('x1', x1);
+  arrowLine.setAttribute('y1', y1);
+  arrowLine.setAttribute('x2', x1);
+  arrowLine.setAttribute('y2', y1);
+  arrowDot.setAttribute('cx', x1);
+  arrowDot.setAttribute('cy', y1);
+  callArrow.style.display = 'block';
+
+  const steps = 30;
+  let i = 0;
+  const t = setInterval(() => {
+    i++;
+    const t0 = i / steps;
+    const nx = x1 + (x2 - x1) * t0;
+    const ny = y1 + (y2 - y1) * t0;
+    arrowLine.setAttribute('x2', nx);
+    arrowLine.setAttribute('y2', ny);
+    arrowDot.setAttribute('cx', nx);
+    arrowDot.setAttribute('cy', ny);
+    if (i >= steps) {
+      clearInterval(t);
+      if (cb) cb();
+    }
+  }, 20);
+}
+
+document.getElementById('btn-greet').addEventListener('click', () => {
+  embedLog.innerHTML = '';
+  logStep('Caller: m.Greet()');
+  if (overrideToggle.checked) {
+    logStep('Compiler tìm method Greet trên Manager → FOUND (override)');
+    setTimeout(() => {
+      animateArrow(120, 290, 280, 245, 'Manager.Greet', () => {
+        logStep('Gọi Manager.Greet(m) → "Hi, I\'m Manager Alice with 5 reports"');
+      });
+    }, 400);
+  } else {
+    logStep('Compiler tìm method Greet trên Manager → NOT FOUND');
+    setTimeout(() => {
+      logStep('Tìm trên embedded type Employee → FOUND (promoted)');
+      setTimeout(() => {
+        animateArrow(120, 290, 280, 130, 'Employee.Greet', () => {
+          logStep('Gọi Employee.Greet(m.Employee) → "Hi, I\'m Alice"');
+        });
+      }, 400);
+    }, 400);
+  }
+});
+
+document.getElementById('btn-greet-employee').addEventListener('click', () => {
+  embedLog.innerHTML = '';
+  logStep('Caller: m.Employee.Greet()');
+  logStep('Tường minh — gọi method gốc của Employee (bypass override)');
+  setTimeout(() => {
+    animateArrow(120, 290, 280, 130, 'Employee.Greet', () => {
+      logStep('Gọi Employee.Greet(m.Employee) → "Hi, I\'m Alice"');
+    });
+  }, 400);
+});
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 06 — Euler & dạng cực</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 500px; height: 500px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-complex-numbers/visualization.html">← L5: Số phức</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Euler</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L7: De Moivre (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 06 (T3) — Dạng lượng giác &amp; Euler</h1>
+
+<h2>Nhân số phức = nhân mô-đun + cộng argument</h2>
+<div class="card">
+  <p>Kéo trượt để thay đổi 2 số phức z₁, z₂ dưới dạng lượng giác. Quan sát z₁·z₂.</p>
+  <div class="row">
+    <strong>z₁:</strong>
+    <label>r₁:</label><input type="range" id="r1" min="0.5" max="3" step="0.1" value="1.5" oninput="draw()">
+    <span class="stat">r₁=<strong id="vR1">1.5</strong></span>
+    <label>θ₁:</label><input type="range" id="t1" min="0" max="6.28" step="0.05" value="1" oninput="draw()">
+    <span class="stat">θ₁=<strong id="vT1">1.0</strong></span>
+  </div>
+  <div class="row">
+    <strong>z₂:</strong>
+    <label>r₂:</label><input type="range" id="r2" min="0.5" max="3" step="0.1" value="2" oninput="draw()">
+    <span class="stat">r₂=<strong id="vR2">2</strong></span>
+    <label>θ₂:</label><input type="range" id="t2" min="0" max="6.28" step="0.05" value="0.5" oninput="draw()">
+    <span class="stat">θ₂=<strong id="vT2">0.5</strong></span>
+  </div>
+  <svg class="scene" id="svg" viewBox="-250 -250 500 500"></svg>
+  <div class="result" id="r"></div>
+</div>
+
+<h2>Công thức Euler: e^(iθ) trên đường tròn đơn vị</h2>
+<div class="card">
+  <div class="row">
+    <label>θ:</label>
+    <input type="range" id="th" min="0" max="6.28" step="0.05" value="3.14159" oninput="drawE()">
+    <span class="stat">θ = <strong id="vTh">π</strong></span>
+  </div>
+  <svg class="scene" id="svgE" viewBox="-250 -250 500 500"></svg>
+  <div class="result" id="eR"></div>
+</div>
+
+<script>
+function gridAndAxes(svg) {
+  const SC = 60;
+  for (let i = -4; i <= 4; i++) {
+    const v = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    v.setAttribute("x1", i*SC); v.setAttribute("y1", -250); v.setAttribute("x2", i*SC); v.setAttribute("y2", 250);
+    v.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); v.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+    svg.appendChild(v);
+    const h = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    h.setAttribute("x1", -250); h.setAttribute("y1", i*SC); h.setAttribute("x2", 250); h.setAttribute("y2", i*SC);
+    h.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); h.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+    svg.appendChild(h);
+  }
+  return SC;
+}
+
+function plotZ(svg, re, im, color, label, scale) {
+  const x = re*scale, y = -im*scale;
+  const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  l.setAttribute("x1", 0); l.setAttribute("y1", 0); l.setAttribute("x2", x); l.setAttribute("y2", y);
+  l.setAttribute("stroke", color); l.setAttribute("stroke-width", 2.5);
+  svg.appendChild(l);
+  const p = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  p.setAttribute("cx", x); p.setAttribute("cy", y); p.setAttribute("r", 6);
+  p.setAttribute("fill", color);
+  svg.appendChild(p);
+  if (label) {
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", x+10); t.setAttribute("y", y-8); t.setAttribute("fill", color); t.setAttribute("font-weight", "700"); t.setAttribute("font-size", "13");
+    t.textContent = label;
+    svg.appendChild(t);
+  }
+}
+
+function draw() {
+  const r1 = parseFloat(document.getElementById("r1").value);
+  const t1 = parseFloat(document.getElementById("t1").value);
+  const r2 = parseFloat(document.getElementById("r2").value);
+  const t2 = parseFloat(document.getElementById("t2").value);
+  document.getElementById("vR1").textContent = r1.toFixed(1);
+  document.getElementById("vT1").textContent = t1.toFixed(2);
+  document.getElementById("vR2").textContent = r2.toFixed(1);
+  document.getElementById("vT2").textContent = t2.toFixed(2);
+
+  const svg = document.getElementById("svg");
+  svg.innerHTML = "";
+  const SC = gridAndAxes(svg);
+
+  const z1 = [r1*Math.cos(t1), r1*Math.sin(t1)];
+  const z2 = [r2*Math.cos(t2), r2*Math.sin(t2)];
+  const rP = r1*r2, tP = t1+t2;
+  const zP = [rP*Math.cos(tP), rP*Math.sin(tP)];
+
+  plotZ(svg, z1[0], z1[1], "#1d4ed8", "z₁", SC);
+  plotZ(svg, z2[0], z2[1], "#15803d", "z₂", SC);
+  plotZ(svg, zP[0], zP[1], "#dc2626", "z₁·z₂", SC);
+
+  // Arc indicators for arguments
+  const arcR = 25;
+  [[t1, "#1d4ed8"], [t2, "#15803d"], [tP, "#dc2626"]].forEach(([t, c], i) => {
+    const ar = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    const x2 = (arcR+i*8)*Math.cos(-t), y2 = (arcR+i*8)*Math.sin(-t);
+    const la = t > Math.PI ? 1 : 0;
+    ar.setAttribute("d", `M ${arcR+i*8},0 A ${arcR+i*8},${arcR+i*8} 0 ${la},0 ${x2},${y2}`);
+    ar.setAttribute("fill", "none"); ar.setAttribute("stroke", c); ar.setAttribute("stroke-width", 1.5);
+    svg.appendChild(ar);
+  });
+
+  document.getElementById("r").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">z₁ = ${r1.toFixed(2)}·e^(i·${t1.toFixed(2)}) = ${z1[0].toFixed(3)} + ${z1[1].toFixed(3)}i</div>
+    <div style="font-family:monospace; font-size:14px">z₂ = ${r2.toFixed(2)}·e^(i·${t2.toFixed(2)}) = ${z2[0].toFixed(3)} + ${z2[1].toFixed(3)}i</div>
+    <div style="font-family:monospace; font-size:14px"><strong>z₁·z₂ = ${rP.toFixed(2)}·e^(i·${tP.toFixed(2)}) = ${zP[0].toFixed(3)} + ${zP[1].toFixed(3)}i</strong></div>
+    <div class="row" style="margin-top:8px">
+      <span class="stat">|z₁|·|z₂| = ${r1.toFixed(2)}·${r2.toFixed(2)} = <strong>${rP.toFixed(3)}</strong></span>
+      <span class="stat">arg z₁ + arg z₂ = <strong>${tP.toFixed(3)} rad</strong> ≈ ${(tP*180/Math.PI).toFixed(1)}°</span>
+    </div>
+  `;
+}
+
+function drawE() {
+  const t = parseFloat(document.getElementById("th").value);
+  let tLbl;
+  if (Math.abs(t - Math.PI) < 0.05) tLbl = "π";
+  else if (Math.abs(t - Math.PI/2) < 0.05) tLbl = "π/2";
+  else if (Math.abs(t - 2*Math.PI) < 0.05) tLbl = "2π";
+  else tLbl = t.toFixed(2);
+  document.getElementById("vTh").textContent = tLbl;
+
+  const svg = document.getElementById("svgE");
+  svg.innerHTML = "";
+  const SC = gridAndAxes(svg);
+
+  // Unit circle
+  const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  c.setAttribute("cx", 0); c.setAttribute("cy", 0); c.setAttribute("r", SC);
+  c.setAttribute("fill", "none"); c.setAttribute("stroke", "#7c3aed"); c.setAttribute("stroke-width", 1.5);
+  svg.appendChild(c);
+
+  // Arc for θ
+  const ax2 = SC * Math.cos(-t), ay2 = SC * Math.sin(-t);
+  const la = t > Math.PI ? 1 : 0;
+  const arc = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  arc.setAttribute("d", `M ${SC},0 A ${SC},${SC} 0 ${la},0 ${ax2},${ay2}`);
+  arc.setAttribute("fill", "none"); arc.setAttribute("stroke", "#dc2626"); arc.setAttribute("stroke-width", 3);
+  svg.appendChild(arc);
+
+  const re = Math.cos(t), im = Math.sin(t);
+  plotZ(svg, re, im, "#dc2626", `e^(i·${tLbl})`, SC);
+
+  // cos line (vertical)
+  const cl = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  cl.setAttribute("x1", re*SC); cl.setAttribute("y1", 0); cl.setAttribute("x2", re*SC); cl.setAttribute("y2", -im*SC);
+  cl.setAttribute("stroke", "#1d4ed8"); cl.setAttribute("stroke-width", 2); cl.setAttribute("stroke-dasharray", "4,3");
+  svg.appendChild(cl);
+  const sl = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  sl.setAttribute("x1", 0); sl.setAttribute("y1", -im*SC); sl.setAttribute("x2", re*SC); sl.setAttribute("y2", -im*SC);
+  sl.setAttribute("stroke", "#15803d"); sl.setAttribute("stroke-width", 2); sl.setAttribute("stroke-dasharray", "4,3");
+  svg.appendChild(sl);
+
+  document.getElementById("eR").innerHTML = `
+    <div style="font-family:monospace; font-size:15px"><strong>e^(i·${tLbl}) = cos ${tLbl} + i·sin ${tLbl} = ${re.toFixed(4)} + ${im.toFixed(4)}i</strong></div>
+    ${Math.abs(t - Math.PI) < 0.05 ? `<div style="margin-top:8px; padding:10px; background:#fef3c7; border-radius:6px"><strong>🎯 e^(iπ) = -1</strong>. Cộng 1 vào 2 vế: <strong>e^(iπ) + 1 = 0</strong> — "công thức đẹp nhất toán học", liên kết 0, 1, π, e, i.</div>` : ""}
+  `;
+}
+
+draw();
+drawE();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

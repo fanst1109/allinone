@@ -1088,14 +1088,7 @@ func (r *RateLimitedReader) Read(p []byte) (int, error) {
 
 ## 18. Checklist hiểu bài
 
-- [ ] Vì sao `Read(p)` trả `n` thay vì slice mới?
-- [ ] Tại sao `n > 0 && err = io.EOF` lại hợp lệ và cần xử lý đúng?
-- [ ] `bufio.Writer.Flush()` cần gọi vào lúc nào và vì sao?
-- [ ] `io.TeeReader` khác gì `io.MultiWriter`?
-- [ ] Khi nào nên dùng `io.Pipe` thay vì `bytes.Buffer`?
-- [ ] `io.LimitReader(r, 100)` đảm bảo gì? Có ngăn được DoS hoàn toàn không?
-
----
+- Vì sao `Read(p)` trả `n` thay vì slice mới? · Tại sao `n>0 && err=io.EOF` hợp lệ? · `bufio.Writer.Flush()` gọi lúc nào? · `io.TeeReader` khác `io.MultiWriter` ở đâu? · Khi nào nên dùng `io.Pipe` thay `bytes.Buffer`? · `io.LimitReader(r, 100)` đảm bảo gì?
 
 ## Bài tiếp theo
 

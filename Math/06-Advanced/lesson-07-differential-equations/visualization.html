@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 07 — Phương trình vi phân</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  button { background: #94a3b8; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.active { background: #15803d; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 700px; height: 400px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-series-taylor/visualization.html">← L6: Taylor</a>
+  <span class="sep">·</span>
+  <span class="current">L7: ODE</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L8: XS-TK (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 07 (T6) — ODE thực hành</h1>
+
+<h2>Mô hình hóa qua ODE</h2>
+<div class="card">
+  <div class="row">
+    <button id="b1" onclick="setM('decay')" class="active">Phân rã y' = -ky</button>
+    <button id="b2" onclick="setM('growth')">Tăng trưởng y' = ky</button>
+    <button id="b3" onclick="setM('shm')">Dao động y'' + ω²y = 0</button>
+    <button id="b4" onclick="setM('damped')">Dao động tắt y'' + 2γy' + ω²y = 0</button>
+  </div>
+  <div class="row" id="params"></div>
+  <svg class="scene" id="svg" viewBox="0 0 700 400"></svg>
+  <div class="result" id="res"></div>
+</div>
+
+<script>
+let cur = "decay";
+
+function setM(m) {
+  cur = m;
+  ["1","2","3","4"].forEach(c => document.getElementById("b"+c).classList.remove("active"));
+  const map = {decay:"1", growth:"2", shm:"3", damped:"4"};
+  document.getElementById("b" + map[m]).classList.add("active");
+  buildParams();
+  draw();
+}
+
+function buildParams() {
+  const p = document.getElementById("params");
+  if (cur === "decay" || cur === "growth") {
+    p.innerHTML = `
+      <label>k:</label><input type="range" id="k" min="0.1" max="2" step="0.1" value="0.5" oninput="draw()">
+      <span class="stat">k = <strong id="vK">0.5</strong></span>
+      <label>y(0):</label><input type="range" id="y0" min="0.5" max="5" step="0.5" value="2" oninput="draw()">
+      <span class="stat">y₀ = <strong id="vY0">2</strong></span>
+    `;
+  } else if (cur === "shm") {
+    p.innerHTML = `
+      <label>ω:</label><input type="range" id="w" min="0.5" max="3" step="0.1" value="1.5" oninput="draw()">
+      <span class="stat">ω = <strong id="vW">1.5</strong></span>
+      <label>A (biên độ):</label><input type="range" id="A" min="0.5" max="3" step="0.1" value="2" oninput="draw()">
+      <span class="stat">A = <strong id="vA">2</strong></span>
+    `;
+  } else if (cur === "damped") {
+    p.innerHTML = `
+      <label>ω:</label><input type="range" id="w" min="0.5" max="3" step="0.1" value="2" oninput="draw()">
+      <span class="stat">ω = <strong id="vW">2</strong></span>
+      <label>γ (tắt):</label><input type="range" id="g" min="0" max="2" step="0.1" value="0.3" oninput="draw()">
+      <span class="stat">γ = <strong id="vG">0.3</strong></span>
+    `;
+  }
+}
+
+function draw() {
+  const svg = document.getElementById("svg");
+  svg.innerHTML = "";
+  const W = 700, H = 400, cx = 50, cy = 200;
+  const tMax = 10;
+  const scale = (W - 80) / tMax;
+  const yScale = 50;
+
+  // Axes
+  const xax = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  xax.setAttribute("x1", cx); xax.setAttribute("y1", cy); xax.setAttribute("x2", W-30); xax.setAttribute("y2", cy);
+  xax.setAttribute("stroke", "#1a202c"); xax.setAttribute("stroke-width", 1.5);
+  svg.appendChild(xax);
+  const yax = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  yax.setAttribute("x1", cx); yax.setAttribute("y1", 30); yax.setAttribute("x2", cx); yax.setAttribute("y2", H-30);
+  yax.setAttribute("stroke", "#1a202c"); yax.setAttribute("stroke-width", 1.5);
+  svg.appendChild(yax);
+
+  let fn, formula, desc;
+  if (cur === "decay") {
+    const k = +document.getElementById("k").value;
+    const y0 = +document.getElementById("y0").value;
+    document.getElementById("vK").textContent = k.toFixed(1);
+    document.getElementById("vY0").textContent = y0.toFixed(1);
+    fn = t => y0 * Math.exp(-k*t);
+    formula = `y' = -${k}y, y(0) = ${y0} → y(t) = ${y0}·e^(-${k}t)`;
+    desc = "Phân rã mũ (radiocarbon, RC discharge, làm nguội).";
+  } else if (cur === "growth") {
+    const k = +document.getElementById("k").value;
+    const y0 = +document.getElementById("y0").value;
+    document.getElementById("vK").textContent = k.toFixed(1);
+    document.getElementById("vY0").textContent = y0.toFixed(1);
+    fn = t => y0 * Math.exp(k*t);
+    formula = `y' = ${k}y → y(t) = ${y0}·e^(${k}t)`;
+    desc = "Tăng trưởng mũ (dân số không giới hạn, lãi kép liên tục).";
+  } else if (cur === "shm") {
+    const w = +document.getElementById("w").value;
+    const A = +document.getElementById("A").value;
+    document.getElementById("vW").textContent = w.toFixed(1);
+    document.getElementById("vA").textContent = A.toFixed(1);
+    fn = t => A * Math.cos(w*t);
+    formula = `y'' + ${w*w}·y = 0 → y(t) = ${A}·cos(${w}t)`;
+    desc = "Dao động điều hòa (con lắc, lò xo). Chu kỳ T = 2π/ω ≈ " + (2*Math.PI/w).toFixed(3);
+  } else {
+    const w = +document.getElementById("w").value;
+    const g = +document.getElementById("g").value;
+    document.getElementById("vW").textContent = w.toFixed(1);
+    document.getElementById("vG").textContent = g.toFixed(1);
+    if (g < w) {
+      const wd = Math.sqrt(w*w - g*g);
+      fn = t => Math.exp(-g*t) * 2 * Math.cos(wd*t);
+      formula = `y'' + 2·${g}y' + ${w*w}y = 0 → y(t) = e^(-${g}t)·2·cos(${wd.toFixed(2)}·t)`;
+      desc = "Dao động tắt dần (under-damped). γ < ω.";
+    } else {
+      const wd = Math.sqrt(g*g - w*w);
+      fn = t => Math.exp(-g*t) * 2 * Math.cosh(wd*t);
+      formula = `y(t) = 2·e^(-${g}t)·cosh(${wd.toFixed(2)}·t)`;
+      desc = "Tắt quá mức (over-damped). γ ≥ ω → không dao động.";
+    }
+  }
+
+  // Plot
+  let path = "";
+  let started = false;
+  for (let t = 0; t <= tMax; t += 0.02) {
+    const y = fn(t);
+    if (!isFinite(y) || Math.abs(y) > 6) { started = false; continue; }
+    const px = cx + t*scale, py = cy - y*yScale;
+    path += (started ? "L" : "M") + px + " " + py + " ";
+    started = true;
+  }
+  const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  p.setAttribute("d", path); p.setAttribute("fill", "none"); p.setAttribute("stroke", "#1d4ed8"); p.setAttribute("stroke-width", 2.5);
+  svg.appendChild(p);
+
+  document.getElementById("res").innerHTML = `
+    <div style="font-family:monospace; font-size:15px"><strong>${formula}</strong></div>
+    <div style="margin-top:6px">${desc}</div>
+  `;
+}
+
+buildParams();
+draw();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

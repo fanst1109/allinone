@@ -363,6 +363,24 @@ Vd `n = 8`:
 - **Persistent segment tree**: giữ lịch sử mọi phiên bản.
 - **Implicit segment tree**: cho phạm vi giá trị lớn nhưng thưa.
 
+### 7.1. 🔁 Tự kiểm tra tổng hợp
+
+1. Trên mảng `[1, 3, 5, 7, 9, 11]` (segtree build sẵn ở mục 2.5), tính `query(0, 3)`.
+   <details><summary>Đáp án</summary>`a[0]+a[1]+a[2]+a[3] = 1+3+5+7 = 16`. Đi node 1[0,5]→node 2[0,2] nằm trọn (=9)→node 3[3,5]→node 6[3,4]→node 12[3,3] nằm trọn (=7), node 13[4,4] không giao. Tổng `9 + 7 = 16` ✓.</details>
+2. Sau `update(a[4], +5)` trên mảng `[1,3,5,7,9,11]`, các node nào thay đổi giá trị?
+   <details><summary>Đáp án</summary>Node 13 [4,4]: 9 → 14. Node 6 [3,4]: 16 → 21. Node 3 [3,5]: 27 → 32. Node 1 [0,5]: 36 → 41. Đúng 4 node trên đường từ lá lên gốc, chiều cao log₂6 ≈ 3.</details>
+3. Lazy propagation cho phép range max query + range assign không?
+   <details><summary>Đáp án</summary>Có. `tree[node]` lưu max của đoạn, `lazy[node]` lưu giá trị gán (cộng flag `has_lazy`). Khi pushDown, ép con max = lazy. Khi merge từ con, `tree[node] = max(left, right)`.</details>
+
+### 7.2. 📝 Tóm tắt cuối lesson
+
+- **Segment tree** = cây nhị phân chia đôi mảng, mỗi node lưu tổng hợp (sum/min/max/gcd...) một đoạn.
+- **Build** `O(n)`, **point update** `O(log n)`, **range query** `O(log n)`.
+- **Lazy propagation** mở rộng cho **range update** trong `O(log n)` — phải nhớ pushDown trước khi đi sâu.
+- **Fenwick (BIT)** = phiên bản gọn hơn, chỉ cho cộng/trừ, code ngắn, `n` bộ nhớ.
+- Chọn: BIT cho tổng đơn giản; segtree khi cần min/max/gcd, lazy, hoặc truy vấn descend phức tạp.
+- Cảnh báo: cấp **`4n`** cho mảng `tree`, không phải `n` hay `2n`.
+
 ## Bài tập
 
 1. Cài đặt segment tree cho **range sum**, hỗ trợ point update và range query.

@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 19 — Error Handling kiểu Go</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-start; margin: 8px 0; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+    font-family: inherit;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.danger { background: #e53e3e; }
+  button.danger:hover { background: #c53030; }
+  button.warn { background: #ed8936; }
+  button.warn:hover { background: #dd6b20; }
+  button.ok { background: #38a169; }
+  button.ok:hover { background: #2f855a; }
+
+  .explain {
+    background: #ebf8ff; border-left: 4px solid #4299e1;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6;
+    margin-top: 10px;
+  }
+  .explain code {
+    background: white; padding: 1px 5px; border-radius: 3px;
+    font-family: monospace; color: #2b6cb0;
+  }
+  .warn-box {
+    background: #fffaf0; border-left: 4px solid #ed8936;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6;
+    margin-top: 10px;
+  }
+  code, pre { font-family: 'Menlo', 'Consolas', monospace; }
+  pre {
+    background: #1a202c; color: #e2e8f0;
+    padding: 12px; border-radius: 6px;
+    font-size: 13px; line-height: 1.5;
+    overflow-x: auto;
+    margin: 0;
+  }
+
+  /* ========== Module 1: side-by-side Java vs Go ========== */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 12px;
+  }
+  .compare-col {
+    background: #f7fafc;
+    border-radius: 8px;
+    padding: 12px;
+    border: 2px solid #e2e8f0;
+  }
+  .compare-col h3 {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    color: #2d3748;
+  }
+  .compare-col.java { border-color: #ed8936; }
+  .compare-col.go { border-color: #4299e1; }
+  .stack-frame {
+    background: white;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    padding: 6px 10px;
+    margin: 4px 0;
+    font-family: monospace;
+    font-size: 12px;
+    transition: all 0.4s ease;
+  }
+  .stack-frame.active {
+    background: #c6f6d5;
+    border-color: #38a169;
+    font-weight: 700;
+    transform: translateX(4px);
+  }
+  .stack-frame.exception {
+    background: #fed7d7;
+    border-color: #e53e3e;
+    color: #c53030;
+  }
+  .stack-frame.recovered {
+    background: #fefcbf;
+    border-color: #d69e2e;
+  }
+  .stack-frame.return-with-err {
+    background: #feebc8;
+    border-color: #ed8936;
+  }
+  .stack-label {
+    font-size: 11px;
+    color: #718096;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .step-display {
+    background: #2d3748;
+    color: #e2e8f0;
+    padding: 10px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 12px;
+    min-height: 60px;
+    line-height: 1.5;
+  }
+  .step-display .ok { color: #9ae6b4; }
+  .step-display .err { color: #fc8181; }
+  .step-display .info { color: #90cdf4; }
+
+  @media (max-width: 768px) {
+    .compare-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ========== Module 2: Wrap chain inspector ========== */
+  .chain-build {
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .chain-build input {
+    padding: 8px 10px;
+    font-size: 14px;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    font-family: monospace;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .chain-build .row-input {
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  }
+  .chain-build .row-input label {
+    flex-shrink: 0; font-size: 13px; color: #4a5568; min-width: 70px;
+  }
+  .chain-build .row-input input { flex: 1 1 200px; min-width: 0; }
+  .chain-build .row-input select {
+    padding: 6px 8px; font-size: 13px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    font-family: monospace;
+  }
+
+  .chain-viz {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 14px;
+  }
+  .chain-node {
+    background: white;
+    border: 2px solid #cbd5e0;
+    border-radius: 6px;
+    padding: 10px 12px;
+    position: relative;
+    font-family: monospace;
+    font-size: 13px;
+    transition: all 0.4s;
+  }
+  .chain-node.match {
+    background: #c6f6d5;
+    border-color: #38a169;
+    box-shadow: 0 0 0 3px rgba(56, 161, 105, 0.2);
+  }
+  .chain-node.traverse {
+    background: #fefcbf;
+    border-color: #d69e2e;
+  }
+  .chain-node .node-depth {
+    display: inline-block;
+    background: #4299e1;
+    color: white;
+    border-radius: 12px;
+    padding: 1px 8px;
+    font-size: 11px;
+    margin-right: 6px;
+  }
+  .chain-node .node-type {
+    color: #805ad5;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    margin-left: 6px;
+  }
+  .arrow-down {
+    text-align: center;
+    color: #4299e1;
+    font-size: 18px;
+    line-height: 1;
+    margin: 0;
+  }
+  .is-result {
+    font-family: monospace;
+    font-size: 14px;
+    padding: 10px;
+    border-radius: 6px;
+    margin-top: 10px;
+  }
+  .is-result.true { background: #c6f6d5; color: #22543d; }
+  .is-result.false { background: #fed7d7; color: #742a2a; }
+
+  /* ========== Module 3: panic + recover ========== */
+  .stack-viz {
+    background: #1a202c;
+    border-radius: 6px;
+    padding: 12px;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 4px;
+  }
+  .stack-viz .frame {
+    background: #2d3748;
+    color: #e2e8f0;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 13px;
+    border-left: 4px solid #718096;
+    transition: all 0.4s;
+  }
+  .stack-viz .frame.exec { border-left-color: #4299e1; background: #2c5282; }
+  .stack-viz .frame.panic { border-left-color: #e53e3e; background: #742a2a; color: #feb2b2; }
+  .stack-viz .frame.unwinding { border-left-color: #ed8936; background: #7b341e; opacity: 0.6; }
+  .stack-viz .frame.recovered {
+    border-left-color: #38a169; background: #22543d; color: #9ae6b4;
+    font-weight: 700;
+  }
+  .stack-viz .frame .frame-meta {
+    display: block; font-size: 11px; color: #a0aec0; margin-top: 2px;
+  }
+  .stack-viz .frame.recovered .frame-meta { color: #c6f6d5; }
+  .stack-viz .frame.panic .frame-meta { color: #fed7d7; }
+  .stack-viz .frame.unwinding .frame-meta { color: #feebc8; }
+
+  .narration {
+    background: #edf2f7;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-top: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+    min-height: 40px;
+  }
+  .narration code {
+    background: white; padding: 1px 4px; border-radius: 3px;
+    color: #2b6cb0;
+  }
+
+  /* mobile */
+  @media (max-width: 480px) {
+    .card { padding: 14px; }
+    pre { font-size: 11px; }
+    .chain-build .row-input label { min-width: 0; flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-18-interfaces/visualization.html">← L18: Interface</a>
+  <span class="sep">·</span>
+  <span class="current">L19: Error Handling</span>
+  <span class="sep">·</span>
+  <a href="../lesson-20-package-module/visualization.html">L20: Package & Module →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 19 — Error Handling kiểu Go</h1>
+<p>
+  Go không có <code>try/catch</code>. Mọi lỗi là một <strong>giá trị trả về</strong> mà bạn phải xử lý tường minh.
+  3 module dưới đây cho phép bạn (1) so sánh trực tiếp luồng exception của Java với luồng error-return của Go,
+  (2) tự build wrap chain rồi xem <code>errors.Is</code> traverse qua chain như thế nào,
+  (3) xem stack unwind khi <code>panic</code> được <code>recover</code> bắt trong <code>defer</code>.
+</p>
+
+<!-- ============================================================ -->
+<h2>1. Module 1 — Error vs Exception</h2>
+<div class="card">
+  <p>
+    Cùng một bài toán: <em>hàm <code>readConfig</code> gọi <code>openFile</code>, file không tồn tại</em>.
+    Bên trái là cách Java unwind stack qua exception. Bên phải là cách Go return error tường minh ở từng tầng.
+    Bấm <strong>▶ Step</strong> hoặc <strong>⏵ Play</strong> để chạy animation đồng bộ 2 phía.
+  </p>
+
+  <div class="row">
+    <button id="m1-play">⏵ Play</button>
+    <button id="m1-step" class="secondary">▶ Step</button>
+    <button id="m1-reset" class="secondary">↺ Reset</button>
+  </div>
+
+  <div class="compare-grid">
+    <div class="compare-col java">
+      <h3>🟠 Java — exception</h3>
+      <div class="stack-label">Call stack</div>
+      <div id="m1-java-stack">
+        <div class="stack-frame" data-frame="main-j">main()</div>
+        <div class="stack-frame" data-frame="rc-j">readConfig()</div>
+        <div class="stack-frame" data-frame="of-j">openFile("a.txt")</div>
+      </div>
+      <div class="stack-label" style="margin-top: 12px">Trace</div>
+      <div id="m1-java-trace" class="step-display">Bấm Step/Play để bắt đầu.</div>
+    </div>
+
+    <div class="compare-col go">
+      <h3>🔵 Go — error value</h3>
+      <div class="stack-label">Call stack</div>
+      <div id="m1-go-stack">
+        <div class="stack-frame" data-frame="main-g">main()</div>
+        <div class="stack-frame" data-frame="rc-g">readConfig()</div>
+        <div class="stack-frame" data-frame="of-g">openFile("a.txt")</div>
+      </div>
+      <div class="stack-label" style="margin-top: 12px">Trace</div>
+      <div id="m1-go-trace" class="step-display">Bấm Step/Play để bắt đầu.</div>
+    </div>
+  </div>
+
+  <div class="explain">
+    <strong>Quan sát chính:</strong>
+    <ul style="margin: 6px 0 0 18px; padding: 0">
+      <li><strong>Java:</strong> Khi exception ném ra, JVM tự động <em>unwind</em> stack đến khi gặp <code>catch</code>. Code intermediate (<code>readConfig</code>) <em>không biết</em> exception đi qua.</li>
+      <li><strong>Go:</strong> Mỗi tầng <em>tường minh</em> return <code>err</code>. <code>readConfig</code> chủ động wrap thêm context bằng <code>fmt.Errorf("... %w", err)</code>. Caller đọc code thấy ngay điểm có lỗi.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2>2. Module 2 — Wrap chain inspector</h2>
+<div class="card">
+  <p>
+    Tự build wrap chain 3 tầng: chọn error <strong>gốc</strong>, viết format string cho 2 tầng wrap. Sau đó nhập target để xem <code>errors.Is(err, target)</code> traverse qua chain ra sao.
+  </p>
+
+  <div class="chain-build">
+    <div class="row-input">
+      <label>Gốc (e0):</label>
+      <select id="m2-root">
+        <option value="sql.ErrNoRows">sql.ErrNoRows</option>
+        <option value="io.EOF">io.EOF</option>
+        <option value="os.ErrNotExist">os.ErrNotExist</option>
+        <option value="context.Canceled">context.Canceled</option>
+      </select>
+    </div>
+    <div class="row-input">
+      <label>Wrap 1 (e1):</label>
+      <input id="m2-w1" type="text" value='fmt.Errorf("open users.json: %w", e0)'>
+    </div>
+    <div class="row-input">
+      <label>Wrap 2 (e2):</label>
+      <input id="m2-w2" type="text" value='fmt.Errorf("get user 42: %w", e1)'>
+    </div>
+    <div class="row-input">
+      <label>Verb:</label>
+      <select id="m2-verb">
+        <option value="%w" selected>%w (wrap — Is/As xuyên qua)</option>
+        <option value="%v">%v (chỉ format string — không wrap)</option>
+      </select>
+    </div>
+    <div class="row-input">
+      <label>Target Is:</label>
+      <select id="m2-target">
+        <option value="sql.ErrNoRows">sql.ErrNoRows</option>
+        <option value="io.EOF">io.EOF</option>
+        <option value="os.ErrNotExist">os.ErrNotExist</option>
+        <option value="context.Canceled">context.Canceled</option>
+      </select>
+      <button id="m2-run">Run errors.Is</button>
+      <button id="m2-reset" class="secondary">↺ Reset</button>
+    </div>
+  </div>
+
+  <div id="m2-chain" class="chain-viz"></div>
+  <div id="m2-result" class="is-result" style="display:none"></div>
+
+  <div class="explain">
+    <strong>Cách đọc:</strong> nút trên cùng là err ngoài cùng (gần caller). Mũi tên <code>↓ Unwrap</code> đi xuống tầng sâu hơn.
+    Khi bấm Run, từng node sẽ sáng vàng (đang check), node match target sẽ chuyển xanh.
+    Đổi verb từ <code>%w</code> sang <code>%v</code> để thấy chain bị đứt — <code>errors.Is</code> không xuyên qua được nữa.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2>3. Module 3 — Panic + recover demo</h2>
+<div class="card">
+  <p>
+    Hàm <code>safeCall</code> gọi <code>doWork</code>, <code>doWork</code> deref nil pointer → panic. <code>safeCall</code> có <code>defer</code> chứa <code>recover()</code> → bắt panic, trả về như error bình thường, process KHÔNG crash.
+  </p>
+
+  <div class="row">
+    <button id="m3-play">⏵ Play (auto)</button>
+    <button id="m3-step" class="secondary">▶ Step</button>
+    <button id="m3-reset" class="secondary">↺ Reset</button>
+    <label style="font-size: 13px; color: #4a5568">
+      <input type="checkbox" id="m3-no-recover"> Bỏ <code>recover</code> (xem process crash)
+    </label>
+  </div>
+
+  <pre id="m3-code" style="margin-top: 10px"></pre>
+
+  <div class="row" style="align-items: stretch">
+    <div style="flex: 1 1 280px; min-width: 0">
+      <div class="stack-label">Call stack (đáy ↓ đỉnh)</div>
+      <div id="m3-stack" class="stack-viz"></div>
+    </div>
+    <div style="flex: 1 1 280px; min-width: 0">
+      <div class="stack-label">Narration</div>
+      <div id="m3-narration" class="narration">Bấm Step/Play để chạy.</div>
+      <div class="stack-label" style="margin-top: 8px">Final return</div>
+      <div id="m3-result" class="step-display" style="min-height: 40px">—</div>
+    </div>
+  </div>
+
+  <div class="explain">
+    <strong>Quy tắc:</strong> <code>recover()</code> CHỈ hoạt động trong <code>defer</code>. Khi panic xảy ra, runtime
+    unwind stack ngược; gặp <code>defer</code> có <code>recover</code> non-nil thì panic dừng.
+    Use case duy nhất nên dùng: HTTP middleware để 1 request bug không kill cả server.
+  </div>
+  <div class="warn-box">
+    <strong>⚠ Đừng dùng recover khắp nơi.</strong> Recover <em>giấu bug</em>. Chỉ recover ở biên (HTTP handler, worker goroutine ngoài cùng) và PHẢI log + stack trace.
+  </div>
+</div>
+
+</main>
+
+<script>
+/* ===========================================================
+   Module 1 — Error vs Exception
+   =========================================================== */
+const m1Steps = [
+  {
+    java: { active: 'main-j', trace: '<span class="info">// main gọi readConfig()</span>' },
+    go:   { active: 'main-g', trace: '<span class="info">// main gọi readConfig()</span>' }
+  },
+  {
+    java: { active: 'rc-j', trace: '<span class="info">// readConfig gọi openFile("a.txt")</span>' },
+    go:   { active: 'rc-g', trace: '<span class="info">// readConfig gọi openFile("a.txt")</span>' }
+  },
+  {
+    java: { active: 'of-j', trace: '<span class="info">// openFile mở file a.txt — KHÔNG tồn tại</span>' },
+    go:   { active: 'of-g', trace: '<span class="info">// openFile mở file a.txt — KHÔNG tồn tại</span>' }
+  },
+  {
+    java: {
+      mark: { 'of-j': 'exception' },
+      trace: '<span class="err">throw new FileNotFoundException("a.txt")</span>\n<span class="info">// JVM bắt đầu unwind stack</span>'
+    },
+    go: {
+      mark: { 'of-g': 'return-with-err' },
+      trace: '<span class="err">return nil, os.ErrNotExist</span>\n<span class="info">// trả về err, KHÔNG ném</span>'
+    }
+  },
+  {
+    java: {
+      mark: { 'of-j': 'exception', 'rc-j': 'exception' },
+      trace: '<span class="err">// exception đi qua readConfig — code intermediate</span>\n<span class="err">// KHÔNG có cơ hội thêm context tự động</span>'
+    },
+    go: {
+      mark: { 'of-g': 'return-with-err', 'rc-g': 'return-with-err' },
+      trace: '<span class="err">if err != nil {</span>\n<span class="err">  return fmt.Errorf("read config: %w", err)</span>\n<span class="err">}</span>\n<span class="info">// readConfig wrap thêm context tường minh</span>'
+    }
+  },
+  {
+    java: {
+      mark: { 'of-j': 'exception', 'rc-j': 'exception', 'main-j': 'recovered' },
+      trace: '<span class="ok">try { ... }</span>\n<span class="ok">catch (FileNotFoundException e) { ... }</span>\n<span class="info">// main bắt được — nhưng phải tự nhớ là có thể có exception này!</span>'
+    },
+    go: {
+      mark: { 'of-g': 'return-with-err', 'rc-g': 'return-with-err', 'main-g': 'recovered' },
+      trace: '<span class="ok">if err != nil {</span>\n<span class="ok">  log.Println(err)</span>\n<span class="ok">  return</span>\n<span class="ok">}</span>\n<span class="info">// main thấy NGAY trong code có thể có err</span>'
+    }
+  }
+];
+
+let m1Idx = 0;
+function m1Render() {
+  const step = m1Steps[m1Idx];
+  for (const side of ['java','go']) {
+    const sStep = step[side];
+    const container = document.getElementById(`m1-${side}-stack`);
+    container.querySelectorAll('.stack-frame').forEach(el => {
+      el.classList.remove('active','exception','recovered','return-with-err');
+    });
+    if (sStep.active) {
+      const el = container.querySelector(`[data-frame="${sStep.active}"]`);
+      if (el) el.classList.add('active');
+    }
+    if (sStep.mark) {
+      for (const [k,v] of Object.entries(sStep.mark)) {
+        const el = container.querySelector(`[data-frame="${k}"]`);
+        if (el) el.classList.add(v);
+      }
+    }
+    document.getElementById(`m1-${side}-trace`).innerHTML = sStep.trace;
+  }
+}
+function m1Step() {
+  if (m1Idx < m1Steps.length - 1) m1Idx++;
+  m1Render();
+}
+function m1Reset() {
+  m1Idx = 0;
+  for (const side of ['java','go']) {
+    document.querySelectorAll(`#m1-${side}-stack .stack-frame`).forEach(el => {
+      el.classList.remove('active','exception','recovered','return-with-err');
+    });
+    document.getElementById(`m1-${side}-trace`).textContent = 'Bấm Step/Play để bắt đầu.';
+  }
+}
+let m1Timer = null;
+function m1Play() {
+  m1Reset();
+  if (m1Timer) clearInterval(m1Timer);
+  m1Timer = setInterval(() => {
+    if (m1Idx >= m1Steps.length - 1) { clearInterval(m1Timer); m1Timer = null; m1Render(); return; }
+    m1Idx++;
+    m1Render();
+  }, 1100);
+  m1Render();
+}
+document.getElementById('m1-step').addEventListener('click', m1Step);
+document.getElementById('m1-reset').addEventListener('click', () => { if (m1Timer) clearInterval(m1Timer); m1Reset(); });
+document.getElementById('m1-play').addEventListener('click', m1Play);
+
+/* ===========================================================
+   Module 2 — Wrap chain inspector
+   =========================================================== */
+const m2Roots = {
+  'sql.ErrNoRows': { id: 'sql.ErrNoRows', msg: 'sql: no rows in result set' },
+  'io.EOF': { id: 'io.EOF', msg: 'EOF' },
+  'os.ErrNotExist': { id: 'os.ErrNotExist', msg: 'file does not exist' },
+  'context.Canceled': { id: 'context.Canceled', msg: 'context canceled' }
+};
+
+function extractContext(fmtCall) {
+  // Parse 'fmt.Errorf("xxx: %w", e0)' → "xxx"
+  const m = fmtCall.match(/"([^"]*?)\s*:\s*%[wv]"/);
+  if (m) return m[1];
+  const m2 = fmtCall.match(/"([^"]*?)\s*:\s*%[wv]\s*"/);
+  return m2 ? m2[1] : '...';
+}
+
+function m2Build() {
+  const rootKey = document.getElementById('m2-root').value;
+  const root = m2Roots[rootKey];
+  const w1Raw = document.getElementById('m2-w1').value;
+  const w2Raw = document.getElementById('m2-w2').value;
+  const verb = document.getElementById('m2-verb').value;
+
+  const c1 = extractContext(w1Raw);
+  const c2 = extractContext(w2Raw);
+
+  const wrap = verb === '%w';
+  // Build chain top-down: e2 → e1 → e0
+  return [
+    { depth: 2, type: 'wrap', msg: `${c2}: ${c1}: ${root.msg}`, wrapsBelow: wrap, identityRef: null },
+    { depth: 1, type: 'wrap', msg: `${c1}: ${root.msg}`, wrapsBelow: wrap, identityRef: null },
+    { depth: 0, type: 'root', msg: root.msg, wrapsBelow: false, identityRef: root.id }
+  ];
+}
+
+function m2Render(chain) {
+  const container = document.getElementById('m2-chain');
+  container.innerHTML = '';
+  chain.forEach((node, i) => {
+    const div = document.createElement('div');
+    div.className = 'chain-node';
+    div.dataset.depth = node.depth;
+    const ref = node.identityRef ? `<span class="node-type">${node.identityRef}</span>` : '';
+    div.innerHTML = `<span class="node-depth">depth ${node.depth}</span>${ref}<br>${escHtml(node.msg)}`;
+    container.appendChild(div);
+    if (i < chain.length - 1) {
+      const arrow = document.createElement('div');
+      arrow.className = 'arrow-down';
+      arrow.textContent = node.wrapsBelow ? '↓ Unwrap (%w)' : '✕ chain bị đứt (%v)';
+      arrow.style.color = node.wrapsBelow ? '#4299e1' : '#e53e3e';
+      arrow.style.fontWeight = node.wrapsBelow ? 'normal' : '700';
+      container.appendChild(arrow);
+    }
+  });
+  document.getElementById('m2-result').style.display = 'none';
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function m2Run() {
+  const chain = m2Build();
+  m2Render(chain);
+  const target = document.getElementById('m2-target').value;
+  const nodes = document.querySelectorAll('#m2-chain .chain-node');
+
+  let matched = false;
+  for (let i = 0; i < chain.length; i++) {
+    const node = chain[i];
+    nodes.forEach(n => n.classList.remove('traverse'));
+    nodes[i].classList.add('traverse');
+    await sleep(700);
+    if (node.identityRef === target) {
+      nodes[i].classList.remove('traverse');
+      nodes[i].classList.add('match');
+      matched = true;
+      break;
+    }
+    if (!node.wrapsBelow) {
+      // chain broken — không xuyên xuống được nữa
+      break;
+    }
+  }
+
+  const result = document.getElementById('m2-result');
+  result.style.display = 'block';
+  if (matched) {
+    result.className = 'is-result true';
+    result.textContent = `errors.Is(err, ${target}) = true ✓`;
+  } else {
+    result.className = 'is-result false';
+    const verb = document.getElementById('m2-verb').value;
+    let why = `target ${target} không có trong chain`;
+    if (verb === '%v') why = `verb là %v → chain bị đứt ngay tầng đầu, Is không xuyên qua được`;
+    result.textContent = `errors.Is(err, ${target}) = false (${why})`;
+  }
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+document.getElementById('m2-run').addEventListener('click', m2Run);
+document.getElementById('m2-reset').addEventListener('click', () => {
+  document.getElementById('m2-root').value = 'sql.ErrNoRows';
+  document.getElementById('m2-w1').value = 'fmt.Errorf("open users.json: %w", e0)';
+  document.getElementById('m2-w2').value = 'fmt.Errorf("get user 42: %w", e1)';
+  document.getElementById('m2-verb').value = '%w';
+  document.getElementById('m2-target').value = 'sql.ErrNoRows';
+  m2Render(m2Build());
+});
+
+// initial render
+m2Render(m2Build());
+['m2-root','m2-w1','m2-w2','m2-verb'].forEach(id => {
+  document.getElementById(id).addEventListener('change', () => m2Render(m2Build()));
+  document.getElementById(id).addEventListener('input',  () => m2Render(m2Build()));
+});
+
+/* ===========================================================
+   Module 3 — Panic + recover
+   =========================================================== */
+const m3CodeWithRecover = `func safeCall() (err error) {
+    defer func() {
+        if r := recover(); r != nil {
+            err = fmt.Errorf("panic được recover: %v", r)
+        }
+    }()
+    doWork()
+    return nil
+}
+
+func doWork() {
+    var p *int
+    fmt.Println(*p)  // nil pointer deref → panic
+}`;
+
+const m3CodeNoRecover = `func safeCall() (err error) {
+    // (KHÔNG có defer recover)
+    doWork()
+    return nil
+}
+
+func doWork() {
+    var p *int
+    fmt.Println(*p)  // nil deref → panic → process CRASH
+}`;
+
+function m3StepsBuilder(hasRecover) {
+  const steps = [];
+  steps.push({
+    frames: [
+      { name: 'main()', meta: 'gọi safeCall()', cls: 'exec' }
+    ],
+    narration: 'main bắt đầu, gọi <code>safeCall()</code>.',
+    result: '—'
+  });
+  steps.push({
+    frames: [
+      { name: 'main()', meta: 'đang chờ safeCall', cls: '' },
+      { name: 'safeCall()', meta: hasRecover ? 'đã đăng ký defer recover' : 'không có defer', cls: 'exec' }
+    ],
+    narration: hasRecover
+      ? 'safeCall <code>defer</code> một func chứa <code>recover()</code>.'
+      : 'safeCall KHÔNG có defer recover — panic sẽ lan lên main rồi crash.',
+    result: '—'
+  });
+  steps.push({
+    frames: [
+      { name: 'main()', meta: 'đang chờ', cls: '' },
+      { name: 'safeCall()', meta: 'gọi doWork()', cls: '' },
+      { name: 'doWork()', meta: 'var p *int (nil)', cls: 'exec' }
+    ],
+    narration: 'doWork khai báo <code>var p *int</code> → p = nil.',
+    result: '—'
+  });
+  steps.push({
+    frames: [
+      { name: 'main()', meta: 'đang chờ', cls: '' },
+      { name: 'safeCall()', meta: 'đang chờ', cls: '' },
+      { name: 'doWork()', meta: 'fmt.Println(*p) → PANIC', cls: 'panic' }
+    ],
+    narration: '<strong>panic!</strong> runtime error: invalid memory address or nil pointer dereference',
+    result: '—'
+  });
+  steps.push({
+    frames: [
+      { name: 'main()', meta: 'đang chờ', cls: '' },
+      { name: 'safeCall()', meta: 'đang chờ', cls: '' },
+      { name: 'doWork()', meta: 'unwinding...', cls: 'unwinding' }
+    ],
+    narration: 'Runtime bắt đầu unwind stack từ frame doWork.',
+    result: '—'
+  });
+  if (hasRecover) {
+    steps.push({
+      frames: [
+        { name: 'main()', meta: 'đang chờ', cls: '' },
+        { name: 'safeCall()', meta: 'panic tới đây, defer chạy', cls: 'unwinding' }
+      ],
+      narration: 'Panic lan tới safeCall — runtime kích hoạt defer trước khi unwind tiếp.',
+      result: '—'
+    });
+    steps.push({
+      frames: [
+        { name: 'main()', meta: 'đang chờ', cls: '' },
+        { name: 'safeCall()', meta: 'r := recover() → "runtime error..."', cls: 'recovered' }
+      ],
+      narration: '<code>recover()</code> trả non-nil → panic được bắt, dừng lan. err được gán.',
+      result: '—'
+    });
+    steps.push({
+      frames: [
+        { name: 'main()', meta: 'nhận err từ safeCall', cls: 'recovered' }
+      ],
+      narration: 'safeCall return bình thường với <code>err = "panic được recover: ..."</code>',
+      result: '<span class="ok">err = panic được recover: runtime error: invalid memory address or nil pointer dereference</span>\n<span class="info">// process KHÔNG crash</span>'
+    });
+  } else {
+    steps.push({
+      frames: [
+        { name: 'main()', meta: 'panic lan lên (không có recover)', cls: 'unwinding' },
+        { name: 'safeCall()', meta: 'unwinding (no defer)', cls: 'unwinding' }
+      ],
+      narration: 'safeCall không có defer recover — panic tiếp tục unwind lên main.',
+      result: '—'
+    });
+    steps.push({
+      frames: [
+        { name: 'main()', meta: 'không bắt — process kết thúc', cls: 'panic' }
+      ],
+      narration: '<strong>process crash</strong>. Runtime in stack trace ra stderr và exit code khác 0.',
+      result: '<span class="err">goroutine 1 [running]:\nmain.doWork(...)\nmain.safeCall(...)\nmain.main()\nexit status 2</span>'
+    });
+  }
+  return steps;
+}
+
+let m3Idx = 0;
+let m3Steps = m3StepsBuilder(true);
+let m3Timer = null;
+
+function m3RenderCode() {
+  const hasRecover = !document.getElementById('m3-no-recover').checked;
+  document.getElementById('m3-code').textContent = hasRecover ? m3CodeWithRecover : m3CodeNoRecover;
+}
+
+function m3Render() {
+  const step = m3Steps[m3Idx];
+  const stackEl = document.getElementById('m3-stack');
+  stackEl.innerHTML = '';
+  // Render frames bottom-up: index 0 là đáy (main), cao nhất ở trên cùng visually.
+  // Vì stack-viz dùng column-reverse, ta append theo thứ tự frames (index 0 = main đáy).
+  step.frames.forEach(f => {
+    const div = document.createElement('div');
+    div.className = 'frame' + (f.cls ? (' ' + f.cls) : '');
+    div.innerHTML = `<strong>${f.name}</strong><span class="frame-meta">${f.meta}</span>`;
+    stackEl.appendChild(div);
+  });
+  document.getElementById('m3-narration').innerHTML = step.narration;
+  document.getElementById('m3-result').innerHTML = step.result;
+}
+
+function m3Step() {
+  if (m3Idx < m3Steps.length - 1) m3Idx++;
+  m3Render();
+}
+function m3Reset() {
+  if (m3Timer) { clearInterval(m3Timer); m3Timer = null; }
+  m3Idx = 0;
+  m3Steps = m3StepsBuilder(!document.getElementById('m3-no-recover').checked);
+  m3RenderCode();
+  document.getElementById('m3-stack').innerHTML = '';
+  document.getElementById('m3-narration').textContent = 'Bấm Step/Play để chạy.';
+  document.getElementById('m3-result').textContent = '—';
+}
+function m3Play() {
+  m3Reset();
+  m3Steps = m3StepsBuilder(!document.getElementById('m3-no-recover').checked);
+  m3Render();
+  m3Timer = setInterval(() => {
+    if (m3Idx >= m3Steps.length - 1) {
+      clearInterval(m3Timer); m3Timer = null;
+      return;
+    }
+    m3Idx++;
+    m3Render();
+  }, 1300);
+}
+
+document.getElementById('m3-step').addEventListener('click', () => {
+  if (m3Idx === 0) m3Steps = m3StepsBuilder(!document.getElementById('m3-no-recover').checked);
+  m3Step();
+});
+document.getElementById('m3-play').addEventListener('click', m3Play);
+document.getElementById('m3-reset').addEventListener('click', m3Reset);
+document.getElementById('m3-no-recover').addEventListener('change', m3Reset);
+
+m3RenderCode();
+</script>
+
+<!-- README modal -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+
+</body>
+</html>

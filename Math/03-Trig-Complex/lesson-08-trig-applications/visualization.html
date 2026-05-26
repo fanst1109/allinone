@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 08 — Ứng dụng & Fourier</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 700px; height: 350px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-de-moivre/visualization.html">← L7: De Moivre</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Ứng dụng</span>
+</nav>
+
+<h1>Lesson 08 (T3) — Ứng dụng &amp; Fourier preview</h1>
+
+<h2>Sóng vuông Fourier: tổng sóng sin lẻ tạo ra sóng vuông</h2>
+<div class="card">
+  <p>f(x) = (4/π)·Σ_{k=1,3,5,...,N} sin(kx)/k. Càng nhiều số hạng, càng gần sóng vuông.</p>
+  <div class="row">
+    <label>Số sóng N (lẻ):</label>
+    <input type="range" id="N" min="1" max="49" step="2" value="5" oninput="draw()">
+    <span class="stat">N = <strong id="vN">5</strong></span>
+    <span class="stat">Sóng: <strong id="cnt">3</strong></span>
+  </div>
+  <svg class="scene" id="svg" viewBox="0 0 700 350"></svg>
+  <div class="result" id="res"></div>
+</div>
+
+<h2>Cộng 2 dao động qua phasor</h2>
+<div class="card">
+  <p>Cộng x₁ = A₁·cos(ωt + φ₁) và x₂ = A₂·cos(ωt + φ₂) = dao động cùng tần số với biên độ và pha tổng hợp.</p>
+  <div class="row">
+    <label>A₁:</label><input type="range" id="a1" min="0" max="5" step="0.5" value="3" oninput="drawP()">
+    <span class="stat">A₁=<strong id="va1">3</strong></span>
+    <label>φ₁:</label><input type="range" id="p1" min="0" max="6.28" step="0.1" value="0" oninput="drawP()">
+    <span class="stat">φ₁=<strong id="vp1">0</strong></span>
+  </div>
+  <div class="row">
+    <label>A₂:</label><input type="range" id="a2" min="0" max="5" step="0.5" value="4" oninput="drawP()">
+    <span class="stat">A₂=<strong id="va2">4</strong></span>
+    <label>φ₂:</label><input type="range" id="p2" min="0" max="6.28" step="0.1" value="1.57" oninput="drawP()">
+    <span class="stat">φ₂=<strong id="vp2">1.57</strong></span>
+  </div>
+  <svg class="scene" id="svgP" viewBox="0 0 700 350"></svg>
+  <div class="result" id="resP"></div>
+</div>
+
+<script>
+function draw() {
+  const N = parseInt(document.getElementById("N").value);
+  document.getElementById("vN").textContent = N;
+  const numSines = Math.ceil(N/2);
+  document.getElementById("cnt").textContent = numSines;
+
+  const svg = document.getElementById("svg");
+  svg.innerHTML = "";
+  const W = 700, H = 350, cx = 50, cy = H/2;
+  const xMax = 4*Math.PI;
+  const scale = (W-80) / xMax;
+  const yScale = 90;
+
+  // Grid + axes
+  for (let i = 0; i <= 4; i++) {
+    const x = cx + i*Math.PI*scale;
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", x); l.setAttribute("y1", 30); l.setAttribute("x2", x); l.setAttribute("y2", H-30);
+    l.setAttribute("stroke", "#e2e8f0"); l.setAttribute("stroke-width", 0.5);
+    svg.appendChild(l);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", x); t.setAttribute("y", cy+16); t.setAttribute("text-anchor", "middle"); t.setAttribute("font-size", "11");
+    t.textContent = i === 0 ? "0" : i + "π";
+    svg.appendChild(t);
+  }
+  const xax = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  xax.setAttribute("x1", cx); xax.setAttribute("y1", cy); xax.setAttribute("x2", W-30); xax.setAttribute("y2", cy);
+  xax.setAttribute("stroke", "#1a202c"); xax.setAttribute("stroke-width", 1.5);
+  svg.appendChild(xax);
+
+  // Reference: ideal square wave
+  let sq = "";
+  for (let x = 0; x <= xMax; x += 0.01) {
+    const xMod = x % (2*Math.PI);
+    const y = xMod < Math.PI ? 1 : -1;
+    const px = cx + x*scale;
+    const py = cy - y*yScale;
+    sq += (x === 0 ? "M" : "L") + px + " " + py + " ";
+  }
+  const sqP = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  sqP.setAttribute("d", sq); sqP.setAttribute("fill", "none"); sqP.setAttribute("stroke", "#cbd5e0"); sqP.setAttribute("stroke-width", 1.5); sqP.setAttribute("stroke-dasharray", "3,3");
+  svg.appendChild(sqP);
+
+  // Fourier sum
+  let path = "";
+  for (let x = 0; x <= xMax; x += 0.01) {
+    let y = 0;
+    for (let k = 1; k <= N; k += 2) y += Math.sin(k*x) / k;
+    y *= 4/Math.PI;
+    const px = cx + x*scale;
+    const py = cy - y*yScale;
+    path += (x === 0 ? "M" : "L") + px + " " + py + " ";
+  }
+  const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  p.setAttribute("d", path); p.setAttribute("fill", "none"); p.setAttribute("stroke", "#dc2626"); p.setAttribute("stroke-width", 2.5);
+  svg.appendChild(p);
+
+  document.getElementById("res").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">f(x) ≈ (4/π)·[sin x ${Array.from({length: numSines-1}, (_, i) => `+ sin(${2*i+3}x)/${2*i+3}`).slice(0,5).join(" ")}${numSines > 6 ? " + ..." : ""}]</div>
+    <div style="margin-top:6px">Đường gạch xám = sóng vuông lý tưởng. Đường đỏ = tổng ${numSines} sóng. <strong>Tăng N để giảm sai số (nhưng vẫn có dao động Gibbs ở góc).</strong></div>
+  `;
+}
+
+function drawP() {
+  const A1 = parseFloat(document.getElementById("a1").value);
+  const P1 = parseFloat(document.getElementById("p1").value);
+  const A2 = parseFloat(document.getElementById("a2").value);
+  const P2 = parseFloat(document.getElementById("p2").value);
+  document.getElementById("va1").textContent = A1.toFixed(1);
+  document.getElementById("vp1").textContent = P1.toFixed(2);
+  document.getElementById("va2").textContent = A2.toFixed(1);
+  document.getElementById("vp2").textContent = P2.toFixed(2);
+
+  const svg = document.getElementById("svgP");
+  svg.innerHTML = "";
+  const W = 700, H = 350, cx = 50, cy = H/2;
+  const xMax = 4*Math.PI;
+  const scale = (W-80) / xMax;
+  const yScale = 25;
+
+  for (let i = 0; i <= 4; i++) {
+    const x = cx + i*Math.PI*scale;
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", x); l.setAttribute("y1", 30); l.setAttribute("x2", x); l.setAttribute("y2", H-30);
+    l.setAttribute("stroke", "#e2e8f0"); l.setAttribute("stroke-width", 0.5);
+    svg.appendChild(l);
+  }
+  const xax = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  xax.setAttribute("x1", cx); xax.setAttribute("y1", cy); xax.setAttribute("x2", W-30); xax.setAttribute("y2", cy);
+  xax.setAttribute("stroke", "#1a202c"); xax.setAttribute("stroke-width", 1.5);
+  svg.appendChild(xax);
+
+  // Phasor sum
+  const Z1_re = A1*Math.cos(P1), Z1_im = A1*Math.sin(P1);
+  const Z2_re = A2*Math.cos(P2), Z2_im = A2*Math.sin(P2);
+  const Zr = Z1_re + Z2_re, Zi = Z1_im + Z2_im;
+  const A = Math.sqrt(Zr*Zr + Zi*Zi);
+  const P = Math.atan2(Zi, Zr);
+
+  const fns = [
+    {fn: t => A1*Math.cos(t + P1), color: "#1d4ed8", dash: true},
+    {fn: t => A2*Math.cos(t + P2), color: "#15803d", dash: true},
+    {fn: t => A1*Math.cos(t + P1) + A2*Math.cos(t + P2), color: "#dc2626", dash: false},
+    {fn: t => A*Math.cos(t + P), color: "#7c3aed", dash: true}
+  ];
+
+  fns.forEach((f, idx) => {
+    let path = "";
+    for (let x = 0; x <= xMax; x += 0.02) {
+      const y = f.fn(x);
+      const px = cx + x*scale, py = cy - y*yScale;
+      path += (x === 0 ? "M" : "L") + px + " " + py + " ";
+    }
+    const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    p.setAttribute("d", path); p.setAttribute("fill", "none"); p.setAttribute("stroke", f.color); p.setAttribute("stroke-width", idx === 2 ? 2.5 : 1.5);
+    if (f.dash) p.setAttribute("stroke-dasharray", "5,3");
+    svg.appendChild(p);
+  });
+
+  document.getElementById("resP").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">Phasor Z₁ = ${A1.toFixed(1)}·e^(i·${P1.toFixed(2)}), Z₂ = ${A2.toFixed(1)}·e^(i·${P2.toFixed(2)})</div>
+    <div style="font-family:monospace; font-size:14px"><strong>Z = Z₁ + Z₂ = (${Zr.toFixed(3)}) + (${Zi.toFixed(3)})i = ${A.toFixed(3)}·e^(i·${P.toFixed(3)})</strong></div>
+    <div style="font-family:monospace; font-size:14px; margin-top:4px">→ x₁(t) + x₂(t) = <strong>${A.toFixed(3)}·cos(ωt + ${P.toFixed(3)})</strong></div>
+    <div style="margin-top:6px; font-size:13px; color:#64748b">Đường gạch xanh/lục = x₁, x₂. Đường đỏ = x₁+x₂ (tính trực tiếp). Đường gạch tím = A·cos(ωt+φ) (qua phasor). Trùng nhau!</div>
+  `;
+}
+
+draw();
+drawP();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

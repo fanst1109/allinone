@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 14 — String, Rune, UTF-8 Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --acc: #4299e1;
+    --acc-hover: #3182ce;
+    --byte: #fed7aa;
+    --byte-border: #f59e0b;
+    --rune: #bee3f8;
+    --rune-border: #3182ce;
+    --ascii: #d1fae5;
+    --ascii-border: #10b981;
+    --multi: #fde68a;
+    --multi-border: #d97706;
+  }
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  button {
+    background: var(--acc); color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: var(--acc-hover); }
+  button.secondary {
+    background: #edf2f7; color: #2d3748;
+    border: 1px solid #cbd5e0;
+  }
+  button.secondary:hover { background: #e2e8f0; }
+  button.preset {
+    background: #f7fafc; color: #2b6cb0;
+    border: 1px solid #bee3f8; font-size: 13px;
+    padding: 6px 12px;
+  }
+  button.preset:hover { background: #ebf8ff; }
+  input[type="text"] {
+    font-size: 15px; padding: 8px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    font-family: inherit;
+    width: 100%; max-width: 480px; box-sizing: border-box;
+  }
+  select {
+    font-size: 15px; padding: 8px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    background: white;
+  }
+  .hint {
+    background: #ebf8ff; border-left: 4px solid var(--acc);
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.55;
+    margin: 10px 0;
+  }
+  .hint code { background: white; padding: 1px 5px; border-radius: 3px; font-family: monospace; color: #2b6cb0; }
+
+  /* ===== Module 1: byte vs rune ===== */
+  .strip-wrap { overflow-x: auto; padding: 4px 0 12px 0; }
+  .strip-row {
+    display: flex; gap: 0;
+    margin: 4px 0 14px 0;
+    min-height: 56px;
+    align-items: stretch;
+  }
+  .strip-label {
+    font-weight: 700; font-size: 13px; color: #4a5568;
+    margin: 0 0 4px 0;
+  }
+  .cell {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    border: 2px solid #cbd5e0; background: white;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 12px; cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    user-select: none;
+    box-sizing: border-box;
+  }
+  .cell:hover { transform: translateY(-2px); box-shadow: 0 2px 6px rgba(0,0,0,0.15); z-index: 1; }
+  .cell .num { font-size: 10px; color: #718096; font-weight: 600; }
+  .cell .val { font-size: 14px; font-weight: 700; }
+  .byte-cell {
+    width: 56px; min-width: 56px;
+    background: var(--byte); border-color: var(--byte-border);
+  }
+  .byte-cell.ascii { background: var(--ascii); border-color: var(--ascii-border); }
+  .byte-cell.multi-start { border-right-width: 1px; border-style: solid dashed solid solid; }
+  .byte-cell.multi-cont { border-left-width: 1px; border-style: solid solid solid dashed; background: var(--multi); border-color: var(--multi-border); }
+  .rune-cell {
+    background: var(--rune); border-color: var(--rune-border);
+    min-width: 56px;
+  }
+  .rune-cell .val { font-size: 22px; line-height: 1; }
+  .rune-cell .cp { font-size: 10px; color: #2b6cb0; }
+  .cell.selected {
+    box-shadow: 0 0 0 3px #f59e0b, 0 2px 6px rgba(0,0,0,0.2);
+    transform: translateY(-2px); z-index: 2;
+  }
+  .info-box {
+    background: #2d3748; color: #f7fafc;
+    border-radius: 6px; padding: 14px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; line-height: 1.6;
+    min-height: 90px;
+    margin-top: 12px;
+  }
+  .info-box .k { color: #f6ad55; }
+  .info-box .v { color: #68d391; }
+  .info-box.empty { color: #a0aec0; font-style: italic; }
+  .stats {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    margin: 8px 0;
+  }
+  .stat {
+    background: #f7fafc; border: 1px solid #cbd5e0;
+    border-radius: 6px; padding: 8px 12px;
+    font-size: 13px;
+  }
+  .stat b { color: #2b6cb0; font-size: 15px; }
+
+  /* ===== Module 2: UTF-8 encoder ===== */
+  .enc-input { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .enc-input input[type="text"] { max-width: 260px; }
+  .enc-result {
+    margin-top: 12px;
+    background: #f7fafc; border-radius: 6px; padding: 14px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; line-height: 1.7;
+  }
+  .enc-bytes {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .enc-byte {
+    background: white; border: 2px solid #cbd5e0;
+    border-radius: 6px; padding: 8px 10px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; text-align: center;
+    min-width: 100px;
+  }
+  .enc-byte .bin { font-weight: 700; color: #2b6cb0; }
+  .enc-byte .hex { font-size: 11px; color: #718096; margin-top: 4px; }
+  .enc-byte .head { color: #d97706; }
+  .enc-byte .cont { color: #38a169; }
+  .enc-byte .payload { color: #2d3748; }
+  .enc-table {
+    margin-top: 14px;
+    width: 100%; border-collapse: collapse; font-size: 13px;
+  }
+  .enc-table th, .enc-table td {
+    border: 1px solid #cbd5e0; padding: 6px 10px; text-align: left;
+  }
+  .enc-table th { background: #edf2f7; font-weight: 600; }
+  .enc-table tr.current { background: #fef3c7; }
+
+  /* ===== Module 3: strings playground ===== */
+  .pg-fn-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 6px; margin-bottom: 12px;
+  }
+  .pg-fn {
+    padding: 8px 10px; border-radius: 4px;
+    background: #f7fafc; border: 1px solid #cbd5e0;
+    cursor: pointer; font-family: monospace; font-size: 13px;
+    text-align: center;
+    transition: all 0.1s;
+  }
+  .pg-fn:hover { background: #edf2f7; }
+  .pg-fn.active {
+    background: var(--acc); color: white;
+    border-color: var(--acc-hover); font-weight: 700;
+  }
+  .pg-args { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin: 12px 0; }
+  .pg-args label {
+    display: flex; flex-direction: column; gap: 4px;
+    font-size: 13px; font-weight: 600;
+  }
+  .pg-args input { max-width: 260px; }
+  .pg-call {
+    background: #1a202c; color: #f7fafc;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; padding: 12px 14px;
+    border-radius: 6px; white-space: pre; overflow-x: auto;
+  }
+  .pg-call .fn { color: #f6ad55; }
+  .pg-call .str { color: #68d391; }
+  .pg-output {
+    background: #2d3748; color: #68d391;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; padding: 12px 14px;
+    border-radius: 6px; margin-top: 8px;
+    white-space: pre-wrap;
+    border-left: 4px solid #68d391;
+  }
+  .pg-output.err { color: #fc8181; border-left-color: #fc8181; }
+  .pg-explain {
+    background: #ebf8ff; border-left: 4px solid var(--acc);
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6;
+    margin-top: 10px;
+  }
+  .pg-explain code { background: white; padding: 1px 5px; border-radius: 3px; font-family: monospace; color: #2b6cb0; }
+
+  /* ===== Mobile responsive ===== */
+  @media (max-width: 480px) {
+    .byte-cell { width: 44px; min-width: 44px; }
+    .rune-cell { min-width: 44px; }
+    .rune-cell .val { font-size: 18px; }
+    .cell .num { font-size: 9px; }
+    .cell .val { font-size: 12px; }
+    .enc-byte { min-width: 80px; font-size: 11px; padding: 6px 8px; }
+    input[type="text"] { max-width: 100%; }
+    .pg-fn-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-13-maps/visualization.html">← L13: Map</a>
+  <span class="sep">·</span>
+  <span class="current">L14: String &amp; Rune</span>
+  <span class="sep">·</span>
+  <a href="../lesson-15-struct-method/visualization.html">L15: Struct &amp; Method →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 14 — String, Rune, UTF-8</h1>
+<p>Ba module tương tác để: (1) thấy <strong>byte vs rune</strong> cùng lúc trên một string, (2) thử encoder UTF-8 với từng ký tự, (3) chơi với 12 function trong package <code>strings</code>.</p>
+
+<h2>1. Byte vs Rune — cùng một string, hai cách nhìn</h2>
+<div class="card">
+  <p>Nhập string bất kỳ (hoặc bấm preset). Hàng trên = <strong>byte</strong> (mỗi cell 1 byte, multi-byte char span nhiều cell). Hàng dưới = <strong>rune</strong> (mỗi cell 1 ký tự Unicode). Click cell để xem chi tiết.</p>
+
+  <div class="row">
+    <input id="m1-input" type="text" value="Xin chào 🌍" placeholder="Nhập string">
+    <button class="preset" data-s="hello">hello</button>
+    <button class="preset" data-s="café">café</button>
+    <button class="preset" data-s="Xin chào 🌍">Xin chào 🌍</button>
+    <button class="preset" data-s="日本語">日本語</button>
+    <button class="preset" data-s="😀🚀🎉">😀🚀🎉</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b id="m1-byte-len">0</b> byte (<code>len(s)</code>)</div>
+    <div class="stat"><b id="m1-rune-len">0</b> rune (<code>utf8.RuneCountInString(s)</code>)</div>
+    <div class="stat">Tỷ lệ: <b id="m1-ratio">1.0</b> byte/ký tự</div>
+  </div>
+
+  <div class="strip-label">Byte view (mỗi cell = 1 byte trong memory):</div>
+  <div class="strip-wrap"><div id="m1-byte-row" class="strip-row"></div></div>
+
+  <div class="strip-label">Rune view (mỗi cell = 1 ký tự Unicode):</div>
+  <div class="strip-wrap"><div id="m1-rune-row" class="strip-row"></div></div>
+
+  <div id="m1-info" class="info-box empty">Click một cell để xem chi tiết.</div>
+
+  <div class="hint">
+    <strong>Cell màu xanh</strong> = byte ASCII (1 byte = 1 ký tự).
+    <strong>Cam viền liền</strong> = byte đầu của chuỗi multi-byte.
+    <strong>Vàng viền đứt</strong> = byte tiếp theo (continuation byte, bắt đầu <code>10xxxxxx</code>).
+    Khi click rune cell, các byte tương ứng được highlight cùng.
+  </div>
+</div>
+
+<h2>2. UTF-8 Encoder — code point → byte sequence</h2>
+<div class="card">
+  <p>Nhập <strong>1 ký tự</strong> (rune) để xem cách UTF-8 encode nó. Quy tắc: code point 0-127 → 1 byte; 128-2047 → 2 byte; 2048-65535 → 3 byte; 65536+ → 4 byte.</p>
+
+  <div class="enc-input">
+    <input id="m2-input" type="text" value="à" maxlength="2" placeholder="1 ký tự">
+    <button class="preset" data-c="A">A</button>
+    <button class="preset" data-c="à">à</button>
+    <button class="preset" data-c="日">日</button>
+    <button class="preset" data-c="😀">😀</button>
+    <button class="preset" data-c="🚀">🚀</button>
+  </div>
+
+  <div id="m2-result" class="enc-result"></div>
+
+  <table class="enc-table">
+    <thead><tr><th>Code point range</th><th>Bit pattern UTF-8</th><th>Số byte</th></tr></thead>
+    <tbody>
+      <tr data-range="1"><td>U+0000 – U+007F (ASCII)</td><td><code>0xxxxxxx</code></td><td>1</td></tr>
+      <tr data-range="2"><td>U+0080 – U+07FF</td><td><code>110xxxxx 10xxxxxx</code></td><td>2</td></tr>
+      <tr data-range="3"><td>U+0800 – U+FFFF</td><td><code>1110xxxx 10xxxxxx 10xxxxxx</code></td><td>3</td></tr>
+      <tr data-range="4"><td>U+10000 – U+10FFFF</td><td><code>11110xxx 10xxxxxx 10xxxxxx 10xxxxxx</code></td><td>4</td></tr>
+    </tbody>
+  </table>
+
+  <div class="hint">
+    Byte đầu cho biết tổng số byte (đếm bit <code>1</code> liền trước bit <code>0</code> đầu tiên).
+    Byte tiếp theo luôn bắt đầu <code>10</code> — gọi là <strong>continuation byte</strong>.
+    Self-synchronizing: nhìn byte ngẫu nhiên là biết nó ở đầu hay giữa chuỗi multi-byte.
+  </div>
+</div>
+
+<h2>3. Strings Playground — thử function thực dùng</h2>
+<div class="card">
+  <p>Chọn 1 function, nhập input, xem output + code Go tương đương.</p>
+
+  <div class="pg-fn-grid" id="pg-fn-list"></div>
+
+  <div id="pg-args" class="pg-args"></div>
+
+  <div class="pg-call" id="pg-call"></div>
+  <div class="pg-output" id="pg-output">(chưa có kết quả)</div>
+
+  <div class="pg-explain" id="pg-explain"></div>
+</div>
+
+</main>
+
+<script>
+/* ========================================================================
+   MODULE 1: Byte vs Rune
+   ======================================================================== */
+function encodeUTF8(codePoint) {
+  // Return array of byte values for 1 code point
+  if (codePoint < 0x80) {
+    return [codePoint];
+  } else if (codePoint < 0x800) {
+    return [0xC0 | (codePoint >> 6), 0x80 | (codePoint & 0x3F)];
+  } else if (codePoint < 0x10000) {
+    return [0xE0 | (codePoint >> 12), 0x80 | ((codePoint >> 6) & 0x3F), 0x80 | (codePoint & 0x3F)];
+  } else {
+    return [
+      0xF0 | (codePoint >> 18),
+      0x80 | ((codePoint >> 12) & 0x3F),
+      0x80 | ((codePoint >> 6) & 0x3F),
+      0x80 | (codePoint & 0x3F)
+    ];
+  }
+}
+
+function stringToRunes(s) {
+  // Return array of { char, codePoint, bytes (array), byteStart }
+  const result = [];
+  let byteIdx = 0;
+  // Use spread/Array.from to split by code point (handles surrogate pairs)
+  for (const ch of s) {
+    const cp = ch.codePointAt(0);
+    const bytes = encodeUTF8(cp);
+    result.push({ char: ch, codePoint: cp, bytes, byteStart: byteIdx });
+    byteIdx += bytes.length;
+  }
+  return result;
+}
+
+function hex(n, pad) { return n.toString(16).toUpperCase().padStart(pad || 2, '0'); }
+function bin(n, pad) { return n.toString(2).padStart(pad || 8, '0'); }
+
+function renderModule1() {
+  const s = document.getElementById('m1-input').value;
+  const runes = stringToRunes(s);
+  const totalBytes = runes.reduce((a, r) => a + r.bytes.length, 0);
+
+  document.getElementById('m1-byte-len').textContent = totalBytes;
+  document.getElementById('m1-rune-len').textContent = runes.length;
+  document.getElementById('m1-ratio').textContent = runes.length ? (totalBytes / runes.length).toFixed(2) : '0';
+
+  // Byte row
+  const byteRow = document.getElementById('m1-byte-row');
+  byteRow.innerHTML = '';
+  let bIdx = 0;
+  runes.forEach((r, ri) => {
+    r.bytes.forEach((b, bi) => {
+      const cell = document.createElement('div');
+      cell.className = 'cell byte-cell';
+      if (r.bytes.length === 1) cell.classList.add('ascii');
+      else if (bi === 0) cell.classList.add('multi-start');
+      else cell.classList.add('multi-cont');
+      cell.dataset.byteIdx = bIdx;
+      cell.dataset.runeIdx = ri;
+      cell.innerHTML = `<div class="num">[${bIdx}]</div><div class="val">${hex(b)}</div>`;
+      cell.addEventListener('click', () => selectByte(bIdx, ri));
+      byteRow.appendChild(cell);
+      bIdx++;
+    });
+  });
+
+  // Rune row
+  const runeRow = document.getElementById('m1-rune-row');
+  runeRow.innerHTML = '';
+  runes.forEach((r, ri) => {
+    const cell = document.createElement('div');
+    cell.className = 'cell rune-cell';
+    cell.style.width = (56 * r.bytes.length) + 'px';
+    cell.style.minWidth = (44 * r.bytes.length) + 'px';
+    cell.dataset.runeIdx = ri;
+    cell.innerHTML = `<div class="num">[${ri}]</div><div class="val">${r.char}</div><div class="cp">U+${hex(r.codePoint, 4)}</div>`;
+    cell.addEventListener('click', () => selectRune(ri));
+    runeRow.appendChild(cell);
+  });
+
+  document.getElementById('m1-info').className = 'info-box empty';
+  document.getElementById('m1-info').textContent = 'Click một cell để xem chi tiết.';
+}
+
+function clearSelection() {
+  document.querySelectorAll('.cell.selected').forEach(c => c.classList.remove('selected'));
+}
+
+function selectByte(byteIdx, runeIdx) {
+  clearSelection();
+  const cell = document.querySelector(`.byte-cell[data-byte-idx="${byteIdx}"]`);
+  cell.classList.add('selected');
+
+  const s = document.getElementById('m1-input').value;
+  const runes = stringToRunes(s);
+  const r = runes[runeIdx];
+  const localByteIdx = byteIdx - r.byteStart;
+  const byteVal = r.bytes[localByteIdx];
+
+  const isHead = localByteIdx === 0;
+  const role = r.bytes.length === 1 ? 'ASCII (1 byte = 1 ký tự)' :
+               isHead ? `Byte đầu (head) của chuỗi ${r.bytes.length} byte` :
+                        `Continuation byte ${localByteIdx}/${r.bytes.length - 1}`;
+
+  const info = document.getElementById('m1-info');
+  info.className = 'info-box';
+  info.innerHTML =
+    `<span class="k">Byte index:</span> <span class="v">${byteIdx}</span>  (s[${byteIdx}])\n` +
+    `<span class="k">Giá trị:</span>     <span class="v">0x${hex(byteVal)} = ${byteVal} = ${bin(byteVal)}b</span>\n` +
+    `<span class="k">Thuộc rune:</span>  <span class="v">'${r.char}' (U+${hex(r.codePoint, 4)})</span>\n` +
+    `<span class="k">Vai trò:</span>     <span class="v">${role}</span>`;
+}
+
+function selectRune(runeIdx) {
+  clearSelection();
+  const s = document.getElementById('m1-input').value;
+  const runes = stringToRunes(s);
+  const r = runes[runeIdx];
+
+  document.querySelector(`.rune-cell[data-rune-idx="${runeIdx}"]`).classList.add('selected');
+  // Highlight all bytes belonging to this rune
+  for (let i = 0; i < r.bytes.length; i++) {
+    const cell = document.querySelector(`.byte-cell[data-byte-idx="${r.byteStart + i}"]`);
+    if (cell) cell.classList.add('selected');
+  }
+
+  const byteHex = r.bytes.map(b => '0x' + hex(b)).join(' ');
+  const byteBin = r.bytes.map(b => bin(b)).join(' ');
+  const info = document.getElementById('m1-info');
+  info.className = 'info-box';
+  info.innerHTML =
+    `<span class="k">Rune index:</span>  <span class="v">${runeIdx}</span>\n` +
+    `<span class="k">Ký tự:</span>       <span class="v">'${r.char}'</span>\n` +
+    `<span class="k">Code point:</span>  <span class="v">U+${hex(r.codePoint, 4)} = ${r.codePoint}</span>\n` +
+    `<span class="k">UTF-8 bytes:</span> <span class="v">${byteHex}  (${r.bytes.length} byte tại index ${r.byteStart}..${r.byteStart + r.bytes.length - 1})</span>\n` +
+    `<span class="k">Binary:</span>      <span class="v">${byteBin}</span>`;
+}
+
+document.getElementById('m1-input').addEventListener('input', renderModule1);
+document.querySelectorAll('.preset[data-s]').forEach(b => {
+  b.addEventListener('click', () => {
+    document.getElementById('m1-input').value = b.dataset.s;
+    renderModule1();
+  });
+});
+
+renderModule1();
+
+/* ========================================================================
+   MODULE 2: UTF-8 Encoder
+   ======================================================================== */
+function renderModule2() {
+  const inp = document.getElementById('m2-input').value;
+  const result = document.getElementById('m2-result');
+  // Take first code point
+  const it = inp[Symbol.iterator]();
+  const first = it.next();
+  if (first.done) {
+    result.innerHTML = '<em>Nhập 1 ký tự.</em>';
+    document.querySelectorAll('.enc-table tr.current').forEach(r => r.classList.remove('current'));
+    return;
+  }
+  const ch = first.value;
+  const cp = ch.codePointAt(0);
+  const bytes = encodeUTF8(cp);
+  const nBytes = bytes.length;
+
+  // Highlight relevant table row
+  document.querySelectorAll('.enc-table tr[data-range]').forEach(r => {
+    r.classList.toggle('current', parseInt(r.dataset.range) === nBytes);
+  });
+
+  // Build byte breakdown with colored bit pattern
+  const byteDivs = bytes.map((b, i) => {
+    const binStr = bin(b);
+    let html = '';
+    if (i === 0) {
+      // Head byte: highlight leading 1s and the 0 separator
+      let headBits = nBytes === 1 ? 1 : nBytes + 1;
+      html = `<span class="head">${binStr.slice(0, headBits)}</span><span class="payload">${binStr.slice(headBits)}</span>`;
+    } else {
+      // Continuation byte: 10xxxxxx
+      html = `<span class="cont">10</span><span class="payload">${binStr.slice(2)}</span>`;
+    }
+    return `<div class="enc-byte"><div class="bin">${html}</div><div class="hex">0x${hex(b)} (${b})</div></div>`;
+  }).join('');
+
+  result.innerHTML =
+    `<div><strong>Ký tự:</strong> <span style="font-size:24px">${ch}</span> &nbsp;&nbsp;` +
+    `<strong>Code point:</strong> U+${hex(cp, 4)} = ${cp} (decimal) = ${bin(cp, cp > 0xFFFF ? 21 : 16)}b</div>` +
+    `<div style="margin-top:8px"><strong>UTF-8 (${nBytes} byte):</strong></div>` +
+    `<div class="enc-bytes">${byteDivs}</div>` +
+    `<div style="margin-top:10px; font-size:13px; color:#4a5568">` +
+    `<span style="color:#d97706"><strong>Cam</strong></span> = bit header (cho biết số byte). ` +
+    `<span style="color:#38a169"><strong>Xanh lá</strong></span> = prefix continuation <code>10</code>. ` +
+    `<span style="color:#2d3748"><strong>Đen</strong></span> = payload (bit của code point).` +
+    `</div>`;
+}
+
+document.getElementById('m2-input').addEventListener('input', renderModule2);
+document.querySelectorAll('.preset[data-c]').forEach(b => {
+  b.addEventListener('click', () => {
+    document.getElementById('m2-input').value = b.dataset.c;
+    renderModule2();
+  });
+});
+renderModule2();
+
+/* ========================================================================
+   MODULE 3: Strings Playground
+   ======================================================================== */
+const FNS = [
+  { name: 'Contains', args: [['s', 'hello world'], ['sub', 'world']], call: (s, sub) => String(s.includes(sub)),
+    explain: 'Trả <code>true</code> nếu <code>sub</code> xuất hiện trong <code>s</code>.' },
+  { name: 'HasPrefix', args: [['s', 'https://x.com'], ['prefix', 'https://']], call: (s, p) => String(s.startsWith(p)),
+    explain: 'Kiểm tra string có bắt đầu bằng <code>prefix</code> không.' },
+  { name: 'HasSuffix', args: [['s', 'photo.jpg'], ['suffix', '.jpg']], call: (s, p) => String(s.endsWith(p)),
+    explain: 'Kiểm tra string có kết thúc bằng <code>suffix</code> không.' },
+  { name: 'Index', args: [['s', 'hello world'], ['sub', 'world']], call: (s, sub) => String(s.indexOf(sub)),
+    explain: 'Trả về byte index đầu tiên của <code>sub</code>. -1 nếu không tìm thấy. <strong>Lưu ý: index byte, không phải rune.</strong>' },
+  { name: 'LastIndex', args: [['s', 'a.b.c.d'], ['sub', '.']], call: (s, sub) => String(s.lastIndexOf(sub)),
+    explain: 'Tìm từ phải qua. Hữu ích để lấy extension file: <code>name[LastIndex(name, "."):]</code>.' },
+  { name: 'Replace', args: [['s', 'aaa'], ['old', 'a'], ['new', 'b'], ['n', '2']], call: (s, o, n, k) => {
+      const limit = parseInt(k); let r = s; let i = 0;
+      while (i < limit && r.indexOf(o) !== -1) { r = r.replace(o, n); i++; }
+      return r;
+    },
+    explain: 'Thay <code>n</code> lần đầu tiên. <code>n = -1</code> nghĩa là thay tất cả.' },
+  { name: 'ReplaceAll', args: [['s', 'a-b-c'], ['old', '-'], ['new', '_']], call: (s, o, n) => s.split(o).join(n),
+    explain: 'Thay tất cả occurrence. Tiện hơn <code>Replace(s, old, new, -1)</code>.' },
+  { name: 'Split', args: [['s', 'a,b,c'], ['sep', ',']], call: (s, sep) => JSON.stringify(s.split(sep)),
+    explain: 'Cắt theo <code>sep</code>, trả slice. Empty separator có hành vi đặc biệt.' },
+  { name: 'SplitN', args: [['s', 'a=b=c'], ['sep', '='], ['n', '2']], call: (s, sep, k) => {
+      const limit = parseInt(k);
+      if (limit === 0) return JSON.stringify([]);
+      if (limit < 0) return JSON.stringify(s.split(sep));
+      const parts = s.split(sep);
+      if (parts.length <= limit) return JSON.stringify(parts);
+      return JSON.stringify(parts.slice(0, limit - 1).concat([parts.slice(limit - 1).join(sep)]));
+    },
+    explain: 'Cắt tối đa <code>n</code> phần. Phần cuối giữ nguyên dấu <code>sep</code> còn lại.' },
+  { name: 'Join', args: [['parts (JSON array)', '["a","b","c"]'], ['sep', '-']], call: (s, sep) => {
+      try { const arr = JSON.parse(s); return arr.join(sep); }
+      catch { return 'ERROR: parts phải là JSON array'; }
+    },
+    explain: 'Ngược của <code>Split</code>. Hiệu quả nhất khi có sẵn slice.' },
+  { name: 'ToLower', args: [['s', 'Hello WORLD']], call: (s) => s.toLowerCase(),
+    explain: 'Chuyển về chữ thường (Unicode-aware).' },
+  { name: 'ToUpper', args: [['s', 'Hello world']], call: (s) => s.toUpperCase(),
+    explain: 'Chuyển về chữ HOA.' },
+  { name: 'TrimSpace', args: [['s', '  hello  ']], call: (s) => s.trim(),
+    explain: 'Bỏ mọi whitespace (space, tab, newline) ở 2 đầu.' },
+  { name: 'Trim', args: [['s', '##hello##'], ['cutset', '#']], call: (s, c) => {
+      const setArr = [...c];
+      let start = 0, end = s.length;
+      while (start < end && setArr.includes(s[start])) start++;
+      while (end > start && setArr.includes(s[end - 1])) end--;
+      return s.slice(start, end);
+    },
+    explain: 'Bỏ mọi ký tự trong <code>cutset</code> ở 2 đầu (không phải bỏ chuỗi).' },
+  { name: 'TrimPrefix', args: [['s', 'Mr. John'], ['prefix', 'Mr. ']], call: (s, p) => s.startsWith(p) ? s.slice(p.length) : s,
+    explain: 'Bỏ <code>prefix</code> nếu có. Khác <code>Trim</code> (bỏ ký tự, không bỏ chuỗi).' },
+  { name: 'TrimSuffix', args: [['s', 'photo.jpg'], ['suffix', '.jpg']], call: (s, p) => s.endsWith(p) ? s.slice(0, -p.length) : s,
+    explain: 'Bỏ <code>suffix</code> nếu có. Pattern lấy basename: <code>TrimSuffix(name, ".jpg")</code>.' },
+  { name: 'Fields', args: [['s', '  hello   world\t\nfrom\tGo  ']], call: (s) => JSON.stringify(s.split(/\s+/).filter(x => x.length > 0)),
+    explain: 'Split theo mọi whitespace, gộp run liên tiếp, bỏ empty. Tốt hơn <code>Split(s, " ")</code> cho parse input user.' },
+];
+
+let currentFn = FNS[0];
+let argVals = currentFn.args.map(a => a[1]);
+
+function renderFnList() {
+  const list = document.getElementById('pg-fn-list');
+  list.innerHTML = '';
+  FNS.forEach(fn => {
+    const div = document.createElement('div');
+    div.className = 'pg-fn' + (fn === currentFn ? ' active' : '');
+    div.textContent = fn.name;
+    div.addEventListener('click', () => {
+      currentFn = fn;
+      argVals = fn.args.map(a => a[1]);
+      renderFnList();
+      renderArgs();
+      runFn();
+    });
+    list.appendChild(div);
+  });
+}
+
+function renderArgs() {
+  const wrap = document.getElementById('pg-args');
+  wrap.innerHTML = '';
+  currentFn.args.forEach((a, i) => {
+    const lbl = document.createElement('label');
+    lbl.textContent = a[0];
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.value = argVals[i];
+    inp.addEventListener('input', () => {
+      argVals[i] = inp.value;
+      runFn();
+    });
+    lbl.appendChild(inp);
+    wrap.appendChild(lbl);
+  });
+}
+
+function escapeForGo(s) {
+  // Show string with Go-style quotes, escape backslashes/quotes/tab/newline
+  return '"' + s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\t/g, '\\t').replace(/\n/g, '\\n') + '"';
+}
+
+function runFn() {
+  // Build call code
+  const callEl = document.getElementById('pg-call');
+  const outEl = document.getElementById('pg-output');
+  const expEl = document.getElementById('pg-explain');
+
+  const argStrs = argVals.map((v, i) => {
+    // If arg name is "n" treat as int literal
+    const argName = currentFn.args[i][0];
+    if (argName === 'n' || argName.startsWith('n ')) return v;
+    if (argName.startsWith('parts')) return v;
+    return escapeForGo(v);
+  });
+
+  callEl.innerHTML = `<span class="fn">strings.${currentFn.name}</span>(${argStrs.join(', ')})`;
+
+  try {
+    const result = currentFn.call(...argVals);
+    outEl.className = 'pg-output';
+    outEl.textContent = '=> ' + result;
+  } catch (e) {
+    outEl.className = 'pg-output err';
+    outEl.textContent = 'ERROR: ' + e.message;
+  }
+
+  expEl.innerHTML = currentFn.explain;
+}
+
+renderFnList();
+renderArgs();
+runFn();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -967,6 +967,63 @@ func validate(u User) error { ... } // unexported — chỉ trong package này
 
 ---
 
+## 13. Ứng dụng thực tế
+
+### 13.1 Bit flag trong syscall Linux
+
+Khi mở file:
+\`\`\`go
+import "syscall"
+fd, _ := syscall.Open("/tmp/x", syscall.O_RDWR|syscall.O_CREAT|syscall.O_APPEND, 0644)
+\`\`\`
+\`O_RDWR=2\`, \`O_CREAT=64\`, \`O_APPEND=1024\` — đều là bit flag (mỗi cái 1 bit riêng). Đây chính là pattern \`1 << iota\` ở mục 9.
+
+### 13.2 HTTP status code
+
+\`\`\`go
+const (
+    StatusOK              = 200
+    StatusBadRequest      = 400
+    StatusInternalServer  = 500
+)
+\`\`\`
+Package \`net/http\` của Go std lib có sẵn \`http.StatusOK\`, \`http.StatusNotFound\`, ... — họ dùng giá trị literal (không iota) vì giá trị do RFC quy định.
+
+### 13.3 Database int → Go enum
+
+Bảng SQL lưu status là int (\`0=pending, 1=active, 2=archived\`). Khi đọc về Go:
+\`\`\`go
+type OrderStatus int
+const (
+    OrderPending OrderStatus = iota
+    OrderActive
+    OrderArchived
+)
+
+var statusInt int
+db.QueryRow("SELECT status FROM orders WHERE id=?", id).Scan(&statusInt)
+status := OrderStatus(statusInt)   // convert int → OrderStatus (type definition)
+
+if status == OrderActive { ... }
+\`\`\`
+Vì \`OrderStatus\` là **type definition** (\`type X int\`, không \`=\`), bạn cần \`OrderStatus(statusInt)\` để convert. Đó là lý do dùng type definition: compiler bắt được nếu lỡ so sánh \`status == 1\` (mismatched types).
+
+### 13.4 Color packing trong image processing
+
+\`\`\`go
+type Color uint32   // 0xAARRGGBB
+func PackRGBA(r, g, b, a uint8) Color {
+    return Color(uint32(a)<<24 | uint32(r)<<16 | uint32(g)<<8 | uint32(b))
+}
+func (c Color) R() uint8 { return uint8(c >> 16) }
+func (c Color) G() uint8 { return uint8(c >> 8) }
+func (c Color) B() uint8 { return uint8(c) }
+func (c Color) A() uint8 { return uint8(c >> 24) }
+\`\`\`
+Mỗi pixel 4 byte = 1 uint32. Lưu 1920×1080 pixel chỉ tốn 8 MB thay vì 32 MB nếu mỗi kênh là \`int\`.
+
+---
+
 ## Bài tập
 
 ### BT1: Đoán zero value
@@ -1166,63 +1223,6 @@ if b == 'A' {              // so sánh byte với rune literal (int32) — Go ch
 if string(b) == "A" { ... }
 \`\`\`
 Lỗi gốc: \`b\` kiểu \`byte\`, \`"A"\` kiểu \`string\`, không so sánh được. Đổi vế phải sang rune literal \`'A'\` (cùng integer family) hoặc convert \`b\` sang string.
-
----
-
-## Ứng dụng thực tế
-
-### 1. Bit flag trong syscall
-
-Khi mở file Linux:
-\`\`\`go
-import "syscall"
-fd, _ := syscall.Open("/tmp/x", syscall.O_RDWR|syscall.O_CREAT|syscall.O_APPEND, 0644)
-\`\`\`
-\`O_RDWR=2\`, \`O_CREAT=64\`, \`O_APPEND=1024\` — đều là bit flag (mỗi cái 1 bit riêng). Đây chính là pattern \`1 << iota\` ở mục 9.
-
-### 2. HTTP status code
-
-\`\`\`go
-const (
-    StatusOK              = 200
-    StatusBadRequest      = 400
-    StatusInternalServer  = 500
-)
-\`\`\`
-Package \`net/http\` của Go std lib có sẵn \`http.StatusOK\`, \`http.StatusNotFound\`, ... — họ dùng giá trị literal (không iota) vì giá trị do RFC quy định.
-
-### 3. Database int → Go enum
-
-Bảng SQL lưu status là int (\`0=pending, 1=active, 2=archived\`). Khi đọc về Go:
-\`\`\`go
-type OrderStatus int
-const (
-    OrderPending OrderStatus = iota
-    OrderActive
-    OrderArchived
-)
-
-var statusInt int
-db.QueryRow("SELECT status FROM orders WHERE id=?", id).Scan(&statusInt)
-status := OrderStatus(statusInt)   // convert int → OrderStatus (type definition)
-
-if status == OrderActive { ... }
-\`\`\`
-Vì \`OrderStatus\` là **type definition** (\`type X int\`, không \`=\`), bạn cần \`OrderStatus(statusInt)\` để convert. Đó là lý do dùng type definition: compiler bắt được nếu lỡ so sánh \`status == 1\` (mismatched types).
-
-### 4. Color packing trong image processing
-
-\`\`\`go
-type Color uint32   // 0xAARRGGBB
-func PackRGBA(r, g, b, a uint8) Color {
-    return Color(uint32(a)<<24 | uint32(r)<<16 | uint32(g)<<8 | uint32(b))
-}
-func (c Color) R() uint8 { return uint8(c >> 16) }
-func (c Color) G() uint8 { return uint8(c >> 8) }
-func (c Color) B() uint8 { return uint8(c) }
-func (c Color) A() uint8 { return uint8(c >> 24) }
-\`\`\`
-Mỗi pixel 4 byte = 1 uint32. Lưu 1920×1080 pixel chỉ tốn 8 MB thay vì 32 MB nếu mỗi kênh là \`int\`.
 
 ---
 

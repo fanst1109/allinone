@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 12 — Array & Slice Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .lesson-sub { color: #4a5568; margin-bottom: 24px; font-size: 14px; }
+  h2 {
+    color: #2d3748; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.danger { background: #e53e3e; }
+  button.danger:hover { background: #c53030; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  select, input[type="text"], input[type="number"] {
+    font-size: 14px; padding: 6px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    background: white;
+  }
+  code { background: #edf2f7; padding: 2px 6px; border-radius: 3px; font-family: "SF Mono", Monaco, monospace; }
+  .hint { color: #4a5568; font-size: 13px; margin: 6px 0; }
+  .log {
+    background: #1a202c; color: #f7fafc;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; line-height: 1.55;
+    padding: 12px 14px; border-radius: 6px;
+    overflow-x: auto; white-space: pre;
+    max-height: 220px; overflow-y: auto;
+    margin: 8px 0;
+  }
+
+  /* ===== Module 1: Slice anatomy ===== */
+  .anatomy-wrap { width: 100%; overflow-x: auto; }
+  .header-box {
+    display: inline-flex; border: 2px solid #2d3748; border-radius: 6px;
+    margin: 8px 0;
+  }
+  .header-field {
+    padding: 8px 14px; border-right: 1px solid #cbd5e0;
+    font-family: monospace;
+  }
+  .header-field:last-child { border-right: none; }
+  .header-field .label { display: block; font-size: 11px; color: #718096; text-transform: uppercase; }
+  .header-field .val { display: block; font-size: 16px; font-weight: 700; color: #2d3748; }
+  .header-field.ptr { background: #fef5e7; }
+  .header-field.len { background: #e6fffa; }
+  .header-field.cap { background: #ebf8ff; }
+
+  .arr-row { display: flex; gap: 4px; align-items: stretch; margin-top: 16px; }
+  .arr-cell {
+    width: 48px; height: 48px;
+    border: 2px solid #cbd5e0; border-radius: 4px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: #f7fafc; font-family: monospace; font-weight: 600;
+    position: relative; transition: all 0.3s;
+  }
+  .arr-cell .idx {
+    position: absolute; top: -16px; font-size: 11px; color: #718096; font-weight: 500;
+  }
+  .arr-cell.in-len { background: #c6f6d5; border-color: #38a169; }
+  .arr-cell.in-cap { background: #ebf8ff; border-color: #4299e1; }
+  .arr-cell.unused { background: #f7fafc; color: #cbd5e0; }
+  .arr-cell.just-added { animation: flash 0.6s; }
+  .arr-cell.changed { animation: pulse 0.6s; }
+  @keyframes flash {
+    0% { background: #fef089; transform: scale(1.15); }
+    100% {}
+  }
+  @keyframes pulse {
+    0% { background: #fbb6ce; }
+    100% {}
+  }
+  .legend-row { display: flex; gap: 16px; flex-wrap: wrap; margin: 8px 0; font-size: 13px; }
+  .legend-item { display: flex; align-items: center; gap: 4px; }
+  .legend-sw { width: 16px; height: 16px; border: 2px solid; border-radius: 3px; }
+
+  /* ===== Module 2: Sharing demo ===== */
+  .share-arr { display: flex; gap: 4px; }
+  .share-cell {
+    width: 50px; height: 60px;
+    border: 2px solid #cbd5e0; border-radius: 4px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-family: monospace; font-weight: 600; background: white;
+    position: relative; transition: all 0.3s;
+  }
+  .share-cell .idx { font-size: 10px; color: #a0aec0; }
+  .share-cell.in-s { box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5) inset; }
+  .share-cell.in-t { box-shadow: 0 0 0 3px rgba(237, 137, 54, 0.5) inset; }
+  .share-cell.in-s.in-t {
+    box-shadow:
+      0 0 0 3px rgba(66, 153, 225, 0.5) inset,
+      0 0 0 6px rgba(237, 137, 54, 0.5) inset;
+  }
+  .share-cell.changed { background: #fef089; }
+  .share-info { display: flex; gap: 24px; flex-wrap: wrap; margin: 12px 0; font-family: monospace; font-size: 14px; }
+  .share-info > div { padding: 8px 12px; border-radius: 4px; }
+  .share-info .info-s { background: rgba(66, 153, 225, 0.15); border-left: 3px solid #4299e1; }
+  .share-info .info-t { background: rgba(237, 137, 54, 0.15); border-left: 3px solid #ed8936; }
+
+  /* ===== Module 3: Tricks playground ===== */
+  .pg-controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  .pg-step {
+    background: #2d3748; color: #f7fafc;
+    font-family: monospace; font-size: 13px;
+    padding: 8px 12px; border-radius: 4px;
+    margin: 4px 0;
+  }
+  .pg-step.current { background: #2b6cb0; color: white; }
+
+  @media (max-width: 480px) {
+    .arr-cell { width: 36px; height: 36px; font-size: 13px; }
+    .share-cell { width: 40px; height: 50px; font-size: 13px; }
+    .header-field { padding: 6px 10px; }
+    .header-field .val { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-11-functions/visualization.html">← L11: Hàm</a>
+  <span class="sep">·</span>
+  <span class="current">L12: Array & Slice</span>
+  <span class="sep">·</span>
+  <a href="../lesson-13-maps/visualization.html">L13: Map →</a>
+</nav>
+
+<main>
+<h1>Lesson 12 — Array & Slice</h1>
+<div class="lesson-sub">Slice anatomy · Sharing pitfall · Tricks playground</div>
+
+<!-- ============================================================ -->
+<!-- Module 1: Slice anatomy + append growth                      -->
+<!-- ============================================================ -->
+<h2>Module 1 — Slice anatomy &amp; <code>append</code> growth</h2>
+<div class="card">
+  <p>Slice là <strong>struct 3 field</strong> (<code>ptr/len/cap</code>) trỏ vào một underlying array.
+     Click <strong>append</strong> để thêm phần tử và xem khi nào Go phải re-allocate.</p>
+
+  <div class="row">
+    <button id="m1-append">append(s, n)</button>
+    <button id="m1-pop" class="secondary">pop (s = s[:len-1])</button>
+    <button id="m1-reslice" class="secondary">s = s[:0]</button>
+    <button id="m1-reset" class="danger">reset</button>
+    <label style="margin-left: auto; font-size: 13px;">
+      Start cap:
+      <select id="m1-cap-init">
+        <option value="0" selected>0 (nil)</option>
+        <option value="1">1</option>
+        <option value="4">4</option>
+        <option value="8">8</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="hint">
+    Quy ước màu:
+  </div>
+  <div class="legend-row">
+    <div class="legend-item"><span class="legend-sw" style="background:#c6f6d5; border-color:#38a169;"></span> trong <code>len</code> (truy cập được)</div>
+    <div class="legend-item"><span class="legend-sw" style="background:#ebf8ff; border-color:#4299e1;"></span> trong <code>cap</code> nhưng &gt; <code>len</code> (slot dự phòng)</div>
+    <div class="legend-item"><span class="legend-sw" style="background:#fef089; border-color:#d69e2e;"></span> vừa append/grow</div>
+  </div>
+
+  <div class="anatomy-wrap">
+    <div>
+      <div style="font-size:13px; color:#718096; margin-top: 16px;">Slice header:</div>
+      <div class="header-box" id="m1-header">
+        <div class="header-field ptr"><span class="label">Data</span><span class="val" id="m1-ptr">nil</span></div>
+        <div class="header-field len"><span class="label">Len</span><span class="val" id="m1-len">0</span></div>
+        <div class="header-field cap"><span class="label">Cap</span><span class="val" id="m1-cap">0</span></div>
+      </div>
+      <div style="font-size:13px; color:#718096; margin-top: 16px;">Underlying array:</div>
+      <div class="arr-row" id="m1-arr"></div>
+    </div>
+  </div>
+
+  <div class="log" id="m1-log">// click "append" để bắt đầu</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- Module 2: Slice sharing demo                                 -->
+<!-- ============================================================ -->
+<h2>Module 2 — Slice sharing pitfall</h2>
+<div class="card">
+  <p>Khi <code>t := s[a:b]</code>, hai slice cùng trỏ về một array.
+     Sửa <code>t[i]</code> = sửa <code>s[a+i]</code>. Append vào <code>t</code> có thể ghi đè vùng của <code>s</code>.</p>
+
+  <div class="row">
+    <button id="m2-reset" class="secondary">reset</button>
+    <button id="m2-make-t">t := s[1:4]</button>
+    <button id="m2-mod-t">t[0] = 99</button>
+    <button id="m2-append-t">t = append(t, 7)</button>
+    <button id="m2-clone-t" class="secondary">t := slices.Clone(s[1:4])</button>
+  </div>
+
+  <div class="share-info">
+    <div class="info-s" id="m2-info-s">s: nil</div>
+    <div class="info-t" id="m2-info-t">t: nil</div>
+  </div>
+
+  <div style="font-size:13px; color:#718096;">Underlying array:</div>
+  <div class="share-arr" id="m2-arr"></div>
+
+  <div class="hint" id="m2-hint" style="margin-top:12px;">
+    Bắt đầu với <code>s := []int{1, 2, 3, 4, 5}</code>. Tạo <code>t</code> để xem chia sẻ.
+  </div>
+  <div class="log" id="m2-log" style="max-height: 160px;">// click một button để bắt đầu</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- Module 3: Tricks playground                                  -->
+<!-- ============================================================ -->
+<h2>Module 3 — Slice tricks playground</h2>
+<div class="card">
+  <p>Chọn operation, nhập slice và tham số, ấn <strong>Run</strong> để xem step-by-step.</p>
+
+  <div class="pg-controls">
+    <label>Op:
+      <select id="m3-op">
+        <option value="remove">removeAt (preserve order)</option>
+        <option value="removeFast">removeAt (swap with last)</option>
+        <option value="insert">insertAt</option>
+        <option value="reverse">reverse in-place</option>
+        <option value="dedupe">dedupe (sorted)</option>
+        <option value="filterEven">filterEven</option>
+        <option value="chunk">chunk</option>
+      </select>
+    </label>
+    <label>Slice: <input type="text" id="m3-input" value="1,2,3,4,5" size="20"></label>
+    <label id="m3-param-wrap">Index/value: <input type="text" id="m3-param" value="2" size="6"></label>
+    <button id="m3-run">Run</button>
+  </div>
+
+  <div id="m3-steps"></div>
+  <div class="hint" id="m3-result" style="margin-top:10px;"></div>
+</div>
+
+</main>
+
+<script>
+// ============================================================
+// MODULE 1 — Slice anatomy & append growth
+// ============================================================
+(function () {
+  const arrEl = document.getElementById('m1-arr');
+  const lenEl = document.getElementById('m1-len');
+  const capEl = document.getElementById('m1-cap');
+  const ptrEl = document.getElementById('m1-ptr');
+  const logEl = document.getElementById('m1-log');
+  const capInitEl = document.getElementById('m1-cap-init');
+
+  let underlying = []; // mảng "vật lý" — kích thước = cap hiện tại
+  let len = 0;
+  let cap = 0;
+  let next = 1;
+  let arrId = 0; // tăng mỗi khi alloc array mới (mô phỏng "ptr" đổi)
+
+  function nextCap(oldCap) {
+    if (oldCap === 0) return 1;
+    if (oldCap < 256) return oldCap * 2;
+    return Math.floor(oldCap + (oldCap + 3 * 256) / 4);
+  }
+
+  function render(highlightIdx = -1, growed = false) {
+    arrEl.innerHTML = '';
+    for (let i = 0; i < cap; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'arr-cell';
+      if (i < len) cell.classList.add('in-len');
+      else cell.classList.add('in-cap', 'unused');
+      if (i === highlightIdx) cell.classList.add('just-added');
+      cell.innerHTML = `<span class="idx">${i}</span>${i < len ? underlying[i] : '·'}`;
+      arrEl.appendChild(cell);
+    }
+    if (cap === 0) {
+      const empty = document.createElement('div');
+      empty.style.cssText = 'color:#a0aec0; font-style:italic; padding:8px;';
+      empty.textContent = '(array trống — slice nil)';
+      arrEl.appendChild(empty);
+    }
+    lenEl.textContent = len;
+    capEl.textContent = cap;
+    ptrEl.textContent = cap === 0 ? 'nil' : '0x' + arrId.toString(16).padStart(2, '0');
+    if (growed) ptrEl.style.background = '#fed7d7';
+    else ptrEl.style.background = '';
+  }
+
+  function log(msg) {
+    logEl.textContent += '\n' + msg;
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  function reset() {
+    cap = parseInt(capInitEl.value, 10);
+    len = 0;
+    underlying = new Array(cap).fill(null);
+    next = 1;
+    arrId++;
+    logEl.textContent = cap === 0
+      ? `// reset: var s []int → len=0 cap=0`
+      : `// reset: s := make([]int, 0, ${cap}) → len=0 cap=${cap}`;
+    render();
+  }
+
+  document.getElementById('m1-append').addEventListener('click', () => {
+    if (len < cap) {
+      underlying[len] = next;
+      len++;
+      log(`append(s, ${next}): len ${len-1}→${len}, cap=${cap} (in-place)`);
+      render(len - 1, false);
+    } else {
+      const newCap = nextCap(cap);
+      const newArr = new Array(newCap).fill(null);
+      for (let i = 0; i < len; i++) newArr[i] = underlying[i];
+      newArr[len] = next;
+      underlying = newArr;
+      const oldCap = cap;
+      cap = newCap;
+      len++;
+      arrId++;
+      log(`append(s, ${next}): GROW cap ${oldCap}→${newCap}, alloc array mới, len=${len}`);
+      render(len - 1, true);
+    }
+    next++;
+  });
+
+  document.getElementById('m1-pop').addEventListener('click', () => {
+    if (len === 0) { log('// len=0, không pop được'); return; }
+    underlying[len - 1] = null;
+    len--;
+    log(`s = s[:${len}]: len giảm, cap=${cap} giữ nguyên`);
+    render();
+  });
+
+  document.getElementById('m1-reslice').addEventListener('click', () => {
+    len = 0;
+    log(`s = s[:0]: len=0, cap=${cap} giữ nguyên (có thể append lại không alloc)`);
+    render();
+  });
+
+  document.getElementById('m1-reset').addEventListener('click', reset);
+  capInitEl.addEventListener('change', reset);
+  reset();
+})();
+
+// ============================================================
+// MODULE 2 — Sharing demo
+// ============================================================
+(function () {
+  const arrEl = document.getElementById('m2-arr');
+  const infoS = document.getElementById('m2-info-s');
+  const infoT = document.getElementById('m2-info-t');
+  const hintEl = document.getElementById('m2-hint');
+  const logEl = document.getElementById('m2-log');
+
+  // State
+  let underlying;     // physical array
+  let cap;            // total cap (size của underlying ban đầu)
+  let s;              // {start, len, cap}
+  let t;              // null hoặc {start, len, cap, indep}
+
+  function reset() {
+    underlying = [1, 2, 3, 4, 5];
+    cap = 5;
+    s = { start: 0, len: 5, cap: 5 };
+    t = null;
+    logEl.textContent = '// s := []int{1, 2, 3, 4, 5} (cap=5)';
+    hintEl.innerHTML = 'Click <code>t := s[1:4]</code> để tạo sub-slice share array.';
+    render();
+  }
+
+  function render(changedIdx = -1) {
+    arrEl.innerHTML = '';
+    for (let i = 0; i < underlying.length; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'share-cell';
+      const inS = s && i >= s.start && i < s.start + s.len;
+      const inT = t && !t.indep && i >= t.start && i < t.start + t.len;
+      if (inS) cell.classList.add('in-s');
+      if (inT) cell.classList.add('in-t');
+      if (i === changedIdx) cell.classList.add('changed');
+      cell.innerHTML = `<span class="idx">${i}</span>${underlying[i] === null ? '·' : underlying[i]}`;
+      arrEl.appendChild(cell);
+    }
+    // info
+    const sVals = underlying.slice(s.start, s.start + s.len);
+    infoS.innerHTML = `<strong>s</strong>: ${JSON.stringify(sVals)}  &nbsp; len=${s.len} cap=${s.cap}`;
+    if (t) {
+      const tArr = t.indep ? t.arr : underlying.slice(t.start, t.start + t.len);
+      infoT.innerHTML = `<strong>t</strong>: ${JSON.stringify(tArr)}  &nbsp; len=${t.len} cap=${t.cap}${t.indep ? ' (độc lập)' : ''}`;
+    } else {
+      infoT.innerHTML = `<strong>t</strong>: chưa tạo`;
+    }
+  }
+
+  function log(m) { logEl.textContent += '\n' + m; logEl.scrollTop = logEl.scrollHeight; }
+
+  document.getElementById('m2-reset').addEventListener('click', reset);
+
+  document.getElementById('m2-make-t').addEventListener('click', () => {
+    t = { start: 1, len: 3, cap: cap - 1, indep: false };
+    log('t := s[1:4]  // t = [2,3,4] len=3 cap=4 (cap = underlying cap - start)');
+    hintEl.innerHTML = 't và s đang share array. Hãy thử <code>t[0] = 99</code>.';
+    render();
+  });
+
+  document.getElementById('m2-mod-t').addEventListener('click', () => {
+    if (!t) { log('// chưa có t — click "t := s[1:4]" trước'); return; }
+    if (t.indep) {
+      t.arr[0] = 99;
+      log('t[0] = 99  // t độc lập, KHÔNG ảnh hưởng s');
+    } else {
+      underlying[t.start] = 99;
+      log(`t[0] = 99  // ghi vào underlying[${t.start}], s thấy thay đổi!`);
+      hintEl.innerHTML = 's[1] cũng thành 99 vì share array. Pitfall #1.';
+      render(t.start);
+      return;
+    }
+    render();
+  });
+
+  document.getElementById('m2-append-t').addEventListener('click', () => {
+    if (!t) { log('// chưa có t'); return; }
+    if (t.indep) {
+      t.arr.push(7);
+      t.len++;
+      t.cap = Math.max(t.cap, t.len);
+      log('t = append(t, 7)  // t độc lập, không động s');
+      render();
+      return;
+    }
+    if (t.len < t.cap) {
+      const writeIdx = t.start + t.len;
+      underlying[writeIdx] = 7;
+      t.len++;
+      log(`t = append(t, 7)  // len(t)=${t.len-1} < cap(t)=${t.cap} → in-place, ghi underlying[${writeIdx}]=7`);
+      if (writeIdx < s.start + s.len) {
+        hintEl.innerHTML = `Pitfall #2: underlying[${writeIdx}] đang nằm trong s → s[${writeIdx-s.start}] bị ghi đè!`;
+      } else {
+        hintEl.innerHTML = `underlying[${writeIdx}] nằm ngoài len của s nên s chưa thấy. Nhưng nếu ai re-slice s tới index này thì sẽ thấy 7.`;
+      }
+      render(writeIdx);
+    } else {
+      // detach
+      const cur = underlying.slice(t.start, t.start + t.len);
+      cur.push(7);
+      const newCap = Math.max(cur.length * 2, 4);
+      t.indep = true;
+      t.arr = cur;
+      t.len = cur.length;
+      t.cap = newCap;
+      log('t = append(t, 7)  // len(t)==cap(t) → ALLOC array mới, t tách khỏi s');
+      hintEl.innerHTML = 'Sau khi t grow, nó tách thành slice riêng. Mọi sửa t từ giờ không ảnh hưởng s.';
+      render();
+    }
+  });
+
+  document.getElementById('m2-clone-t').addEventListener('click', () => {
+    const cur = underlying.slice(1, 4);
+    t = { indep: true, arr: cur, len: cur.length, cap: cur.length, start: -1 };
+    log('t := slices.Clone(s[1:4])  // copy data, t độc lập');
+    hintEl.innerHTML = 't giờ độc lập. <code>t[0]=99</code> sẽ KHÔNG ảnh hưởng s.';
+    render();
+  });
+
+  reset();
+})();
+
+// ============================================================
+// MODULE 3 — Tricks playground
+// ============================================================
+(function () {
+  const opEl = document.getElementById('m3-op');
+  const inEl = document.getElementById('m3-input');
+  const paramEl = document.getElementById('m3-param');
+  const paramWrap = document.getElementById('m3-param-wrap');
+  const stepsEl = document.getElementById('m3-steps');
+  const resEl = document.getElementById('m3-result');
+
+  const PARAM_LABELS = {
+    remove: 'Index',
+    removeFast: 'Index',
+    insert: 'Index,value',
+    reverse: '(không cần)',
+    dedupe: '(không cần)',
+    filterEven: '(không cần)',
+    chunk: 'n (kích thước block)',
+  };
+
+  function updateLabel() {
+    const op = opEl.value;
+    paramWrap.firstChild.textContent = PARAM_LABELS[op] + ': ';
+    if (op === 'reverse' || op === 'dedupe' || op === 'filterEven') {
+      paramEl.style.display = 'none';
+    } else {
+      paramEl.style.display = '';
+    }
+    if (op === 'dedupe') inEl.value = '1,1,2,2,3,4,4,5';
+    if (op === 'chunk') { inEl.value = '1,2,3,4,5,6,7'; paramEl.value = '3'; }
+    if (op === 'insert') paramEl.value = '2,99';
+    if (op === 'filterEven') inEl.value = '1,2,3,4,5,6,7,8';
+  }
+  opEl.addEventListener('change', updateLabel);
+
+  function parseSlice(s) {
+    return s.split(',').map(x => parseInt(x.trim(), 10)).filter(x => !isNaN(x));
+  }
+
+  function addStep(text, current = false) {
+    const d = document.createElement('div');
+    d.className = 'pg-step' + (current ? ' current' : '');
+    d.textContent = text;
+    stepsEl.appendChild(d);
+  }
+
+  function run() {
+    stepsEl.innerHTML = '';
+    resEl.textContent = '';
+    const op = opEl.value;
+    const s = parseSlice(inEl.value);
+    addStep(`Input: s = [${s.join(', ')}]  (len=${s.length})`);
+
+    if (op === 'remove') {
+      const i = parseInt(paramEl.value, 10);
+      if (isNaN(i) || i < 0 || i >= s.length) { resEl.textContent = '⚠ index ngoài phạm vi'; return; }
+      addStep(`s[:${i}]   = [${s.slice(0,i).join(', ')}]`);
+      addStep(`s[${i+1}:]  = [${s.slice(i+1).join(', ')}]`);
+      addStep(`append(s[:${i}], s[${i+1}:]...) → spread phần sau vào phần trước`);
+      const out = s.slice(0,i).concat(s.slice(i+1));
+      addStep(`Kết quả: [${out.join(', ')}]  (len=${out.length})`, true);
+      resEl.innerHTML = '<strong>Lưu ý</strong>: trick này modify underlying array của caller (shift trái phần đuôi).';
+    }
+    else if (op === 'removeFast') {
+      const i = parseInt(paramEl.value, 10);
+      if (isNaN(i) || i < 0 || i >= s.length) { resEl.textContent = '⚠ index ngoài phạm vi'; return; }
+      addStep(`s[${i}] = s[${s.length-1}]  → ${s[s.length-1]}`);
+      const a = s.slice(); a[i] = a[a.length-1];
+      addStep(`s sau swap: [${a.join(', ')}]`);
+      addStep(`s = s[:${s.length-1}]`);
+      const out = a.slice(0, -1);
+      addStep(`Kết quả: [${out.join(', ')}]  (THỨ TỰ KHÔNG GIỮ)`, true);
+      resEl.textContent = 'O(1) — dùng khi không cần preserve order.';
+    }
+    else if (op === 'insert') {
+      const parts = paramEl.value.split(',').map(x => parseInt(x.trim(), 10));
+      const i = parts[0], x = parts[1];
+      if (isNaN(i) || isNaN(x)) { resEl.textContent = '⚠ cần index,value'; return; }
+      addStep(`s[${i}:]                  = [${s.slice(i).join(', ')}]`);
+      addStep(`append([${x}], s[${i}:]...)    = [${[x].concat(s.slice(i)).join(', ')}]`);
+      addStep(`s[:${i}]                  = [${s.slice(0,i).join(', ')}]`);
+      const out = s.slice(0,i).concat([x]).concat(s.slice(i));
+      addStep(`append(s[:${i}], ...) → [${out.join(', ')}]`, true);
+    }
+    else if (op === 'reverse') {
+      const a = s.slice();
+      let l = 0, r = a.length - 1;
+      while (l < r) {
+        addStep(`swap a[${l}]↔a[${r}]: [${a.join(', ')}] → ${a[l]}↔${a[r]}`);
+        [a[l], a[r]] = [a[r], a[l]];
+        l++; r--;
+      }
+      addStep(`Kết quả: [${a.join(', ')}]`, true);
+    }
+    else if (op === 'dedupe') {
+      const a = s.slice();
+      let j = 1;
+      addStep(`j=1, bắt đầu loop từ i=1`);
+      for (let i = 1; i < a.length; i++) {
+        if (a[i] !== a[i-1]) {
+          a[j] = a[i];
+          addStep(`i=${i}: a[${i}]=${a[i]} ≠ a[${i-1}]=${a[i-1]} → a[${j}]=${a[i]}, j=${j+1}`);
+          j++;
+        } else {
+          addStep(`i=${i}: a[${i}]=${a[i]} == a[${i-1}], skip`);
+        }
+      }
+      const out = a.slice(0, j);
+      addStep(`s[:${j}] = [${out.join(', ')}]  (phần đuôi còn rác trong cap)`, true);
+      resEl.textContent = 'Yêu cầu input đã sắp xếp. O(n) thời gian, O(1) bộ nhớ phụ.';
+    }
+    else if (op === 'filterEven') {
+      const a = s.slice();
+      let n = 0;
+      for (let i = 0; i < a.length; i++) {
+        if (a[i] % 2 === 0) {
+          a[n] = a[i];
+          addStep(`i=${i}: ${a[i]} chẵn → a[${n}]=${a[i]}, n=${n+1}`);
+          n++;
+        } else {
+          addStep(`i=${i}: ${a[i]} lẻ, skip`);
+        }
+      }
+      const out = a.slice(0, n);
+      addStep(`s[:${n}] = [${out.join(', ')}]`, true);
+    }
+    else if (op === 'chunk') {
+      const n = parseInt(paramEl.value, 10);
+      if (isNaN(n) || n <= 0) { resEl.textContent = '⚠ n phải > 0'; return; }
+      const numChunks = Math.ceil(s.length / n);
+      addStep(`numChunks = ceil(${s.length}/${n}) = ${numChunks}`);
+      addStep(`out := make([][]int, 0, ${numChunks})`);
+      const out = [];
+      for (let i = 0; i < s.length; i += n) {
+        const end = Math.min(i + n, s.length);
+        const block = s.slice(i, end);
+        addStep(`i=${i}, end=${end}: append block [${block.join(', ')}]`);
+        out.push(block);
+      }
+      addStep(`Kết quả: [${out.map(b => '['+b.join(',')+']').join(', ')}]`, true);
+      resEl.textContent = 'Lưu ý: mỗi block là sub-slice share array với input.';
+    }
+  }
+
+  document.getElementById('m3-run').addEventListener('click', run);
+  updateLabel();
+  run();
+})();
+</script>
+
+<!-- README modal -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+
+</body>
+</html>

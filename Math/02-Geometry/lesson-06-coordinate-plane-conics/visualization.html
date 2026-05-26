@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 06 — Tọa độ &amp; Conic</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 80px; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  select { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 600px; height: 500px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-solid-geometry/visualization.html">← L5: Không gian</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Oxy &amp; Conic</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L7: Oxyz (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 06 (T2) — Tọa độ Oxy &amp; Conic</h1>
+
+<h2>Conic Explorer</h2>
+<div class="card">
+  <div class="row">
+    <label>Loại:</label>
+    <select id="conicType" onchange="draw()">
+      <option value="line">Đường thẳng y = ax + b</option>
+      <option value="parabola" selected>Parabol y = ax² + bx + c</option>
+      <option value="ellipse">Ellipse x²/a² + y²/b² = 1</option>
+      <option value="hyperbola">Hyperbola x²/a² − y²/b² = 1</option>
+    </select>
+  </div>
+  <div class="row" id="params">
+    <label>a:</label><input type="range" id="pa" min="-5" max="5" step="0.5" value="1" oninput="draw()">
+    <span class="stat">a = <strong id="paVal">1</strong></span>
+    <label>b:</label><input type="range" id="pb" min="-5" max="5" step="0.5" value="0" oninput="draw()">
+    <span class="stat">b = <strong id="pbVal">0</strong></span>
+    <label>c:</label><input type="range" id="pc" min="-5" max="5" step="0.5" value="-3" oninput="draw()">
+    <span class="stat">c = <strong id="pcVal">-3</strong></span>
+  </div>
+  <svg class="scene" id="cSvg" viewBox="0 0 600 500"></svg>
+  <div class="result" id="cResult"></div>
+</div>
+
+<script>
+function draw() {
+  const type = document.getElementById("conicType").value;
+  const a = parseFloat(document.getElementById("pa").value);
+  const b = parseFloat(document.getElementById("pb").value);
+  const c = parseFloat(document.getElementById("pc").value);
+  document.getElementById("paVal").textContent = a;
+  document.getElementById("pbVal").textContent = b;
+  document.getElementById("pcVal").textContent = c;
+
+  const svg = document.getElementById("cSvg");
+  svg.innerHTML = "";
+  const W = 600, H = 500, cx = W/2, cy = H/2;
+  const scale = 25;
+
+  // Grid + axes
+  for (let i = -12; i <= 12; i++) {
+    const x = cx + i*scale;
+    const y = cy + i*scale;
+    const g1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    g1.setAttribute("x1", x); g1.setAttribute("y1", 0); g1.setAttribute("x2", x); g1.setAttribute("y2", H);
+    g1.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); g1.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+    svg.appendChild(g1);
+    const g2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    g2.setAttribute("x1", 0); g2.setAttribute("y1", y); g2.setAttribute("x2", W); g2.setAttribute("y2", y);
+    g2.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); g2.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+    svg.appendChild(g2);
+  }
+
+  let info = "";
+  if (type === "line") {
+    // y = ax + b
+    const p1y = a*-12 + b, p2y = a*12 + b;
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", cx + -12*scale); l.setAttribute("y1", cy - p1y*scale);
+    l.setAttribute("x2", cx + 12*scale); l.setAttribute("y2", cy - p2y*scale);
+    l.setAttribute("stroke", "#15803d"); l.setAttribute("stroke-width", 2.5);
+    svg.appendChild(l);
+    info = `<div style="font-family:monospace; font-size:15px">y = ${a}x + ${b}</div>
+      <div>Hệ số góc: <strong>${a}</strong></div>
+      <div>Cắt Oy tại (0, ${b}), cắt Ox tại (${(-b/a).toFixed(2)}, 0) nếu a≠0.</div>`;
+  } else if (type === "parabola") {
+    // y = ax² + bx + c
+    let path = "";
+    for (let xm = -12; xm <= 12; xm += 0.1) {
+      const ym = a*xm*xm + b*xm + c;
+      const py = cy - ym*scale;
+      if (py > -50 && py < H+50) {
+        const px = cx + xm*scale;
+        path += (path === "" ? "M " : " L ") + px + " " + py;
+      }
+    }
+    const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    p.setAttribute("d", path); p.setAttribute("fill", "none"); p.setAttribute("stroke", "#15803d"); p.setAttribute("stroke-width", 2.5);
+    svg.appendChild(p);
+    const xVertex = -b/(2*a);
+    const yVertex = c - b*b/(4*a);
+    info = `<div style="font-family:monospace; font-size:15px">y = ${a}x² + ${b}x + ${c}</div>
+      <div>Đỉnh: (${xVertex.toFixed(3)}, ${yVertex.toFixed(3)})</div>`;
+  } else if (type === "ellipse") {
+    const aa = Math.abs(a) || 1;
+    const bb = Math.abs(b) || 1;
+    const el = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
+    el.setAttribute("cx", cx); el.setAttribute("cy", cy);
+    el.setAttribute("rx", aa*scale); el.setAttribute("ry", bb*scale);
+    el.setAttribute("fill", "none"); el.setAttribute("stroke", "#15803d"); el.setAttribute("stroke-width", 2.5);
+    svg.appendChild(el);
+    // Tiêu điểm
+    if (aa > bb) {
+      const cc = Math.sqrt(aa*aa - bb*bb);
+      [-cc, cc].forEach(f => {
+        const fp = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        fp.setAttribute("cx", cx + f*scale); fp.setAttribute("cy", cy); fp.setAttribute("r", 4);
+        fp.setAttribute("fill", "#dc2626");
+        svg.appendChild(fp);
+      });
+      info = `<div style="font-family:monospace; font-size:15px">x²/${aa}² + y²/${bb}² = 1</div>
+        <div>a = ${aa}, b = ${bb}, c = ${cc.toFixed(3)}, tâm sai e = c/a = ${(cc/aa).toFixed(3)}</div>
+        <div>Tiêu điểm: (±${cc.toFixed(3)}, 0)</div>`;
+    } else {
+      info = `<div style="font-family:monospace; font-size:15px">x²/${aa}² + y²/${bb}² = 1</div>
+        <div>${aa === bb ? "Đường tròn" : "Ellipse trục dọc"}</div>`;
+    }
+  } else if (type === "hyperbola") {
+    const aa = Math.abs(a) || 1;
+    const bb = Math.abs(b) || 1;
+    // 2 branches: x = aa*cosh(t), y = bb*sinh(t)
+    ["right", "left"].forEach(side => {
+      const sgn = side === "right" ? 1 : -1;
+      let path = "";
+      for (let t = -3; t <= 3; t += 0.05) {
+        const xm = sgn * aa * Math.cosh(t);
+        const ym = bb * Math.sinh(t);
+        const px = cx + xm*scale, py = cy - ym*scale;
+        if (Math.abs(xm) < 15 && Math.abs(ym) < 15) {
+          path += (path === "" ? "M " : " L ") + px + " " + py;
+        }
+      }
+      const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      p.setAttribute("d", path); p.setAttribute("fill", "none"); p.setAttribute("stroke", "#15803d"); p.setAttribute("stroke-width", 2.5);
+      svg.appendChild(p);
+    });
+    // Asymptotes
+    [bb/aa, -bb/aa].forEach(slope => {
+      const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      l.setAttribute("x1", cx - 15*scale); l.setAttribute("y1", cy + slope*15*scale);
+      l.setAttribute("x2", cx + 15*scale); l.setAttribute("y2", cy - slope*15*scale);
+      l.setAttribute("stroke", "#94a3b8"); l.setAttribute("stroke-dasharray", "4 4");
+      svg.appendChild(l);
+    });
+    info = `<div style="font-family:monospace; font-size:15px">x²/${aa}² − y²/${bb}² = 1</div>
+      <div>Tiệm cận: y = ±(b/a)·x = ±${(bb/aa).toFixed(3)}·x</div>`;
+  }
+  document.getElementById("cResult").innerHTML = info;
+}
+
+draw();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

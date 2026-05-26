@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 04 — Pascal & Nhị thức</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  .pascal { display: flex; flex-direction: column; align-items: center; margin: 16px 0; }
+  .prow { display: flex; gap: 6px; margin: 2px 0; }
+  .pcell { display: inline-flex; align-items: center; justify-content: center; width: 50px; height: 36px; border: 1px solid #cbd5e0; border-radius: 4px; font-family: monospace; font-size: 13px; background: white; }
+  .pcell.hl { background: #15803d; color: white; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-permutations-combinations/visualization.html">← L3: Tổ hợp</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Pascal</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L5: Dirichlet (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 04 (T5) — Tam giác Pascal &amp; Nhị thức Newton</h1>
+
+<h2>Tam giác Pascal</h2>
+<div class="card">
+  <div class="row">
+    <label>Số tầng N:</label>
+    <input type="range" id="N" min="3" max="12" step="1" value="8" oninput="draw()">
+    <span class="stat">N = <strong id="vN">8</strong></span>
+    <label>Highlight tầng:</label>
+    <input type="range" id="row" min="0" max="12" step="1" value="5" oninput="draw()">
+    <span class="stat">tầng = <strong id="vR">5</strong></span>
+  </div>
+  <div class="pascal" id="pas"></div>
+  <div class="result" id="res"></div>
+</div>
+
+<h2>Khai triển (a + b)^n</h2>
+<div class="card">
+  <div class="row">
+    <label>n:</label>
+    <input type="range" id="bn" min="1" max="8" step="1" value="4" oninput="expand()">
+    <span class="stat">n = <strong id="vBN">4</strong></span>
+  </div>
+  <div class="result" id="exp"></div>
+</div>
+
+<script>
+function C(n, k) {
+  if (k > n || k < 0) return 0;
+  if (k > n - k) k = n - k;
+  let r = 1;
+  for (let i = 0; i < k; i++) r = r * (n - i) / (i + 1);
+  return Math.round(r);
+}
+
+function draw() {
+  const N = parseInt(document.getElementById("N").value);
+  const hlRow = parseInt(document.getElementById("row").value);
+  document.getElementById("vN").textContent = N;
+  document.getElementById("vR").textContent = hlRow;
+  // Adjust max for row
+  document.getElementById("row").max = N;
+  if (hlRow > N) document.getElementById("row").value = N;
+
+  const pas = document.getElementById("pas");
+  let html = "";
+  for (let n = 0; n <= N; n++) {
+    html += '<div class="prow">';
+    for (let k = 0; k <= n; k++) {
+      const cls = n === hlRow ? "hl" : "";
+      html += `<div class="pcell ${cls}">${C(n, k)}</div>`;
+    }
+    html += "</div>";
+  }
+  pas.innerHTML = html;
+
+  const rowSum = Math.pow(2, hlRow);
+  document.getElementById("res").innerHTML = `
+    <div>Tầng ${hlRow} chứa các <strong>C(${hlRow}, 0), C(${hlRow}, 1), ..., C(${hlRow}, ${hlRow})</strong>.</div>
+    <div>Tổng tầng = <strong>2^${hlRow} = ${rowSum}</strong>. (Số tập con của tập ${hlRow} phần tử.)</div>
+  `;
+}
+
+function expand() {
+  const n = parseInt(document.getElementById("bn").value);
+  document.getElementById("vBN").textContent = n;
+  let terms = [];
+  for (let k = 0; k <= n; k++) {
+    const c = C(n, k);
+    const aPart = n - k === 0 ? "" : (n - k === 1 ? "a" : "a^" + (n-k));
+    const bPart = k === 0 ? "" : (k === 1 ? "b" : "b^" + k);
+    const cPart = c === 1 ? "" : c;
+    let term = cPart + aPart + bPart;
+    if (!term) term = "1";
+    terms.push(term);
+  }
+  document.getElementById("exp").innerHTML = `
+    <div style="font-family:monospace; font-size:16px"><strong>(a + b)^${n} = ${terms.join(" + ")}</strong></div>
+    <div style="margin-top:6px; font-size:13px">Hệ số = tầng ${n} của Pascal: ${[...Array(n+1)].map((_,k) => C(n,k)).join(", ")}.</div>
+  `;
+}
+
+draw();
+expand();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

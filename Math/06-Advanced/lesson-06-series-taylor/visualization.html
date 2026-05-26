@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 06 — Chuỗi & Taylor</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  button { background: #94a3b8; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.active { background: #15803d; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 700px; height: 400px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-multiple-integrals/visualization.html">← L5: ∫∫</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Taylor</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L7: ODE (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 06 (T6) — Khai triển Taylor xấp xỉ hàm</h1>
+
+<h2>Đa thức Taylor xấp xỉ f(x)</h2>
+<div class="card">
+  <div class="row">
+    <button id="b1" onclick="setF('exp')" class="active">e^x</button>
+    <button id="b2" onclick="setF('sin')">sin x</button>
+    <button id="b3" onclick="setF('cos')">cos x</button>
+    <button id="b4" onclick="setF('ln1px')">ln(1+x)</button>
+    <button id="b5" onclick="setF('inv1mx')">1/(1−x)</button>
+  </div>
+  <div class="row">
+    <label>Bậc N (số số hạng):</label>
+    <input type="range" id="N" min="0" max="20" step="1" value="3" oninput="draw()">
+    <span class="stat">N = <strong id="vN">3</strong></span>
+  </div>
+  <svg class="scene" id="svg" viewBox="0 0 700 400"></svg>
+  <div class="result" id="res"></div>
+</div>
+
+<script>
+function fact(n) { let r = 1; for (let i = 2; i <= n; i++) r *= i; return r; }
+
+const funcs = {
+  exp: {
+    fn: x => Math.exp(x),
+    taylor: (x, N) => { let s = 0; for (let k = 0; k <= N; k++) s += Math.pow(x, k) / fact(k); return s; },
+    formula: "e^x = 1 + x + x²/2! + x³/3! + ...",
+    yMin: -1, yMax: 8
+  },
+  sin: {
+    fn: x => Math.sin(x),
+    taylor: (x, N) => { let s = 0; for (let k = 0; k <= N; k++) s += Math.pow(-1, k) * Math.pow(x, 2*k+1) / fact(2*k+1); return s; },
+    formula: "sin x = x - x³/3! + x⁵/5! - ...",
+    yMin: -1.5, yMax: 1.5
+  },
+  cos: {
+    fn: x => Math.cos(x),
+    taylor: (x, N) => { let s = 0; for (let k = 0; k <= N; k++) s += Math.pow(-1, k) * Math.pow(x, 2*k) / fact(2*k); return s; },
+    formula: "cos x = 1 - x²/2! + x⁴/4! - ...",
+    yMin: -1.5, yMax: 1.5
+  },
+  ln1px: {
+    fn: x => x > -1 ? Math.log(1+x) : NaN,
+    taylor: (x, N) => { let s = 0; for (let k = 1; k <= N; k++) s += Math.pow(-1, k+1) * Math.pow(x, k) / k; return s; },
+    formula: "ln(1+x) = x - x²/2 + x³/3 - ... (|x| ≤ 1)",
+    yMin: -3, yMax: 2
+  },
+  inv1mx: {
+    fn: x => x !== 1 ? 1/(1-x) : NaN,
+    taylor: (x, N) => { let s = 0; for (let k = 0; k <= N; k++) s += Math.pow(x, k); return s; },
+    formula: "1/(1-x) = 1 + x + x² + x³ + ... (|x| < 1)",
+    yMin: -4, yMax: 6
+  }
+};
+let cur = "exp";
+
+function setF(f) {
+  cur = f;
+  ["1","2","3","4","5"].forEach(c => document.getElementById("b"+c).classList.remove("active"));
+  const m = {exp:"1", sin:"2", cos:"3", ln1px:"4", inv1mx:"5"};
+  document.getElementById("b" + m[f]).classList.add("active");
+  draw();
+}
+
+function draw() {
+  const def = funcs[cur];
+  const N = parseInt(document.getElementById("N").value);
+  document.getElementById("vN").textContent = N;
+
+  const svg = document.getElementById("svg");
+  svg.innerHTML = "";
+  const W = 700, H = 400, cx = 350, cy = 200;
+  const xRange = 6;
+  const scale = (W - 100) / xRange;
+  const ySc = (H - 60) / (def.yMax - def.yMin);
+  const xToPx = x => cx + x*scale;
+  const yToPx = y => cy + (def.yMax + def.yMin)/2*ySc - y*ySc;
+
+  // Axes
+  const xax = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  xax.setAttribute("x1", 50); xax.setAttribute("y1", cy); xax.setAttribute("x2", W-30); xax.setAttribute("y2", cy);
+  xax.setAttribute("stroke", "#1a202c"); xax.setAttribute("stroke-width", 1.5);
+  svg.appendChild(xax);
+  const yax = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  yax.setAttribute("x1", cx); yax.setAttribute("y1", 30); yax.setAttribute("x2", cx); yax.setAttribute("y2", H-30);
+  yax.setAttribute("stroke", "#1a202c"); yax.setAttribute("stroke-width", 1.5);
+  svg.appendChild(yax);
+
+  // Original f
+  let path1 = "";
+  let st1 = false;
+  for (let x = -xRange/2; x <= xRange/2; x += 0.02) {
+    const y = def.fn(x);
+    if (!isFinite(y) || y > def.yMax + 1 || y < def.yMin - 1) { st1 = false; continue; }
+    const px = xToPx(x), py = yToPx(y);
+    path1 += (st1 ? "L" : "M") + px + " " + py + " ";
+    st1 = true;
+  }
+  const p1 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  p1.setAttribute("d", path1); p1.setAttribute("fill", "none"); p1.setAttribute("stroke", "#1d4ed8"); p1.setAttribute("stroke-width", 2.5);
+  svg.appendChild(p1);
+
+  // Taylor T_N
+  let path2 = "";
+  let st2 = false;
+  for (let x = -xRange/2; x <= xRange/2; x += 0.02) {
+    const y = def.taylor(x, N);
+    if (!isFinite(y) || y > def.yMax + 2 || y < def.yMin - 2) { st2 = false; continue; }
+    const px = xToPx(x), py = yToPx(y);
+    path2 += (st2 ? "L" : "M") + px + " " + py + " ";
+    st2 = true;
+  }
+  const p2 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  p2.setAttribute("d", path2); p2.setAttribute("fill", "none"); p2.setAttribute("stroke", "#dc2626"); p2.setAttribute("stroke-width", 2.5); p2.setAttribute("stroke-dasharray", "6,4");
+  svg.appendChild(p2);
+
+  // Labels
+  const lf = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  lf.setAttribute("x", W-130); lf.setAttribute("y", 30); lf.setAttribute("fill", "#1d4ed8"); lf.setAttribute("font-weight", "700"); lf.setAttribute("font-size", "14");
+  lf.textContent = "f(x) (xanh đặc)";
+  svg.appendChild(lf);
+  const lt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  lt.setAttribute("x", W-130); lt.setAttribute("y", 50); lt.setAttribute("fill", "#dc2626"); lt.setAttribute("font-weight", "700"); lt.setAttribute("font-size", "14");
+  lt.textContent = `T_${N}(x) (đỏ gạch)`;
+  svg.appendChild(lt);
+
+  document.getElementById("res").innerHTML = `
+    <div style="font-family:monospace; font-size:15px"><strong>${def.formula}</strong></div>
+    <div style="margin-top:6px">Đa thức Taylor bậc ${N} xấp xỉ f gần x = 0. <strong>Tăng N → xấp xỉ chính xác hơn</strong> trong miền hội tụ.</div>
+  `;
+}
+
+draw();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

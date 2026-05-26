@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 05 — Số phức</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 70px; }
+  button { background: #94a3b8; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.active { background: #15803d; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 500px; height: 500px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-trig-equations/visualization.html">← L4: PT</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Số phức</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L6: Euler (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 05 (T3) — Số phức trên mặt phẳng Argand</h1>
+
+<h2>Phép toán số phức</h2>
+<div class="card">
+  <div class="row">
+    <strong>z₁:</strong>
+    <label>a:</label><input type="number" id="a1" step="1" value="3" oninput="calc()">
+    <label>+ b·i, b:</label><input type="number" id="b1" step="1" value="2" oninput="calc()">
+  </div>
+  <div class="row">
+    <strong>z₂:</strong>
+    <label>c:</label><input type="number" id="a2" step="1" value="1" oninput="calc()">
+    <label>+ d·i, d:</label><input type="number" id="b2" step="1" value="-4" oninput="calc()">
+  </div>
+  <div class="row">
+    <button id="bA" onclick="setOp('add')" class="active">z₁ + z₂</button>
+    <button id="bS" onclick="setOp('sub')">z₁ - z₂</button>
+    <button id="bM" onclick="setOp('mul')">z₁ × z₂</button>
+    <button id="bD" onclick="setOp('div')">z₁ / z₂</button>
+  </div>
+  <svg class="scene" id="svg" viewBox="-250 -250 500 500"></svg>
+  <div class="result" id="res"></div>
+</div>
+
+<script>
+let op = "add";
+
+function setOp(o) {
+  op = o;
+  ["A","S","M","D"].forEach(c => document.getElementById("b"+c).classList.remove("active"));
+  document.getElementById("b" + {add:"A",sub:"S",mul:"M",div:"D"}[o]).classList.add("active");
+  calc();
+}
+
+function calc() {
+  const a = parseFloat(document.getElementById("a1").value);
+  const b = parseFloat(document.getElementById("b1").value);
+  const c = parseFloat(document.getElementById("a2").value);
+  const d = parseFloat(document.getElementById("b2").value);
+
+  let re, im, formula;
+  if (op === "add") {
+    re = a + c; im = b + d;
+    formula = `(${a}${b>=0?"+":""}${b}i) + (${c}${d>=0?"+":""}${d}i) = ${re}${im>=0?"+":""}${im}i`;
+  } else if (op === "sub") {
+    re = a - c; im = b - d;
+    formula = `(${a}${b>=0?"+":""}${b}i) − (${c}${d>=0?"+":""}${d}i) = ${re}${im>=0?"+":""}${im}i`;
+  } else if (op === "mul") {
+    re = a*c - b*d; im = a*d + b*c;
+    formula = `(${a}${b>=0?"+":""}${b}i)·(${c}${d>=0?"+":""}${d}i) = (${a*c} − ${b*d}) + (${a*d} + ${b*c})i = ${re}${im>=0?"+":""}${im}i`;
+  } else {
+    const m = c*c + d*d;
+    if (m === 0) { document.getElementById("res").innerHTML = "<strong>Lỗi: chia cho 0</strong>"; return; }
+    re = (a*c + b*d) / m; im = (b*c - a*d) / m;
+    formula = `(${a}${b>=0?"+":""}${b}i)/(${c}${d>=0?"+":""}${d}i) = [(${a}${b>=0?"+":""}${b}i)(${c}${-d>=0?"+":""}${-d}i)]/(${c}²+${d}²) = (${a*c+b*d} + ${b*c-a*d}i)/${m} = ${re.toFixed(4)}${im>=0?"+":""}${im.toFixed(4)}i`;
+  }
+
+  // SVG
+  const svg = document.getElementById("svg");
+  svg.innerHTML = "";
+  const SC = 20;
+
+  // Grid
+  for (let i = -12; i <= 12; i++) {
+    const v = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    v.setAttribute("x1", i*SC); v.setAttribute("y1", -250); v.setAttribute("x2", i*SC); v.setAttribute("y2", 250);
+    v.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); v.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+    svg.appendChild(v);
+    const h = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    h.setAttribute("x1", -250); h.setAttribute("y1", i*SC); h.setAttribute("x2", 250); h.setAttribute("y2", i*SC);
+    h.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); h.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+    svg.appendChild(h);
+  }
+
+  // Axis labels
+  const lr = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  lr.setAttribute("x", 235); lr.setAttribute("y", 15); lr.setAttribute("font-weight", "700"); lr.setAttribute("fill", "#1a202c");
+  lr.textContent = "Re"; svg.appendChild(lr);
+  const li = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  li.setAttribute("x", 8); li.setAttribute("y", -230); li.setAttribute("font-weight", "700"); li.setAttribute("fill", "#1a202c");
+  li.textContent = "Im"; svg.appendChild(li);
+
+  function plotZ(re, im, color, label) {
+    const x = re*SC, y = -im*SC;
+    // Vector from O
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", 0); l.setAttribute("y1", 0); l.setAttribute("x2", x); l.setAttribute("y2", y);
+    l.setAttribute("stroke", color); l.setAttribute("stroke-width", 2.5);
+    svg.appendChild(l);
+    // Point
+    const p = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    p.setAttribute("cx", x); p.setAttribute("cy", y); p.setAttribute("r", 6);
+    p.setAttribute("fill", color);
+    svg.appendChild(p);
+    // Label
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", x+10); t.setAttribute("y", y-10); t.setAttribute("fill", color); t.setAttribute("font-weight", "700"); t.setAttribute("font-size", "14");
+    t.textContent = label;
+    svg.appendChild(t);
+  }
+
+  plotZ(a, b, "#1d4ed8", `z₁=${a}${b>=0?"+":""}${b}i`);
+  plotZ(c, d, "#15803d", `z₂=${c}${d>=0?"+":""}${d}i`);
+  plotZ(re, im, "#dc2626", `kq=${re.toFixed(2)}${im>=0?"+":""}${im.toFixed(2)}i`);
+
+  // For add, show parallelogram
+  if (op === "add") {
+    const dashes = [[[a, b], [a+c, b+d]], [[c, d], [a+c, b+d]]];
+    dashes.forEach(([[x1,y1],[x2,y2]], i) => {
+      const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      l.setAttribute("x1", x1*SC); l.setAttribute("y1", -y1*SC); l.setAttribute("x2", x2*SC); l.setAttribute("y2", -y2*SC);
+      l.setAttribute("stroke", i === 0 ? "#15803d" : "#1d4ed8"); l.setAttribute("stroke-width", 1.5); l.setAttribute("stroke-dasharray", "4,4");
+      svg.appendChild(l);
+    });
+  }
+
+  const m1 = Math.sqrt(a*a + b*b);
+  const m2 = Math.sqrt(c*c + d*d);
+  const mr = Math.sqrt(re*re + im*im);
+  document.getElementById("res").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">${formula}</div>
+    <div class="row" style="margin-top:8px">
+      <span class="stat">|z₁| = <strong>${m1.toFixed(4)}</strong></span>
+      <span class="stat">|z₂| = <strong>${m2.toFixed(4)}</strong></span>
+      <span class="stat">|kq| = <strong>${mr.toFixed(4)}</strong></span>
+    </div>
+    ${op === "mul" ? `<div style="margin-top:8px; font-size:13px">Quan sát: |z₁·z₂| = |z₁|·|z₂| = ${m1.toFixed(3)}·${m2.toFixed(3)} = ${(m1*m2).toFixed(4)} ✓</div>` : ""}
+    ${op === "div" ? `<div style="margin-top:8px; font-size:13px">Quan sát: |z₁/z₂| = |z₁|/|z₂| = ${(m1/m2).toFixed(4)} ✓</div>` : ""}
+  `;
+}
+
+calc();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

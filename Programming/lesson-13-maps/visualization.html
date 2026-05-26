@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 13 — Map (hash table) Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.danger { background: #e53e3e; }
+  button.danger:hover { background: #c53030; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+
+  input[type="text"], input[type="number"] {
+    font-size: 14px; padding: 6px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    font-family: monospace;
+    width: 100%;
+    max-width: 280px;
+    box-sizing: border-box;
+  }
+  label { font-weight: 600; }
+
+  .explain {
+    background: #ebf8ff; border-left: 4px solid #4299e1;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6;
+    margin-top: 10px;
+  }
+  .explain code {
+    background: white; padding: 1px 5px; border-radius: 3px;
+    font-family: monospace; color: #2b6cb0;
+  }
+  .warn {
+    background: #fffaf0; border-left: 4px solid #ed8936;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6;
+    margin-top: 10px;
+  }
+
+  /* ========== Module 1: Hash table ========== */
+  .svg-wrap { width: 100%; overflow-x: auto; }
+  .bucket-rect { fill: #f7fafc; stroke: #4a5568; stroke-width: 1.5; }
+  .bucket-rect.active { fill: #fef3c7; stroke: #d97706; }
+  .bucket-rect.target { fill: #c6f6d5; stroke: #38a169; }
+  .bucket-rect.collision { fill: #fed7d7; stroke: #c53030; }
+  .bucket-label { font-family: monospace; font-size: 13px; fill: #2d3748; }
+  .key-pill {
+    font-family: monospace; font-size: 12px; fill: #1a202c;
+  }
+  .arrow { stroke: #4299e1; stroke-width: 2; fill: none; }
+  .hash-step {
+    font-family: monospace; font-size: 13px;
+    background: #1a202c; color: #f7fafc;
+    padding: 10px 14px; border-radius: 6px;
+    white-space: pre-wrap; line-height: 1.5;
+    margin-top: 10px;
+  }
+  .hash-step .hl { color: #f6e05e; font-weight: 700; }
+
+  /* ========== Module 2: Counter playground ========== */
+  .step-line {
+    font-family: monospace; font-size: 14px;
+    padding: 6px 10px; border-radius: 4px;
+    background: #edf2f7;
+    margin: 4px 0;
+    transition: background 0.2s;
+  }
+  .step-line.current {
+    background: #fef3c7;
+    border-left: 4px solid #d97706;
+  }
+  .step-line.done { color: #4a5568; }
+
+  .map-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+    font-family: monospace;
+    font-size: 14px;
+  }
+  .map-table th, .map-table td {
+    padding: 6px 10px;
+    border: 1px solid #cbd5e0;
+    text-align: left;
+  }
+  .map-table th { background: #2d3748; color: white; }
+  .map-table tr.updated { background: #fef3c7; }
+  .map-table tr.new { background: #c6f6d5; }
+  .empty-row td {
+    text-align: center; color: #a0aec0; font-style: italic;
+  }
+
+  /* ========== Module 3: Random iteration ========== */
+  .iter-runs {
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .iter-row {
+    display: flex; gap: 8px; align-items: center;
+    padding: 6px 8px;
+    background: #edf2f7;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 14px;
+    flex-wrap: wrap;
+  }
+  .iter-label {
+    font-weight: 700;
+    color: #2d3748;
+    min-width: 70px;
+  }
+  .iter-key {
+    background: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid #cbd5e0;
+  }
+  .iter-arrow { color: #a0aec0; }
+
+  /* ========== Mobile ========== */
+  @media (max-width: 480px) {
+    .card { padding: 14px; }
+    input[type="text"], input[type="number"] { max-width: 100%; }
+    .iter-label { min-width: 60px; font-size: 13px; }
+    .iter-key { padding: 3px 7px; font-size: 13px; }
+    .step-line { font-size: 13px; }
+    .hash-step { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-12-arrays-slices/visualization.html">← L12: Array & Slice</a>
+  <span class="sep">·</span>
+  <span class="current">L13: Map</span>
+  <span class="sep">·</span>
+  <a href="../lesson-14-strings-runes-utf8/visualization.html">L14: String & Rune →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 13 — Map (hash table)</h1>
+<p>3 module tương tác để hiểu map từ trong ra ngoài: (1) cách hash table dùng hash function + bucket bên trong; (2) counter pattern <code>m[k]++</code> chạy từng bước; (3) iteration thứ tự random của Go là feature, không phải bug.</p>
+
+<h2>1. Hash table internals — key đi vào bucket nào?</h2>
+<div class="card">
+  <p>
+    Map = mảng các <strong>bucket</strong> + một <strong>hash function</strong>.
+    Cho key, hash function tính ra <em>index của bucket</em>. Đi thẳng tới bucket → lookup O(1).
+  </p>
+  <p>
+    Hash function dưới đây là <em>toy version</em> để minh hoạ:
+    <code>hash(s) = (Σ ASCII của ký tự) mod N</code> với <code>N = 8</code> bucket.
+    Go thật dùng AESHASH — nhanh và phân bố đều hơn nhiều.
+  </p>
+  <div class="row">
+    <label for="hkey">Key:</label>
+    <input type="text" id="hkey" value="alice" placeholder="vd: alice">
+    <button id="hInsert">▶ Insert</button>
+    <button id="hLookup" class="secondary">🔍 Lookup</button>
+    <button id="hReset" class="danger">↺ Reset</button>
+  </div>
+  <div class="svg-wrap">
+    <svg id="hashSvg" width="700" height="360" viewBox="0 0 700 360"></svg>
+  </div>
+  <div class="hash-step" id="hashStep">(nhập key rồi bấm Insert hoặc Lookup)</div>
+  <div class="explain">
+    <strong>Demo collision:</strong> thử insert <code>alice</code> rồi <code>aleci</code> (cùng chữ cái → cùng hash → cùng bucket). Bucket sẽ chứa cả 2 — đó là <em>chaining</em>, cách phổ biến để xử lý collision.
+  </div>
+</div>
+
+<h2>2. Counter playground — <code>m[w]++</code> chạy từng bước</h2>
+<div class="card">
+  <p>
+    Idiom <code>m[k]++</code> hoạt động được vì zero value của <code>int</code> là 0:
+    lần đầu gặp key, Go tự thêm <code>{k: 0}</code> rồi <code>++</code> thành 1.
+  </p>
+  <div class="row">
+    <label for="cInput">Danh sách từ (cách nhau bằng dấu cách):</label>
+  </div>
+  <div class="row">
+    <input type="text" id="cInput" value="go is fun go is go" style="max-width: 360px;">
+    <button id="cStart">▶ Bắt đầu</button>
+    <button id="cStep">⏭ Bước tiếp</button>
+    <button id="cAuto" class="secondary">▶▶ Auto-play</button>
+    <button id="cReset" class="danger">↺ Reset</button>
+  </div>
+  <div id="cSteps" style="margin-top: 12px;"></div>
+  <table class="map-table" id="cTable">
+    <thead><tr><th>Key</th><th>Value</th></tr></thead>
+    <tbody id="cBody">
+      <tr class="empty-row"><td colspan="2">(map rỗng — bấm Bắt đầu)</td></tr>
+    </tbody>
+  </table>
+  <div class="explain" id="cExplain">
+    Bấm <code>Bắt đầu</code> để khởi tạo <code>count := make(map[string]int)</code>, sau đó <code>Bước tiếp</code> để xử lý từng từ. Bảng map update real-time.
+  </div>
+</div>
+
+<h2>3. Iteration thứ tự RANDOM — Go cố ý</h2>
+<div class="card">
+  <p>
+    Map giữ data trong các bucket — không có "thứ tự chèn". Go runtime <strong>cố tình</strong> randomize thứ tự range để dev không phụ thuộc vào nó.
+    Chạy <code>for k := range m</code> 5 lần liên tiếp với cùng map dưới đây để xem.
+  </p>
+  <div class="row">
+    <code style="background: #1a202c; color: #f7fafc; padding: 6px 10px; border-radius: 4px;">m := map[string]int{"alice": 30, "bob": 25, "carol": 27, "dave": 40, "eve": 22}</code>
+  </div>
+  <div class="row">
+    <button id="iterRun">▶ Run iteration × 5</button>
+    <button id="iterReset" class="danger">↺ Clear</button>
+  </div>
+  <div class="iter-runs" id="iterRuns"></div>
+  <div class="explain">
+    Mỗi run cho thứ tự khác nhau (xác suất rất cao). Đây là feature: nếu code của bạn vô tình phụ thuộc thứ tự, test sẽ flaky ngay → bug lộ sớm. Cần thứ tự ổn định? <strong>Extract keys → <code>sort.Strings</code> → range qua sorted slice.</strong>
+  </div>
+  <div class="warn">
+    <strong>Lịch sử ngắn:</strong> Trước Go 1.0, iteration không random. Một số code dựa vào điều đó → khi Go đổi implementation, code break ngầm. Từ Go 1.0, runtime <em>chủ động randomize</em> để bug lộ ngay.
+  </div>
+</div>
+
+</main>
+
+<script>
+/* ============================================================
+ * MODULE 1 — Hash table internals
+ * ============================================================ */
+const HASH_BUCKETS = 8;
+const hashState = {
+  buckets: Array.from({length: HASH_BUCKETS}, () => []),
+};
+
+function toyHash(s) {
+  let sum = 0;
+  for (let i = 0; i < s.length; i++) sum += s.charCodeAt(i);
+  return { sum, idx: sum % HASH_BUCKETS };
+}
+
+function renderHash(highlightIdx, mode, key) {
+  const svg = document.getElementById('hashSvg');
+  svg.innerHTML = '';
+  const NS = 'http://www.w3.org/2000/svg';
+
+  const bucketW = 70;
+  const bucketH = 50;
+  const gap = 8;
+  const startX = 20;
+  const startY = 30;
+
+  // Title
+  const title = document.createElementNS(NS, 'text');
+  title.setAttribute('x', startX);
+  title.setAttribute('y', 20);
+  title.setAttribute('class', 'bucket-label');
+  title.textContent = `Bucket array (N=${HASH_BUCKETS}):`;
+  svg.appendChild(title);
+
+  for (let i = 0; i < HASH_BUCKETS; i++) {
+    const x = startX + i * (bucketW + gap);
+    const rect = document.createElementNS(NS, 'rect');
+    rect.setAttribute('x', x);
+    rect.setAttribute('y', startY);
+    rect.setAttribute('width', bucketW);
+    rect.setAttribute('height', bucketH);
+    rect.setAttribute('rx', 4);
+    rect.setAttribute('class', 'bucket-rect');
+    if (highlightIdx === i) {
+      if (mode === 'insert') rect.setAttribute('class', 'bucket-rect active');
+      else if (mode === 'found') rect.setAttribute('class', 'bucket-rect target');
+      else if (mode === 'collision') rect.setAttribute('class', 'bucket-rect collision');
+    }
+    svg.appendChild(rect);
+
+    // Index label
+    const lbl = document.createElementNS(NS, 'text');
+    lbl.setAttribute('x', x + bucketW / 2);
+    lbl.setAttribute('y', startY + bucketH + 16);
+    lbl.setAttribute('class', 'bucket-label');
+    lbl.setAttribute('text-anchor', 'middle');
+    lbl.textContent = `[${i}]`;
+    svg.appendChild(lbl);
+
+    // Bucket contents (chaining)
+    const keys = hashState.buckets[i];
+    keys.forEach((k, ki) => {
+      const ky = startY + bucketH + 30 + ki * 22;
+      const pillRect = document.createElementNS(NS, 'rect');
+      pillRect.setAttribute('x', x + 4);
+      pillRect.setAttribute('y', ky);
+      pillRect.setAttribute('width', bucketW - 8);
+      pillRect.setAttribute('height', 18);
+      pillRect.setAttribute('rx', 9);
+      pillRect.setAttribute('fill', '#4299e1');
+      svg.appendChild(pillRect);
+
+      const pillText = document.createElementNS(NS, 'text');
+      pillText.setAttribute('x', x + bucketW / 2);
+      pillText.setAttribute('y', ky + 13);
+      pillText.setAttribute('class', 'key-pill');
+      pillText.setAttribute('text-anchor', 'middle');
+      pillText.setAttribute('fill', 'white');
+      pillText.textContent = k;
+      svg.appendChild(pillText);
+    });
+  }
+
+  // Animated key flowing
+  if (key && highlightIdx >= 0) {
+    const tx = startX + highlightIdx * (bucketW + gap) + bucketW / 2;
+    const ty = 280;
+    const keyRect = document.createElementNS(NS, 'rect');
+    keyRect.setAttribute('x', tx - 35);
+    keyRect.setAttribute('y', ty);
+    keyRect.setAttribute('width', 70);
+    keyRect.setAttribute('height', 28);
+    keyRect.setAttribute('rx', 14);
+    keyRect.setAttribute('fill', mode === 'collision' ? '#e53e3e' : '#38a169');
+    svg.appendChild(keyRect);
+
+    const keyText = document.createElementNS(NS, 'text');
+    keyText.setAttribute('x', tx);
+    keyText.setAttribute('y', ty + 19);
+    keyText.setAttribute('class', 'key-pill');
+    keyText.setAttribute('text-anchor', 'middle');
+    keyText.setAttribute('fill', 'white');
+    keyText.textContent = `"${key}"`;
+    svg.appendChild(keyText);
+
+    // Arrow from key up to bucket
+    const path = document.createElementNS(NS, 'path');
+    const startBucketY = startY + bucketH + 30 + Math.max(0, hashState.buckets[highlightIdx].length - 1) * 22 + 22;
+    path.setAttribute('d', `M ${tx} ${ty} L ${tx} ${startBucketY + 4}`);
+    path.setAttribute('class', 'arrow');
+    path.setAttribute('marker-end', 'url(#arrowhead)');
+    svg.appendChild(path);
+
+    // Arrow marker
+    const defs = document.createElementNS(NS, 'defs');
+    defs.innerHTML = `<marker id="arrowhead" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto">
+      <polygon points="0 0, 6 3, 0 6" fill="#4299e1"/></marker>`;
+    svg.appendChild(defs);
+  }
+}
+
+function showHashStep(key, kind) {
+  const el = document.getElementById('hashStep');
+  if (!key) { el.textContent = '(nhập key rồi bấm Insert hoặc Lookup)'; return; }
+  const h = toyHash(key);
+  let breakdown = '';
+  for (let i = 0; i < key.length; i++) {
+    breakdown += `${i ? ' + ' : ''}${key.charCodeAt(i)}`;
+  }
+  let extra = '';
+  if (kind === 'insert') {
+    const others = hashState.buckets[h.idx].filter(k => k !== key);
+    if (others.length > 0) extra = `\n  collision: bucket [${h.idx}] đã có ${others.map(k => `"${k}"`).join(', ')} — chain thêm "${key}".`;
+    else extra = `\n  ✓ Insert "${key}" vào bucket [${h.idx}].`;
+  } else if (kind === 'lookup') {
+    if (hashState.buckets[h.idx].includes(key)) extra = `\n  ✓ Tìm thấy "${key}" trong bucket [${h.idx}].`;
+    else extra = `\n  ✗ Không thấy "${key}" trong bucket [${h.idx}] → key không tồn tại.`;
+  }
+  el.innerHTML =
+    `hash("${key}"):\n` +
+    `  Σ ASCII = ${breakdown} = <span class="hl">${h.sum}</span>\n` +
+    `  ${h.sum} mod ${HASH_BUCKETS} = <span class="hl">${h.idx}</span>` +
+    extra;
+}
+
+document.getElementById('hInsert').addEventListener('click', () => {
+  const k = document.getElementById('hkey').value.trim();
+  if (!k) return;
+  const h = toyHash(k);
+  const existing = hashState.buckets[h.idx];
+  const collision = existing.length > 0 && !existing.includes(k);
+  if (!existing.includes(k)) existing.push(k);
+  showHashStep(k, 'insert');
+  renderHash(h.idx, collision ? 'collision' : 'insert', k);
+});
+
+document.getElementById('hLookup').addEventListener('click', () => {
+  const k = document.getElementById('hkey').value.trim();
+  if (!k) return;
+  const h = toyHash(k);
+  const found = hashState.buckets[h.idx].includes(k);
+  showHashStep(k, 'lookup');
+  renderHash(h.idx, found ? 'found' : 'collision', k);
+});
+
+document.getElementById('hReset').addEventListener('click', () => {
+  hashState.buckets = Array.from({length: HASH_BUCKETS}, () => []);
+  showHashStep(null);
+  renderHash(-1, null, null);
+});
+
+renderHash(-1, null, null);
+
+/* ============================================================
+ * MODULE 2 — Counter playground
+ * ============================================================ */
+const counter = {
+  words: [],
+  i: -1,
+  map: new Map(),
+  auto: null,
+};
+
+function renderCounterSteps() {
+  const el = document.getElementById('cSteps');
+  if (counter.words.length === 0) { el.innerHTML = ''; return; }
+  let html = `<div class="step-line ${counter.i === -1 ? 'current' : 'done'}">count := make(map[string]int)</div>`;
+  counter.words.forEach((w, idx) => {
+    const cls = idx === counter.i ? 'current' : (idx < counter.i ? 'done' : '');
+    html += `<div class="step-line ${cls}">count["${w}"]++  ${idx <= counter.i ? `// → count["${w}"] = ${counter.snapshot && counter.snapshot[idx] && counter.snapshot[idx][w]}` : ''}</div>`;
+  });
+  el.innerHTML = html;
+}
+
+function renderCounterTable(updatedKey, isNew) {
+  const tbody = document.getElementById('cBody');
+  if (counter.map.size === 0) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="2">(map rỗng)</td></tr>';
+    return;
+  }
+  const keys = [...counter.map.keys()].sort();
+  tbody.innerHTML = keys.map(k => {
+    let cls = '';
+    if (k === updatedKey) cls = isNew ? 'new' : 'updated';
+    return `<tr class="${cls}"><td>"${k}"</td><td>${counter.map.get(k)}</td></tr>`;
+  }).join('');
+}
+
+function counterStart() {
+  const raw = document.getElementById('cInput').value.trim();
+  counter.words = raw.split(/\s+/).filter(Boolean);
+  counter.i = -1;
+  counter.map = new Map();
+  counter.snapshot = [];
+  renderCounterSteps();
+  renderCounterTable();
+  document.getElementById('cExplain').innerHTML =
+    `Khởi tạo <code>count := make(map[string]int)</code>. Sẵn sàng xử lý ${counter.words.length} từ. Bấm <code>Bước tiếp</code>.`;
+}
+
+function counterStep() {
+  if (counter.words.length === 0) { counterStart(); return; }
+  if (counter.i >= counter.words.length - 1) {
+    document.getElementById('cExplain').innerHTML =
+      `Xong! Map cuối: <code>${JSON.stringify(Object.fromEntries(counter.map))}</code>. ` +
+      `Bấm <code>↺ Reset</code> để chạy lại với input khác.`;
+    if (counter.auto) { clearInterval(counter.auto); counter.auto = null; document.getElementById('cAuto').textContent = '▶▶ Auto-play'; }
+    return;
+  }
+  counter.i++;
+  const w = counter.words[counter.i];
+  const prev = counter.map.get(w) || 0;
+  const isNew = !counter.map.has(w);
+  counter.map.set(w, prev + 1);
+  // snapshot for step display
+  counter.snapshot[counter.i] = { [w]: prev + 1 };
+  renderCounterSteps();
+  renderCounterTable(w, isNew);
+  document.getElementById('cExplain').innerHTML = isNew
+    ? `Key <code>"${w}"</code> chưa có → Go tự thêm với value 0, rồi <code>++</code> thành 1. (Highlight xanh)`
+    : `Key <code>"${w}"</code> đã có với value ${prev} → <code>++</code> thành ${prev + 1}. (Highlight vàng)`;
+}
+
+document.getElementById('cStart').addEventListener('click', counterStart);
+document.getElementById('cStep').addEventListener('click', counterStep);
+document.getElementById('cAuto').addEventListener('click', () => {
+  const btn = document.getElementById('cAuto');
+  if (counter.auto) {
+    clearInterval(counter.auto); counter.auto = null;
+    btn.textContent = '▶▶ Auto-play';
+    return;
+  }
+  if (counter.words.length === 0 || counter.i < 0) counterStart();
+  btn.textContent = '⏸ Pause';
+  counter.auto = setInterval(() => {
+    if (counter.i >= counter.words.length - 1) {
+      clearInterval(counter.auto); counter.auto = null;
+      btn.textContent = '▶▶ Auto-play';
+      return;
+    }
+    counterStep();
+  }, 800);
+});
+document.getElementById('cReset').addEventListener('click', () => {
+  if (counter.auto) { clearInterval(counter.auto); counter.auto = null; document.getElementById('cAuto').textContent = '▶▶ Auto-play'; }
+  counter.words = []; counter.i = -1; counter.map = new Map(); counter.snapshot = [];
+  document.getElementById('cSteps').innerHTML = '';
+  renderCounterTable();
+  document.getElementById('cExplain').innerHTML =
+    `Bấm <code>Bắt đầu</code> để khởi tạo <code>count := make(map[string]int)</code>, sau đó <code>Bước tiếp</code>.`;
+});
+
+/* ============================================================
+ * MODULE 3 — Iteration random
+ * ============================================================ */
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+document.getElementById('iterRun').addEventListener('click', () => {
+  const keys = ['alice', 'bob', 'carol', 'dave', 'eve'];
+  const container = document.getElementById('iterRuns');
+  container.innerHTML = '';
+  for (let r = 1; r <= 5; r++) {
+    const order = shuffle(keys);
+    const row = document.createElement('div');
+    row.className = 'iter-row';
+    let html = `<span class="iter-label">Lần ${r}:</span>`;
+    order.forEach((k, idx) => {
+      html += `<span class="iter-key">${k}</span>`;
+      if (idx < order.length - 1) html += `<span class="iter-arrow">→</span>`;
+    });
+    row.innerHTML = html;
+    container.appendChild(row);
+  }
+});
+
+document.getElementById('iterReset').addEventListener('click', () => {
+  document.getElementById('iterRuns').innerHTML = '';
+});
+</script>
+
+<!-- README modal -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+
+</body>
+</html>

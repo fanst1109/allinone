@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 05 — Ứng dụng đạo hàm</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 700px; height: 400px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-derivative-rules/visualization.html">← L4: Quy tắc</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Ứng dụng</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L6: Nguyên hàm (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 05 (T4) — Ứng dụng: Cực trị, lồi/lõm, tối ưu</h1>
+
+<h2>Bài toán hộp lớn nhất — Tối ưu hóa</h2>
+<div class="card">
+  <p>Tấm giấy L×L. Cắt 4 góc vuông cạnh x, gấp thành hộp không nắp. Tìm x để V lớn nhất.</p>
+  <div class="row">
+    <label>L (cạnh tấm giấy):</label>
+    <input type="range" id="L" min="6" max="20" step="0.5" value="12" oninput="draw()">
+    <span class="stat">L = <strong id="vL">12</strong></span>
+  </div>
+  <div class="row">
+    <label>x (cạnh cắt):</label>
+    <input type="range" id="x" min="0.1" max="9" step="0.1" value="2" oninput="draw()">
+    <span class="stat">x = <strong id="vX">2</strong></span>
+  </div>
+  <svg class="scene" id="svg" viewBox="0 0 700 400"></svg>
+  <div class="result" id="res"></div>
+</div>
+
+<script>
+function draw() {
+  const L = parseFloat(document.getElementById("L").value);
+  const x = parseFloat(document.getElementById("x").value);
+  document.getElementById("vL").textContent = L;
+  document.getElementById("vX").textContent = x.toFixed(1);
+  // Clamp x
+  const xMax_valid = L / 2;
+  document.getElementById("x").max = xMax_valid - 0.1;
+
+  const svg = document.getElementById("svg");
+  svg.innerHTML = "";
+  const W = 700, H = 400, cx = 50, cy = 320;
+  const xMax = L / 2;
+  const scale = (W - 350) / xMax;
+
+  // V(x) = x · (L - 2x)²
+  const V = xx => xx * (L - 2*xx)**2;
+  const Vp = xx => (L - 2*xx)**2 - 4*xx*(L - 2*xx); // V'(x)
+  const xOpt = L / 6;
+  const Vopt = V(xOpt);
+
+  // Plot V(x)
+  let path = "";
+  const Vscale = 220 / Vopt;
+  for (let xx = 0; xx <= xMax; xx += 0.05) {
+    const y = V(xx);
+    const px = cx + xx*scale, py = cy - y*Vscale;
+    path += (xx === 0 ? "M" : "L") + px + " " + py + " ";
+  }
+  const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  p.setAttribute("d", path); p.setAttribute("fill", "none"); p.setAttribute("stroke", "#1d4ed8"); p.setAttribute("stroke-width", 2.5);
+  svg.appendChild(p);
+
+  // Axes
+  const xax = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  xax.setAttribute("x1", cx); xax.setAttribute("y1", cy); xax.setAttribute("x2", cx + xMax*scale); xax.setAttribute("y2", cy);
+  xax.setAttribute("stroke", "#1a202c"); xax.setAttribute("stroke-width", 1.5);
+  svg.appendChild(xax);
+  const yax = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  yax.setAttribute("x1", cx); yax.setAttribute("y1", 50); yax.setAttribute("x2", cx); yax.setAttribute("y2", cy);
+  yax.setAttribute("stroke", "#1a202c"); yax.setAttribute("stroke-width", 1.5);
+  svg.appendChild(yax);
+
+  // Mark current x
+  const xPx = cx + x*scale, xCy = cy - V(x)*Vscale;
+  const pt = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  pt.setAttribute("cx", xPx); pt.setAttribute("cy", xCy); pt.setAttribute("r", 6);
+  pt.setAttribute("fill", "#dc2626");
+  svg.appendChild(pt);
+  // Vertical guide
+  const gl = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  gl.setAttribute("x1", xPx); gl.setAttribute("y1", xCy); gl.setAttribute("x2", xPx); gl.setAttribute("y2", cy);
+  gl.setAttribute("stroke", "#dc2626"); gl.setAttribute("stroke-width", 1); gl.setAttribute("stroke-dasharray", "3,3");
+  svg.appendChild(gl);
+
+  // Mark optimum
+  const oPx = cx + xOpt*scale, oCy = cy - Vopt*Vscale;
+  const opt = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  opt.setAttribute("cx", oPx); opt.setAttribute("cy", oCy); opt.setAttribute("r", 5);
+  opt.setAttribute("fill", "#15803d");
+  svg.appendChild(opt);
+  const optLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  optLbl.setAttribute("x", oPx+10); optLbl.setAttribute("y", oCy); optLbl.setAttribute("fill", "#15803d"); optLbl.setAttribute("font-weight", "700"); optLbl.setAttribute("font-size", "13");
+  optLbl.textContent = `x* = L/6 = ${xOpt.toFixed(2)}, V_max = ${Vopt.toFixed(2)}`;
+  svg.appendChild(optLbl);
+
+  // X labels
+  for (let i = 0; i <= xMax; i += xMax/5) {
+    const px = cx + i*scale;
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", px); t.setAttribute("y", cy+15); t.setAttribute("text-anchor", "middle"); t.setAttribute("font-size", "11");
+    t.textContent = i.toFixed(1);
+    svg.appendChild(t);
+  }
+
+  // Mini-illustration of the box (top-right)
+  const box_x = 480, box_y = 60, box_size = 180;
+  const sc = box_size / L;
+  // Outer square
+  const sq = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  sq.setAttribute("x", box_x); sq.setAttribute("y", box_y); sq.setAttribute("width", L*sc); sq.setAttribute("height", L*sc);
+  sq.setAttribute("fill", "#dcfce7"); sq.setAttribute("stroke", "#15803d"); sq.setAttribute("stroke-width", 2);
+  svg.appendChild(sq);
+  // Cut corners
+  [[0,0], [L-x, 0], [0, L-x], [L-x, L-x]].forEach(([dx,dy]) => {
+    const c = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    c.setAttribute("x", box_x + dx*sc); c.setAttribute("y", box_y + dy*sc); c.setAttribute("width", x*sc); c.setAttribute("height", x*sc);
+    c.setAttribute("fill", "#fecaca"); c.setAttribute("stroke", "#dc2626"); c.setAttribute("stroke-width", 1);
+    svg.appendChild(c);
+  });
+  // Label
+  const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  lbl.setAttribute("x", box_x + L*sc/2); lbl.setAttribute("y", box_y - 5); lbl.setAttribute("text-anchor", "middle"); lbl.setAttribute("font-size", "12"); lbl.setAttribute("font-weight", "700");
+  lbl.textContent = `Tấm giấy L=${L}, cắt 4 góc x=${x.toFixed(1)}`;
+  svg.appendChild(lbl);
+
+  const Vp_val = Vp(x);
+  document.getElementById("res").innerHTML = `
+    <div style="font-family:monospace; font-size:15px">V(x) = x · (L − 2x)² = ${x.toFixed(2)} · (${(L-2*x).toFixed(2)})² = <strong>${V(x).toFixed(3)}</strong></div>
+    <div style="font-family:monospace; font-size:14px; margin-top:6px">V'(x) = (L − 2x)² − 4x(L − 2x) = (L − 2x)(L − 6x)</div>
+    <div style="font-family:monospace; font-size:14px">V'(${x.toFixed(2)}) = <strong style="color:${Math.abs(Vp_val) < 0.1 ? "#15803d" : "#dc2626"}">${Vp_val.toFixed(4)}</strong> ${Math.abs(Vp_val) < 0.1 ? "(≈ 0 — cực đại!)" : ""}</div>
+    <div style="font-family:monospace; font-size:14px; margin-top:6px">V' = 0 → x = L/6 = <strong>${xOpt.toFixed(3)}</strong>, V_max = (L/6)·(2L/3)² = (4L³)/54 = <strong>${Vopt.toFixed(3)}</strong></div>
+  `;
+}
+
+draw();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 35 — Benchmark & Optimization Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+    font-family: inherit;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.success { background: #38a169; }
+  button.success:hover { background: #2f855a; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  button.toggle { background: #e2e8f0; color: #2d3748; }
+  button.toggle.active { background: #4299e1; color: white; }
+
+  textarea {
+    width: 100%; box-sizing: border-box;
+    font-family: 'Menlo', 'Consolas', monospace;
+    font-size: 12px; line-height: 1.5;
+    padding: 10px; border: 1px solid #cbd5e0; border-radius: 6px;
+    resize: vertical; min-height: 110px;
+  }
+
+  .explain {
+    background: #ebf8ff; border-left: 4px solid #4299e1;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6;
+    margin-top: 10px;
+  }
+  .warn {
+    background: #fffbea; border-left: 4px solid #d69e2e;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6; margin-top: 10px;
+  }
+  .explain code, .warn code, code.inline {
+    background: white; padding: 1px 5px; border-radius: 3px;
+    font-family: monospace; color: #2b6cb0;
+  }
+
+  /* ========== Module 1 — output parser ========== */
+  table.bench {
+    width: 100%; border-collapse: collapse;
+    font-family: 'Menlo', 'Consolas', monospace;
+    font-size: 13px;
+    margin: 12px 0;
+  }
+  table.bench th, table.bench td {
+    border: 1px solid #e2e8f0; padding: 6px 10px; text-align: left;
+  }
+  table.bench th {
+    background: #f7fafc; color: #2d3748;
+    font-weight: 600;
+  }
+  table.bench td.num { text-align: right; }
+  table.bench tr.fast td.num { color: #2f855a; font-weight: 700; }
+  table.bench tr.slow td.num { color: #c53030; }
+  table.bench tr.fast td:first-child { color: #2f855a; }
+  table.bench tr.slow td:first-child { color: #c53030; }
+
+  .ratio {
+    background: #e6fffa; color: #234e52;
+    padding: 2px 8px; border-radius: 4px;
+    font-weight: 700; font-size: 12px;
+  }
+  .ratio.bad { background: #fed7d7; color: #742a2a; }
+
+  /* ========== Module 2 — optimization picker ========== */
+  .opt-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+    margin: 12px 0;
+  }
+  .opt-card {
+    background: #f7fafc; padding: 14px;
+    border-radius: 6px; cursor: pointer;
+    border: 2px solid transparent;
+    transition: all .12s;
+    font-size: 14px;
+  }
+  .opt-card:hover { background: #edf2f7; border-color: #cbd5e0; }
+  .opt-card.active {
+    background: #ebf8ff; border-color: #4299e1;
+  }
+  .opt-card .opt-title { font-weight: 700; color: #2d3748; margin-bottom: 4px; }
+  .opt-card .opt-sub { font-size: 12px; color: #718096; }
+
+  .opt-detail {
+    background: white; border: 1px solid #cbd5e0;
+    border-radius: 8px; padding: 16px;
+    margin-top: 12px;
+    display: none;
+  }
+  .opt-detail.show { display: block; }
+  .opt-detail h3 { margin-top: 0; color: #2b6cb0; }
+  .opt-detail pre {
+    background: #1a202c; color: #e2e8f0;
+    padding: 12px; border-radius: 6px;
+    font-size: 12px; overflow-x: auto;
+  }
+  .opt-detail .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 12px 0;
+  }
+  .opt-detail .compare .col {
+    padding: 12px; border-radius: 6px;
+    font-family: 'Menlo', monospace;
+    font-size: 12px;
+  }
+  .opt-detail .compare .col.before { background: #fed7d7; color: #742a2a; }
+  .opt-detail .compare .col.after  { background: #c6f6d5; color: #22543d; }
+  .opt-detail .compare .label { font-weight: 700; margin-bottom: 6px; font-size: 11px; text-transform: uppercase; }
+  .opt-detail .speedup {
+    background: #fefcbf; padding: 8px 12px; border-radius: 6px;
+    font-weight: 700; text-align: center; color: #744210;
+  }
+
+  /* ========== Module 3 — allocation tracker ========== */
+  .alloc-controls { margin: 12px 0; }
+  .alloc-controls label {
+    font-weight: 600; color: #2d3748;
+    margin-right: 12px;
+  }
+  .alloc-controls input[type=range] {
+    width: 240px; max-width: 100%; vertical-align: middle;
+  }
+  .alloc-controls .nval {
+    display: inline-block; min-width: 70px; text-align: right;
+    font-family: monospace; font-weight: 700;
+    color: #2b6cb0;
+  }
+
+  .alloc-vis {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 16px; margin-top: 14px;
+  }
+  .alloc-col {
+    background: #f7fafc; padding: 14px; border-radius: 8px;
+  }
+  .alloc-col h4 { margin: 0 0 8px 0; color: #2d3748; }
+  .alloc-col .stat {
+    font-family: monospace; font-size: 13px;
+    color: #4a5568; margin-bottom: 8px;
+  }
+  .alloc-col .stat b { color: #1a202c; }
+
+  .alloc-bars { display: flex; align-items: flex-end; gap: 2px; height: 140px; padding: 4px 0; border-bottom: 2px solid #cbd5e0; }
+  .alloc-bar {
+    flex: 1; min-width: 4px;
+    background: #4299e1;
+    border-radius: 2px 2px 0 0;
+    position: relative;
+  }
+  .alloc-bar.naive { background: #f56565; }
+  .alloc-bar.prealloc { background: #48bb78; }
+  .alloc-bar.copy { background: #ed8936; opacity: 0.85; }
+
+  .legend { display: flex; gap: 14px; font-size: 12px; margin-top: 6px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .legend-swatch { width: 14px; height: 14px; border-radius: 2px; }
+  .legend-swatch.naive { background: #f56565; }
+  .legend-swatch.prealloc { background: #48bb78; }
+  .legend-swatch.copy { background: #ed8936; opacity: 0.85; }
+
+  @media (max-width: 768px) {
+    .alloc-vis { grid-template-columns: 1fr; }
+    .opt-detail .compare { grid-template-columns: 1fr; }
+    table.bench { font-size: 12px; }
+    table.bench th, table.bench td { padding: 4px 6px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-34-profiling-pprof/visualization.html">← L34: Profiling pprof</a>
+  <span class="sep">·</span>
+  <span class="current">L35: Benchmark</span>
+  <span class="sep">·</span>
+  <a href="../lesson-36-concurrency-patterns/visualization.html">L36: Concurrency Patterns →</a>
+</nav>
+
+<main>
+<h1>Lesson 35 — Benchmark & Optimization</h1>
+<p>Đo trước khi tối ưu, đo lại để xác nhận. Trang này có 3 công cụ tương tác giúp bạn cảm nhận lý thuyết.</p>
+
+<!-- ===========================================================
+     Module 1 — Benchmark output parser + comparator
+     =========================================================== -->
+<h2>Module 1 — Parse &amp; so sánh output benchmark</h2>
+<div class="card">
+  <p>Paste output <code class="inline">go test -bench=. -benchmem</code> vào 2 ô bên dưới. Hệ thống parse từng dòng, hiển thị table và tính tỷ lệ <code class="inline">new vs old</code>. Đây là phiên bản tay-mỏng của <code class="inline">benchstat</code>.</p>
+
+  <div class="row" style="gap: 16px; align-items: stretch;">
+    <div style="flex: 1 1 320px; min-width: 0;">
+      <label style="font-weight:600; color:#2d3748;">📄 old.txt (baseline)</label>
+      <textarea id="m1-old">BenchmarkConcat/Plus/n=1000-8      391    638114 ns/op   2137575 B/op   999 allocs/op
+BenchmarkConcat/Builder/n=1000-8 33366      6952 ns/op     12536 B/op    12 allocs/op
+BenchmarkRegex/Recompile-8       39364      6193 ns/op      5761 B/op    78 allocs/op
+BenchmarkSum/Naive/n=10000-8      2646     93901 ns/op    357625 B/op    19 allocs/op</textarea>
+    </div>
+    <div style="flex: 1 1 320px; min-width: 0;">
+      <label style="font-weight:600; color:#2d3748;">📄 new.txt (sau khi optimize)</label>
+      <textarea id="m1-new">BenchmarkConcat/Plus/n=1000-8      391    638114 ns/op   2137575 B/op   999 allocs/op
+BenchmarkConcat/Builder/n=1000-8 48626      4849 ns/op      4096 B/op     1 allocs/op
+BenchmarkRegex/Recompile-8      660162       325 ns/op         0 B/op     0 allocs/op
+BenchmarkSum/Naive/n=10000-8     33548      7119 ns/op         0 B/op     0 allocs/op</textarea>
+    </div>
+  </div>
+  <div class="row">
+    <button id="m1-go">▶ Parse &amp; so sánh</button>
+    <button class="secondary" id="m1-reset">↺ Mẫu lại</button>
+  </div>
+
+  <div id="m1-out"></div>
+
+  <div class="explain" style="margin-top:14px;">
+    <b>Đọc table:</b> mỗi dòng là 1 benchmark. Cột <code class="inline">Δns/op</code> là tỷ lệ thời gian mới/cũ — &lt;1 là nhanh hơn. Tương tự <code class="inline">ΔB/op</code> cho memory. Khi cùng 1 tên benchmark xuất hiện ở cả 2 file → benchstat thật sẽ so sánh, ở đây ta dùng phép chia đơn giản.
+  </div>
+  <div class="warn" style="margin-top:8px;">
+    <b>Lưu ý:</b> phép chia đơn giản này KHÔNG xét p-value. Để biết khác biệt có statistically significant, dùng <code class="inline">benchstat</code> thật với <code class="inline">-count=10</code> trở lên.
+  </div>
+</div>
+
+<!-- ===========================================================
+     Module 2 — Common optimization picker
+     =========================================================== -->
+<h2>Module 2 — Common optimization picker</h2>
+<div class="card">
+  <p>Click 1 pattern → xem code before/after + số đo thật từ <code class="inline">solutions_test.go</code> của lesson này.</p>
+
+  <div class="opt-grid" id="m2-grid"></div>
+
+  <div class="opt-detail" id="m2-detail">
+    <h3 id="m2-title">—</h3>
+    <p id="m2-desc"></p>
+    <div class="compare">
+      <div class="col before">
+        <div class="label">❌ Trước</div>
+        <pre id="m2-before"></pre>
+        <div id="m2-num-before"></div>
+      </div>
+      <div class="col after">
+        <div class="label">✅ Sau</div>
+        <pre id="m2-after"></pre>
+        <div id="m2-num-after"></div>
+      </div>
+    </div>
+    <div class="speedup" id="m2-speedup"></div>
+    <div class="explain" id="m2-why"></div>
+  </div>
+</div>
+
+<!-- ===========================================================
+     Module 3 — Allocation tracker (geometric growth)
+     =========================================================== -->
+<h2>Module 3 — Allocation tracker: <code>append</code> vs pre-alloc</h2>
+<div class="card">
+  <p>Khi append vào slice cap=0, Go grow theo geometric (×2). Mỗi grow allocate slice mới + copy data cũ. Pre-alloc <code class="inline">make([]int, 0, n)</code> → 1 lần allocate, 0 lần copy. Kéo slider để thấy.</p>
+
+  <div class="alloc-controls">
+    <label>n = <span class="nval" id="m3-nval">1000</span></label>
+    <input type="range" id="m3-slider" min="10" max="100000" value="1000" step="10">
+  </div>
+
+  <div class="alloc-vis">
+    <div class="alloc-col">
+      <h4>🔴 Naive — <code>make([]int, 0)</code></h4>
+      <div class="stat">Số lần allocate: <b id="m3-naive-allocs">—</b></div>
+      <div class="stat">Tổng bytes copy: <b id="m3-naive-copy">—</b></div>
+      <div class="stat">Bytes wasted (orphan capacity): <b id="m3-naive-waste">—</b></div>
+      <div class="alloc-bars" id="m3-naive-bars"></div>
+      <div class="legend">
+        <div class="legend-item"><span class="legend-swatch naive"></span>cap mới</div>
+        <div class="legend-item"><span class="legend-swatch copy"></span>bytes copy</div>
+      </div>
+    </div>
+    <div class="alloc-col">
+      <h4>🟢 PreAlloc — <code>make([]int, 0, n)</code></h4>
+      <div class="stat">Số lần allocate: <b id="m3-pre-allocs">1</b></div>
+      <div class="stat">Tổng bytes copy: <b id="m3-pre-copy">0</b></div>
+      <div class="stat">Bytes wasted: <b id="m3-pre-waste">0</b></div>
+      <div class="alloc-bars" id="m3-pre-bars"></div>
+      <div class="legend">
+        <div class="legend-item"><span class="legend-swatch prealloc"></span>cap đúng</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="explain" style="margin-top:14px;">
+    <b>Quy luật grow trong Go runtime</b> (đại khái, đã đơn giản hoá): cap mới = old × 2 nếu old &lt; 256; sau đó tăng chậm hơn dần. Mỗi lần grow phải copy toàn bộ phần tử cũ → tổng bytes copy ≈ <code class="inline">2 × n × 8</code> byte cho slice int.
+  </div>
+  <div class="warn" style="margin-top:8px;">
+    <b>Vì sao "wasted"?</b> Cap cuối cùng thường lớn hơn n. Ví dụ n=1000 → cap có thể là 1280. 280 phần tử × 8 byte = 2240 byte không dùng nhưng vẫn chiếm RAM tới khi GC dọn.
+  </div>
+</div>
+
+</main>
+
+<script>
+// =================================================================
+// Module 1 — Bench output parser
+// =================================================================
+(function () {
+  const re = /^(Benchmark\S+?)(?:-\d+)?\s+(\d+)\s+([\d.]+)\s*(\w+)\/op(?:\s+(\d+)\s*B\/op)?(?:\s+(\d+)\s*allocs\/op)?/;
+  function parse(text) {
+    const lines = text.split('\n');
+    const out = {};
+    for (const line of lines) {
+      const m = line.trim().match(re);
+      if (!m) continue;
+      const [, name, n, ns, unit, bytes, allocs] = m;
+      // Normalise everything to ns
+      let factor = 1;
+      if (unit === 'µs' || unit === 'us') factor = 1000;
+      if (unit === 'ms') factor = 1_000_000;
+      out[name] = {
+        n: +n,
+        ns: parseFloat(ns) * factor,
+        bytes: bytes ? +bytes : null,
+        allocs: allocs ? +allocs : null,
+      };
+    }
+    return out;
+  }
+
+  function fmtNum(x) {
+    if (x == null) return '—';
+    if (x >= 1_000_000) return (x / 1_000_000).toFixed(2) + 'M';
+    if (x >= 1000) return (x / 1000).toFixed(2) + 'k';
+    if (x >= 10) return x.toFixed(0);
+    return x.toFixed(2);
+  }
+  function fmtNs(ns) {
+    if (ns == null) return '—';
+    if (ns >= 1_000_000) return (ns / 1_000_000).toFixed(2) + 'ms';
+    if (ns >= 1000) return (ns / 1000).toFixed(2) + 'µs';
+    return ns.toFixed(1) + 'ns';
+  }
+  function ratioCell(oldV, newV) {
+    if (oldV == null || newV == null) return '<td>—</td>';
+    if (oldV === 0 && newV === 0) return '<td>1.00×</td>';
+    if (oldV === 0) return '<td>∞</td>';
+    const r = newV / oldV;
+    const cls = r < 0.95 ? '' : (r > 1.05 ? 'bad' : '');
+    return `<td><span class="ratio ${cls}">${r.toFixed(2)}×</span></td>`;
+  }
+
+  function render() {
+    const oldT = parse(document.getElementById('m1-old').value);
+    const newT = parse(document.getElementById('m1-new').value);
+    const allNames = Array.from(new Set([...Object.keys(oldT), ...Object.keys(newT)]));
+    if (allNames.length === 0) {
+      document.getElementById('m1-out').innerHTML = '<p style="color:#c53030;">Không parse được dòng benchmark nào. Kiểm tra format.</p>';
+      return;
+    }
+
+    let html = `<table class="bench"><thead><tr>
+      <th>Benchmark</th>
+      <th>old ns/op</th><th>new ns/op</th><th>Δns/op</th>
+      <th>old B/op</th><th>new B/op</th><th>ΔB/op</th>
+      <th>old allocs</th><th>new allocs</th>
+    </tr></thead><tbody>`;
+    for (const name of allNames) {
+      const o = oldT[name];
+      const nw = newT[name];
+      const oldNs = o && o.ns, newNs = nw && nw.ns;
+      const oldB = o && o.bytes, newB = nw && nw.bytes;
+      const oldA = o && o.allocs, newA = nw && nw.allocs;
+      const cls = (newNs != null && oldNs != null) ? (newNs / oldNs < 0.5 ? 'fast' : (newNs / oldNs > 1.5 ? 'slow' : '')) : '';
+      html += `<tr class="${cls}">
+        <td><code>${name.replace(/^Benchmark/, '')}</code></td>
+        <td class="num">${fmtNs(oldNs)}</td>
+        <td class="num">${fmtNs(newNs)}</td>
+        ${ratioCell(oldNs, newNs)}
+        <td class="num">${fmtNum(oldB)}</td>
+        <td class="num">${fmtNum(newB)}</td>
+        ${ratioCell(oldB, newB)}
+        <td class="num">${fmtNum(oldA)}</td>
+        <td class="num">${fmtNum(newA)}</td>
+      </tr>`;
+    }
+    html += '</tbody></table>';
+    document.getElementById('m1-out').innerHTML = html;
+  }
+
+  document.getElementById('m1-go').addEventListener('click', render);
+  document.getElementById('m1-reset').addEventListener('click', () => {
+    document.getElementById('m1-old').value =
+`BenchmarkConcat/Plus/n=1000-8      391    638114 ns/op   2137575 B/op   999 allocs/op
+BenchmarkConcat/Builder/n=1000-8 33366      6952 ns/op     12536 B/op    12 allocs/op
+BenchmarkRegex/Recompile-8       39364      6193 ns/op      5761 B/op    78 allocs/op
+BenchmarkSum/Naive/n=10000-8      2646     93901 ns/op    357625 B/op    19 allocs/op`;
+    document.getElementById('m1-new').value =
+`BenchmarkConcat/Plus/n=1000-8      391    638114 ns/op   2137575 B/op   999 allocs/op
+BenchmarkConcat/Builder/n=1000-8 48626      4849 ns/op      4096 B/op     1 allocs/op
+BenchmarkRegex/Recompile-8      660162       325 ns/op         0 B/op     0 allocs/op
+BenchmarkSum/Naive/n=10000-8     33548      7119 ns/op         0 B/op     0 allocs/op`;
+    render();
+  });
+  // Run once on load
+  render();
+})();
+
+// =================================================================
+// Module 2 — Optimization picker
+// =================================================================
+(function () {
+  const opts = [
+    {
+      id: 'preAlloc',
+      title: 'Pre-allocate slice',
+      sub: 'make([]T, 0, n)',
+      desc: 'Khi biết trước kích thước, pre-alloc cap đúng → 1 lần allocate, không cần grow + copy.',
+      before: `tmp := make([]int, 0) // cap=0
+for _, x := range xs {
+    tmp = append(tmp, x*2) // grow log₂(n) lần
+}`,
+      after: `tmp := make([]int, 0, len(xs)) // cap đúng
+for _, x := range xs {
+    tmp = append(tmp, x*2) // không grow
+}`,
+      numBefore: 'BenchmarkSum/Naive/n=10000: 93,901 ns/op · 357,625 B/op · 19 allocs',
+      numAfter:  'BenchmarkSum/PreAlloc/n=10000: 25,844 ns/op · 81,920 B/op · 1 alloc',
+      speedup: '3.6× nhanh hơn · 4.4× ít memory · 19× ít alloc',
+      why: 'Mỗi <code>append</code> vượt cap → runtime allocate cap mới gấp đôi + copy. Pre-alloc xoá hoàn toàn vòng lặp grow.'
+    },
+    {
+      id: 'builder',
+      title: 'strings.Builder',
+      sub: 'thay vì += string',
+      desc: '"a" + "b" + "c" + ... allocate chuỗi mới mỗi bước → O(n²). Builder dùng buffer + grow geometric → O(n).',
+      before: `s := ""
+for _, p := range parts {
+    s += p
+}
+return s`,
+      after: `var b strings.Builder
+b.Grow(totalLen) // optional, để 1 alloc
+for _, p := range parts {
+    b.WriteString(p)
+}
+return b.String()`,
+      numBefore: 'BenchmarkConcat/Plus/n=1000: 638,114 ns/op · 2.1 MB/op · 999 allocs',
+      numAfter:  'BenchmarkConcat/BuilderGrow/n=1000: 4,849 ns/op · 4,096 B/op · 1 alloc',
+      speedup: '131× nhanh hơn · 500× ít memory · 999× ít alloc',
+      why: '<code>+=</code> tạo string mới mỗi lần (string immutable). Với 1000 chuỗi 4-byte → tổng 4MB cần allocate/copy. Builder reuse buffer.'
+    },
+    {
+      id: 'regex',
+      title: 'Regex precompile',
+      sub: 'package var, không trong loop',
+      desc: 'regexp.Compile parse pattern + build NFA — đắt (~6µs). Đặt vào package var để compile 1 lần lúc init.',
+      before: `func MatchEmail(s string) bool {
+    re := regexp.MustCompile(\`...\`)
+    return re.MatchString(s)
+}`,
+      after: `var emailRE = regexp.MustCompile(\`...\`)
+func MatchEmail(s string) bool {
+    return emailRE.MatchString(s)
+}`,
+      numBefore: 'BenchmarkRegex/Recompile: 6,193 ns/op · 5,761 B/op · 78 allocs',
+      numAfter:  'BenchmarkRegex/Precompiled: 325 ns/op · 0 B/op · 0 allocs',
+      speedup: '19× nhanh hơn · 0 alloc (vs 78)',
+      why: 'Compile regex tạo nhiều object trung gian (NFA state, capture group). Reuse instance khi đã compile → match-only path rất rẻ.'
+    },
+    {
+      id: 'pool',
+      title: 'sync.Pool buffer',
+      sub: 'reuse buffer hot path',
+      desc: 'HTTP handler/JSON encoder cần buffer tạm — thay vì allocate mới mỗi request, lấy từ Pool, dùng xong Put lại.',
+      before: `func Format(items []int) string {
+    var buf bytes.Buffer // alloc mỗi lần
+    // ... ghi vào buf
+    return buf.String()
+}`,
+      after: `var bufPool = sync.Pool{
+    New: func() any { return new(bytes.Buffer) },
+}
+func Format(items []int) string {
+    buf := bufPool.Get().(*bytes.Buffer)
+    buf.Reset()
+    defer bufPool.Put(buf)
+    // ... ghi vào buf
+    return buf.String()
+}`,
+      numBefore: 'BenchmarkFormatBuffer/NoPool: 151 ns/op · 96 B/op · 2 allocs',
+      numAfter:  'BenchmarkFormatBuffer/WithPool: 126 ns/op · 32 B/op · 1 alloc',
+      speedup: '~1.2× nhanh · 3× ít memory · ít hơn 1 alloc',
+      why: 'Buffer nhỏ → gain nhỏ. Với buffer 4-8KB (vd JSON response), gain rất lớn vì giảm GC pressure. Đừng pool object nhỏ + ít.'
+    },
+    {
+      id: 'sink',
+      title: 'Sink variable',
+      sub: 'chống dead-code elimination',
+      desc: 'Trong benchmark, không lưu kết quả → compiler inline + xoá. Sink = package var ghi vào → bắt compiler thực thi.',
+      before: `func BenchmarkAdd(b *testing.B) {
+    for i := 0; i < b.N; i++ {
+        Add(i, i+1) // kết quả bị bỏ
+    }
+}`,
+      after: `var SinkInt int
+func BenchmarkAdd(b *testing.B) {
+    for i := 0; i < b.N; i++ {
+        SinkInt = Add(i, i+1)
+    }
+}`,
+      numBefore: 'Có thể: 0.3 ns/op (compiler đã xoá function call)',
+      numAfter:  'Thật: 0.4 ns/op (số đo phản ánh tốc độ Add thật)',
+      speedup: 'Không phải về speed — về độ TIN CẬY của số đo',
+      why: 'Compiler thấy giá trị return không dùng → có quyền eliminate. Ghi vào package var (memory ngoài scope) → buộc giữ lại side effect.'
+    },
+    {
+      id: 'jsoncache',
+      title: 'Cache JSON hot data',
+      sub: 'marshal 1 lần, dùng nhiều',
+      desc: 'Endpoint trả page tĩnh: marshal mỗi request là lãng phí. Pre-marshal lúc init/data đổi, cache []byte.',
+      before: `func Handler(w http.ResponseWriter, r *http.Request) {
+    data := getHotPage()
+    b, _ := json.Marshal(data) // mỗi request
+    w.Write(b)
+}`,
+      after: `var hotPageJSON []byte
+func init() {
+    hotPageJSON, _ = json.Marshal(getHotPage())
+}
+func Handler(w http.ResponseWriter, r *http.Request) {
+    w.Write(hotPageJSON)
+}`,
+      numBefore: 'marshal 1 user obj: ~3µs · ~1KB alloc',
+      numAfter:  'write cached: ~50ns · 0 alloc',
+      speedup: '~60× nhanh hơn · 0 alloc trên hot path',
+      why: 'Chỉ áp dụng khi data thay đổi chậm/không đổi. Cần invalidate khi data thay đổi. Cẩn thận race condition.'
+    },
+    {
+      id: 'iocopy',
+      title: 'io.Copy thay io.ReadAll',
+      sub: 'stream thay vì load toàn bộ',
+      desc: 'io.ReadAll consume RAM bằng size file. io.Copy buffer 32KB nội bộ — chỉ chiếm hằng số RAM dù file lớn cỡ nào.',
+      before: `data, _ := io.ReadAll(resp.Body)
+file.Write(data) // RAM peak = file size`,
+      after: `io.Copy(file, resp.Body)
+// RAM peak = 32KB buffer nội bộ`,
+      numBefore: 'File 1GB: ~1GB RAM peak, ~2s total',
+      numAfter:  'File 1GB: ~32KB RAM peak, ~2s total',
+      speedup: '~32000× ít RAM peak · cùng tốc độ',
+      why: 'Stream pattern cốt lõi của Go I/O. Còn ngăn được OOM crash khi file lớn bất ngờ.'
+    },
+    {
+      id: 'iface',
+      title: 'Avoid interface in hot path',
+      sub: 'generic/concrete type',
+      desc: 'any/interface{} làm runtime check type + box value → tốn ~3-5ns + alloc nếu value to.',
+      before: `func Sum(xs []any) int {
+    s := 0
+    for _, x := range xs {
+        s += x.(int) // type assertion
+    }
+    return s
+}`,
+      after: `func Sum[T ~int | ~int64](xs []T) T {
+    var s T
+    for _, x := range xs {
+        s += x
+    }
+    return s
+}`,
+      numBefore: '[]any 10k items: ~15µs · ~80KB alloc (boxing)',
+      numAfter:  '[]int 10k items: ~7µs · 0 alloc',
+      speedup: '~2× nhanh hơn · 0 alloc (vs boxing alloc)',
+      why: 'Interface lưu (type, data) — value nhỏ thì inline, lớn hơn word → alloc heap. Generic giữ type info ở compile time, không cần boxing.'
+    },
+  ];
+
+  const grid = document.getElementById('m2-grid');
+  for (const o of opts) {
+    const div = document.createElement('div');
+    div.className = 'opt-card';
+    div.dataset.id = o.id;
+    div.innerHTML = `<div class="opt-title">${o.title}</div><div class="opt-sub">${o.sub}</div>`;
+    div.addEventListener('click', () => showDetail(o.id));
+    grid.appendChild(div);
+  }
+
+  function showDetail(id) {
+    const o = opts.find(x => x.id === id);
+    if (!o) return;
+    document.querySelectorAll('.opt-card').forEach(c => c.classList.toggle('active', c.dataset.id === id));
+    document.getElementById('m2-title').textContent = o.title;
+    document.getElementById('m2-desc').textContent = o.desc;
+    document.getElementById('m2-before').textContent = o.before;
+    document.getElementById('m2-after').textContent = o.after;
+    document.getElementById('m2-num-before').innerHTML = '<small><code>' + o.numBefore + '</code></small>';
+    document.getElementById('m2-num-after').innerHTML  = '<small><code>' + o.numAfter + '</code></small>';
+    document.getElementById('m2-speedup').textContent = o.speedup;
+    document.getElementById('m2-why').innerHTML = '<b>Vì sao:</b> ' + o.why;
+    document.getElementById('m2-detail').classList.add('show');
+  }
+  // open first by default
+  showDetail('preAlloc');
+})();
+
+// =================================================================
+// Module 3 — Allocation tracker
+// =================================================================
+(function () {
+  // Mô phỏng quy luật grow của Go runtime cho slice int.
+  // Đơn giản hoá: cap_new = cap_old < 256 ? cap_old*2 : cap_old + cap_old/4 (round up).
+  function simulateNaive(n) {
+    const caps = []; // cap mỗi lần grow
+    let cap = 0, allocs = 0, copyBytes = 0;
+    const elemSize = 8;
+    for (let i = 0; i < n; i++) {
+      if (i >= cap) {
+        // grow
+        const newCap = cap === 0 ? 1 : (cap < 256 ? cap * 2 : cap + Math.floor(cap / 4));
+        copyBytes += cap * elemSize; // copy phần tử cũ
+        cap = newCap;
+        allocs++;
+        caps.push(cap);
+      }
+    }
+    return { allocs, copyBytes, finalCap: cap, caps };
+  }
+
+  function fmtBytes(b) {
+    if (b >= 1e6) return (b / 1e6).toFixed(2) + ' MB';
+    if (b >= 1e3) return (b / 1e3).toFixed(2) + ' KB';
+    return b + ' B';
+  }
+
+  const slider = document.getElementById('m3-slider');
+  const nval = document.getElementById('m3-nval');
+  const naiveAllocsEl = document.getElementById('m3-naive-allocs');
+  const naiveCopyEl   = document.getElementById('m3-naive-copy');
+  const naiveWasteEl  = document.getElementById('m3-naive-waste');
+  const naiveBarsEl   = document.getElementById('m3-naive-bars');
+  const preCopyEl     = document.getElementById('m3-pre-copy');
+  const preWasteEl    = document.getElementById('m3-pre-waste');
+  const preBarsEl     = document.getElementById('m3-pre-bars');
+
+  function render() {
+    const n = +slider.value;
+    nval.textContent = n.toLocaleString();
+    const r = simulateNaive(n);
+    naiveAllocsEl.textContent = r.allocs;
+    naiveCopyEl.textContent = fmtBytes(r.copyBytes);
+    naiveWasteEl.textContent = fmtBytes((r.finalCap - n) * 8);
+
+    preCopyEl.textContent = '0 B';
+    preWasteEl.textContent = '0 B';
+
+    // Vẽ bars naive — mỗi grow là 1 cột, chiều cao = cap mới
+    const maxCap = r.finalCap || 1;
+    naiveBarsEl.innerHTML = '';
+    for (const c of r.caps) {
+      const bar = document.createElement('div');
+      bar.className = 'alloc-bar naive';
+      bar.style.height = `${Math.max(4, (c / maxCap) * 140)}px`;
+      bar.title = `cap=${c}`;
+      naiveBarsEl.appendChild(bar);
+    }
+    // Vẽ 1 bar lớn cho prealloc (cap đúng n)
+    preBarsEl.innerHTML = '';
+    const bar = document.createElement('div');
+    bar.className = 'alloc-bar prealloc';
+    bar.style.height = `${(n / maxCap) * 140}px`;
+    bar.title = `cap=${n}`;
+    preBarsEl.appendChild(bar);
+  }
+
+  slider.addEventListener('input', render);
+  render();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L34 — Profiling với pprof</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #e53e3e;
+    --accent-hover: #c53030;
+    --accent-soft: #fed7d7;
+    --ok: #38a169;
+    --warn: #d69e2e;
+    --bg-card: #ffffff;
+    --code-bg: #1a202c;
+    --code-fg: #e2e8f0;
+  }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 80px; }
+  h1 { color: #2d3748; margin-top: 0; }
+  .intro { color: #4a5568; line-height: 1.55; max-width: 760px; }
+
+  .module {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 32px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+  .module h2 {
+    margin-top: 0;
+    color: #2d3748;
+    border-bottom: 2px solid var(--accent-soft);
+    padding-bottom: 8px;
+  }
+  .module .desc { color: #4a5568; line-height: 1.55; }
+
+  .controls {
+    margin: 16px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+  button.viz-btn {
+    padding: 8px 16px;
+    border: 0;
+    background: var(--accent);
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  button.viz-btn:hover { background: var(--accent-hover); }
+  button.viz-btn.secondary { background: #6b7280; }
+  button.viz-btn.secondary:hover { background: #4b5563; }
+  button.viz-btn.active { box-shadow: 0 0 0 3px var(--accent-soft); }
+
+  /* ============================= Module 1 — Flamegraph ============================= */
+  .fg-wrap {
+    width: 100%;
+    overflow-x: auto;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+  }
+  .fg-svg { display: block; width: 100%; height: auto; }
+  .fg-block {
+    cursor: pointer;
+    transition: filter .15s ease;
+  }
+  .fg-block:hover { filter: brightness(1.12); }
+  .fg-block.selected rect { stroke: #1a202c; stroke-width: 3; }
+  .fg-block text {
+    pointer-events: none;
+    font-family: 'Fira Code', Consolas, monospace;
+    font-size: 11px;
+    fill: white;
+    font-weight: 600;
+  }
+
+  .fg-info {
+    margin-top: 14px;
+    padding: 14px;
+    background: #f7fafc;
+    border-left: 4px solid var(--accent);
+    border-radius: 6px;
+    font-family: 'Fira Code', Consolas, monospace;
+    font-size: 13px;
+    color: #2d3748;
+    line-height: 1.6;
+  }
+  .fg-info .label { color: #718096; }
+  .fg-info .val { color: #2d3748; font-weight: 700; }
+  .fg-info .verdict {
+    margin-top: 8px;
+    padding: 8px;
+    background: white;
+    border-radius: 4px;
+    font-family: -apple-system, sans-serif;
+    color: #4a5568;
+  }
+  .fg-info .verdict.hot { border-left: 4px solid var(--accent); }
+  .fg-info .verdict.cold { border-left: 4px solid var(--ok); }
+
+  /* ============================= Module 2 — Top10 table ============================= */
+  .top10-wrap { overflow-x: auto; }
+  table.top10 {
+    width: 100%;
+    min-width: 640px;
+    border-collapse: collapse;
+    font-family: 'Fira Code', Consolas, monospace;
+    font-size: 13px;
+    margin-top: 8px;
+  }
+  table.top10 th, table.top10 td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: right;
+  }
+  table.top10 th:last-child, table.top10 td:last-child { text-align: left; }
+  table.top10 th {
+    background: #f7fafc;
+    color: #4a5568;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 2px solid #cbd5e0;
+  }
+  table.top10 th.sorted { color: var(--accent); }
+  table.top10 tr.hot td { background: #fff5f5; }
+  table.top10 tr.hot td:last-child { color: var(--accent); font-weight: 700; }
+  table.top10 .bar-cell {
+    text-align: left !important;
+    padding: 0 10px !important;
+    width: 120px;
+  }
+  table.top10 .bar {
+    display: inline-block;
+    height: 14px;
+    background: var(--accent);
+    border-radius: 2px;
+    vertical-align: middle;
+  }
+  table.top10 .bar.cum { background: #ed8936; }
+
+  .top10-note {
+    margin-top: 14px;
+    padding: 14px;
+    background: #fefcbf;
+    border-left: 4px solid var(--warn);
+    border-radius: 6px;
+    font-size: 14px;
+    color: #5c4d00;
+    line-height: 1.55;
+  }
+  .top10-note code { background: rgba(0,0,0,.08); padding: 1px 5px; border-radius: 3px; }
+
+  /* ============================= Module 3 — Optimization journey ============================= */
+  .step-slider {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 16px 0;
+    flex-wrap: wrap;
+  }
+  .step-slider input[type=range] { flex: 1 1 200px; max-width: 320px; }
+  .step-slider .step-label {
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--accent);
+    min-width: 80px;
+  }
+
+  .journey-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 720px) {
+    .journey-grid { grid-template-columns: 1fr; }
+  }
+  .journey-col {
+    background: #f7fafc;
+    border-radius: 8px;
+    padding: 14px;
+  }
+  .journey-col h3 {
+    margin: 0 0 8px;
+    font-size: 15px;
+    color: #4a5568;
+  }
+  .journey-col .metric {
+    font-family: 'Fira Code', Consolas, monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: #2d3748;
+  }
+  .journey-col .sub {
+    font-size: 12px;
+    color: #718096;
+    margin-top: 2px;
+  }
+  .journey-col .profile-mini {
+    margin-top: 10px;
+    font-family: 'Fira Code', Consolas, monospace;
+    font-size: 11px;
+  }
+  .journey-col .profile-mini .row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+  .journey-col .profile-mini .row .name { flex: 0 0 110px; color: #4a5568; }
+  .journey-col .profile-mini .row .bar {
+    height: 12px;
+    background: #a0aec0;
+    border-radius: 2px;
+  }
+  .journey-col .profile-mini .row.hot .bar { background: var(--accent); }
+  .journey-col .profile-mini .row .pct { color: #718096; min-width: 36px; text-align: right; }
+
+  .speedup-banner {
+    margin-top: 14px;
+    padding: 16px;
+    background: #c6f6d5;
+    border-left: 4px solid var(--ok);
+    border-radius: 6px;
+    color: #22543d;
+  }
+  .speedup-banner .big {
+    font-size: 28px;
+    font-weight: 700;
+    margin-right: 8px;
+  }
+
+  .step-fix {
+    margin-top: 12px;
+    padding: 12px;
+    background: var(--code-bg);
+    color: var(--code-fg);
+    border-radius: 6px;
+    font-family: 'Fira Code', Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.55;
+    overflow-x: auto;
+  }
+  .step-fix .comment { color: #68d391; }
+  .step-fix .kw { color: #f6ad55; }
+  .step-fix .str { color: #fc8181; }
+
+  /* Compact list for SVG-less devices */
+  @media (max-width: 480px) {
+    .fg-block text { font-size: 9px; }
+    .module { padding: 16px; }
+    .step-slider input[type=range] { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-33-memory-gc/visualization.html">← L33: Memory & GC</a>
+  <span class="sep">·</span>
+  <span class="current">L34: Profiling pprof</span>
+  <span class="sep">·</span>
+  <a href="../lesson-35-benchmark-optimization/visualization.html">L35: Benchmark →</a>
+</nav>
+
+<main>
+  <h1>L34 — Profiling với <code>pprof</code></h1>
+  <p class="intro">
+    Ba module để "chạm" vào pprof: đọc flamegraph trực quan, phân tích bảng <code>top10</code>, và đi qua một hành trình
+    tối ưu endpoint từ 200ms xuống 50ms qua 5 bước. Mỗi module standalone — mở <code>file://</code> chạy được.
+  </p>
+
+  <!-- ============================================================= -->
+  <!-- Module 1 — Flamegraph reader                                    -->
+  <!-- ============================================================= -->
+  <section class="module" id="module-flamegraph">
+    <h2>1. Flamegraph reader — width = thời gian</h2>
+    <p class="desc">
+      Flamegraph dưới mô phỏng CPU profile của 1 HTTP endpoint chạy 10 giây. Click vào <strong>bất kỳ block</strong> để xem
+      <code>flat</code> (time trực tiếp), <code>cum</code> (gồm callees), % tổng, và diagnosis ngắn.
+      Block <strong>rộng nhất ở leaf</strong> chính là bottleneck cần fix đầu tiên.
+    </p>
+
+    <div class="fg-wrap">
+      <svg class="fg-svg" viewBox="0 0 1000 320" xmlns="http://www.w3.org/2000/svg">
+        <!-- Mỗi block: <g class="fg-block" data-name=... data-flat=... data-cum=... -->
+        <!-- Layout: depth 0 (top) → depth 4 (bottom). Width tỉ lệ cum%. -->
+
+        <!-- Depth 0 — main.main (100%) -->
+        <g class="fg-block" data-name="main.main" data-flat="0.10" data-cum="10.00" data-pct="100.0" data-role="root">
+          <rect x="10" y="10" width="980" height="40" rx="3" fill="#718096"/>
+          <text x="500" y="35" text-anchor="middle">main.main (10.0s, 100%)</text>
+        </g>
+
+        <!-- Depth 1 — http.serverHandler.ServeHTTP (95%) -->
+        <g class="fg-block" data-name="http.serverHandler.ServeHTTP" data-flat="0.20" data-cum="9.50" data-pct="95.0" data-role="middle">
+          <rect x="10" y="60" width="930" height="40" rx="3" fill="#4a5568"/>
+          <text x="475" y="85" text-anchor="middle">http.ServeHTTP (9.5s, 95%)</text>
+        </g>
+
+        <!-- Depth 2 — api.HandleSearch (95%) -->
+        <g class="fg-block" data-name="api.HandleSearch" data-flat="0.50" data-cum="9.50" data-pct="95.0" data-role="entry">
+          <rect x="10" y="110" width="930" height="40" rx="3" fill="#3182ce"/>
+          <text x="475" y="135" text-anchor="middle">api.HandleSearch (9.5s, 95%)</text>
+        </g>
+
+        <!-- Depth 3 — 3 children -->
+        <!-- regexp.doMatch (60%) -->
+        <g class="fg-block" data-name="regexp.(*Regexp).doMatch" data-flat="5.40" data-cum="6.00" data-pct="60.0" data-role="hot-leaf">
+          <rect x="10" y="160" width="600" height="40" rx="3" fill="#e53e3e"/>
+          <text x="310" y="185" text-anchor="middle">regexp.doMatch (6.0s, 60%) ★ BOTTLENECK</text>
+        </g>
+        <!-- json.Marshal (20%) -->
+        <g class="fg-block" data-name="encoding/json.Marshal" data-flat="1.80" data-cum="2.00" data-pct="20.0" data-role="warm-leaf">
+          <rect x="615" y="160" width="200" height="40" rx="3" fill="#dd6b20"/>
+          <text x="715" y="185" text-anchor="middle">json.Marshal (2.0s, 20%)</text>
+        </g>
+        <!-- db.Query (15%) -->
+        <g class="fg-block" data-name="db.(*DB).Query" data-flat="0.10" data-cum="1.50" data-pct="15.0" data-role="cool">
+          <rect x="820" y="160" width="120" height="40" rx="3" fill="#38a169"/>
+          <text x="880" y="185" text-anchor="middle">db.Query (1.5s, 15%)</text>
+        </g>
+
+        <!-- Depth 4 -->
+        <!-- runtime.memmove dưới doMatch -->
+        <g class="fg-block" data-name="runtime.memmove" data-flat="1.20" data-cum="1.20" data-pct="12.0" data-role="hot-leaf">
+          <rect x="10" y="210" width="180" height="40" rx="3" fill="#c53030"/>
+          <text x="100" y="235" text-anchor="middle">memmove (1.2s)</text>
+        </g>
+        <!-- regexp.(*machine).match -->
+        <g class="fg-block" data-name="regexp.(*machine).match" data-flat="4.20" data-cum="4.20" data-pct="42.0" data-role="hot-leaf">
+          <rect x="195" y="210" width="415" height="40" rx="3" fill="#c53030"/>
+          <text x="402" y="235" text-anchor="middle">regexp.machine.match (4.2s, 42%) ★ HOT LEAF</text>
+        </g>
+        <!-- runtime.mallocgc dưới json -->
+        <g class="fg-block" data-name="runtime.mallocgc" data-flat="0.80" data-cum="0.80" data-pct="8.0" data-role="warm-leaf">
+          <rect x="615" y="210" width="120" height="40" rx="3" fill="#dd6b20"/>
+          <text x="675" y="235" text-anchor="middle">mallocgc (0.8s)</text>
+        </g>
+        <!-- syscall.read dưới db -->
+        <g class="fg-block" data-name="syscall.read" data-flat="1.40" data-cum="1.40" data-pct="14.0" data-role="cool">
+          <rect x="820" y="210" width="118" height="40" rx="3" fill="#38a169"/>
+          <text x="879" y="235" text-anchor="middle">syscall.read (1.4s)</text>
+        </g>
+
+        <!-- Annotation -->
+        <text x="500" y="290" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="13" fill="#4a5568">
+          ↑ Stack growth: trên = caller, dưới = callee. Width = thời gian. Wide leaf đỏ = bottleneck.
+        </text>
+      </svg>
+    </div>
+
+    <div class="fg-info" id="fg-info">
+      <div class="label">Chọn 1 block để xem chi tiết.</div>
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- Module 2 — Top10 table simulator                                -->
+  <!-- ============================================================= -->
+  <section class="module" id="module-top10">
+    <h2>2. <code>pprof top10</code> simulator — flat vs cum</h2>
+    <p class="desc">
+      Bảng dưới là output <code>top10</code> của cùng profile ở Module 1. Click vào header <code>flat</code> hoặc <code>cum</code>
+      để sort. Row đỏ là <strong>hot leaf</strong> (flat cao và ≈ cum) — đây là chỗ tốn CPU thật sự, optimize trực tiếp được.
+      Row có cum cao nhưng flat thấp là <strong>entry point</strong> — phải đi xuống callees để tối ưu.
+    </p>
+
+    <div class="controls">
+      <button class="viz-btn" id="sort-flat">Sort theo <code>flat</code></button>
+      <button class="viz-btn secondary" id="sort-cum">Sort theo <code>cum</code></button>
+    </div>
+
+    <div class="top10-wrap">
+      <table class="top10" id="top10-table">
+        <thead>
+          <tr>
+            <th data-key="flat">flat (s)</th>
+            <th class="bar-cell">flat bar</th>
+            <th data-key="flatPct">flat%</th>
+            <th data-key="cum">cum (s)</th>
+            <th class="bar-cell">cum bar</th>
+            <th data-key="cumPct">cum%</th>
+            <th>function</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="top10-note" id="top10-note">
+      <strong>Cách đọc:</strong>
+      <ul style="margin: 8px 0 0 18px; padding: 0;">
+        <li><code>flat</code> = time TRỰC TIẾP trong function (không tính callees). Cao → là leaf nóng.</li>
+        <li><code>cum</code> = time trong function + tất cả callees. Cao → là entry point của hot path.</li>
+        <li><strong>flat ≈ cum</strong> → leaf thật sự, tự thân tốn time → fix tại đây.</li>
+        <li><strong>flat &lt;&lt; cum</strong> → caller, time tiêu ở callees → đi xuống tree để tìm fix.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- Module 3 — Optimization journey                                 -->
+  <!-- ============================================================= -->
+  <section class="module" id="module-journey">
+    <h2>3. Optimization journey — từ 200ms → 50ms qua 5 bước</h2>
+    <p class="desc">
+      Kéo slider để đi qua 5 bước optimize một endpoint <code>/api/search</code>. Mỗi bước fix 1 bottleneck cụ thể;
+      bảng bên trái show <strong>profile trước fix</strong>, bên phải <strong>sau fix</strong>, và banner dưới
+      hiển thị speedup tích lũy. Đây là workflow chuẩn mọi optimizer Go nên quen.
+    </p>
+
+    <div class="step-slider">
+      <label for="step-input">Bước:</label>
+      <input type="range" id="step-input" min="0" max="5" value="0" step="1">
+      <span class="step-label" id="step-label">Step 0</span>
+    </div>
+
+    <div class="journey-grid">
+      <div class="journey-col">
+        <h3>Trước fix</h3>
+        <div class="metric"><span id="before-latency">200</span> ms <span class="sub">avg latency</span></div>
+        <div class="sub">QPS: <span id="before-qps">500</span></div>
+        <div class="profile-mini" id="before-profile"></div>
+      </div>
+      <div class="journey-col">
+        <h3>Sau fix</h3>
+        <div class="metric"><span id="after-latency">200</span> ms <span class="sub">avg latency</span></div>
+        <div class="sub">QPS: <span id="after-qps">500</span></div>
+        <div class="profile-mini" id="after-profile"></div>
+      </div>
+    </div>
+
+    <div class="speedup-banner">
+      <span class="big" id="speedup-x">1.0×</span>
+      <span id="speedup-text">Bắt đầu — chưa fix gì.</span>
+    </div>
+
+    <div class="step-fix" id="step-fix">// Kéo slider để xem fix.</div>
+  </section>
+</main>
+
+<script>
+/* ===================== Module 1 — Flamegraph ===================== */
+(function() {
+  const blocks = document.querySelectorAll('#module-flamegraph .fg-block');
+  const info = document.getElementById('fg-info');
+
+  function describe(role, name, flat, cum, pct) {
+    const flatNum = parseFloat(flat);
+    const cumNum = parseFloat(cum);
+    const isLeaf = Math.abs(cumNum - flatNum) < 0.5;
+    let verdictClass = 'cold';
+    let verdict = '';
+
+    if (role === 'hot-leaf') {
+      verdictClass = 'hot';
+      verdict = `<strong>★ HOT LEAF</strong> — function này tự thân chạy ${flat}s (${pct}% tổng). flat ≈ cum nghĩa là time tiêu trong chính nó, không phải ở callees. Đây là chỗ optimize trực tiếp được. Đề xuất: cache regex compile, dùng <code>Contains</code> nếu không cần regex, hoặc inverted index.`;
+    } else if (role === 'warm-leaf') {
+      verdictClass = 'hot';
+      verdict = `<strong>Warm leaf</strong> — ${pct}% tổng. Đáng tối ưu sau khi xong hot leaf. Đề xuất cho JSON: <code>sync.Pool</code> cho buffer, <code>json.Encoder</code> stream.`;
+    } else if (role === 'cool') {
+      verdictClass = 'cold';
+      verdict = `<strong>Không phải bottleneck</strong> — chỉ ${pct}% tổng. Đây là I/O (DB/syscall) — chấp nhận được. Đừng tối ưu cold path.`;
+    } else if (role === 'entry') {
+      verdictClass = 'cold';
+      verdict = `<strong>Entry point</strong> — cum cao (${pct}%) nhưng flat thấp (${flat}s). Function này không tự nặng; time tiêu ở callees bên dưới. Để optimize, đi xuống tree.`;
+    } else if (role === 'middle') {
+      verdictClass = 'cold';
+      verdict = `<strong>Middle layer</strong> — framework code, ít khi optimize được trực tiếp.`;
+    } else {
+      verdictClass = 'cold';
+      verdict = `<strong>Root</strong> — toàn bộ chương trình.`;
+    }
+
+    return `
+      <div><span class="label">function</span>: <span class="val">${name}</span></div>
+      <div><span class="label">flat</span>: <span class="val">${flat}s</span>
+           &nbsp;&nbsp;<span class="label">cum</span>: <span class="val">${cum}s</span>
+           &nbsp;&nbsp;<span class="label">% tổng</span>: <span class="val">${pct}%</span>
+           &nbsp;&nbsp;<span class="label">is leaf</span>: <span class="val">${isLeaf ? 'yes' : 'no'}</span></div>
+      <div class="verdict ${verdictClass}">${verdict}</div>
+    `;
+  }
+
+  blocks.forEach(b => {
+    b.addEventListener('click', () => {
+      blocks.forEach(x => x.classList.remove('selected'));
+      b.classList.add('selected');
+      info.innerHTML = describe(
+        b.dataset.role, b.dataset.name, b.dataset.flat, b.dataset.cum, b.dataset.pct
+      );
+    });
+  });
+
+  // Auto-select hot leaf để demo
+  const initial = document.querySelector('#module-flamegraph .fg-block[data-name="regexp.(*machine).match"]');
+  if (initial) initial.click();
+})();
+
+/* ===================== Module 2 — Top10 table ===================== */
+(function() {
+  const data = [
+    { fn: 'regexp.(*machine).match',     flat: 4.20, flatPct: 42.0, cum: 4.20, cumPct: 42.0, hot: true,  role: 'hot-leaf' },
+    { fn: 'runtime.memmove',             flat: 1.20, flatPct: 12.0, cum: 1.20, cumPct: 12.0, hot: true,  role: 'hot-leaf' },
+    { fn: 'encoding/json.Marshal',       flat: 1.80, flatPct: 18.0, cum: 2.00, cumPct: 20.0, hot: true,  role: 'warm-leaf' },
+    { fn: 'syscall.read',                flat: 1.40, flatPct: 14.0, cum: 1.40, cumPct: 14.0, hot: false, role: 'cool' },
+    { fn: 'runtime.mallocgc',            flat: 0.80, flatPct:  8.0, cum: 0.80, cumPct:  8.0, hot: false, role: 'cool' },
+    { fn: 'api.HandleSearch',            flat: 0.50, flatPct:  5.0, cum: 9.50, cumPct: 95.0, hot: false, role: 'entry' },
+    { fn: 'regexp.(*Regexp).doMatch',    flat: 0.20, flatPct:  2.0, cum: 6.00, cumPct: 60.0, hot: false, role: 'entry' },
+    { fn: 'http.serverHandler.ServeHTTP',flat: 0.20, flatPct:  2.0, cum: 9.50, cumPct: 95.0, hot: false, role: 'middle' },
+    { fn: 'db.(*DB).Query',              flat: 0.10, flatPct:  1.0, cum: 1.50, cumPct: 15.0, hot: false, role: 'cool' },
+    { fn: 'main.main',                   flat: 0.10, flatPct:  1.0, cum:10.00, cumPct:100.0, hot: false, role: 'root' },
+  ];
+
+  const tbody = document.querySelector('#top10-table tbody');
+  const maxFlat = Math.max(...data.map(d => d.flat));
+  const maxCum  = Math.max(...data.map(d => d.cum));
+
+  let sortKey = 'flat';
+
+  function render() {
+    const sorted = [...data].sort((a, b) => b[sortKey] - a[sortKey]);
+    tbody.innerHTML = sorted.map(d => `
+      <tr class="${d.hot ? 'hot' : ''}">
+        <td>${d.flat.toFixed(2)}</td>
+        <td class="bar-cell"><span class="bar" style="width: ${(d.flat / maxFlat * 100).toFixed(1)}px"></span></td>
+        <td>${d.flatPct.toFixed(1)}%</td>
+        <td>${d.cum.toFixed(2)}</td>
+        <td class="bar-cell"><span class="bar cum" style="width: ${(d.cum / maxCum * 100).toFixed(1)}px"></span></td>
+        <td>${d.cumPct.toFixed(1)}%</td>
+        <td>${d.fn}</td>
+      </tr>
+    `).join('');
+
+    // Update header highlight
+    document.querySelectorAll('#top10-table th').forEach(th => {
+      th.classList.toggle('sorted', th.dataset.key === sortKey);
+    });
+  }
+
+  document.getElementById('sort-flat').addEventListener('click', () => {
+    sortKey = 'flat'; render();
+    document.getElementById('sort-flat').classList.add('active');
+    document.getElementById('sort-cum').classList.remove('active');
+  });
+  document.getElementById('sort-cum').addEventListener('click', () => {
+    sortKey = 'cum'; render();
+    document.getElementById('sort-cum').classList.add('active');
+    document.getElementById('sort-flat').classList.remove('active');
+  });
+
+  // Header click sort
+  document.querySelectorAll('#top10-table th[data-key]').forEach(th => {
+    th.addEventListener('click', () => {
+      sortKey = th.dataset.key.replace('Pct', ''); // sort by raw value
+      if (sortKey !== 'flat' && sortKey !== 'cum') sortKey = 'flat';
+      render();
+    });
+  });
+
+  render();
+  document.getElementById('sort-flat').classList.add('active');
+})();
+
+/* ===================== Module 3 — Optimization journey ===================== */
+(function() {
+  // Mỗi step: profile breakdown (% trên 100), latency, qps, fix code
+  const steps = [
+    {
+      title: 'Step 0 — Baseline',
+      latency: 200, qps: 500,
+      profile: [
+        { name: 'regexp.MustCompile', pct: 35, hot: true },
+        { name: 'json.Marshal',       pct: 20, hot: true },
+        { name: 'memmove (concat)',   pct: 15, hot: true },
+        { name: 'mallocgc',           pct: 12, hot: false },
+        { name: 'mutex.Lock',         pct:  8, hot: false },
+        { name: 'syscall.read',       pct: 10, hot: false },
+      ],
+      fix: '// Chưa fix gì — baseline. 4 bottleneck rõ:\n//   1) regex compile lặp (35%)\n//   2) JSON marshal mỗi loop (20%)\n//   3) string concat O(n²) (15%)\n//   4) mutex contention trên cache (8%)',
+      desc: 'Bắt đầu — chưa fix gì.',
+    },
+    {
+      title: 'Step 1 — Cache regex compile',
+      latency: 110, qps: 910,
+      profile: [
+        { name: 'json.Marshal',       pct: 32, hot: true },
+        { name: 'memmove (concat)',   pct: 24, hot: true },
+        { name: 'mallocgc',           pct: 18, hot: true },
+        { name: 'mutex.Lock',         pct: 12, hot: false },
+        { name: 'regexp.doMatch',     pct:  8, hot: false },
+        { name: 'syscall.read',       pct:  6, hot: false },
+      ],
+      fix: '// FIX: move regexp.MustCompile ra package-level var.\nvar pattern = regexp.MustCompile(`(?i)\\\\b(foo|bar)\\\\b`)\n\nfunc HandleSearch(w, r) {\n    matches := pattern.FindAllString(corpus, -1)  // không compile lại\n    ...\n}',
+      desc: 'Compile 1 lần lúc start, không phải mỗi request.',
+    },
+    {
+      title: 'Step 2 — Pool buffer cho JSON',
+      latency: 80, qps: 1250,
+      profile: [
+        { name: 'memmove (concat)',   pct: 32, hot: true },
+        { name: 'mutex.Lock',         pct: 18, hot: true },
+        { name: 'regexp.doMatch',     pct: 14, hot: false },
+        { name: 'mallocgc',           pct: 10, hot: false },
+        { name: 'json.Marshal',       pct: 12, hot: false },
+        { name: 'syscall.read',       pct:  8, hot: false },
+      ],
+      fix: '// FIX: sync.Pool cho bytes.Buffer + json.Encoder stream.\nvar bufPool = sync.Pool{New: func() any { return new(bytes.Buffer) }}\n\nfunc writeJSON(w, v) {\n    buf := bufPool.Get().(*bytes.Buffer)\n    buf.Reset()\n    defer bufPool.Put(buf)\n    json.NewEncoder(buf).Encode(v)\n    w.Write(buf.Bytes())\n}',
+      desc: 'Reuse buffer → giảm GC pressure → mallocgc tụt.',
+    },
+    {
+      title: 'Step 3 — strings.Builder + Grow',
+      latency: 60, qps: 1670,
+      profile: [
+        { name: 'mutex.Lock',         pct: 28, hot: true },
+        { name: 'regexp.doMatch',     pct: 18, hot: false },
+        { name: 'json.Marshal',       pct: 16, hot: false },
+        { name: 'syscall.read',       pct: 14, hot: false },
+        { name: 'mallocgc',           pct:  8, hot: false },
+        { name: 'memmove',            pct:  6, hot: false },
+      ],
+      fix: '// FIX: strings.Builder với Grow thay vì s += x.\nvar b strings.Builder\nb.Grow(estimateSize)  // pre-alloc → tránh grow O(n²)\nfor _, item := range items {\n    b.WriteByte(\'[\')\n    b.WriteString(item)\n    b.WriteString("]\\\\n")\n}\nreturn b.String()',
+      desc: 'O(n²) → O(n). memmove biến mất khỏi top.',
+    },
+    {
+      title: 'Step 4 — Sharded cache (16-way)',
+      latency: 50, qps: 2000,
+      profile: [
+        { name: 'regexp.doMatch',     pct: 24, hot: true },
+        { name: 'json.Marshal',       pct: 20, hot: false },
+        { name: 'syscall.read',       pct: 18, hot: false },
+        { name: 'mutex.Lock',         pct:  6, hot: false },
+        { name: 'mallocgc',           pct:  6, hot: false },
+        { name: 'goroutine.sched',    pct:  8, hot: false },
+      ],
+      fix: '// FIX: shard cache 16-way để giảm mutex contention.\ntype Cache struct {\n    shards [16]struct {\n        mu sync.RWMutex\n        m  map[string]Value\n    }\n}\nfunc (c *Cache) shard(k string) *... { return &c.shards[fnv32(k)%16] }',
+      desc: 'Contention tản qua 16 mutex → mỗi cái ít tranh chấp.',
+    },
+    {
+      title: 'Step 5 — Result cache theo query',
+      latency: 25, qps: 4000,
+      profile: [
+        { name: 'cache.Get',          pct: 30, hot: false },
+        { name: 'syscall.write',      pct: 24, hot: false },
+        { name: 'json.Marshal',       pct: 14, hot: false },
+        { name: 'regexp.doMatch',     pct:  8, hot: false },
+        { name: 'gc.scan',            pct:  6, hot: false },
+        { name: 'runtime.netpoll',    pct: 10, hot: false },
+      ],
+      fix: '// FIX: cache kết quả search theo query string.\nvar resultCache sync.Map\n\nfunc HandleSearch(w, r) {\n    q := r.URL.Query().Get("q")\n    if v, ok := resultCache.Load(q); ok {\n        w.Write(v.([]byte))\n        return\n    }\n    res := doSearch(q)\n    resultCache.Store(q, res)\n    w.Write(res)\n}',
+      desc: 'Khi query lặp lại, hit cache → bỏ qua regex luôn. Còn lại chủ yếu là I/O.',
+    },
+  ];
+
+  const stepInput = document.getElementById('step-input');
+  const stepLabel = document.getElementById('step-label');
+  const beforeLat = document.getElementById('before-latency');
+  const beforeQps = document.getElementById('before-qps');
+  const afterLat  = document.getElementById('after-latency');
+  const afterQps  = document.getElementById('after-qps');
+  const beforeProfile = document.getElementById('before-profile');
+  const afterProfile  = document.getElementById('after-profile');
+  const speedupX = document.getElementById('speedup-x');
+  const speedupText = document.getElementById('speedup-text');
+  const stepFix = document.getElementById('step-fix');
+
+  function renderProfile(container, prof) {
+    const max = Math.max(...prof.map(p => p.pct));
+    container.innerHTML = prof.map(p => `
+      <div class="row ${p.hot ? 'hot' : ''}">
+        <span class="name">${p.name}</span>
+        <span class="bar" style="width: ${(p.pct / max * 180).toFixed(1)}px"></span>
+        <span class="pct">${p.pct}%</span>
+      </div>
+    `).join('');
+  }
+
+  function update(stepIdx) {
+    const before = stepIdx === 0 ? steps[0] : steps[stepIdx - 1];
+    const after  = steps[stepIdx];
+
+    stepLabel.textContent = after.title;
+
+    beforeLat.textContent = before.latency;
+    beforeQps.textContent = before.qps;
+    afterLat.textContent  = after.latency;
+    afterQps.textContent  = after.qps;
+
+    renderProfile(beforeProfile, before.profile);
+    renderProfile(afterProfile, after.profile);
+
+    const baseline = steps[0].latency;
+    const speedup = baseline / after.latency;
+    speedupX.textContent = speedup.toFixed(1) + '×';
+    speedupText.textContent = stepIdx === 0
+      ? after.desc
+      : `${after.desc} Tích lũy từ baseline: ${baseline}ms → ${after.latency}ms.`;
+
+    // Simple syntax highlight
+    const code = after.fix
+      .replace(/\/\/[^\n]*/g, m => `<span class="comment">${m}</span>`)
+      .replace(/\b(var|func|for|range|return|defer|if|type|struct)\b/g, '<span class="kw">$1</span>')
+      .replace(/`[^`]*`/g, m => `<span class="str">${m}</span>`);
+    stepFix.innerHTML = code;
+  }
+
+  stepInput.addEventListener('input', () => update(parseInt(stepInput.value, 10)));
+  update(0);
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

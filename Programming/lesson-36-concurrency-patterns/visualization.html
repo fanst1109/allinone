@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L36 — Concurrency Patterns: worker pool, pipeline, rate limiter</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #00add8;
+    --accent-hover: #007d9c;
+    --accent-soft: #e6f7fc;
+    --ok: #38a169;
+    --warn: #d69e2e;
+    --err: #e53e3e;
+    --bg-card: #ffffff;
+    --border: #cbd5e0;
+    --muted: #718096;
+  }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 80px; }
+  h1 { color: #2d3748; margin-top: 0; }
+  .intro { color: #4a5568; line-height: 1.55; max-width: 760px; }
+
+  .module {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 24px;
+    margin: 24px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    border: 1px solid #e2e8f0;
+  }
+  .module h2 { margin-top: 0; color: #2d3748; border-bottom: 2px solid var(--accent); padding-bottom: 8px; }
+  .desc { color: #4a5568; line-height: 1.55; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
+  .controls label { font-size: 13px; color: #4a5568; }
+  .controls input[type=number], .controls input[type=range] { vertical-align: middle; }
+  .viz-btn {
+    background: var(--accent); color: #fff; border: none;
+    padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: 600;
+    font-size: 13px;
+  }
+  .viz-btn:hover { background: var(--accent-hover); }
+  .viz-btn.secondary { background: #e2e8f0; color: #2d3748; }
+  .viz-btn.danger { background: var(--err); }
+  .viz-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  .stat-row { display: flex; flex-wrap: wrap; gap: 16px; margin: 12px 0; font-size: 14px; }
+  .stat { background: var(--accent-soft); padding: 8px 12px; border-radius: 6px; }
+  .stat strong { color: var(--accent-hover); }
+
+  /* === Module 1 — Worker pool === */
+  .pool-area {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  }
+  .pool-col h3 { margin: 0 0 8px 0; font-size: 14px; color: #4a5568; }
+  .job-grid { display: flex; flex-wrap: wrap; gap: 4px; min-height: 80px; }
+  .job-cell {
+    width: 28px; height: 28px; border-radius: 4px; background: #edf2f7;
+    border: 1px solid var(--border); display: flex; align-items: center;
+    justify-content: center; font-size: 10px; color: #4a5568;
+    transition: all .25s;
+  }
+  .job-cell.processing { background: var(--warn); color: #fff; border-color: var(--warn); }
+  .job-cell.done { background: var(--ok); color: #fff; border-color: var(--ok); }
+  .worker-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .worker {
+    background: #f7fafc; border: 2px solid var(--border); border-radius: 8px;
+    padding: 8px 10px; min-width: 70px; font-size: 12px;
+    transition: all .2s;
+  }
+  .worker.busy { border-color: var(--warn); background: #fffaf0; }
+  .worker.idle { border-color: #cbd5e0; }
+  .worker .wid { font-weight: 700; }
+  .worker .wjob { color: var(--muted); font-size: 11px; }
+  .chart {
+    margin-top: 12px;
+    border: 1px solid #e2e8f0; border-radius: 6px; background: #fafafa;
+  }
+
+  /* === Module 2 — Pipeline === */
+  .pipeline-area { display: flex; align-items: stretch; gap: 0; overflow-x: auto; padding: 8px 0; }
+  .stage {
+    background: var(--accent-soft); border: 2px solid var(--accent);
+    border-radius: 8px; padding: 10px; min-width: 130px; flex: 0 0 auto;
+    text-align: center;
+  }
+  .stage h4 { margin: 0 0 6px; font-size: 13px; color: var(--accent-hover); }
+  .stage .slot {
+    height: 28px; border-radius: 4px; background: #fff;
+    border: 1px dashed var(--border); margin-top: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: ui-monospace, monospace; font-size: 12px;
+    transition: all .25s;
+  }
+  .stage .slot.has { background: var(--warn); color: #fff; border-style: solid; border-color: var(--warn); }
+  .stage.cancelled { background: #fed7d7; border-color: var(--err); }
+  .stage.cancelled h4 { color: var(--err); }
+  .arrow {
+    align-self: center; padding: 0 8px; color: var(--muted); font-size: 20px;
+  }
+  .pipeline-log {
+    margin-top: 12px; background: #1a202c; color: #cbd5e0;
+    border-radius: 6px; padding: 10px; font-family: ui-monospace, monospace;
+    font-size: 12px; max-height: 160px; overflow-y: auto;
+  }
+
+  /* === Module 3 — Rate limiter === */
+  .bucket-wrap { display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: start; }
+  .bucket {
+    width: 130px; height: 200px; border: 3px solid var(--accent);
+    border-top: none; border-radius: 0 0 16px 16px;
+    position: relative; background: #f7fafc; overflow: hidden;
+  }
+  .bucket .tokens {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(180deg, var(--accent), var(--accent-hover));
+    transition: height .25s;
+  }
+  .bucket .label {
+    position: absolute; top: 8px; left: 0; right: 0;
+    text-align: center; font-weight: 700; color: #2d3748;
+    text-shadow: 0 1px 2px rgba(255,255,255,.7);
+  }
+  .drip {
+    position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+    color: var(--accent); font-size: 18px; animation: drop 1s linear infinite;
+  }
+  @keyframes drop {
+    0%   { top: -10px; opacity: 0; }
+    20%  { opacity: 1; }
+    100% { top: 5px;  opacity: 0; }
+  }
+  .req-lane {
+    background: #1a202c; color: #fff; border-radius: 8px; padding: 12px;
+    min-height: 120px; position: relative; overflow: hidden;
+  }
+  .req-lane h4 { margin: 0 0 8px; color: #cbd5e0; font-size: 13px; font-weight: 600; }
+  .req {
+    display: inline-block; background: var(--accent); color: #fff;
+    padding: 4px 10px; border-radius: 4px; margin: 2px 4px 2px 0;
+    font-family: ui-monospace, monospace; font-size: 11px;
+    transition: all .2s;
+  }
+  .req.waiting { background: var(--warn); }
+  .req.served { background: var(--ok); }
+  .req.cancelled { background: var(--err); opacity: .6; }
+  .rl-log {
+    margin-top: 12px; background: #1a202c; color: #cbd5e0;
+    border-radius: 6px; padding: 10px; font-family: ui-monospace, monospace;
+    font-size: 11px; max-height: 120px; overflow-y: auto;
+  }
+
+  /* Mobile */
+  @media (max-width: 768px) {
+    .pool-area { grid-template-columns: 1fr; }
+    .bucket-wrap { grid-template-columns: 1fr; }
+    .bucket { width: 100%; max-width: 200px; margin: 0 auto; }
+  }
+  @media (max-width: 480px) {
+    .job-cell { width: 22px; height: 22px; font-size: 9px; }
+    .worker { min-width: 60px; font-size: 11px; }
+    .stage { min-width: 110px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-35-benchmark-optimization/">← L35: Benchmark</a>
+  <span class="sep">·</span>
+  <span class="current">L36: Concurrency Patterns</span>
+  <span class="sep">·</span>
+  <a href="../lesson-37-advanced-testing/">L37: Advanced Testing →</a>
+</nav>
+
+<main>
+  <h1>L36 — Concurrency Patterns</h1>
+  <p class="intro">
+    Ba module tương tác cho 3 pattern thường gặp nhất trong production Go:
+    <strong>Worker pool</strong> (tune số worker, đo throughput),
+    <strong>Pipeline</strong> (xem data flow qua 3 stage, demo cancel propagation),
+    <strong>Token-bucket rate limiter</strong> (animate token refill + request consume).
+    Mọi minh hoạ standalone, mở <code>file://</code> chạy được.
+  </p>
+
+  <!-- ============================================================= -->
+  <!-- Module 1 — Worker pool simulator -->
+  <!-- ============================================================= -->
+  <section class="module" id="module-pool">
+    <h2>1. Worker pool simulator</h2>
+    <p class="desc">
+      Tune <strong>số worker</strong> và <strong>job latency</strong>, bấm Start để xem N worker chia nhau xử lý 30 job
+      từ queue. Theo dõi throughput thực tế ở biểu đồ. Tăng worker thường giảm tổng thời gian — nhưng quá nhiều cũng
+      không có lợi nếu mỗi job rất ngắn (context switch ăn lời).
+    </p>
+
+    <div class="controls">
+      <label>Workers: <input type="range" id="pool-workers" min="1" max="8" value="4"> <span id="pool-workers-val">4</span></label>
+      <label style="margin-left:12px">Job latency: <input type="range" id="pool-latency" min="50" max="500" step="50" value="200"> <span id="pool-latency-val">200</span>ms</label>
+      <button class="viz-btn" id="pool-start">▶ Start</button>
+      <button class="viz-btn secondary" id="pool-reset">↻ Reset</button>
+      <button class="viz-btn danger" id="pool-cancel">✕ Cancel ctx</button>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat">Done: <strong id="pool-done">0</strong>/30</div>
+      <div class="stat">Elapsed: <strong id="pool-elapsed">0</strong>ms</div>
+      <div class="stat">Throughput: <strong id="pool-throughput">0</strong> job/s</div>
+      <div class="stat">Status: <strong id="pool-status">idle</strong></div>
+    </div>
+
+    <div class="pool-area">
+      <div class="pool-col">
+        <h3>Job queue (30 job)</h3>
+        <div class="job-grid" id="pool-jobs"></div>
+      </div>
+      <div class="pool-col">
+        <h3>Workers</h3>
+        <div class="worker-grid" id="pool-workers-grid"></div>
+      </div>
+    </div>
+
+    <canvas id="pool-chart" class="chart" width="900" height="160"></canvas>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- Module 2 — Pipeline visualizer -->
+  <!-- ============================================================= -->
+  <section class="module" id="module-pipeline">
+    <h2>2. Pipeline visualizer — gen → square → sum</h2>
+    <p class="desc">
+      Mỗi số 1..8 đi qua chuỗi <code>gen</code> → <code>square</code> → <code>sum</code>. Bấm Start để animate.
+      Bấm <strong>Cancel ctx</strong> giữa chừng để xem cancel propagation: mọi stage thấy <code>ctx.Done()</code> và dừng.
+      Sum partial vẫn được trả về.
+    </p>
+
+    <div class="controls">
+      <button class="viz-btn" id="pipe-start">▶ Start</button>
+      <button class="viz-btn secondary" id="pipe-reset">↻ Reset</button>
+      <button class="viz-btn danger" id="pipe-cancel">✕ Cancel ctx</button>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat">Sum: <strong id="pipe-sum">0</strong></div>
+      <div class="stat">Expect (full): <strong>204</strong> (1²+2²+...+8²)</div>
+      <div class="stat">Status: <strong id="pipe-status">idle</strong></div>
+    </div>
+
+    <div class="pipeline-area">
+      <div class="stage" id="stage-gen">
+        <h4>gen</h4>
+        <div class="slot" id="slot-gen">·</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="stage" id="stage-square">
+        <h4>square</h4>
+        <div class="slot" id="slot-square">·</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="stage" id="stage-sum">
+        <h4>sum</h4>
+        <div class="slot" id="slot-sum">0</div>
+      </div>
+    </div>
+
+    <div class="pipeline-log" id="pipe-log">[log] click Start để chạy.</div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- Module 3 — Rate limiter token bucket -->
+  <!-- ============================================================= -->
+  <section class="module" id="module-ratelimit">
+    <h2>3. Rate limiter — token bucket</h2>
+    <p class="desc">
+      Xô có <strong>burst</strong> chỗ chứa, vòi nhỏ tốc độ <strong>R token/s</strong>. Bấm "Gửi request" để consume 1 token.
+      Hết token thì request phải <strong>chờ</strong> đến khi vòi nhỏ thêm 1 token. Tăng rate xem hiệu ứng.
+    </p>
+
+    <div class="controls">
+      <label>Rate (token/s): <input type="range" id="rl-rate" min="1" max="10" value="2"> <span id="rl-rate-val">2</span></label>
+      <label style="margin-left:12px">Burst: <input type="range" id="rl-burst" min="1" max="10" value="3"> <span id="rl-burst-val">3</span></label>
+      <button class="viz-btn" id="rl-send">📨 Gửi request</button>
+      <button class="viz-btn" id="rl-burst-send">⚡ Burst 8 requests</button>
+      <button class="viz-btn secondary" id="rl-reset">↻ Reset</button>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat">Tokens: <strong id="rl-tokens">3</strong>/<span id="rl-burst-cap">3</span></div>
+      <div class="stat">Served: <strong id="rl-served">0</strong></div>
+      <div class="stat">Waiting: <strong id="rl-waiting">0</strong></div>
+    </div>
+
+    <div class="bucket-wrap">
+      <div class="bucket" id="rl-bucket">
+        <div class="label" id="rl-bucket-label">3 / 3</div>
+        <div class="tokens" id="rl-tokens-fill" style="height: 100%"></div>
+      </div>
+      <div class="req-lane">
+        <h4>Request queue (oldest → newest)</h4>
+        <div id="rl-reqs"></div>
+      </div>
+    </div>
+
+    <div class="rl-log" id="rl-log">[log] click "Gửi request" để bắt đầu.</div>
+  </section>
+
+</main>
+
+<script>
+'use strict';
+
+// ====================================================================
+// Module 1 — Worker pool simulator
+// ====================================================================
+(() => {
+  const N_JOBS = 30;
+  const jobsEl = document.getElementById('pool-jobs');
+  const workersGridEl = document.getElementById('pool-workers-grid');
+  const doneEl = document.getElementById('pool-done');
+  const elapsedEl = document.getElementById('pool-elapsed');
+  const tputEl = document.getElementById('pool-throughput');
+  const statusEl = document.getElementById('pool-status');
+  const workersSlider = document.getElementById('pool-workers');
+  const workersVal = document.getElementById('pool-workers-val');
+  const latSlider = document.getElementById('pool-latency');
+  const latVal = document.getElementById('pool-latency-val');
+  const chart = document.getElementById('pool-chart');
+  const ctx = chart.getContext('2d');
+
+  let state = null; // { jobs[], workers[], doneCount, startTime, cancelled, samples }
+
+  function renderJobs() {
+    jobsEl.innerHTML = '';
+    for (let i = 0; i < N_JOBS; i++) {
+      const d = document.createElement('div');
+      d.className = 'job-cell' + (state && state.jobs[i] ? ' ' + state.jobs[i] : '');
+      d.textContent = i + 1;
+      jobsEl.appendChild(d);
+    }
+  }
+  function renderWorkers() {
+    workersGridEl.innerHTML = '';
+    const n = state ? state.workers.length : Number(workersSlider.value);
+    for (let i = 0; i < n; i++) {
+      const w = state ? state.workers[i] : { busy: false, job: null };
+      const div = document.createElement('div');
+      div.className = 'worker ' + (w.busy ? 'busy' : 'idle');
+      div.innerHTML = `<div class="wid">W${i+1}</div><div class="wjob">${w.busy ? 'job ' + w.job : 'idle'}</div>`;
+      workersGridEl.appendChild(div);
+    }
+  }
+  function drawChart() {
+    ctx.clearRect(0, 0, chart.width, chart.height);
+    ctx.fillStyle = '#fafafa';
+    ctx.fillRect(0, 0, chart.width, chart.height);
+    if (!state || state.samples.length < 2) {
+      ctx.fillStyle = '#a0aec0';
+      ctx.font = '13px sans-serif';
+      ctx.fillText('Throughput (job/s) theo thời gian — chạy để xem', 16, 80);
+      return;
+    }
+    const maxT = state.samples[state.samples.length - 1].t;
+    const maxY = Math.max(...state.samples.map(s => s.tp), 1) * 1.1;
+    // axes
+    ctx.strokeStyle = '#cbd5e0';
+    ctx.beginPath();
+    ctx.moveTo(40, 10); ctx.lineTo(40, chart.height - 24);
+    ctx.lineTo(chart.width - 10, chart.height - 24);
+    ctx.stroke();
+    ctx.fillStyle = '#4a5568';
+    ctx.font = '11px sans-serif';
+    ctx.fillText('job/s', 4, 14);
+    ctx.fillText(maxT.toFixed(1) + 's', chart.width - 40, chart.height - 8);
+    // line
+    ctx.strokeStyle = '#00add8';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    state.samples.forEach((s, i) => {
+      const x = 40 + (s.t / maxT) * (chart.width - 50);
+      const y = chart.height - 24 - (s.tp / maxY) * (chart.height - 40);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+  }
+
+  function start() {
+    const numW = Number(workersSlider.value);
+    const latency = Number(latSlider.value);
+    state = {
+      jobs: Array(N_JOBS).fill('pending'),
+      workers: Array.from({length: numW}, () => ({ busy: false, job: null })),
+      doneCount: 0,
+      nextJob: 0,
+      startTime: performance.now(),
+      cancelled: false,
+      latency,
+      samples: [{t: 0, tp: 0}],
+    };
+    statusEl.textContent = 'running';
+    renderJobs(); renderWorkers();
+    // Mỗi worker là 1 "goroutine" — vòng lặp lấy job kế tiếp.
+    state.workers.forEach((w, idx) => runWorker(idx));
+    tickStats();
+  }
+  function runWorker(idx) {
+    if (state.cancelled) {
+      state.workers[idx].busy = false;
+      state.workers[idx].job = null;
+      renderWorkers();
+      return;
+    }
+    if (state.nextJob >= N_JOBS) {
+      state.workers[idx].busy = false;
+      state.workers[idx].job = null;
+      renderWorkers();
+      checkComplete();
+      return;
+    }
+    const jobId = state.nextJob++;
+    state.jobs[jobId] = 'processing';
+    state.workers[idx].busy = true;
+    state.workers[idx].job = jobId + 1;
+    renderJobs(); renderWorkers();
+    setTimeout(() => {
+      if (state.cancelled) return;
+      state.jobs[jobId] = 'done';
+      state.doneCount++;
+      doneEl.textContent = state.doneCount;
+      renderJobs();
+      runWorker(idx);
+    }, state.latency);
+  }
+  function tickStats() {
+    if (!state) return;
+    const elapsed = (performance.now() - state.startTime);
+    elapsedEl.textContent = Math.round(elapsed);
+    const tp = elapsed > 0 ? (state.doneCount / (elapsed / 1000)) : 0;
+    tputEl.textContent = tp.toFixed(1);
+    state.samples.push({t: elapsed / 1000, tp});
+    drawChart();
+    if (state.doneCount < N_JOBS && !state.cancelled) {
+      setTimeout(tickStats, 100);
+    }
+  }
+  function checkComplete() {
+    if (state.workers.every(w => !w.busy)) {
+      statusEl.textContent = state.cancelled ? 'cancelled' : 'done';
+    }
+  }
+  function reset() {
+    state = null;
+    doneEl.textContent = 0;
+    elapsedEl.textContent = 0;
+    tputEl.textContent = 0;
+    statusEl.textContent = 'idle';
+    renderJobs(); renderWorkers(); drawChart();
+  }
+  function cancel() {
+    if (!state) return;
+    state.cancelled = true;
+    statusEl.textContent = 'cancelled';
+  }
+  workersSlider.addEventListener('input', () => {
+    workersVal.textContent = workersSlider.value;
+    if (!state) renderWorkers();
+  });
+  latSlider.addEventListener('input', () => { latVal.textContent = latSlider.value; });
+  document.getElementById('pool-start').addEventListener('click', start);
+  document.getElementById('pool-reset').addEventListener('click', reset);
+  document.getElementById('pool-cancel').addEventListener('click', cancel);
+  reset();
+})();
+
+// ====================================================================
+// Module 2 — Pipeline visualizer
+// ====================================================================
+(() => {
+  const slotGen = document.getElementById('slot-gen');
+  const slotSq  = document.getElementById('slot-square');
+  const slotSum = document.getElementById('slot-sum');
+  const stageGen = document.getElementById('stage-gen');
+  const stageSq  = document.getElementById('stage-square');
+  const stageSum = document.getElementById('stage-sum');
+  const pipeSum = document.getElementById('pipe-sum');
+  const pipeStatus = document.getElementById('pipe-status');
+  const logEl = document.getElementById('pipe-log');
+
+  let running = false;
+  let cancelled = false;
+
+  function log(msg) {
+    const line = document.createElement('div');
+    line.textContent = '[' + (performance.now() / 1000).toFixed(2) + 's] ' + msg;
+    logEl.appendChild(line);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+  function reset() {
+    running = false; cancelled = false;
+    slotGen.textContent = '·'; slotGen.classList.remove('has');
+    slotSq.textContent  = '·'; slotSq.classList.remove('has');
+    slotSum.textContent = '0';
+    stageGen.classList.remove('cancelled');
+    stageSq.classList.remove('cancelled');
+    stageSum.classList.remove('cancelled');
+    pipeSum.textContent = 0;
+    pipeStatus.textContent = 'idle';
+    logEl.innerHTML = '';
+    log('reset done — click Start.');
+  }
+  function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  async function start() {
+    if (running) return;
+    reset();
+    running = true; cancelled = false;
+    pipeStatus.textContent = 'running';
+    let sum = 0;
+    for (let n = 1; n <= 8; n++) {
+      if (cancelled) {
+        log('ctx.Done() detected — gen exit');
+        break;
+      }
+      // gen → slot
+      slotGen.textContent = n; slotGen.classList.add('has');
+      log(`gen emit ${n}`);
+      await delay(300);
+      if (cancelled) { log('cancel during gen send'); break; }
+      // gen → square
+      slotGen.classList.remove('has'); slotGen.textContent = '·';
+      slotSq.textContent = n + '²'; slotSq.classList.add('has');
+      log(`square receive ${n}, compute ${n*n}`);
+      await delay(300);
+      if (cancelled) { log('cancel during square send'); break; }
+      // square → sum
+      const sq = n * n;
+      slotSq.classList.remove('has'); slotSq.textContent = '·';
+      sum += sq;
+      slotSum.textContent = sum;
+      pipeSum.textContent = sum;
+      log(`sum += ${sq} → ${sum}`);
+      await delay(200);
+    }
+    if (cancelled) {
+      stageGen.classList.add('cancelled');
+      stageSq.classList.add('cancelled');
+      pipeStatus.textContent = 'cancelled (partial sum)';
+      log(`cancelled — partial sum = ${sum}`);
+    } else {
+      pipeStatus.textContent = 'done';
+      log(`done — final sum = ${sum} (expect 204)`);
+    }
+    running = false;
+  }
+
+  document.getElementById('pipe-start').addEventListener('click', start);
+  document.getElementById('pipe-reset').addEventListener('click', () => { cancelled = true; setTimeout(reset, 50); });
+  document.getElementById('pipe-cancel').addEventListener('click', () => {
+    if (!running) return;
+    cancelled = true;
+    log('🔴 cancel() called — propagating ctx.Done()');
+  });
+  reset();
+})();
+
+// ====================================================================
+// Module 3 — Rate limiter token bucket
+// ====================================================================
+(() => {
+  const rateSlider = document.getElementById('rl-rate');
+  const rateVal = document.getElementById('rl-rate-val');
+  const burstSlider = document.getElementById('rl-burst');
+  const burstVal = document.getElementById('rl-burst-val');
+  const burstCapEl = document.getElementById('rl-burst-cap');
+  const tokensEl = document.getElementById('rl-tokens');
+  const tokensFill = document.getElementById('rl-tokens-fill');
+  const bucketLabel = document.getElementById('rl-bucket-label');
+  const reqsEl = document.getElementById('rl-reqs');
+  const servedEl = document.getElementById('rl-served');
+  const waitingEl = document.getElementById('rl-waiting');
+  const logEl = document.getElementById('rl-log');
+
+  let rate = 2, burst = 3, tokens = 3;
+  let queue = []; // { id, el, state, sentAt }
+  let served = 0;
+  let reqIdCounter = 0;
+
+  function log(msg) {
+    const line = document.createElement('div');
+    line.textContent = '[' + (performance.now() / 1000).toFixed(2) + 's] ' + msg;
+    logEl.appendChild(line);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+  function render() {
+    tokensEl.textContent = tokens;
+    burstCapEl.textContent = burst;
+    bucketLabel.textContent = `${tokens} / ${burst}`;
+    tokensFill.style.height = (tokens / burst * 100) + '%';
+    servedEl.textContent = served;
+    waitingEl.textContent = queue.filter(r => r.state === 'waiting').length;
+  }
+  function trySchedule() {
+    while (tokens > 0 && queue.length > 0) {
+      const r = queue.find(x => x.state === 'waiting');
+      if (!r) break;
+      tokens--;
+      r.state = 'served';
+      r.el.className = 'req served';
+      r.el.textContent = `#${r.id} ✓`;
+      served++;
+      log(`req #${r.id} served, tokens=${tokens}`);
+      setTimeout(() => {
+        if (r.el && r.el.parentNode) r.el.parentNode.removeChild(r.el);
+        queue = queue.filter(x => x.id !== r.id);
+        render();
+      }, 1500);
+    }
+    render();
+  }
+  function sendOne() {
+    reqIdCounter++;
+    const id = reqIdCounter;
+    const el = document.createElement('span');
+    el.className = 'req waiting';
+    el.textContent = `#${id} ⏳`;
+    reqsEl.appendChild(el);
+    queue.push({ id, el, state: 'waiting', sentAt: performance.now() });
+    log(`req #${id} arrived (queue=${queue.length})`);
+    trySchedule();
+  }
+  function reset() {
+    tokens = burst; served = 0; queue = []; reqIdCounter = 0;
+    reqsEl.innerHTML = ''; logEl.innerHTML = '';
+    log('reset.');
+    render();
+  }
+
+  // Refill loop — sinh token mỗi (1000/rate) ms
+  let refillTimer = null;
+  function startRefill() {
+    if (refillTimer) clearInterval(refillTimer);
+    refillTimer = setInterval(() => {
+      if (tokens < burst) {
+        tokens++;
+        log(`+1 token (refill), tokens=${tokens}`);
+        trySchedule();
+      }
+    }, 1000 / rate);
+  }
+
+  rateSlider.addEventListener('input', () => {
+    rate = Number(rateSlider.value);
+    rateVal.textContent = rate;
+    startRefill();
+  });
+  burstSlider.addEventListener('input', () => {
+    burst = Number(burstSlider.value);
+    burstVal.textContent = burst;
+    if (tokens > burst) tokens = burst;
+    render();
+  });
+  document.getElementById('rl-send').addEventListener('click', sendOne);
+  document.getElementById('rl-burst-send').addEventListener('click', () => {
+    for (let i = 0; i < 8; i++) setTimeout(sendOne, i * 30);
+  });
+  document.getElementById('rl-reset').addEventListener('click', reset);
+
+  render();
+  startRefill();
+  log('rate limiter active.');
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

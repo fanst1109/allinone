@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 05 — Dirichlet & Bù trừ</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 80px; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 500px; height: 350px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-binomial-pascal/visualization.html">← L4: Pascal</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Dirichlet</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L6: Quy nạp (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 05 (T5) — Dirichlet &amp; Bù trừ</h1>
+
+<h2>Bù trừ 3 tập — Venn diagram</h2>
+<div class="card">
+  <p>Cho 3 tập A, B, C. Nhập kích thước từng vùng.</p>
+  <div class="row">
+    <strong>Tổng số (U):</strong> <input type="number" id="U" value="100">
+    <strong>|A|:</strong> <input type="number" id="A" value="40">
+    <strong>|B|:</strong> <input type="number" id="B" value="30">
+    <strong>|C|:</strong> <input type="number" id="C" value="25">
+  </div>
+  <div class="row">
+    <strong>|A∩B|:</strong> <input type="number" id="AB" value="15">
+    <strong>|B∩C|:</strong> <input type="number" id="BC" value="10">
+    <strong>|A∩C|:</strong> <input type="number" id="AC" value="12">
+    <strong>|A∩B∩C|:</strong> <input type="number" id="ABC" value="5">
+  </div>
+  <svg class="scene" id="svg" viewBox="0 0 500 350"></svg>
+  <button onclick="calc()" style="background:#15803d; color:white; border:none; padding:8px 14px; border-radius:4px; cursor:pointer; font-weight:600">Tính</button>
+  <div class="result" id="res"></div>
+</div>
+
+<h2>Dirichlet — Pigeonhole</h2>
+<div class="card">
+  <div class="row">
+    <label>Số chuồng (k):</label> <input type="number" id="k" value="12" oninput="ph()">
+    <label>Số chim (n):</label> <input type="number" id="np" value="30" oninput="ph()">
+  </div>
+  <div class="result" id="phRes"></div>
+</div>
+
+<script>
+function calc() {
+  const U = +document.getElementById("U").value;
+  const A = +document.getElementById("A").value;
+  const B = +document.getElementById("B").value;
+  const C = +document.getElementById("C").value;
+  const AB = +document.getElementById("AB").value;
+  const BC = +document.getElementById("BC").value;
+  const AC = +document.getElementById("AC").value;
+  const ABC = +document.getElementById("ABC").value;
+
+  const union = A + B + C - AB - BC - AC + ABC;
+  const none = U - union;
+  // Region counts
+  const onlyA = A - AB - AC + ABC;
+  const onlyB = B - AB - BC + ABC;
+  const onlyC = C - AC - BC + ABC;
+  const ABonly = AB - ABC;
+  const BConly = BC - ABC;
+  const AConly = AC - ABC;
+
+  // SVG
+  const svg = document.getElementById("svg");
+  svg.innerHTML = "";
+  // 3 circles
+  const circles = [
+    {cx: 180, cy: 130, r: 90, color: "#1d4ed8", label: "A"},
+    {cx: 320, cy: 130, r: 90, color: "#dc2626", label: "B"},
+    {cx: 250, cy: 230, r: 90, color: "#15803d", label: "C"}
+  ];
+  circles.forEach(c => {
+    const cir = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    cir.setAttribute("cx", c.cx); cir.setAttribute("cy", c.cy); cir.setAttribute("r", c.r);
+    cir.setAttribute("fill", c.color); cir.setAttribute("fill-opacity", 0.25); cir.setAttribute("stroke", c.color); cir.setAttribute("stroke-width", 2);
+    svg.appendChild(cir);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", c.cx + (c.label==="A"?-80:c.label==="B"?80:0)); t.setAttribute("y", c.cy + (c.label==="C"?80:-80));
+    t.setAttribute("font-weight", "700"); t.setAttribute("font-size", "16"); t.setAttribute("fill", c.color); t.setAttribute("text-anchor", "middle");
+    t.textContent = c.label;
+    svg.appendChild(t);
+  });
+  // Region labels
+  const regs = [
+    {x: 130, y: 110, text: onlyA},
+    {x: 370, y: 110, text: onlyB},
+    {x: 250, y: 260, text: onlyC},
+    {x: 250, y: 100, text: ABonly},
+    {x: 200, y: 200, text: AConly},
+    {x: 300, y: 200, text: BConly},
+    {x: 250, y: 160, text: ABC}
+  ];
+  regs.forEach(r => {
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", r.x); t.setAttribute("y", r.y); t.setAttribute("font-weight", "700"); t.setAttribute("font-size", "14"); t.setAttribute("text-anchor", "middle");
+    t.textContent = r.text;
+    svg.appendChild(t);
+  });
+
+  document.getElementById("res").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">|A∪B∪C| = |A|+|B|+|C| − |A∩B| − |B∩C| − |A∩C| + |A∩B∩C|</div>
+    <div style="font-family:monospace; font-size:14px">= ${A}+${B}+${C} − ${AB}−${BC}−${AC} + ${ABC} = <strong>${union}</strong></div>
+    <div style="margin-top:8px">Số người KHÔNG thuộc A, B, C nào: <strong>${none}</strong></div>
+  `;
+}
+
+function ph() {
+  const k = +document.getElementById("k").value;
+  const n = +document.getElementById("np").value;
+  if (!k || !n || k < 1 || n < 1) return;
+  const min_per_box = Math.ceil(n / k);
+  document.getElementById("phRes").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">Đặt ${n} vật vào ${k} hộp → ít nhất 1 hộp chứa <strong>⌈${n}/${k}⌉ = ${min_per_box}</strong> vật.</div>
+    ${n > k ? `<div style="margin-top:6px">✅ Có ít nhất 2 vật cùng hộp (vì ${n} > ${k}).</div>` : `<div style="margin-top:6px">Có thể mỗi hộp ≤ 1 vật (vì n ≤ k).</div>`}
+  `;
+}
+
+calc();
+ph();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

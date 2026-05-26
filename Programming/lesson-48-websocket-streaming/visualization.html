@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 48 — WebSocket & Streaming Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 40px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  .explain {
+    background: #ebf8ff; border-left: 4px solid #4299e1;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6; margin: 10px 0;
+  }
+  code.inline, .explain code {
+    background: #edf2f7; padding: 1px 5px; border-radius: 3px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.92em;
+  }
+
+  /* ---- Module 1: protocol comparison ---- */
+  .proto-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .proto {
+    border: 2px solid #cbd5e0; border-radius: 8px; padding: 12px;
+    background: #f7fafc;
+  }
+  .proto.lp { border-color: #ed8936; }
+  .proto.sse { border-color: #38a169; }
+  .proto.ws { border-color: #805ad5; }
+  .proto h3 { margin: 0 0 4px; font-size: 15px; }
+  .proto .tag { font-size: 11px; color: #718096; display: block; margin-bottom: 8px; }
+  .lane {
+    position: relative; height: 230px; overflow: hidden;
+    background: #fff; border-radius: 6px; border: 1px solid #e2e8f0;
+  }
+  .endpoints {
+    display: flex; justify-content: space-between;
+    font-size: 11px; font-weight: 700; color: #4a5568;
+    padding: 4px 8px; background: #edf2f7;
+  }
+  .pkt {
+    position: absolute; left: 0;
+    font-size: 10px; padding: 2px 6px; border-radius: 10px;
+    color: #fff; white-space: nowrap; opacity: 0;
+    transition: transform 0.8s linear, opacity 0.3s;
+  }
+  .pkt.toS { background: #4299e1; }   /* client → server */
+  .pkt.toC { background: #38a169; }   /* server → client */
+  .pkt.show { opacity: 1; }
+  .note { font-size: 11px; color: #718096; margin-top: 6px; min-height: 28px; }
+
+  /* ---- Module 2: handshake ---- */
+  .hs-step {
+    border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px;
+    margin: 8px 0; opacity: 0.35; transition: opacity 0.3s, background 0.3s;
+    font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; white-space: pre-wrap;
+  }
+  .hs-step.active { opacity: 1; background: #f0fff4; border-color: #38a169; }
+  .hs-step .lbl {
+    font-family: system-ui, sans-serif; font-weight: 700; font-size: 12px;
+    color: #805ad5; display: block; margin-bottom: 6px;
+  }
+  .hs-state {
+    text-align: center; font-weight: 700; padding: 8px; border-radius: 6px;
+    margin: 10px 0; background: #edf2f7; color: #4a5568;
+  }
+  .hs-state.ws { background: #805ad5; color: #fff; }
+
+  /* ---- Module 3: chat broadcast ---- */
+  .stage { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px; align-items: center; }
+  .hub-box {
+    background: #2d3748; color: #fff; border-radius: 10px;
+    padding: 14px 10px; text-align: center; min-width: 90px;
+  }
+  .hub-box .h { font-weight: 700; font-size: 13px; }
+  .hub-box .sub { font-size: 10px; color: #a0aec0; }
+  .hub-box.pulse { animation: pulse 0.5s; }
+  @keyframes pulse { 50% { background: #805ad5; transform: scale(1.08); } }
+  .client-col { display: flex; flex-direction: column; gap: 8px; }
+  .client {
+    border: 1px solid #cbd5e0; border-radius: 8px; padding: 8px; background: #fff;
+  }
+  .client.dropped { opacity: 0.4; border-style: dashed; }
+  .client .name { font-weight: 700; font-size: 12px; }
+  .client .feed {
+    font-size: 11px; background: #1a202c; color: #68d391;
+    border-radius: 4px; padding: 6px; height: 70px; overflow-y: auto;
+    margin-top: 4px; font-family: ui-monospace, Menlo, monospace;
+  }
+  .client .feed div.flash { animation: flash 0.6s; }
+  @keyframes flash { 0% { background: #2f855a; } 100% { background: transparent; } }
+
+  @media (max-width: 600px) {
+    .proto-grid { grid-template-columns: 1fr; }
+    .stage { grid-template-columns: 1fr; }
+    .hub-box { min-width: 0; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-47-tls-crypto-basics/visualization.html">← L47: TLS &amp; Crypto</a>
+  <span class="sep">·</span>
+  <span class="current">L48: WebSocket</span>
+  <span class="sep">·</span>
+  <a href="../lesson-49-grpc-protobuf/visualization.html">L49: gRPC →</a>
+</nav>
+
+<main>
+<h1>Lesson 48 — WebSocket &amp; Streaming (Visualization)</h1>
+
+<div class="explain">
+  Ba module tương tác: (1) so sánh dòng message của <b>Long polling / SSE / WebSocket</b>;
+  (2) <b>handshake</b> nâng cấp HTTP → WS từng bước; (3) <b>chat broadcast</b> nhiều client
+  qua hub. Mở README (nút 📖 góc phải) để đọc lý thuyết đầy đủ.
+</div>
+
+<!-- ===================== MODULE 1 ===================== -->
+<h2>1. So sánh dòng message — Long polling / SSE / WebSocket</h2>
+<div class="card">
+  <div class="row">
+    <button id="m1-play">▶ Chạy mô phỏng "1 event xuất hiện ở giây thứ 2"</button>
+    <button class="secondary" id="m1-reset">↺ Reset</button>
+  </div>
+  <div class="proto-grid">
+    <div class="proto lp">
+      <h3>Long polling</h3>
+      <span class="tag">Mỗi event = 1 HTTP request mới</span>
+      <div class="lane" id="lane-lp">
+        <div class="endpoints"><span>Client</span><span>Server</span></div>
+      </div>
+      <div class="note" id="note-lp"></div>
+    </div>
+    <div class="proto sse">
+      <h3>SSE</h3>
+      <span class="tag">1 connection giữ mãi, server đẩy 1 chiều</span>
+      <div class="lane" id="lane-sse">
+        <div class="endpoints"><span>Client</span><span>Server</span></div>
+      </div>
+      <div class="note" id="note-sse"></div>
+    </div>
+    <div class="proto ws">
+      <h3>WebSocket</h3>
+      <span class="tag">Full-duplex, hai chiều đồng thời</span>
+      <div class="lane" id="lane-ws">
+        <div class="endpoints"><span>Client</span><span>Server</span></div>
+      </div>
+      <div class="note" id="note-ws"></div>
+    </div>
+  </div>
+  <div class="explain" style="margin-top:14px">
+    Quan sát: <b>Long polling</b> tốn 1 request setup + headers cho mỗi event (gói xanh dương đi
+    lên trước mỗi gói xanh lá). <b>SSE</b> chỉ 1 request đầu, sau đó server đẩy thẳng. <b>WebSocket</b>
+    cả 2 chiều cùng bay — client gửi typing indicator trong khi server đẩy message.
+  </div>
+</div>
+
+<!-- ===================== MODULE 2 ===================== -->
+<h2>2. WebSocket handshake — nâng cấp HTTP → WS</h2>
+<div class="card">
+  <div class="row">
+    <button id="m2-next">▶ Bước tiếp theo</button>
+    <button class="secondary" id="m2-reset">↺ Reset</button>
+  </div>
+  <div class="hs-state" id="hs-state">Trạng thái: chế độ HTTP request/response</div>
+
+  <div class="hs-step" id="hs-0">
+    <span class="lbl">① Client gửi HTTP request kèm header Upgrade</span>GET /ws HTTP/1.1
+Host: example.com
+Upgrade: websocket
+Connection: Upgrade
+Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==
+Sec-WebSocket-Version: 13</div>
+
+  <div class="hs-step" id="hs-1">
+    <span class="lbl">② Server tính Accept = base64(SHA1(key + GUID))</span>key  = dGhlIHNhbXBsZSBub25jZQ==
+GUID = 258EAFA5-E914-47DA-95CA-C5AB0DC85B11
+→ Sec-WebSocket-Accept = s3pPLMBiTxaQ9kYGzzhZRbK+xOo=</div>
+
+  <div class="hs-step" id="hs-2">
+    <span class="lbl">③ Server trả 101 Switching Protocols</span>HTTP/1.1 101 Switching Protocols
+Upgrade: websocket
+Connection: Upgrade
+Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=</div>
+
+  <div class="hs-step" id="hs-3">
+    <span class="lbl">④ Bỏ HTTP — chuyển sang frame protocol full-duplex</span>FIN | opcode=0x1 (text) | MASK | len | payload...
+opcode: 0x1 text · 0x2 binary · 0x8 close · 0x9 ping · 0xA pong</div>
+
+  <div class="explain" style="margin-top:12px">
+    💡 Giống <b>đi qua cửa kiểm an sân bay</b>: dùng giấy tờ HTTP để vào (bước ①–③). Sau status
+    <code class="inline">101</code> bạn ở khu miễn thuế — di chuyển tự do bằng frame, không show
+    giấy tờ HTTP nữa (bước ④).
+  </div>
+</div>
+
+<!-- ===================== MODULE 3 ===================== -->
+<h2>3. Chat broadcast — hub-and-spoke nhiều client</h2>
+<div class="card">
+  <div class="row">
+    <input id="chat-input" placeholder="gõ message rồi chọn người gửi..." style="flex:1;min-width:160px;max-width:320px;width:100%;box-sizing:border-box;padding:7px;border:1px solid #cbd5e0;border-radius:4px">
+  </div>
+  <div class="row">
+    <button data-send="A">Alice gửi</button>
+    <button data-send="B">Bob gửi</button>
+    <button data-send="C">Carol gửi</button>
+    <button class="secondary" id="m3-slow">🐌 Carol chậm (drop khi buffer đầy)</button>
+    <button class="secondary" id="m3-reset">↺ Reset</button>
+  </div>
+
+  <div class="stage" style="margin-top:14px">
+    <div class="client-col" id="senders"></div>
+    <div class="hub-box" id="hub">
+      <div class="h">Hub</div>
+      <div class="sub">sở hữu map<br>register · unregister<br>broadcast</div>
+    </div>
+    <div class="client-col" id="receivers"></div>
+  </div>
+
+  <div class="explain" style="margin-top:14px">
+    Chỉ <b>goroutine Hub</b> đụng vào map clients → không cần mutex. Khi 1 client gửi, message đi
+    vào <code class="inline">broadcast</code> channel; Hub phát vào <code class="inline">send</code>
+    channel (buffered) của từng client. Nếu buffer client đầy (client chậm) → Hub
+    <b>drop</b> client đó thay vì block cả hệ thống. Bấm 🐌 để xem Carol bị drop.
+  </div>
+</div>
+
+</main>
+
+<script>
+/* ========================== MODULE 1 ========================== */
+const m1 = {
+  timers: [],
+  clear() { this.timers.forEach(clearTimeout); this.timers = []; },
+  at(ms, fn) { this.timers.push(setTimeout(fn, ms)); },
+};
+function spawnPkt(laneId, cls, label, topPct, fromLeft) {
+  const lane = document.getElementById(laneId);
+  const p = document.createElement('div');
+  p.className = 'pkt ' + cls;
+  p.textContent = label;
+  p.style.top = topPct + '%';
+  p.style.left = fromLeft ? '6px' : 'auto';
+  if (!fromLeft) p.style.right = '6px';
+  lane.appendChild(p);
+  // trigger transform after layout
+  requestAnimationFrame(() => {
+    p.classList.add('show');
+    const dx = fromLeft ? (lane.clientWidth - 80) : -(lane.clientWidth - 80);
+    p.style.transform = `translateX(${dx}px)`;
+  });
+  m1.at(1400, () => p.remove());
+  return p;
+}
+function setNote(id, txt) { document.getElementById(id).textContent = txt; }
+
+document.getElementById('m1-play').onclick = () => {
+  m1Reset();
+  // --- Long polling: req lên, hold, timeout empty, req lại, event ở 2s, trả về ---
+  setNote('note-lp', 'Client hỏi → server giữ (chưa có event)...');
+  spawnPkt('lane-lp', 'toS', 'GET /poll', 10, true);
+  m1.at(900, () => { setNote('note-lp', 'Hết 1 chu kỳ, chưa có event → trả rỗng, hỏi lại'); spawnPkt('lane-lp', 'toC', '{ } empty', 30, false); });
+  m1.at(1600, () => spawnPkt('lane-lp', 'toS', 'GET /poll', 50, true));
+  m1.at(2000, () => setNote('note-lp', '⚡ Event xuất hiện ở giây 2'));
+  m1.at(2400, () => { setNote('note-lp', 'Server trả event (1 RTT trễ + headers mỗi vòng)'); spawnPkt('lane-lp', 'toC', 'msg ✓', 70, false); });
+
+  // --- SSE: 1 req giữ mãi, event đẩy thẳng ---
+  setNote('note-sse', 'Client mở EventSource (1 request duy nhất)');
+  spawnPkt('lane-sse', 'toS', 'GET /sse', 15, true);
+  m1.at(2000, () => setNote('note-sse', '⚡ Event xuất hiện ở giây 2'));
+  m1.at(2150, () => { setNote('note-sse', 'Server Flush() ngay trên connection sẵn có (~RTT)'); spawnPkt('lane-sse', 'toC', 'data: msg', 55, false); });
+
+  // --- WebSocket: handshake rồi 2 chiều ---
+  setNote('note-ws', 'Handshake 1 lần → frame mode');
+  spawnPkt('lane-ws', 'toS', 'upgrade', 12, true);
+  m1.at(600, () => spawnPkt('lane-ws', 'toC', '101', 28, false));
+  m1.at(1400, () => { setNote('note-ws', 'Client gửi typing... (chiều lên)'); spawnPkt('lane-ws', 'toS', 'typing…', 50, true); });
+  m1.at(2000, () => setNote('note-ws', '⚡ Event ở giây 2'));
+  m1.at(2120, () => { setNote('note-ws', 'Server đẩy msg đồng thời (full-duplex, latency thấp nhất)'); spawnPkt('lane-ws', 'toC', 'frame: msg', 72, false); });
+};
+function m1Reset() {
+  m1.clear();
+  ['lane-lp','lane-sse','lane-ws'].forEach(id => {
+    const l = document.getElementById(id);
+    l.querySelectorAll('.pkt').forEach(p => p.remove());
+  });
+  setNote('note-lp',''); setNote('note-sse',''); setNote('note-ws','');
+}
+document.getElementById('m1-reset').onclick = m1Reset;
+
+/* ========================== MODULE 2 ========================== */
+let hsStep = -1;
+const hsStateEl = document.getElementById('hs-state');
+function renderHs() {
+  for (let i = 0; i < 4; i++) {
+    document.getElementById('hs-' + i).classList.toggle('active', i <= hsStep);
+  }
+  if (hsStep >= 3) {
+    hsStateEl.textContent = 'Trạng thái: WebSocket frame mode (full-duplex, đã rời HTTP)';
+    hsStateEl.classList.add('ws');
+  } else if (hsStep >= 0) {
+    hsStateEl.textContent = 'Trạng thái: đang handshake qua HTTP (bước ' + (hsStep + 1) + '/4)';
+    hsStateEl.classList.remove('ws');
+  } else {
+    hsStateEl.textContent = 'Trạng thái: chế độ HTTP request/response';
+    hsStateEl.classList.remove('ws');
+  }
+}
+document.getElementById('m2-next').onclick = () => { if (hsStep < 3) hsStep++; renderHs(); };
+document.getElementById('m2-reset').onclick = () => { hsStep = -1; renderHs(); };
+renderHs();
+
+/* ========================== MODULE 3 ========================== */
+const CLIENTS = [
+  { id: 'A', name: 'Alice' },
+  { id: 'B', name: 'Bob' },
+  { id: 'C', name: 'Carol' },
+];
+const state = {}; // id -> { dropped, bufFull, feedEl }
+function buildChat() {
+  const recv = document.getElementById('receivers');
+  recv.innerHTML = '';
+  CLIENTS.forEach(c => {
+    state[c.id] = { dropped: false };
+    const el = document.createElement('div');
+    el.className = 'client';
+    el.id = 'cli-' + c.id;
+    el.innerHTML = `<div class="name">${c.name}</div><div class="feed" id="feed-${c.id}"></div>`;
+    recv.appendChild(el);
+    state[c.id].feedEl = el.querySelector('.feed');
+  });
+}
+function pushFeed(id, text) {
+  const f = state[id].feedEl;
+  const d = document.createElement('div');
+  d.className = 'flash';
+  d.textContent = text;
+  f.appendChild(d);
+  f.scrollTop = f.scrollHeight;
+}
+function broadcast(fromId, msg) {
+  const sender = CLIENTS.find(c => c.id === fromId).name;
+  document.getElementById('hub').classList.add('pulse');
+  setTimeout(() => document.getElementById('hub').classList.remove('pulse'), 500);
+  CLIENTS.forEach(c => {
+    if (state[c.id].dropped) return;
+    // Carol chậm → "buffer đầy" → hub drop
+    if (state[c.id].slow) {
+      state[c.id].dropped = true;
+      document.getElementById('cli-' + c.id).classList.add('dropped');
+      pushFeed(c.id, '✖ buffer đầy → bị Hub drop');
+      return;
+    }
+    pushFeed(c.id, `<${sender}> ${msg}`);
+  });
+}
+document.querySelectorAll('[data-send]').forEach(btn => {
+  btn.onclick = () => {
+    const input = document.getElementById('chat-input');
+    const msg = input.value.trim() || 'hello';
+    broadcast(btn.dataset.send, msg);
+    input.value = '';
+  };
+});
+document.getElementById('m3-slow').onclick = () => {
+  state['C'].slow = !state['C'].slow;
+  document.getElementById('m3-slow').textContent = state['C'].slow
+    ? '🐌 Carol ĐANG chậm (sẽ bị drop ở lần broadcast tới)'
+    : '🐌 Carol chậm (drop khi buffer đầy)';
+};
+document.getElementById('m3-reset').onclick = () => {
+  buildChat();
+  document.getElementById('m3-slow').textContent = '🐌 Carol chậm (drop khi buffer đầy)';
+};
+buildChat();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

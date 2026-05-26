@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 09 — Điều kiện: if & switch · Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.success { background: #38a169; }
+  button.success:hover { background: #2f855a; }
+  button.active { background: #2b6cb0; }
+
+  select, input[type="text"], input[type="number"] {
+    font-size: 15px; padding: 8px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    background: white; font-family: inherit;
+    box-sizing: border-box;
+  }
+
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+
+  /* ===== Module 1: pyramid refactor ===== */
+  .pyramid-grid {
+    display: grid; gap: 14px;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+  @media (max-width: 768px) {
+    .pyramid-grid { grid-template-columns: 1fr; }
+  }
+  .code-panel {
+    background: #1a202c; color: #f7fafc;
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .code-header {
+    background: #2d3748; color: #e2e8f0;
+    padding: 8px 14px;
+    font-size: 13px; font-weight: 700;
+    border-bottom: 1px solid #4a5568;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .code-header.bad { background: #742a2a; color: #fed7d7; }
+  .code-header.good { background: #22543d; color: #c6f6d5; }
+  .code-body {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; line-height: 1.55;
+    padding: 14px 16px;
+    overflow-x: auto; white-space: pre;
+    flex: 1;
+    min-height: 0;
+  }
+  .code-body .hl-bad { background: rgba(245, 101, 101, 0.18); border-left: 2px solid #fc8181; padding-left: 6px; margin-left: -8px; display: inline-block; width: calc(100% + 8px); }
+  .code-body .hl-good { background: rgba(72, 187, 120, 0.18); border-left: 2px solid #68d391; padding-left: 6px; margin-left: -8px; display: inline-block; width: calc(100% + 8px); }
+  .pyramid-controls {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    margin: 12px 0;
+  }
+  .pyramid-explain {
+    background: #ebf8ff; border-left: 4px solid #4299e1;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6;
+    margin-top: 10px;
+  }
+  .pyramid-explain code {
+    background: white; padding: 1px 5px; border-radius: 3px;
+    font-family: monospace; color: #2b6cb0;
+  }
+
+  /* ===== Module 2: switch flow ===== */
+  .sw-mode-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .sw-tab {
+    padding: 6px 12px; border-radius: 4px;
+    border: 1px solid #cbd5e0;
+    background: #edf2f7; cursor: pointer; font-weight: 600; font-size: 14px;
+  }
+  .sw-tab.active { background: #2b6cb0; color: white; border-color: #2b6cb0; }
+  .sw-input-row {
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+    margin: 12px 0;
+  }
+  .sw-input-row input[type="number"] { max-width: 110px; }
+  .sw-cases {
+    display: flex; flex-direction: column; gap: 0;
+    margin: 14px 0;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px;
+  }
+  .sw-case {
+    padding: 10px 14px;
+    border-left: 4px solid #cbd5e0;
+    background: #f7fafc;
+    transition: all 0.4s;
+    position: relative;
+  }
+  .sw-case.checking {
+    border-left-color: #ed8936; background: #fffaf0;
+  }
+  .sw-case.matched {
+    border-left-color: #38a169; background: #c6f6d5;
+    font-weight: 600;
+  }
+  .sw-case.skipped {
+    opacity: 0.5;
+  }
+  .sw-case-label { display: inline-block; min-width: 56px; color: #2b6cb0; font-weight: 700; }
+  .sw-case-cond { color: #1a202c; }
+  .sw-case-body { color: #2d3748; padding-left: 18px; display: block; font-size: 13px; margin-top: 4px; }
+  .sw-status {
+    display: inline-block;
+    margin-left: 10px;
+    padding: 2px 8px; border-radius: 12px;
+    font-size: 12px; font-weight: 600;
+    font-family: system-ui, sans-serif;
+  }
+  .sw-status.checking { background: #ed8936; color: white; }
+  .sw-status.matched { background: #38a169; color: white; }
+  .sw-status.skipped { background: #a0aec0; color: white; }
+  .sw-output {
+    margin-top: 12px;
+    background: #2d3748; color: #68d391;
+    font-family: monospace; font-size: 14px;
+    padding: 12px 14px; border-radius: 6px;
+    min-height: 40px; white-space: pre-wrap;
+    border-left: 4px solid #68d391;
+  }
+  .sw-output.empty { color: #a0aec0; font-style: italic; }
+
+  /* ===== Module 3: type switch playground ===== */
+  .ts-input-row {
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+    margin: 12px 0;
+  }
+  .ts-value-preview {
+    font-family: monospace;
+    background: #edf2f7; padding: 6px 12px;
+    border-radius: 4px; font-size: 14px;
+    color: #2d3748;
+  }
+  .ts-cases { /* reuse styles của sw-cases */ }
+
+  /* ===== Mobile responsive ===== */
+  @media (max-width: 480px) {
+    .card { padding: 14px; }
+    h2 { font-size: 20px; }
+    .code-body { font-size: 12px; padding: 10px 12px; }
+    .sw-case { padding: 8px 10px; font-size: 13px; }
+    .sw-cases { font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-08-operators-expressions/visualization.html">← L8: Toán tử</a>
+  <span class="sep">·</span>
+  <span class="current">L9: Điều kiện</span>
+  <span class="sep">·</span>
+  <a href="../lesson-10-loops-for/visualization.html">L10: Vòng lặp →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 09 — Điều kiện: <code>if</code> & <code>switch</code></h1>
+<p>Ba module tương tác để: (1) thấy cách <strong>early return</strong> giết pyramid of doom, (2) trace flow của <code>switch</code> từng case, (3) chơi với type switch trên <code>interface{}</code>.</p>
+
+<h2>Module 1 — Refactor "Pyramid of Doom" thành Early Return</h2>
+<div class="card">
+  <p>Hàm <code>chargeOrder</code> kiểm tra 4 điều kiện trước khi trừ tiền. Bên trái: viết nested kiểu C/Java. Bên phải: rỗng — bấm <strong>Refactor</strong> để xem phiên bản early return.</p>
+
+  <div class="pyramid-controls">
+    <button id="btnRefactor" class="success">▶ Refactor → early return</button>
+    <button id="btnPyramidReset" class="secondary">Reset</button>
+  </div>
+
+  <div class="pyramid-grid">
+    <div class="code-panel">
+      <div class="code-header bad">😵 Trước: pyramid 4 tầng</div>
+      <div class="code-body" id="codeBad"></div>
+    </div>
+    <div class="code-panel">
+      <div class="code-header good" id="goodHeader">⏳ Sau: (chưa refactor)</div>
+      <div class="code-body" id="codeGood"></div>
+    </div>
+  </div>
+
+  <div class="pyramid-explain" id="pyramidExplain">
+    Bấm <strong>Refactor</strong> để thấy cách chuyển 4 tầng nested thành chuỗi guard độc lập, mỗi guard return ngay. Happy path tụt về indent 0.
+  </div>
+</div>
+
+<h2>Module 2 — Switch Flow Visualizer</h2>
+<div class="card">
+  <p>Nhập giá trị, xem Go chạy qua từng <code>case</code>. Vàng = đang kiểm tra, xanh = matched (dừng), xám mờ = không xét vì đã match. Có 2 mode:</p>
+
+  <div class="sw-mode-tabs">
+    <div class="sw-tab active" data-mode="value">switch &lt;value&gt;</div>
+    <div class="sw-tab" data-mode="bool">switch (không expression)</div>
+  </div>
+
+  <div class="sw-input-row">
+    <label for="swInput">Giá trị x =</label>
+    <input type="number" id="swInput" value="7" min="-100" max="100">
+    <button id="swRun">▶ Chạy switch</button>
+    <button id="swReset" class="secondary">Reset</button>
+  </div>
+
+  <div class="sw-cases" id="swCases"></div>
+  <div class="sw-output empty" id="swOutput">(chưa chạy)</div>
+
+  <div class="pyramid-explain" id="swExplain">
+    <strong>Mode 1 (switch value):</strong> match tháng → trả về mùa. Demo cả multi-value (<code>case 12, 1, 2:</code>) và <code>default</code>.<br>
+    <strong>Mode 2 (no expression):</strong> tương đương if-elif chain. Mỗi case là 1 condition bool.
+  </div>
+</div>
+
+<h2>Module 3 — Type Switch Playground</h2>
+<div class="card">
+  <p>Chọn giá trị, xem <code>switch v := x.(type)</code> chạy qua từng case theo kiểu thực tế của <code>x</code>.</p>
+
+  <div class="ts-input-row">
+    <label for="tsValue">x =</label>
+    <select id="tsValue">
+      <option value="int:42">42 (int)</option>
+      <option value="int:-7">-7 (int)</option>
+      <option value="string:hello">"hello" (string)</option>
+      <option value="string:">"" (string rỗng)</option>
+      <option value="bool:true">true (bool)</option>
+      <option value="bool:false">false (bool)</option>
+      <option value="nil:">nil</option>
+      <option value="float:3.14">3.14 (float64)</option>
+      <option value="float:0">0.0 (float64)</option>
+      <option value="slice:[1,2,3]">[1, 2, 3] ([]int)</option>
+    </select>
+    <button id="tsRun">▶ Trace type switch</button>
+    <button id="tsReset" class="secondary">Reset</button>
+  </div>
+
+  <div class="ts-value-preview" id="tsPreview">x = (chưa chọn)</div>
+
+  <div class="sw-cases" id="tsCases"></div>
+  <div class="sw-output empty" id="tsOutput">(chưa chạy)</div>
+
+  <div class="pyramid-explain">
+    Trong mỗi case, biến <code>v</code> có ĐÚNG kiểu của case đó — không cần assert lại. Ví dụ trong <code>case int:</code> thì <code>v</code> là <code>int</code>, dùng được <code>v*2</code> trực tiếp. Đây là preview cho Interface (Tier 2 L01).
+  </div>
+</div>
+
+</main>
+
+<script>
+/* ============================================================
+ * MODULE 1 — Pyramid refactor
+ * ============================================================ */
+const CODE_BAD = `func chargeOrder(o *Order) error {
+    if o != nil {
+        if o.Valid() {
+            if o.Customer != nil {
+                if o.Customer.HasCard() {
+                    return o.Customer.Charge(o.Amount)  // ← happy path bị đẩy sâu
+                } else {
+                    return errors.New("no card")
+                }
+            } else {
+                return errors.New("no customer")
+            }
+        } else {
+            return errors.New("invalid order")
+        }
+    } else {
+        return errors.New("nil order")
+    }
+}`;
+
+const CODE_GOOD = `func chargeOrder(o *Order) error {
+    if o == nil {
+        return errors.New("nil order")
+    }
+    if !o.Valid() {
+        return errors.New("invalid order")
+    }
+    if o.Customer == nil {
+        return errors.New("no customer")
+    }
+    if !o.Customer.HasCard() {
+        return errors.New("no card")
+    }
+    return o.Customer.Charge(o.Amount)  // ← happy path, indent 0
+}`;
+
+const codeBadEl = document.getElementById('codeBad');
+const codeGoodEl = document.getElementById('codeGood');
+const goodHeaderEl = document.getElementById('goodHeader');
+const pyramidExplainEl = document.getElementById('pyramidExplain');
+
+function renderPyramidInitial() {
+  codeBadEl.textContent = CODE_BAD;
+  codeGoodEl.textContent = '// chưa refactor — bấm "Refactor" để xem';
+  codeGoodEl.style.color = '#a0aec0';
+  goodHeaderEl.textContent = '⏳ Sau: (chưa refactor)';
+  goodHeaderEl.classList.remove('good');
+  goodHeaderEl.style.background = '#4a5568';
+  goodHeaderEl.style.color = '#e2e8f0';
+}
+
+document.getElementById('btnRefactor').addEventListener('click', () => {
+  codeGoodEl.textContent = CODE_GOOD;
+  codeGoodEl.style.color = '#f7fafc';
+  goodHeaderEl.textContent = '✓ Sau: early return';
+  goodHeaderEl.style.background = '#22543d';
+  goodHeaderEl.style.color = '#c6f6d5';
+
+  pyramidExplainEl.innerHTML = `
+    <p style="margin:0 0 8px 0"><strong>Đã làm gì?</strong></p>
+    <ul style="margin:6px 0 8px 18px; padding:0">
+      <li>Đảo mỗi <code>if cond</code> thành <code>if !cond</code> + <code>return</code> sớm.</li>
+      <li>Xoá hết <code>else</code> — không cần vì branch đầu đã <code>return</code>.</li>
+      <li>Happy path (<code>return o.Customer.Charge(...)</code>) tụt từ indent 4 xuống indent 0.</li>
+    </ul>
+    <p style="margin:8px 0 0 0"><strong>Lợi ích:</strong> mỗi guard độc lập, mắt scan top-down. Thêm guard mới = thêm 3 dòng đầu, không nghiêng code.</p>
+  `;
+});
+
+document.getElementById('btnPyramidReset').addEventListener('click', renderPyramidInitial);
+renderPyramidInitial();
+
+/* ============================================================
+ * MODULE 2 — Switch flow visualizer
+ * ============================================================ */
+
+// Mỗi mode có cấu hình: list case + hàm matcher (trả index match, hoặc -1 = default)
+const SW_MODES = {
+  value: {
+    desc: 'switch month (tháng → mùa)',
+    inputLabel: 'Tháng (1-12) =',
+    inputMin: 1,
+    inputMax: 12,
+    defaultInput: 4,
+    code: 'switch month {',
+    cases: [
+      { label: 'case', cond: '12, 1, 2:', body: 'return "Đông"', matches: (v) => [12,1,2].includes(v), result: 'Đông' },
+      { label: 'case', cond: '3, 4, 5:', body: 'return "Xuân"', matches: (v) => [3,4,5].includes(v), result: 'Xuân' },
+      { label: 'case', cond: '6, 7, 8:', body: 'return "Hè"', matches: (v) => [6,7,8].includes(v), result: 'Hè' },
+      { label: 'case', cond: '9, 10, 11:', body: 'return "Thu"', matches: (v) => [9,10,11].includes(v), result: 'Thu' },
+      { label: 'default', cond: ':', body: 'return "không hợp lệ"', matches: (v) => true, result: 'không hợp lệ', isDefault: true },
+    ],
+    explain: (v) => `Go evaluate <code>month</code> = <strong>${v}</strong>, so sánh tuần tự với mỗi case. Multi-value <code>case 12, 1, 2:</code> match nếu giá trị NẰM TRONG list. Match xong, tự break, không đi tiếp.`,
+  },
+  bool: {
+    desc: 'switch (không expression) — FizzBuzz',
+    inputLabel: 'n =',
+    inputMin: 1,
+    inputMax: 100,
+    defaultInput: 15,
+    code: 'switch {',
+    cases: [
+      { label: 'case', cond: 'n%15 == 0:', body: 'return "FizzBuzz"', matches: (v) => v % 15 === 0, result: 'FizzBuzz' },
+      { label: 'case', cond: 'n%3 == 0:', body: 'return "Fizz"', matches: (v) => v % 3 === 0, result: 'Fizz' },
+      { label: 'case', cond: 'n%5 == 0:', body: 'return "Buzz"', matches: (v) => v % 5 === 0, result: 'Buzz' },
+      { label: 'default', cond: ':', body: 'return strconv.Itoa(n)', matches: (v) => true, result: null, isDefault: true },
+    ],
+    explain: (v) => `<code>switch {}</code> không có expression — mỗi case là 1 condition bool. THỨ TỰ quan trọng: <code>n%15 == 0</code> phải đứng TRƯỚC <code>n%3</code>, nếu không số 15 sẽ rớt vào <code>"Fizz"</code> thay vì <code>"FizzBuzz"</code>.`,
+  },
+};
+
+let curMode = 'value';
+let swAnimToken = 0;  // để cancel animation đang chạy
+
+const swInput = document.getElementById('swInput');
+const swCasesEl = document.getElementById('swCases');
+const swOutputEl = document.getElementById('swOutput');
+const swExplainEl = document.getElementById('swExplain');
+
+function renderSwCases(highlightIdx = -1, matchedIdx = -1) {
+  const mode = SW_MODES[curMode];
+  let html = `<div style="font-family: 'SF Mono', monospace; font-size: 14px; padding: 6px 0; color: #4a5568;"><strong>${mode.code}</strong></div>`;
+  mode.cases.forEach((c, i) => {
+    let cls = 'sw-case';
+    let statusHtml = '';
+    if (matchedIdx >= 0) {
+      if (i < matchedIdx) { cls += ' skipped'; statusHtml = '<span class="sw-status skipped">đã thử</span>'; }
+      else if (i === matchedIdx) { cls += ' matched'; statusHtml = '<span class="sw-status matched">✓ matched</span>'; }
+      else { cls += ' skipped'; statusHtml = '<span class="sw-status skipped">bỏ qua</span>'; }
+    } else if (highlightIdx === i) {
+      cls += ' checking'; statusHtml = '<span class="sw-status checking">đang kiểm tra</span>';
+    } else if (highlightIdx > i) {
+      cls += ' skipped'; statusHtml = '<span class="sw-status skipped">đã thử</span>';
+    }
+    html += `<div class="${cls}">
+      <span class="sw-case-label">${c.label}</span><span class="sw-case-cond">${c.cond}</span>${statusHtml}
+      <span class="sw-case-body">${c.body}</span>
+    </div>`;
+  });
+  html += `<div style="font-family: 'SF Mono', monospace; font-size: 14px; padding: 6px 0; color: #4a5568;"><strong>}</strong></div>`;
+  swCasesEl.innerHTML = html;
+}
+
+function setSwMode(mode) {
+  curMode = mode;
+  const cfg = SW_MODES[mode];
+  document.querySelectorAll('.sw-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.mode === mode);
+  });
+  swInput.min = cfg.inputMin;
+  swInput.max = cfg.inputMax;
+  swInput.value = cfg.defaultInput;
+  document.querySelector('label[for="swInput"]').textContent = cfg.inputLabel;
+  swExplainEl.innerHTML = `<strong>${cfg.desc}</strong><br>` + cfg.explain(cfg.defaultInput);
+  resetSw();
+}
+
+function resetSw() {
+  swAnimToken++;
+  renderSwCases();
+  swOutputEl.classList.add('empty');
+  swOutputEl.textContent = '(chưa chạy)';
+}
+
+async function runSwitch() {
+  const cfg = SW_MODES[curMode];
+  const v = parseInt(swInput.value, 10);
+  if (isNaN(v)) { swOutputEl.textContent = 'Giá trị không hợp lệ'; return; }
+  swAnimToken++;
+  const token = swAnimToken;
+  swOutputEl.classList.add('empty');
+  swOutputEl.textContent = '(đang chạy...)';
+
+  let matchedIdx = -1;
+  for (let i = 0; i < cfg.cases.length; i++) {
+    if (token !== swAnimToken) return;  // cancelled
+    renderSwCases(i, -1);
+    await sleep(550);
+    if (token !== swAnimToken) return;
+    if (cfg.cases[i].matches(v)) {
+      matchedIdx = i;
+      break;
+    }
+  }
+  if (token !== swAnimToken) return;
+  renderSwCases(-1, matchedIdx);
+
+  const matched = cfg.cases[matchedIdx];
+  let result;
+  if (curMode === 'bool' && matched.isDefault) {
+    // FizzBuzz default trả về số
+    result = String(v);
+  } else {
+    result = matched.result;
+  }
+  swOutputEl.classList.remove('empty');
+  swOutputEl.textContent = `Input: ${v}\nMatch: ${matched.label}${matched.isDefault ? '' : ' ' + matched.cond.replace(':', '')}\nReturn: ${JSON.stringify(result)}`;
+  swExplainEl.innerHTML = `<strong>${cfg.desc}</strong><br>` + cfg.explain(v);
+}
+
+document.querySelectorAll('.sw-tab').forEach(t => {
+  t.addEventListener('click', () => setSwMode(t.dataset.mode));
+});
+document.getElementById('swRun').addEventListener('click', runSwitch);
+document.getElementById('swReset').addEventListener('click', resetSw);
+swInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') runSwitch(); });
+setSwMode('value');
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+/* ============================================================
+ * MODULE 3 — Type switch playground
+ * ============================================================ */
+const TS_CASES = [
+  { label: 'case', cond: 'int:', body: 'return fmt.Sprintf("int: %d (gấp đôi = %d)", v, v*2)', kind: 'int' },
+  { label: 'case', cond: 'string:', body: 'return fmt.Sprintf("string: %q (len = %d)", v, len(v))', kind: 'string' },
+  { label: 'case', cond: 'bool:', body: 'return fmt.Sprintf("bool: %t", v)', kind: 'bool' },
+  { label: 'case', cond: 'nil:', body: 'return "nil"', kind: 'nil' },
+  { label: 'default', cond: ':', body: 'return fmt.Sprintf("kiểu khác: %T = %v", v, v)', kind: 'default', isDefault: true },
+];
+
+const tsValueEl = document.getElementById('tsValue');
+const tsPreviewEl = document.getElementById('tsPreview');
+const tsCasesEl = document.getElementById('tsCases');
+const tsOutputEl = document.getElementById('tsOutput');
+let tsAnimToken = 0;
+
+function parseTsValue(str) {
+  // format "kind:literal"
+  const [kind, ...rest] = str.split(':');
+  const lit = rest.join(':');
+  switch (kind) {
+    case 'int':    return { kind: 'int',    value: parseInt(lit, 10), display: lit };
+    case 'string': return { kind: 'string', value: lit,               display: `"${lit}"` };
+    case 'bool':   return { kind: 'bool',   value: lit === 'true',    display: lit };
+    case 'nil':    return { kind: 'nil',    value: null,              display: 'nil' };
+    case 'float':  return { kind: 'float',  value: parseFloat(lit),   display: lit };
+    case 'slice':  return { kind: 'slice',  value: [1,2,3],           display: '[1 2 3]' };
+  }
+}
+
+function renderTsCases(highlightIdx = -1, matchedIdx = -1) {
+  let html = `<div style="font-family: 'SF Mono', monospace; font-size: 14px; padding: 6px 0; color: #4a5568;"><strong>switch v := x.(type) {</strong></div>`;
+  TS_CASES.forEach((c, i) => {
+    let cls = 'sw-case';
+    let statusHtml = '';
+    if (matchedIdx >= 0) {
+      if (i < matchedIdx) { cls += ' skipped'; statusHtml = '<span class="sw-status skipped">đã thử</span>'; }
+      else if (i === matchedIdx) { cls += ' matched'; statusHtml = '<span class="sw-status matched">✓ matched</span>'; }
+      else { cls += ' skipped'; statusHtml = '<span class="sw-status skipped">bỏ qua</span>'; }
+    } else if (highlightIdx === i) {
+      cls += ' checking'; statusHtml = '<span class="sw-status checking">đang kiểm tra</span>';
+    } else if (highlightIdx > i) {
+      cls += ' skipped'; statusHtml = '<span class="sw-status skipped">đã thử</span>';
+    }
+    html += `<div class="${cls}">
+      <span class="sw-case-label">${c.label}</span><span class="sw-case-cond">${c.cond}</span>${statusHtml}
+      <span class="sw-case-body">${c.body}</span>
+    </div>`;
+  });
+  html += `<div style="font-family: 'SF Mono', monospace; font-size: 14px; padding: 6px 0; color: #4a5568;"><strong>}</strong></div>`;
+  tsCasesEl.innerHTML = html;
+}
+
+function updateTsPreview() {
+  const parsed = parseTsValue(tsValueEl.value);
+  tsPreviewEl.textContent = `x = ${parsed.display}  (kiểu thực tế: ${parsed.kind === 'slice' ? '[]int' : parsed.kind === 'float' ? 'float64' : parsed.kind})`;
+}
+
+function resetTs() {
+  tsAnimToken++;
+  renderTsCases();
+  tsOutputEl.classList.add('empty');
+  tsOutputEl.textContent = '(chưa chạy)';
+}
+
+async function runTs() {
+  const parsed = parseTsValue(tsValueEl.value);
+  tsAnimToken++;
+  const token = tsAnimToken;
+  tsOutputEl.classList.add('empty');
+  tsOutputEl.textContent = '(đang chạy...)';
+
+  let matchedIdx = -1;
+  for (let i = 0; i < TS_CASES.length; i++) {
+    if (token !== tsAnimToken) return;
+    renderTsCases(i, -1);
+    await sleep(550);
+    if (token !== tsAnimToken) return;
+    const c = TS_CASES[i];
+    if (c.isDefault) { matchedIdx = i; break; }
+    if (c.kind === parsed.kind) { matchedIdx = i; break; }
+  }
+  if (token !== tsAnimToken) return;
+  renderTsCases(-1, matchedIdx);
+
+  // tính output
+  let result;
+  switch (parsed.kind) {
+    case 'int':    result = `int: ${parsed.value} (gấp đôi = ${parsed.value * 2})`; break;
+    case 'string': result = `string: "${parsed.value}" (len = ${parsed.value.length})`; break;
+    case 'bool':   result = `bool: ${parsed.value}`; break;
+    case 'nil':    result = `nil`; break;
+    case 'float':  result = `kiểu khác: float64 = ${parsed.value}`; break;
+    case 'slice':  result = `kiểu khác: []int = [1 2 3]`; break;
+  }
+  tsOutputEl.classList.remove('empty');
+  tsOutputEl.textContent = `Input kiểu: ${parsed.kind === 'slice' ? '[]int' : parsed.kind === 'float' ? 'float64' : parsed.kind}\nMatch: ${TS_CASES[matchedIdx].label} ${TS_CASES[matchedIdx].cond.replace(':', '')}\nReturn: "${result}"`;
+}
+
+tsValueEl.addEventListener('change', () => { updateTsPreview(); resetTs(); });
+document.getElementById('tsRun').addEventListener('click', runTs);
+document.getElementById('tsReset').addEventListener('click', resetTs);
+
+updateTsPreview();
+renderTsCases();
+</script>
+
+<!-- README modal -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+
+</body>
+</html>

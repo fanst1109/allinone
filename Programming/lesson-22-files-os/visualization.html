@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 22 — File & OS Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+    font-family: inherit;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.danger { background: #e53e3e; }
+  button.danger:hover { background: #c53030; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+
+  .explain {
+    background: #ebf8ff; border-left: 4px solid #4299e1;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6;
+    margin-top: 10px;
+  }
+  .explain code {
+    background: white; padding: 1px 5px; border-radius: 3px;
+    font-family: monospace; color: #2b6cb0;
+  }
+  .warn {
+    background: #fffaf0; border-left: 4px solid #ed8936;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6;
+  }
+  code, .mono { font-family: 'SF Mono', Monaco, Consolas, monospace; }
+
+  /* ============ Module 1: Permission grid ============ */
+  .perm-wrap {
+    display: flex; flex-direction: column; gap: 14px;
+    align-items: center;
+    max-width: 100%;
+  }
+  .perm-grid {
+    display: grid;
+    grid-template-columns: 80px repeat(3, 56px);
+    gap: 8px;
+    font-family: monospace;
+  }
+  .perm-grid .label-col {
+    display: flex; align-items: center; justify-content: flex-end;
+    font-weight: 700; color: #2d3748; padding-right: 8px;
+  }
+  .perm-grid .head-cell {
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; color: #4a5568;
+    background: #edf2f7; border-radius: 4px;
+    height: 36px;
+  }
+  .perm-cell {
+    width: 56px; height: 56px;
+    border: 2px solid #cbd5e0; background: white;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; user-select: none;
+    font-size: 22px; font-weight: 700;
+    transition: all 0.15s;
+  }
+  .perm-cell:hover { border-color: #4299e1; }
+  .perm-cell.on { background: #4299e1; color: white; border-color: #3182ce; }
+  .perm-cell.off { color: #cbd5e0; }
+  .perm-summary {
+    margin-top: 16px;
+    display: flex; flex-direction: column; gap: 6px;
+    align-items: center;
+    font-family: monospace; font-size: 18px;
+  }
+  .perm-summary .octal {
+    font-size: 32px; color: #2b6cb0; font-weight: 700;
+    letter-spacing: 2px;
+  }
+  .perm-summary .sym {
+    color: #2d3748; font-size: 20px;
+    background: #f7fafc; padding: 4px 12px; border-radius: 4px;
+  }
+  .perm-chmod {
+    background: #1a202c; color: #68d391;
+    padding: 10px 16px; border-radius: 6px;
+    font-family: monospace; font-size: 15px;
+    margin-top: 8px;
+  }
+  .perm-presets { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 10px; }
+  .perm-presets button { font-size: 13px; padding: 6px 12px; }
+
+  /* ============ Module 2: File tree walker ============ */
+  .tree-wrap { display: flex; flex-direction: column; gap: 12px; }
+  .tree-controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .tree-svg-box {
+    background: #f7fafc; border-radius: 8px;
+    padding: 12px;
+    overflow-x: auto;
+  }
+  svg.tree-svg { display: block; margin: 0 auto; }
+  .tree-svg .node-rect {
+    fill: white; stroke: #cbd5e0; stroke-width: 2;
+    transition: all 0.25s;
+  }
+  .tree-svg .node-rect.dir { fill: #fefcbf; stroke: #d69e2e; }
+  .tree-svg .node-rect.visiting {
+    fill: #4299e1; stroke: #2b6cb0; stroke-width: 3;
+  }
+  .tree-svg .node-rect.visited { fill: #c6f6d5; stroke: #38a169; }
+  .tree-svg .node-rect.skipped { fill: #fed7d7; stroke: #c53030; stroke-dasharray: 4 3; }
+  .tree-svg .node-label {
+    font-family: monospace; font-size: 13px; fill: #2d3748;
+    text-anchor: middle; dominant-baseline: middle;
+    pointer-events: none;
+  }
+  .tree-svg .node-label.bright { fill: white; font-weight: 700; }
+  .tree-svg .edge {
+    stroke: #a0aec0; stroke-width: 2; fill: none;
+  }
+  .tree-log {
+    background: #1a202c; color: #e2e8f0;
+    border-radius: 6px; padding: 12px;
+    font-family: monospace; font-size: 13px;
+    min-height: 100px; max-height: 200px;
+    overflow-y: auto;
+  }
+  .tree-log .visit { color: #63b3ed; }
+  .tree-log .skip { color: #fc8181; }
+  .tree-log .info { color: #68d391; }
+
+  /* ============ Module 3: Atomic write ============ */
+  .atomic-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  }
+  @media (max-width: 768px) {
+    .atomic-grid { grid-template-columns: 1fr; }
+  }
+  .atomic-col h3 {
+    margin: 0 0 10px 0; text-align: center;
+    padding: 8px; border-radius: 4px;
+  }
+  .atomic-col.safe h3 { background: #c6f6d5; color: #22543d; }
+  .atomic-col.unsafe h3 { background: #fed7d7; color: #742a2a; }
+  .fs-box {
+    background: #f7fafc; border: 2px dashed #cbd5e0;
+    border-radius: 8px; padding: 12px;
+    min-height: 220px;
+  }
+  .file-tile {
+    background: white; border: 2px solid #cbd5e0;
+    border-radius: 6px; padding: 8px 12px;
+    margin: 6px 0;
+    font-family: monospace; font-size: 13px;
+    display: flex; justify-content: space-between; align-items: center;
+    transition: all 0.3s;
+  }
+  .file-tile.tmp { border-color: #d69e2e; background: #fefcbf; }
+  .file-tile.writing { border-color: #4299e1; background: #bee3f8; }
+  .file-tile.synced { border-color: #38a169; background: #c6f6d5; }
+  .file-tile.corrupt { border-color: #c53030; background: #fed7d7;
+    color: #742a2a; font-weight: 700;
+    animation: shake 0.4s;
+  }
+  .file-tile.gone { opacity: 0.3; text-decoration: line-through; }
+  .file-tile .data {
+    font-size: 11px; color: #4a5568; max-width: 50%;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-4px); }
+    40%, 80% { transform: translateX(4px); }
+  }
+  .step-indicator {
+    display: flex; gap: 4px; margin: 8px 0;
+    flex-wrap: wrap;
+  }
+  .step-dot {
+    padding: 4px 10px; border-radius: 12px;
+    background: #e2e8f0; color: #718096;
+    font-size: 12px; font-weight: 700;
+  }
+  .step-dot.active { background: #4299e1; color: white; }
+  .step-dot.done { background: #38a169; color: white; }
+  .step-dot.fail { background: #c53030; color: white; }
+
+  @media (max-width: 480px) {
+    .perm-grid { grid-template-columns: 60px repeat(3, 44px); gap: 5px; }
+    .perm-cell { width: 44px; height: 44px; font-size: 18px; }
+    .perm-grid .label-col { font-size: 13px; }
+    .perm-summary .octal { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-21-io-streaming/visualization.html">← L21: IO Streaming</a>
+  <span class="sep">·</span>
+  <span class="current">L22: File & OS</span>
+  <span class="sep">·</span>
+  <a href="../lesson-23-json-encoding/visualization.html">L23: JSON →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 22 — File & OS</h1>
+<p>
+  3 module tương tác minh hoạ 3 chủ đề trọng tâm của lesson:
+  (1) <strong>Permission Unix</strong> dạng octal — click rwx, xem cách 9 bit gói thành 3 digit;
+  (2) <strong>filepath.Walk</strong> — animate DFS qua một cây thư mục, biết Skip vào dir;
+  (3) <strong>Atomic write</strong> — so sánh trực tiếp pattern an toàn (write tmp + rename) với
+  pattern non-atomic, demo điều gì xảy ra khi process bị kill giữa lúc đang ghi.
+</p>
+
+<!-- ====================== MODULE 1: PERMISSION ====================== -->
+<h2>1. Permission grid — octal là gì?</h2>
+<div class="card">
+  <p>
+    Click vào từng ô <strong>r / w / x</strong> để toggle. 3 hàng tương ứng <em>owner / group / other</em>.
+    Mỗi hàng có 3 bit → tạo 1 digit octal (0–7). 3 digit gộp lại = perm dạng <code>0644</code>, <code>0755</code>...
+    Lệnh <code>chmod</code> ở dưới luôn được sync với trạng thái grid.
+  </p>
+
+  <div class="perm-wrap">
+    <div class="perm-grid" id="permGrid">
+      <div></div>
+      <div class="head-cell">r</div>
+      <div class="head-cell">w</div>
+      <div class="head-cell">x</div>
+
+      <div class="label-col">owner</div>
+      <div class="perm-cell" data-row="0" data-col="0">r</div>
+      <div class="perm-cell" data-row="0" data-col="1">w</div>
+      <div class="perm-cell" data-row="0" data-col="2">x</div>
+
+      <div class="label-col">group</div>
+      <div class="perm-cell" data-row="1" data-col="0">r</div>
+      <div class="perm-cell" data-row="1" data-col="1">w</div>
+      <div class="perm-cell" data-row="1" data-col="2">x</div>
+
+      <div class="label-col">other</div>
+      <div class="perm-cell" data-row="2" data-col="0">r</div>
+      <div class="perm-cell" data-row="2" data-col="1">w</div>
+      <div class="perm-cell" data-row="2" data-col="2">x</div>
+    </div>
+
+    <div class="perm-summary">
+      <div class="octal" id="permOctal">0000</div>
+      <div class="sym" id="permSym">---------</div>
+      <div class="perm-chmod" id="permChmod">$ chmod 0000 file.txt</div>
+    </div>
+
+    <div class="perm-presets">
+      <button data-preset="0644" class="secondary">0644 — file thường</button>
+      <button data-preset="0755" class="secondary">0755 — binary/dir</button>
+      <button data-preset="0600" class="secondary">0600 — secret</button>
+      <button data-preset="0700" class="secondary">0700 — private dir</button>
+      <button data-preset="0666" class="secondary">0666 — full ai cũng đọc/ghi</button>
+      <button data-preset="0000" class="secondary">0000 — clear</button>
+    </div>
+  </div>
+
+  <div class="explain" id="permExplain">
+    <strong>Đang chọn:</strong> chưa cấp quyền nào (perm <code>0000</code> = không ai làm gì được).
+  </div>
+</div>
+
+<!-- ====================== MODULE 2: TREE WALKER ====================== -->
+<h2>2. filepath.Walk — DFS qua cây thư mục</h2>
+<div class="card">
+  <p>
+    Walk mặc định là <strong>DFS pre-order</strong>: visit node hiện tại trước, rồi đi sâu vào children
+    bên trái. Khi callback trả <code>filepath.SkipDir</code> → nhánh đó bị bỏ qua. Ấn ▶ để chạy step-by-step.
+  </p>
+
+  <div class="tree-controls">
+    <button id="treeRun">▶ Run walk</button>
+    <button id="treeStep" class="secondary">⏯ Step 1 node</button>
+    <button id="treeReset" class="secondary">↺ Reset</button>
+    <label style="font-size: 14px; color: #4a5568; display: inline-flex; align-items: center; gap: 6px;">
+      <input type="checkbox" id="treeSkipVendor" checked>
+      Skip <code>vendor/</code>
+    </label>
+  </div>
+
+  <div class="tree-svg-box">
+    <svg id="treeSvg" class="tree-svg" width="640" height="380" viewBox="0 0 640 380"></svg>
+  </div>
+
+  <div class="tree-log" id="treeLog">
+    <div class="info">// Sẵn sàng. Ấn "Run walk" để bắt đầu.</div>
+  </div>
+
+  <div class="explain">
+    <strong>Hành vi <code>SkipDir</code></strong>: trả <code>filepath.SkipDir</code> từ callback khi
+    visit một <em>dir</em> → Walk bỏ qua toàn bộ subtree dưới dir đó. Ứng dụng thực tế: skip
+    <code>vendor/</code>, <code>node_modules/</code>, <code>.git/</code> trong project lớn — tiết kiệm
+    hàng nghìn syscall.
+  </div>
+</div>
+
+<!-- ====================== MODULE 3: ATOMIC WRITE ====================== -->
+<h2>3. Atomic write vs Non-atomic — điều gì khi crash?</h2>
+<div class="card">
+  <p>
+    Hai cột song song mô phỏng việc cập nhật <code>config.json</code>. Cột trái dùng pattern atomic
+    (write tmp → fsync → rename). Cột phải ghi trực tiếp đè lên file. Ấn ▶ chạy. Ấn <em>Kill mid-write</em>
+    để mô phỏng crash giữa lúc đang ghi — quan sát cột nào còn data nguyên vẹn.
+  </p>
+
+  <div class="row">
+    <button id="atomicRun">▶ Chạy bình thường</button>
+    <button id="atomicKill" class="danger">💥 Crash giữa write</button>
+    <button id="atomicReset" class="secondary">↺ Reset</button>
+  </div>
+
+  <div class="atomic-grid">
+    <div class="atomic-col safe">
+      <h3>✓ Atomic (tmp + rename)</h3>
+      <div class="step-indicator" id="atomicSafeSteps">
+        <div class="step-dot" data-step="1">1. Create tmp</div>
+        <div class="step-dot" data-step="2">2. Write data</div>
+        <div class="step-dot" data-step="3">3. fsync</div>
+        <div class="step-dot" data-step="4">4. Rename</div>
+        <div class="step-dot" data-step="5">5. Done</div>
+      </div>
+      <div class="fs-box" id="atomicSafeFs">
+        <div class="file-tile" id="safeOldFile">
+          <span>📄 config.json</span>
+          <span class="data" id="safeOldData">{"port":8080,"env":"v1"}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="atomic-col unsafe">
+      <h3>✗ Non-atomic (write thẳng)</h3>
+      <div class="step-indicator" id="atomicUnsafeSteps">
+        <div class="step-dot" data-step="1">1. Open + truncate</div>
+        <div class="step-dot" data-step="2">2. Write data</div>
+        <div class="step-dot" data-step="3">3. Close</div>
+        <div class="step-dot" data-step="4">4. Done</div>
+      </div>
+      <div class="fs-box" id="atomicUnsafeFs">
+        <div class="file-tile" id="unsafeOldFile">
+          <span>📄 config.json</span>
+          <span class="data" id="unsafeOldData">{"port":8080,"env":"v1"}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="explain" id="atomicExplain">
+    <strong>Cách hoạt động</strong>: Atomic pattern build data vào tmp file riêng. File đích chỉ bị thay
+    đổi ở 1 syscall duy nhất (<code>rename</code>) — kernel đảm bảo người đọc thấy hoặc file cũ, hoặc
+    file mới, không có trạng thái giữa.
+  </div>
+
+  <div class="warn" style="margin-top: 12px;">
+    <strong>Lưu ý quan trọng</strong>: tmp file <strong>phải cùng filesystem</strong> với target. Nếu
+    tmp ở <code>/tmp</code> (tmpfs) còn target ở <code>/var/data</code> (ext4 mount riêng),
+    <code>os.Rename</code> sẽ rơi vào fallback copy+delete — KHÔNG còn atomic. Pattern đúng:
+    <code>os.CreateTemp(filepath.Dir(target), "...")</code>.
+  </div>
+</div>
+
+<script>
+/* =============================================================== */
+/* MODULE 1: Permission grid                                       */
+/* =============================================================== */
+(function() {
+  const state = [[false,false,false],[false,false,false],[false,false,false]];
+  const cells = document.querySelectorAll('#permGrid .perm-cell');
+  const octalEl = document.getElementById('permOctal');
+  const symEl = document.getElementById('permSym');
+  const chmodEl = document.getElementById('permChmod');
+  const explainEl = document.getElementById('permExplain');
+  const labels = ['owner','group','other'];
+
+  function render() {
+    cells.forEach(c => {
+      const r = +c.dataset.row, col = +c.dataset.col;
+      c.classList.toggle('on', state[r][col]);
+      c.classList.toggle('off', !state[r][col]);
+    });
+    // Tính octal
+    let octStr = '0';
+    let symStr = '';
+    let perms = [];
+    for (let r = 0; r < 3; r++) {
+      let d = 0;
+      if (state[r][0]) d += 4;
+      if (state[r][1]) d += 2;
+      if (state[r][2]) d += 1;
+      octStr += d;
+      symStr += (state[r][0]?'r':'-') + (state[r][1]?'w':'-') + (state[r][2]?'x':'-');
+      const rwx = [];
+      if (state[r][0]) rwx.push('đọc');
+      if (state[r][1]) rwx.push('ghi');
+      if (state[r][2]) rwx.push('execute');
+      perms.push({who: labels[r], perms: rwx.length ? rwx.join('+') : 'không có quyền'});
+    }
+    octalEl.textContent = octStr;
+    symEl.textContent = symStr;
+    chmodEl.textContent = `$ chmod ${octStr} file.txt`;
+
+    let explanation = '<strong>Đang chọn:</strong> ';
+    explanation += perms.map(p => `<code>${p.who}</code>: ${p.perms}`).join(', ');
+    explanation += `. Octal <code>${octStr}</code> = symbolic <code>${symStr}</code>.`;
+    // Common preset hint
+    const presetHint = {
+      '0644': ' — chuẩn cho file text/code thông thường.',
+      '0755': ' — chuẩn cho binary executable hoặc thư mục.',
+      '0600': ' — chuẩn cho secret (SSH key, .env).',
+      '0700': ' — chuẩn cho thư mục private (~/.ssh).',
+      '0666': ' — hiếm dùng; thường bị umask trừ về 0644.',
+      '0000': ' — không ai làm gì được. Pattern lock chống truy cập.'
+    };
+    if (presetHint[octStr]) explanation += `<br><em>Đây là perm chuẩn${presetHint[octStr]}</em>`;
+    explainEl.innerHTML = explanation;
+  }
+
+  cells.forEach(c => {
+    c.addEventListener('click', () => {
+      const r = +c.dataset.row, col = +c.dataset.col;
+      state[r][col] = !state[r][col];
+      render();
+    });
+  });
+
+  document.querySelectorAll('.perm-presets button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const oct = btn.dataset.preset;
+      for (let r = 0; r < 3; r++) {
+        const d = parseInt(oct[r+1], 10);
+        state[r][0] = (d & 4) !== 0;
+        state[r][1] = (d & 2) !== 0;
+        state[r][2] = (d & 1) !== 0;
+      }
+      render();
+    });
+  });
+
+  render();
+})();
+
+/* =============================================================== */
+/* MODULE 2: File tree walker                                      */
+/* =============================================================== */
+(function() {
+  // Hard-coded tree: project/ chứa cmd/, internal/, vendor/, README.md
+  const tree = {
+    name: 'project',
+    isDir: true,
+    children: [
+      { name: 'README.md', isDir: false },
+      { name: 'go.mod', isDir: false },
+      { name: 'cmd', isDir: true, children: [
+        { name: 'main.go', isDir: false },
+        { name: 'cli.go', isDir: false }
+      ]},
+      { name: 'internal', isDir: true, children: [
+        { name: 'store', isDir: true, children: [
+          { name: 'db.go', isDir: false }
+        ]},
+        { name: 'util.go', isDir: false }
+      ]},
+      { name: 'vendor', isDir: true, children: [
+        { name: 'pkg-a', isDir: true, children: [
+          { name: 'a.go', isDir: false }
+        ]},
+        { name: 'pkg-b.go', isDir: false }
+      ]}
+    ]
+  };
+
+  const svg = document.getElementById('treeSvg');
+  const logEl = document.getElementById('treeLog');
+  const runBtn = document.getElementById('treeRun');
+  const stepBtn = document.getElementById('treeStep');
+  const resetBtn = document.getElementById('treeReset');
+  const skipChk = document.getElementById('treeSkipVendor');
+
+  // Layout: gán toạ độ cho mỗi node bằng simple layout
+  let nodeIdCounter = 0;
+  function layoutTree(node, depth, xCursor) {
+    node.id = nodeIdCounter++;
+    node.depth = depth;
+    if (!node.children || node.children.length === 0) {
+      node.x = xCursor.value;
+      xCursor.value += 1;
+      node.subtreeLeft = node.x;
+      node.subtreeRight = node.x;
+    } else {
+      for (const c of node.children) {
+        layoutTree(c, depth + 1, xCursor);
+      }
+      const first = node.children[0];
+      const last = node.children[node.children.length - 1];
+      node.x = (first.x + last.x) / 2;
+      node.subtreeLeft = first.subtreeLeft;
+      node.subtreeRight = last.subtreeRight;
+    }
+  }
+
+  function flatten(node, list) {
+    list.push(node);
+    if (node.children) node.children.forEach(c => flatten(c, list));
+  }
+
+  function buildSvg() {
+    nodeIdCounter = 0;
+    const xCursor = { value: 0 };
+    layoutTree(tree, 0, xCursor);
+    const all = [];
+    flatten(tree, all);
+
+    const xStep = 78;
+    const yStep = 70;
+    const offsetX = 40;
+    const offsetY = 30;
+    const W = (xCursor.value) * xStep + 40;
+    const H = 6 * yStep + 30;
+    svg.setAttribute('viewBox', `0 0 ${Math.max(W, 600)} ${H}`);
+    svg.setAttribute('width', Math.max(W, 600));
+    svg.setAttribute('height', H);
+    svg.innerHTML = '';
+
+    // Edges
+    function drawEdges(node) {
+      if (!node.children) return;
+      for (const c of node.children) {
+        const px = node.x * xStep + offsetX + 30;
+        const py = node.depth * yStep + offsetY + 18;
+        const cx = c.x * xStep + offsetX + 30;
+        const cy = c.depth * yStep + offsetY;
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('class', 'edge');
+        path.setAttribute('d', `M ${px} ${py} L ${px} ${(py+cy)/2} L ${cx} ${(py+cy)/2} L ${cx} ${cy}`);
+        svg.appendChild(path);
+        drawEdges(c);
+      }
+    }
+    drawEdges(tree);
+
+    // Nodes
+    for (const n of all) {
+      const x = n.x * xStep + offsetX;
+      const y = n.depth * yStep + offsetY;
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.setAttribute('id', 'node-' + n.id);
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('class', 'node-rect ' + (n.isDir ? 'dir' : ''));
+      rect.setAttribute('x', x);
+      rect.setAttribute('y', y);
+      rect.setAttribute('width', 60);
+      rect.setAttribute('height', 36);
+      rect.setAttribute('rx', 5);
+      g.appendChild(rect);
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('class', 'node-label');
+      text.setAttribute('x', x + 30);
+      text.setAttribute('y', y + 18);
+      text.textContent = (n.isDir ? '' : '') + n.name;
+      g.appendChild(text);
+      svg.appendChild(g);
+      n._rect = rect;
+      n._label = text;
+    }
+  }
+
+  function resetVisuals() {
+    document.querySelectorAll('.node-rect').forEach(r => {
+      r.classList.remove('visiting','visited','skipped');
+    });
+    document.querySelectorAll('.node-label').forEach(l => l.classList.remove('bright'));
+    logEl.innerHTML = '<div class="info">// Reset. Ấn "Run walk" để bắt đầu.</div>';
+  }
+
+  function log(msg, cls) {
+    const div = document.createElement('div');
+    div.className = cls || '';
+    div.textContent = msg;
+    logEl.appendChild(div);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  // DFS walk generator
+  function* walkGen(node, path) {
+    const curPath = path ? path + '/' + node.name : node.name;
+    yield { kind: 'visit', node, path: curPath };
+    if (node.isDir && node.name === 'vendor' && skipChk.checked) {
+      yield { kind: 'skip', node, path: curPath };
+      return;
+    }
+    if (node.children) {
+      for (const c of node.children) {
+        yield* walkGen(c, curPath);
+      }
+    }
+  }
+
+  let activeGen = null;
+
+  function startGen() {
+    resetVisuals();
+    activeGen = walkGen(tree, '');
+    log('// Start filepath.WalkDir("project", ...)', 'info');
+  }
+
+  function stepOnce() {
+    if (!activeGen) startGen();
+    const { value, done } = activeGen.next();
+    if (done) {
+      log('// Walk completed.', 'info');
+      activeGen = null;
+      return false;
+    }
+    const n = value.node;
+    if (value.kind === 'visit') {
+      // Mark previous visited
+      document.querySelectorAll('.node-rect.visiting').forEach(r => {
+        r.classList.remove('visiting');
+        r.classList.add('visited');
+      });
+      document.querySelectorAll('.node-label.bright').forEach(l => l.classList.remove('bright'));
+      n._rect.classList.add('visiting');
+      n._label.classList.add('bright');
+      log('visit  ' + value.path + (n.isDir ? '/' : ''), 'visit');
+    } else if (value.kind === 'skip') {
+      n._rect.classList.remove('visiting');
+      n._rect.classList.add('skipped');
+      log('  → return filepath.SkipDir (bỏ qua subtree)', 'skip');
+    }
+    return true;
+  }
+
+  async function runAll() {
+    startGen();
+    runBtn.disabled = true; stepBtn.disabled = true;
+    while (stepOnce()) {
+      await new Promise(r => setTimeout(r, 380));
+    }
+    // Mark last as visited
+    document.querySelectorAll('.node-rect.visiting').forEach(r => {
+      r.classList.remove('visiting');
+      r.classList.add('visited');
+    });
+    document.querySelectorAll('.node-label.bright').forEach(l => l.classList.remove('bright'));
+    runBtn.disabled = false; stepBtn.disabled = false;
+  }
+
+  runBtn.addEventListener('click', runAll);
+  stepBtn.addEventListener('click', () => {
+    stepOnce();
+  });
+  resetBtn.addEventListener('click', () => {
+    activeGen = null;
+    resetVisuals();
+  });
+
+  buildSvg();
+})();
+
+/* =============================================================== */
+/* MODULE 3: Atomic write                                          */
+/* =============================================================== */
+(function() {
+  const safeFs = document.getElementById('atomicSafeFs');
+  const unsafeFs = document.getElementById('atomicUnsafeFs');
+  const safeSteps = document.querySelectorAll('#atomicSafeSteps .step-dot');
+  const unsafeSteps = document.querySelectorAll('#atomicUnsafeSteps .step-dot');
+  const explainEl = document.getElementById('atomicExplain');
+
+  const runBtn = document.getElementById('atomicRun');
+  const killBtn = document.getElementById('atomicKill');
+  const resetBtn = document.getElementById('atomicReset');
+
+  const NEW_DATA = '{"port":9090,"env":"v2"}';
+  const OLD_DATA = '{"port":8080,"env":"v1"}';
+
+  function setStep(steps, n, cls) {
+    steps.forEach((s, i) => {
+      s.classList.remove('active','done','fail');
+      const idx = i + 1;
+      if (idx < n) s.classList.add('done');
+      else if (idx === n) s.classList.add(cls || 'active');
+    });
+  }
+  function setStepDone(steps) {
+    steps.forEach(s => { s.classList.remove('active'); s.classList.add('done'); });
+  }
+  function setStepFail(steps, n) {
+    steps.forEach((s, i) => {
+      const idx = i + 1;
+      if (idx < n) { s.classList.remove('active'); s.classList.add('done'); }
+      else if (idx === n) { s.classList.remove('active'); s.classList.add('fail'); }
+      else { s.classList.remove('active','done','fail'); }
+    });
+  }
+
+  function rebuildSafe(state) {
+    safeFs.innerHTML = '';
+    if (state === 'initial') {
+      safeFs.innerHTML = `
+        <div class="file-tile" id="safeOldFile">
+          <span>📄 config.json</span><span class="data">${OLD_DATA}</span>
+        </div>`;
+    } else if (state === 'tmp-created') {
+      safeFs.innerHTML = `
+        <div class="file-tile" id="safeOldFile">
+          <span>📄 config.json</span><span class="data">${OLD_DATA}</span>
+        </div>
+        <div class="file-tile tmp" id="safeTmpFile">
+          <span>📄 .tmp-XK7B9</span><span class="data">(empty)</span>
+        </div>`;
+    } else if (state === 'tmp-writing') {
+      safeFs.innerHTML = `
+        <div class="file-tile" id="safeOldFile">
+          <span>📄 config.json</span><span class="data">${OLD_DATA}</span>
+        </div>
+        <div class="file-tile writing" id="safeTmpFile">
+          <span>📄 .tmp-XK7B9</span><span class="data">${NEW_DATA}</span>
+        </div>`;
+    } else if (state === 'tmp-synced') {
+      safeFs.innerHTML = `
+        <div class="file-tile" id="safeOldFile">
+          <span>📄 config.json</span><span class="data">${OLD_DATA}</span>
+        </div>
+        <div class="file-tile synced" id="safeTmpFile">
+          <span>📄 .tmp-XK7B9 (fsynced)</span><span class="data">${NEW_DATA}</span>
+        </div>`;
+    } else if (state === 'renamed') {
+      safeFs.innerHTML = `
+        <div class="file-tile synced">
+          <span>📄 config.json</span><span class="data">${NEW_DATA}</span>
+        </div>`;
+    } else if (state === 'crash-mid') {
+      // Crash giữa write — tmp dở dang, config.json vẫn nguyên
+      safeFs.innerHTML = `
+        <div class="file-tile" id="safeOldFile">
+          <span>📄 config.json</span><span class="data">${OLD_DATA}</span>
+        </div>
+        <div class="file-tile corrupt" id="safeTmpFile">
+          <span>📄 .tmp-XK7B9 (partial)</span><span class="data">{"port":9090,...</span>
+        </div>`;
+    }
+  }
+
+  function rebuildUnsafe(state) {
+    unsafeFs.innerHTML = '';
+    if (state === 'initial') {
+      unsafeFs.innerHTML = `
+        <div class="file-tile" id="unsafeOldFile">
+          <span>📄 config.json</span><span class="data">${OLD_DATA}</span>
+        </div>`;
+    } else if (state === 'truncated') {
+      unsafeFs.innerHTML = `
+        <div class="file-tile writing">
+          <span>📄 config.json</span><span class="data">(empty — truncated)</span>
+        </div>`;
+    } else if (state === 'writing') {
+      unsafeFs.innerHTML = `
+        <div class="file-tile writing">
+          <span>📄 config.json</span><span class="data">${NEW_DATA}</span>
+        </div>`;
+    } else if (state === 'done') {
+      unsafeFs.innerHTML = `
+        <div class="file-tile synced">
+          <span>📄 config.json</span><span class="data">${NEW_DATA}</span>
+        </div>`;
+    } else if (state === 'corrupt') {
+      unsafeFs.innerHTML = `
+        <div class="file-tile corrupt">
+          <span>📄 config.json (CORRUPT)</span><span class="data">{"port":9090,...</span>
+        </div>`;
+    }
+  }
+
+  async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  async function runNormal() {
+    runBtn.disabled = true; killBtn.disabled = true;
+    rebuildSafe('initial'); rebuildUnsafe('initial');
+    setStep(safeSteps, 0); setStep(unsafeSteps, 0);
+    explainEl.innerHTML = '<strong>Chạy bình thường</strong> — không crash. Cả 2 đều thành công.';
+    await sleep(500);
+
+    // Step 1: Safe create tmp, Unsafe truncate
+    setStep(safeSteps, 1); rebuildSafe('tmp-created');
+    setStep(unsafeSteps, 1); rebuildUnsafe('truncated');
+    await sleep(800);
+
+    // Step 2: Both write
+    setStep(safeSteps, 2); rebuildSafe('tmp-writing');
+    setStep(unsafeSteps, 2); rebuildUnsafe('writing');
+    await sleep(900);
+
+    // Step 3: Safe fsync, Unsafe close
+    setStep(safeSteps, 3); rebuildSafe('tmp-synced');
+    setStep(unsafeSteps, 3); rebuildUnsafe('done');
+    await sleep(700);
+
+    // Step 4: Safe rename
+    setStep(safeSteps, 4); rebuildSafe('renamed');
+    setStep(unsafeSteps, 4, 'done');
+    setStepDone(unsafeSteps);
+    await sleep(700);
+
+    // Step 5: Safe done
+    setStep(safeSteps, 5, 'done');
+    setStepDone(safeSteps);
+    explainEl.innerHTML = '<strong>Cả 2 đều thành công.</strong> Khi không có crash, không thấy khác biệt. ' +
+      'Thử ấn <em>💥 Crash giữa write</em> để thấy khi nào atomic thực sự "cứu" bạn.';
+    runBtn.disabled = false; killBtn.disabled = false;
+  }
+
+  async function runCrash() {
+    runBtn.disabled = true; killBtn.disabled = true;
+    rebuildSafe('initial'); rebuildUnsafe('initial');
+    setStep(safeSteps, 0); setStep(unsafeSteps, 0);
+    explainEl.innerHTML = '<strong>Mô phỏng crash</strong> ở giữa step 2 (đang write data).';
+    await sleep(500);
+
+    // Step 1
+    setStep(safeSteps, 1); rebuildSafe('tmp-created');
+    setStep(unsafeSteps, 1); rebuildUnsafe('truncated');
+    await sleep(700);
+
+    // Step 2 — bắt đầu write
+    setStep(safeSteps, 2); rebuildSafe('tmp-writing');
+    setStep(unsafeSteps, 2); rebuildUnsafe('writing');
+    await sleep(400);
+
+    // CRASH!
+    rebuildSafe('crash-mid');
+    rebuildUnsafe('corrupt');
+    setStepFail(safeSteps, 2);
+    setStepFail(unsafeSteps, 2);
+    explainEl.innerHTML = `
+      <strong>💥 Process bị kill ở giữa write.</strong><br><br>
+      <strong>Bên trái (atomic)</strong>: <code>config.json</code> còn nguyên data cũ. Tmp file dở dang ở
+      lại, lần sau cleanup. <strong>App khởi động lại đọc config bình thường</strong> ✓<br><br>
+      <strong>Bên phải (non-atomic)</strong>: <code>config.json</code> đã bị <code>O_TRUNC</code> xoá data
+      cũ, mới ghi được 1 phần data mới → JSON parse fail. <strong>App khởi động lại = crash loop</strong> ✗
+    `;
+
+    runBtn.disabled = false; killBtn.disabled = false;
+  }
+
+  function reset() {
+    rebuildSafe('initial'); rebuildUnsafe('initial');
+    setStep(safeSteps, 0); setStep(unsafeSteps, 0);
+    explainEl.innerHTML = '<strong>Đã reset.</strong> Ấn ▶ để chạy bình thường, hoặc 💥 để mô phỏng crash.';
+  }
+
+  runBtn.addEventListener('click', runNormal);
+  killBtn.addEventListener('click', runCrash);
+  resetBtn.addEventListener('click', reset);
+
+  // Initial state
+  rebuildSafe('initial');
+  rebuildUnsafe('initial');
+})();
+</script>
+
+<!-- README modal -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+
+</body>
+</html>

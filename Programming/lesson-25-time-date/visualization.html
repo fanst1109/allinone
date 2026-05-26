@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 25 — Time & Date Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+    font-family: inherit;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.danger { background: #e53e3e; }
+  button.danger:hover { background: #c53030; }
+
+  .explain {
+    background: #ebf8ff; border-left: 4px solid #4299e1;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6;
+    margin-top: 10px;
+  }
+  .explain code, code.inline {
+    background: white; padding: 1px 5px; border-radius: 3px;
+    font-family: monospace; color: #2b6cb0;
+  }
+  .warn {
+    background: #fffaf0; border-left: 4px solid #ed8936;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6;
+    margin-top: 10px;
+  }
+
+  /* Inputs / labels chung */
+  label.field {
+    display: flex; flex-direction: column; gap: 4px;
+    font-size: 13px; color: #4a5568; font-weight: 600;
+    flex: 1 1 180px; min-width: 0;
+  }
+  input[type="text"], select {
+    padding: 8px 10px; border: 1px solid #cbd5e0;
+    border-radius: 4px; font-size: 14px; font-family: monospace;
+    width: 100%; max-width: 100%; box-sizing: border-box;
+    background: white;
+  }
+  input[type="text"]:focus, select:focus {
+    outline: none; border-color: #4299e1; box-shadow: 0 0 0 2px #bee3f8;
+  }
+
+  /* ========== Module 1: Format reference ========== */
+  .format-output {
+    background: #1a202c; color: #fbd38d;
+    padding: 14px; border-radius: 6px;
+    font-family: 'Menlo', 'Consolas', monospace;
+    font-size: 16px;
+    margin: 10px 0;
+    word-break: break-all;
+  }
+  .cheat-table {
+    width: 100%; border-collapse: collapse;
+    font-family: 'Menlo', 'Consolas', monospace;
+    font-size: 13px;
+  }
+  .cheat-table th, .cheat-table td {
+    border: 1px solid #cbd5e0; padding: 6px 10px;
+    text-align: left;
+  }
+  .cheat-table th { background: #edf2f7; color: #2d3748; }
+  .cheat-table td.mag {
+    color: #2b6cb0; font-weight: 700; background: #ebf8ff;
+  }
+  .cheat-table td.label { color: #4a5568; }
+  .preset-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .preset-row button {
+    background: #edf2f7; color: #2d3748; font-weight: 500;
+    padding: 4px 10px; font-size: 12px;
+    font-family: monospace;
+  }
+  .preset-row button:hover { background: #cbd5e0; }
+
+  /* ========== Module 2: Timezone clocks ========== */
+  .clocks-grid {
+    display: grid; gap: 16px;
+    grid-template-columns: 1fr 1fr;
+    margin-top: 12px;
+  }
+  .clock-card {
+    background: #f7fafc; border: 1px solid #e2e8f0;
+    border-radius: 8px; padding: 14px;
+    text-align: center;
+  }
+  .clock-card .zone-name {
+    font-size: 13px; color: #4a5568; font-weight: 600;
+  }
+  .clock-card .city {
+    font-size: 18px; font-weight: 700; color: #2d3748;
+    margin-bottom: 6px;
+  }
+  .clock-card .digital {
+    font-family: 'Menlo', monospace; font-size: 22px;
+    color: #2b6cb0; margin: 6px 0;
+  }
+  .clock-card .date-line {
+    font-size: 12px; color: #718096;
+    font-family: monospace;
+  }
+  .clock-svg-wrap { display: flex; justify-content: center; }
+
+  .instant-bar {
+    background: #ebf8ff;
+    border: 1px solid #90cdf4;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-top: 12px;
+    font-family: monospace; font-size: 13px;
+    color: #2c5282;
+  }
+
+  /* ========== Module 3: Ticker / Timer ========== */
+  .tt-controls {
+    display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;
+    margin-bottom: 12px;
+  }
+  .tt-controls button { min-width: 100px; }
+
+  .tt-track {
+    position: relative;
+    height: 70px;
+    background: #f7fafc;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    margin: 12px 0;
+    overflow: hidden;
+  }
+  .tt-mark {
+    position: absolute; top: 0; bottom: 0; width: 2px;
+    background: #cbd5e0;
+  }
+  .tt-mark .lbl {
+    position: absolute; top: 2px; left: 4px;
+    font-size: 11px; color: #718096; font-family: monospace;
+    white-space: nowrap;
+  }
+  .tt-fire {
+    position: absolute; top: 30px;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: #f56565; box-shadow: 0 0 10px #fed7d7;
+    transform: translate(-50%, -50%);
+    animation: pop .5s ease-out;
+  }
+  .tt-fire.timer { background: #ed8936; }
+  .tt-fire.ticker { background: #4299e1; }
+  @keyframes pop {
+    0% { transform: translate(-50%, -50%) scale(0); }
+    50% { transform: translate(-50%, -50%) scale(1.5); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+  }
+  .tt-cursor {
+    position: absolute; top: 0; bottom: 0; width: 2px;
+    background: #2d3748;
+    transform: translateX(-1px);
+  }
+  .tt-cursor::after {
+    content: ''; position: absolute; top: -2px; left: -4px;
+    width: 0; height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid #2d3748;
+  }
+
+  .tt-log {
+    background: #1a202c; color: #e2e8f0;
+    padding: 12px; border-radius: 6px;
+    font-family: monospace; font-size: 12px;
+    max-height: 200px; overflow-y: auto;
+    line-height: 1.5;
+  }
+  .tt-log .l-tick { color: #63b3ed; }
+  .tt-log .l-timer { color: #fbb672; }
+  .tt-log .l-info { color: #a0aec0; }
+  .tt-log .l-stop { color: #f56565; }
+
+  .tt-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .tt-stat {
+    background: #edf2f7; border-radius: 6px;
+    padding: 8px 10px; text-align: center;
+  }
+  .tt-stat .num {
+    font-size: 20px; font-weight: 700; color: #2b6cb0;
+    font-family: monospace;
+  }
+  .tt-stat .lbl {
+    font-size: 11px; color: #4a5568; text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  @media (max-width: 768px) {
+    .clocks-grid { grid-template-columns: 1fr; }
+    .cheat-table { font-size: 12px; }
+    .cheat-table th, .cheat-table td { padding: 4px 6px; }
+  }
+  @media (max-width: 480px) {
+    .tt-controls button { min-width: 80px; flex: 1 1 calc(50% - 6px); }
+    .format-output { font-size: 14px; padding: 10px; }
+    .clock-card .digital { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-24-regex-text-processing/visualization.html">← L24: Regex</a>
+  <span class="sep">·</span>
+  <span class="current">L25: Time &amp; Date</span>
+  <span class="sep">·</span>
+  <a href="../lesson-26-testing-basics/visualization.html">L26: Testing →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 25 — Time &amp; Date</h1>
+<p>
+  3 module dưới đây giúp bạn (1) <strong>thực hành layout magic-number</strong> của Go (nhập layout,
+  thấy current time render real-time + cheat sheet 10 ví dụ); (2) <strong>cảm nhận timezone</strong> qua
+  4 đồng hồ analog song song — đổi instant ở một nơi, cả 4 sync cùng lúc; (3) <strong>so sánh Ticker vs Timer</strong>
+  với animation trên track thời gian, log mỗi lần fire.
+</p>
+
+<!-- =========================================================== -->
+<!-- Module 1: Format reference                                   -->
+<!-- =========================================================== -->
+<h2>1. Format reference — viết layout, xem kết quả</h2>
+<div class="card">
+  <p>
+    Trong Go, layout không phải <code class="inline">YYYY-MM-DD</code> mà là
+    <strong>chính ngày <code class="inline">Mon Jan 2 15:04:05 MST 2006</code></strong> viết theo format bạn muốn.
+    Nhập layout vào ô dưới, kết quả render từ <code class="inline">time.Now()</code> ngay lập tức.
+  </p>
+
+  <div class="row">
+    <label class="field" style="flex: 1 1 100%">
+      Layout
+      <input type="text" id="fmtInput" value="2006-01-02 15:04:05 MST">
+    </label>
+  </div>
+
+  <div class="preset-row">
+    <button data-fmt="2006-01-02">date only</button>
+    <button data-fmt="2006-01-02 15:04:05">datetime</button>
+    <button data-fmt="02/01/2006">dd/mm/yyyy</button>
+    <button data-fmt="01/02/2006">mm/dd/yyyy</button>
+    <button data-fmt="3:04 PM">12h kitchen</button>
+    <button data-fmt="15:04:05.000">ms precision</button>
+    <button data-fmt="Mon Jan _2 2006">weekday short</button>
+    <button data-fmt="Monday, January 2, 2006">weekday long</button>
+    <button data-fmt="2006-01-02T15:04:05Z07:00">RFC3339</button>
+    <button data-fmt="Mon, 02 Jan 2006 15:04:05 MST">RFC1123</button>
+  </div>
+
+  <div class="format-output" id="fmtOutput">—</div>
+
+  <details>
+    <summary style="cursor:pointer; color:#2b6cb0; font-weight:600;">📖 Cheat sheet — bảng magic number</summary>
+    <table class="cheat-table" style="margin-top:10px;">
+      <tr><th>Đơn vị</th><th>Magic</th><th>Ví dụ ngày <code>Mon Jan 2 15:04:05 MST 2006</code></th></tr>
+      <tr><td class="label">Năm 4-chữ</td><td class="mag">2006</td><td>2006</td></tr>
+      <tr><td class="label">Năm 2-chữ</td><td class="mag">06</td><td>06</td></tr>
+      <tr><td class="label">Tháng số (pad)</td><td class="mag">01</td><td>01 (Jan)</td></tr>
+      <tr><td class="label">Tháng số (no pad)</td><td class="mag">1</td><td>1</td></tr>
+      <tr><td class="label">Tháng chữ ngắn</td><td class="mag">Jan</td><td>Jan</td></tr>
+      <tr><td class="label">Tháng chữ dài</td><td class="mag">January</td><td>January</td></tr>
+      <tr><td class="label">Ngày (pad)</td><td class="mag">02</td><td>02</td></tr>
+      <tr><td class="label">Thứ ngắn</td><td class="mag">Mon</td><td>Mon</td></tr>
+      <tr><td class="label">Thứ dài</td><td class="mag">Monday</td><td>Monday</td></tr>
+      <tr><td class="label">Giờ 24h</td><td class="mag">15</td><td>15 (3 PM)</td></tr>
+      <tr><td class="label">Giờ 12h</td><td class="mag">03</td><td>03</td></tr>
+      <tr><td class="label">Phút</td><td class="mag">04</td><td>04</td></tr>
+      <tr><td class="label">Giây</td><td class="mag">05</td><td>05</td></tr>
+      <tr><td class="label">Mili-giây</td><td class="mag">.000</td><td>05.000 → 05.123</td></tr>
+      <tr><td class="label">AM/PM</td><td class="mag">PM</td><td>PM</td></tr>
+      <tr><td class="label">Zone tên</td><td class="mag">MST</td><td>MST → UTC, +07</td></tr>
+      <tr><td class="label">Zone offset</td><td class="mag">-0700</td><td>-0700 → +0700</td></tr>
+      <tr><td class="label">Zone ISO</td><td class="mag">Z07:00</td><td>Z (UTC) hoặc +07:00</td></tr>
+    </table>
+  </details>
+
+  <div class="explain">
+    <strong>Mẹo nhớ</strong>: sắp theo thứ tự đơn vị → <code>01 02 03 04 05 06 07</code> = tháng, ngày, giờ 12h, phút, giây, năm 2-chữ, zone offset. Cứ đọc "1 2 3 4 5 6 7" là nhớ được toàn bộ.
+  </div>
+  <div class="warn">
+    ⚠️ Sai phổ biến: viết <code class="inline">YYYY-MM-DD</code> → format trả về chuỗi literal "YYYY-MM-DD" (vì không ký tự nào match magic). Luôn dùng <code class="inline">2006-01-02</code>.
+  </div>
+</div>
+
+<!-- =========================================================== -->
+<!-- Module 2: Timezone converter                                 -->
+<!-- =========================================================== -->
+<h2>2. Timezone converter — 1 instant, 4 view</h2>
+<div class="card">
+  <p>
+    Đổi instant ở bất kỳ ô nào (chỉnh ngày, giờ, hoặc bấm "Now"). 4 đồng hồ và 4 dòng date sync theo
+    <strong>cùng một instant tuyệt đối</strong>, chỉ khác cách hiển thị do offset zone.
+  </p>
+
+  <div class="row">
+    <label class="field">
+      Instant gốc (UTC)
+      <input type="text" id="tzInput" placeholder="2024-01-15T10:30:45Z">
+    </label>
+    <button id="tzNow">Now</button>
+    <button id="tzExample" class="secondary">Ví dụ: 2024-01-15 10:30 UTC</button>
+  </div>
+
+  <div class="instant-bar" id="tzInstant">Unix: — · Instant: —</div>
+
+  <div class="clocks-grid">
+    <div class="clock-card">
+      <div class="zone-name">UTC (offset 0)</div>
+      <div class="city">🌍 UTC</div>
+      <div class="clock-svg-wrap">
+        <svg width="140" height="140" viewBox="0 0 140 140" id="clock-utc">
+          <circle cx="70" cy="70" r="65" fill="white" stroke="#2d3748" stroke-width="2"/>
+          <g class="ticks"></g>
+          <line class="hand-h" x1="70" y1="70" x2="70" y2="35" stroke="#2d3748" stroke-width="4" stroke-linecap="round"/>
+          <line class="hand-m" x1="70" y1="70" x2="70" y2="20" stroke="#4a5568" stroke-width="3" stroke-linecap="round"/>
+          <line class="hand-s" x1="70" y1="70" x2="70" y2="15" stroke="#e53e3e" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="70" cy="70" r="3" fill="#2d3748"/>
+        </svg>
+      </div>
+      <div class="digital" id="dig-utc">—</div>
+      <div class="date-line" id="date-utc">—</div>
+    </div>
+
+    <div class="clock-card">
+      <div class="zone-name">Asia/Ho_Chi_Minh (+07:00)</div>
+      <div class="city">🇻🇳 Hà Nội / TP.HCM</div>
+      <div class="clock-svg-wrap">
+        <svg width="140" height="140" viewBox="0 0 140 140" id="clock-vn">
+          <circle cx="70" cy="70" r="65" fill="white" stroke="#2d3748" stroke-width="2"/>
+          <g class="ticks"></g>
+          <line class="hand-h" x1="70" y1="70" x2="70" y2="35" stroke="#2d3748" stroke-width="4" stroke-linecap="round"/>
+          <line class="hand-m" x1="70" y1="70" x2="70" y2="20" stroke="#4a5568" stroke-width="3" stroke-linecap="round"/>
+          <line class="hand-s" x1="70" y1="70" x2="70" y2="15" stroke="#e53e3e" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="70" cy="70" r="3" fill="#2d3748"/>
+        </svg>
+      </div>
+      <div class="digital" id="dig-vn">—</div>
+      <div class="date-line" id="date-vn">—</div>
+    </div>
+
+    <div class="clock-card">
+      <div class="zone-name">America/New_York (-05:00 / -04:00 DST)</div>
+      <div class="city">🇺🇸 New York</div>
+      <div class="clock-svg-wrap">
+        <svg width="140" height="140" viewBox="0 0 140 140" id="clock-ny">
+          <circle cx="70" cy="70" r="65" fill="white" stroke="#2d3748" stroke-width="2"/>
+          <g class="ticks"></g>
+          <line class="hand-h" x1="70" y1="70" x2="70" y2="35" stroke="#2d3748" stroke-width="4" stroke-linecap="round"/>
+          <line class="hand-m" x1="70" y1="70" x2="70" y2="20" stroke="#4a5568" stroke-width="3" stroke-linecap="round"/>
+          <line class="hand-s" x1="70" y1="70" x2="70" y2="15" stroke="#e53e3e" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="70" cy="70" r="3" fill="#2d3748"/>
+        </svg>
+      </div>
+      <div class="digital" id="dig-ny">—</div>
+      <div class="date-line" id="date-ny">—</div>
+    </div>
+
+    <div class="clock-card">
+      <div class="zone-name">Asia/Tokyo (+09:00)</div>
+      <div class="city">🇯🇵 Tokyo</div>
+      <div class="clock-svg-wrap">
+        <svg width="140" height="140" viewBox="0 0 140 140" id="clock-tk">
+          <circle cx="70" cy="70" r="65" fill="white" stroke="#2d3748" stroke-width="2"/>
+          <g class="ticks"></g>
+          <line class="hand-h" x1="70" y1="70" x2="70" y2="35" stroke="#2d3748" stroke-width="4" stroke-linecap="round"/>
+          <line class="hand-m" x1="70" y1="70" x2="70" y2="20" stroke="#4a5568" stroke-width="3" stroke-linecap="round"/>
+          <line class="hand-s" x1="70" y1="70" x2="70" y2="15" stroke="#e53e3e" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="70" cy="70" r="3" fill="#2d3748"/>
+        </svg>
+      </div>
+      <div class="digital" id="dig-tk">—</div>
+      <div class="date-line" id="date-tk">—</div>
+    </div>
+  </div>
+
+  <div class="explain">
+    <strong>Pattern thực tế</strong>: lưu instant này (vd <code class="inline">user.created_at</code>) vào DB ở dạng UTC. Khi hiển thị, chuyển sang zone của user (<code class="inline">t.In(loc)</code>). 4 dòng trên minh họa cùng instant nhìn từ 4 nơi.
+  </div>
+  <div class="warn">
+    ⚠️ Pitfall: server log timestamp UTC, dashboard hiển thị Local — user thấy "lỗi xảy ra 17:30" nhưng tìm trong log "10:30" → tưởng lệch giờ. Luôn ghi chú rõ zone trong UI.
+  </div>
+</div>
+
+<!-- =========================================================== -->
+<!-- Module 3: Ticker / Timer visualizer                          -->
+<!-- =========================================================== -->
+<h2>3. Ticker vs Timer — animation trên track thời gian</h2>
+<div class="card">
+  <p>
+    Track ngang đại diện 10 giây thời gian. Cursor đen di chuyển từ trái sang phải, đại diện
+    <strong>"hiện tại"</strong>. Mỗi lần <em>Timer fire</em> hoặc <em>Ticker tick</em> sẽ có chấm tròn nổi lên tại
+    vị trí cursor lúc đó. Quan sát sự khác biệt: Timer fire **một lần**, Ticker fire **lặp đều**.
+  </p>
+
+  <div class="tt-controls">
+    <label class="field">
+      Interval (giây)
+      <input type="text" id="ttInterval" value="1.5" style="font-family: monospace; width: 80px;">
+    </label>
+    <button id="ttStartTicker">▶ Start Ticker</button>
+    <button id="ttStartTimer" class="secondary">⏱ One-shot Timer</button>
+    <button id="ttStop" class="danger">⏹ Stop</button>
+    <button id="ttReset" class="secondary">↺ Reset</button>
+  </div>
+
+  <div class="tt-track" id="ttTrack">
+    <div class="tt-cursor" id="ttCursor" style="left:0"></div>
+  </div>
+
+  <div class="tt-stats">
+    <div class="tt-stat"><div class="num" id="ttFireCount">0</div><div class="lbl">Lần fire</div></div>
+    <div class="tt-stat"><div class="num" id="ttElapsed">0.0s</div><div class="lbl">Đã chạy</div></div>
+    <div class="tt-stat"><div class="num" id="ttMode">—</div><div class="lbl">Mode</div></div>
+  </div>
+
+  <div class="tt-log" id="ttLog"><span class="l-info">Bấm Start Ticker hoặc One-shot Timer để bắt đầu.</span></div>
+
+  <div class="explain">
+    <strong>Khi nào dùng cái nào?</strong><br>
+    • <code class="inline">time.NewTimer(d)</code>: chờ <em>một lần</em> sau d, có Stop/Reset. Ví dụ: timeout cho request.<br>
+    • <code class="inline">time.NewTicker(d)</code>: lặp đều mỗi d. Ví dụ: heartbeat, polling, rate limiter.<br>
+    • <code class="inline">time.After(d)</code>: shortcut cho one-shot trong <code class="inline">select</code>, không cần Stop.<br>
+    • <code class="inline">time.Sleep(d)</code>: block goroutine, không cancel được — chỉ dùng khi chắc chắn không cần dừng giữa chừng.
+  </div>
+  <div class="warn">
+    ⚠️ <strong>Phải</strong> <code class="inline">defer ticker.Stop()</code>. Quên Stop = goroutine ngầm tiếp tục gửi vào channel → memory leak. Bug này hiếm khi crash ngay nhưng làm process phình bộ nhớ sau vài giờ.
+  </div>
+</div>
+
+<h2>4. Tổng kết</h2>
+<div class="card">
+  <ul>
+    <li>Layout của Go = <strong>chính ngày <code class="inline">Mon Jan 2 15:04:05 MST 2006</code></strong> viết theo format mong muốn. Magic theo thứ tự "1 2 3 4 5 6 7".</li>
+    <li>Timezone là <strong>view</strong>, không phải property của instant. Lưu UTC, hiển thị Local.</li>
+    <li>Đo elapsed luôn dùng <code class="inline">time.Since(start)</code> — monotonic clock không bị NTP adjust.</li>
+    <li>So sánh time bằng <code class="inline">Equal/Before/After</code>, KHÔNG dùng <code class="inline">==</code>.</li>
+    <li>Ticker phải <code class="inline">defer Stop()</code>; Sleep trong loop dài có drift → dùng Ticker.</li>
+  </ul>
+  <p>
+    Code Go đầy đủ: <a href="./solutions.go">solutions.go</a>. Lý thuyết + bài tập: <a href="./README.md">README.md</a>.
+  </p>
+</div>
+
+</main>
+
+<script>
+// ===================================================================
+// Helper: format time (vanilla JS — mô phỏng Go layout cho 1 số token)
+// ===================================================================
+const MONTH_LONG = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DAY_LONG = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const DAY_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+function pad(n, w) { return String(n).padStart(w, '0'); }
+
+// Format Go-style layout — implement subset đủ cho demo
+function goFormat(d, layout, offsetMin) {
+  // d: Date (UTC view), offsetMin: phút offset của zone (vd VN = +420)
+  const local = new Date(d.getTime() + offsetMin * 60000); // shift để getUTC* trả về giờ zone
+  const Y = local.getUTCFullYear();
+  const M = local.getUTCMonth() + 1;
+  const D = local.getUTCDate();
+  const H = local.getUTCHours();
+  const Min = local.getUTCMinutes();
+  const S = local.getUTCSeconds();
+  const MS = local.getUTCMilliseconds();
+  const W = local.getUTCDay();
+  const sign = offsetMin >= 0 ? '+' : '-';
+  const absOff = Math.abs(offsetMin);
+  const offH = pad(Math.floor(absOff / 60), 2);
+  const offM = pad(absOff % 60, 2);
+
+  // replace theo thứ tự ưu tiên token dài trước
+  // Lưu ý: làm theo regex thay từng nhóm, dùng placeholder để tránh re-match
+  const tokens = [
+    ['2006', String(Y)],
+    ['January', MONTH_LONG[M-1]],
+    ['Jan', MONTH_SHORT[M-1]],
+    ['Monday', DAY_LONG[W]],
+    ['Mon', DAY_SHORT[W]],
+    ['15', pad(H, 2)],
+    ['06', pad(Y % 100, 2)],
+    ['01', pad(M, 2)],
+    ['02', pad(D, 2)],
+    ['03', pad(((H + 11) % 12) + 1, 2)],
+    ['04', pad(Min, 2)],
+    ['05', pad(S, 2)],
+    ['.000', '.' + pad(MS, 3)],
+    ['PM', H >= 12 ? 'PM' : 'AM'],
+    ['Z07:00', offsetMin === 0 ? 'Z' : sign + offH + ':' + offM],
+    ['-0700', sign + offH + offM],
+    ['-07:00', sign + offH + ':' + offM],
+    ['MST', offsetMin === 0 ? 'UTC' : sign + offH.replace(/^0/, '') + (offM === '00' ? '' : ':' + offM)],
+    ['_2', H >= 12 ? pad(D, 2) : ' ' + D], // approximation
+  ];
+
+  // Multi-pass với placeholder
+  let s = layout;
+  const placeholders = [];
+  tokens.forEach(([key, val], i) => {
+    const ph = '' + i + '';
+    if (s.includes(key)) {
+      s = s.split(key).join(ph);
+      placeholders.push([ph, val]);
+    }
+  });
+  placeholders.forEach(([ph, val]) => { s = s.split(ph).join(val); });
+  return s;
+}
+
+// ===================================================================
+// Module 1: Format reference
+// ===================================================================
+function setupFormatModule() {
+  const input = document.getElementById('fmtInput');
+  const out = document.getElementById('fmtOutput');
+
+  function render() {
+    const now = new Date();
+    // Hiển thị theo Local zone của browser
+    const offsetMin = -now.getTimezoneOffset(); // JS trả về phút lệch ngược dấu
+    out.textContent = goFormat(now, input.value || '2006-01-02 15:04:05', offsetMin);
+  }
+  input.addEventListener('input', render);
+  setInterval(render, 1000);
+  render();
+
+  document.querySelectorAll('.preset-row button[data-fmt]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      input.value = btn.getAttribute('data-fmt');
+      render();
+    });
+  });
+}
+
+// ===================================================================
+// Module 2: Timezone converter
+// ===================================================================
+const TZ_OFFSETS = {
+  utc: 0,
+  vn:  7 * 60,
+  ny: -5 * 60,  // simplified, không DST
+  tk:  9 * 60,
+};
+
+function drawClockTicks() {
+  document.querySelectorAll('#clock-utc .ticks, #clock-vn .ticks, #clock-ny .ticks, #clock-tk .ticks').forEach(g => {
+    if (g.childElementCount > 0) return;
+    for (let i = 0; i < 12; i++) {
+      const a = (i / 12) * 2 * Math.PI - Math.PI / 2;
+      const x1 = 70 + Math.cos(a) * 60;
+      const y1 = 70 + Math.sin(a) * 60;
+      const x2 = 70 + Math.cos(a) * 55;
+      const y2 = 70 + Math.sin(a) * 55;
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+      line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+      line.setAttribute('stroke', i % 3 === 0 ? '#2d3748' : '#a0aec0');
+      line.setAttribute('stroke-width', i % 3 === 0 ? 2 : 1);
+      g.appendChild(line);
+    }
+  });
+}
+
+function updateClock(id, instant, offsetMin) {
+  const shifted = new Date(instant.getTime() + offsetMin * 60000);
+  const h = shifted.getUTCHours();
+  const m = shifted.getUTCMinutes();
+  const s = shifted.getUTCSeconds();
+
+  const svg = document.getElementById('clock-' + id);
+  const aS = (s / 60) * 360;
+  const aM = ((m + s / 60) / 60) * 360;
+  const aH = (((h % 12) + m / 60) / 12) * 360;
+  svg.querySelector('.hand-s').setAttribute('transform', `rotate(${aS} 70 70)`);
+  svg.querySelector('.hand-m').setAttribute('transform', `rotate(${aM} 70 70)`);
+  svg.querySelector('.hand-h').setAttribute('transform', `rotate(${aH} 70 70)`);
+
+  const dig = pad(h, 2) + ':' + pad(m, 2) + ':' + pad(s, 2);
+  document.getElementById('dig-' + id).textContent = dig;
+
+  const sign = offsetMin >= 0 ? '+' : '-';
+  const abs = Math.abs(offsetMin);
+  const offStr = sign + pad(Math.floor(abs / 60), 2) + ':' + pad(abs % 60, 2);
+  const dateStr = goFormat(instant, 'Mon, 02 Jan 2006', offsetMin) + ' ' + (offsetMin === 0 ? 'UTC' : offStr);
+  document.getElementById('date-' + id).textContent = dateStr;
+}
+
+function setupTimezoneModule() {
+  drawClockTicks();
+  const input = document.getElementById('tzInput');
+  const instantBar = document.getElementById('tzInstant');
+  let currentInstant = new Date();
+
+  function refresh() {
+    Object.entries(TZ_OFFSETS).forEach(([id, off]) => updateClock(id, currentInstant, off));
+    const iso = currentInstant.toISOString();
+    const unix = Math.floor(currentInstant.getTime() / 1000);
+    instantBar.textContent = `Unix: ${unix}  ·  ISO UTC: ${iso}`;
+    if (document.activeElement !== input) {
+      input.value = iso;
+    }
+  }
+
+  function setInstant(d) {
+    if (!isNaN(d.getTime())) {
+      currentInstant = d;
+      refresh();
+    }
+  }
+
+  input.addEventListener('change', () => setInstant(new Date(input.value)));
+  document.getElementById('tzNow').addEventListener('click', () => setInstant(new Date()));
+  document.getElementById('tzExample').addEventListener('click', () => setInstant(new Date('2024-01-15T10:30:00Z')));
+
+  // Tick mỗi giây để đồng hồ chạy nếu user đang nhìn "now"
+  let autoTick = true;
+  input.addEventListener('focus', () => autoTick = false);
+  input.addEventListener('blur', () => autoTick = true);
+  setInterval(() => {
+    if (autoTick) {
+      currentInstant = new Date(currentInstant.getTime() + 1000);
+      refresh();
+    }
+  }, 1000);
+
+  refresh();
+}
+
+// ===================================================================
+// Module 3: Ticker / Timer visualizer
+// ===================================================================
+function setupTimerTickerModule() {
+  const TRACK_DURATION = 10; // 10 giây
+  const track = document.getElementById('ttTrack');
+  const cursor = document.getElementById('ttCursor');
+  const log = document.getElementById('ttLog');
+  const fireCount = document.getElementById('ttFireCount');
+  const elapsedEl = document.getElementById('ttElapsed');
+  const modeEl = document.getElementById('ttMode');
+
+  let state = {
+    running: false,
+    mode: null, // 'ticker' | 'timer'
+    startMs: 0,
+    intervalSec: 1.5,
+    rafId: null,
+    intervalId: null,
+    timeoutId: null,
+    fires: 0,
+  };
+
+  function appendLog(html) {
+    log.innerHTML += '\n' + html;
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function clearMarks() {
+    track.querySelectorAll('.tt-fire, .tt-mark').forEach(el => el.remove());
+  }
+
+  function reset() {
+    stop();
+    clearMarks();
+    cursor.style.left = '0';
+    fireCount.textContent = '0';
+    elapsedEl.textContent = '0.0s';
+    modeEl.textContent = '—';
+    log.innerHTML = '<span class="l-info">Reset. Bấm Start để chạy lại.</span>';
+    state.fires = 0;
+    state.mode = null;
+  }
+
+  function stop() {
+    state.running = false;
+    if (state.rafId) cancelAnimationFrame(state.rafId);
+    if (state.intervalId) clearInterval(state.intervalId);
+    if (state.timeoutId) clearTimeout(state.timeoutId);
+    state.rafId = state.intervalId = state.timeoutId = null;
+    if (state.mode) {
+      appendLog('<span class="l-stop">[' + (performance.now() - state.startMs).toFixed(0) + 'ms] Stop()</span>');
+    }
+  }
+
+  function animate() {
+    if (!state.running) return;
+    const elapsed = (performance.now() - state.startMs) / 1000;
+    if (elapsed >= TRACK_DURATION) {
+      cursor.style.left = '100%';
+      elapsedEl.textContent = TRACK_DURATION.toFixed(1) + 's';
+      stop();
+      appendLog('<span class="l-info">[track end] hết 10s, dừng.</span>');
+      return;
+    }
+    const pct = (elapsed / TRACK_DURATION) * 100;
+    cursor.style.left = pct + '%';
+    elapsedEl.textContent = elapsed.toFixed(1) + 's';
+    state.rafId = requestAnimationFrame(animate);
+  }
+
+  function fire(kind) {
+    state.fires++;
+    fireCount.textContent = state.fires;
+    const elapsed = (performance.now() - state.startMs) / 1000;
+    const pct = (elapsed / TRACK_DURATION) * 100;
+    const dot = document.createElement('div');
+    dot.className = 'tt-fire ' + kind;
+    dot.style.left = pct + '%';
+    track.appendChild(dot);
+
+    const cls = kind === 'ticker' ? 'l-tick' : 'l-timer';
+    const label = kind === 'ticker' ? 'ticker.C ←' : 'timer.C ←';
+    appendLog(`<span class="${cls}">[${elapsed.toFixed(2)}s] ${label} ${kind} fire #${state.fires}</span>`);
+  }
+
+  function readInterval() {
+    const v = parseFloat(document.getElementById('ttInterval').value);
+    if (isNaN(v) || v <= 0) return 1.5;
+    return Math.min(v, TRACK_DURATION);
+  }
+
+  document.getElementById('ttStartTicker').addEventListener('click', () => {
+    stop();
+    clearMarks();
+    state.fires = 0;
+    fireCount.textContent = '0';
+    state.intervalSec = readInterval();
+    state.running = true;
+    state.mode = 'ticker';
+    modeEl.textContent = 'Ticker';
+    state.startMs = performance.now();
+    log.innerHTML = `<span class="l-info">NewTicker(${state.intervalSec}s) — defer ticker.Stop()</span>`;
+    state.intervalId = setInterval(() => {
+      if (!state.running) return;
+      fire('ticker');
+    }, state.intervalSec * 1000);
+    animate();
+  });
+
+  document.getElementById('ttStartTimer').addEventListener('click', () => {
+    stop();
+    clearMarks();
+    state.fires = 0;
+    fireCount.textContent = '0';
+    state.intervalSec = readInterval();
+    state.running = true;
+    state.mode = 'timer';
+    modeEl.textContent = 'Timer';
+    state.startMs = performance.now();
+    log.innerHTML = `<span class="l-info">NewTimer(${state.intervalSec}s) — one-shot, fire 1 lần rồi xong</span>`;
+    state.timeoutId = setTimeout(() => {
+      if (!state.running) return;
+      fire('timer');
+      // Timer fire xong là kết thúc
+      appendLog('<span class="l-info">Timer xong — không tự fire nữa. Có thể Reset() để chạy tiếp.</span>');
+    }, state.intervalSec * 1000);
+    animate();
+  });
+
+  document.getElementById('ttStop').addEventListener('click', stop);
+  document.getElementById('ttReset').addEventListener('click', reset);
+}
+
+// ===================================================================
+// Init
+// ===================================================================
+setupFormatModule();
+setupTimezoneModule();
+setupTimerTickerModule();
+</script>
+
+<!-- README modal + TOC -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+
+</body>
+</html>

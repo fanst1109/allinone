@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 24 — Regex & Text Processing Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; margin-top: 22px; }
+
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+
+  .explain {
+    background: #ebf8ff; border-left: 4px solid #4299e1;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6;
+    margin-top: 10px;
+  }
+  .explain code {
+    background: white; padding: 1px 5px; border-radius: 3px;
+    font-family: monospace; color: #2b6cb0;
+  }
+  .warn {
+    background: #fffaf0; border-left: 4px solid #ed8936;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6;
+    margin-top: 10px;
+  }
+
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+    font-family: inherit;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.token { background: #2d3748; font-size: 13px; padding: 6px 10px; }
+  button.token:hover { background: #1a202c; }
+  button.token.cat { background: #4a5568; }
+  button.danger { background: #e53e3e; }
+  button.danger:hover { background: #c53030; }
+
+  input[type="text"], textarea {
+    font-family: 'Menlo', 'Consolas', monospace;
+    font-size: 14px;
+    padding: 9px 11px;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  textarea { resize: vertical; min-height: 90px; }
+
+  label.small {
+    font-size: 13px; font-weight: 600; color: #4a5568;
+    display: block; margin-bottom: 4px;
+  }
+
+  /* ========== Module 1: Regex playground ========== */
+  .pg-row { display: flex; flex-direction: column; gap: 10px; }
+  .pg-status {
+    font-family: monospace;
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-top: 8px;
+  }
+  .pg-status.ok { background: #f0fff4; color: #22543d; border-left: 4px solid #38a169; }
+  .pg-status.err { background: #fff5f5; color: #742a2a; border-left: 4px solid #e53e3e; }
+  .pg-status.warn { background: #fffaf0; color: #7b341e; border-left: 4px solid #ed8936; }
+
+  .highlight-box {
+    font-family: 'Menlo', 'Consolas', monospace;
+    font-size: 14px;
+    line-height: 1.7;
+    padding: 12px 14px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    min-height: 40px;
+  }
+  .hl-match {
+    background: #fef3c7;
+    color: #78350f;
+    border-radius: 3px;
+    padding: 1px 2px;
+    font-weight: 600;
+    box-shadow: inset 0 -2px 0 #f59e0b;
+  }
+  .hl-match.g1 { background: #fde68a; }
+  .hl-match.g2 { background: #c7d2fe; box-shadow: inset 0 -2px 0 #6366f1; }
+  .hl-match.g3 { background: #bbf7d0; box-shadow: inset 0 -2px 0 #16a34a; }
+
+  .matches-list {
+    margin-top: 12px;
+    font-size: 13px;
+  }
+  .matches-list .item {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 8px 10px;
+    margin-bottom: 6px;
+    font-family: monospace;
+  }
+  .matches-list .item .lbl { color: #718096; }
+  .matches-list .item .val { color: #2b6cb0; font-weight: 600; }
+  .matches-list .item .grp {
+    margin-left: 12px;
+    color: #553c9a;
+    font-size: 12px;
+  }
+
+  .preset-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .preset-row button {
+    font-size: 12px;
+    padding: 5px 9px;
+    background: #4a5568;
+  }
+  .preset-row button:hover { background: #2d3748; }
+
+  /* ========== Module 2: Pattern builder ========== */
+  .builder-tokens {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .builder-cat-label {
+    font-size: 12px; font-weight: 600;
+    color: #4a5568; margin-top: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .pat-display {
+    font-family: monospace;
+    font-size: 16px;
+    background: #1a202c;
+    color: #fbd38d;
+    padding: 12px 14px;
+    border-radius: 4px;
+    min-height: 22px;
+    word-break: break-all;
+    margin-top: 8px;
+  }
+  .pat-display .placeholder { color: #4a5568; font-style: italic; }
+  .pat-tokens-built {
+    display: flex; flex-wrap: wrap; gap: 4px;
+    margin-top: 8px;
+  }
+  .pat-tokens-built .chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: #e2e8f0; color: #2d3748;
+    padding: 4px 8px; border-radius: 12px;
+    font-size: 12px; font-family: monospace;
+    cursor: pointer;
+  }
+  .pat-tokens-built .chip:hover {
+    background: #fed7d7; color: #742a2a;
+  }
+  .pat-tokens-built .chip .x { font-weight: 700; opacity: 0.6; }
+
+  /* ========== Module 3: Common pattern picker ========== */
+  .picker-tabs {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 12px;
+  }
+  .picker-tabs button {
+    background: #e2e8f0; color: #2d3748;
+    padding: 8px 14px;
+  }
+  .picker-tabs button:hover { background: #cbd5e0; }
+  .picker-tabs button.active {
+    background: #4299e1; color: white;
+  }
+
+  .pat-anatomy {
+    margin-top: 8px;
+  }
+  .pat-anatomy .pa-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 2.5fr);
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px dashed #e2e8f0;
+    align-items: start;
+  }
+  .pat-anatomy .pa-row:last-child { border-bottom: none; }
+  .pat-anatomy .pa-part {
+    font-family: monospace;
+    background: #1a202c;
+    color: #fbd38d;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 13px;
+    display: inline-block;
+    word-break: break-all;
+  }
+  .pat-anatomy .pa-desc {
+    font-size: 14px; line-height: 1.5; color: #2d3748;
+  }
+
+  .sample-tests { margin-top: 12px; }
+  .sample-tests .st-row {
+    display: flex; gap: 8px; align-items: center;
+    padding: 5px 0;
+    font-family: monospace;
+    font-size: 14px;
+  }
+  .sample-tests .st-row .badge {
+    display: inline-block;
+    width: 28px; text-align: center;
+    border-radius: 3px;
+    font-size: 12px; font-weight: 700;
+    padding: 2px 0;
+  }
+  .sample-tests .st-row .badge.ok { background: #c6f6d5; color: #22543d; }
+  .sample-tests .st-row .badge.no { background: #fed7d7; color: #742a2a; }
+  .sample-tests .st-row .input { color: #2d3748; }
+
+  /* Mobile */
+  @media (max-width: 480px) {
+    .pat-anatomy .pa-row {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+    .builder-tokens button.token {
+      font-size: 12px;
+      padding: 5px 8px;
+    }
+    .pat-display { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-23-json-encoding/visualization.html">← L23: JSON</a>
+  <span class="sep">·</span>
+  <span class="current">L24: Regex</span>
+  <span class="sep">·</span>
+  <a href="../lesson-25-time-date/visualization.html">L25: Time & Date →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 24 — Regex & Text Processing</h1>
+<p>
+  3 module dưới đây giúp bạn (1) <strong>chơi với regex thật</strong> trên trình duyệt, gõ pattern và text → highlight match;
+  (2) <strong>build pattern từng bước</strong> bằng cách click các "token" (digit, anchor, quantifier...) → ghép thành regex hoàn chỉnh;
+  (3) <strong>chọn pattern thực tế</strong> (email/phone/URL/date/IP/UUID) và xem giải thích từng phần + test case mẫu.
+</p>
+<div class="warn">
+  ⚠ Lưu ý: trình duyệt chạy <strong>regex JavaScript</strong> (ECMAScript), không phải <strong>Go RE2</strong>.
+  Đại đa số pattern trong lesson tương thích cả hai. Một số khác biệt nhỏ: JS dùng <code>(?&lt;name&gt;...)</code> cho named group,
+  Go dùng <code>(?P&lt;name&gt;...)</code>. Backreference và lookahead JS có nhưng <strong>Go thì KHÔNG</strong> (xem mục 13 của README).
+</div>
+
+<!-- ============================================================== -->
+<h2>1. Regex playground — pattern + text, highlight realtime</h2>
+<!-- ============================================================== -->
+
+<div class="card">
+  <div class="pg-row">
+    <div>
+      <label class="small" for="pg-pat">Pattern (regex):</label>
+      <input type="text" id="pg-pat" value="\d+" autocomplete="off" spellcheck="false">
+    </div>
+    <div>
+      <label class="small" for="pg-flags">Flags (g/i/m/s, mặc định g để match all):</label>
+      <input type="text" id="pg-flags" value="g" autocomplete="off" spellcheck="false" style="max-width: 200px;">
+    </div>
+    <div>
+      <label class="small" for="pg-text">Test text:</label>
+      <textarea id="pg-text" spellcheck="false">Order #123 paid 99 USD on 2024-03-15.
+Contact: alice@example.com or 0901234567.
+Visit https://go.dev for more info.</textarea>
+    </div>
+    <div class="preset-row">
+      <span style="font-size:12px;color:#4a5568;align-self:center;">Preset:</span>
+      <button data-pat="\d+" data-text="Order #123 paid 99 USD">digits</button>
+      <button data-pat="\b\w+@\w+\.\w+\b" data-text="alice@example.com, bob@test.org, not-an-email">email</button>
+      <button data-pat="(\+84|0)\d{9}" data-text="Phones: 0901234567, +84909876543, 123">VN phone</button>
+      <button data-pat="https?://[^\s]+" data-text="Sites: https://go.dev http://example.com/path">URL</button>
+      <button data-pat="\d{4}-\d{2}-\d{2}" data-text="From 2024-01-15 to 2024-12-31">date</button>
+      <button data-pat="\b(\w+)\s+\1\b" data-text="the the lazy fox jumped jumped over" data-flags="g">repeated word (JS only)</button>
+    </div>
+  </div>
+
+  <div id="pg-status" class="pg-status ok">✓ Compile OK</div>
+  <div id="pg-highlight" class="highlight-box"></div>
+  <div id="pg-matches" class="matches-list"></div>
+
+  <div class="explain">
+    💡 <strong>Cách dùng:</strong> sửa pattern hoặc text → highlight cập nhật. Vùng vàng = match toàn bộ.
+    Nếu pattern có capture group, mỗi group hiển thị màu khác và in ra bên dưới.
+    Pattern sai cú pháp → status đổi đỏ kèm lỗi.
+  </div>
+</div>
+
+<!-- ============================================================== -->
+<h2>2. Pattern builder — click token, ghép pattern</h2>
+<!-- ============================================================== -->
+
+<div class="card">
+  <p style="font-size:14px;color:#4a5568;">
+    Click các token bên dưới để ghép thành pattern. Click vào chip phía dưới để xóa token đã thêm.
+    Pattern xây xong sẽ tự test trên text mẫu bên cạnh.
+  </p>
+
+  <div class="builder-cat-label">Anchor</div>
+  <div class="builder-tokens" id="cat-anchor">
+    <button class="token" data-token="^" data-name="start">^ (start)</button>
+    <button class="token" data-token="$" data-name="end">$ (end)</button>
+    <button class="token" data-token="\b" data-name="word boundary">\b</button>
+  </div>
+
+  <div class="builder-cat-label">Character class</div>
+  <div class="builder-tokens" id="cat-class">
+    <button class="token" data-token="\d" data-name="digit">\d (digit)</button>
+    <button class="token" data-token="\w" data-name="word char">\w (word)</button>
+    <button class="token" data-token="\s" data-name="whitespace">\s (space)</button>
+    <button class="token" data-token="." data-name="any (no NL)">. (any)</button>
+    <button class="token" data-token="[a-z]" data-name="lowercase">[a-z]</button>
+    <button class="token" data-token="[A-Z]" data-name="uppercase">[A-Z]</button>
+    <button class="token" data-token="[0-9]" data-name="0-9">[0-9]</button>
+  </div>
+
+  <div class="builder-cat-label">Quantifier (đặt SAU một class/literal)</div>
+  <div class="builder-tokens" id="cat-quant">
+    <button class="token cat" data-token="?" data-name="0 or 1">?</button>
+    <button class="token cat" data-token="*" data-name="≥0">*</button>
+    <button class="token cat" data-token="+" data-name="≥1">+</button>
+    <button class="token cat" data-token="{3}" data-name="exactly 3">{3}</button>
+    <button class="token cat" data-token="{2,4}" data-name="2 đến 4">{2,4}</button>
+  </div>
+
+  <div class="builder-cat-label">Group & alternation</div>
+  <div class="builder-tokens" id="cat-group">
+    <button class="token cat" data-token="(" data-name="(">(</button>
+    <button class="token cat" data-token=")" data-name=")">)</button>
+    <button class="token cat" data-token="|" data-name="hoặc">|</button>
+  </div>
+
+  <div class="builder-cat-label">Pattern bạn đang xây</div>
+  <div id="pat-display" class="pat-display"><span class="placeholder">click token ở trên để thêm…</span></div>
+  <div id="pat-tokens-built" class="pat-tokens-built"></div>
+
+  <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+    <button class="secondary" id="pat-undo">⟲ Undo</button>
+    <button class="danger" id="pat-clear">✕ Clear</button>
+    <button id="pat-loadto-pg">↑ Load lên Playground</button>
+  </div>
+
+  <div style="margin-top:14px;">
+    <label class="small" for="pat-test">Test ngay:</label>
+    <input type="text" id="pat-test" value="abc 123 def 456 xy" spellcheck="false">
+  </div>
+  <div id="pat-result" class="highlight-box" style="margin-top:8px;"></div>
+
+  <div class="explain">
+    💡 <strong>Gợi ý xây pattern</strong>:
+    <ul style="margin:4px 0 0 18px;padding:0;">
+      <li>Validate toàn chuỗi là số: <code>^</code> + <code>\d</code> + <code>+</code> + <code>$</code> → <code>^\d+$</code></li>
+      <li>Phone VN: <code>^</code> + <code>(</code> + <code>\+84</code>… (gõ thêm trong playground vì builder không có literal) <code>|</code> + <code>0</code> + <code>)</code> + <code>\d</code> + <code>{9}</code> + <code>$</code></li>
+      <li>Date: <code>^</code> + <code>\d{4}</code> + <code>-</code> + <code>\d{2}</code> + <code>-</code> + <code>\d{2}</code> + <code>$</code></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============================================================== -->
+<h2>3. Common pattern picker — chọn rồi xem giải phẫu</h2>
+<!-- ============================================================== -->
+
+<div class="card">
+  <div class="picker-tabs" id="picker-tabs">
+    <button data-key="email" class="active">📧 Email</button>
+    <button data-key="phone">📱 VN Phone</button>
+    <button data-key="url">🔗 URL</button>
+    <button data-key="date">📅 Date</button>
+    <button data-key="ip">🌐 IPv4</button>
+    <button data-key="uuid">🆔 UUID v4</button>
+    <button data-key="slug">🔡 URL Slug</button>
+    <button data-key="card">💳 Credit Card (loose)</button>
+  </div>
+
+  <div>
+    <label class="small">Pattern:</label>
+    <div id="pk-pat" class="pat-display"></div>
+  </div>
+
+  <h3 style="margin-top:18px;">Giải phẫu từng phần</h3>
+  <div id="pk-anatomy" class="pat-anatomy"></div>
+
+  <h3>Test trên các input mẫu</h3>
+  <div id="pk-tests" class="sample-tests"></div>
+
+  <div style="margin-top:14px;">
+    <button id="pk-loadto-pg">↑ Load pattern này lên Playground</button>
+  </div>
+
+  <div class="explain" id="pk-note"></div>
+</div>
+
+<p style="margin-top:30px;color:#718096;font-size:13px;">
+  Code đầy đủ trong <a href="./solutions.go">solutions.go</a>. Lý thuyết chi tiết trong <a href="./README.md">README.md</a>
+  hoặc bấm nút <strong>📖 Đọc README</strong> ở góc phải dưới.
+</p>
+
+</main>
+
+<script>
+// =====================================================================
+// Module 1 — Regex playground
+// =====================================================================
+const pgPat = document.getElementById('pg-pat');
+const pgFlags = document.getElementById('pg-flags');
+const pgText = document.getElementById('pg-text');
+const pgStatus = document.getElementById('pg-status');
+const pgHl = document.getElementById('pg-highlight');
+const pgMatches = document.getElementById('pg-matches');
+
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function runPlayground() {
+  const patStr = pgPat.value;
+  const flagsStr = pgFlags.value || '';
+  const text = pgText.value;
+
+  if (!patStr) {
+    pgStatus.className = 'pg-status warn';
+    pgStatus.textContent = '⚠ Pattern rỗng';
+    pgHl.innerHTML = escapeHtml(text);
+    pgMatches.innerHTML = '';
+    return;
+  }
+
+  let re;
+  try {
+    const flagsFixed = flagsStr.includes('g') ? flagsStr : flagsStr + 'g';
+    re = new RegExp(patStr, flagsFixed);
+  } catch (e) {
+    pgStatus.className = 'pg-status err';
+    pgStatus.textContent = '✗ Lỗi compile: ' + e.message;
+    pgHl.innerHTML = escapeHtml(text);
+    pgMatches.innerHTML = '';
+    return;
+  }
+
+  // Tìm tất cả match, build highlighted HTML
+  let html = '';
+  let lastIdx = 0;
+  let matchCount = 0;
+  let matchList = [];
+  let m;
+  // Reset lastIndex và iterate
+  re.lastIndex = 0;
+  let safety = 5000;
+  while ((m = re.exec(text)) && safety-- > 0) {
+    if (m[0] === '' && re.lastIndex === m.index) {
+      re.lastIndex++; // tránh infinite loop với zero-width match
+      continue;
+    }
+    html += escapeHtml(text.slice(lastIdx, m.index));
+    const groups = m.slice(1);
+    if (groups.length === 0) {
+      html += '<span class="hl-match">' + escapeHtml(m[0]) + '</span>';
+    } else {
+      // Highlight từng group khác màu
+      let pos = m.index;
+      let inner = '';
+      // Đơn giản: highlight toàn bộ match màu vàng, các group sub thì in ra bên dưới
+      inner = '<span class="hl-match">' + escapeHtml(m[0]) + '</span>';
+      html += inner;
+    }
+    matchList.push({ full: m[0], groups: groups, index: m.index });
+    lastIdx = m.index + m[0].length;
+    matchCount++;
+    if (!flagsStr.includes('g')) break;
+  }
+  html += escapeHtml(text.slice(lastIdx));
+  pgHl.innerHTML = html || '<em style="color:#a0aec0;">(text rỗng)</em>';
+
+  // Status
+  pgStatus.className = 'pg-status ok';
+  pgStatus.textContent = '✓ Compile OK · ' + matchCount + ' match';
+
+  // Matches list
+  if (matchCount === 0) {
+    pgMatches.innerHTML = '<div style="color:#a0aec0;font-style:italic;font-size:13px;">Không có match nào</div>';
+  } else {
+    pgMatches.innerHTML = matchList.slice(0, 30).map((m, i) => {
+      let groupHtml = '';
+      if (m.groups.length > 0) {
+        groupHtml = m.groups.map((g, gi) =>
+          '<div class="grp">↳ group ' + (gi+1) + ': <span class="val">' + escapeHtml(g === undefined ? '(không bắt)' : JSON.stringify(g)) + '</span></div>'
+        ).join('');
+      }
+      return '<div class="item"><span class="lbl">[' + i + '] @ index ' + m.index + ':</span> <span class="val">' + escapeHtml(JSON.stringify(m.full)) + '</span>' + groupHtml + '</div>';
+    }).join('') + (matchCount > 30 ? '<div style="color:#a0aec0;font-size:12px;">… và ' + (matchCount-30) + ' match khác</div>' : '');
+  }
+}
+
+pgPat.addEventListener('input', runPlayground);
+pgFlags.addEventListener('input', runPlayground);
+pgText.addEventListener('input', runPlayground);
+
+document.querySelectorAll('.preset-row button[data-pat]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    pgPat.value = btn.getAttribute('data-pat');
+    if (btn.getAttribute('data-text')) pgText.value = btn.getAttribute('data-text');
+    if (btn.getAttribute('data-flags')) pgFlags.value = btn.getAttribute('data-flags');
+    runPlayground();
+  });
+});
+
+runPlayground();
+
+// =====================================================================
+// Module 2 — Pattern builder
+// =====================================================================
+const patDisplay = document.getElementById('pat-display');
+const patChips = document.getElementById('pat-tokens-built');
+const patTest = document.getElementById('pat-test');
+const patResult = document.getElementById('pat-result');
+
+let builtTokens = []; // array of {token, name}
+
+function renderBuilder() {
+  if (builtTokens.length === 0) {
+    patDisplay.innerHTML = '<span class="placeholder">click token ở trên để thêm…</span>';
+    patChips.innerHTML = '';
+    patResult.innerHTML = '<em style="color:#a0aec0;">(chưa có pattern)</em>';
+    return;
+  }
+  const patStr = builtTokens.map(t => t.token).join('');
+  patDisplay.textContent = patStr;
+  patChips.innerHTML = builtTokens.map((t, i) =>
+    '<span class="chip" data-i="' + i + '" title="click để xóa">' + escapeHtml(t.token) + ' <span class="x">×</span></span>'
+  ).join('');
+  patChips.querySelectorAll('.chip').forEach(c => {
+    c.addEventListener('click', () => {
+      builtTokens.splice(parseInt(c.getAttribute('data-i')), 1);
+      renderBuilder();
+    });
+  });
+
+  // Test
+  try {
+    const re = new RegExp(patStr, 'g');
+    const text = patTest.value;
+    let html = '';
+    let lastIdx = 0;
+    let count = 0;
+    let m;
+    re.lastIndex = 0;
+    let safety = 500;
+    while ((m = re.exec(text)) && safety-- > 0) {
+      if (m[0] === '' && re.lastIndex === m.index) { re.lastIndex++; continue; }
+      html += escapeHtml(text.slice(lastIdx, m.index));
+      html += '<span class="hl-match">' + escapeHtml(m[0]) + '</span>';
+      lastIdx = m.index + m[0].length;
+      count++;
+    }
+    html += escapeHtml(text.slice(lastIdx));
+    patResult.innerHTML = html + '<div style="margin-top:8px;font-size:12px;color:#718096;">→ ' + count + ' match</div>';
+  } catch (e) {
+    patResult.innerHTML = '<span style="color:#c53030;">✗ Pattern không hợp lệ: ' + escapeHtml(e.message) + '</span>';
+  }
+}
+
+document.querySelectorAll('.builder-tokens button.token').forEach(btn => {
+  btn.addEventListener('click', () => {
+    builtTokens.push({
+      token: btn.getAttribute('data-token'),
+      name: btn.getAttribute('data-name'),
+    });
+    renderBuilder();
+  });
+});
+
+document.getElementById('pat-undo').addEventListener('click', () => {
+  builtTokens.pop();
+  renderBuilder();
+});
+document.getElementById('pat-clear').addEventListener('click', () => {
+  builtTokens = [];
+  renderBuilder();
+});
+document.getElementById('pat-loadto-pg').addEventListener('click', () => {
+  if (builtTokens.length === 0) return;
+  pgPat.value = builtTokens.map(t => t.token).join('');
+  runPlayground();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+patTest.addEventListener('input', renderBuilder);
+
+renderBuilder();
+
+// =====================================================================
+// Module 3 — Common pattern picker
+// =====================================================================
+
+const PATTERNS = {
+  email: {
+    pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+    anatomy: [
+      ['^', 'Đầu chuỗi'],
+      ['[a-zA-Z0-9._%+-]+', 'Local part: ≥1 chữ/số/dấu cho phép'],
+      ['@', 'Ký tự @ literal'],
+      ['[a-zA-Z0-9.-]+', 'Domain: chữ/số/./- '],
+      ['\\.', 'Dấu chấm literal (phải escape vì . = any char)'],
+      ['[a-zA-Z]{2,}', 'TLD ≥2 chữ cái'],
+      ['$', 'Cuối chuỗi'],
+    ],
+    tests: [
+      ['user@example.com', true],
+      ['a.b+tag@sub.example.co.uk', true],
+      ['noAt.com', false],
+      ['user@', false],
+      ['user@x.c', false],
+    ],
+    note: '💡 Pattern email "đủ dùng" cho 99% input thực tế. Email RFC 5322 đầy đủ phức tạp khủng khiếp (quoted local, IP literal, comment) — đừng cố viết regex full RFC, đã có người thử và pattern dài 6300 ký tự.',
+  },
+  phone: {
+    pattern: '^(\\+84|0)[0-9]{9}$',
+    anatomy: [
+      ['^', 'Đầu chuỗi'],
+      ['(\\+84|0)', 'Group: "+84" hoặc "0". \\+ vì + là quantifier'],
+      ['[0-9]{9}', 'Đúng 9 chữ số tiếp theo'],
+      ['$', 'Cuối chuỗi'],
+    ],
+    tests: [
+      ['0901234567', true],
+      ['+84901234567', true],
+      ['84901234567', false],
+      ['0901234', false],
+      ['0901234567 ', false],
+    ],
+    note: '💡 Strict mobile prefix VN (đầu 03/05/07/08/09): ^(\\+84|0)[35789]\\d{8}$',
+  },
+  url: {
+    pattern: 'https?://[^\\s]+',
+    anatomy: [
+      ['https?', '"http" hoặc "https" (s? = s optional)'],
+      ['://', 'Phần ngăn cách literal'],
+      ['[^\\s]+', '≥1 ký tự không phải whitespace'],
+    ],
+    tests: [
+      ['https://go.dev', true],
+      ['http://example.com/path?q=1', true],
+      ['ftp://example.com', false],
+      ['google.com', false],
+    ],
+    note: '⚠ Pattern này dùng để EXTRACT (không có anchor). Nếu match tham, dấu câu cuối URL bị "ngoạm" theo. Strict hơn: https?://[^\\s,)<>"\'+. Để validate URL đúng, dùng net/url.Parse thay vì regex.',
+  },
+  date: {
+    pattern: '^\\d{4}-\\d{2}-\\d{2}$',
+    anatomy: [
+      ['^', 'Đầu chuỗi'],
+      ['\\d{4}', 'Năm: 4 chữ số'],
+      ['-', 'Dấu nối literal'],
+      ['\\d{2}', 'Tháng: 2 chữ số'],
+      ['-', 'Dấu nối'],
+      ['\\d{2}', 'Ngày: 2 chữ số'],
+      ['$', 'Cuối chuỗi'],
+    ],
+    tests: [
+      ['2024-03-15', true],
+      ['2024-12-31', true],
+      ['2024-13-45', true],
+      ['2024-3-1', false],
+      ['15-03-2024', false],
+    ],
+    note: '⚠ Pattern này chỉ check FORMAT, KHÔNG check ngày hợp lệ (2024-13-45 cũng pass). Để validate ngày thật, dùng time.Parse("2006-01-02", s) ở Lesson 25.',
+  },
+  ip: {
+    pattern: '^\\d{1,3}(\\.\\d{1,3}){3}$',
+    anatomy: [
+      ['^', 'Đầu chuỗi'],
+      ['\\d{1,3}', 'Octet 1: 1-3 chữ số'],
+      ['(\\.\\d{1,3}){3}', 'Lặp 3 lần ".NNN" cho 3 octet còn lại'],
+      ['$', 'Cuối chuỗi'],
+    ],
+    tests: [
+      ['192.168.1.1', true],
+      ['10.0.0.255', true],
+      ['999.999.999.999', true],
+      ['1.2.3', false],
+      ['1.2.3.4.5', false],
+    ],
+    note: '⚠ Pattern LOOSE — chấp nhận octet >255 (vd 999.999.999.999). Strict mỗi octet 0-255 cần pattern dài hơn. Trong code Go, dùng net.ParseIP(s) thay vì regex để check.',
+  },
+  uuid: {
+    pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+    anatomy: [
+      ['^', 'Đầu'],
+      ['[0-9a-f]{8}', 'Group 1: 8 hex chars'],
+      ['-', 'Dấu nối'],
+      ['[0-9a-f]{4}', 'Group 2: 4 hex'],
+      ['-4[0-9a-f]{3}', 'Group 3: bắt đầu "4" rồi 3 hex → bắt buộc UUID v4'],
+      ['-[89ab][0-9a-f]{3}', 'Group 4: bắt đầu 8/9/a/b — ràng buộc variant RFC 4122'],
+      ['-[0-9a-f]{12}', 'Group 5: 12 hex'],
+      ['$', 'Cuối'],
+    ],
+    tests: [
+      ['550e8400-e29b-41d4-a716-446655440000', true],
+      ['f47ac10b-58cc-4372-a567-0e02b2c3d479', true],
+      ['550e8400-e29b-31d4-a716-446655440000', false],
+      ['not-a-uuid', false],
+    ],
+    note: '💡 Pattern này strict UUID v4 (group 3 = "4xxx", group 4 = "8/9/a/b...xxx"). Nếu muốn loose (mọi version), dùng [0-9a-f]{4} cho cả 2 group đó.',
+  },
+  slug: {
+    pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$',
+    anatomy: [
+      ['^', 'Đầu'],
+      ['[a-z0-9]+', 'Bắt đầu bằng ≥1 chữ thường hoặc số'],
+      ['(?:-[a-z0-9]+)*', 'Group non-capture: theo sau là ≥0 lần "-segment"'],
+      ['$', 'Cuối'],
+    ],
+    tests: [
+      ['hello-world', true],
+      ['regex-101-guide', true],
+      ['go', true],
+      ['Hello-World', false],
+      ['-leading', false],
+      ['trailing-', false],
+      ['double--dash', false],
+    ],
+    note: '💡 Slug = phần URL "human-readable", thường gặp trong blog (vd /post/regex-in-go). Yêu cầu: lowercase, không dấu, không space, các segment ngăn bằng 1 dấu "-". Dùng để pre-validate trước khi lưu DB.',
+  },
+  card: {
+    pattern: '^\\d{4}[ -]?\\d{4}[ -]?\\d{4}[ -]?\\d{4}$',
+    anatomy: [
+      ['^', 'Đầu'],
+      ['\\d{4}', '4 chữ số đầu'],
+      ['[ -]?', 'Tùy chọn 1 space hoặc dấu - (cho format "1234 5678 ..." hoặc "1234-5678-...")'],
+      ['\\d{4}[ -]?\\d{4}[ -]?\\d{4}', '12 chữ còn lại với ngăn cách tùy chọn'],
+      ['$', 'Cuối'],
+    ],
+    tests: [
+      ['1234567812345678', true],
+      ['1234 5678 1234 5678', true],
+      ['1234-5678-1234-5678', true],
+      ['1234.5678.1234.5678', false],
+      ['1234 5678 1234', false],
+    ],
+    note: '⚠ Pattern này CHỈ check FORMAT. Không validate Luhn checksum, không phân biệt Visa/Mastercard/Amex. Hữu ích cho redact PII trong log: thay "1234-5678-1234-5678" bằng "****-****-****-5678". KHÔNG dùng làm validate thanh toán — dùng SDK PCI-compliant.',
+  },
+};
+
+const pkPat = document.getElementById('pk-pat');
+const pkAnatomy = document.getElementById('pk-anatomy');
+const pkTests = document.getElementById('pk-tests');
+const pkNote = document.getElementById('pk-note');
+const pkTabs = document.getElementById('picker-tabs');
+
+function showPattern(key) {
+  const data = PATTERNS[key];
+  if (!data) return;
+  pkPat.textContent = data.pattern;
+  pkAnatomy.innerHTML = data.anatomy.map(([part, desc]) =>
+    '<div class="pa-row"><div><span class="pa-part">' + escapeHtml(part) + '</span></div><div class="pa-desc">' + desc + '</div></div>'
+  ).join('');
+  // Compile and test
+  let re;
+  try {
+    re = new RegExp(data.pattern);
+  } catch (e) {
+    pkTests.innerHTML = '<div style="color:red;">Compile error</div>';
+    return;
+  }
+  pkTests.innerHTML = data.tests.map(([input, expected]) => {
+    const actual = re.test(input);
+    const ok = actual === expected;
+    return '<div class="st-row"><span class="badge ' + (actual ? 'ok' : 'no') + '">' + (actual ? '✓' : '✗') + '</span> <span class="input">' + escapeHtml(JSON.stringify(input)) + '</span> <span style="color:#a0aec0;font-size:12px;">→ ' + (actual ? 'match' : 'không match') + (ok ? '' : ' (ngoài expected!)') + '</span></div>';
+  }).join('');
+  pkNote.textContent = data.note;
+}
+
+pkTabs.querySelectorAll('button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    pkTabs.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    showPattern(btn.getAttribute('data-key'));
+  });
+});
+
+document.getElementById('pk-loadto-pg').addEventListener('click', () => {
+  pgPat.value = pkPat.textContent;
+  runPlayground();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+showPattern('email');
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

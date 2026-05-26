@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 23 — JSON Encoding Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+    font-family: inherit;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.danger { background: #e53e3e; }
+  button.danger:hover { background: #c53030; }
+  button.active { background: #2b6cb0; box-shadow: inset 0 0 0 2px #1a365d; }
+
+  .explain {
+    background: #ebf8ff; border-left: 4px solid #4299e1;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6;
+    margin-top: 10px;
+  }
+  .explain code {
+    background: white; padding: 1px 5px; border-radius: 3px;
+    font-family: monospace; color: #2b6cb0;
+  }
+  .warn {
+    background: #fffaf0; border-left: 4px solid #ed8936;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6;
+  }
+
+  /* ===== Module 1: Struct ↔ JSON ===== */
+  .m1-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 12px;
+  }
+  .m1-panel {
+    background: #1a202c; color: #e2e8f0;
+    padding: 14px;
+    border-radius: 6px;
+    font-family: 'Menlo', 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    min-height: 220px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    box-sizing: border-box;
+    overflow-x: auto;
+  }
+  .m1-panel .label {
+    display: block;
+    color: #a0aec0;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  .m1-tag-go { color: #9ae6b4; }
+  .m1-field-name { color: #fbd38d; }
+  .m1-type { color: #90cdf4; }
+  .m1-jkey { color: #fbd38d; }
+  .m1-jstr { color: #9ae6b4; }
+  .m1-jnum { color: #f6ad55; }
+  .m1-ignored { color: #4a5568; text-decoration: line-through; }
+  .m1-controls {
+    display: flex; flex-direction: column; gap: 10px;
+    margin-top: 12px;
+  }
+  .m1-field-row {
+    background: #f7fafc;
+    padding: 10px 12px;
+    border-radius: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    border: 1px solid #e2e8f0;
+  }
+  .m1-field-row .fname {
+    font-family: monospace;
+    font-weight: 700;
+    color: #2d3748;
+    min-width: 70px;
+  }
+  .m1-field-row label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .m1-field-row input[type=text] {
+    font-family: monospace;
+    padding: 4px 8px;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    font-size: 13px;
+    width: 100%;
+    max-width: 110px;
+    box-sizing: border-box;
+  }
+  .m1-value-row {
+    background: #fffaf0;
+    border: 1px solid #fbd38d;
+    padding: 10px 12px;
+    border-radius: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-top: 8px;
+  }
+  .m1-value-row label {
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .m1-value-row input {
+    font-family: monospace;
+    padding: 4px 8px;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    font-size: 13px;
+    max-width: 120px;
+    box-sizing: border-box;
+  }
+
+  /* ===== Module 2: Unmarshal flow ===== */
+  .m2-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 12px;
+  }
+  .m2-panel {
+    background: #fafafa;
+    border: 1px solid #e2e8f0;
+    padding: 14px;
+    border-radius: 6px;
+    font-family: 'Menlo', 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    min-height: 220px;
+    box-sizing: border-box;
+    overflow-x: auto;
+  }
+  .m2-panel .label {
+    display: block;
+    color: #4a5568;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    font-weight: 700;
+    font-family: sans-serif;
+  }
+  .m2-line {
+    padding: 3px 6px;
+    border-radius: 4px;
+    transition: background 0.3s, color 0.3s;
+  }
+  .m2-line.matched { background: #c6f6d5; color: #22543d; }
+  .m2-line.missing { background: #fed7d7; color: #742a2a; }
+  .m2-line.extra { background: #feebc8; color: #7b341e; }
+  .m2-line.current {
+    background: #bee3f8;
+    color: #1a365d;
+    outline: 2px solid #3182ce;
+  }
+  .m2-jkey { color: #2b6cb0; }
+  .m2-jstr { color: #2f855a; }
+  .m2-jnum { color: #b7791f; }
+  .m2-jnull { color: #a0aec0; font-style: italic; }
+  .m2-fname { color: #2d3748; font-weight: 700; }
+  .m2-ftype { color: #718096; }
+  .m2-fval { color: #2f855a; }
+  .m2-fval.empty { color: #a0aec0; }
+
+  .m2-status {
+    margin-top: 12px;
+    padding: 10px;
+    background: white;
+    border-left: 4px solid #4299e1;
+    border-radius: 0 4px 4px 0;
+    font-size: 14px;
+    min-height: 22px;
+  }
+  .m2-legend {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    font-size: 12px;
+  }
+  .m2-legend span {
+    padding: 2px 8px;
+    border-radius: 3px;
+  }
+  .m2-pick {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;
+  }
+
+  /* ===== Module 3: Stream vs Load-all ===== */
+  .m3-controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  .m3-canvas-wrap { overflow-x: auto; margin-top: 12px; }
+  .m3-meter-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 12px;
+  }
+  .m3-meter {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 14px;
+  }
+  .m3-meter h4 {
+    margin: 0 0 8px;
+    font-size: 14px;
+    color: #2d3748;
+  }
+  .m3-meter .ram-bar-bg {
+    background: #edf2f7;
+    height: 24px;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+  }
+  .m3-meter .ram-bar-fill {
+    height: 100%;
+    background: linear-gradient(to right, #4299e1, #2b6cb0);
+    transition: width 0.15s linear;
+    width: 0%;
+  }
+  .m3-meter.load .ram-bar-fill { background: linear-gradient(to right, #e53e3e, #9b2c2c); }
+  .m3-meter .ram-bar-label {
+    position: absolute; top: 0; left: 8px; right: 8px;
+    line-height: 24px; font-size: 12px; color: #1a202c;
+    font-weight: 600; pointer-events: none;
+    text-shadow: 0 0 4px rgba(255,255,255,0.7);
+  }
+  .m3-stats {
+    margin-top: 10px; font-size: 13px; color: #4a5568;
+    font-family: monospace;
+    line-height: 1.7;
+  }
+  .m3-stats .k { color: #718096; }
+  .m3-stats .v { color: #1a202c; font-weight: 700; }
+  .m3-result {
+    margin-top: 8px;
+    padding: 8px 10px;
+    border-radius: 4px;
+    background: white;
+    border: 1px solid #cbd5e0;
+    font-size: 13px;
+    font-family: monospace;
+  }
+
+  /* Mobile */
+  @media (max-width: 768px) {
+    .m1-grid, .m2-grid, .m3-meter-wrap {
+      grid-template-columns: 1fr;
+    }
+    .m1-field-row { padding: 8px 10px; }
+    .m1-field-row input[type=text] { max-width: 90px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-22-files-os/visualization.html">← L22: File &amp; OS</a>
+  <span class="sep">·</span>
+  <span class="current">L23: JSON</span>
+  <span class="sep">·</span>
+  <a href="../lesson-24-regex-text-processing/visualization.html">L24: Regex →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 23 — JSON Encoding với <code>encoding/json</code></h1>
+<p>
+  3 module dưới đây minh hoạ <strong>(1)</strong> tag struct ảnh hưởng output JSON ra sao,
+  <strong>(2)</strong> quá trình <code>Unmarshal</code> match field giữa JSON và struct,
+  <strong>(3)</strong> sự khác biệt RAM giữa <code>ReadAll + Unmarshal</code> (load-all)
+  và <code>NewDecoder + Decode</code> (stream) trên file 100MB.
+</p>
+
+<!-- ============================================================ -->
+<!-- MODULE 1                                                     -->
+<!-- ============================================================ -->
+<h2>1. Struct ↔ JSON — toggle tag, xem output live</h2>
+<div class="card">
+  <p>
+    Bên trái: struct Go với tag điều chỉnh được. Bên phải: JSON output do
+    <code>json.Marshal</code> sinh ra. Đổi tag / giá trị, output cập nhật tức thì.
+  </p>
+
+  <div class="m1-grid">
+    <div class="m1-panel">
+      <span class="label">Go struct</span>
+<span class="m1-tag-go">type</span> <span class="m1-type">User</span> <span class="m1-tag-go">struct</span> {<div id="m1-struct"></div>}</div>
+    <div class="m1-panel">
+      <span class="label">json.Marshal output</span>
+      <div id="m1-output"></div>
+    </div>
+  </div>
+
+  <div class="m1-controls" id="m1-controls"></div>
+
+  <div class="m1-value-row" id="m1-values"></div>
+
+  <div class="explain" id="m1-explain">Bật/tắt option để xem ảnh hưởng tới JSON.</div>
+  <div class="warn">
+    <strong>Lưu ý:</strong> <code>omitempty</code> chỉ bỏ field khi nó là <em>zero value</em>
+    của kiểu Go (vd <code>""</code>, <code>0</code>, <code>false</code>, <code>nil</code>).
+    Với struct rỗng (vd <code>time.Time{}</code>) thì <em>không</em> — đây là pitfall phải dùng pointer.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MODULE 2                                                     -->
+<!-- ============================================================ -->
+<h2>2. Unmarshal flow — animate decode field-by-field</h2>
+<div class="card">
+  <p>
+    Chọn 1 trong các JSON input bên dưới, click "▶ Decode từng bước" để xem
+    <code>json.Unmarshal</code> match từng key với field của struct. Field khớp →
+    xanh; field struct thiếu trong JSON → đỏ; key JSON không có field tương ứng → cam.
+  </p>
+
+  <div class="m2-pick">
+    <button data-pick="ok">Case 1: khớp đủ</button>
+    <button data-pick="missing">Case 2: JSON thiếu field</button>
+    <button data-pick="extra">Case 3: JSON dư field</button>
+    <button data-pick="typo">Case 4: tag bị typo</button>
+  </div>
+
+  <div class="m2-grid">
+    <div class="m2-panel">
+      <span class="label">JSON input</span>
+      <div id="m2-json"></div>
+    </div>
+    <div class="m2-panel">
+      <span class="label">Struct target (sau decode)</span>
+      <div id="m2-struct"></div>
+    </div>
+  </div>
+
+  <div class="row" style="margin-top: 12px;">
+    <button id="m2-step">▶ Decode từng bước</button>
+    <button class="secondary" id="m2-reset">↺ Reset</button>
+  </div>
+
+  <div class="m2-status" id="m2-status">Chọn case rồi nhấn Decode.</div>
+
+  <div class="m2-legend">
+    <span style="background: #c6f6d5; color: #22543d;">khớp</span>
+    <span style="background: #fed7d7; color: #742a2a;">struct thiếu (JSON không có)</span>
+    <span style="background: #feebc8; color: #7b341e;">JSON dư (struct không có)</span>
+    <span style="background: #bee3f8; color: #1a365d;">đang xử lý</span>
+  </div>
+
+  <div class="explain">
+    <strong>Behavior mặc định của Go:</strong> field dư trong JSON → <em>silent ignore</em> (không lỗi).
+    Field struct không có trong JSON → giữ <em>zero value</em>. Nếu bật
+    <code>dec.DisallowUnknownFields()</code> thì case "JSON dư" sẽ trả lỗi.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MODULE 3                                                     -->
+<!-- ============================================================ -->
+<h2>3. Stream vs Load-all — RAM khi parse file 100MB</h2>
+<div class="card">
+  <p>
+    Giả lập đọc file NDJSON 100MB (1 triệu user JSON). So sánh 2 cách:
+    <strong>Load-all</strong> (<code>io.ReadAll</code> + <code>json.Unmarshal</code>) — toàn bộ file vào RAM
+    trước khi parse; vs <strong>Stream</strong> (<code>json.NewDecoder.Decode</code>) — đọc nhỏ giọt,
+    chỉ giữ 1 object tại 1 thời điểm.
+  </p>
+
+  <div class="m3-controls">
+    <button id="m3-run">▶ Chạy cả 2 song song</button>
+    <button class="secondary" id="m3-reset">↺ Reset</button>
+    <label style="display:inline-flex; gap:6px; align-items:center; font-size:13px;">
+      File size:
+      <select id="m3-size">
+        <option value="10">10 MB (100k user)</option>
+        <option value="100" selected>100 MB (1M user)</option>
+        <option value="500">500 MB (5M user)</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="m3-meter-wrap">
+    <div class="m3-meter load">
+      <h4>❌ Load-all: <code>ReadAll + Unmarshal</code></h4>
+      <div class="ram-bar-bg">
+        <div class="ram-bar-fill" id="m3-load-bar"></div>
+        <div class="ram-bar-label" id="m3-load-label">0 MB</div>
+      </div>
+      <div class="m3-stats" id="m3-load-stats">
+        <div><span class="k">RAM peak:</span> <span class="v" id="m3-load-peak">0 MB</span></div>
+        <div><span class="k">Time:</span> <span class="v" id="m3-load-time">0 ms</span></div>
+        <div><span class="k">Status:</span> <span class="v" id="m3-load-status">idle</span></div>
+      </div>
+      <div class="m3-result" id="m3-load-result"></div>
+    </div>
+
+    <div class="m3-meter">
+      <h4>✅ Stream: <code>NewDecoder.Decode</code></h4>
+      <div class="ram-bar-bg">
+        <div class="ram-bar-fill" id="m3-stream-bar"></div>
+        <div class="ram-bar-label" id="m3-stream-label">0 MB</div>
+      </div>
+      <div class="m3-stats" id="m3-stream-stats">
+        <div><span class="k">RAM peak:</span> <span class="v" id="m3-stream-peak">0 MB</span></div>
+        <div><span class="k">Time:</span> <span class="v" id="m3-stream-time">0 ms</span></div>
+        <div><span class="k">Status:</span> <span class="v" id="m3-stream-status">idle</span></div>
+      </div>
+      <div class="m3-result" id="m3-stream-result"></div>
+    </div>
+  </div>
+
+  <div class="explain">
+    Trục RAM scale theo file size. Bạn sẽ thấy Load-all <strong>tăng tuyến tính</strong>
+    theo kích thước file (RAM spike = full file size), trong khi Stream giữ <strong>phẳng</strong>
+    ở mức ~vài chục KB bất kể file lớn cỡ nào.
+  </div>
+  <div class="warn">
+    <strong>Tại sao quan trọng?</strong> Server có 1GB RAM, nhận request upload JSON 600MB.
+    Load-all → out-of-memory crash. Stream → chạy thoải mái. Đây là lý do mọi HTTP framework
+    dạy <code>json.NewDecoder(r.Body).Decode(&amp;req)</code>, không phải
+    <code>io.ReadAll(r.Body)</code> trước.
+  </div>
+</div>
+
+</main>
+
+<script>
+//
+// ===========================================================
+// MODULE 1 — Struct ↔ JSON live
+// ===========================================================
+//
+const m1State = {
+  fields: [
+    { go: 'Name',     jname: 'name',     type: 'string', val: 'Alice',     omitempty: false, ignore: false },
+    { go: 'Email',    jname: 'email',    type: 'string', val: 'a@x.com',   omitempty: false, ignore: false },
+    { go: 'Age',      jname: 'age',      type: 'int',    val: '0',         omitempty: true,  ignore: false },
+    { go: 'Password', jname: 'password', type: 'string', val: 'supersecret', omitempty: false, ignore: true  },
+  ],
+};
+
+function renderM1() {
+  // 1. struct panel
+  const sEl = document.getElementById('m1-struct');
+  sEl.innerHTML = m1State.fields.map(f => {
+    const opts = [`"${f.jname}"`];
+    if (f.omitempty) opts.push('omitempty');
+    const tag = f.ignore ? `\`json:"-"\``
+                          : `\`json:"${opts.join(',')}"\``;
+    return `\n  <span class="m1-field-name">${f.go}</span> <span class="m1-type">${f.type}</span> <span class="m1-tag-go">${tag}</span>`;
+  }).join('') + '\n';
+
+  // 2. JSON output panel
+  const out = {};
+  m1State.fields.forEach(f => {
+    if (f.ignore) return;
+    let v = f.val;
+    let zero = false;
+    if (f.type === 'int') {
+      v = parseInt(v, 10);
+      if (isNaN(v)) v = 0;
+      zero = (v === 0);
+    } else {
+      zero = (v === '');
+    }
+    if (f.omitempty && zero) return;
+    out[f.jname] = v;
+  });
+  const oEl = document.getElementById('m1-output');
+  const keys = Object.keys(out);
+  if (keys.length === 0) {
+    oEl.innerHTML = '<span class="m1-ignored">{}</span>';
+  } else {
+    const lines = keys.map((k, i) => {
+      const val = out[k];
+      const isStr = (typeof val === 'string');
+      const vRendered = isStr
+        ? `<span class="m1-jstr">"${escapeHtml(val)}"</span>`
+        : `<span class="m1-jnum">${val}</span>`;
+      const comma = i === keys.length - 1 ? '' : ',';
+      return `  <span class="m1-jkey">"${k}"</span>: ${vRendered}${comma}`;
+    });
+    oEl.innerHTML = '{\n' + lines.join('\n') + '\n}';
+  }
+
+  // 3. explain text
+  const exp = [];
+  m1State.fields.forEach(f => {
+    if (f.ignore) exp.push(`<code>${f.go}</code> bị bỏ hoàn toàn (tag <code>json:"-"</code>).`);
+    else if (f.omitempty && (f.val === '' || f.val === '0' || f.val === 0))
+      exp.push(`<code>${f.go}</code> là zero value → bị <code>omitempty</code> bỏ.`);
+  });
+  const eEl = document.getElementById('m1-explain');
+  eEl.innerHTML = exp.length
+    ? exp.join(' ')
+    : 'Tất cả field đều được encode với tên JSON tương ứng.';
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+  })[c]);
+}
+
+function buildM1Controls() {
+  const cEl = document.getElementById('m1-controls');
+  cEl.innerHTML = m1State.fields.map((f, i) => `
+    <div class="m1-field-row">
+      <span class="fname">${f.go}</span>
+      <label>JSON key
+        <input type="text" data-idx="${i}" data-key="jname" value="${f.jname}" ${f.ignore ? 'disabled' : ''}>
+      </label>
+      <label>
+        <input type="checkbox" data-idx="${i}" data-key="omitempty" ${f.omitempty ? 'checked' : ''} ${f.ignore ? 'disabled' : ''}>
+        omitempty
+      </label>
+      <label>
+        <input type="checkbox" data-idx="${i}" data-key="ignore" ${f.ignore ? 'checked' : ''}>
+        json:"-" (skip)
+      </label>
+    </div>
+  `).join('');
+
+  cEl.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('input', onM1Change);
+    inp.addEventListener('change', onM1Change);
+  });
+
+  // value editor
+  const vEl = document.getElementById('m1-values');
+  vEl.innerHTML = '<strong style="font-size:13px; color:#7b341e;">Giá trị runtime:</strong> ' +
+    m1State.fields.map((f, i) => `
+      <label>${f.go} =
+        <input type="text" data-idx="${i}" data-key="val" value="${f.val}">
+      </label>
+    `).join('');
+  vEl.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('input', onM1Change);
+  });
+}
+
+function onM1Change(e) {
+  const idx = +e.target.dataset.idx;
+  const key = e.target.dataset.key;
+  const f = m1State.fields[idx];
+  if (e.target.type === 'checkbox') {
+    f[key] = e.target.checked;
+  } else {
+    f[key] = e.target.value;
+  }
+  // ignore disable các control khác
+  buildM1Controls();
+  renderM1();
+}
+
+buildM1Controls();
+renderM1();
+
+//
+// ===========================================================
+// MODULE 2 — Unmarshal flow
+// ===========================================================
+//
+// Struct target cố định: User{Name, Email, Age}
+const m2Cases = {
+  ok: {
+    label: 'Khớp đủ',
+    json: { name: 'Alice', email: 'a@x.com', age: 30 },
+    fieldTags: { Name: 'name', Email: 'email', Age: 'age' },
+  },
+  missing: {
+    label: 'JSON thiếu field email',
+    json: { name: 'Bob', age: 25 },
+    fieldTags: { Name: 'name', Email: 'email', Age: 'age' },
+  },
+  extra: {
+    label: 'JSON dư field "city"',
+    json: { name: 'Carol', email: 'c@x.com', age: 40, city: 'HN' },
+    fieldTags: { Name: 'name', Email: 'email', Age: 'age' },
+  },
+  typo: {
+    label: 'Struct có tag typo: Email -> "emial"',
+    json: { name: 'Dave', email: 'd@x.com', age: 28 },
+    fieldTags: { Name: 'name', Email: 'emial', Age: 'age' }, // typo trên field tag
+  },
+};
+
+const m2 = {
+  currentCase: 'ok',
+  step: 0,
+  fieldVals: { Name: '', Email: '', Age: 0 },
+  matchedJsonKeys: new Set(),
+  matchedFields: new Set(),
+  currentJsonKey: null,
+  currentField: null,
+};
+
+function renderM2() {
+  const c = m2Cases[m2.currentCase];
+  // JSON panel
+  const jEl = document.getElementById('m2-json');
+  const jsonKeys = Object.keys(c.json);
+  jEl.innerHTML = '<div>{</div>' + jsonKeys.map((k, i) => {
+    const v = c.json[k];
+    const isStr = typeof v === 'string';
+    const valHtml = isStr
+      ? `<span class="m2-jstr">"${escapeHtml(v)}"</span>`
+      : `<span class="m2-jnum">${v}</span>`;
+    const comma = i === jsonKeys.length - 1 ? '' : ',';
+    let cls = 'm2-line';
+    if (k === m2.currentJsonKey) cls += ' current';
+    else if (m2.matchedJsonKeys.has(k)) cls += ' matched';
+    else if (m2.step > 0 && !findFieldForJsonKey(k, c)) cls += ' extra';
+    return `<div class="${cls}">  <span class="m2-jkey">"${k}"</span>: ${valHtml}${comma}</div>`;
+  }).join('') + '<div>}</div>';
+
+  // Struct panel
+  const sEl = document.getElementById('m2-struct');
+  const fields = ['Name', 'Email', 'Age'];
+  sEl.innerHTML = `<div><span class="m2-jkey">type</span> <span class="m2-fname">User</span> struct {</div>` +
+    fields.map(fn => {
+      const ft = fn === 'Age' ? 'int' : 'string';
+      const tag = c.fieldTags[fn];
+      const val = m2.fieldVals[fn];
+      const isEmpty = (val === '' || val === 0);
+      const valStr = (ft === 'string') ? `"${escapeHtml(String(val))}"` : String(val);
+      let cls = 'm2-line';
+      if (fn === m2.currentField) cls += ' current';
+      else if (m2.matchedFields.has(fn)) cls += ' matched';
+      else if (m2.step > 0 && !c.json.hasOwnProperty(tag)) cls += ' missing';
+      return `<div class="${cls}">  <span class="m2-fname">${fn}</span> <span class="m2-ftype">${ft}</span> \`json:"${tag}"\` → <span class="m2-fval ${isEmpty ? 'empty':''}">${valStr}</span></div>`;
+    }).join('') +
+    `<div>}</div>`;
+}
+
+function findFieldForJsonKey(jkey, c) {
+  for (const fn of Object.keys(c.fieldTags)) {
+    if (c.fieldTags[fn] === jkey) return fn;
+  }
+  return null;
+}
+
+function resetM2() {
+  m2.step = 0;
+  m2.matchedJsonKeys = new Set();
+  m2.matchedFields = new Set();
+  m2.currentJsonKey = null;
+  m2.currentField = null;
+  m2.fieldVals = { Name: '', Email: '', Age: 0 };
+  document.getElementById('m2-status').textContent = 'Chọn case rồi nhấn Decode.';
+  renderM2();
+}
+
+function stepM2() {
+  const c = m2Cases[m2.currentCase];
+  const jsonKeys = Object.keys(c.json);
+  if (m2.step >= jsonKeys.length) {
+    // Done
+    const missingFields = ['Name', 'Email', 'Age'].filter(f => !m2.matchedFields.has(f));
+    const extraKeys = jsonKeys.filter(k => !findFieldForJsonKey(k, c));
+    let msg = `Decode xong. ${m2.matchedFields.size}/3 field được set.`;
+    if (missingFields.length) msg += ` Struct thiếu: ${missingFields.join(', ')} (giữ zero value).`;
+    if (extraKeys.length) msg += ` JSON dư: "${extraKeys.join('", "')}" (silently ignored).`;
+    document.getElementById('m2-status').innerHTML = msg;
+    m2.currentJsonKey = null;
+    m2.currentField = null;
+    renderM2();
+    return;
+  }
+
+  const k = jsonKeys[m2.step];
+  const targetField = findFieldForJsonKey(k, c);
+  m2.currentJsonKey = k;
+  m2.currentField = targetField;
+
+  if (targetField) {
+    m2.fieldVals[targetField] = c.json[k];
+    m2.matchedJsonKeys.add(k);
+    m2.matchedFields.add(targetField);
+    document.getElementById('m2-status').textContent =
+      `Step ${m2.step + 1}: JSON key "${k}" → struct field ${targetField} (set = ${JSON.stringify(c.json[k])})`;
+  } else {
+    document.getElementById('m2-status').textContent =
+      `Step ${m2.step + 1}: JSON key "${k}" — không field nào có tag "${k}" → bỏ qua (silent ignore).`;
+  }
+
+  m2.step++;
+  renderM2();
+}
+
+document.querySelectorAll('.m2-pick button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    m2.currentCase = btn.dataset.pick;
+    document.querySelectorAll('.m2-pick button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    resetM2();
+  });
+});
+document.querySelector('.m2-pick button').classList.add('active');
+document.getElementById('m2-step').addEventListener('click', stepM2);
+document.getElementById('m2-reset').addEventListener('click', resetM2);
+renderM2();
+
+//
+// ===========================================================
+// MODULE 3 — Stream vs Load-all
+// ===========================================================
+//
+const m3 = {
+  running: false,
+  loadPeakMB: 0,
+  streamPeakMB: 0,
+};
+
+function setBar(barEl, labelEl, valueMB, maxMB) {
+  const pct = Math.min(100, (valueMB / maxMB) * 100);
+  barEl.style.width = pct + '%';
+  labelEl.textContent = valueMB.toFixed(1) + ' MB';
+}
+
+async function runM3() {
+  if (m3.running) return;
+  m3.running = true;
+
+  const sizeMB = parseInt(document.getElementById('m3-size').value, 10);
+  const maxMB = Math.max(sizeMB * 1.2, 50);
+  const usersTotal = sizeMB * 10000; // ~100 bytes/user
+  const adultRatio = 0.78;
+
+  // Reset UI
+  ['m3-load-bar','m3-stream-bar'].forEach(id => document.getElementById(id).style.width = '0%');
+  document.getElementById('m3-load-label').textContent = '0 MB';
+  document.getElementById('m3-stream-label').textContent = '0 MB';
+  document.getElementById('m3-load-peak').textContent = '0 MB';
+  document.getElementById('m3-stream-peak').textContent = '0 MB';
+  document.getElementById('m3-load-time').textContent = '0 ms';
+  document.getElementById('m3-stream-time').textContent = '0 ms';
+  document.getElementById('m3-load-status').textContent = 'starting...';
+  document.getElementById('m3-stream-status').textContent = 'starting...';
+  document.getElementById('m3-load-result').textContent = '';
+  document.getElementById('m3-stream-result').textContent = '';
+  m3.loadPeakMB = 0;
+  m3.streamPeakMB = 0;
+
+  const startT = performance.now();
+
+  // Mỗi tick = 50ms, simulate ~3s total
+  const TICKS = 60;
+  const tickMs = 50;
+  let loadDone = false, streamDone = false;
+  let adultsCount = 0;
+
+  const loadBar = document.getElementById('m3-load-bar');
+  const loadLabel = document.getElementById('m3-load-label');
+  const streamBar = document.getElementById('m3-stream-bar');
+  const streamLabel = document.getElementById('m3-stream-label');
+
+  for (let t = 0; t <= TICKS; t++) {
+    const progress = t / TICKS;
+
+    // Load-all: tăng tuyến tính cho đến full, rồi parse phase giữ peak
+    let loadMB;
+    if (progress < 0.6) {
+      // Phase 1: đọc file vào RAM
+      loadMB = (progress / 0.6) * sizeMB;
+      document.getElementById('m3-load-status').textContent = 'io.ReadAll → buffer';
+    } else if (progress < 0.95) {
+      // Phase 2: parse → cần thêm RAM cho struct slice (~2x)
+      const parseProg = (progress - 0.6) / 0.35;
+      loadMB = sizeMB + parseProg * sizeMB * 0.8;
+      document.getElementById('m3-load-status').textContent = 'json.Unmarshal (parse)';
+    } else {
+      loadMB = sizeMB * 1.8;
+      document.getElementById('m3-load-status').textContent = 'done';
+      if (!loadDone) {
+        loadDone = true;
+        document.getElementById('m3-load-result').textContent =
+          `Adults: ${Math.round(usersTotal * adultRatio).toLocaleString()} | Total: ${usersTotal.toLocaleString()}`;
+      }
+    }
+    m3.loadPeakMB = Math.max(m3.loadPeakMB, loadMB);
+    setBar(loadBar, loadLabel, loadMB, maxMB);
+    document.getElementById('m3-load-peak').textContent = m3.loadPeakMB.toFixed(1) + ' MB';
+
+    // Stream: noisy nhỏ giọt ~vài chục KB = ~0.05 MB
+    let streamMB = 0.04 + 0.02 * Math.sin(t * 0.7) + 0.01 * Math.random();
+    if (progress > 0.99) {
+      document.getElementById('m3-stream-status').textContent = 'done';
+      if (!streamDone) {
+        streamDone = true;
+        document.getElementById('m3-stream-result').textContent =
+          `Adults: ${Math.round(usersTotal * adultRatio).toLocaleString()} | Total: ${usersTotal.toLocaleString()}`;
+      }
+    } else {
+      document.getElementById('m3-stream-status').textContent =
+        `decoded ${Math.round(progress * usersTotal).toLocaleString()} users`;
+    }
+    m3.streamPeakMB = Math.max(m3.streamPeakMB, streamMB);
+    setBar(streamBar, streamLabel, streamMB, maxMB);
+    document.getElementById('m3-stream-peak').textContent = m3.streamPeakMB.toFixed(2) + ' MB';
+
+    const elapsed = performance.now() - startT;
+    document.getElementById('m3-load-time').textContent = elapsed.toFixed(0) + ' ms';
+    document.getElementById('m3-stream-time').textContent = elapsed.toFixed(0) + ' ms';
+
+    await new Promise(r => setTimeout(r, tickMs));
+  }
+
+  m3.running = false;
+}
+
+function resetM3() {
+  ['m3-load-bar','m3-stream-bar'].forEach(id => document.getElementById(id).style.width = '0%');
+  document.getElementById('m3-load-label').textContent = '0 MB';
+  document.getElementById('m3-stream-label').textContent = '0 MB';
+  document.getElementById('m3-load-peak').textContent = '0 MB';
+  document.getElementById('m3-stream-peak').textContent = '0 MB';
+  document.getElementById('m3-load-time').textContent = '0 ms';
+  document.getElementById('m3-stream-time').textContent = '0 ms';
+  document.getElementById('m3-load-status').textContent = 'idle';
+  document.getElementById('m3-stream-status').textContent = 'idle';
+  document.getElementById('m3-load-result').textContent = '';
+  document.getElementById('m3-stream-result').textContent = '';
+}
+
+document.getElementById('m3-run').addEventListener('click', runM3);
+document.getElementById('m3-reset').addEventListener('click', resetM3);
+
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

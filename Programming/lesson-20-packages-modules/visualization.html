@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L20 — Package & Module · Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  main { max-width: 1100px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.6rem; margin: 8px 0 4px; }
+  h2 { font-size: 1.2rem; margin: 28px 0 10px; padding-bottom: 6px; border-bottom: 2px solid #4299e1; }
+  .lead { color: #4a5568; margin-bottom: 8px; }
+  .module { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-bottom: 18px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+  button { background: #4299e1; color: white; border: none; border-radius: 6px; padding: 8px 14px; cursor: pointer; font-size: 0.92rem; }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.danger { background: #e53e3e; }
+  textarea, select, input[type=text] {
+    width: 100%; max-width: 100%; box-sizing: border-box;
+    font-family: ui-monospace, "SF Mono", Menlo, Monaco, monospace; font-size: 0.86rem;
+    padding: 8px; border: 1px solid #cbd5e0; border-radius: 6px;
+  }
+  textarea { min-height: 140px; resize: vertical; }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 0.86rem; margin: 8px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .legend .dot { display: inline-block; width: 12px; height: 12px; border-radius: 2px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 768px) { .row { grid-template-columns: 1fr; } }
+
+  /* Module 1: folder tree */
+  .tree { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.88rem; line-height: 1.55; }
+  .tree .node { padding: 2px 6px; border-radius: 4px; display: inline-block; }
+  .tree .node.folder { color: #2c5282; font-weight: 600; }
+  .tree .node.internal { color: #d69e2e; font-weight: 700; }
+  .tree .node.file { color: #4a5568; }
+  .tree .node.active { background: #fefcbf; outline: 2px solid #d69e2e; }
+  .tree .node.allow { background: #c6f6d5; }
+  .tree .node.deny  { background: #fed7d7; }
+  .verdict { padding: 10px 12px; border-radius: 6px; font-weight: 600; margin-top: 10px; }
+  .verdict.ok { background: #c6f6d5; color: #22543d; }
+  .verdict.no { background: #fed7d7; color: #742a2a; }
+  .verdict.muted { background: #edf2f7; color: #4a5568; }
+
+  /* Module 2: MVS */
+  .mvs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  @media (max-width: 768px) { .mvs-grid { grid-template-columns: 1fr; } }
+  .mod-card { background: #f7fafc; border: 1px solid #cbd5e0; border-radius: 6px; padding: 10px; }
+  .mod-card h4 { margin: 0 0 6px; font-size: 0.95rem; color: #2c5282; }
+  .req-line { font-family: ui-monospace, monospace; font-size: 0.85rem; padding: 3px 6px; border-radius: 3px; margin: 2px 0; }
+  .req-line.winner { background: #c6f6d5; font-weight: 700; }
+  .req-line.loser { color: #a0aec0; text-decoration: line-through; }
+  .step { padding: 8px; background: #ebf8ff; border-left: 3px solid #4299e1; margin: 6px 0; font-size: 0.9rem; }
+  .result-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.9rem; }
+  .result-table th, .result-table td { border: 1px solid #cbd5e0; padding: 6px 10px; text-align: left; }
+  .result-table th { background: #edf2f7; }
+  .result-table .pick { background: #c6f6d5; font-weight: 700; font-family: ui-monospace, monospace; }
+
+  /* Module 3: DAG */
+  .dag-wrap { background: #f7fafc; border: 1px solid #cbd5e0; border-radius: 6px; padding: 8px; overflow-x: auto; }
+  svg.dag { display: block; max-width: 100%; height: auto; }
+  .dag-node rect { fill: #fff; stroke: #4299e1; stroke-width: 2; }
+  .dag-node.root rect { fill: #4299e1; stroke: #2b6cb0; }
+  .dag-node.root text { fill: white; font-weight: 700; }
+  .dag-node text { font-family: ui-monospace, monospace; font-size: 11px; fill: #2d3748; }
+  .dag-edge { stroke: #a0aec0; stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+  .small-note { color: #718096; font-size: 0.82rem; margin-top: 6px; }
+  pre.error { background: #fed7d7; color: #742a2a; padding: 10px; border-radius: 4px; font-size: 0.85rem; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-19-errors/visualization.html">← L19: Error Handling</a>
+  <span class="sep">·</span>
+  <span class="current">L20: Package &amp; Module</span>
+  <span class="sep">·</span>
+  <a href="../lesson-21-io-streaming/visualization.html">L21: IO Streaming →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 20 — Package &amp; Module</h1>
+<p class="lead">3 module tương tác: ranh giới <code>internal/</code>, thuật toán <strong>MVS</strong> (Minimum Version Selection), và đồ thị dependency từ <code>go.mod</code>.</p>
+
+<!-- ====================================================== -->
+<section class="module" id="mod1">
+  <h2>1. Internal package boundary</h2>
+  <p class="lead">Quy tắc: package nằm tại <code>…/internal/…</code> chỉ import được từ cây con của cha gần nhất chứa <code>internal</code>. Chọn file gốc để xem có import được <code>shared/internal/auth</code> không.</p>
+
+  <div class="row">
+    <div>
+      <strong>Cây thư mục module <code>github.com/acme/platform</code>:</strong>
+      <div class="tree" id="tree-internal" style="margin-top:8px;"></div>
+    </div>
+    <div>
+      <strong>Chọn file gốc thử import:</strong>
+      <select id="m1-src" style="margin-top:8px;">
+        <option value="service-a/main.go">service-a/main.go</option>
+        <option value="service-b/main.go">service-b/main.go</option>
+        <option value="shared/util.go">shared/util.go</option>
+        <option value="shared/internal/auth/jwt.go">shared/internal/auth/jwt.go</option>
+        <option value="public-sdk/client.go">public-sdk/client.go</option>
+        <option value="extern">[BÊN NGOÀI MODULE — github.com/other/repo]</option>
+      </select>
+      <div class="controls">
+        <button id="m1-go">▶ Thử import "github.com/acme/platform/shared/internal/auth"</button>
+        <button class="secondary" id="m1-reset">Reset</button>
+      </div>
+      <div id="m1-verdict" class="verdict muted">Chưa thử.</div>
+      <div class="legend" style="margin-top:10px;">
+        <span><span class="dot" style="background:#c6f6d5"></span> Cho phép</span>
+        <span><span class="dot" style="background:#fed7d7"></span> Bị chặn</span>
+        <span><span class="dot" style="background:#fefcbf"></span> File đang chọn</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<section class="module" id="mod2">
+  <h2>2. MVS Selector — Go chọn version nào?</h2>
+  <p class="lead">Cho 3 module + các <code>require</code>, click <strong>Run MVS</strong> để xem Go chọn version cho từng dep. Quy tắc: <strong>chọn max của các yêu cầu</strong> (≠ npm chọn highest compatible).</p>
+
+  <div class="controls">
+    <button class="secondary" data-scenario="basic">📦 Scenario 1: cơ bản</button>
+    <button class="secondary" data-scenario="conflict">📦 Scenario 2: nhiều dep xung đột</button>
+    <button class="secondary" data-scenario="downgrade">📦 Scenario 3: dep cũ + mới</button>
+  </div>
+
+  <div class="mvs-grid" id="mvs-cards"></div>
+
+  <div class="controls">
+    <button id="m2-run">▶ Run MVS</button>
+    <button class="secondary" id="m2-reset">Reset</button>
+  </div>
+
+  <div id="m2-steps"></div>
+  <div id="m2-result"></div>
+</section>
+
+<!-- ====================================================== -->
+<section class="module" id="mod3">
+  <h2>3. Module dependency graph — parse <code>go.mod</code></h2>
+  <p class="lead">Paste nội dung <code>go.mod</code>, parser sẽ extract <code>module</code> + <code>require</code> rồi vẽ DAG. Hỗ trợ block <code>require ( ... )</code>, comment <code>// indirect</code>, dấu chú thích.</p>
+
+  <textarea id="m3-input" spellcheck="false"></textarea>
+  <div class="controls">
+    <button id="m3-parse">▶ Parse &amp; vẽ DAG</button>
+    <button class="secondary" data-sample="small">📋 Mẫu nhỏ</button>
+    <button class="secondary" data-sample="medium">📋 Mẫu thực tế (gin)</button>
+    <button class="secondary" data-sample="bad">📋 Mẫu lỗi</button>
+  </div>
+  <div id="m3-out"></div>
+</section>
+
+</main>
+
+<script>
+// ============================================================
+// MODULE 1: Internal package boundary
+// ============================================================
+
+// Tree definition (in display order)
+const TREE_LINES = [
+  { depth: 0, name: "github.com/acme/platform/", type: "folder", path: "" },
+  { depth: 1, name: "go.mod", type: "file", path: "go.mod" },
+  { depth: 1, name: "service-a/", type: "folder", path: "service-a" },
+  { depth: 2, name: "main.go", type: "file", path: "service-a/main.go" },
+  { depth: 1, name: "service-b/", type: "folder", path: "service-b" },
+  { depth: 2, name: "main.go", type: "file", path: "service-b/main.go" },
+  { depth: 1, name: "shared/", type: "folder", path: "shared" },
+  { depth: 2, name: "util.go", type: "file", path: "shared/util.go" },
+  { depth: 2, name: "internal/", type: "internal", path: "shared/internal" },
+  { depth: 3, name: "auth/", type: "folder", path: "shared/internal/auth" },
+  { depth: 4, name: "jwt.go", type: "file", path: "shared/internal/auth/jwt.go" },
+  { depth: 1, name: "public-sdk/", type: "folder", path: "public-sdk" },
+  { depth: 2, name: "client.go", type: "file", path: "public-sdk/client.go" },
+];
+
+const TARGET = "shared/internal/auth";
+
+function renderTree(activePath, verdictMap) {
+  const el = document.getElementById("tree-internal");
+  el.innerHTML = "";
+  for (const node of TREE_LINES) {
+    const indent = "│   ".repeat(Math.max(0, node.depth - 1)) + (node.depth ? "├── " : "");
+    const div = document.createElement("div");
+    const pre = document.createElement("span");
+    pre.textContent = indent;
+    div.appendChild(pre);
+    const span = document.createElement("span");
+    span.className = "node " + (node.type === "internal" ? "internal" : (node.type === "folder" ? "folder" : "file"));
+    span.textContent = node.name;
+    if (activePath && node.path === activePath) span.classList.add("active");
+    if (verdictMap && verdictMap[node.path] === "allow") span.classList.add("allow");
+    if (verdictMap && verdictMap[node.path] === "deny") span.classList.add("deny");
+    div.appendChild(span);
+    el.appendChild(div);
+  }
+}
+
+// Implement quy tắc internal: file F (path src) import được TARGET (path tgt
+// kết thúc bằng /internal/...) khi cha gần nhất của tgt chứa internal là folder D,
+// và src có prefix D + "/" (hoặc src nằm trong D).
+function canImportInternal(src) {
+  if (src === "extern") return { ok: false, reason: "File nằm NGOÀI module — không phải con của shared/, chắc chắn KHÔNG import được." };
+  // cha của TARGET (shared/internal/auth) là shared/internal. Cha của internal là shared.
+  // → cây cho phép = mọi thứ dưới "shared/"
+  const allowRoot = "shared";
+  // src đường dẫn relative, ví dụ "service-a/main.go" hoặc "shared/util.go"
+  const parts = src.split("/");
+  const firstFolder = parts[0];
+  if (firstFolder === allowRoot) return { ok: true, reason: `File nằm dưới <code>${allowRoot}/</code> — cây con của cha "internal" → được phép.` };
+  return { ok: false, reason: `File nằm dưới <code>${firstFolder}/</code>, KHÔNG phải con của <code>${allowRoot}/</code> → Go chặn ở compile time.` };
+}
+
+document.getElementById("m1-go").addEventListener("click", () => {
+  const sel = document.getElementById("m1-src").value;
+  const v = canImportInternal(sel);
+  const map = {};
+  if (sel !== "extern") map[sel] = v.ok ? "allow" : "deny";
+  map[TARGET] = "allow"; // highlight target neutral
+  renderTree(sel === "extern" ? null : sel, map);
+  const el = document.getElementById("m1-verdict");
+  if (sel === "extern") {
+    el.className = "verdict no";
+    el.innerHTML = "<strong>BLOCKED</strong>: " + v.reason + "<br><code style='font-size:0.8rem;'>use of internal package github.com/acme/platform/shared/internal/auth not allowed</code>";
+  } else if (v.ok) {
+    el.className = "verdict ok";
+    el.innerHTML = "<strong>ALLOWED</strong>: " + v.reason;
+  } else {
+    el.className = "verdict no";
+    el.innerHTML = "<strong>BLOCKED</strong>: " + v.reason + "<br><code style='font-size:0.8rem;'>use of internal package github.com/acme/platform/shared/internal/auth not allowed</code>";
+  }
+});
+
+document.getElementById("m1-reset").addEventListener("click", () => {
+  renderTree(null, null);
+  const el = document.getElementById("m1-verdict");
+  el.className = "verdict muted";
+  el.textContent = "Chưa thử.";
+});
+
+renderTree(null, null);
+
+// ============================================================
+// MODULE 2: MVS Selector
+// ============================================================
+
+const SCENARIOS = {
+  basic: {
+    title: "Cơ bản — 1 dep dùng chung",
+    modules: [
+      { name: "my-app (root)", color: "#4299e1", requires: [{ pkg: "uuid", ver: "v1.3.0" }, { pkg: "gin", ver: "v1.9.1" }] },
+      { name: "gin v1.9.1", color: "#48bb78", requires: [{ pkg: "uuid", ver: "v1.4.0" }] },
+      { name: "uuid v1.4.0", color: "#ed8936", requires: [] },
+    ],
+  },
+  conflict: {
+    title: "Xung đột — root + 2 dep yêu cầu khác nhau",
+    modules: [
+      { name: "my-app (root)", color: "#4299e1", requires: [{ pkg: "A", ver: "v1.2.0" }, { pkg: "B", ver: "v1.5.0" }] },
+      { name: "A v1.2.0", color: "#48bb78", requires: [{ pkg: "X", ver: "v1.5.0" }, { pkg: "Y", ver: "v0.3.0" }] },
+      { name: "B v1.5.0", color: "#9f7aea", requires: [{ pkg: "X", ver: "v1.7.0" }, { pkg: "Y", ver: "v0.4.0" }, { pkg: "Z", ver: "v2.1.0" }] },
+    ],
+  },
+  downgrade: {
+    title: "Dep cũ + mới — kiểm tra lockstep",
+    modules: [
+      { name: "my-app (root)", color: "#4299e1", requires: [{ pkg: "lib", ver: "v1.1.0" }, { pkg: "framework", ver: "v2.3.0" }] },
+      { name: "lib v1.1.0", color: "#48bb78", requires: [{ pkg: "common", ver: "v1.0.0" }] },
+      { name: "framework v2.3.0", color: "#9f7aea", requires: [{ pkg: "common", ver: "v1.4.0" }, { pkg: "logger", ver: "v0.8.0" }] },
+    ],
+  },
+};
+
+let currentScenario = "basic";
+
+function renderScenario() {
+  const sc = SCENARIOS[currentScenario];
+  const grid = document.getElementById("mvs-cards");
+  grid.innerHTML = "";
+  for (const m of sc.modules) {
+    const div = document.createElement("div");
+    div.className = "mod-card";
+    div.style.borderLeft = "4px solid " + m.color;
+    const reqs = m.requires.length ? m.requires.map(r => `<div class="req-line">require <strong>${r.pkg}</strong> ${r.ver}</div>`).join("") : '<div class="req-line" style="color:#a0aec0;">(không có dep)</div>';
+    div.innerHTML = `<h4>${m.name}</h4>${reqs}`;
+    grid.appendChild(div);
+  }
+  document.getElementById("m2-steps").innerHTML = `<div class="step"><strong>Scenario:</strong> ${sc.title}. Click <em>Run MVS</em>.</div>`;
+  document.getElementById("m2-result").innerHTML = "";
+}
+
+function runMVS() {
+  const sc = SCENARIOS[currentScenario];
+  // Collect all requirements per pkg
+  const reqs = {};
+  for (const m of sc.modules) {
+    for (const r of m.requires) {
+      if (!reqs[r.pkg]) reqs[r.pkg] = [];
+      reqs[r.pkg].push({ from: m.name, ver: r.ver });
+    }
+  }
+  // Pick max version per pkg
+  function cmp(a, b) {
+    const parse = v => v.replace(/^v/, "").split(/[.\-]/).map(x => isNaN(+x) ? x : +x);
+    const A = parse(a), B = parse(b);
+    for (let i = 0; i < Math.max(A.length, B.length); i++) {
+      const av = A[i] ?? 0, bv = B[i] ?? 0;
+      if (av < bv) return -1; if (av > bv) return 1;
+    }
+    return 0;
+  }
+  const steps = [];
+  const picks = {};
+  for (const pkg of Object.keys(reqs)) {
+    const list = reqs[pkg].slice().sort((a, b) => cmp(a.ver, b.ver));
+    const winner = list[list.length - 1];
+    picks[pkg] = winner.ver;
+    const detail = list.map(x => `${x.from} → <code>${x.ver}</code>`).join(", ");
+    steps.push(`<div class="step"><strong>${pkg}</strong>: yêu cầu từ {${detail}} → max = <strong>${winner.ver}</strong></div>`);
+  }
+  document.getElementById("m2-steps").innerHTML = steps.join("");
+  // result table
+  let html = '<table class="result-table"><thead><tr><th>Package</th><th>Các yêu cầu</th><th>Go chọn</th></tr></thead><tbody>';
+  for (const pkg of Object.keys(reqs)) {
+    const list = reqs[pkg].map(x => `${x.ver} (${x.from.split(" ")[0]})`).join(", ");
+    html += `<tr><td><code>${pkg}</code></td><td>${list}</td><td class="pick">${picks[pkg]}</td></tr>`;
+  }
+  html += "</tbody></table>";
+  document.getElementById("m2-result").innerHTML = html;
+  // Re-render cards highlighting winners
+  const grid = document.getElementById("mvs-cards");
+  grid.innerHTML = "";
+  for (const m of sc.modules) {
+    const div = document.createElement("div");
+    div.className = "mod-card";
+    div.style.borderLeft = "4px solid " + m.color;
+    const reqsH = m.requires.length ? m.requires.map(r => {
+      const winner = picks[r.pkg] === r.ver;
+      const cls = winner ? "req-line winner" : "req-line loser";
+      return `<div class="${cls}">require <strong>${r.pkg}</strong> ${r.ver}${winner ? "  ✓" : ""}</div>`;
+    }).join("") : '<div class="req-line" style="color:#a0aec0;">(không có dep)</div>';
+    div.innerHTML = `<h4>${m.name}</h4>${reqsH}`;
+    grid.appendChild(div);
+  }
+}
+
+document.querySelectorAll("[data-scenario]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    currentScenario = btn.dataset.scenario;
+    renderScenario();
+  });
+});
+document.getElementById("m2-run").addEventListener("click", runMVS);
+document.getElementById("m2-reset").addEventListener("click", renderScenario);
+renderScenario();
+
+// ============================================================
+// MODULE 3: go.mod parser + DAG
+// ============================================================
+
+const SAMPLES = {
+  small: `module github.com/me/tiny
+
+go 1.22
+
+require github.com/google/uuid v1.6.0
+`,
+  medium: `module github.com/acme/api
+
+go 1.22
+
+require (
+    github.com/gin-gonic/gin v1.9.1
+    github.com/jackc/pgx/v5 v5.5.0
+    github.com/google/uuid v1.6.0
+)
+
+require (
+    github.com/bytedance/sonic v1.9.1 // indirect
+    github.com/gabriel-vasile/mimetype v1.4.2 // indirect
+    golang.org/x/sys v0.18.0 // indirect
+    golang.org/x/crypto v0.21.0 // indirect
+)
+
+replace github.com/acme/legacy => ./vendor-local/legacy
+`,
+  bad: `module github.com/me/broken
+
+// thiếu directive 'go'
+require github.com/x/y    // thiếu version
+require github.com/a/b v1.0.0
+`,
+};
+
+function parseGoMod(text) {
+  const lines = text.split("\n");
+  let moduleName = null;
+  let goVer = null;
+  const requires = [];
+  const replaces = [];
+  const errors = [];
+  let inBlock = null; // "require" | "replace" | null
+  for (let raw of lines) {
+    // Strip comments
+    let line = raw.replace(/\/\/.*$/, "").trim();
+    const indirect = /\/\/\s*indirect/.test(raw);
+    if (line === "") continue;
+    if (line === ")") { inBlock = null; continue; }
+    // Block start: e.g. "require ("
+    let m;
+    if ((m = line.match(/^require\s*\($/))) { inBlock = "require"; continue; }
+    if ((m = line.match(/^replace\s*\($/))) { inBlock = "replace"; continue; }
+    if ((m = line.match(/^module\s+(\S+)/))) { moduleName = m[1]; continue; }
+    if ((m = line.match(/^go\s+([\d.]+)/))) { goVer = m[1]; continue; }
+    if ((m = line.match(/^require\s+(\S+)\s+(\S+)/))) { requires.push({ pkg: m[1], ver: m[2], indirect }); continue; }
+    if ((m = line.match(/^require\s+(\S+)$/))) { errors.push(`Dòng "${raw.trim()}": require thiếu version`); continue; }
+    if ((m = line.match(/^replace\s+(\S+)(?:\s+(\S+))?\s*=>\s*(\S+)(?:\s+(\S+))?/))) {
+      replaces.push({ from: m[1], fromVer: m[2] || null, to: m[3], toVer: m[4] || null });
+      continue;
+    }
+    if (inBlock === "require") {
+      if ((m = line.match(/^(\S+)\s+(\S+)/))) { requires.push({ pkg: m[1], ver: m[2], indirect }); continue; }
+      errors.push(`Trong block require, dòng không parse được: ${raw.trim()}`);
+      continue;
+    }
+    if (inBlock === "replace") {
+      if ((m = line.match(/^(\S+)(?:\s+(\S+))?\s*=>\s*(\S+)(?:\s+(\S+))?/))) {
+        replaces.push({ from: m[1], fromVer: m[2] || null, to: m[3], toVer: m[4] || null });
+      }
+      continue;
+    }
+    errors.push(`Dòng không nhận dạng: ${raw.trim()}`);
+  }
+  if (!moduleName) errors.push("Thiếu directive 'module'.");
+  if (!goVer) errors.push("Thiếu directive 'go <version>'.");
+  return { moduleName, goVer, requires, replaces, errors };
+}
+
+function renderDAG(parsed) {
+  const out = document.getElementById("m3-out");
+  out.innerHTML = "";
+  if (parsed.errors.length) {
+    const pre = document.createElement("pre");
+    pre.className = "error";
+    pre.textContent = "Cảnh báo / Lỗi:\n" + parsed.errors.map(e => " • " + e).join("\n");
+    out.appendChild(pre);
+  }
+  // Summary
+  const summary = document.createElement("div");
+  summary.innerHTML = `<div class="step"><strong>Module:</strong> <code>${parsed.moduleName || "?"}</code> · <strong>go:</strong> ${parsed.goVer || "?"} · <strong>Require:</strong> ${parsed.requires.length} (direct ${parsed.requires.filter(r => !r.indirect).length}, indirect ${parsed.requires.filter(r => r.indirect).length}) · <strong>Replace:</strong> ${parsed.replaces.length}</div>`;
+  out.appendChild(summary);
+
+  // DAG SVG
+  const W = 900, NODE_W = 240, NODE_H = 36, X_ROOT = 30, X_DEP = 380, Y_GAP = 50, Y_TOP = 20;
+  const directs = parsed.requires.filter(r => !r.indirect);
+  const indirects = parsed.requires.filter(r => r.indirect);
+  const allDeps = [...directs, ...indirects];
+  const H = Math.max(80, Y_TOP + allDeps.length * Y_GAP + 20);
+  const svgns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgns, "svg");
+  svg.setAttribute("class", "dag");
+  svg.setAttribute("width", W);
+  svg.setAttribute("height", H);
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+
+  // marker
+  const defs = document.createElementNS(svgns, "defs");
+  defs.innerHTML = `<marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#a0aec0"/></marker>`;
+  svg.appendChild(defs);
+
+  // Root node
+  const rootY = (H - NODE_H) / 2;
+  const rootG = document.createElementNS(svgns, "g");
+  rootG.setAttribute("class", "dag-node root");
+  rootG.innerHTML = `<rect x="${X_ROOT}" y="${rootY}" width="${NODE_W}" height="${NODE_H}" rx="6"/><text x="${X_ROOT + 10}" y="${rootY + 22}">${(parsed.moduleName || "?").substring(0, 32)}</text>`;
+  svg.appendChild(rootG);
+
+  // Dep nodes
+  allDeps.forEach((dep, i) => {
+    const y = Y_TOP + i * Y_GAP;
+    const g = document.createElementNS(svgns, "g");
+    g.setAttribute("class", "dag-node");
+    const label = `${dep.pkg.length > 28 ? dep.pkg.substring(0, 25) + "…" : dep.pkg} ${dep.ver}${dep.indirect ? " (i)" : ""}`;
+    const fillExtra = dep.indirect ? ' style="fill:#fef5e7;stroke:#d69e2e;"' : "";
+    g.innerHTML = `<rect x="${X_DEP}" y="${y}" width="${NODE_W + 60}" height="${NODE_H}" rx="6"${fillExtra}/><text x="${X_DEP + 10}" y="${y + 22}">${label}</text>`;
+    svg.appendChild(g);
+    // edge
+    const e = document.createElementNS(svgns, "path");
+    const x1 = X_ROOT + NODE_W, y1 = rootY + NODE_H / 2;
+    const x2 = X_DEP, y2 = y + NODE_H / 2;
+    const mid = (x1 + x2) / 2;
+    e.setAttribute("d", `M ${x1} ${y1} C ${mid} ${y1}, ${mid} ${y2}, ${x2} ${y2}`);
+    e.setAttribute("class", "dag-edge");
+    if (dep.indirect) e.setAttribute("stroke-dasharray", "4 4");
+    svg.appendChild(e);
+  });
+
+  const wrap = document.createElement("div");
+  wrap.className = "dag-wrap";
+  wrap.appendChild(svg);
+  out.appendChild(wrap);
+
+  const note = document.createElement("div");
+  note.className = "small-note";
+  note.innerHTML = "Cạnh nét liền = direct require; cạnh nét đứt + nền vàng = indirect (dùng bởi dep khác).";
+  out.appendChild(note);
+
+  // Replace table
+  if (parsed.replaces.length) {
+    let html = '<table class="result-table" style="margin-top:8px;"><thead><tr><th>From</th><th>From ver</th><th>To</th><th>To ver</th></tr></thead><tbody>';
+    for (const r of parsed.replaces) {
+      html += `<tr><td><code>${r.from}</code></td><td>${r.fromVer || "*"}</td><td><code>${r.to}</code></td><td>${r.toVer || "(local)"}</td></tr>`;
+    }
+    html += "</tbody></table>";
+    const div = document.createElement("div");
+    div.innerHTML = `<div style="margin-top:8px;"><strong>Replace directives:</strong></div>` + html;
+    out.appendChild(div);
+  }
+}
+
+document.getElementById("m3-parse").addEventListener("click", () => {
+  const text = document.getElementById("m3-input").value;
+  if (!text.trim()) { document.getElementById("m3-out").innerHTML = '<pre class="error">Empty input.</pre>'; return; }
+  const parsed = parseGoMod(text);
+  renderDAG(parsed);
+});
+document.querySelectorAll("[data-sample]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.getElementById("m3-input").value = SAMPLES[btn.dataset.sample];
+    document.getElementById("m3-parse").click();
+  });
+});
+
+// init with medium sample
+document.getElementById("m3-input").value = SAMPLES.medium;
+renderDAG(parseGoMod(SAMPLES.medium));
+
+</script>
+
+<!-- README modal -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+
+</body>
+</html>

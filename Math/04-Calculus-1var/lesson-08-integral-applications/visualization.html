@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 08 — Ứng dụng tích phân</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  button { background: #94a3b8; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.active { background: #15803d; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 700px; height: 400px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-definite-integral/visualization.html">← L7: Tích phân</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Ứng dụng</span>
+</nav>
+
+<h1>Lesson 08 (T4) — Ứng dụng: Diện tích, Thể tích tròn xoay</h1>
+
+<h2>Diện tích giữa 2 đường cong</h2>
+<div class="card">
+  <p>Diện tích giới hạn bởi y = f(x) (trên) và y = g(x) (dưới) trên [a, b].</p>
+  <div class="row">
+    <button id="b1" onclick="setP('xsq_x')" class="active">y = x và y = x²</button>
+    <button id="b2" onclick="setP('para_line')">y = 4 - x² và y = 0</button>
+    <button id="b3" onclick="setP('sin_x')">y = sin x và y = 0 trên [0, π]</button>
+  </div>
+  <svg class="scene" id="svg" viewBox="0 0 700 400"></svg>
+  <div class="result" id="res"></div>
+</div>
+
+<h2>Thể tích tròn xoay quanh Ox (phương pháp đĩa)</h2>
+<div class="card">
+  <p>Quay đồ thị y = f(x) ≥ 0 quanh Ox trên [a, b]. Cắt thành các đĩa π·f²·dx.</p>
+  <div class="row">
+    <button id="vb1" onclick="setV('sqrt')" class="active">y = √x trên [0, 4]</button>
+    <button id="vb2" onclick="setV('sphere')">Hình cầu R=2</button>
+    <button id="vb3" onclick="setV('cone')">Nón y=x trên [0, 3]</button>
+  </div>
+  <svg class="scene" id="vsvg" viewBox="0 0 700 400"></svg>
+  <div class="result" id="vres"></div>
+</div>
+
+<script>
+const probs = {
+  xsq_x:     {f: x => x, g: x => x*x, a: 0, b: 1, fLbl: "y = x", gLbl: "y = x²"},
+  para_line: {f: x => 4 - x*x, g: x => 0, a: -2, b: 2, fLbl: "y = 4 - x²", gLbl: "y = 0"},
+  sin_x:     {f: x => Math.sin(x), g: x => 0, a: 0, b: Math.PI, fLbl: "y = sin x", gLbl: "y = 0"}
+};
+let curP = "xsq_x";
+
+function setP(p) {
+  curP = p;
+  ["1","2","3"].forEach(c => document.getElementById("b"+c).classList.remove("active"));
+  const m = {xsq_x:"1", para_line:"2", sin_x:"3"};
+  document.getElementById("b" + m[p]).classList.add("active");
+  drawP();
+}
+
+function drawP() {
+  const prob = probs[curP];
+  const svg = document.getElementById("svg");
+  svg.innerHTML = "";
+  const W = 700, H = 400, cx = 50, cy = 350;
+  const xMin = Math.min(prob.a, 0) - 0.3;
+  const xMax = Math.max(prob.b, 0) + 0.3;
+  const scale = (W - 100) / (xMax - xMin);
+  let yMax = 0;
+  for (let x = prob.a; x <= prob.b; x += 0.05) yMax = Math.max(yMax, prob.f(x), prob.g(x));
+  const yScale = 280 / Math.max(yMax, 1);
+  const xToPx = x => cx + (x - xMin) * scale;
+  const yToPx = y => cy - y * yScale;
+
+  // Grid + axes
+  for (let i = Math.ceil(xMin); i <= Math.floor(xMax); i++) {
+    const x = xToPx(i);
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", x); l.setAttribute("y1", 30); l.setAttribute("x2", x); l.setAttribute("y2", cy);
+    l.setAttribute("stroke", "#e2e8f0"); l.setAttribute("stroke-width", 0.5);
+    svg.appendChild(l);
+  }
+  const xax = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  xax.setAttribute("x1", cx); xax.setAttribute("y1", cy); xax.setAttribute("x2", W-20); xax.setAttribute("y2", cy);
+  xax.setAttribute("stroke", "#1a202c"); xax.setAttribute("stroke-width", 1.5);
+  svg.appendChild(xax);
+
+  // Fill area between f and g on [a, b]
+  let polyPts = [];
+  for (let x = prob.a; x <= prob.b; x += 0.02) polyPts.push([xToPx(x), yToPx(prob.f(x))]);
+  for (let x = prob.b; x >= prob.a; x -= 0.02) polyPts.push([xToPx(x), yToPx(prob.g(x))]);
+  const poly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  poly.setAttribute("points", polyPts.map(p => p.join(",")).join(" "));
+  poly.setAttribute("fill", "#dcfce7"); poly.setAttribute("stroke", "none"); poly.setAttribute("fill-opacity", 0.7);
+  svg.appendChild(poly);
+
+  // f curve
+  ["f", "g"].forEach((fn, i) => {
+    let path = "";
+    for (let x = xMin; x <= xMax; x += 0.02) {
+      const y = prob[fn](x);
+      const px = xToPx(x), py = yToPx(y);
+      if (py > 30 && py < cy + 10) path += (path === "" ? "M" : "L") + px + " " + py + " ";
+    }
+    const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    p.setAttribute("d", path); p.setAttribute("fill", "none"); p.setAttribute("stroke", i === 0 ? "#1d4ed8" : "#dc2626"); p.setAttribute("stroke-width", 2.5);
+    svg.appendChild(p);
+  });
+
+  // Compute area by Riemann
+  const n = 1000, dx = (prob.b - prob.a)/n;
+  let S = 0;
+  for (let i = 0; i < n; i++) {
+    const xi = prob.a + (i+0.5)*dx;
+    S += (prob.f(xi) - prob.g(xi)) * dx;
+  }
+
+  // Labels for a, b
+  ["a", "b"].forEach((k, i) => {
+    const v = prob[k];
+    const px = xToPx(v);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", px); t.setAttribute("y", cy + 18); t.setAttribute("text-anchor", "middle"); t.setAttribute("font-size", "12"); t.setAttribute("fill", "#15803d"); t.setAttribute("font-weight", "700");
+    t.textContent = (i === 0 ? "a=" : "b=") + v.toFixed(2);
+    svg.appendChild(t);
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", px); l.setAttribute("y1", 30); l.setAttribute("x2", px); l.setAttribute("y2", cy);
+    l.setAttribute("stroke", "#15803d"); l.setAttribute("stroke-width", 1.5); l.setAttribute("stroke-dasharray", "5,3");
+    svg.appendChild(l);
+  });
+
+  document.getElementById("res").innerHTML = `
+    <div style="font-family:monospace; font-size:14px"><strong>S = ∫_{${prob.a.toFixed(2)}}^{${prob.b.toFixed(2)}} (${prob.fLbl.replace("y = ","")} - (${prob.gLbl.replace("y = ","")})) dx ≈ ${S.toFixed(5)}</strong></div>
+  `;
+}
+
+const vols = {
+  sqrt:   {f: x => Math.sqrt(x), a: 0, b: 4, lbl: "y = √x"},
+  sphere: {f: x => Math.sqrt(4 - x*x), a: -2, b: 2, lbl: "Cầu R=2"},
+  cone:   {f: x => x, a: 0, b: 3, lbl: "Nón y=x"}
+};
+let curV = "sqrt";
+
+function setV(v) {
+  curV = v;
+  ["1","2","3"].forEach(c => document.getElementById("vb"+c).classList.remove("active"));
+  const m = {sqrt:"1", sphere:"2", cone:"3"};
+  document.getElementById("vb" + m[v]).classList.add("active");
+  drawV();
+}
+
+function drawV() {
+  const v = vols[curV];
+  const svg = document.getElementById("vsvg");
+  svg.innerHTML = "";
+  const W = 700, H = 400, cx = 50, cy = 200;
+  const xRange = v.b - v.a;
+  const scale = (W - 100) / xRange;
+  let yMax = 0;
+  for (let x = v.a; x <= v.b; x += 0.05) yMax = Math.max(yMax, v.f(x));
+  const yScale = 150 / Math.max(yMax, 1);
+  const xToPx = x => cx + (x - v.a) * scale;
+  const yToPx = y => cy - y * yScale;
+
+  // X axis
+  const xax = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  xax.setAttribute("x1", cx); xax.setAttribute("y1", cy); xax.setAttribute("x2", W-20); xax.setAttribute("y2", cy);
+  xax.setAttribute("stroke", "#1a202c"); xax.setAttribute("stroke-width", 1.5);
+  svg.appendChild(xax);
+
+  // Show disks (cross sections)
+  const N = 12;
+  const dx = xRange / N;
+  for (let i = 0; i < N; i++) {
+    const xi = v.a + (i + 0.5)*dx;
+    const r = v.f(xi);
+    const e = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
+    e.setAttribute("cx", xToPx(xi)); e.setAttribute("cy", cy);
+    e.setAttribute("rx", dx*scale/3); e.setAttribute("ry", r*yScale);
+    e.setAttribute("fill", "#bfdbfe"); e.setAttribute("stroke", "#1d4ed8"); e.setAttribute("stroke-width", 0.8); e.setAttribute("fill-opacity", 0.5);
+    svg.appendChild(e);
+  }
+
+  // f(x) curve (top half of solid)
+  let pathTop = "", pathBot = "";
+  for (let x = v.a; x <= v.b; x += 0.02) {
+    const y = v.f(x);
+    const px = xToPx(x);
+    pathTop += (x === v.a ? "M" : "L") + px + " " + yToPx(y) + " ";
+    pathBot += (x === v.a ? "M" : "L") + px + " " + yToPx(-y) + " ";
+  }
+  [pathTop, pathBot].forEach(p => {
+    const pp = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    pp.setAttribute("d", p); pp.setAttribute("fill", "none"); pp.setAttribute("stroke", "#dc2626"); pp.setAttribute("stroke-width", 2.5);
+    svg.appendChild(pp);
+  });
+
+  // Compute volume
+  const n = 1000, sdx = xRange/n;
+  let V = 0;
+  for (let i = 0; i < n; i++) {
+    const xi = v.a + (i+0.5)*sdx;
+    V += Math.PI * v.f(xi)**2 * sdx;
+  }
+
+  document.getElementById("vres").innerHTML = `
+    <div style="font-family:monospace; font-size:14px"><strong>V = π·∫_{${v.a.toFixed(2)}}^{${v.b.toFixed(2)}} (${v.lbl.replace("y = ","").replace("Cầu R=2","√(4-x²)").replace("Nón y=x","x")})² dx ≈ ${V.toFixed(4)}</strong></div>
+    ${curV === "sphere" ? `<div style="margin-top:6px; font-size:13px">Công thức cầu: V = (4/3)·π·R³ = (4/3)·π·8 = ${(4/3*Math.PI*8).toFixed(4)} ✓</div>` : ""}
+    ${curV === "cone" ? `<div style="margin-top:6px; font-size:13px">Công thức nón: V = (1/3)·π·R²·h = (1/3)·π·9·3 = ${(Math.PI*9).toFixed(4)} ✓</div>` : ""}
+    ${curV === "sqrt" ? `<div style="margin-top:6px; font-size:13px">Tính tay: π·∫_0^4 x dx = π·8 ≈ ${(Math.PI*8).toFixed(4)} ✓</div>` : ""}
+  `;
+}
+
+drawP();
+drawV();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

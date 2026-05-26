@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 07 — De Moivre</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 70px; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 500px; height: 500px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-complex-polar-euler/visualization.html">← L6: Euler</a>
+  <span class="sep">·</span>
+  <span class="current">L7: De Moivre</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L8: Ứng dụng (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 07 (T3) — De Moivre &amp; căn bậc n</h1>
+
+<h2>n căn bậc n của số phức = đa giác đều</h2>
+<div class="card">
+  <p>n nghiệm của PT z^n = w nằm ở n đỉnh đa giác đều nội tiếp đường tròn bán kính |w|^(1/n).</p>
+  <div class="row">
+    <strong>w = R·e^(iφ):</strong>
+    <label>R:</label><input type="range" id="R" min="0.5" max="5" step="0.1" value="1" oninput="draw()">
+    <span class="stat">R=<strong id="vR">1</strong></span>
+    <label>φ (rad):</label><input type="range" id="phi" min="0" max="6.28" step="0.05" value="0" oninput="draw()">
+    <span class="stat">φ=<strong id="vP">0</strong></span>
+  </div>
+  <div class="row">
+    <label>n (bậc):</label>
+    <input type="range" id="n" min="2" max="12" step="1" value="6" oninput="draw()">
+    <span class="stat">n=<strong id="vN">6</strong></span>
+  </div>
+  <svg class="scene" id="svg" viewBox="-250 -250 500 500"></svg>
+  <div class="result" id="res"></div>
+</div>
+
+<script>
+function draw() {
+  const R = parseFloat(document.getElementById("R").value);
+  const phi = parseFloat(document.getElementById("phi").value);
+  const n = parseInt(document.getElementById("n").value);
+  document.getElementById("vR").textContent = R.toFixed(1);
+  document.getElementById("vP").textContent = phi.toFixed(2);
+  document.getElementById("vN").textContent = n;
+
+  const svg = document.getElementById("svg");
+  svg.innerHTML = "";
+  const SC = 35;
+
+  // Grid + axes
+  for (let i = -7; i <= 7; i++) {
+    const v = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    v.setAttribute("x1", i*SC); v.setAttribute("y1", -250); v.setAttribute("x2", i*SC); v.setAttribute("y2", 250);
+    v.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); v.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+    svg.appendChild(v);
+    const h = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    h.setAttribute("x1", -250); h.setAttribute("y1", i*SC); h.setAttribute("x2", 250); h.setAttribute("y2", i*SC);
+    h.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); h.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+    svg.appendChild(h);
+  }
+
+  // Plot w
+  const wRe = R * Math.cos(phi), wIm = R * Math.sin(phi);
+  const wL = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  wL.setAttribute("x1", 0); wL.setAttribute("y1", 0); wL.setAttribute("x2", wRe*SC); wL.setAttribute("y2", -wIm*SC);
+  wL.setAttribute("stroke", "#dc2626"); wL.setAttribute("stroke-width", 2); wL.setAttribute("stroke-dasharray", "4,4");
+  svg.appendChild(wL);
+  const wP = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  wP.setAttribute("cx", wRe*SC); wP.setAttribute("cy", -wIm*SC); wP.setAttribute("r", 5);
+  wP.setAttribute("fill", "#dc2626");
+  svg.appendChild(wP);
+  const wT = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  wT.setAttribute("x", wRe*SC+8); wT.setAttribute("y", -wIm*SC-5); wT.setAttribute("fill", "#dc2626"); wT.setAttribute("font-weight", "700"); wT.setAttribute("font-size", "13");
+  wT.textContent = "w";
+  svg.appendChild(wT);
+
+  // Circle of radius R^(1/n)
+  const rN = Math.pow(R, 1/n);
+  const circ = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  circ.setAttribute("cx", 0); circ.setAttribute("cy", 0); circ.setAttribute("r", rN*SC);
+  circ.setAttribute("fill", "none"); circ.setAttribute("stroke", "#7c3aed"); circ.setAttribute("stroke-width", 1.5); circ.setAttribute("stroke-dasharray", "3,3");
+  svg.appendChild(circ);
+
+  // n roots
+  const roots = [];
+  for (let k = 0; k < n; k++) {
+    const ang = (phi + 2*Math.PI*k) / n;
+    const x = rN * Math.cos(ang), y = rN * Math.sin(ang);
+    roots.push([x, y, ang]);
+  }
+  // Polygon connecting roots
+  const poly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  poly.setAttribute("points", roots.map(([x,y]) => `${x*SC},${-y*SC}`).join(" "));
+  poly.setAttribute("fill", "#dcfce7"); poly.setAttribute("stroke", "#15803d"); poly.setAttribute("stroke-width", 1.5); poly.setAttribute("fill-opacity", 0.4);
+  svg.appendChild(poly);
+
+  roots.forEach(([x, y, a], k) => {
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", 0); l.setAttribute("y1", 0); l.setAttribute("x2", x*SC); l.setAttribute("y2", -y*SC);
+    l.setAttribute("stroke", "#15803d"); l.setAttribute("stroke-width", 1.5);
+    svg.appendChild(l);
+    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    c.setAttribute("cx", x*SC); c.setAttribute("cy", -y*SC); c.setAttribute("r", 5);
+    c.setAttribute("fill", "#15803d");
+    svg.appendChild(c);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", x*SC + 8); t.setAttribute("y", -y*SC - 4); t.setAttribute("fill", "#15803d"); t.setAttribute("font-weight", "700"); t.setAttribute("font-size", "12");
+    t.textContent = `z${subscript(k)}`;
+    svg.appendChild(t);
+  });
+
+  const rootList = roots.map(([x,y,a], k) => `z${subscript(k)} = ${rN.toFixed(3)}·e^(i·${a.toFixed(3)}) = ${x.toFixed(3)} + ${y.toFixed(3)}i`).join("<br>");
+  document.getElementById("res").innerHTML = `
+    <div style="font-family:monospace; font-size:14px"><strong>n = ${n} căn bậc ${n} của w = ${R.toFixed(2)}·e^(i·${phi.toFixed(2)})</strong></div>
+    <div style="font-family:monospace; font-size:13px; margin-top:6px">|z_k| = R^(1/n) = ${R.toFixed(2)}^(1/${n}) = <strong>${rN.toFixed(4)}</strong> (mọi nghiệm)</div>
+    <div style="font-family:monospace; font-size:13px">Khoảng cách argument giữa 2 nghiệm liên tiếp: 2π/n = <strong>${(2*Math.PI/n).toFixed(4)} rad</strong> ≈ ${(360/n).toFixed(2)}°</div>
+    <div style="font-family:monospace; font-size:12px; margin-top:8px">${rootList}</div>
+  `;
+}
+
+function subscript(n) {
+  return n.toString().split("").map(d => "₀₁₂₃₄₅₆₇₈₉"[parseInt(d)]).join("");
+}
+
+draw();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

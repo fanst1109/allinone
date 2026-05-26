@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 03 — Đường tròn</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 600px; height: 500px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-triangles/visualization.html">← L2: Tam giác</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Đường tròn</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L4: Đa giác (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 03 (T2) — Đường tròn</h1>
+
+<h2>Inscribed Angle Theorem — Định lý góc nội tiếp</h2>
+<div class="card">
+  <p>Góc nội tiếp = ½ góc ở tâm cùng chắn cung đó. Kéo slider để di chuyển điểm A trên đường tròn — góc luôn không đổi (cùng chắn cung BC).</p>
+  <div class="row">
+    <label>Vị trí điểm A:</label>
+    <input type="range" id="aPos" min="0" max="360" step="5" value="180" oninput="drawCircle()">
+    <label>Cung BC (góc ở tâm):</label>
+    <input type="range" id="arcBC" min="20" max="340" step="5" value="120" oninput="drawCircle()">
+  </div>
+  <svg class="scene" id="cSvg" viewBox="0 0 600 500"></svg>
+  <div class="result" id="cResult"></div>
+</div>
+
+<script>
+function drawCircle() {
+  const aDeg = parseFloat(document.getElementById("aPos").value);
+  const arcDeg = parseFloat(document.getElementById("arcBC").value);
+
+  const svg = document.getElementById("cSvg");
+  svg.innerHTML = "";
+  const cx = 300, cy = 250, R = 180;
+
+  // Circle
+  const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  c.setAttribute("cx", cx); c.setAttribute("cy", cy); c.setAttribute("r", R);
+  c.setAttribute("fill", "none"); c.setAttribute("stroke", "#1d4ed8"); c.setAttribute("stroke-width", 2);
+  svg.appendChild(c);
+
+  // Center O
+  const o = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  o.setAttribute("cx", cx); o.setAttribute("cy", cy); o.setAttribute("r", 4);
+  o.setAttribute("fill", "#1a202c");
+  svg.appendChild(o);
+  const oLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  oLbl.setAttribute("x", cx + 8); oLbl.setAttribute("y", cy + 5); oLbl.setAttribute("font-weight", "700");
+  oLbl.textContent = "O";
+  svg.appendChild(oLbl);
+
+  // B and C (symmetric about top)
+  const B_deg = -90 - arcDeg/2;
+  const C_deg = -90 + arcDeg/2;
+  const Brad = B_deg * Math.PI/180;
+  const Crad = C_deg * Math.PI/180;
+  const Bx = cx + R*Math.cos(Brad), By = cy + R*Math.sin(Brad);
+  const Cx = cx + R*Math.cos(Crad), Cy = cy + R*Math.sin(Crad);
+
+  // Point A (on bottom arc to ensure not on cung BC)
+  const Arad = aDeg * Math.PI/180;
+  const Ax = cx + R*Math.cos(Arad), Ay = cy + R*Math.sin(Arad);
+
+  // Highlight arc BC (the one NOT containing A)
+  // For simplicity, draw arc from B to C the short way
+  const arcPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  const largeArc = arcDeg > 180 ? 1 : 0;
+  arcPath.setAttribute("d", `M ${Bx},${By} A ${R},${R} 0 ${largeArc},1 ${Cx},${Cy}`);
+  arcPath.setAttribute("fill", "none"); arcPath.setAttribute("stroke", "#dc2626"); arcPath.setAttribute("stroke-width", 4);
+  svg.appendChild(arcPath);
+
+  // Lines OB, OC (central angle)
+  [[Bx, By], [Cx, Cy]].forEach(([x, y]) => {
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", cx); l.setAttribute("y1", cy); l.setAttribute("x2", x); l.setAttribute("y2", y);
+    l.setAttribute("stroke", "#dc2626"); l.setAttribute("stroke-width", 1.5);
+    svg.appendChild(l);
+  });
+
+  // Lines AB, AC (inscribed angle)
+  [[Bx, By], [Cx, Cy]].forEach(([x, y]) => {
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", Ax); l.setAttribute("y1", Ay); l.setAttribute("x2", x); l.setAttribute("y2", y);
+    l.setAttribute("stroke", "#15803d"); l.setAttribute("stroke-width", 2);
+    svg.appendChild(l);
+  });
+
+  // Points B, C, A
+  [[Bx, By, "B", "#dc2626"], [Cx, Cy, "C", "#dc2626"], [Ax, Ay, "A", "#15803d"]].forEach(([x, y, lbl, color]) => {
+    const pt = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    pt.setAttribute("cx", x); pt.setAttribute("cy", y); pt.setAttribute("r", 5);
+    pt.setAttribute("fill", color);
+    svg.appendChild(pt);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", x + 8); t.setAttribute("y", y + 5); t.setAttribute("fill", color); t.setAttribute("font-weight", "700");
+    t.textContent = lbl;
+    svg.appendChild(t);
+  });
+
+  // Inscribed angle = arc/2
+  const inscribed = arcDeg / 2;
+
+  document.getElementById("cResult").innerHTML = `
+    <div class="row">
+      <span class="stat">Cung BC (góc ở tâm): <strong>${arcDeg}°</strong></span>
+      <span class="stat">Góc nội tiếp BAC: <strong>${inscribed.toFixed(1)}°</strong></span>
+      <span class="stat">Tỉ lệ: <strong>1/2</strong></span>
+    </div>
+    <div style="margin-top:6px; font-size:13px">
+      ${arcDeg === 180 ? "<strong>Đặc biệt:</strong> Cung nửa đường tròn → góc nội tiếp = 90° (Định lý Thales)." :
+        "Di chuyển điểm A — góc nội tiếp KHÔNG đổi (vì luôn chắn cùng cung BC)."}
+    </div>
+  `;
+}
+
+drawCircle();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

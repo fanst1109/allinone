@@ -28,6 +28,14 @@ A·v = λ·v   (v ≠ 0)
 **Ví dụ**: A = [[3,1],[0,2]]. v = (1, 0).
 - A·v = (3, 0) = 3·v. → λ = 3, v là vector riêng.
 
+> 📐 **Định nghĩa đầy đủ — Trị riêng λ và vector riêng v**
+>
+> **(a) Là gì**: Vector v ≠ 0 thoả Av = λv. Tức A biến v thành **bội** của chính nó — chỉ co/giãn (theo hệ số λ) hoặc đảo chiều (nếu λ < 0), KHÔNG xoay hướng. v gọi là **vector riêng** của A, λ là **trị riêng** tương ứng. Mỗi λ có thể có nhiều v (không gian riêng eigenspace).
+>
+> **(b) Vì sao cần**: Vector riêng = "**hướng đặc biệt**" mà A đối xử đơn giản. Tìm được chúng thì ma trận trở nên dễ hiểu, dễ tính (chéo hoá A = PDP⁻¹ → A^n = PD^n P⁻¹ tính nhanh). Cốt lõi của: **PCA** (vector riêng của ma trận covariance = trục chính của dữ liệu, dùng giảm chiều), **Google PageRank** (vector riêng của ma trận liên kết web = score trang), **cơ học lượng tử** (trị riêng = mức năng lượng, vector riêng = trạng thái), **dynamical systems** (ổn định ↔ |λ| < 1), **vibration analysis** (mode shapes của cầu, máy bay).
+>
+> **(c) Ví dụ số**: A = [[2,1],[1,2]]. PT đặc trưng: det(A−λI) = (2−λ)² − 1 = 0 → λ = 1, 3. **λ=3**: (A−3I)v = 0 → −v₁+v₂=0 → v = (1,1). Kiểm A·(1,1) = (3,3) = 3·(1,1) ✓. **λ=1**: v = (1,−1). Kiểm A·(1,−1) = (1,−1) = 1·(1,−1) ✓. Trace A = 4 = 1+3 (tổng trị riêng) ✓. det A = 3 = 1·3 (tích trị riêng) ✓. Ma trận quay 90° = [[0,−1],[1,0]]: λ² + 1 = 0 → λ = ±i (số phức — quay không có "hướng bất biến" thực).
+
 ---
 
 ## 2. Tìm trị riêng — Phương trình đặc trưng

@@ -34,6 +34,14 @@ Tự nhiên thường mô tả qua **tốc độ thay đổi**, không phải gi
 
 ⟶ ODE = **ngôn ngữ của khoa học**.
 
+> 📐 **Định nghĩa đầy đủ — Phương trình vi phân thường (ODE)**
+>
+> **(a) Là gì**: PT trong đó **ẩn số là 1 hàm** y(x) (không phải 1 số), và PT có chứa các đạo hàm của hàm đó. "Giải ODE" = tìm hàm y(x) thoả PT, thường có 1 hằng số tự do (cần điều kiện đầu y(x₀) = y₀ để xác định cụ thể).
+>
+> **(b) Vì sao cần**: Hầu hết quy luật khoa học không phát biểu trực tiếp về **giá trị** mà về **tốc độ thay đổi**. Newton định luật 2: F = ma = m·d²s/dt² (PT vi phân bậc 2 cho s(t)). Phóng xạ: dN/dt = −λN (tốc độ phân rã tỉ lệ N). RC mạch: V = R·dq/dt + q/C. Logistic dân số: dN/dt = rN(1−N/K). Cơ học lượng tử: Schrödinger PT là PT vi phân riêng phần. Mô hình hoá COVID, kinh tế, khí hậu — tất cả đều ODE/PDE. Giải ODE = "tích phân" hàm theo thời gian/không gian.
+>
+> **(c) Ví dụ số**: y' = 2x → y = x² + C (nguyên hàm). y(0) = 5 → C = 5 → y = x²+5. dN/dt = −0.1N → N(t) = N₀·e^(−0.1t). Nếu N₀ = 1000, sau 10 đơn vị thời gian: N(10) = 1000·e⁻¹ ≈ 368. Con lắc nhỏ: θ'' + (g/L)·θ = 0 → θ(t) = A·cos(ωt+φ) với ω = √(g/L). L = 1m, g = 9.8 → ω ≈ 3.13 rad/s, chu kỳ T ≈ **2.01s**. Lò xo m=1kg, k=100 N/m: ω = 10 rad/s, T = 0.628s.
+
 ---
 
 ## 2. ODE bậc 1 — Tách biến (Separable)

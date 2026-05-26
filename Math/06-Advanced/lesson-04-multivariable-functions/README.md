@@ -73,6 +73,14 @@ f(x, y) = c (hằng số) → đường cong trong mặt phẳng xy.
 
 = **-∇f**. Đây là nền tảng của **Gradient Descent** trong ML.
 
+> 📐 **Định nghĩa đầy đủ — Gradient ∇f**
+>
+> **(a) Là gì**: 1 vector có n thành phần là **n đạo hàm riêng** của f. ∇f tại điểm P chỉ hướng f **tăng nhanh nhất** từ P, độ lớn ||∇f|| = tốc độ tăng theo hướng đó. Vuông góc với mặt đẳng giá trị (đường mức f = c).
+>
+> **(b) Vì sao cần**: Gradient là **đạo hàm tổng quát hoá** sang nhiều biến. Hầu hết bài toán thực tế có nhiều biến (cost function trong ML có triệu tham số). Để tối ưu (tìm min/max), đi theo hướng −∇f → **Gradient Descent** — thuật toán cốt lõi của: AI/ML (huấn luyện mô hình), kinh tế (tối ưu portfolio), vật lý (Lagrangian, Hamiltonian mechanics), điều khiển (PID). Khi ∇f = 0 → điểm dừng (cực trị hoặc yên ngựa).
+>
+> **(c) Ví dụ số**: f(x,y) = x² + y² (paraboloid). ∇f = (2x, 2y). Tại (3, 4): ∇f = (6, 8), ||∇f|| = 10 (= 2·√(9+16)). Hướng ra xa O — đúng vì f tăng theo r. f(x,y) = e^(-x²-y²) (chuông Gauss). ∇f = (−2x·e^..., −2y·e^...). Tại (0,0) trên đỉnh: ∇f = (0, 0) — cực đại. Tại (1,0): ∇f = (−2e⁻¹, 0) ≈ (−0.736, 0) — chỉ về tâm. Gradient descent: x ← x − α·∇f đi xuống dốc.
+
 ---
 
 ## 4. Đạo hàm riêng bậc 2 & Ma trận Hessian

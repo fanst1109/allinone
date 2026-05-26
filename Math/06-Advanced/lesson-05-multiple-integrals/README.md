@@ -24,6 +24,14 @@ Chia D thành n×n ô vuông nhỏ ΔA. Lấy tổng f·ΔA. Khi n → ∞:
 ∫∫_D f(x, y) dA = lim_{n→∞} Σ f(xᵢ, yⱼ)·ΔA
 ```
 
+> 📐 **Định nghĩa đầy đủ — Tích phân kép ∫∫_D f dA**
+>
+> **(a) Là gì**: Mở rộng tích phân 1 biến lên 2 biến. Tổng Riemann 2D: chia miền D thành n² ô nhỏ ΔA, cộng f·ΔA, lấy giới hạn n → ∞. Hình học = **thể tích** khối nằm dưới mặt cong z = f(x,y) trên miền D (nếu f ≥ 0; có thể âm).
+>
+> **(b) Vì sao cần**: Rất nhiều đại lượng "phân bố trên 1 miền 2D" cần tổng hợp: khối lượng tấm phẳng có mật độ ρ(x,y), tổng nhiệt năng trên 1 vùng, lượng nước rơi trên 1 vùng theo mật độ mưa, xác suất P(X,Y ∈ D) trong xác suất nhiều biến. Tích phân 1 biến không đủ — phải mở rộng. Fubini cho phép biến tích phân kép thành 2 tích phân lặp (đơn) — tính được.
+>
+> **(c) Ví dụ số**: ∫∫_{[0,1]×[0,2]} (x+2y) dA. Trong (theo y): ∫_0^2 (x+2y) dy = 2x + 4. Ngoài (theo x): ∫_0^1 (2x+4) dx = **5**. Diện tích đĩa bán kính 3: ∫∫_D 1 dA dùng tọa độ cực = ∫_0^{2π}∫_0^3 r dr dθ = π·9 = **9π** ✓ (= πR²). Thể tích cầu R: ∫∫∫ 1 dV bằng toạ độ cầu = (4/3)πR³. Khối lượng đĩa mật độ ρ = r (đặc hơn ở rìa): M = ∫_0^{2π}∫_0^R r·r dr dθ = (2π/3)R³.
+
 ---
 
 ## 2. Tính bằng tích phân lặp (iterated integral)

@@ -37,6 +37,14 @@ det [a b]  =  a·d - b·c
 
 **Ví dụ**: Ma trận quay R(θ) có det = cos²θ + sin²θ = **1** → bảo toàn diện tích, không lật.
 
+> 📐 **Định nghĩa đầy đủ — Định thức det(A)**
+>
+> **(a) Là gì**: 1 số duy nhất tính từ ma trận vuông A, đo "diện tích/thể tích" mà A tạo ra khi biến đổi hình vuông/lập phương đơn vị. **|det A|** = tỉ lệ phóng đại. **Dấu det A**: dương → bảo toàn hướng, âm → lật. **det A = 0** → A "vắt" không gian xuống chiều thấp hơn.
+>
+> **(b) Vì sao cần**: Định thức cho biết ngay tính chất quan trọng nhất của ma trận: **khả nghịch hay không**. det ≠ 0 ⟺ A⁻¹ tồn tại ⟺ hệ Ax = b có nghiệm duy nhất. Trong giải tích đa biến: định thức Jacobian quyết định đổi biến tích phân (phép biến đổi thể tích). Trong vật lý: det = 0 → hệ "thoái hoá" (vd 3 vector phụ thuộc tuyến tính = đồng phẳng). Cốt lõi của Cramer (giải hệ tuyến tính), Wronskian (ODE), tính eigenvalue (det(A−λI) = 0).
+>
+> **(c) Ví dụ số**: det [[1,2],[3,4]] = 4−6 = **−2** → A phóng diện tích 2 lần và lật. det [[2,0],[0,3]] = 6 → A phóng × 6 (như nén/dãn theo 2 chiều khác nhau). det [[1,2],[2,4]] = 0 → 2 cột phụ thuộc (cột 2 = 2·cột 1) → A "vắt" mặt phẳng xuống 1 đường thẳng → KHÔNG khả nghịch. det R(60°) = cos²60° + sin²60° = 0.25 + 0.75 = **1** ✓. det(AB) = det A · det B (nhân chia tỉ lệ).
+
 ---
 
 ## 2. Định thức 3×3

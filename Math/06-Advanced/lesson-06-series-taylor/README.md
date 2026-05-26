@@ -81,6 +81,14 @@ f(x) = f(a) + f'(a)(x-a) + f''(a)(x-a)²/2! + f'''(a)(x-a)³/3! + ...
 
 ⟶ **Xấp xỉ hàm phức tạp bằng đa thức**.
 
+> 📐 **Định nghĩa đầy đủ — Khai triển Taylor**
+>
+> **(a) Là gì**: Cách viết 1 hàm "đẹp" f(x) thành 1 **tổng đa thức vô hạn** quanh điểm a: f(x) = Σ f^(n)(a)/n! · (x−a)^n. Hệ số đa thức là các đạo hàm bậc n của f tại a, chia n!. Khai triển quanh a=0 gọi là Maclaurin.
+>
+> **(b) Vì sao cần**: Máy tính, máy bỏ túi không "biết" sin x, e^x trực tiếp — chúng tính qua **vài số hạng đầu của Taylor**. Trong vật lý: xấp xỉ "tuyến tính" (giữ chỉ x), "bậc 2" (thêm x²) đủ cho hầu hết tính toán gần điểm cân bằng (con lắc nhỏ → sin θ ≈ θ → dao động điều hoà). Trong ML: Taylor bậc 2 cho phương pháp Newton-Raphson, quasi-Newton (BFGS), Hessian. Quan trọng nhất — Taylor cho cầu nối **giải tích ↔ đại số**: hàm bất kỳ → "đa thức vô hạn".
+>
+> **(c) Ví dụ số**: e^x = 1 + x + x²/2 + x³/6 + x⁴/24 + .... Tính e^0.5 với 4 số hạng: 1+0.5+0.125+0.0208 ≈ 1.6458. Giá trị thật: 1.6487 (sai ~0.0029). sin x = x − x³/6 + x⁵/120 − ... sin(0.1) ≈ 0.1 − 0.000167 = 0.0998334. Thật: 0.0998334 ✓. cos x = 1 − x²/2 + x⁴/24 − .... ln(1+x) = x − x²/2 + x³/3 − ... (chỉ hội tụ |x|≤1). 1/(1−x) = 1 + x + x² + ... (cấp số nhân). Euler: e^(iπ) = 1 + iπ + (iπ)²/2 + ... = cos π + i·sin π = −1.
+
 **Tại a = 0** (Maclaurin):
 ```
 f(x) = f(0) + f'(0)·x + f''(0)·x²/2! + ...

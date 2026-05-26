@@ -72,6 +72,14 @@ Mỗi thành phần y_i = tích vô hướng của hàng i của A với x.
 **Ví dụ**: A = [[1,2],[3,4]], x = (5, 6).
 - y₁ = 1·5 + 2·6 = 17.
 - y₂ = 3·5 + 4·6 = 39.
+
+> 📐 **Định nghĩa đầy đủ — Ma trận**
+>
+> **(a) Là gì**: Bảng số chữ nhật m×n. KHÔNG chỉ là "lưu trữ data" — ma trận **= phép biến đổi tuyến tính** ℝⁿ → ℝᵐ. Mỗi cột của A là **vector ảnh** của vector đơn vị tương ứng (e₁ → cột 1, e₂ → cột 2, ...). Nhân Ax = "tổ hợp tuyến tính" các cột của A với hệ số là x.
+>
+> **(b) Vì sao cần**: Ma trận là **ngôn ngữ chung** của hàng trăm bài toán: hệ PT tuyến tính (Ax = b), phép biến hình hình học (quay, đối xứng, vị tự), graph (ma trận liên kết), markov chain, neural network (mỗi layer = nhân ma trận), nén ảnh (SVD), computer graphics (3D rendering = ma trận 4x4). Quan trọng hơn — nhân ma trận = **ghép biến đổi** (composition), cho phép biểu diễn các phép tuyến tính phức tạp = tích các phép đơn giản.
+>
+> **(c) Ví dụ số**: A = [[1,2],[3,4]], x = (5, 6) → Ax = (17, 39). A·(1,0) = (1,3) = cột 1 của A ✓. A·(0,1) = (2,4) = cột 2 ✓. Ma trận quay 90° R = [[0,-1],[1,0]] biến (1,0) → (0,1), (0,1) → (-1,0). Ghép 2 quay 30° = quay 60°: R(30)·R(30) = R(60). Identity I = [[1,0],[0,1]]: I·x = x (không đổi). Nhân ma trận-ma trận AB: cột j của AB = A·(cột j của B). [[1,2],[3,4]]·[[5,6],[7,8]] = [[19,22],[43,50]].
 - y = (17, 39).
 
 ### Nhân ma trận-ma trận

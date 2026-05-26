@@ -50,6 +50,14 @@ P(A | B) = P(B | A) · P(A) / P(B)
 
 ⟶ Cốt lõi của AI, ML, học máy "Naïve Bayes Classifier".
 
+> 📐 **Định nghĩa đầy đủ — Định lý Bayes**
+>
+> **(a) Là gì**: 1 công thức để **đảo ngược** xác suất có điều kiện. Cho P(B|A), tính P(A|B). Công thức: P(A|B) = P(B|A)·P(A)/P(B). Diễn dịch: P(A) là **prior** (xác suất ban đầu A), P(B|A) là **likelihood** (B có khả năng xảy ra khi A đúng), P(A|B) là **posterior** (cập nhật xác suất A sau khi quan sát B).
+>
+> **(b) Vì sao cần**: Vì cuộc sống đầy bài toán "ngược": biết triệu chứng, suy bệnh. Biết test dương, suy thật sự bị bệnh. Biết email có từ "khuyến mãi", suy spam hay không. Định lý Bayes là **cốt lõi của**: chẩn đoán y khoa (test screening), classifier ML (Naive Bayes — lọc spam), suy luận Bayes (Bayesian statistics), thị giác máy tính (object recognition), tự lái xe (cảm biến noisy + map → vị trí). Quan trọng: kết quả Bayes thường **phản trực giác** — bệnh hiếm gặp + test 99% chính xác → người test dương chỉ ~50% thật sự bị bệnh.
+>
+> **(c) Ví dụ số**: Bệnh hiếm 1% dân số. Test 99% chính xác (cả 2 hướng). Test dương — xác suất thật sự bị bệnh? P(B) = 0.01, P(D⁺|B) = 0.99, P(D⁺|B^c) = 0.01. P(D⁺) = 0.99·0.01 + 0.01·0.99 = 0.0198. P(B|D⁺) = 0.99·0.01/0.0198 = **0.5** (chỉ 50%!). Phản trực giác. Túi 3 đồng xu: 2 cân, 1 lệch (đầu xuất hiện 90%). Chọn 1 cái và tung được đầu — xác suất đó là đồng lệch? P(L|H) = (0.9·1/3)/(0.9·1/3 + 0.5·2/3) = 0.3/0.6333 ≈ **0.474**.
+
 ---
 
 ## 2. Biến ngẫu nhiên (Random Variable)

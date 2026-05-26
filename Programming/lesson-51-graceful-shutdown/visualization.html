@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 51 — Graceful Shutdown Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  p.explain { color: #4a5568; line-height: 1.6; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 9px 16px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #3182ce; }
+  button:disabled { background: #a0aec0; cursor: not-allowed; }
+  button.danger { background: #e53e3e; }
+  button.danger:hover { background: #c53030; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+
+  /* ---- Module 1: shutdown sequence ---- */
+  .seq-steps { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .seq-step {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; border-radius: 6px;
+    background: #edf2f7; border-left: 5px solid #cbd5e0;
+    transition: background .3s, border-color .3s, opacity .3s;
+    opacity: .55;
+  }
+  .seq-step .badge {
+    flex: 0 0 28px; width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: #cbd5e0; color: #2d3748; font-weight: 700; font-size: 14px;
+  }
+  .seq-step .label { font-weight: 600; color: #2d3748; }
+  .seq-step .detail { color: #718096; font-size: 13px; }
+  .seq-step.active { background: #fffaf0; border-left-color: #ed8936; opacity: 1; }
+  .seq-step.active .badge { background: #ed8936; color: white; }
+  .seq-step.done { background: #f0fff4; border-left-color: #38a169; opacity: 1; }
+  .seq-step.done .badge { background: #38a169; color: white; }
+
+  .inflight-box {
+    margin-top: 16px; padding: 14px; border-radius: 6px;
+    background: #1a202c; color: #e2e8f0; font-family: monospace; font-size: 13px;
+  }
+  .req-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .req {
+    padding: 6px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;
+    background: #2d3748; color: #90cdf4; border: 1px solid #4a5568;
+    transition: background .3s, color .3s, opacity .4s;
+  }
+  .req.served { background: #22543d; color: #9ae6b4; border-color: #38a169; }
+  .req.killed { background: #742a2a; color: #feb2b2; border-color: #e53e3e; text-decoration: line-through; }
+
+  /* ---- Module 2: signal timeline ---- */
+  .timeline { position: relative; margin: 20px 0 8px; }
+  .tl-bar {
+    position: relative; height: 36px; border-radius: 6px;
+    background: linear-gradient(90deg, #38a169 0%, #38a169 70%, #ed8936 70%, #ed8936 92%, #e53e3e 92%, #e53e3e 100%);
+    overflow: hidden;
+  }
+  .tl-cursor {
+    position: absolute; top: -6px; bottom: -6px; width: 3px;
+    background: #1a202c; left: 0%; transition: left .15s linear;
+  }
+  .tl-marks { display: flex; justify-content: space-between; font-size: 12px; color: #718096; margin-top: 6px; }
+  .tl-state {
+    margin-top: 14px; padding: 12px 14px; border-radius: 6px;
+    font-weight: 600; background: #edf2f7; color: #2d3748;
+  }
+  .tl-log {
+    margin-top: 12px; background: #1a202c; color: #e2e8f0;
+    border-radius: 6px; padding: 12px; font-family: monospace; font-size: 12.5px;
+    min-height: 90px; max-height: 200px; overflow-y: auto;
+  }
+  .tl-log div { padding: 1px 0; }
+  .tl-log .t { color: #90cdf4; }
+  .tl-log .warn { color: #fbd38d; }
+  .tl-log .err { color: #feb2b2; }
+  .tl-log .ok { color: #9ae6b4; }
+
+  /* ---- Module 3: k8s rolling update ---- */
+  .k8s-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+  .pod {
+    border-radius: 8px; padding: 14px; border: 2px solid #cbd5e0;
+    background: #f7fafc; transition: all .3s;
+  }
+  .pod h4 { margin: 0 0 8px; color: #2d3748; }
+  .pod .pstate { font-size: 13px; font-weight: 700; padding: 3px 8px; border-radius: 4px; display: inline-block; }
+  .pod .endpoints { font-size: 12px; color: #718096; margin-top: 8px; }
+  .pod.serving { border-color: #38a169; background: #f0fff4; }
+  .pod.serving .pstate { background: #c6f6d5; color: #22543d; }
+  .pod.draining { border-color: #ed8936; background: #fffaf0; }
+  .pod.draining .pstate { background: #feebc8; color: #7b341e; }
+  .pod.terminated { border-color: #a0aec0; background: #edf2f7; opacity: .6; }
+  .pod.terminated .pstate { background: #e2e8f0; color: #4a5568; }
+  .pod.starting { border-color: #4299e1; background: #ebf8ff; }
+  .pod.starting .pstate { background: #bee3f8; color: #2c5282; }
+  .lb {
+    text-align: center; padding: 12px; border-radius: 8px;
+    background: #2d3748; color: #e2e8f0; font-weight: 600; margin-bottom: 12px;
+  }
+  .lb .route { font-size: 13px; color: #90cdf4; margin-top: 4px; }
+  .k8s-log { margin-top: 14px; }
+
+  @media (max-width: 600px) {
+    .k8s-grid { grid-template-columns: 1fr; }
+    .seq-step .detail { display: block; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-50-graphql/visualization.html">← L50: GraphQL</a>
+  <span class="sep">·</span>
+  <span class="current">L51: Graceful Shutdown</span>
+  <span class="sep">·</span>
+  <a href="../lesson-52-rate-limiting-circuit-breaker/visualization.html">L52: Rate Limit &amp; Circuit Breaker →</a>
+</nav>
+
+<main>
+<h1>Lesson 51 — Graceful Shutdown (Visualization)</h1>
+
+<p class="explain">
+Ba mô phỏng tương tác cho graceful shutdown: (1) <b>chuỗi shutdown theo dependency</b> với in-flight request được phục vụ nốt,
+(2) <b>signal timeline</b> Ctrl+C → SIGTERM → graceful → force kill, (3) <b>K8s rolling update</b> với readiness drain.
+Nhấn nút để chạy từng mô phỏng. Mở "📖 Đọc README" để xem lý thuyết đầy đủ.
+</p>
+
+<!-- ============ MODULE 1 ============ -->
+<h2>1. Shutdown sequence theo dependency</h2>
+<p class="explain">
+Đóng theo chiều <b>ngược dependency</b>: chặn request mới trước, đóng DB sau cùng. Quan sát 5 in-flight request
+được phục vụ nốt trong lúc các bước shutdown chạy tuần tự. Bấm <b>Force kill</b> giữa chừng để thấy request bị cắt
+(broken pipe) khi vượt timeout.
+</p>
+<div class="card">
+  <div class="row">
+    <button id="seqStart">▶ Bắt đầu shutdown</button>
+    <button id="seqKill" class="danger" disabled>⚡ Force kill (SIGKILL)</button>
+    <button id="seqReset" class="secondary">↺ Reset</button>
+  </div>
+
+  <div class="seq-steps" id="seqSteps">
+    <div class="seq-step" data-step="0">
+      <span class="badge">1</span>
+      <span><span class="label">readiness = false</span> <span class="detail">— /readyz trả 503, K8s gỡ pod khỏi endpoints</span></span>
+    </div>
+    <div class="seq-step" data-step="1">
+      <span class="badge">2</span>
+      <span><span class="label">srv.Shutdown(ctx)</span> <span class="detail">— đóng listener, chờ in-flight handler done</span></span>
+    </div>
+    <div class="seq-step" data-step="2">
+      <span class="badge">3</span>
+      <span><span class="label">stop worker + wg.Wait()</span> <span class="detail">— worker xử lý nốt job rồi exit</span></span>
+    </div>
+    <div class="seq-step" data-step="3">
+      <span class="badge">4</span>
+      <span><span class="label">flush log / metric / trace</span> <span class="detail">— logger.Sync()</span></span>
+    </div>
+    <div class="seq-step" data-step="4">
+      <span class="badge">5</span>
+      <span><span class="label">db.Close()</span> <span class="detail">— đóng pool SAU CÙNG (mọi thứ đã dùng xong)</span></span>
+    </div>
+  </div>
+
+  <div class="inflight-box">
+    <div id="seqStatus">Trạng thái: <b>SERVING</b> — đang nhận request bình thường</div>
+    <div>In-flight request (mỗi cái cần ~3s để xong):</div>
+    <div class="req-list" id="reqList"></div>
+  </div>
+</div>
+
+<!-- ============ MODULE 2 ============ -->
+<h2>2. Signal timeline: Ctrl+C → SIGTERM → graceful → force kill</h2>
+<p class="explain">
+Mô phỏng dòng thời gian một lần shutdown. Con trỏ chạy qua 3 vùng: <b>xanh</b> = đang serve / drain,
+<b>cam</b> = grace period đếm ngược tới hạn, <b>đỏ</b> = quá <code>terminationGracePeriodSeconds</code> → SIGKILL.
+Chọn handler dài hơn grace period để thấy bị force kill.
+</p>
+<div class="card">
+  <div class="row">
+    <label>Handler dài nhất:
+      <select id="handlerDur">
+        <option value="3">3s (xong kịp)</option>
+        <option value="8">8s (xong kịp)</option>
+        <option value="14">14s (vượt grace 10s → bị giết)</option>
+      </select>
+    </label>
+    <span style="color:#718096;font-size:13px">grace period = 10s</span>
+  </div>
+  <div class="row">
+    <button id="tlStart">⌨ Gửi SIGTERM (mô phỏng Ctrl+C / kill -15)</button>
+    <button id="tlReset" class="secondary">↺ Reset</button>
+  </div>
+
+  <div class="timeline">
+    <div class="tl-bar"><div class="tl-cursor" id="tlCursor"></div></div>
+    <div class="tl-marks">
+      <span>t=0 SIGTERM</span><span>drain</span><span>t=10 grace hết</span><span>SIGKILL</span>
+    </div>
+  </div>
+  <div class="tl-state" id="tlState">Sẵn sàng. Bấm để gửi SIGTERM.</div>
+  <div class="tl-log" id="tlLog"></div>
+</div>
+
+<!-- ============ MODULE 3 ============ -->
+<h2>3. K8s rolling update — readiness drain</h2>
+<p class="explain">
+K8s thay pod cũ (v1) bằng pod mới (v2). Quan sát: pod cũ chuyển sang <b>readiness=false</b> → LB ngừng route → drain →
+terminate, trong khi pod mới phải <b>Ready</b> trước khi nhận traffic. So sánh với checkbox "bỏ readiness drain"
+để thấy request rơi vào pod đang chết → 502.
+</p>
+<div class="card">
+  <div class="row">
+    <button id="k8sStart">▶ Trigger rolling update</button>
+    <label style="font-size:13px"><input type="checkbox" id="k8sNoDrain"> Bỏ readiness drain (antipattern)</label>
+    <button id="k8sReset" class="secondary">↺ Reset</button>
+  </div>
+
+  <div class="lb" id="lb">
+    Load Balancer
+    <div class="route" id="lbRoute">route → pod v1 (1 endpoint)</div>
+  </div>
+
+  <div class="k8s-grid">
+    <div class="pod serving" id="podOld">
+      <h4>Pod v1 (cũ)</h4>
+      <span class="pstate" id="podOldState">Running · Ready</span>
+      <div class="endpoints" id="podOldEp">trong Service endpoints ✓</div>
+    </div>
+    <div class="pod terminated" id="podNew">
+      <h4>Pod v2 (mới)</h4>
+      <span class="pstate" id="podNewState">chưa tạo</span>
+      <div class="endpoints" id="podNewEp">—</div>
+    </div>
+  </div>
+
+  <div class="tl-log k8s-log" id="k8sLog"></div>
+</div>
+
+</main>
+
+<script>
+// ===================== MODULE 1: shutdown sequence =====================
+(function () {
+  const steps = [...document.querySelectorAll('#seqSteps .seq-step')];
+  const reqList = document.getElementById('reqList');
+  const statusEl = document.getElementById('seqStatus');
+  const btnStart = document.getElementById('seqStart');
+  const btnKill = document.getElementById('seqKill');
+  const btnReset = document.getElementById('seqReset');
+  let timers = [];
+  let reqs = [];
+
+  function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+
+  function buildReqs() {
+    reqList.innerHTML = '';
+    reqs = [];
+    for (let i = 1; i <= 5; i++) {
+      const el = document.createElement('span');
+      el.className = 'req';
+      el.textContent = 'req#' + i + ' (3s)';
+      reqList.appendChild(el);
+      reqs.push(el);
+    }
+  }
+
+  function reset() {
+    clearTimers();
+    steps.forEach(s => s.className = 'seq-step');
+    statusEl.innerHTML = 'Trạng thái: <b>SERVING</b> — đang nhận request bình thường';
+    btnStart.disabled = false;
+    btnKill.disabled = true;
+    buildReqs();
+  }
+
+  function start() {
+    btnStart.disabled = true;
+    btnKill.disabled = false;
+    // Bước 1: readiness false
+    steps[0].className = 'seq-step active';
+    statusEl.innerHTML = 'Trạng thái: <b style="color:#fbd38d">DRAINING</b> — /readyz=503, không nhận request mới';
+    timers.push(setTimeout(() => {
+      steps[0].className = 'seq-step done';
+      // Bước 2: srv.Shutdown — chờ in-flight (3s)
+      steps[1].className = 'seq-step active';
+      // request lần lượt được phục vụ xong
+      reqs.forEach((el, i) => {
+        timers.push(setTimeout(() => {
+          el.className = 'req served';
+          el.textContent = el.textContent.replace('(3s)', '✓ 200');
+        }, 600 + i * 500));
+      });
+      timers.push(setTimeout(() => {
+        steps[1].className = 'seq-step done';
+        // Bước 3: worker
+        steps[2].className = 'seq-step active';
+        timers.push(setTimeout(() => {
+          steps[2].className = 'seq-step done';
+          // Bước 4: flush
+          steps[3].className = 'seq-step active';
+          timers.push(setTimeout(() => {
+            steps[3].className = 'seq-step done';
+            // Bước 5: db.Close
+            steps[4].className = 'seq-step active';
+            timers.push(setTimeout(() => {
+              steps[4].className = 'seq-step done';
+              statusEl.innerHTML = 'Trạng thái: <b style="color:#9ae6b4">EXIT CLEAN</b> — mọi request 200, không mất data';
+              btnKill.disabled = true;
+            }, 600));
+          }, 500));
+        }, 800));
+      }, 3400));
+    }, 900));
+  }
+
+  function forceKill() {
+    clearTimers();
+    btnKill.disabled = true;
+    statusEl.innerHTML = 'Trạng thái: <b style="color:#feb2b2">SIGKILL</b> — process chết tức thì';
+    // request nào chưa served -> killed
+    reqs.forEach(el => {
+      if (!el.classList.contains('served')) {
+        el.className = 'req killed';
+        el.textContent = el.textContent.split(' ')[0] + ' 502';
+      }
+    });
+    steps.forEach(s => { if (s.classList.contains('active')) s.className = 'seq-step'; });
+  }
+
+  btnStart.onclick = start;
+  btnKill.onclick = forceKill;
+  btnReset.onclick = reset;
+  reset();
+})();
+
+// ===================== MODULE 2: signal timeline =====================
+(function () {
+  const cursor = document.getElementById('tlCursor');
+  const stateEl = document.getElementById('tlState');
+  const logEl = document.getElementById('tlLog');
+  const sel = document.getElementById('handlerDur');
+  const btnStart = document.getElementById('tlStart');
+  const btnReset = document.getElementById('tlReset');
+  const GRACE = 10; // giây
+  const TOTAL = 12; // trục hiển thị tới 12s (10 grace + 2 buffer đỏ)
+  let raf = null, t0 = 0, running = false;
+
+  function log(msg, cls) {
+    const d = document.createElement('div');
+    d.innerHTML = '<span class="t">[t=' + msg.t.toFixed(1) + 's]</span> <span class="' + (cls || '') + '">' + msg.m + '</span>';
+    logEl.appendChild(d);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  function reset() {
+    if (raf) cancelAnimationFrame(raf);
+    running = false;
+    cursor.style.left = '0%';
+    stateEl.textContent = 'Sẵn sàng. Bấm để gửi SIGTERM.';
+    stateEl.style.background = '#edf2f7'; stateEl.style.color = '#2d3748';
+    logEl.innerHTML = '';
+    btnStart.disabled = false;
+  }
+
+  function start() {
+    reset();
+    running = true;
+    btnStart.disabled = true;
+    const handlerDur = parseInt(sel.value, 10);
+    log({ t: 0, m: 'nhận SIGTERM → readiness=false, đóng listener (stop accept)' }, 'warn');
+    log({ t: 0, m: 'srv.Shutdown(ctx) — chờ handler dài nhất ' + handlerDur + 's' });
+    t0 = performance.now();
+    let firedDone = false, firedKill = false;
+
+    function frame(now) {
+      const t = (now - t0) / 1000;
+      const pct = Math.min(t / TOTAL, 1) * 100;
+      cursor.style.left = pct + '%';
+
+      if (t < GRACE) {
+        stateEl.textContent = '⏳ Grace period: drain in-flight (còn ' + (GRACE - t).toFixed(1) + 's)';
+        stateEl.style.background = '#fffaf0'; stateEl.style.color = '#7b341e';
+      }
+
+      // handler xong?
+      if (!firedDone && t >= handlerDur && handlerDur <= GRACE) {
+        firedDone = true;
+        log({ t: handlerDur, m: 'handler cuối return → Shutdown() trả nil → exit CLEAN' }, 'ok');
+        stateEl.textContent = '✓ Graceful shutdown hoàn tất — không mất request';
+        stateEl.style.background = '#f0fff4'; stateEl.style.color = '#22543d';
+        running = false; btnStart.disabled = false; return;
+      }
+
+      // quá grace?
+      if (!firedKill && t >= GRACE && handlerDur > GRACE) {
+        firedKill = true;
+        log({ t: GRACE, m: 'grace period hết, handler vẫn chạy → K8s gửi SIGKILL' }, 'err');
+        log({ t: GRACE, m: 'connection bị force-close: client thấy 502 / write broken pipe' }, 'err');
+        stateEl.textContent = '✗ SIGKILL — request đang dở bị cắt (data risk!)';
+        stateEl.style.background = '#fff5f5'; stateEl.style.color = '#742a2a';
+        running = false; btnStart.disabled = false;
+        cursor.style.left = '100%'; return;
+      }
+
+      if (running && t < TOTAL) raf = requestAnimationFrame(frame);
+    }
+    raf = requestAnimationFrame(frame);
+  }
+
+  btnStart.onclick = start;
+  btnReset.onclick = reset;
+  reset();
+})();
+
+// ===================== MODULE 3: k8s rolling update =====================
+(function () {
+  const btnStart = document.getElementById('k8sStart');
+  const btnReset = document.getElementById('k8sReset');
+  const noDrain = document.getElementById('k8sNoDrain');
+  const logEl = document.getElementById('k8sLog');
+  const podOld = document.getElementById('podOld');
+  const podNew = document.getElementById('podNew');
+  const lbRoute = document.getElementById('lbRoute');
+  let timers = [];
+
+  const set = (el, cls, stateTxt, epTxt) => {
+    el.className = 'pod ' + cls;
+    el.querySelector('.pstate').textContent = stateTxt;
+    el.querySelector('.endpoints').textContent = epTxt;
+  };
+  function log(t, m, cls) {
+    const d = document.createElement('div');
+    d.innerHTML = '<span class="t">[t=' + t + 's]</span> <span class="' + (cls || '') + '">' + m + '</span>';
+    logEl.appendChild(d); logEl.scrollTop = logEl.scrollHeight;
+  }
+  function clearT() { timers.forEach(clearTimeout); timers = []; }
+
+  function reset() {
+    clearT();
+    logEl.innerHTML = '';
+    set(podOld, 'serving', 'Running · Ready', 'trong Service endpoints ✓');
+    set(podNew, 'terminated', 'chưa tạo', '—');
+    lbRoute.textContent = 'route → pod v1 (1 endpoint)';
+    btnStart.disabled = false;
+  }
+
+  function run() {
+    reset();
+    btnStart.disabled = true;
+    const drain = !noDrain.checked;
+
+    // t=0: tạo pod mới
+    log(0, 'apply Deployment v2 → tạo pod v2');
+    set(podNew, 'starting', 'ContainerCreating', 'chưa Ready, NGOÀI endpoints');
+
+    // t=2: pod mới ready
+    timers.push(setTimeout(() => {
+      log(2, 'pod v2 readiness=200 → vào Service endpoints', 'ok');
+      set(podNew, 'serving', 'Running · Ready', 'trong Service endpoints ✓');
+      lbRoute.textContent = 'route → pod v1 + pod v2 (2 endpoints)';
+    }, 1500));
+
+    // t=3: bắt đầu terminate pod cũ
+    timers.push(setTimeout(() => {
+      log(3, 'K8s mark pod v1 Terminating, gửi SIGTERM');
+      if (drain) {
+        set(podOld, 'draining', 'Terminating · readiness=false', '/readyz=503 → bị gỡ khỏi endpoints');
+        log(3, 'pod v1 readiness=false → LB ngừng route vào v1', 'warn');
+        lbRoute.textContent = 'route → pod v2 (1 endpoint, an toàn)';
+      } else {
+        set(podOld, 'draining', 'Terminating (KHÔNG drain)', 'VẪN trong endpoints ✗');
+        log(3, 'ANTIPATTERN: readiness vẫn 200, listener đóng → request mới đập vào pod đang chết', 'err');
+        log(3, 'LB vẫn route → pod v1 → user nhận 502 Bad Gateway', 'err');
+        lbRoute.textContent = 'route → v1(đang chết) + v2 ✗ một phần 502';
+      }
+    }, 3000));
+
+    // t=8: drain xong, terminate
+    timers.push(setTimeout(() => {
+      log(8, 'pod v1 drain in-flight xong, exit');
+      set(podOld, 'terminated', 'Terminated', '—');
+      lbRoute.textContent = 'route → pod v2 (1 endpoint)';
+      log(8, drain ? 'rolling update hoàn tất — zero downtime ✓' : 'rolling update xong nhưng đã có request 502',
+          drain ? 'ok' : 'err');
+      btnStart.disabled = false;
+    }, 5500));
+  }
+
+  btnStart.onclick = run;
+  btnReset.onclick = reset;
+  reset();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

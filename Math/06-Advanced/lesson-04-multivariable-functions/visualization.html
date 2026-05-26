@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 04 — Hàm nhiều biến</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  button { background: #94a3b8; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.active { background: #15803d; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 500px; height: 500px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-eigenvalues-eigenvectors/visualization.html">← L3: Trị riêng</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Hàm đa biến</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L5: ∫∫ (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 04 (T6) — Đường mức &amp; Gradient</h1>
+
+<h2>Đường mức + Gradient (vuông góc đường mức)</h2>
+<div class="card">
+  <div class="row">
+    <button id="b1" onclick="setF('paraboloid')" class="active">f = x² + y²</button>
+    <button id="b2" onclick="setF('saddle')">f = x² - y² (yên ngựa)</button>
+    <button id="b3" onclick="setF('lin')">f = 3x + 2y</button>
+    <button id="b4" onclick="setF('sinprod')">f = sin(x)·cos(y)</button>
+  </div>
+  <svg class="scene" id="svg" viewBox="-250 -250 500 500"></svg>
+  <div class="result" id="res"></div>
+</div>
+
+<script>
+const funcs = {
+  paraboloid: {
+    fn: (x,y) => x*x + y*y,
+    grad: (x,y) => [2*x, 2*y],
+    label: "f(x,y) = x² + y²",
+    grad_label: "∇f = (2x, 2y)"
+  },
+  saddle: {
+    fn: (x,y) => x*x - y*y,
+    grad: (x,y) => [2*x, -2*y],
+    label: "f(x,y) = x² − y² (yên ngựa)",
+    grad_label: "∇f = (2x, -2y)"
+  },
+  lin: {
+    fn: (x,y) => 3*x + 2*y,
+    grad: (x,y) => [3, 2],
+    label: "f(x,y) = 3x + 2y",
+    grad_label: "∇f = (3, 2) (hằng)"
+  },
+  sinprod: {
+    fn: (x,y) => Math.sin(x)*Math.cos(y),
+    grad: (x,y) => [Math.cos(x)*Math.cos(y), -Math.sin(x)*Math.sin(y)],
+    label: "f(x,y) = sin(x)·cos(y)",
+    grad_label: "∇f = (cos x·cos y, -sin x·sin y)"
+  }
+};
+let cur = "paraboloid";
+
+function setF(f) {
+  cur = f;
+  ["1","2","3","4"].forEach(c => document.getElementById("b"+c).classList.remove("active"));
+  const m = {paraboloid:"1", saddle:"2", lin:"3", sinprod:"4"};
+  document.getElementById("b" + m[f]).classList.add("active");
+  draw();
+}
+
+function draw() {
+  const def = funcs[cur];
+  const svg = document.getElementById("svg");
+  svg.innerHTML = "";
+  const W = 500, H = 500, SC = 40;
+
+  // Grid + axes
+  for (let i = -6; i <= 6; i++) {
+    const v = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    v.setAttribute("x1", i*SC); v.setAttribute("y1", -250); v.setAttribute("x2", i*SC); v.setAttribute("y2", 250);
+    v.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); v.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+    svg.appendChild(v);
+    const h = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    h.setAttribute("x1", -250); h.setAttribute("y1", i*SC); h.setAttribute("x2", 250); h.setAttribute("y2", i*SC);
+    h.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); h.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+    svg.appendChild(h);
+  }
+
+  // Compute f at each pixel to draw level curves via marching squares-ish (simple sampling)
+  // Find min/max
+  let fMin = Infinity, fMax = -Infinity;
+  for (let i = -6; i <= 6; i += 0.5) for (let j = -6; j <= 6; j += 0.5) {
+    const v = def.fn(i, j);
+    fMin = Math.min(fMin, v);
+    fMax = Math.max(fMax, v);
+  }
+  // Draw level curves at evenly spaced values
+  const numLevels = 12;
+  for (let k = 1; k < numLevels; k++) {
+    const c = fMin + (fMax - fMin) * k / numLevels;
+    // Sample fine grid, draw segments where f≈c
+    const step = 0.1;
+    for (let i = -6; i <= 6; i += step) {
+      for (let j = -6; j <= 6; j += step) {
+        const f1 = def.fn(i, j);
+        const f2 = def.fn(i+step, j);
+        const f3 = def.fn(i, j+step);
+        // crossing left edge?
+        if ((f1 - c)*(f3 - c) < 0) {
+          const t = (c - f1) / (f3 - f1);
+          const x = i, y = j + t*step;
+          const cir = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          cir.setAttribute("cx", x*SC); cir.setAttribute("cy", -y*SC); cir.setAttribute("r", 1);
+          cir.setAttribute("fill", "#1d4ed8"); cir.setAttribute("opacity", 0.5);
+          svg.appendChild(cir);
+        }
+        if ((f1 - c)*(f2 - c) < 0) {
+          const t = (c - f1) / (f2 - f1);
+          const x = i + t*step, y = j;
+          const cir = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          cir.setAttribute("cx", x*SC); cir.setAttribute("cy", -y*SC); cir.setAttribute("r", 1);
+          cir.setAttribute("fill", "#1d4ed8"); cir.setAttribute("opacity", 0.5);
+          svg.appendChild(cir);
+        }
+      }
+    }
+  }
+
+  // Draw gradient arrows
+  for (let i = -5; i <= 5; i += 1) {
+    for (let j = -5; j <= 5; j += 1) {
+      const [gx, gy] = def.grad(i, j);
+      const n = Math.sqrt(gx*gx + gy*gy);
+      if (n < 1e-6 || !isFinite(n)) continue;
+      const scale_arrow = 0.3 / Math.max(n, 0.5); // normalize
+      const dx = gx * scale_arrow * SC, dy = -gy * scale_arrow * SC;
+      const x = i*SC, y = -j*SC;
+      const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      l.setAttribute("x1", x); l.setAttribute("y1", y); l.setAttribute("x2", x + dx); l.setAttribute("y2", y + dy);
+      l.setAttribute("stroke", "#dc2626"); l.setAttribute("stroke-width", 1.5);
+      svg.appendChild(l);
+      // arrowhead
+      const ang = Math.atan2(dy, dx);
+      const ah = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+      const tip = [x + dx, y + dy];
+      ah.setAttribute("points", `${tip[0]},${tip[1]} ${tip[0]-5*Math.cos(ang-0.4)},${tip[1]-5*Math.sin(ang-0.4)} ${tip[0]-5*Math.cos(ang+0.4)},${tip[1]-5*Math.sin(ang+0.4)}`);
+      ah.setAttribute("fill", "#dc2626");
+      svg.appendChild(ah);
+    }
+  }
+
+  document.getElementById("res").innerHTML = `
+    <div style="font-family:monospace; font-size:15px"><strong>${def.label}</strong></div>
+    <div style="font-family:monospace; font-size:14px; margin-top:4px">${def.grad_label}</div>
+    <div style="margin-top:8px; font-size:13px">Đường chấm xanh = đường mức (f = hằng). Mũi tên đỏ = ∇f. <strong>Gradient luôn vuông góc với đường mức</strong>, chỉ hướng f tăng nhanh nhất.</div>
+  `;
+}
+
+draw();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

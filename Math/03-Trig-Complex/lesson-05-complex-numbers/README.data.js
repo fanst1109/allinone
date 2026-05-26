@@ -48,6 +48,14 @@ z = a + bi
 - b = 0: z là số thực (ℝ ⊂ ℂ).
 - a = 0: z là số thuần ảo (vd 5i).
 
+> 📐 **Định nghĩa đầy đủ — Số phức ℂ**
+>
+> **(a) Là gì**: 1 cặp (a, b) số thực, viết dưới dạng a + bi, với i là 1 ký hiệu mới thoả **i² = −1**. Tập tất cả số phức = ℂ. Số thực là trường hợp đặc biệt b = 0. Trên mặt phẳng Argand: z = a+bi tương ứng điểm (a, b).
+>
+> **(b) Vì sao tồn tại**: Trong ℝ, PT x² = −1 vô nghiệm. Người ta "phát minh" i với i² = -1 → mọi PT đa thức bậc n có đủ n nghiệm (Định lý đại số cơ bản — Gauss). Quan trọng hơn — i sinh ra cấu trúc đại số "đầy đủ" và **mang ý nghĩa hình học thực** (xem L06: nhân với i = quay 90°). Cốt lõi của: signal processing (Fourier), điện xoay chiều (phasor), cơ học lượng tử (hàm sóng phức).
+>
+> **(c) Ví dụ số**: z = 3 + 4i: Re(z)=3, Im(z)=4. Trên mặt phẳng → điểm (3, 4). Mô-đun |z| = √(9+16) = 5. Liên hợp z̄ = 3 − 4i. z·z̄ = 9 + 16 = 25 = |z|² ✓. (1+i)·(1−i) = 1 − i + i − i² = 1 + 1 = 2 (số thực!). i³ = i·i² = i·(−1) = **−i**. i⁴ = 1. Giải x² + 4 = 0: x² = -4 → x = ±2i.
+
 ---
 
 ## 3. Mặt phẳng phức (Argand)

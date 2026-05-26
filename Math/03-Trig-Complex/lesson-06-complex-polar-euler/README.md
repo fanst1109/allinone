@@ -51,6 +51,14 @@ e^(iθ) = cos θ + i·sin θ
 z = r·e^(iθ)
 ```
 
+> 📐 **Định nghĩa đầy đủ — Công thức Euler e^(iθ) = cos θ + i·sin θ**
+>
+> **(a) Là gì**: 1 đẳng thức **gây sốc** — hàm mũ (vốn cho đại lượng tăng/giảm) gặp số phức i thì biến thành **cos + i·sin** (vốn cho dao động). Hai khái niệm tưởng khác hoàn toàn lại là 2 mặt của 1 hiện tượng.
+>
+> **(b) Vì sao cần**: Vì làm cho mọi phép toán số phức trở nên **đơn giản như đại số mũ**: nhân/chia số phức = cộng/trừ argument (e^(iα)·e^(iβ) = e^(i(α+β))), lũy thừa = nhân argument (De Moivre). Cốt lõi của **Fourier analysis** (tín hiệu = tổng các e^(iωt)), **mạch điện AC** (phasor), **cơ học lượng tử** (hàm sóng e^(i(kx−ωt))). Đặc biệt e^(iπ) = −1 → e^(iπ) + 1 = 0 liên kết 5 hằng số quan trọng nhất toán (0, 1, π, e, i) — được mệnh danh "công thức đẹp nhất toán học".
+>
+> **(c) Ví dụ số**: θ = 0: e^0 = 1 = cos 0 + i·sin 0 = 1 + 0 ✓. θ = π/2: e^(iπ/2) = cos π/2 + i·sin π/2 = 0 + i = **i** (nhân với i = quay 90°!). θ = π: e^(iπ) = cos π + i·sin π = −1 + 0 = **−1**. θ = 2π: e^(i·2π) = 1 (tuần hoàn!). z = 1+i: r = √2, θ = π/4 → z = √2·e^(iπ/4). z² = 2·e^(iπ/2) = 2i ✓ (kiểm: (1+i)² = 1+2i+i² = 2i ✓).
+
 💡 **Vì sao đúng?** Khai triển Taylor của e^x, sin x, cos x:
 ```
 e^x  = 1 + x + x²/2! + x³/3! + x⁴/4! + ...

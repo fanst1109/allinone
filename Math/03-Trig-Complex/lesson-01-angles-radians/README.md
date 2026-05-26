@@ -44,6 +44,14 @@
 
 ⟶ Cả vòng tròn = chu vi = 2πr → góc đầy = 2π rad = 360°.
 
+> 📐 **Định nghĩa đầy đủ — Radian**
+>
+> **(a) Là gì**: Đơn vị đo góc **tự nhiên** dựa trên đường tròn. 1 radian = số đo góc mà cung tròn nó chắn có độ dài bằng đúng bán kính. Đây là tỉ số "cung/bán kính" — không có thứ nguyên (không đơn vị thực sự).
+>
+> **(b) Vì sao cần**: Vì độ (°) là quy ước **tùy ý** (Babylon chọn 360 vì lịch họ ~360 ngày). Radian là đơn vị **toán học tự nhiên** — nhờ nó, công thức (sin x)' = cos x đúng (nếu dùng độ thì phải nhân thêm π/180, xấu). Khai triển Taylor sin x = x − x³/6 + ... CHỈ đúng với radian. Mọi giải tích, vật lý cấp cao bắt buộc dùng radian.
+>
+> **(c) Ví dụ số**: π rad = 180° (nửa vòng). π/2 rad = 90° (góc vuông). π/4 = 45°. 2π = 360° (1 vòng). 1 rad = 180/π ≈ 57.3°. Cung tròn r = 10, góc 2 rad: độ dài cung = r·θ = 10·2 = **20**. Diện tích quạt tròn: ½·r²·θ = ½·100·2 = **100**.
+
 ### 2.2. Công thức quy đổi
 
 ```

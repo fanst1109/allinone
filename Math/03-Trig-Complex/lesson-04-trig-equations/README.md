@@ -34,6 +34,14 @@ x = α + k·2π   hoặc   x = π - α + k·2π   (k ∈ ℤ)
 
 ⚠ **Điều kiện**: |a| > 1 → **vô nghiệm**.
 
+> 📐 **Định nghĩa đầy đủ — Nghiệm tổng quát PT sin x = a**
+>
+> **(a) Là gì**: 1 PT lượng giác có **vô số nghiệm** do tính tuần hoàn. Nghiệm "tổng quát" = toàn bộ tập nghiệm, viết bằng 1 (hoặc 2) công thức kèm số nguyên k ∈ ℤ chạy tự do. Hai họ vì có 2 điểm trên đường tròn cùng tung độ (đối xứng qua trục Oy).
+>
+> **(b) Vì sao cần**: PT đại số x² = 4 có hữu hạn nghiệm. PT lượng giác KHÔNG — sin tuần hoàn nên nghiệm xuất hiện vô hạn lần. Phải có ký hiệu nén tất cả: "x = α + k·2π, k ∈ ℤ". Trong vật lý: thời điểm dao động đạt giá trị x cụ thể xảy ra lặp đi lặp lại — cần biết tất cả các thời điểm, không chỉ 1.
+>
+> **(c) Ví dụ số**: sin x = 1/2 → α = π/6. Nghiệm: π/6, 5π/6, π/6+2π, 5π/6+2π, π/6−2π, ... Vô hạn. sin x = √2/2 → α = π/4 → x = π/4 + k·2π hoặc 3π/4 + k·2π. sin x = 1 → α = π/2, 2 họ trùng nhau (vì sin x đạt max chỉ tại 1 điểm/chu kỳ) → x = π/2 + k·2π. sin x = 2 → |a|>1 → **vô nghiệm**.
+
 ---
 
 ## 2. Phương trình cơ bản cos x = a

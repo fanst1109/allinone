@@ -63,6 +63,14 @@ tan(a + b) = (tan a + tan b) / (1 - tan a · tan b)
 - 75 = 45 + 30.
 - sin 75° = sin 45·cos 30 + cos 45·sin 30 = (√2/2)·(√3/2) + (√2/2)·(1/2) = √6/4 + √2/4 = **(√6+√2)/4**.
 
+> 📐 **Định nghĩa đầy đủ — Công thức cộng**
+>
+> **(a) Là gì**: 5 đồng nhất thức biểu diễn sin/cos/tan của (a+b) qua sin/cos/tan của a và b riêng. KHÔNG đơn giản như sin(a+b) = sin a + sin b (= SAI) — phải có "cross terms".
+>
+> **(b) Vì sao cần**: Vì cho phép tính sin/cos của góc bất kỳ qua các góc đã biết (30°, 45°, 60°...). Đây là nền tảng để **suy ra mọi công thức** lượng giác khác: nhân đôi (cho b = a), hạ bậc, biến tích thành tổng, v.v. Trong vật lý: cộng 2 dao động cùng tần số → 1 dao động kết quả (giao thoa sóng). Trong đồ hoạ: nối 2 phép quay = 1 phép quay với góc tổng.
+>
+> **(c) Ví dụ số**: sin 75° = sin(45+30) = (√2/2)(√3/2) + (√2/2)(1/2) = (√6+√2)/4 ≈ **0.9659**. Kiểm tra máy tính sin 75° ≈ 0.9659 ✓. cos 75° = cos 45·cos 30 − sin 45·sin 30 = (√2/2)(√3/2) − (√2/2)(1/2) = (√6−√2)/4 ≈ 0.2588. cos(60°−30°) = cos 30° = √3/2 ≈ 0.866. Verify: cos 60·cos 30 + sin 60·sin 30 = (1/2)(√3/2) + (√3/2)(1/2) = √3/4 + √3/4 = √3/2 ✓.
+
 ---
 
 ## 3. Công thức nhân đôi

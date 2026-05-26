@@ -32,6 +32,14 @@
 
 Cách trực tiếp (đại số) sẽ phải nhân 10 lần → vô cùng phiền. De Moivre giải quyết trong 3 dòng.
 
+> 📐 **Định nghĩa đầy đủ — Công thức De Moivre**
+>
+> **(a) Là gì**: Quy tắc lũy thừa số phức dưới dạng cực: nâng (cos θ + i sin θ) lên bậc n = chỉ cần **nhân n vào argument**. Hệ quả trực tiếp của Euler (e^(iθ))^n = e^(inθ).
+>
+> **(b) Vì sao cần**: Lũy thừa số phức dạng đại số (a+bi)^n đòi hỏi nhân n lần — bùng nổ số hạng. De Moivre cho công thức **đóng** (closed-form) chỉ cần r^n + nθ. Quan trọng hơn — nó cho công cụ **giải PT** z^n = w trong ℂ: n căn bậc n nằm đều quanh đường tròn = n đỉnh đa giác đều. Ứng dụng: tìm tất cả căn của 1 (root of unity) — nền tảng FFT (Fast Fourier Transform), cryptography, đa thức nội suy.
+>
+> **(c) Ví dụ số**: (cos 30° + i sin 30°)^4 = cos 120° + i sin 120° = −1/2 + i·√3/2. Verify: 30°·4 = 120° ✓. (1+i)^10: viết = (√2·e^(iπ/4))^10 = 32·e^(i·10π/4) = 32·e^(iπ/2) = **32i**. Kiểm: (1+i)² = 2i, (2i)^5 = 32·i⁵ = 32·i ✓. n căn bậc 4 của 1: z^4 = 1 = e^0 → z_k = e^(i·k·2π/4), k=0,1,2,3 → {1, i, -1, -i} (4 đỉnh hình vuông).
+
 ⚠ **Lỗi thường gặp**: Quên nhân n vào θ. (e^(iθ))^n = e^(inθ), KHÔNG phải e^(iθ).
 
 ---

@@ -43,6 +43,14 @@ x(t) = A·cos(ω·t + φ)
 
 ⟶ Cộng dao động đã quy về **cộng số phức** — đơn giản hơn nhiều cộng cos.
 
+> 📐 **Định nghĩa đầy đủ — Phasor**
+>
+> **(a) Là gì**: Số phức **cố định** A·e^(iφ) đại diện cho dao động A·cos(ωt + φ) khi tần số ω đã biết. Phasor "thu gọn" 1 hàm thời gian thành 1 số phức — chỉ giữ lại 2 thông tin quan trọng: biên độ A và pha φ.
+>
+> **(b) Vì sao cần**: Khi nhiều dao động cùng tần số cộng nhau (mạch điện AC, giao thoa sóng), tính trực tiếp A₁·cos(ωt+φ₁) + A₂·cos(ωt+φ₂) cần công thức cộng — rối. Phasor biến phép này thành **cộng vector số phức** Z₁ + Z₂ — đơn giản, hiển thị trên Argand. Nguyên lý cốt lõi của: kỹ thuật điện (giải mạch AC bằng phasor thay vì PT vi phân), tín hiệu số (DSP), antenna engineering.
+>
+> **(c) Ví dụ số**: 2 dao động cùng ω: x₁ = 3·cos(ωt), x₂ = 4·cos(ωt + π/2). Phasor Z₁ = 3, Z₂ = 4·e^(iπ/2) = 4i. Tổng Z = 3 + 4i → |Z| = 5, arg = atan(4/3) ≈ 53.13°. Vậy x₁+x₂ = **5·cos(ωt + 53.13°)** (KHÔNG phải 7·cos — biên độ tổng không cộng đơn giản!). Verify số: tại t = 0, x₁+x₂ = 3 + 0 = 3 và 5·cos(53.13°) = 5·0.6 = 3 ✓.
+
 **Ví dụ thực tế**: Mạch điện AC.
 - U₁ = 10·cos(100πt), phasor Z₁ = 10.
 - U₂ = 10·cos(100πt + π/2), phasor Z₂ = 10·e^(iπ/2) = 10i.

@@ -24,6 +24,14 @@ Cho điểm M trên đường tròn đơn vị, ứng với góc θ:
 
 ⟶ Sin, cos định nghĩa cho **mọi θ ∈ ℝ**.
 
+> 📐 **Định nghĩa đầy đủ — sin, cos**
+>
+> **(a) Là gì**: sin θ và cos θ là **toạ độ** của 1 điểm M trên đường tròn bán kính 1, sau khi quay từ trục x dương 1 góc θ ngược chiều kim đồng hồ. cos θ = hoành độ, sin θ = tung độ. tan θ = sin/cos (slope của OM).
+>
+> **(b) Vì sao cần**: Định nghĩa qua tam giác vuông chỉ hợp lệ cho 0 < θ < 90°. Đường tròn lượng giác mở rộng cho **mọi θ ∈ ℝ** (kể cả âm, lớn hơn 360°). Quan trọng hơn — định nghĩa này làm cho sin/cos **tuần hoàn** chu kỳ 2π một cách tự nhiên (đi quanh đường tròn 1 vòng), và giải thích vì sao sin²+cos² = 1 (vì điểm trên đường tròn r=1 thoả x²+y²=1).
+>
+> **(c) Ví dụ số**: θ = 0: M = (1, 0) → cos 0 = 1, sin 0 = 0. θ = π/2: M = (0, 1) → cos π/2 = 0, sin π/2 = 1. θ = π: M = (-1, 0). θ = π/4 (45°): M = (√2/2, √2/2). θ = 2π/3 (120°): M = (-1/2, √3/2). Verify: cos² + sin² = (-1/2)² + (√3/2)² = 1/4 + 3/4 = **1** ✓.
+
 ---
 
 ## 2. Bảng giá trị đặc biệt

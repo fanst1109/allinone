@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L29 — context: cancellation, timeout, deadline, value</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #00add8;
+    --accent-hover: #007d9c;
+    --accent-soft: #e6f7fc;
+    --ok: #38a169;
+    --warn: #d69e2e;
+    --err: #e53e3e;
+    --bg-card: #ffffff;
+    --node-bg: #ffffff;
+    --node-border: #cbd5e0;
+    --node-cancelled-bg: #fed7d7;
+    --node-cancelled-border: #e53e3e;
+  }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 80px; }
+  h1 { color: #2d3748; margin-top: 0; }
+  .intro { color: #4a5568; line-height: 1.55; max-width: 760px; }
+
+  .module {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 32px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+  .module h2 {
+    margin-top: 0;
+    color: #2d3748;
+    border-bottom: 2px solid var(--accent-soft);
+    padding-bottom: 8px;
+  }
+  .module .desc { color: #4a5568; line-height: 1.55; }
+
+  .controls {
+    margin: 16px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+
+  button.viz-btn {
+    padding: 8px 16px;
+    border: 0;
+    background: var(--accent);
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  button.viz-btn:hover { background: var(--accent-hover); }
+  button.viz-btn.secondary { background: #6b7280; }
+  button.viz-btn.secondary:hover { background: #4b5563; }
+  button.viz-btn.danger { background: var(--err); }
+  button.viz-btn.danger:hover { background: #c53030; }
+  button.viz-btn:disabled { background: #cbd5e0; cursor: not-allowed; }
+
+  .log {
+    font-family: 'Fira Code', Consolas, monospace;
+    background: #1a202c;
+    color: #e2e8f0;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    max-height: 220px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-top: 12px;
+  }
+  .log .ok   { color: #68d391; }
+  .log .warn { color: #f6ad55; }
+  .log .err  { color: #fc8181; }
+  .log .info { color: #63b3ed; }
+  .log .dim  { color: #a0aec0; }
+
+  /* ===== Module 1 — Context Tree ===== */
+  .tree-wrap {
+    width: 100%;
+    overflow-x: auto;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px;
+  }
+  .tree-svg { display: block; width: 100%; height: auto; }
+
+  .ctx-node rect {
+    fill: var(--node-bg);
+    stroke: var(--node-border);
+    stroke-width: 2;
+    cursor: pointer;
+    transition: fill .25s, stroke .25s;
+  }
+  .ctx-node:hover rect { stroke: var(--accent); }
+  .ctx-node.cancelled rect {
+    fill: var(--node-cancelled-bg);
+    stroke: var(--node-cancelled-border);
+  }
+  .ctx-node text { pointer-events: none; font-family: 'Fira Code', monospace; }
+  .ctx-node .name { font-weight: 700; font-size: 12px; fill: #2d3748; }
+  .ctx-node .kind { font-size: 10px; fill: #4a5568; }
+  .ctx-node.cancelled .kind { fill: var(--err); font-weight: 700; }
+
+  .tree-edge {
+    stroke: #a0aec0;
+    stroke-width: 2;
+    fill: none;
+    transition: stroke .25s;
+  }
+  .tree-edge.cancelled { stroke: var(--err); stroke-dasharray: 4 3; }
+
+  .tree-controls .hint {
+    color: #4a5568;
+    font-size: 13px;
+    margin-left: auto;
+  }
+
+  /* ===== Module 2 — HTTP Timeout Cascade ===== */
+  .slider-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 12px 0;
+  }
+  .slider-row label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 13px;
+    color: #4a5568;
+    min-width: 0;
+  }
+  .slider-row input[type="range"] {
+    width: 200px;
+    max-width: 100%;
+  }
+  .slider-row .val {
+    font-family: 'Fira Code', monospace;
+    font-weight: 700;
+    color: var(--accent-hover);
+  }
+
+  .lane-wrap {
+    width: 100%;
+    overflow-x: auto;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px;
+    margin-top: 12px;
+  }
+  .lane-svg { display: block; width: 100%; height: auto; }
+  .lane-label { font-size: 12px; font-weight: 700; fill: #2d3748; font-family: monospace; }
+  .lane-bar { fill: var(--accent); opacity: .85; }
+  .lane-bar.cancelled { fill: var(--err); opacity: .85; }
+  .lane-bar.success { fill: var(--ok); opacity: .85; }
+  .deadline-line { stroke: var(--err); stroke-width: 2; stroke-dasharray: 4 4; }
+  .deadline-label { fill: var(--err); font-size: 11px; font-weight: 700; font-family: monospace; }
+  .tick-label { fill: #718096; font-size: 10px; font-family: monospace; }
+  .lane-marker { font-size: 11px; font-family: monospace; fill: #2d3748; }
+
+  /* ===== Module 3 — WithValue Chain ===== */
+  .chain-wrap {
+    width: 100%;
+    overflow-x: auto;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px;
+  }
+  .chain-svg { display: block; width: 100%; height: auto; }
+  .chain-node rect {
+    fill: #ffffff;
+    stroke: #cbd5e0;
+    stroke-width: 2;
+    transition: stroke .3s, fill .3s;
+  }
+  .chain-node text { font-family: 'Fira Code', monospace; pointer-events: none; }
+  .chain-node .ttl { font-weight: 700; font-size: 12px; fill: #2d3748; }
+  .chain-node .kv { font-size: 11px; fill: #4a5568; }
+  .chain-node.visited rect { stroke: var(--accent); }
+  .chain-node.match rect { stroke: var(--ok); stroke-width: 3; fill: #c6f6d5; }
+  .chain-arrow { stroke: #a0aec0; stroke-width: 2; marker-end: url(#chain-arrow-head); fill: none; }
+  .chain-arrow.active { stroke: var(--accent); stroke-width: 3; }
+
+  .chain-result {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 6px;
+    background: #edf2f7;
+    font-family: 'Fira Code', monospace;
+    font-size: 13px;
+  }
+  .chain-result.ok { background: #c6f6d5; color: #22543d; }
+  .chain-result.nil { background: #fed7d7; color: #742a2a; }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 768px) {
+    .module { padding: 16px; }
+    .slider-row input[type="range"] { width: 100%; }
+    .slider-row label { width: 100%; }
+    .tree-controls .hint { width: 100%; margin-left: 0; }
+  }
+  @media (max-width: 480px) {
+    button.viz-btn { padding: 8px 12px; font-size: 13px; }
+    h1 { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-28-sync-primitives/visualization.html">← L28: Sync Primitives</a>
+  <span class="sep">·</span>
+  <span class="current">L29: Context</span>
+  <span class="sep">·</span>
+  <a href="../tier-3-advanced/index.html">Tier 3 →</a>
+</nav>
+
+<main>
+  <h1>L29 — context: cancellation, timeout, deadline, value</h1>
+  <p class="intro">
+    Ba module tương tác cho phép bạn "chạm" vào 3 cơ chế cốt lõi của package <code>context</code>:
+    cây huỷ lan từ trên xuống, timeout cascade trong HTTP request, và walk-up tìm value qua chuỗi
+    <code>WithValue</code>. Mọi minh hoạ đều standalone, mở <code>file://</code> là chạy được.
+  </p>
+
+  <!-- ============================================================= -->
+  <!-- Module 1 — Context Tree + Cancel Propagation                  -->
+  <!-- ============================================================= -->
+  <section class="module" id="module-tree">
+    <h2>1. Context tree — cancel lan từ trên xuống</h2>
+    <p class="desc">
+      Click vào <strong>một node bất kỳ</strong> để cancel nó. Mọi descendant (cháu/chắt) cũng bị cancel theo —
+      đây là tính chất "propagation chỉ đi xuống" của context tree. Cha và anh em không ảnh hưởng.
+      Mỗi node hiển thị <code>ctx.Err()</code> sau khi bị cancel.
+    </p>
+
+    <div class="controls tree-controls">
+      <button class="viz-btn secondary" id="tree-reset">↻ Reset tree</button>
+      <button class="viz-btn danger" id="tree-cancel-root">Cancel root (Background)</button>
+      <span class="hint">Click node = gọi <code>cancel()</code> trên node đó</span>
+    </div>
+
+    <div class="tree-wrap">
+      <svg class="tree-svg" id="tree-svg" viewBox="0 0 720 460" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+
+    <div class="log" id="tree-log"></div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- Module 2 — HTTP Timeout Cascade                                -->
+  <!-- ============================================================= -->
+  <section class="module" id="module-http">
+    <h2>2. HTTP request — timeout cascade</h2>
+    <p class="desc">
+      Mô phỏng request flow: <code>client → HTTP handler → DB query → external API</code>.
+      Kéo slider để thay đổi <em>handler timeout</em> và <em>DB latency</em>. Nếu DB chậm hơn timeout,
+      <code>ctx.Done()</code> fire, DB bị cancel (thanh đỏ), handler trả <strong>504 Gateway Timeout</strong>.
+      Đường kẻ đỏ đứt nét chính là deadline của context.
+    </p>
+
+    <div class="slider-row">
+      <label>
+        Handler timeout: <span class="val" id="http-timeout-val">3000ms</span>
+        <input type="range" id="http-timeout" min="500" max="5000" step="100" value="3000">
+      </label>
+      <label>
+        DB latency: <span class="val" id="http-db-val">1500ms</span>
+        <input type="range" id="http-db" min="200" max="6000" step="100" value="1500">
+      </label>
+      <label>
+        API latency: <span class="val" id="http-api-val">800ms</span>
+        <input type="range" id="http-api" min="100" max="4000" step="100" value="800">
+      </label>
+    </div>
+
+    <div class="controls">
+      <button class="viz-btn" id="http-run">▶ Run request</button>
+      <button class="viz-btn secondary" id="http-reset">↻ Reset</button>
+    </div>
+
+    <div class="lane-wrap">
+      <svg class="lane-svg" id="http-svg" viewBox="0 0 760 280" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+
+    <div class="log" id="http-log"></div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- Module 3 — WithValue Walk-up Chain                             -->
+  <!-- ============================================================= -->
+  <section class="module" id="module-value">
+    <h2>3. <code>ctx.Value(key)</code> — walk up chain</h2>
+    <p class="desc">
+      Khi gọi <code>ctx.Value(key)</code>, runtime đi <strong>từ ctx hiện tại lên cha</strong>,
+      kiểm tra từng node, gặp node nào có <code>key</code> trùng thì trả luôn value. Nếu đi tới
+      <code>Background</code> mà vẫn không thấy → trả <code>nil</code>.
+      Chọn key từ dropdown để xem traversal animate qua chuỗi.
+    </p>
+
+    <div class="controls">
+      <label style="font-size: 14px; color: #4a5568;">
+        Tìm key:
+        <select id="chain-key" style="margin-left: 8px; padding: 6px 10px; border-radius: 4px; border: 1px solid #cbd5e0; font-family: monospace;">
+          <option value="traceID">traceID</option>
+          <option value="userID">userID</option>
+          <option value="requestID">requestID</option>
+          <option value="missing">missing (không tồn tại)</option>
+        </select>
+      </label>
+      <button class="viz-btn" id="chain-run">▶ Lookup</button>
+      <button class="viz-btn secondary" id="chain-reset">↻ Reset</button>
+    </div>
+
+    <div class="chain-wrap">
+      <svg class="chain-svg" id="chain-svg" viewBox="0 0 760 200" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="chain-arrow-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#a0aec0"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="chain-result" id="chain-result">Chọn key rồi bấm <em>Lookup</em> để xem.</div>
+  </section>
+
+</main>
+
+<script>
+/* =============================================================
+ * MODULE 1 — Context Tree
+ * ============================================================= */
+(function() {
+  const svg = document.getElementById('tree-svg');
+  const log = document.getElementById('tree-log');
+
+  // Cấu trúc cây: Background -> WithTimeout(30s) -> [WithCancel -> WithValue, WithTimeout(5s)], WithDeadline -> WithCancel
+  // Node positions trong viewBox 720x460
+  const nodes = [
+    { id: 'root',  parent: null,    x: 360, y: 35,  w: 200, h: 50, name: 'Background()', kind: 'root',         err: 'no cancel' },
+    { id: 'a',     parent: 'root',  x: 360, y: 130, w: 200, h: 50, name: 'ctxA',          kind: 'WithTimeout(30s)', err: 'context deadline exceeded' },
+    { id: 'b',     parent: 'a',     x: 140, y: 230, w: 180, h: 50, name: 'ctxB',          kind: 'WithCancel',         err: 'context canceled' },
+    { id: 'c',     parent: 'a',     x: 530, y: 230, w: 180, h: 50, name: 'ctxC',          kind: 'WithDeadline(eod)',  err: 'context deadline exceeded' },
+    { id: 'b1',    parent: 'b',     x: 40,  y: 340, w: 180, h: 50, name: 'ctxB1',         kind: 'WithValue(userID=42)', err: 'context canceled' },
+    { id: 'b2',    parent: 'b',     x: 240, y: 340, w: 180, h: 50, name: 'ctxB2',         kind: 'WithTimeout(5s)',    err: 'context deadline exceeded' },
+    { id: 'c1',    parent: 'c',     x: 530, y: 340, w: 180, h: 50, name: 'ctxC1',         kind: 'WithCancel',         err: 'context canceled' },
+  ];
+
+  const cancelled = new Set();
+  const nodeById = Object.fromEntries(nodes.map(n => [n.id, n]));
+  function childrenOf(id) { return nodes.filter(n => n.parent === id); }
+
+  function descendants(id) {
+    const result = [];
+    const stack = [id];
+    while (stack.length) {
+      const cur = stack.pop();
+      for (const c of childrenOf(cur)) {
+        result.push(c.id);
+        stack.push(c.id);
+      }
+    }
+    return result;
+  }
+
+  function appendLog(html, cls) {
+    const line = document.createElement('div');
+    if (cls) line.className = cls;
+    line.innerHTML = html;
+    log.appendChild(line);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function cancelNode(id, reason) {
+    if (cancelled.has(id)) return;
+    cancelled.add(id);
+    const n = nodeById[id];
+    appendLog(`<span class="err">✗</span> ${n.name} cancelled (${reason}) — <code>ctx.Err() = ${n.err}</code>`, '');
+    // cascade
+    const ds = descendants(id);
+    for (const d of ds) {
+      if (!cancelled.has(d)) {
+        cancelled.add(d);
+        const dn = nodeById[d];
+        appendLog(`  ↳ <span class="warn">propagate</span> → ${dn.name} cancelled — <code>ctx.Err() = ${dn.err}</code>`, '');
+      }
+    }
+    render();
+  }
+
+  function reset() {
+    cancelled.clear();
+    log.innerHTML = '';
+    appendLog('<span class="info">Cây mới — chưa có node nào bị cancel.</span>', '');
+    render();
+  }
+
+  function render() {
+    // clear
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+    // edges first (so they're under nodes)
+    for (const n of nodes) {
+      if (!n.parent) continue;
+      const p = nodeById[n.parent];
+      const x1 = p.x, y1 = p.y + p.h / 2;
+      const x2 = n.x, y2 = n.y - n.h / 2;
+      const midY = (y1 + y2) / 2;
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`);
+      path.setAttribute('class', 'tree-edge' + (cancelled.has(n.id) ? ' cancelled' : ''));
+      svg.appendChild(path);
+    }
+
+    // nodes
+    for (const n of nodes) {
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.setAttribute('class', 'ctx-node' + (cancelled.has(n.id) ? ' cancelled' : ''));
+      g.setAttribute('transform', `translate(${n.x - n.w/2}, ${n.y - n.h/2})`);
+
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('width', n.w);
+      rect.setAttribute('height', n.h);
+      rect.setAttribute('rx', 6);
+      g.appendChild(rect);
+
+      const t1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t1.setAttribute('class', 'name');
+      t1.setAttribute('x', n.w/2);
+      t1.setAttribute('y', 20);
+      t1.setAttribute('text-anchor', 'middle');
+      t1.textContent = n.name;
+      g.appendChild(t1);
+
+      const t2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t2.setAttribute('class', 'kind');
+      t2.setAttribute('x', n.w/2);
+      t2.setAttribute('y', 36);
+      t2.setAttribute('text-anchor', 'middle');
+      t2.textContent = cancelled.has(n.id) ? n.err : n.kind;
+      g.appendChild(t2);
+
+      g.addEventListener('click', () => {
+        if (cancelled.has(n.id)) {
+          appendLog(`<span class="dim">${n.name} đã cancelled rồi — gọi cancel() lần nữa: no-op (idempotent).</span>`, '');
+          return;
+        }
+        const reason = n.parent === null ? 'no-op (Background không cancel được)'
+                       : (n.kind.startsWith('WithCancel') ? 'cancel() được gọi'
+                       :  n.kind.startsWith('WithTimeout') ? 'timeout fired'
+                       :  n.kind.startsWith('WithDeadline') ? 'deadline reached'
+                       :  'cancel propagated');
+        if (n.id === 'root') {
+          appendLog(`<span class="dim">Background không cancel được — dùng nút "Cancel root" để mô phỏng cancel toàn tree giả lập.</span>`, '');
+          return;
+        }
+        cancelNode(n.id, reason);
+      });
+
+      svg.appendChild(g);
+    }
+  }
+
+  document.getElementById('tree-reset').addEventListener('click', reset);
+  document.getElementById('tree-cancel-root').addEventListener('click', () => {
+    appendLog('<span class="warn">Mô phỏng: cancel toàn tree từ root xuống.</span>', '');
+    // cancel all non-root
+    for (const n of nodes) {
+      if (n.id !== 'root' && !cancelled.has(n.id)) {
+        cancelled.add(n.id);
+        appendLog(`  ↳ ${n.name} cancelled — <code>ctx.Err() = ${n.err}</code>`, '');
+      }
+    }
+    render();
+  });
+
+  reset();
+})();
+
+/* =============================================================
+ * MODULE 2 — HTTP Timeout Cascade
+ * ============================================================= */
+(function() {
+  const svg = document.getElementById('http-svg');
+  const log = document.getElementById('http-log');
+  const $timeout = document.getElementById('http-timeout');
+  const $db = document.getElementById('http-db');
+  const $api = document.getElementById('http-api');
+  const $timeoutVal = document.getElementById('http-timeout-val');
+  const $dbVal = document.getElementById('http-db-val');
+  const $apiVal = document.getElementById('http-api-val');
+
+  function syncVals() {
+    $timeoutVal.textContent = $timeout.value + 'ms';
+    $dbVal.textContent = $db.value + 'ms';
+    $apiVal.textContent = $api.value + 'ms';
+  }
+  $timeout.addEventListener('input', syncVals);
+  $db.addEventListener('input', syncVals);
+  $api.addEventListener('input', syncVals);
+
+  // viewBox: 760 x 280, 4 lanes
+  // Lane y centers: 60 (client), 120 (handler), 180 (db), 240 (api)
+  // x: label area 0..130, timeline 140..720
+  const lanes = [
+    { id: 'client',  label: 'client',   y: 60  },
+    { id: 'handler', label: 'handler',  y: 120 },
+    { id: 'db',      label: 'db query', y: 180 },
+    { id: 'api',     label: 'ext api',  y: 240 },
+  ];
+
+  function appendLog(html, cls) {
+    const line = document.createElement('div');
+    if (cls) line.className = cls;
+    line.innerHTML = html;
+    log.appendChild(line);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function clearSvg() { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+
+  function render(timeout, db, api) {
+    clearSvg();
+
+    // Tổng scale: lấy max(timeout+200, db+200, api+200, 1000) để xem rõ
+    // Thực tế plan:
+    //   client gửi request ở t=0, deadline t=timeout
+    //   handler nhận, gọi DB ở t=0, DB chạy tới min(db, timeout)
+    //   nếu db < timeout: DB success ở t=db, sau đó API chạy từ t=db tới t=db+api
+    //     nếu db+api > timeout: API bị cancel ở t=timeout
+    //   nếu db > timeout: DB bị cancel ở t=timeout, API không chạy
+    // Calculate end times:
+    const dbEnd = Math.min(db, timeout);
+    const dbCancelled = db > timeout;
+    let apiStart = null, apiEnd = null, apiCancelled = false, apiRan = false;
+    if (!dbCancelled) {
+      apiRan = true;
+      apiStart = dbEnd;
+      apiEnd = Math.min(dbEnd + api, timeout);
+      apiCancelled = (dbEnd + api) > timeout;
+    }
+    const handlerEnd = apiCancelled ? timeout : (dbCancelled ? timeout : apiEnd);
+    const clientEnd = handlerEnd; // client cũng dừng khi handler trả response (hoặc timeout)
+    const success = !dbCancelled && !apiCancelled;
+
+    const tMax = Math.max(timeout, db, (apiRan ? dbEnd + api : 0)) + 200;
+    const xStart = 140;
+    const xEnd = 720;
+    const xScale = (xEnd - xStart) / tMax;
+    function tx(t) { return xStart + t * xScale; }
+
+    // Vẽ time axis (gridlines + ticks)
+    const tickStep = (tMax <= 2000) ? 200 : (tMax <= 5000) ? 500 : 1000;
+    for (let t = 0; t <= tMax; t += tickStep) {
+      const x = tx(t);
+      const ln = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      ln.setAttribute('x1', x); ln.setAttribute('x2', x);
+      ln.setAttribute('y1', 30); ln.setAttribute('y2', 270);
+      ln.setAttribute('stroke', '#e2e8f0'); ln.setAttribute('stroke-width', 1);
+      svg.appendChild(ln);
+      const tk = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      tk.setAttribute('class', 'tick-label');
+      tk.setAttribute('x', x); tk.setAttribute('y', 22);
+      tk.setAttribute('text-anchor', 'middle');
+      tk.textContent = t + 'ms';
+      svg.appendChild(tk);
+    }
+
+    // Deadline line
+    const dx = tx(timeout);
+    const dl = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    dl.setAttribute('class', 'deadline-line');
+    dl.setAttribute('x1', dx); dl.setAttribute('x2', dx);
+    dl.setAttribute('y1', 30); dl.setAttribute('y2', 270);
+    svg.appendChild(dl);
+    const dlt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    dlt.setAttribute('class', 'deadline-label');
+    dlt.setAttribute('x', dx + 4); dlt.setAttribute('y', 42);
+    dlt.textContent = '⏱ deadline ' + timeout + 'ms';
+    svg.appendChild(dlt);
+
+    // Lane labels + bars
+    for (const lane of lanes) {
+      const lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      lbl.setAttribute('class', 'lane-label');
+      lbl.setAttribute('x', 10); lbl.setAttribute('y', lane.y + 4);
+      lbl.textContent = lane.label;
+      svg.appendChild(lbl);
+
+      let x0 = null, x1 = null, cls = 'lane-bar', marker = '';
+      if (lane.id === 'client') {
+        x0 = 0; x1 = clientEnd;
+        cls = success ? 'lane-bar success' : 'lane-bar cancelled';
+        marker = success ? '200 OK' : (dbCancelled ? '504 GW Timeout (DB)' : '504 GW Timeout (API)');
+      } else if (lane.id === 'handler') {
+        x0 = 0; x1 = handlerEnd;
+        cls = success ? 'lane-bar success' : 'lane-bar cancelled';
+        marker = success ? 'success' : 'ctx.Done() fired → 504';
+      } else if (lane.id === 'db') {
+        x0 = 0; x1 = dbEnd;
+        cls = dbCancelled ? 'lane-bar cancelled' : 'lane-bar success';
+        marker = dbCancelled ? 'DB CANCELLED' : 'DB done ' + db + 'ms';
+      } else if (lane.id === 'api') {
+        if (!apiRan) {
+          marker = '(không chạy — DB fail trước)';
+        } else {
+          x0 = apiStart; x1 = apiEnd;
+          cls = apiCancelled ? 'lane-bar cancelled' : 'lane-bar success';
+          marker = apiCancelled ? 'API CANCELLED' : 'API done +' + api + 'ms';
+        }
+      }
+
+      if (x0 !== null) {
+        const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        r.setAttribute('class', cls);
+        r.setAttribute('x', tx(x0)); r.setAttribute('y', lane.y - 14);
+        r.setAttribute('width', Math.max(2, tx(x1) - tx(x0))); r.setAttribute('height', 22);
+        r.setAttribute('rx', 3);
+        svg.appendChild(r);
+      }
+      const mk = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      mk.setAttribute('class', 'lane-marker');
+      mk.setAttribute('x', x1 !== null ? tx(x1) + 6 : tx(0) + 6);
+      mk.setAttribute('y', lane.y + 4);
+      mk.textContent = marker;
+      svg.appendChild(mk);
+    }
+
+    return { success, dbCancelled, apiCancelled, dbEnd, apiEnd, handlerEnd };
+  }
+
+  function runOnce() {
+    const timeout = +$timeout.value, db = +$db.value, api = +$api.value;
+    const res = render(timeout, db, api);
+
+    log.innerHTML = '';
+    appendLog(`<span class="info">→ POST /orders  (handler timeout=${timeout}ms)</span>`, '');
+    appendLog(`  ↳ ctx, cancel := context.WithTimeout(r.Context(), ${timeout}*time.Millisecond)`, 'dim');
+    appendLog(`  ↳ defer cancel()`, 'dim');
+
+    if (res.dbCancelled) {
+      appendLog(`  ↳ db.QueryContext(ctx, …) — chạy được ${res.dbEnd}ms thì <span class="err">ctx.Done() fire</span>`, '');
+      appendLog(`  ↳ DB driver gửi cancel xuống Postgres (pg_cancel_backend) → return context.DeadlineExceeded`, 'dim');
+      appendLog(`  ↳ external API <span class="warn">không bao giờ được gọi</span> (handler return sớm)`, '');
+      appendLog(`<span class="err">← 504 Gateway Timeout</span> (reqID=req-orders-001)`, '');
+    } else if (res.apiCancelled) {
+      appendLog(`  ↳ db.QueryContext done sau ${res.dbEnd}ms ✓`, 'ok');
+      appendLog(`  ↳ http.DefaultClient.Do(req) — chạy được ${res.apiEnd - res.dbEnd}ms thì <span class="err">ctx.Done() fire</span>`, '');
+      appendLog(`  ↳ http transport hủy connection → return context.DeadlineExceeded`, 'dim');
+      appendLog(`<span class="err">← 504 Gateway Timeout</span> (API timeout)`, '');
+    } else {
+      appendLog(`  ↳ db.QueryContext done sau ${res.dbEnd}ms ✓`, 'ok');
+      appendLog(`  ↳ http.DefaultClient.Do done sau ${api}ms ✓`, 'ok');
+      appendLog(`<span class="ok">← 200 OK</span> {orders: [...], api: "ok"}`, '');
+    }
+  }
+
+  document.getElementById('http-run').addEventListener('click', runOnce);
+  document.getElementById('http-reset').addEventListener('click', () => {
+    $timeout.value = 3000; $db.value = 1500; $api.value = 800;
+    syncVals();
+    runOnce();
+  });
+
+  syncVals();
+  runOnce();
+})();
+
+/* =============================================================
+ * MODULE 3 — WithValue Walk-up Chain
+ * ============================================================= */
+(function() {
+  const svg = document.getElementById('chain-svg');
+  const result = document.getElementById('chain-result');
+  const $key = document.getElementById('chain-key');
+
+  // Chain: Background -> WithValue(userID=42) -> WithValue(traceID="abc") -> WithCancel
+  // Vẽ ngang trong viewBox 760x200. Right-most = current ctx, left-most = root.
+  // Walk-up: từ phải sang trái.
+  const nodes = [
+    { id: 'bg',     x: 80,  label: 'Background', kv: '(root)',                kind: 'root',  hasKey: null },
+    { id: 'v1',     x: 250, label: 'ctxV1',      kv: 'userID = 42',           kind: 'value', hasKey: 'userID',    value: '42' },
+    { id: 'v2',     x: 420, label: 'ctxV2',      kv: 'traceID = "abc"',       kind: 'value', hasKey: 'traceID',   value: '"abc"' },
+    { id: 'c1',     x: 590, label: 'ctxC1',      kv: 'WithCancel (no value)', kind: 'cancel', hasKey: null },
+  ];
+  const nodeW = 150, nodeH = 70;
+
+  function clearSvg() {
+    // keep <defs>
+    const defs = svg.querySelector('defs');
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    if (defs) svg.appendChild(defs);
+  }
+
+  function renderInitial() {
+    clearSvg();
+    // arrows: child --> parent (walk-up direction)
+    for (let i = nodes.length - 1; i > 0; i--) {
+      const child = nodes[i], parent = nodes[i - 1];
+      const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      const x1 = child.x - nodeW/2;
+      const x2 = parent.x + nodeW/2 + 6;
+      const y = 100;
+      p.setAttribute('d', `M ${x1} ${y} L ${x2} ${y}`);
+      p.setAttribute('class', 'chain-arrow');
+      p.setAttribute('id', 'arrow-' + i);
+      svg.appendChild(p);
+    }
+    for (const n of nodes) {
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.setAttribute('class', 'chain-node');
+      g.setAttribute('id', 'cn-' + n.id);
+      g.setAttribute('transform', `translate(${n.x - nodeW/2}, ${100 - nodeH/2})`);
+
+      const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      r.setAttribute('width', nodeW); r.setAttribute('height', nodeH); r.setAttribute('rx', 8);
+      g.appendChild(r);
+
+      const t1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t1.setAttribute('class', 'ttl');
+      t1.setAttribute('x', nodeW/2); t1.setAttribute('y', 26);
+      t1.setAttribute('text-anchor', 'middle');
+      t1.textContent = n.label;
+      g.appendChild(t1);
+
+      const t2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t2.setAttribute('class', 'kv');
+      t2.setAttribute('x', nodeW/2); t2.setAttribute('y', 48);
+      t2.setAttribute('text-anchor', 'middle');
+      t2.textContent = n.kv;
+      g.appendChild(t2);
+
+      svg.appendChild(g);
+    }
+    // labels at top
+    const lbl1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    lbl1.setAttribute('x', 80); lbl1.setAttribute('y', 30);
+    lbl1.setAttribute('text-anchor', 'middle');
+    lbl1.setAttribute('font-size', '12'); lbl1.setAttribute('fill', '#718096');
+    lbl1.textContent = '← root (parent)';
+    svg.appendChild(lbl1);
+    const lbl2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    lbl2.setAttribute('x', 590); lbl2.setAttribute('y', 30);
+    lbl2.setAttribute('text-anchor', 'middle');
+    lbl2.setAttribute('font-size', '12'); lbl2.setAttribute('fill', '#718096');
+    lbl2.textContent = 'current ctx →';
+    svg.appendChild(lbl2);
+    const lbl3 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    lbl3.setAttribute('x', 380); lbl3.setAttribute('y', 180);
+    lbl3.setAttribute('text-anchor', 'middle');
+    lbl3.setAttribute('font-size', '12'); lbl3.setAttribute('fill', '#a0aec0');
+    lbl3.textContent = 'ctx.Value(key) đi NGƯỢC từ current ↑ tới root';
+    svg.appendChild(lbl3);
+  }
+
+  function resetClasses() {
+    for (const n of nodes) {
+      const el = document.getElementById('cn-' + n.id);
+      if (el) el.classList.remove('visited', 'match');
+    }
+    for (let i = 1; i < nodes.length; i++) {
+      const a = document.getElementById('arrow-' + i);
+      if (a) a.classList.remove('active');
+    }
+  }
+
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  async function runLookup() {
+    const key = $key.value;
+    resetClasses();
+    result.className = 'chain-result';
+    result.textContent = `Tìm ctx.Value("${key}") — bắt đầu từ ctxC1 (current ctx)...`;
+
+    // Walk from current (rightmost = index 3) backwards to root (index 0)
+    for (let i = nodes.length - 1; i >= 0; i--) {
+      const n = nodes[i];
+      const el = document.getElementById('cn-' + n.id);
+      el.classList.add('visited');
+
+      // animate arrow incoming to this node (from i+1 → i means arrow indexed i+1)
+      if (i < nodes.length - 1) {
+        const a = document.getElementById('arrow-' + (i + 1));
+        if (a) a.classList.add('active');
+      }
+
+      await sleep(550);
+
+      if (n.hasKey === key) {
+        el.classList.add('match');
+        result.className = 'chain-result ok';
+        result.innerHTML = `<strong>✓ Match!</strong> Tìm thấy <code>${key}</code> tại <code>${n.label}</code>. ` +
+          `Trả về: <code>${n.value}</code>. Runtime DỪNG tại đây, không đi tiếp lên root.`;
+        return;
+      }
+    }
+
+    // not found — reached Background
+    result.className = 'chain-result nil';
+    result.innerHTML = `<strong>✗ Not found.</strong> Đi hết chain tới <code>Background</code> vẫn không có key <code>${key}</code>. ` +
+      `<code>ctx.Value("${key}")</code> trả về <code>nil</code> — caller phải check trước khi assert type.`;
+  }
+
+  document.getElementById('chain-run').addEventListener('click', runLookup);
+  document.getElementById('chain-reset').addEventListener('click', () => {
+    resetClasses();
+    result.className = 'chain-result';
+    result.textContent = 'Chọn key rồi bấm Lookup để xem.';
+  });
+
+  renderInitial();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

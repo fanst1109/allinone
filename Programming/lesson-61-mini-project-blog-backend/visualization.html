@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 61 — Mini-project: Blog Backend (Visualization)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 40px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; margin-top: 22px; }
+  p { line-height: 1.65; }
+  .card {
+    background: #fff; border-radius: 10px; padding: 18px 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .muted { color: #718096; font-size: 14px; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #4299e1; color: #fff; border: none;
+    padding: 9px 15px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  input[type=text] {
+    padding: 9px 11px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 14px; font-family: inherit; width: 100%; max-width: 360px;
+    box-sizing: border-box;
+  }
+  code, .mono { font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 13px; }
+
+  /* ---- Module 1: architecture diagram ---- */
+  .arch { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+  .arch-box {
+    border: 2px solid #4299e1; background: #ebf8ff; color: #2c5282;
+    border-radius: 8px; padding: 10px 14px; font-weight: 600; cursor: pointer;
+    text-align: center; min-width: 0; transition: background .15s, transform .1s;
+    width: 100%; max-width: 320px; box-sizing: border-box;
+  }
+  .arch-box:hover { background: #bee3f8; }
+  .arch-box.active { background: #4299e1; color: #fff; transform: scale(1.03); }
+  .arch-layers { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; width: 100%; }
+  .arch-layers .arch-box { flex: 1 1 120px; max-width: 200px; }
+  .arrow-down { color: #a0aec0; font-size: 20px; line-height: 1; }
+  .arch-box[data-k="storage"] { border-color: #38a169; background: #f0fff4; color: #276749; }
+  .arch-box[data-k="storage"]:hover { background: #c6f6d5; }
+  .arch-box[data-k="storage"].active { background: #38a169; color: #fff; }
+  .arch-box[data-k="cache"] { border-color: #d69e2e; background: #fffff0; color: #975a16; }
+  .arch-box[data-k="cache"]:hover { background: #fefcbf; }
+  .arch-box[data-k="cache"].active { background: #d69e2e; color: #fff; }
+  .arch-box[data-k="search"] { border-color: #805ad5; background: #faf5ff; color: #553c9a; }
+  .arch-box[data-k="search"]:hover { background: #e9d8fd; }
+  .arch-box[data-k="search"].active { background: #805ad5; color: #fff; }
+  .arch-box[data-k="migration"] { border-color: #dd6b20; background: #fffaf0; color: #9c4221; }
+  .arch-box[data-k="migration"]:hover { background: #feebc8; }
+  .arch-box[data-k="migration"].active { background: #dd6b20; color: #fff; }
+  .arch-detail {
+    background: #2d3748; color: #e2e8f0; border-radius: 8px;
+    padding: 14px 16px; margin-top: 14px; line-height: 1.6; font-size: 14px;
+    min-height: 60px;
+  }
+  .arch-detail b { color: #90cdf4; }
+
+  /* ---- Module 2: request flow ---- */
+  .flow { display: flex; flex-direction: column; gap: 8px; }
+  .node {
+    border: 2px solid #cbd5e0; background: #fff; border-radius: 8px;
+    padding: 10px 14px; opacity: 0.4; transition: all .25s;
+    font-size: 14px;
+  }
+  .node.on { opacity: 1; border-color: #4299e1; background: #ebf8ff; box-shadow: 0 2px 6px rgba(66,153,225,.25); }
+  .node.hit { border-color: #38a169; background: #f0fff4; }
+  .node.miss { border-color: #e53e3e; background: #fff5f5; }
+  .node .tag { font-weight: 700; }
+  .badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; margin-left: 6px; }
+  .badge.hit { background: #c6f6d5; color: #22543d; }
+  .badge.miss { background: #fed7d7; color: #742a2a; }
+  .stat { font-family: monospace; font-size: 13px; color: #4a5568; }
+
+  /* ---- Module 3: search demo ---- */
+  table.docs { border-collapse: collapse; width: 100%; font-size: 13px; }
+  table.docs th, table.docs td { border: 1px solid #e2e8f0; padding: 6px 8px; text-align: left; }
+  table.docs th { background: #f7fafc; }
+  .result { border-left: 4px solid #805ad5; background: #faf5ff; padding: 8px 12px; border-radius: 0 6px 6px 0; margin: 6px 0; }
+  .result .score { float: right; font-family: monospace; color: #553c9a; font-weight: 700; }
+  .chip { display: inline-block; background: #edf2f7; border-radius: 4px; padding: 1px 6px; font-size: 12px; margin: 1px; font-family: monospace; }
+
+  @media (max-width: 480px) {
+    .arch-layers .arch-box { flex: 1 1 100%; }
+    input[type=text] { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-60-search-elasticsearch/visualization.html">← L60: Search &amp; Elasticsearch</a>
+  <span class="sep">·</span>
+  <span class="current">L61: Mini-project Blog Backend</span>
+  <span class="sep">·</span>
+  <a href="../tier-6-distributed/index.html">Tier 6 →</a>
+</nav>
+
+<div class="container">
+<header>
+  <h1>Lesson 61 — Mini-project: Blog Backend</h1>
+  <p class="subtitle">Tổng kết Tier 5: Postgres (CRUD + transaction) · Redis cache · full-text search · migration — sau một interface swap được sang DB thật.</p>
+</header>
+
+<main>
+
+<!-- ===================== MODULE 1: ARCHITECTURE ===================== -->
+<h2>Module 1 — Kiến trúc (bấm vào từng tầng)</h2>
+<p class="muted">Service chỉ phụ thuộc <b>interface</b> của 4 tầng. Bấm từng hộp để xem tầng đó làm gì và có thể swap sang backend thật nào.</p>
+
+<div class="card">
+  <div class="arch">
+    <div class="arch-box" data-k="handler">handler — lớp HTTP (request → JSON)</div>
+    <div class="arrow-down">▼</div>
+    <div class="arch-box" data-k="service">service — LOGIC (cache-aside · index · transaction · invalidation)</div>
+    <div class="arrow-down">▼ <span class="muted" style="font-size:12px">(qua interface)</span></div>
+    <div class="arch-layers">
+      <div class="arch-box" data-k="storage">storage<br><span class="muted" style="font-size:12px">Repository</span></div>
+      <div class="arch-box" data-k="cache">cache<br><span class="muted" style="font-size:12px">Cache + TTL</span></div>
+      <div class="arch-box" data-k="search">search<br><span class="muted" style="font-size:12px">InvertedIndex</span></div>
+      <div class="arch-box" data-k="migration">migration<br><span class="muted" style="font-size:12px">version tracker</span></div>
+    </div>
+  </div>
+  <div class="arch-detail" id="archDetail">Bấm một tầng để xem chi tiết.</div>
+</div>
+
+<!-- ===================== MODULE 2: REQUEST FLOW ===================== -->
+<h2>Module 2 — Request flow</h2>
+<p class="muted">Mô phỏng hai luồng quan trọng nhất. Bấm nút để chạy từng bước.</p>
+
+<div class="card">
+  <h3>2a. Create post → write storage + index search</h3>
+  <div class="row">
+    <button id="btnCreate">▶ Chạy Create</button>
+    <button class="secondary" id="btnCreateReset">Reset</button>
+  </div>
+  <div class="flow" id="createFlow">
+    <div class="node" data-s="1"><span class="tag">1. validate</span> — title không rỗng?</div>
+    <div class="node" data-s="2"><span class="tag">2. repo.CreatePost</span> — gán id, lưu storage (Postgres)</div>
+    <div class="node" data-s="3"><span class="tag">3. index.AddOrUpdate</span> — tokenize title+body → posting list</div>
+    <div class="node" data-s="4"><span class="tag">4. (không invalidate)</span> — post mới chưa từng được cache</div>
+    <div class="node" data-s="5"><span class="tag">→ 201 Created</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>2b. Get post → cache-aside (cache → miss → storage → populate)</h3>
+  <div class="row">
+    <button id="btnGet">▶ Get /posts/3</button>
+    <button class="secondary" id="btnGetReset">Reset (xoá cache)</button>
+    <span class="stat" id="cacheStat">hits=0 · misses=0</span>
+  </div>
+  <div class="flow" id="getFlow">
+    <div class="node" data-s="1"><span class="tag">cache.Get("post:3")</span> <span id="getCacheBadge"></span></div>
+    <div class="node" data-s="2"><span class="tag">repo.GetPost(3)</span> — chỉ chạy khi MISS</div>
+    <div class="node" data-s="3"><span class="tag">cache.Set("post:3", ttl=5m)</span> — populate (chỉ sau MISS)</div>
+    <div class="node" data-s="4"><span class="tag">→ trả post</span></div>
+  </div>
+  <p class="muted" id="getNote">Lần 1: cache trống → MISS → xuống storage → nạp cache. Lần 2: HIT → không chạm storage.</p>
+</div>
+
+<!-- ===================== MODULE 3: SEARCH DEMO ===================== -->
+<h2>Module 3 — Search demo (inverted index + TF-IDF)</h2>
+<p class="muted">Corpus 4 bài (N=4). Nhập từ khoá → tra inverted index → tính điểm TF-IDF → xếp hạng.</p>
+
+<div class="card">
+  <table class="docs">
+    <thead><tr><th>id</th><th>title</th><th>body (rút gọn)</th><th>tags</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Go concurrency patterns</td><td>goroutines channels concurrent</td><td>go, concurrency</td></tr>
+      <tr><td>2</td><td>Postgres indexing tips</td><td>btree index query write</td><td>postgres, database</td></tr>
+      <tr><td>3</td><td>Redis cache strategies</td><td>cache aside pattern read heavy</td><td>redis, cache</td></tr>
+      <tr><td>4</td><td>Full text search inverted index</td><td>inverted index term document tfidf</td><td>search, database</td></tr>
+    </tbody>
+  </table>
+  <div class="row" style="margin-top:14px">
+    <input type="text" id="q" placeholder="vd: redis  ·  index  ·  cache database" value="index">
+    <button id="btnSearch">🔍 Search</button>
+  </div>
+  <div class="row">
+    <span class="muted">Thử nhanh:</span>
+    <button class="secondary q-ex">redis</button>
+    <button class="secondary q-ex">index</button>
+    <button class="secondary q-ex">cache database</button>
+  </div>
+  <div id="searchResults"></div>
+  <div class="muted" id="searchExplain" style="margin-top:8px"></div>
+</div>
+
+</main>
+
+<footer>
+  <p class="muted">Lesson 61 · Tier 5 — Database &amp; Storage. Mã nguồn chạy được ở <code>solutions/</code>.</p>
+</footer>
+</div>
+
+<script>
+// ===================== MODULE 1 =====================
+const archInfo = {
+  handler: "<b>handler</b> — lớp HTTP. Parse request (path, body, query) → gọi service → encode JSON. KHÔNG chứa logic nghiệp vụ. Dùng router method-aware Go 1.22: <code>GET /posts/{id}</code>.",
+  service: "<b>service</b> — trái tim logic. Nơi cache-aside, indexing, transaction và cache invalidation được nối lại. Nhận 3 dependency qua <b>interface</b> trong constructor → đây là chỗ quyết định swap được sang DB thật.",
+  storage: "<b>storage</b> (mô phỏng Postgres). Interface <code>Repository</code>: CRUD + List/pagination + TagFacets + <b>WithTx</b> (transaction). Swap → viết <code>PostgresRepository</code> dùng database/sql, service không đổi.",
+  cache: "<b>cache</b> (mô phỏng Redis). Interface <code>Cache</code>: Get/Set/Delete + TTL (lazy expiry) + Stats(hit/miss). Swap → <code>RedisCache</code> dùng go-redis. Dùng cho cache-aside ở <code>service.Get</code>.",
+  search: "<b>search</b> (mô phỏng Elasticsearch). Interface <code>Index</code>: AddOrUpdate / Remove / Search. Bên trong: inverted index <code>map[term][]posting</code> + xếp hạng TF-IDF. Swap → impl gọi ES <code>_search</code>.",
+  migration: "<b>migration</b> — version tracker. Register migration v1→v3, <code>Up()</code> chạy mọi version &gt; current (tăng dần) và <b>idempotent</b>: chạy lại không làm gì. Cột <code>views</code> thêm ở v3."
+};
+const detail = document.getElementById('archDetail');
+document.querySelectorAll('.arch-box').forEach(box => {
+  box.addEventListener('click', () => {
+    document.querySelectorAll('.arch-box').forEach(b => b.classList.remove('active'));
+    box.classList.add('active');
+    detail.innerHTML = archInfo[box.dataset.k] || "";
+  });
+});
+
+// ===================== MODULE 2a: CREATE =====================
+const createFlow = document.getElementById('createFlow');
+function setCreateStep(n) {
+  createFlow.querySelectorAll('.node').forEach(el => {
+    el.classList.toggle('on', Number(el.dataset.s) <= n);
+  });
+}
+document.getElementById('btnCreate').addEventListener('click', () => {
+  let n = 0;
+  const id = setInterval(() => { n++; setCreateStep(n); if (n >= 5) clearInterval(id); }, 420);
+});
+document.getElementById('btnCreateReset').addEventListener('click', () => setCreateStep(0));
+
+// ===================== MODULE 2b: GET (cache-aside) =====================
+let cacheHas = false, hits = 0, misses = 0;
+const getFlow = document.getElementById('getFlow');
+const cacheStat = document.getElementById('cacheStat');
+const getBadge = document.getElementById('getCacheBadge');
+const getNote = document.getElementById('getNote');
+function renderStat() { cacheStat.textContent = `hits=${hits} · misses=${misses}`; }
+function resetGetNodes() {
+  getFlow.querySelectorAll('.node').forEach(el => el.classList.remove('on','hit','miss'));
+  getBadge.innerHTML = "";
+}
+document.getElementById('btnGet').addEventListener('click', () => {
+  resetGetNodes();
+  const nodes = getFlow.querySelectorAll('.node');
+  const hit = cacheHas;
+  // step 1: cache lookup
+  setTimeout(() => {
+    nodes[0].classList.add('on', hit ? 'hit' : 'miss');
+    getBadge.innerHTML = hit
+      ? '<span class="badge hit">HIT</span>'
+      : '<span class="badge miss">MISS</span>';
+    if (hit) { hits++; } else { misses++; }
+    renderStat();
+  }, 200);
+  if (hit) {
+    // HIT: nhảy thẳng tới trả post
+    setTimeout(() => { nodes[3].classList.add('on'); getNote.textContent = "CACHE HIT — trả post từ cache, KHÔNG chạm storage."; }, 700);
+  } else {
+    setTimeout(() => nodes[1].classList.add('on'), 700);        // storage
+    setTimeout(() => nodes[2].classList.add('on'), 1200);       // populate
+    setTimeout(() => { nodes[3].classList.add('on'); cacheHas = true; getNote.textContent = "CACHE MISS — đọc storage rồi populate cache (TTL 5m). Bấm Get lần nữa để thấy HIT."; }, 1700);
+  }
+});
+document.getElementById('btnGetReset').addEventListener('click', () => {
+  cacheHas = false; hits = 0; misses = 0; renderStat(); resetGetNodes();
+  getNote.textContent = "Đã xoá cache. Lần Get tiếp theo sẽ MISS.";
+});
+
+// ===================== MODULE 3: SEARCH (inverted index + TF-IDF) =====================
+const corpus = [
+  { id:1, title:"Go concurrency patterns", body:"goroutines channels concurrent" },
+  { id:2, title:"Postgres indexing tips", body:"btree index query write" },
+  { id:3, title:"Redis cache strategies", body:"cache aside pattern read heavy" },
+  { id:4, title:"Full text search inverted index", body:"inverted index term document tfidf" },
+];
+function tokenize(s) {
+  return s.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+}
+// Dựng inverted index: term -> [{docID, tf}]
+const index = {};
+const docLen = {};
+corpus.forEach(d => {
+  const toks = tokenize(d.title + " " + d.body);
+  docLen[d.id] = toks.length;
+  const tf = {};
+  toks.forEach(t => tf[t] = (tf[t]||0)+1);
+  for (const term in tf) {
+    (index[term] = index[term] || []).push({ docID: d.id, tf: tf[term] });
+  }
+});
+const N = corpus.length;
+
+function search(query) {
+  const terms = [...new Set(tokenize(query))];
+  const scores = {}; const breakdown = {};
+  const lines = [];
+  terms.forEach(term => {
+    const plist = index[term];
+    if (!plist) { lines.push(`term "${term}": không có trong corpus → bỏ qua`); return; }
+    const df = plist.length;
+    const idf = Math.log(1 + N/(1+df));
+    lines.push(`term "${term}": df=${df} → idf = ln(1 + ${N}/${1+df}) = ${idf.toFixed(4)}`);
+    plist.forEach(p => {
+      const add = p.tf * idf;
+      scores[p.docID] = (scores[p.docID]||0) + add;
+      (breakdown[p.docID] = breakdown[p.docID] || []).push(`${p.tf}×${idf.toFixed(2)}`);
+    });
+  });
+  const hits = Object.keys(scores).map(id => ({ id:Number(id), score:scores[id], bd:breakdown[id] }));
+  hits.sort((a,b) => b.score - a.score || a.id - b.id);
+  return { hits, lines };
+}
+
+function renderSearch(query) {
+  const box = document.getElementById('searchResults');
+  const explain = document.getElementById('searchExplain');
+  const { hits, lines } = search(query);
+  if (!query.trim()) { box.innerHTML = '<p class="muted">Nhập từ khoá.</p>'; explain.innerHTML=""; return; }
+  if (hits.length === 0) {
+    box.innerHTML = '<p class="muted">Không có bài nào khớp.</p>';
+  } else {
+    box.innerHTML = hits.map(h => {
+      const d = corpus.find(c => c.id === h.id);
+      return `<div class="result"><span class="score">${h.score.toFixed(4)}</span>
+        <b>#${d.id}</b> ${d.title}
+        <div class="muted">score = ${h.bd.join(' + ')} (tf×idf)</div></div>`;
+    }).join('');
+  }
+  explain.innerHTML = "Cách tính:<br>" + lines.map(l => "&nbsp;• " + l).join("<br>");
+}
+document.getElementById('btnSearch').addEventListener('click', () => renderSearch(document.getElementById('q').value));
+document.getElementById('q').addEventListener('keydown', e => { if (e.key === 'Enter') renderSearch(e.target.value); });
+document.querySelectorAll('.q-ex').forEach(b => b.addEventListener('click', () => {
+  document.getElementById('q').value = b.textContent; renderSearch(b.textContent);
+}));
+// render mặc định
+renderStat();
+renderSearch(document.getElementById('q').value);
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

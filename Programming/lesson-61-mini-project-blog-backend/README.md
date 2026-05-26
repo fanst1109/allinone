@@ -144,6 +144,41 @@ internal/
 > `post/model.go` ta khai báo `type Post = model.Post` (type **alias**) để code
 > vẫn viết tự nhiên `post.Post`.
 
+### 3.2 Vì sao chia nhỏ ra nhiều package mà không gộp một file?
+
+> 💡 **Hình dung.** Một backend giống một nhà bếp nhà hàng. Nếu nhét tất cả —
+> nhận order, nấu, rửa bát, kế toán — vào một người, người đó vừa quá tải vừa
+> không thay thế được. Tách vai trò ra: bồi bàn (handler) chỉ nhận/trả; đầu bếp
+> (service) chỉ lo logic; kho (storage), tủ lạnh nhanh (cache), mục lục (search)
+> mỗi cái một việc. Thay đầu bếp không phải xây lại kho.
+
+Bốn lý do cụ thể:
+
+1. **Thay backend không sửa logic.** `service` chỉ thấy `storage.Repository`. Đổi
+   memory → Postgres = thêm một file impl, không đụng `service.go`.
+2. **Test cô lập.** Test service có thể inject memory impl (nhanh, không cần DB)
+   trong khi production dùng Postgres. Đây chính là cách `service_test.go` chạy.
+3. **Ranh giới rõ ràng.** Khi đọc code, bạn biết ngay logic cache-aside nằm ở
+   `service`, không lẫn vào handler hay storage.
+4. **Chống import cycle** (mục 3.1) — tự nhiên có khi package có hướng phụ thuộc rõ.
+
+### 3.3 Bảng đối chiếu: in-memory ↔ production thật
+
+| Khái niệm | Bản memory trong project | Production thật |
+|-----------|--------------------------|-----------------|
+| Lưu trữ | `map[int64]*Post` + `RWMutex` | Postgres + B-tree index |
+| "Một dòng query" | `clonePost(p)` trả bản sao | Postgres trả row mới mỗi `Scan` |
+| `ErrNotFound` | sentinel error | `sql.ErrNoRows` |
+| Transaction | snapshot + lock toàn cục | MVCC + WAL, lock theo hàng |
+| Cache | `map[string]entry` + lazy expiry | Redis + eviction policy (LRU/LFU) |
+| TTL | so `time.Now()` lúc Get | Redis tự xoá nền + passive expiry |
+| Search | `map[term][]posting`, TF-IDF | Elasticsearch, analyzer, BM25 |
+| Migration | version trong RAM | bảng `schema_migrations` + DDL thật |
+
+> ❓ **"Vậy học bản memory có phí không?"** Không. *Cơ chế* (cache-aside, TF-IDF,
+> rollback, version migration) giống hệt. Cái khác chỉ là *cách hiện thực hoá hạ
+> tầng* — và đó đúng là thứ interface giấu đi để bạn thay sau.
+
 ---
 
 ## 4. Step-by-step build (10 bước)
@@ -274,6 +309,25 @@ go test ./...
 | **L58 — Cache-aside** | `Service.Get` đọc cache → miss → storage → populate; `Update/Delete/AddComment/IncrementViews` đều `cache.Delete` để invalidate. |
 | **L60 — Search inverted index** | `search.InvertedIndex` tokenize + posting list + TF-IDF ranking. `Create/Update` index lại, `Delete` gỡ index. |
 
+### 5.1 Một request đi qua bao nhiêu tầng?
+
+Để thấy các lesson Tier 5 "nói chuyện" với nhau thế nào, theo dấu `GET /posts/3`
+khi cache trống:
+
+```
+HTTP request
+  └─ handler.get          (L43 REST design — parse path, gọi service)
+       └─ service.Get      (L58 cache-aside — điều phối)
+            ├─ cache.Get   (L58 Redis — MISS)
+            ├─ repo.GetPost (L54 SQL — đọc storage)
+            └─ cache.Set   (L58 — populate với TTL)
+  └─ handler writeJSON     (L23 JSON encoding — trả 200)
+```
+
+Một request đọc đụng **3 tầng** (handler → service → cache/storage). Một request
+ghi comment đụng **thêm transaction** (L56). Đó là vì sao project này là bài tổng
+kết: không khái niệm Tier 5 nào "đứng một mình", tất cả ráp lại trong một luồng.
+
 ---
 
 ## 6. Flow chính (walk-through bằng số cụ thể)
@@ -395,12 +449,35 @@ panic). Edge case này được test ở `TestListPagination`.
 >
 > </details>
 
+### 6.5 Đo lợi ích cache bằng số
+
+Giả sử đọc storage tốn 10ms (query Postgres), đọc cache tốn 0.2ms (Redis), và
+một bài hot được đọc 1000 lần trong khoảng TTL 5 phút.
+
+```
+Không cache:  1000 × 10ms          = 10 000 ms = 10 giây tổng I/O DB
+Có cache:     1 × 10ms  (miss đầu)  +  999 × 0.2ms (hit)
+            = 10ms + 199.8ms        ≈ 210 ms
+```
+
+→ Cache cắt ~98% thời gian I/O cho bài hot, và quan trọng hơn: **gánh nặng rời
+khỏi database** (999/1000 request không chạm DB). Đó là vì sao read-heavy system
+gần như luôn có một tầng cache. `cache.Stats()` trong project cho bạn đếm thật số
+hit/miss để quan sát tỉ lệ này.
+
+> ⚠ **Lỗi thường gặp — cache một thứ hay đổi.** Đừng cache `List` hay `Search`
+> theo cùng cách như entity. Chúng phụ thuộc *toàn tập* dữ liệu: thêm/xoá *bất kỳ*
+> bài nào cũng có thể làm kết quả khác đi → key nào cần invalidate? Rất khó trả
+> lời đúng. Quy tắc an toàn: chỉ cache entity đơn (`post:id`), còn list/search
+> hoặc không cache, hoặc cache TTL ngắn chấp nhận hơi cũ.
+
 > 📝 **Tóm tắt mục 6.**
 > - **Create**: write storage → index search (index sẵn để search nhanh).
 > - **Get**: cache-aside — cache → miss → storage → populate.
 > - **Update/Delete/Comment/View**: ghi storage → (re)index → **invalidate** cache.
 > - **Search**: tra inverted index → tính TF-IDF → nạp post từ storage → xếp hạng.
 > - **List**: lọc tag → sort → LIMIT/OFFSET; không qua cache.
+> - Cache cắt phần lớn I/O DB cho dữ liệu hot, nhưng chỉ an toàn với entity đơn.
 
 ---
 
@@ -518,6 +595,30 @@ query. ES tự lo tokenize/analyzer/ranking (BM25 — bản nâng cấp của TF
 - **Cache stampede**: khi một key hot hết hạn cùng lúc nhiều request cùng miss và
   cùng xuống DB. Khắc phục: single-flight (chỉ 1 request đi nạp, các request khác
   chờ) hoặc TTL jitter.
+
+---
+
+### 8.5 Những cái bẫy storage thường gặp (để tránh)
+
+| Cái bẫy | Hậu quả | Cách tránh (project này làm gì) |
+|---------|---------|----------------------------------|
+| Quên invalidate cache sau ghi | Stale read tới khi TTL hết | Mọi đường ghi gọi `cache.Delete` |
+| Trả con trỏ vào store nội bộ | Caller sửa lén dữ liệu "thật" | `clonePost` trả bản sao sâu |
+| Index lúc search thay vì lúc ghi | Search chậm O(N×len) mỗi query | `Create/Update` index sẵn |
+| Multi-table write không tx | Comment có nhưng count sai | `AddComment` chạy trong `WithTx` |
+| Migration chạy lại gây hỏng | Cộng đôi / lỗi DDL | `Up()` idempotent theo version |
+| Import cycle entity ↔ storage | Không biên dịch được | Entity ở package lá `model` |
+
+> 🔁 **Dừng lại tự kiểm tra.** Trong 6 cái bẫy trên, cái nào "tự khỏi" sau một
+> khoảng thời gian nên khó tái hiện nhất khi debug?
+>
+> <details><summary>Đáp án</summary>
+>
+> "Quên invalidate cache" — vì sau khi TTL (5 phút) hết, cache miss và nạp lại
+> bản đúng, nên lỗi biến mất. Lúc bạn ngồi debug thì nó đã hết hạn → "không tái
+> hiện được". Đây là lý do cache bug nổi tiếng khó chịu.
+>
+> </details>
 
 ---
 

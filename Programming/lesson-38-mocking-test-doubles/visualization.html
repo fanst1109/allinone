@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 38 — Mocking & Test Doubles Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+    font-family: inherit;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.success { background: #38a169; }
+  button.success:hover { background: #2f855a; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+
+  .explain {
+    background: #ebf8ff; border-left: 4px solid #4299e1;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6;
+    margin: 10px 0;
+  }
+  .explain code, code.inline {
+    background: white; padding: 1px 5px; border-radius: 3px;
+    font-family: monospace; color: #2b6cb0;
+  }
+
+  /* ============ Module 1 — Taxonomy ============ */
+  .tax-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 12px;
+    margin: 12px 0;
+  }
+  .tax-card {
+    border: 2px solid #cbd5e0;
+    border-radius: 8px;
+    padding: 12px;
+    background: #f7fafc;
+    cursor: default;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .tax-card .name {
+    font-weight: 700;
+    font-size: 16px;
+    color: #2d3748;
+  }
+  .tax-card .role {
+    font-size: 12px;
+    color: #4a5568;
+    margin: 6px 0;
+    min-height: 32px;
+  }
+  .tax-card .props {
+    font-size: 11px;
+    color: #718096;
+    font-family: 'Menlo', monospace;
+  }
+  .tax-card.match {
+    border-color: #38a169;
+    background: #c6f6d5;
+    transform: scale(1.04);
+    box-shadow: 0 4px 12px rgba(56, 161, 105, 0.3);
+  }
+  .tax-card.dim {
+    opacity: 0.35;
+  }
+
+  .scenario {
+    background: #fefcbf;
+    border-left: 4px solid #d69e2e;
+    padding: 12px 14px;
+    border-radius: 0 6px 6px 0;
+    margin: 10px 0;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .scenario .label {
+    font-weight: 700;
+    color: #744210;
+    margin-right: 6px;
+  }
+  .scenario-controls { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .verdict {
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .verdict.show {
+    background: #e6fffa;
+    border-left: 4px solid #319795;
+    color: #234e52;
+  }
+
+  /* ============ Module 2 — DI flow ============ */
+  .di-toggle {
+    display: inline-flex;
+    border: 2px solid #4299e1;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .di-toggle button {
+    background: white;
+    color: #4299e1;
+    border-radius: 0;
+    border: none;
+    padding: 8px 16px;
+  }
+  .di-toggle button.active {
+    background: #4299e1;
+    color: white;
+  }
+
+  .di-stage {
+    background: #1a202c;
+    border-radius: 8px;
+    padding: 18px;
+    color: #e2e8f0;
+    font-family: 'Menlo', 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .di-stage .di-box {
+    background: #2d3748;
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin: 8px 0;
+    border-left: 3px solid #4299e1;
+  }
+  .di-stage .di-box.prod { border-left-color: #38a169; }
+  .di-stage .di-box.test { border-left-color: #ed8936; }
+  .di-stage .di-label {
+    font-size: 11px;
+    color: #a0aec0;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .di-stage .di-content { color: #f0fff4; font-weight: 600; }
+  .di-stage .di-arrow {
+    text-align: center;
+    color: #718096;
+    margin: 4px 0;
+    font-size: 16px;
+  }
+  .di-stage .di-iface {
+    color: #fbd38d;
+    font-style: italic;
+  }
+  .di-comment { color: #718096; font-style: italic; }
+
+  /* ============ Module 3 — Mock trace ============ */
+  .trace-stage {
+    position: relative;
+    background: #f7fafc;
+    border-radius: 8px;
+    padding: 20px;
+    min-height: 260px;
+  }
+  .trace-actors {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .trace-actor {
+    background: white;
+    border: 2px solid #cbd5e0;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+    font-weight: 700;
+    transition: all 0.3s;
+  }
+  .trace-actor.active {
+    border-color: #4299e1;
+    box-shadow: 0 0 0 4px rgba(66, 153, 225, 0.2);
+    transform: translateY(-2px);
+  }
+  .trace-actor .icon { font-size: 24px; display: block; margin-bottom: 4px; }
+  .trace-actor .sub { font-size: 11px; font-weight: 400; color: #718096; margin-top: 4px; }
+
+  .trace-log {
+    background: #1a202c;
+    color: #e2e8f0;
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-family: 'Menlo', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    min-height: 160px;
+    max-height: 280px;
+    overflow-y: auto;
+  }
+  .trace-log .step {
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.4s, transform 0.4s;
+  }
+  .trace-log .step.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .trace-log .arrow-call { color: #63b3ed; }
+  .trace-log .arrow-ret  { color: #68d391; }
+  .trace-log .pass { color: #68d391; font-weight: 700; }
+  .trace-log .fail { color: #fc8181; font-weight: 700; }
+  .trace-log .expect { color: #fbd38d; }
+  .trace-log .comment { color: #718096; font-style: italic; }
+
+  .trace-controls { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+  .step-arrow {
+    position: absolute;
+    height: 2px;
+    background: #4299e1;
+    transform-origin: left center;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    opacity: 0;
+  }
+  .step-arrow::after {
+    content: "";
+    position: absolute;
+    right: -6px;
+    top: -4px;
+    border-left: 8px solid #4299e1;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+  }
+  .step-arrow.show { opacity: 1; }
+
+  /* ============ Responsive ============ */
+  @media (max-width: 480px) {
+    .tax-grid { grid-template-columns: 1fr 1fr; }
+    .trace-actors { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-37-advanced-testing/visualization.html">← L37: Advanced Testing</a>
+  <span class="sep">·</span>
+  <span class="current">L38: Mocking & Test Doubles</span>
+  <span class="sep">·</span>
+  <a href="../lesson-39-design-patterns-go/visualization.html">L39: Design Patterns →</a>
+</nav>
+
+<main>
+<h1>Lesson 38 — Mocking & Test Doubles (Visualization)</h1>
+
+<p class="explain">
+Trang này minh hoạ 3 ý chính của bài học: <strong>(1)</strong> phân biệt 5 loại
+test double, <strong>(2)</strong> luồng dependency injection production vs test,
+<strong>(3)</strong> chuỗi tương tác giữa test - service - mock.
+</p>
+
+<!-- ============================================================ -->
+<!-- MODULE 1 — Taxonomy: chọn scenario, gợi ý loại double -->
+<!-- ============================================================ -->
+<h2>1. 5 loại test double — chọn cho từng scenario</h2>
+
+<div class="card">
+  <p>Chọn một <strong>scenario</strong> bên dưới — viz sẽ highlight loại double phù hợp nhất và giải thích vì sao.</p>
+
+  <div class="scenario-controls" id="scn-controls"></div>
+
+  <div class="scenario" id="scn-display">
+    <span class="label">Scenario:</span><span id="scn-text">Chọn 1 scenario ở trên</span>
+  </div>
+
+  <div class="tax-grid" id="tax-grid"></div>
+
+  <div class="verdict" id="verdict"></div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MODULE 2 — DI wiring: production vs test -->
+<!-- ============================================================ -->
+<h2>2. Dependency Injection — wiring production vs test</h2>
+
+<div class="card">
+  <p>Cùng <code class="inline">NotifyService</code>, cùng signature <code class="inline">NewNotifyService(store UserStore, email EmailSender)</code>. Khác nhau ở chỗ <em>"truyền cái gì vào"</em>.</p>
+
+  <div class="di-toggle" role="tablist">
+    <button id="di-prod" class="active" onclick="setDIMode('prod')">🟢 Production</button>
+    <button id="di-test" onclick="setDIMode('test')">🟠 Test</button>
+  </div>
+
+  <div class="di-stage" id="di-stage"></div>
+
+  <div class="explain" id="di-explain"></div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MODULE 3 — Mock interaction trace -->
+<!-- ============================================================ -->
+<h2>3. Mock interaction trace — test → service → mock</h2>
+
+<div class="card">
+  <p>Trace từng bước khi test chạy: <code class="inline">.On()</code> set expectation → service gọi mock → mock trả value → <code class="inline">.AssertExpectations()</code> verify.</p>
+
+  <div class="trace-stage">
+    <div class="trace-actors">
+      <div class="trace-actor" id="actor-test">
+        <span class="icon">🧪</span>Test
+        <div class="sub">TestNotifyUser</div>
+      </div>
+      <div class="trace-actor" id="actor-svc">
+        <span class="icon">⚙️</span>Service
+        <div class="sub">NotifyService</div>
+      </div>
+      <div class="trace-actor" id="actor-mock">
+        <span class="icon">🎭</span>Mock
+        <div class="sub">MockUserStore + MockEmail</div>
+      </div>
+    </div>
+    <div class="trace-log" id="trace-log"></div>
+  </div>
+
+  <div class="trace-controls">
+    <button onclick="playTrace()">▶ Play (happy path)</button>
+    <button class="secondary" onclick="playTraceFail()">▶ Play (mock fail expectation)</button>
+    <button class="secondary" onclick="resetTrace()">↻ Reset</button>
+  </div>
+
+  <div class="explain">
+    <strong>Happy path:</strong> mock được khai báo <code>.On("Get", 42).Return(user)</code>, service gọi đúng → <code>AssertExpectations</code> pass.<br>
+    <strong>Fail path:</strong> service gọi <code>Get(99)</code> trong khi expectation là <code>Get(42)</code> → <code>AssertExpectations</code> báo lỗi.
+  </div>
+</div>
+
+</main>
+
+<script>
+// ============================================================
+// MODULE 1 — Taxonomy
+// ============================================================
+const DOUBLES = [
+  { id: "dummy", name: "Dummy", role: "Object lấp chỗ trống, không bị code gọi tới.", props: "no value · no count" },
+  { id: "stub",  name: "Stub",  role: "Trả giá trị cố định, không quan tâm ai gọi.", props: "value=fixed · count=no" },
+  { id: "spy",   name: "Spy",   role: "Stub + đếm số call + lưu argument.", props: "value=set · count=yes" },
+  { id: "mock",  name: "Mock",  role: "Có expectation cứng, framework verify hộ.", props: "value=set · expect=strict" },
+  { id: "fake",  name: "Fake",  role: "Implementation rút gọn, chạy logic thật.", props: "real logic · in-memory" },
+];
+
+const SCENARIOS = [
+  {
+    id: "logger-not-used",
+    text: "Truyền Logger vào constructor nhưng test không quan tâm log gì cả",
+    match: "dummy",
+    why: "Test không kiểm tra log. Logger chỉ cần thỏa interface để compile → Dummy (vd <code>NoopLogger{}</code>) là đủ. Stub cũng được nhưng overkill."
+  },
+  {
+    id: "fixed-rate",
+    text: "Test CalculateTax — TaxRateProvider luôn trả 0.1, không cần verify gì",
+    match: "stub",
+    why: "Chỉ cần dependency 'trả lời có sẵn' để code đi xuôi. Không assert có gọi hay không (vì verify <code>tax(100)==110</code> là đủ behavior). → Stub."
+  },
+  {
+    id: "count-emails",
+    text: "Test SendNotifications — verify Email.Send gọi đúng N lần, đúng địa chỉ",
+    match: "spy",
+    why: "Cần đếm calls + capture argument để assert. Hand-written <code>SpyEmailSender</code> với <code>SendCount</code> và <code>LastCall</code> là vừa đủ."
+  },
+  {
+    id: "strict-order",
+    text: "Test workflow phải gọi Auth.Login → User.Load → Audit.Write theo đúng thứ tự",
+    match: "mock",
+    why: "Cần verify <strong>chuỗi tương tác chính xác</strong> giữa nhiều method. Strict expectations + InOrder → dùng generated Mock (gomock) hoặc testify/mock."
+  },
+  {
+    id: "crud-workflow",
+    text: "Test workflow Create → Update → Delete → Get, mỗi bước phụ thuộc state bước trước",
+    match: "fake",
+    why: "State phải tồn tại qua nhiều method call. Mock từng <code>.On()</code> cho mỗi bước = fragile. → Fake (InMemoryUserStore) chạy logic thật, ngắn gọn."
+  },
+  {
+    id: "external-api",
+    text: "Test client gọi API thanh toán bên thứ 3 — không muốn gọi sandbox thật",
+    match: "stub",
+    why: "Trong trường hợp đơn giản: stub HTTPClient trả response cố định cho mỗi case. Phức tạp hơn (verify request body) → spy/mock. Đáp án 'tốt nhất' là <strong>Stub cho input, Spy cho assert request</strong>."
+  },
+  {
+    id: "time-sensitive",
+    text: "Test IsExpired so sánh với time.Now() — cần thời gian cố định",
+    match: "stub",
+    why: "Inject hàm <code>now func() time.Time</code> trả thời gian cố định cho test. Đây là Stub dạng function — đơn giản nhất."
+  },
+];
+
+const taxGrid = document.getElementById("tax-grid");
+DOUBLES.forEach(d => {
+  const el = document.createElement("div");
+  el.className = "tax-card";
+  el.id = `tax-${d.id}`;
+  el.innerHTML = `<div class="name">${d.name}</div>
+    <div class="role">${d.role}</div>
+    <div class="props">${d.props}</div>`;
+  taxGrid.appendChild(el);
+});
+
+const scnControls = document.getElementById("scn-controls");
+SCENARIOS.forEach((s, i) => {
+  const b = document.createElement("button");
+  b.className = i === 0 ? "" : "secondary";
+  b.textContent = `S${i+1}`;
+  b.title = s.text;
+  b.onclick = () => pickScenario(s.id);
+  scnControls.appendChild(b);
+});
+
+function pickScenario(id) {
+  const s = SCENARIOS.find(x => x.id === id);
+  if (!s) return;
+  document.getElementById("scn-text").innerHTML = " " + s.text;
+  DOUBLES.forEach(d => {
+    const el = document.getElementById(`tax-${d.id}`);
+    el.classList.remove("match", "dim");
+    if (d.id === s.match) el.classList.add("match");
+    else el.classList.add("dim");
+  });
+  const matchName = DOUBLES.find(d => d.id === s.match).name;
+  const v = document.getElementById("verdict");
+  v.className = "verdict show";
+  v.innerHTML = `<strong>Gợi ý: ${matchName}</strong><br>${s.why}`;
+}
+
+// Pick first scenario by default
+pickScenario(SCENARIOS[0].id);
+
+// ============================================================
+// MODULE 2 — DI flow
+// ============================================================
+function renderDI(mode) {
+  const stage = document.getElementById("di-stage");
+  const exp = document.getElementById("di-explain");
+  const cls = mode === "prod" ? "prod" : "test";
+  const label = mode === "prod" ? "Production wiring (cmd/server/main.go)" : "Test wiring (svc_test.go)";
+
+  let storeBox, emailBox;
+  if (mode === "prod") {
+    storeBox = `<div class="di-label">UserStore impl</div>
+      <div class="di-content">postgres.NewUserStore(dbConn)</div>
+      <div class="di-comment">// kết nối Postgres thật, query SQL</div>`;
+    emailBox = `<div class="di-label">EmailSender impl</div>
+      <div class="di-content">smtp.NewSender("smtp.gmail.com:587", auth)</div>
+      <div class="di-comment">// gửi mail thật qua SMTP</div>`;
+  } else {
+    storeBox = `<div class="di-label">UserStore impl</div>
+      <div class="di-content">&MockUserStore{GetFunc: returnAlice}</div>
+      <div class="di-comment">// hand-written, return user cố định</div>`;
+    emailBox = `<div class="di-label">EmailSender impl</div>
+      <div class="di-content">&MockEmailSender{}</div>
+      <div class="di-comment">// spy — không gửi mail, chỉ đếm calls</div>`;
+  }
+
+  stage.innerHTML = `
+    <div style="font-weight:700; color:#a0aec0; margin-bottom:8px;">${label}</div>
+
+    <div class="di-box ${cls}">${storeBox}</div>
+    <div class="di-box ${cls}">${emailBox}</div>
+    <div class="di-arrow">↓ inject qua constructor ↓</div>
+    <div class="di-box ${cls}">
+      <div class="di-label">NotifyService — KHÔNG đổi giữa prod/test</div>
+      <div class="di-content">svc := NewNotifyService(
+  <span class="di-iface">UserStore</span>,
+  <span class="di-iface">EmailSender</span>,
+)</div>
+      <div class="di-comment">// chỉ nhận interface, không biết impl nào</div>
+    </div>`;
+
+  if (mode === "prod") {
+    exp.innerHTML = `Trong production, <code class="inline">main.go</code> wire dependency thật: connect Postgres, mở SMTP. NotifyService không hề biết đó là Postgres hay MySQL — nó chỉ thấy <code class="inline">UserStore</code> interface.`;
+  } else {
+    exp.innerHTML = `Trong test, ta truyền <strong>mock</strong> thay vào. Cùng signature, cùng interface — NotifyService không cần đổi 1 dòng nào. Đó là điểm mạnh của <strong>DI qua interface</strong>: hoán đổi impl mà không sửa consumer.`;
+  }
+}
+
+function setDIMode(mode) {
+  document.getElementById("di-prod").classList.toggle("active", mode === "prod");
+  document.getElementById("di-test").classList.toggle("active", mode === "test");
+  renderDI(mode);
+}
+renderDI("prod");
+
+// ============================================================
+// MODULE 3 — Mock trace
+// ============================================================
+const TRACE_HAPPY = [
+  { actor: "test",  line: '<span class="comment">// Test setup:</span>' },
+  { actor: "test",  line: 'store := new(MockUserStore)' },
+  { actor: "test",  line: 'email := new(MockEmailSender)' },
+  { actor: "test",  line: '<span class="expect">store.On("Get", 42).Return(&User{42,"alice","a@x"}, nil)</span>' },
+  { actor: "test",  line: '<span class="expect">email.On("Send", "a@x", ...).Return(nil)</span>' },
+  { actor: "test",  line: 'svc := NewNotifyService(store, email)' },
+  { actor: "svc",   line: '<span class="comment">// Test action:</span>' },
+  { actor: "svc",   line: 'svc.NotifyUser(42)' },
+  { actor: "svc",   line: '  <span class="arrow-call">→ store.Get(42)</span>' },
+  { actor: "mock",  line: '    <span class="comment">// mock match expectation:</span>' },
+  { actor: "mock",  line: '    <span class="arrow-ret">← &User{42,"alice","a@x"}, nil</span>' },
+  { actor: "svc",   line: '  <span class="arrow-call">→ email.Send("a@x", "Welcome alice!", ...)</span>' },
+  { actor: "mock",  line: '    <span class="arrow-ret">← nil</span>' },
+  { actor: "svc",   line: '<span class="arrow-ret">← nil (no error)</span>' },
+  { actor: "test",  line: '<span class="comment">// Verify:</span>' },
+  { actor: "test",  line: 'store.AssertExpectations(t) <span class="pass">✓ PASS</span>' },
+  { actor: "test",  line: 'email.AssertExpectations(t) <span class="pass">✓ PASS</span>' },
+  { actor: "test",  line: '<span class="pass">--- PASS: TestNotifyUser (0.00s)</span>' },
+];
+
+const TRACE_FAIL = [
+  { actor: "test",  line: '<span class="comment">// Test setup:</span>' },
+  { actor: "test",  line: 'store := new(MockUserStore)' },
+  { actor: "test",  line: '<span class="expect">store.On("Get", 42).Return(user, nil)</span> <span class="comment">// expect id=42</span>' },
+  { actor: "test",  line: 'svc := NewNotifyService(store, email)' },
+  { actor: "svc",   line: 'svc.NotifyUser(<span class="fail">99</span>) <span class="comment">// uh oh, wrong ID</span>' },
+  { actor: "svc",   line: '  <span class="arrow-call">→ store.Get(99)</span>' },
+  { actor: "mock",  line: '    <span class="fail">✗ NO MATCH — expectation was Get(42)</span>' },
+  { actor: "mock",  line: '    <span class="arrow-ret">← panic / zero value</span>' },
+  { actor: "test",  line: 'store.AssertExpectations(t)' },
+  { actor: "test",  line: '<span class="fail">--- FAIL: TestNotifyUser</span>' },
+  { actor: "test",  line: '<span class="fail">  expected Get(42) was not called</span>' },
+];
+
+let traceTimer = null;
+function clearTimer() { if (traceTimer) { clearTimeout(traceTimer); traceTimer = null; } }
+
+function setActor(a) {
+  ["test","svc","mock"].forEach(id => {
+    document.getElementById(`actor-${id}`).classList.toggle("active", id === a);
+  });
+}
+
+function playSeq(seq) {
+  resetTrace();
+  const log = document.getElementById("trace-log");
+  seq.forEach((step, i) => {
+    const div = document.createElement("div");
+    div.className = "step";
+    div.innerHTML = step.line;
+    log.appendChild(div);
+  });
+  let i = 0;
+  function tick() {
+    if (i >= seq.length) { setActor(null); return; }
+    const node = log.children[i];
+    node.classList.add("show");
+    setActor(seq[i].actor);
+    log.scrollTop = log.scrollHeight;
+    i++;
+    traceTimer = setTimeout(tick, 620);
+  }
+  tick();
+}
+
+function playTrace()    { clearTimer(); playSeq(TRACE_HAPPY); }
+function playTraceFail(){ clearTimer(); playSeq(TRACE_FAIL); }
+function resetTrace() {
+  clearTimer();
+  document.getElementById("trace-log").innerHTML = "";
+  setActor(null);
+}
+
+// Initial demo: skeleton message
+document.getElementById("trace-log").innerHTML =
+  '<div class="step show comment">// Bấm "▶ Play" để xem trace động.</div>';
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

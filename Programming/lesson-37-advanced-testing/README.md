@@ -316,24 +316,9 @@ CI nên có 2 job: `go test ./...` (fast, mọi PR) + `go test -race ./...`
 
 ### 4.2 Cách tách bằng build tag
 
-Đặt ở dòng ĐẦU file:
-
-```go
-//go:build integration
-
-package mypkg
-
-// ...test thường...
-```
-
-Sau đó:
-
-```bash
-go test ./...                      # bỏ qua file integration
-go test -tags=integration ./...    # build file integration
-```
-
-Convention naming: `solutions_integration_test.go`. Xem file
+Đặt `//go:build integration` ở dòng ĐẦU file. Sau đó `go test ./...` bỏ
+qua, `go test -tags=integration ./...` mới build. Convention naming:
+`solutions_integration_test.go`. Xem file
 [`solutions_integration_test.go`](./solutions_integration_test.go) trong lesson.
 
 ### 4.3 Convention dự án thật

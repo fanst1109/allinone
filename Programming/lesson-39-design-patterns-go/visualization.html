@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L39 — Design Patterns trong Go</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #00add8;
+    --accent-hover: #007d9c;
+    --accent-soft: #e6f7fc;
+    --ok: #38a169;
+    --warn: #d69e2e;
+    --err: #e53e3e;
+    --bg-card: #ffffff;
+    --code-bg: #1a202c;
+    --code-fg: #e2e8f0;
+  }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 80px; }
+  h1 { color: #2d3748; margin-top: 0; }
+  .intro { color: #4a5568; line-height: 1.55; max-width: 820px; }
+
+  .module {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 32px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+  .module h2 {
+    margin-top: 0;
+    color: #2d3748;
+    border-bottom: 2px solid var(--accent-soft);
+    padding-bottom: 8px;
+  }
+  .module .desc { color: #4a5568; line-height: 1.55; }
+
+  .controls {
+    margin: 14px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+
+  button.viz-btn {
+    padding: 8px 14px;
+    border: 0;
+    background: var(--accent);
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  button.viz-btn:hover { background: var(--accent-hover); }
+  button.viz-btn.secondary { background: #6b7280; }
+  button.viz-btn.secondary:hover { background: #4b5563; }
+  button.viz-btn:disabled { background: #cbd5e0; cursor: not-allowed; }
+
+  .code {
+    font-family: 'Fira Code', Consolas, monospace;
+    background: var(--code-bg);
+    color: var(--code-fg);
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-x: auto;
+  }
+  .code .kw   { color: #fbb6ce; }
+  .code .str  { color: #9ae6b4; }
+  .code .num  { color: #f6ad55; }
+  .code .cmt  { color: #718096; font-style: italic; }
+  .code .ok   { color: #68d391; }
+  .code .err  { color: #fc8181; }
+  .code .hl   { background: #2d3748; padding: 1px 4px; border-radius: 3px; }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+
+  .col h3 { margin-top: 0; font-size: 14px; color: #4a5568; text-transform: uppercase; letter-spacing: .5px; }
+
+  /* ===== Module 1 — Functional Options ===== */
+  .opt-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .opt-card {
+    border: 2px solid #cbd5e0;
+    border-radius: 6px;
+    padding: 10px 12px;
+    cursor: pointer;
+    background: #f7fafc;
+    transition: all .2s;
+    user-select: none;
+  }
+  .opt-card:hover { border-color: var(--accent); }
+  .opt-card.active {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .opt-card .opt-name { font-family: 'Fira Code', monospace; font-weight: 700; color: var(--accent-hover); font-size: 13px; }
+  .opt-card .opt-desc { font-size: 12px; color: #4a5568; margin-top: 2px; }
+  .opt-card .opt-input {
+    margin-top: 6px;
+    width: 100%;
+    padding: 4px 6px;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    font-family: 'Fira Code', monospace;
+    font-size: 12px;
+    box-sizing: border-box;
+  }
+
+  /* ===== Module 2 — Middleware Chain ===== */
+  .chain-svg-wrap {
+    width: 100%;
+    overflow-x: auto;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px;
+  }
+  .chain-svg { display: block; width: 100%; height: auto; }
+
+  .mw-box rect {
+    fill: #ffffff;
+    stroke: #cbd5e0;
+    stroke-width: 2;
+    transition: fill .25s, stroke .25s;
+    rx: 6;
+  }
+  .mw-box.req-active rect { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 3; }
+  .mw-box.res-active rect { fill: #c6f6d5; stroke: var(--ok); stroke-width: 3; }
+  .mw-box.blocked rect    { fill: #fed7d7; stroke: var(--err); stroke-width: 3; }
+  .mw-box text { font-family: 'Fira Code', monospace; pointer-events: none; }
+  .mw-box .nm { font-weight: 700; font-size: 12px; fill: #2d3748; }
+  .mw-box .sub { font-size: 10px; fill: #4a5568; }
+
+  .mw-arrow {
+    stroke: #a0aec0;
+    stroke-width: 2;
+    fill: none;
+    marker-end: url(#mw-arr);
+    transition: stroke .25s, stroke-width .25s;
+  }
+  .mw-arrow.req-active  { stroke: var(--accent); stroke-width: 3; }
+  .mw-arrow.res-active  { stroke: var(--ok); stroke-width: 3; }
+  .mw-arrow.blocked-arr { stroke: var(--err); stroke-width: 3; stroke-dasharray: 5 3; }
+
+  .chain-log {
+    font-family: 'Fira Code', Consolas, monospace;
+    background: var(--code-bg);
+    color: var(--code-fg);
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    max-height: 200px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    margin-top: 12px;
+  }
+  .chain-log .ok  { color: #68d391; }
+  .chain-log .err { color: #fc8181; }
+  .chain-log .dim { color: #a0aec0; }
+
+  /* ===== Module 3 — Strategy ===== */
+  .strat-pick {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+  .strat-btn {
+    padding: 8px 16px;
+    border: 2px solid #cbd5e0;
+    background: #f7fafc;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Fira Code', monospace;
+    font-weight: 600;
+    font-size: 13px;
+    color: #4a5568;
+  }
+  .strat-btn:hover { border-color: var(--accent); }
+  .strat-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  .strat-result {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
+  }
+  .strat-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 8px 0;
+  }
+  .strat-bar-wrap .label {
+    font-family: 'Fira Code', monospace;
+    font-size: 12px;
+    width: 90px;
+    color: #4a5568;
+    flex-shrink: 0;
+  }
+  .strat-bar {
+    height: 24px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+    border-radius: 4px;
+    transition: width .5s ease;
+    display: flex;
+    align-items: center;
+    color: white;
+    padding-left: 8px;
+    font-size: 12px;
+    font-family: 'Fira Code', monospace;
+    font-weight: 600;
+    min-width: 40px;
+  }
+  .strat-bar.input-bar { background: linear-gradient(90deg, #a0aec0, #718096); }
+
+  .strat-explain {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #4a5568;
+    line-height: 1.55;
+  }
+  .strat-explain code {
+    background: var(--code-bg);
+    color: var(--code-fg);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 12px;
+  }
+
+  @media (max-width: 480px) {
+    main { padding: 16px 8px 80px; }
+    .module { padding: 16px; }
+    .opt-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-38-mocking-test-doubles/visualization.html">← L38: Mocking</a>
+  <span class="sep">·</span>
+  <span class="current">L39: Design Patterns</span>
+  <span class="sep">·</span>
+  <a href="../lesson-40-error-handling-deep/visualization.html">L40: Error Handling Deep →</a>
+</nav>
+
+<main>
+  <h1>L39 — Design Patterns trong Go</h1>
+  <p class="intro">
+    Ba module tương tác cho 3 pattern phổ biến nhất trong Go production:
+    <strong>Functional Options</strong> (constructor sạch), <strong>Middleware Chain</strong>
+    (decorator HTTP), và <strong>Strategy</strong> (interface swap-able). Mở
+    <code>file://</code> là chạy được — không cần build.
+  </p>
+
+  <!-- ============================================================= -->
+  <!-- Module 1 — Functional Options                                 -->
+  <!-- ============================================================= -->
+  <section class="module" id="module-options">
+    <h2>1. Functional Options — build Server bằng option</h2>
+    <p class="desc">
+      Bật/tắt từng option, sửa giá trị, xem code call-site và struct kết quả thay đổi.
+      So sánh "trước" (constructor positional) với "sau" (options sạch).
+    </p>
+
+    <div class="opt-grid" id="opt-grid">
+      <!-- JS render -->
+    </div>
+
+    <div class="two-col">
+      <div class="col">
+        <h3>Call-site (idiomatic)</h3>
+        <div class="code" id="opt-callsite"></div>
+      </div>
+      <div class="col">
+        <h3>Server sau khi build</h3>
+        <div class="code" id="opt-struct"></div>
+      </div>
+    </div>
+
+    <div style="margin-top: 14px;">
+      <h3 style="margin-bottom: 6px; font-size: 14px; color: #4a5568;">So với constructor positional (cách "tệ")</h3>
+      <div class="code" id="opt-bad"></div>
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- Module 2 — Middleware Chain                                   -->
+  <!-- ============================================================= -->
+  <section class="module" id="module-mw">
+    <h2>2. Middleware Chain — request đi qua decorator</h2>
+    <p class="desc">
+      Compose <code>Recover(Logger(Auth(handler)))</code>. Request đi từ ngoài vào trong,
+      response quay ngược ra. Toggle "có Authorization?" và "handler có panic?" để xem
+      flow đổi.
+    </p>
+
+    <div class="controls">
+      <label style="display: flex; align-items: center; gap: 6px;">
+        <input type="checkbox" id="mw-auth-ok" checked>
+        Có header <code>Authorization</code>
+      </label>
+      <label style="display: flex; align-items: center; gap: 6px;">
+        <input type="checkbox" id="mw-panic">
+        Handler panic
+      </label>
+      <button class="viz-btn" id="mw-run">▶ Chạy request</button>
+      <button class="viz-btn secondary" id="mw-reset">Reset</button>
+    </div>
+
+    <div class="chain-svg-wrap">
+      <svg id="mw-svg" class="chain-svg" viewBox="0 0 760 280" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="mw-arr" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#a0aec0"/>
+          </marker>
+        </defs>
+
+        <!-- Boxes -->
+        <g id="mw-box-client" class="mw-box" data-id="client">
+          <rect x="20"  y="100" width="100" height="60"/>
+          <text x="70" y="125" text-anchor="middle" class="nm">Client</text>
+          <text x="70" y="143" text-anchor="middle" class="sub">curl ...</text>
+        </g>
+        <g id="mw-box-recover" class="mw-box" data-id="recover">
+          <rect x="150" y="100" width="100" height="60"/>
+          <text x="200" y="125" text-anchor="middle" class="nm">Recover</text>
+          <text x="200" y="143" text-anchor="middle" class="sub">defer recover</text>
+        </g>
+        <g id="mw-box-logger" class="mw-box" data-id="logger">
+          <rect x="280" y="100" width="100" height="60"/>
+          <text x="330" y="125" text-anchor="middle" class="nm">Logger</text>
+          <text x="330" y="143" text-anchor="middle" class="sub">log ts</text>
+        </g>
+        <g id="mw-box-auth" class="mw-box" data-id="auth">
+          <rect x="410" y="100" width="100" height="60"/>
+          <text x="460" y="125" text-anchor="middle" class="nm">Auth</text>
+          <text x="460" y="143" text-anchor="middle" class="sub">check token</text>
+        </g>
+        <g id="mw-box-handler" class="mw-box" data-id="handler">
+          <rect x="540" y="100" width="100" height="60"/>
+          <text x="590" y="125" text-anchor="middle" class="nm">Handler</text>
+          <text x="590" y="143" text-anchor="middle" class="sub">business</text>
+        </g>
+
+        <!-- Request arrows (top, going right) -->
+        <path id="mw-arr-req-1" class="mw-arrow" d="M120 115 L150 115"/>
+        <path id="mw-arr-req-2" class="mw-arrow" d="M250 115 L280 115"/>
+        <path id="mw-arr-req-3" class="mw-arrow" d="M380 115 L410 115"/>
+        <path id="mw-arr-req-4" class="mw-arrow" d="M510 115 L540 115"/>
+
+        <!-- Response arrows (bottom, going left) -->
+        <path id="mw-arr-res-4" class="mw-arrow" d="M540 145 L510 145"/>
+        <path id="mw-arr-res-3" class="mw-arrow" d="M410 145 L380 145"/>
+        <path id="mw-arr-res-2" class="mw-arrow" d="M280 145 L250 145"/>
+        <path id="mw-arr-res-1" class="mw-arrow" d="M150 145 L120 145"/>
+
+        <!-- Labels -->
+        <text x="380" y="40" text-anchor="middle" fill="#4a5568" font-size="13" font-family="monospace">
+          Request →
+        </text>
+        <text x="380" y="220" text-anchor="middle" fill="#4a5568" font-size="13" font-family="monospace">
+          ← Response
+        </text>
+
+        <!-- Status -->
+        <text id="mw-status" x="380" y="260" text-anchor="middle" font-size="14"
+              font-weight="bold" font-family="monospace" fill="#2d3748">
+          (nhấn Chạy)
+        </text>
+      </svg>
+    </div>
+
+    <div class="chain-log" id="mw-log"><span class="dim">// log sẽ xuất hiện khi chạy request</span></div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- Module 3 — Strategy: Compressor                               -->
+  <!-- ============================================================= -->
+  <section class="module" id="module-strategy">
+    <h2>3. Strategy — swap thuật toán giữ nguyên caller</h2>
+    <p class="desc">
+      Cùng một hàm <code>SaveBlob(c Compressor, data)</code> nhưng đổi concrete strategy
+      thì output khác hẳn. Caller không biết, không quan tâm — chỉ phụ thuộc interface.
+    </p>
+
+    <div class="strat-pick" id="strat-pick">
+      <button class="strat-btn active" data-strat="gzip-fast">GzipCompressor{Fast}</button>
+      <button class="strat-btn" data-strat="gzip-best">GzipCompressor{Best}</button>
+      <button class="strat-btn" data-strat="noop">NoOpCompressor</button>
+    </div>
+
+    <div class="two-col">
+      <div class="col">
+        <h3>Code caller (không đổi)</h3>
+        <div class="code"><span class="kw">func</span> SaveBlob(c <span class="hl">Compressor</span>, data []<span class="kw">byte</span>) {
+    out, _ := c.Compress(data)
+    name := c.Name()
+    <span class="cmt">// ... write to disk</span>
+}
+
+<span class="cmt">// gọi với strategy bất kỳ:</span>
+SaveBlob(<span id="strat-impl" class="ok">GzipCompressor{Fast}</span>, payload)</div>
+      </div>
+      <div class="col">
+        <h3>Kết quả</h3>
+        <div class="strat-result">
+          <div class="strat-bar-wrap">
+            <span class="label">input</span>
+            <div class="strat-bar input-bar" id="bar-in" style="width: 100%;">2400 B</div>
+          </div>
+          <div class="strat-bar-wrap">
+            <span class="label">output</span>
+            <div class="strat-bar" id="bar-out" style="width: 5%;">--</div>
+          </div>
+          <div class="strat-explain" id="strat-explain"></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 16px;">
+      <h3 style="font-size: 14px; color: #4a5568; margin-bottom: 6px;">Interface contract (Go)</h3>
+      <div class="code"><span class="kw">type</span> Compressor <span class="kw">interface</span> {
+    Compress(src []<span class="kw">byte</span>) ([]<span class="kw">byte</span>, <span class="kw">error</span>)
+    Name() <span class="kw">string</span>
+}</div>
+    </div>
+  </section>
+</main>
+
+<script>
+/* ===== Module 1 — Functional Options ===== */
+(function () {
+  const opts = [
+    { id: 'host',        name: 'WithHost',         desc: 'Địa chỉ bind',     type: 'text',  def: '127.0.0.1',  emit: v => `WithHost(${JSON.stringify(v)})`,         apply: (s,v) => { s.host = v; }, },
+    { id: 'port',        name: 'WithPort',         desc: 'Cổng',             type: 'num',   def: '9090',       emit: v => `WithPort(${v})`,                          apply: (s,v) => { s.port = +v; }, },
+    { id: 'tls',         name: 'WithTLS',          desc: 'Bật TLS',          type: 'text',  def: 'cert.pem',   emit: v => `WithTLS(${JSON.stringify(v)}, "key.pem")`,apply: (s,v) => { s.tls = true; s.certFile = v; s.keyFile = "key.pem"; }, },
+    { id: 'readTimeout', name: 'WithReadTimeout',  desc: 'Thời gian đọc',    type: 'text',  def: '30s',        emit: v => `WithReadTimeout(${v})`,                   apply: (s,v) => { s.readTimeout = v; }, },
+    { id: 'maxConns',    name: 'WithMaxConns',     desc: 'Tối đa kết nối',   type: 'num',   def: '500',        emit: v => `WithMaxConns(${v})`,                      apply: (s,v) => { s.maxConns = +v; }, },
+    { id: 'logger',      name: 'WithLogger',       desc: 'Logger custom',    type: 'text',  def: 'jsonLogger', emit: v => `WithLogger(${v})`,                        apply: (s,v) => { s.logger = v; }, },
+  ];
+  const state = {}; opts.forEach(o => state[o.id] = { active: false, value: o.def });
+
+  // initial: bật vài cái cho demo
+  state.port.active = true;
+  state.tls.active  = true;
+
+  const grid = document.getElementById('opt-grid');
+  grid.innerHTML = opts.map(o => `
+    <div class="opt-card ${state[o.id].active ? 'active' : ''}" data-id="${o.id}">
+      <div class="opt-name">${o.name}</div>
+      <div class="opt-desc">${o.desc}</div>
+      <input class="opt-input" type="${o.type === 'num' ? 'number' : 'text'}" value="${state[o.id].value}">
+    </div>
+  `).join('');
+
+  grid.addEventListener('click', e => {
+    const card = e.target.closest('.opt-card');
+    if (!card) return;
+    if (e.target.tagName === 'INPUT') return; // input click ≠ toggle
+    const id = card.dataset.id;
+    state[id].active = !state[id].active;
+    card.classList.toggle('active');
+    render();
+  });
+  grid.addEventListener('input', e => {
+    if (!e.target.classList.contains('opt-input')) return;
+    const card = e.target.closest('.opt-card');
+    state[card.dataset.id].value = e.target.value;
+    if (!state[card.dataset.id].active) {
+      state[card.dataset.id].active = true;
+      card.classList.add('active');
+    }
+    render();
+  });
+
+  function render() {
+    // Call-site
+    const active = opts.filter(o => state[o.id].active);
+    let callsite;
+    if (active.length === 0) {
+      callsite = `<span class="kw">s</span> := NewServer()  <span class="cmt">// tất cả default</span>`;
+    } else {
+      const lines = active.map(o => `    ` + o.emit(state[o.id].value) + ',').join('\n');
+      callsite = `<span class="kw">s</span> := NewServer(\n${lines}\n)`;
+    }
+    document.getElementById('opt-callsite').innerHTML = callsite;
+
+    // Struct
+    const s = { host: '0.0.0.0', port: 8080, tls: false, certFile: '', keyFile: '',
+                readTimeout: '5s', maxConns: 100, logger: 'log.Default()' };
+    active.forEach(o => o.apply(s, state[o.id].value));
+    const lines = [
+      `&Server{`,
+      `    host:         <span class="str">"${s.host}"</span>,`,
+      `    port:         <span class="num">${s.port}</span>,`,
+      `    tls:          <span class="kw">${s.tls}</span>,`,
+    ];
+    if (s.tls) {
+      lines.push(`    certFile:     <span class="str">"${s.certFile}"</span>,`);
+      lines.push(`    keyFile:      <span class="str">"${s.keyFile}"</span>,`);
+    }
+    lines.push(`    readTimeout:  <span class="num">${s.readTimeout}</span>,`);
+    lines.push(`    maxConns:     <span class="num">${s.maxConns}</span>,`);
+    lines.push(`    logger:       ${s.logger},`);
+    lines.push(`}`);
+    document.getElementById('opt-struct').innerHTML = lines.join('\n');
+
+    // Bad (positional) — show "tương đương"
+    const badArgs = [
+      `<span class="str">"${s.host}"</span>`,
+      `<span class="num">${s.port}</span>`,
+      `<span class="kw">${s.tls}</span>`,
+      `<span class="str">"${s.certFile}"</span>`,
+      `<span class="str">"${s.keyFile}"</span>`,
+      `<span class="num">${s.readTimeout}</span>`,
+      `<span class="num">5s</span>`,
+      `<span class="num">${s.maxConns}</span>`,
+      `${s.logger}`,
+    ].join(', ');
+    document.getElementById('opt-bad').innerHTML =
+      `<span class="cmt">// signature: NewServer(host, port, tls, cert, key, readT, writeT, maxConn, logger)</span>\n` +
+      `<span class="kw">s</span> := NewServer(${badArgs})\n` +
+      `<span class="cmt">//                  ^ tham số thứ 4 là gì? phải đếm. Thêm option mới = breaking change.</span>`;
+  }
+  render();
+})();
+
+/* ===== Module 2 — Middleware Chain ===== */
+(function () {
+  const boxes = ['client', 'recover', 'logger', 'auth', 'handler'];
+  const reqArrs = [1, 2, 3, 4]; // mw-arr-req-i
+  const resArrs = [1, 2, 3, 4];
+  const log = document.getElementById('mw-log');
+  const status = document.getElementById('mw-status');
+  let timer = null;
+
+  function reset() {
+    if (timer) { clearTimeout(timer); timer = null; }
+    boxes.forEach(b => {
+      const el = document.getElementById('mw-box-' + b);
+      el.classList.remove('req-active', 'res-active', 'blocked');
+    });
+    reqArrs.forEach(i => {
+      const el = document.getElementById('mw-arr-req-' + i);
+      el.classList.remove('req-active', 'blocked-arr');
+    });
+    resArrs.forEach(i => {
+      const el = document.getElementById('mw-arr-res-' + i);
+      el.classList.remove('res-active', 'blocked-arr');
+    });
+    log.innerHTML = '<span class="dim">// log sẽ xuất hiện khi chạy request</span>';
+    status.textContent = '(nhấn Chạy)';
+    status.setAttribute('fill', '#2d3748');
+  }
+
+  function logLine(text, cls) {
+    const span = document.createElement('span');
+    span.className = cls || '';
+    span.textContent = text + '\n';
+    if (log.querySelector('.dim')) log.innerHTML = '';
+    log.appendChild(span);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function activate(el, cls) { el.classList.add(cls); }
+
+  function step(delay, fn) {
+    return new Promise(resolve => { timer = setTimeout(() => { fn(); resolve(); }, delay); });
+  }
+
+  async function run() {
+    reset();
+    const hasAuth = document.getElementById('mw-auth-ok').checked;
+    const willPanic = document.getElementById('mw-panic').checked;
+
+    const D = 450; // delay per step
+
+    // Request flow
+    await step(0,   () => { activate(document.getElementById('mw-box-client'), 'req-active'); logLine('→ Client gửi GET /api', 'dim'); });
+    await step(D,   () => { activate(document.getElementById('mw-arr-req-1'), 'req-active'); activate(document.getElementById('mw-box-recover'), 'req-active'); logLine('Recover: defer recover() set', 'ok'); });
+    await step(D,   () => { activate(document.getElementById('mw-arr-req-2'), 'req-active'); activate(document.getElementById('mw-box-logger'),  'req-active'); logLine('Logger: → GET /api', 'ok'); });
+    await step(D,   () => { activate(document.getElementById('mw-arr-req-3'), 'req-active'); activate(document.getElementById('mw-box-auth'),    'req-active'); logLine('Auth: kiểm tra Authorization header...', 'ok'); });
+
+    if (!hasAuth) {
+      // Blocked at Auth
+      await step(D, () => {
+        document.getElementById('mw-box-auth').classList.remove('req-active');
+        document.getElementById('mw-box-auth').classList.add('blocked');
+        document.getElementById('mw-arr-req-4').classList.add('blocked-arr');
+        logLine('Auth: ✗ thiếu header → trả 401, KHÔNG gọi next', 'err');
+      });
+      // response goes back through Logger and Recover
+      await step(D, () => {
+        document.getElementById('mw-arr-res-3').classList.add('res-active');
+        document.getElementById('mw-box-logger').classList.remove('req-active');
+        document.getElementById('mw-box-logger').classList.add('res-active');
+        logLine('Logger: ← GET /api (0.2ms) — vẫn chạy', 'ok');
+      });
+      await step(D, () => {
+        document.getElementById('mw-arr-res-2').classList.add('res-active');
+        document.getElementById('mw-box-recover').classList.remove('req-active');
+        document.getElementById('mw-box-recover').classList.add('res-active');
+        logLine('Recover: không có panic, no-op', 'ok');
+      });
+      await step(D, () => {
+        document.getElementById('mw-arr-res-1').classList.add('res-active');
+        document.getElementById('mw-box-client').classList.remove('req-active');
+        document.getElementById('mw-box-client').classList.add('res-active');
+        logLine('← Client nhận: HTTP 401 unauthorized', 'err');
+        status.textContent = '401 Unauthorized';
+        status.setAttribute('fill', '#e53e3e');
+      });
+      return;
+    }
+
+    await step(D, () => {
+      document.getElementById('mw-arr-req-4').classList.add('req-active');
+      document.getElementById('mw-box-handler').classList.add('req-active');
+      logLine('Auth: ✓ token OK → gọi next', 'ok');
+    });
+
+    if (willPanic) {
+      await step(D, () => {
+        document.getElementById('mw-box-handler').classList.remove('req-active');
+        document.getElementById('mw-box-handler').classList.add('blocked');
+        logLine('Handler: panic("boom") 💥', 'err');
+      });
+      // panic unwinds — response arrows từ Handler về Recover
+      await step(D, () => {
+        document.getElementById('mw-arr-res-4').classList.add('blocked-arr');
+        document.getElementById('mw-arr-res-3').classList.add('blocked-arr');
+        logLine('Auth: defer chạy (không có) — panic tiếp tục lan', 'dim');
+      });
+      await step(D, () => {
+        document.getElementById('mw-arr-res-2').classList.add('blocked-arr');
+        document.getElementById('mw-box-logger').classList.remove('req-active');
+        document.getElementById('mw-box-logger').classList.add('blocked');
+        logLine('Logger: defer chạy (không bắt panic) — panic lan tiếp', 'dim');
+      });
+      await step(D, () => {
+        document.getElementById('mw-box-recover').classList.remove('req-active');
+        document.getElementById('mw-box-recover').classList.add('res-active');
+        logLine('Recover: defer recover() BẮT panic 🛡', 'ok');
+        logLine('Recover: log panic, ghi 500 internal', 'ok');
+      });
+      await step(D, () => {
+        document.getElementById('mw-arr-res-1').classList.add('res-active');
+        document.getElementById('mw-box-client').classList.remove('req-active');
+        document.getElementById('mw-box-client').classList.add('res-active');
+        logLine('← Client nhận: HTTP 500 internal server error', 'err');
+        status.textContent = '500 (panic được Recover bắt)';
+        status.setAttribute('fill', '#d69e2e');
+      });
+      return;
+    }
+
+    // Happy path
+    await step(D, () => {
+      document.getElementById('mw-box-handler').classList.remove('req-active');
+      document.getElementById('mw-box-handler').classList.add('res-active');
+      logLine('Handler: xử lý xong → w.Write("ok")', 'ok');
+    });
+    await step(D, () => {
+      document.getElementById('mw-arr-res-4').classList.add('res-active');
+      document.getElementById('mw-box-auth').classList.remove('req-active');
+      document.getElementById('mw-box-auth').classList.add('res-active');
+      logLine('Auth: return — không làm gì thêm', 'ok');
+    });
+    await step(D, () => {
+      document.getElementById('mw-arr-res-3').classList.add('res-active');
+      document.getElementById('mw-box-logger').classList.remove('req-active');
+      document.getElementById('mw-box-logger').classList.add('res-active');
+      logLine('Logger: ← GET /api (1.2ms)', 'ok');
+    });
+    await step(D, () => {
+      document.getElementById('mw-arr-res-2').classList.add('res-active');
+      document.getElementById('mw-box-recover').classList.remove('req-active');
+      document.getElementById('mw-box-recover').classList.add('res-active');
+      logLine('Recover: defer chạy — không panic, no-op', 'ok');
+    });
+    await step(D, () => {
+      document.getElementById('mw-arr-res-1').classList.add('res-active');
+      document.getElementById('mw-box-client').classList.remove('req-active');
+      document.getElementById('mw-box-client').classList.add('res-active');
+      logLine('← Client nhận: HTTP 200 ok', 'ok');
+      status.textContent = '200 OK';
+      status.setAttribute('fill', '#38a169');
+    });
+  }
+
+  document.getElementById('mw-run').addEventListener('click', run);
+  document.getElementById('mw-reset').addEventListener('click', reset);
+})();
+
+/* ===== Module 3 — Strategy: Compressor ===== */
+(function () {
+  // Mô phỏng kết quả compression (đã đo từ solutions.go)
+  // Input: 2400 bytes lặp "hello world " ×200 — rất nén được.
+  const strategies = {
+    'gzip-fast': {
+      label: 'GzipCompressor{Level: BestSpeed}',
+      outBytes: 67,
+      explain: 'Gzip với <code>BestSpeed</code>: ưu tiên tốc độ, ratio thấp hơn BestCompression chút nhưng nén nhanh ~4× — chuẩn cho HTTP response real-time.',
+    },
+    'gzip-best': {
+      label: 'GzipCompressor{Level: BestCompression}',
+      outBytes: 55,
+      explain: 'Gzip với <code>BestCompression</code>: nén tốt nhất nhưng chậm hơn ~3-5×. Dùng cho backup, asset bundle build-time.',
+    },
+    'noop': {
+      label: 'NoOpCompressor{}',
+      outBytes: 2400,
+      explain: '<code>NoOpCompressor</code> chỉ copy, không nén. Dùng trong test, hoặc khi data đã pre-compressed (vd jpeg, mp4) — nén lại tốn CPU mà không giảm size.',
+    },
+  };
+  const inputBytes = 2400;
+  const maxBarWidth = 100; // % - input fixed 100%
+
+  function pick(key) {
+    document.querySelectorAll('.strat-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.strat === key);
+    });
+    const s = strategies[key];
+    document.getElementById('strat-impl').textContent = s.label;
+    const out = document.getElementById('bar-out');
+    const ratio = s.outBytes / inputBytes;
+    const widthPct = Math.max(2, ratio * 100); // tối thiểu 2% để nhìn thấy
+    out.style.width = widthPct + '%';
+    out.textContent = s.outBytes + ' B (' + (ratio * 100).toFixed(1) + '%)';
+    document.getElementById('strat-explain').innerHTML = s.explain +
+      ' <br><strong>Caller code không đổi</strong> — chỉ struct truyền vào khác.';
+  }
+
+  document.querySelectorAll('.strat-btn').forEach(b => {
+    b.addEventListener('click', () => pick(b.dataset.strat));
+  });
+  pick('gzip-fast');
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

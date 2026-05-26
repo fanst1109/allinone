@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<title>Lesson 04 — Đọc code & Debug</title>
+<style>
+  main { max-width: 1100px; margin: 0 auto; padding: 16px; }
+  h1 { margin: 12px 0 4px; }
+  .subtitle { color: #6b7280; margin-bottom: 18px; }
+  .panel { background: #fff; border-radius: 10px; padding: 18px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  h2 { margin-top: 0; color: #1f2937; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; }
+  h3 { color: #374151; margin: 14px 0 8px; }
+  button { background: #4299e1; color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; cursor: pointer; margin: 4px 4px 4px 0; font-size: 14px; font-weight: 600; }
+  button:hover { background: #2b6cb0; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  button.secondary { background: #718096; }
+  button.success { background: #38a169; }
+  button.danger { background: #e53e3e; }
+
+  /* Module 1: Codebase explorer */
+  .explorer { display: grid; grid-template-columns: 280px 1fr; gap: 12px; }
+  .tree { background: #1a202c; color: #e2e8f0; border-radius: 6px; padding: 12px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; line-height: 1.7; }
+  .tree-item { padding: 2px 6px; border-radius: 4px; cursor: pointer; user-select: none; }
+  .tree-item:hover { background: #2d3748; }
+  .tree-item.active { background: #4299e1; color: #fff; font-weight: 600; }
+  .tree-item.in-path { background: rgba(66, 153, 225, 0.2); }
+  .tree-folder { color: #90cdf4; }
+  .tree-file { color: #e2e8f0; }
+  .file-view { background: #f7fafc; border-radius: 6px; padding: 12px 14px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; line-height: 1.6; min-height: 320px; overflow-x: auto; }
+  .file-view .filename { color: #2d3748; font-weight: 700; border-bottom: 1px solid #cbd5e0; padding-bottom: 6px; margin-bottom: 8px; }
+  .file-view pre { margin: 0; white-space: pre-wrap; word-break: break-word; }
+  .symbol { color: #d53f8c; cursor: pointer; text-decoration: underline dotted; font-weight: 600; }
+  .symbol:hover { background: #fed7e2; }
+  .step-bar { background: #edf2f7; padding: 10px 14px; border-radius: 6px; margin-top: 12px; font-size: 14px; }
+  .step-bar.active { background: #c6f6d5; }
+  .happy-path { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; align-items: center; }
+  .happy-path .node { background: #fff; border: 2px solid #cbd5e0; padding: 4px 10px; border-radius: 16px; font-size: 12px; font-family: monospace; }
+  .happy-path .node.done { background: #c6f6d5; border-color: #38a169; }
+  .happy-path .arrow { color: #a0aec0; font-weight: 700; }
+
+  /* Module 2: Stack trace decoder */
+  .stack-tabs { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+  .stack-tab { background: #edf2f7; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; color: #4a5568; border: 2px solid transparent; }
+  .stack-tab.active { background: #4299e1; color: #fff; border-color: #2b6cb0; }
+  .stack-view { background: #1a202c; color: #e2e8f0; border-radius: 6px; padding: 14px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; line-height: 1.7; overflow-x: auto; }
+  .stack-line { padding: 4px 8px; border-radius: 4px; cursor: pointer; transition: background .15s; }
+  .stack-line:hover { background: #2d3748; }
+  .stack-line.selected { background: #4299e1; color: #fff; }
+  .stack-line.panic-msg { color: #fc8181; font-weight: 600; }
+  .stack-line.app-frame { color: #faf089; }
+  .stack-line.runtime-frame { color: #a0aec0; }
+  .stack-explain { background: #fffaf0; border-left: 4px solid #dd6b20; padding: 10px 14px; margin-top: 10px; font-size: 14px; line-height: 1.55; border-radius: 4px; }
+  .stack-explain h4 { margin: 0 0 4px; color: #c05621; font-size: 14px; }
+
+  /* Module 3: Bisect simulator */
+  .commits { display: flex; flex-wrap: wrap; gap: 4px; margin: 12px 0; }
+  .commit { width: 28px; height: 28px; border-radius: 4px; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #4a5568; font-family: monospace; cursor: default; position: relative; }
+  .commit.tested-good { background: #38a169; color: #fff; }
+  .commit.tested-bad { background: #e53e3e; color: #fff; }
+  .commit.suggested { outline: 3px solid #d69e2e; outline-offset: 1px; }
+  .commit.found { background: #d69e2e; color: #fff; outline: 3px solid #fc8181; }
+  .commit.range-low { box-shadow: inset 0 -3px 0 #38a169; }
+  .commit.range-high { box-shadow: inset 0 -3px 0 #e53e3e; }
+  .bisect-info { background: #ebf8ff; padding: 12px 14px; border-radius: 6px; margin: 10px 0; font-size: 14px; line-height: 1.6; }
+  .bisect-info code { background: #fff; padding: 1px 6px; border-radius: 3px; color: #2b6cb0; }
+  .bisect-log { background: #f7fafc; padding: 10px 12px; border-radius: 6px; font-family: monospace; font-size: 12px; line-height: 1.7; max-height: 180px; overflow-y: auto; border: 1px solid #e2e8f0; }
+  .bisect-log .line { padding: 1px 0; }
+  .bisect-log .line.good { color: #2f855a; }
+  .bisect-log .line.bad { color: #c53030; }
+  .bisect-log .line.suggest { color: #b7791f; }
+  .bisect-log .line.found { color: #d69e2e; font-weight: 700; }
+
+  /* responsive */
+  @media (max-width: 768px) {
+    main { padding: 10px; }
+    .explorer { grid-template-columns: 1fr; }
+    .tree { font-size: 12px; }
+    .file-view { font-size: 12px; min-height: 220px; }
+    h2 { font-size: 18px; }
+    .commit { width: 24px; height: 24px; font-size: 10px; }
+  }
+  @media (max-width: 480px) {
+    .stack-view { font-size: 12px; padding: 10px; }
+    .commit { width: 22px; height: 22px; font-size: 9px; }
+    button { font-size: 13px; padding: 7px 10px; }
+  }
+</style>
+</head>
+<body>
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-command-line-mastery/visualization.html">← L3: Command Line</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Đọc code &amp; Debug</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-why-go-philosophy/visualization.html">L5: Vì sao Go? →</a>
+</nav>
+
+<h1>Lesson 04 — Đọc code &amp; Debug</h1>
+<div class="subtitle">Ba module tương tác: trace happy path qua codebase, đọc stack trace, và chơi <code>git bisect</code>.</div>
+
+<!-- ====================== MODULE 1: CODEBASE EXPLORER ====================== -->
+<div class="panel">
+<h2>1. Codebase Explorer — trace happy path</h2>
+<p>Bạn vừa clone <code>payment-api</code>. Click vào từng file để xem nội dung. Click <strong>tên hàm gạch chân</strong> (giả lập <em>Go to Definition</em> = F12) để nhảy tới định nghĩa. Hoặc bấm <strong>Auto trace</strong> để xem cách top-down đi từ entry point đến điểm bug.</p>
+
+<div class="explorer">
+  <div class="tree" id="treeView"></div>
+  <div class="file-view" id="fileView">
+    <div class="filename">— Chọn 1 file ở cây bên trái —</div>
+    <div style="color:#718096; font-size:13px;">Gợi ý: bắt đầu từ <code>cmd/server/main.go</code>.</div>
+  </div>
+</div>
+
+<div class="happy-path" id="happyPath">
+  <span style="font-size:12px;color:#718096;">Happy path:</span>
+</div>
+
+<div class="step-bar" id="stepBar">Bước hiện tại: chưa bắt đầu. Bấm <strong>Auto trace</strong> để demo, hoặc tự click qua các file.</div>
+
+<div style="margin-top:12px;">
+  <button onclick="autoTrace()">▶ Auto trace happy path</button>
+  <button class="secondary" onclick="resetExplorer()">Reset</button>
+</div>
+</div>
+
+<!-- ====================== MODULE 2: STACK TRACE DECODER ====================== -->
+<div class="panel">
+<h2>2. Stack trace decoder</h2>
+<p>Chọn 1 stack trace mẫu, sau đó <strong>click vào từng dòng</strong> để xem giải thích.</p>
+
+<div class="stack-tabs" id="stackTabs"></div>
+<div class="stack-view" id="stackView"></div>
+<div class="stack-explain" id="stackExplain">
+  <h4>📖 Giải thích</h4>
+  <div>Click vào 1 dòng trong stack trace ở trên để xem ý nghĩa.</div>
+</div>
+</div>
+
+<!-- ====================== MODULE 3: BISECT SIMULATOR ====================== -->
+<div class="panel">
+<h2>3. Bisect simulator — chơi <code>git bisect</code></h2>
+<p>20 commit từ <code>v1.0.0</code> (good) đến <code>HEAD</code> (bad). Bug introduce ở 1 commit ngẫu nhiên giữa. Git binary search — bạn chỉ cần đánh dấu mỗi commit Git suggest là <strong>good</strong> hay <strong>bad</strong>.</p>
+
+<div class="commits" id="commits"></div>
+
+<div class="bisect-info" id="bisectInfo">
+  Bấm <strong>Bắt đầu bisect</strong> để start.
+</div>
+
+<div style="margin-bottom: 10px;">
+  <button onclick="startBisect()">▶ Bắt đầu bisect</button>
+  <button class="success" id="btnGood" disabled onclick="markCommit('good')">✓ git bisect good</button>
+  <button class="danger" id="btnBad" disabled onclick="markCommit('bad')">✗ git bisect bad</button>
+  <button class="secondary" onclick="resetBisect()">Reset</button>
+</div>
+
+<div class="bisect-log" id="bisectLog">— log sẽ hiện ở đây —</div>
+</div>
+
+<script>
+/* ============================================================
+   MODULE 1: CODEBASE EXPLORER
+   ============================================================ */
+
+const FILES = {
+  'go.mod': {
+    folder: 'root',
+    content: `module example.com/payment
+
+go 1.22
+
+require (
+    github.com/go-chi/chi/v5 v5.0.10
+    github.com/stripe/stripe-go/v76 v76.0.0
+    github.com/jackc/pgx/v5 v5.5.0
+)`,
+    refs: [],
+    note: 'Cho biết project tên gì, dùng router chi, Stripe SDK, Postgres driver. Đọc go.mod ĐẦU TIÊN.'
+  },
+  'cmd/server/main.go': {
+    folder: 'cmd/server',
+    content: `package main
+
+import (
+    "log"
+    "net/http"
+    "example.com/payment/internal/handlers"
+    "example.com/payment/internal/service"
+    "github.com/go-chi/chi/v5"
+)
+
+func main() {
+    db := connectDB()
+    chargeSvc := service.NewChargeService(db)
+    h := handlers.New(chargeSvc)
+
+    r := chi.NewRouter()
+    r.Post("/v1/charge", h.{HandleCharge})
+    r.Post("/v1/refund", h.HandleRefund)
+
+    log.Println("server :8080")
+    http.ListenAndServe(":8080", r)
+}`,
+    refs: [{symbol: 'HandleCharge', target: 'internal/handlers/charge.go'}],
+    note: 'Entry point. Route /v1/charge map tới HandleCharge.'
+  },
+  'internal/handlers/charge.go': {
+    folder: 'internal/handlers',
+    content: `package handlers
+
+import (
+    "encoding/json"
+    "net/http"
+)
+
+type Handlers struct {
+    charge *service.ChargeService
+}
+
+func (h *Handlers) HandleCharge(w http.ResponseWriter, r *http.Request) {
+    var req ChargeRequest
+    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+        http.Error(w, "bad body", 400)
+        return
+    }
+    result, err := h.charge.{Charge}(r.Context(), req)
+    if err != nil {
+        http.Error(w, err.Error(), 500)
+        return
+    }
+    json.NewEncoder(w).Encode(result)
+}`,
+    refs: [{symbol: 'Charge', target: 'internal/service/charge.go'}],
+    note: 'Handler MỎNG: parse JSON, gọi service, return response. Không có logic.'
+  },
+  'internal/service/charge.go': {
+    folder: 'internal/service',
+    content: `package service
+
+import "context"
+
+type ChargeService struct {
+    repo   *repo.PaymentRepo
+    stripe *external.StripeClient
+}
+
+func (s *ChargeService) Charge(ctx context.Context, req ChargeRequest) (*Result, error) {
+    if err := validate(req); err != nil {
+        return nil, err
+    }
+    // BUG NGHI Ở ĐÂY: gọi Stripe TRƯỚC khi save DB.
+    // Nếu Stripe timeout rồi retry → charge double.
+    chargeID, err := s.stripe.{Charge}(ctx, req.Amount, req.Card)
+    if err != nil {
+        return nil, err
+    }
+    if err := s.repo.{SaveTransaction}(ctx, chargeID, req); err != nil {
+        return nil, err
+    }
+    return &Result{ChargeID: chargeID}, nil
+}`,
+    refs: [
+      {symbol: 'Charge', target: 'internal/external/stripe.go'},
+      {symbol: 'SaveTransaction', target: 'internal/repo/payment.go'},
+    ],
+    note: 'CORE LOGIC. Đây là vùng nghi bug. Đọc kỹ thứ tự gọi.'
+  },
+  'internal/external/stripe.go': {
+    folder: 'internal/external',
+    content: `package external
+
+import (
+    "context"
+    "time"
+    "github.com/stripe/stripe-go/v76"
+)
+
+type StripeClient struct {
+    key string
+    timeout time.Duration  // default 3s
+}
+
+// Charge gọi Stripe API, có retry 3 lần nếu timeout.
+// ⚠ BUG: retry KHÔNG dùng idempotency key
+// → mỗi retry charge thêm 1 lần thật!
+func (c *StripeClient) Charge(ctx context.Context, amt int, card string) (string, error) {
+    for attempt := 0; attempt < 3; attempt++ {
+        id, err := c.callAPI(ctx, amt, card)
+        if err == nil {
+            return id, nil
+        }
+        if !isTimeout(err) {
+            return "", err
+        }
+        // retry — nhưng KHÔNG có idempotency key
+    }
+    return "", errors.New("max retries")
+}`,
+    refs: [],
+    note: '🎯 BUG ROOT CAUSE: retry không idempotent. Stripe nhận 3 charge requests với amount giống nhau → trừ tiền 3 lần.'
+  },
+  'internal/repo/payment.go': {
+    folder: 'internal/repo',
+    content: `package repo
+
+import "context"
+
+type PaymentRepo struct {
+    db *pgxpool.Pool
+}
+
+func (r *PaymentRepo) SaveTransaction(ctx context.Context, chargeID string, req ChargeRequest) error {
+    _, err := r.db.Exec(ctx,
+        \`INSERT INTO transactions (charge_id, user_id, amount, created_at)
+         VALUES ($1, $2, $3, NOW())\`,
+        chargeID, req.UserID, req.Amount)
+    return err
+}`,
+    refs: [],
+    note: 'DB layer. Lưu transaction sau khi Stripe charge thành công. Không có bug ở đây.'
+  },
+  'internal/handlers/refund.go': {
+    folder: 'internal/handlers',
+    content: `package handlers
+
+func (h *Handlers) HandleRefund(w http.ResponseWriter, r *http.Request) {
+    // ... (không liên quan ticket charge double)
+}`,
+    refs: [],
+    note: 'Không liên quan ticket. Skip — đây là phần "đọc bỏ qua" của top-down.'
+  }
+};
+
+const FILE_ORDER = [
+  'go.mod',
+  'cmd/server/main.go',
+  'internal/handlers/charge.go',
+  'internal/handlers/refund.go',
+  'internal/service/charge.go',
+  'internal/external/stripe.go',
+  'internal/repo/payment.go',
+];
+
+const HAPPY_PATH = [
+  'go.mod',
+  'cmd/server/main.go',
+  'internal/handlers/charge.go',
+  'internal/service/charge.go',
+  'internal/external/stripe.go',
+];
+
+let visited = new Set();
+let currentFile = null;
+
+function renderTree() {
+  const tree = document.getElementById('treeView');
+  let html = '<div style="color:#9ae6b4">📁 payment-api/</div>';
+  const grouped = {};
+  for (const f of FILE_ORDER) {
+    const parts = f.split('/');
+    if (parts.length === 1) {
+      grouped['_root'] = grouped['_root'] || [];
+      grouped['_root'].push(f);
+    } else {
+      const folder = parts.slice(0, -1).join('/');
+      grouped[folder] = grouped[folder] || [];
+      grouped[folder].push(f);
+    }
+  }
+  for (const f of grouped['_root'] || []) {
+    html += renderItem(f, '  ');
+  }
+  const folders = ['cmd/server', 'internal/handlers', 'internal/service', 'internal/external', 'internal/repo'];
+  const renderedTop = new Set();
+  for (const folder of folders) {
+    const top = folder.split('/')[0];
+    if (!renderedTop.has(top) && folder.startsWith(top + '/')) {
+      html += `<div style="color:#9ae6b4">  📁 ${top}/</div>`;
+      renderedTop.add(top);
+    }
+    html += `<div style="color:#9ae6b4">    📁 ${folder.split('/').slice(1).join('/')}/</div>`;
+    for (const f of grouped[folder] || []) {
+      html += renderItem(f, '      ', folder);
+    }
+  }
+  tree.innerHTML = html;
+}
+
+function renderItem(filepath, indent, folder) {
+  const display = folder ? filepath.replace(folder + '/', '') : filepath;
+  const active = currentFile === filepath ? 'active' : '';
+  const inPath = visited.has(filepath) ? 'in-path' : '';
+  return `<div class="tree-item tree-file ${active} ${inPath}" onclick="openFile('${filepath}')">${indent}📄 ${display}</div>`;
+}
+
+function openFile(filepath) {
+  currentFile = filepath;
+  visited.add(filepath);
+  const f = FILES[filepath];
+  const fv = document.getElementById('fileView');
+  // render content with clickable symbols
+  let content = f.content;
+  for (const ref of f.refs) {
+    const sym = ref.symbol;
+    const re = new RegExp('\\{' + sym + '\\}', 'g');
+    content = content.replace(re, `<span class="symbol" onclick="event.stopPropagation(); openFile('${ref.target}')">${sym}</span>`);
+  }
+  // strip any remaining {} markers
+  content = content.replace(/\{(\w+)\}/g, '$1');
+  fv.innerHTML = `<div class="filename">📄 ${filepath}</div><pre>${content}</pre>` +
+                 `<div style="background:#fffaf0;border-left:3px solid #dd6b20;padding:8px 12px;margin-top:10px;font-size:13px;color:#7c2d12;">${f.note}</div>`;
+  renderTree();
+  updateHappyPath();
+  updateStepBar(filepath);
+}
+
+function updateHappyPath() {
+  const hp = document.getElementById('happyPath');
+  let html = '<span style="font-size:12px;color:#718096;">Happy path:</span>';
+  for (let i = 0; i < HAPPY_PATH.length; i++) {
+    const f = HAPPY_PATH[i];
+    const done = visited.has(f) ? 'done' : '';
+    const short = f.split('/').pop();
+    html += `<span class="node ${done}">${short}</span>`;
+    if (i < HAPPY_PATH.length - 1) html += '<span class="arrow">→</span>';
+  }
+  hp.innerHTML = html;
+}
+
+function updateStepBar(filepath) {
+  const sb = document.getElementById('stepBar');
+  const idx = HAPPY_PATH.indexOf(filepath);
+  if (idx === -1) {
+    sb.className = 'step-bar';
+    sb.innerHTML = `Đang xem <code>${filepath}</code> — file này không nằm trên happy path chính của ticket "charge double".`;
+  } else {
+    sb.className = 'step-bar active';
+    sb.innerHTML = `Bước ${idx + 1}/${HAPPY_PATH.length}: <code>${filepath}</code> — ${
+      ['Đọc deps & module info', 'Đi tới entry point', 'Xem handler mỏng', 'Đào core logic của service', 'Tìm root cause ở external client'][idx]
+    }.`;
+  }
+}
+
+function resetExplorer() {
+  visited.clear();
+  currentFile = null;
+  renderTree();
+  document.getElementById('fileView').innerHTML = '<div class="filename">— Chọn 1 file ở cây bên trái —</div>';
+  document.getElementById('stepBar').className = 'step-bar';
+  document.getElementById('stepBar').innerHTML = 'Bước hiện tại: chưa bắt đầu.';
+  updateHappyPath();
+}
+
+let autoIdx = 0;
+let autoTimer = null;
+function autoTrace() {
+  resetExplorer();
+  autoIdx = 0;
+  if (autoTimer) clearInterval(autoTimer);
+  autoTimer = setInterval(() => {
+    if (autoIdx >= HAPPY_PATH.length) {
+      clearInterval(autoTimer);
+      return;
+    }
+    openFile(HAPPY_PATH[autoIdx]);
+    autoIdx++;
+  }, 1500);
+}
+
+renderTree();
+updateHappyPath();
+
+/* ============================================================
+   MODULE 2: STACK TRACE DECODER
+   ============================================================ */
+
+const STACKS = {
+  nilptr: {
+    label: 'A. Nil pointer dereference',
+    lines: [
+      {text: 'panic: runtime error: invalid memory address or nil pointer dereference', cls: 'panic-msg',
+        explain: '<h4>Đây là dòng PANIC — cho biết loại lỗi</h4>"nil pointer dereference" = code đang gọi <code>.field</code> hoặc <code>*ptr</code> trên một pointer == nil.'},
+      {text: '[signal SIGSEGV: segmentation violation code=0x1 addr=0x0 pc=0x49b3a4]', cls: 'runtime-frame',
+        explain: '<h4>Dòng kernel signal</h4>SIGSEGV = OS nói "bạn truy cập địa chỉ vô hiệu (addr=0x0 = nil)". Đọc cho biết, không cần phân tích.'},
+      {text: '', cls: 'runtime-frame', explain: ''},
+      {text: 'goroutine 1 [running]:', cls: 'runtime-frame',
+        explain: '<h4>Panic ở goroutine nào</h4>Goroutine 1 = main goroutine. Nếu thấy "goroutine 42" thì là goroutine khác → có thể là worker bg.'},
+      {text: 'example.com/app/service.(*ChargeService).Charge(0x0, {0xc0000a4060, 0x5})', cls: 'app-frame',
+        explain: '<h4>⭐ CHỖ PANIC — frame trên cùng của app</h4>Hàm <code>Charge</code> của <code>*ChargeService</code>. Tham số đầu là <code>0x0</code> = <strong>receiver nil</strong>! Nghĩa là biến <code>chargeService</code> chưa init khi gọi <code>.Charge()</code>. Fix ở caller.'},
+      {text: '        /app/service/charge.go:42 +0x24', cls: 'app-frame',
+        explain: '<h4>File + dòng chính xác</h4>Mở <code>/app/service/charge.go</code> dòng 42. <code>+0x24</code> = byte offset trong code đã compile (bỏ qua, không hữu ích cho người).'},
+      {text: 'example.com/app/handlers.HandleCharge({0x5a3920, 0xc0000ae000}, 0xc0000c8000)', cls: 'app-frame',
+        explain: '<h4>Caller — chỗ gọi Charge</h4>Đây là nơi <code>nil</code> được truyền vào (vd <code>var svc *ChargeService; svc.Charge(...)</code> mà chưa <code>= NewChargeService(...)</code>). Bug thật sự thường ở đây.'},
+      {text: '        /app/handlers/charge.go:18 +0x9c', cls: 'app-frame',
+        explain: '<h4>Caller location</h4>Dòng 18 file handlers/charge.go.'},
+      {text: 'net/http.HandlerFunc.ServeHTTP(...)', cls: 'runtime-frame',
+        explain: '<h4>Framework code</h4>Đây là Go std lib (<code>net/http</code>) — không phải code bạn viết. Đọc lướt: chỉ ra "panic xảy ra trong context HTTP handler".'},
+      {text: '        /usr/local/go/src/net/http/server.go:2122', cls: 'runtime-frame', explain: 'std lib — bỏ qua.'},
+    ],
+    summary: 'Bug ở <code>/app/service/charge.go:42</code>. Lý do: <code>*ChargeService</code> nil khi gọi method. Fix: init service trước khi dùng, hoặc check nil guard.'
+  },
+  oor: {
+    label: 'B. Index out of range',
+    lines: [
+      {text: 'panic: runtime error: index out of range [10] with length 5', cls: 'panic-msg',
+        explain: '<h4>Index Out Of Range</h4>Đang access index 10 trên slice có len = 5. Max valid index = 4.'},
+      {text: '', cls: 'runtime-frame', explain: ''},
+      {text: 'goroutine 7 [running]:', cls: 'runtime-frame',
+        explain: '<h4>Goroutine 7</h4>Không phải main → có thể là goroutine xử lý job từ queue.'},
+      {text: 'example.com/scanner.findItem({0xc0000b8000, 0x5, 0x5}, 0xa)', cls: 'app-frame',
+        explain: '<h4>⭐ CHỖ PANIC</h4><code>findItem</code> nhận slice <code>{ptr, 5, 5}</code> (len=5, cap=5) và int <code>0xa</code> (= 10 decimal). Tham số int = 10 chính là index OOR. Tham số đầu là slice header.'},
+      {text: '        /app/scanner/find.go:27 +0x80', cls: 'app-frame',
+        explain: '<h4>Vị trí code</h4>Dòng 27. Có lẽ là <code>return slice[idx]</code> với idx = 10.'},
+      {text: 'example.com/scanner.Run()', cls: 'app-frame',
+        explain: '<h4>Caller</h4>Hàm <code>Run</code> đã truyền idx = 10 vào findItem. Có thể loop sai biên, hoặc input từ user chưa validate.'},
+      {text: '        /app/scanner/run.go:14 +0x50', cls: 'app-frame',
+        explain: '<h4>Caller location</h4>Dòng 14 file run.go.'},
+    ],
+    summary: 'Bug ở <code>find.go:27</code>. Index 10, len 5. Fix: check <code>if idx &lt; len(slice)</code> hoặc dùng range loop.'
+  },
+  cmap: {
+    label: 'C. Concurrent map writes',
+    lines: [
+      {text: 'fatal error: concurrent map writes', cls: 'panic-msg',
+        explain: '<h4>Concurrent Map Writes</h4>2 goroutine cùng <em>write</em> vào 1 map không có lock. Đây là <strong>fatal error</strong> (không phải panic) — Go runtime detect, app crash ngay.'},
+      {text: '', cls: 'runtime-frame', explain: ''},
+      {text: 'goroutine 23 [running]:', cls: 'runtime-frame',
+        explain: '<h4>1 trong 2 goroutine bị bắt</h4>Stack này là của goroutine bị detect — không nhất thiết là "kẻ gây race".'},
+      {text: 'runtime.throw({0x4b8a7e, 0x15})', cls: 'runtime-frame',
+        explain: '<h4>Runtime throw</h4>Go runtime tự throw fatal khi detect concurrent write.'},
+      {text: 'runtime.mapassign_faststr(...)', cls: 'runtime-frame',
+        explain: '<h4>Trong lúc map assign</h4>Runtime đang chạy code map[key] = value cho 1 string key thì phát hiện goroutine khác cũng đang write.'},
+      {text: 'example.com/cache.(*MemCache).Set(0xc000180000, {0xc0001ae020, 0xa}, ...)', cls: 'app-frame',
+        explain: '<h4>⭐ CHỖ APP CODE</h4>Method <code>Set</code> của <code>*MemCache</code>. Đây là chỗ thiếu lock. Fix: thêm <code>sync.RWMutex</code> hoặc đổi sang <code>sync.Map</code>.'},
+      {text: '        /app/cache/mem.go:34 +0x88', cls: 'app-frame',
+        explain: '<h4>File/dòng</h4>Cụ thể dòng <code>m.data[k] = v</code> không có lock bao quanh.'},
+      {text: 'example.com/api.(*Server).handleUpdate(...)', cls: 'app-frame',
+        explain: '<h4>Caller HTTP handler</h4>Mỗi HTTP request là 1 goroutine. Nhiều request đồng thời gọi <code>cache.Set</code> → race.'},
+      {text: '        /app/api/server.go:120 +0x44', cls: 'app-frame', explain: 'Vị trí handler.'},
+    ],
+    summary: 'Bug ở <code>cache/mem.go:34</code>. Map không thread-safe nhưng bị nhiều goroutine write. Fix: <code>sync.RWMutex</code> bao quanh, hoặc <code>sync.Map</code>.'
+  }
+};
+
+let currentStack = 'nilptr';
+function renderStackTabs() {
+  const t = document.getElementById('stackTabs');
+  t.innerHTML = '';
+  for (const key in STACKS) {
+    const btn = document.createElement('div');
+    btn.className = 'stack-tab' + (key === currentStack ? ' active' : '');
+    btn.textContent = STACKS[key].label;
+    btn.onclick = () => { currentStack = key; renderStackTabs(); renderStackView(); };
+    t.appendChild(btn);
+  }
+}
+function renderStackView() {
+  const v = document.getElementById('stackView');
+  const s = STACKS[currentStack];
+  v.innerHTML = '';
+  s.lines.forEach((line, idx) => {
+    const d = document.createElement('div');
+    d.className = 'stack-line ' + (line.cls || '');
+    d.textContent = line.text || ' ';
+    if (line.explain) {
+      d.onclick = () => {
+        document.querySelectorAll('#stackView .stack-line').forEach(e => e.classList.remove('selected'));
+        d.classList.add('selected');
+        document.getElementById('stackExplain').innerHTML = line.explain;
+      };
+    }
+    v.appendChild(d);
+  });
+  // summary block at bottom
+  const sum = document.createElement('div');
+  sum.style.cssText = 'margin-top:14px;padding:10px;background:#2d3748;border-left:4px solid #d69e2e;color:#faf089;border-radius:4px;font-size:13px;';
+  sum.innerHTML = '📌 <strong>Tóm tắt</strong>: ' + s.summary;
+  v.appendChild(sum);
+
+  // reset explain
+  document.getElementById('stackExplain').innerHTML = '<h4>📖 Giải thích</h4><div>Click vào 1 dòng trong stack trace để xem ý nghĩa.</div>';
+}
+renderStackTabs();
+renderStackView();
+
+/* ============================================================
+   MODULE 3: BISECT SIMULATOR
+   ============================================================ */
+
+const N_COMMITS = 20;
+let bugCommit = 0;  // 1..N
+let bisectLow = 1;   // last known good + 1
+let bisectHigh = N_COMMITS;
+let bisectCurrent = null;
+let bisectActive = false;
+let bisectSteps = 0;
+let bisectFound = null;
+let commitState = {}; // commit -> 'good' | 'bad'
+
+function renderCommits() {
+  const c = document.getElementById('commits');
+  c.innerHTML = '';
+  for (let i = 1; i <= N_COMMITS; i++) {
+    const d = document.createElement('div');
+    d.className = 'commit';
+    let cls = '';
+    if (commitState[i] === 'good') cls += ' tested-good';
+    if (commitState[i] === 'bad') cls += ' tested-bad';
+    if (bisectCurrent === i && bisectActive) cls += ' suggested';
+    if (bisectFound === i) cls += ' found';
+    d.className = 'commit' + cls;
+    d.textContent = i;
+    d.title = `Commit ${i}` + (commitState[i] ? ` (${commitState[i]})` : '');
+    c.appendChild(d);
+  }
+}
+
+function logLine(text, cls) {
+  const l = document.getElementById('bisectLog');
+  if (l.textContent.includes('— log sẽ hiện ở đây —')) l.innerHTML = '';
+  const d = document.createElement('div');
+  d.className = 'line ' + (cls || '');
+  d.textContent = text;
+  l.appendChild(d);
+  l.scrollTop = l.scrollHeight;
+}
+
+function startBisect() {
+  resetBisect(true);
+  bugCommit = 2 + Math.floor(Math.random() * (N_COMMITS - 2));  // 2..N
+  bisectLow = 1; bisectHigh = N_COMMITS;
+  bisectActive = true;
+  bisectSteps = 0;
+  bisectFound = null;
+  // initial: mark commit 1 as good baseline (assume)
+  commitState[1] = 'good';
+  commitState[N_COMMITS] = 'bad';
+  logLine('$ git bisect start', 'suggest');
+  logLine(`$ git bisect good ${commitHash(1)}      (v1.0.0 — chắc chắn không có bug)`, 'good');
+  logLine(`$ git bisect bad  ${commitHash(N_COMMITS)}      (HEAD — có bug)`, 'bad');
+  nextSuggest();
+}
+
+function nextSuggest() {
+  // Find next commit to test = middle of (last good, first bad)
+  // lastGood = max commit with 'good' state; firstBad = min commit with 'bad' state
+  let lastGood = 0, firstBad = N_COMMITS + 1;
+  for (let i = 1; i <= N_COMMITS; i++) {
+    if (commitState[i] === 'good') lastGood = Math.max(lastGood, i);
+    if (commitState[i] === 'bad') firstBad = Math.min(firstBad, i);
+  }
+  if (firstBad - lastGood <= 1) {
+    // Found! firstBad is the first bad commit
+    bisectFound = firstBad;
+    bisectActive = false;
+    bisectCurrent = null;
+    logLine(`🎯 ${commitHash(firstBad)} is the first bad commit (commit ${firstBad})`, 'found');
+    logLine(`→ Bug thật sự nằm ở commit ${bugCommit} ${firstBad === bugCommit ? '✓ ĐÚNG' : '⚠ khác'}`, firstBad === bugCommit ? 'good' : 'bad');
+    logLine(`Tổng số bước test: ${bisectSteps}. Lý thuyết max = ceil(log2(${N_COMMITS - 1})) = ${Math.ceil(Math.log2(N_COMMITS - 1))}.`, 'suggest');
+    document.getElementById('btnGood').disabled = true;
+    document.getElementById('btnBad').disabled = true;
+    document.getElementById('bisectInfo').innerHTML = `✅ Tìm thấy! Bug introduce ở commit <code>${bisectFound}</code>. Bisect xong sau <strong>${bisectSteps}</strong> lần test (max lý thuyết ${Math.ceil(Math.log2(N_COMMITS - 1))}).`;
+    renderCommits();
+    return;
+  }
+  bisectCurrent = Math.floor((lastGood + firstBad) / 2);
+  document.getElementById('bisectInfo').innerHTML =
+    `Git suggests: test commit <code>${bisectCurrent}</code> (${commitHash(bisectCurrent)}). Khoảng còn lại: [${lastGood + 1}..${firstBad - 1}] = ${firstBad - lastGood - 1} commit. ` +
+    `Test xong, bấm <strong>good</strong> nếu commit này KHÔNG có bug, <strong>bad</strong> nếu CÓ.`;
+  logLine(`Bisecting: ${firstBad - lastGood - 1} revisions left to test after this (roughly ${Math.max(0, Math.ceil(Math.log2(firstBad - lastGood - 1)))} steps)`, 'suggest');
+  logLine(`[${commitHash(bisectCurrent)}] commit ${bisectCurrent}: testing…`, 'suggest');
+  document.getElementById('btnGood').disabled = false;
+  document.getElementById('btnBad').disabled = false;
+  renderCommits();
+}
+
+function markCommit(verdict) {
+  if (!bisectActive || bisectCurrent === null) return;
+  commitState[bisectCurrent] = verdict;
+  bisectSteps++;
+  const actuallyBuggy = bisectCurrent >= bugCommit;
+  const correct = (verdict === 'bad') === actuallyBuggy;
+  logLine(`$ git bisect ${verdict}     (commit ${bisectCurrent} ${correct ? '✓' : '⚠ - đáp án không khớp ground-truth nhưng vẫn ghi'})`, verdict === 'good' ? 'good' : 'bad');
+  bisectCurrent = null;
+  document.getElementById('btnGood').disabled = true;
+  document.getElementById('btnBad').disabled = true;
+  setTimeout(nextSuggest, 200);
+}
+
+function resetBisect(skipLog) {
+  bisectActive = false;
+  bisectCurrent = null;
+  bisectFound = null;
+  bisectSteps = 0;
+  commitState = {};
+  document.getElementById('btnGood').disabled = true;
+  document.getElementById('btnBad').disabled = true;
+  if (!skipLog) {
+    document.getElementById('bisectLog').innerHTML = '— log sẽ hiện ở đây —';
+    document.getElementById('bisectInfo').innerHTML = 'Bấm <strong>Bắt đầu bisect</strong> để start.';
+  } else {
+    document.getElementById('bisectLog').innerHTML = '';
+  }
+  renderCommits();
+}
+
+function commitHash(i) {
+  // deterministic fake hash
+  const hex = '0123456789abcdef';
+  let h = '';
+  let x = i * 2654435761;
+  for (let j = 0; j < 7; j++) { h += hex[(x >>> (j * 4)) & 0xf]; }
+  return h;
+}
+
+renderCommits();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

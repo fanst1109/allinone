@@ -71,9 +71,9 @@ func TestJWTExpired(t *testing.T) {
 	}
 }
 
-func flipChar(b byte) byte {
+func flipChar(b byte) string {
 	if b == 'A' {
-		return 'B'
+		return "B"
 	}
-	return 'A'
+	return "A"
 }

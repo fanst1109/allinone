@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 02 — sin, cos, tan</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 700px; height: 350px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-angles-radians/visualization.html">← L1: Radian</a>
+  <span class="sep">·</span>
+  <span class="current">L2: sin, cos, tan</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L3: Identity (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 02 (T3) — sin, cos, tan</h1>
+
+<h2>Đồ thị y = A·sin(ω·x + φ) + k</h2>
+<div class="card">
+  <div class="row">
+    <label>A:</label><input type="range" id="pA" min="0.5" max="3" step="0.1" value="1" oninput="draw()">
+    <span class="stat">A = <strong id="vA">1</strong></span>
+    <label>ω:</label><input type="range" id="pW" min="0.5" max="3" step="0.1" value="1" oninput="draw()">
+    <span class="stat">ω = <strong id="vW">1</strong></span>
+  </div>
+  <div class="row">
+    <label>φ:</label><input type="range" id="pP" min="-3.14" max="3.14" step="0.1" value="0" oninput="draw()">
+    <span class="stat">φ = <strong id="vP">0</strong></span>
+    <label>k:</label><input type="range" id="pK" min="-2" max="2" step="0.2" value="0" oninput="draw()">
+    <span class="stat">k = <strong id="vK">0</strong></span>
+  </div>
+  <svg class="scene" id="svg1" viewBox="0 0 700 350"></svg>
+  <div class="result" id="r1"></div>
+</div>
+
+<h2>3 hàm cùng lúc — sin, cos, tan</h2>
+<div class="card">
+  <svg class="scene" id="svg2" viewBox="0 0 700 350"></svg>
+  <p style="font-size:13px; color:#64748b">Xanh = sin, đỏ = cos, tím = tan (có tiệm cận tại π/2, 3π/2). Chu kỳ tan = π, ngắn hơn sin/cos.</p>
+</div>
+
+<script>
+function draw() {
+  const A = parseFloat(document.getElementById("pA").value);
+  const W = parseFloat(document.getElementById("pW").value);
+  const P = parseFloat(document.getElementById("pP").value);
+  const K = parseFloat(document.getElementById("pK").value);
+  document.getElementById("vA").textContent = A.toFixed(1);
+  document.getElementById("vW").textContent = W.toFixed(1);
+  document.getElementById("vP").textContent = P.toFixed(2);
+  document.getElementById("vK").textContent = K.toFixed(1);
+
+  const svg = document.getElementById("svg1");
+  svg.innerHTML = "";
+  const W_PX = 700, H_PX = 350;
+  const cx = 50, cy = H_PX / 2;
+  const xMax = 4 * Math.PI;
+  const scale = (W_PX - 80) / xMax;
+  const yScale = 50;
+
+  // Grid
+  for (let i = 0; i <= 4; i++) {
+    const x = cx + i * Math.PI * scale;
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    g.setAttribute("x1", x); g.setAttribute("y1", 30); g.setAttribute("x2", x); g.setAttribute("y2", H_PX - 30);
+    g.setAttribute("stroke", "#e2e8f0"); g.setAttribute("stroke-width", 0.5);
+    svg.appendChild(g);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", x); t.setAttribute("y", cy + 16); t.setAttribute("text-anchor", "middle"); t.setAttribute("font-size", "11");
+    t.textContent = i === 0 ? "0" : i === 1 ? "π" : (i + "π");
+    svg.appendChild(t);
+  }
+  // Axes
+  const xax = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  xax.setAttribute("x1", cx); xax.setAttribute("y1", cy); xax.setAttribute("x2", W_PX - 30); xax.setAttribute("y2", cy);
+  xax.setAttribute("stroke", "#1a202c"); xax.setAttribute("stroke-width", 1.5);
+  svg.appendChild(xax);
+  const yax = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  yax.setAttribute("x1", cx); yax.setAttribute("y1", 30); yax.setAttribute("x2", cx); yax.setAttribute("y2", H_PX - 30);
+  yax.setAttribute("stroke", "#1a202c"); yax.setAttribute("stroke-width", 1.5);
+  svg.appendChild(yax);
+
+  // Reference sin x (light)
+  let ref = "";
+  for (let x = 0; x <= xMax; x += 0.05) {
+    const y = Math.sin(x);
+    const px = cx + x * scale;
+    const py = cy - y * yScale;
+    ref += (x === 0 ? "M" : "L") + px + " " + py + " ";
+  }
+  const refP = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  refP.setAttribute("d", ref); refP.setAttribute("fill", "none"); refP.setAttribute("stroke", "#cbd5e0"); refP.setAttribute("stroke-width", 1.5); refP.setAttribute("stroke-dasharray", "5,3");
+  svg.appendChild(refP);
+
+  // Custom y = A·sin(ω·x + φ) + k
+  let path = "";
+  for (let x = 0; x <= xMax; x += 0.02) {
+    const y = A * Math.sin(W*x + P) + K;
+    const px = cx + x * scale;
+    const py = cy - y * yScale;
+    path += (x === 0 ? "M" : "L") + px + " " + py + " ";
+  }
+  const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  p.setAttribute("d", path); p.setAttribute("fill", "none"); p.setAttribute("stroke", "#1d4ed8"); p.setAttribute("stroke-width", 2.5);
+  svg.appendChild(p);
+
+  // Labels
+  const lblY = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  lblY.setAttribute("x", cx - 10); lblY.setAttribute("y", cy - A*yScale - 4); lblY.setAttribute("text-anchor", "end"); lblY.setAttribute("font-size", "11");
+  lblY.textContent = A.toFixed(1);
+  svg.appendChild(lblY);
+
+  const period = 2 * Math.PI / W;
+  document.getElementById("r1").innerHTML = `
+    <div style="font-family:monospace; font-size:15px">y = ${A.toFixed(1)}·sin(${W.toFixed(1)}·x ${P >= 0 ? "+" : ""} ${P.toFixed(2)}) ${K >= 0 ? "+" : ""} ${K.toFixed(1)}</div>
+    <div class="row" style="margin-top:6px">
+      <span class="stat">Biên độ: <strong>${A.toFixed(1)}</strong></span>
+      <span class="stat">Chu kỳ: T = 2π/ω = <strong>${period.toFixed(3)}</strong></span>
+      <span class="stat">Tần số (Hz nếu x = giây): <strong>${(1/period).toFixed(3)}</strong></span>
+      <span class="stat">y_max = <strong>${(A+K).toFixed(2)}</strong>, y_min = <strong>${(-A+K).toFixed(2)}</strong></span>
+    </div>
+    <div style="margin-top:6px; font-size:13px; color:#64748b">Đường mờ (gạch) = y = sin(x) gốc để so sánh.</div>
+  `;
+}
+
+function draw3() {
+  const svg = document.getElementById("svg2");
+  svg.innerHTML = "";
+  const W_PX = 700, H_PX = 350;
+  const cx = 50, cy = H_PX / 2;
+  const xMax = 4 * Math.PI;
+  const scale = (W_PX - 80) / xMax;
+  const yScale = 50;
+
+  // Grid
+  for (let i = 0; i <= 4; i++) {
+    const x = cx + i * Math.PI * scale;
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    g.setAttribute("x1", x); g.setAttribute("y1", 30); g.setAttribute("x2", x); g.setAttribute("y2", H_PX - 30);
+    g.setAttribute("stroke", "#e2e8f0"); g.setAttribute("stroke-width", 0.5);
+    svg.appendChild(g);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", x); t.setAttribute("y", cy + 16); t.setAttribute("text-anchor", "middle"); t.setAttribute("font-size", "11");
+    t.textContent = i === 0 ? "0" : i === 1 ? "π" : (i + "π");
+    svg.appendChild(t);
+  }
+  // Axes
+  ["xax", "yax"].forEach((id, i) => {
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    if (i === 0) { l.setAttribute("x1", cx); l.setAttribute("y1", cy); l.setAttribute("x2", W_PX-30); l.setAttribute("y2", cy); }
+    else { l.setAttribute("x1", cx); l.setAttribute("y1", 30); l.setAttribute("x2", cx); l.setAttribute("y2", H_PX-30); }
+    l.setAttribute("stroke", "#1a202c"); l.setAttribute("stroke-width", 1.5);
+    svg.appendChild(l);
+  });
+
+  const fns = [
+    {fn: Math.sin, color: "#1d4ed8", label: "sin x"},
+    {fn: Math.cos, color: "#dc2626", label: "cos x"},
+    {fn: Math.tan, color: "#7c3aed", label: "tan x"}
+  ];
+
+  fns.forEach((f, idx) => {
+    let path = "";
+    let started = false;
+    for (let x = 0; x <= xMax; x += 0.01) {
+      const y = f.fn(x);
+      if (!isFinite(y) || y > 3 || y < -3) { started = false; continue; }
+      const px = cx + x * scale;
+      const py = cy - y * yScale;
+      path += (started ? "L" : "M") + px + " " + py + " ";
+      started = true;
+    }
+    const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    p.setAttribute("d", path); p.setAttribute("fill", "none"); p.setAttribute("stroke", f.color); p.setAttribute("stroke-width", 2);
+    svg.appendChild(p);
+    // Label
+    const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lbl.setAttribute("x", W_PX - 80); lbl.setAttribute("y", 40 + idx*20);
+    lbl.setAttribute("fill", f.color); lbl.setAttribute("font-weight", "700"); lbl.setAttribute("font-size", "13");
+    lbl.textContent = f.label;
+    svg.appendChild(lbl);
+  });
+
+  // Asymptotes for tan
+  [Math.PI/2, 3*Math.PI/2, 5*Math.PI/2, 7*Math.PI/2].forEach(x => {
+    const px = cx + x * scale;
+    if (px > cx && px < W_PX - 30) {
+      const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      l.setAttribute("x1", px); l.setAttribute("y1", 30); l.setAttribute("x2", px); l.setAttribute("y2", H_PX-30);
+      l.setAttribute("stroke", "#7c3aed"); l.setAttribute("stroke-width", 1); l.setAttribute("stroke-dasharray", "3,3");
+      svg.appendChild(l);
+    }
+  });
+}
+
+draw();
+draw3();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

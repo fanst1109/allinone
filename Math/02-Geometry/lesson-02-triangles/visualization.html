@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 02 — Tam giác</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 80px; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 600px; height: 400px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-euclidean-basics/visualization.html">← L1: Euclid</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Tam giác</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L3: Đường tròn (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 02 (T2) — Tam giác</h1>
+
+<h2>Triangle Analyzer — cho 3 cạnh</h2>
+<div class="card">
+  <div class="row">
+    <span>a =</span><input type="number" id="tA" step="0.5" value="3" oninput="analyze()">
+    <span>b =</span><input type="number" id="tB" step="0.5" value="4" oninput="analyze()">
+    <span>c =</span><input type="number" id="tC" step="0.5" value="5" oninput="analyze()">
+  </div>
+  <svg class="scene" id="tSvg" viewBox="0 0 600 400"></svg>
+  <div class="result" id="tResult"></div>
+</div>
+
+<h2>Pythagoras Demo</h2>
+<div class="card">
+  <p>Tam giác vuông với 2 cạnh góc vuông a, b. Cạnh huyền c = √(a²+b²).</p>
+  <div class="row">
+    <span>a =</span><input type="number" id="pA" step="1" value="3" oninput="pythag()">
+    <span>b =</span><input type="number" id="pB" step="1" value="4" oninput="pythag()">
+  </div>
+  <div class="result" id="pResult"></div>
+</div>
+
+<script>
+function analyze() {
+  const a = parseFloat(document.getElementById("tA").value);
+  const b = parseFloat(document.getElementById("tB").value);
+  const c = parseFloat(document.getElementById("tC").value);
+
+  // Bất đẳng thức tam giác
+  if (a + b <= c || a + c <= b || b + c <= a) {
+    document.getElementById("tResult").innerHTML = "<strong style='color:#dc2626'>⚠ KHÔNG tạo được tam giác (vi phạm bất đẳng thức tam giác).</strong>";
+    document.getElementById("tSvg").innerHTML = "";
+    return;
+  }
+
+  // Góc bằng định lý cosin
+  const A = Math.acos((b*b + c*c - a*a)/(2*b*c)) * 180/Math.PI;
+  const B = Math.acos((a*a + c*c - b*b)/(2*a*c)) * 180/Math.PI;
+  const C = Math.acos((a*a + b*b - c*c)/(2*a*b)) * 180/Math.PI;
+
+  // Diện tích Heron
+  const s = (a + b + c)/2;
+  const area = Math.sqrt(s*(s-a)*(s-b)*(s-c));
+
+  // Phân loại
+  let byEdge = "Thường";
+  if (Math.abs(a-b) < 1e-6 && Math.abs(b-c) < 1e-6) byEdge = "ĐỀU";
+  else if (Math.abs(a-b) < 1e-6 || Math.abs(b-c) < 1e-6 || Math.abs(a-c) < 1e-6) byEdge = "CÂN";
+
+  let byAngle = "Nhọn";
+  const maxAngle = Math.max(A, B, C);
+  if (Math.abs(maxAngle - 90) < 0.1) byAngle = "VUÔNG";
+  else if (maxAngle > 90) byAngle = "TÙ";
+
+  document.getElementById("tResult").innerHTML = `
+    <div class="row">
+      <span class="stat">Góc A = <strong>${A.toFixed(2)}°</strong></span>
+      <span class="stat">Góc B = <strong>${B.toFixed(2)}°</strong></span>
+      <span class="stat">Góc C = <strong>${C.toFixed(2)}°</strong></span>
+      <span class="stat">Tổng = ${(A+B+C).toFixed(2)}°</span>
+    </div>
+    <div class="row">
+      <span class="stat">Diện tích (Heron) = <strong>${area.toFixed(3)}</strong></span>
+      <span class="stat">Chu vi = <strong>${(a+b+c).toFixed(2)}</strong></span>
+      <span class="stat">Phân loại: <strong>${byEdge} + ${byAngle}</strong></span>
+    </div>
+  `;
+
+  // Draw
+  const svg = document.getElementById("tSvg");
+  svg.innerHTML = "";
+  // Place A at (100, 350), B at (100 + c*scale, 350). C computed from a, b.
+  const W = 600, H = 400;
+  const maxSize = Math.max(a, b, c);
+  const scale = 350 / maxSize;
+  const Ax = 120, Ay = 350;
+  const Bx = Ax + c * scale, By = Ay;
+  // C: triangle with sides AB=c, AC=b, BC=a
+  const Cx = Ax + b * scale * Math.cos(A * Math.PI/180);
+  const Cy = Ay - b * scale * Math.sin(A * Math.PI/180);
+  const tri = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  tri.setAttribute("points", `${Ax},${Ay} ${Bx},${By} ${Cx},${Cy}`);
+  tri.setAttribute("fill", "#dcfce7"); tri.setAttribute("stroke", "#15803d"); tri.setAttribute("stroke-width", 2);
+  svg.appendChild(tri);
+  // Labels
+  [[Ax-10, Ay+15, "A"], [Bx+10, By+15, "B"], [Cx, Cy-10, "C"]].forEach(([x, y, l]) => {
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", x); t.setAttribute("y", y); t.setAttribute("font-weight", "700"); t.setAttribute("font-size", "16");
+    t.textContent = l;
+    svg.appendChild(t);
+  });
+  // Side labels
+  [[(Ax+Bx)/2, Ay+20, `c=${c}`], [(Bx+Cx)/2 + 8, (By+Cy)/2, `a=${a}`], [(Ax+Cx)/2 - 25, (Ay+Cy)/2, `b=${b}`]].forEach(([x, y, l]) => {
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", x); t.setAttribute("y", y); t.setAttribute("font-weight", "700"); t.setAttribute("fill", "#15803d"); t.setAttribute("font-size", "13");
+    t.textContent = l;
+    svg.appendChild(t);
+  });
+}
+
+function pythag() {
+  const a = parseFloat(document.getElementById("pA").value);
+  const b = parseFloat(document.getElementById("pB").value);
+  const c = Math.sqrt(a*a + b*b);
+  const isInt = Number.isInteger(c);
+  document.getElementById("pResult").innerHTML = `
+    <div style="font-family:monospace; font-size:15px">c² = a² + b² = ${a}² + ${b}² = ${a*a} + ${b*b} = ${a*a+b*b}</div>
+    <div style="font-family:monospace; font-size:16px; margin-top:6px">c = √${a*a+b*b} = <strong>${c.toFixed(4)}</strong>${isInt ? " (số nguyên — bộ ba Pythagoras)" : ""}</div>
+    ${isInt ? `<div style="margin-top:6px; padding:8px; background:#fef3c7; border-radius:4px"><strong>Bộ ba Pythagoras: (${a}, ${b}, ${c})</strong></div>` : ""}
+  `;
+}
+
+analyze();
+pythag();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -36,6 +36,14 @@ lim_{x→a} f(x) = L
 
 💡 Đọc: "Cho dù sai số ε đòi nhỏ thế nào, có khoảng (a-δ, a+δ) (trừ chính a) làm cho f rơi vào khoảng (L-ε, L+ε)".
 
+> 📐 **Định nghĩa đầy đủ — Liên tục tại a**
+>
+> **(a) Là gì**: Hàm f liên tục tại a khi và chỉ khi **3 điều** đồng thời đúng: (1) f(a) xác định, (2) lim_{x→a} f(x) tồn tại, (3) chúng bằng nhau: lim = f(a). Đồ thị "vẽ được không nhấc bút" qua điểm a.
+>
+> **(b) Vì sao cần**: Liên tục là điều kiện đảm bảo các tính chất "đẹp" — IVT (PT có nghiệm khi đổi dấu), định lý cực trị (đạt min/max trên đoạn đóng), tích phân được. Hàm liên tục là **vật liệu tốt** của Giải tích. Mọi hàm "tự nhiên" (đa thức, sin, cos, e^x, ln x) đều liên tục trên miền xác định. Gián đoạn là dấu hiệu của "biến động đột ngột" — vd nhiệt độ thay đổi pha (đá → nước), điện áp on/off.
+>
+> **(c) Ví dụ số**: f(x) = x² liên tục tại 2: f(2) = 4, lim_{x→2} x² = 4, khớp ✓. f(x) = (x²−1)/(x−1) **gián đoạn bỏ được** tại 1: f(1) chưa định nghĩa, nhưng lim = 2 → sửa f(1)=2 thì liên tục. f(x) = 1/x **gián đoạn vô hạn** tại 0: lim trái = -∞, lim phải = +∞. f(x) = ⌊x⌋ (sàn) **gián đoạn nhảy** tại mọi số nguyên: f(2−) = 1, f(2+) = 2.
+
 ---
 
 ## 2. Giới hạn 1 bên

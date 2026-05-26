@@ -84,6 +84,14 @@ window.README_MD = `# Lesson 04 — Quy tắc đạo hàm
 
 💡 **Trực giác**: Hàm trong hàm. Đạo hàm = (đạo hàm ngoài tại g(x)) × (đạo hàm trong).
 
+> 📐 **Định nghĩa đầy đủ — Chain rule**
+>
+> **(a) Là gì**: Khi y = f(g(x)) là hàm hợp (g trong f), thì dy/dx = (df/du) · (du/dx) với u = g(x). Theo ký hiệu Leibniz: dy/dx = dy/du · du/dx — như "nhân phân số" (chứ thực ra là 1 định lý).
+>
+> **(b) Vì sao cần**: Vì 90% hàm trong thực tế là hàm hợp — sin(2x+1), e^(-x²), ln(cos x), v.v. Không có chain rule = không thể tính đạo hàm chúng. Đặc biệt quan trọng trong **AI/ML**: backpropagation trong neural network = chain rule áp dụng nhiều lớp. ChatGPT, Stable Diffusion... đều chạy được nhờ chain rule. Đây là rule "đóng vai trò xương sống" trong tính toán symbolic.
+>
+> **(c) Ví dụ số**: y = sin(x²). Ngoài: f(u) = sin u, f'(u) = cos u. Trong: u = x², u' = 2x. y' = cos(x²)·2x. Tại x = 1: y'(1) = cos(1)·2 ≈ **1.0806**. y = e^(3x): ngoài e^u, trong 3x → y' = e^(3x)·3 = 3e^(3x). y = ln(cos x): y' = (1/cos x)·(−sin x) = −tan x. y = (2x+1)^5: y' = 5(2x+1)^4·2 = 10(2x+1)^4. Hợp 3 lớp y = sin(ln(x²)): y' = cos(ln(x²)) · (1/x²) · 2x = 2cos(ln(x²))/x.
+
 **Ví dụ 1**: y = sin(x²).
 - f(u) = sin u, g(x) = x².
 - y' = cos(x²) · 2x.

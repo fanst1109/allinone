@@ -78,6 +78,14 @@ Nếu F là **nguyên hàm** của f (F' = f), thì:
 ∫_a^b f(x) dx = F(b) - F(a)
 \`\`\`
 
+> 📐 **Định nghĩa đầy đủ — Định lý cơ bản giải tích (FTC)**
+>
+> **(a) Là gì**: Cây cầu nối **đạo hàm và tích phân**. Phần 1: nếu ta tích phân f rồi đạo hàm, ta được lại f (ngược nhau). Phần 2: tích phân xác định = hiệu nguyên hàm ở 2 đầu, F(b) − F(a). Không cần tính tổng Riemann vô hạn nữa.
+>
+> **(b) Vì sao cần**: Trước Newton/Leibniz, tính diện tích = tổng Riemann thủ công, **cực kỳ khó** với hàm bất kỳ. Archimedes đã làm cho parabol bằng tổng Riemann, mất nhiều trang giấy chỉ cho 1 hàm. FTC biến phép tính diện tích thành 2 phép tính nguyên hàm + trừ — đơn giản hơn vô số lần. Đây là **lý do** Calculus tạo ra cách mạng khoa học thế kỷ 17: từ nay tính diện tích, thể tích, công, lưu lượng... trở nên hệ thống. Là đỉnh cao của toán THPT.
+>
+> **(c) Ví dụ số**: ∫_0^1 x² dx. F(x) = x³/3. F(1) − F(0) = 1/3 − 0 = **1/3**. Verify bằng tổng Riemann (n→∞ cho cùng kết quả ≈ 0.333). ∫_0^π sin x dx = [-cos x]_0^π = -cos π + cos 0 = 1+1 = **2**. ∫_1^e (1/x) dx = ln e − ln 1 = **1**. ∫_0^1 e^x dx = e^1 − e^0 = e − 1 ≈ **1.718**. Diện tích dưới đường thẳng y = 2x trên [0, 5]: ∫_0^5 2x dx = [x²]_0^5 = 25 ✓ (= tam giác đáy 5 cao 10 → ½·5·10 = 25).
+
 Viết tắt: F(b) - F(a) thường ghi là [F(x)]_a^b hoặc F(x)|_a^b.
 
 💡 **Quy trình tính tích phân**:

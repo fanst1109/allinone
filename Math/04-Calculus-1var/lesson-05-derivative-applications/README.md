@@ -60,6 +60,14 @@ Nếu f'(x₀) = 0:
 - f''(1) = 6 > 0 → x = 1 **cực tiểu** (f(1) = -2).
 - f''(-1) = -6 < 0 → x = -1 **cực đại** (f(-1) = 2).
 
+> 📐 **Định nghĩa đầy đủ — Cực trị**
+>
+> **(a) Là gì**: 1 điểm x₀ mà f(x₀) lớn (hoặc nhỏ) hơn mọi f(x) gần đó. **Cực đại** = đỉnh "đồi" địa phương, **cực tiểu** = đáy "thung lũng" địa phương. KHÔNG bắt buộc là max/min toàn cục.
+>
+> **(b) Vì sao cần**: Mọi bài toán tối ưu hoá đều quy về tìm cực trị — kinh tế (tối đa lợi nhuận), kỹ thuật (giảm thiểu vật liệu), ML (giảm thiểu loss function). Fermat (~1637) phát hiện: tại cực trị, đạo hàm = 0 (slope tiếp tuyến nằm ngang) — đây là điều kiện CẦN dễ kiểm. Đạo hàm cấp 2 phân loại: lồi (f''>0) hay lõm (f''<0). Đây là cốt lõi của **gradient descent** trong AI.
+>
+> **(c) Ví dụ số**: f(x) = x² − 4x + 5. f'(x) = 2x − 4 = 0 → x = 2. f''(2) = 2 > 0 → **cực tiểu**. f(2) = 4 − 8 + 5 = 1. f(x) = x³: f'(0) = 0 nhưng KHÔNG cực trị (f đồng biến). Kiểm: f'(x) = 3x² ≥ 0 luôn, không đổi dấu → x=0 là điểm uốn nhưng không cực trị. f(x) = sin x: cực đại tại π/2 + k·2π, cực tiểu tại 3π/2 + k·2π. Tối ưu thực tế: chu vi 100m, S = a(50-a) → a=25 → S_max = 625m² (hình vuông).
+
 ---
 
 ## 3. Lồi / lõm & Điểm uốn

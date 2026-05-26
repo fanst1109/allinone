@@ -29,6 +29,14 @@ window.README_MD = `# Lesson 06 — Nguyên hàm (Antiderivatives)
 - F(x) = x² + 7 cũng là.
 - Tổng quát: ∫ 2x dx = **x² + C**.
 
+> 📐 **Định nghĩa đầy đủ — Nguyên hàm**
+>
+> **(a) Là gì**: F(x) là **nguyên hàm** của f(x) khi đạo hàm F'(x) = f(x). Tập hợp tất cả nguyên hàm = F(x) + C với C ∈ ℝ tùy ý — vì đạo hàm "xoá" hằng số. Ký hiệu ∫ f dx = F + C đại diện cho **họ vô hạn** đường cong song song.
+>
+> **(b) Vì sao cần**: Đạo hàm cho slope, nhưng nhiều bài toán đi ngược — biết tốc độ thay đổi, tìm hàm. Vận tốc → vị trí, gia tốc → vận tốc, mật độ → khối lượng, lãi suất → số dư. Đây là **đảo ngược của đạo hàm**, và là bước đầu cho tích phân xác định (FTC sẽ liên kết). Không có nguyên hàm, không tính được diện tích, thể tích, công, lưu lượng, v.v. ∫ f dx tồn tại với mọi f liên tục (Định lý cơ bản giải tích).
+>
+> **(c) Ví dụ số**: ∫ 2x dx = x² + C. Verify: (x² + C)' = 2x ✓. ∫ cos x dx = sin x + C (vì (sin x)' = cos x). ∫ 1/x dx = ln|x| + C. Bài toán: nếu v(t) = 9.8t (vận tốc rơi tự do), thì vị trí s(t) = ∫ 9.8t dt = 4.9t² + C. Với s(0) = 0 → C = 0 → **s(t) = 4.9t²** (công thức rơi quen thuộc). ∫ (x² + 3x + 1) dx = x³/3 + 3x²/2 + x + C.
+
 ---
 
 ## 2. Bảng nguyên hàm cơ bản

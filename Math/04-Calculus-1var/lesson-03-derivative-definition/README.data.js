@@ -61,6 +61,14 @@ df/dx = lim_{Δx→0} Δy/Δx
 y = f(a) + f'(a)·(x - a)
 \`\`\`
 
+> 📐 **Định nghĩa đầy đủ — Đạo hàm f'(x)**
+>
+> **(a) Là gì**: Giới hạn của tỉ số "biến thiên hàm/biến thiên biến" khi biến biến thiên → 0. Đo "tốc độ tức thời f thay đổi khi x thay đổi" tại đúng 1 điểm. Hình học = slope tiếp tuyến. Vật lý = vận tốc tức thời (nếu x = thời gian, f = vị trí).
+>
+> **(b) Vì sao cần**: Trước Newton/Leibniz (~1670), không có cách nói chính xác "vận tốc tại 1 thời điểm" (cần khoảng thời gian Δt để chia khoảng cách, nhưng Δt = 0 thì chia 0 vô nghĩa). Giới hạn lim h→0 giải quyết — cho ra 1 số duy nhất khi h tiến 0 đúng cách. Đạo hàm trở thành công cụ trung tâm: tối ưu hoá (f' = 0 tại cực trị), mô hình hoá (ODE), xấp xỉ (Taylor), ML (gradient descent).
+>
+> **(c) Ví dụ số**: f(x) = x², tại x = 3. Tỉ số = [(3+h)² − 9]/h = (6h+h²)/h = 6+h. Cho h → 0 → **f'(3) = 6**. Verify công thức (x²)' = 2x → 2·3 = 6 ✓. f(x) = x³ tại x = 2: f'(2) = 3·4 = 12. f(x) = 1/x tại x = 2: f'(2) = −1/4 = −0.25. Hàm hằng f(x) = 5: f'(x) = 0 ∀x (slope tiếp tuyến của đường ngang = 0). f(x) = |x| tại x = 0: **không tồn tại** (slope trái = −1, slope phải = +1).
+
 ---
 
 ## 3. Tính đạo hàm bằng định nghĩa

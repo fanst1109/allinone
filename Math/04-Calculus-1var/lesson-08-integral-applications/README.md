@@ -43,6 +43,14 @@ S = ∫_a^b [f(x) - g(x)] dx
 **Ví dụ**: Quay y = √x trên [0, 4] quanh Ox.
 - V = π·∫_0^4 x dx = π·[x²/2]_0^4 = π·8 = **8π**.
 
+> 📐 **Định nghĩa đầy đủ — Thể tích vật tròn xoay (đĩa)**
+>
+> **(a) Là gì**: Khối được tạo bằng cách quay đường cong y = f(x) (với f ≥ 0) trên đoạn [a, b] quanh trục Ox tạo nên 1 vật 3D đối xứng. Cắt vật bằng mặt phẳng vuông trục → mỗi lát là **đĩa tròn** bán kính f(x), độ dày dx. Tổng các đĩa = V = π·∫f(x)² dx.
+>
+> **(b) Vì sao cần**: Vì nhiều hình 3D không có công thức V đơn giản — bình hoa, mặt ly, các bộ phận quay (trục, bánh xe có khía). Trước Calculus, Archimedes đã tính V cầu bằng phương pháp này (thủ công, mất nhiều trang). FTC + nguyên hàm biến nó thành phép tính 5 phút. Cốt lõi của thiết kế cơ khí (mô-men quán tính), hoá học (thể tích bình phản ứng), y học (CT scan = tích phân khúc xạ tia X).
+>
+> **(c) Ví dụ số**: Quay y = √x trên [0, 4] quanh Ox: V = π·∫_0^4 x dx = π·8 = **8π** ≈ 25.13. Quay y = x trên [0, 3] → nón cao 3, R=3: V = π·∫_0^3 x² dx = π·9 = 9π. Kiểm công thức nón (1/3)πR²h = (1/3)π·9·3 = 9π ✓. Cầu R = 2: quay y = √(4−x²) trên [−2, 2]: V = π·∫_{-2}^2 (4−x²)dx = π·[4x−x³/3]_{-2}^2 = π·(8/3−(−8/3) + 8 − (−8)) = ... = (32π/3). Kiểm (4/3)π·8 = 32π/3 ✓.
+
 ### Hình cầu (ví dụ kinh điển)
 
 Quay nửa đường tròn y = √(R² - x²) quanh Ox:

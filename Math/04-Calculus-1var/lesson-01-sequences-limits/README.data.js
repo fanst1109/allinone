@@ -59,6 +59,14 @@ lim_{n→∞} a_n = L
 
 ⟶ Đây là **một trong những định nghĩa quan trọng nhất của Toán cấp cao**. Nó làm cho khái niệm "đủ gần" trở nên chính xác, không còn mơ hồ.
 
+> 📐 **Định nghĩa đầy đủ — Giới hạn dãy (ε-N)**
+>
+> **(a) Là gì**: Phát biểu chính xác bằng logic: cho mọi sai số ε > 0 (dù nhỏ thế nào tùy chọn), TỒN TẠI 1 mốc N sao cho mọi a_n với n ≥ N đều nằm trong khoảng (L−ε, L+ε). "Game" giữa người đòi sai số và người phải đáp ứng.
+>
+> **(b) Vì sao cần**: Trước Cauchy (~1820), giới hạn được hiểu mơ hồ "tiến gần dần" — không thể chứng minh nghiêm túc. Định nghĩa ε-N biến mơ hồ thành 1 mệnh đề logic kiểm tra được. Đây là **nền tảng toàn bộ Giải tích** — không có nó, không có đạo hàm, tích phân, chuỗi, không gian Banach... Cuộc cách mạng "rigorisation" của Toán thế kỷ 19 bắt đầu từ đây.
+>
+> **(c) Ví dụ số**: Chứng minh lim 1/n = 0. Cho ε = 0.01: cần |1/n − 0| < 0.01 → n > 100. Chọn N = 101 → mọi n ≥ 101 thoả. Cho ε = 10⁻⁶: cần n > 10⁶. Chọn N = 10⁶+1 thoả. Cho ε bất kỳ > 0: chọn N = ⌈1/ε⌉ + 1 → xong. Vậy lim = 0 ✓. Phản ví dụ: dãy (-1)^n không hội tụ — chọn ε = 0.5, không N nào làm |(-1)^n − L| < 0.5 ∀n≥N (vì dãy nhảy giữa ±1).
+
 ---
 
 ## 3. Phân loại dãy

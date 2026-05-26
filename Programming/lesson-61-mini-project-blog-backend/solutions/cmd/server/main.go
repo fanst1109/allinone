@@ -16,6 +16,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
 
 	"blog-backend/internal/cache"
 	"blog-backend/internal/migration"
@@ -53,7 +54,12 @@ func main() {
 	h := post.NewHandler(svc)
 	h.Routes(mux)
 
+	// Port lấy từ biến môi trường PORT (mặc định 8080) — tiện đổi khi cổng bận
+	// hoặc khi deploy.
 	addr := ":8080"
+	if p := os.Getenv("PORT"); p != "" {
+		addr = ":" + p
+	}
 	log.Printf("blog backend chạy tại http://localhost%s", addr)
 	if err := http.ListenAndServe(addr, mux); err != nil {
 		log.Fatal(err)

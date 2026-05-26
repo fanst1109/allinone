@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 52 — Rate Limiting & Circuit Breaker (Visualization)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 40px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; margin-top: 24px; }
+  .card {
+    background: #fff; border-radius: 10px; padding: 18px 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #4299e1; color: #fff; border: none;
+    padding: 9px 15px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.danger { background: #e53e3e; }
+  button.danger:hover { background: #c53030; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  label { font-size: 14px; color: #2d3748; }
+  input[type="range"] { width: 100%; max-width: 240px; }
+  .explain {
+    background: #ebf8ff; border-left: 4px solid #4299e1;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6; margin: 10px 0;
+  }
+  code.inline {
+    background: #edf2f7; padding: 1px 6px; border-radius: 4px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px;
+  }
+
+  /* ---- Module 1: 4-algorithm visualizer ---- */
+  .algo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px;
+  }
+  .algo {
+    background: #f7fafc; border: 1px solid #e2e8f0;
+    border-radius: 8px; padding: 14px;
+  }
+  .algo h4 { margin: 0 0 6px; color: #2b6cb0; font-size: 15px; }
+  .algo .sub { font-size: 12px; color: #718096; margin-bottom: 10px; min-height: 30px; }
+  .meter {
+    height: 18px; background: #e2e8f0; border-radius: 9px;
+    overflow: hidden; margin: 8px 0;
+  }
+  .meter > span {
+    display: block; height: 100%;
+    background: linear-gradient(90deg, #48bb78, #38a169);
+    transition: width .2s ease;
+  }
+  .meter.water > span { background: linear-gradient(90deg, #4299e1, #2b6cb0); }
+  .stat { font-size: 13px; color: #2d3748; }
+  .stat b { color: #1a202c; }
+  .pill {
+    display: inline-block; padding: 2px 8px; border-radius: 10px;
+    font-size: 12px; font-weight: 700; margin-left: 6px;
+  }
+  .pill.ok { background: #c6f6d5; color: #22543d; }
+  .pill.deny { background: #fed7d7; color: #742a2a; }
+  .streambar { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 6px; }
+  .tick {
+    width: 14px; height: 14px; border-radius: 3px; background: #cbd5e0;
+  }
+  .tick.allow { background: #38a169; }
+  .tick.deny  { background: #e53e3e; }
+  .tick.now   { outline: 2px solid #2d3748; }
+
+  /* ---- Module 2: circuit breaker state machine ---- */
+  .cb-stage { display: flex; gap: 24px; flex-wrap: wrap; align-items: center; }
+  .cb-states { display: flex; gap: 14px; flex-wrap: wrap; }
+  .cb-node {
+    border-radius: 12px; padding: 14px 18px; min-width: 110px; text-align: center;
+    border: 3px solid #cbd5e0; background: #f7fafc;
+    font-weight: 700; color: #4a5568; transition: all .25s ease;
+  }
+  .cb-node small { display: block; font-weight: 400; font-size: 11px; color: #718096; margin-top: 4px; }
+  .cb-node.active.closed   { border-color: #38a169; background: #c6f6d5; color: #22543d; }
+  .cb-node.active.open     { border-color: #e53e3e; background: #fed7d7; color: #742a2a; }
+  .cb-node.active.half     { border-color: #d69e2e; background: #faf089; color: #744210; }
+  .cb-log {
+    font-family: ui-monospace, Menlo, monospace; font-size: 12.5px;
+    background: #1a202c; color: #e2e8f0; border-radius: 8px;
+    padding: 12px; max-height: 200px; overflow-y: auto; margin-top: 12px;
+  }
+  .cb-log .l-ok   { color: #68d391; }
+  .cb-log .l-fail { color: #fc8181; }
+  .cb-log .l-trip { color: #f6ad55; font-weight: 700; }
+
+  /* ---- Module 3: cascading failure ---- */
+  .casc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .casc-col h4 { margin: 0 0 8px; }
+  .svc-chain { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .svc {
+    border-radius: 8px; padding: 10px 14px; font-weight: 700; text-align: center;
+    border: 2px solid #cbd5e0; background: #f7fafc; min-width: 64px;
+    transition: all .2s ease;
+  }
+  .svc.healthy { border-color: #38a169; background: #c6f6d5; color: #22543d; }
+  .svc.stressed { border-color: #d69e2e; background: #faf089; color: #744210; }
+  .svc.down { border-color: #e53e3e; background: #fed7d7; color: #742a2a; }
+  .arrow { color: #718096; font-size: 18px; }
+  .gauge { font-size: 13px; margin-top: 6px; }
+  .gauge b { font-size: 16px; }
+
+  @media (max-width: 768px) {
+    .casc-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .algo-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-51-graceful-shutdown/visualization.html">← L51: Graceful Shutdown</a>
+  <span class="sep">·</span>
+  <span class="current">L52: Rate Limit & Circuit Breaker</span>
+  <span class="sep">·</span>
+  <a href="../lesson-53-mini-project-rest-api/visualization.html">L53: Mini-project REST API →</a>
+</nav>
+
+<main>
+<h1>Lesson 52 — Rate Limiting & Circuit Breaker</h1>
+
+<p class="explain">
+Trang này minh hoạ 3 ý chính của bài học bằng mô phỏng tương tác:
+<strong>(1)</strong> 4 thuật toán rate limit (token / leaky / fixed / sliding) chạy
+trên <em>cùng một stream request</em> để so sánh trực tiếp;
+<strong>(2)</strong> circuit breaker state machine Closed → Open → Half-Open,
+animate theo tỉ lệ fail bạn chọn;
+<strong>(3)</strong> cascading failure A→B→C — so sánh có và không có circuit breaker.
+</p>
+
+<!-- ===================================================================== -->
+<h2>1. Bốn thuật toán rate limit trên cùng 1 stream</h2>
+
+<div class="card">
+  <p class="explain">
+    Tất cả 4 limiter dùng chung tham số <code class="inline">limit = 10</code> /
+    <code class="inline">window 1s</code> (token &amp; leaky: rate 10/s, cap 10).
+    Mỗi lần bạn bấm <b>Gửi 1 request</b> (hoặc bật <b>Auto burst</b>), cùng một
+    request được đưa qua cả 4 — quan sát cái nào allow, cái nào deny.
+  </p>
+  <div class="row">
+    <button id="algo-send">Gửi 1 request</button>
+    <button id="algo-auto" class="secondary">▶ Auto burst (20 req nhanh)</button>
+    <button id="algo-tick" class="secondary">⏱ +1 giây (refill / reset)</button>
+    <button id="algo-reset" class="danger">↺ Reset</button>
+    <span class="stat">Đồng hồ mô phỏng: <b id="algo-clock">0.0s</b> · request đã gửi: <b id="algo-count">0</b></span>
+  </div>
+
+  <div class="algo-grid" style="margin-top:14px;">
+    <div class="algo" id="a-token">
+      <h4>Token bucket</h4>
+      <div class="sub">Token nạp đều 10/s, request nhặt 1. <b>Cho phép burst</b> tới khi rỗng.</div>
+      <div class="meter"><span style="width:100%"></span></div>
+      <div class="stat">Tokens: <b class="v-tok">10.0</b> / 10 <span class="pill"></span></div>
+      <div class="streambar"></div>
+    </div>
+    <div class="algo" id="a-leaky">
+      <h4>Leaky bucket</h4>
+      <div class="sub">Xô rò 10/s, request đổ nước vào. Đầy → drop. <b>Output đều.</b></div>
+      <div class="meter water"><span style="width:0%"></span></div>
+      <div class="stat">Nước: <b class="v-tok">0.0</b> / 10 <span class="pill"></span></div>
+      <div class="streambar"></div>
+    </div>
+    <div class="algo" id="a-fixed">
+      <h4>Fixed window</h4>
+      <div class="sub">Đếm trong window 1s, reset đầu mỗi giây. <b>Có lỗ hổng boundary.</b></div>
+      <div class="meter"><span style="width:0%"></span></div>
+      <div class="stat">Count: <b class="v-tok">0</b> / 10 <span class="pill"></span></div>
+      <div class="streambar"></div>
+    </div>
+    <div class="algo" id="a-sliding">
+      <h4>Sliding window (counter)</h4>
+      <div class="sub">Nội suy count window này + trước. <b>Mượt, không burst boundary.</b></div>
+      <div class="meter"><span style="width:0%"></span></div>
+      <div class="stat">Ước lượng: <b class="v-tok">0.0</b> / 10 <span class="pill"></span></div>
+      <div class="streambar"></div>
+    </div>
+  </div>
+  <p class="explain" id="algo-note" style="margin-top:12px;">
+    Mẹo: bấm <b>Auto burst</b> rồi <b>+1 giây</b> nhiều lần để thấy token/sliding
+    "hồi" dần, còn fixed window reset <em>nhảy bậc</em> ở mỗi ranh giới giây.
+  </p>
+</div>
+
+<!-- ===================================================================== -->
+<h2>2. Circuit breaker — state machine</h2>
+
+<div class="card">
+  <p class="explain">
+    Breaker với <b>ngưỡng 5 fail liên tiếp</b> → <code class="inline">Open</code>,
+    cooldown <b>3s</b> → <code class="inline">Half-Open</code> (1 probe).
+    Kéo slider để chọn xác suất downstream fail, rồi bấm <b>Gửi request</b> hoặc
+    <b>Auto</b> để xem mạch tự đóng/mở.
+  </p>
+  <div class="row">
+    <label>Tỉ lệ downstream fail: <b id="cb-rate-label">80%</b></label>
+    <input type="range" id="cb-rate" min="0" max="100" value="80">
+  </div>
+  <div class="row">
+    <button id="cb-send">Gửi request</button>
+    <button id="cb-auto" class="secondary">▶ Auto (10/s)</button>
+    <button id="cb-reset" class="danger">↺ Reset</button>
+    <span class="stat">fail liên tiếp: <b id="cb-fails">0</b> · trip count: <b id="cb-trips">0</b></span>
+  </div>
+
+  <div class="cb-stage" style="margin-top:14px;">
+    <div class="cb-states">
+      <div class="cb-node closed active" id="n-closed">CLOSED<small>cho qua, đếm fail</small></div>
+      <div class="cb-node open" id="n-open">OPEN<small>reject ngay</small></div>
+      <div class="cb-node half" id="n-half">HALF-OPEN<small>1 probe thử</small></div>
+    </div>
+  </div>
+  <div class="cb-log" id="cb-log"></div>
+</div>
+
+<!-- ===================================================================== -->
+<h2>3. Cascading failure — có vs. không circuit breaker</h2>
+
+<div class="card">
+  <p class="explain">
+    Service <b>A → B → C</b>. Service C "lock DB" (down). Mỗi call tới C đang
+    hỏng mất <b>2s timeout</b> mới fail. Bấm <b>Bắn 30 request vào A</b> để xem
+    điều gì xảy ra với connection pool của A trong 2 kịch bản.
+  </p>
+  <div class="row">
+    <button id="casc-run">Bắn 30 request vào A</button>
+    <button id="casc-reset" class="danger">↺ Reset</button>
+    <span class="stat">C đang: <b id="casc-c-state">DOWN (lock DB)</b></span>
+  </div>
+
+  <div class="casc-grid" style="margin-top:14px;">
+    <div class="casc-col card" style="margin:0;">
+      <h4 style="color:#c53030;">Không có circuit breaker</h4>
+      <div class="svc-chain">
+        <div class="svc healthy" id="nocb-A">A</div><span class="arrow">→</span>
+        <div class="svc healthy" id="nocb-B">B</div><span class="arrow">→</span>
+        <div class="svc down" id="nocb-C">C</div>
+      </div>
+      <div class="gauge">Connection pool A (cap 30): <b id="nocb-pool">0</b>/30 kẹt</div>
+      <div class="meter"><span id="nocb-poolbar" style="width:0%;background:linear-gradient(90deg,#f6ad55,#e53e3e)"></span></div>
+      <div class="gauge">User được trả lời: <b id="nocb-served">0</b> · 504 timeout: <b id="nocb-504">0</b></div>
+    </div>
+
+    <div class="casc-col card" style="margin:0;">
+      <h4 style="color:#2f855a;">Có circuit breaker (+ timeout)</h4>
+      <div class="svc-chain">
+        <div class="svc healthy" id="cb2-A">A</div><span class="arrow">→</span>
+        <div class="svc healthy" id="cb2-B">B</div><span class="arrow">→</span>
+        <div class="svc down" id="cb2-C">C</div>
+      </div>
+      <div class="gauge">Connection pool A (cap 30): <b id="cb2-pool">0</b>/30 kẹt</div>
+      <div class="meter"><span id="cb2-poolbar" style="width:0%;background:linear-gradient(90deg,#48bb78,#38a169)"></span></div>
+      <div class="gauge">Breaker: <b id="cb2-state">CLOSED</b> · fail-fast 503: <b id="cb2-503">0</b> · 504: <b id="cb2-504">0</b></div>
+    </div>
+  </div>
+  <p class="explain" id="casc-note" style="margin-top:12px;">
+    Quan sát: bên trái, pool A bị 30 connection kẹt đợi C → A <b>không nhận thêm
+    request</b> → cascading. Bên phải, sau vài fail breaker <b>Open</b> → A trả
+    503 ngay (fail-fast), pool không bao giờ cạn → A vẫn sống.
+  </p>
+</div>
+
+</main>
+
+<script>
+/* ============================================================
+ * MODULE 1 — 4 algorithm visualizer (cùng 1 stream request)
+ * ============================================================ */
+const M1 = (() => {
+  const LIMIT = 10, RATE = 10;          // 10/s
+  let clock = 0, count = 0;             // clock tính bằng giây (mô phỏng)
+  let autoTimer = null;
+
+  // Mỗi limiter giữ state riêng.
+  const st = {
+    token:  { tokens: LIMIT, last: 0 },
+    leaky:  { water: 0, last: 0 },
+    fixed:  { winStart: 0, count: 0 },
+    sliding:{ curWin: 0, cur: 0, prev: 0 },
+  };
+  const ticks = { token: [], leaky: [], fixed: [], sliding: [] };
+
+  function refillToken(now) {
+    st.token.tokens = Math.min(LIMIT, st.token.tokens + (now - st.token.last) * RATE);
+    st.token.last = now;
+  }
+  function leakLeaky(now) {
+    st.leaky.water = Math.max(0, st.leaky.water - (now - st.leaky.last) * RATE);
+    st.leaky.last = now;
+  }
+
+  function send() {
+    const now = clock;
+    count++;
+    // --- token bucket ---
+    refillToken(now);
+    let okT = st.token.tokens >= 1;
+    if (okT) st.token.tokens -= 1;
+    // --- leaky bucket ---
+    leakLeaky(now);
+    let okL = st.leaky.water + 1 <= LIMIT;
+    if (okL) st.leaky.water += 1;
+    // --- fixed window ---
+    if (Math.floor(now) !== Math.floor(st.fixed.winStart)) {
+      st.fixed.count = 0; st.fixed.winStart = now;
+    }
+    let okF = st.fixed.count < LIMIT;
+    if (okF) st.fixed.count += 1;
+    // --- sliding window counter ---
+    const win = Math.floor(now);
+    if (win !== st.sliding.curWin) {
+      // có thể nhảy nhiều window; chỉ giữ window liền trước
+      st.sliding.prev = (win === st.sliding.curWin + 1) ? st.sliding.cur : 0;
+      st.sliding.cur = 0;
+      st.sliding.curWin = win;
+    }
+    const elapsed = now - win;
+    const est = st.sliding.cur + st.sliding.prev * (1 - elapsed);
+    let okS = est < LIMIT;
+    if (okS) st.sliding.cur += 1;
+
+    pushTick(ticks.token, okT);
+    pushTick(ticks.leaky, okL);
+    pushTick(ticks.fixed, okF);
+    pushTick(ticks.sliding, okS);
+    render();
+  }
+
+  function pushTick(arr, ok) {
+    arr.push(ok ? 'allow' : 'deny');
+    if (arr.length > 32) arr.shift();
+  }
+
+  function advance() {            // +1 giây
+    clock += 1;
+    render();
+  }
+
+  function render() {
+    document.getElementById('algo-clock').textContent = clock.toFixed(1) + 's';
+    document.getElementById('algo-count').textContent = count;
+
+    // recompute hiển thị (refill/leak/reset theo clock hiện tại, không trừ request)
+    refillToken(clock);
+    leakLeaky(clock);
+    if (Math.floor(clock) !== Math.floor(st.fixed.winStart)) {
+      st.fixed.count = 0; st.fixed.winStart = clock;
+    }
+    const win = Math.floor(clock);
+    if (win !== st.sliding.curWin) {
+      st.sliding.prev = (win === st.sliding.curWin + 1) ? st.sliding.cur : 0;
+      st.sliding.cur = 0; st.sliding.curWin = win;
+    }
+    const slidEst = st.sliding.cur + st.sliding.prev * (1 - (clock - win));
+
+    fill('a-token',  st.token.tokens, LIMIT, st.token.tokens / LIMIT, ticks.token, st.token.tokens >= 1);
+    fill('a-leaky',  st.leaky.water, LIMIT, st.leaky.water / LIMIT, ticks.leaky, st.leaky.water + 1 <= LIMIT);
+    fill('a-fixed',  st.fixed.count, LIMIT, st.fixed.count / LIMIT, ticks.fixed, st.fixed.count < LIMIT);
+    fill('a-sliding',slidEst, LIMIT, slidEst / LIMIT, ticks.sliding, slidEst < LIMIT);
+  }
+
+  function fill(id, val, max, frac, tickArr, willAllow) {
+    const el = document.getElementById(id);
+    el.querySelector('.meter > span').style.width = Math.max(0, Math.min(100, frac * 100)) + '%';
+    const v = el.querySelector('.v-tok');
+    v.textContent = (id === 'a-fixed') ? Math.round(val) : val.toFixed(1);
+    const pill = el.querySelector('.pill');
+    pill.textContent = willAllow ? 'sẵn sàng' : 'sẽ deny';
+    pill.className = 'pill ' + (willAllow ? 'ok' : 'deny');
+    const bar = el.querySelector('.streambar');
+    bar.innerHTML = tickArr.map((s, i) =>
+      `<span class="tick ${s}${i === tickArr.length - 1 ? ' now' : ''}"></span>`).join('');
+  }
+
+  function reset() {
+    clock = 0; count = 0;
+    st.token = { tokens: LIMIT, last: 0 };
+    st.leaky = { water: 0, last: 0 };
+    st.fixed = { winStart: 0, count: 0 };
+    st.sliding = { curWin: 0, cur: 0, prev: 0 };
+    for (const k in ticks) ticks[k] = [];
+    render();
+  }
+
+  function autoBurst() {
+    const btn = document.getElementById('algo-auto');
+    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; btn.textContent = '▶ Auto burst (20 req nhanh)'; return; }
+    btn.textContent = '⏸ Dừng';
+    let n = 0;
+    autoTimer = setInterval(() => {
+      send();
+      if (++n >= 20) { clearInterval(autoTimer); autoTimer = null; btn.textContent = '▶ Auto burst (20 req nhanh)'; }
+    }, 60);
+  }
+
+  document.getElementById('algo-send').onclick = send;
+  document.getElementById('algo-tick').onclick = advance;
+  document.getElementById('algo-reset').onclick = reset;
+  document.getElementById('algo-auto').onclick = autoBurst;
+  reset();
+  return {};
+})();
+
+/* ============================================================
+ * MODULE 2 — circuit breaker state machine
+ * ============================================================ */
+const M2 = (() => {
+  const THRESHOLD = 5, COOLDOWN = 3000;
+  let state = 'closed', fails = 0, trips = 0;
+  let openedAt = 0, halfProbing = false;
+  let auto = null;
+
+  const log = document.getElementById('cb-log');
+  const rate = document.getElementById('cb-rate');
+
+  function setState(s) {
+    state = s;
+    ['closed', 'open', 'half'].forEach(x =>
+      document.getElementById('n-' + x).classList.toggle('active', x === s));
+  }
+  function line(html, cls) {
+    const d = document.createElement('div');
+    d.className = cls || '';
+    d.innerHTML = html;
+    log.appendChild(d);
+    log.scrollTop = log.scrollHeight;
+  }
+  function updateStats() {
+    document.getElementById('cb-fails').textContent = fails;
+    document.getElementById('cb-trips').textContent = trips;
+  }
+
+  // breaker.Allow()
+  function allow() {
+    if (state === 'closed') return true;
+    if (state === 'open') {
+      if (Date.now() - openedAt >= COOLDOWN) {
+        setState('half'); halfProbing = false;
+        line('⏱ hết cooldown → <b>HALF-OPEN</b>, cho 1 probe', 'l-trip');
+      } else return false;
+    }
+    // half-open
+    if (halfProbing) return false;
+    halfProbing = true;
+    return true;
+  }
+  // breaker.OnResult(ok)
+  function onResult(ok) {
+    if (ok) {
+      fails = 0;
+      if (state === 'half') { setState('closed'); line('✓ probe OK → đóng mạch <b>CLOSED</b>', 'l-ok'); }
+      halfProbing = false;
+      return;
+    }
+    if (state === 'half') {
+      setState('open'); openedAt = Date.now(); halfProbing = false; trips++;
+      line('✗ probe FAIL → mở lại <b>OPEN</b> (cooldown 3s)', 'l-trip');
+      return;
+    }
+    fails++;
+    if (fails >= THRESHOLD) {
+      setState('open'); openedAt = Date.now(); trips++;
+      line(`✗ fail thứ ${fails} ≥ ngưỡng → trip <b>OPEN</b>`, 'l-trip');
+    }
+  }
+
+  function send() {
+    if (!allow()) { line('⛔ OPEN → reject ngay (không gọi downstream)', 'l-fail'); updateStats(); return; }
+    // gọi downstream giả lập
+    const p = +rate.value / 100;
+    const ok = Math.random() >= p;
+    if (ok) line('→ downstream OK', 'l-ok');
+    else    line('→ downstream FAIL', 'l-fail');
+    onResult(ok);
+    updateStats();
+  }
+
+  function reset() {
+    state = 'closed'; fails = 0; trips = 0; openedAt = 0; halfProbing = false;
+    setState('closed'); updateStats(); log.innerHTML = '';
+    line('// Breaker reset. State = CLOSED.');
+  }
+
+  function toggleAuto() {
+    const btn = document.getElementById('cb-auto');
+    if (auto) { clearInterval(auto); auto = null; btn.textContent = '▶ Auto (10/s)'; return; }
+    btn.textContent = '⏸ Dừng';
+    auto = setInterval(send, 100);
+  }
+
+  rate.oninput = () => document.getElementById('cb-rate-label').textContent = rate.value + '%';
+  document.getElementById('cb-send').onclick = send;
+  document.getElementById('cb-reset').onclick = reset;
+  document.getElementById('cb-auto').onclick = toggleAuto;
+  reset();
+  return {};
+})();
+
+/* ============================================================
+ * MODULE 3 — cascading failure demo
+ * ============================================================ */
+const M3 = (() => {
+  const POOL = 30;
+  let running = false;
+
+  function setSvc(id, cls) {
+    const el = document.getElementById(id);
+    el.className = 'svc ' + cls;
+  }
+  function bar(id, frac, color) {
+    document.getElementById(id).style.width = Math.min(100, frac * 100) + '%';
+  }
+
+  function reset() {
+    running = false;
+    // no-CB
+    document.getElementById('nocb-pool').textContent = '0';
+    document.getElementById('nocb-served').textContent = '0';
+    document.getElementById('nocb-504').textContent = '0';
+    bar('nocb-poolbar', 0);
+    setSvc('nocb-A', 'healthy'); setSvc('nocb-B', 'healthy'); setSvc('nocb-C', 'down');
+    // CB
+    document.getElementById('cb2-pool').textContent = '0';
+    document.getElementById('cb2-503').textContent = '0';
+    document.getElementById('cb2-504').textContent = '0';
+    document.getElementById('cb2-state').textContent = 'CLOSED';
+    bar('cb2-poolbar', 0);
+    setSvc('cb2-A', 'healthy'); setSvc('cb2-B', 'healthy'); setSvc('cb2-C', 'down');
+  }
+
+  async function run() {
+    if (running) return;
+    running = true;
+    reset(); running = true;
+
+    // state machines
+    const nocb = { pool: 0, served: 0, t504: 0 };
+    const cbm  = { pool: 0, t503: 0, t504: 0, fails: 0, state: 'CLOSED', openedAt: 0 };
+    const THRESHOLD = 5, COOLDOWN = 1200;
+
+    for (let i = 1; i <= 30; i++) {
+      // ----- KHÔNG circuit breaker: mỗi request chiếm 1 connection, kẹt 2s -----
+      if (nocb.pool < POOL) {
+        nocb.pool++;
+        // connection sẽ "kẹt" rồi 504 (không bao giờ served vì C down)
+        setTimeout(() => { nocb.pool = Math.max(0, nocb.pool - 1); paintNoCB(nocb); }, 600);
+        nocb.t504++;
+      } else {
+        // pool cạn → request mới cũng 504 (A không nhận nổi)
+        nocb.t504++;
+        setSvc('nocb-A', 'down');
+      }
+      if (nocb.pool >= POOL) setSvc('nocb-A', 'down');
+      else if (nocb.pool > POOL * 0.5) setSvc('nocb-A', 'stressed');
+      paintNoCB(nocb);
+
+      // ----- CÓ circuit breaker -----
+      // Allow?
+      let allowed = true;
+      if (cbm.state === 'OPEN') {
+        if (Date.now() - cbm.openedAt >= COOLDOWN) { cbm.state = 'HALF'; }
+        else allowed = false;
+      }
+      if (!allowed) {
+        cbm.t503++;            // fail-fast 503, KHÔNG chiếm connection
+      } else {
+        // gọi xuống B→C (C down) → chiếm connection ngắn rồi fail (có timeout 2s nhưng pool release nhanh)
+        if (cbm.pool < POOL) {
+          cbm.pool++;
+          setTimeout(() => { cbm.pool = Math.max(0, cbm.pool - 1); paintCB(cbm); }, 300);
+        }
+        cbm.t504++;
+        cbm.fails++;
+        if (cbm.fails >= THRESHOLD && cbm.state !== 'OPEN') {
+          cbm.state = 'OPEN'; cbm.openedAt = Date.now();
+        }
+      }
+      if (cbm.state === 'OPEN') setSvc('cb2-A', 'healthy');     // A vẫn khoẻ vì fail-fast
+      else if (cbm.pool > POOL * 0.5) setSvc('cb2-A', 'stressed');
+      else setSvc('cb2-A', 'healthy');
+      paintCB(cbm);
+
+      await sleep(120);
+    }
+    running = false;
+  }
+
+  function paintNoCB(s) {
+    document.getElementById('nocb-pool').textContent = s.pool;
+    document.getElementById('nocb-served').textContent = s.served;
+    document.getElementById('nocb-504').textContent = s.t504;
+    bar('nocb-poolbar', s.pool / POOL);
+    if (s.pool >= POOL) setSvc('nocb-A', 'down');
+  }
+  function paintCB(s) {
+    document.getElementById('cb2-pool').textContent = s.pool;
+    document.getElementById('cb2-503').textContent = s.t503;
+    document.getElementById('cb2-504').textContent = s.t504;
+    document.getElementById('cb2-state').textContent = s.state;
+    bar('cb2-poolbar', s.pool / POOL);
+  }
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  document.getElementById('casc-run').onclick = run;
+  document.getElementById('casc-reset').onclick = reset;
+  reset();
+  return {};
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

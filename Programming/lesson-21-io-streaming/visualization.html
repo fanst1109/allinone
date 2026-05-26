@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L21 — IO Streaming · io.Reader / io.Writer</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #00add8;
+    --accent-hover: #007d9c;
+    --accent-soft: #e6f7fc;
+    --read-color: #3b82f6;
+    --write-color: #10b981;
+    --buf-color: #f59e0b;
+    --eof-color: #ef4444;
+  }
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 80px; }
+  h1 { color: #2d3748; margin-top: 0; }
+  .module {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 32px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+  .module h2 { margin-top: 0; color: #2d3748; border-bottom: 2px solid var(--accent-soft); padding-bottom: 8px; }
+  .controls { margin: 16px 0; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  button.viz-btn {
+    padding: 8px 16px;
+    border: 0;
+    background: var(--accent);
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  button.viz-btn:hover { background: var(--accent-hover); }
+  button.viz-btn.secondary { background: #6b7280; }
+  button.viz-btn.secondary:hover { background: #4b5563; }
+  button.viz-btn:disabled { background: #cbd5e0; cursor: not-allowed; }
+  .log {
+    font-family: 'Fira Code', Consolas, monospace;
+    background: #1a202c;
+    color: #e2e8f0;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    max-height: 200px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  .log .ok    { color: #48bb78; }
+  .log .read  { color: #63b3ed; }
+  .log .write { color: #68d391; }
+  .log .eof   { color: #f56565; font-weight: 700; }
+  .log .info  { color: #f6ad55; }
+  .stat {
+    display: inline-block;
+    padding: 4px 10px;
+    background: var(--accent-soft);
+    border-radius: 4px;
+    margin-right: 8px;
+    font-family: monospace;
+    font-size: 13px;
+  }
+
+  /* ===== Module 1 — Read Loop ===== */
+  .m1-row { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; margin: 12px 0; }
+  .m1-source, .m1-buffer {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    padding: 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    background: #f7fafc;
+  }
+  .m1-cell {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: monospace; font-size: 13px; font-weight: 600;
+    background: white; border: 1px solid #cbd5e0; border-radius: 3px;
+    transition: all .3s;
+  }
+  .m1-cell.consumed { background: #cbd5e0; color: #718096; }
+  .m1-cell.filled { background: var(--read-color); color: white; border-color: var(--accent-hover); transform: scale(1.1); }
+  .m1-cell.empty  { background: #fff; color: #a0aec0; }
+  .m1-label { font-weight: 700; min-width: 80px; color: #4a5568; }
+
+  /* ===== Module 2 — io.Copy ===== */
+  .m2-pipeline {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    gap: 12px;
+    align-items: center;
+    margin: 16px 0;
+  }
+  .m2-box {
+    padding: 16px;
+    border-radius: 8px;
+    text-align: center;
+    background: white;
+    border: 2px solid #e2e8f0;
+  }
+  .m2-box.src { background: linear-gradient(180deg, #ebf8ff 0%, #bee3f8 100%); border-color: var(--read-color); }
+  .m2-box.buf { background: linear-gradient(180deg, #fffaf0 0%, #fbd38d 100%); border-color: var(--buf-color); }
+  .m2-box.dst { background: linear-gradient(180deg, #f0fff4 0%, #9ae6b4 100%); border-color: var(--write-color); }
+  .m2-box .label { font-weight: 700; margin-bottom: 8px; }
+  .m2-box .bytes { font-family: monospace; font-size: 12px; color: #4a5568; }
+  .m2-arrow { font-size: 24px; color: #4a5568; text-align: center; }
+  .m2-arrow.active { color: var(--accent); animation: pulse 0.6s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .m2-bar {
+    height: 24px;
+    background: #edf2f7;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 6px;
+    position: relative;
+  }
+  .m2-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4299e1, #3182ce);
+    transition: width .3s;
+  }
+  .m2-bar.warn .m2-bar-fill { background: linear-gradient(90deg, #f56565, #c53030); }
+  .m2-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 12px;
+  }
+  .m2-compare > div {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+  }
+  .m2-compare h4 { margin: 0 0 8px 0; }
+  .m2-compare .stream { background: #f0fff4; border-color: var(--write-color); }
+  .m2-compare .loadall { background: #fff5f5; border-color: var(--eof-color); }
+
+  /* ===== Module 3 — io.Pipe ===== */
+  .m3-stage {
+    display: grid;
+    grid-template-columns: 1fr 80px 1fr;
+    gap: 16px;
+    align-items: center;
+  }
+  .m3-goroutine {
+    background: #f7fafc;
+    border: 2px solid #cbd5e0;
+    border-radius: 12px;
+    padding: 16px;
+    min-height: 200px;
+  }
+  .m3-goroutine.producer { border-color: var(--read-color); background: #ebf8ff; }
+  .m3-goroutine.consumer { border-color: var(--write-color); background: #f0fff4; }
+  .m3-goroutine h4 { margin: 0 0 8px 0; }
+  .m3-goroutine .state {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 12px; font-weight: 700; font-family: monospace;
+    background: #cbd5e0; color: #1a202c;
+  }
+  .m3-goroutine .state.running   { background: #48bb78; color: white; }
+  .m3-goroutine .state.blocked   { background: #f6ad55; color: white; }
+  .m3-goroutine .state.done      { background: #718096; color: white; }
+  .m3-pipe {
+    text-align: center;
+    border-left: 3px dashed #cbd5e0;
+    border-right: 3px dashed #cbd5e0;
+    min-height: 200px;
+    position: relative;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .m3-pipe .packet {
+    background: var(--accent);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 12px;
+    margin: 4px 0;
+    opacity: 0;
+    transform: translateX(-100%);
+    transition: opacity .5s, transform .5s;
+  }
+  .m3-pipe .packet.flying { opacity: 1; transform: translateX(0); }
+  .m3-log {
+    font-family: monospace;
+    font-size: 12px;
+    background: white;
+    border-radius: 4px;
+    padding: 8px;
+    max-height: 120px;
+    overflow-y: auto;
+    margin-top: 8px;
+  }
+
+  @media (max-width: 768px) {
+    .m2-pipeline { grid-template-columns: 1fr; }
+    .m2-arrow { transform: rotate(90deg); }
+    .m3-stage { grid-template-columns: 1fr; }
+    .m3-pipe { border-left: 0; border-right: 0; border-top: 3px dashed #cbd5e0; border-bottom: 3px dashed #cbd5e0; min-height: 100px; }
+    .m2-compare { grid-template-columns: 1fr; }
+    .m1-cell { width: 24px; height: 24px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-20-packages-modules/visualization.html">← L20: Package &amp; Module</a>
+  <span class="sep">·</span>
+  <span class="current">L21: IO Streaming</span>
+  <span class="sep">·</span>
+  <a href="../lesson-22-file-os/visualization.html">L22: File &amp; OS →</a>
+</nav>
+
+<main>
+  <h1>Lesson 21 — IO Streaming</h1>
+  <p>Minh hoạ tương tác 3 module: <strong>Read loop</strong>, <strong>io.Copy buffer</strong>, <strong>io.Pipe</strong>.</p>
+
+  <!-- ================= Module 1 ================= -->
+  <section class="module" id="m1">
+    <h2>Module 1 · Read loop với <code>io.Reader</code></h2>
+    <p>Reader có chuỗi nguồn dài 38 byte. Buffer của caller chỉ 8 byte. Quan sát mỗi lần <code>Read(p)</code> trả về <em>n</em> byte và xử lý EOF.</p>
+
+    <div class="m1-row">
+      <span class="m1-label">Source:</span>
+      <div class="m1-source" id="m1-src"></div>
+    </div>
+    <div class="m1-row">
+      <span class="m1-label">Buffer p:</span>
+      <div class="m1-buffer" id="m1-buf"></div>
+    </div>
+    <div class="m1-row">
+      <span class="stat">đã đọc: <span id="m1-stat-read">0</span></span>
+      <span class="stat">còn lại: <span id="m1-stat-rem">38</span></span>
+      <span class="stat">lần Read: <span id="m1-stat-calls">0</span></span>
+    </div>
+
+    <div class="controls">
+      <button class="viz-btn" id="m1-step">Read tiếp 1 lần →</button>
+      <button class="viz-btn secondary" id="m1-auto">Auto play</button>
+      <button class="viz-btn secondary" id="m1-reset">Reset</button>
+    </div>
+
+    <div class="log" id="m1-log"></div>
+  </section>
+
+  <!-- ================= Module 2 ================= -->
+  <section class="module" id="m2">
+    <h2>Module 2 · <code>io.Copy</code> buffer 32 KB so với load-all</h2>
+    <p>Source 100 KB chảy qua buffer 32 KB sang destination. So sánh RAM dùng giữa streaming vs <code>io.ReadAll</code>.</p>
+
+    <div class="m2-pipeline">
+      <div class="m2-box src">
+        <div class="label">SRC</div>
+        <div class="bytes" id="m2-src-bytes">100 / 100 KB còn lại</div>
+        <div class="m2-bar"><div class="m2-bar-fill" id="m2-src-bar" style="width:100%"></div></div>
+      </div>
+      <div class="m2-arrow" id="m2-arrow1">→</div>
+      <div class="m2-box buf">
+        <div class="label">BUF (32 KB)</div>
+        <div class="bytes" id="m2-buf-bytes">0 / 32 KB</div>
+        <div class="m2-bar"><div class="m2-bar-fill" id="m2-buf-bar" style="width:0%; background: linear-gradient(90deg,#ed8936,#dd6b20)"></div></div>
+      </div>
+      <div class="m2-arrow" id="m2-arrow2">→</div>
+      <div class="m2-box dst">
+        <div class="label">DST</div>
+        <div class="bytes" id="m2-dst-bytes">0 / 100 KB ghi</div>
+        <div class="m2-bar"><div class="m2-bar-fill" id="m2-dst-bar" style="width:0%; background: linear-gradient(90deg,#48bb78,#2f855a)"></div></div>
+      </div>
+    </div>
+
+    <div class="m2-compare">
+      <div class="stream">
+        <h4>✓ io.Copy (streaming)</h4>
+        <div>RAM peak: <strong id="m2-stream-ram">0 KB</strong></div>
+        <div style="font-size: 13px; color: #2f855a; margin-top: 4px;">Chỉ giữ 1 buffer 32 KB bất kể source lớn cỡ nào.</div>
+      </div>
+      <div class="loadall">
+        <h4>✗ io.ReadAll (load all)</h4>
+        <div>RAM peak: <strong id="m2-load-ram">0 KB</strong></div>
+        <div style="font-size: 13px; color: #c53030; margin-top: 4px;">Bằng kích thước source. Source 4 GB → 4 GB RAM → OOM.</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="viz-btn" id="m2-step">Copy 1 chunk →</button>
+      <button class="viz-btn secondary" id="m2-auto">Auto copy</button>
+      <button class="viz-btn secondary" id="m2-reset">Reset</button>
+    </div>
+    <div class="log" id="m2-log"></div>
+  </section>
+
+  <!-- ================= Module 3 ================= -->
+  <section class="module" id="m3">
+    <h2>Module 3 · <code>io.Pipe</code> hand-off giữa 2 goroutine</h2>
+    <p>Producer ghi vào <code>pw</code>; consumer đọc từ <code>pr</code>. Pipe đồng bộ (không buffer) → producer phải đợi consumer đọc xong mới ghi tiếp.</p>
+
+    <div class="m3-stage">
+      <div class="m3-goroutine producer">
+        <h4>Goroutine A — Producer</h4>
+        <div>State: <span class="state" id="m3-prod-state">idle</span></div>
+        <div style="margin-top: 8px; font-family: monospace; font-size: 13px;">
+          <div>for i := 1..5 {</div>
+          <div>&nbsp;&nbsp;pw.Write("msg-i\n")</div>
+          <div>}</div>
+          <div>pw.Close()</div>
+        </div>
+        <div class="m3-log" id="m3-prod-log"></div>
+      </div>
+      <div class="m3-pipe" id="m3-pipe">
+        <div style="font-size: 12px; color: #718096;">io.Pipe</div>
+        <div id="m3-packet-area"></div>
+      </div>
+      <div class="m3-goroutine consumer">
+        <h4>Goroutine B — Consumer</h4>
+        <div>State: <span class="state" id="m3-cons-state">idle</span></div>
+        <div style="margin-top: 8px; font-family: monospace; font-size: 13px;">
+          <div>sc := bufio.NewScanner(pr)</div>
+          <div>for sc.Scan() {</div>
+          <div>&nbsp;&nbsp;process(sc.Text())</div>
+          <div>}</div>
+        </div>
+        <div class="m3-log" id="m3-cons-log"></div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="viz-btn" id="m3-step">Tick (1 hand-off) →</button>
+      <button class="viz-btn secondary" id="m3-auto">Auto run</button>
+      <button class="viz-btn secondary" id="m3-reset">Reset</button>
+    </div>
+    <div class="log" id="m3-log"></div>
+  </section>
+
+  <section class="module">
+    <h2>Ghi chú</h2>
+    <ul>
+      <li><strong>Module 1</strong>: chú ý lần Read cuối thường trả <code>n &gt; 0</code> kèm <code>io.EOF</code> — cần xử lý cả 2.</li>
+      <li><strong>Module 2</strong>: RAM của streaming = const 32 KB, không tỉ lệ với source. RAM của ReadAll = source size.</li>
+      <li><strong>Module 3</strong>: Pipe đồng bộ → khi consumer chậm, producer block ở <code>pw.Write</code>. Đây là backpressure tự nhiên.</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+// ===================== Module 1 =====================
+(function() {
+  const SOURCE_TEXT = "Hello world! Streaming IO with io.Reader.";  // 42 chars > 38? đếm lại
+  const text = "Hello world! Streaming IO Reader.".padEnd(38, ' ').slice(0, 38);
+  const BUF_SIZE = 8;
+  const srcEl = document.getElementById('m1-src');
+  const bufEl = document.getElementById('m1-buf');
+  const logEl = document.getElementById('m1-log');
+  const stepBtn = document.getElementById('m1-step');
+  const autoBtn = document.getElementById('m1-auto');
+  const resetBtn = document.getElementById('m1-reset');
+  const statRead = document.getElementById('m1-stat-read');
+  const statRem  = document.getElementById('m1-stat-rem');
+  const statCalls = document.getElementById('m1-stat-calls');
+
+  let pos, calls, done, autoTimer;
+
+  function render() {
+    srcEl.innerHTML = '';
+    for (let i = 0; i < text.length; i++) {
+      const c = document.createElement('div');
+      c.className = 'm1-cell' + (i < pos ? ' consumed' : '');
+      c.textContent = text[i] === ' ' ? '·' : text[i];
+      srcEl.appendChild(c);
+    }
+    bufEl.innerHTML = '';
+    // Buffer empty after each render (we'll fill in step)
+    for (let i = 0; i < BUF_SIZE; i++) {
+      const c = document.createElement('div');
+      c.className = 'm1-cell empty';
+      c.textContent = '_';
+      bufEl.appendChild(c);
+    }
+    statRead.textContent = pos;
+    statRem.textContent = text.length - pos;
+    statCalls.textContent = calls;
+  }
+
+  function appendLog(html) {
+    logEl.innerHTML += html + '\n';
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  function step() {
+    if (done) return;
+    calls++;
+    const remaining = text.length - pos;
+    let n = Math.min(BUF_SIZE, remaining);
+    // Sometimes simulate partial reads
+    if (remaining > BUF_SIZE && Math.random() < 0.3) {
+      n = Math.max(1, Math.floor(BUF_SIZE / 2) + Math.floor(Math.random() * (BUF_SIZE/2)));
+    }
+    const chunk = text.slice(pos, pos + n);
+    pos += n;
+
+    // render with buffer filled
+    srcEl.innerHTML = '';
+    for (let i = 0; i < text.length; i++) {
+      const c = document.createElement('div');
+      c.className = 'm1-cell' + (i < pos ? ' consumed' : '');
+      c.textContent = text[i] === ' ' ? '·' : text[i];
+      srcEl.appendChild(c);
+    }
+    bufEl.innerHTML = '';
+    for (let i = 0; i < BUF_SIZE; i++) {
+      const c = document.createElement('div');
+      if (i < n) {
+        c.className = 'm1-cell filled';
+        c.textContent = chunk[i] === ' ' ? '·' : chunk[i];
+      } else {
+        c.className = 'm1-cell empty';
+        c.textContent = '_';
+      }
+      bufEl.appendChild(c);
+    }
+
+    statRead.textContent = pos;
+    statRem.textContent = text.length - pos;
+    statCalls.textContent = calls;
+
+    const isEnd = pos >= text.length;
+    let line = `<span class="read">Read #${calls}:</span> n=${n}, `;
+    if (isEnd) {
+      line += `<span class="eof">err=io.EOF</span>  → process p[:${n}] = "${chunk.replace(/ /g,'·')}"`;
+      done = true;
+    } else {
+      line += `<span class="ok">err=nil</span>  → process p[:${n}] = "${chunk.replace(/ /g,'·')}"`;
+    }
+    appendLog(line);
+
+    if (isEnd) {
+      stepBtn.disabled = true;
+      autoBtn.disabled = true;
+      appendLog(`<span class="info">--- stream kết thúc, ${calls} lần Read, ${pos} byte tổng ---</span>`);
+      stopAuto();
+    }
+  }
+
+  function reset() {
+    pos = 0; calls = 0; done = false;
+    stepBtn.disabled = false;
+    autoBtn.disabled = false;
+    logEl.innerHTML = '';
+    stopAuto();
+    render();
+    appendLog('<span class="info">Reader sẵn sàng. Buffer p size 8 byte.</span>');
+  }
+
+  function startAuto() {
+    if (autoTimer) return;
+    autoBtn.textContent = '⏸ Dừng';
+    autoTimer = setInterval(() => { step(); if (done) stopAuto(); }, 700);
+  }
+  function stopAuto() {
+    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+    autoBtn.textContent = 'Auto play';
+  }
+
+  stepBtn.onclick = step;
+  autoBtn.onclick = () => autoTimer ? stopAuto() : startAuto();
+  resetBtn.onclick = reset;
+  reset();
+})();
+
+// ===================== Module 2 =====================
+(function() {
+  const SRC_SIZE = 100; // KB
+  const BUF_SIZE = 32;  // KB
+  let srcRem, bufFill, dstFill, totalCopied, autoTimer, phase, peakStream;
+
+  const srcBytes = document.getElementById('m2-src-bytes');
+  const srcBar = document.getElementById('m2-src-bar');
+  const bufBytes = document.getElementById('m2-buf-bytes');
+  const bufBar = document.getElementById('m2-buf-bar');
+  const dstBytes = document.getElementById('m2-dst-bytes');
+  const dstBar = document.getElementById('m2-dst-bar');
+  const arrow1 = document.getElementById('m2-arrow1');
+  const arrow2 = document.getElementById('m2-arrow2');
+  const streamRam = document.getElementById('m2-stream-ram');
+  const loadRam = document.getElementById('m2-load-ram');
+  const logEl = document.getElementById('m2-log');
+  const stepBtn = document.getElementById('m2-step');
+  const autoBtn = document.getElementById('m2-auto');
+  const resetBtn = document.getElementById('m2-reset');
+
+  function appendLog(html) { logEl.innerHTML += html + '\n'; logEl.scrollTop = logEl.scrollHeight; }
+
+  function render() {
+    srcBytes.textContent = `${srcRem} / ${SRC_SIZE} KB còn lại`;
+    srcBar.style.width = (srcRem/SRC_SIZE*100) + '%';
+    bufBytes.textContent = `${bufFill} / ${BUF_SIZE} KB`;
+    bufBar.style.width = (bufFill/BUF_SIZE*100) + '%';
+    dstBytes.textContent = `${dstFill} / ${SRC_SIZE} KB ghi`;
+    dstBar.style.width = (dstFill/SRC_SIZE*100) + '%';
+    streamRam.textContent = peakStream + ' KB';
+    // Compare: ReadAll would hold the entire copied portion
+    loadRam.textContent = dstFill + ' KB' + (dstFill >= SRC_SIZE ? ' ⚠' : '');
+  }
+
+  function step() {
+    if (srcRem === 0 && bufFill === 0) return;
+    // 2-phase: read into buffer, then write to dst
+    if (phase === 'read') {
+      const n = Math.min(BUF_SIZE - bufFill, srcRem);
+      if (n === 0) { phase = 'write'; }
+      else {
+        bufFill += n; srcRem -= n;
+        if (bufFill > peakStream) peakStream = bufFill;
+        appendLog(`<span class="read">src.Read(buf[${BUF_SIZE}])</span> → n=${n} KB; buf=${bufFill} KB`);
+        arrow1.classList.add('active'); arrow2.classList.remove('active');
+        phase = 'write';
+        render();
+        return;
+      }
+    }
+    if (phase === 'write') {
+      if (bufFill > 0) {
+        appendLog(`<span class="write">dst.Write(buf[:${bufFill}])</span> → n=${bufFill} KB; dst=${dstFill + bufFill} KB`);
+        dstFill += bufFill;
+        bufFill = 0;
+        arrow2.classList.add('active'); arrow1.classList.remove('active');
+      }
+      if (srcRem === 0) {
+        appendLog(`<span class="eof">src.Read</span> → n=0, err=io.EOF  ✓ io.Copy hoàn tất ${dstFill} KB`);
+        stopAuto();
+      }
+      phase = 'read';
+      render();
+    }
+  }
+
+  function reset() {
+    srcRem = SRC_SIZE; bufFill = 0; dstFill = 0; totalCopied = 0; phase = 'read'; peakStream = 0;
+    arrow1.classList.remove('active'); arrow2.classList.remove('active');
+    logEl.innerHTML = '';
+    appendLog('<span class="info">io.Copy bắt đầu. Buffer 32 KB nội bộ. Source 100 KB.</span>');
+    render();
+    stopAuto();
+  }
+
+  let _t;
+  function startAuto() { if (_t) return; autoBtn.textContent='⏸ Dừng'; _t = setInterval(step, 500); }
+  function stopAuto()  { if (_t) { clearInterval(_t); _t = null; } autoBtn.textContent='Auto copy'; }
+
+  stepBtn.onclick = step;
+  autoBtn.onclick = () => _t ? stopAuto() : startAuto();
+  resetBtn.onclick = reset;
+  reset();
+})();
+
+// ===================== Module 3 =====================
+(function() {
+  const MSGS = ['msg-1', 'msg-2', 'msg-3', 'msg-4', 'msg-5'];
+  let idx, prodState, consState, autoTimer, packets, phase;
+
+  const prodState_el = document.getElementById('m3-prod-state');
+  const consState_el = document.getElementById('m3-cons-state');
+  const prodLog = document.getElementById('m3-prod-log');
+  const consLog = document.getElementById('m3-cons-log');
+  const pktArea = document.getElementById('m3-packet-area');
+  const logEl = document.getElementById('m3-log');
+  const stepBtn = document.getElementById('m3-step');
+  const autoBtn = document.getElementById('m3-auto');
+  const resetBtn = document.getElementById('m3-reset');
+
+  function setProd(s) {
+    prodState_el.textContent = s;
+    prodState_el.className = 'state ' + s;
+  }
+  function setCons(s) {
+    consState_el.textContent = s;
+    consState_el.className = 'state ' + s;
+  }
+  function appendLog(html) { logEl.innerHTML += html + '\n'; logEl.scrollTop = logEl.scrollHeight; }
+  function appendProd(s) { prodLog.innerHTML += s + '<br>'; prodLog.scrollTop = prodLog.scrollHeight; }
+  function appendCons(s) { consLog.innerHTML += s + '<br>'; consLog.scrollTop = consLog.scrollHeight; }
+
+  function step() {
+    if (idx >= MSGS.length && phase === 'closed') return;
+
+    if (phase === 'idle') {
+      setProd('running');
+      setCons('blocked');
+      appendLog('<span class="info">Producer chuẩn bị Write; Consumer block ở pr.Read chờ data</span>');
+      phase = 'producing';
+      return;
+    }
+    if (phase === 'producing') {
+      if (idx < MSGS.length) {
+        const msg = MSGS[idx];
+        // Show packet flying
+        pktArea.innerHTML = `<div class="packet flying">${msg}</div>`;
+        appendProd(`pw.Write("${msg}\\n")  <span class="info">[block until read]</span>`);
+        setProd('blocked');
+        setCons('running');
+        appendLog(`<span class="write">A: pw.Write("${msg}")</span> → block đến khi B đọc xong`);
+        phase = 'consuming';
+      } else {
+        // close
+        appendProd('pw.Close()  <span class="ok">// EOF cho consumer</span>');
+        appendLog('<span class="info">A: pw.Close() — gửi EOF</span>');
+        setProd('done');
+        phase = 'final-eof';
+      }
+      return;
+    }
+    if (phase === 'consuming') {
+      const msg = MSGS[idx];
+      appendCons(`sc.Scan() → "${msg}" <span class="ok">✓</span>`);
+      appendLog(`<span class="read">B: sc.Scan() → "${msg}"</span>; hand-off xong, A unblock`);
+      pktArea.innerHTML = '';
+      idx++;
+      if (idx < MSGS.length) {
+        setProd('running');
+        setCons('blocked');
+        phase = 'producing';
+      } else {
+        // back to producer to close
+        phase = 'producing';
+      }
+      return;
+    }
+    if (phase === 'final-eof') {
+      appendCons('sc.Scan() → false <span class="eof">[io.EOF]</span>');
+      appendLog('<span class="eof">B: sc.Scan() trả false (EOF) — done</span>');
+      setCons('done');
+      phase = 'closed';
+      stopAuto();
+      return;
+    }
+  }
+
+  function reset() {
+    idx = 0;
+    phase = 'idle';
+    prodLog.innerHTML = '';
+    consLog.innerHTML = '';
+    logEl.innerHTML = '';
+    pktArea.innerHTML = '';
+    setProd('idle');
+    setCons('idle');
+    appendLog('<span class="info">2 goroutine khởi tạo, pipe tạo bởi io.Pipe().</span>');
+    stopAuto();
+  }
+
+  let _t;
+  function startAuto() { if (_t) return; autoBtn.textContent='⏸ Dừng'; _t = setInterval(step, 900); }
+  function stopAuto()  { if (_t) { clearInterval(_t); _t = null; } autoBtn.textContent='Auto run'; }
+
+  stepBtn.onclick = step;
+  autoBtn.onclick = () => _t ? stopAuto() : startAuto();
+  resetBtn.onclick = reset;
+  reset();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

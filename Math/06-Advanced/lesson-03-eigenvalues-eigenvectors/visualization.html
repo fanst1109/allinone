@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 03 — Trị riêng & vector riêng</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="number"] { padding: 6px 8px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 60px; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  .matrix-grid { display: inline-grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin: 4px 8px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 500px; height: 500px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-determinants-linear-systems/visualization.html">← L2: Định thức</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Trị riêng</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L4: Hàm đa biến (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 03 (T6) — Trị riêng &amp; Vector riêng (ma trận 2×2)</h1>
+
+<h2>Tìm λ, v cho ma trận 2×2 + đồ thị vector riêng</h2>
+<div class="card">
+  <div class="row">
+    <strong>A = </strong>
+    <div class="matrix-grid">
+      <input type="number" id="a11" value="2" oninput="calc()">
+      <input type="number" id="a12" value="1" oninput="calc()">
+      <input type="number" id="a21" value="1" oninput="calc()">
+      <input type="number" id="a22" value="2" oninput="calc()">
+    </div>
+  </div>
+  <div class="result" id="res"></div>
+  <svg class="scene" id="svg" viewBox="-250 -250 500 500"></svg>
+  <p style="font-size:13px; color:#64748b">Đường tím = các phương vector riêng. Khi A nhân vào, vector riêng <strong>không đổi hướng</strong> (chỉ co/giãn theo λ).</p>
+</div>
+
+<script>
+function calc() {
+  const a = +document.getElementById("a11").value;
+  const b = +document.getElementById("a12").value;
+  const c = +document.getElementById("a21").value;
+  const d = +document.getElementById("a22").value;
+
+  // Eigenvalues: λ² - (a+d)λ + (ad - bc) = 0
+  const tr = a + d;
+  const det = a*d - b*c;
+  const disc = tr*tr - 4*det;
+  let l1, l2, complex = false;
+  if (disc < 0) {
+    complex = true;
+    l1 = `${(tr/2).toFixed(3)} ± ${(Math.sqrt(-disc)/2).toFixed(3)}i`;
+    l2 = "";
+  } else {
+    l1 = (tr + Math.sqrt(disc))/2;
+    l2 = (tr - Math.sqrt(disc))/2;
+  }
+
+  // Eigenvectors (when real)
+  let v1 = null, v2 = null;
+  if (!complex) {
+    // (A - λI)v = 0
+    const findV = (lam) => {
+      if (Math.abs(b) > 1e-9) return [b, lam - a]; // (a-λ)v1 + b·v2 = 0 → v = (b, λ-a)
+      if (Math.abs(c) > 1e-9) return [lam - d, c];
+      return [1, 0];
+    };
+    v1 = findV(l1);
+    v2 = findV(l2);
+  }
+
+  let html = "";
+  if (complex) {
+    html = `
+      <div style="font-family:monospace; font-size:15px"><strong>Trị riêng PHỨC: λ = ${l1}</strong></div>
+      <div style="margin-top:6px">Det(A - λI) = λ² − ${tr}λ + ${det} = 0. Δ = ${disc.toFixed(2)} < 0.</div>
+      <div style="margin-top:6px; font-size:13px">Không có vector riêng thực — ma trận này thường là ma trận quay.</div>
+    `;
+  } else {
+    html = `
+      <div style="font-family:monospace; font-size:14px">PT đặc trưng: λ² − ${tr}λ + ${det} = 0</div>
+      <div style="font-family:monospace; font-size:15px; margin-top:4px"><strong>Trị riêng: λ₁ = ${l1.toFixed(4)}, λ₂ = ${l2.toFixed(4)}</strong></div>
+      <div style="font-family:monospace; font-size:14px; margin-top:6px">Vector riêng:</div>
+      <div style="font-family:monospace; font-size:14px">  λ₁ = ${l1.toFixed(3)}: v₁ = (${v1[0].toFixed(3)}, ${v1[1].toFixed(3)})</div>
+      <div style="font-family:monospace; font-size:14px">  λ₂ = ${l2.toFixed(3)}: v₂ = (${v2[0].toFixed(3)}, ${v2[1].toFixed(3)})</div>
+      <div class="row" style="margin-top:6px">
+        <span class="stat">trace = ${tr} = λ₁+λ₂ <strong>✓</strong></span>
+        <span class="stat">det = ${det} = λ₁·λ₂ <strong>✓</strong></span>
+      </div>
+    `;
+  }
+  document.getElementById("res").innerHTML = html;
+
+  // SVG
+  const svg = document.getElementById("svg");
+  svg.innerHTML = "";
+  const SC = 30;
+  for (let i = -8; i <= 8; i++) {
+    const v = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    v.setAttribute("x1", i*SC); v.setAttribute("y1", -250); v.setAttribute("x2", i*SC); v.setAttribute("y2", 250);
+    v.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); v.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+    svg.appendChild(v);
+    const h = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    h.setAttribute("x1", -250); h.setAttribute("y1", i*SC); h.setAttribute("x2", 250); h.setAttribute("y2", i*SC);
+    h.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); h.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+    svg.appendChild(h);
+  }
+
+  if (!complex && v1 && v2) {
+    [v1, v2].forEach((v, i) => {
+      const n = Math.sqrt(v[0]**2 + v[1]**2);
+      const ux = v[0]/n, uy = v[1]/n;
+      // Line through origin along eigenvector
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("x1", -ux*250); line.setAttribute("y1", uy*250);
+      line.setAttribute("x2", ux*250); line.setAttribute("y2", -uy*250);
+      line.setAttribute("stroke", i === 0 ? "#7c3aed" : "#15803d"); line.setAttribute("stroke-width", 2); line.setAttribute("stroke-dasharray", "5,3");
+      svg.appendChild(line);
+      // Vector v
+      const arr = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      arr.setAttribute("x1", 0); arr.setAttribute("y1", 0);
+      arr.setAttribute("x2", v[0]*SC); arr.setAttribute("y2", -v[1]*SC);
+      arr.setAttribute("stroke", i === 0 ? "#7c3aed" : "#15803d"); arr.setAttribute("stroke-width", 3);
+      svg.appendChild(arr);
+      // Av = λv vector
+      const lam = i === 0 ? l1 : l2;
+      const av = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      av.setAttribute("x1", 0); av.setAttribute("y1", 0);
+      av.setAttribute("x2", lam*v[0]*SC); av.setAttribute("y2", -lam*v[1]*SC);
+      av.setAttribute("stroke", i === 0 ? "#7c3aed" : "#15803d"); av.setAttribute("stroke-width", 1.5); av.setAttribute("stroke-opacity", 0.5);
+      svg.appendChild(av);
+      // Labels
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t.setAttribute("x", v[0]*SC + 8); t.setAttribute("y", -v[1]*SC - 5);
+      t.setAttribute("fill", i === 0 ? "#7c3aed" : "#15803d"); t.setAttribute("font-weight", "700"); t.setAttribute("font-size", "13");
+      t.textContent = `v${i+1} (λ=${lam.toFixed(2)})`;
+      svg.appendChild(t);
+    });
+  }
+}
+
+calc();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 01 — Góc & Radian</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 500px; height: 500px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../../02-Geometry/lesson-08-transformations-vector-geo/visualization.html">← T2-L8</a>
+  <span class="sep">·</span>
+  <span class="current">T3-L1: Góc &amp; radian</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L2: sin/cos/tan (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 01 (T3) — Góc &amp; Radian</h1>
+
+<h2>Đường tròn lượng giác đơn vị</h2>
+<div class="card">
+  <div class="row">
+    <label>Góc (độ):</label>
+    <input type="range" id="ang" min="-360" max="720" step="5" value="60" oninput="draw()">
+    <span class="stat">θ = <strong id="dVal">60</strong>°</span>
+    <span class="stat">= <strong id="rVal">π/3</strong> rad</span>
+  </div>
+  <svg class="scene" id="svg" viewBox="-250 -250 500 500"></svg>
+  <div class="result" id="res"></div>
+</div>
+
+<script>
+function draw() {
+  const deg = parseFloat(document.getElementById("ang").value);
+  const rad = deg * Math.PI / 180;
+  document.getElementById("dVal").textContent = deg;
+  // Format radian as multiple of π
+  const r = rad / Math.PI;
+  let label;
+  if (Math.abs(r - Math.round(r*6)/6) < 0.01) {
+    const n = Math.round(r*6); // n/6
+    const g = (a,b)=>b?g(b,a%b):a;
+    const d = g(Math.abs(n), 6);
+    const num = n/d, den = 6/d;
+    if (n === 0) label = "0";
+    else if (den === 1) label = (num === 1 ? "π" : num === -1 ? "−π" : `${num}π`);
+    else label = `${num === 1 ? "" : num === -1 ? "−" : num}π/${den}`;
+  } else {
+    label = rad.toFixed(3);
+  }
+  document.getElementById("rVal").textContent = label;
+
+  const svg = document.getElementById("svg");
+  svg.innerHTML = "";
+  const R = 200;
+
+  // Axes
+  ["x","y"].forEach((axis,i) => {
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    if (axis === "x") { l.setAttribute("x1", -240); l.setAttribute("y1", 0); l.setAttribute("x2", 240); l.setAttribute("y2", 0); }
+    else { l.setAttribute("x1", 0); l.setAttribute("y1", -240); l.setAttribute("x2", 0); l.setAttribute("y2", 240); }
+    l.setAttribute("stroke", "#1a202c"); l.setAttribute("stroke-width", 1);
+    svg.appendChild(l);
+  });
+  // Unit circle
+  const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  c.setAttribute("cx", 0); c.setAttribute("cy", 0); c.setAttribute("r", R);
+  c.setAttribute("fill", "none"); c.setAttribute("stroke", "#cbd5e0"); c.setAttribute("stroke-width", 1.5);
+  svg.appendChild(c);
+
+  // Arc for angle
+  const cx = 0, cy = 0;
+  const totalRev = Math.floor(Math.abs(deg) / 360);
+  // Draw arc from 0 to deg
+  const arcR = 50;
+  const startAng = 0;
+  const endAng = -rad; // SVG y inverts
+  const largeArc = Math.abs(deg) > 180 && Math.abs(deg) < 360 ? 1 : (Math.abs(deg) >= 360 ? 1 : 0);
+  // For multiple revolutions, just show effective arc
+  const effDeg = ((deg % 360) + 360) % 360;
+  const effRad = effDeg * Math.PI / 180;
+  const ax2 = arcR * Math.cos(-effRad);
+  const ay2 = arcR * Math.sin(-effRad);
+  const la = effDeg > 180 ? 1 : 0;
+  const arc = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  arc.setAttribute("d", `M ${arcR},0 A ${arcR},${arcR} 0 ${la},${deg < 0 ? 1 : 0} ${ax2},${ay2}`);
+  arc.setAttribute("fill", "none"); arc.setAttribute("stroke", "#dc2626"); arc.setAttribute("stroke-width", 2.5);
+  svg.appendChild(arc);
+
+  // Point on circle
+  const px = R * Math.cos(rad);
+  const py = -R * Math.sin(rad); // SVG y inverts
+  // Radius line
+  const rl = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  rl.setAttribute("x1", 0); rl.setAttribute("y1", 0); rl.setAttribute("x2", px); rl.setAttribute("y2", py);
+  rl.setAttribute("stroke", "#15803d"); rl.setAttribute("stroke-width", 2.5);
+  svg.appendChild(rl);
+  // cos line (vertical projection from point to x-axis)
+  const cl = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  cl.setAttribute("x1", px); cl.setAttribute("y1", 0); cl.setAttribute("x2", px); cl.setAttribute("y2", py);
+  cl.setAttribute("stroke", "#7c3aed"); cl.setAttribute("stroke-width", 2); cl.setAttribute("stroke-dasharray", "5,3");
+  svg.appendChild(cl);
+  // sin line (horizontal from point to y-axis)
+  const sl = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  sl.setAttribute("x1", 0); sl.setAttribute("y1", py); sl.setAttribute("x2", px); sl.setAttribute("y2", py);
+  sl.setAttribute("stroke", "#1d4ed8"); sl.setAttribute("stroke-width", 2); sl.setAttribute("stroke-dasharray", "5,3");
+  svg.appendChild(sl);
+  // Point
+  const pt = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  pt.setAttribute("cx", px); pt.setAttribute("cy", py); pt.setAttribute("r", 6);
+  pt.setAttribute("fill", "#dc2626");
+  svg.appendChild(pt);
+  // Labels
+  const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  lbl.setAttribute("x", px + 10); lbl.setAttribute("y", py - 5);
+  lbl.setAttribute("font-weight", "700"); lbl.setAttribute("fill", "#1a202c"); lbl.setAttribute("font-size", "14");
+  lbl.textContent = `(${Math.cos(rad).toFixed(3)}, ${Math.sin(rad).toFixed(3)})`;
+  svg.appendChild(lbl);
+
+  // Axis tick labels
+  [["1",R,0],["-1",-R,0],["1",0,-R],["-1",0,R]].forEach(([t,x,y]) => {
+    const tx = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    tx.setAttribute("x", x+8); tx.setAttribute("y", y+15);
+    tx.setAttribute("font-size", "12"); tx.setAttribute("fill", "#64748b");
+    tx.textContent = t;
+    svg.appendChild(tx);
+  });
+
+  // Mark special angles
+  [0, 30, 45, 60, 90, 120, 135, 150, 180, 210, 225, 240, 270, 300, 315, 330].forEach(a => {
+    const ar = a * Math.PI / 180;
+    const x = R * Math.cos(ar), y = -R * Math.sin(ar);
+    const m = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    m.setAttribute("cx", x); m.setAttribute("cy", y); m.setAttribute("r", 2);
+    m.setAttribute("fill", "#94a3b8");
+    svg.appendChild(m);
+  });
+
+  // Arc length (within unit circle, ℓ = θ for r=1)
+  const arcLength = Math.abs(rad);
+  const sector = 0.5 * 1 * 1 * Math.abs(rad);
+  document.getElementById("res").innerHTML = `
+    <div class="row">
+      <span class="stat">cos θ = <strong>${Math.cos(rad).toFixed(4)}</strong></span>
+      <span class="stat">sin θ = <strong>${Math.sin(rad).toFixed(4)}</strong></span>
+      <span class="stat">tan θ = <strong>${Math.abs(Math.cos(rad)) < 1e-9 ? "∞" : Math.tan(rad).toFixed(4)}</strong></span>
+    </div>
+    <div class="row">
+      <span class="stat">Độ dài cung (r=1): ℓ = θ = <strong>${arcLength.toFixed(4)} rad</strong></span>
+      <span class="stat">S quạt (r=1): <strong>${sector.toFixed(4)}</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px; color:#64748b">Số vòng quay: ${totalRev}, góc tương đương: ${effDeg}° = ${(effRad/Math.PI).toFixed(3)}π rad</div>
+  `;
+}
+draw();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

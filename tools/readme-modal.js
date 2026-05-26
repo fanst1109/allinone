@@ -551,6 +551,53 @@
       });
     }
 
+    // Rewrite href trong README markdown đã render: link tới directory hoặc
+    // README.md không click thẳng được trên web (folder listing / raw markdown).
+    // Tự suy ra đích đúng:
+    //   .../lesson-XX-yyy/        → .../lesson-XX-yyy/visualization.html
+    //   .../<tier|lĩnh-vực>/      → .../<...>/index.html
+    //   .../README.md             → .../index.html (cùng cấp)
+    //   ../../                    → ../../index.html (root repo)
+    //   external https://...      → target="_blank" rel="noopener noreferrer"
+    //   .html/.go/.png... file    → giữ nguyên
+    //   #anchor                   → giữ nguyên (scroll trong modal)
+    function rewriteReadmeLinks(root) {
+      var anchors = root.querySelectorAll('a[href]');
+      for (var i = 0; i < anchors.length; i++) {
+        var a = anchors[i];
+        var href = a.getAttribute('href');
+        if (!href) continue;
+        if (href.charAt(0) === '#') continue;
+        if (/^(mailto:|tel:|javascript:)/i.test(href)) continue;
+        if (/^https?:\/\//i.test(href)) {
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          continue;
+        }
+        // Tách path khỏi #anchor / ?query
+        var hashIdx = href.search(/[#?]/);
+        var path = hashIdx === -1 ? href : href.slice(0, hashIdx);
+        var rest = hashIdx === -1 ? '' : href.slice(hashIdx);
+
+        // .../README.md → .../index.html
+        if (/\/README\.md$/i.test(path)) {
+          path = path.replace(/\/README\.md$/i, '/index.html');
+        }
+        // Trỏ thẳng vào thư mục (có / cuối hoặc không có extension)
+        else if (/\/$/.test(path) || !/\.[a-z0-9]+$/i.test(path)) {
+          if (!/\/$/.test(path)) path += '/';
+          // Folder lesson (kebab "lesson-XX-..." hoặc "tutorial-...") → viz
+          if (/(lesson-\d+[^/]*|tutorial-[^/]+)\/$/i.test(path)) {
+            path += 'visualization.html';
+          } else {
+            path += 'index.html';
+          }
+        }
+        // Còn lại (path tới file cụ thể như .html / .go / .png) → giữ nguyên
+        a.setAttribute('href', path + rest);
+      }
+    }
+
     // TOC visibility: load từ localStorage.
     // Default: desktop = visible (side-by-side đẹp), mobile = hidden (overlay
     // full panel sẽ che content khi vừa mở → bắt user tap tắt là khó chịu).
@@ -572,6 +619,7 @@
       if (!rendered) {
         try {
           contentEl.innerHTML = window.marked.parse(window.README_MD);
+          rewriteReadmeLinks(contentEl);
           buildToc();
         } catch (e) {
           console.error('[readme-modal] render lỗi:', e);

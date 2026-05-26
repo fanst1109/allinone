@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 05 — Tích phân kép</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  button { background: #94a3b8; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.active { background: #15803d; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 500px; height: 400px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-multivariable-functions/visualization.html">← L4: Hàm đa biến</a>
+  <span class="sep">·</span>
+  <span class="current">L5: ∫∫</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L6: Chuỗi (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 05 (T6) — Tổng Riemann 2D xấp xỉ ∫∫ f dA</h1>
+
+<h2>Xấp xỉ thể tích dưới mặt cong</h2>
+<div class="card">
+  <div class="row">
+    <button id="b1" onclick="setF('xy')" class="active">f = x·y</button>
+    <button id="b2" onclick="setF('sqxy')">f = x² + y²</button>
+    <button id="b3" onclick="setF('one')">f = 1 (diện tích)</button>
+    <button id="b4" onclick="setF('expsq')">f = e^(-(x²+y²)/2)</button>
+  </div>
+  <div class="row">
+    <label>n (chia mỗi chiều):</label>
+    <input type="range" id="n" min="2" max="30" step="1" value="10" oninput="draw()">
+    <span class="stat">n = <strong id="vN">10</strong></span>
+  </div>
+  <svg class="scene" id="svg" viewBox="0 0 500 400"></svg>
+  <div class="result" id="res"></div>
+</div>
+
+<script>
+const funcs = {
+  xy:    {fn: (x,y) => x*y,                     exact: 0.25, label: "x·y", domain: "[0,1]×[0,1]"},
+  sqxy:  {fn: (x,y) => x*x + y*y,               exact: 2/3,  label: "x² + y²", domain: "[0,1]×[0,1]"},
+  one:   {fn: (x,y) => 1,                       exact: 1,    label: "1", domain: "[0,1]×[0,1]"},
+  expsq: {fn: (x,y) => Math.exp(-(x*x+y*y)/2),  exact: null, label: "e^(-(x²+y²)/2)", domain: "[0,1]×[0,1]"}
+};
+let cur = "xy";
+
+function setF(f) {
+  cur = f;
+  ["1","2","3","4"].forEach(c => document.getElementById("b"+c).classList.remove("active"));
+  const m = {xy:"1", sqxy:"2", one:"3", expsq:"4"};
+  document.getElementById("b" + m[f]).classList.add("active");
+  draw();
+}
+
+function draw() {
+  const def = funcs[cur];
+  const n = parseInt(document.getElementById("n").value);
+  document.getElementById("vN").textContent = n;
+
+  const svg = document.getElementById("svg");
+  svg.innerHTML = "";
+  const W = 500, H = 400;
+  const cellSize = 300 / n;
+  const offX = 100, offY = 50;
+
+  // Find max for color scale
+  let fMax = -Infinity, fMin = Infinity;
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+    const x = (i+0.5)/n, y = (j+0.5)/n;
+    const v = def.fn(x, y);
+    fMax = Math.max(fMax, v); fMin = Math.min(fMin, v);
+  }
+
+  // Draw cells with color = f value (heatmap)
+  let sum = 0;
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      const x = (i+0.5)/n, y = (j+0.5)/n;
+      const v = def.fn(x, y);
+      sum += v;
+      const intensity = (v - fMin) / (fMax - fMin + 1e-9);
+      const r = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      r.setAttribute("x", offX + i*cellSize); r.setAttribute("y", offY + (n-1-j)*cellSize);
+      r.setAttribute("width", cellSize); r.setAttribute("height", cellSize);
+      const hue = 240 - intensity*150; // blue → red
+      r.setAttribute("fill", `hsl(${hue}, 70%, 55%)`);
+      r.setAttribute("stroke", "white"); r.setAttribute("stroke-width", 0.5);
+      svg.appendChild(r);
+    }
+  }
+  const estimate = sum / (n*n);
+
+  // Axes labels
+  ["0", "1"].forEach((lbl, i) => {
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", offX + i*300); t.setAttribute("y", offY + 320);
+    t.setAttribute("text-anchor", "middle"); t.setAttribute("font-size", "12");
+    t.textContent = lbl;
+    svg.appendChild(t);
+    const t2 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t2.setAttribute("x", offX - 10); t2.setAttribute("y", offY + 300 - i*300 + 5);
+    t2.setAttribute("text-anchor", "end"); t2.setAttribute("font-size", "12");
+    t2.textContent = lbl;
+    svg.appendChild(t2);
+  });
+  const xLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  xLbl.setAttribute("x", offX + 150); xLbl.setAttribute("y", offY + 360); xLbl.setAttribute("text-anchor", "middle"); xLbl.setAttribute("font-weight", "700");
+  xLbl.textContent = "x";
+  svg.appendChild(xLbl);
+  const yLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  yLbl.setAttribute("x", offX - 35); yLbl.setAttribute("y", offY + 150); yLbl.setAttribute("font-weight", "700");
+  yLbl.textContent = "y";
+  svg.appendChild(yLbl);
+
+  document.getElementById("res").innerHTML = `
+    <div style="font-family:monospace; font-size:14px"><strong>∫∫_${def.domain} ${def.label} dA</strong></div>
+    <div style="font-family:monospace; font-size:14px; margin-top:4px">Tổng Riemann (n²=${n*n} ô): <strong>${estimate.toFixed(6)}</strong></div>
+    ${def.exact !== null ? `<div style="font-family:monospace; font-size:14px">Giá trị thật: <strong>${def.exact.toFixed(6)}</strong>. Sai số: ${Math.abs(estimate - def.exact).toFixed(6)}</div>` : ""}
+    <div style="margin-top:6px; font-size:13px; color:#64748b">Heatmap: xanh (f thấp) → đỏ (f cao). Tăng n để giảm sai số.</div>
+  `;
+}
+
+draw();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

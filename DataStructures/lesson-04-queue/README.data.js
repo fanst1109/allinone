@@ -116,6 +116,132 @@ function bfs(graph, start):
                 queue.enqueue(neighbor)
 \`\`\`
 
+### 6.1. 💡 Trực giác — vì sao BFS phải dùng queue
+
+Hình dung **cháy lan trên giấy**: bạn châm lửa ở node \`start\`. Mỗi giây, lửa lan đều từ những điểm đang cháy sang **tất cả** hàng xóm chưa cháy. Sau giây 1, lửa ở các node cách \`start\` đúng 1 cạnh. Sau giây 2, ở các node cách 2 cạnh. Cứ thế.
+
+Để mô phỏng "lan đều", ta **phải xử lý xong toàn bộ node ở khoảng cách \`d\` trước khi đụng tới node ở khoảng cách \`d+1\`**. Đây chính xác là tính chất **FIFO** của queue:
+
+- Khi \`dequeue\` ra node \`u\` ở khoảng cách \`d\`, mọi node \`d\` còn lại đã ở trong queue trước các node \`d+1\` (vì chúng được \`enqueue\` từ trước, do thăm bố mẹ ở khoảng cách \`d-1\` xảy ra trước).
+- Các node \`d+1\` thêm vào sẽ ngồi ở **đuôi queue**, chỉ được xử lý sau khi hết tầng \`d\`.
+
+Nếu thay queue bằng **stack** (LIFO): node mới đẩy vào sẽ được xử lý ngay → đi sâu trước khi xử lý xong tầng hiện tại → đó chính là **DFS**, không phải BFS.
+
+### 6.2. Walk-through bằng số cụ thể
+
+Đồ thị mẫu (vô hướng):
+
+\`\`\`
+    A ── B ── D
+    │    │
+    C ── E ── F
+\`\`\`
+
+\`adj[A]={B,C}\`, \`adj[B]={A,D,E}\`, \`adj[C]={A,E}\`, \`adj[D]={B}\`, \`adj[E]={B,C,F}\`, \`adj[F]={E}\`.
+
+Trạng thái queue và visited tại MỖI bước, BFS từ \`A\`:
+
+| Bước | Action | Queue (front→rear) | Visited | Output |
+|------|--------|--------------------|---------|--------|
+| 0 | init | \`[A]\` | \`{A}\` | — |
+| 1 | dequeue A, enqueue B,C | \`[B, C]\` | \`{A,B,C}\` | A |
+| 2 | dequeue B, enqueue D,E (A đã visited) | \`[C, D, E]\` | \`{A,B,C,D,E}\` | B |
+| 3 | dequeue C (A,E đã visited) | \`[D, E]\` | \`{A,B,C,D,E}\` | C |
+| 4 | dequeue D (B đã visited) | \`[E]\` | \`{A,B,C,D,E}\` | D |
+| 5 | dequeue E, enqueue F (B,C đã visited) | \`[F]\` | \`{A,B,C,D,E,F}\` | E |
+| 6 | dequeue F (E đã visited) | \`[]\` | \`{A,B,C,D,E,F}\` | F |
+
+Thứ tự thăm: **A, B, C, D, E, F** — đúng thứ tự khoảng cách \`0, 1, 1, 2, 2, 3\`.
+
+Để ý: B và C cùng khoảng cách 1, B được thăm trước **chỉ vì** thứ tự enqueue ở bước 1 (B trước C, do \`adj[A]\` liệt kê B trước). BFS không cam kết thứ tự **trong cùng một tầng**, chỉ cam kết "tầng trước → tầng sau".
+
+### 6.3. Tính chất quan trọng — BFS tìm đường đi ngắn nhất (đồ thị không trọng số)
+
+**Phát biểu**: với đồ thị **không trọng số** (hoặc trọng số bằng nhau), BFS từ \`s\` tính được \`dist(s, v)\` = số cạnh ít nhất từ \`s\` đến \`v\`, cho mọi \`v\` reachable.
+
+**Vì sao đúng?** Quan sát: khi node \`v\` lần đầu được \`enqueue\`, nó được phát hiện qua bố mẹ \`u\` đang ở tầng \`d\` → \`v\` ở tầng \`d+1\`. Giả sử tồn tại đường ngắn hơn từ \`s\` đến \`v\` qua node \`w\` ở tầng \`d' < d\`. Nhưng \`w\` được xử lý **trước** \`u\` (do FIFO), nên khi xử lý \`w\` lẽ ra \`v\` đã được phát hiện rồi — mâu thuẫn với "lần đầu enqueue". Vậy \`dist(v) = d+1\`.
+
+**Track distance** trong pseudocode:
+
+\`\`\`
+function bfsDistance(graph, start):
+    dist = map[node → int]
+    dist[start] = 0
+    queue = [start]
+    while not queue.isEmpty():
+        u = queue.dequeue()
+        for v in graph[u]:
+            if v not in dist:
+                dist[v] = dist[u] + 1
+                queue.enqueue(v)
+    return dist
+\`\`\`
+
+Áp lên ví dụ trên, từ A: \`dist = {A:0, B:1, C:1, D:2, E:2, F:3}\`.
+
+**Reconstruct path** (tái tạo đường đi cụ thể): lưu thêm \`parent[v] = u\` lúc enqueue → từ đích lùi ngược về.
+
+### 6.4. Biến thể thường gặp
+
+**(a) BFS theo tầng (level-by-level)** — biết "phần tử nào thuộc tầng nào":
+
+\`\`\`
+queue = [start]
+level = 0
+while not queue.isEmpty():
+    size = queue.size()        # CHỐT số node tầng hiện tại
+    for i in 1..size:
+        u = queue.dequeue()
+        visit(u, level)
+        for v in graph[u]:
+            if not visited[v]:
+                visited[v] = true
+                queue.enqueue(v)
+    level += 1
+\`\`\`
+
+Mẹo: snapshot \`size\` **trước** khi xử lý tầng. Trong vòng \`for\`, queue có thể phình thêm — nhưng \`size\` đã chốt nên không sang nhầm tầng.
+
+**(b) Multi-source BFS** — nhiều nguồn xuất phát cùng lúc, tính khoảng cách đến nguồn **gần nhất**: đẩy hết các nguồn vào queue ban đầu với \`dist = 0\`, rồi BFS như thường. Ứng dụng: ma trận \`01-matrix\` (LeetCode 542), nhiệt độ lan từ nhiều ổ lửa, v.v.
+
+**(c) 0-1 BFS** — đồ thị có trọng số ∈ {0, 1}: thay queue bằng **deque**, cạnh trọng số 0 → \`pushFront\`, cạnh trọng số 1 → \`pushBack\`. Vẫn \`O(V+E)\`. (Trọng số bất kỳ → phải dùng Dijkstra ở lesson 11.)
+
+### 6.5. ❓ Câu hỏi tự nhiên
+
+- **"Cần \`visited\` riêng hay chỉ check \`dist[v]\`?"** — Cùng tác dụng. Nếu đã track \`dist\`, kiểm tra \`v not in dist\` là đủ. Hai biến \`visited\` + \`dist\` là dư.
+- **"Đánh dấu visited LÚC enqueue hay LÚC dequeue?"** — **Lúc enqueue** mới đúng. Nếu đánh dấu lúc dequeue, một node có thể bị enqueue **nhiều lần** trước khi được xử lý → queue phình to + duplicate output. Đây là lỗi rất phổ biến.
+- **"BFS có hoạt động trên đồ thị có chu trình?"** — Có, miễn là check \`visited\` để không quay lại. Đó là tác dụng chính của \`visited\`.
+- **"Đồ thị vô hướng và có hướng khác gì khi BFS?"** — Code y hệt; khác biệt chỉ là \`adj[u]\` cấu thành thế nào (vô hướng: cạnh \`u-v\` xuất hiện ở cả \`adj[u]\` và \`adj[v]\`; có hướng: chỉ một chiều).
+- **"Độ phức tạp?"** — \`O(V + E)\` thời gian, \`O(V)\` bộ nhớ (queue + visited). Mỗi đỉnh enqueue/dequeue đúng 1 lần (do visited); mỗi cạnh xét đúng 1-2 lần (vô hướng).
+
+### 6.6. ⚠ Lỗi thường gặp
+
+| Lỗi | Hậu quả | Cách sửa |
+|------|---------|----------|
+| Đánh dấu visited **lúc dequeue** thay vì lúc enqueue | Một node bị enqueue nhiều lần, queue phình, có thể TLE/OOM | Đánh dấu **ngay khi enqueue** |
+| Quên đánh dấu \`start\` là visited ban đầu | \`start\` có thể bị enqueue lại qua hàng xóm → vòng lặp lãng phí | \`visited.add(start)\` trước vòng while |
+| Dùng \`list.pop(0)\` ở Python để dequeue | \`O(n)\` mỗi lần → BFS chậm thành \`O(V·(V+E))\` | Dùng \`collections.deque\` (\`popleft()\` là \`O(1)\`) |
+| BFS trên đồ thị có **trọng số khác nhau** rồi kết luận đường ngắn nhất | Sai kết quả — BFS chỉ đúng cho trọng số bằng nhau | Dùng Dijkstra (lesson 11) |
+| Trong level-by-level, đọc \`queue.size()\` **trong** vòng for thay vì snapshot trước | Sang nhầm tầng do queue phình | Chốt \`size = queue.size()\` trước \`for\` |
+
+### 6.7. 🔁 Tự kiểm tra
+
+1. BFS trên cây nhị phân từ root tương đương với cách duyệt nào đã học ở lesson 6?
+   <details><summary>Đáp án</summary>**Level-order traversal**. Cây là đồ thị đặc biệt (không chu trình, mỗi node có 1 bố mẹ trừ root), nên không cần \`visited\`.</details>
+2. Nếu thay queue bằng **priority queue** (lấy node có dist nhỏ nhất trước), thuật toán biến thành gì?
+   <details><summary>Đáp án</summary>**Dijkstra**. Trên đồ thị không trọng số, Dijkstra suy biến về BFS vì mọi cạnh \`w=1\` → "dist nhỏ nhất tiếp theo" trùng với "tầng tiếp theo".</details>
+3. Cho đồ thị ở mục 6.2, BFS từ \`D\` ra thứ tự thăm nào?
+   <details><summary>Đáp án</summary>\`D, B, A, E, C, F\`. (D có 1 hàng xóm B; B có {A,D,E} mới = {A,E}; A có {B,C} mới = {C}; E có {B,C,F} mới = {F}; ...)</details>
+
+### 6.8. 📝 Tóm tắt mục 6
+
+- **BFS = duyệt theo tầng** từ node xuất phát, mỗi tầng cách thêm 1 cạnh.
+- **Queue (FIFO) là cấu trúc đúng** vì giữ thứ tự "tầng trước hết sạch rồi mới sang tầng sau".
+- **Đánh dấu visited lúc enqueue**, không phải lúc dequeue.
+- BFS tính **đường ngắn nhất theo số cạnh** trong đồ thị **không trọng số**. Có trọng số → Dijkstra.
+- Complexity: \`O(V + E)\` thời gian, \`O(V)\` bộ nhớ.
+- Biến thể quan trọng: level-by-level (snapshot size), multi-source (push hết nguồn vào queue ban đầu), 0-1 BFS (deque).
+
 ## Bài tập
 
 1. Cài đặt một circular queue dùng mảng kích thước cố định.

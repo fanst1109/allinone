@@ -55,6 +55,111 @@ cây:        1 (0)
 
 → Rất tiết kiệm bộ nhớ, cache-friendly.
 
+### 2.1. 💡 Trực giác — vì sao công thức \`2i+1\`, \`2i+2\` đúng
+
+Đây là cách 2 trong [lesson 6 — Tổ chức bộ nhớ](../lesson-06-tree/#8-tổ-chức-bộ-nhớ-cách-1--pointer-based). Ý tưởng cốt lõi: **đánh số BFS** cho mọi node của một cây nhị phân đầy đặt, rồi chính cái index ấy đã mã hoá "vị trí trong cây" — không cần thêm pointer.
+
+Quan sát bằng 1-based (đẹp nhất, để hiểu trước):
+
+\`\`\`
+       1                level 0
+      / \\
+     2   3              level 1
+    / \\ / \\
+   4  5 6  7            level 2
+\`\`\`
+
+- Level 0: chỉ có index 1 (\`2^0\` node, bắt đầu từ \`2^0\`).
+- Level 1: index 2, 3 (\`2^1\` node, bắt đầu từ \`2^1\`).
+- Level 2: index 4, 5, 6, 7 (\`2^2\` node, bắt đầu từ \`2^2\`).
+
+Hai con của node \`i\` là \`2i\` và \`2i+1\`. Nhìn ở dạng **bit nhị phân**:
+
+\`\`\`
+i = 2      = 0b10        left(2)  = 0b100 = 4    ← thêm bit '0' vào cuối
+                         right(2) = 0b101 = 5    ← thêm bit '1' vào cuối
+i = 5      = 0b101       parent   = 0b10  = 2    ← bỏ bit cuối cùng
+\`\`\`
+
+**Insight bit-level**: index nhị phân của node = "đường đi từ root", trong đó bit \`0\` = rẽ trái, bit \`1\` = rẽ phải (bỏ qua bit dẫn đầu = root). Ví dụ \`i = 5 = 0b101\`: bỏ bit dẫn đầu → \`01\` → từ root rẽ trái rồi rẽ phải → đúng vị trí node 5 trong cây trên.
+
+Khi chuyển sang **0-based** (chuẩn của Go, C, Python), shift toàn bộ xuống 1: \`parent(i) = (i-1)/2\`, \`left(i) = 2i+1\`, \`right(i) = 2i+2\`. Cùng nguyên lý, chỉ lệch một đơn vị.
+
+### 2.2. Byte-layout trong RAM
+
+Với heap \`[1, 3, 2, 5, 4]\` kiểu \`int32\` (4 byte/phần tử), mảng nằm **liên tiếp** trong RAM. Giả sử mảng bắt đầu ở địa chỉ \`0x1000\`:
+
+\`\`\`
+địa chỉ:  0x1000      0x1004      0x1008      0x100C      0x1010
+         ┌──────────┬──────────┬──────────┬──────────┬──────────┐
+         │   01     │   03     │   02     │   05     │   04     │  giá trị
+         │ idx 0    │ idx 1    │ idx 2    │ idx 3    │ idx 4    │
+         └──────────┴──────────┴──────────┴──────────┴──────────┘
+           4 byte     4 byte     4 byte     4 byte     4 byte
+\`\`\`
+
+20 byte tổng cộng. **Zero metadata**: không pointer, không padding (vì \`int32\` tự align 4-byte).
+
+Đi từ idx 0 xuống con trái idx 1: chỉ là \`addr + 4 byte\`. Đi xuống tầng dưới (idx 3): \`addr + 12 byte\`. CPU **prefetcher** đã kéo sẵn cả block 64 byte vào L1 cache → mọi truy cập đều cache hit.
+
+So với pointer-based (lesson 6, cách 1):
+
+| Tiêu chí | Pointer-based (cây 5 node) | Array-based (cây 5 node) |
+|----------|----------------------------:|--------------------------:|
+| Bộ nhớ | 120 byte | **20 byte** |
+| Tỉ lệ overhead | 83% | **0%** |
+| Cache miss khi đi xuống | Cao (địa chỉ rời rạc) | Rất thấp (liên tiếp) |
+| Chèn/xoá ở giữa | \`O(1)\` nếu có pointer cha | \`O(n)\` (phải dịch mảng) |
+
+### 2.3. Vì sao cách này CHỈ phù hợp với complete binary tree
+
+Heap luôn complete → mảng đặc, không có lỗ hổng. Nếu áp lên cây **không complete** (vd cây skewed lệch hẳn 1 bên), phải để slot trống → tốn rất nhiều bộ nhớ.
+
+Ví dụ cây "chuỗi" 4 node (chỉ rẽ phải):
+
+\`\`\`
+1 → null    null     null    null  null  null  3 → null  null   ...
+\`\`\`
+
+Wait — để node \`1\` ở idx 0, con phải ở idx 2, con phải tiếp ở idx 6, idx 14, ... → cần **mảng dài \`2^h - 1\`** cho cây độ sâu \`h\`. Với \`h = 30\`, mảng cần ~1 tỉ slot dù chỉ có 30 node thật. Khi đó pointer-based thắng tuyệt đối.
+
+→ **Quy tắc**: array-based dùng được khi tree gần đầy (heap, segment tree dạng đầy, một số dạng BST cân bằng "đông đúc"). Cây thưa hoặc dynamic không đoán được hình dạng → dùng pointer-based.
+
+### 2.4. ❓ Câu hỏi tự nhiên
+
+- **"Sao Go \`heap.Interface\` không buộc dùng mảng?"** — Thực ra có: nó yêu cầu các method \`Len/Less/Swap/Push/Pop\` thao tác trên một backing slice. Slice trong Go = mảng động → chính là array-based.
+- **"1-based hay 0-based tốt hơn?"** — 0-based đồng nhất với ngôn ngữ; 1-based công thức gọn hơn (\`2i\`, \`2i+1\` thay vì \`2i+1\`, \`2i+2\`). Sách giáo khoa thường 1-based; code thực tế 0-based. Bài này dùng 0-based.
+- **"Nếu mảng đầy, làm sao chèn thêm?"** — Resize giống slice/\`ArrayList\`: cấp mảng mới gấp đôi, copy sang. Amortized \`O(1)\` cho mỗi \`append\`.
+- **"Sao không thay \`/2\` bằng \`>> 1\`?"** — Trình biên dịch hiện đại đã làm thay, không cần tay. Nhưng nếu phải cài trong C/C++ tốc độ tới hạn, viết \`i >> 1\` rõ ý đồ hơn.
+- **"Có node nào KHÔNG có con không? Làm sao biết?"** — So sánh \`left(i) = 2i+1\` với \`n = len(heap)\`. Nếu \`2i+1 >= n\` → không có con. Trong heap, các node từ index \`n/2\` trở đi đều là leaf (không có con).
+
+### 2.5. ⚠ Lỗi thường gặp
+
+| Lỗi | Hậu quả | Cách sửa |
+|------|---------|----------|
+| Nhầm 1-based với 0-based (vd \`left = 2i\` trong code 0-based) | Truy cập sai node, heap property vỡ | Cố định 1 convention từ đầu file |
+| \`parent(0)\` trả về index âm hoặc 0 | Loop sift-up sai khi đến root | Check \`i > 0\` trước khi tính parent |
+| Quên check \`right < n\` trước khi so sánh | Truy cập out-of-bounds | \`if r < n && heap[r] < heap[smallest]\` |
+| Áp array-based cho cây thưa | Mảng phình theo \`2^h\` slot trống | Dùng pointer-based |
+| Resize mảng nhưng quên copy hết | Heap rỗng ngẫu nhiên | Dùng slice/\`vector\` thay vì mảng cố định |
+
+### 2.6. 🔁 Tự kiểm tra
+
+1. Heap \`[10, 20, 15, 30, 40, 25, 50]\` (0-based). Cha của idx 5 là ai? Con trái của idx 2 là ai?
+   <details><summary>Đáp án</summary>Cha của idx 5: \`(5-1)/2 = 2\` → giá trị \`15\`. Con trái của idx 2: \`2·2+1 = 5\` → giá trị \`25\`.</details>
+2. Cây nhị phân 1000 node nhưng skewed (mỗi node chỉ rẽ phải). Array-based 0-based tốn bao nhiêu slot?
+   <details><summary>Đáp án</summary>Node sâu nhất ở idx \`2^999 - 1\` ≈ \`10^300\`. Không khả thi. Đây là lý do array-based chỉ hợp với complete tree.</details>
+3. Trong heap \`n\` phần tử (0-based), số leaf chính xác là bao nhiêu?
+   <details><summary>Đáp án</summary>Các index từ \`⌊n/2⌋\` tới \`n-1\` là leaf → có \`⌈n/2⌉\` leaf. Đây là lý do \`buildHeap\` chỉ chạy \`siftDown\` từ \`n/2 - 1\` xuống (các node trước đó không phải leaf).</details>
+
+### 2.7. 📝 Tóm tắt mục 2
+
+- Heap = complete binary tree → lưu bằng **mảng liên tiếp**, không pointer.
+- Công thức 0-based: \`parent = (i-1)/2\`, \`left = 2i+1\`, \`right = 2i+2\`.
+- Bản chất bit: thêm/bỏ bit cuối của index = đi xuống/lên 1 tầng.
+- Tiết kiệm bộ nhớ tối đa (0% overhead), cache-friendly tối đa.
+- **Chỉ phù hợp khi cây gần đầy**. Cây thưa/skewed → quay về pointer-based (lesson 6).
+
 ## 3. Thao tác cơ bản (min-heap)
 
 ### 3.1. Insert (\`O(log n)\`)

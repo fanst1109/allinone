@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 01 — Dãy số & giới hạn</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  button { background: #94a3b8; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.active { background: #15803d; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 700px; height: 350px; background: #f8fafc; border-radius: 8px; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0; font-family: monospace; font-size: 13px; }
+  td, th { border: 1px solid #cbd5e0; padding: 4px 8px; text-align: right; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../../03-Trig-Complex/lesson-08-trig-applications/visualization.html">← T3-L8</a>
+  <span class="sep">·</span>
+  <span class="current">T4-L1: Dãy số &amp; giới hạn</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L2: Lim hàm (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 01 (T4) — Dãy số &amp; Giới hạn</h1>
+
+<h2>Quan sát dãy hội tụ — đồ thị + bảng giá trị</h2>
+<div class="card">
+  <div class="row">
+    <button id="b1" onclick="setDay('1/n')" class="active">a_n = 1/n → 0</button>
+    <button id="b2" onclick="setDay('e')">a_n = (1+1/n)^n → e</button>
+    <button id="b3" onclick="setDay('alt')">a_n = (-1)^n (phân kỳ)</button>
+    <button id="b4" onclick="setDay('sinn')">a_n = sin(n)/n → 0</button>
+    <button id="b5" onclick="setDay('sqrt')">a_n = √(n²+1)-n → 0</button>
+  </div>
+  <svg class="scene" id="svg" viewBox="0 0 700 350"></svg>
+  <div id="tab"></div>
+  <div class="result" id="res"></div>
+</div>
+
+<script>
+let cur = "1/n";
+
+const dayDefs = {
+  "1/n": {fn: n => 1/n, L: 0, label: "a_n = 1/n", ymin: -0.5, ymax: 1.2, conv: true},
+  "e":   {fn: n => Math.pow(1 + 1/n, n), L: Math.E, label: "a_n = (1+1/n)^n", ymin: 1.8, ymax: 3, conv: true},
+  "alt": {fn: n => Math.pow(-1, n), L: null, label: "a_n = (-1)^n", ymin: -1.5, ymax: 1.5, conv: false},
+  "sinn": {fn: n => Math.sin(n)/n, L: 0, label: "a_n = sin(n)/n", ymin: -0.5, ymax: 1.2, conv: true},
+  "sqrt": {fn: n => Math.sqrt(n*n+1) - n, L: 0, label: "a_n = √(n²+1)-n", ymin: -0.2, ymax: 1.2, conv: true}
+};
+
+function setDay(d) {
+  cur = d;
+  ["1","2","3","4","5"].forEach(c => document.getElementById("b"+c).classList.remove("active"));
+  const m = {"1/n":"1","e":"2","alt":"3","sinn":"4","sqrt":"5"};
+  document.getElementById("b" + m[d]).classList.add("active");
+  draw();
+}
+
+function draw() {
+  const def = dayDefs[cur];
+  const svg = document.getElementById("svg");
+  svg.innerHTML = "";
+  const W = 700, H = 350, cx = 50;
+  const nMax = 50;
+  const scale = (W-80) / nMax;
+  const yMin = def.ymin, yMax = def.ymax;
+  const ySc = (H-60) / (yMax - yMin);
+  const yToPx = y => 30 + (yMax - y) * ySc;
+
+  // Grid + axes
+  for (let i = 0; i <= 50; i += 10) {
+    const x = cx + i*scale;
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", x); l.setAttribute("y1", 30); l.setAttribute("x2", x); l.setAttribute("y2", H-30);
+    l.setAttribute("stroke", "#e2e8f0"); l.setAttribute("stroke-width", 0.5);
+    svg.appendChild(l);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", x); t.setAttribute("y", H-12); t.setAttribute("text-anchor", "middle"); t.setAttribute("font-size", "11");
+    t.textContent = i;
+    svg.appendChild(t);
+  }
+  // X axis (y=0)
+  const xax = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  xax.setAttribute("x1", cx); xax.setAttribute("y1", yToPx(0)); xax.setAttribute("x2", W-30); xax.setAttribute("y2", yToPx(0));
+  xax.setAttribute("stroke", "#1a202c"); xax.setAttribute("stroke-width", 1.5);
+  svg.appendChild(xax);
+
+  // Limit line
+  if (def.L !== null) {
+    const Lp = yToPx(def.L);
+    const ll = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    ll.setAttribute("x1", cx); ll.setAttribute("y1", Lp); ll.setAttribute("x2", W-30); ll.setAttribute("y2", Lp);
+    ll.setAttribute("stroke", "#dc2626"); ll.setAttribute("stroke-width", 2); ll.setAttribute("stroke-dasharray", "5,3");
+    svg.appendChild(ll);
+    const lt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lt.setAttribute("x", W-25); lt.setAttribute("y", Lp); lt.setAttribute("fill", "#dc2626"); lt.setAttribute("font-weight", "700"); lt.setAttribute("font-size", "13");
+    lt.textContent = "L = " + def.L.toFixed(4);
+    svg.appendChild(lt);
+  }
+
+  // Points
+  for (let n = 1; n <= nMax; n++) {
+    const v = def.fn(n);
+    const px = cx + n*scale;
+    const py = yToPx(v);
+    if (py > 30 && py < H-30) {
+      const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      c.setAttribute("cx", px); c.setAttribute("cy", py); c.setAttribute("r", 3);
+      c.setAttribute("fill", "#1d4ed8");
+      svg.appendChild(c);
+    }
+  }
+
+  // Table
+  const tab = document.getElementById("tab");
+  const ns = [1, 5, 10, 50, 100, 1000, 10000];
+  let html = "<table><thead><tr><th>n</th>" + ns.map(n => `<th>${n}</th>`).join("") + "</tr></thead><tbody><tr><td><strong>a_n</strong></td>";
+  ns.forEach(n => {
+    const v = def.fn(n);
+    html += `<td>${isFinite(v) ? v.toFixed(6) : "—"}</td>`;
+  });
+  html += "</tr></tbody></table>";
+  tab.innerHTML = html;
+
+  document.getElementById("res").innerHTML = `
+    <div style="font-family:monospace; font-size:15px"><strong>${def.label}</strong></div>
+    <div style="margin-top:6px">${def.conv ? `Dãy <strong>HỘI TỤ</strong> về L = ${def.L.toFixed(6)} (đường đỏ).` : `Dãy <strong>KHÔNG HỘI TỤ</strong> (dao động giữa -1 và 1, không có giới hạn).`}</div>
+  `;
+}
+
+draw();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -30,6 +30,14 @@ V − E + F = 2
 
 **Ví dụ — Lập phương**: V=8, E=12, F=6. Kiểm: 8 − 12 + 6 = **2** ✓.
 
+> 📐 **Định nghĩa đầy đủ — Công thức Euler đa diện**
+>
+> **(a) Là gì**: 1 hằng đẳng thức **kỳ lạ**: với MỌI đa diện lồi (dù phức tạp đến đâu), số đỉnh trừ số cạnh cộng số mặt luôn = 2. Không phụ thuộc kích thước, hình dạng cụ thể.
+>
+> **(b) Vì sao cần**: Đây là 1 trong những định lý đầu tiên về **topology** (hình học không quan tâm độ dài/góc, chỉ quan tâm cấu trúc kết nối). Cho biết "cấu trúc" đa diện bị ràng buộc — không thể tạo ra 1 đa diện với V, E, F tùy ý. Hệ quả: chứng minh chỉ tồn tại 5 khối Platonic (định lý Plato). Ứng dụng hiện đại: mạng lưới đồ hoạ máy tính, phân tích hình học rời rạc, hoá học phân tử (fullerene C60).
+>
+> **(c) Ví dụ số**: Tứ diện đều (4 mặt tam giác): V=4, E=6, F=4 → 4−6+4 = **2** ✓. Lập phương: 8−12+6 = **2** ✓. Bát diện đều: 6−12+8 = **2** ✓. Hình lăng trụ tam giác (3 mặt bên + 2 đáy): V=6, E=9, F=5 → 6−9+5 = **2** ✓. Quả bóng đá (32 mặt = 12 ngũ giác + 20 lục giác): V=60, E=90, F=32 → 60−90+32 = **2** ✓.
+
 ### 1.2. 5 khối Platonic (đa diện đều)
 
 Chỉ có **5 khối đa diện đều** trong không gian 3D:

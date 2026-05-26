@@ -25,6 +25,14 @@
 
 **Hình tròn**: vùng bên trong đường tròn (kèm cả đường tròn).
 
+> 📐 **Định nghĩa đầy đủ — Đường tròn**
+>
+> **(a) Là gì**: Tập hợp **tất cả** các điểm trong mặt phẳng cách 1 điểm cố định O đúng 1 khoảng R cố định. Không nhiều hơn, không ít hơn — chính xác R.
+>
+> **(b) Vì sao cần**: Đường tròn là hình "đối xứng cao nhất" — đối xứng quay quanh O với MỌI góc. Đặc trưng này làm nó xuất hiện khắp nơi trong tự nhiên (giọt nước, mặt trăng tròn, sóng lan), kỹ thuật (bánh xe — quay không tịnh tiến), và toán (định nghĩa π = chu vi/đường kính, sin/cos qua đường tròn đơn vị).
+>
+> **(c) Ví dụ số**: Đường tròn (O, R=5). Điểm A(3, 4) cách O(0,0) = √(9+16) = 5 → A **trên** đường tròn. Điểm B(2, 3) cách O = √13 ≈ 3.6 < 5 → B **trong** hình tròn. Điểm C(6, 0) cách O = 6 > 5 → C **ngoài**. Chu vi = 2π·5 = 10π ≈ 31.4. Diện tích = π·25 ≈ 78.5.
+
 ---
 
 ## 2. Chu vi và diện tích
@@ -65,6 +73,14 @@ Góc có đỉnh **trên đường tròn**, 2 cạnh là 2 dây.
 **Hệ quả quan trọng**:
 - Mọi góc nội tiếp chắn cung **nửa đường tròn** (đường kính) đều bằng **90°**.
 - Mọi góc nội tiếp cùng chắn 1 cung đều bằng nhau.
+
+> 📐 **Định nghĩa đầy đủ — Định lý góc nội tiếp**
+>
+> **(a) Là gì**: Quan hệ "1/2" giữa 2 loại góc cùng chắn 1 cung. Góc nội tiếp (đỉnh trên đường tròn) = **một nửa** góc ở tâm (đỉnh tại O) cùng chắn cùng cung đó.
+>
+> **(b) Vì sao cần**: Vì định lý này cho phép **suy góc** mà không cần đo. Trong nhiều bài hình, ta chỉ biết 1 cung hoặc 1 góc tâm, định lý lập tức cho ra mọi góc nội tiếp tương ứng. Hệ quả nổi tiếng: "góc nội tiếp chắn nửa đường tròn = 90°" — dùng để chứng minh vuông góc mà không cần kiểm tra Pythagore. Cốt lõi của xây dựng đường tròn ngoại tiếp tam giác vuông.
+>
+> **(c) Ví dụ số**: Đường tròn tâm O, cung AC có góc ở tâm AOC = 80°. Lấy B bất kỳ trên cung lớn → góc ABC = 80°/2 = **40°**. Lấy B' khác cũng trên cung lớn → góc AB'C = 40° (bằng ABC). Nếu AC là đường kính (AOC = 180°) → mọi góc ABC = 90° (kinh điển).
 
 ### 4.3. Walk-through chứng minh nhanh
 

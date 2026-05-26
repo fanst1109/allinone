@@ -89,6 +89,14 @@ R(α) = [cos α  −sin α]
        [sin α   cos α]
 ```
 
+> 📐 **Định nghĩa đầy đủ — Phép quay quanh O góc α**
+>
+> **(a) Là gì**: 1 ánh xạ biến mỗi điểm (x, y) thành (x', y') = R(α)·(x, y), với R(α) là ma trận chứa cos/sin của α. **Đặc trưng**: bảo toàn khoảng cách (mọi điểm về O cùng khoảng) và bảo toàn hướng (không lật).
+>
+> **(b) Vì sao cần**: Vì quay là 1 trong những phép biến hình cơ bản — xuất hiện ở mọi nơi từ đồ hoạ máy tính (xoay nhân vật, camera), robotics (xoay khớp), thiên văn (Trái Đất xoay), đến cơ học (vận tốc góc). Biểu diễn bằng ma trận cho phép ghép nhiều phép quay = nhân ma trận (kết hợp = ghép biến đổi), điều khó làm bằng công thức rời rạc. Cốt lõi cho hệ toạ độ chuyển động.
+>
+> **(c) Ví dụ số**: Quay (1, 0) góc 90°: x' = 1·0−0·1 = 0, y' = 1·1+0·0 = 1 → **(0, 1)** ✓. Quay (1, 0) góc 60°: x' = 0.5, y' = √3/2 ≈ 0.866 → (0.5, 0.866). Quay (3, 4) góc 90°: x' = 0−4 = -4, y' = 3+0 = 3 → **(-4, 3)** (mô-đun bảo toàn: |3+4i|=5, |-4+3i|=5). Quay 180° = R = [[-1,0],[0,-1]] (giống đối xứng O). Quay 2 lần 30° = quay 60° (ghép = cộng góc).
+
 **Ví dụ số**: Quay M(1, 0) góc 90°. cos 90° = 0, sin 90° = 1.
 - x' = 1·0 − 0·1 = 0
 - y' = 1·1 + 0·0 = 1

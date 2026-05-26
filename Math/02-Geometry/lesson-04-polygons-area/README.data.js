@@ -34,6 +34,14 @@ Tổng góc trong = (n − 2) · 180°
 
 💡 **Vì sao?** Vì n-giác có thể chia thành **(n−2) tam giác** bằng các đường chéo từ 1 đỉnh → tổng góc trong = (n−2)·180°.
 
+> 📐 **Định nghĩa đầy đủ — Tổng góc trong đa giác**
+>
+> **(a) Là gì**: Quy luật tuyến tính theo số cạnh n. Cộng tất cả n góc trong của 1 đa giác lồi luôn ra đúng (n−2)·180°. Không phụ thuộc hình cụ thể — đều, không đều đều như nhau.
+>
+> **(b) Vì sao cần**: Vì cho phép tính nhanh góc của đa giác mà không cần đo. Ngược lại, dùng để xác định **đa giác đều** mỗi góc bao nhiêu, suy ra n từ số đo góc. Cũng là nền cho bài toán "lát mặt phẳng" (tessellation) — chỉ tam giác, tứ giác, lục giác đều lát được vì góc của chúng chia đều 360°.
+>
+> **(c) Ví dụ số**: Tam giác (n=3): (3-2)·180 = **180°** ✓. Tứ giác (n=4): 2·180 = **360°** ✓ (4 góc 90° trong hình chữ nhật). Ngũ giác đều: 3·180 = 540°, mỗi góc = 540/5 = **108°**. Lục giác đều: 4·180 = 720°, mỗi góc = 120°. Bát giác đều (như đường giao thông STOP): 6·180 = 1080°, mỗi góc = 135°.
+
 **Đa giác đều n cạnh**: mỗi góc trong = (n−2)·180°/n.
 
 | n | Tên | Mỗi góc trong (đều) |

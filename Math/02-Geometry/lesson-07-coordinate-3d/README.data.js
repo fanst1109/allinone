@@ -56,6 +56,14 @@ Ax + By + Cz + D = 0
 
 💡 **Ý nghĩa**: vector pháp tuyến n ⊥ với mọi vector nằm trong mặt phẳng.
 
+> 📐 **Định nghĩa đầy đủ — Phương trình mặt phẳng Ax+By+Cz+D=0**
+>
+> **(a) Là gì**: Tập điểm (x,y,z) trong ℝ³ thoả 1 PT tuyến tính 3 biến. Hệ số (A, B, C) **không phải tùy ý** — chúng là vector pháp tuyến **n** vuông góc với mặt phẳng đó.
+>
+> **(b) Vì sao cần**: Vì mặt phẳng là "1D ít hơn không gian" — cần 1 hạn chế (1 PT) để xác định. Vector pháp tuyến đóng vai trò "hướng" thay cho điểm — biết hướng vuông góc thì biết được mặt phẳng. Trong đồ hoạ 3D, vật lý (mặt cân bằng lực), tối ưu hoá (siêu phẳng phân lớp trong SVM), mặt phẳng là nguyên thuỷ cơ bản. Hằng số D quy định mặt phẳng "dời" khỏi gốc bao xa.
+>
+> **(c) Ví dụ số**: Mặt phẳng 2x + y + 2z = 6 có **n = (2, 1, 2)** (vector pháp tuyến). Điểm (1, 2, 1) có thuộc không? 2·1+2+2·1 = 6 ✓ → có. Điểm (0,0,0): 0 ≠ 6 → không thuộc. Khoảng cách từ O đến mặt phẳng: |0+0+0−6|/√(4+1+4) = 6/3 = **2**. Mặt phẳng song song x+y+z = 0 và x+y+z = 5: cùng n = (1,1,1) → khoảng cách = |0−5|/√3 = 5/√3 ≈ 2.89.
+
 **Khoảng cách từ điểm P(x₀, y₀, z₀) đến mặt Ax + By + Cz + D = 0**:
 \`\`\`
 d = |Ax₀ + By₀ + Cz₀ + D| / √(A² + B² + C²)

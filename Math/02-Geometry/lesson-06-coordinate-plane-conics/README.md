@@ -71,6 +71,14 @@ Tất cả 3 đường này sinh ra khi **cắt mặt nón** với mặt phẳng
 - **Ellipse**: mặt phẳng cắt cả nón, không song song đáy.
 - **Hyperbola**: mặt phẳng cắt cả 2 nón.
 
+> 📐 **Định nghĩa đầy đủ — Conic**
+>
+> **(a) Là gì**: 1 họ 3 đường cong (parabol, ellipse, hyperbola) **có chung 1 cách định nghĩa** qua khoảng cách. Mỗi đường = tập điểm thoả 1 quan hệ giữa khoảng cách tới tiêu điểm và khoảng cách tới đường chuẩn (= **eccentricity e**): e < 1 → ellipse, e = 1 → parabol, e > 1 → hyperbola, e = 0 (đặc biệt) → đường tròn.
+>
+> **(b) Vì sao cần**: Vì hầu hết quỹ đạo trong vũ trụ là conic. Newton chứng minh: vật chuyển động dưới lực hấp dẫn 1/r² **luôn vẽ ra 1 conic** — hành tinh (ellipse), sao chổi (parabol/hyperbola với 1 lần ghé qua). Trong kỹ thuật: gương parabol hội tụ tia // → tiêu điểm (đèn pin, ăng-ten Mặt Trời, vệ tinh parabol). Ellipse: ổ cứng máy bay, phòng "whisper" (âm thanh từ 1 tiêu hội tụ tại tiêu kia).
+>
+> **(c) Ví dụ số**: Quỹ đạo Trái Đất quanh Mặt Trời = ellipse với e ≈ 0.017 (gần tròn). Quỹ đạo sao Hỏa: e ≈ 0.093. Sao chổi Halley: e ≈ 0.967 (rất dẹt). Ánh sáng đèn pin: tia phát từ tiêu điểm parabol y² = 4px → ra song song trục Ox. Hyperbola xy = 1: 2 nhánh, tiệm cận 2 trục — đồ thị hàm 1/x.
+
 ### 3.1. Parabol
 
 ```

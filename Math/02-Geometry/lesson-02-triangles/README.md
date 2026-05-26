@@ -23,6 +23,14 @@
 - **Tổng 3 góc trong = 180°** (hệ quả của tiên đề Euclid 5).
 - **Bất đẳng thức tam giác**: cạnh bất kỳ < tổng 2 cạnh còn lại. (Nếu vi phạm → không thể vẽ được tam giác.)
 
+> 📐 **Định nghĩa đầy đủ — Tam giác**
+>
+> **(a) Là gì**: Hình đóng tạo bởi 3 đoạn thẳng (cạnh) nối 3 điểm không thẳng hàng (đỉnh). Có đúng 3 góc trong tổng cộng đúng 180°.
+>
+> **(b) Vì sao cần**: Tam giác là hình đa giác **đơn giản nhất** (ít cạnh nhất có thể). Đặc biệt **cứng vững** — 3 cạnh xác định duy nhất 1 tam giác (không "vặn vẹo" được như tứ giác). Đó là lý do dùng tam giác trong kết cấu xây dựng (kèo nhà, cầu, giàn giáo) và trong định vị (lưới tam giác đo đạc, GPS).
+>
+> **(c) Ví dụ số**: Cạnh 3, 4, 5 → kiểm tra bất đẳng thức: 3+4=7 > 5 ✓, 3+5=8 > 4 ✓, 4+5=9 > 3 ✓ → vẽ được. Cạnh 1, 2, 5 → 1+2=3 < 5 → KHÔNG vẽ được. Cạnh 1, 2, 3 → 1+2=3 = 3, biên giới (3 điểm thẳng hàng, "tam giác suy biến"). Cạnh 6, 6, 6 → tam giác đều, 3 góc = 60°.
+
 ---
 
 ## 2. Phân loại tam giác
@@ -94,6 +102,14 @@ a² + b² = c²
 - Định lý nổi tiếng nhất hình học, biết ~ 4000 năm trước.
 - Cơ sở cho **khoảng cách** trong tọa độ: d = √((x₂−x₁)² + (y₂−y₁)²).
 - Liên kết hình học và đại số.
+
+> 📐 **Định nghĩa đầy đủ — Pythagore**
+>
+> **(a) Là gì**: 1 quan hệ số học giữa 3 cạnh tam giác **vuông**. Không phải định nghĩa của tam giác — mà là 1 **định luật** đúng cho mọi tam giác vuông. Cạnh huyền c (đối diện góc vuông) luôn thoả: c² = a² + b².
+>
+> **(b) Vì sao cần**: Trước Pythagore, không có cách tính cạnh huyền từ 2 cạnh kia. Định lý cho **công thức đại số** thay vì phải đo. Quan trọng hơn — nó là cầu nối hình học ↔ đại số (sau này thành nền cho tọa độ Đề-các, khoảng cách trong ℝⁿ, độ dài vector). Mọi công thức khoảng cách trong vũ trụ đều xuất phát từ đây.
+>
+> **(c) Ví dụ số**: Tam giác vuông a=3, b=4: c² = 9 + 16 = 25 → c = 5. Tam giác vuông a=5, b=12: c² = 25 + 144 = 169 → c = 13. Đảo lại: tam giác cạnh 6-8-10 có vuông không? 6² + 8² = 36+64 = 100 = 10² ✓ → vuông. Tam giác 4-5-6: 16+25 = 41 ≠ 36 → KHÔNG vuông.
 
 ### Chứng minh trực giác — Bằng diện tích
 

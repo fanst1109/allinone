@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Toán tử & Biểu thức · Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; }
+
+  input[type="number"], input[type="text"] {
+    font-family: 'Menlo','Consolas',monospace;
+    font-size: 15px; padding: 8px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 100%; max-width: 280px; box-sizing: border-box;
+  }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    font-family: 'Menlo','Consolas',monospace;
+  }
+  button:hover { background: #3182ce; }
+  button.op { background: #2d3748; min-width: 56px; }
+  button.op:hover { background: #1a202c; }
+  button.op.active { background: #d69e2e; }
+  select {
+    font-size: 15px; padding: 8px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px; background: white;
+  }
+
+  /* ==== Module 1: bitwise ==== */
+  .bit-row {
+    display: flex; gap: 4px; flex-wrap: nowrap; margin: 6px 0;
+    align-items: center;
+    overflow-x: auto;
+  }
+  .bit-label { font-family: monospace; font-size: 13px; color: #718096; min-width: 56px; }
+  .bit {
+    width: 28px; height: 28px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: 'Menlo','Consolas',monospace; font-weight: 700;
+    border: 1px solid #cbd5e0; border-radius: 3px;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .bit.b1 { background: #4299e1; color: white; }
+  .bit.b0 { background: #f7fafc; color: #a0aec0; }
+  .bit.hl { box-shadow: 0 0 0 2px #d69e2e; }
+  .op-bar { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+  .result-line { font-family: 'Menlo','Consolas',monospace; font-size: 15px; margin: 6px 0; }
+  .result-line .dec { color: #2b6cb0; font-weight: 700; }
+  .shift-input { width: 60px !important; }
+
+  /* ==== Module 2: precedence tree ==== */
+  #precSvg { display: block; max-width: 100%; height: auto; margin: 12px 0; }
+  .prec-table { font-size: 14px; width: 100%; border-collapse: collapse; }
+  .prec-table th, .prec-table td { padding: 6px 10px; border-bottom: 1px solid #e2e8f0; text-align: left; }
+  .prec-table th { background: #edf2f7; }
+  .prec-step {
+    font-family: 'Menlo','Consolas',monospace;
+    font-size: 14px;
+    padding: 4px 8px;
+    margin: 4px 0;
+    background: #f7fafc; border-left: 3px solid #4299e1;
+  }
+  .prec-step.cur { background: #fef5e7; border-left-color: #d69e2e; font-weight: 700; }
+
+  /* ==== Module 3: conversion ==== */
+  .conv-grid { display: grid; grid-template-columns: 1fr 60px 1fr; gap: 10px; align-items: center; margin: 14px 0; }
+  .conv-arrow { text-align: center; font-size: 22px; color: #4299e1; }
+  .verdict {
+    padding: 12px 14px; border-radius: 6px;
+    font-size: 15px; margin-top: 10px;
+  }
+  .verdict.ok { background: #c6f6d5; border-left: 4px solid #38a169; }
+  .verdict.err { background: #fed7d7; border-left: 4px solid #e53e3e; }
+  .verdict.warn { background: #feebc8; border-left: 4px solid #d69e2e; }
+  .verdict code { background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 3px; }
+
+  /* ==== mobile ==== */
+  @media (max-width: 480px) {
+    .bit { width: 22px; height: 24px; font-size: 11px; }
+    .bit-label { min-width: 44px; font-size: 11px; }
+    .conv-grid { grid-template-columns: 1fr; }
+    .conv-arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-variables-types/visualization.html">← L7: Biến & Kiểu</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Toán tử</span>
+  <span class="sep">·</span>
+  <a href="../lesson-09-control-flow/visualization.html">L9: Điều kiện →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 08 — Toán tử & Biểu thức</h1>
+<p>Ba module tương tác để cảm giác được: <strong>(1) bitwise calculator</strong> hiển thị từng bit, <strong>(2) precedence explorer</strong> vẽ thứ tự eval, <strong>(3) type conversion checker</strong> nói rõ Go có yêu cầu convert không.</p>
+
+<h2>Module 1 — Bitwise Calculator</h2>
+<div class="card">
+  <p>Nhập 2 số (0–255, đủ 8 bit để dễ nhìn), chọn toán tử, xem từng bit thay đổi thế nào. Pattern thực tế: Linux file permission, network flag, bitmap index.</p>
+
+  <div class="row">
+    <label>A: <input type="number" id="numA" min="0" max="255" value="202"></label>
+    <label>B: <input type="number" id="numB" min="0" max="255" value="15"></label>
+    <label>shift n: <input type="number" id="shiftN" min="0" max="8" value="2" class="shift-input"></label>
+  </div>
+
+  <div class="op-bar">
+    <button class="op" data-op="and">A &amp; B</button>
+    <button class="op" data-op="or">A | B</button>
+    <button class="op" data-op="xor">A ^ B</button>
+    <button class="op" data-op="andnot">A &amp;^ B</button>
+    <button class="op" data-op="shl">A &lt;&lt; n</button>
+    <button class="op" data-op="shr">A &gt;&gt; n</button>
+    <button class="op" data-op="not">^A</button>
+  </div>
+
+  <div id="bitDisplay"></div>
+
+  <div id="bitExplain" style="margin-top: 14px; font-size: 14px; color: #4a5568; line-height: 1.6;"></div>
+
+  <div style="margin-top: 18px; padding: 12px; background: #ebf8ff; border-radius: 6px; font-size: 14px;">
+    <strong>Pattern Linux permission (số có nghĩa):</strong>
+    <button class="op" style="background: #38a169" onclick="presetPerm(7,5)">A=7 (rwx), B=5 (r-x)</button>
+    <button class="op" style="background: #38a169" onclick="presetPerm(4,2)">A=4 (r--), B=2 (-w-)</button>
+    <button class="op" style="background: #38a169" onclick="presetPerm(7,2)">Clear W: A=7 &amp;^ B=2</button>
+  </div>
+</div>
+
+<h2>Module 2 — Precedence Explorer</h2>
+<div class="card">
+  <p>Chọn một biểu thức Go, viz sẽ vẽ <strong>thứ tự eval theo precedence Go</strong> dạng bước-bước, kèm bảng 5 mức Go.</p>
+
+  <div class="row">
+    <label>Chọn biểu thức:</label>
+    <select id="exprPick">
+      <option value="0">a + b * c        — `*` cao hơn `+`</option>
+      <option value="1">1 &lt;&lt; 2 + 3       — `&lt;&lt;` cao hơn `+` (khác C!)</option>
+      <option value="2">a | b &amp; c        — `&amp;` cao hơn `|`</option>
+      <option value="3">a + b == c + 1   — `+` cao hơn `==`</option>
+      <option value="4">a &lt; b &amp;&amp; b &lt; c   — comparison &gt; `&amp;&amp;`</option>
+      <option value="5">flags &amp; 0x0F == 0 — Go: `&amp;` &gt; `==` (dễ chịu hơn C)</option>
+    </select>
+    <button onclick="renderPrec()">Vẽ lại</button>
+  </div>
+
+  <svg id="precSvg" width="720" height="320" viewBox="0 0 720 320"></svg>
+
+  <div id="precSteps"></div>
+
+  <h3 style="margin-top: 20px; font-size: 16px;">Bảng 5 mức precedence Go</h3>
+  <table class="prec-table">
+    <thead><tr><th>Mức</th><th>Toán tử</th><th>Tên</th></tr></thead>
+    <tbody>
+      <tr><td>5 (cao)</td><td><code>+x  -x  !x  ^x  *p  &amp;x  &lt;-ch</code></td><td>unary</td></tr>
+      <tr><td>4</td><td><code>*  /  %  &lt;&lt;  &gt;&gt;  &amp;  &amp;^</code></td><td>mul-class</td></tr>
+      <tr><td>3</td><td><code>+  -  |  ^</code></td><td>add-class</td></tr>
+      <tr><td>2</td><td><code>==  !=  &lt;  &lt;=  &gt;  &gt;=</code></td><td>comparison</td></tr>
+      <tr><td>1</td><td><code>&amp;&amp;</code></td><td>logical AND</td></tr>
+      <tr><td>0 (thấp)</td><td><code>||</code></td><td>logical OR</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2>Module 3 — Type Conversion Checker</h2>
+<div class="card">
+  <p>Chọn 2 kiểu Go bất kỳ. Viz sẽ nói: <strong>có cần convert explicit không, conversion có lossy không, code đúng phải viết thế nào.</strong></p>
+
+  <div class="conv-grid">
+    <div>
+      <label>Kiểu A:</label><br>
+      <select id="typeA">
+        <option>int</option><option>int8</option><option>int16</option><option>int32</option><option>int64</option>
+        <option>uint</option><option>uint32</option><option>uint64</option>
+        <option>float32</option><option selected>float64</option>
+        <option>string</option><option>bool</option>
+      </select>
+    </div>
+    <div class="conv-arrow">+</div>
+    <div>
+      <label>Kiểu B:</label><br>
+      <select id="typeB">
+        <option selected>int</option><option>int8</option><option>int16</option><option>int32</option><option>int64</option>
+        <option>uint</option><option>uint32</option><option>uint64</option>
+        <option>float32</option><option>float64</option>
+        <option>string</option><option>bool</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="convVerdict"></div>
+
+  <div style="margin-top: 18px; padding: 12px; background: #f7fafc; border-radius: 6px; font-size: 13px; color: #4a5568;">
+    <strong>Nhắc nhanh:</strong> Go KHÔNG tự convert kiểu trong biểu thức (kể cả <code>int</code> ↔ <code>int64</code>). Phải dùng cú pháp <code>T(x)</code>. Untyped constant (literal chưa khai báo kiểu) là ngoại lệ, fit theo context.
+  </div>
+</div>
+
+</main>
+
+<script>
+// ===========================================================
+// Module 1: Bitwise Calculator
+// ===========================================================
+const opSymbol = {
+  and: '&', or: '|', xor: '^', andnot: '&^',
+  shl: '<<', shr: '>>', not: '^'
+};
+
+function toBits(n, width=8) {
+  // 2's complement representation cho 8-bit (cho phép thấy ^A âm)
+  if (n < 0) n = (256 + n) & 0xFF;
+  return n.toString(2).padStart(width, '0');
+}
+
+function bitRow(label, n, hlMask = 0) {
+  const bits = toBits(n & 0xFF);
+  let html = `<div class="bit-row"><span class="bit-label">${label}</span>`;
+  for (let i = 0; i < 8; i++) {
+    const b = bits[i];
+    const pos = 7 - i;
+    const hl = (hlMask >> pos) & 1;
+    html += `<span class="bit ${b==='1'?'b1':'b0'} ${hl?'hl':''}">${b}</span>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+let currentOp = 'and';
+
+function renderBitwise() {
+  const a = parseInt(document.getElementById('numA').value) || 0;
+  const b = parseInt(document.getElementById('numB').value) || 0;
+  const n = parseInt(document.getElementById('shiftN').value) || 0;
+  let res, formula;
+  switch (currentOp) {
+    case 'and':    res = a & b; formula = `${a} & ${b}`; break;
+    case 'or':     res = a | b; formula = `${a} | ${b}`; break;
+    case 'xor':    res = a ^ b; formula = `${a} ^ ${b}`; break;
+    case 'andnot': res = a & (~b); formula = `${a} &^ ${b}`; break;
+    case 'shl':    res = (a << n) & 0xFF; formula = `${a} << ${n}`; break;
+    case 'shr':    res = a >>> n; formula = `${a} >> ${n}`; break;
+    case 'not':    res = (~a) & 0xFF; formula = `^${a}`; break;
+  }
+  // mask để highlight bit khác giữa A và result
+  const hl = (a ^ res) & 0xFF;
+
+  let html = '';
+  html += bitRow(`A=${a}`, a);
+  if (currentOp !== 'not') {
+    if (currentOp === 'shl' || currentOp === 'shr') {
+      html += `<div style="font-family:monospace;font-size:13px;color:#718096;margin:4px 0 4px 60px">shift ${n} bit</div>`;
+    } else {
+      html += bitRow(`B=${b}`, b);
+    }
+  }
+  html += `<div style="border-top:2px dashed #cbd5e0;margin:8px 0 4px 60px"></div>`;
+  html += bitRow(`= ${res}`, res, hl);
+
+  document.getElementById('bitDisplay').innerHTML = html;
+
+  // explanation
+  const explanations = {
+    and: `<strong>AND</strong>: bit ra <code>1</code> ⇔ <strong>cả 2</strong> bit input đều <code>1</code>. Dùng để <em>mask</em> (giữ bit, xoá phần khác).`,
+    or:  `<strong>OR</strong>: bit ra <code>1</code> ⇔ <strong>ít nhất 1</strong> bit input là <code>1</code>. Dùng để <em>set</em> bit (bật flag).`,
+    xor: `<strong>XOR</strong>: bit ra <code>1</code> ⇔ <strong>chỉ một</strong> bit input là <code>1</code>. Dùng để <em>toggle</em> (làm 2 lần ra chính nó: <code>x^y^y=x</code>).`,
+    andnot: `<strong>AND NOT (&^)</strong>: <em>đặc trưng Go</em>. <code>A &^ B</code> = giữ bit của A, nhưng <strong>xoá</strong> các bit mà B đang bật. C phải viết <code>A & ~B</code>.`,
+    shl: `<strong>Shift left (&lt;&lt; n)</strong>: dời các bit sang trái ${n} ô = nhân với 2<sup>${n}</sup> = ${1<<n}. Bit phía trái rơi ra ngoài.`,
+    shr: `<strong>Shift right (&gt;&gt; n)</strong>: dời các bit sang phải ${n} ô = chia ${a} cho 2<sup>${n}</sup> = ${1<<n} (truncate).`,
+    not: `<strong>Bitwise NOT (unary ^)</strong>: đảo TOÀN BỘ bit. Go không có toán tử <code>~</code> như C; dùng unary <code>^</code>. Lưu ý: với <code>int</code> kết quả là số âm (two's complement).`
+  };
+  document.getElementById('bitExplain').innerHTML =
+    `<div><code style="font-size:15px">${formula} = ${res}</code> (binary <code>${toBits(res)}</code>)</div>
+     <div style="margin-top:8px">${explanations[currentOp]}</div>`;
+}
+
+document.querySelectorAll('.op-bar button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.op-bar button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentOp = btn.dataset.op;
+    renderBitwise();
+  });
+});
+['numA','numB','shiftN'].forEach(id => {
+  document.getElementById(id).addEventListener('input', renderBitwise);
+});
+function presetPerm(a, b) {
+  document.getElementById('numA').value = a;
+  document.getElementById('numB').value = b;
+  renderBitwise();
+}
+// init
+document.querySelector('[data-op="and"]').classList.add('active');
+renderBitwise();
+
+// ===========================================================
+// Module 2: Precedence Explorer
+// ===========================================================
+// Mỗi expression: { tokens: [...], steps: [{combine: [i,j,...], result: 'string'}] }
+const PREC_EXPRS = [
+  {
+    label: 'a + b * c',
+    desc: '`*` (mức 4) cao hơn `+` (mức 3) → tính `b*c` TRƯỚC.',
+    tokens: ['a','+','b','*','c'],
+    steps: [
+      { hl: [2,3,4], note: 'Mức 4: tính b*c trước', result: 'a + (b*c)' },
+      { hl: [0,1,2], note: 'Mức 3: cộng a vào kết quả', result: '(a + (b*c))' },
+    ]
+  },
+  {
+    label: '1 << 2 + 3',
+    desc: 'Go: `<<` (mức 4) cao hơn `+` (mức 3). KHÁC C — trong C `+` cao hơn.',
+    tokens: ['1','<<','2','+','3'],
+    steps: [
+      { hl: [0,1,2], note: 'Mức 4: shift 1<<2 = 4 trước', result: '(1<<2) + 3' },
+      { hl: [0,1,2,3,4], note: 'Mức 3: 4 + 3 = 7', result: '7' },
+    ]
+  },
+  {
+    label: 'a | b & c',
+    desc: '`&` (mức 4) cao hơn `|` (mức 3). Giống C ở chỗ này.',
+    tokens: ['a','|','b','&','c'],
+    steps: [
+      { hl: [2,3,4], note: 'Mức 4: b & c trước', result: 'a | (b&c)' },
+      { hl: [0,1,2], note: 'Mức 3: OR với a', result: '(a | (b&c))' },
+    ]
+  },
+  {
+    label: 'a + b == c + 1',
+    desc: '`+` (mức 3) cao hơn `==` (mức 2). Hai phép cộng tính trước.',
+    tokens: ['a','+','b','==','c','+','1'],
+    steps: [
+      { hl: [0,1,2], note: 'Mức 3: a+b', result: '(a+b) == c+1' },
+      { hl: [4,5,6], note: 'Mức 3: c+1', result: '(a+b) == (c+1)' },
+      { hl: [0,1,2,3,4,5,6], note: 'Mức 2: so sánh', result: '((a+b) == (c+1))' },
+    ]
+  },
+  {
+    label: 'a < b && b < c',
+    desc: 'Comparison (mức 2) cao hơn `&&` (mức 1).',
+    tokens: ['a','<','b','&&','b','<','c'],
+    steps: [
+      { hl: [0,1,2], note: 'Mức 2: a<b', result: '(a<b) && b<c' },
+      { hl: [4,5,6], note: 'Mức 2: b<c', result: '(a<b) && (b<c)' },
+      { hl: [0,1,2,3,4,5,6], note: 'Mức 1: AND', result: '((a<b) && (b<c))' },
+    ]
+  },
+  {
+    label: 'flags & 0x0F == 0',
+    desc: 'Go: `&` (mức 4) > `==` (mức 2). C/Python ngược lại → cần ngoặc ở đó. Code Go viết tự nhiên đúng.',
+    tokens: ['flags','&','0x0F','==','0'],
+    steps: [
+      { hl: [0,1,2], note: 'Mức 4: bitwise mask trước', result: '(flags & 0x0F) == 0' },
+      { hl: [0,1,2,3,4], note: 'Mức 2: so sánh', result: '((flags & 0x0F) == 0)' },
+    ]
+  }
+];
+
+function renderPrec() {
+  const idx = +document.getElementById('exprPick').value;
+  const ex = PREC_EXPRS[idx];
+  const svg = document.getElementById('precSvg');
+  const W = 720;
+  const tokens = ex.tokens;
+  const gap = Math.min(96, (W - 60) / tokens.length);
+  const startX = (W - gap * (tokens.length - 1)) / 2;
+
+  let s = '';
+  // tokens row
+  tokens.forEach((t, i) => {
+    const x = startX + i * gap;
+    s += `<g><rect x="${x-26}" y="20" width="52" height="36" rx="6" fill="#2d3748"/>
+          <text x="${x}" y="44" text-anchor="middle" fill="white" font-family="Menlo,Consolas,monospace" font-size="14" font-weight="700">${t}</text></g>`;
+  });
+
+  // step boxes
+  ex.steps.forEach((st, si) => {
+    const y = 90 + si * 60;
+    // Highlight các token được dùng
+    const xs = st.hl.map(i => startX + i * gap);
+    const minX = Math.min(...xs) - 30;
+    const maxX = Math.max(...xs) + 30;
+    s += `<rect x="${minX}" y="${y}" width="${maxX-minX}" height="36" rx="6"
+            fill="#fef5e7" stroke="#d69e2e" stroke-width="2"/>`;
+    s += `<text x="${(minX+maxX)/2}" y="${y+22}" text-anchor="middle" fill="#744210"
+           font-family="Menlo,Consolas,monospace" font-size="13" font-weight="700">step ${si+1}: ${st.note}</text>`;
+    // line từ tokens xuống step
+    st.hl.forEach(i => {
+      const x = startX + i * gap;
+      s += `<line x1="${x}" y1="58" x2="${x}" y2="${y}" stroke="#d69e2e" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/>`;
+    });
+  });
+
+  // resize svg height
+  const h = 100 + ex.steps.length * 60;
+  svg.setAttribute('viewBox', `0 0 ${W} ${h}`);
+  svg.setAttribute('height', h);
+  svg.innerHTML = s;
+
+  // steps text
+  let stepsHtml = `<p style="font-size:14px;color:#4a5568;margin-top:14px"><strong>${ex.desc}</strong></p>`;
+  stepsHtml += `<div class="prec-step cur">Biểu thức: <code>${ex.label}</code></div>`;
+  ex.steps.forEach((st, si) => {
+    stepsHtml += `<div class="prec-step">Bước ${si+1} (${st.note}): <code>${st.result}</code></div>`;
+  });
+  document.getElementById('precSteps').innerHTML = stepsHtml;
+}
+
+document.getElementById('exprPick').addEventListener('change', renderPrec);
+renderPrec();
+
+// ===========================================================
+// Module 3: Type Conversion Checker
+// ===========================================================
+const TYPE_INFO = {
+  // category, bitwidth (for numerics), signed
+  int:     { cat: 'int', bits: 64, signed: true,  note: '64-bit trên hầu hết máy (có thể 32)' },
+  int8:    { cat: 'int', bits: 8,  signed: true },
+  int16:   { cat: 'int', bits: 16, signed: true },
+  int32:   { cat: 'int', bits: 32, signed: true },
+  int64:   { cat: 'int', bits: 64, signed: true },
+  uint:    { cat: 'int', bits: 64, signed: false },
+  uint32:  { cat: 'int', bits: 32, signed: false },
+  uint64:  { cat: 'int', bits: 64, signed: false },
+  float32: { cat: 'float', bits: 32 },
+  float64: { cat: 'float', bits: 64 },
+  string:  { cat: 'string' },
+  bool:    { cat: 'bool' }
+};
+
+function renderConv() {
+  const a = document.getElementById('typeA').value;
+  const b = document.getElementById('typeB').value;
+  const ia = TYPE_INFO[a], ib = TYPE_INFO[b];
+  const out = document.getElementById('convVerdict');
+
+  // Same type
+  if (a === b) {
+    out.innerHTML = `<div class="verdict ok">
+      <strong>OK — cùng kiểu <code>${a}</code></strong><br>
+      Không cần convert. Code Go: <code>var x ${a}; var y ${a}; z := x + y</code>.
+    </div>`;
+    return;
+  }
+
+  // Mixing bool / string với khác
+  if (ia.cat === 'bool' || ib.cat === 'bool') {
+    if (a === b) return;
+    out.innerHTML = `<div class="verdict err">
+      <strong>LỖI — <code>bool</code> không kết hợp với <code>${a===b?'?':(a==='bool'?b:a)}</code></strong><br>
+      Go KHÔNG cho phép convert <code>bool</code> ↔ số/string. Phải dùng <code>if x { y = 1 } else { y = 0 }</code> thủ công.
+    </div>`;
+    return;
+  }
+  if (ia.cat === 'string' || ib.cat === 'string') {
+    if (ia.cat === ib.cat) return;
+    const other = ia.cat === 'string' ? b : a;
+    out.innerHTML = `<div class="verdict err">
+      <strong>LỖI — <code>string</code> không tự + được với <code>${other}</code></strong><br>
+      Convert thủ công: <code>strconv.Itoa(n)</code> hoặc <code>fmt.Sprintf("%d", n)</code> để biến số thành string.
+      Ngược lại: <code>strconv.Atoi(s)</code>. Sẽ học kỹ ở Lesson 14 (String).
+    </div>`;
+    return;
+  }
+
+  // Numeric × numeric
+  // Trong biểu thức: phải cùng kiểu chính xác (kể cả int vs int64)
+  let html = `<div class="verdict err">
+    <strong>LỖI biên dịch — <code>${a}</code> và <code>${b}</code> khác kiểu</strong><br>
+    Dù cùng là số, Go vẫn cấm: <code>mismatched types ${a} and ${b}</code>.<br><br>
+    <strong>Cách sửa:</strong><br>
+    • Convert A: <code>${b}(varA) + varB</code><br>
+    • Hoặc convert B: <code>varA + ${a}(varB)</code><br><br>`;
+
+  // Cảnh báo lossy
+  const warns = [];
+  // int → float: float chỉ giữ chính xác đến 2^24 (float32) / 2^53 (float64)
+  if (ia.cat === 'int' && ib.cat === 'float') {
+    const fbits = ib.bits === 32 ? 24 : 53;
+    if (ia.bits > fbits) {
+      warns.push(`Convert <code>${a}</code> → <code>${b}</code> có thể <strong>mất precision</strong> với số lớn (float ${ib.bits}-bit chỉ giữ chính xác integer đến 2<sup>${fbits}</sup>).`);
+    }
+  }
+  if (ib.cat === 'int' && ia.cat === 'float') {
+    const fbits = ia.bits === 32 ? 24 : 53;
+    if (ib.bits > fbits) {
+      warns.push(`Convert <code>${b}</code> → <code>${a}</code> có thể <strong>mất precision</strong>.`);
+    }
+  }
+  // int → int: narrowing (lớn → nhỏ)
+  if (ia.cat === 'int' && ib.cat === 'int') {
+    if (ia.bits > ib.bits) {
+      warns.push(`Convert <code>${a}</code> (${ia.bits}-bit) → <code>${b}</code> (${ib.bits}-bit) <strong>truncate</strong> các bit cao. Vd <code>${a}(300)</code> chuyển sang <code>int8</code> ra <code>44</code> (300 mod 256).`);
+    }
+    if (ia.signed !== ib.signed) {
+      warns.push(`Khác signed/unsigned: số âm chuyển sang unsigned (hoặc ngược lại) re-interpret bit pattern. Vd <code>int8(-1)</code> → <code>uint8</code> = <code>255</code>.`);
+    }
+  }
+  // float narrowing
+  if (ia.cat === 'float' && ib.cat === 'float' && ia.bits !== ib.bits) {
+    if (ia.bits > ib.bits) {
+      warns.push(`<code>${a}</code> (${ia.bits}-bit) → <code>${b}</code> (${ib.bits}-bit) mất precision.`);
+    }
+  }
+
+  if (warns.length === 0) {
+    html += `<em>Convert giữa <code>${a}</code> và <code>${b}</code> KHÔNG mất dữ liệu — chỉ cần thêm cú pháp.</em>`;
+  } else {
+    html += `<strong>⚠ Cảnh báo lossy:</strong><ul style="margin:6px 0 0 20px">`;
+    warns.forEach(w => html += `<li>${w}</li>`);
+    html += `</ul>`;
+  }
+
+  html += `</div>`;
+  out.innerHTML = html;
+}
+
+document.getElementById('typeA').addEventListener('change', renderConv);
+document.getElementById('typeB').addEventListener('change', renderConv);
+renderConv();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

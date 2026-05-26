@@ -359,9 +359,13 @@ Trước khi commit, kiểm tra:
 
 Khi sửa/bổ sung lesson đã tồn tại:
 
-- **KHÔNG XÓA** nội dung hiện có, chỉ THÊM.
-- **KHÔNG SỬA** heading lớn (`#`, `##`) — chỉ thêm sub-section (`###`, `####`).
-- **KHÔNG ĐỘNG** `solutions.go` và `visualization.html` nếu không có lý do (chúng thường đã ổn).
+- **KHÔNG XÓA** nội dung hiện có, chỉ THÊM hoặc CHUYỂN VỊ TRÍ.
+- **Ưu tiên tìm mục `##` hiện có** đang nói về chủ đề mình đang viết thêm, rồi append/insert vào đó dưới dạng `###`/`####`. **KHÔNG TỰ ĐỘNG** mở mục `## N.` mới ở cuối file nếu nội dung đó thuộc về một mục đã có.
+  - Ví dụ sai: lesson có mục `## 4. Bloom Filter` rồi, agent viết thêm walk-through chi tiết → đặt vào `## 10. Walk-through Bloom` ở cuối → người đọc phải scroll qua bài tập + lời giải mới gặp. **Đúng phải là** gộp vào thành `### 4.5 Walk-through Bloom`.
+  - Ví dụ đúng mở mục mới: nội dung là một topic **chưa từng được nhắc** trong lesson (vd lesson Tree chưa có mục nào về "tổ chức bộ nhớ" → tạo `## 8. Tổ chức bộ nhớ` là hợp lý).
+- **Cho phép sửa heading `##`** (đổi tên, gộp, chuyển vị trí) khi cần thiết để giữ tài liệu mạch lạc — không có lệnh cấm tuyệt đối. Nhưng phải có lý do rõ ràng (ví dụ: gộp 2 mục cùng chủ đề bị tách, đổi tên cho khớp nội dung), không tuỳ tiện.
+- **Thứ tự bắt buộc của các mục cuối**: `Bài tập` → `Lời giải chi tiết` → `Code & Minh họa` → `Bài tiếp theo`/`Kết thúc`. Không bao giờ có mục `## N. <nội dung kỹ thuật>` nằm SAU `## Lời giải chi tiết`. Nếu phát hiện vi phạm, đó là dấu hiệu phải reorg.
+- **KHÔNG ĐỘNG** `solutions.go` và `visualization.html` nếu không có lý do (chúng thường đã ổn). Nếu có lý do rõ ràng (vd bug, nội dung mới cần minh hoạ) thì được sửa.
 - **PHẢI CHẠY** `tools/build-readme-data.go` sau khi sửa README, commit `README.md` + `README.data.js` cùng commit.
 
 ## Những điều cần tránh

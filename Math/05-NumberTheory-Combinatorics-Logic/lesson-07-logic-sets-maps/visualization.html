@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 07 — Logic & ánh xạ</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  button { background: #94a3b8; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.active { background: #15803d; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0; font-family: monospace; font-size: 14px; }
+  td, th { border: 1px solid #cbd5e0; padding: 6px 10px; text-align: center; }
+  th { background: #f1f5f9; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 500px; height: 350px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-induction/visualization.html">← L6: Quy nạp</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Logic</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L8: Chứng minh (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 07 (T5) — Logic, Tập hợp, Ánh xạ</h1>
+
+<h2>Bảng chân trị các phép toán</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>p</th><th>q</th><th>¬p</th><th>p∧q</th><th>p∨q</th><th>p→q</th><th>p↔q</th></tr></thead>
+    <tbody>
+      <tr><td>T</td><td>T</td><td>F</td><td>T</td><td>T</td><td>T</td><td>T</td></tr>
+      <tr><td>T</td><td>F</td><td>F</td><td>F</td><td>T</td><td>F</td><td>F</td></tr>
+      <tr><td>F</td><td>T</td><td>T</td><td>F</td><td>T</td><td>T</td><td>F</td></tr>
+      <tr><td>F</td><td>F</td><td>T</td><td>F</td><td>F</td><td>T</td><td>T</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2>Ánh xạ — Đơn ánh, Toàn ánh, Song ánh</h2>
+<div class="card">
+  <div class="row">
+    <button id="b1" onclick="setF('inj')" class="active">Đơn ánh (1-1)</button>
+    <button id="b2" onclick="setF('sur')">Toàn ánh</button>
+    <button id="b3" onclick="setF('bij')">Song ánh</button>
+    <button id="b4" onclick="setF('neither')">Không 1 trong 3</button>
+  </div>
+  <svg class="scene" id="svg" viewBox="0 0 500 350"></svg>
+  <div class="result" id="res"></div>
+</div>
+
+<script>
+const examples = {
+  inj: {
+    A: ["a1", "a2", "a3"], B: ["b1", "b2", "b3", "b4"],
+    map: {a1: "b1", a2: "b2", a3: "b3"},
+    title: "Đơn ánh: mỗi b nhận ≤ 1 nguồn",
+    desc: "Đơn ánh (injective). f(a₁) = f(a₂) ⟹ a₁ = a₂. b4 không có nguồn → KHÔNG toàn ánh."
+  },
+  sur: {
+    A: ["a1", "a2", "a3", "a4"], B: ["b1", "b2", "b3"],
+    map: {a1: "b1", a2: "b2", a3: "b2", a4: "b3"},
+    title: "Toàn ánh: mỗi b ∈ B đều có nguồn",
+    desc: "Toàn ánh (surjective). Ảnh = B. a2 và a3 cùng ra b2 → KHÔNG đơn ánh."
+  },
+  bij: {
+    A: ["a1", "a2", "a3"], B: ["b1", "b2", "b3"],
+    map: {a1: "b1", a2: "b2", a3: "b3"},
+    title: "Song ánh: tương ứng 1-1 hoàn hảo",
+    desc: "Song ánh (bijective). Vừa đơn vừa toàn → có hàm ngược f⁻¹."
+  },
+  neither: {
+    A: ["a1", "a2", "a3"], B: ["b1", "b2", "b3"],
+    map: {a1: "b1", a2: "b1", a3: "b2"},
+    title: "Không đơn không toàn",
+    desc: "a1, a2 đều ra b1 → KHÔNG đơn. b3 không có nguồn → KHÔNG toàn."
+  }
+};
+let cur = "inj";
+
+function setF(f) {
+  cur = f;
+  ["1","2","3","4"].forEach(c => document.getElementById("b"+c).classList.remove("active"));
+  const m = {inj:"1", sur:"2", bij:"3", neither:"4"};
+  document.getElementById("b" + m[f]).classList.add("active");
+  draw();
+}
+
+function draw() {
+  const ex = examples[cur];
+  const svg = document.getElementById("svg");
+  svg.innerHTML = "";
+
+  const W = 500, H = 350;
+  // Two columns
+  const xA = 120, xB = 380;
+  const aYs = ex.A.map((_, i) => 50 + (i+1)*(250/(ex.A.length+1)));
+  const bYs = ex.B.map((_, i) => 50 + (i+1)*(250/(ex.B.length+1)));
+
+  // Boxes
+  ["A", "B"].forEach((lbl, i) => {
+    const x = i === 0 ? xA : xB;
+    const r = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    r.setAttribute("x", x - 50); r.setAttribute("y", 40); r.setAttribute("width", 100); r.setAttribute("height", 280);
+    r.setAttribute("fill", i === 0 ? "#dbeafe" : "#fef3c7"); r.setAttribute("stroke", i === 0 ? "#1d4ed8" : "#d97706"); r.setAttribute("stroke-width", 2); r.setAttribute("rx", 8);
+    svg.appendChild(r);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", x); t.setAttribute("y", 25); t.setAttribute("font-weight", "700"); t.setAttribute("font-size", "18"); t.setAttribute("text-anchor", "middle");
+    t.textContent = lbl;
+    svg.appendChild(t);
+  });
+
+  // Elements A
+  ex.A.forEach((el, i) => {
+    const cy = aYs[i];
+    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    c.setAttribute("cx", xA); c.setAttribute("cy", cy); c.setAttribute("r", 22);
+    c.setAttribute("fill", "white"); c.setAttribute("stroke", "#1d4ed8"); c.setAttribute("stroke-width", 2);
+    svg.appendChild(c);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", xA); t.setAttribute("y", cy+5); t.setAttribute("text-anchor", "middle"); t.setAttribute("font-size", "14"); t.setAttribute("font-weight", "600");
+    t.textContent = el;
+    svg.appendChild(t);
+  });
+  ex.B.forEach((el, i) => {
+    const cy = bYs[i];
+    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    c.setAttribute("cx", xB); c.setAttribute("cy", cy); c.setAttribute("r", 22);
+    c.setAttribute("fill", "white"); c.setAttribute("stroke", "#d97706"); c.setAttribute("stroke-width", 2);
+    svg.appendChild(c);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", xB); t.setAttribute("y", cy+5); t.setAttribute("text-anchor", "middle"); t.setAttribute("font-size", "14"); t.setAttribute("font-weight", "600");
+    t.textContent = el;
+    svg.appendChild(t);
+  });
+
+  // Arrows
+  ex.A.forEach((el, i) => {
+    const targetEl = ex.map[el];
+    if (!targetEl) return;
+    const j = ex.B.indexOf(targetEl);
+    if (j < 0) return;
+    const cyA = aYs[i], cyB = bYs[j];
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", xA + 22); l.setAttribute("y1", cyA); l.setAttribute("x2", xB - 22); l.setAttribute("y2", cyB);
+    l.setAttribute("stroke", "#dc2626"); l.setAttribute("stroke-width", 2);
+    svg.appendChild(l);
+    // Arrowhead
+    const ang = Math.atan2(cyB - cyA, (xB - 22) - (xA + 22));
+    const ah = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    const tip = [xB - 22, cyB];
+    ah.setAttribute("points", `${tip[0]},${tip[1]} ${tip[0] - 10*Math.cos(ang - 0.4)},${tip[1] - 10*Math.sin(ang - 0.4)} ${tip[0] - 10*Math.cos(ang + 0.4)},${tip[1] - 10*Math.sin(ang + 0.4)}`);
+    ah.setAttribute("fill", "#dc2626");
+    svg.appendChild(ah);
+  });
+
+  document.getElementById("res").innerHTML = `
+    <div style="font-family:monospace; font-size:15px"><strong>${ex.title}</strong></div>
+    <div style="margin-top:6px">${ex.desc}</div>
+  `;
+}
+
+draw();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

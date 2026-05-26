@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 11 — Hàm trong Go · Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+
+  input[type="number"], input[type="text"] {
+    font-size: 14px; padding: 6px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    font-family: monospace;
+    width: 100%; max-width: 100px;
+    box-sizing: border-box;
+  }
+
+  .code {
+    background: #1a202c; color: #f7fafc;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; line-height: 1.55;
+    padding: 14px 16px; border-radius: 6px;
+    overflow-x: auto; white-space: pre;
+    margin: 0 0 12px 0;
+  }
+  .code .kw { color: #f687b3; }
+  .code .fn { color: #fbd38d; }
+  .code .num { color: #9ae6b4; }
+  .code .str { color: #fbb6ce; }
+  .code .cmt { color: #718096; font-style: italic; }
+  .code .hi { background: rgba(251, 211, 141, 0.25); border-radius: 3px; padding: 0 2px; }
+
+  .explain {
+    background: #ebf8ff; border-left: 4px solid #4299e1;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6;
+    margin-top: 10px;
+  }
+  .explain code {
+    background: white; padding: 1px 5px; border-radius: 3px;
+    font-family: monospace; color: #2b6cb0;
+  }
+
+  /* ===== Module 1: call stack tracer ===== */
+  .stack-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 768px) {
+    .stack-layout { grid-template-columns: 1fr; }
+  }
+  .stack-frames {
+    background: #f7fafc;
+    border: 2px solid #cbd5e0;
+    border-radius: 6px;
+    padding: 12px;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-start;
+    gap: 6px;
+  }
+  .stack-frame {
+    background: #4299e1; color: white;
+    padding: 10px 12px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    transition: all 0.3s;
+  }
+  .stack-frame.unwinding {
+    background: #f56565;
+    transform: translateX(20px);
+    opacity: 0.5;
+  }
+  .stack-frame.result {
+    background: #48bb78;
+  }
+  .stack-frame .small {
+    display: block;
+    font-weight: 400;
+    font-size: 12px;
+    opacity: 0.9;
+    margin-top: 2px;
+  }
+  .stack-empty {
+    color: #a0aec0;
+    font-style: italic;
+    text-align: center;
+    margin-top: 90px;
+    font-size: 14px;
+  }
+  .stack-label {
+    font-size: 12px;
+    color: #718096;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  .trace-log {
+    background: #2d3748; color: #68d391;
+    font-family: monospace; font-size: 13px;
+    padding: 12px 14px; border-radius: 6px;
+    min-height: 220px; max-height: 320px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    border-left: 4px solid #68d391;
+  }
+
+  /* ===== Module 2: closure inspector ===== */
+  .closure-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 768px) {
+    .closure-layout { grid-template-columns: 1fr; }
+  }
+  .closure-card {
+    background: #f7fafc;
+    border: 2px solid #cbd5e0;
+    border-radius: 6px;
+    padding: 14px;
+  }
+  .closure-card.has-state { border-color: #4299e1; }
+  .closure-card.no-state  { border-color: #ed8936; }
+  .closure-title {
+    font-weight: 700;
+    margin-bottom: 8px;
+    font-size: 15px;
+  }
+  .heap-box {
+    background: white;
+    border: 2px dashed #4299e1;
+    border-radius: 4px;
+    padding: 10px 12px;
+    margin: 8px 0;
+    font-family: monospace;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .heap-box .label {
+    font-size: 11px;
+    color: #4299e1;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .heap-box .val {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2b6cb0;
+    transition: transform 0.2s;
+  }
+  .heap-box .val.bump {
+    transform: scale(1.4);
+    color: #38a169;
+  }
+  .closure-out {
+    background: #2d3748; color: #68d391;
+    padding: 8px 10px; border-radius: 4px;
+    font-family: monospace; font-size: 13px;
+    min-height: 80px;
+    margin-top: 8px;
+    white-space: pre-wrap;
+  }
+  .no-state .heap-box { border-color: #ed8936; }
+  .no-state .heap-box .label { color: #ed8936; }
+  .no-state .heap-box .val { color: #c05621; }
+
+  /* ===== Module 3: defer stack ===== */
+  .defer-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 768px) {
+    .defer-layout { grid-template-columns: 1fr; }
+  }
+  .defer-stack {
+    background: #f7fafc;
+    border: 2px solid #cbd5e0;
+    border-radius: 6px;
+    padding: 12px;
+    min-height: 240px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .defer-item {
+    background: #805ad5;
+    color: white;
+    padding: 10px 12px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    transition: all 0.4s;
+  }
+  .defer-item.popping {
+    background: #f56565;
+    transform: translateX(30px) scale(0.95);
+    opacity: 0.4;
+  }
+  .defer-output {
+    background: #2d3748; color: #68d391;
+    font-family: monospace; font-size: 13px;
+    padding: 12px 14px; border-radius: 6px;
+    min-height: 240px;
+    white-space: pre-wrap;
+    border-left: 4px solid #68d391;
+  }
+  .step-indicator {
+    background: #edf2f7;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #2d3748;
+    margin: 8px 0;
+    font-family: monospace;
+  }
+
+  /* ===== Mobile responsive ===== */
+  @media (max-width: 480px) {
+    .card { padding: 14px; }
+    h2 { font-size: 20px; }
+    .code { font-size: 12px; padding: 10px 12px; }
+    .stack-frame, .defer-item { font-size: 12px; padding: 8px 10px; }
+    .heap-box .val { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-10-loops-for/visualization.html">← L10: Vòng lặp</a>
+  <span class="sep">·</span>
+  <span class="current">L11: Hàm</span>
+  <span class="sep">·</span>
+  <a href="../lesson-12-arrays-slices/visualization.html">L12: Array &amp; Slice →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 11 — Hàm trong Go: Visualization</h1>
+<p>Ba module tương tác: (1) <strong>Function call tracer</strong> — visualize call stack cho recursion, (2) <strong>Closure inspector</strong> — xem biến heap được share giữa các invocation, (3) <strong>Defer stack</strong> — animate LIFO order khi function return.</p>
+
+<!-- =========================================================
+     MODULE 1 — Function call stack tracer
+     ========================================================= -->
+<h2>1. Function call tracer — Recursion stack</h2>
+<div class="card">
+  <p>Recursion = hàm gọi chính nó. Mỗi lần gọi đẩy thêm <strong>1 stack frame</strong> lên call stack. Khi base case được chạm, các frame được pop ngược trở lại, mỗi pop tính kết quả từ con.</p>
+
+  <div class="code" id="codeFactorial"></div>
+
+  <div class="row">
+    <label for="factN">n =</label>
+    <input type="number" id="factN" value="5" min="0" max="8">
+    <button id="runFact">▶ Run factorial(n)</button>
+    <button id="resetFact" class="secondary">Reset</button>
+  </div>
+  <div class="step-indicator" id="factStep">(chưa chạy)</div>
+
+  <div class="stack-layout">
+    <div>
+      <div class="stack-label">📚 Call stack (top = đỉnh)</div>
+      <div class="stack-frames" id="factStack">
+        <div class="stack-empty">(stack rỗng)</div>
+      </div>
+    </div>
+    <div>
+      <div class="stack-label">📜 Trace log</div>
+      <div class="trace-log" id="factTrace"></div>
+    </div>
+  </div>
+
+  <div class="explain">
+    <strong>Quan sát:</strong> mỗi <code>factorial(n)</code> push 1 frame, gọi <code>factorial(n-1)</code> push tiếp. Khi chạm base case (<code>n &lt;= 1</code>), frame trả về 1, các frame phía trên lần lượt nhân với <code>n</code> và pop ra. Go <strong>không có TCO</strong> → depth lớn = stack overflow. Thử n=8 (max ở demo này) để cảm nhận stack 8 tầng.
+  </div>
+</div>
+
+<!-- =========================================================
+     MODULE 2 — Closure inspector
+     ========================================================= -->
+<h2>2. Closure inspector — Biến trên heap được share</h2>
+<div class="card">
+  <p>So sánh 2 phiên bản counter: bên trái dùng <strong>closure</strong> (biến <code>count</code> sống trên heap, share giữa các invocation), bên phải dùng <strong>non-closure</strong> (mỗi call khởi tạo lại biến local, reset về 0).</p>
+
+  <div class="code" id="codeClosure"></div>
+
+  <div class="row">
+    <button id="callBoth">▶ Gọi c() ở cả 2 bên</button>
+    <button id="resetClosure" class="secondary">Reset</button>
+  </div>
+
+  <div class="closure-layout">
+    <div class="closure-card has-state">
+      <div class="closure-title">✅ Closure — <code>makeCounter()</code></div>
+      <div class="heap-box">
+        <span class="label">Heap:</span>
+        <span>count =</span>
+        <span class="val" id="closureCount">0</span>
+      </div>
+      <div class="closure-out" id="closureOut">// chưa gọi</div>
+    </div>
+    <div class="closure-card no-state">
+      <div class="closure-title">❌ Non-closure — <code>counterReset()</code></div>
+      <div class="heap-box">
+        <span class="label">Stack (mỗi call):</span>
+        <span>count =</span>
+        <span class="val" id="resetCount">—</span>
+      </div>
+      <div class="closure-out" id="resetOut">// chưa gọi</div>
+    </div>
+  </div>
+
+  <div class="explain">
+    <strong>Tại sao closure nhớ được?</strong> Khi <code>makeCounter</code> return, biến <code>count</code> đáng lẽ bị hủy. Nhưng Go thấy có inner function vẫn giữ reference → chuyển <code>count</code> từ stack lên <strong>heap</strong>, giữ sống đến khi closure không còn ai dùng. Mỗi lần gọi <code>makeCounter()</code> tạo một <code>count</code> heap riêng → c1 và c2 độc lập.
+  </div>
+</div>
+
+<!-- =========================================================
+     MODULE 3 — Defer stack LIFO
+     ========================================================= -->
+<h2>3. Defer stack — LIFO order khi return</h2>
+<div class="card">
+  <p><code>defer</code> đẩy một call lên <strong>defer stack</strong> của hàm hiện tại. Khi hàm return (bình thường hoặc panic), runtime pop từ <strong>đỉnh stack</strong> chạy ngược về đáy → LIFO. Argument được evaluate <strong>ngay tại lúc defer</strong>, không phải lúc chạy.</p>
+
+  <div class="code" id="codeDefer"></div>
+
+  <div class="row">
+    <button id="stepDefer">▶ Step</button>
+    <button id="runAllDefer">⏭ Run all</button>
+    <button id="resetDefer" class="secondary">Reset</button>
+  </div>
+  <div class="step-indicator" id="deferStep">Bước 0/9 — bấm "Step" để bắt đầu</div>
+
+  <div class="defer-layout">
+    <div>
+      <div class="stack-label">📚 Defer stack (top = đỉnh, sẽ pop trước)</div>
+      <div class="defer-stack" id="deferStack"></div>
+    </div>
+    <div>
+      <div class="stack-label">📜 Output (stdout)</div>
+      <div class="defer-output" id="deferOut"></div>
+    </div>
+  </div>
+
+  <div class="explain">
+    <strong>Chú ý:</strong> <code>defer fmt.Println("loop", i)</code> trong loop — <code>i</code> được "đóng băng" tại lúc defer (0, rồi 1, rồi 2), không phải đọc lúc chạy. Khi pop, từng frame in giá trị đã capture sẵn. Nếu thay bằng <code>defer func() { fmt.Println(i) }()</code>, closure sẽ đọc <code>i</code> lúc chạy → cả 3 dòng in giá trị cuối (trước Go 1.22).
+  </div>
+</div>
+
+</main>
+
+<script>
+/* ============================================================
+ * MODULE 1 — Function call stack tracer (factorial)
+ * ============================================================ */
+const codeFactorial = document.getElementById('codeFactorial');
+codeFactorial.innerHTML =
+  '<span class="kw">func</span> <span class="fn">factorial</span>(n <span class="kw">int</span>) <span class="kw">int</span> {\n' +
+  '    <span class="kw">if</span> n &lt;= <span class="num">1</span> {\n' +
+  '        <span class="kw">return</span> <span class="num">1</span>                <span class="cmt">// base case</span>\n' +
+  '    }\n' +
+  '    <span class="kw">return</span> n * <span class="fn">factorial</span>(n-<span class="num">1</span>)   <span class="cmt">// recursive case</span>\n' +
+  '}';
+
+const factStackEl = document.getElementById('factStack');
+const factTraceEl = document.getElementById('factTrace');
+const factStepEl  = document.getElementById('factStep');
+let factTimer = null;
+
+function resetFactUI() {
+  factStackEl.innerHTML = '<div class="stack-empty">(stack rỗng)</div>';
+  factTraceEl.textContent = '';
+  factStepEl.textContent = '(chưa chạy)';
+  if (factTimer) { clearTimeout(factTimer); factTimer = null; }
+}
+
+function runFactorial(n) {
+  resetFactUI();
+  factStackEl.innerHTML = '';
+  const frames = [];      // stack frames as DOM
+  const events = [];      // sequence of {type, payload}
+  let depth = 0;
+
+  // Simulate the call tree, generating events
+  function simulate(k, level) {
+    events.push({ type: 'push', n: k, level });
+    if (k <= 1) {
+      events.push({ type: 'base', n: k, val: 1, level });
+      events.push({ type: 'pop', n: k, val: 1, level });
+      return 1;
+    }
+    const sub = simulate(k - 1, level + 1);
+    const res = k * sub;
+    events.push({ type: 'compute', n: k, sub, val: res, level });
+    events.push({ type: 'pop', n: k, val: res, level });
+    return res;
+  }
+  const finalVal = simulate(n, 0);
+
+  // Play events with delay
+  let i = 0;
+  const step = () => {
+    if (i >= events.length) {
+      factStepEl.textContent = `✅ factorial(${n}) = ${finalVal}`;
+      return;
+    }
+    const ev = events[i++];
+    if (ev.type === 'push') {
+      const f = document.createElement('div');
+      f.className = 'stack-frame';
+      f.innerHTML = `factorial(${ev.n}) <span class="small">depth=${ev.level}</span>`;
+      factStackEl.appendChild(f);
+      frames.push(f);
+      factTraceEl.textContent += `→ CALL factorial(${ev.n})\n`;
+      factStepEl.textContent = `Push factorial(${ev.n}) onto stack`;
+    } else if (ev.type === 'base') {
+      const top = frames[frames.length - 1];
+      top.innerHTML = `factorial(${ev.n}) = 1 <span class="small">base case</span>`;
+      top.classList.add('result');
+      factTraceEl.textContent += `   base: factorial(${ev.n}) = 1\n`;
+      factStepEl.textContent = `Base case: factorial(${ev.n}) returns 1`;
+    } else if (ev.type === 'compute') {
+      const top = frames[frames.length - 1];
+      top.innerHTML = `factorial(${ev.n}) = ${ev.n}×${ev.sub} = ${ev.val} <span class="small">computed</span>`;
+      top.classList.add('result');
+      factTraceEl.textContent += `   compute: factorial(${ev.n}) = ${ev.n} × ${ev.sub} = ${ev.val}\n`;
+      factStepEl.textContent = `factorial(${ev.n}) = ${ev.n} × factorial(${ev.n-1}) = ${ev.val}`;
+    } else if (ev.type === 'pop') {
+      const top = frames.pop();
+      top.classList.add('unwinding');
+      factTraceEl.textContent += `← RETURN factorial(${ev.n}) → ${ev.val}\n`;
+      factStepEl.textContent = `Pop factorial(${ev.n}) → ${ev.val}`;
+      setTimeout(() => { if (top.parentNode) top.parentNode.removeChild(top); }, 350);
+    }
+    factTraceEl.scrollTop = factTraceEl.scrollHeight;
+    factTimer = setTimeout(step, 650);
+  };
+  step();
+}
+
+document.getElementById('runFact').addEventListener('click', () => {
+  const n = Math.max(0, Math.min(8, parseInt(document.getElementById('factN').value) || 0));
+  runFactorial(n);
+});
+document.getElementById('resetFact').addEventListener('click', resetFactUI);
+
+/* ============================================================
+ * MODULE 2 — Closure inspector
+ * ============================================================ */
+const codeClosure = document.getElementById('codeClosure');
+codeClosure.innerHTML =
+  '<span class="cmt">// ✅ Closure — count sống trên heap, share giữa các call</span>\n' +
+  '<span class="kw">func</span> <span class="fn">makeCounter</span>() <span class="kw">func</span>() <span class="kw">int</span> {\n' +
+  '    count := <span class="num">0</span>\n' +
+  '    <span class="kw">return</span> <span class="kw">func</span>() <span class="kw">int</span> {\n' +
+  '        <span class="hi">count++</span>             <span class="cmt">// modify biến ngoài</span>\n' +
+  '        <span class="kw">return</span> count\n' +
+  '    }\n' +
+  '}\n\n' +
+  '<span class="cmt">// ❌ Non-closure — mỗi call tạo count mới = 0</span>\n' +
+  '<span class="kw">func</span> <span class="fn">counterReset</span>() <span class="kw">int</span> {\n' +
+  '    count := <span class="num">0</span>            <span class="cmt">// local, biến mất sau return</span>\n' +
+  '    count++\n' +
+  '    <span class="kw">return</span> count          <span class="cmt">// luôn trả 1</span>\n' +
+  '}';
+
+let closureCount = 0;
+let callIdx = 0;
+const closureCountEl = document.getElementById('closureCount');
+const resetCountEl   = document.getElementById('resetCount');
+const closureOutEl   = document.getElementById('closureOut');
+const resetOutEl     = document.getElementById('resetOut');
+
+function bumpEl(el) {
+  el.classList.remove('bump');
+  void el.offsetWidth; // force reflow
+  el.classList.add('bump');
+  setTimeout(() => el.classList.remove('bump'), 250);
+}
+
+function resetClosureUI() {
+  closureCount = 0; callIdx = 0;
+  closureCountEl.textContent = '0';
+  resetCountEl.textContent = '—';
+  closureOutEl.textContent = '// chưa gọi';
+  resetOutEl.textContent = '// chưa gọi';
+}
+
+document.getElementById('callBoth').addEventListener('click', () => {
+  callIdx++;
+  if (callIdx === 1) { closureOutEl.textContent = ''; resetOutEl.textContent = ''; }
+  // Closure side
+  closureCount++;
+  closureCountEl.textContent = closureCount;
+  bumpEl(closureCountEl);
+  closureOutEl.textContent += `call #${callIdx}: c() = ${closureCount}\n`;
+  // Non-closure side
+  const localCount = 1;       // mỗi call reset về 1 (count=0; count++)
+  resetCountEl.textContent = localCount;
+  bumpEl(resetCountEl);
+  resetOutEl.textContent += `call #${callIdx}: counterReset() = ${localCount}\n`;
+});
+
+document.getElementById('resetClosure').addEventListener('click', resetClosureUI);
+
+/* ============================================================
+ * MODULE 3 — Defer stack LIFO
+ * ============================================================ */
+const codeDefer = document.getElementById('codeDefer');
+codeDefer.innerHTML =
+  '<span class="kw">func</span> <span class="fn">main</span>() {\n' +
+  '    fmt.<span class="fn">Println</span>(<span class="str">"start"</span>)\n' +
+  '    <span class="kw">defer</span> fmt.<span class="fn">Println</span>(<span class="str">"A"</span>)\n' +
+  '    <span class="kw">defer</span> fmt.<span class="fn">Println</span>(<span class="str">"B"</span>)\n' +
+  '    <span class="kw">for</span> i := <span class="num">0</span>; i &lt; <span class="num">3</span>; i++ {\n' +
+  '        <span class="kw">defer</span> fmt.<span class="fn">Println</span>(<span class="str">"loop"</span>, i)\n' +
+  '    }\n' +
+  '    fmt.<span class="fn">Println</span>(<span class="str">"end"</span>)\n' +
+  '    <span class="cmt">// return → pop defer stack LIFO</span>\n' +
+  '}';
+
+// Build the timeline of events
+const deferEvents = [
+  { kind: 'print', text: 'start',            desc: 'In "start"' },
+  { kind: 'push',  text: 'fmt.Println("A")', desc: 'defer Println("A") → push' },
+  { kind: 'push',  text: 'fmt.Println("B")', desc: 'defer Println("B") → push' },
+  { kind: 'push',  text: 'fmt.Println("loop", 0)', desc: 'i=0: defer Println("loop", 0) — i đóng băng = 0' },
+  { kind: 'push',  text: 'fmt.Println("loop", 1)', desc: 'i=1: defer Println("loop", 1) — i đóng băng = 1' },
+  { kind: 'push',  text: 'fmt.Println("loop", 2)', desc: 'i=2: defer Println("loop", 2) — i đóng băng = 2' },
+  { kind: 'print', text: 'end',              desc: 'In "end"' },
+  // Then function returns → pop all (we'll add pops as 5 events)
+];
+const deferPops = [
+  { text: 'loop 2', desc: 'Pop đỉnh: Println("loop", 2)' },
+  { text: 'loop 1', desc: 'Pop: Println("loop", 1)' },
+  { text: 'loop 0', desc: 'Pop: Println("loop", 0)' },
+  { text: 'B',      desc: 'Pop: Println("B")' },
+  { text: 'A',      desc: 'Pop đáy: Println("A")' },
+];
+
+const deferStackEl  = document.getElementById('deferStack');
+const deferOutEl    = document.getElementById('deferOut');
+const deferStepEl   = document.getElementById('deferStep');
+let deferIdx = 0;
+let deferStackItems = [];
+let deferAutoTimer = null;
+
+function totalDeferSteps() { return deferEvents.length + deferPops.length; }
+
+function resetDeferUI() {
+  deferIdx = 0;
+  deferStackItems = [];
+  deferStackEl.innerHTML = '';
+  deferOutEl.textContent = '';
+  deferStepEl.textContent = `Bước 0/${totalDeferSteps()} — bấm "Step" để bắt đầu`;
+  if (deferAutoTimer) { clearTimeout(deferAutoTimer); deferAutoTimer = null; }
+}
+
+function doDeferStep() {
+  if (deferIdx >= totalDeferSteps()) {
+    deferStepEl.textContent = `✅ Hoàn thành ${totalDeferSteps()}/${totalDeferSteps()} bước — hàm đã return`;
+    return false;
+  }
+
+  if (deferIdx < deferEvents.length) {
+    const ev = deferEvents[deferIdx];
+    if (ev.kind === 'print') {
+      deferOutEl.textContent += ev.text + '\n';
+    } else if (ev.kind === 'push') {
+      const item = document.createElement('div');
+      item.className = 'defer-item';
+      item.textContent = ev.text;
+      // Insert at top (visually top = first child)
+      deferStackEl.insertBefore(item, deferStackEl.firstChild);
+      deferStackItems.push(item);
+    }
+    deferStepEl.textContent = `Bước ${deferIdx + 1}/${totalDeferSteps()} — ${ev.desc}`;
+  } else {
+    const popIdx = deferIdx - deferEvents.length;
+    const ev = deferPops[popIdx];
+    // Pop the top item (which is the last pushed = first in DOM)
+    const top = deferStackItems.pop();
+    if (top) {
+      top.classList.add('popping');
+      setTimeout(() => { if (top.parentNode) top.parentNode.removeChild(top); }, 400);
+    }
+    deferOutEl.textContent += ev.text + '\n';
+    deferStepEl.textContent = `Bước ${deferIdx + 1}/${totalDeferSteps()} — ${ev.desc}`;
+  }
+  deferIdx++;
+  return true;
+}
+
+document.getElementById('stepDefer').addEventListener('click', () => {
+  if (deferAutoTimer) { clearTimeout(deferAutoTimer); deferAutoTimer = null; }
+  doDeferStep();
+});
+
+document.getElementById('runAllDefer').addEventListener('click', () => {
+  if (deferAutoTimer) { clearTimeout(deferAutoTimer); deferAutoTimer = null; }
+  const tick = () => {
+    if (doDeferStep()) {
+      deferAutoTimer = setTimeout(tick, 550);
+    } else {
+      deferAutoTimer = null;
+    }
+  };
+  tick();
+});
+
+document.getElementById('resetDefer').addEventListener('click', resetDeferUI);
+
+// init all
+resetFactUI();
+resetClosureUI();
+resetDeferUI();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

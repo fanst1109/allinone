@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 10 — Vòng lặp for · Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover:not(:disabled) { background: #3182ce; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  button.secondary { background: #718096; }
+  button.secondary:hover:not(:disabled) { background: #4a5568; }
+  button.active { background: #2b6cb0; }
+  select, input[type=text], input[type=number] {
+    font-size: 15px; padding: 7px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    background: white;
+    width: 100%; max-width: 320px; box-sizing: border-box;
+  }
+  code, pre {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 14px;
+  }
+  pre {
+    background: #1a202c; color: #e2e8f0;
+    padding: 14px 16px; border-radius: 6px;
+    overflow-x: auto;
+    margin: 8px 0;
+  }
+  pre .kw { color: #f6ad55; font-weight: 600; }
+  pre .num { color: #9ae6b4; }
+  pre .str { color: #fbb6ce; }
+  pre .com { color: #a0aec0; font-style: italic; }
+  pre .hl { background: rgba(237, 137, 54, 0.35); padding: 0 2px; border-radius: 2px; }
+
+  /* ===== Module 1: Loop Visualizer ===== */
+  .elem-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+  .elem {
+    width: 56px; height: 56px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    border: 2px solid #cbd5e0; border-radius: 6px;
+    background: #f7fafc;
+    font-weight: 700; font-size: 18px;
+    position: relative;
+    transition: all 0.25s;
+  }
+  .elem .idx {
+    position: absolute; top: -16px;
+    font-size: 11px; color: #718096; font-weight: 600;
+  }
+  .elem.current {
+    background: #fef5e7; border-color: #ed8936;
+    transform: scale(1.1); box-shadow: 0 2px 8px rgba(237,137,54,0.4);
+  }
+  .elem.done { background: #e6fffa; border-color: #38b2ac; opacity: 0.7; }
+  .elem.included { background: #f0fff4; border-color: #48bb78; }
+  .elem.excluded { background: #fef5f5; border-color: #fc8181; opacity: 0.55; }
+
+  .state-board {
+    background: #2d3748; color: #e2e8f0;
+    padding: 14px; border-radius: 6px;
+    font-family: monospace; font-size: 14px;
+    margin: 8px 0;
+  }
+  .state-board .var { color: #f6ad55; }
+  .state-board .val { color: #9ae6b4; font-weight: 700; }
+  .state-board .step { color: #fbb6ce; }
+
+  /* ===== Module 2: Range vs C-style ===== */
+  .side-by-side {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .code-panel {
+    background: #1a202c; color: #e2e8f0;
+    border-radius: 6px;
+    padding: 14px;
+    overflow-x: auto;
+  }
+  .code-panel h3 {
+    margin: 0 0 10px 0; color: #f6ad55; font-size: 14px; text-transform: uppercase;
+  }
+  .byte-row, .rune-row {
+    display: flex; flex-wrap: wrap; gap: 4px;
+    margin: 8px 0;
+  }
+  .byte-cell, .rune-cell {
+    min-width: 44px;
+    padding: 8px 6px;
+    text-align: center;
+    border-radius: 4px;
+    font-family: monospace; font-size: 13px;
+    border: 1px solid #cbd5e0;
+    background: #f7fafc;
+    transition: all 0.2s;
+  }
+  .byte-cell .small { font-size: 10px; color: #718096; }
+  .byte-cell.continuation { background: #fed7d7; border-color: #fc8181; }
+  .byte-cell.lead { background: #fefcbf; border-color: #ecc94b; }
+  .byte-cell.ascii { background: #c6f6d5; border-color: #48bb78; }
+  .byte-cell.current { transform: scale(1.15); box-shadow: 0 2px 8px rgba(66,153,225,0.5); }
+  .rune-cell { background: white; }
+  .rune-cell.current { background: #bee3f8; border-color: #4299e1; transform: scale(1.1); }
+
+  .out-line { font-family: monospace; font-size: 13px; padding: 2px 0; }
+  .out-line.new { animation: fadein 0.3s ease; }
+  @keyframes fadein { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+
+  /* ===== Module 3: Labeled break matrix ===== */
+  .matrix-grid {
+    display: inline-grid;
+    grid-template-columns: repeat(4, 56px);
+    gap: 6px;
+    margin: 12px 0;
+  }
+  .mcell {
+    width: 56px; height: 56px;
+    border: 2px solid #cbd5e0; border-radius: 6px;
+    background: #f7fafc;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 16px;
+    transition: all 0.2s;
+  }
+  .mcell.scan { background: #fef5e7; border-color: #ed8936; }
+  .mcell.skip { background: #edf2f7; border-color: #cbd5e0; opacity: 0.45; }
+  .mcell.found {
+    background: #c6f6d5; border-color: #38a169;
+    transform: scale(1.15);
+    box-shadow: 0 0 0 4px rgba(56,161,105,0.25);
+  }
+  .mcell.unvisited { background: white; }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 768px) {
+    .side-by-side { grid-template-columns: 1fr; }
+    .matrix-grid { grid-template-columns: repeat(4, 48px); }
+    .mcell { width: 48px; height: 48px; font-size: 14px; }
+    .elem { width: 44px; height: 44px; font-size: 15px; }
+  }
+  @media (max-width: 480px) {
+    .matrix-grid { grid-template-columns: repeat(4, 40px); gap: 4px; }
+    .mcell { width: 40px; height: 40px; font-size: 13px; }
+    .elem { width: 38px; height: 38px; font-size: 13px; }
+    .elem .idx { font-size: 9px; top: -14px; }
+    .byte-cell, .rune-cell { min-width: 36px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-09-control-flow/visualization.html">← L9: Điều kiện</a>
+  <span class="sep">·</span>
+  <span class="current">L10: Vòng lặp for</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.55">L11: Hàm →</span>
+</nav>
+
+<main>
+
+<h1>Lesson 10 — Vòng lặp <code>for</code> · Visualization</h1>
+<p>Ba module tương tác để hiểu vòng lặp Go: (1) animate từng iteration trên slice tự nhập, (2) so sánh range vs C-style trên UTF-8 string, (3) labeled break trong matrix 2D.</p>
+
+<!-- ============================================================ -->
+<!-- Module 1: Loop Visualizer -->
+<!-- ============================================================ -->
+<h2>1. Loop Visualizer — chạy từng vòng</h2>
+<div class="card">
+  <p>Nhập slice và chọn pattern. Bấm <strong>▶ Step</strong> để chạy từng vòng, <strong>▶▶ Play</strong> để auto, <strong>↺ Reset</strong> để bắt đầu lại.</p>
+
+  <div class="row">
+    <label>Slice (cách nhau bằng dấu phẩy):</label>
+    <input id="m1Slice" type="text" value="3, 1, 4, 1, 5, 9" />
+  </div>
+  <div class="row">
+    <label>Pattern:</label>
+    <select id="m1Pattern">
+      <option value="sum">sum — tổng tất cả phần tử</option>
+      <option value="max">max — phần tử lớn nhất</option>
+      <option value="filterEven">filter even — lọc số chẵn</option>
+      <option value="double">double — nhân đôi từng phần tử</option>
+      <option value="count">count — đếm số phần tử > 3</option>
+    </select>
+  </div>
+  <div class="row">
+    <button id="m1Step">▶ Step</button>
+    <button id="m1Play" class="secondary">▶▶ Play</button>
+    <button id="m1Reset" class="secondary">↺ Reset</button>
+  </div>
+
+  <div id="m1Code"></div>
+
+  <div id="m1Elems" class="elem-row"></div>
+  <div id="m1Result" class="elem-row" style="min-height: 30px;"></div>
+  <div id="m1Board" class="state-board">Bấm ▶ Step để bắt đầu.</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- Module 2: Range vs C-style trên UTF-8 -->
+<!-- ============================================================ -->
+<h2>2. <code>range</code> vs C-style trên UTF-8</h2>
+<div class="card">
+  <p>So sánh hai cách duyệt cùng một string. C-style <code>for i := 0; i &lt; len(s); i++</code> đọc <strong>byte</strong> (sai cho Unicode). <code>range</code> đọc <strong>rune</strong> đúng codepoint.</p>
+
+  <div class="row">
+    <label>String:</label>
+    <input id="m2String" type="text" value="héllo" />
+    <button id="m2Run">▶ Chạy cả 2 cách</button>
+  </div>
+
+  <p style="margin: 14px 0 4px 0;">Bytes (mỗi cell = 1 byte trong slice gốc):</p>
+  <div id="m2Bytes" class="byte-row"></div>
+
+  <p style="margin: 14px 0 4px 0;">Runes (mỗi cell = 1 codepoint Unicode):</p>
+  <div id="m2Runes" class="rune-row"></div>
+
+  <div class="side-by-side" style="margin-top: 16px;">
+    <div class="code-panel">
+      <h3>C-style — đọc byte</h3>
+<pre><span class="kw">for</span> i := <span class="num">0</span>; i &lt; <span class="kw">len</span>(s); i++ {
+    fmt.Printf(<span class="str">"%d → byte %d\n"</span>, i, s[i])
+}</pre>
+      <div id="m2OutC" style="margin-top: 10px;"></div>
+    </div>
+    <div class="code-panel">
+      <h3>range — đọc rune</h3>
+<pre><span class="kw">for</span> i, r := <span class="kw">range</span> s {
+    fmt.Printf(<span class="str">"%d → rune %c U+%04X\n"</span>, i, r, r)
+}</pre>
+      <div id="m2OutR" style="margin-top: 10px;"></div>
+    </div>
+  </div>
+
+  <div id="m2Insight" style="margin-top: 14px; padding: 12px; background: #fffaf0; border-left: 4px solid #ed8936; border-radius: 4px; font-size: 14px;"></div>
+</div>
+
+<!-- ============================================================ -->
+<!-- Module 3: Labeled break demo -->
+<!-- ============================================================ -->
+<h2>3. Labeled break — tìm target trong matrix 4×4</h2>
+<div class="card">
+  <p>Chọn target. Animate scan từng cell theo thứ tự (i, j). Khi gặp target, <code>break outer</code> thoát cả hai loop — các cell còn lại không được duyệt.</p>
+
+  <div class="row">
+    <label>Target:</label>
+    <select id="m3Target">
+      <option value="1">1 (cell đầu — break ngay)</option>
+      <option value="7">7 (giữa)</option>
+      <option value="11" selected>11 (gần cuối)</option>
+      <option value="16">16 (cell cuối)</option>
+      <option value="99">99 (không có — quét hết)</option>
+    </select>
+    <button id="m3Run">▶ Chạy scan</button>
+    <button id="m3Reset" class="secondary">↺ Reset</button>
+  </div>
+
+  <div id="m3Matrix" class="matrix-grid"></div>
+
+  <pre style="margin-top: 14px;"><span class="com">// Khi tìm thấy → break outer thoát CẢ HAI loop</span>
+<span class="hl">outer:</span>
+<span class="kw">for</span> i := <span class="kw">range</span> matrix {
+    <span class="kw">for</span> j := <span class="kw">range</span> matrix[i] {
+        <span class="kw">if</span> matrix[i][j] == target {
+            foundRow, foundCol = i, j
+            <span class="kw">break</span> <span class="hl">outer</span>
+        }
+    }
+}</pre>
+
+  <div id="m3Status" class="state-board" style="margin-top: 10px;">Bấm ▶ Chạy scan.</div>
+</div>
+
+<h2>Tóm tắt</h2>
+<div class="card">
+  <ul>
+    <li><strong>Module 1</strong>: Mọi loop pattern (sum/max/filter/transform/count) đều dùng cùng cú pháp <code>for _, v := range s</code> — chỉ khác accumulator state.</li>
+    <li><strong>Module 2</strong>: C-style <code>s[i]</code> trả <strong>byte</strong>, <code>range s</code> trả <strong>rune</strong>. Trên ASCII thuần (chỉ a-z, 0-9...) hai cách giống nhau; trên Unicode (Vietnamese, accented chars, emoji) chỉ <code>range</code> đúng.</li>
+    <li><strong>Module 3</strong>: <code>break</code> thường chỉ thoát loop trong cùng. <code>break outer</code> thoát thẳng loop được gắn nhãn <code>outer:</code>.</li>
+  </ul>
+</div>
+
+</main>
+
+<script>
+// ============================================================
+// Module 1: Loop Visualizer
+// ============================================================
+(function() {
+  const sliceInput = document.getElementById('m1Slice');
+  const patternSel = document.getElementById('m1Pattern');
+  const stepBtn = document.getElementById('m1Step');
+  const playBtn = document.getElementById('m1Play');
+  const resetBtn = document.getElementById('m1Reset');
+  const codeBox = document.getElementById('m1Code');
+  const elemsBox = document.getElementById('m1Elems');
+  const resultBox = document.getElementById('m1Result');
+  const board = document.getElementById('m1Board');
+
+  let state = null;
+  let playTimer = null;
+
+  const codeSnippets = {
+    sum: `sum := 0\nfor _, v := range s {\n    sum += v\n}`,
+    max: `maxV := s[0]\nfor _, v := range s[1:] {\n    if v > maxV { maxV = v }\n}`,
+    filterEven: `out := []int{}\nfor _, v := range s {\n    if v%2 == 0 { out = append(out, v) }\n}`,
+    double: `out := make([]int, len(s))\nfor i, v := range s {\n    out[i] = v * 2\n}`,
+    count: `n := 0\nfor _, v := range s {\n    if v > 3 { n++ }\n}`,
+  };
+
+  function highlight(code) {
+    return code
+      .replace(/\b(for|range|if|make|len|append)\b/g, '<span class="kw">$1</span>')
+      .replace(/\b(\d+)\b/g, '<span class="num">$1</span>');
+  }
+
+  function showCode(pattern) {
+    codeBox.innerHTML = `<pre>${highlight(codeSnippets[pattern])}</pre>`;
+  }
+
+  function parseSlice() {
+    const raw = sliceInput.value.trim();
+    if (!raw) return [];
+    return raw.split(',').map(s => parseInt(s.trim(), 10)).filter(x => !isNaN(x));
+  }
+
+  function init() {
+    const arr = parseSlice();
+    const pattern = patternSel.value;
+    showCode(pattern);
+
+    let initAcc, label;
+    if (pattern === 'sum')        { initAcc = 0; label = 'sum'; }
+    else if (pattern === 'max')   { initAcc = arr.length ? arr[0] : null; label = 'maxV'; }
+    else if (pattern === 'filterEven') { initAcc = []; label = 'out'; }
+    else if (pattern === 'double')     { initAcc = new Array(arr.length).fill(null); label = 'out'; }
+    else if (pattern === 'count')      { initAcc = 0; label = 'n'; }
+
+    state = {
+      arr,
+      pattern,
+      i: pattern === 'max' ? 1 : 0, // max bắt đầu từ phần tử thứ 2
+      acc: initAcc,
+      label,
+      done: false,
+    };
+    renderElems();
+    renderResult();
+    board.innerHTML = pattern === 'max'
+      ? `<span class="step">init:</span> <span class="var">${label}</span> = <span class="val">${initAcc}</span> (lấy s[0]), <span class="var">i</span> = <span class="val">1</span>`
+      : `<span class="step">init:</span> <span class="var">${label}</span> = <span class="val">${JSON.stringify(initAcc)}</span>, <span class="var">i</span> = <span class="val">0</span>`;
+    stepBtn.disabled = false;
+    playBtn.disabled = false;
+  }
+
+  function renderElems() {
+    elemsBox.innerHTML = '';
+    state.arr.forEach((v, idx) => {
+      const el = document.createElement('div');
+      el.className = 'elem';
+      if (state.done || idx < state.i) el.classList.add('done');
+      if (!state.done && idx === state.i) el.classList.add('current');
+      el.innerHTML = `<span class="idx">i=${idx}</span>${v}`;
+      elemsBox.appendChild(el);
+    });
+  }
+
+  function renderResult() {
+    resultBox.innerHTML = '';
+    const p = state.pattern;
+    if (p === 'filterEven' || p === 'double') {
+      const arr = state.acc;
+      if (!arr || arr.length === 0) {
+        resultBox.innerHTML = '<em style="color:#718096;">(output trống)</em>';
+        return;
+      }
+      arr.forEach(v => {
+        const el = document.createElement('div');
+        el.className = 'elem included';
+        el.textContent = v === null ? '?' : v;
+        resultBox.appendChild(el);
+      });
+    } else {
+      resultBox.innerHTML = `<div style="font-size: 14px; color: #4a5568;"><strong>${state.label}</strong> = <code>${JSON.stringify(state.acc)}</code></div>`;
+    }
+  }
+
+  function step() {
+    if (!state || state.done) return;
+    if (state.i >= state.arr.length) {
+      state.done = true;
+      renderElems();
+      board.innerHTML += `<br><span class="step">done.</span> <span class="var">${state.label}</span> = <span class="val">${JSON.stringify(state.acc)}</span>`;
+      stepBtn.disabled = true;
+      playBtn.disabled = true;
+      stopPlay();
+      return;
+    }
+
+    const v = state.arr[state.i];
+    let logLine = '';
+    const p = state.pattern;
+    if (p === 'sum') {
+      const old = state.acc;
+      state.acc += v;
+      logLine = `<span class="step">i=${state.i}:</span> <span class="var">sum</span> = ${old} + ${v} = <span class="val">${state.acc}</span>`;
+    } else if (p === 'max') {
+      if (v > state.acc) {
+        const old = state.acc;
+        state.acc = v;
+        logLine = `<span class="step">i=${state.i}:</span> ${v} &gt; ${old} → <span class="var">maxV</span> = <span class="val">${v}</span>`;
+      } else {
+        logLine = `<span class="step">i=${state.i}:</span> ${v} ≤ ${state.acc} → giữ <span class="var">maxV</span> = <span class="val">${state.acc}</span>`;
+      }
+    } else if (p === 'filterEven') {
+      if (v % 2 === 0) {
+        state.acc.push(v);
+        logLine = `<span class="step">i=${state.i}:</span> ${v} chẵn → append → <span class="var">out</span> = <span class="val">${JSON.stringify(state.acc)}</span>`;
+      } else {
+        logLine = `<span class="step">i=${state.i}:</span> ${v} lẻ → skip`;
+      }
+    } else if (p === 'double') {
+      state.acc[state.i] = v * 2;
+      logLine = `<span class="step">i=${state.i}:</span> <span class="var">out[${state.i}]</span> = ${v} * 2 = <span class="val">${v*2}</span>`;
+    } else if (p === 'count') {
+      if (v > 3) {
+        state.acc++;
+        logLine = `<span class="step">i=${state.i}:</span> ${v} &gt; 3 → <span class="var">n</span>++ = <span class="val">${state.acc}</span>`;
+      } else {
+        logLine = `<span class="step">i=${state.i}:</span> ${v} ≤ 3 → skip`;
+      }
+    }
+
+    board.innerHTML = logLine;
+    state.i++;
+    renderElems();
+    renderResult();
+  }
+
+  function stopPlay() {
+    if (playTimer) { clearInterval(playTimer); playTimer = null; }
+    playBtn.textContent = '▶▶ Play';
+  }
+
+  function togglePlay() {
+    if (playTimer) {
+      stopPlay();
+    } else {
+      playBtn.textContent = '⏸ Pause';
+      playTimer = setInterval(() => {
+        step();
+        if (state.done) stopPlay();
+      }, 700);
+    }
+  }
+
+  stepBtn.addEventListener('click', step);
+  playBtn.addEventListener('click', togglePlay);
+  resetBtn.addEventListener('click', () => { stopPlay(); init(); });
+  sliceInput.addEventListener('change', () => { stopPlay(); init(); });
+  patternSel.addEventListener('change', () => { stopPlay(); init(); });
+
+  init();
+})();
+
+
+// ============================================================
+// Module 2: Range vs C-style
+// ============================================================
+(function() {
+  const strInput = document.getElementById('m2String');
+  const runBtn = document.getElementById('m2Run');
+  const bytesBox = document.getElementById('m2Bytes');
+  const runesBox = document.getElementById('m2Runes');
+  const outC = document.getElementById('m2OutC');
+  const outR = document.getElementById('m2OutR');
+  const insight = document.getElementById('m2Insight');
+
+  function encodeUTF8(str) {
+    // Trả mảng object {byte, isLead, isCont, runeIdx, codepoint}
+    const enc = new TextEncoder();
+    const bytes = enc.encode(str);
+    const arr = [];
+    let runeIdx = 0;
+    let byteOffset = 0;
+    for (const ch of str) {
+      const cp = ch.codePointAt(0);
+      const chBytes = enc.encode(ch);
+      for (let k = 0; k < chBytes.length; k++) {
+        arr.push({
+          byte: chBytes[k],
+          isLead: k === 0 && chBytes.length > 1,
+          isCont: k > 0,
+          isAscii: chBytes.length === 1,
+          runeIdx: runeIdx,
+          codepoint: cp,
+          char: ch,
+          byteIndex: byteOffset + k,
+        });
+      }
+      byteOffset += chBytes.length;
+      runeIdx++;
+    }
+    return arr;
+  }
+
+  function render() {
+    const s = strInput.value;
+    const utf = encodeUTF8(s);
+
+    // Bytes row
+    bytesBox.innerHTML = '';
+    utf.forEach(b => {
+      const el = document.createElement('div');
+      el.className = 'byte-cell';
+      if (b.isAscii) el.classList.add('ascii');
+      else if (b.isLead) el.classList.add('lead');
+      else el.classList.add('continuation');
+      el.dataset.byteIndex = b.byteIndex;
+      el.innerHTML = `<div>0x${b.byte.toString(16).padStart(2,'0').toUpperCase()}</div><div class="small">i=${b.byteIndex}</div>`;
+      bytesBox.appendChild(el);
+    });
+
+    // Runes row
+    runesBox.innerHTML = '';
+    let rIdx = 0;
+    for (const ch of s) {
+      const cp = ch.codePointAt(0);
+      // tìm byteIndex của rune này = byteIndex của byte lead/ascii đầu rune
+      const firstByte = utf.find(b => b.runeIdx === rIdx);
+      const el = document.createElement('div');
+      el.className = 'rune-cell';
+      el.dataset.runeIdx = rIdx;
+      el.dataset.byteIndex = firstByte.byteIndex;
+      el.innerHTML = `<div style="font-size:18px;">${ch}</div><div class="small">byte_i=${firstByte.byteIndex}<br>U+${cp.toString(16).padStart(4,'0').toUpperCase()}</div>`;
+      runesBox.appendChild(el);
+      rIdx++;
+    }
+
+    outC.innerHTML = '';
+    outR.innerHTML = '';
+
+    const hasNonAscii = utf.some(b => !b.isAscii);
+    const numRunes = [...s].length;
+    insight.innerHTML = hasNonAscii
+      ? `<strong>Quan sát</strong>: <code>${s}</code> có ${numRunes} ký tự nhưng <code>len = ${utf.length}</code> byte. Vì có ký tự non-ASCII chiếm nhiều byte (UTF-8). C-style đọc từng byte → in ra <strong>${utf.length}</strong> dòng (có byte vô nghĩa khi đứng riêng). <code>range</code> đọc từng rune → in <strong>${numRunes}</strong> dòng, mỗi dòng 1 ký tự hợp lý.`
+      : `<strong>Quan sát</strong>: <code>${s}</code> chỉ có ASCII (mỗi ký tự = 1 byte). C-style và range cho cùng số dòng (${utf.length}). Nhưng nhớ: chỉ vì test ASCII chạy giống không có nghĩa là code đúng — thử với Unicode để chắc.`;
+  }
+
+  function runAnimation() {
+    const s = strInput.value;
+    const utf = encodeUTF8(s);
+    outC.innerHTML = '';
+    outR.innerHTML = '';
+
+    // Clear current highlights
+    [...bytesBox.children, ...runesBox.children].forEach(el => el.classList.remove('current'));
+
+    let step = 0;
+    const totalC = utf.length;
+    const runes = [...s];
+    const totalR = runes.length;
+
+    function tick() {
+      // C-style: 1 step = 1 byte
+      if (step < totalC) {
+        const b = utf[step];
+        [...bytesBox.children].forEach(el => el.classList.remove('current'));
+        bytesBox.children[step].classList.add('current');
+        const line = document.createElement('div');
+        line.className = 'out-line new';
+        line.innerHTML = `i=${step} → byte 0x${b.byte.toString(16).padStart(2,'0').toUpperCase()} (${b.byte})`;
+        outC.appendChild(line);
+      }
+      // Range: step on runes (1 rune mỗi vài byte)
+      // Chiến lược: synchronize bằng runeIdx ở byte hiện tại
+      const currentRune = step < totalC ? utf[step].runeIdx : null;
+      const lastEmitted = outR.children.length - 1;
+      if (currentRune !== null && currentRune > lastEmitted) {
+        const r = runes[currentRune];
+        const cp = r.codePointAt(0);
+        const firstByte = utf.find(b => b.runeIdx === currentRune);
+        [...runesBox.children].forEach(el => el.classList.remove('current'));
+        runesBox.children[currentRune].classList.add('current');
+        const line = document.createElement('div');
+        line.className = 'out-line new';
+        line.innerHTML = `i=${firstByte.byteIndex} → rune '${r}' U+${cp.toString(16).padStart(4,'0').toUpperCase()}`;
+        outR.appendChild(line);
+      }
+
+      step++;
+      if (step <= totalC) {
+        setTimeout(tick, 500);
+      } else {
+        [...bytesBox.children, ...runesBox.children].forEach(el => el.classList.remove('current'));
+      }
+    }
+    tick();
+  }
+
+  runBtn.addEventListener('click', runAnimation);
+  strInput.addEventListener('input', render);
+  render();
+})();
+
+
+// ============================================================
+// Module 3: Labeled break trên matrix 4x4
+// ============================================================
+(function() {
+  const targetSel = document.getElementById('m3Target');
+  const runBtn = document.getElementById('m3Run');
+  const resetBtn = document.getElementById('m3Reset');
+  const grid = document.getElementById('m3Matrix');
+  const status = document.getElementById('m3Status');
+
+  const matrix = [
+    [1, 2, 3, 4],
+    [5, 6, 7, 8],
+    [9, 10, 11, 12],
+    [13, 14, 15, 16],
+  ];
+
+  let cells = [];
+  let timer = null;
+
+  function build() {
+    grid.innerHTML = '';
+    cells = [];
+    for (let i = 0; i < 4; i++) {
+      cells[i] = [];
+      for (let j = 0; j < 4; j++) {
+        const c = document.createElement('div');
+        c.className = 'mcell unvisited';
+        c.textContent = matrix[i][j];
+        grid.appendChild(c);
+        cells[i][j] = c;
+      }
+    }
+  }
+
+  function reset() {
+    if (timer) { clearTimeout(timer); timer = null; }
+    cells.flat().forEach(c => { c.className = 'mcell unvisited'; });
+    status.innerHTML = 'Bấm ▶ Chạy scan.';
+    runBtn.disabled = false;
+  }
+
+  function run() {
+    reset();
+    runBtn.disabled = true;
+    const target = parseInt(targetSel.value, 10);
+    let i = 0, j = 0;
+    let visited = 0;
+
+    function nextCell() {
+      if (i >= 4) {
+        // Hết — không thấy
+        status.innerHTML = `<span class="step">Quét hết ${visited}/16 cell — KHÔNG tìm thấy ${target}.</span>`;
+        runBtn.disabled = false;
+        return;
+      }
+      const cell = cells[i][j];
+      cell.className = 'mcell scan';
+      visited++;
+
+      status.innerHTML = `<span class="step">Đang quét:</span> matrix[<span class="var">${i}</span>][<span class="var">${j}</span>] = <span class="val">${matrix[i][j]}</span>, target = ${target}, đã quét ${visited} cell`;
+
+      timer = setTimeout(() => {
+        if (matrix[i][j] === target) {
+          cell.className = 'mcell found';
+          // Mọi cell sau đó chưa duyệt → giữ class unvisited để thấy break outer skip
+          status.innerHTML = `<span class="step">✓ Tìm thấy ${target} tại matrix[${i}][${j}] sau ${visited}/16 cell. <strong>break outer</strong> thoát cả 2 loop — ${16 - visited} cell không được duyệt.</span>`;
+          runBtn.disabled = false;
+          return;
+        }
+        // Skip (đã duyệt, không phải target)
+        cell.className = 'mcell skip';
+        // advance
+        j++;
+        if (j >= 4) { j = 0; i++; }
+        nextCell();
+      }, 220);
+    }
+    nextCell();
+  }
+
+  runBtn.addEventListener('click', run);
+  resetBtn.addEventListener('click', reset);
+
+  build();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

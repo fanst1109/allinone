@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Biến & Kiểu dữ liệu Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  p.lead { color: #4a5568; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+
+  /* dropdowns / sliders */
+  select, input[type="text"], input[type="number"] {
+    font-size: 15px; padding: 8px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    background: white;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    box-sizing: border-box;
+  }
+  input[type="text"], input[type="number"] {
+    width: 100%; max-width: 320px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  input[type="range"] { width: 100%; max-width: 320px; }
+  button {
+    background: #10b981; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #059669; }
+
+  /* ===== Module 1: Zero value explorer ===== */
+  .zv-grid {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 12px 18px;
+    align-items: center;
+    margin: 12px 0;
+  }
+  .zv-label { font-weight: 600; color: #2d3748; font-size: 14px; }
+  .zv-val {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    background: #1a202c; color: #68d391;
+    padding: 4px 10px; border-radius: 4px; font-size: 14px;
+    display: inline-block;
+    word-break: break-all;
+  }
+  .zv-size { color: #718096; font-size: 13px; margin-left: 4px; }
+  .zv-explain {
+    background: #ebf8ff; border-left: 4px solid #4299e1;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6;
+    margin-top: 12px;
+  }
+  .zv-explain code {
+    background: white; padding: 1px 5px; border-radius: 3px;
+    color: #2b6cb0;
+  }
+
+  /* ===== Module 2: Overflow visualizer ===== */
+  .of-bits {
+    display: flex; gap: 4px; flex-wrap: wrap;
+    margin: 12px 0;
+    justify-content: center;
+  }
+  .of-bit {
+    width: 32px; height: 38px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 4px;
+    font-family: monospace; font-weight: 700; font-size: 16px;
+    border: 2px solid #cbd5e0;
+    background: #f7fafc; color: #2d3748;
+  }
+  .of-bit.on { background: #10b981; color: white; border-color: #059669; }
+  .of-bit.sign { border-color: #ed8936; }
+  .of-bit.sign.on { background: #ed8936; border-color: #c05621; }
+  .of-summary {
+    margin-top: 12px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px;
+    background: #f7fafc; padding: 10px 14px;
+    border-radius: 6px;
+    border-left: 4px solid #10b981;
+  }
+  .of-summary .val { color: #2b6cb0; font-weight: 700; }
+  .of-summary .wrap-warn { color: #c05621; font-weight: 700; }
+  .of-controls { display: grid; grid-template-columns: 100px 1fr 90px; gap: 8px 12px; align-items: center; }
+  .of-controls .raw-input { font-family: monospace; }
+
+  /* ===== Module 3: iota generator ===== */
+  .iota-input-wrap {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 10px;
+    align-items: center;
+    margin: 8px 0;
+  }
+  .iota-input-wrap label { font-family: monospace; font-size: 13px; color: #4a5568; }
+  .iota-preview {
+    background: #1a202c; color: #f7fafc;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    padding: 14px 16px; border-radius: 6px;
+    font-size: 14px; line-height: 1.7;
+    margin-top: 12px;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .iota-preview .kw { color: #f687b3; }
+  .iota-preview .name { color: #90cdf4; }
+  .iota-preview .num { color: #f6e05e; }
+  .iota-preview .err { color: #fc8181; font-style: italic; }
+  .iota-preset {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin: 8px 0;
+  }
+  .iota-preset button {
+    background: #edf2f7; color: #2d3748; padding: 6px 10px; font-size: 13px;
+    border: 1px solid #cbd5e0;
+  }
+  .iota-preset button:hover { background: #cbd5e0; }
+  .iota-help {
+    font-size: 13px; color: #718096; margin-top: 8px;
+    font-style: italic;
+  }
+  .iota-name-input {
+    font-family: monospace;
+    max-width: 200px;
+  }
+
+  /* responsive */
+  @media (max-width: 600px) {
+    h1 { font-size: 22px; }
+    h2 { font-size: 18px; margin-top: 24px; }
+    .card { padding: 14px; }
+    .zv-grid { grid-template-columns: 130px 1fr; gap: 8px 10px; }
+    .zv-label { font-size: 13px; }
+    .of-bit { width: 26px; height: 32px; font-size: 13px; }
+    .of-controls { grid-template-columns: 88px 1fr; }
+    .of-controls .raw-input { grid-column: 1 / -1; }
+    .iota-input-wrap { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 380px) {
+    .of-bit { width: 22px; height: 28px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-hello-world-toolchain/visualization.html">← L6: Hello World & Toolchain</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Biến & Kiểu</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-operators-expressions/visualization.html">L8: Toán tử →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 07 — Biến & Kiểu dữ liệu trong Go</h1>
+<p class="lead">Ba module tương tác: (1) explore zero value & byte size của các kiểu Go, (2) thấy overflow wrap around bằng binary, (3) thử công thức <code>iota</code> live.</p>
+
+<h2>1. Zero Value Explorer</h2>
+<div class="card">
+  <p>Chọn một kiểu, xem zero value và kích thước byte (trên platform 64-bit thông thường).</p>
+  <div class="row">
+    <label for="zvSelect">Kiểu:</label>
+    <select id="zvSelect">
+      <option value="int">int</option>
+      <option value="int8">int8</option>
+      <option value="int32">int32</option>
+      <option value="int64">int64</option>
+      <option value="uint8">uint8 (byte)</option>
+      <option value="float32">float32</option>
+      <option value="float64">float64</option>
+      <option value="string">string</option>
+      <option value="bool">bool</option>
+      <option value="slice">[]int (slice)</option>
+      <option value="map">map[string]int</option>
+      <option value="ptr">*int (pointer)</option>
+      <option value="iface">interface{}</option>
+      <option value="chan">chan int</option>
+      <option value="func">func()</option>
+      <option value="struct">struct{X int; Y string}</option>
+      <option value="array">[3]int (array)</option>
+    </select>
+  </div>
+  <div class="zv-grid">
+    <div class="zv-label">Khai báo:</div>
+    <div><span class="zv-val" id="zvDecl">var x int</span></div>
+    <div class="zv-label">Zero value:</div>
+    <div><span class="zv-val" id="zvValue">0</span></div>
+    <div class="zv-label">Byte size:</div>
+    <div><span class="zv-val" id="zvSize">8</span><span class="zv-size" id="zvSizeNote"> (trên 64-bit)</span></div>
+    <div class="zv-label">So sánh với nil:</div>
+    <div><span class="zv-val" id="zvNilCmp">— (kiểu non-nullable)</span></div>
+  </div>
+  <div class="zv-explain" id="zvExplain">int là kiểu integer mặc định trong Go. Trên máy 64-bit, kích thước 8 byte = int64; trên 32-bit là 4 byte = int32. Zero value luôn là 0.</div>
+</div>
+
+<h2>2. Overflow Visualizer</h2>
+<div class="card">
+  <p>Chọn kiểu integer và một giá trị. Slider hiển thị bit pattern + cho biết có wrap around hay không.</p>
+  <div class="of-controls">
+    <label for="ofType">Kiểu:</label>
+    <select id="ofType">
+      <option value="uint8">uint8 (0..255)</option>
+      <option value="int8">int8 (-128..127)</option>
+      <option value="uint16">uint16 (0..65535)</option>
+    </select>
+    <div></div>
+
+    <label for="ofSlider">Slider:</label>
+    <input type="range" id="ofSlider" min="-300" max="300" value="255">
+    <span id="ofSliderVal" style="font-family: monospace; font-weight: 700; color: #2b6cb0;">255</span>
+
+    <label for="ofRaw">Hoặc gõ:</label>
+    <input type="number" id="ofRaw" class="raw-input" value="255">
+    <button onclick="ofApplyRaw()">Apply</button>
+  </div>
+
+  <div class="of-bits" id="ofBits"></div>
+  <div class="of-summary" id="ofSummary"></div>
+</div>
+
+<h2>3. iota Generator</h2>
+<div class="card">
+  <p>Gõ một biểu thức dùng <code>iota</code> ở cột phải, live preview giá trị 8 dòng const đầu tiên.</p>
+  <div class="iota-preset">
+    <button onclick="iotaPreset('iota')">iota</button>
+    <button onclick="iotaPreset('iota + 1')">iota + 1</button>
+    <button onclick="iotaPreset('1 &lt;&lt; iota')">1 &lt;&lt; iota</button>
+    <button onclick="iotaPreset('1 &lt;&lt; (10 * iota)')">1 &lt;&lt; (10 * iota)</button>
+    <button onclick="iotaPreset('iota * iota')">iota * iota</button>
+    <button onclick="iotaPreset('iota * 2 + 1')">iota * 2 + 1 (số lẻ)</button>
+  </div>
+
+  <div class="iota-input-wrap">
+    <label for="iotaTypeName">type name (optional):</label>
+    <input type="text" id="iotaTypeName" class="iota-name-input" value="Status" placeholder="Status">
+  </div>
+  <div class="iota-input-wrap">
+    <label for="iotaExpr">biểu thức (iota):</label>
+    <input type="text" id="iotaExpr" value="1 &lt;&lt; iota" placeholder="vd: iota, 1 << iota, iota * 2">
+  </div>
+  <div class="iota-input-wrap">
+    <label for="iotaNames">tên const (cách bởi dấu phẩy):</label>
+    <input type="text" id="iotaNames" value="Read, Write, Execute, Delete, Admin, Audit, Backup, Restore">
+  </div>
+
+  <div class="iota-preview" id="iotaPreview"></div>
+  <div class="iota-help">💡 iota tăng từ 0 mỗi dòng. Biểu thức dùng được toán tử <code>+ - * / % &amp; | ^ &lt;&lt; &gt;&gt; ( )</code> và literal số nguyên.</div>
+</div>
+
+</main>
+
+<script>
+// ============================================================
+// Module 1: Zero Value Explorer
+// ============================================================
+
+const ZV_DATA = {
+  int:     { decl: 'var x int',              value: '0',          size: '4 hoặc 8 (platform)', size64: '8', nil: '— (non-nullable)',
+             explain: 'int là kiểu integer mặc định. Trên máy 64-bit, size = 8 byte (= int64). Trên 32-bit = 4 byte. Đừng dùng cho serialize binary.' },
+  int8:    { decl: 'var x int8',             value: '0',          size: '1', nil: '— (non-nullable)',
+             explain: 'int8 cố định 1 byte. Range −128..127. Hiếm dùng, chủ yếu cho tiny counter hoặc binary format.' },
+  int32:   { decl: 'var x int32',            value: '0',          size: '4', nil: '— (non-nullable)',
+             explain: 'int32 cố định 4 byte. Range ≈ ±2.15×10⁹. Đủ cho Unix timestamp giây đến năm 2038 (Y2038 problem).' },
+  int64:   { decl: 'var x int64',            value: '0',          size: '8', nil: '— (non-nullable)',
+             explain: 'int64 cố định 8 byte. Range ≈ ±9.2×10¹⁸. An toàn cho nanosecond timestamp, large counter.' },
+  uint8:   { decl: 'var x uint8',            value: '0',          size: '1', nil: '— (non-nullable)',
+             explain: 'uint8 = byte. Range 0..255. Dùng cho raw bytes, RGB channel.' },
+  float32: { decl: 'var x float32',          value: '0',          size: '4', nil: '— (non-nullable)',
+             explain: 'float32: ~7 chữ số precision. Chỉ dùng khi tiết kiệm bộ nhớ (GPU texture, audio).' },
+  float64: { decl: 'var x float64',          value: '0',          size: '8', nil: '— (non-nullable)',
+             explain: 'float64: ~15 chữ số precision. Mặc định cho mọi literal số thực (3.14, 1e10).' },
+  string:  { decl: 'var x string',           value: '"" (rỗng)',  size: '16 (header)', nil: '— (string không nullable; "" ≠ nil)',
+             explain: 'string là chuỗi byte immutable. Zero value là "", KHÔNG phải nil. len("") = 0. Header gồm 1 pointer + 1 length.' },
+  bool:    { decl: 'var x bool',             value: 'false',      size: '1', nil: '— (non-nullable)',
+             explain: 'bool: zero value false. Không tự convert từ int (if 1 {...} SAI trong Go).' },
+  slice:   { decl: 'var x []int',            value: 'nil ([])',   size: '24 (header)', nil: 'true (nil)',
+             explain: 'Slice header 24 byte (pointer + len + cap). Zero value = nil. len(nil slice) = 0. append vào nil slice OK.' },
+  map:     { decl: 'var x map[string]int',   value: 'nil (map[])', size: '8 (pointer)', nil: 'true (nil)',
+             explain: 'Map là pointer tới hash table runtime. Zero value = nil. Đọc nil map OK (trả 0). GHI nil map → PANIC. Phải make() hoặc {} trước khi ghi.' },
+  ptr:     { decl: 'var x *int',             value: '<nil>',      size: '8 (trên 64-bit)', nil: 'true (nil)',
+             explain: 'Pointer chưa trỏ vào đâu → nil. Dereference nil pointer → panic (runtime error: invalid memory address).' },
+  iface:   { decl: 'var x interface{}',      value: '<nil>',      size: '16 (type+data)', nil: 'true (nil)',
+             explain: 'interface{} (any) gồm 2 word: type info + data pointer. Zero value = nil interface (cả 2 word đều 0).' },
+  chan:    { decl: 'var x chan int',         value: '<nil>',      size: '8 (pointer)', nil: 'true (nil)',
+             explain: 'Channel là pointer tới runtime struct. Zero value = nil. Send/receive trên nil channel block VĨNH VIỄN.' },
+  func:    { decl: 'var x func()',           value: '<nil>',      size: '8 (pointer)', nil: 'true (nil)',
+             explain: 'Function value là pointer tới function. Gọi nil function → panic.' },
+  struct:  { decl: 'var x struct{X int; Y string}', value: '{X:0 Y:""}', size: '24', nil: '— (struct không nullable)',
+             explain: 'Struct zero value = mỗi field zero value của kiểu đó. Recursive. Struct không nullable (chỉ pointer-to-struct mới nullable).' },
+  array:   { decl: 'var x [3]int',           value: '[0 0 0]',    size: '24 (3×8)', nil: '— (array không nullable)',
+             explain: 'Array là value type với size cố định. 3 phần tử int → 3 × 8 = 24 byte. Mỗi phần tử = zero value. Khác slice (slice là reference type).' },
+};
+
+function updateZV() {
+  const k = document.getElementById('zvSelect').value;
+  const d = ZV_DATA[k];
+  document.getElementById('zvDecl').textContent = d.decl;
+  document.getElementById('zvValue').textContent = d.value;
+  document.getElementById('zvSize').textContent = d.size + ' byte';
+  document.getElementById('zvSizeNote').textContent = k === 'int' ? ' (8 trên Linux/Mac x86-64)' : '';
+  document.getElementById('zvNilCmp').textContent = d.nil;
+  document.getElementById('zvExplain').textContent = d.explain;
+}
+document.getElementById('zvSelect').addEventListener('change', updateZV);
+updateZV();
+
+// ============================================================
+// Module 2: Overflow Visualizer
+// ============================================================
+
+const OF_SPEC = {
+  uint8:  { bits: 8,  signed: false, min: 0,         max: 255 },
+  int8:   { bits: 8,  signed: true,  min: -128,      max: 127 },
+  uint16: { bits: 16, signed: false, min: 0,         max: 65535 },
+};
+
+function ofGetWrap(rawValue, spec) {
+  const mod = 1 << spec.bits; // 256 hoặc 65536
+  let v = ((rawValue % mod) + mod) % mod; // luôn dương trong [0, mod)
+  if (spec.signed && v >= mod / 2) v -= mod;
+  return v;
+}
+
+function ofToBits(value, spec) {
+  // Trả về binary string độ dài spec.bits, two's complement nếu signed.
+  let v = value;
+  if (spec.signed && v < 0) v = v + (1 << spec.bits);
+  let s = v.toString(2);
+  while (s.length < spec.bits) s = '0' + s;
+  return s.slice(-spec.bits); // an toàn
+}
+
+function ofRender() {
+  const type = document.getElementById('ofType').value;
+  const spec = OF_SPEC[type];
+  const sliderRaw = parseInt(document.getElementById('ofSlider').value, 10);
+  document.getElementById('ofSliderVal').textContent = sliderRaw;
+
+  const wrapped = ofGetWrap(sliderRaw, spec);
+  const overflowed = (sliderRaw < spec.min) || (sliderRaw > spec.max);
+
+  const bits = ofToBits(wrapped, spec);
+  const bitsEl = document.getElementById('ofBits');
+  bitsEl.innerHTML = '';
+  for (let i = 0; i < bits.length; i++) {
+    const div = document.createElement('div');
+    div.className = 'of-bit' + (bits[i] === '1' ? ' on' : '') + (spec.signed && i === 0 ? ' sign' : '');
+    div.textContent = bits[i];
+    div.title = `bit ${spec.bits - 1 - i} (giá trị 2^${spec.bits - 1 - i}${spec.signed && i === 0 ? ' với dấu âm' : ''})`;
+    bitsEl.appendChild(div);
+  }
+
+  let summary = `<div>Raw input: <span class="val">${sliderRaw}</span></div>`;
+  summary += `<div>Sau wrap về ${type} (range [${spec.min}..${spec.max}]): <span class="val">${wrapped}</span></div>`;
+  summary += `<div>Binary (${spec.bits} bit, ${spec.signed ? "two's complement" : 'unsigned'}): <span class="val">${bits.match(/.{1,4}/g).join(' ')}</span></div>`;
+  if (overflowed) {
+    summary += `<div class="wrap-warn">⚠ Overflow! ${sliderRaw} không nằm trong range ${type} → wrap thành ${wrapped}.</div>`;
+  } else {
+    summary += `<div style="color: #2f855a;">✓ Giá trị nằm trong range, không có overflow.</div>`;
+  }
+  document.getElementById('ofSummary').innerHTML = summary;
+}
+
+function ofApplyRaw() {
+  const v = parseInt(document.getElementById('ofRaw').value, 10);
+  if (Number.isFinite(v)) {
+    const slider = document.getElementById('ofSlider');
+    // mở rộng range của slider nếu cần
+    slider.min = Math.min(slider.min, v - 10);
+    slider.max = Math.max(slider.max, v + 10);
+    slider.value = v;
+    ofRender();
+  }
+}
+
+document.getElementById('ofType').addEventListener('change', () => {
+  // điều chỉnh range slider theo type
+  const t = document.getElementById('ofType').value;
+  const spec = OF_SPEC[t];
+  const slider = document.getElementById('ofSlider');
+  slider.min = spec.min - Math.floor((spec.max - spec.min) * 0.1);
+  slider.max = spec.max + Math.floor((spec.max - spec.min) * 0.1);
+  if (parseInt(slider.value, 10) > slider.max) slider.value = spec.max;
+  if (parseInt(slider.value, 10) < slider.min) slider.value = spec.min;
+  ofRender();
+});
+document.getElementById('ofSlider').addEventListener('input', ofRender);
+ofRender();
+
+// ============================================================
+// Module 3: iota Generator
+// ============================================================
+
+// Mini expression evaluator: chấp nhận iota, số nguyên, + - * / % & | ^ << >> ( )
+function evalIotaExpr(exprRaw, iotaValue) {
+  // Replace 'iota' với value, kiểm tra chỉ chứa ký tự an toàn
+  const expr = exprRaw.replace(/iota/g, '(' + iotaValue + ')');
+  // Whitelist: digits, operators, parens, whitespace
+  if (!/^[\d\s+\-*/%&|^<>()]*$/.test(expr)) {
+    throw new Error('Biểu thức chứa ký tự không hợp lệ');
+  }
+  // Dùng Function constructor — vẫn an toàn vì đã whitelist
+  // eslint-disable-next-line no-new-func
+  const fn = new Function('return (' + expr + ');');
+  const v = fn();
+  if (!Number.isFinite(v)) throw new Error('Kết quả không phải số');
+  return v;
+}
+
+function iotaPreset(expr) {
+  const inp = document.getElementById('iotaExpr');
+  // Cần decode entities HTML do button truyền `&lt;` / `&gt;`
+  const div = document.createElement('div');
+  div.innerHTML = expr;
+  inp.value = div.textContent;
+  renderIota();
+}
+
+function renderIota() {
+  const exprRaw = document.getElementById('iotaExpr').value.trim();
+  const typeName = document.getElementById('iotaTypeName').value.trim();
+  const namesRaw = document.getElementById('iotaNames').value;
+  const names = namesRaw.split(',').map(s => s.trim()).filter(Boolean);
+
+  const prev = document.getElementById('iotaPreview');
+  let html = '';
+  if (typeName) {
+    html += `<span class="kw">type</span> <span class="name">${escHtml(typeName)}</span> <span class="kw">int</span>\n\n`;
+  }
+  html += `<span class="kw">const</span> (\n`;
+
+  for (let i = 0; i < Math.max(names.length, 8); i++) {
+    const name = names[i] || `_unnamed_${i}`;
+    let val;
+    try {
+      val = evalIotaExpr(exprRaw, i);
+    } catch (e) {
+      html += `    <span class="name">${escHtml(name)}</span>${i === 0 && typeName ? ' <span class="name">' + escHtml(typeName) + '</span>' : ''} = <span class="err">[lỗi: ${escHtml(e.message)}]</span>\n`;
+      continue;
+    }
+    if (i === 0) {
+      const typeSpec = typeName ? ` <span class="name">${escHtml(typeName)}</span>` : '';
+      html += `    <span class="name">${escHtml(name)}</span>${typeSpec} = ${escHtml(exprRaw)}     <span class="num">// = ${val}</span>\n`;
+    } else {
+      // dòng tiếp theo: chỉ tên, kế thừa biểu thức
+      html += `    <span class="name">${escHtml(name)}</span>                       <span class="num">// = ${val}</span>\n`;
+    }
+  }
+  html += `)`;
+  prev.innerHTML = html;
+}
+
+function escHtml(s) {
+  return String(s).replace(/[&<>]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;'}[c]));
+}
+
+document.getElementById('iotaExpr').addEventListener('input', renderIota);
+document.getElementById('iotaTypeName').addEventListener('input', renderIota);
+document.getElementById('iotaNames').addEventListener('input', renderIota);
+renderIota();
+</script>
+
+<!-- README modal -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+
+</body>
+</html>

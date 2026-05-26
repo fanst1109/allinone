@@ -359,193 +359,7 @@ n := bits.OnesCount64(0b1101)  // 3
 
 Không trực tiếp. Phải lặp qua từng byte: `for i := 0; i < len(s); i++ { x ^= uint64(s[i]) }`. Đây là cách viết hash chuỗi đơn giản nhất (nhưng tệ — sẽ học hash thật trong [Hash Table](../../DataStructures/lesson-05-hash-table/)).
 
-## 7. Bài tập
-
-**Bài 1.** Tính bằng tay (không chạy code):
-- `0b1100 & 0b1010`
-- `0b1100 | 0b1010`
-- `0b1100 ^ 0b1010`
-- `0b1100 &^ 0b1010`
-- `^(uint8(0b1100))` — viết kết quả 8-bit.
-
-**Bài 2.** Cho `x = 0b10110100` (= 180). Tính:
-- bit 3 của x = ?
-- set bit 0 của x → giá trị mới?
-- clear bit 5 của x → giá trị mới?
-- toggle bit 7 của x → giá trị mới?
-
-**Bài 3.** Viết hàm Go `isPowerOfTwo(n uint64) bool` trả về true nếu `n` là lũy thừa của 2.
-
-**Bài 4.** Viết hàm `countBits(x uint64) int` đếm số bit 1, dùng Brian Kernighan's trick.
-
-**Bài 5.** Cho mảng `[2, 3, 5, 2, 5, 7, 3]`. Tìm số xuất hiện 1 lần bằng XOR. Trình bày các bước XOR.
-
-**Bài 6.** Cho permission Unix dạng số: `read = 4 = 0b100`, `write = 2 = 0b010`, `execute = 1 = 0b001`. Viết hàm `hasReadPermission(perm uint8) bool` và `addWritePermission(perm uint8) uint8`.
-
-**Bài 7.** Viết hàm `printSubsets(items []string)` in tất cả tập con của `items`, dùng bitmask. Với input `["a", "b", "c"]` phải in đủ 8 tập con (kể cả tập rỗng).
-
-**Bài 8.** Viết hàm `reverseBits(x uint8) uint8` đảo ngược 8 bit (bit 0 ↔ bit 7, bit 1 ↔ bit 6, ...). Ví dụ `0b11010010 → 0b01001011`.
-
-## Lời giải chi tiết
-
-### Bài 1
-
-```
-  1100        1100        1100        1100
-& 1010      | 1010      ^ 1010      &^ 1010
-------      ------      ------      ------
-  1000        1110        0110        0100
-```
-
-Chi tiết `&^`: `a &^ b = a & (^b)`. `^0b1010 = 0b0101` (4 bit), nên `0b1100 & 0b0101 = 0b0100`. Diễn giải: "giữ các bit của a, trừ những bit b đặt".
-
-`^(uint8(0b1100))` = đảo 8 bit của `0b00001100` = `0b11110011` = 243.
-
-### Bài 2
-
-x = `0b10110100` = 180.
-
-- **bit 3** (tính từ phải, 0-indexed): nhìn vào dãy `10110100`, đếm từ phải: bit 0 = 0, bit 1 = 0, bit 2 = 1, **bit 3 = 0**. Tính bằng công thức: `(180 >> 3) & 1 = 0b10110 & 1 = 0`.
-- **set bit 0**: `180 | 0b00000001 = 0b10110101 = 181`.
-- **clear bit 5**: bit 5 = `2⁵ = 32`. `180 &^ 32 = 0b10110100 &^ 0b00100000 = 0b10010100 = 148`.
-- **toggle bit 7**: bit 7 = `2⁷ = 128`. `180 ^ 128 = 0b00110100 = 52`.
-
-### Bài 3
-
-```go
-func isPowerOfTwo(n uint64) bool {
-    return n > 0 && n & (n - 1) == 0
-}
-```
-
-Điều kiện `n > 0` quan trọng vì với `n = 0`: `0 & (0 - 1) = 0 & maxUint64 = 0` → công thức sẽ ra true. Mà `0` không phải power-of-2.
-
-Test:
-- `isPowerOfTwo(1)` → `1 & 0 = 0` → true ✓ (1 = 2⁰)
-- `isPowerOfTwo(8)` → `8 & 7 = 0b1000 & 0b0111 = 0` → true ✓
-- `isPowerOfTwo(10)` → `10 & 9 = 0b1010 & 0b1001 = 0b1000 ≠ 0` → false ✓
-
-Độ phức tạp: O(1).
-
-### Bài 4
-
-```go
-func countBits(x uint64) int {
-    count := 0
-    for x != 0 {
-        x &= x - 1
-        count++
-    }
-    return count
-}
-```
-
-Vòng lặp chạy đúng `popcount(x)` lần (mỗi vòng xóa 1 bit). Độ phức tạp: O(số bit 1) — nhanh hơn O(số bit) nếu x thưa.
-
-### Bài 5
-
-Mảng: `[2, 3, 5, 2, 5, 7, 3]`. Tìm số xuất hiện 1 lần (đáp án: 7).
-
-XOR tích lũy:
-```
-0 ^ 2 = 2
-2 ^ 3 = 1
-1 ^ 5 = 4
-4 ^ 2 = 6
-6 ^ 5 = 3
-3 ^ 7 = 4
-4 ^ 3 = 7   ← đáp án
-```
-
-Chi tiết một bước, ví dụ `4 ^ 2`: `0b100 ^ 0b010 = 0b110 = 6`.
-
-Vì 2 xuất hiện 2 lần → `2 ^ 2 = 0`. Tương tự 3 và 5. Còn lại 7 XOR với 0 = 7.
-
-### Bài 6
-
-```go
-const (
-    Read    uint8 = 0b100   // = 4
-    Write   uint8 = 0b010   // = 2
-    Execute uint8 = 0b001   // = 1
-)
-
-func hasReadPermission(perm uint8) bool {
-    return perm & Read != 0
-}
-
-func addWritePermission(perm uint8) uint8 {
-    return perm | Write
-}
-```
-
-Với `perm = 0b101` (read + execute, "5"):
-- `hasReadPermission(5)` → `0b101 & 0b100 = 0b100 ≠ 0` → true ✓
-- `addWritePermission(5)` → `0b101 | 0b010 = 0b111 = 7` (read+write+execute) ✓
-
-Trong thực tế chmod còn có 3 nhóm (user/group/other) × 3 bit = 9 bit, đóng gói thành số 3 chữ số hệ 8 (octal) như `0755`.
-
-### Bài 7
-
-```go
-func printSubsets(items []string) {
-    n := len(items)
-    total := 1 << n
-    for mask := 0; mask < total; mask++ {
-        subset := []string{}
-        for i := 0; i < n; i++ {
-            if mask & (1 << i) != 0 {
-                subset = append(subset, items[i])
-            }
-        }
-        fmt.Printf("mask=%0*b → %v\n", n, mask, subset)
-    }
-}
-```
-
-Với input `["a", "b", "c"]`, output:
-```
-mask=000 → []
-mask=001 → [a]
-mask=010 → [b]
-mask=011 → [a b]
-mask=100 → [c]
-mask=101 → [a c]
-mask=110 → [b c]
-mask=111 → [a b c]
-```
-
-Độ phức tạp: O(n · 2ⁿ). Với n > ~25 sẽ quá chậm.
-
-### Bài 8
-
-```go
-func reverseBits(x uint8) uint8 {
-    var result uint8 = 0
-    for i := 0; i < 8; i++ {
-        // Lấy bit i của x, đặt vào vị trí (7-i) của result.
-        bit := (x >> i) & 1
-        result |= bit << (7 - i)
-    }
-    return result
-}
-```
-
-Với `x = 0b11010010`:
-- i=0: bit 0 của x = 0 → set bit 7 của result = 0
-- i=1: bit 1 của x = 1 → set bit 6 của result = 1 → result = `0b01000000`
-- i=2: bit 2 của x = 0
-- i=3: bit 3 của x = 0
-- i=4: bit 4 của x = 1 → set bit 3 → result = `0b01001000`
-- i=5: bit 5 của x = 0
-- i=6: bit 6 của x = 1 → set bit 1 → result = `0b01001010`
-- i=7: bit 7 của x = 1 → set bit 0 → result = `0b01001011` ✓
-
-Độ phức tạp: O(số bit) = O(1) với uint8.
-
-> Trong thư viện chuẩn Go có sẵn [`bits.Reverse8`](https://pkg.go.dev/math/bits#Reverse8) — production nên dùng.
-
-## 8. Ứng dụng thực tế — bitwise dùng ở đâu trong code thật?
+## 7. Ứng dụng thực tế — bitwise dùng ở đâu trong code thật?
 
 Nhiều người học bitwise xong tự hỏi *"OK biết rồi, nhưng dùng làm gì?"*. Mục này trả lời: 8 nhóm ứng dụng phổ biến nhất, mỗi nhóm có ví dụ cụ thể + code Go chạy được + chỉ rõ thư viện/framework nào đang dùng.
 
@@ -1127,7 +941,193 @@ ElasticSearch / Lucene tìm "apple AND banana": load posting list (bitmap doc-id
 > 3. Vì `size - 1` cho power of 2 (vd 1024 → 1023 = `0b1111111111`) là 1 chuỗi bit 1 liên tiếp — AND giữ lại đúng `log2(size)` bit thấp = phần dư của `head / size`. Với `size = 1000`, `999 = 0b1111100111` không phải chuỗi bit 1 → AND cho kết quả vô nghĩa.
 > </details>
 
-> 📝 **Tóm tắt mục 8**: Bitwise không chỉ là toán — nó xuất hiện khắp mọi nơi cần (1) tiết kiệm bộ nhớ, (2) tốc độ cao, (3) giao tiếp phần cứng, (4) protocol cố định. Pattern hay gặp nhất: **bit packing** (đóng gói nhiều giá trị nhỏ), **bitmap/bitset** (tập membership 1 bit/phần tử), **flags** (tổ hợp boolean), **mask** (lọc bit cần quan tâm). Sau bài này khi gặp 1 thư viện gọi `flags |= SOMETHING`, bạn không còn ngạc nhiên nữa.
+> 📝 **Tóm tắt mục 7**: Bitwise không chỉ là toán — nó xuất hiện khắp mọi nơi cần (1) tiết kiệm bộ nhớ, (2) tốc độ cao, (3) giao tiếp phần cứng, (4) protocol cố định. Pattern hay gặp nhất: **bit packing** (đóng gói nhiều giá trị nhỏ), **bitmap/bitset** (tập membership 1 bit/phần tử), **flags** (tổ hợp boolean), **mask** (lọc bit cần quan tâm). Sau bài này khi gặp 1 thư viện gọi `flags |= SOMETHING`, bạn không còn ngạc nhiên nữa.
+
+## 8. Bài tập
+
+**Bài 1.** Tính bằng tay (không chạy code):
+- `0b1100 & 0b1010`
+- `0b1100 | 0b1010`
+- `0b1100 ^ 0b1010`
+- `0b1100 &^ 0b1010`
+- `^(uint8(0b1100))` — viết kết quả 8-bit.
+
+**Bài 2.** Cho `x = 0b10110100` (= 180). Tính:
+- bit 3 của x = ?
+- set bit 0 của x → giá trị mới?
+- clear bit 5 của x → giá trị mới?
+- toggle bit 7 của x → giá trị mới?
+
+**Bài 3.** Viết hàm Go `isPowerOfTwo(n uint64) bool` trả về true nếu `n` là lũy thừa của 2.
+
+**Bài 4.** Viết hàm `countBits(x uint64) int` đếm số bit 1, dùng Brian Kernighan's trick.
+
+**Bài 5.** Cho mảng `[2, 3, 5, 2, 5, 7, 3]`. Tìm số xuất hiện 1 lần bằng XOR. Trình bày các bước XOR.
+
+**Bài 6.** Cho permission Unix dạng số: `read = 4 = 0b100`, `write = 2 = 0b010`, `execute = 1 = 0b001`. Viết hàm `hasReadPermission(perm uint8) bool` và `addWritePermission(perm uint8) uint8`.
+
+**Bài 7.** Viết hàm `printSubsets(items []string)` in tất cả tập con của `items`, dùng bitmask. Với input `["a", "b", "c"]` phải in đủ 8 tập con (kể cả tập rỗng).
+
+**Bài 8.** Viết hàm `reverseBits(x uint8) uint8` đảo ngược 8 bit (bit 0 ↔ bit 7, bit 1 ↔ bit 6, ...). Ví dụ `0b11010010 → 0b01001011`.
+
+## Lời giải chi tiết
+
+### Bài 1
+
+```
+  1100        1100        1100        1100
+& 1010      | 1010      ^ 1010      &^ 1010
+------      ------      ------      ------
+  1000        1110        0110        0100
+```
+
+Chi tiết `&^`: `a &^ b = a & (^b)`. `^0b1010 = 0b0101` (4 bit), nên `0b1100 & 0b0101 = 0b0100`. Diễn giải: "giữ các bit của a, trừ những bit b đặt".
+
+`^(uint8(0b1100))` = đảo 8 bit của `0b00001100` = `0b11110011` = 243.
+
+### Bài 2
+
+x = `0b10110100` = 180.
+
+- **bit 3** (tính từ phải, 0-indexed): nhìn vào dãy `10110100`, đếm từ phải: bit 0 = 0, bit 1 = 0, bit 2 = 1, **bit 3 = 0**. Tính bằng công thức: `(180 >> 3) & 1 = 0b10110 & 1 = 0`.
+- **set bit 0**: `180 | 0b00000001 = 0b10110101 = 181`.
+- **clear bit 5**: bit 5 = `2⁵ = 32`. `180 &^ 32 = 0b10110100 &^ 0b00100000 = 0b10010100 = 148`.
+- **toggle bit 7**: bit 7 = `2⁷ = 128`. `180 ^ 128 = 0b00110100 = 52`.
+
+### Bài 3
+
+```go
+func isPowerOfTwo(n uint64) bool {
+    return n > 0 && n & (n - 1) == 0
+}
+```
+
+Điều kiện `n > 0` quan trọng vì với `n = 0`: `0 & (0 - 1) = 0 & maxUint64 = 0` → công thức sẽ ra true. Mà `0` không phải power-of-2.
+
+Test:
+- `isPowerOfTwo(1)` → `1 & 0 = 0` → true ✓ (1 = 2⁰)
+- `isPowerOfTwo(8)` → `8 & 7 = 0b1000 & 0b0111 = 0` → true ✓
+- `isPowerOfTwo(10)` → `10 & 9 = 0b1010 & 0b1001 = 0b1000 ≠ 0` → false ✓
+
+Độ phức tạp: O(1).
+
+### Bài 4
+
+```go
+func countBits(x uint64) int {
+    count := 0
+    for x != 0 {
+        x &= x - 1
+        count++
+    }
+    return count
+}
+```
+
+Vòng lặp chạy đúng `popcount(x)` lần (mỗi vòng xóa 1 bit). Độ phức tạp: O(số bit 1) — nhanh hơn O(số bit) nếu x thưa.
+
+### Bài 5
+
+Mảng: `[2, 3, 5, 2, 5, 7, 3]`. Tìm số xuất hiện 1 lần (đáp án: 7).
+
+XOR tích lũy:
+```
+0 ^ 2 = 2
+2 ^ 3 = 1
+1 ^ 5 = 4
+4 ^ 2 = 6
+6 ^ 5 = 3
+3 ^ 7 = 4
+4 ^ 3 = 7   ← đáp án
+```
+
+Chi tiết một bước, ví dụ `4 ^ 2`: `0b100 ^ 0b010 = 0b110 = 6`.
+
+Vì 2 xuất hiện 2 lần → `2 ^ 2 = 0`. Tương tự 3 và 5. Còn lại 7 XOR với 0 = 7.
+
+### Bài 6
+
+```go
+const (
+    Read    uint8 = 0b100   // = 4
+    Write   uint8 = 0b010   // = 2
+    Execute uint8 = 0b001   // = 1
+)
+
+func hasReadPermission(perm uint8) bool {
+    return perm & Read != 0
+}
+
+func addWritePermission(perm uint8) uint8 {
+    return perm | Write
+}
+```
+
+Với `perm = 0b101` (read + execute, "5"):
+- `hasReadPermission(5)` → `0b101 & 0b100 = 0b100 ≠ 0` → true ✓
+- `addWritePermission(5)` → `0b101 | 0b010 = 0b111 = 7` (read+write+execute) ✓
+
+Trong thực tế chmod còn có 3 nhóm (user/group/other) × 3 bit = 9 bit, đóng gói thành số 3 chữ số hệ 8 (octal) như `0755`.
+
+### Bài 7
+
+```go
+func printSubsets(items []string) {
+    n := len(items)
+    total := 1 << n
+    for mask := 0; mask < total; mask++ {
+        subset := []string{}
+        for i := 0; i < n; i++ {
+            if mask & (1 << i) != 0 {
+                subset = append(subset, items[i])
+            }
+        }
+        fmt.Printf("mask=%0*b → %v\n", n, mask, subset)
+    }
+}
+```
+
+Với input `["a", "b", "c"]`, output:
+```
+mask=000 → []
+mask=001 → [a]
+mask=010 → [b]
+mask=011 → [a b]
+mask=100 → [c]
+mask=101 → [a c]
+mask=110 → [b c]
+mask=111 → [a b c]
+```
+
+Độ phức tạp: O(n · 2ⁿ). Với n > ~25 sẽ quá chậm.
+
+### Bài 8
+
+```go
+func reverseBits(x uint8) uint8 {
+    var result uint8 = 0
+    for i := 0; i < 8; i++ {
+        // Lấy bit i của x, đặt vào vị trí (7-i) của result.
+        bit := (x >> i) & 1
+        result |= bit << (7 - i)
+    }
+    return result
+}
+```
+
+Với `x = 0b11010010`:
+- i=0: bit 0 của x = 0 → set bit 7 của result = 0
+- i=1: bit 1 của x = 1 → set bit 6 của result = 1 → result = `0b01000000`
+- i=2: bit 2 của x = 0
+- i=3: bit 3 của x = 0
+- i=4: bit 4 của x = 1 → set bit 3 → result = `0b01001000`
+- i=5: bit 5 của x = 0
+- i=6: bit 6 của x = 1 → set bit 1 → result = `0b01001010`
+- i=7: bit 7 của x = 1 → set bit 0 → result = `0b01001011` ✓
+
+Độ phức tạp: O(số bit) = O(1) với uint8.
+
+> Trong thư viện chuẩn Go có sẵn [`bits.Reverse8`](https://pkg.go.dev/math/bits#Reverse8) — production nên dùng.
 
 ## Tham khảo và bài tiếp theo
 

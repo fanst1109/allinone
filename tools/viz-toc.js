@@ -178,16 +178,20 @@
     document.body.appendChild(btn);
     document.body.appendChild(panel);
 
-    // Vị trí: nếu có ipa-reader (English/), shift lên trên 60px để không chồng
-    // Detect: pathname chứa /English/ → ipa-reader sẽ self-inject button .ipa-btn
+    // Vị trí bottom — 3 yếu tố cộng dồn:
+    //   base 24px (cách đáy chuẩn) + 56px nếu trang có IPA reader (English/) để
+    //   nút TOC không chồng nút IPA + 56px nếu mobile để clear Chrome iOS / Safari
+    //   tab bar ~50px ở đáy che bottom: 24px (root cause của "TOC tap không có
+    //   phản ứng" — nút nằm sau tab bar trình duyệt, tap trúng UI hệ thống).
+    //   env(safe-area-inset-bottom) thêm padding cho iPhone notch (0 nếu không có).
     const hasIPA = window.location.pathname.includes('/English/');
-    if (hasIPA) {
-      btn.style.bottom = '80px';
-      panel.style.bottom = '136px';
-    } else {
-      btn.style.bottom = '24px';
-      panel.style.bottom = '80px';
-    }
+    const isMobile = window.matchMedia && window.matchMedia('(max-width: 700px)').matches;
+    const ipaShift = hasIPA ? 56 : 0;
+    const mobileShift = isMobile ? 56 : 0;
+    const btnBottom = 24 + ipaShift + mobileShift;
+    const panelBottom = btnBottom + 56;
+    btn.style.bottom = `calc(${btnBottom}px + env(safe-area-inset-bottom, 0px))`;
+    panel.style.bottom = `calc(${panelBottom}px + env(safe-area-inset-bottom, 0px))`;
 
     function open() {
       panel.classList.add('vt-open');

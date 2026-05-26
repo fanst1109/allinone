@@ -47,7 +47,8 @@
 
   var STYLE = `
     .ipa-btn {
-      position: fixed; bottom: 24px; left: 24px; z-index: 200;
+      position: fixed; left: 24px; z-index: 200;
+      bottom: calc(24px + env(safe-area-inset-bottom, 0px));
       background: #2c5282; color: white;
       padding: 12px 20px; border-radius: 28px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.25);
@@ -193,8 +194,9 @@
     }
 
     @media (max-width: 480px) {
-      .ipa-panel { width: calc(100vw - 24px); left: 12px; bottom: 70px; }
-      .ipa-btn { left: 12px; padding: 9px 14px; font-size: 13px; }
+      /* Bump nút lên trên Chrome iOS / Safari tab bar */
+      .ipa-btn { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); left: 12px; padding: 9px 14px; font-size: 13px; }
+      .ipa-panel { width: calc(100vw - 24px); left: 12px; bottom: calc(136px + env(safe-area-inset-bottom, 0px)); }
       .ipa-input { font-size: 14px; padding: 10px 12px; }
       .ipa-controls button { font-size: 14px; padding: 9px 12px; }
       .ipa-word-text { font-size: 14px; }

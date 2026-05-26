@@ -31,9 +31,13 @@
     /* ── Reset: ngăn viz inline <style> (vd 'button { margin-right: 6px }') leak vào modal ── */
     .rm-btn, .rm-panel button, .rm-panel input, .rm-panel select { margin: 0; }
 
-    /* ── Nút floating ── */
+    /* ── Nút floating ──
+     * bottom: 24px + safe-area cho iPhone notch. Trên mobile, media query
+     * bên dưới bump bottom lên 80px để clear Chrome iOS / Safari tab bar
+     * (~50px ở đáy che nút) — tránh "tap không có phản ứng". */
     .rm-btn {
-      position: fixed; bottom: 24px; right: 24px; z-index: 200;
+      position: fixed; right: 24px; z-index: 200;
+      bottom: calc(24px + env(safe-area-inset-bottom, 0px));
       background: #2c5282; color: white;
       padding: 12px 20px; border-radius: 28px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.25);
@@ -275,6 +279,8 @@
     body.rm-resizing * { pointer-events: none !important; }
 
     @media (max-width: 700px) {
+      /* Bump nút lên trên Chrome iOS / Safari tab bar */
+      .rm-btn { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
       .rm-panel.rm-mode-modal { width: 95%; min-width: 0; }
       .rm-panel.rm-mode-sidebar { width: 90% !important; }
       /* Trên mobile, sidebar chiếm gần hết màn — body padding-right cũng phải

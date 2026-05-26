@@ -129,6 +129,37 @@ Mỗi hành động đẩy vào stack `undo`; khi undo, pop và đẩy vào stac
 ### 4.6. DFS (Depth-First Search)
 Duyệt đồ thị theo chiều sâu dùng stack thay vì đệ quy.
 
+### 4.7. Walk-through — kiểm tra ngoặc cân bằng
+
+Cho chuỗi `s = "({[]})"`. Trace từng ký tự:
+
+| Bước | Ký tự | Loại | Hành động | Stack sau bước |
+|------|-------|------|-----------|----------------|
+| 0 | — | init | — | `[]` |
+| 1 | `(` | mở | push | `[(]` |
+| 2 | `{` | mở | push | `[(, {]` |
+| 3 | `[` | mở | push | `[(, {, []` |
+| 4 | `]` | đóng | pop `[`, so khớp `[` == pairs[`]`] ✓ | `[(, {]` |
+| 5 | `}` | đóng | pop `{`, so khớp ✓ | `[(]` |
+| 6 | `)` | đóng | pop `(`, so khớp ✓ | `[]` |
+| — | eof | — | stack rỗng → hợp lệ | — |
+
+Ngược lại, với `"([)]"`:
+
+| Bước | Ký tự | Hành động | Stack |
+|------|-------|-----------|-------|
+| 1 | `(` | push | `[(]` |
+| 2 | `[` | push | `[(, []` |
+| 3 | `)` | pop `[`, so khớp với `pairs[)] = (` → **không khớp** | → trả `false` |
+
+Đây là vì sao stack cần thiết: kiểm "ngoặc đóng có khớp với ngoặc mở **gần nhất** chưa đóng" — và "gần nhất" chính là đỉnh stack.
+
+### 4.8. ❓ Câu hỏi tự nhiên về ứng dụng
+
+- **"Tại sao backtrack/DFS dùng stack mà BFS dùng queue?"** — DFS đi sâu trước → khi gặp ngã rẽ, "ghi nhớ" các nhánh khác để quay lại sau. Nhánh **vừa ghi nhớ phải xét trước** (sâu trước) → LIFO → stack. Đệ quy thực ra là stack ngầm.
+- **"Postfix có gì hay mà phải dùng?"** — Không có dấu ngoặc, không cần biết độ ưu tiên — chỉ cần stack 1 chiều là tính được. CPU/máy ảo (JVM, Python bytecode) bên trong dùng postfix-like operations chính vì đơn giản này.
+- **"Undo/Redo cần 2 stack?"** — Đúng. Stack `undo` lưu lịch sử các action. Khi user undo: pop action từ `undo`, đảo ngược nó, **push vào stack `redo`**. Khi user redo: pop từ `redo` đẩy lại sang `undo`. Khi có action **mới**: clear `redo` (vì nhánh tương lai cũ không còn ý nghĩa).
+
 ## 5. Cạm bẫy
 
 - **Pop trên stack rỗng** → lỗi runtime. Luôn kiểm tra `isEmpty()` trước.

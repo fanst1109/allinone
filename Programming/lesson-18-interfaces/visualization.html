@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 18 — Interface Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; margin-top: 18px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+    font-family: inherit;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.toggle { background: #e2e8f0; color: #2d3748; }
+  button.toggle.on { background: #48bb78; color: white; }
+  button.danger { background: #e53e3e; }
+
+  .explain {
+    background: #ebf8ff; border-left: 4px solid #4299e1;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6;
+    margin-top: 12px;
+  }
+  .explain code, .warn code {
+    background: white; padding: 1px 5px; border-radius: 3px;
+    font-family: 'SF Mono', 'Menlo', monospace; color: #2b6cb0;
+  }
+  .warn {
+    background: #fffaf0; border-left: 4px solid #ed8936;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6;
+    margin-top: 12px;
+  }
+
+  code, pre { font-family: 'SF Mono', 'Menlo', 'Monaco', monospace; }
+  pre {
+    background: #1a202c; color: #e2e8f0; padding: 12px 16px;
+    border-radius: 6px; overflow-x: auto; font-size: 13px;
+    line-height: 1.55;
+  }
+
+  /* ========== Module 1: Implicit satisfaction ========== */
+  .satisfy-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 14px;
+  }
+  .panel-title { font-weight: 700; color: #2d3748; margin-bottom: 8px; font-size: 15px; }
+  .iface-box, .type-box {
+    background: #f7fafc; border: 2px solid #cbd5e0;
+    border-radius: 8px; padding: 14px;
+  }
+  .method-list { list-style: none; padding: 0; margin: 0; }
+  .method-list li {
+    padding: 6px 10px; margin: 4px 0;
+    background: white; border: 1px solid #e2e8f0;
+    border-radius: 4px; font-family: monospace; font-size: 13px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .method-list li.required { border-left: 4px solid #4299e1; }
+  .method-list li .badge {
+    font-size: 11px; padding: 2px 8px; border-radius: 10px;
+    background: #edf2f7; color: #4a5568; font-family: sans-serif;
+  }
+  .method-list li.has .badge { background: #c6f6d5; color: #22543d; }
+  .method-list li.missing .badge { background: #fed7d7; color: #742a2a; }
+  .type-card {
+    background: white; border: 2px solid #e2e8f0; border-radius: 8px;
+    padding: 12px; margin: 10px 0;
+    transition: border-color 0.25s;
+  }
+  .type-card.satisfies { border-color: #48bb78; background: #f0fff4; }
+  .type-card.missing-some { border-color: #e53e3e; background: #fff5f5; }
+  .type-card .name {
+    font-weight: 700; font-family: monospace; color: #2d3748;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .type-card .verdict {
+    font-size: 12px; padding: 3px 10px; border-radius: 12px;
+    font-weight: 600;
+  }
+  .type-card.satisfies .verdict { background: #48bb78; color: white; }
+  .type-card.missing-some .verdict { background: #e53e3e; color: white; }
+  .mini-method {
+    display: inline-block; padding: 2px 8px; margin: 2px 4px 2px 0;
+    background: #edf2f7; border-radius: 3px;
+    font-family: monospace; font-size: 12px;
+  }
+  .mini-method.match { background: #c6f6d5; color: #22543d; }
+  .mini-method.extra { background: #fefcbf; color: #744210; }
+
+  /* ========== Module 2: Interface value internals ========== */
+  .iv-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+    margin-top: 14px;
+  }
+  .iv-vars { display: flex; flex-direction: column; gap: 12px; }
+  .iv-var-btn {
+    background: white; border: 2px solid #e2e8f0;
+    padding: 10px 14px; border-radius: 6px;
+    cursor: pointer; font-family: monospace; font-size: 13px;
+    text-align: left; color: #2d3748;
+    transition: all 0.15s;
+  }
+  .iv-var-btn:hover { border-color: #4299e1; }
+  .iv-var-btn.active { border-color: #4299e1; background: #ebf8ff; }
+  .iv-var-btn .label { font-weight: 700; font-size: 12px; color: #4299e1; display: block; margin-bottom: 4px; }
+  .iv-svg-wrap {
+    background: white; border: 2px solid #e2e8f0; border-radius: 8px;
+    padding: 12px; overflow: hidden;
+  }
+  .iv-status {
+    margin-top: 10px; font-family: monospace; font-size: 13px;
+    background: #1a202c; color: #e2e8f0; padding: 10px 14px;
+    border-radius: 6px;
+  }
+  .iv-status .nil { color: #fc8181; }
+  .iv-status .ok  { color: #68d391; }
+
+  /* ========== Module 3: Type switch dispatch ========== */
+  .ts-input-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .ts-input-row input, .ts-input-row select {
+    padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 4px;
+    font-family: inherit; font-size: 14px; max-width: 100%;
+    box-sizing: border-box;
+  }
+  .ts-input-row input { width: 200px; }
+  .ts-cases { margin-top: 14px; }
+  .ts-case {
+    background: white; border: 2px solid #e2e8f0; border-radius: 6px;
+    padding: 10px 14px; margin: 8px 0;
+    font-family: monospace; font-size: 13px;
+    transition: all 0.25s;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .ts-case.checking { border-color: #f6ad55; background: #fffaf0; }
+  .ts-case.match { border-color: #48bb78; background: #f0fff4; }
+  .ts-case.skipped { opacity: 0.45; }
+  .ts-case .label-l { color: #4a5568; }
+  .ts-case .label-r {
+    font-size: 11px; padding: 2px 8px; border-radius: 10px;
+    background: #edf2f7; color: #4a5568; font-family: sans-serif;
+  }
+  .ts-case.match .label-r { background: #48bb78; color: white; }
+  .ts-case.checking .label-r { background: #f6ad55; color: white; }
+  .ts-output {
+    margin-top: 14px; background: #1a202c; color: #e2e8f0;
+    padding: 12px 16px; border-radius: 6px;
+    font-family: monospace; font-size: 13px;
+    min-height: 50px;
+  }
+  .ts-output .key { color: #f6e05e; }
+  .ts-output .val { color: #9ae6b4; }
+
+  /* ========== Mobile responsive ========== */
+  @media (max-width: 768px) {
+    .satisfy-wrap, .iv-wrap { grid-template-columns: 1fr; gap: 14px; }
+    .iv-svg-wrap { padding: 8px; }
+    .ts-input-row input { width: 100%; max-width: 280px; }
+  }
+  @media (max-width: 480px) {
+    .card { padding: 14px; }
+    pre { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../tier-1-basic/index.html">← Tier 1</a>
+  <span class="sep">·</span>
+  <span class="current">L18: Interface</span>
+  <span class="sep">·</span>
+  <a href="../lesson-19-errors/visualization.html">L19: Error Handling →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 18 — Interface (3 module tương tác)</h1>
+<p>
+  Ba minh hoạ dưới đây giúp bạn (1) trực tiếp <strong>nhìn quá trình "matching" giữa interface và type</strong> —
+  bật/tắt method để xem type có satisfy không; (2) <strong>khám phá internals 2-word</strong> của interface value
+  + pitfall "interface chứa typed nil"; (3) <strong>watch animation</strong> một <code>type switch</code> chạy qua
+  từng <code>case</code> để dispatch theo dynamic type.
+</p>
+
+<!-- ============================================================ -->
+<!-- MODULE 1: Implicit satisfaction matcher                       -->
+<!-- ============================================================ -->
+<h2>1. Implicit satisfaction matcher</h2>
+<div class="card">
+  <p>
+    Bên trái là một interface <code>Writer</code> với 1 method bắt buộc <code>Write</code>. Bên phải là 3 struct cụ thể.
+    Hãy <strong>bật / tắt method</strong> của mỗi struct và quan sát Go có coi nó "satisfy <code>Writer</code>" hay không.
+    Không có khai báo <code>implements</code> — Go check method set hoàn toàn implicit.
+  </p>
+
+  <div class="row">
+    <span style="font-size: 13px; color: #4a5568;">Interface yêu cầu:</span>
+    <button id="addReadBtn" class="toggle">+ Yêu cầu thêm Read()</button>
+    <button id="addCloseBtn" class="toggle">+ Yêu cầu thêm Close()</button>
+    <button id="resetBtn" class="secondary">↺ Reset</button>
+  </div>
+
+  <div class="satisfy-wrap">
+    <div>
+      <div class="panel-title">Interface <code>Writer</code></div>
+      <div class="iface-box">
+        <ul class="method-list" id="ifaceMethods">
+          <li class="required" data-m="Write">
+            <span>Write(p []byte) (int, error)</span>
+            <span class="badge">REQUIRED</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel-title">Các concrete types</div>
+      <div id="typeCards">
+        <!-- 3 type cards rendered by JS -->
+      </div>
+    </div>
+  </div>
+
+  <div class="explain" id="sat-explain">
+    <strong>Khái niệm</strong>: trong Go, <code>type X satisfy interface I</code> nếu method set của <code>X</code> chứa
+    tất cả method của <code>I</code>. Có thêm method khác — OK, không sao (như <code>FileWriter</code> có cả Read/Close).
+    Thiếu method nào — không satisfy.
+  </div>
+
+  <div class="warn">
+    <strong>⚠ Pitfall method set</strong>: nếu method có <code>(p *T)</code> receiver (pointer), thì chỉ <code>*T</code>
+    satisfy interface, <code>T</code> (value) thì không. Module này không vẽ chi tiết đó — bạn xem §4 README.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MODULE 2: Interface value internals                           -->
+<!-- ============================================================ -->
+<h2>2. Interface value internals — 2 words</h2>
+<div class="card">
+  <p>
+    Một biến interface trong Go gồm <strong>2 words</strong>: con trỏ tới <em>type descriptor</em> và con trỏ tới
+    <em>value thật</em>. Click các nút bên trái để gán biến với các giá trị khác nhau, xem 2 word thay đổi thế nào,
+    và đặc biệt là khi nào <code>i == nil</code>.
+  </p>
+
+  <div class="iv-wrap">
+    <div class="iv-vars">
+      <button class="iv-var-btn active" data-iv="zero">
+        <span class="label">(a) zero value</span>
+        <code>var i Stringer</code>
+      </button>
+      <button class="iv-var-btn" data-iv="literal-nil">
+        <span class="label">(b) literal nil</span>
+        <code>var i Stringer = nil</code>
+      </button>
+      <button class="iv-var-btn" data-iv="counter">
+        <span class="label">(c) value</span>
+        <code>i = Counter{n: 5}</code>
+      </button>
+      <button class="iv-var-btn" data-iv="counter-ptr">
+        <span class="label">(d) pointer to value</span>
+        <code>i = &amp;Counter{n: 9}</code>
+      </button>
+      <button class="iv-var-btn" data-iv="typed-nil">
+        <span class="label">(e) typed nil — PITFALL</span>
+        <code>i = (*Counter)(nil)</code>
+      </button>
+    </div>
+
+    <div>
+      <div class="iv-svg-wrap">
+        <svg id="iv-svg" width="400" height="280" viewBox="0 0 400 280" style="display: block; width: 100%; height: auto;">
+          <!-- Interface box -->
+          <rect x="10" y="20" width="160" height="120" rx="6" fill="#ebf8ff" stroke="#4299e1" stroke-width="2"/>
+          <text x="90" y="42" text-anchor="middle" font-family="monospace" font-size="13" font-weight="700" fill="#2b6cb0">interface i</text>
+
+          <rect x="20" y="55" width="140" height="32" rx="4" fill="white" stroke="#cbd5e0"/>
+          <text x="32" y="74" font-family="monospace" font-size="11" fill="#4a5568">type word:</text>
+          <text id="iv-type-word" x="155" y="74" text-anchor="end" font-family="monospace" font-size="12" fill="#2d3748">nil</text>
+
+          <rect x="20" y="95" width="140" height="32" rx="4" fill="white" stroke="#cbd5e0"/>
+          <text x="32" y="114" font-family="monospace" font-size="11" fill="#4a5568">data word:</text>
+          <text id="iv-data-word" x="155" y="114" text-anchor="end" font-family="monospace" font-size="12" fill="#2d3748">nil</text>
+
+          <!-- Arrows + targets -->
+          <g id="iv-type-arrow" style="display: none">
+            <line x1="170" y1="71" x2="220" y2="71" stroke="#4299e1" stroke-width="2" marker-end="url(#arrow)"/>
+            <rect x="225" y="50" width="160" height="42" rx="4" fill="#fefcbf" stroke="#d69e2e" stroke-width="1.5"/>
+            <text x="305" y="68" text-anchor="middle" font-family="monospace" font-size="11" fill="#744210">type descriptor</text>
+            <text id="iv-type-name" x="305" y="84" text-anchor="middle" font-family="monospace" font-size="12" font-weight="700" fill="#744210">*Counter</text>
+          </g>
+          <g id="iv-data-arrow" style="display: none">
+            <line x1="170" y1="111" x2="220" y2="171" stroke="#4299e1" stroke-width="2" marker-end="url(#arrow)"/>
+            <rect x="225" y="150" width="160" height="42" rx="4" fill="#c6f6d5" stroke="#38a169" stroke-width="1.5"/>
+            <text x="305" y="168" text-anchor="middle" font-family="monospace" font-size="11" fill="#22543d">value (heap)</text>
+            <text id="iv-data-val" x="305" y="184" text-anchor="middle" font-family="monospace" font-size="12" font-weight="700" fill="#22543d">Counter{n: 5}</text>
+          </g>
+
+          <!-- Note about nil check -->
+          <text id="iv-niltext" x="200" y="245" text-anchor="middle" font-family="monospace" font-size="14" font-weight="700" fill="#22543d">i == nil  →  true</text>
+          <text x="200" y="265" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#718096">(true khi cả 2 word đều nil)</text>
+
+          <defs>
+            <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+              <polygon points="0 0, 8 4, 0 8" fill="#4299e1"/>
+            </marker>
+          </defs>
+        </svg>
+      </div>
+      <div class="iv-status" id="iv-status">
+        <div>type word: <span class="nil">nil</span></div>
+        <div>data word: <span class="nil">nil</span></div>
+        <div style="margin-top: 6px;">i == nil → <span class="ok">true</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="explain" id="iv-explain">
+    Khi <code>var i Stringer</code> chưa gán gì, cả 2 word đều nil ⇒ <code>i == nil</code> là <strong>true</strong>.
+    Đây là trường hợp duy nhất nil interface "thật".
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MODULE 3: Type switch dispatch                                 -->
+<!-- ============================================================ -->
+<h2>3. Type switch dispatch — animate qua từng case</h2>
+<div class="card">
+  <p>
+    Một <code>switch v := x.(type)</code> chạy lần lượt qua các case, dừng ở case có type khớp với dynamic type của
+    <code>x</code>. Hãy chọn một input và bấm <strong>Run</strong> để xem animation.
+  </p>
+
+  <div class="ts-input-row">
+    <label>Input:</label>
+    <select id="ts-type">
+      <option value="int">int</option>
+      <option value="string">string</option>
+      <option value="bool">bool</option>
+      <option value="slice">[]any</option>
+      <option value="map">map[string]any</option>
+      <option value="nil">nil</option>
+    </select>
+    <input id="ts-value" type="text" value="42" placeholder="value">
+    <button id="ts-run">▶ Run type switch</button>
+    <button id="ts-reset" class="secondary">↺ Reset</button>
+  </div>
+
+  <pre style="margin-top: 14px;">switch v := x.(type) {
+case int:    fmt.Printf("int: %d\n", v*2)
+case string: fmt.Printf("string len: %d\n", len(v))
+case bool:   fmt.Printf("bool: %v\n", v)
+case []any:  fmt.Printf("slice len: %d\n", len(v))
+case map[string]any: fmt.Printf("map keys: %d\n", len(v))
+case nil:    fmt.Println("nil")
+default:     fmt.Printf("other: %T\n", v)
+}</pre>
+
+  <div class="ts-cases" id="ts-cases">
+    <div class="ts-case" data-case="int"><span class="label-l">case int:</span><span class="label-r">pending</span></div>
+    <div class="ts-case" data-case="string"><span class="label-l">case string:</span><span class="label-r">pending</span></div>
+    <div class="ts-case" data-case="bool"><span class="label-l">case bool:</span><span class="label-r">pending</span></div>
+    <div class="ts-case" data-case="slice"><span class="label-l">case []any:</span><span class="label-r">pending</span></div>
+    <div class="ts-case" data-case="map"><span class="label-l">case map[string]any:</span><span class="label-r">pending</span></div>
+    <div class="ts-case" data-case="nil"><span class="label-l">case nil:</span><span class="label-r">pending</span></div>
+    <div class="ts-case" data-case="default"><span class="label-l">default:</span><span class="label-r">pending</span></div>
+  </div>
+
+  <div class="ts-output" id="ts-output">
+    <span style="color: #a0aec0;">(chưa chạy)</span>
+  </div>
+
+  <div class="explain">
+    Trong type switch, <code>v</code> được <strong>rebind</strong> theo từng case với type đã narrow xuống. Nhờ vậy
+    bạn dùng <code>v</code> như đã có type cụ thể, không cần <code>.(T)</code> nữa. Đây là cách Go làm
+    <em>pattern matching theo type</em>.
+  </div>
+</div>
+
+</main>
+
+<script>
+/* ============================================================
+   Module 1: Implicit satisfaction
+============================================================ */
+(function () {
+  // Interface required methods
+  const requiredAll = ['Write', 'Read', 'Close'];
+  let required = new Set(['Write']);   // initially just Write
+
+  // 3 types and their method sets
+  const types = [
+    {
+      name: 'bytes.Buffer',
+      methods: ['Write', 'Read', 'String', 'Len'],
+    },
+    {
+      name: 'os.File',
+      methods: ['Write', 'Read', 'Close', 'Stat'],
+    },
+    {
+      name: 'strings.Reader',
+      methods: ['Read'],     // không có Write → không satisfy Writer
+    },
+  ];
+
+  function render() {
+    // Update interface required list
+    const list = document.getElementById('ifaceMethods');
+    list.innerHTML = '';
+    const items = [
+      { name: 'Write(p []byte) (int, error)', key: 'Write' },
+      { name: 'Read(p []byte) (int, error)',  key: 'Read' },
+      { name: 'Close() error',                key: 'Close' },
+    ];
+    items.forEach(it => {
+      if (!required.has(it.key)) return;
+      const li = document.createElement('li');
+      li.className = 'required';
+      li.innerHTML = `<span>${it.name}</span><span class="badge">REQUIRED</span>`;
+      list.appendChild(li);
+    });
+
+    // Update type cards
+    const wrap = document.getElementById('typeCards');
+    wrap.innerHTML = '';
+    types.forEach(t => {
+      const has = [...required].filter(m => t.methods.includes(m));
+      const missing = [...required].filter(m => !t.methods.includes(m));
+      const satisfies = missing.length === 0;
+      const card = document.createElement('div');
+      card.className = 'type-card ' + (satisfies ? 'satisfies' : 'missing-some');
+      const ifname = required.size === 1 && required.has('Write')
+        ? 'Writer'
+        : required.size === 2 && required.has('Write') && required.has('Read')
+          ? 'ReadWriter'
+          : required.size === 3
+            ? 'ReadWriteCloser'
+            : `Interface(${[...required].join(',')})`;
+      card.innerHTML = `
+        <div class="name">
+          <span>${t.name}</span>
+          <span class="verdict">${satisfies ? '✓ satisfies ' + ifname : '✗ missing ' + missing.join(', ')}</span>
+        </div>
+        <div style="margin-top: 8px;">
+          ${t.methods.map(m => {
+            const cls = required.has(m) ? 'match' : 'extra';
+            return `<span class="mini-method ${cls}">${m}()</span>`;
+          }).join('')}
+        </div>
+      `;
+      wrap.appendChild(card);
+    });
+
+    // Update explain
+    const exp = document.getElementById('sat-explain');
+    const satCount = types.filter(t => [...required].every(m => t.methods.includes(m))).length;
+    exp.innerHTML = `<strong>Hiện tại</strong>: interface yêu cầu <code>${[...required].join(', ')}</code> →
+      <strong>${satCount}/3 type</strong> satisfy.
+      ${satCount === 3 ? 'Cả 3 đều OK.' :
+        satCount === 0 ? 'Không có type nào đủ — interface quá khắt khe.' :
+        'Chỉ một số satisfy — đây là cốt lõi của <em>interface segregation</em>.'}
+    `;
+
+    // Toggle button states
+    document.getElementById('addReadBtn').classList.toggle('on', required.has('Read'));
+    document.getElementById('addCloseBtn').classList.toggle('on', required.has('Close'));
+  }
+
+  document.getElementById('addReadBtn').onclick = () => {
+    if (required.has('Read')) required.delete('Read'); else required.add('Read');
+    render();
+  };
+  document.getElementById('addCloseBtn').onclick = () => {
+    if (required.has('Close')) required.delete('Close'); else required.add('Close');
+    render();
+  };
+  document.getElementById('resetBtn').onclick = () => {
+    required = new Set(['Write']);
+    render();
+  };
+
+  render();
+})();
+
+/* ============================================================
+   Module 2: Interface value internals
+============================================================ */
+(function () {
+  const states = {
+    zero: {
+      type: null, data: null,
+      typeLabel: null, dataLabel: null,
+      isNil: true,
+      explain: '<code>var i Stringer</code> — chưa gán gì. Cả 2 word đều nil ⇒ <code>i == nil</code> là <strong>true</strong>. Đây là nil interface "thật".'
+    },
+    'literal-nil': {
+      type: null, data: null,
+      typeLabel: null, dataLabel: null,
+      isNil: true,
+      explain: 'Gán <code>nil</code> literal trực tiếp vào interface → Go set cả 2 word về nil. <code>i == nil</code> là <strong>true</strong>. Đây là cách <code>return nil</code> trong hàm trả <code>error</code> hoạt động đúng.'
+    },
+    counter: {
+      type: 'Counter', data: 'Counter{n: 5}',
+      typeLabel: 'Counter', dataLabel: 'Counter{n: 5}',
+      isNil: false,
+      explain: 'Gán <code>Counter{n: 5}</code> (value). Type word = <code>Counter</code>, data word trỏ tới copy của struct. Method <code>String()</code> sẽ gọi với receiver <code>Counter</code> (value).'
+    },
+    'counter-ptr': {
+      type: '*Counter', data: '&amp;Counter{n: 9}',
+      typeLabel: '*Counter', dataLabel: '&{n: 9}',
+      isNil: false,
+      explain: 'Gán <code>&amp;Counter{n: 9}</code> (pointer). Type word = <code>*Counter</code>, data word = pointer thật tới heap. Mutate qua i sẽ thấy được ở bên ngoài.'
+    },
+    'typed-nil': {
+      type: '*Counter', data: 'nil',
+      typeLabel: '*Counter', dataLabel: null,
+      isNil: false,
+      explain: '<strong>⚠ PITFALL!</strong> Gán typed nil <code>(*Counter)(nil)</code>. Type word = <code>*Counter</code> (KHÔNG NIL!), data word = nil. Compare với nil ⇒ <strong>false</strong> vì type word khác nil. Đây là nguồn bug kinh điển khi trả về <code>error</code>.'
+    },
+  };
+
+  function setIV(key) {
+    const s = states[key];
+    document.querySelectorAll('.iv-var-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.iv === key);
+    });
+
+    // Update SVG text
+    document.getElementById('iv-type-word').textContent = s.type ? s.type : 'nil';
+    document.getElementById('iv-data-word').textContent = s.data ? s.data : 'nil';
+
+    // Arrows
+    document.getElementById('iv-type-arrow').style.display = s.typeLabel ? '' : 'none';
+    document.getElementById('iv-data-arrow').style.display = s.dataLabel ? '' : 'none';
+    if (s.typeLabel) document.getElementById('iv-type-name').textContent = s.typeLabel;
+    if (s.dataLabel) document.getElementById('iv-data-val').textContent = s.dataLabel;
+
+    // Nil check
+    const niltext = document.getElementById('iv-niltext');
+    niltext.textContent = 'i == nil  →  ' + (s.isNil ? 'true' : 'false');
+    niltext.setAttribute('fill', s.isNil ? '#22543d' : '#742a2a');
+
+    // Status box
+    const status = document.getElementById('iv-status');
+    status.innerHTML = `
+      <div>type word: <span class="${s.type ? 'ok' : 'nil'}">${s.type || 'nil'}</span></div>
+      <div>data word: <span class="${s.data ? 'ok' : 'nil'}">${s.data || 'nil'}</span></div>
+      <div style="margin-top: 6px;">i == nil → <span class="${s.isNil ? 'ok' : 'nil'}">${s.isNil}</span></div>
+    `;
+
+    // Explain
+    document.getElementById('iv-explain').innerHTML = s.explain;
+  }
+
+  document.querySelectorAll('.iv-var-btn').forEach(b => {
+    b.onclick = () => setIV(b.dataset.iv);
+  });
+})();
+
+/* ============================================================
+   Module 3: Type switch dispatch animation
+============================================================ */
+(function () {
+  const order = ['int', 'string', 'bool', 'slice', 'map', 'nil', 'default'];
+
+  function reset() {
+    document.querySelectorAll('.ts-case').forEach(el => {
+      el.classList.remove('checking', 'match', 'skipped');
+      el.querySelector('.label-r').textContent = 'pending';
+    });
+    document.getElementById('ts-output').innerHTML = '<span style="color:#a0aec0;">(chưa chạy)</span>';
+  }
+
+  function describeValue(typeKey, raw) {
+    if (typeKey === 'int')    return { type: 'int',    value: parseInt(raw, 10) || 0 };
+    if (typeKey === 'string') return { type: 'string', value: raw };
+    if (typeKey === 'bool')   return { type: 'bool',   value: raw === 'true' };
+    if (typeKey === 'slice')  return { type: 'slice',  value: raw.split(',').map(s => s.trim()) };
+    if (typeKey === 'map')    return { type: 'map',    value: { a: 1, b: 2 } };
+    if (typeKey === 'nil')    return { type: 'nil',    value: null };
+    return { type: 'unknown', value: raw };
+  }
+
+  async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  document.getElementById('ts-type').addEventListener('change', (e) => {
+    const input = document.getElementById('ts-value');
+    const defaults = { int: '42', string: 'hello', bool: 'true', slice: 'go,dev', map: '', nil: '' };
+    input.value = defaults[e.target.value] || '';
+    input.disabled = ['nil', 'map'].includes(e.target.value);
+  });
+
+  document.getElementById('ts-run').onclick = async () => {
+    reset();
+    const typeKey = document.getElementById('ts-type').value;
+    const raw     = document.getElementById('ts-value').value;
+    const v       = describeValue(typeKey, raw);
+
+    const out = document.getElementById('ts-output');
+    out.innerHTML = '<span class="key">x</span> = <span class="val">' + JSON.stringify(v.value) + '</span>  (dynamic type: <span class="val">' + v.type + '</span>)<br>';
+
+    let matched = false;
+    for (const c of order) {
+      const el = document.querySelector(`.ts-case[data-case="${c}"]`);
+      if (matched) {
+        el.classList.add('skipped');
+        el.querySelector('.label-r').textContent = 'skipped';
+        continue;
+      }
+      el.classList.add('checking');
+      el.querySelector('.label-r').textContent = 'checking…';
+      await sleep(500);
+
+      const isMatch = (c === v.type) || (c === 'default');
+      if (isMatch) {
+        el.classList.remove('checking');
+        el.classList.add('match');
+        el.querySelector('.label-r').textContent = 'MATCH ✓';
+        matched = true;
+
+        // Output what the case does
+        let line = '';
+        if (c === 'int')     line = `int: ${v.value * 2}`;
+        else if (c === 'string') line = `string len: ${v.value.length}`;
+        else if (c === 'bool')   line = `bool: ${v.value}`;
+        else if (c === 'slice')  line = `slice len: ${v.value.length}`;
+        else if (c === 'map')    line = `map keys: ${Object.keys(v.value).length}`;
+        else if (c === 'nil')    line = 'nil';
+        else line = `other: ${v.type}`;
+        out.innerHTML += '<span class="val">→ ' + line + '</span>';
+      } else {
+        el.classList.remove('checking');
+        el.classList.add('skipped');
+        el.querySelector('.label-r').textContent = 'no match';
+      }
+    }
+  };
+
+  document.getElementById('ts-reset').onclick = reset;
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

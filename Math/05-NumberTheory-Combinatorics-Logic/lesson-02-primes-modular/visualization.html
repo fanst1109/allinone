@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 02 — Số nguyên tố & đồng dư</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="number"], input[type="range"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; }
+  input[type="number"] { width: 100px; }
+  input[type="range"] { flex: 1; min-width: 200px; padding: 0; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  .sieve-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; font-family: monospace; font-size: 14px; margin: 12px 0; }
+  .sieve-cell { padding: 6px; text-align: center; border: 1px solid #cbd5e0; border-radius: 3px; }
+  .prime { background: #15803d; color: white; font-weight: 700; }
+  .composite { background: #fecaca; color: #991b1b; text-decoration: line-through; }
+  .one { background: #f1f5f9; color: #64748b; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-divisibility-gcd/visualization.html">← L1: GCD</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Nguyên tố</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L3: Hoán vị (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 02 (T5) — Số nguyên tố &amp; Đồng dư</h1>
+
+<h2>Sàng Eratosthenes</h2>
+<div class="card">
+  <div class="row">
+    <label>N (đến):</label>
+    <input type="range" id="N" min="20" max="200" step="10" value="100" oninput="sieve()">
+    <span class="stat">N = <strong id="vN">100</strong></span>
+    <span class="stat">Số nguyên tố ≤ N: <strong id="pc">25</strong></span>
+  </div>
+  <div class="sieve-grid" id="grid"></div>
+</div>
+
+<h2>Phân tích thừa số nguyên tố</h2>
+<div class="card">
+  <div class="row">
+    <label>n:</label>
+    <input type="number" id="n" value="504" oninput="factor()">
+  </div>
+  <div class="result" id="fact"></div>
+</div>
+
+<h2>Tính a^N mod m</h2>
+<div class="card">
+  <p>Dùng định lý Fermat / Euler để tính nhanh khi N rất lớn.</p>
+  <div class="row">
+    <label>a:</label><input type="number" id="ma" value="3">
+    <label>N (lũy thừa):</label><input type="number" id="mN" value="100">
+    <label>m:</label><input type="number" id="mm" value="7">
+  </div>
+  <button onclick="modPow()" style="background:#15803d; color:white; border:none; padding:8px 14px; border-radius:4px; cursor:pointer; font-weight:600">Tính</button>
+  <div class="result" id="mres"></div>
+</div>
+
+<script>
+function sieve() {
+  const N = parseInt(document.getElementById("N").value);
+  document.getElementById("vN").textContent = N;
+  const isPrime = new Array(N+1).fill(true);
+  isPrime[0] = isPrime[1] = false;
+  for (let i = 2; i*i <= N; i++) if (isPrime[i]) for (let j = i*i; j <= N; j += i) isPrime[j] = false;
+  let primes = 0;
+  let html = "";
+  for (let i = 1; i <= N; i++) {
+    let cls = i === 1 ? "one" : isPrime[i] ? "prime" : "composite";
+    if (isPrime[i]) primes++;
+    html += `<div class="sieve-cell ${cls}">${i}</div>`;
+  }
+  document.getElementById("grid").innerHTML = html;
+  document.getElementById("pc").textContent = primes;
+}
+
+function factor() {
+  let n = parseInt(document.getElementById("n").value);
+  if (!n || n < 2) { document.getElementById("fact").innerHTML = "<strong>Nhập n ≥ 2.</strong>"; return; }
+  const orig = n;
+  const factors = {};
+  for (let p = 2; p*p <= n; p++) {
+    while (n % p === 0) { factors[p] = (factors[p] || 0) + 1; n /= p; }
+  }
+  if (n > 1) factors[n] = (factors[n] || 0) + 1;
+
+  const parts = Object.entries(factors).map(([p, e]) => e === 1 ? p : `${p}^${e}`);
+  // Phi(n)
+  let phi = orig;
+  Object.keys(factors).forEach(p => phi = phi * (parseInt(p) - 1) / parseInt(p));
+  // Divisor count
+  let divCount = 1;
+  Object.values(factors).forEach(e => divCount *= (e+1));
+
+  document.getElementById("fact").innerHTML = `
+    <div style="font-family:monospace; font-size:15px"><strong>${orig} = ${parts.join(" · ")}</strong></div>
+    <div class="row" style="margin-top:6px">
+      <span class="stat">Số ước: <strong>${divCount}</strong></span>
+      <span class="stat">φ(${orig}) = <strong>${phi}</strong></span>
+      <span class="stat">${Object.keys(factors).length === 1 && factors[orig] === 1 ? "✅ Nguyên tố" : Object.keys(factors).length === 1 ? "Lũy thừa nguyên tố" : "Hợp số"}</span>
+    </div>
+  `;
+}
+
+function modPow() {
+  const a = parseInt(document.getElementById("ma").value);
+  const N = parseInt(document.getElementById("mN").value);
+  const m = parseInt(document.getElementById("mm").value);
+  if (!a || !N || !m || m < 2) { document.getElementById("mres").innerHTML = "<strong>Nhập a, N, m hợp lệ.</strong>"; return; }
+  // Fast exponentiation
+  let result = 1, base = a % m, exp = N;
+  while (exp > 0) {
+    if (exp & 1) result = (result * base) % m;
+    base = (base * base) % m;
+    exp >>= 1;
+  }
+  // Check if m is prime for Fermat hint
+  let isPrime = m > 1;
+  for (let i = 2; i*i <= m; i++) if (m % i === 0) { isPrime = false; break; }
+
+  document.getElementById("mres").innerHTML = `
+    <div style="font-family:monospace; font-size:15px"><strong>${a}^${N} mod ${m} = ${result}</strong></div>
+    ${isPrime && a % m !== 0 ? `<div style="margin-top:6px; font-size:13px">m = ${m} nguyên tố. Theo Fermat: ${a}^${m-1} ≡ 1 (mod ${m}). ⟹ ${a}^${N} ≡ ${a}^(${N} mod ${m-1}) = ${a}^${N % (m-1)} (mod ${m}).</div>` : ""}
+  `;
+}
+
+sieve();
+factor();
+modPow();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

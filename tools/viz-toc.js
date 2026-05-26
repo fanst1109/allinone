@@ -85,6 +85,9 @@
     @media (max-width: 700px) {
       .vt-panel { width: calc(100vw - 32px); left: 16px; }
       .vt-btn { left: 16px; padding: 10px 14px; font-size: 13px; }
+      .vt-list a { font-size: 14px; padding: 9px 14px; }
+      .vt-list .vt-l3 a { font-size: 13.5px; padding-left: 30px; }
+      .vt-list .vt-l4 a { font-size: 13px; padding-left: 42px; }
     }
   `;
 

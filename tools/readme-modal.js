@@ -277,6 +277,19 @@
     @media (max-width: 700px) {
       .rm-panel.rm-mode-modal { width: 95%; min-width: 0; }
       .rm-panel.rm-mode-sidebar { width: 90% !important; }
+      /* Trên mobile, sidebar chiếm gần hết màn — body padding-right cũng phải
+       * co theo, nếu không sẽ ép content còn ~0px. */
+      html.rm-sidebar-open body { padding-right: 90vw !important; }
+      .rm-panel .rm-header { padding: 8px 10px; gap: 6px; }
+      .rm-panel .rm-title { font-size: 14px; }
+      .rm-mode-toggle button, .rm-toc-toggle { padding: 4px 8px; font-size: 11.5px; }
+      .rm-panel .rm-content { padding: 16px 18px; font-size: 15px; }
+      .rm-content h1 { font-size: 22px; }
+      .rm-content h2 { font-size: 18px; }
+      .rm-content h3 { font-size: 16px; }
+      .rm-content code { font-size: 13.5px; }
+      .rm-content pre code { font-size: 13px; }
+      .rm-content th, .rm-content td { font-size: 13px; padding: 5px 8px; }
     }
   `;
 

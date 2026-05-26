@@ -193,7 +193,12 @@
     }
 
     @media (max-width: 480px) {
-      .ipa-panel { width: calc(100vw - 24px); }
+      .ipa-panel { width: calc(100vw - 24px); left: 12px; bottom: 70px; }
+      .ipa-btn { left: 12px; padding: 9px 14px; font-size: 13px; }
+      .ipa-input { font-size: 14px; padding: 10px 12px; }
+      .ipa-controls button { font-size: 14px; padding: 9px 12px; }
+      .ipa-word-text { font-size: 14px; }
+      .ipa-word-ipa { font-size: 13px; }
     }
   `;
 

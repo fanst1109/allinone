@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 16 — Pointer · Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.danger { background: #e53e3e; }
+  button.danger:hover { background: #c53030; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  input[type=number], input[type=text] {
+    font-size: 15px; padding: 6px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 100px; box-sizing: border-box;
+  }
+  code, .mono {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px;
+  }
+  .explain { font-size: 14px; color: #4a5568; margin-top: 10px; }
+  .explain code { background: #edf2f7; padding: 2px 5px; border-radius: 3px; }
+
+  /* ===== Module 1: Pointer playground ===== */
+  .mem-wrap {
+    width: 100%;
+    overflow-x: auto;
+    background: #f7fafc;
+    padding: 16px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+  }
+  .mem-status {
+    background: #1a202c; color: #f7fafc;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px;
+    padding: 10px 14px;
+    border-radius: 5px;
+    margin-top: 12px;
+    min-height: 60px;
+    white-space: pre-wrap;
+  }
+  .mem-status.panic { color: #fc8181; }
+  .mem-status .ok { color: #68d391; }
+  .mem-status .warn { color: #f6ad55; }
+  .control-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+
+  /* ===== Module 2: Stack frame ===== */
+  .frames {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    margin: 12px 0;
+  }
+  .frame {
+    flex: 1 1 280px;
+    min-width: 0;
+    border: 2px solid #cbd5e0;
+    border-radius: 6px;
+    padding: 12px;
+    background: #f7fafc;
+  }
+  .frame h4 { margin: 0 0 10px 0; color: #2d3748; }
+  .frame.callee { border-color: #f6ad55; background: #fffaf0; }
+  .frame.caller { border-color: #4299e1; background: #ebf8ff; }
+  .var-cell {
+    background: white;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    padding: 8px 10px;
+    margin: 6px 0;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px;
+    transition: background 0.3s, transform 0.3s;
+  }
+  .var-cell.flash { background: #fefcbf; transform: scale(1.05); }
+  .arrow-text {
+    color: #4a5568;
+    font-style: italic;
+    margin: 8px 0;
+    font-size: 13px;
+  }
+  .scenario-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .scenario-tab {
+    padding: 6px 12px; border-radius: 4px 4px 0 0;
+    border: 1px solid #cbd5e0; border-bottom: none;
+    background: #edf2f7; cursor: pointer; font-weight: 600; font-size: 14px;
+  }
+  .scenario-tab.active { background: white; color: #2b6cb0; border-color: #4299e1; }
+  .code-display {
+    background: #1a202c; color: #f7fafc;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; line-height: 1.55;
+    padding: 12px 14px; border-radius: 5px;
+    overflow-x: auto; white-space: pre;
+    margin: 8px 0;
+  }
+  .code-display .hl { background: #4a5568; color: #fefcbf; padding: 1px 4px; border-radius: 3px; }
+
+  /* ===== Module 3: Escape quiz ===== */
+  .quiz-q { margin: 16px 0; }
+  .quiz-code {
+    background: #1a202c; color: #f7fafc;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px;
+    padding: 12px 14px;
+    border-radius: 5px;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .quiz-choices { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+  .quiz-btn {
+    padding: 8px 16px;
+    border: 2px solid #cbd5e0;
+    background: white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .quiz-btn:hover { background: #ebf8ff; border-color: #4299e1; }
+  .quiz-btn.correct { background: #c6f6d5; border-color: #38a169; }
+  .quiz-btn.wrong { background: #fed7d7; border-color: #e53e3e; }
+  .quiz-btn:disabled { cursor: default; opacity: 0.7; }
+  .quiz-explain {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: #f7fafc;
+    border-left: 3px solid #4299e1;
+    border-radius: 3px;
+    font-size: 14px;
+    display: none;
+  }
+  .quiz-explain.show { display: block; }
+  .quiz-score {
+    font-weight: 700;
+    color: #2b6cb0;
+    margin-top: 12px;
+  }
+
+  /* SVG style chung */
+  .cell-rect {
+    fill: white;
+    stroke: #4a5568;
+    stroke-width: 2;
+  }
+  .cell-rect.highlight { fill: #fefcbf; }
+  .cell-rect.pointer { fill: #ebf8ff; stroke: #4299e1; }
+  .cell-text {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px;
+    fill: #1a202c;
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+  .label-text {
+    font-family: -apple-system, sans-serif;
+    font-size: 12px;
+    fill: #4a5568;
+    text-anchor: middle;
+  }
+  .addr-text {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 10px;
+    fill: #718096;
+    text-anchor: middle;
+  }
+  .ptr-arrow {
+    stroke: #4299e1;
+    stroke-width: 2;
+    fill: none;
+    marker-end: url(#arrowhead);
+  }
+
+  @media (max-width: 480px) {
+    .frame { min-width: 0; flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-15-struct-method/visualization.html">← L15: Struct & Method</a>
+  <span class="sep">·</span>
+  <span class="current">L16: Pointer</span>
+  <span class="sep">·</span>
+  <a href="../lesson-17-mini-project-cli-todo/visualization.html">L17: CLI Todo →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 16 — Pointer Visualization</h1>
+<p>Ba module tương tác: (1) <strong>Pointer Playground</strong> — vẽ memory cell và animate <code>&amp;</code>, <code>*p</code>, gán qua pointer, nil panic. (2) <strong>Pass-by-value vs pointer</strong> — animate stack frame và xem khi nào mutate "lan" ra caller. (3) <strong>Escape analysis quiz</strong> — 6 hàm Go, đoán biến nào escape ra heap.</p>
+
+<h2>1. Pointer Playground — memory cell live</h2>
+<div class="card">
+  <p>Hai biến <code>x</code> và <code>p</code>. <code>x</code> là <code>int</code>, <code>p</code> là <code>*int</code> trỏ tới <code>x</code> (hoặc nil). Bấm các nút để mô phỏng:</p>
+  <div class="mem-wrap">
+    <svg id="memSvg" width="600" height="240" viewBox="0 0 600 240">
+      <defs>
+        <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3"
+                orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L9,3 L0,6" fill="#4299e1"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+  <div class="control-row">
+    <button id="opAssignX">x = <input type="number" id="opAssignXVal" value="42" style="width:70px"></button>
+    <button id="opTakeAddr">p = &amp;x</button>
+    <button id="opDeref">đọc *p</button>
+    <button id="opWritePtr">*p = <input type="number" id="opWritePtrVal" value="99" style="width:70px"></button>
+    <button id="opSetNil" class="secondary">p = nil</button>
+    <button id="opNilDeref" class="danger">đọc *p (khi nil → panic)</button>
+    <button id="opReset" class="secondary">Reset</button>
+  </div>
+  <div class="mem-status" id="memStatus">x chưa khởi tạo. Bấm "x = 42" để bắt đầu.</div>
+  <div class="explain">
+    <strong>Quan sát:</strong> <code>p</code> chỉ chứa địa chỉ (8 byte), không lưu giá trị. Khi gán <code>*p = 99</code>, ô memory của <code>x</code> đổi giá trị — bạn thấy cả 2 cell cùng cập nhật. Khi <code>p = nil</code>, mũi tên biến mất; bấm "đọc *p" lúc đó → panic giả lập.
+  </div>
+</div>
+
+<h2>2. Pass-by-value vs Pass-by-pointer — stack frame</h2>
+<div class="card">
+  <p>Chọn 1 trong 4 kịch bản, bấm <strong>"Step ▶"</strong> để chạy từng bước. Bạn sẽ thấy 2 stack frame (caller / callee), giá trị copy, và liệu mutate có "lan" ra caller hay không.</p>
+  <div class="scenario-tabs" id="scenarioTabs"></div>
+  <div class="code-display" id="scnCode"></div>
+  <div class="frames">
+    <div class="frame caller">
+      <h4>📞 Frame caller (<code>main</code>)</h4>
+      <div id="callerVars"></div>
+    </div>
+    <div class="frame callee">
+      <h4>🔧 Frame callee (<code>f</code>)</h4>
+      <div id="calleeVars"></div>
+    </div>
+  </div>
+  <div class="arrow-text" id="scnArrow"></div>
+  <div class="control-row">
+    <button id="scnStep">Step ▶</button>
+    <button id="scnReset" class="secondary">Reset</button>
+  </div>
+  <div class="explain" id="scnExplain"></div>
+</div>
+
+<h2>3. Escape Analysis Quiz — biến nào ra heap?</h2>
+<div class="card">
+  <p>6 hàm Go. Với mỗi hàm, chọn <strong>"Escape ra heap"</strong> hoặc <strong>"Stack OK"</strong>. Sau khi trả lời, app sẽ giải thích và verify bằng output thực của <code>go build -gcflags="-m"</code>.</p>
+  <div id="quizContainer"></div>
+  <div class="quiz-score" id="quizScore">Tiến độ: 0 / 6</div>
+</div>
+
+</main>
+
+<script>
+/* ============================================================
+ * MODULE 1 — Pointer playground
+ * ============================================================ */
+(function(){
+  const svg = document.getElementById('memSvg');
+  const status = document.getElementById('memStatus');
+
+  // State
+  let state = {
+    xSet: false,
+    xVal: 0,
+    xAddr: '0xc000018090',
+    pSet: false,
+    pNil: false,
+    pAddr: '0xc0000180a0',
+    pTarget: null,    // null hoặc 'x'
+    panicked: false,
+  };
+
+  function render() {
+    // Clear previous content (except defs)
+    const defs = svg.querySelector('defs');
+    svg.innerHTML = '';
+    svg.appendChild(defs);
+
+    // x cell at (120, 100)
+    const xCell = createRect(60, 100, 160, 60, state.xSet ? 'cell-rect highlight' : 'cell-rect');
+    svg.appendChild(xCell);
+    svg.appendChild(text(140, 90, 'x  (int)', 'label-text'));
+    svg.appendChild(text(140, 130, state.xSet ? String(state.xVal) : '?', 'cell-text'));
+    svg.appendChild(text(140, 175, state.xAddr, 'addr-text'));
+
+    // p cell at (400, 100)
+    const pCell = createRect(340, 100, 200, 60, state.pSet ? 'cell-rect pointer' : 'cell-rect');
+    svg.appendChild(pCell);
+    svg.appendChild(text(440, 90, 'p  (*int)', 'label-text'));
+    const pDisplay = !state.pSet ? '?' : state.pNil ? 'nil' : state.xAddr;
+    svg.appendChild(text(440, 130, pDisplay, 'cell-text'));
+    svg.appendChild(text(440, 175, state.pAddr, 'addr-text'));
+
+    // Arrow p → x nếu p trỏ tới x
+    if (state.pSet && !state.pNil && state.pTarget === 'x') {
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      // From (340, 130) to (220, 130) curved up
+      path.setAttribute('d', 'M 340 130 Q 280 60 220 130');
+      path.setAttribute('class', 'ptr-arrow');
+      svg.appendChild(path);
+    }
+
+    // Panic banner
+    if (state.panicked) {
+      const banner = createRect(150, 20, 300, 40, '');
+      banner.setAttribute('fill', '#fed7d7');
+      banner.setAttribute('stroke', '#e53e3e');
+      banner.setAttribute('stroke-width', '2');
+      svg.appendChild(banner);
+      svg.appendChild(text(300, 40, '⚠ runtime panic: nil pointer dereference', 'cell-text'));
+    }
+  }
+
+  function createRect(x, y, w, h, cls) {
+    const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    r.setAttribute('x', x); r.setAttribute('y', y);
+    r.setAttribute('width', w); r.setAttribute('height', h);
+    r.setAttribute('class', cls);
+    r.setAttribute('rx', 4);
+    return r;
+  }
+  function text(x, y, t, cls) {
+    const el = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    el.setAttribute('x', x); el.setAttribute('y', y);
+    el.setAttribute('class', cls);
+    el.textContent = t;
+    return el;
+  }
+
+  function setStatus(msg, type) {
+    status.className = 'mem-status' + (type === 'panic' ? ' panic' : '');
+    status.textContent = msg;
+  }
+
+  document.getElementById('opAssignX').onclick = () => {
+    const v = parseInt(document.getElementById('opAssignXVal').value, 10) || 0;
+    state.xSet = true; state.xVal = v; state.panicked = false;
+    setStatus(`x := ${v}\nx được lưu tại ${state.xAddr}.`);
+    render();
+  };
+  document.getElementById('opTakeAddr').onclick = () => {
+    if (!state.xSet) { setStatus('Chưa có x. Bấm "x = ..." trước.', 'panic'); return; }
+    state.pSet = true; state.pNil = false; state.pTarget = 'x'; state.panicked = false;
+    setStatus(`p = &x\np giờ chứa ${state.xAddr} (địa chỉ của x).`);
+    render();
+  };
+  document.getElementById('opDeref').onclick = () => {
+    if (!state.pSet) { setStatus('p chưa được gán. Bấm "p = &x" trước.', 'panic'); return; }
+    if (state.pNil) {
+      state.panicked = true;
+      setStatus(`*p khi p == nil\n⚠ runtime error: invalid memory address or nil pointer dereference`, 'panic');
+      render();
+      return;
+    }
+    setStatus(`*p = ${state.xVal}\n(đọc giá trị tại địa chỉ ${state.xAddr})`);
+  };
+  document.getElementById('opWritePtr').onclick = () => {
+    if (!state.pSet) { setStatus('p chưa được gán. Bấm "p = &x" trước.', 'panic'); return; }
+    if (state.pNil) {
+      state.panicked = true;
+      setStatus(`*p = ... khi p == nil\n⚠ runtime error: nil pointer dereference`, 'panic');
+      render();
+      return;
+    }
+    const v = parseInt(document.getElementById('opWritePtrVal').value, 10) || 0;
+    state.xVal = v;
+    setStatus(`*p = ${v}\nĐã ghi vào ô memory tại ${state.xAddr}.\nx cập nhật theo (vì p trỏ tới x).`);
+    render();
+  };
+  document.getElementById('opSetNil').onclick = () => {
+    state.pSet = true; state.pNil = true; state.pTarget = null; state.panicked = false;
+    setStatus(`p = nil\nMũi tên biến mất. p giờ không trỏ tới đâu cả.`);
+    render();
+  };
+  document.getElementById('opNilDeref').onclick = () => {
+    state.pSet = true; state.pNil = true; state.pTarget = null;
+    state.panicked = true;
+    setStatus(`*p khi p == nil\n⚠ runtime error: invalid memory address or nil pointer dereference\n→ Đây là 1 trong những bug phổ biến nhất khi viết Go.`, 'panic');
+    render();
+  };
+  document.getElementById('opReset').onclick = () => {
+    state = { xSet:false, xVal:0, xAddr:'0xc000018090', pSet:false, pNil:false, pAddr:'0xc0000180a0', pTarget:null, panicked:false };
+    setStatus('Đã reset. Bấm "x = 42" để bắt đầu.');
+    render();
+  };
+
+  render();
+})();
+
+/* ============================================================
+ * MODULE 2 — Stack frame: pass-by-value vs pointer
+ * ============================================================ */
+(function(){
+  const scenarios = [
+    {
+      key: 'int-val',
+      label: 'pass int by value',
+      code: [
+        'func f(x int) { x = 100 }',
+        '',
+        'n := 5',
+        'f(n)',
+        'fmt.Println(n)',
+      ],
+      steps: [
+        { caller: {n:5}, callee: {}, hl: 2, arrow: 'Khai báo n = 5 trong caller.', explain: 'Caller có biến n trên stack frame.' },
+        { caller: {n:5}, callee: {x:5}, hl: 3, arrow: 'f(n) — Go copy giá trị n vào parameter x.', explain: 'x là biến mới trên frame của f, giá trị 5. Không liên quan tới n.' },
+        { caller: {n:5}, callee: {x:100}, hl: 3, arrow: 'x = 100 — chỉ sửa x trong frame f.', explain: 'n trong caller KHÔNG đổi.' },
+        { caller: {n:5}, callee: {}, hl: 4, arrow: 'f return. Frame f bị thu, x biến mất.', explain: 'fmt.Println(n) in 5. Pass-by-value: không lan.' },
+      ],
+      finalNote: '✗ Không lan ra caller. Pass-by-value: callee chỉ thấy copy.'
+    },
+    {
+      key: 'int-ptr',
+      label: 'pass *int',
+      code: [
+        'func f(p *int) { *p = 100 }',
+        '',
+        'n := 5',
+        'f(&n)',
+        'fmt.Println(n)',
+      ],
+      steps: [
+        { caller: {n:5}, callee: {}, hl: 2, arrow: 'Khai báo n = 5 ở caller.', explain: 'n nằm tại ví dụ địa chỉ 0xc090.' },
+        { caller: {n:5}, callee: {'p':'0xc090 → n'}, hl: 3, arrow: 'f(&n) — copy ĐỊA CHỈ của n vào p.', explain: 'p là *int, chứa địa chỉ 0xc090. Cả n và *p giờ cùng trỏ tới 1 ô memory.' },
+        { caller: {n:100}, callee: {'p':'0xc090 → n'}, hl: 3, arrow: '*p = 100 — ghi vào ô memory tại địa chỉ p.', explain: 'Vì p trỏ tới n → ô đó chính là n → n đổi thành 100.' },
+        { caller: {n:100}, callee: {}, hl: 4, arrow: 'f return. p biến mất, nhưng n đã đổi.', explain: 'fmt.Println(n) in 100. ✓ Lan ra caller.' },
+      ],
+      finalNote: '✓ Lan ra caller. Pass-by-pointer: callee có địa chỉ → ghi vào ô thật.'
+    },
+    {
+      key: 'slice',
+      label: 'pass []int',
+      code: [
+        'func f(s []int) { s[0] = 100 }',
+        '',
+        'xs := []int{1,2,3}',
+        'f(xs)',
+        'fmt.Println(xs)',
+      ],
+      steps: [
+        { caller: {xs:'header → [1,2,3]'}, callee: {}, hl: 2, arrow: 'xs là slice header (ptr+len+cap) trỏ tới underlying array [1,2,3].', explain: 'Slice header gồm 3 word: con trỏ array, len=3, cap=3.' },
+        { caller: {xs:'header → [1,2,3]'}, callee: {s:'header → [1,2,3]'}, hl: 3, arrow: 'f(xs) — Go copy header (24 byte). Hai header cùng trỏ tới CÙNG underlying array.', explain: 'Đây vẫn là pass-by-value (copy header), nhưng underlying array bị share.' },
+        { caller: {xs:'header → [100,2,3]'}, callee: {s:'header → [100,2,3]'}, hl: 3, arrow: 's[0] = 100 — ghi vào underlying array.', explain: 'Vì xs và s cùng trỏ tới array đó → cả 2 cùng thấy.' },
+        { caller: {xs:'header → [100,2,3]'}, callee: {}, hl: 4, arrow: 'f return. s header biến mất, nhưng array thật đã bị sửa.', explain: 'fmt.Println(xs) in [100 2 3]. ✓ Mutate phần tử lan ra caller.' },
+      ],
+      finalNote: '✓ Lan vì share underlying array. Nhưng KHÔNG phải pass-by-reference — chỉ là hệ quả slice header chứa ptr.'
+    },
+    {
+      key: 'slice-append',
+      label: 'append slice — gotcha',
+      code: [
+        'func f(s []int) { s = append(s, 99) }',
+        '',
+        'xs := make([]int, 0, 3)',
+        'xs = append(xs, 1, 2)',
+        'f(xs)',
+        'fmt.Println(xs)',
+      ],
+      steps: [
+        { caller: {xs:'header(len=2,cap=3) → [1,2,_]'}, callee: {}, hl: 3, arrow: 'xs có len=2, cap=3, còn 1 slot trống.', explain: 'Underlying array đã alloc 3 slot, đang dùng 2.' },
+        { caller: {xs:'header(len=2,cap=3) → [1,2,_]'}, callee: {s:'header(len=2,cap=3) → [1,2,_]'}, hl: 4, arrow: 'f(xs) — copy header. Cùng trỏ tới underlying.', explain: 'len và cap trong header riêng, nhưng array thật chung.' },
+        { caller: {xs:'header(len=2,cap=3) → [1,2,99]'}, callee: {s:'header(len=3,cap=3) → [1,2,99]'}, hl: 4, arrow: 'append: còn cap → ghi vào slot[2]. s.len = 3.', explain: 'Array thật giờ là [1,2,99], nhưng xs.len vẫn = 2 → caller nhìn vẫn chỉ thấy 2 phần tử [1,2].' },
+        { caller: {xs:'header(len=2,cap=3) → [1,2,99]'}, callee: {}, hl: 5, arrow: 'f return. xs.len = 2 vẫn không đổi.', explain: 'fmt.Println(xs) in [1 2]. Phần tử 99 trong array nhưng không nhìn thấy qua xs.' },
+      ],
+      finalNote: '⚠ Gotcha: append có thể "ghi lậu" vào underlying mà không lan len ra caller. Muốn lan: pass *[]int.'
+    },
+  ];
+
+  const tabsEl = document.getElementById('scenarioTabs');
+  const codeEl = document.getElementById('scnCode');
+  const callerEl = document.getElementById('callerVars');
+  const calleeEl = document.getElementById('calleeVars');
+  const arrowEl = document.getElementById('scnArrow');
+  const explainEl = document.getElementById('scnExplain');
+
+  let currentScn = 0;
+  let currentStep = -1;
+
+  scenarios.forEach((s, i) => {
+    const b = document.createElement('button');
+    b.className = 'scenario-tab' + (i===0 ? ' active' : '');
+    b.textContent = s.label;
+    b.onclick = () => { currentScn = i; currentStep = -1; tabsEl.querySelectorAll('.scenario-tab').forEach(x=>x.classList.remove('active')); b.classList.add('active'); render(); };
+    tabsEl.appendChild(b);
+  });
+
+  function render() {
+    const s = scenarios[currentScn];
+    // Render code with highlight
+    codeEl.innerHTML = s.code.map((line, idx) => {
+      const hl = (currentStep >= 0 && idx === s.steps[currentStep].hl);
+      return hl ? `<span class="hl">${escapeHtml(line)}</span>` : escapeHtml(line);
+    }).join('\n');
+
+    if (currentStep < 0) {
+      callerEl.innerHTML = '<div class="explain">(chưa chạy)</div>';
+      calleeEl.innerHTML = '<div class="explain">(chưa chạy)</div>';
+      arrowEl.textContent = `Bấm "Step ▶" để bắt đầu (${s.steps.length} bước).`;
+      explainEl.textContent = '';
+      return;
+    }
+    const step = s.steps[currentStep];
+    callerEl.innerHTML = Object.entries(step.caller).map(([k,v]) => `<div class="var-cell">${escapeHtml(k)} = ${escapeHtml(String(v))}</div>`).join('') || '<div class="explain">(rỗng)</div>';
+    calleeEl.innerHTML = Object.entries(step.callee).map(([k,v]) => `<div class="var-cell">${escapeHtml(k)} = ${escapeHtml(String(v))}</div>`).join('') || '<div class="explain">(chưa vào / đã return)</div>';
+    arrowEl.textContent = step.arrow;
+    let extra = step.explain;
+    if (currentStep === s.steps.length - 1) extra += `\n\n${s.finalNote}`;
+    explainEl.textContent = extra;
+  }
+
+  function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  document.getElementById('scnStep').onclick = () => {
+    const s = scenarios[currentScn];
+    if (currentStep < s.steps.length - 1) { currentStep++; render(); }
+  };
+  document.getElementById('scnReset').onclick = () => { currentStep = -1; render(); };
+
+  render();
+})();
+
+/* ============================================================
+ * MODULE 3 — Escape analysis quiz
+ * ============================================================ */
+(function(){
+  const questions = [
+    {
+      code: `func a() int {\n    x := 5\n    return x\n}`,
+      answer: 'stack',
+      explain: 'KHÔNG escape. Trả về giá trị (copy). x sống ở stack frame của a(), khi a() return x bị thu hồi cùng frame. Caller nhận một bản copy.',
+      gcm: '(không có log "moved to heap" cho x)'
+    },
+    {
+      code: `func b() *int {\n    x := 5\n    return &x\n}`,
+      answer: 'heap',
+      explain: 'ESCAPE. Trả về &x — địa chỉ x phải còn hợp lệ sau khi b() return. Stack frame sẽ biến mất, nên compiler chuyển x sang heap. Trong C đây là dangling pointer, trong Go thì an toàn nhưng có overhead alloc + GC.',
+      gcm: './main.go:N:2: moved to heap: x'
+    },
+    {
+      code: `func c() {\n    x := 5\n    fmt.Println(&x)\n}`,
+      answer: 'heap',
+      explain: 'ESCAPE. fmt.Println nhận ...interface{} — &x được đóng gói vào interface và đi qua boundary fmt. Compiler không chứng minh được an toàn để giữ trên stack → conservatively chuyển x lên heap. Đây là vì sao log debug nhiều có thể tăng áp lực GC.',
+      gcm: './main.go:N:2: moved to heap: x'
+    },
+    {
+      code: `type User struct{ Name string }\n\nfunc d() User {\n    return User{Name: "Alice"}\n}`,
+      answer: 'stack',
+      explain: 'KHÔNG escape. Trả về User by value — copy struct về caller, không có địa chỉ thoát. Struct alloc trên stack frame của d(), copy ra caller khi return. Với struct nhỏ, compiler thậm chí giữ trong register.',
+      gcm: '(không có log "moved to heap" cho User)'
+    },
+    {
+      code: `type User struct{ Name string }\n\nfunc e() *User {\n    return &User{Name: "Alice"}\n}`,
+      answer: 'heap',
+      explain: 'ESCAPE. Trả về &User{...} — pointer thoát khỏi frame. Pattern này rất phổ biến (factory functions như NewUser). Go chấp nhận đây là cách thường thấy; compiler tự alloc heap. Trade-off đơn giản hơn C nhưng có overhead.',
+      gcm: './main.go:N:9: &User{...} escapes to heap'
+    },
+    {
+      code: `func f() {\n    s := make([]int, 1000)\n    _ = s[0]\n}`,
+      answer: 'heap',
+      explain: 'ESCAPE (vì size lớn). Make slice 1000 int = ~8KB. Stack Go có giới hạn động (bắt đầu 8KB, có thể grow), nhưng compiler conservatively cho slice lớn alloc heap. Slice nhỏ (vd 10 phần tử) có thể stay stack. Đây là heuristic, không spec.',
+      gcm: './main.go:N:11: make([]int, 1000) escapes to heap'
+    },
+  ];
+
+  const container = document.getElementById('quizContainer');
+  const scoreEl = document.getElementById('quizScore');
+  let answered = 0, correct = 0;
+
+  questions.forEach((q, i) => {
+    const qDiv = document.createElement('div');
+    qDiv.className = 'quiz-q';
+    qDiv.innerHTML = `
+      <strong>Hàm ${i+1}:</strong>
+      <pre class="quiz-code">${escapeHtml(q.code)}</pre>
+      <div class="quiz-choices">
+        <button class="quiz-btn" data-ans="heap">Escape ra heap</button>
+        <button class="quiz-btn" data-ans="stack">Stack OK</button>
+      </div>
+      <div class="quiz-explain"></div>
+    `;
+    container.appendChild(qDiv);
+    const buttons = qDiv.querySelectorAll('.quiz-btn');
+    const explainDiv = qDiv.querySelector('.quiz-explain');
+    buttons.forEach(b => {
+      b.onclick = () => {
+        const ans = b.dataset.ans;
+        const isCorrect = ans === q.answer;
+        buttons.forEach(x => { x.disabled = true; });
+        if (isCorrect) b.classList.add('correct');
+        else {
+          b.classList.add('wrong');
+          // highlight correct
+          buttons.forEach(x => { if (x.dataset.ans === q.answer) x.classList.add('correct'); });
+        }
+        explainDiv.innerHTML = `<strong>${isCorrect ? '✓ Đúng' : '✗ Sai'}.</strong> ${escapeHtml(q.explain)}<br><br><code style="background:#1a202c;color:#68d391;padding:4px 8px;border-radius:3px;display:inline-block;margin-top:4px;">go build -gcflags="-m"</code> báo:<br><code style="background:#edf2f7;padding:2px 6px;border-radius:3px;">${escapeHtml(q.gcm)}</code>`;
+        explainDiv.classList.add('show');
+        answered++;
+        if (isCorrect) correct++;
+        scoreEl.textContent = `Tiến độ: ${answered} / ${questions.length}  (đúng ${correct})`;
+      };
+    });
+  });
+
+  function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+})();
+</script>
+
+<!-- README modal -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 08 — Phương pháp chứng minh</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  button { background: #94a3b8; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.active { background: #15803d; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  .proof { background: #f8fafc; padding: 12px; border-radius: 6px; margin: 8px 0; font-family: monospace; font-size: 13px; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-logic-sets-maps/visualization.html">← L7: Logic</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Chứng minh</span>
+</nav>
+
+<h1>Lesson 08 (T5) — Phương pháp chứng minh</h1>
+
+<h2>5 phương pháp chính</h2>
+<div class="card">
+  <div class="row">
+    <button id="b1" onclick="setM('direct')" class="active">Trực tiếp</button>
+    <button id="b2" onclick="setM('contrapositive')">Phản đảo</button>
+    <button id="b3" onclick="setM('contradiction')">Phản chứng</button>
+    <button id="b4" onclick="setM('construction')">Xây dựng</button>
+    <button id="b5" onclick="setM('induction')">Quy nạp</button>
+  </div>
+  <div class="result" id="info"></div>
+  <div class="proof" id="proof"></div>
+</div>
+
+<script>
+const methods = {
+  direct: {
+    title: "Chứng minh trực tiếp",
+    when: "Khi P → Q rõ ràng, suy luận thẳng được.",
+    example: `Mệnh đề: "Nếu n chẵn thì n² chẵn".
+
+Chứng minh:
+  Giả sử n chẵn → ∃k: n = 2k.
+  n² = (2k)² = 4k² = 2·(2k²).
+  → n² chia hết 2 → chẵn. □`
+  },
+  contrapositive: {
+    title: "Chứng minh phản đảo",
+    when: "Khi ¬Q → ¬P dễ hơn P → Q. (P→Q tương đương ¬Q→¬P.)",
+    example: `Mệnh đề: "Nếu n² lẻ thì n lẻ".
+
+Chứng minh phản đảo:
+  Cần CM: "Nếu n chẵn thì n² chẵn".
+  (Đã CM ở trực tiếp.)
+  → Phản đảo đúng → ban đầu đúng. □`
+  },
+  contradiction: {
+    title: "Chứng minh phản chứng",
+    when: "Khi mệnh đề là phủ định ('không phải', 'không tồn tại').",
+    example: `Mệnh đề: "√2 không phải số hữu tỉ".
+
+Chứng minh phản chứng:
+  Giả sử √2 = a/b với gcd(a, b) = 1.
+  → 2 = a²/b² → a² = 2b² → a chẵn → a = 2c.
+  → 4c² = 2b² → b² = 2c² → b chẵn.
+  → 2 | gcd(a, b), MÂU THUẪN.
+  Vậy √2 vô tỉ. □`
+  },
+  construction: {
+    title: "Chứng minh xây dựng",
+    when: "Khi cần CM ∃x: P(x). Tìm x cụ thể.",
+    example: `Mệnh đề: "Tồn tại n để 7^n - 1 chia hết cho 6".
+
+Chứng minh xây dựng:
+  Lấy n = 1: 7 - 1 = 6. ✓
+  → Tồn tại. □
+
+(Thực ra mọi n đều thoả vì 7 ≡ 1 mod 6.)`
+  },
+  induction: {
+    title: "Chứng minh quy nạp",
+    when: "Khi cần CM P(n) đúng ∀n ∈ ℕ.",
+    example: `Mệnh đề: "1 + 2 + ... + n = n(n+1)/2 ∀n ≥ 1".
+
+Chứng minh quy nạp:
+  Cơ sở (n=1): VT = 1, VP = 1·2/2 = 1. ✓
+
+  Bước (giả sử P(k) đúng, CM P(k+1)):
+    1+2+...+k + (k+1)
+    = k(k+1)/2 + (k+1)        (giả thuyết)
+    = (k+1)[k/2 + 1]
+    = (k+1)(k+2)/2 ✓
+
+  Vậy P(n) đúng ∀n ≥ 1. □`
+  }
+};
+let cur = "direct";
+
+function setM(m) {
+  cur = m;
+  ["1","2","3","4","5"].forEach(c => document.getElementById("b"+c).classList.remove("active"));
+  const map = {direct:"1", contrapositive:"2", contradiction:"3", construction:"4", induction:"5"};
+  document.getElementById("b" + map[m]).classList.add("active");
+  draw();
+}
+
+function draw() {
+  const x = methods[cur];
+  document.getElementById("info").innerHTML = `
+    <div style="font-family:monospace; font-size:16px"><strong>${x.title}</strong></div>
+    <div style="margin-top:6px"><strong>Khi nào dùng?</strong> ${x.when}</div>
+  `;
+  document.getElementById("proof").textContent = x.example;
+}
+
+draw();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

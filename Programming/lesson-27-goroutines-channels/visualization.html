@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L27 — Goroutine và Channel</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #00add8;
+    --accent-hover: #007d9c;
+    --accent-soft: #e6f7fc;
+    --g-color: #00add8;
+    --thread-color: #2d3748;
+    --chan-color: #f59e0b;
+    --sender-color: #3b82f6;
+    --recv-color: #10b981;
+    --done-color: #16a34a;
+    --pending-color: #94a3b8;
+    --proc-color: #f59e0b;
+    --block-color: #ef4444;
+  }
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 80px; }
+  h1 { color: #2d3748; margin-top: 0; }
+  p.lead { color: #4a5568; line-height: 1.6; }
+  .module {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 28px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+  .module h2 {
+    margin-top: 0;
+    color: #2d3748;
+    border-bottom: 2px solid var(--accent-soft);
+    padding-bottom: 8px;
+  }
+  .module .hint {
+    background: #fffbea;
+    border-left: 3px solid #f59e0b;
+    padding: 10px 14px;
+    border-radius: 4px;
+    font-size: 13.5px;
+    color: #744210;
+    margin: 12px 0;
+  }
+  .controls {
+    margin: 14px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .controls label {
+    font-size: 13.5px;
+    color: #4a5568;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .controls input[type="range"] { vertical-align: middle; }
+  button.viz-btn {
+    padding: 8px 14px;
+    border: 0;
+    background: var(--accent);
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  button.viz-btn:hover { background: var(--accent-hover); }
+  button.viz-btn.secondary { background: #6b7280; }
+  button.viz-btn.secondary:hover { background: #4b5563; }
+  button.viz-btn.danger { background: #dc2626; }
+  button.viz-btn.danger:hover { background: #991b1b; }
+  button.viz-btn:disabled { background: #cbd5e0; cursor: not-allowed; }
+  .stat-row {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin: 10px 0;
+  }
+  .stat {
+    display: inline-block;
+    padding: 5px 10px;
+    background: var(--accent-soft);
+    border-radius: 4px;
+    font-family: 'Fira Code', Consolas, monospace;
+    font-size: 13px;
+    color: #2d3748;
+  }
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 12px;
+    font-size: 12.5px; color: #4a5568;
+    margin: 8px 0 12px;
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i {
+    display: inline-block; width: 14px; height: 14px;
+    border-radius: 3px;
+  }
+
+  /* ============ Module 1 — Scheduler ============ */
+  .sched-board {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    margin-top: 14px;
+  }
+  .thread-box {
+    border: 2px solid var(--thread-color);
+    border-radius: 10px;
+    padding: 10px;
+    background: #f7fafc;
+    min-height: 140px;
+    position: relative;
+  }
+  .thread-box.idle { border-color: #cbd5e0; background: #fff; opacity: .85; }
+  .thread-box.running { box-shadow: 0 0 0 3px rgba(0,173,216,.15); }
+  .thread-box .thead {
+    font-weight: 700;
+    font-size: 13px;
+    color: #2d3748;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .thread-box .thead .badge {
+    background: var(--thread-color); color: white;
+    padding: 2px 6px; border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .thread-box.idle .badge { background: #94a3b8; }
+  .runqueue {
+    display: flex; flex-wrap: wrap; gap: 4px;
+    min-height: 70px;
+    padding: 6px;
+    background: white;
+    border-radius: 6px;
+    border: 1px dashed #cbd5e0;
+  }
+  .g-token {
+    width: 38px;
+    height: 32px;
+    background: var(--g-color);
+    color: white;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .35s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,.15);
+  }
+  .g-token.running {
+    background: #f59e0b;
+    transform: scale(1.12);
+    box-shadow: 0 0 0 3px rgba(245,158,11,.35);
+  }
+  .g-token.done {
+    background: var(--done-color);
+    opacity: .6;
+    transform: scale(0.85);
+  }
+  .g-token.steal {
+    background: #a855f7;
+    animation: stealpulse .5s ease;
+  }
+  @keyframes stealpulse {
+    0%   { transform: scale(1.3); box-shadow: 0 0 0 6px rgba(168,85,247,.3); }
+    100% { transform: scale(1); }
+  }
+  .ratio-card {
+    background: #eef2ff;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-top: 14px;
+    font-size: 13.5px;
+    color: #312e81;
+    line-height: 1.55;
+  }
+  .ratio-card code { background: white; padding: 1px 5px; border-radius: 3px; }
+  .completed-tray {
+    margin-top: 10px;
+    padding: 8px;
+    background: #f0fdf4;
+    border: 1px dashed #86efac;
+    border-radius: 6px;
+    min-height: 44px;
+    display: flex; flex-wrap: wrap; gap: 4px;
+    align-items: flex-start;
+  }
+  .completed-tray .label {
+    width: 100%;
+    font-size: 11.5px;
+    color: #166534;
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+
+  /* ============ Module 2 — Channel ============ */
+  .chan-stage {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 14px;
+    align-items: center;
+    margin-top: 12px;
+  }
+  .actor {
+    border: 2px solid #cbd5e0;
+    border-radius: 10px;
+    padding: 12px;
+    background: white;
+    text-align: center;
+    transition: all .3s ease;
+  }
+  .actor.sender { border-color: var(--sender-color); background: #eff6ff; }
+  .actor.recv   { border-color: var(--recv-color);   background: #ecfdf5; }
+  .actor.blocked {
+    background: #fef2f2;
+    border-color: var(--block-color);
+    animation: blockpulse 1.2s infinite;
+  }
+  @keyframes blockpulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,.45); }
+    50%      { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
+  }
+  .actor .role {
+    font-weight: 700; font-size: 14px; color: #2d3748;
+    margin-bottom: 6px;
+  }
+  .actor .status {
+    font-size: 12px;
+    color: #4a5568;
+    min-height: 16px;
+    font-family: 'Fira Code', Consolas, monospace;
+  }
+  .actor.blocked .status { color: var(--block-color); font-weight: 700; }
+  .chan-buffer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 110px;
+  }
+  .chan-label {
+    font-size: 11.5px;
+    color: #92400e;
+    background: #fef3c7;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+    font-family: 'Fira Code', monospace;
+  }
+  .chan-slots {
+    display: flex; gap: 4px;
+    padding: 8px;
+    background: #fffbeb;
+    border: 2px dashed var(--chan-color);
+    border-radius: 8px;
+    min-height: 50px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: 260px;
+  }
+  .chan-slots.closed {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+    border-style: solid;
+  }
+  .slot {
+    width: 36px; height: 36px;
+    border: 1.5px solid #fbbf24;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fira Code', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: #92400e;
+    background: white;
+    transition: all .35s ease;
+  }
+  .slot.filled {
+    background: var(--chan-color);
+    color: white;
+    transform: scale(1.05);
+  }
+  .slot.unbuf {
+    border-style: dotted;
+    color: #94a3b8;
+  }
+  .actor-arrow {
+    font-size: 18px;
+    color: #94a3b8;
+    text-align: center;
+    margin: 4px 0;
+  }
+  .chan-log {
+    font-family: 'Fira Code', Consolas, monospace;
+    background: #1a202c;
+    color: #e2e8f0;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 12.5px;
+    max-height: 140px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    margin-top: 12px;
+  }
+  .chan-log .send { color: #93c5fd; }
+  .chan-log .recv { color: #6ee7b7; }
+  .chan-log .blk  { color: #fca5a5; font-weight: 700; }
+  .chan-log .cls  { color: #fbbf24; }
+  .chan-log .zero { color: #c4b5fd; }
+
+  /* ============ Module 3 — Worker pool ============ */
+  .wp-stage {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr 1fr;
+    gap: 12px;
+    align-items: flex-start;
+    margin-top: 12px;
+  }
+  .wp-col {
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 10px;
+    background: #f7fafc;
+    min-height: 220px;
+  }
+  .wp-col h3 {
+    margin: 0 0 8px;
+    font-size: 13px;
+    color: #2d3748;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+  }
+  .wp-queue, .wp-done {
+    display: flex; flex-wrap: wrap; gap: 4px;
+    min-height: 150px;
+    align-content: flex-start;
+  }
+  .wp-workers {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .worker {
+    border: 2px solid #cbd5e0;
+    border-radius: 8px;
+    padding: 8px 10px;
+    background: white;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+  }
+  .worker.busy { border-color: var(--proc-color); background: #fff7ed; }
+  .worker.idle .wlabel::after { content: " · idle"; color: #94a3b8; font-weight: 400; }
+  .worker .wlabel { font-weight: 700; color: #2d3748; min-width: 60px; }
+  .worker .wjob {
+    flex: 1;
+    min-height: 28px;
+    display: flex; align-items: center;
+    gap: 6px;
+  }
+  .progress {
+    flex: 1;
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress > div {
+    height: 100%;
+    background: var(--proc-color);
+    width: 0%;
+    transition: width .15s linear;
+  }
+  .job {
+    width: 36px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    background: var(--pending-color);
+    color: white;
+    font-size: 11.5px;
+    font-weight: 700;
+    transition: all .3s ease;
+  }
+  .job.processing { background: var(--proc-color); transform: scale(1.05); }
+  .job.done { background: var(--done-color); opacity: .85; }
+
+  /* ============ Mobile ============ */
+  @media (max-width: 768px) {
+    .module { padding: 16px; }
+    .sched-board { grid-template-columns: 1fr; }
+    .chan-stage { grid-template-columns: 1fr; }
+    .wp-stage { grid-template-columns: 1fr; }
+    .chan-slots { max-width: 100%; }
+    .actor-arrow { transform: rotate(90deg); }
+    .controls { gap: 6px; }
+    button.viz-btn { padding: 9px 12px; font-size: 13.5px; }
+  }
+  @media (max-width: 480px) {
+    .g-token { width: 32px; height: 28px; font-size: 10.5px; }
+    .slot { width: 30px; height: 30px; font-size: 12px; }
+    .job { width: 30px; height: 24px; font-size: 10.5px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-26-testing-basics/visualization.html">← L26: Testing</a>
+  <span class="sep">·</span>
+  <span class="current">L27: Goroutine & Channel</span>
+  <span class="sep">·</span>
+  <a href="../lesson-28-sync-primitives/visualization.html">L28: Sync Primitives →</a>
+</nav>
+
+<main>
+  <h1>L27 — Goroutine và Channel</h1>
+  <p class="lead">
+    Ba module tương tác minh hoạ ba "khái niệm sống" của concurrency trong Go:
+    (1) Go scheduler nuôi hàng vạn goroutine trên vài OS thread,
+    (2) channel làm khớp nối giữa goroutine,
+    (3) worker pool — pattern phổ thông kết hợp cả hai.
+  </p>
+
+  <!-- ============================================================ -->
+  <!-- MODULE 1 — Scheduler                                          -->
+  <!-- ============================================================ -->
+  <section class="module" id="mod1">
+    <h2>Module 1 — Go scheduler (M:N)</h2>
+    <p style="font-size:14px;color:#4a5568;line-height:1.55;">
+      Mỗi <strong>OS thread</strong> (P/M) là một "công nhân" CPU thật. Go runtime nuôi một
+      hàng đợi <em>run queue</em> cho mỗi thread, và đẩy goroutine (G, ~2 KB stack) lên đó.
+      Khi 1 thread hết việc, nó <strong>steal</strong> goroutine từ thread khác → tận dụng tối đa CPU.
+    </p>
+    <div class="legend">
+      <span><i style="background:var(--g-color)"></i> G chờ chạy</span>
+      <span><i style="background:#f59e0b"></i> G đang chạy</span>
+      <span><i style="background:var(--done-color)"></i> G xong</span>
+      <span><i style="background:#a855f7"></i> G bị steal</span>
+    </div>
+    <div class="controls">
+      <label>Số OS thread:
+        <input type="range" id="m1-threads" min="2" max="4" step="1" value="3">
+        <span id="m1-threads-val" class="stat">3</span>
+      </label>
+      <label>Số goroutine:
+        <input type="range" id="m1-goroutines" min="5" max="50" step="1" value="20">
+        <span id="m1-gor-val" class="stat">20</span>
+      </label>
+      <button class="viz-btn" id="m1-start">▶ Bắt đầu</button>
+      <button class="viz-btn secondary" id="m1-reset">Reset</button>
+    </div>
+    <div class="stat-row">
+      <span class="stat" id="m1-stat-pending">pending: 0</span>
+      <span class="stat" id="m1-stat-running">running: 0</span>
+      <span class="stat" id="m1-stat-done">done: 0</span>
+      <span class="stat" id="m1-stat-steals">steals: 0</span>
+    </div>
+    <div class="sched-board" id="m1-board"></div>
+    <div class="completed-tray" id="m1-tray">
+      <span class="label">✓ Completed</span>
+    </div>
+    <div class="ratio-card">
+      <strong>Vì sao Go scale tốt?</strong>
+      Goroutine stack ≈ <code>2 KB</code> (growable), OS thread stack ≈ <code>1–8 MB</code>.
+      10 000 goroutine ≈ <strong>20 MB RAM</strong>; 10 000 OS thread ≈ <strong>~80 GB RAM</strong> (∞).
+      <br>
+      Khi <code>N</code> nhỏ (vài thread) + <code>M</code> rất lớn (vạn goroutine), mô hình M:N "ép" mọi
+      goroutine xếp hàng trên vài run queue, switch trong user-space (~100 ns) thay vì
+      kernel call (~1 µs).
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- MODULE 2 — Channel                                            -->
+  <!-- ============================================================ -->
+  <section class="module" id="mod2">
+    <h2>Module 2 — Channel handoff</h2>
+    <p style="font-size:14px;color:#4a5568;line-height:1.55;">
+      Channel = ống dẫn dữ liệu giữa hai goroutine. <strong>Unbuffered</strong>: gửi/nhận
+      phải gặp nhau (rendezvous) → một bên đi trước sẽ <em>block</em>. <strong>Buffered (cap N)</strong>:
+      có "kho" N slot, sender chỉ block khi đầy, receiver chỉ block khi rỗng.
+    </p>
+    <div class="controls">
+      <label>
+        <input type="radio" name="m2-kind" value="unbuf" checked> Unbuffered
+      </label>
+      <label>
+        <input type="radio" name="m2-kind" value="buf"> Buffered cap
+        <input type="range" id="m2-cap" min="1" max="6" step="1" value="3" disabled>
+        <span id="m2-cap-val" class="stat">—</span>
+      </label>
+    </div>
+    <div class="chan-stage">
+      <div class="actor sender" id="m2-sender">
+        <div class="role">📤 Sender</div>
+        <div class="status" id="m2-sender-status">idle</div>
+        <div class="actor-arrow">→</div>
+        <button class="viz-btn" id="m2-send">Send X</button>
+      </div>
+      <div class="chan-buffer">
+        <div class="chan-label" id="m2-chan-label">chan int (unbuf)</div>
+        <div class="chan-slots" id="m2-slots"></div>
+        <button class="viz-btn danger" id="m2-close" style="margin-top:10px">Close (sender)</button>
+      </div>
+      <div class="actor recv" id="m2-recv">
+        <div class="role">📥 Receiver</div>
+        <div class="status" id="m2-recv-status">idle</div>
+        <div class="actor-arrow">←</div>
+        <button class="viz-btn" id="m2-recv-btn">Receive</button>
+      </div>
+    </div>
+    <div class="chan-log" id="m2-log"></div>
+    <div class="hint">
+      <strong>Thử 3 kịch bản:</strong>
+      (1) Unbuffered + Send trước Receive → sender block;
+      (2) Buffered cap 3 + Send 4 lần liên tiếp → lần 4 block;
+      (3) Close rồi Receive → trả về zero-value (<code>0</code>) + <code>ok = false</code>.
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- MODULE 3 — Worker Pool                                        -->
+  <!-- ============================================================ -->
+  <section class="module" id="mod3">
+    <h2>Module 3 — Worker pool</h2>
+    <p style="font-size:14px;color:#4a5568;line-height:1.55;">
+      <strong>Pattern kinh điển</strong>: 1 channel jobs, N worker goroutine cùng <code>range</code>
+      trên jobs → Go runtime tự phân phối (load balance). Tăng N → throughput tăng cho tới khi
+      chạm trần CPU (hoặc bottleneck I/O).
+    </p>
+    <div class="controls">
+      <label>Số worker:
+        <input type="range" id="m3-workers" min="2" max="8" step="1" value="3">
+        <span id="m3-workers-val" class="stat">3</span>
+      </label>
+      <label>Job thời gian (ms):
+        <input type="range" id="m3-jobtime" min="400" max="2000" step="100" value="900">
+        <span id="m3-jobtime-val" class="stat">900</span>
+      </label>
+      <button class="viz-btn" id="m3-add">+10 jobs</button>
+      <button class="viz-btn secondary" id="m3-reset">Reset</button>
+    </div>
+    <div class="stat-row">
+      <span class="stat" id="m3-stat-pending">pending: 0</span>
+      <span class="stat" id="m3-stat-progress">in-progress: 0</span>
+      <span class="stat" id="m3-stat-done">done: 0</span>
+      <span class="stat" id="m3-stat-throughput">throughput: 0 jobs/s</span>
+    </div>
+    <div class="wp-stage">
+      <div class="wp-col">
+        <h3>Jobs queue (chan)</h3>
+        <div class="wp-queue" id="m3-queue"></div>
+      </div>
+      <div class="wp-col">
+        <h3>Workers</h3>
+        <div class="wp-workers" id="m3-workers"></div>
+      </div>
+      <div class="wp-col">
+        <h3>Completed</h3>
+        <div class="wp-done" id="m3-done"></div>
+      </div>
+    </div>
+    <div class="hint">
+      <strong>Quan sát:</strong> với 3 worker, 10 job × 900 ms ≈ ~3 s wall-clock (vs 9 s nếu chạy
+      tuần tự). Tăng worker lên 8 → ~1.5 s. Nhưng nếu tăng tiếp lên 20 trong khi máy chỉ có 4 core →
+      throughput không tăng — hết CPU.
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* =========================================================================
+ * MODULE 1 — Scheduler
+ * ========================================================================= */
+(function() {
+  const threadSlider = document.getElementById('m1-threads');
+  const gorSlider    = document.getElementById('m1-goroutines');
+  const threadVal    = document.getElementById('m1-threads-val');
+  const gorVal       = document.getElementById('m1-gor-val');
+  const btnStart     = document.getElementById('m1-start');
+  const btnReset     = document.getElementById('m1-reset');
+  const board        = document.getElementById('m1-board');
+  const tray         = document.getElementById('m1-tray');
+  const statPending  = document.getElementById('m1-stat-pending');
+  const statRunning  = document.getElementById('m1-stat-running');
+  const statDone     = document.getElementById('m1-stat-done');
+  const statSteals   = document.getElementById('m1-stat-steals');
+
+  let threads = [];
+  let goroutines = [];
+  let nextGid = 0;
+  let running = false;
+  let stealCount = 0;
+  let tickHandle = null;
+
+  function renderBoard() {
+    board.innerHTML = '';
+    threads.forEach((t, idx) => {
+      const div = document.createElement('div');
+      div.className = 'thread-box' + (t.queue.length === 0 && !t.running ? ' idle' : '');
+      if (t.running) div.classList.add('running');
+      div.id = 'thr-' + idx;
+      div.innerHTML = `
+        <div class="thead">
+          <span>OS thread P${idx}</span>
+          <span class="badge">${t.queue.length}+${t.running ? 1 : 0}</span>
+        </div>
+        <div class="runqueue" id="rq-${idx}"></div>
+      `;
+      board.appendChild(div);
+      const rq = div.querySelector('.runqueue');
+      if (t.running) {
+        const g = document.createElement('div');
+        g.className = 'g-token running';
+        g.textContent = 'G' + t.running.id;
+        rq.appendChild(g);
+      }
+      t.queue.forEach(g => {
+        const el = document.createElement('div');
+        el.className = 'g-token' + (g.justStolen ? ' steal' : '');
+        el.textContent = 'G' + g.id;
+        rq.appendChild(el);
+        if (g.justStolen) setTimeout(() => g.justStolen = false, 600);
+      });
+    });
+  }
+
+  function renderStats() {
+    const pending = threads.reduce((s, t) => s + t.queue.length, 0);
+    const runningN = threads.filter(t => t.running).length;
+    const done = goroutines.filter(g => g.done).length;
+    statPending.textContent = 'pending: ' + pending;
+    statRunning.textContent = 'running: ' + runningN;
+    statDone.textContent    = 'done: ' + done;
+    statSteals.textContent  = 'steals: ' + stealCount;
+  }
+
+  function addTrayToken(gid) {
+    const t = document.createElement('div');
+    t.className = 'g-token done';
+    t.textContent = 'G' + gid;
+    tray.appendChild(t);
+  }
+
+  function tick() {
+    if (!running) return;
+    // 1. Mỗi thread: nếu không running, pick từ queue
+    threads.forEach(t => {
+      if (!t.running && t.queue.length > 0) {
+        t.running = t.queue.shift();
+        t.runTicks = t.running.work;
+      }
+    });
+    // 2. Work
+    threads.forEach(t => {
+      if (t.running) {
+        t.runTicks--;
+        if (t.runTicks <= 0) {
+          t.running.done = true;
+          addTrayToken(t.running.id);
+          t.running = null;
+        }
+      }
+    });
+    // 3. Steal: thread idle (no running, no queue) cướp 1 G từ thread đông nhất
+    threads.forEach(t => {
+      if (!t.running && t.queue.length === 0) {
+        const victim = threads
+          .filter(x => x !== t && x.queue.length >= 2)
+          .sort((a, b) => b.queue.length - a.queue.length)[0];
+        if (victim) {
+          const g = victim.queue.pop();
+          g.justStolen = true;
+          t.queue.push(g);
+          stealCount++;
+        }
+      }
+    });
+    renderBoard();
+    renderStats();
+    // Done?
+    const allDone = goroutines.every(g => g.done);
+    if (allDone) {
+      running = false;
+      btnStart.disabled = false;
+      btnStart.textContent = '▶ Bắt đầu';
+      clearInterval(tickHandle);
+      tickHandle = null;
+    }
+  }
+
+  function setup() {
+    const nT = parseInt(threadSlider.value);
+    const nG = parseInt(gorSlider.value);
+    threads = [];
+    for (let i = 0; i < nT; i++) threads.push({ queue: [], running: null, runTicks: 0 });
+    goroutines = [];
+    nextGid = 0;
+    stealCount = 0;
+    for (let i = 0; i < nG; i++) {
+      const g = { id: nextGid++, work: 2 + Math.floor(Math.random() * 4), done: false };
+      goroutines.push(g);
+      // Phân bổ tròn vào threads ban đầu (mô phỏng go runtime spread)
+      threads[i % nT].queue.push(g);
+    }
+    tray.innerHTML = '<span class="label">✓ Completed</span>';
+    renderBoard();
+    renderStats();
+  }
+
+  threadSlider.addEventListener('input', () => {
+    threadVal.textContent = threadSlider.value;
+    if (!running) setup();
+  });
+  gorSlider.addEventListener('input', () => {
+    gorVal.textContent = gorSlider.value;
+    if (!running) setup();
+  });
+  btnStart.addEventListener('click', () => {
+    if (running) return;
+    if (goroutines.every(g => g.done)) setup();
+    running = true;
+    btnStart.disabled = true;
+    btnStart.textContent = '⏵ Đang chạy';
+    tickHandle = setInterval(tick, 350);
+  });
+  btnReset.addEventListener('click', () => {
+    running = false;
+    if (tickHandle) clearInterval(tickHandle);
+    tickHandle = null;
+    btnStart.disabled = false;
+    btnStart.textContent = '▶ Bắt đầu';
+    setup();
+  });
+
+  setup();
+})();
+
+/* =========================================================================
+ * MODULE 2 — Channel handoff
+ * ========================================================================= */
+(function() {
+  const radios     = document.querySelectorAll('input[name="m2-kind"]');
+  const capSlider  = document.getElementById('m2-cap');
+  const capVal     = document.getElementById('m2-cap-val');
+  const slotsEl    = document.getElementById('m2-slots');
+  const chanLabel  = document.getElementById('m2-chan-label');
+  const sender     = document.getElementById('m2-sender');
+  const recv       = document.getElementById('m2-recv');
+  const sStatus    = document.getElementById('m2-sender-status');
+  const rStatus    = document.getElementById('m2-recv-status');
+  const btnSend    = document.getElementById('m2-send');
+  const btnRecv    = document.getElementById('m2-recv-btn');
+  const btnClose   = document.getElementById('m2-close');
+  const logEl      = document.getElementById('m2-log');
+
+  let kind = 'unbuf';
+  let cap = 3;
+  let buffer = [];           // values in buffer
+  let pendingSend = null;    // {value} when unbuf + sender waiting
+  let pendingRecv = false;   // when unbuf + recv waiting OR buf empty
+  let closed = false;
+  let nextVal = 1;
+
+  function log(text, cls) {
+    const line = document.createElement('div');
+    if (cls) line.className = cls;
+    line.textContent = text;
+    logEl.appendChild(line);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  function render() {
+    slotsEl.innerHTML = '';
+    if (closed) slotsEl.classList.add('closed');
+    else slotsEl.classList.remove('closed');
+    if (kind === 'unbuf') {
+      // 1 dotted slot
+      const s = document.createElement('div');
+      s.className = 'slot unbuf';
+      s.textContent = pendingSend ? pendingSend.value : '∅';
+      if (pendingSend) s.classList.add('filled');
+      slotsEl.appendChild(s);
+    } else {
+      for (let i = 0; i < cap; i++) {
+        const s = document.createElement('div');
+        s.className = 'slot' + (i < buffer.length ? ' filled' : '');
+        s.textContent = i < buffer.length ? buffer[i] : '·';
+        slotsEl.appendChild(s);
+      }
+    }
+    // Sender state
+    if (closed) {
+      sender.classList.remove('blocked');
+      sStatus.textContent = '(closed)';
+      btnSend.disabled = true;
+      btnClose.disabled = true;
+    } else if (pendingSend) {
+      sender.classList.add('blocked');
+      sStatus.textContent = 'BLOCK · send ' + pendingSend.value;
+      btnSend.disabled = true;
+    } else if (kind === 'buf' && buffer.length >= cap) {
+      sender.classList.add('blocked');
+      sStatus.textContent = 'BLOCK · buffer full';
+      btnSend.disabled = true;
+    } else {
+      sender.classList.remove('blocked');
+      sStatus.textContent = 'ready';
+      btnSend.disabled = false;
+    }
+    // Receiver state
+    if (pendingRecv) {
+      recv.classList.add('blocked');
+      rStatus.textContent = 'BLOCK · wait value';
+      btnRecv.disabled = true;
+    } else {
+      recv.classList.remove('blocked');
+      if (closed && buffer.length === 0) {
+        rStatus.textContent = 'closed → zero,false';
+      } else {
+        rStatus.textContent = 'ready';
+      }
+      btnRecv.disabled = false;
+    }
+  }
+
+  function reset() {
+    buffer = [];
+    pendingSend = null;
+    pendingRecv = false;
+    closed = false;
+    btnClose.disabled = false;
+    render();
+  }
+
+  radios.forEach(r => r.addEventListener('change', () => {
+    kind = document.querySelector('input[name="m2-kind"]:checked').value;
+    capSlider.disabled = (kind === 'unbuf');
+    capVal.textContent = (kind === 'unbuf') ? '—' : capSlider.value;
+    chanLabel.textContent = (kind === 'unbuf')
+      ? 'chan int (unbuf)'
+      : 'chan int, cap=' + capSlider.value;
+    cap = parseInt(capSlider.value);
+    reset();
+  }));
+  capSlider.addEventListener('input', () => {
+    cap = parseInt(capSlider.value);
+    capVal.textContent = capSlider.value;
+    chanLabel.textContent = 'chan int, cap=' + cap;
+    if (buffer.length > cap) buffer = buffer.slice(0, cap);
+    render();
+  });
+
+  btnSend.addEventListener('click', () => {
+    if (closed) {
+      log('panic: send on closed channel!', 'blk');
+      return;
+    }
+    const v = nextVal++;
+    if (kind === 'unbuf') {
+      if (pendingRecv) {
+        // rendezvous: receiver waiting → deliver
+        log('send(' + v + ') ✓ rendezvous, receiver gets ' + v, 'send');
+        pendingRecv = false;
+        nudge(recv);
+        render();
+      } else {
+        pendingSend = { value: v };
+        log('send(' + v + ') · BLOCK (no receiver)', 'blk');
+        render();
+      }
+    } else {
+      if (buffer.length < cap) {
+        buffer.push(v);
+        log('send(' + v + ') → buffer [' + buffer.join(',') + ']', 'send');
+        // wake pending receiver if any
+        if (pendingRecv) {
+          const x = buffer.shift();
+          log('  receiver wakes, gets ' + x, 'recv');
+          pendingRecv = false;
+          nudge(recv);
+        }
+        render();
+      } else {
+        // buffer already full — this shouldn't happen because btn was disabled
+      }
+    }
+  });
+
+  btnRecv.addEventListener('click', () => {
+    if (closed && buffer.length === 0) {
+      log('recv ← (0, false)  [zero-value vì channel đã closed]', 'zero');
+      return;
+    }
+    if (kind === 'unbuf') {
+      if (pendingSend) {
+        const v = pendingSend.value;
+        log('recv ← ' + v + ' ✓ rendezvous with sender', 'recv');
+        pendingSend = null;
+        nudge(sender);
+        render();
+      } else {
+        pendingRecv = true;
+        log('recv · BLOCK (no sender)', 'blk');
+        render();
+      }
+    } else {
+      if (buffer.length > 0) {
+        const v = buffer.shift();
+        log('recv ← ' + v + ' (buffer [' + buffer.join(',') + '])', 'recv');
+        render();
+      } else if (closed) {
+        log('recv ← (0, false)', 'zero');
+      } else {
+        pendingRecv = true;
+        log('recv · BLOCK (buffer empty)', 'blk');
+        render();
+      }
+    }
+  });
+
+  btnClose.addEventListener('click', () => {
+    if (closed) return;
+    closed = true;
+    log('close(ch) — sender đóng channel', 'cls');
+    // pending recv được đánh thức
+    if (pendingRecv) {
+      log('  pending recv wakes → (0, false)', 'zero');
+      pendingRecv = false;
+    }
+    render();
+  });
+
+  function nudge(el) {
+    el.style.transform = 'scale(1.05)';
+    setTimeout(() => el.style.transform = '', 250);
+  }
+
+  reset();
+})();
+
+/* =========================================================================
+ * MODULE 3 — Worker pool
+ * ========================================================================= */
+(function() {
+  const wSlider     = document.getElementById('m3-workers');
+  const wVal        = document.getElementById('m3-workers-val');
+  const jtSlider    = document.getElementById('m3-jobtime');
+  const jtVal       = document.getElementById('m3-jobtime-val');
+  const btnAdd      = document.getElementById('m3-add');
+  const btnReset    = document.getElementById('m3-reset');
+  const queueEl     = document.getElementById('m3-queue');
+  const workersEl   = document.getElementById('m3-workers');
+  const doneEl      = document.getElementById('m3-done');
+  const sPending    = document.getElementById('m3-stat-pending');
+  const sProgress   = document.getElementById('m3-stat-progress');
+  const sDone       = document.getElementById('m3-stat-done');
+  const sThroughput = document.getElementById('m3-stat-throughput');
+
+  let jobs = [];        // pending
+  let workers = [];     // [{id, job, startTs, jobTime}]
+  let done = [];
+  let nextJid = 1;
+  let firstStartTs = null;
+
+  function spawnWorkers(n) {
+    // keep busy workers, add/remove as needed
+    while (workers.length < n) {
+      workers.push({ id: workers.length, job: null, startTs: 0, jobTime: 0 });
+    }
+    while (workers.length > n) {
+      // worker bị "fire" — nếu đang busy, đẩy job trở lại queue
+      const w = workers.pop();
+      if (w.job) jobs.unshift(w.job);
+    }
+    workers.forEach((w, i) => w.id = i);
+    renderWorkers();
+    renderStats();
+  }
+
+  function renderQueue() {
+    queueEl.innerHTML = '';
+    jobs.forEach(j => {
+      const el = document.createElement('div');
+      el.className = 'job';
+      el.textContent = 'J' + j.id;
+      queueEl.appendChild(el);
+    });
+  }
+  function renderDone() {
+    doneEl.innerHTML = '';
+    done.slice(-30).forEach(j => {
+      const el = document.createElement('div');
+      el.className = 'job done';
+      el.textContent = 'J' + j.id;
+      doneEl.appendChild(el);
+    });
+  }
+  function renderWorkers() {
+    workersEl.innerHTML = '';
+    workers.forEach(w => {
+      const div = document.createElement('div');
+      div.className = 'worker ' + (w.job ? 'busy' : 'idle');
+      div.innerHTML = `
+        <span class="wlabel">W${w.id}</span>
+        <span class="wjob"></span>
+      `;
+      const wjob = div.querySelector('.wjob');
+      if (w.job) {
+        const jt = document.createElement('span');
+        jt.className = 'job processing';
+        jt.textContent = 'J' + w.job.id;
+        wjob.appendChild(jt);
+        const pr = document.createElement('div');
+        pr.className = 'progress';
+        pr.innerHTML = '<div></div>';
+        wjob.appendChild(pr);
+        const pct = Math.min(100, ((performance.now() - w.startTs) / w.jobTime) * 100);
+        pr.firstElementChild.style.width = pct + '%';
+      }
+      workersEl.appendChild(div);
+    });
+  }
+  function renderStats() {
+    sPending.textContent  = 'pending: ' + jobs.length;
+    sProgress.textContent = 'in-progress: ' + workers.filter(w => w.job).length;
+    sDone.textContent     = 'done: ' + done.length;
+    if (firstStartTs && done.length > 0) {
+      const sec = (performance.now() - firstStartTs) / 1000;
+      const tp = (done.length / sec).toFixed(2);
+      sThroughput.textContent = 'throughput: ' + tp + ' jobs/s';
+    } else {
+      sThroughput.textContent = 'throughput: 0 jobs/s';
+    }
+  }
+
+  function tick() {
+    // assign pending jobs to idle workers
+    workers.forEach(w => {
+      if (!w.job && jobs.length > 0) {
+        w.job = jobs.shift();
+        w.startTs = performance.now();
+        w.jobTime = parseInt(jtSlider.value);
+        if (firstStartTs === null) firstStartTs = w.startTs;
+      }
+    });
+    // progress: check finished
+    const now = performance.now();
+    workers.forEach(w => {
+      if (w.job && (now - w.startTs) >= w.jobTime) {
+        done.push(w.job);
+        w.job = null;
+      }
+    });
+    renderQueue();
+    renderWorkers();
+    renderDone();
+    renderStats();
+  }
+
+  wSlider.addEventListener('input', () => {
+    wVal.textContent = wSlider.value;
+    spawnWorkers(parseInt(wSlider.value));
+  });
+  jtSlider.addEventListener('input', () => {
+    jtVal.textContent = jtSlider.value;
+  });
+  btnAdd.addEventListener('click', () => {
+    for (let i = 0; i < 10; i++) jobs.push({ id: nextJid++ });
+    renderQueue();
+    renderStats();
+  });
+  btnReset.addEventListener('click', () => {
+    jobs = []; done = []; nextJid = 1; firstStartTs = null;
+    workers.forEach(w => w.job = null);
+    renderQueue(); renderWorkers(); renderDone(); renderStats();
+  });
+
+  spawnWorkers(parseInt(wSlider.value));
+  setInterval(tick, 100);
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

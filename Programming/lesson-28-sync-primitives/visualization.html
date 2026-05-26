@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 28 — Sync Primitives · Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 80px; }
+  h1 { font-size: 28px; margin: 8px 0 4px; }
+  .subtitle { color: #6b7280; margin-bottom: 24px; }
+
+  .module {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 28px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .module h2 {
+    margin: 0 0 8px;
+    font-size: 22px;
+    color: #1f2937;
+  }
+  .module .lead { color: #4b5563; margin-bottom: 16px; font-size: 14px; }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 18px;
+    align-items: center;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+  .controls label {
+    font-size: 13px;
+    color: #374151;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .controls input[type="range"] { width: 130px; }
+  .controls .val { font-weight: 700; color: #2563eb; min-width: 18px; display: inline-block; text-align: right; }
+  .btn {
+    background: #4299e1;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn:hover { background: #3182ce; }
+  .btn:disabled { background: #cbd5e0; cursor: not-allowed; }
+  .btn.danger { background: #e53e3e; }
+  .btn.danger:hover { background: #c53030; }
+  .btn.ghost { background: #edf2f7; color: #2d3748; }
+  .btn.ghost:hover { background: #e2e8f0; }
+
+  .stage {
+    background: #fafbfc;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .stat {
+    background: #f3f4f6;
+    border-radius: 6px;
+    padding: 8px 10px;
+    text-align: center;
+  }
+  .stat .v { font-size: 18px; font-weight: 700; color: #1f2937; }
+  .stat .l { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  .log {
+    background: #1a202c;
+    color: #e2e8f0;
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 12px;
+    border-radius: 6px;
+    padding: 10px 12px;
+    max-height: 140px;
+    overflow-y: auto;
+    line-height: 1.5;
+  }
+  .log .ok { color: #68d391; }
+  .log .err { color: #fc8181; }
+  .log .info { color: #90cdf4; }
+  .log .warn { color: #f6ad55; }
+
+  /* Module 1 + 2 — SVG goroutine boxes */
+  .g-box-label { font: 600 11px ui-sans-serif, system-ui; fill: #1f2937; }
+  .g-state-label { font: 500 9px ui-monospace, monospace; fill: #4b5563; }
+  .cs-label { font: 700 13px ui-sans-serif; fill: #1f2937; }
+  .cs-box {
+    fill: white;
+    stroke: #cbd5e0;
+    stroke-width: 2;
+    stroke-dasharray: 4 3;
+    transition: fill 0.2s, stroke 0.2s;
+  }
+  .cs-box.occupied-w { fill: #fed7d7; stroke: #e53e3e; stroke-dasharray: 0; }
+  .cs-box.occupied-r { fill: #c6f6d5; stroke: #38a169; stroke-dasharray: 0; }
+
+  /* Module 3 — tabs */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 2px solid #e5e7eb;
+    margin-bottom: 16px;
+  }
+  .tab {
+    background: transparent;
+    border: none;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #6b7280;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.15s;
+  }
+  .tab.active { color: #2563eb; border-bottom-color: #2563eb; }
+  .tab:hover:not(.active) { color: #374151; }
+
+  .race-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .race-col {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 10px;
+  }
+  .race-col h4 {
+    margin: 0 0 8px;
+    font-size: 13px;
+    color: #374151;
+  }
+  .race-col .mem {
+    font-family: ui-monospace, monospace;
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+    background: white;
+    border-radius: 4px;
+    padding: 6px;
+    color: #1f2937;
+  }
+  .race-col.go-a .mem { color: #2563eb; }
+  .race-col.go-b .mem { color: #db2777; }
+
+  .race-counter {
+    font-family: ui-monospace, monospace;
+    font-size: 32px;
+    font-weight: 700;
+    text-align: center;
+    padding: 12px;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+  }
+  .race-counter.ok { color: #16a34a; border-color: #16a34a; }
+  .race-counter.bad { color: #dc2626; border-color: #dc2626; }
+
+  .perf-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 13px;
+  }
+  .perf-table th, .perf-table td {
+    border: 1px solid #e5e7eb;
+    padding: 6px 10px;
+    text-align: left;
+  }
+  .perf-table th { background: #f3f4f6; font-weight: 600; }
+  .perf-bar {
+    display: inline-block;
+    height: 10px;
+    background: #4299e1;
+    border-radius: 2px;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+  .correct-yes { color: #16a34a; font-weight: 700; }
+  .correct-no { color: #dc2626; font-weight: 700; }
+
+  @media (max-width: 768px) {
+    main { padding: 16px 10px 80px; }
+    .module { padding: 14px; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .race-grid { grid-template-columns: 1fr; }
+    .controls { gap: 8px 12px; padding: 10px; }
+    .controls input[type="range"] { width: 110px; }
+  }
+  @media (max-width: 480px) {
+    h1 { font-size: 22px; }
+    .module h2 { font-size: 18px; }
+    .race-counter { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-27-goroutines-channels/visualization.html">← L27: Goroutine &amp; Channel</a>
+  <span class="sep">·</span>
+  <span class="current">L28: Sync Primitives</span>
+  <span class="sep">·</span>
+  <a href="../lesson-29-context-cancellation/visualization.html">L29: Context →</a>
+</nav>
+
+<main>
+  <h1>Lesson 28 — Sync Primitives</h1>
+  <p class="subtitle">Mô phỏng <code>sync.Mutex</code>, <code>sync.RWMutex</code> và race condition trực tiếp trong trình duyệt.</p>
+
+  <!-- ===================== MODULE 1: Mutex simulator ===================== -->
+  <section class="module" id="mod1">
+    <h2>1. Mutex simulator — Mutual Exclusion</h2>
+    <p class="lead">
+      N goroutine cùng cố vào <strong>Critical Section</strong> (CS). Mỗi lần chỉ <strong>1 goroutine</strong> được vào;
+      những goroutine khác phải xếp hàng đợi <code>Lock()</code>. Bật toggle <em>"không mutex"</em> để xem race condition
+      làm counter sai số.
+    </p>
+
+    <div class="controls">
+      <label>Số goroutine: <input type="range" id="m1-n" min="2" max="8" value="4"> <span class="val" id="m1-n-v">4</span></label>
+      <label>Tốc độ: <input type="range" id="m1-speed" min="1" max="5" value="3"> <span class="val" id="m1-speed-v">3</span></label>
+      <label><input type="checkbox" id="m1-nomutex"> Without mutex (race!)</label>
+      <button class="btn" id="m1-start">▶ Start</button>
+      <button class="btn ghost" id="m1-reset">↺ Reset</button>
+    </div>
+
+    <div class="stage">
+      <svg id="m1-svg" width="900" height="320" viewBox="0 0 900 320" style="width:100%;height:auto;">
+        <!-- Critical Section box -->
+        <rect id="m1-cs" class="cs-box" x="360" y="110" width="180" height="100" rx="8"/>
+        <text class="cs-label" x="450" y="100" text-anchor="middle">Critical Section</text>
+        <text class="g-state-label" x="450" y="225" text-anchor="middle" id="m1-cs-owner" style="font-size:11px;">— empty —</text>
+
+        <!-- Counter display -->
+        <text x="450" y="270" text-anchor="middle" style="font: 700 14px ui-monospace, monospace; fill:#1f2937;">
+          counter = <tspan id="m1-counter" style="fill:#2563eb;">0</tspan>
+        </text>
+        <text x="450" y="290" text-anchor="middle" style="font: 500 11px ui-sans-serif; fill:#6b7280;">
+          (expected = <tspan id="m1-expected">0</tspan>)
+        </text>
+
+        <!-- Goroutines placed dynamically -->
+        <g id="m1-goroutines"></g>
+        <!-- Queue area label -->
+        <text x="60" y="30" style="font: 600 11px ui-sans-serif; fill:#6b7280;">Goroutines</text>
+        <text x="780" y="30" style="font: 600 11px ui-sans-serif; fill:#6b7280;">Wait queue</text>
+        <g id="m1-queue"></g>
+      </svg>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="v" id="m1-acquired">0</div><div class="l">Lock acquired</div></div>
+      <div class="stat"><div class="v" id="m1-blocked">0</div><div class="l">Currently blocked</div></div>
+      <div class="stat"><div class="v" id="m1-done">0</div><div class="l">Inc() done</div></div>
+      <div class="stat"><div class="v" id="m1-status">idle</div><div class="l">CS owner</div></div>
+    </div>
+
+    <div class="log" id="m1-log"></div>
+  </section>
+
+  <!-- ===================== MODULE 2: RWMutex ===================== -->
+  <section class="module" id="mod2">
+    <h2>2. RWMutex — Reader/Writer Lock</h2>
+    <p class="lead">
+      Nhiều <strong style="color:#16a34a">Reader</strong> có thể vào CS <strong>cùng lúc</strong>
+      (<code>RLock</code>). Khi <strong style="color:#dc2626">Writer</strong> tới (<code>Lock</code>),
+      mọi reader phải rời và writer độc quyền CS. Đọc nhiều — ghi ít → RWMutex nhanh hơn Mutex thường.
+    </p>
+
+    <div class="controls">
+      <label>Readers: <input type="range" id="m2-r" min="1" max="6" value="4"> <span class="val" id="m2-r-v">4</span></label>
+      <label>Writers: <input type="range" id="m2-w" min="0" max="3" value="2"> <span class="val" id="m2-w-v">2</span></label>
+      <label>Tốc độ: <input type="range" id="m2-speed" min="1" max="5" value="3"> <span class="val" id="m2-speed-v">3</span></label>
+      <button class="btn" id="m2-start">▶ Start</button>
+      <button class="btn ghost" id="m2-reset">↺ Reset</button>
+    </div>
+
+    <div class="stage">
+      <svg id="m2-svg" width="900" height="320" viewBox="0 0 900 320" style="width:100%;height:auto;">
+        <rect id="m2-cs" class="cs-box" x="320" y="100" width="260" height="120" rx="8"/>
+        <text class="cs-label" x="450" y="90" text-anchor="middle">Shared State (CS)</text>
+        <text class="g-state-label" x="450" y="240" text-anchor="middle" id="m2-cs-status" style="font-size:11px;">— free —</text>
+        <text x="450" y="270" text-anchor="middle" style="font: 600 12px ui-sans-serif; fill:#1f2937;">
+          data = <tspan id="m2-data" style="font-family:ui-monospace,monospace;fill:#2563eb;">v0</tspan>
+        </text>
+
+        <g id="m2-goroutines"></g>
+
+        <text x="60" y="30" style="font: 600 11px ui-sans-serif; fill:#16a34a;">Readers (RLock)</text>
+        <text x="780" y="30" style="font: 600 11px ui-sans-serif; fill:#dc2626;">Writers (Lock)</text>
+      </svg>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="v" id="m2-reads">0</div><div class="l">Total reads</div></div>
+      <div class="stat"><div class="v" id="m2-writes">0</div><div class="l">Total writes</div></div>
+      <div class="stat"><div class="v" id="m2-cur-r">0</div><div class="l">Current readers</div></div>
+      <div class="stat"><div class="v" id="m2-cur-w">0</div><div class="l">Current writer</div></div>
+    </div>
+
+    <div class="log" id="m2-log"></div>
+  </section>
+
+  <!-- ===================== MODULE 3: Race demo ===================== -->
+  <section class="module" id="mod3">
+    <h2>3. Race condition — No sync vs Mutex vs Atomic</h2>
+    <p class="lead">
+      Hai goroutine cùng tăng counter, mỗi goroutine 1000 lần (kỳ vọng = 2000). Mỗi <code>n++</code> là 3 bước:
+      <strong>read</strong> → <strong>add 1</strong> → <strong>write</strong>. Khi không sync, hai goroutine
+      có thể đọc cùng giá trị → ghi đè lẫn nhau → mất update.
+    </p>
+
+    <div class="tabs">
+      <button class="tab active" data-mode="nosync">No sync</button>
+      <button class="tab" data-mode="mutex">Mutex</button>
+      <button class="tab" data-mode="atomic">atomic.Int64</button>
+    </div>
+
+    <div class="controls">
+      <label>Iterations / goroutine: <input type="range" id="m3-iter" min="100" max="2000" step="100" value="1000"> <span class="val" id="m3-iter-v">1000</span></label>
+      <label>Tốc độ animate: <input type="range" id="m3-speed" min="1" max="10" value="6"> <span class="val" id="m3-speed-v">6</span></label>
+      <button class="btn" id="m3-start">▶ Run</button>
+      <button class="btn ghost" id="m3-reset">↺ Reset</button>
+    </div>
+
+    <div class="stage">
+      <div class="race-grid">
+        <div class="race-col go-a">
+          <h4>Goroutine A</h4>
+          <div>read: <span class="mem" id="m3a-read">—</span></div>
+          <div style="margin-top:6px">add 1 → <span class="mem" id="m3a-add">—</span></div>
+          <div style="margin-top:6px">write</div>
+          <div style="margin-top:8px;font-size:12px;color:#6b7280;">done: <strong id="m3a-done">0</strong> / <span id="m3a-target">1000</span></div>
+        </div>
+        <div class="race-col">
+          <h4>Shared counter (RAM)</h4>
+          <div class="race-counter" id="m3-counter">0</div>
+          <div style="text-align:center;margin-top:8px;font-size:12px;color:#6b7280;">
+            expected = <strong id="m3-expected">2000</strong>
+          </div>
+          <div style="text-align:center;margin-top:6px;font-size:11px;color:#9ca3af;" id="m3-verdict">—</div>
+        </div>
+        <div class="race-col go-b">
+          <h4>Goroutine B</h4>
+          <div>read: <span class="mem" id="m3b-read">—</span></div>
+          <div style="margin-top:6px">add 1 → <span class="mem" id="m3b-add">—</span></div>
+          <div style="margin-top:6px">write</div>
+          <div style="margin-top:8px;font-size:12px;color:#6b7280;">done: <strong id="m3b-done">0</strong> / <span id="m3b-target">1000</span></div>
+        </div>
+      </div>
+
+      <table class="perf-table">
+        <thead>
+          <tr>
+            <th>Mode</th>
+            <th>Kết quả</th>
+            <th>Đúng?</th>
+            <th>ns/op (mock)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>no sync</code></td>
+            <td id="m3-res-nosync">—</td>
+            <td><span class="correct-no">SAI</span></td>
+            <td><span class="perf-bar" style="width:8px"></span>~2 ns (nhưng kết quả sai)</td>
+          </tr>
+          <tr>
+            <td><code>sync.Mutex</code></td>
+            <td id="m3-res-mutex">—</td>
+            <td><span class="correct-yes">đúng</span></td>
+            <td><span class="perf-bar" style="width:60px"></span>~15 ns</td>
+          </tr>
+          <tr>
+            <td><code>atomic.Int64</code></td>
+            <td id="m3-res-atomic">—</td>
+            <td><span class="correct-yes">đúng</span></td>
+            <td><span class="perf-bar" style="width:20px"></span>~5 ns</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="log" id="m3-log"></div>
+  </section>
+
+  <section class="module">
+    <h2>Tóm tắt 3 module</h2>
+    <ul>
+      <li><strong>Mutex</strong> — đúng 1 owner vào CS, mọi goroutine khác chờ ở queue. Không lock → race, counter sai.</li>
+      <li><strong>RWMutex</strong> — nhiều reader song song khi không có writer; writer độc quyền, đẩy mọi reader ra trong lúc ghi.</li>
+      <li><strong>Race demo</strong> — không sync nhanh nhất nhưng cho kết quả SAI; <code>atomic</code> đúng và nhanh hơn <code>Mutex</code> cho counter đơn lẻ.</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+// ====================== Utilities ======================
+function $(id) { return document.getElementById(id); }
+function svgNS(tag, attrs) {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  if (attrs) for (const k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+}
+function log(elId, msg, cls) {
+  const el = $(elId);
+  const line = document.createElement('div');
+  if (cls) line.className = cls;
+  line.textContent = msg;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+  // Cap log length
+  while (el.childNodes.length > 60) el.removeChild(el.firstChild);
+}
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ====================== Module 1: Mutex ======================
+(function() {
+  const svg = $('m1-svg');
+  const gGoroutines = $('m1-goroutines');
+  let state = { running: false, abort: false };
+
+  function bindRange(id) {
+    const r = $(id), v = $(id + '-v');
+    r.addEventListener('input', () => v.textContent = r.value);
+  }
+  bindRange('m1-n'); bindRange('m1-speed');
+
+  function drawGoroutines(n) {
+    gGoroutines.innerHTML = '';
+    // Place N circles on the left column
+    const cx = 80;
+    const startY = 60;
+    const gap = 32;
+    for (let i = 0; i < n; i++) {
+      const cy = startY + i * gap;
+      const c = svgNS('circle', { cx, cy, r: 14, fill: '#cbd5e0', stroke: '#4a5568', 'stroke-width': 2, id: `m1-g-${i}` });
+      const t = svgNS('text', { x: cx, y: cy + 4, 'text-anchor': 'middle', class: 'g-box-label' });
+      t.textContent = 'G' + i;
+      const s = svgNS('text', { x: cx + 22, y: cy + 4, class: 'g-state-label', id: `m1-g-${i}-state` });
+      s.textContent = 'idle';
+      gGoroutines.appendChild(c);
+      gGoroutines.appendChild(t);
+      gGoroutines.appendChild(s);
+    }
+  }
+
+  function setG(i, color, stateText) {
+    const c = $(`m1-g-${i}`); if (c) c.setAttribute('fill', color);
+    const s = $(`m1-g-${i}-state`); if (s) s.textContent = stateText;
+  }
+
+  function moveG(i, x, y) {
+    const c = $(`m1-g-${i}`); if (!c) return;
+    c.setAttribute('cx', x);
+    c.setAttribute('cy', y);
+    // Move label
+    const labels = gGoroutines.querySelectorAll('text');
+    // We rebuild positions: label index is 2*i, state index is 2*i+1
+    const arr = Array.from(gGoroutines.querySelectorAll('text'));
+    // Each iteration adds 2 text nodes per circle in order
+    // Find them by id-less ordering: state has id, label doesn't
+    let labelCount = 0;
+    arr.forEach(t => {
+      if (t.id === `m1-g-${i}-state`) {
+        t.setAttribute('x', x + 22); t.setAttribute('y', y + 4);
+      }
+    });
+    // For non-id label: identify by sibling
+    // Simpler: find the text immediately before the state text
+    const stateText = $(`m1-g-${i}-state`);
+    if (stateText && stateText.previousSibling && stateText.previousSibling.nodeName === 'text') {
+      stateText.previousSibling.setAttribute('x', x);
+      stateText.previousSibling.setAttribute('y', y + 4);
+    }
+  }
+
+  async function run() {
+    if (state.running) return;
+    state.running = true; state.abort = false;
+    const n = parseInt($('m1-n').value);
+    const speed = parseInt($('m1-speed').value);
+    const nomutex = $('m1-nomutex').checked;
+    const base = 600 / speed; // ms unit
+
+    drawGoroutines(n);
+    $('m1-counter').textContent = '0';
+    $('m1-expected').textContent = n;
+    $('m1-cs-owner').textContent = '— empty —';
+    $('m1-cs').setAttribute('class', 'cs-box');
+    let counter = 0;
+    let acquired = 0, done = 0;
+    let blocked = 0;
+    let owner = -1;
+    const queue = [];
+    $('m1-log').innerHTML = '';
+
+    log('m1-log', `▶ Start: ${n} goroutines, mutex=${!nomutex}`, 'info');
+
+    async function tryLock(i) {
+      if (nomutex) return true; // race: everyone passes
+      if (owner === -1) { owner = i; return true; }
+      queue.push(i);
+      blocked++;
+      $('m1-blocked').textContent = blocked;
+      setG(i, '#f6ad55', 'blocked');
+      log('m1-log', `G${i}: Lock() → blocked (owner=G${owner})`, 'warn');
+      // Wait until granted
+      while (owner !== i && !state.abort) {
+        await sleep(50);
+      }
+      // Remove from queue
+      const idx = queue.indexOf(i);
+      if (idx >= 0) queue.splice(idx, 1);
+      blocked = Math.max(0, blocked - 1);
+      $('m1-blocked').textContent = blocked;
+      return true;
+    }
+
+    function unlock(i) {
+      if (nomutex) return;
+      // Pass owner to next in queue
+      if (queue.length > 0) {
+        owner = queue[0];
+      } else {
+        owner = -1;
+        $('m1-cs-owner').textContent = '— empty —';
+        $('m1-cs').setAttribute('class', 'cs-box');
+        $('m1-status').textContent = 'idle';
+      }
+    }
+
+    async function worker(i) {
+      // Initial wait
+      await sleep(Math.random() * base * 0.5);
+      if (state.abort) return;
+      setG(i, '#f6e05e', 'trying');
+      log('m1-log', `G${i}: Lock() attempting...`, 'info');
+      await tryLock(i);
+      if (state.abort) return;
+
+      // Acquired
+      acquired++; $('m1-acquired').textContent = acquired;
+      setG(i, '#fc8181', 'in CS');
+      // Move to CS center
+      moveG(i, 450, 160);
+      $('m1-cs').setAttribute('class', 'cs-box occupied-w');
+      $('m1-cs-owner').textContent = `owner: G${i}`;
+      $('m1-status').textContent = 'G' + i;
+      log('m1-log', `G${i}: Lock() acquired, in CS`, 'ok');
+
+      // Critical work: counter++
+      // Race: read, sleep, write — race window
+      const old = counter;
+      await sleep(base * (0.6 + Math.random() * 0.6));
+      counter = old + 1;
+      $('m1-counter').textContent = counter;
+      done++; $('m1-done').textContent = done;
+
+      // Unlock
+      log('m1-log', `G${i}: Unlock() (counter=${counter})`, 'ok');
+      // Move back to original position
+      const cx = 80, startY = 60, gap = 32;
+      moveG(i, cx, startY + i * gap);
+      setG(i, '#9ae6b4', 'done');
+      unlock(i);
+    }
+
+    const ps = [];
+    for (let i = 0; i < n; i++) ps.push(worker(i));
+    await Promise.all(ps);
+
+    if (!state.abort) {
+      const expected = n;
+      if (counter === expected) {
+        log('m1-log', `✓ Done: counter=${counter} (expected=${expected})`, 'ok');
+      } else {
+        log('m1-log', `✗ Race! counter=${counter} ≠ expected=${expected} — mất update`, 'err');
+      }
+    }
+    state.running = false;
+  }
+
+  $('m1-start').addEventListener('click', run);
+  $('m1-reset').addEventListener('click', () => {
+    state.abort = true;
+    state.running = false;
+    setTimeout(() => {
+      drawGoroutines(parseInt($('m1-n').value));
+      $('m1-counter').textContent = '0';
+      $('m1-expected').textContent = $('m1-n').value;
+      $('m1-cs-owner').textContent = '— empty —';
+      $('m1-cs').setAttribute('class', 'cs-box');
+      $('m1-acquired').textContent = '0';
+      $('m1-blocked').textContent = '0';
+      $('m1-done').textContent = '0';
+      $('m1-status').textContent = 'idle';
+      $('m1-log').innerHTML = '';
+    }, 100);
+  });
+
+  drawGoroutines(4);
+})();
+
+// ====================== Module 2: RWMutex ======================
+(function() {
+  const gGoroutines = $('m2-goroutines');
+  let state = { running: false, abort: false };
+
+  function bindRange(id) {
+    const r = $(id), v = $(id + '-v');
+    r.addEventListener('input', () => v.textContent = r.value);
+  }
+  bindRange('m2-r'); bindRange('m2-w'); bindRange('m2-speed');
+
+  function draw(nR, nW) {
+    gGoroutines.innerHTML = '';
+    // Readers on left
+    const cxR = 80, startY = 60, gap = 32;
+    for (let i = 0; i < nR; i++) {
+      const cy = startY + i * gap;
+      const c = svgNS('circle', { cx: cxR, cy, r: 14, fill: '#9ae6b4', stroke: '#16a34a', 'stroke-width': 2, id: `m2-r-${i}` });
+      const t = svgNS('text', { x: cxR, y: cy + 4, 'text-anchor': 'middle', class: 'g-box-label' });
+      t.textContent = 'R' + i;
+      const s = svgNS('text', { x: cxR + 22, y: cy + 4, class: 'g-state-label', id: `m2-r-${i}-state` });
+      s.textContent = 'idle';
+      gGoroutines.appendChild(c);
+      gGoroutines.appendChild(t);
+      gGoroutines.appendChild(s);
+    }
+    // Writers on right
+    const cxW = 820;
+    for (let i = 0; i < nW; i++) {
+      const cy = startY + i * gap;
+      const c = svgNS('circle', { cx: cxW, cy, r: 14, fill: '#fc8181', stroke: '#dc2626', 'stroke-width': 2, id: `m2-w-${i}` });
+      const t = svgNS('text', { x: cxW, y: cy + 4, 'text-anchor': 'middle', class: 'g-box-label' });
+      t.textContent = 'W' + i;
+      const s = svgNS('text', { x: cxW - 22, y: cy + 4, 'text-anchor': 'end', class: 'g-state-label', id: `m2-w-${i}-state` });
+      s.textContent = 'idle';
+      gGoroutines.appendChild(c);
+      gGoroutines.appendChild(t);
+      gGoroutines.appendChild(s);
+    }
+  }
+
+  function setR(i, color, stateText) {
+    const c = $(`m2-r-${i}`); if (c) c.setAttribute('fill', color);
+    const s = $(`m2-r-${i}-state`); if (s) s.textContent = stateText;
+  }
+  function setW(i, color, stateText) {
+    const c = $(`m2-w-${i}`); if (c) c.setAttribute('fill', color);
+    const s = $(`m2-w-${i}-state`); if (s) s.textContent = stateText;
+  }
+  function moveR(i, x, y) {
+    const c = $(`m2-r-${i}`); if (!c) return;
+    c.setAttribute('cx', x); c.setAttribute('cy', y);
+    const s = $(`m2-r-${i}-state`);
+    if (s) { s.setAttribute('x', x + 22); s.setAttribute('y', y + 4); }
+    if (s && s.previousSibling) { s.previousSibling.setAttribute('x', x); s.previousSibling.setAttribute('y', y + 4); }
+  }
+  function moveW(i, x, y) {
+    const c = $(`m2-w-${i}`); if (!c) return;
+    c.setAttribute('cx', x); c.setAttribute('cy', y);
+    const s = $(`m2-w-${i}-state`);
+    if (s) { s.setAttribute('x', x - 22); s.setAttribute('y', y + 4); }
+    if (s && s.previousSibling) { s.previousSibling.setAttribute('x', x); s.previousSibling.setAttribute('y', y + 4); }
+  }
+
+  async function run() {
+    if (state.running) return;
+    state.running = true; state.abort = false;
+    const nR = parseInt($('m2-r').value);
+    const nW = parseInt($('m2-w').value);
+    const speed = parseInt($('m2-speed').value);
+    const base = 700 / speed;
+
+    draw(nR, nW);
+    $('m2-reads').textContent = '0';
+    $('m2-writes').textContent = '0';
+    $('m2-cur-r').textContent = '0';
+    $('m2-cur-w').textContent = '0';
+    $('m2-cs').setAttribute('class', 'cs-box');
+    $('m2-cs-status').textContent = '— free —';
+    $('m2-data').textContent = 'v0';
+    $('m2-log').innerHTML = '';
+
+    let readers = 0, writer = -1;
+    let totalReads = 0, totalWrites = 0;
+    let dataVersion = 0;
+    const waitingW = [];
+    const waitingR = [];
+
+    log('m2-log', `▶ Start RWMutex: ${nR} readers, ${nW} writers`, 'info');
+
+    function refreshCS() {
+      $('m2-cur-r').textContent = readers;
+      $('m2-cur-w').textContent = writer >= 0 ? 1 : 0;
+      const cs = $('m2-cs');
+      if (writer >= 0) {
+        cs.setAttribute('class', 'cs-box occupied-w');
+        $('m2-cs-status').textContent = `writer: W${writer}`;
+      } else if (readers > 0) {
+        cs.setAttribute('class', 'cs-box occupied-r');
+        $('m2-cs-status').textContent = `${readers} reader(s)`;
+      } else {
+        cs.setAttribute('class', 'cs-box');
+        $('m2-cs-status').textContent = '— free —';
+      }
+    }
+
+    async function rLock(i) {
+      // Wait if writer is active or waiting (write preference is OK for demo)
+      if (writer >= 0 || waitingW.length > 0) {
+        waitingR.push(i);
+        setR(i, '#f6ad55', 'waiting');
+        log('m2-log', `R${i}: RLock() → wait (writer active/waiting)`, 'warn');
+        while ((writer >= 0 || waitingW.length > 0) && !state.abort) {
+          await sleep(40);
+        }
+        const idx = waitingR.indexOf(i);
+        if (idx >= 0) waitingR.splice(idx, 1);
+      }
+      readers++;
+      refreshCS();
+    }
+    function rUnlock() {
+      readers = Math.max(0, readers - 1);
+      refreshCS();
+    }
+
+    async function wLock(i) {
+      waitingW.push(i);
+      setW(i, '#fbb6ce', 'waiting');
+      while ((writer >= 0 || readers > 0 || waitingW[0] !== i) && !state.abort) {
+        await sleep(40);
+      }
+      const idx = waitingW.indexOf(i);
+      if (idx >= 0) waitingW.splice(idx, 1);
+      writer = i;
+      refreshCS();
+    }
+    function wUnlock() {
+      writer = -1;
+      refreshCS();
+    }
+
+    async function reader(i) {
+      for (let k = 0; k < 3 && !state.abort; k++) {
+        await sleep(Math.random() * base);
+        if (state.abort) return;
+        setR(i, '#fef3c7', 'RLock');
+        log('m2-log', `R${i}: RLock()`, 'info');
+        await rLock(i);
+        if (state.abort) return;
+        setR(i, '#22c55e', 'reading');
+        // Move into CS — multiple readers stack vertically
+        const slotY = 130 + (readers - 1) * 20;
+        moveR(i, 380 + Math.random() * 100, slotY);
+        await sleep(base * (0.8 + Math.random() * 0.6));
+        totalReads++; $('m2-reads').textContent = totalReads;
+        log('m2-log', `R${i}: read data=v${dataVersion} (${readers} readers in CS)`, 'ok');
+        // RUnlock
+        rUnlock();
+        const cxR = 80, startY = 60, gap = 32;
+        moveR(i, cxR, startY + i * gap);
+        setR(i, '#9ae6b4', 'idle');
+      }
+    }
+
+    async function writerFn(i) {
+      for (let k = 0; k < 2 && !state.abort; k++) {
+        await sleep(Math.random() * base * 1.5 + base);
+        if (state.abort) return;
+        setW(i, '#fde68a', 'Lock');
+        log('m2-log', `W${i}: Lock() — wait readers=${readers}`, 'warn');
+        await wLock(i);
+        if (state.abort) return;
+        setW(i, '#dc2626', 'writing');
+        moveW(i, 450, 160);
+        await sleep(base * 1.2);
+        dataVersion++;
+        $('m2-data').textContent = 'v' + dataVersion;
+        totalWrites++; $('m2-writes').textContent = totalWrites;
+        log('m2-log', `W${i}: wrote data=v${dataVersion}`, 'err');
+        wUnlock();
+        const cxW = 820, startY = 60, gap = 32;
+        moveW(i, cxW, startY + i * gap);
+        setW(i, '#fc8181', 'idle');
+      }
+    }
+
+    const ps = [];
+    for (let i = 0; i < nR; i++) ps.push(reader(i));
+    for (let i = 0; i < nW; i++) ps.push(writerFn(i));
+    await Promise.all(ps);
+
+    if (!state.abort) log('m2-log', `✓ Done: ${totalReads} reads, ${totalWrites} writes`, 'ok');
+    state.running = false;
+  }
+
+  $('m2-start').addEventListener('click', run);
+  $('m2-reset').addEventListener('click', () => {
+    state.abort = true;
+    state.running = false;
+    setTimeout(() => {
+      draw(parseInt($('m2-r').value), parseInt($('m2-w').value));
+      $('m2-reads').textContent = '0';
+      $('m2-writes').textContent = '0';
+      $('m2-cur-r').textContent = '0';
+      $('m2-cur-w').textContent = '0';
+      $('m2-data').textContent = 'v0';
+      $('m2-cs').setAttribute('class', 'cs-box');
+      $('m2-cs-status').textContent = '— free —';
+      $('m2-log').innerHTML = '';
+    }, 100);
+  });
+
+  draw(4, 2);
+})();
+
+// ====================== Module 3: Race demo ======================
+(function() {
+  let mode = 'nosync';
+  let state = { running: false, abort: false };
+
+  function bindRange(id) {
+    const r = $(id), v = $(id + '-v');
+    r.addEventListener('input', () => v.textContent = r.value);
+  }
+  bindRange('m3-iter'); bindRange('m3-speed');
+
+  document.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => {
+      if (state.running) return;
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+      mode = t.dataset.mode;
+    });
+  });
+
+  async function run() {
+    if (state.running) return;
+    state.running = true; state.abort = false;
+    const iter = parseInt($('m3-iter').value);
+    const speed = parseInt($('m3-speed').value);
+    const base = 100 / speed;
+
+    $('m3a-target').textContent = iter;
+    $('m3b-target').textContent = iter;
+    $('m3-expected').textContent = iter * 2;
+    $('m3a-done').textContent = '0';
+    $('m3b-done').textContent = '0';
+    $('m3a-read').textContent = '—';
+    $('m3b-read').textContent = '—';
+    $('m3a-add').textContent = '—';
+    $('m3b-add').textContent = '—';
+    $('m3-counter').textContent = '0';
+    $('m3-counter').className = 'race-counter';
+    $('m3-verdict').textContent = '—';
+    $('m3-log').innerHTML = '';
+
+    log('m3-log', `▶ Mode = ${mode}, iter=${iter}/goroutine`, 'info');
+
+    let counter = 0;
+    let mutexHeld = false;
+    let aDone = 0, bDone = 0;
+
+    // Decide animate count (a few visible iterations) and then "fast finish"
+    const animateK = Math.min(iter, 8);
+
+    async function lockSim() {
+      while (mutexHeld && !state.abort) await sleep(5);
+      mutexHeld = true;
+    }
+    function unlockSim() { mutexHeld = false; }
+
+    async function workerA() {
+      // Animated portion
+      for (let k = 0; k < animateK && !state.abort; k++) {
+        if (mode === 'mutex') await lockSim();
+        const r = counter;
+        $('m3a-read').textContent = r;
+        await sleep(base * 4);
+        const a = r + 1;
+        $('m3a-add').textContent = a;
+        await sleep(base * 4);
+        // Race window for nosync — B might write in between
+        if (mode === 'atomic') {
+          counter = counter + 1; // simulate atomic.Add (treat as one indivisible step)
+        } else {
+          counter = a;
+        }
+        $('m3-counter').textContent = counter;
+        if (mode === 'mutex') unlockSim();
+        aDone++;
+        $('m3a-done').textContent = aDone;
+      }
+      // Fast finish remainder
+      const remain = iter - animateK;
+      if (mode === 'nosync') {
+        // Simulate races: half the writes lost on average for tight contention
+        // To make it visible but not all-zero, lose ~30%
+        let lostA = 0;
+        for (let k = 0; k < remain; k++) {
+          const r = counter;
+          // Insert a "B interleave" sometimes
+          if (Math.random() < 0.3) lostA++;
+          else counter = r + 1;
+          aDone++;
+        }
+        log('m3-log', `A: lost ~${lostA} updates due to race`, 'err');
+      } else if (mode === 'mutex') {
+        for (let k = 0; k < remain; k++) {
+          await lockSim();
+          counter = counter + 1;
+          unlockSim();
+          aDone++;
+        }
+      } else { // atomic
+        for (let k = 0; k < remain; k++) {
+          counter = counter + 1;
+          aDone++;
+        }
+      }
+      $('m3a-done').textContent = aDone;
+      $('m3-counter').textContent = counter;
+    }
+
+    async function workerB() {
+      for (let k = 0; k < animateK && !state.abort; k++) {
+        // Slight phase offset to interleave with A
+        await sleep(base * 2);
+        if (mode === 'mutex') await lockSim();
+        const r = counter;
+        $('m3b-read').textContent = r;
+        await sleep(base * 4);
+        const a = r + 1;
+        $('m3b-add').textContent = a;
+        await sleep(base * 4);
+        if (mode === 'atomic') {
+          counter = counter + 1;
+        } else {
+          counter = a;
+        }
+        $('m3-counter').textContent = counter;
+        if (mode === 'mutex') unlockSim();
+        bDone++;
+        $('m3b-done').textContent = bDone;
+      }
+      const remain = iter - animateK;
+      if (mode === 'nosync') {
+        let lostB = 0;
+        for (let k = 0; k < remain; k++) {
+          const r = counter;
+          if (Math.random() < 0.3) lostB++;
+          else counter = r + 1;
+          bDone++;
+        }
+        log('m3-log', `B: lost ~${lostB} updates due to race`, 'err');
+      } else if (mode === 'mutex') {
+        for (let k = 0; k < remain; k++) {
+          await lockSim();
+          counter = counter + 1;
+          unlockSim();
+          bDone++;
+        }
+      } else {
+        for (let k = 0; k < remain; k++) {
+          counter = counter + 1;
+          bDone++;
+        }
+      }
+      $('m3b-done').textContent = bDone;
+      $('m3-counter').textContent = counter;
+    }
+
+    await Promise.all([workerA(), workerB()]);
+
+    if (state.abort) { state.running = false; return; }
+
+    const expected = iter * 2;
+    const correct = counter === expected;
+    const cls = correct ? 'race-counter ok' : 'race-counter bad';
+    $('m3-counter').className = cls;
+    if (correct) {
+      $('m3-verdict').textContent = `✓ counter = expected (${expected})`;
+      $('m3-verdict').style.color = '#16a34a';
+    } else {
+      const lost = expected - counter;
+      $('m3-verdict').textContent = `✗ counter = ${counter}, mất ${lost} update`;
+      $('m3-verdict').style.color = '#dc2626';
+    }
+
+    // Update perf-table result cells
+    if (mode === 'nosync') $('m3-res-nosync').textContent = counter + ' / ' + expected;
+    if (mode === 'mutex') $('m3-res-mutex').textContent = counter + ' / ' + expected;
+    if (mode === 'atomic') $('m3-res-atomic').textContent = counter + ' / ' + expected;
+
+    log('m3-log', `✓ Done: counter=${counter} expected=${expected}`, correct ? 'ok' : 'err');
+    state.running = false;
+  }
+
+  $('m3-start').addEventListener('click', run);
+  $('m3-reset').addEventListener('click', () => {
+    state.abort = true;
+    state.running = false;
+    setTimeout(() => {
+      $('m3a-done').textContent = '0';
+      $('m3b-done').textContent = '0';
+      $('m3a-read').textContent = '—';
+      $('m3b-read').textContent = '—';
+      $('m3a-add').textContent = '—';
+      $('m3b-add').textContent = '—';
+      $('m3-counter').textContent = '0';
+      $('m3-counter').className = 'race-counter';
+      $('m3-verdict').textContent = '—';
+      $('m3-log').innerHTML = '';
+    }, 100);
+  });
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

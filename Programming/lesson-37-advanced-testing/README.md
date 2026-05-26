@@ -354,47 +354,18 @@ File store/repository hay tách toàn bộ thành file integration vì cần DB.
 
 ### 5.1 Mock
 
-Inject interface:
-
-```go
-type Store interface { Get(id string) (User, error) }
-
-func GetUserHandler(s Store) http.HandlerFunc {
-    return func(w http.ResponseWriter, r *http.Request) {
-        u, _ := s.Get(r.URL.Query().Get("id"))
-        json.NewEncoder(w).Encode(u)
-    }
-}
-
-// Trong test:
-type fakeStore struct{}
-func (fakeStore) Get(id string) (User, error) {
-    return User{ID: id, Name: "test"}, nil
-}
-```
-
-Ưu: nhanh, deterministic. Nhược: không catch bug ở layer SQL/network thật.
+Inject interface, trong test cung cấp một struct cài interface đó nhưng
+trả về dữ liệu cứng. Vd handler nhận `Store interface { Get(id) (User, error) }`
+— test inject `fakeStore` trả về `User{Name:"test"}`. Ưu: nhanh,
+deterministic. Nhược: không catch bug ở layer SQL/network thật.
 
 ### 5.2 Testcontainer
 
-```go
-import "github.com/testcontainers/testcontainers-go"
-
-func TestStore_Integration(t *testing.T) {
-    ctx := context.Background()
-    pg, err := postgres.RunContainer(ctx,
-        testcontainers.WithImage("postgres:16"),
-        postgres.WithDatabase("test"),
-    )
-    if err != nil { t.Fatal(err) }
-    t.Cleanup(func() { pg.Terminate(ctx) })
-
-    // Lấy connection string từ container, test thật...
-}
-```
-
-Ưu: hành vi giống prod (transaction, isolation, encoding...). Nhược:
-chạy chậm, cần Docker, CI phức tạp hơn.
+Dùng `github.com/testcontainers/testcontainers-go`: trong test, gọi
+`postgres.RunContainer(ctx, ...)` start container thật, lấy connection
+string, chạy schema migration, test SQL thật. Cleanup `pg.Terminate(ctx)`
+qua `t.Cleanup`. Ưu: hành vi giống prod (transaction, isolation,
+encoding...). Nhược: chạy chậm, cần Docker, CI phức tạp hơn.
 
 ### 5.3 In-memory fake
 
@@ -655,17 +626,9 @@ vì trong helper.
 > 💡 **Trực giác**: `go test -cover` đếm % statement được chạy bởi test. Nó là
 > indicator "đã test", KHÔNG phải indicator "test đúng".
 
-Ví dụ test 100% coverage NHƯNG SAI:
-
-```go
-func Divide(a, b int) int { return a / b }
-
-func TestDivide(t *testing.T) {
-    _ = Divide(10, 2)  // không assert gì cả
-}
-```
-
-Coverage = 100%. Nhưng nếu ai đổi `a/b` thành `a*b`, test vẫn pass.
+Ví dụ test 100% coverage NHƯNG SAI: hàm `Divide(a, b) { return a/b }`, test
+chỉ gọi `_ = Divide(10, 2)` không assert gì → coverage 100% nhưng đổi
+`a/b` thành `a*b` test vẫn pass.
 
 ### 11.2 Tools vs goal
 
@@ -1119,10 +1082,10 @@ Output cho thấy interleave (parallel):
   go test -run=Golden -update           # regenerate golden
   go test -cover                        # coverage
   ```
-- **Minh hoạ trực quan**: [`visualization.html`](./visualization.html) — 3 module:
-  1. **Fuzz Finder** — animate fuzzer sinh input, mutation, tìm crash.
-  2. **Race Detector** — visualize 2 goroutine truy cập same memory, race detected.
-  3. **Golden File Workflow** — actual vs golden compare, flag `-update`.
+- **Minh hoạ trực quan**: [`visualization.html`](./visualization.html) —
+  3 module: Fuzz Finder (sinh input, mutation, tìm crash), Race Detector
+  (2 goroutine truy cập same memory, race detected), Golden File Workflow
+  (actual vs golden compare, flag `-update`).
 
 ---
 

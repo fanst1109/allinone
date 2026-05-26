@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 01 — Vector & Ma trận</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="number"] { padding: 6px 8px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 60px; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 500px; height: 500px; background: #f8fafc; border-radius: 8px; }
+  .matrix-grid { display: inline-grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin: 4px 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../../05-NumberTheory-Combinatorics-Logic/lesson-08-proof-methods/visualization.html">← T5-L8</a>
+  <span class="sep">·</span>
+  <span class="current">T6-L1: Vector &amp; ma trận</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L2: Định thức (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 01 (T6) — Ma trận 2×2 biến đổi vector</h1>
+
+<h2>Ma trận A·x = y — xem trực quan</h2>
+<div class="card">
+  <p>Nhập ma trận 2×2 và vector. Xem biến đổi A·x trên đồ thị.</p>
+  <div class="row">
+    <strong>A = </strong>
+    <div class="matrix-grid">
+      <input type="number" id="a11" value="1" oninput="calc()">
+      <input type="number" id="a12" value="2" oninput="calc()">
+      <input type="number" id="a21" value="3" oninput="calc()">
+      <input type="number" id="a22" value="1" oninput="calc()">
+    </div>
+    <strong>x = </strong>
+    <input type="number" id="x1" value="2" oninput="calc()">
+    <input type="number" id="x2" value="1" oninput="calc()">
+  </div>
+  <svg class="scene" id="svg" viewBox="-250 -250 500 500"></svg>
+  <div class="result" id="res"></div>
+</div>
+
+<script>
+function calc() {
+  const a11 = +document.getElementById("a11").value;
+  const a12 = +document.getElementById("a12").value;
+  const a21 = +document.getElementById("a21").value;
+  const a22 = +document.getElementById("a22").value;
+  const x1 = +document.getElementById("x1").value;
+  const x2 = +document.getElementById("x2").value;
+
+  const y1 = a11*x1 + a12*x2;
+  const y2 = a21*x1 + a22*x2;
+  const det = a11*a22 - a12*a21;
+
+  const svg = document.getElementById("svg");
+  svg.innerHTML = "";
+  const SC = 30;
+
+  // Grid + axes
+  for (let i = -8; i <= 8; i++) {
+    const v = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    v.setAttribute("x1", i*SC); v.setAttribute("y1", -250); v.setAttribute("x2", i*SC); v.setAttribute("y2", 250);
+    v.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); v.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+    svg.appendChild(v);
+    const h = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    h.setAttribute("x1", -250); h.setAttribute("y1", i*SC); h.setAttribute("x2", 250); h.setAttribute("y2", i*SC);
+    h.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); h.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+    svg.appendChild(h);
+  }
+
+  // Unit grid square (blue) — corners (0,0), (1,0), (1,1), (0,1)
+  const sq = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  sq.setAttribute("points", `0,0 ${SC},0 ${SC},-${SC} 0,-${SC}`);
+  sq.setAttribute("fill", "#dbeafe"); sq.setAttribute("stroke", "#1d4ed8"); sq.setAttribute("stroke-width", 1.5); sq.setAttribute("fill-opacity", 0.5);
+  svg.appendChild(sq);
+
+  // Transformed square: corners A·(0,0), A·(1,0), A·(1,1), A·(0,1)
+  const tCorners = [[0,0], [a11, a21], [a11+a12, a21+a22], [a12, a22]];
+  const tPoly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  tPoly.setAttribute("points", tCorners.map(([x,y]) => `${x*SC},${-y*SC}`).join(" "));
+  tPoly.setAttribute("fill", "#fecaca"); tPoly.setAttribute("stroke", "#dc2626"); tPoly.setAttribute("stroke-width", 1.5); tPoly.setAttribute("fill-opacity", 0.4);
+  svg.appendChild(tPoly);
+
+  // Plot x and y
+  function arrow(x1, y1, x2, y2, color, label) {
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", x1*SC); l.setAttribute("y1", -y1*SC); l.setAttribute("x2", x2*SC); l.setAttribute("y2", -y2*SC);
+    l.setAttribute("stroke", color); l.setAttribute("stroke-width", 3);
+    svg.appendChild(l);
+    const ang = Math.atan2(-(y2-y1), x2-x1);
+    const tip = [x2*SC, -y2*SC];
+    const ah = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    ah.setAttribute("points", `${tip[0]},${tip[1]} ${tip[0]-10*Math.cos(ang-0.4)},${tip[1]-10*Math.sin(ang-0.4)} ${tip[0]-10*Math.cos(ang+0.4)},${tip[1]-10*Math.sin(ang+0.4)}`);
+    ah.setAttribute("fill", color);
+    svg.appendChild(ah);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", x2*SC+10); t.setAttribute("y", -y2*SC-5); t.setAttribute("fill", color); t.setAttribute("font-weight", "700"); t.setAttribute("font-size", "14");
+    t.textContent = label;
+    svg.appendChild(t);
+  }
+
+  arrow(0, 0, x1, x2, "#1d4ed8", `x=(${x1},${x2})`);
+  arrow(0, 0, y1, y2, "#dc2626", `Ax=(${y1.toFixed(2)},${y2.toFixed(2)})`);
+
+  document.getElementById("res").innerHTML = `
+    <div style="font-family:monospace; font-size:15px"><strong>y = A·x = (${y1.toFixed(2)}, ${y2.toFixed(2)})</strong></div>
+    <div style="font-family:monospace; font-size:14px; margin-top:4px">y₁ = ${a11}·${x1} + ${a12}·${x2} = ${y1.toFixed(2)}, y₂ = ${a21}·${x1} + ${a22}·${x2} = ${y2.toFixed(2)}</div>
+    <div class="row" style="margin-top:8px">
+      <span class="stat">det(A) = ${a11}·${a22} − ${a12}·${a21} = <strong>${det.toFixed(2)}</strong></span>
+      <span class="stat">|det(A)| = <strong>${Math.abs(det).toFixed(2)}</strong> (tỉ lệ phóng diện tích)</span>
+    </div>
+    <div style="margin-top:6px; font-size:13px; color:#64748b">Ô vuông xanh ban đầu (S=1) bị biến đổi thành ô đỏ (S=|det A|). ${det < 0 ? "det < 0 → đảo chiều (lật)." : ""}</div>
+  `;
+}
+
+calc();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

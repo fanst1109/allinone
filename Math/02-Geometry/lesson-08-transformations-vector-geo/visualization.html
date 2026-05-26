@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 08 — Biến hình & Vector</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  button { background: #94a3b8; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.active { background: #15803d; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 600px; height: 450px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-coordinate-3d/visualization.html">← L7: Oxyz</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Biến hình &amp; vector</span>
+</nav>
+
+<h1>Lesson 08 (T2) — Biến hình &amp; Vector</h1>
+
+<h2>Phép biến hình — Tam giác mẫu</h2>
+<div class="card">
+  <p>Tam giác xanh = gốc. Tam giác đỏ = sau khi áp phép biến hình.</p>
+  <div class="row">
+    <button id="bT" onclick="setMode('translate')" class="active">Tịnh tiến</button>
+    <button id="bR" onclick="setMode('rotate')">Quay quanh O</button>
+    <button id="bS" onclick="setMode('scale')">Vị tự tâm O</button>
+    <button id="bX" onclick="setMode('reflectX')">Đối xứng Ox</button>
+    <button id="bY" onclick="setMode('reflectY')">Đối xứng Oy</button>
+    <button id="bO" onclick="setMode('reflectO')">Đối xứng O</button>
+  </div>
+  <div class="row" id="ctrlRow">
+    <!-- Controls inject by JS -->
+  </div>
+  <svg class="scene" id="tSvg" viewBox="-300 -225 600 450"></svg>
+  <div class="result" id="tResult"></div>
+</div>
+
+<h2>Vector — Cộng &amp; nhân vô hướng</h2>
+<div class="card">
+  <p>Kéo trượt để thay đổi 2 vector u, v. Quan sát u+v (theo quy tắc hình bình hành) và k·u.</p>
+  <div class="row">
+    <strong>u:</strong>
+    <label>ux:</label><input type="range" id="ux" min="-8" max="8" step="1" value="4" oninput="drawVec()">
+    <span class="stat">ux=<strong id="uxV">4</strong></span>
+    <label>uy:</label><input type="range" id="uy" min="-8" max="8" step="1" value="2" oninput="drawVec()">
+    <span class="stat">uy=<strong id="uyV">2</strong></span>
+  </div>
+  <div class="row">
+    <strong>v:</strong>
+    <label>vx:</label><input type="range" id="vx" min="-8" max="8" step="1" value="1" oninput="drawVec()">
+    <span class="stat">vx=<strong id="vxV">1</strong></span>
+    <label>vy:</label><input type="range" id="vy" min="-8" max="8" step="1" value="5" oninput="drawVec()">
+    <span class="stat">vy=<strong id="vyV">5</strong></span>
+  </div>
+  <div class="row">
+    <label>k (nhân vô hướng):</label><input type="range" id="kVal" min="-3" max="3" step="0.5" value="1.5" oninput="drawVec()">
+    <span class="stat">k=<strong id="kV">1.5</strong></span>
+  </div>
+  <svg class="scene" id="vSvg" viewBox="-300 -225 600 450"></svg>
+  <div class="result" id="vResult"></div>
+</div>
+
+<script>
+let mode = "translate";
+const T0 = [[0, -60], [-50, 30], [50, 30]];
+
+function setMode(m) {
+  mode = m;
+  ["T","R","S","X","Y","O"].forEach(c => document.getElementById("b"+c).classList.remove("active"));
+  const map = {translate: "T", rotate: "R", scale: "S", reflectX: "X", reflectY: "Y", reflectO: "O"};
+  document.getElementById("b" + map[m]).classList.add("active");
+  buildControls();
+  drawT();
+}
+
+function buildControls() {
+  const r = document.getElementById("ctrlRow");
+  if (mode === "translate") {
+    r.innerHTML = `
+      <label>a:</label><input type="range" id="pA" min="-200" max="200" step="20" value="80" oninput="drawT()">
+      <span class="stat">a=<strong id="pAV">80</strong></span>
+      <label>b:</label><input type="range" id="pB" min="-200" max="200" step="20" value="-40" oninput="drawT()">
+      <span class="stat">b=<strong id="pBV">-40</strong></span>
+    `;
+  } else if (mode === "rotate") {
+    r.innerHTML = `
+      <label>Góc α:</label><input type="range" id="pAng" min="0" max="360" step="15" value="60" oninput="drawT()">
+      <span class="stat">α=<strong id="pAngV">60</strong>°</span>
+    `;
+  } else if (mode === "scale") {
+    r.innerHTML = `
+      <label>Tỉ số k:</label><input type="range" id="pK" min="-2.5" max="2.5" step="0.5" value="1.5" oninput="drawT()">
+      <span class="stat">k=<strong id="pKV">1.5</strong></span>
+    `;
+  } else {
+    r.innerHTML = "";
+  }
+}
+
+function drawT() {
+  const svg = document.getElementById("tSvg");
+  svg.innerHTML = "";
+
+  // Grid + axes
+  for (let i = -300; i <= 300; i += 50) {
+    const v = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    v.setAttribute("x1", i); v.setAttribute("y1", -225); v.setAttribute("x2", i); v.setAttribute("y2", 225);
+    v.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); v.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+    svg.appendChild(v);
+  }
+  for (let i = -200; i <= 200; i += 50) {
+    const h = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    h.setAttribute("x1", -300); h.setAttribute("y1", i); h.setAttribute("x2", 300); h.setAttribute("y2", i);
+    h.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); h.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+    svg.appendChild(h);
+  }
+
+  // Original (blue)
+  const orig = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  orig.setAttribute("points", T0.map(p => p.join(",")).join(" "));
+  orig.setAttribute("fill", "#bfdbfe"); orig.setAttribute("stroke", "#1d4ed8"); orig.setAttribute("stroke-width", 2);
+  svg.appendChild(orig);
+
+  // Transform
+  let T1 = T0.map(p => p.slice());
+  let info = "";
+  if (mode === "translate") {
+    const a = parseFloat(document.getElementById("pA").value);
+    const b = parseFloat(document.getElementById("pB").value);
+    document.getElementById("pAV").textContent = a;
+    document.getElementById("pBV").textContent = b;
+    T1 = T0.map(p => [p[0] + a, p[1] + b]);
+    info = `Tịnh tiến v = (${a}, ${b}): M(x, y) → M'(x + ${a}, y + ${b})`;
+  } else if (mode === "rotate") {
+    const ang = parseFloat(document.getElementById("pAng").value);
+    document.getElementById("pAngV").textContent = ang;
+    const rad = ang * Math.PI / 180;
+    const c = Math.cos(rad), s = Math.sin(rad);
+    T1 = T0.map(([x, y]) => [x*c - y*s, x*s + y*c]);
+    info = `Quay góc α = ${ang}° quanh O: x' = x·cos α − y·sin α, y' = x·sin α + y·cos α`;
+  } else if (mode === "scale") {
+    const k = parseFloat(document.getElementById("pK").value);
+    document.getElementById("pKV").textContent = k;
+    T1 = T0.map(([x, y]) => [k*x, k*y]);
+    info = `Vị tự tâm O tỉ số k = ${k}: M(x, y) → M'(${k}x, ${k}y)`;
+  } else if (mode === "reflectX") {
+    T1 = T0.map(([x, y]) => [x, -y]);
+    info = "Đối xứng qua Ox: M(x, y) → M'(x, −y)";
+  } else if (mode === "reflectY") {
+    T1 = T0.map(([x, y]) => [-x, y]);
+    info = "Đối xứng qua Oy: M(x, y) → M'(−x, y)";
+  } else if (mode === "reflectO") {
+    T1 = T0.map(([x, y]) => [-x, -y]);
+    info = "Đối xứng qua O: M(x, y) → M'(−x, −y)";
+  }
+
+  // Transformed (red)
+  const tr = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  tr.setAttribute("points", T1.map(p => p.join(",")).join(" "));
+  tr.setAttribute("fill", "#fecaca"); tr.setAttribute("stroke", "#dc2626"); tr.setAttribute("stroke-width", 2); tr.setAttribute("fill-opacity", 0.7);
+  svg.appendChild(tr);
+
+  // Labels: A → A'
+  T0.forEach((p, i) => {
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", p[0]+5); t.setAttribute("y", p[1]-5); t.setAttribute("fill", "#1d4ed8"); t.setAttribute("font-weight", "700"); t.setAttribute("font-size", "13");
+    t.textContent = String.fromCharCode(65 + i);
+    svg.appendChild(t);
+  });
+  T1.forEach((p, i) => {
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", p[0]+5); t.setAttribute("y", p[1]-5); t.setAttribute("fill", "#dc2626"); t.setAttribute("font-weight", "700"); t.setAttribute("font-size", "13");
+    t.textContent = String.fromCharCode(65 + i) + "'";
+    svg.appendChild(t);
+  });
+
+  document.getElementById("tResult").innerHTML = `<div>${info}</div>`;
+}
+
+function drawVec() {
+  const ux = parseFloat(document.getElementById("ux").value);
+  const uy = parseFloat(document.getElementById("uy").value);
+  const vx = parseFloat(document.getElementById("vx").value);
+  const vy = parseFloat(document.getElementById("vy").value);
+  const k = parseFloat(document.getElementById("kVal").value);
+  ["ux","uy","vx","vy","k"].forEach(id => document.getElementById(id+"V").textContent = document.getElementById(id === "k" ? "kVal" : id).value);
+
+  const svg = document.getElementById("vSvg");
+  svg.innerHTML = "";
+  const SC = 25;
+
+  // Grid + axes
+  for (let i = -10; i <= 10; i++) {
+    const v = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    v.setAttribute("x1", i*SC); v.setAttribute("y1", -225); v.setAttribute("x2", i*SC); v.setAttribute("y2", 225);
+    v.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); v.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+    svg.appendChild(v);
+  }
+  for (let i = -8; i <= 8; i++) {
+    const h = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    h.setAttribute("x1", -300); h.setAttribute("y1", -i*SC); h.setAttribute("x2", 300); h.setAttribute("y2", -i*SC);
+    h.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); h.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+    svg.appendChild(h);
+  }
+
+  // Arrow helper
+  function arrow(x1, y1, x2, y2, color, label, dash) {
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", x1*SC); l.setAttribute("y1", -y1*SC); l.setAttribute("x2", x2*SC); l.setAttribute("y2", -y2*SC);
+    l.setAttribute("stroke", color); l.setAttribute("stroke-width", 2.5);
+    if (dash) l.setAttribute("stroke-dasharray", "4 4");
+    svg.appendChild(l);
+    // arrowhead
+    const ang = Math.atan2(-(y2-y1), x2-x1);
+    const ah = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    const tip = [x2*SC, -y2*SC];
+    const w = 8;
+    const a1 = [tip[0] - w*Math.cos(ang - 0.4), tip[1] - w*Math.sin(ang - 0.4)];
+    const a2 = [tip[0] - w*Math.cos(ang + 0.4), tip[1] - w*Math.sin(ang + 0.4)];
+    ah.setAttribute("points", `${tip[0]},${tip[1]} ${a1[0]},${a1[1]} ${a2[0]},${a2[1]}`);
+    ah.setAttribute("fill", color);
+    svg.appendChild(ah);
+    if (label) {
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t.setAttribute("x", (x1+x2)/2*SC + 5); t.setAttribute("y", -(y1+y2)/2*SC - 5);
+      t.setAttribute("fill", color); t.setAttribute("font-weight", "700"); t.setAttribute("font-size", "14");
+      t.textContent = label;
+      svg.appendChild(t);
+    }
+  }
+
+  // u, v from origin
+  arrow(0, 0, ux, uy, "#1d4ed8", "u");
+  arrow(0, 0, vx, vy, "#15803d", "v");
+  // u+v
+  arrow(0, 0, ux+vx, uy+vy, "#dc2626", "u+v");
+  // parallelogram dotted
+  arrow(ux, uy, ux+vx, uy+vy, "#15803d", "", true);
+  arrow(vx, vy, ux+vx, uy+vy, "#1d4ed8", "", true);
+  // k·u (purple)
+  arrow(0, 0, k*ux, k*uy, "#7c3aed", "k·u");
+
+  const lu = Math.sqrt(ux*ux + uy*uy);
+  const lv = Math.sqrt(vx*vx + vy*vy);
+  document.getElementById("vResult").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">u + v = (${ux}+${vx}, ${uy}+${vy}) = <strong>(${ux+vx}, ${uy+vy})</strong></div>
+    <div style="font-family:monospace; font-size:14px">k·u = ${k}·(${ux}, ${uy}) = <strong>(${(k*ux).toFixed(1)}, ${(k*uy).toFixed(1)})</strong></div>
+    <div style="font-family:monospace; font-size:13px; margin-top:4px">|u| = ${lu.toFixed(3)}, |v| = ${lv.toFixed(3)}</div>
+  `;
+}
+
+buildControls();
+drawT();
+drawVec();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

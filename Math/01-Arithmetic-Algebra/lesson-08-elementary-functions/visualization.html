@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 08 — Hàm sơ cấp</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 70px; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  button { background: #94a3b8; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.active { background: #15803d; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 600px; height: 400px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-functions-intro/visualization.html">← L7: Hàm số</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Hàm sơ cấp</span>
+</nav>
+
+<h1>Lesson 08 — Hàm sơ cấp</h1>
+
+<h2>So sánh tăng trưởng: log < tuyến tính < bình phương < mũ</h2>
+<div class="card">
+  <p>Đồ thị 4 hàm cùng lúc. Quan sát: khi x lớn, hàm mũ vượt xa tất cả.</p>
+  <div class="row">
+    <button id="b1" onclick="toggle(1)" class="active">y = x (tuyến tính)</button>
+    <button id="b2" onclick="toggle(2)" class="active">y = x² (bình phương)</button>
+    <button id="b3" onclick="toggle(3)" class="active">y = 2ˣ (mũ)</button>
+    <button id="b4" onclick="toggle(4)" class="active">y = log₂(x)</button>
+  </div>
+  <svg class="scene" id="cSvg" viewBox="0 0 600 400"></svg>
+  <div class="result">
+    <p><strong>Quan sát:</strong></p>
+    <ul>
+      <li>x = 1: tất cả gần nhau.</li>
+      <li>x = 5: x = 5, x² = 25, 2⁵ = 32, log₂(5) ≈ 2.3.</li>
+      <li>x = 10: x = 10, x² = 100, 2¹⁰ = 1024, log₂(10) ≈ 3.3.</li>
+      <li>Hàm mũ <strong>vượt</strong> hàm bình phương ở x ~ 4. Trong CS, đó là tại sao thuật toán O(2ⁿ) không dùng được với n lớn.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>Hàm bậc 1 — Đường thẳng y = ax + b</h2>
+<div class="card">
+  <div class="row">
+    <label>a:</label><input type="range" id="la" min="-5" max="5" step="0.5" value="2" oninput="updateLinear()">
+    <span class="stat">a = <strong id="laVal">2</strong></span>
+    <label>b:</label><input type="range" id="lb" min="-10" max="10" step="1" value="-3" oninput="updateLinear()">
+    <span class="stat">b = <strong id="lbVal">-3</strong></span>
+  </div>
+  <div class="result" id="linRes"></div>
+</div>
+
+<h2>Hàm bậc 2 — Parabol y = ax² + bx + c</h2>
+<div class="card">
+  <div class="row">
+    <label>a:</label><input type="range" id="pa" min="-3" max="3" step="0.5" value="1" oninput="updateQuad()">
+    <span class="stat">a = <strong id="paVal">1</strong></span>
+    <label>b:</label><input type="range" id="pb" min="-5" max="5" step="0.5" value="-4" oninput="updateQuad()">
+    <span class="stat">b = <strong id="pbVal">-4</strong></span>
+    <label>c:</label><input type="range" id="pc" min="-5" max="5" step="0.5" value="3" oninput="updateQuad()">
+    <span class="stat">c = <strong id="pcVal">3</strong></span>
+  </div>
+  <div class="result" id="quadRes"></div>
+</div>
+
+<script>
+let active = {1: true, 2: true, 3: true, 4: true};
+
+function toggle(n) {
+  active[n] = !active[n];
+  document.getElementById("b" + n).classList.toggle("active", active[n]);
+  drawComp();
+}
+
+function drawComp() {
+  const svg = document.getElementById("cSvg");
+  svg.innerHTML = "";
+  const W = 600, H = 400, cx = 80, cy = H - 60;
+  const scale = 45;
+
+  // Grid
+  for (let i = 0; i <= 10; i++) {
+    const x = cx + i*scale;
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    g.setAttribute("x1", x); g.setAttribute("y1", 30); g.setAttribute("x2", x); g.setAttribute("y2", cy);
+    g.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); g.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+    svg.appendChild(g);
+    if (i > 0) {
+      const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      lbl.setAttribute("x", x); lbl.setAttribute("y", cy + 18); lbl.setAttribute("text-anchor", "middle"); lbl.setAttribute("font-size", "11");
+      lbl.textContent = i;
+      svg.appendChild(lbl);
+    }
+  }
+  // Y axis
+  for (let i = 0; i <= 8; i++) {
+    const y = cy - i*40;
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    g.setAttribute("x1", cx); g.setAttribute("y1", y); g.setAttribute("x2", W - 30); g.setAttribute("y2", y);
+    g.setAttribute("stroke", "#e2e8f0"); g.setAttribute("stroke-width", 0.5);
+    svg.appendChild(g);
+  }
+  // Axis
+  const ax = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  ax.setAttribute("x1", cx); ax.setAttribute("y1", cy); ax.setAttribute("x2", W - 30); ax.setAttribute("y2", cy);
+  ax.setAttribute("stroke", "#1a202c"); ax.setAttribute("stroke-width", 1.5);
+  svg.appendChild(ax);
+
+  const yMax = 320; // px
+  const yScale = (v) => cy - Math.min(yMax, v * 5);
+
+  const fns = [
+    {n: 1, color: "#1d4ed8", label: "x", fn: x => x},
+    {n: 2, color: "#dc2626", label: "x²", fn: x => x*x},
+    {n: 3, color: "#7c3aed", label: "2ˣ", fn: x => Math.pow(2, x)},
+    {n: 4, color: "#15803d", label: "log₂(x)", fn: x => x > 0 ? Math.log2(x) : -Infinity}
+  ];
+
+  fns.forEach(f => {
+    if (!active[f.n]) return;
+    let path = "";
+    let started = false;
+    for (let x = 0.05; x <= 10; x += 0.05) {
+      const y = f.fn(x);
+      if (!isFinite(y) || y < -5 || y > 100) { started = false; continue; }
+      const px = cx + x * scale;
+      const py = yScale(y);
+      if (py > 30) {
+        path += (started ? " L " : " M ") + px + " " + py;
+        started = true;
+      } else { started = false; }
+    }
+    const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    p.setAttribute("d", path); p.setAttribute("fill", "none"); p.setAttribute("stroke", f.color); p.setAttribute("stroke-width", 2.5);
+    svg.appendChild(p);
+    // Label
+    const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lbl.setAttribute("x", W - 50); lbl.setAttribute("y", 40 + f.n * 22);
+    lbl.setAttribute("fill", f.color); lbl.setAttribute("font-weight", "700");
+    lbl.textContent = "y = " + f.label;
+    svg.appendChild(lbl);
+  });
+}
+
+function updateLinear() {
+  const a = parseFloat(document.getElementById("la").value);
+  const b = parseFloat(document.getElementById("lb").value);
+  document.getElementById("laVal").textContent = a;
+  document.getElementById("lbVal").textContent = b;
+  let mono = a > 0 ? "đồng biến" : a < 0 ? "nghịch biến" : "hằng số";
+  let xIntercept = a !== 0 ? -b/a : "—";
+  document.getElementById("linRes").innerHTML = `
+    <div style="font-family:monospace; font-size:15px">y = ${a}x ${b>=0?"+":""}${b}</div>
+    <div class="row" style="margin-top:6px">
+      <span class="stat">Hệ số góc: <strong>${a}</strong></span>
+      <span class="stat">Tung độ gốc (cắt Oy): <strong>${b}</strong></span>
+      <span class="stat">Hoành độ cắt Ox: <strong>${xIntercept !== "—" ? xIntercept.toFixed(3) : "—"}</strong></span>
+      <span class="stat">Hàm: <strong>${mono}</strong></span>
+    </div>
+  `;
+}
+
+function updateQuad() {
+  const a = parseFloat(document.getElementById("pa").value);
+  const b = parseFloat(document.getElementById("pb").value);
+  const c = parseFloat(document.getElementById("pc").value);
+  document.getElementById("paVal").textContent = a;
+  document.getElementById("pbVal").textContent = b;
+  document.getElementById("pcVal").textContent = c;
+  if (a === 0) {
+    document.getElementById("quadRes").innerHTML = "<strong>a = 0 → KHÔNG phải hàm bậc 2.</strong>";
+    return;
+  }
+  const xVertex = -b / (2*a);
+  const yVertex = c - b*b/(4*a);
+  const delta = b*b - 4*a*c;
+  const shape = a > 0 ? "mở LÊN (mặt cười)" : "mở XUỐNG (mặt buồn)";
+  const extremum = a > 0 ? "GIÁ TRỊ NHỎ NHẤT" : "GIÁ TRỊ LỚN NHẤT";
+  document.getElementById("quadRes").innerHTML = `
+    <div style="font-family:monospace; font-size:15px">y = ${a}x² ${b>=0?"+":""}${b}x ${c>=0?"+":""}${c}</div>
+    <div class="row" style="margin-top:6px">
+      <span class="stat">Đỉnh: <strong>(${xVertex.toFixed(3)}, ${yVertex.toFixed(3)})</strong></span>
+      <span class="stat">${shape}</span>
+      <span class="stat">${extremum}: y = ${yVertex.toFixed(3)}</span>
+      <span class="stat">Δ = ${delta.toFixed(2)}</span>
+    </div>
+  `;
+}
+
+drawComp();
+updateLinear();
+updateQuad();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

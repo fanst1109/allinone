@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 06 — Nguyên hàm</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 700px; height: 400px; background: #f8fafc; border-radius: 8px; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0; font-family: monospace; font-size: 13px; }
+  td, th { border: 1px solid #cbd5e0; padding: 6px 10px; text-align: left; }
+  th { background: #f1f5f9; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-derivative-applications/visualization.html">← L5: Ứng dụng đh</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Nguyên hàm</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L7: Tích phân (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 06 (T4) — Nguyên hàm: họ đồ thị +C</h1>
+
+<h2>Họ nguyên hàm F(x) + C — Cùng đạo hàm, dịch lên xuống</h2>
+<div class="card">
+  <p>Cho f(x) = 2x. Mọi nguyên hàm có dạng F(x) = x² + C. Kéo trượt C để thấy chúng song song dịch lên xuống.</p>
+  <div class="row">
+    <label>C (số đường minh họa):</label>
+    <input type="range" id="N" min="1" max="9" step="1" value="5" oninput="draw()">
+    <span class="stat">N = <strong id="vN">5</strong></span>
+  </div>
+  <svg class="scene" id="svg" viewBox="0 0 700 400"></svg>
+  <div class="result" id="res"></div>
+</div>
+
+<h2>Bảng nguyên hàm cơ bản</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>f(x)</th><th>∫ f dx</th></tr></thead>
+    <tbody>
+      <tr><td>x^n (n ≠ -1)</td><td>x^(n+1)/(n+1) + C</td></tr>
+      <tr><td>1/x</td><td>ln|x| + C</td></tr>
+      <tr><td>e^x</td><td>e^x + C</td></tr>
+      <tr><td>a^x</td><td>a^x / ln a + C</td></tr>
+      <tr><td>sin x</td><td>-cos x + C</td></tr>
+      <tr><td>cos x</td><td>sin x + C</td></tr>
+      <tr><td>1/cos²x</td><td>tan x + C</td></tr>
+      <tr><td>1/(1+x²)</td><td>arctan x + C</td></tr>
+      <tr><td>1/(x²+a²)</td><td>(1/a)·arctan(x/a) + C</td></tr>
+      <tr><td>1/(ax+b)</td><td>(1/a)·ln|ax+b| + C</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+function draw() {
+  const N = parseInt(document.getElementById("N").value);
+  document.getElementById("vN").textContent = N;
+
+  const svg = document.getElementById("svg");
+  svg.innerHTML = "";
+  const W = 700, H = 400, cx = 350, cy = 250, scale = 40, yScale = 30;
+
+  for (let i = -8; i <= 8; i++) {
+    const x = cx + i*scale;
+    if (x > 0 && x < W) {
+      const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      l.setAttribute("x1", x); l.setAttribute("y1", 15); l.setAttribute("x2", x); l.setAttribute("y2", H-15);
+      l.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); l.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+      svg.appendChild(l);
+    }
+  }
+  for (let i = -8; i <= 5; i++) {
+    const y = cy - i*yScale;
+    if (y > 15 && y < H-15) {
+      const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      l.setAttribute("x1", 30); l.setAttribute("y1", y); l.setAttribute("x2", W-20); l.setAttribute("y2", y);
+      l.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); l.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+      svg.appendChild(l);
+    }
+  }
+
+  // Draw F(x) = x² + C for various C
+  const Cs = [];
+  for (let i = -Math.floor(N/2); i <= Math.floor(N/2); i++) Cs.push(i*2);
+
+  Cs.forEach((C, idx) => {
+    let path = "";
+    let started = false;
+    for (let x = -7; x <= 7; x += 0.05) {
+      const y = x*x + C;
+      if (y > 6 || y < -8) { started = false; continue; }
+      const px = cx + x*scale, py = cy - y*yScale;
+      path += (started ? "L" : "M") + px + " " + py + " ";
+      started = true;
+    }
+    const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    p.setAttribute("d", path); p.setAttribute("fill", "none");
+    const hue = 200 + idx*20;
+    p.setAttribute("stroke", `hsl(${hue}, 70%, 45%)`); p.setAttribute("stroke-width", 2);
+    svg.appendChild(p);
+    // Label
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", W-60); t.setAttribute("y", 30 + idx*16); t.setAttribute("fill", `hsl(${hue}, 70%, 45%)`); t.setAttribute("font-weight", "700"); t.setAttribute("font-size", "12");
+    t.textContent = "C = " + C;
+    svg.appendChild(t);
+  });
+
+  // Tangent slopes at x=1 — all are 2 (slope = f(1) = 2)
+  const sampleX = 1, slope_at_1 = 2*sampleX;
+  Cs.forEach(C => {
+    const yC = sampleX*sampleX + C;
+    if (yC < -8 || yC > 6) return;
+    // tangent: y = (x² + C)(1) + 2(x-1) at x=1
+    const x1 = 0, y1 = yC + slope_at_1*(0 - sampleX);
+    const x2 = 3, y2 = yC + slope_at_1*(3 - sampleX);
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", cx+x1*scale); l.setAttribute("y1", cy-y1*yScale); l.setAttribute("x2", cx+x2*scale); l.setAttribute("y2", cy-y2*yScale);
+    l.setAttribute("stroke", "#dc2626"); l.setAttribute("stroke-width", 1.5); l.setAttribute("stroke-dasharray", "3,3");
+    svg.appendChild(l);
+  });
+
+  document.getElementById("res").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">∫ 2x dx = <strong>x² + C</strong></div>
+    <div style="margin-top:6px">Mỗi đường = 1 nguyên hàm. Tất cả <strong>cùng slope</strong> ở mỗi x (đường gạch đỏ tại x=1, slope = 2). Đó là đặc trưng — đạo hàm xóa đi C.</div>
+    <div style="margin-top:6px; font-size:13px; color:#64748b">+C đại diện cho "vô hạn" nguyên hàm, dịch lên/xuống.</div>
+  `;
+}
+
+draw();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -2,11 +2,11 @@
 //
 // File này implement CỐT LÕI của một search engine bằng Go THUẦN, KHÔNG cần
 // Elasticsearch server:
-//   1. Analyzer  : tokenize -> lowercase -> bỏ stop word -> stemming đơn giản
-//   2. Inverted index : term -> posting list (kèm term frequency + position)
-//   3. Search    : match query (OR), trả về doc khớp
-//   4. Scoring   : TF-IDF và BM25 (mặc định của Elasticsearch)
-//   5. Autocomplete : trie tiền tố cho gợi ý prefix
+//  1. Analyzer  : tokenize -> lowercase -> bỏ stop word -> stemming đơn giản
+//  2. Inverted index : term -> posting list (kèm term frequency + position)
+//  3. Search    : match query (OR), trả về doc khớp
+//  4. Scoring   : TF-IDF và BM25 (mặc định của Elasticsearch)
+//  5. Autocomplete : trie tiền tố cho gợi ý prefix
 //
 // Mục đích: hiểu cơ chế bên trong ES. Trong production bạn dùng Lucene/ES qua
 // github.com/elastic/go-elasticsearch (xem comment cuối file).
@@ -87,9 +87,9 @@ type posting struct {
 
 // document: 1 bản ghi gốc + độ dài (số token sau analyze, dùng cho BM25).
 type document struct {
-	id    int
-	text  string
-	tlen  int // tổng số token sau khi analyze
+	id   int
+	text string
+	tlen int // tổng số token sau khi analyze
 }
 
 // invertedIndex: cấu trúc cốt lõi của search engine.
@@ -171,7 +171,9 @@ func (ix *invertedIndex) searchTFIDF(query string) []scoredDoc {
 }
 
 // searchBM25: scoring mặc định của Elasticsearch.
-//   score = idf * ( tf*(k1+1) ) / ( tf + k1*(1 - b + b*|d|/avgdl) )
+//
+//	score = idf * ( tf*(k1+1) ) / ( tf + k1*(1 - b + b*|d|/avgdl) )
+//
 // với idf BM25 = ln(1 + (N - df + 0.5)/(df + 0.5)).
 func (ix *invertedIndex) searchBM25(query string) []scoredDoc {
 	const k1, b = 1.2, 0.75 // tham số mặc định của ES

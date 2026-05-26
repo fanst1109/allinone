@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 59 — NoSQL & MongoDB (Visualization)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 40px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; margin-top: 22px; }
+  .card {
+    background: #fff; border-radius: 10px; padding: 18px 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #ec4899; color: #fff; border: none;
+    padding: 9px 15px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #db2777; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  label { font-size: 14px; color: #2d3748; }
+  .explain {
+    background: #fdf2f8; border-left: 4px solid #ec4899;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6; margin: 10px 0;
+  }
+  code.inline, .doc code {
+    background: #edf2f7; padding: 1px 6px; border-radius: 4px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px;
+  }
+  .pill {
+    display: inline-block; padding: 2px 9px; border-radius: 10px;
+    font-size: 12px; font-weight: 700;
+  }
+  .pill.sql { background: #bee3f8; color: #2a4365; }
+  .pill.nosql { background: #fbb6ce; color: #702459; }
+  .pill.embed { background: #c6f6d5; color: #22543d; }
+  .pill.ref { background: #feebc8; color: #7b341e; }
+
+  /* ---- Module 1: embed vs reference ---- */
+  .doc {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 12.5px; line-height: 1.55;
+    background: #1a202c; color: #e2e8f0;
+    border-radius: 8px; padding: 14px 16px;
+    white-space: pre; overflow-x: auto;
+  }
+  .doc .k { color: #f687b3; }
+  .doc .s { color: #9ae6b4; }
+  .doc .n { color: #fbd38d; }
+  .doc .c { color: #718096; }
+  .modelgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .cost {
+    margin-top: 10px; font-size: 13px;
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  }
+  .bar { height: 14px; border-radius: 7px; background: #e2e8f0; flex: 1 1 120px; max-width: 220px; overflow: hidden; }
+  .bar > span { display: block; height: 100%; background: linear-gradient(90deg,#ec4899,#db2777); transition: width .35s ease; }
+
+  /* ---- Module 2: picker ---- */
+  .usecases { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 10px; }
+  .uc {
+    border: 2px solid #e2e8f0; border-radius: 8px; padding: 12px;
+    cursor: pointer; background: #f7fafc; transition: .15s;
+    font-size: 14px; text-align: center; font-weight: 600; color: #2d3748;
+  }
+  .uc:hover { border-color: #ec4899; }
+  .uc.active { border-color: #ec4899; background: #fdf2f8; }
+  .uc .ico { font-size: 26px; display: block; margin-bottom: 6px; }
+  #pickResult { min-height: 60px; }
+
+  /* ---- Module 3: aggregation ---- */
+  .stages { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+  .stage {
+    padding: 8px 12px; border-radius: 8px; font-weight: 700; font-size: 13px;
+    background: #edf2f7; color: #4a5568; border: 2px solid transparent;
+    font-family: ui-monospace, Menlo, monospace;
+  }
+  .stage.active { background: #fbb6ce; color: #702459; border-color: #ec4899; }
+  .stage.done { background: #c6f6d5; color: #22543d; }
+  .docs-flow { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; min-height: 40px; }
+  .fdoc {
+    font-size: 12px; padding: 6px 9px; border-radius: 6px;
+    background: #fff; border: 1px solid #cbd5e0; color: #2d3748;
+    font-family: ui-monospace, Menlo, monospace; transition: .3s;
+  }
+  .fdoc.out { opacity: .25; }
+  .fdoc.group { background: #fdf2f8; border-color: #ec4899; font-weight: 700; }
+  .stagedesc { font-size: 13.5px; color: #4a5568; margin-top: 10px; min-height: 24px; }
+
+  @media (max-width: 600px) {
+    .modelgrid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-58-redis-caching/visualization.html">← L58: Redis & Caching</a>
+  <span class="sep">·</span>
+  <span class="current">L59: NoSQL & MongoDB</span>
+  <span class="sep">·</span>
+  <a href="../lesson-60-search-elasticsearch/visualization.html">L60: Search & Elasticsearch →</a>
+</nav>
+
+<main>
+<h1>Lesson 59 — NoSQL & MongoDB</h1>
+<p class="explain">
+  Ba module tương tác: (1) <b>Embed vs Reference</b> — hai cách model dữ liệu và chi phí query;
+  (2) <b>SQL vs NoSQL picker</b> — chọn use case, nhận gợi ý; (3) <b>Aggregation pipeline</b> —
+  xem document chảy qua <code class="inline">$match → $group → $sort</code>.
+</p>
+
+<!-- ============ MODULE 1 ============ -->
+<h2>1. Embed vs Reference</h2>
+<div class="card">
+  <p style="font-size:14px;color:#4a5568;margin-top:0">
+    Quan hệ <b>post ↔ comments</b>. Chỉnh số lượng comment để xem hai cách model thay đổi thế nào,
+    và vì sao <b>16MB</b> giết chết cách embed khi dữ liệu phình.
+  </p>
+  <div class="row">
+    <label>Số comment: <b id="ccount">3</b></label>
+    <input type="range" id="cslider" min="1" max="100000" value="3" step="1" style="flex:1;max-width:300px">
+  </div>
+  <div class="modelgrid">
+    <div>
+      <h3 style="margin-top:6px"><span class="pill embed">EMBED</span> nhúng vào post</h3>
+      <div class="doc" id="embedDoc"></div>
+      <div class="cost">
+        <span>Query đọc post + comments:</span>
+        <span class="pill embed" id="embedQ">1 query</span>
+      </div>
+      <div class="cost">
+        <span>Kích thước doc:</span>
+        <div class="bar"><span id="embedBar" style="width:5%"></span></div>
+        <b id="embedSize">~0.3 KB</b>
+      </div>
+      <div class="explain" id="embedNote" style="margin-top:8px"></div>
+    </div>
+    <div>
+      <h3 style="margin-top:6px"><span class="pill ref">REFERENCE</span> tách collection</h3>
+      <div class="doc" id="refDoc"></div>
+      <div class="cost">
+        <span>Query đọc post + comments:</span>
+        <span class="pill ref" id="refQ">2 query</span>
+      </div>
+      <div class="cost">
+        <span>Kích thước post doc:</span>
+        <div class="bar"><span id="refBar" style="width:4%"></span></div>
+        <b id="refSize">~0.1 KB</b>
+      </div>
+      <div class="explain" id="refNote" style="margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODULE 2 ============ -->
+<h2>2. SQL vs NoSQL — picker</h2>
+<div class="card">
+  <p style="font-size:14px;color:#4a5568;margin-top:0">Chọn một use case, xem nên dùng SQL hay NoSQL và vì sao.</p>
+  <div class="usecases" id="ucGrid"></div>
+  <div class="explain" id="pickResult" style="margin-top:14px">Chọn một use case ở trên...</div>
+</div>
+
+<!-- ============ MODULE 3 ============ -->
+<h2>3. Aggregation pipeline</h2>
+<div class="card">
+  <p style="font-size:14px;color:#4a5568;margin-top:0">
+    Pipeline: <code class="inline">$match {published:true}</code> →
+    <code class="inline">$group by author, $sum:1</code> →
+    <code class="inline">$sort {count:-1}</code>. Bấm "Bước tiếp" để xem dữ liệu biến đổi.
+  </p>
+  <div class="stages" id="stageBar"></div>
+  <div class="docs-flow" id="docsFlow"></div>
+  <div class="stagedesc" id="stageDesc"></div>
+  <div class="row" style="margin-top:12px">
+    <button id="stepBtn">▶ Bước tiếp</button>
+    <button class="secondary" id="resetAgg">↺ Reset</button>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ============ MODULE 1: embed vs reference ============
+(function () {
+  const slider = document.getElementById('cslider');
+  const LIMIT_KB = 16 * 1024; // 16 MB = 16384 KB
+  const PER_COMMENT_KB = 0.16; // ước lượng mỗi comment ~0.16 KB
+  const POST_BASE_KB = 0.3;
+
+  function esc(s){ return s; }
+  function embedDocHTML(n) {
+    const shown = Math.min(n, 2);
+    let comments = '';
+    for (let i = 0; i < shown; i++) {
+      comments += `    <span class="k">{</span> <span class="k">"user"</span>: <span class="s">"u${i+1}"</span>, <span class="k">"text"</span>: <span class="s">"..."</span> <span class="k">}</span>,\n`;
+    }
+    if (n > shown) comments += `    <span class="c">... còn ${(n-shown).toLocaleString()} comment nữa</span>\n`;
+    return `<span class="k">{</span>
+  <span class="k">"_id"</span>: <span class="n">1</span>,
+  <span class="k">"title"</span>: <span class="s">"Học MongoDB"</span>,
+  <span class="k">"author_id"</span>: <span class="s">"u_alice"</span>,
+  <span class="k">"comments"</span>: <span class="k">[</span>
+${comments}  <span class="k">]</span>
+<span class="k">}</span>`;
+  }
+  function refDocHTML(n) {
+    return `<span class="c">// collection: posts</span>
+<span class="k">{</span> <span class="k">"_id"</span>: <span class="n">1</span>, <span class="k">"title"</span>: <span class="s">"Học MongoDB"</span>, <span class="k">"author_id"</span>: <span class="s">"u_alice"</span> <span class="k">}</span>
+
+<span class="c">// collection: comments (${n.toLocaleString()} doc, ref post_id)</span>
+<span class="k">{</span> <span class="k">"_id"</span>: <span class="s">"c1"</span>, <span class="k">"post_id"</span>: <span class="n">1</span>, <span class="k">"user"</span>: <span class="s">"u1"</span> <span class="k">}</span>
+<span class="c">... mỗi comment 1 document riêng</span>`;
+  }
+
+  function render() {
+    const n = parseInt(slider.value, 10);
+    document.getElementById('ccount').textContent = n.toLocaleString();
+    document.getElementById('embedDoc').innerHTML = embedDocHTML(n);
+    document.getElementById('refDoc').innerHTML = refDocHTML(n);
+
+    const embedKB = POST_BASE_KB + n * PER_COMMENT_KB;
+    const refPostKB = 0.12;
+    document.getElementById('embedSize').textContent = fmtSize(embedKB);
+    document.getElementById('refSize').textContent = fmtSize(refPostKB);
+    document.getElementById('embedBar').style.width = Math.min(100, embedKB / LIMIT_KB * 100) + '%';
+    document.getElementById('refBar').style.width = '4%';
+
+    // Query cost: embed luôn 1; reference = 1 (post) + N batch... ở đây tối giản 2.
+    document.getElementById('embedQ').textContent = '1 query';
+    document.getElementById('refQ').textContent = '2 query (post + comments)';
+
+    const overLimit = embedKB > LIMIT_KB;
+    const embedBar = document.getElementById('embedBar');
+    embedBar.style.background = overLimit
+      ? 'linear-gradient(90deg,#e53e3e,#c53030)'
+      : 'linear-gradient(90deg,#ec4899,#db2777)';
+
+    if (n <= 50) {
+      document.getElementById('embedNote').innerHTML =
+        '✅ <b>Nên embed.</b> 1-to-few, đọc cùng nhau → đọc post là có luôn comment, <b>1 query</b>, cực nhanh.';
+      document.getElementById('refNote').innerHTML =
+        '⚠ Reference ở đây hơi thừa: phải <b>2 query</b> cho việc luôn đọc cùng nhau.';
+    } else if (!overLimit) {
+      document.getElementById('embedNote').innerHTML =
+        '🟡 Embed vẫn chạy nhưng doc đang phình to. Cân nhắc chuyển reference nếu còn tăng.';
+      document.getElementById('refNote').innerHTML =
+        '✅ <b>Reference hợp lý hơn.</b> Post nhỏ gọn, comment phân trang riêng.';
+    } else {
+      document.getElementById('embedNote').innerHTML =
+        '❌ <b>VƯỢT 16MB → KHÔNG GHI ĐƯỢC!</b> Đây là pitfall <i>over-embed</i> với quan hệ 1-to-squillions.';
+      document.getElementById('refNote').innerHTML =
+        '✅ <b>Bắt buộc reference.</b> Comment là collection riêng, không có giới hạn 16MB cho cả khối.';
+    }
+  }
+  function fmtSize(kb) {
+    if (kb >= 1024) return '~' + (kb / 1024).toFixed(1) + ' MB';
+    return '~' + kb.toFixed(1) + ' KB';
+  }
+  slider.addEventListener('input', render);
+  render();
+})();
+
+// ============ MODULE 2: SQL vs NoSQL picker ============
+(function () {
+  const cases = [
+    { id:'bank', ico:'🏦', name:'Ngân hàng', pick:'sql',
+      why:'Cần <b>ACID multi-table</b> + <b>strong consistency</b> + audit. Số dư không được sai dù 1 giây. Sân nhà của RDBMS.' },
+    { id:'feed', ico:'📱', name:'Social feed', pick:'nosql',
+      why:'Schema linh hoạt (post nhiều loại), đọc/ghi phân cấp, <b>scale ngang</b> khổng lồ, feed trễ vài giây chấp nhận được (<b>eventual consistency</b>).' },
+    { id:'iot', ico:'📡', name:'IoT sensor', pick:'nosql',
+      why:'<b>Write throughput</b> cực cao, append-only, ít JOIN. Hợp time-series / column-family (Cassandra) hoặc MongoDB time-series.' },
+    { id:'catalog', ico:'🛒', name:'Product catalog', pick:'nosql',
+      why:'Schema rất đa dạng (mỗi loại sản phẩm field khác), đọc nguyên product 1 phát, schema động. <i>(Order/payment của cùng hệ thống lại nên SQL — polyglot persistence.)</i>' },
+    { id:'report', ico:'📊', name:'Báo cáo BI', pick:'sql',
+      why:'SQL declarative + GROUP BY + window function + BI tool xử lý <b>analytics ad-hoc</b> tốt hơn aggregation pipeline.' },
+    { id:'graph', ico:'🕸️', name:'Mạng quan hệ', pick:'nosql',
+      why:'Bạn-của-bạn nhiều cấp → <b>graph DB (Neo4j)</b>, một họ NoSQL, traversal cực nhanh. SQL JOIN đệ quy rất nặng.' },
+  ];
+  const grid = document.getElementById('ucGrid');
+  const result = document.getElementById('pickResult');
+  cases.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'uc';
+    el.innerHTML = `<span class="ico">${c.ico}</span>${c.name}`;
+    el.onclick = () => {
+      document.querySelectorAll('.uc').forEach(x => x.classList.remove('active'));
+      el.classList.add('active');
+      const label = c.pick === 'sql'
+        ? '<span class="pill sql">→ SQL</span>'
+        : '<span class="pill nosql">→ NoSQL</span>';
+      result.innerHTML = `<b>${c.ico} ${c.name}</b> &nbsp; ${label}<br><span style="display:block;margin-top:6px">${c.why}</span>`;
+    };
+    grid.appendChild(el);
+  });
+})();
+
+// ============ MODULE 3: aggregation pipeline ============
+(function () {
+  const initial = [
+    { author:'alice', published:true },
+    { author:'alice', published:true },
+    { author:'bob',   published:false },
+    { author:'bob',   published:true },
+    { author:'carol', published:true },
+  ];
+  const stageNames = ['(input)', '$match', '$group', '$sort'];
+  const descs = [
+    'Dữ liệu ban đầu: 5 post. Mục tiêu: đếm post đã publish theo author, sort giảm dần.',
+    '$match {published:true} — <b>lọc</b> bỏ post chưa publish (giống WHERE). Doc mờ đi là bị loại.',
+    '$group {_id:"$author", count:{$sum:1}} — <b>gom</b> theo author và đếm (giống GROUP BY).',
+    '$sort {count:-1} — <b>sắp xếp</b> giảm dần theo count (giống ORDER BY ... DESC). Xong pipeline.',
+  ];
+  let step = 0;
+  const stageBar = document.getElementById('stageBar');
+  const flow = document.getElementById('docsFlow');
+  const desc = document.getElementById('stageDesc');
+  const stepBtn = document.getElementById('stepBtn');
+
+  function renderStages() {
+    stageBar.innerHTML = '';
+    stageNames.forEach((s, i) => {
+      const el = document.createElement('div');
+      el.className = 'stage' + (i === step ? ' active' : (i < step ? ' done' : ''));
+      el.textContent = s;
+      stageBar.appendChild(el);
+    });
+  }
+  function renderFlow() {
+    flow.innerHTML = '';
+    let docs;
+    if (step <= 1) {
+      docs = initial.map(d => ({
+        text: `{author:"${d.author}", pub:${d.published}}`,
+        out: step === 1 && !d.published,
+      }));
+    } else {
+      // group/sort: tính count
+      const counts = {};
+      initial.filter(d => d.published).forEach(d => counts[d.author] = (counts[d.author]||0)+1);
+      let arr = Object.keys(counts).map(a => ({ author:a, count:counts[a] }));
+      if (step >= 3) arr.sort((a,b) => b.count - a.count);
+      docs = arr.map(d => ({ text:`{_id:"${d.author}", count:${d.count}}`, group:true }));
+    }
+    docs.forEach(d => {
+      const el = document.createElement('div');
+      el.className = 'fdoc' + (d.out ? ' out' : '') + (d.group ? ' group' : '');
+      el.textContent = d.text;
+      flow.appendChild(el);
+    });
+  }
+  function render() {
+    renderStages();
+    renderFlow();
+    desc.innerHTML = descs[step];
+    stepBtn.disabled = step >= stageNames.length - 1;
+    stepBtn.textContent = step >= stageNames.length - 1 ? '✓ Xong' : '▶ Bước tiếp';
+  }
+  stepBtn.onclick = () => { if (step < stageNames.length - 1) { step++; render(); } };
+  document.getElementById('resetAgg').onclick = () => { step = 0; render(); };
+  render();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

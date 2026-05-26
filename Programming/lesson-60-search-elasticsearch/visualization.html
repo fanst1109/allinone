@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 60 — Search & Elasticsearch Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #f59e0b;        /* cam Elasticsearch */
+    --accent-soft: #fef3c7;
+    --accent-hover: #d97706;
+  }
+  main { max-width: 980px; margin: 0 auto; padding: 16px; }
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 42px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .intro { color: var(--ink-soft); line-height: 1.6; }
+  .card {
+    background: #fff; border: 1px solid var(--line);
+    border-radius: 10px; padding: 20px; margin: 18px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; align-items: center; }
+  button {
+    background: var(--accent); color: #fff; border: none;
+    padding: 9px 16px; border-radius: 7px; font-size: 14px;
+    font-weight: 600; cursor: pointer;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost { background: #edf2f7; color: var(--ink); }
+  button.ghost:hover { background: #e2e8f0; }
+  input[type=text], textarea {
+    font-family: ui-monospace, monospace; font-size: 14px;
+    border: 1px solid var(--line-strong); border-radius: 8px; padding: 9px 11px;
+    width: 100%; max-width: 100%; box-sizing: border-box;
+  }
+  textarea { min-height: 110px; line-height: 1.5; }
+  label { font-size: 13px; font-weight: 600; color: var(--ink-soft); display: block; margin: 10px 0 4px; }
+  .stat {
+    display: inline-block; background: var(--accent-soft); color: var(--accent-hover);
+    border-radius: 6px; padding: 3px 9px; font-weight: 700; font-size: 13px;
+  }
+
+  /* ---- Module 1: inverted index ---- */
+  .ii-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; }
+  .ii-table th, .ii-table td { border: 1px solid var(--line); padding: 6px 9px; text-align: left; }
+  .ii-table th { background: #f7fafc; }
+  .ii-table td.term { font-family: ui-monospace, monospace; font-weight: 700; }
+  .pl { font-family: ui-monospace, monospace; }
+  .pl .doc {
+    display: inline-block; background: #edf2f7; border-radius: 5px;
+    padding: 2px 7px; margin: 2px; transition: background .2s, color .2s;
+  }
+  .ii-row.hit td { background: var(--accent-soft); }
+  .ii-row.hit .doc { background: var(--accent); color: #fff; }
+  .ii-result { margin-top: 12px; font-family: ui-monospace, monospace; font-size: 13px; }
+  .docs-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .doc-chip {
+    border: 1px solid var(--line); border-radius: 7px; padding: 6px 10px;
+    font-size: 12px; background: #fff; transition: border-color .2s, background .2s;
+  }
+  .doc-chip.match { border-color: var(--accent); background: var(--accent-soft); }
+  .doc-chip .id { font-weight: 700; color: var(--accent-hover); }
+
+  /* ---- Module 2: analyzer pipeline ---- */
+  .pipe { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+  .stage {
+    border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px;
+    background: #fafbfc; opacity: .35; transition: opacity .3s, border-color .3s, transform .3s;
+    transform: translateY(6px);
+  }
+  .stage.on { opacity: 1; transform: translateY(0); border-color: var(--accent); }
+  .stage .name { font-size: 12px; font-weight: 700; color: var(--accent-hover); margin-bottom: 6px; }
+  .toks { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tok {
+    font-family: ui-monospace, monospace; font-size: 13px;
+    border: 1px solid var(--line-strong); border-radius: 6px; padding: 3px 8px; background: #fff;
+  }
+  .tok.removed { text-decoration: line-through; color: #cbd5e0; border-style: dashed; background: #f7fafc; }
+  .tok.changed { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-hover); font-weight: 700; }
+
+  /* ---- Module 3: scoring ---- */
+  .score-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; }
+  .score-table th, .score-table td { border: 1px solid var(--line); padding: 6px 9px; text-align: right; }
+  .score-table td:first-child, .score-table th:first-child { text-align: left; }
+  .score-table .doctext { font-family: ui-monospace, monospace; color: var(--ink-soft); }
+  .bar-wrap { background: #edf2f7; border-radius: 5px; height: 16px; overflow: hidden; min-width: 60px; }
+  .bar { background: var(--accent); height: 100%; transition: width .4s; }
+  .mode-toggle button.active { background: var(--accent-hover); }
+  .formula {
+    font-family: ui-monospace, monospace; font-size: 12px; background: #1a202c; color: #cbd5e0;
+    border-radius: 8px; padding: 10px 12px; margin-top: 12px; line-height: 1.7; overflow-x: auto;
+  }
+  .formula .hl { color: #f6ad55; }
+
+  @media (max-width: 600px) {
+    .ii-table, .score-table { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-59-nosql-mongodb/visualization.html">← L59: NoSQL & MongoDB</a>
+  <span class="sep">·</span>
+  <span class="current">L60: Search & Elasticsearch</span>
+  <span class="sep">·</span>
+  <a href="../lesson-61-mini-project-blog-backend/visualization.html">L61: Mini-project Blog Backend →</a>
+</nav>
+
+<main>
+<h1>Lesson 60 — Search & Elasticsearch</h1>
+<p class="intro">
+  Ba mô-đun tương tác: (1) <b>Inverted index builder</b> — nhập document, build index, query term highlight doc khớp;
+  (2) <b>Analyzer pipeline</b> — animate tokenize → lowercase → stop word → stemming;
+  (3) <b>TF-IDF / BM25 scoring</b> — query + docs, xem điểm relevance tách từng thành phần.
+</p>
+
+<!-- =================== MODULE 1: INVERTED INDEX =================== -->
+<h2>1. Inverted index builder</h2>
+<div class="card">
+  <p class="intro">
+    Mỗi dòng là một document. Bấm <b>Build index</b> để đảo ngược thành <code>term → posting list</code>,
+    rồi gõ một term để tra cứu — chỉ những doc trong posting list được highlight, KHÔNG scan doc nào khác.
+  </p>
+  <label>Documents (mỗi dòng 1 doc):</label>
+  <textarea id="m1-docs">go is fast
+python is slow
+go go gophers love go
+the rust language is fast</textarea>
+  <div class="controls">
+    <button id="m1-build">Build index</button>
+    <input type="text" id="m1-query" placeholder="query term, vd: go" style="max-width: 240px;">
+    <button id="m1-search" class="ghost">Tra cứu</button>
+  </div>
+  <div class="docs-list" id="m1-doclist"></div>
+  <table class="ii-table" id="m1-table"></table>
+  <div class="ii-result" id="m1-result"></div>
+</div>
+
+<!-- =================== MODULE 2: ANALYZER PIPELINE =================== -->
+<h2>2. Analyzer pipeline</h2>
+<div class="card">
+  <p class="intro">
+    Nhập text rồi bấm <b>Phân tích</b> để xem nó chạy qua từng bước.
+    Cùng pipeline này áp cho cả lúc index lẫn lúc search → query <i>"running dogs"</i> khớp được doc chứa <i>"runs"</i>.
+  </p>
+  <input type="text" id="m2-input" value="The Running Dogs are playing" style="max-width: 420px;">
+  <div class="controls">
+    <button id="m2-run">Phân tích từng bước</button>
+    <button id="m2-ex1" class="ghost">Ví dụ: Cats are Sleeping</button>
+  </div>
+  <div class="pipe">
+    <div class="stage" id="s0"><div class="name">① Tokenizer — cắt theo khoảng trắng/ký tự</div><div class="toks" id="t0"></div></div>
+    <div class="stage" id="s1"><div class="name">② Lowercase filter — hạ chữ thường</div><div class="toks" id="t1"></div></div>
+    <div class="stage" id="s2"><div class="name">③ Stop word filter — bỏ the/is/a/are…</div><div class="toks" id="t2"></div></div>
+    <div class="stage" id="s3"><div class="name">④ Stemming filter — đưa về gốc từ</div><div class="toks" id="t3"></div></div>
+  </div>
+</div>
+
+<!-- =================== MODULE 3: SCORING =================== -->
+<h2>3. TF-IDF / BM25 scoring</h2>
+<div class="card">
+  <p class="intro">
+    Query một term trên các document → xem điểm relevance tách thành <b>TF</b> (nhắc nhiều = liên quan)
+    và <b>IDF</b> (term hiếm = quan trọng). Đổi giữa <b>TF-IDF</b> và <b>BM25</b> (mặc định Elasticsearch).
+  </p>
+  <label>Documents (mỗi dòng 1 doc):</label>
+  <textarea id="m3-docs">go is fast go
+python is slow
+go gophers love go go
+rust language is fast</textarea>
+  <div class="controls">
+    <input type="text" id="m3-query" value="go" placeholder="query term" style="max-width: 200px;">
+    <span class="mode-toggle">
+      <button id="m3-tfidf" class="active">TF-IDF</button>
+      <button id="m3-bm25" class="ghost">BM25</button>
+    </span>
+    <button id="m3-run">Tính điểm</button>
+  </div>
+  <div class="formula" id="m3-formula"></div>
+  <table class="score-table" id="m3-table"></table>
+</div>
+
+</main>
+
+<script>
+// ---------- analyzer dùng chung cho cả 3 module ----------
+const STOP = new Set(["the","is","a","an","of","and","to","in","are","be"]);
+function tokenize(text){ return (text.toLowerCase().match(/[a-z0-9]+/g) || []); }
+function stem(w){
+  if (w.endsWith("ies") && w.length>4) return w.slice(0,-3)+"y";
+  if (w==="running") return "run";
+  if (w.endsWith("ing") && w.length>5){
+    let b=w.slice(0,-3);
+    if (b.length>=2 && b[b.length-1]===b[b.length-2]) b=b.slice(0,-1);
+    return b;
+  }
+  if (w.endsWith("es") && w.length>4) return w.slice(0,-2);
+  if (w.endsWith("s") && w.length>3) return w.slice(0,-1);
+  return w;
+}
+function analyze(text){
+  return tokenize(text).filter(t=>!STOP.has(t)).map(stem);
+}
+
+// =================== MODULE 1 ===================
+(function(){
+  const docsEl = document.getElementById('m1-docs');
+  const listEl = document.getElementById('m1-doclist');
+  const tableEl = document.getElementById('m1-table');
+  const resEl = document.getElementById('m1-result');
+  let index = {}, docs = [];
+
+  function build(){
+    docs = docsEl.value.split('\n').map(s=>s.trim()).filter(Boolean);
+    index = {};
+    docs.forEach((text, i)=>{
+      const tf = {};
+      analyze(text).forEach(t=>{ tf[t]=(tf[t]||0)+1; });
+      Object.keys(tf).forEach(term=>{
+        (index[term] = index[term] || []).push({doc:i+1, tf:tf[term]});
+      });
+    });
+    render();
+    resEl.textContent = '';
+  }
+  function render(hitTerm){
+    listEl.innerHTML = docs.map((t,i)=>
+      `<div class="doc-chip" id="dc${i+1}"><span class="id">doc${i+1}</span> ${t}</div>`).join('');
+    const terms = Object.keys(index).sort();
+    let html = '<tr><th>Term</th><th>Posting list (doc, tf)</th></tr>';
+    terms.forEach(term=>{
+      const hit = term===hitTerm;
+      const pl = index[term].map(p=>`<span class="doc">doc${p.doc}×${p.tf}</span>`).join('');
+      html += `<tr class="ii-row ${hit?'hit':''}"><td class="term">${term}</td><td class="pl">${pl}</td></tr>`;
+    });
+    tableEl.innerHTML = html;
+  }
+  function search(){
+    const raw = document.getElementById('m1-query').value.trim();
+    const terms = analyze(raw);
+    if (!terms.length){ resEl.textContent='(query rỗng / chỉ stop word)'; return; }
+    const term = terms[0];
+    render(term);
+    const hits = (index[term]||[]).map(p=>p.doc);
+    document.querySelectorAll('.doc-chip').forEach(c=>c.classList.remove('match'));
+    hits.forEach(d=>document.getElementById('dc'+d)?.classList.add('match'));
+    resEl.innerHTML = `query "<b>${raw}</b>" → analyze → term <span class="stat">${term}</span> → ` +
+      (hits.length ? `tra posting list → khớp <b>doc${hits.join(', doc')}</b> (O(1) lookup, không scan doc nào)`
+                   : `không có doc nào chứa term này`);
+  }
+  document.getElementById('m1-build').onclick = build;
+  document.getElementById('m1-search').onclick = search;
+  document.getElementById('m1-query').addEventListener('keydown', e=>{ if(e.key==='Enter') search(); });
+  build();
+})();
+
+// =================== MODULE 2 ===================
+(function(){
+  const inp = document.getElementById('m2-input');
+  const stages = [0,1,2,3].map(i=>document.getElementById('s'+i));
+  const slots  = [0,1,2,3].map(i=>document.getElementById('t'+i));
+  let timer = null;
+
+  function chips(tokens, opts){
+    return tokens.map(o=>`<span class="tok ${o.cls||''}">${o.t}</span>`).join('');
+  }
+  function run(){
+    if (timer) clearTimeout(timer);
+    stages.forEach(s=>s.classList.remove('on'));
+    slots.forEach(s=>s.innerHTML='');
+    const text = inp.value;
+    const toks = tokenize(text);            // đã lowercase trong regex; ta tách "lowercase" thành bước riêng minh hoạ
+    const rawSplit = (text.match(/[A-Za-z0-9]+/g) || []);
+
+    const steps = [
+      // ① tokenize (giữ hoa)
+      ()=>{ slots[0].innerHTML = chips(rawSplit.map(t=>({t}))); },
+      // ② lowercase
+      ()=>{ slots[1].innerHTML = chips(rawSplit.map(t=>({t:t.toLowerCase(), cls: t!==t.toLowerCase()?'changed':''}))); },
+      // ③ stop word
+      ()=>{ slots[2].innerHTML = chips(toks.map(t=>({t, cls: STOP.has(t)?'removed':''}))); },
+      // ④ stemming
+      ()=>{ slots[3].innerHTML = chips(toks.filter(t=>!STOP.has(t)).map(t=>{ const s=stem(t); return {t:s, cls: s!==t?'changed':''}; })); },
+    ];
+    let i = 0;
+    (function tick(){
+      if (i>=steps.length) return;
+      stages[i].classList.add('on');
+      steps[i]();
+      i++;
+      timer = setTimeout(tick, 650);
+    })();
+  }
+  document.getElementById('m2-run').onclick = run;
+  document.getElementById('m2-ex1').onclick = ()=>{ inp.value='Cats are Sleeping'; run(); };
+  run();
+})();
+
+// =================== MODULE 3 ===================
+(function(){
+  const docsEl = document.getElementById('m3-docs');
+  const tableEl = document.getElementById('m3-table');
+  const formulaEl = document.getElementById('m3-formula');
+  let mode = 'tfidf';
+
+  const bTfidf = document.getElementById('m3-tfidf');
+  const bBm25  = document.getElementById('m3-bm25');
+  function setMode(m){
+    mode = m;
+    bTfidf.classList.toggle('active', m==='tfidf'); bTfidf.classList.toggle('ghost', m!=='tfidf');
+    bBm25.classList.toggle('active', m==='bm25');   bBm25.classList.toggle('ghost', m!=='bm25');
+    run();
+  }
+  bTfidf.onclick = ()=>setMode('tfidf');
+  bBm25.onclick  = ()=>setMode('bm25');
+
+  function run(){
+    const docs = docsEl.value.split('\n').map(s=>s.trim()).filter(Boolean);
+    const terms = analyze(document.getElementById('m3-query').value.trim());
+    const term = terms[0];
+    const N = docs.length;
+    const tokenized = docs.map(d=>analyze(d));
+    const lens = tokenized.map(t=>t.length);
+    const avgdl = lens.reduce((a,b)=>a+b,0)/(N||1);
+    const tfOf = (i)=> term ? tokenized[i].filter(t=>t===term).length : 0;
+    const df = tokenized.filter(t=>t.includes(term)).length;
+
+    let idf, formula;
+    if (mode==='tfidf'){
+      idf = Math.log(N/(df||1));
+      formula = `TF-IDF: score = <span class="hl">tf</span> × <span class="hl">idf</span><br>` +
+                `idf = ln(N / df) = ln(${N} / ${df}) = <span class="hl">${idf.toFixed(4)}</span>` +
+                ` &nbsp; (N=${N}, df=${df})`;
+    } else {
+      const k1=1.2, b=0.75;
+      idf = Math.log(1 + (N-df+0.5)/(df+0.5));
+      formula = `BM25 (default ES): score = idf × tf·(k1+1) / (tf + k1·(1−b+b·|d|/avgdl))<br>` +
+                `idf = ln(1+(N−df+0.5)/(df+0.5)) = <span class="hl">${idf.toFixed(4)}</span>` +
+                ` &nbsp; k1=1.2, b=0.75, avgdl=${avgdl.toFixed(2)}`;
+    }
+    formulaEl.innerHTML = (term ? formula : 'query rỗng / chỉ stop word');
+
+    const rows = docs.map((d,i)=>{
+      const tf = tfOf(i);
+      let score = 0;
+      if (tf>0){
+        if (mode==='tfidf') score = tf*idf;
+        else { const k1=1.2,b=0.75; const dl=lens[i]; score = idf*(tf*(k1+1))/(tf + k1*(1-b+b*dl/avgdl)); }
+      }
+      return {i:i+1, text:d, tf, dl:lens[i], score};
+    }).filter(r=>r.tf>0).sort((a,b)=>b.score-a.score || a.i-b.i);
+
+    const maxScore = Math.max(0.0001, ...rows.map(r=>r.score));
+    let html = `<tr><th>Doc</th><th>tf</th><th>|d|</th><th>score</th><th>relevance</th></tr>`;
+    if (!rows.length){
+      html += `<tr><td colspan="5" style="text-align:center">không doc nào chứa term "${term||''}"</td></tr>`;
+    }
+    rows.forEach(r=>{
+      const w = (r.score/maxScore*100).toFixed(0);
+      html += `<tr><td>doc${r.i} <span class="doctext">${r.text}</span></td>` +
+              `<td>${r.tf}</td><td>${r.dl}</td><td><b>${r.score.toFixed(4)}</b></td>` +
+              `<td><div class="bar-wrap"><div class="bar" style="width:${w}%"></div></div></td></tr>`;
+    });
+    tableEl.innerHTML = html;
+  }
+  document.getElementById('m3-run').onclick = run;
+  document.getElementById('m3-query').addEventListener('keydown', e=>{ if(e.key==='Enter') run(); });
+  run();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

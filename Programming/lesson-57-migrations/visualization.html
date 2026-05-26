@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 57 — Database Migrations (Visualization)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 44px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; margin-top: 22px; }
+  p.lead { color: #4a5568; line-height: 1.6; }
+  .card {
+    background: #fff; border-radius: 10px; padding: 18px 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #4299e1; color: #fff; border: none;
+    padding: 9px 15px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.danger { background: #e53e3e; }
+  button.danger:hover { background: #c53030; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  label { font-size: 14px; color: #2d3748; }
+  .explain {
+    background: #ebf8ff; border-left: 4px solid #4299e1;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6; margin: 10px 0;
+  }
+  .warn {
+    background: #fff5f5; border-left: 4px solid #e53e3e;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6; margin: 10px 0;
+  }
+  code.inline {
+    background: #edf2f7; padding: 1px 6px; border-radius: 4px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px;
+  }
+  .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; }
+
+  /* ---- Module 1: timeline ---- */
+  .timeline { display: flex; flex-direction: column; gap: 8px; margin: 14px 0; }
+  .mig-row {
+    display: flex; align-items: center; gap: 10px;
+    border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px;
+    background: #f7fafc; transition: all .25s;
+  }
+  .mig-row.applied { background: #f0fff4; border-color: #9ae6b4; }
+  .mig-row.head { box-shadow: 0 0 0 2px #4299e1; }
+  .mig-ver {
+    flex: 0 0 auto; width: 64px; font-family: ui-monospace, monospace;
+    font-size: 13px; color: #2b6cb0; font-weight: 700;
+  }
+  .mig-name { flex: 1 1 auto; font-size: 14px; }
+  .mig-sql { font-size: 12px; color: #718096; font-family: ui-monospace, monospace; }
+  .mig-badge {
+    flex: 0 0 auto; font-size: 11px; padding: 2px 8px; border-radius: 10px;
+    font-weight: 700;
+  }
+  .mig-badge.on { background: #c6f6d5; color: #22543d; }
+  .mig-badge.off { background: #e2e8f0; color: #718096; }
+  .sm-table {
+    border-collapse: collapse; font-family: ui-monospace, monospace; font-size: 13px;
+    margin-top: 6px;
+  }
+  .sm-table th, .sm-table td { border: 1px solid #cbd5e0; padding: 4px 12px; }
+  .sm-table th { background: #edf2f7; }
+  .dirty-yes { color: #e53e3e; font-weight: 700; }
+
+  /* ---- Module 2: expand-contract ---- */
+  .ec-phases { display: flex; gap: 6px; flex-wrap: wrap; margin: 12px 0; }
+  .ec-phase {
+    flex: 1 1 90px; min-width: 0; text-align: center; font-size: 12px;
+    padding: 8px 4px; border-radius: 8px; background: #edf2f7; color: #718096;
+    border: 1px solid #e2e8f0; font-weight: 600;
+  }
+  .ec-phase.active { background: #4299e1; color: #fff; border-color: #3182ce; }
+  .ec-phase.done { background: #c6f6d5; color: #22543d; border-color: #9ae6b4; }
+  .ec-stage { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+  .ec-box {
+    border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; background: #f7fafc;
+  }
+  .ec-box h4 { margin: 0 0 8px; font-size: 14px; color: #2b6cb0; }
+  .col-chip {
+    display: inline-block; font-family: ui-monospace, monospace; font-size: 12px;
+    padding: 3px 9px; border-radius: 6px; margin: 3px 4px 3px 0;
+    border: 1px solid #cbd5e0; background: #fff;
+  }
+  .col-chip.read { background: #bee3f8; border-color: #4299e1; font-weight: 700; }
+  .col-chip.write { background: #fefcbf; border-color: #d69e2e; }
+  .col-chip.rw { background: #c6f6d5; border-color: #38a169; font-weight: 700; }
+  .col-chip.gone { text-decoration: line-through; color: #a0aec0; background: #edf2f7; }
+  .ec-narr { font-size: 13px; color: #4a5568; line-height: 1.55; margin-top: 6px; min-height: 40px; }
+  .legend { font-size: 12px; color: #718096; margin-top: 8px; }
+  .legend span { display: inline-block; margin-right: 14px; }
+  .sw { display: inline-block; width: 11px; height: 11px; border-radius: 3px; vertical-align: middle; margin-right: 4px; }
+
+  /* ---- Module 3: lock impact ---- */
+  .lk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .lk-col { border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }
+  .lk-col h4 { margin: 0 0 8px; font-size: 14px; }
+  .lk-col.bad h4 { color: #e53e3e; }
+  .lk-col.good h4 { color: #38a169; }
+  .lk-track {
+    height: 22px; background: #e2e8f0; border-radius: 6px; overflow: hidden;
+    position: relative; margin: 8px 0;
+  }
+  .lk-bar { height: 100%; width: 0; transition: width .1s linear; }
+  .lk-bar.idx { background: #4299e1; }
+  .lk-req { font-size: 13px; margin-top: 6px; }
+  .lk-req b { font-family: ui-monospace, monospace; }
+  .lk-state {
+    display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px;
+    border-radius: 10px; margin-left: 6px;
+  }
+  .lk-state.locked { background: #fed7d7; color: #822727; }
+  .lk-state.ok { background: #c6f6d5; color: #22543d; }
+  .lk-log {
+    font-family: ui-monospace, monospace; font-size: 12px; background: #1a202c;
+    color: #e2e8f0; border-radius: 6px; padding: 10px; height: 120px;
+    overflow-y: auto; margin-top: 8px; line-height: 1.5;
+  }
+  .lk-log .blocked { color: #fc8181; }
+  .lk-log .served { color: #68d391; }
+
+  @media (max-width: 640px) {
+    .ec-stage, .lk-grid { grid-template-columns: 1fr; }
+    .mig-ver { width: 54px; }
+    .ec-phase { flex: 1 1 60px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-56-transactions-isolation/visualization.html">← L56: Transaction & Isolation</a>
+  <span class="sep">·</span>
+  <span class="current">L57: Migrations</span>
+  <span class="sep">·</span>
+  <a href="../lesson-58-redis-caching/visualization.html">L58: Redis & Caching →</a>
+</nav>
+
+<main>
+<h1>Lesson 57 — Database Migrations</h1>
+<p class="lead">
+  Ba module tương tác: (1) <b>Migration timeline</b> — apply up/down, theo dõi version &amp;
+  bảng <code class="inline">schema_migrations</code>; (2) <b>Expand-contract</b> — animate đổi tên cột
+  zero-downtime qua 5 phase; (3) <b>Lock impact</b> — <code class="inline">CREATE INDEX</code> có và
+  không <code class="inline">CONCURRENTLY</code>.
+</p>
+
+<!-- ====================== MODULE 1 ====================== -->
+<h2>① Migration timeline — up / down / goto</h2>
+<p class="lead">Database nhớ version cao nhất đã apply. <code class="inline">up</code> chạy các migration chưa apply theo thứ tự tăng; <code class="inline">down</code> đảo ngược theo thứ tự giảm.</p>
+
+<div class="card">
+  <div class="row">
+    <button id="t-up">migrate up 1 ▶</button>
+    <button id="t-upall" class="secondary">up (chạy hết)</button>
+    <button id="t-down" class="danger">◀ migrate down 1</button>
+    <button id="t-reset" class="secondary">Reset</button>
+  </div>
+
+  <div class="timeline" id="t-timeline"></div>
+
+  <div class="explain" id="t-explain">Database đang ở <b>version 0</b> (trống). Bấm <b>up</b> để apply migration đầu tiên.</div>
+
+  <div class="row" style="align-items:flex-start; gap:24px;">
+    <div>
+      <b style="font-size:13px;">Bảng schema_migrations</b>
+      <table class="sm-table">
+        <tr><th>version</th><th>dirty</th></tr>
+        <tr><td id="t-ver">0</td><td id="t-dirty">false</td></tr>
+      </table>
+    </div>
+    <div>
+      <b style="font-size:13px;">Schema hiện có</b>
+      <div id="t-schema" class="mono" style="font-size:12px; color:#4a5568; margin-top:6px; max-width:280px;">(trống)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================== MODULE 2 ====================== -->
+<h2>② Expand-contract — đổi tên cột zero-downtime</h2>
+<p class="lead">Đổi <code class="inline">users.name</code> → <code class="inline">users.full_name</code> mà app vẫn chạy. KHÔNG <code class="inline">RENAME</code> trực tiếp — đi qua 5 phase, mỗi phase chờ rolling deploy rút hết code cũ.</p>
+
+<div class="card">
+  <div class="ec-phases" id="ec-phases">
+    <div class="ec-phase" data-p="0">0. Ban đầu</div>
+    <div class="ec-phase" data-p="1">1. Expand<br><small>add cột</small></div>
+    <div class="ec-phase" data-p="2">2. Backfill</div>
+    <div class="ec-phase" data-p="3">3. Dual-write</div>
+    <div class="ec-phase" data-p="4">4. Switch read</div>
+    <div class="ec-phase" data-p="5">5. Contract<br><small>drop cũ</small></div>
+  </div>
+
+  <div class="row">
+    <button id="ec-prev" class="secondary">◀ Phase trước</button>
+    <button id="ec-next">Phase sau ▶</button>
+  </div>
+
+  <div class="ec-stage">
+    <div class="ec-box">
+      <h4>Schema (cột bảng users)</h4>
+      <div id="ec-cols"></div>
+      <div class="legend">
+        <span><span class="sw" style="background:#bee3f8;border:1px solid #4299e1;"></span>code đọc</span>
+        <span><span class="sw" style="background:#fefcbf;border:1px solid #d69e2e;"></span>code ghi</span>
+        <span><span class="sw" style="background:#c6f6d5;border:1px solid #38a169;"></span>đọc+ghi</span>
+      </div>
+    </div>
+    <div class="ec-box">
+      <h4>Code app đang chạy</h4>
+      <div id="ec-code" class="mono" style="font-size:12px; line-height:1.7;"></div>
+    </div>
+  </div>
+
+  <div class="ec-narr" id="ec-narr"></div>
+</div>
+
+<!-- ====================== MODULE 3 ====================== -->
+<h2>③ Lock impact — CREATE INDEX vs CONCURRENTLY</h2>
+<p class="lead"><code class="inline">CREATE INDEX</code> thường <b>lock write</b> cả bảng tới khi xong → request ghi xếp hàng. <code class="inline">CREATE INDEX CONCURRENTLY</code> xây index không chặn write (chậm hơn).</p>
+
+<div class="card">
+  <div class="row">
+    <label>Cỡ bảng: <b id="lk-rows">5 triệu</b> row</label>
+    <input type="range" id="lk-size" min="1" max="50" value="5" style="max-width:200px; width:100%;">
+  </div>
+  <div class="row">
+    <button id="lk-run">Chạy CREATE INDEX (cả 2 cách) ▶</button>
+    <button id="lk-reset" class="secondary">Reset</button>
+  </div>
+
+  <div class="lk-grid">
+    <div class="lk-col bad">
+      <h4>CREATE INDEX <span class="lk-state" id="lk-s1">idle</span></h4>
+      <div class="lk-track"><div class="lk-bar idx" id="lk-b1"></div></div>
+      <div class="lk-req">Write request: <b id="lk-r1">—</b></div>
+      <div class="lk-log" id="lk-log1"></div>
+    </div>
+    <div class="lk-col good">
+      <h4>... CONCURRENTLY <span class="lk-state" id="lk-s2">idle</span></h4>
+      <div class="lk-track"><div class="lk-bar idx" id="lk-b2"></div></div>
+      <div class="lk-req">Write request: <b id="lk-r2">—</b></div>
+      <div class="lk-log" id="lk-log2"></div>
+    </div>
+  </div>
+  <div class="warn" id="lk-summary" style="display:none;"></div>
+</div>
+
+</main>
+
+<script>
+/* =================== MODULE 1: Migration timeline =================== */
+(function () {
+  const MIGS = [
+    { v: 1, name: "create_users",        sql: "CREATE TABLE users", obj: "table:users" },
+    { v: 2, name: "create_posts",        sql: "CREATE TABLE posts + index", obj: "table:posts" },
+    { v: 3, name: "add_users_full_name", sql: "ALTER TABLE users ADD full_name", obj: "column:users.full_name" },
+    { v: 4, name: "create_sessions",     sql: "CREATE TABLE sessions", obj: "table:sessions" },
+  ];
+  let version = 0, dirty = false;
+
+  const tl = document.getElementById("t-timeline");
+  const explain = document.getElementById("t-explain");
+
+  function schemaList() {
+    const objs = MIGS.filter(m => m.v <= version).map(m => m.obj);
+    return objs.length ? objs.join(", ") : "(trống)";
+  }
+  function render() {
+    tl.innerHTML = "";
+    MIGS.forEach(m => {
+      const applied = m.v <= version;
+      const row = document.createElement("div");
+      row.className = "mig-row" + (applied ? " applied" : "") + (m.v === version ? " head" : "");
+      row.innerHTML =
+        `<span class="mig-ver">${String(m.v).padStart(6, "0")}</span>` +
+        `<span class="mig-name">${m.name}<br><span class="mig-sql">${m.sql}</span></span>` +
+        `<span class="mig-badge ${applied ? "on" : "off"}">${applied ? "applied" : "pending"}</span>`;
+      tl.appendChild(row);
+    });
+    document.getElementById("t-ver").textContent = version;
+    const d = document.getElementById("t-dirty");
+    d.textContent = dirty ? "true" : "false";
+    d.className = dirty ? "dirty-yes" : "";
+    document.getElementById("t-schema").textContent = schemaList();
+  }
+  function up(n) {
+    let done = 0;
+    for (const m of MIGS) {
+      if (m.v <= version) continue;
+      if (done >= n) break;
+      version = m.v; done++;
+    }
+    if (done === 0) explain.innerHTML = "Đã ở migration mới nhất — không còn gì để <b>up</b>.";
+    else explain.innerHTML = `Đã apply <b>${done}</b> migration. Tool ghi <code>version=${version}</code> vào bảng schema_migrations. Migration ≤ version sẽ không chạy lại.`;
+    render();
+  }
+  function down(n) {
+    let done = 0;
+    while (done < n && version > 0) {
+      const cur = MIGS.find(m => m.v === version);
+      // version mới = version migration ngay trước
+      const prev = MIGS.filter(m => m.v < version).reduce((a, m) => Math.max(a, m.v), 0);
+      explainDown = cur ? cur.name : "";
+      version = prev; done++;
+    }
+    if (done === 0) explain.innerHTML = "Database ở version 0 — không còn gì để <b>down</b>.";
+    else explain.innerHTML = `Đã <b>down ${done}</b> migration (chạy .down.sql, đảo ngược up). Giờ ở <code>version=${version}</code>.`;
+    render();
+  }
+
+  document.getElementById("t-up").onclick = () => up(1);
+  document.getElementById("t-upall").onclick = () => up(MIGS.length);
+  document.getElementById("t-down").onclick = () => down(1);
+  document.getElementById("t-reset").onclick = () => {
+    version = 0; dirty = false;
+    explain.innerHTML = "Reset. Database về <b>version 0</b> (trống).";
+    render();
+  };
+  render();
+})();
+
+/* =================== MODULE 2: Expand-contract =================== */
+(function () {
+  const PHASES = [
+    {
+      cols: [["name", "rw"]],
+      code: ["read  → name", "write → name"],
+      narr: "Trạng thái ban đầu: chỉ có cột name. App đọc & ghi name."
+    },
+    {
+      cols: [["name", "rw"], ["full_name (NULL)", ""]],
+      code: ["read  → name", "write → name"],
+      narr: "EXPAND — migration ADD COLUMN full_name (nullable). Cột mới NULL, code chưa đụng. Code cũ KHÔNG ảnh hưởng (cột nullable)."
+    },
+    {
+      cols: [["name", "rw"], ["full_name (đã đầy)", ""]],
+      code: ["read  → name", "write → name"],
+      narr: "BACKFILL — UPDATE users SET full_name = name theo BATCH (mục 8). Giờ full_name đã có dữ liệu, nhưng code vẫn dùng name."
+    },
+    {
+      cols: [["name", "rw"], ["full_name", "write"]],
+      code: ["read  → name", "write → name + full_name"],
+      narr: "DUAL-WRITE — deploy code ghi vào CẢ HAI cột. Đọc vẫn từ name. Hai cột luôn đồng bộ. Chờ mọi instance lên phiên bản này."
+    },
+    {
+      cols: [["name", "write"], ["full_name", "rw"]],
+      code: ["read  → full_name", "write → name + full_name"],
+      narr: "SWITCH READ — deploy code đọc full_name. Vẫn dual-write để instance cũ (còn đọc name) không crash. Chờ rolling xong."
+    },
+    {
+      cols: [["name", "gone"], ["full_name", "rw"]],
+      code: ["read  → full_name", "write → full_name"],
+      narr: "CONTRACT — ngừng dùng name (deploy), rồi migration DROP COLUMN name. Hoàn tất: chỉ còn full_name. Zero downtime suốt 5 phase!"
+    },
+  ];
+  let p = 0;
+  const phaseEls = [...document.querySelectorAll("#ec-phases .ec-phase")];
+  const colsEl = document.getElementById("ec-cols");
+  const codeEl = document.getElementById("ec-code");
+  const narrEl = document.getElementById("ec-narr");
+
+  function chipClass(role) {
+    return role ? "col-chip " + role : "col-chip";
+  }
+  function render() {
+    phaseEls.forEach((el, i) => {
+      el.classList.toggle("active", i === p);
+      el.classList.toggle("done", i < p);
+    });
+    const ph = PHASES[p];
+    colsEl.innerHTML = ph.cols.map(([n, r]) =>
+      `<span class="${chipClass(r)}">${n}</span>`).join("");
+    codeEl.innerHTML = ph.code.map(l => l.replace(/ /g, "&nbsp;")).join("<br>");
+    narrEl.textContent = ph.narr;
+    document.getElementById("ec-prev").disabled = (p === 0);
+    document.getElementById("ec-next").disabled = (p === PHASES.length - 1);
+  }
+  document.getElementById("ec-next").onclick = () => { if (p < PHASES.length - 1) { p++; render(); } };
+  document.getElementById("ec-prev").onclick = () => { if (p > 0) { p--; render(); } };
+  render();
+})();
+
+/* =================== MODULE 3: Lock impact =================== */
+(function () {
+  const sizeEl = document.getElementById("lk-size");
+  const rowsEl = document.getElementById("lk-rows");
+  let timer = null;
+
+  sizeEl.oninput = () => { rowsEl.textContent = sizeEl.value + " triệu"; };
+
+  function reset() {
+    if (timer) clearInterval(timer);
+    timer = null;
+    document.getElementById("lk-b1").style.width = "0";
+    document.getElementById("lk-b2").style.width = "0";
+    document.getElementById("lk-log1").innerHTML = "";
+    document.getElementById("lk-log2").innerHTML = "";
+    document.getElementById("lk-r1").textContent = "—";
+    document.getElementById("lk-r2").textContent = "—";
+    setState("lk-s1", "idle", "");
+    setState("lk-s2", "idle", "");
+    document.getElementById("lk-summary").style.display = "none";
+    document.getElementById("lk-run").disabled = false;
+  }
+  function setState(id, txt, cls) {
+    const el = document.getElementById(id);
+    el.textContent = txt;
+    el.className = "lk-state" + (cls ? " " + cls : "");
+  }
+  function logLine(id, html) {
+    const el = document.getElementById(id);
+    el.innerHTML += html + "<br>";
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function run() {
+    reset();
+    document.getElementById("lk-run").disabled = true;
+    const rows = parseInt(sizeEl.value, 10); // triệu row
+    // CONCURRENTLY quét bảng ~2 lần -> lâu hơn ~2x. Index thường nhanh hơn nhưng LOCK.
+    const totalSteps = 100;
+    let step = 0;
+    // số "giây mô phỏng" để xây index ~ tỉ lệ với số row
+    setState("lk-s1", "🔒 LOCK write", "locked");
+    setState("lk-s2", "✓ write OK", "ok");
+    let blocked1 = 0, served2 = 0;
+
+    timer = setInterval(() => {
+      step++;
+      const pct1 = Math.min(100, step * (100 / totalSteps));
+      // CONCURRENTLY chậm hơn ~1.8x -> bar 2 đi chậm hơn
+      const pct2 = Math.min(100, step * (100 / (totalSteps * 1.8)));
+      document.getElementById("lk-b1").style.width = pct1 + "%";
+      document.getElementById("lk-b2").style.width = pct2 + "%";
+
+      // Mỗi vài step có 1 write request tới
+      if (step % 12 === 0) {
+        // cách 1: index đang xây -> bị block (nếu chưa xong)
+        if (pct1 < 100) {
+          blocked1++;
+          logLine("lk-log1", `<span class="blocked">⏳ INSERT users → BỊ CHẶN (table locked)</span>`);
+          document.getElementById("lk-r1").innerHTML = `<span style="color:#e53e3e">xếp hàng (${blocked1})</span>`;
+        }
+        // cách 2: luôn phục vụ
+        served2++;
+        logLine("lk-log2", `<span class="served">✓ INSERT users → OK</span>`);
+        document.getElementById("lk-r2").innerHTML = `<span style="color:#38a169">phục vụ (${served2})</span>`;
+      }
+
+      if (pct1 >= 100 && !document.getElementById("lk-s1").dataset.done) {
+        document.getElementById("lk-s1").dataset.done = "1";
+        setState("lk-s1", "✓ xong, mở lock", "ok");
+        logLine("lk-log1", `<span class="served">🔓 index xong — ${blocked1} write bị dồn giờ mới chạy</span>`);
+      }
+      if (pct2 >= 100 && !document.getElementById("lk-s2").dataset.done) {
+        document.getElementById("lk-s2").dataset.done = "1";
+        setState("lk-s2", "✓ xong (write không gián đoạn)", "ok");
+        logLine("lk-log2", `<span class="served">✓ index xong — không write nào bị chặn</span>`);
+      }
+
+      if (pct1 >= 100 && pct2 >= 100) {
+        clearInterval(timer); timer = null;
+        document.getElementById("lk-run").disabled = false;
+        delete document.getElementById("lk-s1").dataset.done;
+        delete document.getElementById("lk-s2").dataset.done;
+        const sum = document.getElementById("lk-summary");
+        sum.style.display = "block";
+        sum.innerHTML = `Trên bảng <b>${rows} triệu row</b>: <b>CREATE INDEX</b> thường nhanh hơn nhưng <b>${blocked1} write request bị chặn</b> suốt thời gian xây index → downtime ghi. <b>CONCURRENTLY</b> chậm hơn (~1.8×, quét bảng 2 lần) nhưng <b>0 write bị chặn</b>. Bảng lớn / hệ thống 24/7 → luôn CONCURRENTLY (nhớ: KHÔNG chạy trong transaction).`;
+      }
+    }, 40);
+  }
+
+  document.getElementById("lk-run").onclick = run;
+  document.getElementById("lk-reset").onclick = reset;
+  reset();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

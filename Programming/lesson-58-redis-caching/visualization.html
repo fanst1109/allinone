@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 58 — Redis & Caching (Visualization)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 40px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; margin-top: 24px; }
+  .card {
+    background: #fff; border-radius: 10px; padding: 18px 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #4299e1; color: #fff; border: none;
+    padding: 9px 15px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.danger { background: #e53e3e; }
+  button.danger:hover { background: #c53030; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  label { font-size: 14px; color: #2d3748; }
+  .explain {
+    background: #ebf8ff; border-left: 4px solid #4299e1;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6; margin: 10px 0;
+  }
+  code.inline {
+    background: #edf2f7; padding: 1px 6px; border-radius: 4px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px;
+  }
+  .stat { font-size: 14px; color: #2d3748; }
+  .stat b { color: #1a202c; }
+
+  /* ---- Module 1: cache-aside flow ---- */
+  .flow {
+    display: flex; gap: 10px; align-items: stretch; flex-wrap: wrap;
+    margin-top: 14px;
+  }
+  .node {
+    flex: 1 1 120px; min-width: 0;
+    border-radius: 10px; padding: 14px 12px; text-align: center;
+    border: 3px solid #cbd5e0; background: #f7fafc;
+    font-weight: 700; color: #4a5568; transition: all .3s ease;
+    position: relative;
+  }
+  .node small { display: block; font-weight: 400; font-size: 11px; color: #718096; margin-top: 4px; }
+  .node.client.active { border-color: #4299e1; background: #ebf8ff; color: #2b6cb0; box-shadow: 0 0 0 4px #bee3f8; }
+  .node.cache.active  { border-color: #38a169; background: #f0fff4; color: #22543d; box-shadow: 0 0 0 4px #c6f6d5; }
+  .node.cache.miss    { border-color: #ed8936; background: #fffaf0; color: #9c4221; box-shadow: 0 0 0 4px #feebc8; }
+  .node.db.active     { border-color: #805ad5; background: #faf5ff; color: #553c9a; box-shadow: 0 0 0 4px #e9d8fd; }
+  .arrow { display: flex; align-items: center; color: #a0aec0; font-size: 22px; }
+  @media (max-width: 480px) { .arrow { transform: rotate(90deg); } }
+  .log {
+    margin-top: 14px; background: #1a202c; color: #e2e8f0;
+    border-radius: 8px; padding: 12px 14px; font-size: 13px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    max-height: 220px; overflow-y: auto; line-height: 1.7;
+  }
+  .log .hit  { color: #68d391; }
+  .log .miss { color: #f6ad55; }
+  .log .db   { color: #b794f4; }
+  .log .t    { color: #718096; }
+
+  /* ---- Module 2: stampede ---- */
+  .reqgrid {
+    display: grid; grid-template-columns: repeat(auto-fill, 12px);
+    gap: 3px; margin: 10px 0; max-height: 180px; overflow-y: auto;
+  }
+  .dot { width: 12px; height: 12px; border-radius: 3px; background: #cbd5e0; transition: background .2s; }
+  .dot.wait { background: #f6ad55; }
+  .dot.db   { background: #e53e3e; }
+  .dot.done { background: #38a169; }
+  .bigstat { display: flex; gap: 24px; flex-wrap: wrap; margin: 12px 0; }
+  .bigstat .box { background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; flex: 1 1 140px; }
+  .bigstat .box .n { font-size: 28px; font-weight: 800; color: #1a202c; }
+  .bigstat .box .l { font-size: 12px; color: #718096; }
+  .bigstat .box.bad .n { color: #e53e3e; }
+  .bigstat .box.good .n { color: #38a169; }
+
+  /* ---- Module 3: structure picker ---- */
+  .pickgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  .usecase {
+    border: 2px solid #e2e8f0; border-radius: 8px; padding: 12px 14px;
+    cursor: pointer; background: #fff; transition: all .15s;
+  }
+  .usecase:hover { border-color: #4299e1; background: #ebf8ff; }
+  .usecase.sel { border-color: #4299e1; background: #ebf8ff; box-shadow: 0 0 0 3px #bee3f8; }
+  .usecase .uc-title { font-weight: 700; color: #2d3748; font-size: 14px; }
+  .usecase .uc-desc { font-size: 12px; color: #718096; margin-top: 4px; }
+  .answer {
+    margin-top: 14px; border-radius: 8px; padding: 14px 16px;
+    background: #f0fff4; border-left: 4px solid #38a169; font-size: 14px; line-height: 1.6;
+    display: none;
+  }
+  .answer.show { display: block; }
+  .answer .struct { font-size: 18px; font-weight: 800; color: #22543d; }
+  .answer code { background: #e6ffed; padding: 1px 6px; border-radius: 4px; font-family: ui-monospace, monospace; font-size: 13px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-57-migrations/visualization.html">← L57: Migrations</a>
+  <span class="sep">·</span>
+  <span class="current">L58: Redis & Caching</span>
+  <span class="sep">·</span>
+  <a href="../lesson-59-nosql-mongodb/visualization.html">L59: NoSQL & MongoDB →</a>
+</nav>
+
+<main>
+<h1>Lesson 58 — Redis & Caching</h1>
+
+<p class="explain">
+Trang này minh hoạ 3 ý chính của bài học bằng mô phỏng tương tác:
+<strong>(1)</strong> <em>cache-aside flow</em> — animate request HIT (nhanh) so với MISS (đi DB rồi populate cache);
+<strong>(2)</strong> <em>cache stampede</em> — 1000 request cùng miss một key, so sánh khi có và không có singleflight;
+<strong>(3)</strong> <em>data structure picker</em> — chọn use case, gợi ý kiểu dữ liệu Redis phù hợp.
+</p>
+
+<!-- ===================================================================== -->
+<h2>1. Cache-aside flow — HIT nhanh vs MISS đi DB</h2>
+
+<div class="card">
+  <p class="explain">
+    Bấm <b>Đọc user (cache-aside)</b> nhiều lần. Lần đầu cache rỗng → <b>MISS</b>: đi DB (~10ms) rồi
+    điền cache. Các lần sau → <b>HIT</b>: trả ngay từ cache (~0.2ms). Bấm <b>Hết hạn TTL</b> để mô phỏng
+    key expire → lần đọc tiếp theo lại MISS.
+  </p>
+
+  <div class="flow">
+    <div class="node client" id="n-client">Client<small>request đọc</small></div>
+    <div class="arrow">→</div>
+    <div class="node cache" id="n-cache">Cache (Redis)<small id="cache-state">rỗng</small></div>
+    <div class="arrow">→</div>
+    <div class="node db" id="n-db">Database<small>~10ms / query</small></div>
+  </div>
+
+  <div class="row" style="margin-top:16px;">
+    <button id="btn-read">Đọc user (cache-aside)</button>
+    <button class="secondary" id="btn-expire">Hết hạn TTL</button>
+    <button class="danger" id="btn-reset1">Reset</button>
+  </div>
+
+  <div class="bigstat">
+    <div class="box good"><div class="n" id="m1-hits">0</div><div class="l">cache HIT</div></div>
+    <div class="box bad"><div class="n" id="m1-miss">0</div><div class="l">cache MISS</div></div>
+    <div class="box"><div class="n" id="m1-db">0</div><div class="l">query DB</div></div>
+    <div class="box"><div class="n" id="m1-rate">—</div><div class="l">hit rate</div></div>
+  </div>
+
+  <div class="log" id="m1-log"></div>
+</div>
+
+<!-- ===================================================================== -->
+<h2>2. Cache stampede — 1000 request cùng miss</h2>
+
+<div class="card">
+  <p class="explain">
+    Một key nóng vừa <b>hết hạn</b>, rồi 1000 request ập tới cùng lúc. Không có cơ chế bảo vệ,
+    cả 1000 cùng MISS và cùng lao xuống DB → DB nhận 1000 query giống hệt nhau (đỏ).
+    Bật <b>singleflight</b>: chỉ 1 request đi DB (đỏ), 999 còn lại chờ (cam) rồi dùng chung kết quả (xanh).
+  </p>
+
+  <div class="row">
+    <label><input type="checkbox" id="sf-toggle"> Bật singleflight (chống stampede)</label>
+  </div>
+  <div class="row">
+    <button id="btn-storm">Phóng 1000 request</button>
+    <button class="danger" id="btn-reset2">Reset</button>
+  </div>
+
+  <div class="bigstat">
+    <div class="box bad"><div class="n" id="m2-db">0</div><div class="l">query DB (càng ít càng tốt)</div></div>
+    <div class="box good"><div class="n" id="m2-saved">0</div><div class="l">request được "ké" kết quả</div></div>
+    <div class="box"><div class="n" id="m2-verdict" style="font-size:16px;">—</div><div class="l">kết luận</div></div>
+  </div>
+
+  <div class="reqgrid" id="m2-grid"></div>
+  <p class="stat" style="font-size:12px;color:#718096;">
+    <span style="color:#e53e3e;">■</span> đi DB ·
+    <span style="color:#f6ad55;">■</span> chờ singleflight ·
+    <span style="color:#38a169;">■</span> nhận kết quả
+  </p>
+</div>
+
+<!-- ===================================================================== -->
+<h2>3. Redis data structure picker</h2>
+
+<div class="card">
+  <p class="explain">
+    Chọn một use case → gợi ý kiểu dữ liệu Redis phù hợp nhất kèm lệnh ví dụ.
+    Đây là kỹ năng cốt lõi: chọn structure theo <b>thao tác</b> bạn cần, không phải dữ liệu "trông giống gì".
+  </p>
+
+  <div class="pickgrid" id="uc-grid"></div>
+
+  <div class="answer" id="uc-answer"></div>
+</div>
+
+</main>
+
+<script>
+// ====================== Module 1: cache-aside flow ======================
+(function () {
+  const state = { cached: false, hits: 0, miss: 0, db: 0 };
+  const nClient = document.getElementById('n-client');
+  const nCache = document.getElementById('n-cache');
+  const nDB = document.getElementById('n-db');
+  const cacheState = document.getElementById('cache-state');
+  const log = document.getElementById('m1-log');
+
+  function clearActive() {
+    nClient.className = 'node client';
+    nCache.className = 'node cache';
+    nDB.className = 'node db';
+  }
+  function addLog(html) {
+    const t = new Date().toLocaleTimeString('vi-VN');
+    log.innerHTML = `<div><span class="t">[${t}]</span> ${html}</div>` + log.innerHTML;
+  }
+  function refresh() {
+    document.getElementById('m1-hits').textContent = state.hits;
+    document.getElementById('m1-miss').textContent = state.miss;
+    document.getElementById('m1-db').textContent = state.db;
+    const total = state.hits + state.miss;
+    document.getElementById('m1-rate').textContent =
+      total ? Math.round(state.hits / total * 100) + '%' : '—';
+    cacheState.textContent = state.cached ? 'có user:42 (TTL còn)' : 'rỗng';
+  }
+
+  let busy = false;
+  function read() {
+    if (busy) return;
+    busy = true;
+    clearActive();
+    nClient.classList.add('active');
+    addLog('Client gọi <code class="inline">GET user:42</code> trên cache…');
+
+    setTimeout(() => {
+      clearActive();
+      if (state.cached) {
+        // HIT
+        nCache.classList.add('active');
+        state.hits++;
+        addLog('<span class="hit">HIT</span> — cache trả ngay (~0.2ms). Không chạm DB.');
+        refresh();
+        busy = false;
+      } else {
+        // MISS
+        nCache.classList.add('miss');
+        state.miss++;
+        addLog('<span class="miss">MISS</span> — key không có. Phải đi DB.');
+        refresh();
+        setTimeout(() => {
+          clearActive();
+          nDB.classList.add('active');
+          state.db++;
+          addLog('<span class="db">DB</span> <code class="inline">SELECT * FROM users WHERE id=42</code> (~10ms)…');
+          refresh();
+          setTimeout(() => {
+            clearActive();
+            nCache.classList.add('active');
+            state.cached = true;
+            addLog('Populate cache: <code class="inline">SET user:42 {...} EX 600</code>. Lần sau sẽ HIT.');
+            refresh();
+            busy = false;
+          }, 650);
+        }, 350);
+      }
+    }, 300);
+  }
+
+  document.getElementById('btn-read').onclick = read;
+  document.getElementById('btn-expire').onclick = () => {
+    state.cached = false;
+    addLog('TTL hết hạn → Redis xoá <code class="inline">user:42</code>. Lần đọc tới sẽ MISS.');
+    refresh();
+  };
+  document.getElementById('btn-reset1').onclick = () => {
+    state.cached = false; state.hits = 0; state.miss = 0; state.db = 0;
+    log.innerHTML = ''; clearActive(); refresh();
+  };
+  refresh();
+})();
+
+// ====================== Module 2: cache stampede ======================
+(function () {
+  const N = 1000;
+  const grid = document.getElementById('m2-grid');
+  const sfToggle = document.getElementById('sf-toggle');
+
+  function reset() {
+    grid.innerHTML = '';
+    document.getElementById('m2-db').textContent = '0';
+    document.getElementById('m2-saved').textContent = '0';
+    document.getElementById('m2-verdict').textContent = '—';
+    // chỉ render 200 dot đại diện (1000 dot làm chậm DOM); mỗi dot = 5 request
+    for (let i = 0; i < 200; i++) {
+      const d = document.createElement('div');
+      d.className = 'dot';
+      grid.appendChild(d);
+    }
+  }
+
+  function storm() {
+    reset();
+    const sf = sfToggle.checked;
+    const dots = grid.querySelectorAll('.dot');
+    // Với singleflight: 1 request đi DB, còn lại chờ rồi nhận.
+    // Không singleflight: tất cả đi DB.
+    const dbHits = sf ? 1 : N;
+    const saved = sf ? N - 1 : 0;
+
+    // animate
+    let i = 0;
+    const step = () => {
+      if (i >= dots.length) {
+        document.getElementById('m2-db').textContent = dbHits;
+        document.getElementById('m2-saved').textContent = saved;
+        const verdict = sf
+          ? '✅ DB an toàn (1 query)'
+          : '💥 DB bị stampede (1000 query)';
+        document.getElementById('m2-verdict').textContent = verdict;
+        return;
+      }
+      const d = dots[i];
+      if (sf) {
+        // dot đầu tiên đi DB, còn lại chờ
+        d.className = i === 0 ? 'dot db' : 'dot wait';
+        // sau một nhịp, các dot chờ chuyển thành done
+        if (i !== 0) setTimeout(() => { d.className = 'dot done'; }, 500);
+      } else {
+        d.className = 'dot db'; // tất cả đập DB
+      }
+      i++;
+      requestAnimationFrame(step);
+    };
+    step();
+  }
+
+  document.getElementById('btn-storm').onclick = storm;
+  document.getElementById('btn-reset2').onclick = reset;
+  reset();
+})();
+
+// ====================== Module 3: structure picker ======================
+(function () {
+  const cases = [
+    {
+      title: 'Bảng xếp hạng game top-100 theo điểm',
+      desc: 'cập nhật điểm liên tục, lấy top theo thứ hạng',
+      struct: 'Sorted Set (ZSet)',
+      why: 'Mỗi phần tử có score, tự sắp xếp. Lấy top-K và tìm hạng đều O(log N).',
+      cmd: 'ZADD leaderboard 1500 alice · ZREVRANGE leaderboard 0 99 WITHSCORES'
+    },
+    {
+      title: 'Cache nguyên một object profile (JSON)',
+      desc: 'đọc/ghi cả object một lần',
+      struct: 'String',
+      why: 'Serialize object thành JSON rồi lưu như một chuỗi, kèm TTL.',
+      cmd: 'SET user:42 "{...json}" EX 600 · GET user:42'
+    },
+    {
+      title: 'Cache object nhưng hay cập nhật từng field',
+      desc: 'đổi 1 field mà không nạp lại cả object',
+      struct: 'Hash',
+      why: 'Mỗi field là một entry riêng. Đọc/ghi từng field không cần nạp lại cả object.',
+      cmd: 'HSET user:42 age 31 · HGET user:42 age · HINCRBY user:42 age 1'
+    },
+    {
+      title: 'Hàng đợi công việc (job queue)',
+      desc: 'đẩy vào một đầu, lấy ra đầu kia',
+      struct: 'List',
+      why: 'Thêm/xoá hai đầu là O(1). BRPOP cho phép chờ job mới (blocking).',
+      cmd: 'LPUSH queue:jobs job1 · BRPOP queue:jobs 5'
+    },
+    {
+      title: 'Tag của bài viết / tập user online',
+      desc: 'phần tử duy nhất, kiểm tra membership',
+      struct: 'Set',
+      why: 'Không trùng lặp, kiểm tra "có thuộc tập không" O(1), có phép giao/hợp.',
+      cmd: 'SADD post:1:tags go redis · SISMEMBER post:1:tags go'
+    },
+    {
+      title: 'Đếm unique visitor mỗi ngày (chấp nhận sai số)',
+      desc: 'tiết kiệm RAM tối đa, không cần chính xác tuyệt đối',
+      struct: 'HyperLogLog',
+      why: 'Đếm distinct với sai số ~0.81%, chỉ ~12KB bất kể số lượng.',
+      cmd: 'PFADD visitors:home ip1 ip2 · PFCOUNT visitors:home'
+    },
+    {
+      title: 'Đánh dấu user nào active hôm nay',
+      desc: 'có/không theo user id, hàng triệu user',
+      struct: 'Bitmap',
+      why: '1 bit / user. 1 triệu user chỉ ~125KB. BITCOUNT đếm nhanh.',
+      cmd: 'SETBIT active:2026-05-26 42 1 · BITCOUNT active:2026-05-26'
+    },
+    {
+      title: 'Event log cần replay được, có consumer group',
+      desc: 'message bền, đọc lại được, nhiều consumer',
+      struct: 'Stream',
+      why: 'Append-only, persistent, có consumer group (Pub/Sub mất message nếu offline).',
+      cmd: 'XADD events * type login · XREADGROUP GROUP g1 c1 STREAMS events >'
+    },
+    {
+      title: 'Rate limit sliding window theo từng user',
+      desc: 'đếm request trong cửa sổ trượt, chính xác',
+      struct: 'Sorted Set (ZSet)',
+      why: 'Score = timestamp. Xoá entry cũ hơn cửa sổ rồi đếm còn lại = không có lỗi biên.',
+      cmd: 'ZREMRANGEBYSCORE rl:42 0 <start> · ZADD rl:42 <now> <now> · ZCARD rl:42'
+    },
+    {
+      title: 'Distributed lock chống xử lý job trùng',
+      desc: 'chỉ một worker được xử lý',
+      struct: 'String + NX',
+      why: 'SET NX chỉ thành công nếu key chưa có → 1 owner. EX tránh deadlock khi crash.',
+      cmd: 'SET lock:job:123 <token> NX EX 10 · (mở: Lua so token rồi DEL)'
+    }
+  ];
+
+  const grid = document.getElementById('uc-grid');
+  const answer = document.getElementById('uc-answer');
+
+  cases.forEach((c, idx) => {
+    const el = document.createElement('div');
+    el.className = 'usecase';
+    el.innerHTML = `<div class="uc-title">${c.title}</div><div class="uc-desc">${c.desc}</div>`;
+    el.onclick = () => {
+      grid.querySelectorAll('.usecase').forEach(x => x.classList.remove('sel'));
+      el.classList.add('sel');
+      answer.classList.add('show');
+      answer.innerHTML =
+        `<div class="struct">→ ${c.struct}</div>` +
+        `<div style="margin:6px 0;">${c.why}</div>` +
+        `<div><code>${c.cmd}</code></div>`;
+    };
+    grid.appendChild(el);
+  });
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

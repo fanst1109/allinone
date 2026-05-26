@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Hello World & Toolchain Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.danger { background: #e53e3e; }
+  button.danger:hover { background: #c53030; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  select {
+    font-size: 15px; padding: 8px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    background: white;
+  }
+  code { background: #edf2f7; padding: 2px 5px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: transparent; padding: 0; }
+
+  /* === Module 1: Project Tree === */
+  .m1-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 768px) {
+    .m1-grid { grid-template-columns: 1fr; }
+  }
+  .tree {
+    background: #1a202c; color: #e2e8f0;
+    border-radius: 6px; padding: 14px;
+    font-family: 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 14px; line-height: 1.6;
+    min-height: 240px;
+  }
+  .tree .node {
+    cursor: pointer;
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+  .tree .node:hover { background: #2d3748; }
+  .tree .node.active { background: #4299e1; color: white; }
+  .tree .new { color: #68d391; }     /* file mới */
+  .tree .gen { color: #f6ad55; }     /* file generated */
+  .tree .bin { color: #fc8181; }     /* binary */
+  .file-view {
+    background: #f7fafc; border: 1px solid #cbd5e0;
+    border-radius: 6px; padding: 14px;
+    min-height: 240px;
+    font-family: 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 13px; white-space: pre-wrap;
+    overflow-x: auto;
+  }
+  .file-view .placeholder { color: #a0aec0; font-style: italic; font-family: sans-serif; }
+  .file-name { font-weight: 700; color: #2d3748; margin-bottom: 8px; font-family: sans-serif; font-size: 13px; }
+  .step-bar {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;
+  }
+  .step-pill {
+    padding: 4px 10px; border-radius: 999px;
+    background: #edf2f7; color: #4a5568;
+    font-size: 12px; font-weight: 600;
+  }
+  .step-pill.done { background: #c6f6d5; color: #22543d; }
+  .step-pill.current { background: #4299e1; color: white; }
+  .narration {
+    margin-top: 12px; padding: 12px;
+    background: #fef3c7; border-left: 4px solid #f59e0b;
+    border-radius: 4px;
+    font-size: 14px; line-height: 1.55;
+  }
+
+  /* === Module 2: Build target === */
+  .target-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 768px) { .target-grid { grid-template-columns: 1fr; } }
+  .out-box {
+    background: #1a202c; color: #e2e8f0;
+    border-radius: 6px; padding: 16px;
+    font-family: monospace; font-size: 13.5px; line-height: 1.7;
+  }
+  .out-box .key { color: #90cdf4; }
+  .out-box .val { color: #f6ad55; }
+  .out-box .cmd { color: #68d391; }
+  .target-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13.5px; }
+  .target-table th, .target-table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e2e8f0; }
+  .target-table th { background: #edf2f7; }
+
+  /* === Module 3: Import explorer === */
+  .code-block {
+    background: #1a202c; border-radius: 6px;
+    padding: 14px;
+    font-family: 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 14px; line-height: 1.7;
+    overflow-x: auto;
+  }
+  .code-block .ln {
+    color: #e2e8f0; padding: 2px 6px; border-radius: 3px;
+    cursor: pointer; display: block;
+    white-space: pre;
+  }
+  .code-block .ln:hover { background: #2d3748; }
+  .code-block .ln.active { background: #4299e1; color: white; }
+  .code-block .ln.disabled { cursor: default; color: #a0aec0; }
+  .code-block .ln.disabled:hover { background: transparent; }
+  .kw { color: #f687b3; }
+  .str { color: #fbd38d; }
+  .com { color: #718096; font-style: italic; }
+  .explain-box {
+    background: #f7fafc; border-left: 4px solid #4299e1;
+    border-radius: 4px; padding: 14px;
+    margin-top: 12px;
+    min-height: 100px;
+  }
+  .explain-box h4 { margin: 0 0 6px 0; color: #2b6cb0; }
+  .explain-box .placeholder { color: #a0aec0; font-style: italic; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../tier-0-foundation/index.html">← Tier 0: Foundation</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Hello World & Toolchain</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-variables-types/visualization.html">L7: Biến & Kiểu →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 06 — Hello World & Toolchain</h1>
+<p>Ba module tương tác để quen tay với toolchain Go: <strong>(1)</strong> mô phỏng cấu trúc project khi chạy <code>go mod init/tidy/build</code>, <strong>(2)</strong> chọn GOOS + GOARCH xem binary ra sao, <strong>(3)</strong> click vào từng dạng <code>import</code> để hiểu ý nghĩa.</p>
+
+<!-- ============ MODULE 1 ============ -->
+<h2>1. Project Structure Simulator</h2>
+<div class="card">
+  <p>Đi qua 5 bước từ folder trống đến binary chạy được. Click <strong>Bước tiếp →</strong> để chạy lần lượt từng lệnh, xem tree thay đổi. Click vào file trong tree để xem nội dung.</p>
+
+  <div class="step-bar" id="m1Steps"></div>
+
+  <div class="row">
+    <button id="m1Next">Bước tiếp →</button>
+    <button id="m1Reset" class="secondary">↺ Reset</button>
+  </div>
+
+  <div class="m1-grid" style="margin-top:12px">
+    <div>
+      <div class="file-name">📁 ~/myapp/</div>
+      <div class="tree" id="m1Tree"></div>
+    </div>
+    <div>
+      <div class="file-name" id="m1FileName">Click vào file bên trái để xem nội dung</div>
+      <div class="file-view" id="m1FileView"><span class="placeholder">(chưa chọn file)</span></div>
+    </div>
+  </div>
+
+  <div class="narration" id="m1Narration">Bắt đầu: folder <code>~/myapp/</code> rỗng. Click <strong>Bước tiếp</strong> để chạy <code>go mod init myapp</code>.</div>
+</div>
+
+<!-- ============ MODULE 2 ============ -->
+<h2>2. Build Target Picker</h2>
+<div class="card">
+  <p>Cross-compile cho OS/arch khác — chọn dưới để xem command Go cần chạy, tên binary output, và size estimate.</p>
+
+  <div class="row">
+    <label>GOOS:
+      <select id="goos">
+        <option value="linux">linux</option>
+        <option value="darwin">darwin</option>
+        <option value="windows">windows</option>
+        <option value="freebsd">freebsd</option>
+      </select>
+    </label>
+    <label>GOARCH:
+      <select id="goarch">
+        <option value="amd64">amd64</option>
+        <option value="arm64">arm64</option>
+        <option value="386">386</option>
+        <option value="arm">arm</option>
+      </select>
+    </label>
+    <label>
+      <input type="checkbox" id="stripFlag"> <code>-ldflags="-s -w"</code> (giảm size)
+    </label>
+  </div>
+
+  <div class="target-grid" style="margin-top:12px">
+    <div>
+      <div class="file-name">Command + output</div>
+      <div class="out-box" id="targetOut"></div>
+    </div>
+    <div>
+      <div class="file-name">Các kết hợp phổ biến</div>
+      <table class="target-table">
+        <thead><tr><th>GOOS / GOARCH</th><th>Dùng cho</th></tr></thead>
+        <tbody>
+          <tr><td><code>linux/amd64</code></td><td>Server x86 (Ubuntu, RHEL)</td></tr>
+          <tr><td><code>linux/arm64</code></td><td>AWS Graviton, Pi 64-bit</td></tr>
+          <tr><td><code>darwin/arm64</code></td><td>Mac M1/M2/M3/M4</td></tr>
+          <tr><td><code>darwin/amd64</code></td><td>Mac Intel (cũ)</td></tr>
+          <tr><td><code>windows/amd64</code></td><td>Windows 10/11</td></tr>
+          <tr><td><code>windows/arm64</code></td><td>Surface Pro X</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODULE 3 ============ -->
+<h2>3. Import Explorer</h2>
+<div class="card">
+  <p>5 dạng <code>import</code> trong Go. Click vào từng dòng để xem giải thích.</p>
+
+  <div class="code-block" id="importBlock">
+    <span class="ln disabled"><span class="kw">package</span> main</span>
+    <span class="ln disabled"></span>
+    <span class="ln" data-i="single"><span class="kw">import</span> <span class="str">"fmt"</span>                                  <span class="com">// (1) single</span></span>
+    <span class="ln disabled"></span>
+    <span class="ln" data-i="group"><span class="kw">import</span> (                                       <span class="com">// (2) group</span></span>
+    <span class="ln" data-i="group">    <span class="str">"os"</span></span>
+    <span class="ln" data-i="group">    <span class="str">"strings"</span></span>
+    <span class="ln" data-i="group">    <span class="str">"github.com/google/uuid"</span></span>
+    <span class="ln" data-i="group">)</span>
+    <span class="ln disabled"></span>
+    <span class="ln" data-i="alias"><span class="kw">import</span> (                                       <span class="com">// (3) alias</span></span>
+    <span class="ln" data-i="alias">    cryptorand <span class="str">"crypto/rand"</span></span>
+    <span class="ln" data-i="alias">    mathrand   <span class="str">"math/rand"</span></span>
+    <span class="ln" data-i="alias">)</span>
+    <span class="ln disabled"></span>
+    <span class="ln" data-i="blank"><span class="kw">import</span> _ <span class="str">"github.com/lib/pq"</span>                <span class="com">// (4) blank</span></span>
+    <span class="ln disabled"></span>
+    <span class="ln" data-i="dot"><span class="kw">import</span> . <span class="str">"fmt"</span>                              <span class="com">// (5) dot — tránh!</span></span>
+  </div>
+
+  <div class="explain-box" id="importExplain">
+    <span class="placeholder">Click một dòng <code>import</code> bên trên để xem giải thích.</span>
+  </div>
+</div>
+
+</main>
+
+<script>
+/* ============ MODULE 1: Project tree simulator ============ */
+
+const M1_STEPS = [
+  { name: "Folder rỗng", cmd: null,
+    narration: "Folder <code>~/myapp/</code> rỗng. Bước tới: <code>go mod init myapp</code>." },
+  { name: "go mod init myapp", cmd: "go mod init myapp",
+    narration: "Lệnh tạo file <code>go.mod</code>. Đây là <strong>khai sinh</strong> của module — từ đây Go biết tên module + version min." },
+  { name: "Tạo main.go + greeter/greeter.go", cmd: "(tạo file bằng tay)",
+    narration: "Bạn viết code. <code>main.go</code> import <code>github.com/google/uuid</code> để minh hoạ dependency ngoài; <code>greeter/greeter.go</code> là package con cùng module." },
+  { name: "go mod tidy", cmd: "go mod tidy",
+    narration: "Go quét code, thấy import <code>github.com/google/uuid</code> chưa khai báo trong <code>go.mod</code> → <strong>thêm vào</strong> và tạo <code>go.sum</code> (checksum). Sau bước này build offline cũng được." },
+  { name: "go build -o myapp .", cmd: "go build -o myapp .",
+    narration: "Compile ra binary <code>myapp</code> đứng yên. Bạn có thể <code>scp</code> nó qua server linux khác chạy luôn — không cần Go trên máy đó." },
+];
+
+const M1_FILES = {
+  "go.mod": `module myapp
+
+go 1.22
+
+require github.com/google/uuid v1.6.0
+`,
+  "go.sum": `github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
+github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+`,
+  "main.go": `package main
+
+import (
+    "fmt"
+    "github.com/google/uuid"
+    "myapp/greeter"
+)
+
+func main() {
+    id := uuid.New()
+    fmt.Println(greeter.Hello("Duy"), "id:", id)
+}
+`,
+  "greeter/greeter.go": `package greeter
+
+func Hello(name string) string {
+    return "Xin chào, " + name + "!"
+}
+`,
+  "myapp": "(binary executable — nội dung là machine code, không xem được dạng text)",
+};
+
+let m1Step = 0;
+let m1Selected = null;
+
+function m1State(step) {
+  // Trả về danh sách file ở step `step`
+  if (step === 0) return [];
+  if (step === 1) return ["go.mod"];
+  if (step === 2) return ["go.mod", "main.go", "greeter/greeter.go"];
+  if (step === 3) return ["go.mod", "go.sum", "main.go", "greeter/greeter.go"];
+  if (step >= 4) return ["go.mod", "go.sum", "main.go", "greeter/greeter.go", "myapp"];
+}
+
+function m1Render() {
+  // Step pills
+  const pills = M1_STEPS.map((s, i) => {
+    let cls = "step-pill";
+    if (i < m1Step) cls += " done";
+    if (i === m1Step) cls += " current";
+    return `<span class="${cls}">${i}. ${s.name}</span>`;
+  }).join("");
+  document.getElementById("m1Steps").innerHTML = pills;
+
+  // Tree
+  const files = m1State(m1Step);
+  const prevFiles = m1Step > 0 ? m1State(m1Step - 1) : [];
+  const isNew = (f) => !prevFiles.includes(f);
+  let treeHtml = "";
+  if (files.length === 0) {
+    treeHtml = `<span style="color:#a0aec0">(folder rỗng)</span>`;
+  } else {
+    // sort but keep folders together
+    const sorted = files.slice().sort();
+    sorted.forEach((f) => {
+      let cls = "node";
+      if (m1Selected === f) cls += " active";
+      let extraCls = "";
+      if (f === "myapp") extraCls = "bin";
+      else if (f === "go.sum") extraCls = "gen";
+      else if (isNew(f)) extraCls = "new";
+      const dispName = f.includes("/")
+        ? "  └─ " + f.split("/").pop()
+        : "├─ " + f;
+      treeHtml += `<div class="${cls}" data-f="${f}"><span class="${extraCls}">${dispName}</span></div>`;
+    });
+  }
+  document.getElementById("m1Tree").innerHTML = treeHtml;
+  document.querySelectorAll("#m1Tree .node").forEach((el) => {
+    el.addEventListener("click", () => {
+      m1Selected = el.dataset.f;
+      m1RenderFile();
+      m1Render();
+    });
+  });
+
+  // Narration
+  document.getElementById("m1Narration").innerHTML = M1_STEPS[m1Step].narration;
+
+  // Buttons
+  document.getElementById("m1Next").disabled = m1Step >= M1_STEPS.length - 1;
+}
+
+function m1RenderFile() {
+  const f = m1Selected;
+  if (!f || !m1State(m1Step).includes(f)) {
+    document.getElementById("m1FileName").textContent = "Click vào file bên trái để xem nội dung";
+    document.getElementById("m1FileView").innerHTML = '<span class="placeholder">(chưa chọn file)</span>';
+    return;
+  }
+  document.getElementById("m1FileName").textContent = "📄 " + f;
+  const content = M1_FILES[f] || "(no content)";
+  document.getElementById("m1FileView").textContent = content;
+}
+
+document.getElementById("m1Next").addEventListener("click", () => {
+  if (m1Step < M1_STEPS.length - 1) m1Step++;
+  m1Render();
+});
+document.getElementById("m1Reset").addEventListener("click", () => {
+  m1Step = 0; m1Selected = null;
+  m1Render(); m1RenderFile();
+});
+
+m1Render();
+
+/* ============ MODULE 2: Build target ============ */
+
+const SIZE_BASE = {
+  // size estimate (MB) cho cùng 1 chương trình ~hello world, theo OS/arch
+  // số gần đúng dựa trên thực nghiệm Go 1.22 hello world
+  "linux":   { "amd64": 1.8, "arm64": 1.7, "386": 1.6, "arm": 1.6 },
+  "darwin":  { "amd64": 2.1, "arm64": 2.0, "386": null, "arm": null },
+  "windows": { "amd64": 1.9, "arm64": 1.8, "386": 1.7, "arm": 1.7 },
+  "freebsd": { "amd64": 1.8, "arm64": 1.7, "386": 1.6, "arm": 1.6 },
+};
+
+function renderTarget() {
+  const os = document.getElementById("goos").value;
+  const arch = document.getElementById("goarch").value;
+  const strip = document.getElementById("stripFlag").checked;
+
+  const ext = (os === "windows") ? ".exe" : "";
+  const binName = `app-${os}-${arch}${ext}`;
+  const baseSize = (SIZE_BASE[os] || {})[arch];
+
+  let sizeStr;
+  if (baseSize == null) {
+    sizeStr = `<span style="color:#fc8181">(không hỗ trợ kết hợp ${os}/${arch})</span>`;
+  } else {
+    const finalSize = strip ? baseSize * 0.7 : baseSize;
+    sizeStr = `${finalSize.toFixed(1)} MB` + (strip ? ` <span style="color:#68d391">(-30% nhờ -s -w)</span>` : "");
+  }
+
+  const ldFlag = strip ? ` -ldflags="-s -w"` : "";
+  const cmd = `GOOS=${os} GOARCH=${arch} go build${ldFlag} -o ${binName} .`;
+
+  let extra = "";
+  if (os === "windows") {
+    extra = `\n<span class="key">Note:</span> Binary có đuôi <span class="val">.exe</span>, copy qua máy Windows chạy được — không cần Go ở đó.`;
+  } else if (os === "linux" && arch === "amd64") {
+    extra = `\n<span class="key">Note:</span> Đây là target mặc định cho <span class="val">Docker image</span> + server cloud thông dụng.`;
+  } else if (os === "darwin" && arch === "arm64") {
+    extra = `\n<span class="key">Note:</span> Cho Mac chip Apple Silicon (M1/M2/M3/M4).`;
+  } else if (os === "linux" && arch === "arm64") {
+    extra = `\n<span class="key">Note:</span> AWS Graviton instance dùng arch này — rẻ hơn x86 ~20%.`;
+  }
+
+  document.getElementById("targetOut").innerHTML =
+`<span class="key">Command:</span>
+<span class="cmd">$ ${cmd}</span>
+
+<span class="key">Output binary:</span> <span class="val">${binName}</span>
+<span class="key">Estimated size:</span> ${sizeStr}${extra}`;
+}
+
+document.getElementById("goos").addEventListener("change", renderTarget);
+document.getElementById("goarch").addEventListener("change", renderTarget);
+document.getElementById("stripFlag").addEventListener("change", renderTarget);
+renderTarget();
+
+/* ============ MODULE 3: Import explorer ============ */
+
+const IMPORT_EXPLAIN = {
+  single: {
+    title: "(1) Single import",
+    body: `<p>Cú pháp ngắn nhất, dùng khi <strong>chỉ có 1 package</strong> cần import. Khi có ≥ 2 thì nên gộp vào group (xem dạng tiếp).</p>
+<pre><code>import "fmt"
+fmt.Println("Hello")</code></pre>`
+  },
+  group: {
+    title: "(2) Grouped import",
+    body: `<p>Cú pháp <strong>chuẩn nhất</strong> khi có nhiều package. <code>gofmt</code> tự sort alphabet và tách stdlib với 3rd-party (Go 1.21+).</p>
+<pre><code>import (
+    "fmt"
+    "os"
+    "github.com/google/uuid"
+)</code></pre>
+<p>Sau khi <code>go fmt</code>, stdlib (<code>fmt</code>, <code>os</code>) sẽ nhóm trên, 3rd-party (<code>github.com/...</code>) nhóm dưới, cách nhau 1 dòng trống.</p>`
+  },
+  alias: {
+    title: "(3) Alias import",
+    body: `<p>Đặt <strong>tên local</strong> cho package — dùng khi:</p>
+<ul>
+  <li><strong>Đụng tên</strong>: 2 package cùng tên <code>rand</code> (<code>crypto/rand</code> + <code>math/rand</code>) → alias 1 trong 2.</li>
+  <li><strong>Tên dài</strong>: <code>pb "github.com/myorg/myapp/internal/pb/v1"</code>.</li>
+</ul>
+<pre><code>cryptorand "crypto/rand"
+mathrand   "math/rand"
+// Dùng: cryptorand.Read(...), mathrand.Intn(...)</code></pre>`
+  },
+  blank: {
+    title: "(4) Blank import (_)",
+    body: `<p>Import package nhưng <strong>không dùng symbol nào</strong>. Mục đích duy nhất: chạy <code>init()</code> của package đó.</p>
+<p>Pattern cổ điển: register database driver.</p>
+<pre><code>import (
+    "database/sql"
+    _ "github.com/lib/pq"   // chạy init() đăng ký driver "postgres"
+)
+
+db, _ := sql.Open("postgres", "...")   // không có dòng blank import → unknown driver</code></pre>
+<p>Nếu không có blank, Go sẽ báo <strong>"imported and not used"</strong> và refuse compile.</p>`
+  },
+  dot: {
+    title: "(5) Dot import (.)",
+    body: `<p style="color:#c53030;font-weight:600">⚠ Tránh dùng trong code production.</p>
+<p>Đưa <strong>toàn bộ public symbol</strong> của package vào scope hiện tại — không cần prefix.</p>
+<pre><code>import . "fmt"
+Println("hi")    // không cần fmt.Println</code></pre>
+<p>Vấn đề: đọc code thấy <code>Println</code> không biết đến từ đâu. Chỉ chấp nhận trong <strong>test BDD-style</strong> (vd Ginkgo) — ngoài ra <strong>đừng dùng</strong>.</p>`
+  },
+};
+
+document.querySelectorAll("#importBlock .ln[data-i]").forEach((el) => {
+  el.addEventListener("click", () => {
+    const key = el.dataset.i;
+    document.querySelectorAll("#importBlock .ln").forEach((x) => x.classList.remove("active"));
+    document.querySelectorAll(`#importBlock .ln[data-i="${key}"]`).forEach((x) => x.classList.add("active"));
+    const exp = IMPORT_EXPLAIN[key];
+    document.getElementById("importExplain").innerHTML = `<h4>${exp.title}</h4>${exp.body}`;
+  });
+});
+</script>
+
+<!-- README modal -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+
+</body>
+</html>

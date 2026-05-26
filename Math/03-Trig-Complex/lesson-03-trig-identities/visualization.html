@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 03 — Đồng nhất thức</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 700px; height: 350px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-sin-cos-tan/visualization.html">← L2: sin/cos/tan</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Identity</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L4: PT lượng giác (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 03 (T3) — Đồng nhất thức lượng giác</h1>
+
+<h2>Tổng hợp dao động: a·sin x + b·cos x = R·sin(x + φ)</h2>
+<div class="card">
+  <p>Hai dao động cùng tần số → tổng = 1 dao động cùng tần số, biên độ R = √(a²+b²).</p>
+  <div class="row">
+    <label>a:</label><input type="range" id="pa" min="-5" max="5" step="0.5" value="3" oninput="draw()">
+    <span class="stat">a = <strong id="va">3</strong></span>
+    <label>b:</label><input type="range" id="pb" min="-5" max="5" step="0.5" value="4" oninput="draw()">
+    <span class="stat">b = <strong id="vb">4</strong></span>
+  </div>
+  <svg class="scene" id="svg" viewBox="0 0 700 350"></svg>
+  <div class="result" id="r"></div>
+</div>
+
+<h2>Kiểm chứng đồng nhất thức nhân đôi</h2>
+<div class="card">
+  <div class="row">
+    <label>x (rad):</label>
+    <input type="range" id="xv" min="0" max="6.28" step="0.1" value="1" oninput="check()">
+    <span class="stat">x = <strong id="xVal">1</strong></span>
+  </div>
+  <div class="result" id="cR"></div>
+</div>
+
+<script>
+function draw() {
+  const a = parseFloat(document.getElementById("pa").value);
+  const b = parseFloat(document.getElementById("pb").value);
+  document.getElementById("va").textContent = a;
+  document.getElementById("vb").textContent = b;
+
+  const svg = document.getElementById("svg");
+  svg.innerHTML = "";
+  const W_PX = 700, H_PX = 350, cx = 50, cy = H_PX / 2;
+  const xMax = 4 * Math.PI;
+  const scale = (W_PX - 80) / xMax;
+  const yScale = 25;
+
+  // Grid + axes
+  for (let i = 0; i <= 4; i++) {
+    const x = cx + i * Math.PI * scale;
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    g.setAttribute("x1", x); g.setAttribute("y1", 30); g.setAttribute("x2", x); g.setAttribute("y2", H_PX-30);
+    g.setAttribute("stroke", "#e2e8f0"); g.setAttribute("stroke-width", 0.5);
+    svg.appendChild(g);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", x); t.setAttribute("y", cy+16); t.setAttribute("text-anchor", "middle"); t.setAttribute("font-size", "11");
+    t.textContent = i === 0 ? "0" : i + "π";
+    svg.appendChild(t);
+  }
+  const xax = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  xax.setAttribute("x1", cx); xax.setAttribute("y1", cy); xax.setAttribute("x2", W_PX-30); xax.setAttribute("y2", cy);
+  xax.setAttribute("stroke", "#1a202c"); xax.setAttribute("stroke-width", 1.5);
+  svg.appendChild(xax);
+
+  const R = Math.sqrt(a*a + b*b);
+  const phi = Math.atan2(b, a);
+
+  const fns = [
+    {fn: x => a * Math.sin(x), color: "#1d4ed8", label: `${a}·sin x`, dash: true},
+    {fn: x => b * Math.cos(x), color: "#15803d", label: `${b}·cos x`, dash: true},
+    {fn: x => a*Math.sin(x) + b*Math.cos(x), color: "#dc2626", label: `${a}·sin x + ${b}·cos x`, dash: false},
+    {fn: x => R*Math.sin(x + phi), color: "#7c3aed", label: `${R.toFixed(2)}·sin(x + ${phi.toFixed(2)})`, dash: false}
+  ];
+
+  fns.forEach((f, idx) => {
+    let path = "";
+    for (let x = 0; x <= xMax; x += 0.02) {
+      const y = f.fn(x);
+      const px = cx + x * scale;
+      const py = cy - y * yScale;
+      path += (x === 0 ? "M" : "L") + px + " " + py + " ";
+    }
+    const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    p.setAttribute("d", path); p.setAttribute("fill", "none"); p.setAttribute("stroke", f.color); p.setAttribute("stroke-width", idx >= 2 ? 2.5 : 1.5);
+    if (f.dash) p.setAttribute("stroke-dasharray", "5,3");
+    svg.appendChild(p);
+    const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lbl.setAttribute("x", W_PX - 250); lbl.setAttribute("y", 30 + idx*18);
+    lbl.setAttribute("fill", f.color); lbl.setAttribute("font-weight", "700"); lbl.setAttribute("font-size", "12");
+    lbl.textContent = f.label;
+    svg.appendChild(lbl);
+  });
+
+  document.getElementById("r").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">${a}·sin x + ${b}·cos x = <strong>${R.toFixed(3)}·sin(x + ${phi.toFixed(3)})</strong></div>
+    <div class="row" style="margin-top:6px">
+      <span class="stat">R = √(a²+b²) = √(${a*a}+${b*b}) = <strong>${R.toFixed(4)}</strong></span>
+      <span class="stat">φ = atan2(b, a) = <strong>${phi.toFixed(4)} rad</strong> ≈ ${(phi*180/Math.PI).toFixed(2)}°</span>
+    </div>
+    <div style="margin-top:6px; font-size:13px; color:#64748b">Đường đỏ (tổng) và đường tím (dạng R·sin(x+φ)) <strong>trùng nhau</strong> — đó là công thức đúng.</div>
+  `;
+}
+
+function check() {
+  const x = parseFloat(document.getElementById("xv").value);
+  document.getElementById("xVal").textContent = x.toFixed(2);
+  const sin2x = Math.sin(2*x);
+  const cos2x = Math.cos(2*x);
+  const lhs1 = sin2x;
+  const rhs1 = 2*Math.sin(x)*Math.cos(x);
+  const lhs2 = cos2x;
+  const rhs2_a = Math.cos(x)**2 - Math.sin(x)**2;
+  const rhs2_b = 1 - 2*Math.sin(x)**2;
+  const rhs2_c = 2*Math.cos(x)**2 - 1;
+  document.getElementById("cR").innerHTML = `
+    <div style="font-family:monospace; font-size:14px"><strong>sin 2x = 2·sin x·cos x</strong></div>
+    <div style="font-family:monospace; font-size:13px; padding-left:20px">sin(${(2*x).toFixed(2)}) = ${lhs1.toFixed(5)} ≟ 2·sin(${x.toFixed(2)})·cos(${x.toFixed(2)}) = 2·${Math.sin(x).toFixed(4)}·${Math.cos(x).toFixed(4)} = <strong>${rhs1.toFixed(5)}</strong> ✓</div>
+    <div style="font-family:monospace; font-size:14px; margin-top:10px"><strong>cos 2x = cos²x − sin²x = 1 − 2·sin²x = 2·cos²x − 1</strong></div>
+    <div style="font-family:monospace; font-size:13px; padding-left:20px">cos(${(2*x).toFixed(2)}) = <strong>${lhs2.toFixed(5)}</strong></div>
+    <div style="font-family:monospace; font-size:13px; padding-left:20px">cos²x − sin²x = ${rhs2_a.toFixed(5)} ✓</div>
+    <div style="font-family:monospace; font-size:13px; padding-left:20px">1 − 2sin²x = ${rhs2_b.toFixed(5)} ✓</div>
+    <div style="font-family:monospace; font-size:13px; padding-left:20px">2cos²x − 1 = ${rhs2_c.toFixed(5)} ✓</div>
+  `;
+}
+
+draw();
+check();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 08 — XS & TK</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="range"], input[type="number"] { padding: 6px 8px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; }
+  input[type="number"] { width: 70px; }
+  input[type="range"] { flex: 1; min-width: 200px; padding: 0; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 700px; height: 400px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-differential-equations/visualization.html">← L7: ODE</a>
+  <span class="sep">·</span>
+  <span class="current">L8: XS &amp; TK</span>
+</nav>
+
+<h1>Lesson 08 (T6) — Phân phối nhị thức &amp; chuẩn</h1>
+
+<h2>Phân phối Nhị thức Bin(n, p)</h2>
+<div class="card">
+  <div class="row">
+    <label>n:</label>
+    <input type="range" id="n" min="5" max="50" step="1" value="20" oninput="drawBin()">
+    <span class="stat">n = <strong id="vN">20</strong></span>
+    <label>p:</label>
+    <input type="range" id="p" min="0.05" max="0.95" step="0.05" value="0.5" oninput="drawBin()">
+    <span class="stat">p = <strong id="vP">0.5</strong></span>
+  </div>
+  <svg class="scene" id="binSvg" viewBox="0 0 700 400"></svg>
+  <div class="result" id="binRes"></div>
+</div>
+
+<h2>Phân phối chuẩn N(μ, σ²) + Quy tắc 68-95-99.7</h2>
+<div class="card">
+  <div class="row">
+    <label>μ:</label>
+    <input type="range" id="mu" min="-3" max="3" step="0.5" value="0" oninput="drawNorm()">
+    <span class="stat">μ = <strong id="vMu">0</strong></span>
+    <label>σ:</label>
+    <input type="range" id="sigma" min="0.3" max="3" step="0.1" value="1" oninput="drawNorm()">
+    <span class="stat">σ = <strong id="vSig">1</strong></span>
+  </div>
+  <svg class="scene" id="normSvg" viewBox="0 0 700 400"></svg>
+  <div class="result" id="normRes"></div>
+</div>
+
+<script>
+function C(n, k) {
+  if (k > n || k < 0) return 0;
+  if (k > n - k) k = n - k;
+  let r = 1;
+  for (let i = 0; i < k; i++) r = r * (n - i) / (i + 1);
+  return r;
+}
+
+function drawBin() {
+  const n = +document.getElementById("n").value;
+  const p = +document.getElementById("p").value;
+  document.getElementById("vN").textContent = n;
+  document.getElementById("vP").textContent = p.toFixed(2);
+
+  const svg = document.getElementById("binSvg");
+  svg.innerHTML = "";
+  const W = 700, H = 400, cx = 50, cy = 350;
+  const barW = (W - 100) / (n + 1);
+
+  // Compute probs
+  const probs = [];
+  let pMax = 0;
+  for (let k = 0; k <= n; k++) {
+    const pr = C(n, k) * Math.pow(p, k) * Math.pow(1-p, n-k);
+    probs.push(pr);
+    pMax = Math.max(pMax, pr);
+  }
+  const ySc = (H - 80) / pMax;
+
+  // Axes
+  const xax = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  xax.setAttribute("x1", cx); xax.setAttribute("y1", cy); xax.setAttribute("x2", W-30); xax.setAttribute("y2", cy);
+  xax.setAttribute("stroke", "#1a202c"); xax.setAttribute("stroke-width", 1.5);
+  svg.appendChild(xax);
+
+  // Bars
+  for (let k = 0; k <= n; k++) {
+    const h = probs[k] * ySc;
+    const r = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    r.setAttribute("x", cx + k*barW); r.setAttribute("y", cy - h); r.setAttribute("width", barW*0.85); r.setAttribute("height", h);
+    r.setAttribute("fill", "#1d4ed8"); r.setAttribute("fill-opacity", 0.7);
+    svg.appendChild(r);
+    if (n <= 30) {
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t.setAttribute("x", cx + k*barW + barW*0.4); t.setAttribute("y", cy+14); t.setAttribute("text-anchor", "middle"); t.setAttribute("font-size", "10");
+      t.textContent = k;
+      svg.appendChild(t);
+    }
+  }
+
+  const mean = n * p;
+  const variance = n * p * (1-p);
+  document.getElementById("binRes").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">X ~ Binomial(${n}, ${p}). P(X = k) = C(${n}, k)·${p}^k·${(1-p).toFixed(2)}^(${n}-k)</div>
+    <div class="row" style="margin-top:6px">
+      <span class="stat">E[X] = n·p = <strong>${mean.toFixed(2)}</strong></span>
+      <span class="stat">Var = n·p·(1-p) = <strong>${variance.toFixed(2)}</strong></span>
+      <span class="stat">σ = <strong>${Math.sqrt(variance).toFixed(3)}</strong></span>
+    </div>
+  `;
+}
+
+function drawNorm() {
+  const mu = +document.getElementById("mu").value;
+  const sig = +document.getElementById("sigma").value;
+  document.getElementById("vMu").textContent = mu.toFixed(1);
+  document.getElementById("vSig").textContent = sig.toFixed(1);
+
+  const svg = document.getElementById("normSvg");
+  svg.innerHTML = "";
+  const W = 700, H = 400, cx = 50, cy = 350;
+  const xMin = mu - 4*sig - 0.5, xMax = mu + 4*sig + 0.5;
+  const xRange = xMax - xMin;
+  const scale = (W - 100) / xRange;
+  const xToPx = x => cx + (x - xMin)*scale;
+  const pdf = x => Math.exp(-(x-mu)**2 / (2*sig*sig)) / (sig*Math.sqrt(2*Math.PI));
+  const yMax = pdf(mu);
+  const ySc = (H - 80) / yMax;
+
+  // Fill 68% region
+  function fillRegion(a, b, color, opacity) {
+    let pts = [];
+    for (let x = a; x <= b; x += 0.02) pts.push([xToPx(x), cy - pdf(x)*ySc]);
+    pts.push([xToPx(b), cy]);
+    pts.push([xToPx(a), cy]);
+    const poly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    poly.setAttribute("points", pts.map(p => p.join(",")).join(" "));
+    poly.setAttribute("fill", color); poly.setAttribute("fill-opacity", opacity);
+    svg.appendChild(poly);
+  }
+  fillRegion(mu - 2*sig, mu - sig, "#fef3c7", 0.7);
+  fillRegion(mu - sig, mu + sig, "#15803d", 0.4);
+  fillRegion(mu + sig, mu + 2*sig, "#fef3c7", 0.7);
+
+  // Axes
+  const xax = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  xax.setAttribute("x1", cx); xax.setAttribute("y1", cy); xax.setAttribute("x2", W-30); xax.setAttribute("y2", cy);
+  xax.setAttribute("stroke", "#1a202c"); xax.setAttribute("stroke-width", 1.5);
+  svg.appendChild(xax);
+
+  // Curve
+  let path = "";
+  for (let x = xMin; x <= xMax; x += 0.02) {
+    const px = xToPx(x), py = cy - pdf(x)*ySc;
+    path += (x === xMin ? "M" : "L") + px + " " + py + " ";
+  }
+  const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  p.setAttribute("d", path); p.setAttribute("fill", "none"); p.setAttribute("stroke", "#1d4ed8"); p.setAttribute("stroke-width", 2.5);
+  svg.appendChild(p);
+
+  // Mark μ, μ±σ, μ±2σ
+  [[mu, "μ"], [mu-sig, "μ-σ"], [mu+sig, "μ+σ"], [mu-2*sig, "μ-2σ"], [mu+2*sig, "μ+2σ"]].forEach(([x, lbl]) => {
+    const px = xToPx(x);
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", px); l.setAttribute("y1", cy); l.setAttribute("x2", px); l.setAttribute("y2", cy + 5);
+    l.setAttribute("stroke", "#1a202c"); l.setAttribute("stroke-width", 1);
+    svg.appendChild(l);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", px); t.setAttribute("y", cy + 18); t.setAttribute("text-anchor", "middle"); t.setAttribute("font-size", "11");
+    t.textContent = lbl;
+    svg.appendChild(t);
+  });
+
+  document.getElementById("normRes").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">N(μ=${mu.toFixed(1)}, σ²=${(sig*sig).toFixed(2)})</div>
+    <div class="row" style="margin-top:6px">
+      <span class="stat">[μ-σ, μ+σ] (xanh): ~<strong>68.27%</strong></span>
+      <span class="stat">[μ-2σ, μ+2σ] (vàng+xanh): ~<strong>95.45%</strong></span>
+      <span class="stat">[μ-3σ, μ+3σ]: ~<strong>99.73%</strong></span>
+    </div>
+    <div style="margin-top:6px; font-size:13px; color:#64748b">Đây là "quy tắc 68-95-99.7" của phân phối chuẩn.</div>
+  `;
+}
+
+drawBin();
+drawNorm();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

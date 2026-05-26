@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 04 — Đa giác & Diện tích</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 600px; height: 400px; background: #f8fafc; border-radius: 8px; }
+  table.area { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.area th, table.area td { padding: 8px; border: 1px solid #e2e8f0; text-align: left; }
+  table.area th { background: #dcfce7; color: #15803d; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-circles/visualization.html">← L3: Đường tròn</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Đa giác &amp; Diện tích</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L5: Không gian (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 04 (T2) — Đa giác &amp; Diện tích</h1>
+
+<h2>Regular Polygon Explorer</h2>
+<div class="card">
+  <div class="row">
+    <label>Số cạnh n:</label>
+    <input type="range" id="nSides" min="3" max="20" step="1" value="6" oninput="drawPoly()">
+    <span class="stat">n = <strong id="nVal">6</strong></span>
+  </div>
+  <svg class="scene" id="pSvg" viewBox="0 0 600 400"></svg>
+  <div class="result" id="pResult"></div>
+</div>
+
+<h2>Bảng công thức diện tích</h2>
+<div class="card">
+  <table class="area">
+    <tr><th>Hình</th><th>Diện tích</th><th>Ghi chú</th></tr>
+    <tr><td>Hình vuông</td><td><strong>a²</strong></td><td>cạnh a</td></tr>
+    <tr><td>Hình chữ nhật</td><td><strong>a·b</strong></td><td>cạnh a, b</td></tr>
+    <tr><td>Tam giác</td><td><strong>(1/2)·a·h</strong></td><td>đáy a, cao h</td></tr>
+    <tr><td>Tam giác đều cạnh a</td><td><strong>(√3/4)·a²</strong></td><td></td></tr>
+    <tr><td>Hình bình hành</td><td><strong>a·h</strong></td><td>đáy a, cao h</td></tr>
+    <tr><td>Hình thang</td><td><strong>(1/2)(a+b)·h</strong></td><td>2 đáy a, b, cao h</td></tr>
+    <tr><td>Hình thoi</td><td><strong>(1/2)·d₁·d₂</strong></td><td>2 đường chéo</td></tr>
+    <tr><td>Lục giác đều</td><td><strong>(3√3/2)·a²</strong></td><td>cạnh a</td></tr>
+    <tr><td>Đường tròn</td><td><strong>π·R²</strong></td><td>bán kính R</td></tr>
+  </table>
+</div>
+
+<script>
+function drawPoly() {
+  const n = parseInt(document.getElementById("nSides").value);
+  document.getElementById("nVal").textContent = n;
+
+  const sumIn = (n - 2) * 180;
+  const eachIn = sumIn / n;
+  const sumOut = 360;
+  const eachOut = 360 / n;
+
+  // Area of regular n-gon with side a:
+  // S = (1/4) · n · a² · cot(π/n)
+  const a = 1;
+  const S = (1/4) * n * a * a / Math.tan(Math.PI/n);
+
+  document.getElementById("pResult").innerHTML = `
+    <div class="row">
+      <span class="stat">Tổng góc trong: <strong>${sumIn}°</strong></span>
+      <span class="stat">Mỗi góc trong: <strong>${eachIn.toFixed(2)}°</strong></span>
+      <span class="stat">Mỗi góc ngoài: <strong>${eachOut.toFixed(2)}°</strong></span>
+      <span class="stat">S (cạnh 1) = <strong>${S.toFixed(4)}</strong></span>
+    </div>
+    <div style="margin-top:6px; font-size:13px">
+      ${n === 3 ? "Tam giác đều" : n === 4 ? "Hình vuông" : n === 5 ? "Ngũ giác đều" : n === 6 ? "Lục giác đều (= 6 tam giác đều)" : n === 8 ? "Bát giác đều" : `${n}-giác đều`}.
+      Khi n → ∞, đa giác đều xấp xỉ đường tròn.
+    </div>
+  `;
+
+  // Draw
+  const svg = document.getElementById("pSvg");
+  svg.innerHTML = "";
+  const cx = 300, cy = 200, R = 150;
+  let points = "";
+  for (let i = 0; i < n; i++) {
+    const angle = -Math.PI/2 + i * 2*Math.PI/n;
+    const x = cx + R * Math.cos(angle);
+    const y = cy + R * Math.sin(angle);
+    points += `${x},${y} `;
+  }
+  const poly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  poly.setAttribute("points", points);
+  poly.setAttribute("fill", "#dcfce7"); poly.setAttribute("stroke", "#15803d"); poly.setAttribute("stroke-width", 2);
+  svg.appendChild(poly);
+
+  // Center
+  const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  c.setAttribute("cx", cx); c.setAttribute("cy", cy); c.setAttribute("r", 3);
+  c.setAttribute("fill", "#1a202c");
+  svg.appendChild(c);
+}
+
+drawPoly();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

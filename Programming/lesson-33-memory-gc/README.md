@@ -1045,7 +1045,7 @@ go build -gcflags="-m" ./solutions.go 2>&1 | head -40
 
 ## Bài tiếp theo
 
-→ [Lesson 34 — Profiling & Performance](../lesson-34-profiling/) — pprof CPU/heap/goroutine, flame graph, benchmark optimization, áp dụng kiến thức từ L33 để debug bottleneck.
+→ [Lesson 34 — Profiling pprof](../lesson-34-profiling-pprof/) — pprof CPU/heap/goroutine, flame graph, benchmark optimization, áp dụng kiến thức từ L33 để debug bottleneck.
 
 ---
 

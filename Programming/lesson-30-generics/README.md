@@ -402,17 +402,9 @@ func JoinStrings[T Stringer](xs []T, sep string) string {
 Đây là interface "kiểu cũ" — chỉ method, không type union. Vẫn dùng được làm
 constraint y như trước.
 
-### Kết hợp method set + type union (advanced)
-
-```go
-type StringableNumber interface {
-    ~int | ~int64 | ~float64
-    String() string    // ngoài là số, còn phải có method String()
-}
-```
-
-Type T phải đồng thời (a) underlying là một trong các type union, và (b) có
-method String(). Hiếm dùng, nhưng nên biết là khả thi.
+> **Kết hợp method set + type union** (advanced): có thể viết
+> `interface { ~int | ~float64; String() string }` — T phải đồng thời thoả
+> union *và* có method. Hiếm dùng, nhưng nên biết là khả thi.
 
 ### ❓ Câu hỏi tự nhiên
 
@@ -619,14 +611,14 @@ Reduce([]int{1,2,3,4,5}, 0, func(a, x int) int {
 })   // = 3
 ```
 
-### 5.5 Ứng dụng thực tế — validator chain
+### 5.5 Ứng dụng thực tế — validator chain & cache loader
 
 ```go
 type Validator[T any] func(T) error
 
-func Chain[T any](validators ...Validator[T]) Validator[T] {
+func Chain[T any](vs ...Validator[T]) Validator[T] {
     return func(v T) error {
-        for _, val := range validators {
+        for _, val := range vs {
             if err := val(v); err != nil { return err }
         }
         return nil
@@ -643,26 +635,16 @@ maxLen := Validator[string](func(s string) error {
     return nil
 })
 
-userValidator := Chain(notEmpty, maxLen)
-userValidator("hello")  // nil
-userValidator("")       // error: empty
-```
+v := Chain(notEmpty, maxLen)
+v("hello")  // nil
+v("")       // error: empty
 
-### 5.6 Ứng dụng thực tế — transform pipeline cho cache
-
-```go
+// Cache loader: viết 1 lần, dùng cho mọi (K, V)
 type CacheLoader[K comparable, V any] struct {
-    fn       func(K) (V, error)
-    timeout  time.Duration
+    fn func(K) (V, error)
 }
-
-func NewLoader[K comparable, V any](fn func(K) (V, error), timeout time.Duration) *CacheLoader[K, V] {
-    return &CacheLoader[K, V]{fn: fn, timeout: timeout}
-}
+// → CacheLoader[int, *User], CacheLoader[string, Order], ...
 ```
-
-Đây là pattern thực tế: viết 1 lần, dùng được cho cache key kiểu `int`, `string`,
-`UUID`, value kiểu `User`, `Order`, `Product`...
 
 ### ❓ Câu hỏi tự nhiên
 

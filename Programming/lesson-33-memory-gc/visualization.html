@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L33 — Memory Model, Escape Analysis & GC</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #00add8;
+    --accent-hover: #007d9c;
+    --accent-soft: #e6f7fc;
+    --ok: #38a169;
+    --warn: #d69e2e;
+    --err: #e53e3e;
+    --bg-card: #ffffff;
+    --white-color: #f7fafc;
+    --grey-color: #f6ad55;
+    --black-color: #2d3748;
+    --garbage-color: #fc8181;
+  }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 80px; }
+  h1 { color: #2d3748; margin-top: 0; }
+  .intro { color: #4a5568; line-height: 1.55; max-width: 760px; }
+
+  .module {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 32px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+  .module h2 {
+    margin-top: 0;
+    color: #2d3748;
+    border-bottom: 2px solid var(--accent-soft);
+    padding-bottom: 8px;
+  }
+  .module .desc { color: #4a5568; line-height: 1.55; margin-bottom: 16px; }
+
+  button.viz-btn {
+    padding: 8px 16px;
+    border: 0;
+    background: var(--accent);
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  button.viz-btn:hover { background: var(--accent-hover); }
+  button.viz-btn.secondary { background: #6b7280; }
+  button.viz-btn.secondary:hover { background: #4b5563; }
+  button.viz-btn:disabled { background: #cbd5e0; cursor: not-allowed; }
+
+  .controls {
+    margin: 12px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+
+  pre, code {
+    font-family: 'Fira Code', Consolas, monospace;
+  }
+  pre {
+    background: #1a202c;
+    color: #e2e8f0;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    overflow-x: auto;
+    margin: 8px 0;
+  }
+  code.inline {
+    background: #edf2f7;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+
+  /* === Module 1 — Escape analysis playground === */
+  .snippet-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .snippet-card {
+    background: #f7fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .snippet-card:hover { border-color: var(--accent); background: #ffffff; }
+  .snippet-card.active {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .snippet-card h4 { margin: 0 0 6px 0; font-size: 14px; color: #2d3748; }
+  .snippet-card pre { font-size: 11px; padding: 8px; margin: 0; max-height: 120px; }
+
+  .escape-panel {
+    background: #f7fafc;
+    border-radius: 8px;
+    padding: 16px;
+    border-left: 4px solid var(--accent);
+  }
+  .escape-panel pre { font-size: 12px; }
+  .answer-row {
+    display: flex;
+    gap: 12px;
+    margin: 12px 0;
+    flex-wrap: wrap;
+  }
+  .answer-row button {
+    flex: 1;
+    min-width: 100px;
+  }
+  .answer-row button.stack-choice { background: var(--ok); }
+  .answer-row button.heap-choice { background: var(--err); }
+  .reveal {
+    display: none;
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 6px;
+  }
+  .reveal.show { display: block; }
+  .reveal.correct { background: #c6f6d5; border-left: 4px solid var(--ok); }
+  .reveal.wrong { background: #fed7d7; border-left: 4px solid var(--err); }
+  .reveal h4 { margin: 0 0 6px 0; }
+
+  /* === Module 2 — Tri-color GC visualizer === */
+  .gc-wrap {
+    background: #f7fafc;
+    border-radius: 8px;
+    padding: 12px;
+    overflow-x: auto;
+  }
+  .gc-svg { display: block; width: 100%; height: auto; max-width: 900px; margin: 0 auto; }
+
+  .gc-node circle {
+    stroke: #2d3748;
+    stroke-width: 2;
+    transition: fill .4s;
+  }
+  .gc-node.white circle { fill: var(--white-color); }
+  .gc-node.grey circle { fill: var(--grey-color); }
+  .gc-node.black circle { fill: var(--black-color); }
+  .gc-node.root circle { stroke: var(--accent); stroke-width: 3; }
+  .gc-node text { font-size: 11px; font-family: monospace; }
+  .gc-node.black text { fill: white; }
+
+  .gc-edge {
+    stroke: #a0aec0;
+    stroke-width: 1.5;
+    fill: none;
+  }
+
+  .gc-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  .gc-legend .item { display: flex; align-items: center; gap: 6px; }
+  .gc-legend .swatch {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 2px solid #2d3748;
+  }
+  .gc-status {
+    background: #1a202c;
+    color: #e2e8f0;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 13px;
+    margin-top: 12px;
+    min-height: 40px;
+  }
+  .gc-status .grey-text { color: var(--grey-color); }
+  .gc-status .black-text { color: #cbd5e0; }
+  .gc-status .garbage-text { color: var(--garbage-color); }
+
+  /* === Module 3 — GOGC tuner === */
+  .gogc-controls {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  @media (min-width: 768px) {
+    .gogc-controls { grid-template-columns: 1fr 1fr; }
+  }
+  .gogc-slider-wrap {
+    background: #f7fafc;
+    padding: 12px;
+    border-radius: 8px;
+  }
+  .gogc-slider-wrap label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #2d3748;
+  }
+  .gogc-slider-wrap input[type="range"] { width: 100%; max-width: 100%; }
+  .gogc-value {
+    font-family: monospace;
+    font-size: 18px;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .gogc-chart-wrap {
+    background: #f7fafc;
+    border-radius: 8px;
+    padding: 12px;
+    overflow-x: auto;
+  }
+  .gogc-chart {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 900px;
+  }
+
+  .gogc-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .stat-card {
+    background: var(--accent-soft);
+    border-radius: 6px;
+    padding: 10px 12px;
+  }
+  .stat-card .label { font-size: 12px; color: #4a5568; }
+  .stat-card .value {
+    font-family: monospace;
+    font-size: 18px;
+    color: #2d3748;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+  .preset-btn {
+    margin: 4px 4px 0 0;
+    padding: 6px 10px;
+    background: #edf2f7;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .preset-btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+  .preset-btn.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  @media (max-width: 480px) {
+    .snippet-list { grid-template-columns: 1fr; }
+    .answer-row button { min-width: 0; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-32-unsafe-cgo/visualization.html">← L32: Unsafe &amp; CGo</a>
+  <span class="sep">·</span>
+  <span class="current">L33: Memory &amp; GC</span>
+  <span class="sep">·</span>
+  <a href="../lesson-34-profiling-pprof/visualization.html">L34: Profiling →</a>
+</nav>
+
+<main>
+  <h1>L33 — Memory Model, Escape Analysis &amp; GC</h1>
+  <p class="intro">
+    Ba module tương tác để "chạm" vào cơ chế memory của Go: dự đoán escape của code snippet,
+    xem GC tri-color mark từng bước, và tune GOGC để thấy trade-off latency vs throughput.
+    Standalone — mở <code class="inline">file://</code> là chạy được.
+  </p>
+
+  <!-- ============================================================== -->
+  <!-- Module 1 — Escape analysis playground                           -->
+  <!-- ============================================================== -->
+  <section class="module" id="module-escape">
+    <h2>Module 1 — Escape analysis playground</h2>
+    <p class="desc">
+      Chọn 1 trong 8 snippet bên dưới, dự đoán xem biến chính trên <strong>stack</strong> hay
+      <strong>heap</strong>, rồi reveal đáp án + output thật của <code class="inline">go build -gcflags="-m"</code>.
+    </p>
+
+    <div class="snippet-list" id="snippet-list"></div>
+
+    <div class="escape-panel" id="escape-panel" style="display: none">
+      <h4 id="escape-title">Snippet</h4>
+      <pre id="escape-code"></pre>
+      <p>Dự đoán: <code class="inline" id="escape-target"></code> ở đâu?</p>
+      <div class="answer-row">
+        <button class="viz-btn stack-choice" id="btn-stack">Stack</button>
+        <button class="viz-btn heap-choice" id="btn-heap">Heap</button>
+        <button class="viz-btn secondary" id="btn-reset-snippet">Reset</button>
+      </div>
+      <div class="reveal" id="escape-reveal"></div>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- Module 2 — Tri-color GC visualizer                              -->
+  <!-- ============================================================== -->
+  <section class="module" id="module-gc">
+    <h2>Module 2 — Tri-color Mark &amp; Sweep</h2>
+    <p class="desc">
+      12 object node + 1 root. Bấm <strong>Step</strong> để chạy mark phase từng bước theo BFS từ
+      root. Mỗi bước: pop 1 grey object, push các neighbour reachable thành grey, mark object đó
+      black. Cuối cùng: mọi node còn <strong>white</strong> = garbage.
+    </p>
+
+    <div class="gc-legend">
+      <div class="item"><span class="swatch" style="background: var(--white-color)"></span> White — chưa thăm</div>
+      <div class="item"><span class="swatch" style="background: var(--grey-color)"></span> Grey — đang trong worklist</div>
+      <div class="item"><span class="swatch" style="background: var(--black-color)"></span> Black — đã mark xong</div>
+    </div>
+
+    <div class="controls">
+      <button class="viz-btn" id="gc-step">Step ▶</button>
+      <button class="viz-btn" id="gc-auto">Auto run</button>
+      <button class="viz-btn secondary" id="gc-reset">Reset</button>
+      <button class="viz-btn" id="gc-sweep" disabled>Sweep (free white)</button>
+    </div>
+
+    <div class="gc-wrap">
+      <svg class="gc-svg" viewBox="0 0 800 420" id="gc-svg"></svg>
+    </div>
+
+    <div class="gc-status" id="gc-status">Bấm Step để bắt đầu mark phase từ root.</div>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- Module 3 — GOGC tuner                                           -->
+  <!-- ============================================================== -->
+  <section class="module" id="module-gogc">
+    <h2>Module 3 — GOGC Tuner</h2>
+    <p class="desc">
+      Kéo slider GOGC từ 50 → 400. Chart mô phỏng heap grow theo thời gian: mỗi lần đạt
+      <code class="inline">heap_live × (1 + GOGC/100)</code> thì GC chạy, drop heap về live.
+      Quan sát trade-off: GOGC thấp = nhiều GC, pause/lần ngắn, peak heap thấp; GOGC cao =
+      ít GC, pause dài, peak heap cao.
+    </p>
+
+    <div class="gogc-controls">
+      <div class="gogc-slider-wrap">
+        <label>GOGC = <span class="gogc-value" id="gogc-val">100</span></label>
+        <input type="range" id="gogc-slider" min="50" max="400" step="10" value="100">
+        <div style="margin-top: 8px">
+          <button class="preset-btn" data-gogc="50">50 (Low latency)</button>
+          <button class="preset-btn active" data-gogc="100">100 (Default)</button>
+          <button class="preset-btn" data-gogc="200">200 (Balanced)</button>
+          <button class="preset-btn" data-gogc="400">400 (Throughput)</button>
+        </div>
+      </div>
+      <div class="gogc-slider-wrap">
+        <label>Live heap simulation: <span class="gogc-value" id="live-val">10</span> MB</label>
+        <input type="range" id="live-slider" min="5" max="100" step="5" value="10">
+        <p style="font-size: 12px; color: #4a5568; margin: 8px 0 0 0">
+          Live heap = lượng object thật sự còn reachable. GC không free được phần này.
+        </p>
+      </div>
+    </div>
+
+    <div class="gogc-chart-wrap">
+      <svg class="gogc-chart" viewBox="0 0 800 320" id="gogc-chart"></svg>
+    </div>
+
+    <div class="gogc-stats">
+      <div class="stat-card">
+        <div class="label">Số GC trong 10s</div>
+        <div class="value" id="stat-numgc">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Peak heap</div>
+        <div class="value" id="stat-peak">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Pause total</div>
+        <div class="value" id="stat-pause">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Profile</div>
+        <div class="value" id="stat-profile">—</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* =====================================================================
+   Module 1 — Escape analysis playground
+   ===================================================================== */
+(function() {
+  const snippets = [
+    {
+      id: 'return-value',
+      title: '(1) Return by value',
+      code: `func f() Point {
+    p := Point{1, 2}
+    return p   // copy out
+}`,
+      target: 'p',
+      answer: 'stack',
+      gcflagsOutput: `./main.go:2:2: p does not escape`,
+      explain: 'Return BY VALUE → copy bytes ra caller. p hết life cùng frame, không cần heap.'
+    },
+    {
+      id: 'return-pointer',
+      title: '(2) Return &local',
+      code: `func f() *Point {
+    p := Point{1, 2}
+    return &p   // pointer escape
+}`,
+      target: 'p',
+      answer: 'heap',
+      gcflagsOutput: `./main.go:2:2: moved to heap: p`,
+      explain: 'Caller cầm pointer tới p sau khi function return → p phải sống ngoài frame → heap.'
+    },
+    {
+      id: 'fmt-println',
+      title: '(3) fmt.Println(x)',
+      code: `func f() {
+    x := 42
+    fmt.Println(x)   // x boxed thành any
+}`,
+      target: 'x',
+      answer: 'heap',
+      gcflagsOutput: `./main.go:3:13: ... argument escapes to heap
+./main.go:3:13: x escapes to heap`,
+      explain: 'fmt.Println nhận ...any. Boxing int → any tạo interface header trỏ tới x trên heap. ' +
+               'Đây là lý do dùng Println trong hot path luôn alloc.'
+    },
+    {
+      id: 'pointer-down',
+      title: '(4) Pass pointer xuống',
+      code: `func process(p *int) {
+    *p = *p * 2
+}
+
+func main() {
+    x := 5
+    process(&x)   // pointer truyền xuống
+}`,
+      target: 'x',
+      answer: 'stack',
+      gcflagsOutput: `./main.go:1:14: p does not escape
+./main.go:7:13: ... argument does not escape`,
+      explain: 'process chỉ dereference pointer, KHÔNG store đi đâu → compiler trace được, ' +
+               'x giữ trên stack frame của main.'
+    },
+    {
+      id: 'closure',
+      title: '(5) Closure capture',
+      code: `func counter() func() int {
+    n := 0
+    return func() int {
+        n++
+        return n
+    }
+}`,
+      target: 'n',
+      answer: 'heap',
+      gcflagsOutput: `./main.go:2:2: moved to heap: n
+./main.go:3:9: func literal escapes to heap`,
+      explain: 'Closure được return → có thể được gọi sau khi counter() đã exit. n bị capture ' +
+               'by reference → phải sống ngoài frame → heap.'
+    },
+    {
+      id: 'make-const',
+      title: '(6) make([]int, 10) local',
+      code: `func sum() int {
+    s := make([]int, 10)
+    for i := range s { s[i] = i }
+    t := 0
+    for _, v := range s { t += v }
+    return t
+}`,
+      target: 's',
+      answer: 'stack',
+      gcflagsOutput: `./main.go:2:11: make([]int, 10) does not escape`,
+      explain: 'Slice nhỏ + size hằng + KHÔNG escape (không return, không store) → compiler ' +
+               'có thể giữ underlying array trên stack.'
+    },
+    {
+      id: 'make-dyn',
+      title: '(7) make([]int, n) với n biến',
+      code: `func dyn(n int) []int {
+    s := make([]int, n)
+    return s
+}`,
+      target: 's',
+      answer: 'heap',
+      gcflagsOutput: `./main.go:2:11: make([]int, n) escapes to heap`,
+      explain: 'n không biết compile-time + return slice → underlying array bắt buộc heap.'
+    },
+    {
+      id: 'interface-method',
+      title: '(8) Concrete → interface',
+      code: `type Stringer interface { String() string }
+
+type T struct{ s string }
+func (t T) String() string { return t.s }
+
+func print(s Stringer) {}
+
+func main() {
+    t := T{"hi"}
+    print(t)   // T → Stringer boxing
+}`,
+      target: 't',
+      answer: 'heap',
+      gcflagsOutput: `./main.go:9:11: t escapes to heap`,
+      explain: 'Convert concrete T → interface Stringer = boxing. Interface header (type + data ptr) ' +
+               'cần t có addressable storage tồn tại lâu → heap.'
+    },
+  ];
+
+  const list = document.getElementById('snippet-list');
+  const panel = document.getElementById('escape-panel');
+  const titleEl = document.getElementById('escape-title');
+  const codeEl = document.getElementById('escape-code');
+  const targetEl = document.getElementById('escape-target');
+  const reveal = document.getElementById('escape-reveal');
+  let current = null;
+
+  snippets.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'snippet-card';
+    card.innerHTML = `<h4>${s.title}</h4><pre>${escapeHtml(s.code)}</pre>`;
+    card.addEventListener('click', () => selectSnippet(s, card));
+    list.appendChild(card);
+  });
+
+  function escapeHtml(str) {
+    return str.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  }
+
+  function selectSnippet(s, card) {
+    document.querySelectorAll('.snippet-card').forEach(c => c.classList.remove('active'));
+    card.classList.add('active');
+    current = s;
+    panel.style.display = 'block';
+    titleEl.textContent = s.title;
+    codeEl.textContent = s.code;
+    targetEl.textContent = s.target;
+    reveal.className = 'reveal';
+    reveal.innerHTML = '';
+  }
+
+  function answer(choice) {
+    if (!current) return;
+    const ok = choice === current.answer;
+    reveal.className = 'reveal show ' + (ok ? 'correct' : 'wrong');
+    reveal.innerHTML = `
+      <h4>${ok ? '✓ Đúng!' : '✗ Sai.'} Đáp án: <strong>${current.answer.toUpperCase()}</strong></h4>
+      <p>${current.explain}</p>
+      <p><strong>Output <code>go build -gcflags="-m"</code>:</strong></p>
+      <pre>${escapeHtml(current.gcflagsOutput)}</pre>
+    `;
+  }
+
+  document.getElementById('btn-stack').addEventListener('click', () => answer('stack'));
+  document.getElementById('btn-heap').addEventListener('click', () => answer('heap'));
+  document.getElementById('btn-reset-snippet').addEventListener('click', () => {
+    reveal.className = 'reveal';
+    reveal.innerHTML = '';
+  });
+})();
+
+/* =====================================================================
+   Module 2 — Tri-color GC visualizer
+   ===================================================================== */
+(function() {
+  // Object graph: 13 nodes total. Node 0 = root.
+  // Some nodes are unreachable from root → garbage.
+  const nodes = [
+    { id: 0, x: 80,  y: 210, label: 'root',  isRoot: true },
+    { id: 1, x: 180, y: 100, label: 'obj1' },
+    { id: 2, x: 180, y: 210, label: 'obj2' },
+    { id: 3, x: 180, y: 320, label: 'obj3' },
+    { id: 4, x: 320, y: 60,  label: 'obj4' },
+    { id: 5, x: 320, y: 160, label: 'obj5' },
+    { id: 6, x: 320, y: 260, label: 'obj6' },
+    { id: 7, x: 320, y: 360, label: 'obj7' },
+    { id: 8, x: 480, y: 110, label: 'obj8' },
+    { id: 9, x: 480, y: 220, label: 'obj9' },
+    { id:10, x: 480, y: 330, label: 'obj10' },
+    { id:11, x: 640, y: 80,  label: 'g11', garbage: true },
+    { id:12, x: 640, y: 360, label: 'g12', garbage: true },
+  ];
+  // Edges: pointer from a → b means a holds reference to b.
+  const edges = [
+    [0,1],[0,2],[0,3],
+    [1,4],[1,5],
+    [2,5],[2,6],
+    [3,6],[3,7],
+    [5,8],[5,9],
+    [6,9],[7,10],
+    // g11 / g12 isolated (no edge from reachable)
+    [11,12], // garbage island
+  ];
+
+  const svg = document.getElementById('gc-svg');
+  const statusEl = document.getElementById('gc-status');
+  const stepBtn = document.getElementById('gc-step');
+  const autoBtn = document.getElementById('gc-auto');
+  const resetBtn = document.getElementById('gc-reset');
+  const sweepBtn = document.getElementById('gc-sweep');
+
+  let color = []; // 'white' | 'grey' | 'black'
+  let worklist = [];
+  let markDone = false;
+
+  function reset() {
+    color = nodes.map(() => 'white');
+    worklist = [0];
+    color[0] = 'grey';
+    markDone = false;
+    sweepBtn.disabled = true;
+    render();
+    setStatus(`Khởi đầu: ${countWhite()} object white, root được mark grey, push vào worklist.`);
+  }
+
+  function render() {
+    svg.innerHTML = '';
+    // edges first
+    edges.forEach(([a,b]) => {
+      const na = nodes[a], nb = nodes[b];
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', na.x);
+      line.setAttribute('y1', na.y);
+      line.setAttribute('x2', nb.x);
+      line.setAttribute('y2', nb.y);
+      line.setAttribute('class', 'gc-edge');
+      svg.appendChild(line);
+    });
+    // nodes
+    nodes.forEach((n, i) => {
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      let cls = 'gc-node ' + color[i];
+      if (n.isRoot) cls += ' root';
+      g.setAttribute('class', cls);
+      const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      c.setAttribute('cx', n.x);
+      c.setAttribute('cy', n.y);
+      c.setAttribute('r', n.isRoot ? 28 : 22);
+      g.appendChild(c);
+      const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t.setAttribute('x', n.x);
+      t.setAttribute('y', n.y + 4);
+      t.setAttribute('text-anchor', 'middle');
+      t.textContent = n.label;
+      g.appendChild(t);
+      svg.appendChild(g);
+    });
+  }
+
+  function countWhite() { return color.filter(c => c === 'white').length; }
+  function countGrey()  { return color.filter(c => c === 'grey').length; }
+  function countBlack() { return color.filter(c => c === 'black').length; }
+
+  function setStatus(msg) {
+    statusEl.innerHTML = msg +
+      ` <span class="grey-text">[grey=${countGrey()}]</span>` +
+      ` <span class="black-text">[black=${countBlack()}]</span>` +
+      ` <span class="garbage-text">[white=${countWhite()}]</span>`;
+  }
+
+  function step() {
+    if (markDone) return;
+    if (worklist.length === 0) {
+      markDone = true;
+      sweepBtn.disabled = false;
+      setStatus(`Mark DONE. Worklist rỗng. ${countWhite()} object còn white = garbage, chờ sweep.`);
+      return;
+    }
+    const id = worklist.shift();
+    const neighbours = edges.filter(([a,_]) => a === id).map(([_,b]) => b);
+    let added = [];
+    neighbours.forEach(b => {
+      if (color[b] === 'white') {
+        color[b] = 'grey';
+        worklist.push(b);
+        added.push(nodes[b].label);
+      }
+    });
+    color[id] = 'black';
+    render();
+    const addMsg = added.length ? ` push ${added.join(', ')} grey.` : ' không có neighbour white nào.';
+    setStatus(`Pop ${nodes[id].label} grey → scan ${neighbours.length} edge,${addMsg} Mark ${nodes[id].label} black.`);
+  }
+
+  function autoRun() {
+    if (markDone) return;
+    step();
+    if (!markDone) setTimeout(autoRun, 600);
+  }
+
+  function sweep() {
+    nodes.forEach((n, i) => {
+      if (color[i] === 'white') {
+        color[i] = 'sweeped';
+      }
+    });
+    // visually shrink white nodes
+    svg.innerHTML = '';
+    edges.forEach(([a,b]) => {
+      if (color[a] === 'sweeped' || color[b] === 'sweeped') return;
+      const na = nodes[a], nb = nodes[b];
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', na.x); line.setAttribute('y1', na.y);
+      line.setAttribute('x2', nb.x); line.setAttribute('y2', nb.y);
+      line.setAttribute('class', 'gc-edge');
+      svg.appendChild(line);
+    });
+    nodes.forEach((n, i) => {
+      if (color[i] === 'sweeped') return;
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.setAttribute('class', 'gc-node black' + (n.isRoot ? ' root' : ''));
+      const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      c.setAttribute('cx', n.x); c.setAttribute('cy', n.y);
+      c.setAttribute('r', n.isRoot ? 28 : 22);
+      g.appendChild(c);
+      const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t.setAttribute('x', n.x); t.setAttribute('y', n.y + 4);
+      t.setAttribute('text-anchor', 'middle');
+      t.textContent = n.label;
+      g.appendChild(t);
+      svg.appendChild(g);
+    });
+    const freed = color.filter(c => c === 'sweeped').length;
+    statusEl.innerHTML = `<span style="color: var(--ok)">SWEEP xong.</span> Free ${freed} object white. Còn ${color.length - freed} object alive.`;
+    sweepBtn.disabled = true;
+  }
+
+  stepBtn.addEventListener('click', step);
+  autoBtn.addEventListener('click', autoRun);
+  resetBtn.addEventListener('click', reset);
+  sweepBtn.addEventListener('click', sweep);
+
+  reset();
+})();
+
+/* =====================================================================
+   Module 3 — GOGC Tuner
+   ===================================================================== */
+(function() {
+  const gogcSlider = document.getElementById('gogc-slider');
+  const liveSlider = document.getElementById('live-slider');
+  const gogcVal = document.getElementById('gogc-val');
+  const liveVal = document.getElementById('live-val');
+  const svg = document.getElementById('gogc-chart');
+
+  const W = 800, H = 320;
+  const PAD_L = 50, PAD_R = 20, PAD_T = 20, PAD_B = 40;
+  const plotW = W - PAD_L - PAD_R;
+  const plotH = H - PAD_T - PAD_B;
+
+  // Simulation params: 10 seconds, alloc rate = 20 MB/sec.
+  const DURATION = 10; // sec
+  const ALLOC_RATE = 20; // MB/sec
+  const PAUSE_MS_PER_MB = 0.05; // pause time per MB live (rough model)
+
+  function simulate(gogc, live) {
+    // heap_live grows linearly, when heap reaches live*(1+gogc/100) → GC → heap drops to live.
+    const trigger = live * (1 + gogc / 100);
+    let t = 0, heap = live;
+    const points = [{t: 0, h: live}];
+    const gcEvents = [];
+    const dt = 0.02;
+    let numGC = 0, pauseTotal = 0;
+
+    while (t < DURATION) {
+      t += dt;
+      heap += ALLOC_RATE * dt;
+      if (heap >= trigger) {
+        // GC
+        points.push({t, h: heap});
+        const pause = live * PAUSE_MS_PER_MB; // proportional to live heap
+        pauseTotal += pause;
+        numGC++;
+        gcEvents.push({t, before: heap, after: live, pause});
+        heap = live;
+        points.push({t, h: heap});
+      } else {
+        points.push({t, h: heap});
+      }
+    }
+    const peak = Math.max(...points.map(p => p.h));
+    return { points, gcEvents, numGC, pauseTotal, peak, trigger };
+  }
+
+  function render() {
+    const gogc = parseInt(gogcSlider.value);
+    const live = parseInt(liveSlider.value);
+    gogcVal.textContent = gogc;
+    liveVal.textContent = live;
+
+    // highlight preset button
+    document.querySelectorAll('.preset-btn').forEach(b => {
+      b.classList.toggle('active', parseInt(b.dataset.gogc) === gogc);
+    });
+
+    const sim = simulate(gogc, live);
+    drawChart(sim, live);
+
+    document.getElementById('stat-numgc').textContent = sim.numGC;
+    document.getElementById('stat-peak').textContent = sim.peak.toFixed(1) + ' MB';
+    document.getElementById('stat-pause').textContent = sim.pauseTotal.toFixed(2) + ' ms';
+
+    let profile;
+    if (gogc <= 75) profile = 'Low latency';
+    else if (gogc <= 150) profile = 'Default';
+    else if (gogc <= 250) profile = 'Balanced';
+    else profile = 'Throughput';
+    document.getElementById('stat-profile').textContent = profile;
+  }
+
+  function drawChart(sim, live) {
+    svg.innerHTML = '';
+
+    const yMax = Math.max(sim.peak * 1.1, sim.trigger * 1.05, live * 2);
+    const xToPx = t => PAD_L + (t / DURATION) * plotW;
+    const yToPx = h => PAD_T + plotH - (h / yMax) * plotH;
+
+    // axes
+    const ax = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    ax.setAttribute('x1', PAD_L); ax.setAttribute('y1', PAD_T);
+    ax.setAttribute('x2', PAD_L); ax.setAttribute('y2', PAD_T + plotH);
+    ax.setAttribute('stroke', '#a0aec0'); svg.appendChild(ax);
+    const ay = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    ay.setAttribute('x1', PAD_L); ay.setAttribute('y1', PAD_T + plotH);
+    ay.setAttribute('x2', PAD_L + plotW); ay.setAttribute('y2', PAD_T + plotH);
+    ay.setAttribute('stroke', '#a0aec0'); svg.appendChild(ay);
+
+    // axis labels
+    const xl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    xl.setAttribute('x', PAD_L + plotW / 2); xl.setAttribute('y', H - 5);
+    xl.setAttribute('text-anchor', 'middle');
+    xl.setAttribute('font-size', '12'); xl.setAttribute('fill', '#4a5568');
+    xl.textContent = 'Thời gian (giây)'; svg.appendChild(xl);
+
+    const yl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    yl.setAttribute('x', 15); yl.setAttribute('y', PAD_T + plotH / 2);
+    yl.setAttribute('text-anchor', 'middle');
+    yl.setAttribute('font-size', '12'); yl.setAttribute('fill', '#4a5568');
+    yl.setAttribute('transform', `rotate(-90, 15, ${PAD_T + plotH / 2})`);
+    yl.textContent = 'Heap (MB)'; svg.appendChild(yl);
+
+    // x ticks (every 2s)
+    for (let s = 0; s <= DURATION; s += 2) {
+      const x = xToPx(s);
+      const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t.setAttribute('x', x); t.setAttribute('y', PAD_T + plotH + 14);
+      t.setAttribute('text-anchor', 'middle');
+      t.setAttribute('font-size', '11'); t.setAttribute('fill', '#4a5568');
+      t.textContent = s; svg.appendChild(t);
+    }
+    // y ticks (4 evenly spaced)
+    for (let i = 0; i <= 4; i++) {
+      const v = (yMax * i / 4);
+      const y = yToPx(v);
+      const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t.setAttribute('x', PAD_L - 6); t.setAttribute('y', y + 4);
+      t.setAttribute('text-anchor', 'end');
+      t.setAttribute('font-size', '11'); t.setAttribute('fill', '#4a5568');
+      t.textContent = v.toFixed(0); svg.appendChild(t);
+    }
+
+    // trigger line (dashed)
+    const trigLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    trigLine.setAttribute('x1', PAD_L); trigLine.setAttribute('y1', yToPx(sim.trigger));
+    trigLine.setAttribute('x2', PAD_L + plotW); trigLine.setAttribute('y2', yToPx(sim.trigger));
+    trigLine.setAttribute('stroke', '#e53e3e'); trigLine.setAttribute('stroke-dasharray', '4 4');
+    trigLine.setAttribute('stroke-width', '1.5');
+    svg.appendChild(trigLine);
+    const trigLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    trigLabel.setAttribute('x', PAD_L + plotW - 4); trigLabel.setAttribute('y', yToPx(sim.trigger) - 4);
+    trigLabel.setAttribute('text-anchor', 'end');
+    trigLabel.setAttribute('font-size', '11'); trigLabel.setAttribute('fill', '#e53e3e');
+    trigLabel.textContent = `GC trigger = ${sim.trigger.toFixed(0)} MB`;
+    svg.appendChild(trigLabel);
+
+    // live heap line (green)
+    const liveLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    liveLine.setAttribute('x1', PAD_L); liveLine.setAttribute('y1', yToPx(live));
+    liveLine.setAttribute('x2', PAD_L + plotW); liveLine.setAttribute('y2', yToPx(live));
+    liveLine.setAttribute('stroke', '#38a169'); liveLine.setAttribute('stroke-dasharray', '2 4');
+    liveLine.setAttribute('stroke-width', '1.5');
+    svg.appendChild(liveLine);
+    const liveLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    liveLabel.setAttribute('x', PAD_L + 4); liveLabel.setAttribute('y', yToPx(live) - 4);
+    liveLabel.setAttribute('font-size', '11'); liveLabel.setAttribute('fill', '#38a169');
+    liveLabel.textContent = `live = ${live} MB`;
+    svg.appendChild(liveLabel);
+
+    // heap path
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    let d = '';
+    sim.points.forEach((p, i) => {
+      d += (i === 0 ? 'M' : 'L') + xToPx(p.t) + ' ' + yToPx(p.h);
+    });
+    path.setAttribute('d', d);
+    path.setAttribute('stroke', '#00add8'); path.setAttribute('stroke-width', '2');
+    path.setAttribute('fill', 'none');
+    svg.appendChild(path);
+
+    // GC event markers
+    sim.gcEvents.forEach(ev => {
+      const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      c.setAttribute('cx', xToPx(ev.t)); c.setAttribute('cy', yToPx(ev.before));
+      c.setAttribute('r', '4'); c.setAttribute('fill', '#e53e3e');
+      svg.appendChild(c);
+    });
+  }
+
+  gogcSlider.addEventListener('input', render);
+  liveSlider.addEventListener('input', render);
+  document.querySelectorAll('.preset-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      gogcSlider.value = b.dataset.gogc;
+      render();
+    });
+  });
+
+  render();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

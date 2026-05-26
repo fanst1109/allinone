@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L30 — Generics: type parameters, constraints, performance</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #8b5cf6;
+    --accent-hover: #7c3aed;
+    --accent-soft: #ede9fe;
+    --ok: #38a169;
+    --warn: #d69e2e;
+    --err: #e53e3e;
+    --bg-card: #ffffff;
+    --code-bg: #1a202c;
+    --code-fg: #f7fafc;
+  }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 80px; }
+  h1 { color: #2d3748; margin-top: 0; }
+  .intro { color: #4a5568; line-height: 1.55; max-width: 760px; }
+
+  .module {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 32px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+  .module h2 {
+    margin-top: 0;
+    color: #2d3748;
+    border-bottom: 2px solid var(--accent-soft);
+    padding-bottom: 8px;
+  }
+  .module .desc { color: #4a5568; line-height: 1.55; }
+
+  /* --- Module 1 styles --- */
+  .infer-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .infer-panel {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .infer-panel h3 {
+    margin: 0 0 8px;
+    font-size: 14px;
+    color: #4a5568;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+  .signature-box {
+    background: var(--code-bg);
+    color: var(--code-fg);
+    padding: 14px;
+    border-radius: 6px;
+    font-family: ui-monospace, monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-x: auto;
+  }
+  .tp { color: #c4b5fd; font-weight: 700; }
+  .tp-resolved { color: #fbbf24; font-weight: 700; }
+  .kw { color: #93c5fd; }
+  .ty { color: #6ee7b7; }
+  .lit { color: #fda4af; }
+  .com { color: #94a3b8; }
+
+  .input-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+  .input-row label {
+    font-size: 13px;
+    color: #4a5568;
+    min-width: 30px;
+  }
+  .input-row input, .input-row select {
+    padding: 6px 10px;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: ui-monospace, monospace;
+    width: 100%;
+    max-width: 180px;
+    box-sizing: border-box;
+  }
+  button.viz-btn {
+    padding: 8px 16px;
+    border: 0;
+    background: var(--accent);
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  button.viz-btn:hover { background: var(--accent-hover); }
+  button.viz-btn:disabled { background: #cbd5e0; cursor: not-allowed; }
+
+  .infer-trace {
+    margin-top: 12px;
+    padding: 12px;
+    background: #ffffff;
+    border: 1px dashed #cbd5e0;
+    border-radius: 6px;
+    font-family: ui-monospace, monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    min-height: 80px;
+  }
+  .infer-trace .step { display: block; margin-bottom: 6px; }
+  .infer-trace .step.err { color: var(--err); }
+  .infer-trace .step.ok { color: var(--ok); font-weight: 600; }
+  .infer-trace .badge {
+    display: inline-block;
+    background: var(--accent-soft);
+    color: var(--accent-hover);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    margin-right: 4px;
+  }
+
+  /* --- Module 2 styles --- */
+  .constraint-grid {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .constraint-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .constraint-btn {
+    text-align: left;
+    padding: 10px 12px;
+    border: 1.5px solid #e2e8f0;
+    background: #ffffff;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: ui-monospace, monospace;
+    font-size: 13px;
+    transition: all .15s;
+  }
+  .constraint-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .constraint-btn.active {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: white;
+  }
+  .constraint-btn .name { display: block; font-weight: 700; }
+  .constraint-btn .meta { display: block; font-size: 11px; opacity: .8; margin-top: 2px; }
+
+  .type-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+    align-content: start;
+  }
+  .type-card {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 10px;
+    font-family: ui-monospace, monospace;
+    font-size: 13px;
+    transition: all .25s;
+  }
+  .type-card .tname { font-weight: 700; color: #2d3748; }
+  .type-card .tdesc { font-size: 11px; color: #718096; margin-top: 4px; font-family: system-ui, sans-serif; }
+  .type-card.satisfies {
+    border-color: var(--ok);
+    background: #f0fff4;
+    transform: scale(1.02);
+  }
+  .type-card.satisfies .tname::after {
+    content: " ✓";
+    color: var(--ok);
+  }
+  .type-card.fails {
+    opacity: .45;
+    border-style: dashed;
+  }
+  .type-card.fails .tname::after {
+    content: " ✗";
+    color: var(--err);
+  }
+
+  .constraint-info {
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    font-size: 13px;
+    color: #2d3748;
+  }
+
+  /* --- Module 3 styles --- */
+  .bench-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+  .bench-controls label { font-size: 13px; color: #4a5568; }
+  .bench-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 16px;
+  }
+  .bar-row {
+    display: grid;
+    grid-template-columns: 160px 1fr 90px;
+    gap: 10px;
+    align-items: center;
+  }
+  .bar-row .name {
+    font-family: ui-monospace, monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: #2d3748;
+  }
+  .bar-track {
+    background: #edf2f7;
+    border-radius: 4px;
+    height: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width .8s ease;
+    background: var(--accent);
+  }
+  .bar-fill.raw { background: #38a169; }
+  .bar-fill.generic { background: #4299e1; }
+  .bar-fill.iface { background: #e53e3e; }
+  .bar-row .val {
+    font-family: ui-monospace, monospace;
+    font-size: 12px;
+    color: #4a5568;
+    text-align: right;
+  }
+  .bench-note {
+    margin-top: 16px;
+    padding: 10px 12px;
+    background: #fffaf0;
+    border-left: 3px solid var(--warn);
+    border-radius: 4px;
+    font-size: 13px;
+    color: #2d3748;
+    line-height: 1.5;
+  }
+  .legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #4a5568;
+  }
+  .legend .swatch {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    vertical-align: middle;
+    margin-right: 4px;
+  }
+
+  /* Mobile */
+  @media (max-width: 640px) {
+    .infer-wrap { grid-template-columns: 1fr; }
+    .constraint-grid { grid-template-columns: 1fr; }
+    .bar-row { grid-template-columns: 110px 1fr 70px; gap: 6px; }
+    .type-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../tier-2-intermediate/index.html">← Tier 2</a>
+  <span class="sep">·</span>
+  <span class="current">L30: Generics</span>
+  <span class="sep">·</span>
+  <a href="../lesson-31-reflect/visualization.html">L31: Reflect →</a>
+</nav>
+
+<main>
+  <h1>L30 — Generics: type parameters, constraints, performance</h1>
+  <p class="intro">
+    Ba module tương tác để "chạm" vào generics Go: (1) xem cách compiler suy ra
+    <code>T</code> từ đối số, (2) test xem type nào thoả constraint nào, và
+    (3) so sánh performance Sum 1M phần tử giữa <strong>raw</strong>,
+    <strong>generic</strong>, và <strong>interface{}</strong>. Tất cả standalone,
+    mở <code>file://</code> là chạy.
+  </p>
+
+  <!-- ============================================================= -->
+  <!-- MODULE 1: Type parameter inference                             -->
+  <!-- ============================================================= -->
+  <section class="module">
+    <h2>1. Type parameter inference — Go suy ra <code>T</code> từ đối số</h2>
+    <p class="desc">
+      Cho function signature <code>func Min[T Ordered](a, b T) T</code>. Khi
+      bạn gọi <code>Min(3, 5)</code>, compiler không cần bạn ghi
+      <code>Min[int](3, 5)</code> — nó suy ra <code>T = int</code> từ kiểu của
+      <code>3</code> và <code>5</code>. Nhập 2 giá trị bên dưới, bấm
+      <strong>Instantiate</strong> để xem T được resolve.
+    </p>
+
+    <div class="infer-wrap">
+      <div class="infer-panel">
+        <h3>Generic signature</h3>
+        <div class="signature-box" id="m1-sig">
+<span class="kw">func</span> Min[<span class="tp">T</span> <span class="ty">Ordered</span>](a, b <span class="tp">T</span>) <span class="tp">T</span> {
+  <span class="kw">if</span> a &lt; b { <span class="kw">return</span> a }
+  <span class="kw">return</span> b
+}</div>
+
+        <div class="input-row">
+          <label>a =</label>
+          <input id="m1-a" type="text" value="3" placeholder="vd: 3, 3.5, &quot;hello&quot;">
+        </div>
+        <div class="input-row">
+          <label>b =</label>
+          <input id="m1-b" type="text" value="5" placeholder="vd: 5, 1.2, &quot;world&quot;">
+        </div>
+        <div class="input-row">
+          <button class="viz-btn" id="m1-go">▶ Instantiate</button>
+          <button class="viz-btn" id="m1-preset1" style="background:#718096">3, 5</button>
+          <button class="viz-btn" id="m1-preset2" style="background:#718096">3.5, 1.2</button>
+          <button class="viz-btn" id="m1-preset3" style="background:#718096">"a", "b"</button>
+          <button class="viz-btn" id="m1-preset4" style="background:#e53e3e">3, "x"</button>
+        </div>
+      </div>
+
+      <div class="infer-panel">
+        <h3>Instantiated function</h3>
+        <div class="signature-box" id="m1-result">
+<span class="com">// Bấm Instantiate để xem T được resolve</span></div>
+
+        <h3 style="margin-top: 14px">Inference trace</h3>
+        <div class="infer-trace" id="m1-trace">
+          <span class="com">// Steps compiler thực hiện sẽ hiện ở đây</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- MODULE 2: Constraint satisfaction                              -->
+  <!-- ============================================================= -->
+  <section class="module">
+    <h2>2. Constraint satisfaction — type nào thoả constraint nào?</h2>
+    <p class="desc">
+      Chọn 1 constraint bên trái. Các type bên phải sẽ highlight:
+      <span style="color:var(--ok); font-weight:600">xanh ✓</span> = thoả,
+      <span style="color:var(--err); font-weight:600">mờ ✗</span> = không thoả.
+      Đây là cách trực quan nhất để nhớ "constraint nào cho phép type nào".
+    </p>
+
+    <div class="constraint-grid">
+      <div class="constraint-list" id="m2-clist">
+        <!-- buttons injected -->
+      </div>
+
+      <div>
+        <div class="constraint-info" id="m2-info">
+          Chọn 1 constraint để xem giải thích.
+        </div>
+        <div class="type-grid" id="m2-tgrid" style="margin-top: 12px">
+          <!-- type cards injected -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- MODULE 3: Benchmark                                            -->
+  <!-- ============================================================= -->
+  <section class="module">
+    <h2>3. Performance — Generic vs <code>interface{}</code> vs raw int</h2>
+    <p class="desc">
+      Chạy benchmark thực tế trong trình duyệt: tính <code>Sum</code> trên
+      <span id="m3-nlabel">1,000,000</span> phần tử với 3 cách. Generic gần
+      như miễn phí so với raw; <code>interface{}</code> chậm hơn nhiều do
+      boxing + type assertion.
+    </p>
+
+    <div class="bench-controls">
+      <label>N =</label>
+      <select id="m3-n">
+        <option value="100000">100K</option>
+        <option value="500000">500K</option>
+        <option value="1000000" selected>1M</option>
+        <option value="3000000">3M</option>
+      </select>
+      <button class="viz-btn" id="m3-run">▶ Chạy benchmark</button>
+      <span id="m3-status" style="font-size:13px; color:#4a5568"></span>
+    </div>
+
+    <div class="bench-bars" id="m3-bars">
+      <div class="bar-row">
+        <span class="name">Raw int (loop)</span>
+        <div class="bar-track"><div class="bar-fill raw" data-key="raw" style="width:0"></div></div>
+        <span class="val" data-key="raw-v">—</span>
+      </div>
+      <div class="bar-row">
+        <span class="name">Generic [T]</span>
+        <div class="bar-track"><div class="bar-fill generic" data-key="generic" style="width:0"></div></div>
+        <span class="val" data-key="generic-v">—</span>
+      </div>
+      <div class="bar-row">
+        <span class="name">interface{}</span>
+        <div class="bar-track"><div class="bar-fill iface" data-key="iface" style="width:0"></div></div>
+        <span class="val" data-key="iface-v">—</span>
+      </div>
+    </div>
+
+    <div class="legend">
+      <span><span class="swatch" style="background:#38a169"></span>Raw — monomorphic, baseline</span>
+      <span><span class="swatch" style="background:#4299e1"></span>Generic — type param, ~ngang raw</span>
+      <span><span class="swatch" style="background:#e53e3e"></span>interface{} — boxing + assertion, chậm</span>
+    </div>
+
+    <div class="bench-note" id="m3-note">
+      Đây là mô phỏng trên JavaScript (V8) để bạn hình dung — JS không phân biệt
+      sharp như Go runtime, nhưng cấu trúc chậm/nhanh khá tương đương. Trên Go
+      thật, <code>interface{}</code> thường chậm 5-15× so với raw vì mỗi
+      <code>int</code> được box lên heap.
+    </div>
+  </section>
+</main>
+
+<script>
+/* ========================= Module 1 ========================= */
+(function() {
+  const $sig = document.getElementById('m1-sig');
+  const $res = document.getElementById('m1-result');
+  const $trace = document.getElementById('m1-trace');
+  const $a = document.getElementById('m1-a');
+  const $b = document.getElementById('m1-b');
+
+  function parseValue(s) {
+    s = s.trim();
+    if (s === '') return { kind: 'none', display: '(empty)' };
+    // string literal
+    if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+      return { kind: 'string', value: s.slice(1, -1), display: s };
+    }
+    // float
+    if (/^-?\d+\.\d+$/.test(s)) {
+      return { kind: 'float64', value: parseFloat(s), display: s };
+    }
+    // int
+    if (/^-?\d+$/.test(s)) {
+      return { kind: 'int', value: parseInt(s, 10), display: s };
+    }
+    // bool
+    if (s === 'true' || s === 'false') {
+      return { kind: 'bool', value: s === 'true', display: s };
+    }
+    return { kind: 'unknown', display: s };
+  }
+
+  function colorForType(t) {
+    return { int: '#fbbf24', float64: '#6ee7b7', string: '#fda4af', bool: '#93c5fd' }[t] || '#cbd5e0';
+  }
+
+  function instantiate() {
+    const av = parseValue($a.value);
+    const bv = parseValue($b.value);
+    $trace.innerHTML = '';
+
+    function addStep(text, cls) {
+      const el = document.createElement('span');
+      el.className = 'step ' + (cls || '');
+      el.innerHTML = text;
+      $trace.appendChild(el);
+    }
+
+    addStep(`<span class="badge">step 1</span> Đọc đối số: a = ${av.display} → kind = <b>${av.kind}</b>`);
+    addStep(`<span class="badge">step 2</span> Đọc đối số: b = ${bv.display} → kind = <b>${bv.kind}</b>`);
+
+    // Mismatch?
+    if (av.kind === 'none' || bv.kind === 'none' || av.kind === 'unknown' || bv.kind === 'unknown') {
+      addStep('<span class="badge">step 3</span> Không suy được type — đối số không hợp lệ.', 'err');
+      $res.innerHTML = '<span class="com">// inference thất bại</span>';
+      return;
+    }
+
+    if (av.kind !== bv.kind) {
+      addStep(`<span class="badge">step 3</span> Type khác nhau: ${av.kind} vs ${bv.kind} → KHÔNG có T thoả cả 2.`, 'err');
+      addStep(`<span class="badge">err</span> compile error: <code>cannot infer T</code>`, 'err');
+      $res.innerHTML = '<span class="com">// compile error: cannot infer T</span>\n<span class="com">// (a và b khác type)</span>';
+      return;
+    }
+
+    const t = av.kind;
+    const ordered = ['int', 'float64', 'string'].includes(t);
+    addStep(`<span class="badge">step 3</span> Cả a, b cùng kind <b>${t}</b> → suy ra <span class="tp-resolved">T = ${t}</span>`);
+
+    if (!ordered) {
+      addStep(`<span class="badge">step 4</span> Kiểm tra constraint: <b>${t}</b> không thoả <code>Ordered</code> (không có toán tử &lt;).`, 'err');
+      $res.innerHTML = `<span class="com">// compile error: ${t} không thoả constraint Ordered</span>`;
+      return;
+    }
+
+    addStep(`<span class="badge">step 4</span> Kiểm tra constraint: <b>${t}</b> thoả <code>Ordered</code> ✓`, 'ok');
+    addStep(`<span class="badge">step 5</span> Instantiate: tạo phiên bản chuyên hoá Min cho T=${t}.`, 'ok');
+
+    // Compute result
+    let a = av.value, b = bv.value, res;
+    if (t === 'string') {
+      res = a < b ? a : b;
+      res = '"' + res + '"';
+    } else {
+      res = a < b ? a : b;
+    }
+
+    const tyColor = colorForType(t);
+    $res.innerHTML =
+`<span class="kw">func</span> Min(a, b <span class="ty" style="color:${tyColor}">${t}</span>) <span class="ty" style="color:${tyColor}">${t}</span> {
+  <span class="kw">if</span> a &lt; b { <span class="kw">return</span> a }
+  <span class="kw">return</span> b
+}
+
+<span class="com">// Gọi:</span> Min(${av.display}, ${bv.display})
+<span class="com">// →</span> <span class="lit">${res}</span>`;
+  }
+
+  document.getElementById('m1-go').addEventListener('click', instantiate);
+  document.getElementById('m1-preset1').addEventListener('click', () => { $a.value='3';   $b.value='5';   instantiate(); });
+  document.getElementById('m1-preset2').addEventListener('click', () => { $a.value='3.5'; $b.value='1.2'; instantiate(); });
+  document.getElementById('m1-preset3').addEventListener('click', () => { $a.value='"a"'; $b.value='"b"'; instantiate(); });
+  document.getElementById('m1-preset4').addEventListener('click', () => { $a.value='3';   $b.value='"x"'; instantiate(); });
+
+  instantiate();
+})();
+
+/* ========================= Module 2 ========================= */
+(function() {
+  const constraints = [
+    {
+      id: 'any',
+      name: 'any',
+      desc: '= interface{}, không ràng buộc',
+      info: '<b>any</b> = alias của <code>interface{}</code>. Cho phép MỌI type, nhưng trong thân function không làm được gì ngoài việc nhận/truyền.',
+      satisfies: ['int', 'float64', 'string', 'bool', 'slice-int', 'struct-Point', 'map-string-int', 'func', 'chan']
+    },
+    {
+      id: 'comparable',
+      name: 'comparable',
+      desc: 'cho phép == và !=',
+      info: '<b>comparable</b> cho phép <code>==</code>/<code>!=</code>. KHÔNG cho phép <code>&lt;</code>/<code>&gt;</code>. Map/slice/function không comparable; struct phải có mọi field comparable.',
+      satisfies: ['int', 'float64', 'string', 'bool', 'struct-Point', 'chan']
+    },
+    {
+      id: 'ordered',
+      name: 'Ordered (cmp/constraints)',
+      desc: 'cho phép <, >, <=, >=',
+      info: '<b>cmp.Ordered</b> = <code>Integer | Float | ~string</code>. Bao gồm tất cả số có thứ tự và chuỗi. Dùng cho Min/Max/Sort/BinarySearch.',
+      satisfies: ['int', 'float64', 'string']
+    },
+    {
+      id: 'number',
+      name: 'Number (custom union)',
+      desc: '~int | ~float64 | ...',
+      info: '<b>Number</b> tự định nghĩa: <code>~int | ~int64 | ~float64</code>. Cho phép <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>. KHÔNG bao gồm string.',
+      satisfies: ['int', 'float64']
+    },
+    {
+      id: 'stringer',
+      name: 'Stringer (method set)',
+      desc: 'có method String() string',
+      info: '<b>Stringer</b> = interface kiểu "cổ điển" — yêu cầu method. Type T phải có <code>String() string</code> mới thoả.',
+      satisfies: ['struct-Point']  /* chỉ struct Point có method String() */
+    }
+  ];
+
+  const types = [
+    { id: 'int',            name: 'int',           desc: 'numeric, ordered' },
+    { id: 'float64',        name: 'float64',       desc: 'numeric, ordered' },
+    { id: 'string',         name: 'string',        desc: 'comparable, ordered' },
+    { id: 'bool',           name: 'bool',          desc: 'comparable' },
+    { id: 'slice-int',      name: '[]int',         desc: 'slice — NOT comparable' },
+    { id: 'struct-Point',   name: 'Point (struct)',desc: 'có String() — comparable' },
+    { id: 'map-string-int', name: 'map[string]int',desc: 'map — NOT comparable' },
+    { id: 'func',           name: 'func()',        desc: 'function — NOT comparable' },
+    { id: 'chan',           name: 'chan int',      desc: 'channel — comparable' }
+  ];
+
+  const $list = document.getElementById('m2-clist');
+  const $grid = document.getElementById('m2-tgrid');
+  const $info = document.getElementById('m2-info');
+
+  constraints.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'constraint-btn';
+    btn.dataset.cid = c.id;
+    btn.innerHTML = `<span class="name">${c.name}</span><span class="meta">${c.desc}</span>`;
+    btn.addEventListener('click', () => activate(c.id));
+    $list.appendChild(btn);
+  });
+
+  types.forEach(t => {
+    const card = document.createElement('div');
+    card.className = 'type-card';
+    card.dataset.tid = t.id;
+    card.innerHTML = `<div class="tname">${t.name}</div><div class="tdesc">${t.desc}</div>`;
+    $grid.appendChild(card);
+  });
+
+  function activate(cid) {
+    const c = constraints.find(x => x.id === cid);
+    document.querySelectorAll('.constraint-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.cid === cid);
+    });
+    $info.innerHTML = c.info;
+    document.querySelectorAll('.type-card').forEach(card => {
+      card.classList.remove('satisfies', 'fails');
+      if (c.satisfies.includes(card.dataset.tid)) {
+        card.classList.add('satisfies');
+      } else {
+        card.classList.add('fails');
+      }
+    });
+  }
+
+  activate('comparable');
+})();
+
+/* ========================= Module 3 ========================= */
+(function() {
+  const $run = document.getElementById('m3-run');
+  const $n = document.getElementById('m3-n');
+  const $status = document.getElementById('m3-status');
+  const $nLabel = document.getElementById('m3-nlabel');
+
+  $n.addEventListener('change', () => {
+    $nLabel.textContent = Number($n.value).toLocaleString();
+  });
+
+  // Mô phỏng 3 cách Sum trong JS.
+  // Mục đích: minh hoạ tương đối tỷ lệ.
+  function sumRaw(xs) {
+    let s = 0;
+    for (let i = 0; i < xs.length; i++) s += xs[i];
+    return s;
+  }
+
+  function sumGeneric(xs) {
+    // V8 inline tốt giống Go generic
+    let s = 0;
+    for (let i = 0; i < xs.length; i++) s += xs[i];
+    return s;
+  }
+
+  // Mô phỏng interface{}: box mỗi int trong Object wrapper + dynamic dispatch.
+  // Để overhead rõ rệt: dùng Object.valueOf hoặc array of mixed.
+  function sumInterface(xs) {
+    let s = 0;
+    for (let i = 0; i < xs.length; i++) {
+      // Box: lấy .v field, mô phỏng type assertion
+      const o = xs[i];
+      if (typeof o === 'object' && o !== null && 'v' in o) {
+        s += o.v;
+      } else {
+        s += +o;
+      }
+    }
+    return s;
+  }
+
+  function setBar(key, ms, maxMs) {
+    const pct = Math.max(2, Math.min(100, (ms / maxMs) * 100));
+    document.querySelector(`.bar-fill[data-key="${key}"]`).style.width = pct + '%';
+    document.querySelector(`.val[data-key="${key}-v"]`).textContent = ms.toFixed(2) + ' ms';
+  }
+
+  function timeIt(fn) {
+    // Warmup
+    fn();
+    const t0 = performance.now();
+    for (let i = 0; i < 3; i++) fn();
+    const t1 = performance.now();
+    return (t1 - t0) / 3;
+  }
+
+  $run.addEventListener('click', async () => {
+    $run.disabled = true;
+    $status.textContent = 'Chuẩn bị dữ liệu...';
+    await new Promise(r => setTimeout(r, 20));
+
+    const N = parseInt($n.value, 10);
+    const xsInt = new Int32Array(N);
+    const xsBoxed = new Array(N);
+    for (let i = 0; i < N; i++) {
+      xsInt[i] = i;
+      xsBoxed[i] = { v: i };   // mô phỏng box: object wrapper
+    }
+
+    $status.textContent = 'Chạy raw...';
+    await new Promise(r => setTimeout(r, 20));
+    const tRaw = timeIt(() => sumRaw(xsInt));
+
+    $status.textContent = 'Chạy generic...';
+    await new Promise(r => setTimeout(r, 20));
+    const tGen = timeIt(() => sumGeneric(xsInt));
+
+    $status.textContent = 'Chạy interface{}...';
+    await new Promise(r => setTimeout(r, 20));
+    const tIface = timeIt(() => sumInterface(xsBoxed));
+
+    const maxMs = Math.max(tRaw, tGen, tIface) * 1.1;
+    setBar('raw', tRaw, maxMs);
+    setBar('generic', tGen, maxMs);
+    setBar('iface', tIface, maxMs);
+
+    const ratio = (tIface / tRaw).toFixed(1);
+    $status.textContent = `Xong. interface{} ~${ratio}× chậm hơn raw.`;
+    $run.disabled = false;
+  });
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Vì sao Go? Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.active { background: #2b6cb0; }
+
+  select {
+    font-size: 15px; padding: 8px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    background: white;
+  }
+
+  /* ===== Module 1: chart ===== */
+  .chart-wrap {
+    width: 100%;
+    overflow-x: auto;
+  }
+  .lang-picker {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .lang-chip {
+    padding: 6px 12px; border-radius: 999px;
+    border: 2px solid #cbd5e0; background: #f7fafc;
+    cursor: pointer; font-weight: 600; font-size: 14px;
+    user-select: none;
+    transition: all 0.15s;
+  }
+  .lang-chip.sel-a { border-color: #4299e1; background: #ebf8ff; color: #2b6cb0; }
+  .lang-chip.sel-b { border-color: #ed8936; background: #fffaf0; color: #9c4221; }
+  .lang-chip.dim { opacity: 0.45; }
+  .legend {
+    display: flex; gap: 18px; align-items: center;
+    margin: 8px 0 12px 0; font-size: 14px;
+  }
+  .legend .sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: 4px; }
+
+  /* ===== Module 2: playground ===== */
+  .pg-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .pg-tab {
+    padding: 6px 12px; border-radius: 4px 4px 0 0;
+    border: 1px solid #cbd5e0; border-bottom: none;
+    background: #edf2f7; cursor: pointer; font-weight: 600; font-size: 14px;
+  }
+  .pg-tab.active { background: white; color: #2b6cb0; }
+  .pg-code {
+    background: #1a202c; color: #f7fafc;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; line-height: 1.55;
+    padding: 14px 16px; border-radius: 0 6px 6px 6px;
+    overflow-x: auto; white-space: pre;
+    margin: 0 0 8px 0;
+  }
+  .pg-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+  .pg-output {
+    background: #2d3748; color: #68d391;
+    font-family: monospace; font-size: 14px;
+    padding: 12px 14px; border-radius: 6px;
+    min-height: 60px; white-space: pre-wrap;
+    border-left: 4px solid #68d391;
+  }
+  .pg-output.empty { color: #a0aec0; font-style: italic; }
+  .pg-explain {
+    background: #ebf8ff; border-left: 4px solid #4299e1;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6;
+    margin-top: 10px;
+  }
+  .pg-explain code {
+    background: white; padding: 1px 5px; border-radius: 3px;
+    font-family: monospace; color: #2b6cb0;
+  }
+  input[type="text"].pg-input {
+    font-size: 14px; padding: 6px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    font-family: monospace;
+    width: 100%; max-width: 220px;
+    box-sizing: border-box;
+  }
+
+  /* ===== Module 3: matcher ===== */
+  .matcher-grid {
+    display: grid; gap: 14px;
+    grid-template-columns: 1fr 1fr;
+  }
+  @media (max-width: 700px) {
+    .matcher-grid { grid-template-columns: 1fr; }
+  }
+  .uc-card {
+    background: #f7fafc; border: 2px solid #e2e8f0;
+    border-radius: 6px; padding: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .uc-card:hover { border-color: #4299e1; background: #ebf8ff; }
+  .uc-card.active { border-color: #2b6cb0; background: #bee3f8; }
+  .uc-title { font-weight: 700; color: #2d3748; margin-bottom: 4px; }
+  .uc-desc { font-size: 13px; color: #4a5568; line-height: 1.5; }
+
+  .uc-answer {
+    background: white; border-radius: 6px; padding: 16px;
+    border-left: 4px solid #4299e1;
+    margin-top: 14px;
+  }
+  .uc-answer .pick {
+    font-size: 18px; font-weight: 700; color: #2b6cb0;
+    margin-bottom: 8px;
+  }
+  .uc-answer .reasoning { font-size: 14px; line-height: 1.65; color: #2d3748; }
+  .uc-answer .alt { font-size: 13px; color: #718096; margin-top: 6px; }
+  .uc-empty {
+    color: #a0aec0; font-style: italic; padding: 14px;
+    text-align: center;
+  }
+
+  /* ===== Mobile responsive ===== */
+  @media (max-width: 480px) {
+    .card { padding: 14px; }
+    h2 { font-size: 20px; }
+    .pg-code { font-size: 13px; padding: 10px 12px; }
+    .lang-chip { font-size: 13px; padding: 5px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-reading-code-debugging/visualization.html">← L4: Đọc code & Debug</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Vì sao Go?</span>
+  <span class="sep">·</span>
+  <a href="../tier-1-basic/index.html">Tier 1: Go Basic →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 05 — Vì sao Go? Triết lý & Hello World</h1>
+<p>Ba module tương tác để: (1) so sánh Go với 4 ngôn ngữ khác trên 6 trục, (2) chơi với hello world ở 4 biến thể, (3) match use case với ngôn ngữ phù hợp.</p>
+
+<h2>1. Language Comparison — chọn 2 ngôn ngữ, so sánh 6 trục</h2>
+<div class="card">
+  <p>Chọn 2 ngôn ngữ (mặc định Go vs Rust). Mỗi trục chấm điểm <strong>1 (yếu) → 5 (mạnh)</strong>. Đây là đánh giá <em>chủ quan, dựa trên đa số use case backend/infra</em> — không phải khoa học cứng.</p>
+  <div class="lang-picker" id="langPicker"></div>
+  <div class="legend">
+    <span><span class="sw" style="background:#4299e1"></span><span id="legendA">Go</span></span>
+    <span><span class="sw" style="background:#ed8936"></span><span id="legendB">Rust</span></span>
+  </div>
+  <div class="chart-wrap">
+    <svg id="chart" width="640" height="320" viewBox="0 0 640 320"></svg>
+  </div>
+  <div class="pg-explain" id="chartExplain">Chọn 2 ngôn ngữ bằng cách click vào chip. Click thứ nhất = ngôn ngữ A (xanh), thứ hai = ngôn ngữ B (cam). Click ngôn ngữ đang chọn để bỏ chọn.</div>
+</div>
+
+<h2>2. Hello World Playground — 4 biến thể</h2>
+<div class="card">
+  <div class="pg-tabs" id="pgTabs"></div>
+  <pre class="pg-code" id="pgCode"></pre>
+  <div class="pg-controls">
+    <label for="pgArg">Argument:</label>
+    <input type="text" id="pgArg" class="pg-input" placeholder="(tuỳ chọn)" value="Alice">
+    <button id="pgRun">▶ Run (simulate)</button>
+    <button id="pgClear" class="secondary">Clear output</button>
+  </div>
+  <div class="pg-output empty" id="pgOutput">(chưa chạy)</div>
+  <div class="pg-explain" id="pgExplain"></div>
+</div>
+
+<h2>3. Use Case Matcher — chọn use case, match ngôn ngữ</h2>
+<div class="card">
+  <p>Click 1 trong 6 use case bên dưới để xem ngôn ngữ phù hợp nhất + lý do.</p>
+  <div class="matcher-grid" id="ucGrid"></div>
+  <div id="ucAnswer">
+    <div class="uc-empty">(chưa chọn use case)</div>
+  </div>
+</div>
+
+</main>
+
+<script>
+/* ============================================================
+ * MODULE 1 — Language Comparison
+ * ============================================================ */
+const LANGS = ['Go', 'Rust', 'Python', 'Java', 'C++'];
+const AXES = [
+  'Compile speed',
+  'Runtime perf',
+  'Learning curve',
+  'Ecosystem',
+  'Concurrency UX',
+  'Memory safety'
+];
+// scores[lang][axis] = 1..5
+const SCORES = {
+  'Go':     [5, 4, 4, 3, 5, 4],
+  'Rust':   [2, 5, 1, 3, 4, 5],
+  'Python': [3, 1, 5, 5, 1, 4],  // compile N/A -> dùng 3 ~ tốc độ start interp
+  'Java':   [3, 4, 3, 5, 3, 4],
+  'C++':    [1, 5, 1, 4, 2, 1],
+};
+const COLOR_A = '#4299e1';
+const COLOR_B = '#ed8936';
+
+let selA = 'Go';
+let selB = 'Rust';
+
+function renderPicker() {
+  const picker = document.getElementById('langPicker');
+  picker.innerHTML = '';
+  LANGS.forEach(lang => {
+    const chip = document.createElement('div');
+    chip.className = 'lang-chip';
+    chip.textContent = lang;
+    if (lang === selA) chip.classList.add('sel-a');
+    else if (lang === selB) chip.classList.add('sel-b');
+    chip.addEventListener('click', () => onPickLang(lang));
+    picker.appendChild(chip);
+  });
+}
+
+function onPickLang(lang) {
+  if (lang === selA) { selA = null; }
+  else if (lang === selB) { selB = null; }
+  else if (!selA) { selA = lang; }
+  else if (!selB) { selB = lang; }
+  else { // both filled — replace B (newest)
+    selB = lang;
+  }
+  renderPicker();
+  renderChart();
+}
+
+function renderChart() {
+  const svg = document.getElementById('chart');
+  const W = 640, H = 320;
+  const padL = 130, padR = 30, padT = 16, padB = 36;
+  const rowH = (H - padT - padB) / AXES.length;
+  const barH = rowH * 0.34;
+  const maxScore = 5;
+  const chartW = W - padL - padR;
+
+  let parts = [];
+  // axes labels + grid
+  for (let i = 0; i < AXES.length; i++) {
+    const y = padT + i * rowH;
+    parts.push(`<text x="${padL - 10}" y="${y + rowH/2 + 4}" text-anchor="end" font-size="13" fill="#2d3748" font-weight="600">${AXES[i]}</text>`);
+    // grid bg
+    parts.push(`<rect x="${padL}" y="${y + rowH/2 - barH}" width="${chartW}" height="${barH*2 + 4}" fill="#f7fafc"/>`);
+    // tick marks 1..5
+    for (let k = 1; k <= 5; k++) {
+      const tx = padL + (k / maxScore) * chartW;
+      parts.push(`<line x1="${tx}" y1="${y + 2}" x2="${tx}" y2="${y + rowH - 2}" stroke="#e2e8f0" stroke-width="1"/>`);
+    }
+  }
+  // x scale labels
+  for (let k = 0; k <= 5; k++) {
+    const tx = padL + (k / maxScore) * chartW;
+    parts.push(`<text x="${tx}" y="${H - padB + 16}" text-anchor="middle" font-size="11" fill="#718096">${k}</text>`);
+  }
+  parts.push(`<text x="${padL + chartW/2}" y="${H - 4}" text-anchor="middle" font-size="12" fill="#4a5568" font-weight="600">Điểm (1 yếu → 5 mạnh)</text>`);
+
+  // bars
+  for (let i = 0; i < AXES.length; i++) {
+    const y = padT + i * rowH + rowH/2;
+    if (selA) {
+      const sA = SCORES[selA][i];
+      const wA = (sA / maxScore) * chartW;
+      parts.push(`<rect x="${padL}" y="${y - barH - 1}" width="${wA}" height="${barH}" fill="${COLOR_A}" rx="2"/>`);
+      parts.push(`<text x="${padL + wA + 4}" y="${y - 3}" font-size="12" fill="#2b6cb0" font-weight="700">${sA}</text>`);
+    }
+    if (selB) {
+      const sB = SCORES[selB][i];
+      const wB = (sB / maxScore) * chartW;
+      parts.push(`<rect x="${padL}" y="${y + 1}" width="${wB}" height="${barH}" fill="${COLOR_B}" rx="2"/>`);
+      parts.push(`<text x="${padL + wB + 4}" y="${y + barH - 1}" font-size="12" fill="#9c4221" font-weight="700">${sB}</text>`);
+    }
+  }
+
+  svg.innerHTML = parts.join('');
+  document.getElementById('legendA').textContent = selA || '(chưa chọn A)';
+  document.getElementById('legendB').textContent = selB || '(chưa chọn B)';
+  renderChartExplain();
+}
+
+function renderChartExplain() {
+  const el = document.getElementById('chartExplain');
+  if (!selA || !selB) {
+    el.innerHTML = 'Chọn 2 ngôn ngữ bằng cách click vào chip. Click thứ nhất = ngôn ngữ A (xanh), thứ hai = ngôn ngữ B (cam).';
+    return;
+  }
+  // tính axis nào A mạnh hơn / yếu hơn
+  const stronger = [], weaker = [], tied = [];
+  for (let i = 0; i < AXES.length; i++) {
+    const dA = SCORES[selA][i], dB = SCORES[selB][i];
+    if (dA > dB) stronger.push(`<strong>${AXES[i]}</strong> (${dA} vs ${dB})`);
+    else if (dA < dB) weaker.push(`<strong>${AXES[i]}</strong> (${dA} vs ${dB})`);
+    else tied.push(`<strong>${AXES[i]}</strong> (${dA})`);
+  }
+  let html = `<p style="margin:0 0 8px 0"><strong>${selA}</strong> vs <strong>${selB}</strong>:</p>`;
+  if (stronger.length) html += `<p style="margin:4px 0"><span style="color:${COLOR_A}">▲</span> ${selA} mạnh hơn ở: ${stronger.join(', ')}.</p>`;
+  if (weaker.length)   html += `<p style="margin:4px 0"><span style="color:${COLOR_B}">▲</span> ${selB} mạnh hơn ở: ${weaker.join(', ')}.</p>`;
+  if (tied.length)     html += `<p style="margin:4px 0">≡ Ngang nhau ở: ${tied.join(', ')}.</p>`;
+  el.innerHTML = html;
+}
+
+renderPicker();
+renderChart();
+
+/* ============================================================
+ * MODULE 2 — Hello World Playground
+ * ============================================================ */
+const VARIANTS = [
+  {
+    name: 'basic',
+    label: '1. Basic',
+    code: `package main
+
+import "fmt"
+
+func main() {
+    fmt.Println("Xin chào, Go!")
+}`,
+    run: (arg) => 'Xin chào, Go!',
+    explain: `Phiên bản đơn giản nhất. <code>package main</code> + <code>func main()</code> = executable. <code>fmt.Println</code> in một dòng + xuống dòng. Argument không có tác dụng ở biến thể này.`
+  },
+  {
+    name: 'with-arg',
+    label: '2. Với argument',
+    code: `package main
+
+import (
+    "fmt"
+    "os"
+)
+
+func main() {
+    name := "bạn"
+    if len(os.Args) > 1 {
+        name = os.Args[1]
+    }
+    fmt.Printf("Xin chào, %s!\\n", name)
+}`,
+    run: (arg) => {
+      const name = (arg && arg.trim()) ? arg.trim() : 'bạn';
+      return `Xin chào, ${name}!`;
+    },
+    explain: `<code>os.Args</code> là <code>[]string</code> chứa command-line args. <code>os.Args[0]</code> là tên chương trình, <code>os.Args[1]</code> trở đi là input. Nếu không truyền argument, dùng default <code>"bạn"</code>. Chú ý <code>Printf</code> KHÔNG tự xuống dòng — phải có <code>\\n</code>.`
+  },
+  {
+    name: 'with-input',
+    label: '3. Đọc stdin',
+    code: `package main
+
+import (
+    "bufio"
+    "fmt"
+    "os"
+)
+
+func main() {
+    fmt.Print("Tên bạn là gì? ")
+    reader := bufio.NewReader(os.Stdin)
+    name, _ := reader.ReadString('\\n')
+    // bỏ ký tự '\\n' cuối
+    if len(name) > 0 && name[len(name)-1] == '\\n' {
+        name = name[:len(name)-1]
+    }
+    fmt.Printf("Xin chào, %s!\\n", name)
+}`,
+    run: (arg) => {
+      const name = (arg && arg.trim()) ? arg.trim() : '(bạn nhập gì đó)';
+      return `Tên bạn là gì? ${name}\nXin chào, ${name}!`;
+    },
+    explain: `Đọc từ <code>os.Stdin</code> bằng <code>bufio.NewReader</code>. <code>ReadString('\\n')</code> đọc tới ký tự xuống dòng. Trong simulator này, "argument" được dùng giả lập như input từ bàn phím. Sẽ học sâu IO ở Tier 2 Lesson 03.`
+  },
+  {
+    name: 'many-args',
+    label: '4. Nhiều args',
+    code: `package main
+
+import (
+    "fmt"
+    "os"
+    "strings"
+)
+
+func main() {
+    if len(os.Args) < 2 {
+        fmt.Println("Cách dùng: ./hello <tên1> [tên2] ...")
+        os.Exit(1)
+    }
+    names := strings.Join(os.Args[1:], ", ")
+    fmt.Printf("Xin chào: %s!\\n", names)
+}`,
+    run: (arg) => {
+      if (!arg || !arg.trim()) {
+        return 'Cách dùng: ./hello <tên1> [tên2] ...\n(exit code: 1)';
+      }
+      // tách arg theo space để giả lập nhiều args
+      const parts = arg.trim().split(/\s+/);
+      return `Xin chào: ${parts.join(', ')}!`;
+    },
+    explain: `<code>os.Args[1:]</code> là slice tất cả args (bỏ tên chương trình). <code>strings.Join</code> nối lại bằng ", ". <code>os.Exit(1)</code> thoát với exit code khác 0 (báo lỗi). Trong simulator: nếu argument có nhiều từ cách nhau bằng space → coi như nhiều args.`
+  }
+];
+
+let curVariantIdx = 0;
+
+function renderPgTabs() {
+  const wrap = document.getElementById('pgTabs');
+  wrap.innerHTML = '';
+  VARIANTS.forEach((v, i) => {
+    const tab = document.createElement('div');
+    tab.className = 'pg-tab' + (i === curVariantIdx ? ' active' : '');
+    tab.textContent = v.label;
+    tab.addEventListener('click', () => {
+      curVariantIdx = i;
+      renderPgTabs();
+      renderPgCode();
+      clearOutput();
+    });
+    wrap.appendChild(tab);
+  });
+}
+function renderPgCode() {
+  const v = VARIANTS[curVariantIdx];
+  document.getElementById('pgCode').textContent = v.code;
+  document.getElementById('pgExplain').innerHTML = v.explain;
+}
+function clearOutput() {
+  const out = document.getElementById('pgOutput');
+  out.classList.add('empty');
+  out.textContent = '(chưa chạy)';
+}
+function runPg() {
+  const v = VARIANTS[curVariantIdx];
+  const arg = document.getElementById('pgArg').value;
+  const result = v.run(arg);
+  const out = document.getElementById('pgOutput');
+  out.classList.remove('empty');
+  out.textContent = '$ go run hello.go ' + (arg.trim() || '') + '\n' + result;
+}
+
+document.getElementById('pgRun').addEventListener('click', runPg);
+document.getElementById('pgClear').addEventListener('click', clearOutput);
+document.getElementById('pgArg').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') runPg();
+});
+
+renderPgTabs();
+renderPgCode();
+
+/* ============================================================
+ * MODULE 3 — Use Case Matcher
+ * ============================================================ */
+const USE_CASES = [
+  {
+    title: 'Microservice 50k req/s, p99 < 50ms, K8s',
+    desc: 'Backend xử lý high-throughput, deploy trên Kubernetes, scale up/down liên tục.',
+    pick: 'Go',
+    reasoning: 'Sweet spot của Go: startup tức thì (k8s scale nhanh), GC sub-ms đủ cho p99 < 50ms, single binary deploy gọn, concurrency goroutine xử lý 50k/s tự nhiên. Đây chính xác là use case Kubernetes/Docker chọn Go.',
+    alt: 'Rust nếu cần p99 < 10ms hoặc team đã quen Rust; Java nếu đã có ecosystem Spring sẵn.'
+  },
+  {
+    title: 'Game 3D indie, 60fps, 18 tháng',
+    desc: 'Game engine indie, latency thấp, UI animation, ship trong 1.5 năm với team 4 người.',
+    pick: 'C++',
+    reasoning: 'Unity/Unreal/Godot dùng C++ làm engine, tooling sẵn (Visual Studio, profiler chuyên dụng), GC pause không phù hợp game realtime. Không cần re-invent wheel — chọn engine có sẵn, viết logic bằng C# (Unity) hoặc C++/Blueprint (Unreal).',
+    alt: 'Rust + Bevy ngày càng tốt, nhưng ecosystem game vẫn mỏng so với Unity. Go: không phù hợp game engine, chỉ phù hợp game server backend.'
+  },
+  {
+    title: 'ETL nightly — 200GB CSV → Postgres + S3',
+    desc: 'Script chạy 1 lần/đêm, đọc CSV lớn, clean data, ghi vào DB + S3.',
+    pick: 'Python',
+    reasoning: 'Ecosystem ETL Python chín nhất: pandas / Polars / DuckDB cho transform, sqlalchemy / psycopg cho Postgres, boto3 cho S3. Dev nhanh, dễ sửa. Chạy nightly nên perf không phải tới hạn.',
+    alt: 'Go nếu data tăng tới TB và cần streaming throughput cao. Java/Scala + Spark nếu đã có data platform sẵn.'
+  },
+  {
+    title: 'iOS native app — quản lý tài chính',
+    desc: 'Mobile app iOS với UI phức tạp, animation mượt, integrate với Apple Pay.',
+    pick: 'Swift',
+    reasoning: 'iOS native = SwiftUI/UIKit. Integration với Apple ecosystem (Apple Pay, Face ID, Widget, App Clip) cực tốt. UI animation native mượt nhất.',
+    alt: 'Flutter/React Native nếu cần cross-platform (iOS + Android cùng codebase). Go có gomobile nhưng không phù hợp cho app native UI phức tạp.'
+  },
+  {
+    title: 'Linux kernel module — packet capture',
+    desc: 'Module kernel Linux để bắt packet ở network layer, không thể có user-space overhead.',
+    pick: 'C',
+    reasoning: 'Kernel Linux viết C. Kernel module bắt buộc viết C (gần đây có hỗ trợ Rust từ kernel 6.1 nhưng chưa phổ biến). Go không thể vì có runtime + GC chạy trong user space.',
+    alt: 'Rust nếu kernel của bạn đã hỗ trợ và bạn quen Rust. eBPF (C subset chạy trong kernel) cho nhiều use case packet capture mà không cần module riêng.'
+  },
+  {
+    title: 'ML model training — image classification',
+    desc: 'Train CNN trên 100k ảnh, GPU, cần Jupyter notebook để thử nghiệm hyperparameter.',
+    pick: 'Python',
+    reasoning: 'PyTorch/TensorFlow/JAX gốc Python. Notebook (Jupyter/Colab), pandas, matplotlib, sklearn — ecosystem ML không có đối thủ. Train trên GPU thông qua CUDA bindings rất mature.',
+    alt: 'Sau khi train xong, có thể export model (ONNX) rồi serve bằng Go/Rust để giảm overhead serving. Đó là pattern chuẩn: train Python, serve Go.'
+  }
+];
+
+let curUcIdx = -1;
+function renderUcGrid() {
+  const grid = document.getElementById('ucGrid');
+  grid.innerHTML = '';
+  USE_CASES.forEach((uc, i) => {
+    const card = document.createElement('div');
+    card.className = 'uc-card' + (i === curUcIdx ? ' active' : '');
+    card.innerHTML = `<div class="uc-title">${uc.title}</div><div class="uc-desc">${uc.desc}</div>`;
+    card.addEventListener('click', () => {
+      curUcIdx = i;
+      renderUcGrid();
+      renderUcAnswer();
+    });
+    grid.appendChild(card);
+  });
+}
+function renderUcAnswer() {
+  const wrap = document.getElementById('ucAnswer');
+  if (curUcIdx < 0) {
+    wrap.innerHTML = '<div class="uc-empty">(chưa chọn use case)</div>';
+    return;
+  }
+  const uc = USE_CASES[curUcIdx];
+  wrap.innerHTML = `
+    <div class="uc-answer">
+      <div class="pick">Chọn: ${uc.pick}</div>
+      <div class="reasoning">${uc.reasoning}</div>
+      <div class="alt"><strong>Phương án thay thế:</strong> ${uc.alt}</div>
+    </div>
+  `;
+}
+renderUcGrid();
+</script>
+
+<!-- README modal -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+
+</body>
+</html>

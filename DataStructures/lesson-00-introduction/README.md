@@ -58,6 +58,28 @@ ADT mô tả **"làm được gì"**, còn cấu trúc dữ liệu mô tả **"l
 
 Ví dụ: `Stack` là một ADT (chỉ cần `push`, `pop`, `top`); nó có thể hiện thực bằng **mảng** hoặc bằng **linked list**.
 
+### 3.4. 💡 Trực giác — ADT vs cấu trúc dữ liệu
+
+Hình dung bạn đặt món ở quán cafe:
+
+- **ADT** = thực đơn: bạn nói "cho tôi 1 ly cappuccino". Bạn quan tâm **kết quả nhận được**, không quan tâm máy pha kiểu nào.
+- **Cấu trúc dữ liệu cụ thể** = máy pha sau quầy: nó có thể là máy bơm, máy capsule, hay pha tay. Khác cơ chế, cùng kết quả "ly cappuccino".
+
+Hai hệ thống có thể cung cấp **cùng một ADT** nhưng dùng cấu trúc khác → hiệu năng khác. Vd `Stack`:
+
+| Cài đặt | `push` | `pop` | Bộ nhớ phụ mỗi phần tử |
+|---------|--------|-------|------------------------|
+| Dynamic array | `O(1)` amortized | `O(1)` | Không có (chỉ giá trị) |
+| Singly linked list | `O(1)` | `O(1)` | 1 con trỏ (~8 byte trên 64-bit) |
+
+Cùng một interface, cùng Big-O, nhưng hằng số ẩn và cache locality khác nhau → array thường nhanh hơn trong thực tế.
+
+### 3.5. ❓ Câu hỏi tự nhiên
+
+- **"Tại sao phải tách ADT khỏi cài đặt?"** — để **đổi cài đặt không cần sửa code dùng**. Vd: bạn viết hàm `parse(stack Stack)`. Đổi từ array-stack sang linked-stack — không phải sửa `parse`.
+- **"ADT và `interface` trong Java/Go có giống nhau?"** — Gần giống. `interface` là cách ngôn ngữ lập trình thể hiện ADT: chỉ mô tả thao tác, không quy định cài đặt.
+- **"Có cấu trúc nào không gắn với một ADT nào không?"** — Hiếm. Hầu hết cấu trúc đều phục vụ một ADT (hoặc nhiều). Vd hash table phục vụ `Set` và `Map`; heap phục vụ `Priority Queue`.
+
 ## 4. Các thao tác cơ bản
 
 Hầu hết cấu trúc dữ liệu hỗ trợ một tập thao tác sau (có thể có hoặc không tùy loại):
@@ -232,6 +254,34 @@ function example(arr):                  # n = độ dài arr
 ```
 Tổng: `1 + n + n² + 1 = n² + n + 2` → **`O(n²)`**.
 
+### 5.11. ⚠ Lỗi thường gặp khi tính Big-O
+
+| Lỗi | Hậu quả | Cách sửa |
+|------|---------|----------|
+| Cộng dồn bậc thấp vào bậc cao: viết `O(n² + n)` rồi giữ nguyên | Diễn đạt rườm rà, chấm bài bị trừ điểm | Bỏ bậc thấp: `O(n²)` |
+| Giữ hằng số: viết `O(2n)`, `O(n/2)`, `O(3n²)` | Sai chuẩn ký hiệu Big-O | Bỏ hằng số: `O(n)`, `O(n)`, `O(n²)` |
+| Cho rằng "vòng lặp lồng = `O(n²)`" mặc định | Sai khi vòng trong chạy `log n` hoặc phụ thuộc biến khác | Đếm thật số lần lặp vòng trong theo `n` |
+| Tính `O(log n)` mà không nói cơ số | Thực ra không sao: `log₂ n` và `log₁₀ n` chỉ khác hằng số → cùng `O(log n)` | Viết `O(log n)`, không cần `O(log₂ n)` |
+| Áp `O(1)` cho thao tác có hash collision tệ nhất | Nhầm "trung bình" với "xấu nhất" | Ghi rõ "amortized" / "trung bình" khi cần |
+| Bỏ qua chi phí ẩn (vd copy chuỗi trong vòng lặp) | Tưởng `O(n)` mà thực ra là `O(n²)` | Đọc kỹ thao tác bên trong vòng lặp |
+
+### 5.12. 🔁 Tự kiểm tra
+
+1. Đoạn `for i := 1; i < n; i *= 2 { ... }` chạy bao nhiêu lần?
+   <details><summary>Đáp án</summary>`i` đi qua dãy `1, 2, 4, 8, ..., n` → khoảng `log₂ n` lần → `O(log n)`.</details>
+2. `O(n² + 1000n)` rút gọn thành gì? Với `n = 10`, `n²` và `1000n` cái nào lớn hơn?
+   <details><summary>Đáp án</summary>Rút gọn = `O(n²)` (chỉ giữ bậc cao). Với `n = 10`: `n² = 100`, `1000n = 10000` → `1000n` lớn hơn. Đây là minh hoạ "Big-O chỉ đúng khi `n` ĐỦ LỚN" — với `n` nhỏ, hằng số ẩn có thể lấn át bậc.</details>
+3. Hai thuật toán cùng `O(n log n)` thì chạy cùng tốc độ?
+   <details><summary>Đáp án</summary>Không nhất thiết. Big-O chỉ đảm bảo "cùng lớp tăng"; hằng số ẩn có thể khác. Vd merge sort và heap sort đều `O(n log n)` nhưng quick sort (cũng `O(n log n)` trung bình) thường nhanh hơn trên thực tế vì hằng số nhỏ + cache locality tốt.</details>
+
+### 5.13. 📝 Tóm tắt mục 5
+
+- Big-O đo **xu hướng tăng** của số thao tác theo `n` khi `n` đủ lớn — độc lập với phần cứng.
+- Hai quy tắc vàng: **bỏ hằng số** (`O(5n) = O(n)`), **giữ bậc cao nhất** (`O(n² + n) = O(n²)`).
+- Các lớp phổ biến (từ nhanh tới chậm): `O(1) < O(log n) < O(n) < O(n log n) < O(n²) < O(2ⁿ) < O(n!)`.
+- Big-O thường ngầm hiểu là **worst case**; có thêm Big-Ω (giới hạn dưới) và Big-Θ (chặt cả hai phía).
+- Big-O cũng dùng cho **bộ nhớ phụ** (space complexity), không chỉ thời gian.
+
 ## 6. Bảng so sánh nhanh các cấu trúc cơ bản
 
 Để có cái nhìn tổng quát trước khi đi vào từng bài chi tiết:
@@ -258,6 +308,33 @@ Một số câu hỏi nên đặt ra trước khi chọn:
 5. **Bộ nhớ có là yếu tố hạn chế không?**
 
 Không có cấu trúc nào "tốt nhất cho mọi tình huống" — luôn là sự đánh đổi (trade-off).
+
+### 7.1. 💡 Cây quyết định nhanh — chọn cấu trúc dữ liệu
+
+Đặt câu hỏi theo thứ tự, đến đáp án đầu tiên là dừng:
+
+1. **Cần tra cứu/kiểm tra tồn tại trên key bất kỳ rất nhanh?** → Hash Table (`O(1)` trung bình).
+2. **Cần dữ liệu luôn được sắp xếp + tra cứu nhanh?** → Balanced BST (`O(log n)`).
+3. **Cần lấy phần tử nhỏ nhất / lớn nhất liên tục?** → Heap (`O(log n)` push/pop).
+4. **Truy cập theo chỉ số (`arr[i]`) là thao tác chính?** → Array / Dynamic Array (`O(1)`).
+5. **Chèn/xóa ở đầu rất nhiều, ít truy cập ngẫu nhiên?** → Linked List (`O(1)` ở đầu).
+6. **Vào sau ra trước (lịch sử, undo, đệ quy)?** → Stack (LIFO).
+7. **Vào trước ra trước (hàng đợi, lập lịch)?** → Queue (FIFO).
+8. **Quan hệ phân cấp (folder, AST, cây gia phả)?** → Tree.
+9. **Quan hệ tùy ý (mạng, đường đi)?** → Graph.
+
+### 7.2. ❓ Câu hỏi tự nhiên
+
+- **"Vì sao có nhiều cấu trúc thế? Sao không dùng 1 cái cho tất cả?"** — Vì mỗi cấu trúc tối ưu một số thao tác và **trả giá** ở thao tác khác. Hash table nhanh tra cứu nhưng không giữ thứ tự. Array nhanh truy cập theo chỉ số nhưng chậm chèn giữa. Không tồn tại "cấu trúc thắng mọi thứ".
+- **"Làm sao biết tôi đoán đúng cấu trúc?"** — Liệt kê các thao tác thường gặp trong bài toán + ước lượng tần suất → tra Big-O của thao tác đó với cấu trúc đang chọn. Cấu trúc nào có Big-O **thấp nhất ở thao tác xảy ra nhiều nhất** thường là lựa chọn tốt.
+- **"Nếu chỉ có ít dữ liệu (vd 100 phần tử)?"** — Hằng số ẩn lấn át Big-O. Array tuyến tính có thể thắng cả hash table vì cache locality. Đừng tối ưu sớm.
+
+### 7.3. 📝 Tóm tắt mục 7
+
+- Chọn cấu trúc = **xác định thao tác thường xuyên nhất + tra Big-O của thao tác đó**.
+- Luôn là **trade-off**: nhanh ở một thao tác → thường chậm ở thao tác khác.
+- Với `n` nhỏ, hằng số ẩn quan trọng hơn lớp Big-O — đừng over-engineer.
+- Khi nghi ngờ: mặc định **array** cho data tuyến tính, **hash map** cho tra cứu, rồi tối ưu sau khi đo.
 
 ## 8. Tóm tắt
 

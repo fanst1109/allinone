@@ -61,6 +61,28 @@ ADT mô tả **"làm được gì"**, còn cấu trúc dữ liệu mô tả **"l
 
 Ví dụ: \`Stack\` là một ADT (chỉ cần \`push\`, \`pop\`, \`top\`); nó có thể hiện thực bằng **mảng** hoặc bằng **linked list**.
 
+### 3.4. 💡 Trực giác — ADT vs cấu trúc dữ liệu
+
+Hình dung bạn đặt món ở quán cafe:
+
+- **ADT** = thực đơn: bạn nói "cho tôi 1 ly cappuccino". Bạn quan tâm **kết quả nhận được**, không quan tâm máy pha kiểu nào.
+- **Cấu trúc dữ liệu cụ thể** = máy pha sau quầy: nó có thể là máy bơm, máy capsule, hay pha tay. Khác cơ chế, cùng kết quả "ly cappuccino".
+
+Hai hệ thống có thể cung cấp **cùng một ADT** nhưng dùng cấu trúc khác → hiệu năng khác. Vd \`Stack\`:
+
+| Cài đặt | \`push\` | \`pop\` | Bộ nhớ phụ mỗi phần tử |
+|---------|--------|-------|------------------------|
+| Dynamic array | \`O(1)\` amortized | \`O(1)\` | Không có (chỉ giá trị) |
+| Singly linked list | \`O(1)\` | \`O(1)\` | 1 con trỏ (~8 byte trên 64-bit) |
+
+Cùng một interface, cùng Big-O, nhưng hằng số ẩn và cache locality khác nhau → array thường nhanh hơn trong thực tế.
+
+### 3.5. ❓ Câu hỏi tự nhiên
+
+- **"Tại sao phải tách ADT khỏi cài đặt?"** — để **đổi cài đặt không cần sửa code dùng**. Vd: bạn viết hàm \`parse(stack Stack)\`. Đổi từ array-stack sang linked-stack — không phải sửa \`parse\`.
+- **"ADT và \`interface\` trong Java/Go có giống nhau?"** — Gần giống. \`interface\` là cách ngôn ngữ lập trình thể hiện ADT: chỉ mô tả thao tác, không quy định cài đặt.
+- **"Có cấu trúc nào không gắn với một ADT nào không?"** — Hiếm. Hầu hết cấu trúc đều phục vụ một ADT (hoặc nhiều). Vd hash table phục vụ \`Set\` và \`Map\`; heap phục vụ \`Priority Queue\`.
+
 ## 4. Các thao tác cơ bản
 
 Hầu hết cấu trúc dữ liệu hỗ trợ một tập thao tác sau (có thể có hoặc không tùy loại):
@@ -234,6 +256,34 @@ function example(arr):                  # n = độ dài arr
     return sum                          # O(1)
 \`\`\`
 Tổng: \`1 + n + n² + 1 = n² + n + 2\` → **\`O(n²)\`**.
+
+### 5.11. ⚠ Lỗi thường gặp khi tính Big-O
+
+| Lỗi | Hậu quả | Cách sửa |
+|------|---------|----------|
+| Cộng dồn bậc thấp vào bậc cao: viết \`O(n² + n)\` rồi giữ nguyên | Diễn đạt rườm rà, chấm bài bị trừ điểm | Bỏ bậc thấp: \`O(n²)\` |
+| Giữ hằng số: viết \`O(2n)\`, \`O(n/2)\`, \`O(3n²)\` | Sai chuẩn ký hiệu Big-O | Bỏ hằng số: \`O(n)\`, \`O(n)\`, \`O(n²)\` |
+| Cho rằng "vòng lặp lồng = \`O(n²)\`" mặc định | Sai khi vòng trong chạy \`log n\` hoặc phụ thuộc biến khác | Đếm thật số lần lặp vòng trong theo \`n\` |
+| Tính \`O(log n)\` mà không nói cơ số | Thực ra không sao: \`log₂ n\` và \`log₁₀ n\` chỉ khác hằng số → cùng \`O(log n)\` | Viết \`O(log n)\`, không cần \`O(log₂ n)\` |
+| Áp \`O(1)\` cho thao tác có hash collision tệ nhất | Nhầm "trung bình" với "xấu nhất" | Ghi rõ "amortized" / "trung bình" khi cần |
+| Bỏ qua chi phí ẩn (vd copy chuỗi trong vòng lặp) | Tưởng \`O(n)\` mà thực ra là \`O(n²)\` | Đọc kỹ thao tác bên trong vòng lặp |
+
+### 5.12. 🔁 Tự kiểm tra
+
+1. Đoạn \`for i := 1; i < n; i *= 2 { ... }\` chạy bao nhiêu lần?
+   <details><summary>Đáp án</summary>\`i\` đi qua dãy \`1, 2, 4, 8, ..., n\` → khoảng \`log₂ n\` lần → \`O(log n)\`.</details>
+2. \`O(n² + 1000n)\` rút gọn thành gì? Với \`n = 10\`, \`n²\` và \`1000n\` cái nào lớn hơn?
+   <details><summary>Đáp án</summary>Rút gọn = \`O(n²)\` (chỉ giữ bậc cao). Với \`n = 10\`: \`n² = 100\`, \`1000n = 10000\` → \`1000n\` lớn hơn. Đây là minh hoạ "Big-O chỉ đúng khi \`n\` ĐỦ LỚN" — với \`n\` nhỏ, hằng số ẩn có thể lấn át bậc.</details>
+3. Hai thuật toán cùng \`O(n log n)\` thì chạy cùng tốc độ?
+   <details><summary>Đáp án</summary>Không nhất thiết. Big-O chỉ đảm bảo "cùng lớp tăng"; hằng số ẩn có thể khác. Vd merge sort và heap sort đều \`O(n log n)\` nhưng quick sort (cũng \`O(n log n)\` trung bình) thường nhanh hơn trên thực tế vì hằng số nhỏ + cache locality tốt.</details>
+
+### 5.13. 📝 Tóm tắt mục 5
+
+- Big-O đo **xu hướng tăng** của số thao tác theo \`n\` khi \`n\` đủ lớn — độc lập với phần cứng.
+- Hai quy tắc vàng: **bỏ hằng số** (\`O(5n) = O(n)\`), **giữ bậc cao nhất** (\`O(n² + n) = O(n²)\`).
+- Các lớp phổ biến (từ nhanh tới chậm): \`O(1) < O(log n) < O(n) < O(n log n) < O(n²) < O(2ⁿ) < O(n!)\`.
+- Big-O thường ngầm hiểu là **worst case**; có thêm Big-Ω (giới hạn dưới) và Big-Θ (chặt cả hai phía).
+- Big-O cũng dùng cho **bộ nhớ phụ** (space complexity), không chỉ thời gian.
 
 ## 6. Bảng so sánh nhanh các cấu trúc cơ bản
 

@@ -78,6 +78,36 @@ slots: [alice, eve]   dave    bob     carol
 
 **Không truy vấn nào động vào ô khác.** Đó là điểm cốt lõi → `O(1)`.
 
+### 3.1. 💡 Trực giác — "công thức tên → kệ"
+
+Hình dung thư viện 10 kệ (`slots[0..9]`). Thay vì đi dọc từng kệ tìm cuốn `"alice"`, thủ thư có **công thức cố định**: cộng mã ASCII các chữ rồi `mod 10`. Mọi người (cả lúc cất, cả lúc tìm) đều áp **cùng một công thức** → cuốn `"alice"` luôn ở **kệ 0**, không cần bộ nhớ "tôi đã cất ở đâu".
+
+Điểm tuyệt vời: thời gian áp công thức **không phụ thuộc số sách trong thư viện**. 10 cuốn hay 1 triệu cuốn, vẫn cộng 5 chữ rồi mod. Còn linear scan tỉ lệ thuận với số sách → 1 triệu cuốn chậm gấp 100.000 lần 10 cuốn.
+
+Đổi lại: thủ thư phải **thiết kế công thức tốt**. Nếu công thức xấu (vd "luôn trả 0"), mọi sách dồn 1 kệ → tệ như linear scan. Đây là vai trò của hash function ở mục 5.
+
+### 3.2. Walk-through cụ thể từng bước cho `"bob"`
+
+Có người tự hỏi *"ASCII là gì? Tôi cộng đúng không?"* — đây là tính tay đầy đủ:
+
+| Ký tự | Mã ASCII | Cách nhớ |
+|-------|----------|----------|
+| `'b'` | 98 | `'a'`=97, đếm tới |
+| `'o'` | 111 | `'a'`=97 + 14 |
+| `'b'` | 98 | |
+| **Tổng** | **307** | |
+
+`307 mod 10 = 7` (vì `307 = 30·10 + 7`). Vậy `"bob"` rơi vào `slots[7]`.
+
+Verify bằng Go nếu nghi ngờ: `fmt.Println('b', 'o', 'b')` → `98 111 98`.
+
+### 3.3. ❓ Câu hỏi tự nhiên
+
+- **"Tính hash có đắt không, có làm chậm cả hệ thống không?"** — Không. `O(L)` với `L` = độ dài chuỗi (~20 ký tự cho username). Hằng số ~vài chục lệnh CPU. Quan trọng: **không phụ thuộc `n`** (số phần tử trong bảng). 10 phần tử hay 1 tỷ phần tử, vẫn vài chục lệnh.
+- **"Vì sao chọn `mod 10`?"** — Tùy ý cho minh hoạ. Production thường chọn `m` = lũy thừa của 2 (Go) hoặc số nguyên tố (Java cũ) tùy chiến lược; `m=10` chỉ để tính tay dễ.
+- **"Nếu hai username khác nhau ra cùng hash thì hash table trả sai à?"** — **Không sai, chỉ chậm hơn**. Khi đụng độ (xem mục 4), hash table vẫn lưu cả hai, lúc query so sánh chuỗi gốc để phân biệt. Sai chỉ xảy ra khi code bỏ qua bước so sánh — đó là bug, không phải tính chất của hash table.
+- **"Trong Go thật tôi có phải tự viết hàm hash này không?"** — Không. `map[string]V` của Go built-in dùng memhash (mục 5.3). Bạn chỉ viết hash thủ công khi học thuật, hoặc làm cấu trúc đặc thù (Bloom filter, perfect hashing...).
+
 ## 4. Xung đột thì sao?
 
 "alice" và "eve" cùng `hash = 0`. Hai cách xử lý:
@@ -97,6 +127,16 @@ Có. Chain dài 100 → tra một phần tử trong ô đó tốn `O(100)`, mấ
 Với hash **tốt** + load factor ~0.75 → mỗi ô trung bình **1-2 phần tử** → vẫn `O(1)`.
 
 Chain dài khi nào? Khi hash function **tệ** → mục 5.
+
+### 4.1. ⚠ Lỗi thường gặp khi xử lý xung đột
+
+| Lỗi | Hậu quả | Cách sửa |
+|-----|---------|----------|
+| Chỉ kiểm tra `slots[hash(k)] != nil` rồi kết luận "có" | Sai khi đụng độ — `eve` hash về 0 nhưng `slots[0]="alice"` → trả nhầm | Phải **so chuỗi gốc**: `slots[i].key == k` |
+| Chaining nhưng dùng list rất chậm để duyệt (vd `O(n)` slice contains trong Python list) | Chain dài 100 → mỗi query 100 lần so sánh chuỗi | Giữ load factor `α ≤ 0.75` qua resize |
+| Open addressing nhưng khi `Delete` chỉ set ô về `nil` | Phá vỡ chuỗi probe — query sau bỏ qua phần tử thật sự còn ở ô sau | Đánh dấu **tombstone** thay vì set `nil` |
+| Quên resize → `α` lên tới 10, 20 | Mỗi ô chain 10-20 phần tử → hash table chậm như linear scan | Resize khi `α > 0.75`: cấp `m'=2m`, rehash hết |
+| Trong chaining, để `m` chia hết cho thừa số chung của hash | Nhiều giá trị mod về cùng ô | `m` là nguyên tố, hoặc dùng hàm hash đã trộn bit |
 
 ## 5. Hash function tốt vs tệ — bẫy anagram
 

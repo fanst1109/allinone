@@ -30,6 +30,33 @@ Ký hiệu: \`G = (V, E)\`.
       C---D-E
 \`\`\`
 
+### 1.1. 💡 Trực giác — đồ thị là "bản đồ + đường nối"
+
+Hình dung **bản đồ thành phố**: mỗi địa điểm (nhà bạn, quán cafe, công ty, trường học) là một **đỉnh**; mỗi con đường nối hai địa điểm là một **cạnh**. Câu hỏi quen thuộc trở thành thuật toán đồ thị:
+
+- "Đi từ nhà tao tới quán cafe gần nhất hết bao xa?" → đường đi ngắn nhất (BFS / Dijkstra).
+- "Có thể đi từ A tới B không?" → kiểm tra liên thông.
+- "Nếu một đường bị tắc, còn đường khác không?" → tìm cầu (bridge).
+
+Các ví dụ thực tế ánh xạ thẳng vào mô hình \`G = (V, E)\`:
+
+| Bối cảnh | Đỉnh (V) | Cạnh (E) |
+|----------|----------|----------|
+| Mạng xã hội | Người dùng | Mối quan hệ "kết bạn" |
+| Web | Trang web | Hyperlink (có hướng) |
+| Bản đồ giao thông | Giao lộ | Đoạn đường (có trọng số = độ dài) |
+| Lịch học | Môn học | "Môn A là tiền đề của môn B" (có hướng → DAG) |
+| Dependency package | Thư viện | "A phụ thuộc B" (DAG) |
+
+Mọi thuật toán đồ thị đều là cách trả lời một câu hỏi trên cấu trúc này.
+
+### 1.2. ❓ Câu hỏi tự nhiên
+
+- **"Khi nào một bài toán nên mô hình bằng đồ thị?"** — Khi bài có **đối tượng + quan hệ hai-bên** (a có liên kết với b). Nếu quan hệ đa-bên (3 đối tượng cùng lúc) → cân nhắc hypergraph hoặc tách thành cạnh đôi.
+- **"Đồ thị vô hướng có phải là trường hợp đặc biệt của đồ thị có hướng?"** — Có. Cạnh \`u-v\` vô hướng = hai cạnh có hướng \`u→v\` và \`v→u\`. Trong code, vô hướng thường implement bằng cách push vào cả \`adj[u]\` và \`adj[v]\`.
+- **"Một node có thể tự nối với chính nó?"** — Có, gọi là **self-loop** (khuyên). Đồ thị "đơn" (simple) cấm self-loop và multi-edge.
+- **"Cây có phải đồ thị không?"** — Có. Cây là đồ thị vô hướng, liên thông, không chu trình, có đúng \`n-1\` cạnh. Lesson 06 là một trường hợp riêng của lesson 11.
+
 ## 2. Phân loại
 
 | Loại | Mô tả |

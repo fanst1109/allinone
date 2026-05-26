@@ -346,7 +346,6 @@ Announce(Cat{Named: Named{"Mun"}, Indoor: true})
 ```go
 type Base struct{}
 func (Base) Greet() string { return "hello from base" }
-
 type Sub struct{ Base }
 func (Sub) Greet() string { return "hello from sub" } // shadow
 
@@ -355,9 +354,9 @@ fmt.Println(s.Greet())       // "hello from sub"
 fmt.Println(s.Base.Greet())  // "hello from base"  ← gọi tường minh
 ```
 
-> ⚠ **Lỗi thường gặp.** Bạn nghĩ `Sub.Greet()` *override* `Base.Greet()` ở mọi nơi. Sai — nếu hàm nhận `Base` (concrete), nó gọi `Base.Greet()` ngay cả khi nhận từ `Sub`. Chỉ qua interface `Greeter` mới có dispatch động.
+> ⚠ **Lỗi thường gặp.** Tưởng `Sub.Greet()` *override* `Base.Greet()` ở mọi nơi. Sai — nếu hàm nhận concrete `Base`, nó gọi `Base.Greet()` ngay cả khi value đến từ `Sub`. Chỉ qua interface `Greeter` mới có dispatch động.
 
-> 📝 **Tóm tắt mục 4.** Embedding = composition + method promotion. Polymorphism = interface. Không có inheritance, không có super, nhưng có method shadowing (gọi tường minh qua `obj.Embedded.Method()`).
+> 📝 **Tóm tắt mục 4.** Embedding = composition + method promotion. Polymorphism = interface. Không có inheritance, không có super, nhưng có method shadowing.
 
 ---
 
@@ -542,16 +541,13 @@ func (b *Broker[T]) Publish(ev T) {
 
 ```go
 broker := NewBroker[string]()
-
 ch1, unsub1 := broker.Subscribe(4)
 ch2, _      := broker.Subscribe(4)
-
 go func() { for ev := range ch1 { fmt.Println("S1:", ev) } }()
 go func() { for ev := range ch2 { fmt.Println("S2:", ev) } }()
 
-broker.Publish("login")    // S1: login   S2: login
+broker.Publish("login")    // S1: login    S2: login
 broker.Publish("checkout") // S1: checkout S2: checkout
-
 unsub1()                   // ch1 đóng, S1 thoát vòng for
 broker.Publish("logout")   // chỉ S2 nhận
 ```
@@ -690,33 +686,26 @@ http.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 ### 9.2 Adapter cho thư viện khác signature
 
-Giả sử có thư viện cũ:
-```go
-// Legacy:
-func OldLog(level int, msg string)
-```
-Bạn muốn dùng nó như `slog.Handler` interface mới — viết adapter:
+Có thư viện legacy `func OldLog(level int, msg string)`, muốn dùng như `slog.Handler` interface mới:
 ```go
 type oldLogAdapter struct{}
-func (oldLogAdapter) Enabled(_ context.Context, lvl slog.Level) bool { return true }
+func (oldLogAdapter) Enabled(_ context.Context, _ slog.Level) bool { return true }
 func (oldLogAdapter) Handle(_ context.Context, r slog.Record) error {
-    OldLog(int(r.Level), r.Message)
-    return nil
+    OldLog(int(r.Level), r.Message); return nil
 }
 func (a oldLogAdapter) WithAttrs(_ []slog.Attr) slog.Handler { return a }
 func (a oldLogAdapter) WithGroup(_ string) slog.Handler      { return a }
 ```
 
-### 9.3 Adapter ngược: struct → function
+### 9.3 Method value làm adapter ngược
 
+Method value tự là function — không cần wrapper:
 ```go
-type Sorter interface { Less(i, j int) bool }
-// Có thư viện cần `func(i, j int) bool`. Adapter:
 sort.Slice(items, mySorter.Less)
-// Method value `mySorter.Less` chính là một function — không cần wrapper.
+// mySorter.Less là func(i,j int) bool ngay tại biểu thức này.
 ```
 
-> ❓ **Câu hỏi tự nhiên.** *"Vì sao không gộp Adapter và Decorator?"* — Đích khác nhau. Decorator giữ *nguyên signature*, thêm hành vi. Adapter *đổi signature* (A → B). Trong Go cả hai đều là 1-2 method, nhưng tinh thần khác.
+> ❓ **Câu hỏi tự nhiên.** *"Adapter khác Decorator chỗ nào?"* — Decorator giữ *nguyên signature*, thêm hành vi. Adapter *đổi signature* (A → B). Cả hai trong Go đều 1-2 method, nhưng tinh thần khác.
 
 > 📝 **Tóm tắt mục 9.** Adapter = biến signature A thành B. Pattern Go tiêu biểu: `type Fn func(...); func (f Fn) Method(...) { f(...) }`. Stdlib `http.HandlerFunc` là kinh điển.
 
@@ -873,15 +862,10 @@ func (s *Service) Handle() {
 // ❌ Nil check rải rác:
 func (s *Service) Handle() {
     if s.log != nil { s.log.Info("handling") }
-    // ... mọi chỗ cần log
     if s.log != nil { s.log.Info("step 2") }
 }
-
-// ✅ Null Object:
-func (s *Service) Handle() {
-    s.log.Info("handling")
-    s.log.Info("step 2")
-}
+// ✅ Null Object: viết straight-line, không cần nil-check.
+func (s *Service) Handle() { s.log.Info("handling"); s.log.Info("step 2") }
 ```
 
 ⚠ **Lỗi thường gặp.** Quên tạo NoOp impl, hoặc factory không thay nil → caller nhận `*Service` với `log = nil`, panic ở method call. Quy tắc: factory **luôn** đảm bảo dependency interface ≠ nil trước khi return.
@@ -904,49 +888,32 @@ type UserRepo interface {
     Delete(ctx context.Context, id uint64) error
 }
 
-// Impl production: Postgres
+// Impl production: Postgres (chỉ show 1 method, rest tương tự)
 type PostgresUserRepo struct{ db *sql.DB }
-
 func (r *PostgresUserRepo) GetByID(ctx context.Context, id uint64) (*User, error) {
     row := r.db.QueryRowContext(ctx, "SELECT id, email FROM users WHERE id=$1", id)
     u := &User{}
-    err := row.Scan(&u.ID, &u.Email)
-    if err == sql.ErrNoRows { return nil, ErrUserNotFound }
-    if err != nil { return nil, err }
+    if err := row.Scan(&u.ID, &u.Email); err != nil {
+        if errors.Is(err, sql.ErrNoRows) { return nil, ErrUserNotFound }
+        return nil, err
+    }
     return u, nil
 }
-func (r *PostgresUserRepo) Save(ctx context.Context, u *User) error { ... }
-func (r *PostgresUserRepo) Delete(ctx context.Context, id uint64) error { ... }
 
-// Impl test: in-memory
+// Impl test: in-memory (xem solutions.go cho code đầy đủ)
 type InMemoryUserRepo struct {
     mu    sync.Mutex
     store map[uint64]*User
-}
-
-func NewInMemoryUserRepo() *InMemoryUserRepo {
-    return &InMemoryUserRepo{store: map[uint64]*User{}}
-}
-func (r *InMemoryUserRepo) GetByID(_ context.Context, id uint64) (*User, error) {
-    r.mu.Lock(); defer r.mu.Unlock()
-    u, ok := r.store[id]
-    if !ok { return nil, ErrUserNotFound }
-    return u, nil
 }
 func (r *InMemoryUserRepo) Save(_ context.Context, u *User) error {
     r.mu.Lock(); defer r.mu.Unlock()
     r.store[u.ID] = u
     return nil
 }
-func (r *InMemoryUserRepo) Delete(_ context.Context, id uint64) error {
-    r.mu.Lock(); defer r.mu.Unlock()
-    delete(r.store, id)
-    return nil
-}
+// GetByID, Delete tương tự với mutex bao quanh map operation.
 
-// Business logic phụ thuộc interface:
+// Business logic phụ thuộc interface, không phụ thuộc DB cụ thể:
 type UserService struct{ repo UserRepo }
-
 func (s *UserService) Register(ctx context.Context, email string) (*User, error) {
     u, err := NewUser(email)   // factory từ mục 11
     if err != nil { return nil, err }
@@ -1113,132 +1080,104 @@ Chỉ có 1 impl `RealUserGetter`. Refactor sang style idiomatic Go: dùng concr
 
 ## Lời giải chi tiết
 
-### BT1
-```go
-type Server struct {
-    host, certFile, keyFile string
-    port, maxConns          int
-    tls                     bool
-    readTimeout, writeTimeout time.Duration
-    logger                  *log.Logger
-}
-type Option func(*Server)
+### BT1 — Functional Options cho Server
 
-func WithHost(h string) Option           { return func(s *Server) { s.host = h } }
-func WithPort(p int) Option              { return func(s *Server) { s.port = p } }
-func WithTLS(cert, key string) Option    { return func(s *Server) { s.tls = true; s.certFile = cert; s.keyFile = key } }
-func WithReadTimeout(d time.Duration) Option { return func(s *Server) { s.readTimeout = d } }
-func WithMaxConns(n int) Option          { return func(s *Server) { s.maxConns = n } }
+Code đầy đủ trong [solutions.go](./solutions.go) (section 1). Tóm tắt 4 bước:
 
-func NewServer(opts ...Option) *Server {
-    s := &Server{
-        host: "0.0.0.0", port: 8080,
-        readTimeout: 5 * time.Second, writeTimeout: 5 * time.Second,
-        maxConns: 100, logger: log.Default(),
-    }
-    for _, o := range opts { o(s) }
-    return s
-}
-```
-Test: `NewServer()` → port 8080. `NewServer(WithPort(9090))` → 9090. `NewServer(WithTLS("c","k"))` → tls=true, certFile="c".
+1. Định nghĩa `type Option func(*Server)`.
+2. Mỗi tham số cũ → 1 hàm `WithX(v) Option` trả closure sửa field.
+3. `NewServer(opts ...Option) *Server` khởi tạo default, loop áp option.
+4. Call-site đẹp: `NewServer(WithPort(9090), WithTLS("c","k"))`.
 
-### BT2
-Xem `solutions.go` mục `Middleware`. Test pattern:
+Kiểm tra: `NewServer()` → port 8080; `NewServer(WithPort(9090))` → 9090; gọi 2 lần `WithPort` thì lần sau ghi đè lần trước.
+
+### BT2 — Middleware chain
+
+Code đầy đủ trong [solutions.go](./solutions.go) (section 2). Pattern test:
+
 ```go
 func TestChain(t *testing.T) {
     base := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(200) })
-    h := Recover(Logger(Auth(base)))
+    h := Chain(base, Recover, Logger, Auth)
 
-    // 1) success
-    r := httptest.NewRequest("GET", "/", nil)
-    r.Header.Set("Authorization", "Bearer t")
-    w := httptest.NewRecorder()
-    h.ServeHTTP(w, r)
-    if w.Code != 200 { t.Fatal(w.Code) }
-
-    // 2) no token
-    r = httptest.NewRequest("GET", "/", nil)
-    w = httptest.NewRecorder()
-    h.ServeHTTP(w, r)
-    if w.Code != 401 { t.Fatal(w.Code) }
-
-    // 3) panic
-    base2 := http.HandlerFunc(func(http.ResponseWriter, *http.Request) { panic("boom") })
-    h2 := Recover(Logger(Auth(base2)))
-    r = httptest.NewRequest("GET", "/", nil)
-    r.Header.Set("Authorization", "Bearer t")
-    w = httptest.NewRecorder()
-    h2.ServeHTTP(w, r)
-    if w.Code != 500 { t.Fatal(w.Code) }
+    cases := []struct{ name, auth string; want int }{
+        {"success", "Bearer t", 200},
+        {"no auth", "",          401},
+    }
+    for _, c := range cases {
+        r := httptest.NewRequest("GET", "/", nil)
+        if c.auth != "" { r.Header.Set("Authorization", c.auth) }
+        w := httptest.NewRecorder()
+        h.ServeHTTP(w, r)
+        if w.Code != c.want { t.Fatalf("%s: got %d want %d", c.name, w.Code, c.want) }
+    }
+    // case panic: base2 := http.HandlerFunc(func(...){ panic("boom") }) → 500
 }
 ```
 Độ phức tạp: O(số middleware) per request.
 
-### BT3
-Xem `solutions.go` mục `Broker[T]`. Test:
-```go
-func TestBroker(t *testing.T) {
-    b := NewBroker[int]()
-    c1, _ := b.Subscribe(10)
-    c2, _ := b.Subscribe(10)
-    for i := 0; i < 5; i++ { b.Publish(i) }
-    time.Sleep(50 * time.Millisecond) // cho goroutine drain
-    if len(c1) != 5 || len(c2) != 5 { t.Fatalf("got %d, %d", len(c1), len(c2)) }
-}
-```
-Lưu ý: dùng `len(c)` chỉ đo channel buffer hiện tại — tốt cho test đơn giản. Production: drain qua goroutine và collect vào slice.
+### BT3 — Pub-Sub
 
-### BT4
-Xem `solutions.go` mục `UserRepo`. Cài `InMemoryUserRepo` với `map + mu sync.Mutex`. `PostgresUserRepo`:
+Code đầy đủ trong [solutions.go](./solutions.go) (section 3). Khoá then chốt: `select { case ch <- ev: default }` trong Publish để không block. Test:
+
+```go
+b := NewBroker[int]()
+c1, _ := b.Subscribe(10)
+c2, _ := b.Subscribe(10)
+for i := 0; i < 5; i++ { b.Publish(i) }
+time.Sleep(50 * time.Millisecond)
+if len(c1) != 5 || len(c2) != 5 { t.Fatalf("got %d, %d", len(c1), len(c2)) }
+```
+
+### BT4 — Repository
+
+Code đầy đủ trong [solutions.go](./solutions.go) (section 4). `PostgresUserRepo` chỉ là stub trong test demo:
+
 ```go
 type PostgresUserRepo struct{ db *sql.DB }
 func (r *PostgresUserRepo) GetByID(ctx context.Context, id uint64) (*User, error) {
-    // TODO: row := r.db.QueryRowContext(ctx, "SELECT id, email FROM users WHERE id=$1", id)
+    // row := r.db.QueryRowContext(ctx, "SELECT id, email FROM users WHERE id=$1", id)
+    // return scan(row)
     panic("not wired")
 }
 ```
-Service:
-```go
-type UserService struct{ repo UserRepo }
-func (s *UserService) Register(ctx context.Context, email string) (*User, error) {
-    u, err := NewUser(email)
-    if err != nil { return nil, err }
-    return u, s.repo.Save(ctx, u)
-}
-```
+Trong test thật: dùng `InMemoryUserRepo`, không động đến Postgres.
 
-### BT5
-Xem `solutions.go` mục `Compressor`. Kiểm tra:
-```go
-data := []byte(strings.Repeat("hello ", 1000))
-out, _ := GzipCompressor{Level: gzip.BestSpeed}.Compress(data)
-if len(out) >= len(data) { t.Fatal("gzip không nén được") }
-```
-Độ phức tạp: gzip O(n) trên bytes input.
+### BT5 — Strategy Compressor
 
-### BT6
+Code đầy đủ trong [solutions.go](./solutions.go) (section 5). Demo output thực tế khi chạy `go run solutions.go`:
+
+```
+[gzip] in=2400 bytes  out=67 bytes   (2.8%)   ← BestSpeed
+[gzip] in=2400 bytes  out=55 bytes   (2.3%)   ← BestCompression
+[none] in=2400 bytes  out=2400 bytes (100%)
+```
+Độ phức tạp gzip: O(n) trên input bytes.
+
+### BT6 — Refactor over-abstraction
+
 ```go
 // Trước (over-abstracted, 1-impl):
 type UserGetter interface { GetUser(id uint64) *User }
-type RealUserGetter struct { db *sql.DB }
+type RealUserGetter struct{ db *sql.DB }
 
 // Sau (idiomatic):
 type UserStore struct{ db *sql.DB }
 func NewUserStore(db *sql.DB) *UserStore { return &UserStore{db: db} }
-func (s *UserStore) GetUser(id uint64) *User { ... }
+func (s *UserStore) GetUser(id uint64) *User { /*...*/ return nil }
 
 type Service struct{ store *UserStore }
 func NewService(s *UserStore) *Service { return &Service{store: s} }
 ```
-Nếu test cần mock, *test file* tự định nghĩa interface:
+Nếu test cần mock, **test file tự định nghĩa interface** (Go's structural typing cho phép):
+
 ```go
 // service_test.go
 type userGetter interface{ GetUser(id uint64) *User }
-type mockUserStore struct{ ... }
-func (m *mockUserStore) GetUser(id uint64) *User { ... }
-// Phải refactor Service.store sang interface? KHÔNG — tốt hơn là Service nhận interface ở mức test thông qua factory variant, hoặc dùng Dependency Injection ở `main`.
+// Service vẫn nhận *UserStore. Để test mock được, có thể tạo NewServiceWithGetter(g userGetter)
+// hoặc đơn giản là test trên *UserStore với DB in-memory (sqlite).
 ```
-Nguyên tắc: **interface khai báo ở consumer, không phải producer**. Nếu test cần mock thật, lúc đó mới refactor `Service` nhận interface.
+Nguyên tắc: **interface khai báo ở consumer, không phải producer**.
 
 ---
 

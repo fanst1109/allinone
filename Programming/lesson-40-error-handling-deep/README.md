@@ -317,23 +317,14 @@ func httpError(err error) (status int, code, msg string) {
     var appErr *AppError
     if errors.As(err, &appErr) {
         switch appErr.Code {
-        case "NOT_FOUND":
-            return 404, appErr.Code, appErr.Message
-        case "VALIDATION":
-            return 422, appErr.Code, appErr.Message
-        case "UNAUTHORIZED":
-            return 401, appErr.Code, "Bạn cần đăng nhập"
-        case "FORBIDDEN":
-            return 403, appErr.Code, "Không có quyền truy cập"
-        case "RATE_LIMITED":
-            return 429, appErr.Code, "Bạn thao tác quá nhanh"
-        case "PAYMENT_DECLINED":
-            return 422, appErr.Code, appErr.Message
+        case "NOT_FOUND":     return 404, appErr.Code, appErr.Message
+        case "VALIDATION":    return 422, appErr.Code, appErr.Message
+        case "UNAUTHORIZED":  return 401, appErr.Code, "Bạn cần đăng nhập"
+        case "RATE_LIMITED":  return 429, appErr.Code, "Bạn thao tác quá nhanh"
         case "DB_TIMEOUT", "DOWNSTREAM_UNAVAILABLE":
             return 503, appErr.Code, "Hệ thống đang bận, thử lại sau"
         }
     }
-    // Mặc định: không nhận diện được -> 500 + message generic
     return 500, "INTERNAL", "Đã có lỗi, vui lòng thử lại"
 }
 
@@ -341,24 +332,16 @@ func ErrorMiddleware(next func(http.ResponseWriter, *http.Request) error) http.H
     return func(w http.ResponseWriter, r *http.Request) {
         if err := next(w, r); err != nil {
             status, code, msg := httpError(err)
-            // Log chi tiết internal cho dev
-            log.Error("request failed",
-                "status", status,
-                "code", code,
-                "error", err.Error(),
-                "path", r.URL.Path,
-            )
-            // Trả response giản lược cho client
+            log.Error("request failed", "status", status, "code", code, "error", err.Error())
             w.Header().Set("Content-Type", "application/json")
             w.WriteHeader(status)
-            json.NewEncoder(w).Encode(map[string]string{
-                "code":    code,
-                "message": msg,
-            })
+            json.NewEncoder(w).Encode(map[string]string{"code": code, "message": msg})
         }
     }
 }
 ```
+
+Code đầy đủ với 6 case + recover panic xem ở [solutions.go](./solutions.go).
 
 ### 6.3 Ví dụ số — đường đi của 1 error
 
@@ -580,36 +563,9 @@ Khi error đi qua nhiều layer + goroutine, đọc message chain xong nhiều k
 
 ### 10.2 Cách thêm stack
 
-**Cách 1 — `pkg/errors`** (deprecated nhưng nhiều codebase vẫn dùng):
-
-```go
-import "github.com/pkg/errors"
-
-if err != nil {
-    return errors.Wrap(err, "fetching user")
-}
-// Sau này: fmt.Printf("%+v", err) -> in cả stack
-```
-
-**Cách 2 — `runtime/debug` (Go 1.21+ chuẩn)**:
-
-```go
-type StackError struct {
-    err   error
-    stack []byte
-}
-
-func WithStack(err error) error {
-    if err == nil { return nil }
-    return &StackError{err: err, stack: debug.Stack()}
-}
-
-func (e *StackError) Error() string { return e.err.Error() }
-func (e *StackError) Unwrap() error { return e.err }
-func (e *StackError) Stack() string { return string(e.stack) }
-```
-
-**Cách 3 — chỉ capture stack ở top** (rẻ nhất). Khi `panic`/`recover`, `runtime/debug.Stack()` ngay tại đó là đủ — không cần mọi layer mang stack.
+- **`pkg/errors`** (deprecated nhưng vẫn dùng): `errors.Wrap(err, "fetching user")` rồi `fmt.Printf("%+v", err)` in cả stack.
+- **`runtime/debug` (Go 1.21+ chuẩn)**: tự định nghĩa `StackError{err, stack}` capture `debug.Stack()` ở chỗ cần. Code đầy đủ xem [solutions.go](./solutions.go) (struct `StackError`).
+- **Chỉ capture ở top** (rẻ nhất): khi `panic`/`recover` ở middleware, gọi `debug.Stack()` ngay tại đó là đủ — không cần mọi layer mang stack.
 
 ### 10.3 Trade-off
 
@@ -826,18 +782,16 @@ Wrap mà KHÔNG thêm thông tin = wrap thừa. Đáng lẽ là `return err` th�
 ### 14.4 Sentinel error global cho mọi case
 
 ```go
-// Tệ:
+// Tệ — 50+ var global, mỗi case lại thêm 1 var:
 var (
     ErrUserNotFound          = errors.New("user not found")
-    ErrUserAlreadyExists     = errors.New("user already exists")
     ErrUserEmailInvalid      = errors.New("user email invalid")
     ErrUserPhoneInvalid      = errors.New("user phone invalid")
-    ErrUserPasswordTooShort  = errors.New("user password too short")
     // ... 50 dòng nữa
 )
 ```
 
-Mỗi case mới = thêm 1 var global. Không có context (id, field name). Không group được. Dùng `*AppError` với Code thay thế.
+Không có context (id, field name). Không group được. Dùng `*AppError{Code, Fields}` thay thế.
 
 ### 14.5 Silent swallow
 
@@ -1141,41 +1095,18 @@ Walk-through với `baseDelay=1s, maxDelay=30s, maxAttempts=4`:
 ### Lời giải 4
 
 ```go
-type HTTPError struct {
-    Status int
-    Body   string
-}
-func (e *HTTPError) Error() string { return fmt.Sprintf("http %d: %s", e.Status, e.Body) }
-
 func isRetryable(err error) bool {
-    // 1. ctx cancel — caller chủ động huỷ, KHÔNG retry
-    if errors.Is(err, context.Canceled) {
-        return false
-    }
-    // 2. ctx deadline — có thể retry trên ctx mới
-    if errors.Is(err, context.DeadlineExceeded) {
-        return true
-    }
-    // 3. net.Error timeout/temporary
-    var nerr net.Error
-    if errors.As(err, &nerr) {
-        if nerr.Timeout() {
-            return true
-        }
-    }
-    // 4. HTTP 5xx, 429
+    if errors.Is(err, context.Canceled)         { return false }  // caller chủ động huỷ
+    if errors.Is(err, context.DeadlineExceeded) { return true  }  // có thể retry trên ctx mới
+
     var httpErr *HTTPError
     if errors.As(err, &httpErr) {
-        if httpErr.Status == 429 || (httpErr.Status >= 500 && httpErr.Status < 600) {
-            return true
-        }
-        return false // 4xx khác
+        return httpErr.Status == 429 || (httpErr.Status >= 500 && httpErr.Status < 600)
     }
-    // 5. AppError — domain code không retry
     var appErr *AppError
     if errors.As(err, &appErr) {
         switch appErr.Code {
-        case "DB_TIMEOUT", "DOWNSTREAM_UNAVAILABLE":
+        case "DB_TIMEOUT", "DOWNSTREAM_UNAVAILABLE", "RATE_LIMITED":
             return true
         }
         return false
@@ -1184,17 +1115,16 @@ func isRetryable(err error) bool {
 }
 ```
 
-Bảng kiểm:
+Code đầy đủ (kèm `net.Error` Timeout check) xem [solutions.go](./solutions.go). Bảng kiểm output thực tế (chạy `go run solutions.go` Demo 4):
 
 | Error | retryable? |
 |-------|-----------|
 | `context.Canceled` | false |
 | `context.DeadlineExceeded` | true |
-| `*HTTPError{Status:500}` | true |
-| `*HTTPError{Status:404}` | false |
-| `*HTTPError{Status:429}` | true |
-| `*AppError{Code:"VALIDATION"}` | false |
-| `*AppError{Code:"DB_TIMEOUT"}` | true |
+| `*HTTPError{Status:500/503/429}` | true |
+| `*HTTPError{Status:404/401}` | false |
+| `*AppError{NOT_FOUND/VALIDATION}` | false |
+| `*AppError{DB_TIMEOUT/RATE_LIMITED}` | true |
 
 ### Lời giải 5
 

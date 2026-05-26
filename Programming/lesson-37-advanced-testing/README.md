@@ -1076,7 +1076,7 @@ Output cho thấy interleave (parallel):
 
 ## Bài tiếp theo
 
-- [Lesson 38 — Mocking & Test Doubles](../lesson-38-mocking/) (dependency injection, interface mocking, gomock vs handwritten).
+- [Lesson 38 — Mocking & Test Doubles](../lesson-38-mocking-test-doubles/) (dependency injection, interface mocking, gomock vs handwritten).
 
 ## Tham khảo
 

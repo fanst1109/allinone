@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 37 — Advanced Testing Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.success { background: #38a169; }
+  button.success:hover { background: #2f855a; }
+  button.danger { background: #e53e3e; }
+  button.danger:hover { background: #c53030; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+
+  .explain {
+    background: #ebf8ff; border-left: 4px solid #4299e1;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6; margin-top: 10px;
+  }
+  .explain code, code.inline {
+    background: white; padding: 1px 5px; border-radius: 3px;
+    font-family: monospace; color: #2b6cb0;
+  }
+  .code-block {
+    background: #1a202c; color: #e2e8f0;
+    border-radius: 6px; padding: 12px 14px;
+    font-family: 'Menlo', 'Consolas', monospace;
+    font-size: 13px; line-height: 1.55;
+    overflow-x: auto;
+  }
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 10px;
+    font-size: 12px; font-weight: 600;
+  }
+  .badge.pass { background: #c6f6d5; color: #22543d; }
+  .badge.fail { background: #fed7d7; color: #742a2a; }
+  .badge.run  { background: #fefcbf; color: #744210; }
+  .badge.skip { background: #e2e8f0; color: #4a5568; }
+
+  /* ========== Module 1: Fuzz finder ========== */
+  .fuzz-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .fuzz-log {
+    background: #0d1117; color: #c9d1d9;
+    font-family: 'Menlo', monospace; font-size: 12px;
+    border-radius: 6px; padding: 12px;
+    height: 320px; overflow-y: auto;
+    line-height: 1.55;
+  }
+  .fuzz-log .line { padding: 1px 0; }
+  .fuzz-log .iter { color: #79c0ff; }
+  .fuzz-log .input { color: #d2a8ff; }
+  .fuzz-log .ok { color: #56d364; }
+  .fuzz-log .crash { color: #ff7b72; font-weight: 700; }
+  .fuzz-log .info { color: #8b949e; }
+  .fuzz-stats {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    margin: 12px 0;
+  }
+  .fuzz-stat {
+    background: #f7fafc; border-radius: 6px; padding: 12px;
+    text-align: center;
+  }
+  .fuzz-stat .v { font-size: 22px; font-weight: 700; color: #2d3748; font-family: monospace; }
+  .fuzz-stat .l { font-size: 12px; color: #718096; }
+  .testdata-file {
+    background: #fff5f5; border: 2px dashed #fc8181;
+    border-radius: 6px; padding: 12px;
+    margin-top: 10px; font-family: monospace; font-size: 13px;
+    color: #742a2a;
+  }
+  .testdata-file.hidden { display: none; }
+
+  /* ========== Module 2: Race detector ========== */
+  .race-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px; align-items: start;
+  }
+  .race-col {
+    background: #f7fafc; border-radius: 6px; padding: 10px;
+    min-height: 280px;
+  }
+  .race-col.g1 { border-top: 3px solid #4299e1; }
+  .race-col.g2 { border-top: 3px solid #ed8936; }
+  .race-col.mem { border-top: 3px solid #38a169; }
+  .race-col h4 { margin: 0 0 8px; font-size: 14px; }
+  .instr {
+    background: white; padding: 6px 8px; border-radius: 4px;
+    font-family: monospace; font-size: 12px;
+    margin: 4px 0; opacity: 0.4;
+    transition: opacity 0.3s, background 0.3s;
+  }
+  .instr.active { opacity: 1; background: #fefcbf; font-weight: 700; }
+  .instr.done   { opacity: 0.85; }
+  .mem-cell {
+    background: white; padding: 12px;
+    text-align: center; border-radius: 6px;
+    font-family: monospace; font-size: 18px; font-weight: 700;
+    border: 2px solid #38a169;
+    transition: background 0.3s, transform 0.3s;
+  }
+  .mem-cell.touched { background: #fefcbf; transform: scale(1.05); }
+  .mem-cell .label { display: block; font-size: 10px; color: #4a5568; font-weight: 400; }
+  .race-warning {
+    background: #fff5f5; border: 2px solid #fc8181;
+    color: #742a2a; border-radius: 6px;
+    padding: 12px; margin-top: 12px; font-family: monospace;
+    font-size: 12px; line-height: 1.55;
+    white-space: pre-wrap;
+  }
+  .race-warning.hidden { display: none; }
+
+  /* ========== Module 3: Golden workflow ========== */
+  .golden-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .golden-pane {
+    background: #1a202c; color: #e2e8f0;
+    border-radius: 6px; padding: 12px;
+    font-family: monospace; font-size: 12px;
+    min-height: 220px; overflow: auto;
+    line-height: 1.55;
+    white-space: pre;
+  }
+  .golden-pane h4 {
+    color: #cbd5e0; margin: 0 0 8px;
+    font-family: inherit; font-size: 13px;
+  }
+  .diff-add { background: #064e3b; color: #6ee7b7; }
+  .diff-del { background: #7f1d1d; color: #fca5a5; }
+  .diff-same { color: #94a3b8; }
+  .golden-status {
+    margin-top: 10px; padding: 10px;
+    border-radius: 6px; font-weight: 700;
+    font-family: monospace; font-size: 14px;
+  }
+  .golden-status.match { background: #c6f6d5; color: #22543d; }
+  .golden-status.diff  { background: #fed7d7; color: #742a2a; }
+  .golden-status.idle  { background: #edf2f7; color: #4a5568; }
+
+  @media (max-width: 768px) {
+    .fuzz-grid, .race-grid, .golden-grid { grid-template-columns: 1fr; }
+    .fuzz-log, .golden-pane { font-size: 11px; }
+    .race-col { min-height: 180px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-36-concurrency-patterns/visualization.html">← L36: Concurrency Patterns</a>
+  <span class="sep">·</span>
+  <span class="current">L37: Advanced Testing</span>
+  <span class="sep">·</span>
+  <a href="../lesson-38-mocking-test-doubles/visualization.html">L38: Mocking →</a>
+</nav>
+
+<main>
+<h1>Lesson 37 — Advanced Testing (Visualization)</h1>
+
+<p class="explain">
+Lesson này dạy 3 kỹ thuật khó "tưởng tượng" nhất: <strong>fuzz testing</strong>
+(máy sinh input tìm bug), <strong>race detector</strong> (phát hiện data race
+giữa 2 goroutine), và <strong>golden file</strong> (snapshot test). Trang
+này minh hoạ trực quan từng cái — bạn có thể "chạy thử" trong browser mà
+không cần cài Go.
+</p>
+
+<!-- ========== Module 1: Fuzz finder ========== -->
+<h2>Module 1 — Fuzz Finder: máy tự tìm bug</h2>
+
+<div class="card">
+  <p class="explain">
+    Mục tiêu: test hàm <code class="inline">Reverse(s)</code> với invariant
+    <code class="inline">Reverse(Reverse(s)) == s</code>. Phía dưới đây mô
+    phỏng fuzzer: bắt đầu từ <strong>seed corpus</strong>, mutation từng bước
+    để sinh input mới, chạy invariant. Nếu fail → lưu vào
+    <code class="inline">testdata/fuzz/&lt;hash&gt;</code>.
+  </p>
+
+  <div class="row">
+    <button id="fuzzStart">▶ Bắt đầu fuzz (target: ReverseBuggy)</button>
+    <button id="fuzzReset" class="secondary">Reset</button>
+    <label style="margin-left: 12px; font-size: 13px;">
+      Speed:
+      <select id="fuzzSpeed">
+        <option value="200">Slow</option>
+        <option value="80" selected>Normal</option>
+        <option value="20">Fast</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="fuzz-stats">
+    <div class="fuzz-stat"><div class="v" id="fuzzIter">0</div><div class="l">iterations</div></div>
+    <div class="fuzz-stat"><div class="v" id="fuzzPass">0</div><div class="l">passed</div></div>
+    <div class="fuzz-stat"><div class="v" id="fuzzCrash" style="color:#e53e3e">0</div><div class="l">crashes</div></div>
+  </div>
+
+  <div class="fuzz-grid">
+    <div>
+      <h4 style="margin: 8px 0;">Fuzz log</h4>
+      <div class="fuzz-log" id="fuzzLog"></div>
+    </div>
+    <div>
+      <h4 style="margin: 8px 0;">Code dưới test</h4>
+      <pre class="code-block">// CỐ Ý có bug: đảo theo BYTE
+func ReverseBuggy(s string) string {
+    b := []byte(s)
+    for i,j := 0,len(b)-1; i&lt;j; i,j=i+1,j-1 {
+        b[i], b[j] = b[j], b[i]
+    }
+    return string(b) // ✗ vỡ UTF-8 với rune &gt;1 byte
+}
+
+// Invariant fuzz check:
+//   ReverseBuggy(ReverseBuggy(s)) == s
+//   utf8.ValidString(ReverseBuggy(s))</pre>
+      <div id="fuzzCrashFile" class="testdata-file hidden"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== Module 2: Race detector ========== -->
+<h2>Module 2 — Race Detector: 2 goroutine 1 ô nhớ</h2>
+
+<div class="card">
+  <p class="explain">
+    2 goroutine cùng gọi <code class="inline">counter.Inc()</code> với
+    <code class="inline">c.n++</code> (compile ra 3 lệnh: LOAD, ADD, STORE).
+    Nếu lịch CPU xen kẽ "xấu", 2 goroutine cùng đọc giá trị cũ → mỗi cái
+    +1 → STORE đè nhau → mất 1 update. <code class="inline">go test -race</code>
+    phát hiện điều này bằng cách track happens-before relation.
+  </p>
+
+  <div class="row">
+    <button id="raceStepBad" class="danger">▶ Step UnsafeCounter (race)</button>
+    <button id="raceAutoBad" class="danger">▶▶ Auto play (race)</button>
+    <button id="raceFix" class="success">🔒 Fix với Mutex</button>
+    <button id="raceReset" class="secondary">Reset</button>
+  </div>
+
+  <div class="race-grid" style="margin-top: 12px;">
+    <div class="race-col g1">
+      <h4>🔵 Goroutine A — Inc()</h4>
+      <div class="instr" data-g="A" data-step="0">1. LOAD r1 ← n</div>
+      <div class="instr" data-g="A" data-step="1">2. r1 = r1 + 1</div>
+      <div class="instr" data-g="A" data-step="2">3. STORE n ← r1</div>
+      <div style="font-size: 12px; color: #4a5568; margin-top: 8px;">
+        r1 (local) = <code id="raceA_r1" style="font-weight:700">?</code>
+      </div>
+    </div>
+    <div class="race-col mem">
+      <h4>🟢 Shared memory</h4>
+      <div class="mem-cell" id="raceMem">
+        <span class="label">counter.n</span>
+        <span id="raceMemVal">0</span>
+      </div>
+      <div style="font-size: 11px; color: #4a5568; margin-top: 8px;">
+        Đáng lẽ phải = <strong>2</strong> sau 2 lần Inc().
+        Theo dõi xem có mất update không.
+      </div>
+    </div>
+    <div class="race-col g2">
+      <h4>🟠 Goroutine B — Inc()</h4>
+      <div class="instr" data-g="B" data-step="0">1. LOAD r1 ← n</div>
+      <div class="instr" data-g="B" data-step="1">2. r1 = r1 + 1</div>
+      <div class="instr" data-g="B" data-step="2">3. STORE n ← r1</div>
+      <div style="font-size: 12px; color: #4a5568; margin-top: 8px;">
+        r1 (local) = <code id="raceB_r1" style="font-weight:700">?</code>
+      </div>
+    </div>
+  </div>
+
+  <div class="race-warning hidden" id="raceWarning"></div>
+
+  <p class="explain" style="margin-top: 14px;">
+    <strong>Fix bằng Mutex</strong>: <code class="inline">c.mu.Lock(); c.n++; c.mu.Unlock()</code>
+    — chỉ 1 goroutine giữ lock tại 1 thời điểm → 3 lệnh LOAD/ADD/STORE chạy
+    nguyên khối, không xen kẽ. Race detector sẽ không cảnh báo nữa.
+  </p>
+</div>
+
+<!-- ========== Module 3: Golden file workflow ========== -->
+<h2>Module 3 — Golden File Workflow</h2>
+
+<div class="card">
+  <p class="explain">
+    Render template HTML từ data → so byte-by-byte với file
+    <code class="inline">testdata/golden/report.golden</code>. Khi template
+    thay đổi, dùng cờ <code class="inline">go test -update</code> để
+    regenerate file golden, review diff bằng mắt rồi commit.
+  </p>
+
+  <div class="row">
+    <label style="font-size: 13px;">
+      Title:
+      <input type="text" id="goldTitle" value="Báo cáo tháng 5" style="width: 180px; padding: 4px 6px;">
+    </label>
+    <label style="font-size: 13px;">
+      Users (cách nhau dấu phẩy):
+      <input type="text" id="goldUsers" value="alice,bob,chi" style="width: 220px; padding: 4px 6px;">
+    </label>
+  </div>
+  <div class="row">
+    <button id="goldRun">▶ go test</button>
+    <button id="goldUpdate" class="success">go test -update (regenerate golden)</button>
+    <button id="goldReset" class="secondary">Reset golden về mặc định</button>
+  </div>
+
+  <div class="golden-grid" style="margin-top: 12px;">
+    <div>
+      <h4 style="margin: 8px 0;">Actual output (render bây giờ)</h4>
+      <div class="golden-pane" id="goldActual"></div>
+    </div>
+    <div>
+      <h4 style="margin: 8px 0;">Golden file (đã commit)</h4>
+      <div class="golden-pane" id="goldGolden"></div>
+    </div>
+  </div>
+
+  <div class="golden-status idle" id="goldStatus">Chưa chạy test.</div>
+
+  <div style="margin-top: 14px;">
+    <h4 style="margin: 8px 0;">Diff</h4>
+    <div class="golden-pane" id="goldDiff" style="min-height: 120px;"></div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ============================================================
+// Module 1 — Fuzz finder simulation
+// ============================================================
+const fuzzLog = document.getElementById('fuzzLog');
+const fuzzIterEl = document.getElementById('fuzzIter');
+const fuzzPassEl = document.getElementById('fuzzPass');
+const fuzzCrashEl = document.getElementById('fuzzCrash');
+const fuzzCrashFile = document.getElementById('fuzzCrashFile');
+const fuzzSpeed = document.getElementById('fuzzSpeed');
+let fuzzTimer = null, fuzzIter = 0, fuzzPass = 0, fuzzCrash = 0;
+
+const seeds = ['hello', 'world', '', 'a', 'abc'];
+
+function reverseBuggy(s) {
+  // Đảo theo BYTE — JS không phơi byte, ta giả lập với TextEncoder.
+  const bytes = new TextEncoder().encode(s);
+  bytes.reverse();
+  try {
+    // strict decode — sẽ throw nếu byte sequence invalid
+    return new TextDecoder('utf-8', {fatal: true}).decode(bytes);
+  } catch(e) { return null; }
+}
+function reverseGood(s) { return [...s].reverse().join(''); }
+
+function mutate(s) {
+  const ops = ['append-ascii', 'append-multi', 'flip', 'drop', 'duplicate'];
+  const op = ops[Math.floor(Math.random()*ops.length)];
+  if (op === 'append-ascii') return s + String.fromCharCode(97 + Math.floor(Math.random()*26));
+  if (op === 'append-multi') {
+    const candidates = ['é','ñ','日','本','語','ü','ø','€'];
+    return s + candidates[Math.floor(Math.random()*candidates.length)];
+  }
+  if (op === 'flip' && s.length > 0) {
+    const arr = [...s]; const i = Math.floor(Math.random()*arr.length);
+    arr[i] = String.fromCharCode(97 + Math.floor(Math.random()*26));
+    return arr.join('');
+  }
+  if (op === 'drop' && s.length > 0) return s.slice(0, -1);
+  if (op === 'duplicate') return s + s.slice(-1);
+  return s + 'x';
+}
+
+function logLine(html) {
+  const div = document.createElement('div');
+  div.className = 'line';
+  div.innerHTML = html;
+  fuzzLog.appendChild(div);
+  fuzzLog.scrollTop = fuzzLog.scrollHeight;
+}
+
+let fuzzCorpus = [...seeds];
+
+function fuzzStep() {
+  fuzzIter++;
+  fuzzIterEl.textContent = fuzzIter;
+  // Pick seed + mutate
+  const base = fuzzCorpus[Math.floor(Math.random()*fuzzCorpus.length)];
+  const input = mutate(base);
+  const reversed = reverseBuggy(input);
+  let crashed = false;
+  if (reversed === null) {
+    crashed = true;
+    logLine(`<span class="iter">iter #${fuzzIter}</span> input=<span class="input">${escapeHtml(JSON.stringify(input))}</span> → <span class="crash">CRASH: invalid UTF-8</span>`);
+  } else if (reverseBuggy(reversed) !== input) {
+    crashed = true;
+    logLine(`<span class="iter">iter #${fuzzIter}</span> input=<span class="input">${escapeHtml(JSON.stringify(input))}</span> → <span class="crash">FAIL: Reverse(Reverse(s)) ≠ s</span>`);
+  } else {
+    fuzzPass++;
+    fuzzPassEl.textContent = fuzzPass;
+    if (fuzzIter <= 8 || fuzzIter % 5 === 0) {
+      logLine(`<span class="iter">iter #${fuzzIter}</span> input=<span class="input">${escapeHtml(JSON.stringify(input))}</span> <span class="ok">✓ ok</span>`);
+    }
+    fuzzCorpus.push(input);
+    if (fuzzCorpus.length > 30) fuzzCorpus.shift();
+  }
+  if (crashed) {
+    fuzzCrash++;
+    fuzzCrashEl.textContent = fuzzCrash;
+    const hash = Math.random().toString(16).slice(2, 18);
+    fuzzCrashFile.classList.remove('hidden');
+    fuzzCrashFile.innerHTML =
+      `<strong>📁 Failing input saved:</strong><br>` +
+      `testdata/fuzz/FuzzReverse/<strong>${hash}</strong><br><br>` +
+      `<em>Lần test sau, file này được chạy như case bình thường → regression-proof.</em><br>` +
+      `Input: <code>${escapeHtml(JSON.stringify(input))}</code>`;
+    logLine(`<span class="info">→ saved to testdata/fuzz/FuzzReverse/${hash}</span>`);
+    stopFuzz();
+  }
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function stopFuzz() {
+  if (fuzzTimer) { clearInterval(fuzzTimer); fuzzTimer = null; }
+}
+
+document.getElementById('fuzzStart').onclick = () => {
+  if (fuzzTimer) return;
+  if (fuzzIter === 0) {
+    logLine(`<span class="info">fuzz: seeding corpus with ${seeds.length} examples...</span>`);
+    seeds.forEach(s => logLine(`<span class="info">  seed: ${escapeHtml(JSON.stringify(s))}</span>`));
+    logLine(`<span class="info">fuzz: starting mutation...</span>`);
+  }
+  fuzzTimer = setInterval(fuzzStep, parseInt(fuzzSpeed.value));
+};
+document.getElementById('fuzzReset').onclick = () => {
+  stopFuzz();
+  fuzzIter = 0; fuzzPass = 0; fuzzCrash = 0;
+  fuzzIterEl.textContent = '0'; fuzzPassEl.textContent = '0'; fuzzCrashEl.textContent = '0';
+  fuzzLog.innerHTML = '';
+  fuzzCrashFile.classList.add('hidden');
+  fuzzCorpus = [...seeds];
+};
+
+// ============================================================
+// Module 2 — Race detector simulation
+// ============================================================
+let raceMem = 0;
+let raceA_step = 0, raceB_step = 0;
+let raceA_r1 = null, raceB_r1 = null;
+let raceMutex = false;          // false = unsafe mode, true = mutex mode
+let raceMutexHeld = null;       // 'A' | 'B' | null
+const memValEl = document.getElementById('raceMemVal');
+const memCell = document.getElementById('raceMem');
+const warnEl = document.getElementById('raceWarning');
+const raceA_r1El = document.getElementById('raceA_r1');
+const raceB_r1El = document.getElementById('raceB_r1');
+
+function raceUpdateInstrs() {
+  document.querySelectorAll('.instr').forEach(el => {
+    el.classList.remove('active', 'done');
+    const g = el.dataset.g, step = parseInt(el.dataset.step);
+    const cur = g === 'A' ? raceA_step : raceB_step;
+    if (step < cur) el.classList.add('done');
+    if (step === cur && cur < 3) el.classList.add('active');
+  });
+  raceA_r1El.textContent = raceA_r1 === null ? '?' : raceA_r1;
+  raceB_r1El.textContent = raceB_r1 === null ? '?' : raceB_r1;
+  memValEl.textContent = raceMem;
+}
+
+function raceStep(g) {
+  // Race mode: 2 goroutine xen kẽ ngẫu nhiên, không quan tâm mutex.
+  // Mutex mode: chỉ goroutine giữ lock được step.
+  if (raceMutex) {
+    if (raceMutexHeld === null) {
+      raceMutexHeld = g;
+      logRaceWarn(`🔒 Goroutine ${g} acquired mutex`);
+    } else if (raceMutexHeld !== g) {
+      logRaceWarn(`⏸  Goroutine ${g} blocked, waiting for mutex (held by ${raceMutexHeld})`);
+      return;
+    }
+  }
+  if (g === 'A') {
+    if (raceA_step === 0) { raceA_r1 = raceMem; memCell.classList.add('touched'); setTimeout(()=>memCell.classList.remove('touched'),300); }
+    if (raceA_step === 1) { raceA_r1 += 1; }
+    if (raceA_step === 2) { raceMem = raceA_r1; memCell.classList.add('touched'); setTimeout(()=>memCell.classList.remove('touched'),300); }
+    raceA_step++;
+    if (raceA_step === 3 && raceMutex && raceMutexHeld === 'A') {
+      raceMutexHeld = null;
+      logRaceWarn(`🔓 Goroutine A released mutex`);
+    }
+  } else {
+    if (raceB_step === 0) { raceB_r1 = raceMem; memCell.classList.add('touched'); setTimeout(()=>memCell.classList.remove('touched'),300); }
+    if (raceB_step === 1) { raceB_r1 += 1; }
+    if (raceB_step === 2) { raceMem = raceB_r1; memCell.classList.add('touched'); setTimeout(()=>memCell.classList.remove('touched'),300); }
+    raceB_step++;
+    if (raceB_step === 3 && raceMutex && raceMutexHeld === 'B') {
+      raceMutexHeld = null;
+      logRaceWarn(`🔓 Goroutine B released mutex`);
+    }
+  }
+  raceUpdateInstrs();
+
+  // Detect race ngay khi 2 goroutine cùng step LOAD/STORE chưa sync.
+  if (!raceMutex && raceA_step >= 3 && raceB_step >= 3) {
+    if (raceMem < 2) {
+      warnEl.classList.remove('hidden');
+      warnEl.textContent =
+`==================
+WARNING: DATA RACE
+Write at counter.n by goroutine 8:
+  lesson37.(*UnsafeCounter).Inc()
+      solutions.go:104 +0x44
+
+Previous read at counter.n by goroutine 7:
+  lesson37.(*UnsafeCounter).Inc()
+      solutions.go:104 +0x2c
+==================
+Final value = ${raceMem} (mất ${2 - raceMem} update)`;
+    } else {
+      warnEl.classList.remove('hidden');
+      warnEl.textContent = `✅ Lần này may mắn không có lost update (n = 2). Nhưng race detector vẫn cảnh báo vì memory access không có happens-before.`;
+    }
+  }
+  if (raceMutex && raceA_step >= 3 && raceB_step >= 3) {
+    warnEl.classList.remove('hidden');
+    warnEl.textContent = `✅ Mutex mode: n = ${raceMem} (đúng = 2). go test -race không cảnh báo.`;
+  }
+}
+
+function logRaceWarn(msg) {
+  console.log(msg);
+}
+
+function racePickNext() {
+  // Pick goroutine chưa xong; nếu mutex mode, ưu tiên goroutine đang giữ lock.
+  const aLeft = raceA_step < 3, bLeft = raceB_step < 3;
+  if (!aLeft && !bLeft) return null;
+  if (raceMutex && raceMutexHeld) return raceMutexHeld;
+  if (aLeft && bLeft) return Math.random() < 0.5 ? 'A' : 'B';
+  return aLeft ? 'A' : 'B';
+}
+
+document.getElementById('raceStepBad').onclick = () => {
+  const g = racePickNext();
+  if (!g) return;
+  raceStep(g);
+};
+document.getElementById('raceAutoBad').onclick = () => {
+  const auto = setInterval(() => {
+    const g = racePickNext();
+    if (!g) { clearInterval(auto); return; }
+    raceStep(g);
+  }, 350);
+};
+document.getElementById('raceFix').onclick = () => {
+  raceReset();
+  raceMutex = true;
+  warnEl.classList.remove('hidden');
+  warnEl.textContent = `🔒 Mutex mode bật. Goroutine phải acquire mu.Lock() trước khi truy cập n. Bấm Step để thấy goroutine bị block khi mutex đang held.`;
+};
+document.getElementById('raceReset').onclick = () => raceReset();
+
+function raceReset() {
+  raceMem = 0; raceA_step = 0; raceB_step = 0;
+  raceA_r1 = null; raceB_r1 = null;
+  raceMutex = false; raceMutexHeld = null;
+  warnEl.classList.add('hidden');
+  raceUpdateInstrs();
+}
+raceReset();
+
+// ============================================================
+// Module 3 — Golden file workflow
+// ============================================================
+const goldActual = document.getElementById('goldActual');
+const goldGolden = document.getElementById('goldGolden');
+const goldDiff = document.getElementById('goldDiff');
+const goldStatus = document.getElementById('goldStatus');
+const goldTitle = document.getElementById('goldTitle');
+const goldUsers = document.getElementById('goldUsers');
+
+function render(title, usersStr) {
+  const users = usersStr.split(',').map(s => s.trim()).filter(Boolean);
+  let html = `<!DOCTYPE html>\n<html><head><title>${title}</title></head>\n<body>\n  <h1>${title}</h1>\n  <p>Tổng số user: ${users.length}</p>\n  <ul>`;
+  users.forEach(u => html += `\n    <li>${u}</li>`);
+  html += `\n  </ul>\n</body></html>`;
+  return html;
+}
+
+// Golden file mặc định
+let golden = render('Báo cáo tháng 5', 'alice,bob,chi');
+
+function updateActual() {
+  const html = render(goldTitle.value, goldUsers.value);
+  goldActual.textContent = html;
+  return html;
+}
+function showGolden() { goldGolden.textContent = golden; }
+
+function diff(a, b) {
+  const al = a.split('\n'), bl = b.split('\n');
+  const out = [];
+  const max = Math.max(al.length, bl.length);
+  for (let i = 0; i < max; i++) {
+    const la = al[i], lb = bl[i];
+    if (la === lb) out.push(`  ${la ?? ''}`);
+    else {
+      if (la !== undefined) out.push(`<span class="diff-del">- ${escapeHtml(la)}</span>`);
+      if (lb !== undefined) out.push(`<span class="diff-add">+ ${escapeHtml(lb)}</span>`);
+    }
+  }
+  return out.join('\n');
+}
+
+document.getElementById('goldRun').onclick = () => {
+  const actual = updateActual();
+  showGolden();
+  if (actual === golden) {
+    goldStatus.className = 'golden-status match';
+    goldStatus.textContent = '✅ PASS — output == golden file (byte-by-byte match)';
+    goldDiff.textContent = '(không có diff)';
+  } else {
+    goldStatus.className = 'golden-status diff';
+    goldStatus.textContent = '❌ FAIL — output ≠ golden file. Diff bên dưới ↓';
+    goldDiff.innerHTML = diff(golden, actual);
+  }
+};
+
+document.getElementById('goldUpdate').onclick = () => {
+  golden = updateActual();
+  showGolden();
+  goldStatus.className = 'golden-status match';
+  goldStatus.textContent = '📝 Golden file đã được REWRITE. Lần test sau, output này được coi là expected. Đừng quên git diff testdata/golden/ trước khi commit!';
+  goldDiff.textContent = '(golden file mới = actual hiện tại)';
+};
+
+document.getElementById('goldReset').onclick = () => {
+  golden = render('Báo cáo tháng 5', 'alice,bob,chi');
+  goldTitle.value = 'Báo cáo tháng 5';
+  goldUsers.value = 'alice,bob,chi';
+  updateActual();
+  showGolden();
+  goldStatus.className = 'golden-status idle';
+  goldStatus.textContent = 'Golden file reset về mặc định. Chưa chạy test.';
+  goldDiff.textContent = '';
+};
+
+// Initial render
+updateActual();
+showGolden();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

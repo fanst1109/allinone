@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L40 — Error Handling Deep (Production Patterns)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #8b5cf6;
+    --accent-hover: #7c3aed;
+    --accent-soft: #ede9fe;
+    --ok: #10b981;
+    --warn: #f59e0b;
+    --err: #ef4444;
+    --info: #3b82f6;
+    --bg-card: #ffffff;
+    --code-bg: #1e293b;
+    --code-fg: #e2e8f0;
+    --border: #cbd5e0;
+  }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 80px; }
+  h1 { color: #2d3748; margin-top: 0; }
+  .intro { color: #4a5568; line-height: 1.55; max-width: 780px; }
+
+  .module {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 32px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+  .module h2 {
+    margin-top: 0;
+    color: #2d3748;
+    border-bottom: 2px solid var(--accent-soft);
+    padding-bottom: 8px;
+  }
+  .module .desc { color: #4a5568; line-height: 1.55; }
+  .module .desc code { background: #f1f5f9; padding: 1px 5px; border-radius: 3px; font-size: 0.92em; }
+
+  /* ====================== Common controls ====================== */
+  .controls { margin: 16px 0; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  button.viz-btn {
+    padding: 8px 16px; border: 0;
+    background: var(--accent); color: white;
+    border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;
+  }
+  button.viz-btn:hover { background: var(--accent-hover); }
+  button.viz-btn.secondary { background: #6b7280; }
+  button.viz-btn.secondary:hover { background: #4b5563; }
+  button.viz-btn:disabled { background: #cbd5e0; cursor: not-allowed; }
+  label.field { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: #374151; }
+  label.field input[type="number"] {
+    width: 70px; padding: 4px 6px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px;
+  }
+
+  /* ====================== Module 1: error -> HTTP status ====================== */
+  .err-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin: 16px 0;
+  }
+  .err-card {
+    background: #f8fafc; border: 2px solid var(--border); border-radius: 8px;
+    padding: 12px; cursor: pointer; transition: all .15s;
+    text-align: center;
+  }
+  .err-card:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .err-card.selected { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 3px rgba(139,92,246,.15); }
+  .err-card .code-name { font-family: ui-monospace, monospace; font-weight: 700; color: #1e293b; font-size: 13px; }
+  .err-card .cat { font-size: 11px; color: #64748b; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  .err-card.cat-domain  { border-left: 4px solid var(--info); }
+  .err-card.cat-infra   { border-left: 4px solid var(--warn); }
+  .err-card.cat-prog    { border-left: 4px solid var(--err); }
+
+  .map-panel {
+    margin-top: 14px;
+    background: #f1f5f9;
+    border-radius: 8px;
+    padding: 16px;
+    min-height: 90px;
+  }
+  .map-panel.empty { color: #94a3b8; font-style: italic; }
+  .map-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-bottom: 8px; font-size: 14px; }
+  .map-row .label { color: #64748b; min-width: 70px; }
+  .status-badge {
+    display: inline-block; padding: 4px 12px; border-radius: 12px; font-weight: 700; font-family: ui-monospace, monospace;
+    color: white;
+  }
+  .status-badge.s2xx { background: var(--ok); }
+  .status-badge.s4xx { background: var(--warn); }
+  .status-badge.s5xx { background: var(--err); }
+  .status-badge.spanic { background: #7c3aed; }
+
+  .reasoning {
+    background: white; padding: 10px 14px; border-radius: 6px; margin-top: 10px;
+    border-left: 4px solid var(--accent);
+    color: #334155; line-height: 1.5; font-size: 13.5px;
+  }
+  .reasoning b { color: #1e293b; }
+  .json-out {
+    font-family: ui-monospace, monospace;
+    background: var(--code-bg); color: var(--code-fg);
+    padding: 10px 12px; border-radius: 6px; font-size: 12.5px; margin-top: 10px;
+    white-space: pre-wrap; word-break: break-word;
+  }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; color: #475569; margin-top: 8px; }
+  .legend span::before { content: '■ '; }
+  .legend .l-domain::before { color: var(--info); }
+  .legend .l-infra::before  { color: var(--warn); }
+  .legend .l-prog::before   { color: var(--err); }
+
+  /* ====================== Module 2: Retry timeline ====================== */
+  .retry-controls {
+    background: #f8fafc; border-radius: 8px; padding: 14px;
+    display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
+  }
+  .retry-summary {
+    margin-top: 12px; background: #f1f5f9; border-radius: 6px; padding: 10px 14px;
+    font-size: 13.5px; color: #334155; line-height: 1.55;
+  }
+  .retry-summary b { color: #1e293b; }
+  .timeline-wrap {
+    margin-top: 14px; background: #fafafa; border-radius: 8px; padding: 14px; overflow-x: auto;
+  }
+  .timeline-svg { display: block; width: 100%; max-width: 900px; }
+
+  .retry-log {
+    margin-top: 12px;
+    font-family: ui-monospace, monospace;
+    background: var(--code-bg); color: var(--code-fg);
+    padding: 12px; border-radius: 6px; font-size: 12.5px;
+    max-height: 200px; overflow-y: auto;
+    white-space: pre-wrap;
+  }
+  .retry-log .ok { color: #6ee7b7; }
+  .retry-log .fail { color: #fca5a5; }
+  .retry-log .wait { color: #fcd34d; }
+  .retry-log .info { color: #93c5fd; }
+
+  /* ====================== Module 3: Wrap chain ====================== */
+  .chain-controls {
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px;
+  }
+  .chain-controls select {
+    padding: 6px 10px; border: 1px solid var(--border); border-radius: 4px;
+    font-size: 14px; background: white;
+  }
+  .chain-stack { display: flex; flex-direction: column-reverse; gap: 8px; }
+  .chain-layer {
+    background: #f8fafc; border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px 14px;
+    position: relative;
+  }
+  .chain-layer .layer-name {
+    font-weight: 700; color: #1e293b; font-size: 13px;
+    display: flex; gap: 8px; align-items: center;
+  }
+  .chain-layer .layer-name .order {
+    display: inline-block; min-width: 22px; height: 22px; line-height: 22px; text-align: center;
+    background: var(--accent); color: white; border-radius: 50%;
+    font-size: 12px; font-weight: 700;
+  }
+  .chain-layer code {
+    display: block; margin-top: 6px;
+    font-family: ui-monospace, monospace; font-size: 12.5px;
+    color: #334155; background: white; padding: 6px 10px; border-radius: 4px;
+    border: 1px solid #e2e8f0;
+    white-space: pre-wrap; word-break: break-word;
+  }
+  .chain-layer.bad { border-color: var(--err); background: #fef2f2; }
+  .chain-layer.bad .order { background: var(--err); }
+
+  .chain-full {
+    margin-top: 14px;
+    background: var(--code-bg); color: var(--code-fg);
+    padding: 12px; border-radius: 6px;
+    font-family: ui-monospace, monospace; font-size: 12.5px;
+    white-space: pre-wrap; word-break: break-word;
+    line-height: 1.55;
+  }
+  .chain-extract {
+    margin-top: 12px;
+    background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px;
+    padding: 12px 14px; font-size: 13.5px; color: #166534; line-height: 1.55;
+  }
+  .chain-extract code {
+    background: white; padding: 1px 5px; border-radius: 3px;
+    font-family: ui-monospace, monospace; font-size: 12.5px;
+  }
+  .chain-extract.warn { background: #fef3c7; border-color: #fde68a; color: #92400e; }
+
+  /* ====================== Mobile ====================== */
+  @media (max-width: 768px) {
+    main { padding: 16px 12px 80px; }
+    .module { padding: 18px; }
+    .err-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+    .retry-controls { flex-direction: column; align-items: flex-start; }
+  }
+  @media (max-width: 480px) {
+    .err-grid { grid-template-columns: 1fr 1fr; }
+    .err-card { padding: 10px; }
+    .err-card .code-name { font-size: 11.5px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-39-design-patterns-go/visualization.html">← L39: Design Patterns</a>
+  <span class="sep">·</span>
+  <span class="current">L40: Error Handling Deep</span>
+  <span class="sep">·</span>
+  <a href="../lesson-41-mini-project-concurrent-scraper/visualization.html">L41: Mini-project →</a>
+</nav>
+
+<main>
+  <h1>L40 — Error Handling Deep (Production Patterns)</h1>
+  <p class="intro">
+    Ba module tương tác giúp bạn "chạm" vào những quyết định khó nhất khi xử lý error trong service production:
+    <b>1)</b> error nào map sang HTTP status nào (404 / 422 / 500 / 503);
+    <b>2)</b> retry với exponential backoff + jitter trông như thế nào trên timeline;
+    <b>3)</b> wrap chain thực sự "trông ra sao" khi đi qua 4 layer, và <code>errors.As</code> extract <code>*AppError</code> ở top.
+  </p>
+
+  <!-- ============================================================= -->
+  <!-- Module 1 — Error category -> HTTP status                       -->
+  <!-- ============================================================= -->
+  <section class="module" id="module-status">
+    <h2>1. Error category → HTTP status</h2>
+    <p class="desc">
+      Click <b>một error type</b> bên dưới — viz sẽ hiện status code, JSON response client thấy,
+      và lý do vì sao đó là con số đúng. Mỗi error có một <b>category</b> (màu viền trái):
+      <span style="color:var(--info)">Domain</span> (lỗi nghiệp vụ — 4xx),
+      <span style="color:var(--warn)">Infrastructure</span> (hạ tầng tạm hỏng — 5xx),
+      <span style="color:var(--err)">Programming</span> (bug — panic, recover thành 500).
+    </p>
+
+    <div class="legend">
+      <span class="l-domain">Domain → 4xx, không retry</span>
+      <span class="l-infra">Infrastructure → 5xx, retryable</span>
+      <span class="l-prog">Programming → panic → 500</span>
+    </div>
+
+    <div class="err-grid" id="err-grid"></div>
+
+    <div class="map-panel empty" id="map-panel">
+      Chọn một error type ở trên để xem mapping.
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- Module 2 — Retry timeline visualizer                           -->
+  <!-- ============================================================= -->
+  <section class="module" id="module-retry">
+    <h2>2. Retry với exponential backoff + jitter</h2>
+    <p class="desc">
+      Animate timeline retry: mỗi attempt fail → ngủ <code>baseDelay × 2^(attempt-1)</code> (cap ở <code>maxDelay</code>) với jitter ±50%.
+      Chọn <b>kịch bản fail</b> (mấy attempt đầu thất bại trước khi thành công) để thấy hành vi.
+      Lưu ý: <code>VALIDATION</code> (domain error) sẽ bị từ chối retry ngay attempt 1.
+    </p>
+
+    <div class="retry-controls">
+      <label class="field">Max attempts:
+        <input type="number" id="max-att" min="1" max="6" value="5">
+      </label>
+      <label class="field">Base delay (s):
+        <input type="number" id="base-d" min="0.1" max="5" step="0.1" value="1">
+      </label>
+      <label class="field">Max delay (s):
+        <input type="number" id="max-d" min="1" max="60" step="1" value="30">
+      </label>
+      <label class="field">Kịch bản:
+        <select id="scenario">
+          <option value="2fail">2 attempt đầu fail → OK lần 3</option>
+          <option value="4fail">4 attempt đầu fail → OK lần 5</option>
+          <option value="allfail">Mọi attempt đều fail (exhaust)</option>
+          <option value="nonretry">Lần 1 trả VALIDATION (non-retryable)</option>
+        </select>
+      </label>
+      <button class="viz-btn" id="retry-run">▶ Chạy timeline</button>
+      <button class="viz-btn secondary" id="retry-reset">↻ Reset</button>
+    </div>
+
+    <div class="retry-summary" id="retry-summary">
+      Chưa chạy. Nhấn <b>▶ Chạy timeline</b>.
+    </div>
+
+    <div class="timeline-wrap">
+      <svg id="timeline-svg" class="timeline-svg" viewBox="0 0 900 200" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+
+    <div class="retry-log" id="retry-log">[chờ chạy...]</div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- Module 3 — Error wrap chain + errors.As                        -->
+  <!-- ============================================================= -->
+  <section class="module" id="module-chain">
+    <h2>3. Error wrap chain — đường đi qua 4 layer + <code>errors.As</code></h2>
+    <p class="desc">
+      Một error đi từ <b>DB driver → Repo → Service → HTTP handler</b>. Mỗi layer wrap thêm context của riêng nó.
+      Top-of-stack (middleware) dùng <code>errors.As</code> để extract <code>*AppError</code> ở giữa chain.
+      Chọn <b>cách wrap</b> dưới đây để so sánh GOOD vs BAD và xem extract có thành công không.
+    </p>
+
+    <div class="chain-controls">
+      <label class="field">Cách wrap:
+        <select id="chain-mode">
+          <option value="good">GOOD — mỗi layer thêm context riêng</option>
+          <option value="bad-dup">BAD — double wrap (cùng thông tin)</option>
+          <option value="bad-generic">BAD — wrap "failed: %w" chung chung</option>
+          <option value="bad-swallow">BAD — middle layer "errors.As" + nuốt</option>
+        </select>
+      </label>
+      <button class="viz-btn" id="chain-show">▶ Hiển thị chain</button>
+    </div>
+
+    <div id="chain-stack" class="chain-stack"></div>
+
+    <div class="chain-full" id="chain-full">[chưa chạy]</div>
+
+    <div class="chain-extract" id="chain-extract">[chưa chạy]</div>
+  </section>
+</main>
+
+<script>
+/* ============================================================
+   Module 1 — Error category → HTTP status
+   ============================================================ */
+(() => {
+  const errors = [
+    { code: 'USER_NOT_FOUND',  cat: 'domain', status: 404, badge: 's4xx',
+      reason: 'User không tồn tại — caller hỏi resource sai. Không retry vì retry với cùng id sẽ ra cùng kết quả.',
+      example: 'GET /users/42 nhưng user 42 không có trong DB.',
+      msg: 'user with id=42 not found' },
+    { code: 'VALIDATION',  cat: 'domain', status: 422, badge: 's4xx',
+      reason: 'Input không hợp lệ về cú pháp/nghiệp vụ. 422 (Unprocessable Entity) đúng hơn 400 (Bad Request) cho trường hợp body có cú pháp đúng nhưng giá trị sai luật.',
+      example: 'POST /users {email: "abc@@"} — email regex mismatch.',
+      msg: 'invalid email: định dạng sai' },
+    { code: 'UNAUTHORIZED',  cat: 'domain', status: 401, badge: 's4xx',
+      reason: 'Thiếu hoặc sai credential (token hết hạn, không có header Authorization).',
+      example: 'GET /me không kèm Bearer token.',
+      msg: 'Bạn cần đăng nhập' },
+    { code: 'FORBIDDEN',  cat: 'domain', status: 403, badge: 's4xx',
+      reason: 'Có credential đúng nhưng KHÔNG đủ quyền. Khác 401 ở chỗ: 401 là "ai đó", 403 là "đúng người nhưng cấm".',
+      example: 'User thường gọi POST /admin/users.',
+      msg: 'Không có quyền truy cập' },
+    { code: 'PAYMENT_DECLINED',  cat: 'domain', status: 422, badge: 's4xx',
+      reason: 'Ngân hàng từ chối (insufficient funds, card expired). Domain error vì retry với cùng thẻ ra cùng kết quả.',
+      example: 'POST /charge thẻ hết tiền.',
+      msg: 'Thẻ của bạn bị từ chối' },
+    { code: 'RATE_LIMITED',  cat: 'infra', status: 429, badge: 's4xx',
+      reason: 'Client gọi quá nhanh. 429 + header Retry-After. Retryable nhưng phải BACK OFF — không retry ngay.',
+      example: 'Client gọi 1000 req/s, server cap 100.',
+      msg: 'Quá nhiều request, đợi vài giây' },
+    { code: 'DB_TIMEOUT',  cat: 'infra', status: 503, badge: 's5xx',
+      reason: 'DB không response trong deadline. Có thể tạm thời (DB đang busy / GC pause) — retry với backoff có khả năng OK.',
+      example: 'SELECT ... vượt 5s timeout.',
+      msg: 'Hệ thống đang bận, thử lại sau' },
+    { code: 'DOWNSTREAM_UNAVAILABLE',  cat: 'infra', status: 503, badge: 's5xx',
+      reason: 'Service phụ thuộc (payment gateway, email service) trả 5xx. Retry + circuit breaker để tránh cascading failure.',
+      example: 'Stripe API trả 503.',
+      msg: 'Hệ thống đang bận, thử lại sau' },
+    { code: 'PROGRAMMING_BUG',  cat: 'prog', status: 500, badge: 'spanic',
+      reason: 'Nil pointer deref / index out of range. Đáng lẽ KHÔNG bao giờ xảy ra. Recover panic ở middleware, log full stack, ALERT severity cao. Không retry vì retry với cùng input panic tiếp.',
+      example: 'var u *User; u.Name (u = nil).',
+      msg: 'Đã có lỗi, vui lòng thử lại' },
+  ];
+
+  const grid = document.getElementById('err-grid');
+  const panel = document.getElementById('map-panel');
+
+  errors.forEach((e, i) => {
+    const card = document.createElement('div');
+    card.className = 'err-card cat-' + e.cat;
+    card.dataset.idx = i;
+    card.innerHTML = `<div class="code-name">${e.code}</div><div class="cat">${e.cat}</div>`;
+    card.addEventListener('click', () => selectError(i));
+    grid.appendChild(card);
+  });
+
+  function selectError(i) {
+    document.querySelectorAll('.err-card').forEach(c => c.classList.remove('selected'));
+    document.querySelector(`.err-card[data-idx="${i}"]`).classList.add('selected');
+    const e = errors[i];
+    panel.classList.remove('empty');
+    panel.innerHTML = `
+      <div class="map-row">
+        <span class="label">Code:</span>
+        <code style="font-weight:700">${e.code}</code>
+        <span class="label" style="margin-left:14px">Category:</span>
+        <span style="text-transform:uppercase; font-size:12px; font-weight:700">${e.cat}</span>
+        <span class="label" style="margin-left:14px">HTTP:</span>
+        <span class="status-badge ${e.badge}">${e.status}</span>
+      </div>
+      <div class="map-row">
+        <span class="label">Ví dụ:</span>
+        <span><code>${e.example}</code></span>
+      </div>
+      <div class="reasoning"><b>Vì sao status này?</b> ${e.reason}</div>
+      <div class="json-out">// Response trả client:
+HTTP/1.1 ${e.status}
+Content-Type: application/json
+
+{
+  "code": "${e.code}",
+  "message": "${e.msg}"
+}</div>
+    `;
+  }
+})();
+
+/* ============================================================
+   Module 2 — Retry timeline with backoff + jitter
+   ============================================================ */
+(() => {
+  const svg = document.getElementById('timeline-svg');
+  const log = document.getElementById('retry-log');
+  const summary = document.getElementById('retry-summary');
+  let raf = null;
+  let cancelRun = false;
+
+  function reset() {
+    cancelRun = true;
+    if (raf) cancelAnimationFrame(raf);
+    svg.innerHTML = '';
+    log.textContent = '[chờ chạy...]';
+    summary.innerHTML = 'Chưa chạy. Nhấn <b>▶ Chạy timeline</b>.';
+  }
+
+  function logLine(cls, text) {
+    const span = document.createElement('span');
+    span.className = cls;
+    span.textContent = text + '\n';
+    log.appendChild(span);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function clearLog() { log.innerHTML = ''; }
+
+  function clampDelay(base, max, attempt) {
+    let d = base * Math.pow(2, attempt - 1);
+    if (d > max) d = max;
+    return d;
+  }
+  function jitter(d) {
+    // ±50%: nhân [0.5, 1.5]
+    return d * (0.5 + Math.random());
+  }
+
+  function drawTimeline(events, totalSec) {
+    const W = 900, H = 200;
+    const padL = 50, padR = 30, padT = 30, padB = 50;
+    const xWidth = W - padL - padR;
+    const yLine = padT + 30;
+    svg.innerHTML = '';
+
+    // Axis line
+    const axis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    axis.setAttribute('x1', padL); axis.setAttribute('x2', W - padR);
+    axis.setAttribute('y1', yLine); axis.setAttribute('y2', yLine);
+    axis.setAttribute('stroke', '#94a3b8'); axis.setAttribute('stroke-width', 2);
+    svg.appendChild(axis);
+
+    // Axis ticks
+    const tickCount = Math.min(10, Math.ceil(totalSec));
+    for (let i = 0; i <= tickCount; i++) {
+      const t = (totalSec * i) / tickCount;
+      const x = padL + (xWidth * i) / tickCount;
+      const tick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      tick.setAttribute('x1', x); tick.setAttribute('x2', x);
+      tick.setAttribute('y1', yLine - 4); tick.setAttribute('y2', yLine + 4);
+      tick.setAttribute('stroke', '#94a3b8');
+      svg.appendChild(tick);
+      const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      txt.setAttribute('x', x); txt.setAttribute('y', yLine + 18);
+      txt.setAttribute('text-anchor', 'middle');
+      txt.setAttribute('font-size', '11'); txt.setAttribute('fill', '#475569');
+      txt.textContent = t.toFixed(1) + 's';
+      svg.appendChild(txt);
+    }
+
+    // Title
+    const title = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    title.setAttribute('x', padL); title.setAttribute('y', padT - 8);
+    title.setAttribute('font-size', '13'); title.setAttribute('font-weight', '700');
+    title.setAttribute('fill', '#1e293b');
+    title.textContent = `Timeline (tổng ${totalSec.toFixed(1)}s)`;
+    svg.appendChild(title);
+
+    // Events
+    events.forEach(ev => {
+      const x = padL + (xWidth * ev.t) / totalSec;
+      const color = ev.kind === 'ok' ? '#10b981' : ev.kind === 'fail' ? '#ef4444'
+                   : ev.kind === 'wait' ? '#f59e0b' : '#8b5cf6';
+      if (ev.kind === 'wait') {
+        // bar showing wait duration
+        const xEnd = padL + (xWidth * (ev.t + ev.duration)) / totalSec;
+        const bar = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        bar.setAttribute('x', x); bar.setAttribute('y', yLine - 8);
+        bar.setAttribute('width', Math.max(2, xEnd - x));
+        bar.setAttribute('height', 16);
+        bar.setAttribute('fill', '#fde68a');
+        bar.setAttribute('stroke', '#f59e0b');
+        bar.setAttribute('opacity', '0.8');
+        svg.appendChild(bar);
+        if (xEnd - x > 30) {
+          const lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          lbl.setAttribute('x', (x + xEnd) / 2); lbl.setAttribute('y', yLine + 1);
+          lbl.setAttribute('text-anchor', 'middle');
+          lbl.setAttribute('font-size', '10'); lbl.setAttribute('fill', '#78350f');
+          lbl.textContent = ev.duration.toFixed(1) + 's';
+          svg.appendChild(lbl);
+        }
+      } else {
+        const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        c.setAttribute('cx', x); c.setAttribute('cy', yLine);
+        c.setAttribute('r', 9); c.setAttribute('fill', color);
+        c.setAttribute('stroke', 'white'); c.setAttribute('stroke-width', 2);
+        svg.appendChild(c);
+        const lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        lbl.setAttribute('x', x); lbl.setAttribute('y', yLine - 14);
+        lbl.setAttribute('text-anchor', 'middle');
+        lbl.setAttribute('font-size', '11'); lbl.setAttribute('font-weight', '700');
+        lbl.setAttribute('fill', color);
+        lbl.textContent = ev.label;
+        svg.appendChild(lbl);
+      }
+    });
+
+    // Legend
+    const lgY = H - 12;
+    const lgItems = [
+      { c: '#ef4444', t: 'attempt fail' },
+      { c: '#fde68a', t: 'wait (backoff)' },
+      { c: '#10b981', t: 'attempt OK' },
+      { c: '#8b5cf6', t: 'non-retry / exhausted' },
+    ];
+    let lgX = padL;
+    lgItems.forEach(it => {
+      const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      r.setAttribute('x', lgX); r.setAttribute('y', lgY - 9);
+      r.setAttribute('width', 12); r.setAttribute('height', 12);
+      r.setAttribute('fill', it.c);
+      svg.appendChild(r);
+      const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t.setAttribute('x', lgX + 16); t.setAttribute('y', lgY + 1);
+      t.setAttribute('font-size', '11'); t.setAttribute('fill', '#475569');
+      t.textContent = it.t;
+      svg.appendChild(t);
+      lgX += 16 + 8 + it.t.length * 6.5 + 12;
+    });
+  }
+
+  async function sleep(ms) {
+    return new Promise(res => setTimeout(res, ms));
+  }
+
+  async function run() {
+    cancelRun = false;
+    clearLog();
+    const maxAtt = parseInt(document.getElementById('max-att').value);
+    const baseD = parseFloat(document.getElementById('base-d').value);
+    const maxD = parseFloat(document.getElementById('max-d').value);
+    const scen = document.getElementById('scenario').value;
+
+    let failCount;
+    let nonRetry = false;
+    switch (scen) {
+      case '2fail': failCount = 2; break;
+      case '4fail': failCount = 4; break;
+      case 'allfail': failCount = maxAtt; break;
+      case 'nonretry': failCount = 0; nonRetry = true; break;
+    }
+
+    logLine('info', `>>> Retry config: maxAttempts=${maxAtt} baseDelay=${baseD}s maxDelay=${maxD}s`);
+    logLine('info', `>>> Scenario: ${scen}`);
+
+    const events = [];
+    let curT = 0;
+    let attempt = 1;
+    let outcome = '';
+
+    while (attempt <= maxAtt) {
+      if (cancelRun) return;
+      // Animate sleep before "calling" (visual pacing)
+      await sleep(300);
+
+      if (nonRetry && attempt === 1) {
+        events.push({ t: curT, kind: 'fail', label: `#${attempt}` });
+        logLine('fail', `[attempt ${attempt}] t=${curT.toFixed(2)}s → VALIDATION (non-retryable, dừng ngay)`);
+        events.push({ t: curT + 0.05, kind: 'nonretry', label: 'STOP' });
+        outcome = `Return error VALIDATION ngay sau attempt 1 (KHÔNG sleep, KHÔNG retry).`;
+        break;
+      }
+
+      if (attempt <= failCount) {
+        events.push({ t: curT, kind: 'fail', label: `#${attempt}` });
+        logLine('fail', `[attempt ${attempt}] t=${curT.toFixed(2)}s → FAIL (DB_TIMEOUT — retryable)`);
+        if (attempt === maxAtt) {
+          outcome = `Exhausted: hết ${maxAtt} attempt, return error cuối cùng kèm "after N attempts: %w".`;
+          events.push({ t: curT + 0.05, kind: 'nonretry', label: 'EXHAUST' });
+          break;
+        }
+        // backoff
+        const d0 = clampDelay(baseD, maxD, attempt);
+        const dj = jitter(d0);
+        events.push({ t: curT, kind: 'wait', duration: dj, label: 'wait' });
+        logLine('wait', `   sleep ${dj.toFixed(2)}s   (base ${d0.toFixed(2)}s × jitter)`);
+        await sleep(Math.min(800, dj * 200)); // visual scale
+        curT += dj;
+        attempt++;
+      } else {
+        events.push({ t: curT, kind: 'ok', label: `#${attempt}` });
+        logLine('ok', `[attempt ${attempt}] t=${curT.toFixed(2)}s → OK`);
+        outcome = `Thành công ở attempt ${attempt}. Tổng thời gian ≈ ${curT.toFixed(2)}s.`;
+        break;
+      }
+    }
+
+    const totalSec = Math.max(1, curT + 0.5);
+    drawTimeline(events, totalSec);
+    summary.innerHTML = `<b>Kết quả:</b> ${outcome}<br>
+      <b>Total time:</b> ${curT.toFixed(2)}s • <b>Attempts used:</b> ${events.filter(e => e.kind==='fail'||e.kind==='ok').length}`;
+  }
+
+  document.getElementById('retry-run').addEventListener('click', run);
+  document.getElementById('retry-reset').addEventListener('click', reset);
+})();
+
+/* ============================================================
+   Module 3 — Wrap chain + errors.As
+   ============================================================ */
+(() => {
+  const modes = {
+    good: {
+      label: 'GOOD — mỗi layer thêm context riêng',
+      layers: [
+        { name: 'L1 — DB driver',     code: 'sql.ErrNoRows', bad: false, comment: 'lỗi gốc từ database/sql' },
+        { name: 'L2 — Repo',          code: 'NotFound("user", 42)', bad: false, comment: 'wrap sentinel thành AppError có Code + Fields' },
+        { name: 'L3 — Service',       code: 'fmt.Errorf("getting user profile id=%d: %w", id, err)', bad: false, comment: 'thêm context của use case' },
+        { name: 'L4 — HTTP handler',  code: 'fmt.Errorf("GET /users/%d: %w", id, err)', bad: false, comment: 'thêm endpoint' },
+      ],
+      fullErr: 'GET /users/42: getting user profile id=42: [NOT_FOUND] user with id=42 not found',
+      extract: 'success',
+      extractMsg: '<code>errors.As(err, &amp;appErr)</code> trả <b>true</b>. <code>appErr.Code = "NOT_FOUND"</code> → middleware map HTTP 404.',
+    },
+    'bad-dup': {
+      label: 'BAD — double wrap (thông tin lặp lại)',
+      layers: [
+        { name: 'L1 — DB driver',     code: 'sql.ErrNoRows', bad: false, comment: 'lỗi gốc' },
+        { name: 'L2 — Repo',          code: 'fmt.Errorf("query users by id=%d: %w", id, err)', bad: false, comment: 'OK' },
+        { name: 'L3 — Service',       code: 'fmt.Errorf("error querying user by id=%d: %w", id, err)', bad: true,  comment: '⚠ id lặp lại, "query"/"querying" lặp lại' },
+        { name: 'L4 — HTTP handler',  code: 'fmt.Errorf("error querying user by id=%d: %w", id, err)', bad: true,  comment: '⚠ tiếp tục lặp — chain nói cùng 1 chuyện 3 lần' },
+      ],
+      fullErr: 'error querying user by id=42: error querying user by id=42: query users by id=42: sql: no rows in result set',
+      extract: 'warn',
+      extractMsg: '<code>errors.As</code> CÓ thể chạy qua chain, nhưng chain chỉ là <b>NHIỄU</b>. Log dài 3 lần thông tin trùng, không có Code/Fields để map sang HTTP status đúng (rơi vào catch-all 500).',
+    },
+    'bad-generic': {
+      label: 'BAD — wrap "failed: %w" chung chung',
+      layers: [
+        { name: 'L1 — DB driver',     code: 'sql.ErrNoRows', bad: false, comment: 'lỗi gốc' },
+        { name: 'L2 — Repo',          code: 'fmt.Errorf("failed: %w", err)', bad: true, comment: '⚠ wrap mà KHÔNG thêm thông tin gì' },
+        { name: 'L3 — Service',       code: 'fmt.Errorf("error: %w", err)',  bad: true, comment: '⚠ wrap thừa, đáng lẽ return err' },
+        { name: 'L4 — HTTP handler',  code: 'fmt.Errorf("internal error: %w", err)', bad: true, comment: '⚠ vẫn không nói chuyện gì' },
+      ],
+      fullErr: 'internal error: error: failed: sql: no rows in result set',
+      extract: 'warn',
+      extractMsg: 'KHÔNG có <code>*AppError</code> trong chain → <code>errors.As</code> trả <b>false</b> → middleware fallback HTTP <b>500 INTERNAL</b>. Đáng lẽ phải là 404. <b>Wrap mà không có Code = mất phân loại.</b>',
+    },
+    'bad-swallow': {
+      label: 'BAD — middle layer "errors.As" + nuốt',
+      layers: [
+        { name: 'L1 — DB driver',     code: 'sql.ErrNoRows', bad: false, comment: 'lỗi gốc' },
+        { name: 'L2 — Repo',          code: 'NotFound("user", 42)', bad: false, comment: 'OK — typed error có Code' },
+        { name: 'L3 — Service',       code: 'if errors.As(err, &amp;ae) { return nil } // ⚠ nuốt error!', bad: true, comment: '⚠ Layer giữa "xử lý" rồi return nil → upper layer KHÔNG BIẾT' },
+        { name: 'L4 — HTTP handler',  code: '// nhận err = nil, tưởng OK → trả 200 với data rỗng', bad: true, comment: '⚠ User nhận 200 OK nhưng không có data, không biết chuyện gì' },
+      ],
+      fullErr: '(nil — error bị nuốt ở L3, handler trả 200 OK với body rỗng)',
+      extract: 'warn',
+      extractMsg: 'Middle layer (Service) đã <code>errors.As</code> và "tự xử lý" → upper layer không biết có error xảy ra. <b>Quy tắc: chỉ TOP-of-stack mới extract.</b> Layer giữa chỉ wrap + return.',
+    },
+  };
+
+  const stack = document.getElementById('chain-stack');
+  const full = document.getElementById('chain-full');
+  const extract = document.getElementById('chain-extract');
+
+  function render() {
+    const mode = document.getElementById('chain-mode').value;
+    const cfg = modes[mode];
+    stack.innerHTML = '';
+    cfg.layers.forEach((l, i) => {
+      const div = document.createElement('div');
+      div.className = 'chain-layer' + (l.bad ? ' bad' : '');
+      div.innerHTML = `
+        <div class="layer-name">
+          <span class="order">${i + 1}</span>
+          <span>${l.name}</span>
+          <span style="color:#64748b; font-weight:400; font-size:12px; margin-left:auto">${l.comment}</span>
+        </div>
+        <code>${l.code}</code>`;
+      stack.appendChild(div);
+    });
+
+    full.textContent = '// err.Error() in ra:\n' + cfg.fullErr;
+    extract.className = 'chain-extract' + (cfg.extract === 'warn' ? ' warn' : '');
+    extract.innerHTML = `<b>Top-of-stack — middleware extract:</b><br>${cfg.extractMsg}`;
+  }
+
+  document.getElementById('chain-show').addEventListener('click', render);
+  // Render lần đầu để user thấy ngay
+  render();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

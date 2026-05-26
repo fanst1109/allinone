@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L41 — Concurrent Scraper · Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  main { max-width: 1100px; margin: 0 auto; padding: 20px; }
+  h1 { color: #2d3748; margin-bottom: 4px; }
+  .subtitle { color: #718096; margin-bottom: 24px; }
+  section.module {
+    background: white; border-radius: 8px; padding: 20px;
+    margin-bottom: 28px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  section.module h2 {
+    color: #2d3748; margin-top: 0; padding-bottom: 10px;
+    border-bottom: 2px solid #4299e1;
+  }
+  .desc { color: #4a5568; font-size: 14px; margin-bottom: 16px; }
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 14px;
+    background: #f7fafc; padding: 12px; border-radius: 6px;
+    margin-bottom: 16px;
+  }
+  .ctrl { display: flex; flex-direction: column; gap: 4px; }
+  .ctrl label { font-size: 12px; font-weight: 600; color: #4a5568; }
+  .ctrl input[type=range] { width: 160px; }
+  .ctrl .val { font-family: monospace; font-size: 13px; color: #2b6cb0; font-weight: 700; }
+  button {
+    padding: 8px 16px; background: #4299e1; color: white;
+    border: none; border-radius: 6px; cursor: pointer;
+    font-size: 14px; font-weight: 600;
+  }
+  button:hover { background: #2b6cb0; }
+  button:disabled { background: #a0aec0; cursor: not-allowed; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+
+  /* Module 1 — architecture */
+  .arch-canvas { background: #f7fafc; border-radius: 6px; padding: 12px; }
+  .arch-canvas svg { width: 100%; height: auto; display: block; }
+  .arch-canvas .node rect {
+    fill: #ebf8ff; stroke: #4299e1; stroke-width: 2;
+    cursor: pointer; transition: fill 0.2s;
+  }
+  .arch-canvas .node:hover rect { fill: #bee3f8; }
+  .arch-canvas .node.active rect { fill: #fef5e7; stroke: #ed8936; }
+  .arch-canvas .node text {
+    font-family: 'Segoe UI', sans-serif; fill: #2d3748;
+    font-weight: 600; pointer-events: none;
+  }
+  .arch-canvas .label { font-size: 12px; fill: #4a5568; }
+  .arch-canvas .arrow { stroke: #718096; stroke-width: 2; fill: none; }
+  .arch-canvas .arrow-head { fill: #718096; }
+
+  .code-panel {
+    background: #1a202c; color: #e2e8f0; padding: 16px;
+    border-radius: 6px; font-family: 'Menlo','Monaco',monospace;
+    font-size: 13px; line-height: 1.6; margin-top: 12px;
+    overflow-x: auto; min-height: 180px;
+  }
+  .code-panel .file { color: #f6ad55; font-weight: 700; margin-bottom: 8px; }
+  .code-panel .k { color: #f687b3; }
+  .code-panel .s { color: #9ae6b4; }
+  .code-panel .c { color: #718096; font-style: italic; }
+  .code-panel .n { color: #fbb6ce; }
+  .code-panel .t { color: #63b3ed; }
+
+  /* Module 2 — worker simulation */
+  .sim-stage {
+    display: grid; grid-template-columns: 200px 1fr 200px; gap: 16px;
+    background: #f7fafc; padding: 16px; border-radius: 6px;
+  }
+  .sim-col { display: flex; flex-direction: column; gap: 8px; }
+  .sim-col h3 { font-size: 13px; color: #4a5568; margin: 0; text-align: center; }
+  .queue-list { display: flex; flex-direction: column; gap: 4px; min-height: 60px; }
+  .url-chip {
+    background: white; border: 1px solid #cbd5e0; padding: 4px 8px;
+    border-radius: 4px; font-size: 12px; font-family: monospace;
+    transition: all 0.3s;
+  }
+  .url-chip.done { background: #c6f6d5; border-color: #38a169; }
+  .url-chip.failed { background: #fed7d7; border-color: #c53030; }
+  .url-chip.inflight { background: #fef5e7; border-color: #ed8936; }
+
+  .bucket {
+    background: white; border: 2px solid #4299e1; border-radius: 50%;
+    width: 120px; height: 120px; margin: 8px auto;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; position: relative;
+  }
+  .bucket .tokens { font-size: 28px; font-weight: 700; color: #2b6cb0; }
+  .bucket .label { font-size: 11px; color: #718096; }
+  .token-anim {
+    position: absolute; width: 12px; height: 12px;
+    background: #f6ad55; border-radius: 50%;
+    animation: drop 0.5s linear forwards;
+  }
+  @keyframes drop {
+    from { top: -20px; opacity: 0; }
+    to { top: 50%; opacity: 1; }
+  }
+
+  .worker-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 6px;
+  }
+  .worker-cell {
+    background: white; border: 1px solid #cbd5e0; padding: 6px;
+    border-radius: 4px; font-size: 11px; text-align: center;
+    transition: all 0.3s; min-height: 50px;
+  }
+  .worker-cell.idle { color: #a0aec0; }
+  .worker-cell.fetching { background: #fef5e7; border-color: #ed8936; }
+  .worker-cell.writing { background: #c6f6d5; border-color: #38a169; }
+  .worker-cell .wid { font-weight: 700; font-size: 10px; }
+  .worker-cell .url { font-family: monospace; font-size: 9px; word-break: break-all; }
+
+  .progress-bar {
+    background: #e2e8f0; height: 24px; border-radius: 12px;
+    overflow: hidden; margin-top: 12px; position: relative;
+  }
+  .progress-fill {
+    background: linear-gradient(90deg, #4299e1, #38b2ac);
+    height: 100%; transition: width 0.3s;
+  }
+  .progress-text {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #2d3748;
+  }
+  .throughput {
+    display: flex; gap: 16px; margin-top: 12px;
+    font-size: 13px;
+  }
+  .throughput .stat {
+    background: white; padding: 6px 12px; border-radius: 4px;
+    border: 1px solid #cbd5e0;
+  }
+  .throughput .stat .v { font-weight: 700; color: #2b6cb0; }
+
+  /* Module 3 — retry timeline */
+  .timeline { background: #f7fafc; padding: 16px; border-radius: 6px; }
+  .timeline svg { width: 100%; height: auto; display: block; }
+  .timeline .axis { stroke: #4a5568; stroke-width: 1.5; }
+  .timeline .tick { font-size: 11px; fill: #4a5568; }
+  .timeline .attempt rect {
+    transition: all 0.3s;
+  }
+  .timeline .attempt .fail { fill: #fed7d7; stroke: #c53030; stroke-width: 2; }
+  .timeline .attempt .success { fill: #c6f6d5; stroke: #38a169; stroke-width: 2; }
+  .timeline .attempt .pending { fill: #fefcbf; stroke: #d69e2e; stroke-width: 2; }
+  .timeline .backoff { fill: #e2e8f0; stroke-dasharray: 4 2; stroke: #718096; }
+  .timeline .label { font-size: 11px; fill: #2d3748; font-weight: 600; }
+  .timeline .marker { font-size: 12px; font-weight: 700; }
+
+  .retry-log {
+    background: #1a202c; color: #e2e8f0; padding: 12px;
+    border-radius: 6px; font-family: monospace; font-size: 12px;
+    margin-top: 12px; min-height: 100px; max-height: 200px; overflow-y: auto;
+  }
+  .retry-log .line { padding: 2px 0; }
+  .retry-log .ok { color: #9ae6b4; }
+  .retry-log .err { color: #feb2b2; }
+  .retry-log .info { color: #63b3ed; }
+  .retry-log .wait { color: #fbb6ce; }
+
+  @media (max-width: 768px) {
+    .sim-stage { grid-template-columns: 1fr; }
+    .ctrl input[type=range] { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-40-error-handling-deep/visualization.html">← L40: Error Handling Deep</a>
+  <span class="sep">·</span>
+  <span class="current">L41: Concurrent Scraper</span>
+  <span class="sep">·</span>
+  <a href="../tier-4-web-backend/index.html">Tier 4: Web Backend →</a>
+</nav>
+
+<main>
+  <h1>Lesson 41 — Concurrent Web Scraper</h1>
+  <p class="subtitle">Mini-project tổng hợp Tier 3: worker pool, rate limit, context, retry, JSON output.</p>
+
+  <!-- ================= MODULE 1 ================= -->
+  <section class="module">
+    <h2>Module 1 — Scraper Architecture Flow</h2>
+    <p class="desc">Click vào từng component để xem code snippet thật trong project. Tổng cộng 6 file: <code>main.go</code>, <code>scraper.go</code>, <code>ratelimit.go</code>, <code>parser.go</code>, <code>output.go</code>, <code>retry.go</code>.</p>
+
+    <div class="arch-canvas">
+      <svg viewBox="0 0 900 380">
+        <!-- URL queue -->
+        <g class="node" data-comp="queue">
+          <rect x="20" y="160" width="140" height="60" rx="6"/>
+          <text x="90" y="185" text-anchor="middle" font-size="14">URL Queue</text>
+          <text x="90" y="205" text-anchor="middle" class="label">chan string</text>
+        </g>
+
+        <!-- Rate limiter -->
+        <g class="node" data-comp="ratelimit">
+          <rect x="200" y="160" width="140" height="60" rx="6"/>
+          <text x="270" y="185" text-anchor="middle" font-size="14">Token Bucket</text>
+          <text x="270" y="205" text-anchor="middle" class="label">5 req/s</text>
+        </g>
+
+        <!-- Workers -->
+        <g class="node" data-comp="worker">
+          <rect x="380" y="60" width="160" height="60" rx="6"/>
+          <text x="460" y="85" text-anchor="middle" font-size="14">Worker 0</text>
+          <text x="460" y="105" text-anchor="middle" class="label">goroutine + http</text>
+        </g>
+        <g class="node" data-comp="worker">
+          <rect x="380" y="160" width="160" height="60" rx="6"/>
+          <text x="460" y="185" text-anchor="middle" font-size="14">Worker 1</text>
+          <text x="460" y="205" text-anchor="middle" class="label">goroutine + http</text>
+        </g>
+        <g class="node" data-comp="worker">
+          <rect x="380" y="260" width="160" height="60" rx="6"/>
+          <text x="460" y="285" text-anchor="middle" font-size="14">Worker N-1</text>
+          <text x="460" y="305" text-anchor="middle" class="label">goroutine + http</text>
+        </g>
+
+        <!-- Parser -->
+        <g class="node" data-comp="parser">
+          <rect x="580" y="160" width="140" height="60" rx="6"/>
+          <text x="650" y="185" text-anchor="middle" font-size="14">HTML Parser</text>
+          <text x="650" y="205" text-anchor="middle" class="label">x/net/html</text>
+        </g>
+
+        <!-- Output -->
+        <g class="node" data-comp="output">
+          <rect x="760" y="160" width="130" height="60" rx="6"/>
+          <text x="825" y="185" text-anchor="middle" font-size="14">JSON Writer</text>
+          <text x="825" y="205" text-anchor="middle" class="label">bufio + mutex</text>
+        </g>
+
+        <!-- Context -->
+        <g class="node" data-comp="context">
+          <rect x="380" y="350" width="160" height="24" rx="4"/>
+          <text x="460" y="367" text-anchor="middle" font-size="12">Context (Ctrl+C)</text>
+        </g>
+
+        <!-- Arrows -->
+        <!-- queue -> ratelimit -->
+        <path class="arrow" d="M 160 190 L 200 190" marker-end="url(#arrowhead)"/>
+        <!-- ratelimit -> workers -->
+        <path class="arrow" d="M 340 190 Q 360 190 380 90"/>
+        <path class="arrow" d="M 340 190 L 380 190"/>
+        <path class="arrow" d="M 340 190 Q 360 190 380 290"/>
+        <!-- workers -> parser -->
+        <path class="arrow" d="M 540 90 Q 560 90 580 180"/>
+        <path class="arrow" d="M 540 190 L 580 190"/>
+        <path class="arrow" d="M 540 290 Q 560 290 580 200"/>
+        <!-- parser -> output -->
+        <path class="arrow" d="M 720 190 L 760 190" marker-end="url(#arrowhead)"/>
+        <!-- ctx influence -->
+        <path class="arrow" d="M 460 350 L 460 320" stroke-dasharray="3 3"/>
+
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+            <polygon class="arrow-head" points="0 0, 10 3, 0 6"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="code-panel" id="m1-code">
+      <div class="file">// Click 1 component ở sơ đồ trên để xem code</div>
+      <div class="c">// Mỗi component map 1 file Go trong solutions/</div>
+    </div>
+  </section>
+
+  <!-- ================= MODULE 2 ================= -->
+  <section class="module">
+    <h2>Module 2 — Worker Simulation</h2>
+    <p class="desc">Chỉnh worker count, rate limit, số URL → quan sát token bucket cấp token cho worker, worker fetch (1-2s mỗi URL), ghi result. Progress bar + throughput tính realtime.</p>
+
+    <div class="controls">
+      <div class="ctrl">
+        <label>Workers <span class="val" id="m2-w-val">5</span></label>
+        <input type="range" id="m2-workers" min="1" max="20" value="5">
+      </div>
+      <div class="ctrl">
+        <label>Rate (req/s) <span class="val" id="m2-r-val">3</span></label>
+        <input type="range" id="m2-rate" min="1" max="20" value="3">
+      </div>
+      <div class="ctrl">
+        <label>Total URLs <span class="val" id="m2-u-val">12</span></label>
+        <input type="range" id="m2-urls" min="3" max="30" value="12">
+      </div>
+      <div class="ctrl">
+        <label>&nbsp;</label>
+        <button id="m2-start">▶ Bắt đầu</button>
+      </div>
+      <div class="ctrl">
+        <label>&nbsp;</label>
+        <button class="secondary" id="m2-reset">↻ Reset</button>
+      </div>
+    </div>
+
+    <div class="sim-stage">
+      <div class="sim-col">
+        <h3>📋 Queue</h3>
+        <div class="queue-list" id="m2-queue"></div>
+      </div>
+      <div class="sim-col">
+        <h3>👷 Workers</h3>
+        <div class="bucket">
+          <div class="tokens" id="m2-tokens">0</div>
+          <div class="label">tokens</div>
+        </div>
+        <div class="worker-grid" id="m2-workers-vis"></div>
+      </div>
+      <div class="sim-col">
+        <h3>📄 Result.json</h3>
+        <div class="queue-list" id="m2-result"></div>
+      </div>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="m2-progress-fill" style="width: 0%"></div>
+      <div class="progress-text" id="m2-progress-text">0 / 0</div>
+    </div>
+
+    <div class="throughput">
+      <div class="stat">Elapsed: <span class="v" id="m2-elapsed">0.0s</span></div>
+      <div class="stat">Throughput: <span class="v" id="m2-throughput">0.0 req/s</span></div>
+      <div class="stat">Success: <span class="v" id="m2-success">0</span></div>
+      <div class="stat">Failed: <span class="v" id="m2-failed">0</span></div>
+    </div>
+  </section>
+
+  <!-- ================= MODULE 3 ================= -->
+  <section class="module">
+    <h2>Module 3 — Retry Timeline</h2>
+    <p class="desc">Mô phỏng 1 URL fail nhiều lần với <strong>exponential backoff</strong>: attempt 1 fail → đợi 1s → attempt 2 fail → đợi 2s → attempt 3 → success hoặc give up. Chọn kịch bản để xem timeline.</p>
+
+    <div class="controls">
+      <div class="ctrl">
+        <label>Kịch bản</label>
+        <select id="m3-scenario" style="padding: 6px; border-radius: 4px;">
+          <option value="2fail-then-ok">Fail 2 lần, success lần 3</option>
+          <option value="all-fail">Fail cả 3 lần (give up)</option>
+          <option value="immediate-ok">Success ngay lần 1</option>
+          <option value="429">Hit 429 Rate Limited → retry</option>
+        </select>
+      </div>
+      <div class="ctrl">
+        <label>Max retry <span class="val" id="m3-mr-val">3</span></label>
+        <input type="range" id="m3-maxretry" min="1" max="5" value="3">
+      </div>
+      <div class="ctrl">
+        <label>&nbsp;</label>
+        <button id="m3-start">▶ Chạy</button>
+      </div>
+    </div>
+
+    <div class="timeline">
+      <svg viewBox="0 0 900 220" id="m3-svg">
+        <!-- axis -->
+        <line class="axis" x1="40" y1="170" x2="880" y2="170"/>
+        <text x="40" y="195" class="tick">0s</text>
+        <text x="200" y="195" class="tick">1s</text>
+        <text x="360" y="195" class="tick">2s</text>
+        <text x="520" y="195" class="tick">4s</text>
+        <text x="680" y="195" class="tick">7s</text>
+        <text x="840" y="195" class="tick">→ time</text>
+      </svg>
+    </div>
+
+    <div class="retry-log" id="m3-log">
+      <div class="line info">// Chọn kịch bản và bấm "Chạy" để xem retry timeline</div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// ============================================================
+// MODULE 1 — Architecture click-to-show-code
+// ============================================================
+const CODE_SNIPPETS = {
+  queue: {
+    file: 'main.go',
+    code: `<span class="c">// Channel buffered = len(URLs) → enqueue không block</span>
+<span class="k">jobs</span> := <span class="k">make</span>(<span class="k">chan</span> <span class="t">string</span>, <span class="k">len</span>(cfg.URLs))
+<span class="k">for</span> _, u := <span class="k">range</span> cfg.URLs {
+    jobs &lt;- u
+}
+<span class="k">close</span>(jobs)  <span class="c">// worker dùng range → tự dừng khi hết</span>`
+  },
+  ratelimit: {
+    file: 'ratelimit.go',
+    code: `<span class="c">// Token bucket — lazy refill, không cần goroutine background</span>
+<span class="k">type</span> <span class="t">TokenBucket</span> <span class="k">struct</span> {
+    mu         <span class="t">sync.Mutex</span>
+    rate       <span class="t">float64</span>   <span class="c">// 5 req/s</span>
+    capacity   <span class="t">float64</span>   <span class="c">// burst max</span>
+    tokens     <span class="t">float64</span>
+    lastRefill <span class="t">time.Time</span>
+}
+<span class="k">func</span> (tb *<span class="t">TokenBucket</span>) <span class="n">Wait</span>(ctx <span class="t">context.Context</span>) <span class="t">error</span> {
+    <span class="k">for</span> {
+        tb.mu.Lock()
+        tb.refill()
+        <span class="k">if</span> tb.tokens &gt;= 1 { tb.tokens--; tb.mu.Unlock(); <span class="k">return</span> <span class="k">nil</span> }
+        wait := <span class="t">time.Duration</span>((1-tb.tokens)/tb.rate * <span class="t">float64</span>(<span class="t">time.Second</span>))
+        tb.mu.Unlock()
+        <span class="k">select</span> {
+        <span class="k">case</span> &lt;-ctx.Done(): <span class="k">return</span> ctx.Err()
+        <span class="k">case</span> &lt;-<span class="t">time.After</span>(wait):
+        }
+    }
+}`
+  },
+  worker: {
+    file: 'scraper.go',
+    code: `<span class="c">// Worker tiêu thụ jobs, dùng chung rate limiter + writer</span>
+<span class="k">func</span> (w *<span class="t">Worker</span>) <span class="n">Run</span>(ctx <span class="t">context.Context</span>, jobs &lt;-<span class="k">chan</span> <span class="t">string</span>, ...) {
+    <span class="k">for</span> {
+        <span class="k">select</span> {
+        <span class="k">case</span> &lt;-ctx.Done(): <span class="k">return</span>
+        <span class="k">case</span> url, ok := &lt;-jobs:
+            <span class="k">if</span> !ok { <span class="k">return</span> }
+            res := w.processOne(ctx, url)  <span class="c">// fetch + parse + retry</span>
+            w.Writer.Write(res)
+            <span class="t">atomic.AddInt64</span>(done, 1)
+        }
+    }
+}`
+  },
+  parser: {
+    file: 'parser.go',
+    code: `<span class="c">// Tokenizer streaming — nhanh + ít memory hơn DOM parser</span>
+<span class="k">func</span> <span class="n">ParseHTML</span>(body []<span class="t">byte</span>) (title <span class="t">string</span>, links <span class="t">int</span>) {
+    tok := <span class="t">html.NewTokenizer</span>(<span class="t">bytes.NewReader</span>(body))
+    inTitle := <span class="k">false</span>
+    <span class="k">var</span> buf <span class="t">strings.Builder</span>
+    <span class="k">for</span> {
+        <span class="k">switch</span> tok.Next() {
+        <span class="k">case</span> <span class="t">html.ErrorToken</span>:
+            <span class="k">return</span> <span class="t">strings.TrimSpace</span>(buf.String()), links
+        <span class="k">case</span> <span class="t">html.StartTagToken</span>:
+            t := tok.Token()
+            <span class="k">if</span> t.Data == <span class="s">"title"</span> { inTitle = <span class="k">true</span> }
+            <span class="k">if</span> t.Data == <span class="s">"a"</span> {
+                <span class="k">for</span> _, a := <span class="k">range</span> t.Attr {
+                    <span class="k">if</span> a.Key == <span class="s">"href"</span> &amp;&amp; a.Val != <span class="s">""</span> { links++; <span class="k">break</span> }
+                }
+            }
+        <span class="k">case</span> <span class="t">html.TextToken</span>:
+            <span class="k">if</span> inTitle { buf.Write(tok.Text()) }
+        }
+    }
+}`
+  },
+  output: {
+    file: 'output.go',
+    code: `<span class="c">// JSON Lines: mỗi Result 1 dòng → streaming, không cần buffer toàn bộ</span>
+<span class="k">type</span> <span class="t">JSONWriter</span> <span class="k">struct</span> {
+    mu  <span class="t">sync.Mutex</span>     <span class="c">// nhiều worker cùng ghi</span>
+    bw  *<span class="t">bufio.Writer</span>  <span class="c">// gom 4KB rồi flush</span>
+    enc *<span class="t">json.Encoder</span>
+    f   *<span class="t">os.File</span>
+}
+<span class="k">func</span> (w *<span class="t">JSONWriter</span>) <span class="n">Write</span>(r <span class="t">Result</span>) <span class="t">error</span> {
+    w.mu.Lock(); <span class="k">defer</span> w.mu.Unlock()
+    <span class="k">return</span> w.enc.Encode(r)  <span class="c">// thêm '\\n' cuối tự động</span>
+}
+<span class="k">func</span> (w *<span class="t">JSONWriter</span>) <span class="n">Close</span>() <span class="t">error</span> {
+    w.bw.Flush()  <span class="c">// PHẢI flush, không thì mất data trong buffer</span>
+    <span class="k">return</span> w.f.Close()
+}`
+  },
+  context: {
+    file: 'main.go',
+    code: `<span class="c">// signal.NotifyContext: Ctrl+C → ctx cancel → toàn pipeline shutdown</span>
+ctx, stop := <span class="t">signal.NotifyContext</span>(
+    <span class="t">context.Background</span>(),
+    <span class="t">syscall.SIGINT</span>,
+    <span class="t">syscall.SIGTERM</span>,
+)
+<span class="k">defer</span> stop()
+
+<span class="c">// Mọi HTTP request phải dùng NewRequestWithContext</span>
+req, _ := <span class="t">http.NewRequestWithContext</span>(ctx, <span class="s">"GET"</span>, url, <span class="k">nil</span>)
+<span class="c">// khi ctx cancel, req.Do() return context.Canceled ngay</span>`
+  }
+};
+
+document.querySelectorAll('.arch-canvas .node').forEach(node => {
+  node.addEventListener('click', () => {
+    document.querySelectorAll('.arch-canvas .node').forEach(n => n.classList.remove('active'));
+    node.classList.add('active');
+    const comp = node.dataset.comp;
+    const snippet = CODE_SNIPPETS[comp];
+    if (snippet) {
+      document.getElementById('m1-code').innerHTML =
+        `<div class="file">// ${snippet.file}</div>${snippet.code}`;
+    }
+  });
+});
+
+// ============================================================
+// MODULE 2 — Worker simulation
+// ============================================================
+const m2 = {
+  workers: 5, rate: 3, totalUrls: 12,
+  queue: [], result: [], workerState: [], tokens: 0, capacity: 4,
+  startTime: 0, running: false, animId: null,
+  done: 0, success: 0, failed: 0,
+};
+
+function m2InitSim() {
+  m2.queue = [];
+  for (let i = 0; i < m2.totalUrls; i++) m2.queue.push({ id: i, url: `https://site${i+1}.com`, state: 'pending' });
+  m2.result = [];
+  m2.workerState = Array.from({ length: m2.workers }, (_, i) => ({ id: i, busy: false, url: null, phase: 'idle', startedAt: 0 }));
+  m2.tokens = m2.capacity;
+  m2.done = 0; m2.success = 0; m2.failed = 0;
+  m2.lastRefillTime = performance.now();
+  m2Render();
+}
+
+function m2Render() {
+  // queue
+  const qEl = document.getElementById('m2-queue');
+  qEl.innerHTML = m2.queue.slice(0, 15).map(j => {
+    let cls = '';
+    if (j.state === 'inflight') cls = 'inflight';
+    else if (j.state === 'done') cls = 'done';
+    else if (j.state === 'failed') cls = 'failed';
+    return `<div class="url-chip ${cls}">${j.url}</div>`;
+  }).join('') + (m2.queue.length > 15 ? `<div class="url-chip" style="opacity:.5">+${m2.queue.length-15} more...</div>` : '');
+
+  // tokens
+  document.getElementById('m2-tokens').textContent = Math.floor(m2.tokens);
+
+  // workers grid
+  const wEl = document.getElementById('m2-workers-vis');
+  wEl.innerHTML = m2.workerState.map(w => {
+    let cls = w.phase;
+    let urlShort = w.url ? w.url.replace('https://', '').substring(0, 10) : 'idle';
+    return `<div class="worker-cell ${cls}"><div class="wid">W${w.id}</div><div class="url">${urlShort}</div></div>`;
+  }).join('');
+
+  // result
+  const rEl = document.getElementById('m2-result');
+  rEl.innerHTML = m2.result.slice(-12).map(r => {
+    const cls = r.ok ? 'done' : 'failed';
+    return `<div class="url-chip ${cls}">${r.url}</div>`;
+  }).join('');
+
+  // progress
+  const pct = m2.totalUrls > 0 ? (m2.done / m2.totalUrls * 100) : 0;
+  document.getElementById('m2-progress-fill').style.width = pct + '%';
+  document.getElementById('m2-progress-text').textContent = `${m2.done} / ${m2.totalUrls}`;
+
+  // throughput
+  const elapsed = m2.startTime > 0 ? (performance.now() - m2.startTime) / 1000 : 0;
+  document.getElementById('m2-elapsed').textContent = elapsed.toFixed(1) + 's';
+  document.getElementById('m2-throughput').textContent =
+    (elapsed > 0 ? (m2.done / elapsed).toFixed(1) : '0.0') + ' req/s';
+  document.getElementById('m2-success').textContent = m2.success;
+  document.getElementById('m2-failed').textContent = m2.failed;
+}
+
+function m2Tick() {
+  if (!m2.running) return;
+  const now = performance.now();
+
+  // Refill tokens
+  const dt = (now - m2.lastRefillTime) / 1000;
+  m2.tokens = Math.min(m2.capacity, m2.tokens + dt * m2.rate);
+  m2.lastRefillTime = now;
+
+  // Workers process
+  m2.workerState.forEach(w => {
+    if (w.busy) {
+      // check if done fetching
+      const elapsed = (now - w.startedAt) / 1000;
+      const fetchTime = 1.0 + Math.random() * 1.5; // 1-2.5s
+      if (elapsed >= fetchTime) {
+        // fetch done
+        const failed = Math.random() < 0.1; // 10% fail rate
+        m2.result.push({ url: w.url, ok: !failed });
+        m2.done++;
+        if (failed) m2.failed++; else m2.success++;
+
+        // mark queue item
+        const item = m2.queue.find(j => j.url === w.url);
+        if (item) item.state = failed ? 'failed' : 'done';
+
+        w.busy = false; w.url = null; w.phase = 'idle';
+      }
+    }
+    if (!w.busy && m2.tokens >= 1) {
+      // pick next URL
+      const next = m2.queue.find(j => j.state === 'pending');
+      if (next) {
+        m2.tokens -= 1;
+        next.state = 'inflight';
+        w.busy = true; w.url = next.url; w.phase = 'fetching'; w.startedAt = now;
+      }
+    }
+  });
+
+  m2Render();
+
+  // Check completion
+  if (m2.done >= m2.totalUrls) {
+    m2.running = false;
+    document.getElementById('m2-start').textContent = '✓ Done';
+    document.getElementById('m2-start').disabled = false;
+    return;
+  }
+  m2.animId = requestAnimationFrame(m2Tick);
+}
+
+document.getElementById('m2-workers').addEventListener('input', e => {
+  m2.workers = +e.target.value;
+  document.getElementById('m2-w-val').textContent = m2.workers;
+  if (!m2.running) m2InitSim();
+});
+document.getElementById('m2-rate').addEventListener('input', e => {
+  m2.rate = +e.target.value;
+  m2.capacity = Math.max(2, Math.ceil(m2.rate * 0.8));
+  document.getElementById('m2-r-val').textContent = m2.rate;
+});
+document.getElementById('m2-urls').addEventListener('input', e => {
+  m2.totalUrls = +e.target.value;
+  document.getElementById('m2-u-val').textContent = m2.totalUrls;
+  if (!m2.running) m2InitSim();
+});
+document.getElementById('m2-start').addEventListener('click', () => {
+  if (m2.running) return;
+  if (m2.done >= m2.totalUrls) m2InitSim();
+  m2.running = true;
+  m2.startTime = performance.now();
+  m2.lastRefillTime = m2.startTime;
+  document.getElementById('m2-start').textContent = '▶ Running...';
+  document.getElementById('m2-start').disabled = true;
+  m2Tick();
+});
+document.getElementById('m2-reset').addEventListener('click', () => {
+  m2.running = false;
+  if (m2.animId) cancelAnimationFrame(m2.animId);
+  m2.startTime = 0;
+  m2InitSim();
+  document.getElementById('m2-start').textContent = '▶ Bắt đầu';
+  document.getElementById('m2-start').disabled = false;
+});
+m2InitSim();
+
+// ============================================================
+// MODULE 3 — Retry timeline
+// ============================================================
+const m3 = {
+  scenarios: {
+    '2fail-then-ok': [
+      { attempt: 1, duration: 0.5, status: 500, result: 'fail' },
+      { backoff: 1.0 },
+      { attempt: 2, duration: 0.5, status: 500, result: 'fail' },
+      { backoff: 2.0 },
+      { attempt: 3, duration: 0.5, status: 200, result: 'success' }
+    ],
+    'all-fail': [
+      { attempt: 1, duration: 0.5, status: 503, result: 'fail' },
+      { backoff: 1.0 },
+      { attempt: 2, duration: 0.5, status: 503, result: 'fail' },
+      { backoff: 2.0 },
+      { attempt: 3, duration: 0.5, status: 503, result: 'fail' },
+      { giveup: true }
+    ],
+    'immediate-ok': [
+      { attempt: 1, duration: 0.3, status: 200, result: 'success' }
+    ],
+    '429': [
+      { attempt: 1, duration: 0.4, status: 429, result: 'fail' },
+      { backoff: 1.0 },
+      { attempt: 2, duration: 0.4, status: 429, result: 'fail' },
+      { backoff: 2.0 },
+      { attempt: 3, duration: 0.4, status: 200, result: 'success' }
+    ]
+  },
+  running: false
+};
+
+function m3Render(events, currentTime) {
+  const svg = document.getElementById('m3-svg');
+  // clear previous attempts (keep axis)
+  svg.querySelectorAll('.attempt, .backoff-bar, .marker, .att-label').forEach(el => el.remove());
+
+  // Scale: 1 second = 160px starting at x=40
+  const sx = (s) => 40 + s * 160;
+  let t = 0;
+  events.forEach((ev, idx) => {
+    if (ev.backoff !== undefined) {
+      // backoff rectangle
+      const x = sx(t);
+      const w = ev.backoff * 160;
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('class', 'backoff backoff-bar');
+      rect.setAttribute('x', x); rect.setAttribute('y', 130);
+      rect.setAttribute('width', currentTime >= t ? Math.min(w, (currentTime - t) * 160) : 0);
+      rect.setAttribute('height', 40);
+      rect.setAttribute('fill', '#e2e8f0');
+      rect.setAttribute('stroke', '#718096');
+      rect.setAttribute('stroke-dasharray', '4 2');
+      svg.appendChild(rect);
+      if (w > 50) {
+        const lab = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        lab.setAttribute('class', 'label att-label');
+        lab.setAttribute('x', x + w/2); lab.setAttribute('y', 155);
+        lab.setAttribute('text-anchor', 'middle');
+        lab.textContent = `backoff ${ev.backoff}s`;
+        svg.appendChild(lab);
+      }
+      t += ev.backoff;
+    } else if (ev.attempt !== undefined) {
+      const x = sx(t);
+      const w = ev.duration * 160;
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.setAttribute('class', 'attempt');
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      const visible = currentTime >= t;
+      const visibleW = visible ? Math.min(w, (currentTime - t) * 160) : 0;
+      rect.setAttribute('x', x); rect.setAttribute('y', 80);
+      rect.setAttribute('width', visibleW);
+      rect.setAttribute('height', 60); rect.setAttribute('rx', 4);
+      rect.setAttribute('class', visibleW < w ? 'pending' : (ev.result === 'success' ? 'success' : 'fail'));
+      g.appendChild(rect);
+
+      const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      txt.setAttribute('class', 'label att-label');
+      txt.setAttribute('x', x + w/2); txt.setAttribute('y', 115);
+      txt.setAttribute('text-anchor', 'middle');
+      txt.textContent = `#${ev.attempt} → ${ev.status}`;
+      g.appendChild(txt);
+      svg.appendChild(g);
+      t += ev.duration;
+    } else if (ev.giveup) {
+      const x = sx(t);
+      const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      txt.setAttribute('class', 'marker att-label');
+      txt.setAttribute('x', x + 10); txt.setAttribute('y', 110);
+      txt.setAttribute('fill', '#c53030');
+      txt.textContent = currentTime >= t ? '❌ GIVE UP' : '';
+      svg.appendChild(txt);
+    }
+  });
+}
+
+function m3AppendLog(html) {
+  const log = document.getElementById('m3-log');
+  log.innerHTML += `<div class="line">${html}</div>`;
+  log.scrollTop = log.scrollHeight;
+}
+
+document.getElementById('m3-scenario').addEventListener('change', () => {
+  document.getElementById('m3-log').innerHTML = '<div class="line info">// Bấm "Chạy" để xem retry timeline</div>';
+});
+document.getElementById('m3-maxretry').addEventListener('input', e => {
+  document.getElementById('m3-mr-val').textContent = e.target.value;
+});
+
+document.getElementById('m3-start').addEventListener('click', async () => {
+  if (m3.running) return;
+  m3.running = true;
+  document.getElementById('m3-start').disabled = true;
+  const scen = document.getElementById('m3-scenario').value;
+  const events = m3.scenarios[scen];
+  document.getElementById('m3-log').innerHTML = '';
+  m3AppendLog('<span class="info">[scraper]</span> processOne url=https://flaky.example.com');
+
+  const start = performance.now();
+  let totalT = 0;
+  events.forEach(e => { if (e.duration) totalT += e.duration; if (e.backoff) totalT += e.backoff; });
+
+  let lastLoggedIdx = -1;
+  let cumT = 0;
+  const eventTimes = events.map(ev => {
+    const startT = cumT;
+    cumT += ev.duration || ev.backoff || 0;
+    return { startT, endT: cumT, ev };
+  });
+
+  function frame() {
+    const now = (performance.now() - start) / 1000;
+    m3Render(events, now);
+
+    // Log new events as they start
+    eventTimes.forEach((et, idx) => {
+      if (idx > lastLoggedIdx && now >= et.startT) {
+        const ev = et.ev;
+        if (ev.attempt !== undefined) {
+          const color = ev.result === 'success' ? 'ok' : 'err';
+          m3AppendLog(`<span class="info">[attempt ${ev.attempt}]</span> GET ... → <span class="${color}">${ev.status}</span> ${ev.result === 'success' ? '✓' : '✗'}`);
+        } else if (ev.backoff) {
+          m3AppendLog(`<span class="wait">[backoff]</span> sleep ${ev.backoff}s (2^${idx > 0 ? Math.floor(idx/2) : 0})`);
+        } else if (ev.giveup) {
+          m3AppendLog(`<span class="err">[give up]</span> max retry exceeded → Result.Error = "server error 5xx"`);
+        }
+        lastLoggedIdx = idx;
+      }
+    });
+
+    if (now < totalT + 0.3) {
+      requestAnimationFrame(frame);
+    } else {
+      // Final log
+      const last = events[events.length - 1];
+      if (last.result === 'success') {
+        m3AppendLog(`<span class="ok">[done]</span> Result{Status: ${last.status}, Attempts: ${last.attempt}, DurationMs: ${Math.round(totalT*1000)}}`);
+      }
+      m3.running = false;
+      document.getElementById('m3-start').disabled = false;
+    }
+  }
+  requestAnimationFrame(frame);
+});
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

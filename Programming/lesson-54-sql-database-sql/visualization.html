@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 54 — SQL & database/sql</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root { --accent: #ec4899; --accent-soft: #fce7f3; --accent-hover: #db2777; }
+
+  main { max-width: 940px; margin: 0 auto; padding: 0 16px 60px; }
+  h1 { color: #1a202c; }
+  .module {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+    padding: 18px; margin: 22px 0; box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  }
+  .module h2 { margin-top: 0; color: var(--accent-hover); font-size: 1.2rem; }
+  .desc { color: #475569; font-size: .95rem; margin: 6px 0 14px; }
+  button {
+    background: var(--accent); color: #fff; border: none; border-radius: 8px;
+    padding: 9px 14px; font-size: .92rem; cursor: pointer; font-weight: 600;
+    margin: 3px 4px 3px 0;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost { background: #e2e8f0; color: #1a202c; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .controls { margin-bottom: 12px; }
+  label { font-size: .88rem; color: #334155; display: inline-flex; align-items: center; gap: 6px; }
+  input[type=text] {
+    width: 100%; max-width: 340px; box-sizing: border-box;
+    padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 7px; font-size: .9rem;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+  }
+  input[type=range] { vertical-align: middle; max-width: 160px; }
+
+  /* ---- Module 1: pool ---- */
+  .pool-wrap { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start; }
+  .pool-box { flex: 1 1 260px; min-width: 0; }
+  .pool-title { font-weight: 700; font-size: .82rem; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+  .conns { display: flex; flex-wrap: wrap; gap: 8px; }
+  .conn {
+    width: 52px; height: 40px; border-radius: 8px; display: flex; align-items: center;
+    justify-content: center; font-size: .72rem; font-weight: 700; color: #fff;
+    transition: background .25s, transform .15s;
+  }
+  .conn.idle { background: #94a3b8; }
+  .conn.busy { background: #16a34a; }
+  .queue { display: flex; flex-wrap: wrap; gap: 6px; min-height: 36px; }
+  .req {
+    width: 30px; height: 30px; border-radius: 50%; background: #f59e0b; color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 700;
+  }
+  .req.waiting { background: #ef4444; animation: pulse 1s infinite; }
+  @keyframes pulse { 50% { opacity: .55; } }
+  .stat { font-size: .85rem; color: #334155; margin: 8px 0; }
+  .stat b { color: var(--accent-hover); }
+  .pool-log { font-family: ui-monospace, monospace; font-size: .78rem; background: #0f172a; color: #cbd5e1;
+    border-radius: 8px; padding: 10px; height: 110px; overflow-y: auto; margin-top: 10px; }
+  .pool-log .ok { color: #4ade80; }
+  .pool-log .wait { color: #fbbf24; }
+  .pool-log .fail { color: #f87171; }
+
+  /* ---- Module 2: injection ---- */
+  .sql-out {
+    font-family: ui-monospace, monospace; font-size: .82rem; background: #1e293b; color: #e2e8f0;
+    padding: 12px; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; margin: 8px 0;
+  }
+  .sql-out .inj { background: #b91c1c; color: #fff; padding: 1px 3px; border-radius: 3px; }
+  .sql-out .param { background: #15803d; color: #fff; padding: 1px 3px; border-radius: 3px; }
+  .verdict { font-weight: 700; padding: 8px 12px; border-radius: 8px; margin: 8px 0; font-size: .9rem; }
+  .verdict.bad { background: #fee2e2; color: #b91c1c; }
+  .verdict.good { background: #dcfce7; color: #166534; }
+  .panel-2col { display: flex; flex-wrap: wrap; gap: 16px; }
+  .panel-2col > div { flex: 1 1 320px; min-width: 0; }
+  .panel-2col h3 { font-size: .95rem; margin: 4px 0; }
+
+  /* ---- Module 3: lifecycle ---- */
+  .life-steps { display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; margin: 12px 0; }
+  .step {
+    flex: 1 1 130px; min-width: 0; border: 2px solid #e2e8f0; border-radius: 10px; padding: 10px;
+    background: #f8fafc; transition: all .25s; font-size: .82rem;
+  }
+  .step.active { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 3px rgba(236,72,153,.15); }
+  .step.done { border-color: #16a34a; background: #f0fdf4; }
+  .step .num { font-weight: 700; color: var(--accent-hover); font-size: .75rem; }
+  .step .name { font-family: ui-monospace, monospace; font-weight: 700; margin: 3px 0; }
+  .rows-tbl { width: 100%; border-collapse: collapse; font-size: .82rem; margin-top: 10px; }
+  .rows-tbl th, .rows-tbl td { border: 1px solid #e2e8f0; padding: 5px 8px; text-align: left; }
+  .rows-tbl th { background: #f1f5f9; }
+  .rows-tbl tr.cur { background: var(--accent-soft); }
+  .rows-tbl tr.scanned { color: #94a3b8; }
+  .life-msg { font-size: .86rem; color: #334155; margin-top: 8px; min-height: 20px; }
+  .life-msg code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; }
+
+  @media (max-width: 480px) {
+    .conn { width: 44px; height: 34px; font-size: .65rem; }
+    .req { width: 26px; height: 26px; font-size: .62rem; }
+    .step { flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../tier-4-web-backend/index.html">← Tier 4</a>
+  <span class="sep">·</span>
+  <span class="current">L54: SQL &amp; database/sql</span>
+  <span class="sep">·</span>
+  <a href="../lesson-55-orm-vs-raw/visualization.html">L55: ORM vs Raw →</a>
+</nav>
+
+<main>
+<h1>Lesson 54 — SQL &amp; <code>database/sql</code></h1>
+<p>
+  Ba mô-đun tương tác để "thấy" cách Go nói chuyện với database: connection pool
+  hoạt động ra sao khi quá tải, vì sao placeholder chống được SQL injection còn nối
+  chuỗi thì không, và vòng đời một query <code>Query → Rows → Scan → Close</code>.
+</p>
+
+<!-- ============ MODULE 1: CONNECTION POOL ============ -->
+<section class="module" id="m1">
+  <h2>1. Connection pool visualizer</h2>
+  <p class="desc">
+    <code>*sql.DB</code> giữ một pool connection tái dùng. Mỗi query cần "mượn" một
+    connection rảnh; nếu hết, request phải <b>xếp hàng chờ</b>; nếu pool đã đạt
+    <code>MaxOpenConns</code> thì không mở thêm. Tăng tải để thấy pool <b>cạn (exhaust)</b>.
+  </p>
+  <div class="controls">
+    <label>MaxOpenConns:
+      <input type="range" id="poolSize" min="1" max="8" value="4">
+      <b id="poolSizeVal">4</b>
+    </label>
+    <br>
+    <button id="sendOne">Gửi 1 request</button>
+    <button id="sendBurst">Gửi 10 request (burst)</button>
+    <button class="ghost" id="poolReset">Reset</button>
+  </div>
+  <div class="pool-wrap">
+    <div class="pool-box">
+      <div class="pool-title">Pool (connection)</div>
+      <div class="conns" id="conns"></div>
+      <div class="stat">Đang bận: <b id="busyCount">0</b> / <span id="maxCount">4</span></div>
+    </div>
+    <div class="pool-box">
+      <div class="pool-title">Hàng chờ (request đợi connection)</div>
+      <div class="queue" id="queue"></div>
+      <div class="stat">Trong hàng chờ: <b id="queueCount">0</b></div>
+    </div>
+  </div>
+  <div class="pool-log" id="poolLog"></div>
+</section>
+
+<!-- ============ MODULE 2: PREPARED vs CONCAT ============ -->
+<section class="module" id="m2">
+  <h2>2. Prepared statement vs string concat — SQL injection</h2>
+  <p class="desc">
+    Gõ "email" người dùng nhập (thử input độc hại bên dưới) rồi xem hai cách dựng query.
+    Nối chuỗi biến input thành <b>cú pháp SQL</b>; placeholder coi input chỉ là <b>giá trị</b>.
+  </p>
+  <div class="controls">
+    <label style="display:block; margin-bottom:6px;">Input email:
+      <input type="text" id="injInput" value="x' OR '1'='1">
+    </label>
+    <button class="ghost" data-fill="alice@x.io">alice@x.io</button>
+    <button class="ghost" data-fill="x' OR '1'='1">x' OR '1'='1</button>
+    <button class="ghost" data-fill="'; DROP TABLE users; --">'; DROP TABLE users; --</button>
+  </div>
+  <div class="panel-2col">
+    <div>
+      <h3>❌ Nối chuỗi (string concat)</h3>
+      <div class="sql-out" id="unsafeSql"></div>
+      <div class="verdict bad" id="unsafeVerdict"></div>
+    </div>
+    <div>
+      <h3>✅ Placeholder (<code>?</code> + tham số)</h3>
+      <div class="sql-out" id="safeSql"></div>
+      <div class="verdict good" id="safeVerdict"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MODULE 3: QUERY LIFECYCLE ============ -->
+<section class="module" id="m3">
+  <h2>3. Query lifecycle — <code>Query → Rows → Scan → Close</code></h2>
+  <p class="desc">
+    Đi từng bước vòng đời một <code>db.Query</code> trả nhiều dòng. Chú ý ba việc bắt buộc:
+    <code>defer rows.Close()</code>, loop <code>rows.Next()</code> + <code>Scan</code>, và
+    <code>rows.Err()</code> sau loop.
+  </p>
+  <div class="controls">
+    <button id="lifeStep">Bước tiếp →</button>
+    <button class="ghost" id="lifeReset">Reset</button>
+  </div>
+  <div class="life-steps">
+    <div class="step" data-s="0"><div class="num">B1</div><div class="name">db.Query()</div><div>Gửi SQL + tham số, mượn 1 connection, trả <code>*Rows</code></div></div>
+    <div class="step" data-s="1"><div class="num">B2</div><div class="name">defer Close()</div><div>Đặt lịch đóng Rows → trả connection về pool</div></div>
+    <div class="step" data-s="2"><div class="num">B3</div><div class="name">rows.Next()</div><div>Con trỏ tiến tới dòng kế; <code>false</code> khi hết</div></div>
+    <div class="step" data-s="3"><div class="num">B4</div><div class="name">rows.Scan()</div><div>Copy cột dòng hiện tại vào biến Go</div></div>
+    <div class="step" data-s="4"><div class="num">B5</div><div class="name">rows.Err()</div><div>Sau loop: kiểm tra lỗi I/O giữa chừng</div></div>
+    <div class="step" data-s="5"><div class="num">B6</div><div class="name">Close()</div><div>defer chạy → connection về pool, dùng lại được</div></div>
+  </div>
+  <table class="rows-tbl" id="rowsTbl">
+    <thead><tr><th>id</th><th>name</th><th>email</th></tr></thead>
+    <tbody></tbody>
+  </table>
+  <div class="life-msg" id="lifeMsg">Bấm "Bước tiếp →" để bắt đầu.</div>
+</section>
+
+</main>
+
+<script>
+// ===================== MODULE 1: POOL =====================
+(function () {
+  const connsEl = document.getElementById('conns');
+  const queueEl = document.getElementById('queue');
+  const busyEl = document.getElementById('busyCount');
+  const maxEl = document.getElementById('maxCount');
+  const queueCntEl = document.getElementById('queueCount');
+  const logEl = document.getElementById('poolLog');
+  const sizeRange = document.getElementById('poolSize');
+  const sizeVal = document.getElementById('poolSizeVal');
+
+  let maxOpen = 4;
+  let conns = [];   // {busy:bool, reqId:number|null}
+  let queue = [];   // request ids waiting
+  let reqSeq = 0;
+
+  function rebuild() {
+    maxOpen = +sizeRange.value;
+    sizeVal.textContent = maxOpen;
+    maxEl.textContent = maxOpen;
+    conns = Array.from({ length: maxOpen }, () => ({ busy: false, reqId: null }));
+    queue = [];
+    render();
+  }
+
+  function render() {
+    connsEl.innerHTML = '';
+    conns.forEach((c, i) => {
+      const d = document.createElement('div');
+      d.className = 'conn ' + (c.busy ? 'busy' : 'idle');
+      d.textContent = c.busy ? ('#' + c.reqId) : ('C' + i);
+      connsEl.appendChild(d);
+    });
+    queueEl.innerHTML = '';
+    queue.forEach(id => {
+      const d = document.createElement('div');
+      d.className = 'req waiting';
+      d.textContent = id;
+      queueEl.appendChild(d);
+    });
+    busyEl.textContent = conns.filter(c => c.busy).length;
+    queueCntEl.textContent = queue.length;
+  }
+
+  function log(msg, cls) {
+    const line = document.createElement('div');
+    if (cls) line.className = cls;
+    line.textContent = msg;
+    logEl.appendChild(line);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  function acquire(reqId) {
+    const free = conns.find(c => !c.busy);
+    if (free) {
+      free.busy = true;
+      free.reqId = reqId;
+      log('req#' + reqId + ' → mượn connection OK', 'ok');
+      render();
+      // giữ connection 1.4s rồi trả
+      setTimeout(() => release(free), 1400);
+    } else {
+      queue.push(reqId);
+      log('req#' + reqId + ' → POOL CẠN, xếp hàng chờ...', 'wait');
+      render();
+    }
+  }
+
+  function release(conn) {
+    conn.busy = false;
+    conn.reqId = null;
+    if (queue.length) {
+      const next = queue.shift();
+      log('connection rảnh → cấp cho req#' + next + ' đang chờ', 'ok');
+      render();
+      acquire(next);
+    } else {
+      log('connection trả về pool (rảnh)', '');
+      render();
+    }
+  }
+
+  document.getElementById('sendOne').onclick = () => acquire(++reqSeq);
+  document.getElementById('sendBurst').onclick = () => {
+    log('--- BURST: 10 request cùng lúc ---', 'wait');
+    for (let i = 0; i < 10; i++) acquire(++reqSeq);
+  };
+  document.getElementById('poolReset').onclick = () => { logEl.innerHTML = ''; reqSeq = 0; rebuild(); };
+  sizeRange.oninput = () => { logEl.innerHTML = ''; reqSeq = 0; rebuild(); };
+
+  rebuild();
+})();
+
+// ===================== MODULE 2: INJECTION =====================
+(function () {
+  const input = document.getElementById('injInput');
+  const unsafeSql = document.getElementById('unsafeSql');
+  const safeSql = document.getElementById('safeSql');
+  const unsafeVerdict = document.getElementById('unsafeVerdict');
+  const safeVerdict = document.getElementById('safeVerdict');
+
+  function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+  // phát hiện dấu hiệu injection thô (chỉ để minh họa cho bản concat)
+  function looksMalicious(v) {
+    return /('|--|;|\bOR\b|\bUNION\b|\bDROP\b)/i.test(v);
+  }
+
+  function update() {
+    const v = input.value;
+    const ev = esc(v);
+
+    // --- UNSAFE: nối chuỗi ---
+    const unsafeFull = "SELECT id, name, email FROM users WHERE email = '" + ev + "'";
+    unsafeSql.innerHTML = "db.Query(\n  \"" +
+      unsafeFull.replace(ev, '<span class="inj">' + ev + '</span>') + "\"\n)";
+    if (looksMalicious(v)) {
+      unsafeVerdict.className = 'verdict bad';
+      unsafeVerdict.innerHTML = '⚠ INJECTION! Input lọt vào câu lệnh như cú pháp SQL — có thể bypass WHERE, lộ dữ liệu, hoặc xóa bảng.';
+    } else {
+      unsafeVerdict.className = 'verdict bad';
+      unsafeVerdict.innerHTML = 'Input "lành" lần này — nhưng cách này vẫn NGUY HIỂM: chỉ cần một input có dấu nháy là vỡ.';
+    }
+
+    // --- SAFE: placeholder ---
+    safeSql.innerHTML = "db.Query(\n  \"SELECT id, name, email FROM users WHERE email = ?\",\n  <span class=\"param\">" +
+      esc(JSON.stringify(v)) + "</span>  // tham số rời\n)";
+    safeVerdict.className = 'verdict good';
+    safeVerdict.innerHTML = '✅ An toàn. Driver gửi SQL và data tách kênh → input chỉ là GIÁ TRỊ để so sánh, không bao giờ là cú pháp. Tìm email đúng bằng chuỗi đó → thường rỗng.';
+  }
+
+  input.oninput = update;
+  document.querySelectorAll('[data-fill]').forEach(b => {
+    b.onclick = () => { input.value = b.getAttribute('data-fill'); update(); };
+  });
+  update();
+})();
+
+// ===================== MODULE 3: LIFECYCLE =====================
+(function () {
+  const steps = [...document.querySelectorAll('#m3 .step')];
+  const tbody = document.querySelector('#rowsTbl tbody');
+  const msg = document.getElementById('lifeMsg');
+  const data = [
+    { id: 1, name: 'Alice', email: 'alice@x.io' },
+    { id: 2, name: 'Bob', email: 'bob@x.io' },
+    { id: 3, name: 'Carol', email: 'carol@x.io' },
+  ];
+  let phase = 0;   // 0..N
+  let rowIdx = -1; // dòng đang trỏ
+  let scanned = [];
+
+  function renderTable() {
+    tbody.innerHTML = '';
+    data.forEach((r, i) => {
+      const tr = document.createElement('tr');
+      if (i === rowIdx) tr.className = 'cur';
+      else if (scanned.includes(i)) tr.className = 'scanned';
+      tr.innerHTML = `<td>${r.id}</td><td>${r.name}</td><td>${r.email}</td>`;
+      tbody.appendChild(tr);
+    });
+  }
+  function setStep(idx) {
+    steps.forEach((s, i) => {
+      s.classList.toggle('active', i === idx);
+      s.classList.toggle('done', i < idx);
+    });
+  }
+
+  function reset() {
+    phase = 0; rowIdx = -1; scanned = [];
+    steps.forEach(s => s.classList.remove('active', 'done'));
+    renderTable();
+    msg.textContent = 'Bấm "Bước tiếp →" để bắt đầu.';
+    document.getElementById('lifeStep').disabled = false;
+  }
+
+  function next() {
+    // máy trạng thái: Query, defer Close, rồi loop (Next→Scan)*N, rồi Err, rồi Close
+    if (phase === 0) {
+      setStep(0); msg.innerHTML = '<code>rows, err := db.Query("SELECT id,name,email FROM users")</code> — mượn 1 connection, gửi SQL.';
+      phase = 1;
+    } else if (phase === 1) {
+      setStep(1); msg.innerHTML = '<code>defer rows.Close()</code> — đặt lịch đóng NGAY, kẻo quên → leak connection.';
+      phase = 2;
+    } else if (phase === 2) {
+      // Next
+      rowIdx++;
+      if (rowIdx < data.length) {
+        setStep(2); renderTable();
+        msg.innerHTML = `<code>rows.Next()</code> → <b>true</b>, con trỏ ở dòng id=${data[rowIdx].id}.`;
+        phase = 3;
+      } else {
+        setStep(4); renderTable();
+        msg.innerHTML = '<code>rows.Next()</code> → <b>false</b> (hết dòng) → thoát loop. Giờ kiểm <code>rows.Err()</code>.';
+        phase = 5;
+      }
+    } else if (phase === 3) {
+      // Scan
+      setStep(3);
+      scanned.push(rowIdx);
+      renderTable();
+      msg.innerHTML = `<code>rows.Scan(&amp;u.ID, &amp;u.Name, &amp;u.Email)</code> → copy dòng id=${data[rowIdx].id} vào struct, append slice.`;
+      phase = 2; // quay lại Next
+    } else if (phase === 5) {
+      setStep(4);
+      msg.innerHTML = '<code>if err := rows.Err(); err != nil</code> — loop kết thúc do hết dòng (không lỗi). ✅';
+      phase = 6;
+    } else if (phase === 6) {
+      setStep(5);
+      steps[5].classList.add('done');
+      msg.innerHTML = '<code>rows.Close()</code> (defer chạy) → connection TRẢ VỀ POOL, sẵn sàng cho query khác. Xong vòng đời.';
+      document.getElementById('lifeStep').disabled = true;
+      phase = 99;
+    }
+  }
+
+  document.getElementById('lifeStep').onclick = next;
+  document.getElementById('lifeReset').onclick = reset;
+  reset();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 55 — ORM vs Raw SQL (Visualization)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 40px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; margin-top: 22px; }
+  .card {
+    background: #fff; border-radius: 10px; padding: 18px 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .explain { color: #4a5568; line-height: 1.6; }
+  code.inline, code {
+    background: #edf2f7; padding: 1px 5px; border-radius: 4px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.92em;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #4299e1; color: #fff; border: none;
+    padding: 9px 15px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.sel { outline: 3px solid #f6ad55; }
+  select, input[type=range] { font-family: inherit; font-size: 14px; }
+  select {
+    padding: 8px 10px; border-radius: 6px; border: 1px solid #cbd5e0;
+    max-width: 100%; box-sizing: border-box;
+  }
+
+  /* ---- Module 1: spectrum picker ---- */
+  .scenarios { display: flex; flex-direction: column; gap: 8px; }
+  .scen {
+    text-align: left; background: #f7fafc; color: #2d3748;
+    border: 1px solid #cbd5e0; padding: 12px 14px; border-radius: 8px;
+    cursor: pointer; line-height: 1.45;
+  }
+  .scen:hover { background: #ebf8ff; }
+  .scen.sel { background: #fffaf0; border-color: #f6ad55; outline: 2px solid #f6ad55; }
+  .suggest {
+    margin-top: 14px; padding: 14px 16px; border-radius: 8px;
+    background: #f0fff4; border: 1px solid #9ae6b4;
+  }
+  .suggest .tool { font-size: 1.3em; font-weight: 700; color: #276749; }
+  .spectrum {
+    display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0;
+  }
+  .node {
+    flex: 1 1 90px; min-width: 0; text-align: center;
+    padding: 8px 4px; border-radius: 6px; font-size: 13px; font-weight: 600;
+    background: #edf2f7; border: 2px solid transparent; color: #4a5568;
+  }
+  .node.hot { background: #f6ad55; color: #fff; border-color: #dd6b20; }
+  .axis { display: flex; justify-content: space-between; font-size: 12px; color: #718096; margin-top: 2px; }
+
+  /* ---- Module 2: N+1 visualizer ---- */
+  .qbars { display: flex; flex-direction: column; gap: 14px; margin-top: 12px; }
+  .qrow { }
+  .qrow .lbl { font-weight: 600; margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .track { display: flex; gap: 3px; flex-wrap: wrap; }
+  .q {
+    width: 14px; height: 22px; border-radius: 3px; background: #cbd5e0;
+  }
+  .q.base { background: #4299e1; }
+  .q.child { background: #fc8181; }
+  .q.preload { background: #68d391; }
+  .qnum { font-weight: 700; }
+  .danger-txt { color: #c53030; }
+  .ok-txt { color: #276749; }
+
+  /* ---- Module 3: code comparison ---- */
+  .codetabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .codetabs button.sel { background: #2d3748; }
+  pre.code {
+    background: #1a202c; color: #e2e8f0; padding: 14px 16px; border-radius: 8px;
+    overflow-x: auto; font-size: 13px; line-height: 1.5; margin: 0;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  .badges { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
+  .badge {
+    padding: 5px 10px; border-radius: 16px; font-size: 13px; font-weight: 600;
+  }
+  .badge.green { background: #c6f6d5; color: #22543d; }
+  .badge.yellow { background: #fefcbf; color: #744210; }
+  .badge.red { background: #fed7d7; color: #742a2a; }
+  .badge.blue { background: #bee3f8; color: #2a4365; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+  .table-wrap table { min-width: 480px; }
+  th, td { border: 1px solid #cbd5e0; padding: 7px 9px; text-align: left; font-size: 14px; }
+  th { background: #edf2f7; }
+
+  @media (max-width: 480px) {
+    .node { flex: 1 1 64px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-54-sql-database-sql/visualization.html">← L54: SQL &amp; database/sql</a>
+  <span class="sep">·</span>
+  <span class="current">L55: ORM vs Raw</span>
+  <span class="sep">·</span>
+  <a href="../lesson-56-transactions-isolation/visualization.html">L56: Transaction →</a>
+</nav>
+
+<main>
+<h1>Lesson 55 — ORM vs Raw SQL</h1>
+
+<p class="explain">
+Ba module tương tác cho 3 ý cốt lõi của bài:
+<strong>(1) Tool spectrum picker</strong> — chọn tình huống, hệ thống gợi ý công cụ phù hợp trên trục raw→ORM;
+<strong>(2) N+1 visualizer</strong> — kéo số user, so sánh lazy (N+1 query) vs Preload (luôn 2 query);
+<strong>(3) Code comparison</strong> — cùng một query viết bằng raw / sqlx / sqlc / GORM cạnh nhau, kèm số dòng + badge type-safety.
+</p>
+
+<!-- ===================================================================== -->
+<h2>1. Tool spectrum picker</h2>
+<div class="card">
+  <p class="explain">Chọn một tình huống — công cụ gợi ý sẽ sáng lên trên spectrum bên dưới.
+  Không nấc nào "xịn hơn", chỉ là đánh đổi <b>control ↔ tiện</b>.</p>
+
+  <div class="scenarios" id="scenarios"></div>
+
+  <div class="suggest" id="suggest" style="display:none;">
+    <div>Gợi ý: <span class="tool" id="sug-tool"></span></div>
+    <div class="explain" id="sug-why" style="margin-top:6px;"></div>
+  </div>
+
+  <div class="spectrum" id="spectrum"></div>
+  <div class="axis"><span>◄ nhiều control / raw</span><span>nhiều tiện / magic ►</span></div>
+</div>
+
+<!-- ===================================================================== -->
+<h2>2. N+1 visualizer — lazy vs Preload</h2>
+<div class="card">
+  <p class="explain">
+    Lấy danh sách user kèm post. <b>Lazy</b>: 1 query users + mỗi user 1 query posts =
+    <b>N+1</b>. <b>Preload</b>: 1 query users + 1 query <code>WHERE user_id IN (...)</code> = luôn <b>2</b>.
+    Kéo thanh để đổi số user và xem số query nổ ra sao.
+  </p>
+  <div class="row">
+    <label>Số user (N): <b id="n-val">5</b></label>
+    <input type="range" id="n-slider" min="1" max="50" value="5" style="flex:1; min-width:160px; max-width:340px;">
+  </div>
+
+  <div class="qbars">
+    <div class="qrow">
+      <div class="lbl">
+        <span>🔴 Lazy (N+1) — <code>for u { db.Where("user_id=?",u.ID).Find() }</code></span>
+        <span class="qnum danger-txt" id="lazy-num">6 query</span>
+      </div>
+      <div class="track" id="lazy-track"></div>
+    </div>
+    <div class="qrow">
+      <div class="lbl">
+        <span>🟢 Preload — <code>db.Preload("Posts").Find()</code></span>
+        <span class="qnum ok-txt" id="eager-num">2 query</span>
+      </div>
+      <div class="track" id="eager-track"></div>
+    </div>
+  </div>
+  <p class="explain" id="n1-msg" style="margin-top:12px;"></p>
+</div>
+
+<!-- ===================================================================== -->
+<h2>3. Code comparison — cùng 1 query, 4 cách viết</h2>
+<div class="card">
+  <p class="explain">Query: <b>"Lấy 1 user theo email"</b>. Xem 4 cách viết cạnh nhau —
+    chú ý số dòng và mức type-safety mỗi cách.</p>
+  <div class="codetabs" id="codetabs"></div>
+  <div class="badges" id="codebadges"></div>
+  <pre class="code" id="codeblock"></pre>
+
+  <h3>Bảng đối chiếu nhanh</h3>
+  <div class="table-wrap" style="overflow-x:auto;">
+  <table>
+    <thead><tr><th>Công cụ</th><th>Type-safety</th><th>Control SQL</th><th>SQL ẩn?</th><th>Boilerplate</th></tr></thead>
+    <tbody>
+      <tr><td>database/sql (raw)</td><td>Thấp</td><td>Toàn quyền</td><td>Không</td><td>Nhiều</td></tr>
+      <tr><td>sqlx</td><td>Thấp-TB</td><td>Toàn quyền</td><td>Không</td><td>Ít</td></tr>
+      <tr><td>sqlc</td><td><b>Cao</b></td><td>Toàn quyền</td><td>Không</td><td>Rất ít</td></tr>
+      <tr><td>GORM</td><td>TB (runtime)</td><td>Hạn chế</td><td><b>Nhiều</b></td><td>Rất ít</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  // ===================== Module 1: spectrum picker =====================
+  var SPECTRUM = ["database/sql", "sqlx", "sqlc", "pgx", "ent", "GORM"];
+  var SCENARIOS = [
+    { t: "Startup làm app CRUD, team 2 người, ra MVP trong 2 tuần",
+      tool: "GORM", why: "CRUD lặp nhiều + schema còn đổi → chain method + AutoMigrate (dev) tiết kiệm cả nghìn dòng. Tốc-độ-ra-sản-phẩm thắng. Nhớ bật logger." },
+    { t: "API thanh toán, latency < 20ms, hàng chục nghìn TPS, chỉ Postgres",
+      tool: "pgx (+ sqlc)", why: "Cần đỉnh hiệu năng + control: binary protocol, pool, batch. sqlc thêm type-safety mà vẫn viết SQL thật. Tuyệt đối không GORM ở hot path." },
+    { t: "Hệ thống báo cáo: GROUP BY / JOIN / window function phức tạp, đọc nặng",
+      tool: "sqlx / sqlc", why: "Query analytics phức tạp viết SQL thật mới rõ & tối ưu được; ORM sinh SQL kém với window function. sqlx đỡ scan, sqlc nếu muốn type-safe." },
+    { t: "Mạng xã hội: dữ liệu graph (user↔friend↔group↔post), cần type-safe",
+      tool: "ent", why: "ent sinh từ 'graph' đúng cho quan hệ nhiều-nhiều phức tạp, traversal type-safe. Mạnh & an toàn hơn GORM association ở mô hình graph." },
+    { t: "Cần đổi thư viện DB sau này mà không sửa code nghiệp vụ",
+      tool: "Repository pattern (bất kể tool)", why: "Đặt interface giữa service và DB → đổi GORM↔sqlx↔raw chỉ thay impl. Tool nào bên dưới cũng được, miễn interface thuần Go." }
+  ];
+
+  var spec = document.getElementById("spectrum");
+  SPECTRUM.forEach(function (name) {
+    var d = document.createElement("div");
+    d.className = "node"; d.textContent = name; d.dataset.name = name;
+    spec.appendChild(d);
+  });
+
+  var scenWrap = document.getElementById("scenarios");
+  var sugBox = document.getElementById("suggest");
+  var sugTool = document.getElementById("sug-tool");
+  var sugWhy = document.getElementById("sug-why");
+
+  function highlightTool(toolStr) {
+    // tô node nào có tên xuất hiện trong chuỗi gợi ý
+    document.querySelectorAll(".node").forEach(function (n) {
+      var hit = toolStr.toLowerCase().indexOf(n.dataset.name.toLowerCase()) >= 0;
+      n.classList.toggle("hot", hit);
+    });
+  }
+
+  SCENARIOS.forEach(function (s, i) {
+    var b = document.createElement("button");
+    b.className = "scen"; b.textContent = s.t;
+    b.addEventListener("click", function () {
+      document.querySelectorAll(".scen").forEach(function (x) { x.classList.remove("sel"); });
+      b.classList.add("sel");
+      sugBox.style.display = "block";
+      sugTool.textContent = s.tool;
+      sugWhy.textContent = s.why;
+      highlightTool(s.tool);
+    });
+    scenWrap.appendChild(b);
+  });
+
+  // ===================== Module 2: N+1 visualizer =====================
+  var slider = document.getElementById("n-slider");
+  var nVal = document.getElementById("n-val");
+  var lazyTrack = document.getElementById("lazy-track");
+  var eagerTrack = document.getElementById("eager-track");
+  var lazyNum = document.getElementById("lazy-num");
+  var eagerNum = document.getElementById("eager-num");
+  var n1msg = document.getElementById("n1-msg");
+
+  function box(cls) { var d = document.createElement("div"); d.className = "q " + cls; return d; }
+
+  function renderN1() {
+    var n = parseInt(slider.value, 10);
+    nVal.textContent = n;
+    // lazy: 1 base + N child
+    lazyTrack.innerHTML = "";
+    lazyTrack.appendChild(box("base"));
+    for (var i = 0; i < n; i++) lazyTrack.appendChild(box("child"));
+    lazyNum.textContent = (n + 1) + " query";
+    // eager: 2 (base + 1 preload IN)
+    eagerTrack.innerHTML = "";
+    eagerTrack.appendChild(box("base"));
+    eagerTrack.appendChild(box("preload"));
+    eagerNum.textContent = "2 query";
+
+    n1msg.innerHTML = "Với <b>" + n + "</b> user: lazy bắn <b class='danger-txt'>" +
+      (n + 1) + " query</b>, Preload chỉ <b class='ok-txt'>2 query</b>. " +
+      "Tiết kiệm <b>" + (n - 1) + "</b> round-trip. Với 1000 user thì lazy = 1001 query — DB sập.";
+  }
+  slider.addEventListener("input", renderN1);
+  renderN1();
+
+  // ===================== Module 3: code comparison =====================
+  var CODE = {
+    "raw": {
+      lines: 6, badges: [["red", "type-safety thấp (Scan tay)"], ["blue", "control toàn quyền"], ["green", "không SQL ẩn"]],
+      src:
+"// database/sql — liệt kê từng con trỏ trong Scan\n" +
+"var u User\n" +
+"err := db.QueryRow(\n" +
+"    \"SELECT id, name, email FROM users WHERE email=$1\", email,\n" +
+").Scan(&u.ID, &u.Name, &u.Email)\n" +
+"// thêm 1 cột => phải sửa cả SELECT lẫn Scan"
+    },
+    "sqlx": {
+      lines: 2, badges: [["yellow", "type-safety thấp-TB"], ["blue", "control toàn quyền"], ["green", "không SQL ẩn"]],
+      src:
+"// sqlx — struct có tag db:\", tự scan\n" +
+"var u User\n" +
+"err := db.Get(&u, \"SELECT id,name,email FROM users WHERE email=$1\", email)\n" +
+"// thêm cột => chỉ thêm field tag, lời gọi không đổi"
+    },
+    "sqlc": {
+      lines: 2, badges: [["green", "type-safety CAO (compile-time)"], ["blue", "control toàn quyền"], ["green", "không SQL ẩn"]],
+      src:
+"// query.sql:  -- name: GetUserByEmail :one\n" +
+"//             SELECT id,name,email FROM users WHERE email=$1;\n" +
+"// => sqlc generate sinh hàm type-safe:\n" +
+"u, err := q.GetUserByEmail(ctx, email)\n" +
+"// gõ sai cột => lỗi LÚC BUILD, chưa cần chạy"
+    },
+    "GORM": {
+      lines: 2, badges: [["yellow", "type-safety TB (runtime)"], ["red", "control hạn chế"], ["red", "SQL ẩn"]],
+      src:
+"// GORM — chain method, không viết SQL\n" +
+"var u User\n" +
+"err := db.Where(\"email = ?\", email).First(&u).Error\n" +
+"// SQL sinh ngầm; sai field => lỗi lúc chạy, không phải build"
+    }
+  };
+
+  var tabsWrap = document.getElementById("codetabs");
+  var codeBlock = document.getElementById("codeblock");
+  var codeBadges = document.getElementById("codebadges");
+  var ORDER = ["raw", "sqlx", "sqlc", "GORM"];
+
+  function showCode(key) {
+    var c = CODE[key];
+    codeBlock.textContent = c.src;
+    codeBadges.innerHTML = "";
+    var ln = document.createElement("span");
+    ln.className = "badge blue";
+    ln.textContent = "~" + c.lines + " dòng lõi";
+    codeBadges.appendChild(ln);
+    c.badges.forEach(function (b) {
+      var s = document.createElement("span");
+      s.className = "badge " + b[0]; s.textContent = b[1];
+      codeBadges.appendChild(s);
+    });
+    document.querySelectorAll(".codetabs button").forEach(function (btn) {
+      btn.classList.toggle("sel", btn.dataset.key === key);
+    });
+  }
+
+  ORDER.forEach(function (key) {
+    var b = document.createElement("button");
+    b.className = "secondary"; b.dataset.key = key;
+    b.textContent = key === "raw" ? "database/sql" : key;
+    b.addEventListener("click", function () { showCode(key); });
+    tabsWrap.appendChild(b);
+  });
+  showCode("raw");
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

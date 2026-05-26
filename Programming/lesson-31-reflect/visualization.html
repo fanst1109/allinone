@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L31 — reflect: runtime introspection</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #00add8;
+    --accent-hover: #007d9c;
+    --accent-soft: #e6f7fc;
+    --ok: #38a169;
+    --warn: #d69e2e;
+    --err: #e53e3e;
+    --bg-card: #ffffff;
+    --bar-direct: #38a169;
+    --bar-reflect: #e53e3e;
+  }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 80px; }
+  h1 { color: #2d3748; margin-top: 0; }
+  .intro { color: #4a5568; line-height: 1.55; max-width: 760px; }
+
+  .module {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 32px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+  .module h2 {
+    margin-top: 0;
+    color: #2d3748;
+    border-bottom: 2px solid var(--accent-soft);
+    padding-bottom: 8px;
+  }
+  .module .desc { color: #4a5568; line-height: 1.55; }
+
+  textarea {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    font-family: 'Fira Code', Consolas, monospace;
+    font-size: 13px;
+    padding: 10px;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    min-height: 140px;
+  }
+
+  button.viz-btn {
+    padding: 8px 16px;
+    border: 0;
+    background: var(--accent);
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  button.viz-btn:hover { background: var(--accent-hover); }
+  button.viz-btn.secondary { background: #6b7280; }
+  button.viz-btn.secondary:hover { background: #4b5563; }
+
+  .controls {
+    margin: 12px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+
+  table.fields {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 14px;
+  }
+  table.fields th, table.fields td {
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  table.fields th {
+    background: #f7fafc;
+    color: #4a5568;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  table.fields td.k {
+    font-family: 'Fira Code', monospace;
+    color: #2d3748;
+  }
+  table.fields td .tag {
+    display: inline-block;
+    padding: 2px 6px;
+    background: #ebf8ff;
+    color: #2c5282;
+    border-radius: 4px;
+    font-family: 'Fira Code', monospace;
+    font-size: 12px;
+    margin-right: 4px;
+    margin-bottom: 2px;
+  }
+  table.fields td .tag.empty { background: #f7fafc; color: #a0aec0; }
+  .table-wrap { overflow-x: auto; }
+  table.fields { min-width: 540px; }
+
+  .err-msg { color: var(--err); font-family: monospace; font-size: 13px; margin-top: 8px; }
+  .ok-msg  { color: var(--ok); font-family: monospace; font-size: 13px; margin-top: 8px; }
+
+  /* Settable check */
+  .case-list { margin-top: 12px; }
+  .case-list .case {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    background: #fafbfc;
+  }
+  .case-list .case code {
+    font-family: 'Fira Code', Consolas, monospace;
+    font-size: 13px;
+    background: #2d3748;
+    color: #e2e8f0;
+    padding: 6px 10px;
+    border-radius: 4px;
+    display: inline-block;
+    white-space: pre;
+    overflow-x: auto;
+    max-width: 100%;
+  }
+  .case-list .result {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+  .pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .pill.yes { background: #c6f6d5; color: #22543d; }
+  .pill.no  { background: #fed7d7; color: #742a2a; }
+  .explain { color: #4a5568; font-size: 13px; line-height: 1.55; }
+
+  /* Performance chart */
+  .perf-wrap { margin-top: 16px; }
+  .perf-row {
+    display: grid;
+    grid-template-columns: 200px 1fr 80px;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .perf-row .lbl { font-family: 'Fira Code', monospace; font-size: 13px; color: #2d3748; }
+  .perf-bar-bg { background: #edf2f7; border-radius: 4px; height: 24px; overflow: hidden; }
+  .perf-bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width .4s ease;
+  }
+  .perf-bar.direct  { background: var(--bar-direct); }
+  .perf-bar.reflect { background: var(--bar-reflect); }
+  .perf-row .num { font-family: 'Fira Code', monospace; font-size: 13px; color: #4a5568; text-align: right; }
+  .perf-note {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: #fffbeb;
+    border-left: 4px solid var(--warn);
+    border-radius: 4px;
+    color: #744210;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  @media (max-width: 640px) {
+    .perf-row { grid-template-columns: 100px 1fr 60px; gap: 6px; }
+    .perf-row .lbl { font-size: 12px; }
+    .perf-row .num { font-size: 12px; }
+    button.viz-btn { padding: 8px 12px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-30-generics/visualization.html">← L30: Generics</a>
+  <span class="sep">·</span>
+  <span class="current">L31: Reflect</span>
+  <span class="sep">·</span>
+  <a href="../lesson-32-unsafe-cgo/visualization.html">L32: Unsafe & CGo →</a>
+</nav>
+
+<main>
+  <h1>L31 — reflect: runtime introspection</h1>
+  <p class="intro">
+    Reflect cho phép chương trình tự nhìn vào chính nó tại runtime: đọc type, đọc field,
+    đổi giá trị, gọi hàm theo tên. Bài này có 3 module: (1) inspect struct và tag,
+    (2) trắc nghiệm khi nào value <code>CanSet()</code>, (3) so sánh chi phí direct vs reflect.
+  </p>
+
+  <!-- ============================================================== -->
+  <!-- Module 1: Struct Inspector                                      -->
+  <!-- ============================================================== -->
+  <section class="module">
+    <h2>1. Struct Inspector — walk fields + tag</h2>
+    <p class="desc">
+      Dán định nghĩa struct vào ô bên dưới (syntax Go). Inspector sẽ parse rồi hiển thị
+      bảng <em>Name / Type / Kind / Tag</em>, mô phỏng đúng những gì
+      <code>reflect.TypeOf(x).Field(i)</code> trả về.
+    </p>
+
+    <textarea id="struct-input" spellcheck="false">type User struct {
+    ID        int64     `json:"id"        db:"id"            validate:"required"`
+    Name      string    `json:"name"      db:"full_name"     validate:"required,min=2"`
+    Email     string    `json:"email"     db:"email"         validate:"required,email"`
+    Age       uint8     `json:"age"       db:"age"           validate:"min=0,max=150"`
+    Active    bool      `json:"active"    db:"is_active"`
+    CreatedAt time.Time `json:"created_at" db:"created_at"`
+    Tags      []string  `json:"tags"      db:"tags"`
+    secret    string    // unexported - reflect không Set được
+}</textarea>
+
+    <div class="controls">
+      <button class="viz-btn" id="inspect-btn">🔍 Inspect</button>
+      <button class="viz-btn secondary" id="inspect-reset">↻ Reset</button>
+    </div>
+
+    <div id="inspect-result"></div>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- Module 2: Settable check                                        -->
+  <!-- ============================================================== -->
+  <section class="module">
+    <h2>2. Settable check — khi nào CanSet() == true?</h2>
+    <p class="desc">
+      Một <code>reflect.Value</code> có settable hay không quyết định việc bạn có gọi
+      <code>SetX</code> được mà không panic. Click <em>Check</em> ở từng case để xem kết quả + lý do.
+    </p>
+
+    <div class="case-list" id="cases-list"></div>
+
+    <div class="controls">
+      <button class="viz-btn" id="reveal-all">👁 Reveal tất cả</button>
+      <button class="viz-btn secondary" id="hide-all">↻ Ẩn lại</button>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- Module 3: Performance compare                                   -->
+  <!-- ============================================================== -->
+  <section class="module">
+    <h2>3. Performance — direct call vs reflect call (1M ops)</h2>
+    <p class="desc">
+      Bar chart dưới đây mô phỏng thời gian thực thi 1 triệu thao tác, dựa trên benchmark thực
+      của Go 1.22 trên máy modern (Apple M1). Reflect chậm hơn direct 10-100× tuỳ thao tác.
+    </p>
+
+    <div class="controls">
+      <button class="viz-btn" id="perf-run">▶ Chạy benchmark</button>
+      <button class="viz-btn secondary" id="perf-reset">↻ Reset</button>
+    </div>
+
+    <div class="perf-wrap" id="perf-chart"></div>
+
+    <div class="perf-note">
+      <strong>⚠ Lưu ý hot path:</strong> Nếu hàm chạy 1M lần/giây (vd HTTP handler),
+      reflect có thể đẩy latency từ ms lên hàng chục ms. Pattern chuẩn: cache
+      <code>reflect.Type</code> info ngoài vòng lặp, hoặc dùng <em>code generation</em>
+      (như <code>easyjson</code>, <code>protobuf</code>) thay vì reflect runtime.
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* ================================================================== */
+/* Module 1: Struct Inspector                                          */
+/* ================================================================== */
+(function() {
+  const $in   = document.getElementById('struct-input');
+  const $btn  = document.getElementById('inspect-btn');
+  const $rst  = document.getElementById('inspect-reset');
+  const $out  = document.getElementById('inspect-result');
+  const initial = $in.value;
+
+  // Map từ Go type → Kind (mô phỏng reflect.Kind)
+  function kindOf(typ) {
+    typ = typ.trim();
+    if (typ.startsWith('*'))     return 'ptr';
+    if (typ.startsWith('[]'))    return 'slice';
+    if (typ.startsWith('[')) {
+      const m = typ.match(/^\[(\d+)\]/);
+      if (m) return 'array';
+      return 'slice';
+    }
+    if (typ.startsWith('map['))  return 'map';
+    if (typ.startsWith('chan'))  return 'chan';
+    if (typ.startsWith('func'))  return 'func';
+    if (typ === 'string')        return 'string';
+    if (typ === 'bool')          return 'bool';
+    if (/^u?int(8|16|32|64)?$/.test(typ)) return typ.startsWith('u') ? 'uint*' : 'int*';
+    if (/^float(32|64)$/.test(typ)) return 'float*';
+    if (typ === 'byte')          return 'uint8';
+    if (typ === 'rune')          return 'int32';
+    if (typ === 'any' || typ === 'interface{}') return 'interface';
+    // Mọi cái còn lại coi là struct (vd time.Time, User)
+    return 'struct';
+  }
+
+  function parseTags(tagStr) {
+    // tagStr không có backticks ở đây
+    const tags = {};
+    const re = /(\w+):"([^"]*)"/g;
+    let m;
+    while ((m = re.exec(tagStr)) !== null) {
+      tags[m[1]] = m[2];
+    }
+    return tags;
+  }
+
+  function parseStruct(src) {
+    // Tìm `type X struct { ... }`
+    const startIdx = src.indexOf('struct');
+    if (startIdx < 0) return { error: 'không tìm thấy keyword `struct`' };
+    const braceOpen = src.indexOf('{', startIdx);
+    const braceClose = src.lastIndexOf('}');
+    if (braceOpen < 0 || braceClose < 0 || braceClose < braceOpen) {
+      return { error: 'không tìm thấy cặp `{ }`' };
+    }
+    const body = src.substring(braceOpen + 1, braceClose);
+    const lines = body.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('//'));
+    const fields = [];
+    for (const line of lines) {
+      // bỏ inline comment
+      const noCmt = line.replace(/\/\/.*$/, '').trim();
+      if (!noCmt) continue;
+      // tìm backtick tag
+      let tagStr = '';
+      let body = noCmt;
+      const tagMatch = noCmt.match(/`([^`]*)`\s*$/);
+      if (tagMatch) {
+        tagStr = tagMatch[1];
+        body = noCmt.substring(0, tagMatch.index).trim();
+      }
+      // body bây giờ là "Name Type" hoặc "Name1, Name2 Type"
+      const parts = body.split(/\s+/);
+      if (parts.length < 2) continue;
+      const fieldType = parts.slice(-1)[0];
+      const names = parts.slice(0, -1).join(' ').split(',').map(s => s.trim()).filter(Boolean);
+      const tags = parseTags(tagStr);
+      for (const name of names) {
+        fields.push({
+          name,
+          exported: /^[A-Z]/.test(name),
+          type: fieldType,
+          kind: kindOf(fieldType),
+          tags,
+        });
+      }
+    }
+    return { fields };
+  }
+
+  function render(parsed) {
+    if (parsed.error) {
+      $out.innerHTML = `<div class="err-msg">Lỗi: ${parsed.error}</div>`;
+      return;
+    }
+    if (parsed.fields.length === 0) {
+      $out.innerHTML = `<div class="err-msg">Không tìm thấy field nào.</div>`;
+      return;
+    }
+    const rows = parsed.fields.map(f => {
+      const tagCells = ['json', 'db', 'validate']
+        .map(k => f.tags[k]
+          ? `<span class="tag">${k}="${escapeHtml(f.tags[k])}"</span>`
+          : `<span class="tag empty">${k}=""</span>`)
+        .join('');
+      const exportedNote = f.exported
+        ? '<span class="pill yes">exported</span>'
+        : '<span class="pill no">unexported</span>';
+      return `<tr>
+        <td class="k">${escapeHtml(f.name)}</td>
+        <td class="k">${escapeHtml(f.type)}</td>
+        <td class="k">${f.kind}</td>
+        <td>${tagCells}</td>
+        <td>${exportedNote}</td>
+      </tr>`;
+    }).join('');
+
+    $out.innerHTML = `
+      <div class="table-wrap">
+        <table class="fields">
+          <thead><tr>
+            <th>Field Name</th><th>Type</th><th>Kind</th><th>Tags</th><th>Settable?</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <div class="ok-msg">✓ Parse OK — ${parsed.fields.length} field. Field unexported không settable qua reflect.</div>
+    `;
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+  }
+
+  $btn.addEventListener('click', () => render(parseStruct($in.value)));
+  $rst.addEventListener('click', () => { $in.value = initial; $out.innerHTML = ''; });
+
+  // Render lần đầu
+  render(parseStruct(initial));
+})();
+
+
+/* ================================================================== */
+/* Module 2: Settable check                                            */
+/* ================================================================== */
+(function() {
+  const $list = document.getElementById('cases-list');
+  const $revAll = document.getElementById('reveal-all');
+  const $hideAll = document.getElementById('hide-all');
+
+  const cases = [
+    {
+      code: `var x = 42
+v := reflect.ValueOf(x)
+v.SetInt(100)  // ?`,
+      canSet: false,
+      reason: 'Truyền <code>x</code> by-value vào <code>ValueOf</code> → reflect chỉ nhận một copy, không nắm được địa chỉ gốc → <strong>panic</strong>. Phải đổi sang <code>reflect.ValueOf(&x).Elem().SetInt(100)</code>.',
+    },
+    {
+      code: `var x = 42
+v := reflect.ValueOf(&x).Elem()
+v.SetInt(100)  // ?`,
+      canSet: true,
+      reason: 'Pointer + <code>Elem()</code> → có địa chỉ → settable. <code>x</code> bị đổi thành 100.',
+    },
+    {
+      code: `type U struct { Name string }
+u := U{}
+v := reflect.ValueOf(u).FieldByName("Name")
+v.SetString("Bob")  // ?`,
+      canSet: false,
+      reason: '<code>u</code> truyền by-value → struct value không addressable → field cũng không settable. <strong>Panic.</strong> Sửa: <code>reflect.ValueOf(&u).Elem().FieldByName("Name").SetString("Bob")</code>.',
+    },
+    {
+      code: `type U struct { Name string }
+u := U{}
+v := reflect.ValueOf(&u).Elem().FieldByName("Name")
+v.SetString("Bob")  // ?`,
+      canSet: true,
+      reason: 'Pointer + <code>Elem()</code> + field exported → settable. <code>u.Name</code> = "Bob".',
+    },
+    {
+      code: `type U struct { name string }  // chữ thường
+u := U{}
+v := reflect.ValueOf(&u).Elem().FieldByName("name")
+v.SetString("hidden")  // ?`,
+      canSet: false,
+      reason: 'Field <code>name</code> <strong>unexported</strong> (chữ thường). Go bảo vệ encapsulation cả với reflect — <code>CanSet()</code> trả false. Muốn sửa: viết hoa thành <code>Name</code>, hoặc dùng <code>unsafe</code> (không khuyến nghị).',
+    },
+    {
+      code: `m := map[string]int{"a": 1}
+mv := reflect.ValueOf(m)
+mv.MapIndex(reflect.ValueOf("a")).SetInt(2)  // ?`,
+      canSet: false,
+      reason: 'Map element không addressable theo design Go (rehash có thể di chuyển bucket). <code>MapIndex</code> trả về Value chỉ đọc. <strong>Panic.</strong> Cách đúng: <code>mv.SetMapIndex(reflect.ValueOf("a"), reflect.ValueOf(2))</code>.',
+    },
+    {
+      code: `s := []int{1, 2, 3}
+sv := reflect.ValueOf(s)
+sv.Index(0).SetInt(99)  // ?`,
+      canSet: true,
+      reason: 'Slice <strong>element</strong> addressable (vì slice header chứa pointer tới mảng underlying — element có địa chỉ ổn định). Truyền slice by-value vẫn settable element được. <code>s[0]</code> = 99.',
+    },
+    {
+      code: `func f(u User) {
+    reflect.ValueOf(u).Elem()  // ?
+}`,
+      canSet: false,
+      reason: '<code>u</code> là struct value, không phải pointer → gọi <code>Elem()</code> trên non-ptr/non-interface → <strong>panic</strong>: "reflect: call of reflect.Value.Elem on struct Value". Chỉ <code>ptr</code> hoặc <code>interface</code> mới <code>Elem()</code> được.',
+    },
+  ];
+
+  function render() {
+    $list.innerHTML = cases.map((c, i) => `
+      <div class="case" data-i="${i}">
+        <code>${escapeHtml(c.code)}</code>
+        <div class="result">
+          <button class="viz-btn check-btn" data-i="${i}">Check</button>
+          <span class="answer" style="display:none">
+            <span class="pill ${c.canSet ? 'yes' : 'no'}">CanSet = ${c.canSet}</span>
+          </span>
+        </div>
+        <div class="explain" style="display:none; margin-top:8px">${c.reason}</div>
+      </div>
+    `).join('');
+
+    $list.querySelectorAll('.check-btn').forEach(b => {
+      b.addEventListener('click', () => {
+        const i = +b.dataset.i;
+        const card = $list.querySelector(`.case[data-i="${i}"]`);
+        card.querySelector('.answer').style.display = '';
+        card.querySelector('.explain').style.display = '';
+      });
+    });
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+  }
+
+  function reveal(on) {
+    $list.querySelectorAll('.case').forEach(card => {
+      card.querySelector('.answer').style.display = on ? '' : 'none';
+      card.querySelector('.explain').style.display = on ? '' : 'none';
+    });
+  }
+
+  $revAll.addEventListener('click', () => reveal(true));
+  $hideAll.addEventListener('click', () => reveal(false));
+
+  render();
+})();
+
+
+/* ================================================================== */
+/* Module 3: Performance compare                                       */
+/* ================================================================== */
+(function() {
+  const $chart = document.getElementById('perf-chart');
+  const $run   = document.getElementById('perf-run');
+  const $rst   = document.getElementById('perf-reset');
+
+  // Benchmark (ns/op, approx Go 1.22 M1, x 1M ops -> ms)
+  // direct read int field: ~0.3 ns -> 1M = 0.3 ms
+  // reflect read int field: ~12 ns -> 1M = 12 ms
+  const benches = [
+    { op: 'Read int field',  direct: 0.3, reflect: 12,  unit: 'ns/op' },
+    { op: 'Set int field',   direct: 0.3, reflect: 18,  unit: 'ns/op' },
+    { op: 'Call func(2 args)', direct: 2.0, reflect: 180, unit: 'ns/op' },
+    { op: 'Read string tag', direct: 0.0, reflect: 25,  unit: 'ns/op' }, // direct: không tồn tại runtime
+    { op: 'Allocate via New', direct: 8.0, reflect: 95,  unit: 'ns/op' },
+  ];
+
+  function escapeHtml(s) {
+    return String(s).replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+  }
+
+  function render(animate) {
+    const maxRef = Math.max(...benches.map(b => b.reflect));
+    $chart.innerHTML = benches.map(b => {
+      const dirPct = animate ? Math.max(b.direct / maxRef * 100, 0.5) : 0;
+      const refPct = animate ? Math.max(b.reflect / maxRef * 100, 1) : 0;
+      const slow = b.direct > 0 ? (b.reflect / b.direct).toFixed(0) + '×' : 'N/A';
+      return `
+        <div class="perf-row">
+          <div class="lbl">${escapeHtml(b.op)} (direct)</div>
+          <div class="perf-bar-bg"><div class="perf-bar direct" style="width:${dirPct}%"></div></div>
+          <div class="num">${b.direct} ns</div>
+        </div>
+        <div class="perf-row">
+          <div class="lbl">${escapeHtml(b.op)} (reflect)</div>
+          <div class="perf-bar-bg"><div class="perf-bar reflect" style="width:${refPct}%"></div></div>
+          <div class="num">${b.reflect} ns</div>
+        </div>
+        <div class="perf-row" style="margin-bottom:18px">
+          <div class="lbl" style="color:#718096; font-size:12px">Slowdown</div>
+          <div style="color:#742a2a; font-weight:600; font-size:13px">${slow}</div>
+          <div></div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  $run.addEventListener('click', () => {
+    render(false);
+    requestAnimationFrame(() => requestAnimationFrame(() => render(true)));
+  });
+  $rst.addEventListener('click', () => render(false));
+
+  // Render initial (no animation)
+  render(true);
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

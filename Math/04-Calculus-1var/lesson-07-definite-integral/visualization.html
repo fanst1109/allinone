@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 07 — Tích phân xác định</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  button { background: #94a3b8; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.active { background: #15803d; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 700px; height: 400px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-antiderivatives/visualization.html">← L6: Nguyên hàm</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Tích phân</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L8: Ứng dụng (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 07 (T4) — Tổng Riemann hội tụ về Tích phân</h1>
+
+<h2>Tổng Riemann xấp xỉ ∫_a^b f(x) dx</h2>
+<div class="card">
+  <div class="row">
+    <button id="b1" onclick="setF('xsq')" class="active">x²</button>
+    <button id="b2" onclick="setF('sinx')">sin x</button>
+    <button id="b3" onclick="setF('ex')">e^x</button>
+    <button id="b4" onclick="setF('linear')">x + 1</button>
+  </div>
+  <div class="row">
+    <label>Cận a:</label><input type="range" id="a" min="-2" max="2" step="0.1" value="0" oninput="draw()">
+    <span class="stat">a=<strong id="vA">0</strong></span>
+    <label>Cận b:</label><input type="range" id="b" min="0" max="6" step="0.1" value="3" oninput="draw()">
+    <span class="stat">b=<strong id="vB">3</strong></span>
+  </div>
+  <div class="row">
+    <label>n (số chữ nhật):</label>
+    <input type="range" id="n" min="1" max="80" step="1" value="10" oninput="draw()">
+    <span class="stat">n=<strong id="vN">10</strong></span>
+  </div>
+  <svg class="scene" id="svg" viewBox="0 0 700 400"></svg>
+  <div class="result" id="res"></div>
+</div>
+
+<script>
+const defs = {
+  xsq:    {fn: x => x*x, antider: x => x*x*x/3, label: "x²"},
+  sinx:   {fn: x => Math.sin(x), antider: x => -Math.cos(x), label: "sin x"},
+  ex:     {fn: x => Math.exp(x), antider: x => Math.exp(x), label: "e^x"},
+  linear: {fn: x => x + 1, antider: x => x*x/2 + x, label: "x + 1"}
+};
+let cur = "xsq";
+
+function setF(f) {
+  cur = f;
+  ["1","2","3","4"].forEach(c => document.getElementById("b"+c).classList.remove("active"));
+  const m = {xsq:"1", sinx:"2", ex:"3", linear:"4"};
+  document.getElementById("b" + m[f]).classList.add("active");
+  draw();
+}
+
+function draw() {
+  const a = parseFloat(document.getElementById("a").value);
+  const b = parseFloat(document.getElementById("b").value);
+  const n = parseInt(document.getElementById("n").value);
+  document.getElementById("vA").textContent = a.toFixed(1);
+  document.getElementById("vB").textContent = b.toFixed(1);
+  document.getElementById("vN").textContent = n;
+
+  const def = defs[cur];
+  const svg = document.getElementById("svg");
+  svg.innerHTML = "";
+  const W = 700, H = 400, cx = 50, cy = 340;
+  const xMin = Math.min(a, 0) - 0.5;
+  const xMax = Math.max(b, 0) + 0.5;
+  const scale = (W - 100) / (xMax - xMin);
+  // Find y range
+  let yMax = 0;
+  for (let x = a; x <= b; x += 0.1) yMax = Math.max(yMax, Math.abs(def.fn(x)));
+  for (let x = xMin; x <= xMax; x += 0.1) yMax = Math.max(yMax, Math.abs(def.fn(x)));
+  const yScale = 250 / Math.max(yMax, 1);
+
+  const xToPx = x => cx + (x - xMin) * scale;
+  const yToPx = y => cy - y * yScale;
+
+  // Grid
+  for (let i = Math.ceil(xMin); i <= Math.floor(xMax); i++) {
+    const x = xToPx(i);
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", x); l.setAttribute("y1", 30); l.setAttribute("x2", x); l.setAttribute("y2", cy);
+    l.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); l.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+    svg.appendChild(l);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", x); t.setAttribute("y", cy+15); t.setAttribute("text-anchor", "middle"); t.setAttribute("font-size", "11");
+    t.textContent = i;
+    svg.appendChild(t);
+  }
+  // X axis
+  const xax = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  xax.setAttribute("x1", cx); xax.setAttribute("y1", cy); xax.setAttribute("x2", W-20); xax.setAttribute("y2", cy);
+  xax.setAttribute("stroke", "#1a202c"); xax.setAttribute("stroke-width", 1.5);
+  svg.appendChild(xax);
+
+  // Rectangles (Riemann)
+  const dx = (b - a) / n;
+  let Sn = 0;
+  for (let i = 0; i < n; i++) {
+    const xi = a + (i + 0.5)*dx; // midpoint
+    const yi = def.fn(xi);
+    Sn += yi * dx;
+    const rx = xToPx(a + i*dx);
+    const rw = dx * scale;
+    const rh = Math.abs(yi) * yScale;
+    const ry = yi >= 0 ? yToPx(yi) : cy;
+    const r = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    r.setAttribute("x", rx); r.setAttribute("y", ry); r.setAttribute("width", rw); r.setAttribute("height", rh);
+    r.setAttribute("fill", yi >= 0 ? "#bfdbfe" : "#fecaca"); r.setAttribute("stroke", yi >= 0 ? "#1d4ed8" : "#dc2626"); r.setAttribute("stroke-width", 0.7); r.setAttribute("fill-opacity", 0.6);
+    svg.appendChild(r);
+  }
+
+  // Function curve
+  let path = "";
+  let started = false;
+  for (let x = xMin; x <= xMax; x += 0.02) {
+    const y = def.fn(x);
+    if (!isFinite(y)) continue;
+    const px = xToPx(x), py = yToPx(y);
+    if (py > 30 && py < cy + 50) {
+      path += (started ? "L" : "M") + px + " " + py + " ";
+      started = true;
+    } else { started = false; }
+  }
+  const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  p.setAttribute("d", path); p.setAttribute("fill", "none"); p.setAttribute("stroke", "#dc2626"); p.setAttribute("stroke-width", 2.5);
+  svg.appendChild(p);
+
+  // Exact value (FTC2)
+  const exact = def.antider(b) - def.antider(a);
+
+  document.getElementById("res").innerHTML = `
+    <div style="font-family:monospace; font-size:14px"><strong>∫_{${a.toFixed(2)}}^{${b.toFixed(2)}} ${def.label} dx</strong></div>
+    <div class="row" style="margin-top:6px">
+      <span class="stat">Tổng Riemann (n=${n}, midpoint): S_n = <strong>${Sn.toFixed(5)}</strong></span>
+      <span class="stat">Giá trị thật (FTC): <strong>${exact.toFixed(5)}</strong></span>
+      <span class="stat">Sai số: <strong>${Math.abs(Sn - exact).toFixed(5)}</strong></span>
+    </div>
+    <div style="margin-top:6px; font-size:13px">F(b) - F(a) = [${def.antider(b).toFixed(4)}] - [${def.antider(a).toFixed(4)}] = ${exact.toFixed(5)}. Tăng n để giảm sai số.</div>
+  `;
+}
+
+draw();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

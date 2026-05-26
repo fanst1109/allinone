@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>L42 — net/http Deep · Visualization</title>
+  <link rel="stylesheet" href="../../tools/viz-base.css">
+  <style>
+    :root {
+      --accent: #00add8;          /* Go cyan */
+      --accent-soft: #e0f7fc;
+      --accent-hover: #0096bd;
+    }
+    main { max-width: 1080px; }
+
+    h1 { font-size: 26px; margin: 0 0 6px; color: #0f172a; }
+    .lead { color: #475569; margin: 0 0 24px; font-size: 15px; }
+
+    section.mod {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px 22px;
+      margin: 0 0 26px;
+      box-shadow: 0 1px 3px rgba(15,23,42,0.05);
+    }
+    section.mod > h2 {
+      margin: 0 0 6px;
+      font-size: 19px;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    section.mod > h2 .badge {
+      background: var(--accent-soft);
+      color: var(--accent-hover);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 2px 9px;
+      border-radius: 999px;
+    }
+    section.mod > p.desc { color: #64748b; font-size: 14px; margin: 0 0 16px; }
+
+    .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 16px; }
+    button.btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    button.btn:hover { background: var(--accent-hover); }
+    button.btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+    button.btn.ghost { background: #f1f5f9; color: #334155; }
+    button.btn.ghost:hover { background: #e2e8f0; }
+
+    .stage-wrap { width: 100%; overflow-x: auto; }
+
+    /* ===== Module 1: lifecycle ===== */
+    .phase-label {
+      font-size: 14px;
+      color: #334155;
+      min-height: 22px;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+    .phase-label .step-num { color: var(--accent-hover); }
+    .lc-svg .node rect { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 1.5; transition: all 0.3s; }
+    .lc-svg .node.active rect { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2.5; }
+    .lc-svg .node.done rect { fill: #f0fdf4; stroke: #86efac; }
+    .lc-svg .node text { font-size: 12px; fill: #334155; font-weight: 600; }
+    .lc-svg .node.active text { fill: #0f172a; }
+    .lc-svg .lane-label { font-size: 11px; fill: #94a3b8; font-weight: 700; letter-spacing: .5px; }
+    .lc-svg .packet { fill: var(--accent); }
+    .lc-detail {
+      margin-top: 12px;
+      background: #f8fafc;
+      border-left: 3px solid var(--accent);
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      font-size: 13.5px;
+      color: #334155;
+      min-height: 40px;
+    }
+    .lc-detail code { background: #e2e8f0; padding: 1px 5px; border-radius: 4px; font-size: 12.5px; }
+
+    /* ===== Module 2: middleware onion ===== */
+    .mw-svg .layer rect { stroke-width: 2; transition: all 0.3s; rx: 10; }
+    .mw-svg .layer.dim rect { opacity: 0.35; }
+    .mw-svg .layer text { font-size: 13px; font-weight: 700; transition: opacity 0.3s; }
+    .mw-svg .layer.dim text { opacity: 0.4; }
+    .mw-svg .flow-dot { fill: #ef4444; }
+    .mw-svg .dir-label { font-size: 11px; fill: #64748b; }
+    .mw-log {
+      margin-top: 14px;
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 12.5px;
+      line-height: 1.7;
+      min-height: 80px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .mw-log .req-line { color: #7dd3fc; }
+    .mw-log .res-line { color: #86efac; }
+    .mw-log .hl { color: #fde047; }
+
+    /* ===== Module 3: status picker ===== */
+    .sc-scenario {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+    .sc-counter { font-size: 12px; color: #94a3b8; font-weight: 700; margin-bottom: 6px; }
+    .sc-text { font-size: 15px; color: #0f172a; line-height: 1.5; }
+    .sc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    button.sc-opt {
+      border: 2px solid #e2e8f0;
+      background: #fff;
+      border-radius: 10px;
+      padding: 10px 6px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+    button.sc-opt:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-soft); }
+    button.sc-opt .code { font-size: 20px; font-weight: 800; color: #0f172a; }
+    button.sc-opt .name { font-size: 11px; color: #64748b; display: block; margin-top: 2px; }
+    button.sc-opt.correct { border-color: #22c55e; background: #f0fdf4; }
+    button.sc-opt.correct .code { color: #15803d; }
+    button.sc-opt.wrong { border-color: #ef4444; background: #fef2f2; }
+    button.sc-opt.wrong .code { color: #b91c1c; }
+    button.sc-opt:disabled { cursor: default; }
+    .sc-feedback {
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 14px;
+      line-height: 1.55;
+      margin-bottom: 14px;
+      display: none;
+    }
+    .sc-feedback.show { display: block; }
+    .sc-feedback.ok { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
+    .sc-feedback.no { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+    .sc-feedback code { background: rgba(0,0,0,0.06); padding: 1px 5px; border-radius: 4px; }
+    .sc-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    .sc-score { font-size: 14px; color: #334155; font-weight: 600; }
+    .sc-score b { color: var(--accent-hover); }
+
+    @media (max-width: 768px) {
+      main { padding-left: 14px; padding-right: 14px; }
+      section.mod { padding: 16px; }
+      .sc-grid { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); }
+      .controls { gap: 8px; }
+      button.btn { padding: 8px 13px; font-size: 13.5px; }
+    }
+    @media (max-width: 480px) {
+      .sc-grid { grid-template-columns: repeat(3, 1fr); }
+      button.sc-opt .code { font-size: 17px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="viz-nav">
+    <a href="../index.html">🏠 Programming</a>
+    <span class="sep">·</span>
+    <a href="../tier-3-advanced/index.html">← Tier 3</a>
+    <span class="sep">·</span>
+    <span class="current">L42: net/http Deep</span>
+    <span class="sep">·</span>
+    <a href="../lesson-43-rest-api-design/visualization.html">L43: REST API Design →</a>
+  </nav>
+
+  <main>
+    <h1>net/http Deep — minh họa tương tác</h1>
+    <p class="lead">Ba module: vòng đời request/response trong Go runtime, middleware chain theo mô hình củ hành (onion), và bài tập chọn status code đúng cho từng tình huống thật.</p>
+
+    <!-- ========================= MODULE 1 ========================= -->
+    <section class="mod">
+      <h2><span class="badge">Module 1</span> Vòng đời Request / Response</h2>
+      <p class="desc">Bấm "Chạy từng bước" hoặc "Tự động" để xem một request <code>GET /users/42</code> đi qua 6 bước trong <code>net/http</code>: từ <code>Accept</code> tới khi flush response và quyết định keep-alive.</p>
+
+      <div class="controls">
+        <button class="btn" id="lcStep">Chạy từng bước ▸</button>
+        <button class="btn ghost" id="lcAuto">Tự động ⏵</button>
+        <button class="btn ghost" id="lcReset">Reset ⟲</button>
+      </div>
+
+      <div class="phase-label" id="lcPhase">Bấm để bắt đầu — request chưa tới.</div>
+
+      <div class="stage-wrap">
+        <svg class="lc-svg" id="lcSvg" width="940" height="290" viewBox="0 0 940 290" role="img" aria-label="HTTP request lifecycle diagram">
+          <text class="lane-label" x="20" y="28">CLIENT</text>
+          <text class="lane-label" x="20" y="150">RUNTIME / net/http</text>
+          <text class="lane-label" x="20" y="262">HANDLER</text>
+          <line x1="0" y1="90" x2="940" y2="90" stroke="#e2e8f0" stroke-width="1"/>
+          <line x1="0" y1="210" x2="940" y2="210" stroke="#e2e8f0" stroke-width="1"/>
+
+          <!-- client box -->
+          <g class="node" id="n-client" data-step="-1">
+            <rect x="380" y="40" width="180" height="40" rx="8"/>
+            <text x="470" y="65" text-anchor="middle">Client: GET /users/42</text>
+          </g>
+
+          <!-- runtime nodes row (y ~130) -->
+          <g class="node" id="n0" data-step="0">
+            <rect x="30" y="110" width="150" height="44" rx="8"/>
+            <text x="105" y="137" text-anchor="middle">1. Accept()</text>
+          </g>
+          <g class="node" id="n1" data-step="1">
+            <rect x="200" y="110" width="160" height="44" rx="8"/>
+            <text x="280" y="131" text-anchor="middle">2. go conn.serve</text>
+            <text x="280" y="147" text-anchor="middle" style="font-size:10px;fill:#94a3b8">(goroutine)</text>
+          </g>
+          <g class="node" id="n2" data-step="2">
+            <rect x="380" y="110" width="170" height="44" rx="8"/>
+            <text x="465" y="131" text-anchor="middle">3. Parse line +</text>
+            <text x="465" y="147" text-anchor="middle">headers → *Request</text>
+          </g>
+          <g class="node" id="n3" data-step="3">
+            <rect x="570" y="110" width="160" height="44" rx="8"/>
+            <text x="650" y="131" text-anchor="middle">4. mux dispatch</text>
+            <text x="650" y="147" text-anchor="middle" style="font-size:10px;fill:#94a3b8">match GET /users/{id}</text>
+          </g>
+          <g class="node" id="n5" data-step="5">
+            <rect x="760" y="110" width="150" height="44" rx="8"/>
+            <text x="835" y="131" text-anchor="middle">6. Flush +</text>
+            <text x="835" y="147" text-anchor="middle">keep-alive?</text>
+          </g>
+
+          <!-- handler node (y ~250) -->
+          <g class="node" id="n4" data-step="4">
+            <rect x="570" y="230" width="160" height="44" rx="8"/>
+            <text x="650" y="251" text-anchor="middle">5. handler:</text>
+            <text x="650" y="267" text-anchor="middle" style="font-size:10px;fill:#94a3b8">WriteHeader→Write</text>
+          </g>
+
+          <!-- moving packet -->
+          <circle class="packet" id="lcPacket" cx="470" cy="60" r="7" opacity="0"/>
+        </svg>
+      </div>
+
+      <div class="lc-detail" id="lcDetail">Mỗi connection chạy trong một goroutine riêng (~2KB stack ban đầu). 10k request đồng thời ≈ 20MB — Go scale tốt.</div>
+    </section>
+
+    <!-- ========================= MODULE 2 ========================= -->
+    <section class="mod">
+      <h2><span class="badge">Module 2</span> Middleware Chain — mô hình củ hành</h2>
+      <p class="desc">Chain <code>Logger(Auth(Recover(Handler)))</code>. Request đi từ ngoài vào trong (before), tới Handler, rồi response đi ngược ra ngoài (after). Mỗi lớp bọc lớp trong — đó là lý do gọi là "onion model".</p>
+
+      <div class="controls">
+        <button class="btn" id="mwRun">Gửi request ⏵</button>
+        <button class="btn ghost" id="mwReset">Reset ⟲</button>
+      </div>
+
+      <div class="stage-wrap">
+        <svg class="mw-svg" id="mwSvg" width="640" height="300" viewBox="0 0 640 300" role="img" aria-label="Middleware onion diagram">
+          <text class="dir-label" x="20" y="20">request →</text>
+          <text class="dir-label" x="540" y="20" text-anchor="start">← response</text>
+
+          <g class="layer" id="L0" data-layer="0">
+            <rect x="40" y="30" width="560" height="240" fill="#dbeafe" stroke="#3b82f6"/>
+            <text x="320" y="50" text-anchor="middle" fill="#1e40af">Logger (ngoài cùng)</text>
+          </g>
+          <g class="layer" id="L1" data-layer="1">
+            <rect x="100" y="68" width="440" height="166" fill="#fef3c7" stroke="#f59e0b"/>
+            <text x="320" y="88" text-anchor="middle" fill="#92400e">Auth</text>
+          </g>
+          <g class="layer" id="L2" data-layer="2">
+            <rect x="160" y="106" width="320" height="90" fill="#fee2e2" stroke="#ef4444"/>
+            <text x="320" y="126" text-anchor="middle" fill="#991b1b">Recover</text>
+          </g>
+          <g class="layer" id="L3" data-layer="3">
+            <rect x="220" y="142" width="200" height="44" fill="#dcfce7" stroke="#22c55e"/>
+            <text x="320" y="169" text-anchor="middle" fill="#166534">Handler</text>
+          </g>
+
+          <circle class="flow-dot" id="mwDot" cx="20" cy="150" r="8" opacity="0"/>
+        </svg>
+      </div>
+
+      <div class="mw-log" id="mwLog">Bấm "Gửi request" để xem thứ tự thực thi từng lớp.</div>
+    </section>
+
+    <!-- ========================= MODULE 3 ========================= -->
+    <section class="mod">
+      <h2><span class="badge">Module 3</span> Status Code Picker</h2>
+      <p class="desc">Đọc tình huống, chọn status code phù hợp nhất. Bấm xong sẽ hiện đúng/sai kèm giải thích. 12 tình huống thực tế.</p>
+
+      <div class="sc-scenario">
+        <div class="sc-counter" id="scCounter">Tình huống 1 / 12</div>
+        <div class="sc-text" id="scText">…</div>
+      </div>
+
+      <div class="sc-grid" id="scGrid"></div>
+
+      <div class="sc-feedback" id="scFeedback"></div>
+
+      <div class="sc-footer">
+        <div class="sc-score">Điểm: <b id="scScore">0</b> / <span id="scTotal">12</span></div>
+        <div class="controls" style="margin:0">
+          <button class="btn" id="scNext" disabled>Tình huống tiếp ▸</button>
+          <button class="btn ghost" id="scRestart">Làm lại ⟲</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+  // ============================ MODULE 1 ============================
+  (function () {
+    const phases = [
+      { id: 'n0', label: '1. listener.Accept() — runtime block tới khi có connection mới, rồi trả về conn.',
+        detail: '<code>net.Listen("tcp", ":8080")</code> tạo listener. Vòng lặp <code>listener.Accept()</code> block cho tới khi client mở connection TCP.' },
+      { id: 'n1', label: '2. go conn.serve(ctx) — mỗi connection được phục vụ bởi một goroutine riêng.',
+        detail: 'Goroutine khởi đầu chỉ ~2KB stack. Đây là lý do Go xử lý hàng chục nghìn connection đồng thời mà không tốn nhiều RAM.' },
+      { id: 'n2', label: '3. Parse request line + headers → build *Request.',
+        detail: 'Parser đọc <code>GET /users/42 HTTP/1.1</code> + các header, dựng struct <code>*Request{Method:"GET", URL.Path:"/users/42"}</code>.' },
+      { id: 'n3', label: '4. Dispatch — mux.ServeHTTP match pattern, gọi handler tương ứng.',
+        detail: 'Mux khớp pattern <code>GET /users/{id}</code> → gọi handler, đặt <code>r.PathValue("id") = "42"</code>. Mux cũng là một Handler (đệ quy).' },
+      { id: 'n4', label: '5. Handler chạy: Header().Set → WriteHeader(200) → Write(body).',
+        detail: 'Thứ tự bắt buộc: set header TRƯỚC <code>WriteHeader</code>, write body SAU. Sai thứ tự = silent bug, không panic.' },
+      { id: 'n5', label: '6. Flush bytes ra socket, kiểm tra Connection: keep-alive.',
+        detail: 'Nếu keep-alive, goroutine quay lại bước 3 đọc request kế trên cùng connection. Nếu không, đóng conn.' },
+    ];
+    const svg = document.getElementById('lcSvg');
+    const phaseEl = document.getElementById('lcPhase');
+    const detailEl = document.getElementById('lcDetail');
+    const packet = document.getElementById('lcPacket');
+    const clientNode = document.getElementById('n-client');
+    let cur = -1, autoTimer = null;
+
+    function clearStates() {
+      svg.querySelectorAll('.node').forEach(n => n.classList.remove('active', 'done'));
+    }
+    function render() {
+      clearStates();
+      if (cur < 0) {
+        phaseEl.textContent = 'Bấm để bắt đầu — request chưa tới.';
+        detailEl.innerHTML = 'Mỗi connection chạy trong một goroutine riêng (~2KB stack ban đầu). 10k request đồng thời ≈ 20MB — Go scale tốt.';
+        packet.setAttribute('opacity', '0');
+        clientNode.classList.add('active');
+        return;
+      }
+      clientNode.classList.add('done');
+      for (let i = 0; i < cur; i++) svg.querySelector('#' + phases[i].id).classList.add('done');
+      const node = svg.querySelector('#' + phases[cur].id);
+      node.classList.add('active');
+      phaseEl.innerHTML = '<span class="step-num">▸</span> ' + phases[cur].label;
+      detailEl.innerHTML = phases[cur].detail;
+      // move packet roughly to node center
+      const rect = node.querySelector('rect');
+      const cx = +rect.getAttribute('x') + (+rect.getAttribute('width')) / 2;
+      const cy = +rect.getAttribute('y') + (+rect.getAttribute('height')) / 2;
+      packet.setAttribute('opacity', '1');
+      packet.setAttribute('cx', cx);
+      packet.setAttribute('cy', cy);
+    }
+    function step() {
+      if (cur < phases.length - 1) { cur++; render(); }
+      else { stopAuto(); }
+    }
+    function reset() { stopAuto(); cur = -1; render(); }
+    function stopAuto() { if (autoTimer) { clearInterval(autoTimer); autoTimer = null; document.getElementById('lcAuto').textContent = 'Tự động ⏵'; } }
+    function auto() {
+      if (autoTimer) { stopAuto(); return; }
+      if (cur >= phases.length - 1) cur = -1;
+      document.getElementById('lcAuto').textContent = 'Dừng ⏸';
+      autoTimer = setInterval(() => {
+        if (cur >= phases.length - 1) { stopAuto(); return; }
+        step();
+      }, 1300);
+      step();
+    }
+    document.getElementById('lcStep').addEventListener('click', step);
+    document.getElementById('lcAuto').addEventListener('click', auto);
+    document.getElementById('lcReset').addEventListener('click', reset);
+    render();
+  })();
+
+  // ============================ MODULE 2 ============================
+  (function () {
+    const svg = document.getElementById('mwSvg');
+    const logEl = document.getElementById('mwLog');
+    const dot = document.getElementById('mwDot');
+    const layers = ['L0', 'L1', 'L2', 'L3'].map(id => svg.querySelector('#' + id));
+    // x-center of each layer's left edge for the dot animation path
+    const steps = [
+      { layer: 0, x: 70,  log: '<span class="req-line">→ Logger.before: start = now()</span>', dim: [] },
+      { layer: 1, x: 130, log: '<span class="req-line">  → Auth.before: kiểm tra Authorization header ✓</span>', dim: [0] },
+      { layer: 2, x: 190, log: '<span class="req-line">    → Recover.before: defer recover() đăng ký</span>', dim: [0, 1] },
+      { layer: 3, x: 320, log: '<span class="hl">      ● Handler: WriteHeader(200) + Write(body)</span>', dim: [0, 1, 2] },
+      { layer: 2, x: 190, log: '<span class="res-line">    ← Recover.after: không có panic, bỏ qua</span>', dim: [0, 1] },
+      { layer: 1, x: 130, log: '<span class="res-line">  ← Auth.after: (no-op)</span>', dim: [0] },
+      { layer: 0, x: 70,  log: '<span class="res-line">← Logger.after: log "GET /users/42 200 1.2ms"</span>', dim: [] },
+    ];
+    let running = false;
+
+    function dim(idxArr) {
+      layers.forEach((l, i) => {
+        if (idxArr.includes(i)) l.classList.add('dim');
+        else l.classList.remove('dim');
+      });
+    }
+    function reset() {
+      running = false;
+      dot.setAttribute('opacity', '0');
+      layers.forEach(l => l.classList.remove('dim'));
+      logEl.innerHTML = 'Bấm "Gửi request" để xem thứ tự thực thi từng lớp.';
+    }
+    async function run() {
+      if (running) return;
+      running = true;
+      logEl.innerHTML = '';
+      dot.setAttribute('opacity', '1');
+      const btn = document.getElementById('mwRun');
+      btn.disabled = true;
+      for (let i = 0; i < steps.length; i++) {
+        const s = steps[i];
+        dot.setAttribute('cx', s.x);
+        dot.setAttribute('fill', i === 3 ? '#22c55e' : (i < 3 ? '#ef4444' : '#3b82f6'));
+        dim(s.dim);
+        logEl.innerHTML += s.log + '\n';
+        logEl.scrollTop = logEl.scrollHeight;
+        await new Promise(r => setTimeout(r, 850));
+      }
+      layers.forEach(l => l.classList.remove('dim'));
+      btn.disabled = false;
+      running = false;
+    }
+    document.getElementById('mwRun').addEventListener('click', run);
+    document.getElementById('mwReset').addEventListener('click', reset);
+    reset();
+  })();
+
+  // ============================ MODULE 3 ============================
+  (function () {
+    const OPTIONS = [
+      { code: 201, name: 'Created' },
+      { code: 204, name: 'No Content' },
+      { code: 400, name: 'Bad Request' },
+      { code: 401, name: 'Unauthorized' },
+      { code: 403, name: 'Forbidden' },
+      { code: 404, name: 'Not Found' },
+      { code: 405, name: 'Method N/A' },
+      { code: 409, name: 'Conflict' },
+      { code: 422, name: 'Unprocessable' },
+      { code: 429, name: 'Too Many Req' },
+      { code: 500, name: 'Server Error' },
+      { code: 503, name: 'Unavailable' },
+    ];
+    const scenarios = [
+      { text: 'Client gửi <code>POST /users</code> với body hợp lệ, server tạo user mới thành công và trả về resource kèm header <code>Location: /users/42</code>.',
+        answer: 201,
+        why: '<b>201 Created</b> dùng khi tạo resource mới thành công, kèm <code>Location</code> trỏ tới URL resource mới. 200 cũng "thành công" nhưng không truyền đạt ý "đã tạo mới".' },
+      { text: 'Client gửi <code>DELETE /users/42</code>, server xoá thành công và không cần trả về body nào.',
+        answer: 204,
+        why: '<b>204 No Content</b> = thành công nhưng không có body. Lý tưởng cho DELETE hoặc PUT khi không trả lại dữ liệu.' },
+      { text: 'Client gửi <code>POST /users</code> nhưng JSON body bị lỗi cú pháp (<code>json.Decode</code> trả error), không parse được.',
+        answer: 400,
+        why: '<b>400 Bad Request</b> = cú pháp request sai (JSON hỏng, thiếu field bắt buộc). Khác với 422 — nơi cú pháp đúng nhưng giá trị vi phạm luật nghiệp vụ.' },
+      { text: 'Client gọi <code>GET /account</code> nhưng KHÔNG gửi header <code>Authorization</code> (chưa đăng nhập / thiếu token).',
+        answer: 401,
+        why: '<b>401 Unauthorized</b> = thiếu hoặc sai credential. Phải kèm header <code>WWW-Authenticate</code>. Tên gây nhầm: 401 thật ra nói về *authentication*, không phải authorization.' },
+      { text: 'User đã đăng nhập hợp lệ (token đúng) nhưng là tài khoản thường, cố truy cập <code>DELETE /admin/users/1</code> — không đủ quyền.',
+        answer: 403,
+        why: '<b>403 Forbidden</b> = ĐÃ xác thực nhưng KHÔNG đủ quyền. Khác 401 (chưa xác thực). Có token hợp lệ nhưng role không cho phép → 403.' },
+      { text: 'Client gọi <code>GET /users/9999</code> nhưng user id 9999 không tồn tại trong database.',
+        answer: 404,
+        why: '<b>404 Not Found</b> = resource không tồn tại. Đường dẫn có cú pháp đúng nhưng thực thể không có.' },
+      { text: 'Endpoint <code>/users/42</code> chỉ hỗ trợ <code>GET</code> và <code>PUT</code>. Client gửi <code>DELETE /users/42</code> tới đó.',
+        answer: 405,
+        why: '<b>405 Method Not Allowed</b> = URL tồn tại nhưng method này không được hỗ trợ. Phải kèm header <code>Allow: GET, PUT</code> liệt kê method hợp lệ.' },
+      { text: 'Client gửi <code>POST /users</code> với <code>username: "alice"</code>, nhưng username này đã được người khác đăng ký trước đó.',
+        answer: 409,
+        why: '<b>409 Conflict</b> = request hợp lệ về cú pháp và giá trị, nhưng xung đột với state hiện tại (duplicate username, version/ETag không khớp).' },
+      { text: 'Client gửi <code>POST /users</code>, JSON parse OK, nhưng field <code>age = -5</code> vi phạm luật nghiệp vụ (tuổi phải 0–150).',
+        answer: 422,
+        why: '<b>422 Unprocessable Entity</b> = cú pháp đúng (JSON parse được) nhưng giá trị sai luật nghiệp vụ. Khác 400 (cú pháp hỏng).' },
+      { text: 'Một IP gọi API quá nhanh, vượt giới hạn 100 request/phút. Server từ chối và muốn báo client chờ rồi thử lại.',
+        answer: 429,
+        why: '<b>429 Too Many Requests</b> = bị rate limit. Nên kèm header <code>Retry-After</code> cho biết bao lâu sau client được thử lại.' },
+      { text: 'Trong handler xảy ra panic do nil pointer dereference; middleware <code>Recover</code> bắt được và phải trả lỗi cho client.',
+        answer: 500,
+        why: '<b>500 Internal Server Error</b> = bug server hoặc panic không lường trước. Middleware Recover bắt panic → log stack → trả 500.' },
+      { text: 'Database tạm thời down (maintenance / overload). Service không thể xử lý request lúc này nhưng sẽ phục hồi sau ít phút.',
+        answer: 503,
+        why: '<b>503 Service Unavailable</b> = service tạm down (maintenance, overload). Nên kèm <code>Retry-After</code>. Khác 500 (bug logic) — 503 là tình trạng tạm thời của hạ tầng.' },
+    ];
+
+    const grid = document.getElementById('scGrid');
+    const textEl = document.getElementById('scText');
+    const counterEl = document.getElementById('scCounter');
+    const feedbackEl = document.getElementById('scFeedback');
+    const scoreEl = document.getElementById('scScore');
+    const nextBtn = document.getElementById('scNext');
+    document.getElementById('scTotal').textContent = scenarios.length;
+
+    let idx = 0, score = 0, answered = false;
+
+    function buildGrid() {
+      grid.innerHTML = '';
+      OPTIONS.forEach(o => {
+        const b = document.createElement('button');
+        b.className = 'sc-opt';
+        b.dataset.code = o.code;
+        b.innerHTML = '<span class="code">' + o.code + '</span><span class="name">' + o.name + '</span>';
+        b.addEventListener('click', () => pick(o.code, b));
+        grid.appendChild(b);
+      });
+    }
+    function loadScenario() {
+      answered = false;
+      const s = scenarios[idx];
+      counterEl.textContent = 'Tình huống ' + (idx + 1) + ' / ' + scenarios.length;
+      textEl.innerHTML = s.text;
+      feedbackEl.className = 'sc-feedback';
+      feedbackEl.innerHTML = '';
+      nextBtn.disabled = true;
+      nextBtn.textContent = idx === scenarios.length - 1 ? 'Xem kết quả ✓' : 'Tình huống tiếp ▸';
+      grid.querySelectorAll('.sc-opt').forEach(b => {
+        b.classList.remove('correct', 'wrong');
+        b.disabled = false;
+      });
+    }
+    function pick(code, btn) {
+      if (answered) return;
+      answered = true;
+      const s = scenarios[idx];
+      grid.querySelectorAll('.sc-opt').forEach(b => b.disabled = true);
+      if (code === s.answer) {
+        btn.classList.add('correct');
+        score++;
+        scoreEl.textContent = score;
+        feedbackEl.className = 'sc-feedback show ok';
+        feedbackEl.innerHTML = '✓ Đúng! ' + s.why;
+      } else {
+        btn.classList.add('wrong');
+        const right = grid.querySelector('.sc-opt[data-code="' + s.answer + '"]');
+        if (right) right.classList.add('correct');
+        feedbackEl.className = 'sc-feedback show no';
+        feedbackEl.innerHTML = '✗ Chưa đúng. Đáp án là <code>' + s.answer + '</code>. ' + s.why;
+      }
+      nextBtn.disabled = false;
+    }
+    function next() {
+      if (idx < scenarios.length - 1) {
+        idx++;
+        loadScenario();
+      } else {
+        // results
+        counterEl.textContent = 'Hoàn thành';
+        textEl.innerHTML = 'Bạn đã trả lời xong tất cả tình huống.';
+        grid.innerHTML = '';
+        feedbackEl.className = 'sc-feedback show ' + (score >= scenarios.length * 0.8 ? 'ok' : 'no');
+        feedbackEl.innerHTML = 'Kết quả: <b>' + score + ' / ' + scenarios.length + '</b>. ' +
+          (score === scenarios.length ? 'Hoàn hảo! Bạn nắm chắc bảng status code.' :
+           score >= scenarios.length * 0.8 ? 'Rất tốt — chỉ sai vài câu, ôn lại mục 13 của README.' :
+           'Nên ôn lại mục 13 (bảng status code) trong README.');
+        nextBtn.disabled = true;
+      }
+    }
+    function restart() {
+      idx = 0; score = 0; answered = false;
+      scoreEl.textContent = '0';
+      buildGrid();
+      loadScenario();
+    }
+    nextBtn.addEventListener('click', next);
+    document.getElementById('scRestart').addEventListener('click', restart);
+    buildGrid();
+    loadScenario();
+  })();
+  </script>
+
+  <script src="../../tools/marked.min.js"></script>
+  <script src="./README.data.js"></script>
+  <script src="../../tools/readme-modal.js"></script>
+  <script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

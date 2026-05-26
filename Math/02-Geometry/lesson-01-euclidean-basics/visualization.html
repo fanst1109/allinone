@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 01 — Cơ sở Euclid</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 600px; height: 400px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../../01-Arithmetic-Algebra/lesson-08-elementary-functions/visualization.html">← T1-L8</a>
+  <span class="sep">·</span>
+  <span class="current">T2-L1: Euclid</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L2: Tam giác (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 01 (T2) — Cơ sở Euclid</h1>
+
+<h2>Góc và các loại</h2>
+<div class="card">
+  <div class="row">
+    <label>Số đo góc (°):</label>
+    <input type="range" id="angleVal" min="0" max="360" step="5" value="60" oninput="updateAngle()">
+    <span class="stat">θ = <strong id="aVal">60</strong>°</span>
+  </div>
+  <svg class="scene" id="aSvg" viewBox="0 0 600 400"></svg>
+  <div class="result" id="aResult"></div>
+</div>
+
+<h2>Hai đường thẳng song song bị cắt</h2>
+<div class="card">
+  <p>Đường a // b, đường c cắt cả 2. Quan sát 8 góc tạo thành — góc đồng vị/so le trong = nhau, trong cùng phía bù nhau.</p>
+  <div class="row">
+    <label>Góc tạo bởi c và a (°):</label>
+    <input type="range" id="parAngle" min="20" max="160" step="5" value="60" oninput="updateParallel()">
+    <span class="stat">α = <strong id="paVal">60</strong>°</span>
+  </div>
+  <svg class="scene" id="pSvg" viewBox="0 0 600 400"></svg>
+  <div class="result" id="pResult"></div>
+</div>
+
+<script>
+function updateAngle() {
+  const a = parseFloat(document.getElementById("angleVal").value);
+  document.getElementById("aVal").textContent = a;
+  let type = "";
+  if (a === 0 || a === 360) type = "Góc không / đầy";
+  else if (a < 90) type = "Nhọn";
+  else if (a === 90) type = "Vuông ⊥";
+  else if (a < 180) type = "Tù";
+  else if (a === 180) type = "Bẹt";
+  else type = "Phản";
+
+  document.getElementById("aResult").innerHTML = `
+    <div class="row">
+      <span class="stat">Loại: <strong>${type}</strong></span>
+      <span class="stat">Bù (180−${a}): <strong>${180-a}°</strong></span>
+      <span class="stat">Phụ (90−${a}): <strong>${a < 90 ? 90-a : "—"}°</strong></span>
+    </div>
+  `;
+
+  // Draw
+  const svg = document.getElementById("aSvg");
+  svg.innerHTML = "";
+  const cx = 300, cy = 200, R = 120;
+  const rad = a * Math.PI / 180;
+  // Arc
+  const x1 = cx + R; const y1 = cy;
+  const x2 = cx + R * Math.cos(-rad); const y2 = cy + R * Math.sin(-rad);
+  const largeArc = a > 180 ? 1 : 0;
+  const arc = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  arc.setAttribute("d", `M ${cx},${cy} L ${x1},${y1} A ${R},${R} 0 ${largeArc},0 ${x2},${y2} Z`);
+  arc.setAttribute("fill", "#dcfce7"); arc.setAttribute("opacity", 0.6);
+  arc.setAttribute("stroke", "#15803d"); arc.setAttribute("stroke-width", 2);
+  svg.appendChild(arc);
+  // Rays
+  [[x1, y1], [x2, y2]].forEach(([px, py]) => {
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", cx); l.setAttribute("y1", cy); l.setAttribute("x2", px); l.setAttribute("y2", py);
+    l.setAttribute("stroke", "#1a202c"); l.setAttribute("stroke-width", 2);
+    svg.appendChild(l);
+  });
+  // Vertex point
+  const v = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  v.setAttribute("cx", cx); v.setAttribute("cy", cy); v.setAttribute("r", 5);
+  v.setAttribute("fill", "#1a202c");
+  svg.appendChild(v);
+  // Label
+  const ang = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  ang.setAttribute("x", cx + 40); ang.setAttribute("y", cy + (a < 180 ? 30 : -30));
+  ang.setAttribute("font-weight", "700"); ang.setAttribute("fill", "#15803d");
+  ang.textContent = a + "°";
+  svg.appendChild(ang);
+}
+
+function updateParallel() {
+  const a = parseFloat(document.getElementById("parAngle").value);
+  document.getElementById("paVal").textContent = a;
+
+  const svg = document.getElementById("pSvg");
+  svg.innerHTML = "";
+  // 2 horizontal lines
+  const y1 = 130, y2 = 270;
+  [y1, y2].forEach(y => {
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", 30); l.setAttribute("y1", y); l.setAttribute("x2", 570); l.setAttribute("y2", y);
+    l.setAttribute("stroke", "#1d4ed8"); l.setAttribute("stroke-width", 2.5);
+    svg.appendChild(l);
+  });
+  // Transverse line c
+  const rad = a * Math.PI / 180;
+  const dx = 200 * Math.cos(Math.PI/2 - rad);
+  const dy = 200 * Math.sin(Math.PI/2 - rad);
+  const cx = 300, cy = 200;
+  const l1x = cx - dx, l1y = cy - dy;
+  const l2x = cx + dx, l2y = cy + dy;
+  // Extend
+  const c = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  c.setAttribute("x1", l1x); c.setAttribute("y1", l1y); c.setAttribute("x2", l2x); c.setAttribute("y2", l2y);
+  c.setAttribute("stroke", "#dc2626"); c.setAttribute("stroke-width", 2);
+  svg.appendChild(c);
+
+  // Compute intersections
+  // Line c: parametric. Going through cx, cy with slope.
+  // Slope of c (if not vertical): rise/run
+  const intersect = (yLine) => {
+    if (dy === 0) return null;
+    const t = (yLine - cy) / (-dy + dy); // doesn't matter, just use math
+    // c passes through (cx, cy) with direction (dx, dy)? No, with direction (dx, dy) being to (cx+dx, cy+dy)
+    // Wait, I have l1x, l1y to l2x, l2y. Parametric: x = cx + t·dx, y = cy + t·dy
+    // wait that's just the direction... actually let me redo.
+    // c goes from (l1x, l1y) to (l2x, l2y). At y = yLine, t = (yLine - l1y) / (l2y - l1y).
+    if (l2y === l1y) return null;
+    const t = (yLine - l1y) / (l2y - l1y);
+    return l1x + t * (l2x - l1x);
+  };
+  const ix1 = intersect(y1);
+  const ix2 = intersect(y2);
+  // Labels for angles
+  if (ix1 !== null) {
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", ix1 + 20); t.setAttribute("y", y1 - 8);
+    t.setAttribute("font-weight", "700"); t.setAttribute("fill", "#15803d");
+    t.textContent = a + "°";
+    svg.appendChild(t);
+  }
+  if (ix2 !== null) {
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", ix2 + 20); t.setAttribute("y", y2 - 8);
+    t.setAttribute("font-weight", "700"); t.setAttribute("fill", "#15803d");
+    t.textContent = a + "° (đồng vị)";
+    svg.appendChild(t);
+    const t2 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t2.setAttribute("x", ix2 - 80); t2.setAttribute("y", y2 + 20);
+    t2.setAttribute("font-weight", "700"); t2.setAttribute("fill", "#7c3aed");
+    t2.textContent = (180-a) + "° (trong cùng phía)";
+    svg.appendChild(t2);
+  }
+  // Labels for lines
+  const lblA = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  lblA.setAttribute("x", 35); lblA.setAttribute("y", y1 - 8); lblA.setAttribute("font-weight", "700"); lblA.setAttribute("fill", "#1d4ed8");
+  lblA.textContent = "a";
+  svg.appendChild(lblA);
+  const lblB = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  lblB.setAttribute("x", 35); lblB.setAttribute("y", y2 - 8); lblB.setAttribute("font-weight", "700"); lblB.setAttribute("fill", "#1d4ed8");
+  lblB.textContent = "b";
+  svg.appendChild(lblB);
+  const lblC = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  lblC.setAttribute("x", l1x); lblC.setAttribute("y", l1y - 8); lblC.setAttribute("font-weight", "700"); lblC.setAttribute("fill", "#dc2626");
+  lblC.textContent = "c";
+  svg.appendChild(lblC);
+
+  document.getElementById("pResult").innerHTML = `
+    <div>α = ${a}° → tất cả góc tương ứng (đồng vị, so le trong) cũng = ${a}°.</div>
+    <div>Các góc trong cùng phía = 180 − ${a} = ${180-a}°.</div>
+  `;
+}
+
+updateAngle();
+updateParallel();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 05 — Hình học không gian</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 80px; }
+  select { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  table.solids { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.solids th, table.solids td { padding: 8px; border: 1px solid #e2e8f0; }
+  table.solids th { background: #dcfce7; color: #15803d; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-polygons-area/visualization.html">← L4: Đa giác</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Không gian</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L6: Oxy (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 05 (T2) — Hình học không gian</h1>
+
+<h2>Tính V và S bề mặt</h2>
+<div class="card">
+  <div class="row">
+    <label>Khối:</label>
+    <select id="shape" onchange="calc()">
+      <option value="cube">Lập phương (cạnh a)</option>
+      <option value="box">Hộp chữ nhật (a, b, c)</option>
+      <option value="cylinder">Hình trụ (R, h)</option>
+      <option value="cone">Hình nón (R, h)</option>
+      <option value="sphere">Hình cầu (R)</option>
+      <option value="pyramid">Chóp đáy vuông (a, h)</option>
+    </select>
+  </div>
+  <div class="row" id="inputs">
+    <span>a =</span><input type="number" id="p1" step="0.5" value="5" oninput="calc()">
+    <span id="p2L" style="display:none">b =</span><input type="number" id="p2" step="0.5" value="3" oninput="calc()" style="display:none">
+    <span id="p3L" style="display:none">c =</span><input type="number" id="p3" step="0.5" value="4" oninput="calc()" style="display:none">
+  </div>
+  <div class="result" id="cResult"></div>
+</div>
+
+<h2>5 khối Platonic</h2>
+<div class="card">
+  <table class="solids">
+    <tr><th>Tên</th><th>V</th><th>E</th><th>F</th><th>V−E+F</th><th>Mặt</th></tr>
+    <tr><td>Tứ diện đều</td><td>4</td><td>6</td><td>4</td><td><strong>2</strong></td><td>Tam giác đều</td></tr>
+    <tr><td>Lập phương</td><td>8</td><td>12</td><td>6</td><td><strong>2</strong></td><td>Hình vuông</td></tr>
+    <tr><td>Bát diện đều</td><td>6</td><td>12</td><td>8</td><td><strong>2</strong></td><td>Tam giác đều</td></tr>
+    <tr><td>Thập nhị diện đều</td><td>20</td><td>30</td><td>12</td><td><strong>2</strong></td><td>Ngũ giác đều</td></tr>
+    <tr><td>Nhị thập diện đều</td><td>12</td><td>30</td><td>20</td><td><strong>2</strong></td><td>Tam giác đều</td></tr>
+  </table>
+  <div style="margin-top:10px; font-size:13px">
+    Mọi đa diện lồi thoả Euler: <strong>V − E + F = 2</strong>. Chỉ có 5 đa diện ĐỀU trong không gian 3D (Plato chứng minh).
+  </div>
+</div>
+
+<script>
+function configInputs() {
+  const shape = document.getElementById("shape").value;
+  // Reset visibility
+  ["p2L", "p2", "p3L", "p3"].forEach(id => document.getElementById(id).style.display = "none");
+  if (shape === "cube" || shape === "sphere") {
+    // 1 param
+  } else if (shape === "pyramid" || shape === "cylinder" || shape === "cone") {
+    document.getElementById("p2L").style.display = "inline";
+    document.getElementById("p2").style.display = "inline";
+    document.getElementById("p2L").textContent = "h =";
+  } else if (shape === "box") {
+    document.getElementById("p2L").style.display = "inline";
+    document.getElementById("p2").style.display = "inline";
+    document.getElementById("p3L").style.display = "inline";
+    document.getElementById("p3").style.display = "inline";
+    document.getElementById("p2L").textContent = "b =";
+  }
+}
+
+function calc() {
+  configInputs();
+  const shape = document.getElementById("shape").value;
+  const a = parseFloat(document.getElementById("p1").value);
+  const b = parseFloat(document.getElementById("p2").value);
+  const c = parseFloat(document.getElementById("p3").value);
+
+  let V, S, formula;
+  if (shape === "cube") {
+    V = a**3; S = 6*a*a;
+    formula = `V = a³ = ${a}³ = <strong>${V}</strong> &nbsp;&nbsp; S = 6a² = <strong>${S}</strong>`;
+  } else if (shape === "box") {
+    V = a*b*c; S = 2*(a*b + b*c + c*a);
+    formula = `V = abc = ${a}·${b}·${c} = <strong>${V}</strong> &nbsp;&nbsp; S = 2(ab+bc+ca) = <strong>${S}</strong>`;
+  } else if (shape === "cylinder") {
+    V = Math.PI * a*a * b;
+    S = 2*Math.PI*a*a + 2*Math.PI*a*b;
+    formula = `V = πR²·h = π·${a*a}·${b} = <strong>${V.toFixed(3)}</strong> ≈ ${(V/Math.PI).toFixed(0)}π &nbsp;&nbsp; S = 2πR² + 2πRh = <strong>${S.toFixed(3)}</strong>`;
+  } else if (shape === "cone") {
+    V = (1/3) * Math.PI * a*a * b;
+    const l = Math.sqrt(a*a + b*b);
+    S = Math.PI*a*a + Math.PI*a*l;
+    formula = `V = (1/3)πR²h = <strong>${V.toFixed(3)}</strong> &nbsp;&nbsp; Đường sinh l = √(R²+h²) = ${l.toFixed(3)} &nbsp;&nbsp; S = πR² + πRl = <strong>${S.toFixed(3)}</strong>`;
+  } else if (shape === "sphere") {
+    V = (4/3) * Math.PI * a**3;
+    S = 4 * Math.PI * a*a;
+    formula = `V = (4/3)πR³ = <strong>${V.toFixed(3)}</strong> &nbsp;&nbsp; S = 4πR² = <strong>${S.toFixed(3)}</strong>`;
+  } else if (shape === "pyramid") {
+    V = (1/3) * a*a * b;
+    // S = đáy + 4 tam giác
+    const slant = Math.sqrt((a/2)**2 + b*b);
+    S = a*a + 4 * (1/2) * a * slant;
+    formula = `V = (1/3)·a²·h = (1/3)·${a*a}·${b} = <strong>${V.toFixed(3)}</strong> &nbsp;&nbsp; S = a² + 4·(½)·a·l = <strong>${S.toFixed(3)}</strong>`;
+  }
+  document.getElementById("cResult").innerHTML = `<div style="font-family:monospace; font-size:14px">${formula}</div>`;
+}
+
+calc();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

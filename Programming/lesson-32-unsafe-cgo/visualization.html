@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L32 — unsafe & CGo: layout, pointer cast, Go↔C boundary</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #8b5cf6;
+    --accent-hover: #7c3aed;
+    --accent-soft: #ede9fe;
+    --ok: #38a169;
+    --warn: #d69e2e;
+    --err: #e53e3e;
+    --bg-card: #ffffff;
+    --byte-bg: #f7fafc;
+    --byte-border: #cbd5e0;
+    --pad: #fed7aa;
+    --pad-border: #fb923c;
+  }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 80px; }
+  h1 { color: #2d3748; margin-top: 0; }
+  .intro { color: #4a5568; line-height: 1.55; max-width: 760px; }
+
+  .module {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 32px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+  .module h2 {
+    margin-top: 0;
+    color: #2d3748;
+    border-bottom: 2px solid var(--accent-soft);
+    padding-bottom: 8px;
+  }
+  .module .desc { color: #4a5568; line-height: 1.55; }
+
+  .controls {
+    margin: 16px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+  button.viz-btn {
+    padding: 8px 16px;
+    border: 0;
+    background: var(--accent);
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  button.viz-btn:hover { background: var(--accent-hover); }
+  button.viz-btn.secondary { background: #6b7280; }
+  button.viz-btn.secondary:hover { background: #4b5563; }
+  button.viz-btn:disabled { background: #cbd5e0; cursor: not-allowed; }
+
+  select.viz-select {
+    padding: 8px 12px;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    background: white;
+    font-size: 14px;
+    font-family: inherit;
+  }
+
+  /* ===== Module 1: memory stripe ===== */
+  .layout-wrap {
+    overflow-x: auto;
+    padding: 8px 0;
+  }
+  .stripe {
+    display: flex;
+    gap: 2px;
+    min-width: max-content;
+    margin: 12px 0 4px;
+  }
+  .byte {
+    width: 38px;
+    height: 56px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font: 600 11px 'Fira Code', Consolas, monospace;
+    background: var(--byte-bg);
+    border: 1px solid var(--byte-border);
+    border-radius: 4px;
+    position: relative;
+    color: #2d3748;
+  }
+  .byte .lbl { font-size: 10px; color: #4a5568; font-weight: 700; }
+  .byte .ofs { font-size: 9px; color: #a0aec0; font-weight: 500; }
+  .byte.pad { background: var(--pad); border-color: var(--pad-border); }
+  .byte.pad .lbl { color: #9a3412; }
+  .byte.field-bool   { background: #bee3f8; border-color: #3182ce; }
+  .byte.field-int32  { background: #c6f6d5; border-color: #38a169; }
+  .byte.field-int16  { background: #d6f5d6; border-color: #2f855a; }
+  .byte.field-int64  { background: #fbd38d; border-color: #d97706; }
+  .byte.field-float64 { background: #fed7d7; border-color: #c53030; }
+  .byte.field-string { background: #e9d8fd; border-color: #6b46c1; }
+
+  .layout-stats { display: flex; gap: 16px; flex-wrap: wrap; margin: 8px 0; }
+  .stat {
+    background: var(--accent-soft);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font: 600 13px 'Fira Code', Consolas, monospace;
+    color: #553c9a;
+  }
+  .stat .num { color: var(--accent-hover); font-size: 16px; }
+
+  .legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: #4a5568; margin-top: 6px; }
+  .legend span { display: inline-flex; align-items: center; gap: 4px; }
+  .legend .sw { width: 14px; height: 14px; border-radius: 3px; border: 1px solid; display: inline-block; }
+
+  /* ===== Module 2: pointer cast ===== */
+  .ptr-wrap { padding: 8px 0; }
+  .ptr-memory {
+    display: flex;
+    gap: 2px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .ptr-byte {
+    width: 56px;
+    height: 56px;
+    background: #fefce8;
+    border: 2px solid #ca8a04;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font: 700 14px 'Fira Code', Consolas, monospace;
+    color: #713f12;
+  }
+  .ptr-views {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(3, 1fr);
+    margin-top: 18px;
+  }
+  .ptr-view {
+    background: #f7fafc;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+  }
+  .ptr-view h4 { margin: 0 0 6px; color: #2d3748; font-size: 14px; }
+  .ptr-view .val {
+    font: 700 16px 'Fira Code', Consolas, monospace;
+    color: var(--accent-hover);
+    word-break: break-all;
+  }
+  .ptr-view .typ { font-size: 11px; color: #718096; margin-top: 4px; }
+
+  .arrow-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 18px 0;
+    flex-wrap: wrap;
+  }
+  .arrow-flow .box {
+    background: var(--accent-soft);
+    color: #553c9a;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font: 600 13px 'Fira Code', Consolas, monospace;
+  }
+  .arrow-flow .arr { font-size: 20px; color: var(--accent); font-weight: 700; }
+
+  /* ===== Module 3: cgo boundary ===== */
+  .cgo-stage {
+    background: #1a202c;
+    border-radius: 8px;
+    padding: 20px;
+    color: #e2e8f0;
+    font-family: 'Fira Code', Consolas, monospace;
+    font-size: 13px;
+    min-height: 320px;
+  }
+  .cgo-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .cgo-row .pill {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+  }
+  .cgo-row .pill.go { background: #00add8; color: #002b36; }
+  .cgo-row .pill.c { background: #f6ad55; color: #44210e; }
+  .cgo-row .pill.thread { background: #9f7aea; color: white; }
+  .cgo-row .label { color: #cbd5e0; }
+  .cgo-row .status { color: #68d391; margin-left: auto; font-size: 12px; }
+  .cgo-row.dim { opacity: 0.4; }
+  .cgo-row.active { background: rgba(139, 92, 246, 0.15); padding: 8px; border-radius: 4px; transition: background 0.3s; }
+
+  .cgo-timeline {
+    margin-top: 12px;
+    background: #2d3748;
+    padding: 12px;
+    border-radius: 6px;
+    border-left: 3px solid var(--accent);
+  }
+  .cgo-cost {
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+  }
+  .cgo-cost-card {
+    background: #f7fafc;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border-left: 3px solid var(--accent);
+  }
+  .cgo-cost-card .name { font-size: 11px; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; }
+  .cgo-cost-card .num { font: 700 22px 'Fira Code', monospace; color: #2d3748; }
+  .cgo-cost-card .unit { font-size: 12px; color: #4a5568; margin-left: 4px; }
+
+  /* Mobile */
+  @media (max-width: 768px) {
+    .byte { width: 30px; height: 48px; }
+    .byte .lbl { font-size: 9px; }
+    .byte .ofs { font-size: 8px; }
+    .ptr-views { grid-template-columns: 1fr; }
+    .ptr-byte { width: 40px; height: 40px; font-size: 11px; }
+  }
+  @media (max-width: 480px) {
+    .byte { width: 24px; height: 44px; }
+    .byte .lbl { font-size: 8px; }
+    .byte .ofs { display: none; }
+    .ptr-byte { width: 34px; height: 34px; font-size: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-31-reflect/visualization.html">← L31: Reflect</a>
+  <span class="sep">·</span>
+  <span class="current">L32: Unsafe & CGo</span>
+  <span class="sep">·</span>
+  <a href="../lesson-33-memory-gc/visualization.html">L33: Memory & GC →</a>
+</nav>
+
+<main>
+  <h1>L32 — <code>unsafe</code> & CGo: thoát khỏi Go safety</h1>
+  <p class="intro">
+    Hai cánh cửa hậu của Go: <code>unsafe</code> (đo &amp; bẻ memory layout) và <code>cgo</code> (gọi C).
+    Ba module tương tác bên dưới giúp bạn <em>thấy</em> những thứ thường vô hình:
+    padding trong struct, cùng địa chỉ memory đọc dưới nhiều kiểu, và overhead khi vượt biên Go↔C.
+  </p>
+
+  <!-- ============================== MODULE 1 ============================== -->
+  <section class="module" id="m1">
+    <h2>Module 1 — Struct memory layout (Sizeof / Offsetof / padding)</h2>
+    <p class="desc">
+      Chọn một struct ở dropdown để xem byte-by-byte memory layout: <strong>màu</strong> là field thật,
+      <strong>cam (pad)</strong> là padding compiler chèn để giữ alignment. So sánh với phiên bản
+      "sắp xếp lại" để thấy bớt được bao nhiêu byte.
+    </p>
+
+    <div class="controls">
+      <label for="m1-struct">Struct:</label>
+      <select class="viz-select" id="m1-struct">
+        <option value="A">A: bool, int64, bool (bad order)</option>
+        <option value="B">B: int64, bool, bool (good order)</option>
+        <option value="C">C: string, int32, bool</option>
+        <option value="Bad">Bad: bool, int64, bool, int32, bool, float64, int16 (7 field)</option>
+        <option value="Good">Good: int64, float64, int32, int16, bool×3 (reorder)</option>
+        <option value="T">T (BT1): int32, bool, int64, int32</option>
+      </select>
+      <button class="viz-btn secondary" id="m1-compare">↔ So sánh Bad/Good</button>
+    </div>
+
+    <div class="layout-stats" id="m1-stats"></div>
+    <div class="layout-wrap"><div class="stripe" id="m1-stripe"></div></div>
+    <div class="legend">
+      <span><span class="sw" style="background:#bee3f8;border-color:#3182ce"></span>bool</span>
+      <span><span class="sw" style="background:#c6f6d5;border-color:#38a169"></span>int32</span>
+      <span><span class="sw" style="background:#d6f5d6;border-color:#2f855a"></span>int16</span>
+      <span><span class="sw" style="background:#fbd38d;border-color:#d97706"></span>int64</span>
+      <span><span class="sw" style="background:#fed7d7;border-color:#c53030"></span>float64</span>
+      <span><span class="sw" style="background:#e9d8fd;border-color:#6b46c1"></span>string (16B header)</span>
+      <span><span class="sw" style="background:#fed7aa;border-color:#fb923c"></span>padding</span>
+    </div>
+
+    <div id="m1-compare-pane" style="display:none; margin-top: 20px; padding: 16px; background: #fff7ed; border-radius: 8px; border-left: 4px solid #f97316;">
+      <h3 style="margin-top:0; color:#9a3412;">So sánh Bad vs Good</h3>
+      <div id="m1-cmp-bad"></div>
+      <div id="m1-cmp-good"></div>
+      <p id="m1-cmp-summary" style="font-weight:600; color:#7c2d12; margin-top:12px;"></p>
+    </div>
+  </section>
+
+  <!-- ============================== MODULE 2 ============================== -->
+  <section class="module" id="m2">
+    <h2>Module 2 — Pointer conversion: cùng memory, kiểu khác</h2>
+    <p class="desc">
+      Cùng 8 byte trong RAM, ba cách diễn giải. Nhập một <code>int64</code>, xem nó "biến" thành
+      <code>float64</code> và <code>[8]byte</code> khi cast qua <code>unsafe.Pointer</code>.
+    </p>
+
+    <div class="controls">
+      <label for="m2-input">Giá trị int64:</label>
+      <input id="m2-input" type="number" value="42" style="width: 160px; padding: 6px 8px; border:1px solid #cbd5e0; border-radius: 6px; font-family: monospace;">
+      <button class="viz-btn" id="m2-update">Cast lại</button>
+      <button class="viz-btn secondary" id="m2-magic">Số ma thuật (4614256656431372362)</button>
+    </div>
+
+    <div class="ptr-wrap">
+      <p style="text-align:center; color:#4a5568; font-size:13px; margin: 8px 0 4px;">8 byte trong RAM (hex, little-endian):</p>
+      <div class="ptr-memory" id="m2-mem"></div>
+
+      <div class="arrow-flow">
+        <div class="box">*int64</div>
+        <span class="arr">→</span>
+        <div class="box">unsafe.Pointer</div>
+        <span class="arr">→</span>
+        <div class="box">*T2</div>
+      </div>
+
+      <div class="ptr-views">
+        <div class="ptr-view">
+          <h4>Cast về *int64</h4>
+          <div class="val" id="m2-as-int">—</div>
+          <div class="typ">// trở lại kiểu gốc</div>
+        </div>
+        <div class="ptr-view">
+          <h4>Cast về *float64</h4>
+          <div class="val" id="m2-as-float">—</div>
+          <div class="typ">// đọc 8 byte theo IEEE 754</div>
+        </div>
+        <div class="ptr-view">
+          <h4>Cast về *[8]byte</h4>
+          <div class="val" id="m2-as-bytes">—</div>
+          <div class="typ">// đọc bằng byte rời</div>
+        </div>
+      </div>
+      <p style="color:#4a5568; font-size:13px; margin-top:14px;">
+        ⚠ <strong>Lưu ý:</strong> đây là 6 pattern hợp lệ #1. Nếu cast giữa hai kiểu <em>khác size</em>
+        (vd <code>*int32 → *int64</code>) thì đọc/ghi sẽ vượt bộ nhớ hợp lệ — undefined behavior.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================== MODULE 3 ============================== -->
+  <section class="module" id="m3">
+    <h2>Module 3 — Go ↔ C boundary: cgo call overhead</h2>
+    <p class="desc">
+      Animation mô phỏng các bước khi Go gọi C qua <code>C.strlen(...)</code>:
+      pin goroutine vào OS thread, switch register ABI, copy string, gọi C, copy ngược, unpin.
+      Mỗi bước thêm vài ns; tổng cộng ~100–200 ns mỗi lần — gấp 100× một Go function call thường.
+    </p>
+
+    <div class="controls">
+      <button class="viz-btn" id="m3-run">▶ Chạy 1 cgo call</button>
+      <button class="viz-btn secondary" id="m3-run-fast">⏩ Chạy nhanh</button>
+      <button class="viz-btn secondary" id="m3-reset">↻ Reset</button>
+    </div>
+
+    <div class="cgo-stage">
+      <div class="cgo-row dim" data-step="1">
+        <span class="pill go">GO</span>
+        <span class="label">goroutine G7 đang chạy trên thread M3</span>
+        <span class="status" id="m3-s1"></span>
+      </div>
+      <div class="cgo-row dim" data-step="2">
+        <span class="pill go">GO</span>
+        <span class="label">gọi <code>C.strlen(C.CString("hello"))</code></span>
+        <span class="status" id="m3-s2"></span>
+      </div>
+      <div class="cgo-row dim" data-step="3">
+        <span class="pill thread">PIN</span>
+        <span class="label">pin G7 vào M3 — scheduler không thể swap G khác lên M3 nữa</span>
+        <span class="status" id="m3-s3"></span>
+      </div>
+      <div class="cgo-row dim" data-step="4">
+        <span class="pill go">GO</span>
+        <span class="label">save Go registers, switch sang C ABI (System V)</span>
+        <span class="status" id="m3-s4"></span>
+      </div>
+      <div class="cgo-row dim" data-step="5">
+        <span class="pill c">C</span>
+        <span class="label">malloc + copy "hello\0" sang C heap (CString)</span>
+        <span class="status" id="m3-s5"></span>
+      </div>
+      <div class="cgo-row dim" data-step="6">
+        <span class="pill c">C</span>
+        <span class="label">gọi <code>strlen</code> — duyệt đến byte zero</span>
+        <span class="status" id="m3-s6"></span>
+      </div>
+      <div class="cgo-row dim" data-step="7">
+        <span class="pill go">GO</span>
+        <span class="label">restore Go registers, return value 5 về Go</span>
+        <span class="status" id="m3-s7"></span>
+      </div>
+      <div class="cgo-row dim" data-step="8">
+        <span class="pill thread">UNPIN</span>
+        <span class="label">unpin G7 — M3 lại sẵn sàng chạy G khác</span>
+        <span class="status" id="m3-s8"></span>
+      </div>
+      <div class="cgo-row dim" data-step="9">
+        <span class="pill go">GO</span>
+        <span class="label">⚠ <code>cs</code> vẫn ở C heap — phải <code>C.free</code> tay (chưa làm = leak!)</span>
+        <span class="status" id="m3-s9"></span>
+      </div>
+
+      <div class="cgo-timeline">
+        <div style="color:#cbd5e0; font-size:12px; margin-bottom:6px;">⏱ Đồng hồ tích lũy:</div>
+        <div id="m3-clock" style="font: 700 22px 'Fira Code', monospace; color: #f6ad55;">0 ns</div>
+      </div>
+    </div>
+
+    <div class="cgo-cost">
+      <div class="cgo-cost-card">
+        <div class="name">Go call (inlined)</div>
+        <div class="num">~0.3<span class="unit">ns</span></div>
+      </div>
+      <div class="cgo-cost-card">
+        <div class="name">Go call (no-inline)</div>
+        <div class="num">~1.5<span class="unit">ns</span></div>
+      </div>
+      <div class="cgo-cost-card" style="border-left-color: var(--err);">
+        <div class="name">cgo call</div>
+        <div class="num" style="color: var(--err);">~150<span class="unit">ns</span></div>
+      </div>
+      <div class="cgo-cost-card">
+        <div class="name">Ratio</div>
+        <div class="num">~100<span class="unit">×</span></div>
+      </div>
+    </div>
+
+    <p style="color:#4a5568; font-size:13px; margin-top:14px;">
+      💡 <strong>Hệ quả thực tế:</strong> hot loop gọi <code>C.something()</code> 1 triệu lần/giây →
+      150 ms CPU/giây = 15% một core, chỉ riêng overhead vượt biên. Đó là lý do Go std lib viết MD5,
+      SHA, JSON, regex bằng pure Go — không wrap OpenSSL/PCRE qua CGo.
+    </p>
+  </section>
+</main>
+
+<script>
+// ============================================================================
+// Module 1 — struct layout
+// ============================================================================
+const STRUCTS = {
+  A: {
+    name: 'StructA (bool, int64, bool)',
+    fields: [
+      { name: 'x', type: 'bool',  size: 1, offset: 0 },
+      { name: 'y', type: 'int64', size: 8, offset: 8 },
+      { name: 'z', type: 'bool',  size: 1, offset: 16 },
+    ],
+    total: 24,
+  },
+  B: {
+    name: 'StructB (int64, bool, bool) — reordered A',
+    fields: [
+      { name: 'y', type: 'int64', size: 8, offset: 0 },
+      { name: 'x', type: 'bool',  size: 1, offset: 8 },
+      { name: 'z', type: 'bool',  size: 1, offset: 9 },
+    ],
+    total: 16,
+  },
+  C: {
+    name: 'StructC (string, int32, bool)',
+    fields: [
+      { name: 'name', type: 'string', size: 16, offset: 0 },
+      { name: 'age',  type: 'int32',  size: 4,  offset: 16 },
+      { name: 'sex',  type: 'bool',   size: 1,  offset: 20 },
+    ],
+    total: 24,
+  },
+  Bad: {
+    name: 'Bad (xen kẽ size → padding tối đa)',
+    fields: [
+      { name: 'flag1',  type: 'bool',    size: 1, offset: 0 },
+      { name: 'id',     type: 'int64',   size: 8, offset: 8 },
+      { name: 'flag2',  type: 'bool',    size: 1, offset: 16 },
+      { name: 'count',  type: 'int32',   size: 4, offset: 20 },
+      { name: 'flag3',  type: 'bool',    size: 1, offset: 24 },
+      { name: 'weight', type: 'float64', size: 8, offset: 32 },
+      { name: 'code',   type: 'int16',   size: 2, offset: 40 },
+    ],
+    total: 48,
+  },
+  Good: {
+    name: 'Good (sắp lớn → nhỏ)',
+    fields: [
+      { name: 'id',     type: 'int64',   size: 8, offset: 0 },
+      { name: 'weight', type: 'float64', size: 8, offset: 8 },
+      { name: 'count',  type: 'int32',   size: 4, offset: 16 },
+      { name: 'code',   type: 'int16',   size: 2, offset: 20 },
+      { name: 'flag1',  type: 'bool',    size: 1, offset: 22 },
+      { name: 'flag2',  type: 'bool',    size: 1, offset: 23 },
+      { name: 'flag3',  type: 'bool',    size: 1, offset: 24 },
+    ],
+    total: 32,
+  },
+  T: {
+    name: 'T (BT1): int32, bool, int64, int32',
+    fields: [
+      { name: 'a', type: 'int32', size: 4, offset: 0 },
+      { name: 'b', type: 'bool',  size: 1, offset: 4 },
+      { name: 'c', type: 'int64', size: 8, offset: 8 },
+      { name: 'd', type: 'int32', size: 4, offset: 16 },
+    ],
+    total: 24,
+  },
+};
+
+function renderStripe(spec, target) {
+  target.innerHTML = '';
+  const occupied = new Array(spec.total).fill(null);
+  spec.fields.forEach(f => {
+    for (let i = 0; i < f.size; i++) occupied[f.offset + i] = { field: f, idx: i };
+  });
+  for (let i = 0; i < spec.total; i++) {
+    const cell = document.createElement('div');
+    const e = occupied[i];
+    if (e) {
+      cell.className = `byte field-${e.field.type}`;
+      cell.innerHTML = `<div class="lbl">${e.field.name}${e.idx > 0 ? '' : ''}</div><div class="ofs">${i}</div>`;
+      if (e.idx === 0) cell.querySelector('.lbl').textContent = e.field.name;
+      else cell.querySelector('.lbl').textContent = '·';
+    } else {
+      cell.className = 'byte pad';
+      cell.innerHTML = `<div class="lbl">pad</div><div class="ofs">${i}</div>`;
+    }
+    target.appendChild(cell);
+  }
+}
+
+function countPadding(spec) {
+  let used = 0;
+  spec.fields.forEach(f => used += f.size);
+  return spec.total - used;
+}
+
+function renderStats(spec, target) {
+  const pad = countPadding(spec);
+  const pct = ((pad / spec.total) * 100).toFixed(1);
+  target.innerHTML = `
+    <div class="stat">${spec.name}</div>
+    <div class="stat">Sizeof = <span class="num">${spec.total}</span> B</div>
+    <div class="stat">Padding = <span class="num">${pad}</span> B (${pct}%)</div>
+    <div class="stat">Fields = <span class="num">${spec.fields.length}</span></div>
+  `;
+}
+
+const m1Select = document.getElementById('m1-struct');
+const m1Stripe = document.getElementById('m1-stripe');
+const m1Stats = document.getElementById('m1-stats');
+const m1Compare = document.getElementById('m1-compare');
+const m1ComparePane = document.getElementById('m1-compare-pane');
+const m1CmpBad = document.getElementById('m1-cmp-bad');
+const m1CmpGood = document.getElementById('m1-cmp-good');
+const m1CmpSummary = document.getElementById('m1-cmp-summary');
+
+function updateM1() {
+  const spec = STRUCTS[m1Select.value];
+  renderStripe(spec, m1Stripe);
+  renderStats(spec, m1Stats);
+}
+m1Select.addEventListener('change', updateM1);
+
+m1Compare.addEventListener('click', () => {
+  if (m1ComparePane.style.display === 'none') {
+    m1ComparePane.style.display = 'block';
+    m1CmpBad.innerHTML = '<h4 style="margin:8px 0 4px;color:#9a3412">Bad (48 B)</h4>';
+    const badStripe = document.createElement('div');
+    badStripe.className = 'stripe';
+    m1CmpBad.appendChild(badStripe);
+    renderStripe(STRUCTS.Bad, badStripe);
+
+    m1CmpGood.innerHTML = '<h4 style="margin:14px 0 4px;color:#166534">Good (32 B)</h4>';
+    const goodStripe = document.createElement('div');
+    goodStripe.className = 'stripe';
+    m1CmpGood.appendChild(goodStripe);
+    renderStripe(STRUCTS.Good, goodStripe);
+
+    m1CmpSummary.textContent = `→ Tiết kiệm 16 B/struct (33%). Slice 10 triệu phần tử = 160 MB → 320 MB.`;
+  } else {
+    m1ComparePane.style.display = 'none';
+  }
+});
+
+updateM1();
+
+// ============================================================================
+// Module 2 — pointer cast
+// ============================================================================
+const m2Input = document.getElementById('m2-input');
+const m2Update = document.getElementById('m2-update');
+const m2Magic = document.getElementById('m2-magic');
+const m2Mem = document.getElementById('m2-mem');
+const m2AsInt = document.getElementById('m2-as-int');
+const m2AsFloat = document.getElementById('m2-as-float');
+const m2AsBytes = document.getElementById('m2-as-bytes');
+
+function int64ToBytesLE(big) {
+  // dùng BigInt để giữ đủ precision
+  const buf = new ArrayBuffer(8);
+  const dv = new DataView(buf);
+  try {
+    dv.setBigInt64(0, BigInt(big), true); // little-endian
+  } catch (e) {
+    dv.setBigInt64(0, 0n, true);
+  }
+  const out = new Uint8Array(buf);
+  return Array.from(out);
+}
+
+function bytesToFloat64LE(bytes) {
+  const buf = new ArrayBuffer(8);
+  const dv = new DataView(buf);
+  bytes.forEach((b, i) => dv.setUint8(i, b));
+  return dv.getFloat64(0, true);
+}
+
+function updateM2() {
+  const v = m2Input.value.trim() || '0';
+  const bytes = int64ToBytesLE(v);
+  m2Mem.innerHTML = '';
+  bytes.forEach(b => {
+    const cell = document.createElement('div');
+    cell.className = 'ptr-byte';
+    cell.textContent = '0x' + b.toString(16).padStart(2, '0').toUpperCase();
+    m2Mem.appendChild(cell);
+  });
+  m2AsInt.textContent = v;
+  const f = bytesToFloat64LE(bytes);
+  m2AsFloat.textContent = (Math.abs(f) > 0 && Math.abs(f) < 1e-300) ? f.toExponential(3) :
+                          (Math.abs(f) > 1e10) ? f.toExponential(6) : f.toString();
+  m2AsBytes.textContent = '[' + bytes.map(b => b.toString().padStart(2,'')).join(', ') + ']';
+}
+
+m2Update.addEventListener('click', updateM2);
+m2Input.addEventListener('input', updateM2);
+m2Magic.addEventListener('click', () => {
+  // 4614256656431372362 = bit pattern của 3.14159 dưới dạng float64
+  m2Input.value = '4614256656431372362';
+  updateM2();
+});
+updateM2();
+
+// ============================================================================
+// Module 3 — cgo boundary animation
+// ============================================================================
+const m3Steps = [
+  { id: 1, status: 'chạy bình thường', ns: 0 },
+  { id: 2, status: 'gọi cgo trap', ns: 2 },
+  { id: 3, status: '+ 30 ns', ns: 30 },
+  { id: 4, status: '+ 20 ns', ns: 50 },
+  { id: 5, status: '+ 25 ns', ns: 75 },
+  { id: 6, status: '+ 10 ns (5 byte)', ns: 85 },
+  { id: 7, status: '+ 30 ns', ns: 115 },
+  { id: 8, status: '+ 20 ns', ns: 135 },
+  { id: 9, status: 'cảnh báo leak!', ns: 150 },
+];
+
+const m3Run = document.getElementById('m3-run');
+const m3RunFast = document.getElementById('m3-run-fast');
+const m3Reset = document.getElementById('m3-reset');
+const m3Clock = document.getElementById('m3-clock');
+
+function resetM3() {
+  document.querySelectorAll('#m3 .cgo-row').forEach(r => {
+    r.classList.add('dim');
+    r.classList.remove('active');
+  });
+  for (let i = 1; i <= 9; i++) {
+    const el = document.getElementById('m3-s' + i);
+    if (el) el.textContent = '';
+  }
+  m3Clock.textContent = '0 ns';
+}
+
+async function animateM3(stepDelay) {
+  resetM3();
+  for (const step of m3Steps) {
+    const row = document.querySelector(`#m3 .cgo-row[data-step="${step.id}"]`);
+    row.classList.remove('dim');
+    row.classList.add('active');
+    const stat = document.getElementById('m3-s' + step.id);
+    stat.textContent = step.status;
+    m3Clock.textContent = step.ns + ' ns';
+    await new Promise(r => setTimeout(r, stepDelay));
+    row.classList.remove('active');
+  }
+  m3Clock.style.color = '#fc8181';
+  setTimeout(() => { m3Clock.style.color = '#f6ad55'; }, 800);
+}
+
+m3Run.addEventListener('click', () => animateM3(600));
+m3RunFast.addEventListener('click', () => animateM3(150));
+m3Reset.addEventListener('click', resetM3);
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L44 — Routing Frameworks (chi, gin, echo, fiber)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #0ea5e9;
+    --accent-hover: #0284c7;
+    --accent-soft: #e0f2fe;
+    --ok: #10b981;
+    --warn: #f59e0b;
+    --err: #ef4444;
+    --info: #3b82f6;
+    --border: #cbd5e0;
+    --code-bg: #1e293b;
+    --code-fg: #e2e8f0;
+  }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 80px; }
+  h1 { color: #2d3748; margin-top: 0; }
+  .intro { color: #4a5568; line-height: 1.55; max-width: 780px; }
+
+  .module {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 28px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+  .module h2 {
+    margin-top: 0;
+    color: #2d3748;
+    border-bottom: 2px solid var(--accent-soft);
+    padding-bottom: 8px;
+  }
+  .module .desc { color: #4a5568; line-height: 1.55; }
+  .module .desc code { background: #f1f5f9; padding: 1px 5px; border-radius: 3px; font-size: 0.92em; }
+
+  /* Common buttons */
+  button.viz-btn {
+    padding: 8px 16px; border: 0;
+    background: var(--accent); color: white;
+    border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;
+  }
+  button.viz-btn:hover { background: var(--accent-hover); }
+  button.viz-btn.secondary { background: #6b7280; }
+  button.viz-btn.secondary:hover { background: #4b5563; }
+  button.viz-btn:disabled { background: #cbd5e0; cursor: not-allowed; }
+
+  /* ====================== Module 1: Framework picker ====================== */
+  .scenario-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+    margin: 16px 0;
+  }
+  .scenario-card {
+    background: #f8fafc;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .scenario-card:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .scenario-card.selected { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 3px rgba(14,165,233,.15); }
+  .scenario-card .title { font-weight: 700; color: #1e293b; font-size: 14px; margin-bottom: 4px; }
+  .scenario-card .tag { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  .pick-result {
+    margin-top: 16px;
+    background: #f1f5f9;
+    border-radius: 8px;
+    padding: 16px;
+    min-height: 110px;
+  }
+  .pick-result.empty { color: #94a3b8; font-style: italic; }
+  .pick-result .pick-name {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 16px;
+    font-family: ui-monospace, monospace;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .pick-result .reason {
+    color: #1e293b;
+    line-height: 1.55;
+    background: white;
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin-top: 8px;
+  }
+  .pick-result .reason b { color: var(--accent); }
+  .alt-list { margin-top: 10px; font-size: 13px; color: #475569; }
+  .alt-list .alt { display: inline-block; background: white; padding: 2px 8px; border-radius: 4px; margin: 2px; font-family: ui-monospace, monospace; }
+
+  /* ====================== Module 2: Middleware chain visualizer ====================== */
+  .chain-controls { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0 18px; align-items: center; }
+
+  .chain-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 768px) {
+    .chain-layout { grid-template-columns: 1fr; }
+  }
+
+  .chain-code {
+    background: var(--code-bg);
+    color: var(--code-fg);
+    padding: 14px;
+    border-radius: 8px;
+    font-family: ui-monospace, monospace;
+    font-size: 12.5px;
+    line-height: 1.55;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .chain-code .kw { color: #c084fc; }
+  .chain-code .fn { color: #fcd34d; }
+  .chain-code .str { color: #86efac; }
+  .chain-code .cm { color: #64748b; font-style: italic; }
+
+  .chain-vis {
+    position: relative;
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 14px;
+    min-height: 360px;
+  }
+  .chain-layer {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin: 6px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all .25s;
+    position: relative;
+  }
+  .chain-layer .lay-name {
+    font-family: ui-monospace, monospace;
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 13px;
+  }
+  .chain-layer .lay-desc { font-size: 12px; color: #64748b; margin-left: auto; }
+
+  .chain-layer.active {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    transform: translateX(6px);
+    box-shadow: 0 4px 10px rgba(14,165,233,.2);
+  }
+  .chain-layer.done {
+    background: #d1fae5;
+    border-color: var(--ok);
+  }
+  .chain-arrow {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px;
+    color: var(--accent);
+    opacity: 0;
+    transition: opacity .2s;
+  }
+  .chain-layer.active .chain-arrow { opacity: 1; }
+
+  .chain-status {
+    margin-top: 14px;
+    padding: 10px 14px;
+    background: white;
+    border-radius: 6px;
+    border-left: 4px solid var(--accent);
+    min-height: 40px;
+    font-family: ui-monospace, monospace;
+    font-size: 13px;
+    color: #1e293b;
+  }
+
+  /* ====================== Module 3: Performance bar chart ====================== */
+  .perf-wrap { overflow-x: auto; }
+  .perf-bars { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; min-width: 320px; }
+  .perf-row {
+    display: grid;
+    grid-template-columns: 100px 1fr 80px;
+    align-items: center;
+    gap: 10px;
+  }
+  .perf-row .pname { font-family: ui-monospace, monospace; font-weight: 700; color: #1e293b; font-size: 13px; }
+  .perf-row .pbar {
+    height: 24px;
+    background: #f1f5f9;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+  .perf-row .pbar .fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+    transition: width .8s ease-out;
+  }
+  .perf-row .pval { text-align: right; font-family: ui-monospace, monospace; color: #475569; font-size: 13px; }
+
+  .perf-note {
+    margin-top: 18px;
+    background: #fef3c7;
+    border-left: 4px solid var(--warn);
+    padding: 12px 16px;
+    border-radius: 4px;
+    color: #78350f;
+    line-height: 1.5;
+    font-size: 14px;
+  }
+  .perf-note b { color: #92400e; }
+
+  .perf-mode {
+    display: inline-flex;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .perf-mode button {
+    background: white;
+    border: 0;
+    padding: 6px 14px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #475569;
+  }
+  .perf-mode button.active { background: var(--accent); color: white; }
+  .perf-mode button:hover:not(.active) { background: var(--accent-soft); }
+
+  /* ====================== Mobile ====================== */
+  @media (max-width: 480px) {
+    .scenario-grid { grid-template-columns: 1fr; }
+    .perf-row { grid-template-columns: 80px 1fr 70px; }
+    .chain-code { font-size: 11.5px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-43-rest-api-design/visualization.html">← L43: REST API Design</a>
+  <span class="sep">·</span>
+  <span class="current">L44: Routing Frameworks</span>
+  <span class="sep">·</span>
+  <a href="../lesson-45-request-validation/visualization.html">L45: Validation →</a>
+</nav>
+
+<main>
+  <h1>L44 — Routing Frameworks (chi, gin, echo, fiber)</h1>
+  <p class="intro">
+    Ba module tương tác để chọn framework HTTP Go có cơ sở, không theo đám đông:
+    <b>1)</b> framework picker — cho scenario thật, gợi ý framework phù hợp;
+    <b>2)</b> middleware chain visualizer — request đi qua các lớp middleware như thế nào;
+    <b>3)</b> performance bar chart — so sánh route lookup giữa <code>net/http</code>, <code>chi</code>, <code>gin</code>, <code>echo</code>, <code>fiber</code>, và đặt vào bối cảnh thực tế (DB query).
+  </p>
+
+  <!-- ============================================================= -->
+  <!-- Module 1 — Framework picker                                    -->
+  <!-- ============================================================= -->
+  <section class="module" id="module-picker">
+    <h2>1. Framework picker theo scenario</h2>
+    <p class="desc">
+      Click <b>một scenario</b> bên dưới — viz sẽ gợi ý framework phù hợp nhất kèm lý do, và liệt kê các alternative chấp nhận được. Quy tắc chọn: ưu tiên <b>dev speed</b> + <b>ecosystem fit</b> hơn là benchmark.
+    </p>
+    <div class="scenario-grid" id="scenario-grid">
+      <!-- generated by JS -->
+    </div>
+    <div class="pick-result empty" id="pick-result">
+      Click một scenario để xem gợi ý.
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- Module 2 — Middleware chain visualizer                         -->
+  <!-- ============================================================= -->
+  <section class="module" id="module-chain">
+    <h2>2. Middleware chain visualizer</h2>
+    <p class="desc">
+      Request đi từ ngoài cùng (Logger) vào trong (Handler), rồi quay ngược ra. Mỗi lớp middleware có thể: (a) chặn (auth fail → 401), (b) đo (logger ghi duration), (c) recover (panic → 500). Bấm <b>▶ Run request</b> để thấy animation từng bước.
+    </p>
+    <div class="chain-controls">
+      <button class="viz-btn" id="chain-run">▶ Run request</button>
+      <button class="viz-btn secondary" id="chain-reset">↺ Reset</button>
+      <label class="field" style="display: inline-flex; gap: 6px; align-items: center; font-size: 14px;">
+        <input type="checkbox" id="chain-auth-fail"> Simulate auth fail (401)
+      </label>
+      <label class="field" style="display: inline-flex; gap: 6px; align-items: center; font-size: 14px;">
+        <input type="checkbox" id="chain-panic"> Simulate handler panic
+      </label>
+    </div>
+    <div class="chain-layout">
+      <pre class="chain-code" id="chain-code"><span class="kw">r</span> := <span class="fn">chi.NewRouter</span>()
+<span class="cm">// Outer-most → innermost</span>
+<span class="kw">r</span>.<span class="fn">Use</span>(middleware.<span class="fn">Logger</span>)
+<span class="kw">r</span>.<span class="fn">Use</span>(middleware.<span class="fn">Recoverer</span>)
+<span class="kw">r</span>.<span class="fn">Use</span>(<span class="fn">rateLimitMW</span>(<span class="str">100</span>))
+<span class="kw">r</span>.<span class="fn">Use</span>(<span class="fn">authMW</span>)
+
+<span class="kw">r</span>.<span class="fn">Get</span>(<span class="str">"/users/{id}"</span>, getUser)</pre>
+      <div class="chain-vis" id="chain-vis">
+        <!-- layers generated by JS -->
+        <div class="chain-status" id="chain-status">Bấm "Run request" để bắt đầu.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- Module 3 — Performance bar chart                               -->
+  <!-- ============================================================= -->
+  <section class="module" id="module-perf">
+    <h2>3. Route lookup performance</h2>
+    <p class="desc">
+      Benchmark route lookup khi không có DB hay business logic. Toggle <b>"Trong context thật"</b> để thấy chi/gin/echo/fiber khác nhau bao nhiêu khi xếp cạnh 1 DB query 15ms.
+    </p>
+    <div class="perf-mode">
+      <button id="perf-pure" class="active">Route lookup thuần (ns)</button>
+      <button id="perf-real">Trong context thật (μs, có DB)</button>
+    </div>
+    <div class="perf-wrap">
+      <div class="perf-bars" id="perf-bars">
+        <!-- generated by JS -->
+      </div>
+    </div>
+    <div class="perf-note">
+      <b>Vì sao framework difference negligible trong production?</b>
+      Bottleneck thật ở DB (5-50ms) + network (1-100ms) — route lookup chỉ là vài microsec.
+      Chọn fiber thay gin tiết kiệm <b>2μs / 65000μs ≈ 0.003%</b> tổng thời gian.
+      Đổi framework theo perf chỉ hợp lý khi traffic > 10k req/s/máy.
+    </div>
+  </section>
+</main>
+
+<script>
+// ============================================================================
+// Module 1 — Framework picker
+// ============================================================================
+(function() {
+  const scenarios = [
+    {
+      id: 's1',
+      title: 'Startup MVP',
+      tag: '5 endpoint • team 2 người',
+      desc: 'API nhỏ, dev nhanh, deadline gấp.',
+      pick: 'chi',
+      reason: '<b>chi</b> hoặc <code>net/http 1.22+</code> đều hợp. chi cho middleware cleaner (Logger, Recoverer sẵn) mà vẫn idiomatic. Không lock-in nếu mai mốt muốn đổi.',
+      alts: ['net/http', 'gin']
+    },
+    {
+      id: 's2',
+      title: 'E-commerce backend',
+      tag: '80 endpoint • versioning • Swagger',
+      desc: 'API lớn, nhiều validation, cần observability.',
+      pick: 'gin',
+      reason: '<b>gin</b> — ecosystem lớn nhất (gin-swagger, gin-jwt, gin-prometheus có sẵn). Validation tag tiết kiệm 10-15 dòng/handler × 80 handler = ~1000 dòng code.',
+      alts: ['echo', 'chi']
+    },
+    {
+      id: 's3',
+      title: 'Real-time chat',
+      tag: '10 REST + 10k WebSocket',
+      desc: 'WebSocket-heavy, connection lâu, throughput cao.',
+      pick: 'fiber',
+      reason: '<b>fiber</b> — fasthttp tối ưu cho connection-heavy. WebSocket built-in. Trade-off: từ bỏ ecosystem <code>net/http</code> — chỉ chọn nếu team chấp nhận điều này. Echo cũng OK nếu cần giữ middleware net/http.',
+      alts: ['echo', 'gin']
+    },
+    {
+      id: 's4',
+      title: 'Internal admin tool',
+      tag: '30 endpoint • 1 instance',
+      desc: 'Dev speed > performance. Form binding nhiều.',
+      pick: 'gin',
+      reason: '<b>gin</b> — <code>c.ShouldBindJSON</code> + form binding tiết kiệm thời gian. HTML template render built-in nếu cần admin UI. Perf không quan trọng (internal, 1 instance).',
+      alts: ['echo']
+    },
+    {
+      id: 's5',
+      title: 'Microservice tí hon',
+      tag: '3 endpoint • Lambda',
+      desc: 'Binary nhỏ, cold start nhanh, 0 dependency.',
+      pick: 'net/http',
+      reason: '<b>net/http</b> stdlib Go 1.22+ — 0 dep, binary 6MB thay vì 12MB+ khi có framework. Cold start nhanh ~30-50ms thay vì 100ms+. ServeMux mới hỗ trợ <code>{id}</code> rồi.',
+      alts: ['chi']
+    },
+    {
+      id: 's6',
+      title: 'Legacy migration',
+      tag: 'Code net/http cũ + cần thêm middleware',
+      desc: 'Đã có codebase net/http, muốn nâng cấp dần.',
+      pick: 'chi',
+      reason: '<b>chi</b> — 100% compatible <code>http.Handler</code>, có thể mount sub-router chi vào mux cũ, hoặc dùng middleware chi cho code cũ. Migration zero-risk, không phải viết lại handler.',
+      alts: ['net/http']
+    }
+  ];
+
+  const grid = document.getElementById('scenario-grid');
+  const result = document.getElementById('pick-result');
+
+  scenarios.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'scenario-card';
+    card.dataset.id = s.id;
+    card.innerHTML = `
+      <div class="title">${s.title}</div>
+      <div class="tag">${s.tag}</div>
+      <div style="font-size: 12.5px; color: #475569; margin-top: 6px;">${s.desc}</div>
+    `;
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.scenario-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      result.classList.remove('empty');
+      result.innerHTML = `
+        <div class="pick-name">→ ${s.pick}</div>
+        <div class="reason">${s.reason}</div>
+        <div class="alt-list">
+          Alternative chấp nhận được:
+          ${s.alts.map(a => `<span class="alt">${a}</span>`).join(' ')}
+        </div>
+      `;
+    });
+    grid.appendChild(card);
+  });
+})();
+
+// ============================================================================
+// Module 2 — Middleware chain visualizer
+// ============================================================================
+(function() {
+  const layers = [
+    { name: 'Logger',     desc: 'log start + duration', kind: 'before-after' },
+    { name: 'Recoverer',  desc: 'defer recover panic',  kind: 'wrapping' },
+    { name: 'rateLimit',  desc: 'token bucket',          kind: 'before' },
+    { name: 'authMW',     desc: 'check Bearer token',    kind: 'before' },
+    { name: 'getUser',    desc: 'handler chính',         kind: 'handler' }
+  ];
+
+  const vis = document.getElementById('chain-vis');
+  const status = document.getElementById('chain-status');
+
+  function build() {
+    // remove all layers, keep status
+    [...vis.querySelectorAll('.chain-layer')].forEach(n => n.remove());
+    layers.forEach((l, i) => {
+      const d = document.createElement('div');
+      d.className = 'chain-layer';
+      d.dataset.idx = i;
+      d.innerHTML = `
+        <span class="lay-name">${l.name}</span>
+        <span class="lay-desc">${l.desc}</span>
+      `;
+      vis.insertBefore(d, status);
+    });
+  }
+  build();
+
+  function clearActive() {
+    document.querySelectorAll('.chain-layer').forEach(l => {
+      l.classList.remove('active');
+      l.classList.remove('done');
+    });
+  }
+
+  async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  document.getElementById('chain-run').addEventListener('click', async () => {
+    const authFail = document.getElementById('chain-auth-fail').checked;
+    const panicSim = document.getElementById('chain-panic').checked;
+
+    clearActive();
+    const layerNodes = [...vis.querySelectorAll('.chain-layer')];
+
+    // FORWARD pass — đi vào
+    for (let i = 0; i < layerNodes.length; i++) {
+      layerNodes[i].classList.add('active');
+      status.textContent = `→ ${layers[i].name}: bắt đầu xử lý`;
+      await sleep(500);
+
+      // Auth fail tại layer 3 (authMW, idx 3)
+      if (authFail && i === 3) {
+        status.textContent = `✗ authMW: token sai → 401 Unauthorized (DỪNG, các layer trong không chạy)`;
+        layerNodes[i].classList.remove('active');
+        layerNodes[i].style.background = '#fee2e2';
+        layerNodes[i].style.borderColor = 'var(--err)';
+        // Quay ngược qua Logger để log
+        await sleep(700);
+        layerNodes[0].classList.add('active');
+        status.textContent = `← Logger: ghi log "GET /users/42 → 401 (1.2ms)"`;
+        await sleep(700);
+        layerNodes[0].classList.remove('active');
+        layerNodes[0].classList.add('done');
+        // reset layer 3 style
+        await sleep(400);
+        layerNodes[i].style.background = '';
+        layerNodes[i].style.borderColor = '';
+        return;
+      }
+
+      // Panic tại handler (idx 4)
+      if (panicSim && i === 4) {
+        status.textContent = `💥 getUser: panic("nil pointer")! Stack unwinds...`;
+        layerNodes[i].classList.remove('active');
+        layerNodes[i].style.background = '#fee2e2';
+        layerNodes[i].style.borderColor = 'var(--err)';
+        await sleep(800);
+        // Recoverer (idx 1) bắt
+        layerNodes[1].classList.add('active');
+        layerNodes[1].style.background = '#fef3c7';
+        status.textContent = `⚙ Recoverer: defer recover() bắt panic → trả 500 Internal Error`;
+        await sleep(900);
+        layerNodes[1].classList.remove('active');
+        layerNodes[1].classList.add('done');
+        layerNodes[1].style.background = '';
+        // Logger ghi log cuối
+        layerNodes[0].classList.add('active');
+        status.textContent = `← Logger: ghi log "GET /users/42 → 500 (recovered panic)"`;
+        await sleep(700);
+        layerNodes[0].classList.remove('active');
+        layerNodes[0].classList.add('done');
+        await sleep(400);
+        layerNodes[i].style.background = '';
+        layerNodes[i].style.borderColor = '';
+        return;
+      }
+    }
+
+    // SUCCESS — quay ngược ra
+    status.textContent = `✓ Handler xong, response sẵn sàng, unwinding...`;
+    await sleep(600);
+    for (let i = layerNodes.length - 1; i >= 0; i--) {
+      layerNodes[i].classList.remove('active');
+      layerNodes[i].classList.add('done');
+      if (i === 0) {
+        status.textContent = `✓ Logger: ghi "GET /users/42 → 200 (3.4ms)" • Response gửi về client.`;
+      } else {
+        status.textContent = `← ${layers[i].name}: cleanup xong`;
+      }
+      await sleep(350);
+    }
+  });
+
+  document.getElementById('chain-reset').addEventListener('click', () => {
+    clearActive();
+    document.querySelectorAll('.chain-layer').forEach(l => {
+      l.style.background = '';
+      l.style.borderColor = '';
+    });
+    status.textContent = 'Bấm "Run request" để bắt đầu.';
+  });
+})();
+
+// ============================================================================
+// Module 3 — Performance bar chart
+// ============================================================================
+(function() {
+  // Số liệu approximate (theo julienschmidt/go-http-routing-benchmark)
+  const pure = [
+    { name: 'net/http',  ns: 6000, color: '#94a3b8' },
+    { name: 'chi',       ns: 6000, color: '#0ea5e9' },
+    { name: 'echo',      ns: 4000, color: '#10b981' },
+    { name: 'gin',       ns: 4000, color: '#8b5cf6' },
+    { name: 'fiber',     ns: 2000, color: '#f59e0b' }
+  ];
+
+  // Trong context thật: + DB 15000μs (15ms) + JSON 50μs + network N/A (đo phía server)
+  const DB_US = 15000;
+  const JSON_US = 50;
+  const real = pure.map(p => ({
+    name: p.name,
+    us: (p.ns / 1000) + DB_US + JSON_US,
+    routeUs: p.ns / 1000,
+    color: p.color
+  }));
+
+  const wrap = document.getElementById('perf-bars');
+  let mode = 'pure';
+
+  function render() {
+    wrap.innerHTML = '';
+    if (mode === 'pure') {
+      const max = Math.max(...pure.map(p => p.ns));
+      pure.forEach(p => {
+        const row = document.createElement('div');
+        row.className = 'perf-row';
+        row.innerHTML = `
+          <div class="pname">${p.name}</div>
+          <div class="pbar"><div class="fill" style="width: 0; background: linear-gradient(90deg, ${p.color}, ${p.color})"></div></div>
+          <div class="pval">${p.ns.toLocaleString()} ns</div>
+        `;
+        wrap.appendChild(row);
+        setTimeout(() => {
+          row.querySelector('.fill').style.width = (p.ns / max * 100) + '%';
+        }, 30);
+      });
+    } else {
+      const max = Math.max(...real.map(p => p.us));
+      real.forEach(p => {
+        const row = document.createElement('div');
+        row.className = 'perf-row';
+        const routePct = (p.routeUs / p.us * 100).toFixed(3);
+        row.innerHTML = `
+          <div class="pname">${p.name}</div>
+          <div class="pbar"><div class="fill" style="width: 0; background: linear-gradient(90deg, ${p.color}, ${p.color})"></div></div>
+          <div class="pval">${p.us.toFixed(1)} μs<br><span style="font-size:10px;color:#94a3b8">route=${routePct}%</span></div>
+        `;
+        wrap.appendChild(row);
+        setTimeout(() => {
+          row.querySelector('.fill').style.width = (p.us / max * 100) + '%';
+        }, 30);
+      });
+    }
+  }
+
+  document.getElementById('perf-pure').addEventListener('click', () => {
+    mode = 'pure';
+    document.getElementById('perf-pure').classList.add('active');
+    document.getElementById('perf-real').classList.remove('active');
+    render();
+  });
+  document.getElementById('perf-real').addEventListener('click', () => {
+    mode = 'real';
+    document.getElementById('perf-real').classList.add('active');
+    document.getElementById('perf-pure').classList.remove('active');
+    render();
+  });
+
+  render();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

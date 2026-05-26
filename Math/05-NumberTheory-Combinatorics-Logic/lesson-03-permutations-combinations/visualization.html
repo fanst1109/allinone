@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 03 — Hoán vị & tổ hợp</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="range"] { flex: 1; min-width: 200px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 70px; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0; font-family: monospace; font-size: 13px; }
+  td, th { border: 1px solid #cbd5e0; padding: 6px 10px; text-align: center; }
+  th { background: #f1f5f9; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-primes-modular/visualization.html">← L2: Nguyên tố</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Hoán vị</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L4: Pascal (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 03 (T5) — Hoán vị, Chỉnh hợp, Tổ hợp</h1>
+
+<h2>Tính P(n), A(n,k), C(n,k)</h2>
+<div class="card">
+  <div class="row">
+    <label>n:</label><input type="number" id="n" value="10" oninput="calc()">
+    <label>k:</label><input type="number" id="k" value="3" oninput="calc()">
+  </div>
+  <div class="result" id="res"></div>
+</div>
+
+<h2>So sánh tăng trưởng — n! vs n^k vs C(n,k)</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>n</th><th>n!</th><th>2^n</th><th>n²</th><th>C(n, 2)</th><th>C(n, n/2)</th></tr></thead>
+    <tbody id="tbl"></tbody>
+  </table>
+  <p style="font-size:13px; color:#64748b">Quan sát: n! tăng <strong>siêu nhanh</strong>. Đó là tại sao bài toán "duyệt tất cả hoán vị" thường không giải được khi n > 20.</p>
+</div>
+
+<script>
+function fact(n) {
+  if (n < 0) return null;
+  let r = 1;
+  for (let i = 2; i <= n; i++) r *= i;
+  return r;
+}
+function A(n, k) {
+  if (k > n || k < 0) return 0;
+  let r = 1;
+  for (let i = 0; i < k; i++) r *= (n - i);
+  return r;
+}
+function C(n, k) {
+  if (k > n || k < 0) return 0;
+  if (k > n - k) k = n - k;
+  let r = 1;
+  for (let i = 0; i < k; i++) r = r * (n - i) / (i + 1);
+  return Math.round(r);
+}
+
+function calc() {
+  const n = parseInt(document.getElementById("n").value);
+  const k = parseInt(document.getElementById("k").value);
+  if (!n || n < 0 || k < 0 || k > n) {
+    document.getElementById("res").innerHTML = "<strong>Nhập n ≥ k ≥ 0.</strong>";
+    return;
+  }
+  const Pn = fact(n), Ank = A(n, k), Cnk = C(n, k), nk = Math.pow(n, k);
+
+  document.getElementById("res").innerHTML = `
+    <div class="row">
+      <span class="stat">Hoán vị n: <strong>P(${n}) = ${n}! = ${Pn.toLocaleString()}</strong></span>
+    </div>
+    <div class="row">
+      <span class="stat">Chỉnh hợp: <strong>A(${n},${k}) = ${n}!/(${n-k})! = ${Ank.toLocaleString()}</strong></span>
+      <span class="stat">Tổ hợp: <strong>C(${n},${k}) = ${Cnk.toLocaleString()}</strong></span>
+    </div>
+    <div class="row">
+      <span class="stat">Chỉnh hợp có lặp: <strong>${n}^${k} = ${nk.toLocaleString()}</strong></span>
+      <span class="stat">A(${n},${k})/${k}! = ${Ank}/${fact(k)} = <strong>${Cnk}</strong> ✓</span>
+    </div>
+    <div style="margin-top:8px; font-size:13px">Đối xứng: C(${n},${k}) = C(${n},${n-k}) = ${C(n, n-k).toLocaleString()} ✓</div>
+  `;
+}
+
+function buildTable() {
+  const tb = document.getElementById("tbl");
+  let html = "";
+  [3, 5, 7, 10, 15, 20].forEach(n => {
+    html += `<tr><td>${n}</td><td>${fact(n).toLocaleString()}</td><td>${Math.pow(2,n).toLocaleString()}</td><td>${(n*n).toLocaleString()}</td><td>${C(n,2).toLocaleString()}</td><td>${C(n, Math.floor(n/2)).toLocaleString()}</td></tr>`;
+  });
+  tb.innerHTML = html;
+}
+
+calc();
+buildTable();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

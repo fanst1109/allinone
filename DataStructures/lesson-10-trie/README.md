@@ -153,6 +153,190 @@ Truy vấn `countPrefix(p)`: đi xuống đến node ứng với cuối prefix, 
 
 Trong thực tế Trie **tốn bộ nhớ hơn HashSet** cho cùng số chuỗi, nhưng đổi lại có **truy vấn theo tiền tố nhanh**. Nếu cần nén bộ nhớ → dùng **compressed trie (Radix tree)**.
 
+## 8. Trực giác sâu hơn và walk-through chi tiết
+
+### 8.1. 💡 Trực giác — "Cây chữ cái chia sẻ tiền tố"
+
+Hãy tưởng tượng bạn quản lý một **thư viện sách**, và mọi nhan đề sách bắt đầu bằng `"Lập trình"` đều được đặt **cùng một kệ**. Trên kệ đó, sách bắt đầu bằng `"Lập trình Go"` thì đặt vào **ngăn con** bên trong, còn `"Lập trình Java"` ở ngăn con khác. Đi từ tủ → kệ → ngăn → vị trí cụ thể chính là đi theo từng ký tự của nhan đề.
+
+**Trie chính là kiểu thư viện đó cho chuỗi**:
+
+- Root = "cửa thư viện" (chưa có ký tự nào).
+- Mỗi tầng sâu xuống = thêm một ký tự vào prefix.
+- Hai chuỗi có chung prefix → **chia sẻ cùng đường đi từ root** cho đến chỗ chúng tách nhánh.
+
+```
+{"cat", "car", "card"}:
+
+(root)
+  │
+  c       ← prefix "c"
+  │
+  a       ← prefix "ca"
+ / \
+t   r     ← prefix "cat" và "car"
+*   │\
+    * d   ← "car" kết thúc ở r (*), "card" tiếp tục
+       \
+        * ← "card" kết thúc
+```
+
+Lợi ích "chia sẻ prefix" cụ thể: 3 từ với tổng `3+3+4 = 10` ký tự chỉ cần **5 node** (`c, a, t, r, d`) thay vì 10 — vì 3 ký tự đầu của `card`/`car` dùng chung node với `cat`.
+
+### 8.2. Walk-through insert step-by-step
+
+Insert lần lượt `cat`, `car`, `card` vào trie rỗng. Mỗi bước, `*` = `isEnd=true`, `[X]` = node mới tạo, `(X)` = node đã tồn tại.
+
+**Trạng thái 0** — trie rỗng:
+
+```
+(root)
+```
+
+**Insert "cat"** — đi từng ký tự:
+
+- `c`: root.children không có 'c' → tạo node `[c]`, đi xuống.
+- `a`: `[c]`.children không có 'a' → tạo `[a]`, đi xuống.
+- `t`: `[a]`.children không có 't' → tạo `[t]`, đi xuống.
+- Hết chuỗi → `[t].isEnd = true`.
+
+```
+(root)
+  │
+ [c]
+  │
+ [a]
+  │
+ [t]*
+```
+
+**Insert "car"** — đi từng ký tự:
+
+- `c`: `(c)` đã có → đi xuống, không tạo.
+- `a`: `(a)` đã có → đi xuống.
+- `r`: `(a)`.children không có 'r' → tạo `[r]`, đi xuống.
+- Hết → `[r].isEnd = true`.
+
+```
+(root)
+  │
+ (c)
+  │
+ (a)
+ / \
+(t)* [r]*
+```
+
+**Insert "card"**:
+
+- `c, a, r`: tất cả đã có → đi xuống.
+- `d`: `(r)`.children không có 'd' → tạo `[d]`, đi xuống.
+- Hết → `[d].isEnd = true`.
+
+```
+(root)
+  │
+ (c)
+  │
+ (a)
+ / \
+(t)* (r)*
+      │
+     [d]*
+```
+
+**Quan sát quan trọng**: node `(r)` có **cả `isEnd=true` lẫn con `d`** — đây là tình huống "từ này là tiền tố của từ khác". Đây cũng là chỗ thường có bug nếu code xóa cẩu thả.
+
+### 8.3. Walk-through search
+
+Search `"car"` trong trie trên:
+
+| Bước | Ký tự | Node hiện tại | Tìm trong children | Kết quả |
+|------|-------|---------------|---------------------|---------|
+| 0 | (bắt đầu) | root | - | - |
+| 1 | `c` | `(c)` | có 'c' | đi xuống |
+| 2 | `a` | `(a)` | có 'a' | đi xuống |
+| 3 | `r` | `(r)` | có 'r' | đi xuống |
+| 4 | hết | `(r)` | check `isEnd` | `true` → **TRUE** |
+
+Search `"ca"` (không phải từ, chỉ là prefix):
+
+| Bước | Ký tự | Node | Children có? | |
+|------|-------|------|--------------|-|
+| 3 | hết | `(a)` | check `isEnd` | `false` → **FALSE** (search trả về sai) |
+
+Nhưng `startsWith("ca")` sẽ trả `true` vì chỉ cần đi tới node, không cần check `isEnd`. Đây là chỗ phân biệt **search vs startsWith**.
+
+Search `"cup"` — không tồn tại:
+
+| Bước | Ký tự | Node | Children có? | |
+|------|-------|------|--------------|-|
+| 1 | `c` | `(c)` | có | đi xuống |
+| 2 | `u` | `(c).children` | **không có 'u'** | **FALSE** ngay lập tức |
+
+### 8.4. So sánh memory: Trie vs Hash Table với 1 triệu từ ngắn
+
+Giả định: 1 triệu từ tiếng Anh trung bình `8` ký tự, alphabet a-z.
+
+**Phương án 1 — HashSet of String**:
+- Mỗi `string`: header ~16 byte + data `8` byte = ~24 byte.
+- Hash table với load factor 0.75: ~`1.33 × 10⁶` slot × 8 byte/pointer = ~10.6 MB cho bucket array.
+- Tổng: ~`24 × 10⁶ + 10.6 × 10⁶ ≈ 34.6 MB`.
+
+**Phương án 2 — Trie dùng mảng 26 con**:
+- Mỗi node = 26 pointer × 8 byte + 1 byte `isEnd` + padding ≈ **216 byte/node**.
+- Số node trong trie 1 triệu từ tiếng Anh: theo thực nghiệm, ~`3 × 10⁶` node (do từ ngắn chia sẻ prefix rất tốt — tầng 1 có ≤ 26 node, tầng 2 ≤ 676, càng sâu càng đầy).
+- Tổng: ~`216 × 3 × 10⁶ ≈ 648 MB`. **Lớn gấp ~19 lần HashSet!**
+
+**Phương án 3 — Trie dùng `map[byte]*Node`**:
+- Mỗi node: 1 map (overhead ~48 byte cho map rỗng) + entry trung bình. Nếu mỗi node trung bình 3 con: ~`48 + 3 × 24 = 120` byte/node.
+- Tổng: ~`120 × 3 × 10⁶ ≈ 360 MB`. Vẫn lớn hơn HashSet ~10 lần.
+
+**Phương án 4 — Compressed trie (Radix tree)**:
+- Gộp các chuỗi node đơn (chỉ có 1 con) thành 1 cạnh nhãn nhiều ký tự.
+- Số node giảm xuống ~`5 × 10⁵` (chỉ giữ các điểm phân nhánh thật).
+- Tổng: ~`5 × 10⁵ × 100 ≈ 50 MB`. Cạnh tranh với HashSet, lại **hỗ trợ prefix query**.
+
+**Kết luận**: Trie dạng "ngây thơ" tốn bộ nhớ gấp 10-20 lần hash. Đổi lại được prefix query `O(L)`. Khi memory là bottleneck → compressed trie.
+
+### 8.5. ❓ Câu hỏi tự nhiên
+
+- **"Trie nhanh hơn HashSet ở chỗ nào?"** — Cùng tìm chuỗi cả hai đều `O(L)` (hash cần tính `O(L)` để hash, trie cần `O(L)` để đi xuống). **Trie thắng tuyệt đối ở prefix query** — liệt kê tất cả từ bắt đầu bằng `"pre"` mất `O(L + K)` (K = tổng độ dài kết quả), trong khi HashSet phải duyệt toàn bộ `n` phần tử → `O(n × L)`.
+- **"Tại sao tôi nên chọn `map<char, Node>` thay vì mảng `[26]Node*`?"** — Mảng 26 cố định: truy cập `O(1)` (`children[c-'a']`), nhưng lãng phí khi node có ít con (vd node sâu chỉ có 1 con phải dành 26 ô = 208 byte). Map: tốn overhead constant lớn hơn nhưng chỉ chứa con thực sự có. Quy tắc: **alphabet nhỏ + node dày (gần root)** dùng mảng; **alphabet lớn (Unicode) hoặc node thưa** dùng map.
+- **"Compressed trie là gì cụ thể?"** — Trong trie chuẩn, một chuỗi không phân nhánh dài tạo ra một dây node lãng phí. Radix tree gộp dây đó thành 1 node với nhãn chuỗi. Vd `{"romanus", "romulus"}` chuẩn cần 12 node, radix chỉ cần 5 node (root → "rom" → split: "anus" / "ulus").
+- **"Có thể xóa khỏi trie không?"** — Có, nhưng phải cẩn thận: chỉ xóa node nếu (1) `isEnd == false` sau khi unset, (2) không có con nào khác. Nếu node là prefix của từ khác → chỉ set `isEnd = false`, KHÔNG xóa cấu trúc.
+- **"Lúc nào trie thua hash table hoàn toàn?"** — Khi (1) không cần prefix query, và (2) memory là bottleneck. Vd lưu hash của file (chuỗi hex `64` ký tự) → dùng hash table; lưu IP routing → dùng trie nhị phân (cần longest-prefix).
+
+### 8.6. ⚠ Lỗi thường gặp
+
+| Lỗi | Hậu quả |
+|------|---------|
+| Quên đánh dấu `isEnd = true` khi insert | `search("cat")` trả `false` dù đã insert |
+| Dùng `startsWith` thay cho `search` khi chỉ cần biết có là từ không | Báo "có" cho mọi prefix của từ khác (vd `"ca"` báo có dù chỉ có `"cat"`) |
+| Mảng `[26]` cứng cho input có chữ in hoa hoặc Unicode | Truy cập out-of-range, hoặc bỏ sót ký tự |
+| Khi xóa, xóa node có `isEnd=true` của từ khác | Mất từ khác — bug khó tìm |
+| Không reset `node = root` ở đầu mỗi thao tác | Hai lệnh insert liên tiếp đi sai chỗ |
+| Tạo node mới mà quên init `children` (ngôn ngữ thủ công) | NPE khi đi xuống lần sau |
+| Tính memory mà chỉ đếm `len(word)` | Quên 26 pointer/node = ~200 byte ẩn |
+
+### 8.7. 🔁 Tự kiểm tra
+
+1. Vẽ trie sau khi insert `"to", "tea", "ted", "ten", "i", "in", "inn"` (ví dụ kinh điển). Có bao nhiêu node? Bao nhiêu node có `isEnd=true`?
+   <details><summary>Đáp án</summary>11 node (root + t, o, e, a, d, n, i, n, n) + isEnd ở 7 vị trí (to, tea, ted, ten, i, in, inn). Lưu ý node 'i' và 'in' và 'inn' đều có isEnd.</details>
+2. Cho trie chứa `{"app", "apple", "apply"}`. `search("app")` trả gì? `startsWith("app")` trả gì? `search("appl")` trả gì?
+   <details><summary>Đáp án</summary>search("app")=true (vì có isEnd ở node 'p' thứ hai). startsWith("app")=true. search("appl")=false (vì "appl" không phải từ, dù là prefix). startsWith("appl")=true.</details>
+3. Trie có 1 triệu node, dùng mảng 26 con/node. Tính dung lượng bộ nhớ (ước lượng) trên máy 64-bit.
+   <details><summary>Đáp án</summary>1 node ≈ 26 × 8 + 1 + padding ≈ 216 byte. Tổng ≈ 216 MB. Trong đó tỷ lệ pointer NULL: nếu trung bình mỗi node có 3 con thực → 23/26 ≈ 88% pointer là null, tốn ~190 MB cho NULL.</details>
+
+### 8.8. 📝 Tóm tắt mục 8
+
+- Trie = cây chữ cái, **đường đi từ root = prefix**, node có thể đánh dấu kết thúc từ (`isEnd`).
+- Insert/Search/StartsWith đều `O(L)`, **không phụ thuộc số từ đã lưu**.
+- Lợi thế chính: **prefix query** — liệt kê từ bắt đầu bằng prefix `O(L + K)`.
+- Trade-off bộ nhớ: trie ngây thơ tốn gấp 10-20 lần hash; compressed trie thu hẹp được khoảng cách.
+- Lưu ý cài đặt: **isEnd**, alphabet, **xóa cẩn thận** khi từ là prefix của từ khác.
+- Mảng `[26]` cho alphabet nhỏ + dày; `map` cho alphabet lớn + thưa.
+
 ## Code & Minh họa
 
 - [solutions.go](./solutions.go) — cài Trie với insert/search/startsWith + đếm prefix + liệt kê từ.

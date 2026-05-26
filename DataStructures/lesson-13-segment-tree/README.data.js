@@ -29,6 +29,31 @@ Cách ngây thơ:
 
 **Mục tiêu**: cả hai thao tác trong \`O(log n)\`.
 
+### 1.1. 💡 Trực giác — "chia đôi mảng đệ quy, tổng được tích sẵn"
+
+Hình dung **cây gia phả** dựng ngược: đáy là \`n\` phần tử của mảng; mỗi tầng trên là các "cha" lưu **tổng của hai con**. Đỉnh là tổng toàn bộ.
+
+Khi cần tổng đoạn \`[l, r]\`, ta **không** đi qua từng phần tử mà **leo cây**: tìm tập tối thiểu các node "phủ vừa khít" \`[l, r]\`, lấy tổng đã tích sẵn ở đó. Vì cây cao \`log n\`, ta chỉ chạm \`O(log n)\` node.
+
+Khi cập nhật \`a[i]\`, ta chỉ cần đi từ lá \`i\` lên gốc, sửa các tổng trên đường — cũng \`O(log n)\`.
+
+Tương phản với 3 cách quen thuộc:
+
+| Cấu trúc | Range sum | Point update | Range update | Bộ nhớ |
+|----------|-----------|--------------|--------------|--------|
+| Mảng thường | \`O(n)\` | \`O(1)\` | \`O(n)\` | \`n\` |
+| Prefix sum | \`O(1)\` | \`O(n)\` rebuild | không tốt | \`n\` |
+| **Segment tree** | \`O(log n)\` | \`O(log n)\` | \`O(log n)\` (lazy) | \`~4n\` |
+| Fenwick (BIT) | \`O(log n)\` | \`O(log n)\` | khó | \`n\` |
+
+Segment tree là **trade-off**: hi sinh ~4× bộ nhớ và code dài hơn để có **cả** query lẫn update đều \`O(log n)\`.
+
+### 1.2. ❓ Câu hỏi tự nhiên trước khi vào chi tiết
+
+- **"Vì sao prefix sum không đủ?"** — Prefix sum chỉ tốt khi mảng **không đổi**. Mỗi \`update(i, v)\` cần rebuild toàn bộ prefix \`O(n)\`. Với \`10⁵\` update → \`10¹⁰\` thao tác → TLE.
+- **"Sao không dùng mảng thường, chấp nhận query \`O(n)\`?"** — Với \`n = q = 10⁵\`, \`nq = 10¹⁰\`. Máy hiện đại làm ~\`10⁸-10⁹\` thao tác/giây → mất \`10-100\` giây. Quá chậm cho hệ thống thời gian thực.
+- **"Segment tree có làm được min/max/gcd không?"** — Có. Chỉ cần thay phép cộng bằng phép kết hợp (associative) tương ứng. Đó là sức mạnh của segment tree so với BIT.
+
 ## 2. Segment Tree
 
 ### 2.1. Cấu trúc

@@ -25,6 +25,34 @@ push(1) push(2) push(3)        pop() -> 3
    [1]
 ```
 
+### 1.1. 💡 Trực giác — vì sao LIFO lại có mặt khắp nơi
+
+Chồng đĩa là minh hoạ truyền thống, nhưng LIFO xuất hiện vì một lý do sâu hơn: **"việc bắt đầu sau phải kết thúc trước"**. Hai hệ thống điển hình:
+
+- **Gọi hàm**: hàm `A` gọi `B`, `B` gọi `C`. `C` chạy xong trước, rồi `B`, rồi `A`. Đây là **call stack** của runtime — quản lý tự động bằng stack thật trong CPU.
+- **Mở ngoặc**: `( [ { ... } ] )` — ngoặc mở **sau cùng** (`{`) phải đóng **trước nhất** (`}`). Bất kỳ chuỗi lồng nhau nào (HTML tag, JSON, parens) đều theo cấu trúc này.
+
+Walk-through số: chuỗi `push(5), push(8), push(2), pop(), push(7), pop(), pop()` cho dãy giá trị nào?
+
+| Bước | Thao tác | Stack (từ đáy → đỉnh) | Giá trị pop ra |
+|------|----------|----------------------|----------------|
+| 0 | init | `[]` | — |
+| 1 | push(5) | `[5]` | — |
+| 2 | push(8) | `[5, 8]` | — |
+| 3 | push(2) | `[5, 8, 2]` | — |
+| 4 | pop | `[5, 8]` | **2** |
+| 5 | push(7) | `[5, 8, 7]` | — |
+| 6 | pop | `[5, 8]` | **7** |
+| 7 | pop | `[5]` | **8** |
+
+Thứ tự pop ra: `2, 7, 8` — **đảo ngược** thứ tự push (trong cùng cụm). Tính chất này là nền tảng cho mọi ứng dụng stack ở mục 4.
+
+### 1.2. ❓ Câu hỏi tự nhiên
+
+- **"Stack là ADT hay cấu trúc dữ liệu?"** — **ADT**. Chỉ định nghĩa thao tác (`push`/`pop`/`peek`/`isEmpty`) chứ không quy định cách lưu. Cài đặt cụ thể có thể là array hoặc linked list (xem mục 3).
+- **"Vì sao chỉ thao tác ở đỉnh, không cho phép truy cập giữa?"** — Hạn chế này **chính là tính năng**. ADT càng đơn giản, càng dễ tối ưu và dễ chứng minh tính đúng đắn. Nếu cần truy cập giữa → bạn cần `List` hoặc `Array`, không phải Stack.
+- **"`peek` khác `pop` thế nào?"** — `peek` đọc đỉnh nhưng **không gỡ ra**, stack giữ nguyên. `pop` đọc đỉnh VÀ gỡ. Khi chỉ cần xem để quyết định bước tiếp theo (vd kiểm tra ngoặc), `peek` an toàn hơn.
+
 ## 2. Các thao tác
 
 | Thao tác | Mô tả | Big-O |

@@ -312,6 +312,33 @@ Một số câu hỏi nên đặt ra trước khi chọn:
 
 Không có cấu trúc nào "tốt nhất cho mọi tình huống" — luôn là sự đánh đổi (trade-off).
 
+### 7.1. 💡 Cây quyết định nhanh — chọn cấu trúc dữ liệu
+
+Đặt câu hỏi theo thứ tự, đến đáp án đầu tiên là dừng:
+
+1. **Cần tra cứu/kiểm tra tồn tại trên key bất kỳ rất nhanh?** → Hash Table (\`O(1)\` trung bình).
+2. **Cần dữ liệu luôn được sắp xếp + tra cứu nhanh?** → Balanced BST (\`O(log n)\`).
+3. **Cần lấy phần tử nhỏ nhất / lớn nhất liên tục?** → Heap (\`O(log n)\` push/pop).
+4. **Truy cập theo chỉ số (\`arr[i]\`) là thao tác chính?** → Array / Dynamic Array (\`O(1)\`).
+5. **Chèn/xóa ở đầu rất nhiều, ít truy cập ngẫu nhiên?** → Linked List (\`O(1)\` ở đầu).
+6. **Vào sau ra trước (lịch sử, undo, đệ quy)?** → Stack (LIFO).
+7. **Vào trước ra trước (hàng đợi, lập lịch)?** → Queue (FIFO).
+8. **Quan hệ phân cấp (folder, AST, cây gia phả)?** → Tree.
+9. **Quan hệ tùy ý (mạng, đường đi)?** → Graph.
+
+### 7.2. ❓ Câu hỏi tự nhiên
+
+- **"Vì sao có nhiều cấu trúc thế? Sao không dùng 1 cái cho tất cả?"** — Vì mỗi cấu trúc tối ưu một số thao tác và **trả giá** ở thao tác khác. Hash table nhanh tra cứu nhưng không giữ thứ tự. Array nhanh truy cập theo chỉ số nhưng chậm chèn giữa. Không tồn tại "cấu trúc thắng mọi thứ".
+- **"Làm sao biết tôi đoán đúng cấu trúc?"** — Liệt kê các thao tác thường gặp trong bài toán + ước lượng tần suất → tra Big-O của thao tác đó với cấu trúc đang chọn. Cấu trúc nào có Big-O **thấp nhất ở thao tác xảy ra nhiều nhất** thường là lựa chọn tốt.
+- **"Nếu chỉ có ít dữ liệu (vd 100 phần tử)?"** — Hằng số ẩn lấn át Big-O. Array tuyến tính có thể thắng cả hash table vì cache locality. Đừng tối ưu sớm.
+
+### 7.3. 📝 Tóm tắt mục 7
+
+- Chọn cấu trúc = **xác định thao tác thường xuyên nhất + tra Big-O của thao tác đó**.
+- Luôn là **trade-off**: nhanh ở một thao tác → thường chậm ở thao tác khác.
+- Với \`n\` nhỏ, hằng số ẩn quan trọng hơn lớp Big-O — đừng over-engineer.
+- Khi nghi ngờ: mặc định **array** cho data tuyến tính, **hash map** cho tra cứu, rồi tối ưu sau khi đo.
+
 ## 8. Tóm tắt
 
 - Cấu trúc dữ liệu = cách tổ chức dữ liệu để xử lý hiệu quả.

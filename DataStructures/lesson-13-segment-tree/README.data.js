@@ -226,6 +226,54 @@ function applyLazy(node, l, r, v):
     lazy[node] += v
 \`\`\`
 
+### 3.1. 💡 Trực giác — "trả nợ khi nào cần"
+
+Tưởng tượng bạn là **kế toán lười**: sếp nói "cộng 5 lương vào cả phòng 100 người". Thay vì cộng 100 lần, bạn ghi một note: **"toàn phòng nợ +5"** (= \`lazy = 5\`) và update tổng quỹ luôn (= \`tree[node] += 100·5 = 500\`). Khi nào ai đó hỏi lương cá nhân (đi sâu xuống node con), bạn mới "trả nợ": đẩy \`+5\` xuống cho từng con, xóa note.
+
+\`lazy[node]\` = "khoản nợ chưa truyền xuống con". \`tree[node]\` = "đã được cộng đầy đủ rồi, đừng lo".
+
+### 3.2. Walk-through — range update + range query
+
+Mảng đầu \`[1, 3, 5, 7, 9, 11]\`, segment tree đã build.
+
+**Thao tác 1**: \`rangeAdd([1, 4], +2)\` — cộng 2 vào \`a[1..4]\`.
+
+Trên cây, đoạn \`[1, 4]\` bị các node \`[0,2]\` và \`[3,5]\` cắt làm 2 phần lớn → đi sâu vào nhánh. Node \`[2,2]\`, \`[3,4]\` nằm trọn → đánh dấu lazy, không đi sâu:
+
+- node \`[2,2]\`: lazy = 2, tree += 1·2 = 7.
+- node \`[1,1]\`: lá nằm trọn → tree = 3 + 2 = 5.
+- node \`[3,4]\`: lazy = 2, tree += 2·2 = 20.
+- Cập nhật ngược về cha: \`tree[0,1] = tree[0,0] + tree[1,1] = 1 + 5 = 6\`; \`tree[0,2] = 6 + 7 = 13\`; \`tree[3,5] = 20 + 11 = 31\`; \`tree[0,5] = 13 + 31 = 44\`.
+
+Đối chiếu: tổng đúng = \`1 + (3+2) + (5+2) + (7+2) + (9+2) + 11 = 1+5+7+9+11+11 = 44\` ✓.
+
+**Thao tác 2**: \`query([2, 3])\`.
+
+Đi vào node \`[2,2]\` — đã có lazy = 2 nhưng tree đã bao gồm → trả về 7. Đi vào \`[3,5]\` không nằm trọn → **pushDown lazy=2 xuống \`[3,4]\` và \`[5,5]\`** trước khi đi sâu:
+
+- \`[3,4]\` đã có lazy=2, nhận thêm 0 (chỉ pushDown từ cha). Nhưng đợi — \`[3,5]\` cũng có thể có lazy riêng từ thao tác cha. Giả sử ở đây \`[3,5].lazy = 0\` (vì update đầu không phủ trọn \`[3,5]\`).
+- Đi vào \`[3,4]\`: nằm trọn → trả 20. Cuối cùng \`[5,5]\` không giao → 0.
+
+Kết quả query \`[2,3]\` = \`7 + 20 - 11 = ...\` — đợi, \`[3,4]\` chứa cả \`a[4]\` không thuộc \`[2,3]\`. Vậy đi sâu vào \`[3,4]\`: \`[3,3]\` nằm trọn (cần pushDown lazy=2 xuống \`[3,3]\` và \`[4,4]\` trước) → \`[3,3]\` mới = \`7 + 2 = 9\`, \`[4,4]\` = \`9 + 2 = 11\`. Query → \`[2,2]\` = 7, \`[3,3]\` = 9. Tổng \`[2,3] = 7 + 9 = 16\`.
+
+Đối chiếu: \`a[2]+a[3]\` sau update = \`(5+2) + (7+2) = 7 + 9 = 16\` ✓.
+
+### 3.3. ❓ Câu hỏi tự nhiên
+
+- **"Khi nào phải pushDown?"** — **Trước khi đi sâu vào con** (cả trong update lẫn query). Nếu không pushDown, con có giá trị cũ → query/update sai.
+- **"\`lazy\` có cộng dồn được không?"** — Với phép \`add\` thì có (\`lazy += v\`). Với phép \`assign\` (gán hẳn) thì lazy đè lên (\`lazy = v\`), cần thêm flag "đã có lazy hay chưa" để phân biệt "lazy = 0 do chưa set" và "lazy = 0 do gán 0".
+- **"Pushdown có làm tăng độ phức tạp?"** — Không, vẫn \`O(log n)\` mỗi thao tác. Pushdown chỉ chạm node trên đường truy vấn, mà đường này dài tối đa \`log n\`.
+- **"Lazy cho range assign + range sum khác lazy cho range add?"** — Phải lưu thêm flag \`has_lazy\` hoặc dùng giá trị "sentinel" (vd \`INT_MIN\`) để phân biệt "chưa có lazy" và "lazy = 0".
+
+### 3.4. ⚠ Lỗi thường gặp với lazy propagation
+
+| Lỗi | Hậu quả | Cách sửa |
+|------|---------|----------|
+| **Quên pushDown** trước khi đi sâu vào con | Con dùng giá trị cũ, query/update đều sai | Luôn \`pushDown(node)\` ở đầu mọi nhánh không nằm trọn |
+| Pushdown xong **quên reset** \`lazy[node] = 0\` | Lần sau pushDown cùng giá trị lần nữa → double count | Sau khi truyền xuống con, reset \`lazy[node]\` |
+| Áp \`lazy\` lên \`tree[node]\` **không nhân** \`(r-l+1)\` | Tổng node sai (chỉ tăng đúng 1 thay vì cả đoạn) | \`tree[node] += (r - l + 1) * v\` |
+| Lazy cho assign mà cộng dồn \`lazy += v\` | Sai bản chất gán | Dùng \`lazy = v\` + flag \`has_lazy = true\` |
+
 ## 4. Fenwick Tree (Binary Indexed Tree, BIT)
 
 Cấu trúc gọn hơn segment tree, dùng cho **range sum + point update** hoặc ngược lại.
@@ -267,6 +315,42 @@ function rangeSum(l, r):
 | Code | Dài | Ngắn |
 | Tổng quát | Cao (min/max/gcd...) | Chỉ cộng/trừ |
 | Lazy / range update | Hỗ trợ tốt | Khó |
+
+### 5.1. ❓ Câu hỏi tự nhiên — khi nào segtree vs BIT?
+
+- **Dùng BIT khi**:
+  - Chỉ cần **tổng** (cộng/trừ — có nghịch đảo).
+  - Bài toán chỉ **point update + prefix/range query**.
+  - Cần code ngắn, bộ nhớ tiết kiệm (vd contest, embedded).
+- **Dùng segment tree khi**:
+  - Phép tổng hợp là **min/max/gcd/xor** (không có nghịch đảo) — BIT không làm được.
+  - Cần **range update** (lazy propagation).
+  - Cần **truy vấn phức tạp** (vd "tìm chỉ số đầu tiên có giá trị ≥ k" — descend tree).
+  - Cần các biến thể: persistent, 2D đầy đủ, implicit (dynamic).
+- **Cả hai không phù hợp khi**:
+  - Mảng **không đổi** → prefix sum / sparse table tốt hơn (\`O(1)\` query).
+  - \`n\` rất nhỏ (\`< 100\`) → mảng thường vẫn ổn, viết segtree thừa.
+
+### 5.2. 💡 Trực giác — BIT hoạt động sao mà ngắn vậy?
+
+BIT lợi dụng **biểu diễn nhị phân**: \`bit[i]\` lưu tổng đoạn có độ dài là **bit thấp nhất của \`i\`** (gọi là \`lowbit(i) = i & -i\`).
+
+Vd \`n = 8\`:
+
+| \`i\` (bin) | \`lowbit\` | \`bit[i]\` lưu tổng đoạn |
+|-----------|----------|------------------------|
+| 1 = \`001\` | 1 | \`a[1..1]\` |
+| 2 = \`010\` | 2 | \`a[1..2]\` |
+| 3 = \`011\` | 1 | \`a[3..3]\` |
+| 4 = \`100\` | 4 | \`a[1..4]\` |
+| 5 = \`101\` | 1 | \`a[5..5]\` |
+| 6 = \`110\` | 2 | \`a[5..6]\` |
+| 7 = \`111\` | 1 | \`a[7..7]\` |
+| 8 = \`1000\` | 8 | \`a[1..8]\` |
+
+\`prefixSum(7)\` = \`bit[7] + bit[6] + bit[4]\` = \`a[7] + (a[5]+a[6]) + (a[1]+a[2]+a[3]+a[4])\` = \`a[1..7]\` ✓. Chỉ **3 lần cộng** thay vì 7. Tổng quát \`O(log n)\`.
+
+\`update(5, +x)\` chạm \`bit[5], bit[6], bit[8]\` — các index mà \`lowbit\` "bao phủ" vị trí 5. Cũng \`O(log n)\`.
 
 ## 6. Ứng dụng
 

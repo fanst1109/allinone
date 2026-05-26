@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 02 — Giới hạn hàm & liên tục</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  button { background: #94a3b8; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.active { background: #15803d; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 700px; height: 400px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-sequences-limits/visualization.html">← L1: Dãy số</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Lim hàm</span>
+  <span class="sep">·</span>
+  <span style="opacity:0.5">L3: Đạo hàm (sắp ra) →</span>
+</nav>
+
+<h1>Lesson 02 (T4) — Giới hạn hàm &amp; Liên tục</h1>
+
+<h2>Khám phá điểm gián đoạn</h2>
+<div class="card">
+  <div class="row">
+    <button id="b1" onclick="setF('removable')" class="active">Gián đoạn bỏ được</button>
+    <button id="b2" onclick="setF('jump')">Gián đoạn nhảy</button>
+    <button id="b3" onclick="setF('infinite')">Gián đoạn vô hạn</button>
+    <button id="b4" onclick="setF('continuous')">Liên tục</button>
+  </div>
+  <svg class="scene" id="svg" viewBox="0 0 700 400"></svg>
+  <div class="result" id="res"></div>
+</div>
+
+<script>
+let cur = "removable";
+
+function setF(f) {
+  cur = f;
+  ["1","2","3","4"].forEach(c => document.getElementById("b"+c).classList.remove("active"));
+  const m = {removable: "1", jump: "2", infinite: "3", continuous: "4"};
+  document.getElementById("b" + m[f]).classList.add("active");
+  draw();
+}
+
+function draw() {
+  const svg = document.getElementById("svg");
+  svg.innerHTML = "";
+  const W = 700, H = 400, cx = 350, cy = 200;
+  const scale = 40;
+
+  // Grid
+  for (let i = -8; i <= 8; i++) {
+    const x = cx + i*scale;
+    if (x > 0 && x < W) {
+      const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      l.setAttribute("x1", x); l.setAttribute("y1", 20); l.setAttribute("x2", x); l.setAttribute("y2", H-20);
+      l.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); l.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+      svg.appendChild(l);
+    }
+  }
+  for (let i = -5; i <= 5; i++) {
+    const y = cy - i*scale;
+    if (y > 0 && y < H) {
+      const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      l.setAttribute("x1", 30); l.setAttribute("y1", y); l.setAttribute("x2", W-20); l.setAttribute("y2", y);
+      l.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); l.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+      svg.appendChild(l);
+    }
+  }
+
+  const xToPx = x => cx + x*scale;
+  const yToPx = y => cy - y*scale;
+
+  let fn, label, point_a, fA, limL, limR, conclusion;
+
+  if (cur === "removable") {
+    // f(x) = (x²-1)/(x-1) for x ≠ 1, f(1) = 4 (lỗ tại y=2, điểm thực ở y=4)
+    fn = x => Math.abs(x - 1) < 1e-9 ? null : (x*x - 1)/(x - 1);
+    label = "f(x) = (x²-1)/(x-1) (x≠1), f(1) = 4";
+    point_a = 1; fA = 4; limL = 2; limR = 2;
+    conclusion = "Lim trái = lim phải = 2 (tồn tại), nhưng f(1) = 4 ≠ 2. <strong>Gián đoạn bỏ được</strong> — sửa f(1) = 2 thì liên tục.";
+  } else if (cur === "jump") {
+    fn = x => x < 1 ? x - 1 : x + 1;
+    label = "f(x) = x - 1 (x < 1), x + 1 (x ≥ 1)";
+    point_a = 1; fA = 2; limL = 0; limR = 2;
+    conclusion = "Lim trái = 0, lim phải = 2. <strong>Khác nhau → lim KHÔNG tồn tại → gián đoạn nhảy</strong>.";
+  } else if (cur === "infinite") {
+    fn = x => Math.abs(x) < 0.05 ? null : 1/x;
+    label = "f(x) = 1/x";
+    point_a = 0; fA = null; limL = -Infinity; limR = Infinity;
+    conclusion = "Lim trái = -∞, lim phải = +∞. <strong>Gián đoạn vô hạn</strong>.";
+  } else {
+    fn = x => x*x/4;
+    label = "f(x) = x²/4";
+    point_a = 1; fA = 0.25; limL = 0.25; limR = 0.25;
+    conclusion = "Lim = f(1) = 0.25. <strong>Hàm LIÊN TỤC</strong> tại x = 1 (và mọi x ∈ ℝ).";
+  }
+
+  // Draw function
+  let leftPath = "", rightPath = "";
+  let started_l = false, started_r = false;
+  for (let x = -7; x <= 7; x += 0.02) {
+    const y = fn(x);
+    if (y === null || !isFinite(y) || Math.abs(y) > 5) {
+      if (x < point_a - 0.01) started_l = false;
+      else started_r = false;
+      continue;
+    }
+    const px = xToPx(x), py = yToPx(y);
+    if (x < point_a - 0.01) {
+      leftPath += (started_l ? "L" : "M") + px + " " + py + " ";
+      started_l = true;
+    } else {
+      rightPath += (started_r ? "L" : "M") + px + " " + py + " ";
+      started_r = true;
+    }
+  }
+  ["leftPath", "rightPath"].forEach((p, i) => {
+    const pp = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    pp.setAttribute("d", i === 0 ? leftPath : rightPath); pp.setAttribute("fill", "none"); pp.setAttribute("stroke", "#1d4ed8"); pp.setAttribute("stroke-width", 2.5);
+    svg.appendChild(pp);
+  });
+
+  // Vertical line at a
+  const va = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  va.setAttribute("x1", xToPx(point_a)); va.setAttribute("y1", 20); va.setAttribute("x2", xToPx(point_a)); va.setAttribute("y2", H-20);
+  va.setAttribute("stroke", "#cbd5e0"); va.setAttribute("stroke-width", 1); va.setAttribute("stroke-dasharray", "4,3");
+  svg.appendChild(va);
+  const aLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  aLbl.setAttribute("x", xToPx(point_a)); aLbl.setAttribute("y", H-5); aLbl.setAttribute("text-anchor", "middle"); aLbl.setAttribute("font-size", "12"); aLbl.setAttribute("fill", "#dc2626"); aLbl.setAttribute("font-weight", "700");
+  aLbl.textContent = "x = " + point_a;
+  svg.appendChild(aLbl);
+
+  // Limit points (open circles) and f(a) point (filled or open)
+  if (cur === "removable") {
+    // Open circle at (1, 2)
+    const oc = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    oc.setAttribute("cx", xToPx(1)); oc.setAttribute("cy", yToPx(2)); oc.setAttribute("r", 6);
+    oc.setAttribute("fill", "white"); oc.setAttribute("stroke", "#1d4ed8"); oc.setAttribute("stroke-width", 2);
+    svg.appendChild(oc);
+    // Filled circle at (1, 4)
+    const fc = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    fc.setAttribute("cx", xToPx(1)); fc.setAttribute("cy", yToPx(4)); fc.setAttribute("r", 6);
+    fc.setAttribute("fill", "#dc2626");
+    svg.appendChild(fc);
+    const fa = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    fa.setAttribute("x", xToPx(1)+10); fa.setAttribute("y", yToPx(4)); fa.setAttribute("fill", "#dc2626"); fa.setAttribute("font-weight", "700"); fa.setAttribute("font-size", "12");
+    fa.textContent = "f(1) = 4";
+    svg.appendChild(fa);
+  } else if (cur === "jump") {
+    // Open at (1, 0), filled at (1, 2)
+    const oc = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    oc.setAttribute("cx", xToPx(1)); oc.setAttribute("cy", yToPx(0)); oc.setAttribute("r", 6);
+    oc.setAttribute("fill", "white"); oc.setAttribute("stroke", "#1d4ed8"); oc.setAttribute("stroke-width", 2);
+    svg.appendChild(oc);
+    const fc = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    fc.setAttribute("cx", xToPx(1)); fc.setAttribute("cy", yToPx(2)); fc.setAttribute("r", 6);
+    fc.setAttribute("fill", "#1d4ed8");
+    svg.appendChild(fc);
+  } else if (cur === "continuous") {
+    const fc = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    fc.setAttribute("cx", xToPx(1)); fc.setAttribute("cy", yToPx(0.25)); fc.setAttribute("r", 5);
+    fc.setAttribute("fill", "#1d4ed8");
+    svg.appendChild(fc);
+  }
+
+  document.getElementById("res").innerHTML = `
+    <div style="font-family:monospace; font-size:14px"><strong>${label}</strong></div>
+    <div class="row" style="margin-top:6px">
+      <span class="stat">lim trái = <strong>${limL === -Infinity ? "−∞" : limL}</strong></span>
+      <span class="stat">lim phải = <strong>${limR === Infinity ? "+∞" : limR}</strong></span>
+      <span class="stat">f(${point_a}) = <strong>${fA === null ? "không xác định" : fA}</strong></span>
+    </div>
+    <div style="margin-top:8px">${conclusion}</div>
+  `;
+}
+
+draw();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

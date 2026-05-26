@@ -208,7 +208,19 @@
     .rm-panel.rm-mode-sidebar .rm-toc { width: 180px; }
 
     @media (max-width: 600px) {
-      .rm-panel .rm-toc { display: none; }
+      /* Trên mobile, sidebar mode 220x kiểu side-by-side không khả thi (panel
+       * chỉ ~350px). Khi TOC bật, hiển thị overlay full lên content; khi tắt,
+       * .rm-hidden vẫn ẩn (rule chung phía trên). Click một mục → JS sẽ tự
+       * ẩn TOC để user thấy content. */
+      .rm-panel .rm-toc {
+        position: absolute; inset: 0; z-index: 5;
+        width: 100% !important; max-width: none;
+        border-right: 0; padding: 16px 0;
+      }
+      .rm-panel .rm-toc a { padding: 10px 18px; font-size: 14px; }
+      .rm-panel .rm-toc .rm-toc-l1 a { font-size: 15px; }
+      .rm-panel .rm-toc .rm-toc-l3 a { padding-left: 36px; font-size: 13.5px; }
+      .rm-panel .rm-toc .rm-toc-l4 a { padding-left: 48px; font-size: 13px; }
     }
 
     /* ── Close button — căn giữa ký tự ✕ ── */
@@ -507,6 +519,12 @@
             var targetRect = target.getBoundingClientRect();
             contentEl.scrollTop += targetRect.top - contentRect.top - 12;
           }
+          // Mobile: TOC đang overlay full panel — tắt sau khi click để user
+          // thấy content (desktop side-by-side thì giữ nguyên).
+          if (window.matchMedia && window.matchMedia('(max-width: 600px)').matches) {
+            tocVisible = false;
+            applyTocVisibility();
+          }
         });
       });
 
@@ -533,9 +551,12 @@
       });
     }
 
-    // TOC visibility: load từ localStorage, default = visible
+    // TOC visibility: load từ localStorage.
+    // Default: desktop = visible (side-by-side đẹp), mobile = hidden (overlay
+    // full panel sẽ che content khi vừa mở → bắt user tap tắt là khó chịu).
     var savedToc = localStorage.getItem(LS_TOC_KEY);
-    var tocVisible = savedToc === null ? true : savedToc === '1';
+    var isMobileNarrow = window.matchMedia && window.matchMedia('(max-width: 600px)').matches;
+    var tocVisible = savedToc === null ? !isMobileNarrow : savedToc === '1';
     function applyTocVisibility() {
       tocEl.classList.toggle('rm-hidden', !tocVisible);
       tocToggle.classList.toggle('rm-active', tocVisible);

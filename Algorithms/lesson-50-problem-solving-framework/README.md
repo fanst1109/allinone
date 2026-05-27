@@ -315,6 +315,21 @@ Bài hỏi gì?
 - **Bước 6 (code + test):** dưới đây. Test các ví dụ bước 2.
 - **Bước 7 (tối ưu):** đã `O(n)`, đạt mục tiêu → dừng.
 
+**Mô phỏng từng bước** trên `s = "abcabcbb"` (cửa sổ `[left, right]`, `last` lưu vị trí gần nhất):
+
+| `right` | `c` | `last[c]` trước | `left` mới | độ dài `right-left+1` | `best` |
+|:------:|:---:|:--------------:|:----------:|:--------------------:|:-----:|
+| 0 | a | — | 0 | 1 | 1 |
+| 1 | b | — | 0 | 2 | 2 |
+| 2 | c | — | 0 | 3 | **3** |
+| 3 | a | 0 (≥ left) → left=1 | 1 | 3 | 3 |
+| 4 | b | 1 (≥ left) → left=2 | 2 | 3 | 3 |
+| 5 | c | 2 (≥ left) → left=3 | 3 | 3 | 3 |
+| 6 | b | 4 (≥ left) → left=5 | 5 | 2 | 3 |
+| 7 | b | 6 (≥ left) → left=7 | 7 | 1 | 3 |
+
+Kết quả `best = 3` (chuỗi `"abc"`). Để ý: `left` **chỉ tiến**, không lùi → mỗi chỉ số được `left` và `right` đi qua tối đa 1 lần → tổng `O(n)`, đây là lý do window nhanh hơn brute `O(n^2)`.
+
 ```go
 package main
 

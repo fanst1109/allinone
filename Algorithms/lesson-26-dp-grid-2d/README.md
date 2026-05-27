@@ -712,7 +712,7 @@ func main() {
 
 > ⚠ **Lỗi thường gặp.** Trả về `dp[m][n]` như LCS → **sai**, vì với substring đáp số nằm rải khắp bảng, phải lấy `max`. Đây là khác biệt cốt lõi giữa subsequence và substring.
 
-> 📝 **Tóm tắt mục 7.** Substring = **liên tục** ⇒ khác c⇒ reset 0, đáp số = `max` toàn bảng. Subsequence = **không cần liên tục** ⇒ khác ⇒ `max(trên, trái)`, đáp số = `dp[m][n]`.
+> 📝 **Tóm tắt mục 7.** Substring = **liên tục** ⇒ khác ⇒ reset 0, đáp số = `max` toàn bảng. Subsequence = **không cần liên tục** ⇒ khác ⇒ `max(trên, trái)`, đáp số = `dp[m][n]`.
 
 ---
 

@@ -476,11 +476,39 @@ Output `[3,3,5,5,6,7]` ✓.
 
 > ⚠ **Lỗi thường gặp.** Lưu **giá trị** thay vì **chỉ số** trong deque → không biết phần tử front đã trôi ra ngoài window chưa (bước 2 cần so chỉ số với `r-k`). Luôn lưu chỉ số.
 
-> 📝 **Tóm tắt §8.** Sliding window maximum dùng **deque đơn điệu giảm dần**: front = max. Push bỏ back nhỏ hơn, bỏ front trôi ra ngoài. `O(n)` thời gian, `O(k)` bộ nhớ.
+**Thêm ví dụ số** cho deque maximum:
+
+- `nums=[5,4,3,2,1]` (giảm dần), `k=2`: deque không bao giờ pop back (mỗi số mới nhỏ hơn) → deque tích lũy rồi bỏ front hết hạn. Output `[5,4,3,2]`.
+- `nums=[1,2,3,4,5]` (tăng dần), `k=2`: mỗi số mới lớn hơn → pop hết back, deque luôn 1 phần tử. Output `[2,3,4,5]`.
+- `nums=[2,2,2,2]`, `k=3`: dùng `<=` khi pop nên các `2` bằng nhau bị bỏ → output `[2,2]`.
+- `nums=[7,2,4]`, `k=2`: r0 push 7; r1 push (2<7) deque `[7,2]` → max 7; r2 pop 2(≤4) push 4, bỏ front 7 (idx0 ≤ 2−2=0) → deque `[4]` → max 4. Output `[7,4]`.
+
+### 8.3 Biến thể: sliding window minimum
+
+Đối xứng hoàn toàn: giữ deque **tăng dần** (front = min), khi push bỏ các back **lớn hơn hoặc bằng** giá trị mới. Đổi đúng một dấu so sánh `<=` thành `>=` trong code §8.2. Vd `nums=[1,3,-1,-3,5,3,6,7]`, `k=3` → min mỗi window `[-1,-3,-3,-3,3,3]`.
+
+> 📝 **Tóm tắt §8.** Sliding window maximum dùng **deque đơn điệu giảm dần**: front = max. Push bỏ back nhỏ hơn, bỏ front trôi ra ngoài. `O(n)` thời gian, `O(k)` bộ nhớ. Min đối xứng (đảo dấu so sánh).
 
 ---
 
-## 9. Cạm bẫy thường gặp (tổng hợp)
+## 9. Tổng kết độ phức tạp
+
+| Bài toán | Kỹ thuật | Thời gian | Bộ nhớ |
+|----------|----------|:---------:|:------:|
+| Max sum size `k` (§2.1) | fixed window, biến `sum` | `O(n)` | `O(1)` |
+| Average size `k` (§2.2) | fixed window | `O(n)` | `O(n)` (lưu kết quả) |
+| Longest no-repeat (§5.1) | variable + map vị trí | `O(n)` | `O(min(n,Σ))` |
+| Minimum window substring (§5.2) | variable + `need`/`missing` | `O(|s|+|t|)` | `O(|t|)` |
+| Longest sum ≤ target, ≥0 (§5.4) | variable + biến `sum` | `O(n)` | `O(1)` |
+| Fruit baskets ≤2 loại (Bài 5) | variable + map `count` | `O(n)` | `O(1)` (map ≤3) |
+| Sliding window maximum (§8) | deque đơn điệu | `O(n)` | `O(k)` |
+| Longest sum = `k`, có âm (Bài 4) | **prefix sum + hash** (KHÔNG sliding window) | `O(n)` | `O(n)` |
+
+Điểm chung của mọi biến thể sliding window: mỗi phần tử **vào** vùng làm việc 1 lần và **ra** tối đa 1 lần → tổng `O(n)` amortized, bất kể trông như có vòng lặp lồng nhau.
+
+---
+
+## 10. Cạm bẫy thường gặp (tổng hợp)
 
 | # | Cạm bẫy | Hậu quả | Cách tránh |
 |---|---------|---------|-----------|

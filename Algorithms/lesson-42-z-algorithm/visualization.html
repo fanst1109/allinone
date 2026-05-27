@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L42 — Z-Algorithm</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #14b8a6;
+    --accent-soft: #ccfbf1;
+    --accent-hover: #0d9488;
+    --cell: #e2e8f0;
+    --prefix: #4299e1;
+    --box: #f6ad55;
+    --copy: #9f7aea;
+    --extend: #ed8936;
+    --match: #38a169;
+    --cur: #ec4899;
+  }
+  main { max-width: 940px; }
+  .lead { font-size: 1.05rem; color: #4a5568; margin: 0.5rem 0 1.5rem; }
+  .module {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+    padding: 1.2rem 1.4rem; margin: 1.5rem 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .module h2 { margin-top: 0; color: var(--accent-hover); }
+  .controls { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin: 0.8rem 0; }
+  button {
+    background: var(--accent); color: #fff; border: none; border-radius: 8px;
+    padding: 0.5rem 0.9rem; font-size: 0.95rem; cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  input[type=text] {
+    font-family: ui-monospace, monospace; font-size: 0.95rem;
+    padding: 0.45rem 0.6rem; border: 1px solid #cbd5e0; border-radius: 7px;
+    width: 100%; max-width: 320px; box-sizing: border-box;
+  }
+  label { font-size: 0.9rem; color: #4a5568; display: flex; flex-direction: column; gap: 0.25rem; }
+  .legend { display: flex; flex-wrap: wrap; gap: 0.8rem; font-size: 0.85rem; color: #4a5568; margin: 0.6rem 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 0.3rem; }
+  .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; border: 1px solid #00000022; }
+  .status { font-size: 0.92rem; color: #2d3748; margin: 0.5rem 0; min-height: 1.4em; }
+  .status code { background: #f7fafc; padding: 0 4px; border-radius: 4px; }
+
+  /* Cell array */
+  .arr-wrap { overflow-x: auto; padding: 0.4rem 0; }
+  .arr { display: flex; gap: 4px; }
+  .col { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .cell {
+    width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
+    font-family: ui-monospace, monospace; font-weight: 700; font-size: 1rem;
+    background: var(--cell); border-radius: 6px; border: 2px solid transparent;
+    transition: background .2s, border-color .2s;
+  }
+  .idx { font-size: 0.72rem; color: #718096; font-family: ui-monospace, monospace; }
+  .zval { font-size: 0.85rem; color: #2d3748; font-family: ui-monospace, monospace; min-height: 1em; font-weight: 700; }
+  .cell.prefix { background: var(--prefix); color: #fff; }
+  .cell.box { border-color: var(--box); }
+  .cell.copy { background: var(--copy); color: #fff; }
+  .cell.extend { background: var(--extend); color: #fff; }
+  .cell.cur { border-color: var(--cur); border-width: 3px; }
+  .cell.match { background: var(--match); color: #fff; }
+  .cell.sep { background: #2d3748; color: #fff; }
+  .boxbar { font-family: ui-monospace, monospace; font-size: 0.9rem; color: #2d3748; margin: 0.4rem 0; }
+
+  table.cmp { border-collapse: collapse; font-family: ui-monospace, monospace; margin: 0.6rem 0; }
+  table.cmp td, table.cmp th { border: 1px solid #cbd5e0; padding: 4px 8px; text-align: center; min-width: 28px; }
+  table.cmp th { background: #f7fafc; }
+  table.cmp .lbl { background: #edf2f7; font-weight: 700; }
+
+  @media (max-width: 480px) {
+    .cell { width: 30px; height: 30px; font-size: 0.85rem; }
+    .idx, .zval { font-size: 0.65rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-41-kmp/visualization.html">← L41: KMP</a>
+  <span class="sep">·</span>
+  <span class="current">L42: Z-Algorithm</span>
+  <span class="sep">·</span>
+  <a href="../lesson-43-trie-aho-corasick/visualization.html">L43: Trie &amp; Aho-Corasick →</a>
+</nav>
+
+<main>
+  <h1>L42 — Z-Algorithm</h1>
+  <p class="lead">
+    <code>z[i]</code> = độ dài chuỗi con dài nhất bắt đầu tại <code>i</code> mà cũng là prefix của
+    toàn chuỗi. Z-box <code>[l, r]</code> tái dùng thông tin để tính trong O(n). Dùng Z cho
+    pattern matching, period, distinct substrings.
+  </p>
+
+  <!-- MODULE 1 -->
+  <section class="module">
+    <h2>1. Z-array builder — Z-box di chuyển</h2>
+    <p style="font-size:0.92rem;color:#4a5568;">
+      Nhập chuỗi, bấm <b>▶ Tự chạy</b> hoặc <b>Bước →</b> để xem từng <code>z[i]</code> được tính.
+      Khi <code>i</code> nằm trong box → <span style="color:var(--copy);font-weight:700">copy</span> (B1);
+      khi chạm biên box → <span style="color:var(--extend);font-weight:700">extend</span> (B2, so trực tiếp).
+    </p>
+    <div class="controls">
+      <label>Chuỗi S
+        <input id="m1-str" type="text" value="aabxaabxcaabxaabxay">
+      </label>
+      <button id="m1-build" class="ghost">Khởi tạo</button>
+      <button id="m1-run">▶ Tự chạy</button>
+      <button id="m1-step">Bước →</button>
+      <button id="m1-reset" class="ghost">Reset</button>
+    </div>
+    <div class="legend">
+      <span><i class="swatch" style="background:var(--prefix)"></i>prefix đang so</span>
+      <span><i class="swatch" style="background:var(--copy)"></i>copy (B1)</span>
+      <span><i class="swatch" style="background:var(--extend)"></i>extend (B2)</span>
+      <span><i class="swatch" style="border-color:var(--cur);border-width:3px;background:#fff"></i>i hiện tại</span>
+      <span><i class="swatch" style="border-color:var(--box);background:#fff"></i>trong Z-box</span>
+    </div>
+    <div class="boxbar" id="m1-box">Z-box: l=0, r=0</div>
+    <div class="arr-wrap"><div class="arr" id="m1-arr"></div></div>
+    <div class="status" id="m1-status">Bấm Khởi tạo để bắt đầu.</div>
+  </section>
+
+  <!-- MODULE 2 -->
+  <section class="module">
+    <h2>2. Z matching — ghép P + $ + T</h2>
+    <p style="font-size:0.92rem;color:#4a5568;">
+      Ghép <code>W = P + $ + T</code>, tính Z. Vị trí <code>z[i] == |P|</code> (ô xanh lá) là một match
+      của P trong T. Separator <code>$</code> chặn match tràn qua ranh giới.
+    </p>
+    <div class="controls">
+      <label>Pattern P<input id="m2-p" type="text" value="aba"></label>
+      <label>Text T<input id="m2-t" type="text" value="abxabababa"></label>
+      <button id="m2-build">Tính &amp; tìm match</button>
+    </div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#2d3748"></i>separator $</span>
+      <span><i class="swatch" style="background:var(--match)"></i>z[i] == |P| (match)</span>
+    </div>
+    <div class="arr-wrap"><div class="arr" id="m2-arr"></div></div>
+    <div class="status" id="m2-status">Bấm "Tính &amp; tìm match".</div>
+  </section>
+
+  <!-- MODULE 3 -->
+  <section class="module">
+    <h2>3. Z vs KMP — Z-array đối chiếu LPS</h2>
+    <p style="font-size:0.92rem;color:#4a5568;">
+      Trên cùng một chuỗi, so sánh <b>Z-array</b> (LCP với suffix tại i — nhìn về trước) và
+      <b>LPS</b> (prefix=suffix dài nhất của S[0..i] — nhìn về sau). Cả hai cùng O(n), mã hóa cùng
+      thông tin cấu trúc lặp.
+    </p>
+    <div class="controls">
+      <label>Chuỗi S<input id="m3-str" type="text" value="aabaab"></label>
+      <button id="m3-build">So sánh</button>
+    </div>
+    <div class="arr-wrap" id="m3-out"></div>
+    <div class="status" id="m3-status">Bấm "So sánh".</div>
+  </section>
+</main>
+
+<script>
+// ---- Core: computeZ trả về z và trace từng bước (cho module 1) ----
+function computeZTrace(s) {
+  const n = s.length, z = new Array(n).fill(0), steps = [];
+  let l = 0, r = 0;
+  for (let i = 1; i < n; i++) {
+    let mode = 'direct'; // direct (i>r), copy (B1), extend (B2)
+    if (i <= r) {
+      const k = i - l;
+      if (z[k] < r - i + 1) { z[i] = z[k]; mode = 'copy'; }
+      else { z[i] = r - i + 1; mode = 'extend'; }
+    }
+    const startCmp = z[i];
+    while (i + z[i] < n && s[z[i]] === s[i + z[i]]) z[i]++;
+    const didExtend = z[i] > startCmp;
+    if (i + z[i] - 1 > r) { l = i; r = i + z[i] - 1; }
+    steps.push({ i, zi: z[i], l, r, mode, didExtend, z: z.slice() });
+  }
+  return { z, steps };
+}
+function computeZ(s) {
+  const n = s.length, z = new Array(n).fill(0);
+  let l = 0, r = 0;
+  for (let i = 1; i < n; i++) {
+    if (i <= r) { const k = i - l; z[i] = Math.min(r - i + 1, z[k]); }
+    while (i + z[i] < n && s[z[i]] === s[i + z[i]]) z[i]++;
+    if (i + z[i] - 1 > r) { l = i; r = i + z[i] - 1; }
+  }
+  return z;
+}
+// LPS (KMP failure function)
+function computeLPS(s) {
+  const n = s.length, lps = new Array(n).fill(0);
+  let len = 0;
+  for (let i = 1; i < n; i++) {
+    while (len > 0 && s[i] !== s[len]) len = lps[len - 1];
+    if (s[i] === s[len]) len++;
+    lps[i] = len;
+  }
+  return lps;
+}
+
+// ============ MODULE 1 ============
+(function () {
+  const strEl = document.getElementById('m1-str');
+  const arrEl = document.getElementById('m1-arr');
+  const boxEl = document.getElementById('m1-box');
+  const statusEl = document.getElementById('m1-status');
+  let s = '', trace = null, si = -1, timer = null;
+
+  function renderBase() {
+    arrEl.innerHTML = '';
+    for (let i = 0; i < s.length; i++) {
+      const col = document.createElement('div'); col.className = 'col';
+      const idx = document.createElement('div'); idx.className = 'idx'; idx.textContent = i;
+      const cell = document.createElement('div'); cell.className = 'cell'; cell.id = 'm1c' + i; cell.textContent = s[i];
+      const zv = document.createElement('div'); zv.className = 'zval'; zv.id = 'm1z' + i; zv.textContent = i === 0 ? '0' : '';
+      col.appendChild(idx); col.appendChild(cell); col.appendChild(zv);
+      arrEl.appendChild(col);
+    }
+  }
+  function clearMarks() {
+    for (let i = 0; i < s.length; i++) {
+      document.getElementById('m1c' + i).className = 'cell';
+    }
+  }
+  function show() {
+    clearMarks();
+    if (si < 0) { boxEl.textContent = 'Z-box: l=0, r=0'; statusEl.textContent = 'Sẵn sàng. Bấm Bước → để tính z[1].'; return; }
+    const st = trace.steps[si];
+    // mark box
+    for (let j = st.l; j <= st.r && j < s.length; j++) document.getElementById('m1c' + j).classList.add('box');
+    // mark current i and its matched range with mode color
+    const cls = st.mode === 'copy' ? 'copy' : (st.mode === 'extend' ? 'extend' : 'prefix');
+    for (let j = st.i; j < st.i + st.zi; j++) document.getElementById('m1c' + j).classList.add(cls);
+    document.getElementById('m1c' + st.i).classList.add('cur');
+    // matched prefix part
+    for (let j = 0; j < st.zi; j++) document.getElementById('m1c' + j).classList.add('prefix');
+    // z values up to current
+    for (let i = 0; i < s.length; i++) {
+      document.getElementById('m1z' + i).textContent = (i === 0) ? '0' : (i <= st.i ? st.z[i] : '');
+    }
+    boxEl.textContent = `Z-box: l=${st.l}, r=${st.r}   |   i=${st.i}, z[${st.i}]=${st.zi}`;
+    let m = st.mode === 'copy' ? 'COPY (B1): i trong box, z[i-l] vừa khít → copy nguyên, không so thêm.'
+      : st.mode === 'extend' ? 'EXTEND (B2): i trong box nhưng chạm biên r → clip rồi so trực tiếp tiếp.'
+      : 'DIRECT: i ngoài box → so trực tiếp prefix với suffix.';
+    if (st.didExtend && st.mode !== 'direct') m += ' (đã mở rộng thêm)';
+    statusEl.innerHTML = m;
+  }
+  function build() {
+    stop();
+    s = strEl.value;
+    if (!s.length) { statusEl.textContent = 'Nhập chuỗi không rỗng.'; return; }
+    trace = computeZTrace(s); si = -1;
+    renderBase(); show();
+  }
+  function step() {
+    if (!trace) { build(); return; }
+    if (si < trace.steps.length - 1) { si++; show(); }
+    else { statusEl.innerHTML = '<b>Hoàn tất.</b> z = [' + trace.z.join(', ') + ']'; }
+  }
+  function run() {
+    if (!trace) build();
+    stop();
+    timer = setInterval(() => {
+      if (si < trace.steps.length - 1) step();
+      else { stop(); statusEl.innerHTML = '<b>Hoàn tất.</b> z = [' + trace.z.join(', ') + ']'; }
+    }, 700);
+  }
+  function stop() { if (timer) { clearInterval(timer); timer = null; } }
+  function reset() { stop(); si = -1; if (trace) { renderBase(); show(); } }
+
+  document.getElementById('m1-build').onclick = build;
+  document.getElementById('m1-step').onclick = () => { stop(); step(); };
+  document.getElementById('m1-run').onclick = run;
+  document.getElementById('m1-reset').onclick = reset;
+  build();
+})();
+
+// ============ MODULE 2 ============
+(function () {
+  const pEl = document.getElementById('m2-p');
+  const tEl = document.getElementById('m2-t');
+  const arrEl = document.getElementById('m2-arr');
+  const statusEl = document.getElementById('m2-status');
+
+  function build() {
+    const P = pEl.value, T = tEl.value;
+    if (!P.length) { statusEl.textContent = 'Pattern không được rỗng.'; return; }
+    const sep = '$';
+    if (P.includes(sep) || T.includes(sep)) {
+      statusEl.innerHTML = '⚠ Separator <code>$</code> xuất hiện trong P hoặc T → matching sai. Đổi ký tự.';
+      return;
+    }
+    const W = P + sep + T, z = computeZ(W), m = P.length;
+    arrEl.innerHTML = '';
+    const matches = [];
+    for (let i = 0; i < W.length; i++) {
+      const col = document.createElement('div'); col.className = 'col';
+      const idx = document.createElement('div'); idx.className = 'idx'; idx.textContent = i;
+      const cell = document.createElement('div'); cell.className = 'cell'; cell.textContent = W[i];
+      const zv = document.createElement('div'); zv.className = 'zval'; zv.textContent = i === 0 ? '0' : z[i];
+      if (i === m) cell.classList.add('sep');
+      if (i >= m + 1 && z[i] === m) { cell.classList.add('match'); matches.push(i - m - 1); }
+      col.appendChild(idx); col.appendChild(cell); col.appendChild(zv);
+      arrEl.appendChild(col);
+    }
+    if (matches.length) {
+      statusEl.innerHTML = `Tìm thấy <b>${matches.length}</b> match trong T tại vị trí: <code>[${matches.join(', ')}]</code> (z[i] == |P| = ${m}).`;
+    } else {
+      statusEl.innerHTML = `Không có match (không vị trí nào z[i] == ${m}).`;
+    }
+  }
+  document.getElementById('m2-build').onclick = build;
+  build();
+})();
+
+// ============ MODULE 3 ============
+(function () {
+  const strEl = document.getElementById('m3-str');
+  const out = document.getElementById('m3-out');
+  const statusEl = document.getElementById('m3-status');
+
+  function build() {
+    const s = strEl.value;
+    if (!s.length) { statusEl.textContent = 'Nhập chuỗi không rỗng.'; return; }
+    const z = computeZ(s), lps = computeLPS(s);
+    let html = '<table class="cmp"><tr><td class="lbl">i</td>';
+    for (let i = 0; i < s.length; i++) html += `<th>${i}</th>`;
+    html += '</tr><tr><td class="lbl">S</td>';
+    for (let i = 0; i < s.length; i++) html += `<td>${s[i]}</td>`;
+    html += '</tr><tr><td class="lbl">z[i]</td>';
+    for (let i = 0; i < s.length; i++) html += `<td>${z[i]}</td>`;
+    html += '</tr><tr><td class="lbl">lps[i]</td>';
+    for (let i = 0; i < s.length; i++) html += `<td>${lps[i]}</td>`;
+    html += '</tr></table>';
+    out.innerHTML = html;
+    // illustrate one z entry -> lps link
+    let note = '';
+    for (let i = 1; i < s.length; i++) {
+      if (z[i] > 0) {
+        const j = i + z[i] - 1;
+        note = `Ví dụ liên hệ: z[${i}]=${z[i]} → đoạn S[${i}..${j}] khớp prefix S[0..${z[i] - 1}], nên tại vị trí kết thúc j=${j} có prefix=suffix dài ${z[i]} (so với lps[${j}]=${lps[j]}).`;
+        break;
+      }
+    }
+    statusEl.innerHTML = `Z nhìn <b>về trước</b>, LPS nhìn <b>về sau</b> — cùng O(n), cùng thông tin. ${note}`;
+  }
+  document.getElementById('m3-build').onclick = build;
+  build();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+</body>
+</html>

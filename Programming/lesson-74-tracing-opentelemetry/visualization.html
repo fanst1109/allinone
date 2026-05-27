@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L74 — Distributed Tracing & OpenTelemetry · Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root { --accent: #7c5cff; --accent-soft: #f0ecff; --accent-hover: #5b3fd9; }
+  main { max-width: 1100px; }
+  h1 { color: #2d3748; margin-bottom: 4px; }
+  .lead { color: #718096; margin-bottom: 24px; font-size: 15px; }
+  section.module {
+    background: #fff; border-radius: 10px; padding: 22px;
+    margin-bottom: 28px; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+  section.module h2 {
+    color: #2d3748; margin-top: 0; padding-bottom: 10px;
+    border-bottom: 2px solid var(--accent); font-size: 21px;
+  }
+  .desc { color: #4a5568; font-size: 14px; margin-bottom: 16px; }
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+    background: #f7fafc; padding: 12px 14px; border-radius: 8px; margin-bottom: 16px;
+  }
+  button {
+    padding: 8px 16px; background: var(--accent); color: #fff; border: none;
+    border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.sec { background: #718096; }
+  button.sec:hover { background: #4a5568; }
+  button.toggle { background: #cbd5e0; color: #2d3748; }
+  button.toggle.active { background: var(--accent); color: #fff; }
+  .ctrl { display: flex; flex-direction: column; gap: 3px; }
+  .ctrl label { font-size: 12px; font-weight: 600; color: #4a5568; }
+  .ctrl input[type=range] { width: 160px; max-width: 100%; }
+  .ctrl .val { font-family: monospace; font-size: 13px; color: var(--accent-hover); font-weight: 700; }
+  .hint { font-size: 12px; color: #a0aec0; }
+  code { font-family: 'Menlo','Monaco',monospace; font-size: 13px; }
+
+  /* ---- module 1: waterfall ---- */
+  svg { display: block; max-width: 100%; height: auto; }
+  .wf-row { cursor: pointer; }
+  .wf-bar { rx: 3; }
+  .wf-bar.ok { fill: #7c5cff; }
+  .wf-bar.err { fill: #e53e3e; }
+  .wf-bar.dim { opacity: 0.32; }
+  .wf-bar.sel { stroke: #2d3748; stroke-width: 2; }
+  .wf-label { font-size: 12px; fill: #2d3748; font-family: 'Menlo',monospace; }
+  .wf-dur { font-size: 11px; fill: #718096; font-family: monospace; }
+  .wf-axis { stroke: #e2e8f0; stroke-width: 1; }
+  .wf-axis-txt { font-size: 10px; fill: #a0aec0; font-family: monospace; }
+  .span-detail {
+    margin-top: 14px; background: #1a202c; color: #e2e8f0; border-radius: 8px;
+    padding: 14px; font-family: 'Menlo','Monaco',monospace; font-size: 12.5px;
+    line-height: 1.6; min-height: 40px; overflow-x: auto;
+  }
+  .span-detail .k { color: #f6ad55; }
+  .span-detail .v { color: #9ae6b4; }
+  .span-detail .e { color: #fc8181; }
+  .span-detail .muted { color: #718096; }
+
+  /* ---- module 2: propagation ---- */
+  .svc-chain { display: flex; flex-wrap: wrap; gap: 0; align-items: stretch; }
+  .svc {
+    flex: 1 1 0; min-width: 0; border: 2px solid #e2e8f0; border-radius: 10px;
+    padding: 12px; background: #fafbfc; text-align: center; position: relative;
+  }
+  .svc.lit { border-color: var(--accent); background: var(--accent-soft); }
+  .svc h4 { margin: 0 0 6px; font-size: 14px; color: #2d3748; }
+  .svc .ids { font-family: monospace; font-size: 10.5px; color: #4a5568; word-break: break-all; }
+  .svc .ids .tid { color: var(--accent-hover); font-weight: 700; }
+  .svc .ids .sid { color: #2f855a; font-weight: 700; }
+  .svc .ids .orphan { color: #e53e3e; font-weight: 700; }
+  .arrow { flex: 0 0 64px; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; min-width: 64px; }
+  .arrow .line { font-size: 22px; color: #a0aec0; }
+  .arrow .hdr { font-family: monospace; font-size: 9px; color: var(--accent-hover);
+    word-break: break-all; max-width: 60px; text-align: center; }
+  .arrow.broken .line { color: #e53e3e; }
+  .prop-out {
+    margin-top: 14px; background: #f7fafc; border-radius: 8px; padding: 12px;
+    font-family: monospace; font-size: 12px; color: #2d3748; line-height: 1.7;
+  }
+  .prop-out .tp { color: var(--accent-hover); word-break: break-all; }
+
+  /* ---- module 3: sampling ---- */
+  .samp-grid { display: grid; grid-template-columns: 1fr; gap: 6px; }
+  .samp-stat { display: flex; flex-wrap: wrap; gap: 18px; margin: 14px 0; }
+  .samp-stat .cell { background: #f7fafc; border-radius: 8px; padding: 10px 14px; }
+  .samp-stat .cell .n { font-family: monospace; font-size: 22px; font-weight: 700; color: #2d3748; }
+  .samp-stat .cell .n.good { color: #2f855a; }
+  .samp-stat .cell .n.bad { color: #e53e3e; }
+  .samp-stat .cell .lbl { font-size: 11px; color: #718096; }
+
+  table.tinfo { border-collapse: collapse; width: 100%; font-size: 13px; }
+  table.tinfo th, table.tinfo td { border: 1px solid #e2e8f0; padding: 6px 9px; text-align: left; }
+  table.tinfo th { background: #f7fafc; color: #2d3748; }
+
+  @media (max-width: 600px) {
+    .svc-chain { flex-direction: column; }
+    .arrow { flex: 0 0 auto; min-width: 0; flex-direction: row; gap: 8px; padding: 4px 0; }
+    .arrow .line { transform: rotate(90deg); }
+    .arrow .hdr { max-width: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-73-metrics-prometheus/visualization.html">← L73: Metrics & Prometheus</a>
+  <span class="sep">·</span>
+  <span class="current">L74: Tracing</span>
+  <span class="sep">·</span>
+  <a href="../lesson-75-docker-multistage/visualization.html">L75: Docker Multi-stage →</a>
+</nav>
+
+<main>
+  <h1>L74 — Distributed Tracing &amp; OpenTelemetry</h1>
+  <p class="lead">Ba module tương tác: đọc waterfall tìm bottleneck · theo dõi <code>trace_id</code> chảy qua header <code>traceparent</code> · so sánh head-based vs tail-based sampling.</p>
+
+  <!-- ================= MODULE 1: WATERFALL ================= -->
+  <section class="module" id="m1">
+    <h2>1. Trace waterfall — một request qua 4 service</h2>
+    <p class="desc">
+      Request <code>POST /checkout</code> đi qua 4 service (Gateway → Order → Payment → Bank, kèm Inventory).
+      Mỗi thanh là một <strong>span</strong>; span con thụt vào dưới cha. Trục ngang là thời gian.
+      <strong>Click một span</strong> để xem chi tiết (attributes, events, status). Thanh đỏ = span Error.
+    </p>
+    <div class="controls">
+      <button id="wf-replay">▶ Phát lại</button>
+      <button class="sec" id="wf-slow">Bank chậm hơn (mô phỏng sự cố)</button>
+      <span class="hint">Nhìn span dài nhất → đi sâu xuống con → tìm thanh đỏ &amp; "gap".</span>
+    </div>
+    <svg id="wf-svg" width="900" height="260" viewBox="0 0 900 260" role="img" aria-label="trace waterfall"></svg>
+    <div class="span-detail" id="wf-detail"><span class="muted">// Click một span để xem chi tiết...</span></div>
+  </section>
+
+  <!-- ================= MODULE 2: PROPAGATION ================= -->
+  <section class="module" id="m2">
+    <h2>2. Context propagation — <code>trace_id</code> qua HTTP header</h2>
+    <p class="desc">
+      Mỗi service là một process riêng. Để span của chúng nối vào CÙNG một trace, service gọi đi phải
+      <strong>inject</strong> SpanContext vào header <code>traceparent</code>, service nhận phải <strong>extract</strong> ra.
+      Bật/tắt propagation để thấy điều gì xảy ra khi quên truyền context.
+    </p>
+    <div class="controls">
+      <button class="toggle active" id="prop-on">Propagation BẬT (đúng)</button>
+      <button class="toggle" id="prop-off">Propagation TẮT (quên truyền ctx)</button>
+      <button class="sec" id="prop-regen">🔄 Sinh trace_id mới</button>
+    </div>
+    <div class="svc-chain" id="prop-chain"></div>
+    <div class="prop-out" id="prop-out"></div>
+  </section>
+
+  <!-- ================= MODULE 3: SAMPLING ================= -->
+  <section class="module" id="m3">
+    <h2>3. Sampling — head-based vs tail-based</h2>
+    <p class="desc">
+      Service traffic cao không thể lưu MỌI trace. Sampling giữ lại một phần. <strong>Head-based</strong>
+      quyết định lúc bắt đầu (mù, rẻ); <strong>tail-based</strong> quyết định sau khi trace xong
+      (giữ đúng lỗi/slow, tốn buffer). Chỉnh tham số rồi xem mỗi chiến lược bắt được bao nhiêu lỗi.
+    </p>
+    <div class="controls">
+      <div class="ctrl">
+        <label>Tổng request/giây</label>
+        <input type="range" id="s-total" min="1000" max="50000" step="1000" value="20000">
+        <span class="val" id="s-total-v">20000</span>
+      </div>
+      <div class="ctrl">
+        <label>Tỉ lệ lỗi (%)</label>
+        <input type="range" id="s-err" min="0.05" max="5" step="0.05" value="0.1">
+        <span class="val" id="s-err-v">0.10%</span>
+      </div>
+      <div class="ctrl">
+        <label>Head-based giữ (%)</label>
+        <input type="range" id="s-head" min="0.5" max="100" step="0.5" value="2">
+        <span class="val" id="s-head-v">2.0%</span>
+      </div>
+    </div>
+    <div class="samp-grid">
+      <table class="tinfo">
+        <thead>
+          <tr><th>Chiến lược</th><th>Trace lỗi bắt được</th><th>Tỉ lệ lỗi bắt</th><th>Tổng trace giữ</th></tr>
+        </thead>
+        <tbody id="samp-table"></tbody>
+      </table>
+    </div>
+    <div class="samp-stat" id="samp-verdict"></div>
+  </section>
+</main>
+
+<script>
+/* ===================== MODULE 1: WATERFALL ===================== */
+(function () {
+  const svg = document.getElementById('wf-svg');
+  const detail = document.getElementById('wf-detail');
+  const NS = 'http://www.w3.org/2000/svg';
+  const TRACE_ID = '7be2f3a1c4d5e6f70011223344556677';
+
+  // Cây span (start/dur tính bằng ms). depth = mức thụt.
+  function buildSpans(bankMs) {
+    const charge = 60 + bankMs;          // charge bao bank + chút overhead
+    return [
+      { id:'01', name:'POST /checkout', svc:'gateway', depth:0, start:0,   dur:60+bankMs+360, parent:null,
+        attrs:{'http.method':'POST','http.route':'/checkout','http.status_code':'200'}, events:[], status:'Unset' },
+      { id:'02', name:'validate order', svc:'order',  depth:1, start:20,  dur:120, parent:'01',
+        attrs:{'service':'order','order.id':'ord_9931'}, events:[{t:60,n:'validation.passed'}], status:'Unset' },
+      { id:'03', name:'charge payment', svc:'payment',depth:1, start:160, dur:charge, parent:'01',
+        attrs:{'service':'payment','amount':'129.00'}, events:[{t:50,n:'fraud.check.start'},{t:200,n:'fraud.check.done'}], status:'Unset' },
+      { id:'04', name:'POST bank-api',  svc:'bank',   depth:2, start:210, dur:bankMs, parent:'03',
+        attrs:{'http.method':'POST','net.peer.name':'bank.example.com','http.status_code':'504'},
+        events:[{t:bankMs,n:'exception',msg:'deadline exceeded after 2s'}],
+        status: bankMs >= 1500 ? 'Error' : (bankMs>=400?'Error':'Unset') },
+      { id:'05', name:'reserve stock',  svc:'order',  depth:1, start:160+charge+20, dur:300, parent:'01',
+        attrs:{'service':'inventory'}, events:[], status:'Unset' },
+      { id:'06', name:'UPDATE inventory', svc:'order',depth:2, start:160+charge+40, dur:250, parent:'05',
+        attrs:{'db.system':'postgresql','db.table':'inventory'}, events:[], status:'Unset' },
+    ];
+  }
+
+  let bankMs = 400;
+  let spans = buildSpans(bankMs);
+  let selected = null;
+
+  const W = 900, rowH = 34, labelW = 290, padL = 8, padR = 20, topPad = 28;
+  const barArea = W - labelW - padR;
+
+  function totalMs() { return Math.max(...spans.map(s => s.start + s.dur)); }
+
+  function render() {
+    spans = buildSpans(bankMs);
+    svg.innerHTML = '';
+    const total = totalMs();
+    const H = topPad + spans.length * rowH + 10;
+    svg.setAttribute('height', H);
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+    // trục thời gian (4 mốc)
+    for (let i = 0; i <= 4; i++) {
+      const x = labelW + (barArea * i / 4);
+      const ms = Math.round(total * i / 4);
+      const ln = document.createElementNS(NS,'line');
+      ln.setAttribute('x1',x); ln.setAttribute('x2',x);
+      ln.setAttribute('y1',topPad-6); ln.setAttribute('y2',H-6);
+      ln.setAttribute('class','wf-axis'); svg.appendChild(ln);
+      const tx = document.createElementNS(NS,'text');
+      tx.setAttribute('x',x); tx.setAttribute('y',topPad-12);
+      tx.setAttribute('text-anchor','middle'); tx.setAttribute('class','wf-axis-txt');
+      tx.textContent = ms+'ms'; svg.appendChild(tx);
+    }
+
+    spans.forEach((s, i) => {
+      const y = topPad + i * rowH;
+      const g = document.createElementNS(NS,'g');
+      g.setAttribute('class','wf-row');
+      g.addEventListener('click', () => select(s));
+
+      // label thụt theo depth
+      const lbl = document.createElementNS(NS,'text');
+      lbl.setAttribute('x', padL + s.depth * 16);
+      lbl.setAttribute('y', y + rowH/2 + 4);
+      lbl.setAttribute('class','wf-label');
+      lbl.textContent = (s.depth>0?'└ ':'') + s.name;
+      g.appendChild(lbl);
+
+      // bar
+      const x = labelW + (s.start / total) * barArea;
+      const w = Math.max(2, (s.dur / total) * barArea);
+      const bar = document.createElementNS(NS,'rect');
+      bar.setAttribute('x', x); bar.setAttribute('y', y + 6);
+      bar.setAttribute('width', w); bar.setAttribute('height', rowH - 14);
+      bar.setAttribute('rx', 3);
+      let cls = 'wf-bar ' + (s.status==='Error'?'err':'ok');
+      if (selected && selected.id !== s.id) cls += ' dim';
+      if (selected && selected.id === s.id) cls += ' sel';
+      bar.setAttribute('class', cls);
+      g.appendChild(bar);
+
+      // duration text
+      const dt = document.createElementNS(NS,'text');
+      dt.setAttribute('x', x + w + 6); dt.setAttribute('y', y + rowH/2 + 4);
+      dt.setAttribute('class','wf-dur');
+      dt.textContent = s.dur + 'ms' + (s.status==='Error'?' ⚠':'');
+      g.appendChild(dt);
+
+      svg.appendChild(g);
+    });
+  }
+
+  function esc(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+
+  function select(s) {
+    selected = s;
+    let h = '';
+    h += `<div><span class="k">name</span>         = <span class="v">"${esc(s.name)}"</span></div>`;
+    h += `<div><span class="k">trace_id</span>     = <span class="v">${TRACE_ID}</span></div>`;
+    h += `<div><span class="k">span_id</span>      = <span class="v">${s.id}</span></div>`;
+    h += `<div><span class="k">parent_span</span>  = <span class="v">${s.parent ?? '∅ (root)'}</span></div>`;
+    h += `<div><span class="k">duration</span>     = <span class="v">${s.dur}ms</span>  <span class="muted">(start +${s.start}ms)</span></div>`;
+    const st = s.status==='Error' ? `<span class="e">Error</span>` : `<span class="v">${s.status}</span>`;
+    h += `<div><span class="k">status</span>       = ${st}</div>`;
+    h += `<div class="muted">// attributes</div>`;
+    for (const k in s.attrs) h += `<div>  <span class="k">${esc(k)}</span> = <span class="v">"${esc(s.attrs[k])}"</span></div>`;
+    if (s.events.length) {
+      h += `<div class="muted">// events</div>`;
+      s.events.forEach(e => {
+        const m = e.msg ? ` <span class="e">{${esc(e.msg)}}</span>` : '';
+        h += `<div>  @${e.t}ms <span class="v">"${esc(e.n)}"</span>${m}</div>`;
+      });
+    }
+    detail.innerHTML = h;
+    render();
+  }
+
+  document.getElementById('wf-replay').addEventListener('click', () => {
+    selected = null;
+    detail.innerHTML = '<span class="muted">// Click một span để xem chi tiết...</span>';
+    render();
+  });
+  document.getElementById('wf-slow').addEventListener('click', (e) => {
+    bankMs = bankMs >= 1500 ? 400 : 1850;
+    e.target.textContent = bankMs >= 1500 ? 'Bank bình thường lại' : 'Bank chậm hơn (mô phỏng sự cố)';
+    selected = null;
+    detail.innerHTML = '<span class="muted">// Click một span để xem chi tiết...</span>';
+    render();
+  });
+
+  render();
+})();
+
+/* ===================== MODULE 2: PROPAGATION ===================== */
+(function () {
+  const chain = document.getElementById('prop-chain');
+  const out = document.getElementById('prop-out');
+  let propOn = true;
+
+  const rand = (n) => Array.from({length:n}, () => Math.floor(Math.random()*16).toString(16)).join('');
+  let traceId = rand(32);
+
+  const services = ['Gateway','Order','Payment','Bank'];
+
+  function compute() {
+    // Sinh span_id cho từng service. Nếu propOn: cùng trace, parent nối liền.
+    // Nếu propOff: tại boundary Order->Payment, Payment tạo trace MỚI -> mồ côi.
+    const nodes = [];
+    let curTrace = traceId, curParent = null, broken = false;
+    services.forEach((svc, i) => {
+      // mô phỏng đứt tại Payment (i===2) khi tắt propagation
+      if (!propOn && i === 2) { curTrace = rand(32); curParent = null; broken = true; }
+      const sid = rand(16);
+      nodes.push({ svc, trace: curTrace, span: sid, parent: curParent, brokenHere: (!propOn && i===2) });
+      curParent = sid;
+    });
+    return { nodes, broken };
+  }
+
+  function render() {
+    const result = compute();
+    const nodes = result.nodes;
+    chain.innerHTML = '';
+    nodes.forEach((n, i) => {
+      const div = document.createElement('div');
+      div.className = 'svc' + (n.brokenHere ? '' : ' lit');
+      const parentTxt = n.parent
+        ? `<span class="sid">${n.parent.slice(0,8)}…</span>`
+        : (n.brokenHere ? `<span class="orphan">∅ (trace mới!)</span>` : `<span class="muted">∅ root</span>`);
+      div.innerHTML =
+        `<h4>${n.svc}</h4>` +
+        `<div class="ids">trace: <span class="${n.brokenHere?'orphan':'tid'}">${n.trace.slice(0,12)}…</span></div>` +
+        `<div class="ids">span: <span class="sid">${n.span.slice(0,8)}…</span></div>` +
+        `<div class="ids">parent: ${parentTxt}</div>`;
+      chain.appendChild(div);
+
+      if (i < nodes.length - 1) {
+        const next = nodes[i+1];
+        const a = document.createElement('div');
+        const broke = next.brokenHere;
+        a.className = 'arrow' + (broke ? ' broken' : '');
+        const hdr = broke
+          ? `<span class="hdr">(không header)</span>`
+          : `<span class="hdr">traceparent: …${n.span.slice(0,4)}…</span>`;
+        a.innerHTML = `<div class="line">${broke ? '✗' : '→'}</div>${hdr}`;
+        chain.appendChild(a);
+      }
+    });
+
+    // output: header thật + giải thích
+    const { nodes: ns } = { nodes };
+    const gw = ns[0], pay = ns[2];
+    let h = '';
+    if (propOn) {
+      h += `<div>Order gọi Payment, inject:</div>`;
+      h += `<div class="tp">traceparent: 00-${ns[1].trace}-${ns[1].span}-01</div>`;
+      h += `<div style="margin-top:8px;color:#2f855a;font-weight:600;">✓ Cả 4 service cùng trace_id ${gw.trace.slice(0,12)}… — waterfall liền mạch.</div>`;
+    } else {
+      h += `<div>Order gọi Payment nhưng <b>KHÔNG inject</b> traceparent.</div>`;
+      h += `<div style="margin-top:6px;color:#e53e3e;font-weight:600;">✗ Payment không thấy header → tạo trace_id MỚI (${pay.trace.slice(0,12)}…).</div>`;
+      h += `<div style="margin-top:4px;color:#e53e3e;">Trace ĐỨT: {Gateway, Order} một trace, {Payment, Bank} một trace khác → span mồ côi (README mục 13).</div>`;
+    }
+    out.innerHTML = h;
+  }
+
+  const bOn = document.getElementById('prop-on');
+  const bOff = document.getElementById('prop-off');
+  bOn.addEventListener('click', () => { propOn=true; bOn.classList.add('active'); bOff.classList.remove('active'); render(); });
+  bOff.addEventListener('click', () => { propOn=false; bOff.classList.add('active'); bOn.classList.remove('active'); render(); });
+  document.getElementById('prop-regen').addEventListener('click', () => { traceId = rand(32); render(); });
+
+  render();
+})();
+
+/* ===================== MODULE 3: SAMPLING ===================== */
+(function () {
+  const total = document.getElementById('s-total');
+  const err = document.getElementById('s-err');
+  const head = document.getElementById('s-head');
+  const totalV = document.getElementById('s-total-v');
+  const errV = document.getElementById('s-err-v');
+  const headV = document.getElementById('s-head-v');
+  const tbody = document.getElementById('samp-table');
+  const verdict = document.getElementById('samp-verdict');
+
+  function fmt(n){ return n.toLocaleString('en-US',{maximumFractionDigits: n<10?2:0}); }
+
+  function render() {
+    const T = +total.value;          // req/s
+    const errRate = +err.value/100;  // tỉ lệ lỗi
+    const headRate = +head.value/100;
+    const errsPerSec = T * errRate;
+
+    totalV.textContent = fmt(T);
+    errV.textContent = (+err.value).toFixed(2) + '%';
+    headV.textContent = (+head.value).toFixed(1) + '%';
+
+    // Head-based: quyết định MÙ, mỗi trace (kể cả lỗi) có headRate cơ hội được giữ.
+    const headErrCaught = errsPerSec * headRate;
+    const headErrPct = headRate * 100;
+    const headTotalKept = T * headRate;
+
+    // Tail-based: luật "giữ 100% Error + (ngân sách còn lại) cho OK".
+    // Ngân sách tổng = headRate (so cùng "ngân sách lưu trữ" với head cho công bằng).
+    const budget = headRate;
+    const okRate = T>0 ? Math.max(0, (T*budget - errsPerSec) / (T*(1-errRate))) : 0;
+    const tailErrCaught = errsPerSec;            // giữ 100% lỗi
+    const tailTotalKept = errsPerSec + T*(1-errRate)*okRate;
+
+    tbody.innerHTML =
+      `<tr>
+        <td><b>Head-based ${(+head.value).toFixed(1)}%</b><br><span class="hint">quyết định lúc start (mù)</span></td>
+        <td>${fmt(headErrCaught)} / ${fmt(errsPerSec)} lỗi/s</td>
+        <td style="color:${headErrPct<90?'#e53e3e':'#2f855a'};font-weight:700;">${headErrPct.toFixed(1)}%</td>
+        <td>${fmt(headTotalKept)} /s</td>
+      </tr>
+      <tr>
+        <td><b>Tail-based</b><br><span class="hint">giữ 100% Error + ${(okRate*100).toFixed(2)}% OK</span></td>
+        <td>${fmt(tailErrCaught)} / ${fmt(errsPerSec)} lỗi/s</td>
+        <td style="color:#2f855a;font-weight:700;">100%</td>
+        <td>${fmt(tailTotalKept)} /s</td>
+      </tr>`;
+
+    const missed = errsPerSec - headErrCaught;
+    verdict.innerHTML =
+      `<div class="cell"><div class="n bad">${fmt(missed)}/s</div><div class="lbl">lỗi BỎ SÓT bởi head-based</div></div>` +
+      `<div class="cell"><div class="n good">0/s</div><div class="lbl">lỗi bỏ sót bởi tail-based</div></div>` +
+      `<div class="cell"><div class="n">${(budget*100).toFixed(1)}%</div><div class="lbl">ngân sách lưu (cả hai bằng nhau)</div></div>`;
+  }
+
+  [total, err, head].forEach(el => el.addEventListener('input', render));
+  render();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L39 — Bipartite Matching · Minh hoạ</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #4299e1;
+    --accent-hover: #3182ce;
+    --accent-soft: #ebf8ff;
+    --blue: #4299e1;
+    --red: #f56565;
+    --green: #48bb78;
+    --gray: #cbd5e0;
+    --dark: #2d3748;
+    --gold: #d69e2e;
+  }
+
+  main { max-width: 1000px; margin: 0 auto; padding: 16px; }
+
+  h1 { font-size: 1.6rem; margin: 12px 0 4px; }
+  .lead { color: #4a5568; margin: 0 0 20px; }
+
+  .module {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px;
+    margin: 20px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .module h2 { font-size: 1.25rem; margin: 0 0 6px; color: var(--dark); }
+  .module .hint { color: #718096; font-size: 0.92rem; margin: 0 0 12px; }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0;
+    align-items: center;
+  }
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 16px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost { background: #edf2f7; color: var(--dark); }
+  button.ghost:hover { background: #e2e8f0; }
+  button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  select {
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e0;
+    font-size: 0.95rem;
+    background: #fff;
+  }
+  label { font-size: 0.9rem; color: #4a5568; font-weight: 600; }
+
+  .svg-wrap {
+    width: 100%;
+    overflow-x: auto;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #edf2f7;
+    margin: 8px 0;
+  }
+  svg { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+
+  .status {
+    background: #f7fafc;
+    border-left: 4px solid var(--accent);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    font-size: 0.95rem;
+    color: #2d3748;
+    min-height: 1.3em;
+  }
+  .status.good { border-left-color: var(--green); background: #f0fff4; }
+  .status.bad { border-left-color: var(--red); background: #fff5f5; }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    font-size: 0.85rem;
+    color: #4a5568;
+    margin: 8px 0;
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+  .swatch { width: 22px; height: 6px; border-radius: 3px; display: inline-block; }
+
+  .metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 10px 0;
+  }
+  .metric {
+    flex: 1 1 130px;
+    background: var(--accent-soft);
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-align: center;
+  }
+  .metric .val { font-size: 1.6rem; font-weight: 700; color: var(--accent-hover); }
+  .metric .lbl { font-size: 0.78rem; color: #4a5568; text-transform: uppercase; letter-spacing: 0.03em; }
+
+  .konig-eq {
+    text-align: center;
+    font-size: 1.05rem;
+    margin: 14px 0;
+    color: var(--dark);
+  }
+  .konig-eq b { color: var(--accent-hover); }
+
+  @media (max-width: 768px) {
+    main { padding: 10px; }
+    h1 { font-size: 1.35rem; }
+    .module { padding: 14px; }
+    .controls { gap: 6px; }
+    button { padding: 8px 12px; font-size: 0.9rem; }
+    .metric .val { font-size: 1.35rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-38-network-flow/visualization.html">← L38: Network Flow</a>
+  <span class="sep">·</span>
+  <span class="current">L39: Bipartite Matching</span>
+  <span class="sep">·</span>
+  <a href="../tier-6-string/index.html">Tier 6 →</a>
+</nav>
+
+<main>
+  <h1>Lesson 39 — Ghép cặp đồ thị 2 phía</h1>
+  <p class="lead">Ba module tương tác: kiểm tra <b>2 phía</b> bằng tô 2 màu, <b>thuật toán Kuhn</b>
+  tìm maximum matching qua đường tăng, và <b>định lý König</b> (max matching = min vertex cover).</p>
+
+  <!-- ================= MODULE 1 ================= -->
+  <section class="module" id="mod1">
+    <h2>Module 1 — Kiểm tra đồ thị 2 phía (tô 2 màu)</h2>
+    <p class="hint">Tô đỉnh xuất phát màu Xanh; mọi hàng xóm phải khác màu (BFS lan toả).
+    Nếu một cạnh nối 2 đỉnh cùng màu → có chu trình lẻ → KHÔNG 2 phía.</p>
+
+    <div class="controls">
+      <label for="m1-graph">Đồ thị:</label>
+      <select id="m1-graph">
+        <option value="even">Chu trình 4 đỉnh (chẵn — 2 phía)</option>
+        <option value="tri">Tam giác (lẻ — KHÔNG 2 phía)</option>
+        <option value="penta">Ngũ giác (lẻ — KHÔNG 2 phía)</option>
+        <option value="tree">Cây 6 đỉnh (2 phía)</option>
+      </select>
+      <button id="m1-step">▶ Bước tiếp</button>
+      <button id="m1-auto">⏩ Tự chạy</button>
+      <button id="m1-reset" class="ghost">↺ Reset</button>
+    </div>
+
+    <div class="legend">
+      <span><span class="dot" style="background:var(--gray)"></span> Chưa tô</span>
+      <span><span class="dot" style="background:var(--blue)"></span> Xanh (phía L)</span>
+      <span><span class="dot" style="background:var(--red)"></span> Đỏ (phía R)</span>
+      <span><span class="dot" style="background:var(--gold)"></span> Đang xét</span>
+    </div>
+
+    <div class="svg-wrap">
+      <svg id="m1-svg" width="520" height="320" viewBox="0 0 520 320"></svg>
+    </div>
+    <div class="status" id="m1-status">Chọn đồ thị rồi bấm "Bước tiếp".</div>
+  </section>
+
+  <!-- ================= MODULE 2 ================= -->
+  <section class="module" id="mod2">
+    <h2>Module 2 — Thuật toán Kuhn (maximum matching)</h2>
+    <p class="hint">Lần lượt cho mỗi đỉnh trái đi tìm bạn bằng DFS. Đường tăng (augmenting path)
+    được tô vàng; khi tới một đỉnh phải tự do → <b>flip</b> để tăng matching lên 1.</p>
+
+    <div class="controls">
+      <label for="m2-graph">Đồ thị:</label>
+      <select id="m2-graph">
+        <option value="g1">3×3 — max = 3</option>
+        <option value="g2">a-x,a-y,b-x — max = 2</option>
+        <option value="g3">3 trái → 1 phải — max = 1</option>
+        <option value="g4">4×4 dày — max = 4</option>
+      </select>
+      <button id="m2-step">▶ Ghép đỉnh trái kế</button>
+      <button id="m2-auto">⏩ Tự chạy</button>
+      <button id="m2-reset" class="ghost">↺ Reset</button>
+    </div>
+
+    <div class="metrics">
+      <div class="metric"><div class="val" id="m2-match">0</div><div class="lbl">Matching</div></div>
+      <div class="metric"><div class="val" id="m2-cur">—</div><div class="lbl">Đang xử lý</div></div>
+    </div>
+
+    <div class="legend">
+      <span><span class="swatch" style="background:var(--gray)"></span> Cạnh thường</span>
+      <span><span class="swatch" style="background:var(--green)"></span> Cạnh trong M</span>
+      <span><span class="swatch" style="background:var(--gold)"></span> Đường tăng đang thử</span>
+    </div>
+
+    <div class="svg-wrap">
+      <svg id="m2-svg" width="460" height="360" viewBox="0 0 460 360"></svg>
+    </div>
+    <div class="status" id="m2-status">Bấm "Ghép đỉnh trái kế" để chạy Kuhn từng bước.</div>
+  </section>
+
+  <!-- ================= MODULE 3 ================= -->
+  <section class="module" id="mod3">
+    <h2>Module 3 — Định lý König</h2>
+    <p class="hint">Trong đồ thị 2 phía: <b>max matching = min vertex cover</b>. Module này tính
+    maximum matching rồi dựng min vertex cover (cấu trúc König) và kiểm chứng hai số bằng nhau.</p>
+
+    <div class="controls">
+      <label for="m3-graph">Đồ thị:</label>
+      <select id="m3-graph">
+        <option value="k1">a-x, b-x (1 cạnh chung)</option>
+        <option value="k2">3×3 — match = 3</option>
+        <option value="k3">a-x,a-y,b-x — match = 2</option>
+      </select>
+      <button id="m3-run">▶ Tính matching + cover</button>
+      <button id="m3-reset" class="ghost">↺ Reset</button>
+    </div>
+
+    <div class="metrics">
+      <div class="metric"><div class="val" id="m3-match">—</div><div class="lbl">Max matching</div></div>
+      <div class="metric"><div class="val" id="m3-cover">—</div><div class="lbl">Min vertex cover</div></div>
+      <div class="metric"><div class="val" id="m3-indep">—</div><div class="lbl">Max indep. set</div></div>
+    </div>
+
+    <div class="legend">
+      <span><span class="swatch" style="background:var(--green)"></span> Cạnh matching</span>
+      <span><span class="dot" style="background:var(--gold)"></span> Đỉnh trong vertex cover</span>
+    </div>
+
+    <div class="svg-wrap">
+      <svg id="m3-svg" width="460" height="320" viewBox="0 0 460 320"></svg>
+    </div>
+    <div class="konig-eq" id="m3-eq">König: max matching <b>= ?</b> = min vertex cover.</div>
+    <div class="status" id="m3-status">Bấm "Tính matching + cover".</div>
+  </section>
+</main>
+
+<script>
+// ============ Tiện ích SVG chung ============
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// =====================================================================
+// MODULE 1 — Bipartite check (2-coloring BFS)
+// =====================================================================
+(function () {
+  const svg = document.getElementById("m1-svg");
+  const status = document.getElementById("m1-status");
+  const sel = document.getElementById("m1-graph");
+
+  // Mỗi đồ thị: pos (toạ độ vẽ), edges (vô hướng).
+  const GRAPHS = {
+    even: {
+      pos: [[120,80],[400,80],[400,240],[120,240]],
+      edges: [[0,1],[0,3],[1,2],[2,3]],
+    },
+    tri: {
+      pos: [[260,70],[140,250],[380,250]],
+      edges: [[0,1],[1,2],[2,0]],
+    },
+    penta: {
+      pos: [[260,60],[420,170],[360,300],[160,300],[100,170]],
+      edges: [[0,1],[1,2],[2,3],[3,4],[4,0]],
+    },
+    tree: {
+      pos: [[260,60],[140,170],[380,170],[80,290],[220,290],[400,290]],
+      edges: [[0,1],[0,2],[1,3],[1,4],[2,5]],
+    },
+  };
+
+  let G, color, adj, steps, idx, timer = null;
+
+  function buildAdj(n, edges) {
+    const a = Array.from({length: n}, () => []);
+    for (const [u, v] of edges) { a[u].push(v); a[v].push(u); }
+    return a;
+  }
+
+  // Tính trước toàn bộ chuỗi bước BFS để animate.
+  function precompute() {
+    const n = G.pos.length;
+    color = new Array(n).fill(-1);
+    adj = buildAdj(n, G.edges);
+    steps = [];
+    let conflict = false;
+    for (let s = 0; s < n && !conflict; s++) {
+      if (color[s] !== -1) continue;
+      color[s] = 0;
+      steps.push({ type: "color", v: s, c: 0, msg: `Đỉnh ${s} (xuất phát) tô Xanh.` });
+      const q = [s];
+      while (q.length && !conflict) {
+        const u = q.shift();
+        for (const v of adj[u]) {
+          if (color[v] === -1) {
+            color[v] = color[u] ^ 1;
+            steps.push({ type: "color", v, c: color[v], from: u,
+              msg: `${u} → ${v}: tô ${color[v] === 0 ? "Xanh" : "Đỏ"} (khác màu ${u}).` });
+            q.push(v);
+          } else if (color[v] === color[u]) {
+            steps.push({ type: "conflict", u, v,
+              msg: `Cạnh ${u}–${v} nối 2 đỉnh CÙNG màu → chu trình lẻ → KHÔNG 2 phía!` });
+            conflict = true;
+            break;
+          }
+        }
+      }
+    }
+    if (!conflict) {
+      const L = [], R = [];
+      for (let i = 0; i < n; i++) (color[i] === 0 ? L : R).push(i);
+      steps.push({ type: "done", L, R,
+        msg: `Tô xong, không mâu thuẫn → LÀ 2 phía. L = {${L.join(",")}}, R = {${R.join(",")}}.` });
+    }
+  }
+
+  // Trạng thái màu hiện tại theo idx bước.
+  function colorsAt(k) {
+    const n = G.pos.length;
+    const c = new Array(n).fill(-1);
+    let conflictEdge = null, highlight = null;
+    for (let i = 0; i < k; i++) {
+      const st = steps[i];
+      if (st.type === "color") { c[st.v] = st.c; highlight = st.v; }
+      if (st.type === "conflict") { conflictEdge = [st.u, st.v]; }
+    }
+    return { c, conflictEdge, highlight };
+  }
+
+  function render(k) {
+    clear(svg);
+    const { c, conflictEdge, highlight } = colorsAt(k);
+    // cạnh
+    for (const [u, v] of G.edges) {
+      const isConf = conflictEdge && ((conflictEdge[0] === u && conflictEdge[1] === v) ||
+                                      (conflictEdge[0] === v && conflictEdge[1] === u));
+      svg.appendChild(el("line", {
+        x1: G.pos[u][0], y1: G.pos[u][1], x2: G.pos[v][0], y2: G.pos[v][1],
+        stroke: isConf ? "var(--red)" : "var(--gray)", "stroke-width": isConf ? 5 : 2.5,
+      }));
+    }
+    // đỉnh
+    for (let i = 0; i < G.pos.length; i++) {
+      let fill = "var(--gray)";
+      if (c[i] === 0) fill = "var(--blue)";
+      else if (c[i] === 1) fill = "var(--red)";
+      const isHi = (i === highlight && (k <= steps.length) && steps[k - 1] && steps[k - 1].type === "color");
+      svg.appendChild(el("circle", {
+        cx: G.pos[i][0], cy: G.pos[i][1], r: 22,
+        fill, stroke: isHi ? "var(--gold)" : "#fff", "stroke-width": isHi ? 5 : 3,
+      }));
+      const t = el("text", { x: G.pos[i][0], y: G.pos[i][1] + 5,
+        "text-anchor": "middle", fill: "#fff", "font-weight": 700, "font-size": 15 });
+      t.textContent = i;
+      svg.appendChild(t);
+    }
+  }
+
+  function setStatus(msg, cls) {
+    status.textContent = msg;
+    status.className = "status" + (cls ? " " + cls : "");
+  }
+
+  function reset() {
+    if (timer) { clearInterval(timer); timer = null; }
+    G = GRAPHS[sel.value];
+    precompute();
+    idx = 0;
+    render(0);
+    setStatus("Chọn đồ thị rồi bấm \"Bước tiếp\".");
+  }
+
+  function step() {
+    if (idx >= steps.length) return;
+    const st = steps[idx];
+    idx++;
+    render(idx);
+    let cls = null;
+    if (st.type === "conflict") cls = "bad";
+    if (st.type === "done") cls = "good";
+    setStatus(st.msg, cls);
+    return st.type;
+  }
+
+  document.getElementById("m1-step").addEventListener("click", step);
+  document.getElementById("m1-reset").addEventListener("click", reset);
+  document.getElementById("m1-auto").addEventListener("click", () => {
+    if (timer) { clearInterval(timer); timer = null; return; }
+    timer = setInterval(() => {
+      if (idx >= steps.length) { clearInterval(timer); timer = null; return; }
+      step();
+    }, 800);
+  });
+  sel.addEventListener("change", reset);
+  reset();
+})();
+
+// =====================================================================
+// MODULE 2 — Kuhn maximum matching (augmenting path animate)
+// =====================================================================
+(function () {
+  const svg = document.getElementById("m2-svg");
+  const status = document.getElementById("m2-status");
+  const sel = document.getElementById("m2-graph");
+  const matchEl = document.getElementById("m2-match");
+  const curEl = document.getElementById("m2-cur");
+
+  // adj[u] = các đỉnh phải (index trong R) mà L_u nối tới.
+  const GRAPHS = {
+    g1: { nL: 3, nR: 3, adj: [[0,1],[0],[1,2]] },
+    g2: { nL: 2, nR: 2, adj: [[0,1],[0]] },                 // a-x,a-y,b-x
+    g3: { nL: 3, nR: 1, adj: [[0],[0],[0]] },
+    g4: { nL: 4, nR: 4, adj: [[0,1],[1,2],[0,2,3],[2,3]] },
+  };
+
+  let G, matchR, curU, matched, timer = null;
+  let pathEdges = [];      // các cạnh (L,R) trên đường tăng đang thử (highlight vàng)
+  let lastFlip = false;
+
+  function posL(i, nL) {
+    const gap = 280 / (nL + 1);
+    return [110, 40 + gap * (i + 1)];
+  }
+  function posR(j, nR) {
+    const gap = 280 / (nR + 1);
+    return [350, 40 + gap * (j + 1)];
+  }
+
+  function render() {
+    clear(svg);
+    const { nL, nR, adj } = G;
+    // build matchL từ matchR để vẽ cạnh matching
+    const inM = new Set();
+    for (let v = 0; v < nR; v++) if (matchR[v] !== -1) inM.add(matchR[v] + "-" + v);
+    const pathSet = new Set(pathEdges.map(([u, v]) => u + "-" + v));
+
+    // cạnh
+    for (let u = 0; u < nL; u++) {
+      for (const v of adj[u]) {
+        const key = u + "-" + v;
+        let stroke = "var(--gray)", w = 2;
+        if (inM.has(key)) { stroke = "var(--green)"; w = 4; }
+        if (pathSet.has(key)) { stroke = "var(--gold)"; w = 5; }
+        const [x1, y1] = posL(u, nL), [x2, y2] = posR(v, nR);
+        svg.appendChild(el("line", { x1, y1, x2, y2, stroke, "stroke-width": w }));
+      }
+    }
+    // đỉnh trái
+    for (let u = 0; u < nL; u++) {
+      const [x, y] = posL(u, nL);
+      const isCur = u === curU;
+      svg.appendChild(el("circle", { cx: x, cy: y, r: 20,
+        fill: "var(--blue)", stroke: isCur ? "var(--gold)" : "#fff", "stroke-width": isCur ? 5 : 3 }));
+      const t = el("text", { x, y: y + 5, "text-anchor": "middle", fill: "#fff", "font-weight": 700, "font-size": 14 });
+      t.textContent = "L" + u; svg.appendChild(t);
+    }
+    // đỉnh phải
+    for (let v = 0; v < nR; v++) {
+      const [x, y] = posR(v, nR);
+      const free = matchR[v] === -1;
+      svg.appendChild(el("circle", { cx: x, cy: y, r: 20,
+        fill: free ? "var(--gray)" : "var(--red)", stroke: "#fff", "stroke-width": 3 }));
+      const t = el("text", { x, y: y + 5, "text-anchor": "middle", fill: "#fff", "font-weight": 700, "font-size": 14 });
+      t.textContent = "R" + v; svg.appendChild(t);
+    }
+    matchEl.textContent = matched;
+    curEl.textContent = curU === -1 ? "—" : "L" + curU;
+  }
+
+  // tryKuhn nhưng GHI lại đường đi để highlight (path = list cạnh [u,v]).
+  function tryKuhn(u, used, path) {
+    for (const v of G.adj[u]) {
+      if (used[v]) continue;
+      used[v] = true;
+      path.push([u, v]);
+      if (matchR[v] === -1 || tryKuhn(matchR[v], used, path)) {
+        matchR[v] = u;
+        return true;
+      }
+      path.pop();
+    }
+    return false;
+  }
+
+  function processNext() {
+    if (curU + 1 >= G.nL) {
+      setStatus(`Xong tất cả đỉnh trái. Maximum matching = ${matched}.`, "good");
+      return false;
+    }
+    curU++;
+    const used = new Array(G.nR).fill(false);
+    const path = [];
+    const ok = tryKuhn(curU, used, path);
+    pathEdges = path.slice();
+    lastFlip = ok;
+    if (ok) {
+      matched++;
+      setStatus(`L${curU}: tìm thấy đường tăng (${path.map(([u,v]) => "L"+u+"→R"+v).join(", ")}) → flip, matching = ${matched}.`);
+    } else {
+      setStatus(`L${curU}: không tìm được đường tăng → không ghép thêm. Matching = ${matched}.`);
+    }
+    render();
+    return true;
+  }
+
+  function setStatus(msg, cls) {
+    status.textContent = msg;
+    status.className = "status" + (cls ? " " + cls : "");
+  }
+
+  function reset() {
+    if (timer) { clearInterval(timer); timer = null; }
+    G = GRAPHS[sel.value];
+    matchR = new Array(G.nR).fill(-1);
+    curU = -1; matched = 0; pathEdges = [];
+    render();
+    setStatus("Bấm \"Ghép đỉnh trái kế\" để chạy Kuhn từng bước.");
+  }
+
+  document.getElementById("m2-step").addEventListener("click", processNext);
+  document.getElementById("m2-reset").addEventListener("click", reset);
+  document.getElementById("m2-auto").addEventListener("click", () => {
+    if (timer) { clearInterval(timer); timer = null; return; }
+    timer = setInterval(() => {
+      if (!processNext()) { clearInterval(timer); timer = null; }
+    }, 1100);
+  });
+  sel.addEventListener("change", reset);
+  reset();
+})();
+
+// =====================================================================
+// MODULE 3 — König theorem (matching = min vertex cover)
+// =====================================================================
+(function () {
+  const svg = document.getElementById("m3-svg");
+  const status = document.getElementById("m3-status");
+  const sel = document.getElementById("m3-graph");
+  const matchEl = document.getElementById("m3-match");
+  const coverEl = document.getElementById("m3-cover");
+  const indepEl = document.getElementById("m3-indep");
+  const eqEl = document.getElementById("m3-eq");
+
+  const GRAPHS = {
+    k1: { nL: 2, nR: 1, adj: [[0],[0]] },         // a-x, b-x
+    k2: { nL: 3, nR: 3, adj: [[0,1],[0],[1,2]] }, // 3x3 match 3
+    k3: { nL: 2, nR: 2, adj: [[0,1],[0]] },       // a-x,a-y,b-x match 2
+  };
+
+  let G, matchR;
+
+  function posL(i, nL) { const gap = 240 / (nL + 1); return [110, 40 + gap * (i + 1)]; }
+  function posR(j, nR) { const gap = 240 / (nR + 1); return [350, 40 + gap * (j + 1)]; }
+
+  function tryKuhn(u, used) {
+    for (const v of G.adj[u]) {
+      if (used[v]) continue;
+      used[v] = true;
+      if (matchR[v] === -1 || tryKuhn(matchR[v], used)) {
+        matchR[v] = u;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function maxMatching() {
+    matchR = new Array(G.nR).fill(-1);
+    let m = 0;
+    for (let u = 0; u < G.nL; u++) {
+      const used = new Array(G.nR).fill(false);
+      if (tryKuhn(u, used)) m++;
+    }
+    return m;
+  }
+
+  // Cấu trúc König: DFS đường xen kẽ từ đỉnh trái tự do.
+  function minVertexCover() {
+    const matchL = new Array(G.nL).fill(-1);
+    for (let v = 0; v < G.nR; v++) if (matchR[v] !== -1) matchL[matchR[v]] = v;
+    const visL = new Array(G.nL).fill(false);
+    const visR = new Array(G.nR).fill(false);
+    function dfs(u) {
+      visL[u] = true;
+      for (const v of G.adj[u]) {
+        if (!visR[v]) {
+          visR[v] = true;
+          if (matchR[v] !== -1 && !visL[matchR[v]]) dfs(matchR[v]);
+        }
+      }
+    }
+    for (let u = 0; u < G.nL; u++) if (matchL[u] === -1) dfs(u);
+    const coverL = [], coverR = [];
+    for (let u = 0; u < G.nL; u++) if (!visL[u]) coverL.push(u);
+    for (let v = 0; v < G.nR; v++) if (visR[v]) coverR.push(v);
+    return { coverL, coverR };
+  }
+
+  function render(coverL, coverR) {
+    clear(svg);
+    const { nL, nR, adj } = G;
+    const inM = new Set();
+    for (let v = 0; v < nR; v++) if (matchR[v] !== -1) inM.add(matchR[v] + "-" + v);
+    const cL = new Set(coverL || []), cR = new Set(coverR || []);
+    for (let u = 0; u < nL; u++) {
+      for (const v of adj[u]) {
+        const key = u + "-" + v;
+        const [x1, y1] = posL(u, nL), [x2, y2] = posR(v, nR);
+        svg.appendChild(el("line", { x1, y1, x2, y2,
+          stroke: inM.has(key) ? "var(--green)" : "var(--gray)",
+          "stroke-width": inM.has(key) ? 4 : 2 }));
+      }
+    }
+    for (let u = 0; u < nL; u++) {
+      const [x, y] = posL(u, nL);
+      const inCov = cL.has(u);
+      svg.appendChild(el("circle", { cx: x, cy: y, r: 20,
+        fill: "var(--blue)", stroke: inCov ? "var(--gold)" : "#fff", "stroke-width": inCov ? 6 : 3 }));
+      const t = el("text", { x, y: y + 5, "text-anchor": "middle", fill: "#fff", "font-weight": 700, "font-size": 14 });
+      t.textContent = "L" + u; svg.appendChild(t);
+    }
+    for (let v = 0; v < nR; v++) {
+      const [x, y] = posR(v, nR);
+      const inCov = cR.has(v);
+      svg.appendChild(el("circle", { cx: x, cy: y, r: 20,
+        fill: "var(--red)", stroke: inCov ? "var(--gold)" : "#fff", "stroke-width": inCov ? 6 : 3 }));
+      const t = el("text", { x, y: y + 5, "text-anchor": "middle", fill: "#fff", "font-weight": 700, "font-size": 14 });
+      t.textContent = "R" + v; svg.appendChild(t);
+    }
+  }
+
+  function setStatus(msg, cls) {
+    status.textContent = msg;
+    status.className = "status" + (cls ? " " + cls : "");
+  }
+
+  function run() {
+    const m = maxMatching();
+    const { coverL, coverR } = minVertexCover();
+    const coverSize = coverL.length + coverR.length;
+    const V = G.nL + G.nR;
+    matchEl.textContent = m;
+    coverEl.textContent = coverSize;
+    indepEl.textContent = V - m;
+    const coverNames = [...coverL.map(u => "L" + u), ...coverR.map(v => "R" + v)];
+    render(coverL, coverR);
+    eqEl.innerHTML = `König: max matching <b>= ${m}</b> = min vertex cover. Cover = {${coverNames.join(", ")}}.`;
+    const ok = (m === coverSize);
+    setStatus(ok
+      ? `Kiểm chứng: matching = ${m}, cover = ${coverSize} → BẰNG NHAU ✓. Max independent set = V − matching = ${V} − ${m} = ${V - m}.`
+      : `Lỗi: matching ≠ cover (${m} ≠ ${coverSize}).`, ok ? "good" : "bad");
+  }
+
+  function reset() {
+    G = GRAPHS[sel.value];
+    matchR = new Array(G.nR).fill(-1);
+    matchEl.textContent = "—"; coverEl.textContent = "—"; indepEl.textContent = "—";
+    render(null, null);
+    eqEl.innerHTML = "König: max matching <b>= ?</b> = min vertex cover.";
+    setStatus("Bấm \"Tính matching + cover\".");
+  }
+
+  document.getElementById("m3-run").addEventListener("click", run);
+  document.getElementById("m3-reset").addEventListener("click", reset);
+  sel.addEventListener("change", reset);
+  reset();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+</body>
+</html>

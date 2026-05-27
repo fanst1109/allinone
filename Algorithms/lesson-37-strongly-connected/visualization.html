@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L37 — Thành phần liên thông mạnh (SCC)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #ec4899;
+    --accent-soft: #fdf2f8;
+    --accent-hover: #db2777;
+    --c0: #4299e1;
+    --c1: #48bb78;
+    --c2: #ed8936;
+    --c3: #9f7aea;
+    --c4: #38b2ac;
+    --edge: #a0aec0;
+    --active: #e53e3e;
+  }
+  main { max-width: 940px; }
+  .lead { font-size: 1.05rem; color: #4a5568; margin: 0.5rem 0 1.5rem; }
+  .card {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+    padding: 16px 18px; margin: 1rem 0 2rem; box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  }
+  h2 { border-bottom: 2px solid var(--accent-soft); padding-bottom: 6px; }
+  .pill {
+    display: inline-block; font-size: .72rem; font-weight: 600; color: var(--accent-hover);
+    background: var(--accent-soft); border-radius: 999px; padding: 2px 10px; vertical-align: middle;
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0; }
+  button {
+    background: var(--accent); color: #fff; border: none; border-radius: 8px;
+    padding: 8px 14px; font-size: .9rem; font-weight: 600; cursor: pointer;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  label.small { font-size: .85rem; color: #4a5568; display: flex; align-items: center; gap: 4px; }
+  input, select {
+    border: 1px solid #cbd5e0; border-radius: 6px; padding: 5px 8px;
+    font-size: .85rem; width: 100%; max-width: 240px; box-sizing: border-box;
+  }
+  select { max-width: 280px; }
+  .status {
+    background: #f7fafc; border-left: 3px solid var(--accent); border-radius: 4px;
+    padding: 8px 12px; margin: 10px 0; font-size: .9rem; color: #2d3748; min-height: 1.2em;
+  }
+  .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+  .note { font-size: .82rem; color: #718096; margin: 6px 0; }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: .8rem; color: #4a5568; margin: 8px 0; }
+  .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: middle; margin-right: 4px; }
+  svg { max-width: 100%; height: auto; display: block; margin: 8px auto; background: #fafbfc; border-radius: 8px; }
+  .gnode { stroke: #2d3748; stroke-width: 1.5; }
+  .glabel { font: 600 13px ui-monospace, monospace; fill: #fff; text-anchor: middle; dominant-baseline: central; }
+  .gedge { stroke: var(--edge); stroke-width: 2; fill: none; marker-end: url(#arrow); }
+  .gedge.hot { stroke: var(--active); stroke-width: 3; }
+  table.st { border-collapse: collapse; font-size: .82rem; margin: 8px 0; width: 100%; max-width: 480px; }
+  table.st th, table.st td { border: 1px solid #e2e8f0; padding: 4px 8px; text-align: center; }
+  table.st th { background: #f7fafc; }
+  .stackbox { font-family: ui-monospace, monospace; font-size: .85rem; background: #f7fafc; border-radius: 6px; padding: 6px 10px; margin: 6px 0; word-break: break-all; }
+  @media (max-width: 480px) {
+    .controls { gap: 6px; }
+    button { padding: 7px 11px; font-size: .85rem; }
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-36-connected-components/visualization.html">← L36: Connected Components</a>
+  <span class="sep">·</span>
+  <span class="current">L37: Strongly Connected</span>
+  <span class="sep">·</span>
+  <a href="../lesson-38-network-flow/visualization.html">L38: Network Flow →</a>
+</nav>
+
+<h1>Lesson 37 — Thành phần liên thông mạnh (SCC)</h1>
+<div class="lead">
+  Ba module tương tác cho đồ thị <strong>CÓ HƯỚNG</strong>:
+  <strong>Kosaraju</strong> (2 DFS + transpose),
+  <strong>Tarjan</strong> (1 DFS + low-link),
+  và <strong>Condensation</strong> (gộp SCC thành DAG siêu đỉnh).
+  Đồ thị mẫu dùng chung: 0→1→2→0, 2→3, 3→4→5→3, 6→5, 6→7→6 — đáp án 3 SCC: {0,1,2}, {3,4,5}, {6,7}.
+</div>
+
+<!-- ====================================================================
+     MODULE 1 — KOSARAJU
+     ==================================================================== -->
+<h2>1. Kosaraju animator <span class="pill">2 DFS + transpose · O(V+E)</span></h2>
+<div class="card">
+  <p style="margin-top:0">
+    Bấm <em>Bước tiếp</em> để chạy 3 pha: (1) DFS lần 1 ghi <strong>finish order</strong> vào stack,
+    (2) <strong>transpose</strong> (đảo mọi cạnh), (3) DFS lần 2 trên Gᵀ theo finish giảm dần — mỗi cây DFS tô <strong>một màu SCC</strong>.
+  </p>
+  <div class="controls">
+    <button id="m1Step">Bước tiếp ▶</button>
+    <button id="m1Auto" class="ghost">Tự động ⏩</button>
+    <button id="m1Reset" class="ghost">Đặt lại ↺</button>
+  </div>
+  <div class="legend">
+    <span><span class="swatch" style="background:var(--edge)"></span> chưa thăm</span>
+    <span><span class="swatch" style="background:var(--active)"></span> đang DFS</span>
+    <span><span class="swatch" style="background:var(--c0)"></span> SCC #1</span>
+    <span><span class="swatch" style="background:var(--c1)"></span> SCC #2</span>
+    <span><span class="swatch" style="background:var(--c2)"></span> SCC #3</span>
+  </div>
+  <svg id="m1svg" width="640" height="320" viewBox="0 0 640 320"></svg>
+  <div class="status" id="m1status">Bấm "Bước tiếp" để bắt đầu pha 1 (DFS lần 1).</div>
+  <div class="stackbox">Finish stack (pop từ phải): <span id="m1stack">[]</span></div>
+  <div class="note">Pha hiện tại: <strong id="m1phase">—</strong>. Sau transpose, mũi tên trên hình đảo chiều.</div>
+</div>
+
+<!-- ====================================================================
+     MODULE 2 — TARJAN
+     ==================================================================== -->
+<h2>2. Tarjan animator <span class="pill">1 DFS · disc/low/onStack</span></h2>
+<div class="card">
+  <p style="margin-top:0">
+    Một lần DFS. Theo dõi <span class="mono">disc[u]</span> (thời điểm thăm) và
+    <span class="mono">low[u]</span> (đỉnh thấp nhất reach được). Khi
+    <strong><span class="mono">low[u]==disc[u]</span></strong> → u là gốc SCC, pop stack tới u.
+  </p>
+  <div class="controls">
+    <button id="m2Step">Bước tiếp ▶</button>
+    <button id="m2Auto" class="ghost">Tự động ⏩</button>
+    <button id="m2Reset" class="ghost">Đặt lại ↺</button>
+  </div>
+  <div class="legend">
+    <span><span class="swatch" style="background:var(--edge)"></span> chưa thăm</span>
+    <span><span class="swatch" style="background:var(--active)"></span> trên stack (SCC đang mở)</span>
+    <span><span class="swatch" style="background:var(--c0)"></span><span class="swatch" style="background:var(--c1)"></span><span class="swatch" style="background:var(--c2)"></span> SCC đã đóng</span>
+  </div>
+  <svg id="m2svg" width="640" height="320" viewBox="0 0 640 320"></svg>
+  <div class="status" id="m2status">Bấm "Bước tiếp" để bắt đầu DFS từ đỉnh 0.</div>
+  <div class="stackbox">Tarjan stack: <span id="m2stack">[]</span></div>
+  <table class="st" id="m2tbl"></table>
+</div>
+
+<!-- ====================================================================
+     MODULE 3 — CONDENSATION
+     ==================================================================== -->
+<h2>3. Condensation — gộp SCC thành DAG <span class="pill">siêu đỉnh + topo</span></h2>
+<div class="card">
+  <p style="margin-top:0">
+    Sau khi biết các SCC, <strong>bóp</strong> mỗi SCC thành một siêu đỉnh.
+    Cạnh liên cụm trở thành cạnh giữa siêu đỉnh → kết quả <strong>luôn là DAG</strong>.
+    Bấm <em>Thu gọn</em> để xem.
+  </p>
+  <div class="controls">
+    <button id="m3Build">Thu gọn ▶</button>
+    <button id="m3Reset" class="ghost">Đặt lại ↺</button>
+  </div>
+  <svg id="m3svg" width="640" height="300" viewBox="0 0 640 300"></svg>
+  <div class="status" id="m3status">Bấm "Thu gọn" để gộp các SCC.</div>
+  <div class="note" id="m3info">—</div>
+</div>
+
+<script>
+/* ============ Đồ thị mẫu dùng chung ============ */
+const N = 8;
+const EDGES = [[0,1],[1,2],[2,0],[2,3],[3,4],[4,5],[5,3],[6,5],[6,7],[7,6]];
+// vị trí vẽ (3 cụm tách rõ)
+const POS = [
+  {x:110,y:80},  {x:60,y:170}, {x:160,y:170},          // SCC {0,1,2}
+  {x:330,y:70},  {x:280,y:175},{x:380,y:175},          // SCC {3,4,5}
+  {x:540,y:90},  {x:540,y:200}                          // SCC {6,7}
+];
+const SCC_COLORS = ['var(--c0)','var(--c1)','var(--c2)','var(--c3)','var(--c4)'];
+function buildAdj(edges){ const a = Array.from({length:N},()=>[]); for(const[u,v]of edges)a[u].push(v); return a; }
+
+/* ============ Helpers vẽ SVG ============ */
+function arrowDefs(){
+  return '<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-end"><path d="M0,0 L10,5 L0,10 z" fill="#a0aec0"/></marker></defs>';
+}
+function drawEdge(u,v,cls){
+  const a=POS[u],b=POS[v];
+  const dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy)||1;
+  const r=20, ux=dx/len, uy=dy/len;
+  const x1=a.x+ux*r, y1=a.y+uy*r, x2=b.x-ux*r, y2=b.y-uy*r;
+  // cong nhẹ để 2 chiều không trùng
+  const mx=(x1+x2)/2 - uy*14, my=(y1+y2)/2 + ux*14;
+  return `<path class="gedge ${cls||''}" d="M${x1},${y1} Q${mx},${my} ${x2},${y2}"/>`;
+}
+function drawNode(i,fill){
+  return `<circle class="gnode" cx="${POS[i].x}" cy="${POS[i].y}" r="20" fill="${fill}"/>`+
+         `<text class="glabel" x="${POS[i].x}" y="${POS[i].y}">${i}</text>`;
+}
+
+/* ====================================================================
+   MODULE 1 — KOSARAJU (precompute steps, then replay)
+   ==================================================================== */
+(function(){
+  const svg=document.getElementById('m1svg'), statusEl=document.getElementById('m1status');
+  const stackEl=document.getElementById('m1stack'), phaseEl=document.getElementById('m1phase');
+  const adj=buildAdj(EDGES);
+  let steps=[], idx=0, timer=null;
+
+  function compute(){
+    steps=[];
+    // Pha 1: DFS1
+    const vis=Array(N).fill(false), order=[];
+    function dfs1(u){
+      vis[u]=true;
+      steps.push({phase:1, color:{[u]:'active'}, stack:[...order], msg:`Pha 1: thăm ${u}`});
+      for(const v of adj[u]) if(!vis[v]) dfs1(v);
+      order.push(u);
+      steps.push({phase:1, finish:[...order], stack:[...order], msg:`Pha 1: ${u} hoàn thành → push stack`});
+    }
+    for(let u=0;u<N;u++) if(!vis[u]) dfs1(u);
+    steps.push({phase:2, stack:[...order], transpose:true, msg:'Pha 2: transpose — đảo mọi cạnh.'});
+    // Pha 3: DFS2 trên Gᵀ
+    const radj=Array.from({length:N},()=>[]);
+    for(const[u,v]of EDGES) radj[v].push(u);
+    const vis2=Array(N).fill(false), comp=Array(N).fill(-1);
+    let sccId=0;
+    function dfs2(u){
+      vis2[u]=true; comp[u]=sccId;
+      steps.push({phase:3, transpose:true, comp:[...comp], stack:[...order], cur:u,
+        msg:`Pha 3 (Gᵀ): đỉnh ${u} → SCC #${sccId+1}`});
+      for(const v of radj[u]) if(!vis2[v]) dfs2(v);
+    }
+    for(let i=order.length-1;i>=0;i--){
+      const u=order[i];
+      if(!vis2[u]){ dfs2(u); sccId++; }
+    }
+    steps.push({phase:3, transpose:true, comp:[...comp], stack:[...order], done:true,
+      msg:`Xong! ${sccId} SCC. (Pop finish giảm dần → mỗi cây DFS là 1 SCC.)`});
+  }
+
+  function render(s){
+    let edges = s.transpose ? EDGES.map(([u,v])=>[v,u]) : EDGES;
+    let h=arrowDefs();
+    for(const[u,v]of edges) h+=drawEdge(u,v,'');
+    for(let i=0;i<N;i++){
+      let fill='var(--edge)';
+      if(s.comp && s.comp[i]>=0) fill=SCC_COLORS[s.comp[i]%5];
+      if(s.color && s.color[i]==='active') fill='var(--active)';
+      if(s.cur===i) fill='var(--active)';
+      else if(s.comp && s.comp[i]>=0) fill=SCC_COLORS[s.comp[i]%5];
+      h+=drawNode(i,fill);
+    }
+    svg.innerHTML=h;
+    statusEl.textContent=s.msg;
+    stackEl.textContent='['+(s.stack||[]).join(', ')+']';
+    phaseEl.textContent= s.phase===1?'Pha 1 — DFS trên G':s.phase===2?'Pha 2 — Transpose':'Pha 3 — DFS trên Gᵀ';
+  }
+
+  function step(){
+    if(steps.length===0) compute();
+    if(idx>=steps.length){ stop(); return; }
+    render(steps[idx]); idx++;
+    if(idx>=steps.length){ document.getElementById('m1Step').disabled=true; stop(); }
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;} document.getElementById('m1Auto').textContent='Tự động ⏩'; }
+  function auto(){
+    if(timer){ stop(); return; }
+    if(steps.length===0) compute();
+    document.getElementById('m1Auto').textContent='⏸ Dừng';
+    timer=setInterval(()=>{ if(idx>=steps.length){stop();return;} step(); },700);
+  }
+  function reset(){
+    stop(); steps=[]; idx=0; document.getElementById('m1Step').disabled=false;
+    let h=arrowDefs(); for(const[u,v]of EDGES) h+=drawEdge(u,v,''); for(let i=0;i<N;i++) h+=drawNode(i,'var(--edge)');
+    svg.innerHTML=h; statusEl.textContent='Bấm "Bước tiếp" để bắt đầu pha 1 (DFS lần 1).';
+    stackEl.textContent='[]'; phaseEl.textContent='—';
+  }
+  document.getElementById('m1Step').onclick=step;
+  document.getElementById('m1Auto').onclick=auto;
+  document.getElementById('m1Reset').onclick=reset;
+  reset();
+})();
+
+/* ====================================================================
+   MODULE 2 — TARJAN
+   ==================================================================== */
+(function(){
+  const svg=document.getElementById('m2svg'), statusEl=document.getElementById('m2status');
+  const stackEl=document.getElementById('m2stack'), tbl=document.getElementById('m2tbl');
+  const adj=buildAdj(EDGES);
+  let steps=[], idx=0, timer=null;
+
+  function compute(){
+    steps=[];
+    const disc=Array(N).fill(-1), low=Array(N).fill(-1), onStack=Array(N).fill(false);
+    const comp=Array(N).fill(-1); let stack=[], t=0, sccId=0;
+    function snap(msg,cur){ steps.push({disc:[...disc],low:[...low],onStack:[...onStack],comp:[...comp],stack:[...stack],msg,cur}); }
+    function dfs(u){
+      disc[u]=t; low[u]=t; t++; stack.push(u); onStack[u]=true;
+      snap(`thăm ${u}: disc=low=${disc[u]}`,u);
+      for(const v of adj[u]){
+        if(disc[v]===-1){ dfs(v); if(low[v]<low[u]){low[u]=low[v]; snap(`tree edge ${u}→${v}: low[${u}]=min→${low[u]}`,u);} }
+        else if(onStack[v]){ if(disc[v]<low[u]){low[u]=disc[v]; snap(`back edge ${u}→${v} (onStack): low[${u}]=disc[${v}]=${low[u]}`,u);} else snap(`back edge ${u}→${v}: low không đổi`,u); }
+        else { snap(`cross edge ${u}→${v}: ${v} đã đóng → bỏ qua`,u); }
+      }
+      if(low[u]===disc[u]){
+        let popped=[];
+        while(true){ const w=stack.pop(); onStack[w]=false; comp[w]=sccId; popped.push(w); if(w===u)break; }
+        snap(`low[${u}]==disc[${u}] → GỐC SCC! pop ${JSON.stringify(popped)} → SCC #${sccId+1}`,u);
+        sccId++;
+      }
+    }
+    for(let u=0;u<N;u++) if(disc[u]===-1) dfs(u);
+    snap(`Xong! ${sccId} SCC.`,-1);
+  }
+
+  function render(s){
+    let h=arrowDefs();
+    for(const[u,v]of EDGES) h+=drawEdge(u,v,'');
+    for(let i=0;i<N;i++){
+      let fill='var(--edge)';
+      if(s.comp[i]>=0) fill=SCC_COLORS[s.comp[i]%5];
+      else if(s.onStack[i]) fill='var(--active)';
+      h+=drawNode(i,fill);
+    }
+    svg.innerHTML=h;
+    statusEl.textContent=s.msg;
+    stackEl.textContent='['+s.stack.join(', ')+']';
+    let rows='<tr><th>v</th>'+Array.from({length:N},(_,i)=>`<th${s.cur===i?' style="background:var(--accent-soft)"':''}>${i}</th>`).join('')+'</tr>';
+    rows+='<tr><td>disc</td>'+s.disc.map(d=>`<td>${d<0?'·':d}</td>`).join('')+'</tr>';
+    rows+='<tr><td>low</td>'+s.low.map(d=>`<td>${d<0?'·':d}</td>`).join('')+'</tr>';
+    rows+='<tr><td>SCC</td>'+s.comp.map(c=>`<td>${c<0?'·':'#'+(c+1)}</td>`).join('')+'</tr>';
+    tbl.innerHTML=rows;
+  }
+  function step(){
+    if(steps.length===0) compute();
+    if(idx>=steps.length){ stop(); return; }
+    render(steps[idx]); idx++;
+    if(idx>=steps.length){ document.getElementById('m2Step').disabled=true; stop(); }
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;} document.getElementById('m2Auto').textContent='Tự động ⏩'; }
+  function auto(){
+    if(timer){ stop(); return; }
+    if(steps.length===0) compute();
+    document.getElementById('m2Auto').textContent='⏸ Dừng';
+    timer=setInterval(()=>{ if(idx>=steps.length){stop();return;} step(); },650);
+  }
+  function reset(){
+    stop(); steps=[]; idx=0; document.getElementById('m2Step').disabled=false;
+    let h=arrowDefs(); for(const[u,v]of EDGES) h+=drawEdge(u,v,''); for(let i=0;i<N;i++) h+=drawNode(i,'var(--edge)');
+    svg.innerHTML=h; statusEl.textContent='Bấm "Bước tiếp" để bắt đầu DFS từ đỉnh 0.';
+    stackEl.textContent='[]';
+    let rows='<tr><th>v</th>'+Array.from({length:N},(_,i)=>`<th>${i}</th>`).join('')+'</tr>';
+    rows+='<tr><td>disc</td>'+Array(N).fill('<td>·</td>').join('')+'</tr>';
+    rows+='<tr><td>low</td>'+Array(N).fill('<td>·</td>').join('')+'</tr>';
+    rows+='<tr><td>SCC</td>'+Array(N).fill('<td>·</td>').join('')+'</tr>';
+    tbl.innerHTML=rows;
+  }
+  document.getElementById('m2Step').onclick=step;
+  document.getElementById('m2Auto').onclick=auto;
+  document.getElementById('m2Reset').onclick=reset;
+  reset();
+})();
+
+/* ====================================================================
+   MODULE 3 — CONDENSATION
+   ==================================================================== */
+(function(){
+  const svg=document.getElementById('m3svg'), statusEl=document.getElementById('m3status');
+  const info=document.getElementById('m3info');
+  // SCC cứng (đã biết) cho đồ thị mẫu
+  const SCCS=[[0,1,2],[3,4,5],[6,7]];
+  const comp=Array(N).fill(-1);
+  SCCS.forEach((c,i)=>c.forEach(u=>comp[u]=i));
+  // vị trí siêu đỉnh
+  const SPOS=[{x:140,y:90},{x:380,y:210},{x:520,y:90}];
+
+  function build(){
+    // cạnh liên cụm
+    const set=new Set(), cedges=[];
+    for(const[u,v]of EDGES){ if(comp[u]!==comp[v]){ const k=comp[u]+'-'+comp[v]; if(!set.has(k)){set.add(k);cedges.push([comp[u],comp[v]]);} } }
+    let h=arrowDefs();
+    for(const[a,b]of cedges){
+      const A=SPOS[a],B=SPOS[b];
+      const dx=B.x-A.x,dy=B.y-A.y,len=Math.hypot(dx,dy)||1,r=46;
+      const x1=A.x+dx/len*r,y1=A.y+dy/len*r,x2=B.x-dx/len*r,y2=B.y-dy/len*r;
+      h+=`<path class="gedge" d="M${x1},${y1} L${x2},${y2}"/>`;
+    }
+    SCCS.forEach((c,i)=>{
+      const P=SPOS[i];
+      h+=`<circle cx="${P.x}" cy="${P.y}" r="46" fill="${SCC_COLORS[i]}" opacity="0.18" stroke="${SCC_COLORS[i]}" stroke-width="2"/>`;
+      h+=`<text x="${P.x}" y="${P.y-20}" text-anchor="middle" font-weight="700" font-size="13" fill="#2d3748">SCC #${i+1}</text>`;
+      h+=`<text x="${P.x}" y="${P.y+6}" text-anchor="middle" font-size="14" font-family="ui-monospace,monospace" fill="#2d3748">{${c.join(',')}}</text>`;
+    });
+    svg.innerHTML=h;
+    statusEl.textContent=`Thu gọn xong: 3 siêu đỉnh, ${cedges.length} cạnh liên cụm → DAG (không chu trình).`;
+    info.innerHTML='Cạnh condensation: '+cedges.map(([a,b])=>`#${a+1}→#${b+1}`).join(', ')+
+      '. Topo: #1, #3 (nguồn) → #2 (đáy). Longest path = 2 siêu đỉnh.';
+  }
+  function reset(){
+    // vẽ đồ thị gốc với màu SCC
+    let h=arrowDefs();
+    for(const[u,v]of EDGES) h+=drawEdge(u,v,'');
+    for(let i=0;i<N;i++) h+=drawNode(i,SCC_COLORS[comp[i]]);
+    svg.innerHTML=h;
+    statusEl.textContent='Đồ thị gốc đã tô màu theo SCC. Bấm "Thu gọn" để gộp.';
+    info.textContent='—';
+  }
+  document.getElementById('m3Build').onclick=build;
+  document.getElementById('m3Reset').onclick=reset;
+  reset();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+</body>
+</html>

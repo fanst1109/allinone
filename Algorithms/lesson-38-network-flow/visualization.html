@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L38 — Network Flow (Max Flow / Min Cut)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #ec4899;
+    --accent-soft: #fce7f3;
+    --accent-hover: #db2777;
+    --node: #4a5568;
+    --node-s: #38a169;
+    --node-t: #e53e3e;
+    --edge: #a0aec0;
+    --flowc: #4299e1;
+    --pathc: #ed8936;
+    --backc: #9f7aea;
+    --cutc: #e53e3e;
+  }
+  main { max-width: 920px; }
+  .lead { font-size: 1.05rem; color: #4a5568; margin: 0.5rem 0 1.5rem; }
+  h2 { margin-top: 2.4rem; border-bottom: 2px solid var(--accent-soft); padding-bottom: 0.3rem; }
+  .pill {
+    font-size: 0.7rem; background: var(--accent-soft); color: var(--accent-hover);
+    padding: 2px 8px; border-radius: 10px; vertical-align: middle; font-weight: 600;
+  }
+  .card {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+    padding: 1rem 1.2rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 0.8rem; }
+  button {
+    background: var(--accent); color: #fff; border: none; padding: 8px 14px;
+    border-radius: 6px; font-size: 0.9rem; cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: var(--accent-hover); }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+  label.small { font-size: 0.85rem; color: #4a5568; }
+  select {
+    padding: 6px 8px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 0.88rem;
+  }
+  .status {
+    background: #f7fafc; border-left: 4px solid var(--accent); padding: 0.6rem 0.9rem;
+    border-radius: 4px; margin: 0.7rem 0; font-size: 0.92rem; min-height: 1.2em;
+  }
+  .legend { display: flex; flex-wrap: wrap; gap: 0.8rem; font-size: 0.82rem; margin: 0.5rem 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 4px; }
+  .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; border: 1px solid #00000020; }
+  svg { display: block; max-width: 100%; height: auto; margin: 0.5rem auto; }
+  .mono { font-family: ui-monospace, monospace; }
+  .metric { font-weight: 700; color: var(--accent-hover); }
+  .note { font-size: 0.85rem; color: #718096; margin-top: 0.5rem; }
+  .nlabel { font-size: 14px; font-weight: 700; fill: #fff; }
+  .elabel { font-size: 12px; font-weight: 600; fill: #2d3748; }
+  table.mini { border-collapse: collapse; width: 100%; font-size: 0.85rem; margin-top: 0.6rem; }
+  table.mini th, table.mini td { border: 1px solid #e2e8f0; padding: 5px 8px; text-align: center; }
+  table.mini th { background: var(--accent-soft); }
+  .big { font-size: 1.15rem; font-weight: 700; color: var(--accent-hover); }
+  @media (max-width: 480px) {
+    main { padding: 0 0.6rem; }
+    .controls { gap: 0.4rem; }
+    button { padding: 7px 11px; font-size: 0.85rem; }
+    .nlabel { font-size: 12px; }
+    .elabel { font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-37-strongly-connected/visualization.html">← L37: Strongly Connected</a>
+  <span class="sep">·</span>
+  <span class="current">L38: Network Flow</span>
+  <span class="sep">·</span>
+  <a href="../lesson-39-bipartite-matching/visualization.html">L39: Bipartite Matching →</a>
+</nav>
+
+<h1>Lesson 38 — Network Flow (Max Flow / Min Cut)</h1>
+<div class="lead">
+  Ba module tương tác: <strong>Edmonds-Karp animator</strong> (BFS tìm augmenting path, bơm flow,
+  cập nhật residual), <strong>Residual graph</strong> (cạnh xuôi/ngược + dung lượng dư),
+  và <strong>Min cut</strong> (sau max flow, highlight lát cắt tách <span class="mono">s</span>/<span class="mono">t</span>).
+</div>
+
+<!-- ====================================================================
+     MODULE 1 — EDMONDS-KARP ANIMATOR
+     ==================================================================== -->
+<h2>1. Edmonds-Karp animator <span class="pill">BFS augment + residual</span></h2>
+<div class="card">
+  <p style="margin-top:0">
+    Mạng <span class="mono">s=0 … t=N-1</span>. Bấm <em>Tìm đường BFS</em> để thấy
+    <strong style="color:var(--pathc)">đường tăng luồng ngắn nhất</strong>, rồi <em>Bơm flow</em>
+    để đẩy bottleneck dọc đường + cập nhật residual. Lặp tới khi <strong>không còn đường</strong> → max flow.
+  </p>
+  <div class="controls">
+    <label class="small">Mạng:
+      <select id="m1net">
+        <option value="basic">Cơ bản (5 = mục 6)</option>
+        <option value="undo">Cần undo (6 = mục 4)</option>
+        <option value="big">CLRS-style (23)</option>
+      </select>
+    </label>
+    <button id="m1Find">Tìm đường BFS ▶</button>
+    <button id="m1Push">Bơm flow ⤵</button>
+    <button id="m1Auto">Tự động ⏩</button>
+    <button id="m1Reset" class="ghost">Đặt lại ↺</button>
+  </div>
+  <div class="legend">
+    <span><span class="swatch" style="background:var(--node-s)"></span> source s</span>
+    <span><span class="swatch" style="background:var(--node-t)"></span> sink t</span>
+    <span><span class="swatch" style="background:var(--pathc)"></span> augmenting path</span>
+    <span><span class="swatch" style="background:var(--flowc)"></span> cạnh có flow</span>
+  </div>
+  <svg id="m1svg" width="620" height="320" viewBox="0 0 620 320"></svg>
+  <div class="status" id="m1status">Chọn mạng rồi bấm "Tìm đường BFS".</div>
+  <div class="note">Max flow hiện tại: <span class="big" id="m1flow">0</span>.
+    Cạnh ghi <span class="mono">flow/cap</span>. Khi flow = cap → cạnh <strong>bão hòa</strong> (không augment xuôi được nữa).</div>
+</div>
+
+<!-- ====================================================================
+     MODULE 2 — RESIDUAL GRAPH
+     ==================================================================== -->
+<h2>2. Residual graph — cạnh xuôi & ngược <span class="pill">vì sao cần undo</span></h2>
+<div class="card">
+  <p style="margin-top:0">
+    Cùng trạng thái flow của Module 1. Residual có <strong style="color:var(--flowc)">cạnh xuôi</strong>
+    (dư = <span class="mono">c−f</span>) và <strong style="color:var(--backc)">cạnh ngược</strong>
+    (= <span class="mono">f</span>, để <em>rút lại</em> flow). Bấm cạnh trong bảng để highlight trên đồ thị.
+  </p>
+  <div class="controls">
+    <button id="m2Sync">Đồng bộ từ Module 1 ⟳</button>
+    <label class="small"><input type="checkbox" id="m2showBack" checked> Hiện cạnh ngược</label>
+  </div>
+  <div class="legend">
+    <span><span class="swatch" style="background:var(--flowc)"></span> cạnh xuôi (dư &gt; 0)</span>
+    <span><span class="swatch" style="background:var(--backc)"></span> cạnh ngược (rút lại)</span>
+    <span><span class="swatch" style="background:#e2e8f0;border-color:#cbd5e0"></span> cạnh xuôi bão hòa (dư 0)</span>
+  </div>
+  <svg id="m2svg" width="620" height="320" viewBox="0 0 620 320"></svg>
+  <div class="status" id="m2status">Bấm "Đồng bộ" để xem residual của trạng thái flow hiện tại.</div>
+  <table class="mini" id="m2tbl"><thead><tr><th>Cạnh</th><th>Loại</th><th>Dung lượng dư c_f</th></tr></thead><tbody></tbody></table>
+</div>
+
+<!-- ====================================================================
+     MODULE 3 — MIN CUT
+     ==================================================================== -->
+<h2>3. Min cut — lát cắt tách s khỏi t <span class="pill">max flow = min cut</span></h2>
+<div class="card">
+  <p style="margin-top:0">
+    Sau khi đạt max flow, BFS từ <span class="mono">s</span> trên residual (chỉ cạnh dư &gt; 0).
+    Đỉnh tới được = <strong style="color:var(--node-s)">S</strong>, còn lại =
+    <strong style="color:var(--node-t)">T</strong>. Cạnh gốc <span class="mono">S→T</span> = min cut.
+    Bấm <em>Chạy tới max flow</em> rồi <em>Tìm min cut</em>.
+  </p>
+  <div class="controls">
+    <button id="m3Max">Chạy tới max flow ⏩</button>
+    <button id="m3Cut">Tìm min cut ✂</button>
+    <button id="m3Reset" class="ghost">Đặt lại ↺</button>
+  </div>
+  <div class="legend">
+    <span><span class="swatch" style="background:var(--node-s)"></span> tập S (reach từ s)</span>
+    <span><span class="swatch" style="background:var(--node-t)"></span> tập T</span>
+    <span><span class="swatch" style="background:var(--cutc)"></span> cạnh cut (S→T)</span>
+  </div>
+  <svg id="m3svg" width="620" height="320" viewBox="0 0 620 320"></svg>
+  <div class="status" id="m3status">Bấm "Chạy tới max flow".</div>
+  <div class="note">Max flow = <span class="big" id="m3flow">?</span> &nbsp;|&nbsp;
+    Min cut capacity = <span class="big" id="m3cut">?</span> &nbsp;
+    <span id="m3check"></span></div>
+</div>
+
+<script>
+/* ============================================================
+   Dữ liệu mạng dùng chung. Tọa độ cho SVG 620x320.
+   edges: [from, to, cap]
+   ============================================================ */
+const NETWORKS = {
+  basic: {
+    n: 4,
+    pos: [[60,160],[300,80],[300,240],[560,160]],
+    name: ['s','a','b','t'],
+    edges: [[0,1,3],[0,2,2],[1,2,1],[1,3,2],[2,3,3]],
+    maxflow: 5,
+  },
+  undo: {
+    n: 4,
+    pos: [[60,160],[300,80],[300,240],[560,160]],
+    name: ['s','a','b','t'],
+    edges: [[0,1,3],[0,2,3],[1,2,1],[1,3,3],[2,3,3]],
+    maxflow: 6,
+  },
+  big: {
+    n: 6,
+    pos: [[50,160],[230,70],[230,250],[410,70],[410,250],[580,160]],
+    name: ['s','1','2','3','4','t'],
+    edges: [[0,1,10],[0,2,10],[1,3,4],[1,4,8],[2,4,9],[4,3,6],[3,5,10],[4,5,10]],
+    maxflow: 19,
+  },
+};
+
+/* ============================================================
+   MaxFlow core (mirror code Go README): cạnh xuôi/ngược cặp i,i^1.
+   ============================================================ */
+function buildFlow(net) {
+  const edges = []; // {to, cap, origCap, fwd}
+  const graph = Array.from({length: net.n}, () => []);
+  function addEdge(u, v, cap) {
+    graph[u].push(edges.length);
+    edges.push({to: v, cap: cap, origCap: cap, fwd: true});
+    graph[v].push(edges.length);
+    edges.push({to: u, cap: 0, origCap: 0, fwd: false});
+  }
+  for (const [u, v, c] of net.edges) addEdge(u, v, c);
+  return {n: net.n, edges, graph, addEdge};
+}
+
+// BFS tìm augmenting path. Trả về {parentEdge, found}.
+function bfsAug(F, s, t) {
+  const parentEdge = new Array(F.n).fill(-1);
+  parentEdge[s] = -2;
+  const q = [s];
+  while (q.length && parentEdge[t] === -1) {
+    const u = q.shift();
+    for (const id of F.graph[u]) {
+      const e = F.edges[id];
+      if (e.cap > 0 && parentEdge[e.to] === -1) {
+        parentEdge[e.to] = id;
+        q.push(e.to);
+      }
+    }
+  }
+  return {parentEdge, found: parentEdge[t] !== -1};
+}
+
+function pathFromParent(F, parentEdge, s, t) {
+  const ids = [];
+  for (let v = t; v !== s; ) {
+    const id = parentEdge[v];
+    ids.push(id);
+    v = F.edges[id ^ 1].to;
+  }
+  ids.reverse();
+  return ids; // danh sách chỉ số cạnh xuôi theo đường
+}
+
+function bottleneck(F, ids) {
+  let b = Infinity;
+  for (const id of ids) b = Math.min(b, F.edges[id].cap);
+  return b;
+}
+
+function pushFlow(F, ids, b) {
+  for (const id of ids) {
+    F.edges[id].cap -= b;
+    F.edges[id ^ 1].cap += b;
+  }
+}
+
+// reach từ s trên residual (cap > 0)
+function reachSet(F, s) {
+  const inS = new Array(F.n).fill(false);
+  inS[s] = true;
+  const q = [s];
+  while (q.length) {
+    const u = q.shift();
+    for (const id of F.graph[u]) {
+      const e = F.edges[id];
+      if (e.cap > 0 && !inS[e.to]) { inS[e.to] = true; q.push(e.to); }
+    }
+  }
+  return inS;
+}
+
+/* helper SVG */
+const SVGNS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+// điểm trên đoạn từ a tới b, lùi vào r từ mỗi đầu (để mũi tên không đè node)
+function trimLine(a, b, r) {
+  const dx = b[0]-a[0], dy = b[1]-a[1];
+  const len = Math.hypot(dx, dy) || 1;
+  const ux = dx/len, uy = dy/len;
+  return [a[0]+ux*r, a[1]+uy*r, b[0]-ux*r, b[1]-uy*r];
+}
+const NODE_R = 20;
+
+function drawNodes(svg, net, colorFn) {
+  for (let v = 0; v < net.n; v++) {
+    const [x, y] = net.pos[v];
+    let fill = 'var(--node)';
+    if (net.name[v] === 's') fill = 'var(--node-s)';
+    else if (net.name[v] === 't') fill = 'var(--node-t)';
+    if (colorFn) { const c = colorFn(v); if (c) fill = c; }
+    el('circle', {cx:x, cy:y, r:NODE_R, fill, stroke:'#1a202c', 'stroke-width':2}, svg);
+    const lbl = el('text', {x, y:y+5, 'text-anchor':'middle', class:'nlabel'}, svg);
+    lbl.textContent = net.name[v];
+  }
+}
+
+/* ============================================================
+   STATE chung cho Module 1 (Edmonds-Karp), share sang 2 & 3.
+   ============================================================ */
+let curNetKey = 'basic';
+let F1 = null;          // flow state module 1
+let totalFlow1 = 0;
+let curPath = null;     // {ids, parentEdge, bneck}
+
+function netOf() { return NETWORKS[curNetKey]; }
+
+/* ---------- Module 1 render ---------- */
+const m1svg = document.getElementById('m1svg');
+const m1status = document.getElementById('m1status');
+const m1flow = document.getElementById('m1flow');
+
+function renderFlow(svg, net, F, highlightIds) {
+  svg.innerHTML = '';
+  const hi = new Set(highlightIds || []);
+  // defs marker
+  const defs = el('defs', {}, svg);
+  for (const [id, col] of [['arr','#718096'], ['arrp','#ed8936'], ['arrf','#4299e1']]) {
+    const m = el('marker', {id, viewBox:'0 0 10 10', refX:9, refY:5, markerWidth:7, markerHeight:7, orient:'auto-start-reverse'}, defs);
+    el('path', {d:'M0,0 L10,5 L0,10 z', fill:col}, m);
+  }
+  // edges
+  for (let i = 0; i < F.edges.length; i += 2) {
+    const e = F.edges[i];
+    const u = F.edges[i^1].to, v = e.to;
+    const flow = e.origCap - e.cap;
+    const [x1,y1,x2,y2] = trimLine(net.pos[u], net.pos[v], NODE_R+3);
+    let col = 'var(--edge)', marker = 'url(#arr)', w = 2;
+    if (hi.has(i)) { col = 'var(--pathc)'; marker = 'url(#arrp)'; w = 4; }
+    else if (flow > 0) { col = 'var(--flowc)'; marker = 'url(#arrf)'; w = 3; }
+    el('line', {x1, y1, x2, y2, stroke:col, 'stroke-width':w, 'marker-end':marker}, svg);
+    // label flow/cap, offset perpendicular
+    const mx = (x1+x2)/2, my = (y1+y2)/2;
+    const dx = x2-x1, dy = y2-y1, len = Math.hypot(dx,dy)||1;
+    const ox = -dy/len*12, oy = dx/len*12;
+    const t = el('text', {x:mx+ox, y:my+oy+4, 'text-anchor':'middle', class:'elabel',
+      fill: flow>0 ? 'var(--flowc)' : '#2d3748'}, svg);
+    t.textContent = `${flow}/${e.origCap}`;
+  }
+  drawNodes(svg, net, null);
+}
+
+function m1Init() {
+  F1 = buildFlow(netOf());
+  totalFlow1 = 0;
+  curPath = null;
+  renderFlow(m1svg, netOf(), F1, null);
+  m1flow.textContent = '0';
+  m1status.textContent = 'Bấm "Tìm đường BFS" để tìm augmenting path ngắn nhất.';
+  document.getElementById('m1Push').disabled = true;
+}
+
+function m1Find() {
+  const net = netOf(), s = 0, t = net.n - 1;
+  const {parentEdge, found} = bfsAug(F1, s, t);
+  if (!found) {
+    curPath = null;
+    renderFlow(m1svg, net, F1, null);
+    m1status.innerHTML = `<strong>Không còn augmenting path</strong> → đã đạt <span class="metric">max flow = ${totalFlow1}</span>. (Sang Module 3 để xem min cut.)`;
+    document.getElementById('m1Push').disabled = true;
+    return;
+  }
+  const ids = pathFromParent(F1, parentEdge, s, t);
+  const b = bottleneck(F1, ids);
+  curPath = {ids, bneck: b};
+  renderFlow(m1svg, net, F1, ids);
+  const seq = [s, ...ids.map(id => F1.edges[id].to)].map(v => net.name[v]).join('→');
+  m1status.innerHTML = `BFS tìm đường ngắn nhất: <span class="mono">${seq}</span> (${ids.length} cạnh). Bottleneck = <span class="metric">${b}</span>. Bấm "Bơm flow".`;
+  document.getElementById('m1Push').disabled = false;
+}
+
+function m1Push() {
+  if (!curPath) return;
+  pushFlow(F1, curPath.ids, curPath.bneck);
+  totalFlow1 += curPath.bneck;
+  m1flow.textContent = totalFlow1;
+  const b = curPath.bneck;
+  curPath = null;
+  renderFlow(m1svg, netOf(), F1, null);
+  m1status.innerHTML = `Đã bơm <span class="metric">${b}</span> đơn vị. Tổng flow = <span class="metric">${totalFlow1}</span>. Bấm "Tìm đường BFS" tiếp.`;
+  document.getElementById('m1Push').disabled = true;
+}
+
+let m1timer = null;
+function m1Auto() {
+  if (m1timer) { clearInterval(m1timer); m1timer = null; return; }
+  m1timer = setInterval(() => {
+    const net = netOf(), s = 0, t = net.n - 1;
+    const {parentEdge, found} = bfsAug(F1, s, t);
+    if (!found) { clearInterval(m1timer); m1timer = null; m1Find(); return; }
+    const ids = pathFromParent(F1, parentEdge, s, t);
+    const b = bottleneck(F1, ids);
+    pushFlow(F1, ids, b);
+    totalFlow1 += b;
+    m1flow.textContent = totalFlow1;
+    renderFlow(m1svg, net, F1, ids);
+    const seq = [s, ...ids.map(id => F1.edges[id].to)].map(v => net.name[v]).join('→');
+    m1status.innerHTML = `⏩ Bơm <span class="metric">${b}</span> qua <span class="mono">${seq}</span>. Tổng = <span class="metric">${totalFlow1}</span>.`;
+  }, 900);
+}
+
+document.getElementById('m1net').onchange = (e) => { curNetKey = e.target.value; if (m1timer){clearInterval(m1timer);m1timer=null;} m1Init(); };
+document.getElementById('m1Find').onclick = m1Find;
+document.getElementById('m1Push').onclick = m1Push;
+document.getElementById('m1Auto').onclick = m1Auto;
+document.getElementById('m1Reset').onclick = () => { if (m1timer){clearInterval(m1timer);m1timer=null;} m1Init(); };
+
+/* ============================================================
+   MODULE 2 — Residual graph
+   ============================================================ */
+const m2svg = document.getElementById('m2svg');
+const m2status = document.getElementById('m2status');
+const m2tbody = document.querySelector('#m2tbl tbody');
+let hiResIdx = -1;
+
+function renderResidual() {
+  const net = netOf();
+  if (!F1) { m2svg.innerHTML = ''; return; }
+  const showBack = document.getElementById('m2showBack').checked;
+  m2svg.innerHTML = '';
+  const defs = el('defs', {}, m2svg);
+  for (const [id, col] of [['r_fwd','#4299e1'], ['r_back','#9f7aea'], ['r_sat','#cbd5e0'], ['r_hi','#db2777']]) {
+    const m = el('marker', {id, viewBox:'0 0 10 10', refX:9, refY:5, markerWidth:7, markerHeight:7, orient:'auto-start-reverse'}, defs);
+    el('path', {d:'M0,0 L10,5 L0,10 z', fill:col}, m);
+  }
+  const rows = [];
+  for (let i = 0; i < F1.edges.length; i++) {
+    const e = F1.edges[i];
+    const u = F1.edges[i^1].to, v = e.to;
+    const isFwd = e.fwd;
+    if (!isFwd && !showBack) continue;
+    const cf = e.cap; // residual capacity
+    // bend backward edges to the side so they don't overlap forward
+    const [x1,y1,x2,y2] = trimLine(net.pos[u], net.pos[v], NODE_R+3);
+    const dx = x2-x1, dy = y2-y1, len = Math.hypot(dx,dy)||1;
+    const off = isFwd ? 8 : -8;
+    const ox = -dy/len*off, oy = dx/len*off;
+    let col, marker, w = 2.5;
+    if (i === hiResIdx) { col = 'var(--accent-hover)'; marker = 'url(#r_hi)'; w = 4.5; }
+    else if (!isFwd) { col = cf>0 ? 'var(--backc)' : '#e2e8f0'; marker = 'url(#r_back)'; }
+    else { col = cf>0 ? 'var(--flowc)' : '#e2e8f0'; marker = cf>0 ? 'url(#r_fwd)' : 'url(#r_sat)'; }
+    if (isFwd && cf === 0) col = '#e2e8f0';
+    el('line', {x1:x1+ox, y1:y1+oy, x2:x2+ox, y2:y2+oy, stroke:col, 'stroke-width':w, 'marker-end':marker,
+      'stroke-dasharray': isFwd ? '' : '5,4'}, m2svg);
+    const mx = (x1+x2)/2+ox, my=(y1+y2)/2+oy;
+    const lx = -dy/len*10, ly = dx/len*10;
+    const t = el('text', {x:mx+lx, y:my+ly+4, 'text-anchor':'middle', class:'elabel',
+      fill: cf>0 ? (isFwd?'var(--flowc)':'var(--backc)') : '#a0aec0'}, m2svg);
+    t.textContent = cf;
+    rows.push({i, label:`${net.name[u]}→${net.name[v]}`, type:isFwd?'xuôi':'ngược', cf});
+  }
+  drawNodes(m2svg, net, null);
+  // table
+  m2tbody.innerHTML = '';
+  for (const r of rows) {
+    const tr = document.createElement('tr');
+    tr.style.cursor = 'pointer';
+    tr.innerHTML = `<td class="mono">${r.label}</td><td>${r.type}</td><td class="mono">${r.cf}</td>`;
+    tr.onclick = () => { hiResIdx = (hiResIdx===r.i? -1 : r.i); renderResidual(); };
+    if (r.i === hiResIdx) tr.style.background = 'var(--accent-soft)';
+    m2tbody.appendChild(tr);
+  }
+}
+
+function m2Sync() {
+  if (!F1) { m2status.textContent = 'Chưa có trạng thái — chạy Module 1 trước.'; return; }
+  hiResIdx = -1;
+  renderResidual();
+  const anyFlow = F1.edges.some((e,i) => i%2===0 && e.cap < e.origCap);
+  m2status.innerHTML = anyFlow
+    ? 'Residual của trạng thái hiện tại. <strong>Cạnh ngược (tím, nét đứt)</strong> = lượng flow có thể RÚT LẠI để undo quyết định trước.'
+    : 'Chưa bơm flow nào → mọi cạnh ngược dung lượng 0. Bơm flow ở Module 1 rồi đồng bộ lại.';
+}
+
+document.getElementById('m2Sync').onclick = m2Sync;
+document.getElementById('m2showBack').onchange = renderResidual;
+
+/* ============================================================
+   MODULE 3 — Min cut
+   ============================================================ */
+const m3svg = document.getElementById('m3svg');
+const m3status = document.getElementById('m3status');
+let F3 = null, totalFlow3 = 0, cutSet = null;
+
+function renderCut(highlightCut) {
+  const net = netOf();
+  m3svg.innerHTML = '';
+  const defs = el('defs', {}, m3svg);
+  for (const [id, col] of [['c_arr','#718096'], ['c_cut','#e53e3e'], ['c_flow','#4299e1']]) {
+    const m = el('marker', {id, viewBox:'0 0 10 10', refX:9, refY:5, markerWidth:7, markerHeight:7, orient:'auto-start-reverse'}, defs);
+    el('path', {d:'M0,0 L10,5 L0,10 z', fill:col}, m);
+  }
+  for (let i = 0; i < F3.edges.length; i += 2) {
+    const e = F3.edges[i];
+    const u = F3.edges[i^1].to, v = e.to;
+    const flow = e.origCap - e.cap;
+    const [x1,y1,x2,y2] = trimLine(net.pos[u], net.pos[v], NODE_R+3);
+    let col = 'var(--edge)', marker='url(#c_arr)', w=2;
+    const isCut = highlightCut && cutSet && cutSet[u] && !cutSet[v];
+    if (isCut) { col='var(--cutc)'; marker='url(#c_cut)'; w=4.5; }
+    else if (flow>0) { col='var(--flowc)'; marker='url(#c_flow)'; w=3; }
+    el('line', {x1,y1,x2,y2, stroke:col, 'stroke-width':w, 'marker-end':marker,
+      'stroke-dasharray': isCut?'7,4':''}, m3svg);
+    const mx=(x1+x2)/2,my=(y1+y2)/2,dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy)||1;
+    const ox=-dy/len*12, oy=dx/len*12;
+    const t = el('text', {x:mx+ox, y:my+oy+4, 'text-anchor':'middle', class:'elabel',
+      fill: isCut?'var(--cutc)':(flow>0?'var(--flowc)':'#2d3748')}, m3svg);
+    t.textContent = `${flow}/${e.origCap}`;
+  }
+  drawNodes(m3svg, net, (v) => {
+    if (!highlightCut || !cutSet) return null;
+    return cutSet[v] ? 'var(--node-s)' : 'var(--node-t)';
+  });
+}
+
+function m3Init() {
+  F3 = buildFlow(netOf());
+  totalFlow3 = 0;
+  cutSet = null;
+  renderCut(false);
+  m3status.textContent = 'Bấm "Chạy tới max flow".';
+  document.getElementById('m3flow').textContent = '?';
+  document.getElementById('m3cut').textContent = '?';
+  document.getElementById('m3check').textContent = '';
+}
+
+function m3Max() {
+  const net = netOf(), s=0, t=net.n-1;
+  // chạy Edmonds-Karp hết
+  while (true) {
+    const {parentEdge, found} = bfsAug(F3, s, t);
+    if (!found) break;
+    const ids = pathFromParent(F3, parentEdge, s, t);
+    const b = bottleneck(F3, ids);
+    pushFlow(F3, ids, b);
+    totalFlow3 += b;
+  }
+  cutSet = null;
+  renderCut(false);
+  document.getElementById('m3flow').textContent = totalFlow3;
+  m3status.innerHTML = `Đã đạt <span class="metric">max flow = ${totalFlow3}</span>. Bấm "Tìm min cut" để BFS từ s trên residual.`;
+}
+
+function m3Cut() {
+  if (totalFlow3 === 0 && !cutSet) {
+    // có thể max flow = 0; vẫn cho phép nhưng nhắc chạy trước
+  }
+  const net = netOf();
+  cutSet = reachSet(F3, 0);
+  // tính cut capacity = tổng cap gốc cạnh S->T
+  let cap = 0; const cutEdges = [];
+  for (let i = 0; i < F3.edges.length; i += 2) {
+    const e = F3.edges[i];
+    const u = F3.edges[i^1].to, v = e.to;
+    if (cutSet[u] && !cutSet[v]) { cap += e.origCap; cutEdges.push(`${net.name[u]}→${net.name[v]}(${e.origCap})`); }
+  }
+  renderCut(true);
+  const Slist = [];
+  for (let v=0; v<net.n; v++) if (cutSet[v]) Slist.push(net.name[v]);
+  document.getElementById('m3cut').textContent = cap;
+  document.getElementById('m3check').innerHTML = (cap === totalFlow3)
+    ? '<span style="color:#38a169;font-weight:700">✓ max flow = min cut</span>'
+    : '<span style="color:#e53e3e">(chạy max flow trước!)</span>';
+  m3status.innerHTML = `S = {${Slist.join(', ')}}. Cạnh cut: <span class="mono">${cutEdges.join(', ') || '—'}</span>. Tổng capacity = <span class="metric">${cap}</span>.`;
+}
+
+document.getElementById('m3Max').onclick = m3Max;
+document.getElementById('m3Cut').onclick = m3Cut;
+document.getElementById('m3Reset').onclick = m3Init;
+
+// đổi mạng ở module 1 cũng reset module 3 (cùng curNetKey)
+const origNetChange = document.getElementById('m1net').onchange;
+document.getElementById('m1net').onchange = (e) => { origNetChange(e); m3Init(); };
+
+/* init */
+m1Init();
+m3Init();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+</body>
+</html>

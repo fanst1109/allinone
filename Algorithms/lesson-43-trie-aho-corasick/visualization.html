@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 43 — Trie & Aho-Corasick</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 38px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #14b8a6; color: white; border: none; border-radius: 6px;
+    padding: 9px 16px; font-size: 15px; cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #0d9488; }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+  button:disabled { opacity: .45; cursor: default; }
+  input[type=text] {
+    padding: 8px 10px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 15px; width: 100%; max-width: 280px; box-sizing: border-box;
+    font-family: ui-monospace, monospace;
+  }
+  .hint { color: #718096; font-size: 14px; margin: 4px 0; }
+  .label { font-weight: 600; color: #2d3748; }
+  .status {
+    margin: 12px 0; padding: 12px 14px; border-radius: 8px; font-size: 15px;
+    background: #f0fdfa; border-left: 4px solid #14b8a6; color: #115e59;
+    min-height: 22px;
+  }
+  .status.win { background: #f0fff4; border-left-color: #48bb78; color: #22543d; }
+  .status.miss { background: #fff5f5; border-left-color: #f56565; color: #742a2a; }
+  code { background: #edf2f7; padding: 1px 5px; border-radius: 4px;
+         font-family: ui-monospace, monospace; font-size: 14px; }
+  .svgwrap { overflow-x: auto; margin: 10px 0; border: 1px solid #e2e8f0; border-radius: 8px; background: #fafafa; }
+  svg { display: block; max-width: 100%; height: auto; }
+  .pills { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+  .pill {
+    background: #f0fdfa; border: 1px solid #5eead4; border-radius: 14px;
+    padding: 3px 11px; font-size: 13px; color: #115e59; font-family: ui-monospace, monospace;
+  }
+  .pill button { background: none; color: #0d9488; padding: 0 0 0 6px; font-size: 14px; }
+  .pill button:hover { color: #f56565; }
+  /* text matching display */
+  .textbox { font-family: ui-monospace, monospace; font-size: 22px; letter-spacing: 2px;
+             margin: 14px 0; line-height: 1.8; word-break: break-all; }
+  .ch { padding: 1px 2px; border-radius: 4px; transition: all .2s; }
+  .ch.cur { background: #fefcbf; outline: 2px solid #d69e2e; }
+  .ch.m0 { background: #c6f6d5; } .ch.m1 { background: #bee3f8; }
+  .ch.m2 { background: #fbb6ce; } .ch.m3 { background: #d6bcfa; }
+  .matchlist { margin: 10px 0; }
+  .matchlist .item { font-family: ui-monospace, monospace; font-size: 14px; padding: 3px 0; }
+  .legend { font-size: 13px; color: #718096; }
+  @media (max-width: 480px) {
+    .textbox { font-size: 18px; letter-spacing: 1px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-42-z-algorithm/visualization.html">← L42: Z-Algorithm</a>
+  <span class="sep">·</span>
+  <span class="current">L43: Trie &amp; Aho-Corasick</span>
+  <span class="sep">·</span>
+  <a href="../lesson-44-suffix-structures/visualization.html">L44: Suffix Structures →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 43 — Trie &amp; Aho-Corasick</h1>
+<p class="hint">Ba module: (1) xây Trie &amp; tra prefix, (2) xây Aho-Corasick automaton với failure links,
+(3) chạy text qua automaton để bắt nhiều pattern cùng lúc. Đọc lý thuyết ở nút <strong>📖 Đọc README</strong>.</p>
+
+<!-- ============ MODULE 1: TRIE BUILDER ============ -->
+<h2>1. Trie builder — cây prefix</h2>
+<div class="card">
+  <p class="hint">Chèn từ vào trie, vẽ cây (node tô đậm = kết thúc từ). Rồi <strong>search</strong> (cả từ)
+  hoặc <strong>prefix</strong> (tiền tố) — đường đi sẽ được highlight.</p>
+  <div class="row">
+    <input id="t-word" type="text" placeholder="từ cần chèn, vd: card" />
+    <button onclick="trieInsert()">+ Chèn từ</button>
+    <button class="ghost" onclick="trieReset()">Reset</button>
+    <button class="ghost" onclick="trieDemo()">Demo {cat,car,card,dog}</button>
+  </div>
+  <div class="pills" id="t-words"></div>
+  <div class="row">
+    <input id="t-query" type="text" placeholder="tra cứu, vd: ca" />
+    <button onclick="trieSearch()">🔍 search (cả từ)</button>
+    <button onclick="triePrefix()">↳ startsWith (prefix)</button>
+  </div>
+  <div class="status" id="t-status">Chèn vài từ rồi tra cứu.</div>
+  <div class="svgwrap"><svg id="t-svg" width="640" height="320" viewBox="0 0 640 320"></svg></div>
+</div>
+
+<!-- ============ MODULE 2: AHO-CORASICK AUTOMATON ============ -->
+<h2>2. Aho-Corasick automaton — Trie + failure links</h2>
+<div class="card">
+  <p class="hint">Build trie của các pattern rồi <strong>BFS theo level</strong> xây failure link
+  (mũi tên <span style="color:#e53e3e">đứt đỏ</span>). Mỗi node hiện output (pattern kết thúc, đã gộp failure chain).</p>
+  <div class="row">
+    <input id="ac-pat" type="text" placeholder="pattern, vd: she" />
+    <button onclick="acAddPat()">+ Thêm pattern</button>
+    <button class="ghost" onclick="acReset()">Reset</button>
+    <button class="ghost" onclick="acDemo()">Demo {he,she,his,hers}</button>
+  </div>
+  <div class="pills" id="ac-pats"></div>
+  <div class="row">
+    <button onclick="acBuildAnim()">▶ Build + animate failure links</button>
+  </div>
+  <div class="status" id="ac-status">Thêm pattern rồi bấm Build.</div>
+  <div class="svgwrap"><svg id="ac-svg" width="680" height="360" viewBox="0 0 680 360"></svg></div>
+  <p class="legend">— Cạnh đen liền = trie (goto) &nbsp;·&nbsp; <span style="color:#e53e3e">— — →</span> đỏ đứt = failure link &nbsp;·&nbsp; node viền xanh đậm = có output.</p>
+</div>
+
+<!-- ============ MODULE 3: AC MATCHING ============ -->
+<h2>3. AC matching — chạy text, bắt nhiều pattern</h2>
+<div class="card">
+  <p class="hint">Dùng các pattern ở Module 2. Con trỏ chạy qua text: có child thì đi xuống, không thì tụt failure;
+  báo mọi output. Mỗi pattern một màu.</p>
+  <div class="row">
+    <input id="m-text" type="text" placeholder="text, vd: ushers" value="ushers" />
+    <button onclick="matchInit()">⏮ Nạp</button>
+    <button onclick="matchStep()" id="m-step">▶ Bước</button>
+    <button onclick="matchAll()">⏩ Chạy hết</button>
+  </div>
+  <div class="textbox" id="m-text-disp"></div>
+  <div class="status" id="m-status">Đảm bảo Module 2 có pattern (bấm Demo nếu cần), rồi Nạp text.</div>
+  <div class="matchlist" id="m-matches"></div>
+</div>
+
+</main>
+
+<script>
+/* ============================================================
+   Shared: layout cây dạng tidy đơn giản (gán x theo thứ tự lá).
+   ============================================================ */
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+/* Xây trie object dùng chung. node = {ch, children:{}, isEnd, patterns:[], id, x, y, depth} */
+function makeRoot() { return { ch: '', children: {}, isEnd: false, patterns: [], id: 0, depth: 0 }; }
+function trieInsertWord(root, w, counter) {
+  let cur = root;
+  for (const c of w) {
+    if (!cur.children[c]) { cur.children[c] = { ch: c, children: {}, isEnd: false, patterns: [], id: counter.n++, depth: cur.depth + 1 }; }
+    cur = cur.children[c];
+  }
+  cur.isEnd = true; cur.patterns.push(w);
+  return cur;
+}
+/* layout: gán y theo depth, x theo vị trí lá (in-order). */
+function layout(root, width, topY, levelH) {
+  let leafX = 0;
+  const gapX = 46;
+  function place(n) {
+    const kids = Object.values(n.children).sort((a, b) => a.ch < b.ch ? -1 : 1);
+    n.y = topY + n.depth * levelH;
+    if (kids.length === 0) { n.x = (leafX++) * gapX; return; }
+    kids.forEach(place);
+    n.x = (kids[0].x + kids[kids.length - 1].x) / 2;
+  }
+  place(root);
+  // căn giữa: dịch để vừa svg
+  let minX = Infinity, maxX = -Infinity;
+  (function scan(n){ minX=Math.min(minX,n.x); maxX=Math.max(maxX,n.x); Object.values(n.children).forEach(scan); })(root);
+  const span = maxX - minX || 1;
+  const usable = width - 80;
+  const scale = Math.min(1, usable / span);
+  (function shift(n){ n.x = 40 + (n.x - minX) * scale; Object.values(n.children).forEach(shift); })(root);
+}
+function allNodes(root) { const out = []; (function go(n){ out.push(n); Object.values(n.children).forEach(go); })(root); return out; }
+
+/* render trie vào svg. opts: {highlight:Set ids, fail:bool, failMap, outputNodes} */
+function renderTrie(svg, root, opts) {
+  opts = opts || {};
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+  const nodes = allNodes(root);
+  // edges trie
+  (function edges(n){
+    Object.values(n.children).forEach(c => {
+      const e = el('line', { x1: n.x, y1: n.y, x2: c.x, y2: c.y, stroke: '#a0aec0', 'stroke-width': 2 });
+      svg.appendChild(e);
+      const mx = (n.x + c.x) / 2, my = (n.y + c.y) / 2;
+      svg.appendChild(el('rect', { x: mx - 9, y: my - 9, width: 18, height: 18, rx: 3, fill: '#fff', stroke: '#cbd5e0' }));
+      const t = el('text', { x: mx, y: my + 4, 'text-anchor': 'middle', 'font-size': 12, fill: '#2d3748', 'font-weight': 700 });
+      t.textContent = c.ch; svg.appendChild(t);
+      edges(c);
+    });
+  })(root);
+  // failure links
+  if (opts.failMap) {
+    for (const n of nodes) {
+      const f = opts.failMap.get(n.id);
+      if (f === undefined || f === n.id || (n.depth <= 1 && f === 0)) continue; // bỏ link về root cho node nông cho gọn
+      const target = nodes.find(x => x.id === f);
+      if (!target) continue;
+      const e = el('path', {
+        d: curvePath(n.x, n.y, target.x, target.y),
+        stroke: '#e53e3e', 'stroke-width': 1.6, fill: 'none', 'stroke-dasharray': '5,4', 'marker-end': 'url(#arr)'
+      });
+      svg.appendChild(e);
+    }
+    // arrow marker
+    const defs = el('defs', {});
+    const m = el('marker', { id: 'arr', markerWidth: 8, markerHeight: 8, refX: 6, refY: 3, orient: 'auto' });
+    m.appendChild(el('path', { d: 'M0,0 L6,3 L0,6 Z', fill: '#e53e3e' }));
+    defs.appendChild(m); svg.appendChild(defs);
+  }
+  // nodes
+  for (const n of nodes) {
+    const hl = opts.highlight && opts.highlight.has(n.id);
+    const isCur = opts.cur === n.id;
+    let fill = '#ffffff', stroke = '#cbd5e0', sw = 2;
+    if (n.id === 0) fill = '#edf2f7';
+    if (n.patterns && n.patterns.length) { stroke = '#14b8a6'; sw = 3; }
+    if (n.isEnd && !n.patterns.length) { stroke = '#14b8a6'; sw = 3; }
+    if (hl) fill = '#bee3f8';
+    if (isCur) { fill = '#fefcbf'; stroke = '#d69e2e'; sw = 3; }
+    svg.appendChild(el('circle', { cx: n.x, cy: n.y, r: 15, fill, stroke, 'stroke-width': sw }));
+    if (n.id === 0) {
+      const t = el('text', { x: n.x, y: n.y + 4, 'text-anchor': 'middle', 'font-size': 11, fill: '#718096' });
+      t.textContent = 'root'; t.setAttribute('font-size', 9); svg.appendChild(t);
+    } else {
+      const t = el('text', { x: n.x, y: n.y + 4, 'text-anchor': 'middle', 'font-size': 13, fill: '#2d3748', 'font-weight': 700 });
+      t.textContent = n.ch; svg.appendChild(t);
+    }
+    // output label
+    if (n.patterns && n.patterns.length) {
+      const ot = el('text', { x: n.x, y: n.y + 30, 'text-anchor': 'middle', 'font-size': 10, fill: '#0d9488', 'font-weight': 700 });
+      ot.textContent = n.patterns.join(','); svg.appendChild(ot);
+    }
+  }
+}
+function curvePath(x1, y1, x2, y2) {
+  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2 - 28;
+  return `M${x1},${y1} Q${mx},${my} ${x2},${y2}`;
+}
+
+/* ============================================================
+   MODULE 1 — Trie builder
+   ============================================================ */
+let trieWords = [];
+function trieRender(highlight, status, cls) {
+  const root = makeRoot(); const counter = { n: 1 };
+  trieWords.forEach(w => trieInsertWord(root, w, counter));
+  layout(root, 640, 30, 70);
+  renderTrie(document.getElementById('t-svg'), root, { highlight });
+  document.getElementById('t-words').innerHTML = trieWords.map((w, i) =>
+    `<span class="pill">${w}<button onclick="trieDel(${i})">✕</button></span>`).join('');
+  if (status !== undefined) {
+    const s = document.getElementById('t-status'); s.textContent = status;
+    s.className = 'status' + (cls ? ' ' + cls : '');
+  }
+  return root;
+}
+function trieInsert() {
+  const v = document.getElementById('t-word').value.trim().toLowerCase().replace(/[^a-z]/g, '');
+  if (!v) return;
+  if (!trieWords.includes(v)) trieWords.push(v);
+  document.getElementById('t-word').value = '';
+  trieRender(null, `Đã chèn "${v}". Trie có ${trieWords.length} từ.`);
+}
+function trieDel(i) { trieWords.splice(i, 1); trieRender(null, 'Đã xoá.'); }
+function trieReset() { trieWords = []; trieRender(null, 'Đã reset.'); }
+function trieDemo() { trieWords = ['cat', 'car', 'card', 'dog']; trieRender(null, 'Demo {cat,car,card,dog}.'); }
+/* tra: đi xuống, thu thập id để highlight */
+function trieWalk(q) {
+  const root = makeRoot(); const counter = { n: 1 };
+  trieWords.forEach(w => trieInsertWord(root, w, counter));
+  let cur = root; const ids = new Set([0]);
+  for (const c of q) {
+    if (!cur.children[c]) return { ok: false, ids, node: null };
+    cur = cur.children[c]; ids.add(cur.id);
+  }
+  return { ok: true, ids, node: cur };
+}
+function trieSearch() {
+  const q = document.getElementById('t-query').value.trim().toLowerCase();
+  if (!q) return;
+  const r = trieWalk(q);
+  if (r.ok && r.node.isEnd) trieRender(r.ids, `✅ search("${q}") = true — là một TỪ đã chèn.`, 'win');
+  else if (r.ok) trieRender(r.ids, `❌ search("${q}") = false — đi tới node được nhưng KHÔNG phải từ (chỉ là prefix).`, 'miss');
+  else trieRender(r.ids, `❌ search("${q}") = false — đứt đường, không có trong trie.`, 'miss');
+}
+function triePrefix() {
+  const q = document.getElementById('t-query').value.trim().toLowerCase();
+  if (!q) return;
+  const r = trieWalk(q);
+  if (r.ok) trieRender(r.ids, `✅ startsWith("${q}") = true — có từ bắt đầu bằng tiền tố này.`, 'win');
+  else trieRender(r.ids, `❌ startsWith("${q}") = false — đứt đường.`, 'miss');
+}
+
+/* ============================================================
+   MODULE 2 — Aho-Corasick automaton
+   ============================================================ */
+let acPats = [];
+let acBuilt = null; // {root, failMap}
+function acRenderPats() {
+  document.getElementById('ac-pats').innerHTML = acPats.map((w, i) =>
+    `<span class="pill">${w}<button onclick="acDelPat(${i})">✕</button></span>`).join('');
+}
+function acAddPat() {
+  const v = document.getElementById('ac-pat').value.trim().toLowerCase().replace(/[^a-z]/g, '');
+  if (!v) return;
+  if (!acPats.includes(v)) acPats.push(v);
+  document.getElementById('ac-pat').value = '';
+  acRenderPats(); acBuilt = null;
+}
+function acDelPat(i) { acPats.splice(i, 1); acRenderPats(); acBuilt = null; }
+function acReset() { acPats = []; acBuilt = null; acRenderPats(); document.getElementById('ac-status').textContent = 'Đã reset.'; while (document.getElementById('ac-svg').firstChild) document.getElementById('ac-svg').removeChild(document.getElementById('ac-svg').firstChild); }
+function acDemo() { acPats = ['he', 'she', 'his', 'hers']; acBuilt = null; acRenderPats(); document.getElementById('ac-status').textContent = 'Demo {he,she,his,hers} — bấm Build.'; }
+
+/* build: trả {root, failMap, nodesById, order} order = thứ tự BFS gán fail (để animate) */
+function acBuild() {
+  const root = makeRoot(); const counter = { n: 1 };
+  acPats.forEach(w => trieInsertWord(root, w, counter));
+  const nodesById = new Map(); allNodes(root).forEach(n => nodesById.set(n.id, n));
+  const failMap = new Map(); failMap.set(0, 0);
+  const order = []; // [{id, failTo, outputs}]
+  const queue = [];
+  for (const c in root.children) { const ch = root.children[c]; failMap.set(ch.id, 0); ch.outputs = ch.patterns.slice(); queue.push(ch); order.push({ id: ch.id, failTo: 0, outputs: ch.outputs.slice() }); }
+  root.outputs = [];
+  while (queue.length) {
+    const cur = queue.shift();
+    for (const c in cur.children) {
+      const child = cur.children[c];
+      let f = nodesById.get(failMap.get(cur.id));
+      while (f.id !== 0 && !f.children[c]) f = nodesById.get(failMap.get(f.id));
+      let failTo = 0;
+      if (f.children[c] && f.children[c].id !== child.id) failTo = f.children[c].id;
+      failMap.set(child.id, failTo);
+      // gộp output
+      const failNode = nodesById.get(failTo);
+      child.outputs = child.patterns.slice().concat(failNode.outputs || []);
+      child.patterns = child.outputs.slice(); // để render hiện output đã gộp
+      order.push({ id: child.id, failTo, outputs: child.outputs.slice() });
+      queue.push(child);
+    }
+  }
+  layout(root, 680, 36, 64);
+  return { root, failMap, nodesById, order };
+}
+function acBuildAnim() {
+  if (acPats.length === 0) { document.getElementById('ac-status').textContent = 'Chưa có pattern. Bấm Demo.'; return; }
+  acBuilt = acBuild();
+  const svg = document.getElementById('ac-svg');
+  // animate: dần hiện failure link theo order
+  let i = 0;
+  const partial = new Map(); partial.set(0, 0);
+  function step() {
+    renderTrie(svg, acBuilt.root, { failMap: new Map(partial) });
+    if (i < acBuilt.order.length) {
+      const o = acBuilt.order[i];
+      partial.set(o.id, o.failTo);
+      const node = acBuilt.nodesById.get(o.id);
+      document.getElementById('ac-status').textContent =
+        `BFS bước ${i + 1}/${acBuilt.order.length}: node "${nodeWord(acBuilt.root, o.id)}" → fail = "${o.failTo === 0 ? 'root' : nodeWord(acBuilt.root, o.failTo)}"` +
+        (o.outputs.length ? ` · output = {${o.outputs.join(',')}}` : '');
+      i++;
+      setTimeout(step, 850);
+    } else {
+      renderTrie(svg, acBuilt.root, { failMap: acBuilt.failMap });
+      document.getElementById('ac-status').className = 'status win';
+      document.getElementById('ac-status').textContent = '✅ Build xong. Failure links (đỏ đứt) đã sẵn sàng. Sang Module 3 để match.';
+    }
+  }
+  document.getElementById('ac-status').className = 'status';
+  step();
+}
+function nodeWord(root, id) {
+  let res = '';
+  (function go(n, path) { if (n.id === id) { res = path; return true; } for (const c in n.children) if (go(n.children[c], path + c)) return true; return false; })(root, '');
+  return res || 'root';
+}
+
+/* ============================================================
+   MODULE 3 — AC matching
+   ============================================================ */
+let mState = null;
+function matchInit() {
+  if (acPats.length === 0) { setMStatus('Module 2 chưa có pattern — bấm Demo ở Module 2 trước.', 'miss'); return; }
+  const text = document.getElementById('m-text').value.trim().toLowerCase().replace(/[^a-z]/g, '') || 'ushers';
+  document.getElementById('m-text').value = text;
+  const built = acBuild();
+  mState = { built, text, i: -1, cur: 0, matches: [] };
+  renderMText();
+  document.getElementById('m-matches').innerHTML = '';
+  setMStatus(`Nạp text "${text}". Bấm ▶ Bước.`);
+}
+function colorFor(pat) {
+  const idx = acPats.indexOf(pat) % 4;
+  return 'm' + idx;
+}
+function renderMText(curIdx, matchEnds) {
+  const box = document.getElementById('m-text-disp');
+  box.innerHTML = '';
+  for (let k = 0; k < mState.text.length; k++) {
+    const sp = document.createElement('span');
+    sp.className = 'ch'; sp.textContent = mState.text[k];
+    if (k === curIdx) sp.classList.add('cur');
+    box.appendChild(sp);
+  }
+  // tô các ký tự thuộc match đã tìm thấy
+  for (const m of mState.matches) {
+    const cls = colorFor(m.pat);
+    for (let k = m.start; k <= m.end; k++) {
+      if (box.children[k]) box.children[k].classList.add(cls);
+    }
+  }
+}
+function matchStep() {
+  if (!mState) { setMStatus('Nạp text trước.', 'miss'); return; }
+  if (mState.i >= mState.text.length - 1) { setMStatus('Đã hết text.', 'win'); return; }
+  mState.i++;
+  const i = mState.i, c = mState.text[i];
+  const nb = mState.built.nodesById, fm = mState.built.failMap;
+  let cur = nb.get(mState.cur);
+  let jumped = false;
+  while (cur.id !== 0 && !cur.children[c]) { cur = nb.get(fm.get(cur.id)); jumped = true; }
+  if (cur.children[c]) cur = cur.children[c];
+  mState.cur = cur.id;
+  const found = (cur.outputs || []).slice();
+  for (const p of found) {
+    const start = i - p.length + 1;
+    if (!mState.matches.some(m => m.pat === p && m.end === i)) mState.matches.push({ pat: p, start, end: i });
+  }
+  renderMText(i);
+  updateMatchList();
+  let msg = `i=${i}, c='${c}'` + (jumped ? ' (tụt failure)' : '') + ` → node "${nodeWord(mState.built.root, cur.id)}".`;
+  if (found.length) msg += ` 🎯 MATCH: ${found.map(p => `"${p}"`).join(', ')}`;
+  setMStatus(msg, found.length ? 'win' : '');
+}
+function matchAll() {
+  if (!mState) matchInit();
+  if (!mState) return;
+  while (mState.i < mState.text.length - 1) matchStep();
+}
+function updateMatchList() {
+  const box = document.getElementById('m-matches');
+  box.innerHTML = mState.matches.map(m =>
+    `<div class="item"><span class="ch ${colorFor(m.pat)}">"${m.pat}"</span> tại [${m.start}..${m.end}]</div>`).join('') || '';
+}
+function setMStatus(t, cls) {
+  const s = document.getElementById('m-status'); s.textContent = t; s.className = 'status' + (cls ? ' ' + cls : '');
+}
+
+/* init */
+trieDemo(); acDemo();
+</script>
+
+<!-- README modal + tools -->
+<script src="../../tools/marked.min.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+
+</body>
+</html>

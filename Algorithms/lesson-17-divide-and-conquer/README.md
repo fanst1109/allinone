@@ -190,6 +190,41 @@ Một thuật toán có `T(n) = 2T(n/2) + n²`. Big-O là gì?
 
 `T(n)=1·T(n/2)+O(1)` → `Θ(log n)`. Đây là D&C "tiết kiệm" nhất vì vứt hẳn 1 nửa bài.
 
+**Walk-through số** — tìm `target=7` trong `[1, 3, 5, 7, 9, 11, 13]` (sorted, 7 phần tử):
+
+- `[lo=0, hi=6]`, `mid=3`, `arr[3]=7` → **trúng!** 1 bước. (Combine rỗng.)
+
+Tìm `target=11`:
+
+- `[0,6]`, `mid=3`, `arr[3]=7 < 11` → đệ quy **nửa phải** `[4,6]` (vứt nửa trái).
+- `[4,6]`, `mid=5`, `arr[5]=11` → **trúng**. 2 bước.
+
+Tìm `target=4` (không có):
+
+- `[0,6]`, `mid=3`, `arr[3]=7 > 4` → nửa trái `[0,2]`.
+- `[0,2]`, `mid=1`, `arr[1]=3 < 4` → nửa phải `[2,2]`.
+- `[2,2]`, `mid=2`, `arr[2]=5 ≠ 4`, `lo==hi` → **không tìm thấy**. 3 bước.
+
+Với `n=7` ta cần ≤ `⌈log₂7⌉ = 3` bước — đúng. So brute force quét tuyến tính 7 bước → D&C vứt nửa mỗi lần là chìa khoá.
+
+```go
+// binarySearch dưới góc D&C: chỉ đệ quy 1 nửa (a=1). T(n)=T(n/2)+O(1)=O(log n).
+func binarySearch(a []int, target, lo, hi int) int {
+    if lo > hi {
+        return -1 // base case: đoạn rỗng -> không tìm thấy
+    }
+    mid := lo + (hi-lo)/2 // tránh tràn so với (lo+hi)/2
+    switch {
+    case a[mid] == target:
+        return mid // trúng (combine rỗng)
+    case a[mid] < target:
+        return binarySearch(a, target, mid+1, hi) // chỉ nửa phải
+    default:
+        return binarySearch(a, target, lo, mid-1) // chỉ nửa trái
+    }
+}
+```
+
 ### 4.2 Merge sort & Quicksort — recap
 
 | | Merge sort | Quicksort |
@@ -560,9 +595,34 @@ Bài con thứ 2 là `[mid, hi]` — chứa `mid` trùng với bài con thứ 1,
 
 </details>
 
+### Cây đệ quy — công cụ chẩn đoán mọi cạm bẫy
+
+💡 Khi nghi ngờ thuật toán D&C có vấn đề, **vẽ cây đệ quy** vài mức là cách nhanh nhất để phát hiện:
+
+```
+                 T(n)                <- gốc: chi phí f(n)
+              /        \
+          T(n/2)      T(n/2)         <- mức 1: tổng f(n/2)·2
+          /    \      /    \
+       T(n/4) T(n/4) ...               <- mức 2: tổng f(n/4)·4
+        ...
+       T(1) T(1) ... T(1)            <- lá: n lá
+```
+
+- Chiều cao cây = `log_b n` (mỗi mức chia n cho b). Quá sâu → stack overflow.
+- Tổng chi phí một mức `i` = `a^i · f(n/b^i)`. So tổng các mức → quyết định Case nào của Master.
+- **Lá lặp lại cùng tham số** → đó là dấu hiệu overlap (DP), không phải D&C.
+
+**Ví dụ số chẩn đoán** với `T(n)=2T(n/2)+n` (merge sort), `n=8`:
+- mức 0: `8` (1 node × cost 8)
+- mức 1: `4+4 = 8` (2 node × cost 4)
+- mức 2: `2+2+2+2 = 8` (4 node × cost 2)
+- mức 3 (lá): `1×8 = 8` (8 node × cost 1)
+- Tổng = `8 × 4 mức = 8 × log₂8 = n·log n`. Đúng `Θ(n log n)`. ✓ Mỗi mức tốn như nhau (`n`) là đặc trưng Case 2.
+
 ### 📝 Tóm tắt mục 8
 
-Bốn bug chí mạng: base case, bài con không nhỏ đi, combine quá đắt, overlap không nhận ra. Lập recurrence + vẽ cây đệ quy trước khi code.
+Bốn bug chí mạng: base case, bài con không nhỏ đi, combine quá đắt, overlap không nhận ra. Lập recurrence + vẽ cây đệ quy trước khi code. Mỗi mức của cây tốn `a^i·f(n/b^i)` — cộng lại ra Big-O.
 
 ---
 

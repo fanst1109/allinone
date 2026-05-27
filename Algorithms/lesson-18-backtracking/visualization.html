@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L18 — Backtracking · Minh họa</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root { --bg: #fafaf7; --accent: #3b82f6; --accent-soft: #dbeafe; --accent-hover: #2563eb; }
+
+  main { max-width: 960px; margin: 0 auto; padding: 0 16px 64px; }
+  h1 { color: #1e3a8a; }
+  h2 { color: #1e40af; border-bottom: 2px solid var(--accent-soft); padding-bottom: 6px; margin-top: 44px; }
+  .lead { color: #475569; }
+
+  .module {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+    padding: 18px; margin: 18px 0; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+  button {
+    background: var(--accent); color: #fff; border: none; border-radius: 8px;
+    padding: 8px 14px; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  button:hover { background: var(--accent-hover); }
+  button:disabled { background: #cbd5e1; cursor: not-allowed; }
+  button.ghost { background: #eef2f7; color: #334155; }
+  button.ghost:hover { background: #e2e8f0; }
+  select, input[type=number] {
+    padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;
+    max-width: 100%; box-sizing: border-box;
+  }
+  label { font-size: 14px; color: #334155; font-weight: 600; }
+
+  .status {
+    font-family: ui-monospace, monospace; font-size: 13px; background: #f1f5f9;
+    border-radius: 8px; padding: 10px 12px; margin-top: 10px; color: #0f172a;
+    white-space: pre-wrap; word-break: break-word; min-height: 20px;
+  }
+  .results {
+    font-family: ui-monospace, monospace; font-size: 13px; margin-top: 10px;
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .results .sol {
+    background: #dcfce7; border: 1px solid #86efac; color: #166534;
+    border-radius: 6px; padding: 3px 8px;
+  }
+  svg { display: block; width: 100%; height: auto; }
+
+  /* tree nodes */
+  .tnode { fill: #fff; stroke: #94a3b8; stroke-width: 1.5; }
+  .tnode.active { fill: var(--accent); stroke: var(--accent-hover); }
+  .tnode.done { fill: #dcfce7; stroke: #22c55e; }
+  .tnode.recorded { fill: #fde68a; stroke: #f59e0b; }
+  .tedge { stroke: #cbd5e1; stroke-width: 1.5; fill: none; }
+  .tedge.onpath { stroke: var(--accent); stroke-width: 3; }
+  .tlabel { font: 600 11px ui-monospace, monospace; fill: #1e293b; text-anchor: middle; }
+
+  /* chess board */
+  .cell { stroke: #94a3b8; stroke-width: 1; }
+  .cell.light { fill: #fde9cf; }
+  .cell.dark { fill: #d9a066; }
+  .cell.try { fill: #bfdbfe; }
+  .cell.conflict { fill: #fecaca; }
+  .cell.placed { fill: #bbf7d0; }
+  .queen { font: 700 22px serif; text-anchor: middle; fill: #1e293b; }
+
+  .bars { display: flex; gap: 24px; align-items: flex-end; margin-top: 12px; flex-wrap: wrap; }
+  .bar-group { text-align: center; }
+  .bar { width: 70px; background: var(--accent); border-radius: 6px 6px 0 0; transition: height .4s; }
+  .bar.noprune { background: #ef4444; }
+  .bar-val { font: 700 14px ui-monospace; margin-top: 4px; color: #0f172a; }
+  .bar-lbl { font-size: 12px; color: #475569; margin-top: 2px; }
+
+  .speed { display: flex; align-items: center; gap: 6px; }
+  .speed input { width: 110px; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12.5px; color: #475569; margin-top: 8px; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .sw { width: 14px; height: 14px; border-radius: 3px; display: inline-block; border: 1px solid #94a3b8; }
+
+  @media (max-width: 480px) {
+    .bar { width: 56px; }
+    button { padding: 7px 11px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-17-divide-and-conquer/visualization.html">← L17: Divide &amp; Conquer</a>
+  <span class="sep">·</span>
+  <span class="current">L18: Backtracking</span>
+  <span class="sep">·</span>
+  <a href="../tier-3-greedy/index.html">Tier 3 →</a>
+</nav>
+
+<main>
+  <h1>Lesson 18 — Backtracking (Quay lui)</h1>
+  <p class="lead">Thử từng lựa chọn → đi sâu (DFS) → gặp ngõ cụt thì <strong>quay lui (undo)</strong> thử lựa chọn khác.
+  Ba module dưới đây cho bạn "nhìn thấy" cây trạng thái được duyệt, bàn N-Queens được lấp dần và sức mạnh của pruning.</p>
+
+  <!-- MODULE 1 -->
+  <h2>1. Decision Tree Explorer</h2>
+  <div class="module">
+    <p class="lead" style="margin-top:0">Duyệt cây trạng thái cho <code>[1,2,3]</code>. Xem DFS <strong>đi xuống</strong> (xanh) và <strong>backtrack đi lên</strong>;
+    node được ghi nhận lời giải tô <strong>vàng</strong>.</p>
+    <div class="controls">
+      <label>Bài:
+        <select id="m1-mode">
+          <option value="subsets">Subsets (mọi node ghi)</option>
+          <option value="perms">Permutations (lá ghi)</option>
+        </select>
+      </label>
+      <button id="m1-step">▶ Bước</button>
+      <button id="m1-auto">⏩ Tự chạy</button>
+      <button class="ghost" id="m1-reset">↻ Reset</button>
+      <span class="speed"><label>Tốc độ</label><input type="range" id="m1-speed" min="120" max="900" value="450"></span>
+    </div>
+    <svg id="m1-svg" viewBox="0 0 720 360" role="img" aria-label="Cây quyết định"></svg>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--accent)"></i>đang thăm</span>
+      <span><i class="sw" style="background:#fde68a"></i>ghi lời giải</span>
+      <span><i class="sw" style="background:#dcfce7"></i>đã xong (quay lui)</span>
+    </div>
+    <div class="status" id="m1-status">Nhấn "Bước" hoặc "Tự chạy".</div>
+    <div class="results" id="m1-results"></div>
+  </div>
+
+  <!-- MODULE 2 -->
+  <h2>2. N-Queens Solver</h2>
+  <div class="module">
+    <p class="lead" style="margin-top:0">Đặt N hậu theo từng hàng. Ô <span style="color:#1d4ed8">xanh</span> = đang thử,
+    <span style="color:#b91c1c">đỏ</span> = bị tấn công (pruning cắt nhánh), <span style="color:#15803d">xanh lá</span> = đặt thành công.</p>
+    <div class="controls">
+      <label>N: <input type="number" id="m2-n" min="4" max="8" value="4" style="width:64px"></label>
+      <button id="m2-solve">▶ Giải (animate)</button>
+      <button class="ghost" id="m2-reset">↻ Reset</button>
+      <span class="speed"><label>Tốc độ</label><input type="range" id="m2-speed" min="40" max="500" value="160"></span>
+    </div>
+    <svg id="m2-svg" viewBox="0 0 360 360" role="img" aria-label="Bàn cờ N-Queens"></svg>
+    <div class="status" id="m2-status">Chọn N (4–8) rồi nhấn Giải.</div>
+  </div>
+
+  <!-- MODULE 3 -->
+  <h2>3. Pruning Impact</h2>
+  <div class="module">
+    <p class="lead" style="margin-top:0">Đếm số node <code>dfs</code> được duyệt để đếm nghiệm N-Queens, <strong>có</strong> vs <strong>không</strong> pruning cột/chéo.
+    Không pruning = thử mọi cách đặt 1 hậu/hàng rồi kiểm tra ở lá (b<sup>d</sup> = N<sup>N</sup>).</p>
+    <div class="controls">
+      <label>N: <input type="number" id="m3-n" min="4" max="9" value="6" style="width:64px"></label>
+      <button id="m3-run">▶ Đo</button>
+    </div>
+    <div class="bars" id="m3-bars"></div>
+    <div class="status" id="m3-status">Nhấn "Đo" để so sánh.</div>
+  </div>
+</main>
+
+<script>
+// ---------- MODULE 1: Decision Tree ----------
+(function () {
+  const NUMS = [1, 2, 3];
+  const svg = document.getElementById('m1-svg');
+  const statusEl = document.getElementById('m1-status');
+  const resultsEl = document.getElementById('m1-results');
+  let nodes = [], edges = [], events = [], idx = 0, autoTimer = null;
+
+  // Build tree + record DFS events. event = {type, nodeId, parentId, label, record}
+  function buildSubsets() {
+    nodes = []; edges = []; events = [];
+    let id = 0;
+    function node(label, parent, depth, xfrac) { const n = { id: id++, label, parent, depth, xfrac, children: [] }; nodes.push(n); if (parent !== null) { nodes[parent].children.push(n.id); edges.push({ from: parent, to: n.id }); } return n.id; }
+    // recursive build mirroring start-index subsets
+    function dfs(start, path, parentId, depth, x0, x1) {
+      const myId = node('[' + path.join(',') + ']', parentId, depth, (x0 + x1) / 2);
+      events.push({ type: 'enter', id: myId });
+      events.push({ type: 'record', id: myId, sol: path.slice() });
+      const span = (x1 - x0) / Math.max(1, (NUMS.length - start));
+      let k = 0;
+      for (let i = start; i < NUMS.length; i++) {
+        const cx0 = x0 + k * span, cx1 = x0 + (k + 1) * span;
+        dfs(i + 1, path.concat(NUMS[i]), myId, depth + 1, cx0, cx1);
+        events.push({ type: 'backtrack', id: myId });
+        k++;
+      }
+    }
+    dfs(0, [], null, 0, 0, 1);
+  }
+
+  function buildPerms() {
+    nodes = []; edges = []; events = [];
+    let id = 0;
+    function node(label, parent, depth, xfrac) { const n = { id: id++, label, parent, depth, xfrac, children: [] }; nodes.push(n); if (parent !== null) { nodes[parent].children.push(n.id); edges.push({ from: parent, to: n.id }); } return n.id; }
+    function dfs(path, used, parentId, depth, x0, x1) {
+      const myId = node('[' + path.join(',') + ']', parentId, depth, (x0 + x1) / 2);
+      events.push({ type: 'enter', id: myId });
+      if (path.length === NUMS.length) { events.push({ type: 'record', id: myId, sol: path.slice() }); return; }
+      const avail = NUMS.filter((_, i) => !used[i]).length;
+      const span = (x1 - x0) / Math.max(1, avail);
+      let k = 0;
+      for (let i = 0; i < NUMS.length; i++) {
+        if (used[i]) continue;
+        used[i] = true;
+        const cx0 = x0 + k * span, cx1 = x0 + (k + 1) * span;
+        dfs(path.concat(NUMS[i]), used, myId, depth + 1, cx0, cx1);
+        events.push({ type: 'backtrack', id: myId });
+        used[i] = false;
+        k++;
+      }
+    }
+    dfs([], NUMS.map(() => false), null, 0, 0, 1);
+  }
+
+  function layout() {
+    const W = 720, H = 360, padTop = 28, padBot = 24;
+    const maxDepth = Math.max(...nodes.map(n => n.depth));
+    const levelH = (H - padTop - padBot) / Math.max(1, maxDepth);
+    nodes.forEach(n => { n.x = 30 + n.xfrac * (W - 60); n.y = padTop + n.depth * levelH; });
+  }
+
+  function render() {
+    layout();
+    let s = '';
+    edges.forEach(e => {
+      const a = nodes[e.from], b = nodes[e.to];
+      s += `<path class="tedge" id="edge-${e.from}-${e.to}" d="M${a.x} ${a.y} L${b.x} ${b.y}"/>`;
+    });
+    nodes.forEach(n => {
+      const w = Math.max(34, n.label.length * 7);
+      s += `<rect class="tnode" id="node-${n.id}" x="${n.x - w / 2}" y="${n.y - 11}" width="${w}" height="22" rx="6"/>`;
+      s += `<text class="tlabel" x="${n.x}" y="${n.y + 4}">${n.label}</text>`;
+    });
+    svg.innerHTML = s;
+  }
+
+  function start(mode) {
+    if (mode === 'subsets') buildSubsets(); else buildPerms();
+    idx = 0; render(); resultsEl.innerHTML = '';
+    statusEl.textContent = 'Sẵn sàng — ' + events.length + ' sự kiện. Nhấn Bước.';
+  }
+
+  function clearPathHi() {
+    nodes.forEach(n => { const el = document.getElementById('node-' + n.id); if (el && el.classList.contains('active')) el.classList.remove('active'); });
+    edges.forEach(e => { const el = document.getElementById(`edge-${e.from}-${e.to}`); if (el) el.classList.remove('onpath'); });
+  }
+
+  function markPath(id) {
+    // highlight path from root to id
+    let cur = id;
+    while (cur !== null && cur !== undefined) {
+      const n = nodes[cur];
+      if (n.parent !== null && n.parent !== undefined) { const el = document.getElementById(`edge-${n.parent}-${cur}`); if (el) el.classList.add('onpath'); }
+      cur = n.parent;
+    }
+  }
+
+  function step() {
+    if (idx >= events.length) { statusEl.textContent = 'Hoàn tất! Đã duyệt xong cây.'; stopAuto(); return false; }
+    const ev = events[idx++];
+    const el = document.getElementById('node-' + ev.id);
+    if (ev.type === 'enter') {
+      clearPathHi();
+      if (el) { el.classList.remove('done'); el.classList.add('active'); }
+      markPath(ev.id);
+      statusEl.textContent = '↓ DFS đi xuống: thăm node ' + nodes[ev.id].label;
+    } else if (ev.type === 'record') {
+      if (el) { el.classList.add('recorded'); }
+      const tag = document.createElement('span'); tag.className = 'sol'; tag.textContent = '[' + ev.sol.join(',') + ']';
+      resultsEl.appendChild(tag);
+      statusEl.textContent = '★ Ghi nhận lời giải [' + ev.sol.join(',') + ']  (COPY slice trước khi lưu!)';
+    } else if (ev.type === 'backtrack') {
+      if (el) { el.classList.remove('active'); el.classList.add('done'); }
+      clearPathHi(); markPath(ev.id);
+      statusEl.textContent = '↑ Quay lui (undo) về node ' + nodes[ev.id].label;
+    }
+    return true;
+  }
+
+  function stopAuto() { if (autoTimer) { clearInterval(autoTimer); autoTimer = null; document.getElementById('m1-auto').textContent = '⏩ Tự chạy'; } }
+  document.getElementById('m1-step').onclick = () => { stopAuto(); step(); };
+  document.getElementById('m1-auto').onclick = () => {
+    if (autoTimer) { stopAuto(); return; }
+    document.getElementById('m1-auto').textContent = '⏸ Dừng';
+    const sp = +document.getElementById('m1-speed').value;
+    autoTimer = setInterval(() => { if (!step()) stopAuto(); }, 1000 - sp + 120);
+  };
+  document.getElementById('m1-reset').onclick = () => { stopAuto(); start(document.getElementById('m1-mode').value); };
+  document.getElementById('m1-mode').onchange = () => { stopAuto(); start(document.getElementById('m1-mode').value); };
+  start('subsets');
+})();
+
+// ---------- MODULE 2: N-Queens animated ----------
+(function () {
+  const svg = document.getElementById('m2-svg');
+  const statusEl = document.getElementById('m2-status');
+  const VB = 360;
+  let N = 4, frames = [], playing = false, timer = null;
+
+  function drawBoard(state) {
+    const cell = VB / N;
+    let s = '';
+    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+      let cls = (r + c) % 2 === 0 ? 'cell light' : 'cell dark';
+      if (state.placed && state.placed[r] === c) cls = 'cell placed';
+      else if (state.try && state.try.r === r && state.try.c === c) cls = state.try.conflict ? 'cell conflict' : 'cell try';
+      s += `<rect class="${cls}" x="${c * cell}" y="${r * cell}" width="${cell}" height="${cell}"/>`;
+    }
+    // queens
+    for (let r = 0; r < N; r++) {
+      if (state.placed && state.placed[r] !== undefined && state.placed[r] >= 0) {
+        s += `<text class="queen" x="${state.placed[r] * cell + cell / 2}" y="${r * cell + cell / 2 + 8}" font-size="${cell * 0.55}">♛</text>`;
+      }
+    }
+    if (state.try) {
+      const ch = state.try.conflict ? '✗' : '♛';
+      s += `<text class="queen" x="${state.try.c * cell + cell / 2}" y="${state.try.r * cell + cell / 2 + 8}" font-size="${cell * 0.5}" fill="${state.try.conflict ? '#b91c1c' : '#1e293b'}">${ch}</text>`;
+    }
+    svg.innerHTML = s;
+  }
+
+  // generate frames (snapshots) of backtracking
+  function gen() {
+    frames = [];
+    const cols = {}, d1 = {}, d2 = {};
+    const placed = new Array(N).fill(-1);
+    let solCount = 0;
+    function snap(tryR, tryC, conflict, msg) {
+      frames.push({ placed: placed.slice(), try: tryR !== null ? { r: tryR, c: tryC, conflict } : null, msg });
+    }
+    function dfs(row) {
+      if (row === N) { solCount++; placed.forEach; snap(null, null, false, '★ Tìm thấy nghiệm #' + solCount + '!'); return true; }
+      for (let c = 0; c < N; c++) {
+        const a = row - c + N - 1, b = row + c;
+        const conflict = cols[c] || d1[a] || d2[b];
+        snap(row, c, conflict, conflict ? `Thử (${row},${c}) → bị tấn công → pruning, bỏ` : `Thử (${row},${c}) → hợp lệ`);
+        if (conflict) continue;
+        cols[c] = d1[a] = d2[b] = true; placed[row] = c;
+        snap(null, null, false, `Đặt hậu hàng ${row}, cột ${c} → đệ quy hàng ${row + 1}`);
+        dfs(row + 1);
+        // undo
+        cols[c] = d1[a] = d2[b] = false; placed[row] = -1;
+        snap(null, null, false, `↑ Quay lui: gỡ hậu khỏi (${row},${c})`);
+        // stop after first solution to keep animation short for big N
+        if (solCount >= 1) return true;
+      }
+      return false;
+    }
+    dfs(0);
+    if (solCount === 0) snap(null, null, false, 'Không có nghiệm.');
+  }
+
+  function play() {
+    gen();
+    let i = 0;
+    const sp = +document.getElementById('m2-speed').value;
+    playing = true;
+    document.getElementById('m2-solve').disabled = true;
+    timer = setInterval(() => {
+      if (i >= frames.length) { clearInterval(timer); playing = false; document.getElementById('m2-solve').disabled = false; statusEl.textContent = '✓ Xong (dừng ở nghiệm đầu tiên). Reset để chạy lại.'; return; }
+      const f = frames[i++];
+      drawBoard(f);
+      statusEl.textContent = f.msg;
+    }, 540 - sp + 40);
+  }
+
+  function reset() { if (timer) clearInterval(timer); playing = false; document.getElementById('m2-solve').disabled = false; drawBoard({ placed: new Array(N).fill(-1) }); statusEl.textContent = 'Chọn N (4–8) rồi nhấn Giải.'; }
+
+  document.getElementById('m2-n').onchange = () => { N = Math.max(4, Math.min(8, +document.getElementById('m2-n').value || 4)); reset(); };
+  document.getElementById('m2-solve').onclick = () => { if (!playing) play(); };
+  document.getElementById('m2-reset').onclick = reset;
+  reset();
+})();
+
+// ---------- MODULE 3: Pruning impact ----------
+(function () {
+  const barsEl = document.getElementById('m3-bars');
+  const statusEl = document.getElementById('m3-status');
+
+  // count dfs nodes WITH pruning
+  function withPruning(N) {
+    let nodes = 0;
+    const cols = {}, d1 = {}, d2 = {};
+    function dfs(row) {
+      nodes++;
+      if (row === N) return;
+      for (let c = 0; c < N; c++) {
+        const a = row - c + N - 1, b = row + c;
+        if (cols[c] || d1[a] || d2[b]) continue; // pruning
+        cols[c] = d1[a] = d2[b] = true;
+        dfs(row + 1);
+        cols[c] = d1[a] = d2[b] = false;
+      }
+    }
+    dfs(0);
+    return nodes;
+  }
+
+  // count dfs nodes WITHOUT pruning: try every column each row, only check validity at leaf
+  function noPruning(N) {
+    let nodes = 0;
+    const place = [];
+    function valid() {
+      for (let i = 0; i < place.length; i++) for (let j = i + 1; j < place.length; j++) {
+        if (place[i] === place[j]) return false;
+        if (Math.abs(place[i] - place[j]) === Math.abs(i - j)) return false;
+      }
+      return true;
+    }
+    function dfs(row) {
+      nodes++;
+      if (row === N) { valid(); return; }
+      for (let c = 0; c < N; c++) { place.push(c); dfs(row + 1); place.pop(); }
+    }
+    dfs(0);
+    return nodes;
+  }
+
+  function run() {
+    const N = Math.max(4, Math.min(9, +document.getElementById('m3-n').value || 6));
+    const wp = withPruning(N);
+    const np = noPruning(N); // = (N^(N+1)-1)/(N-1) ~ N^N
+    const max = Math.max(wp, np);
+    const maxH = 200;
+    barsEl.innerHTML =
+      `<div class="bar-group"><div class="bar" style="height:${Math.max(6, wp / max * maxH)}px"></div><div class="bar-val">${wp.toLocaleString()}</div><div class="bar-lbl">CÓ pruning</div></div>` +
+      `<div class="bar-group"><div class="bar noprune" style="height:${Math.max(6, np / max * maxH)}px"></div><div class="bar-val">${np.toLocaleString()}</div><div class="bar-lbl">KHÔNG pruning (~N<sup>N</sup>)</div></div>`;
+    const factor = (np / wp).toFixed(1);
+    statusEl.textContent = `N=${N}: pruning duyệt ${wp.toLocaleString()} node, không pruning ${np.toLocaleString()} node → nhanh hơn ~${factor}×. Cả hai worst-case vẫn exponential, nhưng pruning cắt sạch các nhánh vi phạm sớm.`;
+  }
+
+  document.getElementById('m3-run').onclick = run;
+  run();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+</body>
+</html>

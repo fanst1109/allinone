@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 19 — Greedy Fundamentals</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #4299e1; color: white; border: none; border-radius: 6px;
+    padding: 9px 16px; font-size: 15px; cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+  button.on { background: #2b6cb0; box-shadow: inset 0 0 0 2px #1a365d; }
+  button:disabled { opacity: .45; cursor: default; }
+  .hint { color: #718096; font-size: 14px; margin: 6px 0; }
+  .log { font-family: ui-monospace, monospace; font-size: 13px; background: #f7fafc;
+         border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; margin-top: 10px;
+         white-space: pre-wrap; min-height: 22px; color: #2d3748; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 13px;
+           font-weight: 700; }
+  .ok { background: #c6f6d5; color: #22543d; }
+  .bad { background: #fed7d7; color: #742a2a; }
+
+  /* ---- Module 1: fractional knapsack ---- */
+  .items { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+  .item {
+    border: 2px solid #cbd5e0; border-radius: 8px; padding: 10px 12px; min-width: 96px;
+    background: #fff; transition: all .3s; text-align: center;
+  }
+  .item .nm { font-weight: 800; font-size: 17px; color: #2d3748; }
+  .item .det { font-size: 12px; color: #718096; }
+  .item .rt { font-weight: 700; color: #2b6cb0; margin-top: 4px; }
+  .item.picked { border-color: #38a169; background: #f0fff4; }
+  .item.partial { border-color: #ed8936; background: #fffaf0; }
+  .item.skipped { opacity: .45; }
+  .knap {
+    height: 26px; background: #edf2f7; border-radius: 6px; overflow: hidden;
+    border: 1px solid #cbd5e0; margin: 8px 0; position: relative;
+  }
+  .knap .fill { height: 100%; background: linear-gradient(90deg,#48bb78,#38a169);
+                width: 0; transition: width .5s; }
+  .knap .lbl { position: absolute; inset: 0; display: flex; align-items: center;
+               justify-content: center; font-size: 13px; font-weight: 700; color: #1a202c; }
+
+  /* ---- Module 2: greedy vs optimal ---- */
+  .coins { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+  .coin {
+    width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; font-weight: 800; font-size: 15px; color: #744210;
+    background: radial-gradient(circle at 35% 30%, #fefcbf, #f6e05e); border: 2px solid #d69e2e;
+  }
+  .coin.opt { background: radial-gradient(circle at 35% 30%, #c6f6d5, #68d391);
+              border-color: #38a169; color: #22543d; }
+  .cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .cmp .pane { border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }
+  .cmp .pane h4 { margin: 0 0 6px; }
+  .verdict { font-size: 17px; font-weight: 800; margin-top: 12px; }
+
+  /* ---- Module 3: exchange argument ---- */
+  .timeline { position: relative; height: 150px; background: #f7fafc; border-radius: 8px;
+              border: 1px solid #e2e8f0; margin: 10px 0; overflow-x: auto; }
+  .act {
+    position: absolute; height: 26px; border-radius: 5px; display: flex; align-items: center;
+    justify-content: center; font-size: 12px; font-weight: 700; color: #fff; transition: all .55s;
+    box-shadow: 0 1px 3px rgba(0,0,0,.2);
+  }
+  .act.optc { background: #4299e1; }
+  .act.greedyc { background: #38a169; }
+  .act.swap { background: #ed8936; box-shadow: 0 0 0 3px #fbd38d; }
+  .tl-axis { position: absolute; bottom: 6px; left: 0; right: 0; height: 1px; background: #cbd5e0; }
+
+  @media (max-width: 600px) {
+    .cmp { grid-template-columns: 1fr; }
+    .item { min-width: 80px; flex: 1 1 40%; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../tier-2-searching-core/index.html">← Tier 2</a>
+  <span class="sep">·</span>
+  <span class="current">L19: Greedy Fundamentals</span>
+  <span class="sep">·</span>
+  <a href="../lesson-20-interval-problems/visualization.html">L20: Interval Problems →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 19 — Greedy Fundamentals</h1>
+<p>3 module tương tác: (1) <b>Fractional knapsack</b> — sort theo ratio rồi lấy tham lam tới đầy; (2) <b>Greedy đúng vs sai</b> — coin change hệ {1,5,10,25} (đúng) vs {1,3,4} (sai); (3) <b>Exchange argument</b> — "đổi" một lời giải tối ưu thành greedy.</p>
+
+<!-- ============ MODULE 1 ============ -->
+<h2>1. Fractional Knapsack — greedy theo ratio v/w</h2>
+<div class="card">
+  <p class="hint">Ba lô sức chứa <b>W = 50</b>. Được lấy <b>một phần</b> của món → greedy lấy theo <b>ratio = giá trị/khối lượng</b> cao nhất. Bấm để chạy từng bước.</p>
+  <div class="row">
+    <button id="k-sort">1) Sort theo ratio ↓</button>
+    <button id="k-step" disabled>2) Lấy tham lam bước kế</button>
+    <button id="k-reset" class="ghost">Reset</button>
+  </div>
+  <div class="items" id="k-items"></div>
+  <div class="knap"><div class="fill" id="k-fill"></div><div class="lbl" id="k-cap">0 / 50 kg</div></div>
+  <div class="log" id="k-log">Bấm "Sort theo ratio" để bắt đầu.</div>
+</div>
+
+<!-- ============ MODULE 2 ============ -->
+<h2>2. Greedy ĐÚNG vs SAI — coin change</h2>
+<div class="card">
+  <p class="hint">So sánh greedy (lấy đồng lớn nhất) với lời giải tối ưu. Hệ <b>canonical</b> {1,5,10,25} → greedy đúng. Hệ <b>{1,3,4}</b> → greedy có thể sai.</p>
+  <div class="row">
+    <button id="c-sys1" class="on">Hệ {1,5,10,25} (canonical)</button>
+    <button id="c-sys2" class="ghost">Hệ {1,3,4}</button>
+    <span class="hint">Số tiền cần trả:</span>
+    <input id="c-amt" type="number" value="41" min="1" max="99" style="width:70px;padding:6px;border:1px solid #cbd5e0;border-radius:6px;">
+    <button id="c-run">So sánh</button>
+  </div>
+  <div class="cmp">
+    <div class="pane">
+      <h4>Greedy (đồng lớn nhất trước)</h4>
+      <div class="coins" id="c-greedy"></div>
+      <div class="hint" id="c-greedy-n"></div>
+    </div>
+    <div class="pane">
+      <h4>Tối ưu (DP)</h4>
+      <div class="coins" id="c-opt"></div>
+      <div class="hint" id="c-opt-n"></div>
+    </div>
+  </div>
+  <div class="verdict" id="c-verdict"></div>
+</div>
+
+<!-- ============ MODULE 3 ============ -->
+<h2>3. Exchange Argument — nắn OPT thành Greedy</h2>
+<div class="card">
+  <p class="hint">Activity selection: chọn nhiều hoạt động không chồng nhau nhất. Một lời giải tối ưu (<span style="color:#4299e1;font-weight:700">xanh dương</span>) có hoạt động đầu khác greedy. Ta "đổi" nó sang hoạt động greedy <b>kết thúc sớm hơn</b> (<span style="color:#38a169;font-weight:700">xanh lá</span>) — vẫn hợp lệ, vẫn cùng số lượng → OPT không tệ đi.</p>
+  <div class="row">
+    <button id="e-step">Bước đổi kế tiếp</button>
+    <button id="e-reset" class="ghost">Reset</button>
+  </div>
+  <div class="timeline" id="e-tl"><div class="tl-axis"></div></div>
+  <div class="log" id="e-log">Lời giải tối ưu ban đầu (xanh dương). Bấm "Bước đổi" để nắn về greedy.</div>
+</div>
+
+</main>
+
+<script>
+// ===================== MODULE 1: Fractional knapsack =====================
+(function(){
+  const W = 50;
+  const base = [
+    { nm:'A', value:60,  weight:10 },
+    { nm:'B', value:100, weight:20 },
+    { nm:'C', value:120, weight:30 },
+    { nm:'D', value:50,  weight:25 },
+  ];
+  let items, idx, cap, total, sorted;
+  const elItems = document.getElementById('k-items');
+  const elFill = document.getElementById('k-fill');
+  const elCap  = document.getElementById('k-cap');
+  const elLog  = document.getElementById('k-log');
+  const bSort = document.getElementById('k-sort');
+  const bStep = document.getElementById('k-step');
+
+  function reset(){
+    items = base.map(o => ({...o, ratio:o.value/o.weight, state:''}));
+    idx = 0; cap = W; total = 0; sorted = false;
+    bSort.disabled = false; bStep.disabled = true;
+    render(); updateCap();
+    elLog.textContent = 'Bấm "Sort theo ratio" để bắt đầu.';
+  }
+  function render(){
+    elItems.innerHTML = items.map(it => `
+      <div class="item ${it.state}">
+        <div class="nm">${it.nm}</div>
+        <div class="det">v=${it.value}, w=${it.weight}</div>
+        <div class="rt">ratio=${it.ratio.toFixed(1)}</div>
+      </div>`).join('');
+  }
+  function updateCap(){
+    const used = W - cap;
+    elFill.style.width = (used/W*100) + '%';
+    elCap.textContent = `${used} / ${W} kg · giá trị = ${total.toFixed(1)}`;
+  }
+  bSort.onclick = () => {
+    items.sort((a,b)=> b.ratio - a.ratio);
+    sorted = true; render();
+    elLog.textContent = 'Đã sort ratio giảm dần: ' +
+      items.map(i=>`${i.nm}(${i.ratio.toFixed(1)})`).join(' ≥ ') +
+      '\nGiờ lấy tham lam từ trái sang.';
+    bSort.disabled = true; bStep.disabled = false;
+  };
+  bStep.onclick = () => {
+    if (idx >= items.length || cap === 0){
+      elLog.textContent += '\n— Xong. Tổng giá trị greedy = ' + total.toFixed(1);
+      bStep.disabled = true; return;
+    }
+    const it = items[idx];
+    if (it.weight <= cap){
+      it.state = 'picked'; total += it.value; cap -= it.weight;
+      elLog.textContent = `Lấy TOÀN BỘ ${it.nm}: +${it.value} giá trị, dùng ${it.weight}kg. Còn ${cap}kg.`;
+    } else if (cap > 0){
+      const frac = cap/it.weight;
+      it.state = 'partial'; total += it.value*frac;
+      elLog.textContent = `Lấy ${(frac*100).toFixed(0)}% của ${it.nm} cho đầy: +${(it.value*frac).toFixed(1)} giá trị. Ba lô đầy.`;
+      cap = 0;
+    }
+    idx++;
+    // các món còn lại không lấy được khi cap=0
+    if (cap === 0){
+      for (let k=idx; k<items.length; k++) items[k].state='skipped';
+      bStep.disabled = true;
+      render(); updateCap();
+      elLog.textContent += `\n— Ba lô đầy. Tổng giá trị greedy = ${total.toFixed(1)} (tối ưu cho fractional).`;
+      return;
+    }
+    render(); updateCap();
+  };
+  document.getElementById('k-reset').onclick = reset;
+  reset();
+})();
+
+// ===================== MODULE 2: greedy vs optimal coin change =====================
+(function(){
+  let system = [25,10,5,1];           // canonical
+  const elG = document.getElementById('c-greedy');
+  const elO = document.getElementById('c-opt');
+  const elGn = document.getElementById('c-greedy-n');
+  const elOn = document.getElementById('c-opt-n');
+  const elV = document.getElementById('c-verdict');
+  const b1 = document.getElementById('c-sys1');
+  const b2 = document.getElementById('c-sys2');
+
+  function greedy(coins, amount){
+    const used = []; let rem = amount;
+    for (const c of [...coins].sort((a,b)=>b-a)){
+      while (rem >= c){ used.push(c); rem -= c; }
+    }
+    return rem===0 ? used : null;
+  }
+  function optimal(coins, amount){
+    const INF = 1e9;
+    const dp = new Array(amount+1).fill(INF);
+    const pick = new Array(amount+1).fill(-1);
+    dp[0]=0;
+    for (let a=1; a<=amount; a++)
+      for (const c of coins)
+        if (c<=a && dp[a-c]+1 < dp[a]){ dp[a]=dp[a-c]+1; pick[a]=c; }
+    if (dp[amount]>=INF) return null;
+    const used=[]; let a=amount;
+    while (a>0){ used.push(pick[a]); a-=pick[a]; }
+    return used.sort((x,y)=>y-x);
+  }
+  function coinHTML(arr, cls){
+    return arr.map(c=>`<div class="coin ${cls}">${c}</div>`).join('');
+  }
+  function run(){
+    const amount = Math.max(1, Math.min(99, parseInt(document.getElementById('c-amt').value)||1));
+    const g = greedy(system, amount);
+    const o = optimal(system, amount);
+    if (!g || !o){ elV.innerHTML = '<span class="badge bad">Không trả được số tiền này</span>';
+      elG.innerHTML=elO.innerHTML=''; elGn.textContent=elOn.textContent=''; return; }
+    elG.innerHTML = coinHTML(g, '');
+    elO.innerHTML = coinHTML(o, 'opt');
+    elGn.textContent = `${g.length} đồng: ${g.join(' + ')}`;
+    elOn.textContent = `${o.length} đồng: ${o.join(' + ')}`;
+    if (g.length === o.length){
+      elV.innerHTML = `<span class="badge ok">✓ Greedy TỐI ƯU</span> — greedy & DP cùng ${g.length} đồng cho số tiền ${amount}.`;
+    } else {
+      elV.innerHTML = `<span class="badge bad">✗ Greedy SAI</span> — greedy ${g.length} đồng nhưng tối ưu chỉ ${o.length} đồng. Hệ ${JSON.stringify(system)} không canonical!`;
+    }
+  }
+  b1.onclick = () => { system=[25,10,5,1]; b1.classList.add('on'); b1.classList.remove('ghost');
+    b2.classList.remove('on'); b2.classList.add('ghost'); document.getElementById('c-amt').value=41; run(); };
+  b2.onclick = () => { system=[4,3,1]; b2.classList.add('on'); b2.classList.remove('ghost');
+    b1.classList.remove('on'); b1.classList.add('ghost'); document.getElementById('c-amt').value=6; run(); };
+  document.getElementById('c-run').onclick = run;
+  run();
+})();
+
+// ===================== MODULE 3: exchange argument =====================
+(function(){
+  // Activity selection. Hoạt động [s,f). Sort theo f.
+  // greedy chọn: A1[1,4) A2[5,7) A3[8,11)
+  // OPT khác greedy ở vị trí đầu: dùng B1[2,5) thay A1[1,4) (cùng số lượng)
+  const SC = 26; // px per time unit
+  const X0 = 8;
+  const greedy = [ {s:1,f:4,nm:'g1'}, {s:5,f:7,nm:'g2'}, {s:8,f:11,nm:'g3'} ];
+  // OPT bắt đầu: vị trí 0 khác greedy (B1 kết thúc muộn hơn g1), 2 vị trí sau trùng
+  let opt = [ {s:2,f:5,nm:'o1',cls:'optc'}, {s:5,f:7,nm:'o2',cls:'optc'}, {s:8,f:11,nm:'o3',cls:'optc'} ];
+  let step = 0;
+  const elTL = document.getElementById('e-tl');
+  const elLog = document.getElementById('e-log');
+  const bStep = document.getElementById('e-step');
+
+  function draw(){
+    // giữ lại axis
+    elTL.querySelectorAll('.act').forEach(e=>e.remove());
+    // greedy ghost ở hàng dưới (mờ) để đối chiếu
+    greedy.forEach((a,i)=>{
+      const d = document.createElement('div');
+      d.className = 'act greedyc';
+      d.style.opacity = .28;
+      d.style.left = (X0 + a.s*SC) + 'px';
+      d.style.top = '92px';
+      d.style.width = ((a.f-a.s)*SC) + 'px';
+      d.textContent = `g${i+1}[${a.s},${a.f})`;
+      elTL.appendChild(d);
+    });
+    // OPT hàng trên
+    opt.forEach((a)=>{
+      const d = document.createElement('div');
+      d.className = 'act ' + a.cls;
+      d.style.left = (X0 + a.s*SC) + 'px';
+      d.style.top = '30px';
+      d.style.width = ((a.f-a.s)*SC) + 'px';
+      d.textContent = `${a.nm}[${a.s},${a.f})`;
+      elTL.appendChild(d);
+    });
+  }
+  bStep.onclick = () => {
+    if (step === 0){
+      // tìm vị trí đầu khác greedy
+      opt[0].cls = 'swap';
+      elLog.textContent = 'Vị trí 1: OPT dùng o1[2,5) nhưng greedy dùng g1[1,4) kết thúc SỚM HƠN (4 < 5). Đây là chỗ đầu tiên khác greedy → sẽ đổi.';
+      draw(); step=1; return;
+    }
+    if (step === 1){
+      // đổi o1 -> g1
+      opt[0] = {s:1,f:4,nm:'g1',cls:'greedyc'};
+      elLog.textContent = 'ĐỔI: thay o1 bằng g1[1,4). g1 kết thúc tại 4 ≤ 5, nên các hoạt động sau (o2[5,7), o3[8,11)) vẫn tương thích → OPT vẫn HỢP LỆ, vẫn 3 hoạt động. Không tệ đi.';
+      draw(); step=2; return;
+    }
+    if (step === 2){
+      opt[1].cls = 'greedyc'; opt[2].cls = 'greedyc';
+      elLog.textContent = '✓ Các vị trí sau đã trùng greedy. OPT giờ = G hoàn toàn (3 hoạt động). Vì OPT tối ưu và không tệ đi sau khi đổi → GREEDY cũng tối ưu. ∎';
+      draw(); bStep.disabled = true; step=3; return;
+    }
+  };
+  function reset(){
+    opt = [ {s:2,f:5,nm:'o1',cls:'optc'}, {s:5,f:7,nm:'o2',cls:'optc'}, {s:8,f:11,nm:'o3',cls:'optc'} ];
+    step = 0; bStep.disabled = false;
+    elLog.textContent = 'Lời giải tối ưu ban đầu (xanh dương) ở hàng trên; greedy (xanh lá mờ) ở hàng dưới để đối chiếu. Bấm "Bước đổi".';
+    draw();
+  }
+  document.getElementById('e-reset').onclick = reset;
+  reset();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+</body>
+</html>

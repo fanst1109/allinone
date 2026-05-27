@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 20 — Interval Problems</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #4299e1; color: white; border: none; border-radius: 6px;
+    padding: 9px 16px; font-size: 15px; cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+  .hint { color: #718096; font-size: 14px; margin: 4px 0; }
+  .status {
+    font-family: monospace; font-size: 14px; color: #2c5282;
+    background: #ebf8ff; border: 1px solid #bee3f8; border-radius: 6px;
+    padding: 10px 12px; min-height: 22px; margin-top: 12px; white-space: pre-wrap;
+  }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: #4a5568; margin: 8px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+
+  svg { display: block; width: 100%; height: auto; background: #f7fafc; border-radius: 6px; }
+
+  .barlabel { font: 600 12px sans-serif; fill: #2d3748; }
+  .tick { font: 11px monospace; fill: #a0aec0; }
+
+  @media (max-width: 480px) {
+    .card { padding: 14px; }
+    button { padding: 8px 12px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-19-greedy-fundamentals/visualization.html">← L19: Greedy Fundamentals</a>
+  <span class="sep">·</span>
+  <span class="current">L20: Interval Problems</span>
+  <span class="sep">·</span>
+  <a href="../lesson-21-huffman-encoding/visualization.html">L21: Huffman Encoding →</a>
+</nav>
+
+<main class="container">
+<h1>Lesson 20 — Interval Problems (Greedy trên khoảng)</h1>
+<p class="intro">Ba module tương tác cho 3 khuôn mẫu interval: <b>Activity Selection</b> (sort theo end),
+<b>Merge Intervals</b> (sort theo start), <b>Meeting Rooms</b> (sweep line — max concurrent / min phòng).
+Mấu chốt mọi bài: <b>chọn đúng tiêu chí sort</b>.</p>
+
+<!-- ============ MODULE 1: ACTIVITY SELECTION ============ -->
+<h2>1. Activity Selection — sort theo <code>end</code>, chọn greedy</h2>
+<div class="card">
+  <p class="hint">Sort các hoạt động theo thời điểm <b>kết thúc</b>, rồi chọn cái nào tương thích
+  (bắt đầu ≥ end của cái vừa chọn). Biên nửa mở <code>[s, e)</code>: chạm đầu-cuối không tính chồng.</p>
+  <div class="row">
+    <button id="m1-sort">1) Sort theo end</button>
+    <button id="m1-step" disabled>2) Bước greedy</button>
+    <button id="m1-auto" disabled>▶ Tự chạy</button>
+    <button class="ghost" id="m1-reset">↺ Reset / random</button>
+  </div>
+  <div class="legend">
+    <span><span class="swatch" style="background:#4299e1"></span>chưa xét</span>
+    <span><span class="swatch" style="background:#ed8936"></span>đang xét</span>
+    <span><span class="swatch" style="background:#38a169"></span>đã chọn</span>
+    <span><span class="swatch" style="background:#cbd5e0"></span>bỏ (chồng)</span>
+  </div>
+  <svg id="m1-svg" viewBox="0 0 600 300" role="img" aria-label="timeline activity selection"></svg>
+  <div class="status" id="m1-status">Bấm "Sort theo end" để bắt đầu.</div>
+</div>
+
+<!-- ============ MODULE 2: MERGE INTERVALS ============ -->
+<h2>2. Merge Intervals — sort theo <code>start</code>, gộp overlap</h2>
+<div class="card">
+  <p class="hint">Sort theo thời điểm <b>bắt đầu</b>, quét từ trái: nếu khoảng mới chồng/chạm khoảng
+  đang gộp thì nới biên phải bằng <code>max</code>; rời hẳn thì chốt và mở khoảng mới. Biên đóng
+  <code>[s, e]</code>: chạm = gộp.</p>
+  <div class="row">
+    <button id="m2-sort">1) Sort theo start</button>
+    <button id="m2-step" disabled>2) Bước merge</button>
+    <button id="m2-auto" disabled>▶ Tự chạy</button>
+    <button class="ghost" id="m2-reset">↺ Reset / random</button>
+  </div>
+  <div class="legend">
+    <span><span class="swatch" style="background:#4299e1"></span>input</span>
+    <span><span class="swatch" style="background:#ed8936"></span>đang xét</span>
+    <span><span class="swatch" style="background:#805ad5"></span>khoảng đã gộp (kết quả)</span>
+  </div>
+  <svg id="m2-svg" viewBox="0 0 600 300" role="img" aria-label="timeline merge intervals"></svg>
+  <div class="status" id="m2-status">Bấm "Sort theo start" để bắt đầu.</div>
+</div>
+
+<!-- ============ MODULE 3: MEETING ROOMS / SWEEP LINE ============ -->
+<h2>3. Meeting Rooms — sweep line (max concurrent = min phòng)</h2>
+<div class="card">
+  <p class="hint">Mỗi cuộc họp <code>[s, e)</code> → 2 event: <code>+1</code> tại start, <code>−1</code> tại end.
+  Sort event theo thời điểm (tie: <code>−1</code> trước <code>+1</code> cho biên nửa mở), quét cộng dồn.
+  Giá trị cao nhất = số phòng tối thiểu.</p>
+  <div class="row">
+    <button id="m3-step">▶ Quét 1 event</button>
+    <button id="m3-auto">▶ Tự chạy</button>
+    <button class="ghost" id="m3-reset">↺ Reset / random</button>
+  </div>
+  <div class="legend">
+    <span><span class="swatch" style="background:#4299e1"></span>cuộc họp</span>
+    <span><span class="swatch" style="background:#38a169"></span>+1 (start)</span>
+    <span><span class="swatch" style="background:#e53e3e"></span>−1 (end)</span>
+  </div>
+  <svg id="m3-svg" viewBox="0 0 600 320" role="img" aria-label="sweep line meeting rooms"></svg>
+  <div class="status" id="m3-status">Bấm "Quét 1 event" để bắt đầu sweep line.</div>
+</div>
+
+</main>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(name, attrs, text) {
+  const e = document.createElementNS(SVGNS, name);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (text != null) e.textContent = text;
+  return e;
+}
+function randInts(n, maxT) {
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    let s = Math.floor(Math.random() * (maxT - 2));
+    let len = 1 + Math.floor(Math.random() * 4);
+    out.push({ s, e: Math.min(s + len, maxT) });
+  }
+  return out;
+}
+
+/* ====================== MODULE 1: Activity Selection ====================== */
+(function () {
+  const svg = document.getElementById("m1-svg");
+  const status = document.getElementById("m1-status");
+  const bSort = document.getElementById("m1-sort"),
+        bStep = document.getElementById("m1-step"),
+        bAuto = document.getElementById("m1-auto"),
+        bReset = document.getElementById("m1-reset");
+  const MAXT = 14, W = 600, H = 300, PADX = 30, ROWH = 30, TOP = 30;
+  let data, sorted, idx, lastEnd, picked, timer;
+
+  function scaleX(t) { return PADX + (t / MAXT) * (W - 2 * PADX); }
+
+  function init() {
+    clearInterval(timer); timer = null;
+    data = [{s:1,e:4},{s:3,e:5},{s:0,e:6},{s:5,e:7},{s:3,e:9},{s:5,e:9}];
+    if (Math.random() < 0.5) data = randInts(6, MAXT);
+    sorted = false; idx = -1; lastEnd = -1; picked = [];
+    data.forEach(d => d.state = "idle");
+    bSort.disabled = false; bStep.disabled = true; bAuto.disabled = true;
+    status.textContent = "Input chưa sort. Bấm \"Sort theo end\".";
+    render();
+  }
+  function render() {
+    svg.innerHTML = "";
+    // axis ticks
+    for (let t = 0; t <= MAXT; t += 2) {
+      svg.appendChild(el("line", { x1: scaleX(t), y1: TOP - 10, x2: scaleX(t), y2: H - 12, stroke: "#e2e8f0" }));
+      svg.appendChild(el("text", { x: scaleX(t), y: H - 2, "text-anchor": "middle", class: "tick" }, t));
+    }
+    data.forEach((d, i) => {
+      const y = TOP + i * ROWH;
+      let fill = "#4299e1";
+      if (d.state === "cur") fill = "#ed8936";
+      else if (d.state === "pick") fill = "#38a169";
+      else if (d.state === "drop") fill = "#cbd5e0";
+      svg.appendChild(el("rect", { x: scaleX(d.s), y, width: Math.max(2, scaleX(d.e) - scaleX(d.s)), height: ROWH - 8, rx: 4, fill }));
+      svg.appendChild(el("text", { x: scaleX(d.s) + 5, y: y + 15, class: "barlabel", fill: d.state==="drop"?"#718096":"#fff" }, `[${d.s},${d.e})`));
+    });
+  }
+  bSort.onclick = () => {
+    data.sort((a, b) => a.e - b.e);
+    sorted = true; render();
+    bSort.disabled = true; bStep.disabled = false; bAuto.disabled = false;
+    status.textContent = "Đã sort theo end ↑. Bấm \"Bước greedy\" để chọn từng cái (điều kiện: s ≥ lastEnd).";
+  };
+  bStep.onclick = step;
+  function step() {
+    idx++;
+    if (idx >= data.length) {
+      bStep.disabled = true; bAuto.disabled = true; clearInterval(timer); timer = null;
+      status.textContent = `XONG. Chọn được ${picked.length} hoạt động: ` + picked.map(p=>`[${p.s},${p.e})`).join(" ") + ". (max count → sort theo end)";
+      render(); return;
+    }
+    data.forEach(d => { if (d.state === "cur") d.state = (d._chosen ? "pick" : "drop"); });
+    const d = data[idx];
+    d.state = "cur"; render();
+    if (d.s >= lastEnd) {
+      d._chosen = true; d.state = "pick"; lastEnd = d.e; picked.push(d);
+      status.textContent = `Xét [${d.s},${d.e}): s=${d.s} ≥ lastEnd=${(picked.length>1?picked[picked.length-2].e:'−∞')} ✓ → CHỌN. lastEnd = ${d.e}.`;
+    } else {
+      d._chosen = false;
+      status.textContent = `Xét [${d.s},${d.e}): s=${d.s} < lastEnd=${lastEnd} ✗ → BỎ (chồng cái trước).`;
+    }
+    render();
+  }
+  bAuto.onclick = () => {
+    if (timer) { clearInterval(timer); timer = null; bAuto.textContent = "▶ Tự chạy"; return; }
+    bAuto.textContent = "⏸ Dừng";
+    timer = setInterval(() => { if (idx >= data.length) { clearInterval(timer); timer=null; bAuto.textContent="▶ Tự chạy"; } else step(); }, 900);
+  };
+  bReset.onclick = init;
+  init();
+})();
+
+/* ====================== MODULE 2: Merge Intervals ====================== */
+(function () {
+  const svg = document.getElementById("m2-svg");
+  const status = document.getElementById("m2-status");
+  const bSort = document.getElementById("m2-sort"),
+        bStep = document.getElementById("m2-step"),
+        bAuto = document.getElementById("m2-auto"),
+        bReset = document.getElementById("m2-reset");
+  const MAXT = 20, W = 600, H = 300, PADX = 30, ROWH = 26, TOP = 24;
+  let data, idx, result, timer;
+
+  function scaleX(t) { return PADX + (t / MAXT) * (W - 2 * PADX); }
+  function init() {
+    clearInterval(timer); timer = null;
+    data = [{s:1,e:3},{s:2,e:6},{s:8,e:10},{s:15,e:18}];
+    if (Math.random() < 0.5) data = randInts(5, MAXT);
+    idx = -1; result = [];
+    data.forEach(d => d.state = "idle");
+    bSort.disabled = false; bStep.disabled = true; bAuto.disabled = true;
+    status.textContent = "Input chưa sort. Bấm \"Sort theo start\".";
+    render();
+  }
+  function render() {
+    svg.innerHTML = "";
+    for (let t = 0; t <= MAXT; t += 4) {
+      svg.appendChild(el("line", { x1: scaleX(t), y1: 14, x2: scaleX(t), y2: H - 12, stroke: "#e2e8f0" }));
+      svg.appendChild(el("text", { x: scaleX(t), y: H - 2, "text-anchor": "middle", class: "tick" }, t));
+    }
+    data.forEach((d, i) => {
+      const y = TOP + i * ROWH;
+      let fill = d.state === "cur" ? "#ed8936" : "#4299e1";
+      svg.appendChild(el("rect", { x: scaleX(d.s), y, width: Math.max(2, scaleX(d.e) - scaleX(d.s)), height: ROWH - 7, rx: 4, fill }));
+      svg.appendChild(el("text", { x: scaleX(d.s) + 4, y: y + 14, class: "barlabel", fill: "#fff" }, `[${d.s},${d.e}]`));
+    });
+    // result row at bottom
+    const ry = TOP + data.length * ROWH + 8;
+    svg.appendChild(el("text", { x: PADX, y: ry - 4, class: "barlabel", fill: "#553c9a" }, "Kết quả gộp:"));
+    result.forEach(d => {
+      svg.appendChild(el("rect", { x: scaleX(d.s), y: ry, width: Math.max(2, scaleX(d.e) - scaleX(d.s)), height: ROWH - 7, rx: 4, fill: "#805ad5" }));
+      svg.appendChild(el("text", { x: scaleX(d.s) + 4, y: ry + 14, class: "barlabel", fill: "#fff" }, `[${d.s},${d.e}]`));
+    });
+  }
+  bSort.onclick = () => {
+    data.sort((a, b) => a.s - b.s); render();
+    bSort.disabled = true; bStep.disabled = false; bAuto.disabled = false;
+    status.textContent = "Đã sort theo start ↑. Bấm \"Bước merge\".";
+  };
+  bStep.onclick = step;
+  function step() {
+    idx++;
+    if (idx >= data.length) {
+      bStep.disabled = true; bAuto.disabled = true; clearInterval(timer); timer=null;
+      status.textContent = "XONG. Kết quả: " + result.map(d=>`[${d.s},${d.e}]`).join(" ") + ". (merge → sort theo start)";
+      data.forEach(d => d.state = "idle"); render(); return;
+    }
+    data.forEach(d => d.state = "idle");
+    const d = data[idx]; d.state = "cur"; render();
+    if (result.length === 0 || d.s > result[result.length-1].e) {
+      result.push({ s: d.s, e: d.e });
+      status.textContent = `[${d.s},${d.e}]: ${result.length===1?"(đầu tiên)":`s=${d.s} > last.E → RỜI HẲN`} → mở khoảng mới.`;
+    } else {
+      const last = result[result.length-1];
+      const oldE = last.e; last.e = Math.max(last.e, d.e);
+      status.textContent = `[${d.s},${d.e}]: s=${d.s} ≤ last.E=${oldE} → CHỒNG → nới last.E = max(${oldE},${d.e}) = ${last.e}.`;
+    }
+    render();
+  }
+  bAuto.onclick = () => {
+    if (timer) { clearInterval(timer); timer=null; bAuto.textContent="▶ Tự chạy"; return; }
+    bAuto.textContent = "⏸ Dừng";
+    timer = setInterval(() => { if (idx >= data.length) { clearInterval(timer); timer=null; bAuto.textContent="▶ Tự chạy"; } else step(); }, 900);
+  };
+  bReset.onclick = init;
+  init();
+})();
+
+/* ====================== MODULE 3: Sweep Line / Meeting Rooms ====================== */
+(function () {
+  const svg = document.getElementById("m3-svg");
+  const status = document.getElementById("m3-status");
+  const bStep = document.getElementById("m3-step"),
+        bAuto = document.getElementById("m3-auto"),
+        bReset = document.getElementById("m3-reset");
+  const MAXT = 18, W = 600, H = 320, PADX = 30, ROWH = 24, TOP = 20;
+  let meetings, events, evIdx, cur, best, bestT, timer;
+
+  function scaleX(t) { return PADX + (t / MAXT) * (W - 2 * PADX); }
+  function init() {
+    clearInterval(timer); timer = null;
+    meetings = [{s:0,e:10},{s:5,e:8},{s:7,e:14},{s:12,e:16}];
+    if (Math.random() < 0.5) meetings = randInts(5, MAXT);
+    events = [];
+    meetings.forEach((m, i) => { events.push({t:m.s, d:+1, mi:i}); events.push({t:m.e, d:-1, mi:i}); });
+    events.sort((a,b)=> a.t!==b.t ? a.t-b.t : a.d-b.d); // -1 trước +1
+    evIdx = -1; cur = 0; best = 0; bestT = null;
+    bStep.disabled = false; bAuto.disabled = false;
+    status.textContent = "Đã tách thành event (+1 start, −1 end) và sort. Bấm \"Quét 1 event\".";
+    render();
+  }
+  function render() {
+    svg.innerHTML = "";
+    for (let t = 0; t <= MAXT; t += 3) {
+      svg.appendChild(el("line", { x1: scaleX(t), y1: 14, x2: scaleX(t), y2: TOP + meetings.length*ROWH + 4, stroke: "#e2e8f0" }));
+      svg.appendChild(el("text", { x: scaleX(t), y: TOP + meetings.length*ROWH + 18, "text-anchor": "middle", class: "tick" }, t));
+    }
+    meetings.forEach((m, i) => {
+      const y = TOP + i * ROWH;
+      svg.appendChild(el("rect", { x: scaleX(m.s), y, width: Math.max(2, scaleX(m.e)-scaleX(m.s)), height: ROWH - 7, rx: 4, fill: "#4299e1", opacity: 0.85 }));
+      svg.appendChild(el("text", { x: scaleX(m.s)+4, y: y+14, class:"barlabel", fill:"#fff" }, `[${m.s},${m.e})`));
+    });
+    // sweep line position
+    if (evIdx >= 0 && evIdx < events.length) {
+      const x = scaleX(events[evIdx].t);
+      svg.appendChild(el("line", { x1:x, y1:14, x2:x, y2:TOP+meetings.length*ROWH+4, stroke:"#dd6b20", "stroke-width":2, "stroke-dasharray":"4 3" }));
+    }
+    // concurrency chart at bottom
+    const chartY = TOP + meetings.length*ROWH + 30;
+    const chartH = H - chartY - 26;
+    svg.appendChild(el("line", { x1: PADX, y1: chartY+chartH, x2: W-PADX, y2: chartY+chartH, stroke:"#a0aec0" }));
+    svg.appendChild(el("text", { x: PADX, y: chartY+10, class:"barlabel", fill:"#2d3748" }, "Số cuộc đồng thời:"));
+    // draw step graph from processed events
+    let acc = 0, prevX = PADX;
+    const maxConc = Math.max(1, best, meetings.length);
+    function yFor(v) { return chartY+chartH - (v/maxConc)*(chartH-4); }
+    for (let k = 0; k <= evIdx && k < events.length; k++) {
+      const ev = events[k];
+      const x = scaleX(ev.t);
+      svg.appendChild(el("line", { x1:prevX, y1:yFor(acc), x2:x, y2:yFor(acc), stroke:"#3182ce", "stroke-width":3 }));
+      acc += ev.d;
+      svg.appendChild(el("line", { x1:x, y1:yFor(acc - ev.d), x2:x, y2:yFor(acc), stroke:"#3182ce", "stroke-width":3 }));
+      const c = ev.d>0 ? "#38a169" : "#e53e3e";
+      svg.appendChild(el("circle", { cx:x, cy:yFor(acc), r:4, fill:c }));
+      prevX = x;
+    }
+  }
+  bStep.onclick = step;
+  function step() {
+    evIdx++;
+    if (evIdx >= events.length) {
+      bStep.disabled = true; bAuto.disabled = true; clearInterval(timer); timer=null;
+      status.textContent = `XONG. Max đồng thời = ${best} (tại t=${bestT}) → cần ${best} phòng. (min phòng → sweep / heap)`;
+      render(); return;
+    }
+    const ev = events[evIdx];
+    cur += ev.d;
+    if (cur > best) { best = cur; bestT = ev.t; }
+    render();
+    status.textContent = `t=${ev.t}: ${ev.d>0?"+1 (cuộc bắt đầu)":"−1 (cuộc kết thúc)"} → đang chạy = ${cur}. Max hiện tại = ${best}.`;
+  }
+  bAuto.onclick = () => {
+    if (timer) { clearInterval(timer); timer=null; bAuto.textContent="▶ Tự chạy"; return; }
+    bAuto.textContent = "⏸ Dừng";
+    timer = setInterval(() => { if (evIdx >= events.length) { clearInterval(timer); timer=null; bAuto.textContent="▶ Tự chạy"; } else step(); }, 850);
+  };
+  bReset.onclick = init;
+  init();
+})();
+</script>
+
+<!-- README modal + TOC + favicon -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+
+</body>
+</html>

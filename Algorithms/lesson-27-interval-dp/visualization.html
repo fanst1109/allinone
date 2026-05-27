@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 27 — Interval DP (Quy hoạch động trên khoảng)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .lead { color: #4a5568; max-width: 760px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.1); margin: 18px 0;
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px; }
+  .controls label { font-weight: 600; color: #2d3748; font-size: 14px; }
+  select, input[type="text"] {
+    padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 15px; max-width: 220px; width: 100%; box-sizing: border-box;
+  }
+  .ctl-group { display: flex; flex-direction: column; gap: 4px; }
+  button {
+    padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;
+    font-size: 14px; font-weight: 600; background: #4299e1; color: white;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+
+  /* ===== Module 1: bảng tam giác dp[i][j] ===== */
+  .dp-wrap { overflow-x: auto; }
+  table.dp {
+    border-collapse: collapse; margin: 12px auto; font-size: 14px;
+  }
+  table.dp th, table.dp td {
+    border: 1px solid #cbd5e0; width: 54px; height: 44px; text-align: center;
+    padding: 0; font-variant-numeric: tabular-nums;
+  }
+  table.dp th { background: #edf2f7; color: #2d3748; font-weight: 700; }
+  table.dp td.empty { background: #f7fafc; color: #cbd5e0; }
+  table.dp td.base { background: #e6fffa; color: #234e52; font-weight: 700; }
+  table.dp td.filled { background: #fff; color: #1a202c; }
+  table.dp td.active { background: #fefcbf; color: #744210; font-weight: 800; box-shadow: inset 0 0 0 2px #d69e2e; }
+  table.dp td.dep { background: #bee3f8; color: #2a4365; }
+  table.dp td.result { background: #c6f6d5; color: #22543d; font-weight: 800; }
+  .step-note { font-size: 14px; color: #2d3748; min-height: 44px; padding: 8px 12px;
+    background: #f7fafc; border-left: 3px solid #4299e1; border-radius: 4px; margin-top: 10px; }
+  .step-note .k { color: #d69e2e; font-weight: 700; }
+
+  /* ===== Module 2: matrix chain ===== */
+  .paren-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .paren-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; background: #f7fafc;
+    font-size: 14px; gap: 10px; flex-wrap: wrap;
+  }
+  .paren-row .expr { font-family: ui-monospace, monospace; color: #2d3748; }
+  .paren-row .cost { font-weight: 700; color: #4a5568; white-space: nowrap; }
+  .paren-row.best { background: #c6f6d5; border-color: #38a169; }
+  .paren-row.best .cost { color: #22543d; }
+  .paren-row.worst { background: #fff5f5; border-color: #e53e3e; }
+  .mc-verdict { margin-top: 14px; padding: 12px 14px; border-radius: 8px; font-weight: 600;
+    background: #ebf8ff; color: #2a4365; }
+
+  /* ===== Module 3: burst balloons ===== */
+  .balloons { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; align-items: flex-end; margin: 14px 0; min-height: 80px; }
+  .balloon {
+    width: 46px; height: 56px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 800; font-size: 16px; position: relative;
+    box-shadow: 0 2px 4px rgba(0,0,0,.2); transition: transform .3s, opacity .3s;
+  }
+  .balloon.virtual { background: #a0aec0; opacity: .7; }
+  .balloon.real { background: #ed64a6; }
+  .balloon.last { background: #d69e2e; transform: scale(1.18); box-shadow: 0 0 0 3px #faf089; }
+  .balloon.popped { opacity: 0; transform: scale(.3); }
+  .balloon .tail { position: absolute; bottom: -6px; left: 50%; width: 2px; height: 8px; background: inherit; }
+  .bb-note { font-size: 14px; color: #2d3748; min-height: 40px; padding: 8px 12px;
+    background: #f7fafc; border-left: 3px solid #ed64a6; border-radius: 4px; margin-top: 8px; }
+  .bb-formula { font-family: ui-monospace, monospace; font-size: 14px; color: #744210; background: #fffaf0;
+    padding: 6px 10px; border-radius: 6px; margin-top: 8px; display: inline-block; }
+  .bb-score { font-weight: 800; color: #22543d; }
+
+  .tip { font-size: 13px; color: #718096; margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-26-dp-grid-2d/visualization.html">← L26: DP 2D/Grid</a>
+  <span class="sep">·</span>
+  <span class="current">L27: Interval DP</span>
+  <span class="sep">·</span>
+  <a href="../lesson-28-dp-on-trees/visualization.html">L28: DP trên cây →</a>
+</nav>
+
+<div class="container">
+  <header>
+    <h1>Lesson 27 — Interval DP (Quy hoạch động trên khoảng)</h1>
+    <p class="lead">
+      State <code>dp[i][j]</code> = lời giải tối ưu cho khoảng <code>[i..j]</code>; transition thử mọi điểm chia <code>k</code>.
+      Ba module dưới cho bạn <em>thấy tận mắt</em>: bảng tam giác điền theo đường chéo, thứ tự đặt ngoặc ma trận,
+      và mẹo "bóng nổ cuối cùng" trong Burst Balloons.
+    </p>
+  </header>
+
+  <main>
+
+  <!-- ============ MODULE 1: INTERVAL DP TABLE ============ -->
+  <h2>Module 1 — Bảng Interval DP điền theo đường chéo</h2>
+  <div class="card">
+    <p class="lead">Bảng <code>dp[i][j]</code> chỉ dùng nửa trên-phải (<code>i ≤ j</code>). Đường chéo chính là base case (độ dài 1).
+      Mỗi bước điền <strong>một đường chéo</strong> ứng với một độ dài khoảng tăng dần. Ô <span style="color:#2a4365">xanh nhạt</span> = khoảng con
+      mà <code>dp[i][j]</code> đang đọc (phụ thuộc). Đây là demo với Matrix Chain (chi phí nhân scalar).</p>
+    <div class="controls">
+      <div class="ctl-group">
+        <label for="m1dims">dims (kích thước ma trận)</label>
+        <select id="m1dims">
+          <option value="40,20,30,10,30">[40, 20, 30, 10, 30] — 4 ma trận</option>
+          <option value="10,20,30">[10, 20, 30] — 2 ma trận</option>
+          <option value="30,35,15,5,10">[30, 35, 15, 5, 10] — 4 ma trận (CLRS)</option>
+        </select>
+      </div>
+      <button id="m1Step">▶ Bước tiếp</button>
+      <button id="m1Auto" class="secondary">⏩ Tự động chạy</button>
+      <button id="m1Reset" class="secondary">↺ Reset</button>
+    </div>
+    <div class="dp-wrap"><table class="dp" id="m1Table"></table></div>
+    <div class="step-note" id="m1Note">Nhấn "Bước tiếp" để điền base case (đường chéo chính), rồi từng độ dài tăng dần.</div>
+    <p class="tip">Quan sát: ô kết quả <code>dp[0][n-1]</code> ở góc trên-phải được điền <strong>cuối cùng</strong> — vì nó cần mọi khoảng con ngắn hơn.</p>
+  </div>
+
+  <!-- ============ MODULE 2: MATRIX CHAIN PAREN ============ -->
+  <h2>Module 2 — Matrix Chain: thử mọi cách đặt ngoặc</h2>
+  <div class="card">
+    <p class="lead">Nhân ma trận có tính kết hợp <code>(AB)C = A(BC)</code> nhưng <strong>số phép nhân scalar</strong> khác nhau.
+      Module này liệt kê <em>mọi</em> cách đặt ngoặc và chi phí, đánh dấu <span style="color:#22543d;font-weight:700">tối ưu</span>
+      (xanh) và <span style="color:#742a2a;font-weight:700">tệ nhất</span> (đỏ).</p>
+    <div class="controls">
+      <div class="ctl-group">
+        <label for="m2dims">dims</label>
+        <select id="m2dims">
+          <option value="40,20,30,10,30">[40, 20, 30, 10, 30]</option>
+          <option value="10,30,5,60">[10, 30, 5, 60]</option>
+          <option value="5,10,3,12,5">[5, 10, 3, 12, 5]</option>
+        </select>
+      </div>
+      <button id="m2Run">Tính tất cả cách</button>
+    </div>
+    <div class="paren-list" id="m2List"></div>
+    <div class="mc-verdict" id="m2Verdict"></div>
+    <p class="tip">Số cách đặt ngoặc của n ma trận = số Catalan C(n-1). Interval DP né việc liệt kê tất cả (vốn cấp số mũ) bằng cách nhớ <code>dp[i][j]</code>.</p>
+  </div>
+
+  <!-- ============ MODULE 3: BURST BALLOONS ============ -->
+  <h2>Module 3 — Burst Balloons: bóng "nổ cuối cùng"</h2>
+  <div class="card">
+    <p class="lead">Mẹo: thay vì hỏi "nổ bóng nào TRƯỚC", ta hỏi "trong khoảng <code>(i, j)</code>, bóng nào nổ CUỐI CÙNG".
+      Khi đó hai hàng xóm của nó là hai biên <code>i</code>, <code>j</code> (cố định) → điểm = <code>a[i]·a[k]·a[j]</code>,
+      hai nửa độc lập. Có thêm <span style="color:#718096;font-weight:700">biên ảo 1</span> ở hai đầu.</p>
+    <div class="controls">
+      <div class="ctl-group">
+        <label for="m3nums">nums</label>
+        <select id="m3nums">
+          <option value="3,1,5,8">[3, 1, 5, 8]</option>
+          <option value="1,5">[1, 5]</option>
+          <option value="1,2,3,4,5">[1, 2, 3, 4, 5]</option>
+        </select>
+      </div>
+      <button id="m3Run">Tính dp (bottom-up)</button>
+      <button id="m3Reset" class="secondary">↺ Reset</button>
+    </div>
+    <div class="balloons" id="m3Balloons"></div>
+    <div class="bb-note" id="m3Note">Chọn bộ bóng và nhấn "Tính dp" để xem từng khoảng được giải, chọn bóng nổ cuối tối ưu.</div>
+    <div><span class="bb-formula" id="m3Formula"></span></div>
+    <p class="tip">Khoảng <code>(i, j)</code> là khoảng MỞ — không nổ <code>i</code>, <code>j</code>. Transition dùng <code>dp[i][k] + dp[k][j]</code> (chú ý <code>dp[k][j]</code>, không phải <code>dp[k+1][j]</code>).</p>
+  </div>
+
+  </main>
+</div>
+
+<script>
+// ============================================================
+// MODULE 1 — Interval DP table (Matrix Chain), điền theo đường chéo
+// ============================================================
+(function () {
+  const sel = document.getElementById('m1dims');
+  const table = document.getElementById('m1Table');
+  const note = document.getElementById('m1Note');
+  const btnStep = document.getElementById('m1Step');
+  const btnAuto = document.getElementById('m1Auto');
+  const btnReset = document.getElementById('m1Reset');
+
+  let dims, n, dp, steps, idx, autoTimer = null;
+
+  function build() {
+    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; btnAuto.textContent = '⏩ Tự động chạy'; }
+    dims = sel.value.split(',').map(Number);
+    n = dims.length - 1; // số ma trận, đánh số 1..n
+    dp = Array.from({ length: n + 1 }, () => new Array(n + 1).fill(null));
+    // dựng danh sách "steps": mỗi step = điền 1 ô (hoặc base block)
+    steps = [];
+    // base
+    steps.push({ type: 'base' });
+    for (let len = 2; len <= n; len++) {
+      for (let i = 1; i + len - 1 <= n; i++) {
+        const j = i + len - 1;
+        // tính min + nhớ các k
+        let best = Infinity, bestK = -1, tries = [];
+        for (let k = i; k < j; k++) {
+          const cost = (dp_pre(i, k)) + (dp_pre(k + 1, j)) + dims[i - 1] * dims[k] * dims[j];
+          tries.push({ k, cost });
+          if (cost < best) { best = cost; bestK = k; }
+        }
+        steps.push({ type: 'cell', i, j, len, best, bestK, tries });
+        dp[i][j] = best; // cập nhật để bước sau dùng (precompute song song)
+      }
+    }
+    // reset dp về null cho phần animate
+    dp = Array.from({ length: n + 1 }, () => new Array(n + 1).fill(null));
+    idx = 0;
+    render();
+    note.innerHTML = 'Sẵn sàng. Nhấn "Bước tiếp" để điền base case (đường chéo chính).';
+  }
+
+  // precompute helper dùng trong build (dp đã có giá trị thật vì điền theo độ dài tăng dần)
+  function dp_pre(i, j) {
+    if (i === j) return 0;
+    return dp[i][j];
+  }
+
+  function render(active) {
+    // active: {i, j, deps:[[i,k],[k+1,j]]}
+    let html = '<tr><th></th>';
+    for (let j = 1; j <= n; j++) html += '<th>j=' + j + '</th>';
+    html += '</tr>';
+    for (let i = 1; i <= n; i++) {
+      html += '<tr><th>i=' + i + '</th>';
+      for (let j = 1; j <= n; j++) {
+        if (j < i) { html += '<td class="empty">·</td>'; continue; }
+        let cls = 'filled', val;
+        if (i === j) { cls = 'base'; val = '0'; }
+        else if (dp[i][j] === null) { cls = 'empty'; val = '?'; }
+        else { val = dp[i][j]; }
+        if (active) {
+          if (active.i === i && active.j === j) cls = (i === 1 && j === n) ? 'result' : 'active';
+          else if (active.deps && active.deps.some(d => d[0] === i && d[1] === j)) cls = 'dep';
+        }
+        html += '<td class="' + cls + '">' + val + '</td>';
+      }
+      html += '</tr>';
+    }
+    table.innerHTML = html;
+  }
+
+  function step() {
+    if (idx >= steps.length) {
+      note.innerHTML = '<strong>Xong!</strong> Kết quả <code>dp[1][' + n + '] = ' + dp[1][n] + '</code> ở góc trên-phải (điền cuối cùng).';
+      render();
+      return false;
+    }
+    const s = steps[idx++];
+    if (s.type === 'base') {
+      note.innerHTML = 'Base case: mọi <code>dp[i][i] = 0</code> (1 ma trận không cần nhân) — đường chéo chính (xanh ngọc).';
+      render();
+      return true;
+    }
+    // cell
+    dp[s.i][s.j] = s.best;
+    const triesStr = s.tries.map(t =>
+      'k=' + t.k + (t.k === s.bestK ? ' → <b>' + t.cost + '</b>' : ' → ' + t.cost)
+    ).join(', ');
+    note.innerHTML = 'Độ dài ' + s.len + ': điền <code>dp[' + s.i + '][' + s.j + ']</code>. ' +
+      'Thử <span class="k">' + triesStr + '</span>. Chọn min tại <span class="k">k=' + s.bestK + '</span> → <b>' + s.best + '</b>.';
+    render({ i: s.i, j: s.j, deps: [[s.i, s.bestK], [s.bestK + 1, s.j]] });
+    return true;
+  }
+
+  btnStep.addEventListener('click', step);
+  btnReset.addEventListener('click', build);
+  btnAuto.addEventListener('click', () => {
+    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; btnAuto.textContent = '⏩ Tự động chạy'; return; }
+    btnAuto.textContent = '⏸ Dừng';
+    autoTimer = setInterval(() => { if (!step()) { clearInterval(autoTimer); autoTimer = null; btnAuto.textContent = '⏩ Tự động chạy'; } }, 1100);
+  });
+  sel.addEventListener('change', build);
+  build();
+})();
+
+// ============================================================
+// MODULE 2 — Matrix Chain: liệt kê mọi cách đặt ngoặc + chi phí
+// ============================================================
+(function () {
+  const sel = document.getElementById('m2dims');
+  const list = document.getElementById('m2List');
+  const verdict = document.getElementById('m2Verdict');
+  const btn = document.getElementById('m2Run');
+
+  // sinh mọi cách đặt ngoặc cho ma trận i..j (1-indexed), trả về [{expr, cost}]
+  function allParen(dims, i, j) {
+    if (i === j) return [{ expr: 'A' + i, cost: 0, left: dims[i - 1], right: dims[i] }];
+    const res = [];
+    for (let k = i; k < j; k++) {
+      const lefts = allParen(dims, i, k);
+      const rights = allParen(dims, k + 1, j);
+      for (const L of lefts) {
+        for (const R of rights) {
+          const cost = L.cost + R.cost + dims[i - 1] * dims[k] * dims[j];
+          res.push({ expr: '(' + L.expr + '·' + R.expr + ')', cost });
+        }
+      }
+    }
+    return res;
+  }
+
+  function run() {
+    const dims = sel.value.split(',').map(Number);
+    const n = dims.length - 1;
+    let ways = allParen(dims, 1, n);
+    ways.sort((a, b) => a.cost - b.cost);
+    const min = ways[0].cost, max = ways[ways.length - 1].cost;
+    list.innerHTML = ways.map(w => {
+      let cls = 'paren-row';
+      if (w.cost === min) cls += ' best';
+      else if (w.cost === max && max !== min) cls += ' worst';
+      return '<div class="' + cls + '"><span class="expr">' + w.expr + '</span>' +
+        '<span class="cost">' + w.cost.toLocaleString('en-US') + ' phép nhân</span></div>';
+    }).join('');
+    const ratio = min > 0 ? (max / min).toFixed(2) : '—';
+    verdict.innerHTML = 'Có <b>' + ways.length + '</b> cách đặt ngoặc (số Catalan). ' +
+      'Tối ưu = <b>' + min.toLocaleString('en-US') + '</b>, tệ nhất = <b>' + max.toLocaleString('en-US') + '</b>. ' +
+      'Cách tệ tốn gấp <b>' + ratio + '×</b> cách tối ưu — chọn ngoặc đúng rất đáng giá.';
+  }
+
+  btn.addEventListener('click', run);
+  sel.addEventListener('change', run);
+  run();
+})();
+
+// ============================================================
+// MODULE 3 — Burst Balloons: animate khoảng & bóng nổ cuối
+// ============================================================
+(function () {
+  const sel = document.getElementById('m3nums');
+  const wrap = document.getElementById('m3Balloons');
+  const note = document.getElementById('m3Note');
+  const formula = document.getElementById('m3Formula');
+  const btnRun = document.getElementById('m3Run');
+  const btnReset = document.getElementById('m3Reset');
+
+  let a, m, dp, steps, idx, timer = null;
+
+  function build() {
+    if (timer) { clearInterval(timer); timer = null; }
+    const nums = sel.value.split(',').map(Number);
+    a = [1, ...nums, 1]; // biên ảo
+    m = a.length;
+    renderBalloons(-1, -1, -1);
+    formula.textContent = '';
+    note.innerHTML = 'Mảng có biên ảo: a = [' + a.join(', ') + ']. Nhấn "Tính dp" để chạy bottom-up theo độ dài khoảng tăng dần.';
+  }
+
+  function renderBalloons(activeI, activeJ, lastK) {
+    let html = '';
+    for (let idx2 = 0; idx2 < m; idx2++) {
+      let cls = 'balloon ';
+      if (idx2 === 0 || idx2 === m - 1) cls += 'virtual';
+      else cls += 'real';
+      if (idx2 === lastK) cls += ' last';
+      // mờ các bóng ngoài khoảng đang xét (chỉ minh họa nhẹ)
+      let style = '';
+      if (activeI >= 0 && (idx2 < activeI || idx2 > activeJ)) style = 'opacity:.35';
+      html += '<div class="' + cls + '" style="' + style + '">' + a[idx2] + '<span class="tail"></span></div>';
+    }
+    wrap.innerHTML = html;
+  }
+
+  function run() {
+    if (timer) { clearInterval(timer); timer = null; }
+    dp = Array.from({ length: m }, () => new Array(m).fill(0));
+    steps = [];
+    for (let len = 2; len < m; len++) {
+      for (let i = 0; i + len < m; i++) {
+        const j = i + len;
+        let best = -Infinity, bestK = -1, tries = [];
+        for (let k = i + 1; k < j; k++) {
+          const coins = dp[i][k] + dp[k][j] + a[i] * a[k] * a[j];
+          tries.push({ k, coins });
+          if (coins > best) { best = coins; bestK = k; }
+        }
+        dp[i][j] = best;
+        steps.push({ i, j, best, bestK, tries });
+      }
+    }
+    idx = 0;
+    timer = setInterval(tick, 900);
+  }
+
+  function tick() {
+    if (idx >= steps.length) {
+      clearInterval(timer); timer = null;
+      renderBalloons(-1, -1, -1);
+      note.innerHTML = '<strong>Xong!</strong> Kết quả <code>dp[0][' + (m - 1) + '] = <span class="bb-score">' + dp[0][m - 1] + '</span></code> điểm tối đa.';
+      formula.textContent = '';
+      return;
+    }
+    const s = steps[idx++];
+    renderBalloons(s.i, s.j, s.bestK);
+    const triesStr = s.tries.map(t =>
+      'k=' + t.k + (t.k === s.bestK ? ' → ' + t.coins : ' → ' + t.coins)
+    ).join(',  ');
+    note.innerHTML = 'Khoảng mở <code>(' + s.i + ', ' + s.j + ')</code>: thử mọi bóng nổ cuối — ' + triesStr +
+      '. Tối ưu: bóng <b>k=' + s.bestK + '</b> nổ cuối → <span class="bb-score">' + s.best + '</span>.';
+    formula.textContent =
+      'dp[' + s.i + '][' + s.j + '] = dp[' + s.i + '][' + s.bestK + '] + dp[' + s.bestK + '][' + s.j + '] + ' +
+      'a[' + s.i + ']·a[' + s.bestK + ']·a[' + s.j + '] = ' +
+      dp[s.i][s.bestK] + ' + ' + dp[s.bestK][s.j] + ' + ' +
+      a[s.i] + '·' + a[s.bestK] + '·' + a[s.j] + ' = ' + s.best;
+  }
+
+  btnRun.addEventListener('click', run);
+  btnReset.addEventListener('click', build);
+  sel.addEventListener('change', build);
+  build();
+})();
+</script>
+
+<!-- README modal + TOC + favicon -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+
+</body>
+</html>

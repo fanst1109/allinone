@@ -898,65 +898,32 @@ Bảng `dp` không chỉ cho **đáp số** mà còn cho biết **đường đi/
 Từ `(m-1, n-1)` đi ngược: tại ô `(i,j)`, ô này đến từ `(i-1,j)` nếu `dp[i-1][j] <= dp[i][j-1]`, ngược lại từ `(i,j-1)`. Đảo ngược danh sách → đường từ start.
 
 ```go
-package main
-
-import "fmt"
-
-func minI2(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-// minPathWithRoute trả về tổng nhỏ nhất và đường đi (danh sách ô).
-func minPathWithRoute(grid [][]int) (int, [][2]int) {
-	m, n := len(grid), len(grid[0])
-	dp := make([][]int, m)
-	for i := range dp {
-		dp[i] = make([]int, n)
-	}
-	dp[0][0] = grid[0][0]
-	for j := 1; j < n; j++ {
-		dp[0][j] = dp[0][j-1] + grid[0][j]
-	}
-	for i := 1; i < m; i++ {
-		dp[i][0] = dp[i-1][0] + grid[i][0]
-	}
-	for i := 1; i < m; i++ {
-		for j := 1; j < n; j++ {
-			dp[i][j] = grid[i][j] + minI2(dp[i-1][j], dp[i][j-1])
-		}
-	}
-	// truy vết
+// Giả sử đã điền xong bảng dp như minPathSum (mục 3.3).
+// Phần truy vết: đứng ở góc dưới-phải, đi ngược về (0,0).
+func tracePath(dp [][]int) [][2]int {
+	m, n := len(dp), len(dp[0])
 	route := [][2]int{}
 	i, j := m-1, n-1
 	for i > 0 || j > 0 {
 		route = append(route, [2]int{i, j})
 		if i == 0 {
-			j-- // chỉ còn đi từ trái
+			j-- // sát biên trên: chỉ còn đi từ trái
 		} else if j == 0 {
-			i-- // chỉ còn đi từ trên
+			i-- // sát biên trái: chỉ còn đi từ trên
 		} else if dp[i-1][j] <= dp[i][j-1] {
-			i--
+			i-- // ô trên rẻ hơn (hoặc bằng) → đến từ trên
 		} else {
-			j--
+			j-- // đến từ trái
 		}
 	}
 	route = append(route, [2]int{0, 0})
-	// đảo lại cho thứ tự từ start
+	// route đang ngược (đích → start) → đảo lại
 	for l, r := 0, len(route)-1; l < r; l, r = l+1, r-1 {
 		route[l], route[r] = route[r], route[l]
 	}
-	return dp[m-1][n-1], route
+	return route
 }
-
-func main() {
-	g := [][]int{{1, 3, 1}, {1, 5, 1}, {4, 2, 1}}
-	sum, route := minPathWithRoute(g)
-	fmt.Println(sum)   // 7
-	fmt.Println(route) // [[0 0] [0 1] [0 2] [1 2] [2 2]]
-}
+// Với grid [[1,3,1],[1,5,1],[4,2,1]] → route [[0 0] [0 1] [0 2] [1 2] [2 2]]
 ```
 
 Đường đi `[(0,0)(0,1)(0,2)(1,2)(2,2)]` = chi phí `1+3+1+1+1 = 7` ✓ (khớp walk-through 3.1).
@@ -1021,55 +988,7 @@ Làm trước khi xem lời giải. Tự ước lượng Big-O cho mỗi bài.
 
 ### Bài 1 — Unique paths (+obstacle)
 
-**Cách tiếp cận.** `uniquePaths`: xem mục 2.3. Bản obstacle: xem 4.3. Ý chính — vật cản ⇒ `dp=0`, để transition tự lan, kiểm tra ô start.
-
-```go
-func uniquePaths(m, n int) int {
-	dp := make([][]int, m)
-	for i := range dp {
-		dp[i] = make([]int, n)
-		dp[i][0] = 1
-	}
-	for j := 0; j < n; j++ {
-		dp[0][j] = 1
-	}
-	for i := 1; i < m; i++ {
-		for j := 1; j < n; j++ {
-			dp[i][j] = dp[i-1][j] + dp[i][j-1]
-		}
-	}
-	return dp[m-1][n-1]
-}
-
-func uniquePathsWithObstacles(grid [][]int) int {
-	m, n := len(grid), len(grid[0])
-	if grid[0][0] == 1 {
-		return 0
-	}
-	dp := make([][]int, m)
-	for i := range dp {
-		dp[i] = make([]int, n)
-	}
-	dp[0][0] = 1
-	for i := 0; i < m; i++ {
-		for j := 0; j < n; j++ {
-			if i == 0 && j == 0 {
-				continue
-			}
-			if grid[i][j] == 1 {
-				continue // dp = 0
-			}
-			if i > 0 {
-				dp[i][j] += dp[i-1][j]
-			}
-			if j > 0 {
-				dp[i][j] += dp[i][j-1]
-			}
-		}
-	}
-	return dp[m-1][n-1]
-}
-```
+**Cách tiếp cận.** `uniquePaths`: code đầy đủ ở **mục 2.3** (`(3,7)→28`). Bản obstacle: code đầy đủ ở **mục 4.3**. Ý chính — vật cản ⇒ `dp=0`, để transition tự lan có điều kiện (`if i>0`/`if j>0`), nhớ kiểm tra ô start bị chặn.
 
 **Walk-through obstacle** (lưới 3×3, vật cản ở giữa): xem bảng mục 4.1 → đáp số 2.
 

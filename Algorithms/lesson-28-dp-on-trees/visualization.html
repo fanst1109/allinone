@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 28 — DP trên cây Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root { --accent: #ef4444; --accent-soft: #fee2e2; --accent-hover: #dc2626; }
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: var(--accent); color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  label { font-weight: 600; font-size: 14px; }
+  svg { display: block; max-width: 100%; height: auto; margin: 8px auto; background: #fafbfc; border-radius: 6px; }
+  .explain {
+    background: var(--accent-soft); border-left: 4px solid var(--accent);
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6; margin-top: 10px;
+    min-height: 1.6em;
+  }
+  .legend { font-size: 13px; color: #4a5568; margin: 6px 0; display: flex; gap: 16px; flex-wrap: wrap; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; border: 2px solid #4a5568; }
+  .mono { font-family: ui-monospace, monospace; }
+  /* node circle states */
+  .nd { fill: #fff; stroke: #94a3b8; stroke-width: 2; transition: fill .25s, stroke .25s; }
+  .nd.active { fill: #fde68a; stroke: #d97706; }
+  .nd.done { fill: #bbf7d0; stroke: #16a34a; }
+  .nd.chosen { fill: #fca5a5; stroke: #dc2626; }
+  .nd.diam { fill: #a5b4fc; stroke: #4f46e5; }
+  .edge { stroke: #cbd5e0; stroke-width: 2.5; transition: stroke .25s; }
+  .edge.diam { stroke: #4f46e5; stroke-width: 4.5; }
+  .ndlabel { font: 600 14px ui-monospace, monospace; fill: #1f2328; text-anchor: middle; dominant-baseline: middle; }
+  .dpbox { font: 600 11px ui-monospace, monospace; fill: #b91c1c; text-anchor: middle; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-27-interval-dp/visualization.html">← L27: Interval DP</a>
+  <span class="sep">·</span>
+  <span class="current">L28: DP trên cây</span>
+  <span class="sep">·</span>
+  <a href="../lesson-29-bitmask-dp/visualization.html">L29: Bitmask DP →</a>
+</nav>
+
+<main class="container">
+
+<h1>Lesson 28 — Quy hoạch động trên cây</h1>
+<p>State gắn với mỗi node, tính từ lá lên gốc bằng <strong>post-order DFS</strong>. Ba module: (1) khung DFS post-order, (2) House Robber III, (3) Tree Diameter.</p>
+
+<!-- ============ MODULE 1: POST-ORDER DFS ============ -->
+<h2>Module 1 — Tree DP post-order (size subtree)</h2>
+<div class="card">
+  <p>Animate DFS post-order: tô node <b>đang xử lý</b> (vàng), gộp <span class="mono">dp[node] = 1 + Σ dp[con]</span> từ lá lên gốc, hoàn tất chuyển sang <b>xanh</b>. Đây là <code>subtreeSize</code> (mục 5 README).</p>
+  <div class="row">
+    <button id="m1play">▶ Chạy từng bước</button>
+    <button id="m1auto" class="secondary">⏩ Auto</button>
+    <button id="m1reset" class="secondary">↺ Reset</button>
+  </div>
+  <div class="legend">
+    <span><span class="dot" style="background:#fff"></span> chưa xử lý</span>
+    <span><span class="dot" style="background:#fde68a;border-color:#d97706"></span> đang xử lý</span>
+    <span><span class="dot" style="background:#bbf7d0;border-color:#16a34a"></span> đã tính dp</span>
+  </div>
+  <svg id="m1svg" viewBox="0 0 520 320" width="520" height="320"></svg>
+  <div class="explain" id="m1explain">Bấm "Chạy từng bước" để duyệt post-order. Số đỏ dưới mỗi node = dp (size subtree).</div>
+</div>
+
+<!-- ============ MODULE 2: HOUSE ROBBER III ============ -->
+<h2>Module 2 — House Robber III (max independent set)</h2>
+<div class="card">
+  <p>Mỗi node có trọng số (tiền). Tính <span class="mono">dp[node][0]</span> (không cướp) và <span class="mono">dp[node][1]</span> (cướp). Không cướp 2 node kề. Cuối cùng tô <b>đỏ</b> tập node được chọn tối ưu.</p>
+  <div class="row">
+    <button id="m2play">▶ Chạy từng bước</button>
+    <button id="m2auto" class="secondary">⏩ Auto</button>
+    <button id="m2reset" class="secondary">↺ Reset</button>
+  </div>
+  <div class="legend">
+    <span><span class="dot" style="background:#fde68a;border-color:#d97706"></span> đang tính</span>
+    <span><span class="dot" style="background:#bbf7d0;border-color:#16a34a"></span> đã có dp[0]/dp[1]</span>
+    <span><span class="dot" style="background:#fca5a5;border-color:#dc2626"></span> được CƯỚP</span>
+  </div>
+  <svg id="m2svg" viewBox="0 0 520 320" width="520" height="320"></svg>
+  <div class="explain" id="m2explain">Trọng số hiện trong node. Cặp số dưới node = [dp0 | dp1].</div>
+</div>
+
+<!-- ============ MODULE 3: TREE DIAMETER ============ -->
+<h2>Module 3 — Tree Diameter (đường kính)</h2>
+<div class="card">
+  <p>DFS trả <span class="mono">down(node)</span> = nhánh sâu nhất. Tại mỗi node giữ 2 chiều cao con lớn nhất → cập nhật đường kính. Cuối cùng tô <b>tím</b> đường kính.</p>
+  <div class="row">
+    <button id="m3play">▶ Chạy từng bước</button>
+    <button id="m3auto" class="secondary">⏩ Auto</button>
+    <button id="m3reset" class="secondary">↺ Reset</button>
+  </div>
+  <div class="legend">
+    <span><span class="dot" style="background:#fde68a;border-color:#d97706"></span> đang xử lý</span>
+    <span><span class="dot" style="background:#bbf7d0;border-color:#16a34a"></span> đã có down</span>
+    <span><span class="dot" style="background:#a5b4fc;border-color:#4f46e5"></span> trên đường kính</span>
+  </div>
+  <svg id="m3svg" viewBox="0 0 560 340" width="560" height="340"></svg>
+  <div class="explain" id="m3explain">Số đỏ dưới node = down(node) (nhánh sâu nhất, số cạnh). Đường kính tô tím.</div>
+</div>
+
+</main>
+
+<script>
+// ============ Helpers vẽ cây trên SVG ============
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+// vẽ cây: nodes = [{id,x,y}], edges = [[u,v]], adj computed
+function buildTree(svg, nodes, edges) {
+  svg.innerHTML = "";
+  const gEdges = el("g", {}), gNodes = el("g", {});
+  svg.appendChild(gEdges); svg.appendChild(gNodes);
+  const edgeEls = {};
+  edges.forEach(([u, v]) => {
+    const line = el("line", {
+      x1: nodes[u].x, y1: nodes[u].y, x2: nodes[v].x, y2: nodes[v].y,
+      class: "edge"
+    });
+    gEdges.appendChild(line);
+    edgeEls[u + "-" + v] = line; edgeEls[v + "-" + u] = line;
+  });
+  const circEls = {}, dpEls = {};
+  nodes.forEach(n => {
+    const c = el("circle", { cx: n.x, cy: n.y, r: 20, class: "nd" });
+    gNodes.appendChild(c);
+    const t = el("text", { x: n.x, y: n.y, class: "ndlabel" });
+    t.textContent = n.label !== undefined ? n.label : n.id;
+    gNodes.appendChild(t);
+    const dp = el("text", { x: n.x, y: n.y + 34, class: "dpbox" });
+    gNodes.appendChild(dp);
+    circEls[n.id] = c; dpEls[n.id] = dp;
+  });
+  return { circEls, dpEls, edgeEls };
+}
+// adjacency từ edges
+function makeAdj(n, edges) {
+  const adj = Array.from({ length: n }, () => []);
+  edges.forEach(([u, v]) => { adj[u].push(v); adj[v].push(u); });
+  return adj;
+}
+
+// ===================================================================
+// MODULE 1 — post-order subtree size
+// ===================================================================
+(function () {
+  // cây 0—1,0—2,1—3,1—4 (giống README mục 5)
+  const nodes = [
+    { id: 0, x: 260, y: 50 },
+    { id: 1, x: 150, y: 150 },
+    { id: 2, x: 380, y: 150 },
+    { id: 3, x: 90, y: 260 },
+    { id: 4, x: 220, y: 260 },
+  ];
+  const edges = [[0, 1], [0, 2], [1, 3], [1, 4]];
+  const svg = document.getElementById("m1svg");
+  const explain = document.getElementById("m1explain");
+  const adj = makeAdj(5, edges);
+  let refs, steps, idx, timer;
+
+  function computeSteps() {
+    const s = [];
+    const size = new Array(5).fill(0);
+    function dfs(node, parent) {
+      s.push({ type: "enter", node });
+      size[node] = 1;
+      for (const c of adj[node]) {
+        if (c === parent) continue;
+        dfs(c, node);
+        size[node] += size[c];
+        s.push({ type: "merge", node, child: c, size: size[node] });
+      }
+      s.push({ type: "done", node, size: size[node] });
+    }
+    dfs(0, -1);
+    return s;
+  }
+
+  function reset() {
+    clearInterval(timer); timer = null;
+    refs = buildTree(svg, nodes, edges);
+    steps = computeSteps(); idx = 0;
+    explain.textContent = 'Bấm "Chạy từng bước" để duyệt post-order từ gốc 0.';
+  }
+  function apply(st) {
+    const c = refs.circEls[st.node];
+    if (st.type === "enter") {
+      c.setAttribute("class", "nd active");
+      explain.textContent = `→ Vào node ${st.node} (post-order: xử lý con trước). dp khởi tạo = 1.`;
+      refs.dpEls[st.node].textContent = "1";
+    } else if (st.type === "merge") {
+      refs.dpEls[st.node].textContent = st.size;
+      explain.textContent = `Gộp dp[con ${st.child}] vào node ${st.node}: dp[${st.node}] = 1 + Σ dp[con] = ${st.size}.`;
+    } else if (st.type === "done") {
+      c.setAttribute("class", "nd done");
+      refs.dpEls[st.node].textContent = st.size;
+      explain.textContent = `✓ Hoàn tất node ${st.node}: size subtree = ${st.size}. Quay về cha.`;
+    }
+  }
+  function step() {
+    if (idx >= steps.length) { explain.textContent += " — Xong! root size = 5 = số node."; return; }
+    apply(steps[idx++]);
+  }
+  document.getElementById("m1play").onclick = step;
+  document.getElementById("m1reset").onclick = reset;
+  document.getElementById("m1auto").onclick = function () {
+    if (timer) { clearInterval(timer); timer = null; return; }
+    timer = setInterval(() => {
+      if (idx >= steps.length) { clearInterval(timer); timer = null; step(); return; }
+      step();
+    }, 900);
+  };
+  reset();
+})();
+
+// ===================================================================
+// MODULE 2 — House Robber III
+// ===================================================================
+(function () {
+  const val = [3, 2, 3, 0, 1];
+  const nodes = [
+    { id: 0, x: 260, y: 50, label: "v3" },
+    { id: 1, x: 150, y: 150, label: "v2" },
+    { id: 2, x: 380, y: 150, label: "v3" },
+    { id: 3, x: 90, y: 260, label: "v0" },
+    { id: 4, x: 220, y: 260, label: "v1" },
+  ];
+  const edges = [[0, 1], [0, 2], [1, 3], [1, 4]];
+  const svg = document.getElementById("m2svg");
+  const explain = document.getElementById("m2explain");
+  const adj = makeAdj(5, edges);
+  let refs, steps, idx, timer;
+
+  function computeSteps() {
+    const s = [];
+    const dp0 = new Array(5).fill(0), dp1 = new Array(5).fill(0);
+    const take = new Array(5).fill(false);
+    function dfs(node, parent) {
+      s.push({ type: "enter", node });
+      let nr = 0, rb = val[node];
+      for (const c of adj[node]) {
+        if (c === parent) continue;
+        dfs(c, node);
+        nr += Math.max(dp0[c], dp1[c]);
+        rb += dp0[c];
+      }
+      dp0[node] = nr; dp1[node] = rb;
+      s.push({ type: "done", node, dp0: nr, dp1: rb });
+    }
+    dfs(0, -1);
+    // backtrack chọn node: root chọn nếu dp1>dp0
+    function mark(node, parent, canTake) {
+      const t = canTake && dp1[node] >= dp0[node];
+      take[node] = t;
+      for (const c of adj[node]) {
+        if (c === parent) continue;
+        mark(c, node, !t);
+      }
+    }
+    mark(0, -1, true);
+    s.push({ type: "result", take: take.slice(), best: Math.max(dp0[0], dp1[0]) });
+    return s;
+  }
+
+  function reset() {
+    clearInterval(timer); timer = null;
+    refs = buildTree(svg, nodes, edges);
+    nodes.forEach(n => { refs.dpEls[n.id].textContent = "[·|·]"; });
+    steps = computeSteps(); idx = 0;
+    explain.textContent = 'Trọng số: v=[3,2,3,0,1]. Bấm chạy để tính dp[0]/dp[1] post-order.';
+  }
+  function apply(st) {
+    if (st.type === "enter") {
+      refs.circEls[st.node].setAttribute("class", "nd active");
+      explain.textContent = `→ Node ${st.node} (val=${val[st.node]}): tính dp sau khi xong các con.`;
+    } else if (st.type === "done") {
+      refs.circEls[st.node].setAttribute("class", "nd done");
+      refs.dpEls[st.node].textContent = `[${st.dp0}|${st.dp1}]`;
+      explain.textContent = `✓ Node ${st.node}: dp0(không cướp)=${st.dp0}, dp1(cướp)=${st.dp1}. dp0=Σmax(con), dp1=val+Σcon0.`;
+    } else if (st.type === "result") {
+      st.take.forEach((t, i) => {
+        if (t) refs.circEls[i].setAttribute("class", "nd chosen");
+      });
+      const chosen = st.take.map((t, i) => t ? i : -1).filter(i => i >= 0);
+      explain.textContent = `Kết quả: cướp các node {${chosen.join(", ")}} → tổng tối đa = ${st.best}. (chọn 1,2 = 2+3 = 5, không kề).`;
+    }
+  }
+  function step() {
+    if (idx >= steps.length) { explain.textContent += " — Hết bước."; return; }
+    apply(steps[idx++]);
+  }
+  document.getElementById("m2play").onclick = step;
+  document.getElementById("m2reset").onclick = reset;
+  document.getElementById("m2auto").onclick = function () {
+    if (timer) { clearInterval(timer); timer = null; return; }
+    timer = setInterval(() => {
+      if (idx >= steps.length) { clearInterval(timer); timer = null; return; }
+      step();
+    }, 950);
+  };
+  reset();
+})();
+
+// ===================================================================
+// MODULE 3 — Tree Diameter
+// ===================================================================
+(function () {
+  // cây 0—1,1—2,1—3,3—4,4—5 (giống README mục 4)
+  const nodes = [
+    { id: 0, x: 80, y: 60 },
+    { id: 1, x: 200, y: 130 },
+    { id: 2, x: 120, y: 250 },
+    { id: 3, x: 320, y: 130 },
+    { id: 4, x: 420, y: 220 },
+    { id: 5, x: 500, y: 300 },
+  ];
+  const edges = [[0, 1], [1, 2], [1, 3], [3, 4], [4, 5]];
+  const svg = document.getElementById("m3svg");
+  const explain = document.getElementById("m3explain");
+  const adj = makeAdj(6, edges);
+  let refs, steps, idx, timer;
+
+  function computeSteps() {
+    const s = [];
+    const down = new Array(6).fill(0);
+    let diameter = 0;
+    // lưu parent để trace đường kính
+    const par = new Array(6).fill(-1);
+    // best child (deepest) cho từng node để dựng path
+    const deepChild = new Array(6).fill(-1);
+    let bestTopNode = 0, bestB1child = -1, bestB2child = -1;
+
+    function dfs(node, parent) {
+      par[node] = parent;
+      s.push({ type: "enter", node });
+      let b1 = 0, b2 = 0, c1 = -1, c2 = -1;
+      for (const c of adj[node]) {
+        if (c === parent) continue;
+        dfs(c, node);
+        const h = down[c] + 1;
+        if (h > b1) { b2 = b1; c2 = c1; b1 = h; c1 = c; }
+        else if (h > b2) { b2 = h; c2 = c; }
+      }
+      down[node] = b1; deepChild[node] = c1;
+      if (b1 + b2 > diameter) {
+        diameter = b1 + b2;
+        bestTopNode = node; bestB1child = c1; bestB2child = c2;
+      }
+      s.push({ type: "done", node, down: b1, b1, b2, diameter });
+    }
+    dfs(0, -1);
+
+    // dựng đường kính: từ bestTopNode đi xuống theo c1 và c2
+    function pathDown(start) {
+      const p = [];
+      let cur = start;
+      while (cur !== -1) { p.push(cur); cur = deepChild[cur]; }
+      return p;
+    }
+    let diaNodes = [bestTopNode];
+    if (bestB1child !== -1) diaNodes = diaNodes.concat(pathDown(bestB1child));
+    if (bestB2child !== -1) diaNodes = pathDown(bestB2child).reverse().concat(diaNodes);
+    // diaNodes giờ là chuỗi node trên đường kính
+    s.push({ type: "result", path: diaNodes, diameter });
+    return s;
+  }
+
+  function reset() {
+    clearInterval(timer); timer = null;
+    refs = buildTree(svg, nodes, edges);
+    steps = computeSteps(); idx = 0;
+    explain.textContent = 'Bấm chạy: DFS post-order tính down(node), cập nhật đường kính.';
+  }
+  function apply(st) {
+    if (st.type === "enter") {
+      refs.circEls[st.node].setAttribute("class", "nd active");
+      explain.textContent = `→ Node ${st.node}: chuẩn bị gộp 2 nhánh con sâu nhất.`;
+    } else if (st.type === "done") {
+      refs.circEls[st.node].setAttribute("class", "nd done");
+      refs.dpEls[st.node].textContent = st.down;
+      explain.textContent = `✓ Node ${st.node}: down=${st.down} (nhánh sâu nhất). 2 nhánh lớn nhất = ${st.b1}+${st.b2} → diameter hiện tại = ${st.diameter}.`;
+    } else if (st.type === "result") {
+      const path = st.path;
+      path.forEach(n => refs.circEls[n].setAttribute("class", "nd diam"));
+      for (let i = 0; i + 1 < path.length; i++) {
+        const e = refs.edgeEls[path[i] + "-" + path[i + 1]];
+        if (e) e.setAttribute("class", "edge diam");
+      }
+      explain.textContent = `Đường kính = ${st.diameter} cạnh, qua các node: ${path.join(" — ")}.`;
+    }
+  }
+  function step() {
+    if (idx >= steps.length) { explain.textContent += " — Hết bước."; return; }
+    apply(steps[idx++]);
+  }
+  document.getElementById("m3play").onclick = step;
+  document.getElementById("m3reset").onclick = reset;
+  document.getElementById("m3auto").onclick = function () {
+    if (timer) { clearInterval(timer); timer = null; return; }
+    timer = setInterval(() => {
+      if (idx >= steps.length) { clearInterval(timer); timer = null; return; }
+      step();
+    }, 900);
+  };
+  reset();
+})();
+</script>
+
+<!-- README modal + TOC + favicon -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+
+</body>
+</html>

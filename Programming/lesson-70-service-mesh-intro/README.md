@@ -697,3 +697,8 @@ Tính: 2 hop × (1–2ms) = **+2–4ms** mong đợi. Quan sát thật là **+6m
 - SPIFFE/SPIRE — chuẩn danh tính service (SPIFFE ID, cert tự rotate).
 - Cilium / Istio Ambient — hướng sidecar-less giảm overhead.
 - Prometheus + Grafana + Jaeger — bộ observability hay đi cùng mesh.
+- SMI (Service Mesh Interface) — chuẩn API trung lập giữa các mesh.
+
+---
+
+> **Chốt lại một câu.** Service mesh không phải "công nghệ phải có" — nó là một sự đánh đổi: bạn trả bằng latency + RAM + độ phức tạp vận hành để đổi lấy mTLS, observability và traffic management **nhất quán, zero-code, đa ngôn ngữ**. Đáng giá khi hệ đủ lớn và đủ phức tạp; là gánh nặng khi adopt quá sớm.

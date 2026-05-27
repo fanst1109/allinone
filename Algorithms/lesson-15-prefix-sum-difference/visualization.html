@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 15 — Prefix Sum & Difference Array</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #3b82f6; color: white; border: none; border-radius: 6px;
+    padding: 9px 16px; font-size: 15px; cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #2563eb; }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+  input[type=text], input[type=number] {
+    padding: 8px 10px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 15px; width: 100%; max-width: 260px; box-sizing: border-box;
+  }
+  input[type=number] { max-width: 90px; }
+  label { font-size: 14px; color: #4a5568; font-weight: 600; }
+  .hint { color: #718096; font-size: 14px; margin: 4px 0; }
+  .formula {
+    font-family: ui-monospace, monospace; font-size: 16px; font-weight: 700;
+    background: #ebf8ff; border: 2px solid #3b82f6; color: #1e40af;
+    border-radius: 8px; padding: 12px 14px; margin: 12px 0;
+  }
+  .log { font-family: ui-monospace, monospace; font-size: 13px; color: #4a5568;
+         background: #f7fafc; border-radius: 6px; padding: 8px 10px; min-height: 26px; }
+
+  /* cells shared */
+  .cells { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+  .cell {
+    min-width: 44px; height: 44px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    border: 2px solid #cbd5e0; border-radius: 6px; background: white;
+    font-family: ui-monospace, monospace; font-weight: 700; color: #2d3748;
+    transition: background .2s, border-color .2s, transform .15s;
+  }
+  .cell .idx { font-size: 10px; color: #a0aec0; font-weight: 600; }
+  .cell.hl-pos { background: #c6f6d5; border-color: #38a169; }   /* + term */
+  .cell.hl-neg { background: #fed7d7; border-color: #e53e3e; }   /* - term */
+  .cell.hl-cur { background: #feebc8; border-color: #dd6b20; transform: translateY(-3px); }
+  .cell.range { background: #bee3f8; border-color: #3182ce; }
+  .cell-tag { font-size: 11px; color: #718096; text-align: center; margin-bottom: 2px; }
+  .arr-label { font-weight: 700; color: #4a5568; margin: 10px 0 2px; font-size: 14px; }
+
+  /* 2D grid */
+  table.grid { border-collapse: collapse; margin: 8px 0; }
+  table.grid td {
+    width: 46px; height: 46px; text-align: center; border: 1px solid #cbd5e0;
+    font-family: ui-monospace, monospace; font-weight: 700; color: #2d3748;
+    transition: background .2s;
+  }
+  table.grid td.sel { background: #bee3f8; }
+  table.grid td.corner-pos { background: #c6f6d5; box-shadow: inset 0 0 0 2px #38a169; }
+  table.grid td.corner-neg { background: #fed7d7; box-shadow: inset 0 0 0 2px #e53e3e; }
+  table.grid td.head { background: #edf2f7; color: #a0aec0; font-size: 11px; }
+  .swatch { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; margin-right: 14px; }
+  .swatch i { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+
+  @media (max-width: 480px) {
+    .cell { min-width: 36px; height: 40px; font-size: 13px; }
+    table.grid td { width: 38px; height: 38px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-14-sliding-window/visualization.html">← L14: Sliding Window</a>
+  <span class="sep">·</span>
+  <span class="current">L15: Prefix Sum</span>
+  <span class="sep">·</span>
+  <a href="../lesson-16-hashing-techniques/visualization.html">L16: Hashing →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 15 — Prefix Sum & Difference Array</h1>
+<p>3 module tương tác: (1) <b>Prefix sum 1D</b> — dựng mảng <code>P</code> từng bước, truy vấn range sum bằng <code>P[r+1]−P[l]</code>; (2) <b>Difference array</b> — thêm range update O(1), prefix để lấy mảng cuối; (3) <b>Prefix sum 2D</b> — truy vấn submatrix bằng bù trừ 4 góc.</p>
+
+<!-- ======================= MODULE 1 ======================= -->
+<h2>Module 1 — Prefix sum 1D & range query</h2>
+<div class="card">
+  <div class="row">
+    <label>Mảng a (cách nhau bởi dấu cách):</label>
+    <input type="text" id="m1arr" value="3 1 4 1 5">
+    <button class="ghost" onclick="m1build()">Dựng P</button>
+  </div>
+  <div class="arr-label">Mảng a</div>
+  <div class="cells" id="m1a"></div>
+  <div class="arr-label">Prefix sum P (dài n+1, P[0]=0)</div>
+  <div class="cells" id="m1p"></div>
+  <div class="row">
+    <label>l =</label><input type="number" id="m1l" value="1">
+    <label>r =</label><input type="number" id="m1r" value="3">
+    <button onclick="m1query()">Tính sum(l, r)</button>
+  </div>
+  <div class="formula" id="m1formula">sum(l, r) = P[r+1] − P[l]</div>
+  <div class="log" id="m1log">Nhập mảng, dựng P, rồi chọn l, r để xem công thức highlight.</div>
+  <div class="hint">🟧 cam = phần tử trong đoạn [l,r]; 🟩 xanh = P[r+1] (cộng); 🟥 đỏ = P[l] (trừ).</div>
+</div>
+
+<!-- ======================= MODULE 2 ======================= -->
+<h2>Module 2 — Difference array (range update)</h2>
+<div class="card">
+  <div class="row">
+    <label>n =</label><input type="number" id="m2n" value="6">
+    <button class="ghost" onclick="m2reset()">Khởi tạo lại</button>
+  </div>
+  <div class="row">
+    <label>l =</label><input type="number" id="m2l" value="1">
+    <label>r =</label><input type="number" id="m2r" value="3">
+    <label>v =</label><input type="number" id="m2v" value="5">
+    <button onclick="m2add()">+ Update (l, r, +v)</button>
+    <button onclick="m2prefix()">Prefix → mảng cuối</button>
+  </div>
+  <div class="arr-label">Difference array d (dài n+1)</div>
+  <div class="cells" id="m2d"></div>
+  <div class="arr-label">Mảng kết quả a (sau prefix)</div>
+  <div class="cells" id="m2a"></div>
+  <div class="log" id="m2log">Thêm vài update rồi bấm "Prefix" để xem mảng cuối.</div>
+  <div class="hint">Mỗi update chỉ chạm 2 ô: 🟩 d[l] += v, 🟥 d[r+1] −= v (O(1)). Prefix sum d → mảng cuối.</div>
+</div>
+
+<!-- ======================= MODULE 3 ======================= -->
+<h2>Module 3 — Prefix sum 2D (region sum, inclusion-exclusion)</h2>
+<div class="card">
+  <div class="hint">Ma trận m 3×3 cố định. Chọn submatrix (r1,c1)→(r2,c2); xem 4 góc của bảng P được dùng để bù trừ.</div>
+  <div class="row">
+    <label>r1=</label><input type="number" id="m3r1" value="1">
+    <label>c1=</label><input type="number" id="m3c1" value="1">
+    <label>r2=</label><input type="number" id="m3r2" value="2">
+    <label>c2=</label><input type="number" id="m3c2" value="2">
+    <button onclick="m3query()">Tính region sum</button>
+  </div>
+  <div class="arr-label">Ma trận m (3×3)</div>
+  <div id="m3matrix"></div>
+  <div class="arr-label">Prefix 2D — P (4×4), highlight 4 góc</div>
+  <div id="m3p"></div>
+  <div class="formula" id="m3formula">sum = P[r2+1][c2+1] − P[r1][c2+1] − P[r2+1][c1] + P[r1][c1]</div>
+  <div class="log" id="m3log">Chọn submatrix rồi tính.</div>
+  <div class="row" style="margin-top:8px">
+    <span class="swatch"><i style="background:#bee3f8"></i> ô trong submatrix</span>
+    <span class="swatch"><i style="background:#c6f6d5"></i> góc cộng (+)</span>
+    <span class="swatch"><i style="background:#fed7d7"></i> góc trừ (−)</span>
+  </div>
+</div>
+
+</main>
+
+<script>
+/* ---------------- Module 1: prefix sum 1D ---------------- */
+let M1 = { a: [], P: [] };
+function m1build() {
+  const raw = document.getElementById('m1arr').value.trim().split(/\s+/).map(Number).filter(x => !isNaN(x));
+  M1.a = raw;
+  const n = raw.length;
+  M1.P = new Array(n + 1).fill(0);
+  for (let i = 0; i < n; i++) M1.P[i + 1] = M1.P[i] + raw[i];
+  renderCells('m1a', M1.a, (i) => 'a[' + i + ']');
+  renderCells('m1p', M1.P, (i) => 'P[' + i + ']');
+  document.getElementById('m1formula').textContent = 'sum(l, r) = P[r+1] − P[l]';
+  document.getElementById('m1log').textContent = 'P dựng xong (' + M1.P.join(', ') + '). Chọn l, r.';
+}
+function m1query() {
+  if (M1.P.length === 0) { m1build(); }
+  const n = M1.a.length;
+  let l = +document.getElementById('m1l').value, r = +document.getElementById('m1r').value;
+  if (l < 0 || r >= n || l > r) { document.getElementById('m1log').textContent = 'l, r không hợp lệ (cần 0 ≤ l ≤ r ≤ ' + (n - 1) + ').'; return; }
+  renderCells('m1a', M1.a, (i) => 'a[' + i + ']');
+  renderCells('m1p', M1.P, (i) => 'P[' + i + ']');
+  // highlight a[l..r]
+  document.querySelectorAll('#m1a .cell').forEach((el, i) => { if (i >= l && i <= r) el.classList.add('range'); });
+  // highlight P[r+1] (pos) and P[l] (neg)
+  const pcells = document.querySelectorAll('#m1p .cell');
+  pcells[r + 1].classList.add('hl-pos');
+  pcells[l].classList.add('hl-neg');
+  const val = M1.P[r + 1] - M1.P[l];
+  document.getElementById('m1formula').textContent =
+    'sum(' + l + ',' + r + ') = P[' + (r + 1) + '] − P[' + l + '] = ' + M1.P[r + 1] + ' − ' + M1.P[l] + ' = ' + val;
+  const direct = M1.a.slice(l, r + 1).reduce((s, x) => s + x, 0);
+  document.getElementById('m1log').textContent = 'Kiểm tra cộng trực tiếp a[' + l + '..' + r + '] = ' + direct + (direct === val ? '  ✓' : '  ✗');
+}
+
+/* ---------------- Module 2: difference array ---------------- */
+let M2 = { n: 6, d: [], a: [] };
+function m2reset() {
+  M2.n = Math.max(1, +document.getElementById('m2n').value || 6);
+  M2.d = new Array(M2.n + 1).fill(0);
+  M2.a = [];
+  renderCells('m2d', M2.d, (i) => 'd[' + i + ']');
+  document.getElementById('m2a').innerHTML = '';
+  document.getElementById('m2log').textContent = 'd khởi tạo về 0. Thêm update (l, r, +v).';
+}
+function m2add() {
+  if (M2.d.length === 0) m2reset();
+  let l = +document.getElementById('m2l').value, r = +document.getElementById('m2r').value, v = +document.getElementById('m2v').value;
+  if (l < 0 || r >= M2.n || l > r) { document.getElementById('m2log').textContent = 'l, r không hợp lệ (0 ≤ l ≤ r ≤ ' + (M2.n - 1) + ').'; return; }
+  M2.d[l] += v;
+  M2.d[r + 1] -= v;
+  M2.a = []; // kết quả cũ không còn hợp lệ
+  renderCells('m2d', M2.d, (i) => 'd[' + i + ']');
+  const cells = document.querySelectorAll('#m2d .cell');
+  cells[l].classList.add('hl-pos');
+  cells[r + 1].classList.add('hl-neg');
+  document.getElementById('m2a').innerHTML = '';
+  document.getElementById('m2log').textContent = 'Update (' + l + ',' + r + ',' + (v >= 0 ? '+' : '') + v + '): d[' + l + '] += ' + v + ', d[' + (r + 1) + '] −= ' + v + '. (O(1), chỉ 2 ô)';
+}
+function m2prefix() {
+  if (M2.d.length === 0) { m2reset(); return; }
+  M2.a = new Array(M2.n).fill(0);
+  let cur = 0;
+  for (let i = 0; i < M2.n; i++) { cur += M2.d[i]; M2.a[i] = cur; }
+  renderCells('m2a', M2.a, (i) => 'a[' + i + ']');
+  document.getElementById('m2log').textContent = 'Prefix sum d → mảng cuối a = [' + M2.a.join(', ') + ']';
+}
+
+/* ---------------- Module 3: prefix sum 2D ---------------- */
+const M3m = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
+let M3P = [];
+function m3buildP() {
+  const r = M3m.length, c = M3m[0].length;
+  M3P = Array.from({ length: r + 1 }, () => new Array(c + 1).fill(0));
+  for (let i = 1; i <= r; i++)
+    for (let j = 1; j <= c; j++)
+      M3P[i][j] = M3m[i - 1][j - 1] + M3P[i - 1][j] + M3P[i][j - 1] - M3P[i - 1][j - 1];
+}
+function m3renderMatrix(selSet) {
+  let h = '<table class="grid">';
+  for (let i = 0; i < 3; i++) {
+    h += '<tr>';
+    for (let j = 0; j < 3; j++) {
+      const sel = selSet && selSet.has(i + ',' + j) ? ' class="sel"' : '';
+      h += '<td' + sel + '>' + M3m[i][j] + '</td>';
+    }
+    h += '</tr>';
+  }
+  h += '</table>';
+  document.getElementById('m3matrix').innerHTML = h;
+}
+function m3renderP(corners) {
+  let h = '<table class="grid"><tr><td class="head"></td>';
+  for (let j = 0; j <= 3; j++) h += '<td class="head">j' + j + '</td>';
+  h += '</tr>';
+  for (let i = 0; i <= 3; i++) {
+    h += '<tr><td class="head">i' + i + '</td>';
+    for (let j = 0; j <= 3; j++) {
+      let cls = '';
+      if (corners) {
+        const key = i + ',' + j;
+        if (corners.pos.has(key)) cls = ' class="corner-pos"';
+        else if (corners.neg.has(key)) cls = ' class="corner-neg"';
+      }
+      h += '<td' + cls + '>' + M3P[i][j] + '</td>';
+    }
+    h += '</tr>';
+  }
+  h += '</table>';
+  document.getElementById('m3p').innerHTML = h;
+}
+function m3query() {
+  if (M3P.length === 0) m3buildP();
+  let r1 = +document.getElementById('m3r1').value, c1 = +document.getElementById('m3c1').value;
+  let r2 = +document.getElementById('m3r2').value, c2 = +document.getElementById('m3c2').value;
+  if (r1 < 0 || c1 < 0 || r2 > 2 || c2 > 2 || r1 > r2 || c1 > c2) {
+    document.getElementById('m3log').textContent = 'Toạ độ không hợp lệ (0 ≤ r1 ≤ r2 ≤ 2, 0 ≤ c1 ≤ c2 ≤ 2).'; return;
+  }
+  const selSet = new Set();
+  for (let i = r1; i <= r2; i++) for (let j = c1; j <= c2; j++) selSet.add(i + ',' + j);
+  m3renderMatrix(selSet);
+  const corners = {
+    pos: new Set([(r2 + 1) + ',' + (c2 + 1), r1 + ',' + c1]),
+    neg: new Set([r1 + ',' + (c2 + 1), (r2 + 1) + ',' + c1])
+  };
+  m3renderP(corners);
+  const A = M3P[r2 + 1][c2 + 1], B = M3P[r1][c2 + 1], C = M3P[r2 + 1][c1], D = M3P[r1][c1];
+  const val = A - B - C + D;
+  document.getElementById('m3formula').textContent =
+    'sum = P[' + (r2 + 1) + '][' + (c2 + 1) + '] − P[' + r1 + '][' + (c2 + 1) + '] − P[' + (r2 + 1) + '][' + c1 + '] + P[' + r1 + '][' + c1 + '] = ' +
+    A + ' − ' + B + ' − ' + C + ' + ' + D + ' = ' + val;
+  let direct = 0;
+  for (let i = r1; i <= r2; i++) for (let j = c1; j <= c2; j++) direct += M3m[i][j];
+  document.getElementById('m3log').textContent = 'Kiểm tra cộng trực tiếp submatrix = ' + direct + (direct === val ? '  ✓' : '  ✗');
+}
+
+/* ---------------- shared cell renderer ---------------- */
+function renderCells(containerId, arr, labelFn) {
+  const c = document.getElementById(containerId);
+  c.innerHTML = '';
+  arr.forEach((v, i) => {
+    const d = document.createElement('div');
+    d.className = 'cell';
+    d.innerHTML = '<span class="idx">' + labelFn(i) + '</span>' + v;
+    c.appendChild(d);
+  });
+}
+
+/* init */
+m1build();
+m2reset();
+m3buildP();
+m3renderMatrix();
+m3renderP();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+</body>
+</html>

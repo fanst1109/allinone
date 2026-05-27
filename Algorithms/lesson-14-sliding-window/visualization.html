@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 14 — Sliding Window (Cửa sổ trượt)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #4299e1; color: white; border: none; border-radius: 6px;
+    padding: 9px 16px; font-size: 15px; cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+  .hint { color: #718096; font-size: 14px; margin: 6px 0; }
+  input[type=text] {
+    padding: 8px 10px; font-size: 15px; border: 1px solid #cbd5e0;
+    border-radius: 6px; width: 100%; max-width: 280px; box-sizing: border-box;
+    font-family: monospace;
+  }
+  input[type=number] {
+    padding: 8px 10px; font-size: 15px; border: 1px solid #cbd5e0;
+    border-radius: 6px; width: 70px; box-sizing: border-box;
+  }
+  label { font-size: 14px; color: #4a5568; font-weight: 600; }
+  .log {
+    font-family: monospace; font-size: 13px; color: #2d3748; background: #f7fafc;
+    border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; margin-top: 12px;
+    min-height: 22px; line-height: 1.6; white-space: pre-wrap; word-break: break-word;
+  }
+  .stat { font-family: monospace; font-size: 15px; color: #2c5282; font-weight: 700; }
+  .badge {
+    display: inline-block; padding: 3px 10px; border-radius: 999px;
+    font-size: 13px; font-weight: 700; margin-right: 6px;
+  }
+  .badge.ok { background: #c6f6d5; color: #276749; }
+  .badge.warn { background: #feebc8; color: #9c4221; }
+
+  /* ---- cell rows (modules 1 & 2) ---- */
+  .cells { display: flex; gap: 6px; flex-wrap: nowrap; overflow-x: auto; padding: 14px 4px; }
+  .cell {
+    flex: 0 0 auto; width: 46px; height: 46px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: monospace; font-weight: 700; font-size: 17px;
+    background: #edf2f7; color: #2d3748; border: 2px solid #e2e8f0;
+    position: relative; transition: background .25s, border-color .25s, transform .15s;
+  }
+  .cell .idx { position: absolute; top: -16px; font-size: 11px; color: #a0aec0; font-weight: 600; }
+  .cell.win { background: #bee3f8; border-color: #4299e1; }
+  .cell.enter { background: #c6f6d5; border-color: #38a169; transform: translateY(-4px); }
+  .cell.leave { background: #fed7d7; border-color: #e53e3e; transform: translateY(4px); }
+  .cell.dim { opacity: .45; }
+
+  /* pointers */
+  .ptrs { font-family: monospace; font-size: 14px; color: #4a5568; margin: 4px 0; }
+  .ptrs b { color: #2b6cb0; }
+
+  /* deque (module 3) */
+  .deque { display: flex; gap: 6px; flex-wrap: wrap; min-height: 50px; padding: 10px 0; align-items: center; }
+  .dq-item {
+    flex: 0 0 auto; padding: 8px 12px; border-radius: 8px; font-family: monospace;
+    font-weight: 700; background: #e9d8fd; color: #553c9a; border: 2px solid #9f7aea;
+  }
+  .dq-item .di { font-size: 11px; color: #805ad5; display: block; text-align: center; }
+  .dq-empty { color: #a0aec0; font-style: italic; }
+  .out-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .out-item {
+    padding: 6px 10px; border-radius: 6px; background: #c6f6d5; color: #276749;
+    font-family: monospace; font-weight: 700;
+  }
+
+  @media (max-width: 480px) {
+    .cell { width: 34px; height: 34px; font-size: 14px; }
+    .cell .idx { font-size: 9px; top: -14px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-13-two-pointers/visualization.html">← L13: Two Pointers</a>
+  <span class="sep">·</span>
+  <span class="current">L14: Sliding Window</span>
+  <span class="sep">·</span>
+  <a href="../lesson-15-prefix-sum-difference/visualization.html">L15: Prefix Sum →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 14 — Sliding Window (Cửa sổ trượt)</h1>
+<p>3 module tương tác: (1) <b>Fixed window</b> — trượt cửa sổ độ dài <code>k</code>, thấy tổng được tái dùng (trừ trái + cộng phải, không tính lại); (2) <b>Variable window</b> — longest substring không lặp, animate mở rộng/thu nhỏ theo hash; (3) <b>Window maximum</b> — deque đơn điệu giữ max của mỗi window.</p>
+
+<!-- ======================= MODULE 1 ======================= -->
+<h2>Module 1 — Fixed window: tổng tái dùng</h2>
+<div class="card">
+  <p class="hint">Mảng cố định <code>k</code>. Mỗi bước trượt: phần tử trái <span style="color:#e53e3e">rơi ra</span>, phần tử phải <span style="color:#38a169">lọt vào</span>. Tổng mới = tổng cũ − trái + phải (O(1)).</p>
+  <div class="row">
+    <label>Mảng: <input type="text" id="m1-arr" value="2,1,5,1,3,2,4"></label>
+    <label>k: <input type="number" id="m1-k" value="3" min="1"></label>
+    <button id="m1-init" class="ghost">Khởi tạo</button>
+  </div>
+  <div class="row">
+    <button id="m1-step">Trượt một bước →</button>
+    <button id="m1-auto" class="ghost">Tự động chạy</button>
+    <button id="m1-reset" class="ghost">Reset</button>
+  </div>
+  <div class="cells" id="m1-cells"></div>
+  <div class="ptrs" id="m1-ptrs"></div>
+  <div>
+    <span class="stat" id="m1-sum">sum = —</span> &nbsp;
+    <span class="stat" id="m1-max">max = —</span>
+  </div>
+  <div class="log" id="m1-log">Nhấn "Khởi tạo" rồi "Trượt một bước".</div>
+</div>
+
+<!-- ======================= MODULE 2 ======================= -->
+<h2>Module 2 — Variable window: longest substring không lặp</h2>
+<div class="card">
+  <p class="hint">Mở rộng <b>r</b> mỗi bước. Nếu <code>s[r]</code> đã có trong window (gây lặp), nhảy <b>l</b> qua bản sao cũ (window <span style="color:#e53e3e">co lại</span>). Cập nhật độ dài lớn nhất.</p>
+  <div class="row">
+    <label>Chuỗi: <input type="text" id="m2-str" value="abcabcbb"></label>
+    <button id="m2-init" class="ghost">Khởi tạo</button>
+  </div>
+  <div class="row">
+    <button id="m2-step">Bước tiếp →</button>
+    <button id="m2-auto" class="ghost">Tự động chạy</button>
+    <button id="m2-reset" class="ghost">Reset</button>
+  </div>
+  <div class="cells" id="m2-cells"></div>
+  <div class="ptrs" id="m2-ptrs"></div>
+  <div><span class="stat" id="m2-best">best = —</span></div>
+  <div class="log" id="m2-log">Nhấn "Khởi tạo" rồi "Bước tiếp".</div>
+</div>
+
+<!-- ======================= MODULE 3 ======================= -->
+<h2>Module 3 — Window maximum: deque đơn điệu</h2>
+<div class="card">
+  <p class="hint">Deque giữ <b>chỉ số</b>, giá trị giảm dần từ front→back. Push: bỏ các back ≤ giá trị mới. Bỏ front nếu trôi ra ngoài window. Front luôn là <b>max</b> của window.</p>
+  <div class="row">
+    <label>Mảng: <input type="text" id="m3-arr" value="1,3,-1,-3,5,3,6,7"></label>
+    <label>k: <input type="number" id="m3-k" value="3" min="1"></label>
+    <button id="m3-init" class="ghost">Khởi tạo</button>
+  </div>
+  <div class="row">
+    <button id="m3-step">Bước tiếp →</button>
+    <button id="m3-auto" class="ghost">Tự động chạy</button>
+    <button id="m3-reset" class="ghost">Reset</button>
+  </div>
+  <div class="cells" id="m3-cells"></div>
+  <div class="ptrs">Deque (giá trị giảm dần, lưu chỉ số):</div>
+  <div class="deque" id="m3-deque"><span class="dq-empty">rỗng</span></div>
+  <div class="ptrs">Kết quả (max mỗi window):</div>
+  <div class="out-row" id="m3-out"></div>
+  <div class="log" id="m3-log">Nhấn "Khởi tạo" rồi "Bước tiếp".</div>
+</div>
+
+</main>
+
+<script>
+// ===== Tiện ích chung =====
+function parseArr(str) {
+  return str.split(',').map(s => s.trim()).filter(s => s !== '').map(Number).filter(n => !isNaN(n));
+}
+function cellRow(container, values, opts) {
+  opts = opts || {};
+  container.innerHTML = '';
+  values.forEach((v, i) => {
+    const c = document.createElement('div');
+    c.className = 'cell';
+    c.dataset.i = i;
+    c.innerHTML = '<span class="idx">' + i + '</span>' + v;
+    container.appendChild(c);
+  });
+}
+function clearMarks(container) {
+  [...container.children].forEach(c => { c.className = 'cell'; });
+}
+
+// ===================== MODULE 1 =====================
+(function () {
+  const $ = id => document.getElementById(id);
+  let arr = [], k = 3, r = -1, sum = 0, max = -Infinity, timer = null;
+  const cells = $('m1-cells');
+
+  function render() {
+    clearMarks(cells);
+    const l = r - k + 1;
+    [...cells.children].forEach((c, i) => {
+      if (i >= l && i <= r) c.classList.add('win');
+    });
+    $('m1-ptrs').innerHTML = (r < 0) ? '' :
+      `window [<b>l=${l}</b> .. <b>r=${r}</b>] = [${arr.slice(l, r + 1).join(', ')}]`;
+    $('m1-sum').textContent = (r < 0) ? 'sum = —' : 'sum = ' + sum;
+    $('m1-max').textContent = (max === -Infinity) ? 'max = —' : 'max = ' + max;
+  }
+  function init() {
+    arr = parseArr($('m1-arr').value);
+    k = Math.max(1, Math.min(parseInt($('m1-k').value) || 1, arr.length));
+    $('m1-k').value = k;
+    r = -1; sum = 0; max = -Infinity;
+    cellRow(cells, arr);
+    if (arr.length >= k) {
+      // warm-up
+      for (let i = 0; i < k; i++) sum += arr[i];
+      r = k - 1; max = sum;
+      $('m1-log').textContent = `Warm-up: tổng ${k} phần tử đầu = ${arr.slice(0, k).join('+')} = ${sum}. max = ${sum}.`;
+    } else {
+      $('m1-log').textContent = 'Mảng ngắn hơn k.';
+    }
+    render();
+  }
+  function step() {
+    if (r < 0) { init(); return; }
+    if (r + 1 >= arr.length) { $('m1-log').textContent = 'Đã hết mảng. max cuối = ' + max + '.'; stopAuto(); return; }
+    const oldL = r - k + 1, leave = arr[oldL], enter = arr[r + 1], oldSum = sum;
+    // animate enter/leave
+    clearMarks(cells);
+    cells.children[oldL].classList.add('leave');
+    cells.children[r + 1].classList.add('enter');
+    sum = sum - leave + enter;
+    r++;
+    const newMax = Math.max(max, sum);
+    $('m1-log').textContent =
+      `Trượt → r=${r}: sum = ${oldSum} − ${leave} (rơi ra) + ${enter} (lọt vào) = ${sum}.` +
+      (newMax > max ? ` → max mới = ${newMax}!` : ` (max vẫn ${max})`);
+    max = newMax;
+    setTimeout(render, 350);
+    $('m1-sum').textContent = 'sum = ' + sum;
+    $('m1-max').textContent = 'max = ' + max;
+  }
+  function stopAuto() { if (timer) { clearInterval(timer); timer = null; $('m1-auto').textContent = 'Tự động chạy'; } }
+  function auto() {
+    if (timer) { stopAuto(); return; }
+    if (r < 0) init();
+    $('m1-auto').textContent = '⏸ Dừng';
+    timer = setInterval(() => { if (r + 1 >= arr.length) stopAuto(); else step(); }, 900);
+  }
+  $('m1-init').onclick = () => { stopAuto(); init(); };
+  $('m1-step').onclick = () => { stopAuto(); step(); };
+  $('m1-auto').onclick = auto;
+  $('m1-reset').onclick = () => { stopAuto(); arr = []; r = -1; cells.innerHTML = ''; $('m1-ptrs').innerHTML = ''; $('m1-sum').textContent = 'sum = —'; $('m1-max').textContent = 'max = —'; $('m1-log').textContent = 'Đã reset.'; };
+  init();
+})();
+
+// ===================== MODULE 2 =====================
+(function () {
+  const $ = id => document.getElementById(id);
+  let s = '', l = 0, r = -1, best = 0, last = {}, timer = null;
+  const cells = $('m2-cells');
+
+  function render(note) {
+    clearMarks(cells);
+    [...cells.children].forEach((c, i) => {
+      if (i < l && r >= 0) c.classList.add('dim');
+      else if (i >= l && i <= r) c.classList.add('win');
+    });
+    $('m2-ptrs').innerHTML = (r < 0) ? '' :
+      `window [<b>l=${l}</b> .. <b>r=${r}</b>] = "${s.slice(l, r + 1)}" (độ dài ${r - l + 1})`;
+    $('m2-best').textContent = 'best = ' + best;
+    if (note) $('m2-log').textContent = note;
+  }
+  function init() {
+    s = $('m2-str').value;
+    l = 0; r = -1; best = 0; last = {};
+    cellRow(cells, s.split(''));
+    $('m2-log').textContent = 'Sẵn sàng. Nhấn "Bước tiếp" để mở rộng r.';
+    render();
+  }
+  function step() {
+    if (r + 1 >= s.length) { $('m2-log').textContent = 'Đã hết chuỗi. best = ' + best + '.'; stopAuto(); return; }
+    r++;
+    const c = s[r];
+    let note = `r=${r}, s[r]='${c}'. `;
+    if (last[c] !== undefined && last[c] >= l) {
+      const oldL = l;
+      l = last[c] + 1;
+      note += `'${c}' đã có trong window tại idx ${last[c]} → nhảy l: ${oldL} → ${l} (co lại, bỏ lặp). `;
+    } else {
+      note += `'${c}' chưa có trong window → mở rộng. `;
+    }
+    last[c] = r;
+    const len = r - l + 1;
+    if (len > best) { best = len; note += `Độ dài ${len} → best mới = ${best}!`; }
+    else { note += `Độ dài ${len} (best vẫn ${best}).`; }
+    render(note);
+  }
+  function stopAuto() { if (timer) { clearInterval(timer); timer = null; $('m2-auto').textContent = 'Tự động chạy'; } }
+  function auto() {
+    if (timer) { stopAuto(); return; }
+    $('m2-auto').textContent = '⏸ Dừng';
+    timer = setInterval(() => { if (r + 1 >= s.length) stopAuto(); else step(); }, 900);
+  }
+  $('m2-init').onclick = () => { stopAuto(); init(); };
+  $('m2-step').onclick = () => { stopAuto(); step(); };
+  $('m2-auto').onclick = auto;
+  $('m2-reset').onclick = () => { stopAuto(); s = ''; r = -1; l = 0; cells.innerHTML = ''; $('m2-ptrs').innerHTML = ''; $('m2-best').textContent = 'best = —'; $('m2-log').textContent = 'Đã reset.'; };
+  init();
+})();
+
+// ===================== MODULE 3 =====================
+(function () {
+  const $ = id => document.getElementById(id);
+  let arr = [], k = 3, r = -1, dq = [], out = [], timer = null;
+  const cells = $('m3-cells');
+
+  function renderCells() {
+    clearMarks(cells);
+    const l = r - k + 1;
+    [...cells.children].forEach((c, i) => {
+      if (r >= 0 && i >= l && i <= r) c.classList.add('win');
+      if (dq.length && dq[0] === i) c.classList.add('enter'); // front = max
+    });
+  }
+  function renderDeque() {
+    const d = $('m3-deque');
+    if (!dq.length) { d.innerHTML = '<span class="dq-empty">rỗng</span>'; return; }
+    d.innerHTML = '';
+    dq.forEach((idx, pos) => {
+      const it = document.createElement('div');
+      it.className = 'dq-item';
+      it.innerHTML = arr[idx] + '<span class="di">i=' + idx + (pos === 0 ? ' (front)' : '') + '</span>';
+      d.appendChild(it);
+    });
+  }
+  function renderOut() {
+    const o = $('m3-out');
+    o.innerHTML = '';
+    out.forEach(v => { const it = document.createElement('div'); it.className = 'out-item'; it.textContent = v; o.appendChild(it); });
+  }
+  function init() {
+    arr = parseArr($('m3-arr').value);
+    k = Math.max(1, Math.min(parseInt($('m3-k').value) || 1, arr.length || 1));
+    $('m3-k').value = k;
+    r = -1; dq = []; out = [];
+    cellRow(cells, arr);
+    renderCells(); renderDeque(); renderOut();
+    $('m3-log').textContent = 'Sẵn sàng. Nhấn "Bước tiếp".';
+  }
+  function step() {
+    if (r + 1 >= arr.length) { $('m3-log').textContent = 'Đã hết mảng. Output = [' + out.join(', ') + '].'; stopAuto(); return; }
+    r++;
+    const v = arr[r];
+    let note = `r=${r}, nums[r]=${v}. `;
+    let popped = [];
+    while (dq.length && arr[dq[dq.length - 1]] <= v) { popped.push(arr[dq[dq.length - 1]]); dq.pop(); }
+    if (popped.length) note += `Bỏ back ${popped.join(',')} (≤ ${v}). `;
+    dq.push(r);
+    if (dq[0] <= r - k) { note += `Front idx ${dq[0]} trôi ra ngoài window → bỏ. `; dq.shift(); }
+    if (r >= k - 1) { out.push(arr[dq[0]]); note += `Window đủ rộng → max = nums[${dq[0]}] = ${arr[dq[0]]}.`; }
+    else { note += `Window chưa đủ ${k} phần tử.`; }
+    renderCells(); renderDeque(); renderOut();
+    $('m3-log').textContent = note;
+  }
+  function stopAuto() { if (timer) { clearInterval(timer); timer = null; $('m3-auto').textContent = 'Tự động chạy'; } }
+  function auto() {
+    if (timer) { stopAuto(); return; }
+    $('m3-auto').textContent = '⏸ Dừng';
+    timer = setInterval(() => { if (r + 1 >= arr.length) stopAuto(); else step(); }, 950);
+  }
+  $('m3-init').onclick = () => { stopAuto(); init(); };
+  $('m3-step').onclick = () => { stopAuto(); step(); };
+  $('m3-auto').onclick = auto;
+  $('m3-reset').onclick = () => { stopAuto(); arr = []; r = -1; dq = []; out = []; cells.innerHTML = ''; $('m3-deque').innerHTML = '<span class="dq-empty">rỗng</span>'; $('m3-out').innerHTML = ''; $('m3-log').textContent = 'Đã reset.'; };
+  init();
+})();
+</script>
+
+<!-- README modal -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+
+</body>
+</html>

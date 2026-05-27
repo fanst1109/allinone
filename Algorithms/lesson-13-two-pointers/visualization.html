@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 13 — Two Pointers</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #4299e1; color: white; border: none; border-radius: 6px;
+    padding: 9px 16px; font-size: 15px; cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+  .hint { color: #718096; font-size: 14px; margin: 4px 0; }
+  input[type=number], input[type=text] {
+    padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 15px; width: 100%; max-width: 120px; box-sizing: border-box;
+  }
+  .status {
+    font-family: monospace; font-size: 14px; color: #2d3748;
+    background: #f7fafc; border-radius: 6px; padding: 10px 12px; margin-top: 10px;
+    border-left: 4px solid #4299e1; min-height: 20px;
+  }
+  .status.found { border-left-color: #38a169; background: #f0fff4; color: #22543d; }
+  .status.none { border-left-color: #e53e3e; background: #fff5f5; color: #742a2a; }
+
+  /* ---- array cells (module 1 & 3) ---- */
+  .arr { display: flex; gap: 6px; flex-wrap: wrap; margin: 14px 0; }
+  .cell {
+    width: 46px; height: 46px; display: flex; align-items: center; justify-content: center;
+    border-radius: 8px; font-weight: 700; font-size: 16px; background: #edf2f7; color: #2d3748;
+    position: relative; transition: background .2s, transform .2s;
+  }
+  .cell .idx { position: absolute; top: -16px; font-size: 11px; color: #a0aec0; font-weight: 600; }
+  .cell.l { background: #bee3f8; outline: 3px solid #3182ce; }
+  .cell.r { background: #fed7aa; outline: 3px solid #dd6b20; }
+  .cell.fix { background: #e9d8fd; outline: 3px solid #805ad5; }
+  .cell.lr { background: #c6f6d5; outline: 3px solid #38a169; } /* l==r overlap */
+  .cell.hit { background: #9ae6b4; }
+  .ptr-tag {
+    display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 12px;
+    font-weight: 700; margin-right: 6px;
+  }
+  .ptr-tag.l { background: #bee3f8; color: #2c5282; }
+  .ptr-tag.r { background: #fed7aa; color: #9c4221; }
+  .ptr-tag.fix { background: #e9d8fd; color: #553c9a; }
+
+  /* ---- module 2: linked list cycle ---- */
+  svg { max-width: 100%; height: auto; display: block; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: #4a5568; margin: 8px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+
+  @media (max-width: 480px) {
+    .cell { width: 38px; height: 38px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-12-binary-search-variants/visualization.html">← L12: Binary Search</a>
+  <span class="sep">·</span>
+  <span class="current">L13: Two Pointers</span>
+  <span class="sep">·</span>
+  <a href="../lesson-14-sliding-window/visualization.html">L14: Sliding Window →</a>
+</nav>
+
+<main>
+<h1>Two Pointers — Minh hoạ tương tác</h1>
+<p class="hint">Ba module: (1) Đối đầu — two-sum sorted; (2) Fast-slow — phát hiện chu trình linked list; (3) Three-sum — cố định <code>i</code> + two-pointer.</p>
+
+<!-- ============ MODULE 1: OPPOSITE ENDS ============ -->
+<h2>1. Đối đầu (Opposite ends) — Two-sum sorted</h2>
+<div class="card">
+  <p class="hint">Mảng <b>đã sắp xếp</b>. <span class="ptr-tag l">l</span> bắt đầu trái, <span class="ptr-tag r">r</span> bắt đầu phải. Mỗi bước: nếu tổng &gt; target → <code>r--</code>; nếu &lt; target → <code>l++</code>; bằng → tìm thấy.</p>
+  <div class="row">
+    <label>Mảng (cách nhau dấu phẩy): <input type="text" id="m1arr" value="2,7,11,15"></label>
+    <label>target: <input type="number" id="m1tgt" value="9" style="max-width:80px"></label>
+    <button id="m1reset" class="ghost">Đặt lại</button>
+  </div>
+  <div class="arr" id="m1cells"></div>
+  <div class="row">
+    <button id="m1step">Bước tiếp →</button>
+    <button id="m1auto" class="ghost">▶ Tự chạy</button>
+  </div>
+  <div class="status" id="m1status">Nhấn "Bước tiếp" để bắt đầu. l=0, r=n-1.</div>
+</div>
+
+<!-- ============ MODULE 2: FAST-SLOW CYCLE ============ -->
+<h2>2. Fast-slow — Floyd cycle detection</h2>
+<div class="card">
+  <p class="hint"><span class="dot" style="background:#3182ce"></span> <b>slow</b> đi +1 bước, <span class="dot" style="background:#dd6b20"></span> <b>fast</b> đi +2 bước. Nếu có chu trình, fast sẽ bắt kịp slow. List dưới đây: <code>1→2→3→4→5→6</code>, node 6 trỏ ngược về node 3 (cycle).</p>
+  <div class="legend">
+    <span><span class="dot" style="background:#3182ce"></span> slow (+1)</span>
+    <span><span class="dot" style="background:#dd6b20"></span> fast (+2)</span>
+    <span><span class="dot" style="background:#9ae6b4"></span> gặp nhau</span>
+  </div>
+  <svg id="m2svg" width="640" height="220" viewBox="0 0 640 220"></svg>
+  <div class="row">
+    <button id="m2step">Bước tiếp →</button>
+    <button id="m2auto" class="ghost">▶ Tự chạy</button>
+    <button id="m2reset" class="ghost">Đặt lại</button>
+  </div>
+  <div class="status" id="m2status">slow=node1, fast=node1. Nhấn "Bước tiếp".</div>
+</div>
+
+<!-- ============ MODULE 3: THREE-SUM ============ -->
+<h2>3. Three-sum — cố định i + two-pointer</h2>
+<div class="card">
+  <p class="hint">Sort trước. <span class="ptr-tag fix">i</span> cố định lần lượt; với mỗi <code>i</code>, <span class="ptr-tag l">l</span>=i+1 và <span class="ptr-tag r">r</span>=n-1 quét tìm <code>nums[l]+nums[r] == -nums[i]</code>. Mục tiêu tổng = 0.</p>
+  <div class="row">
+    <label>Mảng: <input type="text" id="m3arr" value="-1,0,1,2,-1,-4" style="max-width:200px"></label>
+    <button id="m3reset" class="ghost">Đặt lại (sort)</button>
+  </div>
+  <div class="arr" id="m3cells"></div>
+  <div class="row">
+    <button id="m3step">Bước tiếp →</button>
+    <button id="m3auto" class="ghost">▶ Tự chạy</button>
+  </div>
+  <div class="status" id="m3status">Sẽ sort rồi bắt đầu. Nhấn "Bước tiếp".</div>
+  <div class="status" id="m3found" style="border-left-color:#38a169;background:#f0fff4;color:#22543d">Bộ ba tìm thấy: (chưa có)</div>
+</div>
+</main>
+
+<script>
+// ============================ MODULE 1 ============================
+(function () {
+  const cellsEl = document.getElementById('m1cells');
+  const statusEl = document.getElementById('m1status');
+  let arr = [], target = 0, l = 0, r = 0, done = false, timer = null;
+
+  function parse() {
+    arr = document.getElementById('m1arr').value.split(',')
+      .map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+    arr.sort((a, b) => a - b); // đảm bảo sorted
+    document.getElementById('m1arr').value = arr.join(',');
+    target = parseInt(document.getElementById('m1tgt').value, 10) || 0;
+    l = 0; r = arr.length - 1; done = false;
+  }
+  function render() {
+    cellsEl.innerHTML = '';
+    arr.forEach((v, i) => {
+      const c = document.createElement('div');
+      c.className = 'cell';
+      if (i === l && i === r) c.classList.add('lr');
+      else if (i === l) c.classList.add('l');
+      else if (i === r) c.classList.add('r');
+      c.innerHTML = `<span class="idx">${i}</span>${v}`;
+      cellsEl.appendChild(c);
+    });
+  }
+  function setStatus(msg, cls) {
+    statusEl.textContent = msg;
+    statusEl.className = 'status' + (cls ? ' ' + cls : '');
+  }
+  function step() {
+    if (done) return;
+    if (l >= r) { done = true; setStatus('l >= r — không tìm thấy cặp nào.', 'none'); stopAuto(); render(); return; }
+    const sum = arr[l] + arr[r];
+    if (sum === target) {
+      done = true;
+      cellsEl.children[l] && cellsEl.children[l].classList.add('hit');
+      cellsEl.children[r] && cellsEl.children[r].classList.add('hit');
+      setStatus(`a[${l}]+a[${r}] = ${arr[l]}+${arr[r]} = ${sum} = target ✓ → tìm thấy cặp (${l}, ${r})`, 'found');
+      stopAuto(); return;
+    } else if (sum < target) {
+      setStatus(`a[${l}]+a[${r}] = ${arr[l]}+${arr[r]} = ${sum} < ${target} → tổng nhỏ → l++ (${l}→${l+1})`);
+      l++;
+    } else {
+      setStatus(`a[${l}]+a[${r}] = ${arr[l]}+${arr[r]} = ${sum} > ${target} → tổng lớn → r-- (${r}→${r-1})`);
+      r--;
+    }
+    render();
+  }
+  function stopAuto() { if (timer) { clearInterval(timer); timer = null; document.getElementById('m1auto').textContent = '▶ Tự chạy'; } }
+  function reset() { stopAuto(); parse(); render(); setStatus('Đặt lại. l=0, r=n-1.'); }
+  document.getElementById('m1step').onclick = step;
+  document.getElementById('m1reset').onclick = reset;
+  document.getElementById('m1auto').onclick = function () {
+    if (timer) { stopAuto(); return; }
+    this.textContent = '⏸ Dừng';
+    timer = setInterval(() => { if (done) stopAuto(); else step(); }, 800);
+  };
+  reset();
+})();
+
+// ============================ MODULE 2 ============================
+(function () {
+  const svg = document.getElementById('m2svg');
+  const statusEl = document.getElementById('m2status');
+  // list: 1->2->3->4->5->6, 6 -> back to 3 (index 2). next[] = chỉ số node kế tiếp.
+  const N = 6;
+  const next = [1, 2, 3, 4, 5, 2]; // node5 (idx5) -> node3 (idx2): cycle
+  const CYCLE_START = 2;
+  // toạ độ: 3 node thẳng hàng trên, 3 node tạo vòng dưới-phải
+  const pos = [
+    { x: 70,  y: 70 }, { x: 190, y: 70 }, { x: 310, y: 70 },
+    { x: 470, y: 70 }, { x: 530, y: 160 }, { x: 380, y: 160 }
+  ];
+  let slow = 0, fast = 0, met = false, started = false, timer = null;
+
+  function nodeStr(i) { return 'node' + (i + 1); }
+  function render() {
+    let s = '';
+    // edges
+    for (let i = 0; i < N; i++) {
+      const a = pos[i], b = pos[next[i]];
+      s += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#cbd5e0" stroke-width="2" marker-end="url(#arr)"/>`;
+    }
+    // nodes
+    for (let i = 0; i < N; i++) {
+      let fill = '#edf2f7', stroke = '#cbd5e0', sw = 2;
+      const isSlow = (i === slow), isFast = (i === fast);
+      if (met && isSlow && isFast) { fill = '#9ae6b4'; stroke = '#38a169'; sw = 4; }
+      else if (isSlow && isFast) { fill = '#bee3f8'; stroke = '#805ad5'; sw = 4; }
+      else if (isSlow) { fill = '#bee3f8'; stroke = '#3182ce'; sw = 4; }
+      else if (isFast) { fill = '#fed7aa'; stroke = '#dd6b20'; sw = 4; }
+      s += `<circle cx="${pos[i].x}" cy="${pos[i].y}" r="22" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
+      s += `<text x="${pos[i].x}" y="${pos[i].y+5}" text-anchor="middle" font-weight="700" font-size="15" fill="#2d3748">${i+1}</text>`;
+      // pointer labels
+      let lbl = [];
+      if (isSlow) lbl.push('S');
+      if (isFast) lbl.push('F');
+      if (lbl.length) {
+        s += `<text x="${pos[i].x}" y="${pos[i].y-30}" text-anchor="middle" font-weight="700" font-size="13" fill="${isSlow&&isFast?'#805ad5':(isSlow?'#3182ce':'#dd6b20')}">${lbl.join('+')}</text>`;
+      }
+    }
+    svg.innerHTML = `<defs><marker id="arr" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#a0aec0"/></marker></defs>` + s;
+  }
+  function setStatus(msg, cls) {
+    statusEl.textContent = msg;
+    statusEl.className = 'status' + (cls ? ' ' + cls : '');
+  }
+  function step() {
+    if (met) return;
+    if (!started) { started = true; }
+    // fast đi 2 (cycle nên luôn != null trong demo này)
+    slow = next[slow];
+    fast = next[next[fast]];
+    if (slow === fast) {
+      met = true;
+      setStatus(`slow & fast GẶP NHAU tại node ${slow+1} → có chu trình! (Pha 2: đặt 1 con trỏ về head, cùng đi 1 bước → gặp tại node ${CYCLE_START+1} = điểm bắt đầu cycle)`, 'found');
+      render(); stopAuto(); return;
+    }
+    setStatus(`slow → node${slow+1} (+1), fast → node${fast+1} (+2). Chưa gặp.`);
+    render();
+  }
+  function stopAuto() { if (timer) { clearInterval(timer); timer = null; document.getElementById('m2auto').textContent = '▶ Tự chạy'; } }
+  function reset() { stopAuto(); slow = 0; fast = 0; met = false; started = false; render(); setStatus('slow=node1, fast=node1. Nhấn "Bước tiếp".'); }
+  document.getElementById('m2step').onclick = step;
+  document.getElementById('m2reset').onclick = reset;
+  document.getElementById('m2auto').onclick = function () {
+    if (timer) { stopAuto(); return; }
+    this.textContent = '⏸ Dừng';
+    timer = setInterval(() => { if (met) stopAuto(); else step(); }, 850);
+  };
+  reset();
+})();
+
+// ============================ MODULE 3 ============================
+(function () {
+  const cellsEl = document.getElementById('m3cells');
+  const statusEl = document.getElementById('m3status');
+  const foundEl = document.getElementById('m3found');
+  let arr = [], i = 0, l = 0, r = 0, found = [], done = false, timer = null;
+
+  function parse() {
+    arr = document.getElementById('m3arr').value.split(',')
+      .map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+    arr.sort((a, b) => a - b);
+    document.getElementById('m3arr').value = arr.join(',');
+    i = 0; l = 1; r = arr.length - 1; found = []; done = false;
+  }
+  function render() {
+    cellsEl.innerHTML = '';
+    arr.forEach((v, k) => {
+      const c = document.createElement('div');
+      c.className = 'cell';
+      if (k === i) c.classList.add('fix');
+      else if (k === l && k === r) c.classList.add('lr');
+      else if (k === l) c.classList.add('l');
+      else if (k === r) c.classList.add('r');
+      c.innerHTML = `<span class="idx">${k}</span>${v}`;
+      cellsEl.appendChild(c);
+    });
+    foundEl.textContent = 'Bộ ba tìm thấy: ' + (found.length ? found.map(t => `(${t.join(',')})`).join('  ') : '(chưa có)');
+  }
+  function setStatus(msg, cls) {
+    statusEl.textContent = msg;
+    statusEl.className = 'status' + (cls ? ' ' + cls : '');
+  }
+  function advanceFixed() {
+    // chuyển sang i tiếp theo (skip trùng), reset l,r
+    do { i++; } while (i < arr.length - 2 && arr[i] === arr[i - 1]);
+    if (i >= arr.length - 2) { done = true; return false; }
+    l = i + 1; r = arr.length - 1;
+    return true;
+  }
+  function step() {
+    if (done) return;
+    if (i >= arr.length - 2) { done = true; setStatus('Hết các giá trị cố định i. Xong.', 'found'); stopAuto(); render(); return; }
+    if (l >= r) {
+      if (!advanceFixed()) { setStatus('Xong — đã quét hết.', 'found'); stopAuto(); render(); return; }
+      setStatus(`Cố định i=${i} (nums[i]=${arr[i]}). Đặt l=${l}, r=${r}.`);
+      render(); return;
+    }
+    const sum = arr[i] + arr[l] + arr[r];
+    if (sum === 0) {
+      found.push([arr[i], arr[l], arr[r]]);
+      setStatus(`nums[${i}]+nums[${l}]+nums[${r}] = ${arr[i]}+${arr[l]}+${arr[r]} = 0 ✓ → ghi bộ ba. skip trùng + l++ r--`, 'found');
+      // skip duplicate
+      while (l < r && arr[l] === arr[l + 1]) l++;
+      while (l < r && arr[r] === arr[r - 1]) r--;
+      l++; r--;
+    } else if (sum < 0) {
+      setStatus(`${arr[i]}+${arr[l]}+${arr[r]} = ${sum} < 0 → cần lớn hơn → l++`);
+      l++;
+    } else {
+      setStatus(`${arr[i]}+${arr[l]}+${arr[r]} = ${sum} > 0 → cần nhỏ hơn → r--`);
+      r--;
+    }
+    render();
+  }
+  function stopAuto() { if (timer) { clearInterval(timer); timer = null; document.getElementById('m3auto').textContent = '▶ Tự chạy'; } }
+  function reset() { stopAuto(); parse(); render(); setStatus(`Đã sort. Cố định i=0 (nums[0]=${arr[0]}), l=1, r=${arr.length-1}.`); }
+  document.getElementById('m3step').onclick = step;
+  document.getElementById('m3reset').onclick = reset;
+  document.getElementById('m3auto').onclick = function () {
+    if (timer) { stopAuto(); return; }
+    this.textContent = '⏸ Dừng';
+    timer = setInterval(() => { if (done) stopAuto(); else step(); }, 750);
+  };
+  reset();
+})();
+</script>
+
+<!-- README modal -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+
+</body>
+</html>

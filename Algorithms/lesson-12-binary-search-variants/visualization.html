@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 12 — Binary Search & các biến thể</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #4299e1; color: white; border: none; border-radius: 6px;
+    padding: 9px 16px; font-size: 15px; cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+  input[type="text"], input[type="number"] {
+    padding: 8px 10px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 15px; width: 100%; max-width: 320px; box-sizing: border-box;
+  }
+  label { font-size: 14px; color: #4a5568; font-weight: 600; }
+  .hint { color: #718096; font-size: 14px; margin: 4px 0; }
+  .lbl { font-size: 13px; color: #718096; }
+
+  /* ---- mảng cells ---- */
+  .arr { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0; }
+  .cell {
+    width: 50px; height: 50px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    border: 2px solid #cbd5e0; border-radius: 8px; background: white;
+    font-weight: 700; font-size: 16px; color: #2d3748;
+    transition: background .3s, border-color .3s, opacity .3s, transform .2s;
+    position: relative;
+  }
+  .cell .idx { font-size: 10px; color: #a0aec0; font-weight: 600; position: absolute; top: 2px; }
+  .cell.discard { opacity: .25; }
+  .cell.range { border-color: #4299e1; background: #ebf8ff; }
+  .cell.mid { border-color: #ed8936; background: #feebc8; transform: translateY(-4px); }
+  .cell.found { border-color: #38a169; background: #c6f6d5; }
+  .cell.bound { border-color: #805ad5; background: #e9d8fd; }
+
+  .ptr-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: -6px; min-height: 22px; }
+  .ptr {
+    width: 50px; text-align: center; font-family: monospace; font-size: 12px;
+    font-weight: 700;
+  }
+  .ptr.lo { color: #2b6cb0; }
+  .ptr.hi { color: #c05621; }
+  .ptr.mid { color: #b7791f; }
+
+  .step-info {
+    font-family: monospace; font-size: 14px; color: #2d3748;
+    background: #f7fafc; border-left: 4px solid #4299e1; padding: 10px 14px;
+    border-radius: 0 6px 6px 0; margin: 10px 0; line-height: 1.6;
+  }
+  .counter { font-family: monospace; font-size: 14px; color: #4a5568; }
+  .counter b { color: #2b6cb0; }
+
+  /* ---- module 3: predicate strip ---- */
+  .pred-strip { display: flex; flex-wrap: wrap; gap: 4px; margin: 12px 0; }
+  .pbox {
+    min-width: 40px; padding: 8px 6px; text-align: center; border-radius: 6px;
+    font-family: monospace; font-size: 13px; border: 2px solid #e2e8f0;
+    transition: all .25s;
+  }
+  .pbox .cap { display: block; font-size: 11px; color: #718096; }
+  .pbox.F { background: #fff5f5; border-color: #feb2b2; color: #c53030; }
+  .pbox.T { background: #f0fff4; border-color: #9ae6b4; color: #276749; }
+  .pbox.lo { box-shadow: 0 0 0 3px #bee3f8; }
+  .pbox.hi { box-shadow: 0 0 0 3px #fbd38d; }
+  .pbox.mid { transform: translateY(-4px); border-width: 3px; }
+  .pbox.ans { outline: 3px solid #38a169; outline-offset: 1px; }
+  table.sched { border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+  table.sched td, table.sched th { border: 1px solid #e2e8f0; padding: 5px 9px; text-align: center; }
+  table.sched th { background: #f7fafc; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../tier-1-sorting/index.html">← Tier 1: Sorting</a>
+  <span class="sep">·</span>
+  <span class="current">L12: Binary Search</span>
+  <span class="sep">·</span>
+  <a href="../lesson-13-two-pointers/visualization.html">L13: Two Pointers →</a>
+</nav>
+
+<main>
+<h1>Binary Search &amp; các biến thể</h1>
+<p class="hint">Ba module tương tác: (1) binary search animator, (2) lower/upper bound trên mảng có trùng, (3) binary search on answer (ship capacity). Mỗi bước hiện <code>lo / hi / mid</code> và vùng bị loại.</p>
+
+<!-- ================= MODULE 1 ================= -->
+<h2>1. Binary search animator</h2>
+<div class="card">
+  <div class="row">
+    <div>
+      <label>Mảng sorted (cách nhau dấu phẩy)</label><br>
+      <input type="text" id="m1-arr" value="1,3,5,7,9,11,13,15">
+    </div>
+    <div>
+      <label>Target</label><br>
+      <input type="number" id="m1-target" value="13" style="max-width:120px">
+    </div>
+  </div>
+  <div class="row">
+    <button id="m1-start">▶ Bắt đầu</button>
+    <button id="m1-step" class="ghost" disabled>Bước tiếp →</button>
+    <button id="m1-auto" class="ghost" disabled>⏩ Tự động</button>
+    <button id="m1-reset" class="ghost">↺ Reset</button>
+  </div>
+  <div class="arr" id="m1-cells"></div>
+  <div class="ptr-row" id="m1-ptrs"></div>
+  <div class="step-info" id="m1-info">Nhập mảng + target rồi bấm "Bắt đầu".</div>
+  <div class="counter" id="m1-counter"></div>
+</div>
+
+<!-- ================= MODULE 2 ================= -->
+<h2>2. Lower bound / Upper bound (mảng có trùng)</h2>
+<div class="card">
+  <div class="row">
+    <div>
+      <label>Mảng sorted (có thể trùng)</label><br>
+      <input type="text" id="m2-arr" value="1,2,2,2,5,7">
+    </div>
+    <div>
+      <label>x</label><br>
+      <input type="number" id="m2-x" value="2" style="max-width:120px">
+    </div>
+  </div>
+  <div class="row">
+    <button id="m2-lower">▶ lowerBound (biên trái, ≥ x)</button>
+    <button id="m2-upper" style="background:#805ad5">▶ upperBound (biên phải, &gt; x)</button>
+    <button id="m2-step" class="ghost" disabled>Bước tiếp →</button>
+    <button id="m2-reset" class="ghost">↺ Reset</button>
+  </div>
+  <div class="arr" id="m2-cells"></div>
+  <div class="ptr-row" id="m2-ptrs"></div>
+  <div class="step-info" id="m2-info">Chọn lowerBound hoặc upperBound để bắt đầu. lowerBound dùng điều kiện <code>a[mid] ≥ x</code>, upperBound dùng <code>a[mid] &gt; x</code>.</div>
+  <div class="counter" id="m2-counter"></div>
+</div>
+
+<!-- ================= MODULE 3 ================= -->
+<h2>3. Binary search on answer — Ship trong D ngày</h2>
+<div class="card">
+  <p class="hint">weights = <code>[1,2,3,4,5,6,7,8,9,10]</code> (giữ nguyên thứ tự). Tìm <b>capacity nhỏ nhất</b> chở hết trong D ngày. Không gian đáp án: capacity ∈ [max=10, sum=55]. Predicate <code>daysNeeded(cap) ≤ D</code> đơn điệu <code>F → T</code>.</p>
+  <div class="row">
+    <div>
+      <label>D (số ngày) = <span id="m3-dval">5</span></label><br>
+      <input type="range" id="m3-d" min="1" max="10" value="5" style="width:240px;max-width:100%">
+    </div>
+  </div>
+  <div class="row">
+    <button id="m3-start">▶ Bắt đầu search</button>
+    <button id="m3-step" class="ghost" disabled>Bước tiếp →</button>
+    <button id="m3-reset" class="ghost">↺ Reset</button>
+  </div>
+  <div class="lbl">Dãy predicate theo capacity (chỉ hiện một số mốc; ô đang xét = mid, viền xanh/cam = lo/hi):</div>
+  <div class="pred-strip" id="m3-strip"></div>
+  <div class="step-info" id="m3-info">Bấm "Bắt đầu search". Mỗi bước thu hẹp khoảng [lo,hi] của capacity, tìm T-đầu-tiên.</div>
+  <div id="m3-sched"></div>
+  <div class="counter" id="m3-counter"></div>
+</div>
+</main>
+
+<script>
+/* ================= MODULE 1 ================= */
+(function () {
+  const arrIn = document.getElementById('m1-arr');
+  const tgtIn = document.getElementById('m1-target');
+  const cellsEl = document.getElementById('m1-cells');
+  const ptrsEl = document.getElementById('m1-ptrs');
+  const infoEl = document.getElementById('m1-info');
+  const cntEl = document.getElementById('m1-counter');
+  const bStart = document.getElementById('m1-start');
+  const bStep = document.getElementById('m1-step');
+  const bAuto = document.getElementById('m1-auto');
+  const bReset = document.getElementById('m1-reset');
+
+  let a = [], target = 0, lo = 0, hi = 0, mid = -1, steps = 0, done = false, autoT = null;
+
+  function parse() {
+    a = arrIn.value.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+    a.sort((x, y) => x - y); // đảm bảo sorted
+    arrIn.value = a.join(',');
+    target = parseInt(tgtIn.value, 10) || 0;
+  }
+  function render(foundIdx) {
+    cellsEl.innerHTML = '';
+    ptrsEl.innerHTML = '';
+    a.forEach((v, i) => {
+      const c = document.createElement('div');
+      c.className = 'cell';
+      if (done && i === foundIdx) c.classList.add('found');
+      else if (i < lo || i > hi) c.classList.add('discard');
+      else c.classList.add('range');
+      if (!done && i === mid) { c.classList.remove('range'); c.classList.add('mid'); }
+      c.innerHTML = `<span class="idx">${i}</span>${v}`;
+      cellsEl.appendChild(c);
+      const p = document.createElement('div');
+      p.className = 'ptr';
+      let t = '';
+      if (i === lo) t += '<span class="lo">lo</span>';
+      if (i === mid && !done) t += (t ? ' ' : '') + '<span class="mid">mid</span>';
+      if (i === hi) t += (t ? ' ' : '') + '<span class="hi">hi</span>';
+      p.innerHTML = t;
+      ptrsEl.appendChild(p);
+    });
+  }
+  function start() {
+    parse();
+    if (a.length === 0) { infoEl.textContent = 'Mảng rỗng.'; return; }
+    lo = 0; hi = a.length - 1; mid = -1; steps = 0; done = false;
+    bStep.disabled = false; bAuto.disabled = false;
+    const logn = Math.ceil(Math.log2(a.length)) || 1;
+    cntEl.innerHTML = `Số bước: <b>0</b> &nbsp;|&nbsp; ⌈log₂ ${a.length}⌉ = <b>${logn}</b> (tối đa)`;
+    infoEl.innerHTML = `Khởi tạo khoảng [lo=0, hi=${hi}]. Tìm target = ${target}.`;
+    render(-1);
+  }
+  function step() {
+    if (done) return;
+    if (lo > hi) {
+      done = true; mid = -1; render(-1);
+      infoEl.innerHTML = `lo (${lo}) &gt; hi (${hi}) → khoảng rỗng → <b>không tồn tại, trả -1</b>.`;
+      finish(); return;
+    }
+    mid = lo + Math.floor((hi - lo) / 2);
+    steps++;
+    const logn = Math.ceil(Math.log2(a.length)) || 1;
+    cntEl.innerHTML = `Số bước: <b>${steps}</b> &nbsp;|&nbsp; ⌈log₂ ${a.length}⌉ = <b>${logn}</b> (tối đa)`;
+    render(-1);
+    if (a[mid] === target) {
+      infoEl.innerHTML = `mid = ${lo}+(${hi}-${lo})/2 = <b>${mid}</b>, a[${mid}] = ${a[mid]} == target → <b>tìm thấy tại index ${mid}</b> ✓`;
+      done = true; render(mid); finish(); return;
+    } else if (a[mid] < target) {
+      infoEl.innerHTML = `mid = <b>${mid}</b>, a[${mid}] = ${a[mid]} &lt; ${target} → vứt nửa trái → lo = mid+1 = <b>${mid + 1}</b>`;
+      lo = mid + 1;
+    } else {
+      infoEl.innerHTML = `mid = <b>${mid}</b>, a[${mid}] = ${a[mid]} &gt; ${target} → vứt nửa phải → hi = mid-1 = <b>${mid - 1}</b>`;
+      hi = mid - 1;
+    }
+  }
+  function finish() {
+    bStep.disabled = true; bAuto.disabled = true;
+    if (autoT) { clearInterval(autoT); autoT = null; bAuto.textContent = '⏩ Tự động'; }
+  }
+  function auto() {
+    if (autoT) { clearInterval(autoT); autoT = null; bAuto.textContent = '⏩ Tự động'; return; }
+    bAuto.textContent = '⏸ Dừng';
+    autoT = setInterval(() => { if (done) { clearInterval(autoT); autoT = null; bAuto.textContent = '⏩ Tự động'; } else step(); }, 900);
+  }
+  function reset() {
+    if (autoT) { clearInterval(autoT); autoT = null; bAuto.textContent = '⏩ Tự động'; }
+    parse(); lo = 0; hi = a.length - 1; mid = -1; steps = 0; done = false;
+    bStep.disabled = true; bAuto.disabled = true;
+    infoEl.textContent = 'Nhập mảng + target rồi bấm "Bắt đầu".';
+    cntEl.textContent = '';
+    render(-1);
+  }
+  bStart.onclick = start;
+  bStep.onclick = step;
+  bAuto.onclick = auto;
+  bReset.onclick = reset;
+  reset();
+})();
+
+/* ================= MODULE 2 ================= */
+(function () {
+  const arrIn = document.getElementById('m2-arr');
+  const xIn = document.getElementById('m2-x');
+  const cellsEl = document.getElementById('m2-cells');
+  const ptrsEl = document.getElementById('m2-ptrs');
+  const infoEl = document.getElementById('m2-info');
+  const cntEl = document.getElementById('m2-counter');
+  const bLower = document.getElementById('m2-lower');
+  const bUpper = document.getElementById('m2-upper');
+  const bStep = document.getElementById('m2-step');
+  const bReset = document.getElementById('m2-reset');
+
+  let a = [], x = 0, lo = 0, hi = 0, mid = -1, steps = 0, done = false, mode = 'lower';
+
+  function parse() {
+    a = arrIn.value.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+    a.sort((p, q) => p - q);
+    arrIn.value = a.join(',');
+    x = parseInt(xIn.value, 10) || 0;
+  }
+  function predOK(i) { return mode === 'lower' ? a[i] >= x : a[i] > x; }
+  function render(boundIdx) {
+    cellsEl.innerHTML = '';
+    ptrsEl.innerHTML = '';
+    a.forEach((v, i) => {
+      const c = document.createElement('div');
+      c.className = 'cell';
+      if (done && i === boundIdx) c.classList.add('bound');
+      else if (i < lo || i >= hi) c.classList.add('discard');
+      else c.classList.add('range');
+      if (!done && i === mid) { c.classList.remove('range'); c.classList.add('mid'); }
+      c.innerHTML = `<span class="idx">${i}</span>${v}`;
+      cellsEl.appendChild(c);
+      const p = document.createElement('div');
+      p.className = 'ptr'; let t = '';
+      if (i === lo) t += '<span class="lo">lo</span>';
+      if (i === mid && !done) t += (t ? ' ' : '') + '<span class="mid">mid</span>';
+      p.innerHTML = t;
+      ptrsEl.appendChild(p);
+    });
+    // hi pointer (nửa mở [lo,hi), hi có thể = len)
+    const ph = document.createElement('div');
+    ph.className = 'ptr'; ph.innerHTML = hi === a.length ? '<span class="hi">hi=len</span>' : '';
+    if (hi === a.length) ptrsEl.appendChild(ph);
+  }
+  function startMode(m) {
+    parse();
+    if (a.length === 0) { infoEl.textContent = 'Mảng rỗng.'; return; }
+    mode = m; lo = 0; hi = a.length; mid = -1; steps = 0; done = false;
+    bStep.disabled = false;
+    const cond = m === 'lower' ? 'a[mid] ≥ x' : 'a[mid] > x';
+    infoEl.innerHTML = `<b>${m === 'lower' ? 'lowerBound' : 'upperBound'}</b>: khoảng nửa mở [lo=0, hi=${hi}). Tìm index nhỏ nhất thỏa <code>${cond}</code>.`;
+    cntEl.innerHTML = `Số bước: <b>0</b>`;
+    render(-1);
+  }
+  function step() {
+    if (done) return;
+    if (lo >= hi) {
+      done = true; mid = -1;
+      const ok = lo < a.length && a[lo] === x;
+      infoEl.innerHTML = `lo == hi == <b>${lo}</b> → biên. ${mode === 'lower' ? 'lowerBound' : 'upperBound'}(${x}) = <b>${lo}</b>` +
+        (mode === 'lower' && ok ? ` (= first occurrence của ${x})` : '') +
+        (mode === 'upper' && lo > 0 && a[lo - 1] === x ? ` (last occurrence = ${lo} − 1 = ${lo - 1})` : '');
+      render(lo); bStep.disabled = true; return;
+    }
+    mid = lo + Math.floor((hi - lo) / 2);
+    steps++;
+    cntEl.innerHTML = `Số bước: <b>${steps}</b>`;
+    render(-1);
+    const cond = mode === 'lower' ? `a[${mid}]=${a[mid]} ≥ ${x}` : `a[${mid}]=${a[mid]} > ${x}`;
+    if (predOK(mid)) {
+      infoEl.innerHTML = `mid = <b>${mid}</b>: ${cond} → <b>đúng</b> → biên ở đây hoặc trái hơn → hi = mid = <b>${mid}</b>`;
+      hi = mid;
+    } else {
+      infoEl.innerHTML = `mid = <b>${mid}</b>: ${cond} → <b>sai</b> → biên ở phải → lo = mid+1 = <b>${mid + 1}</b>`;
+      lo = mid + 1;
+    }
+  }
+  function reset() {
+    parse(); lo = 0; hi = a.length; mid = -1; steps = 0; done = false;
+    bStep.disabled = true;
+    infoEl.innerHTML = 'Chọn lowerBound hoặc upperBound để bắt đầu.';
+    cntEl.textContent = '';
+    render(-1);
+  }
+  bLower.onclick = () => startMode('lower');
+  bUpper.onclick = () => startMode('upper');
+  bStep.onclick = step;
+  bReset.onclick = reset;
+  reset();
+})();
+
+/* ================= MODULE 3 ================= */
+(function () {
+  const W = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const dSlider = document.getElementById('m3-d');
+  const dVal = document.getElementById('m3-dval');
+  const stripEl = document.getElementById('m3-strip');
+  const infoEl = document.getElementById('m3-info');
+  const schedEl = document.getElementById('m3-sched');
+  const cntEl = document.getElementById('m3-counter');
+  const bStart = document.getElementById('m3-start');
+  const bStep = document.getElementById('m3-step');
+  const bReset = document.getElementById('m3-reset');
+
+  const LO0 = Math.max(...W);            // 10
+  const HI0 = W.reduce((s, v) => s + v); // 55
+  let D = 5, lo = LO0, hi = HI0, mid = -1, steps = 0, done = false;
+  // các mốc capacity hiển thị trên strip
+  const marks = [10, 12, 14, 15, 18, 21, 28, 40, 55];
+
+  function daysNeeded(cap) {
+    let days = 1, load = 0;
+    for (const w of W) {
+      if (load + w > cap) { days++; load = 0; }
+      load += w;
+    }
+    return days;
+  }
+  function schedule(cap) {
+    const rows = [[]]; let load = 0;
+    for (const w of W) {
+      if (load + w > cap) { rows.push([]); load = 0; }
+      rows[rows.length - 1].push(w); load += w;
+    }
+    return rows;
+  }
+  function renderStrip() {
+    stripEl.innerHTML = '';
+    marks.forEach(cap => {
+      const ok = daysNeeded(cap) <= D;
+      const b = document.createElement('div');
+      b.className = 'pbox ' + (ok ? 'T' : 'F');
+      if (!done && cap === mid) b.classList.add('mid');
+      if (cap === lo) b.classList.add('lo');
+      if (cap === hi) b.classList.add('hi');
+      if (done && cap === lo) b.classList.add('ans');
+      b.innerHTML = `<span class="cap">cap ${cap}</span>${ok ? 'T' : 'F'}`;
+      stripEl.appendChild(b);
+    });
+  }
+  function renderSched(cap) {
+    const rows = schedule(cap);
+    let html = `<table class="sched"><tr><th>Ngày</th><th>Kiện chở</th><th>Tổng</th></tr>`;
+    rows.forEach((r, i) => {
+      const sum = r.reduce((s, v) => s + v, 0);
+      html += `<tr><td>${i + 1}</td><td>[${r.join(', ')}]</td><td>${sum}${sum > cap ? ' ⚠' : ''}</td></tr>`;
+    });
+    html += `</table><div class="lbl">cap=${cap} → cần <b>${rows.length}</b> ngày (D=${D})</div>`;
+    schedEl.innerHTML = html;
+  }
+  function start() {
+    D = parseInt(dSlider.value, 10);
+    lo = LO0; hi = HI0; mid = -1; steps = 0; done = false;
+    bStep.disabled = false;
+    infoEl.innerHTML = `Khởi tạo: lo = max(weights) = <b>${LO0}</b>, hi = sum = <b>${HI0}</b>. Tìm capacity T-đầu-tiên (daysNeeded ≤ ${D}).`;
+    cntEl.innerHTML = `Số bước: <b>0</b>`;
+    renderStrip(); schedEl.innerHTML = '';
+  }
+  function step() {
+    if (done) return;
+    if (lo >= hi) {
+      done = true; mid = -1;
+      infoEl.innerHTML = `lo == hi == <b>${lo}</b> → <b>capacity nhỏ nhất = ${lo}</b> (chở hết trong ≤ ${D} ngày).`;
+      renderStrip(); renderSched(lo); bStep.disabled = true; return;
+    }
+    mid = lo + Math.floor((hi - lo) / 2);
+    steps++;
+    cntEl.innerHTML = `Số bước: <b>${steps}</b> &nbsp;|&nbsp; range ban đầu = ${HI0 - LO0}, ⌈log₂⌉ ≈ ${Math.ceil(Math.log2(HI0 - LO0)) || 1}`;
+    const d = daysNeeded(mid);
+    renderStrip(); renderSched(mid);
+    if (d <= D) {
+      infoEl.innerHTML = `mid = <b>${mid}</b>: daysNeeded(${mid}) = ${d} ≤ ${D} → <b>T</b> (đủ) → thử nhỏ hơn → hi = mid = <b>${mid}</b>`;
+      hi = mid;
+    } else {
+      infoEl.innerHTML = `mid = <b>${mid}</b>: daysNeeded(${mid}) = ${d} > ${D} → <b>F</b> (cap quá nhỏ) → lo = mid+1 = <b>${mid + 1}</b>`;
+      lo = mid + 1;
+    }
+  }
+  function reset() {
+    D = parseInt(dSlider.value, 10);
+    lo = LO0; hi = HI0; mid = -1; steps = 0; done = false;
+    bStep.disabled = true;
+    infoEl.innerHTML = 'Bấm "Bắt đầu search".';
+    cntEl.textContent = ''; schedEl.innerHTML = '';
+    renderStrip();
+  }
+  dSlider.oninput = () => { dVal.textContent = dSlider.value; reset(); };
+  bStart.onclick = start;
+  bStep.onclick = step;
+  bReset.onclick = reset;
+  reset();
+})();
+</script>
+
+<!-- README modal + TOC + favicon -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+
+</body>
+</html>

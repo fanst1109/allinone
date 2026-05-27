@@ -544,16 +544,16 @@ func main() {
 Văn bản: "abracadabra" (11 ký tự)
 Bảng mã Huffman:
   a (freq 5): 0
-  b (freq 2): 110
-  c (freq 1): 100
-  d (freq 1): 101
-  r (freq 2): 111
-Encode: 01101110100010101101110 (23 bit)
+  b (freq 2): 111
+  c (freq 1): 1100
+  d (freq 1): 1101
+  r (freq 2): 10
+Encode: 01111001100011010111100 (23 bit)
 Decode: "abracadabra" (khớp gốc: true)
 Fixed-length 8-bit: 88 bit | Huffman: 23 bit | tiết kiệm 73.9%
 ```
 
-> ❓ **Câu hỏi tự nhiên.** *"Mã của `c`/`d`/`b`/`r` ở đây hơi khác walk-through tay (mục 4 có `c=100,d=101,b=110,r=111`, ở đây cũng vậy)?"* — Khớp, vì cùng quy tắc tie-break (char tăng dần). Tổng bit **23** không đổi dù hình cây có thể khác — đây chính là ý của mục 11 về tie-breaking.
+> ❓ **Câu hỏi tự nhiên.** *"Vì sao bảng mã chạy thật (`b=111, r=10, c=1100, d=1101`) khác với walk-through tay ở mục 4 (`b=110, r=111, c=100, d=101`)?"* — Vì tie-break ở mục 4 chạy tay theo **char của lá**, còn code ở đây tie-break theo **char nhỏ nhất trong node** (so sánh node cha cũng có char), nên thứ tự ghép khác → **hình cây khác**. Nhưng để ý: **tổng bit vẫn đúng 23** (a:5×1 + r:2×2 + b:2×3 + c:1×4 + d:1×4 = 5+4+6+4+4 = 23). Cả hai cây đều **tối ưu** — đúng tinh thần mục 11.1: tie-break đổi hình cây, không đổi tổng bit.
 
 ---
 

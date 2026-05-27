@@ -1,0 +1,103 @@
+# Lesson 77 — CI/CD Pipeline · workflow tham khảo cho dự án Go.
+#
+# Đây là pipeline production-ready khớp với BT1 (lint+test+build), BT3 (matrix),
+# BT5 (vuln scan) và mục 4 README. Để dùng thật: đặt file này tại
+# .github/workflows/ci.yml ở GỐC repo (không phải trong thư mục lesson).
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']            # tag vX.Y.Z → có thể trigger release riêng
+  pull_request:
+    branches: [main]
+
+# Hủy run cũ khi push mới lên cùng ref → tiết kiệm runner, feedback nhanh.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Least-privilege: mặc định chỉ đọc; job nào cần ghi thì khai báo riêng.
+permissions:
+  contents: read
+
+jobs:
+  # ---- Job 1: lint + test + vuln scan, chạy trên matrix (BT3 + BT5) ----
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false            # 1 cell fail KHÔNG hủy các cell khác
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        go: ['1.21', '1.22']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go }}
+          cache: true             # cache module (~/go/pkg/mod) + build (~/.cache/go-build)
+
+      - name: Lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.59
+
+      - name: Test (race + cover)
+        run: go test -race -coverprofile=cover.out ./...
+
+      - name: Build
+        run: go build ./...
+
+      - name: Govulncheck (Go code)
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          govulncheck ./...
+
+      - name: Trivy filesystem scan
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: fs
+          severity: HIGH,CRITICAL
+          exit-code: '1'          # có lỗ hổng nặng → fail pipeline
+          ignore-unfixed: true    # bỏ CVE chưa có bản vá (giảm noise)
+
+  # ---- Job 2: build + push Docker image (BT2) ----
+  # Chỉ chạy khi push lên main VÀ sau khi toàn bộ matrix test pass.
+  docker:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write             # cần để push lên GitHub Container Registry
+      id-token: write             # cho attestation/provenance (SLSA, mục 10)
+      attestations: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}   # token tự cấp, KHÔNG hardcode
+
+      - name: Build & push
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
+            ghcr.io/${{ github.repository }}:latest
+
+      # Provenance attestation (mục 10.5) — chứng minh image build từ commit/workflow này.
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ghcr.io/${{ github.repository }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true

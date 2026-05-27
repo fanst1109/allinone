@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 40 — String Matching & Rabin-Karp</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root { --bg: #fafaf7; --accent: #14b8a6; --accent-soft: #ccfbf1; --accent-hover: #0d9488; }
+  main { max-width: 920px; margin: 0 auto; padding: 0 16px 80px; }
+  h1 { color: #0f766e; }
+  h2 { color: #0d9488; border-bottom: 2px solid var(--accent-soft); padding-bottom: 6px; margin-top: 40px; }
+  .module { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin: 18px 0; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 12px 0; }
+  .controls label { font-size: 14px; color: #475569; }
+  input[type=text] { font-family: ui-monospace, monospace; font-size: 15px; padding: 7px 9px; border: 1px solid #cbd5e1; border-radius: 7px; width: 100%; max-width: 340px; box-sizing: border-box; }
+  button { background: var(--accent); color: #fff; border: 0; padding: 8px 14px; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button:hover { background: var(--accent-hover); }
+  button.ghost { background: #e2e8f0; color: #334155; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .track { font-family: ui-monospace, monospace; font-size: 18px; }
+  .cells { display: flex; flex-wrap: nowrap; gap: 3px; overflow-x: auto; padding: 4px 0; }
+  .cell { width: 30px; height: 34px; display: flex; align-items: center; justify-content: center; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; font-family: ui-monospace, monospace; font-weight: 700; flex: 0 0 auto; transition: background .15s, color .15s; }
+  .cell.idx { border: 0; background: transparent; color: #94a3b8; font-size: 11px; font-weight: 500; height: 16px; }
+  .cell.window { background: #fef9c3; border-color: #eab308; }
+  .cell.cmp { background: #bfdbfe; border-color: #3b82f6; }
+  .cell.match { background: #bbf7d0; border-color: #22c55e; }
+  .cell.mismatch { background: #fecaca; border-color: #ef4444; }
+  .cell.fp { background: #fde68a; border-color: #f59e0b; }
+  .stat { display: inline-block; background: var(--accent-soft); color: #0f766e; border-radius: 20px; padding: 4px 12px; font-size: 13px; font-weight: 600; margin: 4px 6px 4px 0; }
+  .log { font-family: ui-monospace, monospace; font-size: 13px; background: #0f172a; color: #cbd5e1; border-radius: 8px; padding: 10px 12px; min-height: 44px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+  .hashbox { font-family: ui-monospace, monospace; font-size: 14px; background: #f1f5f9; border-radius: 8px; padding: 10px 12px; margin: 8px 0; line-height: 1.6; }
+  .hl-rm { color: #dc2626; font-weight: 700; }
+  .hl-add { color: #16a34a; font-weight: 700; }
+  .found { font-family: ui-monospace, monospace; color: #15803d; font-weight: 700; }
+  .note { font-size: 13px; color: #64748b; margin: 6px 0; }
+  @media (max-width: 480px) {
+    .cell { width: 22px; height: 28px; font-size: 13px; }
+    .cell.idx { height: 14px; }
+    .track { font-size: 15px; }
+    input[type=text] { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../tier-5-graph/index.html">← Tier 5: Graph</a>
+  <span class="sep">·</span>
+  <span class="current">L40: String Matching & Rabin-Karp</span>
+  <span class="sep">·</span>
+  <a href="../lesson-41-kmp/visualization.html">L41: KMP →</a>
+</nav>
+
+<main>
+<h1>Lesson 40 — String Matching & Rabin-Karp</h1>
+<p class="note">Ba module tương tác: (1) Naive matching đếm phép so sánh; (2) Rolling hash cập nhật O(1); (3) Rabin-Karp so hash + verify, highlight false positive.</p>
+
+<!-- ============ MODULE 1: NAIVE ============ -->
+<h2>1. Naive matching — trượt &amp; so từng ký tự</h2>
+<div class="module">
+  <div class="controls">
+    <label>Text:<br><input type="text" id="n-text" value="AABAACAADAABAABA"></label>
+    <label>Pattern:<br><input type="text" id="n-pat" value="AABA"></label>
+  </div>
+  <div class="controls">
+    <button id="n-step">▶ Bước tiếp</button>
+    <button id="n-auto">⏩ Tự chạy</button>
+    <button id="n-reset" class="ghost">↺ Reset</button>
+  </div>
+  <div class="track">
+    <div class="cells" id="n-idx"></div>
+    <div class="cells" id="n-text-cells"></div>
+    <div class="cells" id="n-pat-cells"></div>
+  </div>
+  <div style="margin:10px 0">
+    <span class="stat">Vị trí i: <b id="n-i">0</b></span>
+    <span class="stat">So sánh: <b id="n-cmp">0</b></span>
+    <span class="stat">Khớp tại: <b id="n-found">—</b></span>
+  </div>
+  <div class="log" id="n-log">Nhấn "Bước tiếp" để đặt pattern tại i=0 và so từng ký tự.</div>
+  <p class="note">Mỗi lần lệch → dịch pattern sang phải 1 ô, so lại từ đầu pattern. Worst-case O(n·m).</p>
+</div>
+
+<!-- ============ MODULE 2: ROLLING HASH ============ -->
+<h2>2. Rolling hash — cập nhật O(1) khi trượt</h2>
+<div class="module">
+  <div class="controls">
+    <label>Text:<br><input type="text" id="r-text" value="ABABA"></label>
+    <label>m (độ dài window):<br><input type="text" id="r-m" value="3" style="max-width:90px"></label>
+  </div>
+  <div class="controls">
+    <button id="r-step">▶ Trượt window</button>
+    <button id="r-reset" class="ghost">↺ Reset</button>
+  </div>
+  <div class="track">
+    <div class="cells" id="r-idx"></div>
+    <div class="cells" id="r-cells"></div>
+  </div>
+  <div class="hashbox" id="r-hash">Nhấn "Trượt window" để khởi tạo hash của window đầu tiên.</div>
+  <p class="note">b = 256, q = 101 (nhỏ để dễ đọc). Công thức trượt: <code>hnew = ((hold − T[i]·b^(m-1))·b + T[i+m]) mod q</code>. Đỏ = bỏ ký tự trái, xanh = thêm ký tự phải.</p>
+</div>
+
+<!-- ============ MODULE 3: RABIN-KARP ============ -->
+<h2>3. Rabin-Karp — so hash trước, verify khi khớp</h2>
+<div class="module">
+  <div class="controls">
+    <label>Text:<br><input type="text" id="k-text" value="ABABABA"></label>
+    <label>Pattern:<br><input type="text" id="k-pat" value="ABA"></label>
+  </div>
+  <div class="controls">
+    <button id="k-step">▶ Bước tiếp</button>
+    <button id="k-auto">⏩ Tự chạy</button>
+    <button id="k-reset" class="ghost">↺ Reset</button>
+  </div>
+  <div class="track">
+    <div class="cells" id="k-idx"></div>
+    <div class="cells" id="k-cells"></div>
+  </div>
+  <div style="margin:10px 0">
+    <span class="stat">hash(P): <b id="k-hp">—</b></span>
+    <span class="stat">hash(window): <b id="k-ht">—</b></span>
+    <span class="stat">Verify: <b id="k-verify">0</b></span>
+    <span class="stat">False positive: <b id="k-fp">0</b></span>
+  </div>
+  <div class="log" id="k-log">Nhấn "Bước tiếp". Vàng = hash trùng nhưng chuỗi khác (false positive); xanh = khớp thật.</div>
+  <p class="note">q nhỏ (101) cố tình tạo false positive để bạn thấy vì sao phải verify. q ~10⁹ thật thì gần như không có.</p>
+</div>
+</main>
+
+<script>
+const BASE = 256, MOD = 101;
+function mod(x){ return ((x % MOD) + MOD) % MOD; }
+function hashStr(s){ let h = 0; for(let i=0;i<s.length;i++) h = mod(h*BASE + s.charCodeAt(i)); return h; }
+
+function renderCells(idxEl, cellEl, str, offset){
+  idxEl.innerHTML = ''; cellEl.innerHTML = '';
+  for(let i=0;i<str.length;i++){
+    const ix = document.createElement('div'); ix.className='cell idx'; ix.textContent = (offset!==undefined?offset+i:i);
+    idxEl.appendChild(ix);
+    const c = document.createElement('div'); c.className='cell'; c.textContent = str[i]===' '?'·':str[i];
+    c.dataset.i = i; cellEl.appendChild(c);
+  }
+}
+function clearClasses(cellEl){ [...cellEl.children].forEach(c=>{c.classList.remove('window','cmp','match','mismatch','fp');}); }
+
+/* ============ MODULE 1: NAIVE ============ */
+(function(){
+  const tEl=document.getElementById('n-text-cells'), pEl=document.getElementById('n-pat-cells'),
+        iEl=document.getElementById('n-idx'), log=document.getElementById('n-log');
+  let text, pat, i, cmp, found, autoTimer=null;
+  function reset(){
+    text=document.getElementById('n-text').value; pat=document.getElementById('n-pat').value;
+    i=0; cmp=0; found=[];
+    renderCells(iEl, tEl, text);
+    pEl.innerHTML=''; layoutPat();
+    document.getElementById('n-i').textContent=0; document.getElementById('n-cmp').textContent=0;
+    document.getElementById('n-found').textContent='—';
+    log.textContent='Đặt pattern tại i=0. Nhấn "Bước tiếp".';
+    stopAuto();
+  }
+  function layoutPat(){
+    pEl.innerHTML='';
+    for(let k=0;k<i;k++){ const c=document.createElement('div'); c.className='cell'; c.style.visibility='hidden'; c.textContent='.'; pEl.appendChild(c); }
+    for(let k=0;k<pat.length;k++){ const c=document.createElement('div'); c.className='cell'; c.textContent=pat[k]; c.dataset.k=k; pEl.appendChild(c); }
+  }
+  function step(){
+    if(i+pat.length>text.length){ log.textContent='Hết text. Vị trí khớp: '+(found.length?found.join(', '):'không có'); stopAuto(); return; }
+    clearClasses(tEl); layoutPat(); clearClasses(pEl);
+    let j=0, msg='i='+i+': so ';
+    for(j=0;j<pat.length;j++){
+      cmp++;
+      const tc=tEl.children[i+j], pc=pEl.children[i+j];
+      if(text[i+j]===pat[j]){ tc.classList.add('match'); pc.classList.add('match'); }
+      else { tc.classList.add('mismatch'); pc.classList.add('mismatch'); break; }
+    }
+    document.getElementById('n-cmp').textContent=cmp;
+    if(j===pat.length){ found.push(i); msg+='KHỚP đủ '+pat.length+' ký tự ✓ tại vị trí '+i; }
+    else msg+='lệch ở j='+j+" ('"+text[i+j]+"' ≠ '"+pat[j]+"') → dịch phải";
+    document.getElementById('n-found').textContent = found.length?found.join(', '):'—';
+    log.textContent=msg;
+    i++; document.getElementById('n-i').textContent=i;
+  }
+  function stopAuto(){ if(autoTimer){clearInterval(autoTimer);autoTimer=null;} document.getElementById('n-auto').textContent='⏩ Tự chạy'; }
+  document.getElementById('n-step').onclick=step;
+  document.getElementById('n-reset').onclick=reset;
+  document.getElementById('n-auto').onclick=function(){
+    if(autoTimer){ stopAuto(); return; }
+    this.textContent='⏸ Dừng';
+    autoTimer=setInterval(()=>{ if(i+pat.length>text.length){ step(); } else step(); }, 700);
+  };
+  reset();
+})();
+
+/* ============ MODULE 2: ROLLING HASH ============ */
+(function(){
+  const cEl=document.getElementById('r-cells'), iEl=document.getElementById('r-idx'), box=document.getElementById('r-hash');
+  let text, m, pos, h, high;
+  function reset(){
+    text=document.getElementById('r-text').value; m=parseInt(document.getElementById('r-m').value)||3;
+    if(m>text.length) m=text.length;
+    pos=-1; h=0; high=1; for(let k=0;k<m-1;k++) high=mod(high*BASE);
+    renderCells(iEl, cEl, text);
+    box.textContent='b=256, q=101, m='+m+', high=256^'+(m-1)+' mod 101 = '+high+'. Nhấn "Trượt window".';
+  }
+  function highlight(){ clearClasses(cEl); for(let k=pos;k<pos+m;k++) if(cEl.children[k]) cEl.children[k].classList.add('window'); }
+  function step(){
+    if(pos===-1){
+      pos=0; h=hashStr(text.slice(0,m)); highlight();
+      box.innerHTML='Window đầu T[0..'+(m-1)+']="'+text.slice(0,m)+'": tính trực tiếp O(m) → <b>hash = '+h+'</b>';
+      return;
+    }
+    if(pos+m>=text.length){ box.innerHTML='Đã trượt hết text. Window cuối "'+text.slice(pos,pos+m)+'" hash = '+h; return; }
+    const left=text[pos], right=text[pos+m], lc=left.charCodeAt(0), rc=right.charCodeAt(0), hold=h;
+    const afterRemove = mod(hold - lc*high);
+    const hnew = mod(afterRemove*BASE + rc);
+    pos++; h=hnew; highlight();
+    box.innerHTML =
+      'Trượt sang T['+pos+'..'+(pos+m-1)+']="'+text.slice(pos,pos+m)+'", cập nhật O(1):<br>'+
+      '• <span class="hl-rm">bỏ trái \''+left+'\'('+lc+')·high('+high+')</span>: '+hold+' − '+lc+'·'+high+' ≡ '+afterRemove+' (mod 101)<br>'+
+      '• dịch ·256 + <span class="hl-add">thêm phải \''+right+'\'('+rc+')</span>: '+afterRemove+'·256 + '+rc+' ≡ <b>'+hnew+'</b> (mod 101)<br>'+
+      '• kiểm chứng tính trực tiếp hash("'+text.slice(pos,pos+m)+'") = '+hashStr(text.slice(pos,pos+m))+' ✓';
+  }
+  document.getElementById('r-step').onclick=step;
+  document.getElementById('r-reset').onclick=reset;
+  reset();
+})();
+
+/* ============ MODULE 3: RABIN-KARP ============ */
+(function(){
+  const cEl=document.getElementById('k-cells'), iEl=document.getElementById('k-idx'), log=document.getElementById('k-log');
+  let text, pat, m, pos, ht, hp, high, verify, fp, found, autoTimer=null;
+  function reset(){
+    text=document.getElementById('k-text').value; pat=document.getElementById('k-pat').value; m=pat.length;
+    pos=-1; verify=0; fp=0; found=[];
+    high=1; for(let k=0;k<m-1;k++) high=mod(high*BASE);
+    hp=hashStr(pat); ht=0;
+    renderCells(iEl, cEl, text);
+    document.getElementById('k-hp').textContent=hp; document.getElementById('k-ht').textContent='—';
+    document.getElementById('k-verify').textContent=0; document.getElementById('k-fp').textContent=0;
+    log.textContent='hash(P="'+pat+'") = '+hp+'. Nhấn "Bước tiếp" để trượt window và so hash.';
+    stopAuto();
+  }
+  function highlight(cls){ clearClasses(cEl); for(let k=pos;k<pos+m;k++) if(cEl.children[k]) cEl.children[k].classList.add(cls); }
+  function step(){
+    if(pos===-1){ pos=0; ht=hashStr(text.slice(0,m)); }
+    else if(pos+m<text.length){ const lc=text.charCodeAt(pos), rc=text.charCodeAt(pos+m); ht=mod(mod(ht-lc*high)*BASE+rc); pos++; }
+    else { log.textContent='Hết text. Vị trí khớp thật: '+(found.length?found.join(', '):'không có'); stopAuto(); return; }
+    document.getElementById('k-ht').textContent=ht;
+    const win=text.slice(pos,pos+m);
+    if(ht===hp){
+      verify++; document.getElementById('k-verify').textContent=verify;
+      if(win===pat){ found.push(pos); highlight('match'); log.textContent='i='+pos+': hash trùng ('+ht+'='+hp+') → verify "'+win+'"=="'+pat+'" ✓ KHỚP THẬT tại '+pos; }
+      else { fp++; document.getElementById('k-fp').textContent=fp; highlight('fp'); log.textContent='i='+pos+': hash trùng ('+ht+'='+hp+') nhưng "'+win+'"≠"'+pat+'" → FALSE POSITIVE, bỏ qua (nhờ verify mới không sai!)'; }
+    } else {
+      highlight('window'); log.textContent='i='+pos+': hash window '+ht+' ≠ hash(P) '+hp+' → bỏ qua O(1), không verify.';
+    }
+  }
+  function stopAuto(){ if(autoTimer){clearInterval(autoTimer);autoTimer=null;} document.getElementById('k-auto').textContent='⏩ Tự chạy'; }
+  document.getElementById('k-step').onclick=step;
+  document.getElementById('k-reset').onclick=reset;
+  document.getElementById('k-auto').onclick=function(){
+    if(autoTimer){ stopAuto(); return; }
+    this.textContent='⏸ Dừng';
+    autoTimer=setInterval(step, 850);
+  };
+  reset();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+</body>
+</html>

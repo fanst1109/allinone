@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 67 — CQRS & Event Sourcing (Visualization)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 40px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; margin-top: 20px; }
+  .explain { color: #4a5568; max-width: 760px; }
+  .card {
+    background: #fff; border-radius: 10px; padding: 18px 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #8b5cf6; color: #fff; border: none;
+    padding: 9px 15px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #7c3aed; }
+  button.ghost { background: #e2e8f0; color: #2d3748; }
+  button.ghost:hover { background: #cbd5e0; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  input[type=number] {
+    width: 100%; max-width: 110px; box-sizing: border-box;
+    padding: 7px 9px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 14px; font-family: inherit;
+  }
+  input[type=range] { width: 100%; max-width: 420px; }
+  /* event stream pills */
+  .stream { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+  .ev {
+    border-radius: 8px; padding: 8px 12px; font-size: 13px; font-weight: 600;
+    border: 2px solid transparent; min-width: 0;
+  }
+  .ev.open { background: #e0e7ff; color: #3730a3; }
+  .ev.dep  { background: #dcfce7; color: #166534; }
+  .ev.wit  { background: #fee2e2; color: #991b1b; }
+  .ev.applied { box-shadow: 0 0 0 2px #8b5cf6 inset; }
+  .ev.future { opacity: .32; }
+  .arrow { color: #94a3b8; align-self: center; font-weight: 700; }
+  .bignum { font-size: 34px; font-weight: 800; color: #1a202c; }
+  .sub { color: #718096; font-size: 13px; }
+  .tag {
+    display: inline-block; padding: 2px 8px; border-radius: 999px;
+    font-size: 12px; font-weight: 700;
+  }
+  .tag.write { background: #fde68a; color: #92400e; }
+  .tag.read  { background: #bfdbfe; color: #1e40af; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { border: 1px solid #e2e8f0; padding: 6px 9px; text-align: left; }
+  th { background: #f1f5f9; }
+  .cols { display: flex; gap: 16px; flex-wrap: wrap; }
+  .col { flex: 1 1 300px; min-width: 0; }
+  .bar-track { background: #e2e8f0; border-radius: 6px; height: 26px; overflow: hidden; margin: 4px 0; }
+  .bar-fill { height: 100%; display: flex; align-items: center; padding-left: 10px;
+    color: #fff; font-weight: 700; font-size: 13px; white-space: nowrap; }
+  .note { background: #f8fafc; border-left: 4px solid #8b5cf6; padding: 10px 14px;
+    border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; color: #334155; }
+  code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  .flow { display: flex; gap: 8px; align-items: stretch; flex-wrap: wrap; }
+  .flow .box { background: #f8fafc; border: 1px solid #cbd5e0; border-radius: 8px;
+    padding: 10px 12px; flex: 1 1 140px; min-width: 0; font-size: 13px; }
+  @media (max-width: 480px) {
+    .ev { padding: 6px 9px; font-size: 12px; }
+    .bignum { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-66-saga-pattern/visualization.html">← L66: Saga Pattern</a>
+  <span class="sep">·</span>
+  <span class="current">L67: CQRS & Event Sourcing</span>
+  <span class="sep">·</span>
+  <a href="../lesson-68-consensus-raft/visualization.html">L68: Consensus & Raft →</a>
+</nav>
+
+<main>
+<h1>Lesson 67 — CQRS & Event Sourcing</h1>
+<p class="explain">
+  Ba module tương tác: (1) <b>Event Sourcing replay</b> — fold chuỗi event để dựng state, kèm time-travel slider;
+  (2) <b>CQRS</b> — write model (validate) tách khỏi read model (denormalized), sync qua projection;
+  (3) <b>Snapshot</b> — so sánh chi phí replay từ đầu vs từ snapshot.
+</p>
+
+<!-- ================= MODULE 1: EVENT SOURCING REPLAY ================= -->
+<h2>1. Event Sourcing — replay &amp; time travel</h2>
+<p class="explain">
+  Tài khoản KHÔNG lưu balance. State = <code>events.reduce(apply)</code>. Kéo slider để "tua" tới event thứ k
+  và xem balance <b>tại đúng thời điểm đó</b> (time travel). Thêm event để mở rộng lịch sử.
+</p>
+<div class="card">
+  <div class="row">
+    <input type="number" id="esAmt" value="30" min="1">
+    <button id="esDep">+ Deposited</button>
+    <button id="esWit">− Withdrew</button>
+    <button class="ghost" id="esReset">Reset</button>
+  </div>
+  <div class="stream" id="esStream"></div>
+  <div class="row">
+    <span class="sub">Tua tới event:</span>
+    <input type="range" id="esSlider" min="0" max="0" value="0">
+    <span class="sub" id="esPos"></span>
+  </div>
+  <div class="row" style="align-items: baseline; gap: 24px;">
+    <div>
+      <div class="sub">Balance tại thời điểm này</div>
+      <div class="bignum" id="esBal">0</div>
+    </div>
+    <div>
+      <div class="sub">Version (số event đã apply)</div>
+      <div class="bignum" id="esVer">0</div>
+    </div>
+  </div>
+  <div class="note" id="esNote"></div>
+</div>
+
+<!-- ================= MODULE 2: CQRS ================= -->
+<h2>2. CQRS — write model vs read model</h2>
+<p class="explain">
+  Bên <span class="tag write">WRITE</span> nhận command, <b>validate business rule</b> (đơn ≥ 1 món, tổng &gt; 0),
+  lưu normalized. Bên <span class="tag read">READ</span> là projection <b>denormalized</b> — gom sẵn tổng tiền, số món.
+  Thử gửi command hợp lệ và không hợp lệ.
+</p>
+<div class="card">
+  <div class="flow" style="margin-bottom: 14px;">
+    <div class="box"><b>Command</b><br><span class="sub">"hãy đặt đơn"</span></div>
+    <div class="arrow" style="align-self:center;">→</div>
+    <div class="box"><b>Write model</b><br><span class="sub">validate + lưu normalized</span></div>
+    <div class="arrow" style="align-self:center;">→</div>
+    <div class="box"><b>Projection</b><br><span class="sub">denormalize</span></div>
+    <div class="arrow" style="align-self:center;">→</div>
+    <div class="box"><b>Read model</b><br><span class="sub">đọc nhanh, gom sẵn</span></div>
+  </div>
+  <div class="row">
+    <button id="cqGood">Command hợp lệ (2 món)</button>
+    <button id="cqEmpty" class="ghost">Command rỗng (0 món)</button>
+    <button id="cqFree" class="ghost">Command tổng = 0</button>
+    <button id="cqReset" class="ghost">Reset</button>
+  </div>
+  <div class="note" id="cqMsg">Chưa có command nào.</div>
+  <div class="cols">
+    <div class="col">
+      <h3><span class="tag write">WRITE</span> Write store (normalized)</h3>
+      <table id="cqWrite"><thead><tr><th>OrderID</th><th>Customer</th><th>Items (raw)</th></tr></thead><tbody></tbody></table>
+    </div>
+    <div class="col">
+      <h3><span class="tag read">READ</span> Read model (denormalized)</h3>
+      <table id="cqRead"><thead><tr><th>OrderID</th><th>Khách</th><th>Tổng</th><th>Số món</th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODULE 3: SNAPSHOT ================= -->
+<h2>3. Snapshot — chi phí replay</h2>
+<p class="explain">
+  Một aggregate có nhiều event. Đọc state = replay. Snapshot mỗi <b>N</b> event giúp chỉ phải replay
+  phần <i>sau</i> snapshot gần nhất. Chỉnh tổng event và khoảng snapshot để thấy chi phí thay đổi.
+</p>
+<div class="card">
+  <div class="row">
+    <span class="sub">Tổng event:</span>
+    <input type="range" id="snTotal" min="10" max="1000" step="10" value="250">
+    <span class="sub" id="snTotalLbl">250</span>
+  </div>
+  <div class="row">
+    <span class="sub">Snapshot mỗi:</span>
+    <input type="range" id="snEvery" min="10" max="500" step="10" value="100">
+    <span class="sub" id="snEveryLbl">100</span>
+  </div>
+  <h3>Không snapshot</h3>
+  <div class="bar-track"><div class="bar-fill" id="snBarNo" style="background:#ef4444;"></div></div>
+  <h3>Có snapshot</h3>
+  <div class="bar-track"><div class="bar-fill" id="snBarYes" style="background:#22c55e;"></div></div>
+  <div class="note" id="snNote"></div>
+</div>
+
+</main>
+
+<script>
+// ===================== MODULE 1: EVENT SOURCING =====================
+(() => {
+  // event: {type:'open'|'dep'|'wit', amount}
+  let events = [];
+  function reset() {
+    events = [{ type: 'open', amount: 0 }, { type: 'dep', amount: 50 }, { type: 'dep', amount: 70 }, { type: 'wit', amount: 20 }];
+    sync();
+  }
+  function apply(bal, e) {
+    if (e.type === 'dep') return bal + e.amount;
+    if (e.type === 'wit') return bal - e.amount;
+    return bal; // open -> 0 (đã khởi tạo)
+  }
+  const slider = document.getElementById('esSlider');
+  function render() {
+    const upto = +slider.value; // số event đã apply (0..n)
+    const streamEl = document.getElementById('esStream');
+    streamEl.innerHTML = '';
+    events.forEach((e, i) => {
+      if (i > 0) { const a = document.createElement('span'); a.className = 'arrow'; a.textContent = '▸'; streamEl.appendChild(a); }
+      const d = document.createElement('span');
+      const cls = e.type === 'open' ? 'open' : e.type === 'dep' ? 'dep' : 'wit';
+      d.className = 'ev ' + cls + (i < upto ? ' applied' : ' future');
+      d.textContent = e.type === 'open' ? 'Opened' : (e.type === 'dep' ? '+' : '−') + e.amount;
+      streamEl.appendChild(d);
+    });
+    let bal = 0;
+    for (let i = 0; i < upto; i++) bal = apply(bal, events[i]);
+    document.getElementById('esBal').textContent = bal;
+    document.getElementById('esVer').textContent = upto;
+    document.getElementById('esPos').textContent = upto + ' / ' + events.length;
+    const noteEl = document.getElementById('esNote');
+    if (upto === events.length) {
+      noteEl.innerHTML = 'State hiện tại = fold toàn bộ ' + events.length + ' event → balance <b>' + bal + '</b>.';
+    } else {
+      noteEl.innerHTML = '⏪ <b>Time travel</b>: state sau event thứ ' + upto + ' (chưa apply ' + (events.length - upto) + ' event sau). Quá khứ tái hiện chính xác vì <code>apply</code> thuần tuý.';
+    }
+  }
+  function sync() {
+    slider.max = events.length;
+    slider.value = events.length;
+    render();
+  }
+  document.getElementById('esDep').onclick = () => { events.push({ type: 'dep', amount: +document.getElementById('esAmt').value || 0 }); sync(); };
+  document.getElementById('esWit').onclick = () => { events.push({ type: 'wit', amount: +document.getElementById('esAmt').value || 0 }); sync(); };
+  document.getElementById('esReset').onclick = reset;
+  slider.oninput = render;
+  reset();
+})();
+
+// ===================== MODULE 2: CQRS =====================
+(() => {
+  let seq = 0;
+  let writeStore = []; // {id, customer, items:[{name,price,qty}]}
+  function reset() { seq = 0; writeStore = []; render(); document.getElementById('cqMsg').textContent = 'Chưa có command nào.'; }
+  function place(customer, items) {
+    // WRITE SIDE: validate business rule
+    if (items.length === 0) { fail('Command bị TỪ CHỐI: đơn hàng phải có ít nhất 1 item.'); return; }
+    let total = items.reduce((s, it) => s + it.price * it.qty, 0);
+    if (total <= 0) { fail('Command bị TỪ CHỐI: tổng đơn phải > 0.'); return; }
+    seq++;
+    writeStore.push({ id: 'ord-' + seq, customer, items });
+    ok('Command hợp lệ → ghi vào write store → projection cập nhật read model.');
+    render();
+  }
+  function ok(m) { const e = document.getElementById('cqMsg'); e.style.borderLeftColor = '#22c55e'; e.innerHTML = '✅ ' + m; }
+  function fail(m) { const e = document.getElementById('cqMsg'); e.style.borderLeftColor = '#ef4444'; e.innerHTML = '⛔ ' + m + ' <span class="sub">Read model KHÔNG đổi.</span>'; }
+  function render() {
+    const wb = document.querySelector('#cqWrite tbody');
+    const rb = document.querySelector('#cqRead tbody');
+    wb.innerHTML = ''; rb.innerHTML = '';
+    writeStore.forEach(o => {
+      const raw = o.items.map(it => it.name + '×' + it.qty + '@' + it.price).join(', ');
+      wb.insertAdjacentHTML('beforeend', `<tr><td>${o.id}</td><td>${o.customer}</td><td>${raw}</td></tr>`);
+      // READ SIDE: projection denormalized
+      const total = o.items.reduce((s, it) => s + it.price * it.qty, 0);
+      const count = o.items.reduce((s, it) => s + it.qty, 0);
+      rb.insertAdjacentHTML('beforeend', `<tr><td>${o.id}</td><td>${o.customer}</td><td><b>${total}</b></td><td>${count}</td></tr>`);
+    });
+    if (!writeStore.length) { wb.innerHTML = '<tr><td colspan="3" class="sub">trống</td></tr>'; rb.innerHTML = '<tr><td colspan="4" class="sub">trống</td></tr>'; }
+  }
+  document.getElementById('cqGood').onclick = () => place('Alice', [{ name: 'Sách', price: 120, qty: 2 }, { name: 'Bút', price: 15, qty: 3 }]);
+  document.getElementById('cqEmpty').onclick = () => place('Bob', []);
+  document.getElementById('cqFree').onclick = () => place('Carol', [{ name: 'Quà tặng', price: 0, qty: 1 }]);
+  document.getElementById('cqReset').onclick = reset;
+  reset();
+})();
+
+// ===================== MODULE 3: SNAPSHOT =====================
+(() => {
+  const total = document.getElementById('snTotal');
+  const every = document.getElementById('snEvery');
+  function render() {
+    const T = +total.value, E = +every.value;
+    document.getElementById('snTotalLbl').textContent = T;
+    document.getElementById('snEveryLbl').textContent = E;
+    const lastSnap = Math.floor(T / E) * E; // version snapshot gần nhất
+    const replayWith = T - lastSnap;        // event phải replay khi có snapshot
+    const maxBarT = +total.max;
+    const noBar = document.getElementById('snBarNo');
+    const yesBar = document.getElementById('snBarYes');
+    noBar.style.width = (100 * T / maxBarT) + '%';
+    noBar.textContent = T + ' event replay';
+    yesBar.style.width = Math.max(2, 100 * replayWith / maxBarT) + '%';
+    yesBar.textContent = replayWith + ' event';
+    const speedup = replayWith === 0 ? '∞' : (T / replayWith).toFixed(1);
+    document.getElementById('snNote').innerHTML =
+      'Snapshot gần nhất tại version <b>' + lastSnap + '</b>. ' +
+      'Đọc chỉ cần replay <b>' + replayWith + '</b> / ' + T + ' event → nhanh hơn ~<b>' + speedup + '×</b>. ' +
+      '<span class="sub">Snapshot là cache (vứt đi được), event store mới là source of truth.</span>';
+  }
+  total.oninput = render; every.oninput = render;
+  render();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

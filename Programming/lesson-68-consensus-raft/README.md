@@ -478,7 +478,19 @@ Trong [solutions.go](./solutions.go), `RequestVote` và `AppendEntries` được
 
 Raft dùng **joint consensus** (đồng thuận chung): chuyển qua một cấu hình trung gian `C_old,new` đòi hỏi quyết định phải đạt majority **trong cả** `C_old` **lẫn** `C_new` cùng lúc. Điều này khoá khả năng hai majority rời nhau. Khi `C_old,new` đã commit, mới chuyển sang `C_new` thuần.
 
-(etcd dùng cách đơn giản hơn: **single-server change** — chỉ thêm/bớt **một** node mỗi lần, đảm bảo majority luôn chồng lấp.)
+**Walk-through joint consensus (3 node → 5 node):**
+
+| Giai đoạn | Cấu hình | Majority cần |
+|-----------|----------|--------------|
+| Trước | `C_old = {A,B,C}` | 2 trong {A,B,C} |
+| Chuyển tiếp | `C_old,new = {A,B,C} + {A,B,C,D,E}` | 2/3 trong C_old **VÀ** 3/5 trong C_new |
+| Sau | `C_new = {A,B,C,D,E}` | 3 trong {A,B,C,D,E} |
+
+Ở giai đoạn chuyển tiếp, **không** quyết định nào qua được nếu chỉ thoả một bên → không thể có "phe cũ" và "phe mới" mỗi phe tự bầu leader riêng → an toàn.
+
+(etcd dùng cách đơn giản hơn: **single-server change** — chỉ thêm/bớt **một** node mỗi lần. Vì thêm/bớt 1 node làm quorum thay đổi tối đa 1, hai cấu hình liên tiếp luôn có majority **chồng lấp**, nên không cần joint consensus đầy đủ.)
+
+> ⚠ **Lỗi thực tế hay gặp.** Thêm node mới vào cluster mà node đó **chưa kịp đồng bộ log** rồi tính nó vào quorum → tạm thời quorum khó đạt (node mới chưa kịp ack). Cách đúng (etcd làm): thêm node ở chế độ **learner** (nhận log nhưng không tính phiếu) cho tới khi nó bắt kịp, rồi mới "thăng" thành voter.
 
 ---
 

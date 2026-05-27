@@ -235,6 +235,21 @@ Bốn CRD hay gặp nhất, nhớ "ai làm gì" để không cấu hình nhầm:
 | Overhead | Cao hơn | Thấp hơn |
 | Khi nào chọn | Cần traffic management phức tạp, đa protocol, đã có team platform | Muốn mTLS + observability nhanh gọn, team nhỏ |
 
+Ví dụ Linkerd cấu hình traffic split (canary) — đơn giản hơn Istio:
+
+```yaml
+apiVersion: split.smi-spec.io/v1alpha2
+kind: TrafficSplit
+metadata: { name: checkout }
+spec:
+  service: checkout
+  backends:
+    - { service: checkout-v1, weight: 90 }
+    - { service: checkout-v2, weight: 10 }
+```
+
+So với Istio cần **2** resource (VirtualService + DestinationRule), Linkerd dùng **1** TrafficSplit. Ít khái niệm hơn = dễ học, nhưng cũng kém linh hoạt hơn cho route phức tạp.
+
 > ❓ **Câu hỏi tự nhiên.** *"Nhẹ hơn thì cứ Linkerd cho lành?"* → Không hẳn. Nếu bạn cần **fault injection chi tiết, traffic mirroring, routing theo header phức tạp, hỗ trợ gRPC/gRPC-Web/nhiều protocol** thì Istio + Envoy linh hoạt hơn. Chọn theo nhu cầu, không theo "cái nào nhẹ hơn".
 
 📝 **Tóm tắt mục 5–6.** **Istio** = Envoy + Istiod, mạnh nhất nhưng phức tạp. **Linkerd** = micro-proxy Rust, nhẹ và dễ vận hành, ít tính năng nâng cao hơn. Cả hai đều cấu hình tập trung, không động code app.

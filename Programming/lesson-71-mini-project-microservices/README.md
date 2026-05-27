@@ -215,6 +215,19 @@ Kết quả: order `CANCELLED`, kho **về lại 3** (đã release), không char
 
 > ⚠ **Lỗi thường gặp.** Bồi hoàn theo thứ tự XUÔI thay vì NGƯỢC. Nếu ChargePayment đã trừ tiền và ReserveInventory đã trừ kho, mà bạn release kho TRƯỚC khi refund... thực ra ở đây thứ tự release/refund độc lập nên không sao, NHƯNG nguyên tắc chung: **bồi hoàn ngược** để tôn trọng phụ thuộc (bước sau có thể đọc trạng thái bước trước). Luôn unwind theo LIFO.
 
+#### Bốn ví dụ số cho quy tắc "fail ở bước k → bồi hoàn 1..k-1 ngược"
+
+Để thấy rõ quy luật, đây là 4 trường hợp với chuỗi 4 bước `[Create, Reserve, Charge, Confirm]`:
+
+| Fail ở bước | done (đã xong) | Bồi hoàn chạy (thứ tự ngược) | Số bồi hoàn |
+|-------------|----------------|------------------------------|-------------|
+| Create (bước 1) | `[]` | (không có) | 0 |
+| Reserve (bước 2) | `[Create]` | `Cancel` | 1 |
+| Charge (bước 3) | `[Create, Reserve]` | `Release` → `Cancel` | 2 |
+| Confirm (bước 4) | `[Create, Reserve, Charge]` | `Refund` → `Release` → `Cancel` | 3 |
+
+Quy luật chung: fail ở bước thứ `k` (1-indexed) → đúng `k-1` bồi hoàn chạy, theo thứ tự `k-1, k-2, ..., 1`. (Trường hợp Confirm fail hiếm vì nó chỉ phát event, nhưng nếu thêm Shipping vào — xem BT1 — thì kiểu fail muộn này rất thực tế.)
+
 > 🔁 **Dừng lại tự kiểm tra.** Trong kịch bản 3.4, vì sao RefundPayment KHÔNG nằm trong danh sách bồi hoàn?
 >
 > <details><summary>Đáp án</summary>

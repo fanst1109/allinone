@@ -351,6 +351,10 @@ Order service **subscribe** `order.confirm` và `order.cancel`. Các event còn 
 
 > 💡 **Trực giác.** Event là "thông báo việc đã rồi", không phải mệnh lệnh. `payment.charged` nghĩa là "tiền ĐÃ bị trừ" — bất kỳ ai quan tâm cứ phản ứng. Đây là khác biệt cốt lõi giữa **event** (đã xảy ra, quá khứ) và **command** (yêu cầu làm, tương lai). Ngoại lệ trong bài: `order.confirm`/`order.cancel` mang tính command vì orchestrator chủ động ra lệnh cho Order đổi trạng thái.
 
+> ⚠ **Lỗi thường gặp.** Đặt tên topic theo kiểu mệnh lệnh cho event đã xảy ra (vd `chargePayment` thay vì `payment.charged`). Quy ước tốt: event dùng **động từ quá khứ** (`order.created`, `inventory.reserved`), command dùng động từ hiện tại (`order.confirm`). Lẫn lộn hai loại làm người đọc luồng không biết "đây là việc đã xong hay việc cần làm".
+
+> 📝 **Tóm tắt mục 7.** 7 topic chia 2 nhóm: forward (created/reserved/charged) và compensate/command (released/refunded/cancel/confirm). Order subscribe confirm+cancel; phần còn lại để audit & downstream. Event = quá khứ, command = tương lai.
+
 ---
 
 ## 8. Idempotency: mỗi event có ID, consumer dedup

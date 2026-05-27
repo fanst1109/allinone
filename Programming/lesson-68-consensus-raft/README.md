@@ -547,6 +547,10 @@ Quy tắc thực dụng: **đừng tự viết Raft cho production.** `solutions
 | **Slow follower** | Follower chậm làm leader phải retry AppendEntries. | Leader **không bị chặn**: chỉ cần majority ack đã commit; follower chậm sẽ bắt kịp qua heartbeat/snapshot. |
 | **Tưởng Raft cần đồng hồ đồng bộ** | Raft **KHÔNG** cần clock đồng bộ (khác Spanner TrueTime). | Nó chỉ cần **timeout** (khoảng thời gian tương đối) cho election; term là logical clock, không phải wall clock. |
 | **Đặt election timeout quá nhỏ** | Mạng hơi trễ → follower tưởng leader chết → bầu lại liên tục (election storm). | timeout election ≫ thời gian round-trip mạng (vd RTT 10ms → timeout 150–300ms). |
+| **Quên persist `currentTerm`/`votedFor`/log xuống đĩa** | Node restart mất term & phiếu đã bầu → có thể bầu 2 lần trong cùng term → vi phạm safety. | 3 trường này phải ghi đĩa (fsync) **trước khi** phản hồi RPC. (Toy model trong `solutions.go` bỏ qua phần này.) |
+| **Đọc trực tiếp từ follower** | Follower có thể có dữ liệu cũ (chưa nhận entry mới nhất) → đọc bẩn. | Đọc qua leader, hoặc dùng "read index"/"lease read" để đảm bảo linearizable. |
+
+> 📝 **Tóm tắt mục 16.** Số node lẻ; partition-treo-thiểu-số là đúng; follower chậm không chặn leader; Raft cần timeout chứ không cần clock đồng bộ; phải persist term/vote/log; cẩn thận đọc từ follower.
 
 ---
 

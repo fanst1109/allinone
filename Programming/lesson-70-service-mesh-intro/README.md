@@ -602,7 +602,14 @@ route:
 
 **Rollback:** ở bất kỳ bước nào, đặt lại `v1=100, v2=0` rồi apply → traffic về v1 **tức thời**, không cần build/redeploy. Đây là điểm mạnh nhất của canary qua mesh: rollback = sửa số.
 
-**Lưu ý quan trọng:** mỗi bước **bắt buộc** kèm quan sát metric (mục 8) — canary mà không theo dõi chỉ là chia traffic mù.
+**Mỗi bước chỉ là một diff nhỏ trên cùng file** — minh hoạ sự khác biệt giữa bước 1 và bước 2:
+```diff
+   - { destination: { host: checkout, subset: v1 }, weight: 90 }  →  weight: 50
+   - { destination: { host: checkout, subset: v2 }, weight: 10 }  →  weight: 50
+```
+Không build image, không sửa code, không restart pod v1/v2 đang chạy. Istiod nhận YAML mới và đẩy weight mới xuống Envoy của các caller. Request *tiếp theo* đã theo tỷ lệ mới.
+
+**Lưu ý quan trọng:** mỗi bước **bắt buộc** kèm quan sát metric (mục 8) — canary mà không theo dõi chỉ là chia traffic mù. Tiêu chí thường dùng để "lên bước tiếp": error rate v2 ≤ error rate v1, p99 v2 không tệ hơn v1 quá ngưỡng (vd 10%), trong khoảng quan sát đủ dài (vài chục phút tới vài giờ tuỳ lưu lượng).
 
 ### Lời giải BT3 — Bắt tay mTLS giữa A và B
 

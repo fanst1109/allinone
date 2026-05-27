@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 72 — Structured Logging (Visualization)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 40px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; margin-top: 22px; }
+  p { line-height: 1.65; }
+  .card {
+    background: #fff; border-radius: 10px; padding: 18px 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #14b8a6; color: #fff; border: none;
+    padding: 9px 15px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #0d9488; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.active { background: #0f766e; box-shadow: inset 0 0 0 2px #99f6e4; }
+  label { font-size: 14px; color: #2d3748; }
+  input[type="range"] { width: 100%; max-width: 280px; vertical-align: middle; }
+  .explain {
+    background: #ccfbf1; border-left: 4px solid #14b8a6;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6; margin: 10px 0;
+  }
+  code.inline {
+    background: #edf2f7; padding: 1px 6px; border-radius: 4px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px;
+  }
+  .legend { font-size: 13px; color: #4a5568; margin: 6px 0; }
+
+  /* ---- code/log boxes ---- */
+  .logbox {
+    background: #1a202c; color: #e2e8f0; border-radius: 8px;
+    padding: 12px 14px; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 12.5px; line-height: 1.6; overflow-x: auto;
+    white-space: pre-wrap; word-break: break-word;
+  }
+  .logbox .k { color: #f6ad55; }     /* key */
+  .logbox .s { color: #68d391; }     /* string value */
+  .logbox .n { color: #63b3ed; }     /* number */
+  .logbox .lvl-INFO { color: #63b3ed; font-weight: 700; }
+  .logbox .lvl-DEBUG { color: #a0aec0; font-weight: 700; }
+  .logbox .lvl-WARN { color: #f6ad55; font-weight: 700; }
+  .logbox .lvl-ERROR { color: #fc8181; font-weight: 700; }
+  .twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .colhead { font-weight: 700; color: #2d3748; margin-bottom: 6px; font-size: 14px; }
+  .badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 700; }
+  .badge.bad { background: #fed7d7; color: #c53030; }
+  .badge.good { background: #c6f6d5; color: #276749; }
+
+  /* ---- Module 2: trace ---- */
+  .svcrow { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
+  .svc {
+    flex: 1 1 0; min-width: 0; border: 2px solid #cbd5e0; border-radius: 10px;
+    background: #f7fafc; padding: 10px;
+  }
+  .svc h4 { margin: 0 0 8px; font-size: 13px; color: #fff; text-align: center;
+    padding: 4px; border-radius: 6px; }
+  .svc.gateway h4 { background: #3182ce; }
+  .svc.orders h4 { background: #38a169; }
+  .svc.payment h4 { background: #805ad5; }
+  .lline {
+    font-family: ui-monospace, Menlo, monospace; font-size: 11.5px;
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 5px;
+    padding: 5px 7px; margin: 4px 0; line-height: 1.4; word-break: break-word;
+    transition: all .2s ease;
+  }
+  .lline.dim { opacity: .18; }
+  .lline.match { border-color: #14b8a6; box-shadow: 0 0 0 2px #99f6e4; }
+  .rid { color: #d53f8c; font-weight: 700; }
+
+  /* ---- Module 3: level filter ---- */
+  .levelscale { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+  .lvltag { font-size: 12px; padding: 3px 9px; border-radius: 12px; font-weight: 700; }
+  .lvltag.DEBUG { background: #e2e8f0; color: #4a5568; }
+  .lvltag.INFO  { background: #bee3f8; color: #2b6cb0; }
+  .lvltag.WARN  { background: #feebc8; color: #c05621; }
+  .lvltag.ERROR { background: #fed7d7; color: #c53030; }
+  .lvltag.off { opacity: .25; }
+  .stream .lline.hidden { display: none; }
+  .counter { font-size: 13px; color: #4a5568; }
+  .counter b { color: #0f766e; }
+
+  @media (max-width: 640px) {
+    .twocol { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../tier-6-distributed/index.html">← Tier 6: Distributed</a>
+  <span class="sep">·</span>
+  <span class="current">L72: Structured Logging</span>
+  <span class="sep">·</span>
+  <a href="../lesson-73-metrics-prometheus/visualization.html">L73: Metrics &amp; Prometheus →</a>
+</nav>
+
+<main>
+  <h1>Lesson 72 — Structured Logging</h1>
+  <p>Ba module tương tác: (1) cùng một sự kiện ở dạng <strong>Text vs JSON</strong> và vì sao JSON query được, (2) một request đi xuyên <strong>3 service</strong> — lọc theo <code class="inline">request_id</code>, (3) <strong>log level filter</strong> — kéo slider để thấy cái gì bị lọc. Mở README (nút 📖 góc phải) để đọc lý thuyết đầy đủ.</p>
+
+  <!-- ============ MODULE 1: Text vs JSON ============ -->
+  <h2>Module 1 — Text vs JSON: cùng sự kiện, hai format</h2>
+  <div class="card">
+    <p>Một sự kiện <em>user login</em> với các field. Đổi giá trị rồi xem nó hiện ra ở hai format. Cùng một code <code class="inline">slog.Info(...)</code>, chỉ khác handler.</p>
+    <div class="row">
+      <label>user_id <input id="m1_user" value="u_1234" style="width:110px"></label>
+      <label>ip <input id="m1_ip" value="10.0.0.5" style="width:110px"></label>
+      <label>status <input id="m1_status" type="number" value="200" style="width:80px"></label>
+    </div>
+    <div class="row">
+      <button onclick="m1render()">Render log</button>
+    </div>
+
+    <div class="twocol">
+      <div>
+        <div class="colhead">TextHandler <span class="badge bad">dev — đọc bằng mắt</span></div>
+        <div class="logbox" id="m1_text"></div>
+      </div>
+      <div>
+        <div class="colhead">JSONHandler <span class="badge good">prod — máy query</span></div>
+        <div class="logbox" id="m1_json"></div>
+      </div>
+    </div>
+
+    <div class="explain">
+      <b>Vì sao JSON query được?</b> Mỗi field là một "cột" có tên. Ví dụ các truy vấn chỉ làm được với JSON:
+      <div class="logbox" style="margin-top:8px" id="m1_query"></div>
+    </div>
+  </div>
+
+  <!-- ============ MODULE 2: Correlation ID trace ============ -->
+  <h2>Module 2 — Correlation ID: 1 request xuyên 3 service</h2>
+  <div class="card">
+    <p>Bấm <b>"Gửi 1 request"</b> để sinh log ở cả 3 service (mỗi request một <code class="inline">request_id</code> riêng). Rồi nhập một <code class="inline">request_id</code> để <b>lọc</b> — thấy đúng chuỗi log của nó xuyên cả 3 service, đúng như khi điều tra sự cố.</p>
+    <div class="row">
+      <button onclick="m2send()">Gửi 1 request</button>
+      <button class="secondary" onclick="m2clear()">Xóa hết</button>
+    </div>
+    <div class="row">
+      <label>Lọc theo request_id:
+        <select id="m2_filter" onchange="m2filter()" style="font-family:monospace">
+          <option value="">— hiện tất cả —</option>
+        </select>
+      </label>
+    </div>
+    <div class="svcrow">
+      <div class="svc gateway"><h4>gateway (edge)</h4><div id="m2_gateway"></div></div>
+      <div class="svc orders"><h4>orders</h4><div id="m2_orders"></div></div>
+      <div class="svc payment"><h4>payment</h4><div id="m2_payment"></div></div>
+    </div>
+    <div class="explain" id="m2_note">
+      <b>Cách hoạt động:</b> <code class="inline">gateway</code> sinh <span class="rid">request_id</span> ở edge, rồi propagate qua header <code class="inline">X-Request-ID</code> xuống <code class="inline">orders</code> → <code class="inline">payment</code>. Cùng một ID xuyên cả 3 → filter ra cả chuỗi. Nếu một service quên propagate header, chuỗi sẽ đứt ở đó.
+    </div>
+  </div>
+
+  <!-- ============ MODULE 3: Level filter ============ -->
+  <h2>Module 3 — Log level filter</h2>
+  <div class="card">
+    <p>Handler chỉ in log có level <b>≥</b> level cấu hình. Kéo slider để đặt ngưỡng và xem dòng nào bị lọc — đây chính là cách bật/tắt Debug ở prod mà không sửa code.</p>
+    <div class="row">
+      <label>Ngưỡng level: <input id="m3_slider" type="range" min="0" max="3" value="1" step="1" oninput="m3apply()"></label>
+      <b id="m3_lvlname" style="color:#0f766e">INFO</b>
+    </div>
+    <div class="levelscale" id="m3_scale">
+      <span class="lvltag DEBUG">DEBUG</span>
+      <span class="lvltag INFO">INFO</span>
+      <span class="lvltag WARN">WARN</span>
+      <span class="lvltag ERROR">ERROR</span>
+    </div>
+    <div class="counter" id="m3_count"></div>
+    <div class="stream" id="m3_stream" style="margin-top:10px"></div>
+    <div class="explain">
+      Đặt ngưỡng <b>INFO</b> ở prod: Debug bị lọc (giảm noise + chi phí). Khi điều tra, hạ xuống <b>DEBUG</b> (runtime, qua <code class="inline">slog.LevelVar</code>) để thấy chi tiết — rồi nâng lại. <span class="badge bad">Lưu ý</span> đừng để mọi thứ ở Info: Debug ồn ào phải nằm ở Debug.
+    </div>
+  </div>
+</main>
+
+<script>
+// ---------- Module 1 ----------
+function esc(s){ return String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+function m1render(){
+  const u = document.getElementById('m1_user').value || 'u_0';
+  const ip = document.getElementById('m1_ip').value || '0.0.0.0';
+  const st = parseInt(document.getElementById('m1_status').value || '200', 10);
+  const now = '2026-05-27T02:14:33Z';
+
+  // Text format
+  document.getElementById('m1_text').innerHTML =
+    `time=${now} <span class="lvl-INFO">level=INFO</span> msg="user login" `+
+    `<span class="k">user_id</span>=${esc(u)} <span class="k">ip</span>=${esc(ip)} <span class="k">status</span>=${st}`;
+
+  // JSON format
+  document.getElementById('m1_json').innerHTML =
+    `{"time":<span class="s">"${now}"</span>,<span class="k">"level"</span>:<span class="lvl-INFO">"INFO"</span>,`+
+    `<span class="k">"msg"</span>:<span class="s">"user login"</span>,`+
+    `<span class="k">"user_id"</span>:<span class="s">"${esc(u)}"</span>,`+
+    `<span class="k">"ip"</span>:<span class="s">"${esc(ip)}"</span>,`+
+    `<span class="k">"status"</span>:<span class="n">${st}</span>}`;
+
+  // Query examples driven by current values
+  document.getElementById('m1_query').innerHTML =
+    `<span class="k"># tất cả log của user này</span>\n`+
+    `{app="auth"} | json | user_id=<span class="s">"${esc(u)}"</span>\n\n`+
+    `<span class="k"># lọc lỗi 5xx — chỉ làm được khi status là SỐ</span>\n`+
+    `{app="auth"} | json | status >= <span class="n">500</span>\n\n`+
+    `<span class="k"># đếm login theo IP</span>\n`+
+    `sum by (ip) (count_over_time({app="auth"} | json | msg=<span class="s">"user login"</span> [1h]))`;
+}
+
+// ---------- Module 2 ----------
+let m2seq = 0;
+const m2store = []; // {rid, svc, line}
+
+function m2line(svc, rid, msg){
+  return `{"<span class="k">request_id</span>":"<span class="rid">${rid}</span>","<span class="k">service</span>":"${svc}",`+
+         `"<span class="k">msg</span>":"${msg}"}`;
+}
+
+function m2send(){
+  m2seq++;
+  const rid = 'req-' + Math.random().toString(16).slice(2, 8);
+  const status = (m2seq % 4 === 0) ? 500 : 200;        // thỉnh thoảng lỗi
+  const payOK = status === 200;
+
+  m2store.push({rid, svc:'gateway', html: m2line('gateway', rid, 'received POST /checkout')});
+  m2store.push({rid, svc:'orders',  html: m2line('orders',  rid, 'creating order order_id=' + (1000+m2seq))});
+  if (payOK){
+    m2store.push({rid, svc:'payment', html: m2line('payment', rid, 'charge ok amount=99.5')});
+    m2store.push({rid, svc:'gateway', html:
+      `{"<span class="k">request_id</span>":"<span class="rid">${rid}</span>","<span class="k">service</span>":"gateway",`+
+      `"<span class="k">level</span>":"<span class="lvl-INFO">INFO</span>","<span class="k">msg</span>":"checkout done","<span class="k">status</span>":<span class="n">200</span>}`});
+  } else {
+    m2store.push({rid, svc:'payment', html:
+      `{"<span class="k">request_id</span>":"<span class="rid">${rid}</span>","<span class="k">service</span>":"payment",`+
+      `"<span class="k">level</span>":"<span class="lvl-ERROR">ERROR</span>","<span class="k">msg</span>":"charge failed","<span class="k">reason</span>":"timeout"}`});
+  }
+
+  // thêm option filter
+  const sel = document.getElementById('m2_filter');
+  const opt = document.createElement('option');
+  opt.value = rid; opt.textContent = rid + (payOK ? '  (ok)' : '  (ERROR)');
+  sel.appendChild(opt);
+
+  m2draw();
+}
+
+function m2draw(){
+  const filter = document.getElementById('m2_filter').value;
+  ['gateway','orders','payment'].forEach(svc=>{
+    const box = document.getElementById('m2_'+svc);
+    box.innerHTML = m2store.filter(e=>e.svc===svc).map(e=>{
+      const cls = filter ? (e.rid===filter ? 'match' : 'dim') : '';
+      return `<div class="lline ${cls}">${e.html}</div>`;
+    }).join('');
+  });
+}
+
+function m2filter(){ m2draw(); }
+
+function m2clear(){
+  m2store.length = 0; m2seq = 0;
+  const sel = document.getElementById('m2_filter');
+  sel.innerHTML = '<option value="">— hiện tất cả —</option>';
+  m2draw();
+}
+
+// ---------- Module 3 ----------
+const M3_LEVELS = ['DEBUG','INFO','WARN','ERROR'];
+const m3logs = [
+  {lvl:'DEBUG', msg:'cache hit', extra:'"key":"user:42"'},
+  {lvl:'DEBUG', msg:'sql query', extra:'"q":"SELECT * FROM orders"'},
+  {lvl:'INFO',  msg:'user login', extra:'"user_id":"u_1"'},
+  {lvl:'INFO',  msg:'order created', extra:'"order_id":42,"total":99.5'},
+  {lvl:'DEBUG', msg:'price computed', extra:'"total":99.5'},
+  {lvl:'WARN',  msg:'payment retry', extra:'"attempt":2,"max":3'},
+  {lvl:'INFO',  msg:'order shipped', extra:'"order_id":42'},
+  {lvl:'WARN',  msg:'disk almost full', extra:'"used_pct":92'},
+  {lvl:'ERROR', msg:'db connection failed', extra:'"host":"db-1"'},
+  {lvl:'DEBUG', msg:'cache hit', extra:'"key":"user:7"'},
+  {lvl:'ERROR', msg:'payment failed', extra:'"reason":"timeout"'},
+];
+
+function m3renderStream(){
+  document.getElementById('m3_stream').innerHTML = m3logs.map((l,i)=>
+    `<div class="lline" data-lvl="${l.lvl}" id="m3l${i}">`+
+    `{"<span class="k">level</span>":"<span class="lvl-${l.lvl}">${l.lvl}</span>",`+
+    `"<span class="k">msg</span>":"${l.msg}",${l.extra}}</div>`
+  ).join('');
+}
+
+function m3apply(){
+  const idx = parseInt(document.getElementById('m3_slider').value, 10);
+  const threshold = M3_LEVELS[idx];
+  document.getElementById('m3_lvlname').textContent = threshold;
+
+  // scale highlight
+  M3_LEVELS.forEach((lv,i)=>{
+    document.querySelector('#m3_scale .lvltag.'+lv).classList.toggle('off', i < idx);
+  });
+
+  let shown = 0;
+  m3logs.forEach((l,i)=>{
+    const keep = M3_LEVELS.indexOf(l.lvl) >= idx;
+    document.getElementById('m3l'+i).classList.toggle('hidden', !keep);
+    if (keep) shown++;
+  });
+  document.getElementById('m3_count').innerHTML =
+    `Ngưỡng <b>${threshold}</b> → hiện <b>${shown}</b>/${m3logs.length} dòng (lọc bỏ ${m3logs.length-shown}).`;
+}
+
+// init
+m1render();
+m3renderStream();
+m3apply();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

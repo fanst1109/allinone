@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L73 — Metrics & Prometheus · Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root { --accent: #e6522c; --accent-soft: #fdeee9; --accent-hover: #c2410c; }
+  main { max-width: 1100px; }
+  h1 { color: #2d3748; margin-bottom: 4px; }
+  .lead { color: #718096; margin-bottom: 24px; font-size: 15px; }
+  section.module {
+    background: #fff; border-radius: 10px; padding: 22px;
+    margin-bottom: 28px; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+  section.module h2 {
+    color: #2d3748; margin-top: 0; padding-bottom: 10px;
+    border-bottom: 2px solid var(--accent); font-size: 21px;
+  }
+  .desc { color: #4a5568; font-size: 14px; margin-bottom: 16px; }
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+    background: #f7fafc; padding: 12px 14px; border-radius: 8px; margin-bottom: 16px;
+  }
+  button {
+    padding: 8px 16px; background: var(--accent); color: #fff; border: none;
+    border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.sec { background: #718096; }
+  button.sec:hover { background: #4a5568; }
+  .ctrl { display: flex; flex-direction: column; gap: 3px; }
+  .ctrl label { font-size: 12px; font-weight: 600; color: #4a5568; }
+  .ctrl input[type=range] { width: 150px; max-width: 100%; }
+  .ctrl .val { font-family: monospace; font-size: 13px; color: var(--accent-hover); font-weight: 700; }
+
+  /* metric type cards */
+  .type-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .type-card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; background: #fafbfc; }
+  .type-card h3 { margin: 0 0 4px; font-size: 16px; color: #2d3748; }
+  .type-card .tag { font-size: 11px; font-weight: 700; color: #fff; background: var(--accent);
+    padding: 2px 8px; border-radius: 10px; }
+  .type-card .note { font-size: 12px; color: #718096; margin: 6px 0 10px; }
+  .bigval { font-family: monospace; font-size: 28px; font-weight: 700; color: #2d3748; }
+  .bigval small { font-size: 14px; color: #a0aec0; }
+
+  /* exposition output */
+  pre.expo {
+    background: #1a202c; color: #e2e8f0; padding: 14px; border-radius: 8px;
+    font-family: 'Menlo','Monaco',monospace; font-size: 12.5px; line-height: 1.5;
+    overflow-x: auto; margin: 0;
+  }
+  pre.expo .c { color: #718096; }
+  pre.expo .l { color: #f6ad55; }
+  pre.expo .n { color: #9ae6b4; }
+
+  svg { display: block; max-width: 100%; height: auto; }
+  .bar-label { font-size: 11px; fill: #4a5568; font-family: monospace; }
+  .qline { stroke: #e6522c; stroke-width: 2; stroke-dasharray: 4 3; }
+  .qtext { font-size: 12px; fill: #c2410c; font-weight: 700; }
+
+  .red-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 16px; }
+  .red-stat { border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; text-align: center; background: #fafbfc; }
+  .red-stat .k { font-size: 12px; font-weight: 700; color: #718096; text-transform: uppercase; letter-spacing: .5px; }
+  .red-stat .v { font-family: monospace; font-size: 24px; font-weight: 700; margin-top: 4px; }
+  .red-stat.ok .v { color: #2f855a; }
+  .red-stat.warn .v { color: #c05621; }
+  .red-stat.bad .v { color: #c53030; }
+
+  .step { font-size: 13px; color: #4a5568; background: #f7fafc; border-left: 3px solid var(--accent);
+    padding: 8px 12px; border-radius: 0 6px 6px 0; margin-top: 12px; font-family: monospace; }
+
+  @media (max-width: 600px) {
+    .type-grid, .red-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-72-structured-logging/visualization.html">← L72: Structured Logging</a>
+  <span class="sep">·</span>
+  <span class="current">L73: Metrics & Prometheus</span>
+  <span class="sep">·</span>
+  <a href="../lesson-74-tracing-opentelemetry/visualization.html">L74: Tracing →</a>
+</nav>
+
+<main>
+  <h1>L73 — Metrics &amp; Prometheus</h1>
+  <p class="lead">Ba mô phỏng tương tác: (1) bốn loại metric với dữ liệu sống, (2) histogram → quantile bằng nội suy bucket, (3) dashboard RED thời gian thực.</p>
+
+  <!-- ===================== MODULE 1 ===================== -->
+  <section class="module" id="m1">
+    <h2>Module 1 — Bốn loại metric</h2>
+    <p class="desc">Bấm "Sinh 1 request" để thấy mỗi loại metric phản ứng khác nhau với cùng một sự kiện. Counter chỉ tăng; Gauge lên xuống theo in-flight; Histogram dồn vào bucket; Summary giữ quantile client-side.</p>
+    <div class="controls">
+      <button id="m1-one">Sinh 1 request</button>
+      <button id="m1-burst">Burst 50 request</button>
+      <button class="sec" id="m1-reset">Reset (mô phỏng restart)</button>
+    </div>
+    <div class="type-grid">
+      <div class="type-card">
+        <h3>Counter <span class="tag">chỉ tăng</span></h3>
+        <div class="note">http_requests_total — tổng request tích lũy</div>
+        <div class="bigval"><span id="m1-counter">0</span> <small>req</small></div>
+      </div>
+      <div class="type-card">
+        <h3>Gauge <span class="tag">lên xuống</span></h3>
+        <div class="note">http_in_flight_requests — đang xử lý ngay lúc này</div>
+        <div class="bigval"><span id="m1-gauge">0</span> <small>in-flight</small></div>
+      </div>
+      <div class="type-card">
+        <h3>Histogram <span class="tag">buckets</span></h3>
+        <div class="note">latency dồn vào bucket le (tích lũy)</div>
+        <svg id="m1-hist" width="460" height="150" viewBox="0 0 460 150"></svg>
+      </div>
+      <div class="type-card">
+        <h3>Summary <span class="tag">quantile client</span></h3>
+        <div class="note">quantile tính ngay trong service</div>
+        <div style="font-family:monospace;font-size:14px;line-height:1.9">
+          p50 = <b id="m1-p50">–</b> ms<br>
+          p90 = <b id="m1-p90">–</b> ms<br>
+          p99 = <b id="m1-p99">–</b> ms
+        </div>
+      </div>
+    </div>
+    <div class="step" id="m1-note">Mỗi request: counter +1, gauge +1 rồi −1, latency rơi vào 1 bucket, summary cập nhật quantile.</div>
+  </section>
+
+  <!-- ===================== MODULE 2 ===================== -->
+  <section class="module" id="m2">
+    <h2>Module 2 — Histogram → Quantile</h2>
+    <p class="desc">Buckets tích lũy ở dưới. Kéo thanh để chọn quantile p, mô phỏng đúng thuật toán <code>histogram_quantile</code>: tìm bucket chứa rank, rồi nội suy tuyến tính. Khớp walk-through README mục 13.</p>
+    <div class="controls">
+      <div class="ctrl">
+        <label>Quantile p</label>
+        <input type="range" id="m2-p" min="1" max="99" value="90">
+        <span class="val">p = 0.<span id="m2-pval">90</span></span>
+      </div>
+      <button class="sec" id="m2-preset">Nạp dữ liệu mục 13</button>
+    </div>
+    <svg id="m2-svg" width="640" height="280" viewBox="0 0 640 280"></svg>
+    <div class="step" id="m2-step">…</div>
+  </section>
+
+  <!-- ===================== MODULE 3 ===================== -->
+  <section class="module" id="m3">
+    <h2>Module 3 — Dashboard RED (live)</h2>
+    <p class="desc">Mô phỏng traffic thời gian thực. Kéo thanh để thay đổi tải và tỷ lệ lỗi; xem Rate / Errors / Duration cập nhật như một dashboard Grafana RED.</p>
+    <div class="controls">
+      <div class="ctrl">
+        <label>Tải (req/s mục tiêu)</label>
+        <input type="range" id="m3-load" min="5" max="200" value="60">
+        <span class="val"><span id="m3-loadval">60</span> req/s</span>
+      </div>
+      <div class="ctrl">
+        <label>Tỷ lệ lỗi 5xx</label>
+        <input type="range" id="m3-err" min="0" max="30" value="2">
+        <span class="val"><span id="m3-errval">2</span> %</span>
+      </div>
+      <button id="m3-start">▶ Start</button>
+      <button class="sec" id="m3-stop">⏸ Stop</button>
+    </div>
+    <div class="red-grid">
+      <div class="red-stat ok" id="m3-rate-box"><div class="k">Rate</div><div class="v"><span id="m3-rate">0</span> <small style="font-size:13px">/s</small></div></div>
+      <div class="red-stat ok" id="m3-err-box"><div class="k">Errors</div><div class="v"><span id="m3-errp">0.0</span>%</div></div>
+      <div class="red-stat ok" id="m3-dur-box"><div class="k">Duration p99</div><div class="v"><span id="m3-p99">0</span> <small style="font-size:13px">ms</small></div></div>
+    </div>
+    <svg id="m3-chart" width="900" height="200" viewBox="0 0 900 200"></svg>
+    <div class="step">Đường xanh = request/s, đường đỏ = error/s. Khi error rate vượt 5% liên tục → ô Errors chuyển đỏ (giống alert <code>for: 5m</code>).</div>
+  </section>
+</main>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, text) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (text != null) e.textContent = text;
+  return e;
+}
+
+// ---------- helpers histogram (dùng chung M1/M2) ----------
+const BUCKETS = [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1]; // giây
+// observe vào mảng count theo bucket nhỏ nhất chứa v
+function observe(counts, infRef, bounds, v) {
+  for (let i = 0; i < bounds.length; i++) {
+    if (v <= bounds[i]) { counts[i]++; return; }
+  }
+  infRef.v++; // +Inf
+}
+// cumulative + total
+function cumulative(counts, inf) {
+  const cum = []; let run = 0;
+  for (let i = 0; i < counts.length; i++) { run += counts[i]; cum.push(run); }
+  return { cum, total: run + inf };
+}
+// quantile nội suy tuyến tính (giống histogram_quantile)
+function histQuantile(bounds, counts, inf, p) {
+  const { cum, total } = cumulative(counts, inf);
+  if (total === 0) return { val: 0 };
+  const rank = p * total;
+  let prevCum = 0, prevBound = 0;
+  for (let i = 0; i < bounds.length; i++) {
+    if (cum[i] >= rank) {
+      const inB = cum[i] - prevCum;
+      const frac = inB === 0 ? 0 : (rank - prevCum) / inB;
+      return { val: prevBound + frac * (bounds[i] - prevBound),
+               i, prevBound, bound: bounds[i], prevCum, cumHere: cum[i], rank, total };
+    }
+    prevCum = cum[i]; prevBound = bounds[i];
+  }
+  return { val: bounds[bounds.length - 1], rank, total };
+}
+// latency giả: phần lớn 5–60ms, đuôi vài request tới ~800ms
+function fakeLatency(errorMode) {
+  if (errorMode || Math.random() < 0.04) return 0.2 + Math.random() * 0.6;
+  return 0.004 + Math.random() * 0.055;
+}
+
+// ===================== MODULE 1 =====================
+(function () {
+  const counts = new Array(BUCKETS.length).fill(0);
+  const inf = { v: 0 };
+  let counter = 0, samples = [];
+  const svg = document.getElementById("m1-hist");
+
+  function drawHist() {
+    svg.innerHTML = "";
+    const { cum, total } = cumulative(counts, inf.v);
+    const labels = BUCKETS.map(b => (b * 1000) + "").concat("+Inf");
+    const vals = cum.concat(total);
+    const max = Math.max(1, total);
+    const n = vals.length, W = 460, H = 150, pad = 18, bw = (W - pad * 2) / n;
+    for (let i = 0; i < n; i++) {
+      const h = (vals[i] / max) * (H - 40);
+      svg.appendChild(el("rect", { x: pad + i * bw + 2, y: H - 22 - h,
+        width: bw - 4, height: h, fill: "#e6522c", rx: 2 }));
+      svg.appendChild(el("text", { x: pad + i * bw + bw / 2, y: H - 8,
+        "text-anchor": "middle", class: "bar-label" }, labels[i]));
+      if (vals[i] > 0)
+        svg.appendChild(el("text", { x: pad + i * bw + bw / 2, y: H - 26 - h,
+          "text-anchor": "middle", class: "bar-label" }, vals[i]));
+    }
+  }
+  function refresh() {
+    document.getElementById("m1-counter").textContent = counter;
+    drawHist();
+    if (samples.length) {
+      const q = p => {
+        const s = [...samples].sort((a, b) => a - b);
+        return (s[Math.min(s.length - 1, Math.floor(p * s.length))] * 1000).toFixed(0);
+      };
+      document.getElementById("m1-p50").textContent = q(0.5);
+      document.getElementById("m1-p90").textContent = q(0.9);
+      document.getElementById("m1-p99").textContent = q(0.99);
+    }
+  }
+  function oneReq() {
+    counter++;
+    // gauge: tăng rồi giảm (in-flight), animate ngắn
+    const g = document.getElementById("m1-gauge");
+    let cur = +g.textContent + 1; g.textContent = cur;
+    setTimeout(() => { g.textContent = Math.max(0, +g.textContent - 1); }, 260);
+    const lat = fakeLatency(false);
+    observe(counts, inf, BUCKETS, lat);
+    samples.push(lat); if (samples.length > 2000) samples.shift();
+    refresh();
+  }
+  document.getElementById("m1-one").onclick = oneReq;
+  document.getElementById("m1-burst").onclick = () => { for (let i = 0; i < 50; i++) oneReq(); };
+  document.getElementById("m1-reset").onclick = () => {
+    counter = 0; counts.fill(0); inf.v = 0; samples = [];
+    document.getElementById("m1-gauge").textContent = 0;
+    document.getElementById("m1-p50").textContent = "–";
+    document.getElementById("m1-p90").textContent = "–";
+    document.getElementById("m1-p99").textContent = "–";
+    document.getElementById("m1-note").textContent = "Reset! Counter về 0 (giống restart). rate() của Prometheus tự xử lý tụt này — đừng tự trừ tay.";
+    refresh();
+  };
+  refresh();
+})();
+
+// ===================== MODULE 2 =====================
+(function () {
+  // dữ liệu walk-through mục 13: bounds & count KHÔNG tích lũy
+  const bounds = [0.01, 0.05, 0.1, 0.5];
+  // counts (non-cumulative): ≤0.01:20, (..0.05]:40, (..0.1]:25, (..0.5]:13, >0.5:2
+  const counts = [20, 40, 25, 13];
+  const inf = 2;
+  const svg = document.getElementById("m2-svg");
+  const pSlider = document.getElementById("m2-p");
+
+  function draw() {
+    svg.innerHTML = "";
+    const p = +pSlider.value / 100;
+    document.getElementById("m2-pval").textContent = pSlider.value;
+    const r = histQuantile(bounds, counts, inf, p);
+    const { cum, total } = cumulative(counts, inf);
+    const labels = bounds.map(b => "le " + (b * 1000) + "ms").concat("+Inf");
+    const vals = cum.concat(total);
+    const n = vals.length, W = 640, H = 280, padL = 40, padB = 40, padT = 20;
+    const bw = (W - padL - 20) / n;
+    const max = total;
+    // trục
+    svg.appendChild(el("line", { x1: padL, y1: H - padB, x2: W - 10, y2: H - padB, stroke: "#cbd5e0" }));
+    for (let i = 0; i < n; i++) {
+      const h = (vals[i] / max) * (H - padB - padT);
+      const x = padL + i * bw, y = H - padB - h;
+      const isTarget = (r.i === i || (r.i === undefined && i === n - 1));
+      svg.appendChild(el("rect", { x: x + 4, y, width: bw - 8, height: h,
+        fill: isTarget ? "#e6522c" : "#fbbf9d", rx: 3 }));
+      svg.appendChild(el("text", { x: x + bw / 2, y: y - 5, "text-anchor": "middle", class: "bar-label" }, vals[i]));
+      svg.appendChild(el("text", { x: x + bw / 2, y: H - padB + 16, "text-anchor": "middle", class: "bar-label" }, labels[i]));
+    }
+    // đường rank ngang
+    const rankY = H - padB - (r.rank / max) * (H - padB - padT);
+    svg.appendChild(el("line", { x1: padL, y1: rankY, x2: W - 10, y2: rankY, class: "qline" }));
+    svg.appendChild(el("text", { x: padL + 4, y: rankY - 5, class: "qtext" }, "rank = " + r.rank.toFixed(0)));
+
+    // bước tính
+    let txt;
+    if (r.i === undefined) {
+      txt = `p${pSlider.value}: rank=${r.rank.toFixed(0)} vượt bucket cuối → nằm trong (+Inf). Quantile ≈ bound lớn nhất = ${(bounds[bounds.length-1]*1000)}ms.`;
+    } else {
+      const valMs = (r.val * 1000).toFixed(1);
+      const lo = (r.prevBound * 1000), hi = (r.bound * 1000);
+      const inB = r.cumHere - r.prevCum;
+      const need = r.rank - r.prevCum;
+      const frac = inB === 0 ? 0 : need / inB;
+      txt = `rank=${r.rank.toFixed(0)} → bucket (${lo}ms, ${hi}ms] (cum ${r.prevCum}→${r.cumHere}, chứa ${inB}). `
+          + `Cần thêm ${need.toFixed(0)} → frac=${need.toFixed(0)}/${inB}=${frac.toFixed(3)}. `
+          + `q ≈ ${lo} + ${frac.toFixed(3)}×(${hi}−${lo}) = ${valMs}ms`;
+    }
+    document.getElementById("m2-step").textContent = txt;
+  }
+  pSlider.oninput = draw;
+  document.getElementById("m2-preset").onclick = () => { pSlider.value = 90; draw(); };
+  draw();
+})();
+
+// ===================== MODULE 3 =====================
+(function () {
+  const chart = document.getElementById("m3-chart");
+  const loadS = document.getElementById("m3-load"), errS = document.getElementById("m3-err");
+  const W = 900, H = 200, pad = 30;
+  let running = false, timer = null;
+  let history = [];           // {rate, errRate}
+  let counter = 0, errCounter = 0, lastCounter = 0, lastErr = 0;
+  let samples = [];
+  let highErrTicks = 0;
+
+  loadS.oninput = () => document.getElementById("m3-loadval").textContent = loadS.value;
+  errS.oninput  = () => document.getElementById("m3-errval").textContent = errS.value;
+
+  function tick() {
+    // số request trong 1 "giây" mô phỏng (poisson-ish quanh load)
+    const load = +loadS.value;
+    const errRatio = +errS.value / 100;
+    const n = Math.max(0, Math.round(load + (Math.random() - 0.5) * load * 0.25));
+    let errs = 0;
+    for (let i = 0; i < n; i++) {
+      counter++;
+      const isErr = Math.random() < errRatio;
+      if (isErr) { errs++; errCounter++; }
+      samples.push(fakeLatency(isErr));
+    }
+    if (samples.length > 3000) samples = samples.slice(-3000);
+
+    const rate = counter - lastCounter; lastCounter = counter;
+    const errRate = errCounter - lastErr; lastErr = errCounter;
+    history.push({ rate, errRate }); if (history.length > 60) history.shift();
+
+    // RED stats
+    document.getElementById("m3-rate").textContent = rate;
+    const errPct = rate === 0 ? 0 : (errRate / rate) * 100;
+    document.getElementById("m3-errp").textContent = errPct.toFixed(1);
+    const s = [...samples].sort((a, b) => a - b);
+    const p99 = s.length ? s[Math.min(s.length - 1, Math.floor(0.99 * s.length))] * 1000 : 0;
+    document.getElementById("m3-p99").textContent = p99.toFixed(0);
+
+    // alert mô phỏng for:5m → ở đây dùng 5 tick liên tục >5%
+    const errBox = document.getElementById("m3-err-box");
+    if (errPct > 5) highErrTicks++; else highErrTicks = 0;
+    errBox.className = "red-stat " + (highErrTicks >= 5 ? "bad" : errPct > 5 ? "warn" : "ok");
+    document.getElementById("m3-dur-box").className = "red-stat " + (p99 > 300 ? "warn" : "ok");
+
+    draw();
+  }
+  function draw() {
+    chart.innerHTML = "";
+    chart.appendChild(el("line", { x1: pad, y1: H - pad, x2: W - 10, y2: H - pad, stroke: "#cbd5e0" }));
+    if (history.length < 2) return;
+    const maxR = Math.max(10, ...history.map(h => h.rate));
+    const stepX = (W - pad - 10) / 59;
+    const yOf = v => H - pad - (v / maxR) * (H - pad - 16);
+    const path = (key, color) => {
+      let d = "";
+      history.forEach((h, i) => { d += (i ? "L" : "M") + (pad + i * stepX) + " " + yOf(h[key]); });
+      chart.appendChild(el("path", { d, fill: "none", stroke: color, "stroke-width": 2 }));
+    };
+    path("rate", "#3182ce");
+    path("errRate", "#e53e3e");
+    chart.appendChild(el("text", { x: W - 90, y: 16, class: "bar-label", fill: "#3182ce" }, "● request/s"));
+    chart.appendChild(el("text", { x: W - 90, y: 32, class: "bar-label", fill: "#e53e3e" }, "● error/s"));
+  }
+  document.getElementById("m3-start").onclick = () => {
+    if (running) return; running = true; timer = setInterval(tick, 1000);
+  };
+  document.getElementById("m3-stop").onclick = () => { running = false; clearInterval(timer); };
+  draw();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 26 — DP 2D / Grid</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .lead { color: #4a5568; max-width: 760px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.1); margin: 18px 0;
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 16px; }
+  .ctl-group { display: flex; flex-direction: column; gap: 4px; }
+  .controls label { font-weight: 600; color: #2d3748; font-size: 13px; }
+  input[type="number"], input[type="text"] {
+    padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 15px; max-width: 160px; width: 100%; box-sizing: border-box;
+  }
+  button {
+    padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;
+    font-size: 14px; font-weight: 600; background: #4299e1; color: white;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+
+  /* bảng dp dùng chung cho 3 module */
+  .grid-wrap { overflow-x: auto; }
+  table.dp { border-collapse: collapse; margin: 10px 0; font-size: 14px; }
+  table.dp td, table.dp th {
+    border: 1px solid #cbd5e0; width: 44px; height: 44px; text-align: center;
+    font-variant-numeric: tabular-nums; transition: background .25s, color .25s;
+    padding: 0;
+  }
+  table.dp th { background: #edf2f7; color: #2d3748; font-weight: 700; }
+  table.dp td { background: white; color: #2d3748; }
+  table.dp td.empty { color: #cbd5e0; }
+  table.dp td.filling { background: #fefcbf; color: #744210; font-weight: 700; }
+  table.dp td.done { background: #ebf8ff; }
+  table.dp td.path { background: #c6f6d5; color: #22543d; font-weight: 700; }
+  table.dp td.obstacle { background: #fed7d7; color: #742a2a; }
+  /* màu hướng phụ thuộc / thao tác */
+  table.dp td.src-up { box-shadow: inset 0 3px 0 #4299e1; }
+  table.dp td.src-left { box-shadow: inset 3px 0 0 #4299e1; }
+  table.dp td.src-diag { box-shadow: inset 3px 3px 0 #9f7aea; }
+  /* edit distance op colors */
+  table.dp td.op-match { background: #c6f6d5; color: #22543d; font-weight: 700; }
+  table.dp td.op-replace { background: #feebc8; color: #7b341e; }
+  table.dp td.op-delete { background: #fed7d7; color: #742a2a; }
+  table.dp td.op-insert { background: #bee3f8; color: #2a4365; }
+
+  .status { font-size: 14px; color: #2d3748; margin: 10px 0; min-height: 22px; font-weight: 600; }
+  .answer { font-size: 16px; font-weight: 800; color: #1a202c; margin-top: 8px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin: 10px 0; font-size: 13px; color: #4a5568; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .swatch { width: 14px; height: 14px; border-radius: 3px; border: 1px solid #cbd5e0; display: inline-block; }
+  .note { font-size: 13px; color: #718096; margin-top: 6px; }
+  code { background: #edf2f7; padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+
+  @media (max-width: 480px) {
+    table.dp td, table.dp th { width: 34px; height: 34px; font-size: 12px; }
+    input[type="number"], input[type="text"] { max-width: 120px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-25-knapsack-family/visualization.html">← L25: Knapsack</a>
+  <span class="sep">·</span>
+  <span class="current">L26: DP 2D/Grid</span>
+  <span class="sep">·</span>
+  <a href="../lesson-27-interval-dp/visualization.html">L27: Interval DP →</a>
+</nav>
+
+<div class="container">
+  <header>
+    <h1>Lesson 26 — Quy hoạch động 2 chiều / Grid</h1>
+    <p class="lead">
+      Ba module cho bạn <em>thấy tận mắt</em> bảng <code>dp[i][j]</code> được điền từng ô như thế nào, và
+      mỗi ô lấy giá trị từ đâu (trên / trái / chéo). Đây là lõi của LCS, edit distance và bài toán đường đi trên lưới.
+    </p>
+  </header>
+
+  <main>
+
+  <!-- ============ MODULE 1: GRID PATH (min path sum) ============ -->
+  <h2>Module 1 — Grid path: Min path sum</h2>
+  <div class="card">
+    <p class="lead">Lưới chi phí <code>m×n</code>. Bấm <strong>Chạy</strong> để xem <code>dp[i][j] = grid[i][j] + min(trên, trái)</code>
+      điền từng ô, rồi <strong>highlight đường đi tối ưu</strong> (xanh lá) từ góc trên-trái xuống dưới-phải.</p>
+    <div class="controls">
+      <div class="ctl-group">
+        <label for="gpRows">Số hàng (2–6)</label>
+        <input type="number" id="gpRows" value="3" min="2" max="6">
+      </div>
+      <div class="ctl-group">
+        <label for="gpCols">Số cột (2–6)</label>
+        <input type="number" id="gpCols" value="3" min="2" max="6">
+      </div>
+      <button id="gpRandom" class="secondary">🎲 Lưới ngẫu nhiên</button>
+      <button id="gpRun">▶ Chạy điền dp</button>
+    </div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#fefcbf"></span> đang điền</span>
+      <span><span class="swatch" style="background:#ebf8ff"></span> đã điền</span>
+      <span><span class="swatch" style="background:#c6f6d5"></span> đường tối ưu</span>
+    </div>
+    <p class="note">Bảng dưới hiển thị <strong>cost</strong> (góc trên nhỏ) và <strong>dp</strong> (số lớn). Đường tối ưu = backtrack từ <code>dp[m-1][n-1]</code>.</p>
+    <div class="grid-wrap"><div id="gpTable"></div></div>
+    <div class="status" id="gpStatus"></div>
+    <div class="answer" id="gpAnswer"></div>
+  </div>
+
+  <!-- ============ MODULE 2: LCS TABLE ============ -->
+  <h2>Module 2 — LCS table + truy vết</h2>
+  <div class="card">
+    <p class="lead">Nhập 2 chuỗi. Bảng điền theo: <strong>khớp ký tự</strong> ⇒ <code>chéo + 1</code> (viền tím);
+      <strong>khác</strong> ⇒ <code>max(trên, trái)</code> (viền xanh). Sau khi điền xong, <strong>truy vết</strong> tô xanh các ô đường chéo tạo thành LCS.</p>
+    <div class="controls">
+      <div class="ctl-group">
+        <label for="lcsA">Chuỗi A</label>
+        <input type="text" id="lcsA" value="ABCBDAB" maxlength="10">
+      </div>
+      <div class="ctl-group">
+        <label for="lcsB">Chuỗi B</label>
+        <input type="text" id="lcsB" value="BDCAB" maxlength="10">
+      </div>
+      <button id="lcsRun">▶ Chạy LCS</button>
+    </div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#fefcbf"></span> đang điền</span>
+      <span><span class="swatch" style="box-shadow:inset 3px 3px 0 #9f7aea;background:#fff"></span> khớp (chéo+1)</span>
+      <span><span class="swatch" style="background:#c6f6d5"></span> thuộc LCS</span>
+    </div>
+    <div class="grid-wrap"><div id="lcsTable"></div></div>
+    <div class="status" id="lcsStatus"></div>
+    <div class="answer" id="lcsAnswer"></div>
+  </div>
+
+  <!-- ============ MODULE 3: EDIT DISTANCE ============ -->
+  <h2>Module 3 — Edit distance (Levenshtein)</h2>
+  <div class="card">
+    <p class="lead">Biến A → B bằng <strong>insert / delete / replace</strong>. Bảng điền:
+      khớp ⇒ <code>chéo</code> (xanh lá); khác ⇒ <code>1 + min(chéo=replace, trên=delete, trái=insert)</code>.
+      Mỗi ô được tô màu theo <strong>thao tác rẻ nhất</strong> đã chọn.</p>
+    <div class="controls">
+      <div class="ctl-group">
+        <label for="edA">Chuỗi A</label>
+        <input type="text" id="edA" value="horse" maxlength="10">
+      </div>
+      <div class="ctl-group">
+        <label for="edB">Chuỗi B (đích)</label>
+        <input type="text" id="edB" value="ros" maxlength="10">
+      </div>
+      <button id="edRun">▶ Chạy edit distance</button>
+    </div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#c6f6d5"></span> match (chéo)</span>
+      <span><span class="swatch" style="background:#feebc8"></span> replace</span>
+      <span><span class="swatch" style="background:#fed7d7"></span> delete</span>
+      <span><span class="swatch" style="background:#bee3f8"></span> insert</span>
+    </div>
+    <div class="grid-wrap"><div id="edTable"></div></div>
+    <div class="status" id="edStatus"></div>
+    <div class="answer" id="edAnswer"></div>
+  </div>
+
+  </main>
+</div>
+
+<script>
+const el = (id) => document.getElementById(id);
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+const STEP = 240;
+
+/* ============================================================
+   MODULE 1 — GRID PATH (min path sum)
+   ============================================================ */
+let gpGrid = [[1,3,1],[1,5,1],[4,2,1]];
+let gpBusy = false;
+
+function gpRenderEmpty() {
+  const m = gpGrid.length, n = gpGrid[0].length;
+  let html = '<table class="dp">';
+  for (let i = 0; i < m; i++) {
+    html += '<tr>';
+    for (let j = 0; j < n; j++) {
+      html += `<td id="gp-${i}-${j}" class="empty"><div style="font-size:10px;color:#a0aec0">${gpGrid[i][j]}</div><div>·</div></td>`;
+    }
+    html += '</tr>';
+  }
+  html += '</table>';
+  el('gpTable').innerHTML = html;
+}
+
+function gpSet(i, j, val, cls) {
+  const td = el(`gp-${i}-${j}`);
+  td.className = cls;
+  td.innerHTML = `<div style="font-size:10px;color:#718096">${gpGrid[i][j]}</div><div>${val}</div>`;
+}
+
+async function gpRun() {
+  if (gpBusy) return;
+  gpBusy = true; el('gpRun').disabled = true;
+  const m = gpGrid.length, n = gpGrid[0].length;
+  const dp = Array.from({length:m}, () => new Array(n).fill(0));
+  gpRenderEmpty();
+  el('gpAnswer').textContent = '';
+
+  for (let i = 0; i < m; i++) {
+    for (let j = 0; j < n; j++) {
+      if (i === 0 && j === 0) dp[i][j] = gpGrid[i][j];
+      else if (i === 0) dp[i][j] = dp[i][j-1] + gpGrid[i][j];
+      else if (j === 0) dp[i][j] = dp[i-1][j] + gpGrid[i][j];
+      else dp[i][j] = gpGrid[i][j] + Math.min(dp[i-1][j], dp[i][j-1]);
+
+      gpSet(i, j, dp[i][j], 'filling');
+      let from = '(base)';
+      if (i > 0 && j > 0) from = dp[i-1][j] <= dp[i][j-1] ? 'trên' : 'trái';
+      else if (i > 0) from = 'trên';
+      else if (j > 0) from = 'trái';
+      el('gpStatus').textContent = `dp[${i}][${j}] = ${gpGrid[i][j]} + min(...) = ${dp[i][j]}  (đến từ: ${from})`;
+      await sleep(STEP);
+      gpSet(i, j, dp[i][j], 'done');
+    }
+  }
+
+  // truy vết đường tối ưu
+  let i = m-1, j = n-1;
+  const path = [];
+  while (i > 0 || j > 0) {
+    path.push([i,j]);
+    if (i === 0) j--;
+    else if (j === 0) i--;
+    else if (dp[i-1][j] <= dp[i][j-1]) i--;
+    else j--;
+  }
+  path.push([0,0]);
+  for (const [pi,pj] of path) {
+    gpSet(pi, pj, dp[pi][pj], 'path');
+    await sleep(120);
+  }
+  el('gpStatus').textContent = `Đường tối ưu (xanh lá) gồm ${path.length} ô.`;
+  el('gpAnswer').textContent = `Min path sum = dp[${m-1}][${n-1}] = ${dp[m-1][n-1]}`;
+  gpBusy = false; el('gpRun').disabled = false;
+}
+
+function gpResize() {
+  let m = Math.max(2, Math.min(6, parseInt(el('gpRows').value) || 3));
+  let n = Math.max(2, Math.min(6, parseInt(el('gpCols').value) || 3));
+  gpGrid = Array.from({length:m}, () => Array.from({length:n}, () => Math.floor(Math.random()*9)+1));
+  gpRenderEmpty();
+  el('gpStatus').textContent = ''; el('gpAnswer').textContent = '';
+}
+
+/* ============================================================
+   MODULE 2 — LCS TABLE + truy vết
+   ============================================================ */
+let lcsBusy = false;
+
+function lcsHeader(a, b) {
+  const m = a.length, n = b.length;
+  let html = '<table class="dp"><tr><th></th><th>ε</th>';
+  for (let j = 0; j < n; j++) html += `<th>${b[j]}</th>`;
+  html += '</tr>';
+  for (let i = 0; i <= m; i++) {
+    html += '<tr>';
+    html += `<th>${i === 0 ? 'ε' : a[i-1]}</th>`;
+    for (let j = 0; j <= n; j++) {
+      const cls = (i === 0 || j === 0) ? 'done' : 'empty';
+      const v = (i === 0 || j === 0) ? '0' : '·';
+      html += `<td id="lcs-${i}-${j}" class="${cls}">${v}</td>`;
+    }
+    html += '</tr>';
+  }
+  html += '</table>';
+  el('lcsTable').innerHTML = html;
+}
+
+async function lcsRun() {
+  if (lcsBusy) return;
+  const a = (el('lcsA').value || '').toUpperCase().replace(/[^A-Z]/g,'').slice(0,10);
+  const b = (el('lcsB').value || '').toUpperCase().replace(/[^A-Z]/g,'').slice(0,10);
+  el('lcsA').value = a; el('lcsB').value = b;
+  if (!a || !b) { el('lcsStatus').textContent = 'Nhập cả 2 chuỗi (chỉ chữ cái).'; return; }
+  lcsBusy = true; el('lcsRun').disabled = true;
+  const m = a.length, n = b.length;
+  const dp = Array.from({length:m+1}, () => new Array(n+1).fill(0));
+  lcsHeader(a, b);
+  el('lcsAnswer').textContent = '';
+
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      const match = a[i-1] === b[j-1];
+      if (match) dp[i][j] = dp[i-1][j-1] + 1;
+      else dp[i][j] = Math.max(dp[i-1][j], dp[i][j-1]);
+      const td = el(`lcs-${i}-${j}`);
+      td.textContent = dp[i][j];
+      td.className = match ? 'filling src-diag' : 'filling ' + (dp[i-1][j] >= dp[i][j-1] ? 'src-up' : 'src-left');
+      el('lcsStatus').textContent = match
+        ? `A[${i-1}]='${a[i-1]}' == B[${j-1}]='${b[j-1]}' → dp = chéo+1 = ${dp[i][j]}`
+        : `'${a[i-1]}' ≠ '${b[j-1]}' → dp = max(trên ${dp[i-1][j]}, trái ${dp[i][j-1]}) = ${dp[i][j]}`;
+      await sleep(STEP);
+      td.classList.remove('filling');
+      td.classList.add('done');
+    }
+  }
+
+  // truy vết
+  let i = m, j = n;
+  const chars = [];
+  while (i > 0 && j > 0) {
+    if (a[i-1] === b[j-1]) {
+      el(`lcs-${i}-${j}`).className = 'path';
+      chars.push(a[i-1]);
+      i--; j--;
+    } else if (dp[i-1][j] >= dp[i][j-1]) i--;
+    else j--;
+    await sleep(140);
+  }
+  chars.reverse();
+  el('lcsStatus').textContent = `Truy vết: ô xanh = ký tự thuộc LCS.`;
+  el('lcsAnswer').textContent = `LCS độ dài ${dp[m][n]} = "${chars.join('')}"`;
+  lcsBusy = false; el('lcsRun').disabled = false;
+}
+
+/* ============================================================
+   MODULE 3 — EDIT DISTANCE
+   ============================================================ */
+let edBusy = false;
+
+function edHeader(a, b) {
+  const m = a.length, n = b.length;
+  let html = '<table class="dp"><tr><th></th><th>ε</th>';
+  for (let j = 0; j < n; j++) html += `<th>${b[j]}</th>`;
+  html += '</tr>';
+  for (let i = 0; i <= m; i++) {
+    html += '<tr>';
+    html += `<th>${i === 0 ? 'ε' : a[i-1]}</th>`;
+    for (let j = 0; j <= n; j++) {
+      let cls = 'empty', v = '·';
+      if (i === 0) { cls = 'done'; v = j; }
+      else if (j === 0) { cls = 'done'; v = i; }
+      html += `<td id="ed-${i}-${j}" class="${cls}">${v}</td>`;
+    }
+    html += '</tr>';
+  }
+  html += '</table>';
+  el('edTable').innerHTML = html;
+}
+
+async function edRun() {
+  if (edBusy) return;
+  const a = (el('edA').value || '').toLowerCase().replace(/[^a-z]/g,'').slice(0,10);
+  const b = (el('edB').value || '').toLowerCase().replace(/[^a-z]/g,'').slice(0,10);
+  el('edA').value = a; el('edB').value = b;
+  if (!a && !b) { el('edStatus').textContent = 'Nhập ít nhất 1 chuỗi.'; return; }
+  edBusy = true; el('edRun').disabled = true;
+  const m = a.length, n = b.length;
+  const dp = Array.from({length:m+1}, () => new Array(n+1).fill(0));
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  edHeader(a, b);
+  el('edAnswer').textContent = '';
+
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      const td = el(`ed-${i}-${j}`);
+      let opCls, msg;
+      if (a[i-1] === b[j-1]) {
+        dp[i][j] = dp[i-1][j-1];
+        opCls = 'op-match';
+        msg = `'${a[i-1]}' == '${b[j-1]}' → giữ nguyên = chéo = ${dp[i][j]}`;
+      } else {
+        const rep = dp[i-1][j-1], del = dp[i-1][j], ins = dp[i][j-1];
+        const best = Math.min(rep, del, ins);
+        dp[i][j] = 1 + best;
+        if (best === rep) { opCls = 'op-replace'; msg = `replace '${a[i-1]}'→'${b[j-1]}': 1+${rep} = ${dp[i][j]}`; }
+        else if (best === del) { opCls = 'op-delete'; msg = `delete '${a[i-1]}': 1+${del} = ${dp[i][j]}`; }
+        else { opCls = 'op-insert'; msg = `insert '${b[j-1]}': 1+${ins} = ${dp[i][j]}`; }
+      }
+      td.textContent = dp[i][j];
+      td.className = 'filling';
+      el('edStatus').textContent = msg;
+      await sleep(STEP);
+      td.className = opCls;
+    }
+  }
+  el('edStatus').textContent = `Mỗi ô tô màu theo thao tác rẻ nhất đã chọn.`;
+  el('edAnswer').textContent = `Edit distance("${a}" → "${b}") = ${dp[m][n]}`;
+  edBusy = false; el('edRun').disabled = false;
+}
+
+/* ---------- wire up ---------- */
+el('gpRun').addEventListener('click', gpRun);
+el('gpRandom').addEventListener('click', gpResize);
+el('lcsRun').addEventListener('click', lcsRun);
+el('edRun').addEventListener('click', edRun);
+
+/* initial render */
+gpRenderEmpty();
+lcsHeader('ABCBDAB', 'BDCAB');
+edHeader('horse', 'ros');
+</script>
+
+<!-- README modal + TOC + favicon -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+
+</body>
+</html>

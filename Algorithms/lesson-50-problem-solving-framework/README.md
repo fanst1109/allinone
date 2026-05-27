@@ -395,6 +395,18 @@ func main() {
 - **Bước 6 (code + test):** dưới đây.
 - **Bước 7 (tối ưu):** Kahn đã `O(n + E)` → dừng.
 
+**Mô phỏng Kahn** với `n = 4`, điều kiện `[[1,0],[2,0],[3,1],[3,2]]` (cạnh `b→a`: `0→1, 0→2, 1→3, 2→3`):
+
+| Bước | indegree `[0,1,2,3]` | queue | học (learned) |
+|:----:|:--------------------:|:-----:|:-------------:|
+| đầu | `[0,1,1,2]` | `[0]` | 0 |
+| lấy 0 → giảm 1,2 | `[_,0,0,2]` | `[1,2]` | 1 |
+| lấy 1 → giảm 3 | `[_,_,0,1]` | `[2]` | 2 |
+| lấy 2 → giảm 3 | `[_,_,_,0]` | `[3]` | 3 |
+| lấy 3 | `[_,_,_,_]` | `[]` | 4 |
+
+`learned = 4 = n` → **không chu trình** → true. Nếu có chu trình (vd thêm `0` phụ thuộc `3`), một số đỉnh sẽ kẹt indegree > 0, không bao giờ vào queue → `learned < n` → false.
+
 ```go
 package main
 
@@ -451,6 +463,20 @@ func main() {
 - **Bước 5 (pattern):** "tối ưu (ít nhất)" + "lựa chọn (chọn xu nào)" + "bài con chồng nhau (cùng số tiền con xuất hiện nhiều lần)" → **Dynamic Programming** ([L25 — Knapsack family](../lesson-25-knapsack-family/), [L23](../lesson-23-dp-fundamentals/)). *Cảnh báo:* greedy "luôn lấy xu lớn nhất" **sai** (vd `coins=[1,3,4], amount=6`: greedy ra `4+1+1=3` xu, DP ra `3+3=2` xu).
 - **Bước 6 (code + test):** dưới đây.
 - **Bước 7 (tối ưu):** DP 1D đã tối ưu cả time lẫn space → dừng.
+
+**Mô phỏng DP** với `coins = [1, 3, 4]`, `amount = 6`. `dp[x]` = số xu ít nhất cho `x`:
+
+| `x` | tính `dp[x] = min(dp[x-c]+1)` | `dp[x]` |
+|:---:|------------------------------|:------:|
+| 0 | (cơ sở) | 0 |
+| 1 | `dp[0]+1 = 1` | 1 |
+| 2 | `dp[1]+1 = 2` | 2 |
+| 3 | min(`dp[2]+1=3`, `dp[0]+1=1`) | 1 |
+| 4 | min(`dp[3]+1=2`, `dp[1]+1=2`, `dp[0]+1=1`) | 1 |
+| 5 | min(`dp[4]+1=2`, `dp[2]+1=3`, `dp[1]+1=2`) | 2 |
+| 6 | min(`dp[5]+1=3`, `dp[3]+1=2`, `dp[2]+1=3`) | **2** |
+
+`dp[6] = 2` (dùng `3 + 3`). Greedy lấy xu lớn nhất sẽ ra `4 + 1 + 1 = 3` xu — **sai**. DP đúng vì nó thử *mọi* lựa chọn xu cuối cùng tại mỗi `x`, không "khoá cứng" vào xu to.
 
 ```go
 package main

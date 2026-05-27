@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L49 — P vs NP &amp; Intractability · Minh hoạ</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #f97316;
+    --accent-hover: #ea580c;
+    --accent-soft: #ffedd5;
+    --green: #48bb78;
+    --red: #f56565;
+    --gold: #d69e2e;
+    --blue: #4299e1;
+    --purple: #805ad5;
+    --dark: #2d3748;
+    --gray: #cbd5e0;
+  }
+
+  main { max-width: 1000px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.6rem; margin: 12px 0 4px; }
+  .lead { color: #4a5568; margin: 0 0 20px; }
+
+  .module {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px;
+    margin: 20px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .module h2 { font-size: 1.25rem; margin: 0 0 6px; color: var(--dark); }
+  .module .hint { color: #718096; font-size: 0.92rem; margin: 0 0 12px; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; align-items: center; }
+  button {
+    background: var(--accent); color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 0.95rem; font-weight: 600; cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost { background: #edf2f7; color: var(--dark); }
+  button.ghost:hover { background: #e2e8f0; }
+  button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  label { font-size: 0.9rem; color: #4a5568; font-weight: 600; }
+  input[type=text], input[type=number] {
+    padding: 8px 10px; border-radius: 8px; border: 1px solid #cbd5e0;
+    font-size: 0.95rem; font-family: ui-monospace, monospace;
+    width: 100%; max-width: 220px; box-sizing: border-box;
+  }
+
+  .status {
+    background: #f7fafc; border-left: 4px solid var(--accent);
+    padding: 10px 14px; border-radius: 6px; margin: 12px 0;
+    font-size: 0.95rem; color: #2d3748; min-height: 1.2em; line-height: 1.5;
+  }
+
+  /* Module 1 — Venn + problem chips */
+  .venn-wrap { width: 100%; overflow-x: auto; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .chip {
+    border: 2px solid var(--gray); border-radius: 20px; padding: 6px 14px;
+    background: #fff; cursor: pointer; font-size: 0.9rem; font-weight: 600;
+    color: var(--dark); transition: all 0.15s;
+  }
+  .chip:hover { border-color: var(--accent); }
+  .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin: 10px 0; font-size: 0.85rem; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 16px; height: 16px; border-radius: 4px; display: inline-block; }
+
+  /* Module 2 — verify vs solve */
+  .vs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 12px 0; }
+  .vs-col { border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; background: #fbfdff; }
+  .vs-col h3 { margin: 0 0 8px; font-size: 1.02rem; }
+  .vs-col.solve h3 { color: var(--red); }
+  .vs-col.verify h3 { color: var(--green); }
+  .counter { font-family: ui-monospace, monospace; font-size: 1.4rem; font-weight: 700; }
+  .subset-box { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .num-pill {
+    border: 1px solid #cbd5e0; border-radius: 6px; padding: 4px 9px;
+    font-family: ui-monospace, monospace; font-size: 0.9rem; background: #fff;
+    transition: all 0.2s;
+  }
+  .num-pill.in { background: var(--accent-soft); border-color: var(--accent); font-weight: 700; }
+
+  /* Module 3 — approximation */
+  .ratio-bars { margin: 12px 0; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin: 6px 0; }
+  .bar-lbl { width: 110px; font-size: 0.88rem; font-weight: 600; }
+  .bar-track { flex: 1; background: #edf2f7; border-radius: 6px; height: 26px; position: relative; min-width: 0; }
+  .bar-fill { height: 100%; border-radius: 6px; transition: width 0.5s; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; color: #fff; font-weight: 700; font-size: 0.85rem; box-sizing: border-box; }
+  .bar-fill.opt { background: var(--green); }
+  .bar-fill.apx { background: var(--accent); }
+
+  code { background: #edf2f7; padding: 1px 5px; border-radius: 4px; font-size: 0.92em; }
+
+  @media (max-width: 640px) {
+    .vs-grid { grid-template-columns: 1fr; }
+    .bar-lbl { width: 90px; font-size: 0.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-48-randomized-algorithms/visualization.html">← L48: Randomized Algorithms</a>
+  <span class="sep">·</span>
+  <span class="current">L49: P vs NP</span>
+  <span class="sep">·</span>
+  <a href="../tier-8-problem-solving/index.html">Tier 8 →</a>
+</nav>
+
+<main>
+  <h1>Lesson 49 — Bài toán khó &amp; P vs NP</h1>
+  <p class="lead">Ba module tương tác: <b>bản đồ các lớp</b> P / NP / NP-complete / NP-hard,
+  <b>Verify vs Solve</b> trên subset sum, và <b>2-approximation</b> vertex cover so với tối ưu.</p>
+
+  <!-- ================= MODULE 1 ================= -->
+  <section class="module" id="mod1">
+    <h2>Module 1 — Bản đồ các lớp độ phức tạp</h2>
+    <p class="hint">Click một bài toán bên dưới để xem nó nằm ở vùng nào trong sơ đồ Venn.
+    Giả thiết <b>P ≠ NP</b> (nên P là vùng con thật sự của NP).</p>
+    <div class="chips" id="m1chips"></div>
+    <div class="venn-wrap">
+      <svg id="m1svg" width="560" height="360" viewBox="0 0 560 360" role="img" aria-label="Sơ đồ Venn các lớp">
+        <!-- NP-hard: hình elip lớn bên phải, tràn ra ngoài NP -->
+        <ellipse cx="380" cy="180" rx="170" ry="150" fill="#fdebd3" stroke="#dd9b4f" stroke-width="2"/>
+        <!-- NP: hình elip trái -->
+        <ellipse cx="220" cy="180" rx="170" ry="150" fill="#e6f0fb" stroke="#4299e1" stroke-width="2" fill-opacity="0.75"/>
+        <!-- P: hình tròn nhỏ trong NP -->
+        <circle cx="160" cy="180" r="78" fill="#e6f7ee" stroke="#48bb78" stroke-width="2"/>
+        <!-- nhãn vùng -->
+        <text x="120" y="80"  font-size="15" font-weight="700" fill="#4299e1">NP</text>
+        <text x="135" y="185" font-size="15" font-weight="700" fill="#2f855a">P</text>
+        <text x="300" y="185" font-size="13" font-weight="700" fill="#c05621">NP-complete</text>
+        <text x="300" y="201" font-size="11" fill="#9c4221">(NP-hard ∩ NP)</text>
+        <text x="470" y="100" font-size="15" font-weight="700" fill="#c05621">NP-hard</text>
+        <!-- chấm bài toán được highlight -->
+        <circle id="m1dot" cx="160" cy="180" r="9" fill="#e53e3e" stroke="#fff" stroke-width="2" opacity="0"/>
+        <text id="m1dotlbl" x="160" y="160" font-size="12" font-weight="700" fill="#742a2a" text-anchor="middle" opacity="0"></text>
+      </svg>
+    </div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#e6f7ee;border:1px solid #48bb78"></i> P — giải nhanh</span>
+      <span><i class="swatch" style="background:#e6f0fb;border:1px solid #4299e1"></i> NP — verify nhanh</span>
+      <span><i class="swatch" style="background:#fdebd3;border:1px solid #dd9b4f"></i> NP-hard — khó nhất trở lên</span>
+    </div>
+    <div class="status" id="m1status">Click một bài toán để xem phân loại.</div>
+  </section>
+
+  <!-- ================= MODULE 2 ================= -->
+  <section class="module" id="mod2">
+    <h2>Module 2 — Verify vs Solve (Subset Sum)</h2>
+    <p class="hint">Bài: tập <code id="m2set"></code> có tập con tổng đúng <code id="m2target"></code> không?
+    <b>Solve</b> thử mọi tập con (2ⁿ, chậm). <b>Verify</b> nhận sẵn 1 tập con, chỉ cộng lại (nhanh).</p>
+    <div class="controls">
+      <label for="m2in">Tập số (cách nhau dấu phẩy):</label>
+      <input type="text" id="m2in" value="3,34,4,12,5,2">
+      <label for="m2t">T:</label>
+      <input type="number" id="m2t" value="9" style="max-width:90px">
+      <button id="m2apply" class="ghost">Đặt bài</button>
+    </div>
+    <div class="vs-grid">
+      <div class="vs-col solve">
+        <h3>🐢 Solve — thử mọi tập con</h3>
+        <p style="font-size:0.85rem;color:#718096;margin:4px 0">Duyệt 2ⁿ tập con cho tới khi tìm thấy tổng = T.</p>
+        <div class="subset-box" id="m2solvebox"></div>
+        <div style="font-size:0.88rem">Đã thử: <span class="counter" id="m2count">0</span> / <span id="m2total">0</span> tập</div>
+        <div class="controls">
+          <button id="m2solve">▶ Chạy solve (auto)</button>
+        </div>
+      </div>
+      <div class="vs-col verify">
+        <h3>⚡ Verify — nhận sẵn lời giải</h3>
+        <p style="font-size:0.85rem;color:#718096;margin:4px 0">Certificate cho sẵn — chỉ cộng &amp; so với T.</p>
+        <div class="subset-box" id="m2verifybox"></div>
+        <div style="font-size:0.88rem">Phép cộng: <span class="counter" id="m2vcount">0</span></div>
+        <div class="controls">
+          <input type="text" id="m2cert" value="4,5" style="max-width:120px">
+          <button id="m2verify">✓ Verify certificate</button>
+        </div>
+      </div>
+    </div>
+    <div class="status" id="m2status">Đặt bài rồi so sánh: solve chậm (2ⁿ) vs verify nhanh (n).</div>
+  </section>
+
+  <!-- ================= MODULE 3 ================= -->
+  <section class="module" id="mod3">
+    <h2>Module 3 — Approximation: Vertex Cover 2-approx vs Optimal</h2>
+    <p class="hint">Đồ thị nhỏ. <b>2-approx</b> ghép cặp cạnh chưa phủ, thêm CẢ 2 đỉnh.
+    <b>Optimal</b> tìm cover nhỏ nhất bằng brute-force. So <code>ratio = |approx| / OPT</code> (luôn ≤ 2).</p>
+    <div class="controls">
+      <label for="m3sel">Đồ thị:</label>
+      <select id="m3sel" style="padding:8px;border-radius:8px;border:1px solid #cbd5e0">
+        <option value="triangle">Tam giác (3 đỉnh)</option>
+        <option value="path" selected>Đường 0-1-2-3</option>
+        <option value="star">Sao (1 tâm, 4 lá)</option>
+        <option value="two">Tam giác + cạnh rời</option>
+      </select>
+      <button id="m3run">▶ Chạy 2-approx &amp; tìm OPT</button>
+    </div>
+    <div class="venn-wrap">
+      <svg id="m3svg" width="520" height="240" viewBox="0 0 520 240" role="img" aria-label="Đồ thị vertex cover"></svg>
+    </div>
+    <div class="ratio-bars">
+      <div class="bar-row"><div class="bar-lbl">2-approx</div><div class="bar-track"><div class="bar-fill apx" id="m3apx" style="width:0">—</div></div></div>
+      <div class="bar-row"><div class="bar-lbl">Optimal</div><div class="bar-track"><div class="bar-fill opt" id="m3opt" style="width:0">—</div></div></div>
+    </div>
+    <div class="status" id="m3status">Chọn đồ thị rồi chạy. Đỉnh tô màu = thuộc cover.</div>
+  </section>
+</main>
+
+<script>
+/* ===================== MODULE 1 — bản đồ lớp ===================== */
+const M1 = [
+  { name: 'Sắp xếp', cls: 'P', x: 150, y: 185, note: 'merge sort O(n log n) — giải nhanh, nên thuộc P (và P ⊆ NP).' },
+  { name: 'Dijkstra', cls: 'P', x: 170, y: 160, note: 'shortest path O(E log V) — thuộc P.' },
+  { name: 'MST', cls: 'P', x: 145, y: 210, note: 'Kruskal/Prim đa thức — thuộc P.' },
+  { name: 'SAT', cls: 'NPC', x: 270, y: 175, note: 'NP-complete đầu tiên (Cook-Levin). Verify gán nhanh, tìm thì khó.' },
+  { name: '3-SAT', cls: 'NPC', x: 290, y: 210, note: 'NP-complete. (Nhưng 2-SAT lại thuộc P!)' },
+  { name: 'Clique', cls: 'NPC', x: 250, y: 130, note: 'NP-complete. Verify k đỉnh đôi một kề trong O(k²).' },
+  { name: 'Vertex Cover', cls: 'NPC', x: 300, y: 150, note: 'NP-complete. Có 2-approx (Module 3).' },
+  { name: 'Hamiltonian', cls: 'NPC', x: 280, y: 250, note: 'NP-complete. Verify thứ tự đỉnh O(V).' },
+  { name: 'TSP (decision)', cls: 'NPC', x: 320, y: 230, note: '"Có tour ≤ K?" — NP-complete (verify được tour).' },
+  { name: 'TSP (tối ưu hóa)', cls: 'NPH', x: 470, y: 180, note: 'Tìm tour NGẮN NHẤT — NP-hard, không rõ thuộc NP (khó verify "ngắn nhất").' },
+  { name: 'Halting problem', cls: 'NPH', x: 480, y: 250, note: 'NP-hard nhưng UNDECIDABLE → không thuộc NP. Không thuật toán nào giải.' },
+];
+const CLSNAME = { P: 'P (giải nhanh)', NPC: 'NP-complete (NP-hard ∩ NP)', NPH: 'NP-hard, ngoài NP' };
+
+const m1chips = document.getElementById('m1chips');
+const m1dot = document.getElementById('m1dot');
+const m1dotlbl = document.getElementById('m1dotlbl');
+const m1status = document.getElementById('m1status');
+
+M1.forEach((p, i) => {
+  const b = document.createElement('button');
+  b.className = 'chip';
+  b.textContent = p.name;
+  b.addEventListener('click', () => {
+    document.querySelectorAll('#m1chips .chip').forEach(c => c.classList.remove('active'));
+    b.classList.add('active');
+    m1dot.setAttribute('cx', p.x); m1dot.setAttribute('cy', p.y); m1dot.setAttribute('opacity', '1');
+    m1dotlbl.setAttribute('x', p.x); m1dotlbl.setAttribute('y', p.y - 18);
+    m1dotlbl.textContent = p.name; m1dotlbl.setAttribute('opacity', '1');
+    m1status.innerHTML = '<b>' + p.name + '</b> → <b>' + CLSNAME[p.cls] + '</b><br>' + p.note;
+  });
+  m1chips.appendChild(b);
+});
+
+/* ===================== MODULE 2 — verify vs solve ===================== */
+let m2nums = [], m2target = 9;
+const m2set = document.getElementById('m2set');
+const m2targetEl = document.getElementById('m2target');
+const m2solvebox = document.getElementById('m2solvebox');
+const m2verifybox = document.getElementById('m2verifybox');
+const m2count = document.getElementById('m2count');
+const m2total = document.getElementById('m2total');
+const m2vcount = document.getElementById('m2vcount');
+const m2status = document.getElementById('m2status');
+
+function m2setup() {
+  m2nums = document.getElementById('m2in').value.split(',').map(s => parseInt(s.trim())).filter(x => !isNaN(x));
+  m2target = parseInt(document.getElementById('m2t').value) || 0;
+  m2set.textContent = '{' + m2nums.join(', ') + '}';
+  m2targetEl.textContent = m2target;
+  m2total.textContent = (1 << m2nums.length);
+  m2count.textContent = '0';
+  m2vcount.textContent = '0';
+  renderBox(m2solvebox, []);
+  renderBox(m2verifybox, []);
+}
+function renderBox(box, inSet) {
+  box.innerHTML = '';
+  m2nums.forEach((v, i) => {
+    const s = document.createElement('span');
+    s.className = 'num-pill' + (inSet.includes(i) ? ' in' : '');
+    s.textContent = v;
+    box.appendChild(s);
+  });
+}
+document.getElementById('m2apply').addEventListener('click', m2setup);
+
+document.getElementById('m2solve').addEventListener('click', () => {
+  const n = m2nums.length, total = 1 << n;
+  let mask = 0, found = -1;
+  const tick = () => {
+    if (mask >= total) {
+      m2status.innerHTML = found >= 0
+        ? '🐢 Solve tìm thấy sau khi thử <b>' + (found + 1) + '</b> tập con (xấu nhất 2ⁿ = ' + total + ').'
+        : '🐢 Solve thử HẾT ' + total + ' tập con → KHÔNG có tập con nào tổng = ' + m2target + '.';
+      return;
+    }
+    const inSet = [], idx = [];
+    let sum = 0;
+    for (let i = 0; i < n; i++) if (mask & (1 << i)) { inSet.push(i); idx.push(i); sum += m2nums[i]; }
+    renderBox(m2solvebox, inSet);
+    m2count.textContent = (mask + 1);
+    if (sum === m2target) {
+      found = mask;
+      m2status.innerHTML = '🐢 Solve tìm thấy tập <b>{' + idx.map(i => m2nums[i]).join(', ') + '}</b> = ' + m2target
+        + ' sau khi thử <b>' + (mask + 1) + '</b> / ' + total + ' tập.';
+      return;
+    }
+    mask++;
+    setTimeout(tick, 180);
+  };
+  tick();
+});
+
+document.getElementById('m2verify').addEventListener('click', () => {
+  const cert = document.getElementById('m2cert').value.split(',').map(s => parseInt(s.trim())).filter(x => !isNaN(x));
+  // tìm chỉ số các phần tử certificate trong tập (theo giá trị, lấy lần xuất hiện đầu)
+  const used = new Array(m2nums.length).fill(false);
+  const idx = [];
+  let valid = true;
+  for (const v of cert) {
+    const k = m2nums.findIndex((x, i) => x === v && !used[i]);
+    if (k === -1) { valid = false; break; }
+    used[k] = true; idx.push(k);
+  }
+  if (!valid) {
+    m2status.innerHTML = '⚠ Certificate chứa số không có trong tập → không hợp lệ.';
+    return;
+  }
+  let sum = 0;
+  for (const v of cert) sum += v;
+  renderBox(m2verifybox, idx);
+  m2vcount.textContent = cert.length; // số phép cộng ~ kích thước certificate
+  if (sum === m2target) {
+    m2status.innerHTML = '⚡ Verify: ' + cert.join(' + ') + ' = <b>' + sum + '</b> = T → <b style="color:#2f855a">Yes!</b> '
+      + 'Chỉ ' + cert.length + ' phép cộng — đa thức. Đây là sức mạnh của NP: verify nhanh.';
+  } else {
+    m2status.innerHTML = '⚡ Verify: ' + cert.join(' + ') + ' = <b>' + sum + '</b> ≠ T(' + m2target + ') → certificate này KHÔNG chứng minh Yes.';
+  }
+});
+
+/* ===================== MODULE 3 — approximation ===================== */
+const GRAPHS = {
+  triangle: { n: 3, pos: [[110,60],[260,60],[185,190]], edges: [[0,1],[1,2],[0,2]] },
+  path:     { n: 4, pos: [[80,120],[200,120],[320,120],[440,120]], edges: [[0,1],[1,2],[2,3]] },
+  star:     { n: 5, pos: [[260,120],[110,50],[410,50],[110,200],[410,200]], edges: [[0,1],[0,2],[0,3],[0,4]] },
+  two:      { n: 5, pos: [[100,60],[250,60],[175,190],[400,80],[400,190]], edges: [[0,1],[1,2],[0,2],[3,4]] },
+};
+const m3svg = document.getElementById('m3svg');
+const m3status = document.getElementById('m3status');
+
+function approx2(n, edges) {
+  const covered = new Array(n).fill(false);
+  const cover = new Set();
+  const picked = [];
+  for (const [u, v] of edges) {
+    if (covered[u] || covered[v]) continue;
+    cover.add(u); cover.add(v);
+    covered[u] = covered[v] = true;
+    picked.push([u, v]);
+  }
+  return { cover, picked };
+}
+function optimalVC(n, edges) {
+  // brute-force: thử mọi tập con đỉnh, tìm cover nhỏ nhất phủ mọi cạnh
+  let best = null;
+  for (let mask = 0; mask < (1 << n); mask++) {
+    let ok = true;
+    for (const [u, v] of edges) {
+      if (!(mask & (1 << u)) && !(mask & (1 << v))) { ok = false; break; }
+    }
+    if (!ok) continue;
+    let cnt = 0; const set = new Set();
+    for (let i = 0; i < n; i++) if (mask & (1 << i)) { cnt++; set.add(i); }
+    if (best === null || cnt < best.size) best = set;
+  }
+  return best || new Set();
+}
+function drawGraph(g, coverSet) {
+  let svg = '';
+  // cạnh
+  for (const [u, v] of g.edges) {
+    const [x1, y1] = g.pos[u], [x2, y2] = g.pos[v];
+    svg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#a0aec0" stroke-width="3"/>`;
+  }
+  // đỉnh
+  for (let i = 0; i < g.n; i++) {
+    const [x, y] = g.pos[i];
+    const inC = coverSet && coverSet.has(i);
+    svg += `<circle cx="${x}" cy="${y}" r="20" fill="${inC ? '#f97316' : '#fff'}" stroke="${inC ? '#c05621' : '#4a5568'}" stroke-width="3"/>`;
+    svg += `<text x="${x}" y="${y + 5}" font-size="14" font-weight="700" text-anchor="middle" fill="${inC ? '#fff' : '#2d3748'}">${i}</text>`;
+  }
+  m3svg.innerHTML = svg;
+}
+
+function m3runFn() {
+  const g = GRAPHS[document.getElementById('m3sel').value];
+  const { cover, picked } = approx2(g.n, g.edges);
+  const opt = optimalVC(g.n, g.edges);
+  drawGraph(g, cover);
+  const a = cover.size, o = opt.size;
+  const ratio = o === 0 ? 1 : (a / o);
+  // thanh tỉ lệ: scale theo max(a, o, 1), tối đa hiển thị bound 2·OPT
+  const maxV = Math.max(a, o, 1);
+  document.getElementById('m3apx').style.width = (a / maxV * 100) + '%';
+  document.getElementById('m3apx').textContent = '|approx| = ' + a;
+  document.getElementById('m3opt').style.width = (o / maxV * 100) + '%';
+  document.getElementById('m3opt').textContent = 'OPT = ' + o;
+  m3status.innerHTML = '2-approx ghép ' + picked.length + ' cạnh → cover {' + [...cover].sort((x,y)=>x-y).join(',') + '} (size ' + a + '). '
+    + 'OPT = {' + [...opt].sort((x,y)=>x-y).join(',') + '} (size ' + o + '). '
+    + '<b>ratio = ' + a + '/' + o + ' ≈ ' + ratio.toFixed(2) + '</b> ≤ 2 ✓ (bound được chứng minh).';
+}
+document.getElementById('m3run').addEventListener('click', m3runFn);
+document.getElementById('m3sel').addEventListener('change', () => {
+  drawGraph(GRAPHS[document.getElementById('m3sel').value], null);
+  m3status.textContent = 'Bấm "Chạy" để so 2-approx vs optimal.';
+});
+
+/* init */
+m2setup();
+M1[3] && document.querySelectorAll('#m1chips .chip')[3].click(); // mặc định highlight SAT
+drawGraph(GRAPHS.path, null);
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+</body>
+</html>

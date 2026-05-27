@@ -170,6 +170,20 @@ Quy tắc ngón tay cái (ước lượng "lọt trong ~1 giây"):
 > - *"Nếu đề không cho constraint thì sao?"* — Hiếm. Nếu thiếu, hỏi/ước lượng từ ngữ cảnh (vd "username của toàn user" → cỡ triệu). Khi mơ hồ, nhắm `O(n log n)` cho an toàn.
 > - *"`10^8` phép/giây có chính xác không?"* — Ước lượng thô. Phép đơn giản (cộng, so sánh) nhanh hơn; phép nặng (chia, modulo, truy cập bộ nhớ rải rác) chậm hơn. Lấy `10^8` làm mốc thận trọng.
 
+### 3.1 Walk-through tính thời gian bằng số thật
+
+Cách quy đổi: lấy số phép tính ≈ công thức độ phức tạp thay `n` vào, rồi chia cho `10^8` phép/giây để ra giây.
+
+| Bài | `n` | Độ phức tạp | Số phép ≈ | Ước thời gian | Kết luận |
+|-----|-----|-------------|-----------|---------------|----------|
+| A | `10^5` | `O(n^2)` | `10^{10}` | ~100 s | TLE — cần tối ưu |
+| A | `10^5` | `O(n log n)` | `10^5 · 17 ≈ 1.7·10^6` | ~0.02 s | OK |
+| B | `500` | `O(n^3)` | `1.25·10^8` | ~1.25 s | Giáp ranh — coi chừng |
+| C | `25` | `O(2^n)` | `3.3·10^7` | ~0.3 s | OK |
+| C | `40` | `O(2^n)` | `1.1·10^{12}` | ~3 giờ | Vô vọng — cần meet-in-middle `O(2^{n/2})` |
+
+Riêng dòng cuối minh hoạ vì sao `n ≤ 20–25` là ranh giới của `2^n`: từ `n = 40`, `2^n` nhảy lên nghìn tỷ. Mẹo: `2^{40} = (2^{20})^2 ≈ (10^6)^2 = 10^{12}`.
+
 > 🔁 **Dừng lại tự kiểm tra.** Đề cho `n ≤ 5·10^5`, brute-force của bạn là `O(n^2)`. Có cần tối ưu không, và mục tiêu là gì?
 > <details><summary>Đáp án</summary>
 > `(5·10^5)^2 = 2.5·10^{11}` ≫ `10^8` → chắc chắn TLE, **phải** tối ưu. Mục tiêu: `O(n log n)` (~`5·10^5 · 19 ≈ 10^7`, kịp). Nghĩ tới sort + two pointers, hoặc binary search, hoặc heap.
@@ -262,6 +276,32 @@ Quy tắc ngón tay cái (ước lượng "lọt trong ~1 giây"):
 ## 7. Ví dụ áp dụng framework đầy đủ (đi qua 7 bước)
 
 Phần này đi qua **đủ 7 bước** cho 3 bài kinh điển, kèm code Go thể hiện *quá trình tư duy* từ brute-force → optimal.
+
+### 7.0 Cây quyết định nhanh (dùng kèm khi nhận pattern)
+
+Khi đã đọc đề ở bước 5, đi theo cây này để khoanh vùng kỹ thuật:
+
+```
+Bài hỏi gì?
+├─ Tối ưu (min/max/đếm cách)?
+│   ├─ Lựa chọn ảnh hưởng tương lai + bài con lặp?  → DP            (L23–L30)
+│   ├─ Chọn cục bộ tốt nhất + chứng minh được?       → Greedy        (L19–L22)
+│   └─ Liệt kê MỌI cấu hình (n nhỏ)?                  → Backtracking  (L18)
+├─ Truy vấn trên mảng/đoạn?
+│   ├─ Đã sorted, tìm biên/phần tử?                   → Binary search (L12)
+│   ├─ Subarray/substring liên tục?                   → Window/prefix (L14,L15)
+│   └─ Range query có cập nhật?                        → Segment tree  (L30)
+├─ Trên đồ thị/quan hệ?
+│   ├─ Lan toả/kết nối/ngắn nhất không trọng số?       → BFS/DFS       (L31)
+│   ├─ Ngắn nhất, trọng số ≥ 0?                         → Dijkstra      (L33)
+│   ├─ Thứ tự/phụ thuộc (DAG)?                          → Topo sort     (L32)
+│   └─ Nhóm/hợp-tìm?                                    → Union-Find    (L36)
+└─ Trên chuỗi?
+    ├─ Khớp 1 mẫu?                                       → KMP/Z/RK      (L40–L42)
+    └─ Nhiều mẫu/tiền tố chung?                          → Trie/Aho      (L43)
+```
+
+> ⚠ **Lỗi thường gặp.** Cây này là *điểm khởi đầu*, không phải phán quyết. Luôn quay lại bước 4: kỹ thuật chọn ra phải đạt độ phức tạp mục tiêu. Vd "subarray liên tục" mặc định gợi window, nhưng nếu có số âm thì rẽ sang prefix + hash (xem 🔁 ở mục 4).
 
 ### 7.1 Longest Substring Without Repeating Characters
 

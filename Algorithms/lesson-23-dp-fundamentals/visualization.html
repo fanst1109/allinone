@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 23 — DP Fundamentals</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .lead { color: #4a5568; max-width: 760px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.1); margin: 18px 0;
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px; }
+  .controls label { font-weight: 600; color: #2d3748; font-size: 14px; }
+  input[type="number"], input[type="text"] {
+    padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 15px; max-width: 120px; width: 100%; box-sizing: border-box;
+  }
+  .ctl-group { display: flex; flex-direction: column; gap: 4px; }
+  button {
+    padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;
+    font-size: 14px; font-weight: 600; background: #ef4444; color: white;
+  }
+  button:hover { background: #dc2626; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.toggle { background: #718096; }
+  button.toggle.active { background: #ef4444; }
+
+  .note { font-size: 14px; color: #4a5568; margin: 8px 0; }
+  .stat { display: inline-block; background: #fef2f2; color: #991b1b; border: 1px solid #fecaca;
+    border-radius: 6px; padding: 4px 10px; font-size: 13px; font-weight: 700; margin: 4px 6px 4px 0; }
+  .stat.good { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
+  .stat.blue { background: #eff6ff; color: #1e40af; border-color: #bfdbfe; }
+
+  svg { display: block; max-width: 100%; height: auto; }
+
+  /* call tree nodes */
+  .tnode rect { fill: #fff; stroke: #cbd5e0; stroke-width: 1.5; }
+  .tnode.dup rect { fill: #fed7d7; stroke: #e53e3e; }
+  .tnode.hit rect { fill: #c6f6d5; stroke: #38a169; }
+  .tnode text { font-size: 12px; font-weight: 700; fill: #2d3748; text-anchor: middle; }
+  .tedge { stroke: #a0aec0; stroke-width: 1.5; fill: none; }
+
+  /* dp table */
+  .dptable { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+  .cell {
+    width: 52px; height: 52px; border: 2px solid #cbd5e0; border-radius: 8px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: #f7fafc; font-weight: 700; transition: background .25s, border-color .25s, transform .25s;
+  }
+  .cell .idx { font-size: 10px; color: #718096; font-weight: 600; }
+  .cell .val { font-size: 16px; color: #2d3748; }
+  .cell.base { background: #bee3f8; border-color: #3182ce; }
+  .cell.active { background: #fefcbf; border-color: #d69e2e; transform: scale(1.12); }
+  .cell.dep { background: #fed7d7; border-color: #e53e3e; }
+  .cell.done { background: #c6f6d5; border-color: #38a169; }
+
+  .steps {
+    background: #2d3748; color: #e2e8f0; border-radius: 8px; padding: 12px 14px;
+    font-family: ui-monospace, monospace; font-size: 13px; min-height: 22px; margin-top: 10px;
+    white-space: pre-wrap; line-height: 1.5;
+  }
+
+  /* 5-step design */
+  .design-step {
+    border: 2px solid #e2e8f0; border-radius: 8px; padding: 14px 16px; margin: 10px 0;
+    background: #f7fafc; opacity: .45; transition: opacity .3s, border-color .3s, background .3s;
+  }
+  .design-step.on { opacity: 1; border-color: #ef4444; background: #fff; }
+  .design-step h4 { margin: 0 0 6px; color: #c53030; font-size: 15px; }
+  .design-step code { background: #edf2f7; padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  .design-step .body { font-size: 14px; color: #2d3748; line-height: 1.55; }
+
+  @media (max-width: 480px) {
+    .cell { width: 40px; height: 44px; }
+    .cell .val { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../tier-3-greedy/index.html">← Tier 3</a>
+  <span class="sep">·</span>
+  <span class="current">L23: DP Fundamentals</span>
+  <span class="sep">·</span>
+  <a href="../lesson-24-dp-1d/visualization.html">L24: DP 1 chiều →</a>
+</nav>
+
+<main>
+  <h1>Lesson 23 — Quy hoạch động: Nền tảng</h1>
+  <p class="lead">
+    DP = <strong>đệ quy + nhớ</strong>. Ba module dưới đây minh họa: (1) vì sao overlap làm naive nổ mũ và memo cứu thế nào;
+    (2) hai cách điền bảng top-down vs bottom-up; (3) khung thiết kế DP 5 bước qua bài climbing stairs.
+  </p>
+
+  <!-- ===================== MODULE 1 ===================== -->
+  <h2>1. Cây gọi Fibonacci — overlap vs cache</h2>
+  <div class="card">
+    <div class="controls">
+      <div class="ctl-group">
+        <label>n (3–7)</label>
+        <input type="number" id="m1n" value="5" min="3" max="7">
+      </div>
+      <button id="m1Naive" class="toggle active">Naive (tính lại)</button>
+      <button id="m1Memo" class="toggle">Memo (cache hit)</button>
+      <button id="m1Draw">Vẽ cây</button>
+    </div>
+    <div class="note">
+      <span class="stat" id="m1Calls">lời gọi: –</span>
+      <span class="stat blue" id="m1Distinct">state phân biệt: –</span>
+      <span class="stat good" id="m1Hits" style="display:none">cache hit: –</span>
+    </div>
+    <div class="note" id="m1Legend"></div>
+    <svg id="m1svg" width="760" height="380" viewBox="0 0 760 380"></svg>
+    <div class="steps" id="m1Steps">Chọn chế độ rồi bấm "Vẽ cây".</div>
+  </div>
+
+  <!-- ===================== MODULE 2 ===================== -->
+  <h2>2. Top-down vs Bottom-up — điền bảng dp</h2>
+  <div class="card">
+    <div class="controls">
+      <div class="ctl-group">
+        <label>n (2–10)</label>
+        <input type="number" id="m2n" value="6" min="2" max="10">
+      </div>
+      <button id="m2Top" class="toggle active">Top-down (memo)</button>
+      <button id="m2Bot" class="toggle">Bottom-up (table)</button>
+      <button id="m2Run">Chạy từng bước</button>
+      <button id="m2Reset" class="secondary">Reset</button>
+    </div>
+    <div class="note">dp[i] = số cách leo i bậc (Fibonacci). <span class="stat blue" id="m2Mode">chế độ: top-down</span></div>
+    <div class="dptable" id="m2Table"></div>
+    <div class="steps" id="m2Steps">Bấm "Chạy từng bước".</div>
+  </div>
+
+  <!-- ===================== MODULE 3 ===================== -->
+  <h2>3. Thiết kế DP 5 bước — Climbing Stairs</h2>
+  <div class="card">
+    <div class="controls">
+      <button id="m3Next">Bước tiếp →</button>
+      <button id="m3Reset" class="secondary">Về đầu</button>
+      <span class="stat blue" id="m3Counter">bước 0 / 5</span>
+    </div>
+    <div class="design-step" data-step="1">
+      <h4>Bước 1 — Định nghĩa STATE</h4>
+      <div class="body"><code>dp[i]</code> = số cách leo lên <strong>đúng bậc i</strong>. State là một câu rõ ràng — đây là nền móng, sai từ đây là sai hết.</div>
+    </div>
+    <div class="design-step" data-step="2">
+      <h4>Bước 2 — RECURRENCE (transition)</h4>
+      <div class="body">Bước cuối để tới bậc i: hoặc từ <code>i-1</code> (bước 1 bậc) hoặc từ <code>i-2</code> (bước 2 bậc). ⟹ <code>dp[i] = dp[i-1] + dp[i-2]</code>.</div>
+    </div>
+    <div class="design-step" data-step="3">
+      <h4>Bước 3 — BASE CASE</h4>
+      <div class="body"><code>dp[0] = 1</code> (1 cách "không làm gì"), <code>dp[1] = 1</code>. ⚠ Đặt <code>dp[0]=0</code> là sai — sẽ ra dp[2]=1 thay vì 2.</div>
+    </div>
+    <div class="design-step" data-step="4">
+      <h4>Bước 4 — THỨ TỰ TÍNH</h4>
+      <div class="body"><code>dp[i]</code> cần <code>dp[i-1], dp[i-2]</code> ⟹ điền từ <code>i = 2</code> tăng dần tới <code>n</code> (topological order của dependency).</div>
+    </div>
+    <div class="design-step" data-step="5">
+      <h4>Bước 5 — ĐÁP ÁN</h4>
+      <div class="body">Kết quả nằm ở <code>dp[n]</code>. Vd <code>n=5</code>: dãy 1,1,2,3,5,8 ⟹ <strong>dp[5] = 8</strong> cách.</div>
+    </div>
+  </div>
+</main>
+
+<script>
+// ============ MODULE 1: Fibonacci call tree ============
+const m1n = document.getElementById('m1n');
+const m1Naive = document.getElementById('m1Naive');
+const m1Memo = document.getElementById('m1Memo');
+const m1svg = document.getElementById('m1svg');
+const m1Steps = document.getElementById('m1Steps');
+const m1Calls = document.getElementById('m1Calls');
+const m1Distinct = document.getElementById('m1Distinct');
+const m1Hits = document.getElementById('m1Hits');
+const m1Legend = document.getElementById('m1Legend');
+let m1Mode = 'naive';
+
+m1Naive.onclick = () => { m1Mode = 'naive'; m1Naive.classList.add('active'); m1Memo.classList.remove('active'); drawM1(); };
+m1Memo.onclick = () => { m1Mode = 'memo'; m1Memo.classList.add('active'); m1Naive.classList.remove('active'); drawM1(); };
+document.getElementById('m1Draw').onclick = drawM1;
+
+function drawM1() {
+  const n = Math.max(3, Math.min(7, parseInt(m1n.value) || 5));
+  m1n.value = n;
+  // Build full naive call tree as nested objects, track per-value counts.
+  const counts = {};
+  let calls = 0;
+  const memoSet = new Set(); // for memo mode: values already computed
+  let hits = 0;
+  function build(k) {
+    calls++;
+    counts[k] = (counts[k] || 0) + 1;
+    const node = { k, children: [], hit: false };
+    if (m1Mode === 'memo') {
+      if (memoSet.has(k)) { node.hit = true; hits++; return node; } // cache hit: stop expanding
+      memoSet.add(k);
+    }
+    if (k >= 2) {
+      node.children.push(build(k - 1));
+      node.children.push(build(k - 2));
+    }
+    return node;
+  }
+  const root = build(n);
+
+  // layout: assign x by in-order leaf spread, y by depth
+  let leafX = 0;
+  const W = 760, levelH = 62;
+  function layout(node, depth) {
+    node.depth = depth;
+    if (node.children.length === 0) {
+      node.x = leafX; leafX += 1;
+    } else {
+      node.children.forEach(c => layout(c, depth + 1));
+      node.x = node.children.reduce((s, c) => s + c.x, 0) / node.children.length;
+    }
+  }
+  layout(root, 0);
+  const totalLeaves = Math.max(1, leafX);
+  const pad = 40;
+  const sx = (x) => pad + (x / Math.max(1, totalLeaves - 1)) * (W - 2 * pad);
+  const sy = (d) => 30 + d * levelH;
+
+  // dup values = computed more than once in naive (count>1)
+  const dupVals = new Set(Object.keys(counts).filter(k => counts[k] > 1).map(Number));
+
+  let svg = '';
+  // edges first
+  function edges(node) {
+    node.children.forEach(c => {
+      svg += `<path class="tedge" d="M ${sx(node.x)} ${sy(node.depth) + 14} L ${sx(c.x)} ${sy(c.depth) - 14}"/>`;
+      edges(c);
+    });
+  }
+  edges(root);
+  // nodes
+  function nodes(node) {
+    let cls = 'tnode';
+    if (m1Mode === 'memo' && node.hit) cls += ' hit';
+    else if (m1Mode === 'naive' && node.k >= 2 && dupVals.has(node.k)) cls += ' dup';
+    const cx = sx(node.x), cy = sy(node.depth);
+    svg += `<g class="${cls}"><rect x="${cx - 22}" y="${cy - 14}" width="44" height="28" rx="6"/>` +
+           `<text x="${cx}" y="${cy + 4}">f(${node.k})${node.hit ? '✓' : ''}</text></g>`;
+    node.children.forEach(nodes);
+  }
+  nodes(root);
+
+  // size svg to fit depth
+  let maxDepth = 0; (function md(n2){ maxDepth = Math.max(maxDepth, n2.depth); n2.children.forEach(md); })(root);
+  const H = sy(maxDepth) + 30;
+  m1svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  m1svg.setAttribute('height', H);
+  m1svg.innerHTML = svg;
+
+  const distinct = Object.keys(counts).length;
+  m1Calls.textContent = `lời gọi: ${calls}`;
+  m1Distinct.textContent = `state phân biệt: ${distinct}`;
+  if (m1Mode === 'memo') {
+    m1Hits.style.display = '';
+    m1Hits.textContent = `cache hit: ${hits}`;
+    m1Legend.innerHTML = '<span style="color:#38a169;font-weight:700">■</span> node xanh = cache hit (dừng mở rộng, tra sổ O(1)).';
+    m1Steps.textContent = `Memo: chỉ ${distinct} state phân biệt được tính thật, ${hits} lần còn lại là cache hit → tổng O(n).\nNaive cùng n cần ${naiveCalls(n)} lời gọi → memo cắt ${naiveCalls(n) - calls} lời gọi.`;
+  } else {
+    m1Hits.style.display = 'none';
+    m1Legend.innerHTML = '<span style="color:#e53e3e;font-weight:700">■</span> node đỏ = giá trị bị tính LẠI nhiều lần (overlap). Đếm bao nhiêu node cùng f(k).';
+    // show repeat counts
+    const reps = Object.keys(counts).filter(k => counts[k] > 1)
+      .sort((a, b) => a - b).map(k => `f(${k})×${counts[k]}`).join('  ');
+    m1Steps.textContent = `Naive: ${calls} lời gọi cho ${distinct} state phân biệt → lãng phí ${calls - distinct} lần tính trùng.\nTính trùng: ${reps || '(không)'}\n⟹ Đây chính là overlap. Memo sẽ cắt hết phần trùng.`;
+  }
+}
+function naiveCalls(n) { // số lời gọi fibNaive(n)
+  let a = 1, b = 1; // calls(0)=calls(1)=1
+  if (n < 2) return 1;
+  for (let i = 2; i <= n; i++) { const c = a + b + 1; a = b; b = c; }
+  return b;
+}
+
+// ============ MODULE 2: top-down vs bottom-up dp table ============
+const m2n = document.getElementById('m2n');
+const m2Top = document.getElementById('m2Top');
+const m2Bot = document.getElementById('m2Bot');
+const m2Table = document.getElementById('m2Table');
+const m2Steps = document.getElementById('m2Steps');
+const m2Mode = document.getElementById('m2Mode');
+let m2mode = 'top';
+let m2timer = null;
+
+m2Top.onclick = () => { m2mode = 'top'; m2Top.classList.add('active'); m2Bot.classList.remove('active'); m2Mode.textContent = 'chế độ: top-down'; resetM2(); };
+m2Bot.onclick = () => { m2mode = 'bot'; m2Bot.classList.add('active'); m2Top.classList.remove('active'); m2Mode.textContent = 'chế độ: bottom-up'; resetM2(); };
+document.getElementById('m2Reset').onclick = resetM2;
+document.getElementById('m2Run').onclick = runM2;
+
+function buildM2Table(n) {
+  m2Table.innerHTML = '';
+  for (let i = 0; i <= n; i++) {
+    const c = document.createElement('div');
+    c.className = 'cell'; c.id = 'm2c' + i;
+    c.innerHTML = `<span class="idx">dp[${i}]</span><span class="val">·</span>`;
+    m2Table.appendChild(c);
+  }
+}
+function setCell(i, val, cls) {
+  const c = document.getElementById('m2c' + i);
+  if (!c) return;
+  if (val !== null) c.querySelector('.val').textContent = val;
+  c.className = 'cell' + (cls ? ' ' + cls : '');
+}
+function resetM2() {
+  if (m2timer) { clearInterval(m2timer); m2timer = null; }
+  const n = clampM2();
+  buildM2Table(n);
+  m2Steps.textContent = 'Bấm "Chạy từng bước".';
+}
+function clampM2() { const n = Math.max(2, Math.min(10, parseInt(m2n.value) || 6)); m2n.value = n; return n; }
+
+function runM2() {
+  const n = clampM2();
+  buildM2Table(n);
+  if (m2timer) clearInterval(m2timer);
+  const steps = [];
+  if (m2mode === 'bot') {
+    // bottom-up: base then i=2..n increasing
+    steps.push({ act: 'base', i: 0, v: 1 });
+    steps.push({ act: 'base', i: 1, v: 1 });
+    const dp = [1, 1];
+    for (let i = 2; i <= n; i++) { dp[i] = dp[i-1] + dp[i-2]; steps.push({ act: 'fill', i, v: dp[i], a: i-1, b: i-2 }); }
+  } else {
+    // top-down: emulate recursion fill order (post-order). base first time computed.
+    const computed = {};
+    function solve(k) {
+      if (k < 2) { if (computed[k] === undefined) { computed[k] = k === 0 ? 1 : 1; steps.push({ act: 'base', i: k, v: computed[k] }); } return computed[k]; }
+      if (computed[k] !== undefined) { steps.push({ act: 'hit', i: k, v: computed[k] }); return computed[k]; }
+      const a = solve(k - 1), b = solve(k - 2);
+      computed[k] = a + b;
+      steps.push({ act: 'fill', i: k, v: computed[k], a: k-1, b: k-2 });
+      return computed[k];
+    }
+    solve(n);
+  }
+  let idx = 0;
+  m2timer = setInterval(() => {
+    if (idx >= steps.length) {
+      clearInterval(m2timer); m2timer = null;
+      setCell(n, null, 'done');
+      m2Steps.textContent += `\n⟹ Đáp án dp[${n}] = ${document.getElementById('m2c'+n).querySelector('.val').textContent}.`;
+      return;
+    }
+    // clear transient highlights
+    for (let i = 0; i <= n; i++) { const c = document.getElementById('m2c'+i); if (c && (c.classList.contains('active') || c.classList.contains('dep'))) { c.classList.remove('active','dep'); if (c.querySelector('.val').textContent !== '·') c.classList.add('done'); } }
+    const s = steps[idx];
+    if (s.act === 'base') { setCell(s.i, s.v, 'base'); m2Steps.textContent = `base: dp[${s.i}] = ${s.v}`; }
+    else if (s.act === 'hit') { setCell(s.i, null, 'done'); m2Steps.textContent = `cache HIT: dp[${s.i}] đã có = ${s.v} (top-down tra sổ, không tính lại)`; }
+    else { setCell(s.a, null, 'dep'); setCell(s.b, null, 'dep'); setCell(s.i, s.v, 'active'); m2Steps.textContent = `dp[${s.i}] = dp[${s.a}] + dp[${s.b}] = ${s.v}`; }
+    idx++;
+  }, 850);
+}
+
+// ============ MODULE 3: 5-step design ============
+let m3step = 0;
+const m3Counter = document.getElementById('m3Counter');
+const m3steps = [...document.querySelectorAll('.design-step')];
+function renderM3() {
+  m3steps.forEach(el => el.classList.toggle('on', parseInt(el.dataset.step) <= m3step));
+  m3Counter.textContent = `bước ${m3step} / 5`;
+}
+document.getElementById('m3Next').onclick = () => { if (m3step < 5) m3step++; renderM3(); };
+document.getElementById('m3Reset').onclick = () => { m3step = 0; renderM3(); };
+
+// init
+drawM1();
+resetM2();
+renderM3();
+</script>
+
+<!-- README modal + TOC + favicon -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+
+</body>
+</html>

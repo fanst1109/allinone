@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 24 — Quy hoạch động 1 chiều</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .lead { color: #4a5568; max-width: 780px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.1); margin: 18px 0;
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 16px; }
+  .ctl-group { display: flex; flex-direction: column; gap: 4px; }
+  label { font-weight: 600; color: #2d3748; font-size: 14px; }
+  select, input[type="text"] {
+    padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 15px; max-width: 280px; width: 100%; box-sizing: border-box;
+  }
+  button {
+    padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;
+    font-size: 14px; font-weight: 600; background: #4299e1; color: white;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+
+  /* mảng phần tử */
+  .arr { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+  .cell {
+    min-width: 44px; height: 44px; padding: 0 4px; border-radius: 6px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px; border: 2px solid #cbd5e0; background: #f7fafc;
+    transition: background .25s, border-color .25s, transform .25s; box-sizing: border-box;
+  }
+  .cell .idx { font-size: 10px; color: #a0aec0; font-weight: 600; }
+  .cell.cur { border-color: #d69e2e; background: #fefcbf; transform: translateY(-3px); }
+  .cell.done { border-color: #38a169; background: #f0fff4; }
+  .cell.best { border-color: #805ad5; background: #faf5ff; }
+
+  /* bảng dp */
+  .dprow { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; align-items: center; }
+  .dprow .tag { font-size: 13px; font-weight: 700; color: #4a5568; min-width: 46px; }
+  .dpcell {
+    min-width: 44px; height: 38px; border-radius: 6px; display: flex; align-items: center;
+    justify-content: center; font-weight: 700; font-size: 14px; border: 2px solid #e2e8f0;
+    background: #fff; color: #2d3748; box-sizing: border-box;
+    transition: background .25s, border-color .25s;
+  }
+  .dpcell.filled { border-color: #3182ce; background: #ebf8ff; }
+  .dpcell.cur { border-color: #d69e2e; background: #fefcbf; }
+  .dpcell.empty { color: #cbd5e0; }
+
+  .formula {
+    font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 14px;
+    background: #1a202c; color: #e2e8f0; padding: 12px 14px; border-radius: 8px;
+    margin: 10px 0; line-height: 1.6; overflow-x: auto;
+  }
+  .formula .hl { color: #f6e05e; font-weight: 700; }
+  .status { font-size: 15px; font-weight: 600; color: #2d3748; margin: 10px 0; min-height: 22px; }
+  .result { font-size: 17px; font-weight: 800; color: #22543d; margin-top: 8px; }
+  .note { font-size: 13px; color: #718096; margin-top: 8px; }
+
+  svg { max-width: 100%; height: auto; }
+  .lis-svg-wrap { overflow-x: auto; }
+
+  @media (max-width: 480px) {
+    .cell, .dpcell { min-width: 36px; font-size: 12px; }
+    .cell { height: 40px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-23-dp-fundamentals/visualization.html">← L23: DP Fundamentals</a>
+  <span class="sep">·</span>
+  <span class="current">L24: DP 1 chiều</span>
+  <span class="sep">·</span>
+  <a href="../lesson-25-knapsack-family/visualization.html">L25: Knapsack →</a>
+</nav>
+
+<div class="container">
+  <header>
+    <h1>Lesson 24 — Quy hoạch động 1 chiều</h1>
+    <p class="lead">
+      DP 1D: state là <strong>một chỉ số</strong> <code>dp[i]</code>, transition từ vài ô liền trước.
+      Ba module dưới cho bạn <em>thấy tận mắt</em> bảng <code>dp[]</code> được điền từng ô, Kadane reset/continue,
+      và LIS dựng đường tăng dài nhất.
+    </p>
+  </header>
+
+  <main>
+
+  <!-- ============ MODULE 1: DP TABLE FILLER ============ -->
+  <h2>Module 1 — DP table filler</h2>
+  <div class="card">
+    <p class="lead">Chọn một bài DP 1D. Nhấn <strong>Chạy từng bước</strong> để xem mảng <code>dp[]</code>
+      được điền từng ô, kèm công thức transition đang áp dụng.</p>
+    <div class="controls">
+      <div class="ctl-group">
+        <label for="m1problem">Bài toán</label>
+        <select id="m1problem">
+          <option value="rob">House robber — dp[i]=max(dp[i-1], dp[i-2]+nums[i])</option>
+          <option value="kadane">Kadane — dp[i]=max(nums[i], dp[i-1]+nums[i])</option>
+          <option value="decode">Decode ways — dp[i]=(1 ký tự)+(cặp 10..26)</option>
+        </select>
+      </div>
+      <div class="ctl-group">
+        <label for="m1input">Dữ liệu (mảng / chuỗi)</label>
+        <input type="text" id="m1input" value="2,7,9,3,1">
+      </div>
+      <button id="m1step">Chạy từng bước ▶</button>
+      <button id="m1all" class="secondary">Chạy hết ⏭</button>
+      <button id="m1reset" class="secondary">Reset</button>
+    </div>
+    <div class="arr" id="m1arr"></div>
+    <div class="dprow" id="m1dprow"><span class="tag">dp[]</span></div>
+    <div class="formula" id="m1formula">Chọn bài và nhấn Chạy.</div>
+    <div class="status" id="m1status"></div>
+    <div class="result" id="m1result"></div>
+    <p class="note">House robber & Decode dùng <code>nums</code> số; Decode dùng chuỗi số (vd <code>226</code>).
+      Nhập sai sẽ tự chuyển về ví dụ mặc định của bài.</p>
+  </div>
+
+  <!-- ============ MODULE 2: KADANE VISUALIZER ============ -->
+  <h2>Module 2 — Kadane visualizer (reset vs continue)</h2>
+  <div class="card">
+    <p class="lead">Đi qua từng phần tử. Tại mỗi bước, <code>cur</code> hoặc <strong>nối tiếp</strong>
+      (cur+x) hoặc <strong>reset</strong> (=x, khi cur đang âm). <code>best</code> chạy theo giá trị lớn nhất.</p>
+    <div class="controls">
+      <div class="ctl-group">
+        <label for="m2input">Mảng số</label>
+        <input type="text" id="m2input" value="-2,1,-3,4,-1,2,1,-5,4">
+      </div>
+      <button id="m2step">Bước ▶</button>
+      <button id="m2all" class="secondary">Chạy hết ⏭</button>
+      <button id="m2reset" class="secondary">Reset</button>
+    </div>
+    <div class="arr" id="m2arr"></div>
+    <div class="formula" id="m2formula">Nhấn Bước để bắt đầu Kadane.</div>
+    <div class="status" id="m2status">cur = — , best = —</div>
+    <div class="result" id="m2result"></div>
+    <p class="note">Ô vàng = đang xét. Ô xanh lá = thuộc đoạn tốt nhất tìm được tới giờ. Reset xảy ra khi
+      <code>cur &lt; 0</code> trước khi cộng.</p>
+  </div>
+
+  <!-- ============ MODULE 3: LIS ============ -->
+  <h2>Module 3 — Longest Increasing Subsequence</h2>
+  <div class="card">
+    <p class="lead">Thuật toán <code>O(n²)</code>: <code>dp[i] = 1 + max{dp[j] : j&lt;i, nums[j]&lt;nums[i]}</code>.
+      Animate điền <code>dp[]</code> rồi tô <strong>đường tăng dài nhất</strong>.</p>
+    <div class="controls">
+      <div class="ctl-group">
+        <label for="m3input">Mảng số</label>
+        <input type="text" id="m3input" value="10,9,2,5,3,7,101,18">
+      </div>
+      <button id="m3step">Bước ▶</button>
+      <button id="m3all" class="secondary">Chạy hết ⏭</button>
+      <button id="m3reset" class="secondary">Reset</button>
+    </div>
+    <div class="lis-svg-wrap">
+      <svg id="m3svg" width="640" height="220" viewBox="0 0 640 220"></svg>
+    </div>
+    <div class="dprow" id="m3dprow"><span class="tag">dp[]</span></div>
+    <div class="formula" id="m3formula">Nhấn Bước để điền dp[].</div>
+    <div class="status" id="m3status"></div>
+    <div class="result" id="m3result"></div>
+    <p class="note">Mỗi điểm là một phần tử (cao = giá trị). Đường tím nối LIS dài nhất khi chạy xong.</p>
+  </div>
+
+  </main>
+</div>
+
+<script>
+// ---------- tiện ích ----------
+function parseNums(str, fallback) {
+  const parts = str.split(/[,\s]+/).map(s => s.trim()).filter(s => s !== '');
+  const nums = parts.map(Number);
+  if (nums.length === 0 || nums.some(isNaN)) return fallback.slice();
+  return nums;
+}
+function maxOf(a, b) { return a > b ? a : b; }
+
+// ============ MODULE 1: DP TABLE FILLER ============
+(function () {
+  const sel = document.getElementById('m1problem');
+  const inp = document.getElementById('m1input');
+  const arrEl = document.getElementById('m1arr');
+  const dpEl = document.getElementById('m1dprow');
+  const formulaEl = document.getElementById('m1formula');
+  const statusEl = document.getElementById('m1status');
+  const resultEl = document.getElementById('m1result');
+  const btnStep = document.getElementById('m1step');
+  const btnAll = document.getElementById('m1all');
+  const btnReset = document.getElementById('m1reset');
+
+  const defaults = { rob: '2,7,9,3,1', kadane: '5,4,-1,7,8', decode: '226' };
+  let state = null;
+
+  function build() {
+    const prob = sel.value;
+    let dp, n, nums = null, s = null, labelTag = 'dp[]';
+    if (prob === 'decode') {
+      s = inp.value.replace(/[^0-9]/g, '');
+      if (s.length === 0) { s = defaults.decode; inp.value = s; }
+      n = s.length;
+      dp = new Array(n + 1).fill(null);
+    } else {
+      nums = parseNums(inp.value, parseNums(defaults[prob], [1]));
+      n = nums.length;
+      dp = (prob === 'rob') ? new Array(n).fill(null) : new Array(n).fill(null);
+    }
+    state = { prob, nums, s, n, dp, i: 0, done: false };
+    render();
+    formulaEl.textContent = 'Sẵn sàng. Nhấn "Chạy từng bước".';
+    statusEl.textContent = '';
+    resultEl.textContent = '';
+  }
+
+  function render() {
+    const { prob, nums, s, dp } = state;
+    // mảng dữ liệu
+    arrEl.innerHTML = '';
+    const items = prob === 'decode' ? s.split('') : nums.map(String);
+    items.forEach((v, k) => {
+      const c = document.createElement('div');
+      c.className = 'cell';
+      c.innerHTML = `<span class="idx">${k}</span>${v}`;
+      arrEl.appendChild(c);
+    });
+    // bảng dp
+    dpEl.innerHTML = '<span class="tag">dp[]</span>';
+    dp.forEach((v, k) => {
+      const c = document.createElement('div');
+      c.className = 'dpcell' + (v === null ? ' empty' : ' filled');
+      c.textContent = v === null ? '·' : v;
+      c.dataset.k = k;
+      dpEl.appendChild(c);
+    });
+  }
+
+  function highlight(curArr, curDp) {
+    [...arrEl.children].forEach((c, k) => {
+      c.classList.toggle('cur', curArr.includes(k));
+    });
+    [...dpEl.querySelectorAll('.dpcell')].forEach(c => {
+      const k = +c.dataset.k;
+      c.classList.toggle('cur', curDp === k);
+    });
+  }
+
+  function step() {
+    if (!state) build();
+    const st = state;
+    if (st.done) return;
+    const { prob } = st;
+
+    if (prob === 'rob') {
+      const i = st.i, nums = st.nums, dp = st.dp;
+      if (i === 0) {
+        dp[0] = nums[0];
+        formulaEl.innerHTML = `dp[0] = nums[0] = <span class="hl">${nums[0]}</span> (base)`;
+        highlight([0], 0);
+      } else if (i === 1) {
+        dp[1] = maxOf(nums[0], nums[1]);
+        formulaEl.innerHTML = `dp[1] = max(nums[0], nums[1]) = max(${nums[0]}, ${nums[1]}) = <span class="hl">${dp[1]}</span>`;
+        highlight([0, 1], 1);
+      } else {
+        const skip = dp[i - 1], take = dp[i - 2] + nums[i];
+        dp[i] = maxOf(skip, take);
+        formulaEl.innerHTML = `dp[${i}] = max(dp[${i - 1}]=${skip}, dp[${i - 2}]+nums[${i}]=${dp[i - 2]}+${nums[i]}=${take}) = <span class="hl">${dp[i]}</span>`;
+        highlight([i], i);
+      }
+      st.i++;
+      if (st.i >= st.n) finishRob();
+    } else if (prob === 'kadane') {
+      const i = st.i, nums = st.nums, dp = st.dp;
+      if (i === 0) {
+        dp[0] = nums[0]; st.best = nums[0];
+        formulaEl.innerHTML = `dp[0] = nums[0] = <span class="hl">${nums[0]}</span>; best = ${nums[0]}`;
+        highlight([0], 0);
+      } else {
+        const cont = dp[i - 1] + nums[i];
+        dp[i] = maxOf(nums[i], cont);
+        const reset = nums[i] >= cont;
+        st.best = maxOf(st.best, dp[i]);
+        formulaEl.innerHTML = `dp[${i}] = max(nums[${i}]=${nums[i]}, dp[${i - 1}]+nums[${i}]=${cont}) = <span class="hl">${dp[i]}</span> ${reset ? '(RESET)' : '(continue)'} · best=${st.best}`;
+        highlight([i], i);
+      }
+      st.i++;
+      if (st.i >= st.n) finishKadane();
+    } else { // decode
+      const i = st.i, s = st.s, dp = st.dp;
+      if (i === 0) {
+        dp[0] = 1;
+        formulaEl.innerHTML = `dp[0] = <span class="hl">1</span> (chuỗi rỗng có 1 cách)`;
+        highlight([], 0);
+        st.i = 1;
+      } else if (i === 1) {
+        dp[1] = s[0] === '0' ? 0 : 1;
+        formulaEl.innerHTML = `dp[1]: '${s[0]}'${s[0] === '0' ? "='0' → 0 cách" : "≠'0' → +dp[0]"} = <span class="hl">${dp[1]}</span>`;
+        highlight([0], 1);
+        st.i = 2;
+      } else {
+        let cur = 0;
+        const one = s[i - 1] !== '0';
+        if (one) cur += dp[i - 1];
+        const two = (s.charCodeAt(i - 2) - 48) * 10 + (s.charCodeAt(i - 1) - 48);
+        const pair = two >= 10 && two <= 26;
+        if (pair) cur += dp[i - 2];
+        dp[i] = cur;
+        formulaEl.innerHTML = `dp[${i}]: ${one ? `'${s[i - 1]}'≠0 → +dp[${i - 1}]=${dp[i - 1]}` : `'${s[i - 1]}'=0 → +0`}; "${s.substr(i - 2, 2)}"=${two}${pair ? `∈[10,26] → +dp[${i - 2}]=${dp[i - 2]}` : `∉[10,26] → +0`} = <span class="hl">${cur}</span>`;
+        highlight([i - 2, i - 1], i);
+        st.i++;
+      }
+      if (st.i > st.n) finishDecode();
+    }
+    render2();
+  }
+
+  function render2() {
+    // cập nhật giá trị dp mà không mất highlight
+    const dp = state.dp;
+    [...dpEl.querySelectorAll('.dpcell')].forEach(c => {
+      const k = +c.dataset.k;
+      const v = dp[k];
+      c.textContent = v === null ? '·' : v;
+      c.classList.toggle('empty', v === null);
+      c.classList.toggle('filled', v !== null);
+    });
+  }
+
+  function finishRob() {
+    state.done = true;
+    resultEl.textContent = `Kết quả: dp[${state.n - 1}] = ${state.dp[state.n - 1]} (tiền trộm tối đa)`;
+  }
+  function finishKadane() {
+    state.done = true;
+    resultEl.textContent = `Kết quả: max(dp[i]) = ${state.best} (tổng đoạn con lớn nhất)`;
+  }
+  function finishDecode() {
+    state.done = true;
+    resultEl.textContent = `Kết quả: dp[${state.n}] = ${state.dp[state.n]} (số cách giải mã)`;
+  }
+
+  btnStep.addEventListener('click', () => { if (!state || state.done) { if (!state) build(); } step(); });
+  btnAll.addEventListener('click', () => {
+    if (!state) build();
+    let guard = 0;
+    while (!state.done && guard++ < 5000) step();
+  });
+  btnReset.addEventListener('click', build);
+  sel.addEventListener('change', () => { inp.value = defaults[sel.value]; build(); });
+  inp.addEventListener('change', build);
+  build();
+})();
+
+// ============ MODULE 2: KADANE VISUALIZER ============
+(function () {
+  const inp = document.getElementById('m2input');
+  const arrEl = document.getElementById('m2arr');
+  const formulaEl = document.getElementById('m2formula');
+  const statusEl = document.getElementById('m2status');
+  const resultEl = document.getElementById('m2result');
+  const btnStep = document.getElementById('m2step');
+  const btnAll = document.getElementById('m2all');
+  const btnReset = document.getElementById('m2reset');
+  let st = null;
+
+  function build() {
+    const nums = parseNums(inp.value, [-2, 1, -3, 4, -1, 2, 1, -5, 4]);
+    st = { nums, i: 0, cur: 0, best: -Infinity, tmpStart: 0, bestL: 0, bestR: 0, done: false };
+    render();
+    formulaEl.textContent = 'Nhấn Bước để bắt đầu Kadane.';
+    statusEl.textContent = 'cur = — , best = —';
+    resultEl.textContent = '';
+  }
+
+  function render() {
+    arrEl.innerHTML = '';
+    st.nums.forEach((v, k) => {
+      const c = document.createElement('div');
+      c.className = 'cell';
+      c.innerHTML = `<span class="idx">${k}</span>${v}`;
+      c.dataset.k = k;
+      arrEl.appendChild(c);
+    });
+  }
+
+  function paint() {
+    [...arrEl.children].forEach(c => {
+      const k = +c.dataset.k;
+      c.classList.toggle('cur', k === st.i);
+      const inBest = st.best > -Infinity && k >= st.bestL && k <= st.bestR;
+      c.classList.toggle('best', inBest && k !== st.i);
+    });
+  }
+
+  function step() {
+    if (!st) build();
+    if (st.done) return;
+    const i = st.i, nums = st.nums;
+    if (i === 0) {
+      st.cur = nums[0]; st.best = nums[0]; st.tmpStart = 0; st.bestL = 0; st.bestR = 0;
+      formulaEl.innerHTML = `Khởi tạo: cur = best = nums[0] = <span class="hl">${nums[0]}</span>`;
+    } else {
+      const x = nums[i];
+      let action;
+      if (st.cur < 0) { // reset
+        st.cur = x; st.tmpStart = i; action = `cur &lt; 0 → RESET: cur = nums[${i}] = ${x}`;
+      } else {
+        st.cur += x; action = `continue: cur += nums[${i}] → ${st.cur}`;
+      }
+      if (st.cur > st.best) { st.best = st.cur; st.bestL = st.tmpStart; st.bestR = i; }
+      formulaEl.innerHTML = `i=${i}, nums[${i}]=${x}: <span class="hl">${action}</span>`;
+    }
+    statusEl.textContent = `cur = ${st.cur} , best = ${st.best} (đoạn nums[${st.bestL}..${st.bestR}])`;
+    paint();
+    st.i++;
+    if (st.i >= nums.length) {
+      st.done = true;
+      const seg = nums.slice(st.bestL, st.bestR + 1).join(', ');
+      resultEl.textContent = `Kết quả: tổng lớn nhất = ${st.best}, đoạn [${seg}] (chỉ số ${st.bestL}..${st.bestR})`;
+    }
+  }
+
+  btnStep.addEventListener('click', step);
+  btnAll.addEventListener('click', () => { if (!st) build(); let g = 0; while (!st.done && g++ < 5000) step(); });
+  btnReset.addEventListener('click', build);
+  inp.addEventListener('change', build);
+  build();
+})();
+
+// ============ MODULE 3: LIS ============
+(function () {
+  const inp = document.getElementById('m3input');
+  const svg = document.getElementById('m3svg');
+  const dpEl = document.getElementById('m3dprow');
+  const formulaEl = document.getElementById('m3formula');
+  const statusEl = document.getElementById('m3status');
+  const resultEl = document.getElementById('m3result');
+  const btnStep = document.getElementById('m3step');
+  const btnAll = document.getElementById('m3all');
+  const btnReset = document.getElementById('m3reset');
+  const NS = 'http://www.w3.org/2000/svg';
+  let st = null;
+
+  function build() {
+    const nums = parseNums(inp.value, [10, 9, 2, 5, 3, 7, 101, 18]);
+    st = { nums, n: nums.length, dp: new Array(nums.length).fill(null),
+           parent: new Array(nums.length).fill(-1), i: 0, done: false };
+    drawPoints();
+    renderDp();
+    formulaEl.textContent = 'Nhấn Bước để điền dp[].';
+    statusEl.textContent = '';
+    resultEl.textContent = '';
+  }
+
+  function coords() {
+    const { nums, n } = st;
+    const W = 640, H = 220, padX = 30, padY = 24;
+    const lo = Math.min(...nums), hi = Math.max(...nums);
+    const span = hi - lo || 1;
+    const stepX = n > 1 ? (W - 2 * padX) / (n - 1) : 0;
+    return nums.map((v, k) => ({
+      x: padX + k * stepX,
+      y: H - padY - ((v - lo) / span) * (H - 2 * padY),
+      v, k
+    }));
+  }
+
+  function drawPoints(pathIdx) {
+    svg.innerHTML = '';
+    const pts = coords();
+    // đường LIS (nếu có)
+    if (pathIdx && pathIdx.length > 1) {
+      let d = '';
+      pathIdx.forEach((k, j) => { d += (j === 0 ? 'M' : 'L') + pts[k].x + ' ' + pts[k].y + ' '; });
+      const path = document.createElementNS(NS, 'path');
+      path.setAttribute('d', d.trim());
+      path.setAttribute('stroke', '#805ad5');
+      path.setAttribute('stroke-width', '3');
+      path.setAttribute('fill', 'none');
+      svg.appendChild(path);
+    }
+    pts.forEach(p => {
+      const inPath = pathIdx && pathIdx.includes(p.k);
+      const isCur = !st.done && p.k === st.i;
+      const circ = document.createElementNS(NS, 'circle');
+      circ.setAttribute('cx', p.x); circ.setAttribute('cy', p.y);
+      circ.setAttribute('r', isCur ? 9 : 7);
+      circ.setAttribute('fill', inPath ? '#805ad5' : (st.dp[p.k] !== null ? '#3182ce' : '#cbd5e0'));
+      circ.setAttribute('stroke', isCur ? '#d69e2e' : '#fff');
+      circ.setAttribute('stroke-width', isCur ? 3 : 2);
+      svg.appendChild(circ);
+      const t = document.createElementNS(NS, 'text');
+      t.setAttribute('x', p.x); t.setAttribute('y', p.y - 12);
+      t.setAttribute('text-anchor', 'middle');
+      t.setAttribute('font-size', '11'); t.setAttribute('fill', '#4a5568');
+      t.textContent = p.v;
+      svg.appendChild(t);
+    });
+  }
+
+  function renderDp() {
+    dpEl.innerHTML = '<span class="tag">dp[]</span>';
+    st.dp.forEach((v, k) => {
+      const c = document.createElement('div');
+      c.className = 'dpcell' + (v === null ? ' empty' : ' filled') + (k === st.i && !st.done ? ' cur' : '');
+      c.textContent = v === null ? '·' : v;
+      dpEl.appendChild(c);
+    });
+  }
+
+  function bestPath() {
+    let bi = 0;
+    for (let k = 1; k < st.n; k++) if ((st.dp[k] || 0) > (st.dp[bi] || 0)) bi = k;
+    const path = [];
+    let cur = bi;
+    while (cur !== -1) { path.unshift(cur); cur = st.parent[cur]; }
+    return { path, len: st.dp[bi] || 0 };
+  }
+
+  function step() {
+    if (!st) build();
+    if (st.done) return;
+    const i = st.i, nums = st.nums, dp = st.dp;
+    dp[i] = 1;
+    let from = -1;
+    for (let j = 0; j < i; j++) {
+      if (nums[j] < nums[i] && dp[j] + 1 > dp[i]) { dp[i] = dp[j] + 1; from = j; }
+    }
+    st.parent[i] = from;
+    formulaEl.innerHTML = `dp[${i}] = 1 + max{dp[j] : j&lt;${i}, nums[j]&lt;${nums[i]}} = <span class="hl">${dp[i]}</span>${from >= 0 ? ` (nối từ dp[${from}])` : ' (tự thân)'}`;
+    st.i++;
+    if (st.i >= st.n) {
+      st.done = true;
+      const { path, len } = bestPath();
+      drawPoints(path);
+      renderDp();
+      statusEl.textContent = `Hoàn tất. LIS dài ${len}.`;
+      resultEl.textContent = `Kết quả: LIS = ${len}, đường: [${path.map(k => nums[k]).join(' → ')}]`;
+      return;
+    }
+    drawPoints();
+    renderDp();
+    statusEl.textContent = `Đang xét i=${st.i}.`;
+  }
+
+  btnStep.addEventListener('click', step);
+  btnAll.addEventListener('click', () => { if (!st) build(); let g = 0; while (!st.done && g++ < 5000) step(); });
+  btnReset.addEventListener('click', build);
+  inp.addEventListener('change', build);
+  build();
+})();
+</script>
+
+<!-- README modal + TOC + favicon -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+</body>
+</html>

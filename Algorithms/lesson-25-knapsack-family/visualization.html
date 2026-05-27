@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 25 — Knapsack Family</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .lead { color: #4a5568; max-width: 780px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.1); margin: 18px 0;
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 16px; }
+  .ctl-group { display: flex; flex-direction: column; gap: 4px; }
+  .ctl-group label { font-weight: 600; color: #2d3748; font-size: 13px; }
+  select, input[type="text"], input[type="number"] {
+    padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 15px; max-width: 220px; width: 100%; box-sizing: border-box;
+  }
+  button {
+    padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;
+    font-size: 14px; font-weight: 600; background: #4299e1; color: white;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+
+  /* bảng dp */
+  .dp-wrap { overflow-x: auto; }
+  table.dp { border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+  table.dp th, table.dp td {
+    border: 1px solid #cbd5e0; padding: 6px 9px; text-align: center; min-width: 30px;
+    transition: background .25s, color .25s;
+  }
+  table.dp th { background: #edf2f7; color: #2d3748; font-weight: 700; }
+  table.dp td.filled { background: #ebf8ff; }
+  table.dp td.active { background: #fefcbf; outline: 2px solid #d69e2e; outline-offset: -2px; font-weight: 700; }
+  table.dp td.src { background: #c6f6d5; }
+  table.dp td.path { background: #fed7d7; color: #742a2a; font-weight: 700; }
+  table.dp td.take { color: #38a169; }
+
+  .items-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+  .item-chip {
+    border: 1px solid #cbd5e0; border-radius: 6px; padding: 6px 10px; font-size: 13px;
+    background: #f7fafc;
+  }
+  .item-chip.chosen { background: #c6f6d5; border-color: #38a169; font-weight: 700; }
+
+  .status { font-size: 14px; margin: 10px 0; padding: 10px 12px; border-radius: 6px; background: #f7fafc; min-height: 20px; }
+  .status.win { background: #c6f6d5; color: #22543d; font-weight: 600; }
+  .formula { font-family: ui-monospace, monospace; font-size: 13px; background: #2d3748; color: #e2e8f0; padding: 8px 12px; border-radius: 6px; overflow-x: auto; }
+
+  /* module 2 so sánh */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .pane { border: 2px solid #e2e8f0; border-radius: 8px; padding: 14px; background: #f7fafc; }
+  .pane h3 { margin: 0 0 8px; font-size: 15px; }
+  .pane.zero h3 { color: #2b6cb0; }
+  .pane.unb h3 { color: #b7791f; }
+  .arr { display: flex; gap: 4px; flex-wrap: wrap; margin: 8px 0; }
+  .cell {
+    width: 38px; height: 38px; border: 1px solid #cbd5e0; border-radius: 5px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; background: white; transition: background .25s, transform .2s;
+  }
+  .cell .idx { font-size: 9px; color: #718096; font-weight: 400; }
+  .cell.active { background: #fefcbf; transform: scale(1.08); outline: 2px solid #d69e2e; }
+  .cell.src { background: #bee3f8; }
+  .dir-note { font-size: 12px; color: #4a5568; font-style: italic; }
+
+  /* module 3 */
+  .coin-bar { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0; }
+  .coin {
+    width: 40px; height: 40px; border-radius: 50%; background: #ed8936; color: white;
+    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px;
+  }
+  .legend { font-size: 12px; color: #4a5568; display: flex; gap: 16px; flex-wrap: wrap; margin: 8px 0; }
+  .legend span { display: flex; align-items: center; gap: 5px; }
+  .sw { width: 14px; height: 14px; border-radius: 3px; display: inline-block; border: 1px solid #cbd5e0; }
+
+  @media (max-width: 480px) {
+    .compare { grid-template-columns: 1fr; }
+    .cell { width: 32px; height: 32px; font-size: 11px; }
+    table.dp th, table.dp td { padding: 4px 5px; min-width: 24px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-24-dp-1d/visualization.html">← L24: DP 1 chiều</a>
+  <span class="sep">·</span>
+  <span class="current">L25: Knapsack</span>
+  <span class="sep">·</span>
+  <a href="../lesson-26-dp-grid-2d/visualization.html">L26: DP 2D/Grid →</a>
+</nav>
+
+<div class="container">
+  <header>
+    <h1>Lesson 25 — Knapsack Family</h1>
+    <p class="lead">Họ bài toán cái balo: một bộ khung DP, nhiều biến thể. Khám phá bảng <code>dp[i][w]</code>, vì sao hướng duyệt <code>w</code> quyết định 0/1 hay unbounded, và coin change min vs đếm cách.</p>
+  </header>
+
+  <main>
+
+  <!-- ============ MODULE 1: 0/1 Knapsack table ============ -->
+  <h2>1. Bảng 0/1 Knapsack + truy vết món</h2>
+  <div class="card">
+    <p class="lead">Mỗi món lấy 0 hoặc 1 lần. Điền bảng <code>dp[i][w]</code> từng ô, highlight ô nguồn (lấy / không lấy), rồi truy vết tập món được chọn.</p>
+    <div class="formula">dp[i][w] = max( dp[i-1][w] /*không lấy*/ , dp[i-1][w-wt[i]] + val[i] /*lấy*/ )</div>
+    <div class="controls">
+      <div class="ctl-group">
+        <label>Cân nặng (wt)</label>
+        <input type="text" id="k1wt" value="2,3,4,5">
+      </div>
+      <div class="ctl-group">
+        <label>Giá trị (val)</label>
+        <input type="text" id="k1val" value="3,4,5,6">
+      </div>
+      <div class="ctl-group">
+        <label>Sức chứa W</label>
+        <input type="number" id="k1W" value="5" min="1" max="14">
+      </div>
+      <button id="k1run">▶ Điền bảng từng bước</button>
+      <button id="k1fast" class="secondary">⏩ Điền nhanh</button>
+    </div>
+    <div class="dp-wrap"><table class="dp" id="k1table"></table></div>
+    <div class="items-row" id="k1items"></div>
+    <div class="status" id="k1status">Nhấn "Điền bảng" để bắt đầu.</div>
+    <div class="legend">
+      <span><i class="sw" style="background:#fefcbf"></i>ô đang tính</span>
+      <span><i class="sw" style="background:#c6f6d5"></i>ô nguồn (lấy/không)</span>
+      <span><i class="sw" style="background:#fed7d7"></i>đường truy vết</span>
+    </div>
+  </div>
+
+  <!-- ============ MODULE 2: 0/1 vs Unbounded ============ -->
+  <h2>2. Hướng duyệt <code>w</code>: 0/1 (ngược) vs Unbounded (xuôi)</h2>
+  <div class="card">
+    <p class="lead">Cùng một món, cùng mảng <code>dp[w]</code> 1 chiều. Chỉ khác <strong>hướng duyệt</strong>: 0/1 đi <strong>ngược</strong> (W→wt) nên mỗi món lấy ≤ 1 lần; unbounded đi <strong>xuôi</strong> (wt→W) nên lấy lại được nhiều lần.</p>
+    <div class="controls">
+      <div class="ctl-group">
+        <label>wt món</label>
+        <input type="number" id="m2wt" value="2" min="1" max="6">
+      </div>
+      <div class="ctl-group">
+        <label>val món</label>
+        <input type="number" id="m2val" value="3" min="1" max="20">
+      </div>
+      <div class="ctl-group">
+        <label>W</label>
+        <input type="number" id="m2W" value="6" min="2" max="10">
+      </div>
+      <button id="m2run">▶ Chạy song song</button>
+    </div>
+    <div class="compare">
+      <div class="pane zero">
+        <h3>0/1 — duyệt NGƯỢC (w: W → wt)</h3>
+        <div class="arr" id="m2arrZero"></div>
+        <div class="dir-note" id="m2noteZero">dp[w-wt] còn là giá trị CŨ → mỗi món 1 lần.</div>
+      </div>
+      <div class="pane unb">
+        <h3>Unbounded — duyệt XUÔI (w: wt → W)</h3>
+        <div class="arr" id="m2arrUnb"></div>
+        <div class="dir-note" id="m2noteUnb">dp[w-wt] đã MỚI → lấy lại món nhiều lần.</div>
+      </div>
+    </div>
+    <div class="status" id="m2status">Nhấn "Chạy song song" để xem khác biệt.</div>
+  </div>
+
+  <!-- ============ MODULE 3: Coin change ============ -->
+  <h2>3. Coin Change — min đồng & đếm số cách</h2>
+  <div class="card">
+    <p class="lead">Cùng <code>coins</code> và <code>amount</code>: <strong>min</strong> dùng <code>dp[a]=min(dp[a], dp[a-c]+1)</code>; <strong>đếm cách</strong> dùng <code>dp[a]+=dp[a-c]</code> (coin vòng ngoài → đếm tổ hợp).</p>
+    <div class="controls">
+      <div class="ctl-group">
+        <label>coins</label>
+        <input type="text" id="c3coins" value="1,3,4">
+      </div>
+      <div class="ctl-group">
+        <label>amount</label>
+        <input type="number" id="c3amt" value="6" min="1" max="14">
+      </div>
+      <button id="c3min">▶ Min coins</button>
+      <button id="c3count" class="secondary">▶ Đếm số cách</button>
+    </div>
+    <div class="coin-bar" id="c3coinbar"></div>
+    <div class="arr" id="c3arr"></div>
+    <div class="status" id="c3status">Chọn "Min coins" hoặc "Đếm số cách".</div>
+  </div>
+
+  </main>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function parseList(s) {
+  return s.split(',').map(x => parseInt(x.trim(), 10)).filter(x => !isNaN(x) && x > 0);
+}
+
+/* =================== MODULE 1: 0/1 knapsack table =================== */
+let k1busy = false;
+async function k1run(animate) {
+  if (k1busy) return;
+  k1busy = true;
+  const wt = parseList($('k1wt').value);
+  const val = parseList($('k1val').value);
+  const W = Math.max(1, Math.min(14, parseInt($('k1W').value, 10) || 5));
+  const n = Math.min(wt.length, val.length);
+  if (n === 0) { $('k1status').textContent = 'Nhập wt và val hợp lệ.'; k1busy = false; return; }
+
+  // build dp
+  const dp = Array.from({length: n + 1}, () => new Array(W + 1).fill(0));
+  // build table skeleton
+  const t = $('k1table');
+  let html = '<tr><th>i \\ w</th>';
+  for (let w = 0; w <= W; w++) html += `<th>${w}</th>`;
+  html += '</tr>';
+  for (let i = 0; i <= n; i++) {
+    html += `<tr><th>${i === 0 ? '∅' : 'm' + i + '(' + wt[i-1] + ',' + val[i-1] + ')'}</th>`;
+    for (let w = 0; w <= W; w++) html += `<td id="k1c${i}_${w}">${i === 0 ? 0 : ''}</td>`;
+    html += '</tr>';
+  }
+  t.innerHTML = html;
+  for (let w = 0; w <= W; w++) $(`k1c0_${w}`).classList.add('filled');
+  // items chips
+  $('k1items').innerHTML = wt.slice(0, n).map((w, i) =>
+    `<span class="item-chip" id="k1it${i}">món ${i+1}: wt=${w}, val=${val[i]}</span>`).join('');
+
+  const delay = animate ? 240 : 0;
+  for (let i = 1; i <= n; i++) {
+    for (let w = 0; w <= W; w++) {
+      const cell = $(`k1c${i}_${w}`);
+      cell.classList.add('active');
+      const noTake = dp[i-1][w];
+      let best = noTake, took = false;
+      const srcUp = $(`k1c${i-1}_${w}`);
+      let srcTake = null;
+      if (wt[i-1] <= w) {
+        const cand = dp[i-1][w - wt[i-1]] + val[i-1];
+        srcTake = $(`k1c${i-1}_${w - wt[i-1]}`);
+        if (cand > best) { best = cand; took = true; }
+      }
+      dp[i][w] = best;
+      if (animate) {
+        srcUp.classList.add('src');
+        if (srcTake) srcTake.classList.add('src');
+        $('k1status').textContent = `dp[${i}][${w}]: không lấy=${noTake}` +
+          (wt[i-1] <= w ? `, lấy món ${i}=${dp[i-1][w-wt[i-1]]}+${val[i-1]}=${dp[i-1][w-wt[i-1]]+val[i-1]}` : ` (wt ${wt[i-1]}>w)`) +
+          ` → ${best}` + (took ? ' (LẤY)' : '');
+        await sleep(delay);
+      }
+      cell.textContent = best;
+      cell.classList.add('filled');
+      if (took) cell.classList.add('take');
+      cell.classList.remove('active');
+      srcUp.classList.remove('src');
+      if (srcTake) srcTake.classList.remove('src');
+    }
+  }
+
+  // backtrack
+  const chosen = [];
+  let w = W;
+  for (let i = n; i >= 1; i--) {
+    if (dp[i][w] !== dp[i-1][w]) {
+      chosen.push(i);
+      $(`k1c${i}_${w}`).classList.add('path');
+      $(`k1it${i-1}`).classList.add('chosen');
+      w -= wt[i-1];
+    }
+  }
+  chosen.reverse();
+  $('k1status').className = 'status win';
+  $('k1status').textContent = `Giá trị tối ưu dp[${n}][${W}] = ${dp[n][W]}. Món được chọn: ${chosen.length ? '{' + chosen.map(x => 'món ' + x).join(', ') + '}' : '(không món nào)'}.`;
+  k1busy = false;
+}
+
+/* =================== MODULE 2: 0/1 vs unbounded =================== */
+let m2busy = false;
+function m2renderArr(elId, arr, activeIdx, srcIdx) {
+  const html = arr.map((v, i) => {
+    let cls = 'cell';
+    if (i === activeIdx) cls += ' active';
+    else if (i === srcIdx) cls += ' src';
+    return `<div class="${cls}"><span>${v}</span><span class="idx">${i}</span></div>`;
+  }).join('');
+  $(elId).innerHTML = html;
+}
+async function m2run() {
+  if (m2busy) return;
+  m2busy = true;
+  const wt = Math.max(1, parseInt($('m2wt').value, 10) || 2);
+  const val = Math.max(1, parseInt($('m2val').value, 10) || 3);
+  const W = Math.max(wt, Math.min(10, parseInt($('m2W').value, 10) || 6));
+
+  const dpZ = new Array(W + 1).fill(0);
+  const dpU = new Array(W + 1).fill(0);
+  m2renderArr('m2arrZero', dpZ, -1, -1);
+  m2renderArr('m2arrUnb', dpU, -1, -1);
+
+  // 0/1 NGƯỢC
+  $('m2status').textContent = '0/1: duyệt w NGƯỢC (W → wt)...';
+  for (let w = W; w >= wt; w--) {
+    m2renderArr('m2arrZero', dpZ, w, w - wt);
+    await sleep(420);
+    if (dpZ[w - wt] + val > dpZ[w]) dpZ[w] = dpZ[w - wt] + val;
+    m2renderArr('m2arrZero', dpZ, w, w - wt);
+    await sleep(220);
+  }
+  m2renderArr('m2arrZero', dpZ, -1, -1);
+
+  // unbounded XUÔI
+  $('m2status').textContent = 'Unbounded: duyệt w XUÔI (wt → W)...';
+  for (let w = wt; w <= W; w++) {
+    m2renderArr('m2arrUnb', dpU, w, w - wt);
+    await sleep(420);
+    if (dpU[w - wt] + val > dpU[w]) dpU[w] = dpU[w - wt] + val;
+    m2renderArr('m2arrUnb', dpU, w, w - wt);
+    await sleep(220);
+  }
+  m2renderArr('m2arrUnb', dpU, -1, -1);
+
+  const copies = Math.floor(W / wt);
+  $('m2status').className = 'status win';
+  $('m2status').innerHTML = `0/1: dp[${W}] = ${dpZ[W]} (lấy món <b>1 lần</b>). ` +
+    `Unbounded: dp[${W}] = ${dpU[W]} (lấy được <b>${copies} lần</b>). ` +
+    `Cùng món, khác hướng duyệt → khác kết quả.`;
+  m2busy = false;
+}
+
+/* =================== MODULE 3: coin change =================== */
+let c3busy = false;
+function c3renderCoins(coins) {
+  $('c3coinbar').innerHTML = coins.map(c => `<div class="coin">${c}</div>`).join('');
+}
+function c3renderArr(arr, activeIdx, srcIdx, label) {
+  const html = arr.map((v, i) => {
+    let cls = 'cell';
+    if (i === activeIdx) cls += ' active';
+    else if (i === srcIdx) cls += ' src';
+    const disp = (v === Infinity) ? '∞' : v;
+    return `<div class="${cls}"><span>${disp}</span><span class="idx">${i}</span></div>`;
+  }).join('');
+  $('c3arr').innerHTML = html;
+}
+async function c3min() {
+  if (c3busy) return; c3busy = true;
+  const coins = parseList($('c3coins').value);
+  const amt = Math.max(1, Math.min(14, parseInt($('c3amt').value, 10) || 6));
+  c3renderCoins(coins);
+  const dp = new Array(amt + 1).fill(Infinity);
+  dp[0] = 0;
+  c3renderArr(dp, -1, -1);
+  $('c3status').className = 'status';
+  for (const c of coins) {
+    $('c3status').textContent = `Min coins — xét coin ${c}, duyệt amount XUÔI...`;
+    for (let a = c; a <= amt; a++) {
+      c3renderArr(dp, a, a - c);
+      await sleep(300);
+      if (dp[a - c] + 1 < dp[a]) dp[a] = dp[a - c] + 1;
+      c3renderArr(dp, a, a - c);
+      await sleep(140);
+    }
+  }
+  c3renderArr(dp, -1, -1);
+  $('c3status').className = 'status win';
+  const res = dp[amt] === Infinity ? 'không đổi được (-1)' : dp[amt] + ' đồng';
+  $('c3status').textContent = `Min coins để đổi ${amt}: ${res}.`;
+  c3busy = false;
+}
+async function c3count() {
+  if (c3busy) return; c3busy = true;
+  const coins = parseList($('c3coins').value);
+  const amt = Math.max(1, Math.min(14, parseInt($('c3amt').value, 10) || 6));
+  c3renderCoins(coins);
+  const dp = new Array(amt + 1).fill(0);
+  dp[0] = 1;
+  c3renderArr(dp, -1, -1);
+  $('c3status').className = 'status';
+  for (const c of coins) {
+    $('c3status').textContent = `Đếm cách — coin ${c} VÒNG NGOÀI (tránh trùng hoán vị), amount xuôi...`;
+    for (let a = c; a <= amt; a++) {
+      c3renderArr(dp, a, a - c);
+      await sleep(300);
+      dp[a] += dp[a - c];
+      c3renderArr(dp, a, a - c);
+      await sleep(140);
+    }
+  }
+  c3renderArr(dp, -1, -1);
+  $('c3status').className = 'status win';
+  $('c3status').textContent = `Số cách đổi ${amt} = ${dp[amt]} (đếm tổ hợp, không phân biệt thứ tự).`;
+  c3busy = false;
+}
+
+/* wire up */
+$('k1run').addEventListener('click', () => k1run(true));
+$('k1fast').addEventListener('click', () => k1run(false));
+$('m2run').addEventListener('click', m2run);
+$('c3min').addEventListener('click', c3min);
+$('c3count').addEventListener('click', c3count);
+
+/* initial render */
+k1run(false);
+(function () {
+  const dpZ = new Array(7).fill(0);
+  m2renderArr('m2arrZero', dpZ, -1, -1);
+  m2renderArr('m2arrUnb', dpZ.slice(), -1, -1);
+  c3renderCoins([1, 3, 4]);
+  c3renderArr(new Array(7).fill(0), -1, -1);
+})();
+</script>
+
+<!-- README modal + TOC + favicon -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+
+</body>
+</html>

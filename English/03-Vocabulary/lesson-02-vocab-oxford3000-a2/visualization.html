@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vocab Oxford 3000 A2 — Flashcard</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fafaf7; --panel: #fff; --ink: #1a1a1a; --muted: #6a6a6a; --line: #e3e1dc;
+    --accent: #b45309; --accent-soft: #fef3c7;
+    --easy: #15803d; --easy-soft: #dcfce7;
+    --medium: #d97706; --medium-soft: #fef3c7;
+    --hard: #b91c1c; --hard-soft: #fee2e2;
+    --ok: #15803d; --error: #b91c1c;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.55; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 24px 20px 80px; }
+  header h1 { margin: 0 0 4px; font-size: 24px; }
+  header p { margin: 0 0 20px; color: var(--muted); font-size: 14px; }
+
+
+  .accent-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin-left: 8px; }
+  .accent-toggle button { background: var(--panel); border: none; padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; }
+  .accent-toggle button + button { border-left: 1px solid var(--line); }
+  .accent-toggle button.active { background: var(--accent); color: white; }
+
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 24px; flex-wrap: wrap; }
+  .tab { padding: 10px 16px; cursor: pointer; background: none; border: none; font-size: 14px; font-weight: 500; color: var(--muted); border-bottom: 2px solid transparent; }
+  .tab.active { color: var(--ink); border-bottom-color: var(--accent); }
+  .pane { display: none; }
+  .pane.active { display: block; }
+
+  .section-note { color: var(--muted); font-size: 13px; margin: 0 0 16px; background: var(--accent-soft); padding: 10px 14px; border-radius: 8px; border-left: 3px solid var(--accent); }
+
+  .level-tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .level-tab { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--line); background: white; cursor: pointer; font-size: 13px; font-weight: 600; }
+  .level-tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+  .group-title { font-size: 16px; font-weight: 700; color: var(--accent); margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+  .group-title small { color: var(--muted); font-weight: 400; font-size: 12px; margin-left: 8px; }
+  .word-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+  .word-card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; cursor: pointer; transition: all 0.15s; }
+  .word-card:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(180,83,9,0.08); }
+  .word-card .word { font-size: 17px; font-weight: 700; }
+  .word-card .ipa { font-size: 13px; color: var(--muted); margin-top: 2px; font-family: "Charis SIL", sans-serif; }
+  .word-card .meaning { font-size: 13px; margin-top: 6px; }
+
+  .detail-panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-top: 16px; min-height: 120px; }
+  .detail-panel.empty { color: var(--muted); font-style: italic; text-align: center; padding: 40px; }
+  .detail-panel .word-big { font-size: 28px; font-weight: 800; }
+  .detail-panel .ipa-big { font-size: 16px; color: var(--accent); font-family: "Charis SIL", sans-serif; margin-bottom: 8px; }
+  .detail-panel .meaning-big { font-size: 17px; margin-bottom: 12px; }
+  .detail-panel .example-big { font-size: 14px; color: var(--muted); font-style: italic; padding: 10px 14px; background: #fafaf7; border-left: 3px solid var(--accent); border-radius: 4px; }
+  .detail-panel .play-row { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .play-pill { padding: 8px 16px; background: var(--accent); color: white; border-radius: 20px; font-size: 13px; cursor: pointer; border: none; font-weight: 600; }
+  .play-pill:hover { background: #92400e; }
+  .play-pill.speaking { background: var(--ok); }
+  .play-pill.disabled { opacity: 0.4; cursor: default; }
+
+  .fc-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
+  .fc-progress { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+  .fc-box-tag { padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+  .fc-box-tag.easy { background: var(--easy-soft); color: var(--easy); }
+  .fc-box-tag.medium { background: var(--medium-soft); color: var(--medium); }
+  .fc-box-tag.hard { background: var(--hard-soft); color: var(--hard); }
+  .fc-box-tag.unseen { background: #f5f4f0; color: var(--muted); }
+  .fc-card {
+    min-height: 280px; background: linear-gradient(135deg, #fff 0%, #fafaf7 100%);
+    border: 2px solid var(--accent-soft); border-radius: 16px; padding: 32px 20px;
+    text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;
+  }
+  .fc-word { font-size: 36px; font-weight: 800; margin-bottom: 8px; }
+  .fc-ipa { font-size: 18px; color: var(--accent); font-family: "Charis SIL", sans-serif; margin-bottom: 16px; }
+  .fc-meaning { font-size: 22px; color: var(--ink); margin-bottom: 12px; }
+  .fc-example { font-size: 14px; color: var(--muted); font-style: italic; margin-bottom: 16px; max-width: 500px; }
+  .fc-hint { font-size: 12px; color: var(--muted); margin-top: 12px; }
+  .fc-controls { display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+  .fc-btn { padding: 12px 20px; border: 2px solid var(--line); background: white; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; }
+  .fc-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .fc-btn.show { background: var(--accent); color: white; border-color: var(--accent); }
+  .fc-btn.hard { color: var(--hard); border-color: var(--hard); }
+  .fc-btn.medium { color: var(--medium); border-color: var(--medium); }
+  .fc-btn.easy { color: var(--easy); border-color: var(--easy); }
+  .fc-stats { font-size: 13px; color: var(--muted); margin-top: 12px; text-align: center; }
+  .fc-scope { margin-bottom: 12px; display: flex; gap: 8px; align-items: center; font-size: 13px; }
+  .fc-scope select { padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; font-size: 13px; }
+
+  .quiz-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
+  .quiz-controls { display: flex; gap: 8px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+  .quiz-controls button { padding: 8px 14px; font-size: 13px; border: 1px solid var(--line); border-radius: 6px; background: white; cursor: pointer; font-weight: 500; }
+  .quiz-controls button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+  .quiz-stats { color: var(--muted); font-size: 13px; margin-left: auto; }
+  .quiz-question { text-align: center; padding: 20px 16px; background: var(--accent-soft); border-radius: 10px; margin-bottom: 20px; }
+  .quiz-context { font-size: 13px; color: var(--accent); margin-bottom: 10px; font-weight: 500; }
+  .quiz-prompt { font-size: 20px; font-weight: 700; }
+  .quiz-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .opt-btn { padding: 14px; font-size: 15px; font-weight: 600; border: 2px solid var(--line); background: white; border-radius: 8px; cursor: pointer; }
+  .opt-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .opt-btn.correct { border-color: var(--ok); background: #f0fdf4; color: var(--ok); }
+  .opt-btn.wrong { border-color: var(--error); background: #fef2f2; color: var(--error); }
+  .quiz-feedback { margin-top: 14px; padding: 12px 16px; border-radius: 8px; font-size: 14px; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok { background: #f0fdf4; color: var(--ok); }
+  .quiz-feedback.err { background: #fef2f2; color: var(--error); }
+
+  footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); text-align: center; }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-vocab-oxford3000-a1/visualization.html">← L01: Vocab A1</a>
+  <span class="sep">·</span>
+  <span class="current">L02: Vocab A2</span>
+</nav>
+
+<header>
+  <h1>Oxford 3000 — Level A2 (80 từ mở rộng)</h1>
+  <p>80 từ A2 chia 8 nhóm. Flashcard SRS chung với L12 (tổng 130 từ).
+    Giọng:
+    <span class="accent-toggle">
+      <button id="btn-accent-us" class="active" data-variant="us">US</button>
+      <button id="btn-accent-uk" data-variant="uk">UK</button>
+    </span>
+  </p>
+</header>
+
+<div class="tabs">
+  <button class="tab active" data-tab="list">Danh sách</button>
+  <button class="tab" data-tab="flashcard">Flashcard (L12 + L13)</button>
+  <button class="tab" data-tab="quiz">Quiz</button>
+</div>
+
+<section class="pane active" id="pane-list">
+  <div class="section-note">8 nhóm chủ đề A2 + 5 nhóm A1 (xem L12). Click từ xem chi tiết + audio.</div>
+  <div class="level-tabs">
+    <button class="level-tab active" data-level="a2">L13 (A2) — 80 từ</button>
+    <button class="level-tab" data-level="a1">L12 (A1) — 50 từ</button>
+  </div>
+  <div id="list-groups"></div>
+  <div class="detail-panel empty" id="word-detail">Click từ để xem chi tiết và nghe phát âm.</div>
+</section>
+
+<section class="pane" id="pane-flashcard">
+  <div class="fc-wrap">
+    <div class="fc-scope">
+      <span>Phạm vi học:</span>
+      <select id="fc-scope">
+        <option value="all">Tất cả A1 + A2 (130 từ)</option>
+        <option value="a2">Chỉ A2 (80 từ)</option>
+        <option value="a1">Chỉ A1 (50 từ)</option>
+      </select>
+    </div>
+    <div class="fc-progress" id="fc-progress"></div>
+    <div class="fc-card" id="fc-card">
+      <div class="fc-word">Sẵn sàng học?</div>
+      <div class="fc-hint">Click "▶ Bắt đầu" để học theo phạm vi đã chọn.</div>
+    </div>
+    <div class="fc-controls" id="fc-controls">
+      <button class="fc-btn show" id="btn-start-fc">▶ Bắt đầu</button>
+      <button class="fc-btn" id="btn-reset-fc">🗑 Reset tất cả tiến độ</button>
+    </div>
+    <div class="fc-stats" id="fc-stats"></div>
+  </div>
+</section>
+
+<section class="pane" id="pane-quiz">
+  <div class="quiz-wrap">
+    <div class="quiz-controls">
+      <button class="primary" id="btn-new-quiz">▶ Câu mới</button>
+      <span class="quiz-stats" id="quiz-stats">Đúng: 0 / 0</span>
+    </div>
+    <div id="quiz-display"></div>
+    <div class="quiz-feedback" id="quiz-feedback"></div>
+  </div>
+</section>
+
+<footer>Audio Oxford. SRS lưu trong localStorage (key: <code>vocab-srs-state</code>). Mặc định US.</footer>
+
+<audio id="audio-el" preload="none"></audio>
+</div>
+
+<script>
+const DOMAIN_NEW = "https://www.oxfordlearnersdictionaries.com/media/english/";
+const DOMAIN_OLD = "https://www.oxforddictionaries.com/media/english/";
+const audioEl = document.getElementById('audio-el');
+let currentVariant = localStorage.getItem('audioVariant') || 'us';
+
+function ukToVariantPath(ukRel, v) { return v === 'us' ? "us_pron/" + ukRel.replace(/__gb_/, '__us_') : "uk_pron/" + ukRel; }
+function playAudio(ukRel, btn, fallbackText) {
+  if (!ukRel) {
+    if (fallbackText) speak(fallbackText, btn);
+    return;
+  }
+  const cands = [DOMAIN_NEW + ukToVariantPath(ukRel, currentVariant), DOMAIN_OLD + ukToVariantPath(ukRel, currentVariant)];
+  if (currentVariant === 'us') { cands.push(DOMAIN_NEW + ukToVariantPath(ukRel, 'uk')); cands.push(DOMAIN_OLD + ukToVariantPath(ukRel, 'uk')); }
+  let idx = 0;
+  if (btn) btn.classList.add('speaking');
+  function tryNext() {
+    if (idx >= cands.length) {
+      // All Oxford URLs failed → fallback to Web Speech
+      if (btn) btn.classList.remove('speaking');
+      if (fallbackText) speak(fallbackText, btn);
+      return;
+    }
+    audioEl.onerror = tryNext;
+    audioEl.onended = () => { if (btn) btn.classList.remove('speaking'); };
+    audioEl.src = cands[idx++];
+    const p = audioEl.play(); if (p && p.catch) p.catch(() => tryNext());
+  }
+  tryNext();
+}
+function setVariant(v) {
+  currentVariant = v;
+  localStorage.setItem('audioVariant', v);
+  document.querySelectorAll('.accent-toggle button').forEach(b => b.classList.toggle('active', b.dataset.variant === v));
+}
+document.querySelectorAll('.accent-toggle button').forEach(btn => btn.addEventListener('click', () => setVariant(btn.dataset.variant)));
+setVariant(currentVariant);
+// Web Speech API fallback for words without Oxford audio
+const synth = window.speechSynthesis;
+let voices = [];
+function loadVoices() { voices = synth ? synth.getVoices() : []; }
+if (synth) { loadVoices(); if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = loadVoices; }
+function pickVoice(variant) {
+  if (!voices.length) return null;
+  const langPrefix = variant === 'uk' ? 'en-GB' : 'en-US';
+  const candidates = voices.filter(v => v.lang.startsWith(langPrefix));
+  if (!candidates.length) return voices.find(v => v.lang.startsWith('en')) || voices[0];
+  return candidates.find(v => /premium|enhanced|natural|samantha|alex|daniel|kate|fiona/i.test(v.name)) || candidates[0];
+}
+function speak(text, btn) {
+  if (!synth) return;
+  synth.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const v = pickVoice(currentVariant);
+  if (v) { u.voice = v; u.lang = v.lang; } else { u.lang = currentVariant === 'uk' ? 'en-GB' : 'en-US'; }
+  u.rate = 0.9;
+  if (btn) { btn.classList.add('speaking'); u.onend = () => btn.classList.remove('speaking'); u.onerror = () => btn.classList.remove('speaking'); }
+  synth.speak(u);
+}
+
+
+
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('pane-' + btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'flashcard') renderProgress();
+  });
+});
+
+// A1 vocab (from L12)
+const VOCAB_A1 = {
+  "People & Family": [
+    { w: "mother",  ipa: "/ˈmʌðər/", meaning: "mẹ", ex: "My mother is a teacher.", a: "m/mot/mothe/mother__gb_1.mp3" },
+    { w: "father",  ipa: "/ˈfɑːðər/", meaning: "bố", ex: "His father works at a bank.", a: "f/fat/fathe/father__gb_1.mp3" },
+    { w: "brother", ipa: "/ˈbrʌðər/", meaning: "anh/em trai", ex: "I have one brother.", a: "b/bro/broth/brother__gb_1.mp3" },
+    { w: "sister",  ipa: "/ˈsɪstər/", meaning: "chị/em gái", ex: "Her sister lives in Paris.", a: "s/sis/siste/sister__gb_1.mp3" },
+    { w: "family",  ipa: "/ˈfæməli/", meaning: "gia đình", ex: "I love my family.", a: "f/fam/famil/family__gb_1_8.mp3" },
+    { w: "friend",  ipa: "/frend/", meaning: "bạn", ex: "She is my best friend.", a: "" },
+    { w: "people",  ipa: "/ˈpiːpl/", meaning: "người (số nhiều)", ex: "Many people live here.", a: "p/peo/peopl/people__gb_1.mp3" },
+    { w: "child",   ipa: "/tʃaɪld/", meaning: "trẻ con", ex: "The child is playing.", a: "" },
+    { w: "man",     ipa: "/mæn/", meaning: "đàn ông", ex: "The man is reading.", a: "m/man/man__/man__gb_1.mp3" },
+    { w: "woman",   ipa: "/ˈwʊmən/", meaning: "phụ nữ", ex: "The woman is a doctor.", a: "" },
+  ],
+  "Daily Activities": [
+    { w: "work",   ipa: "/wɜːrk/",  meaning: "làm việc", ex: "I work from 9 to 5.", a: "w/wor/work_/work__gb_1_8.mp3" },
+    { w: "study",  ipa: "/ˈstʌdi/", meaning: "học", ex: "She studies English.", a: "" },
+    { w: "eat",    ipa: "/iːt/",    meaning: "ăn", ex: "We eat dinner at 7 PM.", a: "" },
+    { w: "drink",  ipa: "/drɪŋk/",  meaning: "uống", ex: "He drinks coffee.", a: "d/dri/drink/drink__gb_1.mp3" },
+    { w: "sleep",  ipa: "/sliːp/",  meaning: "ngủ", ex: "Children sleep 10 hours.", a: "" },
+    { w: "read",   ipa: "/riːd/",   meaning: "đọc", ex: "I read books at night.", a: "" },
+    { w: "write",  ipa: "/raɪt/",   meaning: "viết", ex: "She writes in her diary.", a: "w/wri/write/write__gb_1.mp3" },
+    { w: "listen", ipa: "/ˈlɪsən/", meaning: "nghe", ex: "Listen to the music!", a: "l/lis/liste/listen__gb_1.mp3" },
+    { w: "talk",   ipa: "/tɔːk/",   meaning: "nói chuyện", ex: "They talk every day.", a: "" },
+    { w: "walk",   ipa: "/wɔːk/",   meaning: "đi bộ", ex: "I walk to school.", a: "w/wal/walk_/walk__gb_1.mp3" },
+  ],
+  "Food & Drink": [
+    { w: "water",  ipa: "/ˈwɔːtər/", meaning: "nước", ex: "Drink more water.", a: "w/wat/water/water__gb_1.mp3" },
+    { w: "coffee", ipa: "/ˈkɔːfi/", meaning: "cà phê", ex: "I love coffee.", a: "c/cof/coffe/coffee__gb_1.mp3" },
+    { w: "tea",    ipa: "/tiː/", meaning: "trà", ex: "Some tea, please?", a: "t/tea/tea__/tea__gb_1.mp3" },
+    { w: "bread",  ipa: "/bred/", meaning: "bánh mì", ex: "We have bread for breakfast.", a: "b/bre/bread/bread__gb_1.mp3" },
+    { w: "rice",   ipa: "/raɪs/", meaning: "cơm/gạo", ex: "I eat rice every day.", a: "" },
+    { w: "meat",   ipa: "/miːt/", meaning: "thịt", ex: "She doesn't eat meat.", a: "m/mea/meat_/meat__gb_1.mp3" },
+    { w: "fish",   ipa: "/fɪʃ/", meaning: "cá", ex: "The fish is fresh.", a: "" },
+    { w: "fruit",  ipa: "/fruːt/", meaning: "trái cây", ex: "Eat more fruit.", a: "f/fru/fruit/fruit__gb_1.mp3" },
+    { w: "apple",  ipa: "/ˈæpl/", meaning: "quả táo", ex: "An apple a day.", a: "a/app/apple/apple__gb_1.mp3" },
+    { w: "milk",   ipa: "/mɪlk/", meaning: "sữa", ex: "I drink milk every morning.", a: "m/mil/milk_/milk__gb_1.mp3" },
+  ],
+  "Places & Travel (A1)": [
+    { w: "home",   ipa: "/hoʊm/", meaning: "nhà (mình)", ex: "I go home at 6 PM.", a: "" },
+    { w: "school", ipa: "/skuːl/", meaning: "trường học", ex: "Children go to school.", a: "" },
+    { w: "market", ipa: "/ˈmɑːrkɪt/", meaning: "chợ", ex: "I buy fruit at the market.", a: "m/mar/marke/market__gb_1.mp3" },
+    { w: "city",   ipa: "/ˈsɪti/", meaning: "thành phố", ex: "Hanoi is a big city.", a: "" },
+    { w: "country",ipa: "/ˈkʌntri/", meaning: "đất nước", ex: "Vietnam is a country.", a: "" },
+    { w: "road",   ipa: "/roʊd/", meaning: "đường", ex: "This road is busy.", a: "" },
+    { w: "car",    ipa: "/kɑːr/", meaning: "xe hơi", ex: "His car is new.", a: "c/car/car__/car__gb_1.mp3" },
+    { w: "bus",    ipa: "/bʌs/", meaning: "xe buýt", ex: "I take the bus.", a: "" },
+    { w: "train",  ipa: "/treɪn/", meaning: "tàu hỏa", ex: "The train leaves at 8.", a: "" },
+    { w: "airport",ipa: "/ˈerpɔːrt/", meaning: "sân bay", ex: "We're at the airport.", a: "" },
+  ],
+  "Common Adjectives (A1)": [
+    { w: "big",   ipa: "/bɪɡ/", meaning: "to", ex: "A big house.", a: "b/big/big__/big__gb_1.mp3" },
+    { w: "small", ipa: "/smɔːl/", meaning: "nhỏ", ex: "A small dog.", a: "s/sma/small/small__gb_1.mp3" },
+    { w: "good",  ipa: "/ɡʊd/", meaning: "tốt", ex: "A good idea.", a: "g/goo/good_/good__gb_1.mp3" },
+    { w: "bad",   ipa: "/bæd/", meaning: "xấu", ex: "Bad weather today.", a: "b/bad/bad__/bad__gb_1.mp3" },
+    { w: "new",   ipa: "/nuː/", meaning: "mới", ex: "A new phone.", a: "n/new/new__/new__gb_1.mp3" },
+    { w: "old",   ipa: "/oʊld/", meaning: "cũ/già", ex: "My old car.", a: "o/old/old__/old__gb_1.mp3" },
+    { w: "happy", ipa: "/ˈhæpi/", meaning: "hạnh phúc", ex: "She looks happy.", a: "h/hap/happy/happy__gb_1.mp3" },
+    { w: "sad",   ipa: "/sæd/", meaning: "buồn", ex: "Why so sad?", a: "" },
+    { w: "hot",   ipa: "/hɑːt/", meaning: "nóng", ex: "Hot summer.", a: "h/hot/hot__/hot__gb_1.mp3" },
+    { w: "cold",  ipa: "/koʊld/", meaning: "lạnh", ex: "Cold winter.", a: "c/col/cold_/cold__gb_1.mp3" },
+  ],
+};
+
+// A2 vocab (L13)
+const VOCAB_A2 = {
+  "Body & Health": [
+    { w: "head", ipa: "/hed/", meaning: "đầu", ex: "I have a headache in my head.", a: "h/hea/head_/head__gb_1.mp3" },
+    { w: "face", ipa: "/feɪs/", meaning: "mặt", ex: "Wash your face.", a: "f/fac/face_/face__gb_1.mp3" },
+    { w: "hand", ipa: "/hænd/", meaning: "tay", ex: "Give me your hand.", a: "h/han/hand_/hand__gb_1.mp3" },
+    { w: "foot", ipa: "/fʊt/", meaning: "chân (1 chiếc)", ex: "My foot hurts.", a: "f/foo/foot_/foot__gb_1.mp3" },
+    { w: "eye", ipa: "/aɪ/", meaning: "mắt", ex: "She has blue eyes.", a: "e/eye/eye__/eye__gb_1.mp3" },
+    { w: "mouth", ipa: "/maʊθ/", meaning: "miệng", ex: "Open your mouth.", a: "m/mou/mouth/mouth__gb_1.mp3" },
+    { w: "nose", ipa: "/noʊz/", meaning: "mũi", ex: "My nose is running.", a: "n/nos/nose_/nose__gb_1.mp3" },
+    { w: "hair", ipa: "/her/", meaning: "tóc", ex: "Her hair is long.", a: "h/hai/hair_/hair__gb_1_8.mp3" },
+    { w: "doctor", ipa: "/ˈdɑːktər/", meaning: "bác sĩ", ex: "I saw the doctor.", a: "d/doc/docto/doctor__gb_1.mp3" },
+    { w: "hospital", ipa: "/ˈhɑːspɪtl/", meaning: "bệnh viện", ex: "The hospital is near.", a: "h/hos/hospi/hospital__gb_1.mp3" },
+    { w: "medicine", ipa: "/ˈmedɪsən/", meaning: "thuốc", ex: "Take this medicine.", a: "m/med/medic/medicine__gb_1_8.mp3" },
+    { w: "tired", ipa: "/ˈtaɪərd/", meaning: "mệt", ex: "I'm tired.", a: "t/tir/tired/tired__gb_1_8.mp3" },
+  ],
+  "Time & Numbers": [
+    { w: "hour", ipa: "/ˈaʊər/", meaning: "giờ (h câm!)", ex: "I work 8 hours a day.", a: "h/hou/hour_/hour__gb_1.mp3" },
+    { w: "day", ipa: "/deɪ/", meaning: "ngày", ex: "What day is today?", a: "d/day/day__/day__gb_1.mp3" },
+    { w: "week", ipa: "/wiːk/", meaning: "tuần", ex: "See you next week.", a: "w/wee/week_/week__gb_1.mp3" },
+    { w: "month", ipa: "/mʌnθ/", meaning: "tháng", ex: "This month is December.", a: "m/mon/month/month__gb_1.mp3" },
+    { w: "morning", ipa: "/ˈmɔːrnɪŋ/", meaning: "buổi sáng", ex: "Good morning!", a: "m/mor/morni/morning__gb_1.mp3" },
+    { w: "evening", ipa: "/ˈiːvnɪŋ/", meaning: "buổi tối", ex: "We meet in the evening.", a: "e/eve/eveni/evening__gb_1.mp3" },
+    { w: "night", ipa: "/naɪt/", meaning: "đêm", ex: "Good night.", a: "n/nig/night/night__gb_1.mp3" },
+    { w: "weekend", ipa: "/ˈwiːkend/", meaning: "cuối tuần", ex: "Have a nice weekend!", a: "w/wee/weeke/weekend__gb_1.mp3" },
+    { w: "today", ipa: "/təˈdeɪ/", meaning: "hôm nay", ex: "I'm busy today.", a: "t/tod/today/today__gb_1.mp3" },
+    { w: "tomorrow", ipa: "/təˈmɔːroʊ/", meaning: "ngày mai", ex: "See you tomorrow.", a: "t/tom/tomor/tomorrow__gb_1.mp3" },
+  ],
+  "Weather": [
+    { w: "weather", ipa: "/ˈweðər/", meaning: "thời tiết", ex: "How's the weather today?", a: "w/wea/weath/weather__gb_1.mp3" },
+    { w: "sun", ipa: "/sʌn/", meaning: "mặt trời", ex: "The sun is shining.", a: "s/sun/sun__/sun__gb_1.mp3" },
+    { w: "rain", ipa: "/reɪn/", meaning: "mưa", ex: "It's going to rain.", a: "r/rai/rain_/rain__gb_1.mp3" },
+    { w: "snow", ipa: "/snoʊ/", meaning: "tuyết", ex: "It rarely snows here.", a: "s/sno/snow_/snow__gb_1.mp3" },
+    { w: "cloud", ipa: "/klaʊd/", meaning: "mây", ex: "Many clouds in the sky.", a: "c/clo/cloud/cloud__gb_1.mp3" },
+    { w: "warm", ipa: "/wɔːrm/", meaning: "ấm", ex: "It's warm in spring.", a: "w/war/warm_/warm__gb_1.mp3" },
+    { w: "cool", ipa: "/kuːl/", meaning: "mát", ex: "The breeze is cool.", a: "c/coo/cool_/cool__gb_1.mp3" },
+    { w: "wet", ipa: "/wet/", meaning: "ướt", ex: "The ground is wet.", a: "w/wet/wet__/wet__gb_1.mp3" },
+  ],
+  "Clothes": [
+    { w: "clothes", ipa: "/kloʊz/", meaning: "quần áo (sn.)", ex: "I need new clothes.", a: "c/clo/cloth/clothes__gb_1.mp3" },
+    { w: "shirt", ipa: "/ʃɜːrt/", meaning: "áo sơ mi", ex: "He wears a blue shirt.", a: "s/shi/shirt/shirt__gb_1_8.mp3" },
+    { w: "dress", ipa: "/dres/", meaning: "váy", ex: "She has a red dress.", a: "d/dre/dress/dress__gb_1.mp3" },
+    { w: "shoes", ipa: "/ʃuːz/", meaning: "giày (sn.)", ex: "My shoes are dirty.", a: "" },
+    { w: "hat", ipa: "/hæt/", meaning: "mũ", ex: "Wear a hat in the sun.", a: "h/hat/hat__/hat__gb_1.mp3" },
+    { w: "coat", ipa: "/koʊt/", meaning: "áo khoác", ex: "Put on your coat.", a: "c/coa/coat_/coat__gb_1.mp3" },
+    { w: "jacket", ipa: "/ˈdʒækɪt/", meaning: "áo khoác mỏng", ex: "Where's my jacket?", a: "j/jac/jacke/jacket__gb_1.mp3" },
+    { w: "jeans", ipa: "/dʒiːnz/", meaning: "quần jean (sn.)", ex: "I love these jeans.", a: "j/jea/jeans/jeans__gb_1.mp3" },
+  ],
+  "House & Rooms": [
+    { w: "room", ipa: "/ruːm/", meaning: "phòng", ex: "My room is small.", a: "r/roo/room_/room__gb_1.mp3" },
+    { w: "bedroom", ipa: "/ˈbedruːm/", meaning: "phòng ngủ", ex: "I have my own bedroom.", a: "b/bed/bedro/bedroom__gb_1.mp3" },
+    { w: "bathroom", ipa: "/ˈbæθruːm/", meaning: "nhà tắm", ex: "Where's the bathroom?", a: "b/bat/bathr/bathroom__gb_1.mp3" },
+    { w: "garden", ipa: "/ˈɡɑːrdn/", meaning: "vườn", ex: "Flowers in the garden.", a: "g/gar/garde/garden__gb_1.mp3" },
+    { w: "window", ipa: "/ˈwɪndoʊ/", meaning: "cửa sổ", ex: "Open the window.", a: "w/win/windo/window__gb_1.mp3" },
+    { w: "table", ipa: "/ˈteɪbl/", meaning: "bàn", ex: "Put it on the table.", a: "t/tab/table/table__gb_1.mp3" },
+    { w: "chair", ipa: "/tʃer/", meaning: "ghế", ex: "Have a seat on this chair.", a: "c/cha/chair/chair__gb_1_8.mp3" },
+    { w: "bed", ipa: "/bed/", meaning: "giường", ex: "I make my bed daily.", a: "" },
+    { w: "floor", ipa: "/flɔːr/", meaning: "sàn / tầng", ex: "The cat on the floor.", a: "f/flo/floor/floor__gb_1.mp3" },
+    { w: "wall", ipa: "/wɔːl/", meaning: "tường", ex: "Hang it on the wall.", a: "w/wal/wall_/wall__gb_1.mp3" },
+  ],
+  "Colors": [
+    { w: "red", ipa: "/red/", meaning: "đỏ", ex: "Roses are red.", a: "r/red/red__/red__gb_1.mp3" },
+    { w: "blue", ipa: "/bluː/", meaning: "xanh dương", ex: "The sky is blue.", a: "" },
+    { w: "green", ipa: "/ɡriːn/", meaning: "xanh lá", ex: "Grass is green.", a: "g/gre/green/green__gb_1.mp3" },
+    { w: "yellow", ipa: "/ˈjeloʊ/", meaning: "vàng", ex: "Bananas are yellow.", a: "y/yel/yello/yellow__gb_1.mp3" },
+    { w: "black", ipa: "/blæk/", meaning: "đen", ex: "My cat is black.", a: "b/bla/black/black__gb_1.mp3" },
+    { w: "white", ipa: "/waɪt/", meaning: "trắng", ex: "Snow is white.", a: "w/whi/white/white__gb_1.mp3" },
+    { w: "brown", ipa: "/braʊn/", meaning: "nâu", ex: "I have brown hair.", a: "b/bro/brown/brown__gb_1.mp3" },
+    { w: "pink", ipa: "/pɪŋk/", meaning: "hồng", ex: "She likes pink.", a: "" },
+    { w: "orange", ipa: "/ˈɔːrɪndʒ/", meaning: "cam", ex: "Orange sunset.", a: "" },
+    { w: "purple", ipa: "/ˈpɜːrpl/", meaning: "tím", ex: "Purple grapes.", a: "p/pur/purpl/purple__gb_1_8.mp3" },
+  ],
+  "Work & School": [
+    { w: "job", ipa: "/dʒɑːb/", meaning: "việc làm", ex: "She has a new job.", a: "" },
+    { w: "office", ipa: "/ˈɑːfɪs/", meaning: "văn phòng", ex: "I work in an office.", a: "o/off/offic/office__gb_1.mp3" },
+    { w: "company", ipa: "/ˈkʌmpəni/", meaning: "công ty", ex: "Our company has 100 employees.", a: "c/com/compa/company__gb_1.mp3" },
+    { w: "meeting", ipa: "/ˈmiːtɪŋ/", meaning: "cuộc họp", ex: "The meeting starts at 10.", a: "m/mee/meeti/meeting__gb_1.mp3" },
+    { w: "class", ipa: "/klæs/", meaning: "lớp học", ex: "English class at 2 PM.", a: "c/cla/class/class__gb_1.mp3" },
+    { w: "lesson", ipa: "/ˈlesən/", meaning: "bài học", ex: "Today's lesson is grammar.", a: "l/les/lesso/lesson__gb_1.mp3" },
+    { w: "homework", ipa: "/ˈhoʊmwɜːrk/", meaning: "bài tập về nhà", ex: "Did you finish homework?", a: "h/hom/homew/homework__gb_1_8.mp3" },
+    { w: "exam", ipa: "/ɪɡˈzæm/", meaning: "kỳ thi", ex: "I have an exam tomorrow.", a: "e/exa/exam_/exam__gb_1.mp3" },
+    { w: "teacher", ipa: "/ˈtiːtʃər/", meaning: "giáo viên", ex: "Mr. Smith is my teacher.", a: "t/tea/teach/teacher__gb_1.mp3" },
+    { w: "student", ipa: "/ˈstuːdənt/", meaning: "học sinh", ex: "He's a good student.", a: "s/stu/stude/student__gb_1.mp3" },
+  ],
+  "Common Verbs A2": [
+    { w: "start", ipa: "/stɑːrt/", meaning: "bắt đầu", ex: "Class starts at 8 AM.", a: "" },
+    { w: "finish", ipa: "/ˈfɪnɪʃ/", meaning: "kết thúc", ex: "I finished my work.", a: "f/fin/finis/finish__gb_1.mp3" },
+    { w: "open", ipa: "/ˈoʊpən/", meaning: "mở", ex: "Open the door.", a: "o/ope/open_/open__gb_1.mp3" },
+    { w: "close", ipa: "/kloʊz/", meaning: "đóng", ex: "Close the window.", a: "" },
+    { w: "learn", ipa: "/lɜːrn/", meaning: "học (tiếp thu)", ex: "Children learn quickly.", a: "l/lea/learn/learn__gb_1_8.mp3" },
+    { w: "teach", ipa: "/tiːtʃ/", meaning: "dạy", ex: "She teaches math.", a: "t/tea/teach/teach__gb_1.mp3" },
+    { w: "buy", ipa: "/baɪ/", meaning: "mua", ex: "Buy a new phone.", a: "b/buy/buy__/buy__gb_1.mp3" },
+    { w: "sell", ipa: "/sel/", meaning: "bán", ex: "They sell vegetables.", a: "s/sel/sell_/sell__gb_1.mp3" },
+    { w: "give", ipa: "/ɡɪv/", meaning: "đưa, cho", ex: "Give me the book.", a: "g/giv/give_/give__gb_1.mp3" },
+    { w: "take", ipa: "/teɪk/", meaning: "lấy", ex: "I'll take the bus.", a: "t/tak/take_/take__gb_1.mp3" },
+    { w: "find", ipa: "/faɪnd/", meaning: "tìm thấy", ex: "I can't find my keys.", a: "f/fin/find_/find__gb_1.mp3" },
+    { w: "wait", ipa: "/weɪt/", meaning: "đợi", ex: "Wait for me.", a: "w/wai/wait_/wait__gb_1.mp3" },
+  ],
+};
+
+// Flatten with level tag
+const ALL_WORDS = [];
+Object.entries(VOCAB_A1).forEach(([g, ws]) => ws.forEach(w => ALL_WORDS.push({ ...w, group: g, level: 'a1' })));
+Object.entries(VOCAB_A2).forEach(([g, ws]) => ws.forEach(w => ALL_WORDS.push({ ...w, group: g, level: 'a2' })));
+
+// =============== List view ===============
+const listGroups = document.getElementById('list-groups');
+const detailPanel = document.getElementById('word-detail');
+let currentListLevel = 'a2';
+
+function renderList() {
+  listGroups.innerHTML = '';
+  const vocab = currentListLevel === 'a2' ? VOCAB_A2 : VOCAB_A1;
+  Object.entries(vocab).forEach(([group, words]) => {
+    const title = document.createElement('div'); title.className = 'group-title';
+    title.innerHTML = `${group} <small>(${words.length} từ)</small>`;
+    listGroups.appendChild(title);
+    const grid = document.createElement('div'); grid.className = 'word-grid';
+    words.forEach(word => {
+      const card = document.createElement('div'); card.className = 'word-card';
+      card.innerHTML = `<div class="word">${word.w}</div><div class="ipa">${word.ipa}</div><div class="meaning">${word.meaning}</div>`;
+      card.addEventListener('click', () => { showWordDetail(word); playAudio(word.a, card, word.w); });
+      grid.appendChild(card);
+    });
+    listGroups.appendChild(grid);
+  });
+}
+
+function showWordDetail(word) {
+  detailPanel.classList.remove('empty');
+  detailPanel.innerHTML = `
+    <div class="word-big">${word.w}</div>
+    <div class="ipa-big">${word.ipa}</div>
+    <div class="meaning-big">${word.meaning}</div>
+    <div class="example-big">${word.ex}</div>
+    <div class="play-row">
+      <button class="play-pill" id="play-btn-detail">▶ Nghe ${word.a ? "(Oxford)" : "(Web Speech)"}</button>
+    </div>
+  `;
+  if (word.a) {
+    document.getElementById('play-btn-detail').addEventListener('click', (e) => playAudio(word.a, e.target, word.w));
+  }
+}
+
+document.querySelectorAll('.level-tab').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.level-tab').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  currentListLevel = b.dataset.level;
+  renderList();
+}));
+renderList();
+
+// =============== Flashcard SRS (shared with L12) ===============
+const FC_KEY = 'vocab-srs-state';
+let fcState = JSON.parse(localStorage.getItem(FC_KEY) || '{}');
+let fcSession = 0;
+let fcQueue = [];
+let fcCurrentIdx = 0;
+let fcCurrentWord = null;
+let fcScope = 'all';
+
+function getFcBox(w) { return (fcState[w.w] && fcState[w.w].box) || 1; }
+function setFcBox(w, box) {
+  if (!fcState[w.w]) fcState[w.w] = {};
+  fcState[w.w].box = box;
+  fcState[w.w].lastSeen = fcSession;
+  localStorage.setItem(FC_KEY, JSON.stringify(fcState));
+}
+
+function getScopedWords() {
+  if (fcScope === 'a1') return ALL_WORDS.filter(w => w.level === 'a1');
+  if (fcScope === 'a2') return ALL_WORDS.filter(w => w.level === 'a2');
+  return ALL_WORDS;
+}
+
+function buildQueue() {
+  const scoped = getScopedWords();
+  fcQueue = scoped.filter(w => {
+    const state = fcState[w.w];
+    if (!state) return true;
+    const box = state.box || 1;
+    const last = state.lastSeen || 0;
+    if (box === 1) return true;
+    if (box === 2) return (fcSession - last) >= 1;
+    if (box === 3) return (fcSession - last) >= 3;
+    return true;
+  });
+  for (let i = fcQueue.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [fcQueue[i], fcQueue[j]] = [fcQueue[j], fcQueue[i]];
+  }
+}
+
+function renderProgress() {
+  const scoped = getScopedWords();
+  const counts = { 1: 0, 2: 0, 3: 0, unseen: 0 };
+  scoped.forEach(w => {
+    if (!fcState[w.w]) counts.unseen++;
+    else counts[fcState[w.w].box || 1]++;
+  });
+  document.getElementById('fc-progress').innerHTML = `
+    <span class="fc-box-tag hard">📕 Hard: ${counts[1]}</span>
+    <span class="fc-box-tag medium">📒 Medium: ${counts[2]}</span>
+    <span class="fc-box-tag easy">📗 Easy: ${counts[3]}</span>
+    <span class="fc-box-tag unseen">⚪ Chưa học: ${counts.unseen}</span>
+  `;
+}
+
+document.getElementById('fc-scope').addEventListener('change', e => {
+  fcScope = e.target.value;
+  renderProgress();
+});
+renderProgress();
+
+function showFcReady() {
+  document.getElementById('fc-card').innerHTML = `
+    <div class="fc-word">Sẵn sàng học?</div>
+    <div class="fc-hint">Click "▶ Bắt đầu" để học theo phạm vi đã chọn.</div>
+  `;
+  document.getElementById('fc-controls').innerHTML = `
+    <button class="fc-btn show" id="btn-start-fc">▶ Bắt đầu</button>
+    <button class="fc-btn" id="btn-reset-fc">🗑 Reset tất cả tiến độ</button>
+  `;
+  document.getElementById('btn-start-fc').addEventListener('click', startFlashcard);
+  document.getElementById('btn-reset-fc').addEventListener('click', resetFc);
+}
+
+function resetFc() {
+  if (confirm('Reset toàn bộ tiến độ flashcard (cả A1 + A2)?')) {
+    fcState = {}; localStorage.removeItem(FC_KEY); fcSession = 0; renderProgress();
+    document.getElementById('fc-stats').textContent = '';
+    showFcReady();
+  }
+}
+
+document.getElementById('btn-start-fc').addEventListener('click', startFlashcard);
+document.getElementById('btn-reset-fc').addEventListener('click', resetFc);
+
+function startFlashcard() {
+  fcSession++;
+  buildQueue();
+  if (fcQueue.length === 0) {
+    document.getElementById('fc-card').innerHTML = `<div class="fc-word">🎉 Tuyệt!</div><div class="fc-hint">Tất cả từ ở Box 2/3. Quay lại sau để ôn.</div>`;
+    return;
+  }
+  fcCurrentIdx = 0;
+  showFcCard();
+}
+
+function showFcCard() {
+  if (fcCurrentIdx >= fcQueue.length) {
+    document.getElementById('fc-card').innerHTML = `<div class="fc-word">✓ Xong lượt!</div><div class="fc-hint">${fcQueue.length} từ đã ôn. Reload trang để học lại.</div>`;
+    document.getElementById('fc-controls').innerHTML = `<button class="fc-btn show" onclick="location.reload()">↻ Quay lại</button>`;
+    renderProgress();
+    return;
+  }
+  fcCurrentWord = fcQueue[fcCurrentIdx];
+  document.getElementById('fc-card').innerHTML = `
+    <div class="fc-word">${fcCurrentWord.w}</div>
+    <div class="fc-ipa">${fcCurrentWord.ipa}</div>
+    <div class="fc-hint">Nghĩa là gì? Suy nghĩ xong, click "Lật".</div>
+  `;
+  document.getElementById('fc-controls').innerHTML = `
+    <button class="fc-btn" id="btn-fc-listen">▶ Nghe</button>
+    <button class="fc-btn show" id="btn-fc-reveal">🔄 Lật xem nghĩa</button>
+  `;
+  document.getElementById('fc-stats').textContent = `Từ ${fcCurrentIdx + 1} / ${fcQueue.length} — Level: ${fcCurrentWord.level.toUpperCase()} — Box: ${getFcBox(fcCurrentWord)}`;
+  document.getElementById('btn-fc-listen').addEventListener('click', (e) => playAudio(fcCurrentWord.a, e.target, fcCurrentWord.w));
+  document.getElementById('btn-fc-reveal').addEventListener('click', revealFc);
+}
+
+function revealFc() {
+  document.getElementById('fc-card').innerHTML = `
+    <div class="fc-word">${fcCurrentWord.w}</div>
+    <div class="fc-ipa">${fcCurrentWord.ipa}</div>
+    <div class="fc-meaning">${fcCurrentWord.meaning}</div>
+    <div class="fc-example">"${fcCurrentWord.ex}"</div>
+  `;
+  document.getElementById('fc-controls').innerHTML = `
+    <button class="fc-btn hard" data-rate="hard">😓 Hard</button>
+    <button class="fc-btn medium" data-rate="medium">😐 Medium</button>
+    <button class="fc-btn easy" data-rate="easy">😊 Easy</button>
+  `;
+  document.querySelectorAll('.fc-btn[data-rate]').forEach(b => b.addEventListener('click', () => rateAndNext(b.dataset.rate)));
+}
+
+function rateAndNext(rate) {
+  const newBox = rate === 'hard' ? 1 : rate === 'medium' ? 2 : 3;
+  setFcBox(fcCurrentWord, newBox);
+  fcCurrentIdx++;
+  showFcCard();
+}
+
+// =============== Quiz ===============
+function buildQuiz() {
+  const w = ALL_WORDS[Math.floor(Math.random() * ALL_WORDS.length)];
+  const type = Math.floor(Math.random() * 3);
+  let prompt, correct, options;
+
+  const sameGroup = ALL_WORDS.filter(x => x.group === w.group && x.w !== w.w);
+  const distractors = [];
+  while (distractors.length < 3 && sameGroup.length > 0) {
+    const d = sameGroup[Math.floor(Math.random() * sameGroup.length)];
+    if (!distractors.includes(d)) distractors.push(d);
+  }
+  while (distractors.length < 3) {
+    const d = ALL_WORDS[Math.floor(Math.random() * ALL_WORDS.length)];
+    if (d.w !== w.w && !distractors.includes(d)) distractors.push(d);
+  }
+
+  if (type === 0) {
+    prompt = `Từ tiếng Anh nghĩa là <em>"${w.meaning}"</em>?`;
+    correct = w.w;
+    options = [w.w, ...distractors.map(d => d.w)];
+  } else if (type === 1) {
+    prompt = `Từ có phiên âm <em>${w.ipa}</em>?`;
+    correct = w.w;
+    options = [w.w, ...distractors.map(d => d.w)];
+  } else {
+    prompt = `Từ <em>"${w.w}"</em> nghĩa là gì?`;
+    correct = w.meaning;
+    options = [w.meaning, ...distractors.map(d => d.meaning)];
+  }
+  for (let i = options.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [options[i], options[j]] = [options[j], options[i]];
+  }
+  return { prompt, correct, options, word: w };
+}
+
+const quizDisplay = document.getElementById('quiz-display');
+const quizFeedback = document.getElementById('quiz-feedback');
+const quizStatsEl = document.getElementById('quiz-stats');
+let qStats = { correct: 0, total: 0 };
+let currentQ = null;
+let answered = false;
+
+function newQuiz() {
+  currentQ = buildQuiz();
+  answered = false;
+  const opts = currentQ.options.map((o, i) => `<button class="opt-btn" data-i="${i}">${o}</button>`).join('');
+  quizDisplay.innerHTML = `
+    <div class="quiz-question">
+      <div class="quiz-context">Chọn đáp án đúng (từ A1 + A2):</div>
+      <div class="quiz-prompt">${currentQ.prompt}</div>
+    </div>
+    <div class="quiz-options">${opts}</div>
+  `;
+  quizDisplay.querySelectorAll('.opt-btn').forEach(b => b.addEventListener('click', () => handleQuiz(b.textContent, b)));
+  quizFeedback.classList.remove('show', 'ok', 'err');
+}
+
+function handleQuiz(ans, btn) {
+  if (answered) return; answered = true;
+  qStats.total++;
+  quizDisplay.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+  if (ans === currentQ.correct) {
+    qStats.correct++;
+    btn.classList.add('correct');
+    quizFeedback.innerHTML = `<strong>Đúng!</strong> ${currentQ.word.w} ${currentQ.word.ipa} = ${currentQ.word.meaning}. <em>"${currentQ.word.ex}"</em> <button class=\"play-pill\" style=\"margin-left:8px;\" onclick=\"playAudio('${currentQ.word.a}', this, '${currentQ.word.w}')\">▶ Nghe</button>`;
+    quizFeedback.className = 'quiz-feedback show ok';
+  } else {
+    btn.classList.add('wrong');
+    quizDisplay.querySelectorAll('.opt-btn').forEach(b => { if (b.textContent === currentQ.correct) b.classList.add('correct'); });
+    quizFeedback.innerHTML = `<strong>Sai.</strong> Đáp án: <em>${currentQ.correct}</em>. ${currentQ.word.w} ${currentQ.word.ipa} = ${currentQ.word.meaning}.`;
+    quizFeedback.className = 'quiz-feedback show err';
+  }
+  quizStatsEl.textContent = `Đúng: ${qStats.correct} / ${qStats.total}`;
+}
+document.getElementById('btn-new-quiz').addEventListener('click', newQuiz);
+</script>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+<script src="../../../tools/ipa-reader.js"></script>
+</body>
+</html>

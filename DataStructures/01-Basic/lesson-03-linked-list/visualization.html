@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 03 — Linked List trực quan</title>
+<style>
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 16px; }
+  h1 { margin-top: 0; }
+  .list { display: flex; align-items: center; gap: 6px; margin: 18px 0; flex-wrap: wrap; }
+  .node { display: flex; align-items: center; gap: 4px; }
+  .box { background: #fff; border: 2px solid #333; border-radius: 6px; padding: 6px 10px; min-width: 36px; text-align: center; font-weight: 600; transition: all .3s; }
+  .arrow { color: #888; font-size: 18px; }
+  .null { color: #888; font-style: italic; }
+  .new { background: #d1fae5; border-color: #10b981; }
+  .del { background: #fee2e2; border-color: #ef4444; }
+  .hit { background: #fef08a; border-color: #ca8a04; }
+  .slow { background: #dbeafe; border-color: #3b82f6; }
+  .fast { background: #fee2e2; border-color: #ef4444; }
+  .meet { background: #fef08a; border-color: #ca8a04; }
+  .ptr { font-size: 11px; color: #666; text-align: center; min-height: 14px; }
+  button { background: #3b82f6; color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; cursor: pointer; margin-right: 6px; }
+  input { width: 70px; padding: 4px; }
+  .log { color: #444; min-height: 20px; margin-top: 8px; }
+  .arrow.rev { color: #ef4444; font-weight: 700; }
+</style>
+</head>
+<body>
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-array/visualization.html">← L2: Array</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Linked List</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-stack/visualization.html">L4: Stack →</a>
+</nav>
+<h1>Singly Linked List — trực quan</h1>
+
+<div class="panel">
+  <h2 style="margin-top:0">Thao tác cơ bản</h2>
+  <div class="list" id="list"></div>
+  <div>
+    <label>Giá trị: <input id="val" type="number" value="42"></label>
+    <button onclick="pushFront()">Thêm đầu</button>
+    <button onclick="pushBack()">Thêm cuối</button>
+    <button onclick="removeFirst()">Xóa node đầu</button>
+    <button onclick="removeVal()">Xóa giá trị</button>
+    <button onclick="reverseList()">Đảo ngược (animate)</button>
+    <button onclick="reset()">Reset</button>
+  </div>
+  <div class="log" id="log"></div>
+</div>
+
+<div class="panel">
+  <h2 style="margin-top:0">Đảo ngược pointer-by-pointer (bài 2 README)</h2>
+  <p style="margin:0 0 8px 0; font-size:14px; color:#555;">Giữ 3 con trỏ <code>prev / cur / next</code>. Mỗi bước trỏ ngược <code>cur.next</code> về <code>prev</code>, rồi xê dịch các con trỏ.</p>
+  <div class="list" id="listRev"></div>
+  <div class="ptr" id="ptrRev"></div>
+  <button onclick="revPtrStart()">▶ Chạy reverse-pointer</button>
+  <button onclick="revPtrReset()">Reset</button>
+  <div class="log" id="logRev"></div>
+</div>
+
+<div class="panel">
+  <h2 style="margin-top:0">Floyd "rùa và thỏ" — phát hiện chu trình (bài 4 README)</h2>
+  <p style="margin:0 0 8px 0; font-size:14px; color:#555;"><b>slow</b> đi 1 bước, <b>fast</b> đi 2 bước. Có chu trình → gặp nhau. Không → fast chạm null.</p>
+  <div>
+    <button onclick="floydSetup(false)">Setup list KHÔNG chu trình</button>
+    <button onclick="floydSetup(true)">Setup list CÓ chu trình (tail → idx 2)</button>
+  </div>
+  <div class="list" id="listFloyd" style="margin-top:14px;"></div>
+  <div class="ptr" id="ptrFloyd"></div>
+  <div>
+    <button onclick="floydStep()" id="floydStepBtn">▶ Bước tiếp</button>
+    <button onclick="floydRun()" id="floydRunBtn">▶▶ Chạy hết</button>
+  </div>
+  <div class="log" id="logFloyd"></div>
+</div>
+
+<script>
+let list = [10, 20, 30, 40];
+function render(hl = {}) {
+  const root = document.getElementById('list');
+  root.innerHTML = '';
+  list.forEach((v, i) => {
+    const wrap = document.createElement('div'); wrap.className = 'node';
+    const box = document.createElement('div'); box.className = 'box ' + (hl[i] || ''); box.textContent = v;
+    wrap.appendChild(box);
+    const arr = document.createElement('span'); arr.className = 'arrow'; arr.textContent = '→';
+    wrap.appendChild(arr);
+    root.appendChild(wrap);
+  });
+  const nullSpan = document.createElement('span'); nullSpan.className = 'null'; nullSpan.textContent = 'null';
+  root.appendChild(nullSpan);
+}
+function log(msg) { document.getElementById('log').textContent = msg; }
+function val() { return parseInt(document.getElementById('val').value); }
+
+function pushFront() {
+  list.unshift(val());
+  render({ 0: 'new' });
+  log(`pushFront(${val()}) — O(1): chỉ trỏ next của node mới về head cũ.`);
+}
+function pushBack() {
+  list.push(val());
+  render({ [list.length - 1]: 'new' });
+  log(`pushBack(${val()}) — O(1) khi có con trỏ tail; O(n) nếu không có.`);
+}
+function removeFirst() {
+  if (!list.length) return;
+  const v = list.shift();
+  render();
+  log(`removeFront() = ${v} — O(1).`);
+}
+function removeVal() {
+  const v = val();
+  const idx = list.indexOf(v);
+  if (idx < 0) { log(`Không có ${v} trong list.`); return; }
+  list.splice(idx, 1);
+  render();
+  log(`Xóa giá trị ${v} (tìm ở vị trí ${idx}) — O(n) vì phải duyệt tới đó.`);
+}
+
+async function reverseList() {
+  // Reverse in-place: vẫn dùng cho nút "Đảo ngược" panel 1, đơn giản.
+  list.reverse();
+  render({ 0: 'new', [list.length-1]: 'new' });
+  log('Đã đảo ngược toàn bộ list — O(n). Xem panel dưới để thấy thuật toán prev/cur/next chi tiết.');
+}
+function reset() { list = [10, 20, 30, 40]; render(); log(''); }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+render();
+
+// ===== Panel reverse-pointer animation (3 con trỏ prev/cur/next) =====
+function renderRev(nodes, prev, cur, nxt) {
+  const root = document.getElementById('listRev');
+  root.innerHTML = '';
+  nodes.forEach((node, i) => {
+    if (node.deleted) return;
+    const wrap = document.createElement('div'); wrap.className = 'node';
+    let cls = '';
+    if (i === prev) cls = 'slow';
+    else if (i === cur) cls = 'hit';
+    else if (i === nxt) cls = 'new';
+    const box = document.createElement('div'); box.className = 'box ' + cls; box.textContent = node.val;
+    wrap.appendChild(box);
+    // arrow theo node.next (có thể đảo)
+    if (node.next !== null) {
+      const arr = document.createElement('span');
+      arr.className = 'arrow' + (node.next < i ? ' rev' : '');
+      arr.textContent = node.next < i ? '←' : '→';
+      wrap.appendChild(arr);
+    }
+    root.appendChild(wrap);
+  });
+  const ptr = document.getElementById('ptrRev');
+  ptr.textContent = `prev=${prev === null ? 'null' : 'idx '+prev} · cur=${cur === null ? 'null' : 'idx '+cur} · next=${nxt === null ? 'null' : 'idx '+nxt}`;
+}
+let revNodes = null;
+function buildRevNodes() {
+  return [10, 20, 30, 40, 50].map((v, i, a) => ({ val: v, next: i + 1 < a.length ? i + 1 : null, deleted: false }));
+}
+let revState = null;
+async function revPtrStart() {
+  revNodes = buildRevNodes();
+  let prev = null, cur = 0;
+  renderRev(revNodes, prev, cur, revNodes[cur].next);
+  document.getElementById('logRev').textContent = 'Khởi đầu: prev=null, cur=head (idx 0).';
+  await sleep(800);
+  while (cur !== null) {
+    const nxt = revNodes[cur].next;
+    document.getElementById('logRev').textContent = `Lưu next = ${nxt === null ? 'null' : 'idx '+nxt}. Trỏ cur.next ngược về prev = ${prev === null ? 'null' : 'idx '+prev}.`;
+    revNodes[cur].next = prev;
+    renderRev(revNodes, prev, cur, nxt);
+    await sleep(700);
+    prev = cur; cur = nxt;
+    renderRev(revNodes, prev, cur, cur === null ? null : revNodes[cur].next);
+    await sleep(400);
+  }
+  document.getElementById('logRev').textContent = `Xong! prev (idx ${prev}) là head mới. Toàn bộ mũi tên đã đảo. O(n) thời gian, O(1) bộ nhớ.`;
+}
+function revPtrReset() {
+  revNodes = buildRevNodes();
+  renderRev(revNodes, null, null, null);
+  document.getElementById('logRev').textContent = '';
+}
+revPtrReset();
+
+// ===== Panel Floyd cycle detection =====
+let floyd = null;
+function floydSetup(cycle) {
+  // 6 nodes: 1 → 2 → 3 → 4 → 5 → 6 → (null hoặc về 2 nếu cycle)
+  const nodes = [
+    { val: 1, next: 1 }, { val: 2, next: 2 }, { val: 3, next: 3 },
+    { val: 4, next: 4 }, { val: 5, next: 5 }, { val: 6, next: cycle ? 2 : null }
+  ];
+  floyd = { nodes, slow: 0, fast: 0, step: 0, done: false, hasCycle: cycle, started: false };
+  renderFloyd();
+  document.getElementById('logFloyd').textContent = cycle
+    ? 'Setup: list 1→2→3→4→5→6→(quay về 2). Có chu trình.'
+    : 'Setup: list 1→2→3→4→5→6→null. Không có chu trình.';
+}
+function renderFloyd() {
+  const root = document.getElementById('listFloyd');
+  root.innerHTML = '';
+  if (!floyd) return;
+  floyd.nodes.forEach((n, i) => {
+    const wrap = document.createElement('div'); wrap.className = 'node';
+    let cls = '';
+    if (i === floyd.slow && i === floyd.fast && floyd.started) cls = 'meet';
+    else if (i === floyd.slow && floyd.started) cls = 'slow';
+    else if (i === floyd.fast && floyd.started) cls = 'fast';
+    const box = document.createElement('div'); box.className = 'box ' + cls; box.textContent = n.val;
+    wrap.appendChild(box);
+    if (n.next !== null) {
+      const arr = document.createElement('span'); arr.className = 'arrow';
+      arr.textContent = n.next < i ? '↩' : '→';
+      wrap.appendChild(arr);
+    } else {
+      const nullS = document.createElement('span'); nullS.className = 'null'; nullS.textContent = 'null';
+      wrap.appendChild(nullS);
+    }
+    root.appendChild(wrap);
+  });
+  document.getElementById('ptrFloyd').textContent = floyd.started
+    ? `Bước ${floyd.step} · slow=idx ${floyd.slow} (val ${floyd.nodes[floyd.slow].val}) · fast=${floyd.fast === null ? 'null' : 'idx '+floyd.fast+' (val '+floyd.nodes[floyd.fast].val+')'}`
+    : '';
+}
+function floydStep() {
+  if (!floyd || floyd.done) return;
+  floyd.started = true;
+  floyd.step++;
+  // slow: 1 bước
+  floyd.slow = floyd.nodes[floyd.slow].next;
+  // fast: 2 bước
+  if (floyd.fast === null || floyd.nodes[floyd.fast].next === null) {
+    floyd.done = true;
+    document.getElementById('logFloyd').textContent = `Bước ${floyd.step}: fast chạm null → KHÔNG có chu trình.`;
+    floyd.fast = null;
+    renderFloyd();
+    return;
+  }
+  floyd.fast = floyd.nodes[floyd.fast].next;
+  if (floyd.nodes[floyd.fast].next === null) {
+    floyd.done = true;
+    floyd.fast = null;
+    document.getElementById('logFloyd').textContent = `Bước ${floyd.step}: fast chạm null → KHÔNG có chu trình.`;
+    renderFloyd();
+    return;
+  }
+  floyd.fast = floyd.nodes[floyd.fast].next;
+  renderFloyd();
+  if (floyd.slow === floyd.fast) {
+    floyd.done = true;
+    document.getElementById('logFloyd').textContent = `Bước ${floyd.step}: slow gặp fast tại idx ${floyd.slow} (val ${floyd.nodes[floyd.slow].val}) → CÓ chu trình!`;
+  } else {
+    document.getElementById('logFloyd').textContent = `Bước ${floyd.step}: slow → idx ${floyd.slow}, fast → idx ${floyd.fast}. Chưa gặp.`;
+  }
+}
+async function floydRun() {
+  while (floyd && !floyd.done) {
+    floydStep();
+    await sleep(500);
+  }
+}
+floydSetup(true);
+</script></main>
+</script></main>
+<!-- README modal (xem tools/readme-modal.js để biết chi tiết) -->
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

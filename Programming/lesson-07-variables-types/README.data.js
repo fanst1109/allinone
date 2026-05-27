@@ -22,7 +22,7 @@ Sau bài này, bạn sẽ:
 
 - [Lesson 05 — Vì sao Go?](../lesson-05-why-go-philosophy/) (đã chạy được hello world).
 - [Lesson 06 — Hello World & Toolchain](../lesson-06-hello-world-toolchain/) (biết \`go run\`, \`go build\`).
-- Hiểu sơ về **binary, bit, byte** ([DataFoundations L01](../../DataFoundations/lesson-01-bit-byte-number/)) — sẽ hữu ích khi nói về kiểu số nguyên, overflow, bitshift.
+- Hiểu sơ về **binary, bit, byte** ([DataFoundations L01](../../DataFoundations/01-NumberRepresentation/lesson-01-binary-hex/)) — sẽ hữu ích khi nói về kiểu số nguyên, overflow, bitshift.
 
 ---
 

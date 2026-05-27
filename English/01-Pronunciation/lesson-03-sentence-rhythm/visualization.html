@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nhịp câu & Ngữ điệu — Sentence Rhythm & Intonation</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f5f6f8; --panel: #fff; --ink: #1a1a1a; --muted: #6a6a6a; --line: #e3e1dc;
+    --accent: #b45309; --accent-soft: #fef3c7;
+    --content: #b91c1c; --content-soft: #fee2e2;
+    --function: #6b7280; --function-soft: #f1f5f9;
+    --ok: #15803d; --error: #b91c1c;
+    --rise: #1d4ed8; --fall: #b45309;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--ink); line-height: 1.55; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px 80px; }
+  header h1 { margin: 0 0 4px; font-size: 24px; }
+  header p { margin: 0 0 20px; color: var(--muted); font-size: 14px; }
+  header p code { background: var(--accent-soft); color: var(--accent); padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+
+  .accent-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin-left: 8px; }
+  .accent-toggle button { background: var(--panel); border: none; padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; }
+  .accent-toggle button + button { border-left: 1px solid var(--line); }
+  .accent-toggle button:hover { background: var(--accent-soft); color: var(--accent); }
+  .accent-toggle button.active { background: var(--accent); color: white; }
+
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 24px; flex-wrap: wrap; }
+  .tab { padding: 10px 16px; cursor: pointer; background: none; border: none; font-size: 14px; font-weight: 500; color: var(--muted); border-bottom: 2px solid transparent; }
+  .tab.active { color: var(--ink); border-bottom-color: var(--accent); }
+  .pane { display: none; }
+  .pane.active { display: block; }
+
+  .ipa-symbol { font-family: "Charis SIL", "Lucida Grande", sans-serif; }
+
+  .section-note { color: var(--muted); font-size: 13px; margin: 0 0 16px; background: var(--accent-soft); padding: 10px 14px; border-radius: 8px; border-left: 3px solid var(--accent); }
+
+  /* Sentence display */
+  .sentence-card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px; margin-bottom: 14px;
+  }
+  .sentence-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px; font-size: 13px; color: var(--muted);
+  }
+  .beat-count { font-weight: 700; color: var(--content); font-size: 14px; }
+  .sentence-line { display: flex; flex-wrap: wrap; gap: 6px; align-items: baseline; }
+  .word-token {
+    padding: 6px 10px; border-radius: 6px; cursor: pointer; transition: all 0.15s;
+    font-size: 16px;
+  }
+  .word-token.content {
+    background: var(--content-soft); color: var(--content); font-weight: 700; font-size: 19px;
+    border: 1px solid var(--content);
+  }
+  .word-token.function {
+    background: var(--function-soft); color: var(--function); font-size: 13px;
+    opacity: 0.75;
+  }
+  .word-token:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+  .word-token.no-audio { cursor: default; }
+  .word-token.no-audio:hover { transform: none; box-shadow: none; }
+  .sentence-note { color: var(--muted); font-size: 12px; margin-top: 10px; font-style: italic; }
+
+  /* Content vs Function table */
+  .cf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .cf-col {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px;
+  }
+  .cf-col.content-col { border-top: 3px solid var(--content); }
+  .cf-col.function-col { border-top: 3px solid var(--function); }
+  .cf-title { font-weight: 700; margin-bottom: 12px; font-size: 16px; }
+  .cf-title.content { color: var(--content); }
+  .cf-title.function { color: var(--function); }
+  .cf-group { margin-bottom: 14px; }
+  .cf-group-title { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .cf-words { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cf-word {
+    padding: 4px 10px; border-radius: 6px; cursor: pointer; transition: all 0.12s;
+    font-size: 13px; background: #f5f4f0; color: var(--ink);
+  }
+  .cf-word:hover { background: var(--accent-soft); color: var(--accent); }
+
+  /* Intonation cards */
+  .ito-card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px; margin-bottom: 16px;
+  }
+  .ito-title { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .ito-name { font-size: 16px; font-weight: 700; }
+  .ito-arrow { font-size: 22px; font-weight: 700; }
+  .ito-arrow.fall { color: var(--fall); }
+  .ito-arrow.rise { color: var(--rise); }
+  .ito-desc { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
+  .ito-examples { display: flex; flex-direction: column; gap: 8px; }
+  .ito-example {
+    background: #f5f4f0; padding: 10px 14px; border-radius: 8px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .ito-example .ex-text { font-size: 14px; }
+  .ito-example .ex-tone { font-weight: 700; font-size: 18px; }
+  .ito-svg-wrap { margin: 14px 0; text-align: center; }
+  .pitch-svg { background: #fafaf7; border: 1px solid var(--line); border-radius: 6px; }
+
+  /* Quiz - đếm nhịp */
+  .quiz-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
+  .quiz-controls { display: flex; gap: 8px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+  .quiz-controls button { padding: 8px 14px; font-size: 13px; border: 1px solid var(--line); border-radius: 6px; background: white; cursor: pointer; font-weight: 500; }
+  .quiz-controls button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+  .quiz-stats { color: var(--muted); font-size: 13px; margin-left: auto; }
+  .quiz-sentence {
+    text-align: center; padding: 24px 16px; background: var(--accent-soft);
+    border-radius: 10px; margin-bottom: 16px;
+  }
+  .quiz-sentence .sent { font-size: 20px; font-weight: 500; }
+  .answer-row { display: flex; gap: 8px; justify-content: center; margin-top: 14px; flex-wrap: wrap; }
+  .ans-btn {
+    padding: 12px 24px; font-size: 18px; font-weight: 700;
+    border: 2px solid var(--line); background: white; border-radius: 8px; cursor: pointer;
+  }
+  .ans-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .ans-btn.correct { border-color: var(--ok); background: #f0fdf4; color: var(--ok); }
+  .ans-btn.wrong { border-color: var(--error); background: #fef2f2; color: var(--error); }
+  .quiz-feedback { margin-top: 14px; padding: 10px 14px; border-radius: 8px; font-size: 14px; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok { background: #f0fdf4; color: var(--ok); }
+  .quiz-feedback.err { background: #fef2f2; color: var(--error); }
+
+  .audio-status { font-size: 11px; color: var(--muted); margin-top: 8px; }
+  .audio-status.error { color: var(--error); }
+
+  footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); text-align: center; }
+  footer a { color: var(--accent); }
+  @media (max-width: 640px) { .cf-grid { grid-template-columns: 1fr; } }
+
+</style>
+</head>
+<body>
+<div class="container">
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-word-stress/visualization.html">← L02: Trọng âm</a>
+  <span class="sep">·</span>
+  <span class="current">L03: Nhịp & Intonation</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-linking-connected-speech/visualization.html">L04: Linking →</a>
+</nav>
+
+<header>
+  <h1>Sentence Rhythm & Intonation</h1>
+  <p>Đỏ = content word (được nhấn). Xám = function word (lướt nhẹ). Click từng từ nghe phát âm đơn. Audio: <code>oxfordlearnersdictionaries.com</code>.
+    Giọng:
+    <span class="accent-toggle">
+      <button id="btn-accent-us" class="active" data-variant="us">US</button>
+      <button id="btn-accent-uk" data-variant="uk">UK</button>
+    </span>
+  </p>
+</header>
+
+<div class="tabs">
+  <button class="tab active" data-tab="rhythm">Nhịp câu</button>
+  <button class="tab" data-tab="cf">Content vs Function</button>
+  <button class="tab" data-tab="intonation">Intonation</button>
+  <button class="tab" data-tab="beat-quiz">Đếm nhịp</button>
+</div>
+
+<section class="pane active" id="pane-rhythm">
+  <div class="section-note">
+    Mỗi câu dưới đây có một số <strong>nhịp</strong> (số từ được nhấn). Click vào từ để nghe phát âm đơn (audio Oxford ở mức từ — chưa phải câu).
+  </div>
+  <div id="rhythm-list"></div>
+  <div class="audio-status" id="status-rhythm">Click từ bất kỳ để nghe.</div>
+</section>
+
+<section class="pane" id="pane-cf">
+  <div class="section-note">
+    Phân loại từ — gốc rễ của trọng âm câu. <strong>Content words</strong> luôn nhấn; <strong>Function words</strong> thường lướt và rơi về schwa.
+  </div>
+  <div class="cf-grid">
+    <div class="cf-col content-col">
+      <div class="cf-title content">Content words — nhấn</div>
+      <div id="content-words-list"></div>
+    </div>
+    <div class="cf-col function-col">
+      <div class="cf-title function">Function words — lướt</div>
+      <div id="function-words-list"></div>
+    </div>
+  </div>
+  <div class="audio-status" id="status-cf">Click từ bất kỳ để nghe.</div>
+</section>
+
+<section class="pane" id="pane-intonation">
+  <div class="section-note">
+    4 mẫu ngữ điệu cơ bản. Đường biểu diễn cao độ giọng — đi xuống / lên / kết hợp.
+  </div>
+  <div id="ito-list"></div>
+</section>
+
+<section class="pane" id="pane-beat-quiz">
+  <div class="quiz-wrap">
+    <div class="quiz-controls">
+      <button class="primary" id="btn-new-beat">▶ Câu mới</button>
+      <span class="quiz-stats" id="beat-stats">Đúng: 0 / 0</span>
+    </div>
+    <div id="beat-display"></div>
+    <div class="quiz-feedback" id="beat-feedback"></div>
+  </div>
+</section>
+
+<footer>
+  Audio từ Oxford ở cấp độ TỪ (chưa có câu hoàn chỉnh). Mặc định US. <a href="https://www.oxfordlearnersdictionaries.com" target="_blank">Oxford Learner's Dictionaries</a>.
+</footer>
+
+<audio id="audio-el" preload="none"></audio>
+</div>
+
+<script>
+// =================== Audio (shared) ===================
+const DOMAIN_NEW = "https://www.oxfordlearnersdictionaries.com/media/english/";
+const DOMAIN_OLD = "https://www.oxforddictionaries.com/media/english/";
+const audioEl = document.getElementById('audio-el');
+let currentVariant = localStorage.getItem('audioVariant') || 'us';
+
+function ukToVariantPath(ukRel, variant) {
+  if (variant === 'us') return "us_pron/" + ukRel.replace(/__gb_/, '__us_');
+  return "uk_pron/" + ukRel;
+}
+function playAudio(ukRel, statusEl) {
+  if (!ukRel) {
+    if (statusEl) { statusEl.textContent = "(không có audio)"; statusEl.classList.add('error'); }
+    return;
+  }
+  const candidates = [
+    DOMAIN_NEW + ukToVariantPath(ukRel, currentVariant),
+    DOMAIN_OLD + ukToVariantPath(ukRel, currentVariant),
+  ];
+  if (currentVariant === 'us') {
+    candidates.push(DOMAIN_NEW + ukToVariantPath(ukRel, 'uk'));
+    candidates.push(DOMAIN_OLD + ukToVariantPath(ukRel, 'uk'));
+  }
+  let idx = 0;
+  if (statusEl) { statusEl.textContent = "Đang tải..."; statusEl.classList.remove('error'); }
+  function tryNext() {
+    if (idx >= candidates.length) {
+      if (statusEl) { statusEl.textContent = "Không tải được audio."; statusEl.classList.add('error'); }
+      return;
+    }
+    const url = candidates[idx++];
+    audioEl.onerror = tryNext;
+    audioEl.onplaying = () => {
+      if (statusEl) {
+        const playingUs = url.includes('/us_pron/');
+        const fellBack = (currentVariant === 'us') !== playingUs;
+        statusEl.textContent = `▶ Oxford ${playingUs ? 'US' : 'UK'}${fellBack ? ' (fallback)' : ''}.`;
+        statusEl.classList.remove('error');
+      }
+    };
+    audioEl.src = url;
+    const p = audioEl.play();
+    if (p && p.catch) p.catch(() => tryNext());
+  }
+  tryNext();
+}
+function setVariant(v) {
+  currentVariant = v;
+  localStorage.setItem('audioVariant', v);
+  document.querySelectorAll('.accent-toggle button').forEach(b => b.classList.toggle('active', b.dataset.variant === v));
+}
+document.querySelectorAll('.accent-toggle button').forEach(btn => btn.addEventListener('click', () => setVariant(btn.dataset.variant)));
+setVariant(currentVariant);
+
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('pane-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// =================== Audio data (subset of L02 + few extras) ===================
+const A = {
+  mother:    "m/mot/mothe/mother__gb_1.mp3",
+  father:    "f/fat/fathe/father__gb_1.mp3",
+  brother:   "b/bro/broth/brother__gb_1.mp3",
+  sister:    "s/sis/siste/sister__gb_1.mp3",
+  teacher:   "t/tea/teach/teacher__gb_1.mp3",
+  student:   "s/stu/stude/student__gb_1.mp3",
+  computer:  "c/com/compu/computer__gb_1.mp3",
+  market:    "m/mar/marke/market__gb_1.mp3",
+  book:      "b/boo/book_/book__gb_1.mp3",
+  cat:       "", dog:"d/dog/dog__/dog__gb_1.mp3",
+  run:       "r/run/run__/run__gb_1.mp3",
+  jump:      "j/jum/jump_/jump__gb_1.mp3",
+  read:      "",
+  watch:     "w/wat/watch/watch__gb_1.mp3",
+  big:       "b/big/big__/big__gb_1.mp3",
+  small:     "s/sma/small/small__gb_1.mp3",
+  good:      "g/goo/good_/good__gb_1.mp3",
+  beautiful: "b/bea/beaut/beautiful__gb_1_8.mp3",
+  important: "i/imp/impor/important__gb_1.mp3",
+  quickly:   "q/qui/quick/quickly__gb_1.mp3",
+  slowly:    "s/slo/slowl/slowly__gb_1.mp3",
+  always:    "a/alw/alway/always__gb_1.mp3",
+  never:     "n/nev/never/never__gb_1.mp3",
+  why:       "w/why/why__/why__gb_1.mp3",
+  not:       "n/not/not__/not__gb_1.mp3",
+  today:     "t/tod/today/today__gb_1.mp3",
+  tomorrow:  "t/tom/tomor/tomorrow__gb_1.mp3",
+  yesterday: "y/yes/yeste/yesterday__gb_1.mp3",
+  here:      "h/her/here_/here__gb_1.mp3",
+  there:     "t/the/there/there__gb_1_8.mp3",
+  now:       "",
+  understand: "",
+  going:     "",
+  reads:     "",
+  bought:    "",
+  waiting:   "",
+  saying:    "",
+  explained: "",
+  supermarket: "",
+  lesson:    "",
+  clearly:   "",
+  hour:      "",
+  tired:     "",
+  fruit:     "f/fru/fruit/fruit__gb_1.mp3",
+  buy:       "",
+  some:      "",
+  // function words (have audio for some)
+  the:       "", a: "", an: "", to:"", of:"", for:"", and:"", but:"", or:"", in:"", on:"", at:"",
+  is:"", am:"", are:"", was:"", were:"", have:"h/hav/have_/have__gb_3.mp3", has:"", had:"",
+  do:"", does:"", did:"", can:"", will:"", would:"", should:"",
+  I:"", you:"", he:"", she:"", it:"", we:"", they:"", his:"", her:"", my:"", your:"",
+  before:"b/bef/befor/before__gb_1.mp3", after:"a/aft/after/after__gb_1.mp3",
+  yes: "y/yes/yes__/yes__gb_1.mp3", no:"",
+  bed:"", time:"t/tim/time_/time__gb_1.mp3", door:"d/doo/door_/door__gb_1.mp3",
+};
+
+// Content words: nouns, verbs, adjectives, adverbs, question words, demonstratives, numerals, negatives
+const CONTENT_SET = new Set([
+  'mother','father','brother','sister','teacher','student','computer','market','book','cat','dog','fruit','door','bed','time','hour','lesson','supermarket',
+  'run','jump','read','reads','watch','go','going','buy','bought','understand','wait','waiting','saying','explained','close','live','want',
+  'big','small','good','beautiful','important','tired','old','new',
+  'quickly','slowly','always','never','today','tomorrow','yesterday','clearly','very',
+  'what','where','when','why','how','who','which',
+  'not','no','never',
+  'this','that','these','those','here','there','now',
+]);
+function classifyWord(w) {
+  const lower = w.toLowerCase().replace(/[.,?!]/g, '').replace(/'.*$/,'').trim();
+  return CONTENT_SET.has(lower) ? 'content' : 'function';
+}
+
+// =================== Rhythm sentences ===================
+const sentences = [
+  { text: "I'm going to the supermarket tomorrow.", note: "3 nhịp: GOING, SUPERMARKET, TOMORROW.",
+    overrides: { "I'm":"function", "going":"content", "to":"function", "the":"function", "supermarket":"content", "tomorrow":"content" } },
+  { text: "She bought a new computer last week.", note: "5 nhịp: BOUGHT, NEW, COMPUTER, LAST, WEEK.",
+    overrides: { "She":"function", "bought":"content", "a":"function", "new":"content", "computer":"content", "last":"content", "week":"content" } },
+  { text: "Do you understand what I'm saying?", note: "2 nhịp: UNDERSTAND, SAYING. Wh-question (what) cũng được nhấn.",
+    overrides: { "Do":"function", "you":"function", "understand":"content", "what":"content", "I'm":"function", "saying":"content" } },
+  { text: "Why are you so tired today?", note: "3 nhịp: WHY, TIRED, TODAY.",
+    overrides: { "Why":"content", "are":"function", "you":"function", "so":"function", "tired":"content", "today":"content" } },
+  { text: "My brother always reads his books before going to bed.", note: "6 nhịp: BROTHER, ALWAYS, READS, BOOKS, GOING, BED.",
+    overrides: { "My":"function", "brother":"content", "always":"content", "reads":"content", "his":"function", "books":"content", "before":"function", "going":"content", "to":"function", "bed":"content" } },
+  { text: "The teacher explained the lesson very clearly.", note: "4 nhịp: TEACHER, EXPLAINED, LESSON, CLEARLY.",
+    overrides: { "The":"function", "teacher":"content", "explained":"content", "the":"function", "lesson":"content", "very":"function", "clearly":"content" } },
+];
+
+const rhythmList = document.getElementById('rhythm-list');
+sentences.forEach(s => {
+  const card = document.createElement('div');
+  card.className = 'sentence-card';
+  const words = s.text.split(/\s+/);
+  const beats = Object.values(s.overrides).filter(v => v === 'content').length;
+  let tokensHtml = words.map(w => {
+    const cls = s.overrides[w] || classifyWord(w);
+    const lookupKey = w.toLowerCase().replace(/[.,?!]/g, '').replace(/'.*$/,'');
+    const audio = A[lookupKey] || '';
+    return `<span class="word-token ${cls} ${audio ? '' : 'no-audio'}" data-audio="${audio}">${w}</span>`;
+  }).join('');
+  card.innerHTML = `
+    <div class="sentence-header">
+      <span>${s.text}</span>
+      <span class="beat-count">${beats} nhịp ●</span>
+    </div>
+    <div class="sentence-line">${tokensHtml}</div>
+    <div class="sentence-note">${s.note}</div>
+  `;
+  card.querySelectorAll('.word-token').forEach(el => {
+    if (el.dataset.audio) {
+      el.addEventListener('click', () => playAudio(el.dataset.audio, document.getElementById('status-rhythm')));
+    }
+  });
+  rhythmList.appendChild(card);
+});
+
+// =================== Content vs Function lists ===================
+const cwGroups = [
+  { title: "Danh từ (nouns)", words: [{w:"mother",a:A.mother},{w:"computer",a:A.computer},{w:"market",a:A.market},{w:"book",a:A.book},{w:"fruit",a:A.fruit},{w:"door",a:A.door},{w:"teacher",a:A.teacher},{w:"student",a:A.student}] },
+  { title: "Động từ (verbs)", words: [{w:"run",a:A.run},{w:"jump",a:A.jump},{w:"watch",a:A.watch},{w:"have",a:A.have}] },
+  { title: "Tính từ (adjectives)", words: [{w:"big",a:A.big},{w:"small",a:A.small},{w:"good",a:A.good},{w:"important",a:A.important},{w:"beautiful",a:A.beautiful}] },
+  { title: "Trạng từ (adverbs)", words: [{w:"quickly",a:A.quickly},{w:"slowly",a:A.slowly},{w:"always",a:A.always},{w:"never",a:A.never}] },
+  { title: "Từ để hỏi / phủ định", words: [{w:"why",a:A.why},{w:"not",a:A.not},{w:"today",a:A.today},{w:"tomorrow",a:A.tomorrow},{w:"yesterday",a:A.yesterday},{w:"here",a:A.here},{w:"there",a:A.there}] },
+];
+const fwGroups = [
+  { title: "Giới từ (prepositions)", words: ["of","to","for","at","in","on","with","by"] },
+  { title: "Mạo từ (articles)", words: ["the","a","an"] },
+  { title: "Liên từ (conjunctions)", words: ["and","but","or","as","because"] },
+  { title: "Trợ động từ (auxiliaries)", words: ["am","is","are","was","were","do","does","have","has","can","will","would"] },
+  { title: "Đại từ (pronouns)", words: ["I","you","he","she","it","we","they","my","your","his","her"] },
+];
+const cwEl = document.getElementById('content-words-list');
+cwGroups.forEach(g => {
+  const grp = document.createElement('div'); grp.className = 'cf-group';
+  const title = document.createElement('div'); title.className = 'cf-group-title'; title.textContent = g.title;
+  const list = document.createElement('div'); list.className = 'cf-words';
+  g.words.forEach(w => {
+    const el = document.createElement('span'); el.className = 'cf-word'; el.textContent = w.w;
+    if (w.a) el.addEventListener('click', () => playAudio(w.a, document.getElementById('status-cf')));
+    else el.style.cursor = 'default';
+    list.appendChild(el);
+  });
+  grp.appendChild(title); grp.appendChild(list); cwEl.appendChild(grp);
+});
+const fwEl = document.getElementById('function-words-list');
+fwGroups.forEach(g => {
+  const grp = document.createElement('div'); grp.className = 'cf-group';
+  const title = document.createElement('div'); title.className = 'cf-group-title'; title.textContent = g.title;
+  const list = document.createElement('div'); list.className = 'cf-words';
+  g.words.forEach(w => {
+    const el = document.createElement('span'); el.className = 'cf-word'; el.textContent = w; el.style.cursor = 'default';
+    list.appendChild(el);
+  });
+  grp.appendChild(title); grp.appendChild(list); fwEl.appendChild(grp);
+});
+
+// =================== Intonation cards ===================
+function pitchSVG(pattern) {
+  // pattern: 'fall', 'rise', 'fall-rise', 'rise-fall'
+  // Returns SVG showing pitch line.
+  const paths = {
+    'fall':      "M20,30 Q140,30 220,80",
+    'rise':      "M20,80 Q140,80 220,30",
+    'fall-rise': "M20,40 Q90,80 140,80 Q190,80 220,40",
+    'rise-fall': "M20,80 Q90,30 140,30 Q190,30 220,80",
+  };
+  return `<svg class="pitch-svg" viewBox="0 0 240 110" width="240" height="110">
+    <line x1="20" y1="30" x2="220" y2="30" stroke="#e3e1dc" stroke-dasharray="3,3"/>
+    <line x1="20" y1="80" x2="220" y2="80" stroke="#e3e1dc" stroke-dasharray="3,3"/>
+    <text x="6" y="34" font-size="9" fill="#6a6a6a">cao</text>
+    <text x="6" y="84" font-size="9" fill="#6a6a6a">thấp</text>
+    <path d="${paths[pattern]}" stroke="#b45309" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </svg>`;
+}
+
+const itoData = [
+  { name: "Falling tone ↘", arrow: "↘", arrowCls: "fall", pattern: "fall",
+    desc: "Mẫu phổ biến nhất. Dùng cho câu khẳng định bình thường, câu hỏi Wh-, và câu mệnh lệnh.",
+    examples: [
+      { text: "I went to the market.", tone: "↘" },
+      { text: "Where do you live?", tone: "↘" },
+      { text: "Close the door.", tone: "↘" },
+    ] },
+  { name: "Rising tone ↗", arrow: "↗", arrowCls: "rise", pattern: "rise",
+    desc: "Yes/No question, câu chưa kết thúc, hoặc phần tử giữa của liệt kê.",
+    examples: [
+      { text: "Are you a student?", tone: "↗" },
+      { text: "Do you like coffee?", tone: "↗" },
+      { text: "If you have time...", tone: "↗" },
+    ] },
+  { name: "Fall-rise ↘↗", arrow: "↘↗", arrowCls: "fall", pattern: "fall-rise",
+    desc: "Ngần ngại, có 'but' ẩn, hoặc phản ứng thận trọng.",
+    examples: [
+      { text: "He's usually reliable...", tone: "↘↗" },
+      { text: "I like it... (nhưng có chỗ chê)", tone: "↘↗" },
+    ] },
+  { name: "Rise-fall ↗↘", arrow: "↗↘", arrowCls: "rise", pattern: "rise-fall",
+    desc: "Nhấn mạnh, ngạc nhiên, khen ngợi rõ ràng.",
+    examples: [
+      { text: "Wonderful!", tone: "↗↘" },
+      { text: "Amazing!", tone: "↗↘" },
+      { text: "That's fantastic!", tone: "↗↘" },
+    ] },
+];
+
+const itoListEl = document.getElementById('ito-list');
+itoData.forEach(it => {
+  const card = document.createElement('div'); card.className = 'ito-card';
+  card.innerHTML = `
+    <div class="ito-title">
+      <span class="ito-name">${it.name}</span>
+    </div>
+    <div class="ito-desc">${it.desc}</div>
+    <div class="ito-svg-wrap">${pitchSVG(it.pattern)}</div>
+    <div class="ito-examples">
+      ${it.examples.map(e => `<div class="ito-example"><span class="ex-text">${e.text}</span><span class="ex-tone ito-arrow ${it.arrowCls}">${e.tone}</span></div>`).join('')}
+    </div>
+  `;
+  itoListEl.appendChild(card);
+});
+
+// =================== Beat quiz ===================
+const beatQuiz = [
+  { text: "I'm going to the market.", beats: 2, content: "GOING, MARKET" },
+  { text: "She is reading a book.", beats: 2, content: "READING, BOOK" },
+  { text: "The cat sat on the mat.", beats: 3, content: "CAT, SAT, MAT" },
+  { text: "I bought some bread and butter.", beats: 3, content: "BOUGHT, BREAD, BUTTER" },
+  { text: "He always tells the truth.", beats: 3, content: "ALWAYS, TELLS, TRUTH" },
+  { text: "Why are you so tired?", beats: 3, content: "WHY, TIRED" },
+  { text: "I'm going to the market.", beats: 2, content: "GOING, MARKET" },
+  { text: "She wrote a long letter.", beats: 3, content: "WROTE, LONG, LETTER" },
+  { text: "What time is it?", beats: 2, content: "WHAT TIME (compound), IS unstressed" },
+  { text: "My brother is a doctor.", beats: 2, content: "BROTHER, DOCTOR" },
+  { text: "The teacher gave us homework.", beats: 4, content: "TEACHER, GAVE, US-emph?, HOMEWORK" },
+  { text: "I haven't seen him for ages.", beats: 3, content: "SEEN, HIM, AGES" },
+];
+
+const beatDisplay = document.getElementById('beat-display');
+const beatFeedback = document.getElementById('beat-feedback');
+const beatStatsEl = document.getElementById('beat-stats');
+let beatStats = { correct: 0, total: 0 };
+let currentBeat = null;
+
+function newBeat() {
+  currentBeat = beatQuiz[Math.floor(Math.random() * beatQuiz.length)];
+  beatDisplay.innerHTML = `
+    <div class="quiz-sentence">
+      <div class="sent">${currentBeat.text}</div>
+    </div>
+    <div style="text-align: center; font-size: 13px; color: var(--muted); margin-bottom: 8px;">Đọc thầm câu trên, đếm số nhịp (số từ được nhấn rõ). Chọn:</div>
+    <div class="answer-row">
+      ${[1,2,3,4,5].map(n => `<button class="ans-btn" data-n="${n}">${n}</button>`).join('')}
+    </div>
+  `;
+  beatDisplay.querySelectorAll('.ans-btn').forEach(b => {
+    b.addEventListener('click', () => handleBeatGuess(parseInt(b.dataset.n)));
+  });
+  beatFeedback.classList.remove('show', 'ok', 'err');
+}
+
+function handleBeatGuess(n) {
+  beatStats.total++;
+  const buttons = beatDisplay.querySelectorAll('.ans-btn');
+  if (n === currentBeat.beats) {
+    beatStats.correct++;
+    buttons.forEach(b => { if (parseInt(b.dataset.n) === n) b.classList.add('correct'); });
+    beatFeedback.textContent = `Đúng! ${currentBeat.beats} nhịp: ${currentBeat.content}`;
+    beatFeedback.className = 'quiz-feedback show ok';
+  } else {
+    buttons.forEach(b => {
+      const v = parseInt(b.dataset.n);
+      if (v === n) b.classList.add('wrong');
+      else if (v === currentBeat.beats) b.classList.add('correct');
+    });
+    beatFeedback.textContent = `Sai. Đáp án ${currentBeat.beats} nhịp: ${currentBeat.content}. (Trả lời ${n} là sai.)`;
+    beatFeedback.className = 'quiz-feedback show err';
+  }
+  beatStatsEl.textContent = `Đúng: ${beatStats.correct} / ${beatStats.total}`;
+  buttons.forEach(b => b.disabled = true);
+}
+
+document.getElementById('btn-new-beat').addEventListener('click', newBeat);
+</script>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+<script src="../../../tools/ipa-reader.js"></script>
+</body>
+</html>

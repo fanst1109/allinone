@@ -1252,5 +1252,5 @@ Code đầy đủ và các test case trong [solutions.go](./solutions.go).
 - Bài liên quan ở các tầng sau:
   - Tầng 1 Lesson 04 — lũy thừa và logarit (sẽ gặp lại \`e\`).
   - Tầng 4 — vector arithmetic (cộng số thực theo từng thành phần).
-  - DataFoundations [Lesson 01 — Binary & Hex](../../../DataFoundations/lesson-01-binary-hex/) — vì sao máy lưu số dưới dạng bit.
+  - DataFoundations [Lesson 01 — Binary & Hex](../../../DataFoundations/01-NumberRepresentation/lesson-01-binary-hex/) — vì sao máy lưu số dưới dạng bit.
 `;

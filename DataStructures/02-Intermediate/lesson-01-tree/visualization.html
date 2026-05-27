@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 01 — Tree traversals trực quan</title>
+<style>
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 16px; }
+  h1 { margin-top: 0; }
+  svg { background: #fafafa; border: 1px solid #eee; border-radius: 6px; display: block; }
+  .node-c { fill: #fff; stroke: #333; stroke-width: 2; transition: fill .25s, stroke .25s; }
+  .node-c.visited { fill: #fef08a; stroke: #ca8a04; }
+  .node-c.current { fill: #d1fae5; stroke: #10b981; }
+  .edge { stroke: #888; stroke-width: 2; }
+  text { font: 600 14px sans-serif; text-anchor: middle; dominant-baseline: central; }
+  button { background: #3b82f6; color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; cursor: pointer; margin-right: 6px; }
+  .order { background: #f3f4f6; padding: 10px; border-radius: 4px; margin-top: 12px; font-family: monospace; min-height: 24px; }
+  .node-c.height { fill: #dbeafe; stroke: #3b82f6; }
+  .height-lbl { font: 600 11px sans-serif; fill: #1e40af; text-anchor: middle; }
+  pre.code { background: #1e293b; color: #e2e8f0; padding: 10px 14px; border-radius: 6px; font-size: 12px; margin-top: 8px; }
+  pre.code .ln { display: block; padding: 1px 6px; margin: 0 -6px; border-radius: 3px; }
+  pre.code .ln.hit { background: #facc15; color: #1e293b; font-weight: 600; }
+  .stack-col { display: flex; flex-direction: column; gap: 12px; align-items: stretch; }
+  .stack-col svg { max-width: 600px; }
+  .stack-col pre.code { max-width: 600px; }
+  select { padding: 4px 6px; }
+
+  /* Memory layout viz (Cách 1 — Pointer-based) */
+  .mem-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 14px; margin-top: 12px; }
+  .mem-node { background: #fff; border: 2px solid #555; border-radius: 6px; padding: 8px 10px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; transition: all .25s; }
+  .mem-node.active { border-color: #3b82f6; box-shadow: 0 0 0 3px #dbeafe; }
+  .mem-node.target { border-color: #10b981; background: #ecfdf5; box-shadow: 0 0 0 3px #d1fae5; }
+  .mem-node.faded { opacity: .45; }
+  .mem-addr { color: #475569; font-size: 11px; margin-bottom: 4px; font-weight: 600; }
+  .mem-row { display: flex; gap: 4px; align-items: center; margin: 2px 0; }
+  .mem-row .offset { width: 26px; color: #94a3b8; text-align: right; font-size: 11px; }
+  .mem-row .field { flex: 1; padding: 3px 6px; border: 1px solid #cbd5e1; border-radius: 3px; }
+  .mem-row .field.value { background: #e0f2fe; border-color: #38bdf8; }
+  .mem-row .field.pad { background: #f1f5f9; color: #94a3b8; }
+  .mem-row .field.ptr { background: #fef3c7; }
+  .mem-row .field.ptr.followed { background: #f59e0b; color: #1e293b; font-weight: 700; }
+  .mem-row .field.null { background: #f8fafc; color: #94a3b8; }
+  .hex-dump { display: none; margin-top: 6px; padding: 4px 6px; background: #1e293b; color: #e2e8f0; font-size: 10.5px; border-radius: 3px; word-break: break-all; }
+  .hex-dump.show { display: block; }
+  .mem-cost { margin-top: 12px; padding: 10px 14px; background: #f8fafc; border-left: 4px solid #3b82f6; border-radius: 4px; font-size: 13px; }
+  .mem-cost b { color: #1e40af; }
+  .trace-log { margin-top: 8px; padding: 8px 12px; background: #1e293b; color: #e2e8f0; border-radius: 4px; font-family: ui-monospace, monospace; font-size: 12px; min-height: 22px; }
+</style>
+</head>
+<body>
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Tree</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-binary-search-tree/visualization.html">L2: BST →</a>
+</nav>
+<h1>Binary Tree — Bốn cách duyệt</h1>
+<div class="panel">
+  <label>Cây:
+    <select id="treeSel" onchange="switchTree()">
+      <option value="readme">Cây của README (5 node: 1,2,3,4,5)</option>
+      <option value="extended">Cây mở rộng (6 node)</option>
+    </select>
+  </label>
+  <button onclick="run('preorder')">Preorder</button>
+  <button onclick="run('inorder')">Inorder</button>
+  <button onclick="run('postorder')">Postorder</button>
+  <button onclick="run('level')">Level-order</button>
+  <button onclick="runHeight()">Tính chiều cao</button>
+  <button onclick="reset()">Reset</button>
+  <div class="stack-col">
+    <svg id="svg" width="600" height="320" viewBox="0 0 600 320" preserveAspectRatio="xMidYMid meet"></svg>
+    <pre class="code" id="pseudo">Chọn một cách duyệt để xem pseudocode.</pre>
+  </div>
+  <div class="order" id="order">Thứ tự duyệt sẽ hiển thị ở đây.</div>
+</div>
+
+<div class="panel">
+  <h2>Tổ chức bộ nhớ — Cách 1: Pointer-based (README §8)</h2>
+  <p style="margin:.4em 0 .8em; color:#475569; font-size:13px;">
+    Mỗi node là một struct trong heap RAM. 24 byte/node trên máy 64-bit: <b>4 byte value</b> + <b>4 byte padding</b> + <b>8 byte left pointer</b> + <b>8 byte right pointer</b>. Click một pointer (ô vàng) để "đi theo" — CPU sẽ nhảy tới địa chỉ đó.
+  </p>
+  <button onclick="memTrace('root,left,right')">▶ Trace: root → left → right (xuống node 5)</button>
+  <button onclick="memTrace('root,right')">▶ Trace: root → right (xuống node 3)</button>
+  <button onclick="memTrace('root,left,left')">▶ Trace: root → left → left (xuống node 4)</button>
+  <button class="secondary" onclick="memReset()" style="background:#64748b">Reset</button>
+  <button class="secondary" onclick="memToggleHex()" style="background:#64748b">Hiện/ẩn hex dump</button>
+  <div class="mem-grid" id="memGrid"></div>
+  <div class="trace-log" id="memLog">Bấm một trace để xem CPU đi theo pointer thế nào.</div>
+  <div class="mem-cost" id="memCost"></div>
+</div>
+
+<script>
+// ============= MEMORY LAYOUT (Cách 1 — Pointer-based) =============
+const MEM_NODES = [
+  // idx tương ứng cây "readme" (1,2,3,4,5)
+  { idx: 0, label: 1, addr: 0x100, left: 1,    right: 2 },
+  { idx: 1, label: 2, addr: 0x140, left: 3,    right: 4 },
+  { idx: 2, label: 3, addr: 0x180, left: null, right: null },
+  { idx: 3, label: 4, addr: 0x1C0, left: null, right: null },
+  { idx: 4, label: 5, addr: 0x200, left: null, right: null },
+];
+let memShowHex = false;
+let memActive = -1;          // địa chỉ đang ở
+let memTarget = -1;          // node cuối của trace
+let memFollowed = {};        // {nodeIdx: {left|right: true}}
+let memFaded = new Set();    // node chưa được tới sẽ mờ đi khi đang trace
+
+function memAddrStr(a) { return a === null ? null : '0x' + a.toString(16).toUpperCase().padStart(3, '0'); }
+function memHexLE(addr) {
+  // little-endian 8 byte
+  if (addr === null) return '00 00 00 00 00 00 00 00';
+  const bytes = [];
+  let v = addr;
+  for (let i = 0; i < 8; i++) { bytes.push(('0'+(v & 0xff).toString(16)).slice(-2)); v = Math.floor(v/256); }
+  return bytes.join(' ');
+}
+
+function renderMem() {
+  const root = document.getElementById('memGrid');
+  root.innerHTML = '';
+  MEM_NODES.forEach(n => {
+    const cls = ['mem-node'];
+    if (memActive === n.idx) cls.push('active');
+    if (memTarget === n.idx) cls.push('target');
+    if (memFaded.has(n.idx) && memTarget !== n.idx && memActive !== n.idx) cls.push('faded');
+    const followed = memFollowed[n.idx] || {};
+    const leftAddr = n.left !== null ? MEM_NODES[n.left].addr : null;
+    const rightAddr = n.right !== null ? MEM_NODES[n.right].addr : null;
+    const leftStr = leftAddr === null ? 'NULL' : memAddrStr(leftAddr);
+    const rightStr = rightAddr === null ? 'NULL' : memAddrStr(rightAddr);
+    const valueHex = ('0' + n.label.toString(16)).slice(-2) + ' 00 00 00';
+    root.insertAdjacentHTML('beforeend', `
+      <div class="${cls.join(' ')}">
+        <div class="mem-addr">📍 ${memAddrStr(n.addr)} &nbsp;— Node "${n.label}"</div>
+        <div class="mem-row"><span class="offset">0:</span><span class="field value">value = ${n.label}</span></div>
+        <div class="mem-row"><span class="offset">4:</span><span class="field pad">(padding 4B)</span></div>
+        <div class="mem-row"><span class="offset">8:</span><span class="field ${leftAddr===null?'null':'ptr'} ${followed.left?'followed':''}">left&nbsp; = ${leftStr}</span></div>
+        <div class="mem-row"><span class="offset">16:</span><span class="field ${rightAddr===null?'null':'ptr'} ${followed.right?'followed':''}">right = ${rightStr}</span></div>
+        <div class="hex-dump ${memShowHex?'show':''}">RAM (LE): ${valueHex}  00 00 00 00  ${memHexLE(leftAddr)}  ${memHexLE(rightAddr)}</div>
+      </div>
+    `);
+  });
+  // chi phí
+  document.getElementById('memCost').innerHTML =
+    `<b>Tổng dung lượng:</b> 5 nodes × 24 byte = <b>120 byte</b>. ` +
+    `Trong đó 5×4 = 20 byte là value (<b>16.7%</b>), 100 byte là pointer + padding (<b>83.3% overhead</b>).` +
+    `<br>So sánh với cách 2 (array-based, học ở Lesson 8): chỉ 20 byte, 0% overhead.`;
+}
+
+async function memTrace(pathStr) {
+  memReset();
+  const path = pathStr.split(',');
+  let cur = 0; // root = idx 0
+  memActive = cur;
+  memFaded = new Set([0,1,2,3,4]);
+  memFaded.delete(cur);
+  renderMem();
+  const log = document.getElementById('memLog');
+  log.innerHTML = `→ Bắt đầu tại root <b>${memAddrStr(MEM_NODES[cur].addr)}</b> (value = ${MEM_NODES[cur].label}).`;
+  await sleep(900);
+
+  for (let i = 1; i < path.length; i++) {
+    const dir = path[i];
+    if (dir === 'root') continue;
+    const next = MEM_NODES[cur][dir];
+    if (next === null) {
+      log.innerHTML += `<br>→ Đọc offset ${dir==='left'?8:16} → <b>NULL</b>. Dừng.`;
+      break;
+    }
+    memFollowed[cur] = { ...(memFollowed[cur]||{}), [dir]: true };
+    renderMem();
+    log.innerHTML += `<br>→ Đọc 8 byte ở offset <b>${dir==='left'?8:16}</b> của ${memAddrStr(MEM_NODES[cur].addr)} = <b>${memAddrStr(MEM_NODES[next].addr)}</b>.`;
+    await sleep(800);
+    cur = next;
+    memActive = cur;
+    memFaded.delete(cur);
+    renderMem();
+    log.innerHTML += ` CPU nhảy tới đó (1 lần dereference, có thể cache miss).`;
+    await sleep(700);
+  }
+  memTarget = cur;
+  memActive = -1;
+  renderMem();
+  log.innerHTML += `<br>✓ Tới đích: <b>${memAddrStr(MEM_NODES[cur].addr)}</b>, đọc value = <b>${MEM_NODES[cur].label}</b>.`;
+}
+function memReset() {
+  memActive = -1; memTarget = -1; memFollowed = {}; memFaded.clear();
+  renderMem();
+  document.getElementById('memLog').textContent = 'Bấm một trace để xem CPU đi theo pointer thế nào.';
+}
+function memToggleHex() { memShowHex = !memShowHex; renderMem(); }
+// init khi trang load (sẽ gọi cuối script chính)
+window.addEventListener('load', () => renderMem());
+</script>
+
+<script>
+// Hai cây — README dùng cây 5 node (preorder=1,2,4,5,3; inorder=4,2,5,1,3; postorder=4,5,2,3,1; level=1,2,3,4,5)
+const TREES = {
+  readme: {
+    T: [
+      { v: 1, x: 300, y: 40 },
+      { v: 2, x: 180, y: 120, p: 0 },
+      { v: 3, x: 420, y: 120, p: 0 },
+      { v: 4, x: 100, y: 220, p: 1 },
+      { v: 5, x: 260, y: 220, p: 1 },
+    ],
+    children: { 0: [1,2], 1: [3,4], 2: [null,null] }
+  },
+  extended: {
+    T: [
+      { v: 1, x: 300, y: 40 },
+      { v: 2, x: 180, y: 120, p: 0 },
+      { v: 3, x: 420, y: 120, p: 0 },
+      { v: 4, x: 100, y: 220, p: 1 },
+      { v: 5, x: 260, y: 220, p: 1 },
+      { v: 6, x: 500, y: 220, p: 2 },
+    ],
+    children: { 0: [1,2], 1: [3,4], 2: [null,5] }
+  }
+};
+let T = TREES.readme.T;
+let children = TREES.readme.children;
+const svg = document.getElementById('svg');
+function switchTree() {
+  const k = document.getElementById('treeSel').value;
+  T = TREES[k].T; children = TREES[k].children;
+  reset();
+}
+function render(hl = {}, heightMap = {}) {
+  svg.innerHTML = '';
+  T.forEach((n, i) => {
+    if (n.p !== undefined) {
+      const p = T[n.p];
+      svg.insertAdjacentHTML('beforeend',
+        `<line class="edge" x1="${p.x}" y1="${p.y}" x2="${n.x}" y2="${n.y}"/>`);
+    }
+  });
+  T.forEach((n, i) => {
+    const klass = 'node-c ' + (hl[i] || '');
+    svg.insertAdjacentHTML('beforeend',
+      `<circle class="${klass}" cx="${n.x}" cy="${n.y}" r="22"/>
+       <text x="${n.x}" y="${n.y}">${n.v}</text>`);
+    if (heightMap[i] !== undefined) {
+      svg.insertAdjacentHTML('beforeend',
+        `<text class="height-lbl" x="${n.x + 30}" y="${n.y - 18}">h=${heightMap[i]}</text>`);
+    }
+  });
+}
+function left(i)  { return children[i] && children[i][0] !== undefined ? children[i][0] : null; }
+function right(i) { return children[i] && children[i][1] !== undefined ? children[i][1] : null; }
+
+function buildOrder(mode) {
+  const order = [];
+  function dfs(i, m) {
+    if (i === null || i === undefined) return;
+    if (m === 'preorder') order.push(i);
+    dfs(left(i), m);
+    if (m === 'inorder') order.push(i);
+    dfs(right(i), m);
+    if (m === 'postorder') order.push(i);
+  }
+  if (mode === 'level') {
+    const q = [0]; while (q.length) {
+      const x = q.shift(); order.push(x);
+      const l = left(x), r = right(x);
+      if (l !== null) q.push(l);
+      if (r !== null) q.push(r);
+    }
+  } else dfs(0, mode);
+  return order;
+}
+
+const PSEUDO = {
+  preorder: ['function preorder(node):', '    if node == null: return', '    visit(node)         # in ra', '    preorder(node.left)', '    preorder(node.right)'],
+  inorder:  ['function inorder(node):',  '    if node == null: return', '    inorder(node.left)',  '    visit(node)         # in ra', '    inorder(node.right)'],
+  postorder:['function postorder(node):','    if node == null: return', '    postorder(node.left)','    postorder(node.right)','    visit(node)         # in ra'],
+  level:    ['function levelOrder(root):', '    queue = [root]', '    while queue not empty:', '        node = queue.dequeue()', '        visit(node)', '        if node.left:  queue.enqueue(node.left)', '        if node.right: queue.enqueue(node.right)']
+};
+function renderPseudo(mode, hitLine = -1) {
+  const lines = PSEUDO[mode] || [];
+  document.getElementById('pseudo').innerHTML = lines.map((l, i) => {
+    const esc = l.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return `<span class="ln${i === hitLine ? ' hit' : ''}">${esc}</span>`;
+  }).join('');
+}
+
+let busy = false;
+async function run(mode) {
+  if (busy) return; busy = true;
+  const order = buildOrder(mode);
+  const out = document.getElementById('order');
+  out.textContent = `${mode}: `;
+  renderPseudo(mode);
+  const hl = {};
+  const visitLine = mode === 'preorder' ? 2 : mode === 'inorder' ? 3 : mode === 'postorder' ? 4 : 4;
+  for (const i of order) {
+    hl[i] = 'current';
+    renderPseudo(mode, visitLine);
+    render(hl);
+    await sleep(550);
+    hl[i] = 'visited';
+    out.textContent += T[i].v + ' ';
+    render(hl);
+  }
+  busy = false;
+}
+async function runHeight() {
+  if (busy) return; busy = true;
+  document.getElementById('pseudo').innerHTML =
+    `<span class="ln">function height(node):</span>` +
+    `<span class="ln">    if node == null: return -1</span>` +
+    `<span class="ln">    return 1 + max(height(left), height(right))</span>`;
+  const out = document.getElementById('order');
+  out.textContent = 'Tính chiều cao bottom-up: ';
+  const heightMap = {};
+  async function h(i) {
+    if (i === null) return -1;
+    const l = await h(left(i));
+    const r = await h(right(i));
+    const hv = 1 + Math.max(l, r);
+    heightMap[i] = hv;
+    render({ [i]: 'height' }, heightMap);
+    out.textContent += `h(${T[i].v})=${hv} `;
+    await sleep(450);
+    return hv;
+  }
+  const total = await h(0);
+  out.textContent += `→ chiều cao cây = ${total}.`;
+  render({}, heightMap);
+  busy = false;
+}
+function reset() { render(); document.getElementById('order').textContent = 'Thứ tự duyệt sẽ hiển thị ở đây.'; document.getElementById('pseudo').textContent = 'Chọn một cách duyệt để xem pseudocode.'; }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+render();
+</script></main>
+<!-- README modal (xem tools/readme-modal.js để biết chi tiết) -->
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

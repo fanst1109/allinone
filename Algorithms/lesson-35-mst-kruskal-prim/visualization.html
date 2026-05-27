@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L35 — Cây khung nhỏ nhất (MST): Kruskal & Prim</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #ec4899;
+    --accent-soft: #fce7f3;
+    --accent-hover: #db2777;
+    --mst: #10b981;      /* cạnh đã chọn vào MST */
+    --reject: #ef4444;   /* cạnh bị từ chối (chu trình) */
+    --active: #f59e0b;   /* cạnh/đỉnh đang xét */
+    --idle: #cbd5e0;     /* cạnh chưa xét */
+    --intree: #8b5cf6;   /* đỉnh trong cây (Prim) */
+  }
+  main { max-width: 940px; margin: 0 auto; padding: 0 16px 64px; }
+  h1 { color: var(--accent-hover); }
+  .lead { background: var(--accent-soft); border-left: 4px solid var(--accent);
+          padding: 12px 16px; border-radius: 8px; margin: 16px 0 24px; line-height: 1.6; }
+  h2 { margin-top: 40px; border-bottom: 2px solid var(--accent-soft); padding-bottom: 6px; }
+  .pill { display: inline-block; font-size: 12px; font-weight: 600; background: var(--accent-soft);
+          color: var(--accent-hover); padding: 2px 10px; border-radius: 999px; vertical-align: middle; }
+  .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+          padding: 18px; margin: 16px 0; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
+  button { background: var(--accent); color: #fff; border: none; border-radius: 8px;
+           padding: 8px 14px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  button:hover { background: var(--accent-hover); }
+  button.ghost { background: #fff; color: var(--accent-hover); border: 1px solid var(--accent); }
+  button.ghost:hover { background: var(--accent-soft); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; margin: 10px 0; color: #4a5568; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+  .swline { width: 20px; height: 4px; border-radius: 2px; display: inline-block; }
+  .status { background: #f7fafc; border-radius: 8px; padding: 10px 14px; font-size: 14px;
+            margin: 10px 0; min-height: 20px; line-height: 1.5; }
+  .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+  svg { display: block; max-width: 100%; height: auto; margin: 8px auto; }
+  .vnode { fill: #fff; stroke: #475569; stroke-width: 2; }
+  .vnode.intree { fill: var(--intree); stroke: var(--intree); }
+  .vnode.active { fill: var(--active); stroke: var(--accent-hover); }
+  .vlabel { font: 700 14px ui-monospace, monospace; text-anchor: middle; dominant-baseline: central; fill: #1a202c; }
+  .vlabel.light { fill: #fff; }
+  .edge { stroke: var(--idle); stroke-width: 3; }
+  .edge.active { stroke: var(--active); stroke-width: 5; }
+  .edge.mst { stroke: var(--mst); stroke-width: 5; }
+  .edge.reject { stroke: var(--reject); stroke-width: 3; stroke-dasharray: 5 4; }
+  .ew { font: 600 13px ui-monospace, monospace; fill: #b91c1c; }
+  .edgelist { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .echip { font: 600 13px ui-monospace, monospace; padding: 4px 9px; border-radius: 6px;
+           background: #edf2f7; border: 1px solid #cbd5e0; }
+  .echip.active { background: var(--active); color: #fff; border-color: var(--accent-hover); }
+  .echip.mst { background: var(--mst); color: #fff; border-color: var(--mst); }
+  .echip.reject { background: #fed7d7; color: #c53030; text-decoration: line-through; }
+  .heaprow { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; align-items: center; }
+  .total { font-weight: 700; color: var(--mst); font-size: 16px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid2 h3 { margin: 6px 0; font-size: 15px; }
+  .note { font-size: 13px; color: #4a5568; margin: 8px 0; }
+  @media (max-width: 768px) {
+    .grid2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-34-bellman-ford-floyd/visualization.html">← L34: Bellman-Ford &amp; Floyd</a>
+  <span class="sep">·</span>
+  <span class="current">L35: MST</span>
+  <span class="sep">·</span>
+  <a href="../lesson-36-connected-components/visualization.html">L36: Connected Components →</a>
+</nav>
+
+<h1>Lesson 35 — Cây khung nhỏ nhất (MST): Kruskal &amp; Prim</h1>
+<div class="lead">
+  Ba module tương tác cho <strong>Minimum Spanning Tree</strong>:
+  <strong>Kruskal</strong> (sort cạnh + Union-Find từ chối chu trình),
+  <strong>Prim</strong> (grow cây từ một đỉnh bằng min-heap),
+  và <strong>so sánh song song</strong> — cùng đồ thị, hai thuật toán, cùng MST weight.
+</div>
+
+<!-- ====================================================================
+     MODULE 1 — KRUSKAL ANIMATOR
+     ==================================================================== -->
+<h2>1. Kruskal — sort cạnh + Union-Find <span class="pill">O(E log E)</span></h2>
+<div class="card">
+  <p style="margin-top:0">
+    Cạnh được <strong>sort tăng dần</strong>. Mỗi bước lấy cạnh nhẹ nhất còn lại:
+    nếu hai đầu <strong style="color:var(--mst)">khác thành phần</strong> → thêm vào MST + union;
+    nếu <strong style="color:var(--reject)">cùng thành phần</strong> → bỏ (tạo chu trình).
+  </p>
+  <div class="controls">
+    <button id="k_step">Bước tiếp ▶</button>
+    <button id="k_auto" class="ghost">Tự động ⏩</button>
+    <button id="k_reset" class="ghost">Đặt lại ↺</button>
+  </div>
+  <div class="legend">
+    <span><span class="swline" style="background:var(--idle)"></span> chưa xét</span>
+    <span><span class="swline" style="background:var(--active)"></span> đang xét</span>
+    <span><span class="swline" style="background:var(--mst)"></span> trong MST</span>
+    <span><span class="swline" style="background:var(--reject)"></span> bị từ chối (chu trình)</span>
+  </div>
+  <svg id="k_svg" width="560" height="320" viewBox="0 0 560 320"></svg>
+  <div class="note">Cạnh đã sort (tăng dần):</div>
+  <div class="edgelist" id="k_list"></div>
+  <div class="note">Thành phần (Union-Find): <span class="mono" id="k_uf"></span></div>
+  <div class="status" id="k_status">Bấm "Bước tiếp" để bắt đầu.</div>
+  <div class="status">Tổng trọng số MST: <span class="total" id="k_total">0</span></div>
+</div>
+
+<!-- ====================================================================
+     MODULE 2 — PRIM ANIMATOR
+     ==================================================================== -->
+<h2>2. Prim — grow cây từ một đỉnh + min-heap <span class="pill">O(E log V)</span></h2>
+<div class="card">
+  <p style="margin-top:0">
+    Bắt đầu từ đỉnh <span class="mono">0</span>. Heap chứa các cạnh biên (nối cây ↔ đỉnh ngoài).
+    Mỗi bước pop cạnh nhẹ nhất: nếu đỉnh đích <strong style="color:var(--intree)">đã trong cây</strong>
+    → bỏ (lỗi thời); nếu ngoài → thêm đỉnh + cạnh vào cây, push cạnh biên mới.
+  </p>
+  <div class="controls">
+    <button id="p_step">Bước tiếp ▶</button>
+    <button id="p_auto" class="ghost">Tự động ⏩</button>
+    <button id="p_reset" class="ghost">Đặt lại ↺</button>
+  </div>
+  <div class="legend">
+    <span><span class="swatch" style="background:#fff;border:2px solid #475569"></span> đỉnh ngoài</span>
+    <span><span class="swatch" style="background:var(--intree)"></span> đỉnh trong cây</span>
+    <span><span class="swline" style="background:var(--mst)"></span> cạnh cây</span>
+    <span><span class="swline" style="background:var(--active)"></span> cạnh đang xét</span>
+  </div>
+  <svg id="p_svg" width="560" height="320" viewBox="0 0 560 320"></svg>
+  <div class="note">Min-heap (cạnh biên, sắp theo trọng số):</div>
+  <div class="heaprow" id="p_heap"></div>
+  <div class="status" id="p_status">Bấm "Bước tiếp" để bắt đầu.</div>
+  <div class="status">Tổng trọng số MST: <span class="total" id="p_total">0</span></div>
+</div>
+
+<!-- ====================================================================
+     MODULE 3 — KRUSKAL vs PRIM
+     ==================================================================== -->
+<h2>3. Kruskal vs Prim — cùng đồ thị, cùng weight <span class="pill">so sánh</span></h2>
+<div class="card">
+  <p style="margin-top:0">
+    Chạy cả hai trên <strong>cùng đồ thị</strong>. Thứ tự thêm cạnh có thể khác,
+    nhưng <strong>tổng trọng số MST luôn bằng nhau</strong> (MST weight là duy nhất).
+  </p>
+  <div class="controls">
+    <button id="c_run">Chạy cả hai ▶</button>
+    <button id="c_reset" class="ghost">Đặt lại ↺</button>
+  </div>
+  <div class="grid2">
+    <div>
+      <h3 style="color:var(--accent-hover)">Kruskal</h3>
+      <svg id="c_ksvg" width="320" height="240" viewBox="0 0 320 240"></svg>
+      <div class="note">Thứ tự thêm: <span class="mono" id="c_korder">—</span></div>
+      <div class="status">Weight: <span class="total" id="c_ktotal">—</span></div>
+    </div>
+    <div>
+      <h3 style="color:var(--accent-hover)">Prim (từ đỉnh 0)</h3>
+      <svg id="c_psvg" width="320" height="240" viewBox="0 0 320 240"></svg>
+      <div class="note">Thứ tự thêm: <span class="mono" id="c_porder">—</span></div>
+      <div class="status">Weight: <span class="total" id="c_ptotal">—</span></div>
+    </div>
+  </div>
+  <div class="status" id="c_verdict">Bấm "Chạy cả hai" để so sánh.</div>
+</div>
+
+<script>
+"use strict";
+/* =====================================================================
+   Đồ thị dùng chung cho module 1 & 2 (5 đỉnh — khớp walk-through README)
+   ===================================================================== */
+const NODES = [
+  { id: 0, x: 90,  y: 70  },
+  { id: 1, x: 280, y: 50  },
+  { id: 2, x: 470, y: 120 },
+  { id: 3, x: 120, y: 250 },
+  { id: 4, x: 380, y: 260 },
+];
+const EDGES = [
+  { u: 0, v: 1, w: 2 },
+  { u: 0, v: 3, w: 6 },
+  { u: 1, v: 2, w: 3 },
+  { u: 1, v: 3, w: 8 },
+  { u: 1, v: 4, w: 5 },
+  { u: 2, v: 4, w: 7 },
+  { u: 3, v: 4, w: 9 },
+];
+const V = NODES.length;
+
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+function nodeById(id) { return NODES.find(n => n.id === id); }
+
+/* Vẽ đồ thị nền vào svg, trả về map "u-v" -> {line, label} để tô màu sau. */
+function drawGraph(svg, nodes, edges) {
+  svg.innerHTML = "";
+  const edgeEls = {};
+  // cạnh trước (dưới), đỉnh sau (trên)
+  edges.forEach(e => {
+    const a = nodes.find(n => n.id === e.u), b = nodes.find(n => n.id === e.v);
+    const line = el("line", { x1: a.x, y1: a.y, x2: b.x, y2: b.y, class: "edge" });
+    svg.appendChild(line);
+    const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+    const lab = el("text", { x: mx, y: my - 5, class: "ew", "text-anchor": "middle" });
+    lab.textContent = e.w;
+    // nền trắng nhỏ cho dễ đọc
+    const bg = el("rect", { x: mx - 9, y: my - 17, width: 18, height: 15, fill: "#fff", opacity: ".8" });
+    svg.appendChild(bg);
+    svg.appendChild(lab);
+    edgeEls[e.u + "-" + e.v] = { line };
+  });
+  const nodeEls = {};
+  nodes.forEach(n => {
+    const c = el("circle", { cx: n.x, cy: n.y, r: 18, class: "vnode" });
+    svg.appendChild(c);
+    const t = el("text", { x: n.x, y: n.y, class: "vlabel" });
+    t.textContent = n.id;
+    svg.appendChild(t);
+    nodeEls[n.id] = { circle: c, text: t };
+  });
+  return { edgeEls, nodeEls };
+}
+function key(e) { return e.u + "-" + e.v; }
+
+/* =====================================================================
+   MODULE 1 — KRUSKAL
+   ===================================================================== */
+(function () {
+  const svg = document.getElementById("k_svg");
+  const listBox = document.getElementById("k_list");
+  const ufBox = document.getElementById("k_uf");
+  const statusBox = document.getElementById("k_status");
+  const totalBox = document.getElementById("k_total");
+  let gfx, sorted, idx, parent, total, mstCount, chips, timer;
+
+  function find(x) { while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; } return x; }
+  function union(a, b) { parent[find(a)] = find(b); }
+
+  function ufString() {
+    const groups = {};
+    for (let i = 0; i < V; i++) { const r = find(i); (groups[r] = groups[r] || []).push(i); }
+    return Object.values(groups).map(g => "{" + g.join(",") + "}").join(" ");
+  }
+
+  function reset() {
+    clearInterval(timer); timer = null;
+    gfx = drawGraph(svg, NODES, EDGES);
+    sorted = EDGES.slice().sort((a, b) => a.w - b.w);
+    idx = 0; total = 0; mstCount = 0;
+    parent = Array.from({ length: V }, (_, i) => i);
+    listBox.innerHTML = "";
+    chips = sorted.map(e => {
+      const c = document.createElement("span");
+      c.className = "echip";
+      c.textContent = `${e.u}-${e.v}(${e.w})`;
+      listBox.appendChild(c);
+      return c;
+    });
+    ufBox.textContent = ufString();
+    statusBox.textContent = 'Bấm "Bước tiếp" để bắt đầu.';
+    totalBox.textContent = "0";
+    document.getElementById("k_step").disabled = false;
+  }
+
+  function step() {
+    if (idx >= sorted.length || mstCount === V - 1) {
+      statusBox.textContent = `Xong! MST có ${mstCount} cạnh, tổng = ${total}.`;
+      document.getElementById("k_step").disabled = true;
+      clearInterval(timer); timer = null;
+      return;
+    }
+    const e = sorted[idx];
+    chips[idx].classList.add("active");
+    const ru = find(e.u), rv = find(e.v);
+    const line = gfx.edgeEls[key(e)].line;
+    if (ru !== rv) {
+      union(e.u, e.v);
+      total += e.w; mstCount++;
+      chips[idx].classList.remove("active"); chips[idx].classList.add("mst");
+      line.classList.add("mst");
+      statusBox.textContent = `Cạnh ${e.u}-${e.v}(${e.w}): find(${e.u})≠find(${e.v}) → THÊM vào MST, union.`;
+      totalBox.textContent = total;
+    } else {
+      chips[idx].classList.remove("active"); chips[idx].classList.add("reject");
+      line.classList.add("reject");
+      statusBox.textContent = `Cạnh ${e.u}-${e.v}(${e.w}): cùng thành phần → BỎ (tạo chu trình).`;
+    }
+    ufBox.textContent = ufString();
+    idx++;
+  }
+
+  document.getElementById("k_step").onclick = step;
+  document.getElementById("k_reset").onclick = reset;
+  document.getElementById("k_auto").onclick = function () {
+    if (timer) { clearInterval(timer); timer = null; return; }
+    timer = setInterval(() => {
+      if (idx >= sorted.length || mstCount === V - 1) { clearInterval(timer); timer = null; step(); return; }
+      step();
+    }, 900);
+  };
+  reset();
+})();
+
+/* =====================================================================
+   MODULE 2 — PRIM
+   ===================================================================== */
+(function () {
+  const svg = document.getElementById("p_svg");
+  const heapBox = document.getElementById("p_heap");
+  const statusBox = document.getElementById("p_status");
+  const totalBox = document.getElementById("p_total");
+  let gfx, inTree, heapArr, total, count, timer;
+
+  // adjacency: cho mỗi đỉnh, các (đỉnh kề, w, ekey, u, v)
+  function adjOf(u) {
+    const res = [];
+    EDGES.forEach(e => {
+      if (e.u === u) res.push({ to: e.v, w: e.w, e });
+      else if (e.v === u) res.push({ to: e.u, w: e.w, e });
+    });
+    return res;
+  }
+
+  function renderHeap() {
+    heapBox.innerHTML = "";
+    const sorted = heapArr.slice().sort((a, b) => a.w - b.w);
+    if (sorted.length === 0) { heapBox.innerHTML = '<span class="note">(rỗng)</span>'; return; }
+    sorted.forEach((it, i) => {
+      const c = document.createElement("span");
+      c.className = "echip" + (i === 0 ? " active" : "");
+      c.textContent = `→${it.to}(${it.w})`;
+      heapBox.appendChild(c);
+    });
+  }
+
+  function reset() {
+    clearInterval(timer); timer = null;
+    gfx = drawGraph(svg, NODES, EDGES);
+    inTree = new Array(V).fill(false);
+    heapArr = [{ to: 0, w: 0, e: null }];
+    total = 0; count = 0;
+    renderHeap();
+    statusBox.textContent = 'Bấm "Bước tiếp" để bắt đầu (start = đỉnh 0).';
+    totalBox.textContent = "0";
+    document.getElementById("p_step").disabled = false;
+  }
+
+  function step() {
+    if (heapArr.length === 0 || count === V) {
+      statusBox.textContent = `Xong! Cây có ${count} đỉnh, tổng = ${total}.`;
+      document.getElementById("p_step").disabled = true;
+      clearInterval(timer); timer = null;
+      return;
+    }
+    // pop min
+    let mi = 0;
+    for (let i = 1; i < heapArr.length; i++) if (heapArr[i].w < heapArr[mi].w) mi = i;
+    const it = heapArr.splice(mi, 1)[0];
+
+    if (inTree[it.to]) {
+      statusBox.textContent = `Pop →${it.to}(${it.w}): đỉnh ${it.to} đã trong cây → BỎ (lỗi thời).`;
+      renderHeap();
+      return;
+    }
+    inTree[it.to] = true; total += it.w; count++;
+    // tô đỉnh + cạnh cây
+    gfx.nodeEls[it.to].circle.classList.add("intree");
+    gfx.nodeEls[it.to].text.classList.add("light");
+    if (it.e) gfx.edgeEls[key(it.e)].line.classList.add("mst");
+    totalBox.textContent = total;
+    // push cạnh biên mới
+    let pushed = [];
+    adjOf(it.to).forEach(a => {
+      if (!inTree[a.to]) { heapArr.push({ to: a.to, w: a.w, e: a.e }); pushed.push(`→${a.to}(${a.w})`); }
+    });
+    statusBox.textContent = `Thêm đỉnh ${it.to} (cạnh w=${it.w}). Push cạnh biên: ${pushed.join(", ") || "(không)"}.`;
+    renderHeap();
+  }
+
+  document.getElementById("p_step").onclick = step;
+  document.getElementById("p_reset").onclick = reset;
+  document.getElementById("p_auto").onclick = function () {
+    if (timer) { clearInterval(timer); timer = null; return; }
+    timer = setInterval(() => {
+      if (heapArr.length === 0 || count === V) { clearInterval(timer); timer = null; step(); return; }
+      step();
+    }, 900);
+  };
+  reset();
+})();
+
+/* =====================================================================
+   MODULE 3 — KRUSKAL vs PRIM (side by side, đồ thị nhỏ hơn)
+   ===================================================================== */
+(function () {
+  // đồ thị nhỏ 4 đỉnh cho khung 320×240
+  const N = [
+    { id: 0, x: 70,  y: 60  },
+    { id: 1, x: 250, y: 60  },
+    { id: 2, x: 70,  y: 190 },
+    { id: 3, x: 250, y: 190 },
+  ];
+  const E = [
+    { u: 0, v: 1, w: 1 },
+    { u: 0, v: 2, w: 3 },
+    { u: 1, v: 2, w: 1 },
+    { u: 1, v: 3, w: 4 },
+    { u: 2, v: 3, w: 2 },
+  ];
+  const n = N.length;
+  const ksvg = document.getElementById("c_ksvg");
+  const psvg = document.getElementById("c_psvg");
+
+  function kruskal() {
+    const sorted = E.slice().sort((a, b) => a.w - b.w);
+    const par = Array.from({ length: n }, (_, i) => i);
+    const find = x => { while (par[x] !== x) { par[x] = par[par[x]]; x = par[x]; } return x; };
+    const order = [], chosen = [];
+    let total = 0;
+    for (const e of sorted) {
+      if (find(e.u) !== find(e.v)) {
+        par[find(e.u)] = find(e.v);
+        order.push(`${e.u}-${e.v}`); chosen.push(e); total += e.w;
+        if (chosen.length === n - 1) break;
+      }
+    }
+    return { order, chosen, total };
+  }
+
+  function prim() {
+    const inT = new Array(n).fill(false);
+    const heap = [{ to: 0, w: 0, e: null }];
+    const order = [], chosen = [];
+    let total = 0, cnt = 0;
+    while (heap.length && cnt < n) {
+      let mi = 0;
+      for (let i = 1; i < heap.length; i++) if (heap[i].w < heap[mi].w) mi = i;
+      const it = heap.splice(mi, 1)[0];
+      if (inT[it.to]) continue;
+      inT[it.to] = true; total += it.w; cnt++;
+      if (it.e) { order.push(`${it.e.u}-${it.e.v}`); chosen.push(it.e); }
+      E.forEach(e => {
+        if (e.u === it.to && !inT[e.v]) heap.push({ to: e.v, w: e.w, e });
+        else if (e.v === it.to && !inT[e.u]) heap.push({ to: e.u, w: e.w, e });
+      });
+    }
+    return { order, chosen, total };
+  }
+
+  function paint(svg, chosen) {
+    const gfx = drawGraph(svg, N, E);
+    const ck = chosen.map(e => e.u + "-" + e.v);
+    for (const k in gfx.edgeEls) {
+      if (ck.includes(k)) gfx.edgeEls[k].line.classList.add("mst");
+    }
+  }
+
+  function run() {
+    const k = kruskal(), p = prim();
+    paint(ksvg, k.chosen);
+    paint(psvg, p.chosen);
+    document.getElementById("c_korder").textContent = k.order.join(" → ");
+    document.getElementById("c_porder").textContent = p.order.join(" → ");
+    document.getElementById("c_ktotal").textContent = k.total;
+    document.getElementById("c_ptotal").textContent = p.total;
+    const v = document.getElementById("c_verdict");
+    if (k.total === p.total) {
+      v.innerHTML = `✓ Cùng MST weight = <span class="total">${k.total}</span>. Thứ tự thêm cạnh khác nhau, nhưng tổng trọng số luôn duy nhất.`;
+    } else {
+      v.textContent = `Khác weight?! (${k.total} vs ${p.total}) — không nên xảy ra.`;
+    }
+  }
+
+  function reset() {
+    drawGraph(ksvg, N, E);
+    drawGraph(psvg, N, E);
+    document.getElementById("c_korder").textContent = "—";
+    document.getElementById("c_porder").textContent = "—";
+    document.getElementById("c_ktotal").textContent = "—";
+    document.getElementById("c_ptotal").textContent = "—";
+    document.getElementById("c_verdict").textContent = 'Bấm "Chạy cả hai" để so sánh.';
+  }
+
+  document.getElementById("c_run").onclick = run;
+  document.getElementById("c_reset").onclick = reset;
+  reset();
+})();
+</script>
+
+<!-- README modal + TOC + favicon -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+</body>
+</html>

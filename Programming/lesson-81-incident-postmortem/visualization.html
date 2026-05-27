@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L81 — Incident & Postmortem · Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root { --accent: #dc2626; --accent-soft: #fee2e2; --accent-hover: #b91c1c; }
+  main { max-width: 1100px; }
+  h1 { color: #2d3748; margin-bottom: 4px; }
+  .lead { color: #718096; margin-bottom: 24px; font-size: 15px; }
+  section.module {
+    background: #fff; border-radius: 10px; padding: 22px;
+    margin-bottom: 28px; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+  section.module h2 {
+    color: #2d3748; margin-top: 0; padding-bottom: 10px;
+    border-bottom: 2px solid var(--accent); font-size: 21px;
+  }
+  .desc { color: #4a5568; font-size: 14px; margin-bottom: 16px; }
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
+    background: #f7fafc; padding: 12px 14px; border-radius: 8px; margin-bottom: 16px;
+  }
+  button {
+    padding: 8px 16px; background: var(--accent); color: #fff; border: none;
+    border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.sec { background: #64748b; }
+  button.sec:hover { background: #475569; }
+  .ctrl { display: flex; flex-direction: column; gap: 3px; }
+  .ctrl label { font-size: 12px; font-weight: 600; color: #4a5568; }
+  .ctrl input[type=range] { width: 200px; max-width: 100%; }
+  .ctrl .val { font-family: monospace; font-size: 13px; color: var(--accent-hover); font-weight: 700; }
+  code { background: #edf2f7; padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+
+  /* ---- Module 1: error budget ---- */
+  .budget-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 14px; }
+  .stat { border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; background: #fafbfc; text-align: center; }
+  .stat .k { font-size: 12px; color: #718096; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+  .stat .v { font-size: 26px; font-weight: 800; color: #2d3748; margin-top: 4px; }
+  .stat .v small { font-size: 13px; font-weight: 600; color: #718096; }
+  .bar-wrap { background: #e2e8f0; border-radius: 8px; height: 30px; overflow: hidden; position: relative; }
+  .bar-fill { height: 100%; transition: width .25s, background .25s; }
+  .bar-label { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #1a202c; }
+  .verdict { margin-top: 12px; padding: 10px 14px; border-radius: 8px; font-weight: 700; font-size: 14px; }
+  .verdict.ok { background: #dcfce7; color: #166534; }
+  .verdict.warn { background: #fef9c3; color: #854d0e; }
+  .verdict.freeze { background: var(--accent-soft); color: var(--accent-hover); }
+
+  /* ---- Module 2: timeline ---- */
+  .tl { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0; }
+  .tl-step {
+    flex: 1 1 140px; min-width: 0; border: 2px solid #e2e8f0; border-radius: 10px;
+    padding: 12px; background: #fafbfc; opacity: .45; transition: all .35s;
+  }
+  .tl-step.active { opacity: 1; border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 3px 10px rgba(220,38,38,.18); transform: translateY(-3px); }
+  .tl-step.done { opacity: 1; border-color: #16a34a; background: #f0fdf4; }
+  .tl-step .ico { font-size: 24px; }
+  .tl-step .nm { font-weight: 800; color: #2d3748; margin: 4px 0; font-size: 15px; }
+  .tl-step .dt { font-size: 12px; color: #4a5568; line-height: 1.5; }
+  .tl-clock { font-family: monospace; font-size: 16px; font-weight: 700; color: var(--accent-hover); }
+  .tl-log { background: #1e293b; color: #e2e8f0; font-family: monospace; font-size: 13px; border-radius: 8px; padding: 12px 14px; min-height: 90px; line-height: 1.7; }
+  .tl-log .t { color: #fbbf24; }
+  .tl-log .g { color: #4ade80; }
+
+  /* ---- Module 3: 5 whys ---- */
+  .why-chain { display: flex; flex-direction: column; gap: 10px; }
+  .why-node {
+    border-left: 4px solid var(--accent); background: #fafbfc; border-radius: 0 8px 8px 0;
+    padding: 12px 16px; opacity: 0; max-height: 0; overflow: hidden;
+    transition: opacity .4s, max-height .4s, padding .4s; padding-top: 0; padding-bottom: 0;
+  }
+  .why-node.show { opacity: 1; max-height: 240px; padding-top: 12px; padding-bottom: 12px; }
+  .why-node .q { font-weight: 700; color: var(--accent-hover); font-size: 14px; }
+  .why-node .a { color: #2d3748; font-size: 14px; margin-top: 4px; }
+  .why-node .lvl { font-size: 11px; color: #94a3b8; font-weight: 700; text-transform: uppercase; }
+  .why-root {
+    border: 2px dashed #16a34a; background: #f0fdf4; border-radius: 10px; padding: 14px 16px;
+    opacity: 0; max-height: 0; overflow: hidden; transition: all .4s;
+  }
+  .why-root.show { opacity: 1; max-height: 320px; }
+  .why-root .h { font-weight: 800; color: #166534; }
+  .why-root ul { margin: 8px 0 0; padding-left: 20px; }
+  .why-root li { font-size: 13px; color: #14532d; margin-bottom: 4px; }
+  .step { margin-top: 10px; font-size: 13px; color: #4a5568; }
+
+  @media (max-width: 480px) {
+    .budget-grid { grid-template-columns: 1fr; }
+    .stat .v { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-80-code-review-style/visualization.html">← L80: Code Review &amp; Style</a>
+  <span class="sep">·</span>
+  <span class="current">L81: Incident &amp; Postmortem</span>
+  <span class="sep">·</span>
+  <a href="../tier-8-capstone/index.html">Tier 8 →</a>
+</nav>
+
+<main>
+  <h1>L81 — Incident Management &amp; Postmortem</h1>
+  <p class="lead">Ba mô phỏng tương tác: (1) Error budget calculator — kéo SLO xem downtime cho phép &amp; budget burn; (2) Incident timeline — Detect → Triage → Mitigate → Resolve → Postmortem; (3) 5 Whys — đào root cause từng tầng.</p>
+
+  <!-- ===================== MODULE 1 ===================== -->
+  <section class="module" id="m1">
+    <h2>Module 1 — Error budget calculator</h2>
+    <p class="desc">Kéo SLO để thấy downtime cho phép mỗi tháng (30 ngày = 43200 phút). Kéo "downtime đã dùng" để xem budget cạn dần — khi vượt budget thì <b>freeze feature</b>. Khớp công thức README mục 2-3: <code>downtime = (1 − SLO) × 43200</code>.</p>
+    <div class="controls">
+      <div class="ctrl">
+        <label>SLO mục tiêu</label>
+        <input type="range" id="m1-slo" min="9000" max="99999" value="99900">
+        <span class="val">SLO = <span id="m1-sloval">99.900</span>%</span>
+      </div>
+      <div class="ctrl">
+        <label>Downtime đã dùng (phút)</label>
+        <input type="range" id="m1-used" min="0" max="100" value="20" step="0.5">
+        <span class="val"><span id="m1-usedval">20</span> phút</span>
+      </div>
+    </div>
+    <div class="budget-grid">
+      <div class="stat"><div class="k">Budget downtime</div><div class="v"><span id="m1-budget">43.2</span> <small>phút/tháng</small></div></div>
+      <div class="stat"><div class="k">Còn lại</div><div class="v"><span id="m1-remain">23.2</span> <small>phút</small></div></div>
+      <div class="stat"><div class="k">Downtime/năm</div><div class="v"><span id="m1-year">8.8</span> <small>giờ</small></div></div>
+    </div>
+    <div class="bar-wrap">
+      <div class="bar-fill" id="m1-bar" style="width:46%;background:#16a34a"></div>
+      <div class="bar-label" id="m1-barlabel">đã dùng 46% budget</div>
+    </div>
+    <div class="verdict ok" id="m1-verdict">Còn nhiều budget → ship feature thoải mái.</div>
+    <div class="step" id="m1-note"></div>
+  </section>
+
+  <!-- ===================== MODULE 2 ===================== -->
+  <section class="module" id="m2">
+    <h2>Module 2 — Incident timeline</h2>
+    <p class="desc">Bấm "▶ Chạy incident" để xem một sự cố đi qua 5 giai đoạn. Chú ý: <b>Mitigate (cầm máu) đến TRƯỚC Resolve (sửa gốc)</b> — rollback đưa user về trạng thái tốt rồi mới điều tra (README mục 5, 8).</p>
+    <div class="controls">
+      <button id="m2-run">▶ Chạy incident</button>
+      <button class="sec" id="m2-reset">↺ Reset</button>
+      <span class="tl-clock" id="m2-clock">14:00</span>
+    </div>
+    <div class="tl" id="m2-tl">
+      <div class="tl-step" data-i="0"><div class="ico">📟</div><div class="nm">Detect</div><div class="dt">Alert error rate &gt; 50% page on-call.</div></div>
+      <div class="tl-step" data-i="1"><div class="ico">🏷️</div><div class="nm">Triage</div><div class="dt">Gán SEV1, chỉ định IC, kéo Ops + Comms.</div></div>
+      <div class="tl-step" data-i="2"><div class="ico">🩹</div><div class="nm">Mitigate</div><div class="dt">Rollback v2.3 → v2.2. User hết bị 500.</div></div>
+      <div class="tl-step" data-i="3"><div class="ico">🔧</div><div class="nm">Resolve</div><div class="dt">Điều tra nil-pointer, fix + test, deploy v2.4.</div></div>
+      <div class="tl-step" data-i="4"><div class="ico">📝</div><div class="nm">Postmortem</div><div class="dt">Blameless: timeline + root cause + action items.</div></div>
+    </div>
+    <div class="tl-log" id="m2-log">Bấm "▶ Chạy incident" để bắt đầu mô phỏng.</div>
+    <div class="step" id="m2-step"></div>
+  </section>
+
+  <!-- ===================== MODULE 3 ===================== -->
+  <section class="module" id="m3">
+    <h2>Module 3 — 5 Whys (root cause drill-down)</h2>
+    <p class="desc">Incident: <b>"API trả 500 hàng loạt"</b>. Bấm "Hỏi tại sao tiếp" để đào từng tầng — mỗi câu trả lời là nguyên nhân của tầng trên, tới khi chạm <b>nguyên nhân hệ thống/process</b> (không dừng ở triệu chứng). Khớp README mục 10.1.</p>
+    <div class="controls">
+      <button id="m3-next">Hỏi tại sao tiếp ↓</button>
+      <button class="sec" id="m3-reset">↺ Reset</button>
+      <span class="val">Tầng <span id="m3-depth">0</span> / 5</span>
+    </div>
+    <div class="why-chain" id="m3-chain"></div>
+    <div class="why-root" id="m3-root">
+      <div class="h">🎯 ROOT CAUSE: thiếu chuẩn/process kiểm tra input từ dependency bên ngoài.</div>
+      <ul>
+        <li><b>Prevent:</b> nil-check + giá trị mặc định cho mọi external response.</li>
+        <li><b>Detect:</b> test case "response thiếu trường"; alert burn-rate.</li>
+        <li><b>Process:</b> thêm "validate mọi external response" vào review checklist.</li>
+      </ul>
+      <div class="step">Lưu ý: KHÔNG dừng ở Why 1 ("fix bug") — đào tới <i>vì sao class lỗi này tồn tại</i>.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+/* ===================== MODULE 1: Error budget ===================== */
+(() => {
+  const sloEl = document.getElementById("m1-slo");
+  const usedEl = document.getElementById("m1-used");
+  const MIN_MONTH = 30 * 24 * 60; // 43200
+  const MIN_YEAR = 365 * 24 * 60;
+
+  function render() {
+    const slo = sloEl.value / 100000; // 99900 → 0.999
+    const used = parseFloat(usedEl.value);
+    const budget = (1 - slo) * MIN_MONTH;       // phút/tháng
+    const yearH = (1 - slo) * MIN_YEAR / 60;    // giờ/năm
+    const remain = budget - used;
+    const burnedPct = budget > 0 ? Math.min(100, used / budget * 100) : 100;
+
+    document.getElementById("m1-sloval").textContent = (slo * 100).toFixed(3);
+    document.getElementById("m1-usedval").textContent = used.toFixed(1);
+    document.getElementById("m1-budget").textContent = budget.toFixed(2);
+    document.getElementById("m1-remain").textContent = remain.toFixed(2);
+    document.getElementById("m1-year").textContent = yearH.toFixed(2);
+
+    // giới hạn thanh used theo budget hiện tại để hợp lý
+    usedEl.max = Math.max(5, (budget * 1.3).toFixed(1));
+
+    const bar = document.getElementById("m1-bar");
+    bar.style.width = burnedPct + "%";
+    const label = document.getElementById("m1-barlabel");
+    const verdict = document.getElementById("m1-verdict");
+    const note = document.getElementById("m1-note");
+
+    if (remain <= 0) {
+      bar.style.background = "#dc2626";
+      label.textContent = "BUDGET ÂM — đã vượt " + (used - budget).toFixed(1) + " phút";
+      verdict.className = "verdict freeze";
+      verdict.textContent = "🛑 Cạn budget → FREEZE feature mới, mọi nỗ lực chuyển sang reliability.";
+    } else if (burnedPct >= 50) {
+      bar.style.background = "#f59e0b";
+      label.textContent = "đã dùng " + burnedPct.toFixed(0) + "% budget";
+      verdict.className = "verdict warn";
+      verdict.textContent = "⚠ Còn dưới 50% budget → ship cẩn thận hơn, tăng canary/test.";
+    } else {
+      bar.style.background = "#16a34a";
+      label.textContent = "đã dùng " + burnedPct.toFixed(0) + "% budget";
+      verdict.className = "verdict ok";
+      verdict.textContent = "✅ Còn nhiều budget → ship feature thoải mái (chấp nhận rủi ro).";
+    }
+    note.textContent = "Mỗi số 9 thêm vào giảm budget xuống 1/10: 99.9% = 43.2 phút, 99.99% = 4.32 phút, 99.999% = 25.9 giây/tháng.";
+  }
+  sloEl.addEventListener("input", render);
+  usedEl.addEventListener("input", render);
+  render();
+})();
+
+/* ===================== MODULE 2: Incident timeline ===================== */
+(() => {
+  const steps = [...document.querySelectorAll("#m2-tl .tl-step")];
+  const log = document.getElementById("m2-log");
+  const clock = document.getElementById("m2-clock");
+  const stepNote = document.getElementById("m2-step");
+  let timer = null;
+
+  const frames = [
+    { i: 0, time: "14:05", line: '<span class="t">14:05</span> ALERT: error rate /payments &gt; 50% — page on-call. <b>(Detect)</b>', note: "Phát hiện tự động trước khi khách báo — time-to-detect nhỏ." },
+    { i: 1, time: "14:08", line: '<span class="t">14:08</span> On-call ack → SEV1, chỉ định IC, kéo Ops+Comms. <b>(Triage)</b>', note: "Thanh toán = doanh thu trực tiếp → SEV1, huy động tối đa." },
+    { i: 2, time: "14:12", line: '<span class="t">14:12</span> Ops rollback v2.3 → v2.2. <span class="g">error rate về bình thường ✓</span> <b>(Mitigate)</b>', note: "CẦM MÁU trước: user hết bị 500 — CHƯA cần biết root cause." },
+    { i: 3, time: "15:40", line: '<span class="t">15:40</span> Điều tra: nil-pointer trong handler. Fix + test → deploy v2.4. <b>(Resolve)</b>', note: "Sửa gốc SAU khi user đã ổn — bình tĩnh, an toàn (qua canary)." },
+    { i: 4, time: "hôm sau", line: '<span class="t">hôm sau</span> Viết blameless postmortem: timeline, root cause, action items. <b>(Postmortem)</b>', note: "Học để không lặp lại — không đổ lỗi cá nhân, vá nhiều lớp." },
+  ];
+
+  function reset() {
+    clearInterval(timer); timer = null;
+    steps.forEach(s => s.className = "tl-step");
+    log.innerHTML = 'Bấm "▶ Chạy incident" để bắt đầu mô phỏng.';
+    clock.textContent = "14:00";
+    stepNote.textContent = "";
+  }
+
+  function run() {
+    reset();
+    let k = 0;
+    log.innerHTML = "";
+    timer = setInterval(() => {
+      if (k >= frames.length) {
+        clearInterval(timer); timer = null;
+        steps[frames.length - 1].className = "tl-step done";
+        return;
+      }
+      const f = frames[k];
+      // bước trước chuyển done, bước này active
+      steps.forEach((s, idx) => {
+        if (idx < f.i) s.className = "tl-step done";
+        else if (idx === f.i) s.className = "tl-step active";
+      });
+      clock.textContent = f.time;
+      log.innerHTML += f.line + "<br>";
+      log.scrollTop = log.scrollHeight;
+      stepNote.textContent = "➡ " + f.note;
+      k++;
+    }, 1200);
+  }
+
+  document.getElementById("m2-run").onclick = run;
+  document.getElementById("m2-reset").onclick = reset;
+})();
+
+/* ===================== MODULE 3: 5 Whys ===================== */
+(() => {
+  const whys = [
+    { q: "Why 1 — Tại sao API trả 500?", a: "Vì handler panic khi truy cập con trỏ nil." },
+    { q: "Why 2 — Tại sao con trỏ nil?", a: "Vì response từ service thanh toán thiếu trường amount, code không kiểm tra." },
+    { q: "Why 3 — Tại sao không kiểm tra trường thiếu?", a: "Vì giả định 'service thanh toán luôn trả đủ trường' — không có validation." },
+    { q: "Why 4 — Tại sao giả định đó lọt review/test?", a: "Vì không có test cho case response thiếu trường; review không bắt." },
+    { q: "Why 5 — Tại sao không có test case đó?", a: "Vì không có chuẩn 'mọi response bên ngoài phải có test cho dữ liệu khuyết'." },
+  ];
+  const chain = document.getElementById("m3-chain");
+  const root = document.getElementById("m3-root");
+  const depthEl = document.getElementById("m3-depth");
+  const nextBtn = document.getElementById("m3-next");
+  let depth = 0;
+
+  // dựng sẵn các node ẩn
+  whys.forEach((w, i) => {
+    const div = document.createElement("div");
+    div.className = "why-node";
+    div.id = "why-" + i;
+    div.innerHTML = '<div class="lvl">Tầng ' + (i + 1) + '</div><div class="q">' + w.q + '</div><div class="a">→ ' + w.a + '</div>';
+    chain.appendChild(div);
+  });
+
+  function reset() {
+    depth = 0;
+    depthEl.textContent = "0";
+    whys.forEach((_, i) => document.getElementById("why-" + i).className = "why-node");
+    root.className = "why-root";
+    nextBtn.disabled = false;
+    nextBtn.textContent = "Hỏi tại sao tiếp ↓";
+  }
+
+  function next() {
+    if (depth >= whys.length) return;
+    document.getElementById("why-" + depth).className = "why-node show";
+    depth++;
+    depthEl.textContent = depth;
+    if (depth >= whys.length) {
+      root.className = "why-root show";
+      nextBtn.disabled = true;
+      nextBtn.textContent = "✓ Đã chạm root cause";
+    }
+  }
+
+  nextBtn.onclick = next;
+  document.getElementById("m3-reset").onclick = reset;
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

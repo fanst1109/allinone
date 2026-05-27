@@ -14,11 +14,11 @@ import (
 // Các lỗi domain — là một phần của "ngôn ngữ" miền nghiệp vụ, không phải
 // lỗi kỹ thuật. Tầng ngoài (HTTP) sẽ map các lỗi này sang status code.
 var (
-	ErrEmptyName     = errors.New("tên người dùng không được rỗng")
-	ErrInvalidEmail  = errors.New("email không hợp lệ")
-	ErrUserNotFound  = errors.New("không tìm thấy người dùng")
-	ErrEmailTaken    = errors.New("email đã được dùng")
-	ErrNameTooLong   = errors.New("tên người dùng quá dài (tối đa 100 ký tự)")
+	ErrEmptyName    = errors.New("tên người dùng không được rỗng")
+	ErrInvalidEmail = errors.New("email không hợp lệ")
+	ErrUserNotFound = errors.New("không tìm thấy người dùng")
+	ErrEmailTaken   = errors.New("email đã được dùng")
+	ErrNameTooLong  = errors.New("tên người dùng quá dài (tối đa 100 ký tự)")
 )
 
 // User là entity trung tâm của miền nghiệp vụ.

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L77 — CI/CD Pipeline · Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root { --accent: #2563eb; --accent-soft: #e8f0fe; --accent-hover: #1d4ed8; }
+  main { max-width: 1100px; }
+  h1 { color: #2d3748; margin-bottom: 4px; }
+  .lead { color: #718096; margin-bottom: 24px; font-size: 15px; }
+  section.module {
+    background: #fff; border-radius: 10px; padding: 22px;
+    margin-bottom: 28px; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+  section.module h2 {
+    color: #2d3748; margin-top: 0; padding-bottom: 10px;
+    border-bottom: 2px solid var(--accent); font-size: 21px;
+  }
+  .desc { color: #4a5568; font-size: 14px; margin-bottom: 16px; }
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+    background: #f7fafc; padding: 12px 14px; border-radius: 8px; margin-bottom: 16px;
+  }
+  button {
+    padding: 8px 16px; background: var(--accent); color: #fff; border: none;
+    border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;
+  }
+  button:hover { background: var(--accent-hover); }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  button.sec { background: #718096; }
+  button.sec:hover { background: #4a5568; }
+  .ctrl { display: flex; flex-direction: column; gap: 3px; }
+  .ctrl label { font-size: 12px; font-weight: 600; color: #4a5568; }
+  .seg { display: inline-flex; border: 1px solid #cbd5e0; border-radius: 6px; overflow: hidden; }
+  .seg button { background: #fff; color: #4a5568; border: none; border-radius: 0; font-weight: 600; }
+  .seg button.on { background: var(--accent); color: #fff; }
+  .status { font-family: monospace; font-size: 13px; color: var(--accent-hover); font-weight: 700; }
+
+  /* Module 1: pipeline stages */
+  .pipe { display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch; }
+  .stage {
+    flex: 1 1 110px; min-width: 0; border: 2px solid #e2e8f0; border-radius: 8px;
+    padding: 10px 8px; text-align: center; background: #fafbfc; transition: all .25s;
+    position: relative;
+  }
+  .stage .icon { font-size: 22px; }
+  .stage .name { font-size: 12.5px; font-weight: 700; color: #2d3748; margin-top: 2px; }
+  .stage .cmd { font-size: 10px; color: #a0aec0; font-family: monospace; margin-top: 2px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .stage.run { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .stage.pass { border-color: #38a169; background: #f0fff4; }
+  .stage.fail { border-color: #e53e3e; background: #fff5f5; }
+  .stage.skip { opacity: .4; }
+  .stage .badge { position: absolute; top: -8px; right: -6px; font-size: 14px; }
+  .arrow { align-self: center; color: #cbd5e0; font-size: 18px; }
+  .log { background: #1a202c; color: #e2e8f0; border-radius: 8px; padding: 12px 14px;
+    font-family: monospace; font-size: 12.5px; line-height: 1.55; margin-top: 16px;
+    min-height: 80px; max-height: 220px; overflow-y: auto; }
+  .log .ok { color: #9ae6b4; } .log .err { color: #fc8181; } .log .run2 { color: #f6ad55; }
+  .log .dim { color: #718096; }
+
+  /* Module 2: deploy strategies */
+  .fleet { display: flex; flex-wrap: wrap; gap: 18px; }
+  .env-col { flex: 1 1 200px; min-width: 0; }
+  .env-col h4 { margin: 0 0 8px; font-size: 13px; color: #4a5568; }
+  .insts { display: flex; gap: 8px; flex-wrap: wrap; }
+  .inst {
+    width: 46px; height: 46px; border-radius: 8px; display: flex; align-items: center;
+    justify-content: center; font-weight: 700; font-size: 13px; color: #fff;
+    transition: all .35s; background: #cbd5e0;
+  }
+  .inst.v1 { background: #4299e1; }
+  .inst.v2 { background: #38a169; }
+  .inst.down { background: #e2e8f0; color: #a0aec0; }
+  .inst.pulse { transform: scale(1.12); box-shadow: 0 0 0 4px rgba(56,161,105,.3); }
+  .traffic { font-size: 12px; color: #718096; margin-top: 6px; font-family: monospace; }
+  .stratdesc { font-size: 13px; color: #4a5568; background: #f7fafc; border-radius: 8px;
+    padding: 10px 12px; margin-top: 14px; }
+
+  /* Module 3: canary */
+  .bar-wrap { background: #e2e8f0; border-radius: 8px; height: 40px; overflow: hidden;
+    display: flex; margin: 4px 0 6px; }
+  .bar-old { background: #4299e1; transition: width .5s; display: flex; align-items: center;
+    justify-content: center; color: #fff; font-weight: 700; font-size: 13px; }
+  .bar-new { background: #38a169; transition: width .5s; display: flex; align-items: center;
+    justify-content: center; color: #fff; font-weight: 700; font-size: 13px; }
+  .metric-row { display: flex; gap: 16px; flex-wrap: wrap; margin: 12px 0; }
+  .metric { flex: 1 1 130px; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px;
+    text-align: center; background: #fafbfc; }
+  .metric .lbl { font-size: 11px; color: #718096; }
+  .metric .num { font-size: 24px; font-weight: 700; font-family: monospace; color: #2d3748; }
+  .metric .num.bad { color: #e53e3e; } .metric .num.good { color: #38a169; }
+  .verdict { font-weight: 700; padding: 10px 14px; border-radius: 8px; margin-top: 8px; font-size: 14px; }
+  .verdict.promote { background: #f0fff4; color: #276749; border: 1px solid #9ae6b4; }
+  .verdict.rollback { background: #fff5f5; color: #c53030; border: 1px solid #fc8181; }
+  .verdict.wait { background: #f7fafc; color: #4a5568; border: 1px solid #cbd5e0; }
+
+  @media (max-width: 480px) {
+    .stage { flex: 1 1 70px; }
+    .arrow { display: none; }
+    .inst { width: 38px; height: 38px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-76-kubernetes-basics/visualization.html">← L76: Kubernetes Basics</a>
+  <span class="sep">·</span>
+  <span class="current">L77: CI/CD Pipeline</span>
+  <span class="sep">·</span>
+  <a href="../lesson-78-config-management/visualization.html">L78: Config Management →</a>
+</nav>
+
+<main>
+  <h1>L77 — CI/CD Pipeline</h1>
+  <p class="lead">Từ commit tới production: chạy thử pipeline stages (fail-fast), so sánh 4 deploy strategy, và mô phỏng canary rollout tự promote/rollback theo metric.</p>
+
+  <!-- ===================== MODULE 1 ===================== -->
+  <section class="module" id="m1">
+    <h2>1. Pipeline stages — fail-fast</h2>
+    <p class="desc">Mỗi commit chạy qua chuỗi stage. Stage trước fail → dừng luôn, các stage sau bị <b>skip</b> (tiết kiệm runner). Chọn stage để ép fail rồi bấm "Chạy pipeline" xem nó dừng ở đâu.</p>
+    <div class="controls">
+      <div class="ctrl">
+        <label for="m1-fail">Ép stage fail</label>
+        <select id="m1-fail">
+          <option value="">(không — pipeline xanh)</option>
+        </select>
+      </div>
+      <button id="m1-run">▶ Chạy pipeline</button>
+      <span class="status" id="m1-status">Sẵn sàng</span>
+    </div>
+    <div class="pipe" id="m1-pipe"></div>
+    <div class="log" id="m1-log"></div>
+  </section>
+
+  <!-- ===================== MODULE 2 ===================== -->
+  <section class="module" id="m2">
+    <h2>2. Deploy strategies</h2>
+    <p class="desc">Cùng thay 4 instance từ v1 (xanh dương) sang v2 (xanh lá). Mỗi strategy đánh đổi khác nhau về downtime, tài nguyên, tốc độ rollback.</p>
+    <div class="controls">
+      <div class="seg" id="m2-seg">
+        <button data-s="recreate" class="on">Recreate</button>
+        <button data-s="rolling">Rolling</button>
+        <button data-s="bluegreen">Blue-green</button>
+        <button data-s="canary">Canary</button>
+      </div>
+      <button id="m2-run">▶ Deploy</button>
+      <span class="status" id="m2-status"></span>
+    </div>
+    <div class="fleet">
+      <div class="env-col">
+        <h4 id="m2-h-a">Production</h4>
+        <div class="insts" id="m2-a"></div>
+        <div class="traffic" id="m2-ta">traffic: 100%</div>
+      </div>
+      <div class="env-col" id="m2-col-b" style="display:none">
+        <h4 id="m2-h-b">Green (mới)</h4>
+        <div class="insts" id="m2-b"></div>
+        <div class="traffic" id="m2-tb">traffic: 0%</div>
+      </div>
+    </div>
+    <div class="stratdesc" id="m2-desc"></div>
+  </section>
+
+  <!-- ===================== MODULE 3 ===================== -->
+  <section class="module" id="m3">
+    <h2>3. Canary rollout — metric-based promote/rollback</h2>
+    <p class="desc">Canary nhận % traffic tăng dần (5% → 25% → 50% → 100%). Mỗi bước đo error rate giả lập của canary; ≤ ngưỡng → promote (tăng %), &gt; ngưỡng → rollback ngay. Kéo "Lỗi canary mô phỏng" để xem hệ thống tự quyết định.</p>
+    <div class="controls">
+      <div class="ctrl">
+        <label>Lỗi canary mô phỏng: <span class="status" id="m3-er-val">1.5%</span></label>
+        <input type="range" id="m3-er" min="0" max="100" value="15" style="width:160px;max-width:100%">
+      </div>
+      <div class="ctrl">
+        <label>Ngưỡng cho phép: <span class="status" id="m3-th-val">1.0%</span></label>
+        <input type="range" id="m3-th" min="0" max="50" value="10" style="width:140px;max-width:100%">
+      </div>
+      <button id="m3-run">▶ Bắt đầu rollout</button>
+      <button id="m3-reset" class="sec">Reset</button>
+    </div>
+    <div>
+      <div class="bar-wrap" id="m3-bar">
+        <div class="bar-old" id="m3-old" style="width:100%">stable v1 100%</div>
+        <div class="bar-new" id="m3-new" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="metric-row">
+      <div class="metric"><div class="lbl">Canary traffic</div><div class="num" id="m3-pct">0%</div></div>
+      <div class="metric"><div class="lbl">Error rate (canary)</div><div class="num" id="m3-err">—</div></div>
+      <div class="metric"><div class="lbl">Bước</div><div class="num" id="m3-step">0/4</div></div>
+    </div>
+    <div class="verdict wait" id="m3-verdict">Chưa bắt đầu. Bấm "Bắt đầu rollout".</div>
+  </section>
+</main>
+
+<script>
+// ========================= MODULE 1: pipeline stages =========================
+(function () {
+  const STAGES = [
+    { id: "checkout", icon: "📥", name: "Checkout", cmd: "git fetch" },
+    { id: "lint",     icon: "🧹", name: "Lint",     cmd: "golangci-lint" },
+    { id: "build",    icon: "🔨", name: "Build",    cmd: "go build" },
+    { id: "test",     icon: "🧪", name: "Test",     cmd: "go test -race" },
+    { id: "scan",     icon: "🛡️", name: "Scan",     cmd: "govulncheck" },
+    { id: "image",    icon: "📦", name: "Build img", cmd: "docker build" },
+    { id: "push",     icon: "⬆️", name: "Push",     cmd: "docker push" },
+    { id: "deploy",   icon: "🚀", name: "Deploy",   cmd: "kubectl set image" },
+  ];
+  const pipe = document.getElementById("m1-pipe");
+  const sel = document.getElementById("m1-fail");
+  const log = document.getElementById("m1-log");
+  const status = document.getElementById("m1-status");
+  const runBtn = document.getElementById("m1-run");
+
+  STAGES.forEach((s, i) => {
+    const el = document.createElement("div");
+    el.className = "stage"; el.id = "st-" + s.id;
+    el.innerHTML = `<div class="icon">${s.icon}</div><div class="name">${s.name}</div>` +
+      `<div class="cmd">${s.cmd}</div><div class="badge"></div>`;
+    pipe.appendChild(el);
+    if (i < STAGES.length - 1) {
+      const a = document.createElement("div"); a.className = "arrow"; a.textContent = "▶";
+      pipe.appendChild(a);
+    }
+    const o = document.createElement("option"); o.value = s.id; o.textContent = s.name;
+    sel.appendChild(o);
+  });
+
+  function reset() {
+    STAGES.forEach(s => { const e = document.getElementById("st-" + s.id);
+      e.className = "stage"; e.querySelector(".badge").textContent = ""; });
+    log.innerHTML = "";
+  }
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  function append(html) { log.innerHTML += html + "<br>"; log.scrollTop = log.scrollHeight; }
+
+  async function run() {
+    reset(); runBtn.disabled = true; sel.disabled = true;
+    const failAt = sel.value;
+    status.textContent = "đang chạy…";
+    for (const s of STAGES) {
+      const e = document.getElementById("st-" + s.id);
+      e.classList.add("run");
+      append(`<span class="run2">▶ ${s.name}</span> <span class="dim">$ ${s.cmd}</span>`);
+      await wait(650);
+      e.classList.remove("run");
+      if (s.id === failAt) {
+        e.classList.add("fail"); e.querySelector(".badge").textContent = "✗";
+        append(`<span class="err">✗ ${s.name} FAILED — pipeline dừng (fail-fast)</span>`);
+        // skip remaining
+        let skip = false;
+        for (const s2 of STAGES) { if (s2.id === s.id) { skip = true; continue; }
+          if (skip) { document.getElementById("st-" + s2.id).classList.add("skip"); } }
+        status.textContent = "❌ FAILED ở " + s.name;
+        runBtn.disabled = false; sel.disabled = false; return;
+      }
+      e.classList.add("pass"); e.querySelector(".badge").textContent = "✓";
+      append(`<span class="ok">✓ ${s.name} ok</span>`);
+    }
+    status.textContent = "✅ Pipeline xanh — đã deploy";
+    append(`<span class="ok">━━ Tất cả stage pass → production updated ━━</span>`);
+    runBtn.disabled = false; sel.disabled = false;
+  }
+  runBtn.onclick = run;
+  reset();
+})();
+
+// ========================= MODULE 2: deploy strategies =========================
+(function () {
+  const aBox = document.getElementById("m2-a");
+  const bBox = document.getElementById("m2-b");
+  const colB = document.getElementById("m2-col-b");
+  const hA = document.getElementById("m2-h-a"), hB = document.getElementById("m2-h-b");
+  const tA = document.getElementById("m2-ta"), tB = document.getElementById("m2-tb");
+  const status = document.getElementById("m2-status");
+  const desc = document.getElementById("m2-desc");
+  const runBtn = document.getElementById("m2-run");
+  let strat = "recreate", busy = false;
+  const N = 4;
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+
+  const DESCS = {
+    recreate: "Recreate: tắt hết v1 → bật v2. ⚠ Có downtime (khoảng trống không phục vụ). Dùng khi 2 version không chạy song song được (vd schema DB đổi).",
+    rolling: "Rolling: thay từng instance một, luôn còn instance phục vụ → zero-downtime. v1 & v2 chạy song song → phải tương thích. Mặc định của K8s.",
+    bluegreen: "Blue-green: dựng full môi trường v2 (green) song song, test xong switch toàn bộ traffic. Rollback tức thì (switch lại). Tốn 2× tài nguyên.",
+    canary: "Canary: v2 nhận % traffic nhỏ trước, theo dõi metric, tăng dần nếu tốt. Blast radius nhỏ. Cần observability (xem Module 3).",
+  };
+
+  function mk(box, cls, label) {
+    box.innerHTML = "";
+    for (let i = 0; i < N; i++) {
+      const d = document.createElement("div");
+      d.className = "inst " + cls; d.textContent = label; box.appendChild(d);
+    }
+  }
+  function render() {
+    desc.textContent = DESCS[strat];
+    if (strat === "bluegreen" || strat === "canary") {
+      colB.style.display = "";
+      hA.textContent = strat === "bluegreen" ? "Blue (v1)" : "Stable (v1)";
+      hB.textContent = strat === "bluegreen" ? "Green (v2)" : "Canary (v2)";
+    } else { colB.style.display = "none"; hA.textContent = "Production"; }
+    mk(aBox, "v1", "v1");
+    if (colB.style.display === "") mk(bBox, "down", "·");
+    tA.textContent = "traffic: 100%"; tB.textContent = "traffic: 0%";
+    status.textContent = "";
+  }
+
+  document.querySelectorAll("#m2-seg button").forEach(b => {
+    b.onclick = () => { if (busy) return;
+      document.querySelectorAll("#m2-seg button").forEach(x => x.classList.remove("on"));
+      b.classList.add("on"); strat = b.dataset.s; render(); };
+  });
+
+  async function deploy() {
+    if (busy) return; busy = true; runBtn.disabled = true; render();
+    const a = () => aBox.children, b = () => bBox.children;
+
+    if (strat === "recreate") {
+      status.textContent = "tắt v1…";
+      for (const el of a()) { el.className = "inst down"; el.textContent = "·"; await wait(180); }
+      status.textContent = "⛔ DOWNTIME — không instance nào phục vụ"; await wait(900);
+      status.textContent = "bật v2…";
+      for (const el of a()) { el.className = "inst v2 pulse"; el.textContent = "v2"; await wait(300);
+        el.classList.remove("pulse"); }
+      status.textContent = "✅ xong (đã có downtime)";
+
+    } else if (strat === "rolling") {
+      for (let i = 0; i < N; i++) { const el = a()[i];
+        status.textContent = `thay instance ${i + 1}/${N} (còn ${N - i} phục vụ)`;
+        el.className = "inst down"; el.textContent = "·"; await wait(280);
+        el.className = "inst v2 pulse"; el.textContent = "v2"; await wait(380);
+        el.classList.remove("pulse"); }
+      status.textContent = "✅ zero-downtime — luôn có instance phục vụ";
+
+    } else if (strat === "bluegreen") {
+      status.textContent = "dựng green (v2) song song…";
+      for (const el of b()) { el.className = "inst v2 pulse"; el.textContent = "v2"; await wait(220);
+        el.classList.remove("pulse"); }
+      await wait(400); status.textContent = "⚡ switch traffic blue → green (tức thì)";
+      tA.textContent = "traffic: 0%"; tB.textContent = "traffic: 100%";
+      for (const el of a()) el.style.opacity = ".4";
+      status.textContent = "✅ green phục vụ. Blue giữ lại để rollback tức thì.";
+
+    } else { // canary
+      const steps = [5, 25, 50, 100];
+      mk(bBox, "v2", "v2"); for (const el of b()) el.style.opacity = ".5";
+      for (const p of steps) {
+        status.textContent = `canary ${p}% — theo dõi metric…`;
+        tA.textContent = `traffic: ${100 - p}%`; tB.textContent = `traffic: ${p}%`;
+        const lit = Math.round(N * p / 100);
+        for (let i = 0; i < N; i++) b()[i].style.opacity = i < lit ? "1" : ".35";
+        await wait(700);
+      }
+      status.textContent = "✅ canary promote 100% — metric tốt suốt quá trình";
+    }
+    busy = false; runBtn.disabled = false;
+  }
+  runBtn.onclick = deploy;
+  render();
+})();
+
+// ========================= MODULE 3: canary rollout =========================
+(function () {
+  const er = document.getElementById("m3-er"), erV = document.getElementById("m3-er-val");
+  const th = document.getElementById("m3-th"), thV = document.getElementById("m3-th-val");
+  const bOld = document.getElementById("m3-old"), bNew = document.getElementById("m3-new");
+  const pct = document.getElementById("m3-pct"), errEl = document.getElementById("m3-err");
+  const stepEl = document.getElementById("m3-step"), verdict = document.getElementById("m3-verdict");
+  const runBtn = document.getElementById("m3-run"), resetBtn = document.getElementById("m3-reset");
+  let busy = false;
+  const STEPS = [5, 25, 50, 100];
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  const erRate = () => +er.value / 10;   // slider 0..100 → 0.0..10.0 %
+  const thRate = () => +th.value / 10;   // slider 0..50  → 0.0..5.0 %
+
+  function syncLabels() { erV.textContent = erRate().toFixed(1) + "%"; thV.textContent = thRate().toFixed(1) + "%"; }
+  er.oninput = syncLabels; th.oninput = syncLabels; syncLabels();
+
+  function setBar(p) {
+    bNew.style.width = p + "%"; bOld.style.width = (100 - p) + "%";
+    bOld.textContent = p < 100 ? `stable v1 ${100 - p}%` : "";
+    bNew.textContent = p > 0 ? `canary v2 ${p}%` : "";
+    pct.textContent = p + "%";
+  }
+  function reset() {
+    busy = false; runBtn.disabled = false; setBar(0);
+    errEl.textContent = "—"; errEl.className = "num"; stepEl.textContent = "0/4";
+    verdict.className = "verdict wait"; verdict.textContent = "Chưa bắt đầu. Bấm \"Bắt đầu rollout\".";
+  }
+
+  async function run() {
+    if (busy) return; busy = true; runBtn.disabled = true;
+    const e = erRate(), t = thRate();
+    for (let i = 0; i < STEPS.length; i++) {
+      const p = STEPS[i];
+      setBar(p); stepEl.textContent = (i + 1) + "/4";
+      verdict.className = "verdict wait";
+      verdict.textContent = `Canary ${p}% — đo error rate trong "5 phút"…`;
+      await wait(900);
+      // jitter nhỏ quanh giá trị slider để giống đo thật
+      const measured = Math.max(0, e + (Math.random() - 0.5) * 0.4);
+      errEl.textContent = measured.toFixed(2) + "%";
+      const bad = measured > t;
+      errEl.className = "num " + (bad ? "bad" : "good");
+      if (bad) {
+        verdict.className = "verdict rollback";
+        verdict.textContent = `❌ ROLLBACK ở ${p}%: error rate ${measured.toFixed(2)}% > ngưỡng ${t.toFixed(1)}%. ` +
+          `Tự lui về v1, chỉ ${p}% user bị ảnh hưởng. Alert team.`;
+        setBar(0); pct.textContent = "0% (đã rollback)";
+        busy = false; runBtn.disabled = false; return;
+      }
+      verdict.className = "verdict promote";
+      verdict.textContent = `✓ ${p}%: error rate ${measured.toFixed(2)}% ≤ ${t.toFixed(1)}% → promote tiếp.`;
+      await wait(600);
+    }
+    verdict.className = "verdict promote";
+    verdict.textContent = "✅ PROMOTE 100% — canary khỏe suốt rollout, v2 thành stable mới.";
+    busy = false; runBtn.disabled = false;
+  }
+  runBtn.onclick = run; resetBtn.onclick = reset;
+  reset();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

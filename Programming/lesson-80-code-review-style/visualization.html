@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L80 — Code Review & Style · Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root { --accent: #14b8a6; --accent-soft: #ccfbf1; --accent-hover: #0d9488; }
+  main { max-width: 1100px; }
+  h1 { color: #2d3748; margin-bottom: 4px; }
+  .lead { color: #718096; margin-bottom: 24px; font-size: 15px; }
+  section.module {
+    background: #fff; border-radius: 10px; padding: 22px;
+    margin-bottom: 28px; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+  section.module h2 {
+    color: #2d3748; margin-top: 0; padding-bottom: 10px;
+    border-bottom: 2px solid var(--accent); font-size: 21px;
+  }
+  .desc { color: #4a5568; font-size: 14px; margin-bottom: 16px; }
+  button {
+    padding: 8px 16px; background: var(--accent); color: #fff; border: none;
+    border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.sec { background: #718096; }
+  button.sec:hover { background: #4a5568; }
+
+  /* ---- Module 1: code finder ---- */
+  .code-finder {
+    background: #1a202c; color: #e2e8f0; border-radius: 8px; padding: 16px;
+    font-family: 'Menlo','Monaco',monospace; font-size: 13px; line-height: 1.7;
+    overflow-x: auto;
+  }
+  .code-finder .ln { display: block; white-space: pre; padding: 0 4px; border-radius: 3px; }
+  .code-finder .ln.issue { cursor: pointer; }
+  .code-finder .ln.issue:hover { background: rgba(245,101,101,0.18); }
+  .code-finder .ln.found { background: rgba(245,101,101,0.30); }
+  .code-finder .kw { color: #f6ad55; }
+  .code-finder .str { color: #68d391; }
+  .code-finder .cm { color: #718096; }
+  .finder-status { margin: 12px 0; font-size: 14px; color: #4a5568; }
+  .finder-status b { color: var(--accent-hover); }
+  .issue-panel {
+    margin-top: 14px; border-left: 4px solid #e53e3e; background: #fff5f5;
+    padding: 12px 14px; border-radius: 0 8px 8px 0; font-size: 14px; display: none;
+  }
+  .issue-panel.show { display: block; }
+  .issue-panel h4 { margin: 0 0 6px; color: #c53030; font-size: 15px; }
+  .issue-panel .fix { color: #2f855a; margin-top: 6px; }
+
+  /* ---- Module 2: before/after ---- */
+  .ba-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .ba-tabs button { background: #e2e8f0; color: #2d3748; }
+  .ba-tabs button.active { background: var(--accent); color: #fff; }
+  .ba-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .ba-col h3 { font-size: 14px; margin: 0 0 8px; }
+  .ba-col.bad h3 { color: #c53030; }
+  .ba-col.good h3 { color: #2f855a; }
+  .ba-col pre {
+    background: #1a202c; color: #e2e8f0; padding: 14px; border-radius: 8px;
+    font-family: 'Menlo','Monaco',monospace; font-size: 12.5px; line-height: 1.55;
+    overflow-x: auto; margin: 0; white-space: pre;
+  }
+  .ba-note {
+    margin-top: 12px; background: #f7fafc; border-radius: 8px; padding: 12px 14px;
+    font-size: 13.5px; color: #4a5568; border-left: 4px solid var(--accent);
+  }
+
+  /* ---- Module 3: classifier ---- */
+  .cl-item {
+    border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; margin-bottom: 10px;
+    background: #fafbfc;
+  }
+  .cl-item .txt { font-size: 14px; color: #2d3748; margin-bottom: 8px; }
+  .cl-item .choices { display: flex; gap: 8px; flex-wrap: wrap; }
+  .cl-item .choices button { background: #e2e8f0; color: #2d3748; padding: 6px 14px; font-size: 13px; }
+  .cl-item .choices button.pick-block { background: #e53e3e; color: #fff; }
+  .cl-item .choices button.pick-nit { background: #ecc94b; color: #1a202c; }
+  .cl-item .verdict { margin-top: 8px; font-size: 13px; display: none; }
+  .cl-item .verdict.show { display: block; }
+  .cl-item .verdict.ok { color: #2f855a; }
+  .cl-item .verdict.no { color: #c53030; }
+  .cl-score { margin-top: 14px; font-size: 15px; font-weight: 600; color: var(--accent-hover); }
+
+  @media (max-width: 768px) {
+    .ba-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-79-clean-architecture-go/visualization.html">← L79: Clean Architecture</a>
+  <span class="sep">·</span>
+  <span class="current">L80: Code Review & Style</span>
+  <span class="sep">·</span>
+  <a href="../lesson-81-incident-postmortem/visualization.html">L81: Incident & Postmortem →</a>
+</nav>
+
+<main>
+  <h1>L80 — Code Review &amp; Go Style</h1>
+  <p class="lead">Ba module tương tác: tìm issue trong code · so sánh before/after refactor · phân loại review comment blocking vs nit.</p>
+
+  <!-- ===== MODULE 1 ===== -->
+  <section class="module">
+    <h2>1. Code Review Finder — tìm 5 issue</h2>
+    <p class="desc">Đoạn code dưới có 5 vấn đề (đỏ khi hover). Click vào dòng nghi ngờ để xem giải thích + cách fix. Mục tiêu: tìm đủ 5.</p>
+    <div class="code-finder" id="m1-code"></div>
+    <div class="finder-status">Đã tìm: <b id="m1-found">0</b> / 5 issue</div>
+    <div class="issue-panel" id="m1-panel"></div>
+    <button class="sec" id="m1-reset" style="margin-top:12px">Reset</button>
+  </section>
+
+  <!-- ===== MODULE 2 ===== -->
+  <section class="module">
+    <h2>2. Before / After — bad → idiomatic</h2>
+    <p class="desc">Chọn một chủ đề để xem code lỗi (trái) cạnh bản idiomatic (phải).</p>
+    <div class="ba-tabs" id="m2-tabs"></div>
+    <div class="ba-grid">
+      <div class="ba-col bad"><h3>❌ Before (bad)</h3><pre id="m2-bad"></pre></div>
+      <div class="ba-col good"><h3>✅ After (idiomatic)</h3><pre id="m2-good"></pre></div>
+    </div>
+    <div class="ba-note" id="m2-note"></div>
+  </section>
+
+  <!-- ===== MODULE 3 ===== -->
+  <section class="module">
+    <h2>3. Review Comment Classifier — blocking vs nit</h2>
+    <p class="desc">Với mỗi review comment, quyết định: <b style="color:#c53030">blocking</b> (phải sửa trước merge) hay <b style="color:#b7791f">nit</b> (ý kiến nhỏ, không bắt buộc)?</p>
+    <div id="m3-list"></div>
+    <div class="cl-score" id="m3-score"></div>
+    <button class="sec" id="m3-reset" style="margin-top:12px">Reset</button>
+  </section>
+</main>
+
+<script>
+/* ===================== MODULE 1: Code Finder ===================== */
+(function () {
+  // Mỗi dòng: text + (nếu có issue) id + title + giải thích + fix.
+  const lines = [
+    { t: 'func ReadData(FileName string) []byte {', issue: 'sig',
+      title: 'Naming + signature', why: 'Param `FileName` viết hoa (trông như exported), và hàm "có thể lỗi" nhưng không trả về error.',
+      fix: 'func readData(path string) ([]byte, error)' },
+    { t: '    f, _ := os.Open(FileName)', issue: 'err1',
+      title: 'Error bị bỏ qua (os.Open)', why: 'Nếu mở thất bại, f là nil → dòng f.Read sau panic. errcheck bắt lỗi này.',
+      fix: 'f, err := os.Open(path); if err != nil { return nil, fmt.Errorf("open %s: %w", path, err) }' },
+    { t: '    data := make([]byte, 1024)', issue: 'magic',
+      title: 'Magic number', why: 'Số 1024 rải rác không có tên → khó hiểu ý nghĩa, khó đổi nhất quán.',
+      fix: 'const readBufSize = 1024 ; buf := make([]byte, readBufSize)' },
+    { t: '    n, _ := f.Read(data)', issue: 'err2',
+      title: 'Error bị bỏ qua (Read)', why: 'Read lỗi không được xử lý; dữ liệu có thể không đầy đủ mà ta không biết.',
+      fix: 'n, err := f.Read(buf); if err != nil { return nil, fmt.Errorf("read: %w", err) }' },
+    { t: '    if n > 0 {', issue: 'nest',
+      title: 'Nested quá sâu + thiếu defer Close', why: '3 tầng if lồng nhau khó đọc; và file mở ra không có defer f.Close() → rò rỉ file descriptor.',
+      fix: 'defer f.Close() ngay sau Open; gộp điều kiện: if n > 10 && buf[0] == \'{\' { ... }' },
+    { t: '        if data[0] == 0x7b {', issue: null },
+    { t: '            if len(data) > 10 {', issue: null },
+    { t: '                fmt.Println("json")', issue: null },
+    { t: '            }', issue: null },
+    { t: '        }', issue: null },
+    { t: '    }', issue: null },
+    { t: '    return data[:n]', issue: null },
+    { t: '}', issue: null },
+  ];
+
+  const codeEl = document.getElementById('m1-code');
+  const foundEl = document.getElementById('m1-found');
+  const panel = document.getElementById('m1-panel');
+  const found = new Set();
+
+  function highlight(s) {
+    // tô màu sơ bộ: keyword, string, comment
+    return s
+      .replace(/\b(func|if|return|const|range|for)\b/g, '<span class="kw">$1</span>')
+      .replace(/("[^"]*")/g, '<span class="str">$1</span>');
+  }
+
+  function render() {
+    codeEl.innerHTML = '';
+    lines.forEach((ln, i) => {
+      const span = document.createElement('span');
+      span.className = 'ln' + (ln.issue ? ' issue' : '') + (ln.issue && found.has(ln.issue) ? ' found' : '');
+      span.innerHTML = highlight(ln.t) || ' ';
+      if (ln.issue) {
+        span.onclick = () => {
+          found.add(ln.issue);
+          foundEl.textContent = found.size;
+          panel.className = 'issue-panel show';
+          panel.innerHTML = '<h4>' + ln.title + '</h4><div>' + ln.why +
+            '</div><div class="fix">✅ Fix: <code>' + ln.fix.replace(/</g, '&lt;') + '</code></div>';
+          render();
+        };
+      }
+      codeEl.appendChild(span);
+    });
+  }
+
+  document.getElementById('m1-reset').onclick = () => {
+    found.clear(); foundEl.textContent = '0';
+    panel.className = 'issue-panel'; panel.innerHTML = '';
+    render();
+  };
+  render();
+})();
+
+/* ===================== MODULE 2: Before/After ===================== */
+(function () {
+  const cases = [
+    {
+      name: 'Naming (stutter)',
+      bad: 'package userManagement\n\ntype UserManagerService struct {\n    DB_Connection *sql.DB\n}\n\nfunc (s *UserManagerService) GetUserByUserId(\n    theUserId int) (*User, error) {\n    // ...\n}\n\ntype IUserReader interface {\n    ReadUser()\n}',
+      good: 'package user\n\ntype Service struct {\n    db *sql.DB\n}\n\nfunc (s *Service) ByID(id int) (*User, error) {\n    // gọi: user.Service.ByID(1)\n}\n\ntype Reader interface {\n    Read() (*User, error)\n}',
+      note: 'Package dài + mixedCaps → `user`. Stutter `UserManagerService`/`GetUserByUserId` → `Service`/`ByID` (gọi ra `user.Service.ByID`). Field `DB_Connection` (underscore) → `db`. Tiền tố `IUserReader` (kiểu C#) → hậu tố `-er`: `Reader`.'
+    },
+    {
+      name: 'Error handling',
+      bad: 'func load(p string) *Config {\n    f, _ := os.Open(p)   // nuốt lỗi\n    cfg, _ := parse(f)   // nuốt lỗi\n    return cfg           // không có Close, không context\n}',
+      good: 'func load(p string) (*Config, error) {\n    f, err := os.Open(p)\n    if err != nil {\n        return nil, fmt.Errorf("open %s: %w", p, err)\n    }\n    defer f.Close()\n    cfg, err := parse(f)\n    if err != nil {\n        return nil, fmt.Errorf("parse: %w", err)\n    }\n    return cfg, nil\n}',
+      note: 'Bad nuốt cả 2 lỗi (`_`), không defer Close, không trả error. Good: early return, wrap bằng `%w` (giữ chain cho errors.Is), defer Close ngay sau Open.'
+    },
+    {
+      name: 'Deep nesting',
+      bad: 'func process(u *User) error {\n    if u != nil {\n        if u.Active {\n            if u.Balance > 0 {\n                return charge(u)\n            } else {\n                return errZeroBalance\n            }\n        } else {\n            return errInactive\n        }\n    }\n    return errNilUser\n}',
+      good: 'func process(u *User) error {\n    if u == nil {\n        return errNilUser\n    }\n    if !u.Active {\n        return errInactive\n    }\n    if u.Balance <= 0 {\n        return errZeroBalance\n    }\n    return charge(u)\n}',
+      note: 'Early return (guard clause): mỗi điều kiện loại trừ ngay đầu hàm, happy path `charge(u)` nằm ở cuối lề trái — đọc tuyến tính, không phải nhảy qua các `else` lồng nhau.'
+    },
+    {
+      name: 'Too many params',
+      bad: 'func NewServer(host string, port int,\n    timeout time.Duration, maxConn int,\n    tls bool, logLevel string) *Server {\n    // 6 param — dễ truyền nhầm thứ tự\n}',
+      good: 'type Config struct {\n    Host     string\n    Port     int\n    Timeout  time.Duration\n    MaxConn  int\n    TLS      bool\n    LogLevel string\n}\n\nfunc NewServer(cfg Config) *Server {\n    // gọi rõ ràng theo tên field\n}',
+      note: '>4 param → gom vào struct Config. Lợi: gọi theo tên field (không nhầm thứ tự), thêm option mới không phá chữ ký hàm, dễ set default.'
+    },
+    {
+      name: 'Clever vs clear',
+      bad: 'n := 0\nfor _, v := range xs {\n    n += map[bool]int{\n        true: 1, false: 0,\n    }[v > 0]\n}',
+      good: 'n := 0\nfor _, v := range xs {\n    if v > 0 {\n        n++\n    }\n}',
+      note: '"Clear is better than clever." Bản clever cấp phát một map mới mỗi vòng lặp (chậm) và khó đọc. Bản clear ai cũng hiểu ngay và compiler tối ưu tốt hơn.'
+    },
+  ];
+
+  const tabs = document.getElementById('m2-tabs');
+  const badEl = document.getElementById('m2-bad');
+  const goodEl = document.getElementById('m2-good');
+  const noteEl = document.getElementById('m2-note');
+
+  function show(i) {
+    const c = cases[i];
+    badEl.textContent = c.bad;
+    goodEl.textContent = c.good;
+    noteEl.innerHTML = c.note;
+    [...tabs.children].forEach((b, j) => b.className = (j === i ? 'active' : ''));
+  }
+  cases.forEach((c, i) => {
+    const b = document.createElement('button');
+    b.textContent = c.name;
+    b.onclick = () => show(i);
+    tabs.appendChild(b);
+  });
+  show(0);
+})();
+
+/* ===================== MODULE 3: Classifier ===================== */
+(function () {
+  const items = [
+    { txt: 'This goroutine leaks if the context is cancelled — no done signal.', block: true,
+      exp: 'Leak tài nguyên → memory grow theo thời gian → bug production thật. Phải sửa.' },
+    { txt: 'Prefer `parsed` over `tmp` for this variable name.', block: false,
+      exp: 'Làm rõ hơn nhưng không ảnh hưởng đúng/sai. Đánh dấu nit, không block.' },
+    { txt: 'SQL query is built with string concat → injection risk.', block: true,
+      exp: 'Lỗ hổng bảo mật nghiêm trọng (SQL injection). Phải sửa trước merge.' },
+    { txt: 'Extra blank line here.', block: false,
+      exp: 'Format — việc của gofmt, không nên là comment người. Nit (nếu có).' },
+    { txt: 'Map written without make() → will panic on first write.', block: true,
+      exp: 'Crash runtime chắc chắn — bug. Blocking.' },
+    { txt: 'Could group these two imports together.', block: false,
+      exp: 'goimports tự lo. Nit.' },
+  ];
+
+  const list = document.getElementById('m3-list');
+  const scoreEl = document.getElementById('m3-score');
+  let answered = 0, correct = 0;
+
+  function updateScore() {
+    scoreEl.textContent = answered === 0 ? '' :
+      'Đã trả lời ' + answered + '/' + items.length + ' · đúng ' + correct;
+  }
+
+  function build() {
+    list.innerHTML = ''; answered = 0; correct = 0; updateScore();
+    items.forEach((it) => {
+      const div = document.createElement('div');
+      div.className = 'cl-item';
+      div.innerHTML =
+        '<div class="txt">"' + it.txt + '"</div>' +
+        '<div class="choices">' +
+        '<button data-c="block">blocking</button>' +
+        '<button data-c="nit">nit</button>' +
+        '</div>' +
+        '<div class="verdict"></div>';
+      const verdict = div.querySelector('.verdict');
+      const btns = div.querySelectorAll('button');
+      let done = false;
+      btns.forEach((b) => {
+        b.onclick = () => {
+          if (done) return;
+          done = true; answered++;
+          const pickedBlock = b.dataset.c === 'block';
+          const right = pickedBlock === it.block;
+          if (right) correct++;
+          b.className = pickedBlock ? 'pick-block' : 'pick-nit';
+          verdict.className = 'verdict show ' + (right ? 'ok' : 'no');
+          verdict.innerHTML = (right ? '✅ Đúng — ' : '❌ Sai — ') +
+            'đây là <b>' + (it.block ? 'blocking' : 'nit') + '</b>. ' + it.exp;
+          updateScore();
+        };
+      });
+      list.appendChild(div);
+    });
+  }
+  document.getElementById('m3-reset').onclick = build;
+  build();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

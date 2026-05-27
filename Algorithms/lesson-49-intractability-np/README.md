@@ -227,6 +227,18 @@ Vì sao? Trong independent set của G, mọi cặp **không** kề trong G → 
 
 Ví dụ số: `G` có 4 đỉnh {1,2,3,4}, cạnh {(1,2),(2,3),(3,4)}. Tập `{1,3}` là independent set (không cạnh 1-3) ✓. Trong `Ḡ` cạnh là {(1,3),(1,4),(2,4)}. Tập `{1,3}` có cạnh (1,3) trong Ḡ → là clique kích thước 2 ✓. Khớp mệnh đề.
 
+### Ba tính chất một reduction hợp lệ phải có
+
+Để `A ≤ₚ B` đúng, hàm `f` biến đổi instance phải thỏa cả ba:
+
+1. **Chạy đa thức** — nếu `f` mất thời gian mũ thì dù B dễ, giải A qua B vẫn chậm → vô nghĩa.
+2. **Bảo toàn câu trả lời cả hai chiều** — `x` Yes ⟺ `f(x)` Yes. Chỉ một chiều là sai (sẽ có false positive/negative).
+3. **Đúng cho MỌI instance**, không chỉ vài ví dụ. Một reduction chỉ chạy đúng trên đồ thị 4 đỉnh không phải reduction.
+
+> ⚠ **Lỗi thường gặp.** Quên chiều ⟸. Ví dụ độc giả hay viết "nếu x Yes thì f(x) Yes" rồi dừng. Nhưng nếu f(x) có thể Yes khi x No (chiều ⟸ hỏng), thì hộp đen giải B sẽ trả lời sai cho A. Phải chứng minh **cả hai chiều**.
+
+Walk-through tính đa thức của reduction Independent Set → Clique: dựng đồ thị bù `Ḡ` cần duyệt mọi cặp đỉnh — `C(n,2) = n(n−1)/2`. Với n=1000: `≈ 500.000` thao tác = O(n²), đa thức. Vậy hộp đen giải Clique nhanh sẽ giải Independent Set nhanh.
+
 > ❓ **Câu hỏi tự nhiên.** *"Reduce A về B hay B về A để chứng minh B khó?"* — **A (đã biết khó) ≤ₚ B**. Hướng quan trọng: bài-đã-biết-khó quy về bài-mới. Nhầm hướng (B ≤ₚ A) chỉ chứng minh B *dễ hơn hoặc bằng* A — vô dụng để kết luận B khó.
 
 > ⚠ **Lỗi thường gặp.** Reduce sai hướng là lỗi #1 khi học NP-completeness. Nhớ câu: *"Để dìm B xuống (chứng minh khó), dựa vào kẻ đã chìm A."* A là cọc neo đã biết khó.

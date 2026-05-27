@@ -548,6 +548,33 @@ func main() {
 
 ---
 
+## 9. Thẻ tra nhanh (cheat-sheet một trang)
+
+Gói gọn cả lesson để dán lên màn hình khi luyện tập:
+
+**Quy trình:** Hiểu đề → Ví dụ + edge → Brute-force → Big-O + constraint → Pattern → Code + test → Tối ưu.
+
+**Constraint → mục tiêu (mốc `~10^8` phép/giây):**
+
+| `n ≤` | Mục tiêu | `n ≤` | Mục tiêu |
+|:----:|:--------:|:----:|:--------:|
+| 12 | `O(n!)` / backtracking | `10^5–10^6` | `O(n log n)` |
+| 20–25 | `O(2^n)` / bitmask | `10^7–10^8` | `O(n)` |
+| 100–500 | `O(n^3)` | `10^9` | `O(log n)` / `O(1)` |
+| 1000–5000 | `O(n^2)` | `10^{18}` | `O(log n)` |
+
+**Dấu hiệu → kỹ thuật:** sorted→binary search/two pointers · liên tục→window/prefix · cặp tổng→two pointers/hash · mọi tổ hợp→backtracking · tối ưu+overlap→DP · chọn cục bộ→greedy(chứng minh!) · interval→sort+sweep · đường đi→BFS/DFS · ngắn nhất ≥0→Dijkstra · cạnh âm→Bellman-Ford · DAG thứ tự→topo sort · top-k/min-max→heap · đếm/lookup→hash · range query→prefix/segment tree · khớp chuỗi→KMP/Z/RK.
+
+**Stuck:** đơn giản hoá · giải tay · vẽ · nghĩ ngược · tìm bài tương tự · đổi góc nhìn.
+
+**Edge:** rỗng · 1 phần tử · trùng · âm/0 · overflow · đã sorted · max · trùng biên.
+
+**Tránh:** code khi chưa hiểu đề · tối ưu sớm · bỏ test edge · greedy không kiểm chứng.
+
+> 📝 **Tóm tắt mục 9.** Một trang gói trọn: quy trình 7 bước + bảng constraint + bản đồ dấu hiệu + danh sách thoát stuck + checklist edge + anti-pattern.
+
+---
+
 ## Bài tập
 
 Với **mỗi** bài dưới đây, **không cần code đầy đủ** — hãy tập trung vào TƯ DUY: (a) đoán **độ phức tạp mục tiêu** từ constraint, (b) **nhận diện pattern**, (c) **chọn kỹ thuật**, (d) **outline lời giải**.

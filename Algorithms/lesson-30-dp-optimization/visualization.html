@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L30 — Tối ưu Quy hoạch động (DP Optimization)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #38a169;
+    --accent-soft: #e6fffa;
+    --accent-hover: #2f855a;
+    --old: #cbd5e0;
+    --keep: #38a169;
+    --active: #ed8936;
+    --deque: #9f7aea;
+    --mat: #4299e1;
+  }
+  main { max-width: 920px; }
+  .lead { font-size: 1.05rem; color: #4a5568; margin: 0.5rem 0 1.5rem; }
+  h2 { margin-top: 2.4rem; border-bottom: 2px solid var(--accent-soft); padding-bottom: 0.3rem; }
+  .pill {
+    font-size: 0.7rem; background: var(--accent-soft); color: var(--accent-hover);
+    padding: 2px 8px; border-radius: 10px; vertical-align: middle; font-weight: 600;
+  }
+  .card {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+    padding: 1rem 1.2rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 0.8rem; }
+  button {
+    background: var(--accent); color: #fff; border: none; padding: 8px 14px;
+    border-radius: 6px; font-size: 0.9rem; cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: var(--accent-hover); }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+  input[type=text], input[type=number] {
+    width: 100%; max-width: 260px; box-sizing: border-box;
+    padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 0.9rem;
+    font-family: ui-monospace, monospace;
+  }
+  label.small { font-size: 0.85rem; color: #4a5568; }
+  .status {
+    background: #f7fafc; border-left: 4px solid var(--accent); padding: 0.6rem 0.9rem;
+    border-radius: 4px; margin: 0.7rem 0; font-size: 0.92rem; min-height: 1.2em;
+  }
+  .legend { display: flex; flex-wrap: wrap; gap: 0.8rem; font-size: 0.82rem; margin: 0.5rem 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 4px; }
+  .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; border: 1px solid #00000020; }
+  svg { display: block; max-width: 100%; height: auto; margin: 0.5rem auto; }
+  .mono { font-family: ui-monospace, monospace; }
+  .metric { font-weight: 700; color: var(--accent-hover); }
+  .note { font-size: 0.85rem; color: #718096; margin-top: 0.5rem; }
+  .grid2 { display: flex; flex-wrap: wrap; gap: 1rem; }
+  .grid2 > div { flex: 1 1 320px; min-width: 0; }
+  table.mini { border-collapse: collapse; width: 100%; font-size: 0.85rem; margin-top: 0.6rem; }
+  table.mini th, table.mini td { border: 1px solid #e2e8f0; padding: 5px 8px; text-align: center; }
+  table.mini th { background: var(--accent-soft); }
+  .memBar { height: 22px; border-radius: 4px; background: var(--mat); color: #fff; font-size: 0.78rem;
+            display: flex; align-items: center; padding-left: 8px; white-space: nowrap; overflow: hidden; }
+  @media (max-width: 480px) {
+    main { padding: 0 0.6rem; }
+    .controls { gap: 0.4rem; }
+    button { padding: 7px 11px; font-size: 0.85rem; }
+    input[type=text], input[type=number] { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-29-bitmask-dp/visualization.html">← L29: Bitmask DP</a>
+  <span class="sep">·</span>
+  <span class="current">L30: DP Optimization</span>
+  <span class="sep">·</span>
+  <a href="../tier-5-graph/index.html">Tier 5 →</a>
+</nav>
+
+<h1>Lesson 30 — Tối ưu Quy hoạch động (DP Optimization)</h1>
+<div class="lead">
+  Ba module tương tác cho các kỹ thuật tăng tốc / giảm bộ nhớ DP:
+  <strong>Space optimization</strong> (bảng 2D → rolling 1 hàng),
+  <strong>Monotonic deque</strong> (cửa sổ trượt min/max cho transition),
+  và <strong>Matrix exponentiation</strong> (fib bằng lũy thừa ma trận 2×2, O(log n)).
+</div>
+
+<!-- ====================================================================
+     MODULE 1 — SPACE OPTIMIZATION (rolling array)
+     ==================================================================== -->
+<h2>1. Space optimization — bảng 2D → rolling 1 hàng <span class="pill">O(nW) bộ nhớ → O(W)</span></h2>
+<div class="card">
+  <p style="margin-top:0">
+    Knapsack 0/1: bảng đầy đủ <span class="mono">dp[i][w]</span> nhưng hàng <span class="mono">i</span>
+    chỉ đọc hàng <span class="mono">i-1</span>. Bấm <em>Bước tiếp</em> để xem từng hàng được tính rồi
+    <strong style="color:var(--old)">hàng cũ "trôi đi"</strong>, chỉ giữ lại
+    <strong style="color:var(--keep)">1 hàng đang dùng</strong>.
+  </p>
+  <div class="controls">
+    <label class="small">wt: <input type="text" id="m1wt" value="2,3,4"></label>
+    <label class="small">val: <input type="text" id="m1val" value="3,4,5"></label>
+    <label class="small">W: <input type="number" id="m1W" value="5" min="1" max="9" style="max-width:70px"></label>
+    <button id="m1Build" class="ghost">Tải</button>
+    <button id="m1Step">Bước tiếp ▶</button>
+    <button id="m1Reset" class="ghost">Đặt lại ↺</button>
+  </div>
+  <div class="legend">
+    <span><span class="swatch" style="background:var(--keep)"></span> hàng đang dùng (giữ)</span>
+    <span><span class="swatch" style="background:var(--old)"></span> hàng cũ (vứt — rolling)</span>
+    <span><span class="swatch" style="background:var(--active)"></span> ô đang tính</span>
+  </div>
+  <svg id="m1svg" width="640" height="260" viewBox="0 0 640 260"></svg>
+  <div class="status" id="m1status">Bấm "Bước tiếp" để bắt đầu.</div>
+  <div class="grid2">
+    <div>
+      <div class="note">Bộ nhớ bảng đầy đủ <span class="mono">(n+1)×(W+1)</span>:</div>
+      <div class="memBar" id="m1memFull" style="background:#a0aec0">—</div>
+    </div>
+    <div>
+      <div class="note">Bộ nhớ rolling <span class="mono">1×(W+1)</span>:</div>
+      <div class="memBar" id="m1memRoll">—</div>
+    </div>
+  </div>
+  <div class="note">Duyệt <span class="mono">w</span> GIẢM dần để <span class="mono">dp[w-wt[i]]</span> còn là giá trị hàng cũ (chưa lấy vật i). Đây là mấu chốt của knapsack 0/1 nén 1 chiều.</div>
+</div>
+
+<!-- ====================================================================
+     MODULE 2 — MONOTONIC DEQUE
+     ==================================================================== -->
+<h2>2. Monotonic deque — max trong cửa sổ trượt cho DP <span class="pill">O(nk) → O(n)</span></h2>
+<div class="card">
+  <p style="margin-top:0">
+    Jump Game VI: <span class="mono">dp[i] = a[i] + max(dp[i-k..i-1])</span>.
+    Deque <strong style="color:var(--deque)">giảm dần</strong> giữ các ứng viên còn cửa thắng;
+    <strong>front</strong> = max trong cửa sổ. Bấm <em>Bước tiếp</em> để xem pop front (rời cửa sổ)
+    + pop back (vô dụng) + push i.
+  </p>
+  <div class="controls">
+    <label class="small">a: <input type="text" id="m2a" value="1,-1,-2,4,-7,3"></label>
+    <label class="small">k: <input type="number" id="m2k" value="2" min="1" max="6" style="max-width:70px"></label>
+    <button id="m2Build" class="ghost">Tải</button>
+    <button id="m2Step">Bước tiếp ▶</button>
+    <button id="m2Auto">Tự động ⏩</button>
+    <button id="m2Reset" class="ghost">Đặt lại ↺</button>
+  </div>
+  <div class="legend">
+    <span><span class="swatch" style="background:var(--active)"></span> i đang tính</span>
+    <span><span class="swatch" style="background:var(--deque)"></span> cửa sổ [i-k, i-1]</span>
+    <span><span class="swatch" style="background:var(--keep)"></span> front (= max)</span>
+  </div>
+  <svg id="m2svg" width="640" height="220" viewBox="0 0 640 220"></svg>
+  <div class="status" id="m2status">Bấm "Bước tiếp" để bắt đầu.</div>
+  <div class="note">Deque (chỉ số): <span class="mono" id="m2deque">[]</span></div>
+  <div class="note">Mỗi chỉ số vào/ra deque đúng 1 lần → tổng O(n) (amortized), không phải O(n·k).</div>
+</div>
+
+<!-- ====================================================================
+     MODULE 3 — MATRIX EXPONENTIATION
+     ==================================================================== -->
+<h2>3. Matrix exponentiation — fib bằng lũy thừa ma trận 2×2 <span class="pill">O(n) → O(log n)</span></h2>
+<div class="card">
+  <p style="margin-top:0">
+    <span class="mono">T = [[1,1],[1,0]]</span>, <span class="mono">fib(n) = (T^n)[0][1]</span>.
+    Tính <span class="mono">T^n</span> bằng <em>fast power</em>: bình phương liên tiếp + nhân theo bit của n.
+    Bấm <em>Tính</em> để xem từng vòng lặp và đếm số bước.
+  </p>
+  <div class="controls">
+    <label class="small">n: <input type="number" id="m3n" value="10" min="0" max="90" style="max-width:90px"></label>
+    <button id="m3Run">Tính fib(n) ▶</button>
+    <button id="m3Reset" class="ghost">Xoá ↺</button>
+  </div>
+  <div class="status" id="m3status">Nhập n rồi bấm "Tính".</div>
+  <table class="mini" id="m3table">
+    <thead><tr><th>Vòng</th><th>bit của n</th><th>result (T^?)</th><th>base ← base²</th></tr></thead>
+    <tbody id="m3tbody"><tr><td colspan="4" class="note" style="text-align:center">—</td></tr></tbody>
+  </table>
+  <div class="grid2" style="margin-top:0.8rem">
+    <div>
+      <div class="note">Số bước tuyến tính O(n):</div>
+      <div class="memBar" id="m3lin" style="background:#a0aec0">—</div>
+    </div>
+    <div>
+      <div class="note">Số bước matrix expo O(log n):</div>
+      <div class="memBar" id="m3log">—</div>
+    </div>
+  </div>
+  <div class="note">Kiểm chứng: T¹→f(1)=1, T²→f(2)=1, T³→f(3)=2, T⁵→f(5)=5. Mỗi nhân ma trận 2×2 là O(1).</div>
+</div>
+
+<script>
+// ============== MODULE 1: SPACE OPTIMIZATION ==============
+(function () {
+  const svg = document.getElementById('m1svg');
+  const statusEl = document.getElementById('m1status');
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  let wt = [], val = [], W = 5;
+  let i = 0, w = 0, started = false;
+  let dp2d = []; // full table for display
+  let rolling = []; // 1D dp
+
+  function build() {
+    wt = document.getElementById('m1wt').value.split(',').map(s => +s.trim()).filter(x => !isNaN(x));
+    val = document.getElementById('m1val').value.split(',').map(s => +s.trim()).filter(x => !isNaN(x));
+    const n = Math.min(wt.length, val.length);
+    wt = wt.slice(0, n); val = val.slice(0, n);
+    W = Math.max(1, Math.min(9, +document.getElementById('m1W').value || 5));
+    dp2d = []; for (let r = 0; r <= n; r++) dp2d.push(new Array(W + 1).fill(0));
+    rolling = new Array(W + 1).fill(0);
+    i = 1; w = W; started = false;
+    statusEl.textContent = `Đã tải ${n} vật, W=${W}. Bấm "Bước tiếp".`;
+    drawMem(n);
+    render(n, -1, -1);
+  }
+
+  function drawMem(n) {
+    const full = (n + 1) * (W + 1);
+    const roll = (W + 1);
+    const fb = document.getElementById('m1memFull');
+    const rb = document.getElementById('m1memRoll');
+    fb.style.width = '100%';
+    fb.textContent = `${full} ô = (${n + 1})×(${W + 1})`;
+    rb.style.width = Math.max(12, Math.round(roll / full * 100)) + '%';
+    rb.textContent = `${roll} ô  (÷${(full / roll).toFixed(1)})`;
+  }
+
+  function render(n, ai, aw) {
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    const cw = Math.min(54, Math.floor(580 / (W + 1)));
+    const ch = 30, x0 = 50, y0 = 30;
+    // header w-index
+    for (let c = 0; c <= W; c++) {
+      const t = document.createElementNS(SVGNS, 'text');
+      t.setAttribute('x', x0 + c * cw + cw / 2); t.setAttribute('y', y0 - 8);
+      t.setAttribute('text-anchor', 'middle'); t.setAttribute('font-size', '10'); t.setAttribute('fill', '#718096');
+      t.textContent = 'w' + c; svg.appendChild(t);
+    }
+    for (let r = 0; r <= n; r++) {
+      const rl = document.createElementNS(SVGNS, 'text');
+      rl.setAttribute('x', x0 - 8); rl.setAttribute('y', y0 + r * ch + ch / 2 + 4);
+      rl.setAttribute('text-anchor', 'end'); rl.setAttribute('font-size', '11'); rl.setAttribute('fill', '#4a5568');
+      rl.textContent = r === 0 ? 'i0' : 'i' + r; svg.appendChild(rl);
+      for (let c = 0; c <= W; c++) {
+        const rect = document.createElementNS(SVGNS, 'rect');
+        rect.setAttribute('x', x0 + c * cw); rect.setAttribute('y', y0 + r * ch);
+        rect.setAttribute('width', cw - 2); rect.setAttribute('height', ch - 2);
+        rect.setAttribute('rx', 3);
+        let fill = '#f7fafc', stroke = '#e2e8f0';
+        // rolling: only rows i-1 (keep) and i (current) matter
+        if (r === i && r <= n) { fill = '#fff5e6'; stroke = '#ed893660'; }      // current row
+        else if (r === i - 1) { fill = '#e6ffed'; stroke = '#38a16960'; }       // kept row (i-1)
+        else if (r < i - 1) { fill = '#edf2f7'; stroke = '#cbd5e0'; }           // discarded (rolled away)
+        if (r === ai && c === aw) { fill = '#ed8936'; stroke = '#dd6b20'; }     // active cell
+        rect.setAttribute('fill', fill); rect.setAttribute('stroke', stroke);
+        svg.appendChild(rect);
+        const tx = document.createElementNS(SVGNS, 'text');
+        tx.setAttribute('x', x0 + c * cw + (cw - 2) / 2); tx.setAttribute('y', y0 + r * ch + ch / 2 + 4);
+        tx.setAttribute('text-anchor', 'middle'); tx.setAttribute('font-size', '11');
+        tx.setAttribute('fill', (r === ai && c === aw) ? '#fff' : '#2d3748');
+        tx.textContent = dp2d[r][c];
+        svg.appendChild(tx);
+      }
+    }
+  }
+
+  function step() {
+    const n = Math.min(wt.length, val.length);
+    if (n === 0) { statusEl.textContent = 'Nhập wt và val rồi bấm "Tải".'; return; }
+    started = true;
+    if (i > n) { statusEl.textContent = `Xong! dp[W=${W}] = ${dp2d[n][W]} (giá trị tối ưu). Bảng đầy đủ chỉ để minh hoạ — thực tế chỉ giữ 1 hàng.`; return; }
+    // compute dp2d[i][w] from dp2d[i-1]
+    const noTake = dp2d[i - 1][w];
+    let take = -1;
+    if (w >= wt[i - 1]) take = dp2d[i - 1][w - wt[i - 1]] + val[i - 1];
+    dp2d[i][w] = Math.max(noTake, take);
+    rolling[w] = dp2d[i][w];
+    let msg = `i=${i} (vật wt=${wt[i - 1]}, val=${val[i - 1]}), w=${w}: max(không lấy=${noTake}`;
+    msg += (take >= 0 ? `, lấy=dp[${w - wt[i - 1]}]+${val[i - 1]}=${take}` : `, w<wt → không lấy được`) + `) = ${dp2d[i][w]}`;
+    render(n, i, w);
+    statusEl.textContent = msg + `  · (chỉ cần giữ hàng i-1 để tính hàng i — hàng cũ hơn đã vứt)`;
+    // advance w (DECREASING), then i
+    w--;
+    if (w < wt[i - 1] && w >= 0) { for (let ww = w; ww >= 0; ww--) dp2d[i][ww] = dp2d[i - 1][ww]; w = -1; }
+    if (w < 0) { i++; w = W; }
+  }
+
+  document.getElementById('m1Build').onclick = build;
+  document.getElementById('m1Step').onclick = step;
+  document.getElementById('m1Reset').onclick = build;
+  build();
+})();
+
+// ============== MODULE 2: MONOTONIC DEQUE ==============
+(function () {
+  const svg = document.getElementById('m2svg');
+  const statusEl = document.getElementById('m2status');
+  const dqEl = document.getElementById('m2deque');
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  let a = [], k = 2, dp = [], dq = [], i = 0, autoTimer = null;
+
+  function build() {
+    a = document.getElementById('m2a').value.split(',').map(s => +s.trim()).filter(x => !isNaN(x));
+    k = Math.max(1, Math.min(6, +document.getElementById('m2k').value || 2));
+    dp = new Array(a.length).fill(null);
+    dq = []; i = 0;
+    if (a.length) { dp[0] = a[0]; dq = [0]; i = 1; }
+    statusEl.textContent = `Đã tải ${a.length} phần tử, k=${k}. dp[0]=a[0]=${a.length ? a[0] : '—'}. Bấm "Bước tiếp".`;
+    render(-1);
+    dqEl.textContent = '[' + dq.join(',') + ']';
+  }
+
+  function render(active) {
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    const n = a.length, cw = Math.min(70, Math.floor(600 / Math.max(1, n))), x0 = 30, y0 = 60;
+    const winLo = active >= 0 ? active - k : -99, winHi = active >= 0 ? active - 1 : -99;
+    for (let c = 0; c < n; c++) {
+      // window highlight
+      let fill = '#fff', stroke = '#cbd5e0';
+      if (c >= winLo && c <= winHi) { fill = '#faf5ff'; stroke = '#9f7aea60'; }
+      if (c === active) { fill = '#fff5e6'; stroke = '#ed8936'; }
+      if (dq.length && c === dq[0] && c >= winLo && c <= winHi) { fill = '#e6ffed'; stroke = '#38a169'; }
+      const rect = document.createElementNS(SVGNS, 'rect');
+      rect.setAttribute('x', x0 + c * cw); rect.setAttribute('y', y0);
+      rect.setAttribute('width', cw - 4); rect.setAttribute('height', 40); rect.setAttribute('rx', 4);
+      rect.setAttribute('fill', fill); rect.setAttribute('stroke', stroke); rect.setAttribute('stroke-width', 1.5);
+      svg.appendChild(rect);
+      const idx = document.createElementNS(SVGNS, 'text');
+      idx.setAttribute('x', x0 + c * cw + (cw - 4) / 2); idx.setAttribute('y', y0 - 22);
+      idx.setAttribute('text-anchor', 'middle'); idx.setAttribute('font-size', '10'); idx.setAttribute('fill', '#718096');
+      idx.textContent = 'i' + c; svg.appendChild(idx);
+      const av = document.createElementNS(SVGNS, 'text');
+      av.setAttribute('x', x0 + c * cw + (cw - 4) / 2); av.setAttribute('y', y0 - 8);
+      av.setAttribute('text-anchor', 'middle'); av.setAttribute('font-size', '10'); av.setAttribute('fill', '#a0aec0');
+      av.textContent = 'a=' + a[c]; svg.appendChild(av);
+      const dv = document.createElementNS(SVGNS, 'text');
+      dv.setAttribute('x', x0 + c * cw + (cw - 4) / 2); dv.setAttribute('y', y0 + 25);
+      dv.setAttribute('text-anchor', 'middle'); dv.setAttribute('font-size', '13'); dv.setAttribute('font-weight', '600');
+      dv.setAttribute('fill', dp[c] === null ? '#cbd5e0' : '#2d3748');
+      dv.textContent = dp[c] === null ? '·' : dp[c]; svg.appendChild(dv);
+    }
+    const lbl = document.createElementNS(SVGNS, 'text');
+    lbl.setAttribute('x', x0); lbl.setAttribute('y', y0 + 70);
+    lbl.setAttribute('font-size', '11'); lbl.setAttribute('fill', '#718096');
+    lbl.textContent = 'dp[i] = a[i] + max(dp trong cửa sổ tím)'; svg.appendChild(lbl);
+  }
+
+  function step() {
+    const n = a.length;
+    if (n === 0) { statusEl.textContent = 'Nhập mảng a rồi bấm "Tải".'; return; }
+    if (i >= n) { statusEl.textContent = `Xong! Đáp số dp[n-1] = ${dp[n - 1]}. Mỗi chỉ số vào/ra deque đúng 1 lần → O(n).`; stopAuto(); return; }
+    let msg = `i=${i}: `;
+    // 1) pop front out of window
+    while (dq.length && dq[0] < i - k) { msg += `pop front ${dq[0]} (rời cửa sổ [${i - k},${i - 1}]); `; dq.shift(); }
+    // 2) dp[i]
+    dp[i] = a[i] + dp[dq[0]];
+    msg += `dp[${i}] = a[${i}](${a[i]}) + dp[${dq[0]}](${dp[dq[0]]}) = ${dp[i]}; `;
+    // 3) pop back useless
+    while (dq.length && dp[dq[dq.length - 1]] <= dp[i]) { msg += `pop back ${dq[dq.length - 1]} (dp≤dp[i]); `; dq.pop(); }
+    dq.push(i);
+    msg += `push ${i}.`;
+    render(i);
+    dqEl.textContent = '[' + dq.join(',') + ']';
+    statusEl.textContent = msg;
+    i++;
+  }
+
+  function stopAuto() { if (autoTimer) { clearInterval(autoTimer); autoTimer = null; document.getElementById('m2Auto').textContent = 'Tự động ⏩'; } }
+  function toggleAuto() {
+    if (autoTimer) { stopAuto(); return; }
+    document.getElementById('m2Auto').textContent = 'Dừng ⏸';
+    autoTimer = setInterval(() => { if (i >= a.length) { stopAuto(); step(); } else step(); }, 1100);
+  }
+
+  document.getElementById('m2Build').onclick = () => { stopAuto(); build(); };
+  document.getElementById('m2Step').onclick = () => { stopAuto(); step(); };
+  document.getElementById('m2Auto').onclick = toggleAuto;
+  document.getElementById('m2Reset').onclick = () => { stopAuto(); build(); };
+  build();
+})();
+
+// ============== MODULE 3: MATRIX EXPONENTIATION ==============
+(function () {
+  const statusEl = document.getElementById('m3status');
+  const tbody = document.getElementById('m3tbody');
+
+  function matStr(m) { return `[[${m[0][0]},${m[0][1]}],[${m[1][0]},${m[1][1]}]]`; }
+  function mul(A, B) {
+    return [
+      [A[0][0] * B[0][0] + A[0][1] * B[1][0], A[0][0] * B[0][1] + A[0][1] * B[1][1]],
+      [A[1][0] * B[0][0] + A[1][1] * B[1][0], A[1][0] * B[0][1] + A[1][1] * B[1][1]]
+    ];
+  }
+
+  function run() {
+    const n = Math.max(0, Math.min(90, +document.getElementById('m3n').value || 0));
+    tbody.innerHTML = '';
+    if (n === 0) { statusEl.textContent = 'fib(0) = 0 (trường hợp cơ sở, không cần lũy thừa).'; setBars(0); return; }
+    let result = [[1, 0], [0, 1]]; // I
+    let base = [[1, 1], [1, 0]];   // T
+    let m = n, round = 0, totalPow = Math.floor(Math.log2(n)) + 1;
+    while (m > 0) {
+      round++;
+      const bit = m & 1;
+      let resCol = '';
+      if (bit) { result = mul(result, base); resCol = `× base → ${matStr(result)}`; }
+      else { resCol = `(bit 0, giữ nguyên) ${matStr(result)}`; }
+      const tr = document.createElement('tr');
+      const c1 = document.createElement('td'); c1.textContent = round;
+      const c2 = document.createElement('td'); c2.textContent = bit; c2.style.fontWeight = '600';
+      c2.style.color = bit ? '#2f855a' : '#a0aec0';
+      const c3 = document.createElement('td'); c3.className = 'mono'; c3.style.fontSize = '0.78rem'; c3.textContent = resCol;
+      const c4 = document.createElement('td'); c4.className = 'mono'; c4.style.fontSize = '0.78rem';
+      base = mul(base, base);
+      c4.textContent = matStr(base);
+      tr.append(c1, c2, c3, c4); tbody.appendChild(tr);
+      m >>= 1;
+    }
+    const fibN = result[0][1];
+    statusEl.textContent = `fib(${n}) = (T^${n})[0][1] = ${fibN}.  Chỉ ${round} vòng lặp (≈ log₂ ${n} = ${totalPow}) thay vì ${n} bước cộng tuyến tính.`;
+    setBars(n, round);
+  }
+
+  function setBars(n, log) {
+    const lin = document.getElementById('m3lin');
+    const lg = document.getElementById('m3log');
+    if (!n) { lin.style.width = '100%'; lin.textContent = '0 bước'; lg.style.width = '12%'; lg.textContent = '0'; return; }
+    lin.style.width = '100%'; lin.textContent = `${n} bước (O(n))`;
+    const ratio = Math.max(6, Math.round(log / n * 100));
+    lg.style.width = ratio + '%'; lg.textContent = `${log} bước (÷${(n / log).toFixed(1)})`;
+  }
+
+  function reset() { tbody.innerHTML = '<tr><td colspan="4" class="note" style="text-align:center">—</td></tr>'; statusEl.textContent = 'Nhập n rồi bấm "Tính".'; setBars(0); }
+
+  document.getElementById('m3Run').onclick = run;
+  document.getElementById('m3Reset').onclick = reset;
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+</body>
+</html>

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L76 — Kubernetes Basics · Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root { --accent: #326ce5; --accent-soft: #e8f0fd; --accent-hover: #1d4ed8; }
+  main { max-width: 1100px; }
+  h1 { color: #2d3748; margin-bottom: 4px; }
+  .lead { color: #718096; margin-bottom: 24px; font-size: 15px; }
+  section.module {
+    background: #fff; border-radius: 10px; padding: 22px;
+    margin-bottom: 28px; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+  section.module h2 {
+    color: #2d3748; margin-top: 0; padding-bottom: 10px;
+    border-bottom: 2px solid var(--accent); font-size: 21px;
+  }
+  .desc { color: #4a5568; font-size: 14px; margin: 8px 0 16px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0; align-items: center; }
+  button {
+    background: var(--accent); color: #fff; border: none; border-radius: 6px;
+    padding: 9px 16px; font-size: 14px; cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost { background: #fff; color: var(--accent); border: 1.5px solid var(--accent); }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .log {
+    background: #1e293b; color: #e2e8f0; border-radius: 8px; padding: 12px 14px;
+    font-family: ui-monospace, Menlo, monospace; font-size: 13px; line-height: 1.6;
+    max-height: 200px; overflow-y: auto; white-space: pre-wrap; margin-top: 12px;
+  }
+  .log .ok { color: #4ade80; }
+  .log .warn { color: #fbbf24; }
+  .log .err { color: #f87171; }
+  .log .dim { color: #94a3b8; }
+
+  /* Module 1 — object graph */
+  .obj { display:inline-block; border-radius:8px; padding:8px 12px; font-size:13px; font-weight:600; }
+  .obj.deploy { background:#326ce5; color:#fff; }
+  .obj.rs { background:#7c3aed; color:#fff; }
+  .obj.svc { background:#0d9488; color:#fff; }
+  .pod { display:inline-flex; align-items:center; justify-content:center;
+    width:62px; height:46px; border-radius:8px; font-size:12px; font-weight:700;
+    color:#fff; background:#10b981; transition:all .4s; }
+  .pod.term { background:#ef4444; opacity:.5; transform:scale(.85); }
+  .pod.starting { background:#f59e0b; }
+  .pod.notready { background:#94a3b8; }
+  .row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:10px 0; }
+  .pods-box { display:flex; gap:10px; flex-wrap:wrap; min-height:50px; align-items:center; }
+  .arrow { color:#94a3b8; font-size:20px; }
+  .label { font-size:12px; color:#718096; min-width:96px; }
+
+  /* Module 3 probe */
+  .lb { border:2px dashed #0d9488; border-radius:10px; padding:14px; }
+  .lb-title { font-size:13px; font-weight:700; color:#0d9488; margin-bottom:8px; }
+  .badge { display:inline-block; font-size:11px; font-weight:700; padding:2px 7px; border-radius:10px; margin-left:6px; }
+  .badge.live { background:#dcfce7; color:#166534; }
+  .badge.dead { background:#fee2e2; color:#991b1b; }
+  .stat { font-size:13px; color:#4a5568; margin:6px 0; }
+  .stat b { color:#2d3748; }
+  @media (max-width: 480px) {
+    .pod { width:48px; height:40px; font-size:11px; }
+    .label { min-width:0; flex:1 1 100%; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-75-docker-multistage/visualization.html">← L75: Docker Multi-stage</a>
+  <span class="sep">·</span>
+  <span class="current">L76: Kubernetes Basics</span>
+  <span class="sep">·</span>
+  <a href="../lesson-77-ci-cd-pipeline/visualization.html">L77: CI/CD Pipeline →</a>
+</nav>
+
+<main>
+  <h1>L76 — Kubernetes Basics</h1>
+  <p class="lead">Ba mô-đun tương tác: quan hệ các đối tượng K8s · rolling update zero-downtime · hành vi probe (liveness vs readiness).</p>
+
+  <!-- ===================== MODULE 1 ===================== -->
+  <section class="module">
+    <h2>1. Quan hệ các đối tượng (object relationship)</h2>
+    <p class="desc">Deployment quản ReplicaSet, ReplicaSet giữ N Pod. Service chọn các Pod qua label và load-balance traffic. Đổi số replica để xem ReplicaSet tự tạo/xóa Pod (self-healing số lượng).</p>
+
+    <div class="controls">
+      <span class="label">replicas:</span>
+      <button class="ghost" id="m1-dec">−</button>
+      <b id="m1-count" style="font-size:18px; min-width:24px; text-align:center;">3</b>
+      <button class="ghost" id="m1-inc">+</button>
+      <button id="m1-kill">💥 Giết 1 Pod (self-healing)</button>
+    </div>
+
+    <div class="row"><span class="obj deploy">Deployment go-app</span> <span class="arrow">→ quản →</span></div>
+    <div class="row"><span class="obj rs">ReplicaSet (rev-1)</span> <span class="arrow">→ giữ N →</span></div>
+    <div class="row">
+      <span class="label">Pods</span>
+      <div class="pods-box" id="m1-pods"></div>
+    </div>
+    <div class="row" style="margin-top:14px;">
+      <span class="obj svc">Service go-app (ClusterIP)</span>
+      <span class="arrow">→ selector app=go-app → load-balance →</span>
+      <span style="font-size:13px; color:#718096;">các Pod <b style="color:#10b981;">ready</b> ở trên</span>
+    </div>
+    <div class="log" id="m1-log"></div>
+  </section>
+
+  <!-- ===================== MODULE 2 ===================== -->
+  <section class="module">
+    <h2>2. Rolling update — zero-downtime</h2>
+    <p class="desc">strategy: <code>maxSurge=1, maxUnavailable=0</code>. Tạo Pod v2, ĐỢI nó <b>ready</b>, rồi mới terminate 1 Pod v1. Luôn ≥ 3 Pod ready phục vụ → không downtime. Bật "readiness probe" off để thấy vì sao thiếu probe gây rớt request.</p>
+
+    <div class="controls">
+      <button id="m2-start">▶ Bắt đầu update v1 → v2</button>
+      <button class="ghost" id="m2-reset">↺ Reset</button>
+      <label style="font-size:13px; color:#4a5568;">
+        <input type="checkbox" id="m2-probe" checked> readiness probe BẬT (đợi ready)
+      </label>
+    </div>
+
+    <div class="row">
+      <span class="label">v1 (cũ)</span>
+      <div class="pods-box" id="m2-v1"></div>
+    </div>
+    <div class="row">
+      <span class="label">v2 (mới)</span>
+      <div class="pods-box" id="m2-v2"></div>
+    </div>
+    <div class="stat">Ready phục vụ traffic: <b id="m2-ready">3</b> / mong muốn 3 &nbsp; | &nbsp; <span id="m2-status" style="color:#0d9488; font-weight:700;">idle</span></div>
+    <div class="log" id="m2-log"></div>
+  </section>
+
+  <!-- ===================== MODULE 3 ===================== -->
+  <section class="module">
+    <h2>3. Hành vi probe — liveness vs readiness</h2>
+    <p class="desc">kubelet hỏi Pod định kỳ. <b>liveness fail → RESTART container</b>. <b>readiness fail → GỠ khỏi Service endpoints (không restart)</b>. Bấm để làm fail từng probe và quan sát khác biệt.</p>
+
+    <div class="controls">
+      <button class="ghost" id="m3-live">❤️ Liveness fail (×<span id="m3-livefc">0</span>/3)</button>
+      <button class="ghost" id="m3-ready">🔌 Readiness fail (×<span id="m3-readyfc">0</span>/3)</button>
+      <button class="ghost" id="m3-recover">✓ Phục hồi (probe OK)</button>
+      <button id="m3-reset">↺ Reset</button>
+    </div>
+
+    <div class="row" style="align-items:flex-start; gap:24px;">
+      <div style="flex:1 1 200px;">
+        <div class="stat">Pod <code>go-app-x9z</code>:
+          <span id="m3-state" class="badge live">Running</span>
+        </div>
+        <div class="stat">Restart count: <b id="m3-restarts">0</b></div>
+        <div class="stat">liveness: <span id="m3-livestat">OK</span> &nbsp; readiness: <span id="m3-readystat">OK</span></div>
+        <div style="margin-top:12px;">
+          <div class="pod" id="m3-pod" style="width:120px; height:60px;">go-app-x9z</div>
+        </div>
+      </div>
+      <div style="flex:1 1 200px;">
+        <div class="lb">
+          <div class="lb-title">Service endpoints (LB)</div>
+          <div id="m3-lb" style="font-size:13px; color:#4a5568;">go-app-x9z ✓ (nhận traffic)</div>
+        </div>
+      </div>
+    </div>
+    <div class="log" id="m3-log"></div>
+  </section>
+</main>
+
+<script>
+// ============ helpers ============
+function logLine(el, msg, cls) {
+  const span = cls ? `<span class="${cls}">${msg}</span>` : msg;
+  el.innerHTML += span + "\n";
+  el.scrollTop = el.scrollHeight;
+}
+function clearLog(el){ el.innerHTML = ""; }
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+// ============ MODULE 1 — object relationship ============
+(function(){
+  let count = 3;
+  const pods = []; // {id, ready}
+  let nextId = 1;
+  const $count = document.getElementById('m1-count');
+  const $pods = document.getElementById('m1-pods');
+  const $log = document.getElementById('m1-log');
+
+  function newPod(){ return { id: nextId++, ready: true }; }
+  function render(){
+    $count.textContent = count;
+    $pods.innerHTML = pods.map(p =>
+      `<div class="pod${p.ready ? '' : ' notready'}">go-app-${String(p.id).padStart(2,'0')}</div>`
+    ).join('');
+  }
+  function reconcile(reason){
+    while (pods.length < count){ const p = newPod(); pods.push(p);
+      logLine($log, `ReplicaSet: thực tế ${pods.length-1} < mong muốn ${count} → tạo Pod go-app-${String(p.id).padStart(2,'0')}`, 'ok'); }
+    while (pods.length > count){ const p = pods.pop();
+      logLine($log, `ReplicaSet: thực tế ${pods.length+1} > mong muốn ${count} → xóa Pod go-app-${String(p.id).padStart(2,'0')}`, 'dim'); }
+    render();
+  }
+  // init
+  for (let i=0;i<count;i++) pods.push(newPod());
+  render();
+  logLine($log, `khởi tạo: replicas=${count}, Service chọn ${count} Pod ready`, 'dim');
+
+  document.getElementById('m1-inc').onclick = () => { count++; reconcile(); };
+  document.getElementById('m1-dec').onclick = () => { if(count>0){count--; reconcile();} };
+  document.getElementById('m1-kill').onclick = () => {
+    if (pods.length === 0){ logLine($log,'không còn Pod để giết', 'warn'); return; }
+    const victim = pods[Math.floor(Math.random()*pods.length)];
+    logLine($log, `💥 node chết → Pod go-app-${String(victim.id).padStart(2,'0')} biến mất (thực tế ${pods.length-1} ≠ mong muốn ${count})`, 'err');
+    pods.splice(pods.indexOf(victim),1);
+    render();
+    setTimeout(()=> reconcile('self-heal'), 700);
+  };
+})();
+
+// ============ MODULE 2 — rolling update ============
+(function(){
+  const DESIRED = 3;
+  let v1 = [], v2 = [];
+  let running = false;
+  const $v1 = document.getElementById('m2-v1');
+  const $v2 = document.getElementById('m2-v2');
+  const $ready = document.getElementById('m2-ready');
+  const $status = document.getElementById('m2-status');
+  const $log = document.getElementById('m2-log');
+  const $probe = document.getElementById('m2-probe');
+
+  function reset(){
+    v1 = Array.from({length:DESIRED}, (_,i)=>({id:i+1, state:'ready'}));
+    v2 = [];
+    running = false;
+    $status.textContent = 'idle';
+    clearLog($log);
+    render();
+    logLine($log, `khởi tạo: ${DESIRED} Pod v1 ready`, 'dim');
+  }
+  function podHtml(p, ver){
+    let cls = 'pod';
+    if (p.state==='ready') cls += '';
+    else if (p.state==='starting') cls += ' starting';
+    else if (p.state==='notready') cls += ' notready';
+    else if (p.state==='term') cls += ' term';
+    return `<div class="${cls}">${ver}-${p.id}</div>`;
+  }
+  function render(){
+    $v1.innerHTML = v1.map(p=>podHtml(p,'v1')).join('');
+    $v2.innerHTML = v2.map(p=>podHtml(p,'v2')).join('');
+    const ready = v1.filter(p=>p.state==='ready').length + v2.filter(p=>p.state==='ready').length;
+    $ready.textContent = ready;
+    $ready.style.color = ready < DESIRED ? '#ef4444' : '#10b981';
+  }
+  async function rollout(){
+    if (running) return; running = true;
+    clearLog($log);
+    $status.textContent = 'rolling update...';
+    const useProbe = $probe.checked;
+    logLine($log, `bắt đầu rolling update v1→v2 (maxSurge=1, maxUnavailable=0, readiness=${useProbe?'ON':'OFF'})`, 'dim');
+    let nextV2 = 1;
+    while (v1.length > 0){
+      // surge: tạo 1 Pod v2 mới
+      const np = {id: nextV2++, state:'starting'};
+      v2.push(np); render();
+      logLine($log, `+ tạo Pod v2-${np.id} (surge, tổng ${v1.length+v2.length} Pod)`, 'ok');
+      await sleep(700);
+      if (useProbe){
+        np.state = 'notready'; render();
+        logLine($log, `  v2-${np.id} đang warm-up... readiness=503 (chưa nhận traffic)`, 'warn');
+        await sleep(900);
+        np.state = 'ready'; render();
+        logLine($log, `  v2-${np.id} readiness=200 → READY, vào LB`, 'ok');
+      } else {
+        np.state = 'ready'; render();
+        logLine($log, `  v2-${np.id} bị coi READY NGAY (không probe) → traffic vào lúc chưa warm-up → RỚT REQUEST`, 'err');
+        await sleep(500);
+      }
+      // chỉ giờ mới gỡ 1 v1 (vì maxUnavailable=0)
+      const old = v1.shift();
+      old.state = 'term'; render();
+      logLine($log, `- terminate v1-${old.id} (graceful, drain request)`, 'dim');
+      await sleep(600);
+      render();
+    }
+    $status.textContent = 'hoàn tất — toàn bộ v2';
+    logLine($log, `✓ rolling update xong: ${DESIRED} Pod v2 ready` + (useProbe?', zero-downtime':', NHƯNG đã rớt request giữa chừng'), useProbe?'ok':'err');
+    running = false;
+  }
+  document.getElementById('m2-start').onclick = rollout;
+  document.getElementById('m2-reset').onclick = reset;
+  reset();
+})();
+
+// ============ MODULE 3 — probe behavior ============
+(function(){
+  let liveFail = 0, readyFail = 0, restarts = 0;
+  let inLB = true;
+  const FT = 3;
+  const $state = document.getElementById('m3-state');
+  const $restarts = document.getElementById('m3-restarts');
+  const $livestat = document.getElementById('m3-livestat');
+  const $readystat = document.getElementById('m3-readystat');
+  const $pod = document.getElementById('m3-pod');
+  const $lb = document.getElementById('m3-lb');
+  const $log = document.getElementById('m3-log');
+  const $livefc = document.getElementById('m3-livefc');
+  const $readyfc = document.getElementById('m3-readyfc');
+
+  function render(){
+    $restarts.textContent = restarts;
+    $livefc.textContent = liveFail;
+    $readyfc.textContent = readyFail;
+    $livestat.innerHTML = liveFail>0 ? `<span style="color:#ef4444;">FAIL (${liveFail}/${FT})</span>` : '<span style="color:#10b981;">OK</span>';
+    $readystat.innerHTML = readyFail>0 ? `<span style="color:#f59e0b;">FAIL (${readyFail}/${FT})</span>` : '<span style="color:#10b981;">OK</span>';
+    if (inLB){ $lb.innerHTML = 'go-app-x9z ✓ (nhận traffic)'; $lb.style.color='#0d9488'; }
+    else { $lb.innerHTML = '<i>(rỗng — không Pod nào nhận traffic)</i>'; $lb.style.color='#ef4444'; }
+  }
+  function setState(txt, cls){ $state.textContent = txt; $state.className = 'badge '+cls; }
+
+  document.getElementById('m3-live').onclick = () => {
+    liveFail++; readyFail = 0; render();
+    logLine($log, `liveness /healthz → 503 (fail ${liveFail}/${FT})`, 'warn');
+    if (liveFail >= FT){
+      restarts++; liveFail = 0; readyFail = 0; inLB = true;
+      setState('Restarting...', 'dead'); $pod.className = 'pod term'; $pod.style.width='120px'; $pod.style.height='60px';
+      logLine($log, `❤️ liveness fail ${FT} lần → kubelet RESTART container (restartCount=${restarts})`, 'err');
+      setTimeout(()=>{ setState('Running','live'); $pod.className='pod'; $pod.style.width='120px'; $pod.style.height='60px'; render();
+        logLine($log, `container khởi động lại → Running, probe OK`, 'ok'); }, 900);
+    }
+    render();
+  };
+  document.getElementById('m3-ready').onclick = () => {
+    readyFail++; liveFail = 0; render();
+    logLine($log, `readiness /readyz → 503 (fail ${readyFail}/${FT})`, 'warn');
+    if (readyFail >= FT && inLB){
+      inLB = false; setState('Running (NotReady)','dead'); $pod.className='pod notready'; $pod.style.width='120px'; $pod.style.height='60px';
+      logLine($log, `🔌 readiness fail ${FT} lần → GỠ Pod khỏi Service endpoints (KHÔNG restart, restartCount vẫn ${restarts})`, 'err');
+    }
+    render();
+  };
+  document.getElementById('m3-recover').onclick = () => {
+    liveFail = 0; readyFail = 0; inLB = true;
+    setState('Running','live'); $pod.className='pod'; $pod.style.width='120px'; $pod.style.height='60px';
+    logLine($log, `probe phục hồi OK → readiness=200 → quay lại LB`, 'ok');
+    render();
+  };
+  document.getElementById('m3-reset').onclick = () => {
+    liveFail=0; readyFail=0; restarts=0; inLB=true;
+    setState('Running','live'); $pod.className='pod'; $pod.style.width='120px'; $pod.style.height='60px';
+    clearLog($log); render();
+    logLine($log,'reset: Pod Running, trong LB, restartCount=0','dim');
+  };
+  setState('Running','live'); render();
+  logLine($log,'Pod Running, trong LB. Bấm để làm fail probe.','dim');
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

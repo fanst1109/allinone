@@ -274,6 +274,14 @@ func lengthOfLongestSubstring(s string) int {
 
 Trả về **3** ✓.
 
+**Thêm ví dụ số** (đa dạng để chắc công thức):
+
+- `s=""` → **0** (chuỗi rỗng).
+- `s="aaaa"` → **1** (mọi ký tự giống nhau, window luôn co về 1).
+- `s="abcdef"` → **6** (không lặp, window phủ cả chuỗi).
+- `s="dvdf"` → **3** (`"vdf"`): tại `r=2` (`d` lặp `last[d]=0`) `l=1`; tiếp `r=3` (`f`) window `"vdf"` dài 3.
+- `s="tmmzuxt"` → **5** (`"mzuxt"`).
+
 > ⚠ **Lỗi thường gặp.** Điều kiện `idx >= l` **bắt buộc**. Nếu chỉ kiểm tra `ok` (ký tự từng xuất hiện) mà không kiểm tra nó còn **nằm trong window** không, `l` sẽ bị kéo ngược. Vd `"abba"`: tại `r=3` (`a`), `last[a]=0` nhưng `l` đã là 2; nếu không có `idx>=l`, ta sẽ đặt `l=1` (lùi lại) — SAI. Có điều kiện thì giữ nguyên `l=2`.
 
 ### 5.2 Minimum window substring

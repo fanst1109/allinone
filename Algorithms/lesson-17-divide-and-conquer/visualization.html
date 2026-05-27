@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L17 — Divide & Conquer (Chia để trị)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #4299e1;
+    --accent-soft: #ebf4ff;
+    --accent-hover: #3182ce;
+    --left: #48bb78;
+    --right: #ed8936;
+    --cross: #9f7aea;
+    --overlap: #e53e3e;
+  }
+  main { max-width: 920px; }
+  .lead { font-size: 1.05rem; color: #4a5568; margin: 0.5rem 0 1.5rem; }
+  h2 { margin-top: 2.4rem; border-bottom: 2px solid var(--accent-soft); padding-bottom: 0.3rem; }
+  .pill {
+    font-size: 0.7rem; background: var(--accent-soft); color: var(--accent-hover);
+    padding: 2px 8px; border-radius: 10px; vertical-align: middle; font-weight: 600;
+  }
+  .card {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+    padding: 1rem 1.2rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 0.8rem; }
+  button {
+    background: var(--accent); color: #fff; border: none; padding: 8px 14px;
+    border-radius: 6px; font-size: 0.9rem; cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: var(--accent-hover); }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+  input[type=text], input[type=number] {
+    width: 100%; max-width: 280px; box-sizing: border-box;
+    padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 0.9rem;
+    font-family: ui-monospace, monospace;
+  }
+  .status {
+    background: #f7fafc; border-left: 4px solid var(--accent); padding: 0.6rem 0.9rem;
+    border-radius: 4px; margin: 0.7rem 0; font-size: 0.92rem; min-height: 1.2em;
+  }
+  .legend { display: flex; flex-wrap: wrap; gap: 0.8rem; font-size: 0.82rem; margin: 0.5rem 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 4px; }
+  .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+  svg { display: block; max-width: 100%; height: auto; margin: 0.5rem auto; }
+  .mono { font-family: ui-monospace, monospace; }
+  .metric { font-weight: 700; color: var(--accent-hover); }
+  table.mini { border-collapse: collapse; width: 100%; font-size: 0.85rem; margin-top: 0.6rem; }
+  table.mini th, table.mini td { border: 1px solid #e2e8f0; padding: 5px 8px; text-align: center; }
+  table.mini th { background: var(--accent-soft); }
+  .note { font-size: 0.85rem; color: #718096; margin-top: 0.5rem; }
+  @media (max-width: 480px) {
+    main { padding: 0 0.6rem; }
+    .controls { gap: 0.4rem; }
+    button { padding: 7px 11px; font-size: 0.85rem; }
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-16-hashing-techniques/visualization.html">← L16: Hashing</a>
+  <span class="sep">·</span>
+  <span class="current">L17: Divide & Conquer</span>
+  <span class="sep">·</span>
+  <a href="../lesson-18-backtracking/visualization.html">L18: Backtracking →</a>
+</nav>
+
+<h1>Lesson 17 — Chia để trị (Divide & Conquer)</h1>
+<div class="lead">
+  Ba module tương tác cho paradigm <strong>Divide → Conquer → Combine</strong>:
+  cây D&C của <strong>Maximum Subarray</strong>, <strong>Fast Power</strong> (chia đôi mũ),
+  và phân biệt <strong>D&C (độc lập)</strong> với <strong>DP (chồng lấp)</strong>.
+</div>
+
+<!-- ====================================================================
+     MODULE 1 — D&C TREE: MAX SUBARRAY
+     ==================================================================== -->
+<h2>1. Cây Divide & Conquer — Maximum Subarray <span class="pill">O(n log n)</span></h2>
+<div class="card">
+  <p style="margin-top:0">
+    Bài toán: tìm đoạn con liên tiếp có tổng lớn nhất. D&C cắt đôi tại <span class="mono">mid</span>,
+    đoạn tối ưu nằm ở 1 trong 3 chỗ: <strong style="color:var(--left)">hoàn toàn trái</strong>,
+    <strong style="color:var(--right)">hoàn toàn phải</strong>, hoặc
+    <strong style="color:var(--cross)">xuyên giữa</strong>. Bấm <em>Bước tiếp</em> để xem
+    chia đôi rồi combine.
+  </p>
+  <div class="controls">
+    <input type="text" id="arrInput" value="-2,1,-3,4,-1,2,1,-5,4">
+    <button id="m1Build" class="ghost">Tải mảng</button>
+    <button id="m1Step">Bước tiếp ▶</button>
+    <button id="m1Auto">Chạy tự động ⏩</button>
+    <button id="m1Reset" class="ghost">Reset</button>
+  </div>
+  <div class="legend">
+    <span><span class="swatch" style="background:var(--left)"></span> trái</span>
+    <span><span class="swatch" style="background:var(--right)"></span> phải</span>
+    <span><span class="swatch" style="background:var(--cross)"></span> xuyên giữa</span>
+    <span><span class="swatch" style="background:var(--accent)"></span> đang xét</span>
+  </div>
+  <div class="status" id="m1Status">Bấm "Bước tiếp" để bắt đầu.</div>
+  <svg id="m1Svg" viewBox="0 0 880 420" width="880" height="420" role="img" aria-label="Cây D&C max subarray"></svg>
+  <p class="note">Mỗi node = một lời gọi <span class="mono">maxSubarrayDC(lo, hi)</span>. Số trong node
+    là kết quả max của đoạn đó. Combine = max(trái, phải, xuyên giữa).</p>
+</div>
+
+<!-- ====================================================================
+     MODULE 2 — FAST POWER
+     ==================================================================== -->
+<h2>2. Fast Power — chia đôi mũ <span class="pill">O(log n)</span></h2>
+<div class="card">
+  <p style="margin-top:0">
+    Tính <span class="mono">x^n</span> không bằng <span class="mono">n−1</span> phép nhân,
+    mà bằng chia đôi mũ: <span class="mono">x^n = (x^(n/2))²</span> (n chẵn) hoặc
+    <span class="mono">x·(x^(n/2))²</span> (n lẻ). Nhị phân của n quyết định các lũy thừa cần nhân:
+    <span class="mono">13 = 1101₂ → x¹³ = x⁸·x⁴·x¹</span>.
+  </p>
+  <div class="controls">
+    <label class="mono">x =</label>
+    <input type="number" id="powX" value="2" style="max-width:90px">
+    <label class="mono">n =</label>
+    <input type="number" id="powN" value="13" min="0" max="100000" style="max-width:110px">
+    <button id="m2Run">Tính ▶</button>
+    <button id="m2Reset" class="ghost">Reset</button>
+  </div>
+  <div class="status" id="m2Status">Nhập x, n rồi bấm "Tính".</div>
+  <svg id="m2Svg" viewBox="0 0 880 200" width="880" height="200" role="img" aria-label="Bình phương và nhân"></svg>
+  <table class="mini" id="m2Table"></table>
+  <p class="note" id="m2Compare"></p>
+</div>
+
+<!-- ====================================================================
+     MODULE 3 — D&C vs DP
+     ==================================================================== -->
+<h2>3. D&C vs DP — độc lập hay chồng lấp? <span class="pill">paradigm</span></h2>
+<div class="card">
+  <p style="margin-top:0">
+    Khác biệt sống còn: subproblem của <strong>D&C độc lập</strong> (mỗi node giải 1 lần, cây nở
+    không trùng) vs subproblem của <strong>DP chồng lấp</strong> (cùng bài con lặp lại nhiều nhánh →
+    cần <em>memo</em>). Chọn ví dụ để so sánh cây đệ quy.
+  </p>
+  <div class="controls">
+    <button id="m3DC">Merge Sort (D&C)</button>
+    <button id="m3DP">Fibonacci (DP)</button>
+    <button id="m3Memo" class="ghost" disabled>Bật memo</button>
+  </div>
+  <div class="legend">
+    <span><span class="swatch" style="background:var(--accent)"></span> node tính 1 lần</span>
+    <span><span class="swatch" style="background:var(--overlap)"></span> node TRÙNG (chồng lấp)</span>
+  </div>
+  <div class="status" id="m3Status">Chọn một ví dụ ở trên.</div>
+  <svg id="m3Svg" viewBox="0 0 880 360" width="880" height="360" role="img" aria-label="Cây D&C vs DP"></svg>
+  <p class="note" id="m3Note"></p>
+</div>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+
+/* ============================ MODULE 1 ============================ */
+(function () {
+  const svg = document.getElementById('m1Svg');
+  const status = document.getElementById('m1Status');
+  let arr = [], steps = [], idx = 0, timer = null;
+
+  function parseArr() {
+    const raw = document.getElementById('arrInput').value;
+    const a = raw.split(',').map(s => parseInt(s.trim(), 10)).filter(x => !isNaN(x));
+    return a.slice(0, 12); // giới hạn để cây không quá to
+  }
+
+  // Sinh các bước (mỗi node = 1 step) bằng D&C, ghi lại lo,hi,depth,result + cross.
+  function build() {
+    arr = parseArr();
+    steps = [];
+    let nodeId = 0;
+    function maxCross(lo, mid, hi) {
+      let sum = 0, lb = -Infinity;
+      for (let i = mid; i >= lo; i--) { sum += arr[i]; if (sum > lb) lb = sum; }
+      sum = 0; let rb = -Infinity;
+      for (let i = mid + 1; i <= hi; i++) { sum += arr[i]; if (sum > rb) rb = sum; }
+      return lb + rb;
+    }
+    // dfs trả về result; đẩy step theo thứ tự "kết thúc" (combine) để animate combine.
+    function dfs(lo, hi, depth, xpos, xspan) {
+      const id = nodeId++;
+      if (lo === hi) {
+        steps.push({ id, lo, hi, depth, xpos, type: 'base', result: arr[lo] });
+        return arr[lo];
+      }
+      const mid = (lo + hi) >> 1;
+      steps.push({ id, lo, hi, depth, xpos, type: 'divide', result: null, mid });
+      const L = dfs(lo, mid, depth + 1, xpos - xspan / 2, xspan / 2);
+      const R = dfs(mid + 1, hi, depth + 1, xpos + xspan / 2, xspan / 2);
+      const C = maxCross(lo, mid, hi);
+      const best = Math.max(L, R, C);
+      steps.push({ id, lo, hi, depth, xpos, type: 'combine', result: best, L, R, C });
+      return best;
+    }
+    if (arr.length === 0) { status.textContent = 'Mảng rỗng — nhập số cách nhau bởi dấu phẩy.'; return; }
+    dfs(0, arr.length - 1, 0, 440, 440);
+    idx = 0;
+    render();
+    status.textContent = `Mảng ${arr.length} phần tử. Bấm "Bước tiếp" (${steps.length} bước).`;
+  }
+
+  function render() {
+    clear(svg);
+    const shown = steps.slice(0, idx);
+    const nodeW = 96, nodeH = 34, vGap = 84;
+    // map id -> {x,y} dựa trên xpos & depth
+    const placed = {};
+    for (const s of shown) {
+      const y = 24 + s.depth * vGap;
+      placed[s.id] = { x: s.xpos, y, s };
+    }
+    // vẽ cạnh nối cha-con: cha có cùng id ở step divide; con xuất hiện sau.
+    // Dùng quan hệ depth + xpos: với mỗi node depth>0, tìm node depth-1 gần nhất về xpos.
+    const byDepth = {};
+    for (const id in placed) {
+      const p = placed[id];
+      (byDepth[p.s.depth] = byDepth[p.s.depth] || []).push(p);
+    }
+    for (const id in placed) {
+      const c = placed[id];
+      if (c.s.depth === 0) continue;
+      const parents = byDepth[c.s.depth - 1] || [];
+      let best = null, bd = Infinity;
+      for (const par of parents) {
+        const d = Math.abs(par.x - c.x);
+        if (d < bd) { bd = d; best = par; }
+      }
+      if (best) el('line', { x1: best.x, y1: best.y + nodeH, x2: c.x, y2: c.y, stroke: '#cbd5e0', 'stroke-width': 2 }, svg);
+    }
+    // vẽ node
+    const dedup = {};
+    for (const s of shown) dedup[s.id] = s; // step combine/divide cùng id -> giữ mới nhất
+    for (const id in dedup) {
+      const s = dedup[id];
+      const p = placed[id];
+      let fill = '#fff', stroke = 'var(--accent)';
+      if (s.type === 'base') { fill = 'var(--accent-soft)'; }
+      const g = el('g', {}, svg);
+      el('rect', { x: p.x - nodeW / 2, y: p.y, width: nodeW, height: nodeH, rx: 6, fill, stroke, 'stroke-width': 2 }, g);
+      const label = `[${s.lo},${s.hi}]`;
+      el('text', { x: p.x, y: p.y + 14, 'text-anchor': 'middle', 'font-size': 11, fill: '#4a5568', 'font-family': 'monospace' }, g).textContent = label;
+      const res = (s.result === null) ? '…' : s.result;
+      el('text', { x: p.x, y: p.y + 28, 'text-anchor': 'middle', 'font-size': 13, fill: '#2d3748', 'font-weight': 700 }, g).textContent = '= ' + res;
+    }
+  }
+
+  function step() {
+    if (idx >= steps.length) { status.textContent = 'Xong. Kết quả tổng max = ' + (steps.length ? steps[steps.length - 1].result : '—'); return; }
+    const s = steps[idx];
+    idx++;
+    render();
+    if (s.type === 'divide') status.innerHTML = `<b>Divide</b> đoạn <span class="mono">[${s.lo},${s.hi}]</span> tại mid=${s.mid} → 2 nửa.`;
+    else if (s.type === 'base') status.innerHTML = `<b>Base case</b>: đoạn 1 phần tử <span class="mono">[${s.lo},${s.hi}]</span> = ${s.result}.`;
+    else status.innerHTML = `<b>Combine</b> <span class="mono">[${s.lo},${s.hi}]</span>: max(<span style="color:var(--left)">trái ${s.L}</span>, <span style="color:var(--right)">phải ${s.R}</span>, <span style="color:var(--cross)">xuyên ${s.C}</span>) = <span class="metric">${s.result}</span>.`;
+  }
+
+  document.getElementById('m1Build').onclick = () => { clearInterval(timer); build(); };
+  document.getElementById('m1Step').onclick = () => { clearInterval(timer); if (!steps.length) build(); step(); };
+  document.getElementById('m1Auto').onclick = () => {
+    clearInterval(timer); if (!steps.length) build();
+    timer = setInterval(() => { if (idx >= steps.length) { clearInterval(timer); step(); } else step(); }, 700);
+  };
+  document.getElementById('m1Reset').onclick = () => { clearInterval(timer); idx = 0; render(); status.textContent = 'Đã reset. Bấm "Bước tiếp".'; };
+  build();
+})();
+
+/* ============================ MODULE 2 ============================ */
+(function () {
+  const svg = document.getElementById('m2Svg');
+  const status = document.getElementById('m2Status');
+  const tbl = document.getElementById('m2Table');
+  const cmp = document.getElementById('m2Compare');
+
+  function run() {
+    const x = parseFloat(document.getElementById('powX').value);
+    let n = parseInt(document.getElementById('powN').value, 10);
+    if (isNaN(x) || isNaN(n) || n < 0) { status.textContent = 'Nhập x và n (n ≥ 0) hợp lệ.'; return; }
+    if (n > 100000) n = 100000;
+
+    // binary square-and-multiply, ghi từng bước
+    const bits = n === 0 ? [0] : n.toString(2).split('').reverse().map(Number);
+    let result = 1, base = x, mults = 0, squares = 0;
+    const rows = [];
+    let nn = n, step = 0;
+    let curBase = x;
+    while (nn > 0) {
+      const bit = nn & 1;
+      let action = '';
+      if (bit === 1) { result *= curBase; mults++; action = 'nhân result'; }
+      rows.push({ step, bit, base: curBase, result, action });
+      curBase = curBase * curBase; squares++;
+      nn = nn >> 1; step++;
+    }
+    const totalMults = mults + squares;
+    const naive = Math.max(0, n - 1);
+
+    // bảng
+    let html = '<tr><th>bit (LSB→MSB)</th><th>x lũy thừa hiện tại</th><th>nhân vào result?</th><th>result</th></tr>';
+    for (const r of rows) {
+      html += `<tr><td class="mono">${r.bit}</td><td class="mono">${fmt(r.base)}</td><td>${r.bit ? '✔ nhân' : '— bỏ qua'}</td><td class="mono">${fmt(r.result)}</td></tr>`;
+    }
+    tbl.innerHTML = html;
+
+    // SVG: hiển thị x^(2^k) chuỗi bình phương, highlight các bit=1
+    clear(svg);
+    const powers = [];
+    let e = 1;
+    for (let k = 0; k < bits.length; k++) { powers.push({ exp: e, used: bits[k] === 1 }); e *= 2; }
+    const bw = Math.min(120, 820 / powers.length), startX = 30;
+    el('text', { x: 30, y: 24, 'font-size': 13, fill: '#4a5568' }, svg).textContent =
+      `Bình phương liên tiếp: x → x² → x⁴ → … (mỗi mũi tên = 1 phép bình phương)`;
+    powers.forEach((p, k) => {
+      const cx = startX + k * bw + bw / 2, cy = 90;
+      const fill = p.used ? 'var(--cross)' : '#edf2f7';
+      const txtc = p.used ? '#fff' : '#a0aec0';
+      el('rect', { x: cx - bw / 2 + 6, y: cy - 22, width: bw - 12, height: 44, rx: 8, fill, stroke: p.used ? 'var(--cross)' : '#cbd5e0', 'stroke-width': 2 }, svg);
+      el('text', { x: cx, y: cy - 4, 'text-anchor': 'middle', 'font-size': 13, 'font-weight': 700, fill: txtc, 'font-family': 'monospace' }, svg).textContent = 'x^' + p.exp;
+      el('text', { x: cx, y: cy + 14, 'text-anchor': 'middle', 'font-size': 10, fill: txtc }, svg).textContent = p.used ? '(bit 1)' : '(bit 0)';
+      if (k < powers.length - 1) {
+        el('text', { x: cx + bw / 2, y: cy + 2, 'text-anchor': 'middle', 'font-size': 16, fill: '#a0aec0' }, svg).textContent = '→';
+      }
+    });
+    const usedExps = powers.filter(p => p.used).map(p => 'x^' + p.exp);
+    el('text', { x: 30, y: 160, 'font-size': 13, fill: '#2d3748', 'font-weight': 700 }, svg).textContent =
+      `x^${n} = ${usedExps.length ? usedExps.join(' · ') : 'x^0 = 1'}`;
+
+    status.innerHTML = `<b>${fmt(x)}^${n} = ${fmt(result)}</b>. Số phép nhân (D&C) ≈ <span class="metric">${totalMults}</span> (${squares} bình phương + ${mults} nhân).`;
+    cmp.innerHTML = `Cách ngây thơ cần <b>${naive}</b> phép nhân — D&C chỉ <b>${totalMults}</b> (~2·log₂n). Tỷ lệ tiết kiệm khi n=${n}: <span class="metric">${naive > 0 ? (naive / Math.max(1, totalMults)).toFixed(1) + '×' : '—'}</span>.`;
+  }
+  function fmt(v) {
+    if (!isFinite(v)) return '∞';
+    if (Number.isInteger(v) && Math.abs(v) < 1e15) return v.toString();
+    return v.toPrecision(6);
+  }
+  document.getElementById('m2Run').onclick = run;
+  document.getElementById('m2Reset').onclick = () => { clear(svg); tbl.innerHTML = ''; cmp.textContent = ''; status.textContent = 'Nhập x, n rồi bấm "Tính".'; };
+  run();
+})();
+
+/* ============================ MODULE 3 ============================ */
+(function () {
+  const svg = document.getElementById('m3Svg');
+  const status = document.getElementById('m3Status');
+  const note = document.getElementById('m3Note');
+  const memoBtn = document.getElementById('m3Memo');
+  let mode = null, memoOn = false;
+
+  function drawMergeSort() {
+    clear(svg);
+    // cây merge sort trên mảng 8 phần tử: mỗi node là 1 đoạn khác nhau -> độc lập
+    const nodes = [
+      { label: '[0..7]', x: 440, y: 30 },
+      { label: '[0..3]', x: 240, y: 110 }, { label: '[4..7]', x: 640, y: 110 },
+      { label: '[0..1]', x: 140, y: 190 }, { label: '[2..3]', x: 340, y: 190 },
+      { label: '[4..5]', x: 540, y: 190 }, { label: '[6..7]', x: 740, y: 190 },
+      { label: '[0]', x: 90, y: 270 }, { label: '[1]', x: 190, y: 270 },
+      { label: '[2]', x: 290, y: 270 }, { label: '[3]', x: 390, y: 270 },
+      { label: '[4]', x: 490, y: 270 }, { label: '[5]', x: 590, y: 270 },
+      { label: '[6]', x: 690, y: 270 }, { label: '[7]', x: 790, y: 270 },
+    ];
+    const edges = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6],[3,7],[3,8],[4,9],[4,10],[5,11],[5,12],[6,13],[6,14]];
+    edges.forEach(([a, b]) => el('line', { x1: nodes[a].x, y1: nodes[a].y + 22, x2: nodes[b].x, y2: nodes[b].y, stroke: '#cbd5e0', 'stroke-width': 2 }, svg));
+    nodes.forEach(nd => {
+      el('rect', { x: nd.x - 42, y: nd.y, width: 84, height: 26, rx: 5, fill: 'var(--accent-soft)', stroke: 'var(--accent)', 'stroke-width': 2 }, svg);
+      el('text', { x: nd.x, y: nd.y + 17, 'text-anchor': 'middle', 'font-size': 11, fill: '#2d3748', 'font-family': 'monospace' }, svg).textContent = nd.label;
+    });
+    el('text', { x: 440, y: 330, 'text-anchor': 'middle', 'font-size': 13, fill: '#48bb78', 'font-weight': 700 }, svg)
+      .textContent = 'Mọi node xử lý đoạn KHÁC NHAU → không trùng → không cần memo. T(n)=2T(n/2)+O(n)=O(n log n).';
+  }
+
+  function drawFib() {
+    clear(svg);
+    // cây fib(5): các node fib(k) cùng giá trị xuất hiện nhiều lần -> chồng lấp
+    // layout thủ công
+    const N = (label, x, y) => ({ label, x, y });
+    const nodes = [
+      N('fib(5)', 440, 24),                                  // 0
+      N('fib(4)', 250, 96), N('fib(3)', 630, 96),            // 1,2
+      N('fib(3)', 140, 168), N('fib(2)', 360, 168),          // 3,4
+      N('fib(2)', 560, 168), N('fib(1)', 720, 168),          // 5,6
+      N('fib(2)', 70, 240), N('fib(1)', 210, 240),           // 7,8
+      N('fib(1)', 320, 240), N('fib(0)', 410, 240),          // 9,10
+      N('fib(1)', 510, 240), N('fib(0)', 610, 240),          // 11,12
+      N('fib(1)', 40, 312), N('fib(0)', 110, 312),           // 13,14
+    ];
+    const edges = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6],[3,7],[3,8],[4,9],[4,10],[5,11],[5,12],[7,13],[7,14]];
+    // đếm số lần xuất hiện mỗi label -> đánh dấu trùng
+    const count = {};
+    nodes.forEach(n => count[n.label] = (count[n.label] || 0) + 1);
+    const seen = {};
+    edges.forEach(([a, b]) => el('line', { x1: nodes[a].x, y1: nodes[a].y + 22, x2: nodes[b].x, y2: nodes[b].y, stroke: '#e2e8f0', 'stroke-width': 1.5 }, svg));
+    nodes.forEach(nd => {
+      seen[nd.label] = (seen[nd.label] || 0) + 1;
+      const dup = count[nd.label] > 1;
+      const firstOcc = dup && seen[nd.label] === 1;
+      let fill = 'var(--accent-soft)', stroke = 'var(--accent)';
+      if (dup && !firstOcc) {
+        if (memoOn) { fill = '#f0fff4'; stroke = '#48bb78'; }   // memo: bị cắt
+        else { fill = '#fff5f5'; stroke = 'var(--overlap)'; }   // không memo: tính lại
+      }
+      el('rect', { x: nd.x - 36, y: nd.y, width: 72, height: 26, rx: 5, fill, stroke, 'stroke-width': 2 }, svg);
+      el('text', { x: nd.x, y: nd.y + 17, 'text-anchor': 'middle', 'font-size': 10.5, fill: '#2d3748', 'font-family': 'monospace' }, svg).textContent = nd.label;
+      if (memoOn && dup && !firstOcc) {
+        el('text', { x: nd.x + 30, y: nd.y + 8, 'font-size': 12, fill: '#48bb78' }, svg).textContent = '✔';
+      }
+    });
+    const dupCount = nodes.filter(n => count[n.label] > 1).length - new Set(nodes.filter(n => count[n.label] > 1).map(n => n.label)).size;
+    el('text', { x: 440, y: 350, 'text-anchor': 'middle', 'font-size': 12.5, fill: memoOn ? '#48bb78' : 'var(--overlap)', 'font-weight': 700 }, svg)
+      .textContent = memoOn
+        ? 'MEMO bật: node trùng được tra bảng (không tính lại) → O(n).'
+        : `Không memo: ${dupCount} node TRÙNG bị tính lại → bùng nổ O(φⁿ) ≈ O(1.618ⁿ).`;
+  }
+
+  function setMode(m) {
+    mode = m;
+    if (m === 'dc') {
+      memoBtn.disabled = true; memoOn = false; memoBtn.textContent = 'Bật memo';
+      drawMergeSort();
+      status.innerHTML = '<b>Merge Sort = D&C thuần</b>: subproblem (đoạn mảng) <span style="color:var(--left)">độc lập</span>, không trùng → memo vô dụng.';
+      note.innerHTML = 'Đây là dấu hiệu nhận biết D&C: vẽ cây, các nhánh chạm dữ liệu rời nhau.';
+    } else {
+      memoBtn.disabled = false;
+      drawFib();
+      status.innerHTML = '<b>Fibonacci = DP</b>: cùng <span style="color:var(--overlap)">fib(k) lặp lại</span> nhiều nhánh (chồng lấp). Bấm "Bật memo" để xem khác biệt.';
+      note.innerHTML = 'Chồng lấp ⇒ phải memo, nếu không thời gian bùng nổ theo cấp số nhân.';
+    }
+  }
+
+  document.getElementById('m3DC').onclick = () => setMode('dc');
+  document.getElementById('m3DP').onclick = () => setMode('dp');
+  memoBtn.onclick = () => { memoOn = !memoOn; memoBtn.textContent = memoOn ? 'Tắt memo' : 'Bật memo'; drawFib();
+    status.innerHTML = memoOn
+      ? '<b>Memo BẬT</b>: mỗi fib(k) tính 1 lần rồi lưu → O(n). Đây là điều biến D&C-có-overlap thành DP.'
+      : '<b>Memo TẮT</b>: node trùng (đỏ) bị tính lại → O(φⁿ).'; };
+  setMode('dc');
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+</body>
+</html>

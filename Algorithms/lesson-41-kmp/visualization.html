@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 41 — KMP (Knuth-Morris-Pratt)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 38px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #14b8a6; color: white; border: none; border-radius: 6px;
+    padding: 9px 16px; font-size: 15px; cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #0d9488; }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+  button:disabled { opacity: .45; cursor: default; }
+  input[type=text] {
+    padding: 8px 10px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 15px; width: 100%; max-width: 360px; box-sizing: border-box;
+    font-family: ui-monospace, monospace; text-transform: uppercase;
+  }
+  .hint { color: #718096; font-size: 14px; margin: 4px 0; }
+  .label { font-weight: 600; color: #2d3748; }
+  .status {
+    margin: 12px 0; padding: 12px 14px; border-radius: 8px; font-size: 15px;
+    background: #ebf8ff; border-left: 4px solid #14b8a6; color: #155e63;
+    min-height: 22px;
+  }
+  .status.win { background: #f0fff4; border-left-color: #48bb78; color: #22543d; }
+  .status.bad { background: #fff5f5; border-left-color: #f56565; color: #742a2a; }
+  code { background: #edf2f7; padding: 1px 5px; border-radius: 4px;
+         font-family: ui-monospace, monospace; font-size: 14px; }
+
+  /* arrays of cells */
+  .arr { display: flex; gap: 6px; flex-wrap: wrap; margin: 12px 0; }
+  .cell {
+    width: 44px; height: 44px; border-radius: 8px; display: flex;
+    flex-direction: column; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 16px;
+    background: #edf2f7; border: 2px solid #cbd5e0; color: #2d3748;
+    transition: all .22s; position: relative; flex: 0 0 auto;
+  }
+  .cell .idx { font-size: 10px; color: #a0aec0; font-weight: 600; line-height: 1; }
+  .cell .ch { line-height: 1.2; }
+  .cell.lps { background: #fff; }
+  .cell.lps .ch { color: #0d9488; font-size: 15px; }
+  .cell.active { border-color: #14b8a6; background: #ccfbf1; box-shadow: 0 0 0 2px #99f6e4; }
+  .cell.lenptr { border-color: #f59e0b; background: #fef3c7; }
+  .cell.match { background: #c6f6d5; border-color: #48bb78; color: #22543d; }
+  .cell.mismatch { background: #fed7d7; border-color: #f56565; color: #742a2a; }
+  .cell.done { background: #e6fffa; border-color: #38b2ac; }
+
+  .ptr-line { display: flex; gap: 6px; margin: 2px 0; flex-wrap: wrap; }
+  .ptr-slot { width: 44px; text-align: center; font-size: 18px; color: #14b8a6; flex: 0 0 auto; }
+  .ptr-slot.len { color: #f59e0b; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .cmp-box { background: #f7fafc; border-radius: 8px; padding: 14px; border: 1px solid #e2e8f0; }
+  .cmp-box h4 { margin: 0 0 8px; color: #2d3748; }
+  .bignum { font-size: 30px; font-weight: 800; }
+  .bignum.naive { color: #e53e3e; }
+  .bignum.kmp { color: #0d9488; }
+
+  table.lpstab { border-collapse: collapse; margin: 10px 0; font-size: 14px; }
+  table.lpstab td, table.lpstab th {
+    border: 1px solid #cbd5e0; padding: 5px 9px; text-align: center; min-width: 30px;
+  }
+  table.lpstab th { background: #edf2f7; }
+
+  @media (max-width: 480px) {
+    .cell { width: 32px; height: 38px; font-size: 13px; }
+    .cell .ch { font-size: 13px; }
+    .cell.lps .ch { font-size: 12px; }
+    .ptr-slot { width: 32px; font-size: 14px; }
+    .grid2 { grid-template-columns: 1fr; }
+    .bignum { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-40-string-matching-rabin-karp/visualization.html">← L40: String Matching &amp; Rabin-Karp</a>
+  <span class="sep">·</span>
+  <span class="current">L41: KMP</span>
+  <span class="sep">·</span>
+  <a href="../lesson-42-z-algorithm/visualization.html">L42: Z-Algorithm →</a>
+</nav>
+
+<main>
+<h1>Lesson 41 — KMP (Knuth-Morris-Pratt)</h1>
+<p class="hint">Tìm pattern trong text với <strong>O(n+m)</strong> — text pointer không bao giờ lùi. Trái tim là mảng <code>LPS</code> (failure function).</p>
+
+<!-- ============ MODULE 1: LPS BUILDER ============ -->
+<h2>Module 1 — LPS Builder (failure function)</h2>
+<div class="card">
+  <p class="hint"><code>lps[i]</code> = độ dài proper prefix dài nhất của <code>P[0..i]</code> mà đồng thời là suffix. Hai con trỏ:
+    <span style="color:#14b8a6;font-weight:700">i (đang xét)</span> và
+    <span style="color:#f59e0b;font-weight:700">len (độ dài prefix-suffix)</span>.</p>
+  <div class="row">
+    <span class="label">Pattern:</span>
+    <input type="text" id="lps-input" value="ABABACA" maxlength="20">
+  </div>
+  <div class="row">
+    <button id="lps-step">▶ Bước tiếp</button>
+    <button id="lps-all" class="ghost">⏩ Chạy hết</button>
+    <button id="lps-reset" class="ghost">↺ Reset</button>
+  </div>
+  <div id="lps-ptrs" class="ptr-line"></div>
+  <div id="lps-chars" class="arr"></div>
+  <div id="lps-vals" class="arr"></div>
+  <div id="lps-status" class="status">Nhấn “Bước tiếp” để bắt đầu tính LPS.</div>
+</div>
+
+<!-- ============ MODULE 2: KMP MATCHING ============ -->
+<h2>Module 2 — KMP Matching</h2>
+<div class="card">
+  <p class="hint">Khi mismatch tại <code>P[j]</code> với <code>j&gt;0</code>: nhảy <code>j = lps[j-1]</code> — <strong>text pointer i đứng yên</strong>. Khi tìm thấy: ghi match, <code>j = lps[j-1]</code> để bắt overlap.</p>
+  <div class="row">
+    <span class="label">Text:</span>
+    <input type="text" id="km-text" value="ABABDABACDABABCABAB" maxlength="40">
+  </div>
+  <div class="row">
+    <span class="label">Pattern:</span>
+    <input type="text" id="km-pat" value="ABABCABAB" maxlength="20">
+  </div>
+  <div class="row">
+    <button id="km-step">▶ Bước tiếp</button>
+    <button id="km-all" class="ghost">⏩ Chạy hết</button>
+    <button id="km-reset" class="ghost">↺ Reset</button>
+  </div>
+  <div class="hint">LPS của pattern:</div>
+  <div id="km-lpstab"></div>
+  <div class="hint" style="margin-top:8px">Text (con trỏ <span style="color:#14b8a6;font-weight:700">i</span>):</div>
+  <div id="km-textarr" class="arr"></div>
+  <div class="hint">Pattern (con trỏ <span style="color:#14b8a6;font-weight:700">j</span>) — căn theo i-j:</div>
+  <div id="km-patarr" class="arr"></div>
+  <div id="km-status" class="status">Nhấn “Bước tiếp” để chạy KMP.</div>
+</div>
+
+<!-- ============ MODULE 3: NAIVE VS KMP ============ -->
+<h2>Module 3 — Naive vs KMP (số phép so sánh)</h2>
+<div class="card">
+  <p class="hint">Cùng input, đếm tổng số phép so sánh ký tự. Naive lùi text mỗi mismatch; KMP không.</p>
+  <div class="row">
+    <span class="label">Text:</span>
+    <input type="text" id="cmp-text" value="AAAAAAAAAAAAAAAAAAAB" maxlength="40">
+  </div>
+  <div class="row">
+    <span class="label">Pattern:</span>
+    <input type="text" id="cmp-pat" value="AAAAB" maxlength="20">
+  </div>
+  <div class="row">
+    <button id="cmp-run">▶ So sánh</button>
+    <button id="cmp-reset" class="ghost">↺ Reset</button>
+  </div>
+  <div class="grid2" style="margin-top:14px">
+    <div class="cmp-box">
+      <h4>Naive O(nm)</h4>
+      <div class="bignum naive" id="cmp-naive">—</div>
+      <div class="hint">phép so sánh</div>
+    </div>
+    <div class="cmp-box">
+      <h4>KMP O(n+m)</h4>
+      <div class="bignum kmp" id="cmp-kmp">—</div>
+      <div class="hint">phép so sánh</div>
+    </div>
+  </div>
+  <div id="cmp-status" class="status">Nhấn “So sánh” để đo.</div>
+</div>
+
+</main>
+
+<script>
+/* ===== Helpers ===== */
+function computeLPS(p) {
+  const m = p.length, lps = new Array(m).fill(0);
+  let len = 0, i = 1;
+  while (i < m) {
+    if (p[i] === p[len]) { len++; lps[i] = len; i++; }
+    else if (len > 0) { len = lps[len - 1]; }
+    else { lps[i] = 0; i++; }
+  }
+  return lps;
+}
+function clean(s) { return (s || '').toUpperCase().replace(/[^A-Z]/g, ''); }
+function cell(ch, idx, cls) {
+  return `<div class="cell ${cls||''}"><span class="idx">${idx}</span><span class="ch">${ch}</span></div>`;
+}
+
+/* ===== MODULE 1: LPS Builder ===== */
+(function () {
+  const inp = document.getElementById('lps-input');
+  const ptrsEl = document.getElementById('lps-ptrs');
+  const charsEl = document.getElementById('lps-chars');
+  const valsEl = document.getElementById('lps-vals');
+  const status = document.getElementById('lps-status');
+  let P = '', lps = [], i = 1, len = 0, done = false;
+
+  function reset() {
+    P = clean(inp.value);
+    lps = new Array(P.length).fill(0);
+    i = 1; len = 0; done = P.length <= 1;
+    if (P.length) lps[0] = 0;
+    render();
+    status.className = 'status';
+    status.textContent = P.length <= 1
+      ? 'Pattern ≤ 1 ký tự: lps = [' + lps.join(',') + ']. Đã xong.'
+      : 'Khởi tạo: lps[0]=0, i=1, len=0. Nhấn “Bước tiếp”.';
+  }
+  function render() {
+    let ph = '', ch = '', vh = '';
+    for (let k = 0; k < P.length; k++) {
+      let pcls = '', vcls = 'lps';
+      if (k === i && !done) pcls = 'active';
+      if (k === len && !done) pcls += ' lenptr';
+      // pointer arrows
+      ph += `<div class="ptr-slot ${k===i&&!done?'':''}">${k===i&&!done?'i↓':''}</div>`;
+      ch += cell(P[k], k, pcls);
+      const known = k < i || done;
+      vh += cell(known ? lps[k] : '·', k, 'lps' + (k===len&&!done?' lenptr':''));
+    }
+    ptrsEl.innerHTML = ph;
+    charsEl.innerHTML = ch;
+    valsEl.innerHTML = vh;
+  }
+  function step() {
+    if (done) { status.textContent = 'Đã xong. lps = [' + lps.join(',') + '].'; return; }
+    if (i >= P.length) { done = true; render();
+      status.className = 'status win';
+      status.textContent = '✓ Hoàn tất. lps = [' + lps.join(',') + '].'; return; }
+    if (P[i] === P[len]) {
+      len++; lps[i] = len;
+      status.className = 'status win';
+      status.textContent = `P[${i}]='${P[i]}' == P[${len-1}]='${P[len-1]}' → khớp: len=${len}, lps[${i}]=${len}, i→${i+1}.`;
+      i++;
+    } else if (len > 0) {
+      const old = len;
+      len = lps[len - 1];
+      status.className = 'status bad';
+      status.textContent = `P[${i}]='${P[i]}' ≠ P[${old}]='${P[old]}', len>0 → lùi len=lps[${old-1}]=${len} (i giữ nguyên =${i}).`;
+    } else {
+      lps[i] = 0;
+      status.className = 'status';
+      status.textContent = `P[${i}]='${P[i]}' ≠ P[0]='${P[0]}', len=0 → lps[${i}]=0, i→${i+1}.`;
+      i++;
+    }
+    if (i >= P.length && (P[i-1] === P[len-1] || len === 0 || true)) {
+      if (i >= P.length) { done = true; }
+    }
+    render();
+    if (done) { status.className = 'status win'; status.textContent = '✓ Hoàn tất. lps = [' + lps.join(',') + '].'; }
+  }
+  document.getElementById('lps-step').onclick = step;
+  document.getElementById('lps-all').onclick = () => { let g=0; while (!done && g++<500) step(); };
+  document.getElementById('lps-reset').onclick = reset;
+  inp.onchange = reset;
+  reset();
+})();
+
+/* ===== MODULE 2: KMP Matching ===== */
+(function () {
+  const tIn = document.getElementById('km-text');
+  const pIn = document.getElementById('km-pat');
+  const lpstab = document.getElementById('km-lpstab');
+  const tArr = document.getElementById('km-textarr');
+  const pArr = document.getElementById('km-patarr');
+  const status = document.getElementById('km-status');
+  let T = '', P = '', lps = [], i = 0, j = 0, matches = [], done = false, lastEvent = '';
+
+  function reset() {
+    T = clean(tIn.value); P = clean(pIn.value);
+    lps = computeLPS(P);
+    i = 0; j = 0; matches = []; done = (P.length === 0 || P.length > T.length); lastEvent = '';
+    renderLpsTab(); render();
+    status.className = 'status';
+    status.textContent = done ? 'Pattern rỗng hoặc dài hơn text.' : 'Bắt đầu: i=0, j=0. Nhấn “Bước tiếp”.';
+  }
+  function renderLpsTab() {
+    let h = '<table class="lpstab"><tr><th>i</th>';
+    for (let k=0;k<P.length;k++) h += `<th>${k}</th>`;
+    h += '</tr><tr><th>P</th>';
+    for (let k=0;k<P.length;k++) h += `<td>${P[k]}</td>`;
+    h += '</tr><tr><th>lps</th>';
+    for (let k=0;k<P.length;k++) h += `<td style="color:#0d9488;font-weight:700">${lps[k]}</td>`;
+    h += '</tr></table>';
+    lpstab.innerHTML = h;
+  }
+  function render() {
+    // text row
+    let th = '';
+    for (let k=0;k<T.length;k++) {
+      let cls = '';
+      if (matches.some(m => k>=m && k<m+P.length)) cls='done';
+      if (k===i && !done) cls = (lastEvent==='match' ? 'match' : lastEvent==='mismatch' ? 'mismatch' : 'active');
+      th += cell(T[k], k, cls);
+    }
+    tArr.innerHTML = th || '<span class="hint">(text rỗng)</span>';
+    // pattern row aligned at i-j
+    const offset = i - j;
+    let ph = '';
+    for (let s=0;s<offset;s++) ph += '<div class="cell" style="visibility:hidden">.</div>';
+    for (let k=0;k<P.length;k++) {
+      let cls = '';
+      if (k < j) cls = 'match';
+      else if (k === j && !done) cls = (lastEvent==='mismatch' ? 'mismatch' : 'active');
+      ph += cell(P[k], k, cls);
+    }
+    pArr.innerHTML = ph;
+  }
+  function step() {
+    if (done) { status.textContent = matchSummary(); return; }
+    if (i >= T.length) { done = true; lastEvent=''; render(); status.className='status win'; status.textContent = matchSummary(); return; }
+    if (T[i] === P[j]) {
+      lastEvent = 'match';
+      status.className = 'status win';
+      status.textContent = `T[${i}]='${T[i]}' == P[${j}]='${P[j]}' → khớp, i→${i+1}, j→${j+1}.`;
+      i++; j++;
+      if (j === P.length) {
+        matches.push(i - j);
+        const start = i - j;
+        j = lps[j - 1];
+        status.textContent = `✓ MATCH tại index ${start}! j nhảy về lps[${P.length-1}]=${j} (bắt overlap), text KHÔNG lùi.`;
+      }
+    } else if (j > 0) {
+      lastEvent = 'mismatch';
+      const old = j;
+      j = lps[j - 1];
+      status.className = 'status bad';
+      status.textContent = `T[${i}]='${T[i]}' ≠ P[${old}]='${P[old]}', j>0 → j=lps[${old-1}]=${j}. ⚑ i ĐỨNG YÊN =${i}.`;
+    } else {
+      lastEvent = 'mismatch';
+      status.className = 'status';
+      status.textContent = `T[${i}]='${T[i]}' ≠ P[0]='${P[0]}', j=0 → i→${i+1}.`;
+      i++;
+    }
+    if (i >= T.length && j === 0) { /* may end next */ }
+    render();
+  }
+  function matchSummary() {
+    return matches.length
+      ? `✓ Xong. Tìm thấy ${matches.length} match tại index: [${matches.join(', ')}]. (text pointer chỉ tiến, không lùi)`
+      : '✓ Xong. Không tìm thấy pattern.';
+  }
+  document.getElementById('km-step').onclick = step;
+  document.getElementById('km-all').onclick = () => { let g=0; while (!done && g++<2000) step(); };
+  document.getElementById('km-reset').onclick = reset;
+  tIn.onchange = reset; pIn.onchange = reset;
+  reset();
+})();
+
+/* ===== MODULE 3: Naive vs KMP ===== */
+(function () {
+  const tIn = document.getElementById('cmp-text');
+  const pIn = document.getElementById('cmp-pat');
+  const naiveEl = document.getElementById('cmp-naive');
+  const kmpEl = document.getElementById('cmp-kmp');
+  const status = document.getElementById('cmp-status');
+
+  function naiveCount(T, P) {
+    const n=T.length, m=P.length; let cmp=0;
+    if (m===0||m>n) return 0;
+    for (let i=0;i+m<=n;i++) {
+      let k=0;
+      while (k<m) { cmp++; if (T[i+k]!==P[k]) break; k++; }
+    }
+    return cmp;
+  }
+  function kmpCount(T, P) {
+    const n=T.length, m=P.length; let cmp=0;
+    if (m===0||m>n) return 0;
+    const lps=computeLPS(P);
+    let i=0,j=0;
+    while (i<n) {
+      cmp++;
+      if (T[i]===P[j]) { i++; j++; if (j===m) j=lps[j-1]; }
+      else if (j>0) j=lps[j-1];
+      else i++;
+    }
+    return cmp;
+  }
+  function run() {
+    const T=clean(tIn.value), P=clean(pIn.value);
+    if (!P.length || P.length>T.length) {
+      status.className='status bad'; status.textContent='Pattern rỗng hoặc dài hơn text.';
+      naiveEl.textContent='—'; kmpEl.textContent='—'; return;
+    }
+    const nc=naiveCount(T,P), kc=kmpCount(T,P);
+    naiveEl.textContent=nc; kmpEl.textContent=kc;
+    const ratio = kc>0 ? (nc/kc).toFixed(2) : '∞';
+    status.className='status win';
+    status.textContent = `n=${T.length}, m=${P.length}. Naive: ${nc} so sánh — KMP: ${kc} so sánh — KMP nhanh hơn ~${ratio}×. (input adversarial AAAA…B làm naive tệ nhất)`;
+  }
+  document.getElementById('cmp-run').onclick = run;
+  document.getElementById('cmp-reset').onclick = () => { naiveEl.textContent='—'; kmpEl.textContent='—'; status.className='status'; status.textContent='Nhấn “So sánh” để đo.'; };
+  run();
+})();
+</script>
+
+<!-- README modal + tools -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+
+</body>
+</html>

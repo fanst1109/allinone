@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 11 — Sorting trong thực tế</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #4299e1; color: white; border: none; border-radius: 6px;
+    padding: 9px 16px; font-size: 15px; cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+  button.on { background: #2b6cb0; box-shadow: inset 0 0 0 2px #1a365d; }
+  .hint { color: #718096; font-size: 14px; margin: 4px 0; }
+
+  /* ---- Module 1: decision tree ---- */
+  .q-grid { display: flex; flex-direction: column; gap: 14px; }
+  .q-block { border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; }
+  .q-block .q { font-weight: 700; color: #2d3748; margin-bottom: 8px; }
+  .opt-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .result-box {
+    margin-top: 16px; padding: 16px; border-radius: 8px;
+    background: #ebf8ff; border: 2px solid #4299e1;
+  }
+  .result-box .algo { font-size: 22px; font-weight: 800; color: #2b6cb0; }
+  .result-box .why { color: #2c5282; margin-top: 6px; }
+
+  /* ---- Module 2: hybrid animation ---- */
+  .bars { display: flex; align-items: flex-end; gap: 3px; height: 180px; margin: 12px 0;
+          padding: 8px; background: #f7fafc; border-radius: 6px; overflow-x: auto; }
+  .bar { flex: 1 1 auto; min-width: 8px; background: #4299e1; border-radius: 2px 2px 0 0;
+         transition: height .25s, background .25s; }
+  .bar.active { background: #ed8936; }
+  .bar.heap { background: #9f7aea; }
+  .bar.run { background: #48bb78; }
+  .bar.done { background: #38a169; }
+  .stage {
+    display: inline-block; padding: 4px 12px; border-radius: 999px;
+    font-size: 13px; font-weight: 700; margin-right: 8px;
+  }
+  .stage.quick { background: #feebc8; color: #9c4221; }
+  .stage.heap { background: #e9d8fd; color: #553c9a; }
+  .stage.insert { background: #c6f6d5; color: #276749; }
+  .stage.merge { background: #bee3f8; color: #2c5282; }
+  .depth-meter { font-family: monospace; font-size: 14px; color: #4a5568; }
+  .log { font-family: monospace; font-size: 13px; color: #4a5568; background: #f7fafc;
+         border-radius: 6px; padding: 8px 10px; min-height: 40px; }
+
+  /* ---- Module 3: comparison table ---- */
+  .algo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .algo-chip {
+    border: 1px solid #cbd5e0; border-radius: 8px; padding: 10px; cursor: pointer;
+    background: white; text-align: center; font-weight: 600; color: #2d3748;
+    transition: all .12s;
+  }
+  .algo-chip:hover { border-color: #4299e1; transform: translateY(-1px); }
+  .algo-chip.sel { background: #4299e1; color: white; border-color: #2b6cb0; }
+  .detail-box { margin-top: 14px; padding: 16px; border-radius: 8px; background: #f7fafc;
+                border: 1px solid #e2e8f0; }
+  .detail-box table { width: 100%; border-collapse: collapse; }
+  .detail-box td { padding: 6px 8px; border-bottom: 1px solid #edf2f7; font-size: 14px; }
+  .detail-box td:first-child { font-weight: 700; color: #4a5568; width: 42%; }
+  .yes { color: #2f855a; font-weight: 700; }
+  .no { color: #c53030; font-weight: 700; }
+
+  @media (max-width: 480px) {
+    .algo-grid { grid-template-columns: 1fr 1fr; }
+    .result-box .algo { font-size: 19px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-10-non-comparison-sorts/visualization.html">← L10: Non-comparison Sorts</a>
+  <span class="sep">·</span>
+  <span class="current">L11: Sorting thực tế</span>
+  <span class="sep">·</span>
+  <a href="../tier-2-searching-core/index.html">Tier 2 →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 11 — Sorting trong thực tế</h1>
+<p>3 module tương tác: (1) <b>cây quyết định</b> chọn thuật toán theo đặc điểm dữ liệu; (2) <b>hybrid sort</b> — xem introsort đổi quicksort → heapsort khi đệ quy sâu, và timsort khai thác run đã sorted; (3) <b>bảng so sánh</b> click để xem chi tiết từng thuật toán.</p>
+
+<!-- ======================= MODULE 1 ======================= -->
+<h2>Module 1 — Cây quyết định: chọn thuật toán nào?</h2>
+<div class="card">
+  <p class="hint">Trả lời lần lượt các câu hỏi (chọn theo thứ tự từ trên xuống) → gợi ý thuật toán phù hợp. Câu rẻ nhất hỏi trước.</p>
+  <div class="q-grid">
+    <div class="q-block">
+      <div class="q">1. n có rất nhỏ không (&lt; ~20 phần tử)?</div>
+      <div class="opt-row">
+        <button class="ghost" data-q="small" data-v="yes">Có, n nhỏ</button>
+        <button class="ghost" data-q="small" data-v="no">Không / n lớn</button>
+      </div>
+    </div>
+    <div class="q-block">
+      <div class="q">2. Dữ liệu có gần như đã sorted không?</div>
+      <div class="opt-row">
+        <button class="ghost" data-q="nearly" data-v="yes">Gần sorted</button>
+        <button class="ghost" data-q="nearly" data-v="no">Ngẫu nhiên</button>
+      </div>
+    </div>
+    <div class="q-block">
+      <div class="q">3. Key là integer trong dải nhỏ (k ~ O(n))?</div>
+      <div class="opt-row">
+        <button class="ghost" data-q="intsmall" data-v="yes">Có (vd [0,255])</button>
+        <button class="ghost" data-q="intsmall" data-v="no">Không</button>
+      </div>
+    </div>
+    <div class="q-block">
+      <div class="q">4. Cần ổn định (giữ thứ tự phần tử bằng nhau)?</div>
+      <div class="opt-row">
+        <button class="ghost" data-q="stable" data-v="yes">Cần stable</button>
+        <button class="ghost" data-q="stable" data-v="no">Không cần</button>
+      </div>
+    </div>
+    <div class="q-block">
+      <div class="q">5. Cần O(1) space + guaranteed O(n log n)?</div>
+      <div class="opt-row">
+        <button class="ghost" data-q="space" data-v="yes">Cần (RAM hạn chế)</button>
+        <button class="ghost" data-q="space" data-v="no">Không</button>
+      </div>
+    </div>
+  </div>
+  <div class="result-box" id="dt-result">
+    <div class="algo" id="dt-algo">Chọn câu trả lời để xem gợi ý</div>
+    <div class="why" id="dt-why">Câu hỏi được xét theo thứ tự — câu đầu tiên thỏa sẽ quyết định.</div>
+  </div>
+  <div class="row"><button class="ghost" id="dt-reset">↺ Reset</button></div>
+</div>
+
+<!-- ======================= MODULE 2 ======================= -->
+<h2>Module 2 — Hybrid sort động</h2>
+<div class="card">
+  <div class="row">
+    <button id="m2-intro" class="on">Introsort (quick → heap)</button>
+    <button id="m2-tim" class="ghost">Timsort (khai thác run)</button>
+  </div>
+  <div class="row">
+    <span class="stage quick" id="m2-stage">giai đoạn</span>
+    <span class="depth-meter" id="m2-depth"></span>
+  </div>
+  <div class="bars" id="m2-bars"></div>
+  <div class="log" id="m2-log">Bấm "Chạy" để mô phỏng.</div>
+  <div class="row">
+    <button id="m2-run">▶ Chạy</button>
+    <button class="ghost" id="m2-reset">↺ Tạo dữ liệu mới</button>
+  </div>
+  <p class="hint" id="m2-hint"></p>
+</div>
+
+<!-- ======================= MODULE 3 ======================= -->
+<h2>Module 3 — Bảng so sánh tương tác</h2>
+<div class="card">
+  <p class="hint">Click một thuật toán để xem chi tiết: time (best/avg/worst), space, stable, in-place, và khi nào dùng.</p>
+  <div class="algo-grid" id="m3-grid"></div>
+  <div class="detail-box" id="m3-detail">
+    <b>Chọn một thuật toán ở trên.</b>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ======================= MODULE 1 =======================
+(function () {
+  const answers = {};
+  const order = ["small", "nearly", "intsmall", "stable", "space"];
+  // Mỗi câu trả lời "yes" → thuật toán + lý do. Xét theo thứ tự order.
+  const decide = {
+    small:    { algo: "Insertion sort", why: "n < ~20: overhead các thuật toán phức không đáng; insertion thắng hằng số." },
+    nearly:   { algo: "Timsort / Insertion", why: "Khai thác run đã sorted → best case O(n). Go (pdqsort) cũng nhận diện gần-sorted." },
+    intsmall: { algo: "Counting / Radix sort", why: "Integer dải nhỏ k ~ O(n) → O(n+k) ≈ O(n), phá rào Ω(n log n) của comparison sort." },
+    stable:   { algo: "Merge sort / sort.SliceStable", why: "Cần giữ thứ tự phần tử bằng nhau → dùng sort ổn định (merge-based)." },
+    space:    { algo: "Heap sort", why: "O(1) space + guaranteed O(n log n) worst case (quicksort không guaranteed; merge tốn O(n))." },
+  };
+  const fallback = { algo: "Quicksort / Introsort", why: "General-purpose: cache-friendly, nhanh nhất trung bình. Trong Go: sort.Slice / slices.Sort (pdqsort)." };
+
+  const algoEl = document.getElementById("dt-algo");
+  const whyEl = document.getElementById("dt-why");
+
+  function recompute() {
+    for (const q of order) {
+      if (answers[q] === "yes") {
+        algoEl.textContent = "→ " + decide[q].algo;
+        whyEl.textContent = decide[q].why;
+        return;
+      }
+    }
+    // Không câu nào "yes" — kiểm tra đã trả lời gì chưa
+    if (Object.keys(answers).length === 0) {
+      algoEl.textContent = "Chọn câu trả lời để xem gợi ý";
+      whyEl.textContent = "Câu hỏi được xét theo thứ tự — câu đầu tiên thỏa sẽ quyết định.";
+      return;
+    }
+    algoEl.textContent = "→ " + fallback.algo;
+    whyEl.textContent = fallback.why;
+  }
+
+  document.querySelectorAll("[data-q]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const q = btn.dataset.q, v = btn.dataset.v;
+      answers[q] = v;
+      // Highlight nút được chọn trong cùng câu
+      document.querySelectorAll(`[data-q="${q}"]`).forEach((b) => b.classList.remove("on"));
+      btn.classList.add("on");
+      recompute();
+    });
+  });
+  document.getElementById("dt-reset").addEventListener("click", () => {
+    for (const k in answers) delete answers[k];
+    document.querySelectorAll("[data-q]").forEach((b) => b.classList.remove("on"));
+    recompute();
+  });
+})();
+
+// ======================= MODULE 2 =======================
+(function () {
+  const barsEl = document.getElementById("m2-bars");
+  const logEl = document.getElementById("m2-log");
+  const stageEl = document.getElementById("m2-stage");
+  const depthEl = document.getElementById("m2-depth");
+  const hintEl = document.getElementById("m2-hint");
+  let mode = "intro";
+  let arr = [];
+  let running = false;
+
+  const N = 22;
+  function newData() {
+    if (mode === "intro") {
+      // Worst-case-ish cho quicksort: gần sorted + một ít noise → đệ quy có thể sâu
+      arr = Array.from({ length: N }, (_, i) => i + 1);
+      // gây pattern khó: đảo từng cặp + shuffle nhẹ vài chỗ
+      for (let i = 0; i < N; i += 4) { if (arr[i + 1] !== undefined) [arr[i], arr[i + 1]] = [arr[i + 1], arr[i]]; }
+    } else {
+      // Timsort: dữ liệu có các run đã sorted sẵn
+      arr = [];
+      let v = 1;
+      while (arr.length < N) {
+        const runLen = 4 + Math.floor(Math.random() * 4);
+        const start = v;
+        for (let k = 0; k < runLen && arr.length < N; k++) arr.push(start + k);
+        v = start + runLen + Math.floor(Math.random() * 3) - 1;
+      }
+    }
+    render([]);
+  }
+
+  function render(activeIdx, cls = "active") {
+    barsEl.innerHTML = "";
+    const max = Math.max(...arr, 1);
+    arr.forEach((v, i) => {
+      const b = document.createElement("div");
+      b.className = "bar";
+      b.style.height = (100 * v / max) + "%";
+      if (Array.isArray(activeIdx) && activeIdx.includes(i)) b.classList.add(cls);
+      barsEl.appendChild(b);
+    });
+  }
+
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  async function runIntrosort() {
+    stageEl.className = "stage quick";
+    stageEl.textContent = "Quicksort";
+    let switchedHeap = false;
+    const maxDepth = 2 * Math.floor(Math.log2(N)); // ngưỡng introsort
+    // Đệ quy quicksort; nếu depth > maxDepth → heapsort cho đoạn đó
+    async function qsort(lo, hi, depth) {
+      if (lo >= hi) return;
+      depthEl.textContent = `độ sâu đệ quy = ${depth} / ngưỡng ${maxDepth}`;
+      if (hi - lo < 4) { // mẩu nhỏ → insertion
+        stageEl.className = "stage insert"; stageEl.textContent = "Insertion (mẩu nhỏ)";
+        for (let i = lo + 1; i <= hi; i++) {
+          let j = i;
+          while (j > lo && arr[j - 1] > arr[j]) { [arr[j - 1], arr[j]] = [arr[j], arr[j - 1]]; j--; }
+        }
+        render([], "active"); await sleep(120); return;
+      }
+      if (depth > maxDepth) { // đệ quy quá sâu → chuyển heapsort
+        if (!switchedHeap) { switchedHeap = true; log("⚠ Đệ quy vượt ngưỡng → CHUYỂN sang Heapsort (chặn worst O(n²))"); }
+        stageEl.className = "stage heap"; stageEl.textContent = "Heapsort (fallback)";
+        await heapSortRange(lo, hi);
+        return;
+      }
+      stageEl.className = "stage quick"; stageEl.textContent = "Quicksort";
+      const pivot = arr[hi]; let p = lo;
+      for (let i = lo; i < hi; i++) {
+        render([i, hi], "active"); await sleep(35);
+        if (arr[i] < pivot) { [arr[p], arr[i]] = [arr[i], arr[p]]; p++; }
+      }
+      [arr[p], arr[hi]] = [arr[hi], arr[p]];
+      render([p], "active"); await sleep(60);
+      await qsort(lo, p - 1, depth + 1);
+      await qsort(p + 1, hi, depth + 1);
+    }
+    async function heapSortRange(lo, hi) {
+      const n = hi - lo + 1;
+      const sift = async (start, end) => {
+        let root = start;
+        while (2 * (root - lo) + 1 < end - lo + 1) {
+          let child = lo + 2 * (root - lo) + 1, sw = root;
+          if (arr[sw] < arr[child]) sw = child;
+          if (child + 1 <= end && arr[sw] < arr[child + 1]) sw = child + 1;
+          if (sw === root) return;
+          [arr[root], arr[sw]] = [arr[sw], arr[root]]; root = sw;
+          render([root], "heap"); await sleep(30);
+        }
+      };
+      for (let s = lo + Math.floor((n - 1) / 2); s >= lo; s--) await sift(s, hi);
+      for (let e = hi; e > lo; e--) {
+        [arr[lo], arr[e]] = [arr[e], arr[lo]];
+        render([e], "heap"); await sleep(30);
+        await sift(lo, e - 1);
+      }
+    }
+    await qsort(0, arr.length - 1, 0);
+    finish();
+  }
+
+  async function runTimsort() {
+    stageEl.className = "stage merge"; stageEl.textContent = "Phát hiện run";
+    log("Quét tìm các run (đoạn đã sorted sẵn)...");
+    // 1. Tìm run
+    const runs = [];
+    let start = 0;
+    for (let i = 1; i <= arr.length; i++) {
+      if (i === arr.length || arr[i] < arr[i - 1]) {
+        runs.push([start, i - 1]);
+        // highlight run
+        const idxs = []; for (let k = start; k < i; k++) idxs.push(k);
+        render(idxs, "run"); await sleep(350);
+        start = i;
+      }
+    }
+    log(`Tìm thấy ${runs.length} run đã sorted sẵn → chỉ cần merge, KHÔNG chia tới đơn lẻ.`);
+    // 2. Insertion mở rộng run quá ngắn (minrun mô phỏng = 4)
+    stageEl.className = "stage insert"; stageEl.textContent = "Insertion (mở rộng run ngắn)";
+    await sleep(300);
+    // 3. Merge các run lần lượt
+    stageEl.className = "stage merge"; stageEl.textContent = "Merge các run";
+    let merged = runs.slice();
+    while (merged.length > 1) {
+      const [a0, a1] = merged.shift();
+      const [b0, b1] = merged.shift();
+      // merge [a0..a1] với [b0..b1] (kề nhau, b0 = a1+1)
+      const tmp = [];
+      let i = a0, j = b0;
+      while (i <= a1 && j <= b1) tmp.push(arr[i] <= arr[j] ? arr[i++] : arr[j++]);
+      while (i <= a1) tmp.push(arr[i++]);
+      while (j <= b1) tmp.push(arr[j++]);
+      for (let k = 0; k < tmp.length; k++) arr[a0 + k] = tmp[k];
+      const idxs = []; for (let k = a0; k <= b1; k++) idxs.push(k);
+      render(idxs, "active"); await sleep(400);
+      merged.unshift([a0, b1]);
+    }
+    finish();
+  }
+
+  function log(msg) { logEl.textContent = msg; }
+  function finish() {
+    barsEl.querySelectorAll(".bar").forEach((b) => { b.className = "bar done"; });
+    depthEl.textContent = "";
+    stageEl.className = "stage merge"; stageEl.textContent = "Hoàn tất ✓";
+    running = false;
+  }
+
+  function setMode(m) {
+    mode = m;
+    document.getElementById("m2-intro").className = m === "intro" ? "on" : "ghost";
+    document.getElementById("m2-tim").className = m === "tim" ? "on" : "ghost";
+    hintEl.textContent = m === "intro"
+      ? "Introsort: quicksort là chủ đạo (cam = đang xét), mẩu nhỏ dùng insertion. Nếu đệ quy vượt ngưỡng 2·log₂n → đoạn đó chuyển HEAPSORT (tím) để chặn worst O(n²)."
+      : "Timsort: phát hiện các run đã sorted (xanh lá), mở rộng run ngắn bằng insertion, rồi MERGE lần lượt (xanh dương) — không chia tới đơn lẻ như merge sort thuần.";
+    log("Bấm \"Chạy\" để mô phỏng.");
+    newData();
+  }
+
+  document.getElementById("m2-intro").addEventListener("click", () => { if (!running) setMode("intro"); });
+  document.getElementById("m2-tim").addEventListener("click", () => { if (!running) setMode("tim"); });
+  document.getElementById("m2-reset").addEventListener("click", () => { if (!running) newData(); });
+  document.getElementById("m2-run").addEventListener("click", async () => {
+    if (running) return; running = true;
+    if (mode === "intro") await runIntrosort(); else await runTimsort();
+  });
+
+  setMode("intro");
+})();
+
+// ======================= MODULE 3 =======================
+(function () {
+  const algos = {
+    "Bubble":    { best: "O(n)", avg: "O(n²)", worst: "O(n²)", space: "O(1)", stable: true, inplace: true, use: "Gần như không bao giờ; chỉ để dạy học." },
+    "Insertion": { best: "O(n)", avg: "O(n²)", worst: "O(n²)", space: "O(1)", stable: true, inplace: true, use: "n nhỏ (<~20), mảng GẦN sorted. Dùng làm 'mẩu nhỏ' trong hybrid sort." },
+    "Selection": { best: "O(n²)", avg: "O(n²)", worst: "O(n²)", space: "O(1)", stable: false, inplace: true, use: "Khi số lần swap phải nhỏ nhất (mỗi phần tử swap ≤ 1 lần)." },
+    "Merge":     { best: "O(n log n)", avg: "O(n log n)", worst: "O(n log n)", space: "O(n)", stable: true, inplace: false, use: "Cần ỔN ĐỊNH + guaranteed; external sort (dữ liệu trên đĩa)." },
+    "Quicksort": { best: "O(n log n)", avg: "O(n log n)", worst: "O(n²)", space: "O(log n)", stable: false, inplace: true, use: "General-purpose in-memory; cache-friendly → nhanh nhất trung bình. Go: sort.Slice." },
+    "Heap":      { best: "O(n log n)", avg: "O(n log n)", worst: "O(n log n)", space: "O(1)", stable: false, inplace: true, use: "Cần O(1) space + guaranteed. Cache kém → fallback trong introsort." },
+    "Counting":  { best: "O(n+k)", avg: "O(n+k)", worst: "O(n+k)", space: "O(n+k)", stable: true, inplace: false, use: "Integer dải nhỏ k ~ O(n). Phá rào Ω(n log n)." },
+    "Radix":     { best: "O(d(n+k))", avg: "O(d(n+k))", worst: "O(d(n+k))", space: "O(n+k)", stable: true, inplace: false, use: "Integer/chuỗi độ dài cố định d." },
+    "Bucket":    { best: "O(n+k)", avg: "O(n+k)", worst: "O(n²)", space: "O(n+k)", stable: true, inplace: false, use: "Dữ liệu phân bố ĐỀU trên một khoảng." },
+    "Introsort": { best: "O(n log n)", avg: "O(n log n)", worst: "O(n log n)", space: "O(log n)", stable: false, inplace: true, use: "Hybrid: quick + heap (đệ quy sâu) + insertion. std::sort của C++." },
+    "Timsort":   { best: "O(n)", avg: "O(n log n)", worst: "O(n log n)", space: "O(n)", stable: true, inplace: false, use: "Hybrid: merge + insertion, khai thác run. Python/Java Object[]." },
+    "pdqsort":   { best: "O(n)", avg: "O(n log n)", worst: "O(n log n)", space: "O(log n)", stable: false, inplace: true, use: "Introsort + nhận diện pattern (gần sorted, nhiều trùng). Go ≥1.19." },
+  };
+  const grid = document.getElementById("m3-grid");
+  const detail = document.getElementById("m3-detail");
+  const yn = (b) => b ? '<span class="yes">✓ Có</span>' : '<span class="no">✗ Không</span>';
+
+  Object.keys(algos).forEach((name) => {
+    const chip = document.createElement("div");
+    chip.className = "algo-chip"; chip.textContent = name;
+    chip.addEventListener("click", () => {
+      grid.querySelectorAll(".algo-chip").forEach((c) => c.classList.remove("sel"));
+      chip.classList.add("sel");
+      const a = algos[name];
+      detail.innerHTML =
+        `<b style="font-size:18px;color:#2b6cb0">${name}</b>` +
+        `<table>` +
+        `<tr><td>Time — best</td><td>${a.best}</td></tr>` +
+        `<tr><td>Time — average</td><td>${a.avg}</td></tr>` +
+        `<tr><td>Time — worst</td><td>${a.worst}</td></tr>` +
+        `<tr><td>Space</td><td>${a.space}</td></tr>` +
+        `<tr><td>Ổn định (stable)</td><td>${yn(a.stable)}</td></tr>` +
+        `<tr><td>Tại chỗ (in-place)</td><td>${yn(a.inplace)}</td></tr>` +
+        `<tr><td>Khi dùng</td><td>${a.use}</td></tr>` +
+        `</table>`;
+    });
+    grid.appendChild(chip);
+  });
+})();
+</script>
+
+<!-- README modal -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+
+</body>
+</html>

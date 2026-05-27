@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 09 — Heap Sort Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #10b981; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #059669; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  input[type="text"] {
+    font-size: 14px; padding: 6px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    font-family: monospace; width: 100%; max-width: 240px; box-sizing: border-box;
+  }
+  label { font-weight: 600; font-size: 14px; }
+
+  .explain {
+    background: #d1fae5; border-left: 4px solid #10b981;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6; margin-top: 10px;
+    min-height: 1.6em;
+  }
+  .explain code, .explain b { color: #065f46; }
+  .note {
+    background: #fffaf0; border-left: 4px solid #ed8936;
+    padding: 10px 14px; border-radius: 0 6px 6px 0;
+    font-size: 13.5px; line-height: 1.6; margin-top: 10px;
+  }
+
+  .svg-wrap { width: 100%; overflow-x: auto; }
+  svg { display: block; margin: 0 auto; }
+
+  /* tree nodes */
+  .node-circle { fill: #f7fafc; stroke: #2d3748; stroke-width: 2; transition: fill .25s; }
+  .node-circle.active { fill: #fef3c7; stroke: #d97706; }
+  .node-circle.compare { fill: #bfdbfe; stroke: #2563eb; }
+  .node-circle.sorted { fill: #c6f6d5; stroke: #059669; }
+  .node-circle.swap { fill: #fed7d7; stroke: #c53030; }
+  .node-text { font-family: monospace; font-size: 15px; font-weight: 700; fill: #1a202c; text-anchor: middle; dominant-baseline: central; }
+  .edge { stroke: #a0aec0; stroke-width: 2; }
+  .idx-label { font-family: monospace; font-size: 10px; fill: #718096; text-anchor: middle; }
+
+  /* array cells */
+  .acell { fill: #f7fafc; stroke: #2d3748; stroke-width: 1.5; transition: fill .25s; }
+  .acell.active { fill: #fef3c7; stroke: #d97706; }
+  .acell.compare { fill: #bfdbfe; stroke: #2563eb; }
+  .acell.sorted { fill: #c6f6d5; stroke: #059669; }
+  .acell.swap { fill: #fed7d7; stroke: #c53030; }
+  .atext { font-family: monospace; font-size: 14px; font-weight: 700; fill: #1a202c; text-anchor: middle; dominant-baseline: central; }
+  .aidx { font-family: monospace; font-size: 10px; fill: #718096; text-anchor: middle; }
+
+  /* module 3 bars */
+  .lvbar { fill: #10b981; }
+  .lvbar.work { fill: #f59e0b; }
+  .lvlabel { font-family: monospace; font-size: 12px; fill: #2d3748; }
+  table.lv { border-collapse: collapse; width: 100%; margin-top: 12px; font-size: 14px; }
+  table.lv th, table.lv td { border: 1px solid #cbd5e0; padding: 6px 8px; text-align: center; }
+  table.lv th { background: #f0fdf4; }
+  table.lv tfoot td { font-weight: 700; background: #fef3c7; }
+
+  @media (max-width: 480px) {
+    .card { padding: 14px; }
+    input[type="text"] { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-08-quicksort/visualization.html">← L8: Quicksort</a>
+  <span class="sep">·</span>
+  <span class="current">L9: Heap Sort</span>
+  <span class="sep">·</span>
+  <a href="../lesson-10-non-comparison-sorts/visualization.html">L10: Non-comparison Sorts →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 09 — Heap Sort</h1>
+<p>3 module tương tác: (1) heap dạng <b>cây + mảng song song</b>, animate sift-down; (2) <b>heap sort animator</b> — build max-heap rồi extract-max về cuối; (3) <b>build heap O(n)</b> — vì sao tổng công tuyến tính dù cây cao log n.</p>
+
+<!-- ===================== MODULE 1 ===================== -->
+<h2>1. Heap = cây + mảng song song — animate sift-down</h2>
+<div class="card">
+  <p>Nhập mảng (số cách nhau bởi dấu phẩy), bấm <b>Build heap</b> để biến thành max-heap (sift-down từng node), hoặc <b>sift-down gốc</b> để xem một lần đẩy xuống. Cây và mảng được vẽ <b>đồng bộ</b>: cùng tô màu cùng lúc.</p>
+  <div class="row">
+    <label>Mảng:</label>
+    <input type="text" id="m1input" value="3,9,6,2,4,1">
+    <button id="m1set" class="secondary">Đặt lại</button>
+  </div>
+  <div class="row">
+    <button id="m1build">▶ Build heap (auto)</button>
+    <button id="m1sift">sift-down gốc 1 bước</button>
+    <button id="m1step" class="secondary">⏭ Bước kế</button>
+    <button id="m1stop" class="secondary" disabled>⏸ Dừng</button>
+  </div>
+  <div class="svg-wrap">
+    <svg id="m1tree" width="540" height="280" viewBox="0 0 540 280"></svg>
+  </div>
+  <div class="svg-wrap">
+    <svg id="m1arr" width="540" height="70" viewBox="0 0 540 70"></svg>
+  </div>
+  <div class="explain" id="m1explain">Bấm "Build heap" để bắt đầu.</div>
+</div>
+
+<!-- ===================== MODULE 2 ===================== -->
+<h2>2. Heap sort animator — extract-max về cuối</h2>
+<div class="card">
+  <p>Sau khi build max-heap, mỗi vòng: <b>swap gốc (max) với cuối vùng heap</b> → thu nhỏ heap → <b>sift-down gốc</b>. Phần xanh lá là vùng <b>đã sắp xong</b> (đông cứng). Quan sát: max lấp dần từ phải sang trái.</p>
+  <div class="row">
+    <label>Mảng:</label>
+    <input type="text" id="m2input" value="5,2,4,1,3">
+    <button id="m2set" class="secondary">Đặt lại</button>
+  </div>
+  <div class="row">
+    <button id="m2run">▶ Heap sort (auto)</button>
+    <button id="m2step">⏭ Bước kế</button>
+    <button id="m2stop" class="secondary" disabled>⏸ Dừng</button>
+  </div>
+  <div class="svg-wrap">
+    <svg id="m2tree" width="540" height="280" viewBox="0 0 540 280"></svg>
+  </div>
+  <div class="svg-wrap">
+    <svg id="m2arr" width="540" height="70" viewBox="0 0 540 70"></svg>
+  </div>
+  <div class="explain" id="m2explain">Bấm "Heap sort" để chạy build + extract đầy đủ.</div>
+</div>
+
+<!-- ===================== MODULE 3 ===================== -->
+<h2>3. Build heap O(n) — vì sao tuyến tính?</h2>
+<div class="card">
+  <p>Chọn số tầng của heap đầy. Cột cao = <b>tổng công tầng đó</b> (số node × chiều cao). Lá (k=0) đông node nhất nhưng sift 0 bước; gốc sift dài nhất nhưng chỉ 1 node. Tổng hội tụ về <b>~2n</b> → O(n), KHÔNG phải O(n log n).</p>
+  <div class="row">
+    <label>Số tầng (chiều cao+1):</label>
+    <button class="secondary m3h" data-h="3">3 tầng (n=7)</button>
+    <button class="secondary m3h" data-h="4">4 tầng (n=15)</button>
+    <button class="secondary m3h" data-h="5">5 tầng (n=31)</button>
+    <button class="secondary m3h" data-h="6">6 tầng (n=63)</button>
+  </div>
+  <div class="svg-wrap">
+    <svg id="m3svg" width="540" height="260" viewBox="0 0 540 260"></svg>
+  </div>
+  <table class="lv" id="m3table"></table>
+  <div class="explain" id="m3explain"></div>
+</div>
+
+</main>
+
+<script>
+/* ============ Helpers chung ============ */
+function parseArr(s) {
+  return s.split(',').map(x => parseInt(x.trim(), 10)).filter(x => !isNaN(x));
+}
+function svgEl(tag, attrs) {
+  const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+/* Vẽ binary tree complete từ mảng a, đánh dấu trạng thái theo classMap{index->class}.
+   sortedFrom = index bắt đầu vùng đã sắp (>= => 'sorted'). */
+function drawTree(svg, a, classMap, sortedFrom) {
+  svg.innerHTML = '';
+  const n = a.length;
+  if (n === 0) return;
+  const W = 540;
+  const levels = Math.floor(Math.log2(n)) + 1;
+  const topY = 28, dyBase = 56;
+  // position[i] = {x,y} dựa trên level và slot trong level
+  const pos = [];
+  for (let i = 0; i < n; i++) {
+    const lv = Math.floor(Math.log2(i + 1));
+    const firstInLv = Math.pow(2, lv) - 1;
+    const slotsInLv = Math.pow(2, lv);
+    const slot = i - firstInLv;
+    const x = W * (slot + 0.5) / slotsInLv;
+    const y = topY + lv * dyBase;
+    pos[i] = { x, y };
+  }
+  // edges trước (để nằm dưới node)
+  for (let i = 1; i < n; i++) {
+    const p = Math.floor((i - 1) / 2);
+    svg.appendChild(svgEl('line', { x1: pos[p].x, y1: pos[p].y, x2: pos[i].x, y2: pos[i].y, class: 'edge' }));
+  }
+  // nodes
+  for (let i = 0; i < n; i++) {
+    let cls = 'node-circle';
+    if (sortedFrom != null && i >= sortedFrom) cls += ' sorted';
+    else if (classMap && classMap[i]) cls += ' ' + classMap[i];
+    const r = 17;
+    svg.appendChild(svgEl('circle', { cx: pos[i].x, cy: pos[i].y, r, class: cls }));
+    const t = svgEl('text', { x: pos[i].x, y: pos[i].y, class: 'node-text' });
+    t.textContent = a[i];
+    svg.appendChild(t);
+    const il = svgEl('text', { x: pos[i].x, y: pos[i].y - r - 4, class: 'idx-label' });
+    il.textContent = i;
+    svg.appendChild(il);
+  }
+  svg.setAttribute('viewBox', `0 0 ${W} ${topY + levels * dyBase}`);
+  svg.setAttribute('height', topY + levels * dyBase);
+}
+
+/* Vẽ mảng dạng ô. */
+function drawArr(svg, a, classMap, sortedFrom) {
+  svg.innerHTML = '';
+  const n = a.length;
+  if (n === 0) return;
+  const W = 540;
+  const cw = Math.min(46, (W - 8) / n);
+  const totalW = cw * n;
+  const offX = (W - totalW) / 2;
+  const y = 12, h = 34;
+  for (let i = 0; i < n; i++) {
+    let cls = 'acell';
+    if (sortedFrom != null && i >= sortedFrom) cls += ' sorted';
+    else if (classMap && classMap[i]) cls += ' ' + classMap[i];
+    const x = offX + i * cw;
+    svg.appendChild(svgEl('rect', { x, y, width: cw - 2, height: h, rx: 3, class: cls }));
+    const t = svgEl('text', { x: x + (cw - 2) / 2, y: y + h / 2, class: 'atext' });
+    t.textContent = a[i];
+    svg.appendChild(t);
+    const il = svgEl('text', { x: x + (cw - 2) / 2, y: y + h + 14, class: 'aidx' });
+    il.textContent = i;
+    svg.appendChild(il);
+  }
+}
+
+/* ============ Bộ máy "steps" ============
+   Mỗi module sinh một mảng các step{a, cls, sortedFrom, msg}.
+   Render từng step bằng drawTree + drawArr. */
+
+/* ---- MODULE 1: build heap + sift-down ---- */
+const m1 = { steps: [], idx: 0, timer: null };
+function genSiftDown(a, i, n, steps, sortedFrom) {
+  // sinh các step cho 1 sift-down từ i trong a[0..n-1]
+  while (true) {
+    let largest = i, l = 2 * i + 1, r = 2 * i + 2;
+    const cls = {};
+    cls[i] = 'active';
+    if (l < n) cls[l] = 'compare';
+    if (r < n) cls[r] = 'compare';
+    let msg = `sift-down tại i=${i} (giá trị ${a[i]}). `;
+    if (l < n) msg += `con trái=${l}(${a[l]}). `;
+    if (r < n) msg += `con phải=${r}(${a[r]}). `;
+    if (l < n && a[l] > a[largest]) largest = l;
+    if (r < n && a[r] > a[largest]) largest = r;
+    steps.push({ a: a.slice(), cls: { ...cls }, sortedFrom, msg });
+    if (largest === i) {
+      const c2 = {}; c2[i] = 'active';
+      steps.push({ a: a.slice(), cls: c2, sortedFrom, msg: msg + `→ cha lớn nhất, DỪNG.` });
+      return;
+    }
+    // swap step
+    const cs = {}; cs[i] = 'swap'; cs[largest] = 'swap';
+    [a[i], a[largest]] = [a[largest], a[i]];
+    steps.push({ a: a.slice(), cls: cs, sortedFrom, msg: msg + `→ con ${largest}(${a[i]}) lớn hơn → SWAP, đi xuống.` });
+    i = largest;
+  }
+}
+function m1build() {
+  const a = parseArr(document.getElementById('m1input').value);
+  const n = a.length;
+  m1.steps = [];
+  m1.steps.push({ a: a.slice(), cls: {}, sortedFrom: null, msg: `Mảng ban đầu. Build heap: sift-down từ node không-lá cuối (i=${Math.floor(n / 2) - 1}) lùi về gốc.` });
+  for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+    genSiftDown(a, i, n, m1.steps, null);
+  }
+  m1.steps.push({ a: a.slice(), cls: {}, sortedFrom: null, msg: `✓ Build xong — max-heap hợp lệ (cha ≥ con khắp nơi).` });
+  m1.idx = 0; m1renderStep();
+}
+function m1siftOnce() {
+  const a = parseArr(document.getElementById('m1input').value);
+  m1.steps = [];
+  m1.steps.push({ a: a.slice(), cls: { 0: 'active' }, sortedFrom: null, msg: 'sift-down gốc một lần (giả sử 2 cây con đã là heap).' });
+  genSiftDown(a, 0, a.length, m1.steps, null);
+  m1.idx = 0; m1renderStep();
+}
+function m1renderStep() {
+  const s = m1.steps[m1.idx];
+  if (!s) return;
+  drawTree(document.getElementById('m1tree'), s.a, s.cls, s.sortedFrom);
+  drawArr(document.getElementById('m1arr'), s.a, s.cls, s.sortedFrom);
+  document.getElementById('m1explain').innerHTML =
+    `<b>Bước ${m1.idx + 1}/${m1.steps.length}.</b> ${s.msg}`;
+}
+function m1next() { if (m1.idx < m1.steps.length - 1) { m1.idx++; m1renderStep(); return true; } return false; }
+function m1auto() {
+  m1build();
+  document.getElementById('m1stop').disabled = false;
+  m1.timer = setInterval(() => { if (!m1next()) m1stopFn(); }, 900);
+}
+function m1stopFn() { clearInterval(m1.timer); m1.timer = null; document.getElementById('m1stop').disabled = true; }
+document.getElementById('m1build').onclick = m1auto;
+document.getElementById('m1sift').onclick = () => { m1stopFn(); m1siftOnce(); };
+document.getElementById('m1step').onclick = () => { m1stopFn(); if (!m1.steps.length) m1build(); else m1next(); };
+document.getElementById('m1stop').onclick = m1stopFn;
+document.getElementById('m1set').onclick = () => { m1stopFn(); const a = parseArr(document.getElementById('m1input').value); m1.steps = [{ a, cls: {}, sortedFrom: null, msg: 'Mảng đã đặt. Bấm Build heap.' }]; m1.idx = 0; m1renderStep(); };
+
+/* ---- MODULE 2: heap sort full ---- */
+const m2 = { steps: [], idx: 0, timer: null };
+function genSiftDown2(a, i, n, steps, sortedFrom) {
+  while (true) {
+    let largest = i, l = 2 * i + 1, r = 2 * i + 2;
+    const cls = {}; cls[i] = 'active';
+    if (l < n) cls[l] = 'compare';
+    if (r < n) cls[r] = 'compare';
+    if (l < n && a[l] > a[largest]) largest = l;
+    if (r < n && a[r] > a[largest]) largest = r;
+    steps.push({ a: a.slice(), cls: { ...cls }, sortedFrom, msg: `sift-down i=${i}(${a[i]}), so với con.` });
+    if (largest === i) return;
+    const cs = {}; cs[i] = 'swap'; cs[largest] = 'swap';
+    [a[i], a[largest]] = [a[largest], a[i]];
+    steps.push({ a: a.slice(), cls: cs, sortedFrom, msg: `swap ${i}↔${largest}, đi xuống.` });
+    i = largest;
+  }
+}
+function m2gen() {
+  const a = parseArr(document.getElementById('m2input').value);
+  const n = a.length;
+  m2.steps = [];
+  m2.steps.push({ a: a.slice(), cls: {}, sortedFrom: null, msg: 'Mảng ban đầu. PHA 1: build max-heap.' });
+  for (let i = Math.floor(n / 2) - 1; i >= 0; i--) genSiftDown2(a, i, n, m2.steps, null);
+  m2.steps.push({ a: a.slice(), cls: {}, sortedFrom: null, msg: '✓ Max-heap dựng xong. PHA 2: extract-max về cuối.' });
+  for (let end = n - 1; end > 0; end--) {
+    const cs = {}; cs[0] = 'swap'; cs[end] = 'swap';
+    [a[0], a[end]] = [a[end], a[0]];
+    m2.steps.push({ a: a.slice(), cls: cs, sortedFrom: end, msg: `swap gốc(max) ↔ a[${end}] → max về đúng chỗ cuối. Thu nhỏ heap (size=${end}).` });
+    genSiftDown2(a, 0, end, m2.steps, end);
+  }
+  m2.steps.push({ a: a.slice(), cls: {}, sortedFrom: 0, msg: '✓ Hoàn tất — mảng đã sắp tăng dần.' });
+  m2.idx = 0; m2renderStep();
+}
+function m2renderStep() {
+  const s = m2.steps[m2.idx]; if (!s) return;
+  drawTree(document.getElementById('m2tree'), s.a, s.cls, s.sortedFrom);
+  drawArr(document.getElementById('m2arr'), s.a, s.cls, s.sortedFrom);
+  document.getElementById('m2explain').innerHTML = `<b>Bước ${m2.idx + 1}/${m2.steps.length}.</b> ${s.msg}`;
+}
+function m2next() { if (m2.idx < m2.steps.length - 1) { m2.idx++; m2renderStep(); return true; } return false; }
+function m2auto() {
+  m2gen(); document.getElementById('m2stop').disabled = false;
+  m2.timer = setInterval(() => { if (!m2next()) m2stopFn(); }, 800);
+}
+function m2stopFn() { clearInterval(m2.timer); m2.timer = null; document.getElementById('m2stop').disabled = true; }
+document.getElementById('m2run').onclick = m2auto;
+document.getElementById('m2step').onclick = () => { m2stopFn(); if (!m2.steps.length) m2gen(); else m2next(); };
+document.getElementById('m2stop').onclick = m2stopFn;
+document.getElementById('m2set').onclick = () => { m2stopFn(); const a = parseArr(document.getElementById('m2input').value); m2.steps = [{ a, cls: {}, sortedFrom: null, msg: 'Mảng đã đặt. Bấm Heap sort.' }]; m2.idx = 0; m2renderStep(); };
+
+/* ---- MODULE 3: build heap O(n) bars ---- */
+function m3render(h) {
+  // h = chiều cao (số tầng - 1). tầng k=0..h.  node ở chiều cao c (từ lá): count = 2^(h-c).
+  // ở đây vẽ theo "height-from-leaf": c=0 (lá) .. c=h (gốc).
+  const n = Math.pow(2, h + 1) - 1;
+  const rows = [];
+  let totalWork = 0, totalNodes = 0;
+  for (let c = 0; c <= h; c++) {
+    const count = Math.pow(2, h - c); // số node ở chiều cao c
+    const work = count * c;
+    totalWork += work; totalNodes += count;
+    rows.push({ c, count, work });
+  }
+  // bars: x = chiều cao c, height ~ work
+  const svg = document.getElementById('m3svg');
+  svg.innerHTML = '';
+  const W = 540, H = 230, padB = 40, padL = 30, padT = 20;
+  const maxWork = Math.max(...rows.map(r => r.work), 1);
+  const bw = (W - padL - 20) / rows.length;
+  rows.forEach((r, k) => {
+    const bh = (H - padB - padT) * (r.work / maxWork);
+    const x = padL + k * bw + 6;
+    const y = H - padB - bh;
+    svg.appendChild(svgEl('rect', { x, y, width: bw - 12, height: Math.max(bh, 1), rx: 3, class: 'lvbar work' }));
+    // work label trên cột
+    const wt = svgEl('text', { x: x + (bw - 12) / 2, y: y - 4, class: 'lvlabel', 'text-anchor': 'middle' });
+    wt.textContent = r.work; svg.appendChild(wt);
+    // x label dưới
+    const xl = svgEl('text', { x: x + (bw - 12) / 2, y: H - padB + 14, class: 'lvlabel', 'text-anchor': 'middle' });
+    xl.textContent = `h=${r.c}`; svg.appendChild(xl);
+    const xl2 = svgEl('text', { x: x + (bw - 12) / 2, y: H - padB + 28, class: 'lvlabel', 'text-anchor': 'middle' });
+    xl2.textContent = `${r.count} node`; svg.appendChild(xl2);
+  });
+  // axis line
+  svg.appendChild(svgEl('line', { x1: padL, y1: H - padB, x2: W - 10, y2: H - padB, stroke: '#a0aec0', 'stroke-width': 1 }));
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('height', H);
+
+  // table
+  let html = '<thead><tr><th>Chiều cao h</th><th>Số node</th><th>Công/node (≤h)</th><th>Tổng công</th></tr></thead><tbody>';
+  rows.forEach(r => { html += `<tr><td>${r.c}</td><td>${r.count}</td><td>${r.c}</td><td>${r.work}</td></tr>`; });
+  html += `</tbody><tfoot><tr><td>Σ</td><td>${totalNodes}</td><td>—</td><td>${totalWork}</td></tr></tfoot>`;
+  document.getElementById('m3table').innerHTML = html;
+
+  const nlogn = Math.round(n * Math.log2(n));
+  document.getElementById('m3explain').innerHTML =
+    `Tổng công build heap = <b>${totalWork} bước</b> cho n=${n}. ` +
+    `Nếu là O(n log n) thì ≈ n·log₂n = ${n}·${Math.log2(n).toFixed(1)} ≈ <b>${nlogn} bước</b>. ` +
+    `${totalWork} ≪ ${nlogn} → tuyến tính. Tỉ số công/n = ${(totalWork / n).toFixed(2)} (giới hạn lý thuyết < 2) → <b>O(n)</b>. ` +
+    `Cột thấp bên trái (lá) đông node nhưng công=0; cột phải (gốc) cao nhưng chỉ 1 node.`;
+}
+document.querySelectorAll('.m3h').forEach(b => b.onclick = () => m3render(parseInt(b.dataset.h, 10) - 1));
+
+/* ============ Khởi tạo ============ */
+m1.steps = [{ a: parseArr(document.getElementById('m1input').value), cls: {}, sortedFrom: null, msg: 'Mảng ban đầu (chưa heap). Bấm Build heap.' }];
+m1renderStep();
+m2.steps = [{ a: parseArr(document.getElementById('m2input').value), cls: {}, sortedFrom: null, msg: 'Mảng ban đầu. Bấm Heap sort.' }];
+m2renderStep();
+m3render(3); // 4 tầng mặc định
+</script>
+
+<!-- README modal + TOC -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L3 — Đệ quy & Hệ thức truy hồi</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root { --accent: #6b7280; --accent-soft: #f3f4f6; --accent-hover: #4b5563; }
+  main { max-width: 920px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.5rem; margin: 12px 0 4px; }
+  .lead { color: #555; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+    padding: 18px; margin-bottom: 22px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { font-size: 1.15rem; margin: 0 0 4px; color: #2d3748; }
+  .module .sub { color: #666; font-size: .9rem; margin-bottom: 14px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
+  label { font-size: .88rem; color: #444; display: flex; flex-direction: column; gap: 3px; }
+  select, input {
+    padding: 7px 9px; border: 1px solid #cbd5e0; border-radius: 7px;
+    font-size: .9rem; max-width: 100%; box-sizing: border-box;
+  }
+  input[type=number] { width: 90px; }
+  input[type=text] { width: 140px; }
+  button {
+    padding: 8px 16px; border: none; border-radius: 7px; background: var(--accent);
+    color: #fff; font-size: .9rem; cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+  svg { max-width: 100%; height: auto; display: block; }
+  .tree-wrap { overflow-x: auto; border: 1px solid #edf2f7; border-radius: 8px; background: #fafafa; }
+  .result {
+    margin-top: 12px; padding: 12px 14px; border-radius: 8px;
+    background: #f0fdf4; border: 1px solid #bbf7d0; font-size: .92rem; line-height: 1.55;
+  }
+  .result code, code.k { background: #1a202c; color: #fbd38d; padding: 1px 6px; border-radius: 4px; font-size: .85em; }
+  .levels { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: .85rem; }
+  .levels th, .levels td { border: 1px solid #e2e8f0; padding: 5px 8px; text-align: right; }
+  .levels th { background: #f7fafc; }
+  .levels td:first-child, .levels th:first-child { text-align: center; }
+  .stack-area { display: flex; gap: 18px; flex-wrap: wrap; }
+  .stack-col { flex: 1 1 200px; min-width: 0; }
+  .stack-col h3 { font-size: .9rem; margin: 0 0 8px; color: #4b5563; }
+  .frame {
+    background: #dbeafe; border: 1px solid #93c5fd; border-radius: 6px;
+    padding: 6px 10px; margin-top: 4px; font-size: .85rem; font-family: monospace;
+    transition: background .2s;
+  }
+  .frame.top { background: #fde68a; border-color: #f59e0b; }
+  .frame.done { background: #d1fae5; border-color: #6ee7b7; }
+  .stack-host { min-height: 60px; display: flex; flex-direction: column-reverse; }
+  .counter { font-size: .9rem; margin-top: 8px; }
+  .badge { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: .8rem; font-weight: 600; }
+  .badge.c1 { background: #fee2e2; color: #b91c1c; }
+  .badge.c2 { background: #fef9c3; color: #a16207; }
+  .badge.c3 { background: #dbeafe; color: #1d4ed8; }
+  .badge.na { background: #f3e8ff; color: #7e22ce; }
+  .log { font-family: monospace; font-size: .82rem; color: #475569; margin-top: 8px; max-height: 120px; overflow-y: auto; }
+  @media (max-width: 480px) {
+    input[type=text] { width: 110px; }
+    .controls { gap: 8px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-amortized-analysis/visualization.html">← L2: Amortized</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Đệ quy &amp; Recurrence</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-correctness-invariant/visualization.html">L4: Correctness →</a>
+</nav>
+
+<main>
+  <h1>Đệ quy &amp; Hệ thức truy hồi</h1>
+  <p class="lead">Ba mô-đun tương tác: vẽ cây đệ quy &amp; tính tổng từng level, animate call stack đếm số lời gọi, và giải Master Theorem.</p>
+
+  <!-- MODULE 1 -->
+  <section class="module">
+    <h2>1 · Recursion Tree Visualizer</h2>
+    <div class="sub">Chọn recurrence, xem cây đệ quy, tổng chi phí mỗi level → kết quả.</div>
+    <div class="controls">
+      <label>Recurrence
+        <select id="rt-sel">
+          <option value="msort">T(n) = 2T(n/2) + n  (merge sort)</option>
+          <option value="bsearch">T(n) = T(n/2) + 1  (binary search)</option>
+          <option value="sq">T(n) = 4T(n/2) + n  (→ n²)</option>
+          <option value="minus">T(n) = T(n−1) + n  (→ n²)</option>
+          <option value="hanoi">T(n) = 2T(n−1) + 1  (Hanoi → 2ⁿ)</option>
+        </select>
+      </label>
+      <label>n
+        <input type="number" id="rt-n" value="8" min="2" max="32">
+      </label>
+      <button id="rt-go">Vẽ cây</button>
+    </div>
+    <div class="tree-wrap"><svg id="rt-svg" viewBox="0 0 720 320" width="720" height="320"></svg></div>
+    <table class="levels" id="rt-table"></table>
+    <div class="result" id="rt-result"></div>
+  </section>
+
+  <!-- MODULE 2 -->
+  <section class="module">
+    <h2>2 · Call Stack Animator</h2>
+    <div class="sub">Animate push/pop frame của <code class="k">fib</code> / <code class="k">factorial</code>, đếm số lời gọi (naive vs memo).</div>
+    <div class="controls">
+      <label>Hàm
+        <select id="cs-fn">
+          <option value="fib">fib(n) — naive</option>
+          <option value="fibmemo">fib(n) — memo</option>
+          <option value="fact">factorial(n)</option>
+        </select>
+      </label>
+      <label>n
+        <input type="number" id="cs-n" value="5" min="1" max="12">
+      </label>
+      <button id="cs-go">Chạy animate</button>
+      <button class="ghost" id="cs-stop">Dừng</button>
+    </div>
+    <div class="stack-area">
+      <div class="stack-col">
+        <h3>Call stack (đỉnh ở trên)</h3>
+        <div class="stack-host" id="cs-stack"></div>
+      </div>
+      <div class="stack-col">
+        <h3>Trạng thái</h3>
+        <div class="counter">Số lời gọi: <strong id="cs-calls">0</strong></div>
+        <div class="counter">Độ sâu tối đa: <strong id="cs-depth">0</strong></div>
+        <div class="counter" id="cs-cmp"></div>
+        <div class="log" id="cs-log"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODULE 3 -->
+  <section class="module">
+    <h2>3 · Master Theorem Solver</h2>
+    <div class="sub">Nhập <code class="k">a</code>, <code class="k">b</code>, và <code class="k">f(n)=n^k</code> → hiện case + kết quả.</div>
+    <div class="controls">
+      <label>a (số bài con)
+        <input type="number" id="mt-a" value="2" min="1" step="1">
+      </label>
+      <label>b (chia)
+        <input type="number" id="mt-b" value="2" min="2" step="1">
+      </label>
+      <label>f(n) = n^k, k =
+        <input type="number" id="mt-k" value="1" min="0" step="0.01">
+      </label>
+      <button id="mt-go">Giải</button>
+    </div>
+    <div class="controls" style="margin-bottom:0">
+      <span style="font-size:.85rem;color:#666">Mẫu nhanh:</span>
+      <button class="ghost" data-p="2,2,1">merge sort</button>
+      <button class="ghost" data-p="1,2,0">binary search</button>
+      <button class="ghost" data-p="7,2,2">Strassen</button>
+      <button class="ghost" data-p="2,2,2">2T(n/2)+n²</button>
+    </div>
+    <div class="result" id="mt-result"></div>
+  </section>
+</main>
+
+<script>
+// ---------- MODULE 1: Recursion Tree ----------
+const rtData = {
+  msort:  { type:'div', a:2, b:2, cost:n=>n, label:'2T(n/2)+n', perLevel:'mỗi level tốn n', total:'Θ(n log n)' },
+  bsearch:{ type:'div', a:1, b:2, cost:_=>1, label:'T(n/2)+1', perLevel:'mỗi level tốn 1', total:'Θ(log n)' },
+  sq:     { type:'div', a:4, b:2, cost:n=>n, label:'4T(n/2)+n', perLevel:'level k tốn 2^k·(n/2^k)=2^k·... tăng dần', total:'Θ(n²)' },
+  minus:  { type:'sub', a:1, dec:1, cost:n=>n, label:'T(n−1)+n', perLevel:'1 node mỗi level, cost n,n−1,...', total:'Θ(n²)' },
+  hanoi:  { type:'sub', a:2, dec:1, cost:_=>1, label:'2T(n−1)+1', perLevel:'level k có 2^k node', total:'Θ(2ⁿ)' },
+};
+const svg = document.getElementById('rt-svg');
+function el(tag, attrs, text){ const e=document.createElementNS('http://www.w3.org/2000/svg',tag); for(const k in attrs)e.setAttribute(k,attrs[k]); if(text!=null)e.textContent=text; return e; }
+
+function drawTree(){
+  const key = document.getElementById('rt-sel').value;
+  const n = Math.max(2, Math.min(32, +document.getElementById('rt-n').value||8));
+  const d = rtData[key];
+  svg.innerHTML='';
+  const W=720;
+  // build levels: each level = list of node sizes
+  let levels=[]; let cur=[n]; let guard=0;
+  while(guard++<8){
+    levels.push(cur);
+    // stop condition
+    if(d.type==='div'){ if(cur[0] <= 1) break; }
+    else { if(cur[0] <= 1) break; }
+    let next=[];
+    for(const s of cur){
+      const childCount = d.a;
+      const childSize = d.type==='div' ? Math.max(1, Math.floor(s/d.b)) : s-d.dec;
+      for(let c=0;c<childCount;c++) next.push(childSize);
+    }
+    if(next.length>64){ levels.push(next.slice(0,64)); break; } // cap render
+    cur=next;
+  }
+  const rowH = Math.min(60, 300/levels.length);
+  let levelCostRows=[];
+  levels.forEach((row,li)=>{
+    const y = 30 + li*rowH;
+    const n0 = row.length;
+    let levelCost=0;
+    row.forEach((sz,xi)=>{
+      const x = (W/(n0+1))*(xi+1);
+      // edge to parent (approx center)
+      if(li>0){ const py=30+(li-1)*rowH; svg.appendChild(el('line',{x1:x,y1:y-8,x2:W/2,y2:py+8,stroke:'#cbd5e0','stroke-width':0.7})); }
+      const r = Math.max(8, Math.min(16, 60/n0));
+      svg.appendChild(el('circle',{cx:x,cy:y,r:r,fill:'#dbeafe',stroke:'#3b82f6','stroke-width':1.2}));
+      if(n0<=8) svg.appendChild(el('text',{x:x,y:y+4,'text-anchor':'middle','font-size':10,fill:'#1e3a8a'}, sz));
+      levelCost += d.cost(sz);
+    });
+    levelCostRows.push({level:li, nodes:n0, cost:levelCost});
+    svg.appendChild(el('text',{x:W-6,y:y+4,'text-anchor':'end','font-size':11,fill:'#64748b','font-weight':600}, 'Σ='+levelCost));
+  });
+  svg.setAttribute('viewBox',`0 0 ${W} ${Math.max(120, 50+levels.length*rowH)}`);
+  svg.setAttribute('height', Math.max(120, 50+levels.length*rowH));
+
+  // table
+  const tbl = document.getElementById('rt-table');
+  let html='<tr><th>Level</th><th>Số node</th><th>Tổng chi phí level</th></tr>';
+  let grand=0;
+  levelCostRows.forEach(r=>{ html+=`<tr><td>${r.level}</td><td>${r.nodes}</td><td>${r.cost}</td></tr>`; grand+=r.cost; });
+  html+=`<tr><th>Tổng</th><th>—</th><th>${grand}</th></tr>`;
+  tbl.innerHTML=html;
+
+  document.getElementById('rt-result').innerHTML =
+    `Recurrence <code>${d.label}</code> · ${levels.length} level · tổng chi phí (n=${n}) = <strong>${grand}</strong>.<br>`+
+    `${d.perLevel}. Bậc tiệm cận: <strong>${d.total}</strong>.`;
+}
+document.getElementById('rt-go').onclick=drawTree;
+document.getElementById('rt-sel').onchange=drawTree;
+drawTree();
+
+// ---------- MODULE 2: Call Stack Animator ----------
+let csTimer=null;
+function buildEvents(fn, n){
+  // returns list of {type:'push'|'pop', label, val} + counts
+  const events=[]; let calls=0; const memo={};
+  function fib(k){
+    calls++; events.push({type:'push',label:`fib(${k})`});
+    let res;
+    if(k<2){ res=k; }
+    else { res=fib(k-1)+fib(k-2); }
+    events.push({type:'pop',label:`fib(${k})=${res}`,val:res});
+    return res;
+  }
+  function fibMemo(k){
+    calls++; events.push({type:'push',label:`fib(${k})`});
+    let res;
+    if(k<2){ res=k; }
+    else if(memo[k]!==undefined){ res=memo[k]; }
+    else { res=fibMemo(k-1)+fibMemo(k-2); memo[k]=res; }
+    events.push({type:'pop',label:`fib(${k})=${res}`,val:res});
+    return res;
+  }
+  function fact(k){
+    calls++; events.push({type:'push',label:`fact(${k})`});
+    let res = (k<=1)?1:k*fact(k-1);
+    events.push({type:'pop',label:`fact(${k})=${res}`,val:res});
+    return res;
+  }
+  if(fn==='fib') fib(n);
+  else if(fn==='fibmemo') fibMemo(n);
+  else fact(n);
+  return {events, calls};
+}
+function naiveFibCalls(n){ let c=[1,1]; for(let i=2;i<=n;i++)c[i]=1+c[i-1]+c[i-2]; return n<2?1:c[n]; }
+
+function runStack(){
+  clearInterval(csTimer);
+  const fn=document.getElementById('cs-fn').value;
+  const n=Math.max(1,Math.min(12,+document.getElementById('cs-n').value||5));
+  const {events, calls}=buildEvents(fn,n);
+  const host=document.getElementById('cs-stack'); host.innerHTML='';
+  const logEl=document.getElementById('cs-log'); logEl.innerHTML='';
+  document.getElementById('cs-calls').textContent='0';
+  document.getElementById('cs-depth').textContent='0';
+  let stack=[], i=0, seen=0, maxDepth=0;
+  csTimer=setInterval(()=>{
+    if(i>=events.length){ clearInterval(csTimer);
+      document.getElementById('cs-calls').textContent=calls;
+      // comparison
+      const cmp=document.getElementById('cs-cmp');
+      if(fn==='fib'||fn==='fibmemo'){
+        const naive=naiveFibCalls(n);
+        cmp.innerHTML = fn==='fibmemo'
+          ? `<span class="badge c2">memo</span> ${calls} call · naive sẽ là <strong>${naive}</strong> → tiết kiệm ${naive-calls}.`
+          : `<span class="badge c1">naive</span> ${calls} call · O(2ⁿ). Memo chỉ cần ~${2*n-1}.`;
+      } else { cmp.innerHTML=`<span class="badge c3">factorial</span> ${calls} call · O(n) thẳng.`; }
+      return;
+    }
+    const ev=events[i++];
+    if(ev.type==='push'){ stack.push(ev.label); seen++; maxDepth=Math.max(maxDepth,stack.length);
+      logEl.innerHTML = `→ push ${ev.label}<br>`+logEl.innerHTML;
+    } else {
+      stack.pop(); logEl.innerHTML = `← pop ${ev.label}<br>`+logEl.innerHTML;
+    }
+    // render
+    host.innerHTML='';
+    stack.forEach((s,idx)=>{ const f=document.createElement('div'); f.className='frame'+(idx===stack.length-1?' top':''); f.textContent=s; host.appendChild(f); });
+    document.getElementById('cs-calls').textContent=seen;
+    document.getElementById('cs-depth').textContent=maxDepth;
+  }, 420);
+}
+document.getElementById('cs-go').onclick=runStack;
+document.getElementById('cs-stop').onclick=()=>clearInterval(csTimer);
+
+// ---------- MODULE 3: Master Theorem ----------
+function solveMaster(a,b,k){
+  // f(n)=n^k ; threshold exponent = log_b(a)
+  const thr = Math.log(a)/Math.log(b);
+  const eps = 1e-9;
+  const res = document.getElementById('mt-result');
+  const thrStr = thr.toFixed(3).replace(/\.?0+$/,'');
+  let caseHtml, badge;
+  if(k < thr - eps){
+    badge='<span class="badge c1">Case 1</span>';
+    caseHtml = `f(n)=n^${k} <strong>nhỏ hơn</strong> ngưỡng n^${thrStr} → chi phí dồn ở lá.`;
+    res.innerHTML = `${badge} ${caseHtml}<br>Kết quả: <strong>Θ(n^${thrStr})</strong> ${nicePow(thr)}`;
+  } else if(Math.abs(k-thr) <= 1e-6){
+    badge='<span class="badge c2">Case 2</span>';
+    caseHtml = `f(n)=n^${k} <strong>bằng</strong> ngưỡng n^${thrStr} → chi phí chia đều mọi level.`;
+    const base = (Math.abs(thr)<1e-9) ? 'Θ(log n)' : `Θ(n^${thrStr} log n)`;
+    res.innerHTML = `${badge} ${caseHtml}<br>Kết quả: <strong>${base}</strong>`;
+  } else {
+    badge='<span class="badge c3">Case 3</span>';
+    // regularity check for f=n^k, div by b: a*(n/b)^k = a/b^k * f. need a/b^k < 1
+    const reg = a/Math.pow(b,k) < 1-1e-9;
+    caseHtml = `f(n)=n^${k} <strong>lớn hơn</strong> ngưỡng n^${thrStr} → chi phí dồn ở gốc.`;
+    if(reg){
+      res.innerHTML = `${badge} ${caseHtml}<br>Regularity ✓ (a/b^k=${(a/Math.pow(b,k)).toFixed(3)}<1). Kết quả: <strong>Θ(n^${k})</strong>`;
+    } else {
+      res.innerHTML = `<span class="badge na">Cảnh báo</span> ${caseHtml}<br>Nhưng regularity a/b^k=${(a/Math.pow(b,k)).toFixed(3)} ≥ 1 → Master Case 3 cần kiểm tra thêm.`;
+    }
+  }
+}
+function nicePow(thr){
+  if(Math.abs(thr-1)<1e-9) return '= Θ(n)';
+  if(Math.abs(thr)<1e-9) return '(= hằng, nên kết quả ~ Θ(log n))';
+  if(Math.abs(thr-2)<1e-9) return '= Θ(n²)';
+  return '';
+}
+function doMaster(){
+  const a=Math.max(1,+document.getElementById('mt-a').value||1);
+  const b=Math.max(2,+document.getElementById('mt-b').value||2);
+  const k=+document.getElementById('mt-k').value;
+  solveMaster(a,b,isNaN(k)?0:k);
+}
+document.getElementById('mt-go').onclick=doMaster;
+document.querySelectorAll('[data-p]').forEach(btn=>{
+  btn.onclick=()=>{ const [a,b,k]=btn.dataset.p.split(','); document.getElementById('mt-a').value=a; document.getElementById('mt-b').value=b; document.getElementById('mt-k').value=k; doMaster(); };
+});
+doMaster();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

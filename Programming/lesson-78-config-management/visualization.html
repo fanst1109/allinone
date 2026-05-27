@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L78 — Config Management · Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root { --accent: #7c3aed; --accent-soft: #f3e8ff; --accent-hover: #6d28d9; }
+  main { max-width: 1080px; }
+  h1 { color: #2d3748; margin-bottom: 4px; }
+  .lead { color: #718096; margin-bottom: 24px; font-size: 15px; }
+  section.module {
+    background: #fff; border-radius: 10px; padding: 22px;
+    margin-bottom: 28px; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+  section.module h2 {
+    color: #2d3748; margin-top: 0; padding-bottom: 10px;
+    border-bottom: 2px solid var(--accent); font-size: 21px;
+  }
+  .desc { color: #4a5568; font-size: 14px; margin-bottom: 16px; }
+  button {
+    padding: 8px 16px; background: var(--accent); color: #fff; border: none;
+    border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.sec { background: #718096; }
+  button.sec:hover { background: #4a5568; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 16px; }
+  .field { display: flex; flex-direction: column; gap: 3px; }
+  .field label { font-size: 12px; font-weight: 600; color: #4a5568; }
+  .field input, .field select {
+    padding: 7px 9px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 14px;
+    width: 100%; max-width: 200px; box-sizing: border-box;
+  }
+  .toggle { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #4a5568; }
+
+  /* Module 1: precedence layers */
+  .layers { display: flex; flex-direction: column; gap: 8px; margin: 14px 0; }
+  .layer {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+    border: 2px solid #e2e8f0; border-radius: 8px; background: #fafbfc; transition: all .2s;
+  }
+  .layer .lname { font-weight: 700; width: 86px; flex-shrink: 0; font-size: 13px; color: #4a5568; }
+  .layer .lval {
+    font-family: monospace; font-size: 14px; padding: 3px 8px; border-radius: 4px;
+    background: #edf2f7; color: #2d3748; min-width: 70px; text-align: center;
+  }
+  .layer .lprio { font-size: 11px; color: #a0aec0; margin-left: auto; }
+  .layer.empty .lval { background: #f7fafc; color: #cbd5e0; }
+  .layer.winner { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .layer.winner .lval { background: var(--accent); color: #fff; }
+  .resolved {
+    margin-top: 14px; padding: 14px; border-radius: 8px; background: #1a202c; color: #e2e8f0;
+    font-family: monospace; font-size: 14px;
+  }
+  .resolved b { color: #a78bfa; }
+  .resolved .src { color: #f6ad55; }
+
+  /* Module 2: validation */
+  .startup-log {
+    background: #1a202c; border-radius: 8px; padding: 14px 16px; margin-top: 14px;
+    font-family: monospace; font-size: 13px; line-height: 1.6; min-height: 90px;
+  }
+  .startup-log .ok { color: #68d391; }
+  .startup-log .bad { color: #fc8181; }
+  .startup-log .dim { color: #718096; }
+  .verdict { font-weight: 700; font-size: 15px; margin-top: 8px; }
+  .verdict.up { color: #38a169; }
+  .verdict.crash { color: #e53e3e; }
+
+  /* Module 3: hot reload */
+  .reload-state { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin: 14px 0; }
+  .pid-box {
+    border: 2px solid var(--accent); border-radius: 10px; padding: 14px 18px; background: var(--accent-soft);
+    text-align: center;
+  }
+  .pid-box .pid { font-size: 12px; color: #6d28d9; font-weight: 700; }
+  .pid-box .live { font-size: 12px; color: #38a169; font-weight: 700; margin-top: 2px; }
+  .pid-box .cur { font-family: monospace; font-size: 20px; color: #2d3748; font-weight: 700; margin-top: 6px; }
+  .reload-log {
+    background: #1a202c; border-radius: 8px; padding: 12px 14px; margin-top: 12px;
+    font-family: monospace; font-size: 12.5px; line-height: 1.6;
+    max-height: 180px; overflow-y: auto;
+  }
+  .reload-log .hup { color: #f6ad55; }
+  .reload-log .ok { color: #68d391; }
+  .reload-log .keep { color: #fc8181; }
+  .uptime { font-size: 12px; color: #718096; margin-top: 4px; }
+  .badge {
+    display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 10px;
+    background: var(--accent-soft); color: var(--accent-hover); font-weight: 700;
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-77-ci-cd-pipeline/visualization.html">← L77: CI/CD Pipeline</a>
+  <span class="sep">·</span>
+  <span class="current">L78: Config Management</span>
+  <span class="sep">·</span>
+  <a href="../lesson-79-clean-architecture-go/visualization.html">L79: Clean Architecture →</a>
+</nav>
+
+<main>
+  <h1>L78 — Configuration Management</h1>
+  <p class="lead">Một binary, nhiều môi trường: thử precedence <code>default &lt; file &lt; env &lt; flag</code>, validate fail-fast lúc startup, và hot reload qua SIGHUP không restart.</p>
+
+  <!-- ===================== MODULE 1 ===================== -->
+  <section class="module" id="m1">
+    <h2>1. Precedence — nguồn nào thắng?</h2>
+    <p class="desc">Mỗi field config có thể đến từ 4 nguồn. Nguồn "gần lúc chạy" hơn ghi đè nguồn tĩnh hơn: <code>default &lt; file &lt; env &lt; flag</code>. Bật/tắt từng nguồn và đổi giá trị để xem <b>giá trị resolved cuối cùng</b> và nguồn quyết định.</p>
+
+    <div class="row">
+      <div class="field">
+        <label>default (code) — luôn có</label>
+        <input id="p-default" type="text" value="8080" disabled>
+      </div>
+      <div class="field">
+        <label><span class="toggle"><input type="checkbox" id="on-file" checked> file <code>config.yaml</code></span></label>
+        <input id="p-file" type="text" value="8000">
+      </div>
+      <div class="field">
+        <label><span class="toggle"><input type="checkbox" id="on-env" checked> env <code>PORT</code></span></label>
+        <input id="p-env" type="text" value="8090">
+      </div>
+      <div class="field">
+        <label><span class="toggle"><input type="checkbox" id="on-flag"> flag <code>--port</code></span></label>
+        <input id="p-flag" type="text" value="9090">
+      </div>
+    </div>
+
+    <div class="layers" id="layers"></div>
+    <div class="resolved" id="resolved"></div>
+  </section>
+
+  <!-- ===================== MODULE 2 ===================== -->
+  <section class="module" id="m2">
+    <h2>2. Validation — fail-fast lúc startup</h2>
+    <p class="desc">Gọi <code>Validate()</code> ngay sau <code>Load()</code>, TRƯỚC khi mở socket/DB. Config sai → process exit khác 0 → K8s thấy <span class="badge">CrashLoopBackOff</span> và không route traffic. Nhập config rồi bấm "Start app".</p>
+
+    <div class="row">
+      <div class="field">
+        <label>PORT (1..65535)</label>
+        <input id="v-port" type="text" value="8090">
+      </div>
+      <div class="field">
+        <label>DATABASE_URL (required)</label>
+        <input id="v-db" type="text" value="postgres://db:5432/app">
+      </div>
+      <div class="field">
+        <label>LOG_LEVEL</label>
+        <select id="v-level">
+          <option>debug</option><option selected>info</option><option>warn</option><option>error</option>
+          <option>verbose</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>TIMEOUT</label>
+        <input id="v-timeout" type="text" value="30s">
+      </div>
+      <button onclick="startApp()">▶ Start app</button>
+    </div>
+
+    <div class="startup-log" id="startup-log"><span class="dim">Bấm "Start app" để chạy Load() → Validate()...</span></div>
+  </section>
+
+  <!-- ===================== MODULE 3 ===================== -->
+  <section class="module" id="m3">
+    <h2>3. Hot reload — SIGHUP, atomic swap</h2>
+    <p class="desc">App đang chạy (cùng một PID). Đổi <code>LOG_LEVEL</code> rồi gửi <code>SIGHUP</code>: store reload từ env, validate, swap nguyên con trỏ. Process <b>không restart</b> — PID không đổi, uptime tiếp tục tăng. Config hỏng → giữ config cũ.</p>
+
+    <div class="reload-state">
+      <div class="pid-box">
+        <div class="pid">PID 4242</div>
+        <div class="live">● running</div>
+        <div class="cur">LOG_LEVEL=<span id="cur-level">info</span></div>
+        <div class="uptime" id="uptime">uptime: 0s</div>
+      </div>
+      <div class="field">
+        <label>Đổi env LOG_LEVEL (rồi SIGHUP)</label>
+        <select id="r-level">
+          <option>debug</option><option selected>info</option><option>warn</option><option>error</option>
+          <option>verbose</option>
+        </select>
+      </div>
+      <button onclick="sendHUP()">⚡ kill -HUP 4242</button>
+      <button class="sec" onclick="resetReload()">Reset</button>
+    </div>
+
+    <div class="reload-log" id="reload-log"><span class="dim">App khởi động với LOG_LEVEL=info...</span></div>
+  </section>
+</main>
+
+<script>
+// ========================= MODULE 1: precedence =========================
+const PRIO = [
+  { key: 'default', name: 'default', input: 'p-default', toggle: null },
+  { key: 'file',    name: 'file',    input: 'p-file',    toggle: 'on-file' },
+  { key: 'env',     name: 'env',     input: 'p-env',     toggle: 'on-env' },
+  { key: 'flag',    name: 'flag',    input: 'p-flag',    toggle: 'on-flag' },
+];
+
+function renderPrecedence() {
+  const layers = document.getElementById('layers');
+  let resolvedVal = null, resolvedSrc = null;
+  // áp lần lượt từ thấp đến cao -> nguồn sau ghi đè
+  const active = [];
+  for (const src of PRIO) {
+    const on = src.toggle ? document.getElementById(src.toggle).checked : true;
+    const val = document.getElementById(src.input).value.trim();
+    const set = on && val !== '';
+    active.push({ ...src, set, val: set ? val : null });
+    if (set) { resolvedVal = val; resolvedSrc = src.name; }
+  }
+  layers.innerHTML = active.map(a => {
+    const winner = a.set && a.name === resolvedSrc;
+    const cls = ['layer', a.set ? '' : 'empty', winner ? 'winner' : ''].join(' ').trim();
+    const valTxt = a.set ? a.val : '(không set)';
+    return `<div class="${cls}">
+      <span class="lname">${a.name}</span>
+      <span class="lval">${valTxt}</span>
+      ${winner ? '<span class="badge">← thắng</span>' : ''}
+      <span class="lprio">ưu tiên ${PRIO.findIndex(p=>p.key===a.key)+1}/4</span>
+    </div>`;
+  }).join('');
+
+  const r = document.getElementById('resolved');
+  if (resolvedVal === null) {
+    r.innerHTML = '<b>resolved Port</b> = không xác định (default luôn phải có giá trị!)';
+  } else {
+    r.innerHTML = `<b>resolved Port</b> = ${resolvedVal} &nbsp;<span class="src">(từ ${resolvedSrc})</span>`;
+  }
+}
+['p-file','p-env','p-flag','on-file','on-env','on-flag'].forEach(id =>
+  document.getElementById(id).addEventListener('input', renderPrecedence));
+renderPrecedence();
+
+// ========================= MODULE 2: validation =========================
+const LEVELS = ['debug','info','warn','error'];
+function startApp() {
+  const log = document.getElementById('startup-log');
+  const port = document.getElementById('v-port').value.trim();
+  const db = document.getElementById('v-db').value.trim();
+  const level = document.getElementById('v-level').value;
+  const timeout = document.getElementById('v-timeout').value.trim();
+  const lines = [];
+  lines.push('<span class="dim">$ ./server</span>');
+  lines.push('<span class="dim">[load] đọc default &lt; file &lt; env &lt; flag... OK</span>');
+  lines.push('<span class="dim">[validate] kiểm tra ràng buộc...</span>');
+
+  let err = null;
+  const portN = parseInt(port, 10);
+  if (db === '') err = 'DATABASE_URL là bắt buộc (required) nhưng đang rỗng';
+  else if (isNaN(portN)) err = `PORT=${JSON.stringify(port)} không phải số nguyên`;
+  else if (portN < 1 || portN > 65535) err = `PORT=${portN} ngoài khoảng hợp lệ 1..65535`;
+  else if (!LEVELS.includes(level)) err = `LOG_LEVEL="${level}" không hợp lệ (debug|info|warn|error)`;
+  else if (!/^\d+(\.\d+)?(ns|us|µs|ms|s|m|h)/.test(timeout)) err = `TIMEOUT="${timeout}" không phải duration hợp lệ (vd "30s")`;
+
+  if (err) {
+    lines.push(`<span class="bad">[FATAL] ${err}</span>`);
+    lines.push('<span class="bad">exit status 1</span>');
+    lines.push('<div class="verdict crash">✗ App KHÔNG khởi động — K8s: CrashLoopBackOff, không route traffic.</div>');
+  } else {
+    lines.push('<span class="ok">[validate] OK — mọi ràng buộc hợp lệ</span>');
+    lines.push(`<span class="ok">[start] listening on :${portN}, log=${level}, timeout=${timeout}</span>`);
+    lines.push('<div class="verdict up">✓ App khởi động thành công — sẵn sàng nhận traffic.</div>');
+  }
+  log.innerHTML = lines.join('<br>');
+}
+
+// ========================= MODULE 3: hot reload =========================
+let started = Date.now();
+let curLevel = 'info';
+let uptimeTimer = null;
+const reloadLog = document.getElementById('reload-log');
+
+function logReload(html) {
+  if (reloadLog.querySelector('.dim')) reloadLog.innerHTML = '';
+  reloadLog.innerHTML += html + '<br>';
+  reloadLog.scrollTop = reloadLog.scrollHeight;
+}
+function tickUptime() {
+  const s = Math.floor((Date.now() - started) / 1000);
+  document.getElementById('uptime').textContent = `uptime: ${s}s`;
+}
+function startUptime() {
+  if (uptimeTimer) clearInterval(uptimeTimer);
+  uptimeTimer = setInterval(tickUptime, 1000);
+  tickUptime();
+}
+
+function sendHUP() {
+  const want = document.getElementById('r-level').value;
+  logReload('<span class="hup">→ nhận SIGHUP, reload từ env (LOG_LEVEL=' + want + ')</span>');
+  if (!LEVELS.includes(want)) {
+    logReload('<span class="keep">  validate fail: LOG_LEVEL="' + want + '" không hợp lệ → GIỮ config cũ (' + curLevel + ')</span>');
+    return;
+  }
+  if (want === curLevel) {
+    logReload('<span class="ok">  reload OK (giá trị không đổi: ' + curLevel + ')</span>');
+    return;
+  }
+  curLevel = want;
+  document.getElementById('cur-level').textContent = curLevel;
+  logReload('<span class="ok">  atomic swap OK: LOG_LEVEL → ' + curLevel + ' (PID 4242 không đổi, không restart)</span>');
+}
+
+function resetReload() {
+  started = Date.now();
+  curLevel = 'info';
+  document.getElementById('cur-level').textContent = 'info';
+  document.getElementById('r-level').value = 'info';
+  reloadLog.innerHTML = '<span class="dim">App khởi động với LOG_LEVEL=info...</span>';
+  startUptime();
+}
+startUptime();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

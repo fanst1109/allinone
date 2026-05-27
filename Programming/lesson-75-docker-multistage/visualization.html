@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L75 — Docker Multi-stage · Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root { --accent: #2496ed; --accent-soft: #e6f3fc; --accent-hover: #1a6cb0; }
+  main { max-width: 1080px; }
+  h1 { color: #2d3748; margin-bottom: 4px; }
+  .lead { color: #718096; margin-bottom: 24px; font-size: 15px; }
+
+  section.module {
+    background: #fff; border-radius: 10px; padding: 22px;
+    margin-bottom: 28px; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+  section.module h2 {
+    color: #2d3748; margin-top: 0; padding-bottom: 10px;
+    border-bottom: 2px solid var(--accent); font-size: 21px;
+  }
+  .desc { color: #4a5568; font-size: 14px; margin: 8px 0 16px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0; align-items: center; }
+  button {
+    background: var(--accent); color: #fff; border: none; border-radius: 6px;
+    padding: 9px 16px; font-size: 14px; cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost { background: #fff; color: var(--accent); border: 1.5px solid var(--accent); }
+  button.active { box-shadow: 0 0 0 3px var(--accent-soft); }
+  .note { font-size: 13px; color: #718096; margin-top: 10px; }
+  code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+
+  /* ---- Module 1: image size bars ---- */
+  .img-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .img-col { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; }
+  .img-col h3 { margin: 0 0 6px; font-size: 15px; }
+  .img-col .tag { font-size: 12px; color: #718096; }
+  .layers { margin-top: 12px; display: flex; flex-direction: column; gap: 3px; }
+  .layer {
+    border-radius: 5px; padding: 6px 10px; font-size: 12px; color: #fff;
+    display: flex; justify-content: space-between; align-items: center;
+    transition: opacity .5s, transform .5s; font-weight: 600;
+  }
+  .layer.dim { opacity: .25; }
+  .layer .sz { font-variant-numeric: tabular-nums; opacity: .9; }
+  .total {
+    margin-top: 12px; font-size: 22px; font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+  .total small { font-size: 13px; font-weight: 500; color: #718096; display:block; }
+  .l-tool { background: #ef4444; }
+  .l-os   { background: #f59e0b; }
+  .l-cache{ background: #a855f7; }
+  .l-src  { background: #8b5cf6; }
+  .l-bin  { background: #10b981; }
+  .l-ca   { background: #0ea5e9; }
+
+  /* ---- Module 2: layer caching ---- */
+  .df {
+    background: #1e293b; color: #e2e8f0; border-radius: 8px; padding: 0;
+    font-family: ui-monospace, Menlo, monospace; font-size: 13px; overflow: hidden;
+  }
+  .df-line {
+    padding: 8px 12px; display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid #334155; transition: background .35s;
+  }
+  .df-line:last-child { border-bottom: none; }
+  .df-line .cmd { flex: 1; white-space: pre-wrap; }
+  .df-line .status { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; min-width: 78px; text-align:center; }
+  .st-hit  { background: #052e16; color: #4ade80; }
+  .st-miss { background: #450a0a; color: #f87171; }
+  .st-idle { background: #334155; color: #94a3b8; }
+  .df-line.miss { background: #3f1d1d; }
+  .df-line.hit  { background: #14271a; }
+  .timebar { margin-top: 14px; display: flex; gap: 14px; flex-wrap: wrap; }
+  .timecard { flex: 1 1 200px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; }
+  .timecard .lbl { font-size: 12px; color: #718096; }
+  .timecard .val { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .good .val { color: #10b981; }
+  .bad .val  { color: #ef4444; }
+
+  /* ---- Module 3: base image compare ---- */
+  .base-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .base-card {
+    border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; background: #f8fafc;
+  }
+  .base-card h3 { margin: 0 0 4px; font-size: 18px; color: #2d3748; }
+  .base-card .sub { font-size: 13px; color: #718096; margin-bottom: 12px; }
+  .feat { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; font-size: 14px; }
+  .feat .k { color: #4a5568; }
+  .feat .v { font-weight: 600; }
+  .yes { color: #16a34a; }
+  .no  { color: #dc2626; }
+  .surface { margin-top: 14px; }
+  .surface .bar-bg { background: #e2e8f0; border-radius: 6px; height: 22px; overflow: hidden; }
+  .surface .bar-fill { height: 100%; border-radius: 6px; transition: width .5s; display:flex; align-items:center; justify-content:flex-end; padding-right:8px; color:#fff; font-size:11px; font-weight:700; }
+  .when { margin-top: 12px; font-size: 13px; color: #4a5568; background:#fff; border:1px dashed #cbd5e0; border-radius:8px; padding:10px 12px; }
+
+  @media (max-width: 640px) {
+    .img-compare { grid-template-columns: 1fr; }
+    .df-line { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .df-line .status { align-self: flex-end; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-74-tracing-opentelemetry/visualization.html">← L74: Tracing</a>
+  <span class="sep">·</span>
+  <span class="current">L75: Docker Multi-stage</span>
+  <span class="sep">·</span>
+  <a href="../lesson-76-kubernetes-basics/visualization.html">L76: Kubernetes Basics →</a>
+</nav>
+
+<main>
+  <h1>Docker Multi-stage Build</h1>
+  <p class="lead">Đóng gói một Go service từ ~1GB xuống ~10MB. Ba mô phỏng tương tác:
+     so sánh image size, layer caching, và lựa chọn base image.</p>
+
+  <!-- ============ MODULE 1 ============ -->
+  <section class="module">
+    <h2>1. Single-stage vs Multi-stage — vì sao 1GB → 10MB</h2>
+    <p class="desc">Image cuối của single-stage <b>chứa nguyên cả toolchain Go</b> (chỉ
+      cần lúc build). Multi-stage chỉ giữ lại binary. Bấm nút để xem layer nào bị
+      <i>bỏ lại</i> ở stage builder.</p>
+
+    <div class="controls">
+      <button id="m1-single" class="active">📦 Single-stage</button>
+      <button id="m1-multi" class="ghost">✂️ Multi-stage</button>
+    </div>
+
+    <div class="img-compare">
+      <div class="img-col">
+        <h3>Image cuối</h3>
+        <div class="tag" id="m1-tag">FROM golang:1.24 (single)</div>
+        <div class="layers" id="m1-layers"></div>
+        <div class="total" id="m1-total"></div>
+      </div>
+      <div class="img-col">
+        <h3>Phân tích</h3>
+        <div class="desc" id="m1-explain" style="margin:0;"></div>
+      </div>
+    </div>
+    <p class="note">Lưu ý: thêm <code>RUN rm -rf /usr/local/go</code> ở layer sau
+      <b>không</b> giảm size — layer trước vẫn nằm trong image. Cách đúng là không
+      bao giờ cho toolchain vào image cuối → multi-stage.</p>
+  </section>
+
+  <!-- ============ MODULE 2 ============ -->
+  <section class="module">
+    <h2>2. Layer caching — thứ tự COPY quyết định tốc độ</h2>
+    <p class="desc">Cache invalidate <b>dây chuyền</b>: một layer đổi → mọi layer
+      dưới rebuild. Chọn thứ tự rồi bấm "Sửa 1 dòng code" để xem layer nào HIT/MISS.</p>
+
+    <div class="controls">
+      <button id="m2-wrong" class="active">❌ Thứ tự SAI (COPY . . trước)</button>
+      <button id="m2-right" class="ghost">✅ Thứ tự ĐÚNG (go.mod trước)</button>
+    </div>
+    <div class="controls">
+      <button id="m2-edit" class="ghost">✏️ Sửa 1 dòng main.go &amp; build lại</button>
+      <button id="m2-mod" class="ghost">📦 Thêm dependency (đổi go.mod)</button>
+      <button id="m2-cold" class="ghost">🧊 Build lần đầu (cold)</button>
+    </div>
+
+    <div class="df" id="m2-df"></div>
+
+    <div class="timebar">
+      <div class="timecard" id="m2-tc">
+        <div class="lbl">Thời gian build lần này</div>
+        <div class="val" id="m2-time">—</div>
+      </div>
+      <div class="timecard">
+        <div class="lbl">Tình huống</div>
+        <div class="val" style="font-size:16px;" id="m2-scn">Bấm một nút ở trên</div>
+      </div>
+    </div>
+    <p class="note" id="m2-note"></p>
+  </section>
+
+  <!-- ============ MODULE 3 ============ -->
+  <section class="module">
+    <h2>3. Base image: scratch / distroless / alpine</h2>
+    <p class="desc">Stage cuối nên dựa base nào? Trade-off giữa <b>kích thước</b>,
+      <b>khả năng debug</b> và <b>attack surface</b>.</p>
+
+    <div class="base-tabs">
+      <button id="b-scratch" class="active">scratch</button>
+      <button id="b-distroless" class="ghost">distroless</button>
+      <button id="b-alpine" class="ghost">alpine</button>
+    </div>
+
+    <div class="base-card">
+      <h3 id="bc-name">scratch</h3>
+      <div class="sub" id="bc-sub"></div>
+      <div class="feat" id="bc-feat"></div>
+
+      <div class="surface">
+        <div class="lbl" style="font-size:13px;color:#4a5568;margin-bottom:6px;">
+          Attack surface (càng ngắn càng an toàn)</div>
+        <div class="bar-bg"><div class="bar-fill" id="bc-bar"></div></div>
+      </div>
+
+      <div class="when" id="bc-when"></div>
+    </div>
+    <p class="note">Quy luật chung: image càng tối giản (scratch/distroless) thì kẻ
+      tấn công vào được càng không có công cụ (không <code>sh</code>, không
+      <code>curl</code>) để leo thang.</p>
+  </section>
+</main>
+
+<script>
+/* ===================== MODULE 1 ===================== */
+(function () {
+  const layersEl = document.getElementById('m1-layers');
+  const totalEl  = document.getElementById('m1-total');
+  const tagEl    = document.getElementById('m1-tag');
+  const explEl   = document.getElementById('m1-explain');
+  const bSingle  = document.getElementById('m1-single');
+  const bMulti   = document.getElementById('m1-multi');
+
+  // Mỗi layer: tên, size (MB), class màu, và có nằm trong image CUỐI không.
+  const allLayers = [
+    { name: 'Go toolchain (compiler, linker)', mb: 500, cls: 'l-tool',  final: false },
+    { name: 'Go stdlib source (.go)',          mb: 100, cls: 'l-tool',  final: false },
+    { name: 'Debian base OS',                  mb: 120, cls: 'l-os',    final: false },
+    { name: 'Build + module cache',            mb: 200, cls: 'l-cache', final: false },
+    { name: 'Source code của bạn',             mb: 20,  cls: 'l-src',   final: false },
+    { name: 'CA certificates',                 mb: 0.2, cls: 'l-ca',    final: true  },
+    { name: 'Binary của bạn',                  mb: 10,  cls: 'l-bin',   final: true  },
+  ];
+
+  function render(multi) {
+    layersEl.innerHTML = '';
+    let total = 0;
+    allLayers.forEach(l => {
+      // Single-stage: tất cả layer build vào image (trừ CA — single thường có sẵn).
+      // Multi-stage: chỉ layer final=true vào image cuối.
+      const inImage = multi ? l.final : (l.cls !== 'l-ca');
+      if (inImage) total += l.mb;
+      const div = document.createElement('div');
+      div.className = 'layer ' + l.cls + (inImage ? '' : ' dim');
+      div.innerHTML = `<span>${l.name}${inImage ? '' : ' — bỏ lại ở builder'}</span>` +
+                      `<span class="sz">${l.mb < 1 ? l.mb*1000+' KB' : l.mb+' MB'}</span>`;
+      layersEl.appendChild(div);
+    });
+    const shown = total >= 1000 ? (total/1000).toFixed(2) + ' GB' : total.toFixed(1) + ' MB';
+    totalEl.innerHTML = shown + '<small>kích thước image cuối</small>';
+    tagEl.textContent = multi ? 'FROM scratch (multi-stage)' : 'FROM golang:1.24 (single)';
+
+    if (multi) {
+      explEl.innerHTML =
+        'Stage <b>builder</b> dùng <code>golang:1.24</code> để build, nhưng ' +
+        '<b>bị Docker vứt</b> sau khi build. Image cuối <code>FROM scratch</code> ' +
+        'chỉ <code>COPY --from=builder</code> đúng binary + CA cert.<br><br>' +
+        'Giảm: <b>(950 → 10) / 950 ≈ 98.9%</b>. Image cuối ≈ 1/95 image single-stage. ' +
+        'Toolchain, OS, cache đều ở lại phòng builder.';
+    } else {
+      explEl.innerHTML =
+        'Image cuối <b>chứa nguyên</b> base <code>golang:1.24</code>: compiler, ' +
+        'stdlib source, OS Debian, build cache — tổng ~940MB <b>chỉ cần lúc build</b>.<br><br>' +
+        'Thứ <i>duy nhất</i> cần lúc runtime là binary 10MB (màu xanh). ' +
+        'Giống giao cái bánh kèm cả lò nướng + bao bột + quyển công thức.';
+    }
+    bSingle.classList.toggle('active', !multi);
+    bSingle.classList.toggle('ghost', multi);
+    bMulti.classList.toggle('active', multi);
+    bMulti.classList.toggle('ghost', !multi);
+  }
+  bSingle.onclick = () => render(false);
+  bMulti.onclick  = () => render(true);
+  render(false);
+})();
+
+/* ===================== MODULE 2 ===================== */
+(function () {
+  const dfEl   = document.getElementById('m2-df');
+  const timeEl = document.getElementById('m2-time');
+  const scnEl  = document.getElementById('m2-scn');
+  const noteEl = document.getElementById('m2-note');
+  const tcEl   = document.getElementById('m2-tc');
+  const bWrong = document.getElementById('m2-wrong');
+  const bRight = document.getElementById('m2-right');
+
+  let order = 'wrong'; // 'wrong' | 'right'
+
+  // Định nghĩa Dockerfile theo 2 thứ tự. mb = thời gian (giây) khi layer này phải rebuild.
+  const flows = {
+    wrong: [
+      { cmd: 'FROM golang:1.24',          sec: 0,   key: 'base' },
+      { cmd: 'WORKDIR /app',              sec: 0,   key: 'work' },
+      { cmd: 'COPY . .',                  sec: 1,   key: 'src'  }, // chứa CẢ go.mod
+      { cmd: 'RUN go mod download',       sec: 90,  key: 'dl'   },
+      { cmd: 'RUN go build -o server .',  sec: 25,  key: 'build'},
+    ],
+    right: [
+      { cmd: 'FROM golang:1.24',          sec: 0,   key: 'base' },
+      { cmd: 'WORKDIR /app',              sec: 0,   key: 'work' },
+      { cmd: 'COPY go.mod go.sum ./',     sec: 1,   key: 'mod'  },
+      { cmd: 'RUN go mod download',       sec: 90,  key: 'dl'   },
+      { cmd: 'COPY . .',                  sec: 1,   key: 'src'  },
+      { cmd: 'RUN go build -o server .',  sec: 25,  key: 'build'},
+    ],
+  };
+
+  // Với mỗi sự kiện, layer key nào là MISS đầu tiên (mọi layer SAU nó cũng miss).
+  // null = tất cả HIT (không xảy ra với build có thay đổi), 'ALL' = cold build.
+  function firstMiss(event, order) {
+    if (event === 'cold') return 'base'; // tất cả rebuild
+    if (event === 'edit') {
+      // sửa code → layer chứa source là COPY . .
+      return 'src';
+    }
+    if (event === 'mod') {
+      // đổi go.mod
+      return order === 'right' ? 'mod' : 'src';
+    }
+  }
+
+  function run(event) {
+    const flow = flows[order];
+    const missKey = firstMiss(event, order);
+    const missIdx = flow.findIndex(l => l.key === missKey);
+    dfEl.innerHTML = '';
+    let total = 0;
+    flow.forEach((l, i) => {
+      const isMiss = missIdx !== -1 && i >= missIdx;
+      const cost = isMiss ? l.sec : 0;
+      total += cost;
+      const line = document.createElement('div');
+      line.className = 'df-line ' + (isMiss ? 'miss' : 'hit');
+      const stClass = isMiss ? 'st-miss' : 'st-hit';
+      const stTxt   = isMiss ? `MISS +${l.sec}s` : 'CACHE HIT';
+      line.innerHTML = `<span class="cmd">${l.cmd}</span>` +
+                       `<span class="status ${stClass}">${stTxt}</span>`;
+      dfEl.appendChild(line);
+    });
+
+    timeEl.textContent = '~' + total + ' s';
+    const slow = total > 60;
+    tcEl.className = 'timecard ' + (slow ? 'bad' : 'good');
+
+    const scn = { cold: 'Build lần đầu (cold)', edit: 'Sửa 1 dòng main.go', mod: 'Thêm dependency (go.mod)' }[event];
+    scnEl.textContent = scn;
+
+    if (event === 'edit') {
+      noteEl.innerHTML = order === 'wrong'
+        ? '❌ <b>COPY . .</b> ở trên cùng → sửa code làm layer này đổi → ' +
+          '<code>go mod download</code> ngay dưới bị MISS → <b>tải lại toàn bộ dep (~90s)</b>. ' +
+          'Mỗi lần sửa 1 dòng code = chờ tải dep lại.'
+        : '✅ <code>go.mod/go.sum</code> tách lên trên, không đổi → <b>go mod download CACHE HIT (0s)</b>. ' +
+          'Chỉ <code>COPY . .</code> trở xuống rebuild → ~26s. Nhanh hơn ~3.5×.';
+    } else if (event === 'mod') {
+      noteEl.innerHTML = order === 'right'
+        ? '📦 Đổi <code>go.mod</code> → layer <code>COPY go.mod go.sum</code> MISS → ' +
+          'tải lại dep. Đây là điều ta MUỐN: chỉ tải lại dep khi danh sách dep thực sự đổi.'
+        : '📦 Thứ tự sai cũng MISS từ <code>COPY . .</code> (vì go.mod nằm trong đó) → tải lại dep.';
+    } else {
+      noteEl.innerHTML = '🧊 Cold build: chưa có cache, mọi layer phải chạy. ' +
+        'Hai thứ tự tốn thời gian như nhau ở lần đầu — khác biệt chỉ lộ ra từ lần build thứ 2.';
+    }
+  }
+
+  function setOrder(o) {
+    order = o;
+    bWrong.classList.toggle('active', o === 'wrong');
+    bWrong.classList.toggle('ghost', o !== 'wrong');
+    bRight.classList.toggle('active', o === 'right');
+    bRight.classList.toggle('ghost', o !== 'right');
+    run('edit'); // tự chạy lại sự kiện phổ biến nhất
+  }
+  bWrong.onclick = () => setOrder('wrong');
+  bRight.onclick = () => setOrder('right');
+  document.getElementById('m2-edit').onclick = () => run('edit');
+  document.getElementById('m2-mod').onclick  = () => run('mod');
+  document.getElementById('m2-cold').onclick = () => run('cold');
+  run('edit');
+})();
+
+/* ===================== MODULE 3 ===================== */
+(function () {
+  const data = {
+    scratch: {
+      name: 'scratch', sub: 'Rỗng tuyệt đối — 0 byte base', baseMb: 0,
+      shell: false, ca: 'self', tz: 'self', libc: 'không (binary tĩnh)',
+      nonroot: 'UID số', surface: 8, color: '#16a34a',
+      when: 'Dùng khi: cần image nhỏ nhất, attack surface tối thiểu, binary tĩnh ' +
+            '(CGO_ENABLED=0), không cần exec vào debug. Nhớ tự COPY CA cert + tzdata.',
+    },
+    distroless: {
+      name: 'distroless', sub: 'gcr.io/distroless/static — do Google bảo trì', baseMb: 2,
+      shell: false, ca: 'có sẵn', tz: 'có sẵn', libc: 'không / glibc tuỳ variant',
+      nonroot: 'user nonroot (65532)', surface: 18, color: '#2563eb',
+      when: 'Dùng khi: muốn cân bằng — nhỏ + có sẵn CA/tzdata/nonroot mà KHÔNG cần ' +
+            'cấu hình thủ công, vẫn không shell (an toàn). Lựa chọn mặc định tốt cho nhiều team.',
+    },
+    alpine: {
+      name: 'alpine', sub: 'alpine:3.20 — có shell sh + apk', baseMb: 6,
+      shell: true, ca: 'apk add', tz: 'apk add', libc: 'musl (KHÔNG glibc)',
+      nonroot: 'tự tạo user', surface: 55, color: '#d97706',
+      when: 'Dùng khi: cần exec vào debug khi sự cố (có sh, apk cài curl/netcat). ' +
+            'Cẩn thận: musl libc → binary CGO link glibc sẽ crash. Dùng CGO_ENABLED=0.',
+    },
+  };
+  const order = ['scratch', 'distroless', 'alpine'];
+  const btns = { scratch: document.getElementById('b-scratch'),
+                 distroless: document.getElementById('b-distroless'),
+                 alpine: document.getElementById('b-alpine') };
+  const nameEl = document.getElementById('bc-name');
+  const subEl  = document.getElementById('bc-sub');
+  const featEl = document.getElementById('bc-feat');
+  const barEl  = document.getElementById('bc-bar');
+  const whenEl = document.getElementById('bc-when');
+
+  function yn(v) {
+    if (v === true)  return '<span class="yes">✓ có</span>';
+    if (v === false) return '<span class="no">✗ không</span>';
+    return '<span class="v">' + v + '</span>';
+  }
+
+  function render(key) {
+    const d = data[key];
+    nameEl.textContent = d.name;
+    subEl.textContent = d.sub;
+    // Tổng size image Go ≈ base + ~10MB binary.
+    const totalImg = d.baseMb + 10;
+    featEl.innerHTML =
+      `<span class="k">Base size</span><span class="v">${d.baseMb} MB</span>` +
+      `<span class="k">Image Go điển hình</span><span class="v">~${totalImg} MB</span>` +
+      `<span class="k">Shell (sh)</span>${yn(d.shell)}` +
+      `<span class="k">CA cert</span>${yn(d.ca)}` +
+      `<span class="k">tzdata</span>${yn(d.tz)}` +
+      `<span class="k">libc</span>${yn(d.libc)}` +
+      `<span class="k">Non-root</span>${yn(d.nonroot)}`;
+    barEl.style.width = d.surface + '%';
+    barEl.style.background = d.color;
+    barEl.textContent = d.surface < 20 ? 'nhỏ' : (d.surface < 45 ? '' : 'lớn hơn');
+    whenEl.textContent = d.when;
+
+    order.forEach(k => {
+      btns[k].classList.toggle('active', k === key);
+      btns[k].classList.toggle('ghost', k !== key);
+    });
+  }
+  order.forEach(k => btns[k].onclick = () => render(k));
+  render('scratch');
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

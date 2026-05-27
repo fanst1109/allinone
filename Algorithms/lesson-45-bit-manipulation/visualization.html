@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 45 — Bit Manipulation</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 38px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
+  button {
+    background: #f59e0b; color: white; border: none; border-radius: 6px;
+    padding: 9px 16px; font-size: 15px; cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #d97706; }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+  button:disabled { opacity: .45; cursor: default; }
+  input[type=text], input[type=number] {
+    padding: 8px 10px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 15px; width: 100%; max-width: 280px; box-sizing: border-box;
+    font-family: ui-monospace, monospace;
+  }
+  .hint { color: #4a5568; font-size: 14.5px; line-height: 1.55; }
+  .label { font-weight: 600; color: #2d3748; margin-right: 6px; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+  /* Bit cells */
+  .bitrow { display: flex; gap: 6px; flex-wrap: wrap; margin: 14px 0; }
+  .bitcell {
+    width: 46px; height: 56px; border: 2px solid #cbd5e0; border-radius: 8px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    cursor: pointer; user-select: none; background: #f7fafc; transition: all .12s;
+  }
+  .bitcell .bv { font-size: 22px; font-weight: 700; font-family: ui-monospace, monospace; color: #2d3748; }
+  .bitcell .idx { font-size: 11px; color: #a0aec0; margin-top: 2px; }
+  .bitcell.on { background: #fef3c7; border-color: #f59e0b; }
+  .bitcell.on .bv { color: #b45309; }
+  .bitcell.hl { background: #c6f6d5; border-color: #38a169; box-shadow: 0 0 0 3px rgba(56,161,105,.25); }
+  .result {
+    background: #1a202c; color: #f7fafc; padding: 12px 14px; border-radius: 8px;
+    font-family: ui-monospace, monospace; font-size: 15px; margin: 12px 0; overflow-x: auto;
+  }
+  .result b { color: #fbbf24; }
+  .status { padding: 8px 12px; border-radius: 6px; font-size: 14px; margin: 8px 0; background: #edf2f7; color: #2d3748; }
+
+  /* XOR module */
+  .numchip {
+    display: inline-flex; flex-direction: column; align-items: center;
+    padding: 8px 12px; border-radius: 8px; background: #ebf8ff; border: 2px solid #90cdf4;
+    margin: 4px; font-family: ui-monospace, monospace; min-width: 56px;
+  }
+  .numchip .dec { font-size: 18px; font-weight: 700; color: #2b6cb0; }
+  .numchip .bin { font-size: 12px; color: #4a5568; margin-top: 2px; }
+  .numchip.consumed { opacity: .35; }
+  .numchip.active { background: #fef3c7; border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.25); }
+  .acc {
+    background: #f0fff4; border: 2px solid #68d391; border-radius: 8px; padding: 12px 16px;
+    font-family: ui-monospace, monospace; display: inline-block; margin: 10px 0;
+  }
+  .acc .dec { font-size: 24px; font-weight: 700; color: #2f855a; }
+  .acc .bin { font-size: 13px; color: #4a5568; }
+
+  /* Subset module */
+  .subgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin: 12px 0; }
+  .subitem {
+    border: 1px solid #e2e8f0; border-radius: 6px; padding: 7px 10px;
+    font-family: ui-monospace, monospace; font-size: 13.5px; background: white;
+  }
+  .subitem.cur { background: #fef3c7; border-color: #f59e0b; }
+  .subitem .mk { color: #b45309; font-weight: 700; }
+  .subitem .st { color: #2d3748; }
+
+  @media (max-width: 480px) {
+    .bitcell { width: 36px; height: 48px; }
+    .bitcell .bv { font-size: 18px; }
+    .subgrid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../tier-6-string/index.html">← Tier 6</a>
+  <span class="sep">·</span>
+  <span class="current">L45: Bit Manipulation</span>
+  <span class="sep">·</span>
+  <a href="../lesson-46-number-theory-algos/visualization.html">L46: Number Theory →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 45 — Bit Manipulation</h1>
+<p class="hint">Ba module tương tác: (1) <strong>Bit playground</strong> — click toggle từng bit, áp dụng trick;
+(2) <strong>XOR single number</strong> — animate XOR dồn để tìm số lẻ; (3) <strong>Subset enumeration</strong> —
+duyệt bitmask thành các tập con. Đọc lý thuyết ở nút <strong>📖 Đọc README</strong>.</p>
+
+<!-- ============ MODULE 1: BIT PLAYGROUND ============ -->
+<h2>1. Bit playground — thao tác trên bit</h2>
+<div class="card">
+  <p class="hint">Click vào ô bit để bật/tắt (toggle). Hoặc nhập một số rồi <strong>Nạp</strong>.
+  Sau đó áp dụng các bit trick — kết quả hiện ngay dưới dạng nhị phân.</p>
+  <div class="row">
+    <span class="label">Số (0–255):</span>
+    <input type="number" id="m1-input" min="0" max="255" value="43" style="max-width:120px">
+    <button id="m1-load">Nạp</button>
+    <button class="ghost" id="m1-clear">Xoá hết (0)</button>
+  </div>
+
+  <div class="bitrow" id="m1-bits"></div>
+  <div class="result" id="m1-val">decimal = <b>43</b>　binary = <b>00101011</b></div>
+
+  <div class="row">
+    <span class="label">Bit i:</span>
+    <input type="number" id="m1-i" min="0" max="7" value="2" style="max-width:90px">
+    <button id="m1-set">Set bit i</button>
+    <button id="m1-clearbit">Clear bit i</button>
+    <button id="m1-toggle">Toggle bit i</button>
+  </div>
+  <div class="row">
+    <button id="m1-lowest">Lowest set bit (n &amp; -n)</button>
+    <button id="m1-clrlow">Clear lowest (n &amp; n-1)</button>
+    <button id="m1-popcount">Popcount</button>
+    <button id="m1-pow2">Lũy thừa 2?</button>
+  </div>
+  <div class="status" id="m1-status">Sẵn sàng. Thử click một ô bit.</div>
+</div>
+
+<!-- ============ MODULE 2: XOR SINGLE NUMBER ============ -->
+<h2>2. XOR single number — tìm số xuất hiện lẻ lần</h2>
+<div class="card">
+  <p class="hint">Nhập dãy số (mọi số đôi một, trừ đúng 1 số lẻ). Bấm <strong>XOR từng bước</strong> để xem
+  bộ tích luỹ <code>res ^= v</code> dồn dần — cặp giống nhau khử về 0, còn lại số lẻ.</p>
+  <div class="row">
+    <span class="label">Dãy số:</span>
+    <input type="text" id="m2-input" value="4 1 2 1 2" style="max-width:340px">
+    <button id="m2-reset">Đặt lại</button>
+  </div>
+  <div id="m2-chips" class="row" style="gap:2px"></div>
+  <div>
+    <span class="label">res tích luỹ:</span>
+    <div class="acc"><span class="dec" id="m2-accdec">0</span> &nbsp;=&nbsp; <span class="bin" id="m2-accbin">0000</span></div>
+  </div>
+  <div class="row">
+    <button id="m2-step">XOR bước tiếp →</button>
+    <button class="ghost" id="m2-all">Chạy hết</button>
+  </div>
+  <div class="status" id="m2-status">Bấm "XOR bước tiếp" để bắt đầu.</div>
+</div>
+
+<!-- ============ MODULE 3: SUBSET ENUMERATION ============ -->
+<h2>3. Subset enumeration — bitmask thành tập con</h2>
+<div class="card">
+  <p class="hint">Với n phần tử, mỗi mask trong <code>0 .. 2ⁿ-1</code> là một tập con: bit i bật ⟹ phần tử i thuộc tập.
+  Đổi n rồi <strong>Liệt kê</strong>, hoặc <strong>Bước</strong> qua từng mask để thấy ánh xạ.</p>
+  <div class="row">
+    <span class="label">n (1–5):</span>
+    <input type="number" id="m3-n" min="1" max="5" value="3" style="max-width:90px">
+    <button id="m3-gen">Liệt kê 2ⁿ tập con</button>
+    <button class="ghost" id="m3-step">Bước qua mask →</button>
+    <button class="ghost" id="m3-reset">Đặt lại</button>
+  </div>
+  <div class="status" id="m3-status">Tập nền: {0, 1, 2} → 2³ = 8 tập con.</div>
+  <div class="subgrid" id="m3-grid"></div>
+</div>
+
+</main>
+
+<script>
+/* ===================== MODULE 1: BIT PLAYGROUND ===================== */
+const M1_BITS = 8;
+let m1n = 43;
+
+function m1Bin(n) { return n.toString(2).padStart(M1_BITS, '0'); }
+
+function m1Render(highlight) {
+  const wrap = document.getElementById('m1-bits');
+  wrap.innerHTML = '';
+  for (let i = M1_BITS - 1; i >= 0; i--) {
+    const on = (m1n >> i) & 1;
+    const c = document.createElement('div');
+    c.className = 'bitcell' + (on ? ' on' : '') + (highlight && highlight.has(i) ? ' hl' : '');
+    c.innerHTML = `<span class="bv">${on}</span><span class="idx">bit ${i}</span>`;
+    c.onclick = () => { m1n ^= (1 << i); m1Sync(); m1Status(`Toggle bit ${i} → ${m1Bin(m1n)}`); };
+    wrap.appendChild(c);
+  }
+  document.getElementById('m1-val').innerHTML =
+    `decimal = <b>${m1n}</b>　binary = <b>${m1Bin(m1n)}</b>`;
+}
+function m1Sync() { document.getElementById('m1-input').value = m1n; m1Render(); }
+function m1Status(t) { document.getElementById('m1-status').textContent = t; }
+function m1I() { return Math.max(0, Math.min(M1_BITS - 1, parseInt(document.getElementById('m1-i').value) || 0)); }
+
+document.getElementById('m1-load').onclick = () => {
+  let v = parseInt(document.getElementById('m1-input').value) || 0;
+  m1n = Math.max(0, Math.min(255, v)); m1Sync(); m1Status(`Đã nạp ${m1n} = ${m1Bin(m1n)}`);
+};
+document.getElementById('m1-clear').onclick = () => { m1n = 0; m1Sync(); m1Status('Đã xoá về 0.'); };
+document.getElementById('m1-set').onclick = () => {
+  const i = m1I(); m1n |= (1 << i); m1Sync(); m1Status(`set bit ${i}:  n | (1<<${i}) = ${m1Bin(m1n)}`);
+};
+document.getElementById('m1-clearbit').onclick = () => {
+  const i = m1I(); m1n &= ~(1 << i) & 0xff; m1Sync(); m1Status(`clear bit ${i}:  n &^ (1<<${i}) = ${m1Bin(m1n)}`);
+};
+document.getElementById('m1-toggle').onclick = () => {
+  const i = m1I(); m1n ^= (1 << i); m1n &= 0xff; m1Sync(); m1Status(`toggle bit ${i}:  n ^ (1<<${i}) = ${m1Bin(m1n)}`);
+};
+document.getElementById('m1-lowest').onclick = () => {
+  if (m1n === 0) { m1Render(); m1Status('n = 0 → không có bit nào bật.'); return; }
+  const low = m1n & (-m1n);
+  let idx = Math.log2(low);
+  m1Render(new Set([idx]));
+  m1Status(`n & (-n) = ${m1Bin(low)} (= ${low}) → bit thấp nhất là bit ${idx}.`);
+};
+document.getElementById('m1-clrlow').onclick = () => {
+  if (m1n === 0) { m1Render(); m1Status('n = 0 → không còn gì để xoá.'); return; }
+  const removed = m1n & (-m1n); let idx = Math.log2(removed);
+  const before = m1Bin(m1n);
+  m1n &= (m1n - 1); m1Sync();
+  m1Status(`n & (n-1): xoá bit ${idx}.  ${before} → ${m1Bin(m1n)}`);
+};
+document.getElementById('m1-popcount').onclick = () => {
+  let n = m1n, c = 0, on = new Set();
+  for (let i = 0; i < M1_BITS; i++) if ((m1n >> i) & 1) { c++; on.add(i); }
+  m1Render(on);
+  m1Status(`popcount = ${c} (số bit 1). Kernighan: ${c} vòng n &= n-1.`);
+};
+document.getElementById('m1-pow2').onclick = () => {
+  const ok = m1n > 0 && (m1n & (m1n - 1)) === 0;
+  m1Render();
+  m1Status(`isPowerOfTwo(${m1n}):  n>0 && n&(n-1)==0  →  ${ok ? 'ĐÚNG ✓' : 'KHÔNG ✗'}` +
+    (m1n > 0 ? `  (n&(n-1) = ${m1Bin(m1n & (m1n - 1))})` : ''));
+};
+
+/* ===================== MODULE 2: XOR SINGLE NUMBER ===================== */
+let m2nums = [], m2idx = 0, m2acc = 0;
+
+function m2Parse() {
+  const raw = document.getElementById('m2-input').value.trim().split(/[\s,]+/).filter(s => s.length);
+  m2nums = raw.map(s => parseInt(s)).filter(v => Number.isFinite(v) && v >= 0);
+  m2idx = 0; m2acc = 0;
+}
+function m2Bin(n) {
+  const max = m2nums.length ? Math.max(...m2nums, m2acc, 1) : 1;
+  const w = Math.max(4, max.toString(2).length);
+  return n.toString(2).padStart(w, '0');
+}
+function m2Render() {
+  const wrap = document.getElementById('m2-chips'); wrap.innerHTML = '';
+  m2nums.forEach((v, i) => {
+    const c = document.createElement('div');
+    c.className = 'numchip' + (i < m2idx ? ' consumed' : '') + (i === m2idx ? ' active' : '');
+    c.innerHTML = `<span class="dec">${v}</span><span class="bin">${m2Bin(v)}</span>`;
+    wrap.appendChild(c);
+  });
+  document.getElementById('m2-accdec').textContent = m2acc;
+  document.getElementById('m2-accbin').textContent = m2Bin(m2acc);
+}
+function m2Reset() {
+  m2Parse(); m2Render();
+  document.getElementById('m2-status').textContent =
+    m2nums.length ? 'Bấm "XOR bước tiếp" để bắt đầu.' : 'Dãy rỗng — nhập các số cách nhau bởi dấu cách.';
+}
+function m2Step() {
+  if (m2idx >= m2nums.length) {
+    document.getElementById('m2-status').textContent =
+      `Hoàn tất. Số xuất hiện lẻ lần = ${m2acc} (mọi cặp đã khử về 0).`;
+    return false;
+  }
+  const v = m2nums[m2idx];
+  const prev = m2acc; m2acc ^= v; m2idx++;
+  m2Render();
+  document.getElementById('m2-status').textContent =
+    `res = ${prev} ^ ${v} = ${m2acc}　(${m2Bin(prev)} ^ ${m2Bin(v)} = ${m2Bin(m2acc)})`;
+  return true;
+}
+document.getElementById('m2-reset').onclick = m2Reset;
+document.getElementById('m2-step').onclick = m2Step;
+document.getElementById('m2-all').onclick = () => {
+  let guard = 0;
+  const tick = () => { if (m2Step() && guard++ < 200) setTimeout(tick, 420); };
+  tick();
+};
+
+/* ===================== MODULE 3: SUBSET ENUMERATION ===================== */
+let m3n = 3, m3cur = -1;
+
+function m3Base() { return Array.from({ length: m3n }, (_, i) => i); }
+function m3SubsetOf(mask) {
+  const out = [];
+  for (let i = 0; i < m3n; i++) if (mask & (1 << i)) out.push(i);
+  return out;
+}
+function m3Render(onlyUpTo) {
+  const grid = document.getElementById('m3-grid'); grid.innerHTML = '';
+  const total = 1 << m3n;
+  const limit = onlyUpTo === undefined ? total : Math.min(onlyUpTo + 1, total);
+  for (let mask = 0; mask < limit; mask++) {
+    const sub = m3SubsetOf(mask);
+    const d = document.createElement('div');
+    d.className = 'subitem' + (mask === m3cur ? ' cur' : '');
+    const bin = mask.toString(2).padStart(m3n, '0');
+    d.innerHTML = `<span class="mk">${bin}</span> → <span class="st">{${sub.join(', ')}}</span>`;
+    grid.appendChild(d);
+  }
+}
+function m3SetN() {
+  let v = parseInt(document.getElementById('m3-n').value) || 3;
+  m3n = Math.max(1, Math.min(5, v));
+  document.getElementById('m3-n').value = m3n;
+}
+document.getElementById('m3-gen').onclick = () => {
+  m3SetN(); m3cur = -1; m3Render();
+  document.getElementById('m3-status').textContent =
+    `Tập nền: {${m3Base().join(', ')}} → 2^${m3n} = ${1 << m3n} tập con.`;
+};
+document.getElementById('m3-step').onclick = () => {
+  m3SetN();
+  const total = 1 << m3n;
+  m3cur = (m3cur + 1) % total;
+  m3Render(m3cur);
+  const sub = m3SubsetOf(m3cur);
+  document.getElementById('m3-status').textContent =
+    `mask = ${m3cur.toString(2).padStart(m3n, '0')} (${m3cur}) → tập con {${sub.join(', ')}}`;
+};
+document.getElementById('m3-reset').onclick = () => {
+  m3SetN(); m3cur = -1; m3Render();
+  document.getElementById('m3-status').textContent =
+    `Tập nền: {${m3Base().join(', ')}} → 2^${m3n} = ${1 << m3n} tập con.`;
+};
+
+/* ===================== INIT ===================== */
+m1Render();
+m2Reset();
+m3Render();
+</script>
+
+<!-- README modal + tools -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+
+</body>
+</html>

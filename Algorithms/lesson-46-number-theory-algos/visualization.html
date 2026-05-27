@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L46 — Number Theory · Minh hoạ</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #f59e0b;
+    --accent-hover: #d97706;
+    --accent-soft: #fef3c7;
+    --green: #48bb78;
+    --red: #f56565;
+    --gold: #d69e2e;
+    --dark: #2d3748;
+    --gray: #cbd5e0;
+  }
+
+  main { max-width: 1000px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.6rem; margin: 12px 0 4px; }
+  .lead { color: #4a5568; margin: 0 0 20px; }
+
+  .module {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px;
+    margin: 20px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .module h2 { font-size: 1.25rem; margin: 0 0 6px; color: var(--dark); }
+  .module .hint { color: #718096; font-size: 0.92rem; margin: 0 0 12px; }
+
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; align-items: center;
+  }
+  button {
+    background: var(--accent); color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 0.95rem; font-weight: 600; cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost { background: #edf2f7; color: var(--dark); }
+  button.ghost:hover { background: #e2e8f0; }
+  button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  input[type=number] {
+    padding: 8px 10px; border-radius: 8px; border: 1px solid #cbd5e0;
+    font-size: 0.95rem; font-family: ui-monospace, monospace;
+    width: 100%; max-width: 100px; box-sizing: border-box;
+  }
+  label { font-size: 0.9rem; color: #4a5568; font-weight: 600; }
+
+  .status {
+    background: #f7fafc; border-left: 4px solid var(--accent);
+    padding: 10px 14px; border-radius: 6px; margin: 12px 0;
+    font-size: 0.95rem; color: #2d3748; min-height: 1.2em;
+  }
+  .status b { color: var(--accent-hover); }
+
+  /* ----- Module 1: sieve grid ----- */
+  .sieve-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 5px;
+    margin: 12px 0;
+  }
+  .cell {
+    aspect-ratio: 1 / 1;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 6px; font-size: 0.85rem; font-weight: 600;
+    background: #edf2f7; color: #2d3748;
+    border: 2px solid transparent;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+  }
+  .cell.one { background: #e2e8f0; color: #a0aec0; }
+  .cell.prime { background: var(--green); color: #fff; }
+  .cell.composite { background: #fed7d7; color: #c53030; text-decoration: line-through; }
+  .cell.current-p { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
+  .cell.striking { background: var(--gold); color: #fff; transform: scale(1.08); }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 0.85rem; color: #4a5568; margin-top: 8px; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .sw { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+
+  /* ----- Module 2 & 3: step rows ----- */
+  table.steps { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.92rem; }
+  table.steps th, table.steps td {
+    border: 1px solid #e2e8f0; padding: 7px 10px; text-align: center;
+    font-family: ui-monospace, monospace;
+  }
+  table.steps th { background: #f7fafc; font-weight: 700; color: var(--dark); }
+  table.steps tr.active td { background: var(--accent-soft); }
+  table.steps tr.done td { background: #f0fff4; }
+  .formula { font-family: ui-monospace, monospace; background: #f7fafc; padding: 8px 12px; border-radius: 6px; margin: 8px 0; font-size: 0.95rem; }
+  .binbits { font-family: ui-monospace, monospace; letter-spacing: 2px; font-size: 1.1rem; }
+  .binbits b { color: var(--red); }
+
+  @media (max-width: 480px) {
+    .sieve-grid { grid-template-columns: repeat(8, 1fr); gap: 3px; }
+    .cell { font-size: 0.72rem; border-width: 1px; }
+    table.steps th, table.steps td { padding: 5px 4px; font-size: 0.82rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-45-bit-manipulation/visualization.html">← L45: Bit Manipulation</a>
+  <span class="sep">·</span>
+  <span class="current">L46: Number Theory</span>
+  <span class="sep">·</span>
+  <a href="../lesson-47-computational-geometry/visualization.html">L47: Computational Geometry →</a>
+</nav>
+
+<main>
+  <h1>Lesson 46 — Thuật toán số học</h1>
+  <p class="lead">Ba mô-đun tương tác: sàng Eratosthenes, thuật toán Euclid (GCD), và fast exponentiation. Bấm "Chạy từng bước" để xem từng thao tác.</p>
+
+  <!-- ===================== MODULE 1: SIEVE ===================== -->
+  <section class="module">
+    <h2>1. Sàng Eratosthenes</h2>
+    <p class="hint">Lưới 1..n. Chọn nguyên tố nhỏ nhất chưa gạch, rồi gạch mọi bội của nó (từ p²). Độ phức tạp O(n log log n).</p>
+    <div class="controls">
+      <label>n = <input type="number" id="m1n" value="30" min="2" max="120"></label>
+      <button id="m1step">Chạy từng bước</button>
+      <button id="m1auto" class="ghost">Tự động ▶</button>
+      <button id="m1reset" class="ghost">Reset</button>
+    </div>
+    <div class="status" id="m1status">Nhập n rồi bấm "Chạy từng bước".</div>
+    <div class="sieve-grid" id="m1grid"></div>
+    <div class="legend">
+      <span><i class="sw" style="background:#edf2f7"></i> chưa xét</span>
+      <span><i class="sw" style="background:#48bb78"></i> nguyên tố</span>
+      <span><i class="sw" style="background:#fed7d7"></i> hợp số (đã gạch)</span>
+      <span><i class="sw" style="background:#d69e2e"></i> đang gạch</span>
+    </div>
+  </section>
+
+  <!-- ===================== MODULE 2: EUCLID GCD ===================== -->
+  <section class="module">
+    <h2>2. Euclid GCD — gcd(a, b) = gcd(b, a mod b)</h2>
+    <p class="hint">Liên tục thay (a, b) ← (b, a mod b) tới khi b = 0; khi đó a là GCD. O(log min(a,b)).</p>
+    <div class="controls">
+      <label>a = <input type="number" id="m2a" value="48" min="0" max="100000"></label>
+      <label>b = <input type="number" id="m2b" value="18" min="0" max="100000"></label>
+      <button id="m2step">Chạy từng bước</button>
+      <button id="m2auto" class="ghost">Tự động ▶</button>
+      <button id="m2reset" class="ghost">Reset</button>
+    </div>
+    <div class="status" id="m2status">Nhập a, b rồi bấm "Chạy từng bước".</div>
+    <table class="steps" id="m2table">
+      <thead><tr><th>Bước</th><th>a</th><th>b</th><th>a mod b</th></tr></thead>
+      <tbody id="m2body"></tbody>
+    </table>
+  </section>
+
+  <!-- ===================== MODULE 3: FAST EXPONENTIATION ===================== -->
+  <section class="module">
+    <h2>3. Fast exponentiation — aⁿ mod m</h2>
+    <p class="hint">Duyệt bit của n: bit 1 → nhân base vào result; luôn bình phương base; bỏ bit thấp. Chỉ ⌈log₂n⌉ vòng.</p>
+    <div class="controls">
+      <label>a = <input type="number" id="m3a" value="3" min="1" max="1000"></label>
+      <label>n = <input type="number" id="m3n" value="13" min="0" max="100000"></label>
+      <label>m = <input type="number" id="m3m" value="1000" min="2" max="1000000000"></label>
+      <button id="m3step">Chạy từng bước</button>
+      <button id="m3auto" class="ghost">Tự động ▶</button>
+      <button id="m3reset" class="ghost">Reset</button>
+    </div>
+    <div class="status" id="m3status">Nhập a, n, m rồi bấm "Chạy từng bước".</div>
+    <div class="formula" id="m3bin">n = – (nhị phân)</div>
+    <table class="steps" id="m3table">
+      <thead><tr><th>Vòng</th><th>n hiện tại</th><th>bit thấp</th><th>base</th><th>result</th></tr></thead>
+      <tbody id="m3body"></tbody>
+    </table>
+  </section>
+</main>
+
+<script>
+// ============ MODULE 1: Sieve of Eratosthenes ============
+(function () {
+  const grid = document.getElementById('m1grid');
+  const status = document.getElementById('m1status');
+  const inN = document.getElementById('m1n');
+  let n, state, p, autoTimer = null;
+  // state[i]: 'unknown' | 'prime' | 'composite'
+
+  function build() {
+    n = Math.max(2, Math.min(120, parseInt(inN.value) || 30));
+    inN.value = n;
+    state = new Array(n + 1).fill('unknown');
+    p = 2;
+    grid.innerHTML = '';
+    for (let i = 1; i <= n; i++) {
+      const c = document.createElement('div');
+      c.className = 'cell' + (i === 1 ? ' one' : '');
+      c.id = 'm1c' + i;
+      c.textContent = i;
+      grid.appendChild(c);
+    }
+    status.innerHTML = 'Khởi tạo xong. p = 2 là số đầu tiên cần xử lý.';
+  }
+
+  function render() {
+    for (let i = 2; i <= n; i++) {
+      const c = document.getElementById('m1c' + i);
+      c.className = 'cell';
+      if (state[i] === 'prime') c.classList.add('prime');
+      else if (state[i] === 'composite') c.classList.add('composite');
+    }
+  }
+
+  function step() {
+    // tìm p tiếp theo (chưa composite, p*p <= n)
+    while (p * p <= n && state[p] === 'composite') p++;
+    if (p * p > n) {
+      // mọi số chưa composite là nguyên tố
+      let primes = [];
+      for (let i = 2; i <= n; i++) {
+        if (state[i] !== 'composite') { state[i] = 'prime'; primes.push(i); }
+      }
+      render();
+      status.innerHTML = 'Xong! Các nguyên tố ≤ ' + n + ': <b>' + primes.join(', ') + '</b> (' + primes.length + ' số).';
+      document.getElementById('m1step').disabled = true;
+      stopAuto();
+      return false;
+    }
+    state[p] = 'prime';
+    render();
+    document.getElementById('m1c' + p).classList.add('current-p');
+    let struck = [];
+    for (let m = p * p; m <= n; m += p) {
+      if (state[m] !== 'composite') { state[m] = 'composite'; struck.push(m); }
+    }
+    render();
+    document.getElementById('m1c' + p).classList.add('current-p');
+    for (const m of struck) document.getElementById('m1c' + m).classList.add('striking');
+    status.innerHTML = 'p = <b>' + p + '</b> (nguyên tố) → gạch bội từ ' + p + '² = ' + (p * p) + ': ' +
+      (struck.length ? struck.join(', ') : '(không còn bội mới)') + '.';
+    p++;
+    return true;
+  }
+
+  function stopAuto() { if (autoTimer) { clearInterval(autoTimer); autoTimer = null; } }
+
+  document.getElementById('m1step').addEventListener('click', step);
+  document.getElementById('m1auto').addEventListener('click', () => {
+    if (autoTimer) { stopAuto(); return; }
+    autoTimer = setInterval(() => { if (!step()) stopAuto(); }, 700);
+  });
+  document.getElementById('m1reset').addEventListener('click', () => {
+    stopAuto(); document.getElementById('m1step').disabled = false; build();
+  });
+  inN.addEventListener('change', () => { stopAuto(); document.getElementById('m1step').disabled = false; build(); });
+  build();
+})();
+
+// ============ MODULE 2: Euclid GCD ============
+(function () {
+  const body = document.getElementById('m2body');
+  const status = document.getElementById('m2status');
+  const inA = document.getElementById('m2a'), inB = document.getElementById('m2b');
+  let a, b, done, autoTimer = null;
+
+  function build() {
+    a = Math.max(0, parseInt(inA.value) || 0);
+    b = Math.max(0, parseInt(inB.value) || 0);
+    if (a < b) { const t = a; a = b; b = t; } // hiển thị a ≥ b cho trực quan
+    inA.value = a; inB.value = b;
+    body.innerHTML = '';
+    done = false;
+    document.getElementById('m2step').disabled = false;
+    status.innerHTML = 'gcd(' + a + ', ' + b + '): mỗi bước thay (a,b) ← (b, a mod b).';
+  }
+
+  function step() {
+    if (done) return false;
+    // bỏ active của hàng cũ
+    [...body.querySelectorAll('tr')].forEach(r => { r.classList.remove('active'); r.classList.add('done'); });
+    if (b === 0) {
+      status.innerHTML = 'b = 0 → dừng. <b>gcd = ' + a + '</b>.';
+      done = true;
+      document.getElementById('m2step').disabled = true;
+      stopAuto();
+      return false;
+    }
+    const r = a % b;
+    const tr = document.createElement('tr');
+    tr.className = 'active';
+    tr.innerHTML = '<td>' + (body.children.length + 1) + '</td><td>' + a + '</td><td>' + b +
+      '</td><td>' + a + ' mod ' + b + ' = <b>' + r + '</b></td>';
+    body.appendChild(tr);
+    status.innerHTML = a + ' mod ' + b + ' = <b>' + r + '</b> → tiếp tục với (' + b + ', ' + r + ').';
+    a = b; b = r;
+    return true;
+  }
+
+  function stopAuto() { if (autoTimer) { clearInterval(autoTimer); autoTimer = null; } }
+
+  document.getElementById('m2step').addEventListener('click', step);
+  document.getElementById('m2auto').addEventListener('click', () => {
+    if (autoTimer) { stopAuto(); return; }
+    autoTimer = setInterval(() => { if (!step()) stopAuto(); }, 800);
+  });
+  document.getElementById('m2reset').addEventListener('click', () => { stopAuto(); build(); });
+  inA.addEventListener('change', () => { stopAuto(); build(); });
+  inB.addEventListener('change', () => { stopAuto(); build(); });
+  build();
+})();
+
+// ============ MODULE 3: Fast exponentiation ============
+(function () {
+  const body = document.getElementById('m3body');
+  const status = document.getElementById('m3status');
+  const binEl = document.getElementById('m3bin');
+  const inA = document.getElementById('m3a'), inN = document.getElementById('m3n'), inM = document.getElementById('m3m');
+  let base, n, m, result, rounds, done, autoTimer = null;
+  const orig = {};
+
+  function build() {
+    orig.a = Math.max(1, parseInt(inA.value) || 1);
+    n = Math.max(0, parseInt(inN.value) || 0);
+    m = Math.max(2, parseInt(inM.value) || 2);
+    inA.value = orig.a; inN.value = n; inM.value = m;
+    base = orig.a % m;
+    result = 1; rounds = 0; done = false;
+    body.innerHTML = '';
+    document.getElementById('m3step').disabled = false;
+    binEl.innerHTML = 'n = ' + n + ' = <span class="binbits">' + (n === 0 ? '0' : n.toString(2)) + '</span>₂ → cần ' +
+      (n === 0 ? 0 : n.toString(2).length) + ' vòng (⌈log₂n⌉).';
+    status.innerHTML = orig.a + '^' + n + ' mod ' + m + ': bắt đầu result = 1, base = ' + base + '.';
+  }
+
+  function step() {
+    if (done) return false;
+    [...body.querySelectorAll('tr')].forEach(r => { r.classList.remove('active'); r.classList.add('done'); });
+    if (n === 0) {
+      status.innerHTML = 'n = 0 → dừng. <b>' + orig.a + '^' + inN.value + ' mod ' + m + ' = ' + result + '</b> (sau ' + rounds + ' vòng).';
+      done = true;
+      document.getElementById('m3step').disabled = true;
+      stopAuto();
+      return false;
+    }
+    rounds++;
+    const bit = n & 1;
+    const beforeResult = result, curBase = base;
+    let note;
+    if (bit === 1) {
+      result = (result * base) % m;
+      note = 'bit 1 → result = ' + beforeResult + '·' + curBase + ' mod ' + m + ' = <b>' + result + '</b>';
+    } else {
+      note = 'bit 0 → result giữ nguyên (' + result + ')';
+    }
+    const tr = document.createElement('tr');
+    tr.className = 'active';
+    tr.innerHTML = '<td>' + rounds + '</td><td>' + n + '</td><td>' + bit + '</td><td>' + curBase + '</td><td>' + result + '</td>';
+    body.appendChild(tr);
+    // bình phương base, dịch n
+    base = (base * base) % m;
+    n = Math.floor(n / 2);
+    status.innerHTML = note + '; bình phương base → ' + base + '; n → ' + n + '.';
+    return true;
+  }
+
+  function stopAuto() { if (autoTimer) { clearInterval(autoTimer); autoTimer = null; } }
+
+  document.getElementById('m3step').addEventListener('click', step);
+  document.getElementById('m3auto').addEventListener('click', () => {
+    if (autoTimer) { stopAuto(); return; }
+    autoTimer = setInterval(() => { if (!step()) stopAuto(); }, 800);
+  });
+  document.getElementById('m3reset').addEventListener('click', () => { stopAuto(); build(); });
+  inA.addEventListener('change', () => { stopAuto(); build(); });
+  inN.addEventListener('change', () => { stopAuto(); build(); });
+  inM.addEventListener('change', () => { stopAuto(); build(); });
+  build();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+</body>
+</html>

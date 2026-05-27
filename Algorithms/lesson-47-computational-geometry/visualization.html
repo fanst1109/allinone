@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L47 — Computational Geometry · Minh hoạ</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #f59e0b;
+    --accent-hover: #d97706;
+    --accent-soft: #fef3c7;
+    --green: #16a34a;
+    --red: #dc2626;
+    --blue: #2563eb;
+    --purple: #7c3aed;
+    --dark: #2d3748;
+    --gray: #cbd5e0;
+  }
+
+  main { max-width: 1000px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.6rem; margin: 12px 0 4px; }
+  .lead { color: #4a5568; margin: 0 0 20px; }
+
+  .module {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px;
+    margin: 20px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .module h2 { font-size: 1.25rem; margin: 0 0 6px; color: var(--dark); }
+  .module .hint { color: #718096; font-size: 0.92rem; margin: 0 0 12px; }
+
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; align-items: center;
+  }
+  button {
+    background: var(--accent); color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 0.95rem; font-weight: 600; cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost { background: #edf2f7; color: var(--dark); }
+  button.ghost:hover { background: #e2e8f0; }
+
+  .canvas-wrap {
+    border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden;
+    background: #fcfcfa; touch-action: none;
+  }
+  svg { display: block; width: 100%; height: auto; }
+  .grid-line { stroke: #ececec; stroke-width: 1; }
+  .axis { stroke: #b0b0b0; stroke-width: 1.5; }
+
+  .status {
+    margin-top: 12px; padding: 12px 14px; border-radius: 8px;
+    background: var(--accent-soft); font-size: 0.95rem; line-height: 1.55;
+    border: 1px solid #fde68a;
+  }
+  .status b { color: var(--dark); }
+  code, .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.9em; }
+  .badge {
+    display: inline-block; padding: 2px 9px; border-radius: 999px;
+    font-weight: 700; font-size: 0.85rem; color: #fff;
+  }
+  .badge.ccw { background: var(--green); }
+  .badge.cw  { background: var(--red); }
+  .badge.col { background: #6b7280; }
+  .badge.in  { background: var(--green); }
+  .badge.out { background: var(--red); }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-46-number-theory-algos/visualization.html">← L46: Number Theory</a>
+  <span class="sep">·</span>
+  <span class="current">L47: Computational Geometry</span>
+  <span class="sep">·</span>
+  <a href="../lesson-48-randomized-algorithms/visualization.html">L48: Randomized Algorithms →</a>
+</nav>
+
+<main>
+  <h1>Lesson 47 — Hình học tính toán</h1>
+  <p class="lead">Ba module tương tác: <b>Cross product / Orientation</b> (click 3 điểm xem rẽ trái/phải),
+  <b>Convex hull</b> (animate Andrew monotone chain), <b>Point in polygon</b> (ray casting đếm giao).
+  Tất cả quy về một phép toán: tích có hướng (cross product).</p>
+
+  <!-- ===== MODULE 1: Cross product / Orientation ===== -->
+  <section class="module">
+    <h2>1. Cross product &amp; Orientation</h2>
+    <p class="hint">Click 3 điểm trên lưới: A (đỏ), B (xanh dương), C (tím). Hệ tính
+      <code>cross(A,B,C) = (B−A)×(C−A)</code> rồi cho biết C nằm bên trái (CCW) / phải (CW) / thẳng hàng.</p>
+    <div class="controls">
+      <button id="m1-reset" class="ghost">↺ Xóa, click lại 3 điểm</button>
+      <button id="m1-demo">▶ Ví dụ mẫu</button>
+    </div>
+    <div class="canvas-wrap">
+      <svg id="m1-svg" viewBox="0 0 480 320"></svg>
+    </div>
+    <div class="status" id="m1-status">Click điểm <b>A</b> trên lưới…</div>
+  </section>
+
+  <!-- ===== MODULE 2: Convex hull ===== -->
+  <section class="module">
+    <h2>2. Convex Hull — Andrew's Monotone Chain</h2>
+    <p class="hint">Click thêm điểm bất kỳ. Bấm <b>Dựng hull</b> để animate từng bước build lower + upper hull
+      bằng cross product (loại điểm tạo khúc cua sai chiều).</p>
+    <div class="controls">
+      <button id="m2-build">▶ Dựng hull (animate)</button>
+      <button id="m2-rand" class="ghost">🎲 Điểm ngẫu nhiên</button>
+      <button id="m2-reset" class="ghost">↺ Xóa hết</button>
+    </div>
+    <div class="canvas-wrap">
+      <svg id="m2-svg" viewBox="0 0 480 320"></svg>
+    </div>
+    <div class="status" id="m2-status">Click ≥ 3 điểm rồi bấm "Dựng hull".</div>
+  </section>
+
+  <!-- ===== MODULE 3: Point in polygon ===== -->
+  <section class="module">
+    <h2>3. Point in Polygon — Ray Casting</h2>
+    <p class="hint">Đa giác cố định. Click bất kỳ đâu để đặt điểm truy vấn — hệ bắn tia ngang sang phải,
+      đếm số cạnh cắt: lẻ = trong, chẵn = ngoài.</p>
+    <div class="controls">
+      <button id="m3-shape" class="ghost">⬡ Đổi đa giác (lồi ⇄ lõm)</button>
+    </div>
+    <div class="canvas-wrap">
+      <svg id="m3-svg" viewBox="0 0 480 320"></svg>
+    </div>
+    <div class="status" id="m3-status">Click để đặt điểm truy vấn…</div>
+  </section>
+</main>
+
+<script>
+// ===== Tiện ích chung =====
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+// cross của ba điểm: (b-a)×(c-a). Dương=CCW, âm=CW, 0=thẳng hàng.
+function cross(a, b, c) {
+  return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+}
+// Lấy tọa độ click trong hệ viewBox của svg.
+function svgPoint(svg, evt) {
+  const r = svg.getBoundingClientRect();
+  const vb = svg.viewBox.baseVal;
+  const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+  const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+  return {
+    x: Math.round((clientX - r.left) / r.width * vb.width),
+    y: Math.round((clientY - r.top) / r.height * vb.height),
+  };
+}
+// Vẽ lưới + trục cho một svg (gốc dưới-trái về mặt cảm giác, nhưng SVG y hướng xuống —
+// ta vẽ trực tiếp tọa độ pixel, đủ cho minh họa).
+function drawGrid(svg, w, h) {
+  for (let x = 0; x <= w; x += 40) svg.appendChild(el("line", { x1: x, y1: 0, x2: x, y2: h, class: "grid-line" }));
+  for (let y = 0; y <= h; y += 40) svg.appendChild(el("line", { x1: 0, y1: y, x2: w, y2: y, class: "grid-line" }));
+}
+
+// =====================================================================
+// MODULE 1: Cross product / Orientation
+// =====================================================================
+(function () {
+  const svg = document.getElementById("m1-svg");
+  const status = document.getElementById("m1-status");
+  const W = 480, H = 320;
+  let pts = [];
+  const labels = ["A", "B", "C"];
+  const colors = [getCSS("--red"), getCSS("--blue"), getCSS("--purple")];
+
+  function getCSS(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+  function render() {
+    svg.innerHTML = "";
+    drawGrid(svg, W, H);
+    // Đường A→B (mũi tên) khi có ≥2 điểm
+    if (pts.length >= 2) {
+      svg.appendChild(el("line", { x1: pts[0].x, y1: pts[0].y, x2: pts[1].x, y2: pts[1].y,
+        stroke: getCSS("--dark"), "stroke-width": 2.5, "marker-end": "url(#arr)" }));
+    }
+    if (pts.length === 3) {
+      // tam giác mờ
+      svg.appendChild(el("polygon", { points: pts.map(p => `${p.x},${p.y}`).join(" "),
+        fill: "rgba(245,158,11,0.12)", stroke: "none" }));
+    }
+    pts.forEach((p, i) => {
+      svg.appendChild(el("circle", { cx: p.x, cy: p.y, r: 7, fill: colors[i], stroke: "#fff", "stroke-width": 2 }));
+      const t = el("text", { x: p.x + 11, y: p.y - 9, "font-size": 15, "font-weight": 700, fill: colors[i] });
+      t.textContent = labels[i];
+      svg.appendChild(t);
+    });
+    // defs cho mũi tên
+    const defs = el("defs", {});
+    const m = el("marker", { id: "arr", markerWidth: 8, markerHeight: 8, refX: 7, refY: 3, orient: "auto" });
+    m.appendChild(el("path", { d: "M0,0 L7,3 L0,6 Z", fill: getCSS("--dark") }));
+    defs.appendChild(m); svg.appendChild(defs);
+  }
+
+  function update() {
+    if (pts.length < 3) {
+      status.innerHTML = `Click điểm <b>${labels[pts.length]}</b> trên lưới…`;
+      return;
+    }
+    const cr = cross(pts[0], pts[1], pts[2]);
+    let badge, txt;
+    if (cr > 0) { badge = `<span class="badge ccw">CCW · rẽ trái</span>`; txt = "C nằm bên TRÁI khi đi A→B (ngược chiều kim đồng hồ)."; }
+    else if (cr < 0) { badge = `<span class="badge cw">CW · rẽ phải</span>`; txt = "C nằm bên PHẢI khi đi A→B (cùng chiều kim đồng hồ)."; }
+    else { badge = `<span class="badge col">COLLINEAR</span>`; txt = "Ba điểm THẲNG HÀNG (cross = 0)."; }
+    const area = Math.abs(cr) / 2;
+    status.innerHTML =
+      `<code>cross(A,B,C) = (B−A)×(C−A) = ${cr}</code> ${badge}<br>` +
+      `${txt}<br>` +
+      `Diện tích tam giác = <b>|${cr}| / 2 = ${area}</b>`;
+  }
+
+  svg.addEventListener("click", e => {
+    if (pts.length >= 3) pts = [];
+    pts.push(svgPoint(svg, e));
+    render(); update();
+  });
+  document.getElementById("m1-reset").onclick = () => { pts = []; render(); update(); };
+  document.getElementById("m1-demo").onclick = () => {
+    pts = [{ x: 80, y: 240 }, { x: 360, y: 240 }, { x: 220, y: 80 }];
+    render(); update();
+  };
+  render(); update();
+})();
+
+// =====================================================================
+// MODULE 2: Convex hull (Andrew monotone chain) — animate
+// =====================================================================
+(function () {
+  const svg = document.getElementById("m2-svg");
+  const status = document.getElementById("m2-status");
+  const W = 480, H = 320;
+  let pts = [];
+  let timer = null;
+
+  function getCSS(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+  function render(hull, current, popped) {
+    svg.innerHTML = "";
+    drawGrid(svg, W, H);
+    // hull (đường đang dựng)
+    if (hull && hull.length >= 2) {
+      let d = `M ${hull[0].x} ${hull[0].y}`;
+      for (let i = 1; i < hull.length; i++) d += ` L ${hull[i].x} ${hull[i].y}`;
+      svg.appendChild(el("path", { d, fill: "none", stroke: getCSS("--accent"), "stroke-width": 3 }));
+    }
+    // điểm
+    pts.forEach(p => {
+      let fill = "#94a3b8", r = 5;
+      if (popped && popped.x === p.x && popped.y === p.y) { fill = getCSS("--red"); r = 7; }
+      if (current && current.x === p.x && current.y === p.y) { fill = getCSS("--blue"); r = 7; }
+      if (hull && hull.some(h => h.x === p.x && h.y === p.y)) { fill = getCSS("--green"); }
+      svg.appendChild(el("circle", { cx: p.x, cy: p.y, r, fill, stroke: "#fff", "stroke-width": 1.5 }));
+    });
+  }
+
+  // Sinh các bước build lower hull + upper hull, dùng cho animate.
+  function buildSteps() {
+    const P = pts.slice().sort((a, b) => a.x - b.x || a.y - b.y);
+    const n = P.length;
+    const steps = [];
+    const hull = [];
+    // lower
+    for (const p of P) {
+      while (hull.length >= 2 && cross(hull[hull.length - 2], hull[hull.length - 1], p) <= 0) {
+        steps.push({ hull: hull.slice(), current: p, popped: hull[hull.length - 1], phase: "lower-pop" });
+        hull.pop();
+      }
+      hull.push(p);
+      steps.push({ hull: hull.slice(), current: p, popped: null, phase: "lower-push" });
+    }
+    const lower = hull.length + 1;
+    for (let i = n - 2; i >= 0; i--) {
+      const p = P[i];
+      while (hull.length >= lower && cross(hull[hull.length - 2], hull[hull.length - 1], p) <= 0) {
+        steps.push({ hull: hull.slice(), current: p, popped: hull[hull.length - 1], phase: "upper-pop" });
+        hull.pop();
+      }
+      hull.push(p);
+      steps.push({ hull: hull.slice(), current: p, popped: null, phase: "upper-push" });
+    }
+    hull.pop(); // bỏ điểm trùng đầu
+    steps.push({ hull: hull.slice(), current: null, popped: null, phase: "done" });
+    return steps;
+  }
+
+  function animate() {
+    if (timer) { clearInterval(timer); timer = null; }
+    if (pts.length < 3) { status.textContent = "Cần ≥ 3 điểm."; return; }
+    const steps = buildSteps();
+    let i = 0;
+    timer = setInterval(() => {
+      if (i >= steps.length) { clearInterval(timer); timer = null; return; }
+      const s = steps[i];
+      render(s.hull, s.current, s.popped);
+      const phaseTxt = {
+        "lower-push": "Lower hull · push điểm xanh",
+        "lower-pop": "Lower hull · cross ≤ 0 → POP điểm đỏ (khúc cua sai)",
+        "upper-push": "Upper hull · push điểm xanh",
+        "upper-pop": "Upper hull · cross ≤ 0 → POP điểm đỏ",
+        "done": "✓ Xong! Đỉnh xanh lá = bao lồi.",
+      }[s.phase];
+      status.innerHTML = `Bước ${i + 1}/${steps.length}: <b>${phaseTxt}</b>` +
+        (s.phase === "done" ? ` — hull có <b>${s.hull.length}</b> đỉnh.` : ` (hull hiện ${s.hull.length} đỉnh)`);
+      i++;
+    }, 650);
+  }
+
+  svg.addEventListener("click", e => { pts.push(svgPoint(svg, e)); render(null, null, null); });
+  document.getElementById("m2-build").onclick = animate;
+  document.getElementById("m2-reset").onclick = () => { pts = []; if (timer) clearInterval(timer); render(null, null, null); status.textContent = "Click ≥ 3 điểm rồi bấm \"Dựng hull\"."; };
+  document.getElementById("m2-rand").onclick = () => {
+    pts = [];
+    const n = 8 + Math.floor(Math.random() * 6);
+    for (let k = 0; k < n; k++) pts.push({ x: 40 + Math.floor(Math.random() * (W - 80)), y: 40 + Math.floor(Math.random() * (H - 80)) });
+    render(null, null, null);
+    status.textContent = `Đã sinh ${n} điểm. Bấm "Dựng hull".`;
+  };
+  // seed vài điểm sẵn
+  pts = [{ x: 80, y: 80 }, { x: 380, y: 100 }, { x: 340, y: 250 }, { x: 120, y: 260 }, { x: 230, y: 160 }, { x: 200, y: 60 }];
+  render(null, null, null);
+})();
+
+// =====================================================================
+// MODULE 3: Point in polygon (ray casting)
+// =====================================================================
+(function () {
+  const svg = document.getElementById("m3-svg");
+  const status = document.getElementById("m3-status");
+  const W = 480, H = 320;
+  let query = null;
+  function getCSS(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+  const convex = [{ x: 120, y: 60 }, { x: 360, y: 90 }, { x: 400, y: 240 }, { x: 200, y: 280 }, { x: 70, y: 180 }];
+  const concave = [{ x: 80, y: 60 }, { x: 400, y: 60 }, { x: 400, y: 150 }, { x: 200, y: 150 }, { x: 200, y: 280 }, { x: 80, y: 280 }];
+  let poly = convex;
+
+  // Ray casting: trả {inside, crossings:[{x,y}]} — các điểm giao của tia ngang sang phải.
+  function rayCast(p) {
+    const n = poly.length;
+    let inside = false;
+    const crossings = [];
+    for (let i = 0, j = n - 1; i < n; j = i++) {
+      const yi = poly[i].y, yj = poly[j].y, xi = poly[i].x, xj = poly[j].x;
+      if ((yi > p.y) !== (yj > p.y)) {
+        const xCross = (xj - xi) * (p.y - yi) / (yj - yi) + xi;
+        if (p.x < xCross) { inside = !inside; crossings.push({ x: xCross, y: p.y }); }
+      }
+    }
+    return { inside, crossings };
+  }
+
+  function render() {
+    svg.innerHTML = "";
+    drawGrid(svg, W, H);
+    // đa giác
+    svg.appendChild(el("polygon", {
+      points: poly.map(p => `${p.x},${p.y}`).join(" "),
+      fill: "rgba(37,99,235,0.10)", stroke: getCSS("--blue"), "stroke-width": 2.5,
+    }));
+    poly.forEach(p => svg.appendChild(el("circle", { cx: p.x, cy: p.y, r: 4, fill: getCSS("--blue") })));
+
+    if (query) {
+      const { inside, crossings } = rayCast(query);
+      // tia ngang sang phải
+      svg.appendChild(el("line", { x1: query.x, y1: query.y, x2: W, y2: query.y,
+        stroke: getCSS("--accent"), "stroke-width": 2, "stroke-dasharray": "6 4" }));
+      // điểm giao
+      crossings.forEach(c => svg.appendChild(el("circle", { cx: c.x, cy: c.y, r: 5,
+        fill: getCSS("--accent"), stroke: "#fff", "stroke-width": 1.5 })));
+      // điểm truy vấn
+      svg.appendChild(el("circle", { cx: query.x, cy: query.y, r: 8,
+        fill: inside ? getCSS("--green") : getCSS("--red"), stroke: "#fff", "stroke-width": 2.5 }));
+
+      const badge = inside ? `<span class="badge in">BÊN TRONG</span>` : `<span class="badge out">BÊN NGOÀI</span>`;
+      status.innerHTML = `Tia sang phải cắt <b>${crossings.length}</b> cạnh → ` +
+        `${crossings.length % 2 === 1 ? "<b>lẻ</b>" : "<b>chẵn</b>"} → ${badge}`;
+    } else {
+      status.textContent = "Click để đặt điểm truy vấn…";
+    }
+  }
+
+  svg.addEventListener("click", e => { query = svgPoint(svg, e); render(); });
+  document.getElementById("m3-shape").onclick = () => {
+    poly = (poly === convex) ? concave : convex;
+    query = null; render();
+    status.textContent = (poly === concave ? "Đa giác LÕM (chữ L). " : "Đa giác LỒI. ") + "Click để đặt điểm.";
+  };
+  render();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+</body>
+</html>

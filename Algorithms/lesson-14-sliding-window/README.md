@@ -55,6 +55,35 @@ Trượt window `k=3` trên `[2, 1, 5, 1, 3, 2]`:
 
 Tổng số phép cộng/trừ: 2 (khởi tạo) + 3×2 = 8, thay vì brute-force `4×3 = 12`. Với `n` lớn khác biệt thành `O(n)` vs `O(n²)`.
 
+### 1.3 So sánh độ phức tạp bằng số thật
+
+Để thấy "tái dùng" tiết kiệm bao nhiêu, đếm số phép cộng cho cả hai cách với `k = n/2`:
+
+| `n` | `k=n/2` | Brute-force `(n−k+1)·k` | Sliding window `≈ 2n` | Tỉ lệ tiết kiệm |
+|----:|--------:|------------------------:|----------------------:|----------------:|
+| 10 | 5 | `6 × 5 = 30` | `20` | 1.5× |
+| 100 | 50 | `51 × 50 = 2 550` | `200` | ~13× |
+| 1 000 | 500 | `501 × 500 = 250 500` | `2 000` | ~125× |
+| 1 000 000 | 500 000 | `~2.5 × 10¹¹` | `2 000 000` | ~125 000× |
+
+Khoảng cách càng lớn khi `n` tăng — đây là khác biệt `O(n²)` vs `O(n)` thể hiện bằng con số.
+
+### 1.4 Ba "trục" phân loại bài toán sliding window
+
+Hầu hết bài toán rơi vào lưới 2 chiều sau (cộng thêm trục "đại lượng theo dõi"):
+
+| | **Fixed** (cho sẵn `k`) | **Variable** (co giãn theo điều kiện) |
+|---|---|---|
+| **Đại lượng = tổng/đếm** | max sum size `k` (§2.1), average | longest sum ≤ target (§5.4), số subarray có tổng = goal |
+| **Đại lượng = "số loại / lặp"** | đếm số loại trong mọi window `k` | longest no-repeat (§5.1), fruit baskets (Bài 5) |
+| **Đại lượng = min/max** | sliding window maximum (§8) | (hiếm) |
+
+Ba câu hỏi cần trả lời trước khi code mọi bài:
+
+1. **Window cố định hay co giãn?** Đề cho sẵn `k` → fixed. Đề hỏi "dài nhất/ngắn nhất thỏa..." → variable.
+2. **Đại lượng theo dõi là gì?** Tổng? Số ký tự phân biệt? Max? → quyết định trạng thái lưu (biến `sum`, map `count`, hay deque).
+3. **Điều kiện có monotonic không?** (xem §6) — nếu không, sliding window **không** dùng được.
+
 > ❓ **Câu hỏi tự nhiên của người đọc.**
 > - *"Tái dùng kiểu này luôn hợp lệ không?"* — Chỉ khi đại lượng cập nhật được **tăng dần** (incrementally): tổng (cộng/trừ), đếm số phần tử thỏa điều kiện (map ++/--). Với "max của window" thì **không** trừ ra được dễ dàng (xem §8).
 > - *"Window có buộc phải kích thước cố định?"* — Không. §3 cho window co giãn.
@@ -106,6 +135,13 @@ func maxSumK(nums []int, k int) int {
 - `r=4`: `windowSum = 7 + nums[4] − nums[1] = 7 + 3 − 1 = 9`. `best = 9`.
 - `r=5`: `windowSum = 9 + nums[5] − nums[2] = 9 + 2 − 5 = 6`. `best = 9`.
 - Trả về **9** ✓.
+
+**Thêm ví dụ số** để củng cố công thức `windowSum += nums[r] − nums[r−k]`:
+
+- `nums=[1,1,1,1,1]`, `k=2`: mọi window tổng 2 → max **2**. Trượt: `2; 2−1+1=2; ...`.
+- `nums=[5,4,3,2,1]` (giảm dần), `k=2`: tổng `9,7,5,3` → max **9** (window đầu). Số giảm dần ⇒ window đầu luôn lớn nhất.
+- `nums=[-2,-1,-3,-4]` (toàn âm), `k=2`: tổng `−3,−4,−7` → max **−3**. Sliding window vẫn đúng với số âm **khi `k` cố định** (chỉ cộng/trừ, không co trái).
+- `nums=[3]`, `k=1`: chỉ một window → max **3**.
 
 ### 2.2 Trung bình mỗi window (average of subarrays size k)
 

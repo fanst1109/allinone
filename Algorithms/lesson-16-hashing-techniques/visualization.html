@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 16 — Hashing Techniques</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 38px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #4299e1; color: white; border: none; border-radius: 6px;
+    padding: 9px 16px; font-size: 15px; cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+  button:disabled { opacity: .45; cursor: default; }
+  input[type=text] {
+    padding: 8px 10px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 15px; width: 100%; max-width: 360px; box-sizing: border-box;
+    font-family: ui-monospace, monospace;
+  }
+  .hint { color: #718096; font-size: 14px; margin: 4px 0; }
+  .label { font-weight: 600; color: #2d3748; }
+  .status {
+    margin: 12px 0; padding: 12px 14px; border-radius: 8px; font-size: 15px;
+    background: #ebf8ff; border-left: 4px solid #4299e1; color: #2c5282;
+    min-height: 22px;
+  }
+  .status.win { background: #f0fff4; border-left-color: #48bb78; color: #22543d; }
+  code { background: #edf2f7; padding: 1px 5px; border-radius: 4px;
+         font-family: ui-monospace, monospace; font-size: 14px; }
+
+  /* arrays of cells */
+  .arr { display: flex; gap: 6px; flex-wrap: wrap; margin: 12px 0; }
+  .cell {
+    width: 48px; height: 48px; border-radius: 8px; display: flex;
+    align-items: center; justify-content: center; font-weight: 700; font-size: 17px;
+    background: #edf2f7; border: 2px solid #cbd5e0; color: #2d3748;
+    transition: all .25s; position: relative;
+  }
+  .cell .ix { position: absolute; top: -16px; left: 0; right: 0; text-align: center;
+              font-size: 11px; color: #a0aec0; font-weight: 600; }
+  .cell.cur { background: #fefcbf; border-color: #d69e2e; transform: translateY(-3px); }
+  .cell.hit { background: #c6f6d5; border-color: #48bb78; }
+  .cell.done { background: #e2e8f0; border-color: #cbd5e0; color: #a0aec0; }
+
+  /* map / freq display */
+  .mapbox { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; min-height: 30px; }
+  .kv {
+    background: #faf5ff; border: 2px solid #d6bcfa; border-radius: 8px;
+    padding: 6px 10px; font-family: ui-monospace, monospace; font-size: 14px; color: #553c9a;
+    transition: all .2s;
+  }
+  .kv.flash { background: #fefcbf; border-color: #d69e2e; transform: scale(1.08); }
+  .kv .bar { display: inline-block; height: 8px; background: #9f7aea; border-radius: 4px;
+             vertical-align: middle; margin-left: 6px; min-width: 4px; }
+
+  /* groups */
+  .group {
+    border: 2px solid #cbd5e0; border-radius: 10px; padding: 10px 12px; margin: 8px 0;
+    background: #f7fafc;
+  }
+  .group .gkey { font-family: ui-monospace, monospace; font-weight: 700; color: #2b6cb0;
+                 margin-bottom: 6px; font-size: 14px; }
+  .group .gitems { display: flex; gap: 6px; flex-wrap: wrap; }
+  .word {
+    background: #bee3f8; border-radius: 6px; padding: 5px 9px; font-weight: 600;
+    color: #2c5282; font-family: ui-monospace, monospace; font-size: 14px;
+  }
+  .word.in { animation: pop .35s; }
+  @keyframes pop { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  @media (max-width: 480px) {
+    .cell { width: 38px; height: 38px; font-size: 15px; }
+    button { padding: 8px 12px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-15-prefix-sum-difference/visualization.html">← L15: Prefix Sum</a>
+  <span class="sep">·</span>
+  <span class="current">L16: Hashing</span>
+  <span class="sep">·</span>
+  <a href="../lesson-17-divide-and-conquer/visualization.html">L17: Divide &amp; Conquer →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 16 — Hashing Techniques</h1>
+<p class="hint">Ba module tương tác minh họa các kỹ thuật dùng hash để biến O(n²) → O(n).
+Đọc lý thuyết đầy đủ ở nút <strong>📖 Đọc README</strong>.</p>
+
+<!-- ============ MODULE 1: TWO-SUM ============ -->
+<h2>1. Two-Sum bằng Hash — "complement lookup" (1 lượt)</h2>
+<div class="card">
+  <p class="hint">Với mỗi <code>x</code> ta cần phần bù <code>target − x</code>. Nếu phần bù đã nằm
+  trong <code>seen</code> → tìm được cặp. Một lượt duy nhất ⇒ <strong>O(n)</strong>.</p>
+  <div class="row">
+    <span class="label">Mảng:</span>
+    <input id="ts-arr" type="text" value="2, 7, 11, 15">
+    <span class="label">target:</span>
+    <input id="ts-target" type="text" value="9" style="max-width: 90px">
+  </div>
+  <div class="row">
+    <button id="ts-step">▶ Bước tiếp</button>
+    <button id="ts-auto" class="ghost">⏩ Tự chạy</button>
+    <button id="ts-reset" class="ghost">↺ Reset</button>
+  </div>
+  <div id="ts-cells" class="arr"></div>
+  <div><span class="label">seen (đã thấy):</span><div id="ts-map" class="mapbox"></div></div>
+  <div id="ts-status" class="status">Nhấn "Bước tiếp" để bắt đầu.</div>
+</div>
+
+<!-- ============ MODULE 2: FREQUENCY ============ -->
+<h2>2. Frequency Counter — đếm tần suất &amp; Top-K</h2>
+<div class="card">
+  <p class="hint">Mỗi phần tử <code>freq[x]++</code>. Xây map theo thời gian thực, rồi xem
+  <code>k</code> phần tử phổ biến nhất.</p>
+  <div class="row">
+    <span class="label">Dữ liệu:</span>
+    <input id="fq-arr" type="text" value="apple, banana, apple, cherry, banana, apple">
+  </div>
+  <div class="row">
+    <button id="fq-step">▶ Đếm 1 phần tử</button>
+    <button id="fq-all" class="ghost">⏩ Đếm hết</button>
+    <span class="label">k:</span>
+    <input id="fq-k" type="text" value="2" style="max-width: 70px">
+    <button id="fq-topk" class="ghost">🏆 Top-K</button>
+    <button id="fq-reset" class="ghost">↺ Reset</button>
+  </div>
+  <div id="fq-queue" class="arr"></div>
+  <div><span class="label">freq map:</span><div id="fq-map" class="mapbox"></div></div>
+  <div id="fq-status" class="status">Nhấn "Đếm" để bắt đầu.</div>
+</div>
+
+<!-- ============ MODULE 3: GROUP ANAGRAMS ============ -->
+<h2>3. Group Anagrams — key = chuỗi đã sắp xếp</h2>
+<div class="card">
+  <p class="hint">Anagram có cùng tập chữ cái ⇒ sort ký tự cho ra <strong>cùng key</strong>
+  (<code>"eat" → "aet"</code>). Gom từ vào nhóm theo key đó.</p>
+  <div class="row">
+    <span class="label">Từ:</span>
+    <input id="ga-arr" type="text" value="eat, tea, tan, ate, nat, bat">
+  </div>
+  <div class="row">
+    <button id="ga-step">▶ Xếp 1 từ</button>
+    <button id="ga-all" class="ghost">⏩ Xếp hết</button>
+    <button id="ga-reset" class="ghost">↺ Reset</button>
+  </div>
+  <div id="ga-queue" class="arr"></div>
+  <div id="ga-groups"></div>
+  <div id="ga-status" class="status">Nhấn "Xếp 1 từ" để bắt đầu.</div>
+</div>
+
+</main>
+
+<script>
+/* ---------- helpers ---------- */
+function parseList(s, num) {
+  return s.split(/[,\s]+/).map(t => t.trim()).filter(t => t.length)
+          .map(t => num ? parseInt(t, 10) : t)
+          .filter(t => !num || !Number.isNaN(t));
+}
+function el(tag, cls, txt) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (txt != null) e.textContent = txt;
+  return e;
+}
+
+/* ================= MODULE 1: TWO-SUM ================= */
+(function () {
+  const cellsBox = document.getElementById('ts-cells');
+  const mapBox = document.getElementById('ts-map');
+  const status = document.getElementById('ts-status');
+  let nums = [], target = 0, i = 0, seen = {}, done = false, timer = null;
+
+  function render() {
+    cellsBox.innerHTML = '';
+    nums.forEach((v, k) => {
+      const c = el('div', 'cell', v);
+      c.appendChild(Object.assign(el('span', 'ix'), { textContent: k }));
+      if (done && (k === i)) c.classList.add('hit');
+      else if (k < i) c.classList.add('done');
+      else if (k === i) c.classList.add('cur');
+      cellsBox.appendChild(c);
+    });
+    mapBox.innerHTML = '';
+    Object.keys(seen).forEach(key => mapBox.appendChild(el('div', 'kv', key)));
+  }
+  function reset() {
+    clearInterval(timer); timer = null;
+    nums = parseList(document.getElementById('ts-arr').value, true);
+    target = parseInt(document.getElementById('ts-target').value, 10) || 0;
+    i = 0; seen = {}; done = false;
+    status.className = 'status';
+    status.textContent = `Mảng nạp xong (${nums.length} phần tử), target = ${target}. Nhấn Bước tiếp.`;
+    render();
+  }
+  function step() {
+    if (done) return;
+    if (i >= nums.length) {
+      status.textContent = 'Đã duyệt hết — KHÔNG có cặp nào tổng = ' + target + '.';
+      done = true; clearInterval(timer); timer = null; return;
+    }
+    const x = nums[i], need = target - x;
+    if (seen[need] !== undefined) {
+      done = true;
+      status.className = 'status win';
+      status.textContent = `x=${x} tại i=${i}: cần phần bù ${need} — ĐÃ THẤY! `
+        + `Cặp: ${need} + ${x} = ${target}. Dừng ở bước ${i + 1}.`;
+      // mark the matched seen chip
+      render();
+      [...mapBox.children].forEach(ch => { if (ch.textContent == need) ch.classList.add('flash'); });
+      clearInterval(timer); timer = null;
+      return;
+    }
+    status.textContent = `x=${x} tại i=${i}: cần phần bù ${need} — chưa thấy. Ghi ${x} vào seen.`;
+    seen[x] = i;
+    i++;
+    render();
+  }
+  document.getElementById('ts-step').onclick = step;
+  document.getElementById('ts-reset').onclick = reset;
+  document.getElementById('ts-auto').onclick = () => {
+    if (timer) { clearInterval(timer); timer = null; return; }
+    timer = setInterval(() => { if (done || i > nums.length) { clearInterval(timer); timer = null; } else step(); }, 800);
+  };
+  document.getElementById('ts-arr').onchange = reset;
+  document.getElementById('ts-target').onchange = reset;
+  reset();
+})();
+
+/* ================= MODULE 2: FREQUENCY ================= */
+(function () {
+  const queue = document.getElementById('fq-queue');
+  const mapBox = document.getElementById('fq-map');
+  const status = document.getElementById('fq-status');
+  let items = [], i = 0, freq = {};
+
+  function render(flashKey) {
+    queue.innerHTML = '';
+    items.forEach((v, k) => {
+      const c = el('div', 'cell', v);
+      c.style.width = 'auto'; c.style.padding = '0 10px'; c.style.fontSize = '14px';
+      if (k < i) c.classList.add('done');
+      else if (k === i) c.classList.add('cur');
+      queue.appendChild(c);
+    });
+    const max = Math.max(1, ...Object.values(freq));
+    mapBox.innerHTML = '';
+    Object.keys(freq).sort((a, b) => freq[b] - freq[a]).forEach(key => {
+      const kv = el('div', 'kv');
+      kv.appendChild(document.createTextNode(`${key}: ${freq[key]}`));
+      const bar = el('span', 'bar'); bar.style.width = (freq[key] / max * 60) + 'px';
+      kv.appendChild(bar);
+      if (key === flashKey) kv.classList.add('flash');
+      mapBox.appendChild(kv);
+    });
+  }
+  function reset() {
+    items = parseList(document.getElementById('fq-arr').value, false);
+    i = 0; freq = {};
+    status.className = 'status';
+    status.textContent = `Nạp ${items.length} phần tử. Nhấn "Đếm".`;
+    render();
+  }
+  function step() {
+    if (i >= items.length) { status.textContent = 'Đã đếm hết. Thử Top-K.'; return; }
+    const x = items[i];
+    freq[x] = (freq[x] || 0) + 1;
+    status.textContent = `freq["${x}"]++ → ${freq[x]}.`;
+    i++;
+    render(x);
+  }
+  document.getElementById('fq-step').onclick = step;
+  document.getElementById('fq-all').onclick = () => { while (i < items.length) step(); };
+  document.getElementById('fq-reset').onclick = reset;
+  document.getElementById('fq-arr').onchange = reset;
+  document.getElementById('fq-topk').onclick = () => {
+    if (i < items.length) { while (i < items.length) step(); }
+    const k = Math.max(1, parseInt(document.getElementById('fq-k').value, 10) || 1);
+    const top = Object.keys(freq).sort((a, b) => freq[b] - freq[a]).slice(0, k);
+    status.className = 'status win';
+    status.textContent = `Top-${k}: ` + top.map(t => `${t}(${freq[t]})`).join(', ');
+    render();
+    [...mapBox.children].forEach((ch, idx) => { if (idx < k) ch.classList.add('flash'); });
+  };
+  reset();
+})();
+
+/* ================= MODULE 3: GROUP ANAGRAMS ================= */
+(function () {
+  const queue = document.getElementById('ga-queue');
+  const groupsBox = document.getElementById('ga-groups');
+  const status = document.getElementById('ga-status');
+  let words = [], i = 0, groups = {};
+
+  function keyOf(w) { return w.split('').sort().join(''); }
+  function render(activeKey, newWord) {
+    queue.innerHTML = '';
+    words.forEach((w, k) => {
+      const c = el('div', 'cell', w);
+      c.style.width = 'auto'; c.style.padding = '0 10px'; c.style.fontSize = '14px';
+      if (k < i) c.classList.add('done');
+      else if (k === i) c.classList.add('cur');
+      queue.appendChild(c);
+    });
+    groupsBox.innerHTML = '';
+    Object.keys(groups).forEach(key => {
+      const g = el('div', 'group');
+      g.appendChild(Object.assign(el('div', 'gkey'), { textContent: `key = "${key}"` }));
+      const gi = el('div', 'gitems');
+      groups[key].forEach(w => {
+        const wd = el('div', 'word', w);
+        if (key === activeKey && w === newWord) wd.classList.add('in');
+        gi.appendChild(wd);
+      });
+      g.appendChild(gi);
+      groupsBox.appendChild(g);
+    });
+  }
+  function reset() {
+    words = parseList(document.getElementById('ga-arr').value, false);
+    i = 0; groups = {};
+    status.className = 'status';
+    status.textContent = `Nạp ${words.length} từ. Nhấn "Xếp 1 từ".`;
+    render();
+  }
+  function step() {
+    if (i >= words.length) {
+      status.className = 'status win';
+      status.textContent = `Hoàn tất: ${Object.keys(groups).length} nhóm.`;
+      return;
+    }
+    const w = words[i], key = keyOf(w);
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(w);
+    status.textContent = `"${w}" → sort ký tự → key "${key}" → thả vào nhóm.`;
+    i++;
+    render(key, w);
+  }
+  document.getElementById('ga-step').onclick = step;
+  document.getElementById('ga-all').onclick = () => { while (i < words.length) step(); };
+  document.getElementById('ga-reset').onclick = reset;
+  document.getElementById('ga-arr').onchange = reset;
+  reset();
+})();
+</script>
+
+<!-- README modal + tools -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+
+</body>
+</html>

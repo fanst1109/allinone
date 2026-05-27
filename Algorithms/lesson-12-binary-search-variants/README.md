@@ -291,17 +291,16 @@ func lastOccurrence(a []int, target int) int {
 
 | Bước | lo | hi | mid (cap) | daysNeeded(mid) | ≤ 5 ? | Hành động |
 |:----:|:--:|:--:|:---------:|:---------------:|:-----:|-----------|
-| 1 | 10 | 55 | 10+(55-10)/2 = **32** | xem dưới = 2 | có (T) | hi = 32 |
+| 1 | 10 | 55 | 10+(55-10)/2 = **32** | = 2 | có (T) | hi = 32 |
 | 2 | 10 | 32 | 10+(32-10)/2 = **21** | = 3 | có (T) | hi = 21 |
 | 3 | 10 | 21 | 10+(21-10)/2 = **15** | = 5 | có (T) | hi = 15 |
 | 4 | 10 | 15 | 10+(15-10)/2 = **12** | = 6 | không (F) | lo = 13 |
-| 5 | 13 | 15 | 13+(15-13)/2 = **14** | = 5 | có (T) | hi = 14 |
-| 6 | 13 | 14 | 13+(14-13)/2 = **13** | = 6 | không (F) | lo = 14 |
-| | 14 | 14 | dừng | | | **trả 14** |
+| 5 | 13 | 15 | 13+(15-13)/2 = **14** | = 6 | không (F) | lo = 15 |
+| | 15 | 15 | lo==hi → dừng | | | **trả 15** |
 
-Kiểm tra `daysNeeded(15)`: ngày1 [1,2,3,4,5]=15, ngày2 [6,7]=13, ngày3 [8]... khoan, [6,7]=13, thêm 8 = 21>15 → ngày3 [8,..]: 8+9=17>15 → ngày3 [8], ngày4 [9], ngày5 [10]? Tính lại cẩn thận: ngày1=1+2+3+4+5=15, ngày2=6+7=13 (thêm 8→21>15 dừng), ngày3=8 (thêm 9→17>15), ngày4=9 (thêm 10→19>15), ngày5=10. → 5 ngày ✓.
+Kiểm tra `daysNeeded(15)` (đáp án): ngày1 = 1+2+3+4+5 = 15 (thêm 6 → 21 > 15 → sang ngày mới), ngày2 = 6+7 = 13 (thêm 8 → 21 > 15), ngày3 = 8 (thêm 9 → 17 > 15), ngày4 = 9 (thêm 10 → 19 > 15), ngày5 = 10. → đúng **5 ngày** ✓.
 
-`daysNeeded(14)`: ngày1=1+2+3+4=10 (thêm5→15>14), ngày2=5+6=11(thêm7→18>14), ngày3=7(thêm8→15>14), khoan đây lệch — để chính xác xem code. Điểm cốt lõi: **đáp án = 14** (capacity nhỏ nhất chở hết trong 5 ngày).
+Kiểm tra `daysNeeded(14)`: ngày1 = 1+2+3+4 = 10 (thêm 5 → 15 > 14), ngày2 = 5+6 = 11 (thêm 7 → 18 > 14), ngày3 = 7+... 7 (thêm 8 → 15 > 14), ngày4 = 8 (thêm 9 → 17 > 14), ngày5 = 9 (thêm 10 → 19 > 14), ngày6 = 10 → **6 ngày** > 5 ❌. Vậy cap=14 không đủ → **đáp án = 15** (capacity nhỏ nhất chở hết trong 5 ngày).
 
 ### 5.2 Code Go — binary search on answer (ship capacity)
 

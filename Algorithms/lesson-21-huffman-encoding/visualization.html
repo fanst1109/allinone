@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 21 — Huffman Encoding Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #8b5cf6; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #7c3aed; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  input[type="text"] {
+    font-size: 14px; padding: 6px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    font-family: monospace; width: 100%; max-width: 280px; box-sizing: border-box;
+  }
+  label { font-weight: 600; font-size: 14px; }
+
+  .explain {
+    background: #ede9fe; border-left: 4px solid #8b5cf6;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6; margin-top: 10px;
+    min-height: 1.6em;
+  }
+  .explain code, .explain b { color: #5b21b6; }
+  .note {
+    background: #fffaf0; border-left: 4px solid #ed8936;
+    padding: 10px 14px; border-radius: 0 6px 6px 0;
+    font-size: 13.5px; line-height: 1.6; margin-top: 10px;
+  }
+
+  .svg-wrap { width: 100%; overflow-x: auto; }
+  svg { display: block; margin: 0 auto; }
+
+  table { border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+  th, td { border: 1px solid #cbd5e0; padding: 6px 12px; text-align: center; }
+  th { background: #f1f5f9; }
+  .mono { font-family: monospace; }
+
+  .heap-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+  .heap-node {
+    background: #f1f5f9; border: 2px solid #cbd5e0; border-radius: 6px;
+    padding: 6px 10px; font-family: monospace; font-size: 14px; min-width: 44px;
+    text-align: center;
+  }
+  .heap-node.picked { background: #fde68a; border-color: #f59e0b; }
+  .heap-node.merged { background: #ddd6fe; border-color: #8b5cf6; }
+
+  .bitstream {
+    font-family: monospace; font-size: 15px; word-break: break-all;
+    line-height: 1.9; margin: 8px 0;
+  }
+  .bit-a { color: #8b5cf6; }
+  .bit-b { color: #0891b2; }
+  .seg { padding: 1px 2px; border-radius: 3px; }
+  .seg.hl { background: #fde68a; }
+
+  .stat { display: inline-block; margin-right: 18px; font-size: 14px; }
+  .stat b { font-size: 20px; color: #5b21b6; }
+
+  @media (max-width: 480px) {
+    .heap-node { min-width: 36px; padding: 5px 7px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-20-interval-problems/visualization.html">← L20: Interval Problems</a>
+  <span class="sep">·</span>
+  <span class="current">L21: Huffman Encoding</span>
+  <span class="sep">·</span>
+  <a href="../lesson-22-greedy-vs-dp/visualization.html">L22: Greedy vs DP →</a>
+</nav>
+
+<main class="container">
+
+<h1>Lesson 21 — Huffman Encoding</h1>
+<p>Greedy xây cây nhị phân tối ưu để nén dữ liệu. Ba module: (1) xây cây từng bước, (2) gán mã 0/1, (3) encode/decode + tỉ lệ nén.</p>
+
+<!-- ============ MODULE 1: BUILD TREE ============ -->
+<h2>① Build tree — ghép 2 node nhẹ nhất từng bước</h2>
+<div class="card">
+  <div class="row">
+    <label>Văn bản:</label>
+    <input type="text" id="m1input" value="abracadabra">
+    <button id="m1build">Đếm &amp; khởi tạo heap</button>
+  </div>
+  <div class="row">
+    <button id="m1step" disabled>▶ Ghép 1 bước</button>
+    <button id="m1all" class="secondary" disabled>⏩ Chạy hết</button>
+    <button id="m1reset" class="secondary">↺ Reset</button>
+  </div>
+  <div><b>Min-heap hiện tại</b> (nhỏ nhất bên trái):</div>
+  <div class="heap-row" id="m1heap"></div>
+  <div class="svg-wrap"><svg id="m1svg" width="700" height="360" viewBox="0 0 700 360"></svg></div>
+  <div class="explain" id="m1explain">Nhập văn bản rồi bấm <b>Đếm &amp; khởi tạo heap</b>.</div>
+</div>
+
+<!-- ============ MODULE 2: CODE ASSIGNMENT ============ -->
+<h2>② Gán mã — đi cây trái=0, phải=1</h2>
+<div class="card">
+  <p style="font-size:14px;color:#4a5568;">Dùng cây vừa xây ở Module ①. DFS gán mã từ gốc: rẽ trái thêm <code>0</code>, rẽ phải thêm <code>1</code>; tới lá thì chuỗi bit là mã của ký tự.</p>
+  <div class="row">
+    <button id="m2step" disabled>▶ Gán 1 lá</button>
+    <button id="m2all" class="secondary" disabled>⏩ Gán hết</button>
+  </div>
+  <div class="svg-wrap"><svg id="m2svg" width="700" height="360" viewBox="0 0 700 360"></svg></div>
+  <div id="m2table"></div>
+  <div class="explain" id="m2explain">Xây cây ở Module ① trước, rồi bấm <b>Gán 1 lá</b>.</div>
+</div>
+
+<!-- ============ MODULE 3: ENCODE / DECODE ============ -->
+<h2>③ Encode / Decode + tỉ lệ nén</h2>
+<div class="card">
+  <p style="font-size:14px;color:#4a5568;">Dùng bảng mã từ Module ②. So sánh với fixed-length (đủ bit để phân biệt các ký tự trong văn bản).</p>
+  <div class="row">
+    <button id="m3encode" disabled>🔐 Encode</button>
+    <button id="m3decode" class="secondary" disabled>🔓 Decode (theo cây)</button>
+  </div>
+  <div><b>Bit stream Huffman</b> (màu xen kẽ theo ký tự):</div>
+  <div class="bitstream" id="m3bits">—</div>
+  <div><b>Decode (đi theo cây)</b>:</div>
+  <div class="bitstream" id="m3decoded">—</div>
+  <div class="row" style="margin-top:14px;">
+    <span class="stat">Fixed-length: <b id="m3fixed">—</b></span>
+    <span class="stat">Huffman: <b id="m3huff">—</b></span>
+    <span class="stat">Tiết kiệm: <b id="m3save">—</b></span>
+  </div>
+  <div class="explain" id="m3explain">Hoàn tất Module ① và ② trước, rồi bấm <b>Encode</b>.</div>
+</div>
+
+</main>
+
+<script>
+// ====================== TRẠNG THÁI CHUNG ======================
+let TREE = null;       // gốc cây Huffman
+let CODES = null;      // map char -> code
+let TEXT = "";
+
+// ---------- min-heap đơn giản (mảng, sort lại — đủ cho viz nhỏ) ----------
+function makeNodes(text) {
+  const freq = {};
+  for (const ch of text) freq[ch] = (freq[ch] || 0) + 1;
+  const nodes = Object.keys(freq).sort().map(ch => ({
+    char: ch, weight: freq[ch], left: null, right: null, id: ch
+  }));
+  return { freq, nodes };
+}
+// so sánh: weight rồi char (tie-break ổn định)
+function cmp(a, b) {
+  if (a.weight !== b.weight) return a.weight - b.weight;
+  const ka = a.repr || a.char || "~", kb = b.repr || b.char || "~";
+  return ka < kb ? -1 : ka > kb ? 1 : 0;
+}
+
+// ====================== MODULE 1 ======================
+let m1heap = [], m1mergeCount = 0, m1nMerges = 0;
+const m1svg = document.getElementById('m1svg');
+
+function m1RenderHeap(picked) {
+  const el = document.getElementById('m1heap');
+  el.innerHTML = '';
+  m1heap.forEach((n, i) => {
+    const d = document.createElement('div');
+    d.className = 'heap-node';
+    if (picked && picked.includes(i)) d.classList.add('picked');
+    if (n.left || n.right) d.classList.add('merged');
+    const lbl = (n.left || n.right) ? '•' : n.char;
+    d.textContent = `${lbl}:${n.weight}`;
+    el.appendChild(d);
+  });
+}
+
+// layout cây: gán x theo thứ tự lá, y theo độ sâu
+function layoutTree(root, W, H) {
+  if (!root) return { nodes: [], edges: [], maxDepth: 0 };
+  let leafX = 0;
+  const positions = new Map();
+  let maxDepth = 0;
+  (function place(n, depth) {
+    maxDepth = Math.max(maxDepth, depth);
+    if (!n.left && !n.right) {
+      positions.set(n, { col: leafX++, depth });
+      return;
+    }
+    if (n.left) place(n.left, depth + 1);
+    if (n.right) place(n.right, depth + 1);
+    const cl = n.left ? positions.get(n.left).col : null;
+    const cr = n.right ? positions.get(n.right).col : null;
+    const cols = [cl, cr].filter(v => v !== null);
+    positions.set(n, { col: cols.reduce((a, b) => a + b, 0) / cols.length, depth });
+  })(root, 0);
+  const nLeaves = leafX || 1;
+  const padX = 40, padY = 36;
+  const sx = (W - 2 * padX) / Math.max(1, nLeaves - 1 || 1);
+  const sy = (H - 2 * padY) / Math.max(1, maxDepth);
+  const nodes = [], edges = [];
+  for (const [n, p] of positions) {
+    const x = padX + p.col * sx, y = padY + p.depth * sy;
+    nodes.push({ n, x, y });
+  }
+  const pos = new Map(nodes.map(o => [o.n, o]));
+  for (const { n } of nodes) {
+    if (n.left) edges.push({ from: pos.get(n), to: pos.get(n.left), bit: '0' });
+    if (n.right) edges.push({ from: pos.get(n), to: pos.get(n.right), bit: '1' });
+  }
+  return { nodes, pos, edges, maxDepth };
+}
+
+function drawTree(svg, root, opts) {
+  opts = opts || {};
+  svg.innerHTML = '';
+  if (!root) return;
+  const W = 700, H = 360;
+  const { nodes, edges } = layoutTree(root, W, H);
+  const NS = 'http://www.w3.org/2000/svg';
+  for (const e of edges) {
+    const line = document.createElementNS(NS, 'line');
+    line.setAttribute('x1', e.from.x); line.setAttribute('y1', e.from.y);
+    line.setAttribute('x2', e.to.x); line.setAttribute('y2', e.to.y);
+    line.setAttribute('stroke', '#94a3b8'); line.setAttribute('stroke-width', '2');
+    svg.appendChild(line);
+    const t = document.createElementNS(NS, 'text');
+    t.setAttribute('x', (e.from.x + e.to.x) / 2 + (e.bit === '0' ? -10 : 10));
+    t.setAttribute('y', (e.from.y + e.to.y) / 2);
+    t.setAttribute('font-size', '13'); t.setAttribute('font-weight', '700');
+    t.setAttribute('fill', e.bit === '0' ? '#8b5cf6' : '#0891b2');
+    t.setAttribute('text-anchor', 'middle');
+    t.textContent = e.bit;
+    svg.appendChild(t);
+  }
+  for (const { n, x, y } of nodes) {
+    const isLeaf = !n.left && !n.right;
+    const c = document.createElementNS(NS, 'circle');
+    c.setAttribute('cx', x); c.setAttribute('cy', y); c.setAttribute('r', isLeaf ? 18 : 15);
+    let fill = isLeaf ? '#ddd6fe' : '#f1f5f9';
+    if (opts.codedLeaves && isLeaf && opts.codedLeaves.has(n.char)) fill = '#fde68a';
+    c.setAttribute('fill', fill);
+    c.setAttribute('stroke', isLeaf ? '#8b5cf6' : '#94a3b8');
+    c.setAttribute('stroke-width', '2');
+    svg.appendChild(c);
+    const t = document.createElementNS(NS, 'text');
+    t.setAttribute('x', x); t.setAttribute('y', y + 4);
+    t.setAttribute('font-size', '12'); t.setAttribute('text-anchor', 'middle');
+    t.setAttribute('font-family', 'monospace'); t.setAttribute('font-weight', '700');
+    t.textContent = isLeaf ? `${n.char}:${n.weight}` : n.weight;
+    svg.appendChild(t);
+  }
+}
+
+function m1Build() {
+  TEXT = (document.getElementById('m1input').value || '').slice(0, 40);
+  if (!TEXT) { document.getElementById('m1explain').innerHTML = 'Nhập văn bản đã.'; return; }
+  const { freq, nodes } = makeNodes(TEXT);
+  m1heap = nodes.map(n => ({ ...n, repr: n.char }));
+  m1heap.sort(cmp);
+  m1mergeCount = 0;
+  m1nMerges = Math.max(0, m1heap.length - 1);
+  TREE = null; CODES = null;
+  m1RenderHeap();
+  m1svg.innerHTML = '';
+  const uniq = Object.keys(freq).length;
+  document.getElementById('m1explain').innerHTML =
+    `Đếm xong: <b>${uniq}</b> ký tự khác nhau, văn bản <b>${TEXT.length}</b> ký tự. ` +
+    `Min-heap có ${m1heap.length} node lá. Sẽ ghép <b>${m1nMerges}</b> lần (n−1). Bấm <b>Ghép 1 bước</b>.`;
+  document.getElementById('m1step').disabled = uniq < 1;
+  document.getElementById('m1all').disabled = uniq < 1;
+  document.getElementById('m2step').disabled = true;
+  document.getElementById('m2all').disabled = true;
+  document.getElementById('m3encode').disabled = true;
+  document.getElementById('m3decode').disabled = true;
+  // edge case 1 ký tự: dựng cây giả ngay
+  if (m1heap.length === 1) {
+    const only = m1heap[0];
+    TREE = { char: null, weight: only.weight, left: only, right: null, repr: '•' };
+    drawTree(m1svg, TREE);
+    document.getElementById('m1explain').innerHTML =
+      `Chỉ <b>1 ký tự</b> (edge case). Tạo node gốc giả → mã <code>"0"</code> cho ký tự đó.`;
+    document.getElementById('m1step').disabled = true;
+    document.getElementById('m1all').disabled = true;
+    m2enable();
+  }
+}
+
+function m1Step() {
+  if (m1heap.length <= 1) return;
+  m1heap.sort(cmp);
+  m1RenderHeap([0, 1]);
+  const x = m1heap[0], y = m1heap[1];
+  setTimeout(() => {
+    const parent = {
+      char: null, weight: x.weight + y.weight,
+      left: x, right: y, repr: '(' + (x.repr) + (y.repr) + ')'
+    };
+    m1heap = m1heap.slice(2);
+    m1heap.push(parent);
+    m1heap.sort(cmp);
+    m1mergeCount++;
+    TREE = m1heap.length === 1 ? m1heap[0] : null;
+    m1RenderHeap();
+    drawTree(m1svg, m1heap.length === 1 ? m1heap[0] : parent);
+    if (m1heap.length === 1) {
+      document.getElementById('m1explain').innerHTML =
+        `Ghép xong lần ${m1mergeCount}/${m1nMerges}. Heap còn <b>1 node = gốc cây</b> (weight ${TREE.weight}). ✓ Sang Module ②.`;
+      document.getElementById('m1step').disabled = true;
+      document.getElementById('m1all').disabled = true;
+      m2enable();
+    } else {
+      document.getElementById('m1explain').innerHTML =
+        `Lần ${m1mergeCount}: ghép <code>${x.repr}:${x.weight}</code> + <code>${y.repr}:${y.weight}</code> ` +
+        `→ node cha weight <b>${x.weight + y.weight}</b>, đẩy lại heap. Còn ${m1heap.length} node.`;
+    }
+  }, 280);
+}
+
+function m1All() { while (m1heap.length > 1) { const x = m1heap[0], y = m1heap[1]; const p = { char: null, weight: x.weight + y.weight, left: x, right: y, repr: '(' + x.repr + y.repr + ')' }; m1heap = m1heap.slice(2); m1heap.push(p); m1heap.sort(cmp); m1mergeCount++; } TREE = m1heap[0]; m1RenderHeap(); drawTree(m1svg, TREE); document.getElementById('m1step').disabled = true; document.getElementById('m1all').disabled = true; document.getElementById('m1explain').innerHTML = `Chạy hết: cây hoàn tất, gốc weight <b>${TREE.weight}</b>. ✓ Sang Module ②.`; m2enable(); }
+
+document.getElementById('m1build').onclick = m1Build;
+document.getElementById('m1step').onclick = m1Step;
+document.getElementById('m1all').onclick = m1All;
+document.getElementById('m1reset').onclick = () => {
+  m1heap = []; TREE = null; CODES = null; m1svg.innerHTML = '';
+  document.getElementById('m1heap').innerHTML = '';
+  document.getElementById('m1explain').innerHTML = 'Nhập văn bản rồi bấm <b>Đếm &amp; khởi tạo heap</b>.';
+  document.getElementById('m1step').disabled = true;
+  document.getElementById('m1all').disabled = true;
+  m2reset(); m3reset();
+};
+
+// ====================== MODULE 2 ======================
+let m2leaves = [], m2idx = 0, m2coded = new Set();
+const m2svg = document.getElementById('m2svg');
+
+function collectLeaves(root) {
+  const out = [];
+  (function dfs(n, code) {
+    if (!n) return;
+    if (!n.left && !n.right) { out.push({ char: n.char, code: code || '0' }); return; }
+    dfs(n.left, code + '0');
+    dfs(n.right, code + '1');
+  })(root, '');
+  return out.sort((a, b) => a.char < b.char ? -1 : 1);
+}
+
+function m2enable() {
+  if (!TREE) return;
+  m2leaves = collectLeaves(TREE);
+  m2idx = 0; m2coded = new Set(); CODES = {};
+  drawTree(m2svg, TREE, { codedLeaves: m2coded });
+  document.getElementById('m2table').innerHTML = '';
+  document.getElementById('m2step').disabled = false;
+  document.getElementById('m2all').disabled = false;
+  document.getElementById('m2explain').innerHTML = `Cây sẵn sàng, <b>${m2leaves.length}</b> lá cần gán mã. Bấm <b>Gán 1 lá</b>.`;
+}
+function m2reset() {
+  m2svg.innerHTML = ''; document.getElementById('m2table').innerHTML = '';
+  document.getElementById('m2step').disabled = true; document.getElementById('m2all').disabled = true;
+  document.getElementById('m2explain').innerHTML = 'Xây cây ở Module ① trước, rồi bấm <b>Gán 1 lá</b>.';
+}
+function m2RenderTable() {
+  const rows = m2leaves.slice(0, m2idx).map(l =>
+    `<tr><td class="mono">${l.char}</td><td class="mono">${l.code}</td><td>${l.code.length}</td></tr>`).join('');
+  document.getElementById('m2table').innerHTML =
+    `<table><tr><th>Ký tự</th><th>Mã</th><th>Độ dài</th></tr>${rows}</table>`;
+}
+function m2Step() {
+  if (m2idx >= m2leaves.length) return;
+  const l = m2leaves[m2idx];
+  m2coded.add(l.char); CODES[l.char] = l.code;
+  m2idx++;
+  drawTree(m2svg, TREE, { codedLeaves: m2coded });
+  m2RenderTable();
+  document.getElementById('m2explain').innerHTML =
+    `Lá <code>${l.char}</code>: đường đi từ gốc = <b>${l.code}</b> (${l.code.length} bit).`;
+  if (m2idx >= m2leaves.length) {
+    document.getElementById('m2step').disabled = true;
+    document.getElementById('m2all').disabled = true;
+    document.getElementById('m2explain').innerHTML += ' ✓ Bảng mã hoàn tất. Sang Module ③.';
+    m3enable();
+  }
+}
+function m2All() { while (m2idx < m2leaves.length) { const l = m2leaves[m2idx]; m2coded.add(l.char); CODES[l.char] = l.code; m2idx++; } drawTree(m2svg, TREE, { codedLeaves: m2coded }); m2RenderTable(); document.getElementById('m2step').disabled = true; document.getElementById('m2all').disabled = true; document.getElementById('m2explain').innerHTML = '✓ Đã gán mã cho tất cả lá. Sang Module ③.'; m3enable(); }
+document.getElementById('m2step').onclick = m2Step;
+document.getElementById('m2all').onclick = m2All;
+
+// ====================== MODULE 3 ======================
+function m3enable() {
+  document.getElementById('m3encode').disabled = false;
+  document.getElementById('m3explain').innerHTML = 'Bấm <b>Encode</b> để nén văn bản và xem tỉ lệ nén.';
+}
+function m3reset() {
+  document.getElementById('m3encode').disabled = true;
+  document.getElementById('m3decode').disabled = true;
+  document.getElementById('m3bits').textContent = '—';
+  document.getElementById('m3decoded').textContent = '—';
+  document.getElementById('m3fixed').textContent = '—';
+  document.getElementById('m3huff').textContent = '—';
+  document.getElementById('m3save').textContent = '—';
+  document.getElementById('m3explain').innerHTML = 'Hoàn tất Module ① và ② trước, rồi bấm <b>Encode</b>.';
+}
+let m3bitStream = '';
+function m3Encode() {
+  if (!CODES) return;
+  m3bitStream = '';
+  const segs = [];
+  let alt = 0;
+  for (const ch of TEXT) {
+    const code = CODES[ch] || '?';
+    m3bitStream += code;
+    segs.push(`<span class="seg ${alt ? 'bit-a' : 'bit-b'}" title="${ch}">${code}</span>`);
+    alt ^= 1;
+  }
+  document.getElementById('m3bits').innerHTML = segs.join(' ');
+  const uniq = new Set(TEXT).size;
+  const fixedBits = TEXT.length * Math.max(1, Math.ceil(Math.log2(Math.max(2, uniq))));
+  const huffBits = m3bitStream.length;
+  const save = fixedBits > 0 ? (100 * (fixedBits - huffBits) / fixedBits) : 0;
+  document.getElementById('m3fixed').textContent = fixedBits + ' bit';
+  document.getElementById('m3huff').textContent = huffBits + ' bit';
+  document.getElementById('m3save').textContent = save.toFixed(1) + '%';
+  document.getElementById('m3decode').disabled = false;
+  document.getElementById('m3explain').innerHTML =
+    `Văn bản <b>${TEXT.length}</b> ký tự. Fixed-length cần <code>${Math.ceil(Math.log2(Math.max(2, uniq)))}</code> bit/ký tự ` +
+    `= <b>${fixedBits}</b> bit; Huffman <b>${huffBits}</b> bit. Bấm <b>Decode</b> để kiểm tra giải mã.`;
+}
+function m3Decode() {
+  if (!TREE || !m3bitStream) return;
+  let cur = TREE, out = '';
+  for (const b of m3bitStream) {
+    cur = b === '0' ? cur.left : cur.right;
+    if (!cur) { out += '⚠'; cur = TREE; continue; }
+    if (!cur.left && !cur.right) { out += cur.char; cur = TREE; }
+  }
+  const ok = out === TEXT;
+  document.getElementById('m3decoded').textContent = out;
+  document.getElementById('m3explain').innerHTML =
+    `Đi theo cây từ gốc theo từng bit → ráp lại: <code>${out}</code>. ` +
+    `Khớp văn bản gốc: <b style="color:${ok ? '#16a34a' : '#dc2626'}">${ok ? 'ĐÚNG ✓' : 'SAI'}</b>.`;
+}
+document.getElementById('m3encode').onclick = m3Encode;
+document.getElementById('m3decode').onclick = m3Decode;
+
+// auto-run demo mặc định
+m1Build();
+</script>
+
+<!-- README modal + TOC + favicon -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+
+</body>
+</html>

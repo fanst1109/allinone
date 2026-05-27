@@ -564,6 +564,24 @@ App `cart` tự làm **mọi** thứ: phân giải tên `checkout`, chọn insta
 
 Khác biệt cốt lõi: ở (a) network logic **trong app** (lặp, đa ngôn ngữ khó đồng nhất); ở (b) network logic **trong proxy** (config tập trung, đồng nhất mọi ngôn ngữ).
 
+Minh hoạ bằng code: ở (a) caller phải tự viết (giả lược, Go):
+```go
+// (a) tự lo trong app — lặp ở mọi service, mỗi ngôn ngữ một bản
+for attempt := 0; attempt < 3; attempt++ {
+    ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+    resp, err := tlsClient.Do(req.WithContext(ctx)) // tự cấu hình TLS
+    cancel()
+    if err == nil { metrics.Inc("ok"); return resp }   // tự đo metric
+    metrics.Inc("retry")
+}
+```
+ở (b) với mesh, đúng caller đó chỉ còn:
+```go
+// (b) với mesh — retry/timeout/mTLS/metric do Envoy lo, là YAML
+resp, _ := http.Get("http://checkout/pay")
+```
+Mọi `for retry`, `WithTimeout`, `tlsClient`, `metrics.Inc` biến mất khỏi app — chuyển thành VirtualService/PeerAuthentication.
+
 ### Lời giải BT2 — Kế hoạch canary 10% → 50% → 100%
 
 Sửa duy nhất **VirtualService** `checkout` (DestinationRule đã có subset v1/v2 sẵn).

@@ -627,6 +627,11 @@ N=5, partition thành **{n0,n1,n2}** (phe A, 3 node) và **{n3,n4}** (phe B, 2 n
 
 → Không bao giờ có 2 leader cùng commit → **không split-brain**.
 
+> 📝 **Tóm tắt mục 10–11.**
+> - Quorum = ⌊N/2⌋+1; chịu lỗi = ⌊(N−1)/2⌋. Hai majority bất kỳ luôn giao nhau ≥ 1 node → nền tảng safety.
+> - Latency commit tăng khi N lớn (đợi nhiều ack hơn) → N=5 là điểm cân bằng phổ biến.
+> - Split-brain bị chặn vì tối đa một phe đạt majority → tối đa một leader. Phe thiểu số treo là hành vi CP đúng, không phải bug.
+
 ### Lời giải BT6 — Vì sao số node chẵn tệ
 
 So sánh **N=4** vs **N=5**:

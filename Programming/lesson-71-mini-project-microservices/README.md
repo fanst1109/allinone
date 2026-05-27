@@ -114,6 +114,15 @@ func (s *Service) Refund(orderID string) error
 - Quy ước demo: `Charge` **thất bại nếu `amount <= 0`** (giả lập thẻ bị từ chối) — để minh họa nhánh failure.
 - `Refund` an toàn khi gọi với order chưa từng charge (no-op).
 
+Bốn ví dụ cụ thể cho idempotency của `Charge`:
+
+| Gọi | amount | Trạng thái trước | Kết quả |
+|-----|--------|------------------|---------|
+| `Charge("a", 200)` | 200 | chưa charge | tạo charge 200, trả về |
+| `Charge("a", 200)` (lặp) | 200 | đã có charge "a" | trả về charge cũ, **không trừ thêm** |
+| `Charge("a", 999)` (lặp, amount khác) | 999 | đã có charge "a"=200 | trả về charge cũ 200 (orderID là khóa, amount bị bỏ qua) |
+| `Charge("b", 0)` | 0 | chưa charge | **lỗi** "payment bị từ chối" |
+
 ### 2.3 Inventory service (`internal/inventory`)
 
 **Trách nhiệm**: `Reserve` (giữ chỗ, trừ kho) và `Release` (trả kho — bồi hoàn).

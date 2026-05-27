@@ -85,7 +85,16 @@ Năm 1994, L. Peter Deutsch (và sau bổ sung) liệt kê những **giả đị
 > 🔁 **Dừng lại tự kiểm tra.** Code: `for _, id := range userIDs { user := db.Get(id) }` với 500 id, DB ở máy khác (round-trip 1 ms). Vi phạm fallacy nào, tốn bao lâu?
 > <details><summary>Đáp án</summary>Vi phạm #2 (latency zero). 500 × 1 ms = 500 ms chỉ riêng độ trễ mạng, tuần tự. Sửa: batch query `db.GetMany(userIDs)` 1 round-trip = 1 ms. Đây chính là vấn đề N+1 query.</details>
 
-> 📝 **Tóm tắt mục 2.** Tám fallacies = checklist tâm lý. Trước khi gọi mạng, tự hỏi: nếu request này mất thì sao? nếu chậm 5s thì sao? nếu IP đổi thì sao? Mỗi câu "thì sao" mở ra một nhánh code phải xử lý.
+### 2.1 Bốn ví dụ bug thật quy về fallacy
+
+Để thấy fallacies không phải lý thuyết suông, đây là bốn sự cố production điển hình và fallacy gốc:
+
+1. **Double-charge thanh toán** (fallacy #1). Client gọi `/charge`, server *đã* trừ tiền nhưng response bị rớt giữa đường. Client tưởng thất bại → retry → trừ lần hai. Gốc: tin "network reliable". Sửa: idempotency key (mục 9).
+2. **Trang load 8 giây vì N+1 query** (fallacy #2). Render danh sách 200 đơn hàng, mỗi đơn gọi DB lấy tên khách → 200 round-trip × 4 ms = 800 ms *chỉ riêng* mạng, cộng dồn nhiều layer thành 8 s. Gốc: tin "latency zero". Sửa: batch / join.
+3. **Mobile timeout vì payload 40 MB** (fallacy #3). API trả nguyên ảnh base64 trong JSON. Trên 3G (~1 Mbps) tải 40 MB mất ~5 phút → timeout. Gốc: tin "bandwidth infinite". Sửa: phân trang, link ảnh thay vì nhúng.
+4. **Gọi vào IP máy đã chết** (fallacy #5). Service hardcode `10.0.1.5:8080`; autoscaler thay máy, IP mới là `10.0.1.9`. App vẫn gọi IP cũ → connection refused. Gốc: tin "topology doesn't change". Sửa: service discovery (Lesson 63).
+
+> 📝 **Tóm tắt mục 2.** Tám fallacies = checklist tâm lý. Trước khi gọi mạng, tự hỏi: nếu request này mất thì sao? nếu chậm 5s thì sao? nếu IP đổi thì sao? Mỗi câu "thì sao" mở ra một nhánh code phải xử lý. Bốn bug ở 2.1 đều là một fallacy bị bỏ qua.
 
 ---
 

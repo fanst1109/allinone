@@ -56,7 +56,28 @@ Giả sử bạn có **15 service**, viết bằng **3 ngôn ngữ** (Go, Java, 
 > - *"Đa ngôn ngữ thì sao không bắt mọi team dùng chung 1 ngôn ngữ?"* → Thực tế không khả thi: team data thích Python, team mobile-backend thích Node, team core thích Go/Java. Mesh cho phép giữ tự do ngôn ngữ.
 > - *"Đổi policy phải redeploy 15 service — chẳng phải CI/CD lo được sao?"* → Redeploy được nhưng (a) chậm (build + rollout 15 lần), (b) rủi ro (mỗi deploy có thể hỏng), (c) không atomic (trong lúc rollout, một nửa dùng policy cũ một nửa policy mới).
 
-📝 **Tóm tắt mục 1.** Cross-cutting concern (retry/timeout/CB/mTLS/tracing/LB) lặp ở **mọi** service; viết tay trong app thì **duplicate** và **đa ngôn ngữ khó đồng nhất**; đổi policy phải sửa + deploy lại tất cả. Đây là động lực sinh ra service mesh.
+### 1.2 Định lượng nỗi đau — bài toán 15 service × 3 ngôn ngữ
+
+Hãy tính cụ thể chi phí "tự viết". Giả sử mỗi service cần đủ 6 concern, mỗi concern khoảng 200 dòng code có test:
+
+- **6 concern × 200 dòng = ~1200 dòng** "code hạ tầng" cho mỗi ngôn ngữ.
+- 3 ngôn ngữ (Go, Java, Python) → **3 bản** = ~3600 dòng phải **viết và bảo trì cho khớp nhau từng hành vi**.
+- Mỗi lần Go sửa logic retry (vd đổi backoff từ tuyến tính sang exponential), phải sửa **đồng bộ** Java + Python, nếu không 3 ngôn ngữ retry khác nhau → hành vi hệ thống không nhất quán, debug địa ngục.
+
+Một ví dụ "không nhất quán" cụ thể: service Go retry 3 lần với backoff 100/200/400ms; service Python (do dev khác viết) retry 5 lần không backoff. Khi `payment` chập chờn, hai service hành xử khác hẳn → metric khó đọc, một service làm `payment` quá tải vì retry dồn dập. Đây chính là kiểu lỗi mesh loại bỏ: **một policy, áp cho tất cả.**
+
+Còn chi phí đổi policy: tăng timeout `1s → 2s` cho toàn hệ. Tự viết: sửa config 15 service → build 15 image → rollout 15 deployment, mỗi cái có rủi ro, không atomic. Với mesh: sửa **một** dòng YAML, `kubectl apply` — Istiod đẩy xuống mọi Envoy gần như tức thời, không build, không restart pod.
+
+> 🔁 **Dừng lại tự kiểm tra.**
+> 1. Vì sao "shared library" không giải quyết được bài toán đa ngôn ngữ?
+> 2. Đổi timeout toàn hệ: tự-viết cần bao nhiêu lần build/deploy, mesh cần bao nhiêu?
+>
+> <details><summary>Đáp án</summary>
+> 1. Library gắn với một runtime/ngôn ngữ — Python không import được package Go, Java không dùng được module Python. Mỗi ngôn ngữ phải có bản riêng, khó giữ hành vi khớp nhau.
+> 2. Tự-viết: 15 lần build + 15 lần rollout (mỗi service một lần). Mesh: 0 build, 1 lần `kubectl apply` (config push, không restart pod).
+> </details>
+
+📝 **Tóm tắt mục 1.** Cross-cutting concern (retry/timeout/CB/mTLS/tracing/LB) lặp ở **mọi** service; viết tay trong app thì **duplicate** (vd ~3600 dòng cho 3 ngôn ngữ) và **đa ngôn ngữ khó đồng nhất**; đổi policy phải sửa + build + deploy lại tất cả. Đây là động lực sinh ra service mesh.
 
 ---
 

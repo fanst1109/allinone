@@ -362,6 +362,22 @@ Ví dụ số cụ thể (N=5, hai majority bất kỳ giao nhau):
 - Majority {A,B,C} và {A,B,D} giao tại **{A,B}**.
 - Không thể có hai majority rời nhau (2 nhóm 3 node trong 5 node là bất khả → tổng 6 > 5).
 
+**Bốn ví dụ tính quorum/fault-tolerance (đa dạng N):**
+
+| N | `⌊N/2⌋+1` | quorum | tolerate `N−quorum` | ghi chú |
+|---|-----------|--------|---------------------|---------|
+| 1 | `0+1` | 1 | 0 | một node — chết là chết hẳn |
+| 3 | `1+1` | 2 | 1 | cấu hình nhỏ nhất có ý nghĩa |
+| 5 | `2+1` | 3 | 2 | phổ biến nhất cho production |
+| 7 | `3+1` | 4 | 3 | dùng khi cần chịu lỗi cao, đổi lại latency tăng (phải đợi nhiều ack hơn) |
+
+> ❓ *"Thêm node thì chịu lỗi tăng nhưng có hại gì không?"* → Có: mỗi lần commit phải đợi **majority lớn hơn** ack → **latency tăng** và băng thông replicate nhiều hơn. N=7 chậm hơn N=5. Vì vậy đa số hệ dùng **5** — cân bằng giữa chịu lỗi (2) và tốc độ.
+
+> 🔁 **Dừng lại tự kiểm tra.** Cluster N=6 thì quorum bao nhiêu, chịu mấy fail? So với N=5 hơn kém gì?
+> <details><summary>Đáp án</summary>
+> N=6: quorum = `⌊6/2⌋+1 = 4`, chịu fail = `6−4 = 2`. **Y hệt N=5** (cũng chịu 2) nhưng tốn thêm 1 máy và đợi 4 ack thay vì 3 → chậm hơn. Đó là lý do không ai chọn số chẵn.
+> </details>
+
 ---
 
 ## 11. Chống split-brain

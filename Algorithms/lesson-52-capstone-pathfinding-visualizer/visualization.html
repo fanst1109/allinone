@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L52 — Capstone: Pathfinding Visualizer (BFS / Dijkstra / Greedy / A*)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #f97316;
+    --accent-soft: #ffedd5;
+    --accent-hover: #ea580c;
+    --empty: #ffffff;
+    --wall: #2d3748;
+    --start: #38a169;
+    --goal: #e53e3e;
+    --visited: #bee3f8;
+    --frontier: #fbd38d;
+    --path: #f6e05e;
+    --grid-line: #e2e8f0;
+  }
+  main { max-width: 1000px; }
+  .lead { font-size: 1.05rem; color: #4a5568; margin: 0.5rem 0 1.5rem; }
+  h2 { margin-top: 2.6rem; border-bottom: 2px solid var(--accent-soft); padding-bottom: 0.3rem; }
+  .pill {
+    font-size: 0.7rem; background: var(--accent-soft); color: var(--accent-hover);
+    padding: 2px 8px; border-radius: 10px; vertical-align: middle; font-weight: 600;
+  }
+  .card {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+    padding: 1.1rem 1.2rem; margin: 1.1rem 0; box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 0.55rem; align-items: center; margin-bottom: 0.9rem; }
+  button {
+    background: var(--accent); color: #fff; border: none; padding: 9px 15px;
+    border-radius: 7px; font-size: 0.9rem; cursor: pointer; font-weight: 600;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+  select, input[type=range] { vertical-align: middle; }
+  select {
+    padding: 7px 10px; border-radius: 7px; border: 1px solid #cbd5e0;
+    font-size: 0.88rem; background: #fff; cursor: pointer; max-width: 100%;
+  }
+  label.ctl { font-size: 0.85rem; color: #4a5568; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+  .canvas-wrap { width: 100%; overflow-x: auto; }
+  canvas { display: block; max-width: 100%; height: auto; border-radius: 8px; background: var(--grid-line); }
+  #grid { touch-action: none; cursor: pointer; }
+  .legend { display: flex; flex-wrap: wrap; gap: 0.5rem 1.1rem; margin: 0.7rem 0; font-size: 0.82rem; color: #4a5568; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 16px; height: 16px; border-radius: 3px; border: 1px solid rgba(0,0,0,0.12); }
+  .stats { display: flex; flex-wrap: wrap; gap: 0.6rem 1.4rem; margin-top: 0.8rem; }
+  .stat { background: var(--accent-soft); border-radius: 8px; padding: 0.55rem 0.9rem; min-width: 110px; }
+  .stat .k { font-size: 0.72rem; color: var(--accent-hover); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700; }
+  .stat .v { font-size: 1.35rem; font-weight: 800; color: #1a202c; line-height: 1.15; }
+  .stat .sub { font-size: 0.72rem; color: #718096; }
+  .hint { font-size: 0.82rem; color: #718096; margin: 0.4rem 0 0; }
+  .ok { color: #2f855a; font-weight: 700; }
+  .bad { color: #c53030; font-weight: 700; }
+  table.cmp { border-collapse: collapse; width: 100%; font-size: 0.86rem; margin-top: 0.6rem; }
+  table.cmp th, table.cmp td { border: 1px solid #e2e8f0; padding: 7px 9px; text-align: center; }
+  table.cmp th { background: var(--accent-soft); color: var(--accent-hover); }
+  table.cmp td:first-child, table.cmp th:first-child { text-align: left; font-weight: 600; }
+  .multi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
+  .mini { text-align: center; }
+  .mini h4 { margin: 0 0 0.4rem; font-size: 0.92rem; }
+  .mini .mv { font-size: 0.78rem; color: #4a5568; }
+  .mode-radio { display: inline-flex; gap: 0.4rem; flex-wrap: wrap; }
+  .mode-radio label {
+    font-size: 0.82rem; padding: 5px 9px; border: 1px solid #cbd5e0; border-radius: 7px;
+    cursor: pointer; background: #fff; user-select: none;
+  }
+  .mode-radio input { display: none; }
+  .mode-radio input:checked + span { font-weight: 700; }
+  .mode-radio label:has(input:checked) { background: var(--accent-soft); border-color: var(--accent); }
+  @media (max-width: 680px) {
+    .multi-grid { grid-template-columns: 1fr; }
+    .stat { min-width: 90px; flex: 1 1 40%; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-51-complexity-tradeoffs/visualization.html">← L51: Complexity Trade-offs</a>
+  <span class="sep">·</span>
+  <span class="current">L52: Capstone Pathfinding</span>
+  <span class="sep">·</span>
+  <a href="../index.html">🏁 Hoàn thành →</a>
+</nav>
+
+<h1>Lesson 52 — Capstone: Pathfinding Visualizer <span class="pill">CAPSTONE</span></h1>
+<div class="lead">
+  Sản phẩm gắn kết toàn lộ trình. Vẽ tường, đặt <strong>start</strong>/<strong>goal</strong>, chọn thuật toán
+  (<strong>BFS / Dijkstra / Greedy / A*</strong>) và heuristic, rồi xem từng ô được duyệt sáng lên — thấy rõ
+  <strong>cái nào tối ưu, cái nào nhanh, cái nào tham lam mà sai</strong>. Ba module:
+  <strong>(1)</strong> grid tương tác, <strong>(2)</strong> so sánh 4 thuật toán cạnh nhau,
+  <strong>(3)</strong> demo heuristic.
+</div>
+
+<!-- ============ MODULE 1: INTERACTIVE GRID ============ -->
+<h2>1. Visualizer tương tác</h2>
+<div class="card">
+  <div class="controls">
+    <label class="ctl">Thuật toán
+      <select id="algo">
+        <option value="astar">A* (g + h)</option>
+        <option value="bfs">BFS</option>
+        <option value="dijkstra">Dijkstra (g)</option>
+        <option value="greedy">Greedy (h)</option>
+      </select>
+    </label>
+    <label class="ctl">Heuristic
+      <select id="heur">
+        <option value="manhattan">Manhattan</option>
+        <option value="euclidean">Euclidean</option>
+        <option value="chebyshev">Chebyshev</option>
+      </select>
+    </label>
+    <label class="ctl">Tốc độ
+      <input type="range" id="speed" min="0" max="100" value="55">
+    </label>
+    <button id="run">▶ Run</button>
+    <button id="clearPath" class="ghost">Xóa kết quả</button>
+    <button id="maze" class="ghost">🌀 Mê cung</button>
+    <button id="randWall" class="ghost">🎲 Tường ngẫu nhiên</button>
+    <button id="reset" class="ghost">↺ Reset</button>
+  </div>
+
+  <div class="mode-radio" id="paintMode">
+    <label><input type="radio" name="paint" value="wall" checked><span>🧱 Vẽ tường</span></label>
+    <label><input type="radio" name="paint" value="start"><span>🟢 Đặt start</span></label>
+    <label><input type="radio" name="paint" value="goal"><span>🔴 Đặt goal</span></label>
+    <label><input type="radio" name="paint" value="erase"><span>🧹 Xóa</span></label>
+  </div>
+  <p class="hint">Mẹo: chọn chế độ rồi click/kéo trên lưới. Mặc định kéo để vẽ/xóa tường; chọn start/goal rồi click ô để đặt lại.</p>
+
+  <div class="canvas-wrap">
+    <canvas id="grid" width="700" height="420"></canvas>
+  </div>
+
+  <div class="legend">
+    <span><i class="swatch" style="background:var(--start)"></i>Start</span>
+    <span><i class="swatch" style="background:var(--goal)"></i>Goal</span>
+    <span><i class="swatch" style="background:var(--wall)"></i>Tường</span>
+    <span><i class="swatch" style="background:var(--visited)"></i>Đã duyệt</span>
+    <span><i class="swatch" style="background:var(--frontier)"></i>Frontier (đang xét)</span>
+    <span><i class="swatch" style="background:var(--path)"></i>Đường đi cuối</span>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="k">Ô đã duyệt</div><div class="v" id="sVisited">—</div><div class="sub">work</div></div>
+    <div class="stat"><div class="k">Độ dài đường</div><div class="v" id="sLen">—</div><div class="sub">số bước</div></div>
+    <div class="stat"><div class="k">Tối ưu?</div><div class="v" id="sOpt">—</div><div class="sub">so với BFS</div></div>
+    <div class="stat"><div class="k">Trạng thái</div><div class="v" id="sState" style="font-size:1rem">Sẵn sàng</div><div class="sub">&nbsp;</div></div>
+  </div>
+</div>
+
+<!-- ============ MODULE 2: SO SÁNH 4 THUẬT TOÁN ============ -->
+<h2>2. So sánh 4 thuật toán trên cùng một map</h2>
+<div class="card">
+  <p class="hint">Cùng một bản đồ, 4 thuật toán chạy độc lập. Để ý: BFS &amp; Dijkstra &amp; A* cho <strong>cùng độ dài</strong> (đều tối ưu, cạnh = 1) nhưng A* <strong>duyệt ít ô nhất</strong>. Greedy duyệt ít nhưng đường có thể <strong>dài hơn</strong>.</p>
+  <div class="controls">
+    <button id="cmpRun">▶ Chạy cả 4</button>
+    <button id="cmpMaze" class="ghost">🌀 Map mới (mê cung)</button>
+    <button id="cmpRand" class="ghost">🎲 Map mới (ngẫu nhiên)</button>
+  </div>
+  <div class="multi-grid" id="multiGrid">
+    <div class="mini"><h4>BFS</h4><canvas data-mini="bfs" width="300" height="200"></canvas><div class="mv" id="mvBfs">—</div></div>
+    <div class="mini"><h4>Dijkstra</h4><canvas data-mini="dijkstra" width="300" height="200"></canvas><div class="mv" id="mvDijkstra">—</div></div>
+    <div class="mini"><h4>Greedy</h4><canvas data-mini="greedy" width="300" height="200"></canvas><div class="mv" id="mvGreedy">—</div></div>
+    <div class="mini"><h4>A*</h4><canvas data-mini="astar" width="300" height="200"></canvas><div class="mv" id="mvAstar">—</div></div>
+  </div>
+  <table class="cmp" id="cmpTable">
+    <thead><tr><th>Thuật toán</th><th>Ô duyệt</th><th>Độ dài</th><th>Tối ưu?</th></tr></thead>
+    <tbody>
+      <tr><td>BFS</td><td id="cBfsV">—</td><td id="cBfsL">—</td><td id="cBfsO">—</td></tr>
+      <tr><td>Dijkstra</td><td id="cDijkstraV">—</td><td id="cDijkstraL">—</td><td id="cDijkstraO">—</td></tr>
+      <tr><td>Greedy</td><td id="cGreedyV">—</td><td id="cGreedyL">—</td><td id="cGreedyO">—</td></tr>
+      <tr><td>A*</td><td id="cAstarV">—</td><td id="cAstarL">—</td><td id="cAstarO">—</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============ MODULE 3: HEURISTIC DEMO ============ -->
+<h2>3. Heuristic demo — Manhattan vs Euclidean</h2>
+<div class="card">
+  <p class="hint">Cùng A* trên map trống, đổi heuristic. Heuristic <strong>càng sát chi phí thực</strong> (Manhattan cho 4 hướng) thì <strong>duyệt ít ô hơn</strong>. Euclidean ước lượng thấp hơn → kém định hướng → duyệt nhiều hơn. Cả hai vẫn cho cùng độ dài tối ưu.</p>
+  <div class="multi-grid" style="grid-template-columns: repeat(2, 1fr)">
+    <div class="mini"><h4>A* + Manhattan</h4><canvas data-heur="manhattan" width="320" height="220"></canvas><div class="mv" id="hvMan">—</div></div>
+    <div class="mini"><h4>A* + Euclidean</h4><canvas data-heur="euclidean" width="320" height="220"></canvas><div class="mv" id="hvEuc">—</div></div>
+  </div>
+  <div class="controls" style="margin-top:0.8rem">
+    <button id="heurRun">▶ Chạy demo</button>
+    <button id="heurWall" class="ghost">🧱 Thêm vài tường rồi chạy</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  // ---------- Core: lưới + thuật toán dùng chung ----------
+  const COLS = 35, ROWS = 21; // lưới chính
+
+  function makeGrid(rows, cols) {
+    return { rows, cols, wall: Array.from({ length: rows }, () => new Array(cols).fill(false)) };
+  }
+  const inB = (g, r, c) => r >= 0 && r < g.rows && c >= 0 && c < g.cols;
+  const pass = (g, r, c) => inB(g, r, c) && !g.wall[r][c];
+  const key = (r, c) => r * 10000 + c;
+
+  const DIR4 = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+  function neighbors(g, r, c) {
+    const res = [];
+    for (const [dr, dc] of DIR4) {
+      const nr = r + dr, nc = c + dc;
+      if (pass(g, nr, nc)) res.push([nr, nc]);
+    }
+    return res;
+  }
+
+  function manhattan(r, c, gr, gc) { return Math.abs(r - gr) + Math.abs(c - gc); }
+  function euclidean(r, c, gr, gc) { return Math.hypot(r - gr, c - gc); }
+  function chebyshev(r, c, gr, gc) { return Math.max(Math.abs(r - gr), Math.abs(c - gc)); }
+  const HEUR = { manhattan, euclidean, chebyshev };
+
+  // Min-heap đơn giản theo priority.
+  class Heap {
+    constructor() { this.a = []; }
+    get size() { return this.a.length; }
+    push(item) {
+      const a = this.a; a.push(item); let i = a.length - 1;
+      while (i > 0) { const p = (i - 1) >> 1; if (a[p].pr <= a[i].pr) break;[a[p], a[i]] = [a[i], a[p]]; i = p; }
+    }
+    pop() {
+      const a = this.a, top = a[0], last = a.pop();
+      if (a.length) { a[0] = last; let i = 0; const n = a.length;
+        while (true) { let l = 2 * i + 1, r = 2 * i + 2, s = i;
+          if (l < n && a[l].pr < a[s].pr) s = l;
+          if (r < n && a[r].pr < a[s].pr) s = r;
+          if (s === i) break;[a[s], a[i]] = [a[i], a[s]]; i = s; } }
+      return top;
+    }
+  }
+
+  // Thuật toán hợp nhất. Trả {order:[[r,c]...], path:[[r,c]...], visited, found}.
+  // order = thứ tự ô được "pop/xử lý" để animate.
+  function search(g, algo, heurName, S, G) {
+    const [sr, sc] = S, [gr, gc] = G;
+    const h = HEUR[heurName] || manhattan;
+    const cameFrom = new Map(); cameFrom.set(key(sr, sc), null);
+    const gScore = new Map(); gScore.set(key(sr, sc), 0);
+    const order = [];
+    let found = false;
+
+    if (algo === "bfs") {
+      const q = [[sr, sc]]; let head = 0;
+      while (head < q.length) {
+        const [r, c] = q[head++]; order.push([r, c]);
+        if (r === gr && c === gc) { found = true; break; }
+        for (const [nr, nc] of neighbors(g, r, c)) {
+          if (!cameFrom.has(key(nr, nc))) { cameFrom.set(key(nr, nc), [r, c]); q.push([nr, nc]); }
+        }
+      }
+    } else {
+      const heap = new Heap();
+      heap.push({ r: sr, c: sc, pr: 0 });
+      const closed = new Set();
+      while (heap.size) {
+        const cur = heap.pop();
+        const ck = key(cur.r, cur.c);
+        if (closed.has(ck)) continue;
+        closed.add(ck);
+        order.push([cur.r, cur.c]);
+        if (cur.r === gr && cur.c === gc) { found = true; break; }
+        for (const [nr, nc] of neighbors(g, cur.r, cur.c)) {
+          const nk = key(nr, nc);
+          if (algo === "greedy") {
+            if (!cameFrom.has(nk)) { cameFrom.set(nk, [cur.r, cur.c]); heap.push({ r: nr, c: nc, pr: h(nr, nc, gr, gc) }); }
+          } else {
+            const ng = gScore.get(ck) + 1;
+            if (!gScore.has(nk) || ng < gScore.get(nk)) {
+              gScore.set(nk, ng); cameFrom.set(nk, [cur.r, cur.c]);
+              const f = algo === "dijkstra" ? ng : ng + h(nr, nc, gr, gc);
+              heap.push({ r: nr, c: nc, pr: f });
+            }
+          }
+        }
+      }
+    }
+
+    // truy vết
+    const path = [];
+    if (found) {
+      let cur = [gr, gc];
+      while (cur) { path.push(cur); cur = cameFrom.get(key(cur[0], cur[1])); }
+      path.reverse();
+    }
+    return { order, path, visited: order.length, found };
+  }
+
+  // sinh mê cung recursive backtracking trên lưới (cần kích thước lẻ để đẹp)
+  function genMaze(g) {
+    for (let r = 0; r < g.rows; r++) for (let c = 0; c < g.cols; c++) g.wall[r][c] = true;
+    const stack = [[0, 0]]; g.wall[0][0] = false;
+    const D = [[-2, 0], [2, 0], [0, -2], [0, 2]];
+    while (stack.length) {
+      const [r, c] = stack[stack.length - 1];
+      const opts = [];
+      for (const [dr, dc] of D) {
+        const nr = r + dr, nc = c + dc;
+        if (inB(g, nr, nc) && g.wall[nr][nc]) opts.push([nr, nc, dr, dc]);
+      }
+      if (opts.length) {
+        const [nr, nc, dr, dc] = opts[(Math.random() * opts.length) | 0];
+        g.wall[r + dr / 2][c + dc / 2] = false; g.wall[nr][nc] = false;
+        stack.push([nr, nc]);
+      } else stack.pop();
+    }
+  }
+  function randWalls(g, p) {
+    for (let r = 0; r < g.rows; r++) for (let c = 0; c < g.cols; c++) g.wall[r][c] = Math.random() < p;
+  }
+  function clearWalls(g) {
+    for (let r = 0; r < g.rows; r++) for (let c = 0; c < g.cols; c++) g.wall[r][c] = false;
+  }
+
+  // ---------- Renderer dùng chung cho mọi canvas ----------
+  function makeRenderer(canvas, g) {
+    const ctx = canvas.getContext("2d");
+    const cw = canvas.width, ch = canvas.height;
+    const cell = Math.min(cw / g.cols, ch / g.rows);
+    const ox = (cw - cell * g.cols) / 2, oy = (ch - cell * g.rows) / 2;
+    const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+    const C = {
+      empty: cssVar("--empty") || "#fff", wall: cssVar("--wall") || "#2d3748",
+      start: cssVar("--start") || "#38a169", goal: cssVar("--goal") || "#e53e3e",
+      visited: cssVar("--visited") || "#bee3f8", frontier: cssVar("--frontier") || "#fbd38d",
+      path: cssVar("--path") || "#f6e05e", line: cssVar("--grid-line") || "#e2e8f0",
+    };
+    function px(r, c) { return [ox + c * cell, oy + r * cell]; }
+    return {
+      cell, ox, oy,
+      cellAt(mx, my) {
+        const c = Math.floor((mx - ox) / cell), r = Math.floor((my - oy) / cell);
+        return inB(g, r, c) ? [r, c] : null;
+      },
+      drawBase(S, G, state) {
+        ctx.clearRect(0, 0, cw, ch);
+        for (let r = 0; r < g.rows; r++) for (let c = 0; c < g.cols; c++) {
+          const [x, y] = px(r, c);
+          let col = C.empty;
+          const k = key(r, c);
+          if (state && state.path && state.path.has(k)) col = C.path;
+          else if (state && state.frontier && state.frontier.has(k)) col = C.frontier;
+          else if (state && state.visited && state.visited.has(k)) col = C.visited;
+          if (g.wall[r][c]) col = C.wall;
+          ctx.fillStyle = col;
+          ctx.fillRect(x, y, cell, cell);
+          ctx.strokeStyle = C.line; ctx.lineWidth = 1;
+          ctx.strokeRect(x + 0.5, y + 0.5, cell, cell);
+        }
+        // start / goal vẽ đè
+        if (S) { const [x, y] = px(S[0], S[1]); ctx.fillStyle = C.start; ctx.fillRect(x, y, cell, cell); }
+        if (G) { const [x, y] = px(G[0], G[1]); ctx.fillStyle = C.goal; ctx.fillRect(x, y, cell, cell); }
+      },
+    };
+  }
+
+  // ================= MODULE 1 =================
+  const g1 = makeGrid(ROWS, COLS);
+  let S1 = [Math.floor(ROWS / 2), 3], G1 = [Math.floor(ROWS / 2), COLS - 4];
+  const cv1 = document.getElementById("grid");
+  let R1 = makeRenderer(cv1, g1);
+  let anim1 = null, paintMode = "wall", painting = false, paintVal = true;
+
+  function redraw1(state) { R1.drawBase(S1, G1, state); }
+  function freshState() { return { visited: new Set(), frontier: new Set(), path: new Set() }; }
+
+  function stopAnim() { if (anim1) { clearTimeout(anim1.t); anim1 = null; } }
+
+  function setStats(visited, len, optimal, state) {
+    document.getElementById("sVisited").textContent = visited;
+    document.getElementById("sLen").textContent = len < 0 ? "—" : len;
+    const o = document.getElementById("sOpt");
+    if (optimal === null) { o.textContent = "—"; o.className = "v"; }
+    else { o.innerHTML = optimal ? '<span class="ok">Có ✓</span>' : '<span class="bad">Không ✗</span>'; }
+    document.getElementById("sState").textContent = state;
+  }
+
+  function runMain() {
+    stopAnim();
+    const algo = document.getElementById("algo").value;
+    const heur = document.getElementById("heur").value;
+    // chuẩn tham chiếu BFS để biết độ dài tối ưu
+    const ref = search(g1, "bfs", "manhattan", S1, G1);
+    const res = search(g1, algo, heur, S1, G1);
+    const st = freshState();
+    const speed = +document.getElementById("speed").value;
+    const delay = Math.max(0, 90 - speed * 0.85); // 0..~90ms
+    const step = speed > 92 ? 6 : 1; // tốc độ cao: nhiều ô mỗi frame
+    let i = 0;
+    document.getElementById("run").disabled = true;
+    setStats(0, -1, null, "Đang chạy…");
+
+    function frame() {
+      for (let s = 0; s < step && i < res.order.length; s++, i++) {
+        const [r, c] = res.order[i];
+        st.frontier.delete(key(r, c));
+        st.visited.add(key(r, c));
+        // hàng xóm chưa duyệt = frontier (chỉ để minh họa)
+        for (const [nr, nc] of neighbors(g1, r, c)) {
+          if (!st.visited.has(key(nr, nc))) st.frontier.add(key(nr, nc));
+        }
+      }
+      redraw1(st);
+      if (i < res.order.length) {
+        anim1 = { t: setTimeout(frame, delay) };
+      } else {
+        // vẽ path
+        st.frontier.clear();
+        if (res.found) for (const [r, c] of res.path) st.path.add(key(r, c));
+        redraw1(st);
+        const len = res.found ? res.path.length - 1 : -1;
+        const optimal = res.found ? (len === ref.path.length - 1) : null;
+        let msg = res.found ? (algo === "greedy" && !optimal ? "Tìm thấy (KHÔNG tối ưu)" : "Tìm thấy đường ✓") : "Không có đường!";
+        setStats(res.visited, len, optimal, msg);
+        document.getElementById("run").disabled = false;
+        anim1 = null;
+      }
+    }
+    frame();
+  }
+
+  // tương tác vẽ
+  function evtCell(e) {
+    const rect = cv1.getBoundingClientRect();
+    const sx = cv1.width / rect.width, sy = cv1.height / rect.height;
+    const t = e.touches ? e.touches[0] : e;
+    return R1.cellAt((t.clientX - rect.left) * sx, (t.clientY - rect.top) * sy);
+  }
+  function applyPaint(r, c) {
+    if ((r === S1[0] && c === S1[1]) || (r === G1[0] && c === G1[1])) {
+      if (paintMode !== "start" && paintMode !== "goal") return;
+    }
+    if (paintMode === "wall") g1.wall[r][c] = true;
+    else if (paintMode === "erase") g1.wall[r][c] = false;
+    else if (paintMode === "start") { if (!(r === G1[0] && c === G1[1])) { S1 = [r, c]; g1.wall[r][c] = false; } }
+    else if (paintMode === "goal") { if (!(r === S1[0] && c === S1[1])) { G1 = [r, c]; g1.wall[r][c] = false; } }
+    redraw1();
+  }
+  cv1.addEventListener("mousedown", (e) => {
+    stopAnim(); const cell = evtCell(e); if (!cell) return;
+    painting = true;
+    if (paintMode === "wall") paintVal = true; else if (paintMode === "erase") paintVal = false;
+    applyPaint(cell[0], cell[1]);
+  });
+  cv1.addEventListener("mousemove", (e) => {
+    if (!painting || (paintMode !== "wall" && paintMode !== "erase")) return;
+    const cell = evtCell(e); if (cell) applyPaint(cell[0], cell[1]);
+  });
+  window.addEventListener("mouseup", () => { painting = false; });
+  cv1.addEventListener("touchstart", (e) => {
+    stopAnim(); const cell = evtCell(e); if (!cell) return; e.preventDefault();
+    painting = true; applyPaint(cell[0], cell[1]);
+  }, { passive: false });
+  cv1.addEventListener("touchmove", (e) => {
+    if (!painting || (paintMode !== "wall" && paintMode !== "erase")) return;
+    const cell = evtCell(e); if (cell) { e.preventDefault(); applyPaint(cell[0], cell[1]); }
+  }, { passive: false });
+  cv1.addEventListener("touchend", () => { painting = false; });
+
+  document.querySelectorAll('input[name="paint"]').forEach((el) =>
+    el.addEventListener("change", () => { paintMode = el.value; }));
+  document.getElementById("run").onclick = runMain;
+  document.getElementById("clearPath").onclick = () => { stopAnim(); redraw1(); setStats("—", -1, null, "Sẵn sàng"); document.getElementById("sVisited").textContent = "—"; };
+  document.getElementById("reset").onclick = () => { stopAnim(); clearWalls(g1); S1 = [Math.floor(ROWS / 2), 3]; G1 = [Math.floor(ROWS / 2), COLS - 4]; redraw1(); setStats("—", -1, null, "Sẵn sàng"); document.getElementById("sVisited").textContent = "—"; };
+  document.getElementById("maze").onclick = () => { stopAnim(); genMaze(g1); g1.wall[S1[0]][S1[1]] = false; g1.wall[G1[0]][G1[1]] = false; redraw1(); setStats("—", -1, null, "Sẵn sàng"); document.getElementById("sVisited").textContent = "—"; };
+  document.getElementById("randWall").onclick = () => { stopAnim(); randWalls(g1, 0.28); g1.wall[S1[0]][S1[1]] = false; g1.wall[G1[0]][G1[1]] = false; redraw1(); setStats("—", -1, null, "Sẵn sàng"); document.getElementById("sVisited").textContent = "—"; };
+  redraw1();
+
+  // ================= MODULE 2: so sánh 4 thuật toán =================
+  const MR = 17, MC = 25;
+  const g2 = makeGrid(MR, MC);
+  let S2 = [1, 1], G2 = [MR - 2, MC - 2];
+  const miniCanvas = {};
+  document.querySelectorAll('#multiGrid canvas').forEach((cv) => { miniCanvas[cv.dataset.mini] = cv; });
+
+  function drawMini(algo) {
+    const cv = miniCanvas[algo];
+    const R = makeRenderer(cv, g2);
+    const res = search(g2, algo, "manhattan", S2, G2);
+    const st = freshState();
+    for (const [r, c] of res.order) st.visited.add(key(r, c));
+    if (res.found) for (const [r, c] of res.path) st.path.add(key(r, c));
+    R.drawBase(S2, G2, st);
+    return res;
+  }
+  function runCompare() {
+    const ref = search(g2, "bfs", "manhattan", S2, G2);
+    const opt = ref.found ? ref.path.length - 1 : -1;
+    [["bfs", "Bfs"], ["dijkstra", "Dijkstra"], ["greedy", "Greedy"], ["astar", "Astar"]].forEach(([a, id]) => {
+      const res = drawMini(a);
+      const len = res.found ? res.path.length - 1 : -1;
+      const isOpt = res.found && len === opt;
+      document.getElementById("c" + id + "V").textContent = res.visited;
+      document.getElementById("c" + id + "L").textContent = len < 0 ? "—" : len;
+      document.getElementById("c" + id + "O").innerHTML = res.found ? (isOpt ? '<span class="ok">✓</span>' : '<span class="bad">✗</span>') : "—";
+      const mv = { bfs: "mvBfs", dijkstra: "mvDijkstra", greedy: "mvGreedy", astar: "mvAstar" }[a];
+      document.getElementById(mv).textContent = `duyệt ${res.visited} ô · dài ${len < 0 ? "—" : len}`;
+    });
+  }
+  function newCmpMap(maze) {
+    if (maze) { genMaze(g2); } else { randWalls(g2, 0.25); }
+    g2.wall[S2[0]][S2[1]] = false; g2.wall[G2[0]][G2[1]] = false;
+    runCompare();
+  }
+  document.getElementById("cmpRun").onclick = runCompare;
+  document.getElementById("cmpMaze").onclick = () => newCmpMap(true);
+  document.getElementById("cmpRand").onclick = () => newCmpMap(false);
+  // map khởi tạo: vài tường cố định để thấy khác biệt ngay
+  randWalls(g2, 0.22); g2.wall[S2[0]][S2[1]] = false; g2.wall[G2[0]][G2[1]] = false;
+  runCompare();
+
+  // ================= MODULE 3: heuristic demo =================
+  const HR = 15, HC = 22;
+  const g3 = makeGrid(HR, HC);
+  let S3 = [Math.floor(HR / 2), 2], G3 = [Math.floor(HR / 2), HC - 3];
+  const heurCanvas = {};
+  document.querySelectorAll('[data-heur]').forEach((cv) => { heurCanvas[cv.dataset.heur] = cv; });
+  function drawHeur(name, outId) {
+    const cv = heurCanvas[name];
+    const R = makeRenderer(cv, g3);
+    const res = search(g3, "astar", name, S3, G3);
+    const st = freshState();
+    for (const [r, c] of res.order) st.visited.add(key(r, c));
+    if (res.found) for (const [r, c] of res.path) st.path.add(key(r, c));
+    R.drawBase(S3, G3, st);
+    const len = res.found ? res.path.length - 1 : -1;
+    document.getElementById(outId).textContent = `duyệt ${res.visited} ô · dài ${len < 0 ? "—" : len}`;
+  }
+  function runHeur() { drawHeur("manhattan", "hvMan"); drawHeur("euclidean", "hvEuc"); }
+  document.getElementById("heurRun").onclick = runHeur;
+  document.getElementById("heurWall").onclick = () => {
+    clearWalls(g3);
+    // vài cụm tường để Euclidean lộ rõ duyệt nhiều hơn
+    for (let r = 3; r < HR - 3; r++) if (r !== Math.floor(HR / 2)) g3.wall[r][Math.floor(HC / 2)] = true;
+    g3.wall[S3[0]][S3[1]] = false; g3.wall[G3[0]][G3[1]] = false;
+    runHeur();
+  };
+  runHeur();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+</body>
+</html>

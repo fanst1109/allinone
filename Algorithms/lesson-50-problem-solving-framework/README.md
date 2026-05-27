@@ -48,6 +48,19 @@ LỜI GIẢI
 
 Hai trục quyết định nằm ở B4 và B5: **constraint cho biết bạn được phép chậm tới đâu** (mục 3), **dấu hiệu trong đề cho biết đi hướng nào** (mục 4). Phần lớn lesson này đào sâu hai trục đó.
 
+**Mỗi Tier trước đã trang bị gì cho hộp đồ nghề:**
+
+| Tier | Cho bạn | Khi nào lấy ra |
+|------|---------|----------------|
+| 0 — Nền tảng | Big-O, brute-force, đệ quy, bất biến | Mọi bài (B3, B4) |
+| 1 — Sorting | Sort, merge/quick/heap sort | Tiền xử lý cho two pointers, đếm nghịch thế |
+| 2 — Searching | Binary search, two pointers, window, prefix, hash | "sorted", "liên tục", "cặp tổng", "đếm nhanh" |
+| 3 — Greedy | Backtracking, greedy, interval | "mọi tổ hợp", "chọn cục bộ", "lịch/khoảng" |
+| 4 — DP | DP 1D/2D, knapsack, interval, bitmask | "tối ưu + bài con chồng nhau" |
+| 5 — Graph | BFS/DFS, topo, Dijkstra, MST, flow | "đường đi", "thứ tự DAG", "kết nối" |
+| 6 — String | Rabin-Karp, KMP, Z, trie | "khớp mẫu", "nhiều mẫu" |
+| 7 — Advanced | Number theory, hình học, randomized | bài chuyên biệt |
+
 > 📝 **Tóm tắt mục 0.** Lesson 50 = "meta-skill": không thêm thuật toán, mà dạy quy trình chọn thuật toán. Hai trục cốt lõi: constraint → độ phức tạp mục tiêu, dấu hiệu → kỹ thuật.
 
 ---
@@ -134,6 +147,20 @@ Cộng thêm 2 "siêu năng lực" thực dụng:
 
 - Nếu vẫn chậm/tốn bộ nhớ: tìm tính toán lặp lại (→ precompute/memo), đổi cấu trúc dữ liệu (→ heap, hash, segment tree), giảm chiều DP, v.v.
 - **Chỉ tối ưu khi cần.** Nếu đã đạt mục tiêu thì dừng — tối ưu sớm là anti-pattern (mục 8).
+
+### 2.1 Áp dụng nhanh 7 bước cho một bài (toàn cảnh)
+
+Đề mẫu: *"Cho mảng `a` (`n ≤ 10^5`), tìm độ dài subarray liên tục dài nhất mà tổng `≤ S` (mọi `a[i] > 0`)."* Chạy nhanh 7 bước:
+
+1. **Hiểu:** input mảng dương + ngưỡng `S`; output 1 số (độ dài).
+2. **Ví dụ:** `a=[2,1,5,1,3], S=8` → `3` (`[1,5,1]=7≤8`). Edge: `S` nhỏ hơn mọi phần tử → 0; mảng rỗng → 0.
+3. **Brute-force:** thử mọi `(i,j)`, tính tổng → `O(n^2)`.
+4. **Constraint:** `n ≤ 10^5` → `O(n^2)=10^{10}` TLE → mục tiêu `O(n)`.
+5. **Pattern:** "subarray liên tục" + "mọi phần tử dương" → **sliding window** mở rộng/co được (tổng đơn điệu vì toàn dương).
+6. **Code + test:** window hai con trỏ, co `left` khi tổng vượt `S`; test các ví dụ bước 2.
+7. **Tối ưu:** đã `O(n)` → dừng.
+
+Toàn bộ "suy nghĩ" trên mất ~2 phút và đảm bảo không lao vào `O(n^2)`.
 
 > 🔁 **Dừng lại tự kiểm tra.** Vì sao nên viết brute-force *trước* khi nghĩ cách tối ưu, thay vì nhảy thẳng vào cách hay?
 > <details><summary>Đáp án</summary>
@@ -226,6 +253,13 @@ Riêng dòng cuối minh hoạ vì sao `n ≤ 20–25` là ranh giới của `2^
 | `n` nhỏ (≤ 20), trạng thái là **tập con** | Bitmask DP | [L29](../lesson-29-bitmask-dp/) |
 
 > ⚠ **Lỗi thường gặp.** Một dấu hiệu *không* khoá chết một kỹ thuật. "Tối ưu" có thể là greedy *hoặc* DP — phân biệt: greedy đúng khi *lựa chọn cục bộ tốt nhất dẫn tới tối ưu toàn cục* (phải chứng minh!). Nếu lựa chọn hiện tại ảnh hưởng tương lai theo cách phức tạp → DP. Xem [L22 — Greedy vs DP](../lesson-22-greedy-vs-dp/).
+
+### 4.1 Bốn ví dụ nhận diện pattern từ đề thật
+
+1. *"Cho lịch họp `[start, end]`, tìm số phòng tối thiểu để không trùng giờ."* → dấu hiệu **interval** + "tối thiểu phòng" → sort theo mốc + sweep/heap đếm chồng lấn ([L20](../lesson-20-interval-problems/)).
+2. *"Trong mảng chưa sorted, có 2 số nào tổng = `k` không?"* → "cặp tổng" nhưng *chưa* sorted → **hash set** một lượt (`O(n)`), không cần sort ([L16](../lesson-16-hashing-techniques/)).
+3. *"Tìm phần tử lớn thứ `k` trong luồng dữ liệu liên tục."* → "top-k" + "luôn lấy min/max động" → **heap** kích thước `k` ([L33](../lesson-33-dijkstra/) dùng heap).
+4. *"Đếm số đảo (số cặp `i<j` mà `a[i]>a[j]`)."* → không có từ khoá quen, nhưng "đếm cặp nghịch thế" là biến thể kinh điển → **merge sort đếm trong khi trộn** ([L07](../lesson-07-merge-sort/)) hoặc segment tree. Đây là ví dụ "tìm bài tương tự đã biết" (mục 5).
 
 > ❓ **Câu hỏi tự nhiên.** *"Một bài có nhiều dấu hiệu thì chọn cái nào?"* — Chọn kỹ thuật đạt được **độ phức tạp mục tiêu** (mục 3). Ví dụ "subarray liên tục" gợi sliding window, nhưng nếu có giá trị âm thì window vỡ → chuyển prefix sum + hash. Dùng constraint làm trọng tài.
 
@@ -548,7 +582,9 @@ func main() {
 3. **Không test edge case.** Code đúng case thường, rớt test ẩn (rỗng, max, overflow). *Sửa:* chạy checklist mục 6 trước khi submit.
 4. **Chọn greedy mà không kiểm chứng.** "Có vẻ tham lam là được" → sai như coin change 7.3. *Sửa:* greedy phải có lập luận *exchange argument* hoặc đối chiếu với DP trên case nhỏ. Khi nghi ngờ, dùng DP. Xem [L22](../lesson-22-greedy-vs-dp/).
 
-> ❓ **Câu hỏi tự nhiên.** *"Làm sao biết greedy đúng mà không cần chứng minh hình thức?"* — Cách thực dụng: viết brute-force/DP đúng, sinh ngẫu nhiên *nhiều* case nhỏ, so kết quả greedy với DP. Nếu lệch dù chỉ 1 case → greedy sai. Khớp toàn bộ → tăng tự tin (nhưng không thay được chứng minh).
+**Ví dụ cụ thể về tối ưu sớm:** đề "tổng đoạn `[l,r]`, `n ≤ 1000`, `q ≤ 1000` truy vấn, *không* cập nhật". Phản xạ "range query → segment tree" → viết 60 dòng cây phân đoạn, dễ bug. Nhưng `n, q ≤ 1000` cho `O(n·q)=10^6` *quá thừa kịp*; thậm chí cộng thẳng mỗi truy vấn cũng được, và **prefix sum** (3 dòng) là quá đủ. Segment tree chỉ cần khi *có cập nhật* hoặc `n, q` lớn (`10^5+`). Đọc constraint trước → tránh viết thừa.
+
+> ❓ **Câu hỏi tự nhiên.** *"Làm sao biết greedy đúng mà không cần chứng minh hình thức?"* — Cách thực dụng: viết brute-force/DP đúng, sinh ngẫu nhiên *nhiều* case nhỏ, so kết quả greedy với DP (kỹ thuật *stress testing*). Nếu lệch dù chỉ 1 case → greedy sai. Khớp toàn bộ → tăng tự tin (nhưng không thay được chứng minh).
 
 > 📝 **Tóm tắt mục 8.** Tránh: (1) code khi chưa hiểu đề, (2) tối ưu sớm, (3) bỏ test edge, (4) greedy không kiểm chứng.
 

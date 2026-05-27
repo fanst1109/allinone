@@ -270,6 +270,12 @@ Học thuộc nhóm này giúp bạn **nhận ra ngay** một bài lạ là NP-c
 
 > 💡 **Trực giác liên kết.** Nhiều bài là "anh em" qua reduction: 3-SAT → Independent Set → Vertex Cover → Clique (qua đồ thị bù) → Hamiltonian → TSP. Tất cả cùng "khó như nhau".
 
+**Quan hệ Vertex Cover ↔ Independent Set (đẹp, đáng nhớ):** trong đồ thị `G` có `n` đỉnh, `S` là vertex cover ⟺ phần bù `V \ S` là independent set. Vì sao? Nếu `S` phủ mọi cạnh thì không cạnh nào nằm hoàn toàn trong `V \ S` → `V \ S` độc lập; và ngược lại.
+
+Walk-through số: đường thẳng 0-1-2-3 (cạnh (0,1),(1,2),(2,3)), n=4. Vertex cover nhỏ nhất `{1,2}` (size 2). Phần bù `{0,3}` — kiểm: 0 và 3 không kề → là independent set lớn nhất (size 2). Kiểm đẳng thức: `|min VC| + |max IS| = 2 + 2 = 4 = n` ✓. Đẳng thức `min VC + max IS = n` luôn đúng — biết một cái suy ra cái kia.
+
+> ⚠ **Lỗi thường gặp.** Tưởng vì "Vertex Cover ↔ Independent Set qua phần bù" mà cả hai dễ. KHÔNG — phần bù tính nhanh, nhưng *tìm cái nhỏ nhất/lớn nhất* vẫn NP-complete cho cả hai. Reduction chỉ nói chúng khó **như nhau**, không nói chúng dễ.
+
 > 🔁 **Dừng lại tự kiểm tra.** Subset Sum và Partition khác nhau thế nào?
 > <details><summary>Đáp án</summary>
 > Partition là trường hợp đặc biệt của Subset Sum với T = (tổng cả tập)/2. Nếu tổng lẻ thì "No" ngay. Partition ≤ₚ Subset Sum hiển nhiên.

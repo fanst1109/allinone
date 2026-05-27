@@ -311,6 +311,8 @@ Quy luật chung: fail ở bước thứ `k` (1-indexed) → đúng `k-1` bồi 
 
 > ❓ **Câu hỏi tự nhiên.** *"Vì sao lỗi 'hết hàng' không retry mà lỗi 'tạm thời' lại retry?"* — Phân biệt **lỗi nghiệp vụ vĩnh viễn** (hết hàng, thẻ từ chối — thử lại 100 lần vẫn fail) với **lỗi hạ tầng tạm thời** (network blip, timeout — thử lại có thể qua). Retry mù quáng lỗi nghiệp vụ chỉ tốn thời gian rồi vẫn phải compensate.
 
+> 📝 **Tóm tắt mục 5.** 10 bước: go.mod → bus → event → 3 service → saga steps → orchestrator → timeout/retry → demo+test. Mỗi bước build độc lập. Điểm tinh tế: phân biệt lỗi vĩnh viễn (không retry) và tạm thời (retry + backoff).
+
 ---
 
 ## 6. Kiến thức Tier 6 được dùng ở đâu

@@ -616,6 +616,8 @@ route:
 
 Hệ quả bảo mật: bật `mTLS STRICT` toàn cluster → mọi traffic plaintext bị từ chối → đạt *zero-trust* nội bộ. (`solutions.go` mô phỏng bước 2 trong `mtlsHandshake`: verify cả `server` lẫn `client`.)
 
+**Kịch bản tấn công minh hoạ vì sao "mutual" quan trọng:** giả sử kẻ xấu chiếm được một pod trong cluster (vd qua lỗ hổng app khác) và cố gọi thẳng `payment` để rút tiền. Với TLS 1 chiều, `payment` không kiểm tra danh tính client → pod lạ vẫn gọi được. Với **mTLS**, `payment` (qua Envoy) đòi client trình cert hợp lệ do CA mesh ký với SPIFFE ID đúng. Pod lạ không có cert được CA mesh cấp cho danh tính hợp lệ → bị **từ chối ngay ở tầng kết nối**, chưa kịp chạm logic nghiệp vụ. Kết hợp `AuthorizationPolicy` còn siết tiếp: "chỉ `checkout` được gọi `payment`" → ngay cả service hợp lệ khác cũng không gọi bừa được. (DEMO 5 trong `solutions.go` mô phỏng đúng: client không cert → `mtlsHandshake` trả lỗi "server từ chối client".)
+
 ### Lời giải BT4 — Fault injection delay 5s test timeout
 
 Config tiêm delay vào VirtualService của `checkout`:

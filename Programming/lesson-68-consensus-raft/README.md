@@ -256,6 +256,12 @@ Tiếp nối 7.2 (A là leader term 1). Bây giờ **A crash**:
 > 2. Cố định → mọi node timeout đồng loạt → mỗi node tự bầu mình → phiếu xé đều → không ai đạt 3. Ngẫu nhiên → một node thường timeout trước, lên Candidate và thắng trước khi node khác kịp timeout.
 > </details>
 
+> 📝 **Tóm tắt mục 7.**
+> - Follower hết timeout không nghe leader → Candidate, tăng term, tự bầu, gửi RequestVote.
+> - Đủ majority phiếu → Leader, gửi heartbeat ngay để dập election khác.
+> - **Randomized timeout** ([150,300]ms) là cách Raft tránh split vote — không cần đồng hồ chung.
+> - Candidate cần (N/2+1) phiếu; mất quá (N−1)/2 node thì không bầu được (cluster treo).
+
 ---
 
 ## 8. Log replication
@@ -323,6 +329,20 @@ Khi node nhận `RequestVote`, nó so sánh `(LastLogTerm, LastLogIndex)`:
 - Nếu candidate log **cũ hơn** → voter **từ chối**.
 
 Hệ quả: candidate thắng cử (đủ majority) chắc chắn có log **chứa mọi entry đã commit** — vì entry đã commit nằm trên majority, mà candidate cần majority phiếu, hai majority luôn **giao nhau** ở ít nhất 1 node, node đó sẽ không bầu cho candidate thiếu entry.
+
+**Ví dụ số cho election restriction (N=5):**
+
+Entry #7 đã commit trên majority {A,B,C} (3 node, đều có #7). Node D bị chậm, log chỉ tới #5 (thiếu #6,#7). D crash, hồi sinh, lên Candidate term mới:
+
+- D có `LastLogIndex=5`. Nó xin phiếu A,B,C,E.
+- A,B,C đều có `LastLogIndex=7 > 5` → so sánh thấy log D **cũ hơn** → **từ chối** D.
+- D chỉ có thể nhận phiếu của chính nó + tối đa E = **2 < 3** → D **không bao giờ** thành leader.
+- → Entry #7 (đã commit) **an toàn**: leader mới bắt buộc là một trong {A,B,C} (đều có #7).
+
+> 🔁 **Dừng lại tự kiểm tra.** Vì sao "hai majority luôn giao nhau" lại bảo đảm entry đã commit không mất?
+> <details><summary>Đáp án</summary>
+> Entry commit nằm trên một majority M1. Candidate muốn thắng cần một majority phiếu M2. Trong N node, |M1|+|M2| = (N/2+1)·2 = N+2 > N → M1 và M2 **bắt buộc** chia sẻ ≥ 1 node chung. Node chung đó **có** entry đã commit, nên (theo election restriction) nó **chỉ** bầu cho candidate có log ≥ của nó → leader mới chắc chắn cũng có entry đó.
+> </details>
 
 ### 9.2 Commit rule — chỉ commit entry của term hiện tại qua majority
 

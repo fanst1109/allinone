@@ -212,6 +212,19 @@ Ví dụ đọc PACELC: **Cassandra = PA/EL** nghĩa là "khi partition ưu tiê
 | Causal | Chỉ với sự kiện nhân quả | Causal được giữ | Nhanh | Chat, comment |
 | Eventual | Không đảm bảo | Không đảm bảo | Nhanh nhất | DNS, đếm like |
 
+### 5.5 Cùng một dòng sự kiện, bốn model thấy khác nhau
+
+Để cảm nhận sự khác biệt, xét chuỗi: A ghi `x=1`, A ghi `x=2`, B (độc lập) ghi `y=9`, rồi một client đọc `x` ngay sau khi B ghi xong.
+
+| Model | Client đọc `x` có thể thấy | Vì sao |
+|-------|----------------------------|--------|
+| **Strong** | chỉ `2` | Mọi read sau write `x=2` *bắt buộc* thấy `2`, không bao giờ thấy `1` hay rỗng. |
+| **Sequential** | `2` (và mọi node đồng ý thứ tự `x=1,x=2,y=9` nào đó) | Thứ tự `x=1` trước `x=2` được giữ ở mọi node, nhưng vị trí `y=9` có thể chèn bất kỳ đâu. |
+| **Causal** | `1` hoặc `2` tùy node, nhưng không bao giờ thấy `x=2` mà *chưa* thấy `x=1` | `x=2` nhân quả sau `x=1`; `y=9` concurrent nên thứ tự tự do. |
+| **Eventual** | `rỗng`, `1`, hoặc `2` (bất kỳ) trong lúc chưa hội tụ | Không hứa gì về thời điểm; chỉ hứa *sau cùng* hội tụ về `2`. |
+
+Đọc bảng từ trên xuống: ràng buộc *nới dần*, tập giá trị client có thể thấy *rộng dần* — đó chính là cái giá đổi lấy tốc độ.
+
 > ⚠ **Lỗi thường gặp.** Mặc định dùng strong consistency "cho chắc". Hậu quả: mọi đọc đều qua quorum → latency tăng, throughput giảm, hệ dễ sập khi 1 node chậm. Hãy chọn mức *yếu nhất đủ dùng* cho từng loại dữ liệu.
 
 > 🔁 **Dừng lại tự kiểm tra.** Một hệ chat: tin nhắn của tôi hiện ra với người khác *sau* tin tôi đang trả lời. Đang dùng model nào, sai chỗ nào?
@@ -311,6 +324,17 @@ Với N node, mỗi node giữ vector `V` độ dài N (khởi tạo toàn 0):
 > 🔁 **Dừng lại tự kiểm tra.** Va=`[2,1,0]`, Vb=`[1,2,0]`. Quan hệ?
 > <details><summary>Đáp án</summary>Va[0]=2>1=Vb[0] nhưng Va[1]=1<2=Vb[1]. Mỗi cái lớn hơn ở một vị trí → **concurrent** (`Va || Vb`). Đây là xung đột thật, cần resolve (LWW/CRDT/logic).</details>
 
+### 8.3 Bốn ví dụ so sánh nhanh (luyện tay)
+
+Tự xác định quan hệ trước khi đọc cột cuối:
+
+| Va | Vb | Quan hệ | Giải thích |
+|----|----|---------|------------|
+| `[1,0,0]` | `[1,1,0]` | `Va → Vb` (before) | mọi phần tử ≤, có `Va[1]=0<1` |
+| `[2,1,0]` | `[1,2,0]` | concurrent | `Va[0]>Vb[0]` nhưng `Va[1]<Vb[1]` |
+| `[3,2,1]` | `[3,2,1]` | equal | giống hệt |
+| `[0,0,2]` | `[1,0,2]` | `Va → Vb` (before) | chỉ khác ở vị trí 0, `Va[0]<Vb[0]` |
+
 > 📝 **Tóm tắt mục 8.** Vector clock = vector đếm sự kiện đã biết từ mỗi node. Send: tăng phần tử của mình. Receive: max rồi tăng. So sánh: `≤ toàn bộ và < ít nhất 1` → happens-before; không so sánh được → concurrent. Phát hiện được *xung đột thật* mà wall-clock LWW không thấy.
 
 ---
@@ -347,6 +371,17 @@ Cách phổ biến nhất để biến một operation *vốn không idempotent*
 Stripe, PayPal đều dùng cơ chế này. Xem cài đặt trong [solutions.go](./solutions.go) (`IdempotencyStore`).
 
 > ⚠ **Lỗi thường gặp.** Sinh key *mới* cho mỗi lần retry → server thấy key lạ → xử lý lại → double-charge. Key phải gắn với *ý định*, sinh **một lần** ở client trước vòng retry, dùng *cùng key* cho mọi lần thử.
+
+### 9.3 Bốn ví dụ phân loại idempotent / không
+
+| Operation | Idempotent? | Lý do |
+|-----------|:-----------:|-------|
+| `PUT /user/42 {name:"An"}` | ✓ | Đặt trạng thái tuyệt đối; lặp lại cho cùng kết quả. |
+| `POST /user {name:"An"}` (auto-id) | ✗ | Mỗi lần tạo một id mới → trùng user. |
+| `DELETE /user/42` | ✓ | Sau lần đầu, "không tồn tại"; lặp lại vẫn "không tồn tại". |
+| `PATCH /counter {op:"+1"}` | ✗ | Cộng dồn; 3 lần → +3 thay vì +1. |
+
+Quy tắc nhớ: thao tác *gán trạng thái tuyệt đối* (PUT, SET, DELETE) thường idempotent; thao tác *tương đối / sinh mới* (`+=`, POST tạo, INSERT) thì không — cần idempotency key.
 
 > 📝 **Tóm tắt mục 9.** Idempotent = làm nhiều lần như làm một lần. Cần thiết vì retry là không thể tránh (response có thể mất). `SET`/`DELETE` thường idempotent; `+=`/`INSERT` thì không. Biến non-idempotent thành idempotent bằng idempotency key sinh *một lần*, dùng lại qua mọi retry.
 

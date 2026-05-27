@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 70 — Service Mesh (Visualization)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 40px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; margin-top: 22px; }
+  p { line-height: 1.65; }
+  .card {
+    background: #fff; border-radius: 10px; padding: 18px 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #4299e1; color: #fff; border: none;
+    padding: 9px 15px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  label { font-size: 14px; color: #2d3748; }
+  input[type="range"] { width: 100%; max-width: 280px; vertical-align: middle; }
+  .explain {
+    background: #ebf8ff; border-left: 4px solid #4299e1;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6; margin: 10px 0;
+  }
+  code.inline {
+    background: #edf2f7; padding: 1px 6px; border-radius: 4px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px;
+  }
+  .legend { font-size: 13px; color: #4a5568; margin: 6px 0; }
+  .dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; vertical-align: middle; margin: 0 4px 0 10px; }
+
+  /* ---------- Module 1: sidecar architecture ---------- */
+  .arch-wrap { overflow-x: auto; }
+  .pod {
+    border: 2px solid #cbd5e0; border-radius: 12px; padding: 12px;
+    background: #f7fafc; min-width: 150px;
+  }
+  .pod h4 { margin: 0 0 8px; font-size: 13px; color: #718096; text-transform: uppercase; letter-spacing: .04em; }
+  .box {
+    border-radius: 8px; padding: 12px 10px; text-align: center;
+    font-weight: 700; font-size: 13px; margin: 6px 0; color: #fff;
+  }
+  .box.app { background: #38a169; }
+  .box.proxy { background: #dd6b20; }
+  .box.ctrl { background: #805ad5; }
+  .archline { font-size: 12px; color: #718096; text-align: center; margin: 4px 0; }
+  .flash { animation: flashpulse .6s ease; }
+  @keyframes flashpulse { 0%{box-shadow:0 0 0 0 rgba(66,153,225,.6)} 100%{box-shadow:0 0 0 14px rgba(66,153,225,0)} }
+
+  /* ---------- Module 2: canary ---------- */
+  .meter { height: 22px; background: #e2e8f0; border-radius: 11px; overflow: hidden; display: flex; }
+  .meter .v1 { background: linear-gradient(90deg,#4299e1,#2b6cb0); transition: width .3s ease; }
+  .meter .v2 { background: linear-gradient(90deg,#ed8936,#dd6b20); transition: width .3s ease; }
+  .dist { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 10px; min-height: 40px; }
+  .req { width: 13px; height: 13px; border-radius: 3px; opacity: 0; transform: scale(.4); transition: all .25s ease; }
+  .req.show { opacity: 1; transform: scale(1); }
+  .req.r1 { background: #2b6cb0; }
+  .req.r2 { background: #dd6b20; }
+  .statgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .stat { background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; text-align: center; }
+  .stat .n { font-size: 24px; font-weight: 800; }
+  .stat.s1 .n { color: #2b6cb0; }
+  .stat.s2 .n { color: #dd6b20; }
+  .stat .l { font-size: 12px; color: #718096; }
+
+  /* ---------- Module 3: mTLS handshake ---------- */
+  .hs-stage { display: flex; gap: 16px; align-items: stretch; flex-wrap: wrap; }
+  .hs-node { flex: 1 1 180px; border: 2px solid #cbd5e0; border-radius: 10px; padding: 12px; background: #f7fafc; }
+  .hs-node.ok { border-color: #38a169; background: #f0fff4; }
+  .hs-node.bad { border-color: #e53e3e; background: #fff5f5; }
+  .hs-node h4 { margin: 0 0 6px; font-size: 14px; }
+  .hs-cert { font-size: 12px; font-family: ui-monospace, Menlo, monospace; color: #4a5568; word-break: break-all; background: #edf2f7; padding: 6px; border-radius: 5px; margin: 6px 0; }
+  .hs-log { background: #1a202c; color: #e2e8f0; border-radius: 8px; padding: 12px; font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; line-height: 1.7; min-height: 120px; white-space: pre-wrap; }
+  .hs-log .ok { color: #68d391; }
+  .hs-log .bad { color: #fc8181; }
+  .hs-log .info { color: #63b3ed; }
+
+  @media (max-width: 480px) {
+    .req { width: 10px; height: 10px; }
+    .statgrid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-69-microservice-patterns/visualization.html">← L69: Microservice Patterns</a>
+  <span class="sep">·</span>
+  <span class="current">L70: Service Mesh</span>
+  <span class="sep">·</span>
+  <a href="../lesson-71-mini-project-microservices/visualization.html">L71: Mini-project Microservices →</a>
+</nav>
+
+<main>
+  <h1>Lesson 70 — Service Mesh</h1>
+  <p>Ba module tương tác: (1) kiến trúc sidecar + control plane đẩy config, (2) canary traffic shifting, (3) bắt tay mTLS giữa hai sidecar. Mở README (nút 📖 góc phải) để đọc lý thuyết đầy đủ.</p>
+
+  <!-- ============ MODULE 1 ============ -->
+  <h2>1. Kiến trúc Sidecar + Control plane</h2>
+  <div class="card">
+    <p>App chỉ gọi <code class="inline">http://checkout</code>. iptables chuyển hướng qua <b>Envoy sidecar</b> (data plane). <b>Istiod</b> (control plane) đẩy config xuống mọi Envoy — không nằm trên đường đi của request.</p>
+    <div class="arch-wrap">
+      <div style="display:flex; flex-direction:column; gap:14px; min-width:520px;">
+        <div style="text-align:center;">
+          <div class="box ctrl" id="m1-ctrl" style="display:inline-block; min-width:240px;">🧠 Control plane — Istiod</div>
+          <div class="archline">↓ đẩy config (route, mTLS, retry) — KHÔNG xử lý traffic ↓</div>
+        </div>
+        <div class="row" style="justify-content:center; align-items:stretch; gap:24px;">
+          <div class="pod">
+            <h4>Pod: cart</h4>
+            <div class="box app" id="m1-appA">app cart</div>
+            <div class="archline">↕ localhost</div>
+            <div class="box proxy" id="m1-pxA">Envoy sidecar</div>
+          </div>
+          <div style="display:flex; align-items:center; font-size:13px; color:#718096; text-align:center;">══ mTLS ══▶</div>
+          <div class="pod">
+            <h4>Pod: checkout</h4>
+            <div class="box proxy" id="m1-pxB">Envoy sidecar</div>
+            <div class="archline">↕ localhost</div>
+            <div class="box app" id="m1-appB">app checkout</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <button id="m1-send">▶ Gửi request cart → checkout</button>
+      <button id="m1-push" class="secondary">🧠 Istiod đẩy config mới</button>
+    </div>
+    <div class="explain" id="m1-explain">Bấm "Gửi request" để xem gói tin đi qua app → Envoy → mTLS → Envoy → app. Bấm "Istiod đẩy config" để thấy control plane cập nhật proxy mà không đụng tới traffic.</div>
+  </div>
+
+  <!-- ============ MODULE 2 ============ -->
+  <h2>2. Canary traffic shifting</h2>
+  <div class="card">
+    <p>Kéo slider để đặt % traffic sang <b>v2</b> (canary). Bấm "Gửi 100 request" để xem phân phối thực tế. Đây chính là sửa <code class="inline">weight</code> trong VirtualService — không deploy lại app.</p>
+    <div class="row">
+      <label>Traffic sang v2: <b id="m2-pct">10</b>%</label>
+      <input type="range" id="m2-slider" min="0" max="100" value="10" step="5">
+    </div>
+    <div class="row" style="gap:6px;">
+      <button class="secondary" data-w="10">10%</button>
+      <button class="secondary" data-w="50">50%</button>
+      <button class="secondary" data-w="100">100%</button>
+    </div>
+    <div class="legend"><span class="dot" style="background:#2b6cb0"></span>v1 (ổn định) <span class="dot" style="background:#dd6b20"></span>v2 (canary)</div>
+    <div class="meter"><div class="v1" id="m2-mv1" style="width:90%"></div><div class="v2" id="m2-mv2" style="width:10%"></div></div>
+    <div class="row"><button id="m2-send">▶ Gửi 100 request</button></div>
+    <div class="dist" id="m2-dist"></div>
+    <div class="statgrid">
+      <div class="stat s1"><div class="n" id="m2-n1">0</div><div class="l">tới v1</div></div>
+      <div class="stat s2"><div class="n" id="m2-n2">0</div><div class="l">tới v2</div></div>
+    </div>
+    <div class="explain" id="m2-explain">Mỗi request chọn phiên bản theo trọng số. Tỷ lệ thực tế xấp xỉ % bạn đặt (sai số do ngẫu nhiên). Quy trình canary: 10% → quan sát metric → 50% → 100%, rollback = đặt lại 0%.</div>
+  </div>
+
+  <!-- ============ MODULE 3 ============ -->
+  <h2>3. Bắt tay mTLS giữa hai sidecar</h2>
+  <div class="card">
+    <p>mTLS = <b>mutual</b> TLS: cả client lẫn server đều trình cert và verify lẫn nhau. Bật/tắt cert của client để xem mesh chấp nhận hay từ chối (zero-trust).</p>
+    <div class="row">
+      <label><input type="checkbox" id="m3-clientcert" checked> Client (cart) có cert hợp lệ do CA mesh ký</label>
+    </div>
+    <div class="hs-stage">
+      <div class="hs-node" id="m3-client">
+        <h4>🛒 Envoy cart (client)</h4>
+        <div class="hs-cert" id="m3-clientid">spiffe://…/sa/cart<br>cert: cart-cert ✅</div>
+      </div>
+      <div class="hs-node" id="m3-server">
+        <h4>💳 Envoy checkout (server)</h4>
+        <div class="hs-cert">spiffe://…/sa/checkout<br>cert: checkout-cert ✅</div>
+      </div>
+    </div>
+    <div class="row"><button id="m3-run">▶ Chạy bắt tay mTLS</button></div>
+    <div class="hs-log" id="m3-log">Bấm "Chạy bắt tay mTLS" để xem từng bước verify hai chiều...</div>
+    <div class="explain">Khác TLS web (chỉ client verify server): ở mTLS server <b>cũng</b> verify client. Pod lạ không có cert do CA mesh cấp sẽ bị từ chối ngay tầng kết nối — chưa chạm logic nghiệp vụ.</div>
+  </div>
+</main>
+
+<script>
+// ===================== MODULE 1 =====================
+(function () {
+  const ids = ["m1-appA", "m1-pxA", "m1-pxB", "m1-appB"];
+  const explain = document.getElementById("m1-explain");
+  function flash(id, ms) {
+    return new Promise(res => {
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        el.classList.add("flash");
+        setTimeout(() => el.classList.remove("flash"), 600);
+        res();
+      }, ms);
+    });
+  }
+  document.getElementById("m1-send").addEventListener("click", async () => {
+    explain.innerHTML = "Gói tin: <b>app cart</b> gọi http://checkout → iptables chuyển sang <b>Envoy cart</b> → mTLS qua mạng → <b>Envoy checkout</b> verify danh tính → <b>app checkout</b>. App không viết dòng network nào.";
+    for (let i = 0; i < ids.length; i++) await flash(ids[i], 0).then(() => new Promise(r => setTimeout(r, 320)));
+  });
+  document.getElementById("m1-push").addEventListener("click", () => {
+    const c = document.getElementById("m1-ctrl");
+    c.classList.add("flash");
+    setTimeout(() => c.classList.remove("flash"), 600);
+    document.getElementById("m1-pxA").classList.add("flash");
+    document.getElementById("m1-pxB").classList.add("flash");
+    setTimeout(() => { document.getElementById("m1-pxA").classList.remove("flash"); document.getElementById("m1-pxB").classList.remove("flash"); }, 600);
+    explain.innerHTML = "<b>Istiod đẩy config</b> (vd đổi route 90/10) xuống cả hai Envoy. Lưu ý: các app KHÔNG nhấp nháy — control plane chỉ cấu hình proxy, không chạm vào traffic hay app.";
+  });
+})();
+
+// ===================== MODULE 2 =====================
+(function () {
+  const slider = document.getElementById("m2-slider");
+  const pct = document.getElementById("m2-pct");
+  const mv1 = document.getElementById("m2-mv1"), mv2 = document.getElementById("m2-mv2");
+  const dist = document.getElementById("m2-dist");
+  const n1 = document.getElementById("m2-n1"), n2 = document.getElementById("m2-n2");
+  const explain = document.getElementById("m2-explain");
+
+  function setPct(v) {
+    slider.value = v;
+    pct.textContent = v;
+    mv2.style.width = v + "%";
+    mv1.style.width = (100 - v) + "%";
+  }
+  slider.addEventListener("input", () => setPct(+slider.value));
+  document.querySelectorAll("[data-w]").forEach(b =>
+    b.addEventListener("click", () => setPct(+b.dataset.w))
+  );
+
+  document.getElementById("m2-send").addEventListener("click", () => {
+    const w2 = +slider.value;
+    dist.innerHTML = "";
+    let c1 = 0, c2 = 0;
+    const cells = [];
+    for (let i = 0; i < 100; i++) {
+      const toV2 = Math.random() * 100 < w2;
+      if (toV2) c2++; else c1++;
+      const d = document.createElement("div");
+      d.className = "req " + (toV2 ? "r2" : "r1");
+      dist.appendChild(d);
+      cells.push(d);
+    }
+    cells.forEach((d, i) => setTimeout(() => d.classList.add("show"), i * 12));
+    n1.textContent = c1; n2.textContent = c2;
+    explain.innerHTML = `Đặt v2 = <b>${w2}%</b>. Thực tế: v1 nhận <b>${c1}</b>, v2 nhận <b>${c2}</b> (xấp xỉ tỷ lệ, sai số do ngẫu nhiên). ` +
+      (w2 === 0 ? "0% = rollback hoàn toàn về v1." : w2 === 100 ? "100% = v2 đã thành mặc định." : "Đang canary — theo dõi error rate / p99 của v2 trước khi tăng tiếp.");
+  });
+  setPct(10);
+})();
+
+// ===================== MODULE 3 =====================
+(function () {
+  const log = document.getElementById("m3-log");
+  const cb = document.getElementById("m3-clientcert");
+  const clientNode = document.getElementById("m3-client");
+  const serverNode = document.getElementById("m3-server");
+  const clientId = document.getElementById("m3-clientid");
+
+  cb.addEventListener("change", () => {
+    clientId.innerHTML = cb.checked
+      ? "spiffe://…/sa/cart<br>cert: cart-cert ✅"
+      : "spiffe://…/sa/cart<br>cert: <span style='color:#e53e3e'>(thiếu) ❌</span>";
+    clientNode.className = "hs-node";
+    serverNode.className = "hs-node";
+  });
+
+  function line(cls, txt) { return `<span class="${cls}">${txt}</span>\n`; }
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  document.getElementById("m3-run").addEventListener("click", async () => {
+    const ok = cb.checked;
+    clientNode.className = "hs-node";
+    serverNode.className = "hs-node";
+    log.innerHTML = "";
+    const steps = [];
+    steps.push(line("info", "[1] cart mở kết nối tới checkout (qua Envoy ↔ Envoy)"));
+    steps.push(line("info", "[2] checkout gửi cert của mình; cart verify do CA mesh ký..."));
+    steps.push(line("ok", "    ✓ cart xác nhận: đây đúng là checkout"));
+    steps.push(line("info", "[3] cart gửi cert của mình; checkout verify (mutual!)..."));
+    if (ok) {
+      steps.push(line("ok", "    ✓ checkout xác nhận: client đúng là cart"));
+      steps.push(line("ok", "[4] Cả hai đã xác thực → thoả thuận khoá → traffic MÃ HOÁ"));
+      steps.push(line("ok", "✅ Kết nối mTLS thành công."));
+    } else {
+      steps.push(line("bad", "    ✗ checkout TỪ CHỐI: client không có cert hợp lệ"));
+      steps.push(line("bad", "✗ Kết nối bị chặn ở tầng mTLS — chưa chạm logic nghiệp vụ."));
+      steps.push(line("info", "    (Đây là zero-trust: pod lạ không cert mesh → vào không được)"));
+    }
+    let acc = "";
+    for (const s of steps) { acc += s; log.innerHTML = acc; await sleep(550); }
+    clientNode.className = "hs-node " + (ok ? "ok" : "bad");
+    serverNode.className = "hs-node " + (ok ? "ok" : "bad");
+  });
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

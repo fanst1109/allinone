@@ -146,6 +146,8 @@ Cơ chế (walk-through cụ thể):
 
 Điểm quan trọng cuối bảng: control plane **không nằm trên đường đi của request**. Nếu Istiod chết, các Envoy vẫn route traffic bằng config đã nhận → hệ thống không sập ngay. Đây là thiết kế cố ý để control plane không thành single point of failure cho data path.
 
+> 💡 **Trực giác bổ sung.** So sánh với mạng máy tính: data plane giống *forwarding* (chuyển gói tin theo bảng định tuyến hiện có), control plane giống *routing protocol* (tính ra bảng định tuyến). Router vẫn chuyển gói được khi giao thức định tuyến tạm gián đoạn — chỉ là không học được đường mới. Mesh mượn đúng phân tách kinh điển này từ thế giới networking.
+
 > 🔁 **Dừng lại tự kiểm tra.**
 > 1. Một request từ `cart` tới `checkout` đi qua data plane hay control plane?
 > 2. Bạn `kubectl apply` một VirtualService mới (đổi route). Thành phần nào nhận và xử lý?
@@ -365,6 +367,11 @@ http:
 ```
 
 Dùng để **test resilience**: nếu bạn config timeout của caller là 2s, mà tiêm delay 5s vào `checkout`, thì caller phải timeout đúng ở 2s (không treo mãi). Nếu nó treo → bạn vừa phát hiện lỗi cấu hình **trước khi** sự cố thật xảy ra.
+
+Walk-through hai loại tiêm lỗi:
+
+- **Tiêm delay (test timeout/retry):** `fixedDelay: 5s, percentage: 100` → 100% request tới checkout chậm 5s. Dùng kiểm tra caller có cắt đúng ở timeout của nó không (xem BT4).
+- **Tiêm abort (test xử lý lỗi):** `httpStatus: 503, percentage: 10` → 10% request bị trả 503 ngay (không gọi tới app thật). Dùng kiểm tra: caller có retry không? có fallback/degrade không? hay sập? Vd nếu `cart` cấu hình `retryOn: 503` với 3 lần thử, thì với 10% lỗi độc lập, xác suất một request fail sau cả 3 lần ≈ 0.1³ = **0.1%** → caller chịu được lỗi lẻ tẻ. Tiêm 50% thì 0.5³ = 12.5% fail — lúc này retry không cứu nổi, lộ ra ngưỡng chịu đựng.
 
 > ❓ **Câu hỏi tự nhiên.** *"Tiêm lỗi vào production thật à, không sợ ảnh hưởng user?"* → Tiêm có kiểm soát: chỉ với traffic có header test cụ thể, hoặc trong môi trường staging, hoặc % rất nhỏ với khả năng tắt ngay. Đây là nền của *chaos engineering*.
 
@@ -676,10 +683,17 @@ Tính: 2 hop × (1–2ms) = **+2–4ms** mong đợi. Quan sát thật là **+6m
 
 ➡ [Lesson 71 — Mini-project: Microservices](../lesson-71-mini-project-microservices/) — ghép kiến thức tier 6 thành một hệ microservice chạy được.
 
+## Liên hệ các bài khác
+
+- **Củng cố [Lesson 52](../lesson-52-rate-limiting-circuit-breaker/):** circuit breaker bạn viết tay ở đó chính là `outlierDetection` trong mesh — cùng ý tưởng, khác cách triển khai (code vs config).
+- **Củng cố [Lesson 63](../lesson-63-service-discovery-lb/):** LB và service discovery do data plane mesh đảm nhận.
+- **Dùng tiếp ở [Lesson 71](../lesson-71-mini-project-microservices/):** khi ghép mini-project, bạn sẽ quyết định có cần mesh hay library cho hệ của mình — áp dụng đúng bảng quyết định 13.1.
+
 ## Tham khảo
 
 - Istio docs — Traffic Management, Security (mTLS), Observability.
 - Linkerd docs — Architecture, Automatic mTLS.
 - Envoy proxy — kiến trúc data plane.
-- SPIFFE/SPIRE — chuẩn danh tính service.
+- SPIFFE/SPIRE — chuẩn danh tính service (SPIFFE ID, cert tự rotate).
 - Cilium / Istio Ambient — hướng sidecar-less giảm overhead.
+- Prometheus + Grafana + Jaeger — bộ observability hay đi cùng mesh.

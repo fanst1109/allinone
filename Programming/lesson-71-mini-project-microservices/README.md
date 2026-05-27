@@ -273,6 +273,8 @@ Quy luật chung: fail ở bước thứ `k` (1-indexed) → đúng `k-1` bồi 
                      └──────────┘   └──────────┘  └────────────┘
 ```
 
+> 💡 **Trực giác.** Message bus giống một **băng chuyền bưu kiện ở sân bay**. Mỗi service đặt kiện hàng (event) lên băng chuyền với một nhãn topic; ai đăng ký nhận topic đó thì gắp kiện xuống. Người gửi không cần biết ai sẽ nhận, không cần biết người nhận có đang bận hay không (băng chuyền đệm giúp). Đó là vì sao bus làm **giảm coupling**: thêm/bớt một service nhận chỉ là thêm/bớt người đứng cạnh băng chuyền, không đụng tới người gửi.
+
 Điểm mấu chốt:
 
 - **Service không gọi nhau trực tiếp.** Tất cả đi qua bus → loose coupling (L65). Order không biết Payment tồn tại.
@@ -534,6 +536,36 @@ go vet ./...      # không cảnh báo
 | phát event trực tiếp | **outbox pattern** (L65) | không mất event khi crash giữa chừng |
 
 > ❓ **Câu hỏi tự nhiên.** *"Khi nào nên dùng saga, khi nào dùng 2PC?"* — Saga khi: nhiều service/database độc lập, ưu tiên availability, chấp nhận eventual consistency, có hành động bồi hoàn hợp lý. 2PC khi: ít participant, cùng một hạ tầng hỗ trợ XA transaction, cần strong consistency tức thì, và chấp nhận khóa + risk treo. Microservices ở quy mô lớn gần như luôn chọn saga.
+
+> 📝 **Tóm tắt mục 11.** Mọi phần in-memory đều có đối ứng production: bus→Kafka/NATS, process→pod K8s, log→OpenTelemetry, dedup→Redis TTL, compensation best-effort→retry+dead-letter, phát event trực tiếp→outbox. Kiến trúc (interface, event, saga) giữ nguyên — chỉ thay "đường ống".
+
+---
+
+## 12. Bảng thuật ngữ tổng kết Tier 6
+
+Vì đây là bài cuối tier, đây là bảng tra cứu nhanh các thuật ngữ chính đã gặp xuyên suốt L62–L71, để bạn tự kiểm tra mình đã nắm:
+
+| Thuật ngữ | Định nghĩa một câu | Lesson gốc |
+|-----------|--------------------|------------|
+| **Idempotency** | thao tác chạy lại nhiều lần cho cùng kết quả như chạy một lần | L62 |
+| **At-least-once** | đảm bảo giao tin ÍT NHẤT một lần (có thể lặp) — buộc consumer idempotent | L62/L64 |
+| **CAP / eventual consistency** | đánh đổi giữa nhất quán và sẵn sàng khi có phân vùng mạng; chấp nhận hội tụ trễ | L62 |
+| **Pub/Sub** | publisher phát tới topic, nhiều subscriber nhận, hai bên không biết nhau | L64 |
+| **Message bus / broker** | trung gian truyền event (NATS/Kafka); ở đây là `internal/bus` | L64 |
+| **Event-driven** | service phản ứng với event (sự thật đã xảy ra) thay vì gọi hàm trực tiếp | L65 |
+| **Outbox pattern** | ghi state + event trong cùng một transaction DB để không mất event khi crash | L65 |
+| **Saga** | chuỗi giao dịch cục bộ + bồi hoàn, thay cho transaction ACID phân tán | L66 |
+| **Compensation** | hành động "hoàn tác" một bước saga đã thành công | L66 |
+| **Orchestration vs choreography** | coordinator trung tâm điều phối vs mỗi service tự phản ứng event | L66 |
+| **Event sourcing** | lưu chuỗi event làm nguồn sự thật, dựng lại state bằng replay | L67 |
+| **Correlation / trace ID** | ID chung gắn vào mọi event của một luồng để truy vết xuyên service | L71 (BT5) |
+| **Dead-letter queue** | nơi chứa message xử lý thất bại nhiều lần để người vận hành can thiệp | L64/L71 |
+
+> 🔁 **Dừng lại tự kiểm tra cuối tier.** Bạn có thể giải thích trong 1 câu: vì sao "at-least-once" lại BẮT BUỘC consumer phải idempotent?
+>
+> <details><summary>Đáp án</summary>
+> Vì at-least-once cho phép cùng một message tới NHIỀU lần; nếu consumer không idempotent, mỗi lần lặp lại tạo thêm side-effect (trừ tiền/kho lần nữa) → sai dữ liệu. Idempotency biến "nhận lặp" thành vô hại.
+> </details>
 
 ---
 

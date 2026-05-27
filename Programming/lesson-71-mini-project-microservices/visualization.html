@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L71 — Mini-project Microservices (Saga)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  main { max-width: 980px; margin: 0 auto; padding: 0 12px 60px; }
+  h2 { margin-top: 40px; border-bottom: 2px solid var(--accent); padding-bottom: 6px; }
+  .muted { color: var(--muted); }
+  .card { margin: 16px 0; }
+
+  /* ---------- Module 1: architecture ---------- */
+  .arch { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .arch-row { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+  .node {
+    border: 2px solid var(--line-strong); border-radius: 10px; padding: 12px 16px;
+    background: #fff; cursor: pointer; text-align: center; min-width: 120px;
+    transition: all .15s; font-weight: 600;
+  }
+  .node:hover { border-color: var(--accent); }
+  .node.sel { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .node small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; margin-top: 4px; }
+  .node.orch { background: #fef3c7; border-color: #f59e0b; }
+  .node.bus  { background: #ede9fe; border-color: #8b5cf6; min-width: 280px; }
+  .node.svc  { background: #ecfdf5; border-color: #10b981; }
+  .conn { color: var(--muted); font-size: 13px; }
+  .arch-detail {
+    margin-top: 14px; padding: 14px; border-radius: 8px; background: #f8fafc;
+    border-left: 4px solid var(--accent); min-height: 60px; font-size: 14px;
+  }
+
+  /* ---------- Module 2: saga flow ---------- */
+  .controls { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  button.btn {
+    border: 1px solid var(--accent); background: var(--accent); color: #fff;
+    padding: 9px 14px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;
+  }
+  button.btn.ghost { background: #fff; color: var(--accent); }
+  button.btn:disabled { opacity: .5; cursor: not-allowed; }
+  .steps { display: flex; flex-direction: column; gap: 8px; }
+  .step {
+    display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+    border: 2px solid var(--line); border-radius: 8px; background: #fff; transition: all .3s;
+  }
+  .step .ico { width: 22px; text-align: center; font-size: 16px; }
+  .step .name { font-weight: 600; }
+  .step .note { margin-left: auto; font-size: 12px; color: var(--muted); }
+  .step.run { border-color: var(--accent); background: var(--accent-soft); }
+  .step.ok  { border-color: #10b981; background: #ecfdf5; }
+  .step.fail{ border-color: #ef4444; background: #fef2f2; }
+  .step.comp{ border-color: #f59e0b; background: #fffbeb; }
+  .state-box {
+    display: flex; gap: 14px; flex-wrap: wrap; margin-top: 14px;
+    font-size: 14px;
+  }
+  .state-box .kv { padding: 8px 12px; border-radius: 8px; background: #f1f5f9; font-weight: 600; }
+  #sagaLog { margin-top: 12px; font-family: ui-monospace, monospace; font-size: 12px;
+    background: #0f172a; color: #cbd5e1; padding: 12px; border-radius: 8px; max-height: 200px; overflow:auto; }
+  #sagaLog div { white-space: pre-wrap; }
+
+  /* ---------- Module 3: event flow ---------- */
+  .ef-wrap { position: relative; }
+  .ef-svg-wrap { overflow-x: auto; }
+  .ef-controls { margin-bottom: 12px; }
+  .badge { display:inline-block; padding:2px 8px; border-radius:6px; font-size:12px; font-weight:600; }
+  .badge.dup { background:#fee2e2; color:#b91c1c; }
+  .badge.new { background:#dcfce7; color:#166534; }
+  #efLog { margin-top:12px; font-family: ui-monospace, monospace; font-size:12px; }
+  #efLog div { padding:3px 0; border-bottom:1px solid var(--line); }
+
+  @media (max-width: 480px) {
+    .node { min-width: 92px; padding: 9px 10px; font-size: 13px; }
+    .node.bus { min-width: 0; width: 100%; }
+    .state-box .kv { flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-70-service-mesh-intro/visualization.html">← L70: Service Mesh</a>
+  <span class="sep">·</span>
+  <span class="current">L71: Mini-project Microservices</span>
+  <span class="sep">·</span>
+  <a href="../tier-7-production/index.html">Tier 7 →</a>
+</nav>
+
+<main>
+<header style="text-align:center; padding:24px 0 6px;">
+  <h1 style="margin:0;">Lesson 71 — Mini-project: Microservices + Saga</h1>
+  <p class="muted">Tổng kết Tier 6: 3 service (Order · Payment · Inventory) giao tiếp qua message bus, saga orchestration cho transaction "đặt hàng", có idempotency.</p>
+</header>
+
+<!-- ===================== MODULE 1: ARCHITECTURE ===================== -->
+<h2>Module 1 — Kiến trúc (bấm vào từng thành phần)</h2>
+<p class="muted">Orchestrator điều phối; mọi giao tiếp đi qua message bus; 3 service không gọi nhau trực tiếp. Bấm để xem trách nhiệm.</p>
+<div class="card">
+  <div class="arch">
+    <div class="node orch" data-k="orch">SAGA ORCHESTRATOR<small>forward + compensation</small></div>
+    <div class="conn">▲ publish / subscribe ▼</div>
+    <div class="node bus" data-k="bus">MESSAGE BUS<small>pub/sub · at-least-once · dedup</small></div>
+    <div class="conn">▲ events ▼</div>
+    <div class="arch-row">
+      <div class="node svc" data-k="order">ORDER<small>PENDING/CONFIRMED/CANCELLED</small></div>
+      <div class="node svc" data-k="inventory">INVENTORY<small>reserve / release</small></div>
+      <div class="node svc" data-k="payment">PAYMENT<small>charge / refund</small></div>
+    </div>
+  </div>
+  <div class="arch-detail" id="archDetail">Bấm một thành phần để xem chi tiết.</div>
+</div>
+
+<!-- ===================== MODULE 2: SAGA FLOW ===================== -->
+<h2>Module 2 — Saga flow (thành công vs bồi hoàn)</h2>
+<p class="muted">Chạy mô phỏng từng bước. Kịch bản "hết hàng" và "payment từ chối" sẽ fail giữa chừng và <b>compensate ngược</b>.</p>
+<div class="card">
+  <div class="controls">
+    <button class="btn" id="runOk">▶ Thành công (qty 2)</button>
+    <button class="btn ghost" id="runOut">⚠ Hết hàng (qty 10)</button>
+    <button class="btn ghost" id="runPay">⚠ Payment từ chối (amount 0)</button>
+    <button class="btn ghost" id="reset">↺ Reset</button>
+  </div>
+  <div class="steps" id="sagaSteps"></div>
+  <div class="state-box">
+    <div class="kv" id="stOrder">order: —</div>
+    <div class="kv" id="stStock">kho BOOK-GO: 5</div>
+    <div class="kv" id="stPay">payment: —</div>
+  </div>
+  <div id="sagaLog"></div>
+</div>
+
+<!-- ===================== MODULE 3: EVENT FLOW + DEDUP ===================== -->
+<h2>Module 3 — Event flow & idempotency (dedup)</h2>
+<p class="muted">Bus có thể giao một event <b>nhiều lần</b> (at-least-once). Bật "giao lặp" rồi phát: consumer dedup theo event ID → chỉ xử lý lần đầu.</p>
+<div class="card">
+  <div class="ef-controls controls">
+    <button class="btn" id="efEmit">▶ Phát order.created</button>
+    <label style="display:flex;align-items:center;gap:6px;font-size:14px;">
+      <input type="checkbox" id="efDup"> giao lặp 3 lần (at-least-once)
+    </label>
+    <button class="btn ghost" id="efReset">↺ Reset</button>
+  </div>
+  <div class="ef-svg-wrap">
+    <svg id="efSvg" width="900" height="190" viewBox="0 0 900 190" style="max-width:100%;height:auto;">
+      <!-- producer -->
+      <rect x="20" y="70" width="150" height="50" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+      <text x="95" y="100" text-anchor="middle" font-size="13" font-weight="600">Orchestrator</text>
+      <!-- bus -->
+      <rect x="375" y="55" width="150" height="80" rx="8" fill="#ede9fe" stroke="#8b5cf6" stroke-width="2"/>
+      <text x="450" y="90" text-anchor="middle" font-size="13" font-weight="600">BUS</text>
+      <text x="450" y="108" text-anchor="middle" font-size="11" fill="#6b7280">dedup</text>
+      <!-- consumer -->
+      <rect x="730" y="70" width="150" height="50" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+      <text x="805" y="95" text-anchor="middle" font-size="13" font-weight="600">Order svc</text>
+      <text x="805" y="111" text-anchor="middle" font-size="11" fill="#6b7280" id="efProcessed">processed: 0</text>
+      <!-- lines -->
+      <line x1="170" y1="95" x2="375" y2="95" stroke="#cbd5e0" stroke-width="2"/>
+      <line x1="525" y1="95" x2="730" y2="95" stroke="#cbd5e0" stroke-width="2"/>
+      <!-- moving dot -->
+      <circle id="efDot" cx="170" cy="95" r="9" fill="#ef4444" opacity="0"/>
+    </svg>
+  </div>
+  <div id="efLog"></div>
+</div>
+
+</main>
+
+<script>
+// ===================== MODULE 1 =====================
+const archInfo = {
+  orch: "<b>Saga Orchestrator</b><br>Người duy nhất biết toàn cảnh saga place-order. Chạy 4 bước forward (Create → Reserve → Charge → Confirm). Nếu một bước fail, chạy compensation NGƯỢC các bước đã xong. Cũng lo timeout, retry+backoff, trace ID.",
+  bus: "<b>Message Bus</b> (in-memory)<br>Pub/sub: publisher phát theo topic, subscriber nhận, hai bên không biết nhau. <b>At-least-once</b>: có thể giao lặp → consumer phải dedup theo event ID. Production: NATS/Kafka.",
+  order: "<b>Order Service</b><br>Create order (PENDING), Get. Subscribe <code>order.confirm</code>/<code>order.cancel</code> → đổi trạng thái CONFIRMED/CANCELLED, dedup theo event ID.",
+  inventory: "<b>Inventory Service</b><br>Reserve (trừ kho, idempotent theo orderID, fail khi thiếu hàng) và Release (trả kho — bồi hoàn). Là cò súng cho nhánh compensate khi hết hàng.",
+  payment: "<b>Payment Service</b><br>Charge (trừ tiền, idempotent theo orderID, fail khi amount≤0) và Refund (hoàn tiền — bồi hoàn).",
+};
+const nodes = document.querySelectorAll('.node');
+const archDetail = document.getElementById('archDetail');
+nodes.forEach(n => n.addEventListener('click', () => {
+  nodes.forEach(x => x.classList.remove('sel'));
+  n.classList.add('sel');
+  archDetail.innerHTML = archInfo[n.dataset.k];
+}));
+
+// ===================== MODULE 2 =====================
+const STEP_DEFS = [
+  { name: 'CreateOrder',      fwd: 'order.created' },
+  { name: 'ReserveInventory', fwd: 'inventory.reserved' },
+  { name: 'ChargePayment',    fwd: 'payment.charged' },
+  { name: 'ConfirmOrder',     fwd: 'order.confirm' },
+];
+const COMP = {
+  CreateOrder:      { name: 'CancelOrder',      ev: 'order.cancel' },
+  ReserveInventory: { name: 'ReleaseInventory', ev: 'inventory.released' },
+  ChargePayment:    { name: 'RefundPayment',    ev: 'payment.refunded' },
+  ConfirmOrder:     null,
+};
+const sagaSteps = document.getElementById('sagaSteps');
+const sagaLog = document.getElementById('sagaLog');
+const stOrder = document.getElementById('stOrder');
+const stStock = document.getElementById('stStock');
+const stPay = document.getElementById('stPay');
+let stock = 5, running = false;
+
+function renderSteps(states) {
+  sagaSteps.innerHTML = '';
+  STEP_DEFS.forEach((s, i) => {
+    const st = states[i] || '';
+    const ico = st === 'ok' ? '✅' : st === 'fail' ? '❌' : st === 'run' ? '⏳' : st === 'comp' ? '↩' : '○';
+    const div = document.createElement('div');
+    div.className = 'step ' + st;
+    div.innerHTML = `<span class="ico">${ico}</span><span class="name">${s.name}</span><span class="note">${s.fwd}</span>`;
+    sagaSteps.appendChild(div);
+  });
+}
+function log(msg) { const d = document.createElement('div'); d.textContent = msg; sagaLog.appendChild(d); sagaLog.scrollTop = sagaLog.scrollHeight; }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function resetSaga(s) {
+  stock = 5; renderSteps([]); sagaLog.innerHTML = '';
+  stOrder.textContent = 'order: —'; stStock.textContent = 'kho BOOK-GO: 5'; stPay.textContent = 'payment: —';
+}
+
+async function runSaga(scenario) {
+  if (running) return; running = true;
+  document.querySelectorAll('.btn').forEach(b => b.disabled = true);
+  resetSaga();
+  const trace = 'trace-ord';
+  // scenario: 'ok' | 'out' | 'pay'
+  const qty = scenario === 'out' ? 10 : (scenario === 'pay' ? 1 : 2);
+  const amount = scenario === 'pay' ? 0 : 200;
+  log(`PlaceOrder(qty=${qty}, amount=${amount})  [${trace}]`);
+  const states = ['', '', '', '']; const done = [];
+
+  for (let i = 0; i < STEP_DEFS.length; i++) {
+    const s = STEP_DEFS[i];
+    states[i] = 'run'; renderSteps(states); await sleep(550);
+
+    let fail = false;
+    if (s.name === 'CreateOrder') { stOrder.textContent = 'order: PENDING'; }
+    else if (s.name === 'ReserveInventory') {
+      if (stock < qty) { fail = true; }
+      else { stock -= qty; stStock.textContent = `kho BOOK-GO: ${stock}`; }
+    }
+    else if (s.name === 'ChargePayment') {
+      if (amount <= 0) { fail = true; }
+      else { stPay.textContent = `payment: ${amount}`; }
+    }
+    else if (s.name === 'ConfirmOrder') { stOrder.textContent = 'order: CONFIRMED'; }
+
+    if (fail) {
+      states[i] = 'fail'; renderSteps(states);
+      log(`  ❌ ${s.name} FAIL → bắt đầu compensate`); await sleep(650);
+      // compensate done ngược
+      for (let j = done.length - 1; j >= 0; j--) {
+        const c = COMP[done[j]];
+        if (!c) continue;
+        const idx = STEP_DEFS.findIndex(x => x.name === done[j]);
+        states[idx] = 'comp'; renderSteps(states);
+        log(`  ↩ ${c.name}  →  ${c.ev}`);
+        if (c.name === 'ReleaseInventory') { stock += qty; stStock.textContent = `kho BOOK-GO: ${stock} (trả về)`; }
+        if (c.name === 'CancelOrder') { stOrder.textContent = 'order: CANCELLED'; }
+        await sleep(650);
+      }
+      log(`  saga: success=false, failedStep=${s.name}`);
+      running = false; document.querySelectorAll('.btn').forEach(b => b.disabled = false);
+      return;
+    }
+    states[i] = 'ok'; renderSteps(states);
+    log(`  ✅ ${s.name}  →  ${s.fwd}`); done.push(s.name);
+  }
+  log('  saga: success=true → order CONFIRMED');
+  running = false; document.querySelectorAll('.btn').forEach(b => b.disabled = false);
+}
+
+document.getElementById('runOk').onclick  = () => runSaga('ok');
+document.getElementById('runOut').onclick = () => runSaga('out');
+document.getElementById('runPay').onclick = () => runSaga('pay');
+document.getElementById('reset').onclick  = () => { if (!running) resetSaga(); };
+renderSteps([]);
+
+// ===================== MODULE 3 =====================
+const efDot = document.getElementById('efDot');
+const efLog = document.getElementById('efLog');
+const efProcessed = document.getElementById('efProcessed');
+let processed = 0; const seen = {}; let efBusy = false;
+
+function efAddLog(html) { const d = document.createElement('div'); d.innerHTML = html; efLog.appendChild(d); }
+function efReset() { processed = 0; for (const k in seen) delete seen[k]; efLog.innerHTML=''; efProcessed.textContent='processed: 0'; }
+
+async function efAnimate() {
+  // chạy dot từ producer (x=170) qua bus (x=450) tới consumer (x=805)
+  efDot.setAttribute('opacity', '1');
+  const start = 170, end = 805, dur = 900, t0 = performance.now();
+  return new Promise(res => {
+    function frame(t) {
+      const p = Math.min((t - t0) / dur, 1);
+      efDot.setAttribute('cx', start + (end - start) * p);
+      if (p < 1) requestAnimationFrame(frame); else { efDot.setAttribute('opacity','0'); res(); }
+    }
+    requestAnimationFrame(frame);
+  });
+}
+
+async function efEmit() {
+  if (efBusy) return; efBusy = true;
+  document.getElementById('efEmit').disabled = true;
+  const times = document.getElementById('efDup').checked ? 3 : 1;
+  const id = 'evt-order-created-1'; // CÙNG event ID khi giao lặp
+  for (let i = 0; i < times; i++) {
+    await efAnimate();
+    if (seen[id]) {
+      efAddLog(`giao lần ${i+1}: id=<code>${id}</code> → <span class="badge dup">DUP, bỏ qua</span>`);
+    } else {
+      seen[id] = true; processed++;
+      efProcessed.textContent = `processed: ${processed}`;
+      efAddLog(`giao lần ${i+1}: id=<code>${id}</code> → <span class="badge new">xử lý lần đầu</span>`);
+    }
+    await sleep(150);
+  }
+  efBusy = false; document.getElementById('efEmit').disabled = false;
+}
+document.getElementById('efEmit').onclick = efEmit;
+document.getElementById('efReset').onclick = efReset;
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

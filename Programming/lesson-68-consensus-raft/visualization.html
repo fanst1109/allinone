@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 68 — Consensus & Raft (Visualization)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 40px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; margin-top: 22px; }
+  .card {
+    background: #fff; border-radius: 10px; padding: 18px 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .explain { color: #4a5568; line-height: 1.6; }
+  code { background: #edf2f7; padding: 1px 5px; border-radius: 4px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.92em; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #4299e1; color: #fff; border: none;
+    padding: 9px 15px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.danger { background: #e53e3e; }
+  button.danger:hover { background: #c53030; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .status {
+    margin-top: 10px; padding: 10px 14px; border-radius: 8px;
+    background: #f7fafc; border: 1px solid #cbd5e0; line-height: 1.55;
+    font-size: 14px; color: #2d3748; min-height: 1.2em;
+  }
+  .legend { font-size: 13px; color: #4a5568; margin-top: 8px; }
+  .legend span { display: inline-block; margin-right: 14px; }
+  .dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%;
+    vertical-align: middle; margin-right: 4px; }
+  svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+  .log-strip { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0; align-items: center; }
+  .log-label { font-size: 13px; font-weight: 600; color: #2d3748; min-width: 64px; }
+  .cell {
+    width: 38px; height: 30px; border-radius: 5px; display: flex;
+    align-items: center; justify-content: center; font-size: 12px;
+    font-weight: 700; border: 1px solid #cbd5e0; background: #edf2f7; color: #2d3748;
+  }
+  .cell.committed { background: #9ae6b4; border-color: #48bb78; }
+  .cell.replicated { background: #faf089; border-color: #d69e2e; }
+  .repl-row { display: flex; align-items: center; gap: 8px; margin: 4px 0; flex-wrap: wrap; }
+  @media (max-width: 480px) {
+    .cell { width: 30px; height: 26px; font-size: 11px; }
+    .log-label { min-width: 52px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-67-cqrs-event-sourcing/visualization.html">← L67: CQRS &amp; Event Sourcing</a>
+  <span class="sep">·</span>
+  <span class="current">L68: Consensus &amp; Raft</span>
+  <span class="sep">·</span>
+  <a href="../lesson-69-microservice-patterns/visualization.html">L69: Microservice Patterns →</a>
+</nav>
+
+<main>
+<h1>Lesson 68 — Consensus &amp; Raft</h1>
+
+<p class="explain">
+Ba module tương tác cho 3 ý cốt lõi của bài:
+<strong>(1) Leader election</strong> — 5 node trên vòng tròn, xem timeout → candidate → vote → leader, có nút "giết leader" để xem re-election;
+<strong>(2) Log replication</strong> — leader append entry, replicate sang follower, commit khi đạt majority;
+<strong>(3) Split-brain</strong> — chia cluster thành 2 phe, thấy phe thiểu số không bầu được leader.
+</p>
+
+<!-- ===================================================================== -->
+<h2>1. Leader election (5 node)</h2>
+<div class="card">
+  <p class="explain">
+    Bấm <strong>Bắt đầu</strong>: mỗi node bốc một <em>election timeout</em> ngẫu nhiên. Node timeout
+    trước lên <strong>Candidate</strong>, tăng term, xin phiếu. Đạt majority (3/5) → <strong>Leader</strong>,
+    gửi heartbeat dập các timeout khác. Bấm <strong>Giết leader</strong> để xem cluster tự bầu lại (re-election, term tăng).
+  </p>
+  <div class="row">
+    <button id="e-start">▶ Bắt đầu / Bầu lại</button>
+    <button id="e-kill" class="danger" disabled>💀 Giết leader</button>
+    <button id="e-reset" class="secondary">↺ Reset</button>
+  </div>
+  <svg id="e-svg" width="420" height="320" viewBox="0 0 420 320" role="img" aria-label="Election ring"></svg>
+  <div class="legend">
+    <span><i class="dot" style="background:#a0aec0"></i>Follower</span>
+    <span><i class="dot" style="background:#ed8936"></i>Candidate</span>
+    <span><i class="dot" style="background:#48bb78"></i>Leader</span>
+    <span><i class="dot" style="background:#fc8181"></i>Dead</span>
+  </div>
+  <div class="status" id="e-status">Bấm "Bắt đầu" để chạy mô phỏng bầu cử.</div>
+</div>
+
+<!-- ===================================================================== -->
+<h2>2. Log replication (commit theo majority)</h2>
+<div class="card">
+  <p class="explain">
+    Leader (node L) append một command → replicate tới 4 follower. Khi <strong>majority (3/5)</strong>
+    đã lưu entry → leader <strong>commit</strong> (ô chuyển xanh) và apply state machine. Follower chậm
+    bắt kịp sau. Thử <em>tắt</em> vài follower (bấm vào tên) rồi append — chỉ cần 3/5 vẫn commit được.
+  </p>
+  <div class="row">
+    <button id="r-append">➕ Append command</button>
+    <button id="r-reset" class="secondary">↺ Reset log</button>
+  </div>
+  <div id="r-nodes"></div>
+  <div class="status" id="r-status">Bấm "Append command" để leader ghi entry đầu tiên.</div>
+</div>
+
+<!-- ===================================================================== -->
+<h2>3. Split-brain (partition phòng chống)</h2>
+<div class="card">
+  <p class="explain">
+    Chia cluster N=5 thành 2 phe. Phe nào đạt <strong>quorum 3</strong> mới bầu được leader; phe thiểu số
+    treo (đúng theo CP). Kéo thanh trượt để đổi tỷ lệ chia, rồi bấm <strong>Mô phỏng partition</strong>.
+  </p>
+  <div class="row">
+    <label for="s-split">Phe trái: <strong id="s-split-val">3</strong> node — Phe phải: <strong id="s-other-val">2</strong> node</label>
+  </div>
+  <div class="row">
+    <input type="range" id="s-split" min="1" max="4" value="3" step="1" style="width:220px; max-width:100%">
+    <button id="s-run">⚡ Mô phỏng partition</button>
+  </div>
+  <svg id="s-svg" width="420" height="240" viewBox="0 0 420 240" role="img" aria-label="Split brain"></svg>
+  <div class="status" id="s-status">Chọn tỷ lệ chia rồi bấm "Mô phỏng partition".</div>
+</div>
+
+</main>
+
+<script>
+"use strict";
+/* ===================== Module 1: Leader election ===================== */
+(function () {
+  const SVG = "http://www.w3.org/2000/svg";
+  const svg = document.getElementById("e-svg");
+  const statusEl = document.getElementById("e-status");
+  const startBtn = document.getElementById("e-start");
+  const killBtn = document.getElementById("e-kill");
+  const resetBtn = document.getElementById("e-reset");
+  const N = 5, QUORUM = 3;
+  const cx = 210, cy = 150, R = 110;
+  let nodes = [];
+  let term = 0;
+  let timers = [];
+  let leaderId = -1;
+  let running = false;
+
+  function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+
+  function color(state, alive) {
+    if (!alive) return "#fc8181";
+    return { F: "#a0aec0", C: "#ed8936", L: "#48bb78" }[state];
+  }
+
+  function init() {
+    nodes = [];
+    for (let i = 0; i < N; i++) {
+      const ang = (-Math.PI / 2) + i * (2 * Math.PI / N);
+      nodes.push({
+        id: i, state: "F", alive: true,
+        x: cx + R * Math.cos(ang), y: cy + R * Math.sin(ang),
+      });
+    }
+    term = 0; leaderId = -1;
+  }
+
+  function render() {
+    svg.innerHTML = "";
+    nodes.forEach(n => {
+      const g = document.createElementNS(SVG, "g");
+      const c = document.createElementNS(SVG, "circle");
+      c.setAttribute("cx", n.x); c.setAttribute("cy", n.y); c.setAttribute("r", 30);
+      c.setAttribute("fill", color(n.state, n.alive));
+      c.setAttribute("stroke", n.id === leaderId && n.alive ? "#22543d" : "#2d3748");
+      c.setAttribute("stroke-width", n.id === leaderId && n.alive ? 4 : 2);
+      g.appendChild(c);
+      const t = document.createElementNS(SVG, "text");
+      t.setAttribute("x", n.x); t.setAttribute("y", n.y - 2);
+      t.setAttribute("text-anchor", "middle"); t.setAttribute("font-size", "13");
+      t.setAttribute("font-weight", "700"); t.setAttribute("fill", "#1a202c");
+      t.textContent = "n" + n.id;
+      g.appendChild(t);
+      const st = document.createElementNS(SVG, "text");
+      st.setAttribute("x", n.x); st.setAttribute("y", n.y + 13);
+      st.setAttribute("text-anchor", "middle"); st.setAttribute("font-size", "11");
+      st.setAttribute("fill", "#1a202c");
+      st.textContent = n.alive ? { F: "Follower", C: "Cand.", L: "LEADER" }[n.state] : "dead";
+      g.appendChild(st);
+      svg.appendChild(g);
+    });
+    const ct = document.createElementNS(SVG, "text");
+    ct.setAttribute("x", cx); ct.setAttribute("y", cy + 5);
+    ct.setAttribute("text-anchor", "middle"); ct.setAttribute("font-size", "15");
+    ct.setAttribute("font-weight", "700"); ct.setAttribute("fill", "#4a5568");
+    ct.textContent = "term " + term;
+    svg.appendChild(ct);
+  }
+
+  function aliveCount() { return nodes.filter(n => n.alive).length; }
+
+  function runElection() {
+    if (running) return;
+    running = true;
+    killBtn.disabled = true;
+    leaderId = -1;
+    nodes.forEach(n => { if (n.alive) n.state = "F"; });
+    render();
+
+    // mỗi node sống bốc timeout ngẫu nhiên
+    const candidates = nodes.filter(n => n.alive)
+      .map(n => ({ id: n.id, t: 600 + Math.random() * 1400 }))
+      .sort((a, b) => a.t - b.t);
+
+    if (candidates.length < QUORUM) {
+      statusEl.innerHTML = `Chỉ còn <strong>${aliveCount()}</strong> node sống &lt; quorum ${QUORUM} → ` +
+        `<strong style="color:#c53030">không bầu được leader</strong>. Cluster treo (đúng hành vi CP).`;
+      running = false;
+      return;
+    }
+
+    const winner = candidates[0].id;
+    statusEl.innerHTML = `Các node bốc timeout ngẫu nhiên... <strong>n${winner}</strong> timeout trước.`;
+    timers.push(setTimeout(() => {
+      term++;
+      nodes[winner].state = "C";
+      render();
+      statusEl.innerHTML = `<strong>n${winner}</strong> → Candidate, term=${term}, tự bầu (1 phiếu), gửi RequestVote...`;
+      timers.push(setTimeout(() => {
+        const votes = aliveCount(); // các node sống đều grant (log ngang nhau)
+        if (votes >= QUORUM) {
+          nodes[winner].state = "L";
+          leaderId = winner;
+          render();
+          statusEl.innerHTML = `<strong style="color:#22543d">n${winner} trúng cử LEADER</strong> term=${term} ` +
+            `(${votes}/${N} phiếu ≥ quorum ${QUORUM}) → gửi heartbeat. Bấm "Giết leader" để xem re-election.`;
+          killBtn.disabled = false;
+        } else {
+          statusEl.innerHTML = `n${winner} thua: chỉ ${votes}/${N} phiếu &lt; ${QUORUM}.`;
+        }
+        running = false;
+      }, 1100));
+    }, 900));
+  }
+
+  startBtn.addEventListener("click", () => { clearTimers(); runElection(); });
+  killBtn.addEventListener("click", () => {
+    if (leaderId < 0) return;
+    const dead = leaderId;
+    nodes[dead].alive = false; nodes[dead].state = "F";
+    leaderId = -1; killBtn.disabled = true;
+    render();
+    statusEl.innerHTML = `💀 Giết <strong>n${dead}</strong> (leader). Heartbeat dừng → các follower sẽ timeout & bầu lại...`;
+    clearTimers();
+    timers.push(setTimeout(runElection, 900));
+  });
+  resetBtn.addEventListener("click", () => {
+    clearTimers(); running = false; killBtn.disabled = true;
+    init(); render();
+    statusEl.textContent = "Đã reset. Bấm \"Bắt đầu\" để chạy lại.";
+  });
+
+  init(); render();
+})();
+
+/* ===================== Module 2: Log replication ===================== */
+(function () {
+  const wrap = document.getElementById("r-nodes");
+  const statusEl = document.getElementById("r-status");
+  const appendBtn = document.getElementById("r-append");
+  const resetBtn = document.getElementById("r-reset");
+  const N = 5, QUORUM = 3;
+  const CMDS = ["set a=1", "set b=2", "del a", "set c=3", "set d=4"];
+  // node 0 = leader; logs[i] = mảng {idx, committed}
+  let logs, alive, nextCmd;
+
+  function reset() {
+    logs = Array.from({ length: N }, () => []);
+    alive = Array.from({ length: N }, () => true);
+    nextCmd = 0;
+    render();
+    statusEl.textContent = "Bấm \"Append command\" để leader ghi entry đầu tiên.";
+  }
+
+  function render() {
+    wrap.innerHTML = "";
+    for (let i = 0; i < N; i++) {
+      const row = document.createElement("div");
+      row.className = "repl-row";
+      const label = document.createElement("button");
+      label.className = "log-label " + (i === 0 ? "" : "secondary");
+      label.style.cssText = "min-width:74px;padding:5px 8px;font-size:13px;border-radius:6px;";
+      label.textContent = i === 0 ? "Leader" : ("F" + i + (alive[i] ? "" : " ✕"));
+      if (i === 0) { label.style.background = "#48bb78"; }
+      else if (!alive[i]) { label.style.background = "#fc8181"; }
+      label.title = i === 0 ? "leader" : "bấm để bật/tắt follower";
+      if (i > 0) label.addEventListener("click", () => { alive[i] = !alive[i]; render(); });
+      row.appendChild(label);
+
+      const strip = document.createElement("div");
+      strip.className = "log-strip";
+      logs[i].forEach(e => {
+        const c = document.createElement("div");
+        c.className = "cell " + (e.committed ? "committed" : "replicated");
+        c.textContent = "#" + e.idx;
+        strip.appendChild(c);
+      });
+      row.appendChild(strip);
+      wrap.appendChild(row);
+    }
+  }
+
+  function append() {
+    if (nextCmd >= CMDS.length) {
+      statusEl.textContent = "Hết command mẫu. Bấm Reset để chạy lại.";
+      return;
+    }
+    const idx = logs[0].length;
+    const cmd = CMDS[nextCmd++];
+    // leader append (chưa commit)
+    logs[0].push({ idx, committed: false });
+    render();
+    statusEl.innerHTML = `Leader append <code>#${idx} ${cmd}</code> (chưa commit) → replicate tới follower...`;
+
+    setTimeout(() => {
+      // replicate tới follower còn sống
+      let acks = 1; // leader tự tính
+      for (let i = 1; i < N; i++) {
+        if (alive[i]) { logs[i].push({ idx, committed: false }); acks++; }
+      }
+      render();
+      setTimeout(() => {
+        if (acks >= QUORUM) {
+          for (let i = 0; i < N; i++) {
+            const e = logs[i].find(x => x.idx === idx);
+            if (e) e.committed = true;
+          }
+          render();
+          statusEl.innerHTML = `<strong style="color:#22543d">COMMIT #${idx}</strong> ` +
+            `(${acks}/${N} ack ≥ quorum ${QUORUM}) → apply state machine. Follower chết sẽ bắt kịp sau.`;
+        } else {
+          statusEl.innerHTML = `<strong style="color:#c53030">KHÔNG commit #${idx}</strong>: ` +
+            `chỉ ${acks}/${N} ack &lt; quorum ${QUORUM}. Bật thêm follower rồi thử lại.`;
+        }
+      }, 650);
+    }, 650);
+  }
+
+  appendBtn.addEventListener("click", append);
+  resetBtn.addEventListener("click", reset);
+  reset();
+})();
+
+/* ===================== Module 3: Split-brain ===================== */
+(function () {
+  const SVG = "http://www.w3.org/2000/svg";
+  const svg = document.getElementById("s-svg");
+  const statusEl = document.getElementById("s-status");
+  const slider = document.getElementById("s-split");
+  const leftVal = document.getElementById("s-split-val");
+  const otherVal = document.getElementById("s-other-val");
+  const runBtn = document.getElementById("s-run");
+  const N = 5, QUORUM = 3;
+
+  function draw(leftCount, result) {
+    svg.innerHTML = "";
+    const rightCount = N - leftCount;
+    // đường phân vùng
+    const line = document.createElementNS(SVG, "line");
+    line.setAttribute("x1", 210); line.setAttribute("y1", 20);
+    line.setAttribute("x2", 210); line.setAttribute("y2", 220);
+    line.setAttribute("stroke", "#e53e3e"); line.setAttribute("stroke-width", 3);
+    line.setAttribute("stroke-dasharray", "8 6");
+    svg.appendChild(line);
+
+    function placeGroup(count, x0, label, hasQuorum) {
+      const cols = Math.min(count, 2);
+      for (let i = 0; i < count; i++) {
+        const col = i % cols, rown = Math.floor(i / cols);
+        const x = x0 + col * 64 + 30;
+        const y = 70 + rown * 64;
+        const c = document.createElementNS(SVG, "circle");
+        c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", 24);
+        const isLeader = result && hasQuorum && i === 0;
+        c.setAttribute("fill", isLeader ? "#48bb78" : (hasQuorum ? "#a0aec0" : "#cbd5e0"));
+        c.setAttribute("stroke", isLeader ? "#22543d" : "#2d3748");
+        c.setAttribute("stroke-width", isLeader ? 4 : 2);
+        svg.appendChild(c);
+        const t = document.createElementNS(SVG, "text");
+        t.setAttribute("x", x); t.setAttribute("y", y + 4);
+        t.setAttribute("text-anchor", "middle"); t.setAttribute("font-size", "12");
+        t.setAttribute("font-weight", "700"); t.setAttribute("fill", "#1a202c");
+        t.textContent = isLeader ? "LDR" : "n";
+        svg.appendChild(t);
+      }
+      const lab = document.createElementNS(SVG, "text");
+      lab.setAttribute("x", x0 + 50); lab.setAttribute("y", 36);
+      lab.setAttribute("text-anchor", "middle"); lab.setAttribute("font-size", "13");
+      lab.setAttribute("font-weight", "700");
+      lab.setAttribute("fill", result ? (hasQuorum ? "#22543d" : "#c53030") : "#4a5568");
+      lab.textContent = `${label} (${count})`;
+      svg.appendChild(lab);
+    }
+    placeGroup(leftCount, 20, "Phe trái", leftCount >= QUORUM);
+    placeGroup(rightCount, 230, "Phe phải", rightCount >= QUORUM);
+  }
+
+  function update() {
+    const left = parseInt(slider.value, 10);
+    leftVal.textContent = left;
+    otherVal.textContent = N - left;
+    draw(left, false);
+  }
+
+  function run() {
+    const left = parseInt(slider.value, 10);
+    const right = N - left;
+    draw(left, true);
+    const leftOK = left >= QUORUM, rightOK = right >= QUORUM;
+    let msg;
+    if (leftOK && !rightOK) {
+      msg = `Phe trái (${left}) ≥ quorum ${QUORUM} → <strong style="color:#22543d">bầu được leader</strong>, tiếp tục commit. ` +
+        `Phe phải (${right}) &lt; ${QUORUM} → <strong style="color:#c53030">treo</strong>, không bầu được.`;
+    } else if (!leftOK && rightOK) {
+      msg = `Phe phải (${right}) ≥ quorum ${QUORUM} → <strong style="color:#22543d">bầu được leader</strong>. ` +
+        `Phe trái (${left}) &lt; ${QUORUM} → <strong style="color:#c53030">treo</strong>.`;
+    } else {
+      // chỉ xảy ra khi N chẵn; với N=5 không bao giờ cả hai cùng < quorum trừ khi cả hai <3
+      msg = `Cả hai phe đều &lt; quorum ${QUORUM} (${left} và ${right}) → ` +
+        `<strong style="color:#c53030">KHÔNG phe nào bầu được leader</strong>, cả cluster treo. ` +
+        `Đây là rủi ro khi chia đôi đều (lý do nên dùng số node lẻ).`;
+    }
+    msg += ` Tối đa <strong>một</strong> phe có leader → <strong>không split-brain</strong>.`;
+    statusEl.innerHTML = msg;
+  }
+
+  slider.addEventListener("input", update);
+  runBtn.addEventListener("click", run);
+  update();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

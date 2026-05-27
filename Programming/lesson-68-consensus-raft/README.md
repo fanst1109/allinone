@@ -391,10 +391,23 @@ Entry #7 đã commit trên majority {A,B,C} (3 node, đều có #7). Node D bị
 
 **Tại sao luật này cần thiết — ví dụ tối giản:** Giả sử leader S1 (term 2) đã replicate entry #1 (term 2) lên 2/5 node rồi crash *trước khi* đạt majority. S5 (term 3) lên leader với log riêng, ghi đè #1. Nếu S1 hồi sinh làm leader term 4 và **vội commit** #1 (term 2) chỉ vì giờ thấy nó trên majority, thì #1 đã "commit" — nhưng S5 (term 3) có thể đã ghi đè index đó ở các node khác → một index commit hai giá trị khác nhau = **vi phạm safety**. Luật "chỉ commit entry term hiện tại" chặn đúng tình huống này: S1 term 4 phải ghi một entry **term 4** mới và commit nó qua majority; lúc đó #1 cũ mới được commit ăn theo một cách an toàn.
 
+### 9.3 Ba bất biến đảm bảo safety (gộp lại)
+
+Raft an toàn nhờ chuỗi bất biến gối lên nhau:
+
+1. **Election Safety** — mỗi term tối đa 1 leader (do luật majority + một node một phiếu mỗi term).
+2. **Leader Append-Only** — leader không bao giờ ghi đè/xoá entry trong log của chính nó, chỉ thêm vào cuối.
+3. **Log Matching** — nếu hai log có entry cùng index & cùng term thì mọi entry **trước** đó cũng giống hệt (đảm bảo qua kiểm tra `prevLogIndex/prevLogTerm` trong AppendEntries).
+4. **Leader Completeness** — entry đã commit ở term T sẽ có mặt trong log của **mọi** leader các term > T (đảm bảo qua election restriction).
+5. **State Machine Safety** — nếu một node đã apply entry ở index i, không node nào apply entry **khác** ở index i (hệ quả của 4 cái trên).
+
+> 💡 Năm bất biến này chính là "5 dòng" mà bất kỳ implement Raft đúng nào cũng phải giữ. Chúng là lý do vì sao Raft **không bao giờ** commit hai giá trị mâu thuẫn — kể cả khi leader đổi liên tục, mạng phân vùng, node restart.
+
 > 📝 **Tóm tắt mục 8–9.**
 > - Replicate: append → majority ack → commit → apply.
 > - Election restriction: chỉ vote cho candidate log đủ mới → leader mới luôn có mọi entry đã commit.
 > - Commit rule: chỉ commit entry term hiện tại qua majority; entry cũ ăn theo.
+> - 5 bất biến (Election Safety, Append-Only, Log Matching, Leader Completeness, State Machine Safety) cùng nhau bảo đảm không bao giờ commit mâu thuẫn.
 
 ---
 
@@ -663,6 +676,20 @@ So sánh **N=4** vs **N=5**:
   3. **Split-brain** — kéo partition cluster 3–2, thấy nửa thiểu số không bầu được leader.
 
 ---
+
+## Checklist vận hành Raft cluster (thực tế)
+
+Khi triển khai một hệ dựa trên Raft (etcd, Consul, hoặc tự dùng `hashicorp/raft`), kiểm tra:
+
+- [ ] **Số node lẻ** — 3 (dev / chịu 1 fail), 5 (production / chịu 2 fail), 7 (chịu 3 fail, latency cao hơn).
+- [ ] **Trải node trên ≥ 3 failure domain** (zone/rack) — để một sự cố hạ tầng không cô lập được majority.
+- [ ] **election timeout ≫ RTT mạng** — thường gấp ~10× thời gian round-trip để tránh election storm.
+- [ ] **heartbeat interval ≪ election timeout** — leader gửi heartbeat đủ dày (vd timeout 300ms → heartbeat ~50ms) để follower không nhầm leader chết.
+- [ ] **Persist `currentTerm`, `votedFor`, log** xuống đĩa có fsync trước khi reply RPC.
+- [ ] **Bật snapshot** với ngưỡng hợp lý để log không phình vô hạn.
+- [ ] **Thêm/bớt node tuần tự** (một node mỗi lần), dùng learner cho node mới cho tới khi bắt kịp.
+- [ ] **Alert "no leader > X giây"** — dấu hiệu partition hoặc mất quá nhiều node → cần can thiệp.
+- [ ] **Đọc nhất quán** đi qua leader hoặc dùng read-index, đừng đọc bừa từ follower.
 
 ## Bài tiếp theo
 

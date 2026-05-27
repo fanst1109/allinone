@@ -173,7 +173,7 @@ func TranslateLegacyCustomer(l LegacyCustomer) Customer {
 	return Customer{
 		ID:     id,
 		Name:   titleCase(l.CustNm), // "NGUYEN VAN A" -> "Nguyen Van A"
-		Active: l.StatCd == "A",      // "A" -> true, còn lại -> false
+		Active: l.StatCd == "A",     // "A" -> true, còn lại -> false
 	}
 }
 
@@ -210,7 +210,7 @@ func demoACL() {
 // StranglerRouter route request theo prefix path tới backend (tên backend).
 type StranglerRouter struct {
 	// routes: prefix -> tên backend. Có thứ tự ưu tiên: prefix khớp DÀI nhất thắng.
-	routes  map[string]string
+	routes   map[string]string
 	fallback string // backend mặc định (thường là "Monolith")
 }
 

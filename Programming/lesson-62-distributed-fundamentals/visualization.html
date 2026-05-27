@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>L62 — Distributed Fundamentals · Visualization</title>
+  <link rel="stylesheet" href="../../tools/viz-base.css">
+  <style>
+    :root {
+      --accent: #ef4444;          /* Tier 6 red */
+      --accent-soft: #fee2e2;
+      --accent-hover: #dc2626;
+    }
+    main { max-width: 1080px; }
+
+    h1 { font-size: 26px; margin: 0 0 6px; color: #0f172a; }
+    .lead { color: #475569; margin: 0 0 24px; font-size: 15px; }
+
+    section.mod {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px 22px;
+      margin: 0 0 26px;
+      box-shadow: 0 1px 3px rgba(15,23,42,0.05);
+    }
+    section.mod > h2 {
+      margin: 0 0 6px;
+      font-size: 19px;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    section.mod > h2 .badge {
+      background: var(--accent-soft);
+      color: var(--accent-hover);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 2px 9px;
+      border-radius: 999px;
+    }
+    section.mod > p.desc { color: #64748b; font-size: 14px; margin: 0 0 16px; }
+
+    .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 16px; }
+    button.btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    button.btn:hover { background: var(--accent-hover); }
+    button.btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+    button.btn.ghost { background: #f1f5f9; color: #334155; }
+    button.btn.ghost:hover { background: #e2e8f0; }
+
+    label.slider-row {
+      display: flex; align-items: center; gap: 10px; font-size: 14px;
+      color: #334155; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    label.slider-row input[type="range"] { flex: 1 1 160px; max-width: 320px; min-width: 0; accent-color: var(--accent); }
+    label.slider-row .val { font-weight: 700; color: var(--accent-hover); min-width: 36px; }
+
+    .verdict {
+      border-radius: 10px; padding: 12px 14px; font-size: 14px; line-height: 1.5;
+      margin-top: 12px; border: 1px solid;
+    }
+    .verdict.ok { background: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
+    .verdict.warn { background: #fffbeb; border-color: #fde68a; color: #92400e; }
+    .verdict.bad { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+    .verdict b { font-weight: 700; }
+
+    .stage-wrap { overflow-x: auto; }
+    svg { display: block; max-width: 100%; height: auto; }
+
+    table.vt { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 12px; }
+    table.vt th, table.vt td { border: 1px solid #e2e8f0; padding: 6px 8px; text-align: left; }
+    table.vt th { background: #f8fafc; font-weight: 700; }
+    table.vt code { font-family: ui-monospace, monospace; }
+    .tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 999px; }
+    .tag.causal { background: #dbeafe; color: #1e40af; }
+    .tag.conc { background: #fce7f3; color: #9d174d; }
+
+    .nodebox { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+    .nodebox .nd {
+      flex: 1 1 150px; min-width: 0; border: 1px solid #e2e8f0; border-radius: 10px;
+      padding: 10px 12px; background: #f8fafc;
+    }
+    .nodebox .nd h4 { margin: 0 0 6px; font-size: 14px; color: #0f172a; }
+    .nodebox .nd .vc { font-family: ui-monospace, monospace; font-size: 15px; font-weight: 700; color: var(--accent-hover); }
+    .nodebox .nd .btns { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .nodebox .nd .btns button { font-size: 12px; padding: 5px 9px; }
+
+    .log { font-family: ui-monospace, monospace; font-size: 12.5px; background: #0f172a; color: #e2e8f0;
+           border-radius: 8px; padding: 12px; margin-top: 10px; max-height: 220px; overflow-y: auto; line-height: 1.5; }
+    .log .l-send { color: #fbbf24; }
+    .log .l-recv { color: #34d399; }
+    .log .l-local { color: #93c5fd; }
+
+    @media (max-width: 480px) {
+      section.mod { padding: 16px 14px; }
+      h1 { font-size: 22px; }
+      .nodebox .nd { flex: 1 1 100%; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="viz-nav">
+    <a href="../index.html">🏠 Programming</a>
+    <span class="sep">·</span>
+    <a href="../tier-5-data/index.html">← Tier 5</a>
+    <span class="sep">·</span>
+    <span class="current">L62: Distributed Fundamentals</span>
+    <span class="sep">·</span>
+    <a href="../lesson-63-service-discovery-lb/visualization.html">L63: Service Discovery & LB →</a>
+  </nav>
+
+  <main>
+    <h1>Distributed Fundamentals — minh họa tương tác</h1>
+    <p class="lead">Ba module: (1) <b>CAP explorer</b> — kéo mức partition để thấy trade-off Consistency ↔ Availability; (2) <b>Vector clock</b> — 3 node gửi/nhận event, theo dõi causal vs concurrent; (3) <b>Quorum visualizer</b> — chỉnh N/W/R để thấy vùng giao đảm bảo strong consistency.</p>
+
+    <!-- ========================= MODULE 1: CAP ========================= -->
+    <section class="mod">
+      <h2><span class="badge">Module 1</span> CAP Explorer</h2>
+      <p class="desc">Kéo slider <b>mức độ partition</b> (mất gói giữa hai nửa cụm). Chọn chế độ ưu tiên <b>CP</b> hay <b>AP</b> và xem hệ phản ứng thế nào khi mạng đứt. Lúc partition = 0 (mạng ngon), cả hai chế độ đều vừa nhất quán vừa sẵn sàng — trade-off chỉ kích hoạt khi partition tăng.</p>
+
+      <div class="controls">
+        <button class="btn" id="capCP">Chế độ CP</button>
+        <button class="btn ghost" id="capAP">Chế độ AP</button>
+      </div>
+      <label class="slider-row">
+        Mức partition: <input type="range" id="capPart" min="0" max="100" value="0">
+        <span class="val" id="capPartVal">0%</span>
+      </label>
+
+      <div class="stage-wrap">
+        <svg id="capSvg" width="640" height="220" viewBox="0 0 640 220" role="img" aria-label="CAP partition diagram">
+          <!-- left half -->
+          <circle cx="150" cy="70" r="26" fill="#4299e1" id="capN1"/><text x="150" y="75" text-anchor="middle" fill="#fff" font-weight="700">N1</text>
+          <circle cx="90" cy="150" r="26" fill="#4299e1" id="capN2"/><text x="90" y="155" text-anchor="middle" fill="#fff" font-weight="700">N2</text>
+          <!-- right half -->
+          <circle cx="490" cy="70" r="26" fill="#4299e1" id="capN3"/><text x="490" y="75" text-anchor="middle" fill="#fff" font-weight="700">N3</text>
+          <circle cx="550" cy="150" r="26" fill="#4299e1" id="capN4"/><text x="550" y="155" text-anchor="middle" fill="#fff" font-weight="700">N4</text>
+          <!-- cross link (the one that breaks on partition) -->
+          <line id="capLink" x1="176" y1="78" x2="464" y2="78" stroke="#22c55e" stroke-width="4"/>
+          <text id="capLinkLbl" x="320" y="62" text-anchor="middle" font-size="13" fill="#16a34a" font-weight="700">link OK</text>
+          <!-- partition wall -->
+          <line id="capWall" x1="320" y1="20" x2="320" y2="200" stroke="#ef4444" stroke-width="0" stroke-dasharray="8 6"/>
+          <text x="150" y="200" text-anchor="middle" font-size="12" fill="#64748b">Nửa trái</text>
+          <text x="490" y="200" text-anchor="middle" font-size="12" fill="#64748b">Nửa phải</text>
+        </svg>
+      </div>
+
+      <div class="verdict ok" id="capVerdict">Mạng bình thường: cả Consistency và Availability đều đạt.</div>
+    </section>
+
+    <!-- ========================= MODULE 2: VECTOR CLOCK ========================= -->
+    <section class="mod">
+      <h2><span class="badge">Module 2</span> Vector Clock — 3 node</h2>
+      <p class="desc">Mỗi node giữ vector <code>[A,B,C]</code>. <b>Local event</b>: tăng phần tử của mình. <b>Gửi → X</b>: đính kèm vector, node X nhận sẽ <code>max</code> từng phần tử rồi tăng phần tử của X. Mỗi event được ghi log kèm vector; bảng dưới so sánh hai event bất kỳ là <span class="tag causal">causal</span> hay <span class="tag conc">concurrent</span>.</p>
+
+      <div class="nodebox">
+        <div class="nd"><h4>Node A</h4><div class="vc" id="vcA">[0,0,0]</div>
+          <div class="btns">
+            <button class="btn" data-local="0">local event</button>
+            <button class="btn ghost" data-send="0-1">gửi → B</button>
+            <button class="btn ghost" data-send="0-2">gửi → C</button>
+          </div>
+        </div>
+        <div class="nd"><h4>Node B</h4><div class="vc" id="vcB">[0,0,0]</div>
+          <div class="btns">
+            <button class="btn" data-local="1">local event</button>
+            <button class="btn ghost" data-send="1-0">gửi → A</button>
+            <button class="btn ghost" data-send="1-2">gửi → C</button>
+          </div>
+        </div>
+        <div class="nd"><h4>Node C</h4><div class="vc" id="vcC">[0,0,0]</div>
+          <div class="btns">
+            <button class="btn" data-local="2">local event</button>
+            <button class="btn ghost" data-send="2-0">gửi → A</button>
+            <button class="btn ghost" data-send="2-1">gửi → B</button>
+          </div>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn ghost" id="vcReset">Reset ⟲</button>
+        <button class="btn ghost" id="vcDemo">Chạy kịch bản BT2 ▸</button>
+      </div>
+
+      <div class="log" id="vcLog"></div>
+
+      <table class="vt" id="vcTable">
+        <thead><tr><th>So sánh</th><th>Quan hệ</th></tr></thead>
+        <tbody id="vcTableBody"><tr><td colspan="2" style="color:#94a3b8">Tạo ≥ 2 event để so sánh.</td></tr></tbody>
+      </table>
+    </section>
+
+    <!-- ========================= MODULE 3: QUORUM ========================= -->
+    <section class="mod">
+      <h2><span class="badge">Module 3</span> Quorum Visualizer</h2>
+      <p class="desc">Chỉnh số replica <b>N</b>, số node ghi <b>W</b>, số node đọc <b>R</b>. Điều kiện strong consistency là <code>R + W &gt; N</code> (tập đọc & ghi giao nhau). Vòng tròn dưới minh họa: node tô <span style="color:#f59e0b;font-weight:700">cam</span> = trong tập W (write), viền <span style="color:#3b82f6;font-weight:700">xanh</span> = trong tập R (read); node vừa cam vừa viền xanh = <b>giao điểm</b> (đảm bảo đọc thấy write mới).</p>
+
+      <label class="slider-row">N (replica): <input type="range" id="qN" min="3" max="7" value="5"><span class="val" id="qNVal">5</span></label>
+      <label class="slider-row">W (write quorum): <input type="range" id="qW" min="1" max="7" value="3"><span class="val" id="qWVal">3</span></label>
+      <label class="slider-row">R (read quorum): <input type="range" id="qR" min="1" max="7" value="3"><span class="val" id="qRVal">3</span></label>
+
+      <div class="stage-wrap">
+        <svg id="qSvg" width="560" height="220" viewBox="0 0 560 220" role="img" aria-label="Quorum overlap diagram"></svg>
+      </div>
+
+      <div class="verdict ok" id="qVerdict"></div>
+    </section>
+  </main>
+
+  <script>
+  /* ===================== MODULE 1: CAP ===================== */
+  (function () {
+    let mode = 'CP';
+    const part = document.getElementById('capPart');
+    const partVal = document.getElementById('capPartVal');
+    const verdict = document.getElementById('capVerdict');
+    const wall = document.getElementById('capWall');
+    const link = document.getElementById('capLink');
+    const linkLbl = document.getElementById('capLinkLbl');
+    const btnCP = document.getElementById('capCP');
+    const btnAP = document.getElementById('capAP');
+    const nodes = ['capN3','capN4'].map(id => document.getElementById(id));
+
+    function render() {
+      const p = +part.value;
+      partVal.textContent = p + '%';
+      const partitioned = p >= 50;
+      // wall + link visuals
+      wall.setAttribute('stroke-width', partitioned ? 3 : 0);
+      link.setAttribute('stroke', partitioned ? '#ef4444' : '#22c55e');
+      link.setAttribute('stroke-dasharray', partitioned ? '6 6' : '0');
+      linkLbl.textContent = partitioned ? 'link ĐỨT' : (p > 0 ? 'link chập chờn' : 'link OK');
+      linkLbl.setAttribute('fill', partitioned ? '#dc2626' : '#16a34a');
+
+      btnCP.classList.toggle('ghost', mode !== 'CP');
+      btnAP.classList.toggle('ghost', mode !== 'AP');
+
+      if (!partitioned) {
+        nodes.forEach(n => n.setAttribute('fill', '#4299e1'));
+        verdict.className = 'verdict ok';
+        verdict.innerHTML = p === 0
+          ? 'Mạng bình thường: <b>cả Consistency và Availability</b> đều đạt. Trade-off chưa kích hoạt.'
+          : 'Mạng chập chờn nhưng chưa partition: hệ vẫn đồng bộ được, cả C và A đạt.';
+        return;
+      }
+      // partitioned: behavior depends on mode
+      if (mode === 'CP') {
+        nodes.forEach(n => n.setAttribute('fill', '#94a3b8')); // grey = stop serving
+        verdict.className = 'verdict warn';
+        verdict.innerHTML = '<b>PARTITION + chế độ CP:</b> nửa phải (minority) <b>ngừng nhận write</b> (mất Availability) để không bao giờ trả dữ liệu cũ. Giữ Consistency, hy sinh A. Ví dụ: etcd, Postgres sync, MongoDB.';
+      } else {
+        nodes.forEach(n => n.setAttribute('fill', '#f59e0b')); // orange = still serving, diverging
+        verdict.className = 'verdict bad';
+        verdict.innerHTML = '<b>PARTITION + chế độ AP:</b> cả hai nửa <b>vẫn nhận write độc lập</b> (giữ Availability) nhưng dữ liệu hai bên <b>phân kỳ</b> (mất Consistency), phải resolve sau (LWW/CRDT). Ví dụ: Cassandra, DynamoDB, DNS.';
+      }
+    }
+    btnCP.addEventListener('click', () => { mode = 'CP'; render(); });
+    btnAP.addEventListener('click', () => { mode = 'AP'; render(); });
+    part.addEventListener('input', render);
+    render();
+  })();
+
+  /* ===================== MODULE 2: VECTOR CLOCK ===================== */
+  (function () {
+    const N = 3, names = ['A', 'B', 'C'];
+    let clocks, events; // events: {id, node, vec}
+    const vcEls = [document.getElementById('vcA'), document.getElementById('vcB'), document.getElementById('vcC')];
+    const log = document.getElementById('vcLog');
+    const tbody = document.getElementById('vcTableBody');
+
+    function fmt(v) { return '[' + v.join(',') + ']'; }
+    function clone(v) { return v.slice(); }
+
+    function reset() {
+      clocks = [[0,0,0],[0,0,0],[0,0,0]];
+      events = [];
+      log.innerHTML = '';
+      render();
+    }
+    function render() {
+      vcEls.forEach((el, i) => el.textContent = fmt(clocks[i]));
+      renderTable();
+    }
+    function addLog(cls, txt) {
+      const d = document.createElement('div');
+      d.className = cls;
+      d.textContent = txt;
+      log.appendChild(d);
+      log.scrollTop = log.scrollHeight;
+    }
+    function recordEvent(node) {
+      const id = 'e' + (events.length + 1);
+      events.push({ id, node, vec: clone(clocks[node]) });
+      return id;
+    }
+    function localEvent(node) {
+      clocks[node][node]++;
+      const id = recordEvent(node);
+      addLog('l-local', `${id}: ${names[node]} local event → ${names[node]}=${fmt(clocks[node])}`);
+      render();
+    }
+    function send(from, to) {
+      clocks[from][from]++; // sending counts as event
+      const msg = clone(clocks[from]);
+      addLog('l-send', `${names[from]} gửi → ${names[to]} (kèm ${fmt(msg)}), ${names[from]}=${fmt(clocks[from])}`);
+      // receive: merge max then tick receiver
+      for (let i = 0; i < N; i++) clocks[to][i] = Math.max(clocks[to][i], msg[i]);
+      clocks[to][to]++;
+      const id = recordEvent(to);
+      addLog('l-recv', `${id}: ${names[to]} nhận → max & tick → ${names[to]}=${fmt(clocks[to])}`);
+      render();
+    }
+    // compare two vectors -> relation string
+    function compare(a, b) {
+      let le_ab = true, le_ba = true, s_ab = false, s_ba = false;
+      for (let i = 0; i < N; i++) {
+        if (a[i] > b[i]) { le_ab = false; s_ba = true; }
+        if (a[i] < b[i]) { le_ba = false; s_ab = true; }
+      }
+      if (!s_ab && !s_ba) return { txt: 'Equal', cls: '' };
+      if (le_ab && s_ab) return { txt: 'a → b (happens-before)', cls: 'causal' };
+      if (le_ba && s_ba) return { txt: 'b → a (happens-after)', cls: 'causal' };
+      return { txt: 'concurrent (a ∥ b)', cls: 'conc' };
+    }
+    function renderTable() {
+      if (events.length < 2) {
+        tbody.innerHTML = '<tr><td colspan="2" style="color:#94a3b8">Tạo ≥ 2 event để so sánh.</td></tr>';
+        return;
+      }
+      let rows = '';
+      for (let i = 0; i < events.length; i++) {
+        for (let j = i + 1; j < events.length; j++) {
+          const r = compare(events[i].vec, events[j].vec);
+          const a = events[i], b = events[j];
+          const tag = r.cls ? `<span class="tag ${r.cls}">${r.cls === 'causal' ? 'causal' : 'concurrent'}</span>` : '';
+          rows += `<tr><td><code>${a.id}${fmt(a.vec)}</code> vs <code>${b.id}${fmt(b.vec)}</code></td><td>${tag} ${r.txt}</td></tr>`;
+        }
+      }
+      tbody.innerHTML = rows;
+    }
+
+    document.querySelectorAll('[data-local]').forEach(b =>
+      b.addEventListener('click', () => localEvent(+b.dataset.local)));
+    document.querySelectorAll('[data-send]').forEach(b =>
+      b.addEventListener('click', () => {
+        const [f, t] = b.dataset.send.split('-').map(Number);
+        send(f, t);
+      }));
+    document.getElementById('vcReset').addEventListener('click', reset);
+    document.getElementById('vcDemo').addEventListener('click', () => {
+      reset();
+      localEvent(0);  // e1: A
+      send(0, 1);     // A -> B
+      localEvent(2);  // e? : C independent  (concurrent with e1)
+    });
+    reset();
+  })();
+
+  /* ===================== MODULE 3: QUORUM ===================== */
+  (function () {
+    const svg = document.getElementById('qSvg');
+    const qN = document.getElementById('qN'), qW = document.getElementById('qW'), qR = document.getElementById('qR');
+    const qNVal = document.getElementById('qNVal'), qWVal = document.getElementById('qWVal'), qRVal = document.getElementById('qRVal');
+    const verdict = document.getElementById('qVerdict');
+    const SVGNS = 'http://www.w3.org/2000/svg';
+
+    function clampWR() {
+      const n = +qN.value;
+      qW.max = n; qR.max = n;
+      if (+qW.value > n) qW.value = n;
+      if (+qR.value > n) qR.value = n;
+    }
+    function render() {
+      clampWR();
+      const n = +qN.value, w = +qW.value, r = +qR.value;
+      qNVal.textContent = n; qWVal.textContent = w; qRVal.textContent = r;
+
+      // overlap size: write set = first w nodes, read set = last r nodes.
+      // intersection count = max(0, w + r - n).
+      const overlap = Math.max(0, w + r - n);
+      const strong = (w + r > n);
+      const writeSafe = (2 * w > n);
+
+      // draw nodes in a row
+      svg.innerHTML = '';
+      const cx0 = 40, gap = (560 - 80) / (n - 1 || 1), cy = 90, rad = 26;
+      for (let i = 0; i < n; i++) {
+        const x = n === 1 ? 280 : cx0 + gap * i;
+        const inW = i < w;            // first w
+        const inR = i >= n - r;       // last r
+        const inBoth = inW && inR;
+        const c = document.createElementNS(SVGNS, 'circle');
+        c.setAttribute('cx', x); c.setAttribute('cy', cy); c.setAttribute('r', rad);
+        c.setAttribute('fill', inW ? '#f59e0b' : '#e2e8f0');
+        c.setAttribute('stroke', inR ? '#3b82f6' : '#cbd5e1');
+        c.setAttribute('stroke-width', inR ? 5 : 1.5);
+        svg.appendChild(c);
+        const t = document.createElementNS(SVGNS, 'text');
+        t.setAttribute('x', x); t.setAttribute('y', cy + 5); t.setAttribute('text-anchor', 'middle');
+        t.setAttribute('fill', inW ? '#fff' : '#475569'); t.setAttribute('font-weight', '700');
+        t.textContent = 'N' + (i + 1);
+        svg.appendChild(t);
+        if (inBoth) {
+          const star = document.createElementNS(SVGNS, 'text');
+          star.setAttribute('x', x); star.setAttribute('y', cy - rad - 6); star.setAttribute('text-anchor', 'middle');
+          star.setAttribute('fill', '#16a34a'); star.setAttribute('font-size', '16'); star.setAttribute('font-weight', '700');
+          star.textContent = '★';
+          svg.appendChild(star);
+        }
+      }
+      // legend text
+      const leg = document.createElementNS(SVGNS, 'text');
+      leg.setAttribute('x', 280); leg.setAttribute('y', 175); leg.setAttribute('text-anchor', 'middle');
+      leg.setAttribute('font-size', '13'); leg.setAttribute('fill', '#64748b');
+      leg.textContent = `cam = tập W (${w}) · viền xanh = tập R (${r}) · ★ = giao (${overlap})`;
+      svg.appendChild(leg);
+
+      if (strong) {
+        verdict.className = 'verdict ok';
+        verdict.innerHTML = `<b>R + W = ${r} + ${w} = ${r + w} &gt; N = ${n}</b> → STRONG consistency ✓. Tập đọc & ghi giao nhau ${overlap} node (★) → đọc chắc chắn thấy write mới nhất. ` +
+          (writeSafe ? `W &gt; N/2 ✓ (chống write conflict).` : `<b>Lưu ý:</b> W=${w} không &gt; N/2=${(n/2).toFixed(1)} → hai write song song có thể cùng "thắng", kém an toàn.`);
+      } else {
+        verdict.className = 'verdict bad';
+        verdict.innerHTML = `<b>R + W = ${r + w} ≤ N = ${n}</b> → KHÔNG strong (eventual). Tập đọc & ghi <b>có thể không giao nhau</b> → đọc có thể trả giá trị cũ. Nhanh & sẵn sàng hơn nhưng không đảm bảo đọc thấy write mới.`;
+      }
+    }
+    [qN, qW, qR].forEach(el => el.addEventListener('input', render));
+    render();
+  })();
+  </script>
+
+  <script src="../../tools/marked.min.js"></script>
+  <script src="./README.data.js"></script>
+  <script src="../../tools/readme-modal.js"></script>
+  <script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

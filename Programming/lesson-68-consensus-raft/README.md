@@ -211,6 +211,33 @@ Cluster N=5 (node A,B,C,D,E), quorum = `5/2 + 1 = 3`. Tất cả khởi động 
 
 > ✅ Lưu ý: A chỉ cần **3 phiếu** là đủ, không cần đợi cả 5. Nếu E đang chết, A vẫn thắng với 4 phiếu.
 
+### 7.2b Bốn ví dụ số về kết quả bầu cử (N=5, quorum=3)
+
+Để thấy luật majority hoạt động trong nhiều tình huống, xét cùng cluster N=5:
+
+| # | Tình huống | Phiếu candidate gom được | Kết quả |
+|---|-----------|--------------------------|---------|
+| 1 | Mọi node sống, candidate A xin phiếu | 1 (tự bầu) + 4 = **5** | Thắng (5 ≥ 3) |
+| 2 | 1 node (E) chết, A xin phiếu | 1 + 3 = **4** | Thắng (4 ≥ 3) |
+| 3 | 2 node (D,E) chết, A xin phiếu | 1 + 2 = **3** | Thắng vừa khít (3 ≥ 3) |
+| 4 | 3 node (C,D,E) chết, A xin phiếu | 1 + 1 = **2** | **Thua** (2 < 3) → cluster mất khả năng bầu, treo |
+
+→ Tình huống 4 cho thấy: mất **quá** (N−1)/2 = 2 node thì cluster **không** bầu được leader. Đó là ranh giới chịu lỗi của N=5.
+
+### 7.2c Walk-through nâng cao: leader chết giữa chừng
+
+Tiếp nối 7.2 (A là leader term 1). Bây giờ **A crash**:
+
+| t (ms) | Sự kiện |
+|--------|---------|
+| 0 | A chết, ngừng gửi heartbeat. B,C,D,E vẫn term 1. |
+| ~150–300 | B,C,D,E bắt đầu đếm timeout (mỗi node bốc lại ngẫu nhiên sau heartbeat cuối). Giả sử C timeout trước (175ms). |
+| 175 | C → Candidate, **term=2** (1→2), tự bầu, gửi `RequestVote(term=2)` tới A,B,D,E. A chết → không nhận. |
+| ~180 | B,D,E thấy term 2 > 1, chưa bầu ai trong term 2, log C đủ mới → grant. |
+| ~185 | C gom votes = 1 + 3 = **4 ≥ 3** → **Leader term 2**. |
+| ~185+ | C gửi heartbeat term 2. B,D,E reset timeout, ổn định. Cluster 4 node sống tiếp tục phục vụ. |
+| sau | A hồi sinh, `currentTerm=1`, nhận heartbeat term 2 từ C → cập nhật term=2, làm Follower của C. |
+
 ### 7.3 Randomized timeout — chống split vote
 
 > ⚠ **Lỗi thường gặp khi tự thiết kế.** Nếu cho **mọi node cùng một timeout cố định** (vd 200ms), khi leader chết, **tất cả** follower timeout **cùng lúc**, cùng lên Candidate, cùng tăng term, mỗi node tự bầu mình → phiếu bị xé lẻ, **không ai đạt majority** → bầu lại → lại đồng loạt timeout → lặp vô hạn. Đó là **split vote**.

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 64 — Message Queue (Kafka/NATS) Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #ef4444;        /* đỏ Tier 6 */
+    --accent-soft: #fee2e2;
+    --accent-hover: #dc2626;
+  }
+  main { max-width: 980px; margin: 0 auto; padding: 16px; }
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 42px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .intro { color: var(--ink-soft); line-height: 1.6; }
+  .card {
+    background: #fff; border: 1px solid var(--line);
+    border-radius: 10px; padding: 20px; margin: 18px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; align-items: center; }
+  button {
+    background: var(--accent); color: #fff; border: none;
+    padding: 9px 16px; border-radius: 7px; font-size: 14px;
+    font-weight: 600; cursor: pointer;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost { background: #edf2f7; color: var(--ink); }
+  button.ghost:hover { background: #e2e8f0; }
+  button.active { background: var(--accent-hover); }
+  input[type=text] {
+    font-family: ui-monospace, monospace; font-size: 14px;
+    border: 1px solid var(--line-strong); border-radius: 8px; padding: 9px 11px;
+    width: 100%; max-width: 220px; box-sizing: border-box;
+  }
+  label { font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+  .stat {
+    display: inline-block; background: var(--accent-soft); color: var(--accent-hover);
+    border-radius: 6px; padding: 3px 9px; font-weight: 700; font-size: 13px;
+  }
+  .note { font-size: 13px; color: var(--ink-soft); margin-top: 10px; line-height: 1.55; }
+  .log {
+    font-family: ui-monospace, monospace; font-size: 12.5px; background: #1a202c; color: #cbd5e0;
+    border-radius: 8px; padding: 12px; margin-top: 12px; line-height: 1.6; overflow-x: auto;
+    min-height: 40px; white-space: pre-wrap;
+  }
+  .log .ok { color: #68d391; }
+  .log .bad { color: #fc8181; }
+  .log .hl { color: #f6ad55; }
+
+  /* ---- Module 1: pub/sub vs queue ---- */
+  .m1-stage { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
+  .node {
+    border: 2px solid var(--line-strong); border-radius: 10px; padding: 10px 14px;
+    background: #fff; font-weight: 700; font-size: 13px; text-align: center; min-width: 90px;
+  }
+  .node.broker { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-hover); }
+  .node.consumer { border-color: #4299e1; }
+  .node.consumer.got { background: #bee3f8; border-color: #2b6cb0; }
+  .node.consumer.dim { opacity: .35; }
+  .consumers { display: flex; flex-direction: column; gap: 10px; }
+  .arrow { font-size: 22px; color: var(--accent); }
+  .msg-dot {
+    display: inline-block; width: 22px; height: 22px; line-height: 22px; text-align: center;
+    border-radius: 50%; background: var(--accent); color: #fff; font-size: 11px; font-weight: 700;
+    margin: 0 2px;
+  }
+  .pending { min-height: 30px; margin-top: 6px; }
+
+  /* ---- Module 2: kafka partition ---- */
+  .parts { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .part-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .part-label { font-family: ui-monospace, monospace; font-weight: 700; font-size: 13px; min-width: 86px; }
+  .part-log { display: flex; gap: 4px; flex-wrap: wrap; flex: 1; min-width: 0; }
+  .part-cell {
+    font-family: ui-monospace, monospace; font-size: 11px; border: 1px solid var(--line-strong);
+    border-radius: 5px; padding: 3px 6px; background: #f7fafc;
+  }
+  .part-cell.new { background: var(--accent-soft); border-color: var(--accent); font-weight: 700; }
+  .part-owner { font-size: 11.5px; font-weight: 700; padding: 2px 8px; border-radius: 5px; }
+  .own0 { background:#bee3f8; color:#2b6cb0; } .own1 { background:#c6f6d5; color:#276749; }
+  .own2 { background:#feebc8; color:#9c4221; } .own3 { background:#e9d8fd; color:#553c9a; }
+  .own4 { background:#fed7e2; color:#97266d; } .own-idle { background:#edf2f7; color:#718096; }
+
+  /* ---- Module 3: delivery guarantees ---- */
+  .mode-toggle { display: inline-flex; gap: 6px; }
+  .timeline { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+  .step { font-family: ui-monospace, monospace; font-size: 13px; padding: 6px 10px;
+          border-radius: 6px; background: #f7fafc; border: 1px solid var(--line); }
+  .step.crash { background: #fff5f5; border-color: #fc8181; color: #c53030; font-weight: 700; }
+  .verdict { margin-top: 12px; padding: 12px; border-radius: 8px; font-weight: 700; }
+  .verdict.lost { background:#fff5f5; color:#c53030; border:1px solid #fc8181; }
+  .verdict.dup  { background:#fffaf0; color:#9c4221; border:1px solid #f6ad55; }
+  .verdict.exact{ background:#f0fff4; color:#276749; border:1px solid #68d391; }
+
+  @media (max-width: 480px) {
+    .part-label { min-width: 0; }
+    .node { min-width: 72px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-63-service-discovery-lb/visualization.html">← L63: Service Discovery & LB</a>
+  <span class="sep">·</span>
+  <span class="current">L64: Message Queue</span>
+  <span class="sep">·</span>
+  <a href="../lesson-65-event-driven-architecture/visualization.html">L65: Event-Driven Architecture →</a>
+</nav>
+
+<main>
+<h1>Lesson 64 — Message Queue (Kafka / NATS)</h1>
+<p class="intro">
+  Ba mô-đun tương tác: (1) <b>Pub/Sub vs Queue</b> — xem 1 message được phân phối thế nào
+  (chia cho 1 consumer vs broadcast N subscriber); (2) <b>Kafka partition</b> — key → partition
+  (<code>hash mod N</code>) và rebalance khi đổi số consumer; (3) <b>Delivery guarantees</b> —
+  chạy kịch bản crash cho at-most / at-least / exactly-once để thấy mất / trùng / đúng.
+</p>
+
+<!-- =================== MODULE 1: PUB/SUB vs QUEUE =================== -->
+<h2>1. Pub/Sub vs Queue — phân phối message</h2>
+<div class="card">
+  <p class="intro">
+    Cùng một message, hai pattern phân phối khác nhau. <b>Queue</b>: mỗi message tới
+    <b>đúng 1</b> consumer (chia tải, xoay vòng). <b>Pub/Sub</b>: mỗi message tới <b>mọi</b>
+    subscriber (bản sao). Bấm "Gửi message" nhiều lần để thấy khác biệt.
+  </p>
+  <div class="controls">
+    <span class="mode-toggle">
+      <button id="m1-queue" class="active">Queue (point-to-point)</button>
+      <button id="m1-pub" class="ghost">Pub/Sub (topic)</button>
+    </span>
+    <button id="m1-send">Gửi message →</button>
+    <button id="m1-reset" class="ghost">Reset</button>
+  </div>
+  <div class="m1-stage">
+    <div class="node" id="m1-prod">Producer</div>
+    <div class="arrow">→</div>
+    <div class="node broker" id="m1-broker">Broker</div>
+    <div class="arrow">→</div>
+    <div class="consumers" id="m1-consumers"></div>
+  </div>
+  <div class="pending" id="m1-pending"></div>
+  <div class="note" id="m1-note"></div>
+</div>
+
+<!-- =================== MODULE 2: KAFKA PARTITION =================== -->
+<h2>2. Kafka partition — key routing & consumer group rebalance</h2>
+<div class="card">
+  <p class="intro">
+    Producer chọn partition theo <code>partition = hash(key) mod N</code>. Cùng key → cùng
+    partition → giữ thứ tự. Đổi số consumer trong group để xem <b>rebalance</b> gán lại partition
+    (1 partition ↔ tối đa 1 consumer; consumer dư bị idle).
+  </p>
+  <div class="controls">
+    <label>key:</label>
+    <input type="text" id="m2-key" value="A100" placeholder="vd: A100">
+    <label>value:</label>
+    <input type="text" id="m2-val" value="OrderCreated">
+    <button id="m2-produce">Produce →</button>
+    <button id="m2-reset" class="ghost">Reset log</button>
+  </div>
+  <div class="controls">
+    <label>Số consumer trong group:</label>
+    <button class="ghost m2-cn" data-n="1">1</button>
+    <button class="active m2-cn" data-n="2">2</button>
+    <button class="ghost m2-cn" data-n="3">3</button>
+    <button class="ghost m2-cn" data-n="5">5</button>
+  </div>
+  <div class="parts" id="m2-parts"></div>
+  <div class="note" id="m2-note"></div>
+</div>
+
+<!-- =================== MODULE 3: DELIVERY GUARANTEES =================== -->
+<h2>3. Delivery guarantees — kịch bản crash</h2>
+<div class="card">
+  <p class="intro">
+    Consumer: <code>poll → process → commit</code>. <b>Thứ tự commit</b> + thời điểm crash
+    quyết định kết quả. Chọn mức, bấm "Chạy" để thấy timeline với crash giữa chừng → mất / trùng / đúng.
+  </p>
+  <div class="controls">
+    <span class="mode-toggle">
+      <button id="m3-most" class="ghost">At-most-once</button>
+      <button id="m3-least" class="active">At-least-once</button>
+      <button id="m3-exact" class="ghost">Exactly-once</button>
+    </span>
+    <button id="m3-run">Chạy (crash giữa chừng)</button>
+  </div>
+  <div class="timeline" id="m3-timeline"></div>
+  <div class="verdict" id="m3-verdict" style="display:none"></div>
+</div>
+
+</main>
+
+<script>
+// =================== MODULE 1: PUB/SUB vs QUEUE ===================
+(function(){
+  const NUM = 3;
+  let mode = 'queue';        // 'queue' | 'pub'
+  let rr = 0;                // round-robin pointer cho queue
+  let counter = 0;
+  const consWrap = document.getElementById('m1-consumers');
+  const pending = document.getElementById('m1-pending');
+  const note = document.getElementById('m1-note');
+  const bQ = document.getElementById('m1-queue'), bP = document.getElementById('m1-pub');
+
+  function renderConsumers(){
+    consWrap.innerHTML = '';
+    for (let i=0;i<NUM;i++){
+      const d = document.createElement('div');
+      d.className = 'node consumer'; d.id = 'm1-c'+i;
+      d.innerHTML = 'Consumer '+(i+1)+'<br><span style="font-weight:400;font-size:11px" id="m1-cnt'+i+'">0 msg</span>';
+      consWrap.appendChild(d);
+    }
+  }
+  const counts = [0,0,0];
+  function setMode(m){
+    mode = m;
+    bQ.classList.toggle('active', m==='queue'); bQ.classList.toggle('ghost', m!=='queue');
+    bP.classList.toggle('active', m==='pub');   bP.classList.toggle('ghost', m!=='pub');
+    reset();
+  }
+  function reset(){
+    rr=0; counter=0; counts[0]=counts[1]=counts[2]=0;
+    renderConsumers();
+    pending.innerHTML='';
+    note.innerHTML = mode==='queue'
+      ? 'Queue: message <span class="stat">xoay vòng</span> tới 1 consumer mỗi lần — chia tải, tổng số xử lý = số message gửi.'
+      : 'Pub/Sub: <span class="stat">mọi</span> consumer (subscriber) nhận bản sao — tổng số xử lý = số message × số subscriber.';
+  }
+  function flash(i){
+    const el = document.getElementById('m1-c'+i);
+    el.classList.add('got');
+    setTimeout(()=>el.classList.remove('got'), 450);
+    counts[i]++;
+    document.getElementById('m1-cnt'+i).textContent = counts[i]+' msg';
+  }
+  function send(){
+    counter++;
+    pending.innerHTML = '<span class="msg-dot">'+counter+'</span> đang gửi…';
+    if (mode==='queue'){
+      const target = rr; rr = (rr+1)%NUM;
+      setTimeout(()=>{ flash(target);
+        pending.innerHTML = '<span class="msg-dot">'+counter+'</span> → <b>chỉ</b> Consumer '+(target+1)+' (queue chia tải)'; }, 200);
+    } else {
+      setTimeout(()=>{ for(let i=0;i<NUM;i++) flash(i);
+        pending.innerHTML = '<span class="msg-dot">'+counter+'</span> → <b>TẤT CẢ</b> '+NUM+' subscriber nhận bản sao (fan-out)'; }, 200);
+    }
+  }
+  bQ.onclick=()=>setMode('queue'); bP.onclick=()=>setMode('pub');
+  document.getElementById('m1-send').onclick=send;
+  document.getElementById('m1-reset').onclick=reset;
+  reset();
+})();
+
+// =================== MODULE 2: KAFKA PARTITION ===================
+(function(){
+  const N = 3;                 // số partition cố định
+  let numConsumers = 2;
+  const logs = [[],[],[]];     // log[partition] = [{key,val}]
+  const partsEl = document.getElementById('m2-parts');
+  const note = document.getElementById('m2-note');
+
+  // fnv-1a 32-bit (giống solutions.go) để hash key -> partition
+  function hashMod(key, n){
+    let h = 0x811c9dc5;
+    for (let i=0;i<key.length;i++){ h ^= key.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+    return ((h >>> 0) % n);
+  }
+  // assign round-robin: partition pi -> consumer (pi % numConsumers)
+  function ownerOf(pi){ return pi % numConsumers; }
+
+  function render(newPart, newIdx){
+    let html = '';
+    for (let pi=0; pi<N; pi++){
+      const owner = ownerOf(pi);
+      const cells = logs[pi].map((m,idx)=>
+        `<span class="part-cell ${pi===newPart&&idx===newIdx?'new':''}">o${idx}: ${m.key}/${m.val}</span>`).join('') || '<span class="part-cell" style="opacity:.5">(rỗng)</span>';
+      html += `<div class="part-row">
+        <span class="part-label">P${pi}</span>
+        <span class="part-owner own${owner}">→ C${owner+1}</span>
+        <span class="part-log">${cells}</span></div>`;
+    }
+    // consumer idle (vượt số partition)
+    const usefulMax = Math.min(numConsumers, N);
+    let idle = '';
+    for (let ci=usefulMax; ci<numConsumers; ci++) idle += ` C${ci+1}`;
+    partsEl.innerHTML = html;
+    note.innerHTML = `Group có <b>${numConsumers}</b> consumer, topic có <b>${N}</b> partition. `
+      + `Số consumer hữu ích = <span class="stat">${usefulMax}</span>.`
+      + (idle ? ` Consumer dư (idle):<b>${idle}</b> — không partition nào.` : '');
+  }
+  function produce(){
+    const key = document.getElementById('m2-key').value.trim();
+    const val = document.getElementById('m2-val').value.trim() || 'msg';
+    const pi = hashMod(key, N);
+    logs[pi].push({key, val});
+    render(pi, logs[pi].length-1);
+    note.innerHTML = `key=<span class="stat">${key}</span> → hash mod ${N} = <b>P${pi}</b>. `
+      + `Cùng key luôn vào cùng partition → giữ thứ tự. ` + note.innerHTML;
+  }
+  document.getElementById('m2-produce').onclick = produce;
+  document.getElementById('m2-reset').onclick = ()=>{ logs[0]=[];logs[1]=[];logs[2]=[]; render(); };
+  document.querySelectorAll('.m2-cn').forEach(b=>{
+    b.onclick = ()=>{
+      numConsumers = +b.dataset.n;
+      document.querySelectorAll('.m2-cn').forEach(x=>{ x.classList.toggle('active', x===b); x.classList.toggle('ghost', x!==b); });
+      render();
+    };
+  });
+  render();
+})();
+
+// =================== MODULE 3: DELIVERY GUARANTEES ===================
+(function(){
+  let mode = 'least'; // most | least | exact
+  const tl = document.getElementById('m3-timeline');
+  const verdict = document.getElementById('m3-verdict');
+  const btns = { most: document.getElementById('m3-most'), least: document.getElementById('m3-least'), exact: document.getElementById('m3-exact') };
+  function setMode(m){
+    mode = m;
+    Object.keys(btns).forEach(k=>{ btns[k].classList.toggle('active', k===m); btns[k].classList.toggle('ghost', k!==m); });
+    tl.innerHTML=''; verdict.style.display='none';
+  }
+  btns.most.onclick=()=>setMode('most'); btns.least.onclick=()=>setMode('least'); btns.exact.onclick=()=>setMode('exact');
+
+  function steps(){
+    if (mode==='most') return [
+      ['poll msg #42', false],
+      ['commit offset (TRƯỚC process)', false],
+      ['💥 CRASH — process chưa chạy', true],
+      ['restart → poll #43 (bỏ qua #42 vì đã commit)', false],
+    ];
+    if (mode==='least') return [
+      ['poll msg #42', false],
+      ['process #42 → ghi DB ✓', false],
+      ['💥 CRASH — commit chưa kịp chạy', true],
+      ['restart → poll #42 LẠI (offset chưa commit)', false],
+      ['process #42 lần 2 → ghi DB lần nữa', false],
+    ];
+    return [ // exact
+      ['poll msg #42', false],
+      ['check dedup: id "42" đã xử lý? CHƯA', false],
+      ['process #42 + mark "42" (cùng transaction)', false],
+      ['💥 CRASH — commit chưa kịp', true],
+      ['restart → poll #42 LẠI', false],
+      ['check dedup: id "42" ĐÃ xử lý → BỎ QUA', false],
+    ];
+  }
+  function run(){
+    verdict.style.display='none'; tl.innerHTML='';
+    const s = steps(); let i=0;
+    (function tick(){
+      if (i>=s.length){ showVerdict(); return; }
+      const [txt, crash] = s[i];
+      const d = document.createElement('div');
+      d.className = 'step'+(crash?' crash':'');
+      d.textContent = txt;
+      tl.appendChild(d); i++;
+      setTimeout(tick, 600);
+    })();
+  }
+  function showVerdict(){
+    let cls, txt;
+    if (mode==='most'){ cls='lost'; txt='Kết quả: msg #42 KHÔNG được process → MẤT. (At-most-once: commit trước process.)'; }
+    else if (mode==='least'){ cls='dup'; txt='Kết quả: #42 ghi DB 2 lần → TRÙNG. (At-least-once cần consumer IDEMPOTENT để vô hại.)'; }
+    else { cls='exact'; txt='Kết quả: #42 ghi DB ĐÚNG 1 lần. (At-least-once + dedup = "exactly-once processing".)'; }
+    verdict.className = 'verdict '+cls; verdict.textContent = txt; verdict.style.display='block';
+  }
+  document.getElementById('m3-run').onclick = run;
+  setMode('least');
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

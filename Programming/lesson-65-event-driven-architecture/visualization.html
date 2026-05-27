@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 65 — Event-Driven Architecture Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #ef4444;        /* đỏ Tier 6 */
+    --accent-soft: #fee2e2;
+    --accent-hover: #dc2626;
+  }
+  main { max-width: 980px; margin: 0 auto; padding: 16px; }
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 42px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .intro { color: var(--ink-soft); line-height: 1.6; }
+  .card {
+    background: #fff; border: 1px solid var(--line);
+    border-radius: 10px; padding: 20px; margin: 18px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; align-items: center; }
+  button {
+    background: var(--accent); color: #fff; border: none;
+    padding: 9px 16px; border-radius: 7px; font-size: 14px;
+    font-weight: 600; cursor: pointer;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost { background: #edf2f7; color: var(--ink); }
+  button.ghost:hover { background: #e2e8f0; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; }
+  .seg button { background: #fff; color: var(--ink); border: none; border-radius: 0; padding: 8px 14px; }
+  .seg button.active { background: var(--accent); color: #fff; }
+  .log {
+    font-family: ui-monospace, monospace; font-size: 13px;
+    background: #1a202c; color: #e2e8f0; border-radius: 8px;
+    padding: 12px 14px; margin-top: 12px; min-height: 80px;
+    max-height: 280px; overflow-y: auto; line-height: 1.55;
+    white-space: pre-wrap; word-break: break-word;
+  }
+  .log .ev { color: #fbbf24; }
+  .log .cmd { color: #60a5fa; }
+  .log .ok { color: #4ade80; }
+  .log .warn { color: #f87171; }
+  .log .dim { color: #94a3b8; }
+  /* flow boxes */
+  .flow { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 14px 0; }
+  .node {
+    border: 2px solid var(--line-strong); border-radius: 10px;
+    padding: 10px 14px; background: #fff; min-width: 92px; text-align: center;
+    font-weight: 600; font-size: 14px; transition: all .25s;
+  }
+  .node.active { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .node.done { border-color: #16a34a; background: #dcfce7; }
+  .node.fail { border-color: #dc2626; background: #fee2e2; }
+  .node .role { font-size: 11px; color: var(--ink-soft); font-weight: 400; }
+  .arrow { color: var(--ink-soft); font-size: 20px; }
+  .orch-wrap { text-align: center; }
+  .orch { display: inline-block; border: 2px solid #7c3aed; background: #f5f3ff; border-radius: 10px; padding: 10px 16px; font-weight: 700; margin-bottom: 6px; }
+  .orch.active { box-shadow: 0 0 0 3px #ddd6fe; }
+  /* outbox tables */
+  .db-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .tbl { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .tbl h4 { margin: 0; padding: 8px 10px; background: #f1f5f9; font-size: 13px; border-bottom: 1px solid var(--line); }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: left; }
+  th { background: #fafafa; font-weight: 600; }
+  .pub-true { color: #16a34a; font-weight: 600; }
+  .pub-false { color: #dc2626; font-weight: 600; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+  .b-event { background: #fef3c7; color: #92400e; }
+  .b-command { background: #dbeafe; color: #1e40af; }
+  .b-query { background: #dcfce7; color: #166534; }
+  .quiz-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px dashed var(--line); }
+  .quiz-row .msg { font-family: ui-monospace, monospace; font-size: 13px; flex: 1 1 200px; }
+  .quiz-row .pick { display: flex; gap: 6px; }
+  .quiz-row .pick button { padding: 5px 10px; font-size: 12px; background: #edf2f7; color: var(--ink); }
+  .quiz-row .pick button.sel { background: var(--accent); color: #fff; }
+  .quiz-row .res { font-size: 13px; font-weight: 600; min-width: 24px; }
+  .res.right { color: #16a34a; }
+  .res.wrong { color: #dc2626; }
+  .note { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 10px 14px; border-radius: 6px; font-size: 14px; margin: 12px 0; }
+  label.chk { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; }
+  @media (max-width: 600px) {
+    .db-grid { grid-template-columns: 1fr; }
+    .node { min-width: 72px; font-size: 13px; padding: 8px 10px; }
+    .flow { gap: 6px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-64-message-queue-nats-kafka/visualization.html">← L64: Message Queue</a>
+  <span class="sep">·</span>
+  <span class="current">L65: Event-Driven Architecture</span>
+  <span class="sep">·</span>
+  <a href="../lesson-66-saga-pattern/visualization.html">L66: Saga Pattern →</a>
+</nav>
+
+<main>
+<h1>Lesson 65 — Event-Driven Architecture</h1>
+<p class="intro">
+  Ba mô-đun tương tác: (1) <b>Choreography vs Orchestration</b> — chạy luồng
+  <code>order → payment → inventory → ship</code> theo cả hai cách, xem cách điều phối khác nhau;
+  (2) <b>Outbox pattern</b> — thấy ghi DB + outbox atomic, poller publish, và vì sao nó an toàn khi crash;
+  (3) <b>Event vs Command vs Query</b> — tự phân loại 8 thông điệp.
+</p>
+
+<!-- ===================== MODULE 1 ===================== -->
+<h2>1. Choreography vs Orchestration</h2>
+<div class="card">
+  <p class="intro">
+    Cùng luồng 4 service. <b>Choreography</b>: mỗi service nghe event của bước trước và tự phát event tiếp —
+    không có nhạc trưởng. <b>Orchestration</b>: một orchestrator gửi command tới từng service rồi chờ reply.
+    Bật "inventory fail" để thấy logic <b>compensation</b> chạy khác nhau ra sao.
+  </p>
+  <div class="controls">
+    <div class="seg" id="m1-mode">
+      <button class="active" data-mode="choreo">Choreography</button>
+      <button data-mode="orch">Orchestration</button>
+    </div>
+    <label class="chk"><input type="checkbox" id="m1-fail"> Inventory thất bại</label>
+    <button id="m1-run">▶ Chạy luồng</button>
+    <button class="ghost" id="m1-reset">Reset</button>
+  </div>
+
+  <div id="m1-orchbox" class="orch-wrap" style="display:none">
+    <div class="orch" id="m1-orch">🎼 OrderOrchestrator</div>
+  </div>
+
+  <div class="flow" id="m1-flow">
+    <div class="node" data-svc="order">Order<div class="role">tạo đơn</div></div>
+    <span class="arrow">→</span>
+    <div class="node" data-svc="payment">Payment<div class="role">trừ tiền</div></div>
+    <span class="arrow">→</span>
+    <div class="node" data-svc="inventory">Inventory<div class="role">giữ hàng</div></div>
+    <span class="arrow">→</span>
+    <div class="node" data-svc="ship">Shipping<div class="role">giao hàng</div></div>
+  </div>
+
+  <div class="log" id="m1-log"><span class="dim">Bấm "Chạy luồng" để bắt đầu…</span></div>
+</div>
+
+<!-- ===================== MODULE 2 ===================== -->
+<h2>2. Outbox pattern — atomic + crash safety</h2>
+<div class="card">
+  <p class="intro">
+    Tạo order: ghi bảng <code>orders</code> + bảng <code>outbox</code> trong <b>cùng transaction</b>.
+    Bấm <b>Poller</b> để publish các dòng outbox chưa publish. Bật <b>"Crash giữa publish và update"</b> để
+    thấy dòng outbox vẫn <code>published=false</code> → poller lần sau publish LẠI (at-least-once) →
+    cần idempotent consumer. So sánh với nút <b>"Dual-write (không outbox)"</b> để thấy event bị mất.
+  </p>
+  <div class="controls">
+    <button id="m2-create">➕ CreateOrder (ghi DB + outbox atomic)</button>
+    <button id="m2-poll">📤 Poller chạy</button>
+    <label class="chk"><input type="checkbox" id="m2-crash"> Crash giữa publish & update</label>
+    <button class="ghost" id="m2-reset">Reset</button>
+  </div>
+  <div class="controls">
+    <button class="ghost" id="m2-dualwrite">⚠ Thử dual-write (ghi DB rồi publish, không outbox)</button>
+  </div>
+
+  <div class="db-grid">
+    <div class="tbl">
+      <h4>📦 orders</h4>
+      <table><thead><tr><th>id</th><th>user</th><th>total</th></tr></thead>
+        <tbody id="m2-orders"><tr><td colspan="3" class="dim">trống</td></tr></tbody></table>
+    </div>
+    <div class="tbl">
+      <h4>📨 outbox</h4>
+      <table><thead><tr><th>event</th><th>published</th></tr></thead>
+        <tbody id="m2-outbox"><tr><td colspan="2" class="dim">trống</td></tr></tbody></table>
+    </div>
+  </div>
+  <div class="log" id="m2-log"><span class="dim">Bấm CreateOrder để bắt đầu…</span></div>
+</div>
+
+<!-- ===================== MODULE 3 ===================== -->
+<h2>3. Event vs Command vs Query — phân loại</h2>
+<div class="card">
+  <p class="intro">
+    Với mỗi thông điệp, chọn loại đúng. Mẹo: tên <b>quá khứ</b> + "đã xảy ra" → Event;
+    <b>mệnh lệnh</b> + có thể bị từ chối → Command; "cho tôi xem" → Query.
+  </p>
+  <div id="m3-quiz"></div>
+  <div class="controls" style="margin-top:14px">
+    <button id="m3-check">✓ Chấm điểm</button>
+    <button class="ghost" id="m3-reset">Làm lại</button>
+    <span id="m3-score" style="font-weight:700"></span>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ============ MODULE 1: Choreography vs Orchestration ============
+(function(){
+  const SVCS = ['order','payment','inventory','ship'];
+  const LABEL = { order:'Order', payment:'Payment', inventory:'Inventory', ship:'Shipping' };
+  const EVENT_OUT = { order:'OrderCreated', payment:'PaymentCharged', inventory:'StockReserved', ship:'ShipmentScheduled' };
+  const CMD_IN = { payment:'ChargePayment', inventory:'ReserveStock', ship:'ScheduleShipment' };
+  const COMP = { payment:'RefundPayment', inventory:'ReleaseStock' }; // compensation
+
+  let mode = 'choreo';
+  const log = document.getElementById('m1-log');
+  const flow = document.getElementById('m1-flow');
+  const orchBox = document.getElementById('m1-orchbox');
+  const orchEl = document.getElementById('m1-orch');
+  let running = false;
+
+  function nodes(){ return [...flow.querySelectorAll('.node')]; }
+  function nodeOf(svc){ return flow.querySelector('.node[data-svc="'+svc+'"]'); }
+  function clearNodes(){ nodes().forEach(n=>n.className='node'); orchEl.classList.remove('active'); }
+  function line(html, cls){ log.innerHTML += '\n' + (cls?'<span class="'+cls+'">'+html+'</span>':html); log.scrollTop = log.scrollHeight; }
+  function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+  document.querySelectorAll('#m1-mode button').forEach(b=>{
+    b.onclick = ()=>{
+      document.querySelectorAll('#m1-mode button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active'); mode = b.dataset.mode;
+      orchBox.style.display = mode==='orch' ? 'block' : 'none';
+      reset();
+    };
+  });
+
+  function reset(){
+    clearNodes();
+    log.innerHTML = '<span class="dim">Bấm "Chạy luồng" để bắt đầu…</span>';
+  }
+  document.getElementById('m1-reset').onclick = reset;
+
+  async function run(){
+    if(running) return; running = true;
+    clearNodes(); log.innerHTML = '';
+    const fail = document.getElementById('m1-fail').checked;
+
+    if(mode==='choreo'){
+      line('Mô hình: <b>CHOREOGRAPHY</b> — không có nhạc trưởng, mỗi service tự react.', 'dim');
+      // order
+      nodeOf('order').classList.add('active'); await sleep(550);
+      line('Order: publish <span class="ev">OrderCreated</span>', 'ev'); nodeOf('order').classList.replace('active','done');
+      // payment
+      nodeOf('payment').classList.add('active'); await sleep(650);
+      line('Payment nghe OrderCreated → charge → publish <span class="ev">PaymentCharged</span>'); nodeOf('payment').classList.replace('active','done');
+      // inventory
+      nodeOf('inventory').classList.add('active'); await sleep(650);
+      if(fail){
+        line('Inventory FAIL → publish <span class="warn">StockReservationFailed</span>', 'warn');
+        nodeOf('inventory').classList.replace('active','fail');
+        await sleep(500);
+        line('… ai bù? Payment phải TỰ nghe event lỗi → RefundPayment', 'warn');
+        await sleep(550);
+        nodeOf('payment').classList.remove('done'); nodeOf('payment').classList.add('fail');
+        line('Payment: RefundPayment ↩  | Order: set cancelled', 'warn');
+        line('⚠ Logic bù RẢI KHẮP các service → khó trace.', 'warn');
+      } else {
+        line('Inventory nghe PaymentCharged → reserve → publish <span class="ev">StockReserved</span>'); nodeOf('inventory').classList.replace('active','done');
+        nodeOf('ship').classList.add('active'); await sleep(650);
+        line('Shipping nghe StockReserved → ship → publish <span class="ev">ShipmentScheduled</span> ✓', 'ok'); nodeOf('ship').classList.replace('active','done');
+        line('✓ Luồng tự chảy qua chuỗi event, không ai điều phối.', 'ok');
+      }
+    } else {
+      line('Mô hình: <b>ORCHESTRATION</b> — orchestrator gửi command, chờ reply.', 'dim');
+      orchEl.classList.add('active');
+      nodeOf('order').classList.add('done');
+      line('Orchestrator: step1 → <span class="cmd">ChargePayment</span>', 'cmd');
+      nodeOf('payment').classList.add('active'); await sleep(650);
+      line('Payment reply PaymentCharged ✓', 'ok'); nodeOf('payment').classList.replace('active','done');
+      line('Orchestrator: step2 → <span class="cmd">ReserveStock</span>', 'cmd');
+      nodeOf('inventory').classList.add('active'); await sleep(650);
+      if(fail){
+        line('Inventory reply <span class="warn">StockReservationFailed</span>', 'warn');
+        nodeOf('inventory').classList.replace('active','fail');
+        await sleep(500);
+        line('Orchestrator BIẾT đã làm step1 → tự gửi <span class="cmd">RefundPayment</span> (compensation)', 'cmd');
+        await sleep(550);
+        nodeOf('payment').classList.replace('done','fail');
+        line('Payment refund ✓ | Order: cancelled', 'warn');
+        line('✓ Logic bù TẬP TRUNG ở orchestrator → dễ trace, dễ rollback.', 'ok');
+      } else {
+        line('Inventory reply StockReserved ✓', 'ok'); nodeOf('inventory').classList.replace('active','done');
+        line('Orchestrator: step3 → <span class="cmd">ScheduleShipment</span>', 'cmd');
+        nodeOf('ship').classList.add('active'); await sleep(650);
+        line('Shipping reply ShipmentScheduled ✓ → DONE', 'ok'); nodeOf('ship').classList.replace('active','done');
+        line('✓ Toàn luồng nhìn được ở một chỗ (orchestrator).', 'ok');
+      }
+      orchEl.classList.remove('active');
+    }
+    running = false;
+  }
+  document.getElementById('m1-run').onclick = run;
+})();
+
+// ============ MODULE 2: Outbox pattern ============
+(function(){
+  let orders = [], outbox = [], seq = 1000, delivered = 0;
+  const tOrders = document.getElementById('m2-orders');
+  const tOutbox = document.getElementById('m2-outbox');
+  const log = document.getElementById('m2-log');
+
+  function line(html, cls){ log.innerHTML += '\n' + (cls?'<span class="'+cls+'">'+html+'</span>':html); log.scrollTop = log.scrollHeight; }
+  function render(){
+    tOrders.innerHTML = orders.length ? orders.map(o=>`<tr><td>${o.id}</td><td>${o.user}</td><td>${o.total}</td></tr>`).join('')
+                                      : '<tr><td colspan="3" class="dim">trống</td></tr>';
+    tOutbox.innerHTML = outbox.length ? outbox.map(r=>`<tr><td>${r.type} <span class="dim">#${r.id}</span></td><td class="${r.published?'pub-true':'pub-false'}">${r.published}</td></tr>`).join('')
+                                      : '<tr><td colspan="2" class="dim">trống</td></tr>';
+  }
+
+  document.getElementById('m2-create').onclick = ()=>{
+    const id = ++seq;
+    const o = { id, user: 40+(id%9), total: (50+(id%7)*30) };
+    // ATOMIC: cùng một thao tác đẩy cả orders + outbox
+    orders.push(o);
+    outbox.push({ id, type:'OrderCreated', published:false });
+    line(`BEGIN; INSERT orders(${id}) + INSERT outbox(OrderCreated #${id}); COMMIT  → <span class="ok">atomic ✓</span>`, '');
+    render();
+  };
+
+  document.getElementById('m2-poll').onclick = ()=>{
+    const crash = document.getElementById('m2-crash').checked;
+    const pending = outbox.filter(r=>!r.published);
+    if(!pending.length){ line('Poller: không có dòng nào published=false. Nghỉ.', 'dim'); return; }
+    pending.forEach(r=>{
+      line(`Poller: publish <span class="ev">${r.type} #${r.id}</span> → broker (consumer nhận)`, '');
+      delivered++;
+      if(crash){
+        line(`  ✗ CRASH ngay trước UPDATE published=true → dòng #${r.id} vẫn published=false`, 'warn');
+        // không set published=true
+      } else {
+        r.published = true;
+      }
+    });
+    if(crash){
+      line('→ Poller lần sau sẽ publish LẠI các dòng này → at-least-once → consumer phải IDEMPOTENT.', 'warn');
+    }
+    line(`(Tổng số lần giao tới consumer tới giờ: ${delivered})`, 'dim');
+    render();
+  };
+
+  document.getElementById('m2-dualwrite').onclick = ()=>{
+    const id = ++seq;
+    orders.push({ id, user:40+(id%9), total:(50+(id%7)*30) });
+    render();
+    line(`Dual-write: INSERT orders(${id}) → <span class="ok">COMMIT ✓</span>`, '');
+    // mô phỏng crash trước khi publish
+    line(`  … process CRASH trước broker.Publish("OrderCreated") ✗`, 'warn');
+    line(`⚠ Order #${id} CÓ trong DB nhưng KHÔNG có outbox → event MẤT VĨNH VIỄN.`, 'warn');
+    line(`   (Payment/Inventory không bao giờ biết order này — đây là dual-write problem.)`, 'warn');
+  };
+
+  document.getElementById('m2-reset').onclick = ()=>{
+    orders=[]; outbox=[]; delivered=0; seq=1000;
+    log.innerHTML = '<span class="dim">Bấm CreateOrder để bắt đầu…</span>'; render();
+  };
+  render();
+})();
+
+// ============ MODULE 3: Event vs Command vs Query ============
+(function(){
+  const ITEMS = [
+    { msg:'CreateOrder { items, userId }',       ans:'command' },
+    { msg:'OrderCreated { orderId, total }',      ans:'event' },
+    { msg:'GetOrderById { orderId }',             ans:'query' },
+    { msg:'ChargePayment { orderId, amount }',    ans:'command' },
+    { msg:'PaymentDeclined { orderId, reason }',  ans:'event' },
+    { msg:'ListOrdersByUser { userId }',          ans:'query' },
+    { msg:'ShipmentDelivered { orderId }',        ans:'event' },
+    { msg:'SendWelcomeEmail { userId }',          ans:'command' },
+  ];
+  const TYPES = [['event','Event','b-event'],['command','Command','b-command'],['query','Query','b-query']];
+  const wrap = document.getElementById('m3-quiz');
+  const picks = new Array(ITEMS.length).fill(null);
+
+  function build(){
+    wrap.innerHTML = '';
+    ITEMS.forEach((it,i)=>{
+      const row = document.createElement('div'); row.className='quiz-row';
+      const m = document.createElement('div'); m.className='msg'; m.textContent = it.msg;
+      const pk = document.createElement('div'); pk.className='pick';
+      TYPES.forEach(([val,label])=>{
+        const b = document.createElement('button'); b.textContent=label;
+        b.onclick = ()=>{ picks[i]=val; [...pk.children].forEach(c=>c.classList.remove('sel')); b.classList.add('sel'); row.querySelector('.res').textContent=''; };
+        pk.appendChild(b);
+      });
+      const res = document.createElement('div'); res.className='res';
+      row.append(m, pk, res); wrap.appendChild(row);
+    });
+    document.getElementById('m3-score').textContent='';
+  }
+  document.getElementById('m3-check').onclick = ()=>{
+    let correct=0;
+    [...wrap.children].forEach((row,i)=>{
+      const res = row.querySelector('.res');
+      if(picks[i]==null){ res.textContent='?'; res.className='res'; return; }
+      if(picks[i]===ITEMS[i].ans){ res.textContent='✓'; res.className='res right'; correct++; }
+      else {
+        const label = TYPES.find(t=>t[0]===ITEMS[i].ans)[1];
+        res.innerHTML='✗ <span class="dim">('+label+')</span>'; res.className='res wrong';
+      }
+    });
+    document.getElementById('m3-score').textContent = `Điểm: ${correct}/${ITEMS.length}`;
+  };
+  document.getElementById('m3-reset').onclick = ()=>{ picks.fill(null); build(); };
+  build();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

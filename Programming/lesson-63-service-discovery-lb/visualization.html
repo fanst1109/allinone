@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 63 — Service Discovery & Load Balancing (Visualization)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 40px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  h3 { color: #2d3748; margin-top: 24px; }
+  .card {
+    background: #fff; border-radius: 10px; padding: 18px 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #4299e1; color: #fff; border: none;
+    padding: 9px 15px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button.danger { background: #e53e3e; }
+  button.danger:hover { background: #c53030; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  label { font-size: 14px; color: #2d3748; }
+  .explain {
+    background: #ebf8ff; border-left: 4px solid #4299e1;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6; margin: 10px 0;
+  }
+  code.inline {
+    background: #edf2f7; padding: 1px 6px; border-radius: 4px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px;
+  }
+  .stat { font-size: 13px; color: #2d3748; }
+  .stat b { color: #1a202c; }
+
+  /* ---- Module 1: discovery flow ---- */
+  .disc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .disc-panel { background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }
+  .disc-panel h4 { margin: 0 0 8px; color: #2b6cb0; font-size: 15px; }
+  .flow-log {
+    font-family: ui-monospace, Menlo, monospace; font-size: 12px;
+    background: #1a202c; color: #e2e8f0; border-radius: 6px;
+    padding: 10px; min-height: 150px; line-height: 1.55; white-space: pre-wrap;
+  }
+  .flow-log .reg { color: #f6ad55; }
+  .flow-log .inst { color: #68d391; }
+  .flow-log .lb { color: #63b3ed; }
+
+  /* ---- Module 2: LB algorithm compare ---- */
+  .lb-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .lb-algo { background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }
+  .lb-algo h4 { margin: 0 0 4px; color: #2b6cb0; font-size: 14px; }
+  .lb-algo .sub { font-size: 11px; color: #718096; min-height: 28px; margin-bottom: 8px; }
+  .inst-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+  .inst-name { width: 30px; font-size: 12px; font-weight: 700; color: #2d3748; }
+  .meter { flex: 1; height: 16px; background: #e2e8f0; border-radius: 8px; overflow: hidden; }
+  .meter > span { display: block; height: 100%; background: linear-gradient(90deg,#4299e1,#2b6cb0); transition: width .25s ease; }
+  .inst-cnt { width: 32px; text-align: right; font-size: 12px; color: #2d3748; }
+  .inst-row.busy .meter > span { background: linear-gradient(90deg,#ed8936,#dd6b20); }
+
+  /* ---- Module 3: consistent hashing ring ---- */
+  .ring-wrap { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; }
+  .ring-svg-box { flex: 1 1 300px; min-width: 0; }
+  .ring-side { flex: 1 1 240px; }
+  .nodebox { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px;
+    font-weight: 700; margin: 3px; color: #fff; }
+  .legend span { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 4px; vertical-align: middle; }
+
+  @media (max-width: 768px) {
+    .disc-grid { grid-template-columns: 1fr; }
+    .lb-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-62-distributed-fundamentals/visualization.html">← L62: Distributed Fundamentals</a>
+  <span class="sep">·</span>
+  <span class="current">L63: Service Discovery &amp; LB</span>
+  <span class="sep">·</span>
+  <a href="../lesson-64-message-queue-nats-kafka/visualization.html">L64: Message Queue →</a>
+</nav>
+
+<main>
+<h1>Lesson 63 — Service Discovery &amp; Load Balancing</h1>
+
+<p class="explain">
+Ba module tương tác minh hoạ bài học:
+<strong>(1)</strong> Client-side vs server-side discovery — animate hai luồng gọi;
+<strong>(2)</strong> So sánh thuật toán LB — cùng một stream request chạy qua round-robin /
+least-connections / random, xem phân phối lệch ra sao;
+<strong>(3)</strong> Consistent hashing ring — thêm/bớt node, đếm số key bị remap để thấy
+remap <em>tối thiểu</em> (≈ K/N thay vì ≈ K).
+</p>
+
+<!-- ===================================================================== -->
+<h2>1. Client-side vs Server-side discovery</h2>
+
+<div class="card">
+  <p class="explain">
+    Cùng một mục tiêu — <code class="inline">order-svc</code> gọi <code class="inline">payment-svc</code>
+    (3 instance) — nhưng hai kiến trúc khác nhau. Bấm để xem từng bước.
+    <b>Client-side</b>: client tự hỏi registry rồi gọi thẳng (1 hop ít hơn).
+    <b>Server-side</b>: client chỉ gọi LB, LB lo phần còn lại.
+  </p>
+  <div class="row">
+    <button id="disc-client">▶ Chạy Client-side</button>
+    <button id="disc-server">▶ Chạy Server-side</button>
+    <button id="disc-reset" class="secondary">Reset</button>
+  </div>
+  <div class="disc-grid">
+    <div class="disc-panel">
+      <h4>Client-side (Eureka, gRPC LB)</h4>
+      <div class="flow-log" id="log-client">Bấm "Chạy Client-side"…</div>
+    </div>
+    <div class="disc-panel">
+      <h4>Server-side (K8s Service, AWS ELB)</h4>
+      <div class="flow-log" id="log-server">Bấm "Chạy Server-side"…</div>
+    </div>
+  </div>
+  <p class="stat" id="disc-note"></p>
+</div>
+
+<!-- ===================================================================== -->
+<h2>2. So sánh thuật toán Load Balancing</h2>
+
+<div class="card">
+  <p class="explain">
+    3 instance <b>A, B, C</b>. Mỗi request có "chi phí" ngẫu nhiên (1–5 đơn vị thời gian) —
+    nên có request nặng, có request nhẹ. Cùng một chuỗi request được đưa qua 3 thuật toán.
+    Thanh đo = <b>số connection đang mở</b> (tải thực) của mỗi instance.
+    Quan sát: round-robin chia đều theo <em>số</em> request nhưng có thể lệch <em>tải</em>;
+    least-conn bám theo tải thực; random có thể lệch.
+  </p>
+  <div class="row">
+    <button id="lb-send">▶ Gửi 1 request</button>
+    <button id="lb-burst">⏩ Auto burst</button>
+    <button id="lb-reset" class="secondary">Reset</button>
+  </div>
+  <div class="lb-grid">
+    <div class="lb-algo" id="algo-rr">
+      <h4>Round-robin</h4>
+      <div class="sub">Lần lượt A→B→C, chia đều theo số request</div>
+    </div>
+    <div class="lb-algo" id="algo-lc">
+      <h4>Least-connections</h4>
+      <div class="sub">Gửi tới instance có ít connection mở nhất</div>
+    </div>
+    <div class="lb-algo" id="algo-rnd">
+      <h4>Random</h4>
+      <div class="sub">Chọn ngẫu nhiên 1 instance</div>
+    </div>
+  </div>
+  <p class="stat" id="lb-stat">Tổng request: 0</p>
+</div>
+
+<!-- ===================================================================== -->
+<h2>3. Consistent hashing ring</h2>
+
+<div class="card">
+  <p class="explain">
+    Vòng tròn <code class="inline">[0, 360)</code> (rút gọn cho dễ nhìn). Mỗi node đặt vài
+    điểm ảo (virtual node) lên ring; mỗi key thuộc node ảo <b>đầu tiên theo chiều kim đồng hồ</b>.
+    Có <b>200 key</b> phân bố trên ring. Thêm/bớt node và xem <b>bao nhiêu key bị remap</b> —
+    sẽ chỉ ~K/N, không phải toàn bộ.
+  </p>
+  <div class="row">
+    <button id="ring-add">➕ Thêm node</button>
+    <button id="ring-remove" class="danger">➖ Bớt node</button>
+    <button id="ring-reset" class="secondary">Reset (3 node)</button>
+  </div>
+  <div class="ring-wrap">
+    <div class="ring-svg-box">
+      <svg id="ring-svg" width="360" height="360" viewBox="0 0 360 360"></svg>
+    </div>
+    <div class="ring-side">
+      <div id="ring-nodes"></div>
+      <p class="legend stat" style="margin-top:10px;">
+        <span style="background:#4299e1;"></span>node ảo &nbsp;
+        <span style="background:#cbd5e0;border-radius:50%;"></span>key
+      </p>
+      <p class="stat" id="ring-stat"></p>
+      <div class="explain" id="ring-remap" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+/* ===================== Module 1: discovery flow ===================== */
+(function () {
+  const INSTS = ['10.0.0.1', '10.0.0.2', '10.0.0.3'];
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  let running = false;
+
+  function line(cls, txt) { return `<span class="${cls}">${txt}</span>`; }
+
+  async function typeLog(el, steps) {
+    el.innerHTML = '';
+    for (const s of steps) {
+      el.innerHTML += s + '\n';
+      await sleep(650);
+    }
+  }
+
+  async function runClient() {
+    if (running) return; running = true;
+    const el = document.getElementById('log-client');
+    const pick = INSTS[Math.floor(Math.random() * INSTS.length)];
+    await typeLog(el, [
+      'order-svc: cần gọi payment-svc',
+      line('reg', '→ hỏi Registry: "payment có ai?"'),
+      line('reg', '← Registry: [' + INSTS.join(', ') + ']'),
+      'order-svc: TỰ chọn (round-robin) → ' + pick,
+      line('inst', '→ gọi THẲNG payment @ ' + pick + ' (1 hop)'),
+      line('inst', '← 200 OK'),
+    ]);
+    document.getElementById('disc-note').textContent =
+      'Client-side: client cầm danh bạ, gọi thẳng instance → ít 1 hop, nhưng logic LB nằm trong mọi client.';
+    running = false;
+  }
+
+  async function runServer() {
+    if (running) return; running = true;
+    const el = document.getElementById('log-server');
+    const pick = INSTS[Math.floor(Math.random() * INSTS.length)];
+    await typeLog(el, [
+      'order-svc: gọi "payment-svc" (1 địa chỉ cố định)',
+      line('lb', '→ tới Load Balancer (hop 1)'),
+      line('reg', 'LB ↔ Registry/Endpoints: [' + INSTS.join(', ') + ']'),
+      line('lb', 'LB chọn → ' + pick,),
+      line('inst', '→ LB forward tới payment @ ' + pick + ' (hop 2)'),
+      line('inst', '← 200 OK ← LB ← order-svc'),
+    ]);
+    document.getElementById('disc-note').textContent =
+      'Server-side: client chỉ biết 1 địa chỉ LB → client cực đơn giản (polyglot dễ), nhưng thêm 1 hop qua LB.';
+    running = false;
+  }
+
+  document.getElementById('disc-client').onclick = runClient;
+  document.getElementById('disc-server').onclick = runServer;
+  document.getElementById('disc-reset').onclick = () => {
+    document.getElementById('log-client').textContent = 'Bấm "Chạy Client-side"…';
+    document.getElementById('log-server').textContent = 'Bấm "Chạy Server-side"…';
+    document.getElementById('disc-note').textContent = '';
+  };
+})();
+
+/* ===================== Module 2: LB algorithm compare ===================== */
+(function () {
+  const NAMES = ['A', 'B', 'C'];
+  // mỗi thuật toán có state riêng: conn[] = số connection đang mở, total = đã nhận
+  const algos = {
+    rr:  { conn: [0, 0, 0], total: [0, 0, 0], next: 0 },
+    lc:  { conn: [0, 0, 0], total: [0, 0, 0] },
+    rnd: { conn: [0, 0, 0], total: [0, 0, 0] },
+  };
+  let totalReq = 0, burstTimer = null;
+
+  function buildRows(boxId) {
+    const box = document.getElementById(boxId);
+    NAMES.forEach((n, i) => {
+      const row = document.createElement('div');
+      row.className = 'inst-row';
+      row.innerHTML = `<span class="inst-name">${n}</span>
+        <div class="meter"><span style="width:0%"></span></div>
+        <span class="inst-cnt">0</span>`;
+      box.appendChild(row);
+    });
+  }
+  buildRows('algo-rr'); buildRows('algo-lc'); buildRows('algo-rnd');
+
+  function render(boxId, st) {
+    const rows = document.querySelectorAll('#' + boxId + ' .inst-row');
+    const maxConn = Math.max(4, ...st.conn);
+    rows.forEach((row, i) => {
+      const pct = Math.round(st.conn[i] / maxConn * 100);
+      row.querySelector('.meter > span').style.width = pct + '%';
+      row.querySelector('.inst-cnt').textContent = st.conn[i];
+      row.classList.toggle('busy', st.conn[i] >= maxConn && st.conn[i] > 0);
+    });
+  }
+
+  function pickRR()  { const i = algos.rr.next % 3; algos.rr.next++; return i; }
+  function pickLC()  { const c = algos.lc.conn; let m = 0; for (let i = 1; i < 3; i++) if (c[i] < c[m]) m = i; return m; }
+  function pickRND() { return Math.floor(Math.random() * 3); }
+
+  function dispatch() {
+    totalReq++;
+    const cost = 1 + Math.floor(Math.random() * 5); // 1..5 "đơn vị thời gian"
+    const sel = { rr: pickRR(), lc: pickLC(), rnd: pickRND() };
+    for (const key of ['rr', 'lc', 'rnd']) {
+      const st = algos[key], i = sel[key];
+      st.conn[i]++; st.total[i]++;
+      render('algo-' + (key === 'rnd' ? 'rnd' : key), st);
+      // connection "đóng" sau cost*220ms → mô phỏng request nặng giữ conn lâu hơn
+      setTimeout(() => { st.conn[i] = Math.max(0, st.conn[i] - 1); render('algo-' + (key === 'rnd' ? 'rnd' : key), st); }, cost * 220);
+    }
+    const t = k => algos[k].total.join('/');
+    document.getElementById('lb-stat').innerHTML =
+      `Tổng request: <b>${totalReq}</b> &nbsp;|&nbsp; phân phối A/B/C — ` +
+      `RR <b>${t('rr')}</b>, Least-conn <b>${t('lc')}</b>, Random <b>${t('rnd')}</b>`;
+  }
+
+  document.getElementById('lb-send').onclick = dispatch;
+  document.getElementById('lb-burst').onclick = function () {
+    if (burstTimer) { clearInterval(burstTimer); burstTimer = null; this.textContent = '⏩ Auto burst'; return; }
+    this.textContent = '⏸ Dừng burst';
+    burstTimer = setInterval(dispatch, 180);
+  };
+  document.getElementById('lb-reset').onclick = function () {
+    if (burstTimer) { clearInterval(burstTimer); burstTimer = null; document.getElementById('lb-burst').textContent = '⏩ Auto burst'; }
+    totalReq = 0;
+    for (const k of ['rr', 'lc', 'rnd']) { algos[k].conn = [0, 0, 0]; algos[k].total = [0, 0, 0]; if (k === 'rr') algos.rr.next = 0; render('algo-' + k, algos[k]); }
+    document.getElementById('lb-stat').textContent = 'Tổng request: 0';
+  };
+})();
+
+/* ===================== Module 3: consistent hashing ring ===================== */
+(function () {
+  const CX = 180, CY = 180, R = 130, RING_SIZE = 360;
+  const VNODES = 12; // điểm ảo / node — đủ nhiều để phân phối đều + remap ~K/N
+  const PALETTE = ['#4299e1', '#48bb78', '#ed8936', '#9f7aea', '#e53e3e', '#38b2ac'];
+  let nodes = [];       // [{name, color, points:[angle...]}]
+  let keys = [];        // [{label, angle}]
+  let nextId = 0;
+
+  // hash đơn giản → [0,360)
+  function h(s) { let x = 2166136261 >>> 0; for (let i = 0; i < s.length; i++) { x ^= s.charCodeAt(i); x = Math.imul(x, 16777619) >>> 0; } return x % RING_SIZE; }
+  function angleToXY(a, r) { const rad = (a / RING_SIZE) * 2 * Math.PI - Math.PI / 2; return [CX + r * Math.cos(rad), CY + r * Math.sin(rad)]; }
+
+  function allPoints() { // [{angle, name, color}] sorted by angle
+    const pts = [];
+    nodes.forEach(n => n.points.forEach(a => pts.push({ angle: a, name: n.name, color: n.color })));
+    pts.sort((p, q) => p.angle - q.angle);
+    return pts;
+  }
+  function ownerOf(angle, pts) {
+    if (pts.length === 0) return null;
+    for (const p of pts) if (p.angle >= angle) return p;
+    return pts[0]; // wrap
+  }
+
+  function addNode() {
+    const name = 'N' + (nextId);
+    const color = PALETTE[nextId % PALETTE.length];
+    nextId++;
+    const points = [];
+    for (let i = 0; i < VNODES; i++) points.push(h(name + '#' + i));
+    nodes.push({ name, color, points });
+  }
+  function removeNode() { if (nodes.length > 1) nodes.pop(); }
+
+  function assignment() { const pts = allPoints(); const m = {}; keys.forEach(k => { const o = ownerOf(k.angle, pts); m[k.label] = o ? o.name : null; }); return m; }
+
+  function draw(remapInfo) {
+    const svg = document.getElementById('ring-svg');
+    const pts = allPoints();
+    let html = `<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="#cbd5e0" stroke-width="2"/>`;
+    // keys (chấm nhỏ ngoài vòng)
+    const assign = assignment();
+    keys.forEach(k => {
+      const [x, y] = angleToXY(k.angle, R + 12);
+      const o = nodes.find(n => n.name === assign[k.label]);
+      const c = o ? o.color : '#cbd5e0';
+      html += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.5" fill="${c}" opacity="0.7"/>`;
+    });
+    // node virtual points
+    pts.forEach(p => {
+      const [x, y] = angleToXY(p.angle, R);
+      html += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="6" fill="${p.color}" stroke="#fff" stroke-width="1.5"/>`;
+    });
+    svg.innerHTML = html;
+
+    // node legend
+    document.getElementById('ring-nodes').innerHTML =
+      nodes.map(n => `<span class="nodebox" style="background:${n.color}">${n.name} (${n.points.length} vnode)</span>`).join('');
+    document.getElementById('ring-stat').innerHTML =
+      `<b>${nodes.length}</b> node, <b>${keys.length}</b> key. Lý thuyết: thêm/bớt 1 node remap ≈ K/N.`;
+
+    const rm = document.getElementById('ring-remap');
+    if (remapInfo) { rm.style.display = 'block'; rm.innerHTML = remapInfo; }
+    else { rm.style.display = 'none'; }
+  }
+
+  function reset() {
+    nodes = []; nextId = 0;
+    addNode(); addNode(); addNode();
+    keys = [];
+    for (let i = 0; i < 200; i++) keys.push({ label: 'k' + i, angle: h('key-' + i) });
+    draw(null);
+  }
+
+  function withRemap(fn) {
+    const before = assignment();
+    fn();
+    const after = assignment();
+    let moved = 0;
+    keys.forEach(k => { if (before[k.label] !== after[k.label]) moved++; });
+    const pct = (moved / keys.length * 100).toFixed(1);
+    const info = `Vừa thay đổi topology: <b>${moved}/${keys.length}</b> key bị remap (<b>${pct}%</b>). ` +
+      `Với <code class="inline">hash % N</code> thì gần như <b>100%</b> key sẽ đổi — đây là lợi thế của consistent hashing.`;
+    draw(info);
+  }
+
+  document.getElementById('ring-add').onclick = () => withRemap(addNode);
+  document.getElementById('ring-remove').onclick = () => withRemap(removeNode);
+  document.getElementById('ring-reset').onclick = reset;
+  reset();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

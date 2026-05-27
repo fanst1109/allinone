@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L33 — Dijkstra (đường đi ngắn nhất, không cạnh âm)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #4299e1;
+    --accent-soft: #ebf8ff;
+    --accent-hover: #2b6cb0;
+    --node: #cbd5e0;
+    --node-stroke: #718096;
+    --src: #ed8936;
+    --active: #ecc94b;
+    --final: #38a169;
+    --relax: #9f7aea;
+    --bad: #e53e3e;
+  }
+  main { max-width: 940px; }
+  .lead { font-size: 1.05rem; color: #4a5568; margin: 0.5rem 0 1.5rem; }
+  h2 { margin-top: 2.4rem; border-bottom: 2px solid var(--accent-soft); padding-bottom: 0.3rem; }
+  .pill {
+    font-size: 0.7rem; background: var(--accent-soft); color: var(--accent-hover);
+    padding: 2px 8px; border-radius: 10px; vertical-align: middle; font-weight: 600;
+  }
+  .card {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+    padding: 1rem 1.2rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 0.8rem; }
+  button {
+    background: var(--accent); color: #fff; border: none; padding: 8px 14px;
+    border-radius: 6px; font-size: 0.9rem; cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: var(--accent-hover); }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+  .svg-wrap { overflow-x: auto; }
+  svg { display: block; margin: 0.5rem auto; background: #f7fafc; border-radius: 8px; max-width: 100%; }
+  .status {
+    font-family: ui-monospace, monospace; font-size: 0.88rem; color: #2d3748;
+    background: #f7fafc; border-left: 3px solid var(--accent); padding: 8px 12px;
+    border-radius: 0 6px 6px 0; margin: 0.6rem 0; min-height: 1.2em; white-space: pre-wrap;
+  }
+  table.dist { border-collapse: collapse; width: 100%; font-size: 0.85rem; margin: 0.6rem 0; }
+  table.dist th, table.dist td {
+    border: 1px solid #e2e8f0; padding: 5px 8px; text-align: center;
+    font-family: ui-monospace, monospace;
+  }
+  table.dist th { background: #f7fafc; }
+  td.cur { background: var(--active); font-weight: 700; }
+  td.fin { background: #c6f6d5; }
+  td.upd { background: #e9d8fd; }
+  .legend { display: flex; flex-wrap: wrap; gap: 0.8rem; font-size: 0.8rem; color: #4a5568; margin: 0.4rem 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 4px; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; border: 1px solid #718096; }
+  .note { color: #718096; font-size: 0.82rem; }
+  .heap-box { font-family: ui-monospace, monospace; font-size: 0.85rem; color: #2d3748; }
+  .heap-box code { background: #edf2f7; padding: 1px 6px; border-radius: 4px; margin: 2px; display: inline-block; }
+  .heap-box code.stale { color: #a0aec0; text-decoration: line-through; }
+  .cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 640px) { .cmp { grid-template-columns: 1fr; } }
+  .verdict { font-weight: 700; padding: 6px 10px; border-radius: 6px; display: inline-block; margin-top: 6px; }
+  .verdict.ok { background: #c6f6d5; color: #22543d; }
+  .verdict.bad { background: #fed7d7; color: #742a2a; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-32-topological-sort/visualization.html">← L32: Sắp xếp Topo</a>
+  <span class="sep">·</span>
+  <span class="current">L33: Dijkstra</span>
+  <span class="sep">·</span>
+  <a href="../lesson-34-bellman-ford-floyd/visualization.html">L34: Bellman-Ford &amp; Floyd →</a>
+</nav>
+
+<h1>Lesson 33 — Dijkstra</h1>
+<div class="lead">
+  Đường đi ngắn nhất từ một nguồn trên đồ thị <strong>trọng số không âm</strong>. Ba module:
+  <strong>animator</strong> (pop-min từ heap + relax cạnh, bảng <code>dist</code> cập nhật),
+  <strong>BFS vs Dijkstra</strong> (vì sao BFS sai trên đồ thị weighted),
+  và <strong>Negative edge fail</strong> (phản ví dụ cạnh âm).
+</div>
+
+<!-- ====================================================================
+     MODULE 1 — DIJKSTRA ANIMATOR
+     ==================================================================== -->
+<h2>1. Dijkstra animator — pop min + relax <span class="pill">greedy + min-heap</span></h2>
+<div class="card">
+  <p class="note">
+    Đồ thị 6 đỉnh (mục 4 README), nguồn = 0. Bấm <strong>Bước</strong> để pop đỉnh
+    <code>dist</code> nhỏ nhất từ heap, chốt nó (finalize), rồi relax các cạnh ra.
+    Entry stale (cũ) bị skip.
+  </p>
+  <div class="controls">
+    <button id="m1Step">▶ Bước</button>
+    <button id="m1Auto" class="ghost">⏩ Tự động</button>
+    <button id="m1Reset" class="ghost">↺ Reset</button>
+  </div>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--src)"></span> nguồn</span>
+    <span><span class="dot" style="background:var(--active)"></span> đang pop</span>
+    <span><span class="dot" style="background:var(--final)"></span> đã chốt (finalized)</span>
+    <span><span class="dot" style="background:var(--relax)"></span> vừa relax</span>
+    <span><span class="dot" style="background:var(--node)"></span> chưa thăm</span>
+  </div>
+  <div class="svg-wrap">
+    <svg id="m1Svg" width="560" height="320" viewBox="0 0 560 320"></svg>
+  </div>
+  <div class="status" id="m1Status">Bấm "Bước" để bắt đầu.</div>
+  <div class="heap-box">Heap: <span id="m1Heap">{(0, 0)}</span></div>
+  <table class="dist" id="m1Tbl"></table>
+</div>
+
+<!-- ====================================================================
+     MODULE 2 — BFS vs DIJKSTRA
+     ==================================================================== -->
+<h2>2. BFS vs Dijkstra — vì sao BFS sai trên đồ thị weighted <span class="pill">cạnh ≠ 1</span></h2>
+<div class="card">
+  <p class="note">
+    Cùng đồ thị có trọng số. BFS đếm <strong>số cạnh</strong> (lan theo lớp) →
+    sai khi cạnh dài khác nhau. Dijkstra đếm <strong>tổng trọng số</strong> → đúng.
+    Bấm để chạy cả hai và so sánh <code>dist</code>.
+  </p>
+  <div class="controls">
+    <button id="m2Run">▶ Chạy cả hai</button>
+    <button id="m2Reset" class="ghost">↺ Reset</button>
+  </div>
+  <div class="svg-wrap">
+    <svg id="m2Svg" width="520" height="240" viewBox="0 0 520 240"></svg>
+  </div>
+  <div class="cmp">
+    <div>
+      <strong>BFS (đếm số cạnh)</strong>
+      <table class="dist" id="m2Bfs"></table>
+      <div id="m2BfsV"></div>
+    </div>
+    <div>
+      <strong>Dijkstra (đếm trọng số)</strong>
+      <table class="dist" id="m2Dij"></table>
+      <div id="m2DijV"></div>
+    </div>
+  </div>
+  <div class="status" id="m2Status">Bấm "Chạy cả hai".</div>
+</div>
+
+<!-- ====================================================================
+     MODULE 3 — NEGATIVE EDGE FAIL
+     ==================================================================== -->
+<h2>3. Negative edge fail — Dijkstra sai với cạnh âm <span class="pill">w &lt; 0 → SAI</span></h2>
+<div class="card">
+  <p class="note">
+    Đồ thị có cạnh âm <code>2→1 (-2)</code>. Dijkstra-với-<code>visited</code> chốt đỉnh 1
+    quá sớm (dist=1) rồi từ chối relax lại → bỏ lỡ đường <code>0→2→1 = 0</code>.
+    Bấm để xem từng bước và đáp án đúng (Bellman-Ford).
+  </p>
+  <div class="controls">
+    <button id="m3Step">▶ Bước</button>
+    <button id="m3Reset" class="ghost">↺ Reset</button>
+  </div>
+  <div class="svg-wrap">
+    <svg id="m3Svg" width="420" height="220" viewBox="0 0 420 220"></svg>
+  </div>
+  <div class="status" id="m3Status">Bấm "Bước" để chạy Dijkstra-visited.</div>
+  <table class="dist" id="m3Tbl"></table>
+  <div id="m3Verdict"></div>
+</div>
+
+<script>
+/* =====================================================================
+   MODULE 1 — DIJKSTRA ANIMATOR
+   ===================================================================== */
+(function () {
+  const N = 6;
+  const SRC = 0;
+  // vị trí đỉnh trên SVG
+  const POS = [
+    { x: 70,  y: 160 }, // 0
+    { x: 220, y: 70  }, // 1
+    { x: 220, y: 250 }, // 2
+    { x: 360, y: 110 }, // 3
+    { x: 360, y: 230 }, // 4
+    { x: 500, y: 160 }, // 5
+  ];
+  // cạnh có hướng (u, v, w)
+  const EDGES = [
+    [0,1,4],[0,2,1],
+    [2,1,2],[2,3,5],[2,4,8],
+    [1,3,1],
+    [3,4,3],[3,5,6],
+    [4,5,2],
+  ];
+  const adj = Array.from({length:N}, ()=>[]);
+  EDGES.forEach(([u,v,w])=>adj[u].push([v,w]));
+  const INF = Infinity;
+
+  const svg = document.getElementById('m1Svg');
+  const statusEl = document.getElementById('m1Status');
+  const heapEl = document.getElementById('m1Heap');
+  const tbl = document.getElementById('m1Tbl');
+  let dist, prev, finalized, pq, done, justRelaxed, current, timer;
+
+  function reset() {
+    clearInterval(timer); timer = null;
+    dist = Array(N).fill(INF); prev = Array(N).fill(-1);
+    finalized = Array(N).fill(false); done = false;
+    dist[SRC] = 0; pq = [{d:0, u:SRC}];
+    justRelaxed = []; current = -1;
+    statusEl.textContent = 'Bấm "Bước" để bắt đầu.';
+    render();
+  }
+
+  function fmt(x){ return x===INF ? '∞' : x; }
+
+  function heapStr() {
+    // sắp xếp để hiển thị, đánh dấu stale
+    const sorted = [...pq].sort((a,b)=>a.d-b.d);
+    return sorted.map(e=>{
+      const stale = e.d > dist[e.u];
+      return `<code class="${stale?'stale':''}">(${e.d}, ${e.u})</code>`;
+    }).join('') || '∅';
+  }
+
+  function step() {
+    if (done) return;
+    justRelaxed = [];
+    if (pq.length === 0) {
+      done = true; current = -1;
+      statusEl.textContent = '✓ Hoàn tất. dist = [' + dist.map(fmt).join(', ') + ']';
+      render(); return;
+    }
+    // pop min
+    let bi = 0;
+    for (let i=1;i<pq.length;i++) if (pq[i].d < pq[bi].d) bi = i;
+    const {d, u} = pq.splice(bi,1)[0];
+    current = u;
+    if (d > dist[u]) {
+      statusEl.textContent = `Pop (${d}, ${u}) — STALE (${d} > dist[${u}]=${dist[u]}) → skip.`;
+      render(); return;
+    }
+    finalized[u] = true;
+    let msg = `Pop (${d}, ${u}) → CHỐT dist[${u}]=${d}. Relax: `;
+    const parts = [];
+    for (const [v,w] of adj[u]) {
+      if (finalized[v]) continue;
+      if (d + w < dist[v]) {
+        const old = dist[v];
+        dist[v] = d + w; prev[v] = u;
+        pq.push({d: d+w, u: v});
+        justRelaxed.push(v);
+        parts.push(`${u}→${v}: ${d}+${w}=${d+w}${old===INF?'':' <'+old} ✓`);
+      }
+    }
+    msg += parts.length ? parts.join('; ') : '(không cải thiện đỉnh nào)';
+    statusEl.textContent = msg;
+    render();
+  }
+
+  function auto() {
+    if (timer) { clearInterval(timer); timer=null; return; }
+    timer = setInterval(()=>{ if(done){clearInterval(timer);timer=null;} else step(); }, 900);
+  }
+
+  function render() {
+    // SVG
+    let s = '';
+    s += `<defs><marker id="arr1" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#718096"/></marker>
+      <marker id="arr1r" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="var(--relax)"/></marker></defs>`;
+    for (const [u,v,w] of EDGES) {
+      const a=POS[u], b=POS[v];
+      const dx=b.x-a.x, dy=b.y-a.y, len=Math.hypot(dx,dy);
+      const ux=dx/len, uy=dy/len, r=20;
+      const x1=a.x+ux*r, y1=a.y+uy*r, x2=b.x-ux*r, y2=b.y-uy*r;
+      const isR = justRelaxed.includes(v) && prev[v]===u;
+      const col = isR ? 'var(--relax)' : '#a0aec0';
+      const mk = isR ? 'url(#arr1r)' : 'url(#arr1)';
+      s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${isR?2.5:1.5}" marker-end="${mk}"/>`;
+      const mx=(x1+x2)/2 - uy*10, my=(y1+y2)/2 + ux*10;
+      s += `<text x="${mx}" y="${my}" font-size="12" fill="#4a5568" text-anchor="middle">${w}</text>`;
+    }
+    for (let i=0;i<N;i++){
+      const p=POS[i];
+      let fill='var(--node)';
+      if (i===current && !done) fill='var(--active)';
+      else if (finalized[i]) fill='var(--final)';
+      else if (i===SRC) fill='var(--src)';
+      if (justRelaxed.includes(i)) fill='var(--relax)';
+      s += `<circle cx="${p.x}" cy="${p.y}" r="20" fill="${fill}" stroke="var(--node-stroke)" stroke-width="2"/>`;
+      s += `<text x="${p.x}" y="${p.y+5}" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">${i}</text>`;
+      s += `<text x="${p.x}" y="${p.y-26}" font-size="12" fill="#2b6cb0" text-anchor="middle" font-family="monospace">${fmt(dist[i])}</text>`;
+    }
+    svg.innerHTML = s;
+    heapEl.innerHTML = heapStr();
+    // bảng dist
+    let h='<tr><th>đỉnh</th>'; for(let i=0;i<N;i++) h+=`<th>${i}</th>`; h+='</tr>';
+    h+='<tr><td><strong>dist</strong></td>';
+    for(let i=0;i<N;i++){
+      let cls=''; if(i===current&&!done)cls='cur'; else if(finalized[i])cls='fin'; if(justRelaxed.includes(i))cls='upd';
+      h+=`<td class="${cls}">${fmt(dist[i])}</td>`;
+    }
+    h+='</tr>';
+    tbl.innerHTML=h;
+  }
+
+  document.getElementById('m1Step').onclick = step;
+  document.getElementById('m1Auto').onclick = auto;
+  document.getElementById('m1Reset').onclick = reset;
+  reset();
+})();
+
+/* =====================================================================
+   MODULE 2 — BFS vs DIJKSTRA
+   ===================================================================== */
+(function () {
+  const N = 4;
+  const SRC = 0;
+  const POS = [
+    { x: 70,  y: 120 }, // 0
+    { x: 260, y: 50  }, // 1
+    { x: 260, y: 190 }, // 2
+    { x: 450, y: 120 }, // 3
+  ];
+  // 0→1 (10), 0→2 (1), 2→1 (1), 1→3 (1), 2→3 (10)
+  const EDGES = [[0,1,10],[0,2,1],[2,1,1],[1,3,1],[2,3,10]];
+  const adj = Array.from({length:N}, ()=>[]);
+  EDGES.forEach(([u,v,w])=>adj[u].push([v,w]));
+  const INF = Infinity;
+
+  const svg = document.getElementById('m2Svg');
+  const statusEl = document.getElementById('m2Status');
+
+  function bfs() {
+    // đếm số cạnh (mọi cạnh coi như 1) — "shortest" theo lớp
+    const d = Array(N).fill(INF); d[SRC]=0;
+    const q=[SRC];
+    while(q.length){
+      const u=q.shift();
+      for(const [v] of adj[u]) if(d[v]===INF){ d[v]=d[u]+1; q.push(v); }
+    }
+    // chuyển "số cạnh" thành tổng trọng số của ĐƯỜNG mà BFS chọn (lần đầu chạm)
+    // để minh họa, ta trả về tổng trọng số dọc cây BFS
+    const w = Array(N).fill(INF); w[SRC]=0;
+    const par=Array(N).fill(-1); const seen=Array(N).fill(false); seen[SRC]=true;
+    const q2=[SRC];
+    while(q2.length){
+      const u=q2.shift();
+      for(const [v,ww] of adj[u]) if(!seen[v]){ seen[v]=true; par[v]=u; w[v]=w[u]+ww; q2.push(v); }
+    }
+    return w;
+  }
+
+  function dijkstra() {
+    const d=Array(N).fill(INF); d[SRC]=0;
+    const pq=[{d:0,u:SRC}];
+    while(pq.length){
+      let bi=0; for(let i=1;i<pq.length;i++) if(pq[i].d<pq[bi].d) bi=i;
+      const {d:dd,u}=pq.splice(bi,1)[0];
+      if(dd>d[u]) continue;
+      for(const [v,w] of adj[u]) if(dd+w<d[v]){ d[v]=dd+w; pq.push({d:dd+w,u:v}); }
+    }
+    return d;
+  }
+
+  function fmt(x){ return x===INF?'∞':x; }
+
+  function drawSvg() {
+    let s='';
+    s += `<defs><marker id="arr2" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#718096"/></marker></defs>`;
+    for(const [u,v,w] of EDGES){
+      const a=POS[u],b=POS[v];
+      const dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy),ux=dx/len,uy=dy/len,r=20;
+      const x1=a.x+ux*r,y1=a.y+uy*r,x2=b.x-ux*r,y2=b.y-uy*r;
+      s+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#a0aec0" stroke-width="1.5" marker-end="url(#arr2)"/>`;
+      const mx=(x1+x2)/2-uy*12,my=(y1+y2)/2+ux*12;
+      s+=`<text x="${mx}" y="${my}" font-size="13" fill="#c53030" text-anchor="middle" font-weight="700">${w}</text>`;
+    }
+    for(let i=0;i<N;i++){
+      const p=POS[i];
+      const fill = i===SRC?'var(--src)':'var(--node)';
+      s+=`<circle cx="${p.x}" cy="${p.y}" r="20" fill="${fill}" stroke="var(--node-stroke)" stroke-width="2"/>`;
+      s+=`<text x="${p.x}" y="${p.y+5}" font-size="14" font-weight="700" text-anchor="middle">${i}</text>`;
+    }
+    svg.innerHTML=s;
+  }
+
+  function tableHTML(arr, correct){
+    let h='<tr><th>đỉnh</th>'; for(let i=0;i<N;i++)h+=`<th>${i}</th>`; h+='</tr><tr><td>dist</td>';
+    for(let i=0;i<N;i++){
+      const wrong = correct && arr[i]!==correct[i];
+      h+=`<td style="${wrong?'background:#fed7d7;font-weight:700':''}">${fmt(arr[i])}</td>`;
+    }
+    h+='</tr>'; return h;
+  }
+
+  function run(){
+    const dij=dijkstra(), b=bfs();
+    document.getElementById('m2Dij').innerHTML=tableHTML(dij,null);
+    document.getElementById('m2Bfs').innerHTML=tableHTML(b,dij);
+    const same = b.every((x,i)=>x===dij[i]);
+    document.getElementById('m2DijV').innerHTML='<span class="verdict ok">ĐÚNG — tổng trọng số nhỏ nhất</span>';
+    document.getElementById('m2BfsV').innerHTML = same
+      ? '<span class="verdict ok">trùng (đồ thị này không bẫy)</span>'
+      : '<span class="verdict bad">SAI — chọn cạnh trực tiếp 0→1=10 thay vì 0→2→1=2</span>';
+    statusEl.textContent = `dist[1]: BFS=${fmt(b[1])} (đi 0→1, 1 cạnh) vs Dijkstra=${fmt(dij[1])} (đi 0→2→1, 2 cạnh nhưng nhẹ hơn). Ít cạnh ≠ ngắn nhất.`;
+  }
+
+  function reset(){
+    document.getElementById('m2Dij').innerHTML='';
+    document.getElementById('m2Bfs').innerHTML='';
+    document.getElementById('m2DijV').innerHTML='';
+    document.getElementById('m2BfsV').innerHTML='';
+    statusEl.textContent='Bấm "Chạy cả hai".';
+    drawSvg();
+  }
+
+  document.getElementById('m2Run').onclick=run;
+  document.getElementById('m2Reset').onclick=reset;
+  reset();
+})();
+
+/* =====================================================================
+   MODULE 3 — NEGATIVE EDGE FAIL
+   ===================================================================== */
+(function () {
+  const N = 3;
+  const SRC = 0;
+  const POS = [
+    { x: 70,  y: 110 }, // 0
+    { x: 350, y: 60  }, // 1
+    { x: 210, y: 180 }, // 2
+  ];
+  // 0→1 (1), 0→2 (2), 2→1 (-2)
+  const EDGES = [[0,1,1],[0,2,2],[2,1,-2]];
+  const adj = Array.from({length:N}, ()=>[]);
+  EDGES.forEach(([u,v,w])=>adj[u].push([v,w]));
+  const INF = Infinity;
+
+  const svg = document.getElementById('m3Svg');
+  const statusEl = document.getElementById('m3Status');
+  const tbl = document.getElementById('m3Tbl');
+  const verdict = document.getElementById('m3Verdict');
+
+  // mô phỏng Dijkstra-with-visited (cài SAI có chủ đích)
+  let dist, visited, pq, current, done, step3;
+
+  function reset() {
+    dist=Array(N).fill(INF); dist[SRC]=0;
+    visited=Array(N).fill(false);
+    pq=[{d:0,u:SRC}]; current=-1; done=false; step3=0;
+    statusEl.textContent='Bấm "Bước" để chạy Dijkstra-visited (cài SAI).';
+    verdict.innerHTML='';
+    render();
+  }
+
+  function fmt(x){ return x===INF?'∞':x; }
+
+  function step() {
+    if(done) return;
+    if(pq.length===0){
+      done=true; current=-1;
+      statusEl.textContent='Dijkstra dừng. dist['+'] = ['+dist.map(fmt).join(', ')+']';
+      verdict.innerHTML='<span class="verdict bad">Dijkstra: dist[1]='+fmt(dist[1])+' (SAI)</span> '
+        +'<span class="verdict ok">Đúng (Bellman-Ford): dist[1]=0 qua 0→2→1 = 2+(-2)</span>';
+      render(); return;
+    }
+    let bi=0; for(let i=1;i<pq.length;i++) if(pq[i].d<pq[bi].d) bi=i;
+    const {d,u}=pq.splice(bi,1)[0];
+    current=u;
+    if(visited[u]){
+      statusEl.textContent=`Pop (${d}, ${u}) — đã visited → skip.`;
+      render(); return;
+    }
+    visited[u]=true;
+    let msg=`Pop (${d}, ${u}) → CHỐT (visited[${u}]=true), dist[${u}]=${d}. `;
+    const parts=[];
+    for(const [v,w] of adj[u]){
+      if(visited[v]){ parts.push(`${u}→${v}: visited[${v}]=true → BỎ QUA (đây là chỗ SAI khi w<0!)`); continue; }
+      if(d+w<dist[v]){ dist[v]=d+w; pq.push({d:d+w,u:v}); parts.push(`${u}→${v}: ${d}+${w}=${d+w} ✓`); }
+    }
+    msg += parts.join('; ');
+    statusEl.textContent=msg;
+    render();
+  }
+
+  function render(){
+    let s='';
+    s += `<defs><marker id="arr3" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#718096"/></marker></defs>`;
+    for(const [u,v,w] of EDGES){
+      const a=POS[u],b=POS[v];
+      const dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy),ux=dx/len,uy=dy/len,r=20;
+      const x1=a.x+ux*r,y1=a.y+uy*r,x2=b.x-ux*r,y2=b.y-uy*r;
+      const neg = w<0;
+      s+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${neg?'var(--bad)':'#a0aec0'}" stroke-width="${neg?2.5:1.5}" marker-end="url(#arr3)"/>`;
+      const mx=(x1+x2)/2-uy*12,my=(y1+y2)/2+ux*12;
+      s+=`<text x="${mx}" y="${my}" font-size="14" fill="${neg?'var(--bad)':'#4a5568'}" text-anchor="middle" font-weight="700">${w}</text>`;
+    }
+    for(let i=0;i<N;i++){
+      const p=POS[i];
+      let fill='var(--node)';
+      if(i===current&&!done)fill='var(--active)';
+      else if(visited[i])fill='var(--final)';
+      else if(i===SRC)fill='var(--src)';
+      s+=`<circle cx="${p.x}" cy="${p.y}" r="20" fill="${fill}" stroke="var(--node-stroke)" stroke-width="2"/>`;
+      s+=`<text x="${p.x}" y="${p.y+5}" font-size="14" font-weight="700" text-anchor="middle">${i}</text>`;
+      s+=`<text x="${p.x}" y="${p.y-26}" font-size="12" fill="#2b6cb0" text-anchor="middle" font-family="monospace">${fmt(dist[i])}</text>`;
+    }
+    svg.innerHTML=s;
+    let h='<tr><th>đỉnh</th><th>0</th><th>1</th><th>2</th></tr><tr><td>dist</td>';
+    for(let i=0;i<N;i++){
+      let cls=''; if(i===current&&!done)cls='cur'; else if(visited[i])cls='fin';
+      h+=`<td class="${cls}">${fmt(dist[i])}</td>`;
+    }
+    h+='</tr>';
+    tbl.innerHTML=h;
+  }
+
+  document.getElementById('m3Step').onclick=step;
+  document.getElementById('m3Reset').onclick=reset;
+  reset();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+</body>
+</html>

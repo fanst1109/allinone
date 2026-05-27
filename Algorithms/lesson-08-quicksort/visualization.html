@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Quicksort Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  input[type="text"] {
+    font-size: 14px; padding: 6px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    font-family: monospace; width: 100%; max-width: 260px; box-sizing: border-box;
+  }
+  label { font-weight: 600; }
+  select {
+    font-size: 14px; padding: 6px 10px; border: 1px solid #cbd5e0;
+    border-radius: 4px; background: white;
+  }
+  .explain {
+    background: #ebf8ff; border-left: 4px solid #4299e1;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6; margin-top: 10px; min-height: 1.6em;
+  }
+  .explain code, .legend code {
+    background: white; padding: 1px 5px; border-radius: 3px;
+    font-family: monospace; color: #2b6cb0;
+  }
+  .svg-wrap { width: 100%; overflow-x: auto; }
+  svg { display: block; margin: 0 auto; }
+
+  /* array cells */
+  .cell-rect { fill: #edf2f7; stroke: #a0aec0; stroke-width: 1.5; transition: fill .25s; }
+  .cell-rect.pivot { fill: #f6ad55; stroke: #c05621; }
+  .cell-rect.le { fill: #9ae6b4; stroke: #2f855a; }   /* <= pivot region */
+  .cell-rect.gt { fill: #feb2b2; stroke: #c53030; }   /* > pivot region */
+  .cell-rect.cur { fill: #90cdf4; stroke: #2b6cb0; }  /* current j / i */
+  .cell-rect.eq  { fill: #d6bcfa; stroke: #6b46c1; }  /* == pivot (3-way) */
+  .cell-rect.sorted { fill: #c6f6d5; stroke: #38a169; }
+  .cell-txt { font: 700 16px monospace; fill: #2d3748; text-anchor: middle; }
+  .idx-txt { font: 11px monospace; fill: #718096; text-anchor: middle; }
+  .ptr-txt { font: 700 12px monospace; text-anchor: middle; }
+
+  .legend { font-size: 13px; color: #4a5568; margin-top: 8px; }
+  .legend span { display: inline-block; margin-right: 14px; }
+  .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 2px; vertical-align: middle; margin-right: 4px; border: 1px solid #999; }
+
+  .stat { font-family: monospace; font-size: 14px; }
+  .stat b { color: #2b6cb0; }
+  .bars { display: flex; gap: 24px; flex-wrap: wrap; margin-top: 12px; }
+  .barbox { flex: 1 1 200px; min-width: 0; }
+  .barbox h4 { margin: 4px 0; font-size: 14px; }
+  .bartrack { background: #edf2f7; border-radius: 4px; height: 28px; position: relative; overflow: hidden; }
+  .barfill { height: 100%; border-radius: 4px; transition: width .5s; }
+
+  @media (max-width: 480px) {
+    .card { padding: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-merge-sort/visualization.html">← L7: Merge Sort</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Quicksort</span>
+  <span class="sep">·</span>
+  <a href="../lesson-09-heap-sort/visualization.html">L9: Heap Sort →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 08 — Quicksort</h1>
+<p>3 module tương tác: (1) <b>Partition animator</b> — xem Lomuto vs Hoare đẩy phần tử về 2 phía từng bước; (2) <b>Quicksort tree</b> — cây đệ quy partition, mỗi level đóng đinh 1 pivot; (3) <b>Pivot strategy</b> — vì sao sorted input giết pivot=last (<code>O(n²)</code>) nhưng random/median cứu được.</p>
+
+<!-- ============ Module 1: Partition animator ============ -->
+<h2>1. Partition animator — Lomuto vs Hoare</h2>
+<div class="card">
+  <div class="row">
+    <label>Sơ đồ:</label>
+    <select id="m1-scheme">
+      <option value="lomuto">Lomuto (pivot = cuối)</option>
+      <option value="hoare">Hoare (pivot = đầu, 2 con trỏ)</option>
+    </select>
+    <label>Mảng:</label>
+    <input type="text" id="m1-input" value="5,2,4,1,3">
+    <button id="m1-load" class="secondary">Nạp</button>
+  </div>
+  <div class="row">
+    <button id="m1-step">Bước tiếp ▶</button>
+    <button id="m1-auto">Tự chạy ⏩</button>
+    <button id="m1-reset" class="secondary">Reset</button>
+    <span class="stat">so sánh: <b id="m1-cmp">0</b> · swap: <b id="m1-swap">0</b></span>
+  </div>
+  <div class="svg-wrap">
+    <svg id="m1-svg" width="560" height="150" viewBox="0 0 560 150"></svg>
+  </div>
+  <div class="legend">
+    <span><span class="swatch" style="background:#f6ad55"></span>pivot</span>
+    <span><span class="swatch" style="background:#90cdf4"></span>con trỏ (i/j)</span>
+    <span><span class="swatch" style="background:#9ae6b4"></span>≤ pivot</span>
+    <span><span class="swatch" style="background:#feb2b2"></span>&gt; pivot</span>
+  </div>
+  <div class="explain" id="m1-explain">Chọn sơ đồ và bấm <b>Bước tiếp</b> để xem partition đẩy phần tử về 2 phía.</div>
+</div>
+
+<!-- ============ Module 2: Quicksort tree ============ -->
+<h2>2. Quicksort tree — cây đệ quy partition</h2>
+<div class="card">
+  <div class="row">
+    <label>Mảng:</label>
+    <input type="text" id="m2-input" value="5,2,4,1,3">
+    <button id="m2-run">Dựng cây ▶</button>
+    <button id="m2-reset" class="secondary">Reset</button>
+    <span class="stat">tổng so sánh: <b id="m2-cmp">0</b></span>
+  </div>
+  <div class="svg-wrap">
+    <svg id="m2-svg" width="680" height="360" viewBox="0 0 680 360"></svg>
+  </div>
+  <div class="legend">
+    <span><span class="swatch" style="background:#f6ad55"></span>pivot (đóng đinh đúng chỗ)</span>
+    <span><span class="swatch" style="background:#9ae6b4"></span>phần &lt; pivot</span>
+    <span><span class="swatch" style="background:#feb2b2"></span>phần &gt; pivot</span>
+  </div>
+  <div class="explain" id="m2-explain">Mỗi node = 1 lời gọi quicksort. Pivot (cam) sau partition nằm đúng vị trí cuối cùng; 2 con là 2 phần đệ quy. Lomuto, pivot = phần tử cuối.</div>
+</div>
+
+<!-- ============ Module 3: Pivot strategy comparison ============ -->
+<h2>3. Pivot strategy — sorted input giết pivot=last</h2>
+<div class="card">
+  <div class="row">
+    <label>n:</label>
+    <select id="m3-n">
+      <option>8</option>
+      <option selected>16</option>
+      <option>32</option>
+      <option>64</option>
+    </select>
+    <label>Input:</label>
+    <select id="m3-kind">
+      <option value="sorted" selected>đã sort tăng dần (worst cho last)</option>
+      <option value="random">ngẫu nhiên</option>
+    </select>
+    <button id="m3-run">So sánh ▶</button>
+  </div>
+  <div class="bars">
+    <div class="barbox">
+      <h4>pivot = last (cố định)</h4>
+      <div class="bartrack"><div class="barfill" id="m3-bar-last" style="background:#fc8181;width:0"></div></div>
+      <div class="stat">comparison: <b id="m3-cmp-last">—</b> · depth: <b id="m3-depth-last">—</b></div>
+    </div>
+    <div class="barbox">
+      <h4>pivot = random</h4>
+      <div class="bartrack"><div class="barfill" id="m3-bar-rand" style="background:#68d391;width:0"></div></div>
+      <div class="stat">comparison: <b id="m3-cmp-rand">—</b> · depth: <b id="m3-depth-rand">—</b></div>
+    </div>
+    <div class="barbox">
+      <h4>pivot = median-of-three</h4>
+      <div class="bartrack"><div class="barfill" id="m3-bar-med" style="background:#63b3ed;width:0"></div></div>
+      <div class="stat">comparison: <b id="m3-cmp-med">—</b> · depth: <b id="m3-depth-med">—</b></div>
+    </div>
+  </div>
+  <div class="explain" id="m3-explain">Chọn <b>đã sort tăng dần</b> + bấm So sánh: pivot=last suy biến về <code>O(n²)</code> (cột đỏ dài, depth ≈ n), còn random/median giữ <code>O(n log n)</code> (depth ≈ log n). Đổi sang ngẫu nhiên để thấy cả ba xấp xỉ nhau.</div>
+</div>
+
+</main>
+
+<script>
+// ===================== Shared helpers =====================
+function parseArr(s) {
+  return s.split(',').map(x => parseInt(x.trim(), 10)).filter(x => !isNaN(x));
+}
+
+// ===================== Module 1: Partition animator =====================
+(function () {
+  const svg = document.getElementById('m1-svg');
+  const NS = 'http://www.w3.org/2000/svg';
+  const explain = document.getElementById('m1-explain');
+  const cmpEl = document.getElementById('m1-cmp');
+  const swapEl = document.getElementById('m1-swap');
+  let arr = [], gen = null, autoTimer = null, cmp = 0, swap = 0, done = false;
+
+  const CW = 60, CH = 50, X0 = 30, Y0 = 60;
+
+  function render(state) {
+    svg.innerHTML = '';
+    const n = arr.length;
+    svg.setAttribute('width', Math.max(560, X0 * 2 + n * CW));
+    svg.setAttribute('viewBox', `0 0 ${Math.max(560, X0 * 2 + n * CW)} 150`);
+    for (let k = 0; k < n; k++) {
+      const x = X0 + k * CW;
+      const rect = document.createElementNS(NS, 'rect');
+      rect.setAttribute('x', x); rect.setAttribute('y', Y0);
+      rect.setAttribute('width', CW - 8); rect.setAttribute('height', CH);
+      rect.setAttribute('rx', 6);
+      let cls = 'cell-rect';
+      if (state) {
+        if (k === state.pivotIdx) cls += ' pivot';
+        else if (state.cur && state.cur.includes(k)) cls += ' cur';
+        else if (state.le && state.le.includes(k)) cls += ' le';
+        else if (state.gt && state.gt.includes(k)) cls += ' gt';
+        else if (state.sorted && state.sorted.includes(k)) cls += ' sorted';
+      }
+      rect.setAttribute('class', cls);
+      svg.appendChild(rect);
+      const t = document.createElementNS(NS, 'text');
+      t.setAttribute('x', x + (CW - 8) / 2); t.setAttribute('y', Y0 + CH / 2 + 6);
+      t.setAttribute('class', 'cell-txt'); t.textContent = arr[k];
+      svg.appendChild(t);
+      const it = document.createElementNS(NS, 'text');
+      it.setAttribute('x', x + (CW - 8) / 2); it.setAttribute('y', Y0 - 8);
+      it.setAttribute('class', 'idx-txt'); it.textContent = k;
+      svg.appendChild(it);
+    }
+    // pointers
+    if (state && state.ptrs) {
+      for (const p of state.ptrs) {
+        if (p.idx < 0 || p.idx >= n) continue;
+        const x = X0 + p.idx * CW + (CW - 8) / 2;
+        const t = document.createElementNS(NS, 'text');
+        t.setAttribute('x', x); t.setAttribute('y', Y0 + CH + 22);
+        t.setAttribute('class', 'ptr-txt'); t.setAttribute('fill', p.color || '#2b6cb0');
+        t.textContent = p.label;
+        svg.appendChild(t);
+      }
+    }
+    cmpEl.textContent = cmp; swapEl.textContent = swap;
+  }
+
+  // Lomuto generator (yields states with explanation)
+  function* lomutoGen(a, lo, hi) {
+    const pivot = a[hi]; let i = lo - 1;
+    yield { pivotIdx: hi, le: [], gt: [], ptrs: [{ idx: hi, label: 'pivot=' + pivot, color: '#c05621' }],
+            msg: `pivot = A[${hi}] = ${pivot}. i = ${i} (vùng ≤ pivot rỗng).` };
+    for (let j = lo; j < hi; j++) {
+      cmp++;
+      const le = [], gt = [];
+      for (let t = lo; t <= i; t++) le.push(t);
+      for (let t = i + 1; t < j; t++) gt.push(t);
+      const less = a[j] <= pivot;
+      yield { pivotIdx: hi, le, gt, cur: [j], ptrs: [{ idx: j, label: 'j', color: '#2b6cb0' }, { idx: i, label: 'i' }],
+              msg: `j=${j}: A[${j}]=${a[j]} ${less ? '≤' : '>'} ${pivot}? ${less ? 'CÓ → mở rộng vùng ≤, swap A[i+1]↔A[j]' : 'KHÔNG → bỏ qua'}.` };
+      if (less) {
+        i++;
+        if (i !== j) swap++;
+        [a[i], a[j]] = [a[j], a[i]];
+        arr = a.slice();
+        const le2 = []; for (let t = lo; t <= i; t++) le2.push(t);
+        const gt2 = []; for (let t = i + 1; t <= j; t++) gt2.push(t);
+        yield { pivotIdx: hi, le: le2, gt: gt2, ptrs: [{ idx: i, label: 'i' }],
+                msg: `swap xong. i=${i}. Vùng ≤ pivot giờ là A[${lo}..${i}].` };
+      }
+    }
+    if (i + 1 !== hi) swap++;
+    [a[i + 1], a[hi]] = [a[hi], a[i + 1]];
+    arr = a.slice();
+    const le3 = []; for (let t = lo; t < i + 1; t++) le3.push(t);
+    const gt3 = []; for (let t = i + 2; t <= hi; t++) gt3.push(t);
+    yield { pivotIdx: i + 1, le: le3, gt: gt3, sorted: [i + 1],
+            msg: `Đặt pivot: swap A[${i + 1}]↔A[${hi}]. Pivot ${pivot} về index ${i + 1} — ĐÚNG CHỖ VĨNH VIỄN. return ${i + 1}.` };
+    return i + 1;
+  }
+
+  // Hoare generator
+  function* hoareGen(a, lo, hi) {
+    const pivot = a[lo]; let i = lo - 1, j = hi + 1;
+    yield { pivotIdx: lo, ptrs: [{ idx: lo, label: 'pivot=' + pivot, color: '#c05621' }],
+            msg: `pivot = A[${lo}] = ${pivot}. i=${i}, j=${j}. Hai con trỏ tiến vào nhau.` };
+    while (true) {
+      do { i++; cmp++; } while (a[i] < pivot);
+      do { j--; cmp++; } while (a[j] > pivot);
+      if (i >= j) {
+        yield { pivotIdx: lo, ptrs: [{ idx: i, label: 'i' }, { idx: j, label: 'j', color: '#c53030' }],
+                le: range(lo, j), gt: range(j + 1, hi),
+                msg: `i=${i} ≥ j=${j} → con trỏ gặp nhau. return điểm chia j=${j}. Trái A[${lo}..${j}] ≤ pivot, phải A[${j + 1}..${hi}] ≥ pivot.` };
+        return j;
+      }
+      yield { pivotIdx: lo, cur: [i, j], ptrs: [{ idx: i, label: 'i', color: '#2b6cb0' }, { idx: j, label: 'j', color: '#c53030' }],
+              msg: `i=${i} (A[i]=${a[i]} ≥ pivot), j=${j} (A[j]=${a[j]} ≤ pivot), i<j → swap A[${i}]↔A[${j}].` };
+      swap++;
+      [a[i], a[j]] = [a[j], a[i]];
+      arr = a.slice();
+      yield { pivotIdx: lo, cur: [i, j], ptrs: [{ idx: i, label: 'i' }, { idx: j, label: 'j' }],
+              msg: `swap xong. Tiếp tục tiến 2 con trỏ.` };
+    }
+  }
+  function range(a, b) { const r = []; for (let k = a; k <= b; k++) r.push(k); return r; }
+
+  function start() {
+    stopAuto();
+    arr = parseArr(document.getElementById('m1-input').value);
+    if (arr.length < 2) { explain.textContent = 'Nhập ít nhất 2 phần tử.'; return; }
+    cmp = 0; swap = 0; done = false;
+    const scheme = document.getElementById('m1-scheme').value;
+    const a = arr.slice();
+    gen = (scheme === 'lomuto' ? lomutoGen : hoareGen)(a, 0, a.length - 1);
+    render(null);
+    explain.innerHTML = `Đã nạp. Sơ đồ <b>${scheme}</b>. Bấm <b>Bước tiếp</b>.`;
+  }
+  function step() {
+    if (!gen || done) return;
+    const r = gen.next();
+    if (r.done) {
+      done = true;
+      explain.innerHTML = '✓ Partition hoàn tất. ' + explain.innerHTML;
+      return;
+    }
+    render(r.value);
+    explain.innerHTML = r.value.msg;
+  }
+  function stopAuto() { if (autoTimer) { clearInterval(autoTimer); autoTimer = null; } }
+
+  document.getElementById('m1-load').onclick = start;
+  document.getElementById('m1-scheme').onchange = start;
+  document.getElementById('m1-step').onclick = step;
+  document.getElementById('m1-reset').onclick = start;
+  document.getElementById('m1-auto').onclick = function () {
+    stopAuto();
+    autoTimer = setInterval(() => { if (done) { stopAuto(); } else step(); }, 750);
+  };
+  start();
+})();
+
+// ===================== Module 2: Quicksort tree =====================
+(function () {
+  const svg = document.getElementById('m2-svg');
+  const NS = 'http://www.w3.org/2000/svg';
+  const explain = document.getElementById('m2-explain');
+  const cmpEl = document.getElementById('m2-cmp');
+  let totalCmp = 0;
+
+  // Build tree via Lomuto recursively, capturing structure
+  function buildTree(a, lo, hi, depth) {
+    if (lo > hi) return null;
+    if (lo === hi) return { vals: [a[lo]], pivot: a[lo], pivotPos: 0, depth, left: null, right: null, single: true };
+    // lomuto on a copy region
+    const pivot = a[hi]; let i = lo - 1;
+    for (let j = lo; j < hi; j++) { totalCmp++; if (a[j] <= pivot) { i++; [a[i], a[j]] = [a[j], a[i]]; } }
+    [a[i + 1], a[hi]] = [a[hi], a[i + 1]];
+    const p = i + 1;
+    const segVals = a.slice(lo, hi + 1);
+    const node = { vals: segVals, pivot, pivotPos: p - lo, depth, left: null, right: null };
+    node.left = buildTree(a, lo, p - 1, depth + 1);
+    node.right = buildTree(a, p + 1, hi, depth + 1);
+    return node;
+  }
+
+  // Layout: assign x by in-order leaf counter, y by depth
+  function layout(node, leafX) {
+    if (!node) return null;
+    if (!node.left && !node.right) { node.x = leafX.v; leafX.v += 1; }
+    else {
+      layout(node.left, leafX);
+      const xs = [];
+      if (node.left) xs.push(node.left.x);
+      if (node.right) { layout(node.right, leafX); xs.push(node.right.x); }
+      if (xs.length === 0) { node.x = leafX.v; leafX.v += 1; }
+      else node.x = xs.reduce((s, v) => s + v, 0) / xs.length;
+    }
+    return node;
+  }
+
+  function draw(root) {
+    svg.innerHTML = '';
+    if (!root) return;
+    const leafX = { v: 0 };
+    layout(root, leafX);
+    // collect nodes
+    const nodes = [];
+    (function walk(n) { if (!n) return; nodes.push(n); walk(n.left); walk(n.right); })(root);
+    const maxDepth = Math.max(...nodes.map(n => n.depth));
+    const maxX = Math.max(...nodes.map(n => n.x));
+    const padX = 40, padY = 30;
+    const usableW = 680 - padX * 2;
+    const usableH = Math.max(330, (maxDepth + 1) * 80) - padY * 2;
+    svg.setAttribute('height', usableH + padY * 2);
+    svg.setAttribute('viewBox', `0 0 680 ${usableH + padY * 2}`);
+    const xScale = maxX > 0 ? usableW / maxX : 0;
+    const yScale = maxDepth > 0 ? usableH / maxDepth : 0;
+    const px = n => padX + n.x * xScale;
+    const py = n => padY + n.depth * yScale;
+    const CELL = 26;
+
+    // edges first
+    function edges(n) {
+      if (!n) return;
+      for (const c of [n.left, n.right]) {
+        if (c) {
+          const line = document.createElementNS(NS, 'line');
+          line.setAttribute('x1', px(n)); line.setAttribute('y1', py(n) + 14);
+          line.setAttribute('x2', px(c)); line.setAttribute('y2', py(c) - 14);
+          line.setAttribute('stroke', '#cbd5e0'); line.setAttribute('stroke-width', '2');
+          svg.appendChild(line);
+          edges(c);
+        }
+      }
+    }
+    edges(root);
+
+    // nodes (mini array of vals, pivot highlighted)
+    for (const n of nodes) {
+      const total = n.vals.length;
+      const startX = px(n) - (total * CELL) / 2;
+      for (let k = 0; k < total; k++) {
+        const rect = document.createElementNS(NS, 'rect');
+        rect.setAttribute('x', startX + k * CELL); rect.setAttribute('y', py(n) - 13);
+        rect.setAttribute('width', CELL - 3); rect.setAttribute('height', 26); rect.setAttribute('rx', 4);
+        let cls = 'cell-rect';
+        if (n.single) cls += ' sorted';
+        else if (k === n.pivotPos) cls += ' pivot';
+        else if (k < n.pivotPos) cls += ' le';
+        else cls += ' gt';
+        rect.setAttribute('class', cls);
+        svg.appendChild(rect);
+        const t = document.createElementNS(NS, 'text');
+        t.setAttribute('x', startX + k * CELL + (CELL - 3) / 2); t.setAttribute('y', py(n) + 5);
+        t.setAttribute('class', 'cell-txt'); t.setAttribute('style', 'font-size:13px');
+        t.textContent = n.vals[k];
+        svg.appendChild(t);
+      }
+    }
+  }
+
+  function run() {
+    const arr = parseArr(document.getElementById('m2-input').value);
+    if (arr.length < 1) { explain.textContent = 'Nhập ít nhất 1 phần tử.'; return; }
+    totalCmp = 0;
+    const tree = buildTree(arr.slice(), 0, arr.length - 1, 0);
+    draw(tree);
+    cmpEl.textContent = totalCmp;
+    const sorted = arr.slice().sort((a, b) => a - b);
+    explain.innerHTML = `Cây partition (Lomuto, pivot=cuối). Mỗi node hiện đoạn mảng SAU partition: pivot (cam) đóng đinh đúng chỗ, trái (xanh) &lt; pivot, phải (đỏ) &gt; pivot. Kết quả sort: <code>[${sorted.join(', ')}]</code>. Tổng so sánh: <b>${totalCmp}</b>.`;
+  }
+  document.getElementById('m2-run').onclick = run;
+  document.getElementById('m2-reset').onclick = function () { svg.innerHTML = ''; cmpEl.textContent = '0'; explain.textContent = 'Đã reset. Bấm Dựng cây.'; };
+  run();
+})();
+
+// ===================== Module 3: Pivot strategy comparison =====================
+(function () {
+  const explain = document.getElementById('m3-explain');
+
+  function makeInput(n, kind) {
+    const a = [];
+    for (let i = 0; i < n; i++) a.push(i + 1);
+    if (kind === 'random') {
+      for (let i = n - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+    }
+    return a;
+  }
+
+  // count comparisons + max recursion depth for a given pivot strategy
+  function quicksortCount(a, strategy) {
+    let cmp = 0, maxDepth = 0;
+    function lomutoP(lo, hi) {
+      const pivot = a[hi]; let i = lo - 1;
+      for (let j = lo; j < hi; j++) { cmp++; if (a[j] <= pivot) { i++; [a[i], a[j]] = [a[j], a[i]]; } }
+      [a[i + 1], a[hi]] = [a[hi], a[i + 1]];
+      return i + 1;
+    }
+    function choosePivot(lo, hi) {
+      if (strategy === 'last') return; // pivot already at hi
+      if (strategy === 'random') {
+        const r = lo + Math.floor(Math.random() * (hi - lo + 1));
+        [a[r], a[hi]] = [a[hi], a[r]];
+      } else { // median-of-three
+        const mid = (lo + hi) >> 1;
+        // sort lo, mid, hi by value, put median at hi
+        const idx = [lo, mid, hi].sort((x, y) => a[x] - a[y]);
+        const medIdx = idx[1];
+        [a[medIdx], a[hi]] = [a[hi], a[medIdx]];
+      }
+    }
+    function rec(lo, hi, depth) {
+      if (lo >= hi) return;
+      maxDepth = Math.max(maxDepth, depth);
+      choosePivot(lo, hi);
+      const p = lomutoP(lo, hi);
+      rec(lo, p - 1, depth + 1);
+      rec(p + 1, hi, depth + 1);
+    }
+    rec(0, a.length - 1, 1);
+    return { cmp, maxDepth };
+  }
+
+  function run() {
+    const n = parseInt(document.getElementById('m3-n').value, 10);
+    const kind = document.getElementById('m3-kind').value;
+    const base = makeInput(n, kind);
+    const rLast = quicksortCount(base.slice(), 'last');
+    const rRand = quicksortCount(base.slice(), 'random');
+    const rMed = quicksortCount(base.slice(), 'median');
+    const maxCmp = Math.max(rLast.cmp, rRand.cmp, rMed.cmp, 1);
+
+    document.getElementById('m3-cmp-last').textContent = rLast.cmp;
+    document.getElementById('m3-cmp-rand').textContent = rRand.cmp;
+    document.getElementById('m3-cmp-med').textContent = rMed.cmp;
+    document.getElementById('m3-depth-last').textContent = rLast.maxDepth;
+    document.getElementById('m3-depth-rand').textContent = rRand.maxDepth;
+    document.getElementById('m3-depth-med').textContent = rMed.maxDepth;
+    document.getElementById('m3-bar-last').style.width = (rLast.cmp / maxCmp * 100) + '%';
+    document.getElementById('m3-bar-rand').style.width = (rRand.cmp / maxCmp * 100) + '%';
+    document.getElementById('m3-bar-med').style.width = (rMed.cmp / maxCmp * 100) + '%';
+
+    const nlogn = Math.round(n * Math.log2(n));
+    const nsq = n * (n - 1) / 2;
+    if (kind === 'sorted') {
+      explain.innerHTML = `n=${n}, input đã sort. <b>pivot=last</b> suy biến: ${rLast.cmp} so sánh ≈ n(n-1)/2 = ${nsq} (<code>O(n²)</code>), depth=${rLast.maxDepth} ≈ n. <b>random/median</b>: ~${rRand.cmp}/${rMed.cmp} so sánh ≈ n·log₂n = ${nlogn} (<code>O(n log n)</code>), depth ~${rMed.maxDepth} ≈ log₂n. Median-of-three biến sorted thành best-case.`;
+    } else {
+      explain.innerHTML = `n=${n}, input ngẫu nhiên. Cả ba xấp xỉ nhau (${rLast.cmp} / ${rRand.cmp} / ${rMed.cmp} so sánh) — pivot=last chỉ tệ với input ĐÃ SORT, không phải input ngẫu nhiên. Đổi sang "đã sort tăng dần" để thấy nó suy biến.`;
+    }
+  }
+  document.getElementById('m3-run').onclick = run;
+  run();
+})();
+</script>
+
+<!-- README modal -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+
+</body>
+</html>

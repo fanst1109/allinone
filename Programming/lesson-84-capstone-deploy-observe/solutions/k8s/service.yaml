@@ -1,0 +1,18 @@
+# service.yaml — ClusterIP: 1 địa chỉ ảo ổn định load-balance qua các pod.
+# Pod có IP thay đổi mỗi lần restart -> Service cho 1 tên DNS cố định
+# (urlshortener.default.svc) + tự cập nhật endpoint theo readinessProbe.
+apiVersion: v1
+kind: Service
+metadata:
+  name: urlshortener
+  labels:
+    app: urlshortener
+spec:
+  type: ClusterIP # chỉ truy cập trong cluster; ra ngoài đi qua Ingress.
+  selector:
+    app: urlshortener # gắn vào mọi pod có label này
+  ports:
+    - name: http
+      port: 80          # cổng của Service
+      targetPort: http  # trỏ tới containerPort tên "http" (8080)
+      protocol: TCP

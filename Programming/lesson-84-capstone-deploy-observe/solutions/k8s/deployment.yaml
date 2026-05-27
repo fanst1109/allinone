@@ -1,0 +1,90 @@
+# deployment.yaml — quản lý replica + rolling update + probes cho URL Shortener.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: urlshortener
+  labels:
+    app: urlshortener
+spec:
+  replicas: 3 # 3 bản sao -> HA: 1 pod chết vẫn còn 2 phục vụ.
+  selector:
+    matchLabels:
+      app: urlshortener
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1        # tạo thêm tối đa 1 pod mới khi update
+      maxUnavailable: 0  # KHÔNG để pod cũ chết trước khi pod mới Ready -> zero downtime
+  template:
+    metadata:
+      labels:
+        app: urlshortener
+      annotations:
+        # Prometheus tự discover scrape endpoint qua annotation.
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      # Chạy non-root (khớp USER trong Dockerfile) — phòng escalation.
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        fsGroup: 65532
+      containers:
+        - name: urlshortener
+          image: ghcr.io/you/urlshortener:latest # CI thay bằng tag commit thật
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+          # Env: ghép từ ConfigMap (non-sensitive) + Secret (sensitive).
+          envFrom:
+            - configMapRef:
+                name: urlshortener-config
+            - secretRef:
+                name: urlshortener-secret
+          # Resource: request = cấp tối thiểu (dùng để scheduling + HPA tính %).
+          #           limit   = trần cứng (vượt CPU -> throttle; vượt mem -> OOMKill).
+          resources:
+            requests:
+              cpu: "100m"      # 0.1 core
+              memory: "64Mi"
+            limits:
+              cpu: "500m"      # 0.5 core
+              memory: "128Mi"
+          # readinessProbe: pod CÓ sẵn sàng nhận traffic chưa? Fail -> gỡ khỏi
+          # Service endpoints (không nhận request) nhưng KHÔNG restart.
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 2
+            periodSeconds: 5
+            failureThreshold: 3
+          # livenessProbe: pod CÓ còn sống không? Fail liên tục -> kubelet restart.
+          # Dùng endpoint nhẹ, KHÔNG check dependency (Redis/DB) trong liveness
+          # -> tránh cascading restart khi dependency down.
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          # startupProbe: cho service khởi động chậm thời gian warmup trước khi
+          # liveness bắt đầu chấm điểm (tránh bị giết khi cold start).
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 2
+            failureThreshold: 15 # tối đa 30s để start
+          # lifecycle.preStop: chờ trước khi gửi SIGTERM, cho ingress/endpoints
+          # kịp gỡ pod khỏi rotation -> phối hợp với graceful shutdown trong code.
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sleep", "5"]
+      # terminationGracePeriod: thời gian app có để drain in-flight + flush queue
+      # sau khi nhận SIGTERM, trước khi bị SIGKILL. Phải >= thời gian drain thực tế.
+      terminationGracePeriodSeconds: 30

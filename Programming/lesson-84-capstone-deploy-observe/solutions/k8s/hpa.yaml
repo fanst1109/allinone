@@ -1,0 +1,47 @@
+# hpa.yaml — Horizontal Pod Autoscaler: tự tăng/giảm replica theo tải.
+# Cần metrics-server cài trong cluster (kind: kubectl apply metrics-server).
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: urlshortener
+  labels:
+    app: urlshortener
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: urlshortener
+  minReplicas: 3   # không bao giờ dưới 3 (giữ HA)
+  maxReplicas: 20  # trần để tránh "scale bão" tốn tiền
+  metrics:
+    # 1) Scale theo CPU: nếu CPU trung bình > 70% request -> thêm pod.
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    # 2) Scale theo QPS (custom metric từ Prometheus Adapter).
+    #    Mục tiêu: mỗi pod ~200 req/s; vượt -> thêm pod.
+    #    Cần prometheus-adapter expose metric http_requests_per_second.
+    - type: Pods
+      pods:
+        metric:
+          name: http_requests_per_second
+        target:
+          type: AverageValue
+          averageValue: "200"
+  # behavior: chống "flapping" (scale lên/xuống liên tục).
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 30  # quan sát 30s trước khi scale lên
+      policies:
+        - type: Percent
+          value: 100   # tối đa gấp đôi mỗi 15s
+          periodSeconds: 15
+    scaleDown:
+      stabilizationWindowSeconds: 300 # chờ 5 phút mới scale xuống (tránh giật)
+      policies:
+        - type: Pods
+          value: 1     # mỗi lần chỉ bớt 1 pod
+          periodSeconds: 60

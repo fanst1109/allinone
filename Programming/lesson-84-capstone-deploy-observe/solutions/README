@@ -1,0 +1,47 @@
+Solutions — Lesson 84: Capstone Deploy & Observe
+=================================================
+
+Đây là deployment artifacts + observability code cho URL Shortener (capstone
+T8). Lấy service đã implement ở L83 và đưa lên production.
+
+NỘI DUNG
+--------
+  Dockerfile          Multi-stage build -> image scratch < 20MB, non-root.
+  observability.go    3 trụ: slog JSON log + Prometheus metrics (mock interface
+                      giống client_golang) + OTel tracer (mock) + middleware
+                      instrument theo RED method. STDLIB ONLY -> `go run` được ngay.
+  go.mod              Module cho observability.go (Go 1.24).
+  Makefile            build / docker / kind-up / deploy / loadtest targets.
+  k8s/
+    configmap.yaml    Config non-sensitive (PORT, LOG_LEVEL, REDIS_ADDR...).
+    secret.yaml       DB creds (TEMPLATE — không commit value thật).
+    deployment.yaml   3 replica, resource limit, 3 loại probe, preStop, grace period.
+    service.yaml      ClusterIP load-balance.
+    ingress.yaml      Route /api + catch-all /{code}, rate limit, TLS.
+    hpa.yaml          Autoscale theo CPU 70% + QPS 200/pod, min 3 max 20.
+  loadtest/
+    loadtest.go       Load tester kiểu hey/vegeta (stdlib). p50/p90/p99 + error rate.
+    script.js         k6 script: ramp 1000 req/s, threshold = SLO (CI gate).
+
+CHẠY NHANH (không cần Docker/K8s)
+---------------------------------
+  go run ./observability.go              # demo log/metric/trace + self-test
+  cd loadtest && go run ./loadtest.go    # load test mô phỏng (-dry tự bật)
+  make help                              # xem mọi target
+
+PIPELINE ĐẦY ĐỦ (cần docker + kind + kubectl)
+---------------------------------------------
+  make docker          # build image, in ra size
+  make kind-up         # tạo kind cluster local
+  make kind-load       # nạp image vào kind (bỏ qua registry)
+  make deploy          # apply toàn bộ manifest + chờ rollout
+  kubectl port-forward svc/urlshortener 8080:80
+  make loadtest BASE=http://localhost:8080
+
+LƯU Ý DEPENDENCY
+----------------
+observability.go MÔ PHỎNG interface Prometheus + OTel bằng struct nhỏ để build
+không cần `go get`. Production đổi sang:
+  github.com/prometheus/client_golang/prometheus
+  go.opentelemetry.io/otel
+Interface giữ giống nhau -> chỉ đổi import. Xem comment trong file.

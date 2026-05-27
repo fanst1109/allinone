@@ -1,0 +1,43 @@
+# ingress.yaml — định tuyến HTTP từ ngoài cluster vào Service.
+# Cần 1 ingress controller (vd ingress-nginx) cài sẵn trong cluster.
+#
+# Route:
+#   /api/...  -> API (shorten, stats)
+#   /        -> redirect (GET /{code}) — bắt mọi path còn lại cho short code.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: urlshortener
+  labels:
+    app: urlshortener
+  annotations:
+    # Rate limit ở tầng ingress (lớp phòng thủ ngoài cùng, trước khi vào app).
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: short.example.com
+      http:
+        paths:
+          # API endpoints: prefix /api -> service (ưu tiên match trước /).
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: urlshortener
+                port:
+                  number: 80
+          # Catch-all: mọi path còn lại (vd /abcd) -> redirect handler.
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: urlshortener
+                port:
+                  number: 80
+  # TLS: cert do cert-manager cấp (production). Demo có thể bỏ qua.
+  tls:
+    - hosts:
+        - short.example.com
+      secretName: urlshortener-tls

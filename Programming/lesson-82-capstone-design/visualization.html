@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L82 — Capstone Design · Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root { --accent: #f97316; --accent-soft: #ffedd5; --accent-hover: #ea580c; }
+  main { max-width: 1080px; margin: 0 auto; padding: 0 16px 60px; }
+  h1 { color: #2d3748; margin-bottom: 4px; }
+  .lead { color: #718096; margin-bottom: 24px; font-size: 15px; }
+
+  section.module {
+    background: #fff; border-radius: 10px; padding: 22px;
+    margin-bottom: 28px; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+  section.module h2 { margin-top: 0; color: var(--accent-hover); font-size: 20px; }
+  .hint { color: #718096; font-size: 14px; margin-bottom: 16px; }
+
+  .btn {
+    border: none; background: var(--accent); color: #fff; cursor: pointer;
+    padding: 9px 15px; border-radius: 7px; font-size: 14px; font-weight: 600;
+    margin: 4px 4px 4px 0;
+  }
+  .btn:hover { background: var(--accent-hover); }
+  .btn.ghost { background: #edf0f5; color: #2d3748; }
+  .btn.ghost.active { background: var(--accent); color: #fff; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* ---- Module 1: architecture ---- */
+  .arch-wrap { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start; }
+  .arch-svg { flex: 1 1 420px; min-width: 0; }
+  .comp { cursor: pointer; transition: opacity .15s, transform .15s; }
+  .comp:hover { opacity: .9; }
+  .comp rect { transition: stroke-width .15s; }
+  .comp.sel rect { stroke: var(--accent-hover); stroke-width: 4; }
+  .comp text { pointer-events: none; font-size: 13px; font-weight: 700; fill: #1a202c; }
+  .arch-info { flex: 1 1 280px; min-width: 0; }
+  .info-card {
+    border-left: 4px solid var(--accent); background: #fff7ed;
+    padding: 14px 16px; border-radius: 6px; min-height: 130px;
+  }
+  .info-card h3 { margin: 0 0 8px; font-size: 16px; color: var(--accent-hover); }
+  .info-card p { margin: 0 0 6px; font-size: 14px; color: #374151; line-height: 1.5; }
+
+  /* ---- Module 2: capacity calculator ---- */
+  .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .calc-controls label { display: block; font-size: 14px; font-weight: 600; margin: 14px 0 4px; color: #374151; }
+  .calc-controls input[type=range] { width: 100%; max-width: 100%; }
+  .calc-val { font-weight: 700; color: var(--accent-hover); }
+  .calc-out { display: flex; flex-direction: column; gap: 10px; }
+  .stat {
+    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .stat .k { font-size: 13px; color: #64748b; }
+  .stat .v { font-size: 22px; font-weight: 800; color: #0f172a; }
+  .stat .sub { font-size: 12px; color: #94a3b8; }
+
+  /* ---- Module 3: read path ---- */
+  .rp-stage { display: flex; flex-wrap: wrap; gap: 14px; align-items: stretch; margin: 14px 0; }
+  .node {
+    flex: 1 1 120px; min-width: 0; border: 2px solid #cbd5e1; border-radius: 10px;
+    padding: 12px; text-align: center; background: #fff; transition: all .25s;
+    font-size: 13px; font-weight: 600; color: #475569;
+  }
+  .node.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-hover); transform: translateY(-3px); box-shadow: 0 4px 12px rgba(249,115,22,.25); }
+  .node.dim { opacity: .35; }
+  .node .icon { font-size: 24px; display: block; margin-bottom: 4px; }
+  .rp-log {
+    font-family: ui-monospace, Menlo, monospace; font-size: 13px;
+    background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 12px 14px;
+    min-height: 96px; white-space: pre-wrap; line-height: 1.55;
+  }
+  .latency { font-weight: 800; }
+  .latency.fast { color: #4ade80; }
+  .latency.slow { color: #fbbf24; }
+
+  @media (max-width: 768px) {
+    .calc-grid { grid-template-columns: 1fr; }
+    .arch-svg, .arch-info { flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../tier-7-production/index.html">← Tier 7</a>
+  <span class="sep">·</span>
+  <span class="current">L82: Capstone Design</span>
+  <span class="sep">·</span>
+  <a href="../lesson-83-capstone-implement/visualization.html">L83: Implement →</a>
+</nav>
+
+<main>
+  <h1>L82 — Capstone: Design URL Shortener</h1>
+  <p class="lead">Ba module tương tác cho design phase: kiến trúc, capacity estimation, read path.</p>
+
+  <!-- ============ MODULE 1 ============ -->
+  <section class="module">
+    <h2>1. Architecture diagram — click vào component để xem vai trò</h2>
+    <p class="hint">Mỗi khối là một thành phần của hệ thống. Bấm để xem nó làm gì và nằm ở đâu trong luồng.</p>
+    <div class="arch-wrap">
+      <svg class="arch-svg" viewBox="0 0 460 360" width="460" height="360" role="img" aria-label="Architecture">
+        <defs>
+          <marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#94a3b8"/>
+          </marker>
+        </defs>
+        <!-- edges -->
+        <g stroke="#cbd5e1" stroke-width="2" fill="none" marker-end="url(#ar)">
+          <line x1="120" y1="48" x2="120" y2="76"/>
+          <line x1="120" y1="110" x2="120" y2="140"/>
+          <line x1="100" y1="210" x2="60"  y2="252"/>
+          <line x1="120" y1="212" x2="120" y2="252"/>
+          <line x1="150" y1="210" x2="200" y2="252"/>
+          <line x1="320" y1="290" x2="320" y2="318" marker-end="url(#ar)"/>
+          <line x1="270" y1="332" x2="80"  y2="290" stroke-dasharray="4 3"/>
+        </g>
+        <!-- nodes -->
+        <g class="comp" data-k="client"><rect x="70" y="14" width="100" height="34" rx="7" fill="#e0e7ff" stroke="#6366f1"/><text x="120" y="36" text-anchor="middle">Client</text></g>
+        <g class="comp" data-k="gateway"><rect x="60" y="78" width="120" height="32" rx="7" fill="#fef3c7" stroke="#d97706"/><text x="120" y="99" text-anchor="middle">API Gateway</text></g>
+        <g class="comp" data-k="service"><rect x="50" y="142" width="140" height="66" rx="8" fill="#ffedd5" stroke="#f97316"/><text x="120" y="170" text-anchor="middle">Service</text><text x="120" y="190" text-anchor="middle" style="font-size:11px;fill:#92400e">clean arch</text></g>
+        <g class="comp" data-k="postgres"><rect x="14" y="254" width="92" height="40" rx="7" fill="#dcfce7" stroke="#16a34a"/><text x="60" y="278" text-anchor="middle">Postgres</text></g>
+        <g class="comp" data-k="redis"><rect x="78" y="254" width="84" height="40" rx="7" fill="#fee2e2" stroke="#dc2626" transform="translate(0,0)"/><text x="120" y="278" text-anchor="middle">Redis</text></g>
+        <g class="comp" data-k="queue"><rect x="190" y="254" width="92" height="40" rx="7" fill="#e0f2fe" stroke="#0284c7"/><text x="236" y="278" text-anchor="middle">Queue</text></g>
+        <g class="comp" data-k="worker"><rect x="252" y="318" width="130" height="34" rx="7" fill="#f3e8ff" stroke="#9333ea"/><text x="317" y="340" text-anchor="middle">Analytics Worker</text></g>
+      </svg>
+      <div class="arch-info">
+        <div class="info-card" id="archInfo">
+          <h3>Bấm vào một component</h3>
+          <p>Chọn Client / Gateway / Service / Postgres / Redis / Queue / Worker để xem vai trò trong hệ thống.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MODULE 2 ============ -->
+  <section class="module">
+    <h2>2. Capacity calculator — kéo slider, xem ước lượng</h2>
+    <p class="hint">Back-of-envelope: số URL & tỉ lệ read:write quyết định storage, cache, QPS.</p>
+    <div class="calc-grid">
+      <div class="calc-controls">
+        <label>Số URL: <span class="calc-val" id="vUrls">100M</span></label>
+        <input type="range" id="sUrls" min="6" max="10" step="0.1" value="8">
+        <label>Tỉ lệ read:write — <span class="calc-val" id="vRatio">10</span> : 1</label>
+        <input type="range" id="sRatio" min="1" max="50" step="1" value="10">
+        <label>QPS đọc đỉnh: <span class="calc-val" id="vQps">10k</span> req/s</label>
+        <input type="range" id="sQps" min="3" max="6" step="0.1" value="4">
+        <label>Cache hit mong muốn: <span class="calc-val" id="vHit">80</span>%</label>
+        <input type="range" id="sHit" min="50" max="99" step="1" value="80">
+      </div>
+      <div class="calc-out">
+        <div class="stat"><div class="k">Storage (urls, ~500 byte/URL)</div><div class="v" id="oStore">50 GB</div></div>
+        <div class="stat"><div class="k">QPS ghi (= đọc / ratio)</div><div class="v" id="oWrite">1.0k req/s</div></div>
+        <div class="stat"><div class="k">Cache size (URL nóng × 100 byte)</div><div class="v" id="oCache">2 GB</div><div class="sub" id="oCacheNote">cache ~20% URL bắt 80% traffic (Pareto)</div></div>
+        <div class="stat"><div class="k">QPS chạm Postgres (sau cache)</div><div class="v" id="oDbQps">2.0k req/s</div><div class="sub" id="oDbNote">= QPS đọc × (1 − hit)</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MODULE 3 ============ -->
+  <section class="module">
+    <h2>3. Read path — cache hit vs miss + async click</h2>
+    <p class="hint">Animate luồng redirect. Hit chỉ chạm Redis (~1ms). Miss đọc Postgres rồi populate. Click luôn emit ASYNC.</p>
+    <div>
+      <button class="btn" id="rpHit">▶ Mô phỏng CACHE HIT</button>
+      <button class="btn ghost" id="rpMiss">▶ Mô phỏng CACHE MISS</button>
+      <button class="btn ghost" id="rpReset">↻ Reset</button>
+    </div>
+    <div class="rp-stage" id="rpStage">
+      <div class="node" data-n="client"><span class="icon">🌐</span>Client<br>GET /{code}</div>
+      <div class="node" data-n="redis"><span class="icon">⚡</span>Redis<br>cache</div>
+      <div class="node" data-n="postgres"><span class="icon">🗄️</span>Postgres<br>urls</div>
+      <div class="node" data-n="queue"><span class="icon">📨</span>Queue<br>click async</div>
+      <div class="node" data-n="resp"><span class="icon">↩️</span>302<br>redirect</div>
+    </div>
+    <div class="rp-log" id="rpLog">Bấm một nút để mô phỏng…</div>
+  </section>
+</main>
+
+<script>
+// ---------- Module 1: architecture ----------
+const ARCH = {
+  client:   {t:"Client", d:["Browser / curl / app gửi HTTP request.","Shorten (POST), redirect (GET /{code}), xem stats."]},
+  gateway:  {t:"API Gateway / Load Balancer", d:["Ingress + TLS + rate limit + rải tải.","Cho phép API service scale ngang (stateless)."]},
+  service:  {t:"URL Shortener Service", d:["Clean architecture: adapter → usecase → domain (L79).","3 usecase: shorten (write), redirect (read), stats.","Stateless → thêm pod là tăng throughput."]},
+  postgres: {t:"Postgres", d:["Lưu urls (unique index code) + clicks + click_daily.","Nguồn sự thật (durable). Hot path đọc qua index code.","~50GB cho 100M URL — nhỏ, không phải bottleneck."]},
+  redis:    {t:"Redis", d:["Cache code→url cho read path (cache-aside).","Bắt ~80% traffic (Pareto) → redirect ~1ms.","Cũng dùng cho rate limit (INCR + EXPIRE)."]},
+  queue:    {t:"Queue (NATS/Kafka)", d:["Nhận ClickEvent từ redirect (publish async).","Decouple redirect ↔ analytics; buffer spike.","Redirect KHÔNG đợi ghi click → giữ p99 < 50ms."]},
+  worker:   {t:"Analytics Worker", d:["Consume ClickEvent từ queue.","Enrich (GeoIP, parse referrer) → UPSERT click_daily.","Aggregate sẵn → endpoint stats đọc nhanh."]},
+};
+const archInfo = document.getElementById('archInfo');
+document.querySelectorAll('.comp').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.comp').forEach(c => c.classList.remove('sel'));
+    el.classList.add('sel');
+    const k = el.dataset.k, info = ARCH[k];
+    archInfo.innerHTML = '<h3>' + info.t + '</h3>' + info.d.map(p => '<p>'+p+'</p>').join('');
+  });
+});
+
+// ---------- Module 2: capacity calculator ----------
+const sUrls=document.getElementById('sUrls'), sRatio=document.getElementById('sRatio'),
+      sQps=document.getElementById('sQps'), sHit=document.getElementById('sHit');
+function fmtCount(n){ // n is number
+  if(n>=1e9) return (n/1e9).toFixed(n>=1e10?0:1)+'B';
+  if(n>=1e6) return (n/1e6).toFixed(n>=1e8?0:1)+'M';
+  if(n>=1e3) return (n/1e3).toFixed(0)+'k';
+  return ''+Math.round(n);
+}
+function fmtBytes(b){
+  if(b>=1e12) return (b/1e12).toFixed(1)+' TB';
+  if(b>=1e9)  return (b/1e9).toFixed(b>=1e10?0:1)+' GB';
+  if(b>=1e6)  return (b/1e6).toFixed(0)+' MB';
+  return b+' B';
+}
+function calc(){
+  const urls = Math.pow(10, parseFloat(sUrls.value));
+  const ratio = parseInt(sRatio.value,10);
+  const qps = Math.pow(10, parseFloat(sQps.value));
+  const hit = parseInt(sHit.value,10);
+  document.getElementById('vUrls').textContent = fmtCount(urls);
+  document.getElementById('vRatio').textContent = ratio;
+  document.getElementById('vQps').textContent = fmtCount(qps);
+  document.getElementById('vHit').textContent = hit;
+
+  // storage: 500 byte/URL
+  document.getElementById('oStore').textContent = fmtBytes(urls*500);
+  // write qps
+  document.getElementById('oWrite').textContent = fmtCount(qps/ratio)+' req/s';
+  // hot fraction heuristic: 80% hit -> ~20% hot; scale roughly with hit
+  // approx pareto: hotFrac so that cache holds enough; use hotFrac = (100-hit*0.8)/100 floor 0.05? keep simple mapping:
+  const hotFrac = Math.min(0.6, Math.max(0.05, (hit/100) * 0.30 + (hit>=90?0.05:0)));
+  const cacheBytes = urls*hotFrac*100;
+  document.getElementById('oCache').textContent = fmtBytes(cacheBytes);
+  document.getElementById('oCacheNote').textContent =
+    'cache ~'+Math.round(hotFrac*100)+'% URL nóng để bắt '+hit+'% traffic';
+  // db qps after cache
+  const dbQps = qps*(1-hit/100);
+  document.getElementById('oDbQps').textContent = fmtCount(dbQps)+' req/s';
+}
+[sUrls,sRatio,sQps,sHit].forEach(s => s.addEventListener('input', calc));
+calc();
+
+// ---------- Module 3: read path ----------
+const nodes = {};
+document.querySelectorAll('#rpStage .node').forEach(n => nodes[n.dataset.n]=n);
+const rpLog = document.getElementById('rpLog');
+const rpBtns = [document.getElementById('rpHit'), document.getElementById('rpMiss'), document.getElementById('rpReset')];
+let running = false;
+
+function resetRP(){
+  Object.values(nodes).forEach(n => n.classList.remove('active','dim'));
+  rpLog.innerHTML = 'Bấm một nút để mô phỏng…';
+}
+function setBtns(dis){ rpBtns.forEach(b=>b.disabled=dis); }
+function step(node, msg, delay){
+  return new Promise(res => setTimeout(()=>{
+    Object.values(nodes).forEach(n=>n.classList.remove('active'));
+    if(node) nodes[node].classList.add('active');
+    rpLog.innerHTML += msg + '\n';
+    rpLog.scrollTop = rpLog.scrollHeight;
+    res();
+  }, delay));
+}
+async function runHit(){
+  if(running) return; running=true; setBtns(true);
+  resetRP(); nodes.postgres.classList.add('dim');
+  rpLog.innerHTML='';
+  await step('client', '→ GET /{code} đến', 200);
+  await step('redis',  '→ Redis.GET(code) → HIT ⚡ (url có sẵn)', 500);
+  await step('queue',  '→ publish ClickEvent (async, ~0.1ms, không đợi)', 500);
+  await step('resp',   '→ 302 Location: url gốc', 500);
+  await step(null, 'Tổng latency: <span class="latency fast">~1 ms</span> — chỉ chạm Redis. Postgres KHÔNG bị đụng.', 400);
+  running=false; setBtns(false);
+}
+async function runMiss(){
+  if(running) return; running=true; setBtns(true);
+  resetRP(); rpLog.innerHTML='';
+  await step('client', '→ GET /{code} đến', 200);
+  await step('redis',  '→ Redis.GET(code) → MISS', 500);
+  await step('postgres','→ Postgres SELECT WHERE code=? (index lookup ~5-10ms)', 600);
+  await step('redis',  '→ Redis.SET(code,url, TTL=24h) → populate cho lần sau', 500);
+  await step('queue',  '→ publish ClickEvent (async, không đợi)', 500);
+  await step('resp',   '→ 302 Location: url gốc', 500);
+  await step(null, 'Tổng latency: <span class="latency slow">~5–10 ms</span> — lần sau cùng code sẽ HIT.', 400);
+  running=false; setBtns(false);
+}
+document.getElementById('rpHit').addEventListener('click', runHit);
+document.getElementById('rpMiss').addEventListener('click', runMiss);
+document.getElementById('rpReset').addEventListener('click', ()=>{ if(!running) resetRP(); });
+resetRP();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

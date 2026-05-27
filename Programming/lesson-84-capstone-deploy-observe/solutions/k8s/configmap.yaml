@@ -1,0 +1,27 @@
+# configmap.yaml — config KHÔNG nhạy cảm (12-factor: config tách khỏi code).
+# Inject vào Pod qua env. Đổi config -> rollout lại Pod (không build lại image).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: urlshortener-config
+  labels:
+    app: urlshortener
+data:
+  # Cổng service lắng nghe.
+  PORT: "8080"
+  # Log level (debug/info/warn/error) — chỉnh runtime không cần rebuild.
+  LOG_LEVEL: "info"
+  # Redis host (cache layer). Trong cluster trỏ tới Service redis.
+  REDIS_ADDR: "redis:6379"
+  # Cache TTL cho short link (giây).
+  CACHE_TTL_SECONDS: "3600"
+  # Kích thước async click queue (buffer trước khi drop).
+  CLICK_QUEUE_SIZE: "4096"
+  # Số worker tiêu thụ click queue.
+  CLICK_WORKERS: "4"
+  # Endpoint OTel collector để gửi trace.
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4318"
+  # Postgres host (KHÔNG để password ở đây — password nằm trong Secret).
+  DB_HOST: "postgres"
+  DB_PORT: "5432"
+  DB_NAME: "urlshortener"

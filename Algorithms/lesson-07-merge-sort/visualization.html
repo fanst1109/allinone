@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<title>Lesson 07 — Merge Sort trực quan</title>
+<style>
+  main { max-width: 920px; margin: 0 auto; padding: 0 14px 60px; }
+  .panel { background: #fff; border-radius: 10px; padding: 16px 18px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 20px; }
+  h1 { margin: 6px 0 4px; font-size: 1.6rem; }
+  h2 { margin: 4px 0 10px; font-size: 1.2rem; color: #1e293b; }
+  .lead { color: #475569; margin: 0 0 18px; }
+  svg { background: #fafafa; border: 1px solid #eee; border-radius: 8px; display: block; width: 100%; height: auto; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
+  button { background: #10b981; color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; }
+  button:disabled { background: #cbd5e1; cursor: default; }
+  button.secondary { background: #64748b; }
+  button.blue { background: #3b82f6; }
+  input[type=text] { padding: 7px 9px; border: 1px solid #cbd5e1; border-radius: 6px; width: 100%; max-width: 260px; box-sizing: border-box; font-size: 14px; }
+  .log { font-family: ui-monospace, Menlo, monospace; font-size: 13px; color: #334155; min-height: 22px; margin-top: 8px; background: #f1f5f9; padding: 8px 10px; border-radius: 6px; }
+  .note { font-size: 13px; color: #64748b; margin-top: 6px; }
+  /* module 1: tree nodes */
+  .mnode { fill: #fff; stroke: #94a3b8; stroke-width: 1.5; transition: all .35s; }
+  .mnode.active { fill: #d1fae5; stroke: #10b981; stroke-width: 2.5; }
+  .mnode.mergeL { fill: #dbeafe; stroke: #3b82f6; }
+  .mnode.mergeR { fill: #fde68a; stroke: #d97706; }
+  .mnode.done { fill: #dcfce7; stroke: #16a34a; }
+  .mtext { font: 600 12px sans-serif; text-anchor: middle; dominant-baseline: central; fill: #0f172a; }
+  .medge { stroke: #cbd5e1; stroke-width: 1.5; }
+  /* module 2: two arrays cells */
+  .arrlabel { font: 600 13px sans-serif; fill: #475569; }
+  .acell { fill: #fff; stroke: #64748b; stroke-width: 1.5; transition: all .3s; }
+  .acell.ptr { fill: #fef9c3; stroke: #ca8a04; stroke-width: 2.5; }
+  .acell.taken { fill: #e2e8f0; stroke: #cbd5e1; opacity: .55; }
+  .acell.out { fill: #d1fae5; stroke: #10b981; }
+  .acell.win { fill: #bbf7d0; stroke: #16a34a; stroke-width: 2.5; }
+  .atext { font: 600 14px sans-serif; text-anchor: middle; dominant-baseline: central; fill: #0f172a; }
+  /* module 3: recursion depth */
+  .lvl { fill: #ede9fe; stroke: #8b5cf6; stroke-width: 1.2; }
+  .lvltext { font: 600 11px sans-serif; text-anchor: middle; dominant-baseline: central; fill: #5b21b6; }
+  .lvllabel { font: 600 12px sans-serif; fill: #6d28d9; }
+  .formula { font-family: ui-monospace, Menlo, monospace; font-size: 13px; background: #f5f3ff; color: #5b21b6; padding: 8px 10px; border-radius: 6px; margin-top: 10px; }
+  @media (max-width: 480px) {
+    h1 { font-size: 1.3rem; }
+    button { padding: 7px 11px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-elementary-sorts/visualization.html">← L6: Elementary Sorts</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Merge Sort</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-quicksort/visualization.html">L8: Quicksort →</a>
+</nav>
+
+<main>
+  <h1>Merge Sort — chia để trị, ổn định, O(n log n)</h1>
+  <p class="lead">Ba module tương tác: cây chia &amp; merge, trộn hai mảng bằng two-pointer, và độ sâu đệ quy = log n.</p>
+
+  <!-- ============ MODULE 1: Merge Sort Tree ============ -->
+  <section class="panel">
+    <h2>1 · Merge Sort Tree — chia (xuống) rồi merge (lên)</h2>
+    <p class="note">Bấm <strong>Bước</strong> để xem từng thao tác: pha chia tạo cây từ trên xuống, pha merge tô màu hai nửa (xanh = trái, vàng = phải) rồi trộn lên.</p>
+    <div class="controls">
+      <input type="text" id="m1-input" value="5,2,4,1,3" placeholder="nhập số, phân tách dấu phẩy">
+      <button class="blue" id="m1-build">Dựng cây</button>
+      <button id="m1-step">Bước ▶</button>
+      <button class="secondary" id="m1-auto">Tự chạy</button>
+    </div>
+    <svg id="m1-svg" viewBox="0 0 880 420" width="880" height="420" role="img" aria-label="cây merge sort"></svg>
+    <div class="log" id="m1-log">Nhập mảng rồi bấm "Dựng cây".</div>
+  </section>
+
+  <!-- ============ MODULE 2: Merge 2 Arrays ============ -->
+  <section class="panel">
+    <h2>2 · Merge hai mảng đã sort — two-pointer</h2>
+    <p class="note">Hai con trỏ (viền vàng) trỏ đầu mỗi mảng. Mỗi bước so sánh, lấy phần tử nhỏ hơn (viền xanh đậm) vào kết quả. <code>&le;</code> ưu tiên trái → giữ stability.</p>
+    <div class="controls">
+      <input type="text" id="m2-left" value="1,4,7" placeholder="mảng trái (đã sort)">
+      <input type="text" id="m2-right" value="2,3,8" placeholder="mảng phải (đã sort)">
+      <button class="blue" id="m2-reset">Nạp</button>
+      <button id="m2-step">Bước ▶</button>
+      <button class="secondary" id="m2-auto">Tự chạy</button>
+    </div>
+    <svg id="m2-svg" viewBox="0 0 880 280" width="880" height="280" role="img" aria-label="merge hai mảng"></svg>
+    <div class="log" id="m2-log">Nạp hai mảng đã sort rồi bấm "Bước".</div>
+  </section>
+
+  <!-- ============ MODULE 3: Recursion Depth ============ -->
+  <section class="panel">
+    <h2>3 · Độ sâu đệ quy — số tầng = log n, công mỗi tầng = n</h2>
+    <p class="note">Mỗi tầng chia đôi kích thước. Tổng kích thước các mảnh trên một tầng luôn = n → công mỗi tầng O(n). Số tầng = ⌈log₂ n⌉ → tổng O(n log n).</p>
+    <div class="controls">
+      <label style="font-size:14px;color:#475569">n =
+        <select id="m3-n" style="padding:6px;border-radius:6px;border:1px solid #cbd5e1">
+          <option>4</option><option selected>8</option><option>16</option><option>32</option>
+        </select>
+      </label>
+      <button class="blue" id="m3-draw">Vẽ</button>
+    </div>
+    <svg id="m3-svg" viewBox="0 0 880 340" width="880" height="340" role="img" aria-label="độ sâu đệ quy"></svg>
+    <div class="formula" id="m3-formula"></div>
+  </section>
+</main>
+
+<script>
+/* ============================================================
+   MODULE 1 — Merge Sort Tree
+   Sinh trước toàn bộ "kịch bản" (chia + merge) thành mảng steps,
+   rồi animate từng bước. Mỗi node có {arr, x, y, w, id}.
+   ============================================================ */
+(function () {
+  const svg = document.getElementById('m1-svg');
+  const log = document.getElementById('m1-log');
+  const W = 880;
+  let nodes = [], edges = [], steps = [], si = 0, timer = null;
+
+  function parse(s) {
+    return s.split(',').map(x => parseInt(x.trim(), 10)).filter(x => !Number.isNaN(x)).slice(0, 8);
+  }
+
+  // dựng cây: gán toạ độ theo (depth, vị trí trong tầng)
+  function build(arr) {
+    nodes = []; edges = []; steps = []; si = 0;
+    let id = 0;
+    const maxDepth = Math.ceil(Math.log2(Math.max(arr.length, 1))) || 0;
+    const levelH = 360 / (maxDepth + 1);
+
+    // recursion để tạo node + step chia, lưu thứ tự merge sau
+    function rec(a, depth, x0, x1, parentId) {
+      const cx = (x0 + x1) / 2;
+      const cy = 30 + depth * levelH;
+      const node = { id: id++, arr: a.slice(), x: cx, y: cy, sorted: a.slice(), state: 'split' };
+      nodes.push(node);
+      if (parentId !== null) edges.push({ from: parentId, to: node.id });
+      steps.push({ type: 'split', node: node.id });
+      if (a.length <= 1) {
+        steps.push({ type: 'leaf', node: node.id });
+        return { node, sorted: a.slice() };
+      }
+      const mid = Math.floor(a.length / 2);
+      const L = rec(a.slice(0, mid), depth + 1, x0, cx, node.id);
+      const R = rec(a.slice(mid), depth + 1, cx, x1, node.id);
+      // merge L.sorted và R.sorted (ưu tiên trái khi bằng)
+      const merged = [];
+      let i = 0, j = 0;
+      while (i < L.sorted.length && j < R.sorted.length) {
+        if (L.sorted[i] <= R.sorted[j]) merged.push(L.sorted[i++]);
+        else merged.push(R.sorted[j++]);
+      }
+      while (i < L.sorted.length) merged.push(L.sorted[i++]);
+      while (j < R.sorted.length) merged.push(R.sorted[j++]);
+      steps.push({ type: 'merge', node: node.id, left: L.node.id, right: R.node.id, result: merged.slice() });
+      node.sorted = merged.slice();
+      return { node, sorted: merged };
+    }
+    rec(arr, 0, 20, W - 20, null);
+    render();
+    log.textContent = `Đã dựng cây cho [${arr.join(',')}]. ${steps.length} bước. Bấm "Bước ▶".`;
+  }
+
+  function render() {
+    let h = '';
+    edges.forEach(e => {
+      const a = nodes[e.from], b = nodes[e.to];
+      h += `<line class="medge" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/>`;
+    });
+    nodes.forEach(n => {
+      const label = n.state === 'merge-result' || n.state === 'done' ? n.sorted.join(',') : n.arr.join(',');
+      const w = Math.max(34, label.length * 9 + 14);
+      let cls = 'mnode';
+      if (n.state === 'active') cls += ' active';
+      else if (n.state === 'mergeL') cls += ' mergeL';
+      else if (n.state === 'mergeR') cls += ' mergeR';
+      else if (n.state === 'done' || n.state === 'merge-result') cls += ' done';
+      h += `<rect class="${cls}" x="${n.x - w / 2}" y="${n.y - 13}" width="${w}" height="26" rx="6"/>`;
+      h += `<text class="mtext" x="${n.x}" y="${n.y}">${label}</text>`;
+    });
+    svg.innerHTML = h;
+  }
+
+  function step() {
+    if (si >= steps.length) { log.textContent = 'Xong! Cây đã sort hoàn toàn (xanh lá = đã merge).'; stopAuto(); return; }
+    nodes.forEach(n => { if (n.state === 'active' || n.state === 'mergeL' || n.state === 'mergeR') n.state = (n.sorted && n.state !== 'split') ? n.state : 'split'; });
+    // reset transient highlights
+    nodes.forEach(n => { if (n.state === 'active') n.state = n._wasDone ? 'done' : 'split'; if (n.state === 'mergeL' || n.state === 'mergeR') n.state = 'done'; });
+    const s = steps[si++];
+    if (s.type === 'split') {
+      nodes[s.node].state = 'active';
+      log.textContent = `CHIA: tách [${nodes[s.node].arr.join(',')}]`;
+    } else if (s.type === 'leaf') {
+      nodes[s.node].state = 'done'; nodes[s.node]._wasDone = true;
+      log.textContent = `Lá: [${nodes[s.node].arr.join(',')}] đã sort sẵn (size ≤ 1).`;
+    } else if (s.type === 'merge') {
+      nodes[s.left].state = 'mergeL';
+      nodes[s.right].state = 'mergeR';
+      nodes[s.node].state = 'merge-result';
+      nodes[s.node].sorted = s.result;
+      nodes[s.node]._wasDone = true;
+      log.textContent = `MERGE: trộn trái [${nodes[s.left].sorted.join(',')}] + phải [${nodes[s.right].sorted.join(',')}] → [${s.result.join(',')}]`;
+    }
+    render();
+  }
+
+  function stopAuto() { if (timer) { clearInterval(timer); timer = null; document.getElementById('m1-auto').textContent = 'Tự chạy'; } }
+
+  document.getElementById('m1-build').onclick = () => { stopAuto(); build(parse(document.getElementById('m1-input').value)); };
+  document.getElementById('m1-step').onclick = () => { stopAuto(); step(); };
+  document.getElementById('m1-auto').onclick = () => {
+    if (timer) { stopAuto(); return; }
+    document.getElementById('m1-auto').textContent = 'Dừng';
+    timer = setInterval(step, 900);
+  };
+  build(parse('5,2,4,1,3'));
+})();
+
+/* ============================================================
+   MODULE 2 — Merge two sorted arrays (two-pointer)
+   ============================================================ */
+(function () {
+  const svg = document.getElementById('m2-svg');
+  const log = document.getElementById('m2-log');
+  let L = [], R = [], i = 0, j = 0, out = [], phase = 'cmp', timer = null;
+
+  function parse(s) { return s.split(',').map(x => parseInt(x.trim(), 10)).filter(x => !Number.isNaN(x)).slice(0, 8); }
+
+  function reset() {
+    L = parse(document.getElementById('m2-left').value);
+    R = parse(document.getElementById('m2-right').value);
+    i = 0; j = 0; out = []; phase = 'cmp';
+    render(-1, -1, -1);
+    log.textContent = `Nạp L=[${L.join(',')}], R=[${R.join(',')}]. Bấm "Bước".`;
+  }
+
+  function cell(x, y, val, cls) {
+    return `<rect class="acell ${cls}" x="${x}" y="${y}" width="46" height="46" rx="6"/><text class="atext" x="${x + 23}" y="${y + 23}">${val}</text>`;
+  }
+
+  function render(takeL, takeR, winSide) {
+    let h = '';
+    const startX = 70, cw = 50, yL = 30, yR = 110, yO = 210;
+    h += `<text class="arrlabel" x="10" y="${yL + 23}">L</text>`;
+    L.forEach((v, k) => {
+      let cls = '';
+      if (k < i) cls = 'taken';
+      else if (k === i) cls = winSide === 'L' ? 'win' : 'ptr';
+      h += cell(startX + k * cw, yL, v, cls);
+    });
+    h += `<text class="arrlabel" x="10" y="${yR + 23}">R</text>`;
+    R.forEach((v, k) => {
+      let cls = '';
+      if (k < j) cls = 'taken';
+      else if (k === j) cls = winSide === 'R' ? 'win' : 'ptr';
+      h += cell(startX + k * cw, yR, v, cls);
+    });
+    h += `<text class="arrlabel" x="10" y="${yO + 23}">out</text>`;
+    out.forEach((v, k) => { h += cell(startX + k * cw, yO, v, 'out'); });
+    svg.innerHTML = h;
+  }
+
+  function step() {
+    if (i >= L.length && j >= R.length) { log.textContent = `Xong! Kết quả = [${out.join(',')}] (${out.length} phần tử).`; stop(); return; }
+    if (i < L.length && j < R.length) {
+      if (L[i] <= R[j]) { out.push(L[i]); render(-1, -1, 'L'); log.textContent = `So ${L[i]} ≤ ${R[j]} → lấy TRÁI ${L[i]} (ưu tiên trái khi bằng → stable).`; i++; }
+      else { out.push(R[j]); render(-1, -1, 'R'); log.textContent = `So ${L[i]} > ${R[j]} → lấy PHẢI ${R[j]}.`; j++; }
+    } else if (i < L.length) { out.push(L[i]); log.textContent = `R đã hết → đổ nốt TRÁI ${L[i]}.`; i++; render(-1, -1, 'L'); }
+    else { out.push(R[j]); log.textContent = `L đã hết → đổ nốt PHẢI ${R[j]}.`; j++; render(-1, -1, 'R'); }
+  }
+
+  function stop() { if (timer) { clearInterval(timer); timer = null; document.getElementById('m2-auto').textContent = 'Tự chạy'; } }
+
+  document.getElementById('m2-reset').onclick = () => { stop(); reset(); };
+  document.getElementById('m2-step').onclick = () => { stop(); step(); };
+  document.getElementById('m2-auto').onclick = () => {
+    if (timer) { stop(); return; }
+    document.getElementById('m2-auto').textContent = 'Dừng';
+    timer = setInterval(step, 850);
+  };
+  reset();
+})();
+
+/* ============================================================
+   MODULE 3 — Recursion depth: levels = log n, work/level = n
+   ============================================================ */
+(function () {
+  const svg = document.getElementById('m3-svg');
+  const formula = document.getElementById('m3-formula');
+  const W = 880;
+
+  function draw(n) {
+    const levels = Math.round(Math.log2(n)) + 1; // tầng 0..log n
+    const levelH = 300 / levels;
+    let h = '';
+    for (let d = 0; d < levels; d++) {
+      const pieces = Math.pow(2, d);
+      const size = n / pieces; // kích thước mỗi mảnh
+      const totalGap = 8;
+      const usable = W - 40 - totalGap * pieces;
+      const pieceW = usable / pieces;
+      const y = 20 + d * levelH;
+      h += `<text class="lvllabel" x="10" y="${y + levelH / 2 - 6}">T${d}</text>`;
+      for (let p = 0; p < pieces; p++) {
+        const x = 40 + p * (pieceW + totalGap);
+        h += `<rect class="lvl" x="${x}" y="${y}" width="${pieceW.toFixed(1)}" height="${(levelH - 14).toFixed(1)}" rx="4"/>`;
+        if (pieceW > 28) h += `<text class="lvltext" x="${x + pieceW / 2}" y="${y + (levelH - 14) / 2}">${size}</text>`;
+      }
+      // work label phải
+      h += `<text class="lvltext" x="${W - 6}" y="${y + (levelH - 14) / 2}" style="text-anchor:end;fill:#16a34a">= ${pieces}×${size} = ${n}</text>`;
+    }
+    svg.innerHTML = h;
+    const lg = Math.round(Math.log2(n));
+    formula.innerHTML = `T(n) = 2·T(n/2) + O(n) &nbsp;→&nbsp; số tầng = log₂(${n}) + 1 = <b>${lg + 1}</b>, công mỗi tầng = <b>${n}</b> &nbsp;→&nbsp; tổng = ${n} × ${lg} = <b>${n * lg}</b> = Θ(n log n)`;
+  }
+
+  document.getElementById('m3-draw').onclick = () => draw(parseInt(document.getElementById('m3-n').value, 10));
+  draw(8);
+})();
+</script>
+
+<!-- README modal -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

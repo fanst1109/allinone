@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L6: Elementary Sorts — Bubble / Selection / Insertion</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root { --bg: #fafaf7; --accent: #10b981; --accent-soft: #d1fae5; --accent-hover: #059669; }
+
+  h1.page-title { font-size: 26px; margin: 8px 0 4px; }
+  .lead { color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .module {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px 22px;
+    margin-bottom: 26px;
+    border-left: 5px solid var(--accent);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 20px; }
+  .module .sub { color: var(--muted); font-size: 13.5px; margin: 0 0 16px; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
+  .controls label { font-size: 13px; color: var(--ink-soft); font-weight: 600; }
+  select, input[type="text"] {
+    font-size: 14px; padding: 7px 10px; border: 1px solid var(--line-strong);
+    border-radius: 8px; background: #fff; color: var(--ink);
+    width: 100%; max-width: 240px; box-sizing: border-box;
+  }
+  button {
+    font-size: 13px; font-weight: 600; padding: 8px 14px; border: 0; border-radius: 8px;
+    background: var(--accent); color: #fff; cursor: pointer; transition: background .12s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost { background: #eef2f0; color: var(--ink-soft); }
+  button.ghost:hover { background: var(--accent-soft); color: var(--accent-hover); }
+  button:disabled { opacity: .45; cursor: default; }
+
+  .chart-wrap { width: 100%; overflow-x: auto; }
+  svg { display: block; margin: 4px auto; max-width: 100%; height: auto; }
+
+  .bar { transition: fill .15s, y .25s, height .25s, x .25s; }
+  .bar-label { font-size: 12px; fill: #334155; font-weight: 600; }
+
+  .stats { display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 12px 0 4px; font-size: 14px; }
+  .stat b { color: var(--accent-hover); font-size: 17px; }
+  .stat .k { color: var(--muted); font-size: 12px; display: block; }
+
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--ink-soft); margin: 6px 0 2px; }
+  .legend i { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: -2px; margin-right: 5px; }
+
+  .status-line {
+    font-size: 13.5px; background: var(--accent-soft); color: var(--accent-hover);
+    padding: 9px 13px; border-radius: 8px; margin-top: 10px; min-height: 19px;
+    font-weight: 500;
+  }
+
+  table.cmp { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 13.5px; }
+  table.cmp th, table.cmp td { border: 1px solid var(--line); padding: 7px 10px; text-align: center; }
+  table.cmp th { background: #f1f5f4; }
+  table.cmp td.algo { text-align: left; font-weight: 600; }
+
+  .pair-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+  .chip {
+    display: inline-flex; flex-direction: column; align-items: center;
+    min-width: 52px; padding: 8px 6px; border-radius: 9px; border: 2px solid var(--line-strong);
+    background: #fff; font-size: 13px;
+  }
+  .chip .key { font-weight: 800; font-size: 16px; }
+  .chip .tag { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .chip.kept { border-color: #10b981; background: #ecfdf5; }
+  .chip.broken { border-color: #ef4444; background: #fef2f2; }
+  .verdict { font-size: 14px; font-weight: 700; margin-top: 6px; }
+  .verdict.ok { color: #059669; }
+  .verdict.bad { color: #dc2626; }
+
+  .hint { font-size: 12.5px; color: var(--muted); margin-top: 8px; }
+
+  @media (max-width: 480px) {
+    h1.page-title { font-size: 22px; }
+    .module { padding: 16px 14px; }
+    button { padding: 8px 11px; }
+    select, input[type="text"] { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../tier-0-foundations/index.html">← Tier 0</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Elementary Sorts</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-merge-sort/visualization.html">L7: Merge Sort →</a>
+</nav>
+
+<main>
+  <h1 class="page-title">Elementary Sorts — minh họa tương tác</h1>
+  <p class="lead">Bubble · Selection · Insertion — ba thuật toán <code>O(n²)</code> kinh điển. Xem từng phép so sánh và swap, so sánh số phép toán, và kiểm chứng tính ổn định (stability).</p>
+
+  <!-- ===================== MODULE 1: SORT ANIMATOR ===================== -->
+  <section class="module">
+    <h2>1. Sort animator</h2>
+    <p class="sub">Chọn thuật toán, bấm <b>Step</b> để đi từng bước hoặc <b>Play</b> để chạy tự động. <span style="color:#d97706;font-weight:600">Vàng</span> = đang so sánh, <span style="color:#dc2626;font-weight:600">đỏ</span> = đang swap, <span style="color:#10b981;font-weight:600">xanh</span> = đã đúng vị trí.</p>
+
+    <div class="controls">
+      <label for="m1-algo">Thuật toán:</label>
+      <select id="m1-algo">
+        <option value="bubble">Bubble sort (early-exit)</option>
+        <option value="selection">Selection sort</option>
+        <option value="insertion" selected>Insertion sort</option>
+      </select>
+    </div>
+    <div class="controls">
+      <label for="m1-arr">Mảng (cách nhau dấu phẩy):</label>
+      <input id="m1-arr" type="text" value="5,2,4,1,3">
+      <button class="ghost" id="m1-apply">Áp dụng</button>
+      <button class="ghost" id="m1-rand">Ngẫu nhiên</button>
+    </div>
+
+    <div class="legend">
+      <span><i style="background:#94a3b8"></i>chưa xét</span>
+      <span><i style="background:#fbbf24"></i>đang so sánh</span>
+      <span><i style="background:#ef4444"></i>đang swap / dịch</span>
+      <span><i style="background:#10b981"></i>đã đúng vị trí</span>
+    </div>
+
+    <div class="chart-wrap">
+      <svg id="m1-svg" width="600" height="260" viewBox="0 0 600 260" role="img" aria-label="Bar chart mảng đang sắp xếp"></svg>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><span class="k">So sánh</span><b id="m1-cmp">0</b></div>
+      <div class="stat"><span class="k">Swap / Shift</span><b id="m1-swap">0</b></div>
+      <div class="stat"><span class="k">Bước</span><b id="m1-step">0</b></div>
+    </div>
+
+    <div class="controls" style="margin-top:6px">
+      <button id="m1-step-btn">▶ Step</button>
+      <button id="m1-play">⏯ Play</button>
+      <button class="ghost" id="m1-reset">↺ Reset</button>
+    </div>
+    <div class="status-line" id="m1-status">Sẵn sàng. Bấm Step hoặc Play.</div>
+  </section>
+
+  <!-- ===================== MODULE 2: SO SÁNH 3 THUẬT TOÁN ===================== -->
+  <section class="module">
+    <h2>2. So sánh 3 thuật toán</h2>
+    <p class="sub">Chạy <b>cùng một mảng</b> qua cả ba thuật toán, đếm số phép so sánh + swap/shift và vẽ bar chart. Thử mảng đã-sorted vs ngẫu nhiên để thấy khác biệt.</p>
+
+    <div class="controls">
+      <label for="m2-arr">Mảng:</label>
+      <input id="m2-arr" type="text" value="5,2,4,1,3">
+      <button id="m2-run">So sánh</button>
+      <button class="ghost" id="m2-sorted">Mảng đã sorted</button>
+      <button class="ghost" id="m2-rev">Sorted ngược</button>
+    </div>
+
+    <div class="chart-wrap">
+      <svg id="m2-svg" width="600" height="300" viewBox="0 0 600 300" role="img" aria-label="Bar chart số phép toán mỗi thuật toán"></svg>
+    </div>
+
+    <table class="cmp" id="m2-table">
+      <thead><tr><th>Thuật toán</th><th>So sánh</th><th>Swap / Shift</th><th>Tổng phép</th><th>Ổn định?</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <p class="hint">Cùng <code>O(n²)</code> nhưng số phép thực tế khác rõ theo loại đầu vào: trên mảng đã sorted, bubble & insertion về <code>O(n)</code>, selection vẫn <code>O(n²)</code> so sánh.</p>
+  </section>
+
+  <!-- ===================== MODULE 3: STABILITY DEMO ===================== -->
+  <section class="module">
+    <h2>3. Stability demo</h2>
+    <p class="sub">Mảng gồm các cặp <b>(khóa, nhãn)</b> với khóa trùng nhau. Sort theo <b>khóa</b> — kiểm tra thứ tự tương đối của các nhãn cùng khóa có được giữ không.</p>
+
+    <div class="controls">
+      <label for="m3-algo">Thuật toán:</label>
+      <select id="m3-algo">
+        <option value="bubble">Bubble sort</option>
+        <option value="selection" selected>Selection sort</option>
+        <option value="insertion">Insertion sort</option>
+      </select>
+      <button id="m3-run">Sort theo khóa</button>
+      <button class="ghost" id="m3-reset">↺ Reset</button>
+    </div>
+
+    <div style="font-size:13px;color:var(--muted);margin-bottom:4px">Đầu vào (nhãn a→f giữ thứ tự gốc trong mỗi khóa trùng):</div>
+    <div class="pair-row" id="m3-input"></div>
+    <div style="font-size:13px;color:var(--muted);margin:8px 0 4px">Kết quả sau khi sort theo khóa:</div>
+    <div class="pair-row" id="m3-output"></div>
+    <div class="verdict" id="m3-verdict"></div>
+    <p class="hint">Selection sort <b>không ổn định</b>: cú swap "nhảy xa" có thể ném một phần tử qua khỏi phần tử cùng khóa đứng trước nó. Bubble & insertion chỉ swap/dịch cặp kề (dùng <code>&gt;</code> chứ không <code>&gt;=</code>) nên giữ thứ tự.</p>
+  </section>
+</main>
+
+<script>
+/* ============================================================
+ * Tiện ích chung
+ * ============================================================ */
+function parseArr(str) {
+  return str.split(',').map(s => s.trim()).filter(s => s !== '').map(Number).filter(n => !isNaN(n)).slice(0, 12);
+}
+
+/* ============================================================
+ * Sinh "kịch bản" (frames) cho từng thuật toán.
+ * Mỗi frame: { arr, compare:[i,j]|null, swap:[i,j]|null, sorted:Set, cmp, swap, msg }
+ * ============================================================ */
+function genBubble(a) {
+  const arr = a.slice(); const frames = [];
+  let cmp = 0, sw = 0; const sortedIdx = new Set();
+  const n = arr.length;
+  frames.push({ arr: arr.slice(), compare: null, swap: null, sorted: new Set(sortedIdx), cmp, sw, msg: 'Bắt đầu bubble sort.' });
+  for (let i = 0; i < n - 1; i++) {
+    let swapped = false;
+    for (let j = 0; j < n - 1 - i; j++) {
+      cmp++;
+      frames.push({ arr: arr.slice(), compare: [j, j + 1], swap: null, sorted: new Set(sortedIdx), cmp, sw, msg: `So sánh a[${j}]=${arr[j]} với a[${j + 1}]=${arr[j + 1]}` });
+      if (arr[j] > arr[j + 1]) {
+        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]]; sw++; swapped = true;
+        frames.push({ arr: arr.slice(), compare: null, swap: [j, j + 1], sorted: new Set(sortedIdx), cmp, sw, msg: `${arr[j + 1]} > ${arr[j]} → swap` });
+      }
+    }
+    sortedIdx.add(n - 1 - i);
+    if (!swapped) {
+      for (let k = 0; k <= n - 1 - i; k++) sortedIdx.add(k);
+      frames.push({ arr: arr.slice(), compare: null, swap: null, sorted: new Set(sortedIdx), cmp, sw, msg: 'Pass không có swap → early-exit, dừng sớm!' });
+      break;
+    }
+    frames.push({ arr: arr.slice(), compare: null, swap: null, sorted: new Set(sortedIdx), cmp, sw, msg: `Hết pass: a[${n - 1 - i}] đã đúng vị trí.` });
+  }
+  for (let k = 0; k < n; k++) sortedIdx.add(k);
+  frames.push({ arr: arr.slice(), compare: null, swap: null, sorted: new Set(sortedIdx), cmp, sw, msg: `Xong! ${cmp} so sánh, ${sw} swap.` });
+  return frames;
+}
+
+function genSelection(a) {
+  const arr = a.slice(); const frames = [];
+  let cmp = 0, sw = 0; const sortedIdx = new Set();
+  const n = arr.length;
+  frames.push({ arr: arr.slice(), compare: null, swap: null, sorted: new Set(sortedIdx), cmp, sw, msg: 'Bắt đầu selection sort.' });
+  for (let i = 0; i < n - 1; i++) {
+    let minIdx = i;
+    for (let j = i + 1; j < n; j++) {
+      cmp++;
+      frames.push({ arr: arr.slice(), compare: [minIdx, j], swap: null, sorted: new Set(sortedIdx), cmp, sw, msg: `Tìm min: so a[${j}]=${arr[j]} với min hiện tại a[${minIdx}]=${arr[minIdx]}` });
+      if (arr[j] < arr[minIdx]) minIdx = j;
+    }
+    if (minIdx !== i) {
+      [arr[i], arr[minIdx]] = [arr[minIdx], arr[i]]; sw++;
+      frames.push({ arr: arr.slice(), compare: null, swap: [i, minIdx], sorted: new Set(sortedIdx), cmp, sw, msg: `Min = ${arr[i]} → swap về vị trí ${i}` });
+    } else {
+      frames.push({ arr: arr.slice(), compare: null, swap: null, sorted: new Set(sortedIdx), cmp, sw, msg: `Min đã ở vị trí ${i}, không swap.` });
+    }
+    sortedIdx.add(i);
+  }
+  for (let k = 0; k < n; k++) sortedIdx.add(k);
+  frames.push({ arr: arr.slice(), compare: null, swap: null, sorted: new Set(sortedIdx), cmp, sw, msg: `Xong! ${cmp} so sánh, ${sw} swap.` });
+  return frames;
+}
+
+function genInsertion(a) {
+  const arr = a.slice(); const frames = [];
+  let cmp = 0, sh = 0; const sortedIdx = new Set();
+  const n = arr.length;
+  if (n > 0) sortedIdx.add(0);
+  frames.push({ arr: arr.slice(), compare: null, swap: null, sorted: new Set(sortedIdx), cmp, sw: sh, msg: 'Bắt đầu insertion sort. a[0] coi như đã sắp.' });
+  for (let i = 1; i < n; i++) {
+    const key = arr[i]; let j = i - 1;
+    frames.push({ arr: arr.slice(), compare: null, swap: null, sorted: new Set(sortedIdx), cmp, sw: sh, msg: `Lấy key = a[${i}] = ${key}, chèn vào phần đã sắp bên trái.` });
+    while (j >= 0) {
+      cmp++;
+      frames.push({ arr: arr.slice(), compare: [j, i], swap: null, sorted: new Set(sortedIdx), cmp, sw: sh, msg: `So a[${j}]=${arr[j]} với key=${key}` });
+      if (arr[j] > key) {
+        arr[j + 1] = arr[j]; sh++;
+        frames.push({ arr: arr.slice(), compare: null, swap: [j, j + 1], sorted: new Set(sortedIdx), cmp, sw: sh, msg: `${arr[j + 1]} > ${key} → dịch phải.` });
+        j--;
+      } else break;
+    }
+    arr[j + 1] = key;
+    sortedIdx.add(i);
+    frames.push({ arr: arr.slice(), compare: null, swap: null, sorted: new Set(sortedIdx), cmp, sw: sh, msg: `Đặt key=${key} vào vị trí ${j + 1}.` });
+  }
+  for (let k = 0; k < n; k++) sortedIdx.add(k);
+  frames.push({ arr: arr.slice(), compare: null, swap: null, sorted: new Set(sortedIdx), cmp, sw: sh, msg: `Xong! ${cmp} so sánh, ${sh} dịch.` });
+  return frames;
+}
+
+const GEN = { bubble: genBubble, selection: genSelection, insertion: genInsertion };
+
+/* ============================================================
+ * MODULE 1 — Animator
+ * ============================================================ */
+const m1 = {
+  algo: 'insertion', base: [5, 2, 4, 1, 3], frames: [], idx: 0,
+  playing: false, timer: null,
+  svg: document.getElementById('m1-svg'),
+};
+const SVG_W = 600, SVG_H = 260, PAD = 24, BASE_Y = 230;
+
+function m1Build() {
+  m1.algo = document.getElementById('m1-algo').value;
+  m1.frames = GEN[m1.algo](m1.base);
+  m1.idx = 0;
+  m1Stop();
+  m1Render();
+}
+function m1Render() {
+  const f = m1.frames[m1.idx];
+  const arr = f.arr; const n = arr.length;
+  const maxV = Math.max(...arr, 1);
+  const usableW = SVG_W - PAD * 2;
+  const slot = usableW / n;
+  const bw = Math.min(slot * 0.72, 54);
+  let svgStr = '';
+  for (let k = 0; k < n; k++) {
+    const h = Math.max(8, (arr[k] / maxV) * (BASE_Y - 40));
+    const x = PAD + slot * k + (slot - bw) / 2;
+    const y = BASE_Y - h;
+    let fill = '#94a3b8';
+    if (f.sorted.has(k)) fill = '#10b981';
+    if (f.compare && (f.compare[0] === k || f.compare[1] === k)) fill = '#fbbf24';
+    if (f.swap && (f.swap[0] === k || f.swap[1] === k)) fill = '#ef4444';
+    svgStr += `<rect class="bar" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="4" fill="${fill}"></rect>`;
+    svgStr += `<text class="bar-label" x="${(x + bw / 2).toFixed(1)}" y="${(y - 6).toFixed(1)}" text-anchor="middle">${arr[k]}</text>`;
+    svgStr += `<text class="bar-label" x="${(x + bw / 2).toFixed(1)}" y="${BASE_Y + 18}" text-anchor="middle" style="fill:#94a3b8;font-size:11px">[${k}]</text>`;
+  }
+  m1.svg.innerHTML = svgStr;
+  document.getElementById('m1-cmp').textContent = f.cmp;
+  document.getElementById('m1-swap').textContent = f.sw;
+  document.getElementById('m1-step').textContent = m1.idx;
+  document.getElementById('m1-status').textContent = f.msg;
+  const atEnd = m1.idx >= m1.frames.length - 1;
+  document.getElementById('m1-step-btn').disabled = atEnd;
+}
+function m1Step() {
+  if (m1.idx < m1.frames.length - 1) { m1.idx++; m1Render(); }
+  if (m1.idx >= m1.frames.length - 1) m1Stop();
+}
+function m1Stop() {
+  m1.playing = false;
+  if (m1.timer) { clearInterval(m1.timer); m1.timer = null; }
+  document.getElementById('m1-play').textContent = '⏯ Play';
+}
+function m1Play() {
+  if (m1.playing) { m1Stop(); return; }
+  if (m1.idx >= m1.frames.length - 1) { m1.idx = 0; m1Render(); }
+  m1.playing = true;
+  document.getElementById('m1-play').textContent = '⏸ Pause';
+  m1.timer = setInterval(() => { m1Step(); if (m1.idx >= m1.frames.length - 1) m1Stop(); }, 600);
+}
+document.getElementById('m1-algo').addEventListener('change', m1Build);
+document.getElementById('m1-apply').addEventListener('click', () => {
+  const a = parseArr(document.getElementById('m1-arr').value);
+  if (a.length >= 2) { m1.base = a; m1Build(); }
+});
+document.getElementById('m1-rand').addEventListener('click', () => {
+  const len = 5 + Math.floor(Math.random() * 3);
+  const a = Array.from({ length: len }, () => 1 + Math.floor(Math.random() * 9));
+  m1.base = a; document.getElementById('m1-arr').value = a.join(','); m1Build();
+});
+document.getElementById('m1-step-btn').addEventListener('click', () => { m1Stop(); m1Step(); });
+document.getElementById('m1-play').addEventListener('click', m1Play);
+document.getElementById('m1-reset').addEventListener('click', () => { m1.idx = 0; m1Stop(); m1Render(); });
+m1Build();
+
+/* ============================================================
+ * MODULE 2 — So sánh 3 thuật toán
+ * ============================================================ */
+function countOps(genFn, a) {
+  const frames = genFn(a);
+  const last = frames[frames.length - 1];
+  return { cmp: last.cmp, sw: last.sw };
+}
+const STABLE = { bubble: '✅ Có', selection: '❌ Không', insertion: '✅ Có' };
+const COLORS = { bubble: '#3b82f6', selection: '#8b5cf6', insertion: '#10b981' };
+const NAMES = { bubble: 'Bubble', selection: 'Selection', insertion: 'Insertion' };
+
+function m2Run() {
+  const a = parseArr(document.getElementById('m2-arr').value);
+  if (a.length < 2) return;
+  const res = {};
+  for (const algo of ['bubble', 'selection', 'insertion']) res[algo] = countOps(GEN[algo], a);
+
+  // bar chart: 3 nhóm, mỗi nhóm 2 cột (cmp, sw)
+  const W = 600, H = 300, padL = 40, padB = 50, padT = 20;
+  const maxV = Math.max(1, ...Object.values(res).flatMap(r => [r.cmp, r.sw]));
+  const groups = ['bubble', 'selection', 'insertion'];
+  const groupW = (W - padL - 20) / groups.length;
+  const barW = groupW * 0.28;
+  let s = '';
+  // trục
+  s += `<line x1="${padL}" y1="${H - padB}" x2="${W - 10}" y2="${H - padB}" stroke="#cbd5e0"></line>`;
+  groups.forEach((g, gi) => {
+    const gx = padL + gi * groupW + groupW * 0.12;
+    [['cmp', res[g].cmp, COLORS[g]], ['sw', res[g].sw, '#fbbf24']].forEach((d, di) => {
+      const [, val, col] = d;
+      const h = (val / maxV) * (H - padB - padT);
+      const x = gx + di * (barW + 6);
+      const y = H - padB - h;
+      s += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" rx="3" fill="${col}"></rect>`;
+      s += `<text x="${(x + barW / 2).toFixed(1)}" y="${(y - 5).toFixed(1)}" text-anchor="middle" style="font-size:11px;fill:#334155;font-weight:600">${val}</text>`;
+    });
+    s += `<text x="${(gx + barW).toFixed(1)}" y="${H - padB + 18}" text-anchor="middle" style="font-size:12px;fill:#334155;font-weight:600">${NAMES[g]}</text>`;
+  });
+  // legend
+  s += `<rect x="${padL}" y="2" width="11" height="11" rx="2" fill="#64748b"></rect><text x="${padL + 16}" y="11" style="font-size:11px;fill:#64748b">so sánh</text>`;
+  s += `<rect x="${padL + 90}" y="2" width="11" height="11" rx="2" fill="#fbbf24"></rect><text x="${padL + 106}" y="11" style="font-size:11px;fill:#64748b">swap/shift</text>`;
+  document.getElementById('m2-svg').innerHTML = s;
+
+  // bảng
+  const tb = document.querySelector('#m2-table tbody');
+  tb.innerHTML = groups.map(g =>
+    `<tr><td class="algo">${NAMES[g]}</td><td>${res[g].cmp}</td><td>${res[g].sw}</td><td><b>${res[g].cmp + res[g].sw}</b></td><td>${STABLE[g]}</td></tr>`
+  ).join('');
+}
+document.getElementById('m2-run').addEventListener('click', m2Run);
+document.getElementById('m2-sorted').addEventListener('click', () => { document.getElementById('m2-arr').value = '1,2,3,4,5,6'; m2Run(); });
+document.getElementById('m2-rev').addEventListener('click', () => { document.getElementById('m2-arr').value = '6,5,4,3,2,1'; m2Run(); });
+m2Run();
+
+/* ============================================================
+ * MODULE 3 — Stability demo
+ * ============================================================ */
+// Mỗi phần tử: {key, tag, origIdx} — sort theo key, theo dõi tag.
+const M3_INPUT = [
+  { key: 5, tag: 'a' }, { key: 3, tag: 'b' }, { key: 5, tag: 'c' },
+  { key: 2, tag: 'd' }, { key: 3, tag: 'e' }, { key: 5, tag: 'f' },
+];
+
+function renderPairs(el, arr, highlight) {
+  el.innerHTML = arr.map(p => {
+    let cls = 'chip';
+    if (highlight === 'kept') cls += ' kept';
+    if (highlight === 'broken' && p.broken) cls += ' broken';
+    return `<div class="${cls}"><span class="key">${p.key}</span><span class="tag">${p.tag}</span></div>`;
+  }).join('');
+}
+
+function m3SortStable(arr, type) {
+  const a = arr.map(p => ({ ...p })); const n = a.length;
+  if (type === 'bubble') {
+    for (let i = 0; i < n - 1; i++) {
+      let swapped = false;
+      for (let j = 0; j < n - 1 - i; j++) {
+        if (a[j].key > a[j + 1].key) { [a[j], a[j + 1]] = [a[j + 1], a[j]]; swapped = true; }
+      }
+      if (!swapped) break;
+    }
+  } else if (type === 'insertion') {
+    for (let i = 1; i < n; i++) {
+      const key = a[i]; let j = i - 1;
+      while (j >= 0 && a[j].key > key.key) { a[j + 1] = a[j]; j--; }
+      a[j + 1] = key;
+    }
+  } else { // selection — KHÔNG ổn định
+    for (let i = 0; i < n - 1; i++) {
+      let minIdx = i;
+      for (let j = i + 1; j < n; j++) if (a[j].key < a[minIdx].key) minIdx = j;
+      if (minIdx !== i) [a[i], a[minIdx]] = [a[minIdx], a[i]];
+    }
+  }
+  return a;
+}
+
+function checkStable(input, output) {
+  // với mỗi nhóm cùng key, thứ tự tag trong output phải khớp thứ tự trong input
+  const expected = {};
+  input.forEach(p => { (expected[p.key] = expected[p.key] || []).push(p.tag); });
+  const seen = {};
+  let stable = true;
+  output.forEach(p => {
+    const idx = (seen[p.key] = (seen[p.key] || 0));
+    if (expected[p.key][idx] !== p.tag) { p.broken = true; stable = false; }
+    seen[p.key] = idx + 1;
+  });
+  return stable;
+}
+
+function m3Reset() {
+  renderPairs(document.getElementById('m3-input'), M3_INPUT, null);
+  document.getElementById('m3-output').innerHTML = '';
+  document.getElementById('m3-verdict').textContent = '';
+  document.getElementById('m3-verdict').className = 'verdict';
+}
+function m3Run() {
+  const type = document.getElementById('m3-algo').value;
+  renderPairs(document.getElementById('m3-input'), M3_INPUT, null);
+  const out = m3SortStable(M3_INPUT, type);
+  const stable = checkStable(M3_INPUT, out);
+  renderPairs(document.getElementById('m3-output'), out, stable ? 'kept' : 'broken');
+  const v = document.getElementById('m3-verdict');
+  if (stable) {
+    v.textContent = `✅ ${NAMES[type]} ổn định: thứ tự nhãn trong mỗi khóa trùng được GIỮ NGUYÊN.`;
+    v.className = 'verdict ok';
+  } else {
+    v.textContent = `❌ ${NAMES[type]} KHÔNG ổn định: nhãn viền đỏ đã bị đổi thứ tự so với đầu vào.`;
+    v.className = 'verdict bad';
+  }
+}
+document.getElementById('m3-run').addEventListener('click', m3Run);
+document.getElementById('m3-reset').addEventListener('click', m3Reset);
+m3Reset();
+</script>
+
+<!-- README modal -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

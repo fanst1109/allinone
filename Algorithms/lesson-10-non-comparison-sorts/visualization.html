@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 10 — Non-comparison Sorts Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #10b981; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #059669; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  input[type="text"] {
+    font-size: 14px; padding: 6px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    font-family: monospace; width: 100%; max-width: 300px;
+    box-sizing: border-box;
+  }
+  label { font-weight: 600; }
+  .explain {
+    background: #ecfdf5; border-left: 4px solid #10b981;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6; margin-top: 12px; min-height: 22px;
+  }
+  .explain code { background: white; padding: 1px 5px; border-radius: 3px; font-family: monospace; color: #047857; }
+  .svg-wrap { width: 100%; overflow-x: auto; }
+  /* boxes for counting sort */
+  .barwrap { display: flex; gap: 6px; flex-wrap: wrap; align-items: flex-end; margin: 12px 0; }
+  .elem {
+    width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;
+    background: #d1fae5; border: 2px solid #10b981; border-radius: 6px;
+    font-family: monospace; font-weight: 700; font-size: 15px; color: #065f46;
+    transition: all .25s;
+  }
+  .elem.active { background: #fbbf24; border-color: #d97706; transform: translateY(-4px); }
+  .elem.placed { background: #93c5fd; border-color: #2563eb; color: #1e3a8a; }
+  .countgrid { display: flex; gap: 4px; flex-wrap: wrap; margin: 8px 0; }
+  .countcell { display: flex; flex-direction: column; align-items: center; font-family: monospace; font-size: 13px; }
+  .countcell .idx { color: #718096; font-size: 11px; }
+  .countcell .val {
+    width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
+    border: 2px solid #cbd5e0; border-radius: 5px; background: white; font-weight: 700; transition: all .2s;
+  }
+  .countcell .val.hot { background: #fef3c7; border-color: #f59e0b; }
+  .lbl { font-size: 12px; color: #4a5568; font-weight: 700; margin: 10px 0 2px; }
+  .legend { font-size: 12px; color: #4a5568; margin-top: 8px; }
+  .legend span { display: inline-block; margin-right: 14px; }
+  .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: middle; margin-right: 4px; }
+  /* radix buckets */
+  .bucketrow { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
+  .bucket {
+    border: 2px dashed #cbd5e0; border-radius: 6px; padding: 6px; min-width: 52px;
+    background: #f8fafc;
+  }
+  .bucket .bhead { font-size: 11px; color: #718096; text-align: center; font-weight: 700; }
+  .bucket .bitem {
+    background: #d1fae5; border: 1px solid #10b981; border-radius: 4px;
+    font-family: monospace; font-size: 13px; padding: 3px 5px; margin: 3px 0; text-align: center;
+  }
+  table.cmp { border-collapse: collapse; width: 100%; font-size: 13px; }
+  table.cmp th, table.cmp td { border: 1px solid #e2e8f0; padding: 6px 8px; text-align: center; }
+  table.cmp th { background: #f1f5f9; }
+  @media (max-width: 480px) {
+    .elem { width: 34px; height: 34px; font-size: 13px; }
+    .countcell .val { width: 30px; height: 30px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-09-heap-sort/visualization.html">← L9: Heap Sort</a>
+  <span class="sep">·</span>
+  <span class="current">L10: Non-comparison Sorts</span>
+  <span class="sep">·</span>
+  <a href="../lesson-11-sorting-in-practice/visualization.html">L11: Sorting thực tế →</a>
+</nav>
+
+<main class="container">
+  <h1>Lesson 10 — Non-comparison Sorts</h1>
+  <p>Ba thuật toán sort không dùng so sánh — phá rào <code>Ω(n log n)</code> bằng cách dùng giá trị làm index/digit.
+  Mỗi module dưới đây mô phỏng từng bước với số liệu thật.</p>
+
+  <!-- ============ MODULE 1: Counting Sort ============ -->
+  <h2>1. Counting Sort Animator</h2>
+  <div class="card">
+    <p>Nhập các số nguyên không âm (cách nhau bởi dấu cách). Quan sát 3 bước: <b>đếm tần suất → prefix sum → đặt vào output</b> (duyệt ngược để ổn định).</p>
+    <div class="row">
+      <label>Mảng:</label>
+      <input type="text" id="csInput" value="4 2 2 8 3 3 1">
+      <button id="csLoad">Nạp</button>
+    </div>
+    <div class="row">
+      <button id="csStep">▶ Bước tiếp</button>
+      <button id="csAuto" class="secondary">⏩ Tự chạy</button>
+      <button id="csReset" class="secondary">↺ Reset</button>
+    </div>
+
+    <div class="lbl">Mảng gốc</div>
+    <div class="barwrap" id="csSource"></div>
+
+    <div class="lbl">count[v] (sau prefix sum = số phần tử ≤ v)</div>
+    <div class="countgrid" id="csCount"></div>
+
+    <div class="lbl">Output</div>
+    <div class="barwrap" id="csOutput"></div>
+
+    <div class="explain" id="csExplain">Nhấn "Nạp" rồi "Bước tiếp" để bắt đầu.</div>
+    <div class="legend">
+      <span><i class="sw" style="background:#fbbf24"></i>đang xử lý</span>
+      <span><i class="sw" style="background:#93c5fd"></i>đã đặt vào output</span>
+      <span><i class="sw" style="background:#fef3c7"></i>count đang đọc</span>
+    </div>
+  </div>
+
+  <!-- ============ MODULE 2: Radix Sort ============ -->
+  <h2>2. Radix Sort (LSD) Animator</h2>
+  <div class="card">
+    <p>Sort theo từng chữ số, từ hàng <b>đơn vị → chục → trăm</b>. Mỗi pass phân vào 10 bucket (0–9) theo digit, rồi gom lại theo thứ tự. Bucket giữ thứ tự ban đầu → ổn định.</p>
+    <div class="row">
+      <label>Mảng:</label>
+      <input type="text" id="rxInput" value="170 45 75 90 2 802 24 66">
+      <button id="rxLoad">Nạp</button>
+    </div>
+    <div class="row">
+      <button id="rxStep">▶ Pass tiếp</button>
+      <button id="rxReset" class="secondary">↺ Reset</button>
+    </div>
+
+    <div class="lbl">Mảng hiện tại</div>
+    <div class="barwrap" id="rxArr"></div>
+
+    <div class="lbl" id="rxBucketLbl">Bucket (theo digit đang xử lý)</div>
+    <div class="bucketrow" id="rxBuckets"></div>
+
+    <div class="explain" id="rxExplain">Nhấn "Nạp" rồi "Pass tiếp".</div>
+  </div>
+
+  <!-- ============ MODULE 3: Decision Tree Lower Bound ============ -->
+  <h2>3. Decision Tree — giới hạn dưới comparison sort</h2>
+  <div class="card">
+    <p>Mọi comparison sort = cây nhị phân với ≥ <code>n!</code> lá (mỗi lá một hoán vị). Cây cao <code>h</code> có ≤ <code>2^h</code> lá → <code>h ≥ log₂(n!) = Ω(n log n)</code>. Đây là số so sánh tối thiểu.</p>
+    <div class="row">
+      <label>n =</label>
+      <input type="text" id="dtN" value="3" style="max-width:80px">
+      <button id="dtDraw">Vẽ cây + tính</button>
+    </div>
+    <div class="svg-wrap">
+      <svg id="dtSvg" width="640" height="300" viewBox="0 0 640 300"></svg>
+    </div>
+    <div class="explain" id="dtExplain">Nhập n (2–6) rồi nhấn "Vẽ cây".</div>
+
+    <div class="lbl">So sánh tối thiểu theo n</div>
+    <table class="cmp" id="dtTable">
+      <thead><tr><th>n</th><th>n! (số lá)</th><th>⌈log₂(n!)⌉ = so sánh tối thiểu</th><th>n·log₂n (xấp xỉ)</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</main>
+
+<script>
+/* ============ MODULE 1: Counting Sort ============ */
+(function () {
+  const srcEl = document.getElementById('csSource');
+  const cntEl = document.getElementById('csCount');
+  const outEl = document.getElementById('csOutput');
+  const exp = document.getElementById('csExplain');
+  let A = [], count = [], output = [], k = 0, steps = [], si = 0, timer = null;
+
+  function parse() {
+    const v = document.getElementById('csInput').value.trim().split(/\s+/).map(Number).filter(x => !isNaN(x) && x >= 0);
+    return v.length ? v : [4,2,2,8,3,3,1];
+  }
+
+  function build() {
+    A = parse();
+    k = Math.max(...A) + 1;
+    count = new Array(k).fill(0);
+    output = new Array(A.length).fill(null);
+    steps = [];
+    // phase 1: count
+    const c1 = new Array(k).fill(0);
+    A.forEach((v, i) => {
+      c1[v]++;
+      steps.push({ phase: 'count', i, v, count: c1.slice(), out: output.slice(),
+        msg: `Đếm: A[${i}]=${v} → count[${v}] = ${c1[v]}` });
+    });
+    // phase 2: prefix
+    const c2 = c1.slice();
+    for (let v = 1; v < k; v++) {
+      c2[v] += c2[v-1];
+      steps.push({ phase: 'prefix', v, count: c2.slice(), out: output.slice(),
+        msg: `Prefix sum: count[${v}] += count[${v-1}] → ${c2[v]} (số phần tử ≤ ${v})` });
+    }
+    // phase 3: place (duyệt ngược)
+    const c3 = c2.slice();
+    const out = new Array(A.length).fill(null);
+    for (let i = A.length - 1; i >= 0; i--) {
+      const v = A[i];
+      c3[v]--;
+      out[c3[v]] = v;
+      steps.push({ phase: 'place', i, v, pos: c3[v], count: c3.slice(), out: out.slice(),
+        msg: `Đặt: A[${i}]=${v}, count[${v}]-1=${c3[v]} → output[${c3[v]}]=${v} (duyệt ngược → ổn định)` });
+    }
+    si = 0;
+    render(null);
+    exp.textContent = `Đã nạp [${A.join(', ')}], k=${k}. Nhấn "Bước tiếp".`;
+  }
+
+  function render(st) {
+    srcEl.innerHTML = '';
+    A.forEach((v, i) => {
+      const d = document.createElement('div');
+      d.className = 'elem' + (st && st.i === i && (st.phase === 'count' || st.phase === 'place') ? ' active' : '');
+      d.textContent = v;
+      srcEl.appendChild(d);
+    });
+    cntEl.innerHTML = '';
+    const cnt = st ? st.count : count;
+    for (let v = 0; v < k; v++) {
+      const c = document.createElement('div'); c.className = 'countcell';
+      const hot = st && (st.v === v) && st.phase !== 'prefix' || (st && st.phase === 'prefix' && st.v === v);
+      c.innerHTML = `<div class="val${hot ? ' hot' : ''}">${cnt[v]}</div><div class="idx">${v}</div>`;
+      cntEl.appendChild(c);
+    }
+    outEl.innerHTML = '';
+    const o = st ? st.out : output;
+    o.forEach((v, i) => {
+      const d = document.createElement('div');
+      d.className = 'elem' + (v === null ? '' : ' placed') + (st && st.phase === 'place' && st.pos === i ? ' active' : '');
+      d.textContent = v === null ? '·' : v;
+      outEl.appendChild(d);
+    });
+  }
+
+  function step() {
+    if (si >= steps.length) { exp.textContent = `✓ Hoàn tất! output = [${steps[steps.length-1].out.join(', ')}]`; return; }
+    const st = steps[si++];
+    render(st);
+    exp.textContent = st.msg;
+  }
+
+  document.getElementById('csLoad').onclick = () => { clearInterval(timer); build(); };
+  document.getElementById('csStep').onclick = step;
+  document.getElementById('csReset').onclick = () => { clearInterval(timer); build(); };
+  document.getElementById('csAuto').onclick = () => {
+    clearInterval(timer);
+    timer = setInterval(() => { if (si >= steps.length) { clearInterval(timer); step(); } else step(); }, 600);
+  };
+  build();
+})();
+
+/* ============ MODULE 2: Radix Sort (LSD) ============ */
+(function () {
+  const arrEl = document.getElementById('rxArr');
+  const bkEl = document.getElementById('rxBuckets');
+  const exp = document.getElementById('rxExplain');
+  const lbl = document.getElementById('rxBucketLbl');
+  let maxV = 0, done = false;
+  let arr = [], expPos = 1;
+
+  function parse() {
+    const v = document.getElementById('rxInput').value.trim().split(/\s+/).map(Number).filter(x => !isNaN(x) && x >= 0);
+    return v.length ? v : [170,45,75,90,2,802,24,66];
+  }
+
+  function build() {
+    arr = parse();
+    maxV = Math.max(...arr);
+    expPos = 1;
+    done = false;
+    renderArr(null);
+    bkEl.innerHTML = '';
+    exp.textContent = `Đã nạp [${arr.join(', ')}], max=${maxV}. Nhấn "Pass tiếp" để sort theo hàng đơn vị.`;
+    lbl.textContent = 'Bucket (theo digit đang xử lý)';
+  }
+
+  function renderArr(highlightDigit) {
+    arrEl.innerHTML = '';
+    arr.forEach(v => {
+      const d = document.createElement('div'); d.className = 'elem'; d.textContent = v;
+      if (highlightDigit !== null) {
+        const dig = Math.floor(v / expPos) % 10;
+        d.title = 'digit=' + dig;
+      }
+      arrEl.appendChild(d);
+    });
+  }
+
+  function step() {
+    if (done) { exp.textContent = `✓ Đã sort: [${arr.join(', ')}]`; return; }
+    if (maxV / expPos < 1) { done = true; exp.textContent = `✓ Hoàn tất! Kết quả: [${arr.join(', ')}]`; bkEl.innerHTML=''; return; }
+
+    const place = (expPos === 1) ? 'đơn vị (1s)' : (expPos === 10 ? 'chục (10s)' : (expPos === 100 ? 'trăm (100s)' : `10^${Math.log10(expPos)}`));
+    lbl.textContent = `Bucket — pass theo hàng ${place}`;
+
+    // distribute into buckets
+    const buckets = Array.from({length:10}, () => []);
+    arr.forEach(v => {
+      const dig = Math.floor(v / expPos) % 10;
+      buckets[dig].push(v);
+    });
+    // render buckets
+    bkEl.innerHTML = '';
+    buckets.forEach((b, d) => {
+      const bd = document.createElement('div'); bd.className = 'bucket';
+      let html = `<div class="bhead">${d}</div>`;
+      b.forEach(v => html += `<div class="bitem">${v}</div>`);
+      bd.innerHTML = html;
+      bkEl.appendChild(bd);
+    });
+    // gather (stable)
+    arr = [].concat(...buckets);
+    renderArr(true);
+    exp.innerHTML = `Pass theo hàng <b>${place}</b>: phân ${arr.length} số vào 10 bucket theo digit, rồi gom theo thứ tự 0→9 (stable). Kết quả pass: [${arr.join(', ')}]`;
+    expPos *= 10;
+    if (maxV / expPos < 1) { done = true; }
+  }
+
+  document.getElementById('rxLoad').onclick = build;
+  document.getElementById('rxStep').onclick = step;
+  document.getElementById('rxReset').onclick = build;
+  build();
+})();
+
+/* ============ MODULE 3: Decision Tree Lower Bound ============ */
+(function () {
+  const svg = document.getElementById('dtSvg');
+  const exp = document.getElementById('dtExplain');
+  const tbody = document.querySelector('#dtTable tbody');
+
+  function fact(n) { let r = 1; for (let i = 2; i <= n; i++) r *= i; return r; }
+  function log2(x) { return Math.log(x) / Math.LN2; }
+
+  function drawTree(n) {
+    const leaves = fact(n);
+    const h = Math.ceil(log2(leaves));
+    // vẽ cây nhị phân tới chiều cao tối đa 4 levels (giới hạn hiển thị)
+    const W = 640, levels = Math.min(h, 4);
+    let s = '';
+    const nodeR = 13;
+    function place(x, y, depth, dx) {
+      const isLeaf = depth === levels;
+      const fill = isLeaf ? '#d1fae5' : '#bfdbfe';
+      const stroke = isLeaf ? '#10b981' : '#3b82f6';
+      if (depth < levels) {
+        const ny = y + 60, ndx = dx / 2;
+        s += `<line x1="${x}" y1="${y}" x2="${x-dx}" y2="${ny}" stroke="#cbd5e0" stroke-width="1.5"/>`;
+        s += `<line x1="${x}" y1="${y}" x2="${x+dx}" y2="${ny}" stroke="#cbd5e0" stroke-width="1.5"/>`;
+        place(x - dx, ny, depth + 1, ndx);
+        place(x + dx, ny, depth + 1, ndx);
+      }
+      s += `<circle cx="${x}" cy="${y}" r="${nodeR}" fill="${fill}" stroke="${stroke}" stroke-width="2"/>`;
+      if (!isLeaf) s += `<text x="${x}" y="${y+4}" text-anchor="middle" font-size="11" fill="#1e3a8a">&lt;?</text>`;
+    }
+    place(W/2, 28, 0, W/4);
+    // label
+    s += `<text x="${W/2}" y="295" text-anchor="middle" font-size="12" fill="#4a5568">(hiển thị tối đa 4 mức; cây thật cao h=${h})</text>`;
+    svg.innerHTML = s;
+
+    exp.innerHTML = `n=${n}: số hoán vị = <b>n! = ${leaves}</b> lá. Chiều cao tối thiểu <code>h ≥ ⌈log₂(${leaves})⌉ = ${h}</code> → cần ít nhất <b>${h}</b> phép so sánh worst-case. Đây là giới hạn dưới <code>Ω(n log n)</code> — không comparison sort nào phá được.`;
+  }
+
+  function buildTable() {
+    tbody.innerHTML = '';
+    [2,3,4,5,6,8,10,12].forEach(n => {
+      const f = fact(n);
+      const lb = Math.ceil(log2(f));
+      const nlogn = Math.round(n * log2(n));
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${n}</td><td>${f.toLocaleString()}</td><td><b>${lb}</b></td><td>${nlogn}</td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  document.getElementById('dtDraw').onclick = () => {
+    let n = parseInt(document.getElementById('dtN').value, 10);
+    if (isNaN(n) || n < 2) n = 2;
+    if (n > 6) { n = 6; document.getElementById('dtN').value = 6; }
+    drawTree(n);
+  };
+  buildTable();
+  drawTree(3);
+})();
+</script>
+
+<!-- README modal -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+
+</body>
+</html>

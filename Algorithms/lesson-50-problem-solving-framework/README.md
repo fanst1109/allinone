@@ -12,6 +12,8 @@ Sau bài này bạn sẽ:
 - Có **chiến lược khi bị stuck** và **checklist edge case** để không rớt test ẩn.
 - Nhận ra các **anti-pattern** phổ biến khiến giải sai hoặc tốn thời gian.
 
+**Cách dùng lesson này:** đọc một lượt để nắm quy trình + hai bảng tra (mục 3, mục 4). Khi luyện tập, mở [thẻ tra nhanh (mục 9)](#9-thẻ-tra-nhanh-cheat-sheet-một-trang) bên cạnh và áp dụng cho từng bài. Sau vài chục bài, quy trình thành phản xạ và bạn không cần nhìn bảng nữa.
+
 ## Kiến thức tiền đề
 
 Bài này *dùng lại* gần như mọi thứ trong lộ trình. Các link quan trọng:

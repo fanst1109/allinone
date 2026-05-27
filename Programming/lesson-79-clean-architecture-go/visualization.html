@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L79 — Clean Architecture · Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root { --accent: #6366f1; --accent-soft: #e0e7ff; --accent-hover: #4f46e5; }
+  main { max-width: 1100px; }
+  h1 { color: #2d3748; margin-bottom: 4px; }
+  .lead { color: #718096; margin-bottom: 24px; font-size: 15px; }
+  section.module {
+    background: #fff; border-radius: 10px; padding: 22px;
+    margin-bottom: 28px; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+  section.module h2 { margin-top: 0; color: #4338ca; font-size: 20px; }
+  .hint { color: #718096; font-size: 14px; margin-bottom: 16px; }
+
+  .btn {
+    border: none; background: var(--accent); color: #fff; cursor: pointer;
+    padding: 8px 14px; border-radius: 7px; font-size: 14px; font-weight: 600;
+    margin: 4px 4px 4px 0;
+  }
+  .btn:hover { background: var(--accent-hover); }
+  .btn.ghost { background: #edf0f5; color: #2d3748; }
+  .btn.ghost.active { background: var(--accent); color: #fff; }
+
+  /* Module 1 — concentric circles */
+  .circles-wrap { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
+  .circles-svg { flex: 1 1 360px; min-width: 0; }
+  .layer-info { flex: 1 1 300px; min-width: 0; }
+  .ring { cursor: pointer; transition: opacity .2s; }
+  .ring:hover { opacity: 0.85; }
+  .ring.dim { opacity: 0.35; }
+  .ring-label { font-size: 13px; font-weight: 700; pointer-events: none; fill: #1a202c; }
+  .arrow-line { stroke: #e53e3e; stroke-width: 3; marker-end: url(#arrow); }
+  .info-card {
+    border-left: 4px solid var(--accent); background: #f7f8fc;
+    padding: 12px 14px; border-radius: 6px; min-height: 120px;
+  }
+  .info-card h3 { margin: 0 0 6px; font-size: 16px; color: #4338ca; }
+  .info-card ul { margin: 6px 0 0; padding-left: 20px; }
+  .info-card code { background: #e2e8f0; padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  .ruleline { margin-top: 14px; padding: 10px 12px; border-radius: 6px; font-size: 14px; }
+  .ruleline.ok { background: #f0fff4; border: 1px solid #9ae6b4; color: #22543d; }
+  .ruleline.bad { background: #fff5f5; border: 1px solid #feb2b2; color: #742a2a; }
+
+  /* Module 2 — swap adapter */
+  .swap-grid { display: flex; flex-wrap: wrap; gap: 18px; }
+  .swap-col { flex: 1 1 300px; min-width: 0; }
+  .stack { display: flex; flex-direction: column; gap: 8px; }
+  .stack .box {
+    border-radius: 8px; padding: 10px 12px; font-size: 14px; font-weight: 600;
+    border: 2px solid transparent;
+  }
+  .box.core { background: #e0e7ff; color: #3730a3; border-color: #a5b4fc; }
+  .box.core .sub { font-weight: 400; font-size: 12px; color: #4338ca; }
+  .box.adapter { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
+  .box.adapter.swapped { background: #d1fae5; color: #065f46; border-color: #6ee7b7; }
+  .box.flash { animation: flash .6s ease; }
+  @keyframes flash { 0% { transform: scale(1); } 40% { transform: scale(1.04); } 100% { transform: scale(1); } }
+  .diff-note { font-size: 13px; color: #718096; margin-top: 12px; }
+  .diff-note b { color: #2d3748; }
+  pre.code {
+    background: #1a202c; color: #e2e8f0; padding: 12px 14px; border-radius: 8px;
+    font-size: 13px; overflow-x: auto; margin: 10px 0 0; line-height: 1.5;
+  }
+  pre.code .hl { color: #fbbf24; }
+  pre.code .cm { color: #718096; }
+
+  /* Module 3 — request flow */
+  .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 0 16px; }
+  .node {
+    border-radius: 8px; padding: 10px 12px; font-size: 13px; font-weight: 600;
+    text-align: center; min-width: 96px; border: 2px solid #cbd5e0; background: #fff;
+    transition: all .25s;
+  }
+  .node.lit { transform: translateY(-3px); box-shadow: 0 4px 14px rgba(99,102,241,0.35); }
+  .node.http { border-color: #f6ad55; }
+  .node.http.lit { background: #fffaf0; border-color: #dd6b20; }
+  .node.uc { border-color: #9f7aea; }
+  .node.uc.lit { background: #faf5ff; border-color: #805ad5; }
+  .node.dom { border-color: #68d391; }
+  .node.dom.lit { background: #f0fff4; border-color: #38a169; }
+  .node.repo { border-color: #63b3ed; }
+  .node.repo.lit { background: #ebf8ff; border-color: #3182ce; }
+  .farrow { color: #a0aec0; font-size: 20px; }
+  .farrow.back { color: #cbd5e0; }
+  .log {
+    background: #f7f8fc; border-radius: 8px; padding: 12px 14px; font-size: 14px;
+    min-height: 90px; border: 1px solid #e2e8f0;
+  }
+  .log .step { padding: 3px 0; opacity: 0.35; transition: opacity .2s; }
+  .log .step.on { opacity: 1; }
+  .log .step .tag {
+    display: inline-block; min-width: 78px; font-weight: 700; font-size: 12px;
+    padding: 1px 6px; border-radius: 4px; margin-right: 8px;
+  }
+  .tag.http { background: #feebc8; color: #9c4221; }
+  .tag.uc { background: #e9d8fd; color: #553c9a; }
+  .tag.dom { background: #c6f6d5; color: #276749; }
+  .tag.repo { background: #bee3f8; color: #2c5282; }
+
+  @media (max-width: 480px) {
+    .farrow { font-size: 16px; }
+    .node { min-width: 0; flex: 1 1 44%; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-78-config-management/visualization.html">← L78: Config Management</a>
+  <span class="sep">·</span>
+  <span class="current">L79: Clean Architecture</span>
+  <span class="sep">·</span>
+  <a href="../lesson-80-code-review-style/visualization.html">L80: Code Review & Style →</a>
+</nav>
+
+<main>
+  <h1>L79 — Clean Architecture trong Go</h1>
+  <p class="lead">Ba module tương tác: vòng tròn Dependency Rule &amp; chiều mũi tên · tráo adapter Postgres ↔ InMemory mà lõi không đổi · luồng request handler → usecase → repository → response.</p>
+
+  <!-- ============ MODULE 1 ============ -->
+  <section class="module">
+    <h2>1. Dependency Rule — bốn vòng tròn &amp; chiều phụ thuộc</h2>
+    <p class="hint">Bấm vào từng vòng để xem nó chứa gì. Nút bên dưới bật/tắt mũi tên phụ thuộc và mô phỏng "mũi tên trỏ ra ngoài" (vi phạm).</p>
+
+    <div class="circles-wrap">
+      <div class="circles-svg">
+        <svg width="380" height="380" viewBox="0 0 380 380" aria-label="vòng tròn đồng tâm clean architecture">
+          <defs>
+            <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+              <path d="M0,0 L9,4.5 L0,9 Z" fill="#e53e3e"/>
+            </marker>
+          </defs>
+          <circle class="ring" data-layer="frameworks" cx="190" cy="190" r="180" fill="#fed7aa"/>
+          <circle class="ring" data-layer="adapters"   cx="190" cy="190" r="135" fill="#fde68a"/>
+          <circle class="ring" data-layer="usecase"    cx="190" cy="190" r="90"  fill="#c4b5fd"/>
+          <circle class="ring" data-layer="entities"   cx="190" cy="190" r="45"  fill="#86efac"/>
+          <text class="ring-label" x="190" y="194" text-anchor="middle">Entities</text>
+          <text class="ring-label" x="190" y="120" text-anchor="middle">Use Cases</text>
+          <text class="ring-label" x="190" y="73"  text-anchor="middle">Adapters</text>
+          <text class="ring-label" x="190" y="28"  text-anchor="middle">Frameworks</text>
+          <line id="depArrow" class="arrow-line" x1="330" y1="350" x2="215" y2="215" style="display:none"/>
+          <text id="depArrowTxt" x="250" y="300" font-size="12" fill="#e53e3e" font-weight="700" style="display:none">dependency</text>
+        </svg>
+      </div>
+      <div class="layer-info">
+        <div class="info-card" id="layerInfo">
+          <h3>Bấm một vòng tròn</h3>
+          <p>Mỗi vòng là một tầng. Lõi trong cùng (Entities) quý nhất, ít đổi nhất. Vỏ ngoài (Frameworks) hay đổi nhất.</p>
+        </div>
+        <div>
+          <button class="btn" id="toggleArrow">Hiện mũi tên phụ thuộc (vào trong) ✓</button>
+          <button class="btn ghost" id="badArrow">Mô phỏng mũi tên trỏ RA NGOÀI ✗</button>
+        </div>
+        <div class="ruleline ok" id="ruleLine">
+          ✓ Mũi tên trỏ <b>vào trong</b>: <code>cmd → adapter → usecase → domain</code>. Lõi không biết vỏ. Đúng Dependency Rule.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MODULE 2 ============ -->
+  <section class="module">
+    <h2>2. Ports &amp; Adapters — tráo backend, lõi không đổi</h2>
+    <p class="hint">Lõi (domain + usecase) phụ thuộc <b>interface</b> <code>UserRepository</code>. Bấm tráo adapter: chỉ ô màu cam (composition root + adapter) thay đổi, các ô lõi đứng yên.</p>
+
+    <div>
+      <button class="btn ghost active" id="btnMem" data-impl="mem">InMemory (RAM)</button>
+      <button class="btn ghost" id="btnPg" data-impl="pg">Postgres</button>
+    </div>
+
+    <div class="swap-grid" style="margin-top:16px;">
+      <div class="swap-col">
+        <div class="stack">
+          <div class="box core">domain.User <span class="sub">— business rule, không đổi</span></div>
+          <div class="box core">usecase.UserUsecase <span class="sub">— phụ thuộc interface UserRepository</span></div>
+          <div class="box core">port: UserRepository <span class="sub">— do usecase định nghĩa, không đổi</span></div>
+          <div class="box adapter" id="adapterBox">adapter: memory.UserRepo <span class="sub" id="adapterSub">— map trong RAM</span></div>
+        </div>
+        <div class="diff-note" id="diffNote">
+          <b>Thay đổi khi tráo:</b> chỉ adapter + 1 dòng composition root. 3 ô lõi phía trên: <b>0 dòng sửa</b>.
+        </div>
+      </div>
+      <div class="swap-col">
+        <strong style="font-size:14px;color:#4a5568;">Composition root (cmd/server/main.go)</strong>
+        <pre class="code" id="wireCode"></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MODULE 3 ============ -->
+  <section class="module">
+    <h2>3. Luồng một request — handler → usecase → repository → response</h2>
+    <p class="hint">Mô phỏng <code>POST /users</code> đi qua các tầng rồi trả về. Bấm "Chạy" để xem từng bước; chú ý mỗi bước thuộc tầng nào (màu).</p>
+
+    <div class="flow">
+      <div class="node http" data-i="0">HTTP Handler</div>
+      <span class="farrow">→</span>
+      <div class="node uc" data-i="1">Use Case</div>
+      <span class="farrow">→</span>
+      <div class="node dom" data-i="2">Domain</div>
+      <span class="farrow">→</span>
+      <div class="node repo" data-i="3">Repository</div>
+    </div>
+    <div class="flow">
+      <span class="farrow back">↩ response đi ngược về</span>
+    </div>
+
+    <div>
+      <button class="btn" id="flowRun">▶ Chạy POST /users</button>
+      <button class="btn ghost" id="flowReset">Reset</button>
+    </div>
+
+    <div class="log" id="flowLog" style="margin-top:14px;"></div>
+  </section>
+</main>
+
+<script>
+// ===================== MODULE 1 =====================
+const LAYER_DATA = {
+  entities: {
+    title: "1. Entities (domain)",
+    body: "Business rule cốt lõi, đúng ở mọi ngữ cảnh. Entity tự bảo vệ tính hợp lệ.",
+    items: ["<code>domain.User</code> — id, name, email", "rule: email phải có <code>@</code>, tên không rỗng", "KHÔNG import http / sql / framework"]
+  },
+  usecase: {
+    title: "2. Use Cases (application)",
+    body: "Orchestration các business rule. Định nghĩa <b>port</b> (interface) mình cần.",
+    items: ["<code>UserUsecase.Register / Rename</code>", "định nghĩa port <code>UserRepository</code>", "rule cấp ứng dụng: email duy nhất"]
+  },
+  adapters: {
+    title: "3. Interface Adapters",
+    body: "Chuyển đổi dữ liệu giữa lõi và thế giới ngoài.",
+    items: ["<code>http.Handler</code> — driving adapter", "<code>memory.UserRepo</code> — driven adapter", "map lỗi miền → HTTP status (409, 404)"]
+  },
+  frameworks: {
+    title: "4. Frameworks &amp; Drivers",
+    body: "Chi tiết hay đổi nhất: web server, DB driver, thư viện ngoài.",
+    items: ["<code>net/http</code> server", "DB driver (pgx / database/sql)", "wiring ở <code>cmd/server/main.go</code>"]
+  }
+};
+const layerInfo = document.getElementById('layerInfo');
+const rings = document.querySelectorAll('.ring');
+rings.forEach(r => r.addEventListener('click', () => {
+  const d = LAYER_DATA[r.dataset.layer];
+  rings.forEach(x => x.classList.add('dim'));
+  r.classList.remove('dim');
+  layerInfo.innerHTML = `<h3>${d.title}</h3><p>${d.body}</p><ul>${d.items.map(i=>`<li>${i}</li>`).join('')}</ul>`;
+}));
+
+const depArrow = document.getElementById('depArrow');
+const depArrowTxt = document.getElementById('depArrowTxt');
+const ruleLine = document.getElementById('ruleLine');
+let arrowShown = true;
+const toggleBtn = document.getElementById('toggleArrow');
+function showInArrow() {
+  // mũi tên từ ngoài (góc dưới phải) trỏ vào tâm
+  depArrow.setAttribute('x1','330'); depArrow.setAttribute('y1','350');
+  depArrow.setAttribute('x2','215'); depArrow.setAttribute('y2','215');
+  depArrow.style.display = arrowShown ? 'block' : 'none';
+  depArrowTxt.style.display = arrowShown ? 'block' : 'none';
+  ruleLine.className = 'ruleline ok';
+  ruleLine.innerHTML = '✓ Mũi tên trỏ <b>vào trong</b>: <code>cmd → adapter → usecase → domain</code>. Lõi không biết vỏ. Đúng Dependency Rule.';
+  toggleBtn.textContent = arrowShown ? 'Ẩn mũi tên phụ thuộc' : 'Hiện mũi tên phụ thuộc (vào trong) ✓';
+}
+toggleBtn.addEventListener('click', () => { arrowShown = !arrowShown; showInArrow(); });
+document.getElementById('badArrow').addEventListener('click', () => {
+  arrowShown = true;
+  // mũi tên từ tâm trỏ RA ngoài
+  depArrow.setAttribute('x1','205'); depArrow.setAttribute('y1','205');
+  depArrow.setAttribute('x2','325'); depArrow.setAttribute('y2','345');
+  depArrow.style.display = 'block'; depArrowTxt.style.display = 'block';
+  ruleLine.className = 'ruleline bad';
+  ruleLine.innerHTML = '✗ Mũi tên trỏ <b>ra ngoài</b>: domain import infra (vd <code>import "database/sql"</code>). VI PHẠM Dependency Rule — lõi dính chi tiết kỹ thuật, không đổi được.';
+});
+showInArrow();
+
+// ===================== MODULE 2 =====================
+const WIRE = {
+  mem: `func main() {
+    repo := <span class="hl">memory.NewUserRepo()</span>  <span class="cm">// RAM</span>
+    idgen := memory.NewSeqIDGen()
+    uc := usecase.New(repo, idgen) <span class="cm">// lõi không đổi</span>
+    h := httpadapter.NewHandler(uc)
+    http.ListenAndServe(":8080", h.Routes())
+}`,
+  pg: `func main() {
+    db, _ := sql.Open("pgx", dsn)
+    repo := <span class="hl">postgres.NewUserRepo(db)</span> <span class="cm">// Postgres</span>
+    idgen := uuidgen.New()
+    uc := usecase.New(repo, idgen) <span class="cm">// lõi không đổi</span>
+    h := httpadapter.NewHandler(uc)
+    http.ListenAndServe(":8080", h.Routes())
+}`
+};
+const wireCode = document.getElementById('wireCode');
+const adapterBox = document.getElementById('adapterBox');
+const adapterSub = document.getElementById('adapterSub');
+const btnMem = document.getElementById('btnMem');
+const btnPg = document.getElementById('btnPg');
+function setImpl(impl) {
+  wireCode.innerHTML = WIRE[impl];
+  adapterBox.classList.remove('flash');
+  void adapterBox.offsetWidth; // restart animation
+  adapterBox.classList.add('flash');
+  if (impl === 'pg') {
+    adapterBox.classList.add('swapped');
+    adapterBox.innerHTML = 'adapter: postgres.UserRepo <span class="sub">— SQL trên Postgres</span>';
+    btnPg.classList.add('active'); btnMem.classList.remove('active');
+  } else {
+    adapterBox.classList.remove('swapped');
+    adapterBox.innerHTML = 'adapter: memory.UserRepo <span class="sub">— map trong RAM</span>';
+    btnMem.classList.add('active'); btnPg.classList.remove('active');
+  }
+}
+btnMem.addEventListener('click', () => setImpl('mem'));
+btnPg.addEventListener('click', () => setImpl('pg'));
+setImpl('mem');
+
+// ===================== MODULE 3 =====================
+const STEPS = [
+  { node: 0, tag: 'http', txt: 'Nhận POST /users, decode JSON {name, email}. Gọi usecase.Register(...).' },
+  { node: 1, tag: 'uc',   txt: 'Register: hỏi repo.FindByEmail — email đã dùng chưa? (rule cấp ứng dụng)' },
+  { node: 3, tag: 'repo', txt: 'Repository tra cứu: không thấy → ErrUserNotFound. OK, email còn trống.' },
+  { node: 2, tag: 'dom',  txt: 'domain.NewUser(id, name, email): validate name không rỗng, email có @.' },
+  { node: 3, tag: 'repo', txt: 'repo.Save(user): ghi vào storage (RAM hoặc Postgres tùy adapter).' },
+  { node: 1, tag: 'uc',   txt: 'Register trả *domain.User về handler.' },
+  { node: 0, tag: 'http', txt: 'Handler map User → DTO, encode JSON, trả 201 Created. ✓' },
+];
+const TAGLABEL = { http: 'HTTP', uc: 'UseCase', dom: 'Domain', repo: 'Repo' };
+const flowLog = document.getElementById('flowLog');
+const flowNodes = document.querySelectorAll('.node');
+let flowTimer = null;
+function resetFlow() {
+  if (flowTimer) { clearInterval(flowTimer); flowTimer = null; }
+  flowNodes.forEach(n => n.classList.remove('lit'));
+  flowLog.innerHTML = STEPS.map((s, i) =>
+    `<div class="step" data-s="${i}"><span class="tag ${s.tag}">${TAGLABEL[s.tag]}</span>${s.txt}</div>`
+  ).join('');
+}
+function runFlow() {
+  resetFlow();
+  let i = 0;
+  const steps = flowLog.querySelectorAll('.step');
+  flowTimer = setInterval(() => {
+    if (i >= STEPS.length) { clearInterval(flowTimer); flowTimer = null;
+      flowNodes.forEach(n => n.classList.remove('lit')); return; }
+    flowNodes.forEach(n => n.classList.remove('lit'));
+    flowNodes[STEPS[i].node].classList.add('lit');
+    steps[i].classList.add('on');
+    i++;
+  }, 900);
+}
+document.getElementById('flowRun').addEventListener('click', runFlow);
+document.getElementById('flowReset').addEventListener('click', resetFlow);
+resetFlow();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

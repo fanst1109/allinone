@@ -530,7 +530,8 @@
   // ================= MODULE 3: heuristic demo =================
   const HR = 15, HC = 22;
   const g3 = makeGrid(HR, HC);
-  let S3 = [Math.floor(HR / 2), 2], G3 = [Math.floor(HR / 2), HC - 3];
+  // start/goal đặt CHÉO nhau: khi đó Euclidean (ước lượng thấp hơn) lộ rõ duyệt nhiều ô hơn Manhattan.
+  let S3 = [2, 2], G3 = [HR - 3, HC - 3];
   const heurCanvas = {};
   document.querySelectorAll('[data-heur]').forEach((cv) => { heurCanvas[cv.dataset.heur] = cv; });
   function drawHeur(name, outId) {
@@ -548,8 +549,9 @@
   document.getElementById("heurRun").onclick = runHeur;
   document.getElementById("heurWall").onclick = () => {
     clearWalls(g3);
-    // vài cụm tường để Euclidean lộ rõ duyệt nhiều hơn
-    for (let r = 3; r < HR - 3; r++) if (r !== Math.floor(HR / 2)) g3.wall[r][Math.floor(HC / 2)] = true;
+    // một vách dọc có khe ở dưới: buộc A* vòng xuống, Euclidean lan rộng hơn rõ rệt
+    const wc = Math.floor(HC / 2);
+    for (let r = 0; r < HR - 3; r++) g3.wall[r][wc] = true;
     g3.wall[S3[0]][S3[1]] = false; g3.wall[G3[0]][G3[1]] = false;
     runHeur();
   };

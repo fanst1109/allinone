@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L50 — Problem-Solving Framework · Minh hoạ</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #f97316;
+    --accent-hover: #ea580c;
+    --accent-soft: #ffedd5;
+    --green: #48bb78;
+    --red: #f56565;
+    --gold: #d69e2e;
+    --dark: #2d3748;
+    --gray: #cbd5e0;
+  }
+
+  main { max-width: 980px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.6rem; margin: 12px 0 4px; }
+  .lead { color: #4a5568; margin: 0 0 20px; }
+
+  .module {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px;
+    margin: 20px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .module h2 { font-size: 1.25rem; margin: 0 0 6px; color: var(--dark); }
+  .module .hint { color: #718096; font-size: 0.92rem; margin: 0 0 12px; }
+
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; align-items: center;
+  }
+  button {
+    background: var(--accent); color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 0.95rem; font-weight: 600; cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost { background: #edf2f7; color: var(--dark); }
+  button.ghost:hover { background: #e2e8f0; }
+  button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  label { font-size: 0.9rem; color: #4a5568; font-weight: 600; }
+  input[type=number], input[type=text] {
+    padding: 8px 10px; border-radius: 8px; border: 1px solid #cbd5e0;
+    font-size: 0.95rem; width: 100%; max-width: 200px; box-sizing: border-box;
+  }
+  input[type=range] { width: 100%; max-width: 360px; accent-color: var(--accent); }
+  select {
+    padding: 8px 10px; border-radius: 8px; border: 1px solid #cbd5e0;
+    font-size: 0.95rem; background: #fff; width: 100%; max-width: 420px;
+    box-sizing: border-box;
+  }
+
+  .status {
+    background: #f7fafc; border-left: 4px solid var(--accent);
+    padding: 10px 14px; border-radius: 6px; margin: 12px 0;
+    font-size: 0.95rem; color: #2d3748;
+  }
+  .big { font-size: 1.3rem; font-weight: 700; color: var(--accent-hover); }
+
+  .pill {
+    display: inline-block; background: var(--accent-soft); color: var(--accent-hover);
+    border-radius: 999px; padding: 3px 12px; font-size: 0.85rem; font-weight: 600;
+    margin: 3px 4px 3px 0;
+  }
+  .tech-list { margin: 10px 0 0; padding: 0; list-style: none; }
+  .tech-list li {
+    background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px;
+    padding: 8px 12px; margin: 6px 0; font-size: 0.95rem;
+  }
+  .tech-list a { color: var(--accent-hover); font-weight: 600; text-decoration: none; }
+  .tech-list a:hover { text-decoration: underline; }
+  code { background: #edf2f7; padding: 1px 6px; border-radius: 4px; font-family: ui-monospace, monospace; font-size: 0.9em; }
+
+  /* timeline cho complexity */
+  .ladder { display: flex; flex-direction: column; gap: 4px; margin: 12px 0; }
+  .rung {
+    display: flex; align-items: center; gap: 8px; padding: 6px 10px;
+    border-radius: 6px; font-size: 0.9rem; border: 1px solid #e2e8f0;
+    background: #fff; transition: all 0.2s;
+  }
+  .rung .cx { font-weight: 700; width: 110px; flex-shrink: 0; font-family: ui-monospace, monospace; }
+  .rung .rng { color: #718096; font-size: 0.85rem; }
+  .rung.active { background: var(--accent-soft); border-color: var(--accent); }
+  .rung.toofast { opacity: 0.45; }
+
+  /* 7-step */
+  .steps { margin: 12px 0; }
+  .step {
+    border-left: 3px solid var(--gray); padding: 4px 0 4px 14px; margin: 4px 0;
+    color: #a0aec0; transition: all 0.2s;
+  }
+  .step.shown { border-left-color: var(--accent); color: #2d3748; }
+  .step .stitle { font-weight: 700; font-size: 0.95rem; }
+  .step .sbody { font-size: 0.92rem; margin-top: 3px; }
+  .step .sbody code { font-size: 0.85em; }
+  .stepnav { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+  .counter { font-size: 0.9rem; color: #718096; font-weight: 600; }
+
+  @media (max-width: 480px) {
+    .rung .cx { width: 90px; font-size: 0.8rem; }
+    .rung .rng { display: none; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../tier-7-advanced/index.html">← Tier 7</a>
+  <span class="sep">·</span>
+  <span class="current">L50: Problem-Solving Framework</span>
+  <span class="sep">·</span>
+  <a href="../lesson-51-complexity-tradeoffs/visualization.html">L51: Complexity Trade-offs →</a>
+</nav>
+
+<main>
+  <h1>L50 — Problem-Solving Framework</h1>
+  <p class="lead">Ba công cụ tương tác để biến việc tiếp cận bài lạ thành quy trình: đọc constraint đoán độ phức tạp, tra dấu hiệu → kỹ thuật, và đi qua đủ 7 bước trên bài mẫu.</p>
+
+  <!-- ===== MODULE 1: Constraint -> Complexity ===== -->
+  <section class="module">
+    <h2>1 · Constraint → Độ phức tạp mục tiêu</h2>
+    <p class="hint">Nhập <code>n</code> tối đa (hoặc kéo thanh trượt). Mốc: máy chấm làm ~10⁸ phép/giây trong ~1 giây.</p>
+    <div class="controls">
+      <label>n ≤ <input type="number" id="m1input" value="100000" min="1"></label>
+      <span id="m1exp" class="pill">10^5</span>
+    </div>
+    <div class="controls">
+      <input type="range" id="m1slider" min="0" max="18" step="1" value="5">
+      <span class="hint" id="m1sliderlbl">10^5</span>
+    </div>
+    <div class="status" id="m1status"></div>
+    <div class="ladder" id="m1ladder"></div>
+  </section>
+
+  <!-- ===== MODULE 2: Pattern matcher ===== -->
+  <section class="module">
+    <h2>2 · Pattern Matcher (dấu hiệu → kỹ thuật)</h2>
+    <p class="hint">Chọn dấu hiệu bạn thấy trong đề bài → gợi ý kỹ thuật + link lesson tương ứng.</p>
+    <div class="controls">
+      <select id="m2select"></select>
+    </div>
+    <div class="status" id="m2status">Chọn một dấu hiệu để xem gợi ý.</div>
+    <ul class="tech-list" id="m2techs"></ul>
+  </section>
+
+  <!-- ===== MODULE 3: 7-step walkthrough ===== -->
+  <section class="module">
+    <h2>3 · 7-Step Walkthrough trên bài mẫu</h2>
+    <p class="hint">Chọn một bài mẫu rồi bấm "Bước tiếp" để đi qua đủ 7 bước của quy trình.</p>
+    <div class="controls">
+      <select id="m3select"></select>
+    </div>
+    <div class="status" id="m3prob"></div>
+    <div class="steps" id="m3steps"></div>
+    <div class="stepnav">
+      <button class="ghost" id="m3prev">← Bước trước</button>
+      <button id="m3next">Bước tiếp →</button>
+      <button class="ghost" id="m3all">Hiện tất cả</button>
+      <span class="counter" id="m3counter"></span>
+    </div>
+  </section>
+</main>
+
+<script>
+// ===================== MODULE 1 =====================
+// Mỗi mốc: [độ phức tạp, n_max gợi ý, kỹ thuật]
+const LADDER = [
+  { cx: 'O(n!)',        max: 12,        tech: 'Backtracking đầy đủ, sinh hoán vị' },
+  { cx: 'O(2ⁿ·n)',      max: 25,        tech: 'Bitmask DP, meet-in-the-middle' },
+  { cx: 'O(n³)',        max: 500,       tech: 'Floyd-Warshall, interval DP' },
+  { cx: 'O(n²)',        max: 10000,     tech: 'DP 2D, duyệt mọi cặp (i,j)' },
+  { cx: 'O(n log n)',   max: 1000000,   tech: 'Sort, heap, binary search, segment tree' },
+  { cx: 'O(n)',         max: 100000000, tech: 'Sliding window, prefix sum, two pointers' },
+  { cx: 'O(log n)',     max: 1e18,      tech: 'Binary search trên đáp án, lũy thừa nhanh' },
+];
+// thanh trượt map sang các mốc n
+const SLIDER_N = [10, 12, 18, 25, 100, 100000, 1000000, 10000000, 100000000, 1e9, 1e18,
+                  500, 1000, 5000, 10000, 50000, 200000, 2000000, 20000000];
+
+const m1input = document.getElementById('m1input');
+const m1slider = document.getElementById('m1slider');
+const m1sliderlbl = document.getElementById('m1sliderlbl');
+const m1exp = document.getElementById('m1exp');
+const m1status = document.getElementById('m1status');
+const m1ladder = document.getElementById('m1ladder');
+
+function fmtPow(n) {
+  if (n >= 1e6) {
+    const e = Math.round(Math.log10(n));
+    if (Math.abs(Math.pow(10, e) - n) / n < 0.05) return '10^' + e;
+  }
+  return n.toLocaleString('en-US');
+}
+
+// chọn mốc mục tiêu: mốc nhỏ nhất mà max >= n
+function pickTarget(n) {
+  for (let i = 0; i < LADDER.length; i++) {
+    if (n <= LADDER[i].max) return i;
+  }
+  return LADDER.length - 1;
+}
+
+function renderM1(n) {
+  if (!isFinite(n) || n < 1) n = 1;
+  m1exp.textContent = fmtPow(n);
+  const ti = pickTarget(n);
+  const t = LADDER[ti];
+  // ước số phép cho độ phức tạp mục tiêu
+  m1status.innerHTML =
+    `Với <code>n ≤ ${fmtPow(n)}</code>, độ phức tạp mục tiêu khả dĩ: ` +
+    `<span class="big">${t.cx}</span><br>` +
+    `→ Kỹ thuật điển hình: <b>${t.tech}</b>.<br>` +
+    `<span class="hint">Quy tắc: độ phức tạp × n ≲ 10⁸ thì kịp ~1 giây. ` +
+    `Các mốc nhanh hơn (mờ đi) cũng dùng được nhưng thường không cần.</span>`;
+
+  m1ladder.innerHTML = '';
+  LADDER.forEach((r, i) => {
+    const div = document.createElement('div');
+    div.className = 'rung';
+    if (i === ti) div.classList.add('active');
+    else if (i > ti) div.classList.add('toofast'); // nhanh hơn mục tiêu => thừa
+    div.innerHTML = `<span class="cx">${r.cx}</span>` +
+      `<span class="rng">n ≲ ${fmtPow(r.max)}</span>` +
+      `<span style="flex:1; text-align:right; color:#718096; font-size:0.85rem;">${r.tech}</span>`;
+    m1ladder.appendChild(div);
+  });
+}
+
+m1input.addEventListener('input', () => {
+  const n = parseFloat(m1input.value);
+  renderM1(n);
+});
+m1slider.addEventListener('input', () => {
+  const n = SLIDER_N[parseInt(m1slider.value, 10)] || 100000;
+  m1sliderlbl.textContent = fmtPow(n);
+  m1input.value = n;
+  renderM1(n);
+});
+renderM1(100000);
+
+// ===================== MODULE 2 =====================
+const PATTERNS = [
+  { sig: 'Mảng đã SORTED, tìm phần tử / biên',
+    techs: [['Binary search', '../lesson-12-binary-search-variants/'],
+            ['Two pointers', '../lesson-13-two-pointers/']],
+    note: 'Đã sorted là dấu hiệu mạnh: O(log n) hoặc O(n) thay vì O(n²).' },
+  { sig: 'Subarray / substring LIÊN TỤC thoả điều kiện',
+    techs: [['Sliding window', '../lesson-14-sliding-window/'],
+            ['Prefix sum', '../lesson-15-prefix-sum-difference/']],
+    note: 'Lưu ý: nếu có số ÂM, sliding window vỡ → dùng prefix sum + hash.' },
+  { sig: 'Tìm CẶP / bộ ba có tổng (hiệu) cho trước',
+    techs: [['Two pointers (sau sort)', '../lesson-13-two-pointers/'],
+            ['Hash set/map', '../lesson-16-hashing-techniques/']],
+    note: 'Chưa sorted thì hash O(n); đã sorted thì two pointers O(n).' },
+  { sig: 'Sinh TẤT CẢ tổ hợp / hoán vị / tập con',
+    techs: [['Backtracking', '../lesson-18-backtracking/'],
+            ['Bitmask (n ≤ 20)', '../lesson-29-bitmask-dp/']],
+    note: 'Output đã mũ → cần n nhỏ (≤ ~16-20). Cắt nhánh sớm.' },
+  { sig: 'TỐI ƯU (min/max/đếm) + lựa chọn + bài con chồng nhau',
+    techs: [['Dynamic Programming', '../lesson-23-dp-fundamentals/'],
+            ['Knapsack family', '../lesson-25-knapsack-family/']],
+    note: 'Bài con lặp lại + lựa chọn ảnh hưởng tương lai → DP (memo/bottom-up).' },
+  { sig: 'TỐI ƯU bằng chọn cục bộ tốt nhất mỗi bước',
+    techs: [['Greedy (PHẢI chứng minh!)', '../lesson-19-greedy-fundamentals/'],
+            ['Greedy vs DP', '../lesson-22-greedy-vs-dp/']],
+    note: 'Greedy nhanh nhưng dễ SAI (vd coin change). Kiểm chứng bằng stress test với DP.' },
+  { sig: 'KHOẢNG / lịch (interval) chồng lấn, gộp, chọn nhiều nhất',
+    techs: [['Sort + sweep / greedy', '../lesson-20-interval-problems/']],
+    note: 'Sort theo mốc bắt đầu hoặc kết thúc, rồi quét.' },
+  { sig: 'ĐƯỜNG ĐI / kết nối / lan toả trên đồ thị',
+    techs: [['BFS / DFS', '../lesson-31-graph-traversal/']],
+    note: 'Không trọng số → BFS cho đường ngắn nhất theo số cạnh.' },
+  { sig: 'Đường đi NGẮN NHẤT, trọng số KHÔNG ÂM',
+    techs: [['Dijkstra (+ heap)', '../lesson-33-dijkstra/']],
+    note: 'Có cạnh âm → Bellman-Ford/Floyd. Không trọng số → BFS.' },
+  { sig: 'Đường ngắn nhất có cạnh ÂM / mọi cặp đỉnh',
+    techs: [['Bellman-Ford / Floyd-Warshall', '../lesson-34-bellman-ford-floyd/']],
+    note: 'Floyd O(n³) cho mọi cặp, n ≤ ~500.' },
+  { sig: 'THỨ TỰ / phụ thuộc "A trước B" (DAG)',
+    techs: [['Topological sort', '../lesson-32-topological-sort/']],
+    note: 'Topo xếp không hết đỉnh ⟺ có chu trình ⟺ không thể.' },
+  { sig: 'NHÓM / thành phần liên thông, hợp-tìm nhanh',
+    techs: [['Union-Find / DFS components', '../lesson-36-connected-components/']],
+    note: 'Union-Find cho hợp/tìm gần như O(1) khấu hao.' },
+  { sig: 'TOP-K / luôn lấy min-max động',
+    techs: [['Heap (priority queue)', '../lesson-33-dijkstra/']],
+    note: 'Heap kích thước k cho top-k trong luồng dữ liệu.' },
+  { sig: 'LOOKUP / đếm tần suất / kiểm tra tồn tại nhanh',
+    techs: [['Hash map / set', '../lesson-16-hashing-techniques/']],
+    note: 'O(1) trung bình cho tra cứu, đếm, dedup.' },
+  { sig: 'RANGE QUERY (tổng/min trên đoạn)',
+    techs: [['Prefix sum (tĩnh)', '../lesson-15-prefix-sum-difference/'],
+            ['Segment tree (có cập nhật)', '../lesson-30-dp-optimization/']],
+    note: 'Không cập nhật → prefix sum 3 dòng; có cập nhật → segment tree.' },
+  { sig: 'KHỚP CHUỖI / tìm chuỗi con (1 mẫu)',
+    techs: [['KMP', '../lesson-41-kmp/'], ['Z-algorithm', '../lesson-42-z-algorithm/'],
+            ['Rabin-Karp', '../lesson-40-string-matching-rabin-karp/']],
+    note: 'KMP/Z worst-case O(n+m); Rabin-Karp O(n+m) kỳ vọng.' },
+  { sig: 'NHIỀU mẫu cùng lúc / tiền tố chung',
+    techs: [['Trie / Aho-Corasick', '../lesson-43-trie-aho-corasick/']],
+    note: 'Aho-Corasick khớp nhiều mẫu trong một lượt quét.' },
+];
+
+const m2select = document.getElementById('m2select');
+const m2status = document.getElementById('m2status');
+const m2techs = document.getElementById('m2techs');
+
+m2select.innerHTML = '<option value="-1">— Chọn dấu hiệu —</option>' +
+  PATTERNS.map((p, i) => `<option value="${i}">${p.sig}</option>`).join('');
+
+m2select.addEventListener('change', () => {
+  const i = parseInt(m2select.value, 10);
+  if (i < 0) {
+    m2status.textContent = 'Chọn một dấu hiệu để xem gợi ý.';
+    m2techs.innerHTML = '';
+    return;
+  }
+  const p = PATTERNS[i];
+  m2status.innerHTML = `<b>Dấu hiệu:</b> ${p.sig}<br><span class="hint">💡 ${p.note}</span>`;
+  m2techs.innerHTML = p.techs.map(t =>
+    `<li>→ <a href="${t[1]}">${t[0]}</a></li>`).join('');
+});
+
+// ===================== MODULE 3 =====================
+const PROBLEMS = [
+  {
+    name: 'Longest substring không lặp ký tự',
+    prob: 'Cho chuỗi s (len ≤ 10⁵), tìm độ dài substring liên tục dài nhất không có ký tự lặp.',
+    steps: [
+      ['1 · Hiểu đề', 'Input: chuỗi. Output: 1 số (độ dài). "Substring" = LIÊN TỤC. "Không lặp" = mỗi ký tự ≤ 1 lần trong cửa sổ.'],
+      ['2 · Ví dụ + edge', '<code>"abcabcbb"→3</code>, <code>"bbbbb"→1</code>, <code>""→0</code>, <code>"pwwkew"→3</code>. Edge: rỗng→0, toàn trùng→1.'],
+      ['3 · Brute-force', 'Thử mọi (i,j), kiểm tra không lặp bằng set → O(n²) (hoặc O(n³) ngây thơ). Đúng nhưng chậm.'],
+      ['4 · Big-O + constraint', 'n ≤ 10⁵ → O(n²)=10¹⁰ TLE. Mục tiêu: <b>O(n)</b>.'],
+      ['5 · Nhận pattern', '"Substring LIÊN TỤC thoả điều kiện" → <b>sliding window</b> + hash lưu vị trí ký tự.'],
+      ['6 · Code + test', 'Cửa sổ [left,right]; khi s[right] đã có trong cửa sổ, nhảy left = idx+1. Test các ví dụ bước 2.'],
+      ['7 · Tối ưu', 'left chỉ tiến → mỗi chỉ số đi qua ≤ 1 lần → đã O(n), đạt mục tiêu → DỪNG.'],
+    ],
+  },
+  {
+    name: 'Course Schedule (phát hiện chu trình DAG)',
+    prob: 'n môn học + danh sách điều kiện [a,b] = "học b trước a". Học hết được mọi môn không? (n ≤ 10⁵)',
+    steps: [
+      ['1 · Hiểu đề', 'Input: n + cạnh có hướng b→a. Output: bool. Học hết được ⟺ KHÔNG có chu trình.'],
+      ['2 · Ví dụ + edge', '<code>n=2,[[1,0]]→true</code>; <code>[[1,0],[0,1]]→false</code> (vòng). Edge: không điều kiện→true; <code>[0,0]</code>→false.'],
+      ['3 · Brute-force', 'Thử mọi thứ tự học (hoán vị) xem có hợp lệ → O(n!). Vô vọng.'],
+      ['4 · Big-O + constraint', 'n ≤ 10⁵ → cần tuyến tính <b>O(n + E)</b>.'],
+      ['5 · Nhận pattern', '"Thứ tự / phụ thuộc trên DAG" + "phát hiện chu trình" → <b>topological sort</b> (Kahn).'],
+      ['6 · Code + test', 'Kahn: đẩy đỉnh indegree=0 vào queue; lấy ra giảm indegree đỉnh kề. learned == n ⟺ không chu trình.'],
+      ['7 · Tối ưu', 'Kahn đã O(n + E) → DỪNG.'],
+    ],
+  },
+  {
+    name: 'Coin Change (số xu ít nhất)',
+    prob: 'coins (vô hạn mỗi loại) + amount. Tìm số xu ít nhất đạt đúng amount, hoặc -1. (amount ≤ 10⁴)',
+    steps: [
+      ['1 · Hiểu đề', 'Input: coins[] + amount. Output: số xu ít nhất hoặc -1. Mỗi loại xu dùng nhiều lần (unbounded).'],
+      ['2 · Ví dụ + edge', '<code>[1,2,5],11→3</code> (5+5+1); <code>[2],3→-1</code>; <code>amount=0→0</code>; <code>[1,3,4],6→2</code>.'],
+      ['3 · Brute-force', 'Thử mọi cách chọn xu đệ quy → cây phân nhánh khổng lồ O(coinsᵃᵐᵒᵘⁿᵗ). Mũ.'],
+      ['4 · Big-O + constraint', 'amount ≤ 10⁴, coins ≤ 12 → O(amount·coins)=1.2·10⁵ rất nhỏ. Mục tiêu: <b>DP O(amount·coins)</b>.'],
+      ['5 · Nhận pattern', '"Tối ưu (ít nhất)" + "lựa chọn xu" + "bài con chồng nhau" → <b>DP</b>. ⚠ Greedy lấy xu lớn nhất SAI ([1,3,4],6)!'],
+      ['6 · Code + test', 'dp[x]=min(dp[x−c]+1) với mọi c≤x. dp[0]=0. Test [1,3,4],6→2 (greedy ra 3 — sai).'],
+      ['7 · Tối ưu', 'DP 1D tối ưu cả time lẫn space → DỪNG.'],
+    ],
+  },
+];
+
+const m3select = document.getElementById('m3select');
+const m3prob = document.getElementById('m3prob');
+const m3steps = document.getElementById('m3steps');
+const m3prev = document.getElementById('m3prev');
+const m3next = document.getElementById('m3next');
+const m3all = document.getElementById('m3all');
+const m3counter = document.getElementById('m3counter');
+
+let m3idx = 0;    // bài đang chọn
+let m3shown = 1;  // số bước đã hiện
+
+m3select.innerHTML = PROBLEMS.map((p, i) => `<option value="${i}">${p.name}</option>`).join('');
+
+function renderM3() {
+  const p = PROBLEMS[m3idx];
+  m3prob.innerHTML = `<b>Đề:</b> ${p.prob}`;
+  m3steps.innerHTML = p.steps.map((s, i) =>
+    `<div class="step ${i < m3shown ? 'shown' : ''}">
+       <div class="stitle">${s[0]}</div>
+       ${i < m3shown ? `<div class="sbody">${s[1]}</div>` : ''}
+     </div>`).join('');
+  m3counter.textContent = `Bước ${Math.min(m3shown, 7)} / 7`;
+  m3prev.disabled = m3shown <= 1;
+  m3next.disabled = m3shown >= 7;
+}
+
+m3select.addEventListener('change', () => {
+  m3idx = parseInt(m3select.value, 10);
+  m3shown = 1;
+  renderM3();
+});
+m3next.addEventListener('click', () => { if (m3shown < 7) { m3shown++; renderM3(); } });
+m3prev.addEventListener('click', () => { if (m3shown > 1) { m3shown--; renderM3(); } });
+m3all.addEventListener('click', () => { m3shown = 7; renderM3(); });
+renderM3();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+</body>
+</html>

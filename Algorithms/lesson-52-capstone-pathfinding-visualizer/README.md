@@ -25,7 +25,7 @@ Capstone này dùng lại kiến thức từ nhiều tier. Nếu chỗ nào quê
 - **[Lesson 33 — Dijkstra](../lesson-33-dijkstra/)** — đường đi ngắn nhất có trọng số, priority queue / heap.
 - **[Lesson 19 — Greedy cơ bản](../lesson-19-greedy-fundamentals/)** — chọn cục bộ tốt nhất, và vì sao greedy đôi khi sai.
 - **Heap / Priority Queue** — `[DataStructures/](../../DataStructures/)` (binary heap, `container/heap` trong Go).
-- **[Lesson 49 — ý tưởng approximation/heuristic](../lesson-49-approximation-algorithms/)** — heuristic là "ước lượng có định hướng".
+- **[Lesson 49 — NP & ý tưởng approximation/heuristic](../lesson-49-intractability-np/)** — heuristic là "ước lượng có định hướng".
 
 ---
 
@@ -590,7 +590,7 @@ Capstone này là **bằng chứng** bạn đã nắm các tier:
 | **Dijkstra + priority queue** | [Lesson 33](../lesson-33-dijkstra/) | tìm đường có trọng số |
 | **Heap / binary heap** | [DataStructures](../../DataStructures/) | `container/heap`, lấy min hiệu quả |
 | **Greedy** | [Lesson 19](../lesson-19-greedy-fundamentals/) | Greedy Best-First, hiểu vì sao greedy sai |
-| **Heuristic / approximation** | [Lesson 49](../lesson-49-approximation-algorithms/) | `h` là "ước lượng có định hướng" |
+| **Heuristic / approximation** | [Lesson 49](../lesson-49-intractability-np/) | `h` là "ước lượng có định hướng" |
 | **Phân tích Big-O** | [Lesson 01](../lesson-01-bigo-asymptotic/) | so sánh số ô duyệt = work |
 | **Mô hình hóa bài toán** | [Lesson 50](../lesson-50-problem-solving-framework/) | nhận diện "đây là bài đồ thị" |
 

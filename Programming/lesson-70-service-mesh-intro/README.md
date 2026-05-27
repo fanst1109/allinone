@@ -268,6 +268,21 @@ Mesh **tự sinh** metric (request rate, error rate, latency p50/p90/p99), distr
 
 > ❓ **Câu hỏi tự nhiên.** *"Tracing tự động — nghĩa là không cần OpenTelemetry trong app?"* → Mesh đo được **giữa các service** tự động (hop A→B mất bao lâu). Nhưng để trace **bên trong** app (function nào chậm), bạn vẫn cần instrument app. Mesh propagate header trace giúp, nhưng app phải forward header xuống cuộc gọi tiếp theo.
 
+### 7.5 Walk-through: một request đi qua đủ tính năng
+
+Để thấy 4 nhóm tính năng trên phối hợp thế nào, theo dõi một request `cart → checkout` đi qua Envoy của cart (config: timeout 2s, retry 2, mTLS STRICT, canary 90/10):
+
+1. **App cart** gọi `http://checkout/pay`. iptables chuyển sang Envoy cart.
+2. **Routing (7.2):** Envoy quay weighted route → trúng `v1` (90% khả năng).
+3. **mTLS (7.1):** Envoy cart bắt tay mTLS với Envoy của instance v1 đã chọn (mở connection mới, hoặc reuse nếu đã có).
+4. **Timeout (7.3):** Envoy gắn deadline 2s cho lần thử này.
+5. **Gọi:** request đi tới Envoy checkout v1 → app checkout. Giả sử lần này v1 trả 503 (lỗi tạm thời).
+6. **Retry (7.3):** vì `retryOn: 5xx`, Envoy cart thử lại (attempt 2), quay route lại — có thể trúng instance khác. Lần này 200 OK.
+7. **Observability (7.4):** Envoy ghi: 1 request, 1 retry, kết quả 200, latency tổng = ?ms, vào metric + trace span. Tự động, app không gọi gì.
+8. **Trả về:** app cart nhận 200 như thể mọi thứ trơn tru — không hề biết đã có 1 lần 503 + 1 lần retry + mã hoá mTLS ở giữa.
+
+Toàn bộ 8 bước: app cart viết đúng **1 dòng** `http.get`. (`solutions.go` hàm `Sidecar.Send` mô phỏng đúng chuỗi này: mTLS → route → timeout → retry → record metric.)
+
 ---
 
 ## 8. Traffic shifting (canary deploy)

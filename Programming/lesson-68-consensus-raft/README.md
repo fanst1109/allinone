@@ -350,6 +350,8 @@ Entry #7 đã commit trên majority {A,B,C} (3 node, đều có #7). Node D bị
 >
 > **Luật:** leader chỉ commit trực tiếp các entry của **term hiện tại** của nó. Khi một entry term-mới được commit qua majority, mọi entry **trước nó** (kể cả term cũ) cũng tự động được commit theo (vì log liền mạch).
 
+**Tại sao luật này cần thiết — ví dụ tối giản:** Giả sử leader S1 (term 2) đã replicate entry #1 (term 2) lên 2/5 node rồi crash *trước khi* đạt majority. S5 (term 3) lên leader với log riêng, ghi đè #1. Nếu S1 hồi sinh làm leader term 4 và **vội commit** #1 (term 2) chỉ vì giờ thấy nó trên majority, thì #1 đã "commit" — nhưng S5 (term 3) có thể đã ghi đè index đó ở các node khác → một index commit hai giá trị khác nhau = **vi phạm safety**. Luật "chỉ commit entry term hiện tại" chặn đúng tình huống này: S1 term 4 phải ghi một entry **term 4** mới và commit nó qua majority; lúc đó #1 cũ mới được commit ăn theo một cách an toàn.
+
 > 📝 **Tóm tắt mục 8–9.**
 > - Replicate: append → majority ack → commit → apply.
 > - Election restriction: chỉ vote cho candidate log đủ mới → leader mới luôn có mọi entry đã commit.

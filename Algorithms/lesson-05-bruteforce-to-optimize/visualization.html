@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Brute-force → Tối ưu</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #d97706; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #b45309; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  input[type="number"] {
+    font-size: 14px; padding: 6px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    font-family: monospace; width: 100%; max-width: 90px; box-sizing: border-box;
+  }
+  input[type="text"] {
+    font-size: 14px; padding: 6px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    font-family: monospace; width: 100%; box-sizing: border-box;
+  }
+  @media (max-width: 600px) {
+    .twoside { grid-template-columns: 1fr; }
+    .smell-grid { grid-template-columns: 1fr; }
+    .bars { gap: 20px; }
+    .cell { width: 38px; height: 38px; font-size: 13px; }
+  }
+  input[type="range"] { width: 100%; max-width: 320px; }
+  label { font-weight: 600; }
+  code { background: #f1f5f9; padding: 1px 5px; border-radius: 3px; font-family: monospace; color: #b45309; }
+
+  .explain {
+    background: #fffbeb; border-left: 4px solid #d97706;
+    padding: 12px 14px; border-radius: 0 6px 6px 0;
+    font-size: 14px; line-height: 1.6; margin-top: 10px;
+  }
+
+  /* ===== Module 1: Two Sum side-by-side ===== */
+  .twoside { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .pane { border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; background: #fafafa; }
+  .pane h3 { margin: 0 0 8px; font-size: 15px; }
+  .pane.brute h3 { color: #b91c1c; }
+  .pane.hash h3 { color: #047857; }
+  .arr { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+  .cell {
+    width: 44px; height: 44px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; border-radius: 6px;
+    border: 2px solid #cbd5e0; background: white; font-family: monospace;
+    font-weight: 700; font-size: 15px; transition: all .15s;
+  }
+  .cell .idx { font-size: 9px; color: #94a3b8; font-weight: 400; }
+  .cell.i { border-color: #d97706; background: #fef3c7; }
+  .cell.j { border-color: #2563eb; background: #dbeafe; }
+  .cell.found { border-color: #059669; background: #d1fae5; }
+  .cell.scanned { background: #f1f5f9; }
+  .opcount { font-family: monospace; font-size: 14px; font-weight: 700; }
+  .opcount .n { color: #b91c1c; }
+  .opcount .h { color: #047857; }
+  .seenbox { font-family: monospace; font-size: 12px; background: #ecfdf5; border-radius: 6px; padding: 6px 8px; min-height: 22px; margin-top: 6px; }
+  .status { font-family: monospace; font-size: 13px; margin-top: 6px; min-height: 20px; }
+
+  /* ===== Module 2: Optimization picker ===== */
+  .smell-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .smell {
+    border: 2px solid #e2e8f0; border-radius: 8px; padding: 12px; cursor: pointer;
+    background: white; transition: all .12s; font-size: 14px;
+  }
+  .smell:hover { border-color: #d97706; }
+  .smell.active { border-color: #d97706; background: #fffbeb; box-shadow: 0 0 0 2px #fde68a; }
+  .smell .ttl { font-weight: 700; color: #92400e; }
+  .smell .ex { font-size: 12px; color: #64748b; margin-top: 4px; font-family: monospace; }
+  .suggestion {
+    margin-top: 14px; padding: 14px; border-radius: 8px;
+    background: #ecfdf5; border-left: 4px solid #059669; display: none;
+  }
+  .suggestion.show { display: block; }
+  .suggestion .tech { font-weight: 700; color: #047857; font-size: 15px; }
+  .suggestion .bigo { font-family: monospace; margin-top: 6px; }
+  .suggestion .bigo .before { color: #b91c1c; }
+  .suggestion .bigo .after { color: #047857; }
+
+  /* ===== Module 3: Benchmark ===== */
+  .bars { display: flex; align-items: flex-end; gap: 40px; height: 240px; margin: 16px 0; padding: 0 10px; }
+  .bar-wrap { display: flex; flex-direction: column; align-items: center; flex: 1; max-width: 140px; }
+  .bar { width: 100%; border-radius: 6px 6px 0 0; transition: height .3s; min-height: 2px; }
+  .bar.brute { background: linear-gradient(#ef4444, #b91c1c); }
+  .bar.opt { background: linear-gradient(#34d399, #059669); }
+  .bar-label { font-family: monospace; font-size: 13px; margin-top: 8px; text-align: center; }
+  .bar-val { font-family: monospace; font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .ratio { font-family: monospace; font-size: 15px; font-weight: 700; color: #d97706; text-align: center; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-correctness-invariant/visualization.html">← L4: Correctness</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Brute-force → Tối ưu</span>
+  <span class="sep">·</span>
+  <a href="../tier-1-sorting/index.html">Tier 1 →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 05 — Brute-force → Tối ưu hóa</h1>
+<p>3 module tương tác để cảm nhận tư duy tối ưu: (1) Two Sum brute O(n²) vs hash O(n) chạy song song, đếm thao tác; (2) picker ánh xạ "mùi" phí phạm → kỹ thuật; (3) benchmark kéo slider <code>n</code> xem chênh lệch thao tác giãn ra theo n².</p>
+
+<!-- ===================== MODULE 1 ===================== -->
+<h2>1. Two Sum — Brute O(n²) vs Hash O(n)</h2>
+<div class="card">
+  <div class="row">
+    <label>Mảng (cách nhau dấu phẩy): <input type="text" id="m1-arr" value="2,7,11,15,3,6" style="max-width:200px"></label>
+    <label>target: <input type="number" id="m1-target" value="9"></label>
+  </div>
+  <div class="row">
+    <button id="m1-run">▶ Chạy song song</button>
+    <button id="m1-step" class="secondary">⏭ Từng bước</button>
+    <button id="m1-reset" class="secondary">↺ Reset</button>
+  </div>
+
+  <div class="twoside">
+    <div class="pane brute">
+      <h3>Brute-force O(n²) — thử mọi cặp</h3>
+      <div class="arr" id="m1-brute-arr"></div>
+      <div class="opcount">Phép so sánh: <span class="n" id="m1-brute-ops">0</span></div>
+      <div class="status" id="m1-brute-status"></div>
+    </div>
+    <div class="pane hash">
+      <h3>Hash O(n) — một pass</h3>
+      <div class="arr" id="m1-hash-arr"></div>
+      <div class="seenbox" id="m1-hash-seen">seen = {}</div>
+      <div class="opcount">Bước: <span class="h" id="m1-hash-ops">0</span></div>
+      <div class="status" id="m1-hash-status"></div>
+    </div>
+  </div>
+  <div class="explain" id="m1-explain">Brute duyệt mọi cặp (i, j) tới khi cộng ra target. Hash với mỗi <code>v</code> hỏi map "đã thấy <code>target − v</code> chưa?" — tra O(1). Bấm "Chạy song song" để so số thao tác.</div>
+</div>
+
+<!-- ===================== MODULE 2 ===================== -->
+<h2>2. Optimization picker — chọn "mùi" → gợi ý kỹ thuật</h2>
+<div class="card">
+  <p style="margin-top:0; font-size:14px; color:#475569;">Click một "mùi" phí phạm bạn thấy trong code brute-force để xem kỹ thuật chữa tương ứng:</p>
+  <div class="smell-grid" id="m2-grid">
+    <div class="smell" data-key="recompute">
+      <div class="ttl">Tính lại cùng giá trị</div>
+      <div class="ex">for r {{ sum=0; for k=l..r sum+=a[k] }}</div>
+    </div>
+    <div class="smell" data-key="search">
+      <div class="ttl">Tìm kiếm lặp trong list</div>
+      <div class="ex">for i { for j if a[j]==x }</div>
+    </div>
+    <div class="smell" data-key="pairs">
+      <div class="ttl">Duyệt mọi cặp trên dữ liệu sorted/đơn điệu</div>
+      <div class="ex">for i { for j > i ... } // a đã sort</div>
+    </div>
+    <div class="smell" data-key="overlap">
+      <div class="ttl">Đệ quy lồng nhau có overlap</div>
+      <div class="ex">f(n) = f(n-1) + f(n-2) // gọi lại</div>
+    </div>
+  </div>
+  <div class="suggestion" id="m2-sug">
+    <div class="tech" id="m2-tech"></div>
+    <div id="m2-desc" style="font-size:14px; margin-top:6px; line-height:1.6;"></div>
+    <div class="bigo" id="m2-bigo"></div>
+  </div>
+</div>
+
+<!-- ===================== MODULE 3 ===================== -->
+<h2>3. Benchmark — Brute O(n²) vs Optimal O(n)</h2>
+<div class="card">
+  <div class="row">
+    <label style="flex:1; min-width:0;">n = <span id="m3-nval" class="opcount">20</span>
+      <input type="range" id="m3-n" min="2" max="200" value="20">
+    </label>
+  </div>
+  <div class="bars">
+    <div class="bar-wrap">
+      <div class="bar-val n" id="m3-brute-val" style="color:#b91c1c;">0</div>
+      <div class="bar brute" id="m3-brute-bar"></div>
+      <div class="bar-label">Brute O(n²)<br>≈ n(n−1)/2</div>
+    </div>
+    <div class="bar-wrap">
+      <div class="bar-val" id="m3-opt-val" style="color:#047857;">0</div>
+      <div class="bar opt" id="m3-opt-bar"></div>
+      <div class="bar-label">Optimal O(n)<br>= n</div>
+    </div>
+  </div>
+  <div class="ratio" id="m3-ratio"></div>
+  <div class="explain">Kéo slider để thấy: brute giãn theo <strong>n²</strong> (cao vọt), optimal chỉ tuyến tính. Ở n nhỏ chênh lệch không đáng kể (mục 8 README: brute là đủ); n lớn thì cách biệt bùng nổ.</div>
+</div>
+
+</main>
+
+<script>
+// ============ MODULE 1: Two Sum side-by-side ============
+(function () {
+  const arrInput = document.getElementById('m1-arr');
+  const tInput = document.getElementById('m1-target');
+  const bruteArr = document.getElementById('m1-brute-arr');
+  const hashArr = document.getElementById('m1-hash-arr');
+  const bruteOps = document.getElementById('m1-brute-ops');
+  const hashOps = document.getElementById('m1-hash-ops');
+  const bruteStatus = document.getElementById('m1-brute-status');
+  const hashStatus = document.getElementById('m1-hash-status');
+  const seenBox = document.getElementById('m1-hash-seen');
+
+  let nums = [], target = 0;
+  let bruteState = null, hashState = null;
+  let timer = null;
+
+  function parse() {
+    nums = arrInput.value.split(',').map(s => parseInt(s.trim(), 10)).filter(x => !isNaN(x));
+    target = parseInt(tInput.value, 10) || 0;
+  }
+
+  function renderArr(el, classes) {
+    el.innerHTML = '';
+    nums.forEach((v, k) => {
+      const c = document.createElement('div');
+      c.className = 'cell' + (classes[k] ? ' ' + classes[k] : '');
+      c.innerHTML = `<span class="idx">${k}</span>${v}`;
+      el.appendChild(c);
+    });
+  }
+
+  function reset() {
+    if (timer) { clearInterval(timer); timer = null; }
+    parse();
+    bruteState = { i: 0, j: 1, ops: 0, done: false };
+    hashState = { i: 0, ops: 0, seen: {}, done: false };
+    bruteOps.textContent = '0'; hashOps.textContent = '0';
+    bruteStatus.textContent = ''; hashStatus.textContent = '';
+    seenBox.textContent = 'seen = {}';
+    renderArr(bruteArr, {});
+    renderArr(hashArr, {});
+  }
+
+  function seenStr(s) {
+    const parts = Object.entries(s).map(([k, v]) => `${k}:${v}`);
+    return 'seen = {' + parts.join(', ') + '}';
+  }
+
+  // one step of brute
+  function bruteStep() {
+    if (bruteState.done) return;
+    const s = bruteState;
+    if (s.i >= nums.length - 1) { s.done = true; bruteStatus.textContent = '✗ không có cặp'; return; }
+    s.ops++;
+    bruteOps.textContent = s.ops;
+    const classes = {};
+    classes[s.i] = 'i'; classes[s.j] = 'j';
+    if (nums[s.i] + nums[s.j] === target) {
+      classes[s.i] = 'found'; classes[s.j] = 'found';
+      renderArr(bruteArr, classes);
+      bruteStatus.textContent = `✓ nums[${s.i}]+nums[${s.j}] = ${nums[s.i]}+${nums[s.j]} = ${target}`;
+      s.done = true; return;
+    }
+    renderArr(bruteArr, classes);
+    bruteStatus.textContent = `${nums[s.i]}+${nums[s.j]} = ${nums[s.i]+nums[s.j]} ≠ ${target}`;
+    s.j++;
+    if (s.j >= nums.length) { s.i++; s.j = s.i + 1; }
+  }
+
+  // one step of hash
+  function hashStep() {
+    if (hashState.done) return;
+    const s = hashState;
+    if (s.i >= nums.length) { s.done = true; hashStatus.textContent = '✗ không có cặp'; return; }
+    s.ops++;
+    hashOps.textContent = s.ops;
+    const v = nums[s.i], need = target - v;
+    const classes = {};
+    classes[s.i] = 'i';
+    if (s.seen[need] !== undefined) {
+      classes[s.i] = 'found'; classes[s.seen[need]] = 'found';
+      renderArr(hashArr, classes);
+      hashStatus.textContent = `✓ need ${need} có ở idx ${s.seen[need]} → cặp [${s.seen[need]}, ${s.i}]`;
+      s.done = true; return;
+    }
+    s.seen[v] = s.i;
+    seenBox.textContent = seenStr(s.seen);
+    renderArr(hashArr, classes);
+    hashStatus.textContent = `v=${v}, need=${need} chưa thấy → lưu seen[${v}]=${s.i}`;
+    s.i++;
+  }
+
+  function step() {
+    if (!bruteState) reset();
+    bruteStep(); hashStep();
+  }
+
+  function run() {
+    reset();
+    timer = setInterval(() => {
+      if (bruteState.done && hashState.done) {
+        clearInterval(timer); timer = null;
+        const ratio = hashState.ops > 0 ? (bruteState.ops / hashState.ops).toFixed(1) : '∞';
+        document.getElementById('m1-explain').innerHTML =
+          `Xong: Brute dùng <strong style="color:#b91c1c">${bruteState.ops}</strong> phép so sánh, Hash dùng <strong style="color:#047857">${hashState.ops}</strong> bước → hash nhanh hơn ~<strong>${ratio}×</strong> trên mảng này. Mảng càng lớn / đáp án càng ở cuối, chênh lệch càng bùng nổ.`;
+        return;
+      }
+      step();
+    }, 500);
+  }
+
+  document.getElementById('m1-run').onclick = run;
+  document.getElementById('m1-step').onclick = step;
+  document.getElementById('m1-reset').onclick = reset;
+  arrInput.onchange = reset; tInput.onchange = reset;
+  reset();
+})();
+
+// ============ MODULE 2: Optimization picker ============
+(function () {
+  const data = {
+    recompute: {
+      tech: 'Precompute / Prefix sum',
+      desc: 'Tính trước một lần (vd mảng prefix sum) để mỗi truy vấn "tổng đoạn [l,r]" chỉ còn một phép trừ pre[r+1]−pre[l], thay vì cộng lại từ đầu.',
+      before: 'O(n²) hoặc O(n³)', after: 'O(n)'
+    },
+    search: {
+      tech: 'Hash map / Sort + Binary search',
+      desc: 'Thay vòng lặp quét cả list tìm một giá trị bằng tra cứu hash O(1) trung bình. Nếu không muốn tốn space hoặc cần thứ tự → sort rồi binary search O(log n).',
+      before: 'O(n²)', after: 'O(n) hash / O(n log n) sort+bs'
+    },
+    pairs: {
+      tech: 'Two-pointer / Sliding window',
+      desc: 'Khi dữ liệu đã sort hoặc đại lượng đơn điệu, hai con trỏ chỉ đi một chiều, gặp nhau ở giữa → mỗi phần tử thăm O(1) lần. Sliding window là biến thể cho "đoạn con thỏa điều kiện".',
+      before: 'O(n²)', after: 'O(n)'
+    },
+    overlap: {
+      tech: 'Dynamic Programming (memoize / tabulation)',
+      desc: 'Khi cùng một state f(...) bị tính lại nhiều lần (overlapping subproblems), nhớ kết quả lần đầu → mỗi state tính đúng một lần. Biến độ phức tạp mũ thành đa thức.',
+      before: 'O(2^n) mũ', after: 'O(n) hoặc O(n·m) đa thức'
+    }
+  };
+  const sug = document.getElementById('m2-sug');
+  document.querySelectorAll('#m2-grid .smell').forEach(el => {
+    el.onclick = () => {
+      document.querySelectorAll('#m2-grid .smell').forEach(x => x.classList.remove('active'));
+      el.classList.add('active');
+      const d = data[el.dataset.key];
+      document.getElementById('m2-tech').textContent = '🔧 ' + d.tech;
+      document.getElementById('m2-desc').textContent = d.desc;
+      document.getElementById('m2-bigo').innerHTML =
+        `Big-O: <span class="before">${d.before}</span> → <span class="after">${d.after}</span>`;
+      sug.classList.add('show');
+    };
+  });
+})();
+
+// ============ MODULE 3: Benchmark ============
+(function () {
+  const slider = document.getElementById('m3-n');
+  const nval = document.getElementById('m3-nval');
+  const bruteBar = document.getElementById('m3-brute-bar');
+  const optBar = document.getElementById('m3-opt-bar');
+  const bruteVal = document.getElementById('m3-brute-val');
+  const optVal = document.getElementById('m3-opt-val');
+  const ratioEl = document.getElementById('m3-ratio');
+  const MAXH = 230;
+
+  function fmt(x) {
+    if (x >= 1e6) return (x / 1e6).toFixed(1) + 'M';
+    if (x >= 1e3) return (x / 1e3).toFixed(1) + 'k';
+    return String(x);
+  }
+
+  function update() {
+    const n = parseInt(slider.value, 10);
+    nval.textContent = n;
+    const brute = n * (n - 1) / 2;
+    const opt = n;
+    // scale bar heights relative to brute (luôn cao nhất)
+    const hBrute = MAXH;
+    const hOpt = Math.max(2, Math.round(MAXH * opt / Math.max(brute, 1)));
+    bruteBar.style.height = hBrute + 'px';
+    optBar.style.height = hOpt + 'px';
+    bruteVal.textContent = fmt(brute);
+    optVal.textContent = fmt(opt);
+    const ratio = opt > 0 ? (brute / opt).toFixed(1) : '0';
+    if (n <= 20) {
+      ratioEl.innerHTML = `n=${n}: brute ${fmt(brute)} vs opt ${fmt(opt)} thao tác — chênh ~${ratio}×. <span style="color:#64748b;font-weight:400;">Còn nhỏ → brute hoàn toàn đủ (mục 8).</span>`;
+    } else {
+      ratioEl.innerHTML = `n=${n}: brute ${fmt(brute)} vs opt ${fmt(opt)} thao tác — brute tốn nhiều hơn <strong>${ratio}×</strong>. Chênh lệch tăng tuyến tính theo n.`;
+    }
+  }
+  slider.oninput = update;
+  update();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

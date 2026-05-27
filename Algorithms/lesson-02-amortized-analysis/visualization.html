@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<title>Lesson 02 — Phân tích Amortized trực quan</title>
+<style>
+  :root { --accent: #6b7280; --accent-soft: #f3f4f6; --accent-hover: #4b5563; }
+  .panel { background: #fff; border-radius: 10px; padding: 16px 18px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin: 0 0 6px 0; font-size: 1.15rem; }
+  .panel .hint { color: #555; font-size: .9rem; margin: 0 0 12px 0; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+  button { background: #6b7280; color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: .92rem; }
+  button:hover { background: #4b5563; }
+  button.primary { background: #d97706; } button.primary:hover { background: #b45309; }
+  button.green { background: #10b981; } button.green:hover { background: #059669; }
+  button.danger { background: #ef4444; } button.danger:hover { background: #dc2626; }
+  button:disabled { background: #cbd5e1; cursor: not-allowed; }
+  .stats { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0; }
+  .stat { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px 12px; min-width: 110px; }
+  .stat .k { font-size: .72rem; color: #6b7280; text-transform: uppercase; letter-spacing: .03em; }
+  .stat .v { font-size: 1.25rem; font-weight: 700; color: #111827; font-variant-numeric: tabular-nums; }
+  .stat.accent .v { color: #d97706; }
+  .stat.good .v { color: #059669; }
+
+  /* Module 1: dynamic array */
+  .arr-wrap { display: flex; flex-wrap: wrap; gap: 4px; margin: 8px 0; min-height: 44px; }
+  .cell { width: 40px; height: 40px; border-radius: 6px; display: flex; align-items: center; justify-content: center;
+          font-weight: 700; font-variant-numeric: tabular-nums; border: 2px solid #cbd5e1; background: #f1f5f9; color: #475569; transition: all .25s; }
+  .cell.filled { background: #d1fae5; border-color: #10b981; color: #065f46; }
+  .cell.empty { background: #f8fafc; border-color: #e2e8f0; color: #cbd5e1; }
+  .cell.copying { background: #fef3c7; border-color: #d97706; color: #92400e; transform: translateY(-4px); }
+  .cell.justadded { background: #dbeafe; border-color: #3b82f6; color: #1e40af; }
+
+  /* Module 2: binary counter */
+  .bits { display: flex; gap: 6px; margin: 8px 0; }
+  .bit { width: 48px; height: 56px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+         border: 2px solid #cbd5e1; background: #f8fafc; transition: all .2s; }
+  .bit .val { font-size: 1.6rem; font-weight: 800; line-height: 1; }
+  .bit .pos { font-size: .65rem; color: #94a3b8; margin-top: 2px; }
+  .bit.one { background: #ede9fe; border-color: #8b5cf6; }
+  .bit.one .val { color: #6d28d9; }
+  .bit.zero .val { color: #cbd5e1; }
+  .bit.flipping { background: #fef3c7; border-color: #d97706; transform: scale(1.12); }
+  .bit.flipping .val { color: #92400e; }
+
+  /* Module 3: credit */
+  .bank { display: flex; gap: 6px; flex-wrap: wrap; align-items: flex-end; min-height: 70px; margin: 10px 0;
+          background: #f9fafb; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 10px; }
+  .coin { width: 26px; height: 26px; border-radius: 50%; background: #fbbf24; border: 2px solid #d97706; color: #78350f;
+          display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 700; transition: all .3s; }
+  .coin.spend { background: #fca5a5; border-color: #ef4444; opacity: .3; transform: translateY(-12px) scale(.7); }
+  .op-log { font-family: ui-monospace, monospace; font-size: .82rem; color: #334155; background: #f1f5f9;
+            border-radius: 6px; padding: 8px 10px; margin-top: 8px; min-height: 20px; }
+
+  canvas { background: #fafafa; border: 1px solid #e5e7eb; border-radius: 8px; display: block; width: 100%; max-width: 560px; margin-top: 8px; }
+  .note { font-size: .85rem; color: #475569; background: #f8fafc; border-left: 3px solid #d97706; padding: 8px 12px; border-radius: 4px; margin-top: 10px; }
+
+  @media (max-width: 480px) {
+    .cell { width: 30px; height: 30px; font-size: .8rem; }
+    .bit { width: 38px; height: 48px; } .bit .val { font-size: 1.25rem; }
+    .coin { width: 22px; height: 22px; }
+    .stat { min-width: 90px; flex: 1 1 40%; }
+  }
+</style>
+</head>
+<body>
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-bigo-asymptotic/visualization.html">← L1: Big-O</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Amortized</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-recursion-recurrence/visualization.html">L3: Đệ quy &amp; Recurrence →</a>
+</nav>
+
+<h1>Phân tích Amortized — trực quan</h1>
+<p class="hint">Ba module minh họa vì sao một thao tác đôi khi đắt nhưng <strong>amortized</strong> (trung bình trên chuỗi) vẫn O(1).</p>
+
+<!-- ===== MODULE 1: DYNAMIC ARRAY ===== -->
+<section class="panel" id="m1">
+  <h2>1. Dynamic array grow (×2)</h2>
+  <p class="hint">Mỗi <code>append</code> rẻ (chi phí 1). Khi đầy, capacity nhân đôi và <strong>copy</strong> toàn bộ (đắt). Theo dõi tổng copy và amortized cost/op hội tụ về hằng số.</p>
+  <div class="controls">
+    <button class="primary" id="m1-append">+ Append 1</button>
+    <button class="green" id="m1-append10">+ Append 10</button>
+    <button class="danger" id="m1-reset">Reset</button>
+  </div>
+  <div class="arr-wrap" id="m1-arr"></div>
+  <div class="stats">
+    <div class="stat"><div class="k">length / capacity</div><div class="v" id="m1-lc">0 / 0</div></div>
+    <div class="stat accent"><div class="k">tổng copy</div><div class="v" id="m1-copy">0</div></div>
+    <div class="stat"><div class="k">tổng chi phí</div><div class="v" id="m1-cost">0</div></div>
+    <div class="stat good"><div class="k">amortized / op</div><div class="v" id="m1-amort">—</div></div>
+  </div>
+  <canvas id="m1-chart" width="560" height="200"></canvas>
+  <div class="note">Tổng copy = 1+2+4+8+... &lt; 2n (cấp số nhân) ⟹ amortized hội tụ về hằng số ~2–3 dù vài op lẻ tốn O(n).</div>
+</section>
+
+<!-- ===== MODULE 2: BINARY COUNTER ===== -->
+<section class="panel" id="m2">
+  <h2>2. Binary counter increment</h2>
+  <p class="hint">Mỗi <code>increment</code> lật các bit 1 đuôi thành 0 (carry) rồi 1 bit 0 thành 1. Worst-case lật cả k bit, nhưng amortized = <strong>2 flip</strong>.</p>
+  <div class="controls">
+    <button class="primary" id="m2-inc">+ Increment</button>
+    <button class="green" id="m2-inc8">+ Increment ×8</button>
+    <button class="danger" id="m2-reset">Reset</button>
+  </div>
+  <div class="bits" id="m2-bits"></div>
+  <div class="stats">
+    <div class="stat"><div class="k">giá trị</div><div class="v" id="m2-val">0</div></div>
+    <div class="stat"><div class="k">flip lần này</div><div class="v" id="m2-flip">0</div></div>
+    <div class="stat accent"><div class="k">tổng flip</div><div class="v" id="m2-total">0</div></div>
+    <div class="stat good"><div class="k">flip / increment</div><div class="v" id="m2-amort">—</div></div>
+  </div>
+  <div class="note">Tổng flip = n + n/2 + n/4 + ... &lt; 2n. Mỗi increment amortized đúng 2 flip (potential Φ = số bit 1).</div>
+</section>
+
+<!-- ===== MODULE 3: CREDIT / ACCOUNTING ===== -->
+<section class="panel" id="m3">
+  <h2>3. Credit visualizer (accounting method)</h2>
+  <p class="hint">Mỗi append "tính tiền" amortized = 3: 1 trả chi phí thực, 2 lưu thành <strong>credit</strong> (xu vàng). Khi grow, credit bị tiêu để trả copy — và <strong>không bao giờ âm</strong>.</p>
+  <div class="controls">
+    <button class="primary" id="m3-append">+ Append (tính tiền 3)</button>
+    <button class="danger" id="m3-reset">Reset</button>
+  </div>
+  <div class="bank" id="m3-bank"></div>
+  <div class="stats">
+    <div class="stat"><div class="k">length / cap</div><div class="v" id="m3-lc">0 / 0</div></div>
+    <div class="stat accent"><div class="k">credit ngân hàng</div><div class="v" id="m3-credit">0</div></div>
+    <div class="stat"><div class="k">tổng amortized</div><div class="v" id="m3-am">0</div></div>
+    <div class="stat good"><div class="k">tổng actual</div><div class="v" id="m3-ac">0</div></div>
+  </div>
+  <div class="op-log" id="m3-log">Nhấn "Append" để bắt đầu.</div>
+  <div class="note">Bất biến: tổng amortized (3/op) ≥ tổng actual ⟹ credit luôn ≥ 0. Đó là điều kiện để chặn amortized hợp lệ.</div>
+</section>
+
+<script>
+// ============ MODULE 1: DYNAMIC ARRAY ============
+(function () {
+  var length = 0, capacity = 0, totalCopy = 0, totalCost = 0, nAppend = 0;
+  var history = []; // amortized cost per op để vẽ chart
+  var arr = document.getElementById("m1-arr");
+  var elLC = document.getElementById("m1-lc"), elCopy = document.getElementById("m1-copy");
+  var elCost = document.getElementById("m1-cost"), elAmort = document.getElementById("m1-amort");
+  var chart = document.getElementById("m1-chart"), ctx = chart.getContext("2d");
+
+  function render(highlightCopy, justAdded) {
+    arr.innerHTML = "";
+    for (var i = 0; i < capacity; i++) {
+      var c = document.createElement("div");
+      c.className = "cell";
+      if (i < length) {
+        c.textContent = i;
+        if (highlightCopy && i < length - 1) c.className += " copying";
+        else if (justAdded && i === length - 1) c.className += " justadded";
+        else c.className += " filled";
+      } else {
+        c.className += " empty";
+      }
+      arr.appendChild(c);
+    }
+    elLC.textContent = length + " / " + capacity;
+    elCopy.textContent = totalCopy;
+    elCost.textContent = totalCost;
+    elAmort.textContent = nAppend ? (totalCost / nAppend).toFixed(2) : "—";
+    drawChart();
+  }
+
+  function drawChart() {
+    ctx.clearRect(0, 0, chart.width, chart.height);
+    var W = chart.width, H = chart.height, pad = 28;
+    // trục
+    ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad, 10); ctx.lineTo(pad, H - pad); ctx.lineTo(W - 8, H - pad); ctx.stroke();
+    ctx.fillStyle = "#94a3b8"; ctx.font = "10px sans-serif";
+    ctx.fillText("amortized/op", pad + 4, 18);
+    ctx.fillText("# append", W - 60, H - pad + 14);
+    if (history.length < 2) return;
+    var maxY = 6; // amortized hiếm khi > 6
+    function X(i) { return pad + (W - pad - 12) * i / (history.length - 1); }
+    function Y(v) { return (H - pad) - (H - pad - 10) * Math.min(v, maxY) / maxY; }
+    // đường y=2 tham chiếu
+    ctx.strokeStyle = "#fca5a5"; ctx.setLineDash([4, 3]);
+    ctx.beginPath(); ctx.moveTo(pad, Y(2)); ctx.lineTo(W - 8, Y(2)); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = "#ef4444"; ctx.fillText("y=2", W - 30, Y(2) - 3);
+    // đường amortized
+    ctx.strokeStyle = "#d97706"; ctx.lineWidth = 2; ctx.beginPath();
+    for (var i = 0; i < history.length; i++) {
+      if (i === 0) ctx.moveTo(X(i), Y(history[i])); else ctx.lineTo(X(i), Y(history[i]));
+    }
+    ctx.stroke();
+  }
+
+  function append() {
+    var grew = false;
+    if (length === capacity) {
+      var copyN = length;
+      capacity = capacity === 0 ? 1 : capacity * 2;
+      totalCopy += copyN; totalCost += copyN; grew = true;
+    }
+    length++; nAppend++; totalCost += 1;
+    history.push(totalCost / nAppend);
+    if (grew) {
+      render(true, false);
+      setTimeout(function () { render(false, true); }, 280);
+    } else {
+      render(false, true);
+    }
+  }
+
+  document.getElementById("m1-append").addEventListener("click", append);
+  document.getElementById("m1-append10").addEventListener("click", function () {
+    for (var i = 0; i < 10; i++) {
+      var grew = false;
+      if (length === capacity) {
+        var copyN = length; capacity = capacity === 0 ? 1 : capacity * 2;
+        totalCopy += copyN; totalCost += copyN;
+      }
+      length++; nAppend++; totalCost += 1; history.push(totalCost / nAppend);
+    }
+    render(false, true);
+  });
+  document.getElementById("m1-reset").addEventListener("click", function () {
+    length = capacity = totalCopy = totalCost = nAppend = 0; history = []; render(false, false);
+  });
+  render(false, false);
+})();
+
+// ============ MODULE 2: BINARY COUNTER ============
+(function () {
+  var K = 6, bits = new Array(K).fill(0);
+  var value = 0, totalFlip = 0, lastFlip = 0, nInc = 0;
+  var elBits = document.getElementById("m2-bits");
+  var elVal = document.getElementById("m2-val"), elFlip = document.getElementById("m2-flip");
+  var elTotal = document.getElementById("m2-total"), elAmort = document.getElementById("m2-amort");
+
+  function render(flipped) {
+    elBits.innerHTML = "";
+    for (var i = K - 1; i >= 0; i--) {
+      var b = document.createElement("div");
+      b.className = "bit " + (bits[i] ? "one" : "zero");
+      if (flipped && flipped.indexOf(i) >= 0) b.className += " flipping";
+      b.innerHTML = '<div class="val">' + bits[i] + '</div><div class="pos">2^' + i + '</div>';
+      elBits.appendChild(b);
+    }
+    elVal.textContent = value; elFlip.textContent = lastFlip; elTotal.textContent = totalFlip;
+    elAmort.textContent = nInc ? (totalFlip / nInc).toFixed(2) : "—";
+  }
+
+  function increment() {
+    var flipped = [], i = 0;
+    while (i < K && bits[i] === 1) { bits[i] = 0; flipped.push(i); i++; }
+    if (i < K) { bits[i] = 1; flipped.push(i); }
+    lastFlip = flipped.length; totalFlip += lastFlip; value = (value + 1) % (1 << K); nInc++;
+    render(flipped);
+    setTimeout(function () { render(null); }, 350);
+  }
+
+  document.getElementById("m2-inc").addEventListener("click", increment);
+  document.getElementById("m2-inc8").addEventListener("click", function () {
+    var i = 0;
+    (function step() {
+      if (i++ >= 8) return;
+      increment(); setTimeout(step, 200);
+    })();
+  });
+  document.getElementById("m2-reset").addEventListener("click", function () {
+    bits = new Array(K).fill(0); value = totalFlip = lastFlip = nInc = 0; render(null);
+  });
+  render(null);
+})();
+
+// ============ MODULE 3: CREDIT / ACCOUNTING ============
+(function () {
+  var length = 0, capacity = 0, credit = 0, totalAm = 0, totalAc = 0;
+  var bank = document.getElementById("m3-bank");
+  var elLC = document.getElementById("m3-lc"), elCredit = document.getElementById("m3-credit");
+  var elAm = document.getElementById("m3-am"), elAc = document.getElementById("m3-ac");
+  var log = document.getElementById("m3-log");
+
+  function renderBank(spentN) {
+    bank.innerHTML = "";
+    for (var i = 0; i < credit + (spentN || 0); i++) {
+      var c = document.createElement("div");
+      c.className = "coin"; c.textContent = "1";
+      if (spentN && i >= credit) c.className += " spend";
+      bank.appendChild(c);
+    }
+    if (credit === 0 && !spentN) {
+      var t = document.createElement("span");
+      t.style.color = "#94a3b8"; t.style.fontSize = ".85rem"; t.textContent = "(ngân hàng trống)";
+      bank.appendChild(t);
+    }
+    elLC.textContent = length + " / " + capacity;
+    elCredit.textContent = credit;
+    elAm.textContent = totalAm; elAc.textContent = totalAc;
+  }
+
+  function append() {
+    totalAm += 3; // tính tiền amortized = 3
+    var actual = 1, grew = false, copyN = 0;
+    credit += 2; // 1 trả actual ghi, 2 lưu credit (đã trừ 1 cho actual bên dưới)
+    if (length === capacity) {
+      copyN = length; actual += copyN; grew = true;
+      credit -= copyN; // tiêu credit trả copy
+    }
+    totalAc += actual;
+    if (grew) {
+      capacity = capacity === 0 ? 1 : capacity * 2;
+      log.textContent = "Append " + length + ": GROW! copy " + copyN + " phần tử. actual=" + actual +
+        ", tiêu " + copyN + " credit. Còn credit=" + credit + " (≥0 ✓)";
+      renderBank(copyN);
+      setTimeout(function () { renderBank(0); }, 400);
+    } else {
+      log.textContent = "Append " + length + ": rẻ. actual=1, +2 credit. credit=" + credit;
+      renderBank(0);
+    }
+    length++;
+    elLC.textContent = length + " / " + capacity;
+  }
+
+  document.getElementById("m3-append").addEventListener("click", append);
+  document.getElementById("m3-reset").addEventListener("click", function () {
+    length = capacity = credit = totalAm = totalAc = 0;
+    log.textContent = 'Nhấn "Append" để bắt đầu.'; renderBank(0);
+  });
+  renderBank(0);
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</main>
+</body>
+</html>

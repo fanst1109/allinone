@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L4 — Tính đúng đắn & Loop Invariant</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root { --accent: #6b7280; --accent-soft: #f1f5f9; --accent-hover: #475569; }
+  main { max-width: 920px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 24px; margin: 8px 0 4px; }
+  .lead { color: #475569; margin: 0 0 18px; }
+  .module {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+    padding: 18px; margin-bottom: 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .module h2 { font-size: 18px; margin: 0 0 4px; color: #1e293b; }
+  .module .sub { color: #64748b; font-size: 14px; margin: 0 0 14px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
+  button {
+    background: #4299e1; color: #fff; border: none; border-radius: 8px;
+    padding: 8px 14px; font-size: 14px; cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #2b6cb0; }
+  button:disabled { background: #cbd5e1; cursor: default; }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+  input[type=text] {
+    padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 8px;
+    font-size: 14px; width: 100%; max-width: 220px; box-sizing: border-box;
+  }
+  select { padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; }
+  .label { font-size: 13px; color: #475569; font-weight: 600; }
+
+  /* array of cells */
+  .arr { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+  .cell {
+    width: 46px; height: 46px; display: flex; align-items: center; justify-content: center;
+    border: 2px solid #cbd5e1; border-radius: 8px; font-weight: 700; font-size: 16px;
+    background: #fff; transition: all .25s ease; position: relative;
+  }
+  .cell .idx { position: absolute; top: -16px; left: 0; right: 0; font-size: 11px; color: #94a3b8; font-weight: 500; }
+  .cell.sorted { background: #d1fae5; border-color: #10b981; }   /* vùng invariant đã sắp */
+  .cell.key { background: #fef3c7; border-color: #f59e0b; }      /* phần tử đang chèn */
+  .cell.cmp { background: #dbeafe; border-color: #3b82f6; }      /* đang so sánh/dời */
+  .cell.range { background: #ede9fe; border-color: #8b5cf6; }    /* [lo,hi] binary search */
+  .cell.mid { background: #fde68a; border-color: #d97706; }      /* mid */
+  .cell.found { background: #bbf7d0; border-color: #16a34a; box-shadow: 0 0 0 3px rgba(22,163,74,.25); }
+  .cell.dead { background: #f1f5f9; border-color: #e2e8f0; color: #cbd5e1; }
+
+  .invbox {
+    background: #f8fafc; border-left: 4px solid var(--accent);
+    border-radius: 6px; padding: 10px 12px; font-size: 14px; margin-top: 10px; line-height: 1.5;
+  }
+  .invbox code { background: #e2e8f0; padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  .ok { color: #059669; font-weight: 700; }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: #475569; margin: 8px 0 2px; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .sw { width: 14px; height: 14px; border-radius: 4px; border: 2px solid; display: inline-block; }
+
+  /* termination tracker bars */
+  .barwrap { margin-top: 12px; }
+  .barrow { display: flex; align-items: center; gap: 10px; margin: 6px 0; font-size: 13px; }
+  .barrow .vtag { width: 110px; color: #475569; }
+  .bartrack { flex: 1; background: #f1f5f9; border-radius: 6px; height: 26px; position: relative; overflow: hidden; min-width: 0; }
+  .barfill { height: 100%; background: linear-gradient(90deg,#f87171,#fbbf24); border-radius: 6px; transition: width .3s ease; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; color: #7c2d12; font-weight: 700; font-size: 12px; box-sizing: border-box; }
+  .floor { position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: #16a34a; }
+  .tlog { font-family: ui-monospace, monospace; font-size: 13px; background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 10px 12px; margin-top: 10px; max-height: 180px; overflow-y: auto; line-height: 1.5; }
+  .tlog .ln { white-space: pre-wrap; }
+  .tlog .hot { color: #fbbf24; }
+
+  @media (max-width: 480px) {
+    .cell { width: 36px; height: 36px; font-size: 14px; }
+    main { padding: 10px; }
+    .barrow .vtag { width: 84px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-recursion-recurrence/visualization.html">← L3: Đệ quy &amp; Recurrence</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Correctness</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-bruteforce-to-optimize/visualization.html">L5: Brute-force → Tối ưu →</a>
+</nav>
+
+<main>
+  <h1>Tính đúng đắn &amp; Loop Invariant</h1>
+  <p class="lead">Ba module tương tác: xem invariant được <strong>duy trì từng bước</strong> trong insertion sort &amp; binary search, và theo dõi <strong>variant giảm dần</strong> chứng minh thuật toán dừng.</p>
+
+  <!-- MODULE 1: Insertion sort invariant -->
+  <section class="module">
+    <h2>1 · Insertion sort — invariant "a[0..i−1] đã sắp xếp"</h2>
+    <p class="sub">Vùng <span style="color:#10b981;font-weight:700">xanh</span> luôn thỏa invariant: đã sắp xếp tăng dần. Bấm "Bước" để xem nó lớn dần tới khi phủ cả mảng.</p>
+    <div class="controls">
+      <button id="is-step">▶ Bước</button>
+      <button id="is-auto" class="ghost">⏩ Tự chạy</button>
+      <button id="is-reset" class="ghost">↺ Mảng mới</button>
+    </div>
+    <div class="legend">
+      <span><i class="sw" style="background:#d1fae5;border-color:#10b981"></i> a[0..i−1] đã sắp (invariant)</span>
+      <span><i class="sw" style="background:#fef3c7;border-color:#f59e0b"></i> key đang chèn</span>
+      <span><i class="sw" style="background:#dbeafe;border-color:#3b82f6"></i> đang dời/so sánh</span>
+    </div>
+    <div class="arr" id="is-arr"></div>
+    <div class="invbox" id="is-inv"></div>
+  </section>
+
+  <!-- MODULE 2: Binary search invariant -->
+  <section class="module">
+    <h2>2 · Binary search — invariant "target ∈ [lo, hi]"</h2>
+    <p class="sub">Mảng đã sắp xếp. Vùng <span style="color:#8b5cf6;font-weight:700">tím</span> = đoạn [lo,hi] còn phải xét. Mỗi bước đoạn co lại (variant giảm) nhưng invariant "nếu target có thì nó nằm trong đoạn tím" luôn đúng.</p>
+    <div class="controls">
+      <span class="label">target:</span>
+      <input type="text" id="bs-target" value="9" inputmode="numeric">
+      <button id="bs-start">⟲ Đặt lại</button>
+      <button id="bs-step">▶ Bước</button>
+      <button id="bs-auto" class="ghost">⏩ Tự chạy</button>
+    </div>
+    <div class="legend">
+      <span><i class="sw" style="background:#ede9fe;border-color:#8b5cf6"></i> [lo,hi] còn xét</span>
+      <span><i class="sw" style="background:#fde68a;border-color:#d97706"></i> mid</span>
+      <span><i class="sw" style="background:#f1f5f9;border-color:#e2e8f0"></i> đã loại</span>
+      <span><i class="sw" style="background:#bbf7d0;border-color:#16a34a"></i> tìm thấy</span>
+    </div>
+    <div class="arr" id="bs-arr"></div>
+    <div class="invbox" id="bs-inv"></div>
+  </section>
+
+  <!-- MODULE 3: Termination tracker -->
+  <section class="module">
+    <h2>3 · Termination tracker — variant giảm dần tới chặn dưới</h2>
+    <p class="sub">Chứng minh thuật toán <strong>dừng</strong> = tìm đại lượng số nguyên <strong>giảm chặt</strong> mỗi vòng &amp; có <strong>chặn dưới</strong>. Vạch <span style="color:#16a34a;font-weight:700">xanh</span> là chặn dưới (0). Thanh rút ngắn dần → loop hữu hạn.</p>
+    <div class="controls">
+      <span class="label">Loop:</span>
+      <select id="tt-sel">
+        <option value="bs">Binary search · variant = hi − lo + 1</option>
+        <option value="gcd">Euclid GCD · variant = b</option>
+        <option value="for">for i:=0;i&lt;n;i++ · variant = n − i</option>
+      </select>
+      <button id="tt-run">▶ Chạy</button>
+      <button id="tt-step">▶ Bước</button>
+    </div>
+    <div class="barwrap" id="tt-bars"></div>
+    <div class="tlog" id="tt-log"></div>
+  </section>
+</main>
+
+<script>
+/* ---------- Module 1: Insertion sort ---------- */
+(function(){
+  const arrEl = document.getElementById('is-arr');
+  const invEl = document.getElementById('is-inv');
+  let a, i, j, key, phase, autoT = null;
+
+  function randArr(){
+    const n = 6;
+    return Array.from({length:n}, () => Math.floor(Math.random()*9)+1);
+  }
+  function init(){
+    a = randArr(); i = 1; j = 0; key = null; phase = 'start';
+    stopAuto(); render();
+  }
+  function render(){
+    arrEl.innerHTML = '';
+    a.forEach((v, idx) => {
+      const c = document.createElement('div');
+      c.className = 'cell';
+      c.innerHTML = '<span class="idx">'+idx+'</span>' + v;
+      if (idx < i) c.classList.add('sorted');
+      if (phase === 'insert' && idx === j+1) c.classList.add('key');
+      else if (phase === 'compare' && idx === j) c.classList.add('cmp');
+      arrEl.appendChild(c);
+    });
+    let msg;
+    if (phase === 'start' || phase === 'pick'){
+      msg = '<strong>Invariant trước vòng i='+i+':</strong> <code>a[0..'+(i-1)+']</code> đã sắp xếp tăng dần. <span class="ok">✓ duy trì</span>'
+          + (i < a.length ? '<br>Chuẩn bị chèn <code>key=a['+i+']='+a[i]+'</code> vào vùng xanh.' : '<br><span class="ok">Loop thoát (i='+i+'=n) → cả mảng đã sắp xếp. ✓ Đúng đắn!</span>');
+    } else if (phase === 'compare'){
+      msg = 'So sánh <code>a['+j+']='+a[j]+'</code> với <code>key='+key+'</code>. ' + (j>=0 && a[j]>key ? 'Lớn hơn → dời phải.' : 'Không lớn hơn → dừng dời, đặt key vào.');
+    } else if (phase === 'insert'){
+      msg = 'Đặt <code>key='+key+'</code> vào vị trí <code>'+(j+1)+'</code>. Vùng <code>a[0..'+i+']</code> giờ đã sắp xếp → invariant đúng cho i='+(i+1)+'.';
+    }
+    invEl.innerHTML = msg;
+  }
+  function step(){
+    if (i >= a.length){ stopAuto(); return; }
+    if (phase === 'start' || phase === 'pick'){
+      key = a[i]; j = i-1; phase = 'compare'; render(); return;
+    }
+    if (phase === 'compare'){
+      if (j >= 0 && a[j] > key){ a[j+1] = a[j]; j--; phase='compare'; render(); }
+      else { phase = 'insert'; render(); }
+      return;
+    }
+    if (phase === 'insert'){
+      a[j+1] = key; i++; phase = 'pick'; render(); return;
+    }
+  }
+  function stopAuto(){ if(autoT){ clearInterval(autoT); autoT=null; document.getElementById('is-auto').textContent='⏩ Tự chạy'; } }
+  document.getElementById('is-step').onclick = () => { stopAuto(); step(); };
+  document.getElementById('is-reset').onclick = init;
+  document.getElementById('is-auto').onclick = function(){
+    if (autoT){ stopAuto(); return; }
+    this.textContent = '⏸ Dừng';
+    autoT = setInterval(() => { if (i >= a.length){ stopAuto(); } else step(); }, 650);
+  };
+  init();
+})();
+
+/* ---------- Module 2: Binary search ---------- */
+(function(){
+  const arrEl = document.getElementById('bs-arr');
+  const invEl = document.getElementById('bs-inv');
+  const tIn = document.getElementById('bs-target');
+  const a = [1,3,5,7,9,11,13,15];
+  let lo, hi, mid, target, done, autoT = null;
+
+  function reset(){
+    target = parseInt(tIn.value, 10);
+    if (isNaN(target)) target = 9;
+    lo = 0; hi = a.length-1; mid = null; done = false;
+    stopAuto(); render();
+  }
+  function render(){
+    arrEl.innerHTML = '';
+    a.forEach((v, idx) => {
+      const c = document.createElement('div');
+      c.className = 'cell';
+      c.innerHTML = '<span class="idx">'+idx+'</span>' + v;
+      if (done === 'found' && idx === mid) c.classList.add('found');
+      else if (idx < lo || idx > hi) c.classList.add('dead');
+      else if (idx === mid) c.classList.add('mid');
+      else c.classList.add('range');
+      arrEl.appendChild(c);
+    });
+    const size = hi - lo + 1;
+    let msg = '<strong>Invariant:</strong> nếu <code>'+target+'</code> tồn tại thì nó nằm trong <code>a['+lo+'..'+hi+']</code> '
+            + '(variant <code>hi−lo+1 = '+Math.max(size,0)+'</code>).';
+    if (done === 'found') msg = '<span class="ok">✓ Tìm thấy '+target+' tại index '+mid+'.</span> Invariant đảm bảo nếu có thì ở đây — và đúng là ở đây.';
+    else if (done === 'absent') msg = '<span class="ok">Đoạn rỗng (lo > hi).</span> Invariant: "nếu tồn tại thì ∈ đoạn rỗng" → vô lý → <code>'+target+'</code> KHÔNG tồn tại → trả −1. ✓';
+    else if (mid !== null) msg += '<br>Xét <code>mid='+mid+', a[mid]='+a[mid]+'</code>: ' + (a[mid]===target?'== target → tìm thấy.': a[mid]<target?'< target → loại nửa trái, lo='+(mid+1)+'.':'> target → loại nửa phải, hi='+(mid-1)+'.');
+    invEl.innerHTML = msg;
+  }
+  function step(){
+    if (done){ stopAuto(); return; }
+    if (lo > hi){ done='absent'; mid=null; stopAuto(); render(); return; }
+    mid = lo + ((hi - lo) >> 1);
+    if (a[mid] === target){ done='found'; stopAuto(); render(); return; }
+    if (a[mid] < target) lo = mid + 1; else hi = mid - 1;
+    render();
+  }
+  function stopAuto(){ if(autoT){ clearInterval(autoT); autoT=null; document.getElementById('bs-auto').textContent='⏩ Tự chạy'; } }
+  document.getElementById('bs-start').onclick = reset;
+  document.getElementById('bs-step').onclick = () => { stopAuto(); step(); };
+  document.getElementById('bs-auto').onclick = function(){
+    if (autoT){ stopAuto(); return; }
+    this.textContent = '⏸ Dừng';
+    autoT = setInterval(() => { if (done){ stopAuto(); } else step(); }, 800);
+  };
+  tIn.addEventListener('keydown', e => { if (e.key === 'Enter') reset(); });
+  reset();
+})();
+
+/* ---------- Module 3: Termination tracker ---------- */
+(function(){
+  const sel = document.getElementById('tt-sel');
+  const barsEl = document.getElementById('tt-bars');
+  const logEl = document.getElementById('tt-log');
+  let steps, idx, maxV, autoT = null;
+
+  function build(kind){
+    steps = []; idx = 0;
+    if (kind === 'bs'){
+      // binary search variant hi-lo+1 on n=16
+      let lo=0, hi=15, target=10;
+      const arr = Array.from({length:16},(_,k)=>k);
+      maxV = 16;
+      while (lo <= hi){
+        const v = hi - lo + 1;
+        const mid = lo + ((hi-lo)>>1);
+        let act;
+        if (arr[mid] === target){ steps.push({v, txt:'lo='+lo+' hi='+hi+' mid='+mid+' a[mid]='+arr[mid]+' == target → DỪNG (tìm thấy)'}); break; }
+        if (arr[mid] < target){ act='lo='+(mid+1); lo=mid+1; } else { act='hi='+(mid-1); hi=mid-1; }
+        steps.push({v, txt:'lo='+ (act.startsWith('lo')? '→'+(mid+1): lo) +' hi='+(act.startsWith('hi')?'→'+(mid-1):hi)+' mid='+mid+' → variant '+v+' giảm'});
+      }
+    } else if (kind === 'gcd'){
+      let A=48, B=18; maxV = 18;
+      while (B !== 0){
+        const v = B;
+        const r = A % B;
+        steps.push({v, txt:'gcd('+A+','+B+') → b='+B+' giảm thành '+r});
+        A = B; B = r;
+      }
+      steps.push({v:0, txt:'b=0 → DỪNG, trả a='+A});
+      maxV = 18;
+    } else { // for
+      const n = 10; maxV = n;
+      for (let i=0;i<n;i++){ steps.push({v: n-i, txt:'i='+i+' → variant n−i = '+(n-i)+' giảm'}); }
+      steps.push({v:0, txt:'i=n=10 → variant=0, DỪNG'});
+    }
+    renderBars(); logEl.innerHTML = '';
+  }
+  function renderBars(){
+    const cur = idx < steps.length ? steps[idx] : steps[steps.length-1];
+    const v = cur ? cur.v : 0;
+    barsEl.innerHTML =
+      '<div class="barrow"><span class="vtag">variant</span>'
+      + '<div class="bartrack"><div class="floor" title="chặn dưới = 0"></div>'
+      + '<div class="barfill" style="width:'+(maxV? Math.max(v/maxV*100,3):3)+'%">'+v+'</div></div></div>'
+      + '<div style="font-size:12px;color:#64748b;margin-top:4px">Bước '+Math.min(idx+1,steps.length)+'/'+steps.length+' · chặn dưới = 0 (vạch xanh). Variant chỉ giảm, không thể giảm vô hạn → loop DỪNG.</div>';
+  }
+  function logStep(){
+    if (idx >= steps.length){ stopAuto(); return; }
+    const s = steps[idx];
+    const line = document.createElement('div');
+    line.className = 'ln';
+    const last = idx === steps.length-1;
+    line.innerHTML = (last?'<span class="hot">':'')+'['+(idx+1)+'] '+s.txt+(last?'</span>':'');
+    logEl.appendChild(line);
+    logEl.scrollTop = logEl.scrollHeight;
+    idx++; renderBars();
+  }
+  function stopAuto(){ if(autoT){ clearInterval(autoT); autoT=null; } }
+  document.getElementById('tt-run').onclick = () => {
+    build(sel.value); stopAuto();
+    autoT = setInterval(() => { if (idx >= steps.length){ stopAuto(); } else logStep(); }, 600);
+  };
+  document.getElementById('tt-step').onclick = () => {
+    if (idx >= steps.length || logEl.childElementCount === 0 && idx === 0 && steps.length === 0){ build(sel.value); }
+    if (steps.length === 0) build(sel.value);
+    stopAuto(); logStep();
+  };
+  sel.onchange = () => { build(sel.value); };
+  build('bs');
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

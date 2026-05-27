@@ -56,7 +56,10 @@ Một giao thức consensus đúng phải bảo đảm các tính chất:
 2. **Thứ tự log.** — Client gửi `set x=1`, `set x=2`. Mọi node phải apply cùng thứ tự, nếu không node A có `x=1`, node B có `x=2` → mâu thuẫn.
 3. **Một giá trị config.** — "Khóa phân tán này đang do ai giữ?" chỉ được có 1 đáp án.
 
-### 1.3 Vì sao không dùng giải pháp đơn giản hơn?
+> 🔁 **Dừng lại tự kiểm tra.** Trong 3 ví dụ trên, cái nào là "đồng ý **một** giá trị", cái nào là "đồng ý **chuỗi** giá trị"?
+> <details><summary>Đáp án</summary>
+> "Ai là leader" và "khóa do ai giữ" là đồng ý **một** giá trị (tại một thời điểm). "Thứ tự log" là đồng ý **một chuỗi** giá trị có thứ tự. Raft giải bài toán chuỗi (replicated log) — và bài toán một-giá-trị chỉ là trường hợp riêng (log có đúng 1 entry quan trọng).
+> </details>
 
 > ❓ **Các "giải pháp ngây thơ" và vì sao chúng hỏng.**
 >
@@ -65,6 +68,11 @@ Một giao thức consensus đúng phải bảo đảm các tính chất:
 > - *"Hai node hỏi nhau xem ai làm leader."* → Nếu link giữa chúng đứt (partition), mỗi node tưởng node kia chết và tự lên leader → **split-brain**. Đây chính là lý do cần **majority** chứ không phải "thoả thuận tay đôi".
 >
 > Consensus là **giải pháp tối thiểu đúng**: không có cách nào đơn giản hơn mà vẫn an toàn khi node chết + mạng phân vùng.
+
+> 📝 **Tóm tắt mục 1.**
+> - Consensus = N node thống nhất một giá trị / một chuỗi giá trị có thứ tự, dù node chết & mạng tệ.
+> - 3 tính chất: Agreement (không mâu thuẫn), Validity (không bịa), Termination (cuối cùng có kết quả).
+> - Mọi giải pháp "ngây thơ" (ID nhỏ nhất, DB trung tâm, hỏi tay đôi) đều hỏng khi có crash + partition → cần consensus thật.
 
 ---
 
@@ -117,6 +125,11 @@ Ba mẫu ứng dụng kinh điển:
 4. Client gửi `del name` → log #2, commit → state `{age: 30}` ở cả 3.
 
 Vì cả 3 node ăn **cùng log** `[set name, set age, del name]` theo **cùng thứ tự**, chúng luôn cho **cùng kết quả** khi đọc — dù bất kỳ 1 node nào từng tạm chết rồi quay lại (nó replay log để bắt kịp). Đây chính là sản phẩm cuối cùng mà consensus tạo ra.
+
+> 📝 **Tóm tắt mục 3.**
+> - etcd/Consul/Kafka(KRaft)/CockroachDB/TiKV đều dùng Raft; ZooKeeper dùng ZAB.
+> - 3 mẫu ứng dụng: leader election, distributed lock, replicated state machine (RSM).
+> - RSM là dạng tổng quát nhất: cùng state ban đầu + cùng log có thứ tự = cùng kết quả.
 
 ---
 

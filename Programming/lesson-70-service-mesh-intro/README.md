@@ -123,8 +123,10 @@ Cơ chế (walk-through cụ thể):
    "gọi http://checkout"            Envoy↔Envoy lo mọi network concern
 ```
 
+**Cơ chế iptables cụ thể (vì sao app "không biết"):** khi inject sidecar, mesh chạy một init-container cài quy tắc iptables trong network namespace của pod, đại ý: "mọi gói tin outbound (trừ tới chính Envoy) → chuyển hướng (REDIRECT) tới cổng Envoy `15001`; mọi gói inbound → chuyển tới cổng `15006`". Vì app và Envoy **chung network namespace** (cùng pod), app gọi `connect(checkout:80)` nhưng kernel lặng lẽ nối socket đó vào Envoy. App nhận về response bình thường, không hề biết đã đi vòng. Đây là lý do mesh "trong suốt" — không SDK, không đổi code, không đổi biến môi trường.
+
 > ❓ **Câu hỏi tự nhiên.**
-> - *"App gọi localhost — tức là phải đổi code để trỏ về localhost?"* → Không. App vẫn gọi `http://checkout`. `iptables` âm thầm chuyển hướng. App hoàn toàn không biết có Envoy. Đó là điểm hay nhất.
+> - *"App gọi localhost — tức là phải đổi code để trỏ về localhost?"* → Không. App vẫn gọi `http://checkout`. `iptables` âm thầm chuyển hướng (REDIRECT về cổng 15001/15006 của Envoy). App hoàn toàn không biết có Envoy. Đó là điểm hay nhất.
 > - *"Mỗi pod thêm 1 container — tốn gấp đôi?"* → Không gấp đôi, nhưng có overhead thật (Envoy ăn ~50–100MB RAM, vài % CPU mỗi pod). Sẽ định lượng kỹ ở mục 11.
 
 📝 **Tóm tắt mục 3.** Mỗi service được gắn 1 **sidecar proxy (Envoy)** chạy cùng pod; `iptables` chuyển toàn bộ traffic qua nó; app gọi như bình thường còn proxy lo hết network concern. App ↔ Envoy qua `localhost`, Envoy ↔ Envoy qua mạng (mTLS).
@@ -483,7 +485,11 @@ Mesh không phải lựa chọn duy nhất cho cross-cutting concern:
 
 Xu hướng mới: **sidecar-less mesh** (Istio Ambient mode, Cilium) — bỏ proxy-per-pod để giảm overhead RAM/latency, là phản ứng trực tiếp với cost ở mục 11.
 
+**Vì sao eBPF giảm được overhead:** mesh sidecar truyền thống = mỗi pod một proxy *userspace*, gói tin phải đi từ kernel lên userspace (Envoy) rồi xuống lại kernel — đó là phần "+1–2ms" và phần RAM/CPU. eBPF chèn chương trình nhỏ chạy **ngay trong kernel** ở các hook mạng, xử lý nhiều việc L3/L4 (và một phần L7) mà **không** phải nhảy lên userspace per-pod → ít copy gói, ít context switch → overhead thấp hơn. Đánh đổi: viết/hiểu eBPF khó, tính năng L7 nâng cao (vd retry HTTP phức tạp) còn đang hoàn thiện so với Envoy.
+
 > 💡 **Trực giác chọn lựa.** Traffic **vào hệ** (north-south) → **API gateway**. Traffic **giữa các service** (east-west), cùng ngôn ngữ, ít service → **library**. East-west, đa ngôn ngữ, nhiều service → **mesh**. Quan tâm overhead → cân nhắc **eBPF/ambient**.
+
+> 📝 **Tóm tắt toàn bài.** Microservice cần retry/timeout/CB/mTLS/tracing/LB ở **mọi** cuộc gọi — viết tay thì lặp và đa ngôn ngữ khó đồng nhất. **Service mesh** đẩy hết xuống tầng hạ tầng: mỗi service có **sidecar proxy (Envoy)** lo network, app chỉ gọi như thường. **Data plane** (Envoy) xử lý traffic, **control plane** (Istiod) cấu hình tập trung qua YAML, không nằm trên data path. **Istio** mạnh nhưng phức tạp, **Linkerd** nhẹ và đơn giản. Tính năng cốt lõi (mTLS tự động, canary, fault injection, observability) đều là **config, zero code**. Cái giá: **+1–2ms/hop, CPU, ~50–100MB RAM/pod, độ phức tạp vận hành**. **Dùng** khi nhiều service + đa ngôn ngữ + cần nhất quán + có team platform; **đừng dùng** khi ít service / team nhỏ / cùng ngôn ngữ / latency cực nhạy. Alternative: library, API gateway, eBPF (Cilium). Pitfall lớn nhất: **adopt quá sớm**.
 
 ---
 

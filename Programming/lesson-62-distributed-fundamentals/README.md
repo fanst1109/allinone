@@ -21,6 +21,8 @@ Sau bài này bạn sẽ:
 - [Lesson 27 — Goroutines & Channels](../lesson-27-goroutines-channels/README.md): tư duy concurrency. Distributed là concurrency nhưng *không có shared memory* và *có thể mất tin nhắn*.
 - [Lesson 29 — Context & Cancellation](../lesson-29-context-cancellation/README.md): timeout, deadline — công cụ sống còn khi gọi mạng.
 
+> Lưu ý đọc: bài này nặng *khái niệm* hơn *code*. Mỗi mục nên đọc kèm mở [visualization.html](./visualization.html) để thao tác trực tiếp (kéo slider partition, gửi event vector clock, chỉnh W/R quorum) — trực giác hình thành nhanh hơn nhiều so với chỉ đọc chữ.
+
 ---
 
 ## 1. Vì sao phải distributed?

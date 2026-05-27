@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 22 — Greedy vs Dynamic Programming</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .lead { color: #4a5568; max-width: 760px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.1); margin: 18px 0;
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px; }
+  .controls label { font-weight: 600; color: #2d3748; font-size: 14px; }
+  select, input[type="number"] {
+    padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 15px; max-width: 160px; width: 100%; box-sizing: border-box;
+  }
+  .ctl-group { display: flex; flex-direction: column; gap: 4px; }
+  button {
+    padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;
+    font-size: 14px; font-weight: 600; background: #4299e1; color: white;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+
+  /* hai cột so sánh greedy / dp */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .pane { border: 2px solid #e2e8f0; border-radius: 8px; padding: 14px; background: #f7fafc; }
+  .pane h3 { margin: 0 0 10px; font-size: 16px; }
+  .pane.greedy h3 { color: #dd6b20; }
+  .pane.dp h3 { color: #38a169; }
+  .pane.loser { border-color: #e53e3e; background: #fff5f5; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 700; margin-left: 6px; }
+  .badge.ok { background: #c6f6d5; color: #22543d; }
+  .badge.bad { background: #fed7d7; color: #742a2a; }
+
+  /* đồng tiền / món hàng */
+  .coins { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; min-height: 40px; }
+  .coin {
+    width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px; color: white; background: #ed8936;
+    box-shadow: 0 1px 2px rgba(0,0,0,.2); opacity: 0; transform: scale(.4);
+    transition: opacity .3s, transform .3s;
+  }
+  .coin.show { opacity: 1; transform: scale(1); }
+  .pane.dp .coin { background: #48bb78; }
+  .result-line { font-size: 15px; margin-top: 10px; font-weight: 600; }
+  .verdict { margin-top: 16px; padding: 12px 14px; border-radius: 8px; font-weight: 600; }
+  .verdict.win { background: #c6f6d5; color: #22543d; }
+  .verdict.lose { background: #fed7d7; color: #742a2a; }
+  .verdict.tie { background: #bee3f8; color: #2a4365; }
+
+  table.steps { border-collapse: collapse; width: 100%; margin-top: 8px; font-size: 13px; }
+  table.steps th, table.steps td { border: 1px solid #cbd5e0; padding: 4px 8px; text-align: center; }
+  table.steps th { background: #edf2f7; }
+  table.steps tr.active td { background: #fefcbf; }
+
+  /* flowchart */
+  .flow-node {
+    background: white; border: 2px solid #4299e1; border-radius: 10px;
+    padding: 16px; max-width: 560px; margin: 0 auto 14px; text-align: center;
+  }
+  .flow-node .q { font-weight: 700; font-size: 16px; color: #2d3748; margin-bottom: 12px; }
+  .flow-node .opts { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .flow-result { font-size: 20px; font-weight: 800; text-align: center; padding: 18px; border-radius: 10px; max-width: 560px; margin: 0 auto; }
+  .flow-result.greedy { background: #feebc8; color: #7b341e; border: 2px solid #ed8936; }
+  .flow-result.dp { background: #c6f6d5; color: #22543d; border: 2px solid #38a169; }
+  .flow-path { font-size: 13px; color: #718096; margin: 10px auto 0; max-width: 560px; }
+
+  /* knapsack items */
+  .items-grid { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+  .kitem {
+    border: 2px solid #cbd5e0; border-radius: 8px; padding: 8px 10px; background: white;
+    font-size: 13px; min-width: 70px; text-align: center;
+  }
+  .kitem.taken { border-color: #38a169; background: #f0fff4; }
+  .kitem.partial { border-color: #ed8936; background: #fffaf0; }
+  .kitem .name { font-weight: 700; font-size: 15px; }
+  .fill-bar { height: 22px; background: #e2e8f0; border-radius: 6px; overflow: hidden; margin: 8px 0; position: relative; }
+  .fill-bar > div { height: 100%; background: #4299e1; transition: width .4s; }
+  .fill-bar span { position: absolute; left: 8px; top: 2px; font-size: 12px; font-weight: 700; color: #2d3748; }
+
+  .note { font-size: 13px; color: #718096; margin-top: 6px; }
+
+  @media (max-width: 600px) {
+    .compare { grid-template-columns: 1fr; }
+    .coin { width: 36px; height: 36px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-21-huffman-encoding/visualization.html">← L21: Huffman Encoding</a>
+  <span class="sep">·</span>
+  <span class="current">L22: Greedy vs DP</span>
+  <span class="sep">·</span>
+  <a href="../tier-4-dynamic-programming/index.html">Tier 4 →</a>
+</nav>
+
+<div class="container">
+  <header>
+    <h1>Lesson 22 — Greedy vs Dynamic Programming</h1>
+    <p class="lead">
+      Cùng một bài toán tối ưu, greedy (tham lam) có khi đúng có khi sai âm thầm; DP luôn đúng nhưng tốn hơn.
+      Ba module dưới đây cho bạn <em>thấy tận mắt</em> khi nào greedy thua DP và cách quyết định dùng cái nào.
+    </p>
+  </header>
+
+  <main>
+
+  <!-- ============ MODULE 1: COIN CHANGE ============ -->
+  <h2>Module 1 — Coin change: Greedy vs DP</h2>
+  <div class="card">
+    <p class="lead">Chọn hệ tiền và số tiền cần đổi. Greedy luôn lấy đồng lớn nhất; DP thử mọi đồng.
+      Nếu greedy ra <strong>nhiều đồng hơn</strong> DP → greedy <strong>SAI</strong>, panel của nó bị tô đỏ.</p>
+    <div class="controls">
+      <div class="ctl-group">
+        <label for="coinSys">Hệ tiền</label>
+        <select id="coinSys">
+          <option value="1,5,10,25">{1, 5, 10, 25} — canonical (USD)</option>
+          <option value="1,3,4">{1, 3, 4} — greedy hay sai</option>
+          <option value="1,5,8">{1, 5, 8}</option>
+          <option value="1,7,10">{1, 7, 10}</option>
+        </select>
+      </div>
+      <div class="ctl-group">
+        <label for="coinAmt">Số tiền</label>
+        <input type="number" id="coinAmt" value="6" min="1" max="200">
+      </div>
+      <div class="ctl-group">
+        <label>&nbsp;</label>
+        <button id="coinRun">▶ Chạy so sánh</button>
+      </div>
+    </div>
+
+    <div class="compare">
+      <div class="pane greedy" id="paneGreedy">
+        <h3>Greedy <span id="gBadge"></span></h3>
+        <div class="note">Luôn lấy đồng lớn nhất ≤ phần còn lại.</div>
+        <div class="coins" id="gCoins"></div>
+        <div class="result-line" id="gResult"></div>
+      </div>
+      <div class="pane dp" id="paneDP">
+        <h3>Dynamic Programming <span class="badge ok">luôn đúng</span></h3>
+        <div class="note">dp[x] = 1 + min(dp[x − coin]), thử mọi coin.</div>
+        <div class="coins" id="dCoins"></div>
+        <div class="result-line" id="dResult"></div>
+      </div>
+    </div>
+    <div class="verdict" id="coinVerdict" style="display:none"></div>
+  </div>
+
+  <!-- ============ MODULE 2: DECISION FLOWCHART ============ -->
+  <h2>Module 2 — Flowchart quyết định: Greedy hay DP?</h2>
+  <div class="card">
+    <p class="lead">Trả lời lần lượt các câu hỏi về bài toán của bạn. Flowchart sẽ dẫn tới kết luận Greedy hoặc DP.</p>
+    <div id="flowArea"></div>
+    <div style="text-align:center; margin-top:14px;">
+      <button class="secondary" id="flowReset">↺ Làm lại từ đầu</button>
+    </div>
+  </div>
+
+  <!-- ============ MODULE 3: 0/1 vs FRACTIONAL KNAPSACK ============ -->
+  <h2>Module 3 — 0/1 vs Fractional Knapsack (cùng input)</h2>
+  <div class="card">
+    <p class="lead">Cùng 3 món và cùng greedy theo mật độ v/w. Khác biệt duy nhất: 0/1 phải lấy <strong>nguyên cả món</strong>,
+      fractional được <strong>cắt phần</strong>. Xem vì sao cùng chiến lược lại đúng/sai khác nhau.</p>
+    <div class="controls">
+      <div class="ctl-group">
+        <label for="knapW">Sức chứa W</label>
+        <input type="number" id="knapW" value="50" min="1" max="200">
+      </div>
+      <div class="ctl-group">
+        <label>&nbsp;</label>
+        <button id="knapRun">▶ Chạy cả hai</button>
+      </div>
+    </div>
+    <div class="note">Món cố định: A(w=10, v=60) · B(w=20, v=100) · C(w=30, v=120). Mật độ v/w: A=6.0, B=5.0, C=4.0.</div>
+
+    <div class="compare" style="margin-top:14px;">
+      <div class="pane greedy" id="pane01">
+        <h3>0/1 Knapsack (greedy v/w) <span id="k01Badge"></span></h3>
+        <div class="items-grid" id="items01"></div>
+        <div class="fill-bar"><div id="fill01" style="width:0%"></div><span id="fill01txt"></span></div>
+        <div class="result-line" id="res01"></div>
+      </div>
+      <div class="pane dp" id="paneFrac">
+        <h3>Fractional (greedy v/w) <span class="badge ok">đúng</span></h3>
+        <div class="items-grid" id="itemsFrac"></div>
+        <div class="fill-bar"><div id="fillFrac" style="width:0%"></div><span id="fillFractxt"></span></div>
+        <div class="result-line" id="resFrac"></div>
+      </div>
+    </div>
+    <div class="verdict" id="knapVerdict" style="display:none"></div>
+    <div class="note" id="knapOptNote" style="margin-top:10px;"></div>
+  </div>
+
+  </main>
+</div>
+
+<script>
+/* ---------- helpers ---------- */
+function el(id){ return document.getElementById(id); }
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+/* ================= MODULE 1: COIN CHANGE ================= */
+function greedyCoins(coins, amount){
+  const sorted=[...coins].sort((a,b)=>b-a);
+  const used=[]; let rem=amount;
+  for(const c of sorted){ while(rem>=c){ rem-=c; used.push(c);} }
+  return rem===0 ? used : null;
+}
+function dpCoins(coins, amount){
+  const INF=1e9; const dp=new Array(amount+1).fill(INF); const pick=new Array(amount+1).fill(-1);
+  dp[0]=0;
+  for(let x=1;x<=amount;x++) for(const c of coins) if(c<=x && dp[x-c]+1<dp[x]){ dp[x]=dp[x-c]+1; pick[x]=c; }
+  if(dp[amount]>=INF) return null;
+  const used=[]; let x=amount; while(x>0){ used.push(pick[x]); x-=pick[x]; }
+  return used;
+}
+async function animateCoins(container, coins){
+  container.innerHTML='';
+  for(const c of coins){
+    const d=document.createElement('div'); d.className='coin'; d.textContent=c; container.appendChild(d);
+    await sleep(40); d.classList.add('show'); await sleep(220);
+  }
+}
+async function runCoin(){
+  const coins=el('coinSys').value.split(',').map(Number);
+  const amount=parseInt(el('coinAmt').value,10);
+  el('coinVerdict').style.display='none';
+  el('paneGreedy').classList.remove('loser');
+  el('gBadge').innerHTML=''; el('gResult').textContent=''; el('dResult').textContent='';
+  el('gCoins').innerHTML=''; el('dCoins').innerHTML='';
+  if(!amount||amount<1){ return; }
+
+  const g=greedyCoins(coins,amount);
+  const d=dpCoins(coins,amount);
+
+  // animate song song-ish
+  await animateCoins(el('gCoins'), g||[]);
+  await animateCoins(el('dCoins'), d||[]);
+
+  const gn = g? g.length : -1;
+  const dn = d? d.length : -1;
+  el('gResult').textContent = g? `Tổng: ${g.join(' + ')} = ${gn} đồng` : 'Không đổi được';
+  el('dResult').textContent = d? `Tổng: ${d.join(' + ')} = ${dn} đồng` : 'Không đổi được';
+
+  const v=el('coinVerdict'); v.style.display='block';
+  if(g && d && gn===dn){
+    el('gBadge').innerHTML='<span class="badge ok">đúng</span>';
+    v.className='verdict tie';
+    v.textContent=`✅ Greedy KHỚP DP (${gn} đồng). Hệ tiền này greedy đúng — luôn ưu tiên greedy vì nhanh hơn.`;
+  } else if(g && d && gn>dn){
+    el('gBadge').innerHTML='<span class="badge bad">SAI</span>';
+    el('paneGreedy').classList.add('loser');
+    v.className='verdict lose';
+    v.textContent=`❌ Greedy THUA: ${gn} đồng vs DP ${dn} đồng. Hệ tiền không canonical → greedy sai âm thầm, phải dùng DP.`;
+  } else {
+    v.className='verdict tie';
+    v.textContent='Một trong hai không đổi được số tiền này.';
+  }
+}
+
+/* ================= MODULE 2: FLOWCHART ================= */
+const flowTree = {
+  start: {
+    q: '1. Bài có "optimal substructure" (lời giải tối ưu gồm lời giải con tối ưu)?',
+    opts: [ {label:'Có', next:'q2'}, {label:'Không', next:'r_neither'} ]
+  },
+  q2: {
+    q: '2. Bài cho phép "chia/cắt phần" (fractional), hay phải lấy nguyên/rời rạc?',
+    opts: [ {label:'Chia được', next:'r_greedy_frac'}, {label:'Rời rạc / nguyên', next:'q3'} ]
+  },
+  q3: {
+    q: '3. Bài có hỏi "đếm số cách" hoặc "tối ưu với ràng buộc" (sức chứa, ngân sách)?',
+    opts: [ {label:'Có', next:'r_dp_count'}, {label:'Không', next:'q4'} ]
+  },
+  q4: {
+    q: '4. Bạn đoán một greedy strategy. Tìm được PHẢN VÍ DỤ nhỏ nào khiến nó sai không?',
+    opts: [ {label:'Tìm được phản ví dụ', next:'r_dp_counter'}, {label:'Không tìm được', next:'q5'} ]
+  },
+  q5: {
+    q: '5. Bạn chứng minh được greedy đúng (exchange argument / matroid) không?',
+    opts: [ {label:'Chứng minh được', next:'r_greedy_proof'}, {label:'Không chứng minh được', next:'r_dp_safe'} ]
+  },
+  r_neither: { result:'KHÁC', cls:'dp', text:'Không có optimal substructure → cả greedy lẫn DP đơn giản đều không áp dụng. Cân nhắc backtracking / brute force (vd longest simple path).' },
+  r_greedy_frac: { result:'GREEDY', cls:'greedy', text:'Chia được → đổ đầy được → exchange argument chạy. Greedy theo cực trị (vd v/w) ĐÚNG. Ví dụ: fractional knapsack.' },
+  r_dp_count: { result:'DP', cls:'dp', text:'"Đếm số cách" / "tối ưu có ràng buộc" → greedy không cộng/cân nhắc được toàn cục. Dùng DP (vд coin change đếm cách, 0/1 knapsack).' },
+  r_dp_counter: { result:'DP', cls:'dp', text:'Đã có phản ví dụ → greedy SAI. Dùng DP. Ví dụ: coin {1,3,4} tìm 6, hay 0/1 knapsack.' },
+  r_greedy_proof: { result:'GREEDY', cls:'greedy', text:'Chứng minh được → greedy đúng và là lựa chọn tốt nhất (nhanh, gọn). Ví dụ: activity selection, Huffman.' },
+  r_dp_safe: { result:'DP', cls:'dp', text:'Không có phản ví dụ NHƯNG cũng không chứng minh được → ĐỪNG tin "chạy đúng test". An toàn dùng DP.' }
+};
+const flowPath=[];
+function renderFlow(nodeKey){
+  const area=el('flowArea'); const node=flowTree[nodeKey];
+  if(node.result!==undefined){
+    area.innerHTML = `<div class="flow-result ${node.cls}">→ Dùng ${node.result}</div>`+
+      `<div class="flow-path">${node.text}</div>`+
+      `<div class="flow-path"><strong>Đường đi:</strong> ${flowPath.join(' → ')}</div>`;
+    return;
+  }
+  let html=`<div class="flow-node"><div class="q">${node.q}</div><div class="opts">`;
+  node.opts.forEach((o,i)=> html+=`<button data-next="${o.next}" data-label="${o.label}">${o.label}</button>`);
+  html+='</div></div>';
+  area.innerHTML=html;
+  area.querySelectorAll('button[data-next]').forEach(b=>{
+    b.addEventListener('click',()=>{ flowPath.push(b.dataset.label); renderFlow(b.dataset.next); });
+  });
+}
+function resetFlow(){ flowPath.length=0; renderFlow('start'); }
+
+/* ================= MODULE 3: KNAPSACK ================= */
+const KITEMS=[{n:'A',w:10,v:60},{n:'B',w:20,v:100},{n:'C',w:30,v:120}];
+function byDensity(){ return [...KITEMS].sort((a,b)=> b.v/b.w - a.v/a.w); }
+
+function greedy01(W){
+  let cap=W,total=0; const status={};
+  for(const it of byDensity()){
+    if(it.w<=cap){ cap-=it.w; total+=it.v; status[it.n]='taken'; }
+    else status[it.n]='skip';
+  }
+  return {total, status, used:W-cap};
+}
+function optimal01(W){ // brute force (3 món) để biết tối ưu thật
+  let best=0,bestSet=[];
+  for(let m=0;m<8;m++){ let w=0,v=0,set=[];
+    for(let i=0;i<3;i++) if(m&(1<<i)){ w+=KITEMS[i].w; v+=KITEMS[i].v; set.push(KITEMS[i].n); }
+    if(w<=W && v>best){ best=v; bestSet=set; }
+  }
+  return {best, bestSet};
+}
+function fractional(W){
+  let cap=W,total=0; const status={};
+  for(const it of byDensity()){
+    if(it.w<=cap){ cap-=it.w; total+=it.v; status[it.n]='taken'; }
+    else if(cap>0){ const frac=cap/it.w; total+=it.v*frac; status[it.n]='partial:'+Math.round(frac*100); cap=0; }
+    else status[it.n]='skip';
+  }
+  return {total, status, used:W-cap};
+}
+function renderItems(containerId, status){
+  const c=el(containerId); c.innerHTML='';
+  for(const it of KITEMS){
+    const st=status[it.n]||'skip';
+    const d=document.createElement('div'); d.className='kitem';
+    let tag='';
+    if(st==='taken'){ d.classList.add('taken'); tag='<div style="color:#38a169;font-weight:700">✓ lấy</div>'; }
+    else if(typeof st==='string' && st.startsWith('partial')){ d.classList.add('partial'); tag=`<div style="color:#dd6b20;font-weight:700">cắt ${st.split(':')[1]}%</div>`; }
+    else tag='<div style="color:#a0aec0">bỏ</div>';
+    d.innerHTML=`<div class="name">${it.n}</div><div>w=${it.w}</div><div>v=${it.v}</div>${tag}`;
+    c.appendChild(d);
+  }
+}
+function runKnap(){
+  const W=parseInt(el('knapW').value,10)||50;
+  const g=greedy01(W), f=fractional(W), opt=optimal01(W);
+  renderItems('items01', g.status); renderItems('itemsFrac', f.status);
+
+  const pct01=Math.min(100, g.used/W*100), pctF=Math.min(100, f.used/W*100);
+  el('fill01').style.width=pct01+'%'; el('fill01txt').textContent=`dùng ${g.used}/${W}`;
+  el('fillFrac').style.width=pctF+'%'; el('fillFractxt').textContent=`dùng ${Math.round(f.used)}/${W}`;
+
+  el('res01').textContent=`Giá trị: ${g.total}`;
+  el('resFrac').textContent=`Giá trị: ${Math.round(f.total*100)/100}`;
+
+  el('pane01').classList.remove('loser'); el('k01Badge').innerHTML='';
+  const v=el('knapVerdict'); v.style.display='block';
+  if(g.total < opt.best){
+    el('k01Badge').innerHTML='<span class="badge bad">SAI</span>';
+    el('pane01').classList.add('loser');
+    v.className='verdict lose';
+    v.textContent=`❌ 0/1 greedy ra ${g.total}, nhưng tối ưu thật là ${opt.best} (lấy ${opt.bestSet.join('+')}). Greedy v/w SAI cho 0/1 → cần DP.`;
+  } else {
+    el('k01Badge').innerHTML='<span class="badge ok">trùng tối ưu</span>';
+    v.className='verdict win';
+    v.textContent=`Ở W=${W} này, 0/1 greedy tình cờ = tối ưu (${opt.best}). Nhưng đừng tin — đổi W khác để thấy nó vỡ (thử W=50).`;
+  }
+  el('knapOptNote').innerHTML=`Fractional cắt được nên luôn đổ đầy balo → greedy v/w ĐÚNG (${Math.round(f.total*100)/100} ≥ 0/1 tối ưu ${opt.best}). Đây là khác biệt cốt lõi: chia được ⇒ greedy đúng; rời rạc ⇒ có thể sai.`;
+}
+
+/* ---------- wire up ---------- */
+el('coinRun').addEventListener('click', runCoin);
+el('flowReset').addEventListener('click', resetFlow);
+el('knapRun').addEventListener('click', runKnap);
+
+/* initial render */
+resetFlow();
+runCoin();
+runKnap();
+</script>
+
+<!-- README modal + TOC + favicon -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+
+</body>
+</html>

@@ -25,6 +25,33 @@ Bài này *dùng lại* gần như mọi thứ trong lộ trình. Các link quan
 
 ---
 
+## 0. Bản đồ tổng quan — lesson này nằm ở đâu trong lộ trình
+
+> 💡 **Trực giác.** Suốt 49 lesson trước, bạn học *từng* công cụ một: sort, binary search, sliding window, DP, graph, string matching... Giống như mua đủ dụng cụ trong hộp đồ nghề. Lesson 50 không thêm dụng cụ mới — nó dạy **khi nào mở hộp nào**. Đây là lý do nó nằm ở đầu Tier cuối: bạn đã có đủ đồ nghề, giờ học cách *chọn* đồ nghề.
+
+Dòng chảy của một bài giải, nhìn từ trên xuống:
+
+```
+ĐỀ LẠ
+  │
+  ├─[B1] Hiểu đề (rephrase, input/output, ràng buộc)
+  ├─[B2] Ví dụ nhỏ + edge case (giải tay)
+  ├─[B3] Brute-force (baseline ĐÚNG, có thể chậm)
+  ├─[B4] Big-O brute + đọc constraint  ──►  ĐỘ PHỨC TẠP MỤC TIÊU  (mục 3)
+  ├─[B5] Nhận diện pattern              ──►  CHỌN KỸ THUẬT          (mục 4)
+  ├─[B6] Code + test edge case
+  └─[B7] Tối ưu nếu chưa đạt mục tiêu
+  │
+  ▼
+LỜI GIẢI
+```
+
+Hai trục quyết định nằm ở B4 và B5: **constraint cho biết bạn được phép chậm tới đâu** (mục 3), **dấu hiệu trong đề cho biết đi hướng nào** (mục 4). Phần lớn lesson này đào sâu hai trục đó.
+
+> 📝 **Tóm tắt mục 0.** Lesson 50 = "meta-skill": không thêm thuật toán, mà dạy quy trình chọn thuật toán. Hai trục cốt lõi: constraint → độ phức tạp mục tiêu, dấu hiệu → kỹ thuật.
+
+---
+
 ## 1. Vì sao cần một framework?
 
 ### 1.1 Vấn đề: đọc đề lạ xong ngồi đoán mò

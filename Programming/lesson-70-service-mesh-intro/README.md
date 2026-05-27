@@ -374,6 +374,20 @@ Walk-through tính RAM: cluster 200 pod, mỗi pod thêm Envoy ~80MB → **+16GB
 
 > ⚠ **Lỗi thường gặp.** Bỏ qua phần overhead khi sizing rồi ngạc nhiên vì cluster hết RAM / latency tăng sau khi bật mesh. Luôn đo baseline **trước** và **sau** khi adopt.
 
+### 11.3 Walk-through định lượng đầy đủ cho một cluster thật
+
+Cluster: **150 pod**, dùng Envoy (~80MB RAM, ~0.1 vCPU idle mỗi sidecar). Một API quan trọng có chuỗi 3 hop `gateway → orders → inventory → pricing`.
+
+**RAM:** 150 × 80MB = **12GB** chỉ cho sidecar. Nếu mỗi node 16GB và chạy ~20 pod/node → ~1.6GB sidecar/node, tức ~10% RAM mỗi node dành riêng cho mesh. Phải cộng vào sizing, nếu không node OOM.
+
+**CPU:** ở tải cao mỗi Envoy có thể ăn 0.2–0.5 vCPU. 150 sidecar × 0.3 = **~45 vCPU** thêm cho cả cluster. Đáng kể nếu cluster nhỏ.
+
+**Latency:** chuỗi 3 hop → 3 × (1–2ms) = **+3–6ms**. Nếu API đang p99 = 80ms, +6ms là +7.5% — chấp nhận được. Nếu API đang p99 = 5ms (siêu nhanh), +6ms là **hơn gấp đôi** — không chấp nhận được.
+
+So sánh nếu dùng **Linkerd** thay Istio: RAM 150 × 15MB = **~2.25GB** (so với 12GB), latency thêm thường thấp hơn. Đây là lý do team coi trọng overhead hay chọn Linkerd hoặc ambient mode.
+
+Bài học: **luôn nhân overhead per-pod với số pod, và nhân latency-per-hop với số hop của API nóng nhất** — đừng nghĩ "+1ms thì có là gì".
+
 ---
 
 ## 12. Khi nào CẦN service mesh

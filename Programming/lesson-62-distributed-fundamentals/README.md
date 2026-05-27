@@ -439,6 +439,19 @@ Bỏ wall clock, dùng *bộ đếm logic* để sắp thứ tự:
 
 **Ví dụ số:** A có L=3 gửi msg tới B (B đang L=1). B nhận: `L = max(1,3)+1 = 4`. Giờ event tiếp ở B có L=4 > 3 → phản ánh đúng nó *sau* event gửi của A.
 
+**Walk-through đầy đủ (2 node):**
+
+| Bước | Hành động | L(A) | L(B) |
+|------|-----------|:----:|:----:|
+| 0 | khởi tạo | 0 | 0 |
+| 1 | A: event a1 (L++) | 1 | 0 |
+| 2 | A: event a2 (L++) | 2 | 0 |
+| 3 | B: event b1 (L++) | 2 | 1 |
+| 4 | A gửi msg→B kèm L=3 (A: L++ trước gửi) | 3 | 1 |
+| 5 | B nhận: L=max(1,3)+1=4 | 3 | 4 |
+
+Kiểm tra: a2 (L=2) happens-before sự kiện nhận của B (L=4) → `2 < 4` ✓. Nhưng b1 (L=1) và a1 (L=1) *cùng* L=1 dù concurrent — đây là điểm Lamport *không* phân biệt được concurrent (cần vector clock).
+
 ### 11.3 Hybrid Logical Clock (HLC)
 
 Kết hợp: dùng phần wall-clock (để timestamp *gần* thời gian thật, con người đọc được) + phần logical (để *luôn tăng đơn điệu*, không nhảy lùi khi NTP chỉnh). Dùng trong CockroachDB, MongoDB. Cho timestamp vừa *có nghĩa thời gian*, vừa *bảo toàn nhân quả*.

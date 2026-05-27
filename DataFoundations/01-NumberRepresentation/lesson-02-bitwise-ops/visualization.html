@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Bitwise Operations Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 40px; }
+  input[type="number"], input[type="text"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 16px; padding: 8px 12px;
+    border: 1px solid #cbd5e0; border-radius: 4px; width: 120px;
+  }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 7px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.active { background: #2c5282; box-shadow: inset 0 0 0 2px #fff, 0 0 0 2px #2c5282; }
+  button.warn { background: #ed8936; }
+  button.warn:hover { background: #dd6b20; }
+  .bit-row { display: flex; gap: 3px; align-items: center; margin: 6px 0; flex-wrap: wrap; }
+  .bit {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: monospace; font-size: 16px; font-weight: 700;
+    border-radius: 4px; cursor: pointer; user-select: none;
+    transition: transform 0.1s;
+  }
+  .bit:hover { transform: scale(1.1); }
+  .bit.on { background: #38a169; color: white; }
+  .bit.off { background: #e2e8f0; color: #4a5568; }
+  .bit.result-on { background: #d69e2e; color: white; }
+  .bit.diff { box-shadow: 0 0 0 2px #c53030 inset; }
+  .bit.disabled { cursor: default; }
+  .bit.disabled:hover { transform: none; }
+  .bit-label-row { display: flex; gap: 3px; }
+  .bit-label { width: 36px; text-align: center; font-size: 11px; color: #718096; }
+  .op-bar { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+  .label-col { width: 80px; font-weight: 700; color: #4a5568; font-family: monospace; }
+  .stat {
+    display: inline-block; background: #edf2f7;
+    padding: 4px 10px; border-radius: 4px; margin-right: 8px;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #2b6cb0; }
+  .step-log {
+    background: #1a202c; color: #68d391;
+    font-family: monospace; padding: 12px; border-radius: 4px;
+    white-space: pre-wrap; max-height: 280px; overflow-y: auto;
+    font-size: 13px;
+  }
+  .hint { color: #718096; font-size: 13px; margin: 4px 0; }
+  .row.tight { gap: 6px; }
+  select {
+    font-size: 15px; padding: 7px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px; background: white;
+  }
+  .subset-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 6px; margin-top: 8px;
+  }
+  .subset-cell {
+    background: #f7fafc; padding: 6px 10px; border-radius: 4px;
+    font-family: monospace; font-size: 13px; border: 1px solid #e2e8f0;
+  }
+  .subset-cell .mask { color: #d69e2e; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-binary-hex/visualization.html">← L1: Binary & Hex</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Bitwise Operations</span>
+</nav>
+  <h1>Lesson 02 — Bitwise Operations</h1>
+  <p>Máy tính bitwise 8-bit, demo bitmask, popcount Brian Kernighan, và bộ liệt kê tập con.</p>
+
+  <h2>1. Máy tính Bitwise (8-bit)</h2>
+  <div class="card">
+    <div class="row tight">
+      <span class="label-col">a</span>
+      <input type="number" id="aIn" value="204" min="0" max="255">
+      <div class="bit-label-row" id="aLabels"></div>
+    </div>
+    <div class="row tight">
+      <span class="label-col">&nbsp;</span>
+      <div></div>
+      <div class="bit-row" id="aBits"></div>
+    </div>
+
+    <div class="row tight">
+      <span class="label-col">b</span>
+      <input type="number" id="bIn" value="170" min="0" max="255">
+      <div class="bit-row" id="bBits"></div>
+    </div>
+
+    <div class="op-bar" id="opBar">
+      <button data-op="and">a &amp; b</button>
+      <button data-op="or">a | b</button>
+      <button data-op="xor" class="active">a ^ b</button>
+      <button data-op="andnot">a &amp;^ b</button>
+      <button data-op="nota">^a (NOT)</button>
+      <button data-op="shl">a &lt;&lt; k</button>
+      <button data-op="shr">a &gt;&gt; k</button>
+    </div>
+    <div class="row tight" id="shiftRow" style="display:none">
+      <span class="label-col">k</span>
+      <input type="number" id="shiftK" value="2" min="0" max="7">
+    </div>
+
+    <div class="row tight">
+      <span class="label-col">result</span>
+      <div></div>
+      <div class="bit-row" id="rBits"></div>
+    </div>
+
+    <div style="margin-top:8px">
+      <span class="stat">result (decimal): <strong id="rDec">—</strong></span>
+      <span class="stat">result (hex): <strong id="rHex">—</strong></span>
+      <span class="stat">popcount: <strong id="rPop">—</strong></span>
+    </div>
+    <div class="hint" id="opExplain"></div>
+  </div>
+
+  <h2>2. Thao tác bitmask trên bit thứ k</h2>
+  <div class="card">
+    <div class="row tight">
+      <span class="label-col">x</span>
+      <input type="number" id="maskX" value="180" min="0" max="255">
+      <div class="bit-label-row" id="maskLabels"></div>
+    </div>
+    <div class="row tight">
+      <span class="label-col">&nbsp;</span>
+      <div></div>
+      <div class="bit-row" id="maskBits"></div>
+    </div>
+    <div class="row tight">
+      <span class="label-col">bit k</span>
+      <input type="number" id="maskK" value="3" min="0" max="7">
+      <button onclick="maskDo('get')">get bit k</button>
+      <button onclick="maskDo('set')">set bit k = 1</button>
+      <button onclick="maskDo('clear')">clear bit k = 0</button>
+      <button onclick="maskDo('toggle')">toggle bit k</button>
+    </div>
+    <div class="step-log" id="maskLog">Chọn k và bấm một thao tác.</div>
+  </div>
+
+  <h2>3. Popcount — Brian Kernighan's trick</h2>
+  <div class="card">
+    <div class="row tight">
+      <span class="label-col">x</span>
+      <input type="number" id="popX" value="108" min="0" max="65535">
+      <button onclick="popRun()">Chạy từng bước</button>
+    </div>
+    <div class="hint">Mỗi lần <code>x &amp;= x − 1</code> xóa đúng bit 1 thấp nhất. Số vòng lặp = số bit 1.</div>
+    <div class="step-log" id="popLog"></div>
+  </div>
+
+  <h2>4. Liệt kê tập con bằng bitmask</h2>
+  <div class="card">
+    <div class="row tight">
+      <span class="label-col">items</span>
+      <input type="text" id="subsetIn" value="a,b,c,d" style="width:300px">
+      <span class="hint">cách nhau bằng dấu phẩy (tối đa 6)</span>
+    </div>
+    <div id="subsetOut"></div>
+  </div>
+
+</main>
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+
+// ============== Section 1: bitwise calculator ==============
+let opSelected = 'xor';
+
+function bitsOf(n, width=8) {
+  return ((n >>> 0) & ((1 << width) - 1)).toString(2).padStart(width, '0');
+}
+
+function renderBitRow(elem, bits, opts={}) {
+  elem.innerHTML = '';
+  for (let i = 0; i < bits.length; i++) {
+    const ch = bits[i];
+    const idxFromRight = bits.length - 1 - i;
+    const el = document.createElement('div');
+    const isResult = opts.result;
+    el.className = 'bit ' +
+      (ch === '1'
+        ? (isResult ? 'result-on' : 'on')
+        : 'off') +
+      (opts.clickable === false ? ' disabled' : '');
+    el.textContent = ch;
+    if (opts.clickable !== false) {
+      el.onclick = () => {
+        const cur = parseInt($(opts.inputId).value, 10) || 0;
+        $(opts.inputId).value = cur ^ (1 << idxFromRight);
+        renderBitwise();
+      };
+    }
+    elem.appendChild(el);
+  }
+}
+
+function renderLabels(elem, width=8) {
+  elem.innerHTML = '';
+  for (let i = width - 1; i >= 0; i--) {
+    const el = document.createElement('div');
+    el.className = 'bit-label';
+    el.textContent = i;
+    elem.appendChild(el);
+  }
+}
+
+function renderBitwise() {
+  let a = parseInt($('aIn').value, 10) || 0; a = a & 0xFF;
+  let b = parseInt($('bIn').value, 10) || 0; b = b & 0xFF;
+  let r = 0;
+  let expl = '';
+  const k = parseInt($('shiftK').value, 10) || 0;
+  switch (opSelected) {
+    case 'and': r = a & b; expl = 'mỗi bit kết quả = 1 nếu CẢ HAI bit a và b đều là 1.'; break;
+    case 'or':  r = (a | b) & 0xFF; expl = 'mỗi bit kết quả = 1 nếu ÍT NHẤT một bit là 1.'; break;
+    case 'xor': r = (a ^ b) & 0xFF; expl = 'mỗi bit kết quả = 1 nếu ĐÚNG MỘT bit là 1 (loại cả hai). XOR cũng là "hiệu đối xứng" khi xem bits là set.'; break;
+    case 'andnot': r = a & (~b) & 0xFF; expl = 'a &^ b = "giữ các bit của a, trừ những bit b đặt". Tương đương a & (~b).'; break;
+    case 'nota': r = (~a) & 0xFF; expl = '^a (Go) = đảo toàn bộ 8 bit của a. b bị bỏ qua.'; break;
+    case 'shl': r = (a << k) & 0xFF; expl = `a << ${k}: dịch trái ${k} bit, chèn 0 từ phải. Tương đương a · 2^${k} (mod 256).`; break;
+    case 'shr': r = (a & 0xFF) >> k; expl = `a >> ${k}: dịch phải ${k} bit (logical, vì uint8). Tương đương a / 2^${k} (làm tròn xuống).`; break;
+  }
+  $('aIn').value = a; $('bIn').value = b;
+  renderBitRow($('aBits'), bitsOf(a), { inputId: 'aIn' });
+  renderBitRow($('bBits'), bitsOf(b), { inputId: 'bIn' });
+  renderBitRow($('rBits'), bitsOf(r), { result: true, clickable: false });
+  $('rDec').textContent = r;
+  $('rHex').textContent = '0x' + r.toString(16).toUpperCase().padStart(2, '0');
+  let pc = 0; for (let i = 0; i < 8; i++) if (r & (1 << i)) pc++;
+  $('rPop').textContent = pc;
+  $('opExplain').textContent = expl;
+  $('shiftRow').style.display = (opSelected === 'shl' || opSelected === 'shr') ? 'flex' : 'none';
+}
+
+$('opBar').addEventListener('click', e => {
+  const t = e.target.closest('button[data-op]');
+  if (!t) return;
+  opSelected = t.dataset.op;
+  document.querySelectorAll('#opBar button').forEach(b => b.classList.remove('active'));
+  t.classList.add('active');
+  renderBitwise();
+});
+$('aIn').oninput = renderBitwise;
+$('bIn').oninput = renderBitwise;
+$('shiftK').oninput = renderBitwise;
+
+// ============== Section 2: bitmask ==============
+function renderMask() {
+  let x = parseInt($('maskX').value, 10) || 0; x = x & 0xFF;
+  $('maskX').value = x;
+  renderBitRow($('maskBits'), bitsOf(x), { inputId: 'maskX' });
+}
+function maskDo(op) {
+  let x = parseInt($('maskX').value, 10) || 0; x = x & 0xFF;
+  const k = parseInt($('maskK').value, 10) || 0;
+  if (k < 0 || k > 7) { $('maskLog').textContent = 'k phải trong [0..7].'; return; }
+  const mask = (1 << k) & 0xFF;
+  let log = `x = ${bitsOf(x)} (= ${x})\nmask = 1 << ${k} = ${bitsOf(mask)} (= ${mask})\n\n`;
+  let newX = x;
+  switch (op) {
+    case 'get':
+      const bit = (x >> k) & 1;
+      log += `(x >> ${k}) & 1 = ${bit}\n→ bit thứ ${k} của x là ${bit}.`;
+      break;
+    case 'set':
+      newX = (x | mask) & 0xFF;
+      log += `x | mask = ${bitsOf(newX)} (= ${newX})\n→ bit ${k} đã được set thành 1.`;
+      break;
+    case 'clear':
+      newX = (x & ~mask) & 0xFF;
+      log += `x &^ mask = ${bitsOf(newX)} (= ${newX})\n→ bit ${k} đã được xóa về 0.`;
+      break;
+    case 'toggle':
+      newX = (x ^ mask) & 0xFF;
+      log += `x ^ mask = ${bitsOf(newX)} (= ${newX})\n→ bit ${k} đã được lật.`;
+      break;
+  }
+  if (op !== 'get') $('maskX').value = newX;
+  $('maskLog').textContent = log;
+  renderMask();
+}
+$('maskX').oninput = renderMask;
+$('maskK').oninput = renderMask;
+
+// ============== Section 3: popcount Brian Kernighan ==============
+function popRun() {
+  let x = parseInt($('popX').value, 10) || 0;
+  x = x & 0xFFFF;
+  $('popX').value = x;
+  if (x === 0) { $('popLog').textContent = 'x = 0 → popcount = 0 ngay, không vòng nào.'; return; }
+  let log = `Bắt đầu: x = ${x} = ${x.toString(2).padStart(16, '0')}\n`;
+  log += `(popcount = số bit 1)\n\n`;
+  let cur = x, count = 0;
+  while (cur !== 0) {
+    const next = cur & (cur - 1);
+    const bitsBefore = cur.toString(2).padStart(16, '0');
+    const bitsAfter  = next.toString(2).padStart(16, '0');
+    count++;
+    log += `Vòng ${count}: x       = ${bitsBefore}\n`;
+    log += `         x - 1   = ${(cur - 1).toString(2).padStart(16, '0').slice(-16)}\n`;
+    log += `         x & x-1 = ${bitsAfter}   ← xóa bit 1 thấp nhất\n\n`;
+    cur = next;
+  }
+  log += `Kết thúc x = 0. Tổng số vòng (= popcount) = ${count}`;
+  $('popLog').textContent = log;
+}
+
+// ============== Section 4: subset enumeration ==============
+function renderSubsets() {
+  const raw = $('subsetIn').value.split(',').map(s => s.trim()).filter(s => s.length > 0);
+  const items = raw.slice(0, 6);
+  const n = items.length;
+  const out = $('subsetOut');
+  out.innerHTML = '';
+  if (n === 0) { out.textContent = '(empty input)'; return; }
+  const grid = document.createElement('div');
+  grid.className = 'subset-grid';
+  const total = 1 << n;
+  for (let mask = 0; mask < total; mask++) {
+    const sub = [];
+    for (let i = 0; i < n; i++) {
+      if (mask & (1 << i)) sub.push(items[i]);
+    }
+    const cell = document.createElement('div');
+    cell.className = 'subset-cell';
+    const mbin = mask.toString(2).padStart(n, '0');
+    cell.innerHTML = `<span class="mask">${mbin}</span> → {${sub.join(', ')}}`;
+    grid.appendChild(cell);
+  }
+  out.appendChild(grid);
+  const hint = document.createElement('div');
+  hint.className = 'hint';
+  hint.innerHTML = `n = ${n} phần tử → <strong>${total}</strong> tập con (= 2<sup>${n}</sup>).`;
+  out.appendChild(hint);
+}
+$('subsetIn').oninput = renderSubsets;
+
+
+// ============== Init ==============
+renderLabels($('aLabels'));
+renderLabels($('maskLabels'));
+renderBitwise();
+renderMask();
+popRun();
+renderSubsets();
+</script>
+
+<!-- README modal (xem tools/readme-modal.js để biết chi tiết) -->
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+
+</body>
+</html>

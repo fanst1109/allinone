@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 04 — Stack trực quan</title>
+<style>
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 16px; }
+  h1 { margin-top: 0; }
+  .stack { display: flex; flex-direction: column-reverse; align-items: center; gap: 4px; min-height: 200px; padding: 16px; background: #f3f4f6; border-radius: 6px; border: 1px solid #ddd; }
+  .item { background: #fff; border: 2px solid #333; border-radius: 6px; padding: 6px 18px; min-width: 60px; text-align: center; font-weight: 600; transition: all .25s; }
+  .item.new { background: #d1fae5; border-color: #10b981; }
+  .item.top { background: #fef08a; border-color: #ca8a04; }
+  .item.del { background: #fee2e2; border-color: #ef4444; }
+  button { background: #3b82f6; color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; cursor: pointer; margin-right: 6px; margin-top: 6px; }
+  input { padding: 4px; width: 100px; }
+  .row { display: flex; gap: 20px; flex-wrap: wrap; }
+  .col { flex: 1; min-width: 280px; }
+  .log { color: #444; min-height: 20px; margin-top: 8px; }
+  .label { font-size: 12px; color: #888; text-align: center; margin-top: 4px; }
+  .two-stack { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .two-stack > div h3 { margin: 0 0 4px 0; font-size: 13px; text-align: center; color: #555; }
+  .item.min { background: #dbeafe; border-color: #3b82f6; }
+  .token-row { display: flex; gap: 4px; flex-wrap: wrap; margin: 8px 0; }
+  .token { background: #fff; border: 1px solid #ccc; border-radius: 4px; padding: 4px 8px; font-family: monospace; font-weight: 600; }
+  .token.done { background: #d1fae5; border-color: #10b981; color: #065f46; }
+  .token.current { background: #fef08a; border-color: #ca8a04; }
+</style>
+</head>
+<body>
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-linked-list/visualization.html">← L3: Linked List</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Stack</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-queue/visualization.html">L5: Queue →</a>
+</nav>
+<h1>Stack — LIFO</h1>
+
+<div class="panel">
+  <div class="row">
+    <div class="col">
+      <h2 style="margin-top:0">Push / Pop</h2>
+      <label>Giá trị: <input id="val" type="text" value="42"></label>
+      <button onclick="doPush()">Push</button>
+      <button onclick="doPop()">Pop</button>
+      <button onclick="doPeek()">Peek</button>
+      <button onclick="resetStack()">Reset</button>
+      <div class="stack" id="stack1"></div>
+      <div class="label">đỉnh ở trên cùng</div>
+      <div class="log" id="log1"></div>
+    </div>
+    <div class="col">
+      <h2 style="margin-top:0">Kiểm tra ngoặc cân bằng</h2>
+      <input id="expr" type="text" value="({[]()})" style="width: 200px">
+      <button onclick="runCheck()">Chạy từng bước</button>
+      <button onclick="resetCheck()">Reset</button>
+      <div class="stack" id="stack2"></div>
+      <div class="label">stack ngoặc đang mở</div>
+      <div class="log" id="log2"></div>
+    </div>
+  </div>
+</div>
+
+<div class="panel">
+  <h2 style="margin-top:0">Min Stack — getMin() O(1) (bài 2 README)</h2>
+  <p style="margin:0 0 8px 0; font-size:14px; color:#555;">Mỗi lần push x, push thêm <code>min(x, top(mins))</code> vào stack phụ. getMin = top stack phụ.</p>
+  <label>Giá trị: <input id="minVal" type="number" value="5"></label>
+  <button onclick="minPush()">Push</button>
+  <button onclick="minPop()">Pop</button>
+  <button onclick="minReset()">Reset</button>
+  <span style="margin-left:12px;">getMin() = <b id="curMin">–</b></span>
+  <div class="two-stack" style="margin-top:10px;">
+    <div><h3>data</h3><div class="stack" id="stackData"></div></div>
+    <div><h3>mins (stack phụ)</h3><div class="stack" id="stackMins"></div></div>
+  </div>
+  <div class="log" id="logMin"></div>
+</div>
+
+<div class="panel">
+  <h2 style="margin-top:0">Tính biểu thức postfix (bài 3 README)</h2>
+  <p style="margin:0 0 8px 0; font-size:14px; color:#555;">Gặp số → push. Gặp toán tử → pop 2 số, tính, push lại.</p>
+  <label>Biểu thức: <input id="postfix" type="text" value="2 3 + 4 *" style="width:200px"></label>
+  <button onclick="runPostfix()">▶ Chạy từng bước</button>
+  <button onclick="resetPostfix()">Reset</button>
+  <div class="token-row" id="tokens"></div>
+  <div class="stack" id="stackPost"></div>
+  <div class="log" id="logPost"></div>
+</div>
+
+<script>
+let S = [10, 20, 30];
+function renderStack(elId, arr, topHl = true) {
+  const root = document.getElementById(elId);
+  root.innerHTML = '';
+  arr.forEach((v, i) => {
+    const d = document.createElement('div');
+    d.className = 'item' + (topHl && i === arr.length - 1 ? ' top' : '');
+    d.textContent = v;
+    root.appendChild(d);
+  });
+}
+renderStack('stack1', S);
+function doPush() {
+  const v = document.getElementById('val').value;
+  S.push(v);
+  renderStack('stack1', S);
+  document.getElementById('log1').textContent = `push(${v}) — O(1)`;
+}
+function doPop() {
+  if (!S.length) { document.getElementById('log1').textContent = 'Stack rỗng'; return; }
+  const v = S.pop();
+  renderStack('stack1', S);
+  document.getElementById('log1').textContent = `pop() = ${v} — O(1)`;
+}
+function doPeek() {
+  if (!S.length) { document.getElementById('log1').textContent = 'Stack rỗng'; return; }
+  document.getElementById('log1').textContent = `peek() = ${S[S.length-1]} — O(1), không lấy ra`;
+}
+function resetStack() { S = [10, 20, 30]; renderStack('stack1', S); document.getElementById('log1').textContent = ''; }
+
+const pairs = { ')': '(', ']': '[', '}': '{' };
+let checkBusy = false;
+async function runCheck() {
+  if (checkBusy) return;
+  checkBusy = true;
+  const expr = document.getElementById('expr').value;
+  const log = document.getElementById('log2');
+  let stk = [];
+  renderStack('stack2', stk);
+  for (let i = 0; i < expr.length; i++) {
+    const c = expr[i];
+    if ('([{'.includes(c)) {
+      stk.push(c);
+      log.textContent = `Vị trí ${i}: '${c}' → push`;
+      renderStack('stack2', stk);
+    } else if (')]}'.includes(c)) {
+      if (!stk.length || stk[stk.length - 1] !== pairs[c]) {
+        log.textContent = `Vị trí ${i}: '${c}' không khớp đỉnh → KHÔNG cân bằng`;
+        checkBusy = false; return;
+      }
+      stk.pop();
+      log.textContent = `Vị trí ${i}: '${c}' → khớp, pop`;
+      renderStack('stack2', stk);
+    }
+    await sleep(450);
+  }
+  log.textContent = stk.length === 0 ? 'Cân bằng — stack rỗng ' : 'KHÔNG cân bằng — còn ngoặc chưa đóng';
+  checkBusy = false;
+}
+function resetCheck() { renderStack('stack2', []); document.getElementById('log2').textContent = ''; }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ===== Min Stack =====
+let mData = [], mMins = [];
+function renderMin(hl = '') {
+  const dataRoot = document.getElementById('stackData');
+  const minsRoot = document.getElementById('stackMins');
+  dataRoot.innerHTML = ''; minsRoot.innerHTML = '';
+  mData.forEach((v, i) => {
+    const d = document.createElement('div');
+    d.className = 'item' + (i === mData.length - 1 && hl === 'top' ? ' top' : '');
+    d.textContent = v;
+    dataRoot.appendChild(d);
+  });
+  mMins.forEach((v, i) => {
+    const d = document.createElement('div');
+    d.className = 'item min' + (i === mMins.length - 1 && hl === 'top' ? ' top' : '');
+    d.textContent = v;
+    minsRoot.appendChild(d);
+  });
+  document.getElementById('curMin').textContent = mMins.length ? mMins[mMins.length-1] : '–';
+}
+function minPush() {
+  const x = parseInt(document.getElementById('minVal').value);
+  mData.push(x);
+  const newMin = mMins.length === 0 ? x : Math.min(x, mMins[mMins.length-1]);
+  mMins.push(newMin);
+  renderMin('top');
+  document.getElementById('logMin').textContent =
+    `push(${x}): data push ${x}; mins push min(${x}, top mins) = ${newMin}. Tất cả O(1).`;
+}
+function minPop() {
+  if (!mData.length) { document.getElementById('logMin').textContent = 'Stack rỗng.'; return; }
+  const x = mData.pop(); mMins.pop();
+  renderMin();
+  document.getElementById('logMin').textContent = `pop() = ${x}: pop cả 2 stack. getMin() = ${mMins.length ? mMins[mMins.length-1] : '–'} vẫn O(1).`;
+}
+function minReset() { mData = []; mMins = []; renderMin(); document.getElementById('logMin').textContent = ''; }
+minReset();
+
+// ===== Postfix evaluation =====
+let postBusy = false;
+async function runPostfix() {
+  if (postBusy) return;
+  postBusy = true;
+  const expr = document.getElementById('postfix').value.trim();
+  const tokens = expr.split(/\s+/);
+  const tokensEl = document.getElementById('tokens');
+  tokensEl.innerHTML = tokens.map(t => `<span class="token">${t}</span>`).join('');
+  const log = document.getElementById('logPost');
+  let stk = [];
+  renderStack('stackPost', stk);
+  for (let i = 0; i < tokens.length; i++) {
+    [...tokensEl.children].forEach((el, j) => {
+      el.classList.toggle('current', j === i);
+      el.classList.toggle('done', j < i);
+    });
+    const t = tokens[i];
+    if (/^-?\d+(\.\d+)?$/.test(t)) {
+      stk.push(parseFloat(t));
+      log.textContent = `Token '${t}' là số → push. Stack: [${stk.join(', ')}]`;
+    } else if ('+-*/'.includes(t)) {
+      if (stk.length < 2) { log.textContent = `Lỗi: cần ≥ 2 số cho toán tử '${t}'`; postBusy = false; return; }
+      const b = stk.pop(), a = stk.pop();
+      let r;
+      if (t === '+') r = a + b;
+      else if (t === '-') r = a - b;
+      else if (t === '*') r = a * b;
+      else r = a / b;
+      stk.push(r);
+      log.textContent = `Token '${t}': pop ${b}, pop ${a}, tính ${a} ${t} ${b} = ${r}, push. Stack: [${stk.join(', ')}]`;
+    } else {
+      log.textContent = `Bỏ qua token '${t}' (không hợp lệ).`;
+    }
+    renderStack('stackPost', stk);
+    await sleep(800);
+  }
+  [...tokensEl.children].forEach((el) => { el.classList.remove('current'); el.classList.add('done'); });
+  log.textContent = stk.length === 1
+    ? `Hoàn thành. Kết quả = ${stk[0]}.`
+    : `Lỗi: stack còn ${stk.length} phần tử thay vì 1.`;
+  postBusy = false;
+}
+function resetPostfix() {
+  document.getElementById('tokens').innerHTML = '';
+  renderStack('stackPost', []);
+  document.getElementById('logPost').textContent = '';
+}
+</script></main>
+<!-- README modal (xem tools/readme-modal.js để biết chi tiết) -->
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

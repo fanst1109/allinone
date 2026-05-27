@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Set Theory Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  button {
+    background: #4299e1; color: white; border: none;
+    padding: 7px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3182ce; }
+  button.op.active { background: #2c5282; box-shadow: inset 0 0 0 2px #fff, 0 0 0 2px #2c5282; }
+  .universe {
+    display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0;
+  }
+  .elem {
+    width: 50px; height: 50px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 18px;
+    background: #edf2f7; border-radius: 50%;
+    cursor: pointer; user-select: none;
+    transition: all 0.15s;
+    border: 3px solid transparent;
+  }
+  .elem:hover { transform: scale(1.1); }
+  .elem.inA { background: #fed7d7; border-color: #c53030; }
+  .elem.inB { background: #c6f6d5; border-color: #2f855a; }
+  .elem.inAB { background: #fef5e7; border-color: #b7791f;
+               background: linear-gradient(135deg, #fed7d7 50%, #c6f6d5 50%); }
+  .elem.highlighted {
+    box-shadow: 0 0 0 4px #f6e05e;
+  }
+  .venn { display: block; margin: 16px auto; }
+  .venn .circ-a { fill: rgba(229, 62, 62, 0.3); stroke: #c53030; stroke-width: 2; }
+  .venn .circ-b { fill: rgba(56, 161, 105, 0.3); stroke: #2f855a; stroke-width: 2; }
+  .venn .hi-only-a, .venn .hi-only-b, .venn .hi-int, .venn .hi-outside {
+    fill: #f6e05e; opacity: 0; transition: opacity 0.25s;
+  }
+  .venn .hi-only-a.on, .venn .hi-only-b.on, .venn .hi-int.on, .venn .hi-outside.on { opacity: 0.7; }
+  .venn text { font-family: monospace; font-size: 14px; }
+  .op-bar { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
+  .result-card {
+    background: #f7fafc; border-left: 4px solid #2b6cb0;
+    padding: 12px 16px; border-radius: 4px; margin-top: 10px;
+    font-family: monospace; font-size: 14px;
+  }
+  .result-card strong { color: #2b6cb0; }
+  .legend {
+    font-size: 13px; color: #4a5568; margin: 4px 0;
+  }
+  .swatch {
+    display: inline-block; width: 14px; height: 14px;
+    border-radius: 50%; vertical-align: middle; margin-right: 4px;
+    border: 2px solid #555;
+  }
+  .swatch.a { background: #fed7d7; border-color: #c53030; }
+  .swatch.b { background: #c6f6d5; border-color: #2f855a; }
+  .swatch.ab { background: linear-gradient(135deg, #fed7d7 50%, #c6f6d5 50%); border-color: #b7791f; }
+  .swatch.hi { background: #f6e05e; border-color: #d69e2e; }
+  .stat {
+    display: inline-block; background: #edf2f7;
+    padding: 4px 10px; border-radius: 4px; margin-right: 8px;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #2b6cb0; }
+  .bits {
+    font-family: monospace; font-size: 16px;
+    background: #1a202c; color: #68d391;
+    padding: 8px 12px; border-radius: 4px; display: inline-block;
+  }
+  input[type="text"] {
+    font-family: monospace; font-size: 15px; padding: 8px;
+    border: 1px solid #cbd5e0; border-radius: 4px; width: 280px;
+  }
+  .subset-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 6px; margin-top: 8px;
+  }
+  .subset-cell {
+    background: #f7fafc; padding: 6px 10px; border-radius: 4px;
+    font-family: monospace; font-size: 13px; border: 1px solid #e2e8f0;
+  }
+  .hint { color: #718096; font-size: 13px; margin: 4px 0; }
+
+  /* ── Mobile (iPhone 12 Pro = 390px và nhỏ hơn) ──
+   * Viz này có vài chỗ width cứng: SVG 520px, input 280px, .elem 50px×8 = 400px.
+   * Trên 390px sẽ tràn. Co lại để fit trong card mobile. */
+  @media (max-width: 768px) {
+    .card { padding: 14px; margin: 12px 0; }
+    h1 { font-size: 24px; }
+    h2 { font-size: 18px; margin-top: 24px; }
+
+    /* Venn SVG: để viewBox tự scale theo container */
+    .venn { width: 100%; height: auto; max-width: 100%; }
+    .venn text { font-size: 16px; }
+
+    /* Universe: 8 phần tử phải fit 1 hàng hoặc wrap đều */
+    .universe { gap: 6px; justify-content: center; }
+    .elem { width: 38px; height: 38px; font-size: 15px; border-width: 2px; }
+
+    /* Op-bar buttons */
+    .op-bar { gap: 5px; }
+    button { padding: 8px 12px; font-size: 13px; }
+
+    /* Result + bitmask hiển thị dạng block, không inline để không vỡ wrap */
+    .result-card { padding: 10px 12px; font-size: 13px; word-break: break-word; }
+    .stat {
+      display: block; margin: 6px 0;
+      padding: 6px 10px; font-size: 13px;
+    }
+    .bits { font-size: 14px; padding: 6px 10px; }
+
+    /* Power set input full-width */
+    .row { gap: 8px; }
+    input[type="text"] { width: 100%; box-sizing: border-box; font-size: 14px; }
+
+    /* Subset grid: 2 cột rõ ràng, font dễ đọc */
+    .subset-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 6px; }
+    .subset-cell { font-size: 12.5px; padding: 6px 8px; }
+
+    .legend { font-size: 13px; }
+    .hint { font-size: 13px; }
+  }
+
+  @media (max-width: 400px) {
+    .elem { width: 34px; height: 34px; font-size: 14px; }
+    .universe { gap: 4px; }
+    button { padding: 7px 10px; font-size: 12.5px; }
+    .subset-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Set Theory</span>
+</nav>
+  <h1>Lesson 03 — Set Theory</h1>
+  <p>Biểu đồ Venn tương tác, các phép toán tập, bitmask song song, và power set.</p>
+
+  <h2>1. Venn Diagram tương tác</h2>
+  <div class="card">
+    <div class="legend">
+      Vũ trụ U = {0, 1, 2, 3, 4, 5, 6, 7}. Click vào số để thay đổi: lần 1 → vào A, lần 2 → vào A∩B, lần 3 → chỉ B, lần 4 → ra ngoài.
+    </div>
+    <div class="universe" id="universe"></div>
+
+    <svg class="venn" id="venn" width="520" height="280" viewBox="0 0 520 280">
+      <defs>
+        <clipPath id="clipA"><circle cx="200" cy="140" r="100"/></clipPath>
+        <clipPath id="clipB"><circle cx="320" cy="140" r="100"/></clipPath>
+        <!-- mask: white = visible, black = hidden -->
+        <mask id="maskOnlyA">
+          <rect x="0" y="0" width="520" height="280" fill="black"/>
+          <circle cx="200" cy="140" r="100" fill="white"/>
+          <circle cx="320" cy="140" r="100" fill="black"/>
+        </mask>
+        <mask id="maskOnlyB">
+          <rect x="0" y="0" width="520" height="280" fill="black"/>
+          <circle cx="320" cy="140" r="100" fill="white"/>
+          <circle cx="200" cy="140" r="100" fill="black"/>
+        </mask>
+        <mask id="maskOutside">
+          <rect x="0" y="0" width="520" height="280" fill="white"/>
+          <circle cx="200" cy="140" r="100" fill="black"/>
+          <circle cx="320" cy="140" r="100" fill="black"/>
+        </mask>
+      </defs>
+
+      <!-- highlight: only A (A \ B) -->
+      <rect class="hi-only-a" id="hiOnlyA" x="0" y="0" width="520" height="280" mask="url(#maskOnlyA)"/>
+      <!-- highlight: only B (B \ A) -->
+      <rect class="hi-only-b" id="hiOnlyB" x="0" y="0" width="520" height="280" mask="url(#maskOnlyB)"/>
+      <!-- highlight: intersection A∩B (nested clip) -->
+      <g clip-path="url(#clipA)">
+        <g clip-path="url(#clipB)">
+          <rect class="hi-int" id="hiInt" x="0" y="0" width="520" height="280"/>
+        </g>
+      </g>
+      <!-- highlight: outside (Aᶜ ∩ Bᶜ) — used by complement of A but limited inside our shown universe area -->
+      <rect class="hi-outside" id="hiOutside" x="0" y="0" width="520" height="280" mask="url(#maskOutside)"/>
+
+      <circle class="circ-a" cx="200" cy="140" r="100"/>
+      <circle class="circ-b" cx="320" cy="140" r="100"/>
+      <text x="130" y="60" fill="#c53030" font-weight="700">A</text>
+      <text x="380" y="60" fill="#2f855a" font-weight="700">B</text>
+      <g id="vennElems"></g>
+    </svg>
+
+    <div class="op-bar" id="setOpBar">
+      <button class="op active" data-op="union">A ∪ B (hợp)</button>
+      <button class="op" data-op="inter">A ∩ B (giao)</button>
+      <button class="op" data-op="diffAB">A \ B (hiệu)</button>
+      <button class="op" data-op="diffBA">B \ A</button>
+      <button class="op" data-op="sym">A △ B (đối xứng)</button>
+      <button class="op" data-op="compA">Aᶜ (phần bù)</button>
+    </div>
+
+    <div class="result-card" id="resultCard"></div>
+    <div class="legend">
+      <span class="swatch a"></span>chỉ A &nbsp;
+      <span class="swatch b"></span>chỉ B &nbsp;
+      <span class="swatch ab"></span>A ∩ B &nbsp;
+      <span class="swatch hi"></span>vùng được tô bởi phép toán
+    </div>
+  </div>
+
+  <h2>2. Bitmask view (đồng bộ với phần 1)</h2>
+  <div class="card">
+    <div class="hint">Với vũ trụ 8 phần tử {0..7}, mỗi tập = 1 byte. Bit thứ i = 1 nếu i thuộc tập.</div>
+    <div style="margin:10px 0">
+      <span class="stat">A bits: <span class="bits" id="aBits"></span></span>
+    </div>
+    <div style="margin:10px 0">
+      <span class="stat">B bits: <span class="bits" id="bBits"></span></span>
+    </div>
+    <div style="margin:10px 0">
+      <span class="stat">A ∪ B  =  A | B  = <span class="bits" id="opUnion"></span></span>
+    </div>
+    <div style="margin:10px 0">
+      <span class="stat">A ∩ B  =  A &amp; B  = <span class="bits" id="opInter"></span></span>
+    </div>
+    <div style="margin:10px 0">
+      <span class="stat">A △ B  =  A ^ B  = <span class="bits" id="opSym"></span></span>
+    </div>
+    <div style="margin:10px 0">
+      <span class="stat">A \ B  =  A &amp;^ B  = <span class="bits" id="opDiffAB"></span></span>
+    </div>
+  </div>
+
+  <h2>3. Power Set — tập tất cả tập con</h2>
+  <div class="card">
+    <div class="row">
+      <label>Tập đầu vào:</label>
+      <input type="text" id="psInput" value="a,b,c">
+      <span class="hint">cách nhau bằng dấu phẩy, tối đa 6 phần tử</span>
+    </div>
+    <div id="psOut"></div>
+  </div>
+
+</main>
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+
+// ============== Section 1+2: Venn + bitmask ==============
+// Each universe element: 0 = none, 1 = only A, 2 = both, 3 = only B
+const U_SIZE = 8;
+let elemState = new Array(U_SIZE).fill(0);
+let setOp = 'union';
+
+function getA() {
+  let m = 0;
+  for (let i = 0; i < U_SIZE; i++) if (elemState[i] === 1 || elemState[i] === 2) m |= (1 << i);
+  return m;
+}
+function getB() {
+  let m = 0;
+  for (let i = 0; i < U_SIZE; i++) if (elemState[i] === 2 || elemState[i] === 3) m |= (1 << i);
+  return m;
+}
+function asSet(mask) {
+  const arr = [];
+  for (let i = 0; i < U_SIZE; i++) if (mask & (1 << i)) arr.push(i);
+  return arr;
+}
+function fmtSet(mask) {
+  return '{' + asSet(mask).join(', ') + '}';
+}
+function bitsStr(mask) {
+  return mask.toString(2).padStart(U_SIZE, '0');
+}
+
+function renderUniverse() {
+  const u = $('universe');
+  u.innerHTML = '';
+  for (let i = 0; i < U_SIZE; i++) {
+    const e = document.createElement('div');
+    e.className = 'elem';
+    const s = elemState[i];
+    if (s === 1) e.classList.add('inA');
+    else if (s === 2) e.classList.add('inAB');
+    else if (s === 3) e.classList.add('inB');
+    e.textContent = i;
+    e.onclick = () => {
+      elemState[i] = (elemState[i] + 1) % 4;
+      renderAll();
+    };
+    u.appendChild(e);
+  }
+}
+
+function renderVennElems() {
+  const g = $('vennElems');
+  g.innerHTML = '';
+  // positions inside Venn: only A → x≈140, only B → x≈380, intersection → x≈260, outside → top row
+  const slots = { onlyA: [], onlyB: [], both: [], out: [] };
+  for (let i = 0; i < U_SIZE; i++) {
+    if (elemState[i] === 1) slots.onlyA.push(i);
+    else if (elemState[i] === 2) slots.both.push(i);
+    else if (elemState[i] === 3) slots.onlyB.push(i);
+    else slots.out.push(i);
+  }
+  const place = (arr, cx, cy, radius) => {
+    arr.forEach((v, k) => {
+      const angle = (k / Math.max(arr.length, 1)) * Math.PI * 2 - Math.PI / 2;
+      const x = cx + radius * Math.cos(angle);
+      const y = cy + radius * Math.sin(angle);
+      const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      txt.setAttribute('x', x); txt.setAttribute('y', y + 5);
+      txt.setAttribute('text-anchor', 'middle'); txt.setAttribute('font-weight', '700');
+      txt.textContent = v;
+      g.appendChild(txt);
+    });
+  };
+  // only A: left side of circle A
+  place(slots.onlyA, 155, 140, 35);
+  // both: center
+  place(slots.both, 260, 140, 20);
+  // only B: right side of circle B
+  place(slots.onlyB, 365, 140, 35);
+  // out: above
+  slots.out.forEach((v, k) => {
+    const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    txt.setAttribute('x', 30 + k * 36); txt.setAttribute('y', 30);
+    txt.setAttribute('fill', '#888');
+    txt.textContent = v;
+    g.appendChild(txt);
+  });
+}
+
+function renderHighlight() {
+  // Clear
+  ['hiOnlyA', 'hiOnlyB', 'hiInt', 'hiOutside'].forEach(id => $(id).classList.remove('on'));
+  // Choose what to highlight per op
+  switch (setOp) {
+    case 'union':  $('hiOnlyA').classList.add('on'); $('hiOnlyB').classList.add('on'); $('hiInt').classList.add('on'); break;
+    case 'inter':  $('hiInt').classList.add('on'); break;
+    case 'diffAB': $('hiOnlyA').classList.add('on'); break;
+    case 'diffBA': $('hiOnlyB').classList.add('on'); break;
+    case 'sym':    $('hiOnlyA').classList.add('on'); $('hiOnlyB').classList.add('on'); break;
+    case 'compA':  $('hiOnlyB').classList.add('on'); $('hiOutside').classList.add('on'); break;
+  }
+}
+
+function renderResult() {
+  const A = getA(), B = getB();
+  const U = (1 << U_SIZE) - 1;
+  let r = 0, formula = '', name = '';
+  switch (setOp) {
+    case 'union':  r = (A | B) & U; formula = `A | B = ${bitsStr(A)} | ${bitsStr(B)} = ${bitsStr(r)}`; name = 'A ∪ B'; break;
+    case 'inter':  r = (A & B) & U; formula = `A & B = ${bitsStr(A)} & ${bitsStr(B)} = ${bitsStr(r)}`; name = 'A ∩ B'; break;
+    case 'diffAB': r = (A & ~B) & U; formula = `A &^ B = ${bitsStr(A)} &^ ${bitsStr(B)} = ${bitsStr(r)}`; name = 'A \\ B'; break;
+    case 'diffBA': r = (B & ~A) & U; formula = `B &^ A = ${bitsStr(B)} &^ ${bitsStr(A)} = ${bitsStr(r)}`; name = 'B \\ A'; break;
+    case 'sym':    r = (A ^ B) & U; formula = `A ^ B = ${bitsStr(A)} ^ ${bitsStr(B)} = ${bitsStr(r)}`; name = 'A △ B'; break;
+    case 'compA':  r = (~A) & U; formula = `(~A) & 0xFF = ${bitsStr(r)}`; name = 'Aᶜ (trong U={0..7})'; break;
+  }
+  const card = $('resultCard');
+  card.innerHTML =
+    `<div><strong>${name}</strong> = ${fmtSet(r)}</div>` +
+    `<div style="margin-top:6px;color:#555">Tính bằng bitmask: ${formula}</div>` +
+    `<div style="margin-top:6px">|A| = ${asSet(A).length}, |B| = ${asSet(B).length}, |${name}| = ${asSet(r).length}</div>`;
+}
+
+function renderBitmaskCard() {
+  const A = getA(), B = getB();
+  const U = (1 << U_SIZE) - 1;
+  $('aBits').textContent = bitsStr(A);
+  $('bBits').textContent = bitsStr(B);
+  $('opUnion').textContent = bitsStr((A | B) & U);
+  $('opInter').textContent = bitsStr((A & B) & U);
+  $('opSym').textContent   = bitsStr((A ^ B) & U);
+  $('opDiffAB').textContent = bitsStr((A & ~B) & U);
+}
+
+function renderAll() {
+  renderUniverse();
+  renderVennElems();
+  renderHighlight();
+  renderResult();
+  renderBitmaskCard();
+}
+
+$('setOpBar').addEventListener('click', e => {
+  const t = e.target.closest('button[data-op]');
+  if (!t) return;
+  setOp = t.dataset.op;
+  document.querySelectorAll('#setOpBar button').forEach(b => b.classList.remove('active'));
+  t.classList.add('active');
+  renderHighlight();
+  renderResult();
+});
+
+// ============== Section 3: power set ==============
+function renderPowerSet() {
+  const raw = $('psInput').value.split(',').map(s => s.trim()).filter(s => s.length > 0);
+  const items = raw.slice(0, 6);
+  const n = items.length;
+  const out = $('psOut');
+  out.innerHTML = '';
+  if (n === 0) { out.textContent = '(empty input)'; return; }
+  const grid = document.createElement('div');
+  grid.className = 'subset-grid';
+  const total = 1 << n;
+  for (let mask = 0; mask < total; mask++) {
+    const sub = [];
+    for (let i = 0; i < n; i++) if (mask & (1 << i)) sub.push(items[i]);
+    const cell = document.createElement('div');
+    cell.className = 'subset-cell';
+    cell.innerHTML = `<span style="color:#d69e2e;font-weight:700">${mask.toString(2).padStart(n, '0')}</span> → {${sub.join(', ')}}`;
+    grid.appendChild(cell);
+  }
+  out.appendChild(grid);
+  const hint = document.createElement('div');
+  hint.className = 'hint';
+  hint.innerHTML = `|P(S)| = <strong>${total}</strong> = 2<sup>${n}</sup>`;
+  out.appendChild(hint);
+}
+$('psInput').oninput = renderPowerSet;
+
+// ============== Init ==============
+// Some default state to show something useful
+elemState = [0, 1, 2, 2, 3, 1, 0, 3];
+renderAll();
+renderPowerSet();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

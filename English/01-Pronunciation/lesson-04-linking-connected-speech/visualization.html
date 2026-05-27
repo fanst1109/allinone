@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linking & Connected Speech</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f5f6f8; --panel: #fff; --ink: #1a1a1a; --muted: #6a6a6a; --line: #e3e1dc;
+    --accent: #b45309; --accent-soft: #fef3c7;
+    --ok: #15803d;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.55; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px 80px; }
+  header h1 { margin: 0 0 4px; font-size: 24px; }
+  header p { margin: 0 0 20px; color: var(--muted); font-size: 14px; }
+  header p code { background: var(--accent-soft); color: var(--accent); padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+
+  .accent-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin-left: 8px; }
+  .accent-toggle button { background: var(--panel); border: none; padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; }
+  .accent-toggle button + button { border-left: 1px solid var(--line); }
+  .accent-toggle button.active { background: var(--accent); color: white; }
+
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 24px; flex-wrap: wrap; }
+  .tab { padding: 10px 16px; cursor: pointer; background: none; border: none; font-size: 14px; font-weight: 500; color: var(--muted); border-bottom: 2px solid transparent; }
+  .tab.active { color: var(--ink); border-bottom-color: var(--accent); }
+  .pane { display: none; }
+  .pane.active { display: block; }
+
+  .ipa-symbol { font-family: "Charis SIL", "Lucida Grande", sans-serif; }
+
+  .section-note { color: var(--muted); font-size: 13px; margin: 0 0 16px; background: var(--accent-soft); padding: 10px 14px; border-radius: 8px; border-left: 3px solid var(--accent); }
+
+  .rule-card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px 18px; margin-bottom: 14px;
+  }
+  .rule-title { font-size: 16px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+  .rule-desc { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
+  .examples-table { width: 100%; border-collapse: collapse; }
+  .examples-table th, .examples-table td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .examples-table th { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+  .examples-table .chunk { font-weight: 600; }
+  .examples-table .ipa { font-family: "Charis SIL", sans-serif; color: var(--muted); }
+  .examples-table .play-cell { width: 80px; text-align: center; }
+  .play-pill {
+    display: inline-block; padding: 4px 10px; border-radius: 14px;
+    background: var(--accent-soft); color: var(--accent); font-size: 12px;
+    cursor: pointer; transition: all 0.12s;
+  }
+  .play-pill:hover { background: var(--accent); color: white; }
+  .play-pill.disabled { opacity: 0.3; cursor: default; }
+
+  .compare-card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; margin-bottom: 10px;
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; align-items: center;
+  }
+  .compare-card .word { font-size: 18px; font-weight: 700; }
+  .compare-card .ipa-side { font-size: 13px; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
+  .compare-card .ipa-side:hover { background: var(--accent-soft); }
+  .compare-card .label { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; }
+  .compare-card .ipa-val { font-family: "Charis SIL", sans-serif; font-size: 15px; margin-top: 2px; }
+
+  .reduction-card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+    padding: 12px 14px; margin-bottom: 8px; display: flex; gap: 14px; align-items: center;
+  }
+  .reduction-card .formal { font-weight: 600; min-width: 140px; }
+  .reduction-card .arrow { color: var(--muted); }
+  .reduction-card .reduced { color: var(--accent); font-weight: 700; min-width: 100px; }
+  .reduction-card .example { color: var(--muted); font-style: italic; font-size: 13px; }
+
+  .audio-status { font-size: 11px; color: var(--muted); margin-top: 8px; }
+
+  .warning {
+    background: #fef2f2; border-left: 3px solid #b91c1c; color: #7f1d1d;
+    padding: 12px 14px; border-radius: 6px; margin: 16px 0; font-size: 13px;
+  }
+
+  footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); text-align: center; }
+  footer a { color: var(--accent); }
+
+  @media (max-width: 640px) { .compare-card { grid-template-columns: 1fr; } }
+
+</style>
+</head>
+<body>
+<div class="container">
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-sentence-rhythm/visualization.html">← L03: Nhịp & Intonation</a>
+  <span class="sep">·</span>
+  <span class="current">L04: Linking</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-weak-forms/visualization.html">L05: Weak forms →</a>
+</nav>
+
+<header>
+  <h1>Linking & Connected Speech</h1>
+  <p>Cách các từ "dính" vào nhau khi nói nhanh. Audio cấp từ: <code>oxfordlearnersdictionaries.com</code>.
+    Giọng:
+    <span class="accent-toggle">
+      <button id="btn-accent-us" class="active" data-variant="us">US</button>
+      <button id="btn-accent-uk" data-variant="uk">UK</button>
+    </span>
+  </p>
+</header>
+
+<div class="tabs">
+  <button class="tab active" data-tab="linking">Linking</button>
+  <button class="tab" data-tab="elision">Elision</button>
+  <button class="tab" data-tab="assimilation">Assimilation</button>
+  <button class="tab" data-tab="t-flap">T-flapping</button>
+  <button class="tab" data-tab="reductions">Reductions</button>
+</div>
+
+<section class="pane active" id="pane-linking">
+  <div class="section-note">4 quy tắc nối âm chính. Click ▶ để nghe từng từ thành phần (audio Oxford ở cấp từ).</div>
+  <div id="linking-list"></div>
+  <div class="audio-status" id="status-linking"></div>
+</section>
+
+<section class="pane" id="pane-elision">
+  <div class="section-note">Âm rơi mất khi nói nhanh: /t/, /d/, /h/, schwa.</div>
+  <div id="elision-list"></div>
+  <div class="audio-status" id="status-elision"></div>
+</section>
+
+<section class="pane" id="pane-assimilation">
+  <div class="section-note">Âm này biến đổi để giống vị trí phát âm của âm kế bên.</div>
+  <div id="assim-list"></div>
+  <div class="audio-status" id="status-assim"></div>
+</section>
+
+<section class="pane" id="pane-t-flap">
+  <div class="section-note">
+    <strong>T-flapping</strong> là đặc trưng Anh-Mỹ — /t/ giữa hai nguyên âm thành /ɾ/ (gần /d/). Anh-Anh giữ /t/ rõ. Click US ↔ UK ở header để nghe khác biệt cho cùng một từ.
+  </div>
+  <div id="tflap-list"></div>
+  <div class="audio-status" id="status-tflap"></div>
+</section>
+
+<section class="pane" id="pane-reductions">
+  <div class="section-note">Dạng "rút gọn" trong văn nói thông tục Anh-Mỹ.</div>
+  <div id="reduction-list"></div>
+  <div class="warning">
+    <strong>⚠ Cảnh báo ngữ cảnh</strong>: Các dạng <code>gonna</code>, <code>wanna</code>, <code>gotta</code>, <code>lemme</code>... <strong>CHỈ dùng trong văn nói informal</strong>. KHÔNG dùng trong email công việc, báo cáo, luận văn, hay khi giao tiếp trang trọng. Bản xứ dùng rất nhiều trong nói thường ngày, podcast, phim — bạn nghe để hiểu, không nhất thiết viết.
+  </div>
+</section>
+
+<footer>Audio: <a href="https://www.oxfordlearnersdictionaries.com" target="_blank">Oxford Learner's Dictionaries</a>. Mặc định US.</footer>
+
+<audio id="audio-el" preload="none"></audio>
+</div>
+
+<script>
+const DOMAIN_NEW = "https://www.oxfordlearnersdictionaries.com/media/english/";
+const DOMAIN_OLD = "https://www.oxforddictionaries.com/media/english/";
+const audioEl = document.getElementById('audio-el');
+let currentVariant = localStorage.getItem('audioVariant') || 'us';
+function ukToVariantPath(ukRel, v) { return v === 'us' ? "us_pron/" + ukRel.replace(/__gb_/, '__us_') : "uk_pron/" + ukRel; }
+function playAudio(ukRel, statusEl) {
+  if (!ukRel) { if (statusEl) statusEl.textContent = "(không có audio)"; return; }
+  const cands = [DOMAIN_NEW + ukToVariantPath(ukRel, currentVariant), DOMAIN_OLD + ukToVariantPath(ukRel, currentVariant)];
+  if (currentVariant === 'us') { cands.push(DOMAIN_NEW + ukToVariantPath(ukRel, 'uk')); cands.push(DOMAIN_OLD + ukToVariantPath(ukRel, 'uk')); }
+  let idx = 0;
+  if (statusEl) statusEl.textContent = "Đang tải...";
+  function tryNext() {
+    if (idx >= cands.length) { if (statusEl) statusEl.textContent = "Không tải được."; return; }
+    const url = cands[idx++];
+    audioEl.onerror = tryNext;
+    audioEl.onplaying = () => { if (statusEl) { const us = url.includes('us_pron'); statusEl.textContent = `▶ Oxford ${us ? 'US' : 'UK'}`; } };
+    audioEl.src = url;
+    const p = audioEl.play(); if (p && p.catch) p.catch(() => tryNext());
+  }
+  tryNext();
+}
+function setVariant(v) {
+  currentVariant = v;
+  localStorage.setItem('audioVariant', v);
+  document.querySelectorAll('.accent-toggle button').forEach(b => b.classList.toggle('active', b.dataset.variant === v));
+}
+document.querySelectorAll('.accent-toggle button').forEach(btn => btn.addEventListener('click', () => setVariant(btn.dataset.variant)));
+setVariant(currentVariant);
+
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('pane-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// Word audio bank
+const A = {
+  apple: "a/app/apple/apple__gb_1.mp3",
+  orange: "", an: "", a: "", the: "", look: "", at: "", it: "",
+  cake: "c/cak/cake_/cake__gb_1.mp3", make: "",
+  turn: "", off: "o/off/off__/off__gb_1.mp3",
+  go: "", out: "o/out/out__/out__gb_1.mp3", do: "", see: "",
+  good: "g/goo/good_/good__gb_1.mp3", dog: "d/dog/dog__/dog__gb_1.mp3",
+  big: "b/big/big__/big__gb_1.mp3", black: "", cat: "",
+  next: "n/nex/next_/next__gb_1.mp3", door: "d/doo/door_/door__gb_1.mp3",
+  last: "", week: "", old: "o/old/old__/old__gb_1.mp3", man: "m/man/man__/man__gb_1.mp3",
+  hand: "", bag: "b/bag/bag__/bag__gb_1.mp3",
+  must: "", be: "",
+  vegetable: "", chocolate: "", camera: "", different: "", comfortable: "",
+  ten: "t/ten/ten__/ten__gb_1.mp3", boys: "",
+  in: "", class: "", grass: "", green: "",
+  water: "w/wat/water/water__gb_1.mp3", butter: "b/but/butte/butter__gb_1.mp3",
+  little: "l/lit/littl/little__gb_1.mp3", city: "",
+  better: "", letter: "", later: "",
+};
+
+function buildExamples(elId, statusId, items) {
+  const el = document.getElementById(elId);
+  items.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'rule-card';
+    let rows = item.examples.map(ex => {
+      const aud = ex.audioKey ? A[ex.audioKey] : '';
+      return `<tr>
+        <td class="chunk">${ex.chunk}</td>
+        <td class="ipa">${ex.ipa}</td>
+        <td class="play-cell">${aud ? `<span class="play-pill" data-audio="${aud}">▶ nghe</span>` : `<span class="play-pill disabled">—</span>`}</td>
+      </tr>`;
+    }).join('');
+    card.innerHTML = `
+      <div class="rule-title">${item.title}</div>
+      <div class="rule-desc">${item.desc}</div>
+      <table class="examples-table">
+        <thead><tr><th>Cụm</th><th>Phát âm thực</th><th></th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+    card.querySelectorAll('.play-pill[data-audio]').forEach(p => {
+      p.addEventListener('click', () => playAudio(p.dataset.audio, document.getElementById(statusId)));
+    });
+    el.appendChild(card);
+  });
+}
+
+// Linking rules
+buildExamples('linking-list', 'status-linking', [
+  { title: "C→V — phụ âm cuối + nguyên âm đầu",
+    desc: "Phụ âm cuối tràn sang nguyên âm bắt đầu của từ sau.",
+    examples: [
+      { chunk: "an apple",     ipa: "/əˈnæpl/",       audioKey: "apple" },
+      { chunk: "look at it",   ipa: "/luːˈkæɾɪt/",    audioKey: "" },
+      { chunk: "turn off",     ipa: "/tɜːrˈnɔːf/",    audioKey: "off" },
+      { chunk: "make a cake",  ipa: "/meɪkəˈkeɪk/",   audioKey: "cake" },
+    ] },
+  { title: "V→V với /j/ — nguyên âm trước kết bằng /iː ɪ eɪ aɪ ɔɪ/",
+    desc: "Chèn âm /j/ làm cầu nối.",
+    examples: [
+      { chunk: "I am",         ipa: "/aɪjæm/",        audioKey: "" },
+      { chunk: "see it",       ipa: "/siːjɪt/",       audioKey: "see" },
+      { chunk: "the apple",    ipa: "/ðijˈæpl/",      audioKey: "apple" },
+      { chunk: "boy or girl",  ipa: "/bɔɪjɔːrˈɡɜːrl/",audioKey: "" },
+    ] },
+  { title: "V→V với /w/ — nguyên âm trước kết bằng /uː ʊ oʊ aʊ/",
+    desc: "Chèn âm /w/ làm cầu nối (môi tròn).",
+    examples: [
+      { chunk: "do it",        ipa: "/duːwɪt/",       audioKey: "do" },
+      { chunk: "go out",       ipa: "/ɡoʊwaʊt/",     audioKey: "out" },
+      { chunk: "how are you",  ipa: "/haʊwɑːrju/",    audioKey: "" },
+    ] },
+  { title: "C→C cùng vị trí — gộp 1",
+    desc: "Hai phụ âm cùng vị trí cản → phát một lần (kéo dài), không lặp lại.",
+    examples: [
+      { chunk: "good dog",     ipa: "/ɡʊdɔːɡ/",       audioKey: "dog" },
+      { chunk: "black cat",    ipa: "/blækæt/",       audioKey: "" },
+      { chunk: "big girl",     ipa: "/bɪɡɜːrl/",      audioKey: "big" },
+      { chunk: "hot tea",      ipa: "/hɑːtiː/",       audioKey: "" },
+    ] },
+]);
+
+// Elision
+buildExamples('elision-list', 'status-elision', [
+  { title: "/t/ và /d/ rơi giữa 2 phụ âm",
+    desc: "Khi đứng giữa 2 phụ âm khác, /t/ /d/ thường bị nuốt.",
+    examples: [
+      { chunk: "next door",    ipa: "/neks dɔːr/",    audioKey: "next" },
+      { chunk: "last week",    ipa: "/læs wiːk/",     audioKey: "" },
+      { chunk: "old man",      ipa: "/oʊl mæn/",      audioKey: "man" },
+      { chunk: "hand bag",     ipa: "/hæn bæɡ/",      audioKey: "bag" },
+      { chunk: "must be",      ipa: "/məs bi/",       audioKey: "" },
+    ] },
+  { title: "/h/ rơi ở pronoun không nhấn",
+    desc: "tell him, give her, take his — /h/ thường bỏ giữa câu.",
+    examples: [
+      { chunk: "tell him",     ipa: "/telɪm/",        audioKey: "" },
+      { chunk: "give her",     ipa: "/ɡɪvər/",        audioKey: "" },
+      { chunk: "take his",     ipa: "/teɪkɪz/",       audioKey: "" },
+    ] },
+  { title: "Schwa rơi trong từ dài",
+    desc: "Schwa giữa từ thường bị nuốt khi nói tự nhiên.",
+    examples: [
+      { chunk: "vegetable",    ipa: "/ˈvedʒtəbl/",    audioKey: "vegetable" },
+      { chunk: "chocolate",    ipa: "/ˈtʃɑːklət/",    audioKey: "chocolate" },
+      { chunk: "camera",       ipa: "/ˈkæmrə/",       audioKey: "camera" },
+      { chunk: "different",    ipa: "/ˈdɪfrənt/",     audioKey: "different" },
+    ] },
+]);
+
+// Assimilation
+buildExamples('assim-list', 'status-assim', [
+  { title: "/n/ + /b p m/ → /m/",
+    desc: "/n/ biến thành /m/ vì /b p m/ phát ở môi.",
+    examples: [
+      { chunk: "ten boys",     ipa: "/tem bɔɪz/",     audioKey: "ten" },
+      { chunk: "in Paris",     ipa: "/ɪm ˈpærɪs/",   audioKey: "" },
+      { chunk: "green park",   ipa: "/ɡriːm pɑːrk/",  audioKey: "green" },
+    ] },
+  { title: "/n/ + /k ɡ/ → /ŋ/",
+    desc: "/n/ biến thành /ŋ/ vì /k ɡ/ phát ở vòm mềm.",
+    examples: [
+      { chunk: "ten cats",     ipa: "/teŋ kæts/",     audioKey: "ten" },
+      { chunk: "in class",     ipa: "/ɪŋ klæs/",      audioKey: "" },
+      { chunk: "on grass",     ipa: "/ɒŋ ɡræs/",      audioKey: "" },
+    ] },
+  { title: "/t/ + /j/ → /tʃ/, /d/ + /j/ → /dʒ/",
+    desc: "Đặc biệt với 'you', 'your': don't you → doncha, would you → wouldja.",
+    examples: [
+      { chunk: "don't you",    ipa: "/doʊntʃu/",      audioKey: "" },
+      { chunk: "would you",    ipa: "/wʊdʒu/",        audioKey: "" },
+      { chunk: "got you",      ipa: "/ɡɑːtʃu/",       audioKey: "" },
+      { chunk: "did you",      ipa: "/dɪdʒu/",        audioKey: "" },
+    ] },
+]);
+
+// T-flapping (with US/UK comparison)
+const tFlapWords = [
+  { word: "water", uk: "w/wat/water/water__gb_1.mp3", usIpa: "/ˈwɔːɾər/", ukIpa: "/ˈwɔːtə/" },
+  { word: "butter", uk: "b/but/butte/butter__gb_1.mp3", usIpa: "/ˈbʌɾər/", ukIpa: "/ˈbʌtə/" },
+  { word: "little", uk: "l/lit/littl/little__gb_1.mp3", usIpa: "/ˈlɪɾl/", ukIpa: "/ˈlɪtl/" },
+  { word: "city",   uk: "", usIpa: "/ˈsɪɾi/", ukIpa: "/ˈsɪti/" },
+  { word: "better", uk: "", usIpa: "/ˈbeɾər/", ukIpa: "/ˈbetə/" },
+  { word: "letter", uk: "", usIpa: "/ˈleɾər/", ukIpa: "/ˈletə/" },
+];
+const tflapList = document.getElementById('tflap-list');
+tFlapWords.forEach(w => {
+  const card = document.createElement('div');
+  card.className = 'compare-card';
+  card.innerHTML = `
+    <div class="word">${w.word}</div>
+    <div class="ipa-side" data-variant="us" ${w.uk ? `data-audio="${w.uk}"` : ''}>
+      <div class="label">US — có /ɾ/</div>
+      <div class="ipa-val">${w.usIpa}</div>
+    </div>
+    <div class="ipa-side" data-variant="uk" ${w.uk ? `data-audio="${w.uk}"` : ''}>
+      <div class="label">UK — giữ /t/</div>
+      <div class="ipa-val">${w.ukIpa}</div>
+    </div>
+  `;
+  card.querySelectorAll('.ipa-side').forEach(side => {
+    if (!side.dataset.audio) { side.style.cursor = 'default'; side.style.opacity = '0.7'; return; }
+    side.addEventListener('click', () => {
+      const orig = currentVariant;
+      setVariant(side.dataset.variant);
+      playAudio(side.dataset.audio, document.getElementById('status-tflap'));
+      // Restore preference after playback
+      setTimeout(() => setVariant(orig), 100);
+    });
+  });
+  tflapList.appendChild(card);
+});
+
+// Reductions
+const reductions = [
+  { formal: "going to", reduced: "gonna", example: '"I\'m gonna go."' },
+  { formal: "want to", reduced: "wanna", example: '"I wanna eat."' },
+  { formal: "got to", reduced: "gotta", example: '"I gotta leave."' },
+  { formal: "kind of", reduced: "kinda", example: '"It\'s kinda cold."' },
+  { formal: "sort of", reduced: "sorta", example: '"I sorta agree."' },
+  { formal: "out of", reduced: "outta", example: '"Get outta here!"' },
+  { formal: "let me", reduced: "lemme", example: '"Lemme see."' },
+  { formal: "give me", reduced: "gimme", example: '"Gimme five."' },
+  { formal: "don\'t know", reduced: "dunno", example: '"I dunno."' },
+  { formal: "you all", reduced: "y\'all", example: '"How are y\'all doing?" (miền Nam Mỹ)' },
+];
+const redList = document.getElementById('reduction-list');
+reductions.forEach(r => {
+  const card = document.createElement('div');
+  card.className = 'reduction-card';
+  card.innerHTML = `<span class="formal">${r.formal}</span><span class="arrow">→</span><span class="reduced">${r.reduced}</span><span class="example">${r.example}</span>`;
+  redList.appendChild(card);
+});
+</script>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+<script src="../../../tools/ipa-reader.js"></script>
+</body>
+</html>

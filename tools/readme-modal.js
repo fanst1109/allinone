@@ -19,6 +19,24 @@
 (function () {
   'use strict';
 
+  // Tự nạp favicon dùng chung: suy ra path tools/ từ src của chính script này,
+  // nên mọi viz có favicon mà không cần sửa từng file.
+  (function loadFavicon() {
+    if (document.querySelector('link[rel~="icon"]')) return;
+    var me = document.currentScript ||
+      (function () {
+        var s = document.getElementsByTagName('script');
+        for (var i = s.length - 1; i >= 0; i--) {
+          if (/readme-modal\.js(\?|$)/.test(s[i].src)) return s[i];
+        }
+        return null;
+      })();
+    if (!me || !me.src) return;
+    var fav = document.createElement('script');
+    fav.src = me.src.replace(/readme-modal\.js(\?.*)?$/, 'favicon.js');
+    document.head.appendChild(fav);
+  })();
+
   var LS_MODE_KEY   = 'rmViewMode';
   var LS_WIDTH_KEY  = 'rmSidebarWidth';
   var LS_TOC_KEY    = 'rmTocVisible';

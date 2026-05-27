@@ -80,6 +80,8 @@ Và chỉ khi cả 3 thành công thì đơn mới `CONFIRMED`.
 
 Mỗi service là một **package độc lập** trong `solutions/internal/`. Quan trọng: chúng KHÔNG import lẫn nhau cho logic nghiệp vụ — chỉ orchestrator (saga) biết cả ba.
 
+> 💡 **Trực giác / Hình dung.** Hãy coi mỗi service như một **quầy riêng** trong một khu chợ. Quầy Kho, quầy Thu ngân, quầy Đơn hàng. Chúng không thò tay sang quầy khác lấy đồ; chúng **dán giấy nhắn** (event) lên một bảng tin chung (bus). Ai cần thì đọc bảng tin. Khi bạn tách một dịch vụ ra thành nhiều "quầy" như vậy, mỗi quầy có thể đổi cách làm việc nội bộ (đổi database, đổi ngôn ngữ) mà các quầy khác không hề hay biết — miễn là định dạng giấy nhắn (event) giữ nguyên.
+
 ### 2.1 Order service (`internal/order`)
 
 **Trách nhiệm**: tạo order, theo dõi vòng đời trạng thái.

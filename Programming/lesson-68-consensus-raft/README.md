@@ -143,6 +143,10 @@ Raft (Ongaro & Ousterhout, 2014) sinh ra để **dễ hiểu** hơn Paxos, với
 
 > 💡 **Trực giác cốt lõi.** Raft đặt một **leader mạnh** làm trung tâm: mọi ghi đều qua leader, log chỉ chảy **một chiều** từ leader sang follower. Cách này đơn giản hơn Paxos (nơi mọi node bình đẳng tranh nhau). Khi leader chết, bầu leader mới — và đó là toàn bộ phần "phức tạp".
 
+> ❓ *"'Dễ hiểu' thì liên quan gì tới chất lượng?"* → Rất liên quan trong thực tế: một thuật toán khó hiểu (Paxos) thì kỹ sư dễ implement **sai** → bug consensus là loại bug **kinh khủng nhất** (mất dữ liệu âm thầm, khó tái hiện). Raft đặt cược rằng "dễ hiểu → dễ implement đúng → ít bug" — và lịch sử (etcd, Consul...) đã xác nhận.
+
+> 📝 **Tóm tắt mục 4.** Raft = 3 mảnh tách rời: leader election + log replication + safety. Triết lý: leader mạnh, log một chiều, ưu tiên dễ hiểu để dễ làm đúng.
+
 ---
 
 ## 5. Node states — 3 trạng thái

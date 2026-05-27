@@ -87,7 +87,15 @@ Walk-through con số `n = 50`:
 > - *"Tại sao primality từng được cho là khó mà giờ thuộc P?"* — Vì năm 2002 Agrawal-Kayal-Saxena tìm ra thuật toán đa thức (AKS). Đây là minh chứng: một bài "tưởng khó" có thể được chuyển vào P khi ai đó tìm ra thuật toán. Nhưng với NP-complete, **không ai làm được điều này** suốt 50+ năm.
 > - *"Đa thức bậc cao như n⁶ có thực sự 'dễ' không?"* — Về lý thuyết thuộc P. Thực tế n⁶ với n lớn vẫn chậm, nhưng so với 2ⁿ thì là trời với vực.
 
-> 📝 **Tóm tắt mục 2.** P = giải được trong thời gian đa thức. Hầu hết bài bạn đã học (sort, shortest path, MST, matching, flow) đều thuộc P. Gặp bài P → tự tin có thuật toán nhanh.
+**Vì sao "đa thức" là ranh giới của "dễ"?** Đây là một quy ước (gọi là **luận đề Cobham-Edmonds**), không phải định lý. Lý do nó hữu ích:
+
+1. **Khép kín dưới phép hợp thành.** Gọi một thuật toán đa thức bên trong một vòng lặp đa thức vẫn ra đa thức (`n^a · n^b = n^(a+b)`). Mũ thì không có tính chất đẹp này một cách an toàn.
+2. **Bền vững giữa các mô hình máy.** Một bài đa thức trên máy Turing cũng đa thức trên máy RAM, máy nhiều băng... (chỉ đổi số mũ). "Đa thức" không phụ thuộc chi tiết phần cứng.
+3. **Thực tế đa số thuật toán đa thức có số mũ nhỏ** (k ≤ 4), nên "đa thức" và "chạy được" trùng nhau trên thực tế.
+
+Walk-through tính khép kín: Floyd-Warshall O(V³) gọi bên trong một thuật toán lặp O(V) lần → O(V⁴), vẫn đa thức. Đổi V từ 100 lên 200 (gấp đôi) → thời gian gấp `2⁴ = 16` lần — tăng có kiểm soát, không nổ.
+
+> 📝 **Tóm tắt mục 2.** P = giải được trong thời gian đa thức. Hầu hết bài bạn đã học (sort, shortest path, MST, matching, flow) đều thuộc P. Đa thức là ranh giới "dễ" vì khép kín dưới hợp thành và bền vững giữa các mô hình máy. Gặp bài P → tự tin có thuật toán nhanh.
 
 ---
 
@@ -107,6 +115,17 @@ Walk-through con số `n = 50`:
 4. **Subset Sum** — "tập số này có tập con tổng đúng T không?" Certificate = tập con đó. Verify = cộng lại xem có bằng T. O(n).
 
 Walk-through verify subset sum: cho `S = {3, 34, 4, 12, 5, 2}`, `T = 9`. Ai đó đưa certificate `{4, 5}`. Verify: `4 + 5 = 9 = T` ✓ → "Yes" trong O(2) phép cộng. *Tìm* certificate này thì khó (phải thử tổ hợp), nhưng *kiểm* thì tức thì.
+
+**Đối chiếu chi phí tìm vs kiểm (4 ví dụ số):**
+
+| Bài | Tìm lời giải | Verify certificate |
+|---|---|---|
+| Subset Sum, n=40 | thử 2⁴⁰ ≈ 10¹² tập con | cộng ≤ 40 số: ~40 phép |
+| SAT, 50 biến | thử 2⁵⁰ ≈ 10¹⁵ gán | thay vào: O(số literal) |
+| Clique k=10 trong G(100 đỉnh) | duyệt C(100,10) ≈ 10¹³ tập | kiểm C(10,2)=45 cặp |
+| Hamiltonian, 20 đỉnh | thử tới 19! ≈ 10¹⁷ thứ tự | kiểm 20 cạnh liên tiếp |
+
+Cột "tìm" mũ/giai thừa, cột "verify" đa thức — đó chính là khoảng cách định nghĩa nên NP.
 
 > ❓ **Câu hỏi tự nhiên của người đọc.**
 > - *"Nếu trả lời 'No' thì verify thế nào?"* — Định nghĩa NP chỉ yêu cầu certificate cho trường hợp "Yes". Trường hợp "No" thuộc về co-NP (đối ngẫu). Đừng lo, đa số bài học chỉ cần hiểu chiều "Yes".

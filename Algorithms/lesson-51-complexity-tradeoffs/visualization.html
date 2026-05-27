@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L51 — Complexity Trade-offs · Minh hoạ</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #4299e1;
+    --accent-hover: #3182ce;
+    --accent-soft: #ebf8ff;
+    --green: #48bb78;
+    --red: #f56565;
+    --gold: #d69e2e;
+    --purple: #805ad5;
+    --dark: #2d3748;
+    --gray: #cbd5e0;
+  }
+  main { max-width: 1000px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.6rem; margin: 12px 0 4px; }
+  .lead { color: #4a5568; margin: 0 0 20px; }
+
+  .module {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px;
+    margin: 20px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .module h2 { font-size: 1.25rem; margin: 0 0 6px; color: var(--dark); }
+  .module .hint { color: #718096; font-size: 0.92rem; margin: 0 0 12px; }
+
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 12px; margin: 12px 0; align-items: center;
+  }
+  .ctrl-block { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .ctrl-block.row { flex-direction: row; align-items: center; gap: 8px; }
+  label { font-size: 0.9rem; color: #4a5568; font-weight: 600; }
+
+  input[type=range] { width: 100%; max-width: 360px; }
+  select {
+    padding: 8px 10px; border-radius: 8px; border: 1px solid #cbd5e0;
+    font-size: 0.95rem; background: #fff; max-width: 100%; box-sizing: border-box;
+  }
+
+  .status {
+    background: #f7fafc; border-left: 4px solid var(--accent);
+    padding: 10px 14px; border-radius: 6px; margin: 12px 0;
+    font-size: 0.95rem; color: #2d3748;
+  }
+  .status b { color: var(--dark); }
+  .win-prefix { border-left-color: var(--green); background: #f0fff4; }
+  .win-naive { border-left-color: var(--gold); background: #fffaf0; }
+
+  .stat-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0;
+  }
+  .stat-card {
+    border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; text-align: center;
+  }
+  .stat-card .name { font-size: 0.85rem; color: #718096; font-weight: 600; }
+  .stat-card .val { font-size: 1.3rem; font-weight: 700; margin-top: 4px; font-family: ui-monospace, monospace; }
+  .stat-card.naive .val { color: var(--gold); }
+  .stat-card.prefix .val { color: var(--green); }
+
+  /* Module 2 — picker */
+  .picker-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .suggest {
+    margin-top: 14px; border: 1px solid #e2e8f0; border-radius: 10px;
+    padding: 14px; background: var(--accent-soft);
+  }
+  .suggest h3 { margin: 0 0 8px; font-size: 1.05rem; color: var(--dark); }
+  .suggest .pick { font-size: 1.1rem; font-weight: 700; color: var(--accent-hover); }
+  .suggest ul { margin: 8px 0 0; padding-left: 20px; }
+  .suggest li { font-size: 0.92rem; color: #2d3748; margin: 3px 0; }
+  .tag {
+    display: inline-block; background: var(--dark); color: #fff;
+    border-radius: 6px; padding: 2px 8px; font-size: 0.8rem; font-weight: 600; margin: 2px 4px 2px 0;
+  }
+
+  svg { display: block; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.88rem; margin: 8px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+
+  @media (max-width: 480px) {
+    .stat-grid { grid-template-columns: 1fr; }
+    .picker-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-50-problem-solving-framework/visualization.html">← L50: Problem-Solving Framework</a>
+  <span class="sep">·</span>
+  <span class="current">L51: Complexity Trade-offs</span>
+  <span class="sep">·</span>
+  <a href="../lesson-52-capstone-pathfinding-visualizer/visualization.html">L52: Capstone →</a>
+</nav>
+
+<main>
+  <h1>Lesson 51 — Đánh đổi độ phức tạp</h1>
+  <p class="lead">Ba module tương tác: <b>Time vs Space</b> (điểm hoà vốn precompute theo số query),
+  <b>Trade-off picker</b> (chọn ngữ cảnh → gợi ý cấu trúc), và <b>Break-even chart</b>
+  (đồ thị tổng chi phí của 2 cách theo số query).</p>
+
+  <!-- ================= MODULE 1 ================= -->
+  <section class="module" id="mod1">
+    <h2>Module 1 — Time vs Space: điểm hoà vốn precompute</h2>
+    <p class="hint">Bài range-sum trên mảng kích thước <b>n</b>. So sánh <b>Naive</b> (mỗi query O(n),
+    không tốn space) với <b>Prefix sum</b> (build O(n) một lần, mỗi query O(1), tốn O(n) space).
+    Kéo số query và n để xem cách nào thắng — và <i>vì sao</i>.</p>
+    <div class="controls">
+      <div class="ctrl-block">
+        <label for="m1q">Số query q = <span id="m1qval">100</span></label>
+        <input type="range" id="m1q" min="0" max="6" step="0.05" value="2">
+        <span class="hint" style="margin:0">(thang log: 1 → 10⁶)</span>
+      </div>
+      <div class="ctrl-block">
+        <label for="m1n">Kích thước mảng n = <span id="m1nval">1000</span></label>
+        <input type="range" id="m1n" min="1" max="6" step="0.05" value="3">
+        <span class="hint" style="margin:0">(thang log: 10 → 10⁶)</span>
+      </div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card naive">
+        <div class="name">Naive — tổng thao tác = q · n</div>
+        <div class="val" id="m1naive">—</div>
+      </div>
+      <div class="stat-card prefix">
+        <div class="name">Prefix — tổng thao tác = n (build) + q</div>
+        <div class="val" id="m1prefix">—</div>
+      </div>
+    </div>
+    <div class="status" id="m1status">—</div>
+    <p class="hint" style="margin-top:10px">Space phụ: Naive = <b>O(1)</b>, Prefix = <b>O(n)</b>.
+    Prefix đổi space lấy time — và chỉ hời khi q đủ lớn để build cost được amortize.</p>
+  </section>
+
+  <!-- ================= MODULE 2 ================= -->
+  <section class="module" id="mod2">
+    <h2>Module 2 — Trade-off picker: ngữ cảnh → cấu trúc</h2>
+    <p class="hint">Trả lời 5 câu hỏi về ngữ cảnh. Công cụ gợi ý đánh đổi/cấu trúc phù hợp theo
+    khung quyết định (mục 11 trong README).</p>
+    <div class="picker-grid">
+      <div class="ctrl-block">
+        <label for="pQ">Bao nhiêu query?</label>
+        <select id="pQ">
+          <option value="many">Rất nhiều / lặp lại</option>
+          <option value="few">Ít / một lần</option>
+        </select>
+      </div>
+      <div class="ctrl-block">
+        <label for="pData">Data có thay đổi không?</label>
+        <select id="pData">
+          <option value="static">Tĩnh</option>
+          <option value="dynamic">Đổi liên tục</option>
+        </select>
+      </div>
+      <div class="ctrl-block">
+        <label for="pRT">Có real-time deadline?</label>
+        <select id="pRT">
+          <option value="no">Không</option>
+          <option value="yes">Có (mỗi op &lt; deadline)</option>
+        </select>
+      </div>
+      <div class="ctrl-block">
+        <label for="pMem">Memory budget?</label>
+        <select id="pMem">
+          <option value="ample">Dư dả</option>
+          <option value="tight">Chật (nhúng / data lớn)</option>
+        </select>
+      </div>
+      <div class="ctrl-block">
+        <label for="pAdv">Input có thù địch (adversarial)?</label>
+        <select id="pAdv">
+          <option value="no">Không</option>
+          <option value="yes">Có</option>
+        </select>
+      </div>
+    </div>
+    <div class="suggest" id="pSuggest">
+      <h3>Gợi ý</h3>
+      <div class="pick" id="pPick">—</div>
+      <ul id="pReasons"></ul>
+    </div>
+  </section>
+
+  <!-- ================= MODULE 3 ================= -->
+  <section class="module" id="mod3">
+    <h2>Module 3 — Break-even chart</h2>
+    <p class="hint">Đồ thị tổng chi phí theo số query q (với n cố định). Đường <b>Naive</b> = q·n
+    (dốc, tuyến tính theo q). Đường <b>Prefix</b> = n + q (gần như phẳng — build cost cố định +
+    1/query). Giao điểm là <b>điểm hoà vốn</b>.</p>
+    <div class="controls">
+      <div class="ctrl-block">
+        <label for="m3n">n = <span id="m3nval">100</span></label>
+        <input type="range" id="m3n" min="1" max="6" step="0.05" value="2">
+      </div>
+    </div>
+    <div class="legend">
+      <span><span class="swatch" style="background:var(--gold)"></span> Naive = q·n</span>
+      <span><span class="swatch" style="background:var(--green)"></span> Prefix = n + q</span>
+      <span><span class="swatch" style="background:var(--red)"></span> Điểm hoà vốn</span>
+    </div>
+    <svg id="m3svg" width="640" height="340" viewBox="0 0 640 340" role="img" aria-label="Biểu đồ break-even"></svg>
+    <div class="status" id="m3status">—</div>
+  </section>
+
+</main>
+
+<script>
+// ---------- helpers ----------
+function fmt(x) {
+  x = Math.round(x);
+  if (x >= 1e9) return (x / 1e9).toFixed(2) + " tỷ";
+  if (x >= 1e6) return (x / 1e6).toFixed(2) + " triệu";
+  if (x >= 1e3) return (x / 1e3).toFixed(1) + "k";
+  return String(x);
+}
+// thang log: slider 0..6 → 10^slider (1..10^6)
+function logVal(s) { return Math.round(Math.pow(10, s)); }
+
+// ================= MODULE 1 =================
+const m1q = document.getElementById('m1q');
+const m1n = document.getElementById('m1n');
+const m1qval = document.getElementById('m1qval');
+const m1nval = document.getElementById('m1nval');
+const m1naive = document.getElementById('m1naive');
+const m1prefix = document.getElementById('m1prefix');
+const m1status = document.getElementById('m1status');
+
+function renderM1() {
+  const q = logVal(parseFloat(m1q.value));
+  const n = logVal(parseFloat(m1n.value));
+  m1qval.textContent = fmt(q);
+  m1nval.textContent = fmt(n);
+  const naive = q * n;
+  const prefix = n + q;
+  m1naive.textContent = fmt(naive);
+  m1prefix.textContent = fmt(prefix);
+  m1status.classList.remove('win-prefix', 'win-naive');
+  if (prefix < naive) {
+    const ratio = (naive / prefix);
+    m1status.classList.add('win-prefix');
+    m1status.innerHTML = `✅ <b>Prefix thắng</b> — nhanh hơn <b>${ratio.toFixed(1)}×</b>. ` +
+      `Build cost (n=${fmt(n)}) đã được amortize qua ${fmt(q)} query. Đổi O(n) space lấy time là hời.`;
+  } else if (naive < prefix) {
+    m1status.classList.add('win-naive');
+    m1status.innerHTML = `⚠ <b>Naive thắng (sít sao)</b> — với q nhỏ (${fmt(q)}), chi phí build O(n) ` +
+      `của prefix chưa được trả lại. Dựng bảng cho ít query là <i>phí</i>.`;
+  } else {
+    m1status.innerHTML = `➖ <b>Hoà</b> — đúng điểm hoà vốn: q·n = n + q.`;
+  }
+}
+m1q.addEventListener('input', renderM1);
+m1n.addEventListener('input', renderM1);
+renderM1();
+
+// ================= MODULE 2 =================
+const sels = ['pQ', 'pData', 'pRT', 'pMem', 'pAdv'].map(id => document.getElementById(id));
+const pPick = document.getElementById('pPick');
+const pReasons = document.getElementById('pReasons');
+
+function renderM2() {
+  const v = {
+    q: document.getElementById('pQ').value,
+    data: document.getElementById('pData').value,
+    rt: document.getElementById('pRT').value,
+    mem: document.getElementById('pMem').value,
+    adv: document.getElementById('pAdv').value,
+  };
+  const reasons = [];
+  let picks = [];
+
+  // precompute vs query + data
+  if (v.q === 'many' && v.data === 'static') {
+    picks.push('Precompute (prefix sum / sparse table / index / trie)');
+    reasons.push('Nhiều query + data tĩnh → build cost amortize tốt, mỗi query rẻ.');
+  } else if (v.q === 'many' && v.data === 'dynamic') {
+    picks.push('Cấu trúc động (segment tree / Fenwick / balanced BST)');
+    reasons.push('Nhiều query NHƯNG data đổi → precompute tĩnh hết hạn liên tục; cần update O(log n).');
+  } else if (v.q === 'few') {
+    picks.push('Tính trực tiếp (naive / in-place)');
+    reasons.push('Ít query → không đáng trả chi phí build của precompute (phí).');
+  }
+
+  // real-time
+  if (v.rt === 'yes') {
+    reasons.push('Real-time → cần WORST-CASE / per-op bound: tránh hash O(n) worst, tránh resize O(n); ' +
+      'dùng merge sort/heapsort thay quicksort, pre-allocate thay append tự do.');
+  } else {
+    reasons.push('Không real-time → average / amortized chấp nhận được (hash, quicksort, slice append).');
+  }
+
+  // memory
+  if (v.mem === 'tight') {
+    reasons.push('Memory chật → đổi time lấy space: in-place, rolling array, tính lại thay vì lưu.');
+  } else {
+    reasons.push('Memory dư → đổi space lấy time: hash table, memoization, cache.');
+  }
+
+  // adversarial
+  if (v.adv === 'yes') {
+    reasons.push('Input thù địch → tránh O(n) worst bị khai thác (hash flooding): ' +
+      'dùng hash seed ngẫu nhiên hoặc balanced BST đảm bảo O(log n).');
+  } else {
+    reasons.push('Input không thù địch → average-case OK.');
+  }
+
+  // tổng hợp scenario điển hình
+  if (v.q === 'many' && v.data === 'static' && v.rt === 'no' && v.mem === 'ample') {
+    picks = ['Precompute mạnh tay (prefix / sparse table)'];
+  }
+  if (v.q === 'few' && v.data === 'dynamic' && v.mem === 'tight') {
+    picks = ['Tính trực tiếp, in-place — KHÔNG cache, KHÔNG precompute'];
+  }
+
+  pPick.innerHTML = picks.map(p => `<span class="tag">→</span>${p}`).join('<br>');
+  pReasons.innerHTML = reasons.map(r => `<li>${r}</li>`).join('');
+}
+sels.forEach(s => s.addEventListener('change', renderM2));
+renderM2();
+
+// ================= MODULE 3 =================
+const m3n = document.getElementById('m3n');
+const m3nval = document.getElementById('m3nval');
+const m3svg = document.getElementById('m3svg');
+const m3status = document.getElementById('m3status');
+
+const W = 640, H = 340, PADL = 56, PADR = 20, PADT = 20, PADB = 44;
+const PW = W - PADL - PADR, PH = H - PADT - PADB;
+
+function renderM3() {
+  const n = logVal(parseFloat(m3n.value));
+  m3nval.textContent = fmt(n);
+
+  // trục q: 0 .. qMax. Chọn qMax sao cho điểm hoà vốn (q*=~1, vì naive=q*n, prefix=n+q
+  // → q*n = n+q → q*(n-1)=n → q* = n/(n-1) ≈ 1) nằm gần gốc; để thấy phân kỳ rõ, qMax = 2*n hoặc tối thiểu.
+  const qMax = Math.max(10, n * 2);
+  const samples = 80;
+  // tính giá trị max để scale Y
+  function naive(q) { return q * n; }
+  function prefix(q) { return n + q; }
+  const yMax = Math.max(naive(qMax), prefix(qMax));
+
+  function X(q) { return PADL + (q / qMax) * PW; }
+  function Y(val) { return PADT + PH - (val / yMax) * PH; }
+
+  let parts = [];
+
+  // axes
+  parts.push(`<line x1="${PADL}" y1="${PADT}" x2="${PADL}" y2="${PADT + PH}" stroke="#cbd5e0" stroke-width="1.5"/>`);
+  parts.push(`<line x1="${PADL}" y1="${PADT + PH}" x2="${PADL + PW}" y2="${PADT + PH}" stroke="#cbd5e0" stroke-width="1.5"/>`);
+  // axis labels
+  parts.push(`<text x="${PADL + PW / 2}" y="${H - 10}" text-anchor="middle" font-size="13" fill="#4a5568">số query q  (0 → ${fmt(qMax)})</text>`);
+  parts.push(`<text x="14" y="${PADT + PH / 2}" text-anchor="middle" font-size="13" fill="#4a5568" transform="rotate(-90 14 ${PADT + PH / 2})">tổng chi phí</text>`);
+
+  // gridline ngang + nhãn y
+  for (let i = 1; i <= 4; i++) {
+    const val = (yMax / 4) * i;
+    const y = Y(val);
+    parts.push(`<line x1="${PADL}" y1="${y}" x2="${PADL + PW}" y2="${y}" stroke="#edf2f7" stroke-width="1"/>`);
+    parts.push(`<text x="${PADL - 6}" y="${y + 4}" text-anchor="end" font-size="11" fill="#a0aec0">${fmt(val)}</text>`);
+  }
+
+  // đường naive (q*n) và prefix (n+q)
+  function pathFor(fn) {
+    let d = '';
+    for (let i = 0; i <= samples; i++) {
+      const q = (qMax / samples) * i;
+      const x = X(q), y = Y(fn(q));
+      d += (i === 0 ? 'M' : 'L') + x.toFixed(1) + ' ' + y.toFixed(1) + ' ';
+    }
+    return d;
+  }
+  parts.push(`<path d="${pathFor(naive)}" fill="none" stroke="var(--gold)" stroke-width="2.5"/>`);
+  parts.push(`<path d="${pathFor(prefix)}" fill="none" stroke="var(--green)" stroke-width="2.5"/>`);
+
+  // điểm hoà vốn: q* = n/(n-1)
+  let breakeven = null;
+  if (n > 1) {
+    const qStar = n / (n - 1);
+    if (qStar <= qMax) {
+      breakeven = qStar;
+      const bx = X(qStar), by = Y(naive(qStar));
+      parts.push(`<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="5" fill="var(--red)"/>`);
+      parts.push(`<line x1="${bx.toFixed(1)}" y1="${by.toFixed(1)}" x2="${bx.toFixed(1)}" y2="${PADT + PH}" stroke="var(--red)" stroke-width="1" stroke-dasharray="4 3"/>`);
+    }
+  }
+
+  m3svg.innerHTML = parts.join('\n');
+
+  if (breakeven !== null) {
+    m3status.innerHTML = `Với n=${fmt(n)}: điểm hoà vốn ≈ q* = n/(n-1) ≈ <b>${breakeven.toFixed(2)}</b> query. ` +
+      `Tức chỉ cần <b>≥ 2 query</b>, prefix đã thắng — và càng nhiều query thì đường naive (q·n) càng vọt lên ` +
+      `xa đường prefix (gần phẳng). Build cost của prefix là khoản đầu tư một lần, trả lại rất nhanh.`;
+  } else {
+    m3status.innerHTML = `Với n=1: naive và prefix gần như trùng (cả hai ~ q). Build cost không đáng kể.`;
+  }
+}
+m3n.addEventListener('input', renderM3);
+renderM3();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+</body>
+</html>

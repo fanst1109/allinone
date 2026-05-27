@@ -245,7 +245,16 @@ Riêng dòng cuối minh hoạ vì sao `n ≤ 20–25` là ranh giới của `2^
 
 > ❓ **Câu hỏi tự nhiên.** *"Bao lâu thì nên bỏ cách hiện tại?"* — Nếu sau ~10–15 phút không tiến triển và không đạt được độ phức tạp mục tiêu, đổi động tác (1–6). Đừng cố đấm thủng một hướng đã thấy sẽ TLE.
 
-> 📝 **Tóm tắt mục 5.** Stuck thì: đơn giản hoá, giải tay case nhỏ, vẽ, nghĩ ngược, tìm bài tương tự, đổi góc nhìn cấu trúc.
+### 5.1 Ví dụ "thoát stuck" bằng nghĩ ngược
+
+**Đề:** mỗi ngày `i` có giá `price[i]`. Mỗi ngày sản xuất tốn `k` đơn vị. Tìm số `x` (số sản phẩm/ngày) lớn nhất sao cho tổng chi phí `≤ budget`. `x` có thể tới `10^9`.
+
+- Nghĩ thẳng "duyệt `x` từ 1 đi lên" → `10^9` vòng → TLE, *stuck*.
+- **Động tác 4 (nghĩ ngược từ đáp án):** "Nếu đáp án là `x`, điều kiện gì đúng?" → `cost(x) ≤ budget`. Quan sát: `cost(x)` **tăng đơn điệu** theo `x` (sản xuất nhiều hơn → tốn hơn).
+- Đơn điệu + tìm `x` lớn nhất thoả điều kiện → đây chính là **binary search trên đáp án** ([L12](../lesson-12-binary-search-variants/))! Khoảng `[1, 10^9]`, mỗi bước kiểm tra `cost(mid)`, ~30 vòng → `O(30 · check)`.
+- Bài học: từ "duyệt `x`" (TLE) sang "đoán `x` rồi kiểm tra" (binary search) — đúng động tác *nghĩ ngược*.
+
+> 📝 **Tóm tắt mục 5.** Stuck thì: đơn giản hoá, giải tay case nhỏ, vẽ, nghĩ ngược (→ binary search trên đáp án), tìm bài tương tự, đổi góc nhìn cấu trúc.
 
 ---
 

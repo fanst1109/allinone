@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L36 — Thành phần liên thông & Union-Find</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #3182ce;
+    --accent-soft: #ebf8ff;
+    --accent-hover: #2b6cb0;
+    --root: #38a169;
+    --edge: #a0aec0;
+    --cyc: #e53e3e;
+    --merge: #ed8936;
+    --comp: #805ad5;
+  }
+  main { max-width: 920px; }
+  .lead { font-size: 1.05rem; color: #4a5568; margin: 0.5rem 0 1.5rem; }
+  h2 { margin-top: 2.4rem; border-bottom: 2px solid var(--accent-soft); padding-bottom: 0.3rem; }
+  .pill {
+    font-size: 0.7rem; background: var(--accent-soft); color: var(--accent-hover);
+    padding: 2px 8px; border-radius: 10px; vertical-align: middle; font-weight: 600;
+  }
+  .card {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+    padding: 1rem 1.2rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 0.8rem; }
+  button {
+    background: var(--accent); color: #fff; border: none; padding: 8px 14px;
+    border-radius: 6px; font-size: 0.9rem; cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: var(--accent-hover); }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+  input[type=number] {
+    width: 100%; max-width: 90px; box-sizing: border-box;
+    padding: 6px 8px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 0.9rem;
+  }
+  .status {
+    background: #f7fafc; border-left: 3px solid var(--accent); padding: 8px 12px;
+    border-radius: 4px; font-size: 0.92rem; margin-top: 0.6rem; min-height: 1.2em;
+  }
+  .legend { display: flex; flex-wrap: wrap; gap: 0.8rem; font-size: 0.82rem; color: #4a5568; margin: 0.4rem 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 4px; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  svg { display: block; margin: 0 auto; width: 100%; height: auto; background: #fbfdff; border-radius: 8px; }
+  .big { font-size: 1.6rem; font-weight: 700; color: var(--comp); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.85rem; margin-top: 0.6rem; }
+  th, td { border: 1px solid #e2e8f0; padding: 5px 8px; text-align: center; }
+  th { background: #f7fafc; }
+  code { background: #edf2f7; padding: 1px 5px; border-radius: 4px; font-size: 0.85em; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-35-mst-kruskal-prim/visualization.html">← L35: MST</a>
+  <span class="sep">·</span>
+  <span class="current">L36: Connected Components</span>
+  <span class="sep">·</span>
+  <a href="../lesson-37-strongly-connected/visualization.html">L37: Strongly Connected →</a>
+</nav>
+
+<main>
+  <h1>Thành phần liên thông &amp; Union-Find <span class="pill">Tier 5 · L36</span></h1>
+  <p class="lead">Ba mô-đun tương tác: (1) Union-Find với path compression, (2) đếm component khi thêm cạnh động, (3) phát hiện chu trình.</p>
+
+  <!-- ===================== MODULE 1 ===================== -->
+  <h2>1. Union-Find animator <span class="pill">find + path compression</span></h2>
+  <div class="card">
+    <p style="font-size:0.92rem;color:#4a5568;margin-top:0">
+      6 phần tử <code>0..5</code>. <b>Union by size</b> treo cây nhỏ dưới cây lớn.
+      <b>Find</b> nén đường — mọi đỉnh trên đường trỏ thẳng tới root, cây <i>phẳng</i> hơn.
+    </p>
+    <div class="controls">
+      <button id="m1u01" class="ghost">union(0,1)</button>
+      <button id="m1u23" class="ghost">union(2,3)</button>
+      <button id="m1u02" class="ghost">union(0,2)</button>
+      <button id="m1f3">find(3) — nén</button>
+      <button id="m1f4" class="ghost">find(4)</button>
+      <button id="m1reset" class="ghost">Reset</button>
+    </div>
+    <div class="legend">
+      <span><span class="dot" style="background:var(--root)"></span> root</span>
+      <span><span class="dot" style="background:var(--accent)"></span> phần tử</span>
+      <span><span class="dot" style="background:var(--merge)"></span> vừa thao tác</span>
+    </div>
+    <svg id="m1svg" viewBox="0 0 600 280" aria-label="Union-Find forest"></svg>
+    <div class="status" id="m1status">Bấm các nút union/find để xem rừng cây biến đổi.</div>
+  </div>
+
+  <!-- ===================== MODULE 2 ===================== -->
+  <h2>2. Đếm component động <span class="pill">online — thêm cạnh</span></h2>
+  <div class="card">
+    <p style="font-size:0.92rem;color:#4a5568;margin-top:0">
+      7 đỉnh. Thêm từng cạnh; mỗi <b>union thành công</b> giảm số component đi 1. Cạnh nối hai đỉnh đã cùng tập <i>không</i> đổi count.
+    </p>
+    <div class="controls">
+      <span>Cạnh:</span>
+      <input type="number" id="m2a" min="0" max="6" value="0">
+      <span>—</span>
+      <input type="number" id="m2b" min="0" max="6" value="1">
+      <button id="m2add">Thêm cạnh</button>
+      <button id="m2demo" class="ghost">Chạy demo</button>
+      <button id="m2reset" class="ghost">Reset</button>
+    </div>
+    <p style="margin:0.4rem 0">Số component: <span class="big" id="m2count">7</span></p>
+    <svg id="m2svg" viewBox="0 0 600 300" aria-label="Graph components"></svg>
+    <div class="status" id="m2status">Đỉnh tô cùng màu = cùng component.</div>
+  </div>
+
+  <!-- ===================== MODULE 3 ===================== -->
+  <h2>3. Phát hiện chu trình <span class="pill">undirected cycle</span></h2>
+  <div class="card">
+    <p style="font-size:0.92rem;color:#4a5568;margin-top:0">
+      Thêm cạnh lần lượt. Nếu hai đỉnh <b>đã cùng tập</b> trước đó → cạnh đóng vòng → <b style="color:var(--cyc)">chu trình</b> (tô đỏ).
+    </p>
+    <div class="controls">
+      <span>Cạnh:</span>
+      <input type="number" id="m3a" min="0" max="5" value="0">
+      <span>—</span>
+      <input type="number" id="m3b" min="0" max="5" value="1">
+      <button id="m3add">Thêm cạnh</button>
+      <button id="m3demo" class="ghost">Demo tam giác 0-1-2</button>
+      <button id="m3reset" class="ghost">Reset</button>
+    </div>
+    <svg id="m3svg" viewBox="0 0 600 280" aria-label="Cycle detection"></svg>
+    <div class="status" id="m3status">Chưa có cạnh nào.</div>
+    <table id="m3log"><thead><tr><th>Cạnh</th><th>Union OK?</th><th>Kết luận</th></tr></thead><tbody></tbody></table>
+  </div>
+</main>
+
+<script>
+/* ===== DSU dùng chung ===== */
+function makeDSU(n) {
+  const parent = [...Array(n).keys()];
+  const size = Array(n).fill(1);
+  let count = n;
+  function find(x) {
+    while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; }
+    return x;
+  }
+  function union(a, b) {
+    let ra = find(a), rb = find(b);
+    if (ra === rb) return false;
+    if (size[ra] < size[rb]) [ra, rb] = [rb, ra];
+    parent[rb] = ra; size[ra] += size[rb]; count--;
+    return true;
+  }
+  return {
+    parent, size, find, union,
+    get count() { return count; },
+    // find với "ghi log" các đỉnh trên đường (cho animator)
+    findPath(x) { const p = [x]; while (parent[x] !== x) { x = parent[x]; p.push(x); } return p; },
+    compress(x) { const r = find(x); let y = x; while (parent[y] !== r) { const nx = parent[y]; parent[y] = r; y = nx; } return r; }
+  };
+}
+const SVGNS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs) { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; }
+
+/* ===================== MODULE 1 ===================== */
+(function () {
+  const N = 6;
+  let d = makeDSU(N);
+  const svg = document.getElementById('m1svg');
+  const status = document.getElementById('m1status');
+  let highlight = -1;
+
+  function rootOf(x) { let y = x; while (d.parent[y] !== y) y = d.parent[y]; return y; }
+  function draw() {
+    svg.innerHTML = '';
+    // gom theo root
+    const groups = {};
+    for (let i = 0; i < N; i++) { const r = rootOf(i); (groups[r] = groups[r] || []).push(i); }
+    const roots = Object.keys(groups).map(Number);
+    const slotW = 600 / roots.length;
+    const posX = {}, posY = {};
+    roots.forEach((r, gi) => {
+      const members = groups[r];
+      // tính depth của mỗi node trong cây để xếp theo tầng
+      const depth = {}; members.forEach(m => { let dep = 0, y = m; while (d.parent[y] !== y) { y = d.parent[y]; dep++; } depth[m] = dep; });
+      const byDepth = {};
+      members.forEach(m => { (byDepth[depth[m]] = byDepth[depth[m]] || []).push(m); });
+      const cx = slotW * (gi + 0.5);
+      Object.keys(byDepth).map(Number).forEach(dep => {
+        const row = byDepth[dep]; const w = slotW * 0.8;
+        row.forEach((m, idx) => {
+          posX[m] = cx - w / 2 + (w) * (row.length === 1 ? 0.5 : idx / (row.length - 1));
+          posY[m] = 50 + dep * 75;
+        });
+      });
+    });
+    // cạnh cha-con
+    for (let i = 0; i < N; i++) {
+      if (d.parent[i] !== i) {
+        svg.appendChild(el('line', { x1: posX[i], y1: posY[i], x2: posX[d.parent[i]], y2: posY[d.parent[i]], stroke: 'var(--edge)', 'stroke-width': 2 }));
+      }
+    }
+    // nút
+    for (let i = 0; i < N; i++) {
+      const isRoot = d.parent[i] === i;
+      const fill = i === highlight ? 'var(--merge)' : (isRoot ? 'var(--root)' : 'var(--accent)');
+      svg.appendChild(el('circle', { cx: posX[i], cy: posY[i], r: 18, fill, stroke: '#fff', 'stroke-width': 2 }));
+      const t = el('text', { x: posX[i], y: posY[i] + 5, 'text-anchor': 'middle', fill: '#fff', 'font-weight': 700, 'font-size': 15 });
+      t.textContent = i; svg.appendChild(t);
+    }
+  }
+  function uni(a, b) {
+    const ok = d.union(a, b); highlight = d.find(a);
+    status.textContent = ok ? `union(${a},${b}) ✓ — root chung = ${d.find(a)}. Số tập = ${d.count}.` : `union(${a},${b}): đã cùng tập, không đổi.`;
+    draw();
+  }
+  function findOp(x) {
+    const path = d.findPath(x); d.compress(x); highlight = x;
+    status.textContent = `find(${x}): đường ${path.join('→')} → root ${path[path.length - 1]}. Path compression: ${x} nay trỏ thẳng root.`;
+    draw();
+  }
+  document.getElementById('m1u01').onclick = () => uni(0, 1);
+  document.getElementById('m1u23').onclick = () => uni(2, 3);
+  document.getElementById('m1u02').onclick = () => uni(0, 2);
+  document.getElementById('m1f3').onclick = () => findOp(3);
+  document.getElementById('m1f4').onclick = () => findOp(4);
+  document.getElementById('m1reset').onclick = () => { d = makeDSU(N); highlight = -1; status.textContent = 'Đã reset 6 phần tử rời.'; draw(); };
+  draw();
+})();
+
+/* ===================== MODULE 2 ===================== */
+(function () {
+  const N = 7;
+  let d = makeDSU(N);
+  const edges = [];
+  const svg = document.getElementById('m2svg');
+  const countEl = document.getElementById('m2count');
+  const status = document.getElementById('m2status');
+  const palette = ['#3182ce', '#38a169', '#ed8936', '#805ad5', '#e53e3e', '#319795', '#d53f8c'];
+  // vị trí cố định trên vòng tròn
+  const pos = [];
+  for (let i = 0; i < N; i++) { const ang = -Math.PI / 2 + i * 2 * Math.PI / N; pos.push({ x: 300 + 150 * Math.cos(ang), y: 150 + 110 * Math.sin(ang) }); }
+
+  function rootOf(x) { let y = x; while (d.parent[y] !== y) y = d.parent[y]; return y; }
+  function draw() {
+    svg.innerHTML = '';
+    edges.forEach(([a, b]) => svg.appendChild(el('line', { x1: pos[a].x, y1: pos[a].y, x2: pos[b].x, y2: pos[b].y, stroke: 'var(--edge)', 'stroke-width': 2.5 })));
+    // màu theo root
+    const rootColor = {}; let ci = 0;
+    for (let i = 0; i < N; i++) { const r = rootOf(i); if (!(r in rootColor)) rootColor[r] = palette[ci++ % palette.length]; }
+    for (let i = 0; i < N; i++) {
+      svg.appendChild(el('circle', { cx: pos[i].x, cy: pos[i].y, r: 18, fill: rootColor[rootOf(i)], stroke: '#fff', 'stroke-width': 2 }));
+      const t = el('text', { x: pos[i].x, y: pos[i].y + 5, 'text-anchor': 'middle', fill: '#fff', 'font-weight': 700, 'font-size': 15 }); t.textContent = i; svg.appendChild(t);
+    }
+    countEl.textContent = d.count;
+  }
+  function addEdge(a, b) {
+    if (a === b || a < 0 || b < 0 || a >= N || b >= N) { status.textContent = 'Cạnh không hợp lệ.'; return; }
+    edges.push([a, b]); const ok = d.union(a, b);
+    status.textContent = ok ? `Thêm ${a}-${b}: union ✓ → component giảm còn ${d.count}.` : `Thêm ${a}-${b}: đã cùng component, count không đổi (${d.count}).`;
+    draw();
+  }
+  document.getElementById('m2add').onclick = () => addEdge(+document.getElementById('m2a').value, +document.getElementById('m2b').value);
+  document.getElementById('m2demo').onclick = () => {
+    d = makeDSU(N); edges.length = 0; draw();
+    const seq = [[0, 1], [2, 3], [0, 2], [1, 3], [4, 5]]; let i = 0;
+    const t = setInterval(() => { if (i >= seq.length) { clearInterval(t); return; } addEdge(seq[i][0], seq[i][1]); i++; }, 800);
+  };
+  document.getElementById('m2reset').onclick = () => { d = makeDSU(N); edges.length = 0; status.textContent = 'Đã reset 7 đỉnh rời (7 component).'; draw(); };
+  draw();
+})();
+
+/* ===================== MODULE 3 ===================== */
+(function () {
+  const N = 6;
+  let d = makeDSU(N);
+  const edges = []; // {a,b,cycle}
+  const svg = document.getElementById('m3svg');
+  const status = document.getElementById('m3status');
+  const tbody = document.querySelector('#m3log tbody');
+  const pos = [];
+  for (let i = 0; i < N; i++) { const ang = -Math.PI / 2 + i * 2 * Math.PI / N; pos.push({ x: 300 + 130 * Math.cos(ang), y: 140 + 100 * Math.sin(ang) }); }
+
+  function draw() {
+    svg.innerHTML = '';
+    edges.forEach(e => svg.appendChild(el('line', { x1: pos[e.a].x, y1: pos[e.a].y, x2: pos[e.b].x, y2: pos[e.b].y, stroke: e.cycle ? 'var(--cyc)' : 'var(--edge)', 'stroke-width': e.cycle ? 4 : 2.5 })));
+    for (let i = 0; i < N; i++) {
+      svg.appendChild(el('circle', { cx: pos[i].x, cy: pos[i].y, r: 17, fill: 'var(--accent)', stroke: '#fff', 'stroke-width': 2 }));
+      const t = el('text', { x: pos[i].x, y: pos[i].y + 5, 'text-anchor': 'middle', fill: '#fff', 'font-weight': 700, 'font-size': 14 }); t.textContent = i; svg.appendChild(t);
+    }
+  }
+  function addEdge(a, b) {
+    if (a === b || a < 0 || b < 0 || a >= N || b >= N) { status.textContent = 'Cạnh không hợp lệ.'; return; }
+    const ok = d.union(a, b); const cycle = !ok;
+    edges.push({ a, b, cycle });
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${a}-${b}</td><td>${ok ? '✓' : '✗'}</td><td style="color:${cycle ? 'var(--cyc)' : '#2f855a'};font-weight:600">${cycle ? 'CHU TRÌNH!' : 'nối 2 tập'}</td>`;
+    tbody.appendChild(tr);
+    status.textContent = cycle ? `Cạnh ${a}-${b}: ${a} và ${b} đã cùng tập → tạo CHU TRÌNH (tô đỏ).` : `Cạnh ${a}-${b}: nối hai tập khác nhau, an toàn.`;
+    draw();
+  }
+  document.getElementById('m3add').onclick = () => addEdge(+document.getElementById('m3a').value, +document.getElementById('m3b').value);
+  document.getElementById('m3demo').onclick = () => {
+    d = makeDSU(N); edges.length = 0; tbody.innerHTML = ''; draw();
+    const seq = [[0, 1], [1, 2], [2, 0]]; let i = 0;
+    const t = setInterval(() => { if (i >= seq.length) { clearInterval(t); return; } addEdge(seq[i][0], seq[i][1]); i++; }, 900);
+  };
+  document.getElementById('m3reset').onclick = () => { d = makeDSU(N); edges.length = 0; tbody.innerHTML = ''; status.textContent = 'Chưa có cạnh nào.'; draw(); };
+  draw();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+</body>
+</html>

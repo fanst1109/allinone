@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L32 — Sắp xếp Topo (Topological Sort)</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #ec4899;
+    --accent-soft: #fce7f3;
+    --accent-hover: #db2777;
+    --white-c: #cbd5e0;
+    --gray-c: #ed8936;
+    --black-c: #2d3748;
+    --done: #38a169;
+    --queue-c: #4299e1;
+    --back-c: #e53e3e;
+  }
+  main { max-width: 940px; }
+  .lead { font-size: 1.05rem; color: #4a5568; margin: 0.5rem 0 1.5rem; }
+  h2 { margin-top: 2.4rem; border-bottom: 2px solid var(--accent-soft); padding-bottom: 0.3rem; }
+  .pill {
+    font-size: 0.7rem; background: var(--accent-soft); color: var(--accent-hover);
+    padding: 2px 8px; border-radius: 10px; vertical-align: middle; font-weight: 600;
+  }
+  .card {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+    padding: 1rem 1.2rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 0.8rem; }
+  button {
+    background: var(--accent); color: #fff; border: none; padding: 8px 14px;
+    border-radius: 6px; font-size: 0.9rem; cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: var(--accent-hover); }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+  select {
+    padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 0.9rem;
+    max-width: 100%; box-sizing: border-box;
+  }
+  label.small { font-size: 0.85rem; color: #4a5568; }
+  .status {
+    background: #f7fafc; border-left: 4px solid var(--accent); padding: 0.6rem 0.9rem;
+    border-radius: 4px; margin: 0.7rem 0; font-size: 0.92rem; min-height: 1.2em;
+  }
+  .legend { display: flex; flex-wrap: wrap; gap: 0.8rem; font-size: 0.82rem; margin: 0.6rem 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; border: 2px solid #2d3748; }
+  .svg-wrap { width: 100%; overflow-x: auto; }
+  svg { display: block; background: #fafafa; border-radius: 8px; border: 1px solid #edf2f7; max-width: 100%; height: auto; }
+  .node circle { stroke: #2d3748; stroke-width: 2; transition: fill 0.3s; }
+  .node text { font-size: 15px; font-weight: 700; fill: #1a202c; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+  .nodelabel { font-size: 11px; fill: #718096; text-anchor: middle; }
+  .edge { stroke: #a0aec0; stroke-width: 2; transition: stroke 0.3s, stroke-width 0.3s; }
+  .edge.active { stroke: var(--accent); stroke-width: 3.5; }
+  .edge.back { stroke: var(--back-c); stroke-width: 4; }
+  .track {
+    display: flex; flex-wrap: wrap; gap: 6px; margin: 0.5rem 0; min-height: 38px;
+    align-items: center; padding: 6px; background: #f7fafc; border-radius: 6px;
+  }
+  .track .lbl { font-size: 0.82rem; color: #718096; font-weight: 600; margin-right: 4px; }
+  .chip {
+    width: 30px; height: 30px; border-radius: 6px; display: inline-flex;
+    align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;
+    color: #fff; background: var(--queue-c);
+  }
+  .chip.order { background: var(--done); }
+  .chip.stack { background: var(--gray-c); }
+  table.indeg { border-collapse: collapse; margin: 0.5rem 0; font-size: 0.9rem; }
+  table.indeg td, table.indeg th { border: 1px solid #e2e8f0; padding: 4px 10px; text-align: center; }
+  table.indeg th { background: #f7fafc; }
+  table.indeg td.zero { background: var(--accent-soft); font-weight: 700; color: var(--accent-hover); }
+  .note { font-size: 0.85rem; color: #718096; }
+  code { background: #edf2f7; padding: 1px 5px; border-radius: 4px; font-size: 0.88em; }
+  @media (max-width: 480px) {
+    .chip { width: 26px; height: 26px; font-size: 0.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-31-graph-traversal/visualization.html">← L31: Duyệt đồ thị</a>
+  <span class="sep">·</span>
+  <span class="current">L32: Sắp xếp Topo</span>
+  <span class="sep">·</span>
+  <a href="../lesson-33-dijkstra/visualization.html">L33: Dijkstra →</a>
+</nav>
+
+<h1>Sắp xếp Topo <span class="pill">Tier 5 · L32</span></h1>
+<p class="lead">
+  Sắp xếp tuyến tính đỉnh của DAG sao cho mọi cạnh <code>u → v</code> thì <code>u</code> đứng trước <code>v</code>.
+  Ba module: <strong>Kahn (BFS)</strong>, <strong>DFS post-order</strong>, và <strong>phát hiện chu trình</strong>.
+</p>
+
+<!-- ============ MODULE 1: KAHN ============ -->
+<h2>1. Kahn's algorithm — bóc lớp theo in-degree</h2>
+<div class="card">
+  <p class="note">
+    Đếm in-degree → đỉnh in-degree 0 vào <span style="color:var(--queue-c);font-weight:700">queue</span> →
+    bóc dần, mỗi lần giảm in-degree neighbor → kết xuất <span style="color:var(--done);font-weight:700">topo order</span>.
+    Bấm <em>Bước</em> để chạy từng bước, hoặc <em>Chạy</em> để tự động.
+  </p>
+  <div class="controls">
+    <label class="small">Đồ thị:
+      <select id="m1Graph">
+        <option value="diamond">Kim cương (6 đỉnh, DAG)</option>
+        <option value="chain">Chuỗi thẳng (4 đỉnh)</option>
+        <option value="cycle">Có chu trình (3 đỉnh)</option>
+      </select>
+    </label>
+    <button id="m1Step">Bước ▶</button>
+    <button id="m1Auto">Chạy tự động ⏩</button>
+    <button id="m1Reset" class="ghost">Reset</button>
+  </div>
+  <div class="svg-wrap"><svg id="m1Svg" width="520" height="260" viewBox="0 0 520 260"></svg></div>
+  <div id="m1Indeg"></div>
+  <div class="track"><span class="lbl">Queue:</span><span id="m1Queue"></span></div>
+  <div class="track"><span class="lbl">Topo order:</span><span id="m1Order"></span></div>
+  <div class="status" id="m1Status">Chọn đồ thị rồi bấm "Bước".</div>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--white-c)"></span> chưa xử lý</span>
+    <span><span class="dot" style="background:var(--queue-c)"></span> trong queue (in-degree 0)</span>
+    <span><span class="dot" style="background:var(--done)"></span> đã vào order</span>
+  </div>
+</div>
+
+<!-- ============ MODULE 2: DFS ============ -->
+<h2>2. DFS post-order — 3 màu, push stack rồi đảo ngược</h2>
+<div class="card">
+  <p class="note">
+    DFS đi sâu. Đỉnh chuyển <strong style="color:var(--gray-c)">gray</strong> khi vào đệ quy,
+    <strong style="color:var(--black-c)">black</strong> + push stack khi hoàn thành (post-order).
+    Cuối cùng <strong>đảo ngược stack</strong> ra topo order.
+  </p>
+  <div class="controls">
+    <button id="m2Step">Bước ▶</button>
+    <button id="m2Auto">Chạy tự động ⏩</button>
+    <button id="m2Reset" class="ghost">Reset</button>
+  </div>
+  <div class="svg-wrap"><svg id="m2Svg" width="520" height="260" viewBox="0 0 520 260"></svg></div>
+  <div class="track"><span class="lbl">Stack (post-order):</span><span id="m2Stack"></span></div>
+  <div class="track"><span class="lbl">Topo (đảo ngược):</span><span id="m2Order"></span></div>
+  <div class="status" id="m2Status">Bấm "Bước" để bắt đầu DFS từ đỉnh 0.</div>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--white-c)"></span> white</span>
+    <span><span class="dot" style="background:var(--gray-c)"></span> gray (đang đệ quy)</span>
+    <span><span class="dot" style="background:var(--black-c)"></span> black (xong)</span>
+  </div>
+</div>
+
+<!-- ============ MODULE 3: CYCLE DETECTION ============ -->
+<h2>3. Cycle detection — gặp đỉnh gray là back edge</h2>
+<div class="card">
+  <p class="note">
+    DFS 3 màu. Khi cạnh <code>u → w</code> trỏ tới đỉnh đang <strong style="color:var(--gray-c)">gray</strong>
+    (tổ tiên trong stack đệ quy) ⟹ <strong style="color:var(--back-c)">back edge</strong> ⟹ chu trình.
+    Đổi đồ thị để xem trường hợp có và không có chu trình.
+  </p>
+  <div class="controls">
+    <label class="small">Đồ thị:
+      <select id="m3Graph">
+        <option value="cyc">Có chu trình (0→1→2→0)</option>
+        <option value="acyc">Không chu trình (DAG)</option>
+      </select>
+    </label>
+    <button id="m3Step">Bước ▶</button>
+    <button id="m3Auto">Chạy tự động ⏩</button>
+    <button id="m3Reset" class="ghost">Reset</button>
+  </div>
+  <div class="svg-wrap"><svg id="m3Svg" width="420" height="260" viewBox="0 0 420 260"></svg></div>
+  <div class="status" id="m3Status">Bấm "Bước" để chạy DFS.</div>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--white-c)"></span> white</span>
+    <span><span class="dot" style="background:var(--gray-c)"></span> gray</span>
+    <span><span class="dot" style="background:var(--black-c)"></span> black</span>
+    <span><span class="dot" style="background:var(--back-c)"></span> back edge → chu trình</span>
+  </div>
+</div>
+
+<script>
+// ============== Dữ liệu đồ thị dùng chung ==============
+// Vị trí đỉnh (x,y) trong viewBox.
+const GRAPHS = {
+  // Kim cương 6 đỉnh: 5->0,5->2,4->0,4->1,2->3,3->1
+  diamond: {
+    n: 6,
+    pos: { 0:[120,200], 1:[400,200], 2:[260,60], 3:[260,200], 4:[80,60], 5:[200,60] },
+    edges: [[5,0],[5,2],[4,0],[4,1],[2,3],[3,1]],
+  },
+  chain: {
+    n: 4,
+    pos: { 0:[90,130], 1:[210,130], 2:[330,130], 3:[450,130] },
+    edges: [[0,1],[1,2],[2,3]],
+  },
+  cycle: {
+    n: 3,
+    pos: { 0:[120,70], 1:[330,70], 2:[225,200] },
+    edges: [[0,1],[1,2],[2,0]],
+  },
+};
+// đồ thị cho module 3
+const G3 = {
+  cyc: { n: 3, pos: { 0:[120,70], 1:[300,70], 2:[210,200] }, edges: [[0,1],[1,2],[2,0]] },
+  acyc:{ n: 4, pos: { 0:[80,70], 1:[280,70], 2:[80,200], 3:[280,200] }, edges: [[0,1],[0,2],[1,3],[2,3]] },
+};
+
+const COL = {
+  white: getComputedStyle(document.documentElement).getPropertyValue('--white-c').trim(),
+  queue: getComputedStyle(document.documentElement).getPropertyValue('--queue-c').trim(),
+  done:  getComputedStyle(document.documentElement).getPropertyValue('--done').trim(),
+  gray:  getComputedStyle(document.documentElement).getPropertyValue('--gray-c').trim(),
+  black: getComputedStyle(document.documentElement).getPropertyValue('--black-c').trim(),
+};
+
+// ============== Helper: vẽ đồ thị SVG ==============
+const SVGNS = 'http://www.w3.org/2000/svg';
+function drawGraph(svg, g, directed = true) {
+  svg.innerHTML = '';
+  // defs cho mũi tên
+  const defs = document.createElementNS(SVGNS, 'defs');
+  defs.innerHTML = '<marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#a0aec0"/></marker>';
+  svg.appendChild(defs);
+  const edgeEls = {};
+  // cạnh
+  g.edges.forEach(([u, v], i) => {
+    const [x1, y1] = g.pos[u], [x2, y2] = g.pos[v];
+    const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+    const r = 22;
+    const sx = x1 + dx / len * r, sy = y1 + dy / len * r;
+    const ex = x2 - dx / len * (r + 6), ey = y2 - dy / len * (r + 6);
+    const line = document.createElementNS(SVGNS, 'line');
+    line.setAttribute('x1', sx); line.setAttribute('y1', sy);
+    line.setAttribute('x2', ex); line.setAttribute('y2', ey);
+    line.setAttribute('class', 'edge');
+    if (directed) line.setAttribute('marker-end', 'url(#arrow)');
+    svg.appendChild(line);
+    edgeEls[u + '-' + v] = line;
+  });
+  const nodeEls = {};
+  // đỉnh
+  for (let v = 0; v < g.n; v++) {
+    const [x, y] = g.pos[v];
+    const grp = document.createElementNS(SVGNS, 'g');
+    grp.setAttribute('class', 'node');
+    const c = document.createElementNS(SVGNS, 'circle');
+    c.setAttribute('cx', x); c.setAttribute('cy', y); c.setAttribute('r', 22);
+    c.setAttribute('fill', COL.white);
+    const t = document.createElementNS(SVGNS, 'text');
+    t.setAttribute('x', x); t.setAttribute('y', y); t.textContent = v;
+    grp.appendChild(c); grp.appendChild(t);
+    svg.appendChild(grp);
+    nodeEls[v] = c;
+  }
+  return { nodeEls, edgeEls };
+}
+function chip(val, cls) {
+  const s = document.createElement('span');
+  s.className = 'chip' + (cls ? ' ' + cls : '');
+  s.textContent = val;
+  return s;
+}
+
+// ============== MODULE 1: KAHN ==============
+(function () {
+  const sel = document.getElementById('m1Graph');
+  const svg = document.getElementById('m1Svg');
+  const indegEl = document.getElementById('m1Indeg');
+  const queueEl = document.getElementById('m1Queue');
+  const orderEl = document.getElementById('m1Order');
+  const statusEl = document.getElementById('m1Status');
+  let g, els, steps, idx, timer = null;
+
+  function buildSteps() {
+    // tính adjacency + in-degree
+    const adj = Array.from({ length: g.n }, () => []);
+    const inDeg = new Array(g.n).fill(0);
+    g.edges.forEach(([u, v]) => { adj[u].push(v); inDeg[v]++; });
+    const st = [];
+    let queue = [];
+    for (let v = 0; v < g.n; v++) if (inDeg[v] === 0) queue.push(v);
+    queue.sort((a, b) => a - b);
+    st.push({ inDeg: inDeg.slice(), queue: queue.slice(), order: [], msg: `Tính in-degree. Queue khởi tạo (in-degree 0): [${queue.join(', ')}].`, active: null });
+    const order = [];
+    const inD = inDeg.slice();
+    while (queue.length) {
+      const u = queue.shift();
+      order.push(u);
+      const pushed = [];
+      for (const w of adj[u]) {
+        inD[w]--;
+        if (inD[w] === 0) { queue.push(w); pushed.push(w); }
+      }
+      st.push({
+        inDeg: inD.slice(), queue: queue.slice(), order: order.slice(),
+        msg: `Lấy ${u} ra queue → vào order. Giảm in-degree neighbor [${adj[u].join(', ') || '∅'}]` + (pushed.length ? `, đỉnh về 0: push [${pushed.join(', ')}].` : '.'),
+        active: u, edgesFrom: adj[u].map(w => u + '-' + w),
+      });
+    }
+    if (order.length !== g.n) {
+      st.push({ inDeg: inD.slice(), queue: [], order: order.slice(), msg: `❌ Queue rỗng nhưng order chỉ có ${order.length}/${g.n} đỉnh → CÒN CHU TRÌNH (không có topo order).`, active: null, cycle: true });
+    } else {
+      st.push({ inDeg: inD.slice(), queue: [], order: order.slice(), msg: `✅ Hoàn tất! Topo order: [${order.join(', ')}] (đủ ${g.n} đỉnh).`, active: null });
+    }
+    return st;
+  }
+
+  function render() {
+    const s = steps[idx];
+    // in-degree table
+    let html = '<table class="indeg"><tr><th>đỉnh</th>';
+    for (let v = 0; v < g.n; v++) html += `<th>${v}</th>`;
+    html += '</tr><tr><td><b>in-deg</b></td>';
+    for (let v = 0; v < g.n; v++) html += `<td class="${s.inDeg[v] === 0 ? 'zero' : ''}">${s.inDeg[v]}</td>`;
+    html += '</tr></table>';
+    indegEl.innerHTML = html;
+    // queue + order chips
+    queueEl.innerHTML = ''; s.queue.forEach(v => queueEl.appendChild(chip(v)));
+    orderEl.innerHTML = ''; s.order.forEach(v => orderEl.appendChild(chip(v, 'order')));
+    statusEl.textContent = s.msg;
+    statusEl.style.borderLeftColor = s.cycle ? 'var(--back-c)' : 'var(--accent)';
+    // tô màu node
+    for (let v = 0; v < g.n; v++) {
+      let col = COL.white;
+      if (s.order.includes(v)) col = COL.done;
+      else if (s.queue.includes(v)) col = COL.queue;
+      if (v === s.active) col = COL.gray;
+      els.nodeEls[v].setAttribute('fill', col);
+    }
+    // tô cạnh active
+    Object.values(els.edgeEls).forEach(e => e.setAttribute('class', 'edge'));
+    if (s.edgesFrom) s.edgesFrom.forEach(k => els.edgeEls[k] && els.edgeEls[k].setAttribute('class', 'edge active'));
+  }
+
+  function step() {
+    if (idx < steps.length - 1) { idx++; render(); }
+    else stopAuto();
+  }
+  function stopAuto() { if (timer) { clearInterval(timer); timer = null; } }
+  function auto() { stopAuto(); timer = setInterval(() => { if (idx >= steps.length - 1) stopAuto(); else step(); }, 1000); }
+  function reset() {
+    stopAuto();
+    g = GRAPHS[sel.value];
+    els = drawGraph(svg, g);
+    steps = buildSteps();
+    idx = 0; render();
+  }
+  sel.onchange = reset;
+  document.getElementById('m1Step').onclick = step;
+  document.getElementById('m1Auto').onclick = auto;
+  document.getElementById('m1Reset').onclick = reset;
+  reset();
+})();
+
+// ============== MODULE 2: DFS post-order ==============
+(function () {
+  const svg = document.getElementById('m2Svg');
+  const stackEl = document.getElementById('m2Stack');
+  const orderEl = document.getElementById('m2Order');
+  const statusEl = document.getElementById('m2Status');
+  const g = GRAPHS.diamond;
+  let els, steps, idx, timer = null;
+
+  function buildSteps() {
+    const adj = Array.from({ length: g.n }, () => []);
+    g.edges.forEach(([u, v]) => adj[u].push(v));
+    adj.forEach(a => a.sort((x, y) => x - y));
+    const color = new Array(g.n).fill(0); // 0 white 1 gray 2 black
+    const stack = [];
+    const st = [];
+    function snap(msg, active, edge) {
+      st.push({ color: color.slice(), stack: stack.slice(), msg, active, edge });
+    }
+    function dfs(u) {
+      color[u] = 1; snap(`dfs(${u}): tô GRAY (vào đệ quy).`, u, null);
+      for (const w of adj[u]) {
+        if (color[w] === 0) {
+          snap(`${u} → ${w}: ${w} là white → đi sâu dfs(${w}).`, u, u + '-' + w);
+          dfs(w);
+        } else {
+          snap(`${u} → ${w}: ${w} đã ${color[w] === 1 ? 'gray' : 'black'} → bỏ qua.`, u, u + '-' + w);
+        }
+      }
+      color[u] = 2; stack.push(u);
+      snap(`Hoàn thành ${u}: tô BLACK, push vào stack. Stack=[${stack.join(', ')}].`, u, null);
+    }
+    snap('Bắt đầu. Mọi đỉnh white.', null, null);
+    for (let v = 0; v < g.n; v++) if (color[v] === 0) dfs(v);
+    const rev = stack.slice().reverse();
+    st.push({ color: color.slice(), stack: stack.slice(), msg: `✅ Đảo ngược stack → topo order: [${rev.join(', ')}].`, active: null, edge: null, rev });
+    return st;
+  }
+
+  function render() {
+    const s = steps[idx];
+    stackEl.innerHTML = ''; s.stack.forEach(v => stackEl.appendChild(chip(v, 'stack')));
+    orderEl.innerHTML = '';
+    (s.rev || []).forEach(v => orderEl.appendChild(chip(v, 'order')));
+    statusEl.textContent = s.msg;
+    for (let v = 0; v < g.n; v++) {
+      const col = [COL.white, COL.gray, COL.black][s.color[v]];
+      els.nodeEls[v].setAttribute('fill', col);
+    }
+    Object.values(els.edgeEls).forEach(e => e.setAttribute('class', 'edge'));
+    if (s.edge && els.edgeEls[s.edge]) els.edgeEls[s.edge].setAttribute('class', 'edge active');
+  }
+  function step() { if (idx < steps.length - 1) { idx++; render(); } else stopAuto(); }
+  function stopAuto() { if (timer) { clearInterval(timer); timer = null; } }
+  function auto() { stopAuto(); timer = setInterval(() => { if (idx >= steps.length - 1) stopAuto(); else step(); }, 1000); }
+  function reset() { stopAuto(); els = drawGraph(svg, g); steps = buildSteps(); idx = 0; render(); }
+  document.getElementById('m2Step').onclick = step;
+  document.getElementById('m2Auto').onclick = auto;
+  document.getElementById('m2Reset').onclick = reset;
+  reset();
+})();
+
+// ============== MODULE 3: Cycle detection ==============
+(function () {
+  const sel = document.getElementById('m3Graph');
+  const svg = document.getElementById('m3Svg');
+  const statusEl = document.getElementById('m3Status');
+  let g, els, steps, idx, timer = null;
+
+  function buildSteps() {
+    const adj = Array.from({ length: g.n }, () => []);
+    g.edges.forEach(([u, v]) => adj[u].push(v));
+    adj.forEach(a => a.sort((x, y) => x - y));
+    const color = new Array(g.n).fill(0);
+    const st = [];
+    let found = false, backEdge = null;
+    function snap(msg, active, edge, isBack) {
+      st.push({ color: color.slice(), msg, active, edge, isBack: !!isBack });
+    }
+    function dfs(u) {
+      if (found) return;
+      color[u] = 1; snap(`dfs(${u}): tô GRAY.`, u, null, false);
+      for (const w of adj[u]) {
+        if (found) return;
+        if (color[w] === 1) {
+          found = true; backEdge = u + '-' + w;
+          snap(`${u} → ${w}: ${w} đang GRAY → BACK EDGE → CHU TRÌNH!`, u, u + '-' + w, true);
+          return;
+        }
+        if (color[w] === 0) {
+          snap(`${u} → ${w}: white → dfs(${w}).`, u, u + '-' + w, false);
+          dfs(w);
+        } else {
+          snap(`${u} → ${w}: ${w} black → bỏ qua (không phải chu trình).`, u, u + '-' + w, false);
+        }
+      }
+      if (!found) { color[u] = 2; snap(`Hoàn thành ${u}: tô BLACK.`, u, null, false); }
+    }
+    snap('Bắt đầu DFS.', null, null, false);
+    for (let v = 0; v < g.n && !found; v++) if (color[v] === 0) dfs(v);
+    if (found) st.push({ color: color.slice(), msg: '❌ KẾT LUẬN: đồ thị CÓ chu trình (gặp back edge).', active: null, edge: backEdge, isBack: true });
+    else st.push({ color: color.slice(), msg: '✅ KẾT LUẬN: KHÔNG có chu trình (là DAG) → topo sort được.', active: null, edge: null, isBack: false });
+    return st;
+  }
+
+  function render() {
+    const s = steps[idx];
+    statusEl.textContent = s.msg;
+    statusEl.style.borderLeftColor = s.isBack ? 'var(--back-c)' : 'var(--accent)';
+    for (let v = 0; v < g.n; v++) {
+      const col = [COL.white, COL.gray, COL.black][s.color[v]];
+      els.nodeEls[v].setAttribute('fill', col);
+    }
+    Object.values(els.edgeEls).forEach(e => e.setAttribute('class', 'edge'));
+    if (s.edge && els.edgeEls[s.edge]) els.edgeEls[s.edge].setAttribute('class', 'edge ' + (s.isBack ? 'back' : 'active'));
+  }
+  function step() { if (idx < steps.length - 1) { idx++; render(); } else stopAuto(); }
+  function stopAuto() { if (timer) { clearInterval(timer); timer = null; } }
+  function auto() { stopAuto(); timer = setInterval(() => { if (idx >= steps.length - 1) stopAuto(); else step(); }, 1100); }
+  function reset() { stopAuto(); g = G3[sel.value]; els = drawGraph(svg, g); steps = buildSteps(); idx = 0; render(); }
+  sel.onchange = reset;
+  document.getElementById('m3Step').onclick = step;
+  document.getElementById('m3Auto').onclick = auto;
+  document.getElementById('m3Reset').onclick = reset;
+  reset();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+</body>
+</html>

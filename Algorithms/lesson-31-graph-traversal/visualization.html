@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L31 — Duyệt đồ thị: BFS & DFS</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #ec4899;
+    --accent-soft: #fce7f3;
+    --accent-hover: #db2777;
+    --node: #cbd5e0;
+    --visit: #ec4899;
+    --frontier: #f6ad55;
+    --done: #38a169;
+    --src: #3182ce;
+  }
+  main { max-width: 940px; }
+  .lead { font-size: 1.05rem; color: #4a5568; margin: 0.5rem 0 1.5rem; }
+  .module {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+    padding: 1.2rem 1.4rem; margin: 1.5rem 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .module h2 { margin-top: 0; color: var(--accent-hover); }
+  .controls { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin: 0.8rem 0; }
+  button {
+    background: var(--accent); color: #fff; border: none; border-radius: 8px;
+    padding: 0.5rem 0.9rem; font-size: 0.95rem; cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost.on { background: var(--src); color: #fff; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .legend { display: flex; flex-wrap: wrap; gap: 0.8rem; font-size: 0.85rem; color: #4a5568; margin: 0.6rem 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 0.3rem; }
+  .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; border: 1px solid #00000022; }
+  .status { font-size: 0.92rem; color: #2d3748; margin: 0.5rem 0; min-height: 1.4em; }
+  .order-box { font-family: ui-monospace, monospace; background: #f7fafc; border: 1px solid #e2e8f0;
+    border-radius: 6px; padding: 0.4rem 0.6rem; font-size: 0.9rem; min-height: 1.3em; word-break: break-all; }
+  svg { display: block; max-width: 100%; height: auto; margin: 0.5rem auto; }
+  .gnode circle { transition: fill 0.3s, stroke 0.3s; }
+  .gnode text { font-size: 13px; font-weight: 700; fill: #1a202c; pointer-events: none; }
+  /* Grid modules */
+  .grid-wrap { display: flex; justify-content: center; margin: 0.6rem 0; }
+  table.grid { border-collapse: collapse; }
+  table.grid td {
+    width: 34px; height: 34px; text-align: center; vertical-align: middle;
+    border: 1px solid #cbd5e0; font-family: ui-monospace, monospace; font-weight: 700;
+    font-size: 0.95rem; transition: background 0.25s, color 0.25s;
+  }
+  .cnt { font-weight: 700; color: var(--accent-hover); }
+  @media (max-width: 480px) {
+    table.grid td { width: 26px; height: 26px; font-size: 0.8rem; }
+    main { padding-left: 0.3rem; padding-right: 0.3rem; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../tier-4-dynamic-programming/index.html">← Tier 4: Quy hoạch động</a>
+  <span class="sep">·</span>
+  <span class="current">L31: Duyệt đồ thị</span>
+  <span class="sep">·</span>
+  <a href="../lesson-32-topological-sort/visualization.html">L32: Sắp xếp Topo →</a>
+</nav>
+
+<main>
+  <h1>L31 — Duyệt đồ thị: BFS &amp; DFS</h1>
+  <p class="lead">Ba module tương tác: (1) so sánh thứ tự thăm BFS (theo tầng) vs DFS (đâm sâu) trên cùng đồ thị; (2) đếm đảo bằng flood fill; (3) lan tỏa multi-source BFS (cam thối).</p>
+
+  <!-- MODULE 1 -->
+  <section class="module" id="m1">
+    <h2>1. BFS vs DFS trên đồ thị</h2>
+    <p>Chọn nguồn rồi bấm BFS hoặc DFS. Quan sát: BFS loang <b>theo tầng</b> (cùng level cùng lúc), DFS <b>đâm sâu</b> một nhánh rồi backtrack.</p>
+    <div class="controls">
+      <button id="m1-bfs">▶ BFS</button>
+      <button id="m1-dfs">▶ DFS</button>
+      <button class="ghost" id="m1-step">⏭ Từng bước</button>
+      <button class="ghost" id="m1-reset">↺ Reset</button>
+      <span style="font-size:0.85rem;color:#718096">Nguồn: <b id="m1-srclabel">0</b> (click đỉnh để đổi)</span>
+    </div>
+    <div class="legend">
+      <span><i class="swatch" style="background:var(--node)"></i> chưa thăm</span>
+      <span><i class="swatch" style="background:var(--frontier)"></i> trong queue/stack</span>
+      <span><i class="swatch" style="background:var(--visit)"></i> đang thăm</span>
+      <span><i class="swatch" style="background:var(--done)"></i> đã xong</span>
+    </div>
+    <svg id="m1-svg" viewBox="0 0 520 340" width="520" height="340"></svg>
+    <div class="status" id="m1-status">Sẵn sàng. Chọn BFS hoặc DFS.</div>
+    <div class="order-box" id="m1-order">thứ tự thăm: —</div>
+  </section>
+
+  <!-- MODULE 2 -->
+  <section class="module" id="m2">
+    <h2>2. Số đảo — Flood Fill</h2>
+    <p><b>1</b> = đất, <b>0</b> = nước. Mỗi lần gặp ô đất chưa thăm → một đảo mới, flood fill 4 hướng "dìm" cả cụm. Số đảo: <span class="cnt" id="m2-count">0</span>.</p>
+    <div class="controls">
+      <button id="m2-run">▶ Đếm đảo (animate)</button>
+      <button class="ghost" id="m2-step">⏭ Từng bước</button>
+      <button class="ghost" id="m2-reset">↺ Grid mới</button>
+    </div>
+    <div class="grid-wrap"><table class="grid" id="m2-grid"></table></div>
+    <div class="status" id="m2-status">Sẵn sàng.</div>
+  </section>
+
+  <!-- MODULE 3 -->
+  <section class="module" id="m3">
+    <h2>3. Multi-source BFS — Cam thối</h2>
+    <p><b>2</b> = cam thối (nguồn), <b>1</b> = cam tươi, <b>0</b> = trống. Mỗi phút, mọi cam thối lây sang cam tươi kề (4 hướng) <b>đồng thời</b>. Phút: <span class="cnt" id="m3-min">0</span> · Cam tươi còn lại: <span class="cnt" id="m3-fresh">0</span>.</p>
+    <div class="controls">
+      <button id="m3-run">▶ Lan tỏa (animate)</button>
+      <button class="ghost" id="m3-step">⏭ Một phút</button>
+      <button class="ghost" id="m3-reset">↺ Grid mới</button>
+    </div>
+    <div class="grid-wrap"><table class="grid" id="m3-grid"></table></div>
+    <div class="status" id="m3-status">Sẵn sàng. Tất cả nguồn (số 2) vào queue cùng lúc.</div>
+  </section>
+</main>
+
+<script>
+// ===================== MODULE 1: BFS vs DFS =====================
+(function () {
+  // Đồ thị 6 đỉnh (giống walk-through trong README)
+  const adj = {
+    0: [1, 2], 1: [0, 3, 4], 2: [0, 4],
+    3: [1, 5], 4: [1, 2, 5], 5: [3, 4]
+  };
+  const pos = {
+    0: [80, 60], 1: [240, 60], 2: [80, 200],
+    3: [400, 60], 4: [240, 200], 5: [400, 200]
+  };
+  const svg = document.getElementById('m1-svg');
+  const statusEl = document.getElementById('m1-status');
+  const orderEl = document.getElementById('m1-order');
+  const srcLabel = document.getElementById('m1-srclabel');
+  let source = 0;
+  const COL = { node: '#cbd5e0', frontier: '#f6ad55', visit: '#ec4899', done: '#38a169', src: '#3182ce' };
+
+  let steps = [], si = 0, timer = null;
+
+  function draw(state) {
+    // state: map node -> 'node'|'frontier'|'visit'|'done'
+    const SVGNS = 'http://www.w3.org/2000/svg';
+    svg.innerHTML = '';
+    // edges
+    const drawn = new Set();
+    for (const u in adj) for (const v of adj[u]) {
+      const key = Math.min(u, v) + '-' + Math.max(u, v);
+      if (drawn.has(key)) continue; drawn.add(key);
+      const ln = document.createElementNS(SVGNS, 'line');
+      ln.setAttribute('x1', pos[u][0]); ln.setAttribute('y1', pos[u][1]);
+      ln.setAttribute('x2', pos[v][0]); ln.setAttribute('y2', pos[v][1]);
+      ln.setAttribute('stroke', '#cbd5e0'); ln.setAttribute('stroke-width', '2');
+      svg.appendChild(ln);
+    }
+    // nodes
+    for (const n in pos) {
+      const g = document.createElementNS(SVGNS, 'g'); g.setAttribute('class', 'gnode');
+      const c = document.createElementNS(SVGNS, 'circle');
+      c.setAttribute('cx', pos[n][0]); c.setAttribute('cy', pos[n][1]); c.setAttribute('r', 22);
+      const st = state ? state[n] : 'node';
+      let fill = COL[st] || COL.node;
+      if (+n === source && (!state || st === 'node')) fill = COL.src;
+      c.setAttribute('fill', fill);
+      c.setAttribute('stroke', +n === source ? '#1a365d' : '#a0aec0');
+      c.setAttribute('stroke-width', +n === source ? 3 : 1.5);
+      c.style.cursor = 'pointer';
+      c.addEventListener('click', () => { if (!timer) { source = +n; srcLabel.textContent = n; reset(); } });
+      const t = document.createElementNS(SVGNS, 'text');
+      t.setAttribute('x', pos[n][0]); t.setAttribute('y', pos[n][1] + 5);
+      t.setAttribute('text-anchor', 'middle'); t.textContent = n;
+      g.appendChild(c); g.appendChild(t); svg.appendChild(g);
+    }
+  }
+
+  function buildSteps(mode) {
+    steps = []; si = 0;
+    const visited = {}, order = [];
+    const state = {}; for (const n in pos) state[n] = 'node';
+    function snap(msg) { steps.push({ state: Object.assign({}, state), order: order.slice(), msg }); }
+
+    if (mode === 'bfs') {
+      const q = [source]; visited[source] = true; state[source] = 'frontier';
+      snap('Đẩy nguồn ' + source + ' vào queue (level 0).');
+      while (q.length) {
+        const u = q.shift(); state[u] = 'visit'; order.push(u);
+        snap('Lấy ' + u + ' khỏi queue → thăm. Xét hàng xóm.');
+        for (const v of adj[u]) {
+          if (!visited[v]) { visited[v] = true; q.push(v); state[v] = 'frontier'; }
+        }
+        snap('Đẩy hàng xóm chưa thăm của ' + u + ' vào cuối queue.');
+        state[u] = 'done';
+      }
+      snap('BFS xong. Thứ tự thăm theo tầng.');
+    } else {
+      // DFS đệ quy, ghi snapshot pre-order khi vào và post-order khi rời
+      const seen = {};
+      function dfs(u) {
+        seen[u] = true; state[u] = 'visit'; order.push(u);
+        snap('Vào ' + u + ' (pre-order). Đâm sâu hàng xóm đầu chưa thăm.');
+        for (const v of adj[u]) {
+          if (!seen[v]) { state[v] = 'frontier'; snap('Sang sâu ' + u + '→' + v + '.'); dfs(v); }
+        }
+        state[u] = 'done';
+        snap('Rời ' + u + ' (post-order): mọi nhánh con đã xong, backtrack.');
+      }
+      dfs(source);
+      snap('DFS xong. Thứ tự (pre-order).');
+    }
+  }
+
+  function render() {
+    const s = steps[si];
+    draw(s.state);
+    statusEl.textContent = '[' + (si + 1) + '/' + steps.length + '] ' + s.msg;
+    orderEl.textContent = 'thứ tự thăm: ' + (s.order.length ? s.order.join(' → ') : '—');
+  }
+  function play(mode) {
+    stop(); buildSteps(mode); si = 0; render();
+    timer = setInterval(() => {
+      si++;
+      if (si >= steps.length) { si = steps.length - 1; render(); stop(); return; }
+      render();
+    }, 850);
+  }
+  function stop() { if (timer) { clearInterval(timer); timer = null; } }
+  function reset() { stop(); steps = []; si = 0; draw(null); statusEl.textContent = 'Sẵn sàng. Nguồn = ' + source + '.'; orderEl.textContent = 'thứ tự thăm: —'; }
+  function stepBtn(mode) {
+    if (!steps.length) { buildSteps(currentMode || 'bfs'); si = 0; render(); return; }
+    if (si < steps.length - 1) { si++; render(); }
+  }
+  let currentMode = 'bfs';
+  document.getElementById('m1-bfs').onclick = () => { currentMode = 'bfs'; play('bfs'); };
+  document.getElementById('m1-dfs').onclick = () => { currentMode = 'dfs'; play('dfs'); };
+  document.getElementById('m1-step').onclick = () => { stop(); if (!steps.length) buildSteps(currentMode); else if (si < steps.length - 1) si++; render(); };
+  document.getElementById('m1-reset').onclick = reset;
+  draw(null);
+})();
+
+// ===================== MODULE 2: Number of Islands =====================
+(function () {
+  const grids = [
+    [[1,1,0,0,1],[1,0,0,1,1],[0,0,1,0,0],[1,0,1,1,0]],
+    [[1,1,1,0,1],[0,0,1,0,0],[1,0,0,1,1],[1,1,0,0,1]],
+    [[0,1,0,1,0],[1,0,1,0,1],[0,1,0,1,0],[1,0,1,0,1]]
+  ];
+  let gi = 0;
+  let grid = JSON.parse(JSON.stringify(grids[gi]));
+  const dir4 = [[-1,0],[1,0],[0,-1],[0,1]];
+  const tbl = document.getElementById('m2-grid');
+  const countEl = document.getElementById('m2-count');
+  const statusEl = document.getElementById('m2-status');
+  const PALETTE = ['#f6ad55','#ec4899','#9f7aea','#38a169','#3182ce','#dd6b20'];
+  let steps = [], si = 0, timer = null;
+
+  function render(stateGrid, islandOf) {
+    const rows = grid.length, cols = grid[0].length;
+    tbl.innerHTML = '';
+    for (let r = 0; r < rows; r++) {
+      const tr = document.createElement('tr');
+      for (let c = 0; c < cols; c++) {
+        const td = document.createElement('td');
+        const v = stateGrid[r][c];
+        td.textContent = grid[r][c];
+        if (v === 0) { td.style.background = '#ebf8ff'; td.style.color = '#90cdf4'; }
+        else if (islandOf[r][c] >= 0) { td.style.background = PALETTE[islandOf[r][c] % PALETTE.length]; td.style.color = '#fff'; }
+        else { td.style.background = '#fef5e7'; td.style.color = '#7b341e'; }
+        tr.appendChild(td);
+      }
+      tbl.appendChild(tr);
+    }
+  }
+
+  function build() {
+    steps = []; si = 0;
+    const rows = grid.length, cols = grid[0].length;
+    const islandOf = Array.from({length: rows}, () => Array(cols).fill(-1));
+    const seen = JSON.parse(JSON.stringify(grid));
+    let count = 0;
+    function snap(msg) {
+      steps.push({ island: islandOf.map(r => r.slice()), count, msg });
+    }
+    snap('Quét grid tìm ô đất "1" chưa thăm.');
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+      if (grid[r][c] === 1 && islandOf[r][c] === -1) {
+        const id = count; count++;
+        // BFS flood fill để animate đẹp
+        const q = [[r, c]]; islandOf[r][c] = id;
+        snap('Ô (' + r + ',' + c + ') = đất chưa thăm → ĐẢO #' + (count) + '. Flood fill.');
+        while (q.length) {
+          const [cr, cc] = q.shift();
+          for (const [dr, dc] of dir4) {
+            const nr = cr + dr, nc = cc + dc;
+            if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc] === 1 && islandOf[nr][nc] === -1) {
+              islandOf[nr][nc] = id; q.push([nr, nc]);
+            }
+          }
+          snap('Dìm cụm đảo #' + (id + 1) + ' (lan 4 hướng).');
+        }
+      }
+    }
+    snap('Xong. Tổng số đảo = ' + count + '.');
+  }
+
+  function show() {
+    const s = steps[si];
+    render(grid, s.island);
+    countEl.textContent = s.count;
+    statusEl.textContent = '[' + (si + 1) + '/' + steps.length + '] ' + s.msg;
+  }
+  function stop() { if (timer) { clearInterval(timer); timer = null; } }
+  function run() {
+    stop(); build(); si = 0; show();
+    timer = setInterval(() => { si++; if (si >= steps.length) { si = steps.length - 1; show(); stop(); return; } show(); }, 550);
+  }
+  function reset() {
+    stop(); gi = (gi + 1) % grids.length; grid = JSON.parse(JSON.stringify(grids[gi]));
+    steps = []; si = 0;
+    const rows = grid.length, cols = grid[0].length;
+    render(grid, Array.from({length: rows}, () => Array(cols).fill(-1)));
+    countEl.textContent = '0'; statusEl.textContent = 'Grid mới. Sẵn sàng.';
+  }
+  document.getElementById('m2-run').onclick = run;
+  document.getElementById('m2-step').onclick = () => { stop(); if (!steps.length) { build(); si = 0; } else if (si < steps.length - 1) si++; show(); };
+  document.getElementById('m2-reset').onclick = reset;
+  render(grid, Array.from({length: grid.length}, () => Array(grid[0].length).fill(-1)));
+})();
+
+// ===================== MODULE 3: Multi-source BFS (Rotting Oranges) =====================
+(function () {
+  const grids = [
+    [[2,1,1],[1,1,0],[0,1,1]],
+    [[2,1,1,0],[1,1,1,2],[0,1,0,1],[1,1,1,1]],
+    [[2,1,0,1,2],[1,1,1,1,1],[0,1,0,1,0],[1,1,1,1,1]]
+  ];
+  let gi = 0;
+  let grid = JSON.parse(JSON.stringify(grids[gi]));
+  const dir4 = [[-1,0],[1,0],[0,-1],[0,1]];
+  const tbl = document.getElementById('m3-grid');
+  const minEl = document.getElementById('m3-min');
+  const freshEl = document.getElementById('m3-fresh');
+  const statusEl = document.getElementById('m3-status');
+  let steps = [], si = 0, timer = null;
+
+  function render(g) {
+    tbl.innerHTML = '';
+    for (let r = 0; r < g.length; r++) {
+      const tr = document.createElement('tr');
+      for (let c = 0; c < g[0].length; c++) {
+        const td = document.createElement('td');
+        const v = g[r][c];
+        td.textContent = v;
+        if (v === 0) { td.style.background = '#f7fafc'; td.style.color = '#cbd5e0'; }
+        else if (v === 1) { td.style.background = '#c6f6d5'; td.style.color = '#22543d'; } // tươi
+        else { td.style.background = '#fbb6a3'; td.style.color = '#7b2d1a'; }              // thối
+        tr.appendChild(td);
+      }
+      tbl.appendChild(tr);
+    }
+  }
+  function countFresh(g) { let f = 0; for (const row of g) for (const v of row) if (v === 1) f++; return f; }
+
+  function build() {
+    steps = []; si = 0;
+    const rows = grid.length, cols = grid[0].length;
+    const g = grid.map(r => r.slice());
+    let q = [];
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) if (g[r][c] === 2) q.push([r, c]);
+    let fresh = countFresh(g), minutes = 0;
+    function snap(msg) { steps.push({ g: g.map(r => r.slice()), minutes, fresh, msg }); }
+    snap('Đẩy TẤT CẢ nguồn (số 2) vào queue cùng lúc — phút 0. Tươi: ' + fresh + '.');
+    while (q.length && fresh > 0) {
+      minutes++;
+      const next = [];
+      for (const [r, c] of q) {
+        for (const [dr, dc] of dir4) {
+          const nr = r + dr, nc = c + dc;
+          if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && g[nr][nc] === 1) {
+            g[nr][nc] = 2; fresh--; next.push([nr, nc]);
+          }
+        }
+      }
+      q = next;
+      snap('Phút ' + minutes + ': mọi cam thối lây đồng thời sang cam tươi kề. Tươi còn: ' + fresh + '.');
+    }
+    if (fresh > 0) snap('Còn ' + fresh + ' cam tươi không lây tới được → trả -1.');
+    else snap('Xong sau ' + minutes + ' phút — mọi cam đã thối.');
+  }
+
+  function show() {
+    const s = steps[si];
+    render(s.g); minEl.textContent = s.minutes; freshEl.textContent = s.fresh;
+    statusEl.textContent = '[' + (si + 1) + '/' + steps.length + '] ' + s.msg;
+  }
+  function stop() { if (timer) { clearInterval(timer); timer = null; } }
+  function run() {
+    stop(); build(); si = 0; show();
+    timer = setInterval(() => { si++; if (si >= steps.length) { si = steps.length - 1; show(); stop(); return; } show(); }, 850);
+  }
+  function reset() {
+    stop(); gi = (gi + 1) % grids.length; grid = JSON.parse(JSON.stringify(grids[gi]));
+    steps = []; si = 0; render(grid);
+    minEl.textContent = '0'; freshEl.textContent = countFresh(grid);
+    statusEl.textContent = 'Grid mới. Nguồn vào queue cùng lúc.';
+  }
+  document.getElementById('m3-run').onclick = run;
+  document.getElementById('m3-step').onclick = () => { stop(); if (!steps.length) { build(); si = 0; } else if (si < steps.length - 1) si++; show(); };
+  document.getElementById('m3-reset').onclick = reset;
+  render(grid); freshEl.textContent = countFresh(grid);
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+</body>
+</html>

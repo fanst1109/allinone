@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 34 — Bellman-Ford & Floyd-Warshall</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .lead { color: #4a5568; max-width: 780px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.1); margin: 18px 0;
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px; }
+  button {
+    padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;
+    font-size: 14px; font-weight: 600; background: #4299e1; color: white;
+  }
+  button:hover { background: #3182ce; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  .note { color: #718096; font-size: 13px; }
+
+  /* SVG đồ thị */
+  .svg-wrap { overflow-x: auto; text-align: center; }
+  svg { max-width: 100%; height: auto; }
+  .node-circ { fill: #ebf8ff; stroke: #4299e1; stroke-width: 2; transition: fill .3s, stroke .3s; }
+  .node-src { fill: #c6f6d5; stroke: #38a169; }
+  .node-relaxed { fill: #fefcbf; stroke: #d69e2e; }
+  .node-cycle { fill: #fed7d7; stroke: #e53e3e; }
+  .node-txt { font: 700 14px sans-serif; fill: #1a202c; text-anchor: middle; dominant-baseline: central; }
+  .edge-line { stroke: #a0aec0; stroke-width: 2; transition: stroke .3s, stroke-width .3s; }
+  .edge-neg { stroke: #e53e3e; }
+  .edge-active { stroke: #d69e2e; stroke-width: 4; }
+  .edge-cycle { stroke: #e53e3e; stroke-width: 4; }
+  .edge-w { font: 600 12px sans-serif; fill: #2d3748; }
+  .edge-w.neg { fill: #c53030; }
+
+  /* bảng dist + ma trận */
+  .grid-wrap { overflow-x: auto; }
+  table.tbl { border-collapse: collapse; margin: 10px 0; font-size: 14px; }
+  table.tbl td, table.tbl th {
+    border: 1px solid #cbd5e0; min-width: 42px; height: 40px; padding: 0 6px;
+    text-align: center; font-variant-numeric: tabular-nums; transition: background .3s, color .3s;
+  }
+  table.tbl th { background: #edf2f7; font-weight: 700; }
+  td.upd { background: #fefcbf; font-weight: 700; }
+  td.kcol, td.krow { background: #bee3f8; }
+  td.diag-neg { background: #fed7d7; color: #c53030; font-weight: 700; }
+
+  .status { margin-top: 12px; padding: 10px 14px; background: #f7fafc; border-left: 4px solid #4299e1;
+    border-radius: 4px; font-size: 14px; color: #2d3748; min-height: 20px; }
+  .answer { margin-top: 10px; font-weight: 700; color: #276749; }
+  .answer.bad { color: #c53030; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: #4a5568; margin: 8px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; border: 1px solid #cbd5e0; }
+  code { background: #edf2f7; padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-33-dijkstra/visualization.html">← L33: Dijkstra</a>
+  <span class="sep">·</span>
+  <span class="current">L34: Bellman-Ford & Floyd</span>
+  <span class="sep">·</span>
+  <a href="../lesson-35-mst-kruskal-prim/visualization.html">L35: MST →</a>
+</nav>
+
+<div class="container">
+  <header>
+    <h1>Lesson 34 — Bellman-Ford & Floyd-Warshall</h1>
+    <p class="lead">
+      Ba module cho bạn <em>thấy tận mắt</em>: (1) Bellman-Ford relax từng cạnh qua các vòng,
+      (2) Floyd-Warshall điền ma trận khoảng cách qua từng đỉnh trung gian <code>k</code>,
+      (3) phát hiện <strong>chu trình âm / arbitrage</strong>. Đây là phần shortest path xử lý được
+      <strong>cạnh âm</strong> — nơi Dijkstra (L33) bó tay.
+    </p>
+  </header>
+
+  <main>
+
+  <!-- ============ MODULE 1: BELLMAN-FORD ============ -->
+  <h2>Module 1 — Bellman-Ford: relax tất cả cạnh, V−1 vòng</h2>
+  <div class="card">
+    <p class="lead">Nguồn = đỉnh <strong>0</strong> (xanh lá). Mỗi vòng relax <strong>toàn bộ</strong> danh sách cạnh;
+      cạnh đang xét tô vàng, đỉnh được cập nhật <code>dist</code> nhấp nháy. Bảng <code>dist</code> bên dưới cập nhật trực tiếp.</p>
+    <div class="controls">
+      <button id="bfRun">▶ Chạy từng bước</button>
+      <button id="bfAuto" class="secondary">⏩ Tự động</button>
+      <button id="bfReset" class="secondary">↺ Reset</button>
+    </div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#c6f6d5"></span> nguồn</span>
+      <span><span class="swatch" style="background:#fefcbf"></span> vừa cập nhật</span>
+      <span><span class="swatch" style="background:#fff;border-color:#e53e3e"></span> cạnh âm (đỏ)</span>
+    </div>
+    <div class="svg-wrap" id="bfSvg"></div>
+    <div class="grid-wrap" id="bfTable"></div>
+    <div class="status" id="bfStatus">Bấm <strong>Chạy từng bước</strong> để relax cạnh tiếp theo.</div>
+    <div class="answer" id="bfAnswer"></div>
+  </div>
+
+  <!-- ============ MODULE 2: FLOYD-WARSHALL ============ -->
+  <h2>Module 2 — Floyd-Warshall: ma trận qua từng trung gian k</h2>
+  <div class="card">
+    <p class="lead">Ma trận <code>dist[i][j]</code>. Bấm <strong>k tiếp theo</strong> để cho phép đi qua đỉnh trung gian <code>k</code>:
+      ô <code>dist[i][j]</code> = <code>min(cũ, dist[i][k]+dist[k][j])</code>. Hàng/cột <code>k</code> tô xanh, ô vừa giảm tô vàng.</p>
+    <div class="controls">
+      <button id="fwStep">▶ k tiếp theo</button>
+      <button id="fwAuto" class="secondary">⏩ Tự động</button>
+      <button id="fwReset" class="secondary">↺ Reset</button>
+    </div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#bee3f8"></span> hàng/cột k (trung gian)</span>
+      <span><span class="swatch" style="background:#fefcbf"></span> ô vừa giảm</span>
+    </div>
+    <div class="grid-wrap" id="fwTable"></div>
+    <div class="status" id="fwStatus">Bấm <strong>k tiếp theo</strong> để thêm đỉnh trung gian.</div>
+    <div class="answer" id="fwAnswer"></div>
+  </div>
+
+  <!-- ============ MODULE 3: NEGATIVE CYCLE / ARBITRAGE ============ -->
+  <h2>Module 3 — Phát hiện chu trình âm / arbitrage</h2>
+  <div class="card">
+    <p class="lead">Đồ thị có <strong>chu trình âm</strong> <code>1→2→3→1</code> (tổng = −3).
+      Bellman-Ford chạy <code>V</code> vòng; ở vòng thứ <code>V</code> còn relax được → <strong>phát hiện chu trình âm</strong>
+      (đường ngắn nhất = −∞). Cùng cơ chế dùng cho phát hiện <strong>arbitrage</strong> tỷ giá.</p>
+    <div class="controls">
+      <button id="ncRun">▶ Chạy phát hiện</button>
+      <button id="ncReset" class="secondary">↺ Reset</button>
+    </div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#fefcbf"></span> đang giảm</span>
+      <span><span class="swatch" style="background:#fed7d7;border-color:#e53e3e"></span> chu trình âm</span>
+    </div>
+    <div class="svg-wrap" id="ncSvg"></div>
+    <div class="grid-wrap" id="ncTable"></div>
+    <div class="status" id="ncStatus">Bấm <strong>Chạy phát hiện</strong>.</div>
+    <div class="answer" id="ncAnswer"></div>
+  </div>
+
+  </main>
+</div>
+
+<script>
+const el = (id) => document.getElementById(id);
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+const INF = Infinity;
+
+/* helper: vẽ một mũi tên có hướng giữa 2 điểm node (bán kính r), trả về <path> + nhãn */
+function arrowSvg(x1, y1, x2, y2, w, r, cls, lblCls) {
+  const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+  const ux = dx / len, uy = dy / len;
+  const sx = x1 + ux * r, sy = y1 + uy * r;
+  const ex = x2 - ux * (r + 6), ey = y2 - uy * (r + 6);
+  // điểm nhãn lệch khỏi đường thẳng để dễ đọc
+  const mx = (sx + ex) / 2 - uy * 12, my = (sy + ey) / 2 + ux * 12;
+  return `<line class="edge-line ${cls}" x1="${sx}" y1="${sy}" x2="${ex}" y2="${ey}" marker-end="url(#arrow)"/>
+          <text class="edge-w ${lblCls}" x="${mx}" y="${my}" text-anchor="middle">${w}</text>`;
+}
+const ARROW_DEF = `<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L7,3 L0,6 Z" fill="#718096"/></marker></defs>`;
+
+function fmt(v) { return v === INF ? '∞' : v; }
+
+/* ============================================================
+   MODULE 1 — BELLMAN-FORD
+   ============================================================ */
+const bfPos = [ // toạ độ 5 đỉnh trong viewBox 460x300
+  {x:60,  y:150}, {x:200, y:60}, {x:200, y:240}, {x:360, y:60}, {x:360, y:240}
+];
+const bfEdges = [
+  {u:0,v:1,w:6},{u:0,v:2,w:7},{u:1,v:2,w:8},{u:1,v:3,w:5},{u:1,v:4,w:-4},
+  {u:2,v:3,w:-3},{u:2,v:4,w:9},{u:3,v:1,w:-2},{u:4,v:0,w:2},{u:4,v:3,w:7}
+];
+let bfDist, bfStep, bfRound, bfBusy = false;
+
+function bfDrawGraph(activeEdge = -1, relaxedNode = -1) {
+  let s = `<svg viewBox="0 0 460 300" width="460" height="300">${ARROW_DEF}`;
+  bfEdges.forEach((e, idx) => {
+    const cls = idx === activeEdge ? 'edge-active' : (e.w < 0 ? 'edge-neg' : '');
+    const lbl = e.w < 0 ? 'neg' : '';
+    s += arrowSvg(bfPos[e.u].x, bfPos[e.u].y, bfPos[e.v].x, bfPos[e.v].y, e.w, 20, cls, lbl);
+  });
+  bfPos.forEach((p, i) => {
+    let ncls = 'node-circ';
+    if (i === 0) ncls += ' node-src';
+    if (i === relaxedNode) ncls = 'node-circ node-relaxed';
+    s += `<circle class="${ncls}" cx="${p.x}" cy="${p.y}" r="20"/>
+          <text class="node-txt" x="${p.x}" y="${p.y}">${i}</text>`;
+  });
+  s += '</svg>';
+  el('bfSvg').innerHTML = s;
+}
+
+function bfDrawTable(highlight = -1) {
+  let h = '<table class="tbl"><tr><th>đỉnh</th>';
+  for (let i = 0; i < 5; i++) h += `<th>${i}</th>`;
+  h += '</tr><tr><th>dist</th>';
+  for (let i = 0; i < 5; i++) {
+    h += `<td class="${i === highlight ? 'upd' : ''}">${fmt(bfDist[i])}</td>`;
+  }
+  h += '</tr></table>';
+  el('bfTable').innerHTML = h;
+}
+
+function bfInit() {
+  bfDist = [0, INF, INF, INF, INF];
+  bfStep = 0; bfRound = 1;
+  bfDrawGraph(); bfDrawTable();
+  el('bfStatus').innerHTML = 'Vòng 1 — bấm <strong>Chạy từng bước</strong> để relax cạnh đầu tiên.';
+  el('bfAnswer').textContent = '';
+  el('bfAnswer').className = 'answer';
+}
+
+async function bfDoStep() {
+  if (bfBusy) return;
+  if (bfRound > 4) { // V-1 = 4 vòng đã xong
+    el('bfStatus').innerHTML = 'Đã chạy đủ <strong>V−1 = 4</strong> vòng. Kết quả ổn định.';
+    el('bfAnswer').textContent = 'dist = [' + bfDist.map(fmt).join(', ') + ']  — đường tới đỉnh 1 nhờ cạnh âm 2→3, 3→1.';
+    return;
+  }
+  const e = bfEdges[bfStep];
+  bfDrawGraph(bfStep);
+  let msg = `Vòng ${bfRound}, relax cạnh ${e.u}→${e.v} (w=${e.w}): `;
+  if (bfDist[e.u] !== INF && bfDist[e.u] + e.w < bfDist[e.v]) {
+    const old = bfDist[e.v];
+    bfDist[e.v] = bfDist[e.u] + e.w;
+    msg += `dist[${e.u}]+${e.w} = ${bfDist[e.v]} < ${fmt(old)} → cập nhật dist[${e.v}]=${bfDist[e.v]}.`;
+    bfDrawTable(e.v);
+    bfDrawGraph(bfStep, e.v);
+  } else {
+    const left = bfDist[e.u] === INF ? '∞' : (bfDist[e.u] + e.w);
+    msg += `${left} ≥ ${fmt(bfDist[e.v])} → không cập nhật.`;
+    bfDrawTable();
+  }
+  el('bfStatus').innerHTML = msg;
+  bfStep++;
+  if (bfStep >= bfEdges.length) { bfStep = 0; bfRound++; }
+}
+
+async function bfAutoRun() {
+  if (bfBusy) return;
+  bfBusy = true;
+  el('bfAuto').disabled = true; el('bfRun').disabled = true;
+  while (bfRound <= 4) {
+    await bfDoStep();
+    await sleep(260);
+  }
+  await bfDoStep(); // hiển thị kết quả cuối
+  bfBusy = false;
+  el('bfAuto').disabled = false; el('bfRun').disabled = false;
+}
+
+el('bfRun').onclick = bfDoStep;
+el('bfAuto').onclick = bfAutoRun;
+el('bfReset').onclick = bfInit;
+bfInit();
+
+/* ============================================================
+   MODULE 2 — FLOYD-WARSHALL
+   ============================================================ */
+const fwN = 4;
+const fwInitEdges = [[0,1,3],[0,3,7],[1,0,8],[1,2,2],[2,0,5],[2,3,1],[3,0,2]];
+let fwDist, fwK, fwBusy = false;
+
+function fwInit() {
+  fwDist = [];
+  for (let i = 0; i < fwN; i++) {
+    fwDist.push(new Array(fwN).fill(INF));
+    fwDist[i][i] = 0;
+  }
+  fwInitEdges.forEach(([u, v, w]) => fwDist[u][v] = w);
+  fwK = -1;
+  fwDrawTable();
+  el('fwStatus').innerHTML = 'Ma trận ban đầu (k = −1, chỉ cạnh trực tiếp). Bấm <strong>k tiếp theo</strong>.';
+  el('fwAnswer').textContent = '';
+}
+
+function fwDrawTable(updated = new Set(), k = -1) {
+  let h = '<table class="tbl"><tr><th>i\\j</th>';
+  for (let j = 0; j < fwN; j++) h += `<th class="${j === k ? 'kcol' : ''}">${j}</th>`;
+  h += '</tr>';
+  for (let i = 0; i < fwN; i++) {
+    h += `<tr><th class="${i === k ? 'krow' : ''}">${i}</th>`;
+    for (let j = 0; j < fwN; j++) {
+      let cls = '';
+      if (updated.has(i * fwN + j)) cls = 'upd';
+      else if (j === k || i === k) cls = (j === k ? 'kcol' : 'krow');
+      h += `<td class="${cls}">${fmt(fwDist[i][j])}</td>`;
+    }
+    h += '</tr>';
+  }
+  h += '</table>';
+  el('fwTable').innerHTML = h;
+}
+
+function fwStepK() {
+  if (fwBusy) return;
+  if (fwK >= fwN - 1) {
+    el('fwStatus').innerHTML = 'Đã xét hết các đỉnh trung gian (k = 0..' + (fwN - 1) + '). All-pairs hoàn tất.';
+    el('fwAnswer').textContent = 'Ví dụ dist[2] = [' + fwDist[2].map(fmt).join(', ') + ']  (đường 2→1 = 6 qua 2→3→0→1).';
+    return;
+  }
+  fwK++;
+  const updated = new Set();
+  for (let i = 0; i < fwN; i++) {
+    for (let j = 0; j < fwN; j++) {
+      if (fwDist[i][fwK] < INF && fwDist[fwK][j] < INF &&
+          fwDist[i][fwK] + fwDist[fwK][j] < fwDist[i][j]) {
+        fwDist[i][j] = fwDist[i][fwK] + fwDist[fwK][j];
+        updated.add(i * fwN + j);
+      }
+    }
+  }
+  fwDrawTable(updated, fwK);
+  el('fwStatus').innerHTML = `k = <strong>${fwK}</strong>: cho phép đi qua đỉnh ${fwK}. Cập nhật ${updated.size} ô (vàng). `
+    + `Công thức: dist[i][j] = min(cũ, dist[i][${fwK}] + dist[${fwK}][j]).`;
+}
+
+async function fwAutoRun() {
+  if (fwBusy) return;
+  fwBusy = true;
+  el('fwAuto').disabled = true; el('fwStep').disabled = true;
+  while (fwK < fwN - 1) { fwStepK(); await sleep(900); }
+  fwStepK();
+  fwBusy = false;
+  el('fwAuto').disabled = false; el('fwStep').disabled = false;
+}
+
+el('fwStep').onclick = fwStepK;
+el('fwAuto').onclick = fwAutoRun;
+el('fwReset').onclick = fwInit;
+fwInit();
+
+/* ============================================================
+   MODULE 3 — NEGATIVE CYCLE / ARBITRAGE
+   ============================================================ */
+const ncPos = [ {x:60,y:150}, {x:200,y:60}, {x:340,y:150}, {x:200,y:240} ];
+const ncEdges = [ {u:0,v:1,w:1},{u:1,v:2,w:-1},{u:2,v:3,w:-1},{u:3,v:1,w:-1} ];
+const ncCycle = [1, 2, 3]; // các đỉnh trên chu trình âm
+let ncDist, ncBusy = false;
+
+function ncDrawGraph(highlightCycle = false, activeNode = -1) {
+  let s = `<svg viewBox="0 0 400 300" width="400" height="300">${ARROW_DEF}`;
+  ncEdges.forEach(e => {
+    const inCyc = ncCycle.includes(e.u) && ncCycle.includes(e.v);
+    const cls = highlightCycle && inCyc ? 'edge-cycle' : (e.w < 0 ? 'edge-neg' : '');
+    s += arrowSvg(ncPos[e.u].x, ncPos[e.u].y, ncPos[e.v].x, ncPos[e.v].y, e.w, 20, cls, e.w < 0 ? 'neg' : '');
+  });
+  ncPos.forEach((p, i) => {
+    let ncls = 'node-circ';
+    if (i === 0) ncls += ' node-src';
+    if (highlightCycle && ncCycle.includes(i)) ncls = 'node-circ node-cycle';
+    else if (i === activeNode) ncls = 'node-circ node-relaxed';
+    s += `<circle class="${ncls}" cx="${p.x}" cy="${p.y}" r="20"/>
+          <text class="node-txt" x="${p.x}" y="${p.y}">${i}</text>`;
+  });
+  s += '</svg>';
+  el('ncSvg').innerHTML = s;
+}
+
+function ncDrawTable(highlight = -1) {
+  let h = '<table class="tbl"><tr><th>đỉnh</th>';
+  for (let i = 0; i < 4; i++) h += `<th>${i}</th>`;
+  h += '</tr><tr><th>dist</th>';
+  for (let i = 0; i < 4; i++) h += `<td class="${i === highlight ? 'upd' : ''}">${fmt(ncDist[i])}</td>`;
+  h += '</tr></table>';
+  el('ncTable').innerHTML = h;
+}
+
+function ncInit() {
+  ncDist = [0, INF, INF, INF];
+  ncDrawGraph(); ncDrawTable();
+  el('ncStatus').innerHTML = 'Đồ thị có chu trình <code>1→2→3→1</code> tổng = −3. Bấm <strong>Chạy phát hiện</strong>.';
+  el('ncAnswer').textContent = '';
+  el('ncAnswer').className = 'answer';
+}
+
+async function ncRun() {
+  if (ncBusy) return;
+  ncBusy = true;
+  el('ncRun').disabled = true;
+  ncDist = [0, INF, INF, INF];
+  const V = 4;
+  // V vòng (V-1 + 1 vòng kiểm tra)
+  for (let round = 1; round <= V; round++) {
+    let changed = false;
+    for (const e of ncEdges) {
+      if (ncDist[e.u] !== INF && ncDist[e.u] + e.w < ncDist[e.v]) {
+        ncDist[e.v] = ncDist[e.u] + e.w;
+        changed = true;
+        ncDrawTable(e.v);
+        ncDrawGraph(false, e.v);
+        el('ncStatus').innerHTML = `Vòng ${round}${round === V ? ' (vòng thứ V — kiểm tra)' : ''}: `
+          + `relax ${e.u}→${e.v} → dist[${e.v}]=${ncDist[e.v]}.`;
+        await sleep(420);
+      }
+    }
+    if (round === V && changed) {
+      // vòng thứ V vẫn relax được => chu trình âm
+      ncDrawGraph(true);
+      el('ncStatus').innerHTML = 'Vòng thứ <strong>V</strong> VẪN relax được → tồn tại <strong>chu trình âm</strong>!';
+      el('ncAnswer').textContent = '⚠ Phát hiện chu trình âm 1→2→3→1 (tổng −3). Đường ngắn nhất = −∞ (không xác định). '
+        + 'Trong bài toán tỷ giá, đây chính là cơ hội ARBITRAGE.';
+      el('ncAnswer').className = 'answer bad';
+    }
+    if (!changed) break;
+  }
+  ncBusy = false;
+  el('ncRun').disabled = false;
+}
+
+el('ncRun').onclick = ncRun;
+el('ncReset').onclick = ncInit;
+ncInit();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+</body>
+</html>

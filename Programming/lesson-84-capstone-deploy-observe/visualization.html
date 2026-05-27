@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L84 — Capstone Deploy &amp; Observe · Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root { --accent: #f97316; --accent-soft: #ffedd5; --accent-hover: #ea580c; }
+  main { max-width: 1100px; }
+  h1 { color: #2d3748; margin-bottom: 4px; }
+  .lead { color: #718096; margin-bottom: 24px; font-size: 15px; }
+  section.module {
+    background: #fff; border-radius: 10px; padding: 22px;
+    margin-bottom: 28px; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+  section.module h2 {
+    color: #2d3748; margin-top: 0; padding-bottom: 10px;
+    border-bottom: 2px solid var(--accent); font-size: 21px;
+  }
+  .desc { color: #4a5568; font-size: 14px; margin-bottom: 16px; }
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
+    background: #f7fafc; padding: 12px 14px; border-radius: 8px; margin-bottom: 16px;
+  }
+  button {
+    padding: 8px 16px; background: var(--accent); color: #fff; border: none;
+    border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;
+  }
+  button:hover { background: var(--accent-hover); }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  button.sec { background: #64748b; }
+  button.sec:hover { background: #475569; }
+  .ctrl { display: flex; flex-direction: column; gap: 3px; }
+  .ctrl label { font-size: 12px; font-weight: 600; color: #4a5568; }
+  .ctrl input[type=range] { width: 200px; max-width: 100%; }
+  .ctrl .val { font-family: monospace; font-size: 13px; color: var(--accent-hover); font-weight: 700; }
+  code { background: #edf2f7; padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+
+  /* ---- Module 1: deploy pipeline ---- */
+  .pipe { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; margin: 14px 0; }
+  .stage {
+    flex: 1 1 0; min-width: 0; text-align: center; padding: 14px 8px;
+    border: 2px solid #e2e8f0; border-radius: 10px; background: #f8fafc;
+    transition: all .35s; position: relative;
+  }
+  .stage .icon { font-size: 26px; }
+  .stage .name { font-weight: 700; font-size: 13px; color: #2d3748; margin-top: 4px; }
+  .stage .sub { font-size: 11px; color: #718096; margin-top: 2px; }
+  .stage.active { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 3px rgba(249,115,22,.2); transform: translateY(-3px); }
+  .stage.done { border-color: #10b981; background: #ecfdf5; }
+  .stage.done .icon::after { content: " ✓"; color: #10b981; font-size: 16px; }
+  .arrow { align-self: center; color: #cbd5e0; font-size: 20px; font-weight: 700; }
+  .pods { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; min-height: 56px; }
+  .pod {
+    width: 52px; height: 52px; border-radius: 10px; background: #cbd5e0;
+    display: flex; align-items: center; justify-content: center; font-size: 22px;
+    transition: all .4s; transform: scale(0);
+  }
+  .pod.up { background: #d1fae5; border: 2px solid #10b981; transform: scale(1); }
+  .pod.starting { background: #fef3c7; border: 2px solid #f59e0b; transform: scale(1); animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+  .log { background: #1a202c; color: #cbd5e0; border-radius: 8px; padding: 12px; font-family: monospace; font-size: 12px; height: 150px; overflow-y: auto; margin-top: 12px; }
+  .log .ok { color: #68d391; }
+  .log .warn { color: #f6ad55; }
+
+  /* ---- Module 2: observability dashboard ---- */
+  .dash-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px; }
+  .metric-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; text-align: center; }
+  .metric-card .label { font-size: 12px; color: #718096; font-weight: 600; }
+  .metric-card .num { font-size: 26px; font-weight: 800; font-family: monospace; margin-top: 4px; }
+  .metric-card .num.good { color: #059669; }
+  .metric-card .num.warn { color: #d97706; }
+  .metric-card .num.bad { color: #dc2626; }
+  .chart-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .chart-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; }
+  .chart-box h4 { margin: 0 0 6px; font-size: 13px; color: #4a5568; }
+
+  /* ---- Module 3: load test ---- */
+  .lt-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 12px 0; }
+  .lt-stat { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; text-align: center; }
+  .lt-stat .l { font-size: 11px; color: #718096; font-weight: 600; }
+  .lt-stat .v { font-size: 20px; font-weight: 800; font-family: monospace; margin-top: 3px; color: #2d3748; }
+  .verdict { padding: 10px 14px; border-radius: 8px; font-size: 14px; font-weight: 600; margin-top: 10px; }
+  .verdict.pass { background: #ecfdf5; color: #059669; border: 1px solid #6ee7b7; }
+  .verdict.fail { background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
+
+  @media (max-width: 768px) {
+    .dash-grid { grid-template-columns: repeat(2, 1fr); }
+    .chart-wrap { grid-template-columns: 1fr; }
+    .lt-stats { grid-template-columns: repeat(2, 1fr); }
+    .pipe { flex-direction: column; }
+    .arrow { transform: rotate(90deg); }
+  }
+  @media (max-width: 480px) {
+    .dash-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-83-capstone-implement/visualization.html">← L83: Capstone Implement</a>
+  <span class="sep">·</span>
+  <span class="current">L84: Deploy &amp; Observe</span>
+  <span class="sep">·</span>
+  <a href="../index.html">🏁 Hoàn thành</a>
+</nav>
+
+<main>
+  <h1>L84 — Capstone: Deploy &amp; Observe</h1>
+  <p class="lead">Lesson cuối cùng của lộ trình. Ba mô phỏng tương tác: (1) Deploy pipeline — code → docker → k8s → pod chạy; (2) Observability dashboard — RED metrics + cache hit + queue depth live; (3) Load test — ramp req/s, xem p50/p99 + error rate, bottleneck lộ ra.</p>
+
+  <!-- ===================== MODULE 1 ===================== -->
+  <section class="module" id="m1">
+    <h2>1 · Deploy Pipeline — code → docker → k8s → pods</h2>
+    <p class="desc">Bấm <b>Chạy pipeline</b> để xem service URL Shortener đi từ source code, qua build image multi-stage, push registry, deploy Kubernetes, tới 3 pod chạy thật. Bấm <b>Scale</b> để HPA thêm pod khi tải tăng.</p>
+    <div class="controls">
+      <button id="m1-run">▶ Chạy pipeline</button>
+      <button id="m1-scale" class="sec" disabled>⬆ Scale (HPA +2 pod)</button>
+      <button id="m1-reset" class="sec">↺ Reset</button>
+    </div>
+    <div class="pipe" id="m1-pipe">
+      <div class="stage" data-i="0"><div class="icon">📝</div><div class="name">Code</div><div class="sub">git push main</div></div>
+      <div class="arrow">→</div>
+      <div class="stage" data-i="1"><div class="icon">🧪</div><div class="name">Test</div><div class="sub">go test (gate)</div></div>
+      <div class="arrow">→</div>
+      <div class="stage" data-i="2"><div class="icon">🐳</div><div class="name">Docker</div><div class="sub">multi-stage ~12MB</div></div>
+      <div class="arrow">→</div>
+      <div class="stage" data-i="3"><div class="icon">📦</div><div class="name">Push</div><div class="sub">ghcr.io :sha</div></div>
+      <div class="arrow">→</div>
+      <div class="stage" data-i="4"><div class="icon">☸️</div><div class="name">K8s apply</div><div class="sub">rollout</div></div>
+    </div>
+    <div class="pods" id="m1-pods"></div>
+    <div class="log" id="m1-log"></div>
+  </section>
+
+  <!-- ===================== MODULE 2 ===================== -->
+  <section class="module" id="m2">
+    <h2>2 · Observability Dashboard — RED + cache + queue (live)</h2>
+    <p class="desc">Mô phỏng dashboard Grafana. Kéo thanh <b>Tải</b> và <b>Cache TTL</b> để xem RED metrics (Rate/Errors/Duration), cache hit ratio và queue depth phản ứng theo thời gian thực — đúng các metric trong <code>observability.go</code>.</p>
+    <div class="controls">
+      <div class="ctrl">
+        <label>Tải (req/s): <span class="val" id="m2-load-v">300</span></label>
+        <input type="range" id="m2-load" min="50" max="2000" step="50" value="300">
+      </div>
+      <div class="ctrl">
+        <label>Cache TTL: <span class="val" id="m2-ttl-v">3600s</span></label>
+        <input type="range" id="m2-ttl" min="0" max="3600" step="60" value="3600">
+      </div>
+      <div class="ctrl">
+        <label>Workers: <span class="val" id="m2-w-v">4</span></label>
+        <input type="range" id="m2-w" min="1" max="8" step="1" value="4">
+      </div>
+      <button id="m2-toggle" class="sec">⏸ Tạm dừng</button>
+    </div>
+    <div class="dash-grid">
+      <div class="metric-card"><div class="label">Rate (req/s)</div><div class="num" id="m2-rate">300</div></div>
+      <div class="metric-card"><div class="label">Error rate</div><div class="num good" id="m2-err">0.1%</div></div>
+      <div class="metric-card"><div class="label">p99 latency</div><div class="num good" id="m2-p99">28ms</div></div>
+      <div class="metric-card"><div class="label">Cache hit</div><div class="num good" id="m2-cache">94%</div></div>
+      <div class="metric-card"><div class="label">Queue depth</div><div class="num good" id="m2-queue">12</div></div>
+      <div class="metric-card"><div class="label">Clicks/s</div><div class="num good" id="m2-clicks">300</div></div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-box"><h4>Latency p50 / p99 (ms)</h4><svg id="m2-lat" width="500" height="140" viewBox="0 0 500 140"></svg></div>
+      <div class="chart-box"><h4>Queue depth</h4><svg id="m2-q" width="500" height="140" viewBox="0 0 500 140"></svg></div>
+    </div>
+  </section>
+
+  <!-- ===================== MODULE 3 ===================== -->
+  <section class="module" id="m3">
+    <h2>3 · Load Test — ramp req/s, p50/p99, error, bottleneck</h2>
+    <p class="desc">Bấm <b>Chạy load test</b> để ramp từ 100 → mục tiêu req/s. Chọn cấu hình <b>chưa tối ưu</b> (TTL ngắn, 1 worker) để thấy bottleneck lộ ra (p99 vọt, error tăng), rồi <b>đã tối ưu</b> để thấy before/after.</p>
+    <div class="controls">
+      <div class="ctrl">
+        <label>Mục tiêu (req/s): <span class="val" id="m3-target-v">1000</span></label>
+        <input type="range" id="m3-target" min="200" max="2000" step="100" value="1000">
+      </div>
+      <div class="ctrl">
+        <label>Cấu hình</label>
+        <select id="m3-cfg" style="padding:6px;border-radius:6px;border:1px solid #cbd5e0;font-size:13px">
+          <option value="bad">Chưa tối ưu (TTL 60s, 1 worker)</option>
+          <option value="good" selected>Đã tối ưu (TTL 3600s, 4 worker)</option>
+        </select>
+      </div>
+      <button id="m3-run">▶ Chạy load test</button>
+    </div>
+    <div class="lt-stats">
+      <div class="lt-stat"><div class="l">Throughput</div><div class="v" id="m3-tp">—</div></div>
+      <div class="lt-stat"><div class="l">p50</div><div class="v" id="m3-p50">—</div></div>
+      <div class="lt-stat"><div class="l">p99</div><div class="v" id="m3-p99">—</div></div>
+      <div class="lt-stat"><div class="l">Error rate</div><div class="v" id="m3-err">—</div></div>
+    </div>
+    <div class="chart-box"><h4>Tải bắn (req/s) theo thời gian — ramp</h4><svg id="m3-chart" width="900" height="160" viewBox="0 0 900 160"></svg></div>
+    <div class="verdict" id="m3-verdict" style="display:none"></div>
+  </section>
+</main>
+
+<script>
+/* ===================== MODULE 1 — Deploy pipeline ===================== */
+(function () {
+  const stages = [...document.querySelectorAll('#m1-pipe .stage')];
+  const podsEl = document.getElementById('m1-pods');
+  const logEl = document.getElementById('m1-log');
+  const runBtn = document.getElementById('m1-run');
+  const scaleBtn = document.getElementById('m1-scale');
+  const resetBtn = document.getElementById('m1-reset');
+  let timers = [];
+
+  function log(msg, cls) {
+    const d = document.createElement('div');
+    if (cls) d.className = cls;
+    d.textContent = msg;
+    logEl.appendChild(d);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+  function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+  function reset() {
+    clearTimers();
+    stages.forEach(s => s.className = 'stage');
+    podsEl.innerHTML = '';
+    logEl.innerHTML = '';
+    runBtn.disabled = false; scaleBtn.disabled = true;
+  }
+  function addPod(starting) {
+    const p = document.createElement('div');
+    p.className = 'pod ' + (starting ? 'starting' : 'up');
+    p.textContent = '☸';
+    podsEl.appendChild(p);
+    return p;
+  }
+  const steps = [
+    { msg: 'git push origin main → trigger GitHub Actions', cls: '' },
+    { msg: 'go vet ./... && go test ./...  →  PASS (gate)', cls: 'ok' },
+    { msg: 'docker build (multi-stage scratch) → image 12MB', cls: 'ok' },
+    { msg: 'docker push ghcr.io/you/urlshortener:a1b2c3d', cls: '' },
+    { msg: 'kubectl apply -f k8s/ → rollout 3 replica', cls: '' },
+  ];
+  runBtn.onclick = function () {
+    reset(); runBtn.disabled = true;
+    steps.forEach((st, i) => {
+      timers.push(setTimeout(() => {
+        stages.forEach(s => s.classList.remove('active'));
+        if (i > 0) stages[i - 1].classList.add('done');
+        stages[i].classList.add('active');
+        log('▸ ' + st.msg, st.cls);
+        if (i === steps.length - 1) {
+          // tạo 3 pod: starting -> up
+          for (let k = 0; k < 3; k++) {
+            timers.push(setTimeout(() => {
+              const p = addPod(true);
+              timers.push(setTimeout(() => {
+                p.className = 'pod up';
+                log('  pod-' + (k + 1) + ' Ready (readinessProbe /healthz 200)', 'ok');
+                if (k === 2) {
+                  stages[i].classList.add('done'); stages[i].classList.remove('active');
+                  log('✔ rollout complete — zero downtime (maxUnavailable:0)', 'ok');
+                  scaleBtn.disabled = false;
+                }
+              }, 900));
+            }, k * 500));
+          }
+        }
+      }, i * 900));
+    });
+  };
+  scaleBtn.onclick = function () {
+    log('▸ HPA: CPU 85% > 70% → scale +2 pod', 'warn');
+    for (let k = 0; k < 2; k++) {
+      timers.push(setTimeout(() => {
+        const p = addPod(true);
+        timers.push(setTimeout(() => { p.className = 'pod up'; log('  pod mới Ready (HPA)', 'ok'); }, 800));
+      }, k * 400));
+    }
+  };
+  resetBtn.onclick = reset;
+})();
+
+/* ===================== MODULE 2 — Observability dashboard ===================== */
+(function () {
+  const loadEl = document.getElementById('m2-load'), loadV = document.getElementById('m2-load-v');
+  const ttlEl = document.getElementById('m2-ttl'), ttlV = document.getElementById('m2-ttl-v');
+  const wEl = document.getElementById('m2-w'), wV = document.getElementById('m2-w-v');
+  const toggle = document.getElementById('m2-toggle');
+  const latSvg = document.getElementById('m2-lat'), qSvg = document.getElementById('m2-q');
+  const latHist = [], qHist = [], MAX = 50;
+  let running = true, queueDepth = 12;
+
+  function setNum(id, val, cls) {
+    const el = document.getElementById(id);
+    el.textContent = val;
+    el.className = 'num ' + cls;
+  }
+  function classify(v, goodMax, warnMax) { return v <= goodMax ? 'good' : v <= warnMax ? 'warn' : 'bad'; }
+
+  function tick() {
+    const load = +loadEl.value;        // req/s
+    const ttl = +ttlEl.value;          // cache TTL
+    const workers = +wEl.value;
+    // cache hit ratio: TTL cao -> hit cao; bão hoà ~0.96
+    const cacheHit = Math.min(0.96, 0.45 + (ttl / 3600) * 0.51);
+    // p99: base + phần do cache miss đi DB + phần do tải gần năng lực
+    const missPenalty = (1 - cacheHit) * 600;        // miss -> DB chậm
+    const loadPenalty = Math.max(0, (load - 1000)) * 0.25; // quá 1000/s -> căng
+    const p99 = Math.round(20 + missPenalty + loadPenalty + Math.random() * 6);
+    const p50 = Math.round(3 + (1 - cacheHit) * 20 + Math.random() * 2);
+    // worker capacity: mỗi worker ~300 click/s
+    const capacity = workers * 300;
+    const inflow = load;
+    queueDepth = Math.max(0, Math.round(queueDepth + (inflow - capacity) * 0.05));
+    queueDepth = Math.min(queueDepth, 4096);
+    const clicks = Math.min(inflow, capacity);
+    // error rate: tăng khi queue gần đầy hoặc tải > năng lực tổng
+    let err = 0.1;
+    if (queueDepth > 3000) err += (queueDepth - 3000) / 1000 * 0.8;
+    if (load > 1500) err += (load - 1500) / 500 * 0.6;
+    err = Math.min(err, 8);
+
+    setNum('m2-rate', load, 'good');
+    setNum('m2-err', err.toFixed(1) + '%', classify(err, 1, 3));
+    setNum('m2-p99', p99 + 'ms', classify(p99, 50, 100));
+    setNum('m2-cache', Math.round(cacheHit * 100) + '%', cacheHit >= 0.9 ? 'good' : cacheHit >= 0.7 ? 'warn' : 'bad');
+    setNum('m2-queue', queueDepth, classify(queueDepth, 500, 3000));
+    setNum('m2-clicks', clicks, 'good');
+
+    latHist.push({ p50, p99 }); if (latHist.length > MAX) latHist.shift();
+    qHist.push(queueDepth); if (qHist.length > MAX) qHist.shift();
+    drawLat(); drawQ();
+  }
+  function poly(svg, vals, max, color, w, h) {
+    const pad = 6, n = vals.length;
+    if (n < 2) return '';
+    return vals.map((v, i) => {
+      const x = pad + (i / (MAX - 1)) * (w - 2 * pad);
+      const y = h - pad - (Math.min(v, max) / max) * (h - 2 * pad);
+      return (i === 0 ? 'M' : 'L') + x.toFixed(1) + ',' + y.toFixed(1);
+    }).join(' ');
+  }
+  function drawLat() {
+    const w = 500, h = 140, max = 200;
+    const p50d = poly(latSvg, latHist.map(d => d.p50), max, '#3b82f6', w, h);
+    const p99d = poly(latSvg, latHist.map(d => d.p99), max, '#f97316', w, h);
+    // SLO line p99<50ms
+    const yslo = h - 6 - (50 / max) * (h - 12);
+    latSvg.innerHTML =
+      `<line x1="6" y1="${yslo}" x2="${w - 6}" y2="${yslo}" stroke="#dc2626" stroke-dasharray="4 3" stroke-width="1"/>` +
+      `<text x="${w - 6}" y="${yslo - 3}" text-anchor="end" font-size="9" fill="#dc2626">SLO p99 50ms</text>` +
+      `<path d="${p50d}" fill="none" stroke="#3b82f6" stroke-width="2"/>` +
+      `<path d="${p99d}" fill="none" stroke="#f97316" stroke-width="2"/>` +
+      `<text x="8" y="12" font-size="10" fill="#3b82f6">p50</text>` +
+      `<text x="38" y="12" font-size="10" fill="#f97316">p99</text>`;
+  }
+  function drawQ() {
+    const w = 500, h = 140, max = 4096;
+    const d = poly(qSvg, qHist, max, '#8b5cf6', w, h);
+    const ywarn = h - 6 - (3000 / max) * (h - 12);
+    qSvg.innerHTML =
+      `<line x1="6" y1="${ywarn}" x2="${w - 6}" y2="${ywarn}" stroke="#d97706" stroke-dasharray="4 3" stroke-width="1"/>` +
+      `<text x="${w - 6}" y="${ywarn - 3}" text-anchor="end" font-size="9" fill="#d97706">backlog 3000</text>` +
+      `<path d="${d}" fill="none" stroke="#8b5cf6" stroke-width="2"/>`;
+  }
+  loadEl.oninput = () => loadV.textContent = loadEl.value;
+  ttlEl.oninput = () => ttlV.textContent = ttlEl.value + 's';
+  wEl.oninput = () => wV.textContent = wEl.value;
+  toggle.onclick = () => { running = !running; toggle.textContent = running ? '⏸ Tạm dừng' : '▶ Tiếp tục'; };
+  setInterval(() => { if (running) tick(); }, 600);
+  tick();
+})();
+
+/* ===================== MODULE 3 — Load test ===================== */
+(function () {
+  const targetEl = document.getElementById('m3-target'), targetV = document.getElementById('m3-target-v');
+  const cfgEl = document.getElementById('m3-cfg');
+  const runBtn = document.getElementById('m3-run');
+  const chart = document.getElementById('m3-chart');
+  const verdict = document.getElementById('m3-verdict');
+  let anim = null;
+
+  targetEl.oninput = () => targetV.textContent = targetEl.value;
+
+  function setStats(tp, p50, p99, err) {
+    document.getElementById('m3-tp').textContent = tp;
+    document.getElementById('m3-p50').textContent = p50;
+    document.getElementById('m3-p99').textContent = p99;
+    document.getElementById('m3-err').textContent = err;
+  }
+
+  runBtn.onclick = function () {
+    if (anim) clearInterval(anim);
+    const target = +targetEl.value;
+    const good = cfgEl.value === 'good';
+    verdict.style.display = 'none';
+    runBtn.disabled = true;
+
+    // ramp: 0..target trong ~30 bước
+    const pts = [], STEPS = 60, w = 900, h = 160, pad = 24;
+    let i = 0;
+    const cap = good ? 1300 : 600; // năng lực phục vụ (req/s) theo cấu hình
+    anim = setInterval(() => {
+      i++;
+      // ramp lên rồi giữ
+      const frac = Math.min(1, i / (STEPS * 0.4));
+      const sent = Math.round(target * frac);
+      pts.push(sent);
+      // vẽ
+      const maxY = Math.max(target, cap) * 1.1;
+      const line = pts.map((v, k) => {
+        const x = pad + (k / (STEPS - 1)) * (w - 2 * pad);
+        const y = h - pad - (v / maxY) * (h - 2 * pad);
+        return (k === 0 ? 'M' : 'L') + x.toFixed(1) + ',' + y.toFixed(1);
+      }).join(' ');
+      const ycap = h - pad - (cap / maxY) * (h - 2 * pad);
+      chart.innerHTML =
+        `<line x1="${pad}" y1="${ycap}" x2="${w - pad}" y2="${ycap}" stroke="#dc2626" stroke-dasharray="5 4" stroke-width="1.5"/>` +
+        `<text x="${w - pad}" y="${ycap - 4}" text-anchor="end" font-size="11" fill="#dc2626">năng lực ~${cap} req/s</text>` +
+        `<path d="${line}" fill="none" stroke="#f97316" stroke-width="2.5"/>` +
+        `<text x="${pad}" y="14" font-size="11" fill="#718096">đang bắn: ${sent} req/s</text>`;
+
+      // cập nhật stats live
+      const overload = sent > cap;
+      const tp = Math.min(sent, cap);
+      const p50 = good ? 3 + Math.random() * 2 : (overload ? 15 : 8) + Math.random() * 3;
+      const p99 = good ? 24 + (overload ? (sent - cap) * 0.05 : 0) + Math.random() * 5
+                       : (overload ? 200 + (sent - cap) * 0.4 : 90) + Math.random() * 30;
+      let err = good ? 0.1 : (overload ? 1 + (sent - cap) / 100 : 0.5);
+      err = Math.min(err, 9);
+      setStats(tp + ' req/s', p50.toFixed(0) + 'ms', p99.toFixed(0) + 'ms', err.toFixed(1) + '%');
+
+      if (i >= STEPS) {
+        clearInterval(anim); anim = null; runBtn.disabled = false;
+        const finalP99 = p99, finalErr = err;
+        if (finalP99 < 50 && finalErr < 1) {
+          verdict.className = 'verdict pass';
+          verdict.textContent = '✓ ĐẠT SLO: p99 ' + finalP99.toFixed(0) + 'ms < 50ms, error ' + finalErr.toFixed(1) + '% < 1%. Service chịu tải tốt.';
+        } else {
+          verdict.className = 'verdict fail';
+          let why = [];
+          if (finalP99 >= 50) why.push('p99 ' + finalP99.toFixed(0) + 'ms > 50ms (cache miss cao / quá năng lực → DB chậm)');
+          if (finalErr >= 1) why.push('error ' + finalErr.toFixed(1) + '% > 1% (tải vượt năng lực, queue drop)');
+          verdict.textContent = '⚠ VI PHẠM SLO: ' + why.join('; ') + '. Bottleneck → tăng TTL cache + thêm worker (xem cấu hình "Đã tối ưu").';
+        }
+        verdict.style.display = 'block';
+      }
+    }, 60);
+  };
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L83 — Capstone Implement · Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root { --accent: #0ea5e9; --accent-soft: #e0f2fe; --accent-hover: #0284c7; }
+  main { max-width: 1100px; }
+  h1 { color: #0c4a6e; margin-bottom: 4px; }
+  .lead { color: #64748b; margin-bottom: 24px; font-size: 15px; }
+  section.module {
+    background: #fff; border-radius: 10px; padding: 22px;
+    margin-bottom: 28px; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+  section.module h2 { margin-top: 0; color: #0369a1; font-size: 20px; }
+  .hint { color: #64748b; font-size: 14px; margin-bottom: 16px; }
+
+  .btn {
+    border: none; background: var(--accent); color: #fff; cursor: pointer;
+    padding: 8px 14px; border-radius: 7px; font-size: 14px; font-weight: 600;
+    margin: 4px 4px 4px 0;
+  }
+  .btn:hover { background: var(--accent-hover); }
+  .btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+  .btn.ghost { background: #eef2f7; color: #1e293b; }
+  .btn.ghost.active { background: var(--accent); color: #fff; }
+
+  /* ===== Module 1 — clickable architecture ===== */
+  .arch-grid { display: flex; flex-wrap: wrap; gap: 18px; }
+  .arch-tree { flex: 1 1 360px; min-width: 0; }
+  .arch-detail { flex: 1 1 340px; min-width: 0; }
+  .layer {
+    border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer;
+    border: 2px solid transparent; transition: all .15s; font-size: 14px;
+  }
+  .layer .lname { font-weight: 700; }
+  .layer .lfiles { font-size: 12px; opacity: .8; margin-top: 2px; }
+  .layer.domain  { background: #fef9c3; color: #713f12; border-color: #fde047; margin-left: 0; }
+  .layer.usecase { background: #dbeafe; color: #1e3a8a; border-color: #93c5fd; margin-left: 18px; }
+  .layer.adapter { background: #dcfce7; color: #14532d; border-color: #86efac; margin-left: 36px; }
+  .layer.root    { background: #fae8ff; color: #701a75; border-color: #e9d5ff; margin-left: 0; }
+  .layer.active { box-shadow: 0 0 0 3px var(--accent); transform: translateX(2px); }
+  .arch-detail .card {
+    border-left: 4px solid var(--accent); background: #f8fafc;
+    padding: 12px 14px; border-radius: 6px; min-height: 160px;
+  }
+  .arch-detail h3 { margin: 0 0 6px; font-size: 16px; color: #0369a1; }
+  .arch-detail code, .arch-detail pre { background: #e2e8f0; border-radius: 4px; }
+  .arch-detail code { padding: 1px 5px; font-size: 13px; }
+  .arch-detail pre { padding: 10px; overflow-x: auto; font-size: 13px; margin: 8px 0; }
+  .dep-note { margin-top: 12px; padding: 8px 10px; border-radius: 6px; font-size: 13px;
+    background: #f0f9ff; border: 1px solid #bae6fd; color: #075985; }
+
+  /* ===== Module 2 — request flow ===== */
+  .flow-tabs { margin-bottom: 12px; }
+  .flow-stage {
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; margin: 14px 0;
+  }
+  .node {
+    flex: 1 1 130px; min-width: 0; border-radius: 8px; padding: 10px;
+    font-size: 13px; text-align: center; border: 2px solid #e2e8f0;
+    background: #f8fafc; color: #475569; transition: all .3s; opacity: .35;
+  }
+  .node .nt { font-weight: 700; display: block; margin-bottom: 3px; }
+  .node.on { opacity: 1; border-color: var(--accent); background: var(--accent-soft); color: #0c4a6e; }
+  .node.hit { border-color: #22c55e; background: #dcfce7; color: #14532d; }
+  .node.miss { border-color: #f59e0b; background: #fef3c7; color: #78350f; }
+  .flow-log {
+    margin-top: 12px; background: #0f172a; color: #e2e8f0; border-radius: 8px;
+    padding: 12px; font-family: ui-monospace, monospace; font-size: 13px;
+    min-height: 80px; white-space: pre-wrap;
+  }
+
+  /* ===== Module 3 — async pipeline ===== */
+  .pipe-wrap { }
+  .pipe-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+  .pipe-col { flex: 1 1 200px; min-width: 0; }
+  .pipe-box {
+    border-radius: 8px; padding: 12px; border: 2px solid #e2e8f0; background: #f8fafc;
+    text-align: center;
+  }
+  .pipe-box h4 { margin: 0 0 8px; font-size: 14px; color: #0369a1; }
+  .channel {
+    min-height: 56px; display: flex; flex-wrap: wrap; gap: 4px; padding: 6px;
+    background: #1e293b; border-radius: 6px; align-items: center; justify-content: center;
+  }
+  .ev {
+    width: 22px; height: 22px; border-radius: 50%; background: var(--accent);
+    color: #fff; font-size: 11px; display: flex; align-items: center; justify-content: center;
+    animation: pop .2s ease-out;
+  }
+  @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
+  .agg-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 6px; }
+  .agg-table th, .agg-table td { border: 1px solid #e2e8f0; padding: 4px 8px; text-align: left; }
+  .agg-table th { background: #f1f5f9; }
+  .blocking-note { margin-top: 14px; padding: 10px 12px; border-radius: 6px; font-size: 14px; }
+  .blocking-note.good { background: #f0fdf4; border: 1px solid #86efac; color: #14532d; }
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+  .badge.fast { background: #dcfce7; color: #14532d; }
+  .badge.bg { background: #fef3c7; color: #78350f; }
+
+  @media (max-width: 480px) {
+    .layer.usecase { margin-left: 12px; }
+    .layer.adapter { margin-left: 24px; }
+    .node { flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-82-capstone-design/visualization.html">← L82: Capstone Design</a>
+  <span class="sep">·</span>
+  <span class="current">L83: Capstone Implement</span>
+  <span class="sep">·</span>
+  <a href="../lesson-84-capstone-deploy-observe/visualization.html">L84: Deploy &amp; Observe →</a>
+</nav>
+
+<main>
+  <h1>L83 — Capstone: Implement Phase</h1>
+  <p class="lead">URL Shortener có Analytics. Ba module tương tác: kiến trúc clean, luồng request (shorten / redirect cache-first / stats), và async click pipeline non-blocking.</p>
+
+  <!-- ============ MODULE 1 ============ -->
+  <section class="module" id="m1">
+    <h2>1 · Kiến trúc Clean — bấm vào từng tầng</h2>
+    <p class="hint">Mũi tên phụ thuộc luôn trỏ VÀO TRONG: adapter → usecase → domain. Bấm một tầng để xem nó chứa gì và import gì.</p>
+    <div class="arch-grid">
+      <div class="arch-tree" id="archTree">
+        <div class="layer domain"  data-k="domain"><span class="lname">domain</span><div class="lfiles">url.go · click.go — entity + business rule</div></div>
+        <div class="layer usecase" data-k="usecase"><span class="lname">usecase</span><div class="lfiles">ports.go · shorten/redirect/stats.go</div></div>
+        <div class="layer adapter" data-k="http"><span class="lname">adapter/http</span><div class="lfiles">handler.go · middleware.go (driving)</div></div>
+        <div class="layer adapter" data-k="memory"><span class="lname">adapter/memory</span><div class="lfiles">url_repo · cache · queue (driven)</div></div>
+        <div class="layer adapter" data-k="analytics"><span class="lname">adapter/analytics</span><div class="lfiles">worker.go (consumer + StatsStore)</div></div>
+        <div class="layer root"    data-k="root"><span class="lname">cmd/server</span><div class="lfiles">main.go — composition root</div></div>
+      </div>
+      <div class="arch-detail">
+        <div class="card" id="archCard"></div>
+        <div class="dep-note" id="archDep"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MODULE 2 ============ -->
+  <section class="module" id="m2">
+    <h2>2 · Luồng request — shorten / redirect / stats</h2>
+    <p class="hint">Chọn một luồng rồi bấm "Chạy" để xem từng bước. Để ý redirect tra cache TRƯỚC (cache-first), miss thì mới vào repo và populate.</p>
+    <div class="flow-tabs">
+      <button class="btn ghost active" data-flow="shorten">POST /api/shorten</button>
+      <button class="btn ghost" data-flow="redirectHit">GET /{code} (cache HIT)</button>
+      <button class="btn ghost" data-flow="redirectMiss">GET /{code} (cache MISS)</button>
+      <button class="btn ghost" data-flow="stats">GET /api/stats/{code}</button>
+    </div>
+    <div class="flow-stage" id="flowStage"></div>
+    <button class="btn" id="flowRun">▶ Chạy</button>
+    <button class="btn ghost" id="flowReset">Reset</button>
+    <div class="flow-log" id="flowLog">Chọn luồng và bấm Chạy…</div>
+  </section>
+
+  <!-- ============ MODULE 3 ============ -->
+  <section class="module" id="m3">
+    <h2>3 · Async click pipeline — non-blocking</h2>
+    <p class="hint">Bấm "Click redirect" nhiều lần. Redirect <b>trả 302 ngay</b> (fast path) rồi ném event vào channel; worker tiêu thụ ở background và aggregate. Redirect KHÔNG chờ worker.</p>
+    <div class="pipe-row">
+      <div class="pipe-col">
+        <div class="pipe-box">
+          <h4>Redirect <span class="badge fast">~1µs</span></h4>
+          <div>emit click → trả 302</div>
+          <button class="btn" id="pipeClick" style="margin-top:8px">Click redirect</button>
+        </div>
+      </div>
+      <div class="pipe-col">
+        <div class="pipe-box">
+          <h4>Channel (buffer)</h4>
+          <div class="channel" id="pipeChannel"></div>
+        </div>
+      </div>
+      <div class="pipe-col">
+        <div class="pipe-box">
+          <h4>Worker <span class="badge bg">background</span></h4>
+          <div>consume → aggregate</div>
+          <label style="display:block;margin-top:8px;font-size:13px">
+            <input type="checkbox" id="pipeWorkerOn" checked> worker đang chạy
+          </label>
+        </div>
+      </div>
+    </div>
+    <table class="agg-table" id="pipeAgg">
+      <thead><tr><th>Chỉ số (read model)</th><th>Giá trị</th></tr></thead>
+      <tbody>
+        <tr><td>total_clicks (đã aggregate)</td><td id="aggTotal">0</td></tr>
+        <tr><td>event còn trong channel</td><td id="aggPending">0</td></tr>
+        <tr><td>redirect đã trả 302</td><td id="aggServed">0</td></tr>
+      </tbody>
+    </table>
+    <div class="blocking-note good" id="pipeNote">
+      Redirect đã phục vụ <b>0</b> lần mà không chờ worker. Tắt worker để thấy event dồn lại trong channel mà redirect <b>vẫn nhanh</b> — đó là ý nghĩa "non-blocking".
+    </div>
+    <button class="btn ghost" id="pipeReset" style="margin-top:10px">Reset</button>
+  </section>
+</main>
+
+<script>
+/* ===================== MODULE 1 ===================== */
+const ARCH = {
+  domain: {
+    title: "domain — lõi, không phụ thuộc ai",
+    body: "Entity URL, Click + business rule (validURL, IsExpired). Sentinel errors (ErrURLNotFound…).",
+    code: "func NewURL(code, original string, t time.Time) (*URL, error) {\n  if !validURL(original) { return nil, ErrInvalidURL }\n  ...\n}",
+    dep: "Import: chỉ stdlib. KHÔNG import usecase/adapter/DB."
+  },
+  usecase: {
+    title: "usecase — application logic + định nghĩa port",
+    body: "ShortenUsecase, RedirectUsecase, StatsUsecase. Định nghĩa interface (port) mà nó CẦN: URLRepository, Cache, ClickQueue, StatsStore.",
+    code: "type URLRepository interface {\n  Save(ctx, *URL) error\n  FindByCode(ctx, code) (*URL, error)\n  ...\n}",
+    dep: "Import: domain (+ pkg/base62). KHÔNG biết Postgres/Redis là gì."
+  },
+  http: {
+    title: "adapter/http — driving adapter",
+    body: "Nhận HTTP request, decode JSON, gọi usecase, encode response. RFC 7807 cho lỗi. Middleware: requestID, logger, recover, rate limit.",
+    code: 'mux.HandleFunc("POST /api/shorten", h.shorten)\nmux.HandleFunc("GET /{code}", h.redirect)\nmux.HandleFunc("GET /api/stats/{code}", h.stats)',
+    dep: "Import: usecase, domain. Định nghĩa driving port nhỏ (Shortener/Resolver/Statser) để test với mock."
+  },
+  memory: {
+    title: "adapter/memory — driven adapter (in-memory)",
+    body: "Implement URLRepository (map+mutex), Cache (map+TTL), ClickQueue (Go channel). Production: thay bằng Postgres/Redis/Kafka — interface giữ nguyên.",
+    code: "func (q *ClickQueue) Enqueue(c Click) {\n  select {\n  case q.ch <- c:   // gửi được\n  default:          // đầy -> drop, KHÔNG block\n  }\n}",
+    dep: "Import: usecase (để thỏa interface), domain. Đây là nơi DUY NHẤT được import DB driver."
+  },
+  analytics: {
+    title: "adapter/analytics — consumer + read model",
+    body: "Worker tiêu thụ ClickQueue, aggregate (total, byDay, byRef, uniqueIP). Đồng thời thỏa StatsStore để usecase GetStats đọc.",
+    code: "func (w *Worker) apply(c Click) {\n  a.total++\n  a.byDay[DayKey(c.Timestamp)]++\n  a.byRef[c.Referrer]++\n}",
+    dep: "Import: domain. Chạy trong goroutine: go worker.Run(ctx)."
+  },
+  root: {
+    title: "cmd/server — composition root",
+    body: "Nơi DUY NHẤT biết implementation cụ thể. Wire adapter in-memory vào usecase, start worker, bọc middleware, graceful shutdown.",
+    code: "repo  := memory.NewURLRepository()\ncache := memory.NewCache()\nqueue := memory.NewClickQueue(1024)\nredirectUC := usecase.NewRedirect(repo, cache, queue, clock)",
+    dep: "Muốn dùng Postgres? CHỈ sửa file này. Usecase/domain/handler không đổi."
+  }
+};
+const archTree = document.getElementById('archTree');
+const archCard = document.getElementById('archCard');
+const archDep = document.getElementById('archDep');
+function selectLayer(k) {
+  archTree.querySelectorAll('.layer').forEach(l => l.classList.toggle('active', l.dataset.k === k));
+  const a = ARCH[k];
+  archCard.innerHTML = '<h3>' + a.title + '</h3><p style="font-size:14px;margin:6px 0">' + a.body + '</p><pre>' + a.code.replace(/</g,'&lt;') + '</pre>';
+  archDep.textContent = a.dep;
+}
+archTree.querySelectorAll('.layer').forEach(l => l.addEventListener('click', () => selectLayer(l.dataset.k)));
+selectLayer('domain');
+
+/* ===================== MODULE 2 ===================== */
+const FLOWS = {
+  shorten: {
+    nodes: [["Client","on"],["handler.shorten","on"],["ShortenUC","on"],["repo.Save","on"],["cache.SetURL","hit"]],
+    log: [
+      "POST /api/shorten {\"url\":\"https://go.dev\"}",
+      "→ ShortenUsecase.Shorten()",
+      "→ generateCode() = random base62 (7 ký tự) → \"aZ3kP9x\"",
+      "→ domain.NewURL() validate URL ✓",
+      "→ repo.Save(url)",
+      "→ cache.SetURL() WARM cache (lần redirect đầu sẽ hit)",
+      "201 Created {\"code\":\"aZ3kP9x\",\"short_url\":\".../aZ3kP9x\"}"
+    ]
+  },
+  redirectHit: {
+    nodes: [["Client","on"],["handler.redirect","on"],["RedirectUC","on"],["cache.GetURL","hit"],["emit click →queue","on"]],
+    log: [
+      "GET /aZ3kP9x   Referer: twitter.com",
+      "→ RedirectUsecase.Resolve()",
+      "→ cache.GetURL(\"aZ3kP9x\") → HIT ✓ (~1µs, không chạm repo)",
+      "→ emitClick() → đẩy event vào queue (ASYNC, không chờ)",
+      "302 Found  Location: https://go.dev"
+    ]
+  },
+  redirectMiss: {
+    nodes: [["Client","on"],["RedirectUC","on"],["cache.GetURL","miss"],["repo.FindByCode","on"],["cache.SetURL +emit","on"]],
+    log: [
+      "GET /aZ3kP9x",
+      "→ cache.GetURL() → MISS",
+      "→ repo.FindByCode(\"aZ3kP9x\") → found (nguồn sự thật)",
+      "→ kiểm tra IsExpired() → còn hạn",
+      "→ cache.SetURL() POPULATE (lần sau hit)",
+      "→ emitClick() ASYNC",
+      "302 Found  Location: https://go.dev"
+    ]
+  },
+  stats: {
+    nodes: [["Client","on"],["handler.stats","on"],["StatsUC","on"],["repo.FindByCode","on"],["store.Snapshot","hit"]],
+    log: [
+      "GET /api/stats/aZ3kP9x",
+      "→ StatsUsecase.Get()",
+      "→ repo.FindByCode() xác minh code tồn tại (404 nếu không)",
+      "→ store.Snapshot() đọc read model do worker aggregate",
+      "200 OK {total_clicks:3, clicks_by_day:{...}, top_referrers:[twitter:3]}"
+    ]
+  }
+};
+let curFlow = 'shorten';
+const flowStage = document.getElementById('flowStage');
+const flowLog = document.getElementById('flowLog');
+let flowTimer = null;
+function renderFlow(name) {
+  curFlow = name;
+  flowStage.innerHTML = '';
+  FLOWS[name].nodes.forEach((n, i) => {
+    const d = document.createElement('div');
+    d.className = 'node';
+    d.dataset.kind = n[1];
+    d.innerHTML = '<span class="nt">'+(i+1)+'</span>'+n[0];
+    flowStage.appendChild(d);
+  });
+  flowLog.textContent = 'Bấm Chạy để xem từng bước…';
+}
+function runFlow() {
+  clearInterval(flowTimer);
+  const nodes = [...flowStage.querySelectorAll('.node')];
+  nodes.forEach(n => n.className = 'node');
+  flowLog.textContent = '';
+  const logs = FLOWS[curFlow].log;
+  let i = 0;
+  flowTimer = setInterval(() => {
+    if (i < nodes.length) {
+      const kind = nodes[i].dataset.kind;
+      nodes[i].classList.add(kind === 'hit' ? 'hit' : kind === 'miss' ? 'miss' : 'on');
+    }
+    if (i < logs.length) {
+      flowLog.textContent += (i ? '\n' : '') + logs[i];
+    }
+    i++;
+    if (i >= Math.max(nodes.length, logs.length)) clearInterval(flowTimer);
+  }, 700);
+}
+document.querySelectorAll('[data-flow]').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('[data-flow]').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  renderFlow(b.dataset.flow);
+}));
+document.getElementById('flowRun').addEventListener('click', runFlow);
+document.getElementById('flowReset').addEventListener('click', () => renderFlow(curFlow));
+renderFlow('shorten');
+
+/* ===================== MODULE 3 ===================== */
+const channelEl = document.getElementById('pipeChannel');
+const aggTotal = document.getElementById('aggTotal');
+const aggPending = document.getElementById('aggPending');
+const aggServed = document.getElementById('aggServed');
+const pipeNote = document.getElementById('pipeNote');
+const workerOn = document.getElementById('pipeWorkerOn');
+let pending = [];   // event ids trong channel
+let total = 0;      // đã aggregate
+let served = 0;     // redirect đã trả 302
+let evId = 0;
+const CAP = 8;      // buffer hiển thị
+
+function renderChannel() {
+  channelEl.innerHTML = '';
+  pending.forEach(id => {
+    const e = document.createElement('div');
+    e.className = 'ev'; e.textContent = id;
+    channelEl.appendChild(e);
+  });
+  aggPending.textContent = pending.length;
+}
+function updateAgg() {
+  aggTotal.textContent = total;
+  aggServed.textContent = served;
+  pipeNote.innerHTML = 'Redirect đã phục vụ <b>'+served+'</b> lần mà không chờ worker. ' +
+    (workerOn.checked
+      ? 'Worker đang drain channel → total_clicks tiến kịp.'
+      : '<b>Worker tắt</b>: event dồn lại trong channel, nhưng redirect <b>vẫn trả 302 ngay</b> — non-blocking.');
+}
+document.getElementById('pipeClick').addEventListener('click', () => {
+  // Redirect: phục vụ NGAY (fast path), rồi emit vào channel (non-blocking).
+  served++;
+  if (pending.length < CAP) {
+    pending.push(++evId);
+  } // nếu đầy: drop (non-blocking) — mô phỏng select+default
+  renderChannel();
+  updateAgg();
+});
+// Worker tiêu thụ background mỗi 600ms.
+setInterval(() => {
+  if (workerOn.checked && pending.length > 0) {
+    pending.shift();   // consume 1 event
+    total++;
+    renderChannel();
+    updateAgg();
+  }
+}, 600);
+workerOn.addEventListener('change', updateAgg);
+document.getElementById('pipeReset').addEventListener('click', () => {
+  pending = []; total = 0; served = 0; evId = 0;
+  renderChannel(); updateAgg();
+});
+renderChannel(); updateAgg();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

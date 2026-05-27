@@ -287,6 +287,24 @@ Cluster N=5 (L = leader, F1..F4 = follower), quorum = 3. Client gửi `set x=1`:
 
 > ❓ *"Lỡ chỉ 2/5 ack rồi leader chết thì entry đó coi như mất chưa commit?"* → Đúng. Entry chưa đạt majority thì **chưa commit**, client chưa nhận "OK", nên không có ai tin nó đã thành công → an toàn. Leader mới có thể ghi đè index đó. Không vi phạm safety.
 
+### 8.3 Walk-through nhiều entry: trạng thái log từng node
+
+Cluster N=5, leader L. Client gửi liên tiếp 3 lệnh `set a=1`, `set b=2`, `set c=3` (term 1). Theo dõi log + `commitIndex` của từng node (giả định F4 đang chậm, ack muộn):
+
+| Sự kiện | Log L | Log F1 | Log F2 | Log F3 | Log F4 | commitIndex (L) |
+|---------|-------|--------|--------|--------|--------|-----------------|
+| L append #0 `a=1` | `[#0]` | `[]` | `[]` | `[]` | `[]` | −1 |
+| F1,F2,F3 ack #0 (4/5) | `[#0]` | `[#0]` | `[#0]` | `[#0]` | `[]` | **0** ✓ |
+| L append #1 `b=2` | `[#0,#1]` | `[#0]` | `[#0]` | `[#0]` | `[]` | 0 |
+| F1,F2 ack #1 (3/5) | `[#0,#1]` | `[#0,#1]` | `[#0,#1]` | `[#0]` | `[]` | **1** ✓ |
+| L append #2 `c=3` | `[#0,#1,#2]` | `[#0,#1]` | `[#0,#1]` | `[#0]` | `[]` | 1 |
+| F1,F3 ack #2 (3/5) | `[#0,#1,#2]` | `[#0,#1,#2]`| `[#0,#1]` | `[#0,#2]?` | `[]` | **2** ✓ |
+| heartbeat truyền commitIndex=2, F4 bắt kịp | `[#0,#1,#2]` | `[#0,#1,#2]`| `[#0,#1,#2]`| `[#0,#1,#2]`| `[#0,#1,#2]`| 2 |
+
+> 💡 Mỗi entry chỉ cần **một** majority **bất kỳ** ack là commit — không nhất thiết cùng tập node mỗi lần (#0 do {L,F1,F2,F3}, #2 do {L,F1,F3}). Follower chậm (F4) cuối cùng bắt kịp qua heartbeat mang `leaderCommit`. Đó là lý do một follower lề mề không làm chậm cả cluster.
+
+> ⚠ **Lỗi thường gặp.** Đừng nghĩ "commit" = "đã ghi xuống tất cả node". Commit chỉ có nghĩa **đã ghi trên majority và sẽ không bao giờ mất**. Các node còn lại bắt kịp sau (eventually) — nhưng entry đã được coi là bền vững ngay khi đạt majority.
+
 ---
 
 ## 9. Safety — hai ràng buộc sống còn

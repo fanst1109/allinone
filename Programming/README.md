@@ -1,6 +1,6 @@
 # Programming — Học lập trình bằng Go từ tư duy đến production
 
-Lộ trình **79 lesson chia 9 tier**, đi từ tư duy lập trình thuần (không ngôn ngữ) đến xây dựng dịch vụ production chạy thật trên Kubernetes. Ngôn ngữ chính xuyên suốt là **Go (Golang)** — chọn Go vì cú pháp tối giản, biên dịch nhanh, kho thư viện chuẩn mạnh, là ngôn ngữ chủ lực cho backend / cloud-native hiện đại.
+Lộ trình **84 lesson chia 9 tier**, đi từ tư duy lập trình thuần (không ngôn ngữ) đến xây dựng dịch vụ production chạy thật trên Kubernetes. Ngôn ngữ chính xuyên suốt là **Go (Golang)** — chọn Go vì cú pháp tối giản, biên dịch nhanh, kho thư viện chuẩn mạnh, là ngôn ngữ chủ lực cho backend / cloud-native hiện đại.
 
 ## Lĩnh vực này dạy gì?
 
@@ -27,7 +27,7 @@ Lộ trình **79 lesson chia 9 tier**, đi từ tư duy lập trình thuần (kh
 | 7 | [Production / DevOps / SWE](./tier-7-production/index.html) | 10 | Log, metric, trace, Docker, K8s, CI/CD, architecture |
 | 8 | [Capstone Project](./tier-8-capstone/index.html) | 3 | Build + deploy + observe một service thật |
 
-Tổng: **79 lesson** + **6 mini-project** (cuối Tier 1, 3, 4, 5, 6) + **1 capstone**.
+Tổng: **84 lesson** + **6 mini-project** (cuối Tier 1, 3, 4, 5, 6) + **1 capstone**.
 
 ## Cách học hiệu quả nhất
 

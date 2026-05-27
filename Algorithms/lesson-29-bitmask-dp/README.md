@@ -671,8 +671,14 @@ func countPartitions(n int, valid []bool) int {
 	dp := make([]int, 1<<n)
 	dp[0] = 1 // 1 cách phủ tập rỗng (không nhóm nào)
 	for mask := 1; mask <= full; mask++ {
-		// Thử mọi tập con sub của mask làm nhóm cuối cùng.
+		// Cố định "phần tử thấp nhất chưa phủ phải nằm trong nhóm cuối"
+		// -> mỗi phân hoạch (set-of-sets) chỉ đếm 1 lần, không trùng thứ tự nhóm.
+		low := mask & (-mask) // bit thấp nhất của mask
+		// Thử mọi tập con sub của mask (luôn chứa low) làm nhóm cuối cùng.
 		for sub := mask; sub > 0; sub = (sub - 1) & mask {
+			if sub&low == 0 {
+				continue // nhóm cuối phải chứa phần tử thấp nhất
+			}
 			if valid[sub] {
 				dp[mask] += dp[mask&^sub] // phần còn lại đã chia xong
 			}
@@ -860,7 +866,7 @@ func assign(cost [][]int) int {
 
 ### Bài 3 — Count ways to partition
 
-**Cách tiếp cận:** mục 8. `dp[mask]` = số cách phủ kín `mask` bằng các nhóm hợp lệ. `dp[0]=1`. Với mỗi `mask`, thử mọi `sub ⊆ mask` hợp lệ làm nhóm cuối: `dp[mask] += dp[mask&^sub]`.
+**Cách tiếp cận:** mục 8. `dp[mask]` = số cách phủ kín `mask` bằng các nhóm hợp lệ (đếm **set-of-sets**, không phân biệt thứ tự nhóm). Mẹo tránh đếm trùng hoán vị: ép "nhóm cuối luôn chứa phần tử **thấp nhất** chưa phủ" — chỉ duyệt các `sub` chứa bit thấp nhất `low = mask & (-mask)`.
 
 ```go
 func countPartitions(n int, valid []bool) int {
@@ -868,7 +874,11 @@ func countPartitions(n int, valid []bool) int {
 	dp := make([]int, 1<<n)
 	dp[0] = 1
 	for mask := 1; mask <= full; mask++ {
+		low := mask & (-mask) // bit thấp nhất, nhóm cuối phải chứa
 		for sub := mask; sub > 0; sub = (sub - 1) & mask {
+			if sub&low == 0 {
+				continue
+			}
 			if valid[sub] {
 				dp[mask] += dp[mask&^sub]
 			}
@@ -880,7 +890,7 @@ func countPartitions(n int, valid []bool) int {
 
 **Độ phức tạp:** thời gian `O(3^n)` (duyệt subset-of-subset, mục 7), bộ nhớ `O(2^n)`. Tiền xử lý `valid` tùy bài (thường `O(2^n·n)`).
 
-**Tối ưu tránh đếm trùng hoán vị nhóm:** nếu coi `{A}{B}` và `{B}{A}` là **một** cách (set of sets), cố định "nhóm cuối luôn chứa phần tử thấp nhất chưa phủ" — chỉ duyệt các `sub` chứa bit thấp nhất của `mask`. Khi đó mỗi cách phân hoạch chỉ đếm một lần.
+**Lưu ý:** nếu bài đếm **dãy nhóm có thứ tự** (ordered) chứ không phải set-of-sets, bỏ điều kiện `sub&low` — khi đó mỗi hoán vị nhóm được tính riêng.
 
 ### Bài 4 — Can partition into k equal subsets
 

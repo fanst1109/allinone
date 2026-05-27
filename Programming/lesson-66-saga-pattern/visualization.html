@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 66 — Saga Pattern Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #ef4444;        /* đỏ Tier 6 */
+    --accent-soft: #fee2e2;
+    --accent-hover: #dc2626;
+    --ok: #16a34a;
+    --ok-soft: #dcfce7;
+    --warn: #d97706;
+    --warn-soft: #fef3c7;
+    --comp: #7c3aed;          /* tím cho compensation */
+    --comp-soft: #ede9fe;
+  }
+  main { max-width: 980px; margin: 0 auto; padding: 16px; }
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 42px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .intro { color: var(--ink-soft); line-height: 1.6; }
+  .card {
+    background: #fff; border: 1px solid var(--line);
+    border-radius: 10px; padding: 20px; margin: 18px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; align-items: center; }
+  button {
+    background: var(--accent); color: #fff; border: none;
+    padding: 9px 16px; border-radius: 7px; font-size: 14px;
+    font-weight: 600; cursor: pointer;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost { background: #edf2f7; color: var(--ink); }
+  button.ghost:hover { background: #e2e8f0; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .hint { font-size: 13px; color: var(--ink-soft); margin: 6px 0; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; margin: 10px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .dot { width: 13px; height: 13px; border-radius: 3px; display: inline-block; }
+
+  /* ---- Module 1: orchestration steps ---- */
+  .saga-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0; align-items: stretch; }
+  .step {
+    flex: 1 1 140px; min-width: 0; border: 2px solid var(--line-strong);
+    border-radius: 9px; padding: 10px 12px; background: #fff;
+    transition: all .35s ease; position: relative;
+  }
+  .step .sname { font-weight: 700; font-size: 13.5px; }
+  .step .ssvc { font-size: 11.5px; color: var(--ink-soft); }
+  .step .scomp { font-size: 11px; color: var(--comp); margin-top: 4px; }
+  .step.pending { opacity: .55; }
+  .step.running { border-color: var(--warn); background: var(--warn-soft); }
+  .step.done { border-color: var(--ok); background: var(--ok-soft); }
+  .step.failed { border-color: var(--accent); background: var(--accent-soft); }
+  .step.comp { border-color: var(--comp); background: var(--comp-soft); }
+  .badge {
+    position: absolute; top: -10px; right: -8px; font-size: 11px;
+    padding: 1px 7px; border-radius: 10px; font-weight: 700; color: #fff;
+  }
+  .badge.ok { background: var(--ok); }
+  .badge.fail { background: var(--accent); }
+  .badge.comp { background: var(--comp); }
+  .orch {
+    text-align: center; font-weight: 700; padding: 8px; border-radius: 8px;
+    background: #1f2937; color: #fff; margin-bottom: 10px; font-size: 13.5px;
+  }
+  .statebox {
+    font-family: ui-monospace, monospace; font-size: 12.5px;
+    background: #0f172a; color: #e2e8f0; border-radius: 8px;
+    padding: 12px; margin-top: 12px; max-height: 220px; overflow-y: auto;
+  }
+  .statebox .ln { white-space: pre-wrap; }
+  .statebox .ok { color: #4ade80; }
+  .statebox .fail { color: #f87171; }
+  .statebox .comp { color: #c4b5fd; }
+  .resbar {
+    margin-top: 12px; padding: 10px 12px; border-radius: 8px; font-weight: 600;
+    font-size: 13.5px; display: none;
+  }
+  .resbar.show { display: block; }
+  .resbar.ok { background: var(--ok-soft); color: #166534; }
+  .resbar.fail { background: var(--accent-soft); color: #991b1b; }
+
+  /* ---- Module 2: choreography events ---- */
+  .bus-wrap { position: relative; }
+  .svc-lane {
+    display: grid; grid-template-columns: 120px 1fr; gap: 10px;
+    align-items: center; margin: 8px 0;
+  }
+  .svc-name {
+    font-weight: 700; font-size: 13px; text-align: right;
+    padding: 6px 8px; background: #f1f5f9; border-radius: 7px;
+  }
+  .ev-track { min-height: 38px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .event {
+    font-family: ui-monospace, monospace; font-size: 11.5px; font-weight: 600;
+    padding: 4px 9px; border-radius: 7px; opacity: 0; transform: translateY(6px);
+    transition: opacity .3s, transform .3s; white-space: nowrap;
+  }
+  .event.show { opacity: 1; transform: translateY(0); }
+  .event.fwd { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+  .event.fail { background: var(--accent-soft); color: #991b1b; border: 1px solid #fca5a5; }
+  .event.comp { background: var(--comp-soft); color: #5b21b6; border: 1px solid #c4b5fd; }
+  .arrow { color: var(--ink-soft); font-size: 14px; }
+
+  /* ---- Module 3: comparison ---- */
+  .cmp-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+  .cmp-table th, .cmp-table td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+  .cmp-table th { background: #f7fafc; }
+  .cmp-table th.c2pc { background: #fee2e2; }
+  .cmp-table th.csaga { background: #dcfce7; }
+  .cmp-table td.bad { color: #991b1b; }
+  .cmp-table td.good { color: #166534; }
+  .cmp-pick { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+  .scenario {
+    flex: 1 1 230px; border: 1px solid var(--line); border-radius: 9px;
+    padding: 12px; cursor: pointer; transition: border-color .2s, background .2s;
+  }
+  .scenario:hover { border-color: var(--accent); }
+  .scenario.active { border-color: var(--accent); background: var(--accent-soft); }
+  .scenario .stitle { font-weight: 700; font-size: 13.5px; margin-bottom: 4px; }
+  .scenario .sdesc { font-size: 12.5px; color: var(--ink-soft); }
+  .verdict {
+    margin-top: 12px; padding: 12px; border-radius: 8px; font-size: 13.5px;
+    background: #f8fafc; border: 1px solid var(--line); display: none;
+  }
+  .verdict.show { display: block; }
+  .verdict b { color: var(--accent-hover); }
+
+  @media (max-width: 480px) {
+    .svc-lane { grid-template-columns: 84px 1fr; }
+    .svc-name { font-size: 11.5px; }
+    .step { flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-65-event-driven-architecture/visualization.html">← L65: Event-Driven Architecture</a>
+  <span class="sep">·</span>
+  <span class="current">L66: Saga Pattern</span>
+  <span class="sep">·</span>
+  <a href="../lesson-67-cqrs-event-sourcing/visualization.html">L67: CQRS & Event Sourcing →</a>
+</nav>
+
+<main>
+  <h1>Lesson 66 — Saga Pattern</h1>
+  <p class="intro">
+    Giao dịch phân tán không có <code>BEGIN/COMMIT</code> chung. Saga = chuỗi local transaction commit-ngay,
+    mỗi bước có <b>compensation</b> để bù khi fail. Ba module dưới đây cho bạn "chạy" thử:
+    <b>(1)</b> orchestration saga — tiến rồi inject lỗi để xem bù ngược;
+    <b>(2)</b> choreography — chuỗi event + compensation event;
+    <b>(3)</b> so sánh Saga vs 2PC + chọn choreography/orchestration.
+  </p>
+
+  <!-- ============================ MODULE 1 ============================ -->
+  <h2>1. Orchestration saga — tiến & bù ngược</h2>
+  <div class="card">
+    <p class="hint">
+      Orchestrator chủ động gọi từng bước. Bấm <b>Chạy từng bước</b> để tiến, hoặc bật <b>"Ép lỗi"</b>
+      ở một bước rồi chạy — khi tới bước đó saga sẽ <b>compensate ngược</b> (refund, cancel). Cột state bên dưới
+      là cái orchestrator <b>persist xuống DB</b> sau mỗi hành động (để recover sau crash).
+    </p>
+    <div class="orch">🎛️ Saga Orchestrator (state machine)</div>
+    <div class="saga-row" id="m1-steps"></div>
+
+    <div class="legend">
+      <span><span class="dot" style="background:#fef3c7;border:1px solid #d97706"></span> running</span>
+      <span><span class="dot" style="background:#dcfce7;border:1px solid #16a34a"></span> done</span>
+      <span><span class="dot" style="background:#fee2e2;border:1px solid #ef4444"></span> failed</span>
+      <span><span class="dot" style="background:#ede9fe;border:1px solid #7c3aed"></span> compensated</span>
+    </div>
+
+    <div class="controls">
+      <label style="font-size:13px;font-weight:600">Ép lỗi tại:&nbsp;
+        <select id="m1-failat" style="padding:6px;border-radius:6px;border:1px solid var(--line-strong)">
+          <option value="-1">Không (happy path)</option>
+          <option value="1">ReservePayment</option>
+          <option value="2" selected>ReserveInventory</option>
+          <option value="3">ShipOrder</option>
+        </select>
+      </label>
+      <button id="m1-step">Chạy từng bước ▶</button>
+      <button id="m1-auto" class="ghost">Tự động chạy hết</button>
+      <button id="m1-reset" class="ghost">↺ Reset</button>
+    </div>
+
+    <div class="resbar" id="m1-res"></div>
+    <div class="statebox" id="m1-log"></div>
+  </div>
+
+  <!-- ============================ MODULE 2 ============================ -->
+  <h2>2. Choreography saga — chuỗi event</h2>
+  <div class="card">
+    <p class="hint">
+      Không có orchestrator. Mỗi service <b>nghe event → react → emit event tiếp</b>. Compensation cũng chảy
+      bằng <b>event đảo</b>. Chọn kịch bản rồi bấm <b>Phát từng event</b> để xem event lan trên bus.
+      Mỗi event mang <code>sagaId</code> để service biết bù cho saga nào.
+    </p>
+    <div class="controls">
+      <button id="m2-scenario-ok" class="ghost">Happy path</button>
+      <button id="m2-scenario-fail">Inventory hết hàng (fail)</button>
+      <span class="hint" id="m2-mode" style="margin:0">Kịch bản: <b>Inventory hết hàng</b></span>
+    </div>
+    <div class="bus-wrap" id="m2-lanes">
+      <div class="svc-lane"><div class="svc-name">Order</div><div class="ev-track" data-svc="Order"></div></div>
+      <div class="svc-lane"><div class="svc-name">Payment</div><div class="ev-track" data-svc="Payment"></div></div>
+      <div class="svc-lane"><div class="svc-name">Inventory</div><div class="ev-track" data-svc="Inventory"></div></div>
+    </div>
+    <div class="legend">
+      <span><span class="dot" style="background:#dbeafe;border:1px solid #93c5fd"></span> event tiến</span>
+      <span><span class="dot" style="background:#fee2e2;border:1px solid #fca5a5"></span> event fail</span>
+      <span><span class="dot" style="background:#ede9fe;border:1px solid #c4b5fd"></span> compensation event</span>
+    </div>
+    <div class="controls">
+      <button id="m2-step">Phát từng event ▶</button>
+      <button id="m2-all" class="ghost">Phát hết</button>
+      <button id="m2-reset" class="ghost">↺ Reset</button>
+    </div>
+    <p class="hint" id="m2-desc"></p>
+  </div>
+
+  <!-- ============================ MODULE 3 ============================ -->
+  <h2>3. Saga vs 2PC — và chọn cách triển khai</h2>
+  <div class="card">
+    <table class="cmp-table">
+      <thead><tr><th>Tiêu chí</th><th class="c2pc">2PC (Two-Phase Commit)</th><th class="csaga">Saga</th></tr></thead>
+      <tbody>
+        <tr><td>Consistency</td><td class="good">Mạnh (ACID, atomic ngay)</td><td>Eventual (có trạng thái trung gian)</td></tr>
+        <tr><td>Khóa tài nguyên</td><td class="bad">Giữ lock xuyên service suốt phase</td><td class="good">Không — commit & nhả ngay</td></tr>
+        <tr><td>Blocking</td><td class="bad">Có (in-doubt khi coordinator chết)</td><td class="good">Không</td></tr>
+        <tr><td>Scale</td><td class="bad">Kém (lock + coordinator nghẽn)</td><td class="good">Tốt (service độc lập)</td></tr>
+        <tr><td>SPOF</td><td class="bad">Coordinator</td><td>Orchestrator (nếu dùng) → cần HA</td></tr>
+        <tr><td>Isolation</td><td class="good">Có (lock đảm bảo)</td><td class="bad">Không — cần countermeasure (semantic lock)</td></tr>
+        <tr><td>Khi nào dùng</td><td>Phạm vi hẹp, latency thấp, cần atomic tuyệt đối</td><td>Microservice, latency cao, cần scale</td></tr>
+      </tbody>
+    </table>
+
+    <p class="hint" style="margin-top:18px"><b>Choreography hay Orchestration?</b> Chọn một kịch bản:</p>
+    <div class="cmp-pick" id="m3-pick">
+      <div class="scenario" data-k="short">
+        <div class="stitle">Saga ngắn 3 bước, tuyến tính</div>
+        <div class="sdesc">user đăng ký → tạo profile → gửi email chào mừng. Coupling lỏng, ít rẽ nhánh.</div>
+      </div>
+      <div class="scenario" data-k="long">
+        <div class="stitle">Quy trình duyệt vay 8 bước</div>
+        <div class="sdesc">Nhiều bước, rẽ nhánh điều kiện (số tiền lớn → fraud check), cần audit toàn flow.</div>
+      </div>
+      <div class="scenario" data-k="debug">
+        <div class="stitle">"Saga 42 đang ở bước nào?"</div>
+        <div class="sdesc">Team không trả lời nhanh được câu này; flow event phình to, khó debug.</div>
+      </div>
+    </div>
+    <div class="verdict" id="m3-verdict"></div>
+  </div>
+</main>
+
+<script>
+/* ===================== MODULE 1: orchestration ===================== */
+(function(){
+  const SVC = { CreateOrder:'Order', ReservePayment:'Payment', ReserveInventory:'Inventory', ShipOrder:'Shipping' };
+  const COMP = { CreateOrder:'CancelOrder', ReservePayment:'RefundPayment', ReserveInventory:'ReleaseInventory', ShipOrder:'CancelShipment' };
+  const STEPS = ['CreateOrder','ReservePayment','ReserveInventory','ShipOrder'];
+  const stepsEl = document.getElementById('m1-steps');
+  const logEl = document.getElementById('m1-log');
+  const resEl = document.getElementById('m1-res');
+  const failSel = document.getElementById('m1-failat');
+
+  let idx = 0;            // bước hiện tại sẽ chạy
+  let completed = [];     // index đã done
+  let phase = 'forward';  // forward | comp | finished
+  let compPtr = 0;
+
+  function render(){
+    stepsEl.innerHTML = STEPS.map((s,i)=>{
+      let cls='pending', badge='';
+      if(completed.includes(i)) { cls='done'; badge='<span class="badge ok">✓</span>'; }
+      if(phase==='forward' && i===idx) cls='running';
+      return `<div class="step ${cls}" data-i="${i}">${badge}
+        <div class="sname">${i+1}. ${s}</div>
+        <div class="ssvc">@ ${SVC[s]}</div>
+        <div class="scomp">↩ ${COMP[s]}</div></div>`;
+    }).join('');
+  }
+  function markStep(i, cls, badgeCls, badgeTxt){
+    const el = stepsEl.querySelector(`[data-i="${i}"]`);
+    if(!el) return;
+    el.className = 'step '+cls;
+    if(badgeTxt) el.innerHTML = `<span class="badge ${badgeCls}">${badgeTxt}</span>`+el.innerHTML.replace(/<span class="badge[^>]*>.*?<\/span>/,'');
+  }
+  function log(txt, cls){
+    const d=document.createElement('div'); d.className='ln '+(cls||'');
+    d.textContent=txt; logEl.appendChild(d); logEl.scrollTop=logEl.scrollHeight;
+  }
+  function persist(step, status, done){
+    log(`[state] step=${step.padEnd(18)} status=${status.padEnd(12)} done=[${done.join(', ')}]`,
+        status==='ABORTED'||status==='COMPENSATING'?'comp':(status==='DONE'?'ok':''));
+  }
+  function finish(ok){
+    phase='finished';
+    resEl.className = 'resbar show '+(ok?'ok':'fail');
+    resEl.textContent = ok
+      ? '✅ Saga DONE — tất cả bước commit, không cần bù. Hệ thống nhất quán.'
+      : '⛔ Saga ABORTED — đã compensate ngược (refund + cancel). Tiền hoàn, order hủy → nhất quán.';
+    document.getElementById('m1-step').disabled = true;
+  }
+
+  function doForward(){
+    const failAt = parseInt(failSel.value,10);
+    const s = STEPS[idx];
+    if(idx === failAt){
+      markStep(idx,'failed','fail','✗');
+      persist(s,'COMPENSATING',completed.map(i=>STEPS[i]));
+      log(`>> Step "${s}" FAIL → bắt đầu compensate ngược`, 'fail');
+      phase='comp'; compPtr = completed.length-1;
+      if(compPtr<0){ persist(s,'ABORTED',[]); finish(false); }
+      return;
+    }
+    markStep(idx,'running');
+    persist(s,'RUNNING',completed.map(i=>STEPS[i]));
+    log(`[${SVC[s].toLowerCase()}] ${s}(saga-42) ✓`, 'ok');
+    completed.push(idx);
+    markStep(idx,'done','ok','✓');
+    persist(s,'RUNNING',completed.map(i=>STEPS[i]));
+    idx++;
+    if(idx>=STEPS.length){ persist('','DONE',completed.map(i=>STEPS[i])); finish(true); }
+  }
+  function doComp(){
+    if(compPtr<0){ persist('','ABORTED',completed.map(i=>STEPS[i])); finish(false); return; }
+    const i = completed[compPtr];
+    const s = STEPS[i];
+    markStep(i,'comp','comp','↩');
+    persist('COMP_'+s,'COMPENSATING',completed.map(k=>STEPS[k]));
+    log(`[${SVC[s].toLowerCase()}] ${COMP[s]}(saga-42) ✓ (bù)`, 'comp');
+    compPtr--;
+    if(compPtr<0){ persist('','ABORTED',completed.map(k=>STEPS[k])); finish(false); }
+  }
+  function step(){
+    if(phase==='forward') doForward();
+    else if(phase==='comp') doComp();
+  }
+  function reset(){
+    idx=0; completed=[]; phase='forward'; compPtr=0;
+    logEl.innerHTML=''; resEl.className='resbar';
+    document.getElementById('m1-step').disabled=false;
+    render();
+  }
+  document.getElementById('m1-step').onclick = step;
+  document.getElementById('m1-reset').onclick = reset;
+  document.getElementById('m1-auto').onclick = ()=>{
+    reset();
+    let guard=0;
+    const t=setInterval(()=>{ step(); if(phase==='finished'||++guard>20) clearInterval(t); }, 550);
+  };
+  failSel.onchange = reset;
+  reset();
+})();
+
+/* ===================== MODULE 2: choreography ===================== */
+(function(){
+  // Mỗi event: { svc: service emit, label, type }
+  const HAPPY = [
+    { svc:'Order',     label:'CreateOrder → emit OrderCreated',          type:'fwd' },
+    { svc:'Payment',   label:'nghe OrderCreated → emit PaymentReserved', type:'fwd' },
+    { svc:'Inventory', label:'nghe PaymentReserved → emit InventoryReserved', type:'fwd' },
+    { svc:'Order',     label:'nghe InventoryReserved → order COMPLETED', type:'fwd' },
+  ];
+  const FAIL = [
+    { svc:'Order',     label:'CreateOrder → emit OrderCreated',          type:'fwd' },
+    { svc:'Payment',   label:'nghe OrderCreated → emit PaymentReserved', type:'fwd' },
+    { svc:'Inventory', label:'nghe PaymentReserved → HẾT HÀNG → emit InventoryFailed', type:'fail' },
+    { svc:'Payment',   label:'nghe InventoryFailed → refund → emit PaymentRefunded', type:'comp' },
+    { svc:'Order',     label:'nghe PaymentRefunded → order CANCELLED',   type:'comp' },
+  ];
+  let seq = FAIL, ptr = 0;
+  const lanes = document.getElementById('m2-lanes');
+  const desc = document.getElementById('m2-desc');
+  const modeEl = document.getElementById('m2-mode');
+
+  function track(svc){ return lanes.querySelector(`.ev-track[data-svc="${svc}"]`); }
+  function clearTracks(){ lanes.querySelectorAll('.ev-track').forEach(t=>t.innerHTML=''); }
+  function reset(){ ptr=0; clearTracks(); desc.textContent=''; }
+
+  function emit(){
+    if(ptr>=seq.length){ desc.textContent = seq===HAPPY
+      ? '✅ Happy path: mỗi service nghe event trước → react → emit event tiếp. Không coordinator.'
+      : '⛔ Fail path: InventoryFailed kích hoạt Payment tự refund (event đảo), PaymentRefunded kích hoạt Order tự hủy. Compensation cũng chảy bằng event.';
+      return; }
+    const e = seq[ptr];
+    const el = document.createElement('div');
+    el.className = 'event '+e.type;
+    el.textContent = e.label;
+    track(e.svc).appendChild(el);
+    requestAnimationFrame(()=> el.classList.add('show'));
+    ptr++;
+    if(ptr>=seq.length) emit(); // hiện desc
+  }
+  function setScenario(s, txt){
+    seq=s; modeEl.innerHTML='Kịch bản: <b>'+txt+'</b>'; reset();
+  }
+  document.getElementById('m2-step').onclick = emit;
+  document.getElementById('m2-all').onclick = ()=>{ reset(); let g=0;
+    const t=setInterval(()=>{ emit(); if(ptr>=seq.length||++g>10){ clearInterval(t);} }, 600); };
+  document.getElementById('m2-reset').onclick = reset;
+  document.getElementById('m2-scenario-ok').onclick = ()=> setScenario(HAPPY,'Happy path');
+  document.getElementById('m2-scenario-fail').onclick = ()=> setScenario(FAIL,'Inventory hết hàng');
+  reset();
+})();
+
+/* ===================== MODULE 3: pick choreography/orchestration ===== */
+(function(){
+  const V = {
+    short: '<b>→ Choreography.</b> Saga ngắn (≤3–4 bước), tuyến tính, coupling lỏng. Mỗi service nghe event tự react là đủ; không cần orchestrator trung tâm.',
+    long:  '<b>→ Orchestration.</b> Nhiều bước + rẽ nhánh điều kiện + cần audit toàn flow ở một chỗ. State machine trung tâm dễ đọc, dễ đổi thứ tự/thêm bước, dễ recover. Nhớ chạy orchestrator HA (nó là SPOF).',
+    debug: '<b>→ Orchestration.</b> Không trả lời nhanh được "saga đang ở bước nào" chính là dấu hiệu rời choreography: state tập trung trong orchestrator giúp quan sát và debug. Cyclic event dependency trong choreography rất khó lần.'
+  };
+  const pick = document.getElementById('m3-pick');
+  const vEl = document.getElementById('m3-verdict');
+  pick.querySelectorAll('.scenario').forEach(c=>{
+    c.onclick = ()=>{
+      pick.querySelectorAll('.scenario').forEach(x=>x.classList.remove('active'));
+      c.classList.add('active');
+      vEl.className='verdict show';
+      vEl.innerHTML = V[c.dataset.k];
+    };
+  });
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

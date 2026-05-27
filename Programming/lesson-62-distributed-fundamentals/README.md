@@ -292,6 +292,13 @@ Theo dõi *quan hệ nhân quả* thay vì wall clock. Phát hiện được hai
 
 **Use case:** đếm like, shopping cart (OR-Set), collaborative editor (Yjs/Automerge). **Lợi:** merge *giao hoán, kết hợp, lũy đẳng* → luôn hội tụ bất kể thứ tự.
 
+**Vì sao merge luôn đúng?** Ba tính chất của phép `max` từng phần tử (lấy ví dụ G-Counter trên):
+- *Giao hoán (commutative):* `merge(a,b) = merge(b,a)` — A merge B trước hay B merge A trước đều cho `[2,3,1]`. → thứ tự tin nhắn không quan trọng.
+- *Kết hợp (associative):* `merge(merge(a,b),c) = merge(a,merge(b,c))` — gom theo cụm nào cũng ra `[2,3,1]`. → gộp từng phần hay gộp một lần đều đúng.
+- *Lũy đẳng (idempotent):* `merge(a,a) = a` — nhận lại cùng một state hai lần không làm sai. → at-least-once delivery vẫn an toàn (liên hệ mục 10).
+
+Ba tính chất này khiến CRDT *không cần* phối hợp/khóa: mọi replica áp dụng cùng các update theo *bất kỳ* thứ tự, *bất kỳ* số lần → vẫn hội tụ về cùng kết quả.
+
 > 📝 **Tóm tắt mục 7.** Khi AP có xung đột, ba cách resolve: (1) **LWW** — đơn giản, dựa timestamp, có thể mất update & nhạy clock skew. (2) **Vector clock** — phát hiện concurrent vs causal, cần logic resolve concurrent. (3) **CRDT** — merge tự động luôn đúng, không cần phối hợp, nhưng giới hạn ở các kiểu dữ liệu thiết kế sẵn.
 
 ---
@@ -510,6 +517,18 @@ Cụm 4 node {A,B | C,D}. Partition cắt làm hai nửa 2-2. A tự xưng leade
 
 **Ví dụ số fencing:** Leader cũ có token=5, bị treo (GC pause dài). Cụm tưởng nó chết → bầu leader mới token=6. Leader cũ tỉnh dậy, gửi write kèm token=5 tới storage. Storage đã thấy token=6 → *từ chối* token=5 → leader zombie không gây hại. ✓
 
+### 13.3 Timeline fencing token (vì sao zombie không gây hại)
+
+| Thời điểm | Sự kiện | Token storage chấp nhận |
+|-----------|---------|:-----------------------:|
+| t0 | Leader L1 được bầu, cấp token=5 | ≥ 5 |
+| t1 | L1 ghi `set x=1` kèm token=5 → OK | ghi nhận token=5 |
+| t2 | L1 bị GC pause 10s (cụm tưởng chết) | — |
+| t3 | Bầu L2, cấp token=6; L2 ghi `set x=2` token=6 → OK | storage nâng lên ≥ 6 |
+| t4 | L1 tỉnh dậy, *vẫn tưởng mình là leader*, ghi `set x=99` token=5 | **TỪ CHỐI** (5 < 6) |
+
+L1 là "zombie leader" nhưng write của nó bị fence vì token cũ. Không có fencing, write `x=99` của L1 sẽ ghi đè `x=2` → mất dữ liệu của L2.
+
 > ⚠ **Lỗi thường gặp.** Dùng số node *chẵn* cho cụm consensus → khi chia đôi không phe nào có majority → toàn cụm kẹt. Luôn dùng 3, 5, 7 node.
 
 > 🔁 **Dừng lại tự kiểm tra.** Cụm 3 node, 1 node bị cô lập khỏi 2 node kia. Node cô lập có được tiếp tục làm leader không?
@@ -561,7 +580,7 @@ Thay vì quyết định nhị phân chết/sống, **phi (φ-accrual)** xuất 
 
 ## Bài tập
 
-> Làm thử trước khi xem lời giải. Tất cả lời giải ở mục kế tiếp; code minh họa ở [solutions.go](./solutions.go); tương tác ở [visualization.html](./visualization.html).
+> Làm thử trước khi xem lời giải. Tất cả lời giải ở mục kế tiếp; code minh họa ở [solutions.go](./solutions.go); tương tác ở [visualization.html](./visualization.html). Gợi ý: BT1 dùng tư duy mục 3, BT2–BT3 dùng mục 8 & 12, BT4–BT5 dùng mục 9 & 7, BT6 dùng mục 13.
 
 **BT1 — CAP classification.** Phân loại 5 hệ thống sau là **CP** hay **AP** (kèm lý do): (a) hệ thống ngân hàng (số dư), (b) news feed mạng xã hội, (c) DNS, (d) shopping cart (giỏ hàng), (e) config store của cụm (như etcd).
 

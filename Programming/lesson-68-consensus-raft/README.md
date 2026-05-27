@@ -109,6 +109,15 @@ Ba mẫu ứng dụng kinh điển:
 
 > 💡 **Replicated state machine.** Nếu mọi node bắt đầu từ cùng trạng thái rỗng, và apply **đúng cùng một chuỗi lệnh đã được consensus**, thì kết thúc chúng ở **cùng trạng thái** — đó là cách Raft biến "đồng ý 1 chuỗi log" thành "5 bản DB giống hệt nhau".
 
+**Ví dụ RSM end-to-end (KV store nhân bản trên 3 node):**
+
+1. Cả 3 node khởi đầu state rỗng `{}`.
+2. Client gửi `set name=alice` → leader append log #0, replicate, majority ack → commit → cả 3 apply → state `{name: alice}`.
+3. Client gửi `set age=30` → log #1, commit → state `{name: alice, age: 30}` ở cả 3.
+4. Client gửi `del name` → log #2, commit → state `{age: 30}` ở cả 3.
+
+Vì cả 3 node ăn **cùng log** `[set name, set age, del name]` theo **cùng thứ tự**, chúng luôn cho **cùng kết quả** khi đọc — dù bất kỳ 1 node nào từng tạm chết rồi quay lại (nó replay log để bắt kịp). Đây chính là sản phẩm cuối cùng mà consensus tạo ra.
+
 ---
 
 ## 4. Raft — tổng quan
@@ -144,6 +153,19 @@ Raft (Ongaro & Ousterhout, 2014) sinh ra để **dễ hiểu** hơn Paxos, với
 | **Leader** | Duy nhất nhận ghi từ client. Gửi `AppendEntries` (gồm cả heartbeat) đều đặn để giữ ngôi. |
 
 **Bất biến quan trọng:** node luôn tụt về **Follower** ngay khi thấy một term **cao hơn** term hiện tại của mình. Đây là cơ chế "tự nhường ngôi" giúp leader cũ (đã lỗi thời) không gây hại.
+
+**Bảng đầy đủ các chuyển trạng thái (trigger → kết quả):**
+
+| Từ | Sự kiện kích hoạt | Sang |
+|----|-------------------|------|
+| Follower | hết election timeout, không nghe leader | Candidate |
+| Candidate | nhận đủ majority phiếu | Leader |
+| Candidate | nhận `AppendEntries` từ leader có term ≥ term mình | Follower |
+| Candidate | hết timeout, chưa ai thắng (split vote) | Candidate (term+1, bầu lại) |
+| Candidate / Leader | thấy bất kỳ RPC nào mang term **> term mình** | Follower |
+| Leader | (bình thường) gửi heartbeat định kỳ | Leader (giữ ngôi) |
+
+> ❓ *"Leader có bao giờ tự nguyện xuống không?"* → Trong Raft cơ bản, leader **chỉ** xuống khi (a) crash, hoặc (b) thấy term cao hơn. Nó không có nút "từ chức". Membership change và leadership transfer (tối ưu vận hành) là phần mở rộng.
 
 ---
 
@@ -434,6 +456,20 @@ Log không thể grow vô hạn — nếu không, restart node phải replay hà
 - Snapshot lưu: `lastIncludedIndex`, `lastIncludedTerm`, và toàn bộ state.
 - Khi một follower tụt quá xa (leader đã xoá log nó cần) → leader gửi **InstallSnapshot RPC** thay vì AppendEntries.
 
+**Ví dụ số:** log có 12.000 entry, lệnh đều là `set/del` trên một KV store cuối cùng còn 800 key. Snapshot ghi `lastIncludedIndex=12000, lastIncludedTerm=9` + 800 key (vài KB). Sau đó **xoá entry #0..#11999** → restart chỉ cần nạp snapshot rồi replay 0 entry, thay vì replay 12.000 lệnh. Đĩa giảm từ ~MB log xuống vài KB.
+
+> ❓ *"Snapshot có cần consensus không?"* → **Không.** Snapshot là việc nội bộ từng node (state đã được consensus rồi qua log). InstallSnapshot chỉ là cách leader giúp follower quá lạc hậu bắt kịp nhanh, không phải một quyết định cần bầu.
+
+### Phụ lục: hai RPC của Raft (tham chiếu nhanh)
+
+| RPC | Ai gọi | Mục đích | Trường chính |
+|-----|--------|----------|--------------|
+| `RequestVote` | Candidate → mọi node | Xin phiếu bầu | `term`, `candidateId`, `lastLogIndex`, `lastLogTerm` → reply `term`, `voteGranted` |
+| `AppendEntries` | Leader → follower | Replicate log + heartbeat (entries rỗng) | `term`, `leaderId`, `prevLogIndex`, `prevLogTerm`, `entries[]`, `leaderCommit` → reply `term`, `success` |
+| `InstallSnapshot` | Leader → follower lạc hậu | Gửi snapshot khi log cần đã bị nén | `term`, `lastIncludedIndex`, `lastIncludedTerm`, `data` |
+
+Trong [solutions.go](./solutions.go), `RequestVote` và `AppendEntries` được mô hình hoá làm hai struct message gửi qua channel; `InstallSnapshot` được lược bỏ cho gọn (toy model).
+
 ---
 
 ## 13. Membership change — thêm/bớt node an toàn
@@ -457,6 +493,8 @@ Raft dùng **joint consensus** (đồng thuận chung): chuyển qua một cấu
 | Dùng ở | etcd, Consul, TiKV, CockroachDB, Kafka KRaft | Google Chubby, Spanner | ZooKeeper, Kafka (cũ) |
 
 > 💡 Raft và Paxos **tương đương** về năng lực và hiệu năng. Khác biệt lớn nhất là **độ dễ hiểu** — Raft được thiết kế chủ đích cho việc đó, nên ngày nay hệ mới phần lớn chọn Raft.
+
+> ⚠ **Đừng nhầm consensus với 2PC.** Two-Phase Commit (2PC, học ở các bài giao dịch phân tán) cũng cho nhiều node "đồng ý", nhưng 2PC **chặn hoàn toàn nếu coordinator chết** (blocking) và **không** chịu được lỗi node. Consensus (Raft/Paxos) thì **non-blocking khi majority còn sống** và tự bầu leader mới. 2PC giải bài toán "commit nguyên tử một giao dịch"; Raft giải bài toán "đồng thuận một chuỗi giá trị có chịu lỗi". Khác mục đích.
 
 ---
 

@@ -150,6 +150,10 @@ Câu hỏi lớn: **liệu NP có lớn hơn P không, hay P = NP?**
 
 > 💡 **Trực giác về "tại sao tin P ≠ NP".** Trải nghiệm đời sống: **kiểm tra một lời giải dễ hơn nhiều so với nghĩ ra nó.** Chấm một bài chứng minh toán dễ hơn tự chứng minh. Thưởng thức một bản giao hưởng dễ hơn soạn ra nó. Nếu P = NP thì sáng tạo = kiểm tra — phản trực giác sâu sắc. Nhưng *trực giác không phải chứng minh* — đó là lý do bài này vẫn mở.
 
+**Vì sao chứng minh khó đến vậy?** Để chứng minh P ≠ NP, phải chỉ ra **không tồn tại** thuật toán đa thức nào cho một bài NP-complete — chứng minh phủ định trên một tập vô hạn các thuật toán có thể có. Các kỹ thuật đã thử (relativization, natural proofs, algebrization) đều được chứng minh là **không đủ mạnh** để giải bài này — nghĩa là cần ý tưởng hoàn toàn mới. Đó là lý do sau 50+ năm vẫn bế tắc.
+
+**Hệ quả thực tế nếu P = NP** (giả định): mọi bài tối ưu hóa khó (lập lịch, thiết kế mạch, gấp protein, chứng minh định lý tự động) đều giải nhanh. Nhưng đồng thời **RSA, ECC và phần lớn mật mã sụp đổ** vì chúng dựa trên giả định "factor / discrete log là khó". Đây là con dao hai lưỡi khiến câu hỏi vừa hấp dẫn vừa đáng sợ.
+
 > ❓ **Câu hỏi tự nhiên.** *"Nếu chưa ai chứng minh P ≠ NP, sao dám nói TSP là khó?"* — Đúng, về mặt logic chặt chẽ ta chỉ nói: "TSP là NP-complete, nên **nếu** P ≠ NP thì TSP không có thuật toán đa thức". Vì gần như chắc P ≠ NP, trong thực hành ta hành xử như TSP là khó.
 
 > 🔁 **Dừng lại tự kiểm tra.** P ⊆ NP hay NP ⊆ P được chứng minh chắc chắn?

@@ -76,6 +76,12 @@ Cộng thêm 2 "siêu năng lực" thực dụng:
 - **Đọc constraint → đoán độ phức tạp mục tiêu** (mục 3): trước khi nghĩ thuật toán, nhìn `n ≤ ?` là biết được phép dùng độ phức tạp nào.
 - **Chiến lược khi stuck** (mục 5): khi không nghĩ ra, làm gì để không kẹt mãi.
 
+**Ba ví dụ thất bại điển hình khi không có framework:**
+
+1. Đề: "đếm số cặp `(i,j)` có `a[i]+a[j]=k`, `n ≤ 2·10^5`". Phản xạ: hai vòng for `O(n^2) = 4·10^{10}` → TLE. Nếu đọc constraint trước (mục 3) đã biết phải `O(n)`/`O(n log n)` → dùng hash/two pointers.
+2. Đề: "tìm subarray tổng lớn nhất". Code tham lam "cứ cộng tiếp" mà không xử lý số âm → sai trên `[-1, -2]` (quên rằng có thể phải reset). Bỏ qua bước 2 (edge case số âm) là nguyên nhân.
+3. Đề: "đổi tiền ít xu nhất". Dùng greedy lấy xu lớn nhất → sai trên `coins=[1,3,4]` (mục 7.3). Không kiểm chứng greedy là anti-pattern (mục 8).
+
 > ❓ **Câu hỏi tự nhiên của người đọc.**
 > - *"Framework có làm tôi giải chậm hơn không vì phải làm nhiều bước?"* — Ngược lại. 5 phút phân tích đầu tiên tiết kiệm 30 phút debug cách sai. Người mới rớt nhiều nhất ở khâu *chọn sai hướng*, không phải khâu code.
 > - *"Tôi có phải làm đủ 7 bước cho bài dễ không?"* — Không. Bài quá quen thì bước nhận diện pattern + code là đủ. Nhưng bài *lạ* thì làm đủ.

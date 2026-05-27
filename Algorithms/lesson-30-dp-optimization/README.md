@@ -157,6 +157,19 @@ func lcs(a, b string) int {
 
 > ❓ **Khi nào KHÔNG được space-optimize?** Khi bạn cần **truy vết** (reconstruct) lời giải, không chỉ giá trị tối ưu. Ví dụ: in ra *chuỗi* LCS, *danh sách vật* trong knapsack. Truy vết thường cần đọc lại các ô của hàng cũ — mà rolling array đã vứt đi. Giải pháp: hoặc giữ nguyên bảng 2D, hoặc dùng Hirschberg (D&C trên LCS) để truy vết trong O(n) space + O(mn) time (nâng cao).
 
+### 2.4 Bốn ví dụ số: bộ nhớ tiết kiệm được bao nhiêu?
+
+Để thấy rõ space opt cứu MLE thế nào, đây là 4 cấu hình thực tế (giả sử mỗi ô là int64 = 8 byte):
+
+| Bài | n / m | W / cột | Bảng đầy đủ | Rolling | Tỉ lệ giảm |
+|-----|-------|---------|-------------|---------|------------|
+| Knapsack 0/1 | n=2000 | W=10⁵ | (2001)×(10⁵+1)×8 ≈ **1.6 GB** | (10⁵+1)×8 ≈ **0.8 MB** | ÷2001 |
+| Knapsack 0/1 | n=500 | W=2×10⁴ | 501×20001×8 ≈ **80 MB** | 20001×8 ≈ **0.16 MB** | ÷501 |
+| LCS | m=n=5×10⁴ | — | (5×10⁴)²×8 ≈ **20 GB** | 2×(5×10⁴)×8 ≈ **0.8 MB** | ÷25000 |
+| Edit distance | m=n=10⁴ | — | 10⁸×8 ≈ **800 MB** | 2×10⁴×8 ≈ **0.16 KB** | ÷5000 |
+
+Quan sát: bộ nhớ bảng đầy đủ tăng theo **tích** n×W (hoặc m×n), trong khi rolling chỉ theo **một chiều** → tỉ lệ giảm = số hàng. Với hai chuỗi dài, đây là khác biệt giữa "chạy được" và "MLE chắc chắn".
+
 > 🔁 **Dừng lại tự kiểm tra.** Với knapsack 0/1 đã nén 1 chiều, vì sao phải duyệt `w` giảm dần?
 > <details><summary>Đáp án</summary>Để `dp[w-wt[i]]` còn là giá trị của hàng cũ (i-1) — tức trạng thái "chưa lấy vật i". Duyệt tăng → ô đó đã được cập nhật cho vật i → lấy vật i nhiều lần (sai cho 0/1).</details>
 
@@ -203,16 +216,18 @@ func maxResult(a []int, k int) int {
 	}
 	return dp[n-1]
 }
-// Walk-through a=[1,-1,-2,4,-7,3], k=2:
+// Walk-through a=[1,-1,-2,4,-7,3], k=2  -> đáp số dp[5]=7:
 // dp[0]=1, deque=[0]
-// i=1: front 0 còn trong [-1,0]. dp[1]=-1+dp[0]=0. pop back? dp[0]=1>0 -> giữ. deque=[0,1]
-// i=2: front 0 còn trong [0,1]. dp[2]=-2+dp[0]=-1. dp[1]=0> -1 giữ. deque=[0,1,2]
-// i=3: bỏ front <1: pop 0. deque=[1,2]. front=1. dp[3]=4+dp[1]=4+0=4.
-//      pop back dp[2]=-1<=4 pop; dp[1]=0<=4 pop. deque=[]. push 3 -> deque=[3]
-// i=4: front 3 trong [2,3]. dp[4]=-7+dp[3]=-3. push (dp[3]=4>-3 giữ) deque=[3,4]
-// i=5: bỏ front<3: pop 3. deque=[4]. dp[5]=3+dp[4]=3+(-3)=0.
-// dp[5]=0 ✓  (đường: 0->1->3->5: 1-1+4+3 = 7? — chú ý k=2 buộc bước <=2,
-//   thực tế max path tới index 5 cho dp này = 0; xem viz module 2 để mô phỏng từng bước.)
+// i=1: front 0 trong cửa sổ [-1,0]. dp[1]=a[1]+dp[0]=-1+1=0.
+//      pop back? dp[0]=1>0 -> giữ. push 1. deque=[0,1]
+// i=2: front 0 trong [0,1]. dp[2]=a[2]+dp[0]=-2+1=-1.
+//      pop back? dp[1]=0> -1 giữ. push 2. deque=[0,1,2]
+// i=3: bỏ front <1: pop 0. deque=[1,2]. front=1. dp[3]=a[3]+dp[1]=4+0=4.
+//      pop back: dp[2]=-1<=4 pop; dp[1]=0<=4 pop. deque=[]. push 3. deque=[3]
+// i=4: front 3 trong [2,3]. dp[4]=a[4]+dp[3]=-7+4=-3.
+//      pop back? dp[3]=4>-3 giữ. push 4. deque=[3,4]
+// i=5: bỏ front<3: pop 3? 3>=3 nên GIỮ. front=3. dp[5]=a[5]+dp[3]=3+4=7.
+// dp[5]=7 ✓  (đường tối ưu 0->1->3->5: 1 + (-1) + 4 + 3 = 7) — xem viz module 2.
 ```
 
 ### 3.2 Constrained Subsequence Sum
@@ -319,6 +334,17 @@ func bestPrefixMax(a []int) int {
 	return dp[n-1]
 }
 ```
+
+### 4.3 Bốn ví dụ số cho climbWays (prefix sum)
+
+Kiểm chứng `climbWays` (bước 1..m) với vài cấu hình, dùng công thức `dp[i]=pre[i]-pre[lo]`:
+
+- `climbWays(4, 2)` = 5 (đã walk-through ở 4.1: các cách 1111, 211, 121, 112, 22).
+- `climbWays(5, 2)` = 8 = fib(6) — vì bước 1/2 cho đúng dãy Fibonacci.
+- `climbWays(4, 3)` = 7 (bước 1/2/3): 1111, 112, 121, 211, 13, 31, 22.
+- `climbWays(3, 3)` = 4: 111, 12, 21, 3.
+
+Naïve O(n·m): với n=10⁶, m=10⁶ → 10¹² thao tác (TLE). Prefix sum O(n) = 10⁶ → chạy tức thì. Mấu chốt: tổng cửa sổ `dp[lo..i-1]` lấy bằng **một phép trừ** `pre[i]-pre[lo]` thay vì cộng lại m số.
 
 > ⚠ **Khác biệt với deque (mục 3).** Prefix dùng khi cửa sổ là **toàn bộ tiền tố** (không giới hạn độ rộng). Nếu cửa sổ **trượt cố định độ rộng k**, prefix max KHÔNG dùng được (vì max cần "rút lui" khi phần tử cũ rời cửa sổ — biến chạy không làm được điều đó) → phải dùng deque. Nhưng prefix **sum** trên cửa sổ độ rộng k vẫn ổn (mục 4.1) vì tổng có phép trừ để rút lui.
 
@@ -465,6 +491,19 @@ Quy nạp: (A^L)[u][v] = số đường dài L. -> tính A^L bằng lũy thừa 
 > ❓ **Câu hỏi tự nhiên.** *"Recurrence nào dùng được matrix expo?"* Chỉ **tuyến tính, hệ số HẰNG**: `f(n) = c₁·f(n-1) + c₂·f(n-2) + ... + c_d·f(n-d)`. Bậc d → ma trận d×d → O(d³ log n). Nếu hệ số *thay đổi theo n* (vd `f(n) = n·f(n-1)`) thì KHÔNG dùng được — ma trận chuyển không cố định.
 
 > ⚠ **Lỗi thường gặp.** (1) Quên modulo → tràn số (fib lớn rất nhanh). (2) Đặt sai ma trận chuyển T (sai thứ tự trạng thái). (3) Áp matrix expo cho recurrence hệ số không hằng. Luôn kiểm T bằng cách tính tay T^1, T^2 và đối chiếu vài số hạng đầu (như mục 8.1).
+
+### 8.3 So sánh số bước: tuyến tính vs matrix expo
+
+Bốn ví dụ cụ thể về số bước (mỗi "bước log" = 1 vòng lặp lũy thừa, mỗi vòng O(1) cho ma trận 2×2):
+
+| n | DP tuyến tính (số bước cộng) | Matrix expo (số vòng = ⌊log₂n⌋+1) | Tỉ lệ |
+|---|------------------------------|------------------------------------|-------|
+| 10 | 10 | 4 | ~2.5× |
+| 10⁶ | 1 000 000 | 20 | ~50 000× |
+| 10¹² | 10¹² (≈ vài giờ) | 40 | thiên văn |
+| 10¹⁸ | 10¹⁸ (bất khả thi) | 60 | thiên văn |
+
+Với n=10¹⁸, DP tuyến tính cần 10¹⁸ phép cộng — ở tốc độ 10⁹ phép/giây mất ~30 năm. Matrix expo: 60 vòng, mỗi vòng vài phép nhân int64 → dưới 1 micro-giây. Đây là lý do mọi bài "tính số hạng thứ n cực lớn của recurrence tuyến tính" đều đáp bằng matrix expo.
 
 > 🔁 **Dừng lại tự kiểm tra.** Vì sao matrix expo cho fib chỉ O(log n) dù phải nhân ma trận?
 > <details><summary>Đáp án</summary>Mỗi phép nhân ma trận 2×2 là O(1) (số phép cố định = 8 phép nhân). Lũy thừa nhanh dùng O(log n) phép nhân (bình phương liên tiếp + nhân theo bit của n). → O(log n) tổng. Với ma trận d×d thì mỗi phép nhân là O(d³).</details>

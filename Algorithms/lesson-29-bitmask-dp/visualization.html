@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 29 — Bitmask DP</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 40px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .lead { color: #4a5568; max-width: 760px; }
+  main { max-width: 920px; margin: 0 auto; padding: 0 16px 60px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.1); margin: 18px 0;
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px; }
+  .controls label { font-weight: 600; color: #2d3748; font-size: 14px; }
+  select, input[type="number"], input[type="text"] {
+    padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 15px; max-width: 160px; width: 100%; box-sizing: border-box;
+  }
+  .ctl-group { display: flex; flex-direction: column; gap: 4px; }
+  button {
+    padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;
+    font-size: 14px; font-weight: 600; background: #ef4444; color: white;
+  }
+  button:hover { background: #dc2626; }
+  button.secondary { background: #718096; }
+  button.secondary:hover { background: #4a5568; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+
+  /* bit boxes */
+  .bits { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0; }
+  .bit {
+    width: 56px; text-align: center; border: 2px solid #cbd5e0;
+    border-radius: 8px; padding: 6px 0; background: #f7fafc; cursor: pointer;
+    user-select: none; transition: background .15s, border-color .15s, transform .1s;
+  }
+  .bit .idx { font-size: 11px; color: #718096; }
+  .bit .val { font-size: 22px; font-weight: 700; color: #4a5568; }
+  .bit.on { background: #fee2e2; border-color: #ef4444; }
+  .bit.on .val { color: #dc2626; }
+  .bit.flash { transform: scale(1.12); }
+  .readout { font-family: ui-monospace, monospace; font-size: 16px; margin: 8px 0; color: #2d3748; }
+  .readout b { color: #dc2626; }
+  .pill {
+    display: inline-block; background: #edf2f7; border-radius: 14px;
+    padding: 3px 12px; font-family: ui-monospace, monospace; font-size: 15px;
+    margin: 2px; color: #2d3748;
+  }
+  .log {
+    font-family: ui-monospace, monospace; font-size: 13px; background: #1a202c;
+    color: #e2e8f0; border-radius: 8px; padding: 12px; max-height: 220px;
+    overflow-y: auto; white-space: pre-wrap; line-height: 1.5;
+  }
+  .log .hl { color: #fbbf24; }
+  .log .ok { color: #68d391; }
+
+  /* TSP svg */
+  .tsp-wrap { overflow-x: auto; }
+  svg { display: block; max-width: 100%; height: auto; margin: 0 auto; background: #f7fafc; border-radius: 8px; }
+  .city { fill: #4299e1; stroke: #2b6cb0; stroke-width: 2; }
+  .city.start { fill: #ef4444; stroke: #b91c1c; }
+  .clabel { font: 700 14px sans-serif; fill: white; text-anchor: middle; dominant-baseline: central; }
+  .edge { stroke: #cbd5e0; stroke-width: 1.5; }
+  .edge.best { stroke: #ef4444; stroke-width: 4; }
+  .ewt { font: 600 11px sans-serif; fill: #718096; }
+
+  /* dp table */
+  .dptab { overflow-x: auto; }
+  table.dp { border-collapse: collapse; font-family: ui-monospace, monospace; font-size: 12px; min-width: 360px; }
+  table.dp th, table.dp td { border: 1px solid #cbd5e0; padding: 3px 6px; text-align: center; }
+  table.dp th { background: #edf2f7; }
+  table.dp td.set { background: #fef3c7; }
+  table.dp td.inf { color: #cbd5e0; }
+  table.dp td.cur { background: #fbbf24; font-weight: 700; }
+
+  /* subset enum */
+  .subrow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-family: ui-monospace, monospace; margin: 6px 0; }
+  .subrow .bin { font-size: 16px; letter-spacing: 2px; }
+  .subrow.cur { background: #fef3c7; border-radius: 6px; padding: 4px 8px; }
+  .small { font-size: 13px; color: #718096; }
+
+  @media (max-width: 480px) {
+    .bit { width: 40px; }
+    .bit .val { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-28-dp-on-trees/visualization.html">← L28: DP trên cây</a>
+  <span class="sep">·</span>
+  <span class="current">L29: Bitmask DP</span>
+  <span class="sep">·</span>
+  <a href="../lesson-30-dp-optimization/visualization.html">L30: DP Optimization →</a>
+</nav>
+
+<main>
+  <h1>Lesson 29 — Bitmask DP</h1>
+  <p class="lead">Dùng một số nguyên làm tập hợp, rồi quy hoạch động trên các tập đó.
+  Ba module: khám phá bitmask, giải TSP từng bước, và trick liệt kê mọi tập con.</p>
+
+  <!-- ============ MODULE 1: BITMASK EXPLORER ============ -->
+  <h2>1. Bitmask Explorer — số nguyên là tập hợp</h2>
+  <div class="card">
+    <p class="small">Click vào một bit để bật/tắt, hoặc dùng các nút thao tác. Bit <b>i</b> bật ⟺ phần tử <b>i</b> thuộc tập.</p>
+    <div class="controls">
+      <div class="ctl-group">
+        <label>Số phần tử n</label>
+        <select id="bmN">
+          <option>4</option><option selected>5</option><option>6</option>
+        </select>
+      </div>
+      <div class="ctl-group">
+        <label>Phần tử i (cho thao tác)</label>
+        <input type="number" id="bmI" value="1" min="0">
+      </div>
+    </div>
+    <div class="bits" id="bmBits"></div>
+    <div class="readout">mask = <b id="bmDec">0</b> (thập phân) = <b id="bmBin">00000</b> (nhị phân)</div>
+    <div class="readout">Tập = <span id="bmSet" class="pill">{}</span> &nbsp;·&nbsp; popcount = <b id="bmPop">0</b></div>
+    <div class="controls" style="margin-top:14px">
+      <button onclick="bmOp('set')">set | (1&lt;&lt;i)</button>
+      <button onclick="bmOp('clr')">clear &amp;^ (1&lt;&lt;i)</button>
+      <button onclick="bmOp('tog')">toggle ^ (1&lt;&lt;i)</button>
+      <button class="secondary" onclick="bmOp('full')">full (1&lt;&lt;n)-1</button>
+      <button class="secondary" onclick="bmOp('zero')">reset 0</button>
+      <button class="secondary" onclick="bmEnum()">▶ liệt kê subset</button>
+    </div>
+    <div class="log" id="bmLog">Thao tác sẽ hiện ở đây...</div>
+  </div>
+
+  <!-- ============ MODULE 2: TSP SOLVER ============ -->
+  <h2>2. TSP Solver — dp[mask][i] từng bước</h2>
+  <div class="card">
+    <p class="small">Xuất phát từ thành phố 0 (đỏ), thăm hết, về 0, chi phí nhỏ nhất.
+    Nhấn "Giải từng bước" để animate bảng <code>dp[mask][i]</code> điền dần; đường tối ưu tô đỏ trên đồ thị.</p>
+    <div class="controls">
+      <div class="ctl-group">
+        <label>Số thành phố n</label>
+        <select id="tspN"><option selected>4</option><option>5</option></select>
+      </div>
+      <button onclick="tspRandom()" class="secondary">🎲 Ngẫu nhiên</button>
+      <button id="tspStep" onclick="tspStepBtn()">▶ Giải từng bước</button>
+      <button id="tspAll" onclick="tspSolveAll()" class="secondary">⏭ Giải hết ngay</button>
+    </div>
+    <div class="tsp-wrap">
+      <svg id="tspSvg" width="420" height="320" viewBox="0 0 420 320"></svg>
+    </div>
+    <div class="readout">Chi phí tối ưu: <b id="tspAns">—</b> &nbsp;·&nbsp; Đường: <span id="tspPath" class="pill">—</span></div>
+    <div class="dptab"><div id="tspTable"></div></div>
+    <div class="log" id="tspLog">Nhấn "Giải từng bước"...</div>
+  </div>
+
+  <!-- ============ MODULE 3: SUBSET ENUMERATION ============ -->
+  <h2>3. Subset Enumeration — trick (s-1) &amp; mask</h2>
+  <div class="card">
+    <p class="small">Liệt kê <b>mọi tập con</b> của một mask bằng vòng lặp một dòng
+    <code>for s := mask; s &gt; 0; s = (s-1) &amp; mask</code>. Mỗi bước hiện <code>s-1</code> rồi <code>&amp; mask</code>.</p>
+    <div class="controls">
+      <div class="ctl-group">
+        <label>mask (chọn tập)</label>
+        <select id="seMask">
+          <option value="6">6 = 0110 → {1,2}</option>
+          <option value="11">11 = 1011 → {0,1,3}</option>
+          <option value="13">13 = 1101 → {0,2,3}</option>
+          <option value="15">15 = 1111 → {0,1,2,3}</option>
+          <option value="22">22 = 10110 → {1,2,4}</option>
+        </select>
+      </div>
+      <button id="seStep" onclick="seStepBtn()">▶ Bước tiếp</button>
+      <button onclick="seReset()" class="secondary">↻ Reset</button>
+      <button onclick="seAll()" class="secondary">⏭ Liệt kê hết</button>
+    </div>
+    <div class="readout">Đã liệt kê: <span id="seCount">0</span> tập con (mong đợi 2<sup>popcount</sup> − 1 khác rỗng)</div>
+    <div id="seRows"></div>
+    <div class="log" id="seLog">Nhấn "Bước tiếp" để chạy trick từng vòng lặp...</div>
+  </div>
+</main>
+
+<script>
+const el = id => document.getElementById(id);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+/* ===================== MODULE 1: BITMASK EXPLORER ===================== */
+let bmMask = 0;
+function bmN() { return parseInt(el('bmN').value); }
+function bmSetToStr(mask, n) {
+  let parts = [];
+  for (let i = 0; i < n; i++) if (mask & (1 << i)) parts.push(i);
+  return '{' + parts.join(', ') + '}';
+}
+function bmPad(mask, n) { return mask.toString(2).padStart(n, '0'); }
+function bmRender(flashI = -1) {
+  const n = bmN();
+  const wrap = el('bmBits');
+  wrap.innerHTML = '';
+  // hiển thị bit cao -> thấp (i = n-1 ... 0)
+  for (let i = n - 1; i >= 0; i--) {
+    const on = (bmMask & (1 << i)) !== 0;
+    const d = document.createElement('div');
+    d.className = 'bit' + (on ? ' on' : '') + (i === flashI ? ' flash' : '');
+    d.innerHTML = `<div class="idx">i=${i}</div><div class="val">${on ? 1 : 0}</div>`;
+    d.onclick = () => { bmMask ^= (1 << i); el('bmI').value = i; bmRender(i); bmLogLine(`click bit ${i} → toggle`); };
+    wrap.appendChild(d);
+  }
+  el('bmDec').textContent = bmMask;
+  el('bmBin').textContent = bmPad(bmMask, n);
+  el('bmSet').textContent = bmSetToStr(bmMask, n);
+  let pop = 0, m = bmMask; while (m) { pop += m & 1; m >>= 1; }
+  el('bmPop').textContent = pop;
+}
+function bmLogLine(s) {
+  const log = el('bmLog');
+  log.textContent = s + '\n' + log.textContent;
+}
+function bmOp(op) {
+  const n = bmN();
+  let i = parseInt(el('bmI').value) || 0;
+  if (i < 0) i = 0; if (i >= n) i = n - 1; el('bmI').value = i;
+  const before = bmMask;
+  let expr = '';
+  if (op === 'set') { bmMask |= (1 << i); expr = `${before} | (1<<${i}) = ${before} | ${1 << i} = ${bmMask}`; }
+  else if (op === 'clr') { bmMask &= ~(1 << i); expr = `${before} &^ (1<<${i}) = ${bmMask}`; }
+  else if (op === 'tog') { bmMask ^= (1 << i); expr = `${before} ^ (1<<${i}) = ${bmMask}`; }
+  else if (op === 'full') { bmMask = (1 << n) - 1; expr = `(1<<${n})-1 = ${bmMask}`; }
+  else if (op === 'zero') { bmMask = 0; expr = `reset → 0`; }
+  bmRender(['set', 'clr', 'tog'].includes(op) ? i : -1);
+  bmLogLine(`${op}: ${expr}  → ${bmSetToStr(bmMask, n)}`);
+}
+async function bmEnum() {
+  const n = bmN();
+  if (bmMask === 0) { bmLogLine('mask = 0 (rỗng): không có subset khác rỗng.'); return; }
+  bmLogLine(`— liệt kê subset của ${bmMask} (${bmSetToStr(bmMask, n)}) —`);
+  let s = bmMask;
+  while (s > 0) {
+    bmLogLine(`  s=${s} (${bmPad(s, n)}) = ${bmSetToStr(s, n)}`);
+    s = (s - 1) & bmMask;
+    await sleep(280);
+  }
+  bmLogLine('  s=0 → dừng');
+}
+el('bmN').addEventListener('change', () => { bmMask &= (1 << bmN()) - 1; bmRender(); });
+
+/* ===================== MODULE 2: TSP SOLVER ===================== */
+let tspDist = [], tspNcur = 4, tspPos = [];
+const INF = 1e9;
+
+function tspLayout(n) {
+  // đặt thành phố trên đường tròn
+  const cx = 210, cy = 150, r = 110;
+  const pos = [];
+  for (let i = 0; i < n; i++) {
+    const a = -Math.PI / 2 + i * 2 * Math.PI / n;
+    pos.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]);
+  }
+  return pos;
+}
+function tspRandom() {
+  const n = parseInt(el('tspN').value);
+  tspNcur = n;
+  tspDist = Array.from({ length: n }, () => new Array(n).fill(0));
+  for (let i = 0; i < n; i++)
+    for (let j = i + 1; j < n; j++) {
+      const w = 5 + Math.floor(Math.random() * 36);
+      tspDist[i][j] = tspDist[j][i] = w;
+    }
+  tspPos = tspLayout(n);
+  el('tspAns').textContent = '—';
+  el('tspPath').textContent = '—';
+  el('tspTable').innerHTML = '';
+  el('tspLog').textContent = 'Đồ thị mới. Nhấn "Giải từng bước".';
+  tspDrawGraph([]);
+  tspResetSolve();
+}
+function tspDrawGraph(bestPath) {
+  const n = tspNcur, svg = el('tspSvg');
+  let s = '';
+  const inBest = new Set();
+  for (let k = 0; k + 1 < bestPath.length; k++) {
+    inBest.add(bestPath[k] + ',' + bestPath[k + 1]);
+    inBest.add(bestPath[k + 1] + ',' + bestPath[k]);
+  }
+  for (let i = 0; i < n; i++)
+    for (let j = i + 1; j < n; j++) {
+      const best = inBest.has(i + ',' + j);
+      const [x1, y1] = tspPos[i], [x2, y2] = tspPos[j];
+      s += `<line class="edge${best ? ' best' : ''}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;
+      const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+      s += `<text class="ewt" x="${mx}" y="${my}">${tspDist[i][j]}</text>`;
+    }
+  for (let i = 0; i < n; i++) {
+    const [x, y] = tspPos[i];
+    s += `<circle class="city${i === 0 ? ' start' : ''}" cx="${x}" cy="${y}" r="17"/>`;
+    s += `<text class="clabel" x="${x}" y="${y}">${i}</text>`;
+  }
+  svg.innerHTML = s;
+}
+
+// state cho animation từng bước
+let tspDP = [], tspMaskOrder = [], tspStepIdx = 0, tspDone = false;
+function tspResetSolve() {
+  const n = tspNcur, full = (1 << n);
+  tspDP = Array.from({ length: full }, () => new Array(n).fill(INF));
+  tspDP[1][0] = 0;
+  tspMaskOrder = [];
+  for (let m = 1; m < full; m++) if (m & 1) tspMaskOrder.push(m);
+  tspStepIdx = 0; tspDone = false;
+  el('tspStep').disabled = false;
+  tspRenderTable(-1);
+}
+function tspRenderTable(curMask) {
+  const n = tspNcur, full = (1 << n);
+  let h = '<table class="dp"><tr><th>mask \\ i</th>';
+  for (let i = 0; i < n; i++) h += `<th>i=${i}</th>`;
+  h += '</tr>';
+  for (let m = 1; m < full; m++) {
+    if (!(m & 1)) continue;
+    h += `<tr><th>${m.toString(2).padStart(n, '0')}</th>`;
+    for (let i = 0; i < n; i++) {
+      const v = tspDP[m][i];
+      const has = (m & (1 << i)) !== 0;
+      let cls = '';
+      if (m === curMask) cls = 'cur';
+      else if (v >= INF) cls = 'inf';
+      else cls = 'set';
+      h += `<td class="${cls}">${v >= INF ? '∞' : v}</td>`;
+    }
+    h += '</tr>';
+  }
+  h += '</table>';
+  el('tspTable').innerHTML = h;
+}
+function tspLog(s, cls) {
+  const log = el('tspLog');
+  log.textContent = (cls ? `[${cls}] ` : '') + s + '\n' + log.textContent;
+}
+function tspStepBtn() {
+  if (tspDist.length === 0) { tspRandom(); }
+  const n = tspNcur, full = (1 << n);
+  if (tspStepIdx >= tspMaskOrder.length) { tspFinish(); return; }
+  const mask = tspMaskOrder[tspStepIdx++];
+  // relax từ mask
+  let any = false;
+  for (let i = 0; i < n; i++) {
+    if (tspDP[mask][i] >= INF || !(mask & (1 << i))) continue;
+    for (let j = 0; j < n; j++) {
+      if (mask & (1 << j)) continue;
+      const nx = mask | (1 << j);
+      const cand = tspDP[mask][i] + tspDist[i][j];
+      if (cand < tspDP[nx][j]) {
+        tspDP[nx][j] = cand;
+        tspLog(`mask ${mask.toString(2).padStart(n,'0')} ở ${i} → ${j}: dp[${nx.toString(2).padStart(n,'0')}][${j}] = ${cand}`);
+        any = true;
+      }
+    }
+  }
+  if (!any) tspLog(`mask ${mask.toString(2).padStart(n,'0')}: không có chuyển trạng thái mới`);
+  tspRenderTable(mask);
+  if (tspStepIdx >= tspMaskOrder.length) tspFinish();
+}
+function tspFinish() {
+  if (tspDone) return;
+  tspDone = true;
+  const n = tspNcur, full = (1 << n) - 1;
+  let ans = INF, last = -1;
+  for (let i = 1; i < n; i++) {
+    const v = tspDP[full][i] + tspDist[i][0];
+    if (v < ans) { ans = v; last = i; }
+  }
+  // truy vết bằng cách thử lại đường (n nhỏ): reconstruct greedy backward
+  const path = tspReconstruct(last);
+  el('tspAns').textContent = ans >= INF ? 'không có' : ans;
+  el('tspPath').textContent = path.length ? path.join(' → ') : '—';
+  tspDrawGraph(path);
+  tspLog(`✓ tối ưu = ${ans}, đường ${path.join('→')}`, 'OK');
+  el('tspStep').disabled = true;
+  tspRenderTable(-1);
+}
+function tspReconstruct(last) {
+  const n = tspNcur;
+  if (last < 0) return [];
+  let mask = (1 << n) - 1, cur = last;
+  const order = []; // các thành phố trừ điểm gốc, theo thứ tự ngược
+  // đi ngược cho tới khi chỉ còn thành phố 0 trong mask
+  while (cur !== 0 && cur !== -1) {
+    order.push(cur);
+    const pm = mask & ~(1 << cur); // tập trước khi tới cur
+    let prev = -1;
+    for (let p = 0; p < n; p++) {
+      if (!(pm & (1 << p))) continue;
+      if (tspDP[pm][p] !== INF && tspDP[pm][p] + tspDist[p][cur] === tspDP[mask][cur]) { prev = p; break; }
+    }
+    mask = pm; cur = prev;
+  }
+  order.reverse();
+  return [0, ...order, 0]; // 0 → ... → 0 (chu trình)
+}
+async function tspSolveAll() {
+  if (tspDist.length === 0) tspRandom();
+  while (tspStepIdx < tspMaskOrder.length) { tspStepBtn(); }
+  if (!tspDone) tspFinish();
+}
+
+/* ===================== MODULE 3: SUBSET ENUMERATION ===================== */
+let seState = null;
+function seInit() {
+  const mask = parseInt(el('seMask').value);
+  const n = Math.max(4, mask.toString(2).length);
+  seState = { mask, n, s: mask, count: 0, started: false, done: false, rows: [] };
+  el('seCount').textContent = '0';
+  el('seRows').innerHTML = '';
+  el('seLog').textContent = `mask = ${mask} = ${mask.toString(2).padStart(n,'0')}. Nhấn "Bước tiếp".`;
+  el('seStep').disabled = false;
+}
+function sePad(x, n) { return x.toString(2).padStart(n, '0'); }
+function seSet(mask, n) {
+  let p = []; for (let i = 0; i < n; i++) if (mask & (1 << i)) p.push(i);
+  return '{' + p.join(',') + '}';
+}
+function seRender() {
+  const st = seState;
+  let h = '';
+  st.rows.forEach((r, idx) => {
+    const cur = (idx === st.rows.length - 1 && !st.done);
+    h += `<div class="subrow${cur ? ' cur' : ''}">`;
+    h += `<span>#${idx + 1}</span> <span class="bin">${r.bin}</span>`;
+    h += ` <span class="pill">${r.set}</span>`;
+    if (r.next !== null)
+      h += ` <span class="small">→ (s-1)&amp;mask = ${r.sm}&amp;${sePad(st.mask, st.n)} = ${r.next}</span>`;
+    h += `</div>`;
+  });
+  el('seRows').innerHTML = h;
+  el('seCount').textContent = st.count;
+}
+function seStepBtn() {
+  const st = seState;
+  if (!st) { seInit(); }
+  if (seState.done) { return; }
+  const s = seState;
+  if (s.s <= 0) {
+    s.done = true;
+    el('seLog').textContent = `s = 0 → dừng. Tổng ${s.count} tập con khác rỗng.\n` + el('seLog').textContent;
+    el('seStep').disabled = true;
+    seRender();
+    return;
+  }
+  s.count++;
+  const sm = sePad(s.s - 1, s.n);
+  const next = (s.s - 1) & s.mask;
+  s.rows.push({ bin: sePad(s.s, s.n), set: seSet(s.s, s.n), sm, next: next > 0 ? sePad(next, s.n) : '0' });
+  el('seLog').textContent = `s=${s.s} (${sePad(s.s, s.n)}) = ${seSet(s.s, s.n)}; tiếp: (${s.s}-1)&${s.mask} = ${next}\n` + el('seLog').textContent;
+  s.s = next;
+  seRender();
+}
+function seReset() { seInit(); }
+async function seAll() {
+  if (!seState) seInit();
+  while (!seState.done) { seStepBtn(); await sleep(120); }
+}
+el('seMask').addEventListener('change', seInit);
+
+/* ===================== INIT ===================== */
+bmRender();
+tspRandom();
+seInit();
+</script>
+
+<!-- README modal + TOC + favicon -->
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+
+</body>
+</html>

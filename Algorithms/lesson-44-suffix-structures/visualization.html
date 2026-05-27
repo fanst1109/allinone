@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L44 — Suffix Structures · Minh hoạ</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #4299e1;
+    --accent-hover: #3182ce;
+    --accent-soft: #ebf8ff;
+    --green: #48bb78;
+    --red: #f56565;
+    --gold: #d69e2e;
+    --dark: #2d3748;
+    --gray: #cbd5e0;
+  }
+
+  main { max-width: 1000px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.6rem; margin: 12px 0 4px; }
+  .lead { color: #4a5568; margin: 0 0 20px; }
+
+  .module {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px;
+    margin: 20px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .module h2 { font-size: 1.25rem; margin: 0 0 6px; color: var(--dark); }
+  .module .hint { color: #718096; font-size: 0.92rem; margin: 0 0 12px; }
+
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; align-items: center;
+  }
+  button {
+    background: var(--accent); color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 0.95rem; font-weight: 600; cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost { background: #edf2f7; color: var(--dark); }
+  button.ghost:hover { background: #e2e8f0; }
+  button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  input[type=text] {
+    padding: 8px 10px; border-radius: 8px; border: 1px solid #cbd5e0;
+    font-size: 0.95rem; font-family: ui-monospace, monospace;
+    width: 100%; max-width: 240px; box-sizing: border-box;
+  }
+  label { font-size: 0.9rem; color: #4a5568; font-weight: 600; }
+
+  .status {
+    background: #f7fafc; border-left: 4px solid var(--accent);
+    padding: 10px 14px; border-radius: 6px; margin: 12px 0;
+    font-size: 0.95rem; color: #2d3748; min-height: 1.2em;
+  }
+
+  /* khối hậu tố dạng hàng */
+  .suf-list { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; }
+  .suf-row {
+    display: flex; align-items: center; gap: 10px;
+    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;
+    padding: 8px 10px; transition: background 0.3s, transform 0.3s, border-color 0.3s;
+  }
+  .suf-row.hl { background: var(--accent-soft); border-color: var(--accent); }
+  .suf-row.done { background: #f0fff4; border-color: var(--green); }
+  .suf-idx {
+    flex: 0 0 auto; min-width: 30px; text-align: center;
+    background: var(--dark); color: #fff; border-radius: 6px;
+    padding: 4px 8px; font-weight: 700; font-size: 0.85rem;
+    font-family: ui-monospace, monospace;
+  }
+  .suf-str {
+    font-family: ui-monospace, monospace; font-size: 1.05rem; letter-spacing: 1px;
+    word-break: break-all;
+  }
+  .suf-str .lcpc { background: var(--gold); color: #fff; border-radius: 3px; padding: 0 2px; }
+  .rank-tag {
+    margin-left: auto; flex: 0 0 auto; font-size: 0.8rem; color: #718096;
+    font-family: ui-monospace, monospace;
+  }
+
+  /* bảng SA/LCP */
+  .grid-wrap { overflow-x: auto; margin: 12px 0; }
+  table.satable { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  table.satable th, table.satable td {
+    border: 1px solid #e2e8f0; padding: 6px 8px; text-align: center;
+    font-family: ui-monospace, monospace;
+  }
+  table.satable th { background: #f7fafc; color: var(--dark); }
+  table.satable td.suf { text-align: left; letter-spacing: 1px; }
+  table.satable td.lcpval { font-weight: 700; color: var(--gold); }
+  table.satable tr.active td { background: var(--accent-soft); }
+
+  .formula {
+    background: #f0fff4; border: 1px solid #9ae6b4; border-radius: 8px;
+    padding: 12px 14px; margin: 12px 0; font-family: ui-monospace, monospace;
+    font-size: 0.95rem; overflow-x: auto;
+  }
+  .formula b { color: var(--green); }
+  .big { font-size: 1.3rem; font-weight: 700; color: var(--accent-hover); }
+
+  @media (max-width: 480px) {
+    .suf-str { font-size: 0.95rem; }
+    table.satable th, table.satable td { padding: 4px 5px; font-size: 0.82rem; }
+    input[type=text] { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../lesson-43-trie-aho-corasick/visualization.html">← L43: Trie &amp; Aho-Corasick</a>
+  <span class="sep">·</span>
+  <span class="current">L44: Suffix Structures</span>
+  <span class="sep">·</span>
+  <a href="../tier-7-advanced/index.html">Tier 7 →</a>
+</nav>
+
+<main>
+  <h1>Lesson 44 — Cấu trúc hậu tố</h1>
+  <p class="lead">Ba module tương tác: <b>xây Suffix Array</b> (liệt kê hậu tố rồi sort),
+  <b>LCP array</b> (tiền tố chung của hậu tố kề), và <b>đếm substring phân biệt</b> bằng công thức SA + LCP.</p>
+
+  <!-- ================= MODULE 1 ================= -->
+  <section class="module" id="mod1">
+    <h2>Module 1 — Suffix Array builder</h2>
+    <p class="hint">Nhập chuỗi (mặc định "banana"). Bấm <b>Liệt kê</b> để sinh các hậu tố theo vị trí gốc,
+    rồi <b>Sort</b> để sắp xếp theo thứ tự từ điển thành Suffix Array.</p>
+    <div class="controls">
+      <label for="m1in">Chuỗi:</label>
+      <input type="text" id="m1in" value="banana" maxlength="16">
+      <button id="m1list">1. Liệt kê hậu tố</button>
+      <button id="m1sort" disabled>2. Sort → SA</button>
+      <button class="ghost" id="m1reset">Reset</button>
+    </div>
+    <div class="status" id="m1status">Bấm "Liệt kê hậu tố" để bắt đầu.</div>
+    <div class="suf-list" id="m1list-box"></div>
+  </section>
+
+  <!-- ================= MODULE 2 ================= -->
+  <section class="module" id="mod2">
+    <h2>Module 2 — LCP array (Kasai)</h2>
+    <p class="hint">Dùng SA đã sort, tính <code>lcp[k]</code> = tiền tố chung dài nhất của
+    <code>suf(sa[k])</code> và <code>suf(sa[k-1])</code>. Phần chung được tô <span class="suf-str"><span class="lcpc">vàng</span></span>.</p>
+    <div class="controls">
+      <button id="m2build">Tính LCP từng cặp →</button>
+      <button class="ghost" id="m2reset">Reset</button>
+    </div>
+    <div class="status" id="m2status">Module này dùng chuỗi của Module 1. Bấm "Tính LCP".</div>
+    <div class="grid-wrap">
+      <table class="satable" id="m2table">
+        <thead><tr><th>k</th><th>sa[k]</th><th class="suf">suf(sa[k])</th><th>lcp[k]</th></tr></thead>
+        <tbody id="m2body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= MODULE 3 ================= -->
+  <section class="module" id="mod3">
+    <h2>Module 3 — Đếm substring phân biệt</h2>
+    <p class="hint">Áp dụng công thức <b>Σ(n − sa[k]) − Σ lcp[k]</b>. Bấm để cộng dồn từng hậu tố và xem tổng.</p>
+    <div class="controls">
+      <button id="m3run">Đếm distinct substrings →</button>
+      <button class="ghost" id="m3reset">Reset</button>
+    </div>
+    <div class="status" id="m3status">Cần SA + LCP từ Module 2 trước (hoặc bấm nút này sẽ tự tính).</div>
+    <div class="formula" id="m3formula">
+      distinct = Σ (n − sa[k]) − Σ lcp[k]
+    </div>
+    <div class="grid-wrap">
+      <table class="satable" id="m3table">
+        <thead><tr><th>k</th><th>sa[k]</th><th>n − sa[k]</th><th>lcp[k]</th><th>cộng dồn</th></tr></thead>
+        <tbody id="m3body"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script>
+// ---------- thuật toán dùng chung ----------
+function suffixArray(s) {
+  const n = s.length;
+  if (n === 0) return [];
+  let sa = [], rank = new Array(n), tmp = new Array(n);
+  for (let i = 0; i < n; i++) { sa.push(i); rank[i] = s.charCodeAt(i); }
+  for (let length = 1; ; length <<= 1) {
+    const key = (i) => [rank[i], (i + length < n) ? rank[i + length] : -1];
+    const cmp = (a, b) => {
+      const ka = key(a), kb = key(b);
+      if (ka[0] !== kb[0]) return ka[0] - kb[0];
+      return ka[1] - kb[1];
+    };
+    sa.sort(cmp);
+    tmp[sa[0]] = 0;
+    for (let i = 1; i < n; i++) {
+      tmp[sa[i]] = tmp[sa[i - 1]] + (cmp(sa[i - 1], sa[i]) < 0 ? 1 : 0);
+    }
+    for (let i = 0; i < n; i++) rank[i] = tmp[i];
+    if (rank[sa[n - 1]] === n - 1) break;
+  }
+  return sa;
+}
+function buildLCP(s, sa) {
+  const n = s.length, rank = new Array(n);
+  for (let k = 0; k < n; k++) rank[sa[k]] = k;
+  const lcp = new Array(n).fill(0);
+  let h = 0;
+  for (let i = 0; i < n; i++) {
+    if (rank[i] === 0) { h = 0; continue; }
+    const j = sa[rank[i] - 1];
+    while (i + h < n && j + h < n && s[i + h] === s[j + h]) h++;
+    lcp[rank[i]] = h;
+    if (h > 0) h--;
+  }
+  return lcp;
+}
+
+// ---------- trạng thái chung ----------
+let CUR_STR = "banana";
+let CUR_SA = null, CUR_LCP = null;
+
+function curStr() { return CUR_STR; }
+
+// =============== MODULE 1 ===============
+const m1in = document.getElementById('m1in');
+const m1list = document.getElementById('m1list');
+const m1sort = document.getElementById('m1sort');
+const m1reset = document.getElementById('m1reset');
+const m1box = document.getElementById('m1list-box');
+const m1status = document.getElementById('m1status');
+let m1order = [];
+
+function m1Render(order, sortedFlag) {
+  const s = curStr();
+  m1box.innerHTML = '';
+  order.forEach((i, k) => {
+    const row = document.createElement('div');
+    row.className = 'suf-row' + (sortedFlag ? ' done' : '');
+    row.innerHTML = `<span class="suf-idx">${i}</span>`
+      + `<span class="suf-str">${escapeHtml(s.slice(i))}</span>`
+      + (sortedFlag ? `<span class="rank-tag">sa[${k}] = ${i}</span>` : `<span class="rank-tag">i = ${i}</span>`);
+    m1box.appendChild(row);
+  });
+}
+function escapeHtml(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+m1list.addEventListener('click', () => {
+  let s = m1in.value.trim();
+  if (!s) { m1status.textContent = 'Hãy nhập một chuỗi không rỗng.'; return; }
+  CUR_STR = s; CUR_SA = null; CUR_LCP = null;
+  m1order = [];
+  for (let i = 0; i < s.length; i++) m1order.push(i);
+  m1Render(m1order, false);
+  m1status.innerHTML = `Đã liệt kê <b>${s.length}</b> hậu tố theo vị trí gốc (chưa sắp xếp). Bấm "Sort → SA".`;
+  m1sort.disabled = false;
+});
+
+m1sort.addEventListener('click', () => {
+  const s = curStr();
+  CUR_SA = suffixArray(s);
+  CUR_LCP = null;
+  // animate: bước từng hoán vị bằng cách hiện trực tiếp kết quả sort, đánh số sa[k]
+  m1Render(CUR_SA, true);
+  m1status.innerHTML = `Đã sort xong → <b>sa = [${CUR_SA.join(', ')}]</b>. `
+    + `Mỗi hậu tố đã đứng đúng thứ tự từ điển.`;
+  m1sort.disabled = true;
+});
+
+m1reset.addEventListener('click', () => {
+  m1in.value = 'banana'; CUR_STR = 'banana'; CUR_SA = null; CUR_LCP = null;
+  m1box.innerHTML = ''; m1sort.disabled = true;
+  m1status.textContent = 'Bấm "Liệt kê hậu tố" để bắt đầu.';
+});
+
+// =============== MODULE 2 ===============
+const m2build = document.getElementById('m2build');
+const m2reset = document.getElementById('m2reset');
+const m2body = document.getElementById('m2body');
+const m2status = document.getElementById('m2status');
+
+function ensureSA() {
+  const s = curStr();
+  if (!CUR_SA) CUR_SA = suffixArray(s);
+  if (!CUR_LCP) CUR_LCP = buildLCP(s, CUR_SA);
+}
+
+m2build.addEventListener('click', () => {
+  const s = curStr();
+  ensureSA();
+  const sa = CUR_SA, lcp = CUR_LCP, n = s.length;
+  m2body.innerHTML = '';
+  let k = 0;
+  function step() {
+    if (k >= n) {
+      m2status.innerHTML = `Hoàn tất. <b>lcp = [${lcp.join(', ')}]</b> &nbsp;(lcp[0] = 0 luôn).`;
+      return;
+    }
+    const suf = s.slice(sa[k]);
+    const L = lcp[k];
+    let sufHtml;
+    if (L > 0) {
+      sufHtml = `<span class="lcpc">${escapeHtml(suf.slice(0, L))}</span>${escapeHtml(suf.slice(L))}`;
+    } else {
+      sufHtml = escapeHtml(suf);
+    }
+    const tr = document.createElement('tr');
+    tr.className = 'active';
+    tr.innerHTML = `<td>${k}</td><td>${sa[k]}</td><td class="suf">${sufHtml}</td><td class="lcpval">${L}</td>`;
+    // bỏ active của hàng trước
+    const prev = m2body.querySelector('tr.active');
+    if (prev) prev.classList.remove('active');
+    m2body.appendChild(tr);
+    if (k === 0) {
+      m2status.innerHTML = `k=0: hậu tố đầu tiên, không có hậu tố trước → lcp[0] = 0.`;
+    } else {
+      m2status.innerHTML = `k=${k}: LCP(suf(${sa[k-1]}), suf(${sa[k]})) = <b>${L}</b> ký tự chung (tô vàng).`;
+    }
+    k++;
+    setTimeout(step, 650);
+  }
+  step();
+});
+
+m2reset.addEventListener('click', () => {
+  m2body.innerHTML = '';
+  m2status.textContent = 'Module này dùng chuỗi của Module 1. Bấm "Tính LCP".';
+});
+
+// =============== MODULE 3 ===============
+const m3run = document.getElementById('m3run');
+const m3reset = document.getElementById('m3reset');
+const m3body = document.getElementById('m3body');
+const m3status = document.getElementById('m3status');
+const m3formula = document.getElementById('m3formula');
+
+m3run.addEventListener('click', () => {
+  const s = curStr();
+  ensureSA();
+  const sa = CUR_SA, lcp = CUR_LCP, n = s.length;
+  m3body.innerHTML = '';
+  let k = 0, total = 0, sumPrefix = 0, sumLcp = 0;
+  function step() {
+    if (k >= n) {
+      m3formula.innerHTML = `distinct = <b>${sumPrefix}</b> (Σ n−sa[k]) − <b>${sumLcp}</b> (Σ lcp[k]) = <span class="big">${sumPrefix - sumLcp}</span>`;
+      m3status.innerHTML = `Hoàn tất: chuỗi "<b>${escapeHtml(s)}</b>" có <span class="big">${sumPrefix - sumLcp}</span> substring phân biệt.`;
+      return;
+    }
+    const contrib = n - sa[k];
+    const L = lcp[k];
+    sumPrefix += contrib;
+    sumLcp += L;
+    total += contrib - L;
+    const tr = document.createElement('tr');
+    tr.className = 'active';
+    tr.innerHTML = `<td>${k}</td><td>${sa[k]}</td><td>${contrib}</td><td class="lcpval">${L}</td><td><b>${total}</b></td>`;
+    const prev = m3body.querySelector('tr.active');
+    if (prev) prev.classList.remove('active');
+    m3body.appendChild(tr);
+    m3status.innerHTML = `k=${k}: thêm (n−sa[k]) = ${contrib}, trừ lcp[k] = ${L} → cộng dồn = <b>${total}</b>.`;
+    k++;
+    setTimeout(step, 600);
+  }
+  step();
+});
+
+m3reset.addEventListener('click', () => {
+  m3body.innerHTML = '';
+  m3formula.innerHTML = 'distinct = Σ (n − sa[k]) − Σ lcp[k]';
+  m3status.textContent = 'Cần SA + LCP từ Module 2 trước (hoặc bấm nút này sẽ tự tính).';
+});
+
+// khởi tạo Module 1 sẵn
+m1list.click();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+<script src="../../tools/favicon.js"></script>
+</body>
+</html>

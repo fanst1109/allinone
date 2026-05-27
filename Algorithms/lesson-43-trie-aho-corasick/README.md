@@ -293,11 +293,11 @@ for i, c in text:
 | 0 | u | goto[0]['u']? không, cur=root → ở lại | 0 | — |
 | 1 | s | goto[0]['s']=3 | 3 | {} |
 | 2 | h | goto[3]['h']=4 | 4 | {} |
-| 3 | e | goto[4]['e']=9 | 9 | **{she, he}** ← match "she"@1, "he"@3 |
+| 3 | e | goto[4]['e']=9 | 9 | **{she, he}** ← match "she"@1, "he"@2 |
 | 4 | r | goto[9]['r']? không → fail[9]=2; goto[2]['r']=7 | 7 | {} |
 | 5 | s | goto[7]['s']=8 | 8 | **{hers}** ← match "hers"@2 |
 
-> **Kết quả:** "she" (vị trí 1), "he" (vị trí 3), "hers" (vị trí 2). Chỉ **một lượt** qua "ushers" (6 ký tự) bắt được cả 3 pattern, kể cả "he" lồng trong "she". Để ý ở i=4 ta phải nhảy failure 9→2 rồi mới đi tiếp được — đúng cơ chế KMP.
+> **Kết quả:** "she" (bắt đầu vị trí 1), "he" (bắt đầu vị trí 2), "hers" (bắt đầu vị trí 2). Chỉ **một lượt** qua "ushers" (6 ký tự) bắt được cả 3 pattern, kể cả "he" lồng trong "she". Để ý ở i=4 ta phải nhảy failure 9→2 rồi mới đi tiếp được — đúng cơ chế KMP.
 
 > ❓ **Câu hỏi tự nhiên.** *"Vòng `while` tụt failure có làm match thành O(n·something) không?"* — Không. Tổng số bước tụt failure trên toàn bộ text bị chặn bởi **chiều sâu**: mỗi ký tự làm `cur` xuống tối đa 1 level, mỗi bước failure làm `cur` lên ít nhất 1 level → tổng failure ≤ tổng đi xuống ≤ n. Vậy match là **O(n)** (amortized), cộng z để liệt kê match.
 

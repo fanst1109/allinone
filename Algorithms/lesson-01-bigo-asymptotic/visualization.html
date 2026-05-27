@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<title>Lesson 01 — Big-O & phân tích tiệm cận</title>
+<style>
+  :root { --accent: #6b7280; --accent-soft: #f3f4f6; --accent-hover: #4b5563; }
+  h1 { margin: 0 0 6px; font-size: 26px; }
+  .lead { color: var(--muted); margin: 0 0 24px; }
+  .panel {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 12px; padding: 18px 20px; margin-bottom: 22px;
+  }
+  .panel h2 { margin: 0 0 4px; font-size: 19px; }
+  .panel .hint { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; margin-bottom: 12px; }
+  .controls label { font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+  input[type="range"] { width: 100%; max-width: 280px; accent-color: var(--accent); }
+  button {
+    background: var(--accent); color: #fff; border: 0;
+    padding: 8px 14px; border-radius: 7px; cursor: pointer; font-size: 13px; font-weight: 600;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost { background: #f1f5f9; color: var(--ink-soft); }
+  button.ghost:hover { background: #e2e8f0; }
+  select {
+    padding: 7px 10px; border-radius: 7px; border: 1px solid var(--line-strong);
+    font-size: 13px; background: #fff; max-width: 100%;
+  }
+
+  /* SVG chart */
+  svg.chart { display: block; width: 100%; height: auto; background: #fff; border: 1px solid var(--line); border-radius: 8px; }
+  .axis { stroke: #cbd5e0; stroke-width: 1; }
+  .grid { stroke: #eef2f7; stroke-width: 1; }
+  .axis-label { font: 11px sans-serif; fill: #94a3b8; }
+
+  /* Legend / value table */
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 12px; }
+  .legend .item { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+  .swatch { width: 16px; height: 4px; border-radius: 2px; display: inline-block; }
+  table.vals { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 13px; }
+  table.vals th, table.vals td { border: 1px solid var(--line); padding: 6px 8px; text-align: right; }
+  table.vals th:first-child, table.vals td:first-child { text-align: left; }
+  table.vals th { background: var(--accent-soft); }
+
+  /* Operation counter */
+  .opgrid { display: flex; flex-wrap: wrap; gap: 3px; margin: 12px 0; max-width: 100%; }
+  .cell {
+    width: 22px; height: 22px; border-radius: 4px; background: #e2e8f0;
+    transition: background .12s, transform .12s;
+  }
+  .cell.on { background: var(--accent); transform: scale(1.08); }
+  .cell.row-i { background: #fbbf24; }
+  .opstat { font-family: monospace; font-size: 14px; margin-top: 8px; }
+  .opstat b { color: var(--accent-hover); }
+  pre.code {
+    background: #1e293b; color: #e2e8f0; padding: 12px 14px; border-radius: 8px;
+    font-size: 13px; overflow-x: auto; margin: 0 0 12px; line-height: 1.5;
+  }
+  pre.code .hl { background: #475569; border-radius: 3px; }
+
+  /* Quiz */
+  .quiz-opts { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .quiz-opts button.opt {
+    background: #fff; color: var(--ink); border: 1px solid var(--line-strong);
+    font-family: monospace; font-weight: 700;
+  }
+  .quiz-opts button.opt:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opts button.opt.correct { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+  .quiz-opts button.opt.wrong { background: #fee2e2; border-color: #dc2626; color: #b91c1c; }
+  .explain { font-size: 13px; color: var(--ink-soft); background: var(--accent-soft); border-radius: 8px; padding: 10px 12px; margin-top: 10px; display: none; }
+  .explain.show { display: block; }
+  .score { font-size: 13px; color: var(--muted); margin-left: auto; }
+
+  @media (max-width: 480px) {
+    .cell { width: 16px; height: 16px; }
+    h1 { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Algorithms</a>
+  <span class="sep">·</span>
+  <a href="../tier-0-foundations/index.html">← Tier 0</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Big-O</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-amortized-analysis/visualization.html">L2: Amortized →</a>
+</nav>
+
+<main>
+  <h1>Big-O &amp; phân tích tiệm cận</h1>
+  <p class="lead">Cảm nhận tốc độ tăng trưởng bằng số thật: vẽ đường cong, đếm operation, đoán độ phức tạp.</p>
+
+  <!-- ============ MODULE 1: GROWTH CHART ============ -->
+  <section class="panel" id="m1">
+    <h2>1 · Biểu đồ tăng trưởng</h2>
+    <p class="hint">Kéo slider <code>n</code> để xem các lớp phức tạp tách nhau ra sao. Trục y dùng thang log để 7 đường cùng hiện được.</p>
+    <div class="controls">
+      <label>n (tối đa) = <span id="m1-nval">32</span></label>
+      <input type="range" id="m1-n" min="4" max="64" value="32" step="1">
+    </div>
+    <svg class="chart" id="m1-svg" viewBox="0 0 640 340" preserveAspectRatio="xMidYMid meet" aria-label="Biểu đồ các đường cong độ phức tạp"></svg>
+    <div class="legend" id="m1-legend"></div>
+    <table class="vals" id="m1-table">
+      <thead><tr><th>Lớp</th><th>n=10</th><th>n=100</th><th>n=1000</th><th>n=10⁶</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- ============ MODULE 2: OPERATION COUNTER ============ -->
+  <section class="panel" id="m2">
+    <h2>2 · Bộ đếm operation</h2>
+    <p class="hint">Chọn pattern code, bấm <em>Chạy</em> để xem mỗi operation sáng lên — đối chiếu với Big-O lý thuyết.</p>
+    <div class="controls">
+      <label>Pattern:
+        <select id="m2-pattern">
+          <option value="single">Single loop — O(n)</option>
+          <option value="nested">Nested loop — O(n²)</option>
+          <option value="triangle">Triangle loop — O(n²) (~n²/2)</option>
+          <option value="halving">Halving — O(log n)</option>
+        </select>
+      </label>
+      <label>n = <span id="m2-nval">8</span></label>
+      <input type="range" id="m2-n" min="2" max="16" value="8" step="1">
+      <button id="m2-run">▶ Chạy</button>
+      <button class="ghost" id="m2-reset">Reset</button>
+    </div>
+    <pre class="code" id="m2-code"></pre>
+    <div class="opgrid" id="m2-grid"></div>
+    <div class="opstat" id="m2-stat">operation đã chạy: <b>0</b></div>
+  </section>
+
+  <!-- ============ MODULE 3: BIG-O QUIZ ============ -->
+  <section class="panel" id="m3">
+    <h2>3 · Đố vui Big-O</h2>
+    <p class="hint">Đọc đoạn code, đoán độ phức tạp chặt (Θ). Bấm đáp án để kiểm tra.</p>
+    <div class="controls" style="justify-content: space-between;">
+      <button class="ghost" id="m3-next">Câu khác →</button>
+      <span class="score" id="m3-score">Đúng: 0 / 0</span>
+    </div>
+    <pre class="code" id="m3-code"></pre>
+    <div class="quiz-opts" id="m3-opts"></div>
+    <div class="explain" id="m3-explain"></div>
+  </section>
+</main>
+
+<script>
+/* =========================================================================
+ * MODULE 1 — GROWTH CHART
+ * ======================================================================= */
+(function () {
+  const svg = document.getElementById('m1-svg');
+  const slider = document.getElementById('m1-n');
+  const nval = document.getElementById('m1-nval');
+  const legend = document.getElementById('m1-legend');
+  const tbody = document.querySelector('#m1-table tbody');
+  const W = 640, H = 340, padL = 46, padR = 16, padT = 16, padB = 30;
+
+  // Các lớp: tên, hàm, màu.
+  const classes = [
+    { name: 'O(1)',       f: () => 1,                       c: '#94a3b8' },
+    { name: 'O(log n)',   f: n => Math.log2(Math.max(n,1)), c: '#22c55e' },
+    { name: 'O(n)',       f: n => n,                        c: '#3b82f6' },
+    { name: 'O(n log n)', f: n => n * Math.log2(Math.max(n,1)), c: '#8b5cf6' },
+    { name: 'O(n²)',      f: n => n * n,                    c: '#f59e0b' },
+    { name: 'O(2ⁿ)',      f: n => Math.pow(2, n),           c: '#ef4444' },
+    { name: 'O(n!)',      f: n => { let r = 1; for (let i = 2; i <= n; i++) r *= i; return r; }, c: '#db2777' },
+  ];
+
+  function fmt(x) {
+    if (x < 1000) return (Number.isInteger(x) ? x : x.toFixed(1)).toString();
+    if (x < 1e6)  return (x / 1e3).toFixed(1) + 'K';
+    if (x < 1e9)  return (x / 1e6).toFixed(1) + 'M';
+    if (x < 1e15) return x.toExponential(1);
+    return x.toExponential(1);
+  }
+
+  function draw() {
+    const nMax = +slider.value;
+    nval.textContent = nMax;
+
+    // Trục y log: tìm giá trị lớn nhất (chặn trên để 2ⁿ/n! không nuốt hết).
+    let yMax = 1;
+    classes.forEach(cl => { for (let n = 1; n <= nMax; n++) yMax = Math.max(yMax, cl.f(n)); });
+    const logMax = Math.log10(yMax + 1);
+
+    const xOf = n => padL + (n - 1) / (nMax - 1) * (W - padL - padR);
+    const yOf = v => H - padB - (Math.log10(v + 1) / logMax) * (H - padT - padB);
+
+    let s = '';
+    // Grid ngang theo bậc 10
+    for (let p = 0; Math.pow(10, p) <= yMax; p++) {
+      const y = yOf(Math.pow(10, p));
+      s += `<line class="grid" x1="${padL}" y1="${y.toFixed(1)}" x2="${W-padR}" y2="${y.toFixed(1)}"/>`;
+      s += `<text class="axis-label" x="${padL-4}" y="${(y+3).toFixed(1)}" text-anchor="end">10^${p}</text>`;
+    }
+    // Trục
+    s += `<line class="axis" x1="${padL}" y1="${padT}" x2="${padL}" y2="${H-padB}"/>`;
+    s += `<line class="axis" x1="${padL}" y1="${H-padB}" x2="${W-padR}" y2="${H-padB}"/>`;
+    s += `<text class="axis-label" x="${W-padR}" y="${H-padB+18}" text-anchor="end">n →</text>`;
+    s += `<text class="axis-label" x="${xOf(1)}" y="${H-padB+18}">1</text>`;
+    s += `<text class="axis-label" x="${xOf(nMax)-12}" y="${H-padB+18}">${nMax}</text>`;
+
+    // Đường cong
+    classes.forEach(cl => {
+      let d = '';
+      for (let n = 1; n <= nMax; n++) {
+        const v = cl.f(n);
+        if (!isFinite(v)) continue;
+        d += (d ? 'L' : 'M') + xOf(n).toFixed(1) + ' ' + yOf(Math.min(v, yMax)).toFixed(1) + ' ';
+      }
+      s += `<path d="${d}" fill="none" stroke="${cl.c}" stroke-width="2.2" stroke-linejoin="round"/>`;
+    });
+    svg.innerHTML = s;
+
+    // Legend
+    legend.innerHTML = classes.map(cl =>
+      `<span class="item"><span class="swatch" style="background:${cl.c}"></span>${cl.name} = ${fmt(cl.f(nMax))} @ n=${nMax}</span>`
+    ).join('');
+  }
+
+  // Bảng giá trị cố định (n = 10/100/1000/10⁶)
+  const Ns = [10, 100, 1000, 1e6];
+  tbody.innerHTML = classes.map(cl =>
+    `<tr><td>${cl.name}</td>` + Ns.map(n => {
+      if (cl.name === 'O(2ⁿ)' && n > 100) return '<td>—</td>';
+      if (cl.name === 'O(n!)' && n > 100) return '<td>—</td>';
+      if (cl.name === 'O(2ⁿ)' && n === 100) return '<td>~1.3e30</td>';
+      if (cl.name === 'O(n!)' && n === 100) return '<td>~9e157</td>';
+      return `<td>${fmt(cl.f(n))}</td>`;
+    }).join('') + '</tr>'
+  ).join('');
+
+  slider.addEventListener('input', draw);
+  draw();
+})();
+
+/* =========================================================================
+ * MODULE 2 — OPERATION COUNTER
+ * ======================================================================= */
+(function () {
+  const sel = document.getElementById('m2-pattern');
+  const slider = document.getElementById('m2-n');
+  const nval = document.getElementById('m2-nval');
+  const grid = document.getElementById('m2-grid');
+  const stat = document.getElementById('m2-stat');
+  const codeEl = document.getElementById('m2-code');
+  const runBtn = document.getElementById('m2-run');
+  const resetBtn = document.getElementById('m2-reset');
+  let running = false, timer = null;
+
+  const codes = {
+    single:   `for i := 0; i < n; i++ {\n    ops++          // n lần\n}`,
+    nested:   `for i := 0; i < n; i++ {\n    for j := 0; j < n; j++ {\n        ops++      // n×n lần\n    }\n}`,
+    triangle: `for i := 0; i < n; i++ {\n    for j := i; j < n; j++ {\n        ops++      // n(n+1)/2 lần\n    }\n}`,
+    halving:  `for i := n; i >= 1; i /= 2 {\n    ops++          // ~log₂(n) lần\n}`,
+  };
+
+  // Sinh danh sách "operation" (mỗi op = 1 ô sẽ sáng lên), kèm Big-O và công thức số.
+  function buildOps(pattern, n) {
+    const ops = [];
+    if (pattern === 'single') {
+      for (let i = 0; i < n; i++) ops.push({});
+      return { ops, bigO: 'O(n)', count: n };
+    }
+    if (pattern === 'nested') {
+      for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) ops.push({ rowStart: j === 0 });
+      return { ops, bigO: 'O(n²)', count: n * n };
+    }
+    if (pattern === 'triangle') {
+      for (let i = 0; i < n; i++) for (let j = i; j < n; j++) ops.push({ rowStart: j === i });
+      return { ops, bigO: 'O(n²)', count: n * (n + 1) / 2 };
+    }
+    if (pattern === 'halving') {
+      for (let i = n; i >= 1; i = Math.floor(i / 2)) ops.push({});
+      return { ops, bigO: 'O(log n)', count: ops.length };
+    }
+  }
+
+  let state = null;
+
+  function render() {
+    const n = +slider.value;
+    nval.textContent = n;
+    codeEl.textContent = codes[sel.value];
+    state = buildOps(sel.value, n);
+    grid.innerHTML = state.ops.map((o, idx) =>
+      `<div class="cell" data-idx="${idx}"></div>`).join('');
+    stat.innerHTML = `pattern <b>${state.bigO}</b> · tổng operation cần chạy: <b>${state.count}</b> · đã chạy: <b>0</b>`;
+  }
+
+  function stop() {
+    running = false;
+    if (timer) { clearInterval(timer); timer = null; }
+    runBtn.textContent = '▶ Chạy';
+  }
+
+  function run() {
+    if (running) { stop(); return; }
+    render(); // reset trước khi chạy
+    running = true;
+    runBtn.textContent = '⏸ Dừng';
+    const cells = grid.querySelectorAll('.cell');
+    let k = 0;
+    const total = state.ops.length;
+    const speed = Math.max(30, 400 / Math.max(1, total / 4)); // nhanh hơn khi nhiều op
+    timer = setInterval(() => {
+      if (k >= total) { stop(); return; }
+      cells[k].classList.add('on');
+      k++;
+      stat.innerHTML = `pattern <b>${state.bigO}</b> · tổng operation: <b>${state.count}</b> · đã chạy: <b>${k}</b>`;
+    }, speed);
+  }
+
+  sel.addEventListener('change', () => { stop(); render(); });
+  slider.addEventListener('input', () => { stop(); render(); });
+  runBtn.addEventListener('click', run);
+  resetBtn.addEventListener('click', () => { stop(); render(); });
+  render();
+})();
+
+/* =========================================================================
+ * MODULE 3 — BIG-O QUIZ
+ * ======================================================================= */
+(function () {
+  const codeEl = document.getElementById('m3-code');
+  const optsEl = document.getElementById('m3-opts');
+  const explainEl = document.getElementById('m3-explain');
+  const scoreEl = document.getElementById('m3-score');
+  const nextBtn = document.getElementById('m3-next');
+
+  const ALL = ['O(1)', 'O(log n)', 'O(n)', 'O(n log n)', 'O(n²)', 'O(2ⁿ)'];
+
+  const questions = [
+    {
+      code: `func f(a []int) int {\n    return a[0] + a[len(a)-1]\n}`,
+      ans: 'O(1)',
+      why: 'Chỉ truy cập 2 phần tử cố định, không phụ thuộc độ dài mảng → hằng số.'
+    },
+    {
+      code: `func f(n int) {\n    for i := 1; i < n; i *= 2 {\n        fmt.Println(i)\n    }\n}`,
+      ans: 'O(log n)',
+      why: 'i nhân đôi mỗi vòng (1,2,4,...,n) → số vòng = log₂(n). Halving pattern.'
+    },
+    {
+      code: `func f(a []int, x int) int {\n    for i, v := range a {\n        if v == x { return i }\n    }\n    return -1\n}`,
+      ans: 'O(n)',
+      why: 'Linear search: worst-case duyệt hết n phần tử → một vòng tuyến tính.'
+    },
+    {
+      code: `func f(n int) {\n    for i := 0; i < n; i++ {\n        for j := 0; j < n; j++ {\n            doWork()\n        }\n    }\n}`,
+      ans: 'O(n²)',
+      why: 'Hai vòng lồng đầy đủ, mỗi vòng n → n×n. Quy tắc nhân.'
+    },
+    {
+      code: `func f(a []int) []int {\n    sort.Ints(a)   // sort thư viện\n    return a\n}`,
+      ans: 'O(n log n)',
+      why: 'sort.Ints dùng quicksort/introsort → O(n log n) average. Đây là chặn của bước nặng nhất.'
+    },
+    {
+      code: `func fib(n int) int {\n    if n < 2 { return n }\n    return fib(n-1) + fib(n-2)\n}`,
+      ans: 'O(2ⁿ)',
+      why: 'Đệ quy nhị phân, mỗi gọi sinh 2 gọi con, có overlapping → ~2ⁿ nút cây (space chỉ O(n)).'
+    },
+    {
+      code: `func f(n int) {\n    for i := 0; i < n; i++ { /* O(n) */ }\n    for i := 0; i < n; i++ {\n        for j := 0; j < n; j++ { /* O(n²) */ }\n    }\n}`,
+      ans: 'O(n²)',
+      why: 'Hai khối tuần tự (rời nhau) → cộng O(n)+O(n²), giữ bậc cao nhất → O(n²).'
+    },
+    {
+      code: `func f(parts []string) string {\n    r := ""\n    for _, p := range parts {\n        r += p   // copy lại mỗi lần!\n    }\n    return r\n}`,
+      ans: 'O(n²)',
+      why: 'String bất biến: mỗi += copy toàn bộ r. Tổng 1+2+...+n = n(n+1)/2 → O(n²). Bug ẩn! Dùng strings.Builder để về O(n).'
+    },
+    {
+      code: `func f(a []int) bool {\n    i, j := 0, len(a)-1\n    for i < j {\n        if a[i]+a[j] == 0 { return true }\n        if a[i]+a[j] < 0 { i++ } else { j-- }\n    }\n    return false\n}`,
+      ans: 'O(n)',
+      why: 'Two pointers: mỗi vòng i++ hoặc j-- → khoảng cách giảm 1 → tối đa n vòng. Không phải O(n²)!'
+    },
+  ];
+
+  let idx = -1, correct = 0, total = 0, answered = false;
+
+  function pick() {
+    let next;
+    do { next = Math.floor(Math.random() * questions.length); } while (next === idx && questions.length > 1);
+    idx = next;
+    answered = false;
+    const q = questions[idx];
+    codeEl.textContent = q.code;
+    explainEl.classList.remove('show');
+    explainEl.textContent = '';
+
+    // 4 lựa chọn: đáp án đúng + 3 nhiễu ngẫu nhiên.
+    const distractors = ALL.filter(o => o !== q.ans).sort(() => Math.random() - 0.5).slice(0, 3);
+    const opts = [q.ans, ...distractors].sort(() => Math.random() - 0.5);
+    optsEl.innerHTML = opts.map(o => `<button class="opt" data-o="${o}">${o}</button>`).join('');
+    optsEl.querySelectorAll('.opt').forEach(b => b.addEventListener('click', () => choose(b, q)));
+  }
+
+  function choose(btn, q) {
+    if (answered) return;
+    answered = true;
+    total++;
+    const chosen = btn.dataset.o;
+    optsEl.querySelectorAll('.opt').forEach(b => {
+      if (b.dataset.o === q.ans) b.classList.add('correct');
+      else if (b === btn) b.classList.add('wrong');
+      b.disabled = true;
+    });
+    if (chosen === q.ans) correct++;
+    explainEl.innerHTML = (chosen === q.ans ? '✅ Đúng! ' : '❌ Đáp án đúng là <b>' + q.ans + '</b>. ') + q.why;
+    explainEl.classList.add('show');
+    scoreEl.textContent = `Đúng: ${correct} / ${total}`;
+  }
+
+  nextBtn.addEventListener('click', pick);
+  pick();
+})();
+</script>
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

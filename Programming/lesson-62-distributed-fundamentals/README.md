@@ -163,6 +163,15 @@ Ví dụ đọc PACELC: **Cassandra = PA/EL** nghĩa là "khi partition ưu tiê
 
 > ❓ **Câu hỏi tự nhiên.** *"PACELC khác CAP chỗ nào thực sự?"* — CAP chỉ phủ cột "Khi Partition". PACELC thêm cột "Else" — cột này áp dụng *gần như toàn bộ thời gian*, nên thực tế nó quan trọng hơn. Một hệ PC/EC (như MongoDB) trả giá latency *mọi lúc* để nhất quán, không chỉ lúc hiếm hoi mạng đứt.
 
+### 4.2 Đọc trade-off "else" bằng số
+
+Giả sử 3 replica, round-trip nội bộ giữa replica là 5 ms. Một read request tới:
+
+- **Ưu tiên Consistency (EC):** phải hỏi quorum (2/3 replica) và chờ đồng bộ → cộng thêm ~5–10 ms cho mỗi read. Đảm bảo luôn thấy giá trị mới nhất.
+- **Ưu tiên Latency (EL):** trả lời ngay từ replica gần nhất (0 round-trip thêm) → nhanh hơn 5–10 ms, nhưng có thể trả giá trị cũ vài chục ms.
+
+Với hệ phục vụ 100.000 read/giây, 5 ms thêm mỗi read không "miễn phí": nó ăn vào throughput và làm tail latency (p99) phình. Đó là vì sao Cassandra/DynamoDB chọn EL mặc định — đa số dữ liệu của chúng (feed, catalog) chịu được giá trị hơi cũ.
+
 > 📝 **Tóm tắt mục 4.** PACELC = CAP + "else": nếu không partition thì vẫn phải chọn Latency vs Consistency. Đây là trade-off thường trực, quan trọng hơn cả nhánh partition vì mạng đa phần thời gian là ổn.
 
 ---

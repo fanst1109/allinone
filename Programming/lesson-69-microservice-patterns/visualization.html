@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 69 — Microservice Patterns Visualization</title>
+<link rel="stylesheet" href="../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #ef4444;        /* đỏ Tier 6 */
+    --accent-soft: #fee2e2;
+    --accent-hover: #dc2626;
+  }
+  main { max-width: 980px; margin: 0 auto; padding: 16px; }
+  h1 { color: #1a202c; }
+  h2 {
+    color: #2d3748; margin-top: 42px;
+    padding-bottom: 8px; border-bottom: 2px solid #cbd5e0;
+  }
+  .intro { color: var(--ink-soft, #4a5568); line-height: 1.6; }
+  .card {
+    background: #fff; border: 1px solid var(--line, #e2e8f0);
+    border-radius: 10px; padding: 20px; margin: 18px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; align-items: center; }
+  button {
+    background: var(--accent); color: #fff; border: none;
+    padding: 9px 16px; border-radius: 7px; font-size: 14px;
+    font-weight: 600; cursor: pointer;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #e2e8f0; }
+  .note { font-size: 13px; color: #718096; line-height: 1.5; margin-top: 8px; }
+  .legend { font-size: 13px; color: #4a5568; }
+
+  /* ---- Module 1: decomposition ---- */
+  .stage { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: center; min-height: 230px; }
+  .mono-box {
+    background: #1a202c; color: #fff; border-radius: 12px;
+    padding: 18px; width: 220px; box-sizing: border-box;
+    transition: opacity .6s, transform .6s;
+  }
+  .mono-box .mono-title { font-weight: 700; margin-bottom: 10px; text-align: center; }
+  .mono-mod {
+    background: #2d3748; border-radius: 6px; padding: 7px 9px;
+    margin: 6px 0; font-size: 13px; transition: all .5s;
+  }
+  .svc {
+    background: var(--accent-soft); border: 2px solid var(--accent);
+    border-radius: 10px; padding: 10px 8px; width: 120px; box-sizing: border-box;
+    text-align: center; opacity: 0; transform: scale(.8);
+    transition: opacity .5s, transform .5s;
+  }
+  .svc.show { opacity: 1; transform: scale(1); }
+  .svc .svc-name { font-weight: 700; font-size: 13px; color: var(--accent-hover); }
+  .svc .svc-db { font-size: 11px; color: #718096; margin-top: 6px; font-family: ui-monospace, monospace; }
+  .arrow-down { font-size: 28px; color: var(--accent); width: 100%; text-align: center; }
+
+  /* ---- Module 2: gateway aggregation ---- */
+  .gw-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .gw-row { display: flex; gap: 28px; flex-wrap: wrap; justify-content: center; }
+  .node {
+    border-radius: 10px; padding: 10px 14px; font-weight: 600; font-size: 13px;
+    text-align: center; min-width: 92px; border: 2px solid transparent;
+    transition: all .35s;
+  }
+  .node.client { background: #ebf8ff; border-color: #4299e1; color: #2b6cb0; }
+  .node.gw { background: #faf5ff; border-color: #9f7aea; color: #6b46c1; }
+  .node.svc2 { background: #fff; border-color: var(--line, #cbd5e0); color: #4a5568; }
+  .node.active { box-shadow: 0 0 0 4px rgba(239,68,68,.25); border-color: var(--accent); }
+  .node.done { background: #f0fff4; border-color: #48bb78; color: #276749; }
+  .gw-svg { width: 100%; max-width: 560px; }
+  .timer { font-family: ui-monospace, monospace; font-weight: 700; color: var(--accent-hover); }
+  .resp-box {
+    background: #f7fafc; border: 1px dashed #a0aec0; border-radius: 8px;
+    padding: 12px; font-family: ui-monospace, monospace; font-size: 13px;
+    white-space: pre-wrap; margin-top: 12px; min-height: 24px;
+  }
+
+  /* ---- Module 3: strangler ---- */
+  .str-router {
+    background: #faf5ff; border: 2px solid #9f7aea; border-radius: 10px;
+    padding: 10px 14px; text-align: center; font-weight: 600; color: #6b46c1;
+    max-width: 260px; margin: 0 auto;
+  }
+  .str-routes { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+  .str-route {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    background: #fff; border: 1px solid var(--line, #e2e8f0);
+    border-radius: 8px; padding: 8px 12px;
+  }
+  .str-path { font-family: ui-monospace, monospace; font-weight: 700; min-width: 96px; }
+  .str-target {
+    margin-left: auto; font-weight: 600; font-size: 13px; padding: 4px 10px; border-radius: 6px;
+    transition: all .4s;
+  }
+  .str-target.mono { background: #1a202c; color: #fff; }
+  .str-target.new { background: var(--accent-soft); color: var(--accent-hover); border: 1px solid var(--accent); }
+  .str-arrow { color: #a0aec0; }
+  .phase-label { font-weight: 700; color: var(--accent-hover); margin: 6px 0; }
+  .progress-bar { height: 8px; background: #edf2f7; border-radius: 4px; overflow: hidden; margin-top: 6px; }
+  .progress-fill { height: 100%; background: var(--accent); width: 0; transition: width .5s; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Programming</a>
+  <span class="sep">·</span>
+  <a href="../lesson-68-consensus-raft/visualization.html">← L68: Consensus &amp; Raft</a>
+  <span class="sep">·</span>
+  <span class="current">L69: Microservice Patterns</span>
+  <span class="sep">·</span>
+  <a href="../lesson-70-service-mesh-intro/visualization.html">L70: Service Mesh →</a>
+</nav>
+
+<main>
+  <h1>Lesson 69 — Microservice Patterns</h1>
+  <p class="intro">
+    Ba mô phỏng tương tác cho các pattern cốt lõi: (1) tách monolith thành microservices theo
+    business capability, (2) API Gateway gom nhiều service call thành 1 response (fan-out song song),
+    (3) Strangler fig migrate dần monolith → service mới, route được rollback.
+  </p>
+
+  <!-- ============ MODULE 1 ============ -->
+  <h2>1. Monolith → Microservices</h2>
+  <div class="card">
+    <p class="legend">
+      Monolith e-commerce gom mọi module trong 1 process, 1 database. Bấm "Tách" để decompose theo
+      <strong>business capability</strong> — mỗi capability thành 1 service own database riêng.
+    </p>
+    <div class="controls">
+      <button id="m1-decompose">Tách thành microservices →</button>
+      <button id="m1-reset" class="ghost">Reset về monolith</button>
+    </div>
+
+    <div class="stage" id="m1-stage">
+      <div class="mono-box" id="m1-mono">
+        <div class="mono-title">🏢 Monolith (1 process · 1 DB)</div>
+        <div class="mono-mod">Catalog</div>
+        <div class="mono-mod">Cart</div>
+        <div class="mono-mod">Order</div>
+        <div class="mono-mod">Payment</div>
+        <div class="mono-mod">Inventory</div>
+        <div class="mono-mod">Notification</div>
+      </div>
+    </div>
+    <p class="note" id="m1-note">
+      Trạng thái: <strong>monolith</strong> — mọi module dùng chung 1 database <code>app_db</code>.
+    </p>
+  </div>
+
+  <!-- ============ MODULE 2 ============ -->
+  <h2>2. API Gateway — Aggregation</h2>
+  <div class="card">
+    <p class="legend">
+      Màn "chi tiết đơn hàng" cần dữ liệu từ 3 service. Client gửi <strong>1 request</strong>; gateway
+      <strong>fan-out song song</strong> tới Order/User/Shipping rồi gom thành 1 response.
+      So sánh thời gian tuần tự (115ms) vs song song.
+    </p>
+    <div class="controls">
+      <button id="m2-parallel">Chạy fan-out song song</button>
+      <button id="m2-seq" class="ghost">Chạy tuần tự (so sánh)</button>
+    </div>
+
+    <div class="gw-wrap">
+      <svg class="gw-svg" viewBox="0 0 560 260" id="m2-svg" aria-label="gateway aggregation diagram">
+        <!-- client -->
+        <g id="g-client"><rect x="20" y="110" width="100" height="40" rx="8" fill="#ebf8ff" stroke="#4299e1" stroke-width="2"/><text x="70" y="135" text-anchor="middle" font-size="13" fill="#2b6cb0" font-weight="700">Client</text></g>
+        <!-- gateway -->
+        <g id="g-gw"><rect x="200" y="110" width="110" height="40" rx="8" fill="#faf5ff" stroke="#9f7aea" stroke-width="2"/><text x="255" y="135" text-anchor="middle" font-size="13" fill="#6b46c1" font-weight="700">Gateway</text></g>
+        <!-- services -->
+        <g id="g-order"><rect x="420" y="30" width="120" height="40" rx="8" fill="#fff" stroke="#cbd5e0" stroke-width="2"/><text x="480" y="55" text-anchor="middle" font-size="12" fill="#4a5568" font-weight="600">Order 40ms</text></g>
+        <g id="g-user"><rect x="420" y="110" width="120" height="40" rx="8" fill="#fff" stroke="#cbd5e0" stroke-width="2"/><text x="480" y="135" text-anchor="middle" font-size="12" fill="#4a5568" font-weight="600">User 35ms</text></g>
+        <g id="g-shipping"><rect x="420" y="190" width="120" height="40" rx="8" fill="#fff" stroke="#cbd5e0" stroke-width="2"/><text x="480" y="215" text-anchor="middle" font-size="12" fill="#4a5568" font-weight="600">Shipping 40ms</text></g>
+        <!-- edges -->
+        <line x1="120" y1="130" x2="200" y2="130" stroke="#a0aec0" stroke-width="2"/>
+        <line x1="310" y1="130" x2="420" y2="50"  stroke="#a0aec0" stroke-width="2" id="e-order"/>
+        <line x1="310" y1="130" x2="420" y2="130" stroke="#a0aec0" stroke-width="2" id="e-user"/>
+        <line x1="310" y1="130" x2="420" y2="210" stroke="#a0aec0" stroke-width="2" id="e-shipping"/>
+      </svg>
+      <div>Đồng hồ: <span class="timer" id="m2-timer">0 ms</span></div>
+    </div>
+    <div class="resp-box" id="m2-resp">Bấm nút để chạy. Response gom 3 service sẽ hiện ở đây.</div>
+    <p class="note">
+      Song song: tổng ≈ chậm nhất (max ~40ms). Tuần tự: cộng dồn 40+35+40 = 115ms. Client luôn chỉ thấy 1 request/1 response.
+    </p>
+  </div>
+
+  <!-- ============ MODULE 3 ============ -->
+  <h2>3. Strangler Fig — Migration dần</h2>
+  <div class="card">
+    <p class="legend">
+      Đặt router trước monolith. Migrate từng prefix sang service mới; phần chưa migrate vẫn về Monolith.
+      Có thể <strong>rollback</strong> 1 prefix về Monolith ngay khi service mới lỗi.
+    </p>
+    <div class="controls">
+      <button id="m3-next">Migrate bước tiếp theo →</button>
+      <button id="m3-rollback" class="ghost">Rollback /users</button>
+      <button id="m3-reset" class="ghost">Reset</button>
+    </div>
+
+    <div class="phase-label" id="m3-phase">Giai đoạn 0 — chưa migrate gì, mọi route → Monolith</div>
+    <div class="progress-bar"><div class="progress-fill" id="m3-progress"></div></div>
+
+    <div class="str-router">🔀 Strangler Router (đứng trước Monolith)</div>
+    <div class="str-routes" id="m3-routes"></div>
+    <p class="note" id="m3-note">
+      Mỗi bước nhỏ và rollback được → an toàn hơn big-bang rewrite. Khi Monolith không còn route nào → tắt nó.
+    </p>
+  </div>
+</main>
+
+<script>
+/* ============ MODULE 1: decomposition ============ */
+(function(){
+  const services = [
+    { name: 'Catalog',      db: 'catalog_db' },
+    { name: 'Cart',         db: 'cart_db' },
+    { name: 'Order',        db: 'order_db' },
+    { name: 'Payment',      db: 'payment_db' },
+    { name: 'Inventory',    db: 'inventory_db' },
+    { name: 'Notification', db: 'notification_db' },
+  ];
+  const stage = document.getElementById('m1-stage');
+  const note  = document.getElementById('m1-note');
+
+  function monolith(){
+    stage.innerHTML = '';
+    const box = document.createElement('div');
+    box.className = 'mono-box';
+    box.innerHTML = '<div class="mono-title">🏢 Monolith (1 process · 1 DB)</div>' +
+      services.map(s => '<div class="mono-mod">'+s.name+'</div>').join('');
+    stage.appendChild(box);
+    note.innerHTML = 'Trạng thái: <strong>monolith</strong> — mọi module dùng chung 1 database <code>app_db</code>.';
+  }
+
+  function decompose(){
+    stage.innerHTML = '';
+    const cards = services.map(s => {
+      const d = document.createElement('div');
+      d.className = 'svc';
+      d.innerHTML = '<div class="svc-name">'+s.name+'</div><div class="svc-db">'+s.db+'</div>';
+      stage.appendChild(d);
+      return d;
+    });
+    note.innerHTML = 'Trạng thái: <strong>microservices</strong> — mỗi service own DB riêng (database per service). Tách theo <em>capability</em>, không theo technical layer.';
+    // animate xuất hiện lần lượt
+    cards.forEach((c, i) => setTimeout(() => c.classList.add('show'), 120 * i));
+  }
+
+  document.getElementById('m1-decompose').onclick = decompose;
+  document.getElementById('m1-reset').onclick = monolith;
+  monolith();
+})();
+
+/* ============ MODULE 2: gateway aggregation ============ */
+(function(){
+  const svcDefs = [
+    { id: 'order',    ms: 40, label: 'Order' },
+    { id: 'user',     ms: 35, label: 'User' },
+    { id: 'shipping', ms: 40, label: 'Shipping' },
+  ];
+  const timerEl = document.getElementById('m2-timer');
+  const respEl  = document.getElementById('m2-resp');
+  const FACTOR  = 12; // scale ms ảo -> ms thật cho animation
+
+  function svgNode(id){ return document.getElementById('g-' + id); }
+  function setActive(id, cls){
+    const rect = svgNode(id).querySelector('rect');
+    if (cls === 'active'){ rect.setAttribute('stroke', '#ef4444'); rect.setAttribute('stroke-width', '4'); }
+    else if (cls === 'done'){ rect.setAttribute('stroke', '#48bb78'); rect.setAttribute('fill', '#f0fff4'); rect.setAttribute('stroke-width', '2'); }
+    else { rect.setAttribute('stroke', '#cbd5e0'); rect.setAttribute('fill', '#fff'); rect.setAttribute('stroke-width', '2'); }
+  }
+  function reset(){
+    svcDefs.forEach(s => setActive(s.id, 'idle'));
+    setActive('gw', 'idle'); // gw not styled by setActive fill; fine
+    timerEl.textContent = '0 ms';
+    respEl.textContent = 'Đang chạy...';
+  }
+  function setButtons(disabled){
+    document.getElementById('m2-parallel').disabled = disabled;
+    document.getElementById('m2-seq').disabled = disabled;
+  }
+
+  function runParallel(){
+    setButtons(true); reset();
+    let virtual = 0;
+    const t0 = performance.now();
+    const ticker = setInterval(() => {
+      timerEl.textContent = (Math.round((performance.now() - t0) / FACTOR)) + ' ms';
+    }, 30);
+    svcDefs.forEach(s => setActive(s.id, 'active'));
+    let done = 0;
+    svcDefs.forEach(s => {
+      setTimeout(() => {
+        setActive(s.id, 'done');
+        done++;
+        if (done === svcDefs.length){
+          clearInterval(ticker);
+          const maxMs = Math.max(...svcDefs.map(x => x.ms));
+          timerEl.textContent = maxMs + ' ms (song song = max)';
+          respEl.textContent =
+            '{\n  "order":    { "id": "o1001", "total": 850 },\n' +
+            '  "user":     { "name": "Nguyen Van A" },\n' +
+            '  "shipping": { "status": "in_transit" }\n}';
+          setButtons(false);
+        }
+      }, s.ms * FACTOR);
+    });
+  }
+
+  function runSequential(){
+    setButtons(true); reset();
+    const t0 = performance.now();
+    const ticker = setInterval(() => {
+      timerEl.textContent = (Math.round((performance.now() - t0) / FACTOR)) + ' ms';
+    }, 30);
+    let acc = 0;
+    svcDefs.forEach((s, i) => {
+      setTimeout(() => setActive(s.id, 'active'), acc * FACTOR);
+      acc += s.ms;
+      setTimeout(() => setActive(s.id, 'done'), acc * FACTOR);
+    });
+    setTimeout(() => {
+      clearInterval(ticker);
+      const total = svcDefs.reduce((a, x) => a + x.ms, 0);
+      timerEl.textContent = total + ' ms (tuần tự = tổng)';
+      respEl.textContent = 'Tuần tự cộng dồn: 40 + 35 + 40 = 115 ms — chậm hơn fan-out song song.';
+      setButtons(false);
+    }, acc * FACTOR + 50);
+  }
+
+  document.getElementById('m2-parallel').onclick = runParallel;
+  document.getElementById('m2-seq').onclick = runSequential;
+})();
+
+/* ============ MODULE 3: strangler fig ============ */
+(function(){
+  // Lộ trình migrate: prefix + service mới
+  const routes = [
+    { path: '/users',    svc: 'UserService' },
+    { path: '/orders',   svc: 'OrderService' },
+    { path: '/payments', svc: 'PaymentService' },
+  ];
+  // state[path] = 'mono' | 'new'
+  let migrated = [false, false, false];
+  const phaseEl = document.getElementById('m3-phase');
+  const routesEl = document.getElementById('m3-routes');
+  const progEl = document.getElementById('m3-progress');
+  const noteEl = document.getElementById('m3-note');
+
+  function render(){
+    routesEl.innerHTML = '';
+    routes.forEach((r, i) => {
+      const isNew = migrated[i];
+      const row = document.createElement('div');
+      row.className = 'str-route';
+      row.innerHTML =
+        '<span class="str-path">' + r.path + '</span>' +
+        '<span class="str-arrow">→</span>' +
+        '<span class="str-target ' + (isNew ? 'new' : 'mono') + '">' +
+          (isNew ? r.svc + ' (mới)' : 'Monolith') + '</span>';
+      routesEl.appendChild(row);
+    });
+    const count = migrated.filter(Boolean).length;
+    progEl.style.width = (count / routes.length * 100) + '%';
+    if (count === 0) phaseEl.textContent = 'Giai đoạn 0 — chưa migrate gì, mọi route → Monolith';
+    else if (count < routes.length) phaseEl.textContent = 'Giai đoạn ' + count + ' — đã migrate ' + count + '/' + routes.length + ' phần sang service mới';
+    else phaseEl.textContent = 'Hoàn tất — Monolith không còn route nào → có thể tắt Monolith';
+    noteEl.innerHTML = count === routes.length
+      ? '<strong>Xong:</strong> Monolith rỗng ruột, gỡ bỏ được. Mỗi bước vừa qua đều rollback được.'
+      : 'Mỗi bước nhỏ và rollback được → an toàn hơn big-bang rewrite.';
+  }
+
+  document.getElementById('m3-next').onclick = function(){
+    const idx = migrated.findIndex(m => !m);
+    if (idx === -1) return;
+    migrated[idx] = true;
+    render();
+  };
+  document.getElementById('m3-rollback').onclick = function(){
+    migrated[0] = false; // rollback /users
+    render();
+  };
+  document.getElementById('m3-reset').onclick = function(){
+    migrated = [false, false, false];
+    render();
+  };
+  render();
+})();
+</script>
+
+<script src="../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../tools/readme-modal.js"></script>
+<script src="../../tools/viz-toc.js"></script>
+</body>
+</html>

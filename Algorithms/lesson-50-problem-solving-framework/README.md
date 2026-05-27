@@ -686,6 +686,15 @@ Với **mỗi** bài dưới đây, **không cần code đầy đủ** — hãy 
   2. **Pattern Matcher**: chọn dấu hiệu bài toán → gợi ý kỹ thuật + link lesson.
   3. **7-Step Walkthrough**: chọn bài mẫu, đi qua đủ 7 bước.
 
+## 📝 Tóm tắt toàn bài
+
+- **Framework = quy trình + bản đồ.** 7 bước lặp lại được cho mọi bài lạ; không đoán mò.
+- **Constraint → độ phức tạp mục tiêu** (mục 3): `n` nhỏ (≤25) cho phép exponential; `~10^5` ép `O(n log n)`; `~10^9` ép `O(log n)`. Quy đổi qua mốc `~10^8` phép/giây.
+- **Dấu hiệu → kỹ thuật** (mục 4): học thuộc bảng + cây quyết định (7.0). "sorted/liên tục/tổ hợp/tối ưu/đường đi/top-k/đếm/khớp chuỗi/thứ tự DAG" → kỹ thuật tương ứng.
+- **Brute-force trước** làm baseline đúng, rồi tối ưu *vừa đủ* mục tiêu — không tối ưu sớm.
+- **Stuck:** đơn giản hoá, giải tay, vẽ, nghĩ ngược, tìm bài tương tự, đổi góc nhìn.
+- **Luôn test edge** (rỗng, 1 phần tử, trùng, âm/0, overflow, max) và **kiểm chứng greedy** trước khi tin.
+
 ## Bài tiếp theo
 
 - [Lesson 51 — Complexity Trade-offs](../lesson-51-complexity-tradeoffs/) — time vs space, precompute vs query, online vs offline.

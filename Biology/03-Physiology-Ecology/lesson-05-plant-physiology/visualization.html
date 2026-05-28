@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Sinh lý thực vật</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #14532d; }
+  h2 {
+    color: #166534; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #bbf7d0;
+  }
+  h3 { color: #15803d; margin-top: 20px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 11px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 90px; max-width: 100%;
+  }
+  input[type="range"] { flex: 1; min-width: 0; }
+  button {
+    background: #059669; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #047857; }
+  button.muted { background: #a0aec0; }
+  button.muted:hover { background: #718096; }
+  .pill {
+    background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;
+  }
+  .pill.active { background: #059669; color: white; }
+  .stat {
+    display: inline-block; background: #d1fae5;
+    padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #047857; }
+  .stat.warn { background: #fee2e2; }
+  .stat.warn strong { color: #b91c1c; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; }
+  .group-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+  svg { display: block; margin: 8px auto; max-width: 100%; height: auto; }
+  .info-grid { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 14px; }
+  .info-grid div { padding: 6px 10px; background: #f0fdf4; border-radius: 6px; }
+  .info-grid strong { color: #166534; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 8px; }
+  th, td { border: 1px solid #d1d5db; padding: 7px 10px; text-align: left; }
+  th { background: #ecfdf5; color: #065f46; }
+
+  .legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 13px; margin: 6px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { display: inline-block; width: 14px; height: 14px; border-radius: 3px; }
+
+  /* Plant transport viz */
+  .xylem-water { fill: #3b82f6; }
+  .phloem-sugar { fill: #f59e0b; }
+  .leaf-fill { fill: #86efac; stroke: #166534; stroke-width: 1.5; }
+  .stem-fill { fill: #a16207; stroke: #78350f; stroke-width: 1.5; }
+  .root-fill { fill: #b45309; stroke: #78350f; stroke-width: 1.5; }
+  .soil { fill: #78350f; opacity: 0.25; }
+
+  /* Stomata viz */
+  .guard-cell { fill: #6ee7b7; stroke: #047857; stroke-width: 2; }
+  .guard-cell.closed { fill: #d1fae5; }
+  .pore-bg { fill: #1f2937; }
+  .epidermis { fill: #ecfdf5; stroke: #065f46; stroke-width: 1.5; }
+
+  /* Hormone viz */
+  .horm-card {
+    border-left: 4px solid #059669; padding: 8px 12px;
+    background: #f0fdf4; border-radius: 4px;
+  }
+
+  details summary { cursor: pointer; font-weight: 600; color: #166534; }
+  details[open] summary { margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Biology · Tầng 3</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-endocrine-homeostasis/visualization.html">← L4: Nội tiết &amp; nội môi</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Sinh lý thực vật</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-ecology-populations/visualization.html">L6: Sinh thái quần thể →</a>
+</nav>
+
+<h1>Lesson 05 — Sinh lý thực vật</h1>
+<p>Bốn công cụ tương tác: mô phỏng vận chuyển xylem/phloem trong cây (thay đổi cường độ thoát hơi nước), đóng/mở khí khổng theo ABA và ánh sáng, duyệt 5 hormone thực vật, và quan sát hướng quang (phototropism) qua phân bố auxin.</p>
+
+<h2>1. Vận chuyển trong cây — xylem &amp; phloem</h2>
+<div class="card">
+  <p>Mô phỏng dòng chảy: <strong>xylem (xanh)</strong> đưa nước lên từ rễ → lá; <strong>phloem (vàng-cam)</strong> chở sucrose từ <em>source</em> (lá quang hợp) tới <em>sink</em> (rễ/quả). Kéo các thanh để thay đổi cường độ thoát hơi nước và pha sinh trưởng.</p>
+  <div class="row">
+    <label>Cường độ thoát hơi nước (nắng + gió):</label>
+    <input type="range" id="transpSlider" min="0" max="100" value="60" step="5">
+    <span class="stat"><strong id="transpVal">60</strong>%</span>
+  </div>
+  <div class="row">
+    <label>Pha sinh trưởng:</label>
+    <span class="group-btns" id="phaseBtns" style="margin:0"></span>
+  </div>
+  <svg id="transportSvg" width="520" height="380" viewBox="0 0 520 380" role="img" aria-label="Vận chuyển xylem và phloem"></svg>
+  <div class="legend">
+    <span><i style="background:#3b82f6"></i> Nước (xylem) ↑</span>
+    <span><i style="background:#f59e0b"></i> Sucrose (phloem)</span>
+    <span><i style="background:#86efac"></i> Lá (source khi quang hợp)</span>
+    <span><i style="background:#b45309"></i> Rễ / quả (sink)</span>
+  </div>
+  <div style="margin-top:6px">
+    <span class="stat">Tốc độ xylem: <strong id="xylemSpeed">—</strong> m/giờ</span>
+    <span class="stat">Tension trong xylem: <strong id="tensionVal">—</strong> MPa</span>
+    <span class="stat">Hướng phloem: <strong id="phloemDir">—</strong></span>
+  </div>
+  <div class="hint" id="transportHint"></div>
+</div>
+
+<h2>2. Khí khổng — mở/đóng theo ABA &amp; ánh sáng</h2>
+<div class="card">
+  <p>Kéo nồng độ <strong>ABA (hormone stress khô)</strong> và <strong>K⁺ nội bào</strong>. Bật/tắt ánh sáng. Hai tế bào hạt đậu (guard cell) sẽ trương lên hoặc xẹp xuống → lỗ khí mở/đóng. Quan sát dòng CO₂ vào và H₂O ra.</p>
+  <div class="row">
+    <label>Ánh sáng:</label>
+    <button id="lightBtn" class="pill active">☀ Ban ngày</button>
+  </div>
+  <div class="row">
+    <label>[ABA] (stress khô):</label>
+    <input type="range" id="abaSlider" min="0" max="100" value="10" step="5">
+    <span class="stat"><strong id="abaVal">0.05</strong> μM</span>
+  </div>
+  <div class="row">
+    <label>[K⁺] nội bào hạt đậu:</label>
+    <input type="range" id="kSlider" min="20" max="100" value="80" step="5">
+    <span class="stat"><strong id="kVal">80</strong> mM</span>
+  </div>
+  <svg id="stomataSvg" width="520" height="320" viewBox="0 0 520 320" role="img" aria-label="Khí khổng mở đóng"></svg>
+  <div style="margin-top:6px">
+    <span class="stat">Độ mở lỗ khí: <strong id="apertureVal">—</strong> μm</span>
+    <span class="stat">Trạng thái: <strong id="stomataState">—</strong></span>
+    <span class="stat" id="phStat">Quang hợp: <strong id="photoVal">—</strong></span>
+  </div>
+  <div class="hint" id="stomataHint"></div>
+</div>
+
+<h2>3. Hormone thực vật — chọn để xem hiệu ứng</h2>
+<div class="card">
+  <p>Chọn 1 trong 5 hormone để xem vị trí tác động trên cây, hiệu ứng chính, ví dụ thực tế và liều lượng tự nhiên.</p>
+  <div class="group-btns" id="hormBtns"></div>
+  <svg id="hormSvg" width="520" height="280" viewBox="0 0 520 280" role="img" aria-label="Hormone thực vật và vị trí tác động"></svg>
+  <div class="info-grid" id="hormInfo"></div>
+  <div class="hint" id="hormHint"></div>
+</div>
+
+<h2>4. Hướng quang (phototropism) — auxin &amp; ánh sáng một phía</h2>
+<div class="card">
+  <p>Cây con đặt cạnh khe sáng. Kéo cường độ ánh sáng và thời gian → auxin di chuyển từ phía sáng sang phía tối → tế bào phía tối kéo dài nhiều hơn → thân cong về phía sáng. Nút "Cắt ngọn" mô phỏng thí nghiệm Darwin: cắt đỉnh → mất nguồn auxin → cây mất hướng quang.</p>
+  <div class="row">
+    <label>Cường độ ánh sáng từ trái:</label>
+    <input type="range" id="lightInt" min="0" max="100" value="70" step="5">
+    <span class="stat"><strong id="lightIntVal">70</strong>%</span>
+  </div>
+  <div class="row">
+    <label>Thời gian:</label>
+    <input type="range" id="timeSlider" min="0" max="100" value="50" step="5">
+    <span class="stat"><strong id="timeVal">12</strong> giờ</span>
+  </div>
+  <div class="row">
+    <button id="cutTipBtn">✂ Cắt ngọn (thí nghiệm Darwin)</button>
+    <button id="resetTipBtn" class="muted">↺ Phục hồi ngọn</button>
+  </div>
+  <svg id="photoSvg" width="520" height="340" viewBox="0 0 520 340" role="img" aria-label="Hướng quang và auxin"></svg>
+  <div style="margin-top:6px">
+    <span class="stat">Auxin phía sáng: <strong id="auxinLight">—</strong></span>
+    <span class="stat">Auxin phía tối: <strong id="auxinDark">—</strong></span>
+    <span class="stat">Góc nghiêng thân: <strong id="bendAngle">—</strong>°</span>
+  </div>
+  <div class="hint" id="photoHint"></div>
+</div>
+
+<h2>5. Bảng tổng hợp các cơ chế</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>Cơ chế</th><th>Tốn ATP?</th><th>Động lực chính</th></tr></thead>
+    <tbody>
+      <tr><td>Hấp thụ nước qua lông hút</td><td>Không (gián tiếp)</td><td>Thẩm thấu</td></tr>
+      <tr><td>Hấp thụ khoáng (K⁺, NO₃⁻)</td><td><strong>Có</strong></td><td>Bơm chủ động</td></tr>
+      <tr><td>Đẩy nước lên xylem</td><td>Không</td><td>Tension từ thoát hơi nước (năng lượng mặt trời)</td></tr>
+      <tr><td>Vận chuyển phloem</td><td><strong>Có</strong></td><td>Bơm sucrose + thẩm thấu</td></tr>
+      <tr><td>Mở khí khổng</td><td><strong>Có</strong></td><td>Bơm K⁺ → trương nước</td></tr>
+      <tr><td>Đóng khí khổng (ABA)</td><td>Không</td><td>Ion ra → mất nước</td></tr>
+      <tr><td>Hướng quang</td><td>Không</td><td>Phân bố auxin</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+
+// ============ Section 1: Plant transport ============
+const PHASES = {
+  summer: { name: "Hè (lá nhiều)", source: "Lá", sink: "Quả + rễ", dir: "xuống" },
+  spring: { name: "Xuân (lá non)", source: "Củ dự trữ", sink: "Lá non đỉnh", dir: "lên" },
+  harvest: { name: "Lúa chín", source: "Lá", sink: "Hạt lúa", dir: "lên-ngang" }
+};
+let currentPhase = "summer";
+
+function setupPhaseBtns() {
+  const c = document.getElementById("phaseBtns");
+  c.innerHTML = "";
+  Object.keys(PHASES).forEach(k => {
+    const b = document.createElement("button");
+    b.className = "pill" + (k === currentPhase ? " active" : "");
+    b.textContent = PHASES[k].name;
+    b.onclick = () => { currentPhase = k; setupPhaseBtns(); drawTransport(); };
+    c.appendChild(b);
+  });
+}
+
+function drawTransport() {
+  const transp = +document.getElementById("transpSlider").value;
+  document.getElementById("transpVal").textContent = transp;
+  const phase = PHASES[currentPhase];
+  const svg = document.getElementById("transportSvg"); clear(svg);
+
+  // Soil
+  el("rect", { x: 0, y: 290, width: 520, height: 90, class: "soil" }, svg);
+  const soilT = el("text", { x: 30, y: 360, font: "11px sans-serif", fill: "#78350f" }, svg);
+  soilT.textContent = "Đất + nước + khoáng";
+
+  // Sun (transpiration driver)
+  const sunOpacity = 0.3 + transp / 150;
+  el("circle", { cx: 460, cy: 50, r: 26, fill: "#fbbf24", opacity: sunOpacity }, svg);
+  for (let i = 0; i < 8; i++) {
+    const ang = (i / 8) * Math.PI * 2;
+    const x1 = 460 + Math.cos(ang) * 32;
+    const y1 = 50 + Math.sin(ang) * 32;
+    const x2 = 460 + Math.cos(ang) * 42;
+    const y2 = 50 + Math.sin(ang) * 42;
+    el("line", { x1, y1, x2, y2, stroke: "#fbbf24", "stroke-width": 2, opacity: sunOpacity }, svg);
+  }
+
+  // Trunk (stem)
+  el("rect", { x: 240, y: 130, width: 40, height: 160, class: "stem-fill" }, svg);
+
+  // Leaves (top)
+  el("ellipse", { cx: 200, cy: 110, rx: 60, ry: 30, class: "leaf-fill" }, svg);
+  el("ellipse", { cx: 320, cy: 110, rx: 60, ry: 30, class: "leaf-fill" }, svg);
+  el("ellipse", { cx: 260, cy: 80, rx: 50, ry: 28, class: "leaf-fill" }, svg);
+  const leafT = el("text", { x: 260, y: 50, "text-anchor": "middle", font: "12px sans-serif", "font-weight": "700", fill: "#14532d" }, svg);
+  leafT.textContent = "Lá (quang hợp + thoát hơi nước)";
+
+  // Roots (bottom)
+  el("path", { d: "M 240 290 Q 200 320 160 360 M 280 290 Q 320 320 360 360 M 250 290 Q 240 330 220 370 M 270 290 Q 280 330 300 370", stroke: "#78350f", "stroke-width": 4, fill: "none" }, svg);
+  // Root hairs as small circles
+  for (let i = 0; i < 8; i++) {
+    el("circle", { cx: 160 + i * 25, cy: 350 + (i % 2) * 10, r: 3, fill: "#b45309" }, svg);
+  }
+  const rootT = el("text", { x: 260, y: 335, "text-anchor": "middle", font: "11px sans-serif", "font-weight": "700", fill: "#7f1d1d" }, svg);
+  rootT.textContent = "Rễ + lông hút";
+
+  // Xylem channel (left side of trunk)
+  el("rect", { x: 246, y: 130, width: 10, height: 160, fill: "#dbeafe", stroke: "#3b82f6" }, svg);
+  // Phloem channel (right side of trunk)
+  el("rect", { x: 264, y: 130, width: 10, height: 160, fill: "#fef3c7", stroke: "#f59e0b" }, svg);
+
+  // Water droplets (xylem) — speed proportional to transp
+  // Animate position with current time
+  const now = Date.now() / 1000;
+  const xylemSpeed = 5 + transp * 0.45; // m/giờ display: ~5 to ~50
+  const dropSpacing = 30;
+  const ascent = (transp / 100) * 80; // pixel offset per cycle
+  for (let i = 0; i < 6; i++) {
+    const yBase = 280 - ((i * dropSpacing + (now * (10 + transp * 0.6)) % dropSpacing));
+    if (yBase > 130 && yBase < 290) {
+      el("circle", { cx: 251, cy: yBase, r: 4, class: "xylem-water" }, svg);
+    }
+  }
+  // Xylem arrow up
+  el("path", { d: "M 251 270 L 251 145 M 246 155 L 251 145 L 256 155", stroke: "#1e40af", "stroke-width": 2, fill: "none", opacity: 0.7 }, svg);
+
+  // Phloem droplets — direction based on phase
+  let phloemUp = (phase.dir === "lên");
+  for (let i = 0; i < 5; i++) {
+    let yPos;
+    if (phloemUp) {
+      yPos = 280 - ((i * 30 + (now * 8) % 30));
+    } else {
+      yPos = 140 + ((i * 30 + (now * 8) % 30));
+    }
+    if (yPos > 135 && yPos < 285) {
+      el("circle", { cx: 269, cy: yPos, r: 4, class: "phloem-sugar" }, svg);
+    }
+  }
+  // Phloem arrow
+  if (phloemUp) {
+    el("path", { d: "M 269 270 L 269 145 M 264 155 L 269 145 L 274 155", stroke: "#b45309", "stroke-width": 2, fill: "none", opacity: 0.7 }, svg);
+  } else {
+    el("path", { d: "M 269 145 L 269 270 M 264 260 L 269 270 L 274 260", stroke: "#b45309", "stroke-width": 2, fill: "none", opacity: 0.7 }, svg);
+  }
+
+  // Transpiration arrows from leaves
+  if (transp > 10) {
+    for (let i = 0; i < 3; i++) {
+      const cx = 200 + i * 60;
+      const op = 0.3 + transp / 150;
+      el("path", { d: `M ${cx} 95 q -3 -8 0 -16 q 3 -8 0 -16`, stroke: "#60a5fa", "stroke-width": 2, fill: "none", opacity: op }, svg);
+      el("text", { x: cx + 8, y: 70, font: "9px sans-serif", fill: "#3b82f6", opacity: op }, svg).textContent = "H₂O↑";
+    }
+  }
+
+  // Source/Sink labels
+  const srcT = el("text", { x: 80, y: 110, font: "11px sans-serif", "font-weight": "700", fill: "#b45309" }, svg);
+  srcT.textContent = "SOURCE: " + phase.source;
+  const snkT = el("text", { x: 380, y: 360, font: "11px sans-serif", "font-weight": "700", fill: "#b45309" }, svg);
+  snkT.textContent = "SINK: " + phase.sink;
+
+  // Xylem/phloem labels
+  el("text", { x: 195, y: 220, "text-anchor": "end", font: "11px sans-serif", "font-weight": "700", fill: "#1e40af" }, svg).textContent = "XYLEM";
+  el("text", { x: 195, y: 234, "text-anchor": "end", font: "10px sans-serif", fill: "#1e40af" }, svg).textContent = "(chết, rỗng)";
+  el("text", { x: 325, y: 220, font: "11px sans-serif", "font-weight": "700", fill: "#b45309" }, svg).textContent = "PHLOEM";
+  el("text", { x: 325, y: 234, font: "10px sans-serif", fill: "#b45309" }, svg).textContent = "(sống, sieve tube)";
+
+  // Stats
+  document.getElementById("xylemSpeed").textContent = xylemSpeed.toFixed(1);
+  // Tension increases with transpiration
+  const tension = -(0.3 + transp * 0.02).toFixed(2);
+  document.getElementById("tensionVal").textContent = tension;
+  document.getElementById("phloemDir").textContent = phase.dir === "lên" ? "↑ (lên)" : phase.dir === "lên-ngang" ? "↗ (lên + ngang)" : "↓ (xuống)";
+
+  let hint = `Cường độ thoát hơi nước ${transp}% → xylem ~${xylemSpeed.toFixed(0)} m/giờ, tension ${tension} MPa. `;
+  if (transp >= 80) hint += "⚠ Tension âm rất lớn — có thể xảy ra cavitation (bong bóng khí) nếu thiếu nước.";
+  else if (transp <= 20) hint += "Ban đêm / râm mát: thoát hơi nước ít → tension yếu → áp suất rễ chiếm ưu thế → có thể ứa giọt (guttation).";
+  else hint += "Cây hoạt động bình thường — toàn bộ dòng xylem chạy bằng \"năng lượng mặt trời miễn phí\".";
+  document.getElementById("transportHint").textContent = hint;
+}
+document.getElementById("transpSlider").oninput = drawTransport;
+
+// Animate transport
+setInterval(() => drawTransport(), 200);
+
+// ============ Section 2: Stomata ============
+let lightOn = true;
+document.getElementById("lightBtn").onclick = () => {
+  lightOn = !lightOn;
+  const b = document.getElementById("lightBtn");
+  b.textContent = lightOn ? "☀ Ban ngày" : "🌙 Ban đêm";
+  b.classList.toggle("active", lightOn);
+  drawStomata();
+};
+
+function drawStomata() {
+  const abaRaw = +document.getElementById("abaSlider").value;
+  const kRaw = +document.getElementById("kSlider").value;
+  // ABA in μM: 0..100 maps 0.05..0.6
+  const aba = (0.05 + abaRaw / 100 * 0.55);
+  document.getElementById("abaVal").textContent = aba.toFixed(2);
+  document.getElementById("kVal").textContent = kRaw;
+  // Aperture: more K+ → more open; more ABA → more closed; light → opens
+  let aperture = (kRaw - 20) / 80; // 0..1 base from K
+  aperture -= (aba - 0.05) / 0.55 * 0.7; // ABA closes
+  if (!lightOn) aperture -= 0.3;
+  aperture = Math.max(0, Math.min(1, aperture));
+  // Display aperture μm: 0..12
+  const apertureMicrons = (aperture * 12).toFixed(1);
+
+  const svg = document.getElementById("stomataSvg"); clear(svg);
+
+  // Background — leaf epidermis
+  el("rect", { x: 0, y: 0, width: 520, height: 320, fill: lightOn ? "#fffbeb" : "#1e293b", opacity: lightOn ? 1 : 0.85 }, svg);
+
+  // Sun or moon top right
+  if (lightOn) {
+    el("circle", { cx: 470, cy: 40, r: 22, fill: "#fbbf24" }, svg);
+    el("text", { x: 470, y: 75, "text-anchor": "middle", font: "10px sans-serif", fill: "#7c2d12" }, svg).textContent = "Ánh sáng";
+  } else {
+    el("circle", { cx: 470, cy: 40, r: 18, fill: "#e2e8f0" }, svg);
+    el("circle", { cx: 462, cy: 35, r: 16, fill: lightOn ? "#fffbeb" : "#1e293b" }, svg);
+    el("text", { x: 470, y: 75, "text-anchor": "middle", font: "10px sans-serif", fill: "#f1f5f9" }, svg).textContent = "Ban đêm";
+  }
+
+  // Surrounding epidermis cells
+  for (let i = 0; i < 4; i++) {
+    el("ellipse", { cx: 90 + i * 90, cy: 240, rx: 35, ry: 18, class: "epidermis" }, svg);
+  }
+
+  // Title
+  el("text", { x: 260, y: 30, "text-anchor": "middle", font: "13px sans-serif", "font-weight": "700", fill: lightOn ? "#065f46" : "#a7f3d0" }, svg).textContent = "Mặt dưới lá — 1 khí khổng (zoom)";
+
+  // Two guard cells (bean-shaped)
+  // Center of stoma at (260, 160)
+  const cx = 260, cy = 160;
+  // Aperture pore width = 4 + 16*aperture
+  const poreW = 4 + aperture * 16;
+  const poreH = 50 + aperture * 10;
+
+  // Draw black pore (gap between guard cells)
+  el("ellipse", { cx: cx, cy: cy, rx: poreW / 2, ry: poreH / 2, class: "pore-bg" }, svg);
+
+  // Guard cell left — bean curved
+  const closedClass = aperture < 0.2 ? " closed" : "";
+  // Use path for kidney/bean shape — when open, cells bow outward
+  const offset = 6 + aperture * 14; // distance from center to inner edge
+  const cellW = 24 + aperture * 10;
+  // Left cell
+  const lcx = cx - offset - cellW / 2;
+  el("ellipse", { cx: lcx, cy: cy, rx: cellW / 2, ry: poreH / 2 + 6, class: "guard-cell" + closedClass, transform: `rotate(${aperture * -20} ${lcx} ${cy})` }, svg);
+  // Right cell
+  const rcx = cx + offset + cellW / 2;
+  el("ellipse", { cx: rcx, cy: cy, rx: cellW / 2, ry: poreH / 2 + 6, class: "guard-cell" + closedClass, transform: `rotate(${aperture * 20} ${rcx} ${cy})` }, svg);
+
+  // K+ ions inside guard cells (more if open)
+  const ionCount = Math.round(kRaw / 12);
+  for (let i = 0; i < ionCount; i++) {
+    const ang = Math.random() * Math.PI * 2;
+    const r = Math.random() * 12;
+    el("circle", { cx: lcx + Math.cos(ang) * r, cy: cy + Math.sin(ang) * r * 1.5, r: 2.5, fill: "#7c3aed" }, svg);
+    el("circle", { cx: rcx + Math.cos(ang) * r, cy: cy + Math.sin(ang) * r * 1.5, r: 2.5, fill: "#7c3aed" }, svg);
+  }
+  // K+ label
+  el("text", { x: lcx, y: cy + 50, "text-anchor": "middle", font: "10px sans-serif", fill: "#5b21b6" }, svg).textContent = "K⁺";
+
+  // ABA molecules outside
+  if (aba > 0.15) {
+    const abaN = Math.round((aba - 0.05) / 0.55 * 8);
+    for (let i = 0; i < abaN; i++) {
+      const x = lcx - 30 - Math.random() * 30;
+      const y = cy - 30 + Math.random() * 60;
+      el("rect", { x: x, y: y, width: 6, height: 6, fill: "#dc2626", rx: 1 }, svg);
+    }
+    el("text", { x: lcx - 50, y: cy + 50, "text-anchor": "middle", font: "10px sans-serif", "font-weight": "700", fill: "#7f1d1d" }, svg).textContent = "ABA";
+  }
+
+  // CO2 / H2O / O2 arrows
+  if (aperture > 0.15) {
+    // CO2 in (down)
+    el("text", { x: cx - 12, y: 95, "text-anchor": "middle", font: "12px sans-serif", "font-weight": "700", fill: "#0369a1" }, svg).textContent = "CO₂";
+    el("path", { d: `M ${cx - 12} 100 L ${cx - 12} ${cy - poreH / 2 - 4} M ${cx - 17} ${cy - poreH / 2 - 12} L ${cx - 12} ${cy - poreH / 2 - 4} L ${cx - 7} ${cy - poreH / 2 - 12}`, stroke: "#0369a1", "stroke-width": 2, fill: "none" }, svg);
+    // H2O out (up)
+    el("text", { x: cx + 14, y: 95, "text-anchor": "middle", font: "12px sans-serif", "font-weight": "700", fill: "#3b82f6" }, svg).textContent = "H₂O";
+    el("path", { d: `M ${cx + 14} ${cy - poreH / 2 - 4} L ${cx + 14} 100 M ${cx + 9} 108 L ${cx + 14} 100 L ${cx + 19} 108`, stroke: "#3b82f6", "stroke-width": 2, fill: "none" }, svg);
+    // O2 out
+    el("text", { x: cx + 40, y: 95, "text-anchor": "middle", font: "12px sans-serif", "font-weight": "700", fill: "#16a34a" }, svg).textContent = "O₂";
+    el("path", { d: `M ${cx + 40} ${cy - poreH / 2 - 4} L ${cx + 40} 100 M ${cx + 35} 108 L ${cx + 40} 100 L ${cx + 45} 108`, stroke: "#16a34a", "stroke-width": 2, fill: "none" }, svg);
+  } else {
+    el("text", { x: cx, y: 95, "text-anchor": "middle", font: "12px sans-serif", "font-weight": "700", fill: "#6b7280" }, svg).textContent = "✕ Lỗ đóng — không trao đổi khí";
+  }
+
+  // Inside leaf — mesophyll
+  el("rect", { x: 200, y: cy + poreH / 2 + 20, width: 120, height: 40, fill: lightOn ? "#bbf7d0" : "#475569", stroke: "#166534" }, svg);
+  el("text", { x: 260, y: cy + poreH / 2 + 45, "text-anchor": "middle", font: "11px sans-serif", fill: lightOn ? "#065f46" : "#cbd5e0" }, svg).textContent = "Mô lá (mesophyll)";
+
+  // Stats
+  document.getElementById("apertureVal").textContent = apertureMicrons;
+  const state = aperture > 0.6 ? "🔓 Mở rộng" : aperture > 0.25 ? "Mở vừa" : aperture > 0.05 ? "Mở hẹp" : "🔒 Đóng kín";
+  document.getElementById("stomataState").textContent = state;
+  let photo = "Dừng";
+  if (lightOn && aperture > 0.2) photo = aperture > 0.6 ? "Mạnh" : "Vừa";
+  else if (!lightOn) photo = "Không có (đêm)";
+  else if (aperture < 0.15) photo = "Dừng (đóng cửa)";
+  document.getElementById("photoVal").textContent = photo;
+
+  let hint = "";
+  if (!lightOn && aperture < 0.3) hint = "Ban đêm: không cần CO₂ → khí khổng đóng → tiết kiệm nước.";
+  else if (aba > 0.4) hint = "⚠ ABA cao = cây đang stress khô hạn. ABA mở kênh K⁺ ra → ion thoát → tế bào xẹp → lỗ đóng.";
+  else if (lightOn && aperture > 0.6) hint = "Ánh sáng + K⁺ vào → tế bào trương → lỗ mở rộng → CO₂ vào quang hợp + H₂O bay hơi (động cơ kéo xylem).";
+  else if (aperture > 0.2) hint = "Mở vừa: cân bằng giữa quang hợp và giữ nước.";
+  else hint = "Lỗ gần đóng — quang hợp chậm hoặc dừng.";
+  document.getElementById("stomataHint").textContent = hint;
+}
+document.getElementById("abaSlider").oninput = drawStomata;
+document.getElementById("kSlider").oninput = drawStomata;
+
+// ============ Section 3: Hormone explorer ============
+const HORMONES = {
+  auxin: {
+    name: "Auxin (IAA)", color: "#dc2626",
+    site: "Đỉnh thân + lá non",
+    target: "Tế bào thân, rễ, tua cuốn",
+    effect: "Kéo dài tế bào; hướng quang, hướng đất, hướng tiếp xúc",
+    example: "Cắt cành cắm rễ ra rễ; thân nghiêng về phía sáng",
+    dose: "Tự nhiên 10⁻⁸–10⁻⁵ M. Quá liều (>10⁻³ M) → chết cây (cơ chế thuốc diệt cỏ 2,4-D)",
+    pos: "top"
+  },
+  gibberellin: {
+    name: "Gibberellin (GA)", color: "#7c3aed",
+    site: "Hạt, rễ, lá non",
+    target: "Toàn bộ thân, hạt đang nảy mầm",
+    effect: "Kéo dài thân; phá ngủ hạt; nở hoa",
+    example: "Lúa dwarf cao bình thường lại nếu phun GA; nho không hạt to ra",
+    dose: "Hạt khô GA thấp → ngủ; ngâm nước GA tăng → α-amylase phân giải tinh bột → nảy mầm",
+    pos: "seed"
+  },
+  cytokinin: {
+    name: "Cytokinin", color: "#16a34a",
+    site: "Rễ (tổng hợp)",
+    target: "Mô phân sinh, chồi nách",
+    effect: "Kích phân bào; làm chậm lão hóa; mọc chồi nách",
+    example: "Tissue culture cần cytokinin để mọc chồi; lá phun cytokinin giữ xanh lâu hơn",
+    dose: "Tỷ lệ Auxin/Cytokinin quyết định cấy mô ra rễ hay ra chồi",
+    pos: "root"
+  },
+  aba: {
+    name: "ABA (abscisic acid)", color: "#f59e0b",
+    site: "Rễ (khi khô) + lá già",
+    target: "Khí khổng, hạt, chồi",
+    effect: "Đóng khí khổng (stress khô); duy trì ngủ hạt; ngủ chồi mùa đông",
+    example: "Khí khổng đóng trong 5–10 phút khi rễ thiếu nước",
+    dose: "Bình thường ~0.05 μM; stress khô tăng lên ~0.5 μM (gấp 10 lần)",
+    pos: "leafBase"
+  },
+  ethylene: {
+    name: "Ethylene (C₂H₄ — KHÍ)", color: "#f97316",
+    site: "Quả chín + mô già",
+    target: "Quả (khuếch tán qua không khí)",
+    effect: "Chín quả; lão hóa; rụng lá; rụng quả",
+    example: "Buồng chuối xanh + 1 quả táo chín trong túi kín → chuối chín đồng loạt sau 2–3 ngày",
+    dose: "1 quả táo giải phóng ~1 μL C₂H₄/kg/giờ. Phản hồi DƯƠNG: chín càng nhanh kích thích chín nhanh hơn",
+    pos: "fruit"
+  }
+};
+let currentHorm = "auxin";
+
+function setupHormBtns() {
+  const c = document.getElementById("hormBtns");
+  c.innerHTML = "";
+  Object.keys(HORMONES).forEach(k => {
+    const b = document.createElement("button");
+    b.className = "pill" + (k === currentHorm ? " active" : "");
+    b.textContent = HORMONES[k].name.split(" ")[0];
+    b.onclick = () => { currentHorm = k; setupHormBtns(); drawHorm(); };
+    c.appendChild(b);
+  });
+}
+
+function drawHorm() {
+  const H = HORMONES[currentHorm];
+  const svg = document.getElementById("hormSvg"); clear(svg);
+
+  // Draw a generic plant on the left
+  // Soil
+  el("rect", { x: 30, y: 230, width: 220, height: 50, fill: "#78350f", opacity: 0.25 }, svg);
+  // Roots
+  el("path", { d: "M 130 220 Q 90 250 70 280 M 150 220 Q 180 250 200 280 M 140 220 Q 140 260 130 290 M 145 220 Q 150 250 160 285", stroke: "#78350f", "stroke-width": 3, fill: "none" }, svg);
+  // Stem
+  el("rect", { x: 135, y: 90, width: 15, height: 130, fill: "#a16207", stroke: "#78350f" }, svg);
+  // Leaves
+  el("ellipse", { cx: 110, cy: 130, rx: 30, ry: 14, fill: "#86efac", stroke: "#166534" }, svg);
+  el("ellipse", { cx: 175, cy: 130, rx: 30, ry: 14, fill: "#86efac", stroke: "#166534" }, svg);
+  el("ellipse", { cx: 110, cy: 170, rx: 28, ry: 13, fill: "#86efac", stroke: "#166534" }, svg);
+  el("ellipse", { cx: 175, cy: 170, rx: 28, ry: 13, fill: "#86efac", stroke: "#166534" }, svg);
+  // Apical bud
+  el("circle", { cx: 142, cy: 88, r: 8, fill: "#bbf7d0", stroke: "#166534", "stroke-width": 1.5 }, svg);
+  // Fruit
+  el("circle", { cx: 155, cy: 155, r: 9, fill: "#f97316", stroke: "#9a3412" }, svg);
+
+  // Highlight where this hormone acts — yellow halo
+  let hx, hy, hr;
+  switch (H.pos) {
+    case "top": hx = 142; hy = 88; hr = 22; break;
+    case "seed": hx = 155; hy = 155; hr = 18; break; // use fruit as seed proxy
+    case "root": hx = 145; hy = 270; hr = 30; break;
+    case "leafBase": hx = 142; hy = 130; hr = 20; break;
+    case "fruit": hx = 155; hy = 155; hr = 18; break;
+  }
+  el("circle", { cx: hx, cy: hy, r: hr, fill: H.color, opacity: 0.25 }, svg);
+  el("circle", { cx: hx, cy: hy, r: hr, fill: "none", stroke: H.color, "stroke-width": 2, "stroke-dasharray": "4 3" }, svg);
+
+  // Hormone label arrow pointing to site
+  el("line", { x1: 280, y1: 60, x2: hx + 12, y2: hy - 4, stroke: H.color, "stroke-width": 2 }, svg);
+  el("rect", { x: 280, y: 40, width: 220, height: 28, fill: "white", stroke: H.color, "stroke-width": 2, rx: 4 }, svg);
+  el("text", { x: 390, y: 59, "text-anchor": "middle", font: "13px sans-serif", "font-weight": "700", fill: H.color }, svg).textContent = H.name;
+
+  // Effect description (right column)
+  el("text", { x: 290, y: 95, font: "12px sans-serif", "font-weight": "700", fill: "#374151" }, svg).textContent = "Vị trí tổng hợp:";
+  const siteText = el("text", { x: 290, y: 112, font: "12px sans-serif", fill: "#1f2937" }, svg);
+  siteText.textContent = H.site;
+
+  el("text", { x: 290, y: 135, font: "12px sans-serif", "font-weight": "700", fill: "#374151" }, svg).textContent = "Đích tác động:";
+  // Wrap long text
+  const targetWrap = H.target.length > 32 ? H.target.slice(0, 30) + "..." : H.target;
+  el("text", { x: 290, y: 152, font: "12px sans-serif", fill: "#1f2937" }, svg).textContent = targetWrap;
+
+  el("text", { x: 290, y: 175, font: "12px sans-serif", "font-weight": "700", fill: "#374151" }, svg).textContent = "Hiệu ứng:";
+  // Wrap effect into 2 lines if needed
+  const words = H.effect.split(" ");
+  let line1 = "", line2 = "";
+  let i = 0;
+  while (i < words.length && (line1 + " " + words[i]).length < 32) {
+    line1 = line1 ? line1 + " " + words[i] : words[i];
+    i++;
+  }
+  while (i < words.length) {
+    line2 = line2 ? line2 + " " + words[i] : words[i];
+    i++;
+  }
+  if (line2.length > 32) line2 = line2.slice(0, 30) + "...";
+  el("text", { x: 290, y: 192, font: "12px sans-serif", fill: "#1f2937" }, svg).textContent = line1;
+  if (line2) el("text", { x: 290, y: 208, font: "12px sans-serif", fill: "#1f2937" }, svg).textContent = line2;
+
+  // Hormone molecule dots from source
+  for (let k = 0; k < 5; k++) {
+    el("circle", { cx: hx + (Math.random() - 0.5) * hr * 1.5, cy: hy + (Math.random() - 0.5) * hr * 1.5, r: 3, fill: H.color, opacity: 0.8 }, svg);
+  }
+
+  document.getElementById("hormInfo").innerHTML =
+    `<div><strong>Hormone:</strong> ${H.name}</div>` +
+    `<div><strong>Vị trí tổng hợp:</strong> ${H.site}</div>` +
+    `<div><strong>Cơ quan đích:</strong> ${H.target}</div>` +
+    `<div><strong>Hiệu ứng chính:</strong> ${H.effect}</div>` +
+    `<div><strong>Ví dụ thực tế:</strong> ${H.example}</div>` +
+    `<div><strong>Liều / cơ chế đặc biệt:</strong> ${H.dose}</div>`;
+
+  document.getElementById("hormHint").textContent =
+    "Quan sát vùng vàng nhấp nháy trên cây — đó là nơi hormone " + H.name.split(" ")[0] + " tác động chính.";
+}
+
+// ============ Section 4: Phototropism ============
+let tipCut = false;
+document.getElementById("cutTipBtn").onclick = () => { tipCut = true; drawPhoto(); };
+document.getElementById("resetTipBtn").onclick = () => { tipCut = false; drawPhoto(); };
+
+function drawPhoto() {
+  const lightI = +document.getElementById("lightInt").value;
+  const tRaw = +document.getElementById("timeSlider").value;
+  document.getElementById("lightIntVal").textContent = lightI;
+  const tHours = (tRaw / 100 * 24).toFixed(0);
+  document.getElementById("timeVal").textContent = tHours;
+
+  // Auxin redistribution: ánh sáng → auxin di chuyển sang phía tối
+  // Without tip → no auxin → no bend
+  // Bending angle: function of light intensity, time, tipCut
+  let auxinLightSide, auxinDarkSide, bendAngle;
+  if (tipCut) {
+    auxinLightSide = 0;
+    auxinDarkSide = 0;
+    bendAngle = 0;
+  } else {
+    // Distribution depends on light
+    const baseAuxin = 50;
+    const shift = lightI / 100 * 35;
+    auxinLightSide = baseAuxin - shift;
+    auxinDarkSide = baseAuxin + shift;
+    // Bend depends on time + auxin imbalance
+    const timeFactor = tRaw / 100;
+    bendAngle = (auxinDarkSide - auxinLightSide) * timeFactor * 0.6;
+  }
+  bendAngle = Math.max(0, Math.min(45, bendAngle));
+
+  const svg = document.getElementById("photoSvg"); clear(svg);
+
+  // Background light gradient — sáng bên trái, tối bên phải
+  const defs = el("defs", {}, svg);
+  const grad = el("linearGradient", { id: "lightGrad", x1: "0%", x2: "100%", y1: "0%", y2: "0%" }, defs);
+  el("stop", { offset: "0%", "stop-color": "#fef3c7", "stop-opacity": lightI / 100 }, grad);
+  el("stop", { offset: "100%", "stop-color": "#1e293b", "stop-opacity": 0.3 }, grad);
+  el("rect", { x: 0, y: 0, width: 520, height: 340, fill: "url(#lightGrad)" }, svg);
+
+  // Sun + rays from left
+  if (lightI > 0) {
+    const sunOp = lightI / 100;
+    el("circle", { cx: 40, cy: 80, r: 22, fill: "#fbbf24", opacity: sunOp }, svg);
+    for (let i = 0; i < 4; i++) {
+      el("line", { x1: 70, y1: 80 + (i - 1.5) * 12, x2: 220, y2: 80 + (i - 1.5) * 12, stroke: "#fbbf24", "stroke-width": 2, opacity: sunOp * 0.6, "stroke-dasharray": "5 4" }, svg);
+    }
+    el("text", { x: 40, y: 120, "text-anchor": "middle", font: "11px sans-serif", fill: "#92400e" }, svg).textContent = "ÁNH SÁNG";
+  }
+
+  // Pot at bottom
+  el("rect", { x: 230, y: 290, width: 80, height: 30, fill: "#d97706", stroke: "#92400e" }, svg);
+  el("rect", { x: 240, y: 285, width: 60, height: 8, fill: "#78350f" }, svg);
+
+  // Plant — stem with curve toward light
+  // Use a path that curves left
+  // Base at (270, 290), tip at (270 - bend horizontal offset, 100)
+  const baseX = 270, baseY = 290;
+  const tipY = 100;
+  // Compute offset: bendAngle in degrees, stem length 190
+  const totalLen = baseY - tipY;
+  // Tip horizontal offset
+  const tipX = baseX - Math.sin(bendAngle * Math.PI / 180) * totalLen * 0.6;
+  // Mid control point for curve
+  const midX = baseX - Math.sin(bendAngle * Math.PI / 180) * totalLen * 0.3;
+  const midY = (baseY + tipY) / 2;
+
+  // Stem (thicker)
+  const stemPath = `M ${baseX - 8} ${baseY} Q ${midX - 8} ${midY} ${tipX - 6} ${tipY + 5} L ${tipX + 6} ${tipY + 5} Q ${midX + 8} ${midY} ${baseX + 8} ${baseY} Z`;
+  el("path", { d: stemPath, fill: "#a16207", stroke: "#78350f", "stroke-width": 1.5 }, svg);
+
+  // Highlight light side (lighter) vs dark side
+  // Left edge of stem = phía sáng (less auxin)
+  el("path", { d: `M ${baseX - 8} ${baseY} Q ${midX - 8} ${midY} ${tipX - 6} ${tipY + 5}`, stroke: "#fef3c7", "stroke-width": 4, fill: "none", opacity: 0.5 }, svg);
+
+  // Tip (auxin source) or cut
+  if (tipCut) {
+    el("rect", { x: tipX - 8, y: tipY - 4, width: 16, height: 5, fill: "#dc2626" }, svg);
+    el("text", { x: tipX, y: tipY - 10, "text-anchor": "middle", font: "11px sans-serif", "font-weight": "700", fill: "#7f1d1d" }, svg).textContent = "✂ ĐÃ CẮT";
+  } else {
+    el("ellipse", { cx: tipX, cy: tipY, rx: 12, ry: 8, fill: "#bbf7d0", stroke: "#166534", "stroke-width": 1.5 }, svg);
+    el("text", { x: tipX, y: tipY - 12, "text-anchor": "middle", font: "10px sans-serif", fill: "#166534" }, svg).textContent = "đỉnh ngọn";
+  }
+
+  // Leaves along stem
+  if (!tipCut || tHours < 6) {
+    const leafY1 = midY + 30;
+    const leafXL = midX - 25, leafXR = midX + 25;
+    el("ellipse", { cx: leafXL, cy: leafY1, rx: 18, ry: 8, fill: "#86efac", stroke: "#166534" }, svg);
+    el("ellipse", { cx: leafXR, cy: leafY1, rx: 18, ry: 8, fill: "#86efac", stroke: "#166534" }, svg);
+  }
+
+  // Auxin dots — distribute along stem
+  if (!tipCut) {
+    const numDots = 30;
+    for (let i = 0; i < numDots; i++) {
+      const tFrac = i / numDots;
+      // Position along curved stem
+      const sx = baseX + (midX - baseX) * 2 * tFrac * (1 - tFrac) + (tipX - baseX) * tFrac * tFrac;
+      const sy = baseY + (midY - baseY) * 2 * tFrac * (1 - tFrac) + (tipY - baseY) * tFrac * tFrac;
+      // More on dark side (right)
+      const lightSide = Math.random() < (auxinLightSide / (auxinLightSide + auxinDarkSide));
+      const dx = lightSide ? -4 - Math.random() * 3 : 4 + Math.random() * 3;
+      const r = lightSide ? 1.5 + Math.random() * 1.5 : 2 + Math.random() * 2;
+      el("circle", { cx: sx + dx, cy: sy, r: r, fill: "#dc2626", opacity: 0.75 }, svg);
+    }
+  }
+
+  // Labels phía sáng / phía tối
+  el("text", { x: midX - 35, y: midY - 60, font: "11px sans-serif", "font-weight": "700", fill: "#92400e" }, svg).textContent = "PHÍA SÁNG";
+  el("text", { x: midX - 35, y: midY - 46, font: "10px sans-serif", fill: "#92400e" }, svg).textContent = "(auxin ít, ngắn)";
+
+  el("text", { x: midX + 25, y: midY - 60, font: "11px sans-serif", "font-weight": "700", fill: "#7f1d1d" }, svg).textContent = "PHÍA TỐI";
+  el("text", { x: midX + 25, y: midY - 46, font: "10px sans-serif", fill: "#7f1d1d" }, svg).textContent = "(auxin nhiều, dài)";
+
+  // Title
+  el("text", { x: 260, y: 25, "text-anchor": "middle", font: "13px sans-serif", "font-weight": "700", fill: "#14532d" }, svg).textContent = "Cây con bên cạnh ánh sáng một phía";
+
+  // Display angle arc near base
+  if (bendAngle > 1) {
+    el("text", { x: baseX + 30, y: baseY - 5, font: "11px sans-serif", "font-weight": "700", fill: "#dc2626" }, svg).textContent = bendAngle.toFixed(0) + "°";
+    el("path", { d: `M ${baseX} ${baseY - 30} A 30 30 0 0 0 ${baseX - Math.sin(bendAngle * Math.PI / 180) * 30} ${baseY - 30 - 0}`, fill: "none", stroke: "#dc2626", "stroke-width": 1.5 }, svg);
+  }
+
+  // Stats
+  document.getElementById("auxinLight").textContent = auxinLightSide.toFixed(0) + "%";
+  document.getElementById("auxinDark").textContent = auxinDarkSide.toFixed(0) + "%";
+  document.getElementById("bendAngle").textContent = bendAngle.toFixed(0);
+
+  let hint = "";
+  if (tipCut) {
+    hint = "🔴 Cắt ngọn → mất nguồn auxin → không có phân bố bất đối xứng → cây mất hướng quang (thí nghiệm kinh điển Darwin 1880, Boysen-Jensen 1913).";
+  } else if (lightI < 10) {
+    hint = "Không có ánh sáng → auxin phân bố đều 2 bên → thân mọc thẳng.";
+  } else if (bendAngle > 30) {
+    hint = "Auxin tích nhiều ở phía tối → tế bào phía tối kéo dài nhanh hơn → thân cong mạnh về phía sáng. Đây là HƯỚNG QUANG (phototropism).";
+  } else if (bendAngle > 10) {
+    hint = `Sau ${tHours} giờ: cây đã nghiêng ${bendAngle.toFixed(0)}° về phía sáng. Tăng thời gian + ánh sáng để thấy cong rõ hơn.`;
+  } else {
+    hint = `Auxin bắt đầu lệch nhẹ, nhưng cần thời gian để thấy hiệu ứng. Tăng thanh "thời gian".`;
+  }
+  document.getElementById("photoHint").textContent = hint;
+}
+document.getElementById("lightInt").oninput = drawPhoto;
+document.getElementById("timeSlider").oninput = drawPhoto;
+
+// ============ Init ============
+setupPhaseBtns();
+drawTransport();
+drawStomata();
+setupHormBtns();
+drawHorm();
+drawPhoto();
+</script>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

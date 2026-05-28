@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Chu kỳ tế bào & nguyên phân</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #14532d; }
+  h2 {
+    color: #166534; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #bbf7d0;
+  }
+  h3 { color: #15803d; margin-top: 20px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 11px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 90px; max-width: 100%;
+  }
+  input[type="range"] { flex: 1; min-width: 0; }
+  button {
+    background: #059669; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #047857; }
+  button.muted { background: #a0aec0; }
+  button.muted:hover { background: #718096; }
+  button:disabled { background: #cbd5e0; cursor: not-allowed; }
+  .pill {
+    background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;
+  }
+  .pill.active { background: #059669; color: white; }
+  .stat {
+    display: inline-block; background: #d1fae5;
+    padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #047857; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; }
+  .group-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+  svg { display: block; margin: 8px auto; max-width: 100%; height: auto; }
+  .info-grid { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 14px; }
+  .info-grid div { padding: 6px 10px; background: #f0fdf4; border-radius: 6px; }
+  .info-grid strong { color: #166534; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 8px; }
+  th, td { border: 1px solid #d1d5db; padding: 7px 10px; text-align: left; }
+  th { background: #ecfdf5; color: #065f46; }
+
+  .phase-tag {
+    display: inline-block; padding: 4px 10px; border-radius: 6px;
+    font-weight: 700; font-size: 14px; color: white; margin-bottom: 8px;
+  }
+  .cell-mem { fill: #ecfdf5; stroke: #047857; stroke-width: 2.5; }
+  .nuc-mem { fill: none; stroke: #6b7280; stroke-width: 2; stroke-dasharray: 4 3; }
+  .axis { stroke: #9ca3af; stroke-width: 1; }
+  .axis-lbl { font: 11px sans-serif; fill: #6b7280; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Biology · Tầng 1</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-photosynthesis/visualization.html">← L6: Quang hợp</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Chu kỳ tế bào &amp; nguyên phân</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-meiosis/visualization.html">L8: Giảm phân →</a>
+</nav>
+
+<h1>Lesson 07 — Chu kỳ tế bào & nguyên phân</h1>
+<p>Bộ công cụ tương tác: mô phỏng từng pha chu kỳ tế bào (NST di chuyển đúng), theo dõi lượng DNA qua các pha, tính tăng trưởng theo cấp số nhân, và xem tỉ lệ thời gian các pha trên vòng tròn chu kỳ.</p>
+
+<h2>1. Mô phỏng chu kỳ tế bào & nguyên phân</h2>
+<div class="card">
+  <p>Dùng <strong>Tiến →</strong> / <strong>← Lùi</strong> để duyệt từng pha: G1 → S → G2 → kỳ đầu → kỳ giữa → kỳ sau → kỳ cuối → phân chia tế bào chất. Viz vẽ tế bào (mô hình 2n = 4) và cập nhật số NST, số chromatid, lượng DNA.</p>
+  <div class="row">
+    <button id="prevBtn">← Lùi</button>
+    <button id="nextBtn">Tiến →</button>
+    <button id="resetBtn" class="muted">↻ Về đầu</button>
+  </div>
+  <div id="phaseTag" class="phase-tag">G1 — Sinh trưởng</div>
+  <svg id="mitosisSvg" width="440" height="240" viewBox="0 0 440 240" role="img" aria-label="Mô phỏng nguyên phân"></svg>
+  <div class="info-grid" id="mitosisInfo"></div>
+  <div style="margin-top:8px">
+    <span class="stat">Số NST = <strong id="mNst">4</strong></span>
+    <span class="stat">Chromatid/NST = <strong id="mChr">1</strong></span>
+    <span class="stat">Lượng DNA = <strong id="mDna">2C</strong></span>
+  </div>
+</div>
+
+<h2>2. Lượng DNA qua các pha</h2>
+<div class="card">
+  <p>Đồ thị bậc thang: lượng DNA <strong>tăng dần lên 4C trong pha S</strong> (nhân đôi), giữ 4C qua G2 và nguyên phân, rồi <strong>rớt về 2C</strong> khi tế bào chia. Bấm vào nút pha để xem điểm tương ứng.</p>
+  <div class="group-btns" id="dnaPhaseBtns"></div>
+  <svg id="dnaSvg" width="460" height="240" viewBox="0 0 460 240" role="img" aria-label="Đồ thị lượng DNA"></svg>
+  <div class="hint" id="dnaHint"></div>
+</div>
+
+<h2>3. Tăng trưởng cấp số nhân (2ⁿ)</h2>
+<div class="card">
+  <p>Từ 1 tế bào, sau <code>n</code> lần nguyên phân → <code>2ⁿ</code> tế bào. Kéo thanh để đổi số lần chia.</p>
+  <div class="row">
+    <label>Số lần nguyên phân (n):</label>
+    <input type="range" id="genSlider" min="0" max="20" value="3">
+    <span class="stat">n = <strong id="genVal">3</strong></span>
+  </div>
+  <svg id="growthSvg" width="460" height="200" viewBox="0 0 460 200" role="img" aria-label="Biểu đồ tăng trưởng"></svg>
+  <div style="margin-top:6px">
+    <span class="stat">Số tế bào = 2<sup id="genExp">3</sup> = <strong id="cellCount">8</strong></span>
+    <span class="stat" id="nstStat">Tổng NST (2n=46) = <strong id="totalNst">368</strong></span>
+  </div>
+  <div class="hint" id="growthHint"></div>
+</div>
+
+<h2>4. Vòng tròn chu kỳ — tỉ lệ thời gian</h2>
+<div class="card">
+  <p>Tổng chu kỳ = 24 giờ. Kéo các thanh để đổi thời lượng từng pha; viz vẽ lại vòng tròn (pie) và tính phần trăm. Pha M = phần còn lại.</p>
+  <div class="row">
+    <label>G1 (h):</label>
+    <input type="range" id="g1Slider" min="1" max="18" value="11">
+    <span class="stat">G1 = <strong id="g1Val">11</strong>h</span>
+  </div>
+  <div class="row">
+    <label>S (h):</label>
+    <input type="range" id="sSlider" min="1" max="16" value="8">
+    <span class="stat">S = <strong id="sVal">8</strong>h</span>
+  </div>
+  <div class="row">
+    <label>G2 (h):</label>
+    <input type="range" id="g2Slider" min="1" max="10" value="4">
+    <span class="stat">G2 = <strong id="g2Val">4</strong>h</span>
+  </div>
+  <svg id="pieSvg" width="320" height="320" viewBox="0 0 320 320" role="img" aria-label="Vòng tròn chu kỳ tế bào"></svg>
+  <div id="pieStats" style="margin-top:6px"></div>
+  <div class="hint" id="pieHint"></div>
+</div>
+
+<h2>5. Bảng diễn biến (người, 2n = 46)</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>Pha / Kỳ</th><th>Số NST</th><th>Chromatid/NST</th><th>Tổng chromatid</th><th>DNA</th></tr></thead>
+    <tbody>
+      <tr><td>G1</td><td>46</td><td>1</td><td>46</td><td>2C</td></tr>
+      <tr><td>S</td><td>46</td><td>1→2</td><td>46→92</td><td>2C→4C</td></tr>
+      <tr><td>G2</td><td>46</td><td>2</td><td>92</td><td>4C</td></tr>
+      <tr><td>Kỳ đầu / kỳ giữa</td><td>46</td><td>2</td><td>92</td><td>4C</td></tr>
+      <tr><td>Kỳ sau (đã tách)</td><td>92*</td><td>1</td><td>92</td><td>4C</td></tr>
+      <tr><td>Mỗi tế bào con</td><td>46</td><td>1</td><td>46</td><td>2C</td></tr>
+    </tbody>
+  </table>
+  <div class="hint">* Ở kỳ sau, sau khi chromatid tách, 1 tế bào tạm có 92 NST (mỗi cực 46) trước khi chia.</div>
+</div>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+
+// ===== Section 1: Mitosis stepper (toy model 2n = 4) =====
+// 2 cặp NST (2 màu): mỗi cặp 2 chiếc → 2n = 4. Sau S mỗi chiếc 2 chromatid.
+const PHASES = [
+  { tag: "G1 — Sinh trưởng", color: "#0891b2",
+    desc: "Tế bào lớn lên, tổng hợp protein & bào quan. DNA chưa nhân đôi.",
+    nst: 4, chr: 1, dna: "2C" },
+  { tag: "S — Nhân đôi DNA", color: "#7c3aed",
+    desc: "Nhân đôi DNA: mỗi NST thành 2 chromatid chị em. Số NST KHÔNG đổi.",
+    nst: 4, chr: 2, dna: "2C→4C" },
+  { tag: "G2 — Chuẩn bị", color: "#0891b2",
+    desc: "Tổng hợp protein thoi phân bào, kiểm tra DNA (G2/M checkpoint).",
+    nst: 4, chr: 2, dna: "4C" },
+  { tag: "Kỳ đầu (Prophase)", color: "#dc2626",
+    desc: "NST kép co xoắn (thấy rõ), màng nhân tiêu biến, thoi phân bào hình thành.",
+    nst: 4, chr: 2, dna: "4C" },
+  { tag: "Kỳ giữa (Metaphase)", color: "#ea580c",
+    desc: "NST kép xếp 1 hàng ở mặt phẳng xích đạo, thoi bám tâm động.",
+    nst: 4, chr: 2, dna: "4C" },
+  { tag: "Kỳ sau (Anaphase)", color: "#ca8a04",
+    desc: "2 chromatid chị em tách nhau, thoi kéo về 2 cực → tạm thời 8 NST.",
+    nst: 8, chr: 1, dna: "4C" },
+  { tag: "Kỳ cuối (Telophase)", color: "#16a34a",
+    desc: "NST dãn xoắn, màng nhân tái lập quanh mỗi cụm → 2 nhân mới.",
+    nst: "4 + 4", chr: 1, dna: "4C (chia 2)" },
+  { tag: "Phân chia tế bào chất", color: "#059669",
+    desc: "Cytokinesis: chia thân tế bào → 2 tế bào con, mỗi con 4 NST (2n), 2C.",
+    nst: "4 mỗi con", chr: 1, dna: "2C mỗi con" }
+];
+let phaseIdx = 0;
+const C1 = "#ef4444", C2 = "#3b82f6"; // 2 cặp NST
+function chromatid(svg, cx, cy, color, paired) {
+  // vẽ NST: nếu paired vẽ 2 chromatid dính tâm động (X-shape), nếu không vẽ 1 thanh
+  if (paired) {
+    el("line", { x1: cx - 5, y1: cy - 13, x2: cx - 5, y2: cy + 13, stroke: color, "stroke-width": 5, "stroke-linecap": "round" }, svg);
+    el("line", { x1: cx + 5, y1: cy - 13, x2: cx + 5, y2: cy + 13, stroke: color, "stroke-width": 5, "stroke-linecap": "round" }, svg);
+    el("circle", { cx: cx, cy: cy, r: 3.5, fill: "#374151" }, svg); // tâm động
+  } else {
+    el("line", { x1: cx, y1: cy - 13, x2: cx, y2: cy + 13, stroke: color, "stroke-width": 5, "stroke-linecap": "round" }, svg);
+  }
+}
+function drawMitosis() {
+  const p = PHASES[phaseIdx];
+  const svg = document.getElementById("mitosisSvg"); clear(svg);
+  document.getElementById("phaseTag").textContent = p.tag;
+  document.getElementById("phaseTag").style.background = p.color;
+  document.getElementById("mNst").textContent = p.nst;
+  document.getElementById("mChr").textContent = p.chr;
+  document.getElementById("mDna").textContent = p.dna;
+  document.getElementById("mitosisInfo").innerHTML =
+    `<div><strong>${p.tag}</strong></div><div>${p.desc}</div>`;
+
+  const cxC = 220, cyC = 120;
+  const split = phaseIdx >= 7; // cytokinesis: 2 tế bào riêng
+  const paired = phaseIdx >= 1 && phaseIdx <= 4; // S..metaphase: NST kép
+  const hasNucMem = phaseIdx <= 2 || phaseIdx === 6 || phaseIdx === 7;
+
+  if (!split) {
+    el("ellipse", { cx: cxC, cy: cyC, rx: 130, ry: 95, class: "cell-mem" }, svg);
+  } else {
+    el("ellipse", { cx: 120, cy: cyC, rx: 78, ry: 80, class: "cell-mem" }, svg);
+    el("ellipse", { cx: 320, cy: cyC, rx: 78, ry: 80, class: "cell-mem" }, svg);
+  }
+
+  // thoi phân bào (prophase..anaphase: idx 3..5)
+  if (phaseIdx >= 3 && phaseIdx <= 5) {
+    [[90, cyC], [350, cyC]].forEach(pole => {
+      el("circle", { cx: pole[0], cy: pole[1], r: 5, fill: "#9333ea" }, svg);
+      for (let k = -1; k <= 1; k++) {
+        el("line", { x1: pole[0], y1: pole[1], x2: cxC, y2: cyC + k * 28,
+          stroke: "#c4b5fd", "stroke-width": 1.5 }, svg);
+      }
+    });
+  }
+
+  // NST positions theo pha
+  if (phaseIdx <= 2) {
+    // G1/S/G2: NST rải trong nhân, dãn (vẽ paired nếu S/G2)
+    if (hasNucMem) el("ellipse", { cx: cxC, cy: cyC, rx: 60, ry: 48, class: "nuc-mem" }, svg);
+    chromatid(svg, cxC - 28, cyC - 16, C1, paired);
+    chromatid(svg, cxC + 28, cyC - 16, C1, paired);
+    chromatid(svg, cxC - 28, cyC + 20, C2, paired);
+    chromatid(svg, cxC + 28, cyC + 20, C2, paired);
+  } else if (phaseIdx === 3) {
+    // prophase: co xoắn, không màng nhân
+    chromatid(svg, cxC - 40, cyC - 24, C1, true);
+    chromatid(svg, cxC + 40, cyC - 24, C1, true);
+    chromatid(svg, cxC - 40, cyC + 28, C2, true);
+    chromatid(svg, cxC + 40, cyC + 28, C2, true);
+  } else if (phaseIdx === 4) {
+    // metaphase: xếp 1 hàng ở giữa (mặt phẳng xích đạo)
+    el("line", { x1: cxC, y1: cyC - 80, x2: cxC, y2: cyC + 80, stroke: "#d1d5db", "stroke-width": 1, "stroke-dasharray": "5 4" }, svg);
+    chromatid(svg, cxC, cyC - 45, C1, true);
+    chromatid(svg, cxC, cyC - 15, C2, true);
+    chromatid(svg, cxC, cyC + 15, C1, true);
+    chromatid(svg, cxC, cyC + 45, C2, true);
+  } else if (phaseIdx === 5) {
+    // anaphase: chromatid tách, đi về 2 cực (mỗi cực 4 NST đơn)
+    [-1, 1].forEach(dir => {
+      const bx = cxC + dir * 90;
+      chromatid(svg, bx, cyC - 36, C1, false);
+      chromatid(svg, bx, cyC - 12, C2, false);
+      chromatid(svg, bx, cyC + 12, C1, false);
+      chromatid(svg, bx, cyC + 36, C2, false);
+    });
+  } else {
+    // telophase / cytokinesis: 2 cụm, mỗi cụm 4 NST đơn, có màng nhân
+    const cs = split ? [120, 320] : [cxC - 90, cxC + 90];
+    cs.forEach(bx => {
+      el("ellipse", { cx: bx, cy: cyC, rx: 50, ry: 44, class: "nuc-mem" }, svg);
+      chromatid(svg, bx - 18, cyC - 14, C1, false);
+      chromatid(svg, bx + 18, cyC - 14, C1, false);
+      chromatid(svg, bx - 18, cyC + 18, C2, false);
+      chromatid(svg, bx + 18, cyC + 18, C2, false);
+    });
+  }
+
+  document.getElementById("prevBtn").disabled = phaseIdx === 0;
+  document.getElementById("nextBtn").disabled = phaseIdx === PHASES.length - 1;
+}
+document.getElementById("nextBtn").onclick = () => { if (phaseIdx < PHASES.length - 1) { phaseIdx++; drawMitosis(); } };
+document.getElementById("prevBtn").onclick = () => { if (phaseIdx > 0) { phaseIdx--; drawMitosis(); } };
+document.getElementById("resetBtn").onclick = () => { phaseIdx = 0; drawMitosis(); };
+
+// ===== Section 2: DNA content graph =====
+// điểm (x, dnaLevel) qua các pha — đường bậc thang
+const DNA_POINTS = [
+  { ph: "G1", x: 0.10, dna: 2 },
+  { ph: "S đầu", x: 0.22, dna: 2 },
+  { ph: "S cuối", x: 0.42, dna: 4 },
+  { ph: "G2", x: 0.56, dna: 4 },
+  { ph: "Nguyên phân", x: 0.78, dna: 4 },
+  { ph: "Tế bào con", x: 0.92, dna: 2 }
+];
+let dnaSel = 0;
+function drawDna() {
+  const svg = document.getElementById("dnaSvg"); clear(svg);
+  const W = 460, H = 240, mL = 50, mR = 20, mT = 20, mB = 40;
+  const plotW = W - mL - mR, plotH = H - mT - mB;
+  const xPix = f => mL + f * plotW;
+  const yPix = d => mT + plotH - (d / 5) * plotH; // scale 0..5C
+  // axes
+  el("line", { x1: mL, y1: mT, x2: mL, y2: mT + plotH, class: "axis" }, svg);
+  el("line", { x1: mL, y1: mT + plotH, x2: W - mR, y2: mT + plotH, class: "axis" }, svg);
+  [2, 4].forEach(d => {
+    el("line", { x1: mL - 4, y1: yPix(d), x2: W - mR, y2: yPix(d), stroke: "#e5e7eb", "stroke-width": 1 }, svg);
+    const t = el("text", { x: mL - 8, y: yPix(d) + 4, "text-anchor": "end", class: "axis-lbl" }, svg);
+    t.textContent = d + "C";
+  });
+  const xl = el("text", { x: W / 2, y: H - 6, "text-anchor": "middle", class: "axis-lbl" }, svg);
+  xl.textContent = "Thời gian → (G1 · S · G2 · M)";
+  const yl = el("text", { x: 14, y: mT + plotH / 2, "text-anchor": "middle", class: "axis-lbl",
+    transform: `rotate(-90 14 ${mT + plotH / 2})` }, svg);
+  yl.textContent = "Lượng DNA";
+
+  // step line — chỉ S là dốc lên, phần chia là dốc xuống
+  let d = "";
+  DNA_POINTS.forEach((p, i) => {
+    const X = xPix(p.x), Y = yPix(p.dna);
+    d += (i === 0 ? "M" : "L") + ` ${X.toFixed(1)} ${Y.toFixed(1)} `;
+  });
+  el("path", { d: d, fill: "none", stroke: "#059669", "stroke-width": 3, "stroke-linejoin": "round" }, svg);
+
+  DNA_POINTS.forEach((p, i) => {
+    const X = xPix(p.x), Y = yPix(p.dna);
+    el("circle", { cx: X, cy: Y, r: i === dnaSel ? 8 : 5,
+      fill: i === dnaSel ? "#dc2626" : "#047857", stroke: "white", "stroke-width": 2 }, svg);
+  });
+  const sel = DNA_POINTS[dnaSel];
+  let note;
+  if (dnaSel <= 1) note = `${sel.ph}: DNA = 2C (chưa nhân đôi xong). Mỗi NST còn 1 chromatid.`;
+  else if (dnaSel <= 4) note = `${sel.ph}: DNA = 4C (đã nhân đôi). Mỗi NST có 2 chromatid chị em — nhưng số NST KHÔNG đổi.`;
+  else note = `${sel.ph}: DNA = 2C trở lại. Sau khi chia, mỗi tế bào con nhận đúng nửa DNA → giống tế bào mẹ lúc G1.`;
+  document.getElementById("dnaHint").textContent =
+    note + " Lưu ý: DNA chỉ TĂNG ở pha S (đường dốc lên) và GIẢM khi chia (dốc xuống), giữ phẳng ở các pha khác.";
+}
+const dnaBtns = document.getElementById("dnaPhaseBtns");
+DNA_POINTS.forEach((p, i) => {
+  const b = document.createElement("button");
+  b.className = "pill"; b.textContent = p.ph;
+  b.onclick = () => { dnaSel = i; document.querySelectorAll("#dnaPhaseBtns .pill").forEach((x, j) => x.classList.toggle("active", j === i)); drawDna(); };
+  dnaBtns.appendChild(b);
+});
+
+// ===== Section 3: Exponential growth =====
+const genSlider = document.getElementById("genSlider");
+function drawGrowth() {
+  const n = +genSlider.value;
+  document.getElementById("genVal").textContent = n;
+  document.getElementById("genExp").textContent = n;
+  const cells = Math.pow(2, n);
+  document.getElementById("cellCount").textContent = cells.toLocaleString("en-US");
+  document.getElementById("totalNst").textContent = (cells * 46).toLocaleString("en-US");
+  const svg = document.getElementById("growthSvg"); clear(svg);
+  const W = 460, H = 200, mL = 40, mB = 30, mT = 16;
+  const plotH = H - mB - mT, plotW = W - mL - 16;
+  // vẽ bar log-scale (vì 2^20 quá lớn) — chiều cao tỉ lệ với n (số lần chia)
+  el("line", { x1: mL, y1: H - mB, x2: W - 16, y2: H - mB, class: "axis" }, svg);
+  const maxN = +genSlider.max;
+  const bw = Math.max(8, (plotW - 10) / (maxN + 1) - 3);
+  for (let i = 0; i <= n; i++) {
+    const x = mL + 6 + i * ((plotW - 10) / (maxN + 1));
+    const h = (i / maxN) * plotH * 0.92 + 6;
+    el("rect", { x: x, y: H - mB - h, width: bw, height: h, rx: 2,
+      fill: i === n ? "#dc2626" : "#34d399", stroke: "#047857", "stroke-width": 0.8 }, svg);
+    if (i === n || i % Math.ceil((n || 1) / 6 || 1) === 0) {
+      const t = el("text", { x: x + bw / 2, y: H - mB + 12, "text-anchor": "middle", class: "axis-lbl" }, svg);
+      t.textContent = i;
+    }
+  }
+  const lbl = el("text", { x: W / 2, y: 12, "text-anchor": "middle", class: "axis-lbl" }, svg);
+  lbl.textContent = "Mỗi cột = 1 lần chia (chiều cao ~ số lần); cột đỏ = lần thứ n";
+  let milestone = "";
+  if (n >= 10) milestone = " — vượt 1.000 tế bào ở lần thứ 10 (2¹⁰ = 1.024).";
+  if (n >= 20) milestone = " — vượt 1 triệu tế bào (2²⁰ ≈ 10⁶).";
+  document.getElementById("growthHint").textContent =
+    `Sau ${n} lần nguyên phân: 2^${n} = ${cells.toLocaleString("en-US")} tế bào. Tăng theo CẤP SỐ NHÂN, không phải 2×n` + milestone +
+    ` Mỗi tế bào con vẫn là 2n = 46 NST (số NST/tế bào không đổi).`;
+}
+genSlider.oninput = drawGrowth;
+
+// ===== Section 4: Cell cycle pie =====
+const g1S = document.getElementById("g1Slider"), sS = document.getElementById("sSlider"), g2S = document.getElementById("g2Slider");
+const TOTAL = 24;
+const PIE = [
+  { name: "G1", color: "#0891b2" },
+  { name: "S", color: "#7c3aed" },
+  { name: "G2", color: "#0e7490" },
+  { name: "M", color: "#dc2626" }
+];
+function drawPie() {
+  let g1 = +g1S.value, s = +sS.value, g2 = +g2S.value;
+  document.getElementById("g1Val").textContent = g1;
+  document.getElementById("sVal").textContent = s;
+  document.getElementById("g2Val").textContent = g2;
+  let m = TOTAL - g1 - s - g2;
+  const svg = document.getElementById("pieSvg"); clear(svg);
+  const cx = 160, cy = 150, r = 120;
+  if (m < 1) {
+    const t = el("text", { x: cx, y: cy, "text-anchor": "middle", font: "14px sans-serif", fill: "#dc2626" }, svg);
+    t.textContent = "G1+S+G2 ≥ 24h — giảm bớt!";
+    document.getElementById("pieStats").innerHTML = "";
+    document.getElementById("pieHint").textContent = "Tổng G1+S+G2 phải nhỏ hơn 24 để pha M (≥1h) còn chỗ.";
+    return;
+  }
+  const vals = [g1, s, g2, m];
+  let ang = -Math.PI / 2;
+  vals.forEach((v, i) => {
+    const frac = v / TOTAL, a2 = ang + frac * 2 * Math.PI;
+    const x1 = cx + r * Math.cos(ang), y1 = cy + r * Math.sin(ang);
+    const x2 = cx + r * Math.cos(a2), y2 = cy + r * Math.sin(a2);
+    const large = frac > 0.5 ? 1 : 0;
+    el("path", { d: `M ${cx} ${cy} L ${x1.toFixed(1)} ${y1.toFixed(1)} A ${r} ${r} 0 ${large} 1 ${x2.toFixed(1)} ${y2.toFixed(1)} Z`,
+      fill: PIE[i].color, stroke: "white", "stroke-width": 2 }, svg);
+    const mid = (ang + a2) / 2, lr = r * 0.62;
+    const lx = cx + lr * Math.cos(mid), ly = cy + lr * Math.sin(mid);
+    if (frac > 0.05) {
+      const t = el("text", { x: lx.toFixed(1), y: ly.toFixed(1), "text-anchor": "middle", font: "13px sans-serif", fill: "white", "font-weight": "700" }, svg);
+      t.textContent = PIE[i].name;
+    }
+    ang = a2;
+  });
+  const inter = g1 + s + g2;
+  document.getElementById("pieStats").innerHTML =
+    PIE.map((p, i) => `<span class="stat" style="background:${p.color}22">${p.name} = <strong style="color:${p.color}">${vals[i]}h (${Math.round(vals[i] / TOTAL * 100)}%)</strong></span>`).join("");
+  document.getElementById("pieHint").textContent =
+    `Kỳ trung gian (G1+S+G2) = ${inter}h = ${Math.round(inter / TOTAL * 100)}% chu kỳ. Pha M = ${m}h = ${Math.round(m / TOTAL * 100)}%. ` +
+    `Điển hình kỳ trung gian chiếm ~90%, pha M ~10%.`;
+}
+[g1S, sS, g2S].forEach(s => s.oninput = drawPie);
+
+// ===== Init =====
+drawMitosis();
+dnaBtns.firstChild.classList.add("active");
+drawDna();
+drawGrowth();
+drawPie();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

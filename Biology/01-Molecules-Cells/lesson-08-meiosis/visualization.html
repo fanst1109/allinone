@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Giảm phân</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #14532d; }
+  h2 {
+    color: #166534; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #bbf7d0;
+  }
+  h3 { color: #15803d; margin-top: 20px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 11px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 90px; max-width: 100%;
+  }
+  input[type="range"] { flex: 1; min-width: 0; }
+  button {
+    background: #059669; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #047857; }
+  button.muted { background: #a0aec0; }
+  button.muted:hover { background: #718096; }
+  .pill {
+    background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;
+  }
+  .pill.active { background: #059669; color: white; }
+  .stat {
+    display: inline-block; background: #d1fae5;
+    padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #047857; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; }
+  .group-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+  svg { display: block; margin: 8px auto; max-width: 100%; height: auto; }
+  .info-grid { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 14px; }
+  .info-grid div { padding: 6px 10px; background: #f0fdf4; border-radius: 6px; }
+  .info-grid strong { color: #166534; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 8px; }
+  th, td { border: 1px solid #d1d5db; padding: 7px 10px; text-align: left; }
+  th { background: #ecfdf5; color: #065f46; }
+  td.hl-m { background: #dbeafe; }
+  td.hl-me { background: #fef3c7; }
+
+  .cell-wall { fill: #f0fdf4; stroke: #15803d; stroke-width: 2.5; }
+  .gamete-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .gamete-list .pill { font-family: monospace; cursor: default; }
+  .bar-label { font: 12px sans-serif; fill: #374151; text-anchor: middle; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Biology · Tầng 1</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-cell-cycle-mitosis/visualization.html">← L7: Chu kỳ tế bào &amp; nguyên phân</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Giảm phân</span>
+  <span class="sep">·</span>
+  <a href="../../02-Genetics-Evolution/index.html">Tầng 2: Di truyền &amp; Tiến hóa →</a>
+</nav>
+
+<h1>Lesson 08 — Giảm phân</h1>
+<p>Bộ công cụ tương tác: bước qua từng kỳ giảm phân I và II (theo dõi 2n→n→n và trao đổi chéo), tính số tổ hợp giao tử 2ⁿ và hợp tử 2²ⁿ, liệt kê tổ hợp giao tử do phân ly độc lập, và đối chiếu nguyên phân vs giảm phân.</p>
+
+<h2>1. Mô phỏng từng bước giảm phân</h2>
+<div class="card">
+  <p>Bấm <strong>Bước tiếp →</strong> để đi qua các giai đoạn. Tế bào có 2 cặp NST tương đồng (đỏ = từ bố, xanh = từ mẹ). Theo dõi <strong>số NST/tế bào</strong> tụt từ 2n xuống n ở cuối giảm phân I.</p>
+  <div class="row">
+    <button id="meioPrev" class="muted">← Bước trước</button>
+    <button id="meioNext">Bước tiếp →</button>
+    <button id="meioReset" class="muted">↺ Về đầu</button>
+    <span class="stat" id="meioToggle" style="cursor:pointer">Trao đổi chéo: <strong id="coState">BẬT</strong></span>
+  </div>
+  <svg id="meioSvg" width="460" height="240" viewBox="0 0 460 240" role="img" aria-label="Mô phỏng giảm phân từng bước"></svg>
+  <div class="info-grid" id="meioInfo"></div>
+  <div class="hint" id="meioHint"></div>
+</div>
+
+<h2>2. Máy tính đa dạng di truyền (2ⁿ)</h2>
+<div class="card">
+  <p>Kéo thanh để chọn <strong>n = số cặp NST</strong>. Số kiểu giao tử do phân ly độc lập = <code>2ⁿ</code>; số tổ hợp hợp tử khi thụ tinh = <code>2ⁿ × 2ⁿ = 2²ⁿ</code>.</p>
+  <div class="row">
+    <label>n (số cặp NST):</label>
+    <input type="range" id="nSlider" min="1" max="23" value="2">
+    <span class="stat">n = <strong id="nVal">2</strong></span>
+  </div>
+  <div class="row">
+    <button class="pill" data-preset="1">n=1</button>
+    <button class="pill" data-preset="2">n=2</button>
+    <button class="pill" data-preset="3">n=3</button>
+    <button class="pill" data-preset="4">Ruồi giấm (n=4)</button>
+    <button class="pill" data-preset="7">Đậu Hà Lan (n=7)</button>
+    <button class="pill" data-preset="23">Người (n=23)</button>
+  </div>
+  <div style="margin-top:8px">
+    <span class="stat">Kiểu giao tử = 2<sup id="nExp">2</sup> = <strong id="gameteVal">4</strong></span>
+    <span class="stat">Tổ hợp hợp tử = 2<sup id="nExp2">4</sup> = <strong id="zygoteVal">16</strong></span>
+  </div>
+  <svg id="divSvg" width="440" height="120" viewBox="0 0 440 120" role="img" aria-label="Sơ đồ 2 lựa chọn mỗi cặp"></svg>
+  <div class="hint" id="divHint"></div>
+</div>
+
+<h2>3. Liệt kê tổ hợp giao tử (phân ly độc lập)</h2>
+<div class="card">
+  <p>Với n nhỏ, ta liệt kê được <strong>tất cả</strong> kiểu giao tử. Mỗi cặp tương đồng đóng góp 2 lựa chọn (chữ hoa = NST bố, chữ thường = NST mẹ).</p>
+  <div class="row">
+    <label>Số cặp NST:</label>
+    <button class="pill active" data-list="2">2 cặp</button>
+    <button class="pill" data-list="3">3 cặp</button>
+    <button class="pill" data-list="4">4 cặp</button>
+  </div>
+  <div class="gamete-list" id="gameteList"></div>
+  <div class="hint" id="listHint"></div>
+</div>
+
+<h2>4. So sánh nguyên phân vs giảm phân</h2>
+<div class="card">
+  <p>Bấm vào tiêu chí để làm nổi bật điểm khác biệt.</p>
+  <table id="compTable">
+    <thead><tr><th>Tiêu chí</th><th>Nguyên phân (mitosis)</th><th>Giảm phân (meiosis)</th></tr></thead>
+    <tbody>
+      <tr data-r="0"><td>Số lần phân chia</td><td>1</td><td>2 (I và II)</td></tr>
+      <tr data-r="1"><td>Số tế bào con</td><td>2</td><td>4</td></tr>
+      <tr data-r="2"><td>Bộ NST tế bào con</td><td>2n (giữ nguyên)</td><td>n (giảm một nửa)</td></tr>
+      <tr data-r="3"><td>Giống tế bào mẹ?</td><td>Giống hệt</td><td>Khác (tái tổ hợp)</td></tr>
+      <tr data-r="4"><td>Trao đổi chéo</td><td>Không</td><td>Có (kỳ đầu I)</td></tr>
+      <tr data-r="5"><td>Mục đích</td><td>Sinh trưởng, sửa chữa, vô tính</td><td>Tạo giao tử, sinh sản hữu tính</td></tr>
+    </tbody>
+  </table>
+  <div class="hint">Điểm giống: cả hai đều 1 lần nhân đôi DNA (pha S), đều dùng thoi phân bào; giảm phân II về cơ chế giống nguyên phân (tách nhiễm sắc tử chị em).</div>
+</div>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+
+// ===== Section 1: Meiosis stepper =====
+const PAP = "#dc2626", PAP_D = "#991b1b"; // paternal red
+const MAT = "#2563eb", MAT_D = "#1e3a8a"; // maternal blue
+let meioStep = 0, crossover = true;
+
+// Draw one "X" chromosome (2 chromatids) at (cx,cy). If recomb true, draw mixed-color tips.
+function drawChromosome(svg, cx, cy, color, dark, scale, recomb, otherColor) {
+  const h = 26 * scale, w = 9 * scale;
+  // two chromatids as two slightly-offset bars crossing at centromere
+  const offs = [-w/2, w/2];
+  offs.forEach((ox, idx) => {
+    const topCol = (recomb && idx === 1) ? otherColor : color;
+    const botCol = color;
+    // upper half
+    el("line", { x1: cx + ox, y1: cy - h, x2: cx + ox*0.3, y2: cy, stroke: (recomb && idx===1)?otherColor:color, "stroke-width": 5*scale, "stroke-linecap": "round" }, svg);
+    // lower half
+    el("line", { x1: cx + ox*0.3, y1: cy, x2: cx + ox, y2: cy + h, stroke: color, "stroke-width": 5*scale, "stroke-linecap": "round" }, svg);
+  });
+  // centromere dot
+  el("circle", { cx: cx, cy: cy, r: 3.5*scale, fill: dark }, svg);
+}
+// Draw a single chromatid (one bar) — used after sister separation
+function drawSingle(svg, cx, cy, color, dark, scale, recombTop) {
+  const h = 26 * scale;
+  el("line", { x1: cx, y1: cy - h, x2: cx, y2: cy + h, stroke: color, "stroke-width": 5*scale, "stroke-linecap": "round" }, svg);
+  if (recombTop) el("line", { x1: cx, y1: cy - h, x2: cx, y2: cy - h*0.2, stroke: recombTop, "stroke-width": 5*scale, "stroke-linecap": "round" }, svg);
+  el("circle", { cx: cx, cy: cy, r: 3*scale, fill: dark }, svg);
+}
+
+const MEIO = [
+  { title: "Tế bào mẹ 2n (sau pha S)",
+    desc: "Đã nhân đôi DNA ở pha S. Mỗi NST gồm 2 nhiễm sắc tử chị em (dạng chữ X). Có 2 cặp tương đồng.",
+    nst: 4, chromatid: 8, ploidy: "2n", cells: 1 },
+  { title: "Kỳ đầu I — tiếp hợp & trao đổi chéo",
+    desc: "2 NST tương đồng tiếp hợp thành tetrad (4 chromatid). Trao đổi chéo (nếu BẬT) đổi đoạn giữa chromatid bố–mẹ → tái tổ hợp.",
+    nst: 4, chromatid: 8, ploidy: "2n", cells: 1 },
+  { title: "Kỳ giữa I — xếp 2 hàng",
+    desc: "Các CẶP tương đồng xếp thành 2 hàng ở xích đạo. Hướng bố/mẹ về cực nào là NGẪU NHIÊN → phân ly độc lập.",
+    nst: 4, chromatid: 8, ploidy: "2n", cells: 1 },
+  { title: "Kỳ sau I — tách NST tương đồng",
+    desc: "2 NST TƯƠNG ĐỒNG tách về 2 cực. Nhiễm sắc tử chị em VẪN dính nhau. Đây là bước GIẢM NHIỄM.",
+    nst: 4, chromatid: 8, ploidy: "2n→n", cells: 1 },
+  { title: "Cuối giảm phân I — 2 tế bào n",
+    desc: "Tạo 2 tế bào con, mỗi tế bào n NST (mỗi NST còn 2 chromatid). Số NST đã giảm một nửa.",
+    nst: 2, chromatid: 4, ploidy: "n", cells: 2 },
+  { title: "Kỳ sau II — tách nhiễm sắc tử chị em",
+    desc: "Giống nguyên phân: nhiễm sắc tử chị em tách về 2 cực. Số NST không đổi (n → n).",
+    nst: 2, chromatid: 4, ploidy: "n", cells: 2 },
+  { title: "Cuối giảm phân II — 4 giao tử n",
+    desc: "Tổng cộng 4 tế bào con đơn bội (n), mỗi NST còn 1 chromatid. Đây là các GIAO TỬ.",
+    nst: 1, chromatid: 1, ploidy: "n", cells: 4 }
+];
+
+function drawCell(svg, cx, cy, rx, ry) {
+  el("ellipse", { cx, cy, rx, ry, class: "cell-wall" }, svg);
+}
+
+function renderMeio() {
+  const svg = document.getElementById("meioSvg"); clear(svg);
+  const s = MEIO[meioStep];
+  const sc = 1;
+  if (meioStep <= 2) {
+    // single 2n cell with 2 tetrads / pairs
+    drawCell(svg, 230, 120, 150, 100);
+    if (meioStep === 0) {
+      // 2 separate pairs, loose
+      drawChromosome(svg, 150, 90, PAP, PAP_D, 1, false);
+      drawChromosome(svg, 185, 90, MAT, MAT_D, 1, false);
+      drawChromosome(svg, 290, 150, PAP, PAP_D, 0.8, false);
+      drawChromosome(svg, 320, 150, MAT, MAT_D, 0.8, false);
+    } else if (meioStep === 1) {
+      // synapsed tetrads (touching), crossover recolor tips
+      drawChromosome(svg, 165, 100, PAP, PAP_D, 1, crossover, MAT);
+      drawChromosome(svg, 182, 100, MAT, MAT_D, 1, crossover, PAP);
+      drawChromosome(svg, 290, 150, PAP, PAP_D, 0.85, crossover, MAT);
+      drawChromosome(svg, 305, 150, MAT, MAT_D, 0.85, crossover, PAP);
+      el("text", { x: 174, y: 60, "text-anchor": "middle", font: "11px sans-serif", fill: "#374151" }, svg).textContent = "tetrad";
+    } else {
+      // metaphase I — pairs at equator, two rows
+      el("line", { x1: 110, y1: 120, x2: 350, y2: 120, stroke: "#9ca3af", "stroke-dasharray": "4 4" }, svg);
+      drawChromosome(svg, 170, 95, PAP, PAP_D, 1, crossover, MAT);
+      drawChromosome(svg, 170, 150, MAT, MAT_D, 1, crossover, PAP);
+      drawChromosome(svg, 290, 95, MAT, MAT_D, 0.9, crossover, PAP);
+      drawChromosome(svg, 290, 150, PAP, PAP_D, 0.9, crossover, MAT);
+    }
+  } else if (meioStep === 3) {
+    // anaphase I — homologs moving apart, one cell
+    drawCell(svg, 230, 120, 170, 95);
+    drawChromosome(svg, 130, 90, PAP, PAP_D, 1, crossover, MAT);
+    drawChromosome(svg, 160, 150, PAP, PAP_D, 0.9, crossover, MAT);
+    drawChromosome(svg, 330, 90, MAT, MAT_D, 1, crossover, PAP);
+    drawChromosome(svg, 300, 150, MAT, MAT_D, 0.9, crossover, PAP);
+    el("text", { x: 90, y: 215, "text-anchor": "middle", font: "11px sans-serif", fill: "#dc2626" }, svg).textContent = "← cực 1";
+    el("text", { x: 370, y: 215, "text-anchor": "middle", font: "11px sans-serif", fill: "#2563eb" }, svg).textContent = "cực 2 →";
+  } else if (meioStep === 4) {
+    // two n cells, each NST still 2 chromatids
+    drawCell(svg, 115, 120, 90, 90);
+    drawCell(svg, 345, 120, 90, 90);
+    drawChromosome(svg, 95, 105, PAP, PAP_D, 1, crossover, MAT);
+    drawChromosome(svg, 130, 150, PAP, PAP_D, 0.85, crossover, MAT);
+    drawChromosome(svg, 325, 105, MAT, MAT_D, 1, crossover, PAP);
+    drawChromosome(svg, 360, 150, MAT, MAT_D, 0.85, crossover, PAP);
+    el("text", { x: 115, y: 220, "text-anchor": "middle", font: "11px sans-serif", fill: "#15803d" }, svg).textContent = "n";
+    el("text", { x: 345, y: 220, "text-anchor": "middle", font: "11px sans-serif", fill: "#15803d" }, svg).textContent = "n";
+  } else if (meioStep === 5) {
+    // anaphase II in two cells, sisters separating
+    drawCell(svg, 115, 120, 95, 95);
+    drawCell(svg, 345, 120, 95, 95);
+    drawSingle(svg, 70, 100, PAP, PAP_D, 1, crossover?MAT:null);
+    drawSingle(svg, 160, 100, PAP, PAP_D, 1, null);
+    drawSingle(svg, 75, 150, PAP, PAP_D, 0.9, null);
+    drawSingle(svg, 155, 150, PAP, PAP_D, 0.9, crossover?MAT:null);
+    drawSingle(svg, 300, 100, MAT, MAT_D, 1, crossover?PAP:null);
+    drawSingle(svg, 390, 100, MAT, MAT_D, 1, null);
+    drawSingle(svg, 305, 150, MAT, MAT_D, 0.9, null);
+    drawSingle(svg, 385, 150, MAT, MAT_D, 0.9, crossover?PAP:null);
+  } else {
+    // 4 haploid gametes
+    const cxs = [70, 170, 290, 390];
+    const cols = [[PAP,PAP_D],[PAP,PAP_D],[MAT,MAT_D],[MAT,MAT_D]];
+    cxs.forEach((cx, i) => {
+      drawCell(svg, cx, 120, 42, 60);
+      drawSingle(svg, cx, 120, cols[i][0], cols[i][1], 1, (crossover && (i===0||i===3))?(i<2?MAT:PAP):null);
+      el("text", { x: cx, y: 200, "text-anchor": "middle", font: "11px sans-serif", fill: "#15803d", "font-weight": "700" }, svg).textContent = "n";
+    });
+    el("text", { x: 230, y: 25, "text-anchor": "middle", font: "13px sans-serif", fill: "#166534", "font-weight": "700" }, svg).textContent = "4 GIAO TỬ đơn bội";
+  }
+
+  document.getElementById("meioInfo").innerHTML =
+    `<div><strong>Giai đoạn ${meioStep + 1}/7:</strong> ${s.title}</div>` +
+    `<div>${s.desc}</div>`;
+  const water = `<span class="stat">Số NST/tế bào = <strong>${s.nst}</strong></span>` +
+    `<span class="stat">Chromatid/tế bào = <strong>${s.chromatid}</strong></span>` +
+    `<span class="stat">Bộ NST = <strong>${s.ploidy}</strong></span>` +
+    `<span class="stat">Số tế bào = <strong>${s.cells}</strong></span>`;
+  document.getElementById("meioHint").innerHTML = water;
+  document.getElementById("meioPrev").className = meioStep === 0 ? "muted" : "";
+  document.getElementById("meioNext").className = meioStep === MEIO.length - 1 ? "muted" : "";
+}
+document.getElementById("meioNext").onclick = () => { if (meioStep < MEIO.length - 1) { meioStep++; renderMeio(); } };
+document.getElementById("meioPrev").onclick = () => { if (meioStep > 0) { meioStep--; renderMeio(); } };
+document.getElementById("meioReset").onclick = () => { meioStep = 0; renderMeio(); };
+document.getElementById("meioToggle").onclick = () => {
+  crossover = !crossover;
+  document.getElementById("coState").textContent = crossover ? "BẬT" : "TẮT";
+  renderMeio();
+};
+
+// ===== Section 2: Genetic variation calculator =====
+const nSlider = document.getElementById("nSlider");
+function fmt(x) { return x.toLocaleString("en-US"); }
+function renderDiv() {
+  const n = +nSlider.value;
+  document.getElementById("nVal").textContent = n;
+  document.getElementById("nExp").textContent = n;
+  document.getElementById("nExp2").textContent = 2 * n;
+  const gamete = Math.pow(2, n);
+  const zygote = Math.pow(2, 2 * n);
+  document.getElementById("gameteVal").textContent = fmt(gamete);
+  document.getElementById("zygoteVal").textContent = zygote >= 1e15 ? zygote.toExponential(3) : fmt(zygote);
+  // SVG: show up to n boxes each with 2 choices
+  const svg = document.getElementById("divSvg"); clear(svg);
+  const show = Math.min(n, 8);
+  const startX = 30, gap = Math.min(50, (410 - startX) / Math.max(1, show));
+  for (let i = 0; i < show; i++) {
+    const x = startX + i * gap;
+    el("rect", { x: x - 14, y: 30, width: 12, height: 22, rx: 2, fill: PAP }, svg);
+    el("rect", { x: x + 2, y: 30, width: 12, height: 22, rx: 2, fill: MAT }, svg);
+    el("text", { x: x, y: 72, "text-anchor": "middle", font: "11px sans-serif", fill: "#374151" }, svg).textContent = "×2";
+  }
+  if (n > 8) {
+    el("text", { x: startX + 8 * gap + 6, y: 46, font: "13px sans-serif", fill: "#64748b" }, svg).textContent = "… (" + n + " cặp)";
+  }
+  el("text", { x: 220, y: 105, "text-anchor": "middle", font: "13px sans-serif", fill: "#166534", "font-weight": "700" }, svg)
+    .textContent = "2 × 2 × … (" + n + " lần) = 2^" + n + " = " + fmt(gamete) + " kiểu giao tử";
+
+  let extra = "";
+  if (n === 23) extra = " Đây chính là người (2n=46): ≈ 8,4 triệu giao tử, ≈ 70 nghìn tỉ hợp tử — chưa kể trao đổi chéo.";
+  document.getElementById("divHint").textContent =
+    `Mỗi cặp NST có 2 cách định hướng (bố trên / mẹ trên). ${n} cặp độc lập → 2^${n} = ${fmt(gamete)} kiểu giao tử. Thụ tinh: ${fmt(gamete)} × ${fmt(gamete)} = 2^${2*n} tổ hợp hợp tử.` + extra;
+}
+nSlider.oninput = renderDiv;
+document.querySelectorAll("[data-preset]").forEach(b => {
+  b.onclick = () => { nSlider.value = b.dataset.preset; renderDiv(); };
+});
+
+// ===== Section 3: List gametes =====
+function listGametes(n) {
+  const letters = ["A", "B", "C", "D"];
+  let combos = [""];
+  for (let i = 0; i < n; i++) {
+    const next = [];
+    for (const c of combos) {
+      next.push(c + letters[i]);          // paternal allele (uppercase)
+      next.push(c + letters[i].toLowerCase()); // maternal allele (lowercase)
+    }
+    combos = next;
+  }
+  return combos;
+}
+function renderList(n) {
+  document.querySelectorAll("[data-list]").forEach(b => b.classList.toggle("active", +b.dataset.list === n));
+  const combos = listGametes(n);
+  const box = document.getElementById("gameteList"); box.innerHTML = "";
+  combos.forEach(c => {
+    const s = document.createElement("span");
+    s.className = "pill"; s.textContent = c;
+    box.appendChild(s);
+  });
+  document.getElementById("listHint").textContent =
+    `${n} cặp → liệt kê được ${combos.length} kiểu giao tử. Kiểm tra công thức: 2^${n} = ${Math.pow(2, n)} ✓ (khớp số ô đếm được).`;
+}
+document.querySelectorAll("[data-list]").forEach(b => {
+  b.onclick = () => renderList(+b.dataset.list);
+});
+
+// ===== Section 4: Comparison table highlight =====
+document.querySelectorAll("#compTable tbody tr").forEach(tr => {
+  tr.style.cursor = "pointer";
+  tr.onclick = () => {
+    const on = tr.classList.toggle("active-row");
+    const cells = tr.querySelectorAll("td");
+    if (on) { cells[1].classList.add("hl-m"); cells[2].classList.add("hl-me"); }
+    else { cells[1].classList.remove("hl-m"); cells[2].classList.remove("hl-me"); }
+  };
+});
+
+// ===== Init =====
+renderMeio();
+renderDiv();
+renderList(2);
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

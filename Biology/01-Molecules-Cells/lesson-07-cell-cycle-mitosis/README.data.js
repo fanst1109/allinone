@@ -1,4 +1,7 @@
-# Lesson 07 — Chu kỳ tế bào & nguyên phân
+// AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
+// Source: Biology/01-Molecules-Cells/lesson-07-cell-cycle-mitosis/README.md
+// Chạy lại: go run tools/build-readme-data.go
+window.README_MD = `# Lesson 07 — Chu kỳ tế bào & nguyên phân
 
 ## Mục tiêu học tập
 
@@ -342,7 +345,7 @@ A: Thường KHÔNG. Ung thư thường cần **nhiều đột biến tích lũy
 | Kỳ sau (đã tách) | 92* | 1 | 92 | 4C |
 | Sau cytokinesis (mỗi tế bào con) | 46 | 1 | 46 | 2C |
 
-\* Ở kỳ sau, sau khi chromatid tách, 1 tế bào tạm có 92 NST (mỗi cực 46) trước khi chia.
+\\* Ở kỳ sau, sau khi chromatid tách, 1 tế bào tạm có 92 NST (mỗi cực 46) trước khi chia.
 
 ---
 
@@ -419,8 +422,8 @@ Giải thích: G1 chưa nhân đôi (12 NST, 12 chromatid). G2 đã qua S (vẫn
   - [Lesson 01 — Phân tử sinh học](../lesson-01-biomolecules/) — DNA, nucleotide, bắt cặp bổ sung.
 - **Liên hệ**:
   - [Lesson 04 — Enzyme & chuyển hóa](../lesson-04-enzymes-metabolism/) — protein/enzyme điều khiển checkpoint.
-  - **Sẽ học sâu ở Tầng 2**: cơ chế nhân đôi DNA, đột biến, di truyền — [`Biology/02-Genetics-Evolution`](../../02-Genetics-Evolution/).
-- **Đọc thêm**: mô hình tương tác — [`visualization.html`](./visualization.html) của lesson này (mô phỏng từng kỳ, đồ thị lượng DNA, tăng trưởng cấp số nhân, vòng tròn chu kỳ).
+  - **Sẽ học sâu ở Tầng 2**: cơ chế nhân đôi DNA, đột biến, di truyền — [\`Biology/02-Genetics-Evolution\`](../../02-Genetics-Evolution/).
+- **Đọc thêm**: mô hình tương tác — [\`visualization.html\`](./visualization.html) của lesson này (mô phỏng từng kỳ, đồ thị lượng DNA, tăng trưởng cấp số nhân, vòng tròn chu kỳ).
 
 ---
 
@@ -434,3 +437,4 @@ Giải thích: G1 chưa nhân đôi (12 NST, 12 chromatid). G2 đã qua S (vẫn
 6. **Checkpoint** (G1/S, G2/M, kỳ giữa) giữ chu kỳ chính xác; protein p53 là chốt gác DNA. Mất kiểm soát → phân chia vô hạn → **ung thư**.
 
 **Tiếp theo**: [Lesson 08 — Giảm phân (meiosis)](../lesson-08-meiosis/)
+`;

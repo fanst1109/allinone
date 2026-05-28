@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05: Mối quan hệ 2 biến — Statistics</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f7f9fc;
+    --accent: #7c3aed;
+    --accent-soft: #ede9fe;
+    --accent-hover: #6d28d9;
+  }
+  h1 { color: #4c1d95; }
+  h2 { color: #5b21b6; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #ddd6fe; }
+  h3 { color: #6d28d9; margin-top: 18px; }
+  .module { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+  .lead { font-size: 1.05rem; color: #4b5563; margin-bottom: 24px; line-height: 1.7; }
+  .btn { background: var(--accent); color: white; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
+  .btn:hover { background: var(--accent-hover); }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-gray { background: #6b7280; }
+  .btn-gray:hover { background: #4b5563; }
+  .btn.active { background: #4c1d95; box-shadow: 0 0 0 3px rgba(124,58,237,0.25); }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+
+  .slider-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 10px 0; }
+  .slider-row input[type="range"] { flex: 1; min-width: 120px; }
+  .slider-row label { font-size: 13px; min-width: 110px; font-weight: 600; color: #4c1d95; }
+  .slider-row .v { font-family: monospace; min-width: 60px; font-weight: 700; color: #7c3aed; }
+
+  svg.chart { display: block; max-width: 100%; height: auto; background: #faf9ff; border: 1px solid #e9d5ff; border-radius: 8px; cursor: crosshair; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin: 14px 0; }
+  .stat-card { background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 8px; padding: 10px; text-align: center; }
+  .stat-card .lbl { font-size: 11px; font-weight: 700; color: #7c3aed; text-transform: uppercase; }
+  .stat-card .val { font-size: 18px; font-weight: 800; color: #4c1d95; font-family: monospace; margin-top: 4px; }
+
+  .info-box { background: #ede9fe; border-left: 4px solid #7c3aed; padding: 10px 14px; border-radius: 0 6px 6px 0; font-size: 13px; margin: 10px 0; }
+  .warn-box { background: #fff7ed; border-left: 4px solid #f59e0b; padding: 10px 14px; border-radius: 0 6px 6px 0; font-size: 13px; margin: 10px 0; }
+
+  .ansc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-top: 14px; }
+  .ansc-card { background: #fafaff; border: 1px solid #e9d5ff; border-radius: 8px; padding: 12px; }
+  .ansc-card h4 { margin: 0 0 6px; color: #5b21b6; font-size: 14px; }
+  .ansc-card svg { width: 100%; height: auto; }
+  .ansc-stats { font-size: 12px; color: #4b5563; margin-top: 6px; font-family: monospace; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-distribution-viz/visualization.html">← L04: Trực quan hoá</a>
+  <span class="sep">·</span>
+  <span class="current">L05: Tương quan 2 biến</span>
+  <span class="sep">·</span>
+  <a href="../../02-Inferential/lesson-01-sampling-clt/visualization.html">T2-L01: Sampling & CLT →</a>
+</nav>
+
+<main>
+  <h1>Lesson 05: Mối quan hệ 2 biến</h1>
+  <p class="lead">Scatter plot, Pearson, Spearman, Kendall, và Anscombe quartet — cùng số nhưng khác hình.</p>
+
+  <!-- Module 1: Interactive scatter & correlation -->
+  <section class="module">
+    <h2>Module 1: Scatter tương tác — kéo điểm, xem r đổi</h2>
+    <p>Click vào chart để thêm điểm. Kéo điểm để di chuyển. Click chuột phải để xoá. Pearson r, Spearman ρ, Kendall τ cập nhật real-time.</p>
+    <svg id="scatter-svg" class="chart" width="600" height="420" viewBox="0 0 600 420"></svg>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="lbl">n</div><div class="val" id="s-n">0</div></div>
+      <div class="stat-card"><div class="lbl">cov</div><div class="val" id="s-cov">−</div></div>
+      <div class="stat-card"><div class="lbl">Pearson r</div><div class="val" id="s-pearson">−</div></div>
+      <div class="stat-card"><div class="lbl">Spearman ρ</div><div class="val" id="s-spearman">−</div></div>
+      <div class="stat-card"><div class="lbl">Kendall τ</div><div class="val" id="s-kendall">−</div></div>
+      <div class="stat-card"><div class="lbl">r²</div><div class="val" id="s-r2">−</div></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-sm" onclick="preset('linear-strong')">Linear chặt</button>
+      <button class="btn btn-sm" onclick="preset('linear-weak')">Linear yếu</button>
+      <button class="btn btn-sm" onclick="preset('negative')">Negative</button>
+      <button class="btn btn-sm" onclick="preset('zero')">r ≈ 0 (tản)</button>
+      <button class="btn btn-sm" onclick="preset('curve')">Cong y=x² (r≈0)</button>
+      <button class="btn btn-sm" onclick="preset('outlier')">Outlier kéo r</button>
+      <button class="btn btn-sm btn-gray" onclick="clearPoints()">Xoá hết</button>
+    </div>
+    <div class="info-box" id="scatter-info">Click để thêm điểm.</div>
+  </section>
+
+  <!-- Module 2: Walk-through Pearson -->
+  <section class="module">
+    <h2>Module 2: Walk-through Pearson r — từng bước</h2>
+    <p>Dataset 5 điểm để theo dõi công thức. Đổi data để xem từng số đổi.</p>
+    <div class="slider-row">
+      <label>Dataset:</label>
+      <select id="ds-select" style="padding:5px;border:1px solid #c4b5fd;border-radius:6px;">
+        <option value="0">y = 2x (r=1)</option>
+        <option value="1">y = −2x (r=−1)</option>
+        <option value="2">Chiều cao-cân nặng (r≈0.995)</option>
+        <option value="3">Random (r yếu)</option>
+      </select>
+    </div>
+    <table id="walk-table" style="width:100%;border-collapse:collapse;font-size:13px;margin-top:10px;">
+      <thead><tr style="background:#f5f3ff;">
+        <th style="padding:6px;border:1px solid #e5e7eb;">i</th>
+        <th style="padding:6px;border:1px solid #e5e7eb;">x</th>
+        <th style="padding:6px;border:1px solid #e5e7eb;">y</th>
+        <th style="padding:6px;border:1px solid #e5e7eb;">x−x̄</th>
+        <th style="padding:6px;border:1px solid #e5e7eb;">y−ȳ</th>
+        <th style="padding:6px;border:1px solid #e5e7eb;">(x−x̄)(y−ȳ)</th>
+        <th style="padding:6px;border:1px solid #e5e7eb;">(x−x̄)²</th>
+        <th style="padding:6px;border:1px solid #e5e7eb;">(y−ȳ)²</th>
+      </tr></thead>
+      <tbody id="walk-tbody"></tbody>
+    </table>
+    <div class="info-box" id="walk-result"></div>
+  </section>
+
+  <!-- Module 3: Pearson vs Spearman comparison -->
+  <section class="module">
+    <h2>Module 3: Pearson vs Spearman — khi quan hệ phi-tuyến</h2>
+    <p>Cho data y = x² trên [0, 5]. Pearson không bắt được hoàn hảo (vì không tuyến tính), nhưng Spearman = 1 (monotonic).</p>
+    <svg id="ps-svg" class="chart" width="500" height="320" viewBox="0 0 500 320"></svg>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="lbl">Pearson r</div><div class="val" id="ps-pearson">−</div></div>
+      <div class="stat-card"><div class="lbl">Spearman ρ</div><div class="val" id="ps-spearman">−</div></div>
+    </div>
+    <div class="slider-row">
+      <label>Mũ p (y = x^p):</label>
+      <input type="range" id="ps-pow" min="1" max="5" value="2" step="0.1">
+      <span class="v" id="ps-pow-v">2.0</span>
+    </div>
+    <div class="info-box">Kéo slider: Pearson giảm khi p tăng (càng cong càng kém). Spearman = 1 với mọi p ≥ 1.</div>
+  </section>
+
+  <!-- Module 4: Anscombe quartet -->
+  <section class="module">
+    <h2>Module 4: Anscombe Quartet — 4 dataset, cùng tóm tắt số</h2>
+    <p>Cả 4 dataset có x̄=9, ȳ=7.5, var_X=11, var_Y≈4.12, <strong>r ≈ 0.816</strong>. Nhưng hình thì…</p>
+    <div class="ansc-grid" id="ansc-grid"></div>
+    <div class="warn-box"><strong>Bài học</strong>: Không bao giờ tin một con số correlation mà không vẽ scatter. Dataset I là duy nhất phù hợp với hồi quy tuyến tính; II là parabol; III có outlier kéo r; IV có x cố định trừ 1 điểm.</div>
+  </section>
+</main>
+
+<script>
+// ===== Anscombe quartet data =====
+const ansc = [
+  { name: 'I', x:[10,8,13,9,11,14,6,4,12,7,5], y:[8.04,6.95,7.58,8.81,8.33,9.96,7.24,4.26,10.84,4.82,5.68] },
+  { name: 'II', x:[10,8,13,9,11,14,6,4,12,7,5], y:[9.14,8.14,8.74,8.77,9.26,8.10,6.13,3.10,9.13,7.26,4.74] },
+  { name: 'III', x:[10,8,13,9,11,14,6,4,12,7,5], y:[7.46,6.77,12.74,7.11,7.81,8.84,6.08,5.39,8.15,6.42,5.73] },
+  { name: 'IV', x:[8,8,8,8,8,8,8,19,8,8,8], y:[6.58,5.76,7.71,8.84,8.47,7.04,5.25,12.50,5.56,7.91,6.89] },
+];
+
+// ===== Helper stats =====
+function mean(arr){ return arr.reduce((s,x)=>s+x,0)/arr.length; }
+function sd(arr){
+  const m = mean(arr);
+  return Math.sqrt(arr.reduce((s,x)=>s+(x-m)**2,0)/(arr.length-1));
+}
+function pearson(xs, ys) {
+  if (xs.length < 2) return NaN;
+  const mx = mean(xs), my = mean(ys);
+  let num=0, dx=0, dy=0;
+  for (let i=0;i<xs.length;i++){
+    num += (xs[i]-mx)*(ys[i]-my);
+    dx += (xs[i]-mx)**2;
+    dy += (ys[i]-my)**2;
+  }
+  const denom = Math.sqrt(dx*dy);
+  return denom === 0 ? NaN : num/denom;
+}
+function covSample(xs, ys) {
+  if (xs.length < 2) return NaN;
+  const mx = mean(xs), my = mean(ys);
+  let s = 0;
+  for (let i=0;i<xs.length;i++) s += (xs[i]-mx)*(ys[i]-my);
+  return s/(xs.length-1);
+}
+function ranks(arr) {
+  const sorted = arr.map((v,i)=>[v,i]).sort((a,b)=>a[0]-b[0]);
+  const r = new Array(arr.length);
+  // average rank for ties
+  let i = 0;
+  while (i < sorted.length) {
+    let j = i;
+    while (j+1 < sorted.length && sorted[j+1][0] === sorted[i][0]) j++;
+    const avg = (i+j+2)/2; // 1-indexed average
+    for (let k=i;k<=j;k++) r[sorted[k][1]] = avg;
+    i = j+1;
+  }
+  return r;
+}
+function spearman(xs, ys) {
+  if (xs.length < 2) return NaN;
+  return pearson(ranks(xs), ranks(ys));
+}
+function kendall(xs, ys) {
+  const n = xs.length;
+  if (n < 2) return NaN;
+  let con=0, dis=0;
+  for (let i=0;i<n;i++) for (let j=i+1;j<n;j++) {
+    const dx = xs[j]-xs[i], dy = ys[j]-ys[i];
+    if (dx*dy > 0) con++;
+    else if (dx*dy < 0) dis++;
+  }
+  const total = n*(n-1)/2;
+  return total === 0 ? NaN : (con-dis)/total;
+}
+
+// ===== Module 1: interactive scatter =====
+let points = []; // each: {x, y} in data units 0..10
+let dragIdx = -1;
+const SVG_W = 600, SVG_H = 420;
+const PAD = 40;
+const DATA_MIN = 0, DATA_MAX = 10;
+
+function dataToPx(x, y) {
+  const px = PAD + (x - DATA_MIN)/(DATA_MAX - DATA_MIN) * (SVG_W - 2*PAD);
+  const py = SVG_H - PAD - (y - DATA_MIN)/(DATA_MAX - DATA_MIN) * (SVG_H - 2*PAD);
+  return [px, py];
+}
+function pxToData(px, py) {
+  const x = DATA_MIN + (px - PAD)/(SVG_W - 2*PAD) * (DATA_MAX - DATA_MIN);
+  const y = DATA_MIN + (SVG_H - PAD - py)/(SVG_H - 2*PAD) * (DATA_MAX - DATA_MIN);
+  return [x, y];
+}
+
+function renderScatter() {
+  const svg = document.getElementById('scatter-svg');
+  let html = '';
+  // Grid
+  html += `<rect x="${PAD}" y="${PAD}" width="${SVG_W-2*PAD}" height="${SVG_H-2*PAD}" fill="white" stroke="#d1d5db"/>`;
+  for (let i=1;i<=4;i++) {
+    const gx = PAD + i*(SVG_W-2*PAD)/5;
+    const gy = PAD + i*(SVG_H-2*PAD)/5;
+    html += `<line x1="${gx}" y1="${PAD}" x2="${gx}" y2="${SVG_H-PAD}" stroke="#f3f4f6"/>`;
+    html += `<line x1="${PAD}" y1="${gy}" x2="${SVG_W-PAD}" y2="${gy}" stroke="#f3f4f6"/>`;
+  }
+  // Axes
+  for (let i=0;i<=5;i++) {
+    const x = i*2;
+    const [px,] = dataToPx(x, 0);
+    html += `<text x="${px}" y="${SVG_H-PAD+18}" text-anchor="middle" font-size="11" fill="#374151">${x}</text>`;
+    const [, py] = dataToPx(0, x);
+    html += `<text x="${PAD-6}" y="${py+4}" text-anchor="end" font-size="11" fill="#374151">${x}</text>`;
+  }
+  // Regression line if pearson defined
+  const xs = points.map(p=>p.x), ys = points.map(p=>p.y);
+  if (points.length >= 2) {
+    const mx = mean(xs), my = mean(ys);
+    let num=0, dx=0;
+    for (let i=0;i<xs.length;i++){ num+=(xs[i]-mx)*(ys[i]-my); dx+=(xs[i]-mx)**2; }
+    if (dx > 0) {
+      const slope = num/dx;
+      const intercept = my - slope*mx;
+      const y0 = intercept;
+      const y10 = intercept + slope*10;
+      const [px0, py0] = dataToPx(0, Math.max(0, Math.min(10, y0)));
+      const [px10, py10] = dataToPx(10, Math.max(0, Math.min(10, y10)));
+      // clip line manually
+      html += `<line x1="${px0}" y1="${py0}" x2="${px10}" y2="${py10}" stroke="#10b981" stroke-width="2" opacity="0.7"/>`;
+    }
+  }
+  // Points
+  points.forEach((p, i) => {
+    const [px, py] = dataToPx(p.x, p.y);
+    html += `<circle cx="${px}" cy="${py}" r="7" fill="#7c3aed" stroke="#4c1d95" stroke-width="2" data-idx="${i}" style="cursor:grab"/>`;
+  });
+  svg.innerHTML = html;
+
+  // Stats
+  document.getElementById('s-n').textContent = points.length;
+  if (points.length >= 2) {
+    const cov = covSample(xs, ys);
+    const r = pearson(xs, ys);
+    const rho = spearman(xs, ys);
+    const tau = kendall(xs, ys);
+    document.getElementById('s-cov').textContent = cov.toFixed(3);
+    document.getElementById('s-pearson').textContent = r.toFixed(3);
+    document.getElementById('s-spearman').textContent = rho.toFixed(3);
+    document.getElementById('s-kendall').textContent = tau.toFixed(3);
+    document.getElementById('s-r2').textContent = (r*r).toFixed(3);
+    let verdict = '';
+    const ar = Math.abs(r);
+    if (ar < 0.2) verdict = 'rất yếu / không có';
+    else if (ar < 0.4) verdict = 'yếu';
+    else if (ar < 0.6) verdict = 'trung bình';
+    else if (ar < 0.8) verdict = 'mạnh';
+    else verdict = 'rất mạnh';
+    document.getElementById('scatter-info').innerHTML =
+      `Pearson r = <code>${r.toFixed(3)}</code> → ${verdict}, ${r>=0?'dương':'âm'}. ` +
+      `r² = <code>${(r*r).toFixed(3)}</code> → ${(r*r*100).toFixed(1)}% phương sai y giải thích bằng x. ` +
+      `Đường xanh = hồi quy tuyến tính tốt nhất.`;
+  } else {
+    ['s-cov','s-pearson','s-spearman','s-kendall','s-r2'].forEach(id=>document.getElementById(id).textContent = '−');
+    document.getElementById('scatter-info').textContent = 'Cần ≥ 2 điểm để tính tương quan. Click để thêm.';
+  }
+}
+
+function clearPoints() {
+  points = [];
+  renderScatter();
+}
+
+function preset(name) {
+  points = [];
+  if (name === 'linear-strong') {
+    for (let i=1;i<=8;i++) points.push({x: i, y: i*0.9 + 0.5 + (Math.random()-0.5)*0.4});
+  } else if (name === 'linear-weak') {
+    for (let i=0;i<15;i++) points.push({x: 1+Math.random()*8, y: 2 + (1+Math.random()*8)*0.3 + (Math.random()-0.5)*3});
+  } else if (name === 'negative') {
+    for (let i=1;i<=8;i++) points.push({x: i, y: 9 - i*0.9 + (Math.random()-0.5)*0.4});
+  } else if (name === 'zero') {
+    for (let i=0;i<15;i++) points.push({x: 1+Math.random()*8, y: 1+Math.random()*8});
+  } else if (name === 'curve') {
+    for (let i=0;i<11;i++) {
+      const x = i;
+      points.push({x: x, y: 10 - 0.4*(x-5)*(x-5)});
+    }
+  } else if (name === 'outlier') {
+    for (let i=0;i<8;i++) points.push({x: 1+Math.random()*4, y: 1+Math.random()*4});
+    points.push({x: 9.5, y: 9.5});
+  }
+  renderScatter();
+}
+
+// Interaction
+const svgEl = document.getElementById('scatter-svg');
+svgEl.addEventListener('mousedown', e => {
+  const rect = svgEl.getBoundingClientRect();
+  const sx = (e.clientX - rect.left) * SVG_W / rect.width;
+  const sy = (e.clientY - rect.top) * SVG_H / rect.height;
+  // Check if clicked on existing point
+  for (let i=0;i<points.length;i++) {
+    const [px, py] = dataToPx(points[i].x, points[i].y);
+    if ((sx-px)**2 + (sy-py)**2 < 49) {
+      if (e.button === 2) {
+        points.splice(i, 1);
+        renderScatter();
+        return;
+      }
+      dragIdx = i;
+      return;
+    }
+  }
+  // Add new point if within bounds
+  if (sx >= PAD && sx <= SVG_W-PAD && sy >= PAD && sy <= SVG_H-PAD) {
+    const [dx, dy] = pxToData(sx, sy);
+    points.push({x: dx, y: dy});
+    renderScatter();
+  }
+});
+svgEl.addEventListener('mousemove', e => {
+  if (dragIdx < 0) return;
+  const rect = svgEl.getBoundingClientRect();
+  const sx = (e.clientX - rect.left) * SVG_W / rect.width;
+  const sy = (e.clientY - rect.top) * SVG_H / rect.height;
+  const [dx, dy] = pxToData(sx, sy);
+  points[dragIdx] = {x: Math.max(0, Math.min(10, dx)), y: Math.max(0, Math.min(10, dy))};
+  renderScatter();
+});
+svgEl.addEventListener('mouseup', () => { dragIdx = -1; });
+svgEl.addEventListener('contextmenu', e => e.preventDefault());
+
+// ===== Module 2: walk-through table =====
+const walkDS = [
+  { name: 'y=2x', x:[1,2,3,4,5], y:[2,4,6,8,10] },
+  { name: 'y=-2x+12', x:[1,2,3,4,5], y:[10,8,6,4,2] },
+  { name: 'Height-Weight', x:[160,165,170,175,180], y:[55,60,68,72,80] },
+  { name: 'Random', x:[1,2,3,4,5], y:[5,3,7,2,8] },
+];
+
+function renderWalk() {
+  const idx = +document.getElementById('ds-select').value;
+  const ds = walkDS[idx];
+  const xs = ds.x, ys = ds.y;
+  const mx = mean(xs), my = mean(ys);
+  const tbody = document.getElementById('walk-tbody');
+  let html = '';
+  let sumXY=0, sumXX=0, sumYY=0;
+  for (let i=0;i<xs.length;i++) {
+    const dx_ = xs[i]-mx, dy_ = ys[i]-my;
+    const xy = dx_*dy_;
+    sumXY += xy; sumXX += dx_*dx_; sumYY += dy_*dy_;
+    html += `<tr style="text-align:center;">
+      <td style="padding:6px;border:1px solid #e5e7eb;">${i+1}</td>
+      <td style="padding:6px;border:1px solid #e5e7eb;">${xs[i]}</td>
+      <td style="padding:6px;border:1px solid #e5e7eb;">${ys[i]}</td>
+      <td style="padding:6px;border:1px solid #e5e7eb;">${dx_.toFixed(2)}</td>
+      <td style="padding:6px;border:1px solid #e5e7eb;">${dy_.toFixed(2)}</td>
+      <td style="padding:6px;border:1px solid #e5e7eb;color:#7c3aed;font-weight:700;">${xy.toFixed(2)}</td>
+      <td style="padding:6px;border:1px solid #e5e7eb;">${(dx_*dx_).toFixed(2)}</td>
+      <td style="padding:6px;border:1px solid #e5e7eb;">${(dy_*dy_).toFixed(2)}</td>
+    </tr>`;
+  }
+  html += `<tr style="background:#faf5ff;font-weight:700;text-align:center;">
+    <td colspan="5" style="padding:6px;border:1px solid #e5e7eb;">Tổng Σ</td>
+    <td style="padding:6px;border:1px solid #e5e7eb;color:#7c3aed;">${sumXY.toFixed(2)}</td>
+    <td style="padding:6px;border:1px solid #e5e7eb;">${sumXX.toFixed(2)}</td>
+    <td style="padding:6px;border:1px solid #e5e7eb;">${sumYY.toFixed(2)}</td>
+  </tr>`;
+  tbody.innerHTML = html;
+  const cov = sumXY/(xs.length-1);
+  const sX = Math.sqrt(sumXX/(xs.length-1));
+  const sY = Math.sqrt(sumYY/(xs.length-1));
+  const r = sumXY / Math.sqrt(sumXX*sumYY);
+  document.getElementById('walk-result').innerHTML =
+    `x̄ = ${mx.toFixed(2)}, ȳ = ${my.toFixed(2)}. ` +
+    `cov = Σ(x−x̄)(y−ȳ)/(n−1) = ${sumXY.toFixed(2)}/${xs.length-1} = <code>${cov.toFixed(3)}</code>. ` +
+    `s_X = <code>${sX.toFixed(3)}</code>, s_Y = <code>${sY.toFixed(3)}</code>. ` +
+    `r = cov/(s_X · s_Y) = <code>${r.toFixed(3)}</code>.`;
+}
+document.getElementById('ds-select').addEventListener('change', renderWalk);
+
+// ===== Module 3: Pearson vs Spearman =====
+function renderPS() {
+  const p = +document.getElementById('ps-pow').value;
+  const svg = document.getElementById('ps-svg');
+  const W=500, H=320, pad=40;
+  const xs=[], ys=[];
+  for (let i=0;i<=10;i++) {
+    const x = i*0.5;
+    xs.push(x);
+    ys.push(Math.pow(x, p));
+  }
+  const minY = 0, maxY = Math.max(...ys);
+  let html = '';
+  html += `<rect x="${pad}" y="${pad}" width="${W-2*pad}" height="${H-2*pad}" fill="white" stroke="#d1d5db"/>`;
+  for (let i=0;i<xs.length;i++) {
+    const px = pad + (xs[i]/5) * (W-2*pad);
+    const py = H-pad - (ys[i]/(maxY||1)) * (H-2*pad);
+    html += `<circle cx="${px}" cy="${py}" r="5" fill="#7c3aed"/>`;
+  }
+  // axes labels
+  for (let i=0;i<=5;i++) {
+    const px = pad + (i/5)*(W-2*pad);
+    html += `<text x="${px}" y="${H-pad+18}" text-anchor="middle" font-size="11" fill="#374151">${i}</text>`;
+  }
+  html += `<text x="${W/2}" y="${H-8}" text-anchor="middle" font-size="12" fill="#4c1d95" font-weight="600">y = x^${p.toFixed(1)}</text>`;
+  svg.innerHTML = html;
+  const r = pearson(xs, ys);
+  const rho = spearman(xs, ys);
+  document.getElementById('ps-pearson').textContent = r.toFixed(3);
+  document.getElementById('ps-spearman').textContent = rho.toFixed(3);
+}
+document.getElementById('ps-pow').addEventListener('input', e => {
+  document.getElementById('ps-pow-v').textContent = (+e.target.value).toFixed(1);
+  renderPS();
+});
+
+// ===== Module 4: Anscombe =====
+function renderAnscombe() {
+  const container = document.getElementById('ansc-grid');
+  let html = '';
+  for (const ds of ansc) {
+    const r = pearson(ds.x, ds.y);
+    const mx = mean(ds.x), my = mean(ds.y);
+    const sx = sd(ds.x), sy = sd(ds.y);
+    // mini chart
+    const W=260, H=180, pad=24;
+    const minX = Math.min(...ds.x), maxX = Math.max(...ds.x);
+    const minY = Math.min(...ds.y), maxY = Math.max(...ds.y);
+    const xRange = maxX-minX || 1, yRange = maxY-minY || 1;
+    let chart = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+    chart += `<rect x="${pad}" y="${pad/2}" width="${W-2*pad}" height="${H-pad-pad/2}" fill="#fafaff" stroke="#d1d5db"/>`;
+    // regression line
+    let num=0, dx=0;
+    for (let i=0;i<ds.x.length;i++){ num+=(ds.x[i]-mx)*(ds.y[i]-my); dx+=(ds.x[i]-mx)**2; }
+    const slope = num/dx, intercept = my - slope*mx;
+    const lx0 = minX, ly0 = intercept + slope*lx0;
+    const lx1 = maxX, ly1 = intercept + slope*lx1;
+    const sxf = v => pad + (v-minX)/xRange*(W-2*pad);
+    const syf = v => H-pad - (v-minY)/yRange*(H-pad-pad/2);
+    chart += `<line x1="${sxf(lx0)}" y1="${syf(ly0)}" x2="${sxf(lx1)}" y2="${syf(ly1)}" stroke="#10b981" stroke-width="1.5" opacity="0.7"/>`;
+    // points
+    for (let i=0;i<ds.x.length;i++) {
+      chart += `<circle cx="${sxf(ds.x[i])}" cy="${syf(ds.y[i])}" r="4" fill="#7c3aed"/>`;
+    }
+    chart += `</svg>`;
+    html += `<div class="ansc-card"><h4>Dataset ${ds.name}</h4>${chart}<div class="ansc-stats">x̄=${mx.toFixed(2)}, ȳ=${my.toFixed(2)}<br>s_X²=${(sx*sx).toFixed(2)}, s_Y²=${(sy*sy).toFixed(2)}<br><strong>r = ${r.toFixed(3)}</strong></div></div>`;
+  }
+  container.innerHTML = html;
+}
+
+// Init
+preset('linear-strong');
+renderWalk();
+renderPS();
+renderAnscombe();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01: Loại dữ liệu & tổng quan — Statistics</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f7f9fc;
+    --accent: #7c3aed;
+    --accent-soft: #ede9fe;
+    --accent-hover: #6d28d9;
+  }
+  h1 { color: #4c1d95; }
+  h2 { color: #5b21b6; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #ddd6fe; }
+  h3 { color: #6d28d9; margin-top: 20px; }
+
+  .module {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .lead { font-size: 1.1rem; color: #4b5563; margin-bottom: 24px; line-height: 1.7; }
+
+  /* NOIR scale display */
+  .noir-scale {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 16px 0;
+  }
+  .noir-card {
+    flex: 1 1 140px;
+    border-radius: 10px;
+    padding: 14px 12px;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+    border: 2px solid transparent;
+    user-select: none;
+  }
+  .noir-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+  .noir-card.active { border-color: #7c3aed; box-shadow: 0 0 0 3px #ede9fe; }
+  .noir-card .letter { font-size: 2rem; font-weight: 800; }
+  .noir-card .name { font-size: .85rem; font-weight: 700; margin-top: 4px; }
+  .noir-card .tagline { font-size: .78rem; margin-top: 4px; opacity: .85; }
+  .n-card { background: #fef3c7; color: #92400e; }
+  .o-card { background: #fee2e2; color: #991b1b; }
+  .i-card { background: #dbeafe; color: #1e3a8a; }
+  .r-card { background: #d1fae5; color: #065f46; }
+
+  .detail-panel {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 12px;
+    display: none;
+    animation: fadeIn .2s;
+  }
+  .detail-panel.visible { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+  .detail-panel table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .detail-panel th, .detail-panel td { padding: 6px 10px; border: 1px solid #e5e7eb; text-align: left; }
+  .detail-panel th { background: #f0f4ff; font-weight: 700; }
+
+  /* Variable classifier quiz */
+  .var-quiz { margin-top: 12px; }
+  .var-list { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+  .var-chip {
+    background: #f3f4f6;
+    border: 2px solid #d1d5db;
+    border-radius: 20px;
+    padding: 7px 14px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background .12s, border .12s;
+    user-select: none;
+  }
+  .var-chip:hover { background: #ede9fe; border-color: #7c3aed; }
+  .var-chip.selected { background: #7c3aed; color: white; border-color: #7c3aed; }
+  .var-chip.correct { background: #10b981; color: white; border-color: #10b981; }
+  .var-chip.wrong { background: #ef4444; color: white; border-color: #ef4444; animation: shake .3s; }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+
+  .scale-choices { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .scale-btn {
+    padding: 6px 14px; border-radius: 16px; border: 2px solid #d1d5db;
+    background: white; cursor: pointer; font-size: 13px; font-weight: 600;
+    transition: all .12s;
+  }
+  .scale-btn:hover { border-color: #7c3aed; color: #7c3aed; }
+  .scale-btn.correct { background: #10b981; color: white; border-color: #10b981; }
+  .scale-btn.wrong { background: #fca5a5; border-color: #ef4444; }
+
+  #quiz-feedback {
+    min-height: 22px;
+    font-weight: 600;
+    font-size: 14px;
+    margin-top: 6px;
+    transition: color .2s;
+  }
+  #quiz-score { font-size: 15px; font-weight: 700; color: #7c3aed; margin-top: 8px; }
+
+  /* Pop vs Sample interactive */
+  .pop-sample-wrap {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    margin: 16px 0;
+  }
+  .ps-box {
+    flex: 1 1 200px;
+    border-radius: 10px;
+    padding: 14px;
+    min-width: 160px;
+  }
+  .ps-box.pop { background: #eff6ff; border: 2px solid #93c5fd; }
+  .ps-box.smp { background: #faf5ff; border: 2px solid #c4b5fd; }
+  .ps-box h4 { margin: 0 0 8px; font-size: 15px; }
+  .ps-box .ps-dots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 8px;
+  }
+  .dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: #93c5fd;
+    transition: background .2s, transform .2s;
+  }
+  .dot.in-sample { background: #7c3aed; transform: scale(1.25); }
+  .dot.selected { background: #10b981; }
+
+  .ps-stat { font-size: 13px; margin: 4px 0; }
+  .ps-stat strong { color: #7c3aed; }
+
+  .ps-controls { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+  .ps-controls label { font-size: 14px; }
+  .ps-controls input[type="range"] { width: 140px; max-width: 100%; }
+  .ps-controls button {
+    background: var(--accent, #7c3aed); color: white; border: none;
+    padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 13px;
+    font-weight: 600;
+  }
+  .ps-controls button:hover { background: var(--accent-hover, #6d28d9); }
+
+  /* Allowed operations table */
+  .ops-table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  .ops-table th, .ops-table td { border: 1px solid #e5e7eb; padding: 7px 10px; text-align: center; }
+  .ops-table th { background: #f5f3ff; font-weight: 700; }
+  .ops-table td:first-child { text-align: left; font-weight: 600; }
+  .ops-ok { color: #059669; font-weight: 800; font-size: 16px; }
+  .ops-no { color: #d1d5db; font-size: 15px; }
+
+  /* info callout */
+  .info-box {
+    background: #ede9fe;
+    border-left: 4px solid #7c3aed;
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    font-size: 14px;
+    margin: 12px 0;
+  }
+  .warn-box {
+    background: #fff7ed;
+    border-left: 4px solid #f59e0b;
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    font-size: 14px;
+    margin: 12px 0;
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Descriptive Statistics</a>
+  <span class="sep">·</span>
+  <span class="current">L01: Loại dữ liệu</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-central-tendency/visualization.html">L02: Đo lường trung tâm →</a>
+</nav>
+
+<main>
+  <h1>Lesson 01: Loại dữ liệu & tổng quan thống kê</h1>
+  <p class="lead">Biến là gì? Dữ liệu được đo bằng loại thang đo nào? Câu trả lời quyết định công cụ thống kê nào được phép dùng.</p>
+
+  <!-- Module 1: Population vs Sample -->
+  <section class="module">
+    <h2>Module 1: Population vs Sample — trực quan</h2>
+    <p>Di chuyển slider để chọn kích thước mẫu, rồi nhấn "Lấy mẫu ngẫu nhiên" để thấy sample (màu tím) được chọn từ population (màu xanh).</p>
+
+    <div class="ps-controls">
+      <label for="n-pop">Population (N):</label>
+      <input type="range" id="n-pop" min="20" max="100" value="60" step="5">
+      <strong id="n-pop-val">60</strong>
+
+      <label for="n-smp">Sample (n):</label>
+      <input type="range" id="n-smp" min="5" max="40" value="15" step="1">
+      <strong id="n-smp-val">15</strong>
+
+      <button onclick="drawSample()">Lấy mẫu ngẫu nhiên</button>
+    </div>
+
+    <div class="pop-sample-wrap">
+      <div class="ps-box pop">
+        <h4>Tổng thể (Population)</h4>
+        <div class="ps-stat">N = <strong id="stat-N">60</strong> đơn vị</div>
+        <div class="ps-stat">µ (trung bình thật) = <strong id="stat-mu">—</strong></div>
+        <div class="ps-dots" id="pop-dots"></div>
+      </div>
+      <div class="ps-box smp">
+        <h4>Mẫu (Sample)</h4>
+        <div class="ps-stat">n = <strong id="stat-n">15</strong> đơn vị</div>
+        <div class="ps-stat">x̄ (ước lượng) = <strong id="stat-xbar">—</strong></div>
+        <div class="ps-dots" id="smp-dots"></div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>Quan sát:</strong> Mỗi lần lấy mẫu khác nhau → x̄ khác nhau, nhưng đều xoay quanh µ thật. Khi n lớn hơn, x̄ ổn định hơn và gần µ hơn.
+    </div>
+  </section>
+
+  <!-- Module 2: NOIR Scale Explorer -->
+  <section class="module">
+    <h2>Module 2: Bốn thang đo NOIR — click để khám phá</h2>
+    <p>Nhấn vào từng thẻ để xem định nghĩa, ví dụ và phép tính nào được phép.</p>
+
+    <div class="noir-scale">
+      <div class="noir-card n-card" onclick="selectNoir('N')" id="noir-N">
+        <div class="letter">N</div>
+        <div class="name">Nominal</div>
+        <div class="tagline">Nhãn thuần túy</div>
+      </div>
+      <div class="noir-card o-card" onclick="selectNoir('O')" id="noir-O">
+        <div class="letter">O</div>
+        <div class="name">Ordinal</div>
+        <div class="tagline">Có thứ bậc</div>
+      </div>
+      <div class="noir-card i-card" onclick="selectNoir('I')" id="noir-I">
+        <div class="letter">I</div>
+        <div class="name">Interval</div>
+        <div class="tagline">Khoảng cách đều</div>
+      </div>
+      <div class="noir-card r-card" onclick="selectNoir('R')" id="noir-R">
+        <div class="letter">R</div>
+        <div class="name">Ratio</div>
+        <div class="tagline">Zero tuyệt đối</div>
+      </div>
+    </div>
+
+    <div class="detail-panel" id="detail-N">
+      <strong>Nominal — Danh nghĩa</strong>
+      <p style="margin:8px 0 4px">Giá trị là nhãn phân loại, không có thứ bậc hay khoảng cách.</p>
+      <table>
+        <tr><th>Ví dụ</th><th>Phép tính được phép</th></tr>
+        <tr><td>Nhóm máu: A / B / O / AB</td><td rowspan="4">Mode, tần số, tỉ lệ %, bar chart, pie chart, chi-square</td></tr>
+        <tr><td>Quốc tịch, màu sắc, ngành học</td></tr>
+        <tr><td>Loại xe: sedan / SUV / truck</td></tr>
+        <tr><td>Kết quả xét nghiệm: dương/âm</td></tr>
+      </table>
+      <div class="warn-box">Không được: mean (trung bình nhóm máu?), so sánh lớn/nhỏ giữa nhãn.</div>
+    </div>
+
+    <div class="detail-panel" id="detail-O">
+      <strong>Ordinal — Thứ bậc</strong>
+      <p style="margin:8px 0 4px">Có thứ tự tự nhiên, nhưng khoảng cách giữa các bậc không nhất thiết đều nhau.</p>
+      <table>
+        <tr><th>Ví dụ</th><th>Phép tính được phép</th></tr>
+        <tr><td>Đánh giá sản phẩm: 1★–5★</td><td rowspan="4">Mode, median, percentile, IQR (rank-based), Spearman ρ</td></tr>
+        <tr><td>Trình độ: THCS/THPT/ĐH/Thạc sĩ</td></tr>
+        <tr><td>Mức đau: 1–10</td></tr>
+        <tr><td>Xếp hạng thi đấu: 1st/2nd/3rd</td></tr>
+      </table>
+      <div class="warn-box">Hạn chế: mean không chính xác về mặt lý thuyết (dù thực tế nhiều người dùng với thang Likert ≥ 5 điểm).</div>
+    </div>
+
+    <div class="detail-panel" id="detail-I">
+      <strong>Interval — Khoảng</strong>
+      <p style="margin:8px 0 4px">Khoảng cách giữa các giá trị có nghĩa và đều nhau. Nhưng điểm 0 là quy ước — không phải "không có gì".</p>
+      <table>
+        <tr><th>Ví dụ</th><th>Phép tính được phép</th></tr>
+        <tr><td>Nhiệt độ °C (0°C ≠ không có nhiệt)</td><td rowspan="4">Cộng, trừ, mean, SD, Pearson r</td></tr>
+        <tr><td>Năm dương lịch (năm 0 là quy ước)</td></tr>
+        <tr><td>Điểm IQ (100 = trung bình, quy ước)</td></tr>
+        <tr><td>Nhiệt độ Fahrenheit</td></tr>
+      </table>
+      <div class="warn-box">Không được: tỉ số (×, ÷). "30°C nóng gấp đôi 15°C" là SAI. Dùng Kelvin mới đúng.</div>
+    </div>
+
+    <div class="detail-panel" id="detail-R">
+      <strong>Ratio — Tỉ lệ</strong>
+      <p style="margin:8px 0 4px">Đầy đủ nhất: có zero tuyệt đối (0 = không có gì), mọi phép tính hợp lệ.</p>
+      <table>
+        <tr><th>Ví dụ</th><th>Phép tính được phép</th></tr>
+        <tr><td>Chiều cao, cân nặng, thu nhập</td><td rowspan="4">Tất cả: +, −, ×, ÷, mean, SD, CV (SD/mean), Pearson r, regression</td></tr>
+        <tr><td>Số lần click, số con cái</td></tr>
+        <tr><td>Thời gian (giây, phút, năm)</td></tr>
+        <tr><td>Nồng độ (mg/dL), tốc độ (km/h)</td></tr>
+      </table>
+      <div class="info-box">Chỉ Ratio mới tính CV = SD/mean có nghĩa. "Lương tháng này gấp 1.5× tháng trước" chỉ đúng khi dùng thang Ratio.</div>
+    </div>
+
+    <!-- Operations summary table -->
+    <h3 style="margin-top:20px">Tóm tắt phép tính hợp lệ</h3>
+    <table class="ops-table">
+      <thead>
+        <tr>
+          <th>Thang đo</th>
+          <th>Mode</th>
+          <th>Median</th>
+          <th>Mean</th>
+          <th>SD</th>
+          <th>Ratio (×÷)</th>
+          <th>CV</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Nominal</td><td class="ops-ok">✓</td><td class="ops-no">—</td><td class="ops-no">—</td><td class="ops-no">—</td><td class="ops-no">—</td><td class="ops-no">—</td></tr>
+        <tr><td>Ordinal</td><td class="ops-ok">✓</td><td class="ops-ok">✓</td><td class="ops-no">—</td><td class="ops-no">—</td><td class="ops-no">—</td><td class="ops-no">—</td></tr>
+        <tr><td>Interval</td><td class="ops-ok">✓</td><td class="ops-ok">✓</td><td class="ops-ok">✓</td><td class="ops-ok">✓</td><td class="ops-no">—</td><td class="ops-no">—</td></tr>
+        <tr><td>Ratio</td><td class="ops-ok">✓</td><td class="ops-ok">✓</td><td class="ops-ok">✓</td><td class="ops-ok">✓</td><td class="ops-ok">✓</td><td class="ops-ok">✓</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Module 3: Variable Classification Quiz -->
+  <section class="module">
+    <h2>Module 3: Bài tập phân loại biến — tự kiểm tra</h2>
+    <p>Với mỗi biến bên dưới, chọn thang đo NOIR đúng. Bạn có <span id="quiz-lives">3</span> lần bỏ qua.</p>
+
+    <div id="quiz-container">
+      <div id="quiz-question" style="font-size:16px; font-weight:700; margin-bottom:10px"></div>
+      <div id="quiz-context" style="font-size:13px; color:#6b7280; margin-bottom:10px"></div>
+      <div class="scale-choices" id="quiz-choices"></div>
+      <div id="quiz-feedback"></div>
+      <div id="quiz-explain" style="font-size:13px; color:#374151; margin-top:6px; display:none"></div>
+    </div>
+    <div id="quiz-score"></div>
+    <button id="quiz-next-btn" onclick="nextQuestion()" style="display:none; margin-top:10px; background:#7c3aed; color:white; border:none; padding:8px 18px; border-radius:6px; cursor:pointer; font-weight:600;">Câu tiếp theo →</button>
+    <button id="quiz-restart-btn" onclick="restartQuiz()" style="display:none; margin-top:10px; background:#059669; color:white; border:none; padding:8px 18px; border-radius:6px; cursor:pointer; font-weight:600;">Làm lại từ đầu</button>
+  </section>
+
+  <!-- Module 4: Categorical vs Numerical sorter -->
+  <section class="module">
+    <h2>Module 4: Phân loại nhanh — kéo vào đúng nhóm</h2>
+    <p>Nhấn vào biến, chọn nhóm đúng: <strong>Categorical</strong> hay <strong>Numerical</strong>.</p>
+
+    <div id="sort-container" style="margin-top:12px">
+      <div id="sort-items" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px"></div>
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <div id="bucket-cat" style="flex:1; min-width:140px; border:2px dashed #f59e0b; border-radius:10px; padding:14px; min-height:80px; background:#fffbeb;">
+          <div style="font-weight:700; color:#92400e; margin-bottom:8px">Categorical</div>
+          <div id="dropped-cat" style="display:flex; flex-wrap:wrap; gap:6px; min-height:30px"></div>
+        </div>
+        <div id="bucket-num" style="flex:1; min-width:140px; border:2px dashed #3b82f6; border-radius:10px; padding:14px; min-height:80px; background:#eff6ff;">
+          <div style="font-weight:700; color:#1e40af; margin-bottom:8px">Numerical</div>
+          <div id="dropped-num" style="display:flex; flex-wrap:wrap; gap:6px; min-height:30px"></div>
+        </div>
+      </div>
+      <button onclick="checkSorter()" style="margin-top:12px; background:#7c3aed; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600;">Kiểm tra kết quả</button>
+      <button onclick="resetSorter()" style="margin-top:12px; margin-left:8px; background:#6b7280; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600;">Reset</button>
+      <div id="sort-result" style="margin-top:10px; font-weight:600; font-size:14px"></div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// ============================================================
+// Module 1: Population vs Sample
+// ============================================================
+let popValues = [];
+
+const nPopSlider = document.getElementById('n-pop');
+const nSmpSlider = document.getElementById('n-smp');
+const nPopVal = document.getElementById('n-pop-val');
+const nSmpVal = document.getElementById('n-smp-val');
+
+function initPopulation() {
+  const N = parseInt(nPopSlider.value);
+  popValues = Array.from({length: N}, () => Math.round(50 + (Math.random() - 0.5) * 40));
+  const mu = (popValues.reduce((a,b) => a+b, 0) / N).toFixed(2);
+  document.getElementById('stat-N').textContent = N;
+  document.getElementById('stat-mu').textContent = mu;
+  document.getElementById('stat-n').textContent = nSmpSlider.value;
+  document.getElementById('stat-xbar').textContent = '—';
+
+  const popDots = document.getElementById('pop-dots');
+  popDots.innerHTML = '';
+  popValues.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.id = 'dot-' + i;
+    popDots.appendChild(d);
+  });
+  document.getElementById('smp-dots').innerHTML = '';
+}
+
+function drawSample() {
+  const n = parseInt(nSmpSlider.value);
+  const N = popValues.length;
+  // reset all dots
+  for (let i = 0; i < N; i++) {
+    const d = document.getElementById('dot-' + i);
+    if (d) d.className = 'dot';
+  }
+  // random sample without replacement
+  const indices = [];
+  const pool = Array.from({length: N}, (_, i) => i);
+  for (let i = 0; i < n; i++) {
+    const idx = Math.floor(Math.random() * pool.length);
+    indices.push(pool.splice(idx, 1)[0]);
+  }
+  indices.forEach(i => {
+    const d = document.getElementById('dot-' + i);
+    if (d) d.className = 'dot in-sample';
+  });
+
+  const smpVals = indices.map(i => popValues[i]);
+  const xbar = (smpVals.reduce((a,b) => a+b, 0) / n).toFixed(2);
+  document.getElementById('stat-xbar').textContent = xbar;
+
+  const smpDots = document.getElementById('smp-dots');
+  smpDots.innerHTML = '';
+  indices.forEach(() => {
+    const d = document.createElement('div');
+    d.className = 'dot selected';
+    smpDots.appendChild(d);
+  });
+}
+
+nPopSlider.addEventListener('input', () => {
+  nPopVal.textContent = nPopSlider.value;
+  // cap sample size
+  if (parseInt(nSmpSlider.value) > Math.floor(parseInt(nPopSlider.value) * 0.8)) {
+    nSmpSlider.value = Math.floor(parseInt(nPopSlider.value) * 0.5);
+    nSmpVal.textContent = nSmpSlider.value;
+  }
+  initPopulation();
+});
+nSmpSlider.addEventListener('input', () => {
+  nSmpVal.textContent = nSmpSlider.value;
+  document.getElementById('stat-n').textContent = nSmpSlider.value;
+});
+
+initPopulation();
+
+// ============================================================
+// Module 2: NOIR Explorer
+// ============================================================
+let activeNoir = null;
+function selectNoir(letter) {
+  ['N','O','I','R'].forEach(l => {
+    document.getElementById('noir-' + l).classList.remove('active');
+    document.getElementById('detail-' + l).classList.remove('visible');
+  });
+  if (activeNoir === letter) {
+    activeNoir = null;
+    return;
+  }
+  activeNoir = letter;
+  document.getElementById('noir-' + letter).classList.add('active');
+  document.getElementById('detail-' + letter).classList.add('visible');
+}
+
+// ============================================================
+// Module 3: Quiz
+// ============================================================
+const quizData = [
+  { q: "Nhóm máu bệnh nhân", ctx: "Giá trị: A, B, O, AB", ans: "N", explain: "Nominal — chỉ là nhãn phân loại, không có thứ bậc. 'A lớn hơn O' vô nghĩa." },
+  { q: "Mức độ hài lòng dịch vụ", ctx: "Giá trị: Rất tệ / Tệ / Trung bình / Tốt / Rất tốt", ans: "O", explain: "Ordinal — có thứ tự rõ ràng, nhưng khoảng cách từ 'Tệ' lên 'Trung bình' không bằng từ 'Tốt' lên 'Rất tốt'." },
+  { q: "Nhiệt độ phòng (°C)", ctx: "Giá trị: 20.5, 24.0, 37.0", ans: "I", explain: "Interval — khoảng cách đều có nghĩa (5°C luôn là 5°C), nhưng 0°C không phải không có nhiệt lượng." },
+  { q: "Số lần khách hàng mua hàng", ctx: "Giá trị: 0, 1, 3, 12, 47", ans: "R", explain: "Ratio — 0 lần = chưa bao giờ mua; 12 lần thực sự gấp đôi 6 lần." },
+  { q: "Loại hình kinh doanh", ctx: "Giá trị: Bán lẻ / Sản xuất / Dịch vụ / Công nghệ", ans: "N", explain: "Nominal — các loại hình này không có thứ bậc tự nhiên." },
+  { q: "Trình độ học vấn", ctx: "Giá trị: Tiểu học / THCS / THPT / Đại học / Sau đại học", ans: "O", explain: "Ordinal — có thứ tự rõ ràng (cao hơn = học nhiều hơn), nhưng khoảng cách giữa các bậc không đồng đều về kiến thức." },
+  { q: "Điểm IQ", ctx: "Giá trị: 85, 100, 115, 130 (trung bình = 100, SD = 15)", ans: "I", explain: "Interval — IQ 0 không có nghĩa là 'không có trí tuệ'; 0 là điểm quy ước. Không thể nói 'IQ 130 thông minh gấp đôi IQ 65'." },
+  { q: "Chiều cao học sinh (cm)", ctx: "Giá trị: 145.2, 162.8, 175.0", ans: "R", explain: "Ratio — 0 cm = không có chiều cao (zero tuyệt đối); 180 cm thực sự gấp đôi 90 cm." },
+  { q: "Mã số khách hàng", ctx: "Giá trị: KH001, KH002, KH003, ...", ans: "N", explain: "Nominal — đây chỉ là mã định danh. Dù trông như số, 'KH003 lớn hơn KH001' vô nghĩa." },
+  { q: "Thứ hạng học sinh trong lớp", ctx: "Giá trị: 1st, 2nd, 3rd, ..., 40th", ans: "O", explain: "Ordinal — có thứ bậc, nhưng khoảng cách từ hạng 1 lên 2 không bằng từ hạng 20 lên 21 về điểm số thực." },
+];
+
+let quizOrder = [];
+let quizIdx = 0;
+let quizCorrect = 0;
+let quizTotal = 0;
+let answered = false;
+
+function shuffleArr(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function restartQuiz() {
+  quizOrder = shuffleArr([...Array(quizData.length).keys()]);
+  quizIdx = 0; quizCorrect = 0; quizTotal = 0; answered = false;
+  document.getElementById('quiz-restart-btn').style.display = 'none';
+  document.getElementById('quiz-score').textContent = '';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  if (quizIdx >= quizOrder.length) {
+    document.getElementById('quiz-question').textContent = 'Hoàn thành!';
+    document.getElementById('quiz-context').textContent = '';
+    document.getElementById('quiz-choices').innerHTML = '';
+    document.getElementById('quiz-feedback').textContent = '';
+    document.getElementById('quiz-explain').style.display = 'none';
+    document.getElementById('quiz-next-btn').style.display = 'none';
+    document.getElementById('quiz-restart-btn').style.display = 'inline-block';
+    document.getElementById('quiz-score').textContent = `Kết quả: ${quizCorrect}/${quizData.length} câu đúng (${Math.round(quizCorrect/quizData.length*100)}%)`;
+    return;
+  }
+  answered = false;
+  const item = quizData[quizOrder[quizIdx]];
+  document.getElementById('quiz-question').textContent = `Câu ${quizIdx+1}/${quizData.length}: "${item.q}"`;
+  document.getElementById('quiz-context').textContent = item.ctx;
+  document.getElementById('quiz-feedback').textContent = '';
+  document.getElementById('quiz-explain').style.display = 'none';
+  document.getElementById('quiz-next-btn').style.display = 'none';
+
+  const choices = document.getElementById('quiz-choices');
+  choices.innerHTML = '';
+  ['N', 'O', 'I', 'R'].forEach(letter => {
+    const btn = document.createElement('button');
+    btn.className = 'scale-btn';
+    const labels = {N: 'Nominal', O: 'Ordinal', I: 'Interval', R: 'Ratio'};
+    btn.textContent = labels[letter];
+    btn.onclick = () => answerQuiz(letter, btn);
+    choices.appendChild(btn);
+  });
+}
+
+function answerQuiz(letter, btn) {
+  if (answered) return;
+  answered = true;
+  quizTotal++;
+  const item = quizData[quizOrder[quizIdx]];
+  const feedback = document.getElementById('quiz-feedback');
+  const explain = document.getElementById('quiz-explain');
+
+  if (letter === item.ans) {
+    btn.classList.add('correct');
+    feedback.textContent = '✓ Đúng!';
+    feedback.style.color = '#059669';
+    quizCorrect++;
+  } else {
+    btn.classList.add('wrong');
+    feedback.textContent = `✗ Chưa đúng. Đáp án: ${item.ans === 'N' ? 'Nominal' : item.ans === 'O' ? 'Ordinal' : item.ans === 'I' ? 'Interval' : 'Ratio'}`;
+    feedback.style.color = '#dc2626';
+    // highlight correct
+    document.querySelectorAll('.scale-btn').forEach(b => {
+      const labels = {N: 'Nominal', O: 'Ordinal', I: 'Interval', R: 'Ratio'};
+      if (b.textContent === labels[item.ans]) b.classList.add('correct');
+    });
+  }
+
+  explain.textContent = item.explain;
+  explain.style.display = 'block';
+  document.getElementById('quiz-next-btn').style.display = 'inline-block';
+}
+
+function nextQuestion() {
+  quizIdx++;
+  renderQuestion();
+}
+
+restartQuiz();
+
+// ============================================================
+// Module 4: Sorter
+// ============================================================
+const sortItems = [
+  {label: 'Màu tóc', cat: 'C'},
+  {label: 'Thu nhập (VND)', cat: 'N'},
+  {label: 'Hạng tốt nghiệp', cat: 'C'},
+  {label: 'Số bước chân/ngày', cat: 'N'},
+  {label: 'Quốc tịch', cat: 'C'},
+  {label: 'Chiều cao (cm)', cat: 'N'},
+  {label: 'Loại xe', cat: 'C'},
+  {label: 'Điểm thi (0–10)', cat: 'N'},
+  {label: 'Tôn giáo', cat: 'C'},
+  {label: 'Tuổi (năm)', cat: 'N'},
+];
+let sortState = {};
+
+function resetSorter() {
+  sortState = {};
+  const items = document.getElementById('sort-items');
+  items.innerHTML = '';
+  document.getElementById('dropped-cat').innerHTML = '';
+  document.getElementById('dropped-num').innerHTML = '';
+  document.getElementById('sort-result').textContent = '';
+
+  sortItems.forEach((item, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'var-chip';
+    chip.textContent = item.label;
+    chip.id = 'si-' + i;
+    chip.onclick = () => selectSortItem(i);
+    items.appendChild(chip);
+  });
+}
+
+let selectedSortIdx = null;
+
+function selectSortItem(i) {
+  if (sortState[i] !== undefined) return; // already sorted
+  selectedSortIdx = i;
+  document.querySelectorAll('.var-chip').forEach(c => c.classList.remove('selected'));
+  const el = document.getElementById('si-' + i);
+  if (el) el.classList.add('selected');
+}
+
+// Allow clicking buckets to assign
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('bucket-cat').addEventListener('click', () => dropInto('C'));
+  document.getElementById('bucket-num').addEventListener('click', () => dropInto('N'));
+});
+
+function dropInto(type) {
+  if (selectedSortIdx === null) return;
+  const i = selectedSortIdx;
+  if (sortState[i] !== undefined) return;
+  sortState[i] = type;
+
+  const origEl = document.getElementById('si-' + i);
+  if (origEl) origEl.style.display = 'none';
+
+  const chip = document.createElement('div');
+  chip.className = 'var-chip';
+  chip.textContent = sortItems[i].label;
+  chip.style.cursor = 'default';
+  chip.style.fontSize = '13px';
+  chip.style.padding = '5px 10px';
+  if (type === 'C') {
+    document.getElementById('dropped-cat').appendChild(chip);
+  } else {
+    document.getElementById('dropped-num').appendChild(chip);
+  }
+  selectedSortIdx = null;
+}
+
+function checkSorter() {
+  let correct = 0, total = 0;
+  sortItems.forEach((item, i) => {
+    if (sortState[i] !== undefined) {
+      total++;
+      if (sortState[i] === item.cat) correct++;
+    }
+  });
+  const result = document.getElementById('sort-result');
+  if (total < sortItems.length) {
+    result.style.color = '#f59e0b';
+    result.textContent = `Bạn mới sắp xếp ${total}/${sortItems.length} biến. Hãy sắp xếp hết trước.`;
+  } else if (correct === total) {
+    result.style.color = '#059669';
+    result.textContent = `Hoàn hảo! ${correct}/${total} đúng tất cả.`;
+  } else {
+    result.style.color = '#dc2626';
+    result.textContent = `${correct}/${total} đúng. Gợi ý: Hạng tốt nghiệp là Categorical (Ordinal). Điểm thi (0–10) là Numerical.`;
+  }
+}
+
+resetSorter();
+
+// Wire bucket click after DOM is ready
+window.addEventListener('load', () => {
+  document.getElementById('bucket-cat').addEventListener('click', (e) => {
+    if (e.target.id === 'bucket-cat' || e.target.parentElement.id === 'bucket-cat') dropInto('C');
+  });
+  document.getElementById('bucket-num').addEventListener('click', (e) => {
+    if (e.target.id === 'bucket-num' || e.target.parentElement.id === 'bucket-num') dropInto('N');
+  });
+});
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

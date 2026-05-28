@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04: Trực quan hoá phân phối — Statistics</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f7f9fc;
+    --accent: #7c3aed;
+    --accent-soft: #ede9fe;
+    --accent-hover: #6d28d9;
+  }
+  h1 { color: #4c1d95; }
+  h2 { color: #5b21b6; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #ddd6fe; }
+  h3 { color: #6d28d9; margin-top: 18px; }
+  .module { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+  .lead { font-size: 1.05rem; color: #4b5563; margin-bottom: 24px; line-height: 1.7; }
+  .btn { background: var(--accent); color: white; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
+  .btn:hover { background: var(--accent-hover); }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-gray { background: #6b7280; }
+  .btn-gray:hover { background: #4b5563; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .btn.active { background: #4c1d95; box-shadow: 0 0 0 3px rgba(124,58,237,0.25); }
+
+  .slider-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 10px 0; }
+  .slider-row input[type="range"] { flex: 1; min-width: 120px; }
+  .slider-row label { font-size: 13px; min-width: 110px; font-weight: 600; color: #4c1d95; }
+  .slider-row .v { font-family: monospace; min-width: 50px; font-weight: 700; color: #7c3aed; }
+
+  svg.chart { display: block; max-width: 100%; height: auto; background: #faf9ff; border: 1px solid #e9d5ff; border-radius: 8px; }
+
+  .info-box { background: #ede9fe; border-left: 4px solid #7c3aed; padding: 10px 14px; border-radius: 0 6px 6px 0; font-size: 13px; margin: 10px 0; }
+  .warn-box { background: #fff7ed; border-left: 4px solid #f59e0b; padding: 10px 14px; border-radius: 0 6px 6px 0; font-size: 13px; margin: 10px 0; }
+  .info-box code, .warn-box code { background: rgba(255,255,255,0.6); padding: 1px 5px; border-radius: 3px; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin: 14px 0; }
+  .stat-card { background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 8px; padding: 10px; text-align: center; }
+  .stat-card .lbl { font-size: 11px; font-weight: 700; color: #7c3aed; text-transform: uppercase; }
+  .stat-card .val { font-size: 18px; font-weight: 800; color: #4c1d95; font-family: monospace; margin-top: 4px; }
+
+  table.cmp { width: 100%; border-collapse: collapse; font-size: 13px; margin: 10px 0; }
+  table.cmp th, table.cmp td { border: 1px solid #e5e7eb; padding: 7px 10px; text-align: left; }
+  table.cmp th { background: #f5f3ff; font-weight: 700; color: #5b21b6; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-dispersion/visualization.html">← L03: Phân tán</a>
+  <span class="sep">·</span>
+  <span class="current">L04: Trực quan hoá phân phối</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-bivariate-correlation/visualization.html">L05: Tương quan →</a>
+</nav>
+
+<main>
+  <h1>Lesson 04: Trực quan hoá phân phối</h1>
+  <p class="lead">Histogram, boxplot, violin, Q-Q plot, ECDF — chọn chart đúng cho mục đích. Cùng dataset, xem qua 4 biểu đồ khác nhau.</p>
+
+  <!-- Module 1: Histogram with bin slider -->
+  <section class="module">
+    <h2>Module 1: Histogram — thay đổi bin width</h2>
+    <p>Chọn phân phối, kích cỡ mẫu, rồi kéo slider bin width. Quá ít bin → mất chi tiết. Quá nhiều → nhiễu.</p>
+    <div class="btn-row">
+      <button class="btn btn-sm dist-btn active" data-dist="normal">Normal</button>
+      <button class="btn btn-sm dist-btn" data-dist="rskew">Skew phải</button>
+      <button class="btn btn-sm dist-btn" data-dist="lskew">Skew trái</button>
+      <button class="btn btn-sm dist-btn" data-dist="bimodal">Bimodal</button>
+      <button class="btn btn-sm dist-btn" data-dist="uniform">Uniform</button>
+      <button class="btn btn-sm btn-gray" onclick="resampleData()">🎲 Lấy mẫu mới</button>
+    </div>
+    <div class="slider-row">
+      <label>Cỡ mẫu n:</label>
+      <input type="range" id="sample-n" min="30" max="500" value="200" step="10">
+      <span class="v" id="sample-n-v">200</span>
+    </div>
+    <div class="slider-row">
+      <label>Số bin:</label>
+      <input type="range" id="num-bins" min="3" max="60" value="15" step="1">
+      <span class="v" id="num-bins-v">15</span>
+    </div>
+    <svg id="hist-svg" class="chart" width="720" height="320" viewBox="0 0 720 320"></svg>
+    <div class="info-box" id="bin-rules">
+      Quy tắc gợi ý sẽ hiển thị ở đây.
+    </div>
+  </section>
+
+  <!-- Module 2: Boxplot dissection -->
+  <section class="module">
+    <h2>Module 2: Boxplot — Q1, Q3, IQR, outlier 1.5×IQR</h2>
+    <p>Cùng dataset của Module 1. Xem 5-number summary và quy tắc whisker 1.5×IQR.</p>
+    <svg id="box-svg" class="chart" width="720" height="200" viewBox="0 0 720 200"></svg>
+    <div class="stats-grid" id="box-stats"></div>
+    <div class="info-box" id="box-info"></div>
+  </section>
+
+  <!-- Module 3: Q-Q plot -->
+  <section class="module">
+    <h2>Module 3: Q-Q plot — dữ liệu có Normal không?</h2>
+    <p>Q-Q plot vẽ <strong>quantile mẫu</strong> chống lại <strong>quantile lý thuyết Normal</strong>. Nếu dữ liệu Normal → các điểm nằm trên đường thẳng y=x. Nếu lệch → cong.</p>
+    <svg id="qq-svg" class="chart" width="500" height="380" viewBox="0 0 500 380"></svg>
+    <div class="info-box" id="qq-info"></div>
+  </section>
+
+  <!-- Module 4: ECDF -->
+  <section class="module">
+    <h2>Module 4: ECDF — hàm phân phối tích lũy thực nghiệm</h2>
+    <p>ECDF không cần chọn bin. Mỗi điểm dữ liệu tạo bậc thang nhảy 1/n. Đọc: F(x) = "tỉ lệ điểm ≤ x".</p>
+    <svg id="ecdf-svg" class="chart" width="720" height="280" viewBox="0 0 720 280"></svg>
+    <div class="slider-row">
+      <label>Đọc tại x =</label>
+      <input type="range" id="ecdf-x" min="-4" max="14" value="5" step="0.1">
+      <span class="v" id="ecdf-x-v">5.0</span>
+    </div>
+    <div class="info-box" id="ecdf-info"></div>
+  </section>
+
+  <!-- Module 5: Comparison table -->
+  <section class="module">
+    <h2>Module 5: Chọn chart nào khi nào?</h2>
+    <table class="cmp">
+      <tr><th>Chart</th><th>Mạnh ở</th><th>Yếu ở</th><th>Khi dùng</th></tr>
+      <tr><td><strong>Histogram</strong></td><td>Thấy hình dạng phân phối, mode, modes, skew</td><td>Nhạy với bin width; xấu khi n nhỏ</td><td>1 biến, n ≥ 50, EDA đầu tiên</td></tr>
+      <tr><td><strong>Boxplot</strong></td><td>So sánh nhiều nhóm; outlier nổi bật</td><td>Giấu bimodal; không thấy hình dạng chi tiết</td><td>So sánh ≥ 2 nhóm trên cùng axis</td></tr>
+      <tr><td><strong>Violin</strong></td><td>Histogram + boxplot kết hợp; thấy bimodal</td><td>Cần đọc người xem; bias khi n nhỏ</td><td>So sánh nhóm khi nghi ngờ bimodal</td></tr>
+      <tr><td><strong>Q-Q plot</strong></td><td>Kiểm tra Normal qua mắt; nhạy với đuôi</td><td>Chỉ cho 1 biến vs phân phối lý thuyết</td><td>Kiểm tra giả định Normal trước test parametric</td></tr>
+      <tr><td><strong>ECDF</strong></td><td>Không cần bin; chính xác mọi quantile</td><td>Khó đọc với người không quen</td><td>So sánh chính xác 2 phân phối; tính median/quantile</td></tr>
+    </table>
+  </section>
+</main>
+
+<script>
+// ===== Data generation =====
+let currentDist = 'normal';
+let data = [];
+
+function randNormal(mu=0, sigma=1) {
+  // Box-Muller
+  let u=0, v=0;
+  while (u===0) u = Math.random();
+  while (v===0) v = Math.random();
+  return mu + sigma * Math.sqrt(-2 * Math.log(u)) * Math.cos(2*Math.PI*v);
+}
+
+function generate(dist, n) {
+  const arr = [];
+  for (let i=0;i<n;i++) {
+    let x;
+    switch(dist) {
+      case 'normal': x = randNormal(5, 1.5); break;
+      case 'rskew': x = Math.exp(randNormal(1.2, 0.5)); break;
+      case 'lskew': x = 10 - Math.exp(randNormal(1.2, 0.5)); break;
+      case 'bimodal':
+        x = Math.random() < 0.5 ? randNormal(3, 0.8) : randNormal(8, 0.8); break;
+      case 'uniform': x = 1 + 8 * Math.random(); break;
+      default: x = randNormal(5, 1.5);
+    }
+    arr.push(x);
+  }
+  return arr;
+}
+
+function resampleData() {
+  const n = +document.getElementById('sample-n').value;
+  data = generate(currentDist, n);
+  renderAll();
+}
+
+// ===== Stats =====
+function quantile(sorted, q) {
+  const pos = q * (sorted.length - 1);
+  const lo = Math.floor(pos), hi = Math.ceil(pos);
+  if (lo === hi) return sorted[lo];
+  return sorted[lo] + (pos - lo) * (sorted[hi] - sorted[lo]);
+}
+
+function mean(arr) { return arr.reduce((s,x)=>s+x,0)/arr.length; }
+function sd(arr) {
+  const m = mean(arr);
+  return Math.sqrt(arr.reduce((s,x)=>s+(x-m)**2,0)/(arr.length-1));
+}
+
+// Normal CDF approximation (Abramowitz-Stegun)
+function normalCDF(z) {
+  const t = 1/(1 + 0.2316419*Math.abs(z));
+  const d = 0.3989423*Math.exp(-z*z/2);
+  let p = d*t*(0.3193815 + t*(-0.3565638 + t*(1.781478 + t*(-1.821256 + t*1.330274))));
+  return z > 0 ? 1-p : p;
+}
+
+function normalInverseCDF(p) {
+  // Beasley-Springer-Moro
+  if (p < 0.5) return -normalInverseCDF(1-p);
+  const t = Math.sqrt(-2*Math.log(1-p));
+  const c0=2.515517, c1=0.802853, c2=0.010328;
+  const d1=1.432788, d2=0.189269, d3=0.001308;
+  return t - (c0+c1*t+c2*t*t)/(1+d1*t+d2*t*t+d3*t*t*t);
+}
+
+// ===== Histogram =====
+function renderHist() {
+  const svg = document.getElementById('hist-svg');
+  const W=720, H=320, pad={l:50, r:20, t:20, b:40};
+  const k = +document.getElementById('num-bins').value;
+  const n = data.length;
+  const minD = Math.min(...data), maxD = Math.max(...data);
+  const range = maxD - minD || 1;
+  const binW = range/k;
+  const bins = new Array(k).fill(0);
+  for (const x of data) {
+    let i = Math.floor((x-minD)/binW);
+    if (i >= k) i = k-1;
+    bins[i]++;
+  }
+  const maxC = Math.max(...bins);
+
+  // Sturges / FD recommendations
+  const sturges = Math.ceil(Math.log2(n)) + 1;
+  const sd_ = sd(data);
+  const sorted = [...data].sort((a,b)=>a-b);
+  const iqr = quantile(sorted, 0.75) - quantile(sorted, 0.25);
+  const fdWidth = 2*iqr*Math.pow(n,-1/3);
+  const fdK = Math.max(2, Math.round(range/fdWidth));
+  const scottWidth = 3.49*sd_*Math.pow(n,-1/3);
+  const scottK = Math.max(2, Math.round(range/scottWidth));
+
+  let html = '';
+  // axes
+  html += `<line x1="${pad.l}" y1="${H-pad.b}" x2="${W-pad.r}" y2="${H-pad.b}" stroke="#374151"/>`;
+  html += `<line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${H-pad.b}" stroke="#374151"/>`;
+  // bars
+  const innerW = W-pad.l-pad.r, innerH = H-pad.t-pad.b;
+  for (let i=0;i<k;i++) {
+    const x = pad.l + (i/k)*innerW;
+    const w = innerW/k - 1;
+    const h = (bins[i]/maxC)*innerH;
+    html += `<rect x="${x}" y="${H-pad.b-h}" width="${w}" height="${h}" fill="#7c3aed" opacity="0.8"/>`;
+  }
+  // x-axis labels
+  for (let i=0;i<=5;i++) {
+    const x = pad.l + (i/5)*innerW;
+    const v = minD + (i/5)*range;
+    html += `<text x="${x}" y="${H-pad.b+18}" text-anchor="middle" font-size="11" fill="#374151">${v.toFixed(1)}</text>`;
+  }
+  // y-axis labels
+  for (let i=0;i<=4;i++) {
+    const y = H-pad.b - (i/4)*innerH;
+    const v = Math.round((i/4)*maxC);
+    html += `<text x="${pad.l-6}" y="${y+4}" text-anchor="end" font-size="11" fill="#374151">${v}</text>`;
+  }
+  svg.innerHTML = html;
+
+  document.getElementById('bin-rules').innerHTML =
+    `<strong>Đang dùng: ${k} bin</strong> · ` +
+    `Sturges đề xuất: <code>${sturges}</code> · ` +
+    `Freedman-Diaconis: <code>${fdK}</code> · ` +
+    `Scott: <code>${scottK}</code>. ` +
+    `Bin width hiện tại: ${binW.toFixed(2)}, FD width: ${fdWidth.toFixed(2)}.`;
+}
+
+// ===== Boxplot =====
+function renderBox() {
+  const svg = document.getElementById('box-svg');
+  const W=720, H=200, pad={l:50, r:20, t:30, b:40};
+  const sorted = [...data].sort((a,b)=>a-b);
+  const min_=sorted[0], max_=sorted[sorted.length-1];
+  const Q1 = quantile(sorted, 0.25);
+  const Q2 = quantile(sorted, 0.5);
+  const Q3 = quantile(sorted, 0.75);
+  const iqr = Q3 - Q1;
+  const lowFence = Q1 - 1.5*iqr, hiFence = Q3 + 1.5*iqr;
+  const whiskerLo = Math.min(...sorted.filter(v => v >= lowFence));
+  const whiskerHi = Math.max(...sorted.filter(v => v <= hiFence));
+  const outliers = sorted.filter(v => v < lowFence || v > hiFence);
+
+  const innerW = W-pad.l-pad.r;
+  const scale = v => pad.l + ((v - min_)/(max_-min_||1))*innerW;
+  const yMid = pad.t + (H-pad.t-pad.b)/2;
+  const boxH = 60;
+
+  let html = '';
+  html += `<line x1="${pad.l}" y1="${H-pad.b}" x2="${W-pad.r}" y2="${H-pad.b}" stroke="#374151"/>`;
+  // whiskers
+  html += `<line x1="${scale(whiskerLo)}" y1="${yMid}" x2="${scale(Q1)}" y2="${yMid}" stroke="#374151"/>`;
+  html += `<line x1="${scale(Q3)}" y1="${yMid}" x2="${scale(whiskerHi)}" y2="${yMid}" stroke="#374151"/>`;
+  html += `<line x1="${scale(whiskerLo)}" y1="${yMid-15}" x2="${scale(whiskerLo)}" y2="${yMid+15}" stroke="#374151"/>`;
+  html += `<line x1="${scale(whiskerHi)}" y1="${yMid-15}" x2="${scale(whiskerHi)}" y2="${yMid+15}" stroke="#374151"/>`;
+  // box
+  html += `<rect x="${scale(Q1)}" y="${yMid-boxH/2}" width="${scale(Q3)-scale(Q1)}" height="${boxH}" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>`;
+  // median
+  html += `<line x1="${scale(Q2)}" y1="${yMid-boxH/2}" x2="${scale(Q2)}" y2="${yMid+boxH/2}" stroke="#4c1d95" stroke-width="3"/>`;
+  // outliers
+  for (const o of outliers) {
+    html += `<circle cx="${scale(o)}" cy="${yMid}" r="4" fill="#ef4444" opacity="0.7"/>`;
+  }
+  // labels
+  html += `<text x="${scale(Q1)}" y="${yMid-boxH/2-8}" text-anchor="middle" font-size="11" fill="#5b21b6">Q1=${Q1.toFixed(2)}</text>`;
+  html += `<text x="${scale(Q2)}" y="${yMid+boxH/2+18}" text-anchor="middle" font-size="11" fill="#4c1d95" font-weight="700">Med=${Q2.toFixed(2)}</text>`;
+  html += `<text x="${scale(Q3)}" y="${yMid-boxH/2-8}" text-anchor="middle" font-size="11" fill="#5b21b6">Q3=${Q3.toFixed(2)}</text>`;
+  for (let i=0;i<=5;i++) {
+    const v = min_ + (i/5)*(max_-min_);
+    html += `<text x="${scale(v)}" y="${H-pad.b+18}" text-anchor="middle" font-size="11" fill="#374151">${v.toFixed(1)}</text>`;
+  }
+  svg.innerHTML = html;
+
+  const stats = document.getElementById('box-stats');
+  stats.innerHTML = `
+    <div class="stat-card"><div class="lbl">Min</div><div class="val">${min_.toFixed(2)}</div></div>
+    <div class="stat-card"><div class="lbl">Q1</div><div class="val">${Q1.toFixed(2)}</div></div>
+    <div class="stat-card"><div class="lbl">Median</div><div class="val">${Q2.toFixed(2)}</div></div>
+    <div class="stat-card"><div class="lbl">Q3</div><div class="val">${Q3.toFixed(2)}</div></div>
+    <div class="stat-card"><div class="lbl">Max</div><div class="val">${max_.toFixed(2)}</div></div>
+    <div class="stat-card"><div class="lbl">IQR</div><div class="val">${iqr.toFixed(2)}</div></div>
+    <div class="stat-card"><div class="lbl">Outliers</div><div class="val">${outliers.length}</div></div>
+  `;
+  document.getElementById('box-info').innerHTML =
+    `Whisker dưới = ${whiskerLo.toFixed(2)} (giá trị nhỏ nhất ≥ Q1 − 1.5×IQR = ${lowFence.toFixed(2)}). ` +
+    `Whisker trên = ${whiskerHi.toFixed(2)} (giá trị lớn nhất ≤ Q3 + 1.5×IQR = ${hiFence.toFixed(2)}). ` +
+    `${outliers.length} điểm nằm ngoài → outlier (chấm đỏ).`;
+}
+
+// ===== Q-Q plot =====
+function renderQQ() {
+  const svg = document.getElementById('qq-svg');
+  const W=500, H=380, pad=40;
+  const sorted = [...data].sort((a,b)=>a-b);
+  const n = sorted.length;
+  const m = mean(sorted), s = sd(sorted);
+
+  // Theoretical quantiles (standardize) vs sample quantiles
+  const pts = [];
+  for (let i=0;i<n;i++) {
+    const p = (i+0.5)/n;
+    const zTheo = normalInverseCDF(p);
+    const zSample = (sorted[i] - m)/s;
+    pts.push([zTheo, zSample]);
+  }
+  const allZ = pts.flat();
+  const lo = Math.min(...allZ), hi = Math.max(...allZ);
+
+  const scaleX = v => pad + ((v-lo)/(hi-lo))*(W-2*pad);
+  const scaleY = v => H-pad - ((v-lo)/(hi-lo))*(H-2*pad);
+
+  let html = '';
+  // axes
+  html += `<line x1="${pad}" y1="${H-pad}" x2="${W-pad}" y2="${H-pad}" stroke="#374151"/>`;
+  html += `<line x1="${pad}" y1="${pad}" x2="${pad}" y2="${H-pad}" stroke="#374151"/>`;
+  // reference line y=x
+  html += `<line x1="${scaleX(lo)}" y1="${scaleY(lo)}" x2="${scaleX(hi)}" y2="${scaleY(hi)}" stroke="#10b981" stroke-width="2" stroke-dasharray="5,3"/>`;
+  // points
+  for (const [tx, ty] of pts) {
+    html += `<circle cx="${scaleX(tx)}" cy="${scaleY(ty)}" r="3" fill="#7c3aed" opacity="0.6"/>`;
+  }
+  // labels
+  html += `<text x="${W/2}" y="${H-8}" text-anchor="middle" font-size="12" fill="#374151" font-weight="600">Quantile lý thuyết (Normal)</text>`;
+  html += `<text x="15" y="${H/2}" text-anchor="middle" font-size="12" fill="#374151" font-weight="600" transform="rotate(-90 15 ${H/2})">Quantile mẫu (chuẩn hoá)</text>`;
+  svg.innerHTML = html;
+
+  // Heuristic assessment
+  // Compute correlation between sample & theoretical to gauge normality
+  const tx = pts.map(p=>p[0]), ty = pts.map(p=>p[1]);
+  const mtx = mean(tx), mty = mean(ty);
+  let num=0, dx=0, dy=0;
+  for (let i=0;i<pts.length;i++) {
+    num += (tx[i]-mtx)*(ty[i]-mty);
+    dx += (tx[i]-mtx)**2;
+    dy += (ty[i]-mty)**2;
+  }
+  const r = num/Math.sqrt(dx*dy);
+  let verdict;
+  if (r > 0.995) verdict = '✓ Rất gần Normal — điểm bám đường dashed.';
+  else if (r > 0.98) verdict = '~ Tương đối Normal, có thể có đuôi nhẹ.';
+  else verdict = '✗ KHÔNG Normal — điểm cong rời đường dashed (skewed hoặc bimodal).';
+  document.getElementById('qq-info').innerHTML =
+    `Hệ số tương quan Q-Q ≈ <code>${r.toFixed(4)}</code>. ${verdict}`;
+}
+
+// ===== ECDF =====
+function renderECDF() {
+  const svg = document.getElementById('ecdf-svg');
+  const W=720, H=280, pad={l:50, r:20, t:20, b:40};
+  const sorted = [...data].sort((a,b)=>a-b);
+  const n = sorted.length;
+  const minD = sorted[0], maxD = sorted[n-1];
+  const range = maxD - minD || 1;
+  const innerW = W-pad.l-pad.r, innerH = H-pad.t-pad.b;
+
+  const sx = v => pad.l + ((v-minD)/range)*innerW;
+  const sy = p => H-pad.b - p*innerH;
+
+  let html = '';
+  html += `<line x1="${pad.l}" y1="${H-pad.b}" x2="${W-pad.r}" y2="${H-pad.b}" stroke="#374151"/>`;
+  html += `<line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${H-pad.b}" stroke="#374151"/>`;
+
+  // ECDF steps
+  let path = `M ${sx(minD)} ${sy(0)}`;
+  for (let i=0;i<n;i++) {
+    const x = sx(sorted[i]);
+    const yPrev = sy(i/n);
+    const yNow = sy((i+1)/n);
+    path += ` L ${x} ${yPrev} L ${x} ${yNow}`;
+  }
+  path += ` L ${sx(maxD)} ${sy(1)}`;
+  html += `<path d="${path}" stroke="#7c3aed" stroke-width="2" fill="none"/>`;
+
+  // X label
+  for (let i=0;i<=5;i++) {
+    const v = minD + (i/5)*range;
+    html += `<text x="${sx(v)}" y="${H-pad.b+18}" text-anchor="middle" font-size="11" fill="#374151">${v.toFixed(1)}</text>`;
+  }
+  // Y labels (probability)
+  for (let i=0;i<=4;i++) {
+    const p = i/4;
+    html += `<text x="${pad.l-6}" y="${sy(p)+4}" text-anchor="end" font-size="11" fill="#374151">${p.toFixed(2)}</text>`;
+  }
+
+  // Vertical line at chosen x
+  const xq = +document.getElementById('ecdf-x').value;
+  const fx = sorted.filter(v => v <= xq).length / n;
+  const xPx = sx(Math.max(minD, Math.min(maxD, xq)));
+  html += `<line x1="${xPx}" y1="${pad.t}" x2="${xPx}" y2="${H-pad.b}" stroke="#ef4444" stroke-dasharray="4,3"/>`;
+  html += `<line x1="${pad.l}" y1="${sy(fx)}" x2="${xPx}" y2="${sy(fx)}" stroke="#ef4444" stroke-dasharray="4,3"/>`;
+  html += `<circle cx="${xPx}" cy="${sy(fx)}" r="5" fill="#ef4444"/>`;
+
+  svg.innerHTML = html;
+  document.getElementById('ecdf-info').innerHTML =
+    `F(${xq.toFixed(1)}) = <code>${fx.toFixed(3)}</code> → ${(fx*100).toFixed(1)}% điểm dữ liệu có giá trị ≤ ${xq.toFixed(1)}.`;
+}
+
+// ===== Render all =====
+function renderAll() {
+  renderHist();
+  renderBox();
+  renderQQ();
+  renderECDF();
+}
+
+// ===== Wire up =====
+document.querySelectorAll('.dist-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.dist-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentDist = btn.dataset.dist;
+    resampleData();
+  });
+});
+document.getElementById('sample-n').addEventListener('input', e => {
+  document.getElementById('sample-n-v').textContent = e.target.value;
+  resampleData();
+});
+document.getElementById('num-bins').addEventListener('input', e => {
+  document.getElementById('num-bins-v').textContent = e.target.value;
+  renderHist();
+});
+document.getElementById('ecdf-x').addEventListener('input', e => {
+  document.getElementById('ecdf-x-v').textContent = (+e.target.value).toFixed(1);
+  renderECDF();
+});
+
+// Init
+resampleData();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

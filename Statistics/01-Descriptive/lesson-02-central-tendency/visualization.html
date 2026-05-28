@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02: Đo lường trung tâm — Statistics</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f7f9fc;
+    --accent: #7c3aed;
+    --accent-soft: #ede9fe;
+    --accent-hover: #6d28d9;
+  }
+  h1 { color: #4c1d95; }
+  h2 { color: #5b21b6; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #ddd6fe; }
+  h3 { color: #6d28d9; margin-top: 18px; }
+  .module { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+  .lead { font-size: 1.05rem; color: #4b5563; margin-bottom: 24px; line-height: 1.7; }
+
+  /* Data point chips */
+  .data-points { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; align-items: center; }
+  .dp {
+    background: #ede9fe; color: #5b21b6;
+    border: 2px solid #c4b5fd;
+    border-radius: 8px; padding: 6px 12px;
+    font-family: monospace; font-weight: 700; font-size: 15px;
+    cursor: pointer; transition: all .15s; user-select: none;
+  }
+  .dp:hover { background: #ddd6fe; }
+  .dp.removed { opacity: .25; text-decoration: line-through; cursor: pointer; }
+  .dp.outlier { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+  .dp.outlier.removed { opacity: .25; }
+
+  .add-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+  .add-row input[type="number"] {
+    width: 80px; padding: 7px 10px; border: 1px solid #c4b5fd; border-radius: 6px;
+    font-size: 14px; font-family: monospace;
+  }
+  .btn { background: var(--accent); color: white; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
+  .btn:hover { background: var(--accent-hover); }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-danger { background: #ef4444; }
+  .btn-danger:hover { background: #dc2626; }
+  .btn-gray { background: #6b7280; }
+  .btn-gray:hover { background: #4b5563; }
+
+  /* Stats display */
+  .stats-row {
+    display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0;
+  }
+  .stat-badge {
+    border-radius: 10px; padding: 10px 16px; text-align: center; min-width: 100px;
+  }
+  .stat-badge .label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; opacity: .8; }
+  .stat-badge .value { font-size: 22px; font-weight: 800; margin-top: 2px; font-family: monospace; }
+  .sb-mean { background: #dbeafe; color: #1e40af; }
+  .sb-median { background: #d1fae5; color: #065f46; }
+  .sb-mode { background: #fef3c7; color: #92400e; }
+
+  /* SVG chart */
+  svg.chart { display: block; max-width: 100%; height: auto; }
+
+  /* Skew comparison */
+  .skew-tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .skew-tab {
+    padding: 6px 14px; border-radius: 6px; border: 2px solid #d1d5db;
+    background: white; cursor: pointer; font-size: 13px; font-weight: 600;
+    transition: all .12s;
+  }
+  .skew-tab.active { background: #7c3aed; color: white; border-color: #7c3aed; }
+
+  /* Geometric / harmonic module */
+  .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 600px) { .calc-grid { grid-template-columns: 1fr; } }
+  .calc-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; }
+  .calc-box h4 { margin: 0 0 8px; font-size: 14px; color: #5b21b6; }
+  .calc-row { display: flex; gap: 8px; align-items: center; margin: 6px 0; flex-wrap: wrap; }
+  .calc-row input { width: 70px; padding: 5px 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px; }
+  .calc-result { font-size: 18px; font-weight: 800; color: #7c3aed; margin-top: 8px; }
+  .calc-result small { font-size: 12px; color: #6b7280; font-weight: 400; }
+
+  .info-box { background: #ede9fe; border-left: 4px solid #7c3aed; padding: 10px 14px; border-radius: 0 6px 6px 0; font-size: 13px; margin: 10px 0; }
+  .warn-box { background: #fff7ed; border-left: 4px solid #f59e0b; padding: 10px 14px; border-radius: 0 6px 6px 0; font-size: 13px; margin: 10px 0; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-data-types-overview/visualization.html">← L01: Loại dữ liệu</a>
+  <span class="sep">·</span>
+  <span class="current">L02: Đo lường trung tâm</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-dispersion/visualization.html">L03: Phân tán →</a>
+</nav>
+
+<main>
+  <h1>Lesson 02: Đo lường trung tâm</h1>
+  <p class="lead">Thêm / xóa số liệu, thêm outlier — quan sát Mean, Median, Mode cập nhật real-time và thấy ngay "ai bị lừa" khi có outlier.</p>
+
+  <!-- Module 1: Interactive Mean/Median/Mode -->
+  <section class="module">
+    <h2>Module 1: Mean, Median, Mode — thử nghiệm live</h2>
+    <p>Nhấn vào số để bật/tắt. Thêm số tùy ý hoặc thêm outlier cực đoan để xem ảnh hưởng.</p>
+
+    <div class="data-points" id="data-chips"></div>
+
+    <div class="add-row">
+      <input type="number" id="add-val" placeholder="Nhập số" step="any">
+      <button class="btn btn-sm" onclick="addValue()">+ Thêm</button>
+      <button class="btn btn-sm btn-danger" onclick="addOutlier()">+ Outlier cực đoan</button>
+      <button class="btn btn-sm btn-gray" onclick="resetData()">Reset</button>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-badge sb-mean">
+        <div class="label">Mean (x̄)</div>
+        <div class="value" id="stat-mean">—</div>
+      </div>
+      <div class="stat-badge sb-median">
+        <div class="label">Median</div>
+        <div class="value" id="stat-median">—</div>
+      </div>
+      <div class="stat-badge sb-mode">
+        <div class="label">Mode</div>
+        <div class="value" id="stat-mode">—</div>
+      </div>
+    </div>
+
+    <p style="font-size:13px; color:#6b7280" id="sorted-display"></p>
+
+    <!-- SVG Dot plot -->
+    <svg class="chart" id="dot-svg" width="560" height="110" viewBox="0 0 560 110"></svg>
+
+    <div class="info-box" id="interpretation"></div>
+  </section>
+
+  <!-- Module 2: Preset scenarios (Bill Gates effect etc) -->
+  <section class="module">
+    <h2>Module 2: Kịch bản thực tế — xem Mean vs Median</h2>
+    <div class="skew-tabs">
+      <button class="skew-tab active" onclick="loadScenario('salary', this)">Lương phòng Marketing</button>
+      <button class="skew-tab" onclick="loadScenario('cafe', this)">Bill Gates vào quán cà phê</button>
+      <button class="skew-tab" onclick="loadScenario('scores', this)">Điểm thi lớp</button>
+      <button class="skew-tab" onclick="loadScenario('house', this)">Giá nhà phố</button>
+    </div>
+    <div id="scenario-desc" style="font-size:14px; color:#4b5563; margin-bottom:12px"></div>
+
+    <div class="stats-row" id="scenario-stats"></div>
+    <svg class="chart" id="scenario-svg" width="560" height="160" viewBox="0 0 560 160"></svg>
+    <div class="warn-box" id="scenario-insight"></div>
+  </section>
+
+  <!-- Module 3: Geometric & Harmonic Mean -->
+  <section class="module">
+    <h2>Module 3: Geometric Mean & Harmonic Mean</h2>
+
+    <div class="calc-grid">
+      <div class="calc-box">
+        <h4>Geometric Mean — tốc độ tăng trưởng</h4>
+        <p style="font-size:13px; color:#6b7280; margin: 4px 0 10px">Nhập tỉ lệ tăng trưởng hàng năm (×1.X). Ví dụ: 1.3 = +30%.</p>
+        <div id="geo-rates">
+          <div class="calc-row"><label style="font-size:13px">Năm 1:</label><input type="number" class="geo-rate" value="1.30" step="0.01" min="0.01" oninput="calcGeo()"></div>
+          <div class="calc-row"><label style="font-size:13px">Năm 2:</label><input type="number" class="geo-rate" value="0.90" step="0.01" min="0.01" oninput="calcGeo()"></div>
+          <div class="calc-row"><label style="font-size:13px">Năm 3:</label><input type="number" class="geo-rate" value="1.25" step="0.01" min="0.01" oninput="calcGeo()"></div>
+          <div class="calc-row"><label style="font-size:13px">Năm 4:</label><input type="number" class="geo-rate" value="1.05" step="0.01" min="0.01" oninput="calcGeo()"></div>
+        </div>
+        <div class="calc-result" id="geo-result"></div>
+        <div id="geo-verify" style="font-size:12px; color:#6b7280; margin-top:6px"></div>
+      </div>
+
+      <div class="calc-box">
+        <h4>Harmonic Mean — tốc độ di chuyển</h4>
+        <p style="font-size:13px; color:#6b7280; margin: 4px 0 10px">Nhập tốc độ (km/h) qua các đoạn đường bằng nhau.</p>
+        <div class="calc-row"><label style="font-size:13px">Đoạn 1 (km/h):</label><input type="number" id="h1" value="60" step="1" min="1" oninput="calcHarm()"></div>
+        <div class="calc-row"><label style="font-size:13px">Đoạn 2 (km/h):</label><input type="number" id="h2" value="40" step="1" min="1" oninput="calcHarm()"></div>
+        <div class="calc-row"><label style="font-size:13px">Đoạn 3 (km/h):</label><input type="number" id="h3" value="80" step="1" min="1" oninput="calcHarm()"></div>
+        <div class="calc-result" id="harm-result"></div>
+        <div id="harm-verify" style="font-size:12px; color:#6b7280; margin-top:6px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Module 4: When to use what -->
+  <section class="module">
+    <h2>Module 4: Quy tắc chọn thước đo</h2>
+    <p style="font-size:14px">Quan sát mối quan hệ Mean / Median / Mode theo hình dạng phân phối:</p>
+    <div class="skew-tabs" id="shape-tabs">
+      <button class="skew-tab active" onclick="drawShape('symmetric', this)">Symmetric (Normal)</button>
+      <button class="skew-tab" onclick="drawShape('right', this)">Right-skewed (lệch phải)</button>
+      <button class="skew-tab" onclick="drawShape('left', this)">Left-skewed (lệch trái)</button>
+    </div>
+    <svg class="chart" id="shape-svg" width="540" height="180" viewBox="0 0 540 180"></svg>
+    <div id="shape-rule" style="margin-top:8px; font-size:13px; background:#f5f3ff; padding:10px 14px; border-radius:8px;"></div>
+  </section>
+
+</main>
+
+<script>
+// ============================================================
+// Module 1: Interactive dataset
+// ============================================================
+const DEFAULT_DATA = [
+  {v: 12, active: true, outlier: false},
+  {v: 14, active: true, outlier: false},
+  {v: 11, active: true, outlier: false},
+  {v: 13, active: true, outlier: false},
+  {v: 15, active: true, outlier: false},
+  {v: 13, active: true, outlier: false},
+  {v: 12, active: true, outlier: false},
+];
+let dataset = JSON.parse(JSON.stringify(DEFAULT_DATA));
+let outlierCount = 0;
+
+function resetData() { dataset = JSON.parse(JSON.stringify(DEFAULT_DATA)); outlierCount = 0; renderAll(); }
+
+function addValue() {
+  const v = parseFloat(document.getElementById('add-val').value);
+  if (isNaN(v)) return;
+  dataset.push({v, active: true, outlier: false});
+  document.getElementById('add-val').value = '';
+  renderAll();
+}
+
+function addOutlier() {
+  const outlierValues = [150, 200, 0.1, -50];
+  const v = outlierValues[outlierCount % outlierValues.length];
+  outlierCount++;
+  dataset.push({v, active: true, outlier: true});
+  renderAll();
+}
+
+function togglePoint(i) {
+  dataset[i].active = !dataset[i].active;
+  renderAll();
+}
+
+function getActive() { return dataset.filter(d => d.active).map(d => d.v); }
+
+function calcStats(arr) {
+  if (!arr.length) return {mean: NaN, median: NaN, mode: '—'};
+  const mean = arr.reduce((a,b) => a+b, 0) / arr.length;
+  const sorted = [...arr].sort((a,b) => a-b);
+  const n = sorted.length;
+  const median = n%2===1 ? sorted[Math.floor(n/2)] : (sorted[n/2-1]+sorted[n/2])/2;
+  // mode
+  const freq = {};
+  arr.forEach(v => freq[v] = (freq[v]||0)+1);
+  const maxF = Math.max(...Object.values(freq));
+  const modes = Object.entries(freq).filter(([,f]) => f===maxF).map(([v]) => parseFloat(v));
+  const mode = maxF < 2 ? 'none' : modes.length > 3 ? 'multi' : modes.join(', ');
+  return {mean, median, mode, sorted};
+}
+
+function fmt(v) { return isNaN(v) ? '—' : (Math.round(v*100)/100).toString(); }
+
+function renderAll() {
+  // chips
+  const chips = document.getElementById('data-chips');
+  chips.innerHTML = '';
+  dataset.forEach((d, i) => {
+    const c = document.createElement('div');
+    c.className = 'dp' + (d.outlier ? ' outlier' : '') + (!d.active ? ' removed' : '');
+    c.textContent = d.v;
+    c.title = 'Nhấn để bật/tắt';
+    c.onclick = () => { togglePoint(i); };
+    chips.appendChild(c);
+  });
+
+  const active = getActive();
+  const {mean, median, mode, sorted} = calcStats(active);
+  document.getElementById('stat-mean').textContent = fmt(mean);
+  document.getElementById('stat-median').textContent = fmt(median);
+  document.getElementById('stat-mode').textContent = mode;
+
+  if (sorted) {
+    document.getElementById('sorted-display').textContent =
+      'Đã sắp xếp: [' + sorted.join(', ') + '] — n = ' + sorted.length;
+  }
+
+  // interpretation
+  const diff = Math.abs(mean - median);
+  const rel = mean !== 0 ? diff / Math.abs(mean) : 0;
+  let msg = '';
+  if (active.length < 2) msg = 'Cần ít nhất 2 điểm dữ liệu.';
+  else if (rel < 0.05) msg = 'Mean ≈ Median → phân phối khá đối xứng, không có outlier mạnh. Mean là thước đo tốt.';
+  else if (mean > median) msg = `Mean (${fmt(mean)}) > Median (${fmt(median)}) → phân phối lệch PHẢI (right-skewed) hoặc có outlier lớn. Median đại diện tốt hơn.`;
+  else msg = `Mean (${fmt(mean)}) < Median (${fmt(median)}) → phân phối lệch TRÁI (left-skewed). Median đại diện tốt hơn.`;
+  document.getElementById('interpretation').textContent = msg;
+
+  drawDotPlot(active, mean, median);
+}
+
+function drawDotPlot(arr, mean, median) {
+  const svg = document.getElementById('dot-svg');
+  if (!arr.length) { svg.innerHTML = ''; return; }
+
+  const W = 560, H = 110;
+  const pad = 40;
+  const minV = Math.min(...arr), maxV = Math.max(...arr);
+  const range = maxV - minV || 1;
+  const scale = v => pad + (v - minV) / range * (W - 2*pad);
+
+  let html = `<line x1="${pad}" y1="70" x2="${W-pad}" y2="70" stroke="#cbd5e0" stroke-width="1.5"/>`;
+
+  // tick marks
+  const nice = niceRange(minV, maxV, 6);
+  nice.forEach(t => {
+    const x = scale(t);
+    html += `<line x1="${x}" y1="68" x2="${x}" y2="74" stroke="#94a3b8" stroke-width="1.2"/>`;
+    html += `<text x="${x}" y="88" text-anchor="middle" font-size="10" fill="#64748b">${fmt(t)}</text>`;
+  });
+
+  // dots (jitter by frequency)
+  const freq2 = {};
+  [...arr].sort((a,b) => a-b).forEach(v => {
+    const k = Math.round(v * 10) / 10;
+    freq2[k] = (freq2[k]||0)+1;
+  });
+  const rowH = {};
+  arr.forEach(v => {
+    const k = Math.round(v * 10) / 10;
+    rowH[k] = (rowH[k]||0) + 1;
+    const row = rowH[k];
+    const x = scale(v);
+    const y = 70 - row * 14;
+    html += `<circle cx="${x}" cy="${y}" r="6" fill="#7c3aed" fill-opacity=".7" stroke="#5b21b6" stroke-width="1.2"/>`;
+  });
+
+  // mean line
+  if (!isNaN(mean)) {
+    const mx = scale(mean);
+    html += `<line x1="${mx}" y1="20" x2="${mx}" y2="72" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="4,3"/>`;
+    html += `<text x="${mx}" y="16" text-anchor="middle" font-size="11" fill="#1d4ed8" font-weight="700">Mean=${fmt(mean)}</text>`;
+  }
+  // median line
+  if (!isNaN(median)) {
+    const mdx = scale(median);
+    html += `<line x1="${mdx}" y1="20" x2="${mdx}" y2="72" stroke="#059669" stroke-width="2.5"/>`;
+    html += `<text x="${mdx}" y="102" text-anchor="middle" font-size="11" fill="#065f46" font-weight="700">Med=${fmt(median)}</text>`;
+  }
+
+  svg.innerHTML = html;
+}
+
+function niceRange(min, max, n) {
+  const step = (max-min)/(n-1) || 1;
+  const nice = [];
+  for (let i=0; i<n; i++) nice.push(min + i*step);
+  return nice;
+}
+
+renderAll();
+
+// ============================================================
+// Module 2: Scenarios
+// ============================================================
+const scenarios = {
+  salary: {
+    desc: "Phòng Marketing: 5 nhân viên (lương 12–16M) + 1 giám đốc (150M). Báo cáo 'lương trung bình phòng'.",
+    data: [12, 13, 11, 14, 16, 150],
+    insight: "Mean = 36M bị kéo mạnh bởi 150M. Median = (13+14)/2 = 13.5M phản ánh đúng lương của 5/6 người. Nếu bạn là ứng viên, '36M' gây kỳ vọng sai."
+  },
+  cafe: {
+    desc: "6 khách hàng bình thường trong quán cà phê (thu nhập 8–15M/tháng). Bill Gates bước vào.",
+    data: [8, 10, 12, 11, 9, 15, 2000000],
+    insight: "Bill Gates (ước tính ~2 tỉ USD/tháng ≈ 48 000 tỉ VND) kéo mean của cả quán lên tỉ đô. Median của 7 người = 11M — không thay đổi nhiều. Đây là ví dụ kinh điển về sự khác nhau giữa mean và median."
+  },
+  scores: {
+    desc: "Điểm thi của 12 học sinh, phân phối gần symmetric (không outlier).",
+    data: [6, 7, 7, 8, 8, 8, 9, 9, 8, 7, 9, 10],
+    insight: "Phân phối đối xứng → Mean ≈ Median ≈ Mode ≈ 8. Trong trường hợp này, cả ba thước đo đều đại diện tốt. Mean là lựa chọn ổn."
+  },
+  house: {
+    desc: "Giá 8 căn nhà trên một tuyến phố (tỉ VND) — một căn penthouse biệt lập.",
+    data: [2.5, 3.0, 2.8, 3.2, 2.7, 3.1, 2.9, 25],
+    insight: "Căn penthouse 25 tỉ kéo mean lên ~8 tỉ, cao hơn 7/8 căn nhà thực tế. Median = (2.9+3.0)/2 = 2.95 tỉ. Khi đọc báo cáo 'giá nhà trung bình', hỏi ngay: mean hay median?"
+  }
+};
+
+function loadScenario(key, el) {
+  document.querySelectorAll('#scenario-tabs .skew-tab, .skew-tab').forEach(t => t.classList.remove('active'));
+  // find all tabs in module 2
+  el.classList.add('active');
+  const sc = scenarios[key];
+  document.getElementById('scenario-desc').textContent = sc.desc;
+  document.getElementById('scenario-insight').textContent = sc.insight;
+
+  const data = sc.data;
+  const {mean, median} = calcStats(data);
+  const statsHtml = `
+    <div class="stat-badge sb-mean"><div class="label">Mean</div><div class="value">${fmt(mean)}</div></div>
+    <div class="stat-badge sb-median"><div class="label">Median</div><div class="value">${fmt(median)}</div></div>
+  `;
+  document.getElementById('scenario-stats').innerHTML = statsHtml;
+  drawScenarioPlot(data, mean, median);
+}
+
+function drawScenarioPlot(data, mean, median) {
+  const svg = document.getElementById('scenario-svg');
+  const W = 560, H = 160, pad = 50;
+  const sorted = [...data].sort((a,b)=>a-b);
+  const minV = sorted[0], maxV = sorted[sorted.length-1];
+  const range = maxV - minV || 1;
+  const scale = v => pad + (v - minV) / range * (W - 2*pad);
+
+  let html = '';
+  // axis
+  html += `<line x1="${pad}" y1="110" x2="${W-pad}" y2="110" stroke="#cbd5e0" stroke-width="1.5"/>`;
+
+  // bar chart (distribution)
+  const binCount = Math.min(8, data.length);
+  const binW = range / binCount;
+  const bins = Array(binCount).fill(0);
+  data.forEach(v => {
+    const b = Math.min(Math.floor((v - minV) / binW), binCount-1);
+    bins[b]++;
+  });
+  const maxBin = Math.max(...bins);
+  const bw = (W - 2*pad) / binCount;
+  bins.forEach((cnt, i) => {
+    const x = pad + i * bw;
+    const barH = cnt / maxBin * 80;
+    html += `<rect x="${x+1}" y="${110-barH}" width="${bw-2}" height="${barH}" fill="#a78bfa" fill-opacity=".6" rx="3"/>`;
+  });
+
+  // tick marks — just min/max and mean/median vicinity
+  const ticks = niceRange(minV, maxV, 5);
+  ticks.forEach(t => {
+    const x = scale(t);
+    html += `<line x1="${x}" y1="108" x2="${x}" y2="114" stroke="#94a3b8" stroke-width="1"/>`;
+    const disp = Math.abs(t) >= 1000000 ? (t/1000000).toFixed(1)+'M' :
+                 Math.abs(t) >= 1000 ? (t/1000).toFixed(0)+'k' : fmt(t);
+    html += `<text x="${x}" y="128" text-anchor="middle" font-size="10" fill="#64748b">${disp}</text>`;
+  });
+
+  // mean & median lines
+  const mx = scale(mean), mdx = scale(median);
+  const mxCapped = Math.min(Math.max(mx, pad), W-pad);
+  const mdxCapped = Math.min(Math.max(mdx, pad), W-pad);
+  html += `<line x1="${mxCapped}" y1="20" x2="${mxCapped}" y2="112" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="5,3"/>`;
+  html += `<text x="${mxCapped}" y="16" text-anchor="middle" font-size="11" fill="#1d4ed8" font-weight="700">Mean</text>`;
+  html += `<line x1="${mdxCapped}" y1="20" x2="${mdxCapped}" y2="112" stroke="#059669" stroke-width="2.5"/>`;
+  html += `<text x="${mdxCapped}" y="148" text-anchor="middle" font-size="11" fill="#065f46" font-weight="700">Median</text>`;
+
+  svg.innerHTML = html;
+}
+
+loadScenario('salary', document.querySelector('.skew-tab'));
+
+// ============================================================
+// Module 3: Geometric & Harmonic Mean
+// ============================================================
+function calcGeo() {
+  const rates = [...document.querySelectorAll('.geo-rate')].map(i => parseFloat(i.value)).filter(v => !isNaN(v) && v > 0);
+  if (!rates.length) return;
+  const n = rates.length;
+  const product = rates.reduce((a,b)=>a*b, 1);
+  const geo = Math.pow(product, 1/n);
+  const arith = rates.reduce((a,b)=>a+b,0)/n;
+  const endVal = (100 * product).toFixed(2);
+  const verifyGeo = (100 * Math.pow(geo, n)).toFixed(2);
+  document.getElementById('geo-result').innerHTML =
+    `G = ${(geo*100-100).toFixed(2)}%/năm <small>(Arithmetic = ${(arith*100-100).toFixed(2)}%)</small>`;
+  document.getElementById('geo-verify').textContent =
+    `Verify: 100 × ${rates.join(' × ')} = ${endVal}. Check: 100 × ${geo.toFixed(4)}^${n} ≈ ${verifyGeo} ✓`;
+}
+
+function calcHarm() {
+  const v1 = parseFloat(document.getElementById('h1').value);
+  const v2 = parseFloat(document.getElementById('h2').value);
+  const v3 = parseFloat(document.getElementById('h3').value);
+  if ([v1,v2,v3].some(isNaN)) return;
+  const n = 3;
+  const harm = n / (1/v1 + 1/v2 + 1/v3);
+  const arith = (v1+v2+v3)/3;
+  // verify: total distance = n segments each 100km = 300km. Total time = 100/v1 + 100/v2 + 100/v3
+  const totalTime = 100/v1 + 100/v2 + 100/v3;
+  const actualSpeed = 300 / totalTime;
+  document.getElementById('harm-result').innerHTML =
+    `H = ${harm.toFixed(2)} km/h <small>(Arithmetic = ${arith.toFixed(2)} km/h)</small>`;
+  document.getElementById('harm-verify').textContent =
+    `Verify: 3×100km tổng, thời gian = ${totalTime.toFixed(3)}h → v_thật = ${actualSpeed.toFixed(2)} km/h ✓`;
+}
+
+calcGeo();
+calcHarm();
+
+// ============================================================
+// Module 4: Distribution shapes
+// ============================================================
+function drawShape(type, el) {
+  document.querySelectorAll('#shape-tabs .skew-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const svg = document.getElementById('shape-svg');
+  const W = 540, H = 180, pad = 40;
+  const midX = W/2, botY = H-30, topY = 30;
+
+  let html = `<line x1="${pad}" y1="${botY}" x2="${W-pad}" y2="${botY}" stroke="#cbd5e0" stroke-width="1.5"/>`;
+
+  function bell(x, mu, sigma, amp) {
+    const pts = [];
+    for (let i=0; i<=100; i++) {
+      const v = (x - mu)/sigma;
+      return; // placeholder
+    }
+  }
+
+  // Draw smooth curve using polyline
+  function curve(muNorm, sigNorm, color, filled=false) {
+    // muNorm, sigNorm: 0..1 range mapped to pad..W-pad
+    const points = [];
+    for (let i=0; i<=120; i++) {
+      const t = i/120; // 0..1
+      const x = pad + t*(W-2*pad);
+      // skew normal approximation
+      let y;
+      const tNorm = (t - muNorm)/sigNorm;
+      if (type === 'symmetric') {
+        y = Math.exp(-0.5 * tNorm**2);
+      } else if (type === 'right') {
+        y = t < muNorm + sigNorm*0.3
+          ? Math.exp(-0.5 * ((t - (muNorm-sigNorm*0.5))/sigNorm*1.2)**2) * (t > 0 ? 1 : 0)
+          : Math.exp(-0.5 * ((t - muNorm)/sigNorm*0.5)**2) * Math.exp(-(t-muNorm)*3);
+      } else { // left
+        y = t > muNorm - sigNorm*0.3
+          ? Math.exp(-0.5 * ((t - (muNorm+sigNorm*0.5))/sigNorm*1.2)**2)
+          : Math.exp(-0.5 * ((t - muNorm)/sigNorm*0.5)**2) * Math.exp((t-muNorm)*3);
+      }
+      y = Math.max(0, y);
+      points.push(`${x},${botY - y * (botY - topY - 20)}`);
+    }
+    if (filled) {
+      const first = points[0].split(',');
+      const last = points[points.length-1].split(',');
+      return `<polygon points="${points.join(' ')} ${last[0]},${botY} ${first[0]},${botY}" fill="${color}" fill-opacity=".15"/>
+              <polyline points="${points.join(' ')}" fill="none" stroke="${color}" stroke-width="2.5"/>`;
+    }
+    return `<polyline points="${points.join(' ')}" fill="none" stroke="${color}" stroke-width="2"/>`;
+  }
+
+  let modeX, medianX, meanX;
+  let ruleText;
+
+  if (type === 'symmetric') {
+    modeX = medianX = meanX = W/2;
+    ruleText = 'Phân phối đối xứng (Normal): Mode = Median = Mean. Cả ba ở cùng vị trí. Mean là lựa chọn tối ưu — dùng đầy đủ thông tin nhất.';
+  } else if (type === 'right') {
+    modeX = pad + (W-2*pad)*0.25;
+    medianX = pad + (W-2*pad)*0.42;
+    meanX = pad + (W-2*pad)*0.58;
+    ruleText = 'Lệch phải (right-skewed): Mode < Median < Mean. Đuôi dài bên PHẢI kéo Mean sang phải xa nhất. Ví dụ: thu nhập, giá nhà. Dùng Median để mô tả "điển hình".';
+  } else {
+    meanX = pad + (W-2*pad)*0.42;
+    medianX = pad + (W-2*pad)*0.58;
+    modeX = pad + (W-2*pad)*0.75;
+    ruleText = 'Lệch trái (left-skewed): Mean < Median < Mode. Đuôi dài bên TRÁI kéo Mean sang trái. Ví dụ: điểm thi dễ (nhiều người đạt cao, vài người trượt). Dùng Median.';
+  }
+
+  html += curve(0.5, 0.2, '#7c3aed', true);
+
+  const lineY1 = topY + 10, lineY2 = botY;
+  // mode line
+  html += `<line x1="${modeX}" y1="${lineY1+10}" x2="${modeX}" y2="${lineY2}" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4,3"/>`;
+  html += `<text x="${modeX}" y="${lineY1+6}" text-anchor="middle" font-size="11" fill="#92400e" font-weight="700">Mode</text>`;
+  // median line
+  html += `<line x1="${medianX}" y1="${lineY1+10}" x2="${medianX}" y2="${lineY2}" stroke="#059669" stroke-width="2.5"/>`;
+  html += `<text x="${medianX}" y="${lineY1-2}" text-anchor="middle" font-size="11" fill="#065f46" font-weight="700">Median</text>`;
+  // mean line
+  html += `<line x1="${meanX}" y1="${lineY1+10}" x2="${meanX}" y2="${lineY2}" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="5,3"/>`;
+  const meanLabelY = meanX === medianX ? lineY1 + 20 : lineY1 + 8;
+  html += `<text x="${meanX}" y="${meanLabelY + 12}" text-anchor="middle" font-size="11" fill="#1d4ed8" font-weight="700">Mean</text>`;
+
+  // arrow for direction if skewed
+  if (type === 'right') {
+    html += `<text x="${W-pad-5}" y="${botY-8}" text-anchor="end" font-size="11" fill="#ef4444">→ đuôi dài</text>`;
+  } else if (type === 'left') {
+    html += `<text x="${pad+5}" y="${botY-8}" text-anchor="start" font-size="11" fill="#ef4444">đuôi dài ←</text>`;
+  }
+
+  svg.innerHTML = html;
+  document.getElementById('shape-rule').textContent = ruleText;
+}
+
+drawShape('symmetric', document.querySelector('#shape-tabs .skew-tab'));
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

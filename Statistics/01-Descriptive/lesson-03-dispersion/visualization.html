@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03: Đo lường phân tán — Statistics</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f7f9fc;
+    --accent: #7c3aed;
+    --accent-soft: #ede9fe;
+    --accent-hover: #6d28d9;
+  }
+  h1 { color: #4c1d95; }
+  h2 { color: #5b21b6; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #ddd6fe; }
+  h3 { color: #6d28d9; margin-top: 18px; }
+  .module { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+  .lead { font-size: 1.05rem; color: #4b5563; margin-bottom: 24px; line-height: 1.7; }
+
+  .btn { background: var(--accent); color: white; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
+  .btn:hover { background: var(--accent-hover); }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-danger { background: #ef4444; }
+  .btn-danger:hover { background: #dc2626; }
+  .btn-gray { background: #6b7280; }
+  .btn-gray:hover { background: #4b5563; }
+
+  /* Data input */
+  .data-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+  .dp { background: #ede9fe; color: #5b21b6; border: 2px solid #c4b5fd; border-radius: 8px; padding: 5px 11px; font-family: monospace; font-weight: 700; cursor: pointer; transition: all .12s; user-select: none; }
+  .dp:hover { background: #ddd6fe; }
+  .dp.off { opacity: .3; text-decoration: line-through; }
+  .dp.outlier { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+  .add-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+  .add-row input[type="number"] { width: 80px; padding: 6px 9px; border: 1px solid #c4b5fd; border-radius: 6px; font-size: 14px; }
+
+  /* Stats table */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin: 14px 0; }
+  .stat-card { background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 8px; padding: 10px; text-align: center; }
+  .stat-card .lbl { font-size: 11px; font-weight: 700; color: #7c3aed; text-transform: uppercase; }
+  .stat-card .val { font-size: 20px; font-weight: 800; color: #4c1d95; font-family: monospace; margin-top: 4px; }
+  .stat-card.robust { background: #f0fdf4; border-color: #bbf7d0; }
+  .stat-card.robust .lbl { color: #059669; }
+  .stat-card.robust .val { color: #065f46; }
+
+  svg.chart { display: block; max-width: 100%; height: auto; }
+
+  /* Normal rule */
+  .rule-display { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0; }
+  .rule-band { flex: 1 1 120px; border-radius: 8px; padding: 12px; text-align: center; }
+  .rule-1 { background: #fef3c7; color: #92400e; }
+  .rule-2 { background: #dbeafe; color: #1d4ed8; }
+  .rule-3 { background: #d1fae5; color: #065f46; }
+  .rule-band .pct { font-size: 22px; font-weight: 800; }
+  .rule-band .range { font-size: 12px; margin-top: 4px; font-family: monospace; }
+
+  .slider-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+  .slider-row input[type="range"] { flex: 1; min-width: 100px; }
+  .slider-row label { font-size: 13px; min-width: 80px; }
+
+  .info-box { background: #ede9fe; border-left: 4px solid #7c3aed; padding: 10px 14px; border-radius: 0 6px 6px 0; font-size: 13px; margin: 10px 0; }
+  .warn-box { background: #fff7ed; border-left: 4px solid #f59e0b; padding: 10px 14px; border-radius: 0 6px 6px 0; font-size: 13px; margin: 10px 0; }
+
+  /* Variance step-by-step */
+  .step-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 10px 0; }
+  .step-table th, .step-table td { border: 1px solid #e5e7eb; padding: 6px 10px; text-align: center; }
+  .step-table th { background: #f5f3ff; font-weight: 700; color: #5b21b6; }
+  .step-table td.hl { font-weight: 700; color: #7c3aed; }
+  .step-total { background: #faf5ff; font-weight: 700; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-central-tendency/visualization.html">← L02: Trung tâm</a>
+  <span class="sep">·</span>
+  <span class="current">L03: Phân tán</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-distribution-viz/visualization.html">L04: Trực quan hoá →</a>
+</nav>
+
+<main>
+  <h1>Lesson 03: Đo lường phân tán</h1>
+  <p class="lead">Cùng trung bình, khác phân tán = khác rủi ro. Thêm/xóa outlier và thấy ngay các thước đo thay đổi ra sao.</p>
+
+  <!-- Module 1: Interactive dispersion calculator -->
+  <section class="module">
+    <h2>Module 1: Tất cả thước đo phân tán — live calculator</h2>
+    <p>Nhấn vào chip để bật/tắt. Thêm outlier để so sánh SD (non-robust) với IQR và MAD (robust).</p>
+
+    <div class="data-chips" id="chips"></div>
+    <div class="add-row">
+      <input type="number" id="new-val" placeholder="Thêm số" step="any">
+      <button class="btn btn-sm" onclick="addVal()">+ Thêm</button>
+      <button class="btn btn-sm btn-danger" onclick="addOutlier()">+ Outlier</button>
+      <button class="btn btn-sm btn-gray" onclick="resetData()">Reset</button>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card"><div class="lbl">Range</div><div class="val" id="v-range">—</div></div>
+      <div class="stat-card"><div class="lbl">Variance s²</div><div class="val" id="v-var">—</div></div>
+      <div class="stat-card"><div class="lbl">Std Dev s</div><div class="val" id="v-sd">—</div></div>
+      <div class="stat-card robust"><div class="lbl">IQR (robust)</div><div class="val" id="v-iqr">—</div></div>
+      <div class="stat-card robust"><div class="lbl">MAD (robust)</div><div class="val" id="v-mad">—</div></div>
+      <div class="stat-card"><div class="lbl">CV (%)</div><div class="val" id="v-cv">—</div></div>
+    </div>
+
+    <div id="interpretation-box" class="info-box"></div>
+
+    <!-- Step-by-step variance -->
+    <h3 id="variance-steps-title" style="cursor:pointer; user-select:none" onclick="toggleSteps()">▶ Xem chi tiết tính Variance từng bước</h3>
+    <div id="variance-steps" style="display:none">
+      <table class="step-table" id="step-tbl">
+        <thead><tr><th>xᵢ</th><th>xᵢ − x̄</th><th>(xᵢ − x̄)²</th></tr></thead>
+        <tbody id="step-tbody"></tbody>
+        <tfoot><tr class="step-total"><td colspan="2">Tổng / (n−1)</td><td id="step-var">—</td></tr></tfoot>
+      </table>
+      <p id="step-summary" style="font-size:13px; color:#5b21b6; margin-top:6px"></p>
+    </div>
+  </section>
+
+  <!-- Module 2: Compare two datasets — same mean, different spread -->
+  <section class="module">
+    <h2>Module 2: Cùng trung bình, khác phân tán</h2>
+    <p>Kéo slider để thay đổi độ phân tán của Dataset B. Dataset A cố định. Quan sát biểu đồ và số liệu thay đổi.</p>
+
+    <div class="slider-row">
+      <label>SD của B:</label>
+      <input type="range" id="sd-b-slider" min="0.1" max="10" step="0.1" value="4">
+      <strong id="sd-b-val">4.0</strong>
+    </div>
+
+    <svg class="chart" id="compare-svg" width="540" height="200" viewBox="0 0 540 200"></svg>
+
+    <div class="stats-grid" id="compare-stats">
+      <div class="stat-card"><div class="lbl">Mean A</div><div class="val" id="ma">5.0</div></div>
+      <div class="stat-card"><div class="lbl">Mean B</div><div class="val" id="mb">5.0</div></div>
+      <div class="stat-card"><div class="lbl">SD A</div><div class="val" id="sda">1.0</div></div>
+      <div class="stat-card"><div class="lbl">SD B</div><div class="val" id="sdb">4.0</div></div>
+    </div>
+    <div class="warn-box">
+      Mean bằng nhau không đủ để nói "hai dataset giống nhau". SD khác nhau → hành vi khác nhau hoàn toàn.
+    </div>
+  </section>
+
+  <!-- Module 3: 68-95-99.7 interactive -->
+  <section class="module">
+    <h2>Module 3: Quy tắc 68-95-99.7 (Empirical Rule)</h2>
+    <p>Chỉ áp dụng cho phân phối Normal. Điều chỉnh µ và σ để xem các khoảng thay đổi.</p>
+
+    <div class="slider-row">
+      <label>µ (mean):</label>
+      <input type="range" id="mu-slider" min="-50" max="200" step="1" value="100">
+      <strong id="mu-val">100</strong>
+    </div>
+    <div class="slider-row">
+      <label>σ (SD):</label>
+      <input type="range" id="sigma-slider" min="1" max="40" step="1" value="15">
+      <strong id="sigma-val">15</strong>
+    </div>
+
+    <div class="rule-display">
+      <div class="rule-band rule-1">
+        <div class="pct">68%</div>
+        <div class="range" id="band-1">—</div>
+        <div style="font-size:11px;margin-top:2px">±1σ</div>
+      </div>
+      <div class="rule-band rule-2">
+        <div class="pct">95%</div>
+        <div class="range" id="band-2">—</div>
+        <div style="font-size:11px;margin-top:2px">±2σ</div>
+      </div>
+      <div class="rule-band rule-3">
+        <div class="pct">99.7%</div>
+        <div class="range" id="band-3">—</div>
+        <div style="font-size:11px;margin-top:2px">±3σ</div>
+      </div>
+    </div>
+
+    <svg class="chart" id="normal-svg" width="540" height="180" viewBox="0 0 540 180"></svg>
+
+    <div id="normal-examples" style="font-size:13px; margin-top:10px; color:#374151"></div>
+  </section>
+
+  <!-- Module 4: SD vs IQR vs MAD robustness -->
+  <section class="module">
+    <h2>Module 4: Độ robust — SD vs IQR vs MAD</h2>
+    <p>Kéo thanh "outlier strength" để xem SD tăng vọt nhưng IQR và MAD gần như không đổi.</p>
+
+    <div class="slider-row">
+      <label>Outlier strength:</label>
+      <input type="range" id="outlier-slider" min="0" max="100" step="1" value="0">
+      <strong id="outlier-val">0</strong> (0 = không có outlier)
+    </div>
+
+    <svg class="chart" id="robust-svg" width="540" height="160" viewBox="0 0 540 160"></svg>
+
+    <div class="stats-grid" id="robust-stats">
+      <div class="stat-card"><div class="lbl">SD</div><div class="val" id="r-sd">—</div></div>
+      <div class="stat-card robust"><div class="lbl">IQR</div><div class="val" id="r-iqr">—</div></div>
+      <div class="stat-card robust"><div class="lbl">MAD</div><div class="val" id="r-mad">—</div></div>
+    </div>
+    <div class="info-box">
+      Khi outlier tăng: SD tăng nhanh (vì dùng mean — bị kéo). IQR và MAD gần như không đổi (vì dùng median — robust).
+    </div>
+  </section>
+
+</main>
+
+<script>
+// ============================================================
+// Utility functions
+// ============================================================
+function mean(arr) { return arr.reduce((a,b)=>a+b,0)/arr.length; }
+function variance(arr) {
+  if (arr.length < 2) return 0;
+  const m = mean(arr);
+  return arr.reduce((s,x)=>s+(x-m)**2, 0) / (arr.length-1);
+}
+function sd(arr) { return Math.sqrt(variance(arr)); }
+function median(arr) {
+  const s = [...arr].sort((a,b)=>a-b);
+  const n = s.length;
+  return n%2===1 ? s[Math.floor(n/2)] : (s[n/2-1]+s[n/2])/2;
+}
+function quartile(arr, q) {
+  const s = [...arr].sort((a,b)=>a-b);
+  const n = s.length;
+  const pos = (n-1)*q;
+  const lo = Math.floor(pos), hi = lo+1;
+  if (hi >= n) return s[lo];
+  return s[lo] + (s[hi]-s[lo])*(pos-lo);
+}
+function iqr(arr) { return quartile(arr,0.75)-quartile(arr,0.25); }
+function mad(arr) {
+  const m = median(arr);
+  const devs = arr.map(x=>Math.abs(x-m));
+  return median(devs);
+}
+function fmt(v, d=2) { return isNaN(v) ? '—' : (+v.toFixed(d)).toString(); }
+
+// ============================================================
+// Module 1: Interactive dispersion
+// ============================================================
+const DEFAULT = [2,4,4,4,5,5,7,9];
+let data = DEFAULT.map(v=>({v,on:true,out:false}));
+let outlierMag = 30;
+let stepsVisible = false;
+
+function addVal() {
+  const v = parseFloat(document.getElementById('new-val').value);
+  if (isNaN(v)) return;
+  data.push({v,on:true,out:false});
+  document.getElementById('new-val').value='';
+  render();
+}
+function addOutlier() {
+  data.push({v:outlierMag,on:true,out:true});
+  outlierMag = outlierMag > 0 ? -outlierMag*1.5 : Math.abs(outlierMag)*1.5;
+  render();
+}
+function resetData() { data=DEFAULT.map(v=>({v,on:true,out:false})); outlierMag=30; render(); }
+function toggleSteps() {
+  stepsVisible = !stepsVisible;
+  document.getElementById('variance-steps').style.display = stepsVisible?'block':'none';
+  document.getElementById('variance-steps-title').textContent = (stepsVisible?'▼':'▶') + ' Xem chi tiết tính Variance từng bước';
+}
+
+function render() {
+  const chips = document.getElementById('chips');
+  chips.innerHTML = '';
+  data.forEach((d,i)=>{
+    const c=document.createElement('div');
+    c.className='dp'+(d.out?' outlier':'')+(d.on?'':' off');
+    c.textContent=d.v;
+    c.onclick=()=>{d.on=!d.on;render();};
+    chips.appendChild(c);
+  });
+
+  const active = data.filter(d=>d.on).map(d=>d.v);
+  if (active.length < 2) {
+    ['v-range','v-var','v-sd','v-iqr','v-mad','v-cv'].forEach(id=>document.getElementById(id).textContent='n<2');
+    return;
+  }
+
+  const m = mean(active);
+  const r = Math.max(...active)-Math.min(...active);
+  const s2 = variance(active);
+  const s1 = Math.sqrt(s2);
+  const q = iqr(active);
+  const ma = mad(active);
+  const cv = m !== 0 ? Math.abs(s1/m)*100 : Infinity;
+
+  document.getElementById('v-range').textContent = fmt(r);
+  document.getElementById('v-var').textContent = fmt(s2);
+  document.getElementById('v-sd').textContent = fmt(s1);
+  document.getElementById('v-iqr').textContent = fmt(q);
+  document.getElementById('v-mad').textContent = fmt(ma);
+  document.getElementById('v-cv').textContent = isFinite(cv)?fmt(cv,1)+'%':'∞';
+
+  // interpretation
+  const diff = Math.abs(s1-q);
+  const outliers = data.filter(d=>d.on&&d.out);
+  let msg;
+  if (outliers.length > 0) {
+    msg = `Dataset có ${outliers.length} outlier. SD = ${fmt(s1)} bị kéo xa. IQR = ${fmt(q)} và MAD = ${fmt(ma)} robust hơn — ít thay đổi hơn.`;
+  } else {
+    msg = `Không có outlier. SD = ${fmt(s1)} ≈ IQR/1.35 = ${fmt(q/1.35)} (với Normal distribution). CV = ${fmt(cv,1)}% — phân tán ${cv < 20 ? 'nhỏ/ổn định' : cv < 50 ? 'trung bình' : 'lớn/rủi ro'}.`;
+  }
+  document.getElementById('interpretation-box').textContent = msg;
+
+  // step by step variance table
+  const tbody = document.getElementById('step-tbody');
+  tbody.innerHTML = '';
+  let sum2 = 0;
+  active.forEach(x => {
+    const dev = x - m;
+    const dev2 = dev**2;
+    sum2 += dev2;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${x}</td><td class="hl">${fmt(dev)}</td><td>${fmt(dev2)}</td>`;
+    tbody.appendChild(tr);
+  });
+  const totalRow = document.querySelector('.step-total td:last-child');
+  if (totalRow) totalRow.textContent = fmt(sum2/(active.length-1));
+  document.getElementById('step-summary').textContent =
+    `x̄ = ${fmt(m)} · Σ(xᵢ−x̄)² = ${fmt(sum2)} · s² = ${fmt(sum2)}/${active.length-1} = ${fmt(s2)} · s = ${fmt(s1)}`;
+}
+
+render();
+
+// ============================================================
+// Module 2: Same mean, different SD
+// ============================================================
+const sdBSlider = document.getElementById('sd-b-slider');
+const sdBVal = document.getElementById('sd-b-val');
+
+function drawCompare(sdB) {
+  const W=540,H=200,pad=40,mu=5;
+  const sdA=1;
+  sdBVal.textContent = (+sdB).toFixed(1);
+  document.getElementById('ma').textContent=mu.toFixed(1);
+  document.getElementById('mb').textContent=mu.toFixed(1);
+  document.getElementById('sda').textContent=sdA.toFixed(1);
+  document.getElementById('sdb').textContent=(+sdB).toFixed(1);
+
+  const xRange = Math.max(sdB*4, 6);
+  const xMin=mu-xRange, xMax=mu+xRange;
+  const scale=x=>pad+(x-xMin)/(xMax-xMin)*(W-2*pad);
+
+  function normalY(x, mu, s) {
+    return Math.exp(-0.5*((x-mu)/s)**2)/(s*Math.sqrt(2*Math.PI));
+  }
+
+  let html = `<line x1="${pad}" y1="${H-30}" x2="${W-pad}" y2="${H-30}" stroke="#cbd5e0" stroke-width="1.5"/>`;
+
+  // curve A
+  const ptsA=[];
+  for(let i=0;i<=200;i++){const x=xMin+i*(xMax-xMin)/200; const y=normalY(x,mu,sdA); ptsA.push(`${scale(x)},${H-30-y*400}`);}
+  html+=`<polyline points="${ptsA.join(' ')}" fill="none" stroke="#7c3aed" stroke-width="2.5"/>`;
+
+  // curve B
+  const ptsB=[];
+  for(let i=0;i<=200;i++){const x=xMin+i*(xMax-xMin)/200; const y=normalY(x,mu,+sdB); ptsB.push(`${scale(x)},${H-30-y*100}`);}
+  html+=`<polyline points="${ptsB.join(' ')}" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="6,3"/>`;
+
+  // mean line
+  const mx=scale(mu);
+  html+=`<line x1="${mx}" y1="10" x2="${mx}" y2="${H-30}" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+
+  // labels
+  html+=`<text x="${W-50}" y="30" font-size="12" fill="#7c3aed" font-weight="700">A (SD=${sdA})</text>`;
+  html+=`<text x="${W-50}" y="46" font-size="12" fill="#f59e0b" font-weight="700">B (SD=${sdB})</text>`;
+  html+=`<text x="${mx}" y="${H-14}" text-anchor="middle" font-size="11" fill="#6b7280">µ = ${mu}</text>`;
+
+  document.getElementById('compare-svg').innerHTML=html;
+}
+
+sdBSlider.addEventListener('input', ()=>drawCompare(sdBSlider.value));
+drawCompare(4);
+
+// ============================================================
+// Module 3: 68-95-99.7
+// ============================================================
+const muSlider=document.getElementById('mu-slider');
+const sigmaSlider=document.getElementById('sigma-slider');
+const muVal=document.getElementById('mu-val');
+const sigmaVal=document.getElementById('sigma-val');
+
+function updateNormal() {
+  const mu=+muSlider.value, sigma=+sigmaSlider.value;
+  muVal.textContent=mu; sigmaVal.textContent=sigma;
+
+  document.getElementById('band-1').textContent=`[${mu-sigma}, ${mu+sigma}]`;
+  document.getElementById('band-2').textContent=`[${mu-2*sigma}, ${mu+2*sigma}]`;
+  document.getElementById('band-3').textContent=`[${mu-3*sigma}, ${mu+3*sigma}]`;
+
+  drawNormal(mu, sigma);
+  document.getElementById('normal-examples').innerHTML=
+    `<strong>Ví dụ đọc:</strong> Một điểm ngẫu nhiên có xác suất <strong>68%</strong> nằm trong [${mu-sigma}, ${mu+sigma}], xác suất <strong>95%</strong> nằm trong [${mu-2*sigma}, ${mu+2*sigma}]. Điểm ngoài ${mu+3*sigma} hoặc dưới ${mu-3*sigma} rất hiếm (~0.3%).`;
+}
+
+function drawNormal(mu, sigma) {
+  const W=540,H=180,pad=50;
+  const xMin=mu-4*sigma, xMax=mu+4*sigma;
+  const scale=x=>pad+(x-xMin)/(xMax-xMin)*(W-2*pad);
+  const norm=x=>Math.exp(-0.5*((x-mu)/sigma)**2);
+
+  const botY=H-30, topY=20;
+  let html=`<line x1="${pad}" y1="${botY}" x2="${W-pad}" y2="${botY}" stroke="#cbd5e0" stroke-width="1.5"/>`;
+
+  // filled bands
+  const colors=['#fef3c7','#dbeafe','#d1fae5'];
+  const sigs=[3,2,1];
+  sigs.forEach((k,i)=>{
+    const pts=[];
+    for(let j=0;j<=120;j++){
+      const t=j/120;
+      const x=xMin+t*(xMax-xMin);
+      if(x<mu-k*sigma||x>mu+k*sigma)continue;
+      const y=norm(x);
+      pts.push(`${scale(x)},${botY-y*(botY-topY-10)}`);
+    }
+    if(pts.length>0){
+      const lo=scale(mu-k*sigma), hi=scale(mu+k*sigma);
+      html+=`<polygon points="${lo},${botY} ${pts.join(' ')} ${hi},${botY}" fill="${colors[i]}" fill-opacity=".7"/>`;
+    }
+  });
+
+  // curve
+  const pts=[];
+  for(let i=0;i<=200;i++){
+    const x=xMin+i*(xMax-xMin)/200;
+    pts.push(`${scale(x)},${botY-norm(x)*(botY-topY-10)}`);
+  }
+  html+=`<polyline points="${pts.join(' ')}" fill="none" stroke="#7c3aed" stroke-width="2.5"/>`;
+
+  // SD markers
+  for(let k=-3;k<=3;k++){
+    const x=scale(mu+k*sigma);
+    html+=`<line x1="${x}" y1="${botY}" x2="${x}" y2="${botY+4}" stroke="#94a3b8" stroke-width="1"/>`;
+    if(k!==0){
+      const lbl=k<0?`${k}σ`:`+${k}σ`;
+      html+=`<text x="${x}" y="${botY+14}" text-anchor="middle" font-size="10" fill="#6b7280">${lbl}</text>`;
+    }
+  }
+  // mean
+  const mx=scale(mu);
+  html+=`<text x="${mx}" y="${botY+14}" text-anchor="middle" font-size="10" fill="#5b21b6" font-weight="700">µ</text>`;
+
+  // labels 68/95/99.7
+  const lblY=[topY+5, topY+18, topY+31];
+  ['68%','95%','99.7%'].forEach((txt,i)=>{
+    html+=`<rect x="${W-80}" y="${lblY[i]-10}" width="70" height="14" rx="3" fill="${colors[2-i]}" fill-opacity=".8"/>`;
+    html+=`<text x="${W-45}" y="${lblY[i]}" text-anchor="middle" font-size="11" fill="#374151" font-weight="700">${txt} (±${i+1}σ)</text>`;
+  });
+
+  document.getElementById('normal-svg').innerHTML=html;
+}
+
+muSlider.addEventListener('input',updateNormal);
+sigmaSlider.addEventListener('input',updateNormal);
+updateNormal();
+
+// ============================================================
+// Module 4: Robustness slider
+// ============================================================
+const baseData = [4,5,5,6,6,6,7,7,8];
+const outlierSlider=document.getElementById('outlier-slider');
+const outlierValEl=document.getElementById('outlier-val');
+
+function updateRobust() {
+  const ov=+outlierSlider.value;
+  outlierValEl.textContent=ov;
+  const fullData=[...baseData, 6+ov*3];
+
+  document.getElementById('r-sd').textContent=fmt(sd(fullData));
+  document.getElementById('r-iqr').textContent=fmt(iqr(fullData));
+  document.getElementById('r-mad').textContent=fmt(mad(fullData));
+
+  drawRobust(fullData, ov);
+}
+
+function drawRobust(arr, ov) {
+  const W=540,H=160,pad=50;
+  const sorted=[...arr].sort((a,b)=>a-b);
+  const minV=sorted[0], maxV=sorted[sorted.length-1];
+  const range=maxV-minV||1;
+  const scale=v=>pad+(v-minV)/range*(W-2*pad);
+
+  const m=mean(arr), md=median(arr);
+  const q1=quartile(arr,0.25), q3=quartile(arr,0.75);
+
+  let html=`<line x1="${pad}" y1="80" x2="${W-pad}" y2="80" stroke="#cbd5e0" stroke-width="1.5"/>`;
+
+  // dot plot
+  const rows={};
+  sorted.forEach(v=>{
+    const k=Math.round(v);
+    rows[k]=(rows[k]||0)+1;
+    const row=rows[k];
+    const cx=scale(v), cy=80-row*16;
+    const isOut=ov>0 && v===sorted[sorted.length-1];
+    html+=`<circle cx="${cx}" cy="${cy}" r="7" fill="${isOut?'#ef4444':'#7c3aed'}" fill-opacity=".7" stroke="${isOut?'#b91c1c':'#5b21b6'}" stroke-width="1.5"/>`;
+  });
+
+  // IQR box
+  const iq1=scale(q1), iq3=scale(q3);
+  html+=`<rect x="${iq1}" y="60" width="${iq3-iq1}" height="40" fill="#d1fae5" fill-opacity=".6" stroke="#059669" stroke-width="2" rx="3"/>`;
+  html+=`<text x="${(iq1+iq3)/2}" y="${80+28}" text-anchor="middle" font-size="10" fill="#065f46">IQR=[${fmt(q1)},${fmt(q3)}]</text>`;
+
+  // mean line
+  const mx=scale(m);
+  const mxC=Math.min(Math.max(mx,pad),W-pad);
+  html+=`<line x1="${mxC}" y1="20" x2="${mxC}" y2="82" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="4,3"/>`;
+  html+=`<text x="${mxC}" y="16" text-anchor="middle" font-size="11" fill="#1d4ed8" font-weight="700">Mean</text>`;
+
+  // median line
+  const mdx=scale(md);
+  html+=`<line x1="${mdx}" y1="20" x2="${mdx}" y2="82" stroke="#059669" stroke-width="2.5"/>`;
+  html+=`<text x="${mdx}" y="${80+40}" text-anchor="middle" font-size="11" fill="#065f46" font-weight="700">Med</text>`;
+
+  document.getElementById('robust-svg').innerHTML=html;
+}
+
+outlierSlider.addEventListener('input',updateRobust);
+updateRobust();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

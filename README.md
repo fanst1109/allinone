@@ -34,6 +34,7 @@
 | Math | Toán cổ điển — 6 tầng × 8 bài, số học → calculus → toán năm 1 đại học | [Math/](./Math/) |
 | Physics | Vật lý — 3 tầng × 8 bài, cơ học → điện-từ → vật lý hiện đại preview | [Physics/](./Physics/) |
 | Programming | Học lập trình bằng Go từ tư duy đến production — 9 tier × 84 lesson | [Programming/](./Programming/) |
+| Statistics | Thống kê — 3 tầng × 15 bài: mô tả dữ liệu → suy luận → Bayesian, nhân quả, time series | [Statistics/](./Statistics/) |
 | Vectors | Lộ trình toán cho AI & ML — 6 tầng từ đại số phổ thông tới embedding/RAG | [Vectors/](./Vectors/) |
 
 > Mở [`index.html`](./index.html) ở root để xem trang chính có liên kết tới mọi lĩnh vực.

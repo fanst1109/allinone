@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01: Bốn thanh điệu — Chinese</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fdf6f3;
+    --accent: #c8102e;
+    --accent-soft: #fee2e2;
+    --accent-hover: #9b1226;
+  }
+  h1 { color: #7f1d1d; }
+  h2 { color: #991b1b; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #fecaca; }
+  h3 { color: #b91c1c; margin-top: 20px; }
+
+  .module {
+    background: white;
+    border: 1px solid #fecaca;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .lead { font-size: 1.1rem; color: #4b5563; margin-bottom: 24px; line-height: 1.7; }
+
+  /* Bốn thanh — bảng so sánh */
+  .tones-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .tone-card {
+    border: 2px solid;
+    border-radius: 12px;
+    padding: 14px;
+    background: white;
+    cursor: pointer;
+    transition: transform .12s, box-shadow .12s;
+  }
+  .tone-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  .tone-card.t1 { border-color: #2563eb; background: #eff6ff; }
+  .tone-card.t2 { border-color: #ca8a04; background: #fefce8; }
+  .tone-card.t3 { border-color: #c8102e; background: #fef2f2; }
+  .tone-card.t4 { border-color: #7c3aed; background: #f5f3ff; }
+  .tone-card.t0 { border-color: #6b7280; background: #f9fafb; }
+  .tone-num { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+  .tone-card.t1 .tone-num { color: #1d4ed8; }
+  .tone-card.t2 .tone-num { color: #a16207; }
+  .tone-card.t3 .tone-num { color: #c8102e; }
+  .tone-card.t4 .tone-num { color: #6d28d9; }
+  .tone-card.t0 .tone-num { color: #4b5563; }
+  .tone-pinyin { font-size: 36px; font-weight: 700; margin: 6px 0; font-family: "Charis SIL", "Lucida Sans", sans-serif; }
+  .tone-name { font-size: 13px; color: #6b7280; margin-bottom: 4px; }
+  .tone-path { font-size: 13px; color: #374151; }
+  .tone-path strong { font-family: monospace; }
+
+  /* SVG pitch chart */
+  .pitch-svg { width: 100%; height: auto; max-width: 600px; display: block; margin: 16px auto; }
+  .pitch-axis { stroke: #cbd5e0; stroke-width: 1; }
+  .pitch-grid { stroke: #e5e7eb; stroke-width: 1; stroke-dasharray: 2 4; }
+  .pitch-label { font-size: 12px; fill: #6b7280; font-family: monospace; }
+  .pitch-line { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .pitch-dot { stroke-width: 0; }
+
+  /* "ma" bộ 4 thanh — bài học kinh điển */
+  .ma-classic {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .ma-card {
+    border: 2px solid var(--accent-soft);
+    border-radius: 12px;
+    padding: 16px 12px;
+    text-align: center;
+    cursor: pointer;
+    background: white;
+    transition: all .15s;
+  }
+  .ma-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(200, 16, 46, 0.12); }
+  .ma-card.playing { background: #fef3c7; border-color: #f59e0b; }
+  .ma-hanzi {
+    font-size: 56px; font-weight: 700; line-height: 1;
+    font-family: "PingFang SC", "Microsoft YaHei", "SimHei", sans-serif;
+    margin-bottom: 8px;
+    color: #1a202c;
+  }
+  .ma-pinyin { font-size: 20px; font-weight: 700; margin-bottom: 4px; font-family: "Charis SIL", sans-serif; }
+  .ma-pinyin.t1 { color: #2563eb; }
+  .ma-pinyin.t2 { color: #ca8a04; }
+  .ma-pinyin.t3 { color: #c8102e; }
+  .ma-pinyin.t4 { color: #7c3aed; }
+  .ma-meaning { font-size: 13px; color: #6b7280; }
+  .ma-card .hint { font-size: 11px; color: #9ca3af; margin-top: 4px; }
+
+  /* Bảng ví dụ tăng dần */
+  table.examples {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 14px;
+  }
+  table.examples th, table.examples td {
+    border: 1px solid #e5e7eb;
+    padding: 8px 10px;
+    text-align: left;
+  }
+  table.examples th { background: var(--accent-soft); color: #7f1d1d; font-weight: 700; }
+  table.examples tr:hover { background: #fef2f2; }
+  table.examples .play-cell {
+    cursor: pointer;
+    color: var(--accent);
+    font-weight: 600;
+    user-select: none;
+  }
+  table.examples .play-cell:hover { text-decoration: underline; }
+  table.examples .play-cell.playing { background: #fef3c7; }
+  table.examples .pin {
+    font-family: "Charis SIL", "Lucida Sans", sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  table.examples .hanzi {
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 18px;
+  }
+
+  /* Quiz */
+  .quiz-area {
+    background: #fffbeb;
+    border: 2px dashed #fbbf24;
+    border-radius: 10px;
+    padding: 16px;
+    margin: 16px 0;
+  }
+  .quiz-q {
+    font-size: 22px;
+    margin: 12px 0;
+    text-align: center;
+  }
+  .quiz-q .qchar {
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 38px; font-weight: 700;
+    display: inline-block; margin-right: 10px;
+  }
+  .quiz-q .qpin {
+    font-family: "Charis SIL", sans-serif;
+    color: #7f1d1d;
+  }
+  .quiz-controls {
+    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 12px 0;
+  }
+  .quiz-controls button {
+    padding: 8px 16px;
+    border: 2px solid #f59e0b;
+    border-radius: 8px;
+    background: white;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all .12s;
+  }
+  .quiz-controls button:hover { background: #fef3c7; }
+  .quiz-controls button.correct { background: #d1fae5; border-color: #10b981; color: #065f46; }
+  .quiz-controls button.wrong { background: #fee2e2; border-color: #ef4444; color: #991b1b; }
+  .quiz-score {
+    text-align: center; font-size: 14px;
+    background: white;
+    padding: 8px 14px;
+    border-radius: 8px;
+    display: inline-block;
+    margin-top: 8px;
+  }
+  .quiz-actions { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
+  .quiz-actions button {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e0;
+    background: white;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  .quiz-actions button:hover { background: #f1f5f9; }
+
+  .play-big {
+    background: var(--accent); color: white;
+    border: none; border-radius: 999px;
+    padding: 10px 22px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all .12s;
+  }
+  .play-big:hover { background: var(--accent-hover); }
+
+  .common-mistakes {
+    background: #fef2f2;
+    border-left: 4px solid #ef4444;
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin: 14px 0;
+  }
+  .common-mistakes h4 {
+    margin: 0 0 8px;
+    color: #991b1b;
+    font-size: 15px;
+  }
+  .common-mistakes ul { margin: 0; padding-left: 20px; }
+  .common-mistakes li { margin-bottom: 6px; }
+
+  /* Mobile */
+  @media (max-width: 480px) {
+    .tone-pinyin { font-size: 30px; }
+    .ma-hanzi { font-size: 48px; }
+    .quiz-q .qchar { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Phát âm</a>
+  <span class="sep">·</span>
+  <span class="current">L01: Bốn thanh điệu</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-initials/visualization.html">L02: Thanh mẫu →</a>
+</nav>
+
+<main>
+  <h1>Lesson 01: Bốn thanh điệu (四声 sì shēng)</h1>
+  <p class="lead">Tiếng Trung là ngôn ngữ thanh điệu. Cùng âm <code>ma</code> đọc với 4 thanh khác nhau = 4 chữ khác nhau, 4 nghĩa khác nhau. Sai thanh = sai nghĩa. Click vào ví dụ để nghe phát âm chuẩn.</p>
+
+  <!-- Module 1: Tổng quan 4 thanh -->
+  <section class="module">
+    <h2>Module 1: Bốn thanh điệu — tổng quan</h2>
+    <p>Mỗi thanh có một <strong>đường cao độ</strong> cố định trên thang 5 bậc (1 = thấp nhất, 5 = cao nhất). Click vào card để nghe ví dụ.</p>
+
+    <div class="tones-grid">
+      <div class="tone-card t1" data-tone="1" data-example="mā">
+        <div class="tone-num">Thanh 1 · 阴平</div>
+        <div class="tone-pinyin">ā</div>
+        <div class="tone-name">Cao bằng</div>
+        <div class="tone-path">Đường: <strong>5 — 5</strong><br>Vd: <strong>mā</strong> (妈 — mẹ)</div>
+      </div>
+      <div class="tone-card t2" data-tone="2" data-example="má">
+        <div class="tone-num">Thanh 2 · 阳平</div>
+        <div class="tone-pinyin">á</div>
+        <div class="tone-name">Trung → cao (lên)</div>
+        <div class="tone-path">Đường: <strong>3 — 5</strong><br>Vd: <strong>má</strong> (麻 — gai)</div>
+      </div>
+      <div class="tone-card t3" data-tone="3" data-example="mǎ">
+        <div class="tone-num">Thanh 3 · 上声</div>
+        <div class="tone-pinyin">ǎ</div>
+        <div class="tone-name">Xuống đáy → nảy lên</div>
+        <div class="tone-path">Đường: <strong>2 — 1 — 4</strong><br>Vd: <strong>mǎ</strong> (马 — ngựa)</div>
+      </div>
+      <div class="tone-card t4" data-tone="4" data-example="mà">
+        <div class="tone-num">Thanh 4 · 去声</div>
+        <div class="tone-pinyin">à</div>
+        <div class="tone-name">Cao → đáy (dứt khoát)</div>
+        <div class="tone-path">Đường: <strong>5 — 1</strong><br>Vd: <strong>mà</strong> (骂 — mắng)</div>
+      </div>
+      <div class="tone-card t0" data-tone="0" data-example="ma">
+        <div class="tone-num">Thanh nhẹ · 轻声</div>
+        <div class="tone-pinyin">a</div>
+        <div class="tone-name">Ngắn, phụ thuộc thanh trước</div>
+        <div class="tone-path">Không dấu trên pinyin<br>Vd: <strong>māma</strong> (妈妈)</div>
+      </div>
+    </div>
+
+    <h3>Đường cao độ của 4 thanh — biểu đồ</h3>
+    <p>Trục đứng: 5 bậc cao độ (1 thấp – 5 cao). Trục ngang: thời gian (~0.3–0.6s).</p>
+
+    <svg class="pitch-svg" width="600" height="360" viewBox="0 0 600 360" xmlns="http://www.w3.org/2000/svg">
+      <!-- Grid: 5 mức cao độ -->
+      <line class="pitch-axis" x1="60" y1="40" x2="60" y2="320"></line>
+      <line class="pitch-axis" x1="60" y1="320" x2="580" y2="320"></line>
+      <!-- 5 mức ngang -->
+      <line class="pitch-grid" x1="60" y1="60"  x2="580" y2="60"></line>
+      <line class="pitch-grid" x1="60" y1="120" x2="580" y2="120"></line>
+      <line class="pitch-grid" x1="60" y1="180" x2="580" y2="180"></line>
+      <line class="pitch-grid" x1="60" y1="240" x2="580" y2="240"></line>
+      <line class="pitch-grid" x1="60" y1="300" x2="580" y2="300"></line>
+      <!-- Y labels -->
+      <text class="pitch-label" x="45" y="65"  text-anchor="end">5 cao</text>
+      <text class="pitch-label" x="45" y="125" text-anchor="end">4</text>
+      <text class="pitch-label" x="45" y="185" text-anchor="end">3 TB</text>
+      <text class="pitch-label" x="45" y="245" text-anchor="end">2</text>
+      <text class="pitch-label" x="45" y="305" text-anchor="end">1 thấp</text>
+      <!-- X labels: 4 ô thanh -->
+      <text class="pitch-label" x="125" y="340" text-anchor="middle">Thanh 1 (mā)</text>
+      <text class="pitch-label" x="245" y="340" text-anchor="middle">Thanh 2 (má)</text>
+      <text class="pitch-label" x="365" y="340" text-anchor="middle">Thanh 3 (mǎ)</text>
+      <text class="pitch-label" x="485" y="340" text-anchor="middle">Thanh 4 (mà)</text>
+      <!-- Thanh 1: 5-5 (phẳng cao, y=60) -->
+      <line class="pitch-line" stroke="#2563eb" x1="80"  y1="60" x2="170" y2="60"></line>
+      <circle class="pitch-dot" fill="#2563eb" cx="80"  cy="60" r="5"></circle>
+      <circle class="pitch-dot" fill="#2563eb" cx="170" cy="60" r="5"></circle>
+      <!-- Thanh 2: 3-5 (lên từ y=180 đến y=60) -->
+      <line class="pitch-line" stroke="#ca8a04" x1="200" y1="180" x2="290" y2="60"></line>
+      <circle class="pitch-dot" fill="#ca8a04" cx="200" cy="180" r="5"></circle>
+      <circle class="pitch-dot" fill="#ca8a04" cx="290" cy="60"  r="5"></circle>
+      <!-- Thanh 3: 2-1-4 (polyline) -->
+      <polyline class="pitch-line" stroke="#c8102e" points="320,240 365,300 410,120"></polyline>
+      <circle class="pitch-dot" fill="#c8102e" cx="320" cy="240" r="5"></circle>
+      <circle class="pitch-dot" fill="#c8102e" cx="365" cy="300" r="5"></circle>
+      <circle class="pitch-dot" fill="#c8102e" cx="410" cy="120" r="5"></circle>
+      <!-- Thanh 4: 5-1 -->
+      <line class="pitch-line" stroke="#7c3aed" x1="440" y1="60" x2="530" y2="300"></line>
+      <circle class="pitch-dot" fill="#7c3aed" cx="440" cy="60"  r="5"></circle>
+      <circle class="pitch-dot" fill="#7c3aed" cx="530" cy="300" r="5"></circle>
+      <!-- Title -->
+      <text x="320" y="22" text-anchor="middle" font-size="14" font-weight="700" fill="#7f1d1d">Đường cao độ — 4 thanh điệu (thang 5 bậc)</text>
+    </svg>
+
+    <div style="text-align: center; margin-top: 12px;">
+      <button class="play-big" data-play-seq="1">▶ Nghe lần lượt: mā · má · mǎ · mà</button>
+    </div>
+  </section>
+
+  <!-- Module 2: ma cổ điển -->
+  <section class="module">
+    <h2>Module 2: Bộ "妈麻马骂" — ví dụ kinh điển</h2>
+    <p>Cùng pinyin <code>ma</code>, 4 thanh khác = 4 chữ khác = 4 nghĩa khác. Click vào mỗi chữ để nghe.</p>
+
+    <div class="ma-classic">
+      <div class="ma-card" data-speak="妈" data-tone="1">
+        <div class="ma-hanzi">妈</div>
+        <div class="ma-pinyin t1">mā</div>
+        <div class="ma-meaning">mẹ</div>
+        <div class="hint">🔊 click</div>
+      </div>
+      <div class="ma-card" data-speak="麻" data-tone="2">
+        <div class="ma-hanzi">麻</div>
+        <div class="ma-pinyin t2">má</div>
+        <div class="ma-meaning">gai, tê</div>
+        <div class="hint">🔊 click</div>
+      </div>
+      <div class="ma-card" data-speak="马" data-tone="3">
+        <div class="ma-hanzi">马</div>
+        <div class="ma-pinyin t3">mǎ</div>
+        <div class="ma-meaning">ngựa</div>
+        <div class="hint">🔊 click</div>
+      </div>
+      <div class="ma-card" data-speak="骂" data-tone="4">
+        <div class="ma-hanzi">骂</div>
+        <div class="ma-pinyin t4">mà</div>
+        <div class="ma-meaning">mắng</div>
+        <div class="hint">🔊 click</div>
+      </div>
+    </div>
+
+    <h3>Câu nhớ kinh điển</h3>
+    <div style="text-align: center; background: white; padding: 16px; border-radius: 10px; border: 2px dashed var(--accent);">
+      <div class="ma-hanzi" style="font-size: 44px; margin-bottom: 6px;">妈妈骂马</div>
+      <div class="ma-pinyin" style="color: #7f1d1d; font-size: 22px;">Māma mà mǎ</div>
+      <div class="ma-meaning" style="font-size: 15px;">Mẹ mắng ngựa</div>
+      <button class="play-big" style="margin-top: 10px;" data-speak="妈妈骂马">▶ Nghe câu</button>
+    </div>
+  </section>
+
+  <!-- Module 3: Ví dụ thanh đầy đủ -->
+  <section class="module">
+    <h2>Module 3: Luyện thanh — ví dụ tăng dần</h2>
+
+    <h3>3.1 Một âm tiết, đủ 4 thanh</h3>
+    <table class="examples">
+      <thead><tr><th>Thanh 1</th><th>Thanh 2</th><th>Thanh 3</th><th>Thanh 4</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="play-cell" data-speak="八"><span class="hanzi">八</span> <span class="pin" style="color:#2563eb;">bā</span> — số 8</td>
+          <td class="play-cell" data-speak="拔"><span class="hanzi">拔</span> <span class="pin" style="color:#ca8a04;">bá</span> — nhổ</td>
+          <td class="play-cell" data-speak="把"><span class="hanzi">把</span> <span class="pin" style="color:#c8102e;">bǎ</span> — nắm</td>
+          <td class="play-cell" data-speak="爸"><span class="hanzi">爸</span> <span class="pin" style="color:#7c3aed;">bà</span> — bố</td>
+        </tr>
+        <tr>
+          <td class="play-cell" data-speak="师"><span class="hanzi">师</span> <span class="pin" style="color:#2563eb;">shī</span> — thầy</td>
+          <td class="play-cell" data-speak="十"><span class="hanzi">十</span> <span class="pin" style="color:#ca8a04;">shí</span> — mười</td>
+          <td class="play-cell" data-speak="史"><span class="hanzi">史</span> <span class="pin" style="color:#c8102e;">shǐ</span> — lịch sử</td>
+          <td class="play-cell" data-speak="是"><span class="hanzi">是</span> <span class="pin" style="color:#7c3aed;">shì</span> — là</td>
+        </tr>
+        <tr>
+          <td class="play-cell" data-speak="汤"><span class="hanzi">汤</span> <span class="pin" style="color:#2563eb;">tāng</span> — súp</td>
+          <td class="play-cell" data-speak="糖"><span class="hanzi">糖</span> <span class="pin" style="color:#ca8a04;">táng</span> — đường</td>
+          <td class="play-cell" data-speak="躺"><span class="hanzi">躺</span> <span class="pin" style="color:#c8102e;">tǎng</span> — nằm</td>
+          <td class="play-cell" data-speak="烫"><span class="hanzi">烫</span> <span class="pin" style="color:#7c3aed;">tàng</span> — bỏng</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>3.2 Hai âm tiết — các thanh kết hợp</h3>
+    <table class="examples">
+      <thead><tr><th>Chữ Hán</th><th>Pinyin</th><th>Nghĩa</th><th>Cấu trúc thanh</th><th></th></tr></thead>
+      <tbody>
+        <tr><td class="hanzi">妈妈</td><td class="pin">māma</td><td>mẹ</td><td>1 + nhẹ</td><td class="play-cell" data-speak="妈妈">🔊 phát</td></tr>
+        <tr><td class="hanzi">爸爸</td><td class="pin">bàba</td><td>bố</td><td>4 + nhẹ</td><td class="play-cell" data-speak="爸爸">🔊 phát</td></tr>
+        <tr><td class="hanzi">你好</td><td class="pin">nǐhǎo</td><td>xin chào</td><td>3+3 → ní hǎo (xem L04)</td><td class="play-cell" data-speak="你好">🔊 phát</td></tr>
+        <tr><td class="hanzi">谢谢</td><td class="pin">xièxiè</td><td>cảm ơn</td><td>4 + 4</td><td class="play-cell" data-speak="谢谢">🔊 phát</td></tr>
+        <tr><td class="hanzi">再见</td><td class="pin">zàijiàn</td><td>tạm biệt</td><td>4 + 4</td><td class="play-cell" data-speak="再见">🔊 phát</td></tr>
+        <tr><td class="hanzi">老师</td><td class="pin">lǎoshī</td><td>thầy giáo</td><td>3 + 1</td><td class="play-cell" data-speak="老师">🔊 phát</td></tr>
+        <tr><td class="hanzi">学校</td><td class="pin">xuéxiào</td><td>trường học</td><td>2 + 4</td><td class="play-cell" data-speak="学校">🔊 phát</td></tr>
+        <tr><td class="hanzi">汉语</td><td class="pin">hànyǔ</td><td>Hán ngữ</td><td>4 + 3</td><td class="play-cell" data-speak="汉语">🔊 phát</td></tr>
+        <tr><td class="hanzi">中国</td><td class="pin">Zhōngguó</td><td>Trung Quốc</td><td>1 + 2</td><td class="play-cell" data-speak="中国">🔊 phát</td></tr>
+        <tr><td class="hanzi">越南</td><td class="pin">Yuènán</td><td>Việt Nam</td><td>4 + 2</td><td class="play-cell" data-speak="越南">🔊 phát</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Module 4: Lỗi phổ biến -->
+  <section class="module">
+    <h2>Module 4: Lỗi phổ biến của người Việt</h2>
+
+    <div class="common-mistakes">
+      <h4>⚠ Lỗi 1: Nhầm thanh 2 với thanh 3</h4>
+      <ul>
+        <li><strong>Vấn đề</strong>: Thanh 2 (3-5, đi lên) và thanh 3 (2-1-4, xuống rồi lên) đều có cảm giác "uốn lên". Người Việt nghe vội gộp cả hai.</li>
+        <li><strong>Khác biệt then chốt</strong>: Thanh 3 phải <strong>CHẠM ĐÁY</strong> trước, rồi mới nảy lên. Không chạm đáy = nghe thành thanh 2.</li>
+        <li><strong>Bằng chứng</strong>: Đọc <code>mǎ</code> (马 — ngựa) không có phần trầm trước → người Trung nghe thành <code>má</code> (麻 — gai).</li>
+        <li><strong>Mẹo luyện</strong>: cường điệu phần đầu thanh 3, gần như "ừm... à!".</li>
+      </ul>
+    </div>
+
+    <div class="common-mistakes">
+      <h4>⚠ Lỗi 2: Thanh 1 không đủ cao và phẳng</h4>
+      <ul>
+        <li>Người Việt hay đọc thanh 1 với cao độ trung bình, hơi chùng cuối câu.</li>
+        <li>Trung Quốc chuẩn: <strong>CAO</strong> (bậc 5) và <strong>PHẲNG ĐỀU</strong> từ đầu đến cuối.</li>
+        <li>Cảm giác như ngân nốt cao "Aaaa~" liên tục.</li>
+      </ul>
+    </div>
+
+    <div class="common-mistakes">
+      <h4>⚠ Lỗi 3: Thanh 4 không đủ dứt khoát</h4>
+      <ul>
+        <li>Người Việt đọc thanh 4 quá mềm, dài.</li>
+        <li>Đặc trưng thanh 4: <strong>DỨT KHOÁT, NGẮN, MẠNH</strong>.</li>
+        <li>Cảm giác như ra lệnh: "ĐI!", "ĐỪNG!" — từ cao xuống đáy ngay.</li>
+      </ul>
+    </div>
+
+    <h3>So sánh thanh 2 vs thanh 3 — nghe và phân biệt</h3>
+    <p>Bộ này cùng âm tiết khác thanh. Tập nghe và phân biệt:</p>
+    <table class="examples">
+      <thead><tr><th>Thanh 2</th><th>Thanh 3</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="play-cell" data-speak="麻"><span class="hanzi">麻</span> <span class="pin" style="color:#ca8a04;">má</span> — gai</td>
+          <td class="play-cell" data-speak="马"><span class="hanzi">马</span> <span class="pin" style="color:#c8102e;">mǎ</span> — ngựa</td>
+        </tr>
+        <tr>
+          <td class="play-cell" data-speak="拔"><span class="hanzi">拔</span> <span class="pin" style="color:#ca8a04;">bá</span> — nhổ</td>
+          <td class="play-cell" data-speak="把"><span class="hanzi">把</span> <span class="pin" style="color:#c8102e;">bǎ</span> — nắm</td>
+        </tr>
+        <tr>
+          <td class="play-cell" data-speak="十"><span class="hanzi">十</span> <span class="pin" style="color:#ca8a04;">shí</span> — mười</td>
+          <td class="play-cell" data-speak="史"><span class="hanzi">史</span> <span class="pin" style="color:#c8102e;">shǐ</span> — lịch sử</td>
+        </tr>
+        <tr>
+          <td class="play-cell" data-speak="糖"><span class="hanzi">糖</span> <span class="pin" style="color:#ca8a04;">táng</span> — đường</td>
+          <td class="play-cell" data-speak="躺"><span class="hanzi">躺</span> <span class="pin" style="color:#c8102e;">tǎng</span> — nằm</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Module 5: Quiz -->
+  <section class="module">
+    <h2>Module 5: Quiz — bạn xác định được thanh nào?</h2>
+    <p>Nghe audio, đoán thanh điệu. 10 câu, ngẫu nhiên.</p>
+
+    <div class="quiz-area" id="quiz">
+      <div class="quiz-q">
+        <span class="qchar" id="quiz-char">妈</span>
+        <span class="qpin" id="quiz-pin">m_</span>
+      </div>
+      <div style="text-align: center;">
+        <button class="play-big" id="quiz-play">▶ Nghe lại</button>
+      </div>
+      <div class="quiz-controls" id="quiz-buttons">
+        <button data-ans="1">Thanh 1 (cao bằng)</button>
+        <button data-ans="2">Thanh 2 (lên)</button>
+        <button data-ans="3">Thanh 3 (xuống-lên)</button>
+        <button data-ans="4">Thanh 4 (xuống)</button>
+      </div>
+      <div style="text-align: center;">
+        <div class="quiz-score" id="quiz-score">Câu 1/10 · Đúng 0</div>
+      </div>
+      <div class="quiz-actions">
+        <button id="quiz-next">Câu tiếp theo →</button>
+        <button id="quiz-reset">↺ Làm lại</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="module">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li><strong>4 thanh điệu chính</strong>: cao bằng (1), lên (2), xuống-lên (3), xuống mạnh (4) + thanh nhẹ.</li>
+      <li>Cùng pinyin, khác thanh = khác chữ Hán = khác nghĩa hoàn toàn.</li>
+      <li>Lỗi #1 của người Việt: nhầm thanh 2 ↔ thanh 3. Thanh 3 phải <strong>chạm đáy</strong> trước khi nảy lên.</li>
+      <li>Dấu thanh đặt theo ưu tiên <code>a &gt; o &gt; e &gt; i &gt; u &gt; ü</code>.</li>
+      <li>Bài tiếp: <a href="../lesson-02-initials/visualization.html">L02 — Thanh mẫu (21 phụ âm đầu)</a>.</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+// ============================================================
+// Web Speech API helpers
+// ============================================================
+const variant = localStorage.getItem('zhVariant') || 'zh-CN';
+
+function getZhVoice() {
+  const voices = window.speechSynthesis.getVoices();
+  const v = voices.find(v => v.lang === variant);
+  return v || voices.find(v => v.lang.startsWith('zh')) || null;
+}
+
+let currentPlaying = null;
+function clearPlaying() {
+  if (currentPlaying) currentPlaying.classList.remove('playing');
+  currentPlaying = null;
+}
+
+function speak(text, el) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  clearPlaying();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = localStorage.getItem('zhVariant') || 'zh-CN';
+  u.rate = 0.85; // hơi chậm cho học
+  const v = getZhVoice();
+  if (v) u.voice = v;
+  if (el) {
+    el.classList.add('playing');
+    currentPlaying = el;
+    u.onend = u.onerror = () => clearPlaying();
+  }
+  window.speechSynthesis.speak(u);
+}
+
+// Bind click cho mọi element có data-speak
+document.addEventListener('click', (e) => {
+  const target = e.target.closest('[data-speak]');
+  if (!target) return;
+  speak(target.dataset.speak, target);
+});
+
+// Tone cards
+document.querySelectorAll('.tone-card').forEach(card => {
+  card.addEventListener('click', () => {
+    const ex = card.dataset.example;
+    if (ex) {
+      // map example pinyin -> Hanzi để Web Speech đọc đúng thanh
+      const map = { 'mā': '妈', 'má': '麻', 'mǎ': '马', 'mà': '骂', 'ma': '妈妈' };
+      speak(map[ex] || ex, card);
+    }
+  });
+});
+
+// Play sequence button
+document.querySelectorAll('[data-play-seq]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const seq = ['妈', '麻', '马', '骂'];
+    let i = 0;
+    function next() {
+      if (i >= seq.length) return;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(seq[i]);
+      u.lang = localStorage.getItem('zhVariant') || 'zh-CN';
+      u.rate = 0.8;
+      const v = getZhVoice();
+      if (v) u.voice = v;
+      u.onend = () => { i++; setTimeout(next, 300); };
+      window.speechSynthesis.speak(u);
+    }
+    next();
+  });
+});
+
+// ============================================================
+// Quiz logic
+// ============================================================
+const quizBank = [
+  { hanzi: '妈', pin: 'mā', tone: 1 },
+  { hanzi: '麻', pin: 'má', tone: 2 },
+  { hanzi: '马', pin: 'mǎ', tone: 3 },
+  { hanzi: '骂', pin: 'mà', tone: 4 },
+  { hanzi: '八', pin: 'bā', tone: 1 },
+  { hanzi: '拔', pin: 'bá', tone: 2 },
+  { hanzi: '把', pin: 'bǎ', tone: 3 },
+  { hanzi: '爸', pin: 'bà', tone: 4 },
+  { hanzi: '师', pin: 'shī', tone: 1 },
+  { hanzi: '十', pin: 'shí', tone: 2 },
+  { hanzi: '史', pin: 'shǐ', tone: 3 },
+  { hanzi: '是', pin: 'shì', tone: 4 },
+  { hanzi: '汤', pin: 'tāng', tone: 1 },
+  { hanzi: '糖', pin: 'táng', tone: 2 },
+  { hanzi: '躺', pin: 'tǎng', tone: 3 },
+  { hanzi: '烫', pin: 'tàng', tone: 4 },
+  { hanzi: '高', pin: 'gāo', tone: 1 },
+  { hanzi: '来', pin: 'lái', tone: 2 },
+  { hanzi: '好', pin: 'hǎo', tone: 3 },
+  { hanzi: '看', pin: 'kàn', tone: 4 }
+];
+
+let quizIdx = 0, quizCorrect = 0, quizDone = false;
+let quizCurrent = null;
+
+function pickQuestion() {
+  return quizBank[Math.floor(Math.random() * quizBank.length)];
+}
+
+function renderQuiz() {
+  quizCurrent = pickQuestion();
+  document.getElementById('quiz-char').textContent = quizCurrent.hanzi;
+  // Ẩn dấu thanh trong pinyin (chỉ hiện _) để bắt user nghe
+  const pinNoTone = quizCurrent.pin.replace(/[āáǎà]/g, 'a').replace(/[ēéěè]/g, 'e').replace(/[īíǐì]/g, 'i').replace(/[ōóǒò]/g, 'o').replace(/[ūúǔù]/g, 'u');
+  document.getElementById('quiz-pin').textContent = pinNoTone + ' (?)';
+  document.querySelectorAll('#quiz-buttons button').forEach(b => {
+    b.classList.remove('correct', 'wrong');
+    b.disabled = false;
+  });
+  document.getElementById('quiz-score').textContent = `Câu ${quizIdx + 1}/10 · Đúng ${quizCorrect}`;
+  quizDone = false;
+  // Auto play
+  setTimeout(() => speak(quizCurrent.hanzi), 200);
+}
+
+document.getElementById('quiz-play').addEventListener('click', () => {
+  if (quizCurrent) speak(quizCurrent.hanzi);
+});
+
+document.querySelectorAll('#quiz-buttons button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (quizDone) return;
+    const ans = parseInt(btn.dataset.ans);
+    if (ans === quizCurrent.tone) {
+      btn.classList.add('correct');
+      quizCorrect++;
+    } else {
+      btn.classList.add('wrong');
+      // Highlight đúng đáp án
+      document.querySelector(`#quiz-buttons button[data-ans="${quizCurrent.tone}"]`).classList.add('correct');
+    }
+    document.querySelectorAll('#quiz-buttons button').forEach(b => b.disabled = true);
+    // Hiện pinyin đầy đủ
+    document.getElementById('quiz-pin').textContent = quizCurrent.pin;
+    quizDone = true;
+    document.getElementById('quiz-score').textContent = `Câu ${quizIdx + 1}/10 · Đúng ${quizCorrect}`;
+  });
+});
+
+document.getElementById('quiz-next').addEventListener('click', () => {
+  if (!quizDone) return;
+  quizIdx++;
+  if (quizIdx >= 10) {
+    document.getElementById('quiz-score').textContent = `Hoàn tất! Đúng ${quizCorrect}/10. ${quizCorrect >= 8 ? '🎉 Xuất sắc' : (quizCorrect >= 5 ? '👍 Khá' : 'Luyện thêm nhé')}.`;
+    document.getElementById('quiz-char').textContent = '✓';
+    document.getElementById('quiz-pin').textContent = '';
+    document.querySelectorAll('#quiz-buttons button').forEach(b => b.disabled = true);
+    return;
+  }
+  renderQuiz();
+});
+
+document.getElementById('quiz-reset').addEventListener('click', () => {
+  quizIdx = 0; quizCorrect = 0;
+  renderQuiz();
+});
+
+// Initial
+renderQuiz();
+
+// Preload voices
+if (window.speechSynthesis) {
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+<script src="../../../tools/zh-reader.js"></script>
+</body>
+</html>

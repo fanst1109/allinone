@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — DNA &amp; nhân đôi</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #14532d; }
+  h2 {
+    color: #166534; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #bbf7d0;
+  }
+  h3 { color: #15803d; margin-top: 20px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  input[type="text"], input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 11px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    max-width: 100%;
+  }
+  input[type="text"] { width: 100%; max-width: 320px; }
+  input[type="number"] { width: 90px; }
+  input[type="range"] { flex: 1; min-width: 0; }
+  button {
+    background: #059669; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #047857; }
+  button.muted { background: #a0aec0; }
+  button.muted:hover { background: #718096; }
+  button.pill {
+    background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;
+  }
+  button.pill.active { background: #059669; color: white; border-color: #047857; }
+  .stat {
+    display: inline-block; background: #d1fae5;
+    padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #047857; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; }
+  .group-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+  svg { display: block; margin: 8px auto; max-width: 100%; height: auto; }
+  .info-grid { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 14px; }
+  .info-grid div { padding: 6px 10px; background: #f0fdf4; border-radius: 6px; }
+  .info-grid strong { color: #166534; }
+
+  /* DNA base colors */
+  .b-A { fill: #ef4444; }
+  .b-T { fill: #f59e0b; }
+  .b-G { fill: #3b82f6; }
+  .b-C { fill: #8b5cf6; }
+  .b-label { font: bold 13px sans-serif; fill: white; text-anchor: middle; dominant-baseline: middle; }
+  .strand-line { stroke: #1f2937; stroke-width: 2; }
+  .h-bond { stroke: #9ca3af; stroke-width: 1.5; stroke-dasharray: 3 3; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 8px; }
+  th, td { border: 1px solid #d1d5db; padding: 7px 10px; text-align: left; }
+  th { background: #ecfdf5; color: #065f46; }
+
+  .step-box {
+    display: inline-block; padding: 4px 10px; margin: 4px;
+    border-radius: 20px; font-size: 13px; font-weight: 600;
+    background: #e5e7eb; color: #374151; cursor: pointer;
+  }
+  .step-box.active { background: #059669; color: white; }
+  .step-box.done { background: #6ee7b7; color: #065f46; }
+
+  .legend {
+    display: flex; gap: 14px; flex-wrap: wrap;
+    font-size: 13px; margin: 8px 0;
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; }
+
+  .band-area { background: #f3f4f6; border-radius: 6px; padding: 12px; }
+  .band-line {
+    position: relative; height: 32px; background: linear-gradient(to right, #fef3c7, #fff, #dbeafe);
+    border: 1px solid #d1d5db; border-radius: 4px; margin: 6px 0;
+  }
+  .band-mark {
+    position: absolute; top: 0; height: 100%;
+    border-left: 3px solid #dc2626; transition: left 0.3s;
+  }
+  .band-tick { font-size: 11px; color: #6b7280; }
+
+  details { margin-top: 10px; }
+  details summary { cursor: pointer; color: #166534; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Biology · Tầng 2</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-mendelian-genetics/visualization.html">← L1: Quy luật Mendel</a>
+  <span class="sep">·</span>
+  <span class="current">L2: DNA &amp; nhân đôi</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-transcription-translation/visualization.html">L3: Phiên mã &amp; dịch mã →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 02 — DNA &amp; nhân đôi</h1>
+<p>Bộ công cụ tương tác: bắt cặp bổ sung từ mạch khuôn, mô phỏng chạc nhân đôi với 5 bước enzyme, mô phỏng thí nghiệm Meselson–Stahl, và máy tính tốc độ nhân đôi với nhiều origin song song.</p>
+
+<h2>1. Bắt cặp bổ sung — viết mạch đối song</h2>
+<div class="card">
+  <p>Nhập mạch khuôn (template) chiều <strong>5'→3'</strong>. Viz tự tính mạch bổ sung (đối song) và đếm A, T, G, C, liên kết hydrogen.</p>
+  <div class="row">
+    <label>Mạch khuôn 5'→3':</label>
+    <input type="text" id="templateInput" value="ATGCGTAACCGTAGCT" maxlength="40" autocomplete="off">
+    <button id="randomSeq" class="pill">🎲 Ngẫu nhiên</button>
+  </div>
+  <div class="hint">Chỉ chấp nhận A, T, G, C. Tối đa 40 nucleotide.</div>
+  <svg id="pairSvg" width="640" height="160" viewBox="0 0 640 160" role="img" aria-label="Bắt cặp bổ sung"></svg>
+  <div class="legend">
+    <span><span class="swatch" style="background:#ef4444"></span>A (purine)</span>
+    <span><span class="swatch" style="background:#f59e0b"></span>T (pyrimidine)</span>
+    <span><span class="swatch" style="background:#3b82f6"></span>G (purine)</span>
+    <span><span class="swatch" style="background:#8b5cf6"></span>C (pyrimidine)</span>
+  </div>
+  <div style="margin-top:8px">
+    <span class="stat">A = <strong id="cA">0</strong></span>
+    <span class="stat">T = <strong id="cT">0</strong></span>
+    <span class="stat">G = <strong id="cG">0</strong></span>
+    <span class="stat">C = <strong id="cC">0</strong></span>
+    <span class="stat">Liên kết H = <strong id="cH">0</strong></span>
+  </div>
+  <div class="hint" id="pairHint"></div>
+  <div class="hint">Quy ước: <strong>5'→3'</strong> đọc trái sang phải cho mạch trên; mạch dưới chiều ngược lại (3'→5'). A–T có 2 liên kết H, G–C có 3.</div>
+</div>
+
+<h2>2. Chạc nhân đôi — đội ngũ enzyme từng bước</h2>
+<div class="card">
+  <p>Click các bước theo thứ tự để xem enzyme nào làm gì tại chạc. Có thể click "Tiếp theo" hoặc click thẳng vào ô bước.</p>
+  <div id="stepsBar" style="margin: 6px 0"></div>
+  <div class="row">
+    <button id="forkPrev" class="muted">← Lùi</button>
+    <button id="forkNext">Tiếp theo →</button>
+    <button id="forkReset" class="muted">Reset</button>
+  </div>
+  <svg id="forkSvg" width="640" height="280" viewBox="0 0 640 280" role="img" aria-label="Chạc nhân đôi"></svg>
+  <div class="info-grid" id="forkInfo"></div>
+</div>
+
+<h2>3. Meselson–Stahl — theo dõi DNA nặng / nhẹ / lai</h2>
+<div class="card">
+  <p>Bắt đầu với 1 DNA mẹ "nặng" (cả 2 mạch N15). Chuyển sang môi trường N14 và kéo thanh để xem trạng thái sau n chu kỳ. Viz tính số DNA, tỉ lệ lai vs nhẹ, và mô phỏng vị trí băng ly tâm.</p>
+  <div class="row">
+    <label>Số chu kỳ n:</label>
+    <input type="range" id="cycleSlider" min="0" max="8" value="2">
+    <span class="stat">n = <strong id="cycleVal">2</strong></span>
+  </div>
+  <svg id="msSvg" width="640" height="220" viewBox="0 0 640 220" role="img" aria-label="Cây nhân đôi"></svg>
+  <div style="margin-top:8px">
+    <span class="stat">Tổng DNA = <strong id="msTotal">4</strong></span>
+    <span class="stat" style="background:#fee2e2">Nặng (N15+N15) = <strong id="msHeavy">0</strong></span>
+    <span class="stat" style="background:#fef3c7">Lai (N15+N14) = <strong id="msHybrid">2</strong></span>
+    <span class="stat" style="background:#dbeafe">Nhẹ (N14+N14) = <strong id="msLight">2</strong></span>
+  </div>
+  <h4 style="margin-top:14px; color:#166534">Băng ly tâm dự đoán (gradient CsCl):</h4>
+  <div class="band-area">
+    <div class="band-tick" style="display:flex; justify-content:space-between">
+      <span>nặng (N15) →</span>
+      <span>← nhẹ (N14)</span>
+    </div>
+    <div class="band-line" id="bandLine"></div>
+    <div class="hint" id="msHint"></div>
+  </div>
+  <details>
+    <summary>📐 Công thức tổng quát</summary>
+    <p>Sau n chu kỳ trong N14 từ 1 DNA mẹ nặng:</p>
+    <ul>
+      <li>Tổng DNA con = 2<sup>n</sup>.</li>
+      <li>DNA "nặng" = 0 (sau chu kỳ 1 trở đi).</li>
+      <li>DNA "lai" = <strong>luôn 2</strong> (vì chỉ có 2 mạch N15 gốc).</li>
+      <li>DNA "nhẹ" = 2<sup>n</sup> − 2.</li>
+    </ul>
+    <p>Tỉ lệ % lai = 2/2<sup>n</sup> = 1/2<sup>n−1</sup>. n=1: 100% lai; n=2: 50%; n=3: 25%; n=10: ~0.2%.</p>
+  </details>
+</div>
+
+<h2>4. Tốc độ nhân đôi — chơi với origin song song</h2>
+<div class="card">
+  <p>Genome lớn nhân đôi nhanh nhờ nhiều <strong>origin</strong> chạy song song. Mỗi origin cho 2 chạc đi ngược nhau. Kéo các thanh và xem thời gian thay đổi.</p>
+  <div class="row">
+    <label>Loài:</label>
+    <button class="pill active" data-org="ecoli">E. coli (4.6×10⁶ bp, 1000 nt/s)</button>
+    <button class="pill" data-org="yeast">Nấm men (1.2×10⁷ bp, 100 nt/s)</button>
+    <button class="pill" data-org="human">Người (3×10⁹ bp, 50 nt/s)</button>
+    <button class="pill" data-org="custom">Tự nhập</button>
+  </div>
+  <div class="row" id="customRow" style="display:none">
+    <label>Genome (bp):</label>
+    <input type="number" id="genomeIn" value="1000000" min="1000" step="1000">
+    <label>Tốc độ (nt/s/fork):</label>
+    <input type="number" id="speedIn" value="500" min="1">
+  </div>
+  <div class="row">
+    <label>Số origin:</label>
+    <input type="range" id="originSlider" min="1" max="100000" value="1">
+    <span class="stat">k = <strong id="originVal">1</strong></span>
+  </div>
+  <svg id="speedSvg" width="640" height="180" viewBox="0 0 640 180" role="img" aria-label="Đồ thị tốc độ"></svg>
+  <div style="margin-top:8px">
+    <span class="stat">Số chạc = <strong id="forkCount">2</strong></span>
+    <span class="stat">Thời gian = <strong id="timeVal">38m 20s</strong></span>
+    <span class="stat" id="ratioStat">Mỗi chạc gánh <strong id="loadVal">2.3 Mbp</strong></span>
+  </div>
+  <div class="hint" id="speedHint"></div>
+  <details>
+    <summary>📐 Công thức</summary>
+    <p><code>t = (genome size) / (2k × v)</code> · k = số origin, v = tốc độ/chạc. Mỗi origin → 2 chạc đi ngược chiều.</p>
+    <p>Trong thực tế các origin không khởi động đồng thời nên thời gian thực dài hơn ước lượng. Ở người: ~30,000 origin nhưng pha S kéo dài ~8h, không phải ~17 phút như công thức lý tưởng.</p>
+  </details>
+</div>
+
+<h2>5. Tóm lược cấu trúc và quá trình</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>Khía cạnh</th><th>Chi tiết</th></tr></thead>
+    <tbody>
+      <tr><td>Cấu trúc DNA</td><td>Xoắn kép, 2 mạch antiparallel (5'→3' &amp; 3'→5'), ~10 bp/vòng, đường kính 2 nm</td></tr>
+      <tr><td>Bắt cặp</td><td>A–T (2 H-bond), G–C (3 H-bond); purine + pyrimidine</td></tr>
+      <tr><td>Cơ chế nhân đôi</td><td>Bán bảo toàn (Meselson–Stahl 1958): mỗi con = 1 mạch cũ + 1 mạch mới</td></tr>
+      <tr><td>Chiều tổng hợp</td><td>5'→3'; cần đầu 3'-OH; cần primer khởi đầu</td></tr>
+      <tr><td>Enzyme chính</td><td>Helicase, topoisomerase, SSB, primase, DNA pol III, DNA pol I, ligase</td></tr>
+      <tr><td>Mạch dẫn đầu vs trễ</td><td>Liên tục vs ngắt quãng (đoạn Okazaki ~1500 nt vi khuẩn, ~150 nt người)</td></tr>
+      <tr><td>Sai sót cuối</td><td>~10⁻⁹ nhờ proofreading + mismatch repair</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+
+/* ============ Section 1: Complementary base pairing ============ */
+const COMPLEMENT = { A: "T", T: "A", G: "C", C: "G" };
+const H_BONDS = { A: 2, T: 2, G: 3, C: 3 };
+
+function renderPair() {
+  const inp = document.getElementById("templateInput");
+  let seq = inp.value.toUpperCase().replace(/[^ATGC]/g, "");
+  if (seq.length > 40) seq = seq.slice(0, 40);
+  inp.value = seq;
+  const svg = document.getElementById("pairSvg"); clear(svg);
+  if (seq.length === 0) {
+    const t = el("text", { x: 320, y: 80, "text-anchor": "middle", fill: "#9ca3af", "font-size": 14 }, svg);
+    t.textContent = "Nhập mạch khuôn (A, T, G, C)…";
+    ["cA","cT","cG","cC","cH"].forEach(id => document.getElementById(id).textContent = 0);
+    document.getElementById("pairHint").textContent = "";
+    return;
+  }
+  const n = seq.length;
+  const w = 32;
+  const usableW = 620;
+  const startX = 10 + Math.max(0, (usableW - n * w) / 2);
+  // Top strand 5'→3'
+  el("text", { x: 5, y: 32, "font-size": 12, fill: "#374151", "font-weight": "700" }, svg).textContent = "5'";
+  el("text", { x: 5, y: 120, "font-size": 12, fill: "#374151", "font-weight": "700" }, svg).textContent = "3'";
+  el("text", { x: startX + n * w + 4, y: 32, "font-size": 12, fill: "#374151", "font-weight": "700" }, svg).textContent = "3'";
+  el("text", { x: startX + n * w + 4, y: 120, "font-size": 12, fill: "#374151", "font-weight": "700" }, svg).textContent = "5'";
+  // backbone lines
+  el("line", { x1: startX, y1: 38, x2: startX + n * w, y2: 38, class: "strand-line" }, svg);
+  el("line", { x1: startX, y1: 114, x2: startX + n * w, y2: 114, class: "strand-line" }, svg);
+  // Count
+  const cnt = { A:0, T:0, G:0, C:0 };
+  let H = 0;
+  for (let i = 0; i < n; i++) {
+    const x = startX + i * w + w / 2;
+    const top = seq[i], bot = COMPLEMENT[top];
+    cnt[top]++;
+    H += H_BONDS[top];
+    el("rect", { x: x - 11, y: 22, width: 22, height: 22, rx: 4, class: "b-" + top }, svg);
+    el("text", { x: x, y: 33, class: "b-label" }, svg).textContent = top;
+    // h-bonds (lines between)
+    const nh = H_BONDS[top];
+    for (let k = 0; k < nh; k++) {
+      const yk = 56 + k * 8 + (nh === 2 ? 2 : 0);
+      el("line", { x1: x - 6 + k * 6, y1: 48, x2: x - 6 + k * 6, y2: 100, class: "h-bond" }, svg);
+    }
+    el("rect", { x: x - 11, y: 100, width: 22, height: 22, rx: 4, class: "b-" + bot }, svg);
+    el("text", { x: x, y: 111, class: "b-label" }, svg).textContent = bot;
+    // index small
+    el("text", { x: x, y: 145, "text-anchor": "middle", "font-size": 10, fill: "#6b7280" }, svg).textContent = i + 1;
+  }
+  // Update counters
+  document.getElementById("cA").textContent = cnt.A;
+  document.getElementById("cT").textContent = cnt.T;
+  document.getElementById("cG").textContent = cnt.G;
+  document.getElementById("cC").textContent = cnt.C;
+  document.getElementById("cH").textContent = H;
+  // Build complementary strand text (5'→3')
+  let comp = "";
+  for (let i = n - 1; i >= 0; i--) comp += COMPLEMENT[seq[i]];
+  const at = cnt.A + cnt.T, gc = cnt.G + cnt.C;
+  const pctGC = n > 0 ? Math.round(100 * gc / n) : 0;
+  document.getElementById("pairHint").innerHTML =
+    `Mạch bổ sung (5'→3'): <code style="font-family:monospace;background:#f3f4f6;padding:2px 6px;border-radius:4px">${comp}</code> · ` +
+    `GC = ${pctGC}% · Tổng H = ${cnt.A}×2 + ${cnt.G}×3 (×2 vì cả 2 phía đóng góp) = ${H}.`;
+}
+document.getElementById("templateInput").oninput = renderPair;
+document.getElementById("randomSeq").onclick = () => {
+  const len = 12 + Math.floor(Math.random() * 12);
+  const bases = "ATGC";
+  let s = "";
+  for (let i = 0; i < len; i++) s += bases[Math.floor(Math.random() * 4)];
+  document.getElementById("templateInput").value = s;
+  renderPair();
+};
+renderPair();
+
+/* ============ Section 2: Replication fork stepper ============ */
+const STEPS = [
+  { name: "1. Helicase tháo xoắn", desc: "Helicase ngồi tại origin, bẻ liên kết hydrogen giữa 2 mạch → tạo bong bóng nhân đôi.", color: "#dc2626" },
+  { name: "2. Topoisomerase + SSB", desc: "Topoisomerase giải xoắn quá mức phía trước fork. SSB bám lên mạch đơn ngăn 2 mạch dính lại.", color: "#0891b2" },
+  { name: "3. Primase đặt primer RNA", desc: "Primase (RNA polymerase) tổng hợp đoạn mồi RNA ngắn ~10 nt. 1 primer cho mạch dẫn đầu, nhiều primer cho mạch trễ (mỗi đoạn Okazaki).", color: "#7c3aed" },
+  { name: "4. DNA pol III kéo dài 5'→3'", desc: "Pol III bám primer rồi tổng hợp DNA. Mạch dẫn đầu: liên tục theo fork. Mạch trễ: ngắt quãng thành đoạn Okazaki.", color: "#059669" },
+  { name: "5. Pol I + ligase hoàn thiện", desc: "Pol I cắt primer RNA, thay bằng DNA. Ligase tạo liên kết phosphodiester nối các đoạn lại — đặc biệt quan trọng cho mạch trễ.", color: "#d97706" }
+];
+let currentStep = 0;
+function renderForkSteps() {
+  const bar = document.getElementById("stepsBar");
+  bar.innerHTML = "";
+  STEPS.forEach((s, i) => {
+    const b = document.createElement("span");
+    b.className = "step-box" + (i === currentStep ? " active" : i < currentStep ? " done" : "");
+    b.textContent = s.name;
+    b.onclick = () => { currentStep = i; renderForkSteps(); renderFork(); };
+    bar.appendChild(b);
+  });
+}
+function renderFork() {
+  const svg = document.getElementById("forkSvg"); clear(svg);
+  // Draw fork: Y shape
+  const cx = 320, fY = 140;
+  // unwound region on the left
+  el("line", { x1: 20, y1: 80, x2: cx, y2: 80, class: "strand-line", stroke: "#1e3a8a" }, svg); // template top (3' end facing right)
+  el("line", { x1: 20, y1: 200, x2: cx, y2: 200, class: "strand-line", stroke: "#7c2d12" }, svg); // template bottom
+  // dsDNA on the right
+  el("line", { x1: cx, y1: 140, x2: 620, y2: 140, class: "strand-line", "stroke-width": 4, stroke: "#374151" }, svg);
+  el("text", { x: 620, y: 132, "text-anchor": "end", "font-size": 12, fill: "#374151" }, svg).textContent = "DNA chưa tách →";
+  // labels
+  el("text", { x: 18, y: 72, "font-size": 12, fill: "#1e3a8a", "font-weight": "700" }, svg).textContent = "3' khuôn (đầu mở ra fork)";
+  el("text", { x: 18, y: 218, "font-size": 12, fill: "#7c2d12", "font-weight": "700" }, svg).textContent = "5' khuôn";
+  el("text", { x: 18, y: 245, "font-size": 11, fill: "#6b7280" }, svg).textContent = "(mũi tên = chiều fork mở →)";
+
+  // arrow showing fork direction
+  el("line", { x1: cx - 60, y1: 260, x2: cx + 20, y2: 260, stroke: "#16a34a", "stroke-width": 2, "marker-end": "url(#arrG)" }, svg);
+  const defs = el("defs", {}, svg);
+  const mk = el("marker", { id: "arrG", markerWidth: 8, markerHeight: 8, refX: 6, refY: 3, orient: "auto" }, defs);
+  el("path", { d: "M0,0 L6,3 L0,6 Z", fill: "#16a34a" }, mk);
+  el("text", { x: cx - 20, y: 274, "font-size": 11, fill: "#16a34a", "font-weight": "700" }, svg).textContent = "fork đi";
+
+  // Step-specific rendering
+  if (currentStep >= 0) {
+    // Step 1: helicase circle at fork
+    el("circle", { cx: cx, cy: 140, r: 22, fill: "#fee2e2", stroke: "#dc2626", "stroke-width": 2.5 }, svg);
+    el("text", { x: cx, y: 145, "text-anchor": "middle", "font-size": 11, fill: "#dc2626", "font-weight": "700" }, svg).textContent = "Heli";
+  }
+  if (currentStep >= 1) {
+    // Topoisomerase circle ahead of fork
+    el("circle", { cx: cx + 70, cy: 140, r: 18, fill: "#cffafe", stroke: "#0891b2", "stroke-width": 2 }, svg);
+    el("text", { x: cx + 70, y: 144, "text-anchor": "middle", "font-size": 10, fill: "#0891b2", "font-weight": "700" }, svg).textContent = "Topo";
+    // SSB dots on single strands
+    [60, 110, 160, 220, 270].forEach(x => {
+      el("circle", { cx: x, cy: 80, r: 6, fill: "#cffafe", stroke: "#0891b2", "stroke-width": 1.5 }, svg);
+      el("circle", { cx: x, cy: 200, r: 6, fill: "#cffafe", stroke: "#0891b2", "stroke-width": 1.5 }, svg);
+    });
+  }
+  if (currentStep >= 2) {
+    // Primer on top strand (leading): one primer near fork
+    el("rect", { x: cx - 50, y: 96, width: 30, height: 8, fill: "#7c3aed", rx: 3 }, svg);
+    el("text", { x: cx - 35, y: 92, "text-anchor": "middle", "font-size": 10, fill: "#7c3aed", "font-weight": "700" }, svg).textContent = "primer";
+    // Multiple primers on bottom strand (lagging)
+    [50, 130, 210].forEach(x => {
+      el("rect", { x: x, y: 184, width: 24, height: 8, fill: "#7c3aed", rx: 3 }, svg);
+    });
+    el("text", { x: 50, y: 180, "font-size": 10, fill: "#7c3aed", "font-weight": "700" }, svg).textContent = "primer×n";
+  }
+  if (currentStep >= 3) {
+    // Leading: continuous DNA stretching from primer to fork
+    el("line", { x1: cx - 20, y1: 100, x2: cx, y2: 100, stroke: "#059669", "stroke-width": 5 }, svg);
+    el("text", { x: cx - 10, y: 116, "text-anchor": "middle", "font-size": 10, fill: "#059669", "font-weight": "700" }, svg).textContent = "leading →";
+    // Lagging: Okazaki segments
+    [74, 154, 234].forEach(x => {
+      el("line", { x1: x, y1: 188, x2: x + 40, y2: 188, stroke: "#059669", "stroke-width": 5 }, svg);
+    });
+    el("text", { x: 130, y: 215, "font-size": 10, fill: "#059669", "font-weight": "700" }, svg).textContent = "đoạn Okazaki";
+  }
+  if (currentStep >= 4) {
+    // Show RNA primers gone, ligase joining
+    // Recolor primers on bottom as DNA
+    [50, 130, 210].forEach(x => {
+      el("rect", { x: x, y: 184, width: 24, height: 8, fill: "#059669", rx: 3 }, svg);
+    });
+    // Ligase ribbons
+    [114, 194].forEach(x => {
+      el("rect", { x: x, y: 182, width: 4, height: 12, fill: "#d97706" }, svg);
+    });
+    el("text", { x: 154, y: 235, "text-anchor": "middle", "font-size": 11, fill: "#d97706", "font-weight": "700" }, svg).textContent = "ligase nối ↑";
+  }
+
+  // Step info
+  const info = document.getElementById("forkInfo");
+  if (currentStep < STEPS.length) {
+    const s = STEPS[currentStep];
+    info.innerHTML =
+      `<div><strong style="color:${s.color}">${s.name}</strong></div>` +
+      `<div>${s.desc}</div>`;
+  } else {
+    info.innerHTML = `<div><strong>Đã hoàn tất 5 bước.</strong> Kết quả: 2 DNA con, mỗi con có 1 mạch khuôn cũ + 1 mạch mới (bán bảo toàn).</div>`;
+  }
+}
+document.getElementById("forkPrev").onclick = () => { if (currentStep > 0) { currentStep--; renderForkSteps(); renderFork(); } };
+document.getElementById("forkNext").onclick = () => { if (currentStep < STEPS.length - 1) { currentStep++; renderForkSteps(); renderFork(); } };
+document.getElementById("forkReset").onclick = () => { currentStep = 0; renderForkSteps(); renderFork(); };
+renderForkSteps(); renderFork();
+
+/* ============ Section 3: Meselson–Stahl tracker ============ */
+function renderMS() {
+  const n = +document.getElementById("cycleSlider").value;
+  document.getElementById("cycleVal").textContent = n;
+  const total = Math.pow(2, n);
+  let heavy, hybrid, light;
+  if (n === 0) { heavy = 1; hybrid = 0; light = 0; }
+  else { heavy = 0; hybrid = 2; light = total - 2; }
+  document.getElementById("msTotal").textContent = total;
+  document.getElementById("msHeavy").textContent = heavy;
+  document.getElementById("msHybrid").textContent = hybrid;
+  document.getElementById("msLight").textContent = light;
+
+  const svg = document.getElementById("msSvg"); clear(svg);
+  // Draw a tree of DNA molecules
+  // Limit display to n<=5 (otherwise too many)
+  const showN = Math.min(n, 5);
+  const totalShow = Math.pow(2, showN);
+  const yLevels = [];
+  for (let lv = 0; lv <= showN; lv++) yLevels.push(20 + lv * (180 / Math.max(1, showN)));
+  // Draw lineage as colored dots
+  // Each DNA: represented by 2 horizontal bars (2 strands), colored red=N15, blue=N14
+  function drawDNA(cx, cy, topColor, botColor) {
+    el("rect", { x: cx - 14, y: cy - 4, width: 28, height: 3, fill: topColor, rx: 1 }, svg);
+    el("rect", { x: cx - 14, y: cy + 1, width: 28, height: 3, fill: botColor, rx: 1 }, svg);
+  }
+  // recursively place
+  function place(lv, startX, endX, parentTop, parentBot) {
+    const cx = (startX + endX) / 2;
+    const cy = yLevels[lv];
+    // For semiconservative: children get one parent strand each + one new (blue)
+    if (lv === 0) {
+      drawDNA(cx, cy, "#dc2626", "#dc2626"); // heavy mother
+      if (showN >= 1) {
+        place(1, startX, cx, "#dc2626", "#3b82f6");
+        place(1, cx, endX, "#dc2626", "#3b82f6");
+      }
+      return;
+    }
+    drawDNA(cx, cy, parentTop, parentBot);
+    if (lv < showN) {
+      const halfMid = (startX + cx) / 2;
+      const halfMid2 = (cx + endX) / 2;
+      // Child 1: gets parentTop + new (blue)
+      place(lv + 1, startX, cx, parentTop, "#3b82f6");
+      // Child 2: gets parentBot + new (blue)
+      place(lv + 1, cx, endX, parentBot, "#3b82f6");
+    }
+  }
+  place(0, 20, 620, null, null);
+  // Level labels
+  for (let lv = 0; lv <= showN; lv++) {
+    el("text", { x: 4, y: yLevels[lv] + 4, "font-size": 11, fill: "#6b7280" }, svg).textContent = "n=" + lv;
+  }
+  if (n > 5) {
+    el("text", { x: 320, y: 210, "text-anchor": "middle", "font-size": 12, fill: "#6b7280", "font-style": "italic" }, svg)
+      .textContent = `(hiển thị n=0..5; tính toán đúng cho n=${n})`;
+  }
+
+  // Band line
+  const band = document.getElementById("bandLine");
+  band.innerHTML = "";
+  // Heavy at left (10%), hybrid at middle (50%), light at right (90%)
+  function addBand(pct, color, label) {
+    if (pct <= 0) return;
+    const d = document.createElement("div");
+    d.style.position = "absolute";
+    d.style.left = "calc(" + (10 + 0.8 * 0) + "% + 0px)"; // not needed; using band-mark
+    d.className = "band-mark";
+    d.style.borderLeft = `${Math.max(3, Math.min(20, pct / 5))}px solid ${color}`;
+    d.style.left = (pct === 100 ? 50 : (label === "heavy" ? 10 : label === "hybrid" ? 50 : 90)) + "%";
+    band.appendChild(d);
+    const txt = document.createElement("div");
+    txt.className = "band-tick";
+    txt.style.position = "absolute";
+    txt.style.left = (label === "heavy" ? 6 : label === "hybrid" ? 46 : 86) + "%";
+    txt.style.top = "34px";
+    txt.style.fontWeight = "700";
+    txt.style.color = color;
+    txt.textContent = label === "heavy" ? `nặng ${Math.round(100*pct)/100}%` :
+                      label === "hybrid" ? `lai ${Math.round(100*pct)/100}%` :
+                      `nhẹ ${Math.round(100*pct)/100}%`;
+    band.appendChild(txt);
+  }
+  const pH = 100 * heavy / total, pHy = 100 * hybrid / total, pL = 100 * light / total;
+  addBand(pH, "#dc2626", "heavy");
+  addBand(pHy, "#d97706", "hybrid");
+  addBand(pL, "#2563eb", "light");
+
+  document.getElementById("msHint").innerHTML =
+    `Chu kỳ n=${n}: tổng 2<sup>${n}</sup>=${total} DNA con. Lai = ${hybrid} (luôn = 2 với n≥1). ` +
+    `Nhẹ = ${light}. Tỉ lệ lai = ${total > 0 ? (100*hybrid/total).toFixed(2) : 0}%.`;
+}
+document.getElementById("cycleSlider").oninput = renderMS;
+renderMS();
+
+/* ============ Section 4: Replication speed ============ */
+const ORGS = {
+  ecoli: { genome: 4.6e6, speed: 1000, name: "E. coli" },
+  yeast: { genome: 1.2e7, speed: 100, name: "Nấm men" },
+  human: { genome: 3e9, speed: 50, name: "Người" }
+};
+let currentOrg = "ecoli";
+
+function fmtTime(s) {
+  if (s < 60) return s.toFixed(1) + " s";
+  if (s < 3600) return Math.floor(s / 60) + "m " + Math.round(s % 60) + "s";
+  if (s < 86400) return Math.floor(s / 3600) + "h " + Math.round((s % 3600) / 60) + "m";
+  return Math.floor(s / 86400) + " ngày " + Math.round((s % 86400) / 3600) + "h";
+}
+function fmtBp(n) {
+  if (n >= 1e9) return (n/1e9).toFixed(2) + " Gbp";
+  if (n >= 1e6) return (n/1e6).toFixed(2) + " Mbp";
+  if (n >= 1e3) return (n/1e3).toFixed(2) + " kbp";
+  return n.toFixed(0) + " bp";
+}
+function renderSpeed() {
+  let genome, speed, name;
+  if (currentOrg === "custom") {
+    genome = +document.getElementById("genomeIn").value;
+    speed = +document.getElementById("speedIn").value;
+    name = "Tùy chỉnh";
+    if (genome <= 0 || speed <= 0) {
+      document.getElementById("speedHint").textContent = "Genome và tốc độ phải > 0.";
+      return;
+    }
+  } else {
+    const o = ORGS[currentOrg];
+    genome = o.genome; speed = o.speed; name = o.name;
+  }
+  const k = +document.getElementById("originSlider").value;
+  document.getElementById("originVal").textContent = k.toLocaleString();
+  const forks = 2 * k;
+  const t = genome / (forks * speed);
+  document.getElementById("forkCount").textContent = forks.toLocaleString();
+  document.getElementById("timeVal").textContent = fmtTime(t);
+  document.getElementById("loadVal").textContent = fmtBp(genome / forks);
+
+  // Hint with realism check
+  let hint = `${name}: genome ${fmtBp(genome)}, tốc độ ${speed} nt/s/fork, ${k.toLocaleString()} origin → ${forks.toLocaleString()} chạc. `;
+  hint += `Thời gian (lý tưởng) = ${fmtBp(genome)} / (${forks.toLocaleString()} × ${speed}) = ${fmtTime(t)}.`;
+  if (currentOrg === "ecoli" && k === 1) hint += " ← khớp thực tế ~38 phút.";
+  if (currentOrg === "human" && k === 1) hint += " ← vô lý dài, do đó người cần nhiều origin.";
+  if (currentOrg === "human" && k >= 30000) hint += " ← gần thực tế (~8h pha S thực vì origin không khởi động đồng thời).";
+  document.getElementById("speedHint").textContent = hint;
+
+  // Draw a simple bar chart: time vs k (in log scale)
+  const svg = document.getElementById("speedSvg"); clear(svg);
+  const W = 640, H = 180;
+  const margin = { l: 60, r: 20, t: 10, b: 40 };
+  const plotW = W - margin.l - margin.r, plotH = H - margin.t - margin.b;
+  // Sample k values
+  const kvs = [1, 10, 100, 1000, 10000, 100000];
+  const tvs = kvs.map(kk => genome / (2 * kk * speed));
+  // Use log time for height scaling
+  const logMax = Math.log10(Math.max(...tvs));
+  const logMin = Math.log10(Math.max(0.001, Math.min(...tvs)));
+  // axes
+  el("line", { x1: margin.l, y1: H - margin.b, x2: W - margin.r, y2: H - margin.b, stroke: "#9ca3af" }, svg);
+  el("line", { x1: margin.l, y1: margin.t, x2: margin.l, y2: H - margin.b, stroke: "#9ca3af" }, svg);
+  el("text", { x: W / 2, y: H - 6, "text-anchor": "middle", "font-size": 11, fill: "#374151" }, svg).textContent = "Số origin (log scale)";
+  el("text", { x: 14, y: H/2, "font-size": 11, fill: "#374151", transform: `rotate(-90 14 ${H/2})` }, svg).textContent = "Thời gian (log)";
+  const bw = plotW / kvs.length - 6;
+  kvs.forEach((kk, i) => {
+    const tt = tvs[i];
+    const h = Math.max(2, plotH * (Math.log10(tt) - logMin + 0.2) / (logMax - logMin + 0.4));
+    const x = margin.l + i * (plotW / kvs.length) + 3;
+    const y = H - margin.b - h;
+    const isCur = (kk === Math.pow(10, Math.round(Math.log10(k))));
+    el("rect", { x: x, y: y, width: bw, height: h, fill: isCur ? "#dc2626" : "#34d399", rx: 3 }, svg);
+    el("text", { x: x + bw/2, y: H - margin.b + 14, "text-anchor": "middle", "font-size": 10, fill: "#374151" }, svg).textContent = kk.toLocaleString();
+    el("text", { x: x + bw/2, y: y - 4, "text-anchor": "middle", "font-size": 9, fill: "#374151" }, svg).textContent = fmtTime(tt);
+  });
+}
+document.querySelectorAll("[data-org]").forEach(b => {
+  b.onclick = () => {
+    currentOrg = b.dataset.org;
+    document.querySelectorAll("[data-org]").forEach(x => x.classList.toggle("active", x === b));
+    document.getElementById("customRow").style.display = (currentOrg === "custom") ? "flex" : "none";
+    renderSpeed();
+  };
+});
+document.getElementById("originSlider").oninput = renderSpeed;
+document.getElementById("genomeIn").oninput = renderSpeed;
+document.getElementById("speedIn").oninput = renderSpeed;
+renderSpeed();
+</script>
+
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

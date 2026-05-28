@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Điều hòa gen</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #14532d; }
+  h2 {
+    color: #166534; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #bbf7d0;
+  }
+  h3 { color: #15803d; margin-top: 20px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 11px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 90px; max-width: 100%;
+  }
+  input[type="range"] { flex: 1; min-width: 0; }
+  button {
+    background: #059669; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #047857; }
+  button.muted { background: #a0aec0; }
+  button.muted:hover { background: #718096; }
+  .pill {
+    background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;
+  }
+  .pill.active { background: #059669; color: white; }
+  .stat {
+    display: inline-block; background: #d1fae5;
+    padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #047857; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; }
+  .group-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+  svg { display: block; margin: 8px auto; max-width: 100%; height: auto; }
+  .info-grid { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 14px; }
+  .info-grid div { padding: 6px 10px; background: #f0fdf4; border-radius: 6px; }
+  .info-grid strong { color: #166534; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 8px; }
+  th, td { border: 1px solid #d1d5db; padding: 7px 10px; text-align: left; }
+  th { background: #ecfdf5; color: #065f46; }
+
+  .toggle-grid {
+    display: grid; grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 10px; margin-bottom: 10px;
+  }
+  .tog {
+    background: #f8fafc; border: 2px solid #e5e7eb; padding: 12px;
+    border-radius: 8px; cursor: pointer; user-select: none;
+    text-align: center; font-weight: 600;
+  }
+  .tog.on { background: #d1fae5; border-color: #10b981; color: #065f46; }
+  .tog.off { color: #6b7280; }
+
+  .state-badge {
+    display: inline-block; padding: 6px 14px; border-radius: 999px;
+    font-weight: 700; font-size: 15px;
+  }
+  .state-off { background: #fee2e2; color: #b91c1c; }
+  .state-low { background: #fef3c7; color: #92400e; }
+  .state-on  { background: #d1fae5; color: #065f46; }
+
+  .gene-promoter { fill: #fde68a; stroke: #b45309; stroke-width: 1.5; }
+  .gene-operator { fill: #fca5a5; stroke: #991b1b; stroke-width: 1.5; }
+  .gene-struct   { fill: #93c5fd; stroke: #1e3a8a; stroke-width: 1.5; }
+  .gene-label    { font: 12px sans-serif; fill: #374151; text-anchor: middle; font-weight: 600; }
+
+  .bar-met { fill: #ef4444; }
+  .bar-exp { fill: #10b981; }
+
+  .layer-card {
+    border-left: 4px solid #10b981; padding: 10px 14px;
+    background: #f0fdf4; border-radius: 0 8px 8px 0;
+    margin: 8px 0;
+  }
+  .layer-card h4 { margin: 0 0 6px 0; color: #14532d; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Biology · Tầng 2</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-transcription-translation/visualization.html">← L3: Phiên mã &amp; dịch mã</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Điều hòa gen</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-mutation-biotech/visualization.html">L5: Đột biến &amp; công nghệ gen →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 04 — Điều hòa gen</h1>
+<p>Bộ công cụ tương tác: bật/tắt operon Lac theo môi trường, kéo nồng độ Trp xem repressible operon hoạt động, duyệt 5 cấp điều hòa ở eukaryote, và quan sát ảnh hưởng của methylation lên biểu hiện gen.</p>
+
+<h2>1. Operon Lac — bật/tắt theo môi trường</h2>
+<div class="card">
+  <p>Bật/tắt sự có mặt của <strong>lactose</strong> và <strong>glucose</strong>, xem trạng thái repressor LacI, CAP–cAMP và RNA polymerase. Trạng thái phiên mã đầu ra ở góc phải.</p>
+  <div class="toggle-grid">
+    <div class="tog on" id="togLac">Lactose: CÓ</div>
+    <div class="tog off" id="togGlu">Glucose: KHÔNG</div>
+  </div>
+  <svg id="lacSvg" width="520" height="240" viewBox="0 0 520 240" role="img" aria-label="Sơ đồ operon Lac"></svg>
+  <div style="margin-top:6px">
+    <span class="stat">LacI: <strong id="lacILabel">gỡ (allolactose gắn)</strong></span>
+    <span class="stat">CAP–cAMP: <strong id="capLabel">hoạt động</strong></span>
+    <span class="stat">RNA pol: <strong id="rnapLabel">bám tốt</strong></span>
+  </div>
+  <div style="margin-top:8px">
+    Trạng thái phiên mã: <span class="state-badge state-on" id="lacState">BẬT MẠNH (~100%)</span>
+  </div>
+  <div class="hint" id="lacHint"></div>
+</div>
+
+<h2>2. Operon Trp — kìm hãm theo nồng độ Trp</h2>
+<div class="card">
+  <p>Kéo thanh chỉnh nồng độ tryptophan trong tế bào. Trp đóng vai trò <strong>corepressor</strong> — gắn TrpR để hoạt hóa nó, từ đó kìm hãm phiên mã.</p>
+  <div class="row">
+    <label>[Trp] (μM):</label>
+    <input type="range" id="trpSlider" min="0" max="100" value="20" step="1">
+    <span class="stat">[Trp] = <strong id="trpVal">20</strong> μM</span>
+  </div>
+  <svg id="trpSvg" width="520" height="200" viewBox="0 0 520 200" role="img" aria-label="Sơ đồ operon Trp"></svg>
+  <div style="margin-top:6px">
+    <span class="stat">% TrpR hoạt động: <strong id="trpRActive">67%</strong></span>
+    <span class="stat">Phiên mã: <strong id="trpExpVal">33%</strong> mức tối đa</span>
+  </div>
+  <div style="margin-top:8px">
+    Trạng thái: <span class="state-badge" id="trpState">trung gian</span>
+  </div>
+  <div class="hint" id="trpHint"></div>
+</div>
+
+<h2>3. Eukaryote — 5 cấp điều hòa</h2>
+<div class="card">
+  <p>Chọn 1 cấp để xem cơ chế đặc trưng. Eukaryote dùng tổ hợp nhiều cấp để tinh chỉnh biểu hiện gen.</p>
+  <div class="group-btns" id="layerBtns"></div>
+  <svg id="layerSvg" width="520" height="200" viewBox="0 0 520 200" role="img" aria-label="Cấp điều hòa eukaryote"></svg>
+  <div class="info-grid" id="layerInfo"></div>
+</div>
+
+<h2>4. Ảnh hưởng của methylation lên biểu hiện gen</h2>
+<div class="card">
+  <p>Methyl hóa cytosine ở promoter giảm biểu hiện gen. Mô hình đơn giản: <code>Expression ≈ exp(−k · M)</code> với k = 0.0277 (calibrate sao cho M=25% → 50% biểu hiện).</p>
+  <div class="row">
+    <label>% methylation (M):</label>
+    <input type="range" id="methSlider" min="0" max="100" value="25" step="1">
+    <span class="stat">M = <strong id="methVal">25</strong>%</span>
+  </div>
+  <svg id="methSvg" width="520" height="200" viewBox="0 0 520 200" role="img" aria-label="Biểu đồ methylation"></svg>
+  <div style="margin-top:6px">
+    <span class="stat" style="background:#fee2e2">Methyl trên DNA: <strong id="methPctLbl" style="color:#b91c1c">25%</strong></span>
+    <span class="stat" style="background:#d1fae5">Biểu hiện gen: <strong id="expPctLbl" style="color:#065f46">50%</strong></span>
+  </div>
+  <div class="hint" id="methHint"></div>
+</div>
+
+<h2>5. Bảng tổng hợp 4 tổ hợp môi trường operon Lac</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>Lactose</th><th>Glucose</th><th>LacI</th><th>CAP–cAMP</th><th>Phiên mã</th></tr></thead>
+    <tbody>
+      <tr><td>Không</td><td>Có</td><td>Gắn operator</td><td>Tắt</td><td>TẮT</td></tr>
+      <tr><td>Không</td><td>Không</td><td>Gắn operator</td><td>Bật</td><td>TẮT</td></tr>
+      <tr><td>Có</td><td>Có</td><td>Rời operator</td><td>Tắt</td><td>BẬT YẾU (~5-10%)</td></tr>
+      <tr><td>Có</td><td>Không</td><td>Rời operator</td><td>Bật</td><td>BẬT MẠNH (~100%)</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+
+// ============================================
+// Section 1: Lac operon toggle
+// ============================================
+let hasLactose = true;
+let hasGlucose = false;
+
+const togLac = document.getElementById("togLac");
+const togGlu = document.getElementById("togGlu");
+togLac.onclick = () => { hasLactose = !hasLactose; renderLac(); };
+togGlu.onclick = () => { hasGlucose = !hasGlucose; renderLac(); };
+
+function setTog(elem, on, labelOn, labelOff) {
+  elem.classList.toggle("on", on);
+  elem.classList.toggle("off", !on);
+  elem.textContent = on ? labelOn : labelOff;
+}
+
+function renderLac() {
+  setTog(togLac, hasLactose, "Lactose: CÓ", "Lactose: KHÔNG");
+  setTog(togGlu, hasGlucose, "Glucose: CÓ", "Glucose: KHÔNG");
+
+  // Compute states
+  const lacIBound = !hasLactose;             // LacI gắn operator khi không có lactose
+  const capActive = !hasGlucose;             // CAP hoạt động khi không có glucose (cAMP cao)
+  let stateLabel, stateClass, expPct, hint;
+  if (lacIBound) {
+    stateLabel = "TẮT (~0.1%)";
+    stateClass = "state-off";
+    expPct = 0.1;
+    hint = "LacI gắn operator → chặn RNA polymerase. Dù CAP có hỗ trợ hay không, gen vẫn TẮT.";
+  } else if (capActive) {
+    stateLabel = "BẬT MẠNH (~100%)";
+    stateClass = "state-on";
+    expPct = 100;
+    hint = "Allolactose gỡ LacI; CAP–cAMP hỗ trợ RNA pol bám tốt → phiên mã cực đại. Vi khuẩn tiêu hóa lactose tối ưu.";
+  } else {
+    stateLabel = "BẬT YẾU (~5-10%)";
+    stateClass = "state-low";
+    expPct = 7;
+    hint = "Allolactose gỡ LacI, NHƯNG cAMP thấp (do glucose có) → CAP không hỗ trợ → RNA pol bám kém. Vi khuẩn ưu tiên glucose.";
+  }
+  document.getElementById("lacILabel").textContent = lacIBound ? "gắn operator (active)" : "rời operator (allolactose gắn)";
+  document.getElementById("capLabel").textContent = capActive ? "hoạt động (cAMP cao)" : "không hoạt động (cAMP thấp)";
+  document.getElementById("rnapLabel").textContent = lacIBound ? "bị chặn" : (capActive ? "bám tốt" : "bám yếu");
+  const badge = document.getElementById("lacState");
+  badge.className = "state-badge " + stateClass;
+  badge.textContent = stateLabel;
+  document.getElementById("lacHint").textContent = hint;
+
+  // Draw operon
+  const svg = document.getElementById("lacSvg"); clear(svg);
+  // CAP site
+  el("rect", { x: 30, y: 80, width: 50, height: 30, rx: 4, fill: "#fef3c7", stroke: "#92400e", "stroke-width": 1.5 }, svg);
+  const tCap = el("text", { x: 55, y: 99, class: "gene-label" }, svg);
+  tCap.textContent = "CAP";
+  // Promoter
+  el("rect", { x: 85, y: 80, width: 55, height: 30, rx: 4, class: "gene-promoter" }, svg);
+  const tP = el("text", { x: 112, y: 99, class: "gene-label" }, svg);
+  tP.textContent = "Promoter";
+  // Operator
+  el("rect", { x: 145, y: 80, width: 55, height: 30, rx: 4, class: "gene-operator" }, svg);
+  const tO = el("text", { x: 172, y: 99, class: "gene-label" }, svg);
+  tO.textContent = "Operator";
+  // Structural genes
+  const labels = ["lacZ", "lacY", "lacA"];
+  for (let i = 0; i < 3; i++) {
+    el("rect", { x: 205 + i * 90, y: 80, width: 85, height: 30, rx: 4, class: "gene-struct" }, svg);
+    const t = el("text", { x: 205 + i * 90 + 42, y: 99, class: "gene-label" }, svg);
+    t.textContent = labels[i];
+  }
+  // DNA line
+  el("line", { x1: 20, y1: 95, x2: 500, y2: 95, stroke: "#374151", "stroke-width": 1, "stroke-dasharray": "4 3" }, svg);
+
+  // Repressor on operator?
+  if (lacIBound) {
+    el("ellipse", { cx: 172, cy: 60, rx: 30, ry: 18, fill: "#7c3aed", stroke: "#4c1d95", "stroke-width": 2 }, svg);
+    const tR = el("text", { x: 172, y: 65, "text-anchor": "middle", font: "12px sans-serif", fill: "white", "font-weight": "700" }, svg);
+    tR.textContent = "LacI";
+    el("line", { x1: 172, y1: 78, x2: 172, y2: 81, stroke: "#4c1d95", "stroke-width": 3 }, svg);
+  } else {
+    // floating off to the side
+    el("ellipse", { cx: 470, cy: 40, rx: 22, ry: 13, fill: "#c4b5fd", stroke: "#7c3aed", "stroke-width": 1.5, opacity: 0.6 }, svg);
+    const tR = el("text", { x: 470, y: 44, "text-anchor": "middle", font: "10px sans-serif", fill: "#4c1d95", "font-weight": "700" }, svg);
+    tR.textContent = "LacI bất hoạt";
+    if (hasLactose) {
+      const tA = el("text", { x: 470, y: 18, "text-anchor": "middle", font: "10px sans-serif", fill: "#0369a1" }, svg);
+      tA.textContent = "+ allolactose";
+    }
+  }
+
+  // CAP-cAMP active?
+  if (capActive && !lacIBound) {
+    el("ellipse", { cx: 55, cy: 55, rx: 20, ry: 12, fill: "#10b981", stroke: "#065f46", "stroke-width": 2 }, svg);
+    const tC = el("text", { x: 55, y: 59, "text-anchor": "middle", font: "11px sans-serif", fill: "white", "font-weight": "700" }, svg);
+    tC.textContent = "CAP+cAMP";
+    el("line", { x1: 55, y1: 67, x2: 55, y2: 78, stroke: "#065f46", "stroke-width": 3 }, svg);
+  }
+
+  // RNA polymerase
+  if (!lacIBound) {
+    const rnapX = capActive ? 112 : 112;
+    const op = capActive ? 1.0 : 0.5;
+    el("ellipse", { cx: rnapX, cy: 130, rx: 28, ry: 16, fill: "#f97316", stroke: "#9a3412", "stroke-width": 2, opacity: op }, svg);
+    const tRn = el("text", { x: rnapX, y: 134, "text-anchor": "middle", font: "11px sans-serif", fill: "white", "font-weight": "700" }, svg);
+    tRn.textContent = "RNA pol";
+    // mRNA arrow
+    const arrLen = capActive ? 380 : 100;
+    el("path", { d: `M ${rnapX + 30} 130 Q ${rnapX + 30 + arrLen/2} 160 ${rnapX + 30 + arrLen} 145`,
+      fill: "none", stroke: "#0891b2", "stroke-width": 3, "stroke-dasharray": capActive ? "0" : "5 3" }, svg);
+    const tM = el("text", { x: rnapX + 30 + arrLen/2, y: 180, "text-anchor": "middle", font: "12px sans-serif", fill: "#0891b2", "font-weight": "700" }, svg);
+    tM.textContent = capActive ? "mRNA (đa cistron)" : "mRNA yếu";
+  } else {
+    el("ellipse", { cx: 112, cy: 145, rx: 28, ry: 16, fill: "#fca5a5", stroke: "#991b1b", "stroke-width": 2, "stroke-dasharray": "4 2" }, svg);
+    const tRn = el("text", { x: 112, y: 149, "text-anchor": "middle", font: "11px sans-serif", fill: "#7f1d1d", "font-weight": "700" }, svg);
+    tRn.textContent = "RNA pol ✗";
+    const tBlk = el("text", { x: 280, y: 155, "text-anchor": "middle", font: "12px sans-serif", fill: "#991b1b", "font-weight": "700" }, svg);
+    tBlk.textContent = "(bị chặn — không phiên mã)";
+  }
+
+  // Expression bar
+  const barY = 210, barX = 30, barW = 460, barH = 18;
+  el("rect", { x: barX, y: barY, width: barW, height: barH, rx: 4, fill: "#e5e7eb" }, svg);
+  el("rect", { x: barX, y: barY, width: barW * (expPct/100), height: barH, rx: 4,
+    fill: lacIBound ? "#fca5a5" : (capActive ? "#10b981" : "#fbbf24") }, svg);
+  const tB = el("text", { x: barX + barW/2, y: barY + 13, "text-anchor": "middle", font: "12px sans-serif", fill: "#1f2937", "font-weight": "700" }, svg);
+  tB.textContent = `Phiên mã: ${expPct}% mức tối đa`;
+}
+
+// ============================================
+// Section 2: Trp operon
+// ============================================
+const trpSlider = document.getElementById("trpSlider");
+function renderTrp() {
+  const trp = +trpSlider.value;
+  // % TrpR active follows Hill-like curve. Use simple: active = trp/(trp+15)
+  const activeFrac = trp / (trp + 15);
+  const activePct = Math.round(activeFrac * 100);
+  // expression inversely related: exp = 100 - 95*active (5% basal)
+  const expPct = Math.round(100 - 95 * activeFrac);
+
+  document.getElementById("trpVal").textContent = trp;
+  document.getElementById("trpRActive").textContent = activePct + "%";
+  document.getElementById("trpExpVal").textContent = expPct + "%";
+
+  const badge = document.getElementById("trpState");
+  let stateLabel, stateClass, hint;
+  if (expPct >= 70) {
+    stateLabel = "BẬT MẠNH"; stateClass = "state-on";
+    hint = "Trp thấp → đa số TrpR ở dạng bất hoạt → operator trống → phiên mã cao để tự tổng hợp Trp.";
+  } else if (expPct >= 30) {
+    stateLabel = "trung gian"; stateClass = "state-low";
+    hint = "Trp ở mức trung bình → một phần TrpR active, một phần không → phiên mã ở mức gradient.";
+  } else {
+    stateLabel = "TẮT"; stateClass = "state-off";
+    hint = "Trp dư thừa → đa số TrpR có corepressor → active → gắn operator → chặn phiên mã. Tế bào tiết kiệm năng lượng.";
+  }
+  badge.className = "state-badge " + stateClass;
+  badge.textContent = stateLabel;
+  document.getElementById("trpHint").textContent = hint;
+
+  // Draw
+  const svg = document.getElementById("trpSvg"); clear(svg);
+  // Promoter+Operator+5 genes
+  el("rect", { x: 30, y: 70, width: 55, height: 30, rx: 4, class: "gene-promoter" }, svg);
+  const tP = el("text", { x: 57, y: 89, class: "gene-label" }, svg);
+  tP.textContent = "Promoter";
+  el("rect", { x: 90, y: 70, width: 55, height: 30, rx: 4, class: "gene-operator" }, svg);
+  const tO = el("text", { x: 117, y: 89, class: "gene-label" }, svg);
+  tO.textContent = "Operator";
+  const labels = ["trpE", "trpD", "trpC", "trpB", "trpA"];
+  for (let i = 0; i < 5; i++) {
+    el("rect", { x: 150 + i * 70, y: 70, width: 65, height: 30, rx: 4, class: "gene-struct" }, svg);
+    const t = el("text", { x: 150 + i * 70 + 32, y: 89, class: "gene-label" }, svg);
+    t.textContent = labels[i];
+  }
+  el("line", { x1: 20, y1: 85, x2: 510, y2: 85, stroke: "#374151", "stroke-width": 1, "stroke-dasharray": "4 3" }, svg);
+
+  // TrpR repressor: active fraction shows blob on operator with opacity
+  if (activeFrac > 0.05) {
+    el("ellipse", { cx: 117, cy: 50, rx: 30, ry: 15, fill: "#7c3aed", stroke: "#4c1d95",
+      "stroke-width": 2, opacity: activeFrac }, svg);
+    const tR = el("text", { x: 117, y: 54, "text-anchor": "middle", font: "11px sans-serif",
+      fill: "white", "font-weight": "700", opacity: activeFrac > 0.4 ? 1 : 0.5 }, svg);
+    tR.textContent = "TrpR + Trp";
+    el("line", { x1: 117, y1: 65, x2: 117, y2: 70, stroke: "#4c1d95", "stroke-width": 2, opacity: activeFrac }, svg);
+  }
+  // Inactive TrpR off side
+  if (activeFrac < 0.95) {
+    el("ellipse", { cx: 470, cy: 35, rx: 22, ry: 12, fill: "#c4b5fd", stroke: "#7c3aed",
+      "stroke-width": 1.5, opacity: (1 - activeFrac) * 0.8 }, svg);
+    const tR = el("text", { x: 470, y: 39, "text-anchor": "middle", font: "10px sans-serif",
+      fill: "#4c1d95", "font-weight": "700", opacity: (1 - activeFrac) }, svg);
+    tR.textContent = "TrpR bất hoạt";
+  }
+
+  // RNA pol activity (proportional to 1-active)
+  if (expPct > 10) {
+    el("ellipse", { cx: 57, cy: 130, rx: 26, ry: 14, fill: "#f97316", stroke: "#9a3412",
+      "stroke-width": 2, opacity: 0.3 + expPct/150 }, svg);
+    const tRn = el("text", { x: 57, y: 134, "text-anchor": "middle", font: "11px sans-serif",
+      fill: "white", "font-weight": "700" }, svg);
+    tRn.textContent = "RNA pol";
+    const arrLen = 380 * (expPct/100);
+    el("path", { d: `M 83 130 L ${83 + arrLen} 145`, fill: "none",
+      stroke: "#0891b2", "stroke-width": 3 }, svg);
+    const tM = el("text", { x: 83 + arrLen/2, y: 165, "text-anchor": "middle", font: "12px sans-serif",
+      fill: "#0891b2", "font-weight": "700" }, svg);
+    tM.textContent = `phiên mã ${expPct}%`;
+  } else {
+    const tBlk = el("text", { x: 280, y: 140, "text-anchor": "middle", font: "13px sans-serif",
+      fill: "#991b1b", "font-weight": "700" }, svg);
+    tBlk.textContent = `Bị chặn (${expPct}% basal)`;
+  }
+}
+trpSlider.oninput = renderTrp;
+
+// ============================================
+// Section 3: Eukaryote 5 layers
+// ============================================
+const LAYERS = {
+  chromatin: {
+    name: "1. Chromatin (đóng/mở DNA)",
+    desc: "DNA quấn quanh histone tạo nucleosome. Chromatin đặc (heterochromatin) → gen ẩn → tắt. Chromatin lỏng (euchromatin) → gen lộ → phiên mã được. Điều khiển bởi methyl hóa DNA và sửa đổi histone.",
+    speed: "Chậm nhất (giờ-ngày), bền nhất (di truyền qua phân chia tế bào)",
+    example: "Acetyl hóa histone H3K27 mở chromatin → bật gen Hox trong phát triển phôi.",
+    color: "#fbbf24"
+  },
+  transcription: {
+    name: "2. Phiên mã (transcription factors)",
+    desc: "Yếu tố phiên mã (TF) gắn enhancer (kích thích) hoặc silencer (ức chế) ở khoảng cách xa promoter. ~5-15 TF gắn đồng thời, 'biểu quyết' khởi động RNA polymerase II.",
+    speed: "Phút-giờ",
+    example: "Yếu tố p53 kích hoạt gen p21 khi DNA bị hỏng → dừng chu kỳ tế bào.",
+    color: "#3b82f6"
+  },
+  splicing: {
+    name: "3. Sau phiên mã (splicing, miRNA)",
+    desc: "Alternative splicing: cùng pre-mRNA ghép các exon theo nhiều tổ hợp → nhiều protein. miRNA (~22 nt) bắt cặp với mRNA → cắt hoặc chặn dịch mã.",
+    speed: "Phút",
+    example: "Gen DSCAM ở ruồi giấm tạo >38.000 mRNA khác nhau qua alternative splicing.",
+    color: "#10b981"
+  },
+  translation: {
+    name: "4. Dịch mã (translation)",
+    desc: "Yếu tố eIF có thể bị phosphoryl hóa → tắt dịch mã toàn cục khi tế bào stress. Cấu trúc 5' UTR và 3' UTR điều chỉnh tốc độ ribosome bám.",
+    speed: "Giây-phút",
+    example: "Stress oxy hóa → eIF2α phosphoryl → dừng dịch mã toàn cục để giảm tải, chỉ vài mRNA stress vẫn dịch được.",
+    color: "#a855f7"
+  },
+  posttrans: {
+    name: "5. Sau dịch mã (post-translational)",
+    desc: "Protein được sửa đổi: phosphoryl hóa (bật/tắt activity), glycosyl hóa (gắn đường), ubiquitin hóa (đánh dấu phân hủy bởi proteasome).",
+    speed: "Mili-giây đến giây (nhanh nhất)",
+    example: "Cyclin được ubiquitin hóa → phân hủy bởi proteasome → kết thúc pha M của chu kỳ tế bào.",
+    color: "#ec4899"
+  }
+};
+const layerBtns = document.getElementById("layerBtns");
+const layerKeys = Object.keys(LAYERS);
+layerKeys.forEach((k, i) => {
+  const b = document.createElement("button");
+  b.className = "pill"; b.textContent = LAYERS[k].name.split(".")[0]; b.dataset.l = k;
+  b.onclick = () => showLayer(k);
+  layerBtns.appendChild(b);
+});
+function showLayer(k) {
+  document.querySelectorAll("#layerBtns .pill").forEach(b => b.classList.toggle("active", b.dataset.l === k));
+  const L = LAYERS[k];
+  const svg = document.getElementById("layerSvg"); clear(svg);
+  // Flow diagram: DNA -> pre-mRNA -> mRNA -> protein -> active protein
+  const stages = [
+    { x: 50,  label: "DNA", layerIdx: 0 },
+    { x: 160, label: "pre-mRNA", layerIdx: 1 },
+    { x: 270, label: "mRNA", layerIdx: 2 },
+    { x: 380, label: "Protein", layerIdx: 3 },
+    { x: 480, label: "Active", layerIdx: 4 }
+  ];
+  const activeIdx = layerKeys.indexOf(k);
+  stages.forEach((s, i) => {
+    el("circle", { cx: s.x, cy: 80, r: 28,
+      fill: i === activeIdx ? L.color : "#e5e7eb",
+      stroke: i === activeIdx ? "#065f46" : "#9ca3af",
+      "stroke-width": i === activeIdx ? 3 : 1.5 }, svg);
+    const t = el("text", { x: s.x, y: 85, "text-anchor": "middle", font: "12px sans-serif",
+      fill: i === activeIdx ? "white" : "#374151", "font-weight": "700" }, svg);
+    t.textContent = s.label;
+    if (i < stages.length - 1) {
+      el("line", { x1: s.x + 28, y1: 80, x2: stages[i+1].x - 28, y2: 80,
+        stroke: "#9ca3af", "stroke-width": 2, "marker-end": "url(#arrowL)" }, svg);
+    }
+  });
+  const defs = el("defs", {}, svg);
+  const mk = el("marker", { id: "arrowL", markerWidth: 8, markerHeight: 8, refX: 7, refY: 3, orient: "auto" }, defs);
+  el("path", { d: "M0,0 L6,3 L0,6 Z", fill: "#9ca3af" }, mk);
+
+  // Highlight current layer with vertical band
+  el("rect", { x: stages[activeIdx].x - 45, y: 25, width: 90, height: 110,
+    fill: L.color, opacity: 0.15, rx: 8 }, svg);
+
+  // Bottom label
+  const tName = el("text", { x: 260, y: 160, "text-anchor": "middle", font: "14px sans-serif",
+    fill: "#14532d", "font-weight": "700" }, svg);
+  tName.textContent = L.name;
+  const tSpeed = el("text", { x: 260, y: 180, "text-anchor": "middle", font: "12px sans-serif",
+    fill: "#6b7280" }, svg);
+  tSpeed.textContent = "Tốc độ: " + L.speed;
+
+  document.getElementById("layerInfo").innerHTML =
+    `<div><strong>Mô tả:</strong> ${L.desc}</div>` +
+    `<div><strong>Ví dụ:</strong> ${L.example}</div>`;
+}
+
+// ============================================
+// Section 4: Methylation effect
+// ============================================
+const methSlider = document.getElementById("methSlider");
+function renderMeth() {
+  const M = +methSlider.value;
+  const k = 0.0277;
+  const expPct = Math.round(Math.exp(-k * M) * 100);
+  document.getElementById("methVal").textContent = M;
+  document.getElementById("methPctLbl").textContent = M + "%";
+  document.getElementById("expPctLbl").textContent = expPct + "%";
+
+  let hint;
+  if (M < 10) hint = `Promoter gần như không methyl → gen biểu hiện đầy đủ (${expPct}%). Trạng thái bình thường ở tế bào khỏe.`;
+  else if (M < 50) hint = `Methyl ở mức trung bình → biểu hiện giảm còn ${expPct}%. Một số CpG bị chặn TF gắn.`;
+  else if (M < 80) hint = `Methyl cao → biểu hiện giảm mạnh còn ${expPct}%. MeCP2 đến đọc methyl, chiêu mộ HDAC → đóng chromatin.`;
+  else hint = `Methyl gần đầy đủ → gen gần như tắt hoàn toàn (${expPct}%). Thường gặp ở các gen ức chế khối u trong tế bào ung thư.`;
+  document.getElementById("methHint").textContent = hint;
+
+  const svg = document.getElementById("methSvg"); clear(svg);
+  // 2 stacked bars: methylation level (red) and expression (green)
+  const baseY = 30, barH = 40, barX = 60, barW = 400;
+  // Methylation bar
+  el("rect", { x: barX, y: baseY, width: barW, height: barH, rx: 4, fill: "#fee2e2", stroke: "#b91c1c", "stroke-width": 1 }, svg);
+  el("rect", { x: barX, y: baseY, width: barW * (M/100), height: barH, rx: 4, class: "bar-met" }, svg);
+  const t1 = el("text", { x: 30, y: baseY + 25, "text-anchor": "middle", font: "13px sans-serif", fill: "#7f1d1d", "font-weight": "700" }, svg);
+  t1.textContent = "Methyl";
+  const t1v = el("text", { x: barX + barW/2, y: baseY + 26, "text-anchor": "middle", font: "13px sans-serif", fill: M > 40 ? "white" : "#7f1d1d", "font-weight": "700" }, svg);
+  t1v.textContent = M + "%";
+
+  // Expression bar
+  const eY = 110;
+  el("rect", { x: barX, y: eY, width: barW, height: barH, rx: 4, fill: "#d1fae5", stroke: "#065f46", "stroke-width": 1 }, svg);
+  el("rect", { x: barX, y: eY, width: barW * (expPct/100), height: barH, rx: 4, class: "bar-exp" }, svg);
+  const t2 = el("text", { x: 30, y: eY + 25, "text-anchor": "middle", font: "13px sans-serif", fill: "#065f46", "font-weight": "700" }, svg);
+  t2.textContent = "Biểu hiện";
+  const t2v = el("text", { x: barX + barW/2, y: eY + 26, "text-anchor": "middle", font: "13px sans-serif", fill: expPct > 30 ? "white" : "#065f46", "font-weight": "700" }, svg);
+  t2v.textContent = expPct + "%";
+
+  // Annotation
+  const tA = el("text", { x: 260, y: 185, "text-anchor": "middle", font: "12px sans-serif", fill: "#6b7280" }, svg);
+  tA.textContent = `Expression ≈ exp(−${k} × ${M}) × 100% = ${expPct}%`;
+}
+methSlider.oninput = renderMeth;
+
+// Initialize
+renderLac();
+renderTrp();
+showLayer("chromatin");
+renderMeth();
+</script>
+
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

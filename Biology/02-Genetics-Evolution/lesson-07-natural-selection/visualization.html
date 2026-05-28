@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Chọn lọc tự nhiên</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #14532d; }
+  h2 {
+    color: #166534; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #bbf7d0;
+  }
+  h3 { color: #15803d; margin-top: 20px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 11px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 90px; max-width: 100%;
+  }
+  input[type="range"] { flex: 1; min-width: 0; }
+  button {
+    background: #059669; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #047857; }
+  button.muted { background: #a0aec0; }
+  button.muted:hover { background: #718096; }
+  .pill {
+    background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;
+  }
+  .pill.active { background: #059669; color: white; }
+  .stat {
+    display: inline-block; background: #d1fae5;
+    padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #047857; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; }
+  .group-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+  svg { display: block; margin: 8px auto; max-width: 100%; height: auto; }
+  .info-grid { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 14px; }
+  .info-grid div { padding: 6px 10px; background: #f0fdf4; border-radius: 6px; }
+  .info-grid strong { color: #166534; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 8px; }
+  th, td { border: 1px solid #d1d5db; padding: 7px 10px; text-align: left; }
+  th { background: #ecfdf5; color: #065f46; }
+
+  .axis { stroke: #9ca3af; stroke-width: 1; }
+  .axis-label { font: 11px sans-serif; fill: #64748b; }
+  .curve-before { stroke: #94a3b8; stroke-width: 2.5; fill: none; stroke-dasharray: 4 3; }
+  .curve-after { stroke: #059669; stroke-width: 3; fill: none; }
+  .legend-box { display: inline-block; width: 14px; height: 4px; vertical-align: middle; margin-right: 5px; }
+
+  .evid-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+  }
+  .evid-cell {
+    background: #ecfdf5; border: 1px solid #6ee7b7;
+    border-radius: 8px; padding: 14px 10px; text-align: center;
+    cursor: pointer; transition: all 0.15s;
+    font-weight: 600; color: #065f46;
+  }
+  .evid-cell:hover { background: #d1fae5; transform: translateY(-2px); }
+  .evid-cell.active { background: #059669; color: white; border-color: #047857; }
+  .evid-detail {
+    margin-top: 14px; padding: 14px;
+    background: #f0fdf4; border-left: 4px solid #059669;
+    border-radius: 4px; font-size: 14px;
+  }
+
+  .drift-dot { opacity: 0.85; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Biology · Tầng 2</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-population-genetics/visualization.html">← L6: Di truyền quần thể</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Chọn lọc tự nhiên</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-speciation-phylogeny/visualization.html">L8: Hình thành loài →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 07 — Chọn lọc tự nhiên</h1>
+<p>Bộ công cụ tương tác: mô phỏng 3 kiểu chọn lọc trên phân bố kiểu hình, theo dõi tần số allele lặn qua thế hệ với hệ số chọn lọc s, so sánh sức mạnh phiêu bạt di truyền (drift) giữa quần thể nhỏ và lớn, và duyệt 5 nhóm bằng chứng tiến hóa.</p>
+
+<h2>1. Mô phỏng 3 kiểu chọn lọc trên phân bố kiểu hình</h2>
+<div class="card">
+  <p>Chọn kiểu chọn lọc và điều chỉnh áp lực <code>s</code>. Đường <span class="legend-box" style="background:#94a3b8"></span> nét đứt = phân bố ban đầu; đường <span class="legend-box" style="background:#059669"></span> = sau 5 thế hệ chọn lọc.</p>
+  <div class="group-btns" id="selModeBtns"></div>
+  <div class="row">
+    <label>Áp lực s:</label>
+    <input type="range" id="sSlider" min="0" max="0.6" step="0.05" value="0.25">
+    <span class="stat">s = <strong id="sVal">0.25</strong></span>
+  </div>
+  <svg id="distSvg" width="520" height="260" viewBox="0 0 520 260" role="img" aria-label="Phân bố kiểu hình trước và sau chọn lọc"></svg>
+  <div class="info-grid" id="distInfo"></div>
+</div>
+
+<h2>2. Theo dõi tần số allele lặn qua thế hệ</h2>
+<div class="card">
+  <p>Công thức xấp xỉ: <code>q<sub>n+1</sub> ≈ q<sub>n</sub> − s · p<sub>n</sub> · q<sub>n</sub>²</code> — chọn lọc chống lại đồng hợp lặn aa.</p>
+  <div class="row">
+    <label>q₀ (ban đầu):</label>
+    <input type="range" id="q0Slider" min="0.05" max="0.95" step="0.05" value="0.5">
+    <span class="stat">q₀ = <strong id="q0Val">0.5</strong></span>
+  </div>
+  <div class="row">
+    <label>s (chống aa):</label>
+    <input type="range" id="sAlleleSlider" min="0" max="1" step="0.05" value="0.2">
+    <span class="stat">s = <strong id="sAlleleVal">0.20</strong></span>
+  </div>
+  <div class="row">
+    <label>Số thế hệ:</label>
+    <input type="range" id="genSlider" min="10" max="200" step="10" value="50">
+    <span class="stat">N gen = <strong id="genVal">50</strong></span>
+  </div>
+  <svg id="qSvg" width="520" height="240" viewBox="0 0 520 240" role="img" aria-label="Đường cong q(t) giảm theo thế hệ"></svg>
+  <div style="margin-top:6px">
+    <span class="stat">q cuối = <strong id="qFinal">0.05</strong></span>
+    <span class="stat">q² (kiểu hình aa) = <strong id="q2Final">0.0025</strong></span>
+    <span class="stat">Δq (1 thế hệ) = <strong id="dq1">0.025</strong></span>
+  </div>
+  <div class="hint" id="qHint"></div>
+</div>
+
+<h2>3. Phiêu bạt di truyền — sức mạnh phụ thuộc kích thước quần thể</h2>
+<div class="card">
+  <p>Mỗi đường mô phỏng 1 quần thể độc lập với cùng q₀ = 0.5, không có chọn lọc. Quần thể nhỏ → drift mạnh → allele dễ trôi tới 0 hoặc 1 (cố định/biến mất).</p>
+  <div class="row">
+    <label>Kích thước N:</label>
+    <input type="range" id="nDriftSlider" min="4" max="500" step="2" value="20">
+    <span class="stat">N = <strong id="nDriftVal">20</strong></span>
+  </div>
+  <div class="row">
+    <button id="driftRunBtn">🎲 Chạy lại 5 quần thể</button>
+    <span class="hint">5 quần thể độc lập, 100 thế hệ; q₀ = 0.5.</span>
+  </div>
+  <svg id="driftSvg" width="520" height="240" viewBox="0 0 520 240" role="img" aria-label="Đường drift của 5 quần thể"></svg>
+  <div style="margin-top:6px">
+    <span class="stat">σ lý thuyết/thế hệ ≈ <strong id="sigmaVal">0.079</strong></span>
+    <span class="stat">Số trôi về 0 hoặc 1 = <strong id="fixedCount">0</strong>/5</span>
+  </div>
+  <div class="hint">σ = √(p·q / 2N). N nhỏ → σ to → drift mạnh.</div>
+</div>
+
+<h2>4. Năm nhóm bằng chứng tiến hóa</h2>
+<div class="card">
+  <p>Click từng ô để xem ví dụ cụ thể.</p>
+  <div class="evid-grid" id="evidGrid"></div>
+  <div class="evid-detail" id="evidDetail">Chọn 1 nhóm bằng chứng để xem ví dụ.</div>
+</div>
+
+<h2>5. Tóm tắt nhanh</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>Nhân tố</th><th>Định hướng?</th><th>Mạnh khi</th><th>Ví dụ</th></tr></thead>
+    <tbody>
+      <tr><td>Đột biến (mutation)</td><td>ngẫu nhiên</td><td>luôn (chậm)</td><td>nguồn allele mới</td></tr>
+      <tr><td>Dòng gen (gene flow)</td><td>hòa lẫn</td><td>cá thể di chuyển</td><td>chim di cư mang allele</td></tr>
+      <tr><td>Phiêu bạt (drift)</td><td>ngẫu nhiên</td><td>N nhỏ (bottleneck, founder)</td><td>Cheetah, Amish</td></tr>
+      <tr><td>Chọn lọc tự nhiên</td><td><strong>có hướng</strong></td><td>có biến dị + áp lực môi trường</td><td>bướm bạch dương, kháng kháng sinh</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+
+// ===== Section 1: 3 selection modes on phenotype distribution =====
+const SEL_MODES = {
+  directional: {
+    name: "Định hướng (directional)",
+    desc: "Ưu ái một đầu phân bố → trung bình dịch theo hướng đó.",
+    example: "Bướm bạch dương: vỏ cây đen do bồ hóng → bướm đen ngụy trang tốt, tần số bướm đen tăng từ 2% lên 90% sau vài thập kỷ."
+  },
+  stabilizing: {
+    name: "Ổn định (stabilizing)",
+    desc: "Bất lợi cả hai đầu → trung bình giữ nguyên, phương sai giảm (đường cong hẹp lại).",
+    example: "Cân nặng trẻ sơ sinh người ổn định quanh 3.5kg; trẻ <2.5kg hoặc >4.5kg có tỉ lệ tử vong cao hơn."
+  },
+  disruptive: {
+    name: "Phân hóa (disruptive)",
+    desc: "Bất lợi vùng giữa → phân bố tách thành 2 đỉnh, tiền đề hình thành loài.",
+    example: "Chim sẻ Darwin trên đảo Galápagos: hạt nhỏ và hạt to, không có hạt vừa → mỏ chia thành 2 nhóm rõ rệt."
+  }
+};
+let selMode = "directional";
+let sCurrent = 0.25;
+const selBtns = document.getElementById("selModeBtns");
+Object.keys(SEL_MODES).forEach(k => {
+  const b = document.createElement("button");
+  b.className = "pill"; b.textContent = SEL_MODES[k].name; b.dataset.m = k;
+  b.onclick = () => { selMode = k; renderDist(); };
+  selBtns.appendChild(b);
+});
+
+// Gaussian
+function gauss(x, mu, sigma) {
+  return Math.exp(-0.5 * ((x - mu) / sigma) ** 2) / (sigma * Math.sqrt(2 * Math.PI));
+}
+
+function renderDist() {
+  document.querySelectorAll("#selModeBtns .pill").forEach(b => b.classList.toggle("active", b.dataset.m === selMode));
+  const svg = document.getElementById("distSvg"); clear(svg);
+  // axes
+  const W = 520, H = 260, padL = 40, padR = 20, padB = 40, padT = 20;
+  el("line", { x1: padL, y1: H - padB, x2: W - padR, y2: H - padB, class: "axis" }, svg);
+  el("line", { x1: padL, y1: padT, x2: padL, y2: H - padB, class: "axis" }, svg);
+  const xLbl = el("text", { x: W / 2, y: H - 8, "text-anchor": "middle", class: "axis-label" }, svg);
+  xLbl.textContent = "Kiểu hình (vd cân nặng, chiều cao)";
+  const yLbl = el("text", { x: 12, y: H / 2, "text-anchor": "middle", class: "axis-label", transform: `rotate(-90 12 ${H / 2})` }, svg);
+  yLbl.textContent = "Tần số";
+
+  // x domain [-4, 4], pdf sampled
+  const xs = [];
+  const N = 200;
+  for (let i = 0; i <= N; i++) xs.push(-4 + (8 * i) / N);
+
+  // initial: standard normal mu=0 sigma=1
+  const yBefore = xs.map(x => gauss(x, 0, 1));
+
+  // after: depends on mode and s
+  let yAfter;
+  if (selMode === "directional") {
+    // shift mean by s*2
+    yAfter = xs.map(x => gauss(x, sCurrent * 3, 1 - sCurrent * 0.3));
+  } else if (selMode === "stabilizing") {
+    // narrow sigma
+    const newSigma = Math.max(0.3, 1 - sCurrent * 1.2);
+    yAfter = xs.map(x => gauss(x, 0, newSigma));
+  } else { // disruptive — bimodal
+    const sep = sCurrent * 3 + 0.5;
+    const sig = Math.max(0.3, 1 - sCurrent * 0.8);
+    yAfter = xs.map(x => 0.5 * (gauss(x, -sep, sig) + gauss(x, sep, sig)));
+  }
+
+  const maxY = Math.max(...yBefore, ...yAfter);
+  function sx(x) { return padL + ((x + 4) / 8) * (W - padL - padR); }
+  function sy(y) { return H - padB - (y / maxY) * (H - padT - padB - 10); }
+
+  // tick marks on x
+  for (let i = -4; i <= 4; i += 2) {
+    const x = sx(i);
+    el("line", { x1: x, y1: H - padB, x2: x, y2: H - padB + 4, class: "axis" }, svg);
+    const t = el("text", { x: x, y: H - padB + 16, "text-anchor": "middle", class: "axis-label" }, svg);
+    t.textContent = i;
+  }
+
+  // curve before
+  let d = "M";
+  xs.forEach((x, i) => { d += ` ${sx(x)} ${sy(yBefore[i])}`; });
+  el("path", { d: d, class: "curve-before" }, svg);
+  // curve after
+  let d2 = "M";
+  xs.forEach((x, i) => { d2 += ` ${sx(x)} ${sy(yAfter[i])}`; });
+  el("path", { d: d2, class: "curve-after" }, svg);
+
+  const mode = SEL_MODES[selMode];
+  document.getElementById("distInfo").innerHTML =
+    `<div><strong>${mode.name}</strong></div>` +
+    `<div>${mode.desc}</div>` +
+    `<div><strong>Ví dụ thực tế:</strong> ${mode.example}</div>`;
+}
+
+document.getElementById("sSlider").oninput = (e) => {
+  sCurrent = parseFloat(e.target.value);
+  document.getElementById("sVal").textContent = sCurrent.toFixed(2);
+  renderDist();
+};
+
+// ===== Section 2: Allele frequency over generations =====
+function renderQ() {
+  const q0 = parseFloat(document.getElementById("q0Slider").value);
+  const s = parseFloat(document.getElementById("sAlleleSlider").value);
+  const ngen = parseInt(document.getElementById("genSlider").value);
+  document.getElementById("q0Val").textContent = q0.toFixed(2);
+  document.getElementById("sAlleleVal").textContent = s.toFixed(2);
+  document.getElementById("genVal").textContent = ngen;
+
+  const qs = [q0];
+  for (let i = 1; i <= ngen; i++) {
+    const q = qs[i - 1];
+    const p = 1 - q;
+    const denom = 1 - s * q * q;
+    const qn = (q - s * q * q) / (denom > 0 ? denom : 1);
+    qs.push(Math.max(0, qn));
+  }
+
+  const svg = document.getElementById("qSvg"); clear(svg);
+  const W = 520, H = 240, padL = 50, padR = 20, padB = 40, padT = 20;
+  el("line", { x1: padL, y1: H - padB, x2: W - padR, y2: H - padB, class: "axis" }, svg);
+  el("line", { x1: padL, y1: padT, x2: padL, y2: H - padB, class: "axis" }, svg);
+  const xLbl = el("text", { x: W / 2, y: H - 8, "text-anchor": "middle", class: "axis-label" }, svg);
+  xLbl.textContent = "Thế hệ";
+  const yLbl = el("text", { x: 14, y: H / 2, "text-anchor": "middle", class: "axis-label", transform: `rotate(-90 14 ${H / 2})` }, svg);
+  yLbl.textContent = "q (tần số allele a)";
+
+  function sx(g) { return padL + (g / ngen) * (W - padL - padR); }
+  function sy(q) { return H - padB - q * (H - padT - padB); }
+
+  // y ticks 0, 0.5, 1
+  [0, 0.25, 0.5, 0.75, 1].forEach(v => {
+    const y = sy(v);
+    el("line", { x1: padL - 4, y1: y, x2: padL, y2: y, class: "axis" }, svg);
+    const t = el("text", { x: padL - 8, y: y + 4, "text-anchor": "end", class: "axis-label" }, svg);
+    t.textContent = v;
+  });
+  // x ticks
+  for (let i = 0; i <= 4; i++) {
+    const g = Math.round((ngen * i) / 4);
+    const x = sx(g);
+    el("line", { x1: x, y1: H - padB, x2: x, y2: H - padB + 4, class: "axis" }, svg);
+    const t = el("text", { x: x, y: H - padB + 16, "text-anchor": "middle", class: "axis-label" }, svg);
+    t.textContent = g;
+  }
+
+  let d = "M";
+  qs.forEach((q, i) => { d += ` ${sx(i)} ${sy(q)}`; });
+  el("path", { d: d, class: "curve-after" }, svg);
+
+  // q² curve dashed (phenotype aa)
+  let d2 = "M";
+  qs.forEach((q, i) => { d2 += ` ${sx(i)} ${sy(q * q)}`; });
+  el("path", { d: d2, stroke: "#dc2626", "stroke-width": 2, fill: "none", "stroke-dasharray": "4 3" }, svg);
+  const lbl1 = el("text", { x: W - padR - 5, y: sy(qs[qs.length - 1]) - 8, "text-anchor": "end", font: "12px sans-serif", fill: "#047857" }, svg);
+  lbl1.textContent = "q(t)";
+  const lbl2 = el("text", { x: W - padR - 5, y: sy(qs[qs.length - 1] ** 2) + 14, "text-anchor": "end", font: "12px sans-serif", fill: "#dc2626" }, svg);
+  lbl2.textContent = "q²(t) (kiểu hình aa)";
+
+  document.getElementById("qFinal").textContent = qs[qs.length - 1].toFixed(4);
+  document.getElementById("q2Final").textContent = (qs[qs.length - 1] ** 2).toFixed(5);
+  const dq1 = qs[0] - qs[1];
+  document.getElementById("dq1").textContent = dq1.toFixed(5);
+
+  const q0v = qs[0];
+  document.getElementById("qHint").textContent =
+    `Sau ${ngen} thế hệ với s = ${s.toFixed(2)}: q giảm từ ${q0v.toFixed(2)} → ${qs[qs.length - 1].toFixed(4)}. ` +
+    (qs[qs.length - 1] > 0.01 ? "Allele lặn vẫn chưa loại bỏ hết vì khi q nhỏ, q² nhỏ → ít cá thể aa lộ ra để chọn lọc." : "Allele lặn gần như biến mất.");
+}
+["q0Slider", "sAlleleSlider", "genSlider"].forEach(id => document.getElementById(id).oninput = renderQ);
+
+// ===== Section 3: Genetic drift simulator =====
+const DRIFT_COLORS = ["#059669", "#0891b2", "#7c3aed", "#dc2626", "#d97706"];
+function simDrift(N, gens, q0) {
+  const traj = [q0];
+  let q = q0;
+  for (let g = 1; g <= gens; g++) {
+    // binomial sampling: 2N alleles
+    let count = 0;
+    for (let i = 0; i < 2 * N; i++) if (Math.random() < q) count++;
+    q = count / (2 * N);
+    traj.push(q);
+  }
+  return traj;
+}
+function renderDrift() {
+  const N = parseInt(document.getElementById("nDriftSlider").value);
+  document.getElementById("nDriftVal").textContent = N;
+  const gens = 100;
+  const trajs = [];
+  for (let i = 0; i < 5; i++) trajs.push(simDrift(N, gens, 0.5));
+
+  const svg = document.getElementById("driftSvg"); clear(svg);
+  const W = 520, H = 240, padL = 50, padR = 20, padB = 40, padT = 20;
+  el("line", { x1: padL, y1: H - padB, x2: W - padR, y2: H - padB, class: "axis" }, svg);
+  el("line", { x1: padL, y1: padT, x2: padL, y2: H - padB, class: "axis" }, svg);
+  const xLbl = el("text", { x: W / 2, y: H - 8, "text-anchor": "middle", class: "axis-label" }, svg);
+  xLbl.textContent = "Thế hệ";
+  const yLbl = el("text", { x: 14, y: H / 2, "text-anchor": "middle", class: "axis-label", transform: `rotate(-90 14 ${H / 2})` }, svg);
+  yLbl.textContent = "q";
+
+  function sx(g) { return padL + (g / gens) * (W - padL - padR); }
+  function sy(q) { return H - padB - q * (H - padT - padB); }
+
+  [0, 0.5, 1].forEach(v => {
+    const y = sy(v);
+    el("line", { x1: padL - 4, y1: y, x2: W - padR, y2: y, class: "axis", "stroke-dasharray": v === 0.5 ? "2 2" : "" }, svg);
+    const t = el("text", { x: padL - 8, y: y + 4, "text-anchor": "end", class: "axis-label" }, svg);
+    t.textContent = v;
+  });
+  for (let i = 0; i <= 4; i++) {
+    const g = Math.round((gens * i) / 4);
+    const x = sx(g);
+    const t = el("text", { x: x, y: H - padB + 16, "text-anchor": "middle", class: "axis-label" }, svg);
+    t.textContent = g;
+  }
+
+  let fixed = 0;
+  trajs.forEach((tr, idx) => {
+    let d = "M";
+    tr.forEach((q, i) => { d += ` ${sx(i)} ${sy(q)}`; });
+    el("path", { d: d, stroke: DRIFT_COLORS[idx], "stroke-width": 2, fill: "none", opacity: 0.85 }, svg);
+    const last = tr[tr.length - 1];
+    if (last <= 0.001 || last >= 0.999) fixed++;
+  });
+
+  const sigma = Math.sqrt(0.25 / (2 * N));
+  document.getElementById("sigmaVal").textContent = sigma.toFixed(3);
+  document.getElementById("fixedCount").textContent = fixed;
+}
+document.getElementById("nDriftSlider").oninput = renderDrift;
+document.getElementById("driftRunBtn").onclick = renderDrift;
+
+// ===== Section 4: Evidence explorer =====
+const EVIDENCE = {
+  fossil: {
+    name: "Hóa thạch",
+    icon: "🦴",
+    detail: "<strong>Hồ sơ hóa thạch (fossil record):</strong> trầm tích lớp đá có tuổi xác định bằng đồng vị phóng xạ. Lớp cũ → dạng tổ tiên, lớp mới → dạng phái sinh. <br><br><strong>Ví dụ:</strong> Tiktaalik (~375 triệu năm trước) là trung gian giữa cá vây thùy và động vật 4 chân — có vây nhưng cũng có xương cổ và xương chi đầu. Chuỗi tiến hóa ngựa từ Hyracotherium (4 ngón, kích thước chó, ~55 triệu năm) → Equus (1 ngón, kích thước hiện đại)."
+  },
+  anatomy: {
+    name: "Giải phẫu so sánh",
+    icon: "🦴",
+    detail: "<strong>3 loại cấu trúc:</strong><br>• <em>Tương đồng (homologous):</em> cùng cấu trúc, khác chức năng — xương tay người / cánh dơi / vây cá voi / chân ngựa đều có 1 xương cánh + 2 xương cẳng + nhiều xương cổ tay → chung tổ tiên động vật có vú.<br>• <em>Tương tự (analogous):</em> cùng chức năng, khác cấu trúc — cánh chim và cánh côn trùng đều bay nhưng khác cấu trúc hoàn toàn → tiến hóa hội tụ.<br>• <em>Vết tích (vestigial):</em> ruột thừa, xương cụt người, xương chậu cá voi (tổ tiên là động vật 4 chân trên cạn)."
+  },
+  embryo: {
+    name: "Phôi học so sánh",
+    icon: "🧬",
+    detail: "<strong>Phôi học so sánh (comparative embryology):</strong> phôi giai đoạn sớm của cá, gà, chuột, người rất giống nhau — đều có khe mang, đuôi, cấu trúc cột sống sơ khai. Sau đó mỗi loài \"thêm chi tiết riêng\".<br><br><strong>Ý nghĩa:</strong> chương trình phát triển sớm được bảo tồn từ tổ tiên chung. Người trong giai đoạn phôi sớm có cấu trúc khe mang (tuần thứ 4) — vết tích từ tổ tiên cá."
+  },
+  molecular: {
+    name: "Sinh học phân tử",
+    icon: "🧪",
+    detail: "<strong>So sánh DNA và protein:</strong> bằng chứng mạnh nhất hiện nay. Mức tương đồng tỉ lệ với gần gũi tiến hóa.<br><br><strong>Ví dụ % giống DNA với người:</strong><br>• Tinh tinh: ~98.8%<br>• Khỉ Gorilla: ~98.4%<br>• Chuột: ~85%<br>• Chuối: ~50% (gene chia sẻ)<br><br><strong>Đồng hồ phân tử:</strong> cytochrome c của người và tinh tinh khác 0/104 amino acid, chuột khác 9, cá ngừ 21, nấm men 51 — khoảng cách ↑ ⇔ thời gian phân tách ↑. Mọi sinh vật dùng chung mã di truyền (DNA, ribosome, ATP) → tổ tiên chung của sự sống."
+  },
+  biogeo: {
+    name: "Phân bố địa lý",
+    icon: "🌍",
+    detail: "<strong>Phân bố sinh địa lý (biogeography):</strong> loài ở khu vực địa lý gần nhau giống nhau hơn loài ở khu vực xa, kể cả khi môi trường khác — chứng tỏ chúng tiến hóa tại chỗ từ tổ tiên chung.<br><br><strong>Ví dụ:</strong> thú có túi (kangaroo, koala, opossum, wombat) tập trung ở Úc do tách lục địa cách đây ~150 triệu năm — Úc cô lập → thú có túi tiến hóa độc lập thành nhiều dạng thay vì bị thú có nhau cạnh tranh. Quần đảo Galápagos: 13 loài chim sẻ Darwin phân hóa từ 1 tổ tiên chung khi định cư các đảo khác nhau."
+  }
+};
+
+const evidGrid = document.getElementById("evidGrid");
+Object.keys(EVIDENCE).forEach(k => {
+  const div = document.createElement("div");
+  div.className = "evid-cell";
+  div.dataset.k = k;
+  div.innerHTML = `<div style="font-size:24px">${EVIDENCE[k].icon}</div><div style="margin-top:4px">${EVIDENCE[k].name}</div>`;
+  div.onclick = () => showEvid(k);
+  evidGrid.appendChild(div);
+});
+function showEvid(k) {
+  document.querySelectorAll(".evid-cell").forEach(c => c.classList.toggle("active", c.dataset.k === k));
+  document.getElementById("evidDetail").innerHTML = EVIDENCE[k].detail;
+}
+
+// ===== Init =====
+renderDist();
+renderQ();
+renderDrift();
+showEvid("fossil");
+</script>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

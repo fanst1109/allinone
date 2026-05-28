@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Hình thành loài & phát sinh</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #14532d; }
+  h2 {
+    color: #166534; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #bbf7d0;
+  }
+  h3 { color: #15803d; margin-top: 20px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 11px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 90px; max-width: 100%;
+  }
+  input[type="range"] { flex: 1; min-width: 0; }
+  button {
+    background: #059669; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #047857; }
+  button.muted { background: #a0aec0; }
+  button.muted:hover { background: #718096; }
+  .pill {
+    background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;
+  }
+  .pill.active { background: #059669; color: white; border-color: #047857; }
+  .stat {
+    display: inline-block; background: #d1fae5;
+    padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #047857; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; line-height: 1.5; }
+  .group-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+  svg { display: block; margin: 8px auto; max-width: 100%; height: auto; }
+  .info-grid { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 14px; }
+  .info-grid div { padding: 6px 10px; background: #f0fdf4; border-radius: 6px; }
+  .info-grid strong { color: #166534; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 8px; }
+  th, td { border: 1px solid #d1d5db; padding: 7px 10px; text-align: left; }
+  th { background: #ecfdf5; color: #065f46; }
+
+  .pop-a { fill: #f87171; stroke: #b91c1c; }
+  .pop-b { fill: #60a5fa; stroke: #1d4ed8; }
+  .barrier { fill: #78350f; stroke: #451a03; }
+  .node-circle { fill: #fbbf24; stroke: #b45309; stroke-width: 2; cursor: pointer; }
+  .node-circle.highlighted { fill: #f59e0b; stroke: #92400e; stroke-width: 3; }
+  .leaf-circle { fill: #34d399; stroke: #047857; stroke-width: 2; }
+  .leaf-circle.in-clade { fill: #fde047; stroke: #ca8a04; stroke-width: 3; }
+  .tree-branch { stroke: #047857; stroke-width: 2.5; fill: none; }
+  .tree-branch.in-clade { stroke: #ca8a04; stroke-width: 4; }
+  .tree-label { font: 13px sans-serif; fill: #1f2937; font-weight: 600; }
+
+  .iso-row {
+    display: grid; grid-template-columns: 1fr; gap: 8px;
+    margin-top: 10px;
+  }
+  .iso-card {
+    background: #f0fdf4; border-left: 4px solid #059669;
+    padding: 10px 14px; border-radius: 4px; font-size: 14px;
+  }
+  .iso-card.pre { border-left-color: #2563eb; background: #eff6ff; }
+  .iso-card.post { border-left-color: #dc2626; background: #fef2f2; }
+  .iso-card strong { display: block; margin-bottom: 4px; color: #1f2937; }
+
+  .formula {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    background: #f8fafc; border: 1px solid #e2e8f0;
+    padding: 8px 12px; border-radius: 4px; margin: 8px 0;
+    display: inline-block;
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Biology · Tầng 2</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-natural-selection/visualization.html">← L7: Chọn lọc tự nhiên</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Hình thành loài</span>
+  <span class="sep">·</span>
+  <a href="../../03-Physiology-Ecology/lesson-01-nervous-system/visualization.html">T3.L1: Hệ thần kinh →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 08 — Hình thành loài & phát sinh</h1>
+<p>Bộ công cụ tương tác: mô phỏng hình thành loài khác khu, tra rào cản cách ly sinh sản, dựng cây phát sinh + xác định clade & MRCA, và tính thời gian phân kỳ bằng đồng hồ phân tử.</p>
+
+<h2>1. Mô phỏng hình thành loài khác khu (allopatric)</h2>
+<div class="card">
+  <p>Một quần thể duy nhất bị tách bởi rào địa lý (núi, sông). Mỗi bên tiến hóa độc lập theo thời gian → tích lũy khác biệt → cuối cùng cách ly sinh sản. Kéo thanh "thời gian" để thấy phân kỳ tăng dần.</p>
+  <div class="row">
+    <label>Thời gian (×1000 năm):</label>
+    <input type="range" id="timeSlider" min="0" max="100" value="0" step="5">
+    <span class="stat">t = <strong id="timeVal">0</strong> nghìn năm</span>
+  </div>
+  <svg id="alloSvg" width="520" height="280" viewBox="0 0 520 280" role="img" aria-label="Mô phỏng allopatric speciation"></svg>
+  <div style="margin-top:8px">
+    <span class="stat">Phân kỳ DNA = <strong id="divVal">0.0</strong>%</span>
+    <span class="stat">Khả năng giao phối = <strong id="mateVal">100</strong>%</span>
+    <span class="stat" id="statusStat">Trạng thái: <strong id="statusVal">1 quần thể</strong></span>
+  </div>
+  <div class="hint" id="alloHint">Ở t = 0, hai nửa giống hệt nhau. Khi t tăng, mỗi bên tích đột biến độc lập → khác biệt DNA tăng theo công thức D ≈ 2μt (với μ giả định ~10⁻⁹/base/năm × tốc độ scaled).</div>
+</div>
+
+<h2>2. Phân loại rào cản cách ly sinh sản</h2>
+<div class="card">
+  <p>Chọn một tình huống để xem nó thuộc rào cản nào: <strong>trước hợp tử</strong> (5 loại) hay <strong>sau hợp tử</strong> (3 loại).</p>
+  <div class="group-btns" id="isoBtns"></div>
+  <div id="isoInfo" class="iso-card" style="display:none">
+    <strong id="isoTitle"></strong>
+    <div id="isoBody"></div>
+  </div>
+  <div class="hint">Mẹo: rào cản <em>trước hợp tử</em> ngăn việc tạo hợp tử (gặp gỡ, nhận diện, kết hợp giao tử); rào cản <em>sau hợp tử</em> liên quan đến số phận của hợp tử/con lai (chết, vô sinh, suy thoái).</div>
+</div>
+
+<h2>3. Cây phát sinh chủng loại — clade & MRCA</h2>
+<div class="card">
+  <p>Cây 6 loài: <code>(((A, B), (C, D)), (E, F))</code>. Click vào một nút để xem clade tương ứng (tổ tiên + tất cả hậu duệ). Click vào 2 ngọn để tìm MRCA.</p>
+  <div class="row">
+    <button id="modeClade" class="pill active">Mode: Click nút → highlight clade</button>
+    <button id="modeMRCA" class="pill">Mode: Chọn 2 ngọn → tìm MRCA</button>
+    <button id="treeReset" class="muted">Reset</button>
+  </div>
+  <svg id="treeSvg" width="520" height="320" viewBox="0 0 520 320" role="img" aria-label="Cây phát sinh chủng loại"></svg>
+  <div class="hint" id="treeHint">Nhấp nút (vàng) để highlight clade. Mỗi clade gồm tổ tiên chung + TẤT CẢ hậu duệ của nó.</div>
+  <div class="info-grid" id="treeInfo" style="margin-top:8px"></div>
+</div>
+
+<h2>4. Đồng hồ phân tử — tính thời gian phân kỳ</h2>
+<div class="card">
+  <p>Công thức: <span class="formula">t = D / (2 × μ)</span> trong đó D = % khác biệt DNA (dạng thập phân), μ = tốc độ đột biến trung tính (thay đổi/base/năm).</p>
+  <div class="row">
+    <label>% khác biệt DNA (D):</label>
+    <input type="range" id="diffSlider" min="0.1" max="20" value="1.2" step="0.1">
+    <span class="stat">D = <strong id="diffVal">1.2</strong>%</span>
+  </div>
+  <div class="row">
+    <label>μ (×10⁻⁹/base/năm):</label>
+    <input type="range" id="muSlider" min="0.5" max="3" value="1.0" step="0.1">
+    <span class="stat">μ = <strong id="muVal">1.0</strong> × 10⁻⁹</span>
+  </div>
+  <svg id="clockSvg" width="520" height="160" viewBox="0 0 520 160" role="img" aria-label="Đồng hồ phân tử"></svg>
+  <div style="margin-top:6px">
+    <span class="stat">Thời gian phân kỳ = <strong id="tVal">6.0</strong> triệu năm</span>
+    <span class="stat" id="presetStat">Preset: <strong id="presetVal">Người ↔ Tinh tinh</strong></span>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <button class="pill preset" data-d="1.2">Người ↔ Tinh tinh (1.2%)</button>
+    <button class="pill preset" data-d="3.0">Người ↔ Khỉ Cựu Thế giới (3.0%)</button>
+    <button class="pill preset" data-d="15">Người ↔ Chuột (15%)</button>
+    <button class="pill preset" data-d="0.3">Sẻ Darwin (0.3%)</button>
+  </div>
+  <div class="hint" id="clockHint"></div>
+</div>
+
+<h2>5. Bảng tổng hợp 2 kiểu hình thành loài</h2>
+<div class="card">
+  <table>
+    <thead>
+      <tr><th>Tiêu chí</th><th>Khác khu (allopatric)</th><th>Cùng khu (sympatric)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Cách ly địa lý?</td><td>Có (núi, sông, eo biển)</td><td>Không cần</td></tr>
+      <tr><td>Cơ chế chính</td><td>Tiến hóa độc lập sau khi tách</td><td>Đa bội, phân hóa sinh thái, chọn lọc phân hóa</td></tr>
+      <tr><td>Tần suất</td><td>Phổ biến nhất</td><td>Hiếm hơn (chủ yếu thực vật)</td></tr>
+      <tr><td>Tốc độ</td><td>100k – nhiều triệu năm</td><td>Có thể 1 thế hệ (đa bội)</td></tr>
+      <tr><td>Ví dụ</td><td>Chim sẻ Darwin (Galápagos)</td><td>Lúa mì 6n = 42; Cichlid Đông Phi</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+
+// ===== Section 1: Allopatric speciation animation =====
+const timeSlider = document.getElementById("timeSlider");
+function renderAllo() {
+  const t = +timeSlider.value;
+  document.getElementById("timeVal").textContent = t;
+  const svg = document.getElementById("alloSvg");
+  clear(svg);
+
+  // Background terrain
+  el("rect", { x: 0, y: 0, width: 520, height: 280, fill: "#f0fdf4" }, svg);
+
+  // Mountain rises with time (barrier)
+  const barrierHeight = Math.min(180, t * 1.8);
+  if (t > 0) {
+    const path = `M 230 220 L 260 ${220 - barrierHeight} L 290 ${220 - barrierHeight + 10} L 320 220 Z`;
+    el("path", { d: path, class: "barrier" }, svg);
+    const lbl = el("text", { x: 275, y: 240, "text-anchor": "middle", font: "11px sans-serif", fill: "#451a03" }, svg);
+    lbl.textContent = t < 20 ? "rào địa lý nâng lên" : "rào địa lý đã tách 2 quần thể";
+  }
+
+  // Left population (red)
+  const leftCount = 8;
+  for (let i = 0; i < leftCount; i++) {
+    const cx = 40 + (i % 4) * 38;
+    const cy = 100 + Math.floor(i / 4) * 38;
+    // color drifts slightly with time
+    const shade = Math.min(150, t * 1.5);
+    el("circle", { cx, cy, r: 11, fill: `rgb(${248 - shade * 0.3}, ${113 - shade * 0.4}, ${113 - shade * 0.4})`, stroke: "#b91c1c", "stroke-width": 1.5 }, svg);
+  }
+  const lt = el("text", { x: 95, y: 200, "text-anchor": "middle", font: "13px sans-serif", fill: "#7f1d1d", "font-weight": "700" }, svg);
+  lt.textContent = t < 5 ? "Quần thể (1 loài)" : "Quần thể A";
+
+  // Right population (blue)
+  for (let i = 0; i < leftCount; i++) {
+    const cx = 360 + (i % 4) * 38;
+    const cy = 100 + Math.floor(i / 4) * 38;
+    const shade = Math.min(150, t * 1.5);
+    el("circle", { cx, cy, r: 11, fill: `rgb(${96 - shade * 0.2}, ${165 - shade * 0.5}, ${250 - shade * 0.3})`, stroke: "#1d4ed8", "stroke-width": 1.5 }, svg);
+  }
+  if (t >= 5) {
+    const rt = el("text", { x: 415, y: 200, "text-anchor": "middle", font: "13px sans-serif", fill: "#1e3a8a", "font-weight": "700" }, svg);
+    rt.textContent = "Quần thể B";
+  }
+
+  // Title
+  const ttl = el("text", { x: 260, y: 25, "text-anchor": "middle", font: "14px sans-serif", fill: "#14532d", "font-weight": "700" }, svg);
+  if (t === 0) ttl.textContent = "Một quần thể duy nhất, chưa có rào cản";
+  else if (t < 30) ttl.textContent = "Rào địa lý hình thành — 2 quần thể bắt đầu tiến hóa độc lập";
+  else if (t < 70) ttl.textContent = "Tích lũy khác biệt: đột biến + chọn lọc + drift";
+  else ttl.textContent = "Đủ khác biệt → cách ly sinh sản → 2 LOÀI khác nhau";
+
+  // Stats
+  const D = (2 * t / 100 * 2.0).toFixed(1); // synthetic divergence ~ up to 4%
+  const mate = Math.max(0, 100 - t * 1.05).toFixed(0);
+  document.getElementById("divVal").textContent = D;
+  document.getElementById("mateVal").textContent = mate;
+  let status;
+  if (t === 0) status = "1 quần thể";
+  else if (t < 30) status = "2 quần thể cùng loài";
+  else if (t < 70) status = "đang phân hóa (incipient species)";
+  else status = "2 LOÀI khác nhau ✓";
+  document.getElementById("statusVal").textContent = status;
+
+  // Hint
+  document.getElementById("alloHint").textContent =
+    `t = ${t}k năm. Khác biệt DNA ≈ ${D}%. Khả năng giao phối thành công còn ~${mate}%. ` +
+    (t < 30 ? "Còn lai được, cùng loài." : t < 70 ? "Lai được một phần, đang là loài chớm phát sinh." : "Cách ly sinh sản hoàn toàn — loài mới.");
+}
+timeSlider.oninput = renderAllo;
+
+// ===== Section 2: Reproductive isolation classifier =====
+const ISO_CASES = [
+  { id: 1, type: "pre", label: "Hai loài rắn nước, một sống trong ao, một sống trên đất khô", barrier: "Sinh thái (Habitat)", num: "Trước hợp tử — Loại 1",
+    explain: "Hai quần thể tuy cùng khu vực địa lý nhưng sống ở vi sinh cảnh khác nhau → không gặp nhau → không có cơ hội giao phối." },
+  { id: 2, type: "pre", label: "Hoa loa kèn miền Đông nở tháng 3, miền Tây nở tháng 5", barrier: "Thời gian (Temporal)", num: "Trước hợp tử — Loại 2",
+    explain: "Mùa hoặc giờ sinh sản khác nhau → phấn / giao tử không tồn tại đồng thời → không thụ phấn chéo được." },
+  { id: 3, type: "pre", label: "Hai loài đom đóm có mã chớp đèn khác nhau", barrier: "Hành vi (Behavioral)", num: "Trước hợp tử — Loại 3",
+    explain: "Tín hiệu giao phối (mã chớp, tiếng hót, vũ điệu, mùi) khác nhau → cá thể không nhận diện nhau làm bạn tình." },
+  { id: 4, type: "pre", label: "Hoa thụ phấn nhờ ong khác loài côn trùng", barrier: "Cơ học (Mechanical)", num: "Trước hợp tử — Loại 4",
+    explain: "Cấu trúc cơ quan sinh sản (hình hoa, cơ quan giao cấu) không khớp về vật lý → giao phối không thể thực hiện." },
+  { id: 5, type: "pre", label: "Tinh trùng nhím biển không gắn được protein trứng loài khác", barrier: "Giao tử (Gametic)", num: "Trước hợp tử — Loại 5",
+    explain: "Protein bề mặt giao tử (vd bindin trên tinh trùng nhím biển) chỉ khớp receptor cùng loài → thụ tinh không xảy ra." },
+  { id: 6, type: "post", label: "Phôi lai giữa hai loài ếch chết trong giai đoạn phôi nang", barrier: "Con lai không sống được (Hybrid inviability)", num: "Sau hợp tử — Loại a",
+    explain: "Hợp tử đã hình thành nhưng phát triển bất thường, chết sớm — do hệ gen hai loài không tương thích trong điều hòa phát triển." },
+  { id: 7, type: "post", label: "Con la (ngựa × lừa) khỏe mạnh nhưng không sinh sản", barrier: "Con lai vô sinh (Hybrid sterility)", num: "Sau hợp tử — Loại b",
+    explain: "Con la có 63 NST (32 ngựa + 31 lừa) — số lẻ không bắt cặp được khi giảm phân → giao tử bất thường → vô sinh." },
+  { id: 8, type: "post", label: "F1 của một số giống lúa lai khỏe, nhưng F2 yếu, dị dạng", barrier: "Suy thoái con lai F2 (Hybrid breakdown)", num: "Sau hợp tử — Loại c",
+    explain: "F1 vẫn tốt vì kết hợp gen từ 2 dòng, nhưng F2 do giảm phân của F1 lộ ra các tổ hợp gen không tương thích → suy thoái." }
+];
+
+const isoBtns = document.getElementById("isoBtns");
+ISO_CASES.forEach(c => {
+  const b = document.createElement("button");
+  b.className = "pill";
+  b.textContent = "TH " + c.id;
+  b.title = c.label;
+  b.onclick = () => showIso(c.id);
+  isoBtns.appendChild(b);
+});
+function showIso(id) {
+  const c = ISO_CASES.find(x => x.id === id);
+  document.querySelectorAll("#isoBtns .pill").forEach((b, i) => b.classList.toggle("active", ISO_CASES[i].id === id));
+  const info = document.getElementById("isoInfo");
+  info.className = "iso-card " + c.type;
+  info.style.display = "block";
+  document.getElementById("isoTitle").textContent = `${c.num}: ${c.barrier}`;
+  document.getElementById("isoBody").innerHTML =
+    `<div style="margin-bottom:4px"><em>Tình huống:</em> ${c.label}</div>` +
+    `<div><em>Giải thích:</em> ${c.explain}</div>`;
+}
+
+// ===== Section 3: Phylogenetic tree =====
+// Tree: (((A, B), (C, D)), (E, F))
+const TREE = {
+  // node positions (x, y) and structure
+  nodes: {
+    R: { x: 60, y: 160, children: ["N1", "N4"], label: "Gốc" },
+    N1: { x: 200, y: 100, children: ["N2", "N3"], label: "" },
+    N2: { x: 340, y: 60, children: ["A", "B"], label: "" },
+    N3: { x: 340, y: 140, children: ["C", "D"], label: "" },
+    N4: { x: 200, y: 230, children: ["E", "F"], label: "" }
+  },
+  leaves: {
+    A: { x: 460, y: 40 },
+    B: { x: 460, y: 80 },
+    C: { x: 460, y: 120 },
+    D: { x: 460, y: 160 },
+    E: { x: 460, y: 210 },
+    F: { x: 460, y: 260 }
+  }
+};
+// All descendants of a node (recursive)
+function descendantsOf(node) {
+  if (TREE.leaves[node]) return [node];
+  const out = [];
+  TREE.nodes[node].children.forEach(c => out.push(...descendantsOf(c)));
+  return out;
+}
+// Path edges between a parent and its children (also internal)
+function edgesInClade(rootNode) {
+  if (TREE.leaves[rootNode]) return [];
+  const out = [];
+  TREE.nodes[rootNode].children.forEach(c => {
+    out.push([rootNode, c]);
+    out.push(...edgesInClade(c));
+  });
+  return out;
+}
+// MRCA of two leaves
+function mrca(leafA, leafB) {
+  // path from each leaf to root
+  function pathToRoot(leaf) {
+    const path = [leaf];
+    let cur = leaf;
+    while (cur !== "R") {
+      // find parent
+      for (const n in TREE.nodes) {
+        if (TREE.nodes[n].children.includes(cur)) {
+          path.push(n); cur = n; break;
+        }
+      }
+    }
+    return path;
+  }
+  const pa = pathToRoot(leafA);
+  const pb = new Set(pathToRoot(leafB));
+  for (const n of pa) if (pb.has(n)) return n;
+  return "R";
+}
+
+let treeMode = "clade"; // or "mrca"
+let mrcaSelections = [];
+
+function renderTree(highlightNode = null, mrcaPair = null) {
+  const svg = document.getElementById("treeSvg");
+  clear(svg);
+
+  // Title bar
+  el("rect", { x: 0, y: 0, width: 520, height: 28, fill: "#ecfdf5" }, svg);
+  const tt = el("text", { x: 260, y: 19, "text-anchor": "middle", font: "13px sans-serif", fill: "#065f46", "font-weight": "700" }, svg);
+  tt.textContent = "Cây: (((A, B), (C, D)), (E, F))   ←gốc | ngọn→";
+
+  // Compute highlighted edges/leaves
+  let highlightedEdges = new Set();
+  let highlightedLeaves = new Set();
+  if (highlightNode) {
+    const descs = descendantsOf(highlightNode);
+    descs.forEach(l => highlightedLeaves.add(l));
+    edgesInClade(highlightNode).forEach(([p, c]) => highlightedEdges.add(p + "-" + c));
+  }
+
+  // Draw all edges
+  function drawEdge(parent, child) {
+    const p = TREE.nodes[parent];
+    const c = TREE.nodes[child] || TREE.leaves[child];
+    const inClade = highlightedEdges.has(parent + "-" + child);
+    // L-shape branch
+    const d = `M ${p.x} ${p.y} L ${p.x} ${c.y} L ${c.x} ${c.y}`;
+    el("path", { d, class: "tree-branch" + (inClade ? " in-clade" : "") }, svg);
+  }
+  function drawSubtree(node) {
+    if (TREE.leaves[node]) return;
+    TREE.nodes[node].children.forEach(c => {
+      drawEdge(node, c);
+      drawSubtree(c);
+    });
+  }
+  drawSubtree("R");
+
+  // Draw nodes (internal)
+  Object.keys(TREE.nodes).forEach(n => {
+    const node = TREE.nodes[n];
+    const isHL = (highlightNode === n);
+    const circle = el("circle", { cx: node.x, cy: node.y, r: 9, class: "node-circle" + (isHL ? " highlighted" : "") }, svg);
+    circle.addEventListener("click", () => onNodeClick(n));
+    circle.style.cursor = "pointer";
+    if (n === "R") {
+      const lbl = el("text", { x: node.x - 15, y: node.y + 5, "text-anchor": "end", font: "12px sans-serif", fill: "#92400e", "font-weight": "700" }, svg);
+      lbl.textContent = "Gốc";
+    } else {
+      const lbl = el("text", { x: node.x, y: node.y - 14, "text-anchor": "middle", font: "10px sans-serif", fill: "#92400e" }, svg);
+      lbl.textContent = n;
+    }
+  });
+
+  // Draw leaves
+  Object.keys(TREE.leaves).forEach(l => {
+    const leaf = TREE.leaves[l];
+    const isHL = highlightedLeaves.has(l);
+    const isMrcaPick = mrcaSelections.includes(l);
+    const c = el("circle", { cx: leaf.x, cy: leaf.y, r: 12, class: "leaf-circle" + (isHL || isMrcaPick ? " in-clade" : "") }, svg);
+    c.addEventListener("click", () => onLeafClick(l));
+    c.style.cursor = "pointer";
+    const lbl = el("text", { x: leaf.x + 18, y: leaf.y + 4, class: "tree-label" }, svg);
+    lbl.textContent = l;
+  });
+
+  // MRCA highlight
+  if (mrcaPair && mrcaPair.length === 2) {
+    const m = mrca(mrcaPair[0], mrcaPair[1]);
+    const mn = TREE.nodes[m] || TREE.leaves[m];
+    el("circle", { cx: mn.x, cy: mn.y, r: 14, fill: "none", stroke: "#dc2626", "stroke-width": 3, "stroke-dasharray": "4,3" }, svg);
+    const lbl = el("text", { x: mn.x, y: mn.y - 22, "text-anchor": "middle", font: "12px sans-serif", fill: "#dc2626", "font-weight": "700" }, svg);
+    lbl.textContent = "MRCA";
+  }
+}
+
+function onNodeClick(n) {
+  if (treeMode !== "clade") return;
+  mrcaSelections = [];
+  const descs = descendantsOf(n);
+  renderTree(n);
+  const info = document.getElementById("treeInfo");
+  info.innerHTML =
+    `<div><strong>Nút chọn:</strong> ${n === "R" ? "Gốc (root)" : n}</div>` +
+    `<div><strong>Clade gồm:</strong> { ${descs.join(", ")} } — tổng ${descs.length} ngọn</div>` +
+    `<div><strong>Tính chất:</strong> đây là một clade (monophyletic) — tổ tiên chung + TẤT CẢ hậu duệ của nó.</div>`;
+  document.getElementById("treeHint").textContent = "Các nhánh vàng đậm + ngọn vàng = clade. Thử click các nút khác để thấy clade lồng nhau.";
+}
+
+function onLeafClick(l) {
+  if (treeMode !== "mrca") return;
+  if (mrcaSelections.includes(l)) {
+    mrcaSelections = mrcaSelections.filter(x => x !== l);
+  } else {
+    if (mrcaSelections.length >= 2) mrcaSelections = [l];
+    else mrcaSelections.push(l);
+  }
+  if (mrcaSelections.length === 2) {
+    const m = mrca(mrcaSelections[0], mrcaSelections[1]);
+    renderTree(null, mrcaSelections);
+    document.getElementById("treeInfo").innerHTML =
+      `<div><strong>Chọn:</strong> ${mrcaSelections[0]} và ${mrcaSelections[1]}</div>` +
+      `<div><strong>MRCA (tổ tiên chung gần nhất):</strong> ${m === "R" ? "Gốc cả cây" : "Nút " + m}</div>` +
+      `<div><strong>Ý nghĩa:</strong> đây là điểm chia nhánh sâu nhất chứa cả 2 ngọn — đại diện cho tổ tiên chung của ${mrcaSelections[0]} và ${mrcaSelections[1]}.</div>`;
+  } else {
+    renderTree(null);
+    document.getElementById("treeInfo").innerHTML =
+      `<div>Đã chọn 1 ngọn: ${mrcaSelections[0] || "—"}. Click thêm 1 ngọn nữa để tìm MRCA.</div>`;
+  }
+}
+
+document.getElementById("modeClade").onclick = () => {
+  treeMode = "clade"; mrcaSelections = [];
+  document.getElementById("modeClade").classList.add("active");
+  document.getElementById("modeMRCA").classList.remove("active");
+  renderTree();
+  document.getElementById("treeHint").textContent = "Mode CLADE: click nút (vàng) để highlight clade tương ứng.";
+  document.getElementById("treeInfo").innerHTML = "";
+};
+document.getElementById("modeMRCA").onclick = () => {
+  treeMode = "mrca"; mrcaSelections = [];
+  document.getElementById("modeMRCA").classList.add("active");
+  document.getElementById("modeClade").classList.remove("active");
+  renderTree();
+  document.getElementById("treeHint").textContent = "Mode MRCA: click 2 ngọn để tìm tổ tiên chung gần nhất của chúng.";
+  document.getElementById("treeInfo").innerHTML = "";
+};
+document.getElementById("treeReset").onclick = () => {
+  mrcaSelections = []; renderTree();
+  document.getElementById("treeInfo").innerHTML = "";
+};
+
+// ===== Section 4: Molecular clock =====
+const diffSlider = document.getElementById("diffSlider");
+const muSlider = document.getElementById("muSlider");
+function renderClock(presetName) {
+  const D_pct = parseFloat(diffSlider.value);
+  const mu = parseFloat(muSlider.value) * 1e-9;
+  document.getElementById("diffVal").textContent = D_pct.toFixed(1);
+  document.getElementById("muVal").textContent = muSlider.value;
+  const D = D_pct / 100;
+  const t = D / (2 * mu); // years
+  const tMy = t / 1e6;
+  document.getElementById("tVal").textContent = tMy.toFixed(2);
+  if (presetName) document.getElementById("presetVal").textContent = presetName;
+
+  // SVG: timeline
+  const svg = document.getElementById("clockSvg");
+  clear(svg);
+
+  el("text", { x: 260, y: 20, "text-anchor": "middle", font: "13px sans-serif", fill: "#14532d", "font-weight": "700" }, svg)
+    .textContent = "Hai loài tách từ tổ tiên chung";
+
+  // Two diverging lines
+  const startX = 260, startY = 60;
+  const lineLen = Math.min(220, 30 + tMy * 6);
+  const angle = Math.min(35, 5 + tMy * 0.8);
+  const rad = angle * Math.PI / 180;
+  const endX1 = startX - lineLen * Math.sin(rad);
+  const endY1 = startY + lineLen * Math.cos(rad);
+  const endX2 = startX + lineLen * Math.sin(rad);
+  const endY2 = startY + lineLen * Math.cos(rad);
+
+  el("line", { x1: startX, y1: startY, x2: endX1, y2: endY1, stroke: "#047857", "stroke-width": 3 }, svg);
+  el("line", { x1: startX, y1: startY, x2: endX2, y2: endY2, stroke: "#1d4ed8", "stroke-width": 3 }, svg);
+  el("circle", { cx: startX, cy: startY, r: 8, fill: "#fbbf24", stroke: "#92400e", "stroke-width": 2 }, svg);
+  el("text", { x: startX, y: startY - 14, "text-anchor": "middle", font: "11px sans-serif", fill: "#92400e", "font-weight": "700" }, svg)
+    .textContent = "Tổ tiên chung";
+
+  el("circle", { cx: endX1, cy: endY1, r: 10, fill: "#f87171", stroke: "#b91c1c", "stroke-width": 2 }, svg);
+  el("text", { x: endX1, y: endY1 + 26, "text-anchor": "middle", font: "12px sans-serif", fill: "#7f1d1d", "font-weight": "700" }, svg)
+    .textContent = "Loài 1";
+
+  el("circle", { cx: endX2, cy: endY2, r: 10, fill: "#60a5fa", stroke: "#1d4ed8", "stroke-width": 2 }, svg);
+  el("text", { x: endX2, y: endY2 + 26, "text-anchor": "middle", font: "12px sans-serif", fill: "#1e3a8a", "font-weight": "700" }, svg)
+    .textContent = "Loài 2";
+
+  // Time annotation
+  const midX = (endX1 + endX2) / 2;
+  const midY = Math.max(endY1, endY2) + 5;
+  el("text", { x: midX, y: midY + 50, "text-anchor": "middle", font: "13px sans-serif", fill: "#1f2937" }, svg)
+    .textContent = `t = ${tMy.toFixed(2)} triệu năm trước`;
+
+  // Hint with computation
+  document.getElementById("clockHint").innerHTML =
+    `<strong>Tính:</strong> t = D / (2μ) = ${D.toExponential(2)} / (2 × ${mu.toExponential(2)}) = <strong>${t.toExponential(2)}</strong> năm ≈ <strong>${tMy.toFixed(2)} triệu năm</strong>. ` +
+    `Lưu ý: μ ảnh hưởng mạnh đến kết quả — kéo thanh μ để thấy. Đồng hồ phân tử có sai số ±20-50%, cần hiệu chuẩn với hóa thạch.`;
+}
+diffSlider.oninput = () => renderClock("(tùy chỉnh)");
+muSlider.oninput = () => renderClock();
+document.querySelectorAll(".preset").forEach(b => {
+  b.onclick = () => {
+    diffSlider.value = b.dataset.d;
+    const names = { "1.2": "Người ↔ Tinh tinh", "3.0": "Người ↔ Khỉ Cựu Thế giới", "15": "Người ↔ Chuột", "0.3": "Sẻ Darwin" };
+    renderClock(names[b.dataset.d] || "(preset)");
+  };
+});
+
+// ===== Init =====
+renderAllo();
+renderTree();
+renderClock("Người ↔ Tinh tinh");
+</script>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

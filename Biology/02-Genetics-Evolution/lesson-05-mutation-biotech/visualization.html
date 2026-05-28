@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Đột biến & công nghệ gen</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #14532d; }
+  h2 {
+    color: #166534; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #bbf7d0;
+  }
+  h3 { color: #15803d; margin-top: 20px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  input[type="number"], input[type="text"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; padding: 7px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    max-width: 100%; box-sizing: border-box;
+  }
+  input[type="number"] { width: 90px; }
+  input[type="text"] { width: 100%; max-width: 320px; }
+  input[type="range"] { flex: 1; min-width: 0; }
+  button {
+    background: #059669; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #047857; }
+  button.muted { background: #a0aec0; }
+  button.muted:hover { background: #718096; }
+  .pill {
+    background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;
+  }
+  .pill.active { background: #059669; color: white; border-color: #047857; }
+  .stat {
+    display: inline-block; background: #d1fae5;
+    padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #047857; }
+  .hint { color: #64748b; font-size: 13px; margin: 6px 0; }
+  .group-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+  svg { display: block; margin: 8px auto; max-width: 100%; height: auto; }
+  .info-grid { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 14px; }
+  .info-grid div { padding: 6px 10px; background: #f0fdf4; border-radius: 6px; }
+  .info-grid strong { color: #166534; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 8px; }
+  th, td { border: 1px solid #d1d5db; padding: 7px 10px; text-align: left; }
+  th { background: #ecfdf5; color: #065f46; }
+
+  .codon-row { display: flex; gap: 4px; flex-wrap: wrap; font-family: monospace; font-size: 16px; margin: 6px 0; }
+  .codon {
+    display: inline-flex; gap: 2px;
+    padding: 6px 8px; background: #f0fdf4; border: 1px solid #bbf7d0;
+    border-radius: 5px; font-weight: 700; color: #065f46;
+  }
+  .codon.changed { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
+  .codon.stop { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+  .aa-row { display: flex; gap: 4px; flex-wrap: wrap; font-size: 13px; margin: 4px 0; }
+  .aa {
+    padding: 6px 8px; background: #ecfdf5; border: 1px solid #6ee7b7;
+    border-radius: 5px; font-weight: 700; color: #047857; min-width: 38px; text-align: center;
+  }
+  .aa.changed { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
+  .aa.stop { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+  .nt-letter {
+    display: inline-block; padding: 1px 3px; border-radius: 3px;
+  }
+  .nt-letter.highlight { background: #fbbf24; color: white; }
+
+  .verdict {
+    margin-top: 10px; padding: 10px 14px; border-radius: 6px;
+    font-weight: 600; font-size: 14px;
+  }
+  .verdict.silent { background: #d1fae5; color: #065f46; border-left: 4px solid #059669; }
+  .verdict.missense { background: #fef3c7; color: #92400e; border-left: 4px solid #f59e0b; }
+  .verdict.nonsense { background: #fee2e2; color: #b91c1c; border-left: 4px solid #ef4444; }
+  .verdict.frameshift { background: #ede9fe; color: #5b21b6; border-left: 4px solid #8b5cf6; }
+
+  /* Chromosome */
+  .chrom-seg { stroke: #1f2937; stroke-width: 1.5; }
+  .chrom-label { font: bold 14px sans-serif; fill: white; text-anchor: middle; }
+
+  /* CRISPR */
+  .dna-rect { fill: #dbeafe; stroke: #1d4ed8; stroke-width: 1.5; }
+  .dna-text { font: bold 14px monospace; fill: #1e3a8a; text-anchor: middle; }
+  .grna-rect { fill: #fef3c7; stroke: #d97706; stroke-width: 1.5; }
+  .grna-text { font: bold 14px monospace; fill: #92400e; text-anchor: middle; }
+  .pam-rect { fill: #fee2e2; stroke: #b91c1c; stroke-width: 1.5; }
+  .pam-text { font: bold 14px monospace; fill: #7f1d1d; text-anchor: middle; }
+  .cas9 { fill: #c084fc; stroke: #6b21a8; stroke-width: 2; }
+
+  @media (max-width: 480px) {
+    .codon, .aa { padding: 5px 6px; font-size: 13px; min-width: 32px; }
+    .codon-row, .aa-row { gap: 3px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Biology · Tầng 2</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-gene-regulation/visualization.html">← L4: Điều hòa gen</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Đột biến &amp; công nghệ gen</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-population-genetics/visualization.html">L6: Di truyền quần thể →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 05 — Đột biến & công nghệ gen</h1>
+<p>Bộ công cụ tương tác: mô phỏng 4 loại đột biến điểm trên mRNA, đếm bản sao PCR theo cấp số nhân, hình dung 4 kiểu đột biến nhiễm sắc thể, và minh họa cơ chế CRISPR-Cas9.</p>
+
+<h2>1. Mô phỏng đột biến điểm (mRNA → protein)</h2>
+<div class="card">
+  <p class="hint">Nhập đoạn mRNA (chỉ A/U/G/C, độ dài bội số 3 là tốt nhất), chọn vị trí + kiểu đột biến. Viz dịch mã trước &amp; sau, phân loại silent / missense / nonsense / frameshift.</p>
+  <div class="row">
+    <label>mRNA gốc:</label>
+    <input type="text" id="mrnaInput" value="AUGCGUUAUGGGUAA" maxlength="36">
+    <button id="resetMrna" class="muted">Reset</button>
+  </div>
+  <div class="row">
+    <label>Vị trí (1-based):</label>
+    <input type="number" id="posInput" min="1" max="15" value="8" step="1">
+    <label>Kiểu:</label>
+    <button class="pill active" data-mut="sub">Thay (substitute)</button>
+    <button class="pill" data-mut="ins">Thêm (insert)</button>
+    <button class="pill" data-mut="del">Mất (delete)</button>
+  </div>
+  <div class="row" id="newBaseRow">
+    <label>Nucleotide mới:</label>
+    <button class="pill" data-base="A">A</button>
+    <button class="pill" data-base="U">U</button>
+    <button class="pill" data-base="G">G</button>
+    <button class="pill active" data-base="C">C</button>
+  </div>
+  <h3 style="margin-top:18px">Trước đột biến</h3>
+  <div class="codon-row" id="origCodons"></div>
+  <div class="aa-row" id="origAAs"></div>
+  <h3>Sau đột biến</h3>
+  <div class="codon-row" id="mutCodons"></div>
+  <div class="aa-row" id="mutAAs"></div>
+  <div class="verdict" id="mutVerdict"></div>
+</div>
+
+<h2>2. PCR — đếm bản sao 2ⁿ</h2>
+<div class="card">
+  <p class="hint">Mỗi chu kỳ gấp đôi số bản sao. Kéo thanh để xem khuếch đại theo cấp số nhân; chọn hiệu suất để so sánh thực tế vs lý tưởng.</p>
+  <div class="row">
+    <label>Số chu kỳ:</label>
+    <input type="range" id="cycleSlider" min="0" max="35" value="10">
+    <span class="stat">n = <strong id="cycleVal">10</strong></span>
+  </div>
+  <div class="row">
+    <label>Mẫu ban đầu (N₀):</label>
+    <input type="number" id="initInput" min="1" max="1000" value="1" step="1">
+    <label>Hiệu suất:</label>
+    <button class="pill active" data-eff="1.0">100%</button>
+    <button class="pill" data-eff="0.9">90%</button>
+    <button class="pill" data-eff="0.8">80%</button>
+  </div>
+  <svg id="pcrSvg" width="460" height="240" viewBox="0 0 460 240" role="img" aria-label="Đồ thị khuếch đại PCR"></svg>
+  <div style="margin-top:6px">
+    <span class="stat">Bản sao = <strong id="pcrCopies">1,024</strong></span>
+    <span class="stat">Công thức: <strong id="pcrFormula">N₀ × 2ⁿ</strong></span>
+  </div>
+  <div class="hint" id="pcrHint"></div>
+</div>
+
+<h2>3. Đột biến nhiễm sắc thể</h2>
+<div class="card">
+  <p class="hint">Chọn kiểu đột biến để xem NST gốc <code>A-B-C-D-E-F</code> biến đổi thế nào.</p>
+  <div class="group-btns" id="chromBtns"></div>
+  <svg id="chromSvg" width="460" height="200" viewBox="0 0 460 200" role="img" aria-label="Đột biến nhiễm sắc thể"></svg>
+  <div class="info-grid" id="chromInfo"></div>
+</div>
+
+<h2>4. CRISPR-Cas9 — kéo cắt có lập trình</h2>
+<div class="card">
+  <p class="hint">Click các bước để xem gRNA dẫn Cas9 tới đích, cắt DSB, và 2 đường sửa lỗi (NHEJ vs HDR).</p>
+  <div class="group-btns" id="crisprBtns"></div>
+  <svg id="crisprSvg" width="460" height="220" viewBox="0 0 460 220" role="img" aria-label="Cơ chế CRISPR-Cas9"></svg>
+  <div class="info-grid" id="crisprInfo"></div>
+</div>
+
+<h2>5. Bảng tổng hợp đột biến điểm</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>Loại</th><th>Cơ chế</th><th>Hậu quả</th><th>Ví dụ</th></tr></thead>
+    <tbody>
+      <tr><td>Silent</td><td>Thay 1 nt, codon mới cùng amino acid</td><td>Vô hại</td><td>UAU → UAC (cả 2 đều Tyr)</td></tr>
+      <tr><td>Missense</td><td>Thay 1 nt, đổi amino acid</td><td>Đổi 1 vị trí protein</td><td>GAG → GUG (sickle cell)</td></tr>
+      <tr><td>Nonsense</td><td>Thay 1 nt → tạo STOP</td><td>Protein cụt</td><td>UAU → UAA (STOP)</td></tr>
+      <tr><td>Frameshift</td><td>Thêm/mất nt không bội số 3</td><td>Lệch khung — protein hỏng</td><td>Mất 1 G ở giữa gene</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+
+// ===== Codon table =====
+const CODON = {
+  UUU:'Phe',UUC:'Phe',UUA:'Leu',UUG:'Leu',
+  UCU:'Ser',UCC:'Ser',UCA:'Ser',UCG:'Ser',
+  UAU:'Tyr',UAC:'Tyr',UAA:'***',UAG:'***',
+  UGU:'Cys',UGC:'Cys',UGA:'***',UGG:'Trp',
+  CUU:'Leu',CUC:'Leu',CUA:'Leu',CUG:'Leu',
+  CCU:'Pro',CCC:'Pro',CCA:'Pro',CCG:'Pro',
+  CAU:'His',CAC:'His',CAA:'Gln',CAG:'Gln',
+  CGU:'Arg',CGC:'Arg',CGA:'Arg',CGG:'Arg',
+  AUU:'Ile',AUC:'Ile',AUA:'Ile',AUG:'Met',
+  ACU:'Thr',ACC:'Thr',ACA:'Thr',ACG:'Thr',
+  AAU:'Asn',AAC:'Asn',AAA:'Lys',AAG:'Lys',
+  AGU:'Ser',AGC:'Ser',AGA:'Arg',AGG:'Arg',
+  GUU:'Val',GUC:'Val',GUA:'Val',GUG:'Val',
+  GCU:'Ala',GCC:'Ala',GCA:'Ala',GCG:'Ala',
+  GAU:'Asp',GAC:'Asp',GAA:'Glu',GAG:'Glu',
+  GGU:'Gly',GGC:'Gly',GGA:'Gly',GGG:'Gly'
+};
+function translate(seq) {
+  const codons = [], aas = [];
+  for (let i = 0; i + 3 <= seq.length; i += 3) {
+    const c = seq.substr(i, 3);
+    codons.push(c);
+    aas.push(CODON[c] || '?');
+  }
+  return { codons, aas };
+}
+
+// ===== Section 1: Mutation simulator =====
+let mutType = 'sub';
+let newBase = 'C';
+function clean(s) { return s.toUpperCase().replace(/[^AUGC]/g, ''); }
+function buildNtSpans(seq, hi) {
+  return seq.split('').map((ch, i) =>
+    `<span class="nt-letter${i === hi ? ' highlight' : ''}">${ch}</span>`
+  ).join('');
+}
+function renderMutation() {
+  const orig = clean(document.getElementById('mrnaInput').value);
+  let pos = +document.getElementById('posInput').value;
+  if (pos < 1) pos = 1;
+  if (pos > orig.length) pos = orig.length;
+
+  // Build mutant
+  let mut = orig;
+  let label = '';
+  if (mutType === 'sub') {
+    if (orig.length === 0) mut = '';
+    else mut = orig.substring(0, pos - 1) + newBase + orig.substring(pos);
+    label = `Thay vị trí ${pos}: ${orig[pos-1] || '?'} → ${newBase}`;
+  } else if (mutType === 'ins') {
+    mut = orig.substring(0, pos - 1) + newBase + orig.substring(pos - 1);
+    label = `Thêm ${newBase} trước vị trí ${pos}`;
+  } else if (mutType === 'del') {
+    if (orig.length === 0) mut = '';
+    else mut = orig.substring(0, pos - 1) + orig.substring(pos);
+    label = `Mất nucleotide ${orig[pos-1] || '?'} ở vị trí ${pos}`;
+  }
+
+  // Translate both
+  const O = translate(orig);
+  const M = translate(mut);
+
+  // Codon index containing position
+  const codonIdx = Math.floor((pos - 1) / 3);
+
+  // Render codons
+  const oc = document.getElementById('origCodons');
+  oc.innerHTML = O.codons.map((c, i) => {
+    const isHi = (i === codonIdx);
+    const isStop = (CODON[c] === '***');
+    const cls = isStop ? 'codon stop' : (isHi ? 'codon changed' : 'codon');
+    const hi = isHi ? (pos - 1 - i * 3) : -1;
+    return `<span class="${cls}">${buildNtSpans(c, hi)}</span>`;
+  }).join('');
+
+  const oa = document.getElementById('origAAs');
+  oa.innerHTML = O.aas.map((a, i) => {
+    const isStop = (a === '***');
+    const isHi = (i === codonIdx);
+    const cls = isStop ? 'aa stop' : (isHi ? 'aa changed' : 'aa');
+    return `<span class="${cls}">${a}</span>`;
+  }).join('');
+
+  const mc = document.getElementById('mutCodons');
+  mc.innerHTML = M.codons.map((c, i) => {
+    const isStop = (CODON[c] === '***');
+    // Frame shift: everything after codonIdx is "changed"
+    const isAfter = (i >= codonIdx);
+    const cls = isStop ? 'codon stop' : (isAfter ? 'codon changed' : 'codon');
+    return `<span class="${cls}">${c}</span>`;
+  }).join('');
+
+  const ma = document.getElementById('mutAAs');
+  ma.innerHTML = M.aas.map((a, i) => {
+    const isStop = (a === '***');
+    const isAfter = (i >= codonIdx);
+    const cls = isStop ? 'aa stop' : (isAfter ? 'aa changed' : 'aa');
+    return `<span class="${cls}">${a}</span>`;
+  }).join('');
+
+  // Determine mutation class
+  const v = document.getElementById('mutVerdict');
+  let cls = 'silent', txt = '';
+  if (mutType === 'sub') {
+    const origCodon = O.codons[codonIdx];
+    const mutCodon = M.codons[codonIdx];
+    if (!mutCodon) {
+      cls = 'missense'; txt = `${label}. Vị trí ngoài vùng codon hoàn chỉnh.`;
+    } else if (CODON[origCodon] === CODON[mutCodon]) {
+      cls = 'silent';
+      txt = `${label}. Codon ${origCodon} → ${mutCodon}: cả hai đều mã hóa ${CODON[origCodon]} (mã thoái hóa). 🟢 SILENT — protein không đổi.`;
+    } else if (CODON[mutCodon] === '***') {
+      cls = 'nonsense';
+      txt = `${label}. Codon ${origCodon} (${CODON[origCodon]}) → ${mutCodon} (STOP). 🔴 NONSENSE — protein bị cụt sớm.`;
+    } else if (CODON[origCodon] === '***') {
+      cls = 'missense';
+      txt = `${label}. STOP → ${CODON[mutCodon]} (đột biến STOP-loss, hiếm). Protein dài hơn bình thường.`;
+    } else {
+      cls = 'missense';
+      txt = `${label}. Codon ${origCodon} (${CODON[origCodon]}) → ${mutCodon} (${CODON[mutCodon]}). 🟡 MISSENSE — đổi 1 amino acid.`;
+    }
+  } else if (mutType === 'ins' || mutType === 'del') {
+    cls = 'frameshift';
+    const dir = mutType === 'ins' ? '+1' : '−1';
+    txt = `${label}. Khung đọc lệch ${dir} từ codon ${codonIdx + 1} trở đi → toàn bộ amino acid phía sau thay đổi. 🟣 FRAMESHIFT — thường mất chức năng protein.`;
+  }
+  v.className = 'verdict ' + cls;
+  v.textContent = txt;
+}
+
+document.getElementById('mrnaInput').oninput = renderMutation;
+document.getElementById('posInput').oninput = renderMutation;
+document.getElementById('resetMrna').onclick = () => {
+  document.getElementById('mrnaInput').value = 'AUGCGUUAUGGGUAA';
+  document.getElementById('posInput').value = 8;
+  renderMutation();
+};
+document.querySelectorAll('[data-mut]').forEach(b => {
+  b.onclick = () => {
+    mutType = b.dataset.mut;
+    document.querySelectorAll('[data-mut]').forEach(x => x.classList.toggle('active', x === b));
+    document.getElementById('newBaseRow').style.display = (mutType === 'del') ? 'none' : 'flex';
+    renderMutation();
+  };
+});
+document.querySelectorAll('[data-base]').forEach(b => {
+  b.onclick = () => {
+    newBase = b.dataset.base;
+    document.querySelectorAll('[data-base]').forEach(x => x.classList.toggle('active', x === b));
+    renderMutation();
+  };
+});
+
+// ===== Section 2: PCR =====
+let pcrEff = 1.0;
+function renderPCR() {
+  const n = +document.getElementById('cycleSlider').value;
+  const n0 = +document.getElementById('initInput').value || 1;
+  document.getElementById('cycleVal').textContent = n;
+  const factor = 1 + pcrEff; // 100% -> 2.0, 90% -> 1.9, 80% -> 1.8
+  const copies = n0 * Math.pow(factor, n);
+  const ideal = n0 * Math.pow(2, n);
+  document.getElementById('pcrCopies').textContent =
+    copies >= 1e6 ? copies.toExponential(2) : Math.round(copies).toLocaleString('en-US');
+  document.getElementById('pcrFormula').textContent =
+    `${n0} × ${factor.toFixed(1)}^${n}`;
+  const hint = pcrEff === 1.0
+    ? `Sau ${n} chu kỳ hiệu suất lý tưởng 100%: ${n0} × 2^${n} = ${Math.round(copies).toLocaleString('en-US')} bản sao.`
+    : `Hiệu suất ${pcrEff*100}% → mỗi chu kỳ ×${factor.toFixed(1)}. Sau ${n} chu kỳ: ${copies.toExponential(2)} bản sao. So với 100% lý tưởng (${ideal.toExponential(2)}): thiếu ~${(ideal/copies).toFixed(1)}×.`;
+  document.getElementById('pcrHint').textContent = hint;
+
+  // Draw bar chart with log scale
+  const svg = document.getElementById('pcrSvg'); clear(svg);
+  const W = 460, H = 240, marginL = 50, marginR = 20, marginT = 20, marginB = 40;
+  const plotW = W - marginL - marginR, plotH = H - marginT - marginB;
+  const maxLog = Math.log10(Math.max(n0 * Math.pow(2, 35), 10));
+  // axes
+  el('line', { x1: marginL, y1: marginT, x2: marginL, y2: marginT + plotH, stroke: '#9ca3af', 'stroke-width': 1 }, svg);
+  el('line', { x1: marginL, y1: marginT + plotH, x2: marginL + plotW, y2: marginT + plotH, stroke: '#9ca3af', 'stroke-width': 1 }, svg);
+  // y-axis labels (log)
+  for (let p = 0; p <= 10; p += 2) {
+    if (p > maxLog) break;
+    const y = marginT + plotH - (p / maxLog) * plotH;
+    el('line', { x1: marginL - 4, y1: y, x2: marginL, y2: y, stroke: '#9ca3af' }, svg);
+    const t = el('text', { x: marginL - 8, y: y + 4, 'text-anchor': 'end', font: '11px sans-serif', fill: '#6b7280' }, svg);
+    t.textContent = '10^' + p;
+  }
+  const yLabel = el('text', { x: 12, y: marginT + plotH / 2, font: 'bold 11px sans-serif', fill: '#374151', transform: `rotate(-90 12 ${marginT + plotH / 2})`, 'text-anchor': 'middle' }, svg);
+  yLabel.textContent = 'Bản sao (log)';
+  // bars per cycle
+  const cycMax = 35;
+  const bw = plotW / (cycMax + 1);
+  for (let c = 0; c <= cycMax; c++) {
+    const v = n0 * Math.pow(factor, c);
+    const vIdeal = n0 * Math.pow(2, c);
+    const logV = Math.log10(Math.max(v, 1));
+    const logI = Math.log10(Math.max(vIdeal, 1));
+    const hh = (logV / maxLog) * plotH;
+    const hi = (logI / maxLog) * plotH;
+    if (pcrEff < 1.0) {
+      el('rect', {
+        x: marginL + c * bw + 1, y: marginT + plotH - hi, width: bw - 2, height: hi,
+        fill: '#fde68a', opacity: 0.6
+      }, svg);
+    }
+    el('rect', {
+      x: marginL + c * bw + 1, y: marginT + plotH - hh, width: bw - 2, height: hh,
+      fill: c === n ? '#dc2626' : '#10b981'
+    }, svg);
+  }
+  // x labels every 5
+  for (let c = 0; c <= cycMax; c += 5) {
+    const x = marginL + c * bw + bw / 2;
+    const t = el('text', { x: x, y: marginT + plotH + 16, font: '11px sans-serif', 'text-anchor': 'middle', fill: '#6b7280' }, svg);
+    t.textContent = c;
+  }
+  const xLabel = el('text', { x: marginL + plotW / 2, y: H - 6, font: 'bold 11px sans-serif', 'text-anchor': 'middle', fill: '#374151' }, svg);
+  xLabel.textContent = 'Số chu kỳ';
+}
+document.getElementById('cycleSlider').oninput = renderPCR;
+document.getElementById('initInput').oninput = renderPCR;
+document.querySelectorAll('[data-eff]').forEach(b => {
+  b.onclick = () => {
+    pcrEff = parseFloat(b.dataset.eff);
+    document.querySelectorAll('[data-eff]').forEach(x => x.classList.toggle('active', x === b));
+    renderPCR();
+  };
+});
+
+// ===== Section 3: Chromosomal mutation =====
+const CHROM_TYPES = {
+  none: {
+    name: 'Bình thường',
+    after: ['A', 'B', 'C', 'D', 'E', 'F'],
+    desc: 'NST gốc với 6 gene A→F.',
+    detail: 'Bộ NST chuẩn — chưa có thay đổi.'
+  },
+  del: {
+    name: 'Mất đoạn (deletion)',
+    after: ['A', 'B', 'D', 'E', 'F'],
+    desc: 'Đoạn C bị mất.',
+    detail: 'Một đoạn NST bị mất khi sửa lỗi DSB không tìm thấy đầu đối tác. Mất gene C → mất chức năng gene đó.'
+  },
+  dup: {
+    name: 'Lặp đoạn (duplication)',
+    after: ['A', 'B', 'C', 'C', 'D', 'E', 'F'],
+    desc: 'Gene C xuất hiện 2 lần.',
+    detail: 'Một đoạn được sao thêm. Có thể vô hại, hoặc gây mất cân bằng liều gene; nguồn nguyên liệu cho gene mới (qua tích lũy đột biến trên bản sao).'
+  },
+  inv: {
+    name: 'Đảo đoạn (inversion)',
+    after: ['A', 'B', 'E', 'D', 'C', 'F'],
+    desc: 'Đoạn C-D-E quay 180° thành E-D-C.',
+    detail: 'Đoạn NST quay ngược chiều rồi nối lại. Gene vẫn còn nhưng thứ tự đảo; có thể phá gene nếu điểm cắt rơi giữa gene.'
+  },
+  trans: {
+    name: 'Chuyển đoạn (translocation)',
+    after: ['A', 'B', 'C', 'X', 'Y', 'Z'],
+    desc: 'Đoạn D-E-F bị thay bằng X-Y-Z từ NST khác.',
+    detail: 'Trao đổi đoạn giữa 2 NST không tương đồng. Vd t(9;22) tạo NST Philadelphia → bệnh bạch cầu mãn dòng tủy (CML).'
+  }
+};
+const chromBtnsDiv = document.getElementById('chromBtns');
+Object.keys(CHROM_TYPES).forEach(k => {
+  const b = document.createElement('button');
+  b.className = 'pill'; b.textContent = CHROM_TYPES[k].name; b.dataset.k = k;
+  b.onclick = () => showChrom(k);
+  chromBtnsDiv.appendChild(b);
+});
+function showChrom(k) {
+  document.querySelectorAll('#chromBtns .pill').forEach(b => b.classList.toggle('active', b.dataset.k === k));
+  const T = CHROM_TYPES[k];
+  const svg = document.getElementById('chromSvg'); clear(svg);
+  const colors = { A: '#34d399', B: '#60a5fa', C: '#fbbf24', D: '#f87171', E: '#a78bfa', F: '#fb923c', X: '#94a3b8', Y: '#94a3b8', Z: '#94a3b8' };
+  // top: original
+  const orig = ['A', 'B', 'C', 'D', 'E', 'F'];
+  drawChrom(svg, orig, 30, 'NST gốc', colors);
+  // bottom: after
+  drawChrom(svg, T.after, 130, 'Sau đột biến', colors, k);
+  document.getElementById('chromInfo').innerHTML =
+    `<div><strong>${T.name}</strong>: ${T.desc}</div>` +
+    `<div>${T.detail}</div>`;
+}
+function drawChrom(svg, segs, y, label, colors, k) {
+  const t = el('text', { x: 30, y: y - 6, font: 'bold 12px sans-serif', fill: '#374151' }, svg);
+  t.textContent = label;
+  const startX = 30, w = 50, gap = 2;
+  // centromere line
+  el('line', { x1: startX, y1: y + 22, x2: startX + segs.length * (w + gap), y2: y + 22, stroke: '#1f2937', 'stroke-width': 1, 'stroke-dasharray': '3 3' }, svg);
+  segs.forEach((s, i) => {
+    const x = startX + i * (w + gap);
+    const isDup = (k === 'dup' && s === 'C' && i > 0 && segs[i - 1] === 'C');
+    const isInvNew = (k === 'inv' && i >= 2 && i <= 4);
+    const isTransNew = (k === 'trans' && (s === 'X' || s === 'Y' || s === 'Z'));
+    const stroke = (isDup || isInvNew || isTransNew) ? '#dc2626' : '#1f2937';
+    const sw = (isDup || isInvNew || isTransNew) ? 2.5 : 1.5;
+    el('rect', { x: x, y: y + 5, width: w, height: 34, fill: colors[s] || '#cbd5e0', stroke: stroke, 'stroke-width': sw, rx: 4 }, svg);
+    const tt = el('text', { x: x + w / 2, y: y + 27, class: 'chrom-label' }, svg);
+    tt.textContent = s;
+  });
+}
+
+// ===== Section 4: CRISPR =====
+const CRISPR_STEPS = {
+  1: { name: '1. gRNA + Cas9 tìm đích', detail: 'gRNA (~20 nt) bổ sung với chuỗi đích trên DNA. Cas9 quét cho đến khi gặp PAM (NGG).', mode: 1 },
+  2: { name: '2. Cas9 cắt DSB', detail: 'Khi gRNA gắn đúng và có PAM ngay sau, Cas9 cắt cả 2 mạch (DSB — double-strand break).', mode: 2 },
+  3: { name: '3a. NHEJ → tắt gen', detail: 'Tế bào vá DSB bằng NHEJ (nối nhanh, dễ mắc lỗi). Thường thêm/bớt 1-2 nt → frameshift → knock-out gene.', mode: 3 },
+  4: { name: '3b. HDR → sửa chính xác', detail: 'Nếu cung cấp template DNA mẫu, tế bào có thể sửa theo template → chèn/thay đoạn chính xác (knock-in).', mode: 4 }
+};
+const crisprBtnsDiv = document.getElementById('crisprBtns');
+[1, 2, 3, 4].forEach(n => {
+  const b = document.createElement('button');
+  b.className = 'pill'; b.textContent = CRISPR_STEPS[n].name; b.dataset.s = n;
+  b.onclick = () => showCrispr(n);
+  crisprBtnsDiv.appendChild(b);
+});
+function showCrispr(s) {
+  document.querySelectorAll('#crisprBtns .pill').forEach(b => b.classList.toggle('active', +b.dataset.s === s));
+  const svg = document.getElementById('crisprSvg'); clear(svg);
+  const S = CRISPR_STEPS[s];
+
+  if (S.mode === 1 || S.mode === 2) {
+    // DNA double strand
+    const dnaY = 110;
+    el('rect', { x: 30, y: dnaY - 18, width: 400, height: 16, class: 'dna-rect' }, svg);
+    el('rect', { x: 30, y: dnaY + 2, width: 400, height: 16, class: 'dna-rect' }, svg);
+    const t1 = el('text', { x: 230, y: dnaY - 5, class: 'dna-text' }, svg);
+    t1.textContent = "5'─AGTCCGATTGCAGTAGCCTA─TGG─3'";
+    const t2 = el('text', { x: 230, y: dnaY + 15, class: 'dna-text' }, svg);
+    t2.textContent = "3'─TCAGGCTAACGTCATCGGAT─ACC─5'";
+    // PAM box
+    el('rect', { x: 340, y: dnaY - 22, width: 60, height: 24, class: 'pam-rect' }, svg);
+    const pt = el('text', { x: 370, y: dnaY - 7, class: 'pam-text', 'font-size': '12' }, svg);
+    pt.textContent = 'PAM TGG';
+
+    // gRNA above DNA
+    el('rect', { x: 50, y: dnaY - 60, width: 280, height: 22, class: 'grna-rect', rx: 4 }, svg);
+    const gt = el('text', { x: 190, y: dnaY - 44, class: 'grna-text' }, svg);
+    gt.textContent = "gRNA 5'─AGUCCGAUUGCAGUAGCCUA─3'";
+
+    // Cas9 blob
+    el('ellipse', { cx: 200, cy: dnaY - 75, rx: 90, ry: 32, class: 'cas9', opacity: 0.4 }, svg);
+    const ct = el('text', { x: 200, y: dnaY - 71, font: 'bold 14px sans-serif', fill: '#581c87', 'text-anchor': 'middle' }, svg);
+    ct.textContent = 'Cas9';
+
+    if (S.mode === 2) {
+      // cut lines
+      el('line', { x1: 230, y1: dnaY - 25, x2: 230, y2: dnaY + 22, stroke: '#dc2626', 'stroke-width': 3, 'stroke-dasharray': '4 3' }, svg);
+      const cut = el('text', { x: 230, y: dnaY + 40, font: 'bold 13px sans-serif', fill: '#dc2626', 'text-anchor': 'middle' }, svg);
+      cut.textContent = '✂ DSB';
+    }
+    // labels
+    const lbl1 = el('text', { x: 30, y: dnaY + 60, font: '12px sans-serif', fill: '#6b7280' }, svg);
+    lbl1.textContent = '🟨 gRNA (20 nt) · 🟦 DNA target · 🟥 PAM (NGG) · 🟪 Cas9';
+  } else if (S.mode === 3) {
+    // NHEJ: show DSB then sloppy join with random insertion
+    el('rect', { x: 30, y: 70, width: 160, height: 18, class: 'dna-rect' }, svg);
+    el('rect', { x: 270, y: 70, width: 160, height: 18, class: 'dna-rect' }, svg);
+    const t1 = el('text', { x: 110, y: 84, class: 'dna-text' }, svg);
+    t1.textContent = "...AGTCC";
+    const t2 = el('text', { x: 350, y: 84, class: 'dna-text' }, svg);
+    t2.textContent = "GCCTA...";
+    const lbl = el('text', { x: 230, y: 60, font: 'bold 13px sans-serif', fill: '#374151', 'text-anchor': 'middle' }, svg);
+    lbl.textContent = 'DSB sau khi Cas9 cắt';
+
+    // arrow down
+    el('line', { x1: 230, y1: 100, x2: 230, y2: 130, stroke: '#6b7280', 'stroke-width': 2 }, svg);
+    el('path', { d: 'M 224 124 L 230 132 L 236 124 Z', fill: '#6b7280' }, svg);
+    const arrL = el('text', { x: 230, y: 122, font: '11px sans-serif', fill: '#6b7280', 'text-anchor': 'middle' }, svg);
+    arrL.textContent = 'NHEJ vá nhanh';
+
+    // joined with insertion
+    el('rect', { x: 60, y: 150, width: 340, height: 22, class: 'dna-rect' }, svg);
+    const t3 = el('text', { x: 230, y: 166, class: 'dna-text' }, svg);
+    t3.innerHTML = '';
+    // build text with highlighted insertion
+    const pre = document.createElementNS(SVGNS, 'tspan');
+    pre.textContent = '...AGTCC';
+    const ins = document.createElementNS(SVGNS, 'tspan');
+    ins.setAttribute('fill', '#dc2626'); ins.setAttribute('font-weight', 'bold');
+    ins.textContent = 'XX';
+    const post = document.createElementNS(SVGNS, 'tspan');
+    post.textContent = 'GCCTA...';
+    t3.appendChild(pre); t3.appendChild(ins); t3.appendChild(post);
+
+    const result = el('text', { x: 230, y: 196, font: 'bold 13px sans-serif', fill: '#b91c1c', 'text-anchor': 'middle' }, svg);
+    result.textContent = '+2 nt ngẫu nhiên → frameshift → gene tắt 🚫';
+  } else if (S.mode === 4) {
+    // HDR: DSB + template -> precise repair
+    el('rect', { x: 30, y: 50, width: 160, height: 18, class: 'dna-rect' }, svg);
+    el('rect', { x: 270, y: 50, width: 160, height: 18, class: 'dna-rect' }, svg);
+    const t1 = el('text', { x: 110, y: 64, class: 'dna-text' }, svg);
+    t1.textContent = "...AGTCC";
+    const t2 = el('text', { x: 350, y: 64, class: 'dna-text' }, svg);
+    t2.textContent = "GCCTA...";
+
+    // template
+    el('rect', { x: 110, y: 95, width: 240, height: 22, fill: '#bbf7d0', stroke: '#047857', 'stroke-width': 1.5, rx: 4 }, svg);
+    const tt = el('text', { x: 230, y: 111, font: 'bold 13px monospace', fill: '#065f46', 'text-anchor': 'middle' }, svg);
+    tt.textContent = 'Template DNA (do người cung cấp)';
+
+    // arrow
+    el('line', { x1: 230, y1: 130, x2: 230, y2: 155, stroke: '#6b7280', 'stroke-width': 2 }, svg);
+    el('path', { d: 'M 224 149 L 230 157 L 236 149 Z', fill: '#6b7280' }, svg);
+    const arrL = el('text', { x: 230, y: 148, font: '11px sans-serif', fill: '#6b7280', 'text-anchor': 'middle' }, svg);
+    arrL.textContent = 'HDR sửa theo mẫu';
+
+    // joined exact
+    el('rect', { x: 60, y: 175, width: 340, height: 22, class: 'dna-rect' }, svg);
+    const t3 = el('text', { x: 230, y: 191, class: 'dna-text' }, svg);
+    const pre = document.createElementNS(SVGNS, 'tspan');
+    pre.textContent = '...AGTCC';
+    const ins = document.createElementNS(SVGNS, 'tspan');
+    ins.setAttribute('fill', '#059669'); ins.setAttribute('font-weight', 'bold');
+    ins.textContent = 'GFP';
+    const post = document.createElementNS(SVGNS, 'tspan');
+    post.textContent = 'GCCTA...';
+    t3.appendChild(pre); t3.appendChild(ins); t3.appendChild(post);
+
+    const result = el('text', { x: 230, y: 215, font: 'bold 12px sans-serif', fill: '#047857', 'text-anchor': 'middle' }, svg);
+    result.textContent = 'Trình tự mới chèn chính xác (knock-in) ✓';
+  }
+
+  document.getElementById('crisprInfo').innerHTML =
+    `<div><strong>${S.name}</strong></div>` +
+    `<div>${S.detail}</div>`;
+}
+
+// ===== Init =====
+renderMutation();
+renderPCR();
+showChrom('none');
+showCrispr(1);
+</script>
+
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

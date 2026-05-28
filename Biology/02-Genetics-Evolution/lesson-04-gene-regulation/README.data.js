@@ -1,4 +1,7 @@
-# Lesson 04 — Điều hòa gen
+// AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
+// Source: Biology/02-Genetics-Evolution/lesson-04-gene-regulation/README.md
+// Chạy lại: go run tools/build-readme-data.go
+window.README_MD = `# Lesson 04 — Điều hòa gen
 
 ## Mục tiêu học tập
 
@@ -13,9 +16,9 @@ Sau bài này bạn sẽ:
 
 ## Kiến thức tiền đề
 
-- **Phiên mã & dịch mã** — [`../lesson-03-transcription-translation/`](../lesson-03-transcription-translation/): biết RNA polymerase, promoter, codon, ribosome là gì. Đây là nền tảng — bài này nói về việc **bật/tắt** chính các quá trình đó.
-- **Cấu trúc DNA** — [`../lesson-02-dna-replication/`](../lesson-02-dna-replication/): mạch kép, base bắt cặp, đường-phosphate. Bài này cần biết DNA là chất nền cho mọi cơ chế điều hòa.
-- **Cấu trúc protein** — [`../../01-Molecules-Cells/lesson-01-biomolecules/`](../../01-Molecules-Cells/lesson-01-biomolecules/): repressor, yếu tố phiên mã đều là protein gắn DNA — nguyên lý "hình dạng quyết định chức năng" áp dụng triệt để.
+- **Phiên mã & dịch mã** — [\`../lesson-03-transcription-translation/\`](../lesson-03-transcription-translation/): biết RNA polymerase, promoter, codon, ribosome là gì. Đây là nền tảng — bài này nói về việc **bật/tắt** chính các quá trình đó.
+- **Cấu trúc DNA** — [\`../lesson-02-dna-replication/\`](../lesson-02-dna-replication/): mạch kép, base bắt cặp, đường-phosphate. Bài này cần biết DNA là chất nền cho mọi cơ chế điều hòa.
+- **Cấu trúc protein** — [\`../../01-Molecules-Cells/lesson-01-biomolecules/\`](../../01-Molecules-Cells/lesson-01-biomolecules/): repressor, yếu tố phiên mã đều là protein gắn DNA — nguyên lý "hình dạng quyết định chức năng" áp dụng triệt để.
 
 ---
 
@@ -94,14 +97,14 @@ Câu chuyện: bình thường có bảo vệ ngồi, dây chuyền TẮT. Khi l
 
 ### 2.1. Cấu trúc operon Lac
 
-```
+\`\`\`
 [ lacI ]   [ Promoter | Operator | lacZ | lacY | lacA ]
    ↓                                ↓        ↓      ↓
  Repressor                    β-galactosidase  permease  transacetylase
  (luôn được tổng hợp,        (cắt lactose →    (đưa     (vai trò
   có hoặc không lactose)      glucose+galactose) lactose phụ)
                                                 vào tế bào)
-```
+\`\`\`
 
 - **lacI** (regulatory gene): nằm trước operon, có promoter riêng, **luôn tổng hợp** repressor LacI ở mức thấp ổn định.
 - **Promoter**: chỗ RNA polymerase gắn để khởi động phiên mã.
@@ -112,20 +115,20 @@ Câu chuyện: bình thường có bảo vệ ngồi, dây chuyền TẮT. Khi l
 
 **TRẠNG THÁI A — Không có lactose:**
 
-```
+\`\`\`
 Repressor LacI ⟶ gắn chặt vào Operator ⟶ chặn RNA polymerase
                                      ⟶ phiên mã TẮT
-```
+\`\`\`
 
 Tế bào không phí năng lượng tổng hợp enzyme chuyển hóa lactose khi không có gì để chuyển hóa.
 
 **TRẠNG THÁI B — Có lactose:**
 
-```
+\`\`\`
 Lactose vào tế bào ⟶ chuyển một phần thành allolactose (inducer)
 Allolactose ⟶ gắn vào LacI ⟶ LacI đổi hình dạng ⟶ rời operator
 RNA polymerase đi qua ⟶ phiên mã BẬT ⟶ tổng hợp lacZ/Y/A
-```
+\`\`\`
 
 Đây là điều hòa **cảm ứng âm (negative inducible)**: "âm" vì cơ chế tự nhiên là **chặn** (repressor); "cảm ứng" vì cần tín hiệu (lactose) để **gỡ chặn**.
 
@@ -219,12 +222,12 @@ Khác biệt then chốt:
 - **TrpR khi mới tổng hợp là "bất hoạt" (inactive)** — không gắn được operator.
 - **TrpR + tryptophan → "hoạt hóa" (active)** — gắn operator, chặn phiên mã.
 
-```
+\`\`\`
 Không Trp:  TrpR (inactive) ⟶ không gắn operator ⟶ BẬT
                              ⟶ tổng hợp enzyme ⟶ tạo Trp
 
 Đủ Trp:    Trp + TrpR ⟶ TrpR active ⟶ gắn operator ⟶ TẮT
-```
+\`\`\`
 
 Tryptophan ở đây gọi là **đồng kìm hãm (corepressor)** — đối lập với inducer của operon Lac.
 
@@ -296,13 +299,13 @@ A: Có — **attenuation** (làm suy giảm). Đây là cơ chế thứ 2 dùng 
 
 ### 4.1. Năm cấp điều hòa (theo dòng thông tin)
 
-```
+\`\`\`
 DNA → mRNA tiền thân (pre-mRNA) → mRNA trưởng thành → protein → protein hoạt động
  ↑          ↑                       ↑                   ↑           ↑
  1.        2.                      3.                  4.          5.
 Chromatin  Phiên mã              Sau phiên mã         Dịch mã    Sau dịch mã
                                  (splicing, miRNA)
-```
+\`\`\`
 
 **Cấp 1 — Chromatin (đóng/mở DNA)**: DNA trong nhân quấn quanh histone tạo nucleosome. Nếu chromatin **đặc** (heterochromatin) → DNA ẩn → không phiên mã. Nếu **lỏng** (euchromatin) → DNA lộ ra → phiên mã được. Điều khiển bởi modifications biểu sinh (xem §5).
 
@@ -375,11 +378,11 @@ Hai cơ chế biểu sinh chính:
 
 Enzyme **DNMT** (DNA methyltransferase) gắn –CH₃ vào C5 của cytosine, tạo **5-methylcytosine** (5mC). Vị trí phổ biến: **CpG dinucleotide** (C theo sau bởi G trên cùng mạch).
 
-```
+\`\`\`
 Trạng thái 0% methyl: gen biểu hiện bình thường.
 Trạng thái 50% methyl ở promoter: gen giảm biểu hiện ~5-10 lần.
 Trạng thái >80% methyl: gen TẮT gần như hoàn toàn.
-```
+\`\`\`
 
 Cơ chế: 5mC ở promoter → cản trở TF gắn, đồng thời chiêu mộ protein đọc methyl (MeCP2) → kéo về phức hợp deacetylase → đóng chromatin.
 
@@ -402,7 +405,7 @@ Một số pattern biểu sinh có thể truyền **qua thế hệ** (transgener
 
 **Ví dụ 1 — Mức methylation ở promoter gen ức chế khối u p16**: Ở tế bào bình thường: ~5% CpG bị methyl → p16 biểu hiện đầy đủ, kiểm soát chu kỳ tế bào. Ở tế bào ung thư phổi: ~75% CpG methyl → p16 TẮT → mất kiểm soát phân chia → ung thư phát triển.
 
-**Ví dụ 2 — Tỉ lệ giảm biểu hiện theo methylation**: Một nghiên cứu cho thấy biểu hiện gen GSTP1 (gen giải độc) giảm theo công thức xấp xỉ: `Expression ≈ E₀ × exp(−k × M)` với M = % methyl. Ở M=0%: 100%. Ở M=25%: ~50%. Ở M=50%: ~25%. Ở M=75%: ~12%.
+**Ví dụ 2 — Tỉ lệ giảm biểu hiện theo methylation**: Một nghiên cứu cho thấy biểu hiện gen GSTP1 (gen giải độc) giảm theo công thức xấp xỉ: \`Expression ≈ E₀ × exp(−k × M)\` với M = % methyl. Ở M=0%: 100%. Ở M=25%: ~50%. Ở M=50%: ~25%. Ở M=75%: ~12%.
 
 **Ví dụ 3 — In dấu di truyền (genomic imprinting)**: Khoảng **150 gen** ở người có hiện tượng "in dấu" — chỉ allele từ mẹ HOẶC từ cha được biểu hiện, allele còn lại bị methyl hóa câm. Vd gen IGF2: chỉ allele cha hoạt động. Đột biến/mất gen này gây hội chứng Beckwith-Wiedemann.
 
@@ -434,7 +437,7 @@ A: Có. **5-azacytidine** (DNMT inhibitor) và **vorinostat** (HDAC inhibitor) l
 <summary>Đáp án</summary>
 
 1. Vì pattern biểu sinh (methylation DNA, sửa đổi histone) khác nhau → các gen "tế bào gan" mở ở tế bào gan và đóng ở tế bào thần kinh, ngược lại. Pattern này được thiết lập trong phát triển phôi và duy trì qua phân chia tế bào.
-2. Dùng `Expression = exp(−k × M)`. Từ ví dụ: M=25% → 50%, suy ra k ≈ ln(2)/25 ≈ 0.0277. Ở M=60%: `exp(−0.0277 × 60) = exp(−1.66) ≈ 0.19` → biểu hiện ~**19%** mức gốc. (Đây là mô hình đơn giản hóa; thực tế phụ thuộc từng gen.)
+2. Dùng \`Expression = exp(−k × M)\`. Từ ví dụ: M=25% → 50%, suy ra k ≈ ln(2)/25 ≈ 0.0277. Ở M=60%: \`exp(−0.0277 × 60) = exp(−1.66) ≈ 0.19\` → biểu hiện ~**19%** mức gốc. (Đây là mô hình đơn giản hóa; thực tế phụ thuộc từng gen.)
 </details>
 
 ### 📝 Tóm tắt mục 5
@@ -465,7 +468,7 @@ Giải thích cơ chế cho mỗi trường hợp (trạng thái LacI, CAP, RNA 
 
 **Bài 3**: So sánh operon Lac và operon Trp về (a) mặc định, (b) tín hiệu môi trường, (c) cơ chế tín hiệu tác động lên repressor, (d) loại chuyển hóa (dị hóa/đồng hóa). Vì sao 2 operon "ngược nhau" như vậy lại hợp lý sinh học?
 
-**Bài 4**: Một promoter của gen X ở người được methyl hóa theo thời gian: lúc 20 tuổi M=10%, lúc 50 tuổi M=40%, lúc 80 tuổi M=70%. Dùng công thức `Expression = exp(−0.0277 × M)`, tính mức biểu hiện gen X ở mỗi độ tuổi (so với M=0%). Hiện tượng này có ý nghĩa gì với lão hóa?
+**Bài 4**: Một promoter của gen X ở người được methyl hóa theo thời gian: lúc 20 tuổi M=10%, lúc 50 tuổi M=40%, lúc 80 tuổi M=70%. Dùng công thức \`Expression = exp(−0.0277 × M)\`, tính mức biểu hiện gen X ở mỗi độ tuổi (so với M=0%). Hiện tượng này có ý nghĩa gì với lão hóa?
 
 **Bài 5**: Bộ gen của một sinh vật giả định có 25.000 gen. Trong tế bào loại A, có 12.000 gen biểu hiện; trong tế bào loại B có 14.000 gen biểu hiện. Có 8.000 gen biểu hiện ở cả 2 loại tế bào. Tính: (a) số gen chỉ biểu hiện ở A, (b) chỉ ở B, (c) không biểu hiện ở cả hai. Vì sao có thể có "gen không biểu hiện ở bất kỳ tế bào nào" trong sinh vật này?
 
@@ -511,7 +514,7 @@ Logic chung: tế bào không bao giờ làm việc thừa. Hai loại operon ng
 
 **Bài 4**:
 
-Dùng `Expression = exp(−0.0277 × M)`:
+Dùng \`Expression = exp(−0.0277 × M)\`:
 
 | Tuổi | M | Expression |
 |------|---|------------|
@@ -555,8 +558,8 @@ Mỗi mRNA dịch thành 1 protein khác nhau → 1 gen tạo 4 protein. Tổng 
   - [Lesson 01 — Phân tử sinh học](../../01-Molecules-Cells/lesson-01-biomolecules/) — protein, DNA cấu trúc.
 - **Bài tiếp theo**: [Lesson 05 — Đột biến & công nghệ gen](../lesson-05-mutation-biotech/) — khi điều hòa lỗi (đột biến), hậu quả là gì; và con người dùng công nghệ gen để can thiệp ra sao.
 - **Liên kết tới các lĩnh vực khác**:
-  - Lý thuyết hệ thống ổn định nhờ feedback — gặp lại ở `Economics/` (cung-cầu) và `Physics/` (điều khiển).
-  - Thuốc HDAC inhibitor → liên quan tới `Chemistry/` (small molecule drugs).
+  - Lý thuyết hệ thống ổn định nhờ feedback — gặp lại ở \`Economics/\` (cung-cầu) và \`Physics/\` (điều khiển).
+  - Thuốc HDAC inhibitor → liên quan tới \`Chemistry/\` (small molecule drugs).
 
 ---
 
@@ -570,3 +573,4 @@ Mỗi mRNA dịch thành 1 protein khác nhau → 1 gen tạo 4 protein. Tổng 
 6. **Khi điều hòa lỗi** → ung thư, bệnh chuyển hóa — chủ đề Lesson 05 và các bài bệnh học.
 
 **Tiếp theo**: [Lesson 05 — Đột biến & công nghệ gen](../lesson-05-mutation-biotech/).
+`;

@@ -1,4 +1,7 @@
-# Lesson 06 — Sinh thái quần thể
+// AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
+// Source: Biology/03-Physiology-Ecology/lesson-06-ecology-populations/README.md
+// Chạy lại: go run tools/build-readme-data.go
+window.README_MD = `# Lesson 06 — Sinh thái quần thể
 
 ## Mục tiêu học tập
 
@@ -6,16 +9,16 @@ Sau bài này bạn sẽ:
 
 - Hiểu **quần thể sinh thái (population)** là gì, phân biệt nó với "quần thể di truyền (genetic population)" đã học ở Tầng 2.
 - Liệt kê và tính được các **đặc trưng quần thể**: kích thước (N), mật độ (D), phân bố không gian, cấu trúc tuổi, tỉ lệ giới, **tỉ lệ sinh (b)**, **tỉ lệ tử (d)**, **nhập cư (i)**, **xuất cư (e)**, và **tốc độ tăng trưởng riêng (r)**.
-- Phân biệt hai mô hình tăng trưởng cơ bản: **cấp số nhân (exponential)** `dN/dt = rN` cho ra đường J và **logistic** `dN/dt = rN(1 − N/K)` cho ra đường S, với **sức chứa môi trường (carrying capacity) K**.
+- Phân biệt hai mô hình tăng trưởng cơ bản: **cấp số nhân (exponential)** \`dN/dt = rN\` cho ra đường J và **logistic** \`dN/dt = rN(1 − N/K)\` cho ra đường S, với **sức chứa môi trường (carrying capacity) K**.
 - Chứng minh được "tốc độ tăng trưởng đạt cực đại khi N = K/2" và áp dụng vào bài toán khai thác bền vững.
 - Phân biệt **chiến lược sinh sản r-selection vs K-selection** với ví dụ thực tế.
 - Đọc được **dao động Lotka–Volterra** giữa loài ăn thịt và loài bị săn (linh miêu × thỏ).
 
 ## Kiến thức tiền đề
 
-- **Quần thể & tần số allele** ở góc nhìn di truyền — [`Biology/02-Genetics-Evolution/lesson-06-population-genetics`](../../02-Genetics-Evolution/lesson-06-population-genetics/). Bài đó nhìn quần thể như "bể gene"; bài này nhìn nó như "tập hợp cá thể có sinh-tử-nhập-xuất".
-- **Tăng trưởng theo cấp số nhân 2ⁿ** đã gặp ở phân chia tế bào — [`Biology/01-Molecules-Cells/lesson-07-cell-cycle-mitosis`](../../01-Molecules-Cells/lesson-07-cell-cycle-mitosis/). Vi khuẩn nhân đôi sau mỗi 20 phút là ví dụ cổ điển của `dN/dt = rN`.
-- **Hàm mũ `e^x` và đạo hàm** — ai chưa quen có thể đọc lại `Math/Calculus/lesson-04-exponential` (không bắt buộc; bài này nhắc lại công thức cần dùng).
+- **Quần thể & tần số allele** ở góc nhìn di truyền — [\`Biology/02-Genetics-Evolution/lesson-06-population-genetics\`](../../02-Genetics-Evolution/lesson-06-population-genetics/). Bài đó nhìn quần thể như "bể gene"; bài này nhìn nó như "tập hợp cá thể có sinh-tử-nhập-xuất".
+- **Tăng trưởng theo cấp số nhân 2ⁿ** đã gặp ở phân chia tế bào — [\`Biology/01-Molecules-Cells/lesson-07-cell-cycle-mitosis\`](../../01-Molecules-Cells/lesson-07-cell-cycle-mitosis/). Vi khuẩn nhân đôi sau mỗi 20 phút là ví dụ cổ điển của \`dN/dt = rN\`.
+- **Hàm mũ \`e^x\` và đạo hàm** — ai chưa quen có thể đọc lại \`Math/Calculus/lesson-04-exponential\` (không bắt buộc; bài này nhắc lại công thức cần dùng).
 
 ---
 
@@ -33,7 +36,7 @@ Ba yếu tố "cùng" này không phải lúc nào cũng rạch ròi — đôi k
 
 ### 1.2. Phân biệt với "quần thể" ở Tầng 2 (di truyền)
 
-Ở [`02-Genetics-Evolution/lesson-06`](../../02-Genetics-Evolution/lesson-06-population-genetics/), quần thể được nhìn như **một bể gene (gene pool)** — quan tâm tần số allele, định luật Hardy–Weinberg, chọn lọc tự nhiên. Ở Tầng 3 này, ta nhìn cùng tập hợp đó như **một tập hợp đếm được các cá thể** — quan tâm N tăng/giảm theo thời gian. Hai góc nhìn bổ sung, không mâu thuẫn.
+Ở [\`02-Genetics-Evolution/lesson-06\`](../../02-Genetics-Evolution/lesson-06-population-genetics/), quần thể được nhìn như **một bể gene (gene pool)** — quan tâm tần số allele, định luật Hardy–Weinberg, chọn lọc tự nhiên. Ở Tầng 3 này, ta nhìn cùng tập hợp đó như **một tập hợp đếm được các cá thể** — quan tâm N tăng/giảm theo thời gian. Hai góc nhìn bổ sung, không mâu thuẫn.
 
 ### 📝 Tóm tắt mục 1
 
@@ -52,7 +55,7 @@ Muốn "khám sức khỏe" một quần thể, nhà sinh thái học đo 5-6 ch
 ### 2.1. Kích thước (N) và mật độ (D)
 
 - **Kích thước quần thể (population size, N)** = tổng số cá thể. Ví dụ ao có 1,200 con cá rô → N = 1,200.
-- **Mật độ (density, D)** = số cá thể trên đơn vị diện tích (hoặc thể tích): `D = N / S`.
+- **Mật độ (density, D)** = số cá thể trên đơn vị diện tích (hoặc thể tích): \`D = N / S\`.
 
 **Bốn ví dụ số:**
 
@@ -100,11 +103,11 @@ Trong khoảng thời gian Δt, N thay đổi bằng cách:
 
 Cân bằng: **ΔN = B − D + I − E**.
 
-Khi chia cho N (số trung bình trong kỳ) ta có **tỉ lệ riêng**: `b = B/N`, `d = D/N`, `i = I/N`, `e = E/N`. Định nghĩa **tốc độ tăng trưởng riêng tức thời (intrinsic rate of increase)**:
+Khi chia cho N (số trung bình trong kỳ) ta có **tỉ lệ riêng**: \`b = B/N\`, \`d = D/N\`, \`i = I/N\`, \`e = E/N\`. Định nghĩa **tốc độ tăng trưởng riêng tức thời (intrinsic rate of increase)**:
 
 $$r = (b - d) + (i - e)$$
 
-Nếu xét quần thể "kín" (không có nhập/xuất cư): `r = b − d`.
+Nếu xét quần thể "kín" (không có nhập/xuất cư): \`r = b − d\`.
 
 **Bốn ví dụ số:**
 
@@ -116,7 +119,7 @@ Nếu xét quần thể "kín" (không có nhập/xuất cư): `r = b − d`.
 ### ❓ Câu hỏi tự nhiên của người đọc
 
 **Q: Vì sao đo r mà không đo "số con tăng" trực tiếp?**
-A: Vì r là **tỉ lệ** (per-capita rate), nó **chuẩn hóa theo kích thước hiện tại**. Quần thể 100 con tăng thêm 10 con/năm và quần thể 10,000 con tăng thêm 1,000 con/năm có cùng `r = 0.1/năm` — đặc trưng sinh học giống nhau, dù số tuyệt đối khác hẳn. r cho phép so sánh các quần thể có quy mô khác nhau.
+A: Vì r là **tỉ lệ** (per-capita rate), nó **chuẩn hóa theo kích thước hiện tại**. Quần thể 100 con tăng thêm 10 con/năm và quần thể 10,000 con tăng thêm 1,000 con/năm có cùng \`r = 0.1/năm\` — đặc trưng sinh học giống nhau, dù số tuyệt đối khác hẳn. r cho phép so sánh các quần thể có quy mô khác nhau.
 
 **Q: r là số dương luôn à?**
 A: Không. r > 0 → tăng (đường J/S đi lên). r = 0 → ổn định. r < 0 → giảm (nguy cơ tuyệt chủng nếu kéo dài).
@@ -152,13 +155,13 @@ Hình dung một cặp vi khuẩn nhân đôi sau mỗi 20 phút. Cứ mỗi vò
 
 Khi quần thể tăng trưởng **không giới hạn** (môi trường lý tưởng: vô hạn thức ăn, không có kẻ thù, không bệnh):
 
-$$\frac{dN}{dt} = r \cdot N$$
+$$\\frac{dN}{dt} = r \\cdot N$$
 
 Nghiệm là hàm mũ:
 
-$$N(t) = N_0 \cdot e^{r \cdot t}$$
+$$N(t) = N_0 \\cdot e^{r \\cdot t}$$
 
-Trong đó `N₀` là kích thước ban đầu (tại t = 0), `r` là tốc độ tăng trưởng riêng (per-capita), `e ≈ 2.71828`.
+Trong đó \`N₀\` là kích thước ban đầu (tại t = 0), \`r\` là tốc độ tăng trưởng riêng (per-capita), \`e ≈ 2.71828\`.
 
 ### 3.2. Bốn ví dụ số (BẮT BUỘC tính cụ thể)
 
@@ -177,27 +180,27 @@ Quan sát: từ t = 10 đến t = 20 (chỉ 10 giờ tiếp theo) tăng từ 15k
 **Ví dụ 2 — thỏ ở Úc, r ≈ 0.6/năm, N₀ = 24** (24 con thỏ châu Âu được thả năm 1859). Sau 50 năm (1909) nếu không giới hạn:
 N(50) = 24 · e^(0.6×50) = 24 · e³⁰ ≈ 24 · 1.07×10¹³ ≈ **2.57 × 10¹⁴ con thỏ**. Tất nhiên đây là tính lý thuyết — Úc không đủ chỗ cho 257 nghìn tỷ con. Thực tế đã tăng đến ~600 triệu rồi bị hãm bởi K (xem §4).
 
-**Ví dụ 3 — thời gian gấp đôi (doubling time)**: từ `N(t) = 2N₀` ⇒ `e^(r·t) = 2` ⇒ `r·t = ln 2 ≈ 0.693` ⇒ `t_double = 0.693 / r`. Với r = 0.5/giờ: `t_double = 0.693/0.5 ≈ 1.39 giờ`. Với dân số người r ≈ 0.011/năm: `t_double ≈ 63 năm` (giải thích vì sao dân số Việt Nam mất ~63 năm để gấp đôi).
+**Ví dụ 3 — thời gian gấp đôi (doubling time)**: từ \`N(t) = 2N₀\` ⇒ \`e^(r·t) = 2\` ⇒ \`r·t = ln 2 ≈ 0.693\` ⇒ \`t_double = 0.693 / r\`. Với r = 0.5/giờ: \`t_double = 0.693/0.5 ≈ 1.39 giờ\`. Với dân số người r ≈ 0.011/năm: \`t_double ≈ 63 năm\` (giải thích vì sao dân số Việt Nam mất ~63 năm để gấp đôi).
 
-**Ví dụ 4 — r âm (suy giảm)**: voi rừng r = −0.02/năm, N₀ = 500. Sau 30 năm: `N(30) = 500·e^(−0.6) = 500·0.549 ≈ 274 con`. Quần thể **giảm gần một nửa** trong 30 năm — đây là tốc độ suy giảm nguy hiểm với loài lớn.
+**Ví dụ 4 — r âm (suy giảm)**: voi rừng r = −0.02/năm, N₀ = 500. Sau 30 năm: \`N(30) = 500·e^(−0.6) = 500·0.549 ≈ 274 con\`. Quần thể **giảm gần một nửa** trong 30 năm — đây là tốc độ suy giảm nguy hiểm với loài lớn.
 
 ### ⚠ Lỗi thường gặp
 
 - **Nhầm "cấp số nhân" với "tăng nhanh"**: cấp số nhân là **tăng theo TỈ LỆ % không đổi**, có thể rất chậm lúc đầu nhưng nhanh khủng khiếp về sau. Vi khuẩn tăng từ 100 → 272 trong 2 giờ trông không có gì, nhưng từ 14k → 2.2 triệu trong 10 giờ là khủng khiếp.
 - **Cho rằng cấp số nhân duy trì mãi**: KHÔNG — mọi môi trường thực đều có giới hạn (thức ăn, không gian, oxy). Cấp số nhân chỉ là pha **đầu** của tăng trưởng. Sau đó phải chuyển sang logistic.
-- **Tính N(t) bằng `N₀ · r^t`** (số mũ tự nhiên `r` thay vì `e^(r·t)`): SAI. Công thức đúng dùng `e^(r·t)`. Cũng có công thức rời rạc `N_{k+1} = N_k · λ` với `λ = e^r` (tỉ lệ tăng mỗi đơn vị thời gian) — đó là dạng khác, dùng khi tính theo bước thời gian rời rạc (vd theo năm).
+- **Tính N(t) bằng \`N₀ · r^t\`** (số mũ tự nhiên \`r\` thay vì \`e^(r·t)\`): SAI. Công thức đúng dùng \`e^(r·t)\`. Cũng có công thức rời rạc \`N_{k+1} = N_k · λ\` với \`λ = e^r\` (tỉ lệ tăng mỗi đơn vị thời gian) — đó là dạng khác, dùng khi tính theo bước thời gian rời rạc (vd theo năm).
 
 ### ❓ Câu hỏi tự nhiên của người đọc
 
 **Q: Cấp số nhân có thật sự xảy ra trong tự nhiên?**
 A: Có nhưng ngắn. Vi khuẩn mới cấy vào môi trường giàu dưỡng chất, thỏ mới được thả vào lục địa mới (Úc 1859), tảo nở hoa khi sông giàu nitrate — đều là pha cấp số nhân. Chỉ kéo dài đến khi tài nguyên bắt đầu cạn.
 
-**Q: Vì sao dùng `e` mà không dùng `2`?**
-A: Vì `e` xuất hiện tự nhiên khi giải phương trình vi phân `dN/dt = rN`. Nếu dùng cơ số 2 phải viết `N(t) = N₀ · 2^(t/t_double)` — biến đổi qua lại bằng `2 = e^(ln 2)`, kết quả như nhau. `e` chỉ gọn hơn về mặt toán.
+**Q: Vì sao dùng \`e\` mà không dùng \`2\`?**
+A: Vì \`e\` xuất hiện tự nhiên khi giải phương trình vi phân \`dN/dt = rN\`. Nếu dùng cơ số 2 phải viết \`N(t) = N₀ · 2^(t/t_double)\` — biến đổi qua lại bằng \`2 = e^(ln 2)\`, kết quả như nhau. \`e\` chỉ gọn hơn về mặt toán.
 
 ### 🔁 Dừng lại tự kiểm tra
 
-Một quần thể nấm men có r = 0.4/giờ, N₀ = 50. Tính N sau 5 giờ và sau 10 giờ. Tỉ số `N(10)/N(5)` bằng bao nhiêu? Nó nói gì về tăng trưởng cấp số nhân?
+Một quần thể nấm men có r = 0.4/giờ, N₀ = 50. Tính N sau 5 giờ và sau 10 giờ. Tỉ số \`N(10)/N(5)\` bằng bao nhiêu? Nó nói gì về tăng trưởng cấp số nhân?
 
 <details>
 <summary>Đáp án</summary>
@@ -212,8 +215,8 @@ Tăng trưởng cấp số nhân có tính chất **"tỉ số phụ thuộc và
 
 ### 📝 Tóm tắt mục 3
 
-- Cấp số nhân: `dN/dt = rN` ⇒ `N(t) = N₀ · e^(r·t)`. Đồ thị J.
-- Thời gian gấp đôi `t_double = ln 2 / r ≈ 0.693/r`.
+- Cấp số nhân: \`dN/dt = rN\` ⇒ \`N(t) = N₀ · e^(r·t)\`. Đồ thị J.
+- Thời gian gấp đôi \`t_double = ln 2 / r ≈ 0.693/r\`.
 - Là mô hình lý tưởng, không bền vững. Chỉ mô tả pha đầu khi tài nguyên còn dồi dào.
 
 ---
@@ -226,14 +229,14 @@ Tăng trưởng cấp số nhân có tính chất **"tỉ số phụ thuộc và
 
 ### 4.1. Phương trình logistic
 
-$$\frac{dN}{dt} = r \cdot N \cdot \left(1 - \frac{N}{K}\right)$$
+$$\\frac{dN}{dt} = r \\cdot N \\cdot \\left(1 - \\frac{N}{K}\\right)$$
 
-Có thể đọc là: "tốc độ tăng cấp số nhân `rN` được nhân với hệ số kìm hãm `(1 − N/K)`".
+Có thể đọc là: "tốc độ tăng cấp số nhân \`rN\` được nhân với hệ số kìm hãm \`(1 − N/K)\`".
 
-- Khi `N ≪ K`: `N/K ≈ 0` → `(1 − N/K) ≈ 1` → `dN/dt ≈ rN` (gần cấp số nhân).
-- Khi `N = K/2`: `(1 − 1/2) = 1/2` → `dN/dt = rN/2`.
-- Khi `N = K`: `(1 − 1) = 0` → `dN/dt = 0` (dừng tăng).
-- Khi `N > K` (do quá tải tạm thời): `(1 − N/K) < 0` → `dN/dt < 0` (giảm về K).
+- Khi \`N ≪ K\`: \`N/K ≈ 0\` → \`(1 − N/K) ≈ 1\` → \`dN/dt ≈ rN\` (gần cấp số nhân).
+- Khi \`N = K/2\`: \`(1 − 1/2) = 1/2\` → \`dN/dt = rN/2\`.
+- Khi \`N = K\`: \`(1 − 1) = 0\` → \`dN/dt = 0\` (dừng tăng).
+- Khi \`N > K\` (do quá tải tạm thời): \`(1 − N/K) < 0\` → \`dN/dt < 0\` (giảm về K).
 
 ### 4.2. Bốn ví dụ số
 
@@ -265,27 +268,27 @@ So sánh 3 trường hợp N = 200, 500, 900 với cùng K, r:
 
 ### 4.3. Vì sao N = K/2 cho dN/dt cực đại? (chứng minh)
 
-Coi `dN/dt = f(N) = r · N · (1 − N/K) = r·N − r·N²/K`. Đạo hàm theo N:
+Coi \`dN/dt = f(N) = r · N · (1 − N/K) = r·N − r·N²/K\`. Đạo hàm theo N:
 
-$$\frac{df}{dN} = r - \frac{2rN}{K}$$
+$$\\frac{df}{dN} = r - \\frac{2rN}{K}$$
 
-Đặt bằng 0: `r = 2rN/K` ⇒ `N = K/2`. Giá trị cực đại:
+Đặt bằng 0: \`r = 2rN/K\` ⇒ \`N = K/2\`. Giá trị cực đại:
 
-$$\left.\frac{dN}{dt}\right|_{N=K/2} = r \cdot \frac{K}{2} \cdot \frac{1}{2} = \frac{rK}{4}$$
+$$\\left.\\frac{dN}{dt}\\right|_{N=K/2} = r \\cdot \\frac{K}{2} \\cdot \\frac{1}{2} = \\frac{rK}{4}$$
 
 Với K = 1000, r = 0.1: dN/dt max = 0.1 · 1000 / 4 = **25** (khớp ví dụ 2).
 
 ### 4.4. Ứng dụng — khai thác bền vững (maximum sustainable yield)
 
-Nếu đánh cá quá nhanh → N giảm xuống dưới K/2 → tốc độ phục hồi chậm → cạn kiệt. Nếu để N tự nhiên gần K → tăng trưởng cũng chậm. **Khai thác tối ưu là giữ N = K/2** — quần thể tự tái tạo nhanh nhất, ta lấy bằng đúng `rK/4` mỗi đơn vị thời gian thì N không đổi.
+Nếu đánh cá quá nhanh → N giảm xuống dưới K/2 → tốc độ phục hồi chậm → cạn kiệt. Nếu để N tự nhiên gần K → tăng trưởng cũng chậm. **Khai thác tối ưu là giữ N = K/2** — quần thể tự tái tạo nhanh nhất, ta lấy bằng đúng \`rK/4\` mỗi đơn vị thời gian thì N không đổi.
 
 Ví dụ: hồ cá có K = 10,000 con, r = 0.5/năm. Mức đánh bắt bền vững tối đa = 0.5 × 10,000 / 4 = **1,250 con/năm**, với điều kiện giữ đàn cá ở N ≈ 5,000.
 
 ### ⚠ Lỗi thường gặp
 
 - **Coi K là hằng số tuyệt đối**: K không phải con số "trời cho". K thay đổi theo điều kiện môi trường — mưa nhiều → cây tốt → K cao; hạn hán → K giảm. Mất rừng làm K giảm; bảo tồn nâng K.
-- **Nhầm logistic = cấp số nhân nhanh hơn**: ngược lại, logistic **chậm hơn** ở mọi N > 0 (vì `(1 − N/K) < 1`). Logistic = cấp số nhân có yếu tố hãm.
-- **Quên dấu khi N > K**: khi quá tải, `(1 − N/K)` âm → `dN/dt` âm → giảm. Đây là cách logistic tự "kéo" N về K.
+- **Nhầm logistic = cấp số nhân nhanh hơn**: ngược lại, logistic **chậm hơn** ở mọi N > 0 (vì \`(1 − N/K) < 1\`). Logistic = cấp số nhân có yếu tố hãm.
+- **Quên dấu khi N > K**: khi quá tải, \`(1 − N/K)\` âm → \`dN/dt\` âm → giảm. Đây là cách logistic tự "kéo" N về K.
 - **Nhầm N = K/2 là "ngưỡng nguy hiểm"**: không, đó là điểm tốc độ tăng max, là điểm **tốt nhất** cho khai thác. Ngưỡng nguy hiểm là khi N quá nhỏ, không phải K/2.
 
 ### ❓ Câu hỏi tự nhiên của người đọc
@@ -313,7 +316,7 @@ Hồ cá rô có K = 4,000 con, r = 0.2/năm.
 
 ### 📝 Tóm tắt mục 4
 
-- Logistic: `dN/dt = rN(1 − N/K)`, đồ thị S. K = sức chứa.
+- Logistic: \`dN/dt = rN(1 − N/K)\`, đồ thị S. K = sức chứa.
 - Tốc độ tăng cực đại tại N = K/2, giá trị dN/dt_max = rK/4.
 - Khi N > K → dN/dt < 0 → quần thể tự điều chỉnh về K.
 - K không phải hằng số tuyệt đối — thay đổi theo môi trường.
@@ -370,18 +373,18 @@ Quan sát dài hạn quần thể linh miêu (lynx) và thỏ rừng (snowshoe h
 
 ### 6.1. Mô hình Lotka–Volterra (đơn giản)
 
-Gọi `H` = số thỏ (hare, con mồi), `L` = số linh miêu (lynx, kẻ săn):
+Gọi \`H\` = số thỏ (hare, con mồi), \`L\` = số linh miêu (lynx, kẻ săn):
 
-$$\frac{dH}{dt} = a \cdot H - b \cdot H \cdot L$$
+$$\\frac{dH}{dt} = a \\cdot H - b \\cdot H \\cdot L$$
 
-$$\frac{dL}{dt} = c \cdot b \cdot H \cdot L - d \cdot L$$
+$$\\frac{dL}{dt} = c \\cdot b \\cdot H \\cdot L - d \\cdot L$$
 
-- `a` = tỉ lệ sinh của thỏ khi không có linh miêu.
-- `b` = tốc độ linh miêu ăn thỏ (tỉ lệ thuận với H·L).
-- `c` = hiệu suất chuyển thỏ ăn được thành linh miêu mới (~0.1).
-- `d` = tỉ lệ tử của linh miêu khi không có thỏ.
+- \`a\` = tỉ lệ sinh của thỏ khi không có linh miêu.
+- \`b\` = tốc độ linh miêu ăn thỏ (tỉ lệ thuận với H·L).
+- \`c\` = hiệu suất chuyển thỏ ăn được thành linh miêu mới (~0.1).
+- \`d\` = tỉ lệ tử của linh miêu khi không có thỏ.
 
-Hệ này không có nghiệm tăng/giảm đơn điệu — nó **dao động tuần hoàn** quanh điểm cân bằng `(H*, L*) = (d / (c·b), a / b)`.
+Hệ này không có nghiệm tăng/giảm đơn điệu — nó **dao động tuần hoàn** quanh điểm cân bằng \`(H*, L*) = (d / (c·b), a / b)\`.
 
 ### 6.2. Ví dụ số
 
@@ -430,15 +433,15 @@ Lấy a = 0.5/năm, b = 0.02/(thỏ·năm), c = 0.1, d = 0.3/năm:
 **Bài 1**:
 - (a) D = N/S = 600 / 12 = **50 chim/km²**.
 - (b) ΔN = B − D + I − E = 90 − 45 + 5 − 10 = **+40 cá thể/năm**.
-- (c) r ≈ ΔN / N₀ = 40 / 600 = **0.0667/năm**, tức ~6.67%/năm. (Đây là xấp xỉ rời rạc; r chính xác trong mô hình liên tục là `ln(640/600) ≈ 0.0645/năm`, hai cách cho kết quả gần nhau khi r nhỏ.)
+- (c) r ≈ ΔN / N₀ = 40 / 600 = **0.0667/năm**, tức ~6.67%/năm. (Đây là xấp xỉ rời rạc; r chính xác trong mô hình liên tục là \`ln(640/600) ≈ 0.0645/năm\`, hai cách cho kết quả gần nhau khi r nhỏ.)
 
 **Bài 2**:
-- (a) `N(t) = 50 · e^(0.7·t)`.
+- (a) \`N(t) = 50 · e^(0.7·t)\`.
 - (b)
   - N(3) = 50 · e^(2.1) = 50 · 8.166 ≈ **408**.
   - N(6) = 50 · e^(4.2) = 50 · 66.69 ≈ **3,335**.
   - N(12) = 50 · e^(8.4) = 50 · 4,447 ≈ **222,300**.
-- (c) `t_double = ln 2 / r = 0.693 / 0.7 ≈ **0.99 giờ**` (khoảng 59 phút).
+- (c) \`t_double = ln 2 / r = 0.693 / 0.7 ≈ **0.99 giờ**\` (khoảng 59 phút).
 
 **Bài 3** (K = 8,000, r = 0.4):
 - Tại N = 2,000: dN/dt = 0.4 · 2,000 · (1 − 2,000/8,000) = 0.4 · 2,000 · 0.75 = **600 con/năm**.
@@ -470,7 +473,7 @@ Ví dụ mới: r — **giun đất (đẻ kén hàng trăm trứng, sống vài
 - **Bài tiếp theo trong Biology**: [Lesson 07 — Hệ sinh thái & dòng năng lượng](../lesson-07-ecosystems-energy-flow/) — vượt ra ngoài 1 quần thể, nhìn cả cộng đồng nhiều loài và dòng năng lượng giữa các bậc dinh dưỡng.
 - **Tham chiếu Tầng 2**: [Sinh học quần thể — Hardy-Weinberg](../../02-Genetics-Evolution/lesson-06-population-genetics/) — cùng "quần thể" nhưng nhìn từ tần số allele.
 - **Tham chiếu Tầng 1**: [Chu kỳ tế bào](../../01-Molecules-Cells/lesson-07-cell-cycle-mitosis/) — gốc của tăng trưởng cấp số nhân (2ⁿ).
-- **Liên kết Math**: hàm mũ `e^(r·t)` và phương trình vi phân tách biến `dN/dt = rN` — `Math/Calculus/lesson-04-exponential`.
+- **Liên kết Math**: hàm mũ \`e^(r·t)\` và phương trình vi phân tách biến \`dN/dt = rN\` — \`Math/Calculus/lesson-04-exponential\`.
 - **Visualization**: [visualization.html](./visualization.html) — đồ thị J vs S, máy tính logistic, so sánh r-K, dao động Lotka–Volterra.
 
 ---
@@ -478,10 +481,11 @@ Ví dụ mới: r — **giun đất (đẻ kén hàng trăm trứng, sống vài
 ## 📝 Tổng kết Lesson 06
 
 1. **Quần thể sinh thái** = cùng loài + cùng khu vực + cùng thời điểm. Đặc trưng bởi N, mật độ D = N/S, phân bố (đều/ngẫu nhiên/cụm), cấu trúc tuổi, tỉ lệ giới.
-2. **4 nguồn thay đổi**: ΔN = B − D + I − E; tốc độ riêng `r = (b − d) + (i − e)`.
-3. **Cấp số nhân (J)**: `N(t) = N₀ · e^(r·t)`. Đẹp về toán, chỉ đúng trong pha đầu khi tài nguyên dồi dào. Thời gian gấp đôi `t_double = ln 2 / r`.
-4. **Logistic (S)**: `dN/dt = rN(1 − N/K)`. K = sức chứa. Tốc độ cực đại tại N = K/2, giá trị `dN/dt_max = rK/4`. Mức khai thác bền vững = rK/4 với N giữ ở K/2.
+2. **4 nguồn thay đổi**: ΔN = B − D + I − E; tốc độ riêng \`r = (b − d) + (i − e)\`.
+3. **Cấp số nhân (J)**: \`N(t) = N₀ · e^(r·t)\`. Đẹp về toán, chỉ đúng trong pha đầu khi tài nguyên dồi dào. Thời gian gấp đôi \`t_double = ln 2 / r\`.
+4. **Logistic (S)**: \`dN/dt = rN(1 − N/K)\`. K = sức chứa. Tốc độ cực đại tại N = K/2, giá trị \`dN/dt_max = rK/4\`. Mức khai thác bền vững = rK/4 với N giữ ở K/2.
 5. **r-selection vs K-selection**: hai chiến lược sinh sản đối lập — đẻ nhiều/đầu tư ít vs đẻ ít/đầu tư nhiều. Phù hợp với hai kiểu môi trường khác nhau.
 6. **Dao động**: quần thể tự nhiên hiếm khi đứng yên. Mô hình Lotka–Volterra (kẻ săn × con mồi) cho dao động tuần hoàn; linh miêu × thỏ ~10 năm là kinh điển.
 
 **Tiếp theo**: [Lesson 07 — Hệ sinh thái & dòng năng lượng](../lesson-07-ecosystems-energy-flow/)
+`;

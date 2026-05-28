@@ -1,4 +1,7 @@
-# Lesson 04 — Nội tiết & nội môi
+// AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
+// Source: Biology/03-Physiology-Ecology/lesson-04-endocrine-homeostasis/README.md
+// Chạy lại: go run tools/build-readme-data.go
+window.README_MD = `# Lesson 04 — Nội tiết & nội môi
 
 ## Mục tiêu học tập
 
@@ -13,9 +16,9 @@ Sau bài này bạn sẽ:
 
 ## Kiến thức tiền đề
 
-- **Hệ thần kinh** — [`Biology/03-Physiology-Ecology/lesson-01-nervous-system`](../lesson-01-nervous-system/). Thần kinh và nội tiết là 2 hệ điều phối song song; bài này tập trung vào hệ kia.
-- **Enzyme và chuyển hóa** — [`Biology/01-Molecules-Cells/lesson-04-enzymes-metabolism`](../../01-Molecules-Cells/lesson-04-enzymes-metabolism/). Hormone thường tác động bằng cách bật/tắt enzyme.
-- **Phân tử sinh học** — [`Biology/01-Molecules-Cells/lesson-01-biomolecules`](../../01-Molecules-Cells/lesson-01-biomolecules/). Hormone hoặc là **peptide/protein** (insulin), hoặc là **lipid steroid** (testosterone), hoặc là **amine** (adrenaline) — quyết định cách hoạt động.
+- **Hệ thần kinh** — [\`Biology/03-Physiology-Ecology/lesson-01-nervous-system\`](../lesson-01-nervous-system/). Thần kinh và nội tiết là 2 hệ điều phối song song; bài này tập trung vào hệ kia.
+- **Enzyme và chuyển hóa** — [\`Biology/01-Molecules-Cells/lesson-04-enzymes-metabolism\`](../../01-Molecules-Cells/lesson-04-enzymes-metabolism/). Hormone thường tác động bằng cách bật/tắt enzyme.
+- **Phân tử sinh học** — [\`Biology/01-Molecules-Cells/lesson-01-biomolecules\`](../../01-Molecules-Cells/lesson-01-biomolecules/). Hormone hoặc là **peptide/protein** (insulin), hoặc là **lipid steroid** (testosterone), hoặc là **amine** (adrenaline) — quyết định cách hoạt động.
 
 ---
 
@@ -40,7 +43,7 @@ Thuật ngữ do nhà sinh lý học **Walter Cannon** (1932) đặt, từ tiế
 | pH máu động mạch | 7.40 | 7.35–7.45 | < 7.0 hoặc > 7.7 → tử vong |
 | Nồng độ Na⁺ máu | ~140 mmol/L | 135–145 mmol/L | < 125 hoặc > 160 → rối loạn thần kinh |
 
-Nhìn cột "khoảng" sẽ thấy điểm chung: **khoảng cho phép rất hẹp**. pH chỉ được dao động ±0.05 quanh 7.4. Đó là vì enzyme — máy chính của tế bào — chỉ hoạt động tốt trong khoảng hẹp này (xem [`lesson-04-enzymes-metabolism`](../../01-Molecules-Cells/lesson-04-enzymes-metabolism/)).
+Nhìn cột "khoảng" sẽ thấy điểm chung: **khoảng cho phép rất hẹp**. pH chỉ được dao động ±0.05 quanh 7.4. Đó là vì enzyme — máy chính của tế bào — chỉ hoạt động tốt trong khoảng hẹp này (xem [\`lesson-04-enzymes-metabolism\`](../../01-Molecules-Cells/lesson-04-enzymes-metabolism/)).
 
 ### ❓ Câu hỏi tự nhiên của người đọc
 
@@ -63,7 +66,7 @@ A: Mỗi sinh vật có **điểm đặt riêng** do enzyme của nó tối ưu 
 <details>
 <summary>Đáp án</summary>
 
-1. pH máu phải nằm trong khoảng ~7.0–7.7; bình thường 7.35–7.45. Enzyme có cấu trúc 3D phụ thuộc tương tác ion và liên kết hydrogen — pH lệch sẽ proton hóa/khử proton các nhóm chức, phá vỡ hình dạng → enzyme mất chức năng (xem [`lesson-04-enzymes-metabolism`](../../01-Molecules-Cells/lesson-04-enzymes-metabolism/)).
+1. pH máu phải nằm trong khoảng ~7.0–7.7; bình thường 7.35–7.45. Enzyme có cấu trúc 3D phụ thuộc tương tác ion và liên kết hydrogen — pH lệch sẽ proton hóa/khử proton các nhóm chức, phá vỡ hình dạng → enzyme mất chức năng (xem [\`lesson-04-enzymes-metabolism\`](../../01-Molecules-Cells/lesson-04-enzymes-metabolism/)).
 2. Không bệnh — đây là **dao động bình thường** trong vận động cường độ cao. Cơ tạo nhiệt rất nhanh, hệ làm mát (đổ mồ hôi, giãn mạch) bị "chạy theo". Khi nghỉ vài phút, thân nhiệt sẽ trở về 37°C. Chỉ nguy hiểm nếu duy trì > 40°C kéo dài.
 </details>
 
@@ -271,7 +274,7 @@ Cốt lõi: **lệch khỏi điểm đặt → kích hoạt phản ứng TRỞ N
 
 ### 5.1. Vòng phản hồi âm có 4 thành phần
 
-```
+\`\`\`
                    ┌──────────────────────┐
                    │  Điểm đặt (set point) │
                    └──────────┬───────────┘
@@ -284,7 +287,7 @@ Cốt lõi: **lệch khỏi điểm đặt → kích hoạt phản ứng TRỞ N
         ▲                                         │
         │                                         ▼
         └────────── đại lượng được điều hòa ──────┘
-```
+\`\`\`
 
 1. **Cảm biến (sensor)** — đo đại lượng hiện tại.
 2. **Trung tâm điều khiển** — so sánh với điểm đặt, ra lệnh.
@@ -504,7 +507,7 @@ Cả 2 tiêu chuẩn đều dương tính → **có tiểu đường**.
 
 Vòng phản hồi âm điều hòa Ca²⁺ máu:
 
-```
+\`\`\`
          Điểm đặt: ~10 mg/dL Ca²⁺
                 ▲
   Ca²⁺ giảm    │     phản hồi: Ca²⁺ về 10 mg/dL
@@ -525,7 +528,7 @@ Vòng phản hồi âm điều hòa Ca²⁺ máu:
   │ 3. Ruột: tăng hấp thụ │
   │    Ca²⁺ (qua vit D)   │
   └──────────────────────┘
-```
+\`\`\`
 
 Bốn thành phần:
 - **Đại lượng**: Ca²⁺ trong máu.
@@ -572,10 +575,10 @@ Bốn thành phần:
 - **Bài trước**: [Lesson 03 — Hệ miễn dịch](../lesson-03-immune-system/) — phản ứng miễn dịch cũng dùng tín hiệu hóa học (cytokine), và bệnh tiểu đường type 1 chính là **bệnh tự miễn** (hệ miễn dịch phá tế bào β tụy).
 - **Bài tiếp theo**: [Lesson 05 — Sinh lý thực vật](../lesson-05-plant-physiology/) — thực vật cũng có "hormone" (auxin, gibberellin, abscisic acid) nhưng không có hệ thần kinh, không có máu. So sánh chiến lược điều phối ở thực vật vs động vật rất thú vị.
 - **Liên kết khác**:
-  - [`Biology/03-Physiology-Ecology/lesson-01-nervous-system`](../lesson-01-nervous-system/) — hệ thần kinh, hệ điều phối thứ hai song song với nội tiết.
-  - [`Biology/01-Molecules-Cells/lesson-04-enzymes-metabolism`](../../01-Molecules-Cells/lesson-04-enzymes-metabolism/) — hormone tác động chủ yếu bằng cách bật/tắt enzyme.
-  - [`Biology/01-Molecules-Cells/lesson-01-biomolecules`](../../01-Molecules-Cells/lesson-01-biomolecules/) — bản chất hóa học của hormone (peptide, steroid, amine).
-- **Đọc thêm**: mô phỏng tương tác — [`visualization.html`](./visualization.html).
+  - [\`Biology/03-Physiology-Ecology/lesson-01-nervous-system\`](../lesson-01-nervous-system/) — hệ thần kinh, hệ điều phối thứ hai song song với nội tiết.
+  - [\`Biology/01-Molecules-Cells/lesson-04-enzymes-metabolism\`](../../01-Molecules-Cells/lesson-04-enzymes-metabolism/) — hormone tác động chủ yếu bằng cách bật/tắt enzyme.
+  - [\`Biology/01-Molecules-Cells/lesson-01-biomolecules\`](../../01-Molecules-Cells/lesson-01-biomolecules/) — bản chất hóa học của hormone (peptide, steroid, amine).
+- **Đọc thêm**: mô phỏng tương tác — [\`visualization.html\`](./visualization.html).
 
 ---
 
@@ -589,3 +592,4 @@ Bốn thành phần:
 6. **Điều hòa đường huyết**: insulin (tế bào β) hạ; glucagon (tế bào α) tăng. **Tiểu đường type 1** = không có insulin; **type 2** = receptor insulin hỏng.
 
 **Tiếp theo**: [Lesson 05 — Sinh lý thực vật](../lesson-05-plant-physiology/)
+`;

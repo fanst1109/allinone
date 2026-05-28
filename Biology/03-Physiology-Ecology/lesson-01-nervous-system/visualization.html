@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Hệ thần kinh</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #14532d; }
+  h2 {
+    color: #166534; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #bbf7d0;
+  }
+  h3 { color: #15803d; margin-top: 20px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 11px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 90px; max-width: 100%;
+  }
+  input[type="range"] { flex: 1; min-width: 0; }
+  button {
+    background: #059669; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #047857; }
+  button.muted { background: #a0aec0; }
+  button.muted:hover { background: #718096; }
+  .pill {
+    background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;
+  }
+  .pill.active { background: #059669; color: white; }
+  .stat {
+    display: inline-block; background: #d1fae5;
+    padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #047857; }
+  .stat.warn { background: #fee2e2; color: #991b1b; }
+  .stat.warn strong { color: #991b1b; }
+  .stat.ok { background: #dcfce7; color: #166534; }
+  .stat.ok strong { color: #166534; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; }
+  .group-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+  svg { display: block; margin: 8px auto; max-width: 100%; height: auto; }
+  .info-grid { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 14px; }
+  .info-grid div { padding: 6px 10px; background: #f0fdf4; border-radius: 6px; }
+  .info-grid strong { color: #166534; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 8px; }
+  th, td { border: 1px solid #d1d5db; padding: 7px 10px; text-align: left; }
+  th { background: #ecfdf5; color: #065f46; }
+
+  /* AP grapher */
+  .axis { stroke: #9ca3af; stroke-width: 1; }
+  .gridline { stroke: #e5e7eb; stroke-width: 1; }
+  .axis-label { font: 11px sans-serif; fill: #6b7280; }
+  .ap-curve { fill: none; stroke: #059669; stroke-width: 3; }
+  .marker { fill: #dc2626; }
+  .phase-label { font: 11px sans-serif; fill: #166534; font-weight: 600; }
+  .threshold-line { stroke: #f59e0b; stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .rest-line { stroke: #6b7280; stroke-width: 1; stroke-dasharray: 2 2; }
+
+  /* Neuron schematic */
+  .dendrite { stroke: #166534; stroke-width: 2; fill: none; }
+  .soma { fill: #bbf7d0; stroke: #166534; stroke-width: 2.5; }
+  .axon { stroke: #14532d; stroke-width: 5; fill: none; stroke-linecap: round; }
+  .myelin { fill: #fde68a; stroke: #b45309; stroke-width: 1; }
+  .terminal { fill: #16a34a; stroke: #14532d; stroke-width: 1.5; }
+  .spark { fill: #fbbf24; stroke: #b45309; stroke-width: 1; }
+
+  /* Synapse */
+  .vesicle { fill: #a7f3d0; stroke: #047857; stroke-width: 1.5; }
+  .nt-dot { fill: #f59e0b; }
+  .receptor { fill: #6366f1; stroke: #312e81; stroke-width: 1; }
+  .ion-na { fill: #ef4444; }
+  .ion-k  { fill: #3b82f6; }
+  .ion-ca { fill: #a855f7; }
+  .ion-cl { fill: #22d3ee; }
+
+  /* Speed bars */
+  .bar-trad { fill: #fca5a5; stroke: #b91c1c; stroke-width: 1; }
+  .bar-myel { fill: #86efac; stroke: #166534; stroke-width: 1; }
+  .bar-label { font: 12px sans-serif; fill: #374151; text-anchor: middle; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Biology · Tầng 3</a>
+  <span class="sep">·</span>
+  <a href="../../02-Genetics-Evolution/lesson-08-speciation-phylogeny/visualization.html">← T2.L8: Hình thành loài</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Hệ thần kinh</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-circulation-respiration/visualization.html">L2: Tuần hoàn &amp; hô hấp →</a>
+</nav>
+
+<h1>Lesson 01 — Hệ thần kinh</h1>
+<p>Bốn công cụ tương tác: (1) vẽ điện thế hoạt động theo thời gian, đánh dấu từng pha + ion;
+(2) mô phỏng kích thích vượt/dưới ngưỡng, demo all-or-nothing và frequency coding;
+(3) bật quy trình 5 bước qua synapse: Ca²⁺ → bóng → chất dẫn truyền → receptor;
+(4) so sánh tốc độ axon trần vs myelin trên cùng quãng đường.</p>
+
+<h2>1. Đồ thị điện thế hoạt động (action potential)</h2>
+<div class="card">
+  <p>Kéo thanh thời gian để xem điện thế ở từng thời điểm trong 1 AP. Đường vàng đứt = ngưỡng −55 mV; đường xám đứt = nghỉ −70 mV. Bốn pha tô màu khác nhau.</p>
+  <div class="row">
+    <label>Thời gian (ms):</label>
+    <input type="range" id="apTime" min="0" max="50" value="0" step="1">
+    <span class="stat">t = <strong id="apTimeVal">0.0</strong> ms</span>
+    <span class="stat">V<sub>m</sub> = <strong id="apVmVal">−70</strong> mV</span>
+  </div>
+  <svg id="apSvg" width="560" height="280" viewBox="0 0 560 280" role="img" aria-label="Đồ thị điện thế hoạt động"></svg>
+  <div class="info-grid" id="apInfo"></div>
+  <div class="row" style="margin-top:8px">
+    <button id="apPlay">▶ Phát lại 1 AP</button>
+    <button id="apReset" class="muted">⟲ Reset</button>
+  </div>
+</div>
+
+<h2>2. Kích thích neuron — All-or-nothing &amp; frequency coding</h2>
+<div class="card">
+  <p>Tăng/giảm cường độ kích thích. Nếu vượt ngưỡng (đẩy màng từ −70 lên ≥ −55), neuron phát AP; nếu dưới ngưỡng, im. Kích thích càng mạnh thì tần số AP càng cao (mã hóa thông tin).</p>
+  <div class="row">
+    <label>Cường độ kích thích (mV trên màng):</label>
+    <input type="range" id="stimLvl" min="0" max="40" value="20" step="1">
+    <span class="stat">Δ = <strong id="stimVal">+20</strong> mV</span>
+    <span class="stat" id="stimStatus">Trạng thái: <strong id="stimText">—</strong></span>
+  </div>
+  <svg id="stimSvg" width="560" height="200" viewBox="0 0 560 200" role="img" aria-label="Chuỗi AP theo cường độ kích thích"></svg>
+  <div style="margin-top:6px">
+    <span class="stat">Điện thế đạt được = <strong id="vReach">−50</strong> mV</span>
+    <span class="stat">Ngưỡng = <strong>−55</strong> mV</span>
+    <span class="stat">Tần số AP = <strong id="apFreq">0</strong> AP/s</span>
+  </div>
+  <div class="hint" id="stimHint"></div>
+</div>
+
+<h2>3. Mô phỏng synapse — 5 bước</h2>
+<div class="card">
+  <p>Bấm "▶ Bước kế" để đi qua từng giai đoạn truyền tín hiệu qua khe synapse rộng ~20 nm.</p>
+  <div class="row">
+    <button id="synStep">▶ Bước kế</button>
+    <button id="synReset" class="muted">⟲ Đặt lại</button>
+    <span class="stat">Bước <strong id="synStepNum">0</strong>/5</span>
+  </div>
+  <svg id="synSvg" width="560" height="260" viewBox="0 0 560 260" role="img" aria-label="Mô phỏng synapse"></svg>
+  <div class="info-grid" id="synInfo"></div>
+  <div class="row" style="margin-top:8px">
+    <label>Receptor:</label>
+    <button class="pill active" data-rec="exc">Kích thích (mở Na⁺)</button>
+    <button class="pill" data-rec="inh">Ức chế (mở Cl⁻)</button>
+  </div>
+</div>
+
+<h2>4. So sánh tốc độ dẫn truyền: trần vs myelin</h2>
+<div class="card">
+  <p>Đặt chiều dài đoạn axon, viz tính thời gian truyền cho sợi trần (1 m/s) và sợi myelin (100 m/s).</p>
+  <div class="row">
+    <label>Chiều dài axon (cm):</label>
+    <input type="range" id="axonLen" min="10" max="100" value="90" step="5">
+    <span class="stat">L = <strong id="axonLenVal">90</strong> cm</span>
+  </div>
+  <svg id="speedSvg" width="560" height="220" viewBox="0 0 560 220" role="img" aria-label="So sánh tốc độ axon"></svg>
+  <div style="margin-top:6px">
+    <span class="stat warn">Axon trần (1 m/s): <strong id="tTrad">900</strong> ms</span>
+    <span class="stat ok">Axon myelin (100 m/s): <strong id="tMyel">9</strong> ms</span>
+    <span class="stat">Nhanh hơn <strong id="ratio">100×</strong></span>
+  </div>
+  <div class="hint" id="speedHint">Sợi C trần (đau âm ỉ) ~1 m/s; sợi Aα myelin (vận động, phản xạ) ~100 m/s. Tự nhiên dùng myelin cho tín hiệu cần nhanh.</div>
+</div>
+
+<h2>5. Bảng tóm tắt nhanh</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>Hiện tượng</th><th>Cơ chế</th><th>Số chốt</th></tr></thead>
+    <tbody>
+      <tr><td>Điện thế nghỉ</td><td>Bơm Na/K (3:2) + K⁺ rò</td><td>−70 mV</td></tr>
+      <tr><td>Ngưỡng AP</td><td>Kênh Na⁺ phụ thuộc điện áp mở</td><td>−55 mV</td></tr>
+      <tr><td>Peak AP</td><td>Na⁺ ào vào</td><td>+30 mV</td></tr>
+      <tr><td>Hyperpolarize</td><td>K⁺ ra quá đà</td><td>−80 mV</td></tr>
+      <tr><td>Khe synapse</td><td>—</td><td>~20 nm</td></tr>
+      <tr><td>Tốc độ trần / myelin</td><td>Tái tạo liên tục vs nhảy</td><td>1–2 / 30–100 m/s</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+
+/* ====================================================================
+   1. Action potential grapher
+   ==================================================================== */
+// Profile: (t_ms, V_mV). Kéo dài ~50 ms (sample tới hyperpolarize và về nghỉ).
+function apVoltage(t) {
+  // 0–2 ms: rest, slight stim creep
+  if (t <= 2) return -70 + (t / 2) * 5;          // −70 → −65 (sub-threshold creep)
+  // 2–3 ms: cross threshold and shoot up
+  if (t <= 4) {
+    const x = (t - 2) / 2;
+    return -65 + x * (30 + 65); // up to +30 mV by t=4
+  }
+  // 4–5 ms: peak plateau
+  if (t <= 5) return 30;
+  // 5–8 ms: repolarize +30 → −70
+  if (t <= 8) {
+    const x = (t - 5) / 3;
+    return 30 - x * 100;
+  }
+  // 8–11 ms: hyperpolarize −70 → −80 → recover
+  if (t <= 11) {
+    const x = (t - 8) / 3;
+    return -70 - 10 * Math.sin(Math.PI * x); // dips to −80 mid, back to −70 at 11
+  }
+  // 11+ : steady rest −70
+  return -70;
+}
+function apPhase(t) {
+  if (t < 2) return { name: "Trước kích thích", color: "#6b7280", ion: "K⁺ rò + bơm Na/K duy trì −70 mV" };
+  if (t < 4) return { name: "1. Khử cực (depolarization)", color: "#dc2626", ion: "Kênh Na⁺ phụ thuộc điện áp MỞ → Na⁺ ÀO vào" };
+  if (t < 5) return { name: "2. Peak (+30 mV)", color: "#f59e0b", ion: "Na⁺ ngừng vào (kênh tự đóng); kênh K⁺ bắt đầu mở" };
+  if (t < 8) return { name: "3. Tái cực (repolarization)", color: "#3b82f6", ion: "Kênh K⁺ phụ thuộc điện áp MỞ → K⁺ ra" };
+  if (t < 11) return { name: "4. Tăng phân cực sau (hyperpolarization)", color: "#7c3aed", ion: "K⁺ vẫn ra → điện thế dưới −70 mV (≈ −80)" };
+  return { name: "5. Trở về điện thế nghỉ", color: "#166534", ion: "Bơm Na/K + đóng kênh K⁺ → về −70 mV" };
+}
+function drawAPaxes(svg) {
+  // Map: t in [0, 20] → x in [50, 540]; V in [−100, +40] → y in [260, 20]
+  const xt = t => 50 + (t / 20) * 490;
+  const yv = v => 260 - ((v + 100) / 140) * 240;
+  // axes
+  el("line", { x1: 50, y1: 20, x2: 50, y2: 260, class: "axis" }, svg);
+  el("line", { x1: 50, y1: 260, x2: 540, y2: 260, class: "axis" }, svg);
+  // gridlines + labels for V
+  [-80, -70, -55, -40, -20, 0, 20, 30].forEach(v => {
+    const y = yv(v);
+    el("line", { x1: 50, y1: y, x2: 540, y2: y, class: "gridline" }, svg);
+    const t = el("text", { x: 44, y: y + 4, "text-anchor": "end", class: "axis-label" }, svg);
+    t.textContent = v + "";
+  });
+  // labels for t
+  [0, 5, 10, 15, 20].forEach(tx => {
+    const x = xt(tx);
+    el("line", { x1: x, y1: 260, x2: x, y2: 264, class: "axis" }, svg);
+    const t = el("text", { x: x, y: 276, "text-anchor": "middle", class: "axis-label" }, svg);
+    t.textContent = tx + " ms";
+  });
+  // threshold and rest lines
+  el("line", { x1: 50, y1: yv(-55), x2: 540, y2: yv(-55), class: "threshold-line" }, svg);
+  const thLbl = el("text", { x: 545, y: yv(-55) + 4, class: "axis-label", fill: "#b45309" }, svg);
+  thLbl.textContent = "ngưỡng";
+  el("line", { x1: 50, y1: yv(-70), x2: 540, y2: yv(-70), class: "rest-line" }, svg);
+  // Y axis title
+  const yt = el("text", { x: 14, y: 140, "text-anchor": "middle", class: "axis-label", transform: "rotate(-90 14 140)" }, svg);
+  yt.textContent = "Vm (mV)";
+  return { xt, yv };
+}
+let apTimer = null;
+function renderAP() {
+  const t = parseFloat(document.getElementById("apTime").value) / 2.5; // slider 0..50 -> 0..20 ms
+  document.getElementById("apTimeVal").textContent = t.toFixed(1);
+  const v = apVoltage(t);
+  document.getElementById("apVmVal").textContent = (v >= 0 ? "+" : "") + v.toFixed(0);
+  const svg = document.getElementById("apSvg"); clear(svg);
+  const { xt, yv } = drawAPaxes(svg);
+  // full AP curve up to t=20
+  let d = "";
+  for (let tt = 0; tt <= 20; tt += 0.1) {
+    const x = xt(tt), y = yv(apVoltage(tt));
+    d += (tt === 0 ? "M " : " L ") + x.toFixed(1) + " " + y.toFixed(1);
+  }
+  el("path", { d: d, class: "ap-curve" }, svg);
+  // Phase shading along the curve (highlight up to current t)
+  let dCur = "";
+  for (let tt = 0; tt <= t; tt += 0.1) {
+    const x = xt(tt), y = yv(apVoltage(tt));
+    dCur += (tt === 0 ? "M " : " L ") + x.toFixed(1) + " " + y.toFixed(1);
+  }
+  el("path", { d: dCur, fill: "none", stroke: apPhase(t).color, "stroke-width": 4 }, svg);
+  // marker at current
+  el("circle", { cx: xt(t), cy: yv(v), r: 6, class: "marker" }, svg);
+  // phase tag
+  const ph = apPhase(t);
+  const tag = el("text", { x: 60, y: 36, font: "13px sans-serif", "font-weight": "700", fill: ph.color }, svg);
+  tag.textContent = ph.name;
+  document.getElementById("apInfo").innerHTML =
+    `<div><strong>Pha hiện tại:</strong> ${ph.name}</div>` +
+    `<div><strong>Cơ chế ion:</strong> ${ph.ion}</div>` +
+    `<div><strong>Điện thế:</strong> Vm = ${(v>=0?"+":"") + v.toFixed(1)} mV</div>`;
+}
+document.getElementById("apTime").oninput = renderAP;
+document.getElementById("apPlay").onclick = () => {
+  if (apTimer) clearInterval(apTimer);
+  document.getElementById("apTime").value = 0;
+  let v = 0;
+  apTimer = setInterval(() => {
+    v += 1;
+    document.getElementById("apTime").value = v;
+    renderAP();
+    if (v >= 50) { clearInterval(apTimer); apTimer = null; }
+  }, 80);
+};
+document.getElementById("apReset").onclick = () => {
+  if (apTimer) clearInterval(apTimer);
+  document.getElementById("apTime").value = 0;
+  renderAP();
+};
+
+/* ====================================================================
+   2. Stimulation simulator (all-or-nothing + frequency)
+   ==================================================================== */
+function renderStim() {
+  const stim = parseFloat(document.getElementById("stimLvl").value);
+  document.getElementById("stimVal").textContent = "+" + stim;
+  const vReach = -70 + stim;
+  document.getElementById("vReach").textContent = (vReach >= 0 ? "+" : "") + vReach;
+  const fires = vReach >= -55;
+  // frequency: max 200 AP/s at stim=40, 0 at stim=15 (threshold)
+  let freq = 0;
+  if (fires) {
+    const above = Math.min(25, stim - 15); // overshoot from threshold
+    freq = Math.round(20 + (above / 25) * 180); // 20..200 AP/s
+  }
+  document.getElementById("apFreq").textContent = freq;
+  const status = document.getElementById("stimText");
+  const statusBox = document.getElementById("stimStatus");
+  if (fires) {
+    status.textContent = "PHÁT AP (vượt ngưỡng)";
+    statusBox.classList.remove("warn"); statusBox.classList.add("ok");
+  } else {
+    status.textContent = "IM (dưới ngưỡng)";
+    statusBox.classList.remove("ok"); statusBox.classList.add("warn");
+  }
+  // draw spike train
+  const svg = document.getElementById("stimSvg"); clear(svg);
+  const baseY = 130, peakY = 30;
+  // baseline
+  el("line", { x1: 30, y1: baseY, x2: 540, y2: baseY, stroke: "#6b7280", "stroke-width": 1.5 }, svg);
+  const t1 = el("text", { x: 30, y: baseY + 18, class: "axis-label" }, svg);
+  t1.textContent = "0 ms";
+  const t2 = el("text", { x: 540, y: baseY + 18, class: "axis-label", "text-anchor": "end" }, svg);
+  t2.textContent = "100 ms (= 0.1 s)";
+  // threshold line
+  el("line", { x1: 30, y1: 100, x2: 540, y2: 100, class: "threshold-line" }, svg);
+  const thLbl = el("text", { x: 540, y: 96, class: "axis-label", "text-anchor": "end", fill: "#b45309" }, svg);
+  thLbl.textContent = "ngưỡng −55 mV";
+  // sub-threshold envelope
+  if (!fires) {
+    const yLevel = baseY - (stim / 40) * 60;
+    el("rect", { x: 30, y: yLevel, width: 510, height: baseY - yLevel, fill: "#fee2e2", opacity: 0.6 }, svg);
+    const lbl = el("text", { x: 285, y: yLevel - 6, "text-anchor": "middle", font: "12px sans-serif", fill: "#991b1b", "font-weight": "700" }, svg);
+    lbl.textContent = "Khử cực ≈ " + (vReach) + " mV — chưa qua ngưỡng → KHÔNG có AP";
+  } else {
+    // n spikes in 100 ms
+    const nSpikes = Math.max(1, Math.round(freq / 10));
+    for (let i = 0; i < nSpikes; i++) {
+      const x = 40 + (i + 0.5) * (500 / nSpikes);
+      // Each spike: small peak
+      const path = `M ${x - 4} ${baseY} L ${x - 2} ${peakY} L ${x + 2} ${peakY} L ${x + 4} ${baseY} L ${x + 6} ${baseY + 8} L ${x + 8} ${baseY}`;
+      el("path", { d: path, fill: "none", stroke: "#059669", "stroke-width": 2.5 }, svg);
+    }
+    const lbl = el("text", { x: 285, y: 20, "text-anchor": "middle", font: "13px sans-serif", fill: "#166534", "font-weight": "700" }, svg);
+    lbl.textContent = `${nSpikes} AP trong 100 ms → ${freq} AP/giây (frequency coding)`;
+  }
+  document.getElementById("stimHint").textContent = fires
+    ? `Biên độ AP luôn cố định (~100 mV peak-to-peak); kích thích mạnh KHÔNG làm AP cao hơn — chỉ làm nó DÀY hơn.`
+    : `Dù sát ngưỡng (vd ${vReach} mV), nếu chưa qua −55 thì neuron im như tờ. "All-or-nothing" không cho phép tín hiệu trung gian.`;
+}
+document.getElementById("stimLvl").oninput = renderStim;
+
+/* ====================================================================
+   3. Synapse simulator (5 steps)
+   ==================================================================== */
+let synStep = 0;
+let synRecType = "exc";
+function renderSyn() {
+  const svg = document.getElementById("synSvg"); clear(svg);
+  // Pre-synaptic terminal (left blob) and post-synaptic dendrite (right blob)
+  // Pre terminal: rounded shape at left
+  el("path", { d: "M 60 50 Q 30 130 60 210 L 240 210 Q 250 130 240 50 Z", fill: "#bbf7d0", stroke: "#166534", "stroke-width": 2 }, svg);
+  // axon coming in
+  el("line", { x1: 0, y1: 130, x2: 60, y2: 130, class: "axon" }, svg);
+  // synaptic cleft (the gap)
+  el("rect", { x: 250, y: 50, width: 30, height: 160, fill: "#f1f5f9", stroke: "#94a3b8", "stroke-width": 1 }, svg);
+  const cleftLbl = el("text", { x: 265, y: 240, "text-anchor": "middle", class: "axis-label", "font-weight": "700" }, svg);
+  cleftLbl.textContent = "khe ~20 nm";
+  // Post-synaptic dendrite (right): blob
+  el("path", { d: "M 280 50 Q 270 130 280 210 L 540 210 Q 555 130 540 50 Z", fill: "#dcfce7", stroke: "#166534", "stroke-width": 2 }, svg);
+  // Ca2+ channels in pre-membrane
+  for (let i = 0; i < 3; i++) {
+    const y = 80 + i * 50;
+    el("rect", { x: 244, y: y - 8, width: 8, height: 16, fill: "#a855f7", stroke: "#581c87", "stroke-width": 1 }, svg);
+  }
+  // Vesicles in pre-terminal
+  const vesiclePositions = [[110, 100], [150, 90], [180, 130], [120, 170], [165, 175]];
+  vesiclePositions.forEach((pos, idx) => {
+    let vx = pos[0], vy = pos[1];
+    // For step 3+, move a vesicle toward membrane
+    if (synStep >= 3 && idx === 0) { vx = 220; vy = 130; }
+    el("circle", { cx: vx, cy: vy, r: 12, class: "vesicle" }, svg);
+    // dots inside vesicle (NT)
+    for (let j = 0; j < 4; j++) {
+      const a = (j / 4) * Math.PI * 2;
+      el("circle", { cx: vx + Math.cos(a) * 5, cy: vy + Math.sin(a) * 5, r: 2, class: "nt-dot" }, svg);
+    }
+  });
+  // Receptors on post-membrane
+  for (let i = 0; i < 3; i++) {
+    const y = 80 + i * 50;
+    el("rect", { x: 282, y: y - 10, width: 14, height: 20, class: "receptor", rx: 2 }, svg);
+  }
+  // Step-specific overlays
+  const labels = {
+    0: { title: "Bước 0: Trạng thái nghỉ", body: "Cúc tận cùng có bóng synaptic chứa chất dẫn truyền. Kênh Ca²⁺ đóng. Bấm '▶ Bước kế' để bắt đầu." },
+    1: { title: "Bước 1: AP đến cúc tận cùng", body: "Điện thế hoạt động chạy dọc axon, đến đầu cúc tận cùng. Khử cực màng tới ~+30 mV." },
+    2: { title: "Bước 2: Kênh Ca²⁺ mở, Ca²⁺ vào", body: "Khử cực mở kênh Ca²⁺ phụ thuộc điện áp. Ca²⁺ ngoài (~1.5 mM) >> trong (~0.0001 mM) → tràn vào ồ ạt." },
+    3: { title: "Bước 3: Bóng gắn vào màng & phóng thích", body: "Ca²⁺ kích hoạt protein hợp nhất bóng vào màng → exocytosis → chất dẫn truyền vào khe synapse." },
+    4: { title: "Bước 4: Khuếch tán qua khe & gắn receptor", body: "Chất dẫn truyền (vd glutamate) khuếch tán ~20 nm (<1 ms) → bám vào receptor ở màng sau synapse." },
+    5: { title: "Bước 5: Mở kênh ion trên tế bào sau", body: synRecType === "exc"
+        ? "Receptor kích thích mở kênh Na⁺ → Na⁺ vào → tế bào sau khử cực (EPSP). Nhiều synapse cộng dồn → có thể phát AP."
+        : "Receptor ức chế mở kênh Cl⁻ → Cl⁻ vào → tế bào sau tăng phân cực (IPSP). Khó vượt ngưỡng → ức chế." }
+  };
+  // Step 1: AP arrives — draw spark on axon
+  if (synStep >= 1) {
+    el("circle", { cx: 60, cy: 130, r: 12, class: "spark", opacity: 0.85 }, svg);
+    const t = el("text", { x: 60, y: 30, "text-anchor": "middle", font: "12px sans-serif", "font-weight": "700", fill: "#b45309" }, svg);
+    t.textContent = "AP →";
+  }
+  // Step 2: Ca2+ ions entering
+  if (synStep >= 2) {
+    [80, 130, 180].forEach(y => {
+      el("circle", { cx: 235, cy: y, r: 4, class: "ion-ca" }, svg);
+      el("circle", { cx: 225, cy: y - 6, r: 4, class: "ion-ca" }, svg);
+      el("text", { x: 235, y: y + 2, "text-anchor": "middle", font: "9px sans-serif", "font-weight": "700", fill: "white" }, svg).textContent = "Ca";
+    });
+  }
+  // Step 3: NT released into cleft
+  if (synStep >= 3) {
+    for (let i = 0; i < 6; i++) {
+      el("circle", { cx: 260 + (i % 3) * 6 - 6, cy: 90 + Math.floor(i / 3) * 30, r: 2.5, class: "nt-dot" }, svg);
+    }
+  }
+  // Step 4: NT bound to receptors
+  if (synStep >= 4) {
+    [80, 130, 180].forEach(y => {
+      el("circle", { cx: 285, cy: y, r: 3, class: "nt-dot" }, svg);
+    });
+    // diffusion arrow
+    el("line", { x1: 263, y1: 130, x2: 283, y2: 130, stroke: "#b45309", "stroke-width": 1.5, "marker-end": "url(#arrSyn)" }, svg);
+    const defs = el("defs", {}, svg);
+    const mk = el("marker", { id: "arrSyn", markerWidth: 6, markerHeight: 6, refX: 5, refY: 3, orient: "auto" }, defs);
+    el("path", { d: "M0,0 L5,3 L0,6 Z", fill: "#b45309" }, mk);
+  }
+  // Step 5: ions flow into post
+  if (synStep >= 5) {
+    const ionClass = synRecType === "exc" ? "ion-na" : "ion-cl";
+    const ionLabel = synRecType === "exc" ? "Na" : "Cl";
+    [80, 130, 180].forEach(y => {
+      el("circle", { cx: 310, cy: y, r: 5, class: ionClass }, svg);
+      el("circle", { cx: 330, cy: y - 5, r: 5, class: ionClass }, svg);
+      el("text", { x: 310, y: y + 3, "text-anchor": "middle", font: "9px sans-serif", "font-weight": "700", fill: "white" }, svg).textContent = ionLabel;
+    });
+    const summary = el("text", { x: 410, y: 35, "text-anchor": "middle", font: "13px sans-serif", "font-weight": "700",
+      fill: synRecType === "exc" ? "#166534" : "#7c3aed" }, svg);
+    summary.textContent = synRecType === "exc" ? "EPSP: tế bào sau khử cực" : "IPSP: tế bào sau tăng phân cực";
+  }
+  // Title labels
+  const preLbl = el("text", { x: 150, y: 40, "text-anchor": "middle", font: "12px sans-serif", "font-weight": "700", fill: "#14532d" }, svg);
+  preLbl.textContent = "Cúc tận cùng (neuron trước)";
+  const postLbl = el("text", { x: 410, y: 40, "text-anchor": "middle", font: "12px sans-serif", "font-weight": "700", fill: "#14532d" }, svg);
+  postLbl.textContent = "Màng sau synapse (neuron sau)";
+  const info = labels[synStep] || labels[0];
+  document.getElementById("synStepNum").textContent = synStep;
+  document.getElementById("synInfo").innerHTML =
+    `<div><strong>${info.title}</strong></div>` +
+    `<div>${info.body}</div>`;
+}
+document.getElementById("synStep").onclick = () => {
+  synStep = (synStep + 1) % 6;
+  renderSyn();
+};
+document.getElementById("synReset").onclick = () => { synStep = 0; renderSyn(); };
+document.querySelectorAll("[data-rec]").forEach(b => {
+  b.onclick = () => {
+    synRecType = b.dataset.rec;
+    document.querySelectorAll("[data-rec]").forEach(x => x.classList.toggle("active", x === b));
+    renderSyn();
+  };
+});
+
+/* ====================================================================
+   4. Speed comparison: bare vs myelinated axon
+   ==================================================================== */
+function renderSpeed() {
+  const len_cm = parseFloat(document.getElementById("axonLen").value);
+  const len_m = len_cm / 100;
+  const tTrad = Math.round(len_m / 1 * 1000);     // ms, at 1 m/s
+  const tMyel = Math.round(len_m / 100 * 1000);   // ms, at 100 m/s
+  document.getElementById("axonLenVal").textContent = len_cm;
+  document.getElementById("tTrad").textContent = tTrad;
+  document.getElementById("tMyel").textContent = Math.max(tMyel, 1); // at least 1
+  document.getElementById("ratio").textContent = "100×";
+  const svg = document.getElementById("speedSvg"); clear(svg);
+  // Two axons drawn at top: bare and myelinated; bars at bottom show time
+  // Bare axon: simple line
+  el("text", { x: 20, y: 30, font: "12px sans-serif", "font-weight": "700", fill: "#b91c1c" }, svg).textContent = "Sợi C trần (1 m/s)";
+  el("line", { x1: 20, y1: 50, x2: 540, y2: 50, class: "axon", stroke: "#dc2626" }, svg);
+  // Myelinated axon: line with myelin segments
+  el("text", { x: 20, y: 100, font: "12px sans-serif", "font-weight": "700", fill: "#166534" }, svg).textContent = "Sợi myelin (100 m/s)";
+  el("line", { x1: 20, y1: 120, x2: 540, y2: 120, class: "axon" }, svg);
+  // 8 myelin sheaths along axon
+  for (let i = 0; i < 8; i++) {
+    el("ellipse", { cx: 50 + i * 65, cy: 120, rx: 25, ry: 10, class: "myelin" }, svg);
+  }
+  // small Ranvier markers
+  for (let i = 0; i < 7; i++) {
+    el("circle", { cx: 50 + i * 65 + 32, cy: 120, r: 3, fill: "#dc2626" }, svg);
+  }
+  // Bars at bottom for time
+  // Bar bare
+  const maxBarW = 480;
+  const barTradW = Math.min(maxBarW, (tTrad / 1000) * maxBarW); // scaled to 1000 ms
+  const barMyelW = Math.max(2, (tMyel / 1000) * maxBarW);
+  el("rect", { x: 20, y: 160, width: barTradW, height: 20, class: "bar-trad", rx: 3 }, svg);
+  el("text", { x: 22 + barTradW + 4, y: 175, font: "12px sans-serif", "font-weight": "700", fill: "#991b1b" }, svg).textContent = tTrad + " ms";
+  el("rect", { x: 20, y: 190, width: barMyelW, height: 20, class: "bar-myel", rx: 3 }, svg);
+  el("text", { x: 22 + barMyelW + 4, y: 205, font: "12px sans-serif", "font-weight": "700", fill: "#166534" }, svg).textContent = Math.max(tMyel, 1) + " ms";
+  // Hint
+  let hint;
+  if (len_cm >= 80) hint = `Quãng đường ~tủy sống xuống ngón chân (${len_cm} cm). Phản xạ vận động cần <100 ms — chỉ sợi myelin đạt được.`;
+  else if (len_cm >= 40) hint = `Quãng đường tay → não (${len_cm} cm). Sờ chạm dùng sợi myelin (đến não <10 ms); đau âm ỉ dùng sợi C trần (đến não vài trăm ms).`;
+  else hint = `Quãng đường ngắn (${len_cm} cm). Khoảng cách càng dài, lợi thế myelin càng lớn về tuyệt đối.`;
+  document.getElementById("speedHint").textContent = hint;
+}
+document.getElementById("axonLen").oninput = renderSpeed;
+
+/* ====================================================================
+   Init all
+   ==================================================================== */
+renderAP();
+renderStim();
+renderSyn();
+renderSpeed();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

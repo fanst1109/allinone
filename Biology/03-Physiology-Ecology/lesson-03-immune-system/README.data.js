@@ -1,4 +1,7 @@
-# Lesson 03 — Hệ miễn dịch
+// AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
+// Source: Biology/03-Physiology-Ecology/lesson-03-immune-system/README.md
+// Chạy lại: go run tools/build-readme-data.go
+window.README_MD = `# Lesson 03 — Hệ miễn dịch
 
 ## Mục tiêu học tập
 
@@ -523,7 +526,7 @@ A: Tạng người khác có MHC khác → hệ miễn dịch người nhận co
 - **Liên kết các bài đã học**:
   - [Lesson 01 — Phân tử sinh học](../../01-Molecules-Cells/lesson-01-biomolecules/) §4 (protein, 4 bậc cấu trúc) — nền tảng để hiểu kháng thể.
   - [Lesson 02 — Tuần hoàn & hô hấp](../lesson-02-circulation-respiration/) — bạch cầu lưu thông qua máu; viêm tăng tính thấm thành mạch.
-- **Liên kết Chemistry**: pH dạ dày, lysozyme cắt liên kết β-1,4 glycosidic — quay lại [`Chemistry/02-Reactions-Thermo/lesson-08-biochem-preview`](../../../Chemistry/02-Reactions-Thermo/lesson-08-biochem-preview/) nếu cần.
+- **Liên kết Chemistry**: pH dạ dày, lysozyme cắt liên kết β-1,4 glycosidic — quay lại [\`Chemistry/02-Reactions-Thermo/lesson-08-biochem-preview\`](../../../Chemistry/02-Reactions-Thermo/lesson-08-biochem-preview/) nếu cần.
 - **Đọc thêm**: [visualization.html](./visualization.html) — bộ công cụ tương tác cho 4 chủ điểm chính của bài.
 
 ---
@@ -538,3 +541,4 @@ A: Tạng người khác có MHC khác → hệ miễn dịch người nhận co
 6. **Trục trặc miễn dịch**: tự miễn (đánh nhầm self), dị ứng (IgE quá mức → histamine), AIDS (HIV phá CD4⁺ → tê liệt thích ứng).
 
 **Tiếp theo**: [Lesson 04 — Nội tiết & nội môi](../lesson-04-endocrine-homeostasis/)
+`;

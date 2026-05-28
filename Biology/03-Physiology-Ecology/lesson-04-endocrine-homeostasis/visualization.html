@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Nội tiết & nội môi</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #14532d; }
+  h2 {
+    color: #166534; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #bbf7d0;
+  }
+  h3 { color: #15803d; margin-top: 20px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 11px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 90px; max-width: 100%;
+  }
+  input[type="range"] { flex: 1; min-width: 0; }
+  button {
+    background: #059669; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #047857; }
+  button.muted { background: #a0aec0; }
+  button.muted:hover { background: #718096; }
+  .pill {
+    background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;
+  }
+  .pill.active { background: #059669; color: white; }
+  .stat {
+    display: inline-block; background: #d1fae5;
+    padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #047857; }
+  .stat.warn { background: #fee2e2; }
+  .stat.warn strong { color: #b91c1c; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; }
+  .group-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+  svg { display: block; margin: 8px auto; max-width: 100%; height: auto; }
+  .info-grid { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 14px; }
+  .info-grid div { padding: 6px 10px; background: #f0fdf4; border-radius: 6px; }
+  .info-grid strong { color: #166534; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 8px; }
+  th, td { border: 1px solid #d1d5db; padding: 7px 10px; text-align: left; }
+  th { background: #ecfdf5; color: #065f46; }
+
+  .legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 13px; margin: 6px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { display: inline-block; width: 14px; height: 14px; border-radius: 3px; }
+
+  .glucose-line { stroke: #059669; stroke-width: 2.5; fill: none; }
+  .insulin-line { stroke: #2563eb; stroke-width: 2; fill: none; stroke-dasharray: 4 3; }
+  .glucagon-line { stroke: #ea580c; stroke-width: 2; fill: none; stroke-dasharray: 4 3; }
+  .setpoint-line { stroke: #9ca3af; stroke-width: 1; stroke-dasharray: 2 4; }
+  .danger-line { stroke: #ef4444; stroke-width: 1; stroke-dasharray: 2 4; }
+  .axis-text { font: 11px sans-serif; fill: #6b7280; }
+  .axis { stroke: #9ca3af; stroke-width: 1; }
+
+  .node {
+    fill: #d1fae5; stroke: #047857; stroke-width: 2;
+  }
+  .node.active { fill: #34d399; }
+  .node-text {
+    font: 13px sans-serif; fill: #064e3b; font-weight: 700;
+    text-anchor: middle;
+  }
+  .arrow { stroke: #047857; stroke-width: 2; fill: none; }
+  .arrow.dim { stroke: #cbd5e0; }
+
+  .anim-marker {
+    fill: #ef4444;
+  }
+
+  details summary { cursor: pointer; font-weight: 600; color: #166534; }
+  details[open] summary { margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Biology · Tầng 3</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-immune-system/visualization.html">← L3: Hệ miễn dịch</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Nội tiết &amp; nội môi</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-plant-physiology/visualization.html">L5: Sinh lý thực vật →</a>
+</nav>
+
+<h1>Lesson 04 — Nội tiết & nội môi</h1>
+<p>Bốn công cụ tương tác: mô phỏng đường huyết sau bữa ăn (insulin/glucagon), khám phá vòng phản hồi âm cho 3 đại lượng nội môi, duyệt hormone & cơ quan đích, và so sánh tiểu đường type 1/type 2 với người bình thường.</p>
+
+<h2>1. Máy mô phỏng đường huyết — bữa ăn & insulin / glucagon</h2>
+<div class="card">
+  <p>Kéo các thanh để thay đổi lượng carbohydrate trong bữa ăn và mức độ vận động. Đồ thị hiển thị đường huyết (xanh lá), tiết insulin (xanh dương), tiết glucagon (cam) theo thời gian. Vùng <strong>70–100 mg/dL</strong> là khoảng bình thường lúc đói.</p>
+  <div class="row">
+    <label>Carb bữa ăn:</label>
+    <input type="range" id="mealSlider" min="0" max="120" value="60" step="10">
+    <span class="stat">= <strong id="mealVal">60</strong> g</span>
+  </div>
+  <div class="row">
+    <label>Vận động (sau bữa ăn):</label>
+    <input type="range" id="exerciseSlider" min="0" max="100" value="20" step="10">
+    <span class="stat"><strong id="exerciseVal">20</strong>% cường độ</span>
+  </div>
+  <svg id="glucoseSvg" width="520" height="280" viewBox="0 0 520 280" role="img" aria-label="Đường huyết theo thời gian"></svg>
+  <div class="legend">
+    <span><i style="background:#059669"></i> Đường huyết (mg/dL)</span>
+    <span><i style="background:#2563eb"></i> Insulin (tương đối)</span>
+    <span><i style="background:#ea580c"></i> Glucagon (tương đối)</span>
+    <span><i style="background:#9ca3af; opacity:0.6"></i> Điểm đặt 70–100</span>
+  </div>
+  <div style="margin-top:6px">
+    <span class="stat">Đỉnh đường huyết: <strong id="peakVal">—</strong> mg/dL</span>
+    <span class="stat">Lúc T=120: <strong id="t120Val">—</strong> mg/dL</span>
+    <span class="stat" id="diagStat">Đánh giá: <strong id="diagVal">—</strong></span>
+  </div>
+  <div class="hint" id="glucoseHint"></div>
+</div>
+
+<h2>2. Vòng phản hồi âm — chọn đại lượng để mô phỏng</h2>
+<div class="card">
+  <div class="group-btns" id="loopBtns"></div>
+  <svg id="loopSvg" width="520" height="320" viewBox="0 0 520 320" role="img" aria-label="Vòng phản hồi âm"></svg>
+  <div class="row" style="margin-top:8px">
+    <button id="disturb-up">↑ Đẩy lệch trên</button>
+    <button id="disturb-down">↓ Đẩy lệch dưới</button>
+    <button id="reset-loop" class="muted">↺ Reset về điểm đặt</button>
+  </div>
+  <div style="margin-top:6px">
+    <span class="stat">Giá trị hiện tại: <strong id="loopCurrent">—</strong></span>
+    <span class="stat">Điểm đặt: <strong id="loopSetpoint">—</strong></span>
+  </div>
+  <div class="info-grid" id="loopInfo"></div>
+  <div class="hint">Lệch khỏi điểm đặt → cảm biến → trung tâm → hiệu ứng → trở về điểm đặt. Bấm "↑" hoặc "↓" để gây nhiễu rồi xem hệ tự điều chỉnh.</div>
+</div>
+
+<h2>3. Hormone explorer — chọn hormone để xem hành trình</h2>
+<div class="card">
+  <div class="group-btns" id="hormoneBtns"></div>
+  <svg id="hormoneSvg" width="520" height="260" viewBox="0 0 520 260" role="img" aria-label="Hormone và cơ quan đích"></svg>
+  <div class="info-grid" id="hormoneInfo"></div>
+  <div class="hint">Mỗi hormone đi từ TUYẾN tiết (trái) → qua máu → tới CƠ QUAN ĐÍCH (phải) có receptor đặc hiệu để gây đáp ứng.</div>
+</div>
+
+<h2>4. So sánh: bình thường vs tiểu đường type 1 vs type 2</h2>
+<div class="card">
+  <p>Cùng một bữa ăn 75g glucose, đường huyết diễn biến khác nhau ở 3 trạng thái. Đường <strong>type 1</strong> (đỏ) "treo" cao vì không có insulin; <strong>type 2</strong> (cam) tăng cao và giảm chậm vì tế bào kháng insulin.</p>
+  <div class="row">
+    <label>Carb bữa ăn:</label>
+    <input type="range" id="cmpMeal" min="30" max="100" value="75" step="5">
+    <span class="stat">= <strong id="cmpMealVal">75</strong> g</span>
+  </div>
+  <svg id="compareSvg" width="520" height="280" viewBox="0 0 520 280" role="img" aria-label="So sánh đường huyết 3 trạng thái"></svg>
+  <div class="legend">
+    <span><i style="background:#059669"></i> Bình thường</span>
+    <span><i style="background:#ef4444"></i> Type 1 (thiếu insulin)</span>
+    <span><i style="background:#f97316"></i> Type 2 (kháng insulin)</span>
+    <span><i style="background:#9ca3af"></i> Ngưỡng &lt; 140 (2h)</span>
+  </div>
+  <div style="margin-top:6px">
+    <span class="stat">BT lúc 2h: <strong id="bt2h">—</strong> mg/dL</span>
+    <span class="stat warn">T1 lúc 2h: <strong id="t1h2">—</strong> mg/dL</span>
+    <span class="stat warn">T2 lúc 2h: <strong id="t2h2">—</strong> mg/dL</span>
+  </div>
+  <div class="hint" id="cmpHint"></div>
+</div>
+
+<h2>5. Bảng tổng hợp</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>Hệ điều phối</th><th>Tốc độ</th><th>Phạm vi</th><th>Ví dụ</th></tr></thead>
+    <tbody>
+      <tr><td>Thần kinh</td><td>ms</td><td>Cục bộ, 1 đích</td><td>Rút tay khỏi lửa</td></tr>
+      <tr><td>Nội tiết</td><td>Giây–ngày</td><td>Toàn thân qua máu</td><td>Tăng trưởng dậy thì</td></tr>
+    </tbody>
+  </table>
+  <p style="margin-top:12px; font-size: 13px; color:#64748b">Hai hệ phối hợp ở các tình huống "fight or flight" — thần kinh giao cảm + adrenaline từ tuyến thượng thận tủy.</p>
+</div>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+
+// ============ Section 1: Glucose simulator ============
+const mealSlider = document.getElementById("mealSlider");
+const exerciseSlider = document.getElementById("exerciseSlider");
+
+function simulateGlucose(carbG, exercisePct) {
+  // Returns array of {t, glucose, insulin, glucagon} for t = 0..180 in 10-min steps
+  const data = [];
+  const baseline = 90;
+  const peakBoost = carbG * 0.9; // 60g -> peak boost ~54
+  const peakTime = 30 + carbG * 0.2; // higher meal -> peak a bit later
+  const insulinResponse = 1 + carbG * 0.025; // larger meal -> more insulin
+  const exerciseFactor = 1 + exercisePct / 100; // exercise speeds clearance
+  for (let t = 0; t <= 180; t += 5) {
+    // Glucose curve: baseline + bell rise + decay
+    const rise = peakBoost * Math.exp(-Math.pow((t - peakTime) / 45, 2));
+    let glucose = baseline + rise - exercisePct * 0.05 * Math.max(0, t - 30) / 30;
+    glucose = Math.max(65, glucose);
+    // Insulin: lagging glucose by ~5 min
+    const insulin = 0.3 + insulinResponse * Math.exp(-Math.pow((t - peakTime - 5) / 50, 2));
+    // Glucagon: rises when glucose low, falls when high
+    const glucagon = 0.5 + 0.5 * Math.max(0, (85 - glucose) / 30);
+    data.push({ t, glucose, insulin, glucagon });
+  }
+  return data;
+}
+
+function drawGlucoseChart() {
+  const carb = +mealSlider.value;
+  const ex = +exerciseSlider.value;
+  document.getElementById("mealVal").textContent = carb;
+  document.getElementById("exerciseVal").textContent = ex;
+  const data = simulateGlucose(carb, ex);
+  const svg = document.getElementById("glucoseSvg"); clear(svg);
+
+  // Axes
+  const W = 520, H = 280;
+  const ml = 50, mr = 20, mt = 20, mb = 40;
+  const innerW = W - ml - mr, innerH = H - mt - mb;
+  const xT = t => ml + (t / 180) * innerW;
+  const yG = g => mt + innerH - ((g - 50) / 200) * innerH; // glucose 50..250
+  const yH = h => mt + innerH - (h / 3.5) * innerH; // hormone 0..3.5
+
+  // Setpoint band 70-100
+  el("rect", { x: ml, y: yG(100), width: innerW, height: yG(70) - yG(100), fill: "#bbf7d0", opacity: 0.4 }, svg);
+  el("line", { x1: ml, y1: yG(70), x2: ml + innerW, y2: yG(70), class: "setpoint-line" }, svg);
+  el("line", { x1: ml, y1: yG(100), x2: ml + innerW, y2: yG(100), class: "setpoint-line" }, svg);
+  // Diabetes line 140
+  el("line", { x1: ml, y1: yG(140), x2: ml + innerW, y2: yG(140), class: "danger-line" }, svg);
+
+  // Axes lines
+  el("line", { x1: ml, y1: mt + innerH, x2: ml + innerW, y2: mt + innerH, class: "axis" }, svg);
+  el("line", { x1: ml, y1: mt, x2: ml, y2: mt + innerH, class: "axis" }, svg);
+
+  // X labels (time)
+  for (let t = 0; t <= 180; t += 30) {
+    const x = xT(t);
+    el("line", { x1: x, y1: mt + innerH, x2: x, y2: mt + innerH + 4, class: "axis" }, svg);
+    const lbl = el("text", { x: x, y: mt + innerH + 18, "text-anchor": "middle", class: "axis-text" }, svg);
+    lbl.textContent = t + "'";
+  }
+  // Y labels (glucose)
+  for (let g = 50; g <= 250; g += 50) {
+    const y = yG(g);
+    el("line", { x1: ml - 4, y1: y, x2: ml, y2: y, class: "axis" }, svg);
+    const lbl = el("text", { x: ml - 8, y: y + 4, "text-anchor": "end", class: "axis-text" }, svg);
+    lbl.textContent = g;
+  }
+  // Labels
+  const xlab = el("text", { x: ml + innerW / 2, y: H - 6, "text-anchor": "middle", class: "axis-text" }, svg);
+  xlab.textContent = "Thời gian (phút sau bữa ăn)";
+  const ylab = el("text", { x: 14, y: mt + innerH / 2, "text-anchor": "middle", class: "axis-text", transform: `rotate(-90 14 ${mt + innerH / 2})` }, svg);
+  ylab.textContent = "mg/dL";
+
+  // Setpoint label
+  const sp = el("text", { x: ml + 6, y: yG(70) + 12, class: "axis-text", fill: "#059669" }, svg);
+  sp.textContent = "70–100 (bình thường)";
+  const dg = el("text", { x: ml + innerW - 6, y: yG(140) - 4, "text-anchor": "end", class: "axis-text", fill: "#ef4444" }, svg);
+  dg.textContent = "140 (sau ăn)";
+
+  // Glucose line
+  let pathG = "M " + xT(data[0].t) + " " + yG(data[0].glucose);
+  data.forEach(d => { pathG += " L " + xT(d.t) + " " + yG(d.glucose); });
+  el("path", { d: pathG, class: "glucose-line" }, svg);
+
+  // Insulin (scale to right side, but reuse hormone scale)
+  let pathI = "M " + xT(data[0].t) + " " + yH(data[0].insulin);
+  data.forEach(d => { pathI += " L " + xT(d.t) + " " + yH(d.insulin); });
+  el("path", { d: pathI, class: "insulin-line" }, svg);
+  // Glucagon
+  let pathGG = "M " + xT(data[0].t) + " " + yH(data[0].glucagon);
+  data.forEach(d => { pathGG += " L " + xT(d.t) + " " + yH(d.glucagon); });
+  el("path", { d: pathGG, class: "glucagon-line" }, svg);
+
+  // Update stats
+  const peak = Math.round(Math.max(...data.map(d => d.glucose)));
+  const t120 = Math.round(data.find(d => d.t === 120).glucose);
+  document.getElementById("peakVal").textContent = peak;
+  document.getElementById("t120Val").textContent = t120;
+  let diag = "Bình thường";
+  if (t120 >= 200) diag = "⚠ Mức tiểu đường";
+  else if (t120 >= 140) diag = "Tiền tiểu đường";
+  document.getElementById("diagVal").textContent = diag;
+
+  let hint = `Carb ${carb}g + vận động ${ex}%: đỉnh ${peak} mg/dL ở ~${Math.round(30 + carb * 0.2)} phút. `;
+  if (ex >= 60) hint += "Vận động cao → cơ tiêu glucose → đường huyết phục hồi nhanh.";
+  else if (carb >= 100 && ex === 0) hint += "Bữa nhiều carb + không vận động → đường huyết kéo dài cao hơn.";
+  else hint += "Sau ~2 giờ insulin đưa đường huyết về gần điểm đặt.";
+  document.getElementById("glucoseHint").textContent = hint;
+}
+mealSlider.oninput = drawGlucoseChart;
+exerciseSlider.oninput = drawGlucoseChart;
+
+// ============ Section 2: Negative feedback loop ============
+const LOOPS = {
+  temp: {
+    name: "Thân nhiệt",
+    setpoint: 37, unit: "°C",
+    sensor: "Receptor nhiệt ở da + hypothalamus",
+    center: "Hypothalamus",
+    effector_up: "Đổ mồ hôi + giãn mạch dưới da → mất nhiệt",
+    effector_down: "Run cơ + co mạch + dựng lông → giữ nhiệt",
+    min: 35, max: 40, step: 0.3
+  },
+  glucose: {
+    name: "Đường huyết",
+    setpoint: 90, unit: "mg/dL",
+    sensor: "Tế bào β và α trong tụy đảo Langerhans",
+    center: "Tụy đảo (β cảm cao, α cảm thấp)",
+    effector_up: "Tế bào β tiết INSULIN → cơ/gan hấp thụ glucose",
+    effector_down: "Tế bào α tiết GLUCAGON → gan giải phóng glycogen",
+    min: 60, max: 180, step: 8
+  },
+  water: {
+    name: "Nước (ASTT máu)",
+    setpoint: 290, unit: "mOsm/kg",
+    sensor: "Osmoreceptor ở hypothalamus",
+    center: "Hypothalamus → tuyến yên sau",
+    effector_up: "Khát + tiết ADH (vasopressin) → thận giữ nước",
+    effector_down: "Giảm ADH → thận thải nước nhiều hơn",
+    min: 275, max: 310, step: 3
+  }
+};
+let currentLoop = "glucose";
+let currentVal = 90;
+let animFrame = null;
+
+function setupLoopBtns() {
+  const c = document.getElementById("loopBtns");
+  c.innerHTML = "";
+  Object.keys(LOOPS).forEach(k => {
+    const b = document.createElement("button");
+    b.className = "pill" + (k === currentLoop ? " active" : "");
+    b.textContent = LOOPS[k].name;
+    b.onclick = () => { currentLoop = k; currentVal = LOOPS[k].setpoint; setupLoopBtns(); renderLoop(); };
+    c.appendChild(b);
+  });
+}
+
+function renderLoop() {
+  const L = LOOPS[currentLoop];
+  document.getElementById("loopSetpoint").textContent = L.setpoint + " " + L.unit;
+  document.getElementById("loopCurrent").textContent = currentVal.toFixed(1) + " " + L.unit;
+  document.getElementById("loopInfo").innerHTML =
+    `<div><strong>Đại lượng:</strong> ${L.name}</div>` +
+    `<div><strong>Cảm biến:</strong> ${L.sensor}</div>` +
+    `<div><strong>Trung tâm điều khiển:</strong> ${L.center}</div>` +
+    `<div><strong>Hiệu ứng khi cao:</strong> ${L.effector_up}</div>` +
+    `<div><strong>Hiệu ứng khi thấp:</strong> ${L.effector_down}</div>`;
+
+  const svg = document.getElementById("loopSvg"); clear(svg);
+  // Draw 4-node loop
+  const nodes = [
+    { id: "var", x: 260, y: 50, label: "Đại lượng", sub: currentVal.toFixed(1) + " " + L.unit, w: 140 },
+    { id: "sensor", x: 80, y: 170, label: "Cảm biến", sub: L.sensor.split(" ").slice(0, 3).join(" "), w: 130 },
+    { id: "center", x: 260, y: 250, label: "Trung tâm", sub: L.center.split(" ").slice(0, 2).join(" "), w: 140 },
+    { id: "effect", x: 440, y: 170, label: "Hiệu ứng", sub: currentVal > L.setpoint ? "Giảm" : currentVal < L.setpoint ? "Tăng" : "Nghỉ", w: 130 }
+  ];
+  // arrows: var -> sensor -> center -> effect -> var
+  const arrows = [
+    [0, 1], [1, 2], [2, 3], [3, 0]
+  ];
+  arrows.forEach(([a, b]) => {
+    const A = nodes[a], B = nodes[b];
+    // Calculate edge points along ellipse
+    const dx = B.x - A.x, dy = B.y - A.y;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    const rA = 60, rB = 60;
+    const x1 = A.x + dx * rA / len;
+    const y1 = A.y + dy * rA / len;
+    const x2 = B.x - dx * rB / len;
+    const y2 = B.y - dy * rB / len;
+    const active = Math.abs(currentVal - L.setpoint) > L.step * 0.5;
+    el("line", { x1, y1, x2, y2, class: "arrow" + (active ? "" : " dim"), "marker-end": "url(#larrowhead)" }, svg);
+  });
+  // marker
+  const defs = el("defs", {}, svg);
+  const mk = el("marker", { id: "larrowhead", markerWidth: 10, markerHeight: 10, refX: 8, refY: 3, orient: "auto" }, defs);
+  el("path", { d: "M0,0 L8,3 L0,6 Z", fill: "#047857" }, mk);
+
+  nodes.forEach(n => {
+    const active = Math.abs(currentVal - L.setpoint) > L.step * 0.5;
+    el("ellipse", { cx: n.x, cy: n.y, rx: n.w / 2, ry: 30, class: "node" + (active ? " active" : "") }, svg);
+    const lbl = el("text", { x: n.x, y: n.y - 4, class: "node-text" }, svg);
+    lbl.textContent = n.label;
+    const sub = el("text", { x: n.x, y: n.y + 14, "text-anchor": "middle", font: "11px sans-serif", fill: "#065f46" }, svg);
+    sub.textContent = n.sub;
+  });
+  // Setpoint display
+  const sp = el("text", { x: 260, y: 20, "text-anchor": "middle", font: "13px sans-serif", fill: "#6b7280" }, svg);
+  sp.textContent = `Điểm đặt: ${L.setpoint} ${L.unit}`;
+
+  // status banner
+  const banner = el("text", { x: 260, y: 305, "text-anchor": "middle", font: "13px sans-serif", "font-weight": "700" }, svg);
+  if (Math.abs(currentVal - L.setpoint) < L.step * 0.3) {
+    banner.setAttribute("fill", "#047857");
+    banner.textContent = "✓ Tại điểm đặt — vòng nghỉ.";
+  } else if (currentVal > L.setpoint) {
+    banner.setAttribute("fill", "#b91c1c");
+    banner.textContent = "↑ Cao hơn điểm đặt → hiệu ứng kéo GIẢM";
+  } else {
+    banner.setAttribute("fill", "#b91c1c");
+    banner.textContent = "↓ Thấp hơn điểm đặt → hiệu ứng kéo TĂNG";
+  }
+}
+
+function disturbLoop(dir) {
+  if (animFrame) cancelAnimationFrame(animFrame);
+  const L = LOOPS[currentLoop];
+  currentVal += dir * L.step * 4;
+  currentVal = Math.max(L.min, Math.min(L.max, currentVal));
+  renderLoop();
+  // Animate return to setpoint
+  function step() {
+    const diff = L.setpoint - currentVal;
+    if (Math.abs(diff) < L.step * 0.2) {
+      currentVal = L.setpoint;
+      renderLoop();
+      animFrame = null;
+      return;
+    }
+    currentVal += diff * 0.08;
+    renderLoop();
+    animFrame = requestAnimationFrame(step);
+  }
+  setTimeout(() => { animFrame = requestAnimationFrame(step); }, 600);
+}
+document.getElementById("disturb-up").onclick = () => disturbLoop(1);
+document.getElementById("disturb-down").onclick = () => disturbLoop(-1);
+document.getElementById("reset-loop").onclick = () => {
+  if (animFrame) cancelAnimationFrame(animFrame);
+  currentVal = LOOPS[currentLoop].setpoint;
+  renderLoop();
+};
+
+// ============ Section 3: Hormone explorer ============
+const HORMONES = {
+  insulin: {
+    name: "Insulin", group: "Peptide",
+    gland: "Tụy đảo (tế bào β)",
+    targets: "Cơ, gan, mô mỡ",
+    receptor: "Màng tế bào (GLUT4)",
+    effect: "Cho glucose vào tế bào → giảm đường huyết",
+    speed: "Vài phút", color: "#2563eb",
+    trigger: "Đường huyết tăng (sau bữa ăn)"
+  },
+  glucagon: {
+    name: "Glucagon", group: "Peptide",
+    gland: "Tụy đảo (tế bào α)",
+    targets: "Gan (chủ yếu)",
+    receptor: "Màng tế bào",
+    effect: "Phân giải glycogen → tăng đường huyết",
+    speed: "Vài phút", color: "#ea580c",
+    trigger: "Đường huyết thấp (đói)"
+  },
+  adrenaline: {
+    name: "Adrenaline", group: "Amine",
+    gland: "Tuyến thượng thận (tủy)",
+    targets: "Tim, mạch máu, phế quản, gan",
+    receptor: "Màng tế bào (β-adrenergic)",
+    effect: "Fight-or-flight: tim đập nhanh, đồng tử giãn, giải phóng glucose",
+    speed: "Vài giây", color: "#dc2626",
+    trigger: "Stress, sợ hãi, nguy hiểm"
+  },
+  cortisol: {
+    name: "Cortisol", group: "Steroid",
+    gland: "Tuyến thượng thận (vỏ)",
+    targets: "Hầu hết tế bào (gan, cơ, miễn dịch)",
+    receptor: "Trong tế bào (nhân)",
+    effect: "Bật gen tạo glucose, ức chế miễn dịch, chống stress dài hạn",
+    speed: "Vài giờ", color: "#a16207",
+    trigger: "Stress kéo dài (qua trục HPA)"
+  },
+  thyroxine: {
+    name: "Thyroxine (T4)", group: "Amine (giống steroid)",
+    gland: "Tuyến giáp",
+    targets: "Hầu hết tế bào cơ thể",
+    receptor: "Trong tế bào (nhân)",
+    effect: "Tăng chuyển hóa cơ bản, sản nhiệt",
+    speed: "Vài ngày", color: "#7c3aed",
+    trigger: "TSH từ tuyến yên (trục HPT)"
+  }
+};
+
+let currentHormone = "insulin";
+function setupHormoneBtns() {
+  const c = document.getElementById("hormoneBtns");
+  c.innerHTML = "";
+  Object.keys(HORMONES).forEach(k => {
+    const b = document.createElement("button");
+    b.className = "pill" + (k === currentHormone ? " active" : "");
+    b.textContent = HORMONES[k].name;
+    b.onclick = () => { currentHormone = k; setupHormoneBtns(); renderHormone(); };
+    c.appendChild(b);
+  });
+}
+
+function renderHormone() {
+  const H = HORMONES[currentHormone];
+  const svg = document.getElementById("hormoneSvg"); clear(svg);
+
+  // Gland (left)
+  el("ellipse", { cx: 100, cy: 130, rx: 60, ry: 40, fill: "#fee2e2", stroke: "#dc2626", "stroke-width": 2 }, svg);
+  const gT = el("text", { x: 100, y: 125, "text-anchor": "middle", font: "13px sans-serif", "font-weight": "700", fill: "#7f1d1d" }, svg);
+  gT.textContent = "TUYẾN";
+  const gT2 = el("text", { x: 100, y: 145, "text-anchor": "middle", font: "11px sans-serif", fill: "#7f1d1d" }, svg);
+  gT2.textContent = H.gland.length > 18 ? H.gland.slice(0, 16) + "…" : H.gland;
+
+  // Blood vessel (middle)
+  el("rect", { x: 170, y: 110, width: 180, height: 40, rx: 20, fill: "#fecaca", stroke: "#ef4444", "stroke-width": 1.5 }, svg);
+  const bT = el("text", { x: 260, y: 135, "text-anchor": "middle", font: "12px sans-serif", "font-weight": "700", fill: "#7f1d1d" }, svg);
+  bT.textContent = "MÁU";
+
+  // Hormone molecule traveling
+  el("circle", { cx: 200, cy: 130, r: 8, fill: H.color, stroke: "#1f2937", "stroke-width": 1.5 }, svg);
+  el("circle", { cx: 260, cy: 130, r: 8, fill: H.color, stroke: "#1f2937", "stroke-width": 1.5, opacity: 0.7 }, svg);
+  el("circle", { cx: 320, cy: 130, r: 8, fill: H.color, stroke: "#1f2937", "stroke-width": 1.5, opacity: 0.5 }, svg);
+  const hT = el("text", { x: 260, y: 100, "text-anchor": "middle", font: "11px sans-serif", "font-weight": "700", fill: H.color }, svg);
+  hT.textContent = H.name;
+
+  // Target cell (right)
+  el("rect", { x: 370, y: 80, width: 130, height: 100, rx: 12, fill: "#dcfce7", stroke: "#166534", "stroke-width": 2 }, svg);
+  // Receptor on membrane or inside
+  if (H.receptor.includes("Màng")) {
+    // membrane receptors
+    el("rect", { x: 365, y: 110, width: 10, height: 14, fill: H.color, stroke: "#1f2937" }, svg);
+    el("rect", { x: 365, y: 145, width: 10, height: 14, fill: H.color, stroke: "#1f2937" }, svg);
+    const rT = el("text", { x: 358, y: 105, "text-anchor": "end", font: "10px sans-serif", fill: "#374151" }, svg);
+    rT.textContent = "Receptor";
+  } else {
+    // intracellular receptor
+    el("circle", { cx: 435, cy: 130, r: 18, fill: "#86efac", stroke: "#166534", "stroke-width": 2 }, svg);
+    const rT = el("text", { x: 435, y: 134, "text-anchor": "middle", font: "10px sans-serif", "font-weight": "700", fill: "#14532d" }, svg);
+    rT.textContent = "Nhân";
+    el("rect", { x: 425, y: 122, width: 8, height: 11, fill: H.color }, svg);
+  }
+  const tT = el("text", { x: 435, y: 70, "text-anchor": "middle", font: "13px sans-serif", "font-weight": "700", fill: "#14532d" }, svg);
+  tT.textContent = "TẾ BÀO ĐÍCH";
+  const tT2 = el("text", { x: 435, y: 200, "text-anchor": "middle", font: "11px sans-serif", fill: "#14532d" }, svg);
+  tT2.textContent = H.targets.length > 22 ? H.targets.slice(0, 20) + "…" : H.targets;
+
+  // Arrow tuyến -> máu
+  el("line", { x1: 160, y1: 130, x2: 175, y2: 130, stroke: "#dc2626", "stroke-width": 2, "marker-end": "url(#harrow)" }, svg);
+  const defs = el("defs", {}, svg);
+  const mk = el("marker", { id: "harrow", markerWidth: 8, markerHeight: 8, refX: 6, refY: 3, orient: "auto" }, defs);
+  el("path", { d: "M0,0 L6,3 L0,6 Z", fill: "#dc2626" }, mk);
+
+  // Effect annotation
+  const fT = el("text", { x: 260, y: 230, "text-anchor": "middle", font: "12px sans-serif", "font-style": "italic", fill: "#166534" }, svg);
+  fT.textContent = "→ " + H.effect.split("→")[0].trim().slice(0, 40);
+
+  // Info
+  document.getElementById("hormoneInfo").innerHTML =
+    `<div><strong>Nhóm hóa học:</strong> ${H.group}</div>` +
+    `<div><strong>Tuyến tiết:</strong> ${H.gland}</div>` +
+    `<div><strong>Cơ quan đích:</strong> ${H.targets}</div>` +
+    `<div><strong>Vị trí receptor:</strong> ${H.receptor}</div>` +
+    `<div><strong>Tác động:</strong> ${H.effect}</div>` +
+    `<div><strong>Tốc độ tác động:</strong> ${H.speed}</div>` +
+    `<div><strong>Kích hoạt khi:</strong> ${H.trigger}</div>`;
+}
+
+// ============ Section 4: Compare normal vs T1 vs T2 ============
+const cmpMeal = document.getElementById("cmpMeal");
+
+function simulateCompare(carbG) {
+  // Returns 3 arrays: normal, type1, type2
+  const data = [];
+  for (let t = 0; t <= 180; t += 5) {
+    // Normal
+    const peakBoost = carbG * 0.85;
+    const peakTime = 30 + carbG * 0.15;
+    const normal = 90 + peakBoost * Math.exp(-Math.pow((t - peakTime) / 45, 2));
+    // Type 1: no insulin -> very high peak, slow decline (only renal clearance)
+    const t1Base = 145;
+    const t1Peak = carbG * 1.6;
+    const t1 = t1Base + t1Peak * (1 - Math.exp(-t / 60)) * Math.exp(-Math.max(0, t - 90) / 200);
+    // Type 2: insulin resistance -> high peak, slow decline
+    const t2Base = 115;
+    const t2Peak = carbG * 1.1;
+    const t2PeakTime = 50 + carbG * 0.2;
+    const t2 = t2Base + t2Peak * Math.exp(-Math.pow((t - t2PeakTime) / 70, 2));
+    data.push({ t, normal, t1, t2 });
+  }
+  return data;
+}
+
+function drawCompare() {
+  const carb = +cmpMeal.value;
+  document.getElementById("cmpMealVal").textContent = carb;
+  const data = simulateCompare(carb);
+  const svg = document.getElementById("compareSvg"); clear(svg);
+
+  const W = 520, H = 280;
+  const ml = 50, mr = 20, mt = 20, mb = 40;
+  const innerW = W - ml - mr, innerH = H - mt - mb;
+  const xT = t => ml + (t / 180) * innerW;
+  const yG = g => mt + innerH - ((g - 60) / 240) * innerH; // 60..300
+
+  // Background bands
+  el("rect", { x: ml, y: yG(100), width: innerW, height: yG(70) - yG(100), fill: "#bbf7d0", opacity: 0.4 }, svg);
+  el("line", { x1: ml, y1: yG(140), x2: ml + innerW, y2: yG(140), class: "danger-line" }, svg);
+
+  // Axes
+  el("line", { x1: ml, y1: mt + innerH, x2: ml + innerW, y2: mt + innerH, class: "axis" }, svg);
+  el("line", { x1: ml, y1: mt, x2: ml, y2: mt + innerH, class: "axis" }, svg);
+  for (let t = 0; t <= 180; t += 30) {
+    const x = xT(t);
+    const lbl = el("text", { x: x, y: mt + innerH + 18, "text-anchor": "middle", class: "axis-text" }, svg);
+    lbl.textContent = t + "'";
+  }
+  for (let g = 60; g <= 300; g += 60) {
+    const y = yG(g);
+    const lbl = el("text", { x: ml - 8, y: y + 4, "text-anchor": "end", class: "axis-text" }, svg);
+    lbl.textContent = g;
+  }
+  const xlab = el("text", { x: ml + innerW / 2, y: H - 6, "text-anchor": "middle", class: "axis-text" }, svg);
+  xlab.textContent = "Thời gian (phút sau bữa ăn)";
+  const ylab = el("text", { x: 14, y: mt + innerH / 2, "text-anchor": "middle", class: "axis-text", transform: `rotate(-90 14 ${mt + innerH / 2})` }, svg);
+  ylab.textContent = "mg/dL";
+
+  // 140 label
+  const dg = el("text", { x: ml + innerW - 6, y: yG(140) - 4, "text-anchor": "end", class: "axis-text", fill: "#ef4444" }, svg);
+  dg.textContent = "ngưỡng 140 (2h)";
+
+  // Draw 3 lines
+  function drawLine(field, color, dash) {
+    let p = "M " + xT(data[0].t) + " " + yG(data[0][field]);
+    data.forEach(d => { p += " L " + xT(d.t) + " " + yG(d[field]); });
+    el("path", { d: p, stroke: color, "stroke-width": 2.5, fill: "none", "stroke-dasharray": dash || "" }, svg);
+  }
+  drawLine("normal", "#059669");
+  drawLine("t1", "#ef4444");
+  drawLine("t2", "#f97316");
+
+  const d120 = data.find(x => x.t === 120);
+  document.getElementById("bt2h").textContent = Math.round(d120.normal);
+  document.getElementById("t1h2").textContent = Math.round(d120.t1);
+  document.getElementById("t2h2").textContent = Math.round(d120.t2);
+
+  document.getElementById("cmpHint").textContent =
+    `Cùng bữa ${carb}g carb. Sau 2 giờ: bình thường ${Math.round(d120.normal)} mg/dL (về gần điểm đặt); ` +
+    `Type 1 ${Math.round(d120.t1)} mg/dL (vẫn rất cao — không có insulin); ` +
+    `Type 2 ${Math.round(d120.t2)} mg/dL (giảm chậm — tế bào kháng insulin).`;
+}
+cmpMeal.oninput = drawCompare;
+
+// ============ Init ============
+setupLoopBtns();
+renderLoop();
+setupHormoneBtns();
+renderHormone();
+drawGlucoseChart();
+drawCompare();
+</script>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

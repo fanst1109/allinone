@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Sinh thái quần thể</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #14532d; }
+  h2 {
+    color: #166534; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #bbf7d0;
+  }
+  h3 { color: #15803d; margin-top: 20px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 11px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 90px; max-width: 100%;
+  }
+  input[type="range"] { flex: 1; min-width: 0; }
+  button {
+    background: #059669; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #047857; }
+  button.muted { background: #a0aec0; }
+  button.muted:hover { background: #718096; }
+  .pill {
+    background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;
+  }
+  .pill.active { background: #059669; color: white; }
+  .stat {
+    display: inline-block; background: #d1fae5;
+    padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #047857; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; }
+  .group-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+  svg { display: block; margin: 8px auto; max-width: 100%; height: auto; }
+  .info-grid { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 14px; }
+  .info-grid div { padding: 6px 10px; background: #f0fdf4; border-radius: 6px; }
+  .info-grid strong { color: #166534; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 8px; }
+  th, td { border: 1px solid #d1d5db; padding: 7px 10px; text-align: left; }
+  th { background: #ecfdf5; color: #065f46; }
+
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin: 6px 0; font-size: 13px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .sw { display: inline-block; width: 16px; height: 4px; border-radius: 2px; }
+  .strategy-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 480px) { .strategy-grid { grid-template-columns: 1fr; } }
+  .strategy-card {
+    border: 2px solid; border-radius: 8px; padding: 14px; background: white;
+  }
+  .strategy-card.r { border-color: #f59e0b; background: #fffbeb; }
+  .strategy-card.k { border-color: #2563eb; background: #eff6ff; }
+  .strategy-card h4 { margin: 0 0 8px; }
+  .strategy-card.r h4 { color: #92400e; }
+  .strategy-card.k h4 { color: #1e3a8a; }
+  .strategy-card ul { margin: 6px 0 0 18px; padding: 0; font-size: 13px; }
+  .strategy-card li { margin: 3px 0; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Biology · Tầng 3</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-plant-physiology/visualization.html">← L5: Sinh lý thực vật</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Sinh thái quần thể</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-ecosystems-energy-flow/visualization.html">L7: Hệ sinh thái →</a>
+</nav>
+
+<h1>Lesson 06 — Sinh thái quần thể</h1>
+<p>Bộ công cụ tương tác: so sánh tăng trưởng cấp số nhân (J) với logistic (S); khám phá vì sao tốc độ tăng cực đại ở N = K/2; so sánh chiến lược r vs K; mô phỏng dao động Lotka–Volterra giữa kẻ săn và con mồi.</p>
+
+<h2>1. So sánh tăng trưởng: cấp số nhân (J) vs logistic (S)</h2>
+<div class="card">
+  <p>Kéo các slider để thay đổi <code>r</code> (tốc độ tăng riêng), <code>N₀</code> (kích thước ban đầu) và <code>K</code> (sức chứa). Đường <strong style="color:#dc2626">đỏ</strong> = cấp số nhân; đường <strong style="color:#059669">xanh lá</strong> = logistic; đường ngang đứt nét = K.</p>
+  <div class="row">
+    <label>r =</label>
+    <input type="range" id="g_r" min="0.05" max="0.6" step="0.01" value="0.2">
+    <span class="stat">r = <strong id="g_rVal">0.20</strong>/đv tg</span>
+  </div>
+  <div class="row">
+    <label>N₀ =</label>
+    <input type="range" id="g_N0" min="5" max="200" step="1" value="20">
+    <span class="stat">N₀ = <strong id="g_N0Val">20</strong></span>
+  </div>
+  <div class="row">
+    <label>K =</label>
+    <input type="range" id="g_K" min="200" max="2000" step="50" value="1000">
+    <span class="stat">K = <strong id="g_KVal">1000</strong></span>
+  </div>
+  <svg id="growthSvg" width="520" height="320" viewBox="0 0 520 320" role="img" aria-label="Đồ thị tăng trưởng J và S"></svg>
+  <div class="legend">
+    <span><span class="sw" style="background:#dc2626"></span> Cấp số nhân (J): <code>N(t) = N₀·e^(r·t)</code></span>
+    <span><span class="sw" style="background:#059669"></span> Logistic (S): <code>dN/dt = r·N·(1 − N/K)</code></span>
+    <span><span class="sw" style="background:#9ca3af; border-top: 1px dashed #6b7280"></span> Sức chứa K</span>
+  </div>
+  <div class="hint" id="g_hint"></div>
+</div>
+
+<h2>2. Logistic: vì sao tốc độ tăng cực đại ở N = K/2?</h2>
+<div class="card">
+  <p>Cố định K, r. Kéo slider N để thấy <code>dN/dt = r·N·(1 − N/K)</code> như parabol có đỉnh ở N = K/2. Khi N > K → dN/dt âm → quần thể tự giảm về K.</p>
+  <div class="row">
+    <label>r =</label>
+    <input type="range" id="p_r" min="0.05" max="0.5" step="0.01" value="0.1">
+    <span class="stat">r = <strong id="p_rVal">0.10</strong></span>
+  </div>
+  <div class="row">
+    <label>K =</label>
+    <input type="range" id="p_K" min="200" max="2000" step="50" value="1000">
+    <span class="stat">K = <strong id="p_KVal">1000</strong></span>
+  </div>
+  <div class="row">
+    <label>N hiện tại =</label>
+    <input type="range" id="p_N" min="0" max="2200" step="10" value="200">
+    <span class="stat">N = <strong id="p_NVal">200</strong></span>
+  </div>
+  <svg id="parabolaSvg" width="520" height="280" viewBox="0 0 520 280" role="img" aria-label="Tốc độ tăng theo N"></svg>
+  <div style="margin-top:6px">
+    <span class="stat">dN/dt = <strong id="p_dndt">16.0</strong>/đv tg</span>
+    <span class="stat">dN/dt_max = rK/4 = <strong id="p_max">25.0</strong></span>
+    <span class="stat">Đạt max ở N = K/2 = <strong id="p_half">500</strong></span>
+  </div>
+  <div class="hint" id="p_hint"></div>
+</div>
+
+<h2>3. Chiến lược sinh sản: r vs K</h2>
+<div class="card">
+  <p>Hai cực đối lập — đẻ nhiều/đầu tư ít vs đẻ ít/đầu tư nhiều. Click một loài để xem nó nằm ở đâu trên phổ r–K.</p>
+  <div class="group-btns" id="speciesBtns"></div>
+  <div class="strategy-grid">
+    <div class="strategy-card r">
+      <h4>r-selection</h4>
+      <ul>
+        <li>Đẻ rất nhiều con (10²–10⁶ mỗi lứa)</li>
+        <li>Đầu tư mỗi con thấp, không chăm</li>
+        <li>Tuổi thọ ngắn, thành thục sớm</li>
+        <li>Kích thước nhỏ, tỉ lệ sống sót con non thấp</li>
+        <li>N dao động mạnh, môi trường biến động</li>
+      </ul>
+    </div>
+    <div class="strategy-card k">
+      <h4>K-selection</h4>
+      <ul>
+        <li>Đẻ ít con (1–10 mỗi lứa)</li>
+        <li>Chăm sóc kéo dài, đầu tư cao</li>
+        <li>Tuổi thọ dài, thành thục muộn</li>
+        <li>Kích thước lớn, tỉ lệ sống sót cao</li>
+        <li>N gần K, môi trường ổn định</li>
+      </ul>
+    </div>
+  </div>
+  <svg id="spectrumSvg" width="520" height="120" viewBox="0 0 520 120" role="img" aria-label="Phổ r–K"></svg>
+  <div class="info-grid" id="speciesInfo"></div>
+</div>
+
+<h2>4. Dao động Lotka–Volterra: linh miêu × thỏ</h2>
+<div class="card">
+  <p>Mô hình 2 phương trình ghép: <code>dH/dt = a·H − b·H·L</code>, <code>dL/dt = c·b·H·L − d·L</code>. Thỏ (H) tăng → linh miêu (L) có nhiều mồi tăng → ăn nhiều thỏ → thỏ giảm → linh miêu giảm theo. Chu kỳ tự nhiên ~10 năm.</p>
+  <div class="row">
+    <label>a (sinh thỏ) =</label>
+    <input type="range" id="lv_a" min="0.2" max="1.0" step="0.05" value="0.5">
+    <span class="stat">a = <strong id="lv_aVal">0.50</strong></span>
+  </div>
+  <div class="row">
+    <label>b (tốc độ ăn) =</label>
+    <input type="range" id="lv_b" min="0.005" max="0.04" step="0.005" value="0.02">
+    <span class="stat">b = <strong id="lv_bVal">0.020</strong></span>
+  </div>
+  <div class="row">
+    <label>d (tử linh miêu) =</label>
+    <input type="range" id="lv_d" min="0.1" max="0.6" step="0.05" value="0.3">
+    <span class="stat">d = <strong id="lv_dVal">0.30</strong></span>
+  </div>
+  <svg id="lvSvg" width="520" height="280" viewBox="0 0 520 280" role="img" aria-label="Dao động Lotka–Volterra"></svg>
+  <div class="legend">
+    <span><span class="sw" style="background:#10b981"></span> Thỏ (H)</span>
+    <span><span class="sw" style="background:#dc2626"></span> Linh miêu (L)</span>
+  </div>
+  <div style="margin-top:6px">
+    <span class="stat">H* = d/(c·b) = <strong id="lv_hstar">150</strong></span>
+    <span class="stat">L* = a/b = <strong id="lv_lstar">25</strong></span>
+  </div>
+  <div class="hint">Điểm cân bằng (H*, L*) là tâm của vòng xoáy. Quần thể không đứng yên tại đó mà xoay quanh.</div>
+</div>
+
+<h2>5. Bảng tóm tắt nhanh</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>Khái niệm</th><th>Công thức / Định nghĩa</th><th>Ý nghĩa</th></tr></thead>
+    <tbody>
+      <tr><td>Mật độ D</td><td>D = N/S</td><td>Số cá thể trên đơn vị diện tích</td></tr>
+      <tr><td>r tổng quát</td><td>r = (b − d) + (i − e)</td><td>Tốc độ tăng trưởng riêng</td></tr>
+      <tr><td>Cấp số nhân (J)</td><td>N(t) = N₀·e^(r·t)</td><td>Môi trường không giới hạn</td></tr>
+      <tr><td>Logistic (S)</td><td>dN/dt = r·N·(1 − N/K)</td><td>Môi trường có sức chứa K</td></tr>
+      <tr><td>dN/dt cực đại</td><td>tại N = K/2, bằng rK/4</td><td>Mức khai thác bền vững tối đa</td></tr>
+      <tr><td>Thời gian gấp đôi</td><td>t_double = ln 2 / r</td><td>Khi tăng cấp số nhân</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+
+// ===== Section 1: J vs S growth curves =====
+const g_r = document.getElementById("g_r");
+const g_N0 = document.getElementById("g_N0");
+const g_K = document.getElementById("g_K");
+
+function renderGrowth() {
+  const r = parseFloat(g_r.value);
+  const N0 = parseFloat(g_N0.value);
+  const K = parseFloat(g_K.value);
+  document.getElementById("g_rVal").textContent = r.toFixed(2);
+  document.getElementById("g_N0Val").textContent = N0;
+  document.getElementById("g_KVal").textContent = K;
+
+  const svg = document.getElementById("growthSvg"); clear(svg);
+  const W = 520, H = 320, padL = 50, padR = 20, padT = 20, padB = 40;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+
+  // Compute time range — pick tMax so exponential reaches ~3K
+  const tMax = Math.min(80, Math.log(3 * K / N0) / Math.max(0.05, r));
+  const yMax = K * 1.5;
+
+  // Axes
+  el("line", { x1: padL, y1: H - padB, x2: W - padR, y2: H - padB, stroke: "#374151", "stroke-width": 1 }, svg);
+  el("line", { x1: padL, y1: padT, x2: padL, y2: H - padB, stroke: "#374151", "stroke-width": 1 }, svg);
+
+  // K line (dashed)
+  const yK = (H - padB) - (K / yMax) * plotH;
+  el("line", { x1: padL, y1: yK, x2: W - padR, y2: yK, stroke: "#6b7280", "stroke-width": 1.5, "stroke-dasharray": "6,4" }, svg);
+  const tK = el("text", { x: W - padR - 4, y: yK - 4, "text-anchor": "end", font: "12px sans-serif", fill: "#374151" }, svg);
+  tK.textContent = "K = " + K;
+
+  // Axis labels
+  const xlab = el("text", { x: W / 2, y: H - 6, "text-anchor": "middle", font: "12px sans-serif", fill: "#374151" }, svg);
+  xlab.textContent = "Thời gian (đơn vị thời gian)";
+  const ylab = el("text", { x: 14, y: H / 2, "text-anchor": "middle", font: "12px sans-serif", fill: "#374151", transform: `rotate(-90 14 ${H/2})` }, svg);
+  ylab.textContent = "Kích thước quần thể N";
+
+  // ticks (y)
+  for (let i = 0; i <= 4; i++) {
+    const yv = yMax * i / 4;
+    const yp = (H - padB) - (yv / yMax) * plotH;
+    el("line", { x1: padL - 4, y1: yp, x2: padL, y2: yp, stroke: "#374151", "stroke-width": 1 }, svg);
+    const t = el("text", { x: padL - 6, y: yp + 4, "text-anchor": "end", font: "11px sans-serif", fill: "#374151" }, svg);
+    t.textContent = Math.round(yv);
+  }
+  // ticks (x)
+  for (let i = 0; i <= 4; i++) {
+    const tv = tMax * i / 4;
+    const xp = padL + (tv / tMax) * plotW;
+    el("line", { x1: xp, y1: H - padB, x2: xp, y2: H - padB + 4, stroke: "#374151", "stroke-width": 1 }, svg);
+    const t = el("text", { x: xp, y: H - padB + 16, "text-anchor": "middle", font: "11px sans-serif", fill: "#374151" }, svg);
+    t.textContent = tv.toFixed(1);
+  }
+
+  // Exponential curve (red)
+  let pathExp = "";
+  const steps = 200;
+  for (let i = 0; i <= steps; i++) {
+    const t = tMax * i / steps;
+    const N = N0 * Math.exp(r * t);
+    const x = padL + (t / tMax) * plotW;
+    const y = (H - padB) - Math.min(N, yMax) / yMax * plotH;
+    pathExp += (i === 0 ? "M" : "L") + " " + x.toFixed(1) + " " + y.toFixed(1) + " ";
+  }
+  el("path", { d: pathExp, fill: "none", stroke: "#dc2626", "stroke-width": 2.5 }, svg);
+
+  // Logistic curve (green) — numerical integration
+  let pathLog = "";
+  let N = N0;
+  const dt = tMax / steps;
+  for (let i = 0; i <= steps; i++) {
+    const t = tMax * i / steps;
+    const x = padL + (t / tMax) * plotW;
+    const y = (H - padB) - (N / yMax) * plotH;
+    pathLog += (i === 0 ? "M" : "L") + " " + x.toFixed(1) + " " + y.toFixed(1) + " ";
+    // Update N
+    const dN = r * N * (1 - N / K) * dt;
+    N += dN;
+  }
+  el("path", { d: pathLog, fill: "none", stroke: "#059669", "stroke-width": 2.5 }, svg);
+
+  // Hint
+  const tDouble = Math.log(2) / r;
+  document.getElementById("g_hint").textContent =
+    `Thời gian gấp đôi (cấp số nhân) = ln 2 / r ≈ ${tDouble.toFixed(2)} đv tg. ` +
+    `Đường J vọt lên không ngừng; đường S phẳng dần khi gần K = ${K}.`;
+}
+[g_r, g_N0, g_K].forEach(s => s.oninput = renderGrowth);
+
+// ===== Section 2: Parabola dN/dt vs N =====
+const p_r = document.getElementById("p_r");
+const p_K = document.getElementById("p_K");
+const p_N = document.getElementById("p_N");
+
+function renderParabola() {
+  const r = parseFloat(p_r.value);
+  const K = parseFloat(p_K.value);
+  let N = parseFloat(p_N.value);
+  // adjust slider max to 2.2 * K
+  p_N.max = Math.round(2.2 * K);
+  if (N > p_N.max) { N = p_N.max; p_N.value = N; }
+  document.getElementById("p_rVal").textContent = r.toFixed(2);
+  document.getElementById("p_KVal").textContent = K;
+  document.getElementById("p_NVal").textContent = N;
+  const dndt = r * N * (1 - N / K);
+  const dndtMax = r * K / 4;
+  document.getElementById("p_dndt").textContent = dndt.toFixed(2);
+  document.getElementById("p_max").textContent = dndtMax.toFixed(2);
+  document.getElementById("p_half").textContent = (K / 2).toFixed(0);
+
+  const svg = document.getElementById("parabolaSvg"); clear(svg);
+  const W = 520, H = 280, padL = 60, padR = 20, padT = 20, padB = 40;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+
+  const Nmax = 2.2 * K;
+  const yMin = -0.25 * dndtMax;  // a bit below 0 for visible negative region
+  const yMaxV = 1.2 * dndtMax;
+  const yRange = yMaxV - yMin;
+
+  // X axis at y=0
+  const y0 = (H - padB) - ((0 - yMin) / yRange) * plotH;
+  el("line", { x1: padL, y1: y0, x2: W - padR, y2: y0, stroke: "#374151", "stroke-width": 1 }, svg);
+  // Y axis
+  el("line", { x1: padL, y1: padT, x2: padL, y2: H - padB, stroke: "#374151", "stroke-width": 1 }, svg);
+
+  // Vertical line at N=K (boundary)
+  const xK = padL + (K / Nmax) * plotW;
+  el("line", { x1: xK, y1: padT, x2: xK, y2: H - padB, stroke: "#6b7280", "stroke-width": 1, "stroke-dasharray": "4,3" }, svg);
+  const tK = el("text", { x: xK, y: padT + 12, "text-anchor": "middle", font: "11px sans-serif", fill: "#374151" }, svg);
+  tK.textContent = "N=K";
+
+  // Vertical line at N=K/2 (max)
+  const xH = padL + (K / 2 / Nmax) * plotW;
+  el("line", { x1: xH, y1: padT, x2: xH, y2: H - padB, stroke: "#10b981", "stroke-width": 1.5, "stroke-dasharray": "4,3" }, svg);
+  const tH = el("text", { x: xH, y: padT + 12, "text-anchor": "middle", font: "11px sans-serif", fill: "#047857" }, svg);
+  tH.textContent = "N=K/2";
+
+  // Parabola
+  let path = "";
+  const steps = 200;
+  for (let i = 0; i <= steps; i++) {
+    const Nv = Nmax * i / steps;
+    const yv = r * Nv * (1 - Nv / K);
+    const x = padL + (Nv / Nmax) * plotW;
+    const y = (H - padB) - ((yv - yMin) / yRange) * plotH;
+    path += (i === 0 ? "M" : "L") + " " + x.toFixed(1) + " " + y.toFixed(1) + " ";
+  }
+  el("path", { d: path, fill: "none", stroke: "#059669", "stroke-width": 2.5 }, svg);
+
+  // Current N marker
+  const xCur = padL + (N / Nmax) * plotW;
+  const yCur = (H - padB) - ((dndt - yMin) / yRange) * plotH;
+  el("line", { x1: xCur, y1: padT, x2: xCur, y2: H - padB, stroke: "#dc2626", "stroke-width": 1.5, "stroke-dasharray": "3,2" }, svg);
+  el("circle", { cx: xCur, cy: yCur, r: 6, fill: "#dc2626", stroke: "white", "stroke-width": 2 }, svg);
+
+  // Axis labels & ticks
+  const xlab = el("text", { x: W / 2, y: H - 6, "text-anchor": "middle", font: "12px sans-serif", fill: "#374151" }, svg);
+  xlab.textContent = "Kích thước hiện tại N";
+  const ylab = el("text", { x: 18, y: H / 2, "text-anchor": "middle", font: "12px sans-serif", fill: "#374151", transform: `rotate(-90 18 ${H/2})` }, svg);
+  ylab.textContent = "dN/dt (tốc độ tăng)";
+
+  // y-ticks
+  for (let i = 0; i <= 3; i++) {
+    const yv = yMaxV * i / 3;
+    const yp = (H - padB) - ((yv - yMin) / yRange) * plotH;
+    el("line", { x1: padL - 4, y1: yp, x2: padL, y2: yp, stroke: "#374151", "stroke-width": 1 }, svg);
+    const t = el("text", { x: padL - 6, y: yp + 4, "text-anchor": "end", font: "11px sans-serif", fill: "#374151" }, svg);
+    t.textContent = yv.toFixed(0);
+  }
+  // x-ticks: 0, K/2, K, 2K
+  [0, K/2, K, 2*K].forEach(v => {
+    const xp = padL + (v / Nmax) * plotW;
+    el("line", { x1: xp, y1: H - padB, x2: xp, y2: H - padB + 4, stroke: "#374151", "stroke-width": 1 }, svg);
+    const t = el("text", { x: xp, y: H - padB + 16, "text-anchor": "middle", font: "11px sans-serif", fill: "#374151" }, svg);
+    t.textContent = v.toFixed(0);
+  });
+
+  // Hint
+  let note;
+  if (Math.abs(N - K/2) < K * 0.03) note = `N ≈ K/2 → tốc độ tăng đạt CỰC ĐẠI = rK/4 = ${dndtMax.toFixed(2)}.`;
+  else if (N > K) note = `N > K (quá tải) → dN/dt < 0 → quần thể GIẢM về K.`;
+  else if (N < K/2) note = `N < K/2 → tốc độ vẫn đang tăng; cực đại đạt khi N tiến tới K/2 = ${(K/2).toFixed(0)}.`;
+  else note = `K/2 < N < K → tốc độ đang giảm dần; sẽ về 0 khi N = K.`;
+  document.getElementById("p_hint").textContent =
+    `Tính: dN/dt = ${r.toFixed(2)} × ${N} × (1 − ${N}/${K}) = ${r.toFixed(2)} × ${N} × ${(1 - N/K).toFixed(3)} = ${dndt.toFixed(2)}. ${note}`;
+}
+[p_r, p_K, p_N].forEach(s => s.oninput = renderParabola);
+
+// ===== Section 3: r vs K spectrum =====
+const SPECIES = [
+  { id: "bact", name: "Vi khuẩn", pos: 0.02, kids: "vô số (phân đôi)", lifespan: "phút–giờ", invest: "không", ex: "E. coli phân đôi mỗi 20 phút" },
+  { id: "ins", name: "Ruồi giấm", pos: 0.10, kids: "~100 trứng/lứa", lifespan: "~30 ngày", invest: "không", ex: "không chăm trứng" },
+  { id: "salmon", name: "Cá hồi", pos: 0.22, kids: "vài nghìn trứng", lifespan: "3–5 năm", invest: "rất thấp", ex: "đẻ rồi chết, hầu hết trứng bị ăn" },
+  { id: "mouse", name: "Chuột", pos: 0.35, kids: "6–10 con/lứa", lifespan: "~2 năm", invest: "vài tuần", ex: "đẻ nhiều lứa/năm" },
+  { id: "rabbit", name: "Thỏ", pos: 0.45, kids: "4–8 con/lứa", lifespan: "5–8 năm", invest: "vài tuần", ex: "tăng dân số cực nhanh khi không có thiên địch" },
+  { id: "bird", name: "Chim sẻ", pos: 0.6, kids: "3–5 trứng/lứa", lifespan: "5–10 năm", invest: "tới khi con tự bay", ex: "cả bố và mẹ ấp + nuôi" },
+  { id: "human", name: "Người", pos: 0.85, kids: "1 con/lứa thường", lifespan: "~75 năm", invest: "18–25 năm", ex: "K-strategist cực đoan" },
+  { id: "elephant", name: "Voi", pos: 0.92, kids: "1 con/4–5 năm", lifespan: "~60 năm", invest: "5–10 năm", ex: "thai 22 tháng, ít con nhất trong các loài thú lớn" },
+  { id: "whale", name: "Cá voi xanh", pos: 0.97, kids: "1 con/2–3 năm", lifespan: "~80 năm", invest: "6–8 tháng nuôi", ex: "kích thước khổng lồ, sinh sản chậm" }
+];
+const sBtns = document.getElementById("speciesBtns");
+SPECIES.forEach(sp => {
+  const b = document.createElement("button");
+  b.className = "pill"; b.textContent = sp.name; b.dataset.id = sp.id;
+  b.onclick = () => showSpecies(sp.id);
+  sBtns.appendChild(b);
+});
+function showSpecies(id) {
+  document.querySelectorAll("#speciesBtns .pill").forEach(b => b.classList.toggle("active", b.dataset.id === id));
+  const sp = SPECIES.find(s => s.id === id);
+  // Spectrum bar
+  const svg = document.getElementById("spectrumSvg"); clear(svg);
+  const W = 520, H = 120;
+  // Gradient bar
+  const defs = el("defs", {}, svg);
+  const grad = el("linearGradient", { id: "rkgrad", x1: "0%", y1: "0%", x2: "100%", y2: "0%" }, defs);
+  el("stop", { offset: "0%", "stop-color": "#f59e0b" }, grad);
+  el("stop", { offset: "100%", "stop-color": "#2563eb" }, grad);
+  el("rect", { x: 40, y: 50, width: 440, height: 20, rx: 10, fill: "url(#rkgrad)" }, svg);
+  const t1 = el("text", { x: 40, y: 42, "text-anchor": "start", font: "13px sans-serif", fill: "#92400e", "font-weight": "700" }, svg);
+  t1.textContent = "← r-selection";
+  const t2 = el("text", { x: 480, y: 42, "text-anchor": "end", font: "13px sans-serif", fill: "#1e3a8a", "font-weight": "700" }, svg);
+  t2.textContent = "K-selection →";
+  // Marker
+  const xPos = 40 + sp.pos * 440;
+  el("circle", { cx: xPos, cy: 60, r: 10, fill: "white", stroke: "#dc2626", "stroke-width": 3 }, svg);
+  const lbl = el("text", { x: xPos, y: 92, "text-anchor": "middle", font: "13px sans-serif", fill: "#dc2626", "font-weight": "700" }, svg);
+  lbl.textContent = sp.name;
+  const sub = el("text", { x: xPos, y: 108, "text-anchor": "middle", font: "11px sans-serif", fill: "#6b7280" }, svg);
+  sub.textContent = sp.pos < 0.5 ? "thiên về r" : "thiên về K";
+
+  document.getElementById("speciesInfo").innerHTML =
+    `<div><strong>Số con/lứa:</strong> ${sp.kids}</div>` +
+    `<div><strong>Tuổi thọ:</strong> ${sp.lifespan}</div>` +
+    `<div><strong>Đầu tư chăm sóc:</strong> ${sp.invest}</div>` +
+    `<div><strong>Chú thích:</strong> ${sp.ex}</div>`;
+}
+
+// ===== Section 4: Lotka–Volterra =====
+const lv_a = document.getElementById("lv_a");
+const lv_b = document.getElementById("lv_b");
+const lv_d = document.getElementById("lv_d");
+const LV_C = 0.1;  // hiệu suất chuyển hóa
+
+function renderLV() {
+  const a = parseFloat(lv_a.value);
+  const b = parseFloat(lv_b.value);
+  const d = parseFloat(lv_d.value);
+  document.getElementById("lv_aVal").textContent = a.toFixed(2);
+  document.getElementById("lv_bVal").textContent = b.toFixed(3);
+  document.getElementById("lv_dVal").textContent = d.toFixed(2);
+  const Hstar = d / (LV_C * b);
+  const Lstar = a / b;
+  document.getElementById("lv_hstar").textContent = Hstar.toFixed(0);
+  document.getElementById("lv_lstar").textContent = Lstar.toFixed(0);
+
+  // Numerical integration (Euler)
+  const tMax = 50;
+  const steps = 2000;
+  const dt = tMax / steps;
+  let H = Hstar * 1.4;  // start above equilibrium
+  let L = Lstar * 1.2;
+  const Hs = [], Ls = [];
+  for (let i = 0; i <= steps; i++) {
+    Hs.push(H); Ls.push(L);
+    const dH = (a * H - b * H * L) * dt;
+    const dL = (LV_C * b * H * L - d * L) * dt;
+    H = Math.max(0, H + dH);
+    L = Math.max(0, L + dL);
+  }
+  const maxVal = Math.max(...Hs, ...Ls) * 1.1;
+
+  const svg = document.getElementById("lvSvg"); clear(svg);
+  const W = 520, H_svg = 280, padL = 50, padR = 20, padT = 20, padB = 40;
+  const plotW = W - padL - padR, plotH = H_svg - padT - padB;
+
+  // Axes
+  el("line", { x1: padL, y1: H_svg - padB, x2: W - padR, y2: H_svg - padB, stroke: "#374151", "stroke-width": 1 }, svg);
+  el("line", { x1: padL, y1: padT, x2: padL, y2: H_svg - padB, stroke: "#374151", "stroke-width": 1 }, svg);
+
+  // y-ticks
+  for (let i = 0; i <= 4; i++) {
+    const yv = maxVal * i / 4;
+    const yp = (H_svg - padB) - (yv / maxVal) * plotH;
+    el("line", { x1: padL - 4, y1: yp, x2: padL, y2: yp, stroke: "#374151", "stroke-width": 1 }, svg);
+    const t = el("text", { x: padL - 6, y: yp + 4, "text-anchor": "end", font: "11px sans-serif", fill: "#374151" }, svg);
+    t.textContent = yv.toFixed(0);
+  }
+  // x-ticks
+  for (let i = 0; i <= 5; i++) {
+    const tv = tMax * i / 5;
+    const xp = padL + (tv / tMax) * plotW;
+    el("line", { x1: xp, y1: H_svg - padB, x2: xp, y2: H_svg - padB + 4, stroke: "#374151", "stroke-width": 1 }, svg);
+    const t = el("text", { x: xp, y: H_svg - padB + 16, "text-anchor": "middle", font: "11px sans-serif", fill: "#374151" }, svg);
+    t.textContent = tv.toFixed(0);
+  }
+
+  // Hare curve
+  let pathH = "";
+  Hs.forEach((v, i) => {
+    const x = padL + (i / steps) * plotW;
+    const y = (H_svg - padB) - (v / maxVal) * plotH;
+    pathH += (i === 0 ? "M" : "L") + " " + x.toFixed(1) + " " + y.toFixed(1) + " ";
+  });
+  el("path", { d: pathH, fill: "none", stroke: "#10b981", "stroke-width": 2 }, svg);
+
+  // Lynx curve
+  let pathL = "";
+  Ls.forEach((v, i) => {
+    const x = padL + (i / steps) * plotW;
+    const y = (H_svg - padB) - (v / maxVal) * plotH;
+    pathL += (i === 0 ? "M" : "L") + " " + x.toFixed(1) + " " + y.toFixed(1) + " ";
+  });
+  el("path", { d: pathL, fill: "none", stroke: "#dc2626", "stroke-width": 2 }, svg);
+
+  // Axis labels
+  const xlab = el("text", { x: W / 2, y: H_svg - 6, "text-anchor": "middle", font: "12px sans-serif", fill: "#374151" }, svg);
+  xlab.textContent = "Thời gian (năm)";
+  const ylab = el("text", { x: 14, y: H_svg / 2, "text-anchor": "middle", font: "12px sans-serif", fill: "#374151", transform: `rotate(-90 14 ${H_svg/2})` }, svg);
+  ylab.textContent = "Kích thước quần thể";
+}
+[lv_a, lv_b, lv_d].forEach(s => s.oninput = renderLV);
+
+// ===== Init =====
+renderGrowth();
+renderParabola();
+showSpecies("rabbit");
+renderLV();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</main>
+</body>
+</html>

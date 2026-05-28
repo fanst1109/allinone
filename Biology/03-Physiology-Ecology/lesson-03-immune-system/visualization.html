@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Hệ miễn dịch</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #14532d; }
+  h2 {
+    color: #166534; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #bbf7d0;
+  }
+  h3 { color: #15803d; margin-top: 20px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 11px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 90px; max-width: 100%;
+  }
+  input[type="range"] { flex: 1; min-width: 0; }
+  button {
+    background: #059669; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #047857; }
+  button.muted { background: #a0aec0; }
+  button.muted:hover { background: #718096; }
+  .pill {
+    background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;
+  }
+  .pill.active { background: #059669; color: white; }
+  .stat {
+    display: inline-block; background: #d1fae5;
+    padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #047857; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; }
+  .group-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+  svg { display: block; margin: 8px auto; max-width: 100%; height: auto; }
+  .info-grid { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 14px; }
+  .info-grid div { padding: 6px 10px; background: #f0fdf4; border-radius: 6px; }
+  .info-grid strong { color: #166534; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 8px; }
+  th, td { border: 1px solid #d1d5db; padding: 7px 10px; text-align: left; }
+  th { background: #ecfdf5; color: #065f46; }
+
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 10px;
+    font-size: 12px; font-weight: 700; margin-right: 4px;
+  }
+  .badge-innate { background: #fee2e2; color: #b91c1c; }
+  .badge-adaptive { background: #dbeafe; color: #1d4ed8; }
+  .match-good { color: #047857; font-weight: 700; }
+  .match-bad { color: #b91c1c; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Biology · Tầng 3</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-circulation-respiration/visualization.html">← L2: Tuần hoàn &amp; hô hấp</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Hệ miễn dịch</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-endocrine-homeostasis/visualization.html">L4: Nội tiết &amp; nội môi →</a>
+</nav>
+
+<h1>Lesson 03 — Hệ miễn dịch</h1>
+<p>Bộ công cụ tương tác: so sánh 2 nhánh miễn dịch (bẩm sinh vs thích ứng), thử khóa–chìa kháng thể–kháng nguyên, vẽ đường cong đáp ứng sơ cấp/thứ cấp, và mô phỏng lịch trình vaccine.</p>
+
+<h2>1. Lát cắt miễn dịch — bẩm sinh vs thích ứng</h2>
+<div class="card">
+  <p>Chọn 1 nhánh để xem các tác nhân, cơ chế và đặc tính. Bẩm sinh nhanh và chung chung; thích ứng chậm hơn nhưng đặc hiệu và có trí nhớ.</p>
+  <div class="group-btns" id="branchBtns"></div>
+  <svg id="branchSvg" width="500" height="220" viewBox="0 0 500 220" role="img" aria-label="Sơ đồ thành phần nhánh miễn dịch"></svg>
+  <div class="info-grid" id="branchInfo"></div>
+</div>
+
+<h2>2. Khóa–chìa kháng thể × kháng nguyên</h2>
+<div class="card">
+  <p>Kháng thể IgG hình Y có 2 đầu vùng biến đổi gắn epitope. Kéo thanh để chỉnh "hình dạng" epitope của kháng nguyên — chỉ khi khớp với kháng thể (epitope = 50), phản ứng mới xảy ra.</p>
+  <div class="row">
+    <label>Hình dạng epitope:</label>
+    <input type="range" id="epitopeSlider" min="0" max="100" value="20">
+    <span class="stat">epitope = <strong id="epitopeVal">20</strong></span>
+  </div>
+  <svg id="abAgSvg" width="520" height="240" viewBox="0 0 520 240" role="img" aria-label="Kháng thể và kháng nguyên"></svg>
+  <div style="margin-top:6px">
+    <span class="stat">Độ khớp = <strong id="matchPct">30%</strong></span>
+    <span class="stat" id="matchVerdict">⚠ Không khớp — không gắn</span>
+  </div>
+  <div class="hint" id="abAgHint"></div>
+</div>
+
+<h2>3. Đáp ứng sơ cấp vs thứ cấp</h2>
+<div class="card">
+  <p>Đường cong nồng độ kháng thể theo thời gian. Bấm "Tiêm lần 1" → đáp ứng sơ cấp (chậm, thấp). Bấm "Tiêm lần 2" sau đó → đáp ứng thứ cấp (nhanh, cao gấp 10–100 lần).</p>
+  <div class="row">
+    <button id="dose1Btn">💉 Tiêm/nhiễm lần 1</button>
+    <button id="dose2Btn">💉 Tiêm/nhiễm lần 2</button>
+    <button id="resetCurveBtn" class="muted">↺ Reset</button>
+  </div>
+  <svg id="curveSvg" width="540" height="280" viewBox="0 0 540 280" role="img" aria-label="Đường cong đáp ứng kháng thể"></svg>
+  <div style="margin-top:6px">
+    <span class="stat">Đỉnh sơ cấp = <strong id="peak1">—</strong></span>
+    <span class="stat">Đỉnh thứ cấp = <strong id="peak2">—</strong></span>
+    <span class="stat">Tỉ lệ thứ cấp/sơ cấp = <strong id="ratioVal">—</strong></span>
+  </div>
+  <div class="hint" id="curveHint">Bấm "Tiêm lần 1" để bắt đầu mô phỏng.</div>
+</div>
+
+<h2>4. Vaccine timeline — từ tiêm tới gặp mầm bệnh thật</h2>
+<div class="card">
+  <p>Mô phỏng dòng thời gian: ngày 0 tiêm vaccine → đáp ứng sơ cấp → tế bào nhớ ra đời → ngày X gặp mầm bệnh thật → đáp ứng thứ cấp dập nhanh. Bấm "Bước tiếp" để di chuyển từng giai đoạn.</p>
+  <div class="row">
+    <button id="stepBtn">▶ Bước tiếp</button>
+    <button id="vacResetBtn" class="muted">↺ Reset</button>
+    <span class="stat">Giai đoạn = <strong id="vacStage">0/5</strong></span>
+  </div>
+  <svg id="vacSvg" width="540" height="220" viewBox="0 0 540 220" role="img" aria-label="Dòng thời gian vaccine"></svg>
+  <div class="info-grid" id="vacInfo"></div>
+</div>
+
+<h2>5. Bảng tổng hợp 2 nhánh</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>Tiêu chí</th><th>Bẩm sinh (innate)</th><th>Thích ứng (adaptive)</th></tr></thead>
+    <tbody>
+      <tr><td>Tốc độ</td><td>Phút–giờ</td><td>5–10 ngày (lần đầu)</td></tr>
+      <tr><td>Đặc hiệu?</td><td>Không</td><td>Có (1 kháng thể ↔ 1 epitope)</td></tr>
+      <tr><td>Trí nhớ?</td><td>Không</td><td><strong>Có</strong></td></tr>
+      <tr><td>Tác nhân</td><td>da, thực bào, NK, bổ thể, viêm, sốt</td><td>tế bào B → kháng thể; tế bào T (CD4⁺, CD8⁺)</td></tr>
+      <tr><td>Tiến hóa</td><td>Mọi động vật</td><td>Động vật có xương sống</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+
+// ===== Section 1: Branch explorer =====
+const BRANCHES = {
+  innate: {
+    name: "Bẩm sinh (Innate)",
+    color: "#ef4444", soft: "#fee2e2",
+    speed: "Phút–giờ", specific: "Không", memory: "Không",
+    parts: [
+      { x: 70, y: 60, label: "Da", desc: "Hàng rào vật lý" },
+      { x: 160, y: 60, label: "Lysozyme", desc: "Cắt vách vi khuẩn" },
+      { x: 260, y: 60, label: "Macrophage", desc: "Thực bào ăn mầm bệnh" },
+      { x: 380, y: 60, label: "Neutrophil", desc: "Bạch cầu cảm tử" },
+      { x: 90, y: 150, label: "NK cell", desc: "Giết tế bào nhiễm/ung thư" },
+      { x: 200, y: 150, label: "Complement", desc: "Đục lỗ + opsonin" },
+      { x: 320, y: 150, label: "Interferon", desc: "Báo hàng xóm có virus" },
+      { x: 430, y: 150, label: "Viêm/Sốt", desc: "Tăng máu + nhiệt" }
+    ],
+    note: "Có sẵn từ khi sinh, phản ứng nhanh, không phân biệt loại địch, không ghi nhớ."
+  },
+  adaptive: {
+    name: "Thích ứng (Adaptive)",
+    color: "#3b82f6", soft: "#dbeafe",
+    speed: "5–10 ngày (lần đầu); 2–3 ngày (lần 2)", specific: "Có (1 kháng thể ↔ 1 epitope)", memory: "Có — lõi của vaccine",
+    parts: [
+      { x: 90, y: 60, label: "Tế bào B", desc: "Tiết kháng thể (Ig)" },
+      { x: 220, y: 60, label: "T helper (CD4⁺)", desc: "Nhạc trưởng, tiết cytokine" },
+      { x: 380, y: 60, label: "T gây độc (CD8⁺)", desc: "Giết tế bào nhiễm virus" },
+      { x: 90, y: 150, label: "Kháng thể IgG/M/A/E/D", desc: "Hình Y, gắn epitope" },
+      { x: 240, y: 150, label: "MHC class I/II", desc: "Trình diện kháng nguyên" },
+      { x: 400, y: 150, label: "Tế bào B/T nhớ", desc: "Sống lâu — đáp ứng thứ cấp" }
+    ],
+    note: "Phát triển dần khi gặp kháng nguyên; đặc hiệu cao; tạo tế bào nhớ → đáp ứng lần 2 nhanh & mạnh."
+  }
+};
+const branchBtns = document.getElementById("branchBtns");
+Object.keys(BRANCHES).forEach(k => {
+  const b = document.createElement("button");
+  b.className = "pill"; b.textContent = BRANCHES[k].name; b.dataset.b = k;
+  b.onclick = () => showBranch(k);
+  branchBtns.appendChild(b);
+});
+function showBranch(k) {
+  document.querySelectorAll("#branchBtns .pill").forEach(b => b.classList.toggle("active", b.dataset.b === k));
+  const B = BRANCHES[k];
+  const svg = document.getElementById("branchSvg"); clear(svg);
+  // background rectangle
+  el("rect", { x: 10, y: 10, width: 480, height: 200, rx: 10, fill: B.soft, "fill-opacity": 0.4 }, svg);
+  B.parts.forEach(p => {
+    el("circle", { cx: p.x, cy: p.y, r: 22, fill: B.color, stroke: "#1f2937", "stroke-width": 1.5, "fill-opacity": 0.85 }, svg);
+    const t = el("text", { x: p.x, y: p.y + 4, "text-anchor": "middle", font: "11px sans-serif", fill: "white", "font-weight": "700" }, svg);
+    // shorten label if too long
+    const lbl = p.label.length > 10 ? p.label.slice(0, 9) + "…" : p.label;
+    t.textContent = lbl;
+    const t2 = el("text", { x: p.x, y: p.y + 38, "text-anchor": "middle", font: "10px sans-serif", fill: "#374151" }, svg);
+    t2.textContent = p.desc;
+  });
+  document.getElementById("branchInfo").innerHTML =
+    `<div><strong>Tốc độ:</strong> ${B.speed}</div>` +
+    `<div><strong>Đặc hiệu:</strong> ${B.specific}</div>` +
+    `<div><strong>Trí nhớ:</strong> ${B.memory}</div>` +
+    `<div><strong>Đặc điểm:</strong> ${B.note}</div>`;
+}
+
+// ===== Section 2: Antibody-antigen key-lock =====
+const TARGET_EPITOPE = 50;
+const epitopeSlider = document.getElementById("epitopeSlider");
+function drawAntibody(svg) {
+  // Y-shape antibody centered around x=260, y=120
+  const cx = 260, cy = 130;
+  // heavy chains (Y arms going up-left and up-right)
+  el("line", { x1: cx, y1: cy, x2: cx - 60, y2: cy - 70, stroke: "#1e3a8a", "stroke-width": 12, "stroke-linecap": "round" }, svg);
+  el("line", { x1: cx, y1: cy, x2: cx + 60, y2: cy - 70, stroke: "#1e3a8a", "stroke-width": 12, "stroke-linecap": "round" }, svg);
+  // tail (constant region / Fc)
+  el("line", { x1: cx, y1: cy, x2: cx, y2: cy + 60, stroke: "#1e3a8a", "stroke-width": 12, "stroke-linecap": "round" }, svg);
+  // light chains overlay (lighter)
+  el("line", { x1: cx - 20, y1: cy - 25, x2: cx - 60, y2: cy - 70, stroke: "#60a5fa", "stroke-width": 6, "stroke-linecap": "round" }, svg);
+  el("line", { x1: cx + 20, y1: cy - 25, x2: cx + 60, y2: cy - 70, stroke: "#60a5fa", "stroke-width": 6, "stroke-linecap": "round" }, svg);
+  // binding sites (variable regions) — shape matches TARGET_EPITOPE (50)
+  return [{ x: cx - 60, y: cy - 70 }, { x: cx + 60, y: cy - 70 }];
+}
+function renderAbAg() {
+  const ep = +epitopeSlider.value;
+  document.getElementById("epitopeVal").textContent = ep;
+  const diff = Math.abs(ep - TARGET_EPITOPE);
+  const matchPct = Math.max(0, 100 - diff * 2); // diff 0 → 100%; diff 50 → 0%
+  document.getElementById("matchPct").textContent = matchPct + "%";
+  const verdict = document.getElementById("matchVerdict");
+  if (matchPct >= 90) {
+    verdict.innerHTML = "<span class='match-good'>✓ Khớp hoàn hảo — kháng thể gắn 2 epitope, kích hoạt phản ứng miễn dịch</span>";
+  } else if (matchPct >= 60) {
+    verdict.innerHTML = "<span style='color:#d97706;font-weight:700'>~ Khớp một phần — ái lực thấp, có thể nhận biết yếu</span>";
+  } else {
+    verdict.innerHTML = "<span class='match-bad'>✗ Không khớp — bỏ qua, đây không phải epitope đặc hiệu</span>";
+  }
+  const svg = document.getElementById("abAgSvg"); clear(svg);
+  // background label
+  const t0 = el("text", { x: 260, y: 20, "text-anchor": "middle", font: "12px sans-serif", fill: "#64748b" }, svg);
+  t0.textContent = "Kháng thể IgG (hình Y) — vùng biến đổi đặc hiệu cho epitope = " + TARGET_EPITOPE;
+  const sites = drawAntibody(svg);
+  // antigen with epitope shape: rectangle with a "shape" indicator
+  // Position antigen above antibody binding sites
+  sites.forEach((s, i) => {
+    const agX = s.x, agY = s.y - 30;
+    // antigen body
+    const agColor = matchPct >= 90 ? "#10b981" : (matchPct >= 60 ? "#f59e0b" : "#ef4444");
+    el("rect", { x: agX - 25, y: agY - 30, width: 50, height: 25, rx: 4, fill: agColor, stroke: "#1f2937", "stroke-width": 1 }, svg);
+    // epitope "shape" as a small indicator
+    // Draw a wedge whose width depends on |ep - TARGET| match
+    const wedgeOffset = (ep - TARGET_EPITOPE) / 4; // -12.5 to +12.5
+    el("polygon", { points: `${agX - 6},${agY - 5} ${agX + 6 + wedgeOffset / 3},${agY - 5} ${agX + wedgeOffset},${agY + 5}`, fill: "#1f2937" }, svg);
+    // label
+    const lbl = el("text", { x: agX, y: agY - 35, "text-anchor": "middle", font: "11px sans-serif", fill: "#374151" }, svg);
+    lbl.textContent = i === 0 ? "kháng nguyên" : "kháng nguyên";
+    // binding indicator
+    if (matchPct >= 90) {
+      el("line", { x1: s.x, y1: s.y, x2: agX, y2: agY - 5, stroke: "#047857", "stroke-width": 3, "stroke-dasharray": "0" }, svg);
+    } else {
+      el("line", { x1: s.x, y1: s.y, x2: agX, y2: agY - 5, stroke: "#9ca3af", "stroke-width": 2, "stroke-dasharray": "4,3" }, svg);
+    }
+  });
+  // labels
+  const lF = el("text", { x: 260, y: 215, "text-anchor": "middle", font: "11px sans-serif", fill: "#64748b" }, svg);
+  lF.textContent = "Fc (vùng hằng định) — gắn vào thực bào / kích hoạt bổ thể";
+  document.getElementById("abAgHint").textContent =
+    `1 kháng thể IgG có 2 đầu vùng biến đổi → gắn 2 kháng nguyên cùng lúc khi khớp. Đây là nguyên lý "khóa–chìa": hình dạng quyết định đặc hiệu (xem Lesson 01 §4).`;
+}
+epitopeSlider.oninput = renderAbAg;
+
+// ===== Section 3: Primary vs secondary curve =====
+let dose1Day = null, dose2Day = null;
+function antibodyCurve(t, doseDay, isSecondary) {
+  if (doseDay === null || t < doseDay) return 0;
+  const dt = t - doseDay;
+  if (isSecondary) {
+    // Fast rise, high peak, slower decay
+    const peak = 100, peakDay = 3, decayK = 0.05;
+    if (dt < peakDay) return peak * (dt / peakDay);
+    return peak * Math.exp(-decayK * (dt - peakDay));
+  } else {
+    // Slow rise, low peak, faster decay
+    const peak = 8, peakDay = 10, decayK = 0.08;
+    if (dt < peakDay) return peak * (dt / peakDay);
+    return peak * Math.exp(-decayK * (dt - peakDay));
+  }
+}
+function renderCurve() {
+  const svg = document.getElementById("curveSvg"); clear(svg);
+  // axes — span 540×280 viewBox
+  const x0 = 50, x1 = 510, y0 = 240, y1 = 20;
+  el("line", { x1: x0, y1: y0, x2: x1, y2: y0, stroke: "#374151", "stroke-width": 1.5 }, svg);
+  el("line", { x1: x0, y1: y0, x2: x0, y2: y1, stroke: "#374151", "stroke-width": 1.5 }, svg);
+  const tMax = 60; // days
+  const xMap = t => x0 + (t / tMax) * (x1 - x0);
+  const yMax = 110;
+  const yMap = v => y0 - (v / yMax) * (y0 - y1);
+  // axis ticks
+  for (let t = 0; t <= tMax; t += 10) {
+    el("line", { x1: xMap(t), y1: y0, x2: xMap(t), y2: y0 + 4, stroke: "#374151" }, svg);
+    const tx = el("text", { x: xMap(t), y: y0 + 18, "text-anchor": "middle", font: "10px sans-serif", fill: "#374151" }, svg);
+    tx.textContent = t;
+  }
+  for (let v = 0; v <= 100; v += 25) {
+    el("line", { x1: x0 - 4, y1: yMap(v), x2: x0, y2: yMap(v), stroke: "#374151" }, svg);
+    const ty = el("text", { x: x0 - 8, y: yMap(v) + 3, "text-anchor": "end", font: "10px sans-serif", fill: "#374151" }, svg);
+    ty.textContent = v;
+  }
+  // labels
+  const xlbl = el("text", { x: (x0 + x1) / 2, y: y0 + 35, "text-anchor": "middle", font: "11px sans-serif", fill: "#374151" }, svg);
+  xlbl.textContent = "Thời gian (ngày)";
+  const ylbl = el("text", { x: 15, y: (y0 + y1) / 2, "text-anchor": "middle", font: "11px sans-serif", fill: "#374151", transform: `rotate(-90, 15, ${(y0 + y1) / 2})` }, svg);
+  ylbl.textContent = "Nồng độ kháng thể (đơn vị)";
+
+  // Plot curves
+  let peak1 = 0, peak2 = 0;
+  for (const [start, isSec, color] of [[dose1Day, false, "#3b82f6"], [dose2Day, true, "#ef4444"]]) {
+    if (start === null) continue;
+    let d = "";
+    for (let t = start; t <= tMax; t += 0.5) {
+      const v = antibodyCurve(t, start, isSec);
+      if (isSec) peak2 = Math.max(peak2, v); else peak1 = Math.max(peak1, v);
+      const px = xMap(t), py = yMap(v);
+      d += (d === "" ? "M" : "L") + ` ${px} ${py} `;
+    }
+    el("path", { d: d, fill: "none", stroke: color, "stroke-width": 3 }, svg);
+    // vertical dose marker
+    el("line", { x1: xMap(start), y1: y0, x2: xMap(start), y2: y1, stroke: color, "stroke-width": 1, "stroke-dasharray": "4,3", opacity: 0.5 }, svg);
+    const dl = el("text", { x: xMap(start), y: y1 - 4, "text-anchor": "middle", font: "10px sans-serif", fill: color, "font-weight": "700" }, svg);
+    dl.textContent = isSec ? "💉 lần 2" : "💉 lần 1";
+  }
+  document.getElementById("peak1").textContent = peak1 > 0 ? peak1.toFixed(1) + " đv" : "—";
+  document.getElementById("peak2").textContent = peak2 > 0 ? peak2.toFixed(1) + " đv" : "—";
+  document.getElementById("ratioVal").textContent = (peak1 > 0 && peak2 > 0) ? (peak2 / peak1).toFixed(1) + "×" : "—";
+  // legend
+  el("rect", { x: x1 - 130, y: y1 + 6, width: 12, height: 4, fill: "#3b82f6" }, svg);
+  const lg1 = el("text", { x: x1 - 114, y: y1 + 11, font: "11px sans-serif", fill: "#374151" }, svg);
+  lg1.textContent = "Sơ cấp";
+  el("rect", { x: x1 - 60, y: y1 + 6, width: 12, height: 4, fill: "#ef4444" }, svg);
+  const lg2 = el("text", { x: x1 - 44, y: y1 + 11, font: "11px sans-serif", fill: "#374151" }, svg);
+  lg2.textContent = "Thứ cấp";
+
+  // Hint
+  const hint = document.getElementById("curveHint");
+  if (dose1Day === null) hint.textContent = "Bấm 'Tiêm lần 1' để bắt đầu — sơ cấp đỉnh ~ngày 10, thấp.";
+  else if (dose2Day === null) hint.textContent = "Đáp ứng sơ cấp: chậm (đỉnh ~ngày 10), nồng độ thấp. Bấm 'Tiêm lần 2' để xem khác biệt.";
+  else hint.textContent = "Đáp ứng thứ cấp: đỉnh chỉ ~3 ngày sau tiêm, nồng độ gấp ~" + (peak1 > 0 ? (peak2 / peak1).toFixed(0) : "?") + " lần so sơ cấp — đây là sức mạnh của tế bào nhớ.";
+}
+document.getElementById("dose1Btn").onclick = () => { dose1Day = 0; dose2Day = null; renderCurve(); };
+document.getElementById("dose2Btn").onclick = () => { if (dose1Day === null) { dose1Day = 0; } dose2Day = 30; renderCurve(); };
+document.getElementById("resetCurveBtn").onclick = () => { dose1Day = null; dose2Day = null; renderCurve(); };
+
+// ===== Section 4: Vaccine timeline =====
+const VAC_STAGES = [
+  { label: "Trước tiêm", desc: "Cơ thể chưa có tế bào nhớ với mầm bệnh này. Nếu gặp thật → đáp ứng sơ cấp chậm, dễ bệnh." },
+  { label: "Ngày 0 — Tiêm vaccine", desc: "Đưa kháng nguyên (không gây bệnh) vào. Tế bào tua bắt và mang về hạch lympho." },
+  { label: "Ngày 5–14 — Đáp ứng sơ cấp", desc: "Tế bào B/T đặc hiệu được kích hoạt, nhân bản. Kháng thể đạt đỉnh thấp ~ngày 10–14. Hình thành tế bào nhớ." },
+  { label: "Tháng 2 — Trí nhớ ổn định", desc: "Plasma cell phần lớn chết. Tế bào B/T nhớ tồn tại lâu dài, sẵn sàng đáp ứng nhanh." },
+  { label: "Năm 1+ — Gặp mầm bệnh thật", desc: "Mầm bệnh xâm nhập. Tế bào nhớ kích hoạt cấp tốc → đáp ứng thứ cấp." },
+  { label: "Vài ngày sau — Dập tắt", desc: "Kháng thể IgG nồng độ cao (gấp 10–100 lần sơ cấp) trung hòa mầm bệnh trước khi gây bệnh. Người tiêm không bệnh." }
+];
+let vacStage = 0;
+function renderVac() {
+  const svg = document.getElementById("vacSvg"); clear(svg);
+  // timeline bar
+  const x0 = 30, x1 = 510, y = 110;
+  el("line", { x1: x0, y1: y, x2: x1, y2: y, stroke: "#9ca3af", "stroke-width": 2 }, svg);
+  const stages = VAC_STAGES.length;
+  for (let i = 0; i < stages; i++) {
+    const cx = x0 + ((x1 - x0) / (stages - 1)) * i;
+    const active = i === vacStage;
+    const passed = i < vacStage;
+    const color = active ? "#059669" : (passed ? "#10b981" : "#cbd5e0");
+    el("circle", { cx: cx, cy: y, r: active ? 14 : 9, fill: color, stroke: "#1f2937", "stroke-width": 1.5 }, svg);
+    const t = el("text", { x: cx, y: y + 4, "text-anchor": "middle", font: "10px sans-serif", fill: "white", "font-weight": "700" }, svg);
+    t.textContent = i;
+    const lblY = i % 2 === 0 ? y - 28 : y + 32;
+    const lbl = el("text", { x: cx, y: lblY, "text-anchor": "middle", font: "10px sans-serif", fill: active ? "#059669" : "#374151", "font-weight": active ? "700" : "400" }, svg);
+    // short labels
+    const shorts = ["Trước", "Tiêm", "Sơ cấp", "Nhớ", "Gặp thật", "Dập tắt"];
+    lbl.textContent = shorts[i];
+  }
+  // antibody mini-bar showing concentration at this stage
+  const conc = [0, 0, 8, 2, 2, 100][vacStage];
+  const barX = 60, barY = 180, barW = 460, barH = 16;
+  el("rect", { x: barX, y: barY, width: barW, height: barH, fill: "#e5e7eb", rx: 4 }, svg);
+  el("rect", { x: barX, y: barY, width: (conc / 100) * barW, height: barH, fill: "#10b981", rx: 4 }, svg);
+  const concLbl = el("text", { x: barX + barW / 2, y: barY - 4, "text-anchor": "middle", font: "11px sans-serif", fill: "#374151" }, svg);
+  concLbl.textContent = "Nồng độ kháng thể tương đối: " + conc + (vacStage === 5 ? " (đáp ứng thứ cấp — gấp ~50× sơ cấp)" : "");
+
+  document.getElementById("vacStage").textContent = vacStage + "/5";
+  const s = VAC_STAGES[vacStage];
+  document.getElementById("vacInfo").innerHTML =
+    `<div><strong>${s.label}</strong></div>` +
+    `<div>${s.desc}</div>`;
+}
+document.getElementById("stepBtn").onclick = () => { if (vacStage < VAC_STAGES.length - 1) { vacStage++; renderVac(); } };
+document.getElementById("vacResetBtn").onclick = () => { vacStage = 0; renderVac(); };
+
+// ===== Init =====
+showBranch("innate");
+renderAbAg();
+renderCurve();
+renderVac();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

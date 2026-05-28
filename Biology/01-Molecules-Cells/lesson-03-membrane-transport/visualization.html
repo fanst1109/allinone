@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Màng & vận chuyển</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #14532d; }
+  h2 {
+    color: #166534; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #bbf7d0;
+  }
+  h3 { color: #15803d; margin-top: 20px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 11px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 90px; max-width: 100%;
+  }
+  input[type="range"] { flex: 1; min-width: 0; }
+  button {
+    background: #059669; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #047857; }
+  button.muted { background: #a0aec0; }
+  button.muted:hover { background: #718096; }
+  .pill {
+    background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;
+  }
+  .pill.active { background: #059669; color: white; }
+  .stat {
+    display: inline-block; background: #d1fae5;
+    padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #047857; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; }
+  .group-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+  svg { display: block; margin: 8px auto; max-width: 100%; height: auto; }
+  .info-grid { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 14px; }
+  .info-grid div { padding: 6px 10px; background: #f0fdf4; border-radius: 6px; }
+  .info-grid strong { color: #166534; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 8px; }
+  th, td { border: 1px solid #d1d5db; padding: 7px 10px; text-align: left; }
+  th { background: #ecfdf5; color: #065f46; }
+
+  .tonicity-tag { font-weight: 700; }
+  .tag-hypo { color: #1d4ed8; }
+  .tag-iso { color: #047857; }
+  .tag-hyper { color: #b45309; }
+  .verdict {
+    margin-top: 8px; padding: 10px 12px; border-radius: 8px;
+    background: #f0fdf4; border-left: 4px solid #059669; font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Biology · Tầng 1</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-cell-structure/visualization.html">← L2: Cấu trúc tế bào</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Màng &amp; vận chuyển</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-enzymes-metabolism/visualization.html">L4: Enzyme &amp; chuyển hóa →</a>
+</nav>
+
+<h1>Lesson 03 — Màng & vận chuyển</h1>
+<p>Bộ công cụ tương tác: mô phỏng tính trương (tonicity) làm tế bào phồng/teo, chạy bơm Na⁺/K⁺ theo tỉ lệ 3:2 và đếm ion, phân loại kiểu vận chuyển cho từng phân tử, và xem khuếch tán phân tử từ nơi đặc sang loãng.</p>
+
+<h2>1. Mô phỏng tính trương (tonicity)</h2>
+<div class="card">
+  <p>Kéo thanh để đổi nồng độ chất tan <strong>bên ngoài</strong>; nội bào cố định 0.9% (chuẩn hồng cầu). Toggle loại tế bào. Viz vẽ tế bào phồng / bình thường / teo + mũi tên hướng nước.</p>
+  <div class="row">
+    <label>Loại tế bào:</label>
+    <button class="pill active" data-cell="animal">Động vật (hồng cầu)</button>
+    <button class="pill" data-cell="plant">Thực vật (có vách)</button>
+  </div>
+  <div class="row">
+    <label>Nồng độ ngoài (% chất tan):</label>
+    <input type="range" id="outSlider" min="0" max="4" value="0.9" step="0.1">
+    <span class="stat">ngoài = <strong id="outVal">0.9</strong>%</span>
+    <span class="stat">trong = <strong>0.9</strong>%</span>
+  </div>
+  <svg id="tonSvg" width="440" height="220" viewBox="0 0 440 220" role="img" aria-label="Tế bào trong môi trường tính trương"></svg>
+  <div class="verdict" id="tonVerdict"></div>
+</div>
+
+<h2>2. Bơm Na⁺/K⁺ — đếm ion theo tỉ lệ 3:2</h2>
+<div class="card">
+  <p>Mỗi <strong>1 ATP</strong> bơm <strong>3 Na⁺ RA</strong> ngoài + <strong>2 K⁺ VÀO</strong> trong (ngược gradient). Bấm để chạy chu kỳ và xem số ion tích lũy.</p>
+  <div class="row">
+    <button id="pump1">⚡ Bơm 1 ATP</button>
+    <button id="pump10">⚡ Bơm 10 ATP</button>
+    <button id="pumpReset" class="muted">↺ Reset</button>
+  </div>
+  <svg id="pumpSvg" width="440" height="240" viewBox="0 0 440 240" role="img" aria-label="Bơm natri kali"></svg>
+  <div style="margin-top:6px">
+    <span class="stat">ATP dùng = <strong id="atpVal">0</strong></span>
+    <span class="stat" style="background:#fee2e2">Na⁺ ra = <strong id="naVal" style="color:#b91c1c">0</strong></span>
+    <span class="stat" style="background:#dbeafe">K⁺ vào = <strong id="kVal" style="color:#1d4ed8">0</strong></span>
+    <span class="stat">điện tích + ròng ra = <strong id="chargeVal">0</strong></span>
+  </div>
+  <div class="hint" id="pumpHint">Tỉ lệ cố định 3 Na⁺ : 2 K⁺ : 1 ATP. Mỗi chu kỳ đẩy ròng +1 điện tích ra ngoài → góp phần tạo điện thế màng.</div>
+</div>
+
+<h2>3. Phân loại kiểu vận chuyển</h2>
+<div class="card">
+  <p>Chọn một phân tử → viz cho biết kiểu vận chuyển, chiều gradient và có tốn ATP không.</p>
+  <div class="group-btns" id="molBtns"></div>
+  <svg id="molSvg" width="440" height="150" viewBox="0 0 440 150" role="img" aria-label="Sơ đồ vận chuyển qua màng"></svg>
+  <div class="info-grid" id="molInfo"></div>
+</div>
+
+<h2>4. Khuếch tán — hạt từ nơi đặc sang loãng</h2>
+<div class="card">
+  <p>Bấm "Khuếch tán 1 bước" để các hạt tự di chuyển từ nửa trái (đặc) sang nửa phải (loãng) tới khi cân bằng. Không cần năng lượng — đây là chiều tự nhiên (xuôi gradient).</p>
+  <div class="row">
+    <button id="diffStep">→ Khuếch tán 1 bước</button>
+    <button id="diffAuto">▶ Tự chạy tới cân bằng</button>
+    <button id="diffReset" class="muted">↺ Reset (dồn về trái)</button>
+  </div>
+  <svg id="diffSvg" width="440" height="180" viewBox="0 0 440 180" role="img" aria-label="Khuếch tán hạt"></svg>
+  <div style="margin-top:6px">
+    <span class="stat">Trái = <strong id="leftN">24</strong> hạt</span>
+    <span class="stat">Phải = <strong id="rightN">0</strong> hạt</span>
+    <span class="stat" id="eqStat">Chênh lệch = <strong id="diffN">24</strong></span>
+  </div>
+  <div class="hint" id="diffHint">Khi hai bên xấp xỉ bằng nhau → cân bằng động: hạt vẫn qua lại nhưng dòng ròng = 0.</div>
+</div>
+
+<h2>5. Bảng tổng hợp các kiểu vận chuyển</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>Kiểu</th><th>Chiều gradient</th><th>Tốn ATP?</th><th>Cần protein?</th><th>Ví dụ</th></tr></thead>
+    <tbody>
+      <tr><td>Khuếch tán đơn giản</td><td>xuôi</td><td>Không</td><td>Không</td><td>O₂, CO₂</td></tr>
+      <tr><td>Khuếch tán có hỗ trợ</td><td>xuôi</td><td>Không</td><td>Có (kênh/mang)</td><td>glucose (GLUT)</td></tr>
+      <tr><td>Thẩm thấu</td><td>xuôi (theo nước)</td><td>Không</td><td>Không / aquaporin</td><td>H₂O</td></tr>
+      <tr><td>Vận chuyển chủ động</td><td><strong>ngược</strong></td><td><strong>Có</strong></td><td>Có (bơm)</td><td>bơm Na⁺/K⁺</td></tr>
+      <tr><td>Nhập/xuất bào</td><td>— (khối lớn)</td><td><strong>Có</strong></td><td>— (biến dạng màng)</td><td>bạch cầu nuốt khuẩn</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+
+// ===== Section 1: Tonicity simulator =====
+let cellType = "animal";
+const INSIDE = 0.9;
+const outSlider = document.getElementById("outSlider");
+function classifyTonicity(out) {
+  if (out < INSIDE - 0.05) return "hypo";
+  if (out > INSIDE + 0.05) return "hyper";
+  return "iso";
+}
+function renderTonicity() {
+  const out = parseFloat(outSlider.value);
+  document.getElementById("outVal").textContent = out.toFixed(1);
+  const t = classifyTonicity(out);
+  const svg = document.getElementById("tonSvg"); clear(svg);
+  const cx = 220, cy = 105;
+  // beaker
+  el("rect", { x: 40, y: 30, width: 360, height: 160, rx: 8, fill: "#eff6ff", stroke: "#93c5fd", "stroke-width": 2 }, svg);
+  // scatter solute dots in environment to suggest concentration
+  const dots = Math.round(out * 6);
+  for (let i = 0; i < dots; i++) {
+    const dx = 55 + (i * 53) % 320;
+    const dy = 45 + ((i * 37) % 130);
+    el("circle", { cx: dx, cy: dy, r: 2.6, fill: "#f59e0b", opacity: 0.7 }, svg);
+  }
+  // cell radius depends on tonicity (water in/out)
+  let r;
+  if (t === "hypo") r = 60;        // swollen
+  else if (t === "iso") r = 46;    // normal
+  else r = 32;                     // shrunken
+  if (cellType === "animal") {
+    el("circle", { cx, cy, r, fill: "#fecaca", stroke: "#dc2626", "stroke-width": 3 }, svg);
+    if (t === "hypo" && out <= 0.2) {
+      // burst marks
+      for (let a = 0; a < 8; a++) {
+        const ang = a * Math.PI / 4;
+        el("line", { x1: cx + r * Math.cos(ang), y1: cy + r * Math.sin(ang),
+          x2: cx + (r + 14) * Math.cos(ang), y2: cy + (r + 14) * Math.sin(ang),
+          stroke: "#dc2626", "stroke-width": 3, "stroke-linecap": "round" }, svg);
+      }
+    }
+  } else {
+    // plant: rigid wall (square) + protoplast (circle) shrinking inside in hyper
+    el("rect", { x: cx - 66, y: cy - 60, width: 132, height: 120, rx: 6, fill: "#dcfce7", stroke: "#15803d", "stroke-width": 4 }, svg);
+    const pr = (t === "hyper") ? 34 : (t === "iso") ? 52 : 60;
+    el("circle", { cx, cy, r: pr, fill: "#bbf7d0", stroke: "#16a34a", "stroke-width": 2.5 }, svg);
+  }
+  // water arrows
+  if (t === "hypo") {
+    for (const a of [0, Math.PI / 2, Math.PI, 3 * Math.PI / 2]) {
+      const ox = cx + 95 * Math.cos(a), oy = cy + 70 * Math.sin(a);
+      el("line", { x1: ox, y1: oy, x2: cx + (r + 6) * Math.cos(a), y2: cy + (r + 6) * Math.sin(a),
+        stroke: "#2563eb", "stroke-width": 3, "marker-end": "url(#wArr)" }, svg);
+    }
+  } else if (t === "hyper") {
+    for (const a of [0, Math.PI / 2, Math.PI, 3 * Math.PI / 2]) {
+      const ix = cx + (r + 4) * Math.cos(a), iy = cy + (r + 4) * Math.sin(a);
+      el("line", { x1: ix, y1: iy, x2: cx + 95 * Math.cos(a), y2: cy + 70 * Math.sin(a),
+        stroke: "#2563eb", "stroke-width": 3, "marker-end": "url(#wArr)" }, svg);
+    }
+  }
+  const defs = el("defs", {}, svg);
+  const mk = el("marker", { id: "wArr", markerWidth: 7, markerHeight: 7, refX: 5, refY: 3, orient: "auto" }, defs);
+  el("path", { d: "M0,0 L6,3 L0,6 Z", fill: "#2563eb" }, mk);
+
+  // verdict text
+  const v = document.getElementById("tonVerdict");
+  let tag, dir, fate;
+  if (t === "hypo") {
+    tag = `<span class="tonicity-tag tag-hypo">NHƯỢC TRƯƠNG (hypotonic)</span> — ngoài ${out.toFixed(1)}% &lt; trong 0.9%`;
+    dir = "Nước đi <strong>VÀO</strong> tế bào (loãng → đặc).";
+    fate = cellType === "animal"
+      ? (out <= 0.2 ? "Tế bào động vật trương quá mức → <strong>VỠ (lysis)</strong>." : "Tế bào động vật trương lên (nguy cơ vỡ nếu chênh lớn).")
+      : "Tế bào thực vật trương nước → <strong>căng cứng (turgid)</strong> — trạng thái tốt nhờ vách giữ lại.";
+  } else if (t === "iso") {
+    tag = `<span class="tonicity-tag tag-iso">ĐẲNG TRƯƠNG (isotonic)</span> — ngoài ≈ trong 0.9%`;
+    dir = "Nước vào = nước ra → <strong>dòng ròng = 0</strong> (cân bằng).";
+    fate = cellType === "animal" ? "Tế bào động vật <strong>bình thường</strong> (vd NaCl 0.9% là nước muối sinh lý)." : "Tế bào thực vật hơi mềm (flaccid).";
+  } else {
+    tag = `<span class="tonicity-tag tag-hyper">ƯU TRƯƠNG (hypertonic)</span> — ngoài ${out.toFixed(1)}% &gt; trong 0.9%`;
+    dir = "Nước đi <strong>RA</strong> khỏi tế bào (về phía đặc hơn).";
+    fate = cellType === "animal" ? "Tế bào động vật mất nước → <strong>teo, nhăn (crenation)</strong>." : "Tế bào thực vật → <strong>co nguyên sinh (plasmolysis)</strong>: màng tách khỏi vách.";
+  }
+  v.innerHTML = `${tag}<br>${dir}<br>${fate}`;
+}
+document.querySelectorAll("[data-cell]").forEach(b => {
+  b.onclick = () => {
+    cellType = b.dataset.cell;
+    document.querySelectorAll("[data-cell]").forEach(x => x.classList.toggle("active", x === b));
+    renderTonicity();
+  };
+});
+outSlider.oninput = renderTonicity;
+
+// ===== Section 2: Na/K pump =====
+let atp = 0;
+function renderPump() {
+  const na = atp * 3, k = atp * 2;
+  document.getElementById("atpVal").textContent = atp;
+  document.getElementById("naVal").textContent = na;
+  document.getElementById("kVal").textContent = k;
+  document.getElementById("chargeVal").textContent = (na - k);
+  const svg = document.getElementById("pumpSvg"); clear(svg);
+  // membrane bilayer (two horizontal bands)
+  el("rect", { x: 0, y: 100, width: 440, height: 18, fill: "#bbf7d0" }, svg);
+  el("rect", { x: 0, y: 118, width: 440, height: 18, fill: "#bbf7d0" }, svg);
+  el("text", { x: 8, y: 28, font: "13px sans-serif", fill: "#1d4ed8" }, svg).textContent = "NGOÀI tế bào";
+  el("text", { x: 8, y: 218, font: "13px sans-serif", fill: "#166534" }, svg).textContent = "TRONG tế bào";
+  // pump protein in middle
+  el("rect", { x: 195, y: 92, width: 50, height: 52, rx: 8, fill: "#059669", stroke: "#047857", "stroke-width": 2 }, svg);
+  el("text", { x: 220, y: 122, "text-anchor": "middle", font: "11px sans-serif", fill: "white", "font-weight": "700" }, svg).textContent = "ATP";
+  // 3 Na going out (up), 2 K going in (down) — show current cycle
+  const naX = [120, 150, 180];
+  naX.forEach((x, i) => {
+    el("circle", { cx: x, cy: 55, r: 13, fill: "#fca5a5", stroke: "#b91c1c", "stroke-width": 2 }, svg);
+    el("text", { x: x, y: 59, "text-anchor": "middle", font: "10px sans-serif", fill: "#7f1d1d", "font-weight": "700" }, svg).textContent = "Na⁺";
+    el("line", { x1: x, y1: 90, x2: x, y2: 70, stroke: "#b91c1c", "stroke-width": 2.5, "marker-end": "url(#upArr)" }, svg);
+  });
+  const kX = [275, 305];
+  kX.forEach((x) => {
+    el("circle", { cx: x, cy: 185, r: 13, fill: "#bfdbfe", stroke: "#1d4ed8", "stroke-width": 2 }, svg);
+    el("text", { x: x, y: 189, "text-anchor": "middle", font: "10px sans-serif", fill: "#1e3a8a", "font-weight": "700" }, svg).textContent = "K⁺";
+    el("line", { x1: x, y1: 145, x2: x, y2: 165, stroke: "#1d4ed8", "stroke-width": 2.5, "marker-end": "url(#dnArr)" }, svg);
+  });
+  const defs = el("defs", {}, svg);
+  const up = el("marker", { id: "upArr", markerWidth: 7, markerHeight: 7, refX: 3, refY: 5, orient: "auto" }, defs);
+  el("path", { d: "M0,6 L3,0 L6,6 Z", fill: "#b91c1c" }, up);
+  const dn = el("marker", { id: "dnArr", markerWidth: 7, markerHeight: 7, refX: 3, refY: 1, orient: "auto" }, defs);
+  el("path", { d: "M0,0 L3,6 L6,0 Z", fill: "#1d4ed8" }, dn);
+  el("text", { x: 150, y: 28, "text-anchor": "middle", font: "12px sans-serif", fill: "#b91c1c", "font-weight": "700" }, svg).textContent = "3 Na⁺ ra ↑";
+  el("text", { x: 290, y: 218, "text-anchor": "middle", font: "12px sans-serif", fill: "#1d4ed8", "font-weight": "700" }, svg).textContent = "2 K⁺ vào ↓";
+}
+document.getElementById("pump1").onclick = () => { atp += 1; renderPump(); };
+document.getElementById("pump10").onclick = () => { atp += 10; renderPump(); };
+document.getElementById("pumpReset").onclick = () => { atp = 0; renderPump(); };
+
+// ===== Section 3: Transport classifier =====
+const MOLS = {
+  o2: { name: "O₂ (oxy)", type: "Khuếch tán đơn giản", dir: "xuôi gradient", atp: "Không tốn ATP", protein: "Không cần protein", why: "Nhỏ, không phân cực → tan thẳng qua lõi kỵ nước.", color: "#34d399" },
+  glucose: { name: "Glucose", type: "Khuếch tán có hỗ trợ", dir: "xuôi gradient", atp: "Không tốn ATP", protein: "Cần protein mang (GLUT)", why: "Lớn & phân cực → không lọt lõi, nhưng vẫn đi xuôi gradient qua protein.", color: "#60a5fa" },
+  na: { name: "Na⁺ (bơm ra)", type: "Vận chuyển chủ động", dir: "NGƯỢC gradient", atp: "TỐN ATP", protein: "Cần bơm Na⁺/K⁺", why: "Đẩy ngược gradient (3 Na⁺ ra / 1 ATP) → cần năng lượng.", color: "#f87171" },
+  water: { name: "Nước (H₂O)", type: "Thẩm thấu (osmosis)", dir: "xuôi theo nước (loãng → đặc chất tan)", atp: "Không tốn ATP", protein: "Qua lớp kép / aquaporin", why: "Nước khuếch tán từ nơi loãng chất tan sang nơi đặc chất tan.", color: "#38bdf8" }
+};
+const molBtns = document.getElementById("molBtns");
+Object.keys(MOLS).forEach(k => {
+  const b = document.createElement("button");
+  b.className = "pill"; b.textContent = MOLS[k].name; b.dataset.m = k;
+  b.onclick = () => showMol(k);
+  molBtns.appendChild(b);
+});
+function showMol(k) {
+  document.querySelectorAll("#molBtns .pill").forEach(b => b.classList.toggle("active", b.dataset.m === k));
+  const m = MOLS[k];
+  const svg = document.getElementById("molSvg"); clear(svg);
+  // membrane
+  el("rect", { x: 0, y: 60, width: 440, height: 14, fill: "#bbf7d0" }, svg);
+  el("rect", { x: 0, y: 74, width: 440, height: 14, fill: "#bbf7d0" }, svg);
+  el("text", { x: 8, y: 24, font: "12px sans-serif", fill: "#64748b" }, svg).textContent = "NGOÀI";
+  el("text", { x: 8, y: 138, font: "12px sans-serif", fill: "#64748b" }, svg).textContent = "TRONG";
+  // path depends on type
+  const needProtein = k === "glucose" || k === "na";
+  const x = 220;
+  if (needProtein) {
+    el("rect", { x: x - 22, y: 54, width: 44, height: 40, rx: 7, fill: k === "na" ? "#059669" : "#3b82f6", stroke: "#1e293b", "stroke-width": 2 }, svg);
+  }
+  // molecule + arrow
+  const reverse = (k === "na"); // out direction (in→out) for active Na pump
+  const y1 = reverse ? 100 : 30, y2 = reverse ? 30 : 100;
+  el("circle", { cx: x, cy: y1, r: 13, fill: m.color, stroke: "#1e293b", "stroke-width": 2 }, svg);
+  el("line", { x1: x, y1: reverse ? 92 : 44, x2: x, y2: reverse ? 44 : 92, stroke: "#334155", "stroke-width": 3, "marker-end": "url(#mArr)" }, svg);
+  const defs = el("defs", {}, svg);
+  const mk = el("marker", { id: "mArr", markerWidth: 7, markerHeight: 7, refX: 5, refY: 3, orient: "auto" }, defs);
+  el("path", { d: "M0,0 L6,3 L0,6 Z", fill: "#334155" }, mk);
+  el("text", { x: x + 28, y: 76, font: "11px sans-serif", fill: "#475569" }, svg).textContent = reverse ? "↑ ra (ngược)" : "↓ vào (xuôi)";
+
+  document.getElementById("molInfo").innerHTML =
+    `<div><strong>Phân tử:</strong> ${m.name}</div>` +
+    `<div><strong>Kiểu vận chuyển:</strong> ${m.type}</div>` +
+    `<div><strong>Chiều:</strong> ${m.dir}</div>` +
+    `<div><strong>Năng lượng:</strong> ${m.atp}</div>` +
+    `<div><strong>Protein:</strong> ${m.protein}</div>` +
+    `<div><strong>Vì sao:</strong> ${m.why}</div>`;
+}
+
+// ===== Section 4: Diffusion =====
+const TOTAL = 24;
+let particles = [];
+function initDiffusion() {
+  particles = [];
+  for (let i = 0; i < TOTAL; i++) {
+    particles.push({ x: 20 + Math.random() * 180, y: 20 + Math.random() * 140 });
+  }
+  renderDiffusion();
+}
+function countSides() {
+  let left = 0;
+  particles.forEach(p => { if (p.x < 220) left++; });
+  return { left, right: TOTAL - left };
+}
+function renderDiffusion() {
+  const svg = document.getElementById("diffSvg"); clear(svg);
+  el("rect", { x: 10, y: 10, width: 420, height: 160, rx: 6, fill: "#f0fdf4", stroke: "#86efac", "stroke-width": 2 }, svg);
+  el("line", { x1: 220, y1: 10, x2: 220, y2: 170, stroke: "#16a34a", "stroke-width": 1.5, "stroke-dasharray": "5 4" }, svg);
+  el("text", { x: 115, y: 28, "text-anchor": "middle", font: "12px sans-serif", fill: "#166534" }, svg).textContent = "Trái";
+  el("text", { x: 325, y: 28, "text-anchor": "middle", font: "12px sans-serif", fill: "#166534" }, svg).textContent = "Phải";
+  particles.forEach(p => el("circle", { cx: p.x, cy: p.y, r: 6, fill: "#10b981", stroke: "#047857", "stroke-width": 1.5 }, svg));
+  const { left, right } = countSides();
+  document.getElementById("leftN").textContent = left;
+  document.getElementById("rightN").textContent = right;
+  document.getElementById("diffN").textContent = Math.abs(left - right);
+  document.getElementById("diffHint").textContent = Math.abs(left - right) <= 2
+    ? "≈ Cân bằng động: hai bên xấp xỉ bằng nhau, dòng ròng = 0 (hạt vẫn qua lại)."
+    : "Còn chênh lệch → hạt tiếp tục khuếch tán từ nơi đặc (Trái) sang nơi loãng (Phải).";
+}
+function stepDiffusion() {
+  // each particle drifts randomly; bias toward emptier side handled by random walk within bounds
+  particles.forEach(p => {
+    p.x += (Math.random() - 0.5) * 70;
+    p.y += (Math.random() - 0.5) * 50;
+    p.x = Math.max(20, Math.min(420, p.x));
+    p.y = Math.max(20, Math.min(160, p.y));
+  });
+  renderDiffusion();
+}
+document.getElementById("diffStep").onclick = stepDiffusion;
+document.getElementById("diffReset").onclick = () => {
+  particles = [];
+  for (let i = 0; i < TOTAL; i++) particles.push({ x: 20 + Math.random() * 180, y: 20 + Math.random() * 140 });
+  renderDiffusion();
+};
+let diffTimer = null;
+document.getElementById("diffAuto").onclick = function () {
+  if (diffTimer) { clearInterval(diffTimer); diffTimer = null; this.textContent = "▶ Tự chạy tới cân bằng"; return; }
+  this.textContent = "⏸ Dừng";
+  const btn = this;
+  diffTimer = setInterval(() => {
+    stepDiffusion();
+    const { left, right } = countSides();
+    if (Math.abs(left - right) <= 1) { clearInterval(diffTimer); diffTimer = null; btn.textContent = "▶ Tự chạy tới cân bằng"; }
+  }, 600);
+};
+
+// ===== Init =====
+renderTonicity();
+renderPump();
+showMol("o2");
+initDiffusion();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

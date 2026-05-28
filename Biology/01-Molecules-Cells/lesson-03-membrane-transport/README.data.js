@@ -1,4 +1,7 @@
-# Lesson 03 — Màng & vận chuyển
+// AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
+// Source: Biology/01-Molecules-Cells/lesson-03-membrane-transport/README.md
+// Chạy lại: go run tools/build-readme-data.go
+window.README_MD = `# Lesson 03 — Màng & vận chuyển
 
 ## Mục tiêu học tập
 
@@ -13,9 +16,9 @@ Sau bài này bạn sẽ:
 
 ## Kiến thức tiền đề
 
-- **Phospholipid lưỡng cực và lớp kép (bilayer)** — [`Lesson 01 — Phân tử sinh học`](../lesson-01-biomolecules/) §5 (đầu phosphate ưa nước, đuôi acid béo kỵ nước, tự lắp thành màng kép). Đây là nền tảng trực tiếp.
-- **Màng sinh chất là ranh giới tế bào** — [`Lesson 02 — Cấu trúc tế bào`](../lesson-02-cell-structure/) (màng bao bọc tế bào và các bào quan).
-- **Nồng độ, dung dịch, mol/L** — [`Chemistry/01-Structure/lesson-07-solutions-concentration`](../../../Chemistry/01-Structure/lesson-07-solutions-concentration/). Thẩm thấu là một hệ quả trực tiếp của chênh lệch nồng độ chất tan.
+- **Phospholipid lưỡng cực và lớp kép (bilayer)** — [\`Lesson 01 — Phân tử sinh học\`](../lesson-01-biomolecules/) §5 (đầu phosphate ưa nước, đuôi acid béo kỵ nước, tự lắp thành màng kép). Đây là nền tảng trực tiếp.
+- **Màng sinh chất là ranh giới tế bào** — [\`Lesson 02 — Cấu trúc tế bào\`](../lesson-02-cell-structure/) (màng bao bọc tế bào và các bào quan).
+- **Nồng độ, dung dịch, mol/L** — [\`Chemistry/01-Structure/lesson-07-solutions-concentration\`](../../../Chemistry/01-Structure/lesson-07-solutions-concentration/). Thẩm thấu là một hệ quả trực tiếp của chênh lệch nồng độ chất tan.
 
 ---
 
@@ -466,8 +469,8 @@ A: Bơm vận chuyển **từng phân tử/ion** qua protein xuyên màng. Nhậ
 - **Bài tiếp theo trong Biology**: [Lesson 04 — Enzyme & chuyển hóa](../lesson-04-enzymes-metabolism/) — protein xúc tác và dòng năng lượng (ATP mà bơm vừa tiêu thụ đến từ đâu).
 - **Bài trước**: [Lesson 02 — Cấu trúc tế bào](../lesson-02-cell-structure/) — màng bao bọc tế bào và bào quan.
 - **Nền tảng phân tử**: [Lesson 01 — Phân tử sinh học](../lesson-01-biomolecules/) §5 — phospholipid lưỡng cực tự lắp thành lớp kép.
-- **Liên kết Chemistry**: [`Chemistry/01-Structure/lesson-07-solutions-concentration`](../../../Chemistry/01-Structure/lesson-07-solutions-concentration/) — nồng độ dung dịch, cơ sở định lượng cho thẩm thấu và tính trương.
-- **Đọc thêm**: mô hình tương tác — [`visualization.html`](./visualization.html) của lesson này.
+- **Liên kết Chemistry**: [\`Chemistry/01-Structure/lesson-07-solutions-concentration\`](../../../Chemistry/01-Structure/lesson-07-solutions-concentration/) — nồng độ dung dịch, cơ sở định lượng cho thẩm thấu và tính trương.
+- **Đọc thêm**: mô hình tương tác — [\`visualization.html\`](./visualization.html) của lesson này.
 
 ---
 
@@ -481,3 +484,4 @@ A: Bơm vận chuyển **từng phân tử/ion** qua protein xuyên màng. Nhậ
 6. **Khối lượng lớn**: nhập bào (thực bào/ẩm bào/qua thụ thể) và xuất bào — đều tốn ATP.
 
 **Tiếp theo**: [Lesson 04 — Enzyme & chuyển hóa](../lesson-04-enzymes-metabolism/)
+`;

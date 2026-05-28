@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Cấu trúc tế bào</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #14532d; }
+  h2 {
+    color: #166534; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #bbf7d0;
+  }
+  h3 { color: #15803d; margin-top: 20px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 11px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 90px; max-width: 100%;
+  }
+  input[type="range"] { flex: 1; min-width: 0; }
+  button {
+    background: #059669; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #047857; }
+  button.muted { background: #a0aec0; }
+  button.muted:hover { background: #718096; }
+  .pill {
+    background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;
+  }
+  .pill.active { background: #059669; color: white; }
+  .stat {
+    display: inline-block; background: #d1fae5;
+    padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #047857; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; }
+  .group-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+  svg { display: block; margin: 8px auto; max-width: 100%; height: auto; }
+  .info-grid { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 14px; }
+  .info-grid div { padding: 6px 10px; background: #f0fdf4; border-radius: 6px; }
+  .info-grid strong { color: #166534; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 8px; }
+  th, td { border: 1px solid #d1d5db; padding: 7px 10px; text-align: left; }
+  th { background: #ecfdf5; color: #065f46; }
+  td.yes { color: #047857; font-weight: 700; text-align: center; }
+  td.no { color: #b91c1c; font-weight: 700; text-align: center; }
+
+  /* organelle diagram */
+  .org-shape { cursor: pointer; transition: opacity 0.15s; }
+  .org-shape:hover { opacity: 0.85; }
+  .org-dim { opacity: 0.28; }
+  .org-label { font: 11px sans-serif; fill: #374151; pointer-events: none; }
+
+  /* SA/V bars */
+  .bar-sa { fill: #059669; } .bar-v { fill: #f59e0b; }
+  .bar-label { font: 12px sans-serif; fill: #374151; text-anchor: middle; }
+  .cube-face { fill: #d1fae5; stroke: #047857; stroke-width: 2; }
+  .cube-top { fill: #6ee7b7; stroke: #047857; stroke-width: 2; }
+  .cube-side { fill: #a7f3d0; stroke: #047857; stroke-width: 2; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Biology · Tầng 1</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-biomolecules/visualization.html">← L1: Phân tử sinh học</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Cấu trúc tế bào</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-membrane-transport/visualization.html">L3: Màng &amp; vận chuyển →</a>
+</nav>
+
+<h1>Lesson 02 — Cấu trúc tế bào</h1>
+<p>Bộ công cụ tương tác: khám phá chức năng bào quan trên sơ đồ tế bào, đổi qua lại 3 kiểu tế bào (nhân sơ / động vật / thực vật), tính tỉ lệ diện tích/thể tích (SA/V) để thấy vì sao tế bào phải nhỏ, và so sánh bằng chứng nội cộng sinh.</p>
+
+<h2>1. Cell explorer — bấm vào bào quan để xem chức năng</h2>
+<div class="card">
+  <p>Bấm nút (hoặc bấm thẳng vào hình) để chọn bào quan. Sơ đồ sẽ làm nổi bào quan đó và hiện chức năng bên dưới.</p>
+  <div class="group-btns" id="orgBtns"></div>
+  <svg id="cellSvg" width="440" height="300" viewBox="0 0 440 300" role="img" aria-label="Sơ đồ tế bào nhân thực"></svg>
+  <div class="info-grid" id="orgInfo"></div>
+</div>
+
+<h2>2. Đổi kiểu tế bào — nhân sơ / động vật / thực vật</h2>
+<div class="card">
+  <p>Chọn kiểu tế bào, sơ đồ vẽ lại và bảng cập nhật thành phần có/không.</p>
+  <div class="row" id="typeBtns"></div>
+  <svg id="typeSvg" width="440" height="240" viewBox="0 0 440 240" role="img" aria-label="Sơ đồ kiểu tế bào"></svg>
+  <div class="hint" id="typeHint"></div>
+  <table>
+    <thead><tr><th>Thành phần</th><th>Có trong tế bào này?</th></tr></thead>
+    <tbody id="typeTable"></tbody>
+  </table>
+</div>
+
+<h2>3. Máy tính SA:V — vì sao tế bào phải nhỏ</h2>
+<div class="card">
+  <p>Khối lập phương cạnh <code>s</code>: diện tích bề mặt <code>SA = 6s²</code>, thể tích <code>V = s³</code>, tỉ lệ <code>SA/V = 6/s</code>. Kéo thanh để thấy: cạnh càng to, SA/V càng nhỏ.</p>
+  <div class="row">
+    <label>Cạnh s (µm):</label>
+    <input type="range" id="sSlider" min="1" max="10" value="2" step="1">
+    <span class="stat">s = <strong id="sVal">2</strong></span>
+  </div>
+  <svg id="savSvg" width="440" height="220" viewBox="0 0 440 220" role="img" aria-label="Khối lập phương và biểu đồ SA, V"></svg>
+  <div style="margin-top:6px">
+    <span class="stat">SA = 6×s² = <strong id="saVal">24</strong></span>
+    <span class="stat">V = s³ = <strong id="vVal">8</strong></span>
+    <span class="stat" style="background:#fef3c7">SA/V = 6/s = <strong id="savVal" style="color:#92400e">3.00</strong></span>
+  </div>
+  <div class="hint" id="savHint"></div>
+</div>
+
+<h2>4. Bằng chứng nội cộng sinh — ti thể & lục lạp</h2>
+<div class="card">
+  <p>Thuyết nội cộng sinh: ti thể & lục lạp từng là vi khuẩn tự do. Bấm từng bằng chứng để xem so sánh.</p>
+  <div class="group-btns" id="endoBtns"></div>
+  <svg id="endoSvg" width="440" height="170" viewBox="0 0 440 170" role="img" aria-label="So sánh bào quan và vi khuẩn"></svg>
+  <div class="info-grid" id="endoInfo"></div>
+</div>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+function txt(svg, x, y, s, attrs) {
+  const t = el("text", Object.assign({ x, y }, attrs || {}), svg);
+  t.textContent = s; return t;
+}
+
+// ===== Section 1: Cell explorer =====
+// Each organelle: shape drawer + info. id used to highlight.
+const ORGANELLES = {
+  membrane: { name: "Màng sinh chất", func: "Lớp kép phospholipid kiểm soát chất ra vào tế bào.", note: "Mọi tế bào đều có. Chi tiết ở Lesson 03." },
+  nucleus:  { name: "Nhân (nucleus)", func: "Chứa DNA, điều khiển mọi hoạt động tế bào.", note: "Bao bởi màng nhân kép có lỗ nhân." },
+  nucleolus:{ name: "Nhân con (nucleolus)", func: "Tổng hợp rRNA, lắp ráp tiểu phần ribosome.", note: "Nằm BÊN TRONG nhân, không phải bào quan riêng." },
+  ribosome: { name: "Ribosome", func: "Tổng hợp protein (dịch mã).", note: "Không có màng → nhân sơ cũng có (70S)." },
+  rer:      { name: "Lưới nội chất hạt (rough ER)", func: "Tổng hợp protein xuất khẩu/màng; ribosome bám trên bề mặt.", note: "'Hạt' = ribosome lấm tấm." },
+  ser:      { name: "Lưới nội chất trơn (smooth ER)", func: "Tổng hợp lipid, khử độc.", note: "Không có ribosome. Gan giàu ER trơn để giải độc." },
+  golgi:    { name: "Bộ máy Golgi", func: "Đóng gói, sửa, dán nhãn, vận chuyển protein/lipid.", note: "'Bưu điện' của tế bào." },
+  mito:     { name: "Ti thể (mitochondria)", func: "Hô hấp tế bào → tạo ATP. 'Nhà máy điện'.", note: "Màng kép + DNA riêng. Gan ~1000–2000 ti thể." },
+  lyso:     { name: "Lysosome", func: "Tiêu hóa nội bào (chứa enzyme thủy phân).", note: "Chủ yếu ở động vật. Enzyme hoạt động ở pH ~5." }
+};
+// shape coordinates inside cell SVG
+function drawCell(svg, highlight) {
+  clear(svg);
+  const dim = (id) => (highlight && highlight !== id) ? " org-dim" : "";
+  // membrane (big rounded rect)
+  el("rect", { x: 20, y: 20, width: 400, height: 260, rx: 60, ry: 70,
+    class: "org-shape" + dim("membrane"), fill: "#ecfdf5", stroke: "#047857", "stroke-width": 4, "data-o": "membrane" }, svg);
+  // nucleus
+  el("circle", { cx: 150, cy: 150, r: 55, class: "org-shape" + dim("nucleus"), fill: "#a78bfa", stroke: "#5b21b6", "stroke-width": 2, "data-o": "nucleus" }, svg);
+  // nucleolus
+  el("circle", { cx: 165, cy: 138, r: 18, class: "org-shape" + dim("nucleolus"), fill: "#5b21b6", "data-o": "nucleolus" }, svg);
+  // rough ER (wavy band near nucleus) + ribosome dots
+  el("path", { d: "M 210 110 q 30 -20 60 0 q 30 20 60 0", fill: "none", stroke: "#3b82f6", "stroke-width": 7, "stroke-linecap": "round", class: "org-shape" + dim("rer"), "data-o": "rer" }, svg);
+  [218,248,278,308,338].forEach((x,i) => el("circle", { cx: x, cy: 110 + (i%2?6:-6), r: 4, class: "org-shape" + dim("ribosome"), fill: "#1e3a8a", "data-o": "ribosome" }, svg));
+  // smooth ER
+  el("path", { d: "M 225 170 q 25 18 50 0 q 25 -18 50 0", fill: "none", stroke: "#0ea5e9", "stroke-width": 6, "stroke-linecap": "round", class: "org-shape" + dim("ser"), "data-o": "ser" }, svg);
+  // golgi (stacked arcs)
+  [0,8,16].forEach((dy,i) => el("path", { d: `M 250 220 q 35 -16 70 0`, transform: `translate(0 ${dy})`, fill: "none", stroke: "#f59e0b", "stroke-width": 5, class: "org-shape" + dim("golgi"), "data-o": "golgi" }, svg));
+  // mitochondria (ellipse with inner crista line)
+  el("ellipse", { cx: 110, cy: 235, rx: 40, ry: 20, class: "org-shape" + dim("mito"), fill: "#ef4444", stroke: "#991b1b", "stroke-width": 2, "data-o": "mito" }, svg);
+  el("path", { d: "M 80 235 q 10 -10 20 0 q 10 10 20 0 q 10 -10 20 0", fill: "none", stroke: "#fecaca", "stroke-width": 2.5, "data-o": "mito", class: "org-shape" + dim("mito") }, svg);
+  // lysosome (small circle)
+  el("circle", { cx: 360, cy: 160, r: 20, class: "org-shape" + dim("lyso"), fill: "#10b981", stroke: "#065f46", "stroke-width": 2, "data-o": "lyso" }, svg);
+  el("circle", { cx: 360, cy: 160, r: 9, fill: "#065f46", "data-o": "lyso", class: "org-shape" + dim("lyso") }, svg);
+  // clickable: attach handler
+  svg.querySelectorAll("[data-o]").forEach(s => s.onclick = () => showOrg(s.getAttribute("data-o")));
+}
+const orgBtns = document.getElementById("orgBtns");
+Object.keys(ORGANELLES).forEach(k => {
+  const b = document.createElement("button");
+  b.className = "pill"; b.textContent = ORGANELLES[k].name.split(" (")[0]; b.dataset.o = k;
+  b.onclick = () => showOrg(k);
+  orgBtns.appendChild(b);
+});
+function showOrg(k) {
+  document.querySelectorAll("#orgBtns .pill").forEach(b => b.classList.toggle("active", b.dataset.o === k));
+  drawCell(document.getElementById("cellSvg"), k);
+  const o = ORGANELLES[k];
+  document.getElementById("orgInfo").innerHTML =
+    `<div><strong>${o.name}</strong></div>` +
+    `<div><strong>Chức năng:</strong> ${o.func}</div>` +
+    `<div><strong>Ghi chú:</strong> ${o.note}</div>`;
+}
+
+// ===== Section 2: Cell type toggle =====
+const ROWS = ["Màng sinh chất", "Nhân thật (màng nhân)", "Ribosome", "Ti thể", "ER + Golgi",
+  "Lục lạp", "Lysosome", "Không bào trung tâm lớn", "Thành tế bào"];
+const TYPES = {
+  prok: {
+    name: "Nhân sơ (vi khuẩn)",
+    hint: "~1–10 µm. DNA trần ở nucleoid, KHÔNG nhân thật, KHÔNG bào quan có màng — nhưng có ribosome 70S. Có thành peptidoglycan.",
+    have: { "Màng sinh chất": 1, "Nhân thật (màng nhân)": 0, "Ribosome": 1, "Ti thể": 0, "ER + Golgi": 0,
+      "Lục lạp": 0, "Lysosome": 0, "Không bào trung tâm lớn": 0, "Thành tế bào": 1 }
+  },
+  animal: {
+    name: "Động vật (nhân thực)",
+    hint: "~10–30 µm. Có nhân + bào quan màng. KHÔNG thành tế bào, KHÔNG lục lạp. Nổi bật: lysosome, trung thể; hình mềm dễ đổi dạng.",
+    have: { "Màng sinh chất": 1, "Nhân thật (màng nhân)": 1, "Ribosome": 1, "Ti thể": 1, "ER + Golgi": 1,
+      "Lục lạp": 0, "Lysosome": 1, "Không bào trung tâm lớn": 0, "Thành tế bào": 0 }
+  },
+  plant: {
+    name: "Thực vật (nhân thực)",
+    hint: "~10–100 µm. Có nhân + bào quan màng + thành cellulose + lục lạp (quang hợp) + không bào trung tâm lớn (áp suất trương). Lysosome hiếm.",
+    have: { "Màng sinh chất": 1, "Nhân thật (màng nhân)": 1, "Ribosome": 1, "Ti thể": 1, "ER + Golgi": 1,
+      "Lục lạp": 1, "Lysosome": 0, "Không bào trung tâm lớn": 1, "Thành tế bào": 1 }
+  }
+};
+const typeBtns = document.getElementById("typeBtns");
+Object.keys(TYPES).forEach((k, i) => {
+  const b = document.createElement("button");
+  b.className = "pill" + (i === 0 ? " active" : ""); b.textContent = TYPES[k].name; b.dataset.t = k;
+  b.onclick = () => showType(k);
+  typeBtns.appendChild(b);
+});
+function drawTypeCell(svg, k) {
+  clear(svg);
+  if (k === "prok") {
+    // rod-shaped bacterium with wall
+    el("rect", { x: 70, y: 80, width: 300, height: 80, rx: 40, fill: "#fde68a", stroke: "#b45309", "stroke-width": 6 }, svg);
+    el("rect", { x: 80, y: 90, width: 280, height: 60, rx: 30, fill: "#fef9c3", stroke: "#ca8a04", "stroke-width": 2 }, svg);
+    // nucleoid (free DNA loop)
+    el("path", { d: "M 170 120 q 30 -25 60 0 q 30 25 0 25 q -30 0 -60 -25 q -10 -10 0 0", fill: "none", stroke: "#7c3aed", "stroke-width": 3 }, svg);
+    txt(svg, 200, 128, "DNA (nucleoid)", { "text-anchor": "middle", font: "11px sans-serif", fill: "#5b21b6" });
+    // ribosomes dots
+    [110,130,300,320,260].forEach((x,i) => el("circle", { cx: x, cy: 105 + (i%2?30:0), r: 4, fill: "#1e3a8a" }, svg));
+    txt(svg, 220, 200, "Không nhân thật · không bào quan màng · có ribosome 70S · thành peptidoglycan", { "text-anchor": "middle", font: "11px sans-serif", fill: "#374151" });
+  } else {
+    const plant = (k === "plant");
+    // wall (plant only) - square; animal round
+    if (plant) el("rect", { x: 30, y: 30, width: 380, height: 180, rx: 8, fill: "#d9f99d", stroke: "#4d7c0f", "stroke-width": 8 }, svg);
+    el(plant ? "rect" : "ellipse", plant
+      ? { x: 44, y: 44, width: 352, height: 152, rx: 6, fill: "#ecfdf5", stroke: "#047857", "stroke-width": 3 }
+      : { cx: 220, cy: 120, rx: 185, ry: 90, fill: "#ecfdf5", stroke: "#047857", "stroke-width": 4 }, svg);
+    // nucleus
+    el("circle", { cx: 130, cy: 120, r: 38, fill: "#a78bfa", stroke: "#5b21b6", "stroke-width": 2 }, svg);
+    txt(svg, 130, 124, "Nhân", { "text-anchor": "middle", font: "12px sans-serif", fill: "#fff" });
+    // mitochondria (both)
+    el("ellipse", { cx: 250, cy: 80, rx: 30, ry: 15, fill: "#ef4444", stroke: "#991b1b", "stroke-width": 2 }, svg);
+    txt(svg, 250, 84, "Ti thể", { "text-anchor": "middle", font: "10px sans-serif", fill: "#fff" });
+    if (plant) {
+      // chloroplast
+      el("ellipse", { cx: 330, cy: 150, rx: 34, ry: 18, fill: "#22c55e", stroke: "#166534", "stroke-width": 2 }, svg);
+      txt(svg, 330, 154, "Lục lạp", { "text-anchor": "middle", font: "10px sans-serif", fill: "#fff" });
+      // central vacuole
+      el("ellipse", { cx: 240, cy: 145, rx: 60, ry: 38, fill: "#bae6fd", stroke: "#0369a1", "stroke-width": 2, opacity: 0.7 }, svg);
+      txt(svg, 240, 149, "Không bào lớn", { "text-anchor": "middle", font: "10px sans-serif", fill: "#075985" });
+    } else {
+      // lysosome + centriole
+      el("circle", { cx: 320, cy: 90, r: 16, fill: "#10b981", stroke: "#065f46", "stroke-width": 2 }, svg);
+      txt(svg, 320, 94, "Lyso", { "text-anchor": "middle", font: "9px sans-serif", fill: "#fff" });
+      el("rect", { x: 290, y: 150, width: 24, height: 10, fill: "#6b7280" }, svg);
+      el("rect", { x: 296, y: 156, width: 10, height: 24, fill: "#6b7280" }, svg);
+      txt(svg, 320, 175, "Trung thể", { "text-anchor": "start", font: "9px sans-serif", fill: "#374151" });
+    }
+  }
+}
+function showType(k) {
+  document.querySelectorAll("#typeBtns .pill").forEach(b => b.classList.toggle("active", b.dataset.t === k));
+  const t = TYPES[k];
+  drawTypeCell(document.getElementById("typeSvg"), k);
+  document.getElementById("typeHint").textContent = t.hint;
+  const tb = document.getElementById("typeTable");
+  tb.innerHTML = "";
+  ROWS.forEach(r => {
+    const tr = document.createElement("tr");
+    const has = t.have[r];
+    tr.innerHTML = `<td>${r}</td><td class="${has ? "yes" : "no"}">${has ? "Có" : "Không"}</td>`;
+    tb.appendChild(tr);
+  });
+}
+
+// ===== Section 3: SA:V calculator =====
+const sSlider = document.getElementById("sSlider");
+function renderSAV() {
+  const s = +sSlider.value;
+  document.getElementById("sVal").textContent = s;
+  const SA = 6 * s * s, V = s * s * s, sav = SA / V; // = 6/s
+  document.getElementById("saVal").textContent = SA;
+  document.getElementById("vVal").textContent = V;
+  document.getElementById("savVal").textContent = sav.toFixed(2);
+  const svg = document.getElementById("savSvg"); clear(svg);
+  // ---- cube (left), size scales with s ----
+  const px = 12 + s * 9; // 21..102
+  const ox = 95, oy = 150, dx = px * 0.45, dy = px * 0.30;
+  // front
+  el("rect", { x: ox - px / 2, y: oy - px / 2, width: px, height: px, class: "cube-face" }, svg);
+  // top
+  el("polygon", { points: `${ox - px / 2},${oy - px / 2} ${ox - px / 2 + dx},${oy - px / 2 - dy} ${ox + px / 2 + dx},${oy - px / 2 - dy} ${ox + px / 2},${oy - px / 2}`, class: "cube-top" }, svg);
+  // side
+  el("polygon", { points: `${ox + px / 2},${oy - px / 2} ${ox + px / 2 + dx},${oy - px / 2 - dy} ${ox + px / 2 + dx},${oy + px / 2 - dy} ${ox + px / 2},${oy + px / 2}`, class: "cube-side" }, svg);
+  txt(svg, ox, oy + px / 2 + 24, `cạnh s = ${s} µm`, { "text-anchor": "middle", font: "12px sans-serif", fill: "#374151" });
+  // ---- bars (right): SA and V, scaled to fit ----
+  const maxVal = Math.max(SA, V, 1);
+  const baseY = 175, maxH = 130, bw = 48, bx = 250;
+  el("line", { x1: bx - 20, y1: baseY, x2: 430, y2: baseY, stroke: "#9ca3af", "stroke-width": 1 }, svg);
+  const bars = [["SA", SA, "bar-sa", bx], ["V", V, "bar-v", bx + 90]];
+  bars.forEach(b => {
+    const h = (b[1] / maxVal) * maxH;
+    el("rect", { x: b[3], y: baseY - h, width: bw, height: h, class: b[2], rx: 3 }, svg);
+    txt(svg, b[3] + bw / 2, baseY + 16, b[0], { class: "bar-label" });
+    txt(svg, b[3] + bw / 2, baseY - h - 6, String(b[1]), { class: "bar-label" });
+  });
+  txt(svg, bx + 80, 30, `SA/V = 6/${s} = ${sav.toFixed(2)}`, { "text-anchor": "middle", font: "13px sans-serif", fill: "#92400e", "font-weight": "700" });
+  // hint
+  let trend;
+  if (s <= 2) trend = "Tế bào nhỏ: SA/V LỚN → màng dư sức trao đổi chất cho khối nội dung. Hiệu quả.";
+  else if (s <= 5) trend = "Cạnh tăng → SA/V giảm. V (s³) tăng nhanh hơn SA (s²) nên màng bắt đầu 'đuối'.";
+  else trend = "Tế bào quá to: SA/V NHỎ → màng không kịp cấp O₂/dinh dưỡng vào trung tâm → tế bào 'ngạt'. Vì vậy tế bào phải nhỏ.";
+  document.getElementById("savHint").textContent =
+    `SA = 6×${s}² = ${SA} · V = ${s}³ = ${V} · SA/V = ${SA}/${V} = ${sav.toFixed(2)} (= 6/${s}). ${trend}`;
+}
+sSlider.oninput = renderSAV;
+
+// ===== Section 4: Endosymbiosis evidence =====
+const EVIDENCE = {
+  dna: {
+    name: "DNA vòng riêng",
+    desc: "Ti thể/lục lạp mang DNA dạng VÒNG (giống vi khuẩn), tách biệt DNA nhân. mtDNA người ~16,569 cặp base, 37 gen.",
+    why: "Một bào quan 'gốc chủ' không cần bộ gen độc lập — có bộ gen riêng nghĩa là nó từng là sinh vật riêng."
+  },
+  ribo: {
+    name: "Ribosome 70S",
+    desc: "Ribosome bên trong ti thể/lục lạp là loại 70S (giống vi khuẩn), khác 80S của tế bào nhân thực.",
+    why: "Một số kháng sinh đánh ribosome 70S vi khuẩn cũng ảnh hưởng ribosome ti thể → cùng họ vi khuẩn."
+  },
+  mem: {
+    name: "Màng kép",
+    desc: "Ti thể/lục lạp có HAI lớp màng: ngoài (do tế bào chủ tạo khi nuốt) + trong (màng gốc vi khuẩn).",
+    why: "Nếu chỉ là nếp gấp của màng chủ thì chỉ 1 lớp. Có 2 lớp khớp chính xác kịch bản thực bào (nuốt)."
+  }
+};
+const endoBtns = document.getElementById("endoBtns");
+Object.keys(EVIDENCE).forEach(k => {
+  const b = document.createElement("button");
+  b.className = "pill"; b.textContent = EVIDENCE[k].name; b.dataset.e = k;
+  b.onclick = () => showEvidence(k);
+  endoBtns.appendChild(b);
+});
+function showEvidence(k) {
+  document.querySelectorAll("#endoBtns .pill").forEach(b => b.classList.toggle("active", b.dataset.e === k));
+  const svg = document.getElementById("endoSvg"); clear(svg);
+  // left: free bacterium ; right: mitochondrion ; show feature per evidence
+  txt(svg, 110, 24, "Vi khuẩn tự do", { "text-anchor": "middle", font: "13px sans-serif", fill: "#374151", "font-weight": "700" });
+  txt(svg, 330, 24, "Ti thể (bào quan)", { "text-anchor": "middle", font: "13px sans-serif", fill: "#374151", "font-weight": "700" });
+  // bacterium ellipse
+  el("ellipse", { cx: 110, cy: 95, rx: 70, ry: 42, fill: "#fde68a", stroke: "#b45309", "stroke-width": 3 }, svg);
+  // mitochondrion ellipse (double membrane drawn if mem)
+  el("ellipse", { cx: 330, cy: 95, rx: 70, ry: 42, fill: "#fecaca", stroke: "#991b1b", "stroke-width": k === "mem" ? 5 : 3 }, svg);
+  if (k === "mem") {
+    el("ellipse", { cx: 110, cy: 95, rx: 60, ry: 34, fill: "none", stroke: "#92400e", "stroke-width": 2 }, svg);
+    el("ellipse", { cx: 330, cy: 95, rx: 60, ry: 34, fill: "none", stroke: "#7f1d1d", "stroke-width": 3 }, svg);
+    txt(svg, 220, 150, "Cả hai: MÀNG KÉP (2 lớp)", { "text-anchor": "middle", font: "12px sans-serif", fill: "#374151", "font-weight": "700" });
+  } else if (k === "dna") {
+    [110, 330].forEach(cx => el("circle", { cx, cy: 95, r: 18, fill: "none", stroke: "#7c3aed", "stroke-width": 3 }, svg));
+    txt(svg, 220, 150, "Cả hai: DNA VÒNG", { "text-anchor": "middle", font: "12px sans-serif", fill: "#374151", "font-weight": "700" });
+  } else { // ribo
+    [[80,330,1],[110,330,0],[140,330,1]].forEach(() => {});
+    [85,110,135].forEach(x => { el("circle", { cx: x, cy: 95, r: 6, fill: "#1e3a8a" }, svg); });
+    [305,330,355].forEach(x => { el("circle", { cx: x, cy: 95, r: 6, fill: "#1e3a8a" }, svg); });
+    txt(svg, 220, 150, "Cả hai: RIBOSOME 70S", { "text-anchor": "middle", font: "12px sans-serif", fill: "#374151", "font-weight": "700" });
+  }
+  // equals/arrow
+  txt(svg, 220, 99, "≈", { "text-anchor": "middle", font: "28px sans-serif", fill: "#6b7280" });
+  const e = EVIDENCE[k];
+  document.getElementById("endoInfo").innerHTML =
+    `<div><strong>Bằng chứng: ${e.name}</strong></div>` +
+    `<div>${e.desc}</div>` +
+    `<div><strong>Vì sao ủng hộ:</strong> ${e.why}</div>`;
+}
+
+// ===== Init =====
+showOrg("mito");
+showType("prok");
+renderSAV();
+showEvidence("dna");
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

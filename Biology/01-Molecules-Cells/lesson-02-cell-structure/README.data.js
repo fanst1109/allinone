@@ -1,4 +1,7 @@
-# Lesson 02 — Cấu trúc tế bào
+// AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
+// Source: Biology/01-Molecules-Cells/lesson-02-cell-structure/README.md
+// Chạy lại: go run tools/build-readme-data.go
+window.README_MD = `# Lesson 02 — Cấu trúc tế bào
 
 ## Mục tiêu học tập
 
@@ -13,8 +16,8 @@ Sau bài này bạn sẽ:
 
 ## Kiến thức tiền đề
 
-- **4 nhóm phân tử sinh học** (protein, lipid, carbohydrate, nucleic acid) — [`../lesson-01-biomolecules/`](../lesson-01-biomolecules/). Bài này dùng lại: phospholipid lưỡng cực (dựng màng), DNA (chứa trong nhân), protein (ribosome tổng hợp), enzyme (lysosome chứa).
-- **Liên kết hydrogen và phân cực** — [`../../../Chemistry/01-Structure/lesson-04-intermolecular-forces/`](../../../Chemistry/01-Structure/lesson-04-intermolecular-forces/). Cần để hiểu vì sao màng phospholipid tự lắp được.
+- **4 nhóm phân tử sinh học** (protein, lipid, carbohydrate, nucleic acid) — [\`../lesson-01-biomolecules/\`](../lesson-01-biomolecules/). Bài này dùng lại: phospholipid lưỡng cực (dựng màng), DNA (chứa trong nhân), protein (ribosome tổng hợp), enzyme (lysosome chứa).
+- **Liên kết hydrogen và phân cực** — [\`../../../Chemistry/01-Structure/lesson-04-intermolecular-forces/\`](../../../Chemistry/01-Structure/lesson-04-intermolecular-forces/). Cần để hiểu vì sao màng phospholipid tự lắp được.
 - Đơn vị đo nhỏ: 1 mm = 1000 µm (micromet); 1 µm = 1000 nm (nanomet). Tế bào đo bằng µm.
 
 ---
@@ -515,14 +518,14 @@ A: Vì nếu ti thể chỉ là một nếp gấp của màng tế bào chủ (g
 ## 9. Liên kết và bài tiếp theo
 
 - **Bài tiếp theo**: [Lesson 03 — Màng tế bào & vận chuyển](../lesson-03-membrane-transport/) — màng phospholipid kép kiểm soát ra vào thế nào (khuếch tán, thẩm thấu, vận chuyển chủ động, xuất/nhập bào).
-- **Liên kết Lesson 01**: [`../lesson-01-biomolecules/`](../lesson-01-biomolecules/) — phospholipid lưỡng cực dựng màng; DNA trong nhân; protein do ribosome tổng hợp; enzyme trong lysosome.
+- **Liên kết Lesson 01**: [\`../lesson-01-biomolecules/\`](../lesson-01-biomolecules/) — phospholipid lưỡng cực dựng màng; DNA trong nhân; protein do ribosome tổng hợp; enzyme trong lysosome.
 - **Liên kết Chemistry**:
-  - [`../../../Chemistry/01-Structure/lesson-04-intermolecular-forces/`](../../../Chemistry/01-Structure/lesson-04-intermolecular-forces/) — liên kết hydrogen & phân cực giải thích vì sao màng phospholipid tự lắp.
+  - [\`../../../Chemistry/01-Structure/lesson-04-intermolecular-forces/\`](../../../Chemistry/01-Structure/lesson-04-intermolecular-forces/) — liên kết hydrogen & phân cực giải thích vì sao màng phospholipid tự lắp.
 - **Sẽ học sâu hơn**:
   - Ti thể & ATP → [Lesson 05 — Hô hấp tế bào](../lesson-05-cellular-respiration/).
   - Lục lạp & quang hợp → [Lesson 06 — Quang hợp](../lesson-06-photosynthesis/).
   - Trung thể & phân bào → [Lesson 07 — Chu kỳ tế bào & nguyên phân](../lesson-07-cell-cycle-mitosis/).
-- **Mô hình tương tác**: [`visualization.html`](./visualization.html) của bài này (cell explorer, toggle 3 kiểu tế bào, máy tính SA/V).
+- **Mô hình tương tác**: [\`visualization.html\`](./visualization.html) của bài này (cell explorer, toggle 3 kiểu tế bào, máy tính SA/V).
 
 ---
 
@@ -536,3 +539,4 @@ A: Vì nếu ti thể chỉ là một nếp gấp của màng tế bào chủ (g
 6. **Thuyết nội cộng sinh**: ti thể & lục lạp từng là vi khuẩn tự do — bằng chứng: DNA vòng, ribosome 70S, màng kép.
 
 **Tiếp theo**: [Lesson 03 — Màng tế bào & vận chuyển](../lesson-03-membrane-transport/)
+`;

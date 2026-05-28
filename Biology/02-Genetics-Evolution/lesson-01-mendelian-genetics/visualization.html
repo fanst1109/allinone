@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Quy luật Mendel</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #14532d; }
+  h2 {
+    color: #166534; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #bbf7d0;
+  }
+  h3 { color: #15803d; margin-top: 20px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  input[type="text"], input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 11px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 110px; max-width: 100%;
+  }
+  input[type="range"] { flex: 1; min-width: 0; }
+  button {
+    background: #059669; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #047857; }
+  button.muted { background: #a0aec0; }
+  button.muted:hover { background: #718096; }
+  .pill {
+    background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;
+  }
+  .pill.active { background: #059669; color: white; }
+  .stat {
+    display: inline-block; background: #d1fae5;
+    padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #047857; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; }
+  .group-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+  svg { display: block; margin: 8px auto; max-width: 100%; height: auto; }
+  .info-grid { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 14px; }
+  .info-grid div { padding: 6px 10px; background: #f0fdf4; border-radius: 6px; }
+  .info-grid strong { color: #166534; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 8px; }
+  th, td { border: 1px solid #d1d5db; padding: 7px 10px; text-align: center; }
+  th { background: #ecfdf5; color: #065f46; }
+
+  /* Punnett-specific */
+  .pun-tbl { table-layout: fixed; }
+  .pun-tbl th, .pun-tbl td { padding: 6px 4px; font-family: monospace; font-weight: 600; }
+  .pun-AA, .pun-AABB { background: #bbf7d0; color: #14532d; }
+  .pun-Aa, .pun-Bb { background: #d9f99d; color: #365314; }
+  .pun-aa, .pun-aabb { background: #fef3c7; color: #78350f; }
+  .pun-dom { background: #bbf7d0; color: #14532d; }
+  .pun-rec { background: #fef3c7; color: #78350f; }
+  .pun-domrec { background: #fde68a; color: #78350f; }
+  .pun-recdom { background: #fcd34d; color: #713f12; }
+  .pun-recrec { background: #fca5a5; color: #7f1d1d; }
+  .pun-corner { background: #ecfdf5; color: #065f46; font-weight: 700; }
+
+  .err { color: #b91c1c; font-weight: 600; }
+
+  /* Dihybrid ratio bars */
+  .dh-9 { fill: #16a34a; }
+  .dh-3a { fill: #facc15; }
+  .dh-3b { fill: #fb923c; }
+  .dh-1 { fill: #dc2626; }
+  .bar-label { font: 12px sans-serif; fill: #374151; text-anchor: middle; }
+
+  /* Monohybrid simulator dots */
+  .dot-dom { fill: #16a34a; }
+  .dot-rec { fill: #f59e0b; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Biology · Tầng 2</a>
+  <span class="sep">·</span>
+  <a href="../../01-Molecules-Cells/lesson-08-meiosis/visualization.html">← T1.L8: Giảm phân</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Quy luật Mendel</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-dna-replication/visualization.html">L2: DNA &amp; nhân đôi →</a>
+</nav>
+
+<h1>Lesson 01 — Quy luật Mendel</h1>
+<p>Bộ công cụ tương tác: dựng khung Punnett 2×2 và 4×4, mô phỏng F2 ngẫu nhiên hội tụ về 3:1, thấy tỉ lệ 9:3:3:1 sống động, và đọc kết quả lai phân tích.</p>
+
+<h2>1. Punnett builder — lai một tính &amp; hai tính</h2>
+<div class="card">
+  <p>Nhập kiểu gen bố và mẹ (vd <code>Aa</code>, <code>AaBb</code>, <code>AABb</code>, <code>aa</code>). Viz tự dựng khung Punnett, liệt kê giao tử, đếm tỉ lệ kiểu gen và kiểu hình. Giả định: trội hoàn toàn; mỗi gene độc lập.</p>
+  <div class="row">
+    <label>Bố:</label>
+    <input type="text" id="dadGeno" value="Aa" maxlength="6">
+    <label>Mẹ:</label>
+    <input type="text" id="momGeno" value="Aa" maxlength="6">
+    <button id="punBuild">Dựng khung Punnett</button>
+  </div>
+  <div class="row">
+    <span class="hint">Mẫu nhanh:</span>
+    <button class="pill" data-pun="Aa|Aa">Aa × Aa</button>
+    <button class="pill" data-pun="AA|aa">AA × aa</button>
+    <button class="pill" data-pun="Aa|aa">Aa × aa</button>
+    <button class="pill" data-pun="AaBb|AaBb">AaBb × AaBb</button>
+    <button class="pill" data-pun="AaBb|aabb">AaBb × aabb</button>
+  </div>
+  <div id="punErr" class="err"></div>
+  <div id="punGametes" class="hint" style="margin-top:8px"></div>
+  <div id="punTableWrap" style="overflow-x:auto; margin-top:10px"></div>
+  <div id="punSummary" style="margin-top:10px"></div>
+</div>
+
+<h2>2. Mô phỏng F2 ngẫu nhiên — hội tụ về 3:1</h2>
+<div class="card">
+  <p>Lai <code>Aa × Aa</code>: mỗi con độc lập có xác suất 3/4 kiểu hình trội, 1/4 lặn. Chỉnh số con và bấm "Mô phỏng" — viz tung "đồng xu di truyền" cho từng con và đếm thực tế. Số con càng lớn, tỉ lệ thực càng sát 3:1.</p>
+  <div class="row">
+    <label>Số con (N):</label>
+    <input type="range" id="simN" min="8" max="800" value="80" step="8">
+    <span class="stat">N = <strong id="simNVal">80</strong></span>
+  </div>
+  <div class="row">
+    <button id="simRun">Mô phỏng F2</button>
+    <button id="simRunBig" class="muted">Tăng N×2 + chạy lại</button>
+    <button id="simReset" class="muted">Reset (về N=80)</button>
+  </div>
+  <svg id="simSvg" width="460" height="220" viewBox="0 0 460 220" role="img" aria-label="Mô phỏng F2"></svg>
+  <div style="margin-top:6px">
+    <span class="stat" style="background:#bbf7d0">Trội: <strong id="simDom" style="color:#14532d">0</strong></span>
+    <span class="stat" style="background:#fef3c7">Lặn: <strong id="simRec" style="color:#78350f">0</strong></span>
+    <span class="stat">Tỉ lệ trội:lặn = <strong id="simRatio">—</strong></span>
+    <span class="stat">Sai số so với 3:1 = <strong id="simDelta">—</strong></span>
+  </div>
+  <div class="hint" id="simHint">Lý thuyết: trội = 0.75×N ; lặn = 0.25×N. Bấm "Mô phỏng" để bắt đầu.</div>
+</div>
+
+<h2>3. Tỉ lệ 9:3:3:1 sống động — lai hai tính</h2>
+<div class="card">
+  <p>Lai <code>AaBb × AaBb</code> (2 gene độc lập, trội hoàn toàn). Chỉnh số con — viz vẽ cột số con kỳ vọng cho 4 kiểu hình và so với tỉ lệ 9:3:3:1. Mỗi phần = N/16.</p>
+  <div class="row">
+    <label>Tổng con:</label>
+    <input type="range" id="dhN" min="16" max="1600" value="320" step="16">
+    <span class="stat">N = <strong id="dhNVal">320</strong></span>
+  </div>
+  <svg id="dhSvg" width="460" height="260" viewBox="0 0 460 260" role="img" aria-label="Tỉ lệ 9:3:3:1"></svg>
+  <div class="info-grid" id="dhInfo"></div>
+  <div class="hint">Mẹo tính nhanh: P(vàng-trơn) = P(vàng) × P(trơn) = 3/4 × 3/4 = 9/16 — không cần vẽ 4×4.</div>
+</div>
+
+<h2>4. Lai phân tích — phát hiện kiểu gen ẩn</h2>
+<div class="card">
+  <p>Bạn có một cây hoa tím nhưng không biết <code>AA</code> hay <code>Aa</code>. Lai phân tích với <code>aa</code> (cây trắng) và đếm con. Chọn kiểu gen "ẩn" của bố — viz vẽ kết quả 100%:0 hoặc 50%:50%.</p>
+  <div class="row">
+    <label>Kiểu gen ẩn của bố:</label>
+    <button class="pill active" data-tc="AA">AA (đồng hợp trội)</button>
+    <button class="pill" data-tc="Aa">Aa (dị hợp)</button>
+  </div>
+  <div class="row">
+    <label>Số con (tổng):</label>
+    <input type="range" id="tcN" min="4" max="200" value="40" step="2">
+    <span class="stat">N = <strong id="tcNVal">40</strong></span>
+  </div>
+  <svg id="tcSvg" width="460" height="200" viewBox="0 0 460 200" role="img" aria-label="Lai phân tích"></svg>
+  <div style="margin-top:6px">
+    <span class="stat" style="background:#bbf7d0">Tím (trội): <strong id="tcDom" style="color:#14532d">0</strong></span>
+    <span class="stat" style="background:#fef3c7">Trắng (lặn): <strong id="tcRec" style="color:#78350f">0</strong></span>
+    <span class="stat">Tỉ lệ = <strong id="tcRatio">—</strong></span>
+  </div>
+  <div class="hint" id="tcHint"></div>
+</div>
+
+<h2>5. Tham chiếu nhanh các kết quả</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>Phép lai</th><th>Kiểu gen con</th><th>Kiểu hình con</th></tr></thead>
+    <tbody>
+      <tr><td>AA × aa</td><td>100% Aa</td><td>100% trội</td></tr>
+      <tr><td>Aa × Aa</td><td>1 AA : 2 Aa : 1 aa</td><td>3 trội : 1 lặn</td></tr>
+      <tr><td>Aa × aa</td><td>1 Aa : 1 aa</td><td>1 trội : 1 lặn</td></tr>
+      <tr><td>AA × Aa</td><td>1 AA : 1 Aa</td><td>100% trội</td></tr>
+      <tr><td>AaBb × AaBb</td><td>9 dạng (3×3)</td><td>9 : 3 : 3 : 1</td></tr>
+      <tr><td>AaBb × aabb</td><td>1 AaBb : 1 Aabb : 1 aaBb : 1 aabb</td><td>1 : 1 : 1 : 1</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+
+// ===== Section 1: Punnett builder =====
+// Parse kiểu gen như "AaBb" -> [["A","a"],["B","b"]]
+// Quy ước: chữ in hoa = trội, chữ thường = lặn của cùng gene (cùng chữ cái).
+function parseGeno(s) {
+  s = (s || "").trim();
+  if (!s) return null;
+  if (s.length % 2 !== 0) return null;
+  const pairs = [];
+  for (let i = 0; i < s.length; i += 2) {
+    const a = s[i], b = s[i + 1];
+    if (!/[A-Za-z]/.test(a) || !/[A-Za-z]/.test(b)) return null;
+    if (a.toLowerCase() !== b.toLowerCase()) return null; // phải cùng gene
+    pairs.push([a, b]);
+  }
+  return pairs;
+}
+// Sinh tất cả giao tử (mỗi pair chọn 1 allele, tích Descartes)
+function gametes(pairs) {
+  let result = [""];
+  for (const p of pairs) {
+    const next = [];
+    for (const g of result) {
+      next.push(g + p[0]);
+      if (p[1] !== p[0]) next.push(g + p[1]); // tránh nhân đôi nếu đồng hợp
+    }
+    result = next;
+  }
+  // Dedupe (đề phòng), giữ thứ tự
+  const seen = new Set(), out = [];
+  for (const g of result) if (!seen.has(g)) { seen.add(g); out.push(g); }
+  return out;
+}
+// Chuẩn hóa kiểu gen con: với mỗi gene, sắp xếp 2 allele theo "trội trước, lặn sau" (in hoa trước)
+function normalizeGeno(g1, g2) {
+  // g1, g2 là 2 string allele cùng độ dài, mỗi vị trí là 1 gene
+  let out = "";
+  for (let i = 0; i < g1.length; i++) {
+    const a = g1[i], b = g2[i];
+    // Trội trước (in hoa)
+    if (a === a.toUpperCase() && b === b.toLowerCase()) out += a + b;
+    else if (a === a.toLowerCase() && b === b.toUpperCase()) out += b + a;
+    else out += a + b; // cùng kiểu (AA hoặc aa hoặc đều hoa)
+  }
+  return out;
+}
+// Kiểu hình từ kiểu gen: với mỗi gene, nếu có ít nhất 1 allele in hoa → trội, nếu không → lặn.
+function phenotype(geno) {
+  let p = "";
+  for (let i = 0; i < geno.length; i += 2) {
+    const a = geno[i], b = geno[i + 1];
+    const hasDom = (a === a.toUpperCase()) || (b === b.toUpperCase());
+    p += hasDom ? a.toUpperCase() : a.toLowerCase();
+  }
+  return p; // vd "AB", "Ab", "aB", "ab"
+}
+function phenoLabel(p) {
+  // Mô tả ngắn: A trội / a lặn cho từng gene
+  return p.split("").map(c => c === c.toUpperCase() ? `${c}_` : `${c}${c}`).join("");
+}
+
+function buildPunnett() {
+  const dad = document.getElementById("dadGeno").value;
+  const mom = document.getElementById("momGeno").value;
+  const errEl = document.getElementById("punErr");
+  const gametesEl = document.getElementById("punGametes");
+  const wrap = document.getElementById("punTableWrap");
+  const sum = document.getElementById("punSummary");
+  errEl.textContent = ""; gametesEl.textContent = ""; wrap.innerHTML = ""; sum.innerHTML = "";
+
+  const pd = parseGeno(dad), pm = parseGeno(mom);
+  if (!pd || !pm) {
+    errEl.textContent = "Kiểu gen không hợp lệ. Dùng cặp chữ cái (vd Aa, AaBb).";
+    return;
+  }
+  if (pd.length !== pm.length) {
+    errEl.textContent = "Bố và mẹ phải có cùng số gene.";
+    return;
+  }
+  // Kiểm tra cùng bộ chữ cái (cùng gene)
+  for (let i = 0; i < pd.length; i++) {
+    if (pd[i][0].toLowerCase() !== pm[i][0].toLowerCase()) {
+      errEl.textContent = "Bố và mẹ phải xét cùng các gene (cùng chữ cái).";
+      return;
+    }
+  }
+  const gd = gametes(pd), gm = gametes(pm);
+  gametesEl.innerHTML =
+    `<strong>Giao tử bố (${gd.length}):</strong> ${gd.join(", ")} &nbsp;·&nbsp; ` +
+    `<strong>Giao tử mẹ (${gm.length}):</strong> ${gm.join(", ")}`;
+
+  // Dựng bảng
+  const tbl = document.createElement("table");
+  tbl.className = "pun-tbl";
+  const thead = document.createElement("thead");
+  const trh = document.createElement("tr");
+  trh.appendChild(Object.assign(document.createElement("th"), { className: "pun-corner", textContent: "♂\\♀" }));
+  gm.forEach(g => { const th = document.createElement("th"); th.textContent = g; th.className = "pun-corner"; trh.appendChild(th); });
+  thead.appendChild(trh); tbl.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+  const genoCount = {}, phenoCount = {};
+  for (const a of gd) {
+    const tr = document.createElement("tr");
+    const th = document.createElement("th"); th.textContent = a; th.className = "pun-corner"; tr.appendChild(th);
+    for (const b of gm) {
+      const geno = normalizeGeno(a, b);
+      const ph = phenotype(geno);
+      genoCount[geno] = (genoCount[geno] || 0) + 1;
+      phenoCount[ph] = (phenoCount[ph] || 0) + 1;
+      const td = document.createElement("td");
+      td.textContent = geno;
+      // Màu theo kiểu hình
+      const recCount = ph.split("").filter(c => c === c.toLowerCase()).length;
+      const total = ph.length;
+      if (total === 1) {
+        td.className = recCount === 0 ? "pun-dom" : "pun-rec";
+      } else { // 2 gene
+        if (recCount === 0) td.className = "pun-dom";
+        else if (recCount === total) td.className = "pun-recrec";
+        else if (ph[0] === ph[0].toUpperCase()) td.className = "pun-domrec";
+        else td.className = "pun-recdom";
+      }
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  }
+  tbl.appendChild(tbody);
+  wrap.appendChild(tbl);
+
+  // Tổng kết
+  const totalCells = gd.length * gm.length;
+  // Tỉ lệ — rút gọn theo GCD
+  function gcd(a, b) { return b ? gcd(b, a % b) : a; }
+  function reduce(arr) {
+    let g = arr[0]; for (let i = 1; i < arr.length; i++) g = gcd(g, arr[i]);
+    return arr.map(x => x / g);
+  }
+  const genoEntries = Object.entries(genoCount).sort((a, b) => b[1] - a[1]);
+  const phenoEntries = Object.entries(phenoCount).sort((a, b) => b[1] - a[1]);
+  const genoRatio = reduce(genoEntries.map(e => e[1]));
+  const phenoRatio = reduce(phenoEntries.map(e => e[1]));
+
+  let html = "";
+  html += `<div class="info-grid">`;
+  html += `<div><strong>Số ô:</strong> ${gd.length} × ${gm.length} = ${totalCells}</div>`;
+  html += `<div><strong>Tỉ lệ kiểu gen:</strong> ` +
+    genoEntries.map((e, i) => `${genoRatio[i]} ${e[0]}`).join(" : ") +
+    ` &nbsp;<span class="hint">(theo số ô: ${genoEntries.map(e => `${e[1]} ${e[0]}`).join(", ")})</span></div>`;
+  html += `<div><strong>Tỉ lệ kiểu hình:</strong> ` +
+    phenoEntries.map((e, i) => `${phenoRatio[i]} (${phenoLabel(e[0])})`).join(" : ") +
+    ` &nbsp;<span class="hint">(${phenoEntries.map(e => `${e[1]}/${totalCells}`).join(", ")})</span></div>`;
+  html += `</div>`;
+  sum.innerHTML = html;
+}
+document.getElementById("punBuild").onclick = buildPunnett;
+document.querySelectorAll("[data-pun]").forEach(b => {
+  b.onclick = () => {
+    const [d, m] = b.dataset.pun.split("|");
+    document.getElementById("dadGeno").value = d;
+    document.getElementById("momGeno").value = m;
+    buildPunnett();
+  };
+});
+
+// ===== Section 2: Monohybrid F2 simulator =====
+const simN = document.getElementById("simN");
+const simSvg = document.getElementById("simSvg");
+function renderSimDots(dom, rec) {
+  clear(simSvg);
+  const total = dom + rec;
+  // Lưới chấm. SVG 460×220, dành 200 cho lưới (y 10..200), x 10..450
+  const W = 440, H = 190;
+  const cols = Math.ceil(Math.sqrt(total * (W / H)));
+  const rows = Math.ceil(total / cols);
+  const cell = Math.min(W / cols, H / rows);
+  const r = Math.max(1.5, Math.min(6, cell * 0.4));
+  const offsetX = 10 + (W - cols * cell) / 2;
+  const offsetY = 10;
+  for (let i = 0; i < total; i++) {
+    const cx = offsetX + (i % cols) * cell + cell / 2;
+    const cy = offsetY + Math.floor(i / cols) * cell + cell / 2;
+    el("circle", { cx, cy, r, class: i < dom ? "dot-dom" : "dot-rec" }, simSvg);
+  }
+  // Legend ở đáy
+  const lg = el("text", { x: 230, y: 215, "text-anchor": "middle", font: "12px sans-serif", fill: "#374151" }, simSvg);
+  lg.textContent = `${dom} chấm xanh (trội) · ${rec} chấm cam (lặn)`;
+}
+function runSim() {
+  const N = +simN.value;
+  let dom = 0, rec = 0;
+  for (let i = 0; i < N; i++) {
+    if (Math.random() < 0.75) dom++; else rec++;
+  }
+  document.getElementById("simDom").textContent = dom;
+  document.getElementById("simRec").textContent = rec;
+  const r = rec === 0 ? "∞" : (dom / rec).toFixed(2);
+  document.getElementById("simRatio").textContent = `${r} : 1`;
+  const delta = ((dom / N) - 0.75) * 100;
+  document.getElementById("simDelta").textContent = `${delta >= 0 ? "+" : ""}${delta.toFixed(1)}% trội (so với 75% kỳ vọng)`;
+  renderSimDots(dom, rec);
+  document.getElementById("simHint").textContent =
+    `Lý thuyết với N=${N}: trội = ${Math.round(N * 0.75)} ; lặn = ${Math.round(N * 0.25)}. Thực tế ngẫu nhiên: ${dom} ; ${rec}. ` +
+    `${N < 40 ? "Cỡ nhỏ thường lệch nhiều — chạy lại sẽ thấy kết quả khác nhau." : "Cỡ vừa/lớn — tỉ lệ thực sát 3:1."}`;
+}
+simN.oninput = () => {
+  document.getElementById("simNVal").textContent = simN.value;
+};
+document.getElementById("simRun").onclick = runSim;
+document.getElementById("simRunBig").onclick = () => {
+  const cur = +simN.value;
+  simN.value = Math.min(800, cur * 2);
+  document.getElementById("simNVal").textContent = simN.value;
+  runSim();
+};
+document.getElementById("simReset").onclick = () => {
+  simN.value = 80;
+  document.getElementById("simNVal").textContent = 80;
+  runSim();
+};
+
+// ===== Section 3: Dihybrid 9:3:3:1 =====
+const dhN = document.getElementById("dhN");
+const dhSvg = document.getElementById("dhSvg");
+function renderDH() {
+  const N = +dhN.value;
+  document.getElementById("dhNVal").textContent = N;
+  const parts = [9, 3, 3, 1];
+  const counts = parts.map(p => Math.round(N * p / 16));
+  const labels = ["A_B_ (9/16)", "A_bb (3/16)", "aaB_ (3/16)", "aabb (1/16)"];
+  const colors = ["dh-9", "dh-3a", "dh-3b", "dh-1"];
+  const descs = ["Trội cả 2", "Trội A, lặn B", "Lặn A, trội B", "Lặn cả 2"];
+
+  clear(dhSvg);
+  const baseY = 200, maxH = 160, bw = 70, gap = 28;
+  const startX = 40;
+  // Trục
+  el("line", { x1: 20, y1: baseY, x2: 440, y2: baseY, stroke: "#9ca3af" }, dhSvg);
+  const maxVal = Math.max(...counts);
+  counts.forEach((c, i) => {
+    const x = startX + i * (bw + gap);
+    const h = (c / maxVal) * maxH;
+    el("rect", { x, y: baseY - h, width: bw, height: h, class: colors[i], rx: 3 }, dhSvg);
+    const v = el("text", { x: x + bw / 2, y: baseY - h - 6, class: "bar-label" }, dhSvg);
+    v.textContent = c;
+    const l1 = el("text", { x: x + bw / 2, y: baseY + 16, class: "bar-label", "font-weight": "700" }, dhSvg);
+    l1.textContent = labels[i].split(" ")[0];
+    const l2 = el("text", { x: x + bw / 2, y: baseY + 32, class: "bar-label", fill: "#6b7280" }, dhSvg);
+    l2.textContent = parts[i] + "/16";
+  });
+  // Tổng
+  const t = el("text", { x: 230, y: 250, "text-anchor": "middle", font: "13px sans-serif", fill: "#374151" }, dhSvg);
+  t.textContent = `Tổng: ${counts.reduce((s, x) => s + x, 0)} (kỳ vọng ${N})`;
+
+  document.getElementById("dhInfo").innerHTML = parts.map((p, i) =>
+    `<div><strong>${labels[i]}:</strong> ${descs[i]} → ${counts[i]} con (${(p / 16 * 100).toFixed(2)}%)</div>`
+  ).join("");
+}
+dhN.oninput = renderDH;
+
+// ===== Section 4: Test cross =====
+const tcN = document.getElementById("tcN");
+const tcSvg = document.getElementById("tcSvg");
+let tcMode = "AA";
+function renderTC() {
+  const N = +tcN.value;
+  document.getElementById("tcNVal").textContent = N;
+  let domR, recR;
+  if (tcMode === "AA") { domR = 1; recR = 0; }
+  else { domR = 0.5; recR = 0.5; }
+  const dom = Math.round(N * domR), rec = N - dom;
+  document.getElementById("tcDom").textContent = dom;
+  document.getElementById("tcRec").textContent = rec;
+  document.getElementById("tcRatio").textContent = rec === 0 ? "100% : 0%" : `${dom}:${rec} ≈ ${(dom / rec).toFixed(2)}:1`;
+  // Vẽ
+  clear(tcSvg);
+  // Khung Punnett mini
+  const px = 30, py = 30;
+  const cell = 50;
+  // Header
+  el("text", { x: px + cell, y: py - 5, "text-anchor": "middle", font: "12px monospace", fill: "#065f46" }, tcSvg).textContent = "♀ a";
+  if (tcMode === "Aa") {
+    el("text", { x: px + 2 * cell, y: py - 5, "text-anchor": "middle", font: "12px monospace", fill: "#065f46" }, tcSvg).textContent = "♀ a";
+  }
+  // Rows: giao tử bố
+  const dadGams = tcMode === "AA" ? ["A", "A"] : ["A", "a"];
+  dadGams.forEach((g, i) => {
+    el("text", { x: px - 5, y: py + (i + 0.5) * cell + 4, "text-anchor": "end", font: "12px monospace", fill: "#065f46" }, tcSvg).textContent = "♂ " + g;
+    // 2 ô mỗi hàng
+    for (let j = 0; j < 2; j++) {
+      const geno = (g.toUpperCase() === g) ? g + "a" : "aa";
+      const isDom = geno[0] === geno[0].toUpperCase();
+      el("rect", { x: px + j * cell, y: py + i * cell, width: cell, height: cell, fill: isDom ? "#bbf7d0" : "#fef3c7", stroke: "#065f46", "stroke-width": 1 }, tcSvg);
+      el("text", { x: px + j * cell + cell / 2, y: py + i * cell + cell / 2 + 5, "text-anchor": "middle", font: "13px monospace", "font-weight": "700", fill: isDom ? "#14532d" : "#78350f" }, tcSvg).textContent = geno;
+    }
+  });
+  // Đường tổng
+  const bx = 200, by = 40, bh = 120;
+  el("rect", { x: bx, y: by, width: 220, height: bh, fill: "#f9fafb", stroke: "#d1d5db" }, tcSvg);
+  // 2 cột tỉ lệ
+  const domH = bh * domR, recH = bh * recR;
+  el("rect", { x: bx + 20, y: by + (bh - domH), width: 80, height: domH, fill: "#16a34a" }, tcSvg);
+  el("text", { x: bx + 60, y: by + bh + 16, "text-anchor": "middle", font: "12px sans-serif", fill: "#14532d", "font-weight": "700" }, tcSvg).textContent = `Tím: ${dom}`;
+  el("rect", { x: bx + 120, y: by + (bh - recH), width: 80, height: recH, fill: "#f59e0b" }, tcSvg);
+  el("text", { x: bx + 160, y: by + bh + 16, "text-anchor": "middle", font: "12px sans-serif", fill: "#78350f", "font-weight": "700" }, tcSvg).textContent = `Trắng: ${rec}`;
+  el("text", { x: bx + 110, y: by - 6, "text-anchor": "middle", font: "11px sans-serif", fill: "#6b7280" }, tcSvg).textContent = "Kết quả ở con";
+
+  const hint = tcMode === "AA"
+    ? `Bố AA × Mẹ aa → con toàn Aa → 100% kiểu hình trội (tím). Không có con trắng nào trong N=${N} là dấu hiệu mạnh bố thuần chủng.`
+    : `Bố Aa × Mẹ aa → 1 Aa : 1 aa → 1 trội : 1 lặn. Với N=${N}, kỳ vọng ${N / 2} tím + ${N / 2} trắng. Cỡ càng lớn càng sát.`;
+  document.getElementById("tcHint").textContent = hint;
+}
+tcN.oninput = renderTC;
+document.querySelectorAll("[data-tc]").forEach(b => {
+  b.onclick = () => {
+    tcMode = b.dataset.tc;
+    document.querySelectorAll("[data-tc]").forEach(x => x.classList.toggle("active", x === b));
+    renderTC();
+  };
+});
+
+// ===== Init =====
+buildPunnett();
+renderDH();
+renderTC();
+// Initial sim render: chạy 1 lần với N=80
+runSim();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

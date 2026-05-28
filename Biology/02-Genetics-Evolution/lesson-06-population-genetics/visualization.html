@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Di truyền quần thể</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #14532d; }
+  h2 {
+    color: #166534; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #bbf7d0;
+  }
+  h3 { color: #15803d; margin-top: 20px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 11px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 110px; max-width: 100%;
+  }
+  input[type="range"] { flex: 1; min-width: 0; }
+  button {
+    background: #059669; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #047857; }
+  button.muted { background: #a0aec0; }
+  button.muted:hover { background: #718096; }
+  .pill {
+    background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;
+  }
+  .pill.active { background: #059669; color: white; border-color: #047857; }
+  .stat {
+    display: inline-block; background: #d1fae5;
+    padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #047857; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; }
+
+  svg { display: block; margin: 8px auto; max-width: 100%; height: auto; }
+  .info-grid { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 14px; }
+  .info-grid div { padding: 6px 10px; background: #f0fdf4; border-radius: 6px; }
+  .info-grid strong { color: #166534; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 8px; }
+  th, td { border: 1px solid #d1d5db; padding: 7px 10px; text-align: left; }
+  th { background: #ecfdf5; color: #065f46; }
+
+  .bar-AA { fill: #059669; } .bar-Aa { fill: #fbbf24; } .bar-aa { fill: #dc2626; }
+  .bar-label { font: 12px sans-serif; fill: #374151; text-anchor: middle; }
+  .ok { color: #047857; font-weight: 700; }
+  .bad { color: #b91c1c; font-weight: 700; }
+  .warn { color: #b45309; font-weight: 700; }
+
+  .small-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .small-grid > div {
+    background: #f0fdf4; padding: 8px 10px; border-radius: 6px;
+    font-size: 14px; text-align: center;
+  }
+  @media (max-width: 480px) {
+    .small-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Biology · Tầng 2</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-mutation-biotech/visualization.html">← L5: Đột biến &amp; công nghệ gen</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Di truyền quần thể</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-natural-selection/visualization.html">L7: Chọn lọc tự nhiên →</a>
+</nav>
+
+<h1>Lesson 06 — Di truyền quần thể</h1>
+<p>Bộ công cụ tương tác cho định luật Hardy–Weinberg: tính p², 2pq, q² từ p; suy ngược từ tần số bệnh lặn; kiểm tra cân bằng HW từ kiểu gen quan sát; và mô phỏng chọn lọc loại bỏ aa qua nhiều thế hệ.</p>
+
+<h2>1. Máy tính Hardy–Weinberg — từ p ra 3 tần số kiểu gen</h2>
+<div class="card">
+  <p>Kéo thanh chọn p (tần số allele A). Viz tự tính q = 1−p, p², 2pq, q² và vẽ biểu đồ 3 cột.</p>
+  <div class="row">
+    <label>p (tần số A) =</label>
+    <input type="range" id="pSlider" min="0" max="1" value="0.6" step="0.01">
+    <span class="stat">p = <strong id="pVal">0.60</strong></span>
+    <span class="stat">q = <strong id="qVal">0.40</strong></span>
+  </div>
+  <svg id="hwSvg" width="460" height="240" viewBox="0 0 460 240" role="img" aria-label="Biểu đồ HW 3 kiểu gen"></svg>
+  <div class="small-grid">
+    <div style="background:#d1fae5"><strong>p² (AA)</strong><br><span id="ppSt">0.36</span></div>
+    <div style="background:#fef3c7"><strong>2pq (Aa)</strong><br><span id="pqSt">0.48</span></div>
+    <div style="background:#fecaca"><strong>q² (aa)</strong><br><span id="qqSt">0.16</span></div>
+  </div>
+  <div class="hint" id="hwHint"></div>
+</div>
+
+<h2>2. Máy tính ngược — từ tần số bệnh (q²) ước lượng carrier</h2>
+<div class="card">
+  <p>Nhập tần số người mắc bệnh lặn (q²) — viz suy ra q, p, tần số carrier (2pq), và tỉ lệ carrier/người-bệnh.</p>
+  <div class="row">
+    <label>q² (tần số bệnh) =</label>
+    <input type="number" id="qsqInput" min="0" max="1" value="0.0001" step="0.0001">
+    <span class="hint">vd PKU ≈ 1/10000 = 0.0001</span>
+  </div>
+  <div class="row">
+    <button data-preset="0.04">q²=0.04</button>
+    <button data-preset="0.01">q²=0.01</button>
+    <button data-preset="0.0025">q²=0.0025 (1/400)</button>
+    <button data-preset="0.0001">q²=0.0001 (PKU)</button>
+    <button data-preset="0.000001">q²=10⁻⁶</button>
+  </div>
+  <div id="reverseOut" class="info-grid"></div>
+  <svg id="reverseSvg" width="460" height="170" viewBox="0 0 460 170" role="img" aria-label="So sánh người bệnh và carrier"></svg>
+  <div class="hint" id="reverseHint"></div>
+</div>
+
+<h2>3. Kiểm tra HW — từ kiểu gen quan sát</h2>
+<div class="card">
+  <p>Nhập số cá thể quan sát của mỗi kiểu gen. Viz tính p, q rồi so sánh số quan sát với dự đoán HW p²·N, 2pq·N, q²·N.</p>
+  <div class="row">
+    <label>AA =</label> <input type="number" id="obsAA" min="0" value="36">
+    <label>Aa =</label> <input type="number" id="obsAa" min="0" value="48">
+    <label>aa =</label> <input type="number" id="obsaa" min="0" value="16">
+  </div>
+  <div class="row">
+    <button data-test="36,48,16">Ví dụ 1 (khớp HW)</button>
+    <button data-test="50,20,30">Ví dụ 2 (thiếu Aa)</button>
+    <button data-test="50,130,20">Ví dụ 3 (thừa Aa)</button>
+    <button data-test="500,0,0">Ví dụ 4 (cố định A)</button>
+  </div>
+  <svg id="testSvg" width="460" height="260" viewBox="0 0 460 260" role="img" aria-label="So sánh quan sát và HW"></svg>
+  <table>
+    <thead><tr><th>Kiểu gen</th><th>Quan sát</th><th>HW dự đoán</th><th>Lệch</th></tr></thead>
+    <tbody id="testRows"></tbody>
+  </table>
+  <div class="hint" id="testHint"></div>
+</div>
+
+<h2>4. Mô phỏng chọn lọc — q thay đổi qua các thế hệ</h2>
+<div class="card">
+  <p>Khởi đầu q₀, áp lực chọn lọc s = 1 (aa chết trước sinh sản). Viz tính q ở các thế hệ kế tiếp theo công thức q_(n+1) = q_n × (1 − s·q_n) / (1 − s·q_n²). Với s = 1 đơn giản hóa thành q_(n+1) = q_n / (1 + q_n).</p>
+  <div class="row">
+    <label>q₀ (ban đầu) =</label>
+    <input type="range" id="q0Slider" min="0.01" max="0.99" value="0.5" step="0.01">
+    <span class="stat">q₀ = <strong id="q0Val">0.50</strong></span>
+  </div>
+  <div class="row">
+    <label>s (hệ số chọn lọc chống aa) =</label>
+    <input type="range" id="sSlider" min="0" max="1" value="1" step="0.05">
+    <span class="stat">s = <strong id="sVal">1.00</strong></span>
+  </div>
+  <div class="row">
+    <label>Số thế hệ =</label>
+    <input type="range" id="genSlider" min="5" max="100" value="30" step="1">
+    <span class="stat">N = <strong id="genVal">30</strong></span>
+  </div>
+  <svg id="simSvg" width="460" height="260" viewBox="0 0 460 260" role="img" aria-label="Đường cong q qua các thế hệ"></svg>
+  <div class="hint" id="simHint"></div>
+</div>
+
+<h2>5. Bảng nhắc nhanh</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>Đại lượng</th><th>Công thức</th><th>Ý nghĩa</th></tr></thead>
+    <tbody>
+      <tr><td>p + q</td><td>= 1</td><td>tổng tần số 2 allele</td></tr>
+      <tr><td>p</td><td>= D + H/2</td><td>tần số allele A từ kiểu gen</td></tr>
+      <tr><td>p², 2pq, q²</td><td>tổng = 1</td><td>tần số kiểu gen ở HW</td></tr>
+      <tr><td>q (từ q²)</td><td>= √(q²)</td><td>suy q từ tần số bệnh lặn</td></tr>
+      <tr><td>q_(n+1)</td><td>= q_n / (1 + q_n) khi s=1</td><td>chọn lọc loại aa hoàn toàn</td></tr>
+      <tr><td>carrier/bệnh</td><td>≈ 2/q (khi q nhỏ)</td><td>bệnh càng hiếm carrier càng đông</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+function fmt(x, d) { return Number(x).toFixed(d == null ? 4 : d); }
+
+// ===== Section 1: HW calculator =====
+const pSlider = document.getElementById("pSlider");
+function renderHW() {
+  const p = parseFloat(pSlider.value);
+  const q = 1 - p;
+  const pp = p * p, pq = 2 * p * q, qq = q * q;
+  document.getElementById("pVal").textContent = fmt(p, 2);
+  document.getElementById("qVal").textContent = fmt(q, 2);
+  document.getElementById("ppSt").textContent = fmt(pp, 4);
+  document.getElementById("pqSt").textContent = fmt(pq, 4);
+  document.getElementById("qqSt").textContent = fmt(qq, 4);
+
+  const svg = document.getElementById("hwSvg"); clear(svg);
+  const baseY = 200, maxH = 160, bw = 80;
+  const data = [["AA", pp, "bar-AA"], ["Aa", pq, "bar-Aa"], ["aa", qq, "bar-aa"]];
+  el("line", { x1: 40, y1: baseY, x2: 440, y2: baseY, stroke: "#9ca3af", "stroke-width": 1 }, svg);
+  data.forEach((d, i) => {
+    const x = 80 + i * 120;
+    const h = d[1] * maxH;
+    el("rect", { x: x, y: baseY - h, width: bw, height: h, class: d[2], rx: 3 }, svg);
+    const lbl = el("text", { x: x + bw / 2, y: baseY + 18, class: "bar-label", "font-weight": "700" }, svg);
+    lbl.textContent = d[0];
+    const val = el("text", { x: x + bw / 2, y: baseY - h - 6, class: "bar-label" }, svg);
+    val.textContent = (d[1] * 100).toFixed(1) + "%";
+  });
+  const title = el("text", { x: 240, y: 25, class: "bar-label", "font-weight": "700", "font-size": "14px" }, svg);
+  title.textContent = `p² + 2pq + q² = ${fmt(pp, 3)} + ${fmt(pq, 3)} + ${fmt(qq, 3)} = ${fmt(pp + pq + qq, 3)}`;
+
+  let note = `Với p = ${fmt(p, 2)}, q = ${fmt(q, 2)}: dự đoán ${(pp*100).toFixed(1)}% AA, ${(pq*100).toFixed(1)}% Aa, ${(qq*100).toFixed(1)}% aa.`;
+  if (pq > Math.max(pp, qq)) note += " Dị hợp 2pq cao nhất → quần thể giàu allele 'ẩn'.";
+  if (q < 0.05) note += " q rất nhỏ → hầu hết allele lặn nằm trong carrier Aa, không phải kiểu hình aa.";
+  document.getElementById("hwHint").textContent = note;
+}
+pSlider.oninput = renderHW;
+
+// ===== Section 2: Reverse calculator =====
+const qsqInput = document.getElementById("qsqInput");
+function renderReverse() {
+  let qsq = parseFloat(qsqInput.value);
+  if (isNaN(qsq) || qsq < 0) qsq = 0;
+  if (qsq > 1) qsq = 1;
+  const q = Math.sqrt(qsq);
+  const p = 1 - q;
+  const pp = p * p, pq = 2 * p * q;
+  const ratio = qsq > 0 ? pq / qsq : Infinity;
+
+  document.getElementById("reverseOut").innerHTML =
+    `<div><strong>q²</strong> (tần số bệnh aa) = ${fmt(qsq, 6)} ${qsq > 0 ? "≈ 1/" + Math.round(1/qsq).toLocaleString("en-US") : ""}</div>` +
+    `<div><strong>q</strong> = √q² = ${fmt(q, 4)}</div>` +
+    `<div><strong>p</strong> = 1 − q = ${fmt(p, 4)}</div>` +
+    `<div><strong>2pq</strong> (carrier Aa) = ${fmt(pq, 4)} ${pq > 0 ? "≈ 1/" + (pq > 0.001 ? Math.round(1/pq) : Math.round(1/pq).toLocaleString("en-US")) : ""}</div>` +
+    `<div><strong>p²</strong> (AA, không bệnh không carrier) = ${fmt(pp, 4)}</div>` +
+    `<div><strong>Tỉ lệ carrier / người bệnh</strong> = ${isFinite(ratio) ? ratio.toFixed(1) + " lần" : "∞"}</div>`;
+
+  const svg = document.getElementById("reverseSvg"); clear(svg);
+  const baseY = 130, maxH = 90;
+  const items = [
+    ["Bệnh (q²)", qsq, "#dc2626"],
+    ["Carrier (2pq)", pq, "#fbbf24"],
+    ["Không (p²)", pp, "#059669"]
+  ];
+  el("line", { x1: 30, y1: baseY, x2: 440, y2: baseY, stroke: "#9ca3af" }, svg);
+  // log scale visual to show tiny q² against large p²
+  const maxVal = Math.max(...items.map(i => i[1]));
+  items.forEach((it, i) => {
+    const x = 60 + i * 130;
+    const h = maxVal > 0 ? (it[1] / maxVal) * maxH : 0;
+    el("rect", { x: x, y: baseY - h, width: 80, height: h, fill: it[2], rx: 3 }, svg);
+    const lbl = el("text", { x: x + 40, y: baseY + 16, class: "bar-label", "font-weight": "700" }, svg);
+    lbl.textContent = it[0];
+    const val = el("text", { x: x + 40, y: baseY - h - 6, class: "bar-label" }, svg);
+    val.textContent = (it[1] * 100).toPrecision(3) + "%";
+  });
+  const tlt = el("text", { x: 230, y: 20, class: "bar-label", "font-weight": "700", "font-size": "13px" }, svg);
+  tlt.textContent = "Chiều cao = tỉ lệ so với nhóm lớn nhất (visual)";
+
+  let note = "";
+  if (qsq > 0 && qsq < 0.001) {
+    note = `Bệnh hiếm: chỉ ${(qsq*100).toFixed(4)}% mắc nhưng ${(pq*100).toFixed(2)}% là carrier — gấp ~${ratio.toFixed(0)} lần. Đây là lý do tư vấn di truyền vẫn cần thiết kể cả với bệnh hiếm.`;
+  } else if (qsq >= 0.001 && qsq < 0.1) {
+    note = `Bệnh không hiếm. Carrier (${(pq*100).toFixed(1)}%) chiếm tỉ lệ đáng kể trong dân số.`;
+  } else if (qsq >= 0.1) {
+    note = "q² cao bất thường so với bệnh di truyền thực — có thể đang gặp tình huống chọn lọc cân bằng giữ q cao (vd sickle cell vùng sốt rét).";
+  }
+  document.getElementById("reverseHint").textContent = note;
+}
+qsqInput.oninput = renderReverse;
+document.querySelectorAll("[data-preset]").forEach(b => {
+  b.onclick = () => { qsqInput.value = b.dataset.preset; renderReverse(); };
+});
+
+// ===== Section 3: HW test from genotypes =====
+const obsAA = document.getElementById("obsAA");
+const obsAa = document.getElementById("obsAa");
+const obsaa = document.getElementById("obsaa");
+function renderTest() {
+  const n1 = Math.max(0, parseInt(obsAA.value) || 0);
+  const n2 = Math.max(0, parseInt(obsAa.value) || 0);
+  const n3 = Math.max(0, parseInt(obsaa.value) || 0);
+  const N = n1 + n2 + n3;
+  const svg = document.getElementById("testSvg"); clear(svg);
+  const tbody = document.getElementById("testRows");
+  if (N === 0) {
+    tbody.innerHTML = `<tr><td colspan="4">Nhập ít nhất 1 cá thể.</td></tr>`;
+    document.getElementById("testHint").textContent = "";
+    return;
+  }
+  const p = (2 * n1 + n2) / (2 * N);
+  const q = 1 - p;
+  const expAA = p * p * N;
+  const expAa = 2 * p * q * N;
+  const expaa = q * q * N;
+
+  // table
+  function row(name, obs, exp) {
+    const diff = obs - exp;
+    const cls = Math.abs(diff) < 0.5 ? "ok" : (Math.abs(diff) < N * 0.05 ? "warn" : "bad");
+    return `<tr><td>${name}</td><td>${obs}</td><td>${exp.toFixed(2)}</td><td class="${cls}">${diff >= 0 ? "+" : ""}${diff.toFixed(2)}</td></tr>`;
+  }
+  tbody.innerHTML = row("AA", n1, expAA) + row("Aa", n2, expAa) + row("aa", n3, expaa) +
+    `<tr style="background:#f9fafb"><td><strong>Tổng N</strong></td><td><strong>${N}</strong></td><td><strong>${(expAA+expAa+expaa).toFixed(2)}</strong></td><td>p=${fmt(p,3)}, q=${fmt(q,3)}</td></tr>`;
+
+  // chart: observed (solid) vs HW expected (hatched outline) side by side
+  const baseY = 220, maxH = 170, groupW = 130;
+  const maxVal = Math.max(n1, n2, n3, expAA, expAa, expaa, 1);
+  el("line", { x1: 40, y1: baseY, x2: 440, y2: baseY, stroke: "#9ca3af" }, svg);
+  const groups = [["AA", n1, expAA, "#059669"], ["Aa", n2, expAa, "#fbbf24"], ["aa", n3, expaa, "#dc2626"]];
+  groups.forEach((g, i) => {
+    const gx = 60 + i * groupW;
+    const hObs = (g[1] / maxVal) * maxH;
+    const hExp = (g[2] / maxVal) * maxH;
+    el("rect", { x: gx, y: baseY - hObs, width: 40, height: hObs, fill: g[3], rx: 2 }, svg);
+    el("rect", { x: gx + 50, y: baseY - hExp, width: 40, height: hExp, fill: "none", stroke: g[3], "stroke-width": 2.5, "stroke-dasharray": "4 3", rx: 2 }, svg);
+    const lbl = el("text", { x: gx + 45, y: baseY + 16, class: "bar-label", "font-weight": "700" }, svg);
+    lbl.textContent = g[0];
+    const vObs = el("text", { x: gx + 20, y: baseY - hObs - 4, class: "bar-label", "font-size": "11px" }, svg);
+    vObs.textContent = g[1];
+    const vExp = el("text", { x: gx + 70, y: baseY - hExp - 4, class: "bar-label", "font-size": "11px", fill: "#6b7280" }, svg);
+    vExp.textContent = g[2].toFixed(1);
+  });
+  // legend
+  el("rect", { x: 320, y: 30, width: 14, height: 14, fill: "#374151", rx: 2 }, svg);
+  const lg1 = el("text", { x: 340, y: 42, "font-size": "12px", fill: "#374151" }, svg);
+  lg1.textContent = "Quan sát";
+  el("rect", { x: 320, y: 50, width: 14, height: 14, fill: "none", stroke: "#374151", "stroke-width": 2, "stroke-dasharray": "4 3", rx: 2 }, svg);
+  const lg2 = el("text", { x: 340, y: 62, "font-size": "12px", fill: "#374151" }, svg);
+  lg2.textContent = "HW dự đoán";
+
+  // diagnosis
+  const dAa = n2 - expAa;
+  let diag;
+  if (Math.abs(dAa) < N * 0.03) {
+    diag = `Khớp HW: quan sát ≈ dự đoán cho cả 3 kiểu gen. Quần thể có thể đang ở (hoặc gần) trạng thái cân bằng.`;
+  } else if (dAa < 0) {
+    diag = `Thiếu dị hợp Aa (${n2} so với HW ${expAa.toFixed(1)}) → gợi ý cận huyết (inbreeding) hoặc giao phối đồng kiểu.`;
+  } else {
+    diag = `Thừa dị hợp Aa (${n2} so với HW ${expAa.toFixed(1)}) → gợi ý chọn lọc cân bằng (Aa có lợi, vd sickle cell vùng sốt rét).`;
+  }
+  document.getElementById("testHint").textContent = diag;
+}
+[obsAA, obsAa, obsaa].forEach(inp => inp.oninput = renderTest);
+document.querySelectorAll("[data-test]").forEach(b => {
+  b.onclick = () => {
+    const v = b.dataset.test.split(",");
+    obsAA.value = v[0]; obsAa.value = v[1]; obsaa.value = v[2];
+    renderTest();
+  };
+});
+
+// ===== Section 4: Selection simulator =====
+const q0Slider = document.getElementById("q0Slider");
+const sSlider = document.getElementById("sSlider");
+const genSlider = document.getElementById("genSlider");
+function renderSim() {
+  const q0 = parseFloat(q0Slider.value);
+  const s = parseFloat(sSlider.value);
+  const N = parseInt(genSlider.value);
+  document.getElementById("q0Val").textContent = fmt(q0, 2);
+  document.getElementById("sVal").textContent = fmt(s, 2);
+  document.getElementById("genVal").textContent = N;
+
+  const qs = [q0];
+  for (let i = 1; i <= N; i++) {
+    const qn = qs[i - 1];
+    // q_(n+1) = q_n (1 - s q_n) / (1 - s q_n²)
+    const denom = 1 - s * qn * qn;
+    const next = denom > 0 ? (qn * (1 - s * qn)) / denom : qn;
+    qs.push(Math.max(0, next));
+  }
+
+  const svg = document.getElementById("simSvg"); clear(svg);
+  const ml = 50, mr = 20, mt = 30, mb = 40;
+  const W = 460, H = 260;
+  const plotW = W - ml - mr, plotH = H - mt - mb;
+  // axes
+  el("line", { x1: ml, y1: H - mb, x2: W - mr, y2: H - mb, stroke: "#374151" }, svg);
+  el("line", { x1: ml, y1: mt, x2: ml, y2: H - mb, stroke: "#374151" }, svg);
+  // y ticks
+  for (let i = 0; i <= 5; i++) {
+    const y = H - mb - (i / 5) * plotH;
+    el("line", { x1: ml - 4, y1: y, x2: ml, y2: y, stroke: "#374151" }, svg);
+    const t = el("text", { x: ml - 8, y: y + 4, "text-anchor": "end", "font-size": "11px", fill: "#374151" }, svg);
+    t.textContent = (i / 5).toFixed(1);
+    el("line", { x1: ml, y1: y, x2: W - mr, y2: y, stroke: "#e5e7eb", "stroke-dasharray": "2 3" }, svg);
+  }
+  // x ticks
+  const xticks = Math.min(10, N);
+  for (let i = 0; i <= xticks; i++) {
+    const gen = Math.round(i * N / xticks);
+    const x = ml + (gen / N) * plotW;
+    el("line", { x1: x, y1: H - mb, x2: x, y2: H - mb + 4, stroke: "#374151" }, svg);
+    const t = el("text", { x: x, y: H - mb + 16, "text-anchor": "middle", "font-size": "11px", fill: "#374151" }, svg);
+    t.textContent = gen;
+  }
+  // axis labels
+  const xl = el("text", { x: ml + plotW / 2, y: H - 5, "text-anchor": "middle", "font-size": "12px", "font-weight": "700", fill: "#374151" }, svg);
+  xl.textContent = "Thế hệ";
+  const yl = el("text", { x: 15, y: mt + plotH / 2, "text-anchor": "middle", "font-size": "12px", "font-weight": "700", fill: "#374151", transform: `rotate(-90 15 ${mt + plotH / 2})` }, svg);
+  yl.textContent = "q (tần số allele a)";
+
+  // line for q
+  let d = "";
+  qs.forEach((q, i) => {
+    const x = ml + (i / N) * plotW;
+    const y = H - mb - q * plotH;
+    d += (i === 0 ? "M " : " L ") + x + " " + y;
+  });
+  el("path", { d: d, fill: "none", stroke: "#dc2626", "stroke-width": 2.5 }, svg);
+  // dots at start, mid, end
+  [0, Math.floor(N / 2), N].forEach(i => {
+    const x = ml + (i / N) * plotW;
+    const y = H - mb - qs[i] * plotH;
+    el("circle", { cx: x, cy: y, r: 4, fill: "#dc2626" }, svg);
+    const lbl = el("text", { x: x, y: y - 8, "text-anchor": "middle", "font-size": "10px", fill: "#7f1d1d" }, svg);
+    lbl.textContent = qs[i].toFixed(3);
+  });
+
+  const title = el("text", { x: ml + plotW / 2, y: 18, "text-anchor": "middle", "font-size": "13px", "font-weight": "700", fill: "#166534" }, svg);
+  title.textContent = `q₀ = ${fmt(q0, 2)} → q sau ${N} thế hệ = ${qs[N].toFixed(4)} (s = ${fmt(s, 2)})`;
+
+  let note = "";
+  if (s === 0) note = "s = 0: không có chọn lọc → q giữ nguyên qua mọi thế hệ (đúng HW).";
+  else if (qs[N] < 0.01 && q0 > 0.1) note = `q giảm từ ${fmt(q0,2)} xuống ${qs[N].toFixed(4)} sau ${N} thế hệ — nhưng chú ý đường cong **dẹt dần** ở cuối: khi q nhỏ, hầu hết allele a ẩn trong carrier Aa nên loại rất chậm.`;
+  else if (s === 1 && qs[N] > 0.05) note = `Dù s = 1 (aa chết), q vẫn ${qs[N].toFixed(3)} sau ${N} thế hệ. Allele lặn rất khó bị loại bỏ hoàn toàn vì "trốn" trong carrier.`;
+  else note = `Tần số q giảm dần theo q_(n+1) = q_n(1−s·q_n)/(1−s·q_n²). Đường cong dẹt khi q nhỏ.`;
+  document.getElementById("simHint").textContent = note;
+}
+[q0Slider, sSlider, genSlider].forEach(inp => inp.oninput = renderSim);
+
+// ===== Init =====
+renderHW();
+renderReverse();
+renderTest();
+renderSim();
+</script>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

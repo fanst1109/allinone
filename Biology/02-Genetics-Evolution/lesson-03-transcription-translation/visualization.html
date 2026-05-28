@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Phiên mã &amp; dịch mã</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #14532d; }
+  h2 {
+    color: #166534; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #bbf7d0;
+  }
+  h3 { color: #15803d; margin-top: 20px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  input[type="text"], input[type="number"], select, textarea {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 11px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    max-width: 100%;
+  }
+  input[type="text"] { width: 100%; max-width: 320px; }
+  textarea { width: 100%; max-width: 320px; min-height: 60px; box-sizing: border-box; }
+  button {
+    background: #059669; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #047857; }
+  button.muted { background: #a0aec0; }
+  button.muted:hover { background: #718096; }
+  .pill {
+    background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;
+    padding: 6px 12px; border-radius: 999px; font-size: 13px;
+    cursor: pointer;
+  }
+  .pill.active { background: #059669; color: white; border-color: #047857; }
+  .stat {
+    display: inline-block; background: #d1fae5;
+    padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #047857; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; }
+  .group-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+  svg { display: block; margin: 8px auto; max-width: 100%; height: auto; }
+  .info-grid { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 14px; }
+  .info-grid div { padding: 6px 10px; background: #f0fdf4; border-radius: 6px; }
+  .info-grid strong { color: #166534; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 8px; }
+  th, td { border: 1px solid #d1d5db; padding: 7px 10px; text-align: left; }
+  th { background: #ecfdf5; color: #065f46; }
+
+  /* Tool 1 — DNA/mRNA/Protein stepper */
+  .seq-line {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; padding: 8px 10px; border-radius: 6px;
+    background: #f0fdf4; margin: 6px 0; overflow-x: auto;
+    white-space: pre; color: #14532d;
+  }
+  .seq-line .codon { display: inline-block; padding: 0 4px; }
+  .seq-line .codon.start { background: #fde68a; }
+  .seq-line .codon.stop { background: #fecaca; }
+  .seq-line .codon.aa { background: #d1fae5; }
+  .err { background: #fee2e2; color: #991b1b; padding: 8px 10px; border-radius: 6px; }
+
+  /* Tool 2 — codon table */
+  .codon-table {
+    display: grid;
+    grid-template-columns: repeat(8, minmax(36px, 1fr));
+    gap: 3px;
+    margin-top: 8px;
+  }
+  .codon-cell {
+    padding: 5px 2px; text-align: center;
+    background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 4px;
+    font-family: monospace; font-size: 12px; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .codon-cell:hover { background: #d1fae5; }
+  .codon-cell.start { background: #fde68a; border-color: #f59e0b; }
+  .codon-cell.stop { background: #fecaca; border-color: #ef4444; }
+  .codon-cell.sel { background: #059669; color: white; border-color: #047857; }
+  .aa-info {
+    margin-top: 12px; padding: 10px 12px;
+    background: #ecfdf5; border-left: 4px solid #059669;
+    border-radius: 4px;
+  }
+
+  /* Tool 3 — ribosome */
+  .ribo-slot {
+    display: inline-block; width: 56px; height: 56px;
+    border: 2px dashed #059669; border-radius: 8px;
+    text-align: center; line-height: 52px;
+    font-weight: 700; color: #065f46;
+    margin: 0 4px; vertical-align: middle;
+    background: #ecfdf5; font-family: monospace;
+    font-size: 13px;
+  }
+  .ribo-slot.filled { border-style: solid; background: #d1fae5; }
+
+  @media (max-width: 480px) {
+    .codon-table { grid-template-columns: repeat(8, 1fr); }
+    .codon-cell { font-size: 10px; padding: 4px 1px; }
+    .ribo-slot { width: 44px; height: 44px; line-height: 40px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Biology · Tầng 2</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-dna-replication/visualization.html">← L2: DNA &amp; nhân đôi</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Phiên mã &amp; dịch mã</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-gene-regulation/visualization.html">L4: Điều hòa gen →</a>
+</nav>
+
+<h1>Lesson 03 — Phiên mã &amp; dịch mã</h1>
+<p>Bộ công cụ tương tác: stepper DNA → mRNA → protein, bảng codon, mô phỏng ribosome A/P/E, và máy tính ảnh hưởng đột biến.</p>
+
+<h2>1. Stepper DNA → mRNA → Protein</h2>
+<div class="card">
+  <p>Nhập một đoạn DNA (chỉ A, T, G, C — viết hoa hay thường đều được). Chọn mạch nhập (mạch mã = giống mRNA chỉ T→U; mạch khuôn = enzyme đọc theo). Viz sẽ tính ra mRNA, chia codon, và dịch ra peptide.</p>
+  <div class="row">
+    <label>Mạch nhập (5'→3'):</label>
+    <input type="text" id="dnaInput" value="ATGCGTAAATGA" placeholder="vd ATGCGTAAATGA">
+  </div>
+  <div class="row">
+    <label>Đây là:</label>
+    <button class="pill active" data-strand="coding">Mạch mã (coding)</button>
+    <button class="pill" data-strand="template">Mạch khuôn (template)</button>
+  </div>
+  <div class="row">
+    <button id="runStepper">▶ Phiên mã + Dịch mã</button>
+    <button class="muted" id="loadSample1">Mẫu Met-Arg-Lys-Stop</button>
+    <button class="muted" id="loadSample2">Mẫu Met-Phe-Gly-Stop</button>
+  </div>
+
+  <div id="stepperOut" style="margin-top:12px"></div>
+  <div class="hint">Quy tắc: A↔U, T↔A, G↔C, C↔G (bắt cặp DNA–RNA). mRNA luôn 5'→3'. Dịch mã chia codon từ AUG đầu tiên, dừng ở stop (UAA/UAG/UGA).</div>
+</div>
+
+<h2>2. Bảng mã di truyền tương tác — 64 codon</h2>
+<div class="card">
+  <p>Bấm vào một codon bất kỳ để xem amino acid + tính chất. Codon khởi đầu (AUG) màu vàng; 3 codon stop (UAA, UAG, UGA) màu đỏ.</p>
+  <div class="row">
+    <label>Lọc theo:</label>
+    <button class="pill active" data-filter="all">Tất cả 64</button>
+    <button class="pill" data-filter="start">Start (AUG)</button>
+    <button class="pill" data-filter="stop">Stop (3)</button>
+    <button class="pill" data-filter="hydrophobic">Kỵ nước</button>
+    <button class="pill" data-filter="hydrophilic">Ưa nước</button>
+    <button class="pill" data-filter="charged">Tích điện</button>
+  </div>
+  <div class="codon-table" id="codonTable"></div>
+  <div class="aa-info" id="aaInfo">Bấm vào 1 codon để xem chi tiết.</div>
+  <div class="hint" id="codonStats"></div>
+</div>
+
+<h2>3. Ribosome mô phỏng — A/P/E theo từng bước</h2>
+<div class="card">
+  <p>Nhập 1 đoạn mRNA bắt đầu bằng AUG (chỉ A/U/G/C). Bấm "Bước tiếp" để ribosome đọc từng codon, hiển thị 3 khe A (vào), P (peptide đang xây), E (rời).</p>
+  <div class="row">
+    <label>mRNA (5'→3'):</label>
+    <input type="text" id="mrnaInput" value="AUGCGUAAAUGA" placeholder="vd AUGCGUAAAUGA">
+  </div>
+  <div class="row">
+    <button id="riboReset">↺ Reset</button>
+    <button id="riboStep">▶ Bước tiếp</button>
+    <button id="riboRunAll">⏩ Chạy tới hết</button>
+  </div>
+  <div style="margin-top:12px">
+    <div style="margin-bottom:8px"><strong>mRNA đang đọc:</strong></div>
+    <div class="seq-line" id="riboTrack">—</div>
+  </div>
+  <div style="margin-top:12px; text-align:center">
+    <div style="font-size: 12px; color:#64748b; margin-bottom:4px">3 khe trên ribosome:</div>
+    <div>
+      <span class="ribo-slot" id="slotE">E</span>
+      <span class="ribo-slot" id="slotP">P</span>
+      <span class="ribo-slot" id="slotA">A</span>
+    </div>
+    <div style="font-size: 12px; color:#64748b; margin-top:4px">← exit · peptide · aminoacyl →</div>
+  </div>
+  <div style="margin-top:12px"><strong>Peptide đang xây:</strong> <span class="stat" id="peptideBuild">—</span></div>
+  <div class="hint" id="riboHint">Sẵn sàng. Bấm "Bước tiếp" để bắt đầu pha initiation.</div>
+</div>
+
+<h2>4. Máy tính tác động đột biến điểm</h2>
+<div class="card">
+  <p>So sánh peptide trước/sau đột biến 1 nucleotide. Phân loại tự động: silent / missense / nonsense / frameshift (nếu chèn-xoá).</p>
+  <div class="row">
+    <label>mRNA gốc:</label>
+    <input type="text" id="mutOrig" value="AUGGAGUACGUCUAA" placeholder="vd AUGGAGUACGUCUAA">
+  </div>
+  <div class="row">
+    <label>Vị trí (1-based):</label>
+    <input type="number" id="mutPos" value="5" min="1" style="width:80px">
+    <label>Thao tác:</label>
+    <select id="mutOp">
+      <option value="sub">Đổi base</option>
+      <option value="ins">Chèn 1 base trước vị trí</option>
+      <option value="del">Xoá base tại vị trí</option>
+    </select>
+    <label>Base mới (nếu đổi/chèn):</label>
+    <select id="mutBase">
+      <option>A</option><option>U</option><option>G</option><option>C</option>
+    </select>
+  </div>
+  <div class="row">
+    <button id="mutRun">▶ Áp dụng đột biến</button>
+    <button class="muted" id="mutSickle">Mẫu sickle cell (GAG→GUG)</button>
+  </div>
+  <div id="mutOut" style="margin-top:12px"></div>
+</div>
+
+<h2>5. Tóm tắt bảng so sánh</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>Tiêu chí</th><th>Phiên mã</th><th>Dịch mã</th></tr></thead>
+    <tbody>
+      <tr><td>Khuôn</td><td>DNA (mạch khuôn)</td><td>mRNA</td></tr>
+      <tr><td>Sản phẩm</td><td>mRNA</td><td>polypeptide</td></tr>
+      <tr><td>Máy chính</td><td>RNA polymerase</td><td>ribosome</td></tr>
+      <tr><td>"Người giao hàng"</td><td>nucleotide tự do</td><td>tRNA + amino acid</td></tr>
+      <tr><td>Nơi (eukaryote)</td><td>nhân</td><td>bào tương / rough ER</td></tr>
+      <tr><td>Đơn vị</td><td>nucleotide</td><td>codon (3 nt) ↔ 1 aa</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+// =========== Bảng mã di truyền chuẩn ===========
+const CODON_TABLE = {
+  UUU:"Phe", UUC:"Phe", UUA:"Leu", UUG:"Leu",
+  UCU:"Ser", UCC:"Ser", UCA:"Ser", UCG:"Ser",
+  UAU:"Tyr", UAC:"Tyr", UAA:"STOP", UAG:"STOP",
+  UGU:"Cys", UGC:"Cys", UGA:"STOP", UGG:"Trp",
+  CUU:"Leu", CUC:"Leu", CUA:"Leu", CUG:"Leu",
+  CCU:"Pro", CCC:"Pro", CCA:"Pro", CCG:"Pro",
+  CAU:"His", CAC:"His", CAA:"Gln", CAG:"Gln",
+  CGU:"Arg", CGC:"Arg", CGA:"Arg", CGG:"Arg",
+  AUU:"Ile", AUC:"Ile", AUA:"Ile", AUG:"Met",
+  ACU:"Thr", ACC:"Thr", ACA:"Thr", ACG:"Thr",
+  AAU:"Asn", AAC:"Asn", AAA:"Lys", AAG:"Lys",
+  AGU:"Ser", AGC:"Ser", AGA:"Arg", AGG:"Arg",
+  GUU:"Val", GUC:"Val", GUA:"Val", GUG:"Val",
+  GCU:"Ala", GCC:"Ala", GCA:"Ala", GCG:"Ala",
+  GAU:"Asp", GAC:"Asp", GAA:"Glu", GAG:"Glu",
+  GGU:"Gly", GGC:"Gly", GGA:"Gly", GGG:"Gly"
+};
+
+// Phân loại amino acid (đơn giản hoá)
+const AA_PROPS = {
+  Ala:{class:"hydrophobic", letter:"A", full:"Alanine"},
+  Arg:{class:"charged",     letter:"R", full:"Arginine (+)"},
+  Asn:{class:"hydrophilic", letter:"N", full:"Asparagine"},
+  Asp:{class:"charged",     letter:"D", full:"Aspartate (−)"},
+  Cys:{class:"hydrophilic", letter:"C", full:"Cysteine"},
+  Gln:{class:"hydrophilic", letter:"Q", full:"Glutamine"},
+  Glu:{class:"charged",     letter:"E", full:"Glutamate (−)"},
+  Gly:{class:"hydrophobic", letter:"G", full:"Glycine"},
+  His:{class:"charged",     letter:"H", full:"Histidine (+)"},
+  Ile:{class:"hydrophobic", letter:"I", full:"Isoleucine"},
+  Leu:{class:"hydrophobic", letter:"L", full:"Leucine"},
+  Lys:{class:"charged",     letter:"K", full:"Lysine (+)"},
+  Met:{class:"hydrophobic", letter:"M", full:"Methionine (start)"},
+  Phe:{class:"hydrophobic", letter:"F", full:"Phenylalanine"},
+  Pro:{class:"hydrophobic", letter:"P", full:"Proline"},
+  Ser:{class:"hydrophilic", letter:"S", full:"Serine"},
+  Thr:{class:"hydrophilic", letter:"T", full:"Threonine"},
+  Trp:{class:"hydrophobic", letter:"W", full:"Tryptophan"},
+  Tyr:{class:"hydrophilic", letter:"Y", full:"Tyrosine"},
+  Val:{class:"hydrophobic", letter:"V", full:"Valine"},
+  STOP:{class:"stop",       letter:"*", full:"Codon kết thúc"}
+};
+
+// Bổ sung DNA→RNA và base complement
+function dnaToRna(s) { return s.replace(/T/g, "U").replace(/t/g, "u"); }
+function complementDnaToRna(s) {
+  const map = { A:"U", T:"A", G:"C", C:"G", U:"A" };
+  let out = "";
+  for (let i = s.length - 1; i >= 0; i--) out += map[s[i].toUpperCase()] || "?";
+  return out;
+}
+
+function translateMRNA(mrna) {
+  // Tìm AUG đầu tiên
+  const startIdx = mrna.indexOf("AUG");
+  if (startIdx < 0) return { found: false, peptide: [], startIdx: -1, codons: [] };
+  const codons = [];
+  const peptide = [];
+  let stopped = false;
+  for (let i = startIdx; i + 3 <= mrna.length; i += 3) {
+    const codon = mrna.slice(i, i + 3);
+    if (codon.length < 3) break;
+    const aa = CODON_TABLE[codon];
+    codons.push({ codon, aa: aa || "?", pos: i });
+    if (!aa) break;
+    if (aa === "STOP") { stopped = true; break; }
+    peptide.push(aa);
+  }
+  return { found: true, peptide, startIdx, codons, stopped };
+}
+
+// =========== Tool 1: DNA → mRNA → Protein stepper ===========
+let strandMode = "coding";
+document.querySelectorAll("[data-strand]").forEach(b => {
+  b.onclick = () => {
+    strandMode = b.dataset.strand;
+    document.querySelectorAll("[data-strand]").forEach(x => x.classList.toggle("active", x === b));
+  };
+});
+
+function runStepper() {
+  const raw = document.getElementById("dnaInput").value.toUpperCase().replace(/[^ATGC]/g, "");
+  const out = document.getElementById("stepperOut");
+  if (raw.length === 0) { out.innerHTML = '<div class="err">Nhập DNA (chỉ A/T/G/C).</div>'; return; }
+  let mrna;
+  let dnaShow;
+  if (strandMode === "coding") {
+    dnaShow = `5'- ${raw} -3'  (mạch mã)`;
+    mrna = dnaToRna(raw);
+  } else {
+    dnaShow = `5'- ${raw} -3'  (mạch khuôn — sẽ đọc 3'→5')`;
+    mrna = complementDnaToRna(raw); // produces 5'→3' RNA
+  }
+  const result = translateMRNA(mrna);
+  let codonHtml = "";
+  if (result.found) {
+    // Build codon-coloured mRNA display
+    let pre = mrna.slice(0, result.startIdx);
+    let codonParts = result.codons.map(c => {
+      let cls = "codon aa";
+      if (c.aa === "Met" && c.pos === result.startIdx) cls = "codon start";
+      if (c.aa === "STOP") cls = "codon stop";
+      return `<span class="${cls}">${c.codon}</span>`;
+    }).join(" ");
+    let endIdx = result.codons.length ? result.codons[result.codons.length-1].pos + 3 : result.startIdx;
+    let post = mrna.slice(endIdx);
+    codonHtml = `<div class="seq-line">5'- ${pre}${pre ? " ":""}${codonParts}${post ? " "+post:""} -3'</div>`;
+  } else {
+    codonHtml = `<div class="seq-line">5'- ${mrna} -3' <span style="color:#dc2626">(không tìm thấy AUG)</span></div>`;
+  }
+
+  const pepStr = result.peptide.length ?
+    result.peptide.map(a => AA_PROPS[a] ? AA_PROPS[a].letter : "?").join("-") + (result.stopped ? "-*" : "") :
+    "—";
+  const pepLong = result.peptide.length ? result.peptide.join(" – ") : "(rỗng)";
+
+  out.innerHTML = `
+    <div><strong>DNA:</strong></div>
+    <div class="seq-line">${dnaShow}</div>
+    <div><strong>mRNA (5'→3'):</strong></div>
+    ${codonHtml}
+    <div style="margin-top:8px"><strong>Peptide (3 chữ):</strong> <span class="stat">${pepLong}</span></div>
+    <div><strong>Peptide (1 chữ):</strong> <span class="stat">${pepStr}</span></div>
+    <div class="hint">Tổng codon đọc: ${result.codons.length} · amino acid trong peptide: ${result.peptide.length} · ${result.stopped ? "có codon stop ✓" : "không có stop (peptide chưa kết thúc đúng quy luật)"}</div>
+  `;
+}
+document.getElementById("runStepper").onclick = runStepper;
+document.getElementById("loadSample1").onclick = () => { document.getElementById("dnaInput").value = "ATGCGTAAATGA"; runStepper(); };
+document.getElementById("loadSample2").onclick = () => { document.getElementById("dnaInput").value = "ATGTTCGGCTAA"; runStepper(); };
+
+// =========== Tool 2: Codon table ===========
+const BASES = ["U", "C", "A", "G"];
+function buildCodonTable() {
+  const grid = document.getElementById("codonTable");
+  grid.innerHTML = "";
+  // 64 codons in a natural order; flatten to 8x8
+  for (const b1 of BASES) {
+    for (const b2 of BASES) {
+      for (const b3 of BASES) {
+        const codon = b1 + b2 + b3;
+        const aa = CODON_TABLE[codon];
+        const cell = document.createElement("div");
+        cell.className = "codon-cell";
+        cell.dataset.codon = codon;
+        cell.textContent = codon;
+        if (aa === "Met") cell.classList.add("start");
+        if (aa === "STOP") cell.classList.add("stop");
+        cell.onclick = () => showAA(codon);
+        grid.appendChild(cell);
+      }
+    }
+  }
+  const stats = `Tổng 64 codon · 20 amino acid được mã hoá · 3 codon stop (UAA, UAG, UGA) · 1 codon start (AUG)`;
+  document.getElementById("codonStats").textContent = stats;
+}
+function showAA(codon) {
+  document.querySelectorAll(".codon-cell").forEach(c => c.classList.toggle("sel", c.dataset.codon === codon));
+  const aa = CODON_TABLE[codon];
+  const info = document.getElementById("aaInfo");
+  if (aa === "STOP") {
+    info.innerHTML = `<strong>${codon}</strong> → <span style="color:#b91c1c">STOP</span> (codon kết thúc) — không mã hoá amino acid. Khi ribosome chạm phải, release factor thuỷ phân peptide khỏi tRNA.`;
+    return;
+  }
+  const p = AA_PROPS[aa];
+  // Đếm số codon đồng nghĩa
+  let synonyms = Object.keys(CODON_TABLE).filter(c => CODON_TABLE[c] === aa);
+  info.innerHTML = `
+    <div><strong>${codon}</strong> → <strong>${aa}</strong> (${p.letter}) — ${p.full}</div>
+    <div style="margin-top:6px">Tính chất: <span class="stat">${p.class}</span></div>
+    <div>Số codon đồng nghĩa: <strong>${synonyms.length}</strong> — ${synonyms.join(", ")}</div>
+    ${aa === "Met" ? '<div style="margin-top:6px; color:#b45309"><strong>★</strong> AUG còn là codon khởi đầu (start codon).</div>' : ""}
+  `;
+}
+let currentFilter = "all";
+document.querySelectorAll("[data-filter]").forEach(b => {
+  b.onclick = () => {
+    currentFilter = b.dataset.filter;
+    document.querySelectorAll("[data-filter]").forEach(x => x.classList.toggle("active", x === b));
+    applyFilter();
+  };
+});
+function applyFilter() {
+  document.querySelectorAll(".codon-cell").forEach(cell => {
+    const codon = cell.dataset.codon;
+    const aa = CODON_TABLE[codon];
+    let match = true;
+    if (currentFilter === "start") match = (aa === "Met");
+    else if (currentFilter === "stop") match = (aa === "STOP");
+    else if (currentFilter === "hydrophobic") match = AA_PROPS[aa] && AA_PROPS[aa].class === "hydrophobic";
+    else if (currentFilter === "hydrophilic") match = AA_PROPS[aa] && AA_PROPS[aa].class === "hydrophilic";
+    else if (currentFilter === "charged") match = AA_PROPS[aa] && AA_PROPS[aa].class === "charged";
+    cell.style.opacity = match ? "1" : "0.18";
+  });
+}
+
+// =========== Tool 3: Ribosome simulator ===========
+let riboState = { mrna: "", idx: 0, peptide: [], E: null, P: null, A: null, phase: "init" };
+function riboReset() {
+  const raw = document.getElementById("mrnaInput").value.toUpperCase().replace(/[^AUGC]/g, "");
+  riboState = { mrna: raw, idx: 0, peptide: [], E: null, P: null, A: null, phase: "init", done: false };
+  // Tìm AUG đầu
+  const startIdx = raw.indexOf("AUG");
+  if (startIdx < 0) {
+    document.getElementById("riboHint").textContent = "Không có AUG trong mRNA — không thể dịch.";
+    document.getElementById("riboTrack").textContent = raw || "—";
+    return;
+  }
+  riboState.idx = startIdx;
+  drawRibo();
+  document.getElementById("riboHint").textContent = `Tìm thấy AUG ở vị trí ${startIdx+1}. Bấm "Bước tiếp" để bắt đầu initiation.`;
+}
+function drawRibo() {
+  const s = riboState;
+  // mRNA track with codon at idx highlighted
+  let pre = s.mrna.slice(0, s.idx);
+  let cur = s.mrna.slice(s.idx, s.idx + 3);
+  let post = s.mrna.slice(s.idx + 3);
+  document.getElementById("riboTrack").innerHTML =
+    pre + `<span class="codon ${cur === "AUG" && s.phase === "init" ? "start" : (CODON_TABLE[cur] === "STOP" ? "stop" : "aa")}">${cur || "·"}</span>` + post;
+
+  document.getElementById("slotE").textContent = s.E || "E";
+  document.getElementById("slotE").classList.toggle("filled", !!s.E);
+  document.getElementById("slotP").textContent = s.P || "P";
+  document.getElementById("slotP").classList.toggle("filled", !!s.P);
+  document.getElementById("slotA").textContent = s.A || "A";
+  document.getElementById("slotA").classList.toggle("filled", !!s.A);
+
+  document.getElementById("peptideBuild").textContent = s.peptide.length ? s.peptide.join("-") : "—";
+}
+function riboStep() {
+  const s = riboState;
+  if (s.done) { document.getElementById("riboHint").textContent = "Đã kết thúc. Bấm Reset để chạy lại."; return; }
+  if (s.idx + 3 > s.mrna.length) { s.done = true; document.getElementById("riboHint").textContent = "Hết mRNA — ribosome rời đi."; return; }
+  const codon = s.mrna.slice(s.idx, s.idx + 3);
+  const aa = CODON_TABLE[codon];
+  if (s.phase === "init") {
+    // Đặt Met vào khe P (mô phỏng đơn giản)
+    if (codon !== "AUG") { document.getElementById("riboHint").textContent = "Codon đầu không phải AUG — không thể init."; return; }
+    s.P = "Met";
+    s.peptide.push("Met");
+    s.idx += 3;
+    s.phase = "elong";
+    document.getElementById("riboHint").textContent = `Initiation: tRNA-Met (anticodon UAC) đặt Met vào khe P. Ribosome trượt sang codon tiếp theo.`;
+    drawRibo();
+    return;
+  }
+  // Elongation
+  if (aa === "STOP") {
+    s.A = "STOP";
+    s.phase = "term";
+    document.getElementById("riboHint").textContent = `Termination: codon ${codon} là STOP. Release factor vào khe A → peptide tách khỏi tRNA và rời ribosome.`;
+    drawRibo();
+    return;
+  }
+  if (!aa) {
+    document.getElementById("riboHint").textContent = `Codon "${codon}" không hợp lệ.`;
+    return;
+  }
+  // 3 substeps gộp 1 click cho gọn
+  s.A = aa;
+  drawRibo();
+  // peptide bond formation: chuỗi peptide chuyển sang tRNA ở A
+  // translocation: A → P, P → E, E rời
+  setTimeout(() => {
+    s.E = s.P;
+    s.P = s.A;
+    s.A = null;
+    s.peptide.push(aa);
+    s.idx += 3;
+    document.getElementById("riboHint").textContent =
+      `Elongation: codon ${codon} → tRNA-${aa} vào khe A → liên kết peptide → translocation (A→P, P→E, tRNA cũ rời). Peptide dài thêm 1 aa.`;
+    drawRibo();
+  }, 350);
+}
+function riboRunAll() {
+  // Chạy liên tục tới done
+  const tick = () => {
+    if (riboState.done || riboState.phase === "term") return;
+    riboStep();
+    setTimeout(tick, 600);
+  };
+  tick();
+}
+document.getElementById("riboReset").onclick = riboReset;
+document.getElementById("riboStep").onclick = riboStep;
+document.getElementById("riboRunAll").onclick = () => { riboReset(); setTimeout(riboRunAll, 400); };
+
+// =========== Tool 4: Mutation impact ===========
+function classifyMutation(orig, mut, opType) {
+  const o = translateMRNA(orig);
+  const m = translateMRNA(mut);
+  let label, color, explanation;
+  if (opType === "ins" || opType === "del") {
+    label = "Frameshift"; color = "#dc2626";
+    explanation = "Chèn/xoá làm dịch chuyển khung đọc — mọi codon sau điểm đột biến đều bị đọc lại từ vị trí lệch → peptide hoàn toàn khác. Thường thảm hoạ.";
+    return { label, color, explanation, origPep: o.peptide, mutPep: m.peptide };
+  }
+  // substitution
+  // So sánh peptide; tìm vị trí khác đầu tiên
+  if (!m.found) { label = "Mất AUG?"; color = "#dc2626"; explanation = "Đột biến phá hỏng codon AUG khởi đầu — không dịch được."; return { label, color, explanation, origPep: o.peptide, mutPep: m.peptide }; }
+  let diff = -1;
+  const minLen = Math.min(o.peptide.length, m.peptide.length);
+  for (let i = 0; i < minLen; i++) {
+    if (o.peptide[i] !== m.peptide[i]) { diff = i; break; }
+  }
+  if (diff < 0 && o.peptide.length === m.peptide.length) {
+    label = "Silent (đồng nghĩa)"; color = "#16a34a";
+    explanation = "Codon mới mã hoá CÙNG amino acid → peptide không đổi. Nhờ mã thoái hoá. Vô hại.";
+  } else if (m.peptide.length < o.peptide.length) {
+    label = "Nonsense (vô nghĩa)"; color = "#dc2626";
+    explanation = `Codon mới = STOP → peptide bị cắt ngắn từ vị trí ${m.peptide.length+1} trở đi. Mất hầu hết chức năng.`;
+  } else {
+    label = "Missense (sai nghĩa)"; color = "#d97706";
+    explanation = `Codon mới mã hoá amino acid khác (${o.peptide[diff]} → ${m.peptide[diff]} ở vị trí ${diff+1}). Có thể nặng/nhẹ tuỳ tính chất aa mới.`;
+  }
+  return { label, color, explanation, origPep: o.peptide, mutPep: m.peptide };
+}
+function runMutation() {
+  const raw = document.getElementById("mutOrig").value.toUpperCase().replace(/[^AUGC]/g, "");
+  const pos = parseInt(document.getElementById("mutPos").value, 10);
+  const op = document.getElementById("mutOp").value;
+  const base = document.getElementById("mutBase").value;
+  const out = document.getElementById("mutOut");
+  if (!raw || pos < 1 || pos > raw.length + (op === "ins" ? 1 : 0)) {
+    out.innerHTML = '<div class="err">Vị trí không hợp lệ.</div>'; return;
+  }
+  let mut;
+  if (op === "sub") {
+    mut = raw.slice(0, pos - 1) + base + raw.slice(pos);
+  } else if (op === "ins") {
+    mut = raw.slice(0, pos - 1) + base + raw.slice(pos - 1);
+  } else {
+    mut = raw.slice(0, pos - 1) + raw.slice(pos);
+  }
+  const res = classifyMutation(raw, mut, op);
+  const pepOrig = res.origPep.length ? res.origPep.join("-") : "(rỗng)";
+  const pepMut = res.mutPep.length ? res.mutPep.join("-") : "(rỗng)";
+  out.innerHTML = `
+    <div><strong>mRNA gốc:</strong></div>
+    <div class="seq-line">5'- ${raw} -3'</div>
+    <div><strong>mRNA đột biến:</strong></div>
+    <div class="seq-line">5'- ${mut} -3'</div>
+    <div style="margin-top:8px"><strong>Peptide gốc:</strong> <span class="stat">${pepOrig}</span></div>
+    <div><strong>Peptide đột biến:</strong> <span class="stat">${pepMut}</span></div>
+    <div style="margin-top:10px; padding: 10px 12px; background:#fff; border-left: 4px solid ${res.color}; border-radius:4px">
+      <strong style="color:${res.color}">Loại đột biến: ${res.label}</strong><br>
+      <span style="font-size:13px; color:#374151">${res.explanation}</span>
+    </div>
+  `;
+}
+document.getElementById("mutRun").onclick = runMutation;
+document.getElementById("mutSickle").onclick = () => {
+  document.getElementById("mutOrig").value = "AUGGAGUACGUCUAA";
+  document.getElementById("mutPos").value = 5;
+  document.getElementById("mutOp").value = "sub";
+  document.getElementById("mutBase").value = "U";
+  runMutation();
+};
+
+// =========== Init ===========
+runStepper();
+buildCodonTable();
+showAA("AUG");
+riboReset();
+runMutation();
+</script>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

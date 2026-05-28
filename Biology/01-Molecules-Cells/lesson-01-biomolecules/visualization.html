@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Phân tử sinh học</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #14532d; }
+  h2 {
+    color: #166534; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #bbf7d0;
+  }
+  h3 { color: #15803d; margin-top: 20px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 11px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 90px; max-width: 100%;
+  }
+  input[type="range"] { flex: 1; min-width: 0; }
+  button {
+    background: #059669; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #047857; }
+  button.muted { background: #a0aec0; }
+  button.muted:hover { background: #718096; }
+  .pill {
+    background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;
+  }
+  .pill.active { background: #059669; color: white; }
+  .stat {
+    display: inline-block; background: #d1fae5;
+    padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #047857; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; }
+  .group-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+  svg { display: block; margin: 8px auto; max-width: 100%; height: auto; }
+  .info-grid { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 14px; }
+  .info-grid div { padding: 6px 10px; background: #f0fdf4; border-radius: 6px; }
+  .info-grid strong { color: #166534; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 8px; }
+  th, td { border: 1px solid #d1d5db; padding: 7px 10px; text-align: left; }
+  th { background: #ecfdf5; color: #065f46; }
+
+  .water-fly { fill: #3b82f6; font-size: 13px; font-weight: 700; }
+  .bead { fill: #34d399; stroke: #047857; stroke-width: 2; }
+  .bond { stroke: #047857; stroke-width: 3; }
+
+  .bar-a { fill: #ef4444; } .bar-t { fill: #f59e0b; }
+  .bar-g { fill: #3b82f6; } .bar-c { fill: #8b5cf6; }
+  .bar-label { font: 12px sans-serif; fill: #374151; text-anchor: middle; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Biology · Tầng 1</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Phân tử sinh học</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-cell-structure/README.md">L2: Cấu trúc tế bào →</a>
+</nav>
+
+<h1>Lesson 01 — Phân tử sinh học</h1>
+<p>Bộ công cụ tương tác: khám phá 4 nhóm phân tử sinh học, mô phỏng trùng ngưng/thủy phân và đếm phân tử nước, tính tỉ lệ base DNA bằng quy tắc Chargaff, và duyệt 4 bậc cấu trúc protein.</p>
+
+<h2>1. Khám phá 4 nhóm phân tử sinh học</h2>
+<div class="card">
+  <div class="group-btns" id="groupBtns"></div>
+  <svg id="groupSvg" width="420" height="170" viewBox="0 0 420 170" role="img" aria-label="Sơ đồ đơn phân và đa phân"></svg>
+  <div class="info-grid" id="groupInfo"></div>
+</div>
+
+<h2>2. Trùng ngưng & thủy phân — đếm phân tử nước</h2>
+<div class="card">
+  <p>Kéo thanh để chọn số đơn phân (monomer) ghép thành chuỗi. Số liên kết = số nước tách ra = <code>n − 1</code>.
+  Nếu chọn glucose, viz tính luôn khối lượng chuỗi.</p>
+  <div class="row">
+    <label>Số đơn phân (n):</label>
+    <input type="range" id="nSlider" min="2" max="10" value="4">
+    <span class="stat">n = <strong id="nVal">4</strong></span>
+  </div>
+  <div class="row">
+    <label>Loại đơn phân:</label>
+    <button class="pill active" data-mono="glucose">Glucose (180)</button>
+    <button class="pill" data-mono="aa">Amino acid</button>
+    <button class="pill" data-mono="nt">Nucleotide</button>
+  </div>
+  <svg id="chainSvg" width="460" height="120" viewBox="0 0 460 120" role="img" aria-label="Chuỗi đơn phân"></svg>
+  <div style="margin-top:8px">
+    <span class="stat">Liên kết tạo = <strong id="bondCount">3</strong></span>
+    <span class="stat">H₂O tách ra = <strong id="waterCount">3</strong></span>
+    <span class="stat" id="massStat">Khối lượng chuỗi = <strong id="massVal">702</strong> g/mol</span>
+  </div>
+  <div class="hint" id="chainHint"></div>
+  <div class="row" style="margin-top:10px">
+    <button id="hydroBtn">💧 Thủy phân (thêm nước, cắt 1 liên kết)</button>
+    <button id="dehydBtn">🔗 Trùng ngưng (tách nước, nối 1 liên kết)</button>
+  </div>
+</div>
+
+<h2>3. Máy tính Chargaff — tỉ lệ base trong DNA</h2>
+<div class="card">
+  <p>Trong DNA mạch kép: <strong>%A = %T</strong> và <strong>%G = %C</strong> (bắt cặp bổ sung). Nhập %A, viz suy ra phần còn lại.</p>
+  <div class="row">
+    <label>%A =</label>
+    <input type="number" id="aPct" min="0" max="50" value="30" step="1">
+    <span class="hint">(0–50%, vì %A ≤ 50)</span>
+  </div>
+  <svg id="chargaffSvg" width="420" height="220" viewBox="0 0 420 220" role="img" aria-label="Biểu đồ tỉ lệ base"></svg>
+  <div style="margin-top:6px">
+    <span class="stat" style="background:#fee2e2">A = <strong id="vA" style="color:#b91c1c">30%</strong></span>
+    <span class="stat" style="background:#fef3c7">T = <strong id="vT" style="color:#92400e">30%</strong></span>
+    <span class="stat" style="background:#dbeafe">G = <strong id="vG" style="color:#1d4ed8">20%</strong></span>
+    <span class="stat" style="background:#ede9fe">C = <strong id="vC" style="color:#6d28d9">20%</strong></span>
+  </div>
+  <div class="hint" id="chargaffHint"></div>
+</div>
+
+<h2>4. Bốn bậc cấu trúc protein</h2>
+<div class="card">
+  <div class="group-btns" id="levelBtns"></div>
+  <svg id="levelSvg" width="420" height="180" viewBox="0 0 420 180" role="img" aria-label="Bậc cấu trúc protein"></svg>
+  <div class="info-grid" id="levelInfo"></div>
+  <div class="hint">Nguyên lý: trình tự (bậc 1) → hình dạng (bậc 3) → chức năng. Đổi 1 amino acid có thể đổi cả chức năng.</div>
+</div>
+
+<h2>5. Bảng tổng hợp</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>Nhóm</th><th>Đơn phân</th><th>Nguyên tố chính</th><th>Chức năng</th></tr></thead>
+    <tbody>
+      <tr><td>Carbohydrate</td><td>monosaccharide</td><td>C, H, O (1:2:1)</td><td>năng lượng nhanh, cấu trúc</td></tr>
+      <tr><td>Lipid</td><td>glycerol + acid béo</td><td>C, H, O (ít O)</td><td>dự trữ năng lượng, màng, hormone</td></tr>
+      <tr><td>Protein</td><td>amino acid</td><td>C, H, O, N, (S)</td><td>enzyme, cấu trúc, vận chuyển, miễn dịch</td></tr>
+      <tr><td>Nucleic acid</td><td>nucleotide</td><td>C, H, O, N, P</td><td>lưu &amp; truyền thông tin di truyền</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+
+// ===== Section 1: Macromolecule explorer =====
+const GROUPS = {
+  carb: {
+    name: "Carbohydrate", monomer: "Monosaccharide (vd glucose)", polymer: "Polysaccharide (tinh bột, cellulose)",
+    elements: "C, H, O (tỉ lệ ≈ 1:2:1)", func: "Năng lượng nhanh & cấu trúc",
+    ex: "glucose C₆H₁₂O₆ · tinh bột · cellulose", color: "#34d399"
+  },
+  lipid: {
+    name: "Lipid", monomer: "glycerol + acid béo (không là polymer)", polymer: "— (không tạo chuỗi đơn phân)",
+    elements: "C, H, O (rất ít O)", func: "Dự trữ năng lượng (~9 kcal/g), màng, hormone",
+    ex: "triglyceride · phospholipid · cholesterol", color: "#fbbf24"
+  },
+  protein: {
+    name: "Protein", monomer: "Amino acid (20 loại)", polymer: "Polypeptide / protein",
+    elements: "C, H, O, N, (S)", func: "Enzyme, cấu trúc, vận chuyển, miễn dịch",
+    ex: "hemoglobin · kháng thể · keratin", color: "#60a5fa"
+  },
+  nucleic: {
+    name: "Nucleic acid", monomer: "Nucleotide (đường+phosphate+base)", polymer: "DNA, RNA",
+    elements: "C, H, O, N, P", func: "Lưu & truyền thông tin di truyền",
+    ex: "DNA (A,T,G,C) · RNA (A,U,G,C)", color: "#a78bfa"
+  }
+};
+const groupBtns = document.getElementById("groupBtns");
+Object.keys(GROUPS).forEach(k => {
+  const b = document.createElement("button");
+  b.className = "pill"; b.textContent = GROUPS[k].name; b.dataset.g = k;
+  b.onclick = () => showGroup(k);
+  groupBtns.appendChild(b);
+});
+function showGroup(k) {
+  document.querySelectorAll("#groupBtns .pill").forEach(b => b.classList.toggle("active", b.dataset.g === k));
+  const g = GROUPS[k];
+  const svg = document.getElementById("groupSvg"); clear(svg);
+  // monomers
+  for (let i = 0; i < 3; i++) {
+    el("circle", { cx: 60 + i * 26, cy: 50, r: 12, fill: g.color, stroke: "#1f2937", "stroke-width": 1 }, svg);
+  }
+  const t1 = el("text", { x: 95, y: 90, "text-anchor": "middle", font: "13px sans-serif", fill: "#374151" }, svg);
+  t1.textContent = "đơn phân (monomer)";
+  // arrow
+  el("line", { x1: 165, y1: 50, x2: 215, y2: 50, stroke: "#6b7280", "stroke-width": 2, "marker-end": "url(#arr)" }, svg);
+  const defs = el("defs", {}, svg);
+  const mk = el("marker", { id: "arr", markerWidth: 8, markerHeight: 8, refX: 6, refY: 3, orient: "auto" }, defs);
+  el("path", { d: "M0,0 L6,3 L0,6 Z", fill: "#6b7280" }, mk);
+  const t2 = el("text", { x: 190, y: 40, "text-anchor": "middle", font: "11px sans-serif", fill: "#6b7280" }, svg);
+  t2.textContent = "trùng ngưng";
+  // polymer chain
+  if (k === "lipid") {
+    el("circle", { cx: 300, cy: 50, r: 12, fill: g.color, stroke: "#1f2937", "stroke-width": 1 }, svg);
+    for (let i = 0; i < 3; i++) {
+      el("line", { x1: 312, y1: 50, x2: 340, y2: 30 + i * 20, stroke: "#1f2937", "stroke-width": 2 }, svg);
+      el("rect", { x: 340, y: 25 + i * 20, width: 50, height: 8, rx: 3, fill: "#f59e0b" }, svg);
+    }
+    const t3 = el("text", { x: 330, y: 95, "text-anchor": "middle", font: "13px sans-serif", fill: "#374151" }, svg);
+    t3.textContent = "glycerol + 3 acid béo";
+  } else {
+    for (let i = 0; i < 5; i++) {
+      el("circle", { cx: 270 + i * 26, cy: 50, r: 12, fill: g.color, stroke: "#1f2937", "stroke-width": 1 }, svg);
+      if (i > 0) el("line", { x1: 270 + (i - 1) * 26 + 12, y1: 50, x2: 270 + i * 26 - 12, y2: 50, stroke: "#1f2937", "stroke-width": 2 }, svg);
+    }
+    const t3 = el("text", { x: 322, y: 90, "text-anchor": "middle", font: "13px sans-serif", fill: "#374151" }, svg);
+    t3.textContent = "đa phân (polymer)";
+  }
+  document.getElementById("groupInfo").innerHTML =
+    `<div><strong>Đơn phân:</strong> ${g.monomer}</div>` +
+    `<div><strong>Đa phân:</strong> ${g.polymer}</div>` +
+    `<div><strong>Nguyên tố:</strong> ${g.elements}</div>` +
+    `<div><strong>Chức năng:</strong> ${g.func}</div>` +
+    `<div><strong>Ví dụ:</strong> ${g.ex}</div>`;
+}
+
+// ===== Section 2: Dehydration / Hydrolysis =====
+let monoType = "glucose";
+const MONO = { glucose: { mass: 180, label: "glucose" }, aa: { mass: null, label: "amino acid" }, nt: { mass: null, label: "nucleotide" } };
+const nSlider = document.getElementById("nSlider");
+function renderChain() {
+  const n = +nSlider.value;
+  document.getElementById("nVal").textContent = n;
+  const bonds = n - 1;
+  document.getElementById("bondCount").textContent = bonds;
+  document.getElementById("waterCount").textContent = bonds;
+  const massStat = document.getElementById("massStat");
+  if (monoType === "glucose") {
+    const mass = n * 180 - bonds * 18;
+    document.getElementById("massVal").textContent = mass.toLocaleString("en-US");
+    massStat.style.display = "inline-block";
+    document.getElementById("chainHint").textContent =
+      `Khối lượng = ${n}×180 − ${bonds}×18 = ${n * 180} − ${bonds * 18} = ${mass.toLocaleString("en-US")} g/mol. Mỗi liên kết tách 1 H₂O (18 g/mol).`;
+  } else {
+    massStat.style.display = "none";
+    document.getElementById("chainHint").textContent =
+      `Nối ${n} ${MONO[monoType].label} cần ${bonds} liên kết → tách ${bonds} phân tử H₂O.`;
+  }
+  const svg = document.getElementById("chainSvg"); clear(svg);
+  const startX = 30, gap = Math.min(46, (430 - startX) / Math.max(1, n - 1));
+  for (let i = 0; i < n; i++) {
+    const cx = startX + i * gap;
+    if (i > 0) {
+      el("line", { x1: startX + (i - 1) * gap + 14, y1: 50, x2: cx - 14, y2: 50, class: "bond" }, svg);
+      const w = el("text", { x: (startX + (i - 1) * gap + cx) / 2, y: 30, class: "water-fly", "text-anchor": "middle" }, svg);
+      w.textContent = "H₂O↑";
+    }
+    el("circle", { cx: cx, cy: 50, r: 14, class: "bead" }, svg);
+    const tx = el("text", { x: cx, y: 55, "text-anchor": "middle", font: "11px sans-serif", fill: "#064e3b", "font-weight": "700" }, svg);
+    tx.textContent = i + 1;
+  }
+  const cap = el("text", { x: 230, y: 100, "text-anchor": "middle", font: "12px sans-serif", fill: "#64748b" }, svg);
+  cap.textContent = `${bonds} liên kết · ${bonds} H₂O tách ra (mũi tên xanh)`;
+}
+nSlider.oninput = renderChain;
+document.querySelectorAll("[data-mono]").forEach(b => {
+  b.onclick = () => {
+    monoType = b.dataset.mono;
+    document.querySelectorAll("[data-mono]").forEach(x => x.classList.toggle("active", x === b));
+    renderChain();
+  };
+});
+document.getElementById("hydroBtn").onclick = () => { if (+nSlider.value > 2) { nSlider.value = +nSlider.value - 1; renderChain(); } };
+document.getElementById("dehydBtn").onclick = () => { if (+nSlider.value < 10) { nSlider.value = +nSlider.value + 1; renderChain(); } };
+
+// ===== Section 3: Chargaff =====
+const aPct = document.getElementById("aPct");
+function renderChargaff() {
+  let a = parseFloat(aPct.value);
+  if (isNaN(a)) a = 0;
+  a = Math.max(0, Math.min(50, a));
+  const t = a, gc = (100 - 2 * a) / 2, g = gc, c = gc;
+  document.getElementById("vA").textContent = a + "%";
+  document.getElementById("vT").textContent = t + "%";
+  document.getElementById("vG").textContent = g + "%";
+  document.getElementById("vC").textContent = c + "%";
+  const svg = document.getElementById("chargaffSvg"); clear(svg);
+  const data = [["A", a, "bar-a"], ["T", t, "bar-t"], ["G", g, "bar-g"], ["C", c, "bar-c"]];
+  const baseY = 180, maxH = 150, bw = 60;
+  // axis
+  el("line", { x1: 40, y1: baseY, x2: 400, y2: baseY, stroke: "#9ca3af", "stroke-width": 1 }, svg);
+  data.forEach((d, i) => {
+    const x = 60 + i * 85;
+    const h = (d[1] / 50) * maxH;
+    el("rect", { x: x, y: baseY - h, width: bw, height: h, class: d[2], rx: 3 }, svg);
+    const lbl = el("text", { x: x + bw / 2, y: baseY + 16, class: "bar-label" }, svg);
+    lbl.textContent = d[0];
+    const val = el("text", { x: x + bw / 2, y: baseY - h - 6, class: "bar-label" }, svg);
+    val.textContent = d[1] + "%";
+  });
+  const hbonds = "Tổng = 100%. A–T: 2 liên kết H · G–C: 3 liên kết H.";
+  let note;
+  if (gc > a) note = `G+C = ${(2 * gc)}% > A+T = ${(2 * a)}% → giàu G–C → bền nhiệt hơn (nhiều liên kết H hơn).`;
+  else if (gc < a) note = `A+T = ${(2 * a)}% > G+C = ${(2 * gc)}% → ít liên kết H hơn → kém bền nhiệt.`;
+  else note = `A+T = G+C = 50% → cân bằng.`;
+  document.getElementById("chargaffHint").textContent = hbonds + " " + note;
+}
+aPct.oninput = renderChargaff;
+
+// ===== Section 4: Protein levels =====
+const LEVELS = {
+  1: { name: "Bậc 1 — Trình tự (Primary)", desc: "Chuỗi amino acid theo thứ tự, nối bằng liên kết peptide (cộng hóa trị).", force: "liên kết peptide" },
+  2: { name: "Bậc 2 — Xoắn/gấp (Secondary)", desc: "Xoắn α (α-helix) và gấp nếp β (β-sheet) cục bộ.", force: "liên kết hydrogen giữa khung" },
+  3: { name: "Bậc 3 — Cuộn 3D (Tertiary)", desc: "Toàn chuỗi cuộn gập thành khối 3D đặc trưng.", force: "tương tác gốc R: kỵ nước, ion, cầu disulfide" },
+  4: { name: "Bậc 4 — Nhiều chuỗi (Quaternary)", desc: "Nhiều chuỗi polypeptide ghép thành 1 protein hoàn chỉnh (vd hemoglobin 4 chuỗi).", force: "tương tác giữa các chuỗi" }
+};
+const levelBtns = document.getElementById("levelBtns");
+[1, 2, 3, 4].forEach(n => {
+  const b = document.createElement("button");
+  b.className = "pill"; b.textContent = "Bậc " + n; b.dataset.l = n;
+  b.onclick = () => showLevel(n);
+  levelBtns.appendChild(b);
+});
+function showLevel(n) {
+  document.querySelectorAll("#levelBtns .pill").forEach(b => b.classList.toggle("active", +b.dataset.l === n));
+  const svg = document.getElementById("levelSvg"); clear(svg);
+  const col = "#60a5fa";
+  if (n == 1) {
+    for (let i = 0; i < 7; i++) {
+      const x = 50 + i * 48;
+      if (i > 0) el("line", { x1: 50 + (i - 1) * 48 + 12, y1: 90, x2: x - 12, y2: 90, stroke: "#1e3a8a", "stroke-width": 2 }, svg);
+      el("circle", { cx: x, cy: 90, r: 12, fill: col, stroke: "#1e3a8a", "stroke-width": 1.5 }, svg);
+    }
+  } else if (n == 2) {
+    // helix-ish wave
+    let d = "M 40 90";
+    for (let x = 40; x <= 380; x += 10) {
+      const y = 90 + 35 * Math.sin((x - 40) / 22);
+      d += ` L ${x} ${y}`;
+    }
+    el("path", { d: d, fill: "none", stroke: col, "stroke-width": 6, "stroke-linecap": "round" }, svg);
+  } else if (n == 3) {
+    // blobby folded path
+    el("path", { d: "M 80 90 C 120 30, 200 30, 210 90 S 320 150, 340 90 S 280 40, 200 120 S 110 140, 80 90 Z", fill: "#bfdbfe", stroke: "#1e3a8a", "stroke-width": 3 }, svg);
+  } else {
+    const centers = [[150, 70], [270, 70], [150, 120], [270, 120]];
+    centers.forEach(c => el("path", { d: `M ${c[0]} ${c[1]} m -40 0 a 40 28 0 1 0 80 0 a 40 28 0 1 0 -80 0`, fill: "#bfdbfe", stroke: "#1e3a8a", "stroke-width": 2.5 }, svg));
+    const t = el("text", { x: 210, y: 160, "text-anchor": "middle", font: "12px sans-serif", fill: "#374151" }, svg);
+    t.textContent = "4 chuỗi (vd hemoglobin)";
+  }
+  const L = LEVELS[n];
+  document.getElementById("levelInfo").innerHTML =
+    `<div><strong>${L.name}</strong></div>` +
+    `<div>${L.desc}</div>` +
+    `<div><strong>Lực giữ:</strong> ${L.force}</div>`;
+}
+
+// ===== Init =====
+showGroup("carb");
+renderChain();
+renderChargaff();
+showLevel(1);
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

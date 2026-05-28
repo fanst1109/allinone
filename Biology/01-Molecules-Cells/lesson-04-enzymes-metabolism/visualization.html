@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Enzyme & chuyển hóa</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #14532d; }
+  h2 {
+    color: #166534; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #bbf7d0;
+  }
+  h3 { color: #15803d; margin-top: 20px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 11px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 90px; max-width: 100%;
+  }
+  input[type="range"] { flex: 1; min-width: 0; }
+  button {
+    background: #059669; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #047857; }
+  button.muted { background: #a0aec0; }
+  button.muted:hover { background: #718096; }
+  .pill {
+    background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;
+  }
+  .pill.active { background: #059669; color: white; }
+  .stat {
+    display: inline-block; background: #d1fae5;
+    padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #047857; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; }
+  .group-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+  svg { display: block; margin: 8px auto; max-width: 100%; height: auto; }
+  .info-grid { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 14px; }
+  .info-grid div { padding: 6px 10px; background: #f0fdf4; border-radius: 6px; }
+  .info-grid strong { color: #166534; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 8px; }
+  th, td { border: 1px solid #d1d5db; padding: 7px 10px; text-align: left; }
+  th { background: #ecfdf5; color: #065f46; }
+
+  .warn-box { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b;
+    border-radius: 6px; padding: 8px 12px; font-size: 13px; margin-top: 8px; }
+  .ok-box { background: #ecfdf5; border: 1px solid #6ee7b7; color: #065f46;
+    border-radius: 6px; padding: 8px 12px; font-size: 13px; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Biology · Tầng 1</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-membrane-transport/visualization.html">← L3: Màng &amp; vận chuyển</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Enzyme &amp; chuyển hóa</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-cellular-respiration/visualization.html">L5: Hô hấp tế bào →</a>
+</nav>
+
+<h1>Lesson 04 — Enzyme &amp; chuyển hóa</h1>
+<p>Bộ công cụ tương tác: kéo thanh xem enzyme hạ năng lượng hoạt hóa (Ea) mà không đổi ΔG, vẽ đường cong hoạt tính theo nhiệt độ/pH với điểm tối ưu di chuyển, mô phỏng chu trình ATP ⇌ ADP đếm năng lượng, và xem cơ chất khớp active site có/không có chất ức chế.</p>
+
+<h2>1. Sơ đồ năng lượng — enzyme hạ Ea, không đổi ΔG</h2>
+<div class="card">
+  <p>Kéo thanh để chọn mức enzyme hạ rào năng lượng hoạt hóa (Ea). Đường <strong>không enzyme</strong> (xám) có đỉnh cao; đường <strong>có enzyme</strong> (xanh) có đỉnh thấp hơn. Chú ý: hai đầu (chất phản ứng và sản phẩm) <strong>không đổi</strong> → <strong>ΔG không đổi</strong>.</p>
+  <div class="row">
+    <label>Enzyme hạ Ea:</label>
+    <input type="range" id="eaSlider" min="0" max="60" value="40" step="5">
+    <span class="stat">hạ <strong id="eaDrop">40</strong> kJ/mol</span>
+  </div>
+  <svg id="energySvg" width="460" height="300" viewBox="0 0 460 300" role="img" aria-label="Sơ đồ năng lượng phản ứng"></svg>
+  <div style="margin-top:6px">
+    <span class="stat">Ea (không enzyme) = <strong id="eaNo">80</strong> kJ/mol</span>
+    <span class="stat">Ea (có enzyme) = <strong id="eaYes">40</strong> kJ/mol</span>
+    <span class="stat">ΔG = <strong style="color:#b91c1c">−50</strong> kJ/mol (cố định)</span>
+  </div>
+  <div class="hint" id="energyHint"></div>
+</div>
+
+<h2>2. Đường cong hoạt tính enzyme — nhiệt độ &amp; pH</h2>
+<div class="card">
+  <p>Chọn yếu tố và một enzyme; viz vẽ đường cong hoạt tính với <strong>điểm tối ưu</strong> di chuyển. Kéo thanh đặt điều kiện hiện tại (nhiệt độ hoặc pH) để xem hoạt tính tương ứng và cảnh báo biến tính.</p>
+  <div class="group-btns">
+    <button class="pill active" data-factor="temp">Nhiệt độ</button>
+    <button class="pill" data-factor="ph">pH</button>
+  </div>
+  <div class="group-btns" id="enzBtns"></div>
+  <div class="row">
+    <label id="condLabel">Nhiệt độ hiện tại:</label>
+    <input type="range" id="condSlider" min="0" max="80" value="37" step="1">
+    <span class="stat"><strong id="condVal">37</strong><span id="condUnit">°C</span></span>
+  </div>
+  <svg id="curveSvg" width="460" height="280" viewBox="0 0 460 280" role="img" aria-label="Đường cong hoạt tính enzyme"></svg>
+  <div style="margin-top:6px">
+    <span class="stat">Tối ưu = <strong id="optVal">37°C</strong></span>
+    <span class="stat">Hoạt tính = <strong id="actVal">100</strong>%</span>
+  </div>
+  <div id="curveStatus"></div>
+</div>
+
+<h2>3. Chu trình ATP ⇌ ADP — đếm năng lượng</h2>
+<div class="card">
+  <p>Nhấn <strong>Thủy phân (xả)</strong> để cắt ATP → ADP + Pi (giải phóng ~7.3 kcal/mol), hoặc <strong>Tổng hợp (nạp)</strong> để dùng năng lượng dị hóa gắn lại Pi. Bộ đếm cộng dồn năng lượng đã giải phóng.</p>
+  <svg id="atpSvg" width="460" height="200" viewBox="0 0 460 200" role="img" aria-label="Chu trình ATP ADP"></svg>
+  <div class="row" style="margin-top:8px">
+    <button id="hydroBtn">⚡ Thủy phân (xả) → ADP + Pi</button>
+    <button id="synthBtn" class="muted">🔋 Tổng hợp (nạp) → ATP</button>
+  </div>
+  <div style="margin-top:8px">
+    <span class="stat">Trạng thái: <strong id="atpState">ATP</strong></span>
+    <span class="stat">Số lần xả: <strong id="atpCount">0</strong></span>
+    <span class="stat">Năng lượng đã giải phóng = <strong id="atpEnergy">0</strong> kcal/mol</span>
+  </div>
+  <div class="hint" id="atpHint">Mỗi lần thủy phân: n × 7.3 kcal/mol. Thử xả nhiều lần để thấy năng lượng cộng dồn (1→7.3, 2→14.6, 10→73, 38→277.4 kcal/mol).</div>
+</div>
+
+<h2>4. Khóa–chìa &amp; ức chế cạnh tranh</h2>
+<div class="card">
+  <p>Bật/tắt chất ức chế cạnh tranh (hình giống cơ chất) chiếm active site, rồi nhấn "Cho cơ chất tới" để xem điều gì xảy ra. Tăng nồng độ cơ chất để thấy ức chế cạnh tranh bị "đè" qua.</p>
+  <div class="group-btns">
+    <button class="pill active" data-inh="off">Không ức chế</button>
+    <button class="pill" data-inh="comp">Ức chế cạnh tranh</button>
+    <button class="pill" data-inh="noncomp">Ức chế không cạnh tranh</button>
+  </div>
+  <div class="row">
+    <label>Nồng độ cơ chất [S]:</label>
+    <input type="range" id="subSlider" min="1" max="10" value="3" step="1">
+    <span class="stat">[S] = <strong id="subVal">3</strong></span>
+  </div>
+  <svg id="lockSvg" width="460" height="220" viewBox="0 0 460 220" role="img" aria-label="Khóa chìa và ức chế"></svg>
+  <div class="row" style="margin-top:6px">
+    <button id="reactBtn">▶ Cho cơ chất tới active site</button>
+  </div>
+  <div id="lockStatus"></div>
+</div>
+
+<h2>5. Bảng tổng hợp khái niệm</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>Khái niệm</th><th>Ý nghĩa cốt lõi</th><th>Con số / ví dụ chốt</th></tr></thead>
+    <tbody>
+      <tr><td>Ea</td><td>rào năng lượng để bắt đầu</td><td>enzyme hạ Ea → ×triệu–tỉ lần</td></tr>
+      <tr><td>ΔG</td><td>quyết định tự xảy ra hay không</td><td>enzyme <strong>không</strong> đổi ΔG</td></tr>
+      <tr><td>Nhiệt độ tối ưu</td><td>~37°C ở người</td><td>vượt → biến tính</td></tr>
+      <tr><td>pH tối ưu</td><td>mỗi enzyme một giá trị</td><td>pepsin ~2, trypsin ~8</td></tr>
+      <tr><td>Bão hòa</td><td>mọi active site bận → Vmax</td><td>v = Vmax·[S]/(Km+[S])</td></tr>
+      <tr><td>Ức chế cạnh tranh</td><td>chiếm active site; vượt bằng tăng [S]</td><td>Vmax không đổi</td></tr>
+      <tr><td>Ức chế không cạnh tranh</td><td>gắn chỗ khác, đổi hình</td><td>Vmax giảm</td></tr>
+      <tr><td>ATP</td><td>tiền tệ năng lượng</td><td>thủy phân ~7.3 kcal/mol</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function txt(svg, x, y, s, opts) {
+  const o = Object.assign({ x: x, y: y, "text-anchor": "middle", font: "12px sans-serif", fill: "#374151" }, opts || {});
+  const t = el("text", o, svg);
+  t.textContent = s;
+  return t;
+}
+function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+
+// ===== Section 1: Energy diagram =====
+const EA_NO = 80;      // Ea không enzyme (kJ/mol)
+const DELTA_G = -50;   // ΔG cố định
+const eaSlider = document.getElementById("eaSlider");
+function renderEnergy() {
+  const drop = +eaSlider.value;
+  const eaYes = Math.max(5, EA_NO - drop);
+  document.getElementById("eaDrop").textContent = drop;
+  document.getElementById("eaNo").textContent = EA_NO;
+  document.getElementById("eaYes").textContent = eaYes;
+  const svg = document.getElementById("energySvg"); clear(svg);
+
+  // axes
+  const x0 = 50, x1 = 430, yBase = 250, yTop = 30;
+  el("line", { x1: x0, y1: yTop, x2: x0, y2: yBase, stroke: "#9ca3af", "stroke-width": 1 }, svg);
+  el("line", { x1: x0, y1: yBase, x2: x1, y2: yBase, stroke: "#9ca3af", "stroke-width": 1 }, svg);
+  txt(svg, 18, 145, "Năng", { font: "11px sans-serif", fill: "#6b7280" });
+  txt(svg, 18, 160, "lượng", { font: "11px sans-serif", fill: "#6b7280" });
+  txt(svg, 240, 272, "Tiến trình phản ứng →", { font: "11px sans-serif", fill: "#6b7280" });
+
+  // energy scale: pixels per kJ
+  const scale = 1.6;
+  const reactY = yBase - 60;                // chất phản ứng (mức nền)
+  const prodY = reactY + DELTA_G * scale;   // sản phẩm thấp hơn (ΔG<0) → reactY - 50*scale
+  const peakNoY = reactY - EA_NO * scale;
+  const peakYesY = reactY - eaYes * scale;
+
+  // path helper: smooth hill from start to peak to end
+  function hill(peakY, color, w, label) {
+    const sx = x0 + 30, px = (x0 + x1) / 2, ex = x1 - 30;
+    const d = `M ${sx} ${reactY} C ${sx + 60} ${reactY}, ${px - 60} ${peakY}, ${px} ${peakY} S ${ex - 60} ${prodY}, ${ex} ${prodY}`;
+    el("path", { d: d, fill: "none", stroke: color, "stroke-width": w }, svg);
+  }
+  hill(peakNoY, "#9ca3af", 3);   // no enzyme
+  hill(peakYesY, "#059669", 4);  // enzyme
+
+  const sx = x0 + 30, px = (x0 + x1) / 2, ex = x1 - 30;
+  // level dots
+  el("circle", { cx: sx, cy: reactY, r: 4, fill: "#374151" }, svg);
+  el("circle", { cx: ex, cy: prodY, r: 4, fill: "#374151" }, svg);
+  txt(svg, sx, reactY + 18, "Chất phản ứng", { font: "11px sans-serif", fill: "#374151" });
+  txt(svg, ex, prodY + 18, "Sản phẩm", { font: "11px sans-serif", fill: "#374151" });
+
+  // Ea arrows
+  el("line", { x1: px + 70, y1: reactY, x2: px + 70, y2: peakNoY, stroke: "#9ca3af", "stroke-width": 1.5, "stroke-dasharray": "4 3" }, svg);
+  txt(svg, px + 110, (reactY + peakNoY) / 2, "Ea=" + EA_NO, { font: "11px sans-serif", fill: "#6b7280" });
+  el("line", { x1: px - 70, y1: reactY, x2: px - 70, y2: peakYesY, stroke: "#047857", "stroke-width": 1.5, "stroke-dasharray": "4 3" }, svg);
+  txt(svg, px - 110, (reactY + peakYesY) / 2, "Ea=" + eaYes, { font: "11px sans-serif", fill: "#047857" });
+
+  // ΔG bracket
+  el("line", { x1: ex + 8, y1: reactY, x2: ex + 8, y2: prodY, stroke: "#b91c1c", "stroke-width": 1.5 }, svg);
+  txt(svg, ex + 8, (reactY + prodY) / 2 - 4, "ΔG", { font: "11px sans-serif", fill: "#b91c1c" });
+
+  // speedup estimate
+  const RT = 2.577; // kJ/mol at 310K
+  const factor = Math.exp(drop / RT);
+  let fStr;
+  if (factor < 1.01) fStr = "1 (chưa hạ)";
+  else if (factor < 1000) fStr = "≈ " + Math.round(factor) + " lần";
+  else fStr = "≈ " + factor.toExponential(1).replace("e+", "×10^") + " lần";
+  document.getElementById("energyHint").textContent =
+    `Đỉnh xanh thấp hơn đỉnh xám đúng ${drop} kJ/mol. Tăng tốc ≈ e^(${drop}/2.577) = ${fStr} (ở 37°C). ` +
+    `ΔG = ${DELTA_G} kJ/mol KHÔNG đổi dù enzyme hạ Ea bao nhiêu — enzyme chỉ đổi tốc độ, không đổi cân bằng.`;
+}
+eaSlider.oninput = renderEnergy;
+
+// ===== Section 2: Activity curve (temp / pH) =====
+let factor = "temp";
+let enzKey = "human";
+const ENZ_TEMP = {
+  human: { name: "Enzyme người", opt: 37, sigma: 9, denatureAbove: 45 },
+  thermo: { name: "Vi khuẩn suối nóng", opt: 70, sigma: 12, denatureAbove: 80 }
+};
+const ENZ_PH = {
+  pepsin: { name: "Pepsin (dạ dày)", opt: 2, sigma: 1.4 },
+  amylase: { name: "Amylase (miệng)", opt: 6.8, sigma: 1.5 },
+  trypsin: { name: "Trypsin (ruột)", opt: 8, sigma: 1.5 }
+};
+const enzBtns = document.getElementById("enzBtns");
+function buildEnzBtns() {
+  enzBtns.innerHTML = "";
+  const set = factor === "temp" ? ENZ_TEMP : ENZ_PH;
+  enzKey = Object.keys(set)[0];
+  Object.keys(set).forEach((k, i) => {
+    const b = document.createElement("button");
+    b.className = "pill" + (i === 0 ? " active" : "");
+    b.textContent = set[k].name; b.dataset.e = k;
+    b.onclick = () => {
+      enzKey = k;
+      enzBtns.querySelectorAll(".pill").forEach(x => x.classList.toggle("active", x.dataset.e === k));
+      renderCurve();
+    };
+    enzBtns.appendChild(b);
+  });
+}
+function curveValueTemp(e, x) {
+  // rise to optimum, then collapse beyond optimum (denature)
+  if (x <= e.opt) return 100 * Math.exp(-Math.pow(x - e.opt, 2) / (2 * e.sigma * e.sigma));
+  // steep collapse after optimum
+  const over = x - e.opt;
+  return 100 * Math.exp(-Math.pow(over, 2) / (2 * (e.sigma * 0.6) * (e.sigma * 0.6)));
+}
+function curveValuePh(e, x) {
+  return 100 * Math.exp(-Math.pow(x - e.opt, 2) / (2 * e.sigma * e.sigma));
+}
+function renderCurve() {
+  const svg = document.getElementById("curveSvg"); clear(svg);
+  const isTemp = factor === "temp";
+  const set = isTemp ? ENZ_TEMP : ENZ_PH;
+  const e = set[enzKey];
+  const xMin = 0, xMax = isTemp ? 80 : 14;
+  const condSlider = document.getElementById("condSlider");
+  condSlider.min = xMin; condSlider.max = xMax;
+  condSlider.step = isTemp ? 1 : 0.5;
+  if (+condSlider.value > xMax) condSlider.value = e.opt;
+  document.getElementById("condLabel").textContent = isTemp ? "Nhiệt độ hiện tại:" : "pH hiện tại:";
+  document.getElementById("condUnit").textContent = isTemp ? "°C" : " pH";
+
+  // axes
+  const x0 = 45, x1 = 430, yBase = 235, yTop = 30;
+  el("line", { x1: x0, y1: yTop, x2: x0, y2: yBase, stroke: "#9ca3af", "stroke-width": 1 }, svg);
+  el("line", { x1: x0, y1: yBase, x2: x1, y2: yBase, stroke: "#9ca3af", "stroke-width": 1 }, svg);
+  txt(svg, 22, 130, "Hoạt", { font: "10px sans-serif", fill: "#6b7280" });
+  txt(svg, 22, 143, "tính", { font: "10px sans-serif", fill: "#6b7280" });
+  txt(svg, 240, 268, isTemp ? "Nhiệt độ (°C) →" : "pH →", { font: "11px sans-serif", fill: "#6b7280" });
+
+  const px = v => x0 + (v - xMin) / (xMax - xMin) * (x1 - x0);
+  const py = a => yBase - a / 100 * (yBase - yTop);
+
+  // x-axis ticks
+  const ticks = isTemp ? [0, 20, 40, 60, 80] : [0, 2, 4, 6, 8, 10, 12, 14];
+  ticks.forEach(t => {
+    el("line", { x1: px(t), y1: yBase, x2: px(t), y2: yBase + 4, stroke: "#9ca3af", "stroke-width": 1 }, svg);
+    txt(svg, px(t), yBase + 16, t, { font: "10px sans-serif", fill: "#6b7280" });
+  });
+
+  // curve path
+  let d = "";
+  for (let v = xMin; v <= xMax; v += (xMax - xMin) / 200) {
+    const a = isTemp ? curveValueTemp(e, v) : curveValuePh(e, v);
+    d += (d ? " L " : "M ") + px(v) + " " + py(a);
+  }
+  el("path", { d: d, fill: "none", stroke: "#059669", "stroke-width": 3 }, svg);
+
+  // optimum marker
+  el("line", { x1: px(e.opt), y1: py(100), x2: px(e.opt), y2: yBase, stroke: "#047857", "stroke-width": 1, "stroke-dasharray": "3 3" }, svg);
+  el("circle", { cx: px(e.opt), cy: py(100), r: 4, fill: "#047857" }, svg);
+  txt(svg, px(e.opt), py(100) - 8, "tối ưu " + e.opt + (isTemp ? "°C" : ""), { font: "11px sans-serif", fill: "#047857" });
+
+  // denature region for temp
+  if (isTemp && e.denatureAbove < xMax) {
+    el("rect", { x: px(e.denatureAbove), y: yTop, width: x1 - px(e.denatureAbove), height: yBase - yTop, fill: "#ef4444", opacity: 0.08 }, svg);
+    txt(svg, (px(e.denatureAbove) + x1) / 2, yTop + 14, "vùng biến tính", { font: "10px sans-serif", fill: "#b91c1c" });
+  }
+
+  // current condition marker
+  const cur = +condSlider.value;
+  document.getElementById("condVal").textContent = cur;
+  const act = isTemp ? curveValueTemp(e, cur) : curveValuePh(e, cur);
+  el("line", { x1: px(cur), y1: yTop, x2: px(cur), y2: yBase, stroke: "#1d4ed8", "stroke-width": 1.5 }, svg);
+  el("circle", { cx: px(cur), cy: py(act), r: 5, fill: "#1d4ed8" }, svg);
+
+  document.getElementById("optVal").textContent = e.opt + (isTemp ? "°C" : " pH");
+  document.getElementById("actVal").textContent = act.toFixed(1);
+
+  const status = document.getElementById("curveStatus");
+  if (isTemp && cur > e.denatureAbove) {
+    status.className = "warn-box";
+    status.textContent = `⚠ ${cur}°C vượt quá ngưỡng ${e.denatureAbove}°C — enzyme đang BIẾN TÍNH (denature): liên kết hydrogen/bậc 2–3 bị phá, active site mất hình. Hoạt tính rơi và KHÔNG hồi phục khi hạ nhiệt.`;
+  } else if (Math.abs(cur - e.opt) < (isTemp ? 3 : 0.6)) {
+    status.className = "ok-box";
+    status.textContent = `✓ Gần điểm tối ưu (${e.opt}${isTemp ? "°C" : " pH"}) — hoạt tính ≈ ${act.toFixed(0)}%, enzyme làm việc hiệu quả nhất.`;
+  } else {
+    status.className = "hint";
+    status.textContent = `Cách điểm tối ưu → hoạt tính giảm còn ${act.toFixed(0)}%. ${isTemp ? "Lạnh hơn = phân tử chậm, va chạm ít." : "pH lệch = ion phá tương tác giữ hình active site."}`;
+  }
+}
+document.querySelectorAll("[data-factor]").forEach(b => {
+  b.onclick = () => {
+    factor = b.dataset.factor;
+    document.querySelectorAll("[data-factor]").forEach(x => x.classList.toggle("active", x === b));
+    buildEnzBtns();
+    const cs = document.getElementById("condSlider");
+    cs.value = factor === "temp" ? 37 : 7;
+    renderCurve();
+  };
+});
+document.getElementById("condSlider").oninput = renderCurve;
+
+// ===== Section 3: ATP cycle =====
+let atpIsHigh = true; // true=ATP, false=ADP+Pi
+let atpReleases = 0;
+function renderAtp() {
+  const svg = document.getElementById("atpSvg"); clear(svg);
+  // adenosine box
+  el("rect", { x: 30, y: 70, width: 90, height: 60, rx: 8, fill: "#bbf7d0", stroke: "#047857", "stroke-width": 2 }, svg);
+  txt(svg, 75, 95, "Adenine", { font: "12px sans-serif", fill: "#065f46" });
+  txt(svg, 75, 113, "+ Ribose", { font: "12px sans-serif", fill: "#065f46" });
+  // phosphates
+  const pcx = [150, 200, 250];
+  const nPhos = atpIsHigh ? 3 : 2;
+  let prevX = 120;
+  for (let i = 0; i < 3; i++) {
+    const present = i < nPhos;
+    const cx = pcx[i];
+    if (present) {
+      el("line", { x1: prevX, y1: 100, x2: cx - 16, y2: 100, stroke: i === 2 ? "#f59e0b" : "#047857", "stroke-width": i === 2 ? 4 : 3 }, svg);
+      el("circle", { cx: cx, cy: 100, r: 16, fill: i === 2 ? "#fbbf24" : "#34d399", stroke: "#047857", "stroke-width": 2 }, svg);
+      txt(svg, cx, 105, "P", { font: "13px sans-serif", fill: "#064e3b", "font-weight": "700" });
+      prevX = cx + 16;
+    }
+  }
+  if (atpIsHigh) {
+    txt(svg, 200, 145, "ATP — 3 phosphate (liên kết cuối giàu năng lượng)", { font: "11px sans-serif", fill: "#6b7280" });
+  } else {
+    // Pi released, floating
+    el("circle", { cx: 320, cy: 60, r: 16, fill: "#fca5a5", stroke: "#b91c1c", "stroke-width": 2 }, svg);
+    txt(svg, 320, 65, "Pi", { font: "12px sans-serif", fill: "#7f1d1d", "font-weight": "700" });
+    txt(svg, 320, 88, "+ năng lượng ⚡", { font: "11px sans-serif", fill: "#b91c1c" });
+    txt(svg, 175, 145, "ADP — chỉ còn 2 phosphate", { font: "11px sans-serif", fill: "#6b7280" });
+  }
+  // energy arc indicator
+  txt(svg, 200, 175, atpIsHigh ? "Pin đã NẠP — sẵn sàng xả" : "Pin đã XẢ — cần nạp lại (dùng năng lượng dị hóa)",
+    { font: "11px sans-serif", fill: atpIsHigh ? "#047857" : "#b91c1c", "font-weight": "600" });
+
+  document.getElementById("atpState").textContent = atpIsHigh ? "ATP" : "ADP + Pi";
+  document.getElementById("atpCount").textContent = atpReleases;
+  document.getElementById("atpEnergy").textContent = (atpReleases * 7.3).toFixed(1);
+  document.getElementById("hydroBtn").className = atpIsHigh ? "" : "muted";
+  document.getElementById("synthBtn").className = atpIsHigh ? "muted" : "";
+}
+document.getElementById("hydroBtn").onclick = () => {
+  if (atpIsHigh) { atpIsHigh = false; atpReleases++; renderAtp(); }
+};
+document.getElementById("synthBtn").onclick = () => {
+  if (!atpIsHigh) { atpIsHigh = true; renderAtp(); }
+};
+
+// ===== Section 4: Lock-and-key + inhibition =====
+let inhMode = "off";
+const subSlider = document.getElementById("subSlider");
+function renderLock(reacted) {
+  const svg = document.getElementById("lockSvg"); clear(svg);
+  const s = +subSlider.value;
+  document.getElementById("subVal").textContent = s;
+
+  // enzyme body (with notch = active site)
+  const noncompDeform = inhMode === "noncomp";
+  const ecx = 230, ecy = 130;
+  // enzyme blob — deformed if noncompetitive
+  const blobColor = noncompDeform ? "#fcd9b6" : "#a7f3d0";
+  const stroke = noncompDeform ? "#b45309" : "#047857";
+  if (noncompDeform) {
+    el("path", { d: `M 140 110 q 30 -55 90 -45 q 70 5 80 55 q 5 50 -45 60 q -70 14 -110 -10 q -35 -25 -15 -60 Z`, fill: blobColor, stroke: stroke, "stroke-width": 2.5 }, svg);
+  } else {
+    el("path", { d: `M 150 100 h 70 v 18 a 20 14 0 0 1 -40 0 v -18 h -5 v 90 h 160 v -90 h -5 v 18 a 20 14 0 0 1 -40 0 v -18 h 5 q 30 0 30 50 q 0 50 -40 55 h -110 q -40 -5 -40 -55 q 0 -50 30 -50 Z`, fill: blobColor, stroke: stroke, "stroke-width": 2.5 }, svg);
+  }
+  txt(svg, ecx, 200, noncompDeform ? "Enzyme (active site đã BIẾN DẠNG)" : "Enzyme — active site (rãnh trên đỉnh)", { font: "11px sans-serif", fill: noncompDeform ? "#b45309" : "#065f46" });
+
+  // active site position (notch center)
+  const asx = ecx, asy = 108;
+
+  // allosteric inhibitor for noncompetitive
+  if (inhMode === "noncomp") {
+    el("rect", { x: ecx + 60, y: 150, width: 34, height: 22, rx: 5, fill: "#ef4444", stroke: "#991b1b", "stroke-width": 2 }, svg);
+    txt(svg, ecx + 77, 165, "I", { font: "12px sans-serif", fill: "white", "font-weight": "700" });
+    txt(svg, ecx + 77, 188, "gắn chỗ khác", { font: "9px sans-serif", fill: "#991b1b" });
+  }
+
+  // competitive inhibitor sitting in active site
+  const compBlocked = inhMode === "comp";
+  if (compBlocked && reacted && s >= 8) {
+    // high [S] overcomes competitive inhibitor → substrate wins
+  } else if (compBlocked) {
+    el("path", { d: `M ${asx - 16} ${asy - 26} h 32 v 14 a 16 10 0 0 1 -32 0 Z`, fill: "#ef4444", stroke: "#991b1b", "stroke-width": 2 }, svg);
+    txt(svg, asx, asy - 32, "chất ức chế (giống cơ chất)", { font: "9px sans-serif", fill: "#991b1b" });
+  }
+
+  // substrate(s) approaching or bound
+  for (let i = 0; i < s; i++) {
+    let sx, sy;
+    if (i === 0 && reacted) {
+      // first substrate: try to bind
+      const canBind = inhMode === "off" || (inhMode === "comp" && s >= 8);
+      if (canBind && inhMode !== "noncomp") {
+        // bound and converted to product (two halves)
+        el("circle", { cx: asx - 9, cy: asy - 14, r: 9, fill: "#60a5fa", stroke: "#1e3a8a", "stroke-width": 2 }, svg);
+        el("circle", { cx: asx + 9, cy: asy - 14, r: 9, fill: "#a78bfa", stroke: "#5b21b6", "stroke-width": 2 }, svg);
+        txt(svg, asx, asy - 36, "→ SẢN PHẨM", { font: "10px sans-serif", fill: "#047857", "font-weight": "700" });
+        continue;
+      }
+    }
+    // floating substrates above
+    sx = 40 + (i % 5) * 22 + (i >= 5 ? 11 : 0);
+    sy = 30 + Math.floor(i / 5) * 26;
+    el("path", { d: `M ${sx - 9} ${sy - 7} h 18 v 8 a 9 6 0 0 1 -18 0 Z`, fill: "#3b82f6", stroke: "#1e3a8a", "stroke-width": 1.5 }, svg);
+  }
+
+  // status text
+  const status = document.getElementById("lockStatus");
+  if (!reacted) {
+    status.className = "hint";
+    status.textContent = inhMode === "off"
+      ? "Nhấn 'Cho cơ chất tới' — cơ chất sẽ khớp active site và chuyển thành sản phẩm."
+      : (inhMode === "comp"
+        ? "Chất ức chế cạnh tranh đang ở active site. Tăng [S] lên ≥ 8 rồi nhấn nút để xem cơ chất 'đè' qua được."
+        : "Chất ức chế không cạnh tranh đã gắn chỗ khác và làm biến dạng active site. Tăng [S] cũng vô ích.");
+    return;
+  }
+  if (inhMode === "off") {
+    status.className = "ok-box";
+    status.textContent = "✓ Cơ chất khớp active site → tạo phức ES → cho SẢN PHẨM. Enzyme nhả sản phẩm và tái sử dụng.";
+  } else if (inhMode === "comp") {
+    if (s >= 8) {
+      status.className = "ok-box";
+      status.textContent = `✓ [S] = ${s} đủ cao → cơ chất ĐÈ được chất ức chế cạnh tranh, vào active site và phản ứng. Vmax phục hồi (cạnh tranh vượt được bằng tăng [S]).`;
+    } else {
+      status.className = "warn-box";
+      status.textContent = `⚠ [S] = ${s} còn thấp → chất ức chế cạnh tranh vẫn chiếm active site, cơ chất bị chặn. Tăng [S] lên ≥ 8 để vượt qua.`;
+    }
+  } else {
+    status.className = "warn-box";
+    status.textContent = `⚠ Ức chế KHÔNG cạnh tranh: active site đã biến dạng (gắn allosteric). Dù [S] = ${s} (tăng bao nhiêu cũng vậy), cơ chất KHÔNG xúc tác được → Vmax giảm. Không vượt được bằng tăng cơ chất.`;
+  }
+}
+document.querySelectorAll("[data-inh]").forEach(b => {
+  b.onclick = () => {
+    inhMode = b.dataset.inh;
+    document.querySelectorAll("[data-inh]").forEach(x => x.classList.toggle("active", x === b));
+    renderLock(false);
+  };
+});
+subSlider.oninput = () => renderLock(false);
+document.getElementById("reactBtn").onclick = () => renderLock(true);
+
+// ===== Init =====
+renderEnergy();
+buildEnzBtns();
+renderCurve();
+renderAtp();
+renderLock(false);
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

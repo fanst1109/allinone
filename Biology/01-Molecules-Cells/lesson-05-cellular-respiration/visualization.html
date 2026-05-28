@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Hô hấp tế bào</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #14532d; }
+  h2 {
+    color: #166534; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #bbf7d0;
+  }
+  h3 { color: #15803d; margin-top: 20px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 11px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 90px; max-width: 100%;
+  }
+  input[type="range"] { flex: 1; min-width: 0; }
+  button {
+    background: #059669; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #047857; }
+  button.muted { background: #a0aec0; }
+  button.muted:hover { background: #718096; }
+  .pill {
+    background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;
+  }
+  .pill.active { background: #059669; color: white; }
+  .stat {
+    display: inline-block; background: #d1fae5;
+    padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #047857; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; }
+  .group-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+  svg { display: block; margin: 8px auto; max-width: 100%; height: auto; }
+  .info-grid { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 14px; }
+  .info-grid div { padding: 6px 10px; background: #f0fdf4; border-radius: 6px; }
+  .info-grid strong { color: #166534; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 8px; }
+  th, td { border: 1px solid #d1d5db; padding: 7px 10px; text-align: left; }
+  th { background: #ecfdf5; color: #065f46; }
+
+  .stage-label { font: 13px sans-serif; fill: #374151; }
+  .loc-tag { font: 11px sans-serif; fill: #6b7280; }
+  .conv-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 6px 0; }
+  .conv-row .pill { cursor: pointer; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Biology · Tầng 1</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-enzymes-metabolism/visualization.html">← L4: Enzyme &amp; chuyển hóa</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Hô hấp tế bào</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-photosynthesis/visualization.html">L6: Quang hợp →</a>
+</nav>
+
+<h1>Lesson 05 — Hô hấp tế bào</h1>
+<p>Bộ công cụ tương tác: bước qua 3 giai đoạn hô hấp và cộng dồn ATP/NADH/FADH₂ (Kế toán ATP), nhân số glucose để tính ATP/CO₂/O₂, so sánh hiếu khí với lên men, và xem sơ đồ ti thể chỉ rõ mỗi giai đoạn diễn ra ở đâu.</p>
+
+<h2>1. Kế toán ATP — bước qua 3 giai đoạn</h2>
+<div class="card">
+  <p>Nhấn <strong>Bước tiếp</strong> để đi qua từng giai đoạn (cho <em>1 glucose</em>). Viz cộng dồn ATP trực tiếp, NADH, FADH₂ và hiển thị vị trí trong tế bào. Cuối cùng quy đổi NADH/FADH₂ ra ATP.</p>
+  <div class="conv-row">
+    <label>Quy ước quy đổi:</label>
+    <button class="pill active" data-conv="modern">Hiện đại (2.5 / 1.5)</button>
+    <button class="pill" data-conv="old">Sách cũ (3 / 2)</button>
+  </div>
+  <svg id="acctSvg" width="460" height="150" viewBox="0 0 460 150" role="img" aria-label="Vị trí giai đoạn hô hấp"></svg>
+  <div class="info-grid" id="acctStage"></div>
+  <div style="margin-top:8px">
+    <span class="stat">ATP trực tiếp = <strong id="aAtp">0</strong></span>
+    <span class="stat">NADH = <strong id="aNadh">0</strong></span>
+    <span class="stat">FADH₂ = <strong id="aFadh">0</strong></span>
+    <span class="stat">CO₂ = <strong id="aCo2">0</strong></span>
+  </div>
+  <div style="margin-top:6px">
+    <span class="stat" style="background:#fef9c3">Tổng ATP (đã quy đổi) = <strong id="aTotal" style="color:#a16207">0</strong></span>
+  </div>
+  <div class="hint" id="acctHint"></div>
+  <div class="row" style="margin-top:10px">
+    <button id="stepBtn">▶ Bước tiếp</button>
+    <button id="resetBtn" class="muted">↺ Làm lại</button>
+  </div>
+</div>
+
+<h2>2. Máy tính glucose → ATP / CO₂ / O₂</h2>
+<div class="card">
+  <p>Kéo thanh để chọn số phân tử glucose. Mỗi glucose: ~32 ATP (hiện đại) hoặc ~38 ATP (cũ), thải 6 CO₂, tiêu 6 O₂, tạo 6 H₂O.</p>
+  <div class="row">
+    <label>Số glucose:</label>
+    <input type="range" id="gSlider" min="1" max="20" value="1">
+    <span class="stat">glucose = <strong id="gVal">1</strong></span>
+  </div>
+  <div class="conv-row">
+    <label>Quy ước:</label>
+    <button class="pill active" data-gconv="32">32 ATP/glucose</button>
+    <button class="pill" data-gconv="38">38 ATP/glucose</button>
+  </div>
+  <svg id="gSvg" width="440" height="180" viewBox="0 0 440 180" role="img" aria-label="Sơ đồ vào/ra hô hấp"></svg>
+  <div style="margin-top:6px">
+    <span class="stat">ATP = <strong id="gAtp">32</strong></span>
+    <span class="stat">CO₂ thải = <strong id="gCo2">6</strong></span>
+    <span class="stat">O₂ tiêu thụ = <strong id="gO2">6</strong></span>
+    <span class="stat">H₂O tạo = <strong id="gH2o">6</strong></span>
+  </div>
+  <div class="hint" id="gHint"></div>
+</div>
+
+<h2>3. So sánh hiếu khí vs lên men</h2>
+<div class="card">
+  <p>Cùng số glucose nhưng hai con đường khác nhau: <strong>hiếu khí</strong> (có O₂, ~32 ATP/glucose) so với <strong>lên men</strong> (thiếu O₂, chỉ 2 ATP/glucose).</p>
+  <div class="row">
+    <label>Số glucose:</label>
+    <input type="range" id="cSlider" min="1" max="10" value="1">
+    <span class="stat">glucose = <strong id="cVal">1</strong></span>
+  </div>
+  <svg id="cSvg" width="420" height="240" viewBox="0 0 420 240" role="img" aria-label="Biểu đồ so sánh ATP"></svg>
+  <div style="margin-top:6px">
+    <span class="stat" style="background:#d1fae5">Hiếu khí = <strong id="cAer" style="color:#047857">32</strong> ATP</span>
+    <span class="stat" style="background:#fee2e2">Lên men = <strong id="cFer" style="color:#b91c1c">2</strong> ATP</span>
+    <span class="stat" style="background:#fef9c3">Gấp <strong id="cRatio" style="color:#a16207">16</strong> lần</span>
+  </div>
+  <div class="hint" id="cHint"></div>
+</div>
+
+<h2>4. Sơ đồ ti thể — mỗi giai đoạn ở đâu?</h2>
+<div class="card">
+  <p>Nhấn nút để tô sáng nơi diễn ra mỗi giai đoạn trong tế bào / ti thể.</p>
+  <div class="group-btns" id="locBtns"></div>
+  <svg id="mitoSvg" width="440" height="260" viewBox="0 0 440 260" role="img" aria-label="Sơ đồ ti thể"></svg>
+  <div class="info-grid" id="locInfo"></div>
+</div>
+
+<h2>5. Bảng tổng hợp 3 giai đoạn</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>Giai đoạn</th><th>Vị trí</th><th>O₂?</th><th>ATP TT</th><th>NADH</th><th>FADH₂</th><th>CO₂</th></tr></thead>
+    <tbody>
+      <tr><td>Đường phân</td><td>Bào tương</td><td>Không</td><td>2</td><td>2</td><td>0</td><td>0</td></tr>
+      <tr><td>Pyruvate → acetyl-CoA (×2)</td><td>Matrix</td><td>Không</td><td>0</td><td>2</td><td>0</td><td>2</td></tr>
+      <tr><td>Chu trình Krebs (×2)</td><td>Matrix</td><td>Không*</td><td>2</td><td>6</td><td>2</td><td>4</td></tr>
+      <tr><td>Chuỗi truyền electron</td><td>Màng trong</td><td><strong>Có</strong></td><td>~28</td><td>—</td><td>—</td><td>0</td></tr>
+      <tr><td><strong>Tổng / glucose</strong></td><td>—</td><td>—</td><td colspan="4"><strong>~32 ATP · 6 CO₂ · 6 O₂ · 6 H₂O</strong></td></tr>
+    </tbody>
+  </table>
+  <div class="hint">* Krebs không dùng O₂ trực tiếp nhưng phụ thuộc chuỗi truyền electron (cần O₂) để tái tạo NAD⁺.</div>
+</div>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+function txt(svg, x, y, s, attrs) {
+  const t = el("text", Object.assign({ x: x, y: y }, attrs || {}), svg);
+  t.textContent = s; return t;
+}
+
+// ===== Section 1: ATP accountant =====
+const STAGES = [
+  { key: "start", name: "Khởi đầu", loc: "—", desc: "1 glucose (C₆H₁₂O₆) chuẩn bị được oxy hóa. Chưa thu gì.",
+    atp: 0, nadh: 0, fadh: 0, co2: 0 },
+  { key: "glyc", name: "1. Đường phân", loc: "Bào tương (cytoplasm)",
+    desc: "Glucose (6C) → 2 pyruvate (3C). Thu ròng 2 ATP + 2 NADH. Không cần O₂.",
+    atp: 2, nadh: 2, fadh: 0, co2: 0 },
+  { key: "link", name: "2a. Pyruvate → acetyl-CoA", loc: "Chất nền ti thể (matrix)",
+    desc: "2 pyruvate → 2 acetyl-CoA + 2 CO₂ + 2 NADH. CO₂ đầu tiên thải ra.",
+    atp: 0, nadh: 2, fadh: 0, co2: 2 },
+  { key: "krebs", name: "2b. Chu trình Krebs (×2)", loc: "Chất nền ti thể (matrix)",
+    desc: "2 vòng → 6 NADH + 2 FADH₂ + 2 ATP + 4 CO₂. Hết carbon glucose thành CO₂.",
+    atp: 2, nadh: 6, fadh: 2, co2: 4 },
+  { key: "etc", name: "3. Chuỗi truyền electron", loc: "Màng trong ti thể (cần O₂)",
+    desc: "10 NADH + 2 FADH₂ nhường electron → bơm H⁺ → ATP synthase. O₂ nhận electron cuối → 6 H₂O.",
+    atp: 0, nadh: 0, fadh: 0, co2: 0, isEtc: true }
+];
+let stepIdx = 0;
+let conv = "modern"; // modern: 2.5/1.5 ; old: 3/2
+function convRates() { return conv === "modern" ? [2.5, 1.5] : [3, 2]; }
+
+function drawAcctSvg() {
+  const svg = document.getElementById("acctSvg"); clear(svg);
+  // three location zones
+  const zones = [
+    { x: 10, w: 130, label: "Bào tương", stages: ["glyc"] },
+    { x: 150, w: 150, label: "Matrix ti thể", stages: ["link", "krebs"] },
+    { x: 310, w: 140, label: "Màng trong", stages: ["etc"] }
+  ];
+  const cur = STAGES[stepIdx];
+  zones.forEach(z => {
+    const active = z.stages.includes(cur.key);
+    el("rect", { x: z.x, y: 20, width: z.w, height: 90, rx: 8,
+      fill: active ? "#059669" : "#ecfdf5", stroke: active ? "#047857" : "#a7f3d0", "stroke-width": 2 }, svg);
+    txt(svg, z.x + z.w / 2, 70, z.label, { "text-anchor": "middle", "font": "13px sans-serif",
+      "fill": active ? "white" : "#065f46", "font-weight": "700" });
+  });
+  txt(svg, 230, 130, cur.key === "start" ? "Nhấn ▶ Bước tiếp để bắt đầu" :
+    ("Đang ở: " + cur.name), { "text-anchor": "middle", "font": "12px sans-serif", "fill": "#374151" });
+}
+
+function recalcAcct() {
+  let atp = 0, nadh = 0, fadh = 0, co2 = 0;
+  for (let i = 0; i <= stepIdx; i++) {
+    atp += STAGES[i].atp; nadh += STAGES[i].nadh; fadh += STAGES[i].fadh; co2 += STAGES[i].co2;
+  }
+  document.getElementById("aAtp").textContent = atp;
+  document.getElementById("aNadh").textContent = nadh;
+  document.getElementById("aFadh").textContent = fadh;
+  document.getElementById("aCo2").textContent = co2;
+  const cur = STAGES[stepIdx];
+  document.getElementById("acctStage").innerHTML =
+    `<div><strong>${cur.name}</strong></div>` +
+    `<div><strong>Vị trí:</strong> ${cur.loc}</div>` +
+    `<div>${cur.desc}</div>`;
+  const [rN, rF] = convRates();
+  let total;
+  const hint = document.getElementById("acctHint");
+  if (cur.isEtc) {
+    const fromN = nadh * rN, fromF = fadh * rF;
+    total = atp + fromN + fromF;
+    hint.textContent = `Quy đổi: ${atp} ATP trực tiếp + ${nadh}×${rN} (NADH=${fromN}) + ${fadh}×${rF} (FADH₂=${fromF}) = ${total} ATP. ` +
+      `O₂ là chất nhận electron cuối → tạo 6 H₂O.`;
+    document.getElementById("aTotal").textContent = total;
+  } else {
+    // before ETC: show running direct ATP only, total still includes potential conversion preview
+    total = atp + nadh * rN + fadh * rF;
+    hint.textContent = stepIdx === 0
+      ? "Glucose chờ được oxy hóa từng bước."
+      : `Đã có ${atp} ATP trực tiếp + các xe tải electron (NADH/FADH₂) chờ giai đoạn 3 quy đổi. ` +
+        `Nếu quy đổi luôn: ${atp} + ${nadh}×${rN} + ${fadh}×${rF} = ${total} ATP (tạm tính).`;
+    document.getElementById("aTotal").textContent = total;
+  }
+  drawAcctSvg();
+}
+document.getElementById("stepBtn").onclick = () => {
+  if (stepIdx < STAGES.length - 1) stepIdx++;
+  recalcAcct();
+};
+document.getElementById("resetBtn").onclick = () => { stepIdx = 0; recalcAcct(); };
+document.querySelectorAll("[data-conv]").forEach(b => {
+  b.onclick = () => {
+    conv = b.dataset.conv;
+    document.querySelectorAll("[data-conv]").forEach(x => x.classList.toggle("active", x === b));
+    recalcAcct();
+  };
+});
+
+// ===== Section 2: glucose calculator =====
+let gConv = 32;
+const gSlider = document.getElementById("gSlider");
+function renderGlucose() {
+  const n = +gSlider.value;
+  document.getElementById("gVal").textContent = n;
+  const atp = n * gConv, co2 = n * 6, o2 = n * 6, h2o = n * 6;
+  document.getElementById("gAtp").textContent = atp.toLocaleString("en-US");
+  document.getElementById("gCo2").textContent = co2;
+  document.getElementById("gO2").textContent = o2;
+  document.getElementById("gH2o").textContent = h2o;
+  document.getElementById("gHint").textContent =
+    `${n} glucose + ${o2} O₂ → ${co2} CO₂ + ${h2o} H₂O + ${atp.toLocaleString("en-US")} ATP ` +
+    `(quy ước ${gConv} ATP/glucose).`;
+  // SVG: inputs left, outputs right
+  const svg = document.getElementById("gSvg"); clear(svg);
+  el("rect", { x: 10, y: 20, width: 170, height: 140, rx: 8, fill: "#ecfdf5", stroke: "#a7f3d0", "stroke-width": 2 }, svg);
+  el("rect", { x: 260, y: 20, width: 170, height: 140, rx: 8, fill: "#f0fdf4", stroke: "#a7f3d0", "stroke-width": 2 }, svg);
+  txt(svg, 95, 40, "VÀO", { "text-anchor": "middle", "font": "12px sans-serif", "fill": "#065f46", "font-weight": "700" });
+  txt(svg, 345, 40, "RA", { "text-anchor": "middle", "font": "12px sans-serif", "fill": "#065f46", "font-weight": "700" });
+  txt(svg, 95, 75, n + " glucose", { "text-anchor": "middle", "font": "14px sans-serif", "fill": "#14532d", "font-weight": "700" });
+  txt(svg, 95, 105, o2 + " O₂", { "text-anchor": "middle", "font": "14px sans-serif", "fill": "#0369a1", "font-weight": "700" });
+  txt(svg, 345, 65, co2 + " CO₂", { "text-anchor": "middle", "font": "13px sans-serif", "fill": "#92400e", "font-weight": "700" });
+  txt(svg, 345, 90, h2o + " H₂O", { "text-anchor": "middle", "font": "13px sans-serif", "fill": "#0369a1", "font-weight": "700" });
+  txt(svg, 345, 120, atp.toLocaleString("en-US") + " ATP", { "text-anchor": "middle", "font": "14px sans-serif", "fill": "#047857", "font-weight": "700" });
+  // arrow
+  const defs = el("defs", {}, svg);
+  const mk = el("marker", { id: "garr", markerWidth: 9, markerHeight: 9, refX: 6, refY: 3, orient: "auto" }, defs);
+  el("path", { d: "M0,0 L6,3 L0,6 Z", fill: "#6b7280" }, mk);
+  el("line", { x1: 185, y1: 90, x2: 255, y2: 90, stroke: "#6b7280", "stroke-width": 2.5, "marker-end": "url(#garr)" }, svg);
+  txt(svg, 220, 80, "hô hấp", { "text-anchor": "middle", "font": "11px sans-serif", "fill": "#6b7280" });
+}
+gSlider.oninput = renderGlucose;
+document.querySelectorAll("[data-gconv]").forEach(b => {
+  b.onclick = () => {
+    gConv = +b.dataset.gconv;
+    document.querySelectorAll("[data-gconv]").forEach(x => x.classList.toggle("active", x === b));
+    renderGlucose();
+  };
+});
+
+// ===== Section 3: aerobic vs fermentation =====
+const cSlider = document.getElementById("cSlider");
+function renderCompare() {
+  const n = +cSlider.value;
+  document.getElementById("cVal").textContent = n;
+  const aer = n * 32, fer = n * 2;
+  document.getElementById("cAer").textContent = aer;
+  document.getElementById("cFer").textContent = fer;
+  document.getElementById("cRatio").textContent = (aer / fer).toFixed(0);
+  document.getElementById("cHint").textContent =
+    `${n} glucose: hiếu khí = ${n}×32 = ${aer} ATP; lên men = ${n}×2 = ${fer} ATP. ` +
+    `Hiếu khí gấp ${(aer / fer).toFixed(0)} lần (lên men chỉ chạy đường phân).`;
+  const svg = document.getElementById("cSvg"); clear(svg);
+  const baseY = 200, maxH = 160, maxVal = n * 32;
+  el("line", { x1: 40, y1: baseY, x2: 400, y2: baseY, stroke: "#9ca3af", "stroke-width": 1 }, svg);
+  const bars = [
+    { x: 100, val: aer, cls: "#34d399", label: "Hiếu khí", stroke: "#047857" },
+    { x: 250, val: fer, cls: "#f87171", label: "Lên men", stroke: "#b91c1c" }
+  ];
+  bars.forEach(b => {
+    const h = maxVal > 0 ? (b.val / maxVal) * maxH : 0;
+    el("rect", { x: b.x, y: baseY - h, width: 70, height: h, fill: b.cls, stroke: b.stroke, "stroke-width": 1.5, rx: 3 }, svg);
+    txt(svg, b.x + 35, baseY + 18, b.label, { "text-anchor": "middle", "font": "13px sans-serif", "fill": "#374151" });
+    txt(svg, b.x + 35, baseY - h - 8, b.val + " ATP", { "text-anchor": "middle", "font": "13px sans-serif", "fill": b.stroke, "font-weight": "700" });
+  });
+  txt(svg, 220, 25, "ATP thu được", { "text-anchor": "middle", "font": "13px sans-serif", "fill": "#166534", "font-weight": "700" });
+}
+cSlider.oninput = renderCompare;
+
+// ===== Section 4: mitochondria diagram =====
+const LOCS = {
+  glyc: { name: "Đường phân", target: "cyto", desc: "Diễn ra ở BÀO TƯƠNG, ngoài ti thể. Glucose → 2 pyruvate. Không cần O₂.", o2: "Không cần O₂" },
+  link: { name: "Pyruvate → acetyl-CoA", target: "matrix", desc: "Ở CHẤT NỀN (matrix). Mỗi pyruvate mất 1 CO₂, tạo NADH.", o2: "Không cần O₂ trực tiếp" },
+  krebs: { name: "Chu trình Krebs", target: "matrix", desc: "Ở CHẤT NỀN (matrix). 2 vòng/glucose → NADH, FADH₂, CO₂.", o2: "Không cần O₂ trực tiếp" },
+  etc: { name: "Chuỗi truyền electron", target: "inner", desc: "Ở MÀNG TRONG ti thể. Bơm H⁺, ATP synthase, O₂ nhận electron cuối → H₂O.", o2: "BẮT BUỘC cần O₂" }
+};
+const locBtns = document.getElementById("locBtns");
+[["glyc", "Đường phân"], ["link", "Pyruvate→acetyl-CoA"], ["krebs", "Krebs"], ["etc", "Chuỗi e⁻"]].forEach(([k, lbl]) => {
+  const b = document.createElement("button");
+  b.className = "pill"; b.textContent = lbl; b.dataset.loc = k;
+  b.onclick = () => showLoc(k);
+  locBtns.appendChild(b);
+});
+function showLoc(k) {
+  document.querySelectorAll("#locBtns .pill").forEach(b => b.classList.toggle("active", b.dataset.loc === k));
+  const L = LOCS[k];
+  const svg = document.getElementById("mitoSvg"); clear(svg);
+  const hi = "#059669", dim = "#d1fae5";
+  // cytoplasm background (whole svg)
+  el("rect", { x: 5, y: 5, width: 430, height: 250, rx: 10,
+    fill: L.target === "cyto" ? "#bbf7d0" : "#f0fdf4", stroke: "#86efac", "stroke-width": 1.5 }, svg);
+  txt(svg, 70, 24, "Bào tương", { "font": "12px sans-serif", "fill": "#065f46", "font-weight": L.target === "cyto" ? "700" : "400" });
+  // mitochondrion outer membrane (rounded capsule)
+  el("rect", { x: 60, y: 50, width: 320, height: 170, rx: 80,
+    fill: "#ffffff", stroke: "#047857", "stroke-width": 3 }, svg);
+  txt(svg, 200, 44, "Ti thể — màng ngoài", { "text-anchor": "middle", "font": "11px sans-serif", "fill": "#6b7280" });
+  // inner membrane with cristae folds
+  const innerActive = L.target === "inner";
+  el("rect", { x: 85, y: 72, width: 270, height: 126, rx: 60,
+    fill: L.target === "matrix" ? hi : "#ecfdf5",
+    stroke: innerActive ? hi : "#34d399", "stroke-width": innerActive ? 5 : 3 }, svg);
+  // cristae (folds) on inner membrane
+  for (let i = 0; i < 4; i++) {
+    const cx = 130 + i * 60;
+    el("path", { d: `M ${cx} 72 q 18 30 0 60 q -18 30 0 54`, fill: "none",
+      stroke: innerActive ? hi : "#6ee7b7", "stroke-width": innerActive ? 4 : 2 }, svg);
+  }
+  // labels for matrix and inner
+  txt(svg, 200, 130, "Chất nền (matrix)", { "text-anchor": "middle", "font": "12px sans-serif",
+    "fill": L.target === "matrix" ? "white" : "#065f46", "font-weight": L.target === "matrix" ? "700" : "400" });
+  txt(svg, 200, 210, "Màng trong (cristae)", { "text-anchor": "middle", "font": "11px sans-serif",
+    "fill": innerActive ? hi : "#15803d", "font-weight": innerActive ? "700" : "400" });
+  // pin marker on active zone
+  let px = 200, py = 240;
+  if (L.target === "cyto") { px = 70; py = 38; }
+  else if (L.target === "matrix") { px = 200; py = 110; }
+  else { px = 130; py = 95; }
+  el("circle", { cx: px, cy: py, r: 8, fill: "#f59e0b", stroke: "#b45309", "stroke-width": 2 }, svg);
+  document.getElementById("locInfo").innerHTML =
+    `<div><strong>${L.name}</strong></div>` +
+    `<div>${L.desc}</div>` +
+    `<div><strong>O₂:</strong> ${L.o2}</div>`;
+}
+
+// ===== Init =====
+recalcAcct();
+renderGlucose();
+renderCompare();
+showLoc("glyc");
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

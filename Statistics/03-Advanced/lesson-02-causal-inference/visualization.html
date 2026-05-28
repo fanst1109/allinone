@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02: Suy luận nhân quả — Statistics Tầng 3</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f7f9fc;
+    --accent: #7c3aed;
+    --accent-soft: #ede9fe;
+    --accent-hover: #6d28d9;
+  }
+
+  h1 { color: #5b21b6; }
+  h2 { color: #6d28d9; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #ddd6fe; }
+  h3 { color: #7c3aed; margin-top: 20px; }
+
+  .module {
+    background: white; border-radius: 10px; padding: 24px;
+    margin: 20px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    border: 1px solid #e9d5ff;
+  }
+  .lead { font-size: 16px; color: #4a5568; margin-bottom: 8px; }
+
+  .toggle-group {
+    display: flex; gap: 0; margin: 14px 0;
+    border: 2px solid var(--accent); border-radius: 8px; overflow: hidden;
+    width: fit-content; flex-wrap: wrap;
+  }
+  .toggle-btn {
+    padding: 10px 20px; background: white; color: var(--accent);
+    border: none; cursor: pointer; font-size: 14px; font-weight: 600;
+    transition: background 0.15s, color 0.15s;
+  }
+  .toggle-btn.active { background: var(--accent); color: white; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 8px; }
+  th, td { border: 1px solid #e9d5ff; padding: 8px 12px; text-align: right; }
+  th { background: #f5f3ff; color: #5b21b6; font-weight: 600; text-align: center; }
+  td:first-child, th:first-child { text-align: left; }
+  .highlight-row { background: #fef9c3 !important; }
+  .highlight-cell { background: #fde68a; font-weight: 700; color: #92400e; }
+  .good-cell { background: #d1fae5; color: #065f46; font-weight: 600; }
+  .bad-cell { background: #fee2e2; color: #991b1b; font-weight: 600; }
+
+  .callout {
+    border-left: 4px solid var(--accent); background: #faf5ff;
+    padding: 12px 16px; margin: 12px 0; border-radius: 0 8px 8px 0;
+    font-size: 14px;
+  }
+  .callout.warning { border-color: #f59e0b; background: #fffbeb; }
+  .callout.success { border-color: #059669; background: #ecfdf5; }
+
+  .stat-pill {
+    display: inline-block; background: #ede9fe; color: #5b21b6;
+    padding: 6px 14px; border-radius: 20px;
+    font-family: monospace; font-size: 14px;
+    border: 1px solid #c4b5fd; margin: 4px 4px 4px 0;
+  }
+  .stat-pill strong { color: #4c1d95; }
+
+  .dag-wrap { display: flex; justify-content: center; overflow-x: auto; }
+  svg { display: block; margin: 0 auto; }
+
+  .dag-node { cursor: default; }
+  .dag-node rect { rx: 8; ry: 8; }
+
+  .bar-chart-wrap { overflow-x: auto; margin-top: 8px; }
+
+  .rct-step {
+    border: 1px solid #e9d5ff; border-radius: 8px; padding: 14px 16px;
+    margin: 10px 0; background: #faf5ff;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .rct-step .step-num {
+    background: var(--accent); color: white;
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px; flex-shrink: 0;
+  }
+
+  .btn {
+    background: var(--accent); color: white; border: none;
+    padding: 8px 16px; border-radius: 6px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn:hover { background: var(--accent-hover); }
+
+  @media (max-width: 480px) {
+    th, td { padding: 6px 8px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-bayesian-stats/visualization.html">← T3-L01: Bayesian</a>
+  <span class="sep">·</span>
+  <span class="current">T3-L02: Suy luận nhân quả</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-time-series-basics/visualization.html">T3-L03: Time Series →</a>
+</nav>
+
+<main>
+  <h1>Lesson 02: Suy luận nhân quả</h1>
+  <p class="lead">Correlation ≠ causation. Khám phá Simpson's paradox, confounder, DAG và RCT qua dữ liệu tương tác.</p>
+
+  <!-- MODULE 1: Simpson's Paradox — Berkeley 1973 -->
+  <section class="module">
+    <h2>1. Nghịch lý Simpson — UC Berkeley 1973</h2>
+    <p>Chuyển đổi giữa góc nhìn tổng hợp và phân nhóm để thấy xu hướng đảo chiều.</p>
+
+    <div class="toggle-group">
+      <button class="toggle-btn active" id="btn-aggregate" onclick="showView('aggregate')">Tổng hợp (Misleading)</button>
+      <button class="toggle-btn" id="btn-dept" onclick="showView('dept')">Phân theo khoa (Thật)</button>
+    </div>
+
+    <div id="view-aggregate">
+      <div class="callout warning">
+        <strong>Nhìn tổng hợp:</strong> Nam có tỷ lệ nhận <strong>44.3%</strong>, nữ chỉ <strong>34.6%</strong>. Có vẻ như phân biệt giới tính!
+      </div>
+      <table>
+        <thead><tr><th>Giới tính</th><th>Nộp đơn</th><th>Được nhận</th><th>Tỷ lệ nhận</th></tr></thead>
+        <tbody>
+          <tr><td>Nam</td><td>8,442</td><td>3,738</td><td class="bad-cell">44.3%</td></tr>
+          <tr><td>Nữ</td><td>4,321</td><td>1,494</td><td class="bad-cell">34.6%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div id="view-dept" style="display:none">
+      <div class="callout success">
+        <strong>Phân theo khoa:</strong> Trong 4/6 khoa, tỷ lệ nhận của <strong>nữ CAO HƠN HOẶC BẰNG</strong> nam!
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr><th>Khoa</th><th>Nam nộp</th><th>Nam nhận</th><th>% Nam</th><th>Nữ nộp</th><th>Nữ nhận</th><th>% Nữ</th><th>Ưu thế</th></tr>
+          </thead>
+          <tbody id="dept-tbody"></tbody>
+        </table>
+      </div>
+      <div class="callout" style="margin-top:14px;">
+        <strong>Giải thích:</strong> Nữ nộp vào các khoa <em>khó hơn</em> (C, E, F: tỷ lệ nhận 6–37%). Nam nộp vào các khoa <em>dễ hơn</em> (A, B: 62–63%). Khi gộp, sự chênh lệch về "chọn khoa" tạo ra ảo giác phân biệt. <strong>Khoa = confounder</strong>.
+      </div>
+    </div>
+
+    <div class="bar-chart-wrap" style="margin-top:16px;">
+      <svg id="simpson-svg" width="560" height="220" viewBox="0 0 560 220">
+        <g id="simpson-bars"></g>
+        <text x="280" y="214" text-anchor="middle" font-size="12" fill="#6b7280" id="simpson-xlabel">Tổng hợp — Chuyển tab để so sánh</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- MODULE 2: Simpson's Paradox — Kidney Stone -->
+  <section class="module">
+    <h2>2. Nghịch lý Simpson — Điều trị sỏi thận</h2>
+    <p>Bộ dữ liệu thực (Charig et al. 1986): phương pháp A (mổ mở) vs B (ít xâm lấn).</p>
+
+    <div class="toggle-group">
+      <button class="toggle-btn active" id="ks-btn-agg" onclick="showKidney('agg')">Tổng hợp</button>
+      <button class="toggle-btn" id="ks-btn-strat" onclick="showKidney('strat')">Phân theo kích thước sỏi</button>
+    </div>
+
+    <div id="ks-aggregate">
+      <div class="callout warning">
+        <strong>Nhìn tổng:</strong> Phương pháp B (83%) có vẻ tốt hơn A (78%). Nhưng thật ra...
+      </div>
+      <table>
+        <thead><tr><th>Phương pháp</th><th>Thành công</th><th>Tổng bệnh nhân</th><th>Tỷ lệ thành công</th></tr></thead>
+        <tbody>
+          <tr><td>A — Mổ mở</td><td>273</td><td>350</td><td class="bad-cell">78%</td></tr>
+          <tr><td>B — Ít xâm lấn</td><td>289</td><td>350</td><td class="bad-cell">83%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div id="ks-strat" style="display:none">
+      <div class="callout success">
+        <strong>Phân theo kích thước sỏi:</strong> Trong CẢ HAI nhóm, phương pháp <strong>A tốt hơn B</strong>!
+      </div>
+      <table>
+        <thead>
+          <tr><th>Kích thước sỏi</th><th>A: n</th><th>A: thành công</th><th>A: tỷ lệ</th><th>B: n</th><th>B: thành công</th><th>B: tỷ lệ</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Nhỏ (&lt; 2cm)</td>
+            <td>87</td><td>81</td><td class="good-cell">93%</td>
+            <td>270</td><td>234</td><td class="bad-cell">87%</td>
+          </tr>
+          <tr>
+            <td>Lớn (≥ 2cm)</td>
+            <td>263</td><td>192</td><td class="good-cell">73%</td>
+            <td>80</td><td>55</td><td class="bad-cell">69%</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout" style="margin-top:12px;">
+        <strong>Giải thích:</strong> Bác sĩ chỉ định phương pháp A cho sỏi <em>lớn hơn</em> (ca khó hơn). B được áp dụng chủ yếu cho sỏi nhỏ (ca dễ). Khi tính tổng, B nhìn tốt hơn vì nó được "ưu ái" với ca dễ. <strong>Kích thước sỏi = confounder</strong>.
+      </div>
+    </div>
+  </section>
+
+  <!-- MODULE 3: DAG Explorer -->
+  <section class="module">
+    <h2>3. DAG — Directed Acyclic Graph</h2>
+    <p>Nhấn vào các nút trong DAG để hiểu vai trò của từng biến. Chọn cấu trúc nhân quả khác nhau.</p>
+
+    <div class="toggle-group">
+      <button class="toggle-btn active" onclick="showDAG('confounder')">Confounder</button>
+      <button class="toggle-btn" onclick="showDAG('mediator')">Mediator</button>
+      <button class="toggle-btn" onclick="showDAG('collider')">Collider</button>
+      <button class="toggle-btn" onclick="showDAG('rct')">RCT (Gold Standard)</button>
+    </div>
+
+    <div class="dag-wrap" style="margin-top:16px;">
+      <svg id="dag-svg" width="540" height="240" viewBox="0 0 540 240">
+        <defs>
+          <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#374151"/>
+          </marker>
+          <marker id="arrow-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#dc2626"/>
+          </marker>
+          <marker id="arrow-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#059669"/>
+          </marker>
+          <marker id="arrow-blue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6"/>
+          </marker>
+        </defs>
+        <g id="dag-content"></g>
+      </svg>
+    </div>
+
+    <div id="dag-explanation" class="callout" style="margin-top:8px;"></div>
+  </section>
+
+  <!-- MODULE 4: RCT Simulation -->
+  <section class="module">
+    <h2>4. RCT vs Observational — Mô phỏng Confounding</h2>
+    <p>So sánh hiệu quả ước lượng nhân quả của RCT (random assignment) và observational study (chọn lựa tự nhiên). True effect = 0.2.</p>
+
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin:14px 0;align-items:center;">
+      <div>
+        <label style="font-weight:600;font-size:14px;">Confounder strength: </label>
+        <input type="range" id="conf-strength" min="0" max="1" step="0.1" value="0.6" style="width:140px;accent-color:#7c3aed;">
+        <span id="conf-val" style="font-size:13px;">0.6</span>
+      </div>
+      <div>
+        <label style="font-weight:600;font-size:14px;">Cỡ mẫu n: </label>
+        <input type="range" id="sim-n" min="50" max="2000" step="50" value="400" style="width:140px;accent-color:#7c3aed;">
+        <span id="sim-n-val" style="font-size:13px;">400</span>
+      </div>
+      <button class="btn" onclick="runSimulation()">Chạy mô phỏng</button>
+    </div>
+
+    <div id="sim-results" class="stats-row"></div>
+
+    <div class="bar-chart-wrap" style="margin-top:12px;">
+      <svg id="sim-svg" width="520" height="200" viewBox="0 0 520 200">
+        <line x1="60" y1="170" x2="460" y2="170" stroke="#cbd5e0" stroke-width="1.5"/>
+        <line id="true-line" x1="0" y1="20" x2="0" y2="170" stroke="#059669" stroke-width="2" stroke-dasharray="6,4"/>
+        <text id="true-label" x="0" y="16" font-size="11" fill="#059669"></text>
+        <rect id="rct-bar" x="100" y="100" width="120" height="70" fill="#7c3aed" rx="4"/>
+        <rect id="obs-bar" x="260" y="100" width="120" height="70" fill="#ef4444" rx="4"/>
+        <text x="160" y="185" text-anchor="middle" font-size="13" fill="#5b21b6" font-weight="600">RCT</text>
+        <text x="320" y="185" text-anchor="middle" font-size="13" fill="#dc2626" font-weight="600">Observational</text>
+        <text id="rct-label" x="160" y="95" text-anchor="middle" font-size="12" fill="#5b21b6" font-weight="600"></text>
+        <text id="obs-label" x="320" y="95" text-anchor="middle" font-size="12" fill="#dc2626" font-weight="600"></text>
+        <text x="290" y="195" text-anchor="middle" font-size="12" fill="#6b7280">Ước lượng hiệu ứng điều trị</text>
+      </svg>
+    </div>
+
+    <div id="sim-callout" class="callout" style="margin-top:10px;"></div>
+  </section>
+
+</main>
+
+<script>
+// ===== Module 1: Simpson's Paradox =====
+const depts = [
+  { name: 'A', maleApp: 825, maleAdmit: 512, femaleApp: 108, femaleAdmit: 89 },
+  { name: 'B', maleApp: 560, maleAdmit: 353, femaleApp: 25, femaleAdmit: 17 },
+  { name: 'C', maleApp: 325, maleAdmit: 120, femaleApp: 593, femaleAdmit: 202 },
+  { name: 'D', maleApp: 417, maleAdmit: 138, femaleApp: 375, femaleAdmit: 131 },
+  { name: 'E', maleApp: 191, maleAdmit: 53, femaleApp: 393, femaleAdmit: 94 },
+  { name: 'F', maleApp: 272, maleAdmit: 16, femaleApp: 341, femaleAdmit: 24 },
+];
+
+function pct(admit, app) { return (admit / app * 100).toFixed(1) + '%'; }
+
+function renderDeptTable() {
+  const tbody = document.getElementById('dept-tbody');
+  tbody.innerHTML = depts.map(d => {
+    const mp = d.maleAdmit / d.maleApp;
+    const fp = d.femaleAdmit / d.femaleApp;
+    const favor = fp >= mp ? '<td class="good-cell">Nữ ≥ Nam</td>' : '<td class="bad-cell">Nam > Nữ</td>';
+    return `<tr>
+      <td>${d.name}</td>
+      <td>${d.maleApp}</td><td>${d.maleAdmit}</td>
+      <td ${fp >= mp ? 'style=""' : 'class="bad-cell"'}>${pct(d.maleAdmit, d.maleApp)}</td>
+      <td>${d.femaleApp}</td><td>${d.femaleAdmit}</td>
+      <td ${fp >= mp ? 'class="good-cell"' : 'style=""'}>${pct(d.femaleAdmit, d.femaleApp)}</td>
+      ${favor}
+    </tr>`;
+  }).join('');
+}
+renderDeptTable();
+
+function drawSimpsonBars(view) {
+  const svg = document.getElementById('simpson-bars');
+  const xlabel = document.getElementById('simpson-xlabel');
+  svg.innerHTML = '';
+
+  if (view === 'aggregate') {
+    const data = [
+      { label: 'Nam', rate: 44.3, color: '#3b82f6' },
+      { label: 'Nữ', rate: 34.6, color: '#ec4899' },
+    ];
+    xlabel.textContent = 'Tổng hợp — Nhìn bề ngoài có vẻ phân biệt giới tính';
+    data.forEach((d, i) => {
+      const x = 120 + i * 180, w = 100, maxH = 160, h = d.rate / 50 * maxH;
+      svg.innerHTML += `
+        <rect x="${x}" y="${200 - h}" width="${w}" height="${h}" fill="${d.color}" rx="4" opacity="0.85"/>
+        <text x="${x + w/2}" y="${200 - h - 6}" text-anchor="middle" font-size="14" font-weight="700" fill="${d.color}">${d.rate}%</text>
+        <text x="${x + w/2}" y="216" text-anchor="middle" font-size="13" fill="#374151">${d.label}</text>
+      `;
+    });
+  } else {
+    xlabel.textContent = 'Phân theo khoa — Thực tế nữ được nhận nhiều hơn ở hầu hết các khoa';
+    const colors = { male: '#3b82f6', female: '#ec4899' };
+    const spacing = 80, startX = 30, barW = 28, maxH = 140;
+    depts.forEach((d, i) => {
+      const x = startX + i * spacing;
+      const mr = d.maleAdmit / d.maleApp;
+      const fr = d.femaleAdmit / d.femaleApp;
+      const mh = mr * maxH, fh = fr * maxH;
+      svg.innerHTML += `
+        <rect x="${x}" y="${160 - mh}" width="${barW}" height="${mh}" fill="${colors.male}" rx="3" opacity="0.8"/>
+        <rect x="${x + barW + 3}" y="${160 - fh}" width="${barW}" height="${fh}" fill="${colors.female}" rx="3" opacity="0.8"/>
+        <text x="${x + barW}" y="175" text-anchor="middle" font-size="11" fill="#374151">K${d.name}</text>
+        <text x="${x}" y="${155 - mh}" text-anchor="middle" font-size="10" fill="${colors.male}">${(mr*100).toFixed(0)}%</text>
+        <text x="${x + barW + 3 + barW/2}" y="${155 - fh}" text-anchor="middle" font-size="10" fill="${colors.female}">${(fr*100).toFixed(0)}%</text>
+      `;
+    });
+    // Legend
+    svg.innerHTML += `
+      <rect x="400" y="10" width="14" height="10" fill="${colors.male}" rx="2"/>
+      <text x="418" y="19" font-size="11" fill="#374151">Nam</text>
+      <rect x="400" y="26" width="14" height="10" fill="${colors.female}" rx="2"/>
+      <text x="418" y="35" font-size="11" fill="#374151">Nữ</text>
+    `;
+  }
+}
+
+function showView(v) {
+  document.getElementById('view-aggregate').style.display = v === 'aggregate' ? '' : 'none';
+  document.getElementById('view-dept').style.display = v === 'dept' ? '' : 'none';
+  document.getElementById('btn-aggregate').classList.toggle('active', v === 'aggregate');
+  document.getElementById('btn-dept').classList.toggle('active', v === 'dept');
+  drawSimpsonBars(v);
+}
+drawSimpsonBars('aggregate');
+
+function showKidney(v) {
+  document.getElementById('ks-aggregate').style.display = v === 'agg' ? '' : 'none';
+  document.getElementById('ks-strat').style.display = v === 'strat' ? '' : 'none';
+  document.getElementById('ks-btn-agg').classList.toggle('active', v === 'agg');
+  document.getElementById('ks-btn-strat').classList.toggle('active', v === 'strat');
+}
+
+// ===== Module 3: DAG =====
+const dagConfigs = {
+  confounder: {
+    nodes: [
+      { id: 'C', label: 'Mùa hè\n(Confounder)', x: 270, y: 40, color: '#fbbf24', text: '#92400e' },
+      { id: 'A', label: 'Bán kem', x: 90, y: 160, color: '#3b82f6', text: 'white' },
+      { id: 'Y', label: 'Đuối nước', x: 450, y: 160, color: '#ef4444', text: 'white' },
+    ],
+    edges: [
+      { from: 'C', to: 'A', label: '+', color: '#374151' },
+      { from: 'C', to: 'Y', label: '+', color: '#374151' },
+    ],
+    spurious: { from: 'A', to: 'Y', label: 'tương quan giả r≈0.9', color: '#dc2626', dashed: true },
+    explanation: '<strong>Confounder:</strong> Mùa hè gây ra cả "bán kem nhiều" lẫn "đuối nước nhiều". Đường gạch đỏ là tương quan quan sát được — không phải quan hệ nhân quả. Kiểm soát mùa hè → tương quan biến mất.',
+  },
+  mediator: {
+    nodes: [
+      { id: 'A', label: 'Hút thuốc', x: 80, y: 110, color: '#7c3aed', text: 'white' },
+      { id: 'M', label: 'Tổn thương\nphổi (Mediator)', x: 270, y: 110, color: '#f59e0b', text: '#92400e' },
+      { id: 'Y', label: 'Ung thư\nphổi', x: 460, y: 110, color: '#ef4444', text: 'white' },
+    ],
+    edges: [
+      { from: 'A', to: 'M', label: '', color: '#374151' },
+      { from: 'M', to: 'Y', label: '', color: '#374151' },
+    ],
+    explanation: '<strong>Mediator:</strong> Hút thuốc → Tổn thương phổi → Ung thư phổi. M nằm trên đường nhân quả. <strong>Đừng kiểm soát M</strong> nếu muốn đo tổng hiệu ứng của A lên Y — sẽ chặn mất đường nhân quả.',
+  },
+  collider: {
+    nodes: [
+      { id: 'A', label: 'Bệnh nặng', x: 80, y: 110, color: '#3b82f6', text: 'white' },
+      { id: 'C', label: 'Vào ICU\n(Collider)', x: 270, y: 110, color: '#fbbf24', text: '#92400e' },
+      { id: 'B', label: 'Tai nạn', x: 460, y: 110, color: '#3b82f6', text: 'white' },
+      { id: 'W', label: '⚠ Nghiên cứu\nTRONG ICU', x: 270, y: 185, color: '#fee2e2', text: '#991b1b', borderOnly: true },
+    ],
+    edges: [
+      { from: 'A', to: 'C', label: '', color: '#374151' },
+      { from: 'B', to: 'C', label: '', color: '#374151' },
+    ],
+    spurious: { bidirectional: true, from: 'A', to: 'B', label: 'tương quan giả (khi điều kiện hóa C)', color: '#dc2626', dashed: true },
+    explanation: '<strong>Collider:</strong> Cả "bệnh nặng" và "tai nạn" đều gây vào ICU. Bình thường A và B độc lập. <strong>Nhưng nếu ta nghiên cứu TRONG ICU</strong> (điều kiện hóa trên collider C), ta tạo ra tương quan giả âm giữa A và B — người vào ICU do bệnh ít khả năng do tai nạn hơn.',
+  },
+  rct: {
+    nodes: [
+      { id: 'R', label: 'Randomization\n(đồng xu)', x: 90, y: 60, color: '#059669', text: 'white' },
+      { id: 'C', label: 'Tuổi, Giới,\nSức khỏe...', x: 270, y: 170, color: '#94a3b8', text: 'white', faded: true },
+      { id: 'A', label: 'Điều trị\n(Treatment)', x: 270, y: 60, color: '#7c3aed', text: 'white' },
+      { id: 'Y', label: 'Kết quả\n(Outcome)', x: 450, y: 60, color: '#ef4444', text: 'white' },
+    ],
+    edges: [
+      { from: 'R', to: 'A', label: 'xác định', color: '#059669' },
+      { from: 'A', to: 'Y', label: 'causal', color: '#374151' },
+    ],
+    blocked: { from: 'C', to: 'A', label: 'bị block ✓', color: '#94a3b8', dashed: true, crossed: true },
+    explanation: '<strong>RCT (Gold Standard):</strong> Randomization quyết định ai được điều trị, không phải confounders. Đường từ Confounders → Treatment <strong>bị cắt đứt</strong> — không thể confound nữa. Đây là lý do RCT là tiêu chuẩn vàng.',
+  },
+};
+
+function drawNode(svg, node) {
+  const w = 100, h = 48;
+  const lines = node.label.split('\n');
+  const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  rect.setAttribute('x', node.x - w/2); rect.setAttribute('y', node.y - h/2);
+  rect.setAttribute('width', w); rect.setAttribute('height', h);
+  rect.setAttribute('rx', '8'); rect.setAttribute('ry', '8');
+  rect.setAttribute('fill', node.borderOnly ? '#fff7f7' : node.faded ? '#e2e8f0' : node.color);
+  rect.setAttribute('stroke', node.color); rect.setAttribute('stroke-width', '2');
+  if (node.faded) rect.setAttribute('opacity', '0.6');
+  svg.appendChild(rect);
+  lines.forEach((line, i) => {
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', node.x); text.setAttribute('y', node.y + (i - (lines.length-1)/2) * 14 + 5);
+    text.setAttribute('text-anchor', 'middle'); text.setAttribute('font-size', '11');
+    text.setAttribute('font-weight', '600'); text.setAttribute('fill', node.faded ? '#64748b' : node.text);
+    text.textContent = line;
+    svg.appendChild(text);
+  });
+}
+
+function getNodePos(nodes, id) {
+  return nodes.find(n => n.id === id);
+}
+
+function drawEdge(svg, from, to, label, color, dashed, arrowBoth) {
+  const dx = to.x - from.x, dy = to.y - from.y;
+  const len = Math.sqrt(dx*dx + dy*dy);
+  const nx = dx/len, ny = dy/len;
+  const startX = from.x + nx*52, startY = from.y + ny*27;
+  const endX = to.x - nx*57, endY = to.y - ny*27;
+
+  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  line.setAttribute('x1', startX); line.setAttribute('y1', startY);
+  line.setAttribute('x2', endX); line.setAttribute('y2', endY);
+  line.setAttribute('stroke', color); line.setAttribute('stroke-width', dashed ? '1.5' : '2');
+  if (dashed) line.setAttribute('stroke-dasharray', '6,4');
+  line.setAttribute('marker-end', dashed ? 'url(#arrow-red)' : color === '#059669' ? 'url(#arrow-green)' : 'url(#arrow)');
+  svg.appendChild(line);
+
+  if (label) {
+    const midX = (startX + endX) / 2, midY = (startY + endY) / 2;
+    const perp = { x: -ny * 14, y: nx * 14 };
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', midX + perp.x); text.setAttribute('y', midY + perp.y);
+    text.setAttribute('text-anchor', 'middle'); text.setAttribute('font-size', '10');
+    text.setAttribute('fill', color);
+    text.textContent = label;
+    svg.appendChild(text);
+  }
+}
+
+function showDAG(name) {
+  document.querySelectorAll('.toggle-btn').forEach((b, i) => {
+    b.classList.toggle('active', ['confounder','mediator','collider','rct'][i] === name);
+  });
+
+  const cfg = dagConfigs[name];
+  const svgEl = document.getElementById('dag-content');
+  svgEl.innerHTML = '';
+
+  cfg.nodes.forEach(n => drawNode(svgEl, n));
+
+  cfg.edges.forEach(e => {
+    const from = getNodePos(cfg.nodes, e.from);
+    const to = getNodePos(cfg.nodes, e.to);
+    drawEdge(svgEl, from, to, e.label || '', e.color || '#374151', false);
+  });
+
+  if (cfg.spurious) {
+    const from = getNodePos(cfg.nodes, cfg.spurious.from);
+    const to = getNodePos(cfg.nodes, cfg.spurious.to);
+    drawEdge(svgEl, from, to, cfg.spurious.label, cfg.spurious.color, true);
+  }
+
+  if (cfg.blocked) {
+    const from = getNodePos(cfg.nodes, cfg.blocked.from);
+    const to = getNodePos(cfg.nodes, cfg.blocked.to);
+    drawEdge(svgEl, from, to, cfg.blocked.label, cfg.blocked.color, true);
+    // Draw X
+    const midX = (from.x + to.x) / 2, midY = (from.y + to.y) / 2;
+    const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    t.setAttribute('x', midX); t.setAttribute('y', midY - 4);
+    t.setAttribute('text-anchor', 'middle'); t.setAttribute('font-size', '18');
+    t.setAttribute('fill', '#dc2626'); t.setAttribute('font-weight', '900');
+    t.textContent = '✕';
+    svgEl.appendChild(t);
+  }
+
+  document.getElementById('dag-explanation').innerHTML = cfg.explanation;
+}
+showDAG('confounder');
+
+// ===== Module 4: RCT Simulation =====
+document.getElementById('conf-strength').addEventListener('input', function() {
+  document.getElementById('conf-val').textContent = this.value;
+});
+document.getElementById('sim-n').addEventListener('input', function() {
+  document.getElementById('sim-n-val').textContent = this.value;
+});
+
+function runSimulation() {
+  const n = parseInt(document.getElementById('sim-n').value);
+  const confStr = parseFloat(document.getElementById('conf-strength').value);
+  const trueEffect = 0.2;
+
+  // Generate data
+  // C ~ Bernoulli(0.5): confounder (e.g., healthy vs sick)
+  // RCT: T ~ Bernoulli(0.5) independent of C
+  // Obs: T ~ Bernoulli(0.3 + 0.4*C) (healthy more likely to be treated -> confounding)
+  // Y = 0.3 + trueEffect*T + confStr*C + noise
+
+  let rctSum = 0, obsSum = 0;
+  const rctTreated = [], rctControl = [], obsTreated = [], obsControl = [];
+
+  for (let i = 0; i < n; i++) {
+    const c = Math.random() < 0.5 ? 1 : 0;
+    const baseY = 0.3 + confStr * c;
+
+    // RCT
+    const tRCT = Math.random() < 0.5 ? 1 : 0;
+    const yRCT = baseY + trueEffect * tRCT + (Math.random() - 0.5) * 0.3;
+    if (tRCT) rctTreated.push(yRCT); else rctControl.push(yRCT);
+
+    // Observational: treatment correlated with confounder
+    const tObs = Math.random() < (0.2 + confStr * 0.6 * c) ? 1 : 0;
+    const yObs = baseY + trueEffect * tObs + (Math.random() - 0.5) * 0.3;
+    if (tObs) obsTreated.push(yObs); else obsControl.push(yObs);
+  }
+
+  const mean = arr => arr.reduce((a, b) => a + b, 0) / arr.length || 0;
+  const rctEst = mean(rctTreated) - mean(rctControl);
+  const obsEst = mean(obsTreated) - mean(obsControl);
+
+  // Draw bars
+  const SVG_W = 520, BOT = 170, TOP = 20, MAX_H = BOT - TOP;
+  const scale = (v) => Math.min(Math.abs(v) / 0.6, 1) * MAX_H;
+
+  const rctH = scale(rctEst);
+  const obsH = scale(obsEst);
+  const rctY = BOT - rctH;
+  const obsY = BOT - obsH;
+
+  document.getElementById('rct-bar').setAttribute('y', rctY);
+  document.getElementById('rct-bar').setAttribute('height', rctH);
+  document.getElementById('obs-bar').setAttribute('y', obsY);
+  document.getElementById('obs-bar').setAttribute('height', obsH);
+
+  // True effect line
+  const trueX = 60 + (trueEffect / 0.6) * (460 - 60);
+  document.getElementById('true-line').setAttribute('x1', trueX);
+  document.getElementById('true-line').setAttribute('x2', trueX);
+  document.getElementById('true-label').setAttribute('x', trueX + 3);
+  document.getElementById('true-label').textContent = `True effect=${trueEffect}`;
+
+  document.getElementById('rct-label').textContent = rctEst.toFixed(3);
+  document.getElementById('obs-label').textContent = obsEst.toFixed(3);
+  document.getElementById('rct-label').setAttribute('y', rctY - 5);
+  document.getElementById('obs-label').setAttribute('y', obsY - 5);
+
+  const rctErr = Math.abs(rctEst - trueEffect);
+  const obsErr = Math.abs(obsEst - trueEffect);
+
+  document.getElementById('sim-results').innerHTML = `
+    <div class="stat-pill">n = <strong>${n}</strong></div>
+    <div class="stat-pill">RCT estimate: <strong>${rctEst.toFixed(3)}</strong></div>
+    <div class="stat-pill">Obs estimate: <strong>${obsEst.toFixed(3)}</strong></div>
+    <div class="stat-pill">RCT error: <strong>${rctErr.toFixed(3)}</strong></div>
+    <div class="stat-pill">Obs error: <strong>${obsErr.toFixed(3)}</strong></div>
+  `;
+
+  const bias = obsEst - trueEffect;
+  document.getElementById('sim-callout').innerHTML =
+    `<strong>Nhận xét:</strong> RCT ước lượng gần true effect hơn (sai số ${rctErr.toFixed(3)} vs ${obsErr.toFixed(3)}). ` +
+    `Observational study có bias = <strong>${bias.toFixed(3)}</strong> ` +
+    `(${bias > 0 ? 'overestimate' : 'underestimate'}) do confounding. ` +
+    `Tăng confounder strength hoặc giảm n để thấy rõ hơn.`;
+}
+runSimulation();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

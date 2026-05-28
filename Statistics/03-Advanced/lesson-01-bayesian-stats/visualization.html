@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01: Bayesian Statistics — Statistics Tầng 3</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f7f9fc;
+    --accent: #7c3aed;
+    --accent-soft: #ede9fe;
+    --accent-hover: #6d28d9;
+  }
+
+  h1 { color: #5b21b6; }
+  h2 { color: #6d28d9; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #ddd6fe; }
+  h3 { color: #7c3aed; margin-top: 20px; }
+
+  .module {
+    background: white;
+    border-radius: 10px;
+    padding: 24px;
+    margin: 20px 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    border: 1px solid #e9d5ff;
+  }
+
+  .lead { font-size: 16px; color: #4a5568; margin-bottom: 8px; }
+
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 16px;
+    margin: 16px 0; align-items: flex-start;
+  }
+  .ctrl-group { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .ctrl-group label { font-weight: 600; font-size: 14px; color: #374151; }
+  .ctrl-group input[type="range"] { width: 180px; max-width: 100%; accent-color: #7c3aed; }
+  .ctrl-group input[type="number"] {
+    width: 80px; max-width: 100%;
+    padding: 6px 10px; border: 1px solid #c4b5fd; border-radius: 6px;
+    font-size: 15px; font-family: monospace;
+  }
+  .ctrl-group span { font-size: 13px; color: #6b7280; }
+
+  .stats-row {
+    display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0;
+  }
+  .stat-pill {
+    background: #ede9fe; color: #5b21b6;
+    padding: 7px 14px; border-radius: 20px;
+    font-family: monospace; font-size: 14px;
+    border: 1px solid #c4b5fd;
+  }
+  .stat-pill strong { color: #4c1d95; }
+
+  svg { display: block; margin: 0 auto; }
+  .chart-wrap { overflow-x: auto; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin: 8px 0; font-size: 13px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .legend-dot { width: 14px; height: 4px; border-radius: 2px; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 10px; }
+  th, td { border: 1px solid #e9d5ff; padding: 8px 12px; text-align: left; }
+  th { background: #f5f3ff; color: #5b21b6; font-weight: 600; }
+  tr:nth-child(even) td { background: #faf5ff; }
+
+  .btn {
+    background: var(--accent); color: white;
+    border: none; padding: 8px 16px; border-radius: 6px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn:hover { background: var(--accent-hover); }
+  .btn-outline {
+    background: white; color: var(--accent);
+    border: 2px solid var(--accent);
+  }
+  .btn-outline:hover { background: var(--accent-soft); }
+
+  .callout {
+    border-left: 4px solid var(--accent);
+    background: #faf5ff;
+    padding: 12px 16px;
+    margin: 12px 0;
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+  }
+
+  .tabs { display: flex; gap: 0; margin-bottom: 0; border-bottom: 2px solid #e9d5ff; }
+  .tab {
+    padding: 9px 18px; cursor: pointer; font-size: 14px; font-weight: 600;
+    border: none; background: transparent; color: #6b7280;
+    border-bottom: 2px solid transparent; margin-bottom: -2px;
+  }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-panel { display: none; padding-top: 16px; }
+  .tab-panel.active { display: block; }
+
+  @media (max-width: 768px) {
+    .controls { gap: 12px; }
+    .ctrl-group input[type="range"] { width: 140px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../02-Inferential/lesson-07-resampling/visualization.html">← T2-L07: Resampling</a>
+  <span class="sep">·</span>
+  <span class="current">T3-L01: Bayesian Statistics</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-causal-inference/visualization.html">T3-L02: Suy luận nhân quả →</a>
+</nav>
+
+<main>
+  <h1>Lesson 01: Bayesian Statistics</h1>
+  <p class="lead">Tương tác với Prior × Likelihood = Posterior. Kéo slider để thấy niềm tin thay đổi theo data.</p>
+
+  <!-- MODULE 1: Prior-Posterior Updater -->
+  <section class="module">
+    <h2>1. Beta–Binomial: Cập nhật niềm tin</h2>
+    <p>Điều chỉnh prior Beta(α, β) và số liệu quan sát để thấy posterior thay đổi thế nào. Biểu đồ vẽ 3 đường: prior (xanh), likelihood (đỏ), posterior (tím).</p>
+
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Prior α (pseudo-heads)</label>
+        <input type="range" id="alpha-slider" min="0.5" max="20" step="0.5" value="2">
+        <span>α = <strong id="alpha-val">2</strong></span>
+      </div>
+      <div class="ctrl-group">
+        <label>Prior β (pseudo-tails)</label>
+        <input type="range" id="beta-slider" min="0.5" max="20" step="0.5" value="2">
+        <span>β = <strong id="beta-val">2</strong></span>
+      </div>
+      <div class="ctrl-group">
+        <label>Quan sát: Heads (H)</label>
+        <input type="number" id="heads-input" min="0" max="200" value="7">
+      </div>
+      <div class="ctrl-group">
+        <label>Quan sát: Tails (T)</label>
+        <input type="number" id="tails-input" min="0" max="200" value="3">
+      </div>
+    </div>
+
+    <div class="stats-row" id="stats-row"></div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div> Prior Beta(α, β)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div> Likelihood (scaled)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#7c3aed"></div> Posterior Beta(α+H, β+T)</div>
+    </div>
+
+    <div class="chart-wrap">
+      <svg id="beta-svg" width="620" height="320" viewBox="0 0 620 320">
+        <defs>
+          <clipPath id="clip1"><rect x="50" y="10" width="540" height="260"/></clipPath>
+        </defs>
+        <!-- Axes -->
+        <line x1="50" y1="270" x2="590" y2="270" stroke="#cbd5e0" stroke-width="1.5"/>
+        <line x1="50" y1="10" x2="50" y2="270" stroke="#cbd5e0" stroke-width="1.5"/>
+        <!-- X axis ticks -->
+        <g id="x-ticks"></g>
+        <text x="315" y="305" text-anchor="middle" font-size="13" fill="#6b7280">θ (xác suất ngửa)</text>
+        <!-- Curves -->
+        <path id="prior-path" stroke="#3b82f6" stroke-width="2.5" fill="none" clip-path="url(#clip1)"/>
+        <path id="lik-path" stroke="#ef4444" stroke-width="2" fill="none" stroke-dasharray="6,4" clip-path="url(#clip1)"/>
+        <path id="post-path" stroke="#7c3aed" stroke-width="3" fill="#7c3aed" fill-opacity="0.12" clip-path="url(#clip1)"/>
+        <!-- Vertical lines for estimates -->
+        <line id="map-line" x1="0" y1="10" x2="0" y2="270" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.7"/>
+        <line id="mean-line" x1="0" y1="10" x2="0" y2="270" stroke="#059669" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.7"/>
+        <text id="map-label" font-size="11" fill="#7c3aed"></text>
+        <text id="mean-label" font-size="11" fill="#059669"></text>
+      </svg>
+    </div>
+
+    <div class="callout">
+      <strong>Diễn giải:</strong> <span id="interpretation">—</span>
+    </div>
+  </section>
+
+  <!-- MODULE 2: Sequential updating -->
+  <section class="module">
+    <h2>2. Cập nhật tuần tự (Sequential Bayesian Updating)</h2>
+    <p>Bắt đầu với prior Beta(1, 1). Nhấn "Tung đồng xu" để thêm từng kết quả — thấy posterior dần hội tụ về θ thật.</p>
+
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>θ thật của đồng xu</label>
+        <input type="range" id="true-theta" min="0.1" max="0.9" step="0.05" value="0.65">
+        <span>θ_thật = <strong id="true-theta-val">0.65</strong></span>
+      </div>
+      <div class="ctrl-group" style="justify-content: flex-end; margin-top: 20px;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn" id="flip-btn">Tung 1 lần</button>
+          <button class="btn" id="flip10-btn">Tung 10 lần</button>
+          <button class="btn btn-outline" id="reset-btn">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-row" id="seq-stats"></div>
+
+    <div class="chart-wrap">
+      <svg id="seq-svg" width="620" height="280" viewBox="0 0 620 280">
+        <defs>
+          <clipPath id="clip2"><rect x="50" y="10" width="540" height="230"/></clipPath>
+        </defs>
+        <line x1="50" y1="240" x2="590" y2="240" stroke="#cbd5e0" stroke-width="1.5"/>
+        <line x1="50" y1="10" x2="50" y2="240" stroke="#cbd5e0" stroke-width="1.5"/>
+        <path id="seq-post-path" stroke="#7c3aed" stroke-width="3" fill="#7c3aed" fill-opacity="0.15" clip-path="url(#clip2)"/>
+        <line id="seq-true-line" x1="0" y1="10" x2="0" y2="240" stroke="#059669" stroke-width="2" stroke-dasharray="6,3"/>
+        <text id="seq-true-label" font-size="11" fill="#059669"></text>
+        <line id="seq-mean-line" x1="0" y1="10" x2="0" y2="240" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text id="seq-mean-label" font-size="11" fill="#dc2626"></text>
+        <text x="315" y="272" text-anchor="middle" font-size="13" fill="#6b7280">θ</text>
+      </svg>
+    </div>
+
+    <div id="seq-history" style="font-size:13px;color:#6b7280;min-height:40px;margin-top:8px;"></div>
+  </section>
+
+  <!-- MODULE 3: Comparison table -->
+  <section class="module">
+    <h2>3. Frequentist vs Bayesian — So sánh kết quả</h2>
+    <p>Cùng dataset, hai trường phái cho ra kết quả gì? Dùng dataset từ Module 1.</p>
+
+    <div id="comparison-table">
+      <table>
+        <thead>
+          <tr><th>Phương pháp</th><th>Ước lượng điểm</th><th>Khoảng ước lượng 95%</th><th>Diễn giải</th></tr>
+        </thead>
+        <tbody id="comp-tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="callout" style="margin-top:14px;">
+      <strong>Nhớ:</strong> Credible interval Bayesian cho phép nói "P(θ ∈ [a,b] | data) = 95%". Confidence interval frequentist KHÔNG có nghĩa đó — nó là tính chất của <em>quy trình</em>, không phải tính chất của khoảng cụ thể.
+    </div>
+  </section>
+
+  <!-- MODULE 4: Bayes Factor calculator -->
+  <section class="module">
+    <h2>4. Bayes Factor — So sánh hai mô hình</h2>
+    <p>Tính Bayes Factor giữa M₁ (θ₁) và M₂ (θ₂) cho cùng dataset.</p>
+
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>M₁: θ₁</label>
+        <input type="number" id="bf-theta1" min="0.01" max="0.99" step="0.01" value="0.5">
+      </div>
+      <div class="ctrl-group">
+        <label>M₂: θ₂</label>
+        <input type="number" id="bf-theta2" min="0.01" max="0.99" step="0.01" value="0.75">
+      </div>
+      <div class="ctrl-group">
+        <label>Heads</label>
+        <input type="number" id="bf-heads" min="0" max="500" value="15">
+      </div>
+      <div class="ctrl-group">
+        <label>Tails</label>
+        <input type="number" id="bf-tails" min="0" max="500" value="5">
+      </div>
+    </div>
+
+    <div id="bf-result" class="stats-row"></div>
+
+    <div class="chart-wrap" style="margin-top:12px;">
+      <svg id="bf-svg" width="500" height="160" viewBox="0 0 500 160">
+        <rect id="bf-bar1" x="60" y="20" width="0" height="40" fill="#3b82f6" rx="4"/>
+        <rect id="bf-bar2" x="60" y="80" width="0" height="40" fill="#ef4444" rx="4"/>
+        <text x="50" y="48" text-anchor="end" font-size="13" fill="#374151">M₁</text>
+        <text x="50" y="108" text-anchor="end" font-size="13" fill="#374151">M₂</text>
+        <text id="bf-val1" x="65" y="48" font-size="12" fill="white" font-weight="600"></text>
+        <text id="bf-val2" x="65" y="108" font-size="12" fill="white" font-weight="600"></text>
+        <text x="250" y="148" text-anchor="middle" font-size="12" fill="#6b7280">Độ lớn của P(data|M)</text>
+      </svg>
+    </div>
+
+    <div id="bf-verdict" class="callout"></div>
+  </section>
+
+</main>
+
+<script>
+// ===== Utility: Beta distribution PDF =====
+function betaPDF(x, a, b) {
+  if (x <= 0 || x >= 1) return 0;
+  // Using log to avoid overflow
+  const logB = logBeta(a, b);
+  return Math.exp((a - 1) * Math.log(x) + (b - 1) * Math.log(1 - x) - logB);
+}
+
+function logBeta(a, b) {
+  return logGamma(a) + logGamma(b) - logGamma(a + b);
+}
+
+// Lanczos approximation for log-gamma
+function logGamma(z) {
+  const g = 7;
+  const c = [0.99999999999980993, 676.5203681218851, -1259.1392167224028,
+    771.32342877765313, -176.61502916214059, 12.507343278686905,
+    -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+  if (z < 0.5) return Math.log(Math.PI) - Math.log(Math.sin(Math.PI * z)) - logGamma(1 - z);
+  z -= 1;
+  let x = c[0];
+  for (let i = 1; i < g + 2; i++) x += c[i] / (z + i);
+  const t = z + g + 0.5;
+  return 0.5 * Math.log(2 * Math.PI) + (z + 0.5) * Math.log(t) - t + Math.log(x);
+}
+
+// Beta CDF via regularized incomplete beta (continued fraction — approximation)
+function betaCDF(x, a, b) {
+  if (x <= 0) return 0;
+  if (x >= 1) return 1;
+  // Use regularized incomplete beta via numerical integration (Simpson)
+  const n = 200;
+  const h = x / n;
+  let s = 0;
+  for (let i = 0; i <= n; i++) {
+    const xi = i * h;
+    const w = (i === 0 || i === n) ? 1 : (i % 2 === 0 ? 2 : 4);
+    s += w * betaPDFraw(xi, a, b);
+  }
+  return s * h / 3 / Math.exp(logBeta(a, b));
+}
+
+function betaPDFraw(x, a, b) {
+  if (x <= 0 || x >= 1) return 0;
+  return Math.exp((a - 1) * Math.log(Math.max(x, 1e-300)) + (b - 1) * Math.log(Math.max(1 - x, 1e-300)));
+}
+
+// Beta quantile via bisection
+function betaQuantile(p, a, b) {
+  if (p <= 0) return 0;
+  if (p >= 1) return 1;
+  let lo = 0, hi = 1, mid = 0.5;
+  for (let i = 0; i < 60; i++) {
+    mid = (lo + hi) / 2;
+    if (betaCDF(mid, a, b) < p) lo = mid; else hi = mid;
+  }
+  return mid;
+}
+
+// ===== Module 1: Beta-Binomial Updater =====
+const SVG_W = 620, SVG_H = 320;
+const LEFT = 50, RIGHT = 590, TOP = 10, BOT = 270;
+const W = RIGHT - LEFT, H = BOT - TOP;
+
+function drawBetaChart() {
+  const alpha = parseFloat(document.getElementById('alpha-slider').value);
+  const beta = parseFloat(document.getElementById('beta-slider').value);
+  const heads = parseInt(document.getElementById('heads-input').value) || 0;
+  const tails = parseInt(document.getElementById('tails-input').value) || 0;
+
+  document.getElementById('alpha-val').textContent = alpha;
+  document.getElementById('beta-val').textContent = beta;
+
+  const aPost = alpha + heads;
+  const bPost = beta + tails;
+  const n = heads + tails;
+
+  // Compute paths
+  const N = 300;
+  let maxVal = 0;
+  const priorVals = [], likVals = [], postVals = [];
+  for (let i = 0; i <= N; i++) {
+    const x = i / N;
+    const pv = betaPDF(x, alpha, beta);
+    const lv = (n > 0) ? betaPDF(x, heads + 1, tails + 1) : 1; // likelihood ~ Beta(H+1, T+1) for display
+    const pov = betaPDF(x, aPost, bPost);
+    priorVals.push(pv);
+    likVals.push(lv);
+    postVals.push(pov);
+    maxVal = Math.max(maxVal, pv, lv, pov);
+  }
+
+  const scaleY = (v) => BOT - (v / maxVal) * H * 0.9;
+  const scaleX = (i) => LEFT + (i / N) * W;
+
+  const toPath = (vals) => vals.map((v, i) => `${i === 0 ? 'M' : 'L'}${scaleX(i).toFixed(1)},${scaleY(v).toFixed(1)}`).join(' ');
+
+  document.getElementById('prior-path').setAttribute('d', toPath(priorVals));
+  document.getElementById('lik-path').setAttribute('d', toPath(likVals));
+  document.getElementById('post-path').setAttribute('d', toPath(postVals) + ` L${scaleX(N)},${BOT} L${LEFT},${BOT} Z`);
+
+  // MAP, mean
+  const postMean = aPost / (aPost + bPost);
+  const postMAP = (aPost > 1 && bPost > 1) ? (aPost - 1) / (aPost + bPost - 2) : null;
+  const postVar = (aPost * bPost) / (Math.pow(aPost + bPost, 2) * (aPost + bPost + 1));
+  const postSD = Math.sqrt(postVar);
+
+  const xMean = LEFT + postMean * W;
+  document.getElementById('mean-line').setAttribute('x1', xMean);
+  document.getElementById('mean-line').setAttribute('x2', xMean);
+  const meanLbl = document.getElementById('mean-label');
+  meanLbl.setAttribute('x', xMean + 3);
+  meanLbl.setAttribute('y', TOP + 22);
+  meanLbl.textContent = `Mean=${postMean.toFixed(3)}`;
+
+  if (postMAP !== null) {
+    const xMAP = LEFT + postMAP * W;
+    document.getElementById('map-line').setAttribute('x1', xMAP);
+    document.getElementById('map-line').setAttribute('x2', xMAP);
+    const mapLbl = document.getElementById('map-label');
+    mapLbl.setAttribute('x', xMAP + 3);
+    mapLbl.setAttribute('y', TOP + 36);
+    mapLbl.textContent = `MAP=${postMAP.toFixed(3)}`;
+  } else {
+    document.getElementById('map-label').textContent = '';
+  }
+
+  // X ticks
+  const tickSvg = document.getElementById('x-ticks');
+  tickSvg.innerHTML = '';
+  for (let t = 0; t <= 10; t++) {
+    const x = LEFT + t * W / 10;
+    tickSvg.innerHTML += `<line x1="${x}" y1="${BOT}" x2="${x}" y2="${BOT + 5}" stroke="#cbd5e0" stroke-width="1"/>
+      <text x="${x}" y="${BOT + 16}" text-anchor="middle" font-size="11" fill="#6b7280">${(t / 10).toFixed(1)}</text>`;
+  }
+
+  // Stats
+  const ci025 = betaQuantile(0.025, aPost, bPost);
+  const ci975 = betaQuantile(0.975, aPost, bPost);
+  const statsHtml = `
+    <div class="stat-pill">Posterior: <strong>Beta(${aPost}, ${bPost})</strong></div>
+    <div class="stat-pill">Mean: <strong>${postMean.toFixed(4)}</strong></div>
+    ${postMAP !== null ? `<div class="stat-pill">MAP: <strong>${postMAP.toFixed(4)}</strong></div>` : ''}
+    <div class="stat-pill">SD: <strong>${postSD.toFixed(4)}</strong></div>
+    <div class="stat-pill">95% CI: <strong>[${ci025.toFixed(3)}, ${ci975.toFixed(3)}]</strong></div>
+  `;
+  document.getElementById('stats-row').innerHTML = statsHtml;
+
+  // Interpretation
+  let interp = '';
+  if (n === 0) {
+    interp = `Chưa có data. Posterior = Prior = Beta(${alpha}, ${beta}). Mean = ${(alpha/(alpha+beta)).toFixed(3)}.`;
+  } else {
+    const mle = heads / n;
+    interp = `Prior Beta(${alpha}, ${beta}) + ${heads}H ${tails}T → Posterior Beta(${aPost}, ${bPost}). ` +
+      `MLE = ${mle.toFixed(3)}, Posterior mean = ${postMean.toFixed(3)} ` +
+      `(Prior kéo ${mle > postMean ? 'xuống' : 'lên'} so với MLE).`;
+  }
+  document.getElementById('interpretation').textContent = interp;
+
+  // Update comparison table
+  updateComparisonTable(heads, tails, alpha, beta);
+}
+
+function updateComparisonTable(heads, tails, alpha, beta) {
+  const n = heads + tails;
+  if (n === 0) { document.getElementById('comp-tbody').innerHTML = '<tr><td colspan="4" style="color:#6b7280">Nhập số liệu quan sát ở Module 1</td></tr>'; return; }
+
+  const pHat = heads / n;
+  const aPost = alpha + heads, bPost = beta + tails;
+  const postMean = aPost / (aPost + bPost);
+  const postMAP = (aPost > 1 && bPost > 1) ? (aPost - 1) / (aPost + bPost - 2) : pHat;
+
+  // Frequentist Wilson CI
+  const z = 1.96;
+  const center = (pHat + z*z/(2*n)) / (1 + z*z/n);
+  const half = (z * Math.sqrt(pHat*(1-pHat)/n + z*z/(4*n*n))) / (1 + z*z/n);
+  const freqLo = Math.max(0, center - half).toFixed(3);
+  const freqHi = Math.min(1, center + half).toFixed(3);
+
+  // Bayesian credible interval
+  const ciLo = betaQuantile(0.025, aPost, bPost).toFixed(3);
+  const ciHi = betaQuantile(0.975, aPost, bPost).toFixed(3);
+
+  document.getElementById('comp-tbody').innerHTML = `
+    <tr>
+      <td>Frequentist (MLE)</td>
+      <td>p̂ = ${pHat.toFixed(3)}</td>
+      <td>[${freqLo}, ${freqHi}] (Wilson CI)</td>
+      <td>95% các quy trình lặp lại sẽ bao phủ θ thật</td>
+    </tr>
+    <tr>
+      <td>Bayesian (Posterior mean)</td>
+      <td>${postMean.toFixed(3)}</td>
+      <td>[${ciLo}, ${ciHi}] (Credible)</td>
+      <td>P(θ ∈ [${ciLo},${ciHi}] | data) = 95%</td>
+    </tr>
+    <tr>
+      <td>Bayesian (MAP)</td>
+      <td>${postMAP.toFixed(3)}</td>
+      <td>—</td>
+      <td>θ có khả năng cao nhất theo posterior</td>
+    </tr>
+  `;
+}
+
+// ===== Module 2: Sequential updating =====
+let seqAlpha = 1, seqBeta = 1;
+let seqHeads = 0, seqTails = 0;
+let seqHistory = [];
+
+function drawSeqChart() {
+  const theta0 = parseFloat(document.getElementById('true-theta').value);
+  document.getElementById('true-theta-val').textContent = theta0.toFixed(2);
+
+  const aPost = seqAlpha + seqHeads;
+  const bPost = seqBeta + seqTails;
+  const n = seqHeads + seqTails;
+  const postMean = aPost / (aPost + bPost);
+
+  const SVG_H2 = 280;
+  const BOT2 = 240, TOP2 = 10;
+  const H2 = BOT2 - TOP2;
+
+  const N = 300;
+  let maxVal = 0;
+  const vals = [];
+  for (let i = 0; i <= N; i++) {
+    const x = i / N;
+    const v = betaPDF(x, aPost, bPost);
+    vals.push(v);
+    if (v > maxVal) maxVal = v;
+  }
+  const scaleY2 = (v) => BOT2 - (v / maxVal) * H2 * 0.9;
+  const scaleX2 = (i) => LEFT + (i / N) * W;
+
+  const pathD = vals.map((v, i) => `${i === 0 ? 'M' : 'L'}${scaleX2(i).toFixed(1)},${scaleY2(v).toFixed(1)}`).join(' ')
+    + ` L${scaleX2(N)},${BOT2} L${LEFT},${BOT2} Z`;
+  document.getElementById('seq-post-path').setAttribute('d', pathD);
+
+  const xTrue = LEFT + theta0 * W;
+  document.getElementById('seq-true-line').setAttribute('x1', xTrue);
+  document.getElementById('seq-true-line').setAttribute('x2', xTrue);
+  const trueLbl = document.getElementById('seq-true-label');
+  trueLbl.setAttribute('x', xTrue + 3);
+  trueLbl.setAttribute('y', TOP2 + 16);
+  trueLbl.textContent = `θ_thật=${theta0}`;
+
+  const xMean = LEFT + postMean * W;
+  document.getElementById('seq-mean-line').setAttribute('x1', xMean);
+  document.getElementById('seq-mean-line').setAttribute('x2', xMean);
+  const meanLbl2 = document.getElementById('seq-mean-label');
+  meanLbl2.setAttribute('x', xMean + 3);
+  meanLbl2.setAttribute('y', TOP2 + 30);
+  meanLbl2.textContent = `Mean=${postMean.toFixed(3)}`;
+
+  const n_ = seqHeads + seqTails;
+  document.getElementById('seq-stats').innerHTML = `
+    <div class="stat-pill">n = <strong>${n_}</strong></div>
+    <div class="stat-pill">H = <strong>${seqHeads}</strong>, T = <strong>${seqTails}</strong></div>
+    <div class="stat-pill">Posterior: <strong>Beta(${aPost}, ${bPost})</strong></div>
+    <div class="stat-pill">Mean = <strong>${postMean.toFixed(4)}</strong></div>
+    <div class="stat-pill">|Mean − θ_thật| = <strong>${Math.abs(postMean - theta0).toFixed(4)}</strong></div>
+  `;
+
+  document.getElementById('seq-history').textContent = seqHistory.slice(-15).join('  ');
+}
+
+document.getElementById('true-theta').addEventListener('input', drawSeqChart);
+
+document.getElementById('flip-btn').addEventListener('click', () => {
+  const theta0 = parseFloat(document.getElementById('true-theta').value);
+  const result = Math.random() < theta0 ? 'H' : 'T';
+  if (result === 'H') seqHeads++; else seqTails++;
+  seqHistory.push(result);
+  drawSeqChart();
+});
+
+document.getElementById('flip10-btn').addEventListener('click', () => {
+  const theta0 = parseFloat(document.getElementById('true-theta').value);
+  for (let i = 0; i < 10; i++) {
+    const result = Math.random() < theta0 ? 'H' : 'T';
+    if (result === 'H') seqHeads++; else seqTails++;
+    seqHistory.push(result);
+  }
+  drawSeqChart();
+});
+
+document.getElementById('reset-btn').addEventListener('click', () => {
+  seqAlpha = 1; seqBeta = 1; seqHeads = 0; seqTails = 0; seqHistory = [];
+  drawSeqChart();
+});
+
+// ===== Module 4: Bayes Factor =====
+function logBinom(n, k) {
+  // log C(n,k) via log-gamma
+  return logGamma(n + 1) - logGamma(k + 1) - logGamma(n - k + 1);
+}
+
+function logBinomLikelihood(h, t, theta) {
+  const n = h + t;
+  if (theta <= 0 || theta >= 1) return -Infinity;
+  return logBinom(n, h) + h * Math.log(theta) + t * Math.log(1 - theta);
+}
+
+function drawBFChart() {
+  const t1 = parseFloat(document.getElementById('bf-theta1').value);
+  const t2 = parseFloat(document.getElementById('bf-theta2').value);
+  const h = parseInt(document.getElementById('bf-heads').value) || 0;
+  const t = parseInt(document.getElementById('bf-tails').value) || 0;
+  const n = h + t;
+
+  if (n === 0) {
+    document.getElementById('bf-result').innerHTML = '<div class="stat-pill">Nhập số liệu quan sát</div>';
+    document.getElementById('bf-verdict').textContent = '';
+    return;
+  }
+
+  const logL1 = logBinomLikelihood(h, t, t1);
+  const logL2 = logBinomLikelihood(h, t, t2);
+  const L1 = Math.exp(logL1);
+  const L2 = Math.exp(logL2);
+  const BF12 = Math.exp(logL1 - logL2);
+
+  document.getElementById('bf-result').innerHTML = `
+    <div class="stat-pill">P(data|M₁) = <strong>${L1.toFixed(6)}</strong></div>
+    <div class="stat-pill">P(data|M₂) = <strong>${L2.toFixed(6)}</strong></div>
+    <div class="stat-pill">BF₁₂ = <strong>${BF12.toFixed(3)}</strong></div>
+    <div class="stat-pill">BF₂₁ = <strong>${(1/BF12).toFixed(3)}</strong></div>
+  `;
+
+  // Bar chart
+  const maxL = Math.max(L1, L2);
+  const BAR_MAX = 380;
+  const w1 = (L1 / maxL) * BAR_MAX;
+  const w2 = (L2 / maxL) * BAR_MAX;
+  document.getElementById('bf-bar1').setAttribute('width', w1.toFixed(0));
+  document.getElementById('bf-bar2').setAttribute('width', w2.toFixed(0));
+  const lbl1 = document.getElementById('bf-val1');
+  const lbl2 = document.getElementById('bf-val2');
+  lbl1.setAttribute('x', 65);
+  lbl2.setAttribute('x', 65);
+  lbl1.textContent = `θ=${t1}: ${L1.toExponential(3)}`;
+  lbl2.textContent = `θ=${t2}: ${L2.toExponential(3)}`;
+
+  // Verdict
+  let favor, strength;
+  if (BF12 > 1) {
+    favor = `M₁ (θ=${t1})`;
+    const bf = BF12;
+    strength = bf > 100 ? 'Quyết định' : bf > 30 ? 'Rất mạnh' : bf > 10 ? 'Mạnh' : bf > 3 ? 'Khá mạnh' : 'Chưa đáng kể';
+  } else {
+    favor = `M₂ (θ=${t2})`;
+    const bf = 1/BF12;
+    strength = bf > 100 ? 'Quyết định' : bf > 30 ? 'Rất mạnh' : bf > 10 ? 'Mạnh' : bf > 3 ? 'Khá mạnh' : 'Chưa đáng kể';
+  }
+  document.getElementById('bf-verdict').innerHTML =
+    `<strong>Kết luận:</strong> Data ủng hộ <strong>${favor}</strong> với bằng chứng <strong>${strength}</strong> ` +
+    `(BF = ${Math.max(BF12, 1/BF12).toFixed(2)}). MLE = ${(h/n).toFixed(3)}.`;
+}
+
+// ===== Event listeners for Module 1 =====
+['alpha-slider', 'beta-slider', 'heads-input', 'tails-input'].forEach(id => {
+  document.getElementById(id).addEventListener('input', drawBetaChart);
+});
+['bf-theta1', 'bf-theta2', 'bf-heads', 'bf-tails'].forEach(id => {
+  document.getElementById(id).addEventListener('input', drawBFChart);
+});
+
+// Initial draws
+drawBetaChart();
+drawSeqChart();
+drawBFChart();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

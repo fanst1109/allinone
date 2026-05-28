@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03: Time Series cơ bản — Statistics Tầng 3</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f7f9fc;
+    --accent: #7c3aed;
+    --accent-soft: #ede9fe;
+    --accent-hover: #6d28d9;
+  }
+
+  h1 { color: #5b21b6; }
+  h2 { color: #6d28d9; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #ddd6fe; }
+  h3 { color: #7c3aed; margin-top: 20px; }
+
+  .module {
+    background: white; border-radius: 10px; padding: 24px;
+    margin: 20px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    border: 1px solid #e9d5ff;
+  }
+  .lead { font-size: 16px; color: #4a5568; margin-bottom: 8px; }
+
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 16px;
+    margin: 16px 0; align-items: flex-start;
+  }
+  .ctrl-group { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .ctrl-group label { font-weight: 600; font-size: 14px; color: #374151; }
+  .ctrl-group input[type="range"] { width: 160px; max-width: 100%; accent-color: #7c3aed; }
+  .val-display { font-size: 13px; color: #6b7280; font-family: monospace; }
+
+  svg { display: block; margin: 0 auto; }
+  .chart-wrap { overflow-x: auto; }
+
+  .stat-pill {
+    display: inline-block; background: #ede9fe; color: #5b21b6;
+    padding: 6px 14px; border-radius: 20px;
+    font-family: monospace; font-size: 13px;
+    border: 1px solid #c4b5fd; margin: 4px 4px 4px 0;
+  }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin: 8px 0; font-size: 13px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .legend-dot { width: 22px; height: 3px; border-radius: 2px; }
+
+  .callout {
+    border-left: 4px solid var(--accent); background: #faf5ff;
+    padding: 12px 16px; margin: 12px 0; border-radius: 0 8px 8px 0;
+    font-size: 14px;
+  }
+
+  .toggle-group {
+    display: flex; gap: 0; margin: 10px 0;
+    border: 2px solid var(--accent); border-radius: 8px; overflow: hidden;
+    width: fit-content; flex-wrap: wrap;
+  }
+  .toggle-btn {
+    padding: 8px 16px; background: white; color: var(--accent);
+    border: none; cursor: pointer; font-size: 13px; font-weight: 600;
+    transition: background 0.15s, color 0.15s;
+  }
+  .toggle-btn.active { background: var(--accent); color: white; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 13px; margin: 8px 0; }
+  th, td { border: 1px solid #e9d5ff; padding: 7px 10px; text-align: right; }
+  th { background: #f5f3ff; color: #5b21b6; font-weight: 600; }
+  td:first-child { text-align: left; }
+
+  @media (max-width: 480px) {
+    .ctrl-group input[type="range"] { width: 120px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-causal-inference/visualization.html">← T3-L02: Suy luận nhân quả</a>
+  <span class="sep">·</span>
+  <span class="current">T3-L03: Time Series</span>
+  <span class="sep">·</span>
+  <span>Kết thúc Statistics 🎉 (cuối lộ trình)</span>
+</nav>
+
+<main>
+  <h1>Lesson 03: Time Series cơ bản</h1>
+  <p class="lead">Kéo slider để tạo time series tổng hợp, xem decomposition và ACF/PACF trực quan.</p>
+
+  <!-- MODULE 1: Time Series Generator + Decomposition -->
+  <section class="module">
+    <h2>1. Tạo Time Series và Phân tách</h2>
+    <p>Điều chỉnh các thành phần để tạo chuỗi tổng hợp rồi xem decomposition tách biệt từng phần.</p>
+
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Trend slope</label>
+        <input type="range" id="trend-slope" min="-0.5" max="1" step="0.05" value="0.3">
+        <span class="val-display">slope = <span id="trend-val">0.30</span></span>
+      </div>
+      <div class="ctrl-group">
+        <label>Seasonal amplitude</label>
+        <input type="range" id="seas-amp" min="0" max="8" step="0.5" value="4">
+        <span class="val-display">A = <span id="seas-val">4.0</span></span>
+      </div>
+      <div class="ctrl-group">
+        <label>Seasonal period (tháng)</label>
+        <input type="range" id="seas-period" min="3" max="24" step="1" value="12">
+        <span class="val-display">s = <span id="period-val">12</span></span>
+      </div>
+      <div class="ctrl-group">
+        <label>Noise (σ)</label>
+        <input type="range" id="noise-level" min="0" max="5" step="0.2" value="1.5">
+        <span class="val-display">σ = <span id="noise-val">1.50</span></span>
+      </div>
+    </div>
+
+    <div class="toggle-group">
+      <button class="toggle-btn active" onclick="showDecomp('combined')">Chuỗi tổng hợp</button>
+      <button class="toggle-btn" onclick="showDecomp('all')">Tất cả thành phần</button>
+      <button class="toggle-btn" onclick="showDecomp('trend')">Trend</button>
+      <button class="toggle-btn" onclick="showDecomp('seasonal')">Seasonality</button>
+      <button class="toggle-btn" onclick="showDecomp('residual')">Residual</button>
+    </div>
+
+    <div class="chart-wrap" style="margin-top:12px;">
+      <svg id="ts-svg" width="640" height="280" viewBox="0 0 640 280">
+        <defs>
+          <clipPath id="clip-ts"><rect x="55" y="10" width="565" height="240"/></clipPath>
+        </defs>
+        <line x1="55" y1="250" x2="620" y2="250" stroke="#cbd5e0" stroke-width="1.5"/>
+        <line x1="55" y1="10" x2="55" y2="250" stroke="#cbd5e0" stroke-width="1.5"/>
+        <line id="ts-zero-line" x1="55" y1="130" x2="620" y2="130" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
+        <path id="ts-main-path" stroke="#7c3aed" stroke-width="2" fill="none" clip-path="url(#clip-ts)"/>
+        <path id="ts-trend-path" stroke="#f59e0b" stroke-width="2" fill="none" stroke-dasharray="7,4" clip-path="url(#clip-ts)"/>
+        <path id="ts-seas-path" stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-dasharray="4,3" clip-path="url(#clip-ts)"/>
+        <path id="ts-resid-path" stroke="#ef4444" stroke-width="1.5" fill="none" stroke-dasharray="3,3" clip-path="url(#clip-ts)"/>
+        <g id="ts-x-axis"></g>
+        <text x="337" y="272" text-anchor="middle" font-size="12" fill="#6b7280">Thời gian (tháng)</text>
+      </svg>
+    </div>
+
+    <div id="ts-legend" class="legend"></div>
+    <div id="ts-stats" style="margin-top:8px;"></div>
+  </section>
+
+  <!-- MODULE 2: Stationarity Demo -->
+  <section class="module">
+    <h2>2. Stationarity — So sánh Random Walk vs AR(1)</h2>
+    <p>Xem trực quan tại sao Random Walk không dừng còn AR(1) với |φ| &lt; 1 thì dừng.</p>
+
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>AR(1) coefficient φ</label>
+        <input type="range" id="phi-slider" min="-0.99" max="0.99" step="0.01" value="0.8">
+        <span class="val-display">φ = <span id="phi-val">0.80</span></span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-self:flex-end;margin-top:20px;">
+        <button class="toggle-btn active" style="border:2px solid var(--accent);border-radius:6px;" onclick="regenerateSeries()">Tạo lại (re-seed)</button>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <svg id="stat-svg" width="640" height="220" viewBox="0 0 640 220">
+        <defs><clipPath id="clip-stat"><rect x="55" y="5" width="565" height="185"/></clipPath></defs>
+        <line x1="55" y1="190" x2="620" y2="190" stroke="#cbd5e0" stroke-width="1.5"/>
+        <line x1="55" y1="5" x2="55" y2="190" stroke="#cbd5e0" stroke-width="1.5"/>
+        <line id="stat-zero" x1="55" y1="97" x2="620" y2="97" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
+        <path id="rw-path" stroke="#ef4444" stroke-width="1.5" fill="none" clip-path="url(#clip-stat)"/>
+        <path id="ar1-path" stroke="#7c3aed" stroke-width="2" fill="none" clip-path="url(#clip-stat)"/>
+        <text x="337" y="212" text-anchor="middle" font-size="12" fill="#6b7280">t</text>
+      </svg>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div> Random Walk (y_t = y_{t-1} + ε)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#7c3aed"></div> AR(1): y_t = φ × y_{t-1} + ε</div>
+    </div>
+
+    <div id="stat-callout" class="callout"></div>
+
+    <div class="controls" style="margin-top:16px;">
+      <div>
+        <strong style="font-size:14px;">First Difference (∇y_t = y_t − y_{t-1})</strong>
+        <div class="chart-wrap" style="margin-top:8px;">
+          <svg id="diff-svg" width="640" height="140" viewBox="0 0 640 140">
+            <defs><clipPath id="clip-diff"><rect x="55" y="5" width="565" height="110"/></clipPath></defs>
+            <line x1="55" y1="115" x2="620" y2="115" stroke="#cbd5e0" stroke-width="1.5"/>
+            <line x1="55" y1="5" x2="55" y2="115" stroke="#cbd5e0" stroke-width="1.5"/>
+            <line x1="55" y1="60" x2="620" y2="60" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
+            <path id="rw-diff-path" stroke="#ef4444" stroke-width="1.5" fill="none" clip-path="url(#clip-diff)"/>
+            <text id="diff-label" x="337" y="135" text-anchor="middle" font-size="12" fill="#6b7280">∇(Random Walk) = white noise</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODULE 3: ACF / PACF Visualizer -->
+  <section class="module">
+    <h2>3. ACF và PACF — Nhận dạng mô hình</h2>
+    <p>Chọn loại mô hình để thấy pattern ACF/PACF đặc trưng. Đây là cách nhận dạng AR vs MA.</p>
+
+    <div class="toggle-group">
+      <button class="toggle-btn active" onclick="showModelACF('wn')">White Noise</button>
+      <button class="toggle-btn" onclick="showModelACF('ar1')">AR(1) φ=0.8</button>
+      <button class="toggle-btn" onclick="showModelACF('ar2')">AR(2)</button>
+      <button class="toggle-btn" onclick="showModelACF('ma1')">MA(1)</button>
+      <button class="toggle-btn" onclick="showModelACF('ma2')">MA(2)</button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px;">
+      <div>
+        <div style="text-align:center;font-weight:600;color:#5b21b6;margin-bottom:4px;">ACF</div>
+        <div class="chart-wrap">
+          <svg id="acf-svg" width="290" height="200" viewBox="0 0 290 200">
+            <defs><clipPath id="clip-acf"><rect x="30" y="5" width="250" height="160"/></clipPath></defs>
+            <line x1="30" y1="165" x2="280" y2="165" stroke="#cbd5e0" stroke-width="1.5"/>
+            <line x1="30" y1="5" x2="30" y2="165" stroke="#cbd5e0" stroke-width="1.5"/>
+            <!-- Zero line -->
+            <line x1="30" y1="85" x2="280" y2="85" stroke="#374151" stroke-width="1.5"/>
+            <!-- Significance bands -->
+            <rect id="acf-band-pos" x="30" y="60" width="250" height="0" fill="#7c3aed" opacity="0.08"/>
+            <rect id="acf-band-neg" x="30" y="85" width="250" height="0" fill="#7c3aed" opacity="0.08"/>
+            <line id="acf-sig-pos" x1="30" y1="60" x2="280" y2="60" stroke="#7c3aed" stroke-width="1" stroke-dasharray="4,3"/>
+            <line id="acf-sig-neg" x1="30" y1="110" x2="280" y2="110" stroke="#7c3aed" stroke-width="1" stroke-dasharray="4,3"/>
+            <g id="acf-bars"></g>
+            <text x="155" y="193" text-anchor="middle" font-size="11" fill="#6b7280">Lag</text>
+          </svg>
+        </div>
+      </div>
+      <div>
+        <div style="text-align:center;font-weight:600;color:#5b21b6;margin-bottom:4px;">PACF</div>
+        <div class="chart-wrap">
+          <svg id="pacf-svg" width="290" height="200" viewBox="0 0 290 200">
+            <defs><clipPath id="clip-pacf"><rect x="30" y="5" width="250" height="160"/></clipPath></defs>
+            <line x1="30" y1="165" x2="280" y2="165" stroke="#cbd5e0" stroke-width="1.5"/>
+            <line x1="30" y1="5" x2="30" y2="165" stroke="#cbd5e0" stroke-width="1.5"/>
+            <line x1="30" y1="85" x2="280" y2="85" stroke="#374151" stroke-width="1.5"/>
+            <rect id="pacf-band-pos" x="30" y="60" width="250" height="0" fill="#7c3aed" opacity="0.08"/>
+            <line id="pacf-sig-pos" x1="30" y1="60" x2="280" y2="60" stroke="#7c3aed" stroke-width="1" stroke-dasharray="4,3"/>
+            <line id="pacf-sig-neg" x1="30" y1="110" x2="280" y2="110" stroke="#7c3aed" stroke-width="1" stroke-dasharray="4,3"/>
+            <g id="pacf-bars"></g>
+            <text x="155" y="193" text-anchor="middle" font-size="11" fill="#6b7280">Lag</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div id="acfpacf-callout" class="callout" style="margin-top:12px;"></div>
+
+    <div class="callout" style="margin-top:8px;border-color:#f59e0b;background:#fffbeb;">
+      <strong>Bảng nhận dạng nhanh:</strong>
+      <table style="margin-top:8px;">
+        <thead><tr><th>Mô hình</th><th>ACF</th><th>PACF</th></tr></thead>
+        <tbody>
+          <tr><td>White Noise</td><td>Tất cả trong ngưỡng</td><td>Tất cả trong ngưỡng</td></tr>
+          <tr><td>AR(p)</td><td>Giảm dần (decay)</td><td>Cutoff sau lag p</td></tr>
+          <tr><td>MA(q)</td><td>Cutoff sau lag q</td><td>Giảm dần (decay)</td></tr>
+          <tr><td>ARMA(p,q)</td><td>Giảm dần</td><td>Giảm dần</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- MODULE 4: Forecasting with Exponential Smoothing -->
+  <section class="module">
+    <h2>4. Dự báo đơn giản — Exponential Smoothing</h2>
+    <p>So sánh Naive, Seasonal Naive và Exponential Smoothing (SES) trên synthetic data.</p>
+
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Smoothing parameter α</label>
+        <input type="range" id="alpha-ses" min="0.05" max="0.99" step="0.05" value="0.3">
+        <span class="val-display">α = <span id="alpha-ses-val">0.30</span></span>
+      </div>
+      <div class="ctrl-group">
+        <label>Horizon dự báo (h tháng)</label>
+        <input type="range" id="horizon" min="3" max="24" step="1" value="12">
+        <span class="val-display">h = <span id="horizon-val">12</span></span>
+      </div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#374151"></div> Thực tế</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#7c3aed"></div> SES forecast</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f59e0b;height:2px;border-top:2px dashed #f59e0b;background:transparent"></div> Naive</div>
+    </div>
+
+    <div class="chart-wrap">
+      <svg id="forecast-svg" width="640" height="240" viewBox="0 0 640 240">
+        <defs>
+          <clipPath id="clip-fc"><rect x="55" y="10" width="565" height="200"/></clipPath>
+        </defs>
+        <line x1="55" y1="210" x2="620" y2="210" stroke="#cbd5e0" stroke-width="1.5"/>
+        <line x1="55" y1="10" x2="55" y2="210" stroke="#cbd5e0" stroke-width="1.5"/>
+        <!-- Forecast region marker -->
+        <rect id="fc-region" x="0" y="10" width="0" height="200" fill="#7c3aed" opacity="0.04"/>
+        <line id="fc-divider" x1="0" y1="10" x2="0" y2="210" stroke="#7c3aed" stroke-width="1" stroke-dasharray="4,3"/>
+        <path id="fc-actual-path" stroke="#374151" stroke-width="2" fill="none" clip-path="url(#clip-fc)"/>
+        <path id="fc-ses-path" stroke="#7c3aed" stroke-width="2" fill="none" clip-path="url(#clip-fc)"/>
+        <path id="fc-ci-path" fill="#7c3aed" fill-opacity="0.1" clip-path="url(#clip-fc)"/>
+        <path id="fc-naive-path" stroke="#f59e0b" stroke-width="1.5" fill="none" stroke-dasharray="7,4" clip-path="url(#clip-fc)"/>
+        <g id="fc-x-axis"></g>
+        <text x="337" y="232" text-anchor="middle" font-size="12" fill="#6b7280">Thời gian (tháng)</text>
+      </svg>
+    </div>
+
+    <div id="fc-stats" style="margin-top:10px;"></div>
+  </section>
+
+</main>
+
+<script>
+// ===== Seeded random for reproducibility =====
+let seed = 42;
+function seededRand() {
+  seed = (seed * 1664525 + 1013904223) & 0xffffffff;
+  return ((seed >>> 0) / 4294967296);
+}
+function randNormal(sigma) {
+  let u = 0, v = 0;
+  while (u === 0) u = seededRand();
+  while (v === 0) v = seededRand();
+  return sigma * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+
+const T = 72; // 6 years of monthly data
+let tsData = { combined: [], trend: [], seasonal: [], residual: [] };
+
+function generateTS() {
+  const slope = parseFloat(document.getElementById('trend-slope').value);
+  const amp = parseFloat(document.getElementById('seas-amp').value);
+  const period = parseInt(document.getElementById('seas-period').value);
+  const sigma = parseFloat(document.getElementById('noise-level').value);
+
+  document.getElementById('trend-val').textContent = slope.toFixed(2);
+  document.getElementById('seas-val').textContent = amp.toFixed(1);
+  document.getElementById('period-val').textContent = period;
+  document.getElementById('noise-val').textContent = sigma.toFixed(2);
+
+  const trend = [], seasonal = [], residual = [], combined = [];
+  const base = 20;
+  for (let t = 0; t < T; t++) {
+    const tr = base + slope * t;
+    const s = amp * Math.sin(2 * Math.PI * t / period);
+    const r = randNormal(sigma);
+    trend.push(tr);
+    seasonal.push(s);
+    residual.push(r);
+    combined.push(tr + s + r);
+  }
+  tsData = { combined, trend, seasonal, residual };
+
+  currentView && drawDecompChart(currentView);
+  updateForecastChart();
+}
+
+let currentView = 'combined';
+
+function showDecomp(v) {
+  currentView = v;
+  document.querySelectorAll('#module-1-tabs .toggle-btn, .module .toggle-btn').forEach(b => b.classList.remove('active'));
+  event && event.target && event.target.classList.add('active');
+  drawDecompChart(v);
+}
+
+const LEFT = 55, RIGHT = 620, TOP = 10, BOT = 250;
+const W = RIGHT - LEFT, H = BOT - TOP;
+
+function pathFromData(data, minV, maxV, w, h, left, top) {
+  return data.map((v, i) => {
+    const x = left + (i / (data.length - 1)) * w;
+    const y = top + h - ((v - minV) / (maxV - minV)) * h * 0.9 - h * 0.05;
+    return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+}
+
+function drawDecompChart(view) {
+  const svg = document.getElementById('ts-svg');
+  const mainPath = document.getElementById('ts-main-path');
+  const trendPath = document.getElementById('ts-trend-path');
+  const seasPath = document.getElementById('ts-seas-path');
+  const residPath = document.getElementById('ts-resid-path');
+  const legend = document.getElementById('ts-legend');
+
+  mainPath.setAttribute('d', '');
+  trendPath.setAttribute('d', '');
+  seasPath.setAttribute('d', '');
+  residPath.setAttribute('d', '');
+
+  const allData = [...tsData.combined, ...tsData.trend, ...tsData.seasonal, ...tsData.residual];
+  const minV = Math.min(...allData) - 1;
+  const maxV = Math.max(...allData) + 1;
+
+  const makePathStr = (data) => pathFromData(data, minV, maxV, W, H, LEFT, TOP);
+
+  if (view === 'combined' || view === 'all') {
+    mainPath.setAttribute('d', makePathStr(tsData.combined));
+    mainPath.setAttribute('stroke', '#7c3aed');
+    mainPath.setAttribute('stroke-width', view === 'combined' ? '2.5' : '2');
+  }
+  if (view === 'all' || view === 'trend') {
+    trendPath.setAttribute('d', makePathStr(tsData.trend));
+  }
+  if (view === 'all' || view === 'seasonal') {
+    seasPath.setAttribute('d', makePathStr(tsData.seasonal));
+  }
+  if (view === 'all' || view === 'residual') {
+    residPath.setAttribute('d', makePathStr(tsData.residual));
+  }
+
+  // Zero line
+  const zeroY = TOP + H - ((0 - minV) / (maxV - minV)) * H * 0.9 - H * 0.05;
+  document.getElementById('ts-zero-line').setAttribute('y1', zeroY);
+  document.getElementById('ts-zero-line').setAttribute('y2', zeroY);
+
+  // X axis ticks
+  const xAxisG = document.getElementById('ts-x-axis');
+  xAxisG.innerHTML = '';
+  for (let t = 0; t < T; t += 12) {
+    const x = LEFT + (t / (T - 1)) * W;
+    xAxisG.innerHTML += `<line x1="${x}" y1="${BOT}" x2="${x}" y2="${BOT + 5}" stroke="#cbd5e0"/>
+      <text x="${x}" y="${BOT + 16}" text-anchor="middle" font-size="11" fill="#6b7280">Y${Math.floor(t/12)+1}</text>`;
+  }
+
+  // Stats
+  const m = tsData.combined;
+  const meanV = m.reduce((a,b)=>a+b,0)/m.length;
+  const varV = m.reduce((a,b)=>a+(b-meanV)**2,0)/m.length;
+  document.getElementById('ts-stats').innerHTML = `
+    <span class="stat-pill">n = <strong>${T}</strong></span>
+    <span class="stat-pill">Mean = <strong>${meanV.toFixed(2)}</strong></span>
+    <span class="stat-pill">SD = <strong>${Math.sqrt(varV).toFixed(2)}</strong></span>
+    <span class="stat-pill">Trend slope = <strong>${(parseFloat(document.getElementById('trend-slope').value)).toFixed(2)}/tháng</strong></span>
+  `;
+
+  legend.innerHTML = '';
+  const items = view === 'combined' ? [['#7c3aed','Chuỗi tổng hợp']] :
+    view === 'trend' ? [['#f59e0b','Trend']] :
+    view === 'seasonal' ? [['#3b82f6','Seasonality']] :
+    view === 'residual' ? [['#ef4444','Residual/Noise']] :
+    [['#7c3aed','Combined'],['#f59e0b','Trend'],['#3b82f6','Seasonal'],['#ef4444','Residual']];
+  items.forEach(([c,l]) => {
+    legend.innerHTML += `<div class="legend-item"><div class="legend-dot" style="background:${c}"></div>${l}</div>`;
+  });
+}
+
+['trend-slope','seas-amp','seas-period','noise-level'].forEach(id => {
+  document.getElementById(id).addEventListener('input', generateTS);
+});
+
+// ===== Module 2: Stationarity =====
+let rwData = [], ar1Data = [];
+
+function regenerateSeries() {
+  seed = Math.floor(Math.random() * 10000);
+  drawStatChart();
+}
+
+function drawStatChart() {
+  const phi = parseFloat(document.getElementById('phi-slider').value);
+  document.getElementById('phi-val').textContent = phi.toFixed(2);
+
+  const N = 120;
+  rwData = [0]; ar1Data = [0];
+  for (let i = 1; i < N; i++) {
+    const eps1 = randNormal(1), eps2 = randNormal(1);
+    rwData.push(rwData[i-1] + eps1);
+    ar1Data.push(phi * ar1Data[i-1] + eps2);
+  }
+
+  const allV = [...rwData, ...ar1Data];
+  const minV = Math.min(...allV), maxV = Math.max(...allV);
+
+  const BOT2 = 190, TOP2 = 5, H2 = BOT2 - TOP2;
+  const makeP = (data) => data.map((v, i) => {
+    const x = LEFT + (i / (N-1)) * W;
+    const y = TOP2 + H2 - ((v - minV) / (maxV - minV)) * H2 * 0.9 - H2*0.05;
+    return `${i===0?'M':'L'}${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+
+  document.getElementById('rw-path').setAttribute('d', makeP(rwData));
+  document.getElementById('ar1-path').setAttribute('d', makeP(ar1Data));
+
+  const zeroY = TOP2 + H2 - ((0 - minV) / (maxV - minV)) * H2 * 0.9 - H2*0.05;
+  document.getElementById('stat-zero').setAttribute('y1', zeroY);
+  document.getElementById('stat-zero').setAttribute('y2', zeroY);
+
+  // First difference of random walk
+  const rwDiff = rwData.slice(1).map((v, i) => v - rwData[i]);
+  const diffMin = Math.min(...rwDiff), diffMax = Math.max(...rwDiff);
+  const BOT3 = 115, TOP3 = 5, H3 = BOT3 - TOP3;
+  const diffZeroY = TOP3 + H3 - ((0 - diffMin) / (diffMax - diffMin)) * H3 * 0.9 - H3*0.05;
+  const makeDiffP = (data) => data.map((v, i) => {
+    const x = LEFT + ((i+1) / (N-1)) * W;
+    const y = TOP3 + H3 - ((v - diffMin) / (diffMax - diffMin)) * H3 * 0.9 - H3*0.05;
+    return `${i===0?'M':'L'}${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+  document.getElementById('rw-diff-path').setAttribute('d', makeDiffP(rwDiff));
+  document.getElementById('diff-svg').querySelector('line:last-of-type')?.setAttribute('y1', diffZeroY);
+  document.getElementById('diff-svg').querySelector('line:last-of-type')?.setAttribute('y2', diffZeroY);
+
+  const isStationary = Math.abs(phi) < 1;
+  document.getElementById('stat-callout').innerHTML =
+    `<strong>AR(1) với φ=${phi.toFixed(2)}:</strong> ` +
+    (isStationary ?
+      `|φ| < 1 → <strong>STATIONARY</strong>. Series dao động quanh mean=0, variance=σ²/(1−φ²)=${(1/(1-phi*phi)).toFixed(2)}. Không bị "trôi" dài hạn.` :
+      `|φ| = 1 → <strong>RANDOM WALK</strong> (non-stationary). Variance tăng theo thời gian = t×σ². Series "trôi" không kiểm soát được.`) +
+    ` Random Walk luôn non-stationary. ∇(RW) = white noise → stationary sau first difference.`;
+}
+
+document.getElementById('phi-slider').addEventListener('input', drawStatChart);
+
+// ===== Module 3: ACF/PACF Patterns =====
+const modelACF = {
+  wn:  { acf: Array(15).fill(0), pacf: Array(15).fill(0), label: 'White Noise: không có autocorrelation. Pattern: mọi lag trong ngưỡng ±1.96/√T (đường tím).' },
+  ar1: {
+    acf:  Array.from({length:15}, (_,k) => Math.pow(0.8, k+1)),
+    pacf: Array.from({length:15}, (_,k) => k===0 ? 0.8 : 0),
+    label: 'AR(1) φ=0.8: ACF giảm dần exponentially (0.8^k). PACF: chỉ lag 1 có ý nghĩa, lag 2+ ≈ 0 (cutoff). Nhận dạng: AR(1).',
+  },
+  ar2: {
+    acf:  Array.from({length:15}, (_,k) => {
+      const a = [0.7, 0.6], r = [1,0.7/(1-0.6),0.6/(1-0.7*0.7)]; // Approximate Yule-Walker
+      // Simplified theoretical AR(2) with phi1=0.5, phi2=0.3
+      const phi1=0.5, phi2=0.3;
+      let prev1=1, prev2=0.5/(1-0.3);
+      if(k===0) return 0.5/(1-0.3);
+      if(k===1) return 0.5*(0.5/(1-0.3))+0.3;
+      let v = 0.5*prev2 + 0.3*prev1;
+      for(let i=2;i<k;i++){const tmp=0.5*v+0.3*prev2;prev1=prev2;prev2=v;v=tmp;}
+      return Math.min(1,Math.max(-1,k===1?0.5/(1-0.3):v));
+    }),
+    pacf: Array.from({length:15}, (_,k) => k<2 ? [0.5,0.3][k] : 0),
+    label: 'AR(2) φ₁=0.5, φ₂=0.3: ACF giảm dần (có thể oscillate). PACF: lag 1 và 2 có ý nghĩa, lag 3+ ≈ 0 (cutoff tại p=2). Nhận dạng: AR(2).',
+  },
+  ma1: {
+    acf:  Array.from({length:15}, (_,k) => k===0 ? 0.5/(1+0.25) : 0),
+    pacf: Array.from({length:15}, (_,k) => Math.pow(-0.5, k+1) / (1 + 0.25*(1-Math.pow(-0.5,2*(k+2)))/(1-0.25))),
+    label: 'MA(1) θ=0.5: ACF: chỉ lag 1 có ý nghĩa (cutoff sau q=1). PACF: giảm dần theo ±(-θ)^k. Nhận dạng: MA(1).',
+  },
+  ma2: {
+    acf:  Array.from({length:15}, (_,k) => { const t1=0.5,t2=0.3,d=1+t1*t1+t2*t2; return k===0?(t1+t1*t2)/d:k===1?t2/d:0; }),
+    pacf: Array.from({length:15}, (_,k) => {
+      // PACF of MA(2) decays (approximate with AR infinite sum)
+      const t1=0.5,t2=0.3;
+      return Math.pow(-t1, k+1) * (1 + t2) / (1 + t1*t1 + t2*t2);
+    }),
+    label: 'MA(2) θ₁=0.5, θ₂=0.3: ACF: lag 1 và 2 có ý nghĩa (cutoff sau q=2). PACF: giảm dần. Nhận dạng: MA(2).',
+  },
+};
+
+function drawACFBars(svgId, values, sigLevel) {
+  const g = document.getElementById(svgId + '-bars');
+  g.innerHTML = '';
+  const N = Math.min(values.length, 14);
+  const barW = 14;
+  const LEFT2 = 30, TOP2 = 5, H2 = 80; // zero at y=85
+  const zeroY = 85;
+  const scale = H2;
+
+  for (let k = 0; k < N; k++) {
+    const x = LEFT2 + 10 + k * 17;
+    const v = Math.min(1, Math.max(-1, values[k]));
+    const barH = v * scale;
+    const color = Math.abs(v) > sigLevel ? '#7c3aed' : '#94a3b8';
+    const y = barH >= 0 ? zeroY - barH : zeroY;
+    const h = Math.abs(barH);
+    g.innerHTML += `
+      <rect x="${x}" y="${y}" width="${barW}" height="${Math.max(1, h)}" fill="${color}" rx="2"/>
+      <text x="${x + barW/2}" y="178" text-anchor="middle" font-size="10" fill="#6b7280">${k+1}</text>
+    `;
+  }
+}
+
+function showModelACF(model) {
+  document.querySelectorAll('.module:nth-child(3) .toggle-btn').forEach(b => b.classList.remove('active'));
+  event && event.target && event.target.classList.add('active');
+
+  const cfg = modelACF[model];
+  const T_sim = 100;
+  const sigLevel = 1.96 / Math.sqrt(T_sim);
+  const ZERO_Y = 85, H_SCALE = 80;
+
+  // Update significance band height
+  const bandH = sigLevel * H_SCALE;
+  ['acf', 'pacf'].forEach(id => {
+    document.getElementById(id + '-band-pos').setAttribute('y', ZERO_Y - bandH);
+    document.getElementById(id + '-band-pos').setAttribute('height', bandH);
+    document.getElementById(id + '-sig-pos').setAttribute('y1', ZERO_Y - bandH);
+    document.getElementById(id + '-sig-pos').setAttribute('y2', ZERO_Y - bandH);
+    document.getElementById(id + '-sig-neg').setAttribute('y1', ZERO_Y + bandH);
+    document.getElementById(id + '-sig-neg').setAttribute('y2', ZERO_Y + bandH);
+  });
+
+  drawACFBars('acf', cfg.acf, sigLevel);
+  drawACFBars('pacf', cfg.pacf, sigLevel);
+  document.getElementById('acfpacf-callout').innerHTML = `<strong>Nhận dạng ${model.toUpperCase()}:</strong> ${cfg.label}`;
+}
+
+// ===== Module 4: Forecasting =====
+function updateForecastChart() {
+  const alpha = parseFloat(document.getElementById('alpha-ses').value);
+  const h = parseInt(document.getElementById('horizon').value);
+
+  document.getElementById('alpha-ses-val').textContent = alpha.toFixed(2);
+  document.getElementById('horizon-val').textContent = h;
+
+  const trainData = tsData.combined.slice(0, T - h);
+  const testData = tsData.combined.slice(T - h);
+  const n = trainData.length;
+
+  // SES forecast
+  let sesSmoothed = [trainData[0]];
+  for (let i = 1; i < n; i++) {
+    sesSmoothed.push(alpha * trainData[i] + (1 - alpha) * sesSmoothed[i-1]);
+  }
+  const sesForecast = Array(h).fill(sesSmoothed[n-1]);
+
+  // Compute forecast error variance
+  const errors = trainData.slice(1).map((v, i) => v - sesSmoothed[i]);
+  const sigmaFc = Math.sqrt(errors.reduce((a, b) => a + b*b, 0) / errors.length);
+
+  // Naive forecast
+  const naive = Array(h).fill(trainData[n-1]);
+
+  // All data for scaling
+  const allY = [...tsData.combined, ...sesForecast.map((v, i) => v + 1.96 * sigmaFc * Math.sqrt(i+1))];
+  const minV = Math.min(...allY) - 1;
+  const maxV = Math.max(...allY) + 1;
+
+  const FC_LEFT = 55, FC_RIGHT = 620, FC_TOP = 10, FC_BOT = 210;
+  const FC_W = FC_RIGHT - FC_LEFT, FC_H = FC_BOT - FC_TOP;
+  const scaleX = (t, total) => FC_LEFT + (t / (total - 1)) * FC_W;
+  const scaleY = (v) => FC_BOT - ((v - minV) / (maxV - minV)) * FC_H * 0.9 - FC_H * 0.05;
+
+  const total = T;
+  // Actual path (train + test)
+  const actualPath = tsData.combined.map((v, i) => `${i===0?'M':'L'}${scaleX(i,total).toFixed(1)},${scaleY(v).toFixed(1)}`).join(' ');
+
+  // SES path: smoothed on train + forecast on test
+  const sesPath = [...sesSmoothed, ...sesForecast].map((v, i) =>
+    `${i===0?'M':'L'}${scaleX(i,total).toFixed(1)},${scaleY(v).toFixed(1)}`).join(' ');
+
+  // CI path (upper and lower)
+  const upperCI = sesForecast.map((v, i) => v + 1.96 * sigmaFc * Math.sqrt(i+1));
+  const lowerCI = sesForecast.map((v, i) => v - 1.96 * sigmaFc * Math.sqrt(i+1));
+  const ciPath = upperCI.map((v, i) => `${i===0?'M':'L'}${scaleX(n+i,total).toFixed(1)},${scaleY(v).toFixed(1)}`).join(' ')
+    + lowerCI.slice().reverse().map((v, i) => `L${scaleX(n + (h-1-i), total).toFixed(1)},${scaleY(v).toFixed(1)}`).join(' ') + ' Z';
+
+  // Naive path
+  const naivePath = [{ t: n-1, v: trainData[n-1] }, ...naive.map((v, i) => ({ t: n+i, v }))]
+    .map((p, i) => `${i===0?'M':'L'}${scaleX(p.t,total).toFixed(1)},${scaleY(p.v).toFixed(1)}`).join(' ');
+
+  document.getElementById('fc-actual-path').setAttribute('d', actualPath);
+  document.getElementById('fc-ses-path').setAttribute('d', sesPath);
+  document.getElementById('fc-ci-path').setAttribute('d', ciPath);
+  document.getElementById('fc-naive-path').setAttribute('d', naivePath);
+
+  // Forecast divider
+  const dividerX = scaleX(n - 1, total);
+  document.getElementById('fc-divider').setAttribute('x1', dividerX);
+  document.getElementById('fc-divider').setAttribute('x2', dividerX);
+  document.getElementById('fc-region').setAttribute('x', dividerX);
+  document.getElementById('fc-region').setAttribute('width', FC_RIGHT - dividerX);
+
+  // X axis
+  const fcXAxis = document.getElementById('fc-x-axis');
+  fcXAxis.innerHTML = '';
+  for (let t = 0; t < T; t += 12) {
+    const x = scaleX(t, total);
+    fcXAxis.innerHTML += `<line x1="${x}" y1="${FC_BOT}" x2="${x}" y2="${FC_BOT+5}" stroke="#cbd5e0"/>
+      <text x="${x}" y="${FC_BOT+16}" text-anchor="middle" font-size="11" fill="#6b7280">Y${Math.floor(t/12)+1}</text>`;
+  }
+
+  // MAE on test
+  const sesMae = testData.map((v, i) => Math.abs(v - sesForecast[i])).reduce((a,b)=>a+b,0)/h;
+  const naiveMae = testData.map((v, i) => Math.abs(v - naive[i])).reduce((a,b)=>a+b,0)/h;
+
+  document.getElementById('fc-stats').innerHTML = `
+    <span class="stat-pill">α = <strong>${alpha.toFixed(2)}</strong></span>
+    <span class="stat-pill">SES MAE (h=${h}): <strong>${sesMae.toFixed(2)}</strong></span>
+    <span class="stat-pill">Naive MAE: <strong>${naiveMae.toFixed(2)}</strong></span>
+    <span class="stat-pill">Forecast σ ≈ <strong>${(sigmaFc * Math.sqrt(h)).toFixed(2)}</strong></span>
+    <div class="callout" style="margin-top:10px;">
+      <strong>Nhận xét:</strong> α=${alpha.toFixed(2)} —
+      ${alpha < 0.2 ? 'nhỏ → smoothing nhiều, dự báo phản ứng chậm với thay đổi gần đây' :
+        alpha > 0.7 ? 'lớn → trọng số nhiều vào data gần nhất, nhạy hơn nhưng có thể overfit noise' :
+        'trung bình — cân bằng giữa smoothing và responsiveness'}.
+      Prediction interval (vùng tím) mở rộng theo √h.
+    </div>
+  `;
+}
+
+['alpha-ses','horizon'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateForecastChart);
+});
+
+// ===== Initialize =====
+generateTS();
+drawStatChart();
+showModelACF('wn');
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

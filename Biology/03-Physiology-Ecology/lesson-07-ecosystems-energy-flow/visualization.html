@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Hệ sinh thái</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #14532d; }
+  h2 {
+    color: #166534; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #bbf7d0;
+  }
+  h3 { color: #15803d; margin-top: 20px; }
+  main { max-width: 1100px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 11px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 110px; max-width: 100%;
+  }
+  input[type="range"] { flex: 1; min-width: 0; }
+  button {
+    background: #059669; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #047857; }
+  button.muted { background: #a0aec0; }
+  button.muted:hover { background: #718096; }
+  .pill {
+    background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;
+  }
+  .pill.active { background: #059669; color: white; }
+  .stat {
+    display: inline-block; background: #d1fae5;
+    padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #047857; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; }
+  .group-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+  svg { display: block; margin: 8px auto; max-width: 100%; height: auto; }
+  .info-grid { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 14px; }
+  .info-grid div { padding: 6px 10px; background: #f0fdf4; border-radius: 6px; }
+  .info-grid strong { color: #166534; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 8px; }
+  th, td { border: 1px solid #d1d5db; padding: 7px 10px; text-align: left; }
+  th { background: #ecfdf5; color: #065f46; }
+
+  .tier-prod { fill: #16a34a; }
+  .tier-c1 { fill: #84cc16; }
+  .tier-c2 { fill: #f59e0b; }
+  .tier-c3 { fill: #ef4444; }
+  .tier-c4 { fill: #9333ea; }
+  .tier-label { font: 12px sans-serif; fill: white; text-anchor: middle; font-weight: 700; }
+  .tier-val { font: 11px sans-serif; fill: #1f2937; text-anchor: start; }
+
+  .node { stroke: #1f2937; stroke-width: 1.5; cursor: pointer; }
+  .node.dead { opacity: 0.25; stroke-dasharray: 4 3; }
+  .edge { stroke: #4b5563; stroke-width: 2; fill: none; }
+  .edge.broken { stroke: #ef4444; stroke-dasharray: 5 4; opacity: 0.5; }
+  .node-label { font: 11px sans-serif; fill: #1f2937; text-anchor: middle; font-weight: 600; pointer-events: none; }
+
+  .reservoir { stroke: #1f2937; stroke-width: 1.5; }
+  .res-atmos { fill: #dbeafe; }
+  .res-bio { fill: #d1fae5; }
+  .res-ocean { fill: #bfdbfe; }
+  .res-fossil { fill: #4b5563; }
+  .flux-photo { stroke: #16a34a; }
+  .flux-resp { stroke: #f59e0b; }
+  .flux-burn { stroke: #dc2626; stroke-width: 3; }
+  .flux-ocean { stroke: #0284c7; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Biology · Tầng 3</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-ecology-populations/visualization.html">← L6: Sinh thái quần thể</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Hệ sinh thái</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-biodiversity-conservation/visualization.html">L8: Đa dạng sinh học →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 07 — Hệ sinh thái</h1>
+<p>Bộ công cụ tương tác cho hệ sinh thái: tháp năng lượng theo quy tắc 10%, máy tính "bao nhiêu cỏ cho 1 kg thịt", lưới thức ăn động (xoá loài để xem hậu quả), và mô phỏng chu trình carbon dưới tác động đốt nhiên liệu.</p>
+
+<h2>1. Tháp năng lượng — quy tắc ~10%</h2>
+<div class="card">
+  <p>Chọn năng lượng cố định ở sinh vật sản xuất (bậc 1) và hiệu suất truyền giữa các bậc. Tháp tự thu hẹp lên trên theo cấp số nhân.</p>
+  <div class="row">
+    <label>Năng lượng bậc 1 (kJ/m²/năm):</label>
+    <input type="number" id="pyrE1" min="100" max="100000" value="10000" step="100">
+  </div>
+  <div class="row">
+    <label>Hiệu suất truyền (%):</label>
+    <input type="range" id="pyrEff" min="3" max="25" value="10" step="1">
+    <span class="stat">η = <strong id="pyrEffVal">10</strong>%</span>
+  </div>
+  <svg id="pyrSvg" width="640" height="320" viewBox="0 0 640 320" role="img" aria-label="Tháp năng lượng 5 bậc"></svg>
+  <div class="hint" id="pyrHint"></div>
+  <div style="margin-top: 6px">
+    <span class="stat">Bậc 1 → 5: tỉ lệ còn = <strong id="pyrRatio">0.01%</strong></span>
+    <span class="stat">Số bậc khả thi (≥1 kJ/m²/năm) = <strong id="pyrFeas">5</strong></span>
+  </div>
+</div>
+
+<h2>2. Máy tính "bao nhiêu thực vật cho 1 kg thịt?"</h2>
+<div class="card">
+  <p>Kéo 2 thanh: hiệu suất chuyển hóa mỗi bậc (5–25%) và số bậc giữa thực vật và thịt bạn ăn. Bậc 0 = ăn thực vật trực tiếp; bậc 1 = ăn động vật ăn thực vật (bò, heo); bậc 2 = ăn động vật ăn động vật (cá ngừ, cá hồi).</p>
+  <div class="row">
+    <label>Hiệu suất chuyển (%):</label>
+    <input type="range" id="calcEff" min="5" max="25" value="10" step="1">
+    <span class="stat">η = <strong id="calcEffVal">10</strong>%</span>
+  </div>
+  <div class="row">
+    <label>Số bậc giữa cây và thịt:</label>
+    <input type="range" id="calcSteps" min="0" max="3" value="1" step="1">
+    <span class="stat">bậc = <strong id="calcStepsVal">1</strong> (vd ăn bò)</span>
+  </div>
+  <div class="row">
+    <label>Khối lượng thịt muốn có (kg):</label>
+    <input type="number" id="calcKg" min="0.1" max="100" value="1" step="0.1">
+  </div>
+  <svg id="calcSvg" width="640" height="200" viewBox="0 0 640 200" role="img" aria-label="Khối lượng sinh khối qua các bậc"></svg>
+  <div style="margin-top: 6px">
+    <span class="stat" style="background:#dcfce7">Thực vật cần = <strong id="calcPlants">10</strong> kg</span>
+    <span class="stat" style="background:#fef3c7">Hiệu quả tương đối = <strong id="calcEffRel">10×</strong> so với ăn trực tiếp</span>
+  </div>
+  <div class="hint" id="calcHint"></div>
+</div>
+
+<h2>3. Lưới thức ăn — xoá loài để xem hậu quả</h2>
+<div class="card">
+  <p>Click vào 1 loài để "xoá" nó khỏi hệ. Viz tự kiểm tra: loài nào còn nguồn thức ăn, loài nào bị đứt chuỗi (đổi sang nét đứt + làm mờ). Click lại để hồi sinh.</p>
+  <svg id="webSvg" width="640" height="380" viewBox="0 0 640 380" role="img" aria-label="Lưới thức ăn"></svg>
+  <div class="hint" id="webHint">Cỏ và Cây bụi (xanh đậm) là sinh vật sản xuất — gốc của lưới. Đại bàng (đỏ) là tiêu thụ đỉnh. Click loài nào tuỳ ý.</div>
+  <div style="margin-top: 6px">
+    <span class="stat">Loài còn sống: <strong id="webAlive">7/7</strong></span>
+    <span class="stat" style="background:#fee2e2">Loài bị mất nguồn: <strong id="webBroken">0</strong></span>
+  </div>
+  <button id="webReset" style="margin-top: 8px">↺ Hồi sinh tất cả</button>
+</div>
+
+<h2>4. Chu trình carbon — đốt nhiên liệu hóa thạch</h2>
+<div class="card">
+  <p>Chu trình tự nhiên: quang hợp lấy CO₂ ⇄ hô hấp + phân giải trả CO₂. Cân bằng → khí quyển ổn định. Kéo thanh "đốt nhiên liệu" để xem CO₂ khí quyển thay đổi theo thời gian (mô phỏng 50 năm).</p>
+  <div class="row">
+    <label>Tốc độ đốt nhiên liệu (Gt C/năm):</label>
+    <input type="range" id="burnRate" min="0" max="15" value="10" step="0.5">
+    <span class="stat">= <strong id="burnVal">10</strong> Gt C/năm</span>
+  </div>
+  <div class="row">
+    <label>Hấp thụ thêm của đại dương + cây (Gt C/năm):</label>
+    <input type="range" id="absorbRate" min="0" max="10" value="5" step="0.5">
+    <span class="stat">= <strong id="absorbVal">5</strong> Gt C/năm</span>
+  </div>
+  <svg id="carbonSvg" width="640" height="280" viewBox="0 0 640 280" role="img" aria-label="Chu trình carbon"></svg>
+  <svg id="atmosChart" width="640" height="200" viewBox="0 0 640 200" role="img" aria-label="CO₂ khí quyển theo thời gian"></svg>
+  <div style="margin-top: 6px">
+    <span class="stat">Tích lũy ròng = <strong id="netAccum">5</strong> Gt C/năm</span>
+    <span class="stat">CO₂ sau 50 năm = <strong id="co2Final">420</strong> ppm (bắt đầu 280 ppm tiền công nghiệp)</span>
+  </div>
+  <div class="hint" id="carbonHint"></div>
+</div>
+
+<h2>5. Bảng tổng hợp NPP các hệ sinh thái</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>Hệ sinh thái</th><th>NPP (g khô/m²/năm)</th><th>Yếu tố giới hạn chính</th><th>Ghi chú</th></tr></thead>
+    <tbody>
+      <tr><td>Đầm lầy ven biển</td><td>~2,500</td><td>—</td><td>Cao nhất nói chung</td></tr>
+      <tr><td>Rừng nhiệt đới ẩm</td><td>~2,200</td><td>—</td><td>Cao nhất trên cạn</td></tr>
+      <tr><td>Rừng ôn đới</td><td>~1,200</td><td>Mùa đông</td><td>Có lá rụng</td></tr>
+      <tr><td>Đồng cỏ</td><td>~600</td><td>Mưa</td><td>Phù hợp chăn thả</td></tr>
+      <tr><td>Đại dương ven bờ</td><td>~360</td><td>Chất khoáng</td><td>Giàu N, P từ sông</td></tr>
+      <tr><td>Đại dương mở</td><td>~125</td><td>N, P, Fe</td><td>"Sa mạc nước" — nhưng diện tích lớn</td></tr>
+      <tr><td>Sa mạc</td><td>~3–90</td><td>Nước</td><td>Chuỗi ngắn (~3 bậc)</td></tr>
+    </tbody>
+  </table>
+  <div class="hint">Đại dương mỗi m² nghèo nhưng tổng diện tích lớn (71% Trái Đất) → tổng NPP biển ≈ tổng NPP cạn. Đó là lý do phytoplankton biển đóng góp ~50% O₂ ta thở.</div>
+</div>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+
+// ===== Section 1: Energy pyramid =====
+const TIER_NAMES = ["Bậc 1 — Sinh vật sản xuất", "Bậc 2 — Tiêu thụ bậc 1", "Bậc 3 — Tiêu thụ bậc 2", "Bậc 4 — Tiêu thụ bậc 3", "Bậc 5 — Tiêu thụ bậc 4"];
+const TIER_EX = ["Cỏ, tảo, cây", "Châu chấu, bò", "Ếch, chim sâu", "Rắn, cáo", "Đại bàng, hổ"];
+const TIER_CLASS = ["tier-prod", "tier-c1", "tier-c2", "tier-c3", "tier-c4"];
+const pyrE1 = document.getElementById("pyrE1");
+const pyrEff = document.getElementById("pyrEff");
+
+function renderPyramid() {
+  const e1 = Math.max(100, +pyrE1.value || 10000);
+  const eff = (+pyrEff.value) / 100;
+  document.getElementById("pyrEffVal").textContent = (+pyrEff.value);
+  const svg = document.getElementById("pyrSvg"); clear(svg);
+  const W = 640, H = 320;
+  const energies = [];
+  let cur = e1;
+  for (let i = 0; i < 5; i++) { energies.push(cur); cur *= eff; }
+  // pyramid: bars centered, width proportional log to fit
+  const baseW = 520, baseH = 50, gap = 4, startY = 30;
+  const log0 = Math.log10(Math.max(1, e1)) + 0.001;
+  for (let i = 0; i < 5; i++) {
+    const ratio = Math.max(0.05, Math.log10(Math.max(1, energies[i])) / log0);
+    const w = baseW * ratio;
+    const x = (W - w) / 2;
+    const y = startY + i * (baseH + gap);
+    el("rect", { x: x, y: y, width: w, height: baseH, rx: 4, class: TIER_CLASS[4 - i] }, svg);
+    // Wait: tier 1 should be biggest at bottom. Iterate i=0..4 means top to bottom?
+  }
+  // redo: clear + draw bottom-up correctly
+  clear(svg);
+  for (let i = 4; i >= 0; i--) {
+    // i=0 producer (biggest, bottom); i=4 top (smallest)
+    const ratio = Math.max(0.05, Math.log10(Math.max(1, energies[i])) / log0);
+    const w = baseW * ratio;
+    const x = (W - w) / 2;
+    const y = startY + (4 - i) * (baseH + gap);
+    const cls = TIER_CLASS[i];
+    el("rect", { x: x, y: y, width: w, height: baseH, rx: 4, class: cls }, svg);
+    const label = el("text", { x: W / 2, y: y + 22, class: "tier-label" }, svg);
+    label.textContent = TIER_NAMES[i];
+    const ex = el("text", { x: W / 2, y: y + 40, class: "tier-label", "font-weight": "400", "font-size": "11" }, svg);
+    ex.textContent = TIER_EX[i];
+    // value right side
+    const v = el("text", { x: x + w + 10, y: y + 30, class: "tier-val" }, svg);
+    v.textContent = formatEnergy(energies[i]);
+    // % left side
+    const pct = (energies[i] / e1) * 100;
+    const p = el("text", { x: x - 10, y: y + 30, class: "tier-val", "text-anchor": "end" }, svg);
+    p.textContent = pct >= 0.001 ? pct.toPrecision(2) + "%" : pct.toExponential(1) + "%";
+  }
+  const r5 = energies[4] / e1;
+  document.getElementById("pyrRatio").textContent = (r5 * 100).toPrecision(2) + "%";
+  // Feasible tiers (energy >= 1 kJ)
+  let feasible = 0;
+  for (let i = 0; i < 5; i++) if (energies[i] >= 1) feasible = i + 1;
+  document.getElementById("pyrFeas").textContent = feasible;
+  const hint = document.getElementById("pyrHint");
+  const ratioStr = `Bậc 1 → 5: ${e1.toLocaleString("en-US")} → ${energies[4].toPrecision(3)} kJ (còn ${(r5 * 100).toPrecision(2)}%). `;
+  let warn = "";
+  if (energies[4] < 1) warn = "Bậc 5 < 1 kJ/m²/năm → không đủ duy trì 1 cá thể trên 1 m² → chuỗi thực tế chỉ tồn tại " + feasible + " bậc.";
+  else warn = "Cả 5 bậc đều > 1 kJ/m²/năm → chuỗi 5 bậc khả thi (hiếm trong tự nhiên).";
+  hint.textContent = ratioStr + warn + " — Quy tắc 10% gốc Lindeman 1942.";
+}
+function formatEnergy(v) {
+  if (v >= 1000) return v.toLocaleString("en-US", { maximumFractionDigits: 0 }) + " kJ";
+  if (v >= 1) return v.toFixed(1) + " kJ";
+  if (v >= 0.001) return v.toFixed(3) + " kJ";
+  return v.toExponential(1) + " kJ";
+}
+pyrE1.oninput = renderPyramid;
+pyrEff.oninput = renderPyramid;
+
+// ===== Section 2: Plant-to-meat calculator =====
+const calcEff = document.getElementById("calcEff");
+const calcSteps = document.getElementById("calcSteps");
+const calcKg = document.getElementById("calcKg");
+
+function renderCalc() {
+  const eff = (+calcEff.value) / 100;
+  const steps = +calcSteps.value;
+  const kg = Math.max(0.001, +calcKg.value || 1);
+  document.getElementById("calcEffVal").textContent = +calcEff.value;
+  const stepLbl = [
+    "(ăn thực vật trực tiếp)",
+    "(vd ăn bò, heo, gà)",
+    "(vd ăn cá vừa — đã ăn cá nhỏ ăn tảo)",
+    "(vd ăn cá ngừ, cá mập)"
+  ][steps];
+  document.getElementById("calcStepsVal").textContent = `${steps} ${stepLbl}`;
+  // mass required at each lower level
+  // meat is at level (1 + steps) above plants; if steps=0 we eat plants
+  // need kg of meat; each step requires meat/eff of food below
+  const masses = [kg];
+  for (let i = 0; i < steps + 1; i++) {
+    masses.unshift(masses[0] / eff);
+  }
+  // masses[0] = plants needed; masses[steps+1] = final meat kg
+  const plants = masses[0];
+  // efficiency relative to direct (steps=0): plants / kg
+  const ratio = plants / kg;
+  document.getElementById("calcPlants").textContent = plants.toLocaleString("en-US", { maximumFractionDigits: 2 });
+  document.getElementById("calcEffRel").textContent = ratio.toLocaleString("en-US", { maximumFractionDigits: 1 }) + "×";
+
+  // Draw chain
+  const svg = document.getElementById("calcSvg"); clear(svg);
+  const W = 640, H = 200;
+  const n = masses.length;
+  const slotW = W / n;
+  const colors = ["#16a34a", "#84cc16", "#f59e0b", "#ef4444", "#9333ea"];
+  const labels = ["Thực vật", "Bậc 2", "Bậc 3", "Bậc 4", "Bậc 5"];
+  for (let i = 0; i < n; i++) {
+    const cx = slotW * (i + 0.5);
+    // radius from mass (log scale)
+    const r = Math.min(48, Math.max(14, 14 + Math.log10(Math.max(1, masses[i])) * 12));
+    el("circle", { cx: cx, cy: 90, r: r, fill: colors[i] || "#9333ea", stroke: "#1f2937", "stroke-width": 1.5 }, svg);
+    const lbl = el("text", { x: cx, y: 95, "text-anchor": "middle", font: "12px sans-serif", fill: "white", "font-weight": "700" }, svg);
+    lbl.textContent = labels[i] || ("Bậc " + (i + 1));
+    const mass = el("text", { x: cx, y: 160, "text-anchor": "middle", font: "13px sans-serif", fill: "#1f2937" }, svg);
+    mass.textContent = masses[i].toLocaleString("en-US", { maximumFractionDigits: 2 }) + " kg";
+    if (i < n - 1) {
+      const x1 = cx + r + 4;
+      const x2 = slotW * (i + 1.5) - r - 4;
+      el("line", { x1: x1, y1: 90, x2: x2, y2: 90, stroke: "#4b5563", "stroke-width": 2, "marker-end": "url(#carr)" }, svg);
+    }
+  }
+  const defs = el("defs", {}, svg);
+  const m = el("marker", { id: "carr", markerWidth: 8, markerHeight: 8, refX: 6, refY: 3, orient: "auto" }, defs);
+  el("path", { d: "M0,0 L6,3 L0,6 Z", fill: "#4b5563" }, m);
+
+  // hint
+  let h = `Cần ${plants.toLocaleString("en-US", { maximumFractionDigits: 2 })} kg thực vật để có ${kg} kg thịt ở bậc ${steps + 2}. `;
+  if (steps === 0) h += "Ăn trực tiếp — tỉ lệ 1:1/eff = 1:" + (1 / eff).toFixed(1) + ".";
+  else h += "Mỗi bậc nhân thêm 1/" + eff.toFixed(2) + " = " + (1 / eff).toFixed(1) + "× — nên với " + (steps + 1) + " bậc, tỉ lệ là " + (1 / eff).toFixed(1) + "^" + (steps + 1) + " = " + ratio.toFixed(1) + "×.";
+  document.getElementById("calcHint").textContent = h;
+}
+calcEff.oninput = renderCalc;
+calcSteps.oninput = renderCalc;
+calcKg.oninput = renderCalc;
+
+// ===== Section 3: Food web =====
+const SPECIES = [
+  { id: "co", name: "Cỏ", tier: 1, x: 120, y: 320 },
+  { id: "buit", name: "Cây bụi", tier: 1, x: 280, y: 340 },
+  { id: "chauchau", name: "Châu chấu", tier: 2, x: 80, y: 220 },
+  { id: "tho", name: "Thỏ", tier: 2, x: 240, y: 240 },
+  { id: "ech", name: "Ếch", tier: 3, x: 160, y: 140 },
+  { id: "chimsau", name: "Chim sâu", tier: 3, x: 360, y: 180 },
+  { id: "ran", name: "Rắn", tier: 4, x: 260, y: 70 },
+  { id: "cao", name: "Cáo", tier: 3, x: 440, y: 280 },
+  { id: "daibang", name: "Đại bàng", tier: 5, x: 480, y: 80 }
+];
+// edges: prey → predator
+const EDGES = [
+  ["co", "chauchau"], ["co", "tho"],
+  ["buit", "tho"], ["buit", "chauchau"],
+  ["chauchau", "ech"], ["chauchau", "chimsau"],
+  ["tho", "cao"], ["tho", "daibang"],
+  ["ech", "ran"],
+  ["chimsau", "ran"], ["chimsau", "daibang"],
+  ["ran", "daibang"],
+  ["cao", "daibang"]
+];
+const dead = new Set();
+function renderWeb() {
+  const svg = document.getElementById("webSvg"); clear(svg);
+  // edges first
+  EDGES.forEach(([from, to]) => {
+    const f = SPECIES.find(s => s.id === from);
+    const t = SPECIES.find(s => s.id === to);
+    const isBroken = dead.has(from) || dead.has(to);
+    el("line", { x1: f.x, y1: f.y, x2: t.x, y2: t.y, class: "edge" + (isBroken ? " broken" : ""), "marker-end": isBroken ? "" : "url(#warr)" }, svg);
+  });
+  const defs = el("defs", {}, svg);
+  const m = el("marker", { id: "warr", markerWidth: 8, markerHeight: 8, refX: 6, refY: 3, orient: "auto" }, defs);
+  el("path", { d: "M0,0 L6,3 L0,6 Z", fill: "#4b5563" }, m);
+
+  const TIER_COLORS = { 1: "#16a34a", 2: "#84cc16", 3: "#f59e0b", 4: "#ef4444", 5: "#9333ea" };
+
+  // Check broken (alive species with no living prey, excluding tier 1)
+  let brokenCount = 0;
+  const brokenIds = new Set();
+  SPECIES.forEach(s => {
+    if (dead.has(s.id)) return;
+    if (s.tier === 1) return; // producers don't need prey
+    const prey = EDGES.filter(e => e[1] === s.id).map(e => e[0]);
+    const alivePrey = prey.filter(p => !dead.has(p));
+    if (alivePrey.length === 0) {
+      brokenCount++;
+      brokenIds.add(s.id);
+    }
+  });
+
+  // nodes
+  SPECIES.forEach(s => {
+    const isDead = dead.has(s.id);
+    const isBroken = brokenIds.has(s.id);
+    const fill = isBroken ? "#fee2e2" : TIER_COLORS[s.tier];
+    const cls = "node" + (isDead ? " dead" : "");
+    const g = el("g", { transform: `translate(${s.x},${s.y})`, style: "cursor:pointer" }, svg);
+    const c = el("circle", { cx: 0, cy: 0, r: 26, fill: fill, class: cls }, g);
+    g.onclick = () => {
+      if (dead.has(s.id)) dead.delete(s.id);
+      else dead.add(s.id);
+      renderWeb();
+    };
+    const lbl = el("text", { x: 0, y: 4, class: "node-label" }, g);
+    lbl.textContent = s.name;
+    if (isBroken) {
+      const warn = el("text", { x: 0, y: -32, "text-anchor": "middle", font: "13px sans-serif", fill: "#dc2626", "font-weight": "700" }, g);
+      warn.textContent = "⚠";
+    }
+  });
+  const alive = SPECIES.length - dead.size;
+  document.getElementById("webAlive").textContent = alive + "/" + SPECIES.length;
+  document.getElementById("webBroken").textContent = brokenCount;
+  const hint = document.getElementById("webHint");
+  if (dead.size === 0) {
+    hint.textContent = "Cỏ và Cây bụi (xanh đậm) là sinh vật sản xuất — gốc của lưới. Đại bàng (đỏ) là tiêu thụ đỉnh. Click loài nào tuỳ ý.";
+  } else if (brokenCount === 0) {
+    hint.textContent = `Đã xoá ${dead.size} loài, nhưng các loài còn lại vẫn có nguồn thức ăn — lưới đủ "dày" để chịu được mất mát này. Đây là sức mạnh của đa dạng.`;
+  } else {
+    const brokenNames = Array.from(brokenIds).map(id => SPECIES.find(s => s.id === id).name).join(", ");
+    hint.textContent = `Mất ${dead.size} loài → ${brokenCount} loài bị đứt nguồn thức ăn (${brokenNames}, viền đỏ). Trong tự nhiên, các loài này sẽ phải tìm con mồi khác hoặc suy giảm theo.`;
+  }
+}
+document.getElementById("webReset").onclick = () => { dead.clear(); renderWeb(); };
+
+// ===== Section 4: Carbon cycle =====
+const burnRate = document.getElementById("burnRate");
+const absorbRate = document.getElementById("absorbRate");
+
+function renderCarbon() {
+  const burn = +burnRate.value;
+  const absorb = +absorbRate.value;
+  document.getElementById("burnVal").textContent = burn;
+  document.getElementById("absorbVal").textContent = absorb;
+  const net = Math.max(0, burn - absorb); // net accumulation Gt C/yr (positive only for clarity)
+  const netReal = burn - absorb;
+  document.getElementById("netAccum").textContent = netReal.toFixed(1);
+
+  // Diagram
+  const svg = document.getElementById("carbonSvg"); clear(svg);
+  // Reservoirs
+  // Atmosphere top
+  el("rect", { x: 200, y: 20, width: 240, height: 60, rx: 8, class: "reservoir res-atmos" }, svg);
+  let t = el("text", { x: 320, y: 45, "text-anchor": "middle", font: "14px sans-serif", "font-weight": "700", fill: "#1e40af" }, svg);
+  t.textContent = "Khí quyển (CO₂)";
+  t = el("text", { x: 320, y: 65, "text-anchor": "middle", font: "12px sans-serif", fill: "#1e40af" }, svg);
+  t.textContent = "~870 Gt C";
+
+  // Biomass bottom-left
+  el("rect", { x: 30, y: 180, width: 160, height: 60, rx: 8, class: "reservoir res-bio" }, svg);
+  t = el("text", { x: 110, y: 205, "text-anchor": "middle", font: "14px sans-serif", "font-weight": "700", fill: "#166534" }, svg);
+  t.textContent = "Sinh khối";
+  t = el("text", { x: 110, y: 225, "text-anchor": "middle", font: "12px sans-serif", fill: "#166534" }, svg);
+  t.textContent = "~550 Gt C";
+
+  // Ocean bottom-right
+  el("rect", { x: 450, y: 180, width: 160, height: 60, rx: 8, class: "reservoir res-ocean" }, svg);
+  t = el("text", { x: 530, y: 205, "text-anchor": "middle", font: "14px sans-serif", "font-weight": "700", fill: "#075985" }, svg);
+  t.textContent = "Đại dương";
+  t = el("text", { x: 530, y: 225, "text-anchor": "middle", font: "12px sans-serif", fill: "#075985" }, svg);
+  t.textContent = "~38,000 Gt C";
+
+  // Fossil bottom-mid
+  el("rect", { x: 240, y: 200, width: 160, height: 60, rx: 8, class: "reservoir res-fossil" }, svg);
+  t = el("text", { x: 320, y: 225, "text-anchor": "middle", font: "14px sans-serif", "font-weight": "700", fill: "white" }, svg);
+  t.textContent = "Nhiên liệu hóa thạch";
+  t = el("text", { x: 320, y: 245, "text-anchor": "middle", font: "12px sans-serif", fill: "white" }, svg);
+  t.textContent = "~4,000 Gt C";
+
+  // Arrows
+  // photo: atmos -> bio
+  el("path", { d: "M 240 80 Q 180 130 130 180", fill: "none", stroke: "#16a34a", "stroke-width": 2.5, "marker-end": "url(#cArr)" }, svg);
+  t = el("text", { x: 155, y: 130, font: "11px sans-serif", fill: "#166534", "font-weight": "600" }, svg);
+  t.textContent = "Quang hợp ~120 Gt/năm";
+
+  // respiration: bio -> atmos
+  el("path", { d: "M 150 180 Q 200 130 270 80", fill: "none", stroke: "#f59e0b", "stroke-width": 2.5, "marker-end": "url(#cArr2)" }, svg);
+  t = el("text", { x: 200, y: 110, font: "11px sans-serif", fill: "#b45309", "font-weight": "600" }, svg);
+  t.textContent = "Hô hấp+Phân giải";
+
+  // ocean exchange
+  el("path", { d: "M 400 80 Q 460 130 510 180", fill: "none", stroke: "#0284c7", "stroke-width": 2.5, "marker-end": "url(#cArr3)" }, svg);
+  el("path", { d: "M 530 180 Q 480 130 410 80", fill: "none", stroke: "#0284c7", "stroke-width": 2.5, "marker-end": "url(#cArr4)" }, svg);
+  t = el("text", { x: 530, y: 130, font: "11px sans-serif", fill: "#0369a1", "font-weight": "600", "text-anchor": "middle" }, svg);
+  t.textContent = "Trao đổi";
+
+  // burn: fossil -> atmos (red, thick, scaled by burn rate)
+  if (burn > 0) {
+    const sw = 1 + burn * 0.4;
+    el("path", { d: "M 320 200 L 320 80", fill: "none", stroke: "#dc2626", "stroke-width": sw, "marker-end": "url(#cArrR)" }, svg);
+    t = el("text", { x: 330, y: 145, font: "12px sans-serif", fill: "#dc2626", "font-weight": "700" }, svg);
+    t.textContent = `Đốt ~${burn} Gt/năm`;
+  }
+  const defs = el("defs", {}, svg);
+  ["cArr", "cArr2", "cArr3", "cArr4", "cArrR"].forEach((id, i) => {
+    const color = ["#16a34a", "#f59e0b", "#0284c7", "#0284c7", "#dc2626"][i];
+    const m = el("marker", { id: id, markerWidth: 8, markerHeight: 8, refX: 6, refY: 3, orient: "auto" }, defs);
+    el("path", { d: "M0,0 L6,3 L0,6 Z", fill: color }, m);
+  });
+
+  // Time series chart: CO2 ppm over 50 years
+  const chart = document.getElementById("atmosChart"); clear(chart);
+  const W = 640, H = 200, padL = 50, padR = 20, padT = 20, padB = 40;
+  const cw = W - padL - padR;
+  const ch = H - padT - padB;
+  // axes
+  el("line", { x1: padL, y1: H - padB, x2: W - padR, y2: H - padB, stroke: "#1f2937" }, chart);
+  el("line", { x1: padL, y1: padT, x2: padL, y2: H - padB, stroke: "#1f2937" }, chart);
+  // CO2 model: 1 Gt C ≈ 0.47 ppm (assuming ~2.13 Gt C per ppm)
+  const ppmStart = 280;
+  const years = 50;
+  const data = [];
+  let ppm = ppmStart;
+  for (let y = 0; y <= years; y++) {
+    data.push({ y: y, ppm: ppm });
+    ppm += netReal * 0.47;
+  }
+  const minP = 200, maxP = Math.max(450, data[data.length - 1].ppm + 50);
+  const xs = y => padL + (y / years) * cw;
+  const ys = p => H - padB - ((p - minP) / (maxP - minP)) * ch;
+  // gridlines
+  [200, 280, 350, 420, 500].forEach(p => {
+    if (p < maxP) {
+      const y = ys(p);
+      el("line", { x1: padL, y1: y, x2: W - padR, y2: y, stroke: "#e5e7eb" }, chart);
+      const lbl = el("text", { x: padL - 6, y: y + 4, "text-anchor": "end", font: "11px sans-serif", fill: "#6b7280" }, chart);
+      lbl.textContent = p + " ppm";
+    }
+  });
+  // 280 baseline
+  const y280 = ys(280);
+  el("line", { x1: padL, y1: y280, x2: W - padR, y2: y280, stroke: "#9ca3af", "stroke-dasharray": "4 3" }, chart);
+  t = el("text", { x: W - padR - 4, y: y280 - 4, "text-anchor": "end", font: "11px sans-serif", fill: "#6b7280" }, chart);
+  t.textContent = "280 (tiền công nghiệp)";
+  // 420 line (current actual)
+  if (420 < maxP) {
+    const y420 = ys(420);
+    el("line", { x1: padL, y1: y420, x2: W - padR, y2: y420, stroke: "#f59e0b", "stroke-dasharray": "3 2" }, chart);
+    t = el("text", { x: W - padR - 4, y: y420 - 4, "text-anchor": "end", font: "11px sans-serif", fill: "#b45309" }, chart);
+    t.textContent = "420 (2024 thực tế)";
+  }
+  // x-axis years
+  for (let yr = 0; yr <= years; yr += 10) {
+    const x = xs(yr);
+    el("line", { x1: x, y1: H - padB, x2: x, y2: H - padB + 4, stroke: "#1f2937" }, chart);
+    const lbl = el("text", { x: x, y: H - padB + 18, "text-anchor": "middle", font: "11px sans-serif", fill: "#1f2937" }, chart);
+    lbl.textContent = yr + "y";
+  }
+  // curve
+  let d = "";
+  data.forEach((pt, i) => {
+    const cx = xs(pt.y), cy = ys(pt.ppm);
+    d += (i === 0 ? "M " : " L ") + cx + " " + cy;
+  });
+  el("path", { d: d, fill: "none", stroke: "#dc2626", "stroke-width": 2.5 }, chart);
+
+  document.getElementById("co2Final").textContent = data[data.length - 1].ppm.toFixed(0);
+  const hint = document.getElementById("carbonHint");
+  if (netReal <= 0) {
+    hint.textContent = "Đốt ≤ hấp thụ → CO₂ khí quyển ổn định hoặc giảm. Đây là kịch bản cân bằng (chưa bao giờ xảy ra từ cách mạng công nghiệp).";
+  } else {
+    hint.textContent = `Tích lũy ròng ${netReal.toFixed(1)} Gt C/năm (= ${(netReal * 0.47).toFixed(2)} ppm/năm). Sau 50 năm khí quyển tăng từ 280 lên ${data[data.length - 1].ppm.toFixed(0)} ppm. Đây là cơ chế cốt lõi của biến đổi khí hậu: dòng đốt nhiên liệu KHÔNG cân bằng với bất kỳ dòng tự nhiên nào.`;
+  }
+}
+burnRate.oninput = renderCarbon;
+absorbRate.oninput = renderCarbon;
+
+// ===== Init =====
+renderPyramid();
+renderCalc();
+renderWeb();
+renderCarbon();
+</script>
+
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

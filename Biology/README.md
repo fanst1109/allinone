@@ -14,10 +14,10 @@ Lộ trình sinh học từ THPT lên đại cương đại học. **3 tầng ×
 | # | Tầng | Trạng thái | Nội dung chính |
 |---|------|------------|----------------|
 | 1 | [Molecules & Cells](./01-Molecules-Cells/) | 🟢 Hoàn chỉnh (8/8 bài) | Phân tử sinh học, tế bào, màng & vận chuyển, enzyme, hô hấp tế bào, quang hợp, nguyên phân, giảm phân |
-| 2 | [Genetics & Evolution](./02-Genetics-Evolution/) | 🚧 Khung | Quy luật Mendel, DNA & nhân đôi, phiên mã–dịch mã, điều hòa gen, đột biến & công nghệ gen, di truyền quần thể, chọn lọc tự nhiên, hình thành loài |
-| 3 | [Physiology & Ecology](./03-Physiology-Ecology/) | 🚧 Khung | Thần kinh, tuần hoàn–hô hấp, miễn dịch, nội tiết & nội môi, sinh lý thực vật, sinh thái quần thể, hệ sinh thái, đa dạng sinh học |
+| 2 | [Genetics & Evolution](./02-Genetics-Evolution/) | 🟢 Hoàn chỉnh (8/8 bài) | Quy luật Mendel, DNA & nhân đôi, phiên mã–dịch mã, điều hòa gen, đột biến & công nghệ gen, di truyền quần thể, chọn lọc tự nhiên, hình thành loài |
+| 3 | [Physiology & Ecology](./03-Physiology-Ecology/) | 🟢 Hoàn chỉnh (8/8 bài) | Thần kinh, tuần hoàn–hô hấp, miễn dịch, nội tiết & nội môi, sinh lý thực vật, sinh thái quần thể, hệ sinh thái, đa dạng sinh học |
 
-🚧 Khung = đã có folder + bảng lesson + README tầng, chưa có nội dung từng lesson. 🟢 = lesson đã hoàn chỉnh (README + visualization).
+🟢 = lesson đã hoàn chỉnh (README + visualization). Toàn bộ **24/24 bài** Biology đã hoàn tất.
 
 ## Đích đến
 

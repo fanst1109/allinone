@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Quang hợp</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #14532d; }
+  h2 {
+    color: #166534; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #bbf7d0;
+  }
+  h3 { color: #15803d; margin-top: 20px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 11px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 90px; max-width: 100%;
+  }
+  input[type="range"] { flex: 1; min-width: 0; }
+  button {
+    background: #059669; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #047857; }
+  button.muted { background: #a0aec0; }
+  button.muted:hover { background: #718096; }
+  .pill {
+    background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;
+  }
+  .pill.active { background: #059669; color: white; }
+  .stat {
+    display: inline-block; background: #d1fae5;
+    padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #047857; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; }
+  .group-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+  svg { display: block; margin: 8px auto; max-width: 100%; height: auto; }
+  .info-grid { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 14px; }
+  .info-grid div { padding: 6px 10px; background: #f0fdf4; border-radius: 6px; }
+  .info-grid strong { color: #166534; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 8px; }
+  th, td { border: 1px solid #d1d5db; padding: 7px 10px; text-align: left; }
+  th { background: #ecfdf5; color: #065f46; }
+
+  .io-cols { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 10px; }
+  @media (min-width: 560px) { .io-cols { grid-template-columns: 1fr 1fr; } }
+  .io-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px; }
+  .io-box h4 { margin: 0 0 6px; color: #166534; font-size: 14px; }
+  .io-box ul { margin: 0; padding-left: 18px; font-size: 13.5px; }
+  .io-box li { margin: 3px 0; }
+
+  .bar-label { font: 12px sans-serif; fill: #374151; text-anchor: middle; }
+  .leaf-color { font: 13px sans-serif; fill: #374151; text-anchor: middle; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Biology · Tầng 1</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-cellular-respiration/visualization.html">← L5: Hô hấp tế bào</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Quang hợp</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-cell-cycle-mitosis/visualization.html">L7: Chu kỳ tế bào &amp; nguyên phân →</a>
+</nav>
+
+<h1>Lesson 06 — Quang hợp</h1>
+<p>Bộ công cụ tương tác: bấm chọn pha sáng/Calvin trên sơ đồ lục lạp, quay slider số CO₂ để xem chi phí ATP+NADPH và số glucose, kéo bước sóng để hiểu phổ hấp thụ và màu lá, và so sánh đối xứng quang hợp ⇄ hô hấp.</p>
+
+<h2>1. Sơ đồ lục lạp — pha sáng & chu trình Calvin</h2>
+<div class="card">
+  <p>Bấm chọn pha để xem nó diễn ra ở vùng nào của lục lạp, cùng đầu vào/đầu ra. Pha sáng ở <strong>màng thylakoid</strong>; chu trình Calvin ở <strong>stroma</strong>.</p>
+  <div class="group-btns" id="phaseBtns"></div>
+  <svg id="chloroSvg" width="440" height="260" viewBox="0 0 440 260" role="img" aria-label="Sơ đồ lục lạp"></svg>
+  <div class="io-cols">
+    <div class="io-box"><h4 id="inTitle">Đầu vào</h4><ul id="inList"></ul></div>
+    <div class="io-box"><h4 id="outTitle">Đầu ra</h4><ul id="outList"></ul></div>
+  </div>
+  <div class="hint" id="phaseHint"></div>
+</div>
+
+<h2>2. Máy đếm chu trình Calvin — CO₂ → glucose</h2>
+<div class="card">
+  <p>Kéo thanh để chọn số CO₂ được cố định. Quy luật: <code>3 CO₂ → 1 G3P</code>, <code>2 G3P → 1 glucose</code> (6 CO₂ = 6 vòng = 1 glucose). Chi phí: <strong>9 ATP + 6 NADPH</strong> cho mỗi 3 CO₂.</p>
+  <div class="row">
+    <label>Số CO₂ cố định:</label>
+    <input type="range" id="co2Slider" min="3" max="36" step="3" value="6">
+    <span class="stat">CO₂ = <strong id="co2Val">6</strong></span>
+  </div>
+  <svg id="calvinSvg" width="440" height="150" viewBox="0 0 440 150" role="img" aria-label="Chu trình Calvin"></svg>
+  <div style="margin-top:8px">
+    <span class="stat">Vòng Calvin = <strong id="loopVal">6</strong></span>
+    <span class="stat">G3P ròng = <strong id="g3pVal">2</strong></span>
+    <span class="stat">Glucose = <strong id="gluVal">1</strong></span>
+  </div>
+  <div style="margin-top:4px">
+    <span class="stat" style="background:#fef3c7">ATP = <strong id="atpVal" style="color:#92400e">18</strong></span>
+    <span class="stat" style="background:#dbeafe">NADPH = <strong id="nadphVal" style="color:#1d4ed8">12</strong></span>
+  </div>
+  <div class="hint" id="calvinHint"></div>
+</div>
+
+<h2>3. Phổ hấp thụ — vì sao lá màu xanh lục</h2>
+<div class="card">
+  <p>Kéo bước sóng (400–700 nm). Diệp lục hấp thụ mạnh <strong>xanh tím (~430 nm)</strong> và <strong>đỏ (~660 nm)</strong>, hấp thụ kém <strong>lục (~550 nm)</strong> → lá phản xạ lục nên có màu xanh lục.</p>
+  <div class="row">
+    <label>Bước sóng:</label>
+    <input type="range" id="wlSlider" min="400" max="700" step="5" value="550">
+    <span class="stat">λ = <strong id="wlVal">550</strong> nm</span>
+  </div>
+  <svg id="specSvg" width="440" height="230" viewBox="0 0 440 230" role="img" aria-label="Phổ hấp thụ diệp lục"></svg>
+  <div style="margin-top:6px">
+    <span class="stat">Độ hấp thụ ≈ <strong id="absVal">thấp</strong></span>
+    <span class="stat">Quang hợp ≈ <strong id="rateVal">yếu</strong></span>
+  </div>
+  <div class="hint" id="specHint"></div>
+</div>
+
+<h2>4. Đối xứng quang hợp ⇄ hô hấp</h2>
+<div class="card">
+  <p>Bấm để xem hai quá trình là <strong>chiều ngược</strong> của nhau: đầu vào bên này = đầu ra bên kia; một bên tích lũy năng lượng, một bên giải phóng.</p>
+  <div class="group-btns" id="dirBtns"></div>
+  <svg id="dirSvg" width="440" height="190" viewBox="0 0 440 190" role="img" aria-label="So sánh quang hợp và hô hấp"></svg>
+  <div class="info-grid" id="dirInfo"></div>
+</div>
+
+<h2>5. Bảng tổng hợp</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>Tiêu chí</th><th>Pha sáng</th><th>Chu trình Calvin</th></tr></thead>
+    <tbody>
+      <tr><td>Vị trí</td><td>màng thylakoid</td><td>stroma</td></tr>
+      <tr><td>Cần ánh sáng trực tiếp</td><td>Có</td><td>Không (cần ATP+NADPH)</td></tr>
+      <tr><td>Đầu vào</td><td>ánh sáng, H₂O, ADP, NADP⁺</td><td>CO₂, ATP, NADPH</td></tr>
+      <tr><td>Đầu ra</td><td>O₂, ATP, NADPH</td><td>G3P → glucose</td></tr>
+      <tr><td>Con số vàng</td><td>2 H₂O → 1 O₂ + 4 e⁻ + 4 H⁺</td><td>6 CO₂ → 1 glucose; 18 ATP + 12 NADPH</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function txt(svg, x, y, s, attrs) {
+  const t = el("text", Object.assign({ x: x, y: y }, attrs || {}), svg);
+  t.textContent = s;
+  return t;
+}
+function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+
+// ===== Section 1: Chloroplast diagram =====
+const PHASES = {
+  light: {
+    name: "Pha sáng (thylakoid)",
+    inputs: ["Ánh sáng (photon)", "H₂O (nước)", "ADP + Pᵢ", "NADP⁺"],
+    outputs: ["O₂ (từ quang phân ly nước)", "ATP", "NADPH"],
+    hint: "Pha sáng ở MÀNG THYLAKOID: photon đá electron qua PSII → PSI, tách nước (2 H₂O → 4 H⁺ + 4 e⁻ + O₂), tạo ATP và NADPH. O₂ đến từ NƯỚC, không phải CO₂."
+  },
+  calvin: {
+    name: "Chu trình Calvin (stroma)",
+    inputs: ["CO₂", "ATP (từ pha sáng)", "NADPH (từ pha sáng)"],
+    outputs: ["G3P (đường 3C)", "→ ghép thành glucose", "tái tạo RuBP"],
+    hint: "Chu trình Calvin ở STROMA: RuBisCO cố định CO₂ vào RuBP (5C), dùng ATP+NADPH khử thành G3P. 6 CO₂ (6 vòng) → 1 glucose, tốn 18 ATP + 12 NADPH. Không cần ánh sáng trực tiếp."
+  }
+};
+const phaseBtns = document.getElementById("phaseBtns");
+Object.keys(PHASES).forEach(k => {
+  const b = document.createElement("button");
+  b.className = "pill"; b.textContent = PHASES[k].name; b.dataset.p = k;
+  b.onclick = () => showPhase(k);
+  phaseBtns.appendChild(b);
+});
+function drawChloroplast(svg, active) {
+  clear(svg);
+  // outer chloroplast envelope (oval)
+  el("ellipse", { cx: 220, cy: 130, rx: 200, ry: 110, fill: "#dcfce7", stroke: "#15803d", "stroke-width": 3 }, svg);
+  txt(svg, 220, 30, "Lục lạp (chloroplast)", { "text-anchor": "middle", font: "13px sans-serif", fill: "#166534", "font-weight": "700" });
+  // stroma label
+  const stromaActive = active === "calvin";
+  txt(svg, 330, 200, "Stroma", { "text-anchor": "middle", font: "13px sans-serif", fill: stromaActive ? "#b45309" : "#15803d", "font-weight": stromaActive ? "700" : "400" });
+  if (stromaActive) {
+    el("ellipse", { cx: 320, cy: 175, rx: 80, ry: 50, fill: "#fde68a", opacity: 0.55 }, svg);
+    txt(svg, 320, 165, "CO₂ → G3P", { "text-anchor": "middle", font: "12px sans-serif", fill: "#92400e", "font-weight": "700" });
+    txt(svg, 320, 182, "(RuBisCO)", { "text-anchor": "middle", font: "11px sans-serif", fill: "#92400e" });
+  }
+  // grana (stacks of thylakoid disks)
+  const lightActive = active === "light";
+  const stackX = [90, 160];
+  stackX.forEach(sx => {
+    for (let i = 0; i < 4; i++) {
+      el("ellipse", {
+        cx: sx, cy: 100 + i * 18, rx: 32, ry: 9,
+        fill: lightActive ? "#34d399" : "#86efac",
+        stroke: lightActive ? "#047857" : "#22c55e",
+        "stroke-width": lightActive ? 2.5 : 1.5
+      }, svg);
+    }
+  });
+  // connecting lamella
+  el("line", { x1: 122, y1: 118, x2: 128, y2: 118, stroke: "#22c55e", "stroke-width": 6 }, svg);
+  txt(svg, 125, 205, "Thylakoid (granum)", { "text-anchor": "middle", font: "12px sans-serif", fill: lightActive ? "#047857" : "#15803d", "font-weight": lightActive ? "700" : "400" });
+  if (lightActive) {
+    // sunlight arrows
+    for (let i = 0; i < 3; i++) {
+      const x = 70 + i * 45;
+      el("line", { x1: x, y1: 45, x2: x + 14, y2: 78, stroke: "#f59e0b", "stroke-width": 2.5 }, svg);
+      el("path", { d: `M ${x + 14} ${78} l -7 -2 l 2 7 z`, fill: "#f59e0b" }, svg);
+    }
+    txt(svg, 125, 50, "☀ ánh sáng", { "text-anchor": "middle", font: "12px sans-serif", fill: "#b45309", "font-weight": "700" });
+  }
+}
+function showPhase(k) {
+  document.querySelectorAll("#phaseBtns .pill").forEach(b => b.classList.toggle("active", b.dataset.p === k));
+  const p = PHASES[k];
+  drawChloroplast(document.getElementById("chloroSvg"), k);
+  const inList = document.getElementById("inList"), outList = document.getElementById("outList");
+  inList.innerHTML = p.inputs.map(x => `<li>${x}</li>`).join("");
+  outList.innerHTML = p.outputs.map(x => `<li>${x}</li>`).join("");
+  document.getElementById("phaseHint").textContent = p.hint;
+}
+
+// ===== Section 2: Calvin counter =====
+const co2Slider = document.getElementById("co2Slider");
+function renderCalvin() {
+  const co2 = +co2Slider.value;
+  document.getElementById("co2Val").textContent = co2;
+  const loops = co2;                  // 1 CO2 = 1 turn
+  const g3p = co2 / 3;                // 3 CO2 -> 1 net G3P
+  const glucose = co2 / 6;            // 6 CO2 -> 1 glucose
+  const atp = co2 * 3;               // 9 ATP / 3 CO2 = 3 ATP / CO2
+  const nadph = co2 * 2;             // 6 NADPH / 3 CO2 = 2 NADPH / CO2
+  document.getElementById("loopVal").textContent = loops;
+  document.getElementById("g3pVal").textContent = g3p;
+  document.getElementById("gluVal").textContent = (glucose % 1 === 0) ? glucose : glucose.toFixed(2);
+  document.getElementById("atpVal").textContent = atp;
+  document.getElementById("nadphVal").textContent = nadph;
+
+  const svg = document.getElementById("calvinSvg"); clear(svg);
+  // flow: CO2 boxes -> G3P -> glucose
+  txt(svg, 60, 24, co2 + " CO₂", { "text-anchor": "middle", font: "14px sans-serif", fill: "#166534", "font-weight": "700" });
+  const nDots = Math.min(co2, 12);
+  for (let i = 0; i < nDots; i++) {
+    const col = i % 6, rowD = Math.floor(i / 6);
+    el("circle", { cx: 20 + col * 18, cy: 45 + rowD * 18, r: 6, fill: "#86efac", stroke: "#15803d", "stroke-width": 1.5 }, svg);
+  }
+  if (co2 > 12) txt(svg, 60, 90, "…(" + co2 + ")", { "text-anchor": "middle", font: "11px sans-serif", fill: "#64748b" });
+  // arrow 1
+  el("line", { x1: 130, y1: 55, x2: 180, y2: 55, stroke: "#6b7280", "stroke-width": 2 }, svg);
+  el("path", { d: "M 180 55 l -8 -4 l 0 8 z", fill: "#6b7280" }, svg);
+  txt(svg, 155, 45, "RuBisCO", { "text-anchor": "middle", font: "10px sans-serif", fill: "#6b7280" });
+  // G3P
+  txt(svg, 215, 50, g3p + " G3P", { "text-anchor": "middle", font: "13px sans-serif", fill: "#b45309", "font-weight": "700" });
+  for (let i = 0; i < Math.min(g3p, 6); i++) {
+    el("rect", { x: 185 + i * 13, y: 60, width: 9, height: 18, rx: 2, fill: "#fbbf24", stroke: "#b45309", "stroke-width": 1 }, svg);
+  }
+  // arrow 2
+  el("line", { x1: 280, y1: 55, x2: 330, y2: 55, stroke: "#6b7280", "stroke-width": 2 }, svg);
+  el("path", { d: "M 330 55 l -8 -4 l 0 8 z", fill: "#6b7280" }, svg);
+  txt(svg, 305, 45, "2 G3P→1", { "text-anchor": "middle", font: "10px sans-serif", fill: "#6b7280" });
+  // glucose
+  const gluTxt = (glucose % 1 === 0) ? glucose : glucose.toFixed(2);
+  txt(svg, 385, 50, gluTxt + " glucose", { "text-anchor": "middle", font: "13px sans-serif", fill: "#166534", "font-weight": "700" });
+  for (let i = 0; i < Math.min(Math.floor(glucose), 4); i++) {
+    el("circle", { cx: 360 + i * 18, cy: 70, r: 9, fill: "#34d399", stroke: "#047857", "stroke-width": 2 }, svg);
+  }
+  // cost bar
+  txt(svg, 220, 120, `${loops} vòng · ${atp} ATP · ${nadph} NADPH`, { "text-anchor": "middle", font: "13px sans-serif", fill: "#374151", "font-weight": "700" });
+
+  const whole = co2 % 6 === 0;
+  document.getElementById("calvinHint").textContent =
+    `${co2} CO₂ = ${loops} vòng Calvin → ${g3p} G3P ròng → ${gluTxt} glucose. ` +
+    `Chi phí: ${co2}×3 = ${atp} ATP, ${co2}×2 = ${nadph} NADPH. ` +
+    (whole ? "Số CO₂ là bội của 6 → glucose nguyên, không dư G3P." : "Số CO₂ không là bội của 6 → còn dư G3P chưa đủ ghép glucose.");
+}
+co2Slider.oninput = renderCalvin;
+
+// ===== Section 3: Absorption spectrum =====
+const wlSlider = document.getElementById("wlSlider");
+// absorption model: two peaks (430 blue-violet, 660 red), valley at ~550 green
+function absorption(wl) {
+  const p1 = Math.exp(-Math.pow((wl - 430) / 35, 2));   // blue-violet peak
+  const p2 = Math.exp(-Math.pow((wl - 660) / 30, 2));   // red peak
+  return Math.min(1, 0.95 * p1 + p2);                   // 0..1
+}
+function wlToColor(wl) {
+  // approximate visible spectrum color
+  let r = 0, g = 0, b = 0;
+  if (wl < 440) { r = -(wl - 440) / (440 - 400); b = 1; }
+  else if (wl < 490) { g = (wl - 440) / (490 - 440); b = 1; }
+  else if (wl < 510) { g = 1; b = -(wl - 510) / (510 - 490); }
+  else if (wl < 580) { r = (wl - 510) / (580 - 510); g = 1; }
+  else if (wl < 645) { r = 1; g = -(wl - 645) / (645 - 580); }
+  else { r = 1; }
+  return `rgb(${Math.round(r * 255)},${Math.round(g * 255)},${Math.round(b * 255)})`;
+}
+function renderSpectrum() {
+  const wl = +wlSlider.value;
+  document.getElementById("wlVal").textContent = wl;
+  const abs = absorption(wl);
+  const svg = document.getElementById("specSvg"); clear(svg);
+  const x0 = 40, x1 = 420, baseY = 180, topY = 30;
+  const sx = w => x0 + (w - 400) / 300 * (x1 - x0);
+  // spectrum color strip under axis
+  for (let w = 400; w < 700; w += 5) {
+    el("rect", { x: sx(w), y: baseY + 4, width: (x1 - x0) / 60 + 1, height: 14, fill: wlToColor(w) }, svg);
+  }
+  // axis
+  el("line", { x1: x0, y1: baseY, x2: x1, y2: baseY, stroke: "#9ca3af", "stroke-width": 1 }, svg);
+  // absorption curve
+  let d = "";
+  for (let w = 400; w <= 700; w += 3) {
+    const px = sx(w), py = baseY - absorption(w) * (baseY - topY);
+    d += (d === "" ? "M" : "L") + ` ${px.toFixed(1)} ${py.toFixed(1)}`;
+  }
+  el("path", { d: d, fill: "none", stroke: "#15803d", "stroke-width": 3 }, svg);
+  // peak/valley labels
+  txt(svg, sx(430), topY - 6, "đỉnh ~430", { "text-anchor": "middle", font: "11px sans-serif", fill: "#15803d" });
+  txt(svg, sx(660), topY - 6, "đỉnh ~660", { "text-anchor": "middle", font: "11px sans-serif", fill: "#15803d" });
+  txt(svg, sx(550), baseY - 18, "thung lũng (lục)", { "text-anchor": "middle", font: "11px sans-serif", fill: "#64748b" });
+  // marker for current wavelength
+  const mx = sx(wl), my = baseY - abs * (baseY - topY);
+  el("line", { x1: mx, y1: topY, x2: mx, y2: baseY, stroke: wlToColor(wl), "stroke-width": 2, "stroke-dasharray": "4 3" }, svg);
+  el("circle", { cx: mx, cy: my, r: 6, fill: wlToColor(wl), stroke: "#1f2937", "stroke-width": 1.5 }, svg);
+  // axis ticks
+  [400, 500, 600, 700].forEach(w => txt(svg, sx(w), baseY + 34, w + "", { "text-anchor": "middle", font: "10px sans-serif", fill: "#6b7280" }));
+  txt(svg, 230, 222, "Bước sóng (nm)", { "text-anchor": "middle", class: "bar-label" });
+
+  // verdict
+  let absLabel, rateLabel;
+  if (abs > 0.66) { absLabel = "cao"; rateLabel = "mạnh"; }
+  else if (abs > 0.33) { absLabel = "trung bình"; rateLabel = "trung bình"; }
+  else { absLabel = "thấp"; rateLabel = "yếu"; }
+  document.getElementById("absVal").textContent = absLabel;
+  document.getElementById("rateVal").textContent = rateLabel;
+  let region;
+  if (wl < 450) region = "xanh tím — đỉnh hấp thụ";
+  else if (wl < 500) region = "xanh — hấp thụ giảm dần";
+  else if (wl < 580) region = "lục — thung lũng, lá phản xạ vùng này";
+  else if (wl < 640) region = "vàng/cam — hấp thụ tăng dần về đỏ";
+  else region = "đỏ — đỉnh hấp thụ";
+  document.getElementById("specHint").textContent =
+    `λ = ${wl} nm (${region}). Độ hấp thụ ${absLabel} → quang hợp ${rateLabel}. ` +
+    "Lá có màu xanh lục vì hấp thụ kém vùng ~550 nm và phản xạ nó trở lại mắt ta.";
+}
+wlSlider.oninput = renderSpectrum;
+
+// ===== Section 4: Photosynthesis vs Respiration =====
+const DIRS = {
+  photo: {
+    name: "Quang hợp",
+    eq: "6 CO₂ + 6 H₂O + ánh sáng → C₆H₁₂O₆ + 6 O₂",
+    energy: "TÍCH LŨY năng lượng (endergonic)",
+    arrow: "→", color: "#16a34a",
+    inputs: "CO₂, H₂O, ánh sáng", outputs: "glucose, O₂",
+    place: "lục lạp (chloroplast)", carbon: "CO₂ bị KHỬ thành đường"
+  },
+  resp: {
+    name: "Hô hấp tế bào",
+    eq: "C₆H₁₂O₆ + 6 O₂ → 6 CO₂ + 6 H₂O + ATP",
+    energy: "GIẢI PHÓNG năng lượng (exergonic)",
+    arrow: "→", color: "#dc2626",
+    inputs: "glucose, O₂", outputs: "CO₂, H₂O, ATP",
+    place: "ti thể (mitochondria)", carbon: "glucose bị OXY HÓA thành CO₂"
+  }
+};
+const dirBtns = document.getElementById("dirBtns");
+Object.keys(DIRS).forEach(k => {
+  const b = document.createElement("button");
+  b.className = "pill"; b.textContent = DIRS[k].name; b.dataset.d = k;
+  b.onclick = () => showDir(k);
+  dirBtns.appendChild(b);
+});
+function showDir(k) {
+  document.querySelectorAll("#dirBtns .pill").forEach(b => b.classList.toggle("active", b.dataset.d === k));
+  const D = DIRS[k];
+  const svg = document.getElementById("dirSvg"); clear(svg);
+  // left box (inputs) -> right box (outputs)
+  el("rect", { x: 20, y: 60, width: 150, height: 70, rx: 8, fill: "#f0fdf4", stroke: D.color, "stroke-width": 2 }, svg);
+  el("rect", { x: 270, y: 60, width: 150, height: 70, rx: 8, fill: "#f0fdf4", stroke: D.color, "stroke-width": 2 }, svg);
+  txt(svg, 95, 50, "Đầu vào", { "text-anchor": "middle", font: "12px sans-serif", fill: "#374151", "font-weight": "700" });
+  txt(svg, 345, 50, "Đầu ra", { "text-anchor": "middle", font: "12px sans-serif", fill: "#374151", "font-weight": "700" });
+  txt(svg, 95, 100, D.inputs, { "text-anchor": "middle", font: "13px sans-serif", fill: "#166534", "font-weight": "700" });
+  txt(svg, 345, 100, D.outputs, { "text-anchor": "middle", font: "13px sans-serif", fill: "#166534", "font-weight": "700" });
+  // big arrow
+  el("line", { x1: 180, y1: 95, x2: 258, y2: 95, stroke: D.color, "stroke-width": 4 }, svg);
+  el("path", { d: "M 258 95 l -12 -6 l 0 12 z", fill: D.color }, svg);
+  txt(svg, 220, 80, D.energy.indexOf("TÍCH") >= 0 ? "+ ánh sáng" : "→ ATP", { "text-anchor": "middle", font: "11px sans-serif", fill: D.color });
+  txt(svg, 220, 30, D.name, { "text-anchor": "middle", font: "14px sans-serif", fill: D.color, "font-weight": "700" });
+  txt(svg, 220, 160, D.energy, { "text-anchor": "middle", font: "13px sans-serif", fill: D.color, "font-weight": "700" });
+  document.getElementById("dirInfo").innerHTML =
+    `<div><strong>Phương trình:</strong> ${D.eq}</div>` +
+    `<div><strong>Năng lượng:</strong> ${D.energy}</div>` +
+    `<div><strong>Nơi diễn ra:</strong> ${D.place}</div>` +
+    `<div><strong>Carbon:</strong> ${D.carbon}</div>` +
+    `<div><strong>Đối xứng:</strong> đầu vào của ${D.name} chính là đầu ra của quá trình kia — hai chiều ngược nhau.</div>`;
+}
+
+// ===== Init =====
+showPhase("light");
+renderCalvin();
+renderSpectrum();
+showDir("photo");
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

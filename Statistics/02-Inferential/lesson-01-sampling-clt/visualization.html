@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01: Sampling & CLT — Statistics</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f7f9fc;
+    --accent: #7c3aed;
+    --accent-soft: #ede9fe;
+    --accent-hover: #6d28d9;
+  }
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 28px; font-size: 15px; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+  h3 { color: #4a5568; font-size: 15px; margin-top: 20px; }
+  .module {
+    background: white; border-radius: 10px; padding: 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 28px;
+  }
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
+    margin: 16px 0; padding: 16px; background: #f7f9fc;
+    border-radius: 8px; border: 1px solid #e2e8f0;
+  }
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+  label { font-size: 13px; font-weight: 600; color: #4a5568; }
+  select, input[type="range"] { font-size: 14px; }
+  select {
+    padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 6px;
+    background: white; cursor: pointer;
+  }
+  input[type="range"] { width: 160px; accent-color: var(--accent); }
+  .val-badge {
+    display: inline-block; background: var(--accent-soft); color: var(--accent);
+    padding: 2px 8px; border-radius: 4px; font-size: 13px;
+    font-weight: 700; font-family: monospace;
+  }
+  button {
+    padding: 8px 18px; background: var(--accent); color: white;
+    border: none; border-radius: 6px; font-size: 14px;
+    font-weight: 600; cursor: pointer; transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.secondary {
+    background: #e2e8f0; color: #2d3748;
+  }
+  button.secondary:hover { background: #cbd5e0; }
+  svg { display: block; overflow: visible; }
+  .stats-row {
+    display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px;
+  }
+  .stat-chip {
+    background: #edf2f7; padding: 6px 12px; border-radius: 6px;
+    font-family: monospace; font-size: 13px; border-left: 3px solid var(--accent);
+  }
+  .stat-chip .name { color: #718096; font-size: 11px; display: block; }
+  .stat-chip .val { color: #2d3748; font-weight: 700; font-size: 15px; }
+  .info-box {
+    background: var(--accent-soft); border-left: 4px solid var(--accent);
+    padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0;
+    font-size: 14px; color: #2d3748;
+  }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; font-size: 13px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 14px; height: 14px; border-radius: 2px; flex-shrink: 0; }
+  table.three-dist {
+    width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px;
+  }
+  table.three-dist th, table.three-dist td {
+    padding: 8px 12px; text-align: left; border-bottom: 1px solid #e2e8f0;
+  }
+  table.three-dist th { background: #f7f9fc; font-weight: 600; color: #2d3748; }
+  @media (max-width: 600px) {
+    .controls { flex-direction: column; align-items: flex-start; }
+    input[type="range"] { width: 100%; max-width: 260px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <span>← <a href="../../01-Descriptive/lesson-05-bivariate-correlation/visualization.html">T1-L05: Correlation</a></span>
+  <span class="sep">·</span>
+  <span class="current">L01: Sampling & CLT</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-confidence-interval/visualization.html">L02: Confidence Interval →</a>
+</nav>
+<main>
+  <h1>Lesson 01: Sampling & Central Limit Theorem</h1>
+  <p class="subtitle">Phân phối mẫu, Standard Error, và vì sao trung bình luôn ~Normal khi n lớn</p>
+
+  <!-- Module 1: Ba loại phân phối -->
+  <section class="module">
+    <h2>1. Ba loại phân phối — Phân biệt trực quan</h2>
+    <div class="info-box">
+      Chọn loại tổng thể, xem phân phối gốc (population), mẫu đơn lẻ (sample), và phân phối mẫu trung bình (sampling distribution) để so sánh.
+    </div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Loại tổng thể</label>
+        <select id="popType">
+          <option value="uniform">Uniform [0, 10]</option>
+          <option value="exponential">Exponential (λ=1)</option>
+          <option value="bimodal">Bimodal (hai đỉnh)</option>
+          <option value="normal">Normal (μ=5, σ=2)</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label>Cỡ mẫu n: <span class="val-badge" id="nVal">30</span></label>
+        <input type="range" id="nSlider" min="2" max="200" value="30" step="1">
+      </div>
+      <div class="ctrl-group">
+        <label>Số mẫu lấy: <span class="val-badge" id="nsamplesVal">500</span></label>
+        <input type="range" id="nsamplesSlider" min="100" max="3000" value="500" step="100">
+      </div>
+      <button onclick="runSimulation()">Chạy mô phỏng</button>
+      <button class="secondary" onclick="resetAll()">Reset</button>
+    </div>
+
+    <div style="display:flex; gap:20px; flex-wrap:wrap; margin-top:16px;">
+      <div style="flex:1; min-width:280px;">
+        <h3>Phân phối tổng thể (Population)</h3>
+        <svg id="popChart" width="320" height="200" viewBox="0 0 320 200"></svg>
+      </div>
+      <div style="flex:1; min-width:280px;">
+        <h3>Phân phối mẫu trung bình (Sampling Distribution of x̄)</h3>
+        <svg id="sampChart" width="320" height="200" viewBox="0 0 320 200"></svg>
+      </div>
+    </div>
+
+    <div class="stats-row" id="statsRow">
+      <div class="stat-chip"><span class="name">μ tổng thể</span><span class="val" id="stat-mu">—</span></div>
+      <div class="stat-chip"><span class="name">σ tổng thể</span><span class="val" id="stat-sigma">—</span></div>
+      <div class="stat-chip"><span class="name">SE lý thuyết (σ/√n)</span><span class="val" id="stat-se-theory">—</span></div>
+      <div class="stat-chip"><span class="name">SD quan sát của x̄</span><span class="val" id="stat-se-obs">—</span></div>
+      <div class="stat-chip"><span class="name">Mean quan sát của x̄</span><span class="val" id="stat-mean-obs">—</span></div>
+    </div>
+
+    <div class="legend" style="margin-top:14px;">
+      <div class="legend-item"><div class="legend-dot" style="background:#7c3aed;"></div>Phân phối mẫu trung bình (histogram)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#e53e3e;"></div>Normal dự đoán bởi CLT</div>
+    </div>
+    <div class="info-box" id="cltNote" style="margin-top:14px; display:none;"></div>
+  </section>
+
+  <!-- Module 2: Standard Error -->
+  <section class="module">
+    <h2>2. Standard Error: SE = σ/√n</h2>
+    <div class="info-box">
+      Kéo slider để thấy SE thay đổi theo n. SE không phải SD — SE là "SD của x̄", đo độ chính xác của ước lượng.
+    </div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>σ (SD tổng thể): <span class="val-badge" id="seCalc-sigma">10</span></label>
+        <input type="range" id="seCalc-sigmaSlider" min="1" max="30" value="10" step="0.5">
+      </div>
+      <div class="ctrl-group">
+        <label>n (cỡ mẫu): <span class="val-badge" id="seCalc-n">25</span></label>
+        <input type="range" id="seCalc-nSlider" min="1" max="400" value="25" step="1">
+      </div>
+    </div>
+    <svg id="seChart" width="600" height="240" viewBox="0 0 600 240" style="max-width:100%;"></svg>
+    <div class="stats-row" style="margin-top:12px;">
+      <div class="stat-chip"><span class="name">SE = σ/√n</span><span class="val" id="seResult">2.00</span></div>
+      <div class="stat-chip"><span class="name">Để giảm SE 2× cần n tăng</span><span class="val" id="seDoubleN">4×</span></div>
+    </div>
+  </section>
+
+  <!-- Module 3: Điều kiện CLT -->
+  <section class="module">
+    <h2>3. Khi nào CLT hoạt động?</h2>
+    <table class="three-dist">
+      <tr>
+        <th>Tổng thể</th>
+        <th>μ</th>
+        <th>σ</th>
+        <th>n cần để x̄ gần Normal</th>
+        <th>Lưu ý</th>
+      </tr>
+      <tr>
+        <td>Normal</td>
+        <td>bất kỳ</td>
+        <td>bất kỳ</td>
+        <td><strong>n=1</strong> (đã là Normal)</td>
+        <td>CLT không cần thiết</td>
+      </tr>
+      <tr>
+        <td>Uniform</td>
+        <td>bất kỳ</td>
+        <td>bất kỳ</td>
+        <td><strong>n≥5</strong></td>
+        <td>Hội tụ rất nhanh</td>
+      </tr>
+      <tr>
+        <td>Exponential (lệch phải)</td>
+        <td>1/λ</td>
+        <td>1/λ</td>
+        <td><strong>n≥30</strong></td>
+        <td>Rule of thumb phổ biến</td>
+      </tr>
+      <tr>
+        <td>Bimodal (hai đỉnh)</td>
+        <td>trung bình</td>
+        <td>cao</td>
+        <td><strong>n≥50</strong></td>
+        <td>Phụ thuộc khoảng cách hai đỉnh</td>
+      </tr>
+      <tr>
+        <td>Cauchy</td>
+        <td>Không tồn tại</td>
+        <td>Không tồn tại</td>
+        <td><strong>Không bao giờ</strong></td>
+        <td>CLT không áp dụng</td>
+      </tr>
+    </table>
+    <div class="info-box" style="margin-top:16px;">
+      <strong>Thử nghiệm:</strong> Dùng simulator trên, chọn Exponential rồi kéo n từ 2 → 100. Quan sát histogram của x̄ dần trở nên đối xứng và khớp đường đỏ (Normal dự đoán bởi CLT).
+    </div>
+  </section>
+</main>
+
+<script>
+// ===== Utility functions =====
+function randUniform(a, b) { return a + Math.random()*(b-a); }
+function randExponential(lambda) { return -Math.log(1-Math.random())/lambda; }
+function randNormal(mu, sigma) {
+  let u = 0, v = 0;
+  while(u === 0) u = Math.random();
+  while(v === 0) v = Math.random();
+  return mu + sigma * Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*v);
+}
+function randBimodal() {
+  return Math.random() < 0.5 ? randNormal(3, 0.8) : randNormal(7, 0.8);
+}
+function mean(arr) { return arr.reduce((a,b)=>a+b,0)/arr.length; }
+function std(arr) {
+  const m = mean(arr);
+  return Math.sqrt(arr.reduce((a,b)=>a+(b-m)**2,0)/arr.length);
+}
+function normalPDF(x, mu, sigma) {
+  return Math.exp(-0.5*((x-mu)/sigma)**2) / (sigma*Math.sqrt(2*Math.PI));
+}
+
+// Population parameters
+const popParams = {
+  uniform: { mu: 5, sigma: Math.sqrt(100/12), gen: ()=>randUniform(0,10), min:0, max:10 },
+  exponential: { mu: 1, sigma: 1, gen: ()=>randExponential(1), min:0, max:8 },
+  bimodal: { mu: 5, sigma: Math.sqrt((3-5)**2*0.5+(7-5)**2*0.5+0.64), gen: randBimodal, min:0, max:10 },
+  normal: { mu: 5, sigma: 2, gen: ()=>randNormal(5,2), min:-2, max:12 }
+};
+
+function sampleStat(type, n) {
+  const p = popParams[type];
+  let s = [];
+  for(let i=0;i<n;i++) s.push(p.gen());
+  return mean(s);
+}
+
+function runSimulation() {
+  const type = document.getElementById('popType').value;
+  const n = +document.getElementById('nSlider').value;
+  const nSamples = +document.getElementById('nsamplesSlider').value;
+  const p = popParams[type];
+
+  // Generate sampling distribution
+  const means = [];
+  for(let i=0;i<nSamples;i++) means.push(sampleStat(type, n));
+
+  const obsMean = mean(means);
+  const obsSD = std(means);
+  const seTheory = p.sigma / Math.sqrt(n);
+
+  // Update stats
+  document.getElementById('stat-mu').textContent = p.mu.toFixed(3);
+  document.getElementById('stat-sigma').textContent = p.sigma.toFixed(3);
+  document.getElementById('stat-se-theory').textContent = seTheory.toFixed(4);
+  document.getElementById('stat-se-obs').textContent = obsSD.toFixed(4);
+  document.getElementById('stat-mean-obs').textContent = obsMean.toFixed(4);
+
+  drawPopChart(type);
+  drawSampChart(means, p.mu, seTheory, p.min, p.max, n);
+
+  const ratio = (seTheory/obsSD).toFixed(3);
+  const note = document.getElementById('cltNote');
+  note.style.display = 'block';
+  const goodFit = Math.abs(1 - ratio) < 0.1;
+  note.innerHTML = `<strong>CLT ${goodFit?'✓ hoạt động tốt':'△ hội tụ chậm'}:</strong> SE lý thuyết (${seTheory.toFixed(3)}) / SD quan sát (${obsSD.toFixed(3)}) = ${ratio}. ${goodFit?'Histogram khớp tốt với đường Normal đỏ.':'Tăng n để thấy histogram khớp đường Normal hơn.'}`;
+}
+
+function drawPopChart(type) {
+  const svg = document.getElementById('popChart');
+  const p = popParams[type];
+  const W=320, H=200, PAD={t:10,r:20,b:30,l:40};
+  const cw = W-PAD.l-PAD.r, ch = H-PAD.t-PAD.b;
+
+  // Generate sample of population for histogram
+  const pop = [];
+  for(let i=0;i<3000;i++) pop.push(p.gen());
+
+  const bins = 30;
+  const minV = p.min, maxV = p.max;
+  const bw = (maxV-minV)/bins;
+  const hist = new Array(bins).fill(0);
+  pop.forEach(v => {
+    let b = Math.floor((v-minV)/bw);
+    if(b>=0 && b<bins) hist[b]++;
+  });
+  const maxH = Math.max(...hist);
+
+  let html = `<rect x="0" y="0" width="${W}" height="${H}" fill="#fafafa" rx="6"/>`;
+  // Axes
+  html += `<line x1="${PAD.l}" y1="${PAD.t}" x2="${PAD.l}" y2="${H-PAD.b}" stroke="#cbd5e0"/>`;
+  html += `<line x1="${PAD.l}" y1="${H-PAD.b}" x2="${W-PAD.r}" y2="${H-PAD.b}" stroke="#cbd5e0"/>`;
+
+  // Bars
+  hist.forEach((cnt, i) => {
+    const x = PAD.l + i*(cw/bins);
+    const barH = (cnt/maxH)*ch;
+    html += `<rect x="${x+1}" y="${H-PAD.b-barH}" width="${cw/bins-2}" height="${barH}" fill="#7c3aed" opacity="0.55"/>`;
+  });
+
+  // X labels
+  for(let i=0;i<=5;i++) {
+    const v = minV + i*(maxV-minV)/5;
+    const x = PAD.l + i*cw/5;
+    html += `<text x="${x}" y="${H-PAD.b+14}" text-anchor="middle" font-size="10" fill="#718096">${v.toFixed(0)}</text>`;
+  }
+  // Y label
+  html += `<text x="${PAD.l-6}" y="${PAD.t+4}" text-anchor="end" font-size="10" fill="#718096">freq</text>`;
+
+  svg.innerHTML = html;
+}
+
+function drawSampChart(means, mu, seTheory, popMin, popMax, n) {
+  const svg = document.getElementById('sampChart');
+  const W=320, H=200, PAD={t:10,r:20,b:30,l:40};
+  const cw = W-PAD.l-PAD.r, ch = H-PAD.t-PAD.b;
+
+  // Range for sampling distribution
+  const rangeWidth = Math.max(seTheory*6, (popMax-popMin)*0.5);
+  const minV = mu - rangeWidth/2;
+  const maxV = mu + rangeWidth/2;
+
+  const bins = 40;
+  const bw = (maxV-minV)/bins;
+  const hist = new Array(bins).fill(0);
+  means.forEach(v => {
+    let b = Math.floor((v-minV)/bw);
+    if(b>=0 && b<bins) hist[b]++;
+  });
+  const maxH = Math.max(...hist);
+
+  let html = `<rect x="0" y="0" width="${W}" height="${H}" fill="#fafafa" rx="6"/>`;
+  html += `<line x1="${PAD.l}" y1="${PAD.t}" x2="${PAD.l}" y2="${H-PAD.b}" stroke="#cbd5e0"/>`;
+  html += `<line x1="${PAD.l}" y1="${H-PAD.b}" x2="${W-PAD.r}" y2="${H-PAD.b}" stroke="#cbd5e0"/>`;
+
+  // Histogram bars
+  hist.forEach((cnt, i) => {
+    const x = PAD.l + i*(cw/bins);
+    const barH = (cnt/maxH)*ch*0.9;
+    html += `<rect x="${x+0.5}" y="${H-PAD.b-barH}" width="${cw/bins-1}" height="${barH}" fill="#7c3aed" opacity="0.65"/>`;
+  });
+
+  // Normal curve overlay (CLT prediction)
+  const normalScale = maxH * (bw / 1) * (1 / (seTheory * Math.sqrt(2*Math.PI)));
+  let path = '';
+  for(let px=0; px<=cw; px+=2) {
+    const v = minV + (px/cw)*(maxV-minV);
+    const y = H-PAD.b - normalPDF(v, mu, seTheory) * maxH * bw * ch * 0.9;
+    if(px===0) path += `M${PAD.l+px},${y}`; else path += `L${PAD.l+px},${y}`;
+  }
+  html += `<path d="${path}" fill="none" stroke="#e53e3e" stroke-width="2.5" opacity="0.9"/>`;
+
+  // Vertical line at mu
+  const muX = PAD.l + ((mu-minV)/(maxV-minV))*cw;
+  html += `<line x1="${muX}" y1="${PAD.t}" x2="${muX}" y2="${H-PAD.b}" stroke="#2b6cb0" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.7"/>`;
+  html += `<text x="${muX+4}" y="${PAD.t+14}" font-size="10" fill="#2b6cb0">μ=${mu.toFixed(1)}</text>`;
+
+  // X labels
+  for(let i=0;i<=5;i++) {
+    const v = minV + i*(maxV-minV)/5;
+    const x = PAD.l + i*cw/5;
+    html += `<text x="${x}" y="${H-PAD.b+14}" text-anchor="middle" font-size="10" fill="#718096">${v.toFixed(2)}</text>`;
+  }
+
+  svg.innerHTML = html;
+}
+
+// SE calculator chart
+function drawSEChart() {
+  const sigma = +document.getElementById('seCalc-sigmaSlider').value;
+  const n = +document.getElementById('seCalc-nSlider').value;
+  const se = sigma / Math.sqrt(n);
+
+  document.getElementById('seCalc-sigma').textContent = sigma.toFixed(1);
+  document.getElementById('seCalc-n').textContent = n;
+  document.getElementById('seResult').textContent = se.toFixed(4);
+  document.getElementById('seDoubleN').textContent = (4*n) + ' (n×4)';
+
+  const svg = document.getElementById('seChart');
+  const W=600, H=240, PAD={t:20,r:30,b:40,l:60};
+  const cw = W-PAD.l-PAD.r, ch = H-PAD.t-PAD.b;
+
+  const maxN = 400;
+  const maxSE = sigma;
+
+  let html = `<rect x="0" y="0" width="${W}" height="${H}" fill="#fafafa" rx="6"/>`;
+  // Grid
+  for(let i=0;i<=4;i++) {
+    const y = PAD.t + i*(ch/4);
+    html += `<line x1="${PAD.l}" y1="${y}" x2="${W-PAD.r}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
+    const val = maxSE*(1-i/4);
+    html += `<text x="${PAD.l-6}" y="${y+4}" text-anchor="end" font-size="11" fill="#718096">${val.toFixed(2)}</text>`;
+  }
+  // X axis
+  html += `<line x1="${PAD.l}" y1="${H-PAD.b}" x2="${W-PAD.r}" y2="${H-PAD.b}" stroke="#a0aec0"/>`;
+  html += `<line x1="${PAD.l}" y1="${PAD.t}" x2="${PAD.l}" y2="${H-PAD.b}" stroke="#a0aec0"/>`;
+
+  // SE curve
+  let path = '';
+  for(let ni=1; ni<=maxN; ni+=2) {
+    const seV = sigma/Math.sqrt(ni);
+    const x = PAD.l + (ni/maxN)*cw;
+    const y = H-PAD.b - (seV/maxSE)*ch;
+    if(ni===1) path += `M${x},${y}`; else path += `L${x},${y}`;
+  }
+  html += `<path d="${path}" fill="none" stroke="#7c3aed" stroke-width="2.5"/>`;
+
+  // Current n marker
+  const cx2 = PAD.l + (n/maxN)*cw;
+  const cy2 = H-PAD.b - (se/maxSE)*ch;
+  html += `<circle cx="${cx2}" cy="${cy2}" r="6" fill="#e53e3e" stroke="white" stroke-width="2"/>`;
+  html += `<line x1="${cx2}" y1="${cy2}" x2="${cx2}" y2="${H-PAD.b}" stroke="#e53e3e" stroke-dasharray="3,3" opacity="0.6"/>`;
+
+  // Label at marker
+  const labelX = Math.min(cx2+8, W-PAD.r-80);
+  html += `<text x="${labelX}" y="${cy2-8}" font-size="12" fill="#e53e3e" font-weight="bold">n=${n}, SE=${se.toFixed(3)}</text>`;
+
+  // X labels
+  for(let i=0;i<=8;i++) {
+    const ni = Math.round(i*maxN/8);
+    const x = PAD.l + (ni/maxN)*cw;
+    html += `<text x="${x}" y="${H-PAD.b+16}" text-anchor="middle" font-size="11" fill="#718096">${ni}</text>`;
+  }
+  html += `<text x="${PAD.l+cw/2}" y="${H-2}" text-anchor="middle" font-size="12" fill="#4a5568">n (cỡ mẫu)</text>`;
+  html += `<text x="${PAD.l-50}" y="${PAD.t+ch/2}" text-anchor="middle" font-size="12" fill="#4a5568" transform="rotate(-90,${PAD.l-46},${PAD.t+ch/2})">SE = σ/√n</text>`;
+
+  svg.innerHTML = html;
+}
+
+function resetAll() {
+  document.getElementById('popType').value = 'uniform';
+  document.getElementById('nSlider').value = 30;
+  document.getElementById('nsamplesSlider').value = 500;
+  updateSliderLabels();
+  document.getElementById('popChart').innerHTML = '';
+  document.getElementById('sampChart').innerHTML = '';
+  document.getElementById('cltNote').style.display = 'none';
+  ['stat-mu','stat-sigma','stat-se-theory','stat-se-obs','stat-mean-obs'].forEach(id=>{
+    document.getElementById(id).textContent='—';
+  });
+}
+
+function updateSliderLabels() {
+  document.getElementById('nVal').textContent = document.getElementById('nSlider').value;
+  document.getElementById('nsamplesVal').textContent = document.getElementById('nsamplesSlider').value;
+}
+
+// Bind sliders
+document.getElementById('nSlider').addEventListener('input', updateSliderLabels);
+document.getElementById('nsamplesSlider').addEventListener('input', updateSliderLabels);
+document.getElementById('seCalc-sigmaSlider').addEventListener('input', drawSEChart);
+document.getElementById('seCalc-nSlider').addEventListener('input', drawSEChart);
+
+// Init
+drawSEChart();
+drawPopChart('uniform');
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

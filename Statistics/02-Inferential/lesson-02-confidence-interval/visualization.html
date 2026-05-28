@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02: Confidence Interval — Statistics</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f7f9fc;
+    --accent: #7c3aed;
+    --accent-soft: #ede9fe;
+    --accent-hover: #6d28d9;
+  }
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 28px; font-size: 15px; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+  .module { background: white; border-radius: 10px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 28px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin: 16px 0; padding: 16px; background: #f7f9fc; border-radius: 8px; border: 1px solid #e2e8f0; }
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+  label { font-size: 13px; font-weight: 600; color: #4a5568; }
+  select { padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 6px; background: white; }
+  input[type="range"] { width: 150px; accent-color: var(--accent); }
+  .val-badge { display: inline-block; background: var(--accent-soft); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 13px; font-weight: 700; font-family: monospace; }
+  button { padding: 8px 18px; background: var(--accent); color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  button:hover { background: var(--accent-hover); }
+  button.secondary { background: #e2e8f0; color: #2d3748; }
+  button.secondary:hover { background: #cbd5e0; }
+  .stats-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .stat-chip { background: #edf2f7; padding: 6px 12px; border-radius: 6px; font-family: monospace; font-size: 13px; border-left: 3px solid var(--accent); }
+  .stat-chip .name { color: #718096; font-size: 11px; display: block; }
+  .stat-chip .val { color: #2d3748; font-weight: 700; font-size: 15px; }
+  .info-box { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; color: #2d3748; }
+  svg { display: block; max-width: 100%; }
+  .ci-correct { stroke: #48bb78; fill: none; stroke-width: 2; }
+  .ci-miss { stroke: #e53e3e; fill: none; stroke-width: 2; }
+  .formula-box { background: #1a202c; color: #e2e8f0; padding: 14px 18px; border-radius: 8px; font-family: monospace; font-size: 14px; margin: 14px 0; }
+  @media (max-width: 600px) {
+    .controls { flex-direction: column; align-items: flex-start; }
+    input[type="range"] { width: 100%; max-width: 260px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-sampling-clt/visualization.html">← L01: Sampling & CLT</a>
+  <span class="sep">·</span>
+  <span class="current">L02: Confidence Interval</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-hypothesis-testing-1sample/visualization.html">L03: Hypothesis Testing →</a>
+</nav>
+<main>
+  <h1>Lesson 02: Khoảng tin cậy (Confidence Interval)</h1>
+  <p class="subtitle">Hiểu đúng CI 95%, z-CI, t-CI, và tại sao "95%" không phải xác suất của μ</p>
+
+  <!-- Module 1: CI animation -->
+  <section class="module">
+    <h2>1. Ý nghĩa thật của CI 95% — Mô phỏng 100 CI</h2>
+    <div class="info-box">
+      <strong>Hiểu đúng CI 95%:</strong> Nếu ta lấy 100 mẫu khác nhau và mỗi lần tính một CI, khoảng 95 trong số đó sẽ chứa μ thật. CI đang được vẽ dưới đây — những CI màu đỏ là CI "miss" (không chứa μ).
+    </div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>μ tổng thể: <span class="val-badge" id="ci-mu">50</span></label>
+        <input type="range" id="ci-muSlider" min="20" max="80" value="50" step="1">
+      </div>
+      <div class="ctrl-group">
+        <label>σ (đã biết): <span class="val-badge" id="ci-sigma">10</span></label>
+        <input type="range" id="ci-sigmaSlider" min="2" max="30" value="10" step="1">
+      </div>
+      <div class="ctrl-group">
+        <label>n mỗi mẫu: <span class="val-badge" id="ci-n">36</span></label>
+        <input type="range" id="ci-nSlider" min="4" max="200" value="36" step="1">
+      </div>
+      <div class="ctrl-group">
+        <label>Mức tin cậy</label>
+        <select id="ci-conf">
+          <option value="0.90">90%</option>
+          <option value="0.95" selected>95%</option>
+          <option value="0.99">99%</option>
+        </select>
+      </div>
+      <button onclick="runCISimulation()">Chạy 100 CI</button>
+    </div>
+    <svg id="ciChart" width="700" height="420" viewBox="0 0 700 420"></svg>
+    <div class="stats-row" id="ciStats"></div>
+  </section>
+
+  <!-- Module 2: CI Calculator -->
+  <section class="module">
+    <h2>2. Tính CI tương tác</h2>
+    <div class="info-box">Nhập dữ liệu và xem CI được tính trực tiếp. Chọn z-CI (σ biết) hoặc t-CI (σ không biết).</div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Loại CI</label>
+        <select id="calc-type" onchange="updateCalc()">
+          <option value="z">z-CI (σ đã biết)</option>
+          <option value="t">t-CI (σ không biết)</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label>x̄ (mean mẫu): <span class="val-badge" id="calc-xbar-v">50</span></label>
+        <input type="range" id="calc-xbar" min="0" max="100" value="50" step="0.5" oninput="updateCalc()">
+      </div>
+      <div class="ctrl-group">
+        <label id="calc-spread-label">σ (đã biết): <span class="val-badge" id="calc-spread-v">12</span></label>
+        <input type="range" id="calc-spread" min="1" max="40" value="12" step="0.5" oninput="updateCalc()">
+      </div>
+      <div class="ctrl-group">
+        <label>n: <span class="val-badge" id="calc-n-v">25</span></label>
+        <input type="range" id="calc-n" min="2" max="200" value="25" step="1" oninput="updateCalc()">
+      </div>
+      <div class="ctrl-group">
+        <label>Mức tin cậy</label>
+        <select id="calc-conf" onchange="updateCalc()">
+          <option value="0.90">90%</option>
+          <option value="0.95" selected>95%</option>
+          <option value="0.99">99%</option>
+        </select>
+      </div>
+    </div>
+    <svg id="calcChart" width="600" height="220" viewBox="0 0 600 220"></svg>
+    <div class="stats-row" id="calcStats"></div>
+    <div class="formula-box" id="calcFormula"></div>
+  </section>
+
+  <!-- Module 3: CI vs Confidence Level -->
+  <section class="module">
+    <h2>3. Trade-off: Confidence ↔ Width</h2>
+    <div class="info-box">Tăng confidence level → CI rộng hơn. Tăng n → CI hẹp hơn. Kéo slider để trực quan hóa.</div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>σ: <span class="val-badge" id="tradeoff-sigma">15</span></label>
+        <input type="range" id="tradeoff-sigmaSlider" min="1" max="40" value="15" step="0.5" oninput="drawTradeoff()">
+      </div>
+      <div class="ctrl-group">
+        <label>x̄: <span class="val-badge" id="tradeoff-xbar">100</span></label>
+        <input type="range" id="tradeoff-xbarSlider" min="50" max="150" value="100" step="1" oninput="drawTradeoff()">
+      </div>
+      <div class="ctrl-group">
+        <label>n: <span class="val-badge" id="tradeoff-n">30</span></label>
+        <input type="range" id="tradeoff-nSlider" min="4" max="400" value="30" step="1" oninput="drawTradeoff()">
+      </div>
+    </div>
+    <svg id="tradeoffChart" width="600" height="200" viewBox="0 0 600 200"></svg>
+  </section>
+</main>
+
+<script>
+// === Critical values ===
+const zStar = { '0.90': 1.645, '0.95': 1.960, '0.99': 2.576 };
+
+function tStar(df, conf) {
+  // Approximate t* using Wilson-Hilferty
+  const alpha = 1 - conf;
+  const p = 1 - alpha/2;
+  // Better approximation for common cases
+  const tTable = {
+    '0.90': [3.078,1.886,1.638,1.533,1.476,1.440,1.415,1.397,1.383,1.372,1.363,1.356,1.350,1.345,1.341,1.337,1.333,1.330,1.328,1.325,1.323,1.321,1.319,1.318,1.316,1.315,1.314,1.313,1.311,1.310],
+    '0.95': [12.706,4.303,3.182,2.776,2.571,2.447,2.365,2.306,2.262,2.228,2.201,2.179,2.160,2.145,2.131,2.120,2.110,2.101,2.093,2.086,2.080,2.074,2.069,2.064,2.060,2.056,2.052,2.048,2.045,2.042],
+    '0.99': [63.657,9.925,5.841,4.604,4.032,3.707,3.499,3.355,3.250,3.169,3.106,3.055,3.012,2.977,2.947,2.921,2.898,2.878,2.861,2.845,2.831,2.819,2.807,2.797,2.787,2.779,2.771,2.763,2.756,2.750]
+  };
+  const confKey = conf.toString();
+  const tbl = tTable[confKey] || tTable['0.95'];
+  if(df >= 1 && df <= 30) return tbl[df-1];
+  if(df > 30 && df <= 100) return zStar[confKey] + (tbl[29]-zStar[confKey])*(100-df)/70;
+  return zStar[confKey];
+}
+
+function normalRand(mu, sigma) {
+  let u,v;
+  do{u=Math.random();}while(u===0);
+  do{v=Math.random();}while(v===0);
+  return mu + sigma * Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+}
+function mean(arr){ return arr.reduce((a,b)=>a+b,0)/arr.length; }
+function sampleSD(arr){
+  const m=mean(arr);
+  return Math.sqrt(arr.reduce((a,b)=>a+(b-m)**2,0)/(arr.length-1));
+}
+
+// Module 1: CI simulation
+function runCISimulation() {
+  const mu = +document.getElementById('ci-muSlider').value;
+  const sigma = +document.getElementById('ci-sigmaSlider').value;
+  const n = +document.getElementById('ci-nSlider').value;
+  const conf = document.getElementById('ci-conf').value;
+  const z = zStar[conf];
+  const N = 100;
+
+  const cis = [];
+  for(let i=0;i<N;i++) {
+    let s = [];
+    for(let j=0;j<n;j++) s.push(normalRand(mu, sigma));
+    const xbar = mean(s);
+    const se = sigma/Math.sqrt(n);
+    const lo = xbar - z*se, hi = xbar + z*se;
+    cis.push({lo, hi, xbar, hits: lo<=mu && mu<=hi});
+  }
+
+  const hits = cis.filter(c=>c.hits).length;
+  drawCIChart(cis, mu, sigma, n, conf);
+  document.getElementById('ciStats').innerHTML = `
+    <div class="stat-chip"><span class="name">CI chứa μ</span><span class="val" style="color:#48bb78;">${hits}/100</span></div>
+    <div class="stat-chip"><span class="name">CI miss μ</span><span class="val" style="color:#e53e3e;">${100-hits}/100</span></div>
+    <div class="stat-chip"><span class="name">SE = σ/√n</span><span class="val">${(sigma/Math.sqrt(n)).toFixed(3)}</span></div>
+    <div class="stat-chip"><span class="name">Margin of Error</span><span class="val">${(z*sigma/Math.sqrt(n)).toFixed(3)}</span></div>
+  `;
+}
+
+function drawCIChart(cis, mu, sigma, n, conf) {
+  const svg = document.getElementById('ciChart');
+  const W=700, H=420, PAD={t:20,r:30,b:30,l:50};
+  const cw=W-PAD.l-PAD.r, ch=H-PAD.t-PAD.b;
+
+  const se = sigma/Math.sqrt(n);
+  const z = zStar[conf];
+  const range = Math.max(sigma*2, z*se*3);
+  const minV = mu-range, maxV = mu+range;
+  const scale = (v) => PAD.l + ((v-minV)/(maxV-minV))*cw;
+
+  let html = `<rect x="0" y="0" width="${W}" height="${H}" fill="#fafafa" rx="6"/>`;
+
+  // Draw 100 CI as horizontal lines
+  const lineH = ch/100;
+  cis.forEach((ci, i) => {
+    const y = PAD.t + i*(ch/100) + lineH/2;
+    const color = ci.hits ? '#48bb78' : '#e53e3e';
+    const opacity = ci.hits ? '0.7' : '1.0';
+    const x1 = scale(ci.lo), x2 = scale(ci.hi);
+    html += `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${color}" stroke-width="${Math.max(1.5,lineH*0.7)}" opacity="${opacity}"/>`;
+    // dot at mean
+    html += `<circle cx="${scale(ci.xbar)}" cy="${y}" r="1.5" fill="${color}" opacity="${opacity}"/>`;
+  });
+
+  // True mu vertical line
+  const muX = scale(mu);
+  html += `<line x1="${muX}" y1="${PAD.t}" x2="${muX}" y2="${H-PAD.b}" stroke="#2b6cb0" stroke-width="2" opacity="0.9"/>`;
+  html += `<text x="${muX+4}" y="${PAD.t+14}" font-size="12" fill="#2b6cb0" font-weight="bold">μ=${mu}</text>`;
+
+  // x-axis labels
+  for(let i=0;i<=6;i++) {
+    const v = minV + i*(maxV-minV)/6;
+    html += `<text x="${scale(v)}" y="${H-PAD.b+15}" text-anchor="middle" font-size="10" fill="#718096">${v.toFixed(1)}</text>`;
+  }
+
+  svg.innerHTML = html;
+}
+
+// Module 2: CI calculator
+function updateCalc() {
+  const type = document.getElementById('calc-type').value;
+  const xbar = +document.getElementById('calc-xbar').value;
+  const spread = +document.getElementById('calc-spread').value;
+  const n = +document.getElementById('calc-n').value;
+  const conf = +document.getElementById('calc-conf').value;
+
+  document.getElementById('calc-xbar-v').textContent = xbar.toFixed(1);
+  document.getElementById('calc-spread-v').textContent = spread.toFixed(1);
+  document.getElementById('calc-n-v').textContent = n;
+  document.getElementById('calc-spread-label').innerHTML = `${type==='z'?'σ (đã biết)':'s (SD mẫu)'}: <span class="val-badge" id="calc-spread-v2">${spread.toFixed(1)}</span>`;
+
+  const se = spread/Math.sqrt(n);
+  let cv, df;
+  if(type==='z') {
+    cv = zStar[conf.toString()];
+    df = null;
+  } else {
+    df = n-1;
+    cv = tStar(df, conf);
+  }
+  const me = cv*se;
+  const lo = xbar-me, hi = xbar+me;
+
+  document.getElementById('calcStats').innerHTML = `
+    <div class="stat-chip"><span class="name">SE</span><span class="val">${se.toFixed(4)}</span></div>
+    <div class="stat-chip"><span class="name">${type==='z'?'z*':'t* (df='+df+')'}</span><span class="val">${cv.toFixed(3)}</span></div>
+    <div class="stat-chip"><span class="name">Margin of Error</span><span class="val">${me.toFixed(4)}</span></div>
+    <div class="stat-chip"><span class="name">${conf*100}% CI</span><span class="val">[${lo.toFixed(3)}, ${hi.toFixed(3)}]</span></div>
+    <div class="stat-chip"><span class="name">Width</span><span class="val">${(2*me).toFixed(4)}</span></div>
+  `;
+
+  const label = type==='z' ? 'z* × (σ/√n)' : `t*(${df}) × (s/√n)`;
+  document.getElementById('calcFormula').innerHTML = `CI = x̄ ± ${label}\n   = ${xbar} ± ${cv.toFixed(3)} × ${se.toFixed(4)}\n   = ${xbar} ± ${me.toFixed(4)}\n   = [${lo.toFixed(3)}, ${hi.toFixed(3)}]`;
+
+  drawCalcChart(xbar, lo, hi, se, conf, type, cv, n);
+}
+
+function drawCalcChart(xbar, lo, hi, se, conf, type, cv, n) {
+  const svg = document.getElementById('calcChart');
+  const W=600, H=220, PAD={t:30,r:40,b:50,l:40};
+  const cw=W-PAD.l-PAD.r, ch=H-PAD.t-PAD.b;
+
+  const range = (hi-lo)*2.5;
+  const minV = xbar-range/2, maxV = xbar+range/2;
+  const sx = (v) => PAD.l + ((v-minV)/(maxV-minV))*cw;
+
+  function normalPDF(x) {
+    const sig = se;
+    return Math.exp(-0.5*((x-xbar)/sig)**2) / (sig*Math.sqrt(2*Math.PI));
+  }
+
+  let html = `<rect x="0" y="0" width="${W}" height="${H}" fill="#fafafa" rx="6"/>`;
+
+  // Filled CI region
+  let fillPath = `M${sx(lo)},${H-PAD.b}`;
+  for(let px=0; px<=cw; px+=2) {
+    const v = minV + (px/cw)*(maxV-minV);
+    if(v<lo || v>hi) continue;
+    const y = H-PAD.b - (normalPDF(v)/(normalPDF(xbar)))*ch*0.85;
+    fillPath += `L${sx(v)},${y}`;
+  }
+  fillPath += `L${sx(hi)},${H-PAD.b}Z`;
+  html += `<path d="${fillPath}" fill="#7c3aed" opacity="0.2"/>`;
+
+  // Normal curve
+  let path = '';
+  for(let px=0; px<=cw; px+=2) {
+    const v = minV + (px/cw)*(maxV-minV);
+    const y = H-PAD.b - (normalPDF(v)/(normalPDF(xbar)))*ch*0.85;
+    if(px===0) path+=`M${sx(v)},${y}`; else path+=`L${sx(v)},${y}`;
+  }
+  html += `<path d="${path}" fill="none" stroke="#7c3aed" stroke-width="2.5"/>`;
+
+  // CI brackets
+  html += `<line x1="${sx(lo)}" y1="${H-PAD.b+8}" x2="${sx(hi)}" y2="${H-PAD.b+8}" stroke="#e53e3e" stroke-width="3"/>`;
+  html += `<line x1="${sx(lo)}" y1="${H-PAD.b+3}" x2="${sx(lo)}" y2="${H-PAD.b+13}" stroke="#e53e3e" stroke-width="2.5"/>`;
+  html += `<line x1="${sx(hi)}" y1="${H-PAD.b+3}" x2="${sx(hi)}" y2="${H-PAD.b+13}" stroke="#e53e3e" stroke-width="2.5"/>`;
+
+  // xbar marker
+  html += `<line x1="${sx(xbar)}" y1="${PAD.t}" x2="${sx(xbar)}" y2="${H-PAD.b}" stroke="#2b6cb0" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+  html += `<text x="${sx(xbar)}" y="${PAD.t-4}" text-anchor="middle" font-size="11" fill="#2b6cb0">x̄=${xbar}</text>`;
+
+  // Labels on CI line
+  html += `<text x="${sx(lo)}" y="${H-PAD.b+26}" text-anchor="middle" font-size="11" fill="#e53e3e">${lo.toFixed(2)}</text>`;
+  html += `<text x="${sx(hi)}" y="${H-PAD.b+26}" text-anchor="middle" font-size="11" fill="#e53e3e">${hi.toFixed(2)}</text>`;
+  html += `<text x="${sx(xbar)}" y="${H-PAD.b+26}" text-anchor="middle" font-size="10" fill="#4a5568">${conf*100}% CI</text>`;
+
+  // baseline
+  html += `<line x1="${PAD.l}" y1="${H-PAD.b}" x2="${W-PAD.r}" y2="${H-PAD.b}" stroke="#a0aec0"/>`;
+
+  svg.innerHTML = html;
+}
+
+// Module 3: Tradeoff
+function drawTradeoff() {
+  const sigma = +document.getElementById('tradeoff-sigmaSlider').value;
+  const xbar = +document.getElementById('tradeoff-xbarSlider').value;
+  const n = +document.getElementById('tradeoff-nSlider').value;
+
+  document.getElementById('tradeoff-sigma').textContent = sigma.toFixed(1);
+  document.getElementById('tradeoff-xbar').textContent = xbar;
+  document.getElementById('tradeoff-n').textContent = n;
+
+  const svg = document.getElementById('tradeoffChart');
+  const W=600, H=200, PAD={t:20,r:30,b:50,l:60};
+  const cw=W-PAD.l-PAD.r, ch=H-PAD.t-PAD.b;
+
+  const se = sigma/Math.sqrt(n);
+  const confs = ['0.90','0.95','0.99'];
+  const labels = ['90%','95%','99%'];
+  const colors = ['#38a169','#7c3aed','#e53e3e'];
+
+  const maxME = zStar['0.99']*se*1.4;
+  const minV = xbar-maxME, maxV = xbar+maxME;
+  const sx = (v) => PAD.l + ((v-minV)/(maxV-minV))*cw;
+  const rowH = ch/3;
+
+  let html = `<rect x="0" y="0" width="${W}" height="${H}" fill="#fafafa" rx="6"/>`;
+  html += `<line x1="${PAD.l}" y1="${H-PAD.b}" x2="${W-PAD.r}" y2="${H-PAD.b}" stroke="#a0aec0"/>`;
+
+  confs.forEach((conf, i) => {
+    const z = zStar[conf];
+    const me = z*se;
+    const lo = xbar-me, hi = xbar+me;
+    const y = PAD.t + i*rowH + rowH/2;
+    const color = colors[i];
+
+    html += `<line x1="${sx(lo)}" y1="${y}" x2="${sx(hi)}" y2="${y}" stroke="${color}" stroke-width="8" opacity="0.4"/>`;
+    html += `<line x1="${sx(lo)}" y1="${y-8}" x2="${sx(lo)}" y2="${y+8}" stroke="${color}" stroke-width="2.5"/>`;
+    html += `<line x1="${sx(hi)}" y1="${y-8}" x2="${sx(hi)}" y2="${y+8}" stroke="${color}" stroke-width="2.5"/>`;
+    html += `<circle cx="${sx(xbar)}" cy="${y}" r="4" fill="${color}"/>`;
+    html += `<text x="${PAD.l-6}" y="${y+4}" text-anchor="end" font-size="12" fill="${color}" font-weight="600">${labels[i]}</text>`;
+    html += `<text x="${sx(hi)+6}" y="${y+4}" font-size="11" fill="${color}">width=${(2*me).toFixed(2)}</text>`;
+  });
+
+  // Vertical line at xbar
+  html += `<line x1="${sx(xbar)}" y1="${PAD.t}" x2="${sx(xbar)}" y2="${H-PAD.b}" stroke="#2b6cb0" stroke-dasharray="4,3" opacity="0.6"/>`;
+  html += `<text x="${sx(xbar)}" y="${H-PAD.b+16}" text-anchor="middle" font-size="11" fill="#2b6cb0">x̄=${xbar}</text>`;
+
+  // x-axis labels
+  for(let i=0;i<=5;i++) {
+    const v = minV + i*(maxV-minV)/5;
+    html += `<text x="${sx(v)}" y="${H-PAD.b+16}" text-anchor="middle" font-size="10" fill="#718096">${v.toFixed(1)}</text>`;
+  }
+
+  svg.innerHTML = html;
+}
+
+// Initialize
+document.getElementById('ci-muSlider').addEventListener('input',()=>{
+  document.getElementById('ci-mu').textContent=document.getElementById('ci-muSlider').value;
+});
+document.getElementById('ci-sigmaSlider').addEventListener('input',()=>{
+  document.getElementById('ci-sigma').textContent=document.getElementById('ci-sigmaSlider').value;
+});
+document.getElementById('ci-nSlider').addEventListener('input',()=>{
+  document.getElementById('ci-n').textContent=document.getElementById('ci-nSlider').value;
+});
+
+updateCalc();
+drawTradeoff();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

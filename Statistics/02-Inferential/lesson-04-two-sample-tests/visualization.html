@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04: Two-Sample Tests — Statistics</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root { --bg: #f7f9fc; --accent: #7c3aed; --accent-soft: #ede9fe; --accent-hover: #6d28d9; }
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 28px; font-size: 15px; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+  .module { background: white; border-radius: 10px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 28px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin: 16px 0; padding: 16px; background: #f7f9fc; border-radius: 8px; border: 1px solid #e2e8f0; }
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+  label { font-size: 13px; font-weight: 600; color: #4a5568; }
+  select { padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 6px; background: white; }
+  input[type="range"] { width: 130px; accent-color: var(--accent); }
+  .val-badge { display: inline-block; background: var(--accent-soft); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 13px; font-weight: 700; font-family: monospace; }
+  .stats-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .stat-chip { background: #edf2f7; padding: 6px 12px; border-radius: 6px; font-family: monospace; font-size: 13px; border-left: 3px solid var(--accent); }
+  .stat-chip .name { color: #718096; font-size: 11px; display: block; }
+  .stat-chip .val { color: #2d3748; font-weight: 700; font-size: 15px; }
+  .info-box { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; }
+  svg { display: block; max-width: 100%; }
+  .verdict { padding: 14px 18px; border-radius: 8px; font-size: 15px; font-weight: 600; margin-top: 14px; text-align: center; }
+  .verdict.reject { background: #fff5f5; color: #c53030; border: 2px solid #fc8181; }
+  .verdict.fail { background: #f0fff4; color: #276749; border: 2px solid #68d391; }
+  .group-label { font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+  .col2 { display: flex; gap: 20px; flex-wrap: wrap; }
+  .col2 > div { flex: 1; min-width: 220px; }
+  @media (max-width: 600px) {
+    .controls { flex-direction: column; align-items: flex-start; }
+    input[type="range"] { width: 100%; max-width: 240px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-hypothesis-testing-1sample/visualization.html">← L03: 1-Sample Test</a>
+  <span class="sep">·</span>
+  <span class="current">L04: Two-Sample Tests</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-anova-chisquare/visualization.html">L05: ANOVA & χ² →</a>
+</nav>
+<main>
+  <h1>Lesson 04: Kiểm định 2 mẫu</h1>
+  <p class="subtitle">Independent t-test (Welch), Paired t-test — A/B testing tương tác</p>
+
+  <!-- Module 1: Independent Two-Sample Test -->
+  <section class="module">
+    <h2>1. Independent Two-Sample T-Test (Welch)</h2>
+    <div class="info-box">Điều chỉnh mean và SD của hai nhóm. Welch's t tự động xử lý variance không bằng nhau.</div>
+    <div class="controls">
+      <div>
+        <div class="group-label" style="color:#7c3aed;">Nhóm A (Control)</div>
+        <div class="ctrl-group">
+          <label>x̄₁: <span class="val-badge" id="m1-v">70</span></label>
+          <input type="range" id="m1" min="30" max="120" value="70" step="0.5" oninput="updateIndep()">
+        </div>
+        <div class="ctrl-group">
+          <label>s₁: <span class="val-badge" id="s1-v">12</span></label>
+          <input type="range" id="s1" min="1" max="40" value="12" step="0.5" oninput="updateIndep()">
+        </div>
+        <div class="ctrl-group">
+          <label>n₁: <span class="val-badge" id="n1-v">30</span></label>
+          <input type="range" id="n1" min="2" max="200" value="30" step="1" oninput="updateIndep()">
+        </div>
+      </div>
+      <div>
+        <div class="group-label" style="color:#e53e3e;">Nhóm B (Treatment)</div>
+        <div class="ctrl-group">
+          <label>x̄₂: <span class="val-badge" id="m2-v">76</span></label>
+          <input type="range" id="m2" min="30" max="120" value="76" step="0.5" oninput="updateIndep()">
+        </div>
+        <div class="ctrl-group">
+          <label>s₂: <span class="val-badge" id="s2-v">14</span></label>
+          <input type="range" id="s2" min="1" max="40" value="14" step="0.5" oninput="updateIndep()">
+        </div>
+        <div class="ctrl-group">
+          <label>n₂: <span class="val-badge" id="n2-v">30</span></label>
+          <input type="range" id="n2" min="2" max="200" value="30" step="1" oninput="updateIndep()">
+        </div>
+      </div>
+      <div class="ctrl-group">
+        <label>H₁</label>
+        <select id="h1-indep" onchange="updateIndep()">
+          <option value="two">μ₁ ≠ μ₂</option>
+          <option value="right">μ₁ > μ₂</option>
+          <option value="left">μ₁ &lt; μ₂</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label>α</label>
+        <select id="alpha-indep" onchange="updateIndep()">
+          <option value="0.10">0.10</option>
+          <option value="0.05" selected>0.05</option>
+          <option value="0.01">0.01</option>
+        </select>
+      </div>
+    </div>
+    <svg id="indepChart" width="620" height="260" viewBox="0 0 620 260"></svg>
+    <div class="stats-row" id="indepStats"></div>
+    <div id="indepVerdict"></div>
+  </section>
+
+  <!-- Module 2: Paired t-test -->
+  <section class="module">
+    <h2>2. Paired T-Test (Before/After)</h2>
+    <div class="info-box">
+      Nhập dữ liệu before/after cho 8 người. Xem sự khác biệt giữa paired và independent test khi variance giữa cá thể lớn.
+    </div>
+    <div class="controls" style="align-items: flex-start;">
+      <div>
+        <p style="font-size:13px;font-weight:600;color:#4a5568;margin:0 0 8px;">Nhập dữ liệu (8 người)</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div>
+            <label style="font-size:12px;color:#7c3aed;">Trước (Before)</label>
+            <input type="text" id="before-data" value="75,82,68,90,71,85,78,95" style="width:100%;padding:6px;border:1px solid #cbd5e0;border-radius:6px;font-size:13px;" oninput="updatePaired()">
+          </div>
+          <div>
+            <label style="font-size:12px;color:#e53e3e;">Sau (After)</label>
+            <input type="text" id="after-data" value="73,79,66,86,70,81,75,92" style="width:100%;padding:6px;border:1px solid #cbd5e0;border-radius:6px;font-size:13px;" oninput="updatePaired()">
+          </div>
+        </div>
+      </div>
+      <div class="ctrl-group">
+        <label>α</label>
+        <select id="alpha-paired" onchange="updatePaired()">
+          <option value="0.10">0.10</option>
+          <option value="0.05" selected>0.05</option>
+          <option value="0.01">0.01</option>
+        </select>
+      </div>
+    </div>
+    <svg id="pairedChart" width="620" height="260" viewBox="0 0 620 260"></svg>
+    <div class="stats-row" id="pairedStats"></div>
+    <div id="pairedVerdict"></div>
+    <div class="info-box" id="pairedVsIndep" style="margin-top:14px;"></div>
+  </section>
+</main>
+
+<script>
+function Phi(z) {
+  const t=1/(1+0.2316419*Math.abs(z));
+  const poly=t*(0.319381530+t*(-0.356563782+t*(1.781477937+t*(-1.821255978+t*1.330274429))));
+  const pdf=Math.exp(-0.5*z*z)/Math.sqrt(2*Math.PI);
+  let p=1-pdf*poly;
+  return z<0?1-p:p;
+}
+function pFromZ(z, tail) {
+  if(tail==='two') return 2*(1-Phi(Math.abs(z)));
+  if(tail==='right') return 1-Phi(z);
+  return Phi(z);
+}
+function normalPDF(x, mu, sigma) {
+  return Math.exp(-0.5*((x-mu)/sigma)**2)/(sigma*Math.sqrt(2*Math.PI));
+}
+function mean(arr){ return arr.reduce((a,b)=>a+b,0)/arr.length; }
+function sSD(arr) {
+  const m=mean(arr);
+  return Math.sqrt(arr.reduce((a,b)=>a+(b-m)**2,0)/Math.max(1,arr.length-1));
+}
+
+// Approximate t crit
+function tCritApprox(df, alpha, tail) {
+  const z = {'0.10':{'two':1.645,'right':1.282,'left':-1.282},'0.05':{'two':1.960,'right':1.645,'left':-1.645},'0.01':{'two':2.576,'right':2.326,'left':-2.326}};
+  const zc = z[alpha][tail];
+  if(df>100) return zc;
+  return Math.sign(zc)*Math.abs(zc)*(1+2/df);
+}
+
+function welchTest(m1, s1, n1, m2, s2, n2, tail) {
+  const se2 = s1*s1/n1 + s2*s2/n2;
+  const se = Math.sqrt(se2);
+  const t = (m1-m2)/se;
+  const df = se2*se2 / ((s1*s1/n1)**2/(n1-1) + (s2*s2/n2)**2/(n2-1));
+  const p = pFromZ(t*(df>100?1:1+1/df), tail);
+  return {t, df: Math.round(df), se, p};
+}
+
+function updateIndep() {
+  const m1v = +document.getElementById('m1').value;
+  const s1v = +document.getElementById('s1').value;
+  const n1v = +document.getElementById('n1').value;
+  const m2v = +document.getElementById('m2').value;
+  const s2v = +document.getElementById('s2').value;
+  const n2v = +document.getElementById('n2').value;
+  const tail = document.getElementById('h1-indep').value;
+  const alpha = document.getElementById('alpha-indep').value;
+
+  document.getElementById('m1-v').textContent = m1v.toFixed(1);
+  document.getElementById('s1-v').textContent = s1v.toFixed(1);
+  document.getElementById('n1-v').textContent = n1v;
+  document.getElementById('m2-v').textContent = m2v.toFixed(1);
+  document.getElementById('s2-v').textContent = s2v.toFixed(1);
+  document.getElementById('n2-v').textContent = n2v;
+
+  const r = welchTest(m1v, s1v, n1v, m2v, s2v, n2v, tail);
+  const reject = r.p < +alpha;
+
+  const cv = tCritApprox(r.df, alpha, tail);
+  drawIndepChart(m1v, s1v, n1v, m2v, s2v, n2v, r, alpha, cv, tail);
+
+  document.getElementById('indepStats').innerHTML = `
+    <div class="stat-chip"><span class="name">x̄₁ - x̄₂</span><span class="val">${(m1v-m2v).toFixed(2)}</span></div>
+    <div class="stat-chip"><span class="name">SE_welch</span><span class="val">${r.se.toFixed(4)}</span></div>
+    <div class="stat-chip"><span class="name">t (Welch)</span><span class="val">${r.t.toFixed(4)}</span></div>
+    <div class="stat-chip"><span class="name">df (approx)</span><span class="val">${r.df}</span></div>
+    <div class="stat-chip"><span class="name">p-value</span><span class="val" style="color:${reject?'#e53e3e':'#48bb78'}">${r.p<0.001?'<0.001':r.p.toFixed(4)}</span></div>
+  `;
+  document.getElementById('indepVerdict').innerHTML = `<div class="verdict ${reject?'reject':'fail'}">${reject?`Reject H₀: p=${r.p.toFixed(4)} < α=${alpha}. Hai nhóm có mean khác nhau.`:`Fail to reject H₀: p=${r.p.toFixed(4)} ≥ α=${alpha}. Chưa đủ bằng chứng.`}</div>`;
+}
+
+function drawIndepChart(m1v, s1v, n1v, m2v, s2v, n2v, r, alpha, cv, tail) {
+  const svg = document.getElementById('indepChart');
+  const W=620, H=260, PAD={t:40,r:30,b:40,l:40};
+  const cw=W-PAD.l-PAD.r, ch=H-PAD.t-PAD.b;
+
+  const se1 = s1v/Math.sqrt(n1v), se2 = s2v/Math.sqrt(n2v);
+  const minV = Math.min(m1v,m2v)-4*Math.max(se1,se2);
+  const maxV = Math.max(m1v,m2v)+4*Math.max(se1,se2);
+  const sx = v => PAD.l + ((v-minV)/(maxV-minV))*cw;
+
+  const maxPdf = Math.max(normalPDF(m1v,m1v,se1), normalPDF(m2v,m2v,se2));
+
+  let html = `<rect x="0" y="0" width="${W}" height="${H}" fill="#fafafa" rx="6"/>`;
+  html += `<line x1="${PAD.l}" y1="${H-PAD.b}" x2="${W-PAD.r}" y2="${H-PAD.b}" stroke="#a0aec0"/>`;
+
+  // Draw two distributions
+  [[m1v,se1,'#7c3aed','A'],[m2v,se2,'#e53e3e','B']].forEach(([m,se,color,lbl])=>{
+    let path='';
+    for(let px=0;px<=cw;px+=2) {
+      const v=minV+(px/cw)*(maxV-minV);
+      const y=H-PAD.b-(normalPDF(v,m,se)/maxPdf)*ch*0.85;
+      if(px===0)path+=`M${PAD.l+px},${y}`;else path+=`L${PAD.l+px},${y}`;
+    }
+    html+=`<path d="${path}" fill="none" stroke="${color}" stroke-width="2.5" opacity="0.9"/>`;
+    const peakY=H-PAD.b-ch*0.85;
+    html+=`<line x1="${sx(m)}" y1="${peakY+10}" x2="${sx(m)}" y2="${H-PAD.b}" stroke="${color}" stroke-dasharray="4,3" opacity="0.6"/>`;
+    html+=`<text x="${sx(m)}" y="${peakY}" text-anchor="middle" font-size="12" fill="${color}" font-weight="bold">x̄${lbl}=${m.toFixed(1)}</text>`;
+  });
+
+  // Difference arrow
+  const midY = H-PAD.b-ch*0.25;
+  if(sx(m2v)>sx(m1v)+20) {
+    html+=`<line x1="${sx(m1v)}" y1="${midY}" x2="${sx(m2v)}" y2="${midY}" stroke="#2b6cb0" stroke-width="2" marker-end="url(#arr)"/>`;
+    html+=`<text x="${(sx(m1v)+sx(m2v))/2}" y="${midY-6}" text-anchor="middle" font-size="12" fill="#2b6cb0">Δ=${(m2v-m1v).toFixed(1)}</text>`;
+  }
+
+  // x labels
+  for(let i=0;i<=6;i++) {
+    const v=minV+i*(maxV-minV)/6;
+    html+=`<text x="${sx(v)}" y="${H-PAD.b+14}" text-anchor="middle" font-size="10" fill="#718096">${v.toFixed(0)}</text>`;
+  }
+
+  svg.innerHTML = html;
+}
+
+function updatePaired() {
+  try {
+    const before = document.getElementById('before-data').value.split(',').map(Number).filter(v=>!isNaN(v));
+    const after = document.getElementById('after-data').value.split(',').map(Number).filter(v=>!isNaN(v));
+    const alpha = document.getElementById('alpha-paired').value;
+
+    if(before.length<2 || after.length<2 || before.length!==after.length) {
+      document.getElementById('pairedStats').innerHTML = '<div class="stat-chip"><span class="name">Lỗi</span><span class="val">Cần cùng số quan sát ≥ 2</span></div>';
+      return;
+    }
+    const n = before.length;
+    const diffs = before.map((b,i)=>b-after[i]);
+    const dbar = mean(diffs);
+    const sd = sSD(diffs);
+    const se = sd/Math.sqrt(n);
+    const t = dbar/se;
+    const df = n-1;
+    const p = pFromZ(t*(df>100?1:1+1/df), 'two');
+    const reject = p < +alpha;
+
+    // Also compute independent t
+    const mb = mean(before), ma = mean(after);
+    const sb = sSD(before), sa = sSD(after);
+    const ri = welchTest(mb, sb, n, ma, sa, n, 'two');
+
+    drawPairedChart(before, after, diffs, dbar, se, t, alpha, reject);
+
+    document.getElementById('pairedStats').innerHTML = `
+      <div class="stat-chip"><span class="name">d̄ (mean diff)</span><span class="val">${dbar.toFixed(4)}</span></div>
+      <div class="stat-chip"><span class="name">sᵈ</span><span class="val">${sd.toFixed(4)}</span></div>
+      <div class="stat-chip"><span class="name">SE = sᵈ/√n</span><span class="val">${se.toFixed(4)}</span></div>
+      <div class="stat-chip"><span class="name">t (paired)</span><span class="val">${t.toFixed(4)}</span></div>
+      <div class="stat-chip"><span class="name">p-value (paired)</span><span class="val" style="color:${reject?'#e53e3e':'#48bb78'}">${p<0.001?'<0.001':p.toFixed(4)}</span></div>
+    `;
+    document.getElementById('pairedVerdict').innerHTML = `<div class="verdict ${reject?'reject':'fail'}">${reject?`Reject H₀ (paired): p=${p.toFixed(4)} < α=${alpha}. Sự thay đổi có ý nghĩa.`:`Fail to reject H₀ (paired): p=${p.toFixed(4)} ≥ α=${alpha}.`}</div>`;
+
+    const riReject = ri.p < +alpha;
+    document.getElementById('pairedVsIndep').innerHTML = `
+      <strong>So sánh Paired vs Independent:</strong><br>
+      Paired t: t = ${t.toFixed(3)}, p = ${p<0.001?'<0.001':p.toFixed(4)}, df = ${df} → <span style="color:${reject?'#e53e3e':'#276749'}">${reject?'Reject H₀':'Fail to reject'}</span><br>
+      Independent t (Welch): t = ${ri.t.toFixed(3)}, p = ${ri.p<0.001?'<0.001':ri.p.toFixed(4)}, df = ${ri.df} → <span style="color:${riReject?'#e53e3e':'#276749'}">${riReject?'Reject H₀':'Fail to reject'}</span><br>
+      <em>Paired test mạnh hơn vì loại bỏ variability giữa cá thể (between-subject variance).</em>
+    `;
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+function drawPairedChart(before, after, diffs, dbar, se, t, alpha, reject) {
+  const svg = document.getElementById('pairedChart');
+  const W=620, H=260, PAD={t:30,r:30,b:50,l:50};
+  const cw=W-PAD.l-PAD.r, ch=H-PAD.t-PAD.b;
+
+  const n = before.length;
+  const minV = Math.min(...diffs)-1, maxV = Math.max(...diffs)+1;
+  const xRange = maxV-minV;
+  const sx = v => PAD.l + ((v-minV)/xRange)*cw;
+  const barW = Math.min(30, cw/(n+1));
+
+  let html = `<rect x="0" y="0" width="${W}" height="${H}" fill="#fafafa" rx="6"/>`;
+  html += `<line x1="${PAD.l}" y1="${H-PAD.b}" x2="${W-PAD.r}" y2="${H-PAD.b}" stroke="#a0aec0"/>`;
+
+  // zero line
+  if(sx(0)>PAD.l && sx(0)<W-PAD.r) {
+    html+=`<line x1="${sx(0)}" y1="${PAD.t}" x2="${sx(0)}" y2="${H-PAD.b}" stroke="#a0aec0" stroke-dasharray="4,3"/>`;
+    html+=`<text x="${sx(0)}" y="${H-PAD.b+14}" text-anchor="middle" font-size="11" fill="#718096">0</text>`;
+  }
+
+  const maxAbsDiff = Math.max(...diffs.map(Math.abs));
+  const scaleH = ch*0.8 / maxAbsDiff;
+
+  // Bar chart of diffs
+  diffs.forEach((d, i) => {
+    const x = PAD.l + (i+0.5)*(cw/n) - barW/2;
+    const barH = Math.abs(d)*scaleH;
+    const y = d>=0 ? H-PAD.b-barH : H-PAD.b;
+    html+=`<rect x="${x}" y="${y}" width="${barW}" height="${barH}" fill="${d>=0?'#48bb78':'#e53e3e'}" opacity="0.7" rx="2"/>`;
+    html+=`<text x="${x+barW/2}" y="${H-PAD.b+14}" text-anchor="middle" font-size="10" fill="#718096">${i+1}</text>`;
+    const textY = d>=0 ? y-3 : y+barH+10;
+    html+=`<text x="${x+barW/2}" y="${textY}" text-anchor="middle" font-size="10" fill="${d>=0?'#276749':'#c53030'}" font-weight="bold">${d>0?'+':''}${d.toFixed(1)}</text>`;
+  });
+
+  // Mean diff line
+  const meanLineY = H-PAD.b - dbar*scaleH;
+  html+=`<line x1="${PAD.l}" y1="${meanLineY}" x2="${W-PAD.r}" y2="${meanLineY}" stroke="#2b6cb0" stroke-width="2.5" stroke-dasharray="6,3"/>`;
+  html+=`<text x="${W-PAD.r+4}" y="${meanLineY+4}" font-size="12" fill="#2b6cb0" font-weight="bold">d̄=${dbar.toFixed(2)}</text>`;
+
+  // Title
+  html+=`<text x="${PAD.l+cw/2}" y="${PAD.t-8}" text-anchor="middle" font-size="13" fill="#2d3748" font-weight="600">Sự khác biệt (Before - After) cho từng cá thể</text>`;
+
+  svg.innerHTML = html;
+}
+
+updateIndep();
+updatePaired();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

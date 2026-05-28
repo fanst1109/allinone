@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07: Bootstrap & Permutation — Statistics</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root { --bg: #f7f9fc; --accent: #7c3aed; --accent-soft: #ede9fe; --accent-hover: #6d28d9; }
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 28px; font-size: 15px; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+  .module { background: white; border-radius: 10px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 28px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin: 16px 0; padding: 16px; background: #f7f9fc; border-radius: 8px; border: 1px solid #e2e8f0; }
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+  label { font-size: 13px; font-weight: 600; color: #4a5568; }
+  select { padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 6px; background: white; }
+  input[type="range"] { width: 140px; accent-color: var(--accent); }
+  .val-badge { display: inline-block; background: var(--accent-soft); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 13px; font-weight: 700; font-family: monospace; }
+  .stats-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .stat-chip { background: #edf2f7; padding: 6px 12px; border-radius: 6px; font-family: monospace; font-size: 13px; border-left: 3px solid var(--accent); }
+  .stat-chip .name { color: #718096; font-size: 11px; display: block; }
+  .stat-chip .val { color: #2d3748; font-weight: 700; font-size: 15px; }
+  .info-box { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; }
+  svg { display: block; max-width: 100%; }
+  button { padding: 8px 18px; background: var(--accent); color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  button:hover { background: var(--accent-hover); }
+  button.secondary { background: #e2e8f0; color: #2d3748; }
+  button.secondary:hover { background: #cbd5e0; }
+  .sample-display { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+  .dot {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; border: 2px solid rgba(0,0,0,0.1);
+  }
+  .verdict { padding: 14px 18px; border-radius: 8px; font-size: 15px; font-weight: 600; margin-top: 14px; text-align: center; }
+  .verdict.reject { background: #fff5f5; color: #c53030; border: 2px solid #fc8181; }
+  .verdict.fail { background: #f0fff4; color: #276749; border: 2px solid #68d391; }
+  @media (max-width: 600px) {
+    .controls { flex-direction: column; align-items: flex-start; }
+    input[type="range"] { width: 100%; max-width: 240px; }
+    .dot { width: 28px; height: 28px; font-size: 10px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-pvalue-power-effect/visualization.html">← L06: P-value & Power</a>
+  <span class="sep">·</span>
+  <span class="current">L07: Bootstrap & Permutation</span>
+  <span class="sep">·</span>
+  <span>T3-L01: Bayesian →</span>
+</nav>
+<main>
+  <h1>Lesson 07: Bootstrap & Permutation Test</h1>
+  <p class="subtitle">Resampling methods — không cần giả định phân phối, hoạt động với mọi statistic</p>
+
+  <!-- Module 1: Bootstrap -->
+  <section class="module">
+    <h2>1. Bootstrap CI — Animate resampling</h2>
+    <div class="info-box">
+      Nhập dữ liệu mẫu gốc. Nhấn "Bootstrap 1 lần" để xem một lần resample. Nhấn "Bootstrap 1000 lần" để xây phân phối bootstrap và tính CI.
+    </div>
+    <div class="controls">
+      <div class="ctrl-group" style="flex:2; min-width:250px;">
+        <label>Dữ liệu mẫu (comma-separated):</label>
+        <input type="text" id="boot-data" value="45, 62, 38, 71, 55, 120, 48, 67, 41, 200" style="padding:7px 10px;border:1px solid #cbd5e0;border-radius:6px;font-size:13px;width:100%;box-sizing:border-box;">
+      </div>
+      <div class="ctrl-group">
+        <label>Statistic</label>
+        <select id="boot-stat">
+          <option value="mean">Mean</option>
+          <option value="median">Median</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label>B (số lần bootstrap): <span class="val-badge" id="boot-b-v">1000</span></label>
+        <input type="range" id="boot-b" min="100" max="5000" value="1000" step="100" oninput="document.getElementById('boot-b-v').textContent=this.value">
+      </div>
+    </div>
+    <div>
+      <p style="font-size:13px;font-weight:600;color:#4a5568;margin-bottom:6px;">Mẫu gốc:</p>
+      <div class="sample-display" id="origSample"></div>
+    </div>
+    <div id="bootSampleDisplay" style="display:none;">
+      <p style="font-size:13px;font-weight:600;color:#7c3aed;margin-bottom:6px;">Bootstrap sample (WITH replacement):</p>
+      <div class="sample-display" id="bootSample"></div>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin:14px 0;">
+      <button onclick="bootOnce()">Bootstrap 1 lần</button>
+      <button onclick="bootMany()">Bootstrap <span id="bBtn">1000</span> lần</button>
+      <button class="secondary" onclick="initBoot()">Reset</button>
+    </div>
+    <svg id="bootChart" width="620" height="240" viewBox="0 0 620 240"></svg>
+    <div class="stats-row" id="bootStats"></div>
+  </section>
+
+  <!-- Module 2: Permutation Test -->
+  <section class="module">
+    <h2>2. Permutation Test — Two-Sample</h2>
+    <div class="info-box">
+      Nhập hai nhóm dữ liệu. Permutation test shuffle nhãn ngẫu nhiên để xây dựng phân phối của sự khác biệt dưới H₀: "hai nhóm không khác nhau".
+    </div>
+    <div class="controls">
+      <div class="ctrl-group" style="flex:1; min-width:180px;">
+        <label style="color:#7c3aed;">Nhóm A:</label>
+        <input type="text" id="perm-a" value="10, 12, 14, 11, 13" style="padding:7px 10px;border:1px solid #cbd5e0;border-radius:6px;font-size:13px;width:100%;box-sizing:border-box;">
+      </div>
+      <div class="ctrl-group" style="flex:1; min-width:180px;">
+        <label style="color:#e53e3e;">Nhóm B:</label>
+        <input type="text" id="perm-b" value="7, 9, 8, 10, 7" style="padding:7px 10px;border:1px solid #cbd5e0;border-radius:6px;font-size:13px;width:100%;box-sizing:border-box;">
+      </div>
+      <div class="ctrl-group">
+        <label>B permutations: <span class="val-badge" id="perm-b-v">2000</span></label>
+        <input type="range" id="perm-b-slider" min="200" max="10000" value="2000" step="200" oninput="document.getElementById('perm-b-v').textContent=this.value">
+      </div>
+      <div class="ctrl-group">
+        <label>α</label>
+        <select id="perm-alpha">
+          <option value="0.10">0.10</option>
+          <option value="0.05" selected>0.05</option>
+          <option value="0.01">0.01</option>
+        </select>
+      </div>
+    </div>
+    <button onclick="runPermTest()">Chạy Permutation Test</button>
+    <svg id="permChart" width="620" height="240" viewBox="0 0 620 240" style="margin-top:14px;"></svg>
+    <div class="stats-row" id="permStats"></div>
+    <div id="permVerdict"></div>
+  </section>
+</main>
+
+<script>
+function mean(arr){ return arr.reduce((a,b)=>a+b,0)/arr.length; }
+function median(arr){
+  const s=[...arr].sort((a,b)=>a-b);
+  const n=s.length;
+  return n%2===0?(s[n/2-1]+s[n/2])/2:s[Math.floor(n/2)];
+}
+function Phi(z) {
+  const t=1/(1+0.2316419*Math.abs(z));
+  const p=1-Math.exp(-0.5*z*z)/Math.sqrt(2*Math.PI)*t*(0.319381530+t*(-0.356563782+t*(1.781477937+t*(-1.821255978+t*1.330274429))));
+  return z<0?1-p:p;
+}
+
+let origData = [];
+let bootStats = [];
+const dotColors = ['#7c3aed','#38a169','#e53e3e','#d69e2e','#3182ce','#e53e3e','#48bb78','#f6ad55','#9f7aea','#fc8181'];
+
+function parseData(str) {
+  return str.split(',').map(Number).filter(v=>!isNaN(v));
+}
+
+function initBoot() {
+  origData = parseData(document.getElementById('boot-data').value);
+  bootStats = [];
+  renderOrigSample();
+  document.getElementById('bootSampleDisplay').style.display='none';
+  document.getElementById('bootChart').innerHTML='';
+  document.getElementById('bootStats').innerHTML='';
+}
+
+function renderOrigSample() {
+  const minV=Math.min(...origData), maxV=Math.max(...origData);
+  const range=maxV-minV||1;
+  document.getElementById('origSample').innerHTML = origData.map((v,i)=>{
+    const t=(v-minV)/range;
+    const r=Math.round(139+t*116), g=Math.round(58+t*134), b=Math.round(237-t*137);
+    return `<div class="dot" style="background:rgb(${r},${g},${b});color:white;">${v}</div>`;
+  }).join('');
+}
+
+function bootOnce() {
+  origData = parseData(document.getElementById('boot-data').value);
+  if(origData.length<2) return;
+  const n=origData.length;
+  const sample=[];
+  for(let i=0;i<n;i++) sample.push(origData[Math.floor(Math.random()*n)]);
+
+  const statFn = document.getElementById('boot-stat').value==='mean'?mean:median;
+  const s=statFn(sample);
+  bootStats.push(s);
+
+  const minV=Math.min(...origData), maxV=Math.max(...origData);
+  const range=maxV-minV||1;
+  document.getElementById('bootSample').innerHTML = sample.map((v,i)=>{
+    const t=(v-minV)/range;
+    const r=Math.round(229+t*26), g=Math.round(115-t*115), b=Math.round(115+t*120);
+    // highlight duplicates
+    const isDup = origData.indexOf(v) !== origData.lastIndexOf(v) || sample.filter(x=>x===v).length>1;
+    return `<div class="dot" style="background:${isDup?'#e53e3e':'#7c3aed'};color:white;border-color:${isDup?'#fc8181':'#b794f4'};">${v}</div>`;
+  }).join('');
+  document.getElementById('bootSampleDisplay').style.display='block';
+
+  document.getElementById('bBtn').textContent = document.getElementById('boot-b').value;
+  updateBootChart();
+}
+
+function bootMany() {
+  origData = parseData(document.getElementById('boot-data').value);
+  if(origData.length<2) return;
+  const B=+document.getElementById('boot-b').value;
+  const n=origData.length;
+  const statFn = document.getElementById('boot-stat').value==='mean'?mean:median;
+
+  bootStats=[];
+  for(let b=0;b<B;b++) {
+    const samp=[];
+    for(let i=0;i<n;i++) samp.push(origData[Math.floor(Math.random()*n)]);
+    bootStats.push(statFn(samp));
+  }
+  updateBootChart();
+}
+
+function updateBootChart() {
+  if(bootStats.length<2) return;
+  const svg=document.getElementById('bootChart');
+  const W=620,H=240,PAD={t:30,r:40,b:40,l:50};
+  const cw=W-PAD.l-PAD.r,ch=H-PAD.t-PAD.b;
+
+  const sorted=[...bootStats].sort((a,b)=>a-b);
+  const B=sorted.length;
+  const p025=sorted[Math.floor(B*0.025)];
+  const p975=sorted[Math.floor(B*0.975)];
+  const bMean=mean(bootStats);
+
+  const minV=sorted[0], maxV=sorted[B-1];
+  const range=maxV-minV||0.01;
+  const sx=v=>PAD.l+((v-minV)/range)*cw;
+
+  const bins=40, bw=range/bins;
+  const hist=new Array(bins).fill(0);
+  bootStats.forEach(v=>{const b=Math.min(bins-1,Math.floor((v-minV)/bw));hist[b]++;});
+  const maxH=Math.max(...hist);
+
+  let html=`<rect x="0" y="0" width="${W}" height="${H}" fill="#fafafa" rx="6"/>`;
+  html+=`<line x1="${PAD.l}" y1="${H-PAD.b}" x2="${W-PAD.r}" y2="${H-PAD.b}" stroke="#a0aec0"/>`;
+
+  // CI fill
+  hist.forEach((cnt,i)=>{
+    const vl=minV+i*bw, vr=vl+bw;
+    const inCI=(vl>=p025&&vr<=p975);
+    const barH=(cnt/maxH)*ch*0.88;
+    const x=sx(vl); const w=Math.max(1,sx(vr)-sx(vl)-1);
+    html+=`<rect x="${x}" y="${H-PAD.b-barH}" width="${w}" height="${barH}" fill="${inCI?'#7c3aed':'#9f7aea'}" opacity="${inCI?0.8:0.35}" rx="1"/>`;
+  });
+
+  // CI lines
+  html+=`<line x1="${sx(p025)}" y1="${PAD.t}" x2="${sx(p025)}" y2="${H-PAD.b}" stroke="#e53e3e" stroke-width="2.5"/>`;
+  html+=`<line x1="${sx(p975)}" y1="${PAD.t}" x2="${sx(p975)}" y2="${H-PAD.b}" stroke="#e53e3e" stroke-width="2.5"/>`;
+  html+=`<text x="${sx(p025)}" y="${PAD.t-6}" text-anchor="middle" font-size="11" fill="#e53e3e">${p025.toFixed(1)}</text>`;
+  html+=`<text x="${sx(p975)}" y="${PAD.t-6}" text-anchor="middle" font-size="11" fill="#e53e3e">${p975.toFixed(1)}</text>`;
+
+  // Mean line
+  html+=`<line x1="${sx(bMean)}" y1="${PAD.t}" x2="${sx(bMean)}" y2="${H-PAD.b}" stroke="#2b6cb0" stroke-dasharray="4,3" stroke-width="2"/>`;
+  html+=`<text x="${sx(bMean)+4}" y="${PAD.t+12}" font-size="11" fill="#2b6cb0">mean=${bMean.toFixed(2)}</text>`;
+
+  // X labels
+  for(let i=0;i<=6;i++){
+    const v=minV+i*range/6;
+    html+=`<text x="${sx(v)}" y="${H-PAD.b+14}" text-anchor="middle" font-size="10" fill="#718096">${v.toFixed(1)}</text>`;
+  }
+  html+=`<text x="${PAD.l+cw/2}" y="${H-2}" text-anchor="middle" font-size="12" fill="#4a5568">Bootstrap statistic (${document.getElementById('boot-stat').value})</text>`;
+
+  // Title
+  html+=`<text x="${PAD.l+cw/2}" y="${PAD.t-8}" text-anchor="middle" font-size="13" fill="#2d3748" font-weight="600">Bootstrap Distribution — B=${B} samples</text>`;
+
+  svg.innerHTML=html;
+
+  const statFn=document.getElementById('boot-stat').value==='mean'?mean:median;
+  const origStat=statFn(origData);
+  document.getElementById('bootStats').innerHTML=`
+    <div class="stat-chip"><span class="name">Statistic mẫu gốc</span><span class="val">${origStat.toFixed(3)}</span></div>
+    <div class="stat-chip"><span class="name">Bootstrap SD (≈ SE)</span><span class="val">${(Math.sqrt(bootStats.reduce((a,b)=>a+(b-bMean)**2,0)/(B-1))).toFixed(4)}</span></div>
+    <div class="stat-chip"><span class="name">95% Bootstrap CI</span><span class="val">[${p025.toFixed(2)}, ${p975.toFixed(2)}]</span></div>
+    <div class="stat-chip"><span class="name">CI width</span><span class="val">${(p975-p025).toFixed(3)}</span></div>
+  `;
+}
+
+function runPermTest() {
+  const A=parseData(document.getElementById('perm-a').value);
+  const B=parseData(document.getElementById('perm-b').value);
+  if(A.length<2||B.length<2) return;
+  const alpha=+document.getElementById('perm-alpha').value;
+  const Bperm=+document.getElementById('perm-b-slider').value;
+
+  const D_obs=mean(A)-mean(B);
+  const all=[...A,...B];
+  const n1=A.length, N=all.length;
+
+  const permDiffs=[];
+  for(let b=0;b<Bperm;b++) {
+    // Shuffle labels
+    const shuffled=[...all].sort(()=>Math.random()-0.5);
+    const a_=shuffled.slice(0,n1), b_=shuffled.slice(n1);
+    permDiffs.push(mean(a_)-mean(b_));
+  }
+
+  const pval=permDiffs.filter(d=>Math.abs(d)>=Math.abs(D_obs)).length/Bperm;
+  const reject=pval<alpha;
+
+  drawPermChart(permDiffs, D_obs, pval);
+
+  document.getElementById('permStats').innerHTML=`
+    <div class="stat-chip"><span class="name">mean(A) - mean(B)</span><span class="val">${D_obs.toFixed(4)}</span></div>
+    <div class="stat-chip"><span class="name">p-value (permutation)</span><span class="val" style="color:${reject?'#e53e3e':'#276749'}">${pval<0.001?'<0.001':pval.toFixed(4)}</span></div>
+    <div class="stat-chip"><span class="name">Số permutations</span><span class="val">${Bperm}</span></div>
+  `;
+  document.getElementById('permVerdict').innerHTML=`<div class="verdict ${reject?'reject':'fail'}">${reject?`Reject H₀: p=${pval.toFixed(4)} < α=${alpha}. Hai nhóm có mean khác nhau.`:`Fail to reject H₀: p=${pval.toFixed(4)} ≥ α=${alpha}.`}</div>`;
+}
+
+function drawPermChart(permDiffs, D_obs, pval) {
+  const svg=document.getElementById('permChart');
+  const W=620,H=240,PAD={t:30,r:40,b:40,l:50};
+  const cw=W-PAD.l-PAD.r,ch=H-PAD.t-PAD.b;
+
+  const sorted=[...permDiffs].sort((a,b)=>a-b);
+  const minV=sorted[0], maxV=sorted[sorted.length-1];
+  const range=maxV-minV||0.01;
+  const sx=v=>PAD.l+((v-minV)/range)*cw;
+
+  const bins=40, bw=range/bins;
+  const hist=new Array(bins).fill(0);
+  permDiffs.forEach(v=>{const b=Math.min(bins-1,Math.floor((v-minV)/bw));hist[b]++;});
+  const maxH=Math.max(...hist);
+
+  let html=`<rect x="0" y="0" width="${W}" height="${H}" fill="#fafafa" rx="6"/>`;
+  html+=`<line x1="${PAD.l}" y1="${H-PAD.b}" x2="${W-PAD.r}" y2="${H-PAD.b}" stroke="#a0aec0"/>`;
+
+  hist.forEach((cnt,i)=>{
+    const vl=minV+i*bw;
+    const barH=(cnt/maxH)*ch*0.88;
+    const x=sx(vl); const w=Math.max(1,sx(vl+bw)-x-1);
+    const inTail=Math.abs(vl+bw/2)>=Math.abs(D_obs);
+    html+=`<rect x="${x}" y="${H-PAD.b-barH}" width="${w}" height="${barH}" fill="${inTail?'#e53e3e':'#7c3aed'}" opacity="${inTail?0.6:0.5}" rx="1"/>`;
+  });
+
+  // D_obs lines
+  const dX=sx(D_obs);
+  if(dX>PAD.l&&dX<W-PAD.r){
+    html+=`<line x1="${dX}" y1="${PAD.t}" x2="${dX}" y2="${H-PAD.b}" stroke="#e53e3e" stroke-width="2.5"/>`;
+    html+=`<text x="${dX+4}" y="${PAD.t+14}" font-size="12" fill="#e53e3e" font-weight="bold">D_obs=${D_obs.toFixed(2)}</text>`;
+  }
+  const ndX=sx(-D_obs);
+  if(ndX>PAD.l&&ndX<W-PAD.r){
+    html+=`<line x1="${ndX}" y1="${PAD.t}" x2="${ndX}" y2="${H-PAD.b}" stroke="#e53e3e" stroke-width="2" stroke-dasharray="4,3"/>`;
+  }
+
+  // Zero
+  const zX=sx(0);
+  html+=`<line x1="${zX}" y1="${PAD.t}" x2="${zX}" y2="${H-PAD.b}" stroke="#2b6cb0" stroke-dasharray="4,3" opacity="0.5"/>`;
+
+  for(let i=0;i<=6;i++){
+    const v=minV+i*range/6;
+    html+=`<text x="${sx(v)}" y="${H-PAD.b+14}" text-anchor="middle" font-size="10" fill="#718096">${v.toFixed(2)}</text>`;
+  }
+  html+=`<text x="${PAD.l+cw/2}" y="${PAD.t-8}" text-anchor="middle" font-size="13" fill="#2d3748" font-weight="600">Permutation Distribution — p=${pval<0.001?'<0.001':pval.toFixed(4)} (đỏ = |D*|≥|D_obs|)</text>`;
+
+  svg.innerHTML=html;
+}
+
+// Init
+initBoot();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06: P-value, Power, Effect Size — Statistics</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root { --bg: #f7f9fc; --accent: #7c3aed; --accent-soft: #ede9fe; --accent-hover: #6d28d9; }
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 28px; font-size: 15px; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+  .module { background: white; border-radius: 10px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 28px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin: 16px 0; padding: 16px; background: #f7f9fc; border-radius: 8px; border: 1px solid #e2e8f0; }
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+  label { font-size: 13px; font-weight: 600; color: #4a5568; }
+  select { padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 6px; background: white; }
+  input[type="range"] { width: 140px; accent-color: var(--accent); }
+  .val-badge { display: inline-block; background: var(--accent-soft); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 13px; font-weight: 700; font-family: monospace; }
+  .stats-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .stat-chip { background: #edf2f7; padding: 6px 12px; border-radius: 6px; font-family: monospace; font-size: 13px; border-left: 3px solid var(--accent); }
+  .stat-chip .name { color: #718096; font-size: 11px; display: block; }
+  .stat-chip .val { color: #2d3748; font-weight: 700; font-size: 15px; }
+  .info-box { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; }
+  svg { display: block; max-width: 100%; }
+  .misconception { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 10px 0; font-size: 14px; }
+  .correct { background: #f0fff4; border-left: 4px solid #48bb78; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 10px 0; font-size: 14px; }
+  .multi-test-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; margin: 14px 0; }
+  .mt-cell { width: 32px; height: 32px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; }
+  @media (max-width: 600px) {
+    .controls { flex-direction: column; align-items: flex-start; }
+    input[type="range"] { width: 100%; max-width: 240px; }
+    .multi-test-grid { grid-template-columns: repeat(5, 1fr); }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-anova-chisquare/visualization.html">← L05: ANOVA & χ²</a>
+  <span class="sep">·</span>
+  <span class="current">L06: P-value & Power</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-resampling/visualization.html">L07: Resampling →</a>
+</nav>
+<main>
+  <h1>Lesson 06: P-value, Power & Effect Size</h1>
+  <p class="subtitle">Hiểu đúng p-value, Type I/II error, power curve, Cohen's d, multiple testing</p>
+
+  <!-- Module 1: Power Curve -->
+  <section class="module">
+    <h2>1. Power Curve — Ảnh hưởng của n và Effect Size</h2>
+    <div class="info-box">Kéo slider n và Cohen's d. Xem power = P(reject H₀ | H₁ đúng) thay đổi. Mục tiêu: power ≥ 0.80 (đường ngang xanh).</div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Cohen's d: <span class="val-badge" id="pow-d-v">0.5</span></label>
+        <input type="range" id="pow-d" min="0.05" max="2" value="0.5" step="0.05" oninput="updatePower()">
+      </div>
+      <div class="ctrl-group">
+        <label>σ: <span class="val-badge" id="pow-sigma-v">10</span></label>
+        <input type="range" id="pow-sigma" min="2" max="30" value="10" step="0.5" oninput="updatePower()">
+      </div>
+      <div class="ctrl-group">
+        <label>α: <span class="val-badge" id="pow-alpha-v">0.05</span></label>
+        <select id="pow-alpha" onchange="updatePower()">
+          <option value="0.10">0.10</option>
+          <option value="0.05" selected>0.05</option>
+          <option value="0.01">0.01</option>
+        </select>
+      </div>
+    </div>
+    <svg id="powerChart" width="620" height="260" viewBox="0 0 620 260"></svg>
+    <div class="stats-row" id="powerStats"></div>
+  </section>
+
+  <!-- Module 2: Type I & II Error visualization -->
+  <section class="module">
+    <h2>2. Type I / Type II Error — Hai phân phối</h2>
+    <div class="info-box">Phân phối dưới H₀ (trái) và H₁ (phải). Kéo α để thay đổi ngưỡng reject. Thấy trade-off: giảm Type I → tăng Type II.</div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Effect (μ₁-μ₀): <span class="val-badge" id="err-delta-v">5</span></label>
+        <input type="range" id="err-delta" min="0" max="20" value="5" step="0.5" oninput="updateErrors()">
+      </div>
+      <div class="ctrl-group">
+        <label>σ: <span class="val-badge" id="err-sigma-v">8</span></label>
+        <input type="range" id="err-sigma" min="1" max="20" value="8" step="0.5" oninput="updateErrors()">
+      </div>
+      <div class="ctrl-group">
+        <label>n: <span class="val-badge" id="err-n-v">25</span></label>
+        <input type="range" id="err-n" min="4" max="200" value="25" step="1" oninput="updateErrors()">
+      </div>
+      <div class="ctrl-group">
+        <label>α</label>
+        <select id="err-alpha" onchange="updateErrors()">
+          <option value="0.10">0.10</option>
+          <option value="0.05" selected>0.05</option>
+          <option value="0.01">0.01</option>
+        </select>
+      </div>
+    </div>
+    <svg id="errorChart" width="620" height="260" viewBox="0 0 620 260"></svg>
+    <div class="stats-row" id="errorStats"></div>
+  </section>
+
+  <!-- Module 3: Multiple Testing -->
+  <section class="module">
+    <h2>3. Multiple Testing — Xác suất False Positive tăng theo m</h2>
+    <div class="info-box">
+      Kéo số lượng test. Ô xanh = correct negative (H₀ đúng, không reject). Ô đỏ = false positive (H₀ đúng nhưng vô tình reject). Tất cả tests dưới đây đều H₀ thật sự đúng.
+    </div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Số test m: <span class="val-badge" id="mt-m-v">20</span></label>
+        <input type="range" id="mt-m" min="1" max="100" value="20" step="1" oninput="updateMultiTest()">
+      </div>
+      <div class="ctrl-group">
+        <label>α mỗi test: <span class="val-badge" id="mt-alpha-v">0.05</span></label>
+        <select id="mt-alpha" onchange="updateMultiTest()">
+          <option value="0.10">0.10</option>
+          <option value="0.05" selected>0.05</option>
+          <option value="0.01">0.01</option>
+        </select>
+      </div>
+      <button onclick="rerollTests()">Thử lại</button>
+    </div>
+    <div class="multi-test-grid" id="mtGrid"></div>
+    <div class="stats-row" id="mtStats"></div>
+    <div id="bonferroniResult" class="info-box" style="margin-top:10px;"></div>
+  </section>
+</main>
+
+<script>
+function Phi(z) {
+  const t=1/(1+0.2316419*Math.abs(z));
+  const pdf=Math.exp(-0.5*z*z)/Math.sqrt(2*Math.PI);
+  let p=1-pdf*t*(0.319381530+t*(-0.356563782+t*(1.781477937+t*(-1.821255978+t*1.330274429))));
+  return z<0?1-p:p;
+}
+function normalPDF(x,mu,sigma){ return Math.exp(-0.5*((x-mu)/sigma)**2)/(sigma*Math.sqrt(2*Math.PI)); }
+
+const zAlpha = {'0.10':1.282,'0.05':1.645,'0.01':2.326};
+const zAlpha2 = {'0.10':1.645,'0.05':1.960,'0.01':2.576};
+
+// Power for two-sided z-test
+function computePower(d, sigma, n, alpha) {
+  const se = sigma/Math.sqrt(n);
+  const effect = d*sigma; // true diff = d * sigma
+  const z_alpha2 = zAlpha2[alpha.toString()] || 1.96;
+  // P(reject H₀ | H₁: μ₁-μ₀ = d*sigma)
+  const z_power = effect/se - z_alpha2;
+  const z_power2 = -effect/se - z_alpha2;
+  return Phi(z_power) + (1-Phi(-z_power2));
+}
+
+function updatePower() {
+  const d = +document.getElementById('pow-d').value;
+  const sigma = +document.getElementById('pow-sigma').value;
+  const alpha = document.getElementById('pow-alpha').value;
+
+  document.getElementById('pow-d-v').textContent = d.toFixed(2);
+  document.getElementById('pow-sigma-v').textContent = sigma.toFixed(1);
+  document.getElementById('pow-alpha-v').textContent = alpha;
+
+  const svg = document.getElementById('powerChart');
+  const W=620, H=260, PAD={t:30,r:40,b:50,l:60};
+  const cw=W-PAD.l-PAD.r, ch=H-PAD.t-PAD.b;
+
+  const maxN = 400;
+  const sy = p => H-PAD.b - p*ch*0.92;
+
+  let html=`<rect x="0" y="0" width="${W}" height="${H}" fill="#fafafa" rx="6"/>`;
+
+  // Grid
+  [0.2,0.4,0.6,0.8,1.0].forEach(p=>{
+    const y=sy(p);
+    html+=`<line x1="${PAD.l}" y1="${y}" x2="${W-PAD.r}" y2="${y}" stroke="${p===0.8?'#bee3f8':'#e2e8f0'}" stroke-width="${p===0.8?2:1}"/>`;
+    html+=`<text x="${PAD.l-6}" y="${y+4}" text-anchor="end" font-size="11" fill="${p===0.8?'#2b6cb0':'#718096'}">${p}</text>`;
+  });
+
+  // Power = 0.8 label
+  html+=`<text x="${W-PAD.r+4}" y="${sy(0.8)+4}" font-size="11" fill="#2b6cb0" font-weight="bold">80%</text>`;
+
+  // Axes
+  html+=`<line x1="${PAD.l}" y1="${H-PAD.b}" x2="${W-PAD.r}" y2="${H-PAD.b}" stroke="#a0aec0"/>`;
+  html+=`<line x1="${PAD.l}" y1="${PAD.t}" x2="${PAD.l}" y2="${H-PAD.b}" stroke="#a0aec0"/>`;
+
+  // Power curve
+  let path='';
+  let n80 = null;
+  for(let n=2;n<=maxN;n+=2) {
+    const pw=computePower(d,sigma,n,alpha);
+    const x=PAD.l+(n/maxN)*cw;
+    const y=sy(pw);
+    if(n===2)path+=`M${x},${y}`;else path+=`L${x},${y}`;
+    if(!n80 && pw>=0.8) n80=n;
+  }
+  html+=`<path d="${path}" fill="none" stroke="#7c3aed" stroke-width="2.5"/>`;
+
+  // N for 80% power marker
+  if(n80) {
+    const x=PAD.l+(n80/maxN)*cw;
+    html+=`<line x1="${x}" y1="${PAD.t}" x2="${x}" y2="${H-PAD.b}" stroke="#38a169" stroke-dasharray="4,3" stroke-width="2"/>`;
+    html+=`<text x="${x+4}" y="${PAD.t+16}" font-size="12" fill="#38a169" font-weight="bold">n=${n80}→power=80%</text>`;
+    html+=`<circle cx="${x}" cy="${sy(0.8)}" r="5" fill="#38a169" stroke="white" stroke-width="2"/>`;
+  }
+
+  // X labels
+  for(let i=0;i<=8;i++) {
+    const n=Math.round(i*maxN/8);
+    html+=`<text x="${PAD.l+i*cw/8}" y="${H-PAD.b+16}" text-anchor="middle" font-size="11" fill="#718096">${n}</text>`;
+  }
+  html+=`<text x="${PAD.l+cw/2}" y="${H-2}" text-anchor="middle" font-size="12" fill="#4a5568">n (cỡ mẫu mỗi nhóm)</text>`;
+  html+=`<text x="${PAD.l-50}" y="${PAD.t+ch/2}" text-anchor="middle" font-size="12" fill="#4a5568" transform="rotate(-90,${PAD.l-46},${PAD.t+ch/2})">Power (1-β)</text>`;
+  html+=`<text x="${PAD.l+cw-100}" y="${PAD.t+20}" font-size="13" fill="#7c3aed" font-weight="bold">d=${d.toFixed(2)}, α=${alpha}</text>`;
+
+  svg.innerHTML = html;
+
+  const curPower = n80 ? 0.8 : computePower(d,sigma,maxN,alpha);
+  const nFor80 = n80 || '>400';
+  document.getElementById('powerStats').innerHTML = `
+    <div class="stat-chip"><span class="name">Cohen's d</span><span class="val">${d.toFixed(2)}</span></div>
+    <div class="stat-chip"><span class="name">n cần cho power=80%</span><span class="val">${nFor80}</span></div>
+    <div class="stat-chip"><span class="name">Mức độ d</span><span class="val">${d<0.3?'Nhỏ':d<0.7?'Vừa':'Lớn'}</span></div>
+  `;
+}
+
+function updateErrors() {
+  const delta = +document.getElementById('err-delta').value;
+  const sigma = +document.getElementById('err-sigma').value;
+  const n = +document.getElementById('err-n').value;
+  const alpha = document.getElementById('err-alpha').value;
+
+  document.getElementById('err-delta-v').textContent = delta.toFixed(1);
+  document.getElementById('err-sigma-v').textContent = sigma.toFixed(1);
+  document.getElementById('err-n-v').textContent = n;
+
+  const se = sigma/Math.sqrt(n);
+  const mu0 = 0, mu1 = delta;
+  const z_alpha = zAlpha2[alpha];
+  const critVal = mu0 + z_alpha*se;
+
+  const typeII_beta = Phi((critVal-mu1)/se);
+  const power = 1-typeII_beta;
+  const cohenD = delta/sigma;
+
+  const svg = document.getElementById('errorChart');
+  const W=620, H=260, PAD={t:30,r:30,b:40,l:40};
+  const cw=W-PAD.l-PAD.r, ch=H-PAD.t-PAD.b;
+
+  const range = Math.max(4*se, delta+4*se);
+  const minV = mu0-range, maxV = mu1+range;
+  const sx = v=>PAD.l+((v-minV)/(maxV-minV))*cw;
+  const maxPdf = normalPDF(mu0,mu0,se);
+
+  let html=`<rect x="0" y="0" width="${W}" height="${H}" fill="#fafafa" rx="6"/>`;
+  html+=`<line x1="${PAD.l}" y1="${H-PAD.b}" x2="${W-PAD.r}" y2="${H-PAD.b}" stroke="#a0aec0"/>`;
+
+  // Type I fill (alpha region under H0)
+  let fillAlpha=`M${sx(critVal)},${H-PAD.b}`;
+  for(let px=0;px<=cw;px+=2){
+    const v=minV+(px/cw)*(maxV-minV);
+    if(v<critVal) continue;
+    const y=H-PAD.b-(normalPDF(v,mu0,se)/maxPdf)*ch*0.85;
+    fillAlpha+=`L${sx(v)},${y}`;
+  }
+  fillAlpha+=`L${sx(maxV)},${H-PAD.b}Z`;
+  html+=`<path d="${fillAlpha}" fill="#e53e3e" opacity="0.3"/>`;
+  html+=`<text x="${(sx(critVal)+sx(maxV/2+mu0/2))/2}" y="${H-PAD.b-ch*0.1}" text-anchor="middle" font-size="11" fill="#e53e3e" font-weight="bold">α=${alpha}</text>`;
+
+  // Type II fill (beta region under H1)
+  let fillBeta=`M${sx(minV)},${H-PAD.b}`;
+  for(let px=0;px<=cw;px+=2){
+    const v=minV+(px/cw)*(maxV-minV);
+    if(v>critVal) break;
+    const y=H-PAD.b-(normalPDF(v,mu1,se)/maxPdf)*ch*0.85;
+    fillBeta+=`L${sx(v)},${y}`;
+  }
+  fillBeta+=`L${sx(critVal)},${H-PAD.b}Z`;
+  html+=`<path d="${fillBeta}" fill="#f6ad55" opacity="0.4"/>`;
+  html+=`<text x="${sx(mu1)*0.6+sx(critVal)*0.4}" y="${H-PAD.b-ch*0.05}" text-anchor="middle" font-size="11" fill="#c05621" font-weight="bold">β=${typeII_beta.toFixed(3)}</text>`;
+
+  // H0 curve
+  let p0='';
+  for(let px=0;px<=cw;px+=2){
+    const v=minV+(px/cw)*(maxV-minV);
+    const y=H-PAD.b-(normalPDF(v,mu0,se)/maxPdf)*ch*0.85;
+    if(px===0)p0+=`M${sx(v)},${y}`;else p0+=`L${sx(v)},${y}`;
+  }
+  html+=`<path d="${p0}" fill="none" stroke="#7c3aed" stroke-width="2.5"/>`;
+  html+=`<text x="${sx(mu0)}" y="${PAD.t-8}" text-anchor="middle" font-size="12" fill="#7c3aed" font-weight="bold">H₀: μ=${mu0}</text>`;
+
+  // H1 curve
+  let p1='';
+  for(let px=0;px<=cw;px+=2){
+    const v=minV+(px/cw)*(maxV-minV);
+    const y=H-PAD.b-(normalPDF(v,mu1,se)/maxPdf)*ch*0.85;
+    if(px===0)p1+=`M${sx(v)},${y}`;else p1+=`L${sx(v)},${y}`;
+  }
+  html+=`<path d="${p1}" fill="none" stroke="#48bb78" stroke-width="2.5"/>`;
+  html+=`<text x="${sx(mu1)}" y="${PAD.t-8}" text-anchor="middle" font-size="12" fill="#276749" font-weight="bold">H₁: μ=${mu1}</text>`;
+
+  // Critical value
+  html+=`<line x1="${sx(critVal)}" y1="${PAD.t}" x2="${sx(critVal)}" y2="${H-PAD.b}" stroke="#e53e3e" stroke-width="2" stroke-dasharray="5,3"/>`;
+  html+=`<text x="${sx(critVal)}" y="${H-PAD.b+15}" text-anchor="middle" font-size="11" fill="#e53e3e">crit=${critVal.toFixed(2)}</text>`;
+
+  // Power region label
+  html+=`<text x="${sx(critVal)+(sx(maxV)-sx(critVal))*0.5}" y="${PAD.t+20}" text-anchor="middle" font-size="13" fill="#276749" font-weight="bold">Power=${power.toFixed(3)}</text>`;
+
+  svg.innerHTML = html;
+
+  document.getElementById('errorStats').innerHTML = `
+    <div class="stat-chip"><span class="name">SE = σ/√n</span><span class="val">${se.toFixed(4)}</span></div>
+    <div class="stat-chip"><span class="name">Cohen's d</span><span class="val">${cohenD.toFixed(3)}</span></div>
+    <div class="stat-chip"><span class="name">α (Type I)</span><span class="val" style="color:#e53e3e">${alpha}</span></div>
+    <div class="stat-chip"><span class="name">β (Type II)</span><span class="val" style="color:#c05621">${typeII_beta.toFixed(3)}</span></div>
+    <div class="stat-chip"><span class="name">Power = 1-β</span><span class="val" style="color:${power>=0.8?'#276749':'#c53030'}">${power.toFixed(3)}</span></div>
+  `;
+}
+
+let mtPValues = [];
+
+function generateTests(m, alpha) {
+  mtPValues = [];
+  for(let i=0;i<m;i++) {
+    // Simulate under H₀: p-value ~ Uniform(0,1)
+    mtPValues.push(Math.random());
+  }
+}
+
+function rerollTests() {
+  const m = +document.getElementById('mt-m').value;
+  const alpha = +document.getElementById('mt-alpha').value;
+  generateTests(m, alpha);
+  renderMultiTest();
+}
+
+function updateMultiTest() {
+  const m = +document.getElementById('mt-m').value;
+  const alpha = +document.getElementById('mt-alpha').value;
+  document.getElementById('mt-m-v').textContent = m;
+  document.getElementById('mt-alpha-v').textContent = alpha;
+  if(mtPValues.length !== m) generateTests(m, alpha);
+  renderMultiTest();
+}
+
+function renderMultiTest() {
+  const m = +document.getElementById('mt-m').value;
+  const alpha = +document.getElementById('mt-alpha').value;
+
+  const grid = document.getElementById('mtGrid');
+  let html = '';
+  let fps = 0;
+  mtPValues.forEach((p, i) => {
+    const isFP = p < alpha;
+    if(isFP) fps++;
+    html += `<div class="mt-cell" style="background:${isFP?'#fc8181':'#9ae6b4'};color:${isFP?'#fff':'#2d6a4f'};width:100%;aspect-ratio:1;" title="p=${p.toFixed(3)}">${i+1}</div>`;
+  });
+  grid.innerHTML = html;
+
+  const expected = (m*alpha).toFixed(2);
+  const fwer = (1-Math.pow(1-alpha,m)*1).toFixed(3);
+  const bonf = (alpha/m).toFixed(5);
+
+  document.getElementById('mtStats').innerHTML = `
+    <div class="stat-chip"><span class="name">Số test</span><span class="val">${m}</span></div>
+    <div class="stat-chip"><span class="name">False positives thật</span><span class="val" style="color:#e53e3e">${fps}</span></div>
+    <div class="stat-chip"><span class="name">FP kỳ vọng (m×α)</span><span class="val">${expected}</span></div>
+    <div class="stat-chip"><span class="name">FWER = P(≥1 FP)</span><span class="val" style="color:#e53e3e">${fwer}</span></div>
+  `;
+
+  document.getElementById('bonferroniResult').innerHTML = `
+    <strong>Bonferroni correction:</strong> Ngưỡng mới = α/m = ${alpha}/${m} = <strong>${bonf}</strong>.
+    Số test bị reject sau Bonferroni: <strong>${mtPValues.filter(p=>p<alpha/m).length}</strong> (so với ${fps} trước correction).
+    <br>FWER sau Bonferroni ≤ α = ${alpha} (controlled).
+  `;
+}
+
+generateTests(20, 0.05);
+updatePower();
+updateErrors();
+updateMultiTest();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

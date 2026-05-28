@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03: Hypothesis Testing 1-sample — Statistics</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root { --bg: #f7f9fc; --accent: #7c3aed; --accent-soft: #ede9fe; --accent-hover: #6d28d9; }
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 28px; font-size: 15px; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+  .module { background: white; border-radius: 10px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 28px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin: 16px 0; padding: 16px; background: #f7f9fc; border-radius: 8px; border: 1px solid #e2e8f0; }
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+  label { font-size: 13px; font-weight: 600; color: #4a5568; }
+  select { padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 6px; background: white; }
+  input[type="range"] { width: 150px; accent-color: var(--accent); }
+  .val-badge { display: inline-block; background: var(--accent-soft); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 13px; font-weight: 700; font-family: monospace; }
+  .stats-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .stat-chip { background: #edf2f7; padding: 6px 12px; border-radius: 6px; font-family: monospace; font-size: 13px; border-left: 3px solid var(--accent); }
+  .stat-chip .name { color: #718096; font-size: 11px; display: block; }
+  .stat-chip .val { color: #2d3748; font-weight: 700; font-size: 15px; }
+  .stat-chip.reject { border-left-color: #e53e3e; }
+  .stat-chip.fail { border-left-color: #48bb78; }
+  .info-box { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; }
+  svg { display: block; max-width: 100%; }
+  .verdict { padding: 14px 18px; border-radius: 8px; font-size: 15px; font-weight: 600; margin-top: 14px; text-align: center; }
+  .verdict.reject { background: #fff5f5; color: #c53030; border: 2px solid #fc8181; }
+  .verdict.fail { background: #f0fff4; color: #276749; border: 2px solid #68d391; }
+  .steps-list { list-style: none; padding: 0; margin: 14px 0; }
+  .steps-list li { padding: 8px 14px; border-left: 3px solid var(--accent); margin-bottom: 8px; background: #f7f9fc; border-radius: 0 6px 6px 0; font-size: 14px; }
+  .steps-list li strong { color: var(--accent); }
+  @media (max-width: 600px) {
+    .controls { flex-direction: column; align-items: flex-start; }
+    input[type="range"] { width: 100%; max-width: 260px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-confidence-interval/visualization.html">← L02: Confidence Interval</a>
+  <span class="sep">·</span>
+  <span class="current">L03: Hypothesis Testing</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-two-sample-tests/visualization.html">L04: Two-Sample Tests →</a>
+</nav>
+<main>
+  <h1>Lesson 03: Kiểm định giả thuyết 1 mẫu</h1>
+  <p class="subtitle">H₀, H₁, p-value, vùng reject — interactive real-time</p>
+
+  <!-- Module 1: Interactive Hypothesis Test -->
+  <section class="module">
+    <h2>1. Z-Test / T-Test tương tác</h2>
+    <div class="info-box">Kéo slider để thay đổi dữ liệu và xem ngay p-value, test statistic, và vùng reject cập nhật real-time.</div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>H₀: μ₀ = <span class="val-badge" id="mu0-v">100</span></label>
+        <input type="range" id="mu0" min="50" max="150" value="100" step="0.5" oninput="update()">
+      </div>
+      <div class="ctrl-group">
+        <label>x̄ (mean quan sát) = <span class="val-badge" id="xbar-v">107</span></label>
+        <input type="range" id="xbar" min="50" max="150" value="107" step="0.5" oninput="update()">
+      </div>
+      <div class="ctrl-group">
+        <label>σ/s = <span class="val-badge" id="sigma-v">15</span></label>
+        <input type="range" id="sigma" min="1" max="40" value="15" step="0.5" oninput="update()">
+      </div>
+      <div class="ctrl-group">
+        <label>n = <span class="val-badge" id="n-v">25</span></label>
+        <input type="range" id="n-slider" min="2" max="200" value="25" step="1" oninput="update()">
+      </div>
+      <div class="ctrl-group">
+        <label>H₁</label>
+        <select id="h1" onchange="update()">
+          <option value="two">μ ≠ μ₀ (two-sided)</option>
+          <option value="right">μ > μ₀ (one-sided right)</option>
+          <option value="left">μ &lt; μ₀ (one-sided left)</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label>α</label>
+        <select id="alpha" onchange="update()">
+          <option value="0.10">0.10</option>
+          <option value="0.05" selected>0.05</option>
+          <option value="0.01">0.01</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label>Test type</label>
+        <select id="testType" onchange="update()">
+          <option value="z">Z-test (σ biết)</option>
+          <option value="t">T-test (s không biết)</option>
+        </select>
+      </div>
+    </div>
+
+    <svg id="testChart" width="640" height="280" viewBox="0 0 640 280"></svg>
+    <div class="stats-row" id="testStats"></div>
+    <div id="verdict"></div>
+  </section>
+
+  <!-- Module 2: 6 bước NHST -->
+  <section class="module">
+    <h2>2. Sáu bước NHST — Walk-through</h2>
+    <div class="info-box">Thay đổi slider ở trên và xem 6 bước tự động cập nhật theo dữ liệu.</div>
+    <ul class="steps-list" id="stepsList"></ul>
+  </section>
+
+  <!-- Module 3: p-value vs alpha -->
+  <section class="module">
+    <h2>3. P-value vs α — Quan hệ</h2>
+    <div class="info-box">
+      Kéo slider "x̄" ở trên. Khi x̄ di chuyển xa μ₀: p-value giảm. Đường ngang đỏ = ngưỡng α. Vùng dưới đường đỏ = reject zone.
+    </div>
+    <svg id="pvalChart" width="600" height="200" viewBox="0 0 600 200"></svg>
+  </section>
+</main>
+
+<script>
+// Approximation of normal CDF
+function Phi(z) {
+  const t = 1/(1+0.2316419*Math.abs(z));
+  const poly = t*(0.319381530+t*(-0.356563782+t*(1.781477937+t*(-1.821255978+t*1.330274429))));
+  const pdf = Math.exp(-0.5*z*z)/Math.sqrt(2*Math.PI);
+  let p = 1 - pdf*poly;
+  return z < 0 ? 1-p : p;
+}
+function normalPDF(x, mu, sigma) {
+  return Math.exp(-0.5*((x-mu)/sigma)**2)/(sigma*Math.sqrt(2*Math.PI));
+}
+
+// Approximate t distribution CDF using normal for large df
+function tCDF(t, df) {
+  if(df > 100) return Phi(t);
+  // Approximation: use beta distribution relationship
+  const x = df/(df+t*t);
+  // Simple approximation via Wilson-Hilferty
+  const z = (Math.pow(1-2/(9*df), -0.5)) * (Math.cbrt(df/(df+t*t)*(1-2/(9*df))) - (1-2/(9*df)));
+  return Phi(z < 0 ? -Math.abs(t)/Math.sqrt(df/3+t*t/3)*2 : Math.abs(t)/Math.sqrt(df/3+t*t/3)*2);
+  // Fallback: use normal approximation
+}
+
+// Better t p-value approximation
+function tPValue(t, df, tail) {
+  // Use normal if large df
+  const useZ = df > 60;
+  let p;
+  if(useZ) {
+    if(tail==='two') p = 2*(1-Phi(Math.abs(t)));
+    else if(tail==='right') p = 1-Phi(t);
+    else p = Phi(t);
+  } else {
+    // Approximation using Hill's method
+    const x = df/(df+t*t);
+    const a = df/2, b = 0.5;
+    // Simple linear interp from z
+    const z_abs = Math.abs(t)*Math.sqrt(1-1/(4*df));
+    if(tail==='two') p = 2*(1-Phi(z_abs));
+    else if(tail==='right') p = t>0 ? (1-Phi(z_abs)) : Phi(z_abs);
+    else p = t<0 ? (1-Phi(z_abs)) : Phi(z_abs);
+  }
+  return Math.max(1e-10, Math.min(1, p));
+}
+
+// Critical values
+const zCrit = {'0.10':{'two':1.645,'right':1.282,'left':-1.282},'0.05':{'two':1.960,'right':1.645,'left':-1.645},'0.01':{'two':2.576,'right':2.326,'left':-2.326}};
+
+function tCrit(df, alpha, tail) {
+  const zc = zCrit[alpha][tail];
+  if(df > 100) return zc;
+  // Scale up
+  const scale = 1 + 2/(df);
+  return Math.sign(zc)*Math.abs(zc)*scale;
+}
+
+let lastResults = {};
+
+function update() {
+  const mu0 = +document.getElementById('mu0').value;
+  const xbar = +document.getElementById('xbar').value;
+  const sigma = +document.getElementById('sigma').value;
+  const n = +document.getElementById('n-slider').value;
+  const h1 = document.getElementById('h1').value;
+  const alpha = document.getElementById('alpha').value;
+  const testType = document.getElementById('testType').value;
+
+  document.getElementById('mu0-v').textContent = mu0;
+  document.getElementById('xbar-v').textContent = xbar;
+  document.getElementById('sigma-v').textContent = sigma;
+  document.getElementById('n-v').textContent = n;
+
+  const se = sigma/Math.sqrt(n);
+  const stat = (xbar-mu0)/se;
+  const df = n-1;
+
+  let pval, cv, statLabel;
+  if(testType==='z') {
+    if(h1==='two') pval = 2*(1-Phi(Math.abs(stat)));
+    else if(h1==='right') pval = 1-Phi(stat);
+    else pval = Phi(stat);
+    cv = zCrit[alpha][h1];
+    statLabel = 'z';
+  } else {
+    pval = tPValue(stat, df, h1);
+    cv = tCrit(df, alpha, h1);
+    statLabel = 't';
+  }
+
+  const reject = pval < +alpha;
+
+  lastResults = {mu0, xbar, sigma, n, se, stat, pval, alpha: +alpha, h1, testType, df, cv, reject, statLabel};
+
+  drawTestChart(lastResults);
+  drawPvalChart(lastResults);
+  updateSteps(lastResults);
+
+  document.getElementById('testStats').innerHTML = `
+    <div class="stat-chip"><span class="name">SE = σ/√n</span><span class="val">${se.toFixed(4)}</span></div>
+    <div class="stat-chip"><span class="name">${statLabel}-statistic</span><span class="val">${stat.toFixed(4)}</span></div>
+    <div class="stat-chip"><span class="name">p-value</span><span class="val" style="color:${reject?'#e53e3e':'#48bb78'}">${pval < 0.0001 ? '< 0.0001' : pval.toFixed(4)}</span></div>
+    <div class="stat-chip"><span class="name">α</span><span class="val">${alpha}</span></div>
+    ${testType==='t'?`<div class="stat-chip"><span class="name">df</span><span class="val">${df}</span></div>`:''}
+  `;
+
+  document.getElementById('verdict').innerHTML = `
+    <div class="verdict ${reject?'reject':'fail'}">
+      ${reject ? `Reject H₀: p = ${pval.toFixed(4)} < α = ${alpha}. Kết luận: có bằng chứng chống lại H₀.`
+              : `Fail to reject H₀: p = ${pval.toFixed(4)} ≥ α = ${alpha}. Chưa đủ bằng chứng bác bỏ H₀.`}
+    </div>`;
+}
+
+function drawTestChart(r) {
+  const svg = document.getElementById('testChart');
+  const W=640, H=280, PAD={t:30,r:40,b:40,l:40};
+  const cw=W-PAD.l-PAD.r, ch=H-PAD.t-PAD.b;
+
+  // Range: -4 to +4 SE
+  const minV = r.mu0 - 4*r.se, maxV = r.mu0 + 4*r.se;
+  const sx = (v) => PAD.l + ((v-minV)/(maxV-minV))*cw;
+  const pdf = (v) => normalPDF(v, r.mu0, r.se);
+  const maxPdf = pdf(r.mu0);
+
+  let html = `<rect x="0" y="0" width="${W}" height="${H}" fill="#fafafa" rx="6"/>`;
+
+  // Reject region fill
+  const fillReject = (from, to, color) => {
+    if(from>=to) return '';
+    let fp = `M${sx(from)},${H-PAD.b}`;
+    for(let px=0;px<=cw;px+=2) {
+      const v = minV+(px/cw)*(maxV-minV);
+      if(v<from||v>to) continue;
+      const y = H-PAD.b-(pdf(v)/maxPdf)*ch*0.88;
+      fp+=`L${sx(v)},${y}`;
+    }
+    fp+=`L${sx(to)},${H-PAD.b}Z`;
+    return `<path d="${fp}" fill="${color}" opacity="0.25"/>`;
+  };
+
+  if(r.h1==='two') {
+    const lo = r.mu0 + r.cv*r.se; // cv is negative for left, but we use |cv|
+    const cvAbs = Math.abs(r.cv)*r.se;
+    html += fillReject(minV, r.mu0-cvAbs, '#e53e3e');
+    html += fillReject(r.mu0+cvAbs, maxV, '#e53e3e');
+  } else if(r.h1==='right') {
+    html += fillReject(r.mu0+r.cv*r.se, maxV, '#e53e3e');
+  } else {
+    html += fillReject(minV, r.mu0+r.cv*r.se, '#e53e3e');
+  }
+
+  // Normal curve
+  let path='';
+  for(let px=0;px<=cw;px+=2) {
+    const v=minV+(px/cw)*(maxV-minV);
+    const y=H-PAD.b-(pdf(v)/maxPdf)*ch*0.88;
+    if(px===0)path+=`M${sx(v)},${y}`;else path+=`L${sx(v)},${y}`;
+  }
+  html+=`<path d="${path}" fill="none" stroke="#7c3aed" stroke-width="2.5"/>`;
+
+  // Baseline
+  html+=`<line x1="${PAD.l}" y1="${H-PAD.b}" x2="${W-PAD.r}" y2="${H-PAD.b}" stroke="#a0aec0"/>`;
+
+  // mu0 line
+  html+=`<line x1="${sx(r.mu0)}" y1="${PAD.t}" x2="${sx(r.mu0)}" y2="${H-PAD.b}" stroke="#2b6cb0" stroke-dasharray="4,3" stroke-width="1.5"/>`;
+  html+=`<text x="${sx(r.mu0)}" y="${PAD.t-6}" text-anchor="middle" font-size="11" fill="#2b6cb0">μ₀=${r.mu0}</text>`;
+
+  // xbar line
+  const xbarX = sx(r.xbar);
+  if(xbarX>PAD.l && xbarX<W-PAD.r) {
+    html+=`<line x1="${xbarX}" y1="${PAD.t}" x2="${xbarX}" y2="${H-PAD.b}" stroke="${r.reject?'#e53e3e':'#48bb78'}" stroke-width="2.5"/>`;
+    html+=`<text x="${xbarX}" y="${PAD.t-6}" text-anchor="middle" font-size="11" fill="${r.reject?'#e53e3e':'#48bb78'}" font-weight="bold">x̄=${r.xbar}</text>`;
+  }
+
+  // Critical value lines
+  const cvAbs = Math.abs(r.cv)*r.se;
+  if(r.h1==='two') {
+    [r.mu0-cvAbs, r.mu0+cvAbs].forEach(cv => {
+      const x = sx(cv);
+      html+=`<line x1="${x}" y1="${PAD.t}" x2="${x}" y2="${H-PAD.b}" stroke="#e53e3e" stroke-dasharray="3,3" stroke-width="1.5" opacity="0.7"/>`;
+    });
+  } else {
+    const cvX = sx(r.mu0 + r.cv*r.se);
+    html+=`<line x1="${cvX}" y1="${PAD.t}" x2="${cvX}" y2="${H-PAD.b}" stroke="#e53e3e" stroke-dasharray="3,3" stroke-width="1.5" opacity="0.7"/>`;
+  }
+
+  // X-axis labels
+  for(let i=0;i<=8;i++) {
+    const v=minV+i*(maxV-minV)/8;
+    html+=`<text x="${sx(v)}" y="${H-PAD.b+14}" text-anchor="middle" font-size="10" fill="#718096">${v.toFixed(1)}</text>`;
+  }
+
+  // Legend
+  html+=`<rect x="${W-PAD.r-140}" y="${PAD.t}" width="130" height="65" fill="white" stroke="#e2e8f0" rx="4"/>`;
+  html+=`<rect x="${W-PAD.r-134}" y="${PAD.t+8}" width="12" height="12" fill="#e53e3e" opacity="0.4"/>`;
+  html+=`<text x="${W-PAD.r-118}" y="${PAD.t+19}" font-size="11" fill="#4a5568">Vùng reject (α=${r.alpha})</text>`;
+  html+=`<line x1="${W-PAD.r-134}" y1="${PAD.t+33}" x2="${W-PAD.r-122}" y2="${PAD.t+33}" stroke="${r.reject?'#e53e3e':'#48bb78'}" stroke-width="2.5"/>`;
+  html+=`<text x="${W-PAD.r-118}" y="${PAD.t+37}" font-size="11" fill="${r.reject?'#e53e3e':'#48bb78'}">x̄ quan sát</text>`;
+  html+=`<line x1="${W-PAD.r-134}" y1="${PAD.t+51}" x2="${W-PAD.r-122}" y2="${PAD.t+51}" stroke="#2b6cb0" stroke-dasharray="4,3" stroke-width="1.5"/>`;
+  html+=`<text x="${W-PAD.r-118}" y="${PAD.t+55}" font-size="11" fill="#2b6cb0">μ₀ (H₀)</text>`;
+
+  svg.innerHTML = html;
+}
+
+function drawPvalChart(r) {
+  const svg = document.getElementById('pvalChart');
+  const W=600, H=200, PAD={t:20,r:30,b:40,l:60};
+  const cw=W-PAD.l-PAD.r, ch=H-PAD.t-PAD.b;
+
+  // Show p-value as function of (xbar - mu0)
+  const se = r.se;
+  const mu0 = r.mu0;
+  const alpha = r.alpha;
+
+  const minDiff = -4*se, maxDiff = 4*se;
+  const sy = (p) => H-PAD.b - Math.min(1,p)*ch*0.9;
+
+  let html = `<rect x="0" y="0" width="${W}" height="${H}" fill="#fafafa" rx="6"/>`;
+
+  // Grid
+  [0.01, 0.05, 0.1, 0.5, 1.0].forEach(p => {
+    const y=sy(p);
+    html+=`<line x1="${PAD.l}" y1="${y}" x2="${W-PAD.r}" y2="${y}" stroke="#e2e8f0"/>`;
+    html+=`<text x="${PAD.l-6}" y="${y+4}" text-anchor="end" font-size="10" fill="#718096">${p}</text>`;
+  });
+
+  // Alpha line
+  const ay = sy(alpha);
+  html+=`<line x1="${PAD.l}" y1="${ay}" x2="${W-PAD.r}" y2="${ay}" stroke="#e53e3e" stroke-dasharray="5,3" stroke-width="2"/>`;
+  html+=`<text x="${W-PAD.r+4}" y="${ay+4}" font-size="11" fill="#e53e3e" font-weight="bold">α=${alpha}</text>`;
+
+  // P-value curve
+  let path='';
+  for(let px=0;px<=cw;px+=2) {
+    const diff = minDiff+(px/cw)*(maxDiff-minDiff);
+    const stat = diff/se;
+    let pv;
+    if(r.h1==='two') pv=2*(1-Phi(Math.abs(stat)));
+    else if(r.h1==='right') pv=1-Phi(stat);
+    else pv=Phi(stat);
+    const y=sy(Math.max(1e-10,pv));
+    if(px===0)path+=`M${PAD.l+px},${y}`;else path+=`L${PAD.l+px},${y}`;
+  }
+  html+=`<path d="${path}" fill="none" stroke="#7c3aed" stroke-width="2.5"/>`;
+
+  // Current xbar marker
+  const curDiff = r.xbar - mu0;
+  const curX = PAD.l + ((curDiff-minDiff)/(maxDiff-minDiff))*cw;
+  if(curX>PAD.l && curX<W-PAD.r) {
+    const curY = sy(r.pval);
+    html+=`<circle cx="${curX}" cy="${curY}" r="6" fill="${r.reject?'#e53e3e':'#48bb78'}" stroke="white" stroke-width="2"/>`;
+    html+=`<line x1="${curX}" y1="${curY}" x2="${curX}" y2="${H-PAD.b}" stroke="${r.reject?'#e53e3e':'#48bb78'}" stroke-dasharray="3,3" opacity="0.7"/>`;
+    html+=`<text x="${curX}" y="${curY-10}" text-anchor="middle" font-size="11" fill="${r.reject?'#e53e3e':'#48bb78'}" font-weight="bold">p=${r.pval<0.001?'<0.001':r.pval.toFixed(3)}</text>`;
+  }
+
+  // X axis
+  html+=`<line x1="${PAD.l}" y1="${H-PAD.b}" x2="${W-PAD.r}" y2="${H-PAD.b}" stroke="#a0aec0"/>`;
+  html+=`<line x1="${PAD.l}" y1="${PAD.t}" x2="${PAD.l}" y2="${H-PAD.b}" stroke="#a0aec0"/>`;
+
+  // X labels
+  for(let i=0;i<=4;i++) {
+    const d=minDiff+i*(maxDiff-minDiff)/4;
+    const x=PAD.l+i*cw/4;
+    html+=`<text x="${x}" y="${H-PAD.b+14}" text-anchor="middle" font-size="10" fill="#718096">${(mu0+d).toFixed(0)}</text>`;
+  }
+  html+=`<text x="${PAD.l+cw/2}" y="${H-2}" text-anchor="middle" font-size="11" fill="#4a5568">x̄ quan sát</text>`;
+  html+=`<text x="${PAD.l-50}" y="${PAD.t+ch/2}" text-anchor="middle" font-size="11" fill="#4a5568" transform="rotate(-90,${PAD.l-46},${PAD.t+ch/2})">p-value</text>`;
+
+  // Zero line (xbar=mu0)
+  const zeroX = PAD.l + ((-minDiff)/(maxDiff-minDiff))*cw;
+  html+=`<line x1="${zeroX}" y1="${PAD.t}" x2="${zeroX}" y2="${H-PAD.b}" stroke="#2b6cb0" stroke-dasharray="4,3" opacity="0.5"/>`;
+
+  svg.innerHTML = html;
+}
+
+function updateSteps(r) {
+  const h1Labels = {'two':'μ ≠ μ₀ (two-sided)', 'right':'μ > μ₀ (one-sided right)', 'left':'μ < μ₀ (one-sided left)'};
+  const cvStr = r.h1==='two' ? `|${r.statLabel}*| = ${Math.abs(r.cv).toFixed(3)}` : `${r.statLabel}* = ${r.cv.toFixed(3)}`;
+  const decStr = r.h1==='two' ? `|${r.statLabel}| = ${Math.abs(r.stat).toFixed(3)} ${r.reject?'>':'<'} ${Math.abs(r.cv).toFixed(3)}` : `${r.statLabel} = ${r.stat.toFixed(3)} ${r.reject?'vượt':'không vượt'} ngưỡng ${r.cv.toFixed(3)}`;
+
+  document.getElementById('stepsList').innerHTML = `
+    <li><strong>Bước 1 — H₀/H₁:</strong> H₀: μ = ${r.mu0} | H₁: ${h1Labels[r.h1]}</li>
+    <li><strong>Bước 2 — α:</strong> Mức ý nghĩa α = ${r.alpha}</li>
+    <li><strong>Bước 3 — Test statistic:</strong> ${r.statLabel} = (x̄ - μ₀) / (σ/√n) = (${r.xbar} - ${r.mu0}) / (${r.sigma} / √${r.n}) = ${r.stat.toFixed(4)}</li>
+    <li><strong>Bước 4 — P-value:</strong> p = ${r.pval < 0.0001 ? '< 0.0001' : r.pval.toFixed(4)}</li>
+    <li><strong>Bước 5 — Quyết định:</strong> ${decStr}. ${r.reject ? '<span style="color:#e53e3e">→ Reject H₀</span>' : '<span style="color:#48bb78">→ Fail to reject H₀</span>'}</li>
+    <li><strong>Bước 6 — Kết luận:</strong> ${r.reject ? `Có bằng chứng thống kê (p=${r.pval.toFixed(4)}) rằng μ ≠ ${r.mu0} ở mức ý nghĩa ${r.alpha}.` : `Chưa đủ bằng chứng để bác bỏ μ = ${r.mu0} ở mức ý nghĩa ${r.alpha}.`}</li>
+  `;
+}
+
+update();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -139,6 +139,29 @@ Thư mục `tools/` ở cấp gốc chứa các file dùng chung cho toàn bộ 
 - Mỗi khi tạo `visualization.html` mới: **luôn** thêm `<link rel="stylesheet" href="../../tools/viz-base.css">` vào `<head>` (chrome chuẩn), chạy `go run tools/build-readme-data.go` để sinh `README.data.js`, rồi thêm 3 script tags readme-modal vào cuối `<body>` (xem mục 5 ở trên).
 - **Mỗi khi sửa `README.md` của một lesson đã có `visualization.html`, BẮT BUỘC chạy lại `go run tools/build-readme-data.go` (hoặc giới hạn phạm vi `go run tools/build-readme-data.go <Lĩnh vực>`) để regenerate `README.data.js` tương ứng**, rồi commit cả `README.md` và `README.data.js` trong cùng một commit. `README.data.js` là file auto-generated — nếu quên sync, readme-modal sẽ hiển thị nội dung cũ. Không bao giờ sửa `README.data.js` bằng tay.
 - Không tự định nghĩa lại style cho `nav.viz-nav` trong viz — viz-base đã handle. Nếu cần biến thể chrome khác, thêm vào `viz-base.css` chứ không inline.
+- **`visualization.html` BẮT BUỘC bọc toàn bộ content trong `<main>...</main>`** — đặt ngay sau `</nav>` và đóng trước script tail. Cấu trúc chuẩn:
+  ```html
+  <body>
+  <nav class="viz-nav">...</nav>
+  <main>
+    <h1>...</h1>
+    <!-- mọi module/section của viz nằm ở đây -->
+  </main>
+  <script src="../../tools/marked.min.js"></script>
+  <script src="./README.data.js"></script>
+  <script src="../../tools/readme-modal.js"></script>
+  <script src="../../tools/viz-toc.js"></script>
+  </body>
+  ```
+  Lý do: `viz-base.css` định nghĩa `main { max-width: 1100px; margin: 0 auto; padding: 64px 24px 24px; }` — `padding-top: 64px` để chống `nav.viz-nav` (position: fixed) đè lên `<h1>`/content. Nếu content không bọc `<main>`, padding-top mất → nav sticky che mất tiêu đề.
+- **KHÔNG override `main { padding }` hoặc `main { margin }` trong `<style>` nội bộ của viz** — sẽ phá `padding-top: 64px` chống nav đè. **Chỉ được override `max-width`** (viz-base.css comment dòng 146 cho phép). Sai/đúng:
+  ```css
+  /* ❌ SAI — phá padding-top chống nav đè, h1 bị nav che */
+  main { max-width: 1000px; margin: 0 auto; padding: 16px; }
+
+  /* ✅ ĐÚNG — chỉ override max-width, giữ padding/margin từ viz-base */
+  main { max-width: 1000px; }
+  ```
 - **Mọi `index.html` mới bắt buộc thêm favicon dùng chung**: 1 dòng `<script src="<độ-sâu>/tools/favicon.js"></script>` trước `</body>` (gốc: `./tools/` · `<Lĩnh vực>/`: `../tools/` · `<Lĩnh vực>/<Tier>/`: `../../tools/`). `visualization.html` KHÔNG cần thêm gì — `readme-modal.js` đã tự nạp favicon. Đừng khai báo `<link rel="icon">` tĩnh trong từng page (favicon.js đã guard: nếu page có sẵn icon thì bỏ qua).
 - **Mọi `index.html`** (cả lĩnh vực và sub-page) **bắt buộc load `tools/viz-base.css`** và dùng markup chuẩn: `.container > header (h1 + .subtitle + .back) + .intro + .branch-title + .card-grid > .card (.num + .title + .desc + .links > .link-primary + .link-readme) + footer`. Không copy lại CSS cho các selector này. Chỉ override CSS variable trong `<style>` nội bộ: `--bg`, `--accent`, `--accent-soft`, `--accent-hover` (và `--card-accent` cho variant card nếu cần). Cấu trúc nhất quán → mọi lĩnh vực nhìn giống nhau, không bị "vỡ giao diện" giữa các trang.
 - **IPA Reader tự động xuất hiện trong mọi `English/lesson-*/visualization.html`** — chỉ cần đảm bảo viz có dòng `<script src="../../tools/ipa-reader.js"></script>` ở cuối `<body>` (đặt SAU readme-modal). Không cần markup gì khác — widget tự inject nút floating + panel + load dict.

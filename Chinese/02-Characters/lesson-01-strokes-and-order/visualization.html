@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01: Nét &amp; Thứ tự viết — Chinese</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fdf6f3;
+    --accent: #c8102e;
+    --accent-soft: #fee2e2;
+    --accent-hover: #9b1226;
+  }
+  h1 { color: #7f1d1d; }
+  h2 { color: #991b1b; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #fecaca; }
+  h3 { color: #b91c1c; margin-top: 20px; }
+
+  .module {
+    background: white; border: 1px solid #fecaca; border-radius: 12px;
+    padding: 20px; margin-bottom: 20px;
+  }
+  .lead { font-size: 1.05rem; color: #4b5563; margin-bottom: 20px; line-height: 1.7; }
+
+  /* 8 nét cơ bản */
+  .strokes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin: 14px 0;
+  }
+  .stroke-card {
+    background: white; border: 2px solid #fecaca; border-radius: 10px;
+    padding: 14px; text-align: center;
+  }
+  .stroke-card .symbol {
+    font-family: "PingFang SC", "Microsoft YaHei", "SimHei", sans-serif;
+    font-size: 56px; line-height: 1; color: var(--accent); font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .stroke-card .name-vn { font-weight: 700; font-size: 14px; color: #1a202c; }
+  .stroke-card .name-zh {
+    font-family: "Charis SIL", sans-serif;
+    font-size: 13px; color: #6b7280; margin-top: 2px;
+  }
+  .stroke-card .desc { font-size: 11px; color: #9ca3af; margin-top: 6px; }
+
+  /* Hanzi writer container */
+  .writer-area {
+    background: #fef2f2;
+    border: 2px dashed #fbbf24;
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  .writer-row {
+    display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+    margin-bottom: 12px;
+  }
+  .writer-row > div {
+    background: white;
+    border-radius: 8px;
+    padding: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  }
+  .writer-row .label {
+    text-align: center; font-size: 13px; color: #6b7280; margin-top: 4px;
+  }
+  .writer-controls {
+    display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+    margin-top: 12px;
+  }
+  .writer-controls button {
+    padding: 8px 16px; border-radius: 8px;
+    border: 2px solid var(--accent);
+    background: white;
+    color: var(--accent);
+    font-weight: 700; font-size: 13px;
+    cursor: pointer;
+  }
+  .writer-controls button:hover { background: var(--accent); color: white; }
+  .writer-controls button.active { background: var(--accent); color: white; }
+  .writer-input {
+    margin-top: 12px;
+    text-align: center;
+  }
+  .writer-input input {
+    padding: 8px 12px;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    font-family: "PingFang SC", sans-serif;
+    font-size: 18px;
+    width: 100px;
+    text-align: center;
+  }
+
+  /* Rules */
+  .rule-card {
+    background: white;
+    border: 1px solid #fecaca;
+    border-left: 4px solid var(--accent);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 12px;
+  }
+  .rule-card h4 {
+    margin: 0 0 6px;
+    color: #7f1d1d;
+    font-size: 15px;
+  }
+  .rule-card .example {
+    background: #fef2f2;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-top: 8px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .rule-card .example .hz {
+    font-family: "PingFang SC", sans-serif;
+    font-size: 36px; font-weight: 700; color: #1a202c;
+  }
+  .rule-card .example .breakdown { font-size: 13px; }
+
+  /* Common mistakes */
+  .mistake-box {
+    background: #fef2f2;
+    border-left: 4px solid #ef4444;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin: 10px 0;
+  }
+  .mistake-box h4 { color: #991b1b; margin: 0 0 6px; font-size: 15px; }
+  .mistake-box .wrong, .mistake-box .right {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-family: "PingFang SC", sans-serif;
+    font-weight: 700;
+    margin: 4px;
+  }
+  .mistake-box .wrong { background: #fee2e2; color: #991b1b; text-decoration: line-through; }
+  .mistake-box .right { background: #d1fae5; color: #065f46; }
+
+  table.examples {
+    width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 14px;
+  }
+  table.examples th, table.examples td {
+    border: 1px solid #e5e7eb; padding: 8px 10px; text-align: left;
+  }
+  table.examples th { background: var(--accent-soft); color: #7f1d1d; }
+  table.examples .hz {
+    font-family: "PingFang SC", sans-serif; font-size: 24px;
+    text-align: center;
+  }
+  table.examples .pin { font-family: "Charis SIL", sans-serif; color: var(--accent); font-weight: 600; }
+  table.examples .play { color: var(--accent); cursor: pointer; user-select: none; }
+  table.examples .play:hover { text-decoration: underline; }
+  table.examples .play.playing { background: #fef3c7; }
+
+  @media (max-width: 480px) {
+    .stroke-card .symbol { font-size: 44px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Chữ Hán</a>
+  <span class="sep">·</span>
+  <span class="current">L01: Nét &amp; thứ tự</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-radicals-bushou/visualization.html">L02: Bộ thủ →</a>
+</nav>
+
+<main>
+  <h1>Lesson 01: Nét &amp; Thứ tự viết (笔画 笔顺)</h1>
+  <p class="lead">Mỗi chữ Hán được viết bằng một chuỗi nét theo thứ tự cố định. Bài này dạy 8 nét cơ bản, 6 quy tắc thứ tự, và animation stroke order cho 10 chữ thường gặp.</p>
+
+  <!-- Module 1: 8 nét cơ bản -->
+  <section class="module">
+    <h2>Module 1: 8 nét cơ bản (基本笔画)</h2>
+    <p>Toàn bộ chữ Hán được dựng từ ~30 loại nét. 8 nét cơ bản này là nền tảng:</p>
+
+    <div class="strokes-grid">
+      <div class="stroke-card">
+        <div class="symbol">一</div>
+        <div class="name-vn">1. Ngang</div>
+        <div class="name-zh">横 héng</div>
+        <div class="desc">Trái → phải, hơi nghiêng lên cuối</div>
+      </div>
+      <div class="stroke-card">
+        <div class="symbol">丨</div>
+        <div class="name-vn">2. Sổ thẳng</div>
+        <div class="name-zh">竖 shù</div>
+        <div class="desc">Trên → dưới, thẳng đứng</div>
+      </div>
+      <div class="stroke-card">
+        <div class="symbol">丿</div>
+        <div class="name-vn">3. Phẩy trái</div>
+        <div class="name-zh">撇 piě</div>
+        <div class="desc">Trên-phải → dưới-trái, cong nhẹ</div>
+      </div>
+      <div class="stroke-card">
+        <div class="symbol">㇏</div>
+        <div class="name-vn">4. Mác</div>
+        <div class="name-zh">捺 nà</div>
+        <div class="desc">Trên-trái → dưới-phải, càng cuối càng đậm</div>
+      </div>
+      <div class="stroke-card">
+        <div class="symbol">丶</div>
+        <div class="name-vn">5. Chấm</div>
+        <div class="name-zh">点 diǎn</div>
+        <div class="desc">Chấm ngắn, hướng dưới-phải</div>
+      </div>
+      <div class="stroke-card">
+        <div class="symbol">㇀</div>
+        <div class="name-vn">6. Hất</div>
+        <div class="name-zh">提 tí</div>
+        <div class="desc">Trái-dưới → phải-trên, ngắn</div>
+      </div>
+      <div class="stroke-card">
+        <div class="symbol">𠃌</div>
+        <div class="name-vn">7. Gập</div>
+        <div class="name-zh">折 zhé</div>
+        <div class="desc">Đổi hướng giữa nét (ngang → sổ, v.v.)</div>
+      </div>
+      <div class="stroke-card">
+        <div class="symbol">亅</div>
+        <div class="name-vn">8. Móc</div>
+        <div class="name-zh">钩 gōu</div>
+        <div class="desc">Cuối nét bật lại, thường gắn nét khác</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Module 2: Hanzi Writer Stroke Order -->
+  <section class="module">
+    <h2>Module 2: Animation thứ tự nét — chữ thường gặp</h2>
+    <p>Nhập chữ Hán hoặc chọn từ danh sách để xem animation. Dùng <a href="https://hanziwriter.org" target="_blank">hanzi-writer</a> (lazy-load từ CDN).</p>
+
+    <div class="writer-input">
+      <input type="text" id="hz-input" value="好" maxlength="1" placeholder="Nhập 1 chữ">
+      <button class="play-big" style="background: var(--accent); color: white; border: none; border-radius: 999px; padding: 8px 18px; font-weight: 700; cursor: pointer; margin-left: 8px;" id="hz-load">Tải</button>
+    </div>
+
+    <div class="writer-area" style="margin-top: 16px;">
+      <div class="writer-row">
+        <div>
+          <div id="hz-writer-target" style="width: 220px; height: 220px;"></div>
+          <div class="label">Animation</div>
+        </div>
+      </div>
+
+      <div class="writer-controls">
+        <button id="hz-animate">▶ Animation</button>
+        <button id="hz-quiz">✍ Quiz (vẽ thử)</button>
+        <button id="hz-reset">↺ Reset</button>
+      </div>
+      <div id="hz-status" style="font-size: 12px; color: #6b7280; margin-top: 8px;"></div>
+
+      <div style="margin-top: 14px;">
+        <strong style="font-size: 13px;">Gợi ý chữ:</strong>
+        <div class="writer-controls" style="margin-top: 6px;">
+          <button class="hz-suggest" data-char="一" style="font-size: 16px; min-width: 40px;">一</button>
+          <button class="hz-suggest" data-char="十" style="font-size: 16px; min-width: 40px;">十</button>
+          <button class="hz-suggest" data-char="人" style="font-size: 16px; min-width: 40px;">人</button>
+          <button class="hz-suggest" data-char="大" style="font-size: 16px; min-width: 40px;">大</button>
+          <button class="hz-suggest" data-char="木" style="font-size: 16px; min-width: 40px;">木</button>
+          <button class="hz-suggest" data-char="好" style="font-size: 16px; min-width: 40px;">好</button>
+          <button class="hz-suggest" data-char="国" style="font-size: 16px; min-width: 40px;">国</button>
+          <button class="hz-suggest" data-char="小" style="font-size: 16px; min-width: 40px;">小</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Module 3: 6 quy tắc -->
+  <section class="module">
+    <h2>Module 3: Sáu quy tắc thứ tự nét</h2>
+
+    <div class="rule-card">
+      <h4>Quy tắc 1: Ngang trước, sổ sau</h4>
+      <p>Khi nét ngang giao với nét sổ, ngang viết trước.</p>
+      <div class="example">
+        <span class="hz">十</span>
+        <div class="breakdown">
+          <strong>shí — 10</strong><br>
+          <code>1. 横 (ngang) → 2. 竖 (sổ)</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule-card">
+      <h4>Quy tắc 2: Trái trước, phải sau</h4>
+      <p>Trong chữ kết cấu trái-phải, phần trái viết trước.</p>
+      <div class="example">
+        <span class="hz">好</span>
+        <div class="breakdown">
+          <strong>hǎo — tốt</strong><br>
+          <code>女 (3 nét) trước → 子 (3 nét) sau</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule-card">
+      <h4>Quy tắc 3: Trên trước, dưới sau</h4>
+      <p>Trong chữ kết cấu trên-dưới, phần trên viết trước.</p>
+      <div class="example">
+        <span class="hz">二</span>
+        <div class="breakdown">
+          <strong>èr — 2</strong><br>
+          <code>1. 横 trên → 2. 横 dưới</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule-card">
+      <h4>Quy tắc 4: Ngoài trước, trong sau, đóng nắp cuối</h4>
+      <p>Chữ có khung bao: vẽ khung gần kín (chừa đáy), điền trong, đóng đáy cuối cùng.</p>
+      <div class="example">
+        <span class="hz">国</span>
+        <div class="breakdown">
+          <strong>guó — nước</strong><br>
+          <code>Sổ trái → ngang-gập (3 cạnh) → 玉 (4 nét) → Ngang đáy đóng cuối</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule-card">
+      <h4>Quy tắc 5: Giữa trước, hai bên sau</h4>
+      <p>Chữ đối xứng có nét giữa: viết trục giữa trước, rồi hai bên.</p>
+      <div class="example">
+        <span class="hz">小</span>
+        <div class="breakdown">
+          <strong>xiǎo — nhỏ</strong><br>
+          <code>1. 竖钩 (giữa) → 2. 撇 (trái) → 3. 点 (phải)</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule-card">
+      <h4>Quy tắc 6: Đi vào trước, bộ 辶 sau</h4>
+      <p>Cho chữ có bộ 辶 (走之底): viết phần bên trong trước, 辶 cuối cùng.</p>
+      <div class="example">
+        <span class="hz">这</span>
+        <div class="breakdown">
+          <strong>zhè — này</strong><br>
+          <code>文 (4 nét, bên trong) → 辶 (3 nét, bao bên ngoài)</code>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Module 4: Common mistakes -->
+  <section class="module">
+    <h2>Module 4: Lỗi phổ biến</h2>
+
+    <div class="mistake-box">
+      <h4>⚠ Lỗi 1: Viết sổ trước ngang trong chữ 十</h4>
+      <p>Người Việt theo thói quen tiếng Việt (dấu sổ giữa) thường viết:</p>
+      <p>
+        <span class="wrong">丨 → 一</span> (sai)
+        <span class="right">一 → 丨</span> (đúng — ngang trước sổ)
+      </p>
+    </div>
+
+    <div class="mistake-box">
+      <h4>⚠ Lỗi 2: Đóng khung quá sớm</h4>
+      <p>Khi viết chữ 国 (nước), nhiều người vẽ toàn bộ khung trước rồi mới điền 玉 — sai.</p>
+      <p><strong>Đúng</strong>: vẽ 3 cạnh khung (chừa đáy), điền 玉, sau cùng mới đóng đáy bằng 横.</p>
+    </div>
+
+    <div class="mistake-box">
+      <h4>⚠ Lỗi 3: Viết 辶 trước phần bên trong</h4>
+      <p>Bộ 辶 (走之底) phải viết SAU phần bên trong. Sai: vẽ 辶 trước → tỷ lệ chữ lệch.</p>
+      <p>Áp dụng cho: 这, 还, 进, 远, 边, 道...</p>
+    </div>
+  </section>
+
+  <!-- Module 5: Bảng phân tích chữ -->
+  <section class="module">
+    <h2>Module 5: Bảng phân tích nét</h2>
+    <p>Click 🔊 để nghe phát âm. Số nét tăng dần:</p>
+
+    <table class="examples">
+      <thead><tr><th>Chữ</th><th>Pinyin</th><th>Nghĩa</th><th>Số nét</th><th>Thứ tự nét</th><th></th></tr></thead>
+      <tbody>
+        <tr><td class="hz">一</td><td class="pin">yī</td><td>một</td><td>1</td><td>横</td><td class="play" data-speak="一">🔊</td></tr>
+        <tr><td class="hz">二</td><td class="pin">èr</td><td>hai</td><td>2</td><td>横, 横</td><td class="play" data-speak="二">🔊</td></tr>
+        <tr><td class="hz">十</td><td class="pin">shí</td><td>mười</td><td>2</td><td>横, 竖</td><td class="play" data-speak="十">🔊</td></tr>
+        <tr><td class="hz">人</td><td class="pin">rén</td><td>người</td><td>2</td><td>撇, 捺</td><td class="play" data-speak="人">🔊</td></tr>
+        <tr><td class="hz">大</td><td class="pin">dà</td><td>to</td><td>3</td><td>横, 撇, 捺</td><td class="play" data-speak="大">🔊</td></tr>
+        <tr><td class="hz">小</td><td class="pin">xiǎo</td><td>nhỏ</td><td>3</td><td>竖钩, 撇, 点</td><td class="play" data-speak="小">🔊</td></tr>
+        <tr><td class="hz">天</td><td class="pin">tiān</td><td>trời</td><td>4</td><td>横, 横, 撇, 捺</td><td class="play" data-speak="天">🔊</td></tr>
+        <tr><td class="hz">木</td><td class="pin">mù</td><td>cây</td><td>4</td><td>横, 竖, 撇, 捺</td><td class="play" data-speak="木">🔊</td></tr>
+        <tr><td class="hz">火</td><td class="pin">huǒ</td><td>lửa</td><td>4</td><td>点, 撇, 撇, 捺</td><td class="play" data-speak="火">🔊</td></tr>
+        <tr><td class="hz">好</td><td class="pin">hǎo</td><td>tốt</td><td>6</td><td>撇点, 撇, 横, 横折, 竖钩, 横</td><td class="play" data-speak="好">🔊</td></tr>
+        <tr><td class="hz">国</td><td class="pin">guó</td><td>nước</td><td>8</td><td>竖, 横折, 横, 竖, 横, 点, 横, 横</td><td class="play" data-speak="国">🔊</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="module">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li><strong>8 nét cơ bản</strong>: 横, 竖, 撇, 捺, 点, 提, 折, 钩.</li>
+      <li><strong>6 quy tắc thứ tự</strong>: ngang trước sổ sau, trái trước phải sau, trên trước dưới sau, ngoài → trong → đóng nắp, giữa trước hai bên, đi vào trước 辶 sau.</li>
+      <li>Đúng thứ tự nét → chữ đẹp, đếm nét đúng, dễ viết nối (草书), nhận diện tay-viết tốt hơn.</li>
+      <li>Bài tiếp: <a href="../lesson-02-radicals-bushou/visualization.html">L02 — Bộ thủ (30 bộ thông dụng)</a>.</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+// ============================================================
+// Web Speech API
+// ============================================================
+let currentPlaying = null;
+function clearPlaying() {
+  if (currentPlaying) currentPlaying.classList.remove('playing');
+  currentPlaying = null;
+}
+function speak(text, el) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  clearPlaying();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = localStorage.getItem('zhVariant') || 'zh-CN';
+  u.rate = 0.9;
+  if (el) {
+    el.classList.add('playing');
+    currentPlaying = el;
+    u.onend = u.onerror = () => clearPlaying();
+  }
+  window.speechSynthesis.speak(u);
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-speak]');
+  if (!t) return;
+  speak(t.dataset.speak, t);
+});
+
+// ============================================================
+// Hanzi Writer (lazy CDN load)
+// ============================================================
+let HanziWriter = null;
+let currentWriter = null;
+const statusEl = document.getElementById('hz-status');
+
+function loadHanziWriter() {
+  return new Promise((resolve, reject) => {
+    if (window.HanziWriter) { HanziWriter = window.HanziWriter; resolve(); return; }
+    statusEl.textContent = 'Đang tải thư viện hanzi-writer...';
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js';
+    s.onload = () => { HanziWriter = window.HanziWriter; statusEl.textContent = ''; resolve(); };
+    s.onerror = () => { statusEl.textContent = '❌ Không tải được hanzi-writer (cần internet). Bạn vẫn xem được nội dung khác.'; reject(); };
+    document.head.appendChild(s);
+  });
+}
+
+function loadChar(ch) {
+  if (!ch) return;
+  loadHanziWriter().then(() => {
+    const target = document.getElementById('hz-writer-target');
+    target.innerHTML = '';
+    try {
+      currentWriter = HanziWriter.create('hz-writer-target', ch, {
+        width: 220, height: 220, padding: 8,
+        strokeColor: '#c8102e',
+        radicalColor: '#7f1d1d',
+        showOutline: true,
+        showCharacter: false,
+        strokeAnimationSpeed: 0.8,
+        delayBetweenStrokes: 250
+      });
+      // Tự animate lần đầu
+      setTimeout(() => currentWriter && currentWriter.animateCharacter(), 200);
+      statusEl.textContent = 'Đã tải chữ ' + ch;
+      // Phát âm
+      setTimeout(() => speak(ch), 400);
+    } catch (e) {
+      statusEl.textContent = '❌ Lỗi tải chữ ' + ch + ': ' + e.message;
+    }
+  }).catch(() => {});
+}
+
+document.getElementById('hz-load').addEventListener('click', () => {
+  const v = document.getElementById('hz-input').value.trim();
+  if (v) loadChar(v[0]);
+});
+document.getElementById('hz-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const v = e.target.value.trim();
+    if (v) loadChar(v[0]);
+  }
+});
+
+document.getElementById('hz-animate').addEventListener('click', () => {
+  if (currentWriter) currentWriter.animateCharacter();
+});
+document.getElementById('hz-quiz').addEventListener('click', () => {
+  if (currentWriter) currentWriter.quiz({
+    onComplete: data => {
+      statusEl.textContent = `Hoàn tất! ${data.totalMistakes} lỗi.`;
+    }
+  });
+});
+document.getElementById('hz-reset').addEventListener('click', () => {
+  if (currentWriter) currentWriter.cancelQuiz();
+  const v = document.getElementById('hz-input').value.trim();
+  if (v) loadChar(v[0]);
+});
+
+document.querySelectorAll('.hz-suggest').forEach(b => {
+  b.addEventListener('click', () => {
+    const ch = b.dataset.char;
+    document.getElementById('hz-input').value = ch;
+    loadChar(ch);
+  });
+});
+
+// Auto load chữ 好 đầu tiên
+loadChar('好');
+
+if (window.speechSynthesis) {
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+<script src="../../../tools/zh-reader.js"></script>
+</body>
+</html>

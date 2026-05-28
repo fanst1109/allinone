@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01: HSK 1 — Chào hỏi & Số đếm — Chinese</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fdf6f3;
+    --accent: #c8102e;
+    --accent-soft: #fee2e2;
+    --accent-hover: #9b1226;
+  }
+  h1 { color: #7f1d1d; }
+  h2 { color: #991b1b; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #fecaca; }
+  h3 { color: #b91c1c; margin-top: 20px; }
+
+  .module {
+    background: white; border: 1px solid #fecaca; border-radius: 12px;
+    padding: 20px; margin-bottom: 20px;
+  }
+  .lead { font-size: 1.05rem; color: #4b5563; margin-bottom: 20px; line-height: 1.7; }
+
+  /* Vocab grid card */
+  .vocab-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 12px;
+    margin: 14px 0;
+  }
+  .vcard {
+    background: white; border: 2px solid #fecaca; border-radius: 10px;
+    padding: 14px 10px; text-align: center; cursor: pointer;
+    transition: all .12s;
+  }
+  .vcard:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(200,16,46,0.1); }
+  .vcard.playing { background: #fef3c7; border-color: #f59e0b; }
+  .vcard .hz {
+    font-family: "PingFang SC", "Microsoft YaHei", "SimHei", sans-serif;
+    font-size: 32px; font-weight: 700; color: #1a202c; line-height: 1.1;
+    margin-bottom: 4px;
+  }
+  .vcard .pin {
+    font-family: "Charis SIL", sans-serif;
+    font-size: 14px; font-weight: 600; margin-bottom: 4px;
+  }
+  .vcard .pin.t1 { color: #2563eb; }
+  .vcard .pin.t2 { color: #ca8a04; }
+  .vcard .pin.t3 { color: #c8102e; }
+  .vcard .pin.t4 { color: #7c3aed; }
+  .vcard .pin.t0 { color: #6b7280; }
+  .vcard .meaning { font-size: 12px; color: #6b7280; }
+  .vcard .hint { font-size: 10px; color: #9ca3af; margin-top: 4px; }
+
+  /* Số đếm */
+  .number-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin: 16px 0;
+  }
+  .num-card {
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+    border: 2px solid #fecaca;
+    border-radius: 12px;
+    padding: 12px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .12s;
+  }
+  .num-card:hover { transform: scale(1.05); border-color: var(--accent); }
+  .num-card.playing { background: #fef3c7; border-color: #f59e0b; }
+  .num-card .digit {
+    font-size: 28px; font-weight: 700; color: var(--accent);
+  }
+  .num-card .hz {
+    font-family: "PingFang SC", sans-serif;
+    font-size: 28px; font-weight: 700; margin: 4px 0;
+    color: #1a202c;
+  }
+  .num-card .pin {
+    font-family: "Charis SIL", sans-serif;
+    font-size: 13px; font-weight: 600;
+  }
+  .num-card .pin.t1 { color: #2563eb; }
+  .num-card .pin.t2 { color: #ca8a04; }
+  .num-card .pin.t3 { color: #c8102e; }
+  .num-card .pin.t4 { color: #7c3aed; }
+
+  /* Câu mẫu */
+  .sentence-list {
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .sentence {
+    background: #fef2f2; border-left: 4px solid var(--accent);
+    padding: 10px 14px; border-radius: 6px;
+    cursor: pointer; transition: background .12s;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .sentence:hover { background: #fee2e2; }
+  .sentence.playing { background: #fef3c7; border-left-color: #f59e0b; }
+  .sentence .icon { font-size: 18px; color: var(--accent); }
+  .sentence .text { flex: 1; }
+  .sentence .hz {
+    font-family: "PingFang SC", sans-serif;
+    font-size: 18px; font-weight: 600; color: #1a202c;
+  }
+  .sentence .pin {
+    font-family: "Charis SIL", sans-serif;
+    font-size: 13px; color: #7f1d1d; margin-top: 2px;
+  }
+  .sentence .vn { font-size: 12px; color: #6b7280; margin-top: 2px; font-style: italic; }
+
+  /* Flashcard SRS */
+  .srs-area {
+    background: #fffbeb;
+    border: 2px dashed #fbbf24;
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .srs-card {
+    background: white;
+    border-radius: 12px;
+    padding: 32px 20px;
+    text-align: center;
+    min-height: 240px;
+    display: flex; flex-direction: column; justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    margin-bottom: 12px;
+    cursor: pointer;
+  }
+  .srs-front .hz {
+    font-family: "PingFang SC", sans-serif;
+    font-size: 64px; font-weight: 700; color: #1a202c;
+    margin-bottom: 8px;
+  }
+  .srs-back .pin {
+    font-family: "Charis SIL", sans-serif;
+    font-size: 26px; font-weight: 700; margin-bottom: 8px;
+  }
+  .srs-back .meaning { font-size: 18px; color: #4b5563; margin-bottom: 12px; }
+  .srs-back .hz {
+    font-family: "PingFang SC", sans-serif;
+    font-size: 36px; font-weight: 600; color: #1a202c;
+    margin-bottom: 8px;
+  }
+  .srs-hint { font-size: 12px; color: #9ca3af; }
+  .srs-controls {
+    display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+    margin-top: 12px;
+  }
+  .srs-controls button {
+    flex: 1; min-width: 80px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 2px solid;
+    background: white;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .srs-controls .btn-again { border-color: #ef4444; color: #991b1b; }
+  .srs-controls .btn-again:hover { background: #fee2e2; }
+  .srs-controls .btn-hard { border-color: #f59e0b; color: #92400e; }
+  .srs-controls .btn-hard:hover { background: #fef3c7; }
+  .srs-controls .btn-good { border-color: #10b981; color: #065f46; }
+  .srs-controls .btn-good:hover { background: #d1fae5; }
+  .srs-controls .btn-easy { border-color: #3b82f6; color: #1e3a8a; }
+  .srs-controls .btn-easy:hover { background: #dbeafe; }
+  .srs-status {
+    display: flex; justify-content: space-around;
+    background: white; padding: 10px; border-radius: 8px;
+    margin-bottom: 10px;
+    font-size: 13px;
+  }
+  .srs-status div { text-align: center; }
+  .srs-status .num { font-size: 18px; font-weight: 700; color: var(--accent); }
+  .srs-status .lbl { font-size: 11px; color: #6b7280; }
+  .srs-actions {
+    display: flex; gap: 8px; justify-content: center;
+    margin-top: 10px;
+  }
+  .srs-actions button {
+    padding: 6px 12px; border-radius: 6px;
+    border: 1px solid #cbd5e0; background: white;
+    cursor: pointer; font-size: 12px; font-weight: 600;
+  }
+  .srs-actions button:hover { background: #f1f5f9; }
+
+  table.examples {
+    width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 14px;
+  }
+  table.examples th, table.examples td {
+    border: 1px solid #e5e7eb; padding: 8px 10px; text-align: left;
+  }
+  table.examples th { background: var(--accent-soft); color: #7f1d1d; }
+  table.examples .hz { font-family: "PingFang SC", sans-serif; font-size: 17px; }
+  table.examples .pin { font-family: "Charis SIL", sans-serif; }
+  table.examples .play { color: var(--accent); cursor: pointer; user-select: none; }
+  table.examples .play:hover { text-decoration: underline; }
+
+  @media (max-width: 480px) {
+    .number-grid { grid-template-columns: repeat(2, 1fr); }
+    .srs-front .hz { font-size: 56px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Từ vựng</a>
+  <span class="sep">·</span>
+  <span class="current">L01: HSK 1 — Chào &amp; số</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-hsk1-daily-life/visualization.html">L02: Sinh hoạt →</a>
+</nav>
+
+<main>
+  <h1>Lesson 01: HSK 1 — Chào hỏi &amp; Số đếm</h1>
+  <p class="lead">Nhóm từ đầu tiên của HSK 1: chào hỏi, đại từ, số 1–100, gia đình — khoảng 50 từ. Click vào mỗi card để nghe phát âm. Cuối bài có flashcard SRS để ôn tập.</p>
+
+  <!-- Module 1: Chào hỏi -->
+  <section class="module">
+    <h2>Module 1: Chào hỏi cơ bản (问候语)</h2>
+    <p>Click vào mỗi từ để nghe phát âm Web Speech API. Sao chép sẵn vào Pinyin Reader (🔊 góc dưới-trái) nếu muốn nghe câu dài.</p>
+
+    <div class="vocab-grid" id="greet-grid">
+      <!-- Build via JS -->
+    </div>
+
+    <h3>Câu mẫu</h3>
+    <div class="sentence-list">
+      <div class="sentence" data-speak="你好！">
+        <span class="icon">🔊</span>
+        <div class="text">
+          <div class="hz">你好！</div>
+          <div class="pin">Nǐ hǎo! (đọc thực tế: ní hǎo)</div>
+          <div class="vn">Xin chào!</div>
+        </div>
+      </div>
+      <div class="sentence" data-speak="你好吗？">
+        <span class="icon">🔊</span>
+        <div class="text">
+          <div class="hz">你好吗？</div>
+          <div class="pin">Nǐ hǎo ma?</div>
+          <div class="vn">Bạn khoẻ không?</div>
+        </div>
+      </div>
+      <div class="sentence" data-speak="我很好，谢谢。">
+        <span class="icon">🔊</span>
+        <div class="text">
+          <div class="hz">我很好，谢谢。</div>
+          <div class="pin">Wǒ hěn hǎo, xièxiè.</div>
+          <div class="vn">Tôi rất khoẻ, cảm ơn.</div>
+        </div>
+      </div>
+      <div class="sentence" data-speak="再见，明天见！">
+        <span class="icon">🔊</span>
+        <div class="text">
+          <div class="hz">再见，明天见！</div>
+          <div class="pin">Zàijiàn, míngtiān jiàn!</div>
+          <div class="vn">Tạm biệt, mai gặp!</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Module 2: Đại từ -->
+  <section class="module">
+    <h2>Module 2: Đại từ nhân xưng (人称代词)</h2>
+    <p>Lưu ý: 他/她/它 đều đọc <code>tā</code>. Phân biệt khi nghe phải dựa vào ngữ cảnh; khi viết phải đúng.</p>
+    <div class="vocab-grid" id="pron-grid"></div>
+  </section>
+
+  <!-- Module 3: Số đếm -->
+  <section class="module">
+    <h2>Module 3: Số đếm 1–10 và đến 100</h2>
+    <p>Click vào mỗi ô để nghe phát âm.</p>
+
+    <div class="number-grid" id="num-grid"></div>
+
+    <h3>Quy luật ghép số tới 100</h3>
+    <table class="examples">
+      <thead><tr><th>Số</th><th>Cách ghép</th><th>Chữ Hán</th><th>Pinyin</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>11</td><td>10 + 1</td><td class="hz">十一</td><td class="pin">shí yī</td><td class="play" data-speak="十一">🔊</td></tr>
+        <tr><td>20</td><td>2 × 10</td><td class="hz">二十</td><td class="pin">èr shí</td><td class="play" data-speak="二十">🔊</td></tr>
+        <tr><td>25</td><td>2 × 10 + 5</td><td class="hz">二十五</td><td class="pin">èr shí wǔ</td><td class="play" data-speak="二十五">🔊</td></tr>
+        <tr><td>99</td><td>9 × 10 + 9</td><td class="hz">九十九</td><td class="pin">jiǔ shí jiǔ</td><td class="play" data-speak="九十九">🔊</td></tr>
+        <tr><td>100</td><td>1 × 100</td><td class="hz">一百</td><td class="pin">yì bǎi</td><td class="play" data-speak="一百">🔊</td></tr>
+        <tr><td>1000</td><td>1 × 1000</td><td class="hz">一千</td><td class="pin">yì qiān</td><td class="play" data-speak="一千">🔊</td></tr>
+        <tr><td>10 000</td><td>1 × 万</td><td class="hz">一万</td><td class="pin">yí wàn</td><td class="play" data-speak="一万">🔊</td></tr>
+      </tbody>
+    </table>
+
+    <div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 6px;">
+      <strong>⚠ Khác biệt với tiếng Việt</strong>: Tiếng Trung có đơn vị <strong>万 (wàn = 10 000)</strong>, không có "mười nghìn" mà gọi là "1 vạn". 100 000 = 十万 (mười vạn), 1 000 000 = 一百万 (một trăm vạn).
+    </div>
+  </section>
+
+  <!-- Module 4: Gia đình -->
+  <section class="module">
+    <h2>Module 4: Gia đình (家庭)</h2>
+    <p>Lưu ý: từ kép trùng âm như 爸爸/妈妈/哥哥 — âm tiết thứ hai đọc <strong>thanh nhẹ</strong>.</p>
+    <div class="vocab-grid" id="family-grid"></div>
+  </section>
+
+  <!-- Module 5: Cấu trúc câu -->
+  <section class="module">
+    <h2>Module 5: Cấu trúc câu cơ bản</h2>
+
+    <h3>5.1 我是 + danh từ (Tôi là...)</h3>
+    <div class="sentence-list">
+      <div class="sentence" data-speak="我是学生。">
+        <span class="icon">🔊</span>
+        <div class="text">
+          <div class="hz">我是学生。</div>
+          <div class="pin">Wǒ shì xuésheng.</div>
+          <div class="vn">Tôi là học sinh.</div>
+        </div>
+      </div>
+      <div class="sentence" data-speak="我是越南人。">
+        <span class="icon">🔊</span>
+        <div class="text">
+          <div class="hz">我是越南人。</div>
+          <div class="pin">Wǒ shì Yuènán rén.</div>
+          <div class="vn">Tôi là người Việt Nam.</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>5.2 我叫 + tên (Tôi tên là...)</h3>
+    <div class="sentence-list">
+      <div class="sentence" data-speak="我叫小明。">
+        <span class="icon">🔊</span>
+        <div class="text">
+          <div class="hz">我叫小明。</div>
+          <div class="pin">Wǒ jiào Xiǎomíng.</div>
+          <div class="vn">Tôi tên là Tiểu Minh.</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>5.3 这是 + danh từ (Đây là...)</h3>
+    <div class="sentence-list">
+      <div class="sentence" data-speak="这是我的书。">
+        <span class="icon">🔊</span>
+        <div class="text">
+          <div class="hz">这是我的书。</div>
+          <div class="pin">Zhè shì wǒ de shū.</div>
+          <div class="vn">Đây là sách của tôi.</div>
+        </div>
+      </div>
+      <div class="sentence" data-speak="这是我妈妈。">
+        <span class="icon">🔊</span>
+        <div class="text">
+          <div class="hz">这是我妈妈。</div>
+          <div class="pin">Zhè shì wǒ māma.</div>
+          <div class="vn">Đây là mẹ tôi.</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>5.4 有 (có) — phủ định 没有, không phải 不有</h3>
+    <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 12px 16px; border-radius: 6px; margin: 10px 0;">
+      <strong>⚠ Ngoại lệ duy nhất</strong>: phủ định của <code>有 (yǒu — có)</code> là <code>没有 (méi yǒu)</code>, KHÔNG phải <code>不有</code>. Đây là ngoại lệ duy nhất trong tiếng Trung. Mọi động từ khác vẫn dùng <code>不</code>.
+    </div>
+    <div class="sentence-list">
+      <div class="sentence" data-speak="我有一个哥哥。">
+        <span class="icon">🔊</span>
+        <div class="text">
+          <div class="hz">我有一个哥哥。</div>
+          <div class="pin">Wǒ yǒu yí gè gēge.</div>
+          <div class="vn">Tôi có một anh trai.</div>
+        </div>
+      </div>
+      <div class="sentence" data-speak="我没有姐姐。">
+        <span class="icon">🔊</span>
+        <div class="text">
+          <div class="hz">我没有姐姐。</div>
+          <div class="pin">Wǒ méi yǒu jiějie.</div>
+          <div class="vn">Tôi không có chị gái.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Module 6: Flashcard SRS -->
+  <section class="module">
+    <h2>Module 6: Flashcard ôn tập (Leitner Box)</h2>
+    <p>Hệ thống Leitner 5 hộp — bạn đánh giá độ khó, từ tự dồn lên hộp cao hơn (ít gặp lại) hoặc tụt xuống hộp 1 (gặp lại nhanh). Tiến trình lưu vào localStorage.</p>
+
+    <div class="srs-area">
+      <div class="srs-status" id="srs-status">
+        <div><div class="num" id="srs-box1">0</div><div class="lbl">Hộp 1 (mới/khó)</div></div>
+        <div><div class="num" id="srs-box2">0</div><div class="lbl">Hộp 2</div></div>
+        <div><div class="num" id="srs-box3">0</div><div class="lbl">Hộp 3</div></div>
+        <div><div class="num" id="srs-box4">0</div><div class="lbl">Hộp 4</div></div>
+        <div><div class="num" id="srs-box5">0</div><div class="lbl">Hộp 5 (thuộc)</div></div>
+      </div>
+
+      <div class="srs-card" id="srs-card">
+        <div id="srs-content">
+          <div class="srs-front">
+            <div class="hz" id="srs-hz">妈</div>
+            <div class="srs-hint">Click để xem pinyin + nghĩa</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="srs-controls" id="srs-grade-buttons" style="display: none;">
+        <button class="btn-again" data-grade="1">😩 Lại (về hộp 1)</button>
+        <button class="btn-hard" data-grade="2">😐 Khó</button>
+        <button class="btn-good" data-grade="3">🙂 Tốt</button>
+        <button class="btn-easy" data-grade="4">😎 Dễ</button>
+      </div>
+
+      <div class="srs-actions">
+        <button id="srs-reset">↺ Reset tiến trình</button>
+        <button id="srs-skip">⏭ Bỏ qua</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="module">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li>~50 từ HSK 1 đầu tiên: chào hỏi (你好/再见/谢谢), đại từ (我/你/他...), số 1–100, gia đình.</li>
+      <li>Cấu trúc câu cơ bản: <code>我是 + N</code>, <code>我叫 + tên</code>, <code>这是 + N</code>, <code>我有 + N</code>.</li>
+      <li>Phủ định: dùng <code>不</code> cho mọi động từ trừ <code>有</code> → <code>没有</code>.</li>
+      <li>Số 万 (10 000) là đơn vị đặc biệt — 1 triệu = 一百万 (100 vạn).</li>
+      <li>Bài tiếp: <a href="../lesson-02-hsk1-daily-life/visualization.html">L02 — HSK 1: Sinh hoạt</a>.</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+// ============================================================
+// Vocab data
+// ============================================================
+const greetWords = [
+  { hz: '你好', pin: 'nǐ hǎo', tone: '3+3', meaning: 'xin chào' },
+  { hz: '您好', pin: 'nín hǎo', tone: '2+3', meaning: 'xin chào (kính)' },
+  { hz: '再见', pin: 'zàijiàn', tone: '4+4', meaning: 'tạm biệt' },
+  { hz: '谢谢', pin: 'xièxiè', tone: '4+4', meaning: 'cảm ơn' },
+  { hz: '不客气', pin: 'bù kèqi', tone: '4+4+0', meaning: 'không có gì' },
+  { hz: '对不起', pin: 'duìbuqǐ', tone: '4+0+3', meaning: 'xin lỗi' },
+  { hz: '没关系', pin: 'méi guānxi', tone: '2+1+0', meaning: 'không sao' },
+  { hz: '早上好', pin: 'zǎoshang hǎo', tone: '3+0+3', meaning: 'chào buổi sáng' },
+  { hz: '晚上好', pin: 'wǎnshang hǎo', tone: '3+0+3', meaning: 'chào buổi tối' },
+  { hz: '明天见', pin: 'míngtiān jiàn', tone: '2+1+4', meaning: 'mai gặp' }
+];
+
+const pronWords = [
+  { hz: '我', pin: 'wǒ', tone: '3', meaning: 'tôi' },
+  { hz: '你', pin: 'nǐ', tone: '3', meaning: 'bạn' },
+  { hz: '您', pin: 'nín', tone: '2', meaning: 'bạn (kính)' },
+  { hz: '他', pin: 'tā', tone: '1', meaning: 'anh ấy' },
+  { hz: '她', pin: 'tā', tone: '1', meaning: 'cô ấy' },
+  { hz: '它', pin: 'tā', tone: '1', meaning: 'nó (vật)' },
+  { hz: '我们', pin: 'wǒmen', tone: '3+0', meaning: 'chúng tôi' },
+  { hz: '你们', pin: 'nǐmen', tone: '3+0', meaning: 'các bạn' },
+  { hz: '他们', pin: 'tāmen', tone: '1+0', meaning: 'họ (nam/hỗn)' },
+  { hz: '她们', pin: 'tāmen', tone: '1+0', meaning: 'họ (nữ)' }
+];
+
+const numbers = [
+  { digit: '1', hz: '一', pin: 'yī', tone: '1' },
+  { digit: '2', hz: '二', pin: 'èr', tone: '4' },
+  { digit: '3', hz: '三', pin: 'sān', tone: '1' },
+  { digit: '4', hz: '四', pin: 'sì', tone: '4' },
+  { digit: '5', hz: '五', pin: 'wǔ', tone: '3' },
+  { digit: '6', hz: '六', pin: 'liù', tone: '4' },
+  { digit: '7', hz: '七', pin: 'qī', tone: '1' },
+  { digit: '8', hz: '八', pin: 'bā', tone: '1' },
+  { digit: '9', hz: '九', pin: 'jiǔ', tone: '3' },
+  { digit: '10', hz: '十', pin: 'shí', tone: '2' }
+];
+
+const familyWords = [
+  { hz: '家', pin: 'jiā', tone: '1', meaning: 'nhà, gia đình' },
+  { hz: '爸爸', pin: 'bàba', tone: '4+0', meaning: 'bố' },
+  { hz: '妈妈', pin: 'māma', tone: '1+0', meaning: 'mẹ' },
+  { hz: '哥哥', pin: 'gēge', tone: '1+0', meaning: 'anh trai' },
+  { hz: '姐姐', pin: 'jiějie', tone: '3+0', meaning: 'chị gái' },
+  { hz: '弟弟', pin: 'dìdi', tone: '4+0', meaning: 'em trai' },
+  { hz: '妹妹', pin: 'mèimei', tone: '4+0', meaning: 'em gái' },
+  { hz: '爷爷', pin: 'yéye', tone: '2+0', meaning: 'ông nội' },
+  { hz: '奶奶', pin: 'nǎinai', tone: '3+0', meaning: 'bà nội' },
+  { hz: '朋友', pin: 'péngyou', tone: '2+0', meaning: 'bạn bè' }
+];
+
+// ============================================================
+// Render vocab cards
+// ============================================================
+function toneClass(tone) {
+  if (typeof tone === 'string' && tone.includes('+')) {
+    return 't' + tone.split('+')[0];
+  }
+  return 't' + tone;
+}
+
+function renderGrid(containerId, words) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  c.innerHTML = words.map(w => `
+    <div class="vcard" data-speak="${w.hz}">
+      <div class="hz">${w.hz}</div>
+      <div class="pin ${toneClass(w.tone)}">${w.pin}</div>
+      <div class="meaning">${w.meaning}</div>
+      <div class="hint">🔊 click</div>
+    </div>
+  `).join('');
+}
+
+renderGrid('greet-grid', greetWords);
+renderGrid('pron-grid', pronWords);
+renderGrid('family-grid', familyWords);
+
+// Render numbers
+const numContainer = document.getElementById('num-grid');
+if (numContainer) {
+  numContainer.innerHTML = numbers.map(n => `
+    <div class="num-card" data-speak="${n.hz}">
+      <div class="digit">${n.digit}</div>
+      <div class="hz">${n.hz}</div>
+      <div class="pin ${toneClass(n.tone)}">${n.pin}</div>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// Web Speech API
+// ============================================================
+let currentPlaying = null;
+function clearPlaying() {
+  if (currentPlaying) currentPlaying.classList.remove('playing');
+  currentPlaying = null;
+}
+function getZhVoice() {
+  const voices = window.speechSynthesis.getVoices();
+  const lang = localStorage.getItem('zhVariant') || 'zh-CN';
+  return voices.find(v => v.lang === lang) || voices.find(v => v.lang.startsWith('zh')) || null;
+}
+function speak(text, el) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  clearPlaying();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = localStorage.getItem('zhVariant') || 'zh-CN';
+  u.rate = 0.9;
+  const v = getZhVoice();
+  if (v) u.voice = v;
+  if (el) {
+    el.classList.add('playing');
+    currentPlaying = el;
+    u.onend = u.onerror = () => clearPlaying();
+  }
+  window.speechSynthesis.speak(u);
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-speak]');
+  if (!t) return;
+  speak(t.dataset.speak, t);
+});
+
+// ============================================================
+// SRS — Leitner 5 boxes
+// ============================================================
+const allVocab = [
+  ...greetWords, ...pronWords, ...familyWords,
+  ...numbers.map(n => ({ hz: n.hz, pin: n.pin, tone: n.tone, meaning: 'số ' + n.digit }))
+];
+
+const SRS_KEY = 'zhSRS-hsk1-l01';
+function loadSRS() {
+  try { return JSON.parse(localStorage.getItem(SRS_KEY)) || {}; } catch (e) { return {}; }
+}
+function saveSRS(state) { localStorage.setItem(SRS_KEY, JSON.stringify(state)); }
+
+let srsState = loadSRS();
+// init: tất cả từ chưa có entry → box 1
+allVocab.forEach(w => {
+  if (!srsState[w.hz]) srsState[w.hz] = { box: 1, lastSeen: 0 };
+});
+saveSRS(srsState);
+
+let currentCard = null;
+let showingBack = false;
+
+function pickCard() {
+  // Ưu tiên: box thấp hơn lên trước. Trong cùng box, ngẫu nhiên.
+  const buckets = [[], [], [], [], []];
+  allVocab.forEach(w => {
+    const b = srsState[w.hz].box;
+    buckets[b - 1].push(w);
+  });
+  for (let i = 0; i < 5; i++) {
+    if (buckets[i].length) {
+      const arr = buckets[i];
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+  }
+  return allVocab[0];
+}
+
+function updateStatus() {
+  const counts = [0, 0, 0, 0, 0];
+  Object.values(srsState).forEach(s => counts[s.box - 1]++);
+  for (let i = 0; i < 5; i++) {
+    document.getElementById('srs-box' + (i + 1)).textContent = counts[i];
+  }
+}
+
+function renderCard() {
+  currentCard = pickCard();
+  showingBack = false;
+  document.getElementById('srs-content').innerHTML = `
+    <div class="srs-front">
+      <div class="hz">${currentCard.hz}</div>
+      <div class="srs-hint">Click thẻ để xem pinyin + nghĩa</div>
+    </div>
+  `;
+  document.getElementById('srs-grade-buttons').style.display = 'none';
+  updateStatus();
+  // Auto play
+  setTimeout(() => speak(currentCard.hz), 200);
+}
+
+document.getElementById('srs-card').addEventListener('click', () => {
+  if (showingBack || !currentCard) return;
+  showingBack = true;
+  document.getElementById('srs-content').innerHTML = `
+    <div class="srs-back">
+      <div class="hz">${currentCard.hz}</div>
+      <div class="pin ${toneClass(currentCard.tone)}">${currentCard.pin}</div>
+      <div class="meaning">${currentCard.meaning}</div>
+      <div class="srs-hint">Đánh giá độ khó để cập nhật hộp</div>
+    </div>
+  `;
+  document.getElementById('srs-grade-buttons').style.display = 'flex';
+});
+
+document.querySelectorAll('#srs-grade-buttons button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (!currentCard) return;
+    const grade = parseInt(btn.dataset.grade);
+    const state = srsState[currentCard.hz];
+    // 1 = back to box 1, 2 = stay, 3 = +1, 4 = +2
+    if (grade === 1) state.box = 1;
+    else if (grade === 2) state.box = Math.max(1, state.box);
+    else if (grade === 3) state.box = Math.min(5, state.box + 1);
+    else state.box = Math.min(5, state.box + 2);
+    state.lastSeen = Date.now();
+    saveSRS(srsState);
+    renderCard();
+  });
+});
+
+document.getElementById('srs-skip').addEventListener('click', renderCard);
+
+document.getElementById('srs-reset').addEventListener('click', () => {
+  if (!confirm('Reset toàn bộ tiến trình SRS?')) return;
+  srsState = {};
+  allVocab.forEach(w => { srsState[w.hz] = { box: 1, lastSeen: 0 }; });
+  saveSRS(srsState);
+  renderCard();
+});
+
+renderCard();
+
+if (window.speechSynthesis) {
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+<script src="../../../tools/zh-reader.js"></script>
+</body>
+</html>

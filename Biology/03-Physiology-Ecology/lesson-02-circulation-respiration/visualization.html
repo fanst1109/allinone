@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Tuần hoàn &amp; hô hấp</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #14532d; }
+  h2 {
+    color: #166534; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #bbf7d0;
+  }
+  h3 { color: #15803d; margin-top: 20px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 11px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 90px; max-width: 100%;
+  }
+  input[type="range"] { flex: 1; min-width: 0; }
+  button {
+    background: #059669; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #047857; }
+  button.muted { background: #a0aec0; }
+  button.muted:hover { background: #718096; }
+  .pill {
+    background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;
+  }
+  .pill.active { background: #059669; color: white; }
+  .stat {
+    display: inline-block; background: #d1fae5;
+    padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #047857; }
+  .stat.warn { background: #fee2e2; color: #991b1b; }
+  .stat.warn strong { color: #991b1b; }
+  .stat.ok { background: #dcfce7; color: #166534; }
+  .stat.ok strong { color: #166534; }
+  .stat.red { background: #fee2e2; color: #991b1b; }
+  .stat.red strong { color: #991b1b; }
+  .stat.blue { background: #dbeafe; color: #1d4ed8; }
+  .stat.blue strong { color: #1d4ed8; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; }
+  .group-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+  svg { display: block; margin: 8px auto; max-width: 100%; height: auto; }
+  .info-grid { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 14px; }
+  .info-grid div { padding: 6px 10px; background: #f0fdf4; border-radius: 6px; }
+  .info-grid strong { color: #166534; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 8px; }
+  th, td { border: 1px solid #d1d5db; padding: 7px 10px; text-align: left; }
+  th { background: #ecfdf5; color: #065f46; }
+
+  /* Heart */
+  .chamber-oxy { fill: #fecaca; stroke: #991b1b; stroke-width: 2; }
+  .chamber-deoxy { fill: #bfdbfe; stroke: #1d4ed8; stroke-width: 2; }
+  .chamber-contracting-oxy { fill: #f87171; stroke: #991b1b; stroke-width: 2.5; }
+  .chamber-contracting-deoxy { fill: #60a5fa; stroke: #1d4ed8; stroke-width: 2.5; }
+  .valve-closed { stroke: #4b5563; stroke-width: 3; }
+  .valve-open { stroke: #16a34a; stroke-width: 1.5; stroke-dasharray: 3 3; }
+  .vessel-oxy { stroke: #dc2626; stroke-width: 6; fill: none; stroke-linecap: round; }
+  .vessel-deoxy { stroke: #2563eb; stroke-width: 6; fill: none; stroke-linecap: round; }
+  .heart-label { font: 11px sans-serif; fill: #1f2937; font-weight: 600; }
+  .phase-tag { font: 13px sans-serif; font-weight: 700; }
+
+  /* CO bars */
+  .bar-rest { fill: #86efac; stroke: #166534; stroke-width: 1; }
+  .bar-mod { fill: #fbbf24; stroke: #b45309; stroke-width: 1; }
+  .bar-peak { fill: #fca5a5; stroke: #991b1b; stroke-width: 1; }
+  .bar-now { fill: #059669; stroke: #064e3b; stroke-width: 2; }
+  .bar-label { font: 12px sans-serif; fill: #374151; text-anchor: middle; }
+  .bar-num { font: 13px sans-serif; fill: #1f2937; font-weight: 700; text-anchor: middle; }
+
+  /* O2 sat curve */
+  .axis { stroke: #9ca3af; stroke-width: 1; }
+  .gridline { stroke: #e5e7eb; stroke-width: 1; }
+  .axis-label { font: 11px sans-serif; fill: #6b7280; }
+  .sat-curve-normal { fill: none; stroke: #059669; stroke-width: 3; }
+  .sat-curve-bohr { fill: none; stroke: #b45309; stroke-width: 3; stroke-dasharray: 6 3; }
+  .marker { fill: #dc2626; }
+
+  /* Alveolus */
+  .alv { fill: #fef9c3; stroke: #b45309; stroke-width: 2; }
+  .cap-vessel { fill: #fecaca; stroke: #991b1b; stroke-width: 1.5; }
+  .o2-dot { fill: #ef4444; }
+  .co2-dot { fill: #3b82f6; }
+</style>
+</head>
+<body>
+
+<main>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Biology · Tầng 3</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-nervous-system/visualization.html">← L1: Hệ thần kinh</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Tuần hoàn &amp; hô hấp</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-immune-system/visualization.html">L3: Hệ miễn dịch →</a>
+</nav>
+
+<h1>Lesson 02 — Tuần hoàn &amp; hô hấp</h1>
+<p>Bốn công cụ tương tác: (1) chu kỳ tim 4 ngăn — chạy qua tâm trương ↔ tâm thu, thấy van đóng/mở và dòng máu; (2) máy tính cung lượng tim CO = HR × SV với so sánh nghỉ ↔ vận động; (3) đường cong bão hòa O₂ của Hb dạng sigmoid + hiệu ứng Bohr; (4) trao đổi khí ở phế nang vs mô — gradient áp suất riêng phần và mũi tên khuếch tán.</p>
+
+<h2>1. Chu kỳ tim — 4 ngăn, 4 van, 2 vòng tuần hoàn</h2>
+<div class="card">
+  <p>Bấm "▶ Bước kế" để đi qua từng pha của 1 chu kỳ tim. Quan sát: van nhĩ-thất (tricuspid/mitral) đóng → tiếng "lub"; van bán nguyệt đóng → tiếng "dub". Bên trái (xanh) = máu nghèo O₂ về phổi; bên phải (đỏ) = máu giàu O₂ đi toàn thân.</p>
+  <div class="row">
+    <button id="heartStep">▶ Bước kế</button>
+    <button id="heartPlay">⏯ Tự động chạy</button>
+    <button id="heartReset" class="muted">⟲ Reset</button>
+    <span class="stat">Pha <strong id="heartPhaseNum">0</strong>/4</span>
+  </div>
+  <svg id="heartSvg" width="560" height="380" viewBox="0 0 560 380" role="img" aria-label="Sơ đồ tim 4 ngăn và chu kỳ tim"></svg>
+  <div class="info-grid" id="heartInfo"></div>
+</div>
+
+<h2>2. Máy tính cung lượng tim: CO = HR × SV</h2>
+<div class="card">
+  <p>Kéo 2 thanh để đặt nhịp tim (HR) và stroke volume (SV). Viz tính CO và so sánh với 3 mốc tham chiếu: nghỉ ngơi (~5 L/phút), vận động trung bình (~11 L/phút), vận động viên đỉnh cao (~30 L/phút).</p>
+  <div class="row">
+    <label>HR (nhịp/phút):</label>
+    <input type="range" id="hrSlider" min="40" max="200" value="70" step="1">
+    <span class="stat">HR = <strong id="hrVal">70</strong> bpm</span>
+  </div>
+  <div class="row">
+    <label>SV (mL/nhịp):</label>
+    <input type="range" id="svSlider" min="50" max="170" value="70" step="1">
+    <span class="stat">SV = <strong id="svVal">70</strong> mL</span>
+  </div>
+  <div class="row">
+    <span class="stat ok">CO = <strong id="coVal">4.9</strong> L/phút</span>
+    <span class="stat" id="coRatio">≈ <strong id="coRatioVal">1.0×</strong> so với nghỉ ngơi</span>
+    <span class="stat" id="coScenario">Tình huống: <strong id="coScenarioVal">—</strong></span>
+  </div>
+  <svg id="coSvg" width="560" height="240" viewBox="0 0 560 240" role="img" aria-label="So sánh CO với các tình huống"></svg>
+  <div class="row" style="margin-top:6px">
+    <button class="pill active" data-preset="rest">Nghỉ (70×70)</button>
+    <button class="pill" data-preset="moderate">Vận động (120×90)</button>
+    <button class="pill" data-preset="elite">VĐV đỉnh (190×160)</button>
+    <button class="pill" data-preset="athlete-rest">VĐV nghỉ (45×110)</button>
+  </div>
+  <div class="hint" id="coHint"></div>
+</div>
+
+<h2>3. Đường cong bão hòa O₂ của Hemoglobin (sigmoid + Bohr)</h2>
+<div class="card">
+  <p>Kéo PO₂ để thấy % Hb bão hòa O₂. Đường xanh = bình thường (pH 7.4, mô nghỉ); đường vàng đứt = sau Bohr effect (pH thấp / CO₂ cao ở mô vận động) — dịch sang PHẢI, nhả O₂ dễ hơn ở cùng PO₂.</p>
+  <div class="row">
+    <label>PO₂ (mmHg):</label>
+    <input type="range" id="po2Slider" min="0" max="100" value="40" step="1">
+    <span class="stat">PO₂ = <strong id="po2Val">40</strong> mmHg</span>
+    <span class="stat ok">Bình thường: <strong id="satNormal">75</strong>%</span>
+    <span class="stat warn">Bohr (mô): <strong id="satBohr">57</strong>%</span>
+  </div>
+  <div class="row">
+    <label>Hiệu ứng Bohr:</label>
+    <button class="pill active" data-bohr="off">Tắt (chỉ xem bình thường)</button>
+    <button class="pill" data-bohr="on">Bật (so sánh 2 đường)</button>
+  </div>
+  <svg id="satSvg" width="560" height="320" viewBox="0 0 560 320" role="img" aria-label="Đường cong bão hòa O2 của hemoglobin"></svg>
+  <div class="info-grid" id="satInfo"></div>
+  <div class="row" style="margin-top:6px">
+    <button class="pill" data-scene="lung">Phổi (PO₂=100)</button>
+    <button class="pill" data-scene="rest">Mô nghỉ (PO₂=40)</button>
+    <button class="pill" data-scene="exercise">Cơ vận động (PO₂=20)</button>
+  </div>
+</div>
+
+<h2>4. Trao đổi khí — phế nang vs mô</h2>
+<div class="card">
+  <p>Chuyển giữa "Phế nang" (phổi) và "Mô" để thấy mũi tên khuếch tán O₂/CO₂ đi theo gradient áp suất riêng phần. Khuếch tán thụ động — không tốn ATP.</p>
+  <div class="row">
+    <label>Vị trí:</label>
+    <button class="pill active" data-loc="alveolus">Phế nang (phổi)</button>
+    <button class="pill" data-loc="tissue-rest">Mô nghỉ</button>
+    <button class="pill" data-loc="tissue-active">Mô vận động</button>
+  </div>
+  <svg id="gasSvg" width="560" height="320" viewBox="0 0 560 320" role="img" aria-label="Trao đổi khí ở phế nang và mô"></svg>
+  <div style="margin-top:8px">
+    <span class="stat red">PO₂ ngoài: <strong id="pO2Out">104</strong> mmHg</span>
+    <span class="stat blue">PO₂ trong máu: <strong id="pO2In">40</strong> mmHg</span>
+    <span class="stat">ΔPO₂ = <strong id="dPO2">64</strong> mmHg</span>
+  </div>
+  <div style="margin-top:4px">
+    <span class="stat red">PCO₂ ngoài: <strong id="pCO2Out">40</strong> mmHg</span>
+    <span class="stat blue">PCO₂ trong máu: <strong id="pCO2In">46</strong> mmHg</span>
+    <span class="stat">ΔPCO₂ = <strong id="dPCO2">6</strong> mmHg</span>
+  </div>
+  <div class="info-grid" id="gasInfo"></div>
+</div>
+
+<h2>5. Bảng tóm tắt nhanh</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>Số chốt</th><th>Giá trị</th><th>Ghi chú</th></tr></thead>
+    <tbody>
+      <tr><td>Tim 4 ngăn</td><td>2 nhĩ + 2 thất</td><td>Phải đi phổi · Trái đi toàn thân</td></tr>
+      <tr><td>4 van</td><td>tricuspid · mitral · bán nguyệt phổi · bán nguyệt chủ</td><td>Đóng → tiếng "lub-dub"</td></tr>
+      <tr><td>CO ở nghỉ</td><td>~5 L/phút</td><td>70 bpm × 70 mL</td></tr>
+      <tr><td>CO vận động đỉnh</td><td>~25–30 L/phút</td><td>VĐV: SV cao</td></tr>
+      <tr><td>Áp suất máu</td><td>120/80 mmHg</td><td>Tâm thu / tâm trương</td></tr>
+      <tr><td>Phế nang</td><td>~300 triệu, S ~70 m²</td><td>Dày &lt; 1 μm (định luật Fick)</td></tr>
+      <tr><td>PO₂ phế nang / máu</td><td>104 / 40 mmHg</td><td>Gradient 64 mmHg</td></tr>
+      <tr><td>Hemoglobin</td><td>4 heme/Hb · ~280M Hb/RBC</td><td>Cooperativity → sigmoid</td></tr>
+      <tr><td>Bão hòa O₂</td><td>~98% (phổi) → 75% (mô nghỉ) → 30% (cơ vận động)</td><td>Bohr dịch phải khi pH ↓ / CO₂ ↑</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+
+/* ====================================================================
+   1. Heart 4-chamber cardiac cycle
+   ==================================================================== */
+let heartPhase = 0;
+let heartTimer = null;
+const HEART_PHASES = {
+  0: {
+    name: "Pha 0 — Trạng thái nghỉ",
+    color: "#6b7280",
+    desc: "Tim đang ở trạng thái yên giữa 2 chu kỳ. Bấm '▶ Bước kế' để bắt đầu chu kỳ.",
+    contract: { ra: false, la: false, rv: false, lv: false },
+    valves: { tri: "closed", mit: "closed", pul: "closed", aor: "closed" }
+  },
+  1: {
+    name: "Pha 1 — Tâm trương (diastole)",
+    color: "#3b82f6",
+    desc: "Tim GIÃN. Van nhĩ-thất MỞ. Máu từ tĩnh mạch tự chảy vào nhĩ rồi xuống thất. Van bán nguyệt ĐÓNG (ngăn máu trào ngược từ động mạch về thất). Pha này chiếm ~2/3 chu kỳ ở nghỉ (~0.5 s trong 0.8 s).",
+    contract: { ra: false, la: false, rv: false, lv: false },
+    valves: { tri: "open", mit: "open", pul: "closed", aor: "closed" }
+  },
+  2: {
+    name: "Pha 2 — Nhĩ co (cuối tâm trương)",
+    color: "#16a34a",
+    desc: "2 tâm nhĩ co cùng lúc → đẩy nốt máu còn lại xuống thất. Van nhĩ-thất vẫn MỞ. Bơm 'tăng cường' này thêm ~20% lượng máu vào thất.",
+    contract: { ra: true, la: true, rv: false, lv: false },
+    valves: { tri: "open", mit: "open", pul: "closed", aor: "closed" }
+  },
+  3: {
+    name: "Pha 3 — Tâm thu (systole) · 'LUB' 🔊",
+    color: "#dc2626",
+    desc: "2 tâm thất CO. Van tricuspid + mitral đóng SẬP → tiếng 'lub' (S1). Áp suất trong thất tăng vọt → đẩy mở van bán nguyệt → máu PHUN vào động mạch phổi (bên phải) và động mạch chủ (bên trái). Pha ~0.3 s.",
+    contract: { ra: false, la: false, rv: true, lv: true },
+    valves: { tri: "closed", mit: "closed", pul: "open", aor: "open" }
+  },
+  4: {
+    name: "Pha 4 — Cuối tâm thu · 'DUB' 🔊",
+    color: "#7c3aed",
+    desc: "Thất giãn, áp suất tụt nhanh. Áp suất trong động mạch (cao) > áp suất trong thất (thấp) → máu định trào ngược → van bán nguyệt ĐÓNG SẬP → tiếng 'dub' (S2). Bắt đầu chu kỳ mới.",
+    contract: { ra: false, la: false, rv: false, lv: false },
+    valves: { tri: "closed", mit: "closed", pul: "closed", aor: "closed" }
+  }
+};
+
+function drawHeart() {
+  const svg = document.getElementById("heartSvg"); clear(svg);
+  const ph = HEART_PHASES[heartPhase];
+  // Title: which phase
+  const ttl = el("text", { x: 280, y: 24, "text-anchor": "middle", class: "phase-tag", fill: ph.color }, svg);
+  ttl.textContent = ph.name;
+
+  // ==== Vessels coming in/out (background) ====
+  // Vena cava (top right of figure = anatomical right) → carries deoxy into RA
+  el("path", { d: "M 150 30 L 150 100 L 200 130", class: "vessel-deoxy" }, svg);
+  el("text", { x: 110, y: 50, class: "heart-label", fill: "#1d4ed8" }, svg).textContent = "TM chủ →";
+  // Pulmonary artery (top, leaves RV up) → deoxy to lungs
+  el("path", { d: "M 220 180 L 220 100 Q 220 60 170 60", class: "vessel-deoxy" }, svg);
+  el("text", { x: 145, y: 78, class: "heart-label", fill: "#1d4ed8" }, svg).textContent = "ĐM phổi";
+  // Pulmonary veins → carry oxy to LA
+  el("path", { d: "M 410 30 L 410 100 L 360 130", class: "vessel-oxy" }, svg);
+  el("text", { x: 415, y: 50, class: "heart-label", fill: "#991b1b" }, svg).textContent = "← TM phổi (giàu O₂)";
+  // Aorta (top, leaves LV) → oxy to body
+  el("path", { d: "M 340 180 L 340 100 Q 340 60 390 60", class: "vessel-oxy" }, svg);
+  el("text", { x: 380, y: 78, class: "heart-label", fill: "#991b1b" }, svg).textContent = "ĐM chủ";
+
+  // ==== Chambers ====
+  // Right atrium (RA): top-left of figure (anatomically right)
+  const raClass = ph.contract.ra ? "chamber-contracting-deoxy" : "chamber-deoxy";
+  el("ellipse", { cx: 200, cy: 150, rx: 60, ry: 35, class: raClass }, svg);
+  el("text", { x: 200, y: 145, class: "heart-label", "text-anchor": "middle" }, svg).textContent = "Tâm nhĩ phải";
+  el("text", { x: 200, y: 162, class: "heart-label", "text-anchor": "middle", fill: "#1d4ed8" }, svg).textContent = "(nghèo O₂)";
+
+  // Right ventricle (RV): bottom-left
+  const rvClass = ph.contract.rv ? "chamber-contracting-deoxy" : "chamber-deoxy";
+  el("path", { d: "M 140 200 Q 140 320 220 320 Q 270 320 270 200 Z", class: rvClass }, svg);
+  el("text", { x: 205, y: 260, class: "heart-label", "text-anchor": "middle" }, svg).textContent = "Tâm thất phải";
+  el("text", { x: 205, y: 277, class: "heart-label", "text-anchor": "middle", fill: "#1d4ed8" }, svg).textContent = "(thành mỏng)";
+
+  // Left atrium (LA): top-right of figure
+  const laClass = ph.contract.la ? "chamber-contracting-oxy" : "chamber-oxy";
+  el("ellipse", { cx: 360, cy: 150, rx: 60, ry: 35, class: laClass }, svg);
+  el("text", { x: 360, y: 145, class: "heart-label", "text-anchor": "middle" }, svg).textContent = "Tâm nhĩ trái";
+  el("text", { x: 360, y: 162, class: "heart-label", "text-anchor": "middle", fill: "#991b1b" }, svg).textContent = "(giàu O₂)";
+
+  // Left ventricle (LV): bottom-right, thicker wall
+  const lvClass = ph.contract.lv ? "chamber-contracting-oxy" : "chamber-oxy";
+  el("path", { d: "M 290 200 Q 290 340 360 340 Q 430 340 430 200 Z", class: lvClass, "stroke-width": "5" }, svg);
+  el("text", { x: 360, y: 260, class: "heart-label", "text-anchor": "middle" }, svg).textContent = "Tâm thất trái";
+  el("text", { x: 360, y: 277, class: "heart-label", "text-anchor": "middle", fill: "#991b1b" }, svg).textContent = "(thành DÀY)";
+
+  // ==== Valves ====
+  // Tricuspid: between RA and RV (horizontal line at y=185)
+  const triClass = ph.valves.tri === "open" ? "valve-open" : "valve-closed";
+  el("line", { x1: 165, y1: 185, x2: 245, y2: 185, class: triClass }, svg);
+  if (ph.valves.tri === "closed") {
+    el("text", { x: 130, y: 190, class: "heart-label", "text-anchor": "end" }, svg).textContent = "tricuspid ✕";
+  } else {
+    el("text", { x: 130, y: 190, class: "heart-label", "text-anchor": "end", fill: "#16a34a" }, svg).textContent = "tricuspid ▲";
+  }
+  // Mitral
+  const mitClass = ph.valves.mit === "open" ? "valve-open" : "valve-closed";
+  el("line", { x1: 315, y1: 185, x2: 405, y2: 185, class: mitClass }, svg);
+  if (ph.valves.mit === "closed") {
+    el("text", { x: 435, y: 190, class: "heart-label" }, svg).textContent = "✕ mitral";
+  } else {
+    el("text", { x: 435, y: 190, class: "heart-label", fill: "#16a34a" }, svg).textContent = "▲ mitral";
+  }
+  // Pulmonary semilunar (between RV and pulm artery, at top of RV)
+  const pulClass = ph.valves.pul === "open" ? "valve-open" : "valve-closed";
+  el("line", { x1: 200, y1: 195, x2: 240, y2: 195, class: pulClass }, svg);
+  el("text", { x: 220, y: 215, class: "heart-label", "text-anchor": "middle",
+    fill: ph.valves.pul === "open" ? "#16a34a" : "#1f2937" }, svg).textContent = ph.valves.pul === "open" ? "▲ pulm" : "✕ pulm";
+  // Aortic semilunar
+  const aorClass = ph.valves.aor === "open" ? "valve-open" : "valve-closed";
+  el("line", { x1: 320, y1: 195, x2: 360, y2: 195, class: aorClass }, svg);
+  el("text", { x: 340, y: 215, class: "heart-label", "text-anchor": "middle",
+    fill: ph.valves.aor === "open" ? "#16a34a" : "#1f2937" }, svg).textContent = ph.valves.aor === "open" ? "▲ aortic" : "✕ aortic";
+
+  // ==== Flow arrows (depend on phase) ====
+  // Arrow marker
+  const defs = el("defs", {}, svg);
+  ["red", "blue"].forEach(c => {
+    const mk = el("marker", { id: "arr-" + c, markerWidth: 10, markerHeight: 10, refX: 8, refY: 5, orient: "auto" }, defs);
+    el("path", { d: "M0,0 L8,5 L0,10 Z", fill: c === "red" ? "#dc2626" : "#2563eb" }, mk);
+  });
+  if (heartPhase === 1 || heartPhase === 2) {
+    // diastole: vena cava → RA → RV; pulm vein → LA → LV
+    el("line", { x1: 200, y1: 168, x2: 200, y2: 195, stroke: "#2563eb", "stroke-width": 3, "marker-end": "url(#arr-blue)" }, svg);
+    el("line", { x1: 360, y1: 168, x2: 360, y2: 195, stroke: "#dc2626", "stroke-width": 3, "marker-end": "url(#arr-red)" }, svg);
+  }
+  if (heartPhase === 3) {
+    // systole: RV → pulm artery; LV → aorta
+    el("line", { x1: 220, y1: 200, x2: 220, y2: 110, stroke: "#2563eb", "stroke-width": 4, "marker-end": "url(#arr-blue)" }, svg);
+    el("line", { x1: 340, y1: 200, x2: 340, y2: 110, stroke: "#dc2626", "stroke-width": 4, "marker-end": "url(#arr-red)" }, svg);
+  }
+
+  // ==== Sound effect ====
+  if (heartPhase === 3) {
+    const s = el("text", { x: 280, y: 365, "text-anchor": "middle", font: "16px sans-serif", "font-weight": "700", fill: "#dc2626" }, svg);
+    s.textContent = "♪ LUB (van nhĩ-thất đóng)";
+  } else if (heartPhase === 4) {
+    const s = el("text", { x: 280, y: 365, "text-anchor": "middle", font: "16px sans-serif", "font-weight": "700", fill: "#7c3aed" }, svg);
+    s.textContent = "♪ DUB (van bán nguyệt đóng)";
+  }
+
+  document.getElementById("heartPhaseNum").textContent = heartPhase;
+  document.getElementById("heartInfo").innerHTML =
+    `<div><strong>${ph.name}</strong></div>` +
+    `<div>${ph.desc}</div>`;
+}
+document.getElementById("heartStep").onclick = () => {
+  if (heartTimer) { clearInterval(heartTimer); heartTimer = null; }
+  heartPhase = (heartPhase + 1) % 5;
+  if (heartPhase === 0) heartPhase = 1; // skip 0 once started
+  drawHeart();
+};
+document.getElementById("heartPlay").onclick = () => {
+  if (heartTimer) { clearInterval(heartTimer); heartTimer = null; return; }
+  heartPhase = 1; drawHeart();
+  heartTimer = setInterval(() => {
+    heartPhase = heartPhase + 1;
+    if (heartPhase > 4) heartPhase = 1;
+    drawHeart();
+  }, 1100);
+};
+document.getElementById("heartReset").onclick = () => {
+  if (heartTimer) { clearInterval(heartTimer); heartTimer = null; }
+  heartPhase = 0; drawHeart();
+};
+
+/* ====================================================================
+   2. Cardiac output calculator
+   ==================================================================== */
+const SCENARIOS = [
+  { name: "Nghỉ ngơi (người thường)", hr: 70, sv: 70, co: 4.9, cls: "bar-rest" },
+  { name: "Vận động trung bình", hr: 120, sv: 90, co: 10.8, cls: "bar-mod" },
+  { name: "VĐV đua xe đỉnh cao", hr: 190, sv: 160, co: 30.4, cls: "bar-peak" }
+];
+function renderCO() {
+  const hr = +document.getElementById("hrSlider").value;
+  const sv = +document.getElementById("svSlider").value;
+  const coML = hr * sv;
+  const coL = coML / 1000;
+  document.getElementById("hrVal").textContent = hr;
+  document.getElementById("svVal").textContent = sv;
+  document.getElementById("coVal").textContent = coL.toFixed(2);
+  document.getElementById("coRatioVal").textContent = (coL / 4.9).toFixed(2) + "×";
+  // determine which scenario it's closest to
+  let scen = "—";
+  if (coL < 6) scen = "Tương đương nghỉ ngơi";
+  else if (coL < 13) scen = "Vận động nhẹ-trung bình";
+  else if (coL < 22) scen = "Vận động mạnh";
+  else scen = "VĐV đỉnh cao (rất hiếm)";
+  document.getElementById("coScenarioVal").textContent = scen;
+
+  // draw bars
+  const svg = document.getElementById("coSvg"); clear(svg);
+  const baseY = 200, maxH = 160, maxCO = 32;
+  // axis
+  el("line", { x1: 50, y1: baseY, x2: 540, y2: baseY, class: "axis" }, svg);
+  // gridlines
+  [5, 10, 15, 20, 25, 30].forEach(v => {
+    const y = baseY - (v / maxCO) * maxH;
+    el("line", { x1: 50, y1: y, x2: 540, y2: y, class: "gridline" }, svg);
+    el("text", { x: 44, y: y + 4, class: "axis-label", "text-anchor": "end" }, svg).textContent = v;
+  });
+  el("text", { x: 25, y: 100, class: "axis-label", transform: "rotate(-90 25 100)", "text-anchor": "middle" }, svg).textContent = "CO (L/phút)";
+
+  // 3 reference bars + current
+  const items = [
+    { label: "Nghỉ", co: 4.9, cls: "bar-rest" },
+    { label: "Vận động", co: 10.8, cls: "bar-mod" },
+    { label: "VĐV đỉnh", co: 30.4, cls: "bar-peak" },
+    { label: "BẠN", co: coL, cls: "bar-now" }
+  ];
+  const bw = 70, gap = 30, startX = 90;
+  items.forEach((it, i) => {
+    const x = startX + i * (bw + gap);
+    const h = Math.min(maxH, (it.co / maxCO) * maxH);
+    el("rect", { x: x, y: baseY - h, width: bw, height: h, class: it.cls, rx: 3 }, svg);
+    el("text", { x: x + bw / 2, y: baseY + 18, class: "bar-label" }, svg).textContent = it.label;
+    el("text", { x: x + bw / 2, y: baseY - h - 8, class: "bar-num" }, svg).textContent = it.co.toFixed(1) + " L";
+  });
+
+  // hint
+  let hint = `CO = ${hr} × ${sv} = ${coML.toLocaleString("en-US")} mL/phút = ${coL.toFixed(2)} L/phút.`;
+  if (hr < 60 && sv > 100) hint += ` Cấu hình giống VĐV: HR thấp + SV cao → đập ít mà bơm khỏe (bradycardia sinh lý).`;
+  else if (hr > 150) hint += ` Nhịp tim cao — đặc trưng của vận động mạnh hoặc trạng thái căng thẳng.`;
+  else if (coL < 4) hint += ` CO thấp dưới mức nghỉ — có thể do mất nước, sốc, hoặc cấu hình không thực tế.`;
+  document.getElementById("coHint").textContent = hint;
+}
+document.getElementById("hrSlider").oninput = renderCO;
+document.getElementById("svSlider").oninput = renderCO;
+const PRESETS = {
+  rest: { hr: 70, sv: 70 },
+  moderate: { hr: 120, sv: 90 },
+  elite: { hr: 190, sv: 160 },
+  "athlete-rest": { hr: 45, sv: 110 }
+};
+document.querySelectorAll("[data-preset]").forEach(b => {
+  b.onclick = () => {
+    const p = PRESETS[b.dataset.preset];
+    document.getElementById("hrSlider").value = p.hr;
+    document.getElementById("svSlider").value = p.sv;
+    document.querySelectorAll("[data-preset]").forEach(x => x.classList.toggle("active", x === b));
+    renderCO();
+  };
+});
+
+/* ====================================================================
+   3. O2 saturation curve (Hill equation + Bohr shift)
+   ==================================================================== */
+let bohrOn = false;
+// Hill equation: S = PO2^n / (P50^n + PO2^n)
+// normal: P50 = 26, n = 2.8; bohr: P50 = 38, n = 2.8 (shift right)
+function satNormalPct(po2) {
+  const n = 2.8, p50 = 26;
+  return (Math.pow(po2, n) / (Math.pow(p50, n) + Math.pow(po2, n))) * 100;
+}
+function satBohrPct(po2) {
+  const n = 2.8, p50 = 38;
+  return (Math.pow(po2, n) / (Math.pow(p50, n) + Math.pow(po2, n))) * 100;
+}
+function renderSat() {
+  const po2 = +document.getElementById("po2Slider").value;
+  const sN = satNormalPct(po2);
+  const sB = satBohrPct(po2);
+  document.getElementById("po2Val").textContent = po2;
+  document.getElementById("satNormal").textContent = sN.toFixed(0);
+  document.getElementById("satBohr").textContent = sB.toFixed(0);
+
+  const svg = document.getElementById("satSvg"); clear(svg);
+  // Map: PO2 [0..100] → X [60..540]; Y [0..100%] → Y [280..30]
+  const xp = p => 60 + (p / 100) * 480;
+  const yp = s => 280 - (s / 100) * 250;
+  // axes
+  el("line", { x1: 60, y1: 30, x2: 60, y2: 280, class: "axis" }, svg);
+  el("line", { x1: 60, y1: 280, x2: 540, y2: 280, class: "axis" }, svg);
+  // gridlines & labels
+  [0, 25, 50, 75, 100].forEach(s => {
+    const y = yp(s);
+    el("line", { x1: 60, y1: y, x2: 540, y2: y, class: "gridline" }, svg);
+    el("text", { x: 54, y: y + 4, class: "axis-label", "text-anchor": "end" }, svg).textContent = s + "%";
+  });
+  [0, 20, 40, 60, 80, 100].forEach(p => {
+    const x = xp(p);
+    el("line", { x1: x, y1: 280, x2: x, y2: 284, class: "axis" }, svg);
+    el("text", { x: x, y: 296, class: "axis-label", "text-anchor": "middle" }, svg).textContent = p;
+  });
+  el("text", { x: 300, y: 314, class: "axis-label", "text-anchor": "middle" }, svg).textContent = "PO₂ (mmHg)";
+  el("text", { x: 20, y: 155, class: "axis-label", transform: "rotate(-90 20 155)", "text-anchor": "middle" }, svg).textContent = "Hb bão hòa (%)";
+
+  // draw normal curve
+  let dN = "";
+  for (let p = 0; p <= 100; p += 1) {
+    const x = xp(p), y = yp(satNormalPct(p));
+    dN += (p === 0 ? "M " : " L ") + x.toFixed(1) + " " + y.toFixed(1);
+  }
+  el("path", { d: dN, class: "sat-curve-normal" }, svg);
+  // Bohr curve (dashed, only if on)
+  if (bohrOn) {
+    let dB = "";
+    for (let p = 0; p <= 100; p += 1) {
+      const x = xp(p), y = yp(satBohrPct(p));
+      dB += (p === 0 ? "M " : " L ") + x.toFixed(1) + " " + y.toFixed(1);
+    }
+    el("path", { d: dB, class: "sat-curve-bohr" }, svg);
+    // Legend
+    el("rect", { x: 380, y: 40, width: 14, height: 4, fill: "#059669" }, svg);
+    el("text", { x: 400, y: 47, class: "axis-label" }, svg).textContent = "Bình thường (pH 7.4)";
+    el("rect", { x: 380, y: 56, width: 14, height: 4, fill: "#b45309" }, svg);
+    el("text", { x: 400, y: 63, class: "axis-label" }, svg).textContent = "Bohr (mô vận động)";
+    // shift arrow
+    el("line", { x1: xp(40), y1: yp(60), x2: xp(50), y2: yp(50), stroke: "#b45309", "stroke-width": 2, "marker-end": "url(#satarr)" }, svg);
+    const defs = el("defs", {}, svg);
+    const mk = el("marker", { id: "satarr", markerWidth: 8, markerHeight: 8, refX: 6, refY: 4, orient: "auto" }, defs);
+    el("path", { d: "M0,0 L6,4 L0,8 Z", fill: "#b45309" }, mk);
+    el("text", { x: xp(55), y: yp(55), class: "axis-label", "font-weight": "700", fill: "#b45309" }, svg).textContent = "dịch phải →";
+  }
+
+  // current PO2 marker (vertical line + circle on normal curve)
+  el("line", { x1: xp(po2), y1: 30, x2: xp(po2), y2: 280, stroke: "#dc2626", "stroke-width": 1, "stroke-dasharray": "3 3" }, svg);
+  el("circle", { cx: xp(po2), cy: yp(sN), r: 6, class: "marker" }, svg);
+  if (bohrOn) el("circle", { cx: xp(po2), cy: yp(sB), r: 6, fill: "#b45309" }, svg);
+  el("text", { x: xp(po2) + 10, y: yp(sN) - 4, class: "axis-label", "font-weight": "700", fill: "#dc2626" }, svg)
+    .textContent = "PO₂=" + po2 + " · " + sN.toFixed(0) + "%";
+
+  // 3 reference dots (lung 100, tissue rest 40, exercise 20)
+  [[100, "Phổi"], [40, "Mô nghỉ"], [20, "Cơ VĐ"]].forEach(d => {
+    const x = xp(d[0]), y = yp(satNormalPct(d[0]));
+    el("circle", { cx: x, cy: y, r: 4, fill: "#7c3aed" }, svg);
+    el("text", { x: x, y: y - 8, class: "axis-label", "text-anchor": "middle", fill: "#7c3aed" }, svg).textContent = d[1];
+  });
+
+  // info
+  let extra = "";
+  if (po2 >= 80) extra = "Vùng phẳng phía trên: Hb gần đầy, ổn định — giữ chặt O₂ ở phổi dù PO₂ dao động.";
+  else if (po2 >= 30 && po2 <= 60) extra = "Đoạn dốc giữa: PO₂ giảm chút → Hb nhả rất nhiều O₂ → ở mô nhả mạnh.";
+  else if (po2 < 30) extra = "PO₂ rất thấp (mô vận động): Hb nhả gần hết O₂. Kết hợp Bohr → thêm 10-20% lượng nhả.";
+  let dropInfo = "";
+  if (bohrOn) {
+    const dropNormal = (satNormalPct(100) - satNormalPct(po2));
+    const dropBohr = (satNormalPct(100) - satBohrPct(po2));
+    dropInfo = `<div><strong>Lượng O₂ nhả từ phổi (98%) xuống PO₂=${po2}:</strong> bình thường ${dropNormal.toFixed(0)}% · với Bohr ${dropBohr.toFixed(0)}% (+${(dropBohr - dropNormal).toFixed(0)}%)</div>`;
+  }
+  document.getElementById("satInfo").innerHTML =
+    `<div><strong>Bão hòa hiện tại:</strong> ${sN.toFixed(1)}% (bình thường)${bohrOn ? ` · ${sB.toFixed(1)}% (Bohr)` : ""}</div>` +
+    dropInfo +
+    `<div>${extra}</div>`;
+}
+document.getElementById("po2Slider").oninput = renderSat;
+document.querySelectorAll("[data-bohr]").forEach(b => {
+  b.onclick = () => {
+    bohrOn = b.dataset.bohr === "on";
+    document.querySelectorAll("[data-bohr]").forEach(x => x.classList.toggle("active", x === b));
+    renderSat();
+  };
+});
+document.querySelectorAll("[data-scene]").forEach(b => {
+  b.onclick = () => {
+    const s = b.dataset.scene;
+    const po2 = s === "lung" ? 100 : s === "rest" ? 40 : 20;
+    document.getElementById("po2Slider").value = po2;
+    renderSat();
+  };
+});
+
+/* ====================================================================
+   4. Gas exchange (alveolus vs tissue)
+   ==================================================================== */
+let gasLoc = "alveolus";
+const GAS_DATA = {
+  alveolus: {
+    pO2Out: 104, pO2In: 40, pCO2Out: 40, pCO2In: 46,
+    leftLabel: "Phế nang", rightLabel: "Mao mạch phổi",
+    o2Dir: "in", // O2 goes left -> right (from alveolus into blood)
+    co2Dir: "out", // CO2 right -> left (blood into alveolus)
+    note: "O₂ khuếch tán từ phế nang (104) → máu (40). CO₂ ngược: từ máu (46) → phế nang (40). Sau ~0.25 s, máu rời mao mạch phổi với PO₂ ≈ 104, PCO₂ ≈ 40."
+  },
+  "tissue-rest": {
+    pO2Out: 40, pO2In: 100, pCO2Out: 46, pCO2In: 40,
+    leftLabel: "Mô nghỉ", rightLabel: "Mao mạch hệ thống",
+    o2Dir: "out", // O2: blood (right, 100) -> tissue (left, 40)
+    co2Dir: "in", // CO2: tissue (46) -> blood (40)
+    note: "Máu đến mô với PO₂=100, gặp tế bào (PO₂=40) → O₂ khuếch tán SANG mô. CO₂ tế bào sinh ra (46) khuếch tán vào máu (40) để mang về phổi."
+  },
+  "tissue-active": {
+    pO2Out: 20, pO2In: 100, pCO2Out: 50, pCO2In: 40,
+    leftLabel: "Cơ vận động", rightLabel: "Mao mạch hệ thống",
+    o2Dir: "out",
+    co2Dir: "in",
+    note: "Cơ hoạt động cháy nhiều O₂ → PO₂ tụt còn 20; sinh nhiều CO₂ → PCO₂ tăng 50. Gradient O₂ tăng từ 60 lên 80 mmHg → O₂ khuếch tán SANG mô nhanh hơn. Kết hợp Bohr (pH thấp) → Hb nhả O₂ nhiều hơn."
+  }
+};
+function renderGas() {
+  const g = GAS_DATA[gasLoc];
+  document.getElementById("pO2Out").textContent = g.pO2Out;
+  document.getElementById("pO2In").textContent = g.pO2In;
+  document.getElementById("dPO2").textContent = Math.abs(g.pO2Out - g.pO2In);
+  document.getElementById("pCO2Out").textContent = g.pCO2Out;
+  document.getElementById("pCO2In").textContent = g.pCO2In;
+  document.getElementById("dPCO2").textContent = Math.abs(g.pCO2Out - g.pCO2In);
+
+  const svg = document.getElementById("gasSvg"); clear(svg);
+
+  // Left structure (alveolus or tissue): rounded shape
+  if (gasLoc === "alveolus") {
+    // round alveolus cluster
+    el("circle", { cx: 130, cy: 130, r: 70, class: "alv" }, svg);
+    el("circle", { cx: 100, cy: 80, r: 30, class: "alv" }, svg);
+    el("circle", { cx: 180, cy: 80, r: 28, class: "alv" }, svg);
+    el("text", { x: 130, y: 135, "text-anchor": "middle", font: "13px sans-serif", "font-weight": "700", fill: "#b45309" }, svg).textContent = "Phế nang";
+    el("text", { x: 130, y: 155, "text-anchor": "middle", class: "axis-label" }, svg).textContent = "(không khí)";
+  } else {
+    // tissue: cells (rounded squares)
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 2; j++) {
+        el("rect", { x: 70 + i * 50, y: 70 + j * 70, width: 40, height: 50, rx: 8, fill: gasLoc === "tissue-active" ? "#fde68a" : "#fef9c3", stroke: "#b45309", "stroke-width": 1.5 }, svg);
+      }
+    }
+    el("text", { x: 130, y: 215, "text-anchor": "middle", font: "13px sans-serif", "font-weight": "700", fill: "#b45309" }, svg).textContent = gasLoc === "tissue-active" ? "Cơ vận động" : "Tế bào mô";
+  }
+
+  // Right structure: blood capillary
+  el("rect", { x: 350, y: 60, width: 160, height: 200, rx: 16, class: "cap-vessel" }, svg);
+  el("text", { x: 430, y: 80, "text-anchor": "middle", font: "13px sans-serif", "font-weight": "700", fill: "#991b1b" }, svg).textContent = "Mao mạch";
+  el("text", { x: 430, y: 96, "text-anchor": "middle", class: "axis-label" }, svg).textContent = "(máu chảy)";
+  // RBCs in capillary
+  for (let i = 0; i < 3; i++) {
+    el("ellipse", { cx: 430, cy: 130 + i * 50, rx: 26, ry: 14, fill: "#fca5a5", stroke: "#991b1b", "stroke-width": 1 }, svg);
+    el("ellipse", { cx: 430, cy: 130 + i * 50, rx: 8, ry: 6, fill: "#dc2626" }, svg);
+  }
+
+  // Arrow defs
+  const defs = el("defs", {}, svg);
+  ["red", "blue"].forEach(c => {
+    const mk = el("marker", { id: "gas-arr-" + c, markerWidth: 12, markerHeight: 12, refX: 10, refY: 6, orient: "auto" }, defs);
+    el("path", { d: "M0,0 L10,6 L0,12 Z", fill: c === "red" ? "#dc2626" : "#3b82f6" }, mk);
+  });
+
+  // O2 arrow
+  const o2Start = g.o2Dir === "in" ? [210, 130] : [350, 130];
+  const o2End = g.o2Dir === "in" ? [340, 130] : [220, 130];
+  el("line", { x1: o2Start[0], y1: o2Start[1], x2: o2End[0], y2: o2End[1], stroke: "#dc2626", "stroke-width": 4, "marker-end": "url(#gas-arr-red)" }, svg);
+  el("text", { x: 280, y: 122, "text-anchor": "middle", font: "14px sans-serif", "font-weight": "700", fill: "#dc2626" }, svg).textContent = "O₂ →";
+  // O2 dots near arrow
+  for (let i = 0; i < 5; i++) {
+    const x = 230 + i * 22;
+    el("circle", { cx: x, cy: 130, r: 4, class: "o2-dot" }, svg);
+  }
+
+  // CO2 arrow (opposite direction to O2 usually)
+  const co2Start = g.co2Dir === "in" ? [220, 200] : [350, 200];
+  const co2End = g.co2Dir === "in" ? [340, 200] : [210, 200];
+  el("line", { x1: co2Start[0], y1: co2Start[1], x2: co2End[0], y2: co2End[1], stroke: "#3b82f6", "stroke-width": 4, "marker-end": "url(#gas-arr-blue)" }, svg);
+  el("text", { x: 280, y: 220, "text-anchor": "middle", font: "14px sans-serif", "font-weight": "700", fill: "#3b82f6" }, svg).textContent = "← CO₂";
+  for (let i = 0; i < 5; i++) {
+    const x = 230 + i * 22;
+    el("circle", { cx: x, cy: 200, r: 4, class: "co2-dot" }, svg);
+  }
+
+  // Direction labels on top
+  el("text", { x: 130, y: 30, "text-anchor": "middle", font: "12px sans-serif", "font-weight": "700", fill: "#1f2937" }, svg).textContent = g.leftLabel;
+  el("text", { x: 430, y: 30, "text-anchor": "middle", font: "12px sans-serif", "font-weight": "700", fill: "#1f2937" }, svg).textContent = g.rightLabel;
+
+  // Pressure labels at top
+  el("text", { x: 130, y: 280, "text-anchor": "middle", class: "axis-label", "font-weight": "700" }, svg).textContent = `PO₂=${g.pO2Out} · PCO₂=${g.pCO2Out}`;
+  el("text", { x: 430, y: 280, "text-anchor": "middle", class: "axis-label", "font-weight": "700" }, svg).textContent = `PO₂=${g.pO2In} · PCO₂=${g.pCO2In}`;
+
+  // Equation
+  el("text", { x: 280, y: 305, "text-anchor": "middle", class: "axis-label", "font-style": "italic" }, svg).textContent = "Khí khuếch tán từ nơi áp suất CAO → nơi áp suất THẤP (thụ động, không cần ATP)";
+
+  document.getElementById("gasInfo").innerHTML =
+    `<div><strong>Vị trí:</strong> ${g.leftLabel} ↔ ${g.rightLabel}</div>` +
+    `<div><strong>Hướng O₂:</strong> ${g.o2Dir === "in" ? "vào máu (phổi gắn O₂)" : "rời máu sang mô (mô nhận O₂)"}</div>` +
+    `<div><strong>Hướng CO₂:</strong> ${g.co2Dir === "in" ? "vào máu (mang về phổi)" : "rời máu vào phế nang (thải ra ngoài)"}</div>` +
+    `<div>${g.note}</div>`;
+}
+document.querySelectorAll("[data-loc]").forEach(b => {
+  b.onclick = () => {
+    gasLoc = b.dataset.loc;
+    document.querySelectorAll("[data-loc]").forEach(x => x.classList.toggle("active", x === b));
+    renderGas();
+  };
+});
+
+/* ====================================================================
+   Init all
+   ==================================================================== */
+drawHeart();
+renderCO();
+renderSat();
+renderGas();
+</script>
+
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

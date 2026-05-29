@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Vũ trụ giãn nở</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 130px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100px; max-width: 120px; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #7c3aed; }
+  .val { font-family: monospace; font-weight: 700; color: #7c3aed; min-width: 70px; display: inline-block; }
+  .stat { display: inline-block; background: #ede9fe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #6d28d9; }
+  .result { padding: 14px; background: #ede9fe; border-radius: 8px; margin-top: 12px; font-size: 15px; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  button.preset { background:#7c3aed; color:#fff; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:600; margin:3px; }
+
+  svg.space {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 440px; height: auto;
+    background: radial-gradient(circle at 50% 50%, #1e1b4b, #0c0a1f);
+    border-radius: 10px;
+  }
+  svg.space .gal { fill: #fbbf24; stroke: #1a202c; stroke-width: 0.6; cursor: pointer; }
+  svg.space .home { fill: #f87171; stroke: #fff; stroke-width: 1.5; }
+  svg.space .vel { stroke: #38bdf8; stroke-width: 1.6; marker-end: url(#arrow); }
+  svg.space text { font: 10px sans-serif; fill: #e2e8f0; }
+
+  svg.hub { display: block; margin: 12px auto; width: 100%; max-width: 460px; height: auto; background: #fff; border-radius: 10px; }
+  svg.hub .axis { stroke: #64748b; stroke-width: 1.5; }
+  svg.hub .line { stroke: #7c3aed; stroke-width: 2.5; }
+  svg.hub .pt { fill: #f87171; }
+  svg.hub text { font: 11px sans-serif; fill: #475569; }
+
+  svg.spec { display: block; margin: 12px auto; width: 100%; max-width: 480px; height: auto; border-radius: 10px; }
+  svg.spec text { font: 11px sans-serif; fill: #1a202c; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Cosmology</a>
+  <span class="sep">·</span>
+  <a href="../../02-StarsGalaxies/lesson-08-black-holes/visualization.html">← T2 L8: Lỗ đen</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Vũ trụ giãn nở</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-big-bang-cmb/visualization.html">L2: Big Bang &amp; CMB →</a>
+</nav>
+
+<main>
+<h1>Lesson 01 — Vũ trụ giãn nở</h1>
+<p>Ba công cụ tương tác: <strong>Vũ trụ phồng</strong> (chọn "quê nhà" bất kỳ, mọi điểm lùi xa — không có tâm), <strong>Máy tính Hubble</strong> (d ↔ v ↔ z ↔ tuổi), và <strong>Demo redshift</strong> (vạch phổ dịch đỏ).</p>
+
+<h2>1. Vũ trụ phồng — không có tâm</h2>
+<div class="card">
+  <p class="note">Lưới thiên hà phồng theo thời gian. Bấm vào <strong>bất kỳ</strong> thiên hà để chọn làm "quê nhà" (đỏ) — các mũi tên xanh cho thấy mọi thiên hà khác lùi xa nó, càng xa lùi càng nhanh. Đổi quê nhà: kết luận không đổi ⇒ không điểm nào là tâm.</p>
+  <div class="row">
+    <label>Hệ số phồng a:</label>
+    <input type="range" id="scale" min="1" max="3" value="1.6" step="0.05" oninput="drawSpace()">
+    <span class="val" id="scalev">1.60×</span>
+  </div>
+  <svg class="space" viewBox="0 0 440 340" id="spacesvg"></svg>
+  <div class="result" id="spaceout"></div>
+</div>
+
+<h2>2. Máy tính Hubble — v = H₀·d</h2>
+<div class="card">
+  <p class="note">Nhập một trong các đại lượng (đại lượng vừa sửa là "nguồn"), công cụ tính phần còn lại. <code>H₀</code> chỉnh được. Với z nhỏ dùng <code>v ≈ c·z</code>.</p>
+  <div class="row">
+    <label>H₀ (km/s/Mpc):</label>
+    <input type="number" id="H0" value="70" step="1" min="50" max="100" oninput="calcFrom('H0')">
+    <span class="val" id="thub"></span>
+  </div>
+  <div class="row">
+    <label>Khoảng cách d (Mpc):</label>
+    <input type="number" id="dist" value="100" step="10" min="0" oninput="calcFrom('d')">
+    <label>Vận tốc v (km/s):</label>
+    <input type="number" id="vel" value="7000" step="100" min="0" oninput="calcFrom('v')">
+  </div>
+  <div class="row">
+    <label>Redshift z:</label>
+    <input type="number" id="zed" value="0.0233" step="0.001" min="0" oninput="calcFrom('z')">
+  </div>
+  <div class="result" id="hubout"></div>
+  <svg class="hub" viewBox="0 0 460 240" id="hubsvg"></svg>
+  <div style="margin-top:8px">
+    <button class="preset" onclick="setD(10)">d = 10 Mpc</button>
+    <button class="preset" onclick="setD(100)">d = 100 Mpc</button>
+    <button class="preset" onclick="setD(250)">d = 250 Mpc</button>
+  </div>
+</div>
+
+<h2>3. Demo redshift — vạch phổ dịch đỏ</h2>
+<div class="card">
+  <p class="note">Kéo z để thấy vạch phổ chuẩn (xám, vị trí phòng thí nghiệm) dịch sang phải (đỏ). <code>λ = λ₀(1+z)</code>.</p>
+  <div class="row">
+    <label>Redshift z:</label>
+    <input type="range" id="rz" min="0" max="0.5" value="0.1" step="0.005" oninput="drawSpec()">
+    <span class="val" id="rzv">0.100</span>
+  </div>
+  <svg class="spec" viewBox="0 0 480 150" id="specsvg"></svg>
+  <div class="result" id="specout"></div>
+</div>
+
+<script>
+const C = 300000;             // km/s
+const KM_PER_MPC = 3.086e19;  // km
+const SEC_PER_YR = 3.156e7;
+const fmt = (x, n=1) => (x<0?'−':'') + Math.abs(x).toFixed(n);
+const fmtBig = x => x.toLocaleString('en-US', {maximumFractionDigits:0}).replace(/,/g,' ');
+
+// ---------- Module 1: Vũ trụ phồng ----------
+// Vị trí "ban đầu" (comoving) của các thiên hà trên lưới
+const galaxies = [];
+for (let i = 0; i < 5; i++)
+  for (let j = 0; j < 5; j++)
+    galaxies.push({ x: -2 + i, y: -2 + j });
+let home = 12; // index thiên hà giữa (i=2,j=2)
+function drawSpace() {
+  const a = +scale.value;
+  scalev.textContent = a.toFixed(2) + '×';
+  const cx = 220, cy = 170, unit = 60; // px per comoving unit at a=1
+  const hx = galaxies[home].x, hy = galaxies[home].y;
+  let svg = `<defs><marker id="arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#38bdf8"/></marker></defs>`;
+  // toạ độ màn hình của mỗi thiên hà ở scale a, đặt home tại tâm
+  function scr(g) {
+    return [ cx + (g.x - hx) * unit * a / 1.6, cy + (g.y - hy) * unit * a / 1.6 ];
+  }
+  // mũi tên vận tốc (tỉ lệ khoảng cách tới home)
+  galaxies.forEach((g, k) => {
+    if (k === home) return;
+    const [x, y] = scr(g);
+    const dx = x - cx, dy = y - cy;
+    const len = Math.hypot(dx, dy);
+    if (len > 4) {
+      // mũi tên dài ~ tỉ lệ khoảng cách (giãn nở: v ∝ d)
+      const f = 0.22;
+      svg += `<line class="vel" x1="${cx + dx*(1-f*0.0)}" y1="${cy + dy*(1-f*0.0)}" x2="${x + dx*f}" y2="${y + dy*f}"/>`;
+    }
+  });
+  galaxies.forEach((g, k) => {
+    const [x, y] = scr(g);
+    if (k === home) {
+      svg += `<circle class="home" cx="${x}" cy="${y}" r="7" onclick="setHome(${k})"/>`;
+      svg += `<text x="${x+9}" y="${y-8}" fill="#fca5a5">quê nhà</text>`;
+    } else {
+      svg += `<circle class="gal" cx="${x}" cy="${y}" r="5" onclick="setHome(${k})"/>`;
+    }
+  });
+  spacesvg.innerHTML = svg;
+  spaceout.innerHTML =
+    `Quê nhà = thiên hà đỏ. Mọi thiên hà khác lùi xa nó, <strong>càng xa mũi tên càng dài</strong> (v ∝ d — định luật Hubble). ` +
+    `Bấm thiên hà khác làm quê nhà → kết luận <em>y hệt</em>: <strong>không điểm nào là tâm</strong>.`;
+}
+function setHome(k) { home = k; drawSpace(); }
+
+// ---------- Module 2: Máy tính Hubble ----------
+function calcFrom(src) {
+  const H0 = +H0.value || 70;
+  let d, v, z;
+  if (src === 'd') { d = +dist.value; v = H0 * d; z = v / C; }
+  else if (src === 'v') { v = +vel.value; d = v / H0; z = v / C; }
+  else if (src === 'z') { z = +zed.value; v = C * z; d = v / H0; }
+  else { // H0 changed → recompute v,z from current d
+    d = +dist.value; v = H0 * d; z = v / C;
+  }
+  // cập nhật các ô (không kích hoạt vòng lặp vô hạn vì chỉ set value)
+  if (src !== 'd') dist.value = d.toFixed(1);
+  if (src !== 'v') vel.value = v.toFixed(0);
+  if (src !== 'z') zed.value = z.toFixed(4);
+  // thời gian Hubble
+  const H0_si = H0 / KM_PER_MPC;        // s^-1
+  const tH_yr = (1 / H0_si) / SEC_PER_YR;
+  thub.textContent = '→ t_H = ' + (tH_yr/1e9).toFixed(1) + ' tỉ năm';
+  hubout.innerHTML =
+    `<span class="stat">d = <strong>${fmt(d,1)}</strong> Mpc</span>` +
+    `<span class="stat">v = H₀·d = <strong>${fmtBig(v)}</strong> km/s</span>` +
+    `<span class="stat">z ≈ v/c = <strong>${z.toFixed(4)}</strong></span><br>` +
+    `Thời gian Hubble t_H = 1/H₀ = <strong>${(tH_yr/1e9).toFixed(2)} tỉ năm</strong> ` +
+    `(≈ tuổi vũ trụ; số đo thật 13.8 tỉ năm).` +
+    (v > 0.1*C ? `<br>⚠ v = ${(v/C*100).toFixed(0)}% c — đã lớn, v ≈ cz chỉ còn gần đúng.` : '');
+  drawHub(H0, d, v);
+}
+function setD(val) { dist.value = val; calcFrom('d'); }
+function drawHub(H0, dCur, vCur) {
+  const ox = 50, oy = 200, w = 380, h = 160;
+  const dMax = 300, vMax = H0 * dMax;
+  let svg = '';
+  svg += `<line class="axis" x1="${ox}" y1="${oy}" x2="${ox+w}" y2="${oy}"/>`;
+  svg += `<line class="axis" x1="${ox}" y1="${oy}" x2="${ox}" y2="${oy-h}"/>`;
+  svg += `<text x="${ox+w-70}" y="${oy+20}">d (Mpc)</text>`;
+  svg += `<text x="${ox-40}" y="${oy-h+4}">v (km/s)</text>`;
+  // đường Hubble
+  const x2 = ox + w, y2 = oy - h * (H0*dMax)/vMax;
+  svg += `<line class="line" x1="${ox}" y1="${oy}" x2="${x2}" y2="${oy - h}"/>`;
+  // điểm hiện tại
+  if (dCur <= dMax && dCur >= 0) {
+    const px = ox + w * (dCur/dMax);
+    const py = oy - h * (vCur/vMax);
+    svg += `<circle class="pt" cx="${px}" cy="${Math.max(oy-h,py)}" r="5"/>`;
+    svg += `<line x1="${px}" y1="${oy}" x2="${px}" y2="${Math.max(oy-h,py)}" stroke="#f87171" stroke-dasharray="3 3"/>`;
+  }
+  // mốc trục
+  [0,100,200,300].forEach(d => { const x = ox + w*(d/dMax); svg += `<text x="${x-6}" y="${oy+14}">${d}</text>`; });
+  svg += `<text x="${ox+90}" y="${oy-h+50}" fill="#7c3aed">độ dốc = H₀ = ${H0}</text>`;
+  hubsvg.innerHTML = svg;
+}
+
+// ---------- Module 3: Demo redshift ----------
+const linesNm = [410, 434, 486, 656]; // Balmer-ish, nm
+function nmToColor(nm) {
+  // ánh xạ bước sóng (380–700) sang màu xấp xỉ
+  let r=0,g=0,b=0;
+  if (nm<440){r=-(nm-440)/60;b=1;} else if(nm<490){g=(nm-440)/50;b=1;}
+  else if(nm<510){g=1;b=-(nm-510)/20;} else if(nm<580){r=(nm-510)/70;g=1;}
+  else if(nm<645){r=1;g=-(nm-645)/65;} else {r=1;}
+  return `rgb(${Math.round(r*255)},${Math.round(g*255)},${Math.round(b*255)})`;
+}
+function drawSpec() {
+  const z = +rz.value;
+  rzv.textContent = z.toFixed(3);
+  const ox = 30, w = 420, top = 20, h = 60;
+  const lamMin = 380, lamMax = 720;
+  const X = lam => ox + w * (lam - lamMin)/(lamMax - lamMin);
+  let svg = '';
+  // dải gradient nền
+  svg += `<defs><linearGradient id="rain" x1="0" x2="1">`;
+  for (let p=0;p<=10;p++){ const nm=lamMin+(lamMax-lamMin)*p/10; svg += `<stop offset="${p*10}%" stop-color="${nmToColor(nm)}"/>`; }
+  svg += `</linearGradient></defs>`;
+  svg += `<rect x="${ox}" y="${top}" width="${w}" height="${h}" fill="url(#rain)" rx="4"/>`;
+  // vạch chuẩn (xám, ở λ₀) phía trên + vạch dịch đỏ (đen) phía dưới
+  linesNm.forEach(l0 => {
+    const x0 = X(l0); svg += `<line x1="${x0}" y1="${top}" x2="${x0}" y2="${top+h}" stroke="#94a3b8" stroke-width="2.5"/>`;
+    const l = l0*(1+z); if (l<=lamMax){ const x=X(l); svg += `<line x1="${x}" y1="${top}" x2="${x}" y2="${top+h}" stroke="#0f172a" stroke-width="2.5"/>`; }
+  });
+  svg += `<text x="${ox}" y="${top+h+20}">${lamMin} nm (xanh tím)</text>`;
+  svg += `<text x="${ox+w-90}" y="${top+h+20}">${lamMax} nm (đỏ →)</text>`;
+  svg += `<text x="${ox}" y="${top-6}" fill="#475569">xám = chuẩn (λ₀) · đen = quan sát (dịch đỏ)</text>`;
+  specsvg.innerHTML = svg;
+  const l0 = 656.3, l = l0*(1+z), v = C*z;
+  specout.innerHTML =
+    `Vạch Hₐ chuẩn λ₀ = 656.3 nm → quan sát λ = λ₀(1+z) = <strong>${l.toFixed(1)} nm</strong>. ` +
+    `<span class="stat">z = <strong>${z.toFixed(3)}</strong></span>` +
+    `<span class="stat">v ≈ cz = <strong>${fmtBig(v)}</strong> km/s</span>` +
+    `<span class="stat">d ≈ <strong>${fmt(v/70,0)}</strong> Mpc</span>`;
+}
+
+// init
+const scale = document.getElementById('scale'), scalev = document.getElementById('scalev');
+const spacesvg = document.getElementById('spacesvg'), spaceout = document.getElementById('spaceout');
+const H0 = document.getElementById('H0'), dist = document.getElementById('dist'), vel = document.getElementById('vel'), zed = document.getElementById('zed');
+const thub = document.getElementById('thub'), hubout = document.getElementById('hubout'), hubsvg = document.getElementById('hubsvg');
+const rz = document.getElementById('rz'), rzv = document.getElementById('rzv'), specsvg = document.getElementById('specsvg'), specout = document.getElementById('specout');
+drawSpace();
+calcFrom('d');
+drawSpec();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

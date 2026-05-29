@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Cấu trúc lớn của vũ trụ</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 150px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 90px; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #6d28d9; }
+  .val { font-family: monospace; font-weight: 700; color: #6d28d9; min-width: 70px; display: inline-block; }
+  .stat { display: inline-block; background: #ede9fe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #6d28d9; }
+  .result { padding: 14px; background: #ede9fe; border-radius: 8px; margin-top: 12px; font-size: 15px; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  svg.cosmic, svg.grow {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 480px; height: auto;
+    background: #0b0f1a; border-radius: 10px;
+  }
+  svg.cosmic text, svg.grow text { font: 11px sans-serif; fill: #cbd5e0; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Cosmology</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-nucleosynthesis/visualization.html">L4: Tổng hợp hạt nhân</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Cấu trúc lớn</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-exoplanets/visualization.html">L6: Ngoại hành tinh →</a>
+</nav>
+
+<main>
+<h1>Lesson 05 — Cấu trúc lớn của vũ trụ</h1>
+<p>Ba công cụ: <strong>Bản đồ mạng vũ trụ</strong> (sợi/nút/void), <strong>Mô phỏng tăng trưởng cấu trúc</strong> (từ CMB tới nay), và <strong>Bộ đổi redshift → khoảng cách</strong>.</p>
+
+<h2>1. Bản đồ mạng vũ trụ — sợi, nút &amp; void</h2>
+<div class="card">
+  <p class="note">Mỗi chấm là một "thiên hà". Chúng bám vào các <strong>sợi (filament)</strong> nối các <strong>nút (siêu đám)</strong>, để lại <strong>void</strong> rỗng. Kéo slider để thay đổi độ tương phản mật độ — mạng hiện rõ dần.</p>
+  <div class="row">
+    <label>Số thiên hà:</label>
+    <input type="range" id="ng" min="200" max="1600" value="800" step="100" oninput="drawWeb()">
+    <span class="val" id="ngv">800</span>
+  </div>
+  <div class="row">
+    <label>Độ bám sợi (δ):</label>
+    <input type="range" id="contrast" min="0" max="100" value="70" step="5" oninput="drawWeb()">
+    <span class="val" id="contrastv">70%</span>
+  </div>
+  <svg class="cosmic" viewBox="0 0 480 320" id="websvg"></svg>
+  <div class="result" id="webout"></div>
+</div>
+
+<h2>2. Mô phỏng tăng trưởng cấu trúc</h2>
+<div class="card">
+  <p class="note">Cùng một tập hạt giống (in từ CMB) tiến hóa theo thời gian. Kéo slider thời gian: hạt từ phân bố gần đều (δ ~ 10⁻⁵) gom dần thành sợi/nút khi hấp dẫn khuếch đại δ.</p>
+  <div class="row">
+    <label>Thời gian vũ trụ:</label>
+    <input type="range" id="time" min="0" max="100" value="0" step="1" oninput="drawGrow()">
+    <span class="val" id="timev">CMB</span>
+  </div>
+  <svg class="grow" viewBox="0 0 480 320" id="growsvg"></svg>
+  <div class="result" id="growout"></div>
+</div>
+
+<h2>3. Bộ đổi redshift → khoảng cách</h2>
+<div class="card">
+  <p class="note">Đo redshift z của thiên hà → khoảng cách qua <code>v ≈ c·z</code>, <code>d = v/H₀</code> (xấp xỉ z nhỏ).</p>
+  <div class="row">
+    <label>Redshift z:</label>
+    <input type="number" id="z" value="0.1" step="0.01" min="0" max="2" oninput="convert()">
+    <label>H₀ (km/s/Mpc):</label>
+    <input type="number" id="H0" value="70" step="1" min="50" max="100" oninput="convert()">
+  </div>
+  <div class="result" id="convout"></div>
+</div>
+
+<script>
+const fmt = (x, n=1) => (x<0?'−':'') + Math.abs(x).toFixed(n);
+
+// PRNG ổn định để bản đồ không nhảy mỗi lần vẽ
+function makeRng(seed) {
+  let s = seed >>> 0;
+  return function() { s = (s*1664525 + 1013904223) >>> 0; return s / 4294967296; };
+}
+
+// Các "nút" siêu đám cố định trong khung 480x320
+const NODES = [
+  [90,80],[230,60],[400,90],[140,180],[300,170],[420,230],[70,250],[210,280],[350,290]
+];
+// Cạnh sợi nối vài cặp nút
+const EDGES = [[0,1],[1,2],[0,3],[1,4],[2,5],[3,4],[4,5],[3,6],[6,7],[4,7],[7,8],[5,8],[1,3]];
+
+function nearestEdgePoint(x, y) {
+  // chiếu (x,y) lên cạnh gần nhất, trả về điểm chiếu
+  let best = [x,y], bd = 1e9;
+  for (const [a,b] of EDGES) {
+    const [x1,y1] = NODES[a], [x2,y2] = NODES[b];
+    const dx = x2-x1, dy = y2-y1;
+    const t = Math.max(0, Math.min(1, ((x-x1)*dx + (y-y1)*dy)/(dx*dx+dy*dy)));
+    const px = x1 + t*dx, py = y1 + t*dy;
+    const d = (px-x)**2 + (py-y)**2;
+    if (d < bd) { bd = d; best = [px,py]; }
+  }
+  return best;
+}
+
+function drawWeb() {
+  const n = +document.getElementById('ng').value;
+  const c = +document.getElementById('contrast').value / 100;
+  document.getElementById('ngv').textContent = n;
+  document.getElementById('contrastv').textContent = (c*100).toFixed(0)+'%';
+  const rng = makeRng(12345);
+  let svg = '';
+  // sợi mờ làm nền
+  for (const [a,b] of EDGES) {
+    const [x1,y1] = NODES[a], [x2,y2] = NODES[b];
+    svg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#312e5b" stroke-width="${1+6*c}" opacity="0.5"/>`;
+  }
+  let onFil = 0;
+  for (let i=0;i<n;i++) {
+    let x = rng()*480, y = rng()*320;
+    const [ex,ey] = nearestEdgePoint(x,y);
+    // kéo về sợi theo độ tương phản c
+    x = x + (ex-x)*c*0.9;
+    y = y + (ey-y)*c*0.9;
+    const d = Math.hypot(x-ex, y-ey);
+    if (d < 14) onFil++;
+    const col = d < 14 ? '#a78bfa' : '#475569';
+    const r = d < 14 ? 1.6 : 1.1;
+    svg += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="${col}"/>`;
+  }
+  // nút
+  for (const [x,y] of NODES) svg += `<circle cx="${x}" cy="${y}" r="${3+4*c}" fill="#fbbf24" opacity="0.8"/>`;
+  svg += `<text x="245" y="115">VOID</text><text x="55" y="160">VOID</text>`;
+  document.getElementById('websvg').innerHTML = svg;
+  const pct = (onFil/n*100).toFixed(0);
+  document.getElementById('webout').innerHTML =
+    `<span class="stat">${n} thiên hà</span>` +
+    `<span class="stat"><strong>${pct}%</strong> bám trên sợi/nút</span>` +
+    (c < 0.2 ? ' → δ thấp: thiên hà rải gần đều, chưa thấy mạng.'
+             : ' → δ cao: mạng vũ trụ rõ — sợi nối nút, void rỗng giữa các sợi.');
+}
+
+function drawGrow() {
+  const t = +document.getElementById('time').value / 100;  // 0..1
+  const labels = t < 0.02 ? 'CMB (380k năm)' : t < 0.3 ? '~vài trăm triệu năm'
+               : t < 0.7 ? '~vài tỉ năm' : 'Ngày nay (13.8 tỉ năm)';
+  document.getElementById('timev').textContent = t < 0.02 ? 'CMB' : (t*13.8).toFixed(1)+' tỉ năm';
+  const rng = makeRng(777);
+  const N = 700;
+  let svg = '';
+  for (const [a,b] of EDGES) {
+    const [x1,y1] = NODES[a], [x2,y2] = NODES[b];
+    svg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#312e5b" stroke-width="${1+5*t}" opacity="${0.15+0.4*t}"/>`;
+  }
+  for (let i=0;i<N;i++) {
+    let x = rng()*480, y = rng()*320;
+    const [ex,ey] = nearestEdgePoint(x,y);
+    x = x + (ex-x)*t*0.92;
+    y = y + (ey-y)*t*0.92;
+    const d = Math.hypot(x-ex,y-ey);
+    const col = d < 14 ? '#a78bfa' : '#64748b';
+    svg += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${1+ (d<14?0.8*t:0)}" fill="${col}"/>`;
+  }
+  document.getElementById('growsvg').innerHTML = svg;
+  const delta = t < 0.02 ? '~10⁻⁵' : t < 0.3 ? '~0.01–0.1' : t < 0.7 ? '~1' : '~1 đến 200+';
+  document.getElementById('growout').innerHTML =
+    `<span class="stat">${labels}</span><span class="stat">δ điển hình ≈ <strong>${delta}</strong></span><br>` +
+    (t < 0.02 ? 'Vũ trụ gần như mịn — chỉ có hạt giống lốm đốm in trong CMB.'
+     : t < 1 ? 'Hấp dẫn (vật chất tối dẫn đường) đang khuếch đại δ — hạt chảy về sợi/nút.'
+     : 'Mạng vũ trụ trưởng thành: siêu đám tại nút, void rỗng giữa các sợi.');
+}
+
+function convert() {
+  const z = +document.getElementById('z').value, H0 = +document.getElementById('H0').value;
+  const c = 300000;
+  const v = c*z;
+  const d = v/H0;
+  const ly = d*3.26;
+  const warn = z > 0.1 ? ' ⚠ z > 0.1: xấp xỉ z nhỏ bắt đầu sai lệch.' : '';
+  document.getElementById('convout').innerHTML =
+    `v ≈ c·z = 300 000 × ${z} = <strong>${fmt(v,0)}</strong> km/s<br>` +
+    `<span class="stat">d = v/H₀ = <strong>${fmt(d,0)}</strong> Mpc</span>` +
+    `<span class="stat">≈ <strong>${ly>=1000?fmt(ly/1000,2)+' tỉ':fmt(ly,0)+' triệu'}</strong> năm ánh sáng</span>` + warn;
+}
+
+drawWeb(); drawGrow(); convert();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

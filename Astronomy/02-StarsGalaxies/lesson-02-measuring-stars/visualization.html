@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Đo sao</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 150px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 90px; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #0e7490; }
+  .val { font-family: monospace; font-weight: 700; color: #0e7490; min-width: 70px; display: inline-block; }
+  .stat { display: inline-block; background: #cffafe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #0e7490; }
+  .result { padding: 14px; background: #cffafe; border-radius: 8px; margin-top: 12px; font-size: 15px; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  button.preset { background:#0e7490; color:#fff; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:600; margin:3px; }
+  svg.par { display:block; margin:12px auto; width:100%; max-width:520px; height:auto; background:#0f172a; border-radius:10px; }
+  svg.par text { font:11px sans-serif; fill:#cbd5e0; }
+  svg.iso { display:block; margin:12px auto; width:100%; max-width:480px; height:auto; background:#0f172a; border-radius:10px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Stars &amp; Galaxies</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-radiation-spectra/visualization.html">L1: Bức xạ &amp; phổ</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Đo sao</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-hr-diagram/visualization.html">L3: Biểu đồ H-R →</a>
+</nav>
+
+<main>
+<h1>Lesson 02 — Đo sao: độ sáng &amp; khoảng cách</h1>
+<p>Ba công cụ: <strong>Mô phỏng thị sai</strong> (khoảng cách → góc parallax → d), <strong>Magnitude calculator</strong> (cấp sao ↔ tỉ số độ sáng), và <strong>Nghịch đảo bình phương</strong> (khoảng cách → flux).</p>
+
+<h2>1. Mô phỏng thị sai (Parallax)</h2>
+<div class="card">
+  <p class="note">Trái Đất đi nửa vòng quỹ đạo (đường nền = 2 AU). Sao gần "nhảy" góc lớn so với nền xa; sao xa nhảy ít. <code>d[pc] = 1/p["]</code>.</p>
+  <div class="row">
+    <label>Khoảng cách d (pc):</label>
+    <input type="range" id="dist" min="1" max="50" value="10" step="0.5" oninput="drawPar()">
+    <span class="val" id="distv">10 pc</span>
+  </div>
+  <svg class="par" viewBox="0 0 520 300" id="parsvg"></svg>
+  <div class="result" id="parout"></div>
+  <div style="margin-top:10px">
+    <button class="preset" onclick="setDist(1.30)">Proxima (1.30 pc)</button>
+    <button class="preset" onclick="setDist(2.64)">Sirius (2.64 pc)</button>
+    <button class="preset" onclick="setDist(7.7)">Vega (7.7 pc)</button>
+  </div>
+</div>
+
+<h2>2. Magnitude calculator</h2>
+<div class="card">
+  <p class="note">Nhập 2 cấp sao → tỉ số độ sáng (flux). Quy tắc: chênh 5 cấp = 100 lần; mỗi cấp = ×2.512.</p>
+  <div class="row">
+    <label>Cấp sao m₁:</label>
+    <input type="number" id="m1" value="-1.46" step="0.1" oninput="calcMag()">
+    <label>Cấp sao m₂:</label>
+    <input type="number" id="m2" value="6.0" step="0.1" oninput="calcMag()">
+  </div>
+  <div class="result" id="magout"></div>
+  <div style="margin-top:10px">
+    <button class="preset" onclick="setMag(-1.46,6.0)">Sirius vs mắt thường</button>
+    <button class="preset" onclick="setMag(-26.7,-1.46)">Mặt Trời vs Sirius</button>
+    <button class="preset" onclick="setMag(2,7)">Δm = 5 (×100)</button>
+  </div>
+</div>
+
+<h2>3. Nghịch đảo bình phương — flux theo khoảng cách</h2>
+<div class="card">
+  <p class="note"><code>F = L/(4πd²)</code> → <code>F ∝ 1/d²</code>. Kéo khoảng cách, xem flux + độ sáng đĩa sao thay đổi.</p>
+  <div class="row">
+    <label>Khoảng cách (×gốc):</label>
+    <input type="range" id="isod" min="1" max="10" value="1" step="0.5" oninput="drawIso()">
+    <span class="val" id="isodv">×1</span>
+  </div>
+  <svg class="iso" viewBox="0 0 480 180" id="isosvg"></svg>
+  <div class="result" id="isoout"></div>
+</div>
+
+<script>
+const fmt = (x,n=2) => (x<0?'−':'') + Math.abs(x).toFixed(n);
+function fmtBig(x){
+  if (x>=1e4 || (x>0 && x<1e-3)){ const e=Math.floor(Math.log10(x)); const m=x/Math.pow(10,e); return m.toFixed(2)+'×10'+sup(e); }
+  return x.toFixed(x<10?2:0);
+}
+function sup(n){ const s={'−':'⁻','-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'}; return String(n).split('').map(c=>s[c]||c).join(''); }
+
+// ---- Module 1: parallax ----
+function drawPar(){
+  const d = +document.getElementById('dist').value;
+  document.getElementById('distv').textContent = d.toFixed(1)+' pc';
+  const p = 1/d; // arcsec
+  const ly = d*3.26;
+  const W=520,H=300;
+  const sunX=110, sunY=H/2;
+  const orbR=42;
+  // hai vị trí Trái Đất (6 tháng cách nhau)
+  const e1y=sunY-orbR, e2y=sunY+orbR;
+  // sao ở xa bên phải; góc nhảy phóng đại để nhìn thấy
+  const starX=470;
+  const baseShift = Math.min(60, 60/d*3); // chỉ để hiển thị: gần thì nhảy nhiều
+  let svg='';
+  // nền sao xa (cố định)
+  for(let i=0;i<14;i++){ const sx=300+ (i*53%200); const sy=30+(i*71%240); svg+=`<circle cx="${sx}" cy="${sy}" r="1.3" fill="#475569"/>`; }
+  // Mặt Trời + quỹ đạo
+  svg+=`<ellipse cx="${sunX}" cy="${sunY}" rx="14" ry="${orbR}" fill="none" stroke="#334155" stroke-width="1.5"/>`;
+  svg+=`<circle cx="${sunX}" cy="${sunY}" r="9" fill="#fbbf24"/>`;
+  svg+=`<text x="${sunX-16}" y="${sunY-orbR-8}">Mặt Trời</text>`;
+  // hai vị trí Trái Đất
+  svg+=`<circle cx="${sunX}" cy="${e1y}" r="5" fill="#38bdf8"/>`;
+  svg+=`<circle cx="${sunX}" cy="${e2y}" r="5" fill="#38bdf8"/>`;
+  svg+=`<text x="${sunX+10}" y="${e1y-4}">Tháng 1</text>`;
+  svg+=`<text x="${sunX+10}" y="${e2y+12}">Tháng 7</text>`;
+  // baseline
+  svg+=`<line x1="${sunX}" y1="${e1y}" x2="${sunX}" y2="${e2y}" stroke="#22d3ee" stroke-width="1.5" stroke-dasharray="3 2"/>`;
+  svg+=`<text x="${sunX-44}" y="${sunY+4}" fill="#22d3ee">2 AU</text>`;
+  // tia tới sao (vị trí biểu kiến lệch)
+  svg+=`<line x1="${sunX}" y1="${e1y}" x2="${starX}" y2="${sunY-baseShift}" stroke="#64748b" stroke-width="1"/>`;
+  svg+=`<line x1="${sunX}" y1="${e2y}" x2="${starX}" y2="${sunY+baseShift}" stroke="#64748b" stroke-width="1"/>`;
+  // sao (2 vị trí biểu kiến)
+  svg+=`<circle cx="${starX}" cy="${sunY-baseShift}" r="4" fill="#fde047" opacity="0.6"/>`;
+  svg+=`<circle cx="${starX}" cy="${sunY+baseShift}" r="4" fill="#fde047" opacity="0.6"/>`;
+  svg+=`<text x="${starX-30}" y="${sunY}" fill="#fde047">Sao</text>`;
+  document.getElementById('parsvg').innerHTML=svg;
+
+  document.getElementById('parout').innerHTML =
+    `<span class="stat">d = <strong>${d.toFixed(1)} pc</strong></span>` +
+    `<span class="stat">p = 1/d = <strong>${fmt(p,3)}"</strong></span>` +
+    `<span class="stat">= <strong>${fmt(ly,1)} ly</strong></span><br>` +
+    `Sao càng gần (d nhỏ) → góc thị sai p càng lớn → dễ đo. ` +
+    (p>=1 ? `(p ≥ 1" là bất khả: không sao nào gần hơn 1 pc.)` : ``);
+}
+function setDist(d){ document.getElementById('dist').value=d; drawPar(); }
+
+// ---- Module 2: magnitude ----
+function calcMag(){
+  const m1=+document.getElementById('m1').value, m2=+document.getElementById('m2').value;
+  const dm = m1-m2;
+  const ratio = Math.pow(10, -0.4*dm); // F1/F2
+  const brighter = m1<m2 ? 'Sao 1' : (m2<m1 ? 'Sao 2' : 'bằng nhau');
+  const big = ratio>=1 ? ratio : 1/ratio;
+  document.getElementById('magout').innerHTML =
+    `Δm = m₁ − m₂ = <strong>${fmt(dm,2)}</strong><br>` +
+    `<span class="stat">F₁/F₂ = 10^(−0.4·Δm) = <strong>${fmtBig(ratio)}</strong></span><br>` +
+    (brighter==='bằng nhau'
+       ? `Hai sao sáng như nhau.`
+       : `<strong>${brighter}</strong> sáng hơn <strong>${fmtBig(big)} lần</strong> (số cấp nhỏ hơn = sáng hơn).`);
+}
+function setMag(a,b){ document.getElementById('m1').value=a; document.getElementById('m2').value=b; calcMag(); }
+
+// ---- Module 3: inverse square ----
+function drawIso(){
+  const d=+document.getElementById('isod').value;
+  document.getElementById('isodv').textContent='×'+d;
+  const flux = 1/(d*d);
+  const dm = -2.5*Math.log10(flux); // mờ thêm bao nhiêu cấp so với d=1
+  const W=480,H=180;
+  let svg='';
+  // nguồn
+  svg+=`<circle cx="50" cy="${H/2}" r="14" fill="#fbbf24"/>`;
+  svg+=`<text x="30" y="${H/2+34}">Nguồn L</text>`;
+  // đĩa sao quan sát, độ sáng theo flux
+  const op = Math.max(0.05, flux);
+  const rad = 8 + 20*Math.sqrt(flux);
+  svg+=`<circle cx="380" cy="${H/2}" r="${rad.toFixed(1)}" fill="#fde047" opacity="${op.toFixed(3)}"/>`;
+  svg+=`<text x="345" y="${H/2+40}">Người quan sát</text>`;
+  // mặt cầu trải ra
+  for(let k=1;k<=3;k++){ const rx=70+k*90; svg+=`<path d="M ${rx} 30 Q ${rx-40} ${H/2} ${rx} ${H-30}" fill="none" stroke="#334155" stroke-width="1" stroke-dasharray="3 3"/>`; }
+  svg+=`<line x1="64" y1="${H/2}" x2="366" y2="${H/2}" stroke="#475569" stroke-width="1"/>`;
+  document.getElementById('isosvg').innerHTML=svg;
+
+  document.getElementById('isoout').innerHTML =
+    `<span class="stat">d = <strong>×${d}</strong></span>` +
+    `<span class="stat">F ∝ 1/d² = <strong>×${fmt(flux,4)}</strong></span>` +
+    `<span class="stat">mờ thêm <strong>${fmt(dm,2)}</strong> cấp</span><br>` +
+    `Xa gấp ${d} lần → mỗi m² chỉ nhận 1/${fmt(d*d,2)} năng lượng.`;
+}
+function setIso(){}
+
+drawPar();
+calcMag();
+drawIso();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

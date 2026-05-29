@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Big Bang &amp; CMB</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 130px; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #d97706; }
+  .val { font-family: monospace; font-weight: 700; color: #b45309; min-width: 70px; display: inline-block; }
+  .stat { display: inline-block; background: #fef3c7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #b45309; }
+  .result { padding: 14px; background: #fef3c7; border-radius: 8px; margin-top: 12px; font-size: 15px; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  .tl-btns { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .tl-btns button { border: 1px solid #d97706; background: #fff; color: #b45309; padding: 7px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; }
+  .tl-btns button.active { background: #d97706; color: #fff; }
+  svg.tl { display: block; margin: 12px auto; width: 100%; max-width: 480px; height: auto; }
+  svg.tl text { font: 10px sans-serif; fill: #475569; }
+  svg.bar { display: block; margin: 12px auto; width: 100%; max-width: 460px; height: auto; }
+  svg.bar text { font: 11px sans-serif; fill: #1a202c; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Cosmology</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-expanding-universe/visualization.html">L1: Vũ trụ giãn nở</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Big Bang &amp; CMB</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-dark-matter-energy/visualization.html">L3: Vật chất tối &amp; NL tối →</a>
+</nav>
+
+<main>
+<h1>Lesson 02 — Big Bang &amp; Bức xạ nền vi sóng</h1>
+<p>Hai công cụ tương tác: <strong>Dòng thời gian vũ trụ</strong> (bấm từng mốc xem nhiệt độ &amp; sự kiện) và <strong>Máy nguội CMB</strong> (kéo redshift → nhiệt độ &amp; bước sóng đỉnh, thấy vì sao nay là vi sóng).</p>
+
+<h2>1. Dòng thời gian vũ trụ</h2>
+<div class="card">
+  <p class="note">Trục thời gian theo thang log (10⁻⁴³ s → 13.8 tỉ năm). Bấm một mốc để xem chi tiết. Vũ trụ nguội dần khi giãn — mỗi mốc nhiệt độ mở khóa một sự kiện.</p>
+  <div class="tl-btns" id="tlbtns"></div>
+  <svg class="tl" viewBox="0 0 480 110" id="tlsvg"></svg>
+  <div class="result" id="tlout"></div>
+</div>
+
+<h2>2. Máy nguội CMB — vì sao nay là vi sóng</h2>
+<div class="card">
+  <p class="note">Kéo redshift z. Nhiệt độ <code>T = 2.725·(1+z)</code>; bước sóng đỉnh <code>λ_max = 2.898 mm·K / T</code> (Wien). z=0 là hôm nay; z≈1100 là lúc CMB phát ra (~3000 K).</p>
+  <div class="row">
+    <label>Redshift z:</label>
+    <input type="range" id="z" min="0" max="1100" value="0" step="1" oninput="drawCMB()">
+    <span class="val" id="zv">0</span>
+  </div>
+  <svg class="bar" viewBox="0 0 460 120" id="barsvg"></svg>
+  <div class="result" id="cmbout"></div>
+  <div class="tl-btns">
+    <button onclick="setZ(0)">z = 0 (nay)</button>
+    <button onclick="setZ(1)">z = 1</button>
+    <button onclick="setZ(10)">z = 10</button>
+    <button onclick="setZ(1100)">z = 1100 (CMB phát)</button>
+  </div>
+</div>
+
+<script>
+const T0 = 2.725, WIEN = 2.898; // mm·K
+const fmt = (x, n=1) => x.toFixed(n);
+
+// ---------- Module 1: Timeline ----------
+const events = [
+  { t: 1e-43, label: 'Planck', T: '~10³² K', desc: 'Thời Planck: vật lý hiện tại chưa mô tả nổi. Cả 4 lực có thể thống nhất.' },
+  { t: 1e-34, label: 'Lạm phát', T: '—', desc: 'Lạm phát (inflation): không gian phồng theo cấp số nhân trong tích tắc, làm vũ trụ phẳng & đồng đều.' },
+  { t: 100, label: 'Tổng hợp HN', T: '~10⁹ K', desc: 'Tổng hợp hạt nhân (3 phút đầu): proton & neutron kết thành H, He (~25% khối lượng), vết Li. Xem Lesson 04.' },
+  { t: 380000*3.156e7, label: 'Tái kết hợp', T: '~3000 K', desc: 'Tái kết hợp (380 000 năm, z≈1100): electron + hạt nhân → nguyên tử trung hòa; vũ trụ TRONG SUỐT; ánh sáng thoát ra → CMB.' },
+  { t: 2e8*3.156e7, label: 'Sao đầu tiên', T: '~50 K', desc: 'Các ngôi sao & thiên hà đầu tiên bừng sáng, "tái ion hóa" khí giữa các sao.' },
+  { t: 13.8e9*3.156e7, label: 'Hôm nay', T: '2.725 K', desc: 'Hiện tại: 13.8 tỉ năm. CMB đã nguội xuống vùng vi sóng (2.725 K).' }
+];
+let sel = 5;
+function drawTL() {
+  const ox = 30, w = 420, y = 55;
+  const lo = Math.log10(1e-43), hi = Math.log10(events[5].t);
+  const X = t => ox + w * (Math.log10(t) - lo) / (hi - lo);
+  let svg = `<line x1="${ox}" y1="${y}" x2="${ox+w}" y2="${y}" stroke="#94a3b8" stroke-width="2"/>`;
+  svg += `<text x="${ox}" y="${y+30}">Big Bang (t=0)</text>`;
+  svg += `<text x="${ox+w-60}" y="${y+30}">13.8 tỉ năm</text>`;
+  events.forEach((e, i) => {
+    const x = X(e.t);
+    const on = i === sel;
+    svg += `<circle cx="${x}" cy="${y}" r="${on?7:5}" fill="${on?'#d97706':'#fbbf24'}" stroke="#1a202c" stroke-width="0.8" style="cursor:pointer" onclick="selTL(${i})"/>`;
+    svg += `<text x="${x}" y="${y-12}" text-anchor="middle" style="cursor:pointer" onclick="selTL(${i})">${e.label}</text>`;
+  });
+  tlsvg.innerHTML = svg;
+  const e = events[sel];
+  tlout.innerHTML = `<strong>${e.label}</strong> · nhiệt độ ${e.T}<br>${e.desc}`;
+  document.querySelectorAll('#tlbtns button').forEach((b,i)=>b.classList.toggle('active', i===sel));
+}
+function selTL(i){ sel = i; drawTL(); }
+
+// ---------- Module 2: CMB cooler ----------
+function bandOf(lam_mm) {
+  // lam in mm
+  if (lam_mm < 7e-7) return 'tử ngoại';
+  if (lam_mm < 7e-4) return 'nhìn thấy';
+  if (lam_mm < 1) return 'hồng ngoại';
+  if (lam_mm < 100) return 'vi sóng';
+  return 'sóng vô tuyến';
+}
+function bandColor(b){
+  return { 'tử ngoại':'#8b5cf6','nhìn thấy':'#22c55e','hồng ngoại':'#ef4444','vi sóng':'#3b82f6','sóng vô tuyến':'#6366f1' }[b];
+}
+function drawCMB() {
+  const z = +zEl.value;
+  zv.textContent = z;
+  const T = T0 * (1 + z);
+  const lam = WIEN / T; // mm
+  const band = bandOf(lam);
+  // thanh nhiệt độ: glow theo T (log)
+  const ox = 30, w = 400, y = 30, h = 40;
+  const frac = Math.min(1, Math.log10(T+1) / Math.log10(3001)); // 0..1
+  const col = `hsl(${(1-frac)*40 + 0}, 90%, ${20 + frac*45}%)`; // đỏ→cam→sáng
+  let svg = '';
+  svg += `<rect x="${ox}" y="${y}" width="${w}" height="${h}" rx="6" fill="${col}"/>`;
+  svg += `<text x="${ox+w/2}" y="${y+26}" text-anchor="middle" fill="#fff" style="font-weight:700">T = ${T<10?T.toFixed(2):T.toFixed(0)} K</text>`;
+  // chỉ thị vùng phổ
+  svg += `<rect x="${ox}" y="${y+h+18}" width="${w}" height="22" rx="5" fill="${bandColor(band)}" opacity="0.85"/>`;
+  svg += `<text x="${ox+w/2}" y="${y+h+33}" text-anchor="middle" fill="#fff" style="font-weight:700">λ_đỉnh ≈ ${lam<1?(lam*1000).toFixed(1)+' µm':lam.toFixed(2)+' mm'} → vùng ${band}</text>`;
+  barsvg.innerHTML = svg;
+  cmbout.innerHTML =
+    `<span class="stat">z = <strong>${z}</strong></span>` +
+    `<span class="stat">T = 2.725·(1+z) = <strong>${T<10?T.toFixed(2):T.toFixed(0)} K</strong></span>` +
+    `<span class="stat">λ_đỉnh = <strong>${lam<1?(lam*1000).toFixed(1)+' µm':lam.toFixed(2)+' mm'}</strong></span><br>` +
+    (z===0 ? 'Hôm nay: CMB là vi sóng 2.725 K — tiếng vọng nguội lạnh của Big Bang.' :
+     z>=1100 ? 'Lúc tái kết hợp (z≈1100): ~3000 K, màu cam đỏ như lò nung — ánh sáng vừa được thả tự do.' :
+     `Vũ trụ khi đó nóng gấp ${(1+z).toFixed(0)} lần & nhỏ hơn ${(1+z).toFixed(0)} lần hiện nay.`);
+}
+function setZ(v){ zEl.value = v; drawCMB(); }
+
+// init
+const tlsvg = document.getElementById('tlsvg'), tlout = document.getElementById('tlout');
+const tlbtns = document.getElementById('tlbtns');
+events.forEach((e,i)=>{ const b=document.createElement('button'); b.textContent=e.label; b.onclick=()=>selTL(i); tlbtns.appendChild(b); });
+const zEl = document.getElementById('z'), zv = document.getElementById('zv'), barsvg = document.getElementById('barsvg'), cmbout = document.getElementById('cmbout');
+drawTL();
+drawCMB();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

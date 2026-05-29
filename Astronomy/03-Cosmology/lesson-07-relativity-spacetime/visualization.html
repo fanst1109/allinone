@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Tương đối &amp; không-thời gian</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 160px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 90px; }
+  input[type="range"] { flex: 1; min-width: 150px; accent-color: #db2777; }
+  .val { font-family: monospace; font-weight: 700; color: #db2777; min-width: 80px; display: inline-block; }
+  .stat { display: inline-block; background: #fce7f3; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #be185d; }
+  .result { padding: 14px; background: #fce7f3; border-radius: 8px; margin-top: 12px; font-size: 15px; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  svg.sheet, svg.lens {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 480px; height: auto;
+    background: #0b0f1a; border-radius: 10px;
+  }
+  svg.sheet text, svg.lens text { font: 12px sans-serif; fill: #cbd5e0; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Cosmology</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-exoplanets/visualization.html">L6: Ngoại hành tinh</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Tương đối &amp; không-thời gian</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-fate-of-universe/visualization.html">L8: Số phận vũ trụ →</a>
+</nav>
+
+<main>
+<h1>Lesson 07 — Tương đối &amp; không-thời gian</h1>
+<p>Ba công cụ: <strong>Tấm cao su</strong> (khối lượng → độ cong), <strong>Demo bẻ cong ánh sáng / thấu kính</strong>, và <strong>Calculator γ &amp; GPS</strong>.</p>
+
+<h2>1. Tấm cao su — độ cong không-thời gian</h2>
+<div class="card">
+  <p class="note">Lưới không-thời gian bị một khối lượng kéo lõm. Kéo slider khối lượng → giếng sâu thêm. Đây là <em>analogy 2D</em> — thực tế là không-thời gian 4D cong (xem cảnh báo trong README).</p>
+  <div class="row">
+    <label>Khối lượng M:</label>
+    <input type="range" id="mass" min="0" max="100" value="40" step="1" oninput="drawSheet()">
+    <span class="val" id="massv">40</span>
+  </div>
+  <svg class="sheet" viewBox="0 0 480 320" id="sheetsvg"></svg>
+  <div class="result" id="sheetout"></div>
+</div>
+
+<h2>2. Bẻ cong ánh sáng / thấu kính hấp dẫn</h2>
+<div class="card">
+  <p class="note">Nguồn sáng phía sau (trái) phát tia tới mắt (phải). Khối lượng ở giữa bẻ cong tia. Khối lượng càng lớn → bẻ càng mạnh → có thể tạo nhiều ảnh / vòng Einstein.</p>
+  <div class="row">
+    <label>Khối lượng thấu kính:</label>
+    <input type="range" id="lmass" min="0" max="100" value="30" step="1" oninput="drawLens()">
+    <span class="val" id="lmassv">30</span>
+  </div>
+  <svg class="lens" viewBox="0 0 480 300" id="lenssvg"></svg>
+  <div class="result" id="lensout"></div>
+</div>
+
+<h2>3. Calculator γ &amp; hiệu chỉnh GPS</h2>
+<div class="card">
+  <p class="note">Hệ số Lorentz <code>γ = 1/√(1−v²/c²)</code>. GPS: hai hiệu ứng cộng lại thành +38 µs/ngày.</p>
+  <div class="row">
+    <label>v / c:</label>
+    <input type="number" id="vc" value="0.8" step="0.01" min="0" max="0.999" oninput="calc()">
+    <label>Số ngày (GPS):</label>
+    <input type="number" id="days" value="1" step="1" min="1" max="365" oninput="calc()">
+  </div>
+  <div class="result" id="calcout"></div>
+</div>
+
+<script>
+const fmt = (x, n=1) => (x<0?'−':'') + Math.abs(x).toFixed(n);
+
+function drawSheet() {
+  const M = +document.getElementById('mass').value;
+  document.getElementById('massv').textContent = M;
+  const W=480,H=320, cx=240, cy=150;
+  const depth = M*1.4;          // độ lõm
+  const reach = 150;
+  // hàm dịch chuyển dọc theo giếng thế
+  function dip(x,y){
+    const d = Math.hypot(x-cx, y-cy);
+    return depth / (1 + (d/40)*(d/40));
+  }
+  let svg='';
+  // lưới: các đường ngang và dọc, mỗi điểm bị đẩy xuống theo dip
+  for (let gy=20; gy<=H-20; gy+=30){
+    let pts=[];
+    for (let gx=20; gx<=W-20; gx+=12){ pts.push(`${gx},${(gy+dip(gx,gy)).toFixed(1)}`); }
+    svg += `<polyline points="${pts.join(' ')}" fill="none" stroke="#3730a3" stroke-width="1" opacity="0.7"/>`;
+  }
+  for (let gx=20; gx<=W-20; gx+=30){
+    let pts=[];
+    for (let gy=20; gy<=H-20; gy+=12){ pts.push(`${gx},${(gy+dip(gx,gy)).toFixed(1)}`); }
+    svg += `<polyline points="${pts.join(' ')}" fill="none" stroke="#3730a3" stroke-width="1" opacity="0.7"/>`;
+  }
+  // khối lượng
+  const r = 6 + M*0.12;
+  svg += `<circle cx="${cx}" cy="${(cy+dip(cx,cy)).toFixed(1)}" r="${r}" fill="#fbbf24"/>`;
+  document.getElementById('sheetsvg').innerHTML = svg;
+  document.getElementById('sheetout').innerHTML = M===0
+    ? 'M = 0 → lưới phẳng: không có khối lượng, không-thời gian không cong, vật đi thẳng.'
+    : `<span class="stat">M = ${M}</span> Khối lượng làm lưới lõm thành "giếng thế". Vật &amp; ánh sáng đi theo đường thẳng-nhất trên lưới cong → ta gọi đó là hấp dẫn.`;
+}
+
+function drawLens() {
+  const M = +document.getElementById('lmass').value;
+  document.getElementById('lmassv').textContent = M;
+  const W=480,H=300, lensX=240, lensY=150;
+  const bend = M*0.6;   // độ lệch
+  let svg='';
+  // nguồn (trái), mắt (phải), khối lượng (giữa)
+  svg += `<circle cx="40" cy="${lensY}" r="8" fill="#60a5fa"/><text x="20" y="${lensY+26}">nguồn</text>`;
+  svg += `<circle cx="${lensX}" cy="${lensY}" r="${6+M*0.1}" fill="#fbbf24"/><text x="${lensX-26}" y="${lensY+34}">khối lượng</text>`;
+  svg += `<text x="430" y="${lensY+26}">mắt</text>`;
+  // các tia: đi từ nguồn, lệch khi qua gần khối lượng theo impact parameter
+  const eyeX=440;
+  for (const off of [-60,-30,30,60]) {
+    const midY = lensY + off;
+    // độ bẻ tỉ lệ nghịch với |off| (gần hơn → bẻ mạnh hơn), hướng về tâm
+    const b = bend * (40/Math.abs(off)) * (off>0? -1 : 1);
+    const enterY = midY;
+    const exitY = midY + b;
+    svg += `<path d="M 40 ${lensY} Q ${lensX} ${enterY} ${eyeX} ${lensY}" fill="none" stroke="#34d399" stroke-width="1.6" opacity="0.85"/>`;
+  }
+  // tia thẳng tham chiếu
+  svg += `<line x1="40" y1="${lensY}" x2="${eyeX}" y2="${lensY}" stroke="#475569" stroke-dasharray="4 4"/>`;
+  // ảnh ảo phía mắt (số ảnh tăng theo M)
+  const nImg = M < 15 ? 1 : M < 55 ? 2 : 3;
+  for (let i=0;i<nImg;i++){
+    const yy = lensY + (nImg===1?0:(i-(nImg-1)/2)*30);
+    svg += `<circle cx="465" cy="${yy}" r="4" fill="#60a5fa" opacity="0.8"/>`;
+  }
+  document.getElementById('lenssvg').innerHTML = svg;
+  const desc = M===0 ? 'M = 0 → ánh sáng đi thẳng, ta thấy 1 ảnh đúng vị trí.'
+    : nImg===1 ? 'Khối lượng nhỏ: ánh sáng lệch nhẹ → 1 ảnh hơi dịch.'
+    : nImg===2 ? 'Khối lượng lớn: ánh sáng bẻ mạnh → xuất hiện nhiều ảnh / cung.'
+    : 'Khối lượng rất lớn, gần thẳng hàng → tiệm cận VÒNG EINSTEIN (nhiều ảnh quanh thấu kính).';
+  document.getElementById('lensout').innerHTML = `<span class="stat">${nImg} ảnh</span> ${desc}`;
+}
+
+function calc() {
+  const vc = Math.min(0.999, +document.getElementById('vc').value);
+  const days = +document.getElementById('days').value;
+  const gamma = 1/Math.sqrt(1 - vc*vc);
+  // GPS ròng +38 µs/ngày
+  const net = 38 * days;   // µs
+  const distErr = 3e8 * net*1e-6;  // mét
+  document.getElementById('calcout').innerHTML =
+    `<span class="stat">γ = 1/√(1−${vc}²) = <strong>${gamma.toFixed(3)}</strong></span><br>` +
+    `Đồng hồ chuyển động chạy chậm × γ: 1 năm riêng ↔ ${gamma.toFixed(2)} năm đứng yên.<br>` +
+    `<hr style="border:none;border-top:1px solid #f9a8d4;margin:8px 0">` +
+    `<strong>GPS</strong> (GR +45, SR −7 → ròng +38 µs/ngày):<br>` +
+    `<span class="stat">sau ${days} ngày: +${net.toFixed(0)} µs</span>` +
+    `<span class="stat">sai vị trí ≈ <strong>${(distErr/1000).toFixed(1)} km</strong></span><br>` +
+    `→ Không hiệu chỉnh → định vị lệch dồn ~11 km mỗi ngày.`;
+}
+
+drawSheet(); drawLens(); calc();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

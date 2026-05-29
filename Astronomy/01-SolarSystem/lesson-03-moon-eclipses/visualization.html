@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Mặt Trăng &amp; Thực</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 150px; }
+  input[type="range"] { flex: 1; min-width: 180px; accent-color: #6366f1; }
+  .val { font-family: monospace; font-weight: 700; color: #4338ca; min-width: 70px; display: inline-block; }
+  .stat { display: inline-block; background: #e0e7ff; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #4338ca; }
+  .result { padding: 14px; background: #e0e7ff; border-radius: 8px; margin-top: 12px; font-size: 15px; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  .btn { background: #6366f1; color: #fff; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: 600; margin: 3px; }
+  .ok { background: #dcfce7; color: #166534; padding: 6px 10px; border-radius: 6px; font-weight: 700; }
+  .no { background: #fee2e2; color: #991b1b; padding: 6px 10px; border-radius: 6px; font-weight: 700; }
+
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 480px; height: auto;
+    background: radial-gradient(circle at 50% 50%, #0f172a, #020617); border-radius: 10px; }
+  svg.phase { display: block; margin: 12px auto; width: 100%; max-width: 220px; height: auto; }
+  svg.ecl { display: block; margin: 12px auto; width: 100%; max-width: 480px; height: auto;
+    background: radial-gradient(circle at 50% 50%, #0f172a, #020617); border-radius: 10px; }
+  svg text { font: 12px sans-serif; fill: #e2e8f0; }
+  .lbl-sm { font: 11px sans-serif; fill: #cbd5e0; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Solar System</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-seasons-sun/visualization.html">L2: Mặt Trời &amp; mùa</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Mặt Trăng &amp; thực</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-kepler-laws/visualization.html">L4: Định luật Kepler →</a>
+</nav>
+
+<main>
+<h1>Lesson 03 — Mặt Trăng &amp; Thực</h1>
+<p>Hai công cụ: <strong>Hình học pha</strong> (Mặt Trời–Trái Đất–Trăng → pha, elongation, % sáng) và <strong>Mô phỏng thực</strong> (vì sao không có thực mỗi tháng — phụ thuộc nút quỹ đạo nghiêng 5°).</p>
+
+<h2>1. Hình học pha Mặt Trăng</h2>
+<div class="card">
+  <p class="note">Kéo Mặt Trăng quanh quỹ đạo (Mặt Trời ở xa bên phải, chiếu sáng từ phải sang). Xem góc elongation → pha tương ứng, và đĩa Trăng nhìn từ Trái Đất.</p>
+  <div class="row">
+    <label>Vị trí Trăng (elongation):</label>
+    <input type="range" id="elong" min="0" max="360" value="180" step="2" oninput="drawPhase()">
+    <span class="val" id="elongv">180°</span>
+  </div>
+  <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:center">
+    <svg class="scene" viewBox="0 0 480 300" id="scenesvg"></svg>
+    <svg class="phase" viewBox="0 0 120 120" id="phasesvg"></svg>
+  </div>
+  <div class="result" id="phaseout"></div>
+  <div style="margin-top:10px">
+    <button class="btn" onclick="setE(0)">Trăng non</button>
+    <button class="btn" onclick="setE(90)">Thượng huyền</button>
+    <button class="btn" onclick="setE(180)">Trăng tròn</button>
+    <button class="btn" onclick="setE(270)">Hạ huyền</button>
+  </div>
+</div>
+
+<h2>2. Mô phỏng thực — Vì sao không thực mỗi tháng?</h2>
+<div class="card">
+  <p class="note">Quỹ đạo Trăng nghiêng ~5° so với hoàng đạo. Chọn pha (trăng non → nhật thực, trăng tròn → nguyệt thực) và kéo "vị trí so với nút" để xem khi nào Trăng thẳng hàng đủ để có thực.</p>
+  <div class="row">
+    <label>Pha:</label>
+    <button class="btn" id="bNew" onclick="setEcl('new')">Trăng non (nhật thực?)</button>
+    <button class="btn" id="bFull" onclick="setEcl('full')">Trăng tròn (nguyệt thực?)</button>
+  </div>
+  <div class="row">
+    <label>Khoảng cách tới nút:</label>
+    <input type="range" id="node" min="-90" max="90" value="40" step="1" oninput="drawEcl()">
+    <span class="val" id="nodev">40°</span>
+  </div>
+  <svg class="ecl" viewBox="0 0 480 260" id="eclsvg"></svg>
+  <div class="result" id="eclout"></div>
+</div>
+
+<script>
+const D2R = Math.PI/180;
+const fmt = (x,n=0) => (x<0?'−':'')+Math.abs(x).toFixed(n);
+function clampDeg(a){ return ((a%360)+360)%360; }
+
+// ---------- Module 1: phase geometry ----------
+function phaseName(e) {
+  if (e<11.25||e>=348.75) return 'Trăng non (new)';
+  if (e<78.75) return 'Lưỡi liềm đầu';
+  if (e<101.25) return 'Thượng huyền';
+  if (e<168.75) return 'Trăng khuyết đầu';
+  if (e<191.25) return 'Trăng tròn (full)';
+  if (e<258.75) return 'Trăng khuyết cuối';
+  if (e<281.25) return 'Hạ huyền';
+  return 'Lưỡi liềm cuối';
+}
+function drawPhase() {
+  const e = +elong.value; elongv.textContent = e+'°';
+  // Cảnh: Trái Đất ở tâm, quỹ đạo Trăng, Mặt Trời xa bên phải
+  const cx=200, cy=150, R=110;
+  // góc Trăng trên quỹ đạo: elongation 0 = phía Mặt Trời (phải, x dương)
+  const t = e*D2R;
+  const mx = cx + R*Math.cos(t), my = cy - R*Math.sin(t);
+  let svg='';
+  svg += `<defs><radialGradient id="ear"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#1d4ed8"/></radialGradient></defs>`;
+  // tia sáng Mặt Trời (từ phải)
+  for (let y=40; y<=260; y+=30) svg += `<line x1="470" y1="${y}" x2="300" y2="${y}" stroke="#facc15" stroke-width="1" opacity="0.35"/>`;
+  svg += `<text x="430" y="28" fill="#fbbf24">☀ Mặt Trời →</text>`;
+  svg += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#334155" stroke-width="1" stroke-dasharray="3 3"/>`;
+  svg += `<circle cx="${cx}" cy="${cy}" r="20" fill="url(#ear)"/>`;
+  svg += `<text x="${cx-22}" y="${cy+38}" class="lbl-sm">Trái Đất</text>`;
+  // Mặt Trăng: nửa hướng Mặt Trời (phải) sáng
+  svg += `<circle cx="${mx}" cy="${my}" r="12" fill="#1e293b" stroke="#94a3b8"/>`;
+  svg += `<path d="M ${mx} ${my-12} A 12 12 0 0 1 ${mx} ${my+12} Z" fill="#fef9c3"/>`;
+  scenesvg.innerHTML = svg;
+
+  // đĩa Trăng nhìn từ Trái Đất: phần sáng = (1-cos e)/2 từ phía... vẽ terminator
+  const illum = (1 - Math.cos(e*D2R))/2;
+  drawDisk(illum, e);
+
+  phaseout.innerHTML = `<span class="stat">elongation = <strong>${e}°</strong></span>` +
+    `<span class="stat">% chiếu sáng = <strong>${(illum*100).toFixed(0)}%</strong></span>` +
+    `<span class="stat" style="background:#fef3c7;color:#92400e"><strong>${phaseName(e)}</strong></span>` +
+    `<br><span class="note">Pha = phần nửa-sáng tự nhiên của Trăng mà ta thấy — KHÔNG do bóng Trái Đất.</span>`;
+}
+function drawDisk(illum, e) {
+  // đĩa bán kính 50 ở (60,60). illum=0 tối hết, 1 sáng hết.
+  const cx=60, cy=60, r=50;
+  let svg = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#1e293b" stroke="#475569"/>`;
+  // terminator: ellipse rộng theo |cos e|; waxing (0-180) sáng bên phải? dùng e để chọn bên
+  const k = Math.abs(Math.cos(e*D2R)); // bề rộng nửa elip terminator
+  const waxing = (e <= 180);
+  if (illum > 0.001) {
+    // vẽ phần sáng bằng path: nửa cung + ellipse
+    const litRight = waxing; // pha tăng (waxing) → sáng bên phải khi nhìn (quy ước)
+    // dùng 2 cung: ngoài + terminator
+    const sideX = litRight ? 1 : -1;
+    let d = `M ${cx} ${cy-r} `;
+    d += `A ${r} ${r} 0 0 ${litRight?1:0} ${cx} ${cy+r} `;
+    // terminator ellipse rx = r*cos(e); nếu illum>0.5, phình ngược
+    const rx = r*Math.cos(e*D2R);
+    const sweep = (rx>=0)? (litRight?1:0) : (litRight?0:1);
+    d += `A ${Math.abs(rx)} ${r} 0 0 ${ (e<180? (litRight?0:1):(litRight?1:0)) } ${cx} ${cy-r} Z`;
+    svg += `<path d="${d}" fill="#fef9c3"/>`;
+  }
+  phasesvg.innerHTML = svg;
+}
+function setE(v){ elong.value=v; drawPhase(); }
+
+// ---------- Module 2: eclipse ----------
+let eclPhase = 'full';
+function setEcl(p){ eclPhase=p; drawEcl(); }
+function drawEcl() {
+  const nd = +node.value; nodev.textContent = fmt(nd)+'°';
+  // độ lệch của Trăng khỏi hoàng đạo ~ 5.1° * sin(node)
+  const tilt = 5.1 * Math.sin(nd*D2R);
+  // độ lệch tuyến tính tại khoảng cách Trăng (km), so với ngưỡng ~1.5° để có thực toàn phần, ~1.6-1.5° một phần
+  const absTilt = Math.abs(tilt);
+  // ngưỡng: |tilt| < 0.9° -> toàn phần khả dĩ; <1.6° -> một phần; lớn hơn -> không
+  let status, cls;
+  if (absTilt < 0.9) { status = (eclPhase==='new'?'NHẬT THỰC TOÀN PHẦN khả dĩ':'NGUYỆT THỰC TOÀN PHẦN khả dĩ'); cls='ok'; }
+  else if (absTilt < 1.6) { status = (eclPhase==='new'?'Nhật thực MỘT PHẦN':'Nguyệt thực MỘT PHẦN'); cls='ok'; }
+  else { status = 'KHÔNG có thực — Trăng lệch quá khỏi đường thẳng hàng'; cls='no'; }
+
+  // vẽ: Mặt Trời trái, Trái Đất giữa, Trăng theo pha
+  const W=480, midY=130;
+  let svg='';
+  svg += `<defs><radialGradient id="s3"><stop offset="0%" stop-color="#fff7c2"/><stop offset="100%" stop-color="#f59e0b"/></radialGradient></defs>`;
+  // hoàng đạo (đường thẳng ngang)
+  svg += `<line x1="20" y1="${midY}" x2="${W-20}" y2="${midY}" stroke="#475569" stroke-width="1" stroke-dasharray="4 4"/>`;
+  svg += `<text x="24" y="${midY-6}" class="lbl-sm">mặt phẳng hoàng đạo</text>`;
+  // Mặt Trời
+  svg += `<circle cx="55" cy="${midY}" r="26" fill="url(#s3)"/><text x="36" y="${midY+44}" fill="#fbbf24">Mặt Trời</text>`;
+  // Trái Đất
+  const ex=300;
+  svg += `<circle cx="${ex}" cy="${midY}" r="16" fill="#2563eb" stroke="#1e3a8a"/><text x="${ex-22}" y="${midY+34}" class="lbl-sm">Trái Đất</text>`;
+  // tia sáng từ Mặt Trời qua Trái Đất (bóng) — vẽ nón bóng
+  if (eclPhase==='full') {
+    svg += `<polygon points="${ex},${midY-16} ${ex},${midY+16} ${W-20},${midY+30} ${W-20},${midY-30}" fill="#1e293b" opacity="0.6"/>`;
+    svg += `<text x="${W-130}" y="${midY-34}" class="lbl-sm">vùng bóng Trái Đất (umbra)</text>`;
+  }
+  // Mặt Trăng: nhật thực -> giữa Mặt Trời & Trái Đất (trái Trái Đất); nguyệt thực -> sau Trái Đất (phải)
+  const moonX = eclPhase==='new' ? (55+ex)/2 : ex+120;
+  const moonY = midY - tilt*8; // phóng đại độ lệch để dễ thấy
+  svg += `<line x1="${moonX}" y1="${midY}" x2="${moonX}" y2="${moonY}" stroke="#64748b" stroke-width="1" stroke-dasharray="2 2"/>`;
+  svg += `<circle cx="${moonX}" cy="${moonY}" r="8" fill="#cbd5e0" stroke="#64748b"/>`;
+  svg += `<text x="${moonX-14}" y="${moonY-12}" class="lbl-sm">Trăng</text>`;
+  eclsvg.innerHTML = svg;
+
+  eclout.innerHTML = `Pha: <strong>${eclPhase==='new'?'Trăng non':'Trăng tròn'}</strong> · ` +
+    `độ lệch khỏi hoàng đạo = <strong>${fmt(tilt,2)}°</strong> ` +
+    `(tối đa ±5.1° khi xa nút)<br><span class="${cls}">${status}</span>` +
+    `<br><span class="note">Thực CHỈ xảy ra khi Trăng gần một <strong>nút</strong> (giao điểm quỹ đạo với hoàng đạo). Vì thường lệch tới ±5°, đa số trăng non/tròn KHÔNG cho thực → chỉ ~2–5 lần/năm.</span>`;
+}
+
+const elong=document.getElementById('elong'), elongv=document.getElementById('elongv');
+const scenesvg=document.getElementById('scenesvg'), phasesvg=document.getElementById('phasesvg'), phaseout=document.getElementById('phaseout');
+const node=document.getElementById('node'), nodev=document.getElementById('nodev');
+const eclsvg=document.getElementById('eclsvg'), eclout=document.getElementById('eclout');
+
+drawPhase();
+drawEcl();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

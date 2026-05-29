@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Hấp dẫn &amp; Quỹ đạo</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 150px; }
+  input[type="range"] { flex: 1; min-width: 180px; accent-color: #7c3aed; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 110px; }
+  .val { font-family: monospace; font-weight: 700; color: #6d28d9; min-width: 80px; display: inline-block; }
+  .stat { display: inline-block; background: #ede9fe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #6d28d9; }
+  .result { padding: 14px; background: #ede9fe; border-radius: 8px; margin-top: 12px; font-size: 15px; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  .btn { background: #7c3aed; color: #fff; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: 600; margin: 3px; }
+
+  svg.launch { display: block; margin: 12px auto; width: 100%; max-width: 460px; height: auto;
+    background: radial-gradient(circle at 50% 50%, #1e1b4b, #020617); border-radius: 10px; }
+  svg.launch text { font: 12px sans-serif; fill: #e2e8f0; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Solar System</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-kepler-laws/visualization.html">L4: Định luật Kepler</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Hấp dẫn &amp; quỹ đạo</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-small-bodies/visualization.html">L6: Thiên thể nhỏ →</a>
+</nav>
+
+<main>
+<h1>Lesson 05 — Hấp dẫn &amp; Quỹ đạo</h1>
+<p>Hai công cụ: <strong>Phóng quỹ đạo</strong> (slider vận tốc → rơi / tròn / elip / thoát) và <strong>Máy tính vận tốc vũ trụ</strong> (v_quỹ_đạo = √(GM/r), v_thoát = √(2GM/r)).</p>
+
+<h2>1. Phóng quỹ đạo — Tròn, elip hay thoát?</h2>
+<div class="card">
+  <p class="note">Phóng một vật theo phương ngang từ độ cao cố định. Kéo <strong>vận tốc</strong>: quá chậm → rơi xuống; đúng v_tròn → quỹ đạo tròn; lớn hơn → elip; đạt √2·v_tròn → <strong>thoát</strong> khỏi hành tinh. Nhấn "Mô phỏng" để xem vật bay.</p>
+  <div class="row">
+    <label>Vận tốc phóng (×v_tròn):</label>
+    <input type="range" id="vel" min="0.3" max="1.6" value="1.0" step="0.01" oninput="setupSim()">
+    <span class="val" id="velv">1.00</span>
+  </div>
+  <div class="row">
+    <button class="btn" id="simbtn" onclick="toggleSim()">▶ Mô phỏng</button>
+    <button class="btn" onclick="setVel(0.7)">Quá chậm (rơi)</button>
+    <button class="btn" onclick="setVel(1.0)">Tròn</button>
+    <button class="btn" onclick="setVel(1.2)">Elip</button>
+    <button class="btn" onclick="setVel(1.414)">Thoát (√2)</button>
+  </div>
+  <svg class="launch" viewBox="0 0 460 380" id="lsvg"></svg>
+  <div class="result" id="lout"></div>
+</div>
+
+<h2>2. Máy tính vận tốc vũ trụ</h2>
+<div class="card">
+  <p class="note">Nhập khối lượng M và bán kính r của thiên thể (hoặc chọn preset). Công cụ tính vận tốc quỹ đạo tròn và vận tốc thoát ngay tại bề mặt.</p>
+  <div class="row">
+    <label>Khối lượng M (kg):</label>
+    <input type="number" id="mIn" value="5.97e24" oninput="calcV()">
+    <label>Bán kính r (m):</label>
+    <input type="number" id="rIn" value="6.37e6" oninput="calcV()">
+  </div>
+  <div class="row">
+    <button class="btn" onclick="loadV(5.97e24,6.37e6)">Trái Đất</button>
+    <button class="btn" onclick="loadV(7.35e22,1.74e6)">Mặt Trăng</button>
+    <button class="btn" onclick="loadV(1.898e27,6.99e7)">Sao Mộc</button>
+    <button class="btn" onclick="loadV(1.989e30,6.96e8)">Mặt Trời</button>
+  </div>
+  <div class="result" id="vout"></div>
+</div>
+
+<script>
+const G=6.674e-11;
+const fmt=(x,n=2)=>(x<0?'−':'')+Math.abs(x).toFixed(n);
+
+// ---------- Module 1: launcher ----------
+const L={cx:230,cy:200,Rp:55}; // hành tinh tâm
+let sim=null, running=false, raf=null, trail=[];
+// dùng đơn vị mô phỏng: GM chọn để v_tròn ở bán kính phóng = 1
+const r0 = 130; // bán kính phóng (px)
+const GMsim = 1; // chuẩn hóa: v_circ = sqrt(GM/r0)
+const vCirc = Math.sqrt(GMsim/r0);
+
+function setVel(v){ document.getElementById('vel').value=v; setupSim(); }
+function setupSim(){
+  const k=+document.getElementById('vel').value;
+  velv.textContent=fmt(k,2);
+  // vị trí ban đầu: trên đỉnh hành tinh, vận tốc ngang
+  sim = { x:0, y:-r0, vx: k*vCirc, vy:0, k };
+  trail=[];
+  drawLaunch();
+}
+function drawLaunch(){
+  let svg='';
+  svg += `<defs><radialGradient id="pl"><stop offset="0%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#4c1d95"/></radialGradient></defs>`;
+  // hành tinh
+  svg += `<circle cx="${L.cx}" cy="${L.cy}" r="${L.Rp}" fill="url(#pl)"/>`;
+  // vòng tròn quỹ đạo tròn lý tưởng (tham chiếu)
+  svg += `<circle cx="${L.cx}" cy="${L.cy}" r="${r0}" fill="none" stroke="#475569" stroke-width="1" stroke-dasharray="3 3"/>`;
+  // trail
+  if(trail.length>1){
+    svg += `<polyline points="${trail.map(p=>(L.cx+p[0]).toFixed(1)+','+(L.cy+p[1]).toFixed(1)).join(' ')}" fill="none" stroke="#38bdf8" stroke-width="2"/>`;
+  }
+  // vật
+  if(sim){ svg += `<circle cx="${L.cx+sim.x}" cy="${L.cy+sim.y}" r="6" fill="#fde047" stroke="#b45309"/>`; }
+  lsvg.innerHTML=svg;
+
+  const k=sim?sim.k:1;
+  let kind, color;
+  if (k < 0.999) { kind='Quá chậm → quỹ đạo elip cắt mặt đất (RƠI / va chạm)'; color='#fca5a5'; }
+  else if (Math.abs(k-1)<0.02) { kind='Vận tốc tròn → QUỸ ĐẠO TRÒN'; color='#86efac'; }
+  else if (k < 1.414) { kind='Nhanh hơn v_tròn → QUỸ ĐẠO ELIP (điểm phóng thành cận điểm)'; color='#93c5fd'; }
+  else { kind='≥ √2·v_tròn → THOÁT khỏi hành tinh (quỹ đạo mở)'; color='#fde047'; }
+  lout.innerHTML = `<span style="background:#1e1b4b;color:${color};padding:6px 10px;border-radius:6px;font-weight:700">${kind}</span>` +
+    `<br><span class="note">Vận tốc phóng = <strong>${fmt(k,2)} × v_tròn</strong>. Ngưỡng thoát = √2 ≈ 1.414 × v_tròn. (Vòng đứt = quỹ đạo tròn tham chiếu.)</span>`;
+}
+function stepSim(){
+  if(!sim) return;
+  const dt=0.6;
+  for(let i=0;i<3;i++){ // sub-steps cho mượt
+    const r=Math.hypot(sim.x,sim.y);
+    if(r < L.Rp){ running=false; document.getElementById('simbtn').textContent='▶ Mô phỏng'; break; }
+    const a = GMsim/(r*r);
+    sim.vx += -a*sim.x/r*dt;
+    sim.vy += -a*sim.y/r*dt;
+    sim.x += sim.vx*dt;
+    sim.y += sim.vy*dt;
+  }
+  trail.push([sim.x,sim.y]);
+  if(trail.length>600) trail.shift();
+  // dừng nếu bay quá xa (thoát)
+  if(Math.hypot(sim.x,sim.y) > 600){ running=false; document.getElementById('simbtn').textContent='▶ Mô phỏng'; }
+  drawLaunch();
+  if(running) raf=requestAnimationFrame(stepSim);
+}
+function toggleSim(){
+  if(!running){ if(!sim || Math.hypot(sim.x,sim.y)>590 || Math.hypot(sim.x,sim.y)<L.Rp) setupSim(); running=true; document.getElementById('simbtn').textContent='⏸ Dừng'; stepSim(); }
+  else { running=false; document.getElementById('simbtn').textContent='▶ Mô phỏng'; if(raf)cancelAnimationFrame(raf); }
+}
+
+// ---------- Module 2: cosmic velocity ----------
+function calcV(){
+  const M=+mIn.value, r=+rIn.value;
+  if(!(M>0)||!(r>0)){ vout.innerHTML='<span class="note">Nhập M và r dương.</span>'; return; }
+  const GM=G*M;
+  const vo=Math.sqrt(GM/r), ve=Math.sqrt(2*GM/r);
+  vout.innerHTML =
+    `<span class="stat">GM = <strong>${(GM).toExponential(3)}</strong></span><br>` +
+    `<span class="stat">v_quỹ_đạo = √(GM/r) = <strong>${fmt(vo/1000,2)} km/s</strong></span>` +
+    `<span class="stat">v_thoát = √(2GM/r) = <strong>${fmt(ve/1000,2)} km/s</strong></span>` +
+    `<span class="stat">tỉ số = <strong>${fmt(ve/vo,3)}</strong> (= √2)</span>` +
+    `<br><span class="note">Vận tốc thoát luôn = √2 ≈ 1.414 lần vận tốc quỹ đạo tròn ở cùng bán kính.</span>`;
+}
+function loadV(M,r){ mIn.value=M.toExponential(2); rIn.value=r.toExponential(2); calcV(); }
+
+const velv=document.getElementById('velv');
+const lsvg=document.getElementById('lsvg'), lout=document.getElementById('lout');
+const mIn=document.getElementById('mIn'), rIn=document.getElementById('rIn'), vout=document.getElementById('vout');
+
+setupSim();
+calcV();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

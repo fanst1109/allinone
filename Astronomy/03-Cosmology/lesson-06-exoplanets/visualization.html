@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Ngoại hành tinh</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 170px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 90px; }
+  input[type="range"] { flex: 1; min-width: 150px; accent-color: #0d9488; }
+  .val { font-family: monospace; font-weight: 700; color: #0d9488; min-width: 80px; display: inline-block; }
+  .stat { display: inline-block; background: #ccfbf1; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #0f766e; }
+  .result { padding: 14px; background: #ccfbf1; border-radius: 8px; margin-top: 12px; font-size: 15px; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  button { background: #0d9488; color: #fff; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: 600; margin: 3px; }
+  svg.transit, svg.drake {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 480px; height: auto;
+    background: #0b1220; border-radius: 10px;
+  }
+  svg.transit text, svg.drake text { font: 12px sans-serif; fill: #cbd5e0; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Cosmology</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-large-scale-structure/visualization.html">L5: Cấu trúc lớn</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Ngoại hành tinh</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-relativity-spacetime/visualization.html">L7: Tương đối &amp; không-thời gian →</a>
+</nav>
+
+<main>
+<h1>Lesson 06 — Ngoại hành tinh</h1>
+<p>Hai công cụ: <strong>Simulator đường cong ánh sáng quá cảnh</strong> (bán kính hành tinh → độ sâu δ) và <strong>Calculator phương trình Drake</strong> (7 thừa số → số nền văn minh N).</p>
+
+<h2>1. Đường cong ánh sáng quá cảnh (Transit)</h2>
+<div class="card">
+  <p class="note">Hành tinh đi ngang đĩa sao → độ sáng tụt một "vết lõm". Độ sâu <code>δ = (R_p/R_*)²</code>. Kéo slider tỉ số bán kính để thấy lõm sâu thêm theo bình phương.</p>
+  <div class="row">
+    <label>R_p / R_* (tỉ số bán kính):</label>
+    <input type="range" id="ratio" min="0.005" max="0.2" value="0.103" step="0.001" oninput="drawTransit()">
+    <span class="val" id="ratiov">0.103</span>
+  </div>
+  <svg class="transit" viewBox="0 0 480 300" id="trsvg"></svg>
+  <div class="result" id="trout"></div>
+  <div style="margin-top:10px">
+    <button onclick="preset(0.103)">Sao Mộc (~1%)</button>
+    <button onclick="preset(0.035)">Hải Vương (~0.13%)</button>
+    <button onclick="preset(0.00915)">Trái Đất (~0.008%)</button>
+    <button onclick="preset(0.04)">sub-Neptune</button>
+  </div>
+</div>
+
+<h2>2. Calculator phương trình Drake</h2>
+<div class="card">
+  <p class="note">N = R* × f_p × n_e × f_l × f_i × f_c × L. Các thừa số cuối (f_l, f_i, f_c, L) rất bất định — đổi nhẹ làm N đổi nhiều.</p>
+  <div class="row"><label>R* (sao mới /năm):</label><input type="range" id="Rs" min="0.5" max="5" value="1.5" step="0.1" oninput="drake()"><span class="val" id="Rsv">1.5</span></div>
+  <div class="row"><label>f_p (sao có hành tinh):</label><input type="range" id="fp" min="0" max="1" value="1" step="0.05" oninput="drake()"><span class="val" id="fpv">1</span></div>
+  <div class="row"><label>n_e (hành tinh sống được/hệ):</label><input type="range" id="ne" min="0" max="2" value="0.4" step="0.05" oninput="drake()"><span class="val" id="nev">0.4</span></div>
+  <div class="row"><label>f_l (có sự sống):</label><input type="range" id="fl" min="0" max="1" value="0.5" step="0.01" oninput="drake()"><span class="val" id="flv">0.5</span></div>
+  <div class="row"><label>f_i (có trí tuệ):</label><input type="range" id="fi" min="0" max="1" value="0.1" step="0.01" oninput="drake()"><span class="val" id="fiv">0.1</span></div>
+  <div class="row"><label>f_c (liên lạc được):</label><input type="range" id="fc" min="0" max="1" value="0.2" step="0.01" oninput="drake()"><span class="val" id="fcv">0.2</span></div>
+  <div class="row"><label>L (tuổi thọ, năm):</label><input type="range" id="L" min="100" max="1000000" value="10000" step="100" oninput="drake()"><span class="val" id="Lv">10000</span></div>
+  <div class="result" id="drout"></div>
+</div>
+
+<script>
+const fmt = (x, n=1) => (x<0?'−':'') + Math.abs(x).toFixed(n);
+
+function drawTransit() {
+  const r = +document.getElementById('ratio').value;
+  document.getElementById('ratiov').textContent = r.toFixed(3);
+  const depth = r*r;            // δ
+  const W = 480, H = 300;
+  const baseY = 90, dipY = baseY + depth * 1500;  // khuếch đại để nhìn thấy
+  const dipYc = Math.min(dipY, 250);
+  // đĩa sao + hành tinh minh họa phía trên
+  const starCx = 130, starCy = 45, starR = 28;
+  const planetR = starR * r;
+  let svg = '';
+  svg += `<circle cx="${starCx}" cy="${starCy}" r="${starR}" fill="#fde047"/>`;
+  svg += `<circle cx="${starCx+8}" cy="${starCy}" r="${Math.max(planetR,1.5)}" fill="#1e293b" stroke="#94a3b8"/>`;
+  svg += `<text x="${starCx+starR+12}" y="${starCy+4}">đĩa sao &amp; hành tinh che</text>`;
+  // trục đường cong
+  svg += `<line x1="40" y1="${baseY}" x2="${W-20}" y2="${baseY}" stroke="#334155" stroke-dasharray="4 4"/>`;
+  svg += `<text x="44" y="${baseY-6}">độ sáng 100%</text>`;
+  // đường cong: bằng phẳng - dốc xuống - đáy - dốc lên - bằng
+  const x0=60,x1=180,x2=220,x3=300,x4=340,x5=460;
+  svg += `<path d="M ${x0} ${baseY} L ${x1} ${baseY} L ${x2} ${dipYc} L ${x3} ${dipYc} L ${x4} ${baseY} L ${x5} ${baseY}" fill="none" stroke="#2dd4bf" stroke-width="2.5"/>`;
+  svg += `<line x1="${x2}" y1="${baseY}" x2="${x2}" y2="${dipYc}" stroke="#f472b6" stroke-dasharray="3 3"/>`;
+  svg += `<text x="${x2+6}" y="${(baseY+dipYc)/2}" fill="#f472b6">δ</text>`;
+  document.getElementById('trsvg').innerHTML = svg;
+  document.getElementById('trout').innerHTML =
+    `δ = (R_p/R_*)² = (${r.toFixed(3)})² = <strong>${(depth*100).toFixed(depth<0.001?4:3)}%</strong><br>` +
+    `<span class="stat">độ giảm sáng ≈ ${(depth*100).toFixed(depth<0.001?4:3)}%</span>` +
+    (depth>=0.005 ? ' → lõm sâu, dễ phát hiện (hành tinh khí lớn).'
+     : ' → lõm nông, cần kính cực nhạy (hành tinh đá cỡ Trái Đất).');
+}
+function preset(r){ document.getElementById('ratio').value=r; drawTransit(); }
+
+function drake() {
+  const ids = ['Rs','fp','ne','fl','fi','fc','L'];
+  const vals = ids.map(id => +document.getElementById(id).value);
+  ids.forEach((id,i)=> document.getElementById(id+'v').textContent = (id==='L'?vals[i].toFixed(0):vals[i].toFixed(2)));
+  const N = vals.reduce((a,b)=>a*b, 1);
+  const txt = N < 1 ? 'gần như cô đơn — kỳ vọng < 1 nền cùng tồn tại với ta.'
+            : N < 100 ? 'vài tới vài chục nền — có khả năng nhưng thưa thớt.'
+            : 'hàng trăm+ nền — nếu các thừa số lạc quan đúng.';
+  document.getElementById('drout').innerHTML =
+    `N = ${vals[0]} × ${vals[1]} × ${vals[2]} × ${vals[3]} × ${vals[4]} × ${vals[5]} × ${vals[6]}<br>` +
+    `<span class="stat">N ≈ <strong>${N >= 10 ? N.toFixed(0) : N.toFixed(2)}</strong> nền văn minh</span><br>` +
+    `→ ${txt} <em>Nhớ: f_l, f_i, f_c, L chủ yếu là phỏng đoán.</em>`;
+}
+
+drawTransit(); drake();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

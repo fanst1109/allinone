@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Thiên thể nhỏ</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 150px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 90px; }
+  input[type="range"] { flex: 1; min-width: 180px; accent-color: #4338ca; }
+  .val { font-family: monospace; font-weight: 700; color: #4338ca; min-width: 70px; display: inline-block; }
+  .stat { display: inline-block; background: #e0e7ff; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #4338ca; }
+  .result { padding: 14px; background: #e0e7ff; border-radius: 8px; margin-top: 12px; font-size: 15px; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  button.run { background:#4338ca; color:#fff; border:none; padding:8px 14px; border-radius:5px; cursor:pointer; font-weight:600; margin:3px; }
+
+  svg.space {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 460px; height: auto;
+    background: radial-gradient(circle at 50% 50%, #1e293b, #0b1120);
+    border-radius: 10px;
+  }
+  svg.space .orbit { fill: none; stroke: #475569; stroke-width: 1.2; stroke-dasharray: 4 4; }
+  svg.space .sun { fill: #fde047; }
+  svg.space .comet { fill: #e2e8f0; stroke:#94a3b8; stroke-width:1; }
+  svg.space .tail { stroke: #38bdf8; stroke-width: 3; opacity: 0.85; stroke-linecap: round; }
+  svg.space .dust { stroke: #fbbf24; stroke-width: 4; opacity: 0.5; stroke-linecap: round; }
+  svg.space text { font: 12px sans-serif; fill: #e2e8f0; }
+
+  svg.shower {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 460px; height: auto;
+    background: #0b1120; border-radius: 10px;
+  }
+  svg.shower .trail { stroke: #fde047; stroke-width: 2; stroke-linecap: round; opacity: 0.9; }
+  svg.shower .rad { fill: #f87171; }
+  svg.shower text { font: 12px sans-serif; fill: #e2e8f0; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Solar System</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-gravity-orbits/visualization.html">L5: Hấp dẫn &amp; quỹ đạo</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Thiên thể nhỏ</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-history-models/visualization.html">L7: Lịch sử mô hình vũ trụ →</a>
+</nav>
+
+<main>
+<h1>Lesson 06 — Thiên thể nhỏ: Tiểu hành tinh, Sao chổi &amp; Sao băng</h1>
+<p>Ba công cụ: <strong>Quỹ đạo sao chổi</strong> (đuôi luôn hướng ra xa Mặt Trời), <strong>Máy tính quỹ đạo nhỏ</strong> (q, e → a, T), và <strong>Radiant mưa sao băng</strong> (vệt song song hội tụ do phối cảnh).</p>
+
+<h2>1. Quỹ đạo sao chổi — đuôi luôn hướng ra xa Mặt Trời</h2>
+<div class="card">
+  <p class="note">Sao chổi chạy trên quỹ đạo elip quanh Mặt Trời (vàng). Đuôi ion (xanh) luôn chỉ ra xa Mặt Trời; đuôi bụi (cam) hơi lệch. Để ý: khi sao chổi rời điểm cận nhật, đuôi <em>đi trước</em> nó.</p>
+  <div class="row">
+    <label>Độ lệch tâm e:</label>
+    <input type="range" id="ecc" min="0.3" max="0.95" value="0.8" step="0.01" oninput="redrawComet()">
+    <span class="val" id="eccv">0.80</span>
+  </div>
+  <div class="row">
+    <button class="run" id="btnPlay" onclick="toggleAnim()">▶ Chạy</button>
+    <label style="min-width:auto">Vị trí trên quỹ đạo:</label>
+    <input type="range" id="theta" min="0" max="360" value="20" step="2" oninput="manual()">
+    <span class="val" id="thetav">20°</span>
+  </div>
+  <svg class="space" viewBox="0 0 460 360" id="cometsvg"></svg>
+  <div class="result" id="cometout"></div>
+</div>
+
+<h2>2. Máy tính quỹ đạo nhỏ (Kepler 3)</h2>
+<div class="card">
+  <p class="note">Nhập cận nhật <code>q</code> và độ lệch tâm <code>e</code>. Công cụ tính bán trục lớn <code>a = q/(1−e)</code>, viễn nhật <code>Q = a(1+e)</code>, và chu kỳ <code>T = √(a³)</code> năm.</p>
+  <div class="row">
+    <label>Cận nhật q (AU):</label>
+    <input type="number" id="kq" value="0.586" step="0.01" min="0.01" max="50" oninput="kepler()">
+    <label>Độ lệch tâm e:</label>
+    <input type="number" id="ke" value="0.967" step="0.001" min="0" max="0.999" oninput="kepler()">
+  </div>
+  <div class="result" id="keplerout"></div>
+  <div style="margin-top:8px">
+    <button class="run" onclick="kpreset(0.586,0.967)">Halley</button>
+    <button class="run" onclick="kpreset(0.336,0.848)">Encke</button>
+    <button class="run" onclick="kpreset(0.914,0.995)">Hale-Bopp</button>
+    <button class="run" onclick="kpreset(2.55,0.079)">Ceres (tiểu hành tinh)</button>
+  </div>
+</div>
+
+<h2>3. Radiant mưa sao băng</h2>
+<div class="card">
+  <p class="note">Các hạt bụi sao chổi bay <strong>song song</strong> vào khí quyển. Hiệu ứng phối cảnh làm các vệt sao băng dường như tỏa ra từ một điểm — <strong>radiant</strong> (chấm đỏ). Kéo để di chuyển radiant, đổi số vệt.</p>
+  <div class="row">
+    <label>Vị trí radiant (ngang):</label>
+    <input type="range" id="radx" min="80" max="380" value="230" step="5" oninput="drawShower()">
+    <span class="val" id="radxv">230</span>
+  </div>
+  <div class="row">
+    <label>Số sao băng:</label>
+    <input type="range" id="nmeteor" min="4" max="24" value="14" step="1" oninput="drawShower()">
+    <span class="val" id="nmeteorv">14</span>
+  </div>
+  <svg class="shower" viewBox="0 0 460 300" id="showersvg"></svg>
+  <div class="result" id="showerout"></div>
+</div>
+
+<script>
+const D2R = Math.PI/180, R2D = 180/Math.PI;
+const fmt = (x,n=2) => (x<0?'−':'') + Math.abs(x).toFixed(n);
+
+// ---------- Module 1: Quỹ đạo sao chổi ----------
+const C = { cx: 230, cy: 180 };
+let animOn = false, animTheta = 20, raf = null;
+
+function cometGeom(e) {
+  // dùng a cố định để khung vẽ ổn định; a tính theo ô màn hình
+  const aPix = 140;                       // bán trục lớn (pixel)
+  const bPix = aPix * Math.sqrt(1 - e*e); // bán trục nhỏ
+  const cPix = aPix * e;                  // tiêu cự — Mặt Trời ở tiêu điểm
+  return { aPix, bPix, cPix };
+}
+// vị trí sao chổi theo góc thực thi θ (đo từ tâm elip), Mặt Trời ở tiêu điểm phải
+function cometPos(thetaDeg, g) {
+  const t = thetaDeg * D2R;
+  // ellipse tham số quanh TÂM elip; tâm elip lệch trái khỏi Mặt Trời 1 đoạn cPix
+  const x = C.cx - g.cPix + g.aPix*Math.cos(t);
+  const y = C.cy + g.bPix*Math.sin(t);
+  return { x, y };
+}
+function redrawComet() {
+  const e = +ecc.value;
+  eccv.textContent = fmt(e,2);
+  drawComet(animOn ? animTheta : +theta.value);
+}
+function manual() {
+  if (animOn) toggleAnim();
+  thetav.textContent = (+theta.value)+'°';
+  drawComet(+theta.value);
+}
+function drawComet(thetaDeg) {
+  const e = +ecc.value;
+  const g = cometGeom(e);
+  const sunX = C.cx, sunY = C.cy;     // Mặt Trời ở tiêu điểm phải
+  const p = cometPos(thetaDeg, g);
+
+  // vector từ sao chổi RA XA Mặt Trời
+  let dx = p.x - sunX, dy = p.y - sunY;
+  const d = Math.hypot(dx, dy) || 1;
+  dx /= d; dy /= d;
+  const tailLen = 60;
+  const ix = p.x + dx*tailLen, iy = p.y + dy*tailLen;          // đuôi ion thẳng
+  // đuôi bụi: lệch một chút (xoay nhẹ)
+  const ang = Math.atan2(dy, dx) + 0.25;
+  const dx2 = px2(ang), dy2 = py2(ang);
+  const bx = p.x + dx2*tailLen*0.85, by = p.y + dy2*tailLen*0.85;
+
+  let svg = '';
+  // quỹ đạo elip (tâm lệch trái cPix)
+  svg += `<ellipse class="orbit" cx="${sunX - g.cPix}" cy="${sunY}" rx="${g.aPix}" ry="${g.bPix}"/>`;
+  // Mặt Trời
+  svg += `<circle class="sun" cx="${sunX}" cy="${sunY}" r="11"/>`;
+  svg += `<text x="${sunX+14}" y="${sunY+4}" fill="#fde047">Mặt Trời</text>`;
+  // đuôi bụi + ion
+  svg += `<line class="dust" x1="${p.x}" y1="${p.y}" x2="${bx}" y2="${by}"/>`;
+  svg += `<line class="tail" x1="${p.x}" y1="${p.y}" x2="${ix}" y2="${iy}"/>`;
+  // nhân sao chổi
+  svg += `<circle class="comet" cx="${p.x}" cy="${p.y}" r="5"/>`;
+  // nhãn cận/viễn nhật
+  const peri = cometPos(0, g), apo = cometPos(180, g);
+  svg += `<text x="${peri.x-10}" y="${peri.y-12}" fill="#86efac">cận nhật</text>`;
+  svg += `<text x="${apo.x-10}" y="${apo.y-12}" fill="#fca5a5">viễn nhật</text>`;
+  cometsvg.innerHTML = svg;
+
+  // xác định đuôi đi trước hay sau: hướng chuyển động xấp xỉ tiếp tuyến (θ tăng)
+  const ahead = cometPos(thetaDeg + 6, g);
+  let vx = ahead.x - p.x, vy = ahead.y - p.y;
+  const dot = vx*dx + vy*dy;   // >0 nghĩa đuôi cùng chiều chuyển động → đi trước
+  const phase = (thetaDeg > 90 && thetaDeg < 270) ? 'đang đi RA (rời cận nhật)' : 'đang đi VÀO (tới cận nhật)';
+  cometout.innerHTML =
+    `Đuôi (xanh) <strong>luôn chỉ ra xa Mặt Trời</strong>. ` +
+    `Sao chổi ${phase}. ` +
+    (dot > 0 ? `<span class="stat" style="background:#fef9c3">Đuôi đang đi <strong>TRƯỚC</strong> nhân (phản trực giác!)</span>`
+             : `<span class="stat">Đuôi đang ở <strong>phía sau</strong> nhân</span>`);
+}
+function px2(a){ return Math.cos(a); }
+function py2(a){ return Math.sin(a); }
+
+function toggleAnim() {
+  animOn = !animOn;
+  btnPlay.textContent = animOn ? '⏸ Dừng' : '▶ Chạy';
+  if (animOn) loop(); else if (raf) cancelAnimationFrame(raf);
+}
+function loop() {
+  animTheta = (animTheta + 1.4) % 360;
+  drawComet(animTheta);
+  if (animOn) raf = requestAnimationFrame(loop);
+}
+
+// ---------- Module 2: Kepler ----------
+function kepler() {
+  const q = +kq.value, e = +ke.value;
+  const a = q / (1 - e);
+  const Q = a * (1 + e);
+  const T = Math.sqrt(a*a*a);
+  let kind = e < 0.2 ? 'quỹ đạo gần tròn (kiểu tiểu hành tinh)' :
+             e < 0.7 ? 'elip vừa' : 'elip rất dẹt (kiểu sao chổi)';
+  let src = T < 200 ? 'chu kỳ ngắn → vành đai Kuiper (nếu là sao chổi)' :
+            'chu kỳ dài → đám mây Oort (nếu là sao chổi)';
+  keplerout.innerHTML =
+    `a = q/(1−e) = ${fmt(q,3)}/${fmt(1-e,3)} = <strong>${fmt(a,2)} AU</strong><br>` +
+    `<span class="stat">Viễn nhật Q = a(1+e) = <strong>${fmt(Q,2)} AU</strong></span>` +
+    `<span class="stat">Chu kỳ T = √(a³) = <strong>${fmt(T,1)} năm</strong></span><br>` +
+    `→ ${kind}. ${src}.`;
+}
+function kpreset(q,e){ kq.value=q; ke.value=e; kepler(); }
+
+// ---------- Module 3: Radiant ----------
+function drawShower() {
+  const rx = +radx.value, n = +nmeteor.value, ry = 70;
+  radxv.textContent = rx;
+  nmeteorv.textContent = n;
+  let svg = '';
+  // vài ngôi sao nền
+  for (let i=0;i<40;i++){
+    const sx = (i*97 % 440)+10, sy = (i*53 % 280)+10;
+    svg += `<circle cx="${sx}" cy="${sy}" r="0.8" fill="#64748b"/>`;
+  }
+  // các vệt tỏa ra từ radiant
+  for (let i=0;i<n;i++){
+    const ang = (i/n)*2*Math.PI;
+    const r0 = 28 + (i%3)*8;          // bắt đầu cách radiant một chút
+    const r1 = 70 + (i%4)*30;         // độ dài vệt
+    const x0 = rx + r0*Math.cos(ang), y0 = ry + r0*Math.sin(ang);
+    const x1 = rx + r1*Math.cos(ang), y1 = ry + r1*Math.sin(ang);
+    if (y1 < 295 && x1 > 5 && x1 < 455)
+      svg += `<line class="trail" x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${x1.toFixed(1)}" y2="${y1.toFixed(1)}"/>`;
+  }
+  // radiant
+  svg += `<circle class="rad" cx="${rx}" cy="${ry}" r="6"/>`;
+  svg += `<text x="${rx+10}" y="${ry+4}" fill="#fca5a5">radiant</text>`;
+  showersvg.innerHTML = svg;
+  showerout.innerHTML =
+    `Mọi vệt dường như tỏa ra từ <strong>radiant</strong>. ` +
+    `Thực ra các hạt bay song song — phối cảnh tạo ảo giác hội tụ (như đường ray tàu hỏa). ` +
+    `Mưa được đặt tên theo chòm sao chứa radiant.`;
+}
+
+// refs + init
+const ecc=document.getElementById('ecc'), eccv=document.getElementById('eccv');
+const theta=document.getElementById('theta'), thetav=document.getElementById('thetav');
+const btnPlay=document.getElementById('btnPlay');
+const cometsvg=document.getElementById('cometsvg'), cometout=document.getElementById('cometout');
+const kq=document.getElementById('kq'), ke=document.getElementById('ke'), keplerout=document.getElementById('keplerout');
+const radx=document.getElementById('radx'), radxv=document.getElementById('radxv');
+const nmeteor=document.getElementById('nmeteor'), nmeteorv=document.getElementById('nmeteorv');
+const showersvg=document.getElementById('showersvg'), showerout=document.getElementById('showerout');
+
+drawComet(20);
+kepler();
+drawShower();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

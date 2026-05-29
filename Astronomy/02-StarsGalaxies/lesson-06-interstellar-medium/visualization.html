@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Môi trường liên sao</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 150px; }
+  input[type="range"] { flex: 1; min-width: 180px; accent-color: #7c3aed; }
+  .val { font-family: monospace; font-weight: 700; color: #7c3aed; min-width: 70px; display: inline-block; }
+  .stat { display: inline-block; background: #ede9fe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #7c3aed; }
+  .result { padding: 14px; background: #ede9fe; border-radius: 8px; margin-top: 12px; font-size: 15px; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  button { background: #7c3aed; color: #fff; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer; font-weight: 600; margin: 3px; }
+  button:hover { background: #6d28d9; }
+  button.sel { background: #4c1d95; box-shadow: 0 0 0 2px #c4b5fd; }
+
+  svg.dust { display: block; margin: 12px auto; width: 100%; max-width: 460px; height: auto; background: #0b1020; border-radius: 10px; }
+  svg.dust text { font: 12px sans-serif; fill: #e2e8f0; }
+  svg.neb { display: block; margin: 12px auto; width: 100%; max-width: 420px; height: auto; background: #050816; border-radius: 10px; }
+  svg.neb text { font: 12px sans-serif; fill: #e2e8f0; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Stars &amp; Galaxies</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-star-death/visualization.html">L5: Cái chết của sao</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Môi trường liên sao</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-galaxies/visualization.html">L7: Ngân Hà &amp; thiên hà →</a>
+</nav>
+
+<main>
+<h1>Lesson 06 — Môi trường liên sao</h1>
+<p>Ba công cụ tương tác: <strong>Dust Dimmer</strong> (bụi làm đỏ & tắt sáng), <strong>Phân loại tinh vân</strong>, và <strong>Jeans Mass Explorer</strong>.</p>
+
+<h2>1. Dust Dimmer — Bụi làm đỏ &amp; tắt sáng</h2>
+<div class="card">
+  <p class="note">Kéo slider lượng bụi (A_V, magnitude). Bụi chặn ánh xanh mạnh hơn ánh đỏ → sao đỏ dần (reddening) và mờ dần (extinction).</p>
+  <div class="row">
+    <label>Lượng bụi A_V:</label>
+    <input type="range" id="av" min="0" max="6" value="0" step="0.1" oninput="dust()">
+    <span class="val" id="avv">0.0</span>
+  </div>
+  <svg class="dust" viewBox="0 0 460 200" id="dustsvg"></svg>
+  <div class="result" id="dustout"></div>
+</div>
+
+<h2>2. Phân loại tinh vân</h2>
+<div class="card">
+  <p class="note">Chọn loại tinh vân để xem cơ chế phát sáng + ví dụ thật.</p>
+  <div class="row" id="nebbtns">
+    <button data-k="em" onclick="neb('em')">Phát xạ</button>
+    <button data-k="re" onclick="neb('re')">Phản xạ</button>
+    <button data-k="dk" onclick="neb('dk')">Tối</button>
+    <button data-k="pl" onclick="neb('pl')">Hành tinh</button>
+  </div>
+  <svg class="neb" viewBox="0 0 420 220" id="nebsvg"></svg>
+  <div class="result" id="nebout"></div>
+</div>
+
+<h2>3. Jeans Mass Explorer — Khi nào đám mây sụp?</h2>
+<div class="card">
+  <p class="note">Khối lượng Jeans tương đối <code>M_J ∝ T^(3/2) / √ρ</code>. Đám lạnh &amp; đặc → M_J nhỏ → dễ sụp. Lấy đám chuẩn 10 K, mật độ 10⁴ cm⁻³ làm mốc M_J = 1.</p>
+  <div class="row">
+    <label>Nhiệt độ T (K):</label>
+    <input type="range" id="jT" min="10" max="100" value="10" step="1" oninput="jeans()">
+    <span class="val" id="jTv">10 K</span>
+  </div>
+  <div class="row">
+    <label>Mật độ ρ (cm⁻³):</label>
+    <input type="range" id="jRho" min="100" max="1000000" value="10000" step="100" oninput="jeans()">
+    <span class="val" id="jRhov">10⁴</span>
+  </div>
+  <div class="row">
+    <label>Khối lượng đám M (mốc):</label>
+    <input type="range" id="jM" min="0.1" max="5" value="1.5" step="0.1" oninput="jeans()">
+    <span class="val" id="jMv">1.5</span>
+  </div>
+  <div class="result" id="jeansout"></div>
+</div>
+
+<script>
+const fmt = (x, n=1) => (x<0?'−':'') + Math.abs(x).toFixed(n);
+function sci(x, n=1) {
+  if (x === 0) return '0';
+  const e = Math.floor(Math.log10(Math.abs(x)));
+  const m = x / Math.pow(10, e);
+  if (e >= -1 && e <= 3) return x.toFixed(Math.max(0,2-e));
+  return m.toFixed(n) + '×10' + sup(e);
+}
+function sup(e) {
+  const map = {'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+  return String(e).split('').map(c => map[c] || c).join('');
+}
+
+// ---------- Module 1: Dust Dimmer ----------
+function dust() {
+  const av = +document.getElementById('av').value;
+  document.getElementById('avv').textContent = fmt(av,1);
+  // extinction theo bước sóng: xanh bị chặn mạnh hơn đỏ. A_B ~ 1.32 A_V, A_R ~ 0.75 A_V (xấp xỉ)
+  const A_B = 1.32 * av, A_V = av, A_R = 0.75 * av;
+  const fac = a => Math.pow(2.512, a);            // hệ số giảm sáng
+  // màu sao: thật trắng-xanh. mỗi kênh giảm theo extinction kênh đó
+  const r = 255 / fac(A_R);
+  const g = 245 / fac(A_V);
+  const b = 255 / fac(A_B);
+  const totDim = fac(A_V);
+  const EBV = A_B - A_V;
+  const radius = 26 / Math.pow(totDim, 0.18);     // mờ → nhỏ lại 1 chút cho trực quan
+  const col = `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`;
+  let svg = '';
+  // lớp bụi (sọc nâu mờ theo av)
+  const nDust = Math.round(av * 12);
+  for (let i = 0; i < nDust; i++) {
+    const x = 60 + Math.random()*340, y = 20 + Math.random()*160;
+    svg += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${(1+Math.random()*1.5).toFixed(1)}" fill="#92400e" opacity="0.35"/>`;
+  }
+  // sao
+  svg += `<circle cx="230" cy="100" r="${radius.toFixed(1)}" fill="${col}"/>`;
+  svg += `<circle cx="230" cy="100" r="${(radius+6).toFixed(1)}" fill="${col}" opacity="0.25"/>`;
+  svg += `<text x="14" y="22">Màu thật: trắng-xanh</text>`;
+  svg += `<text x="14" y="192">Quan sát: ${av>0.05?'đỏ hơn &amp; mờ hơn':'gần như màu thật'}</text>`;
+  document.getElementById('dustsvg').innerHTML = svg;
+  document.getElementById('dustout').innerHTML =
+    `<span class="stat">A_V = <strong>${fmt(av,1)} mag</strong></span>` +
+    `<span class="stat">giảm sáng <strong>${sci(totDim)}×</strong></span>` +
+    `<span class="stat">E(B−V) = <strong>${fmt(EBV,2)}</strong></span><br>` +
+    `Ánh xanh bị chặn mạnh hơn (A_B = ${fmt(A_B,1)}) so với đỏ (A_R = ${fmt(A_R,1)}) → màu dịch về đỏ.`;
+}
+
+// ---------- Module 2: Nebula classifier ----------
+const NEB = {
+  em: { name:'Tinh vân phát xạ (emission)', ex:'Tinh vân Orion M42',
+        desc:'Khí HII bị sao O/B nóng ion hóa → electron tái hợp phát Hα 656 nm. Tự phát sáng, màu <b>đỏ hồng</b>.',
+        draw: cx => `<circle cx="210" cy="110" r="80" fill="#ef4444" opacity="0.30"/>
+                     <circle cx="210" cy="110" r="55" fill="#f87171" opacity="0.35"/>
+                     <circle cx="210" cy="110" r="6" fill="#fff"/><circle cx="240" cy="95" r="4" fill="#cfe8ff"/>
+                     <text x="14" y="206">Sao O/B ion hóa khí → khí tự phát đỏ</text>` },
+  re: { name:'Tinh vân phản xạ (reflection)', ex:'Tinh vân Pleiades',
+        desc:'Bụi <b>phản chiếu/tán xạ</b> ánh sao gần. Tán xạ ánh xanh mạnh hơn → màu <b>xanh</b> (như bầu trời xanh).',
+        draw: cx => `<circle cx="210" cy="110" r="80" fill="#3b82f6" opacity="0.28"/>
+                     <circle cx="210" cy="110" r="50" fill="#60a5fa" opacity="0.30"/>
+                     <circle cx="170" cy="120" r="5" fill="#fff"/><circle cx="250" cy="100" r="6" fill="#fff"/>
+                     <text x="14" y="206">Bụi tán xạ ánh sao → xanh</text>` },
+  dk: { name:'Tinh vân tối (dark)', ex:'Tinh vân Đầu Ngựa',
+        desc:'Đám bụi dày <b>che ánh sáng</b> phía sau. Không tự phát sáng → vệt đen trên nền sáng.',
+        draw: cx => `<rect x="40" y="20" width="340" height="180" fill="#1e293b"/>
+                     ${Array.from({length:60},()=>`<circle cx="${(40+Math.random()*340).toFixed(0)}" cy="${(20+Math.random()*180).toFixed(0)}" r="1" fill="#fde68a"/>`).join('')}
+                     <ellipse cx="210" cy="120" rx="70" ry="55" fill="#0b1020"/>
+                     <text x="14" y="206">Bụi dày che dải sao phía sau</text>` },
+  pl: { name:'Tinh vân hành tinh (planetary)', ex:'Tinh vân Vòng M57',
+        desc:'Vỏ ngoài <b>sao nhỏ chết</b> thổi ra, lõi nóng (lùn trắng phôi thai) ion hóa → vòng nhiều màu. Không liên quan hành tinh.',
+        draw: cx => `<circle cx="210" cy="110" r="70" fill="none" stroke="#22d3ee" stroke-width="12" opacity="0.4"/>
+                     <circle cx="210" cy="110" r="58" fill="none" stroke="#a78bfa" stroke-width="8" opacity="0.5"/>
+                     <circle cx="210" cy="110" r="4" fill="#fff"/>
+                     <text x="14" y="206">Lõi nóng ở giữa ion hóa vỏ thổi ra</text>` }
+};
+function neb(k) {
+  document.querySelectorAll('#nebbtns button').forEach(b => b.classList.toggle('sel', b.dataset.k === k));
+  const n = NEB[k];
+  document.getElementById('nebsvg').innerHTML = n.draw();
+  document.getElementById('nebout').innerHTML = `<strong>${n.name}</strong><br>${n.desc}<br><span class="stat">Ví dụ: ${n.ex}</span>`;
+}
+
+// ---------- Module 3: Jeans mass ----------
+function jeans() {
+  const T = +document.getElementById('jT').value;
+  const rho = +document.getElementById('jRho').value;
+  const M = +document.getElementById('jM').value;
+  document.getElementById('jTv').textContent = T + ' K';
+  document.getElementById('jRhov').textContent = sci(rho);
+  document.getElementById('jMv').textContent = fmt(M,1);
+  // mốc: T0=10, rho0=1e4 → M_J = 1
+  const MJ = Math.pow(T/10, 1.5) / Math.sqrt(rho/1e4);
+  const collapse = M > MJ;
+  document.getElementById('jeansout').innerHTML =
+    `<span class="stat">M_J (tương đối) = <strong>${sci(MJ)}</strong></span>` +
+    `<span class="stat">M đám = <strong>${fmt(M,1)}</strong></span><br>` +
+    (collapse
+      ? `<span class="stat" style="background:#fee2e2">🔴 M &gt; M_J → ĐÁM SỤP ĐỔ → sinh sao</span>`
+      : `<span class="stat" style="background:#dcfce7">🟢 M &lt; M_J → áp suất đỡ được, đám BỀN</span>`) +
+    `<br>Lạnh hơn / đặc hơn → M_J nhỏ hơn → dễ sụp.`;
+}
+
+// init
+dust();
+neb('em');
+jeans();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Vật chất tối &amp; Năng lượng tối</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 150px; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #0891b2; }
+  .val { font-family: monospace; font-weight: 700; color: #0e7490; min-width: 70px; display: inline-block; }
+  .stat { display: inline-block; background: #cffafe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #0e7490; }
+  .result { padding: 14px; background: #cffafe; border-radius: 8px; margin-top: 12px; font-size: 15px; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  .legend span { display:inline-block; margin:4px 10px 4px 0; font-size:14px; }
+  .sw { display:inline-block; width:14px; height:14px; border-radius:3px; vertical-align:middle; margin-right:5px; }
+  svg.curve { display: block; margin: 12px auto; width: 100%; max-width: 460px; height: auto; background:#0f172a; border-radius:10px; }
+  svg.curve text { font: 11px sans-serif; fill: #e2e8f0; }
+  svg.pie { display: block; margin: 12px auto; width: 100%; max-width: 320px; height: auto; }
+  svg.pie text { font: 12px sans-serif; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Cosmology</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-big-bang-cmb/visualization.html">L2: Big Bang &amp; CMB</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Vật chất tối &amp; NL tối</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-nucleosynthesis/visualization.html">L4: Tổng hợp hạt nhân →</a>
+</nav>
+
+<main>
+<h1>Lesson 03 — Vật chất tối &amp; Năng lượng tối</h1>
+<p>Hai công cụ tương tác: <strong>Đường cong quay thiên hà</strong> (Kepler dự đoán vs phẳng quan sát; thêm quầng tối để thấy đường phẳng) và <strong>Ngân sách năng lượng vũ trụ</strong> (biểu đồ tròn 5/27/68% với phép tính tỉ lệ live).</p>
+
+<h2>1. Đường cong quay — bằng chứng vật chất tối</h2>
+<div class="card">
+  <p class="note">Đường <span style="color:#f59e0b">cam</span> = dự đoán Kepler (chỉ khối lượng sáng, <code>v ∝ 1/√r</code> ở rìa). Đường <span style="color:#22d3ee">xanh</span> = quan sát (có thêm vật chất tối). Kéo "quầng vật chất tối" để xem đường tổng cộng phẳng dần.</p>
+  <div class="row">
+    <label>Khối lượng quầng tối:</label>
+    <input type="range" id="dm" min="0" max="100" value="60" step="1" oninput="drawCurve()">
+    <span class="val" id="dmv">60%</span>
+  </div>
+  <svg class="curve" viewBox="0 0 460 280" id="curvesvg"></svg>
+  <div class="result" id="curveout"></div>
+</div>
+
+<h2>2. Ngân sách năng lượng vũ trụ</h2>
+<div class="card">
+  <p class="note">Tỉ lệ chuẩn: năng lượng tối ~68%, vật chất tối ~27%, vật chất thường ~5%. Chỉnh hai thanh, phần còn lại là năng lượng tối (tự bù để tổng = 100%).</p>
+  <div class="row">
+    <label>Vật chất thường (%):</label>
+    <input type="range" id="baryon" min="0" max="20" value="5" step="1" oninput="drawPie()">
+    <span class="val" id="baryonv">5%</span>
+  </div>
+  <div class="row">
+    <label>Vật chất tối (%):</label>
+    <input type="range" id="dark" min="0" max="60" value="27" step="1" oninput="drawPie()">
+    <span class="val" id="darkv">27%</span>
+  </div>
+  <svg class="pie" viewBox="0 0 240 240" id="piesvg"></svg>
+  <div class="legend">
+    <span><i class="sw" style="background:#0e7490"></i>Năng lượng tối (đẩy)</span>
+    <span><i class="sw" style="background:#7c3aed"></i>Vật chất tối (hút, vô hình)</span>
+    <span><i class="sw" style="background:#f59e0b"></i>Vật chất thường (nguyên tử)</span>
+  </div>
+  <div class="result" id="pieout"></div>
+</div>
+
+<script>
+const fmt = (x,n=0)=>x.toFixed(n);
+
+// ---------- Module 1: Rotation curve ----------
+function drawCurve() {
+  const dm = +dmEl.value / 100; // 0..1 đóng góp quầng tối
+  dmv.textContent = (dm*100).toFixed(0) + '%';
+  const ox = 50, oy = 240, w = 380, h = 200;
+  const rMax = 25; // kpc
+  // v_sáng: tăng nhanh ở trong (M∝r³ ~ rắn) rồi giảm như Kepler ngoài lõi r0
+  const r0 = 5;
+  function vLum(r) {
+    if (r <= r0) return 220 * (r / r0);          // phần lõi: tăng tuyến tính
+    return 220 * Math.sqrt(r0 / r);               // ngoài lõi: Kepler giảm
+  }
+  // v_quầng tối: tăng dần rồi bão hòa → đóng góp giữ phẳng
+  function vDM(r) { return 200 * Math.sqrt(r / (r + 3)); }
+  function vTot(r) { return Math.sqrt(vLum(r)**2 + (dm * vDM(r))**2); }
+  const vScale = 260;
+  const X = r => ox + w * (r / rMax);
+  const Y = v => oy - h * (v / vScale);
+  let svg = '';
+  svg += `<line x1="${ox}" y1="${oy}" x2="${ox+w}" y2="${oy}" stroke="#64748b" stroke-width="1.5"/>`;
+  svg += `<line x1="${ox}" y1="${oy}" x2="${ox}" y2="${oy-h}" stroke="#64748b" stroke-width="1.5"/>`;
+  svg += `<text x="${ox+w-80}" y="${oy+18}">r (kpc) →</text>`;
+  svg += `<text x="${ox-42}" y="${oy-h+4}">v (km/s)</text>`;
+  for (const v of [100,200]) svg += `<text x="${ox-32}" y="${Y(v)+4}">${v}</text>`;
+  function poly(fn, col, dash='') {
+    let pts = '';
+    for (let r = 0.5; r <= rMax; r += 0.5) pts += `${X(r).toFixed(1)},${Y(fn(r)).toFixed(1)} `;
+    return `<polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2.5" ${dash}/>`;
+  }
+  svg += poly(vLum, '#f59e0b', 'stroke-dasharray="5 4"');     // Kepler/sáng
+  svg += poly(vTot, '#22d3ee');                                // quan sát
+  // ghi chú
+  svg += `<text x="${X(20)}" y="${Y(vLum(20))-6}" fill="#f59e0b">sáng (Kepler)</text>`;
+  svg += `<text x="${X(14)}" y="${Y(vTot(14))-8}" fill="#22d3ee">quan sát</text>`;
+  curvesvg.innerHTML = svg;
+  const vOut = vTot(20), vLumOut = vLum(20);
+  const flat = Math.abs(vTot(20) - vTot(10)) < 25;
+  curveout.innerHTML =
+    `Tại r = 20 kpc: <span class="stat">v sáng = <strong>${fmt(vLumOut)}</strong> km/s</span>` +
+    `<span class="stat">v quan sát = <strong>${fmt(vOut)}</strong> km/s</span><br>` +
+    (dm < 0.1
+      ? 'Không quầng tối: đường tổng tụt theo Kepler (v ∝ 1/√r) — KHÔNG khớp quan sát.'
+      : flat
+        ? '✓ Đường cong giờ <strong>phẳng</strong> tới rìa — chỉ giải thích được nếu có vật chất tối trải rộng (M(r) ∝ r).'
+        : 'Thêm quầng tối → đường cong phẳng dần. Kéo thêm để đạt đường quan sát phẳng.');
+}
+
+// ---------- Module 2: Pie chart ----------
+function drawPie() {
+  let b = +baryonEl.value, d = +darkEl.value;
+  if (b + d > 100) { d = 100 - b; darkEl.value = d; }
+  const de = 100 - b - d;
+  baryonv.textContent = b + '%';
+  darkv.textContent = d + '%';
+  const cx = 120, cy = 120, R = 100;
+  const parts = [
+    { v: de, col: '#0e7490', name: 'Năng lượng tối' },
+    { v: d, col: '#7c3aed', name: 'Vật chất tối' },
+    { v: b, col: '#f59e0b', name: 'Vật chất thường' }
+  ];
+  let a0 = -Math.PI/2, svg = '';
+  parts.forEach(p => {
+    if (p.v <= 0) return;
+    const a1 = a0 + 2*Math.PI*(p.v/100);
+    const x0 = cx + R*Math.cos(a0), y0 = cy + R*Math.sin(a0);
+    const x1 = cx + R*Math.cos(a1), y1 = cy + R*Math.sin(a1);
+    const large = (a1 - a0) > Math.PI ? 1 : 0;
+    svg += `<path d="M${cx},${cy} L${x0.toFixed(1)},${y0.toFixed(1)} A${R},${R} 0 ${large} 1 ${x1.toFixed(1)},${y1.toFixed(1)} Z" fill="${p.col}"/>`;
+    const am = (a0+a1)/2, lx = cx + R*0.6*Math.cos(am), ly = cy + R*0.6*Math.sin(am);
+    if (p.v >= 6) svg += `<text x="${lx}" y="${ly}" text-anchor="middle" fill="#fff" style="font-weight:700">${p.v}%</text>`;
+    a0 = a1;
+  });
+  piesvg.innerHTML = svg;
+  const totalDark = de + d, matter = b + d;
+  pieout.innerHTML =
+    `<span class="stat">Năng lượng tối = <strong>${de}%</strong></span>` +
+    `<span class="stat">Vật chất tối = <strong>${d}%</strong></span>` +
+    `<span class="stat">Vật chất thường = <strong>${b}%</strong></span><br>` +
+    `Tổng "tối" = ${de} + ${d} = <strong>${totalDark}%</strong> · ` +
+    `Tổng vật chất = ${d} + ${b} = <strong>${matter}%</strong> · ` +
+    (b>0 ? `Vật chất tối / thường = ${d}/${b} = <strong>${(d/b).toFixed(1)}×</strong>` : '');
+}
+
+// init
+const dmEl = document.getElementById('dm'), dmv = document.getElementById('dmv');
+const curvesvg = document.getElementById('curvesvg'), curveout = document.getElementById('curveout');
+const baryonEl = document.getElementById('baryon'), darkEl = document.getElementById('dark');
+const baryonv = document.getElementById('baryonv'), darkv = document.getElementById('darkv');
+const piesvg = document.getElementById('piesvg'), pieout = document.getElementById('pieout');
+drawCurve();
+drawPie();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

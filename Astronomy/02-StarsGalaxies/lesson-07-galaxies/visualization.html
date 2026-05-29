@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Ngân Hà &amp; thiên hà</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 150px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100px; max-width: 100%; }
+  input[type="range"] { flex: 1; min-width: 180px; accent-color: #0d9488; }
+  .val { font-family: monospace; font-weight: 700; color: #0d9488; min-width: 70px; display: inline-block; }
+  .stat { display: inline-block; background: #ccfbf1; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #0d9488; }
+  .result { padding: 14px; background: #ccfbf1; border-radius: 8px; margin-top: 12px; font-size: 15px; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  button { background: #0d9488; color: #fff; border: none; padding: 7px 11px; border-radius: 5px; cursor: pointer; font-weight: 600; margin: 3px; font-size: 13px; }
+  button:hover { background: #0f766e; }
+  button.sel { background: #134e4a; box-shadow: 0 0 0 2px #5eead4; }
+
+  svg.gal { display: block; margin: 12px auto; width: 100%; max-width: 440px; height: auto; background: #050816; border-radius: 10px; }
+  svg.gal text { font: 12px sans-serif; fill: #e2e8f0; }
+  svg.mw { display: block; margin: 12px auto; width: 100%; max-width: 460px; height: auto; background: #050816; border-radius: 10px; }
+  svg.mw text { font: 11px sans-serif; fill: #e2e8f0; }
+  .forkbtns { display: flex; flex-wrap: wrap; gap: 4px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Stars &amp; Galaxies</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-interstellar-medium/visualization.html">L6: Môi trường liên sao</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Ngân Hà &amp; thiên hà</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-black-holes/visualization.html">L8: Lỗ đen →</a>
+</nav>
+
+<main>
+<h1>Lesson 07 — Ngân Hà &amp; các thiên hà</h1>
+<p>Ba công cụ tương tác: <strong>Âm thoa Hubble</strong> (chọn loại thiên hà), <strong>Sơ đồ cấu trúc Ngân Hà</strong>, và <strong>Máy tính phân loại elip</strong>.</p>
+
+<h2>1. Âm thoa Hubble tương tác</h2>
+<div class="card">
+  <p class="note">Chọn một loại để xem hình minh họa + mô tả + ví dụ thật. Ngân Hà của chúng ta là <strong>SBbc</strong>.</p>
+  <div class="forkbtns" id="forkbtns"></div>
+  <svg class="gal" viewBox="0 0 440 220" id="galsvg"></svg>
+  <div class="result" id="galout"></div>
+</div>
+
+<h2>2. Sơ đồ cấu trúc Ngân Hà</h2>
+<div class="card">
+  <p class="note">Mặt cắt nghiêng: đĩa mỏng (~100.000 ly) + chỗ phình ở tâm + quầng hình cầu. Kéo slider để dời vị trí Mặt Trời và xem khoảng cách tới tâm.</p>
+  <div class="row">
+    <label>Mặt Trời cách tâm (ly):</label>
+    <input type="range" id="sun" min="0" max="50000" value="26000" step="500" oninput="mw()">
+    <span class="val" id="sunv">26.000</span>
+  </div>
+  <svg class="mw" viewBox="0 0 460 240" id="mwsvg"></svg>
+  <div class="result" id="mwout"></div>
+</div>
+
+<h2>3. Máy tính phân loại elip (En)</h2>
+<div class="card">
+  <p class="note">Ký hiệu <code>En</code> với <code>n = round[10·(1 − b/a)]</code>. E0 = tròn, E7 = dẹt nhất.</p>
+  <div class="row">
+    <label>Trục dài a (″):</label>
+    <input type="number" id="ea" value="80" step="1" min="1" oninput="ell()">
+    <label>Trục ngắn b (″):</label>
+    <input type="number" id="eb" value="24" step="1" min="1" oninput="ell()">
+  </div>
+  <svg viewBox="0 0 300 160" id="ellsvg" style="display:block;margin:10px auto;width:100%;max-width:300px;height:auto;background:#050816;border-radius:8px"></svg>
+  <div class="result" id="ellout"></div>
+</div>
+
+<script>
+const fmt = (x, n=1) => (x<0?'−':'') + Math.abs(x).toFixed(n);
+const thousands = x => Math.round(x).toLocaleString('vi-VN');
+
+// ---------- Module 1: Hubble tuning fork ----------
+const GAL = {
+  E0:{ name:'E0 — Elip gần tròn', ex:'M89', desc:'Hình cầu, b/a≈1. Sao già (đỏ), ít khí, hầu như không sinh sao mới.',
+       draw:()=>`<ellipse cx="220" cy="110" rx="70" ry="68" fill="#fbbf24" opacity="0.5"/><ellipse cx="220" cy="110" rx="45" ry="44" fill="#fcd34d" opacity="0.6"/>` },
+  E4:{ name:'E4 — Elip trung bình', ex:'M49', desc:'Dẹt vừa (b/a≈0.6). Vẫn là sao già, không có nhánh xoắn.',
+       draw:()=>`<ellipse cx="220" cy="110" rx="80" ry="48" fill="#fbbf24" opacity="0.5"/><ellipse cx="220" cy="110" rx="50" ry="30" fill="#fcd34d" opacity="0.6"/>` },
+  E7:{ name:'E7 — Elip dẹt nhất', ex:'(dạng giới hạn)', desc:'Dẹt nhất trong dãy E (b/a≈0.3). Quá dẹt hơn nữa thì chuyển sang S0.',
+       draw:()=>`<ellipse cx="220" cy="110" rx="90" ry="30" fill="#fbbf24" opacity="0.5"/><ellipse cx="220" cy="110" rx="56" ry="18" fill="#fcd34d" opacity="0.6"/>` },
+  S0:{ name:'S0 — Thấu kính (lenticular)', ex:'NGC 5866', desc:'Có đĩa nhưng KHÔNG nhánh xoắn rõ. "Bản lề" giữa elip và xoắn ốc.',
+       draw:()=>`<ellipse cx="220" cy="110" rx="95" ry="22" fill="#93c5fd" opacity="0.4"/><ellipse cx="220" cy="110" rx="32" ry="22" fill="#fcd34d" opacity="0.6"/>` },
+  Sa:{ name:'Sa — Xoắn ốc, phình to', ex:'Sombrero (M104)', desc:'Chỗ phình lớn, nhánh xoắn quấn CHẶT, ít khí.',
+       draw:()=>spiral(0,0.55,0.45) },
+  Sc:{ name:'Sc — Xoắn ốc, phình nhỏ', ex:'M33 (Tam Giác)', desc:'Chỗ phình nhỏ, nhánh xoắn XÒE rộng, nhiều khí & sao trẻ xanh.',
+       draw:()=>spiral(0,0.18,0.95) },
+  SBa:{ name:'SBa — Xoắn có thanh, phình to', ex:'NGC 2859', desc:'Có THANH thẳng qua tâm; phình to, nhánh chặt.',
+        draw:()=>spiral(1,0.5,0.45) },
+  SBbc:{ name:'SBbc — Ngân Hà của chúng ta', ex:'★ Milky Way', desc:'Xoắn ốc CÓ THANH, phình vừa, nhánh mở vừa, đang sinh sao. ĐÂY LÀ THIÊN HÀ CỦA TA.',
+        draw:()=>spiral(1,0.32,0.8) },
+  Irr:{ name:'Irr — Bất định', ex:'LMC, SMC', desc:'Không hình dạng đối xứng. Thường nhỏ, giàu khí, sinh sao lộn xộn.',
+        draw:()=>`${Array.from({length:40},()=>`<circle cx="${(160+Math.random()*120).toFixed(0)}" cy="${(60+Math.random()*100).toFixed(0)}" r="${(2+Math.random()*5).toFixed(1)}" fill="${Math.random()>0.5?'#93c5fd':'#fcd34d'}" opacity="0.6"/>`).join('')}` }
+};
+function spiral(bar, bulge, openness) {
+  const cx=220, cy=110; let s='';
+  // đĩa mờ
+  s += `<ellipse cx="${cx}" cy="${cy}" rx="95" ry="75" fill="#1e3a8a" opacity="0.25"/>`;
+  // 2 nhánh xoắn
+  for (let arm=0; arm<2; arm++) {
+    let pts=[];
+    for (let t=0; t<Math.PI*2.2; t+=0.15) {
+      const r = (18 + t*14*openness);
+      const a = t + arm*Math.PI + (bar?0.4:0);
+      pts.push((cx + r*Math.cos(a)).toFixed(1)+','+(cy + r*0.78*Math.sin(a)).toFixed(1));
+    }
+    s += `<polyline points="${pts.join(' ')}" fill="none" stroke="#60a5fa" stroke-width="5" opacity="0.7" stroke-linecap="round"/>`;
+  }
+  // thanh
+  if (bar) s += `<rect x="${cx-38}" y="${cy-9}" width="76" height="18" rx="9" fill="#fcd34d" opacity="0.85" transform="rotate(20 ${cx} ${cy})"/>`;
+  // phình
+  s += `<ellipse cx="${cx}" cy="${cy}" rx="${28*bulge+10}" ry="${24*bulge+8}" fill="#fcd34d" opacity="0.9"/>`;
+  return s;
+}
+function buildForkBtns() {
+  const order = ['E0','E4','E7','S0','Sa','Sc','SBa','SBbc','Irr'];
+  document.getElementById('forkbtns').innerHTML = order.map(k =>
+    `<button data-k="${k}" onclick="gal('${k}')">${k}</button>`).join('');
+}
+function gal(k) {
+  document.querySelectorAll('#forkbtns button').forEach(b => b.classList.toggle('sel', b.dataset.k===k));
+  const g = GAL[k];
+  document.getElementById('galsvg').innerHTML = g.draw() + `<text x="14" y="206">Nhánh: ${k.startsWith('SB')?'xoắn có thanh':k.startsWith('S')&&k!=='S0'?'xoắn ốc':k==='S0'?'thấu kính':k==='Irr'?'bất định':'elip'}</text>`;
+  document.getElementById('galout').innerHTML = `<strong>${g.name}</strong><br>${g.desc}<br><span class="stat">Ví dụ: ${g.ex}</span>`;
+}
+
+// ---------- Module 2: Milky Way structure ----------
+function mw() {
+  const sun = +document.getElementById('sun').value;
+  document.getElementById('sunv').textContent = thousands(sun);
+  const cx=230, cy=120, diskHalfW=190, diskHalfH=12;  // đĩa
+  let s='';
+  // quầng (halo) — vòng cầu mờ + chấm cụm cầu
+  s += `<circle cx="${cx}" cy="${cy}" r="105" fill="#312e81" opacity="0.18"/>`;
+  for (let i=0;i<18;i++){ const a=Math.random()*6.28, r=70+Math.random()*35; s+=`<circle cx="${(cx+r*Math.cos(a)).toFixed(0)}" cy="${(cy+r*0.9*Math.sin(a)).toFixed(0)}" r="2" fill="#c7d2fe" opacity="0.7"/>`; }
+  // đĩa
+  s += `<ellipse cx="${cx}" cy="${cy}" rx="${diskHalfW}" ry="${diskHalfH}" fill="#3b82f6" opacity="0.5"/>`;
+  // phình (bulge)
+  s += `<ellipse cx="${cx}" cy="${cy}" rx="32" ry="24" fill="#fcd34d" opacity="0.9"/>`;
+  // lỗ đen tâm
+  s += `<circle cx="${cx}" cy="${cy}" r="4" fill="#000" stroke="#fbbf24" stroke-width="1.5"/>`;
+  // Mặt Trời: vị trí theo khoảng cách (scale: 50000 ly = diskHalfW)
+  const sx = cx + (sun/50000)*diskHalfW;
+  s += `<circle cx="${sx.toFixed(0)}" cy="${cy}" r="4" fill="#f59e0b" stroke="#fff" stroke-width="1.2"/>`;
+  s += `<line x1="${sx.toFixed(0)}" y1="${cy}" x2="${sx.toFixed(0)}" y2="${cy-40}" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3 2"/>`;
+  s += `<text x="${(sx-18).toFixed(0)}" y="${cy-44}" fill="#f59e0b">☉ Mặt Trời</text>`;
+  // nhãn
+  s += `<text x="${cx-20}" y="${cy+50}">Tâm (Sgr A*)</text>`;
+  s += `<text x="${cx+diskHalfW-46}" y="${cy-18}">đĩa</text>`;
+  s += `<text x="20" y="30">Quầng (halo): sao già, cụm cầu</text>`;
+  document.getElementById('mwsvg').innerHTML = s;
+  const frac = sun/50000;
+  document.getElementById('mwout').innerHTML =
+    `<span class="stat">Mặt Trời cách tâm <strong>${thousands(sun)} ly</strong></span>` +
+    `<span class="stat">= ${fmt(frac*100,0)}% bán kính đĩa</span><br>` +
+    (Math.abs(sun-26000)<1500
+      ? `→ Gần đúng vị trí thật (~26.000 ly) — Mặt Trời nằm ~giữa đường ra mép, KHÔNG ở tâm.`
+      : sun<10000 ? `→ Gần tâm hơn thực tế (thật ~26.000 ly).`
+      : sun>40000 ? `→ Gần mép đĩa (thật ~26.000 ly, ~giữa đĩa).`
+      : `→ Trong đĩa; vị trí thật ~26.000 ly.`);
+}
+
+// ---------- Module 3: Elliptical classifier ----------
+function ell() {
+  let a = +document.getElementById('ea').value, b = +document.getElementById('eb').value;
+  if (b > a) { [a,b] = [b,a]; }   // trục dài ≥ trục ngắn
+  const ba = b/a;
+  let n = Math.round(10*(1 - ba));
+  n = Math.max(0, Math.min(7, n));
+  // vẽ elip tỉ lệ
+  const cx=150, cy=80, rx=120, ry=120*ba;
+  document.getElementById('ellsvg').innerHTML =
+    `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry.toFixed(1)}" fill="#fcd34d" opacity="0.7"/>` +
+    `<text x="10" y="20">b/a = ${fmt(ba,2)}</text>`;
+  document.getElementById('ellout').innerHTML =
+    `<span class="stat">b/a = <strong>${fmt(ba,2)}</strong></span>` +
+    `<span class="stat">n = round[10·(1−${fmt(ba,2)})] = <strong>${n}</strong></span><br>` +
+    `→ Phân loại: <strong>E${n}</strong>` + (n>=7?' (giới hạn dãy E; dẹt hơn → S0).':'.') +
+    `<br><span class="note">Lưu ý: đây là độ dẹt của hình chiếu trên trời, không chắc là hình 3D thật.</span>`;
+}
+
+// init
+buildForkBtns();
+gal('SBbc');
+mw();
+ell();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

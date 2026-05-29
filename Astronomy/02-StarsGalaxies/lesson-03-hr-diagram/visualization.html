@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Biểu đồ H-R</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 150px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100px; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #7c3aed; }
+  .val { font-family: monospace; font-weight: 700; color: #7c3aed; min-width: 90px; display: inline-block; }
+  .stat { display: inline-block; background: #ede9fe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #6d28d9; }
+  .result { padding: 14px; background: #ede9fe; border-radius: 8px; margin-top: 12px; font-size: 15px; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  button.preset { background:#7c3aed; color:#fff; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:600; margin:3px; }
+  .swatch { display:inline-block; width: 26px; height: 16px; border-radius: 3px; vertical-align: middle; border:1px solid #94a3b8; }
+  svg.hr { display:block; margin:12px auto; width:100%; max-width:560px; height:auto; background:#0f172a; border-radius:10px; }
+  svg.hr text { font:11px sans-serif; fill:#cbd5e0; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Stars &amp; Galaxies</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-measuring-stars/visualization.html">L2: Đo sao</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Biểu đồ H-R</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-star-life/visualization.html">L4: Vòng đời sao →</a>
+</nav>
+
+<main>
+<h1>Lesson 03 — Biểu đồ Hertzsprung–Russell</h1>
+<p>Hai công cụ: <strong>Biểu đồ H-R tương tác</strong> (đặt sao theo T &amp; L → tự phân lớp phổ + vùng + bán kính) và <strong>Mass–Luminosity calculator</strong> (<code>L = M^3.5</code>).</p>
+
+<h2>1. Biểu đồ H-R tương tác</h2>
+<div class="card">
+  <p class="note">Kéo nhiệt độ (trục ngang, nóng bên TRÁI) và độ trưng (trục đứng, thang log). Chấm sao tự đổi màu theo lớp phổ; vùng + bán kính tính từ <code>L = (R/R☉)²(T/T☉)⁴</code>.</p>
+  <div class="row">
+    <label>Nhiệt độ T (K):</label>
+    <input type="range" id="T" min="2500" max="40000" value="5778" step="100" oninput="drawHR()">
+    <span class="val" id="Tv">5778 K</span>
+  </div>
+  <div class="row">
+    <label>Độ trưng log(L/L☉):</label>
+    <input type="range" id="logL" min="-4" max="6" value="0" step="0.1" oninput="drawHR()">
+    <span class="val" id="logLv">0 (1 L☉)</span>
+  </div>
+  <svg class="hr" viewBox="0 0 560 380" id="hrsvg"></svg>
+  <div class="result" id="hrout"></div>
+  <div style="margin-top:10px">
+    <button class="preset" onclick="setStar(5778,0)">Mặt Trời (G2)</button>
+    <button class="preset" onclick="setStar(9940,1.41)">Sirius A (A1)</button>
+    <button class="preset" onclick="setStar(3500,5.04)">Betelgeuse (M)</button>
+    <button class="preset" onclick="setStar(25000,-1.6)">Sirius B (lùn trắng)</button>
+    <button class="preset" onclick="setStar(3000,-2)">Proxima (lùn đỏ M)</button>
+  </div>
+</div>
+
+<h2>2. Mass–Luminosity calculator</h2>
+<div class="card">
+  <p class="note">Dải chính: <code>L/L☉ ≈ (M/M☉)^3.5</code>. Nặng → sáng vọt.</p>
+  <div class="row">
+    <label>Khối lượng M/M☉:</label>
+    <input type="number" id="mass" value="1" step="0.1" min="0.08" oninput="calcML()">
+  </div>
+  <div class="result" id="mlout"></div>
+  <div style="margin-top:10px">
+    <button class="preset" onclick="setMass(0.5)">0.5 M☉</button>
+    <button class="preset" onclick="setMass(1)">1 M☉</button>
+    <button class="preset" onclick="setMass(5)">5 M☉</button>
+    <button class="preset" onclick="setMass(10)">10 M☉</button>
+  </div>
+</div>
+
+<script>
+const fmt=(x,n=2)=>(x<0?'−':'')+Math.abs(x).toFixed(n);
+function fmtBig(x){ if(x>=1e4||(x>0&&x<1e-3)){const e=Math.floor(Math.log10(x));const m=x/Math.pow(10,e);return m.toFixed(2)+'×10'+sup(e);} return x.toFixed(x<10?3:0); }
+function sup(n){const s={'−':'⁻','-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};return String(n).split('').map(c=>s[c]||c).join('');}
+
+function specClass(T){
+  if(T>=30000) return ['O','#9bb0ff'];
+  if(T>=10000) return ['B','#aabfff'];
+  if(T>=7500)  return ['A','#cad7ff'];
+  if(T>=6000)  return ['F','#f8f7ff'];
+  if(T>=5200)  return ['G','#fff4ea'];
+  if(T>=3700)  return ['K','#ffd2a1'];
+  return ['M','#ffb56b'];
+}
+function region(T, L){
+  // bán kính
+  const R = Math.sqrt(L / Math.pow(T/5778,4));
+  if (R < 0.1) return ['Lùn trắng (dưới-trái: nóng mà mờ → tí hon)', R];
+  if (R > 80)  return ['Siêu khổng lồ (trên-phải)', R];
+  if (R > 12)  return ['Khổng lồ (trên-phải: lạnh mà sáng → to)', R];
+  return ['Dải chính (main sequence)', R];
+}
+
+// HR plot mapping: T (40000→2500) trái→phải; logL (-4→6) dưới→trên
+const HR = { x0:60, y0:340, w:460, h:300, Tmax:40000, Tmin:2500, Lmin:-4, Lmax:6 };
+function hrX(T){ // log scale on T, hot left
+  const lt = Math.log10(T);
+  const f = (lt - Math.log10(HR.Tmax)) / (Math.log10(HR.Tmin)-Math.log10(HR.Tmax));
+  return HR.x0 + f*HR.w;
+}
+function hrY(logL){ const f=(logL-HR.Lmin)/(HR.Lmax-HR.Lmin); return HR.y0 - f*HR.h; }
+
+function drawHR(){
+  const T=+document.getElementById('T').value;
+  const logL=+document.getElementById('logL').value;
+  const L=Math.pow(10,logL);
+  document.getElementById('Tv').textContent=T+' K';
+  document.getElementById('logLv').textContent=fmt(logL,1)+' ('+fmtBig(L)+' L☉)';
+  let svg='';
+  // khung
+  svg+=`<rect x="${HR.x0}" y="${HR.y0-HR.h}" width="${HR.w}" height="${HR.h}" fill="#0b1220" stroke="#334155"/>`;
+  // dải chính (đường chéo): từ O sáng tới M mờ
+  let ms=[];
+  for(let lt=Math.log10(40000); lt>=Math.log10(2800); lt-=0.05){
+    const tt=Math.pow(10,lt);
+    // L gần đúng dải chính: log L ~ giảm khi T giảm
+    const ll = 5.8*(lt - Math.log10(5778)) ; // độ dốc ~ kinh nghiệm
+    ms.push(hrX(tt).toFixed(1)+','+hrY(Math.max(-4,Math.min(6,ll))).toFixed(1));
+  }
+  svg+=`<polyline points="${ms.join(' ')}" fill="none" stroke="#64748b" stroke-width="14" stroke-linecap="round" opacity="0.35"/>`;
+  svg+=`<text x="${HR.x0+200}" y="${HR.y0-150}" fill="#94a3b8" transform="rotate(-32 ${HR.x0+200} ${HR.y0-150})">Dải chính</text>`;
+  // vùng khổng lồ
+  svg+=`<text x="${HR.x0+300}" y="${HR.y0-h2()}" fill="#fca5a5">Khổng lồ/Siêu KL</text>`;
+  svg+=`<text x="${HR.x0+30}" y="${HR.y0-30}" fill="#bfdbfe">Lùn trắng</text>`;
+  // nhãn trục
+  [40000,20000,10000,6000,4000,3000].forEach(t=>{ const x=hrX(t); svg+=`<line x1="${x}" y1="${HR.y0}" x2="${x}" y2="${HR.y0+5}" stroke="#64748b"/><text x="${x}" y="${HR.y0+18}" text-anchor="middle">${t>=1000?(t/1000)+'k':t}</text>`; });
+  // lớp phổ trên đỉnh
+  ['O','B','A','F','G','K','M'].forEach((c,i)=>{ const Ts=[35000,18000,8500,6700,5500,4400,3200][i]; svg+=`<text x="${hrX(Ts)}" y="${HR.y0-HR.h-4}" text-anchor="middle" fill="#a5b4fc">${c}</text>`; });
+  svg+=`<text x="${HR.x0+HR.w/2}" y="${HR.y0+34}" text-anchor="middle">Nhiệt độ T (K) — nóng ←</text>`;
+  [-4,-2,0,2,4,6].forEach(ll=>{ const y=hrY(ll); svg+=`<line x1="${HR.x0-5}" y1="${y}" x2="${HR.x0}" y2="${y}" stroke="#64748b"/><text x="${HR.x0-8}" y="${y+3}" text-anchor="end">${ll}</text>`; });
+  svg+=`<text x="14" y="${HR.y0-HR.h/2}" transform="rotate(-90 14 ${HR.y0-HR.h/2})" text-anchor="middle">log(L/L☉)</text>`;
+  // chấm sao
+  const [cls,col]=specClass(T);
+  const sx=hrX(T), sy=hrY(logL);
+  svg+=`<circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="8" fill="${col}" stroke="#fff" stroke-width="1.5"/>`;
+  document.getElementById('hrsvg').innerHTML=svg;
+
+  const [reg,R]=region(T,L);
+  document.getElementById('hrout').innerHTML=
+    `<span class="stat">Lớp phổ <strong>${cls}</strong> <span class="swatch" style="background:${col}"></span></span>`+
+    `<span class="stat">R ≈ <strong>${fmtBig(R)} R☉</strong></span><br>`+
+    `Vùng: <strong>${reg}</strong>`;
+}
+function h2(){ return HR.h-40; }
+function setStar(T,logL){ document.getElementById('T').value=T; document.getElementById('logL').value=logL; drawHR(); }
+
+// ML
+function calcML(){
+  const M=+document.getElementById('mass').value;
+  const L=Math.pow(M,3.5);
+  document.getElementById('mlout').innerHTML=
+    `L/L☉ = (M/M☉)^3.5 = ${fmt(M,2)}^3.5 = <strong>${fmtBig(L)} L☉</strong><br>`+
+    (M>1?`Nặng gấp ${fmt(M,1)} lần Mặt Trời → sáng hơn ~${fmtBig(L)} lần. Nhiên liệu nhiều nhưng đốt cực nhanh → sống ngắn (Lesson 04).`
+        :`Nhẹ hơn Mặt Trời → mờ hơn nhiều, nhưng đốt rất chậm → sống cực lâu.`);
+}
+function setMass(m){ document.getElementById('mass').value=m; calcML(); }
+
+drawHR();
+calcML();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

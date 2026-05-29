@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Định luật Kepler</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 150px; }
+  input[type="range"] { flex: 1; min-width: 180px; accent-color: #0891b2; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 90px; }
+  .val { font-family: monospace; font-weight: 700; color: #0e7490; min-width: 70px; display: inline-block; }
+  .stat { display: inline-block; background: #cffafe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #0e7490; }
+  .result { padding: 14px; background: #cffafe; border-radius: 8px; margin-top: 12px; font-size: 15px; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  .btn { background: #0891b2; color: #fff; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: 600; margin: 3px; }
+
+  svg.orbit { display: block; margin: 12px auto; width: 100%; max-width: 480px; height: auto;
+    background: radial-gradient(circle at 50% 50%, #0f172a, #020617); border-radius: 10px; }
+  svg.plot { display: block; margin: 12px auto; width: 100%; max-width: 460px; height: auto;
+    background: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0; }
+  svg.orbit text { font: 12px sans-serif; fill: #e2e8f0; }
+  svg.plot text { font: 11px sans-serif; fill: #334155; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Solar System</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-moon-eclipses/visualization.html">L3: Mặt Trăng &amp; thực</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Định luật Kepler</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-gravity-orbits/visualization.html">L5: Hấp dẫn &amp; quỹ đạo →</a>
+</nav>
+
+<main>
+<h1>Lesson 04 — Định luật Kepler</h1>
+<p>Hai công cụ: <strong>Khám phá elip</strong> (kéo tâm sai e, chạy hành tinh + quét diện tích — định luật 2) và <strong>Máy tính T²=a³</strong> (định luật 3, kèm đồ thị các hành tinh thật).</p>
+
+<h2>1. Khám phá elip + định luật diện tích</h2>
+<div class="card">
+  <p class="note">Kéo <strong>tâm sai e</strong>: e=0 là tròn, e gần 1 là dẹt như sao chổi. Mặt Trời ở <strong>tiêu điểm</strong> (chấm vàng), không phải tâm. Nhấn "Chạy" → hành tinh đi nhanh ở cận điểm, chậm ở viễn điểm; quạt cam = diện tích quét trong mỗi bước thời gian (luôn bằng nhau).</p>
+  <div class="row">
+    <label>Tâm sai e:</label>
+    <input type="range" id="ecc" min="0" max="0.85" value="0.4" step="0.01" oninput="resetOrbit()">
+    <span class="val" id="eccv">0.40</span>
+  </div>
+  <div class="row">
+    <button class="btn" id="runbtn" onclick="toggleRun()">▶ Chạy</button>
+    <button class="btn" onclick="setEcc(0)">e = 0 (tròn)</button>
+    <button class="btn" onclick="setEcc(0.017)">Trái Đất</button>
+    <button class="btn" onclick="setEcc(0.6)">Sao chổi</button>
+  </div>
+  <svg class="orbit" viewBox="0 0 480 320" id="orbsvg"></svg>
+  <div class="result" id="orbout"></div>
+</div>
+
+<h2>2. Máy tính Định luật 3: T² = a³</h2>
+<div class="card">
+  <p class="note">Nhập bán trục lớn <strong>a (AU)</strong> → tính chu kỳ T (năm), hoặc ngược lại. Các hành tinh thật được chấm lên đồ thị log–log: tất cả nằm trên một đường thẳng (T²=a³).</p>
+  <div class="row">
+    <label>a (AU):</label>
+    <input type="number" id="aIn" value="1.52" step="0.01" min="0.05" max="100" oninput="calcFromA()">
+    <label>↔ hoặc T (năm):</label>
+    <input type="number" id="tIn" value="1.874" step="0.01" min="0.01" max="1000" oninput="calcFromT()">
+  </div>
+  <div class="result" id="kepout"></div>
+  <svg class="plot" viewBox="0 0 460 300" id="plotsvg"></svg>
+  <div style="margin-top:8px">
+    <button class="btn" onclick="loadP(0.387,'Sao Thủy')">Sao Thủy</button>
+    <button class="btn" onclick="loadP(1.52,'Sao Hỏa')">Sao Hỏa</button>
+    <button class="btn" onclick="loadP(5.2,'Sao Mộc')">Sao Mộc</button>
+    <button class="btn" onclick="loadP(9.58,'Sao Thổ')">Sao Thổ</button>
+  </div>
+</div>
+
+<script>
+const D2R=Math.PI/180;
+const fmt=(x,n=2)=>(x<0?'−':'')+Math.abs(x).toFixed(n);
+
+// ---------- Module 1: ellipse + Kepler 2 ----------
+const OR={cx:240,cy:160,A:175};
+let ecc=0.4, theta=0, running=false, raf=null, sweep=[];
+function setEcc(v){ ecc=v; document.getElementById('ecc').value=v; resetOrbit(); }
+function resetOrbit(){ ecc=+document.getElementById('ecc').value; eccv.textContent=fmt(ecc,2); theta=0; sweep=[]; drawOrbit(); }
+function radius(th){ // r = a(1-e²)/(1+e cosθ), dùng a hằng theo trục để vẽ vừa khung
+  const a = OR.A/(1+ (ecc) ); // scale cho vừa
+  return a*(1-ecc*ecc)/(1+ecc*Math.cos(th));
+}
+function posAt(th){
+  // tiêu điểm = Mặt Trời tại OR.cx,OR.cy; cận điểm về bên phải (θ=0)
+  const r = radius(th);
+  return [OR.cx + r*Math.cos(th), OR.cy + r*Math.sin(th)];
+}
+function drawOrbit(){
+  let svg='';
+  svg += `<defs><radialGradient id="su"><stop offset="0%" stop-color="#fff7c2"/><stop offset="100%" stop-color="#f59e0b"/></radialGradient></defs>`;
+  // vẽ elip (quỹ đạo)
+  let pts=[];
+  for(let th=0; th<=360; th+=3){ const [x,y]=posAt(th*D2R); pts.push(x.toFixed(1)+','+y.toFixed(1)); }
+  svg += `<polygon points="${pts.join(' ')}" fill="none" stroke="#475569" stroke-width="1.5"/>`;
+  // diện tích quét (các quạt cam)
+  for(const s of sweep){
+    svg += `<path d="M ${OR.cx} ${OR.cy} L ${s.x1} ${s.y1} A 1 1 0 0 1 ${s.x2} ${s.y2} Z" fill="#fb923c" opacity="0.55"/>`;
+  }
+  // Mặt Trời ở tiêu điểm
+  svg += `<circle cx="${OR.cx}" cy="${OR.cy}" r="14" fill="url(#su)"/>`;
+  // hành tinh
+  const [px,py]=posAt(theta);
+  svg += `<line x1="${OR.cx}" y1="${OR.cy}" x2="${px}" y2="${py}" stroke="#94a3b8" stroke-width="1" stroke-dasharray="2 2"/>`;
+  svg += `<circle cx="${px}" cy="${py}" r="8" fill="#38bdf8" stroke="#0369a1"/>`;
+  // nhãn cận/viễn
+  const [cpx,cpy]=posAt(0), [apx,apy]=posAt(Math.PI);
+  svg += `<text x="${cpx-10}" y="${cpy-12}" fill="#fca5a5">cận điểm</text>`;
+  svg += `<text x="${apx-30}" y="${apy-12}" fill="#93c5fd">viễn điểm</text>`;
+  orbsvg.innerHTML=svg;
+
+  const rmin=1-ecc, rmax=1+ecc;
+  orbout.innerHTML = `<span class="stat">e = <strong>${fmt(ecc,2)}</strong></span>` +
+    `<span class="stat">r_cận = a(1−e) = <strong>${fmt(rmin,3)} a</strong></span>` +
+    `<span class="stat">r_viễn = a(1+e) = <strong>${fmt(rmax,3)} a</strong></span>` +
+    `<span class="stat">v_cận/v_viễn = <strong>${fmt((1+ecc)/(1-ecc),2)}</strong></span>` +
+    `<br><span class="note">Định luật 2: các quạt cam có diện tích bằng nhau → hành tinh đi nhanh khi gần Mặt Trời.</span>`;
+}
+function step(){
+  // dθ tỉ lệ nghịch r² (bảo toàn mômen động lượng: r²·dθ/dt = const)
+  const r = radius(theta);
+  const base = 0.00045; // const diện tích/khung
+  const dtheta = base / (r*r) * 90000; // scale
+  const th0 = theta;
+  theta += dtheta;
+  // ghi quạt mỗi ~12 khung để minh họa diện tích bằng nhau theo thời gian
+  if (Math.floor(th0/(0.35)) !== Math.floor(theta/(0.35))) {
+    const [x1,y1]=posAt(th0), [x2,y2]=posAt(theta);
+    sweep.push({x1,y1,x2,y2});
+    if(sweep.length>40) sweep.shift();
+  }
+  if (theta>2*Math.PI){ theta-=2*Math.PI; }
+  drawOrbit();
+  if(running) raf=requestAnimationFrame(step);
+}
+function toggleRun(){
+  running=!running;
+  document.getElementById('runbtn').textContent = running?'⏸ Dừng':'▶ Chạy';
+  if(running) step(); else if(raf) cancelAnimationFrame(raf);
+}
+
+// ---------- Module 2: Kepler 3 ----------
+function calcFromA(){
+  const a=+aIn.value; const T=Math.sqrt(a*a*a);
+  tIn.value = T.toFixed(3);
+  showKep(a,T); drawPlot(a);
+}
+function calcFromT(){
+  const T=+tIn.value; const a=Math.cbrt(T*T);
+  aIn.value=a.toFixed(3);
+  showKep(a,T); drawPlot(a);
+}
+function showKep(a,T){
+  kepout.innerHTML = `<span class="stat">a = <strong>${fmt(a,3)} AU</strong></span>` +
+    `<span class="stat">a³ = <strong>${fmt(a*a*a,3)}</strong></span>` +
+    `<span class="stat">T = √(a³) = <strong>${fmt(T,3)} năm</strong></span>` +
+    `<span class="stat">T² = <strong>${fmt(T*T,3)}</strong></span>` +
+    `<br><span class="note">T² = ${fmt(T*T,3)} ≈ a³ = ${fmt(a*a*a,3)} ✓ (định luật 3 Kepler)</span>`;
+}
+const PLANETS=[['Thủy',0.387],['Kim',0.723],['Đất',1.0],['Hỏa',1.52],['Mộc',5.2],['Thổ',9.58],['Thiên Vương',19.2],['Hải Vương',30.1]];
+function drawPlot(aCur){
+  // log-log: x=log10(a), y=log10(T); đường y=1.5x (vì T=a^1.5)
+  const W=460,H=300, mL=44,mB=40, x0=mL, y0=H-mB, pw=W-mL-20, ph=H-mB-20;
+  const xmin=-0.6, xmax=1.6; // log a
+  const ymin=-1.0, ymax=2.4; // log T
+  const sx=v=>x0+(v-xmin)/(xmax-xmin)*pw;
+  const sy=v=>y0-(v-ymin)/(ymax-ymin)*ph;
+  let svg='';
+  // trục
+  svg+=`<line x1="${x0}" y1="${y0}" x2="${x0+pw}" y2="${y0}" stroke="#94a3b8"/>`;
+  svg+=`<line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y0-ph}" stroke="#94a3b8"/>`;
+  svg+=`<text x="${x0+pw/2-30}" y="${H-6}">log₁₀(a / AU)</text>`;
+  svg+=`<text x="6" y="${y0-ph/2}" transform="rotate(-90 12 ${y0-ph/2})">log₁₀(T / năm)</text>`;
+  // đường lý thuyết y=1.5 x
+  svg+=`<line x1="${sx(xmin)}" y1="${sy(1.5*xmin)}" x2="${sx(xmax)}" y2="${sy(1.5*xmax)}" stroke="#0891b2" stroke-width="2" stroke-dasharray="5 4"/>`;
+  svg+=`<text x="${sx(1.0)}" y="${sy(1.5*1.0)-8}" fill="#0e7490">T² = a³</text>`;
+  // hành tinh
+  for(const[nm,a] of PLANETS){
+    const lx=Math.log10(a), lt=Math.log10(Math.sqrt(a*a*a));
+    svg+=`<circle cx="${sx(lx)}" cy="${sy(lt)}" r="4" fill="#1e293b"/>`;
+    svg+=`<text x="${sx(lx)+5}" y="${sy(lt)-4}" font-size="9">${nm}</text>`;
+  }
+  // điểm hiện tại
+  if(aCur>0){
+    const lx=Math.log10(aCur), lt=Math.log10(Math.sqrt(aCur*aCur*aCur));
+    svg+=`<circle cx="${sx(lx)}" cy="${sy(lt)}" r="6" fill="#f59e0b" stroke="#b45309" stroke-width="1.5"/>`;
+  }
+  plotsvg.innerHTML=svg;
+}
+function loadP(a,nm){ aIn.value=a; calcFromA(); }
+
+const eccv=document.getElementById('eccv');
+const orbsvg=document.getElementById('orbsvg'), orbout=document.getElementById('orbout');
+const aIn=document.getElementById('aIn'), tIn=document.getElementById('tIn');
+const kepout=document.getElementById('kepout'), plotsvg=document.getElementById('plotsvg');
+
+resetOrbit();
+calcFromA();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

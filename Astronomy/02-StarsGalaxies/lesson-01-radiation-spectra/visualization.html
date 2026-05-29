@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Bức xạ &amp; Phổ</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 140px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 90px; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #d97706; }
+  .val { font-family: monospace; font-weight: 700; color: #d97706; min-width: 70px; display: inline-block; }
+  .stat { display: inline-block; background: #fef3c7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #b45309; }
+  .result { padding: 14px; background: #fef3c7; border-radius: 8px; margin-top: 12px; font-size: 15px; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  .swatch { display:inline-block; width: 40px; height: 20px; border-radius: 4px; vertical-align: middle; border: 1px solid #94a3b8; }
+  button.tab { background:#e2e8f0; color:#1a202c; border:none; padding:8px 14px; border-radius:5px; cursor:pointer; font-weight:600; margin:3px; }
+  button.tab.active { background:#d97706; color:#fff; }
+  button.preset { background:#d97706; color:#fff; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:600; margin:3px; }
+  svg.planck { display:block; margin: 12px auto; width: 100%; max-width: 520px; height: auto; background:#0f172a; border-radius: 10px; }
+  svg.planck text { font: 11px sans-serif; fill: #cbd5e0; }
+  svg.planck .axis { stroke:#475569; stroke-width:1.2; }
+  svg.spec { display:block; margin: 12px auto; width:100%; max-width: 520px; height:auto; border-radius:6px; border:1px solid #94a3b8; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Stars &amp; Galaxies</a>
+  <span class="sep">·</span>
+  <a href="../../01-SolarSystem/lesson-08-telescopes/visualization.html">← T1 L8: Kính thiên văn</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Bức xạ &amp; phổ</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-measuring-stars/visualization.html">L2: Đo sao →</a>
+</nav>
+
+<main>
+<h1>Lesson 01 — Bức xạ &amp; Phổ của sao</h1>
+<p>Ba công cụ tương tác: <strong>Đường cong Planck</strong> (slider nhiệt độ → đỉnh trượt theo Wien, đổi màu), <strong>Stefan–Boltzmann calculator</strong> (R, T → độ trưng), và <strong>Demo 3 loại phổ</strong> (Kirchhoff).</p>
+
+<h2>1. Đường cong Planck &amp; định luật Wien</h2>
+<div class="card">
+  <p class="note">Kéo nhiệt độ T. Đỉnh đường cong trượt theo <code>λ_max = 2.9×10⁻³ / T</code>; ô màu = màu sao thấy được; chiều cao đường cong ∝ T⁴ (Stefan–Boltzmann).</p>
+  <div class="row">
+    <label>Nhiệt độ T (K):</label>
+    <input type="range" id="T" min="2000" max="15000" value="5778" step="50" oninput="drawPlanck()">
+    <span class="val" id="Tv">5778 K</span>
+  </div>
+  <svg class="planck" viewBox="0 0 520 300" id="plancksvg"></svg>
+  <div class="result" id="planckout"></div>
+  <div style="margin-top:10px">
+    <button class="preset" onclick="setT(3000)">Sao đỏ 3000 K</button>
+    <button class="preset" onclick="setT(5778)">Mặt Trời 5778 K</button>
+    <button class="preset" onclick="setT(10000)">Sao nóng 10000 K</button>
+  </div>
+</div>
+
+<h2>2. Stefan–Boltzmann — độ trưng</h2>
+<div class="card">
+  <p class="note"><code>L/L☉ = (R/R☉)² × (T/T☉)⁴</code> với T☉ = 5778 K. R bình phương, T mũ bốn.</p>
+  <div class="row">
+    <label>Bán kính R/R☉:</label>
+    <input type="number" id="sbR" value="1" step="0.1" min="0.001" oninput="calcSB()">
+    <label>Nhiệt độ T (K):</label>
+    <input type="number" id="sbT" value="5778" step="50" min="1000" oninput="calcSB()">
+  </div>
+  <div class="result" id="sbout"></div>
+  <div style="margin-top:10px">
+    <button class="preset" onclick="setSB(1,5778)">Mặt Trời</button>
+    <button class="preset" onclick="setSB(1.71,9940)">Sirius A</button>
+    <button class="preset" onclick="setSB(100,3500)">Khổng lồ đỏ</button>
+    <button class="preset" onclick="setSB(0.01,25000)">Lùn trắng</button>
+  </div>
+</div>
+
+<h2>3. Ba loại phổ (định luật Kirchhoff)</h2>
+<div class="card">
+  <p class="note">Chọn nguồn sáng → xem loại phổ tương ứng.</p>
+  <div class="row">
+    <button class="tab active" id="t0" onclick="setSpec(0)">Vật đặc nóng</button>
+    <button class="tab" id="t1" onclick="setSpec(1)">Khí loãng nóng</button>
+    <button class="tab" id="t2" onclick="setSpec(2)">Khí nguội chắn trước nguồn</button>
+  </div>
+  <svg class="spec" viewBox="0 0 520 70" id="specsvg"></svg>
+  <div class="result" id="specout"></div>
+</div>
+
+<script>
+// ---- helpers ----
+const fmt = (x,n=1) => (x<0?'−':'') + Math.abs(x).toFixed(n);
+const fmtE = x => {
+  if (x===0) return '0';
+  const e = Math.floor(Math.log10(Math.abs(x)));
+  const m = x / Math.pow(10,e);
+  return m.toFixed(2)+'×10'+sup(e);
+};
+function sup(n){ const s={'−':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'}; return String(n).split('').map(c=>s[c]||c).join(''); }
+
+// bước sóng (nm) -> màu RGB gần đúng (visible 380-750)
+function wl2rgb(wl){
+  let r=0,g=0,b=0;
+  if (wl>=380&&wl<440){ r=-(wl-440)/60; b=1; }
+  else if (wl<490){ g=(wl-440)/50; b=1; }
+  else if (wl<510){ g=1; b=-(wl-510)/20; }
+  else if (wl<580){ r=(wl-510)/70; g=1; }
+  else if (wl<645){ r=1; g=-(wl-645)/65; }
+  else if (wl<=750){ r=1; }
+  else return [40,40,40];
+  if (wl<380||wl>750) return [40,40,40];
+  return [Math.round(255*r),Math.round(255*g),Math.round(255*b)];
+}
+// màu tổng thể của sao theo nhiệt độ (xấp xỉ)
+function starColor(T){
+  let r,g,b;
+  if (T<=3500){ r=255;g=160;b=90; }
+  else if (T<=5000){ r=255;g=210;b=160; }
+  else if (T<=6000){ r=255;g=245;b=235; }
+  else if (T<=7500){ r=240;g=245;b=255; }
+  else if (T<=10000){ r=200;g=220;b=255; }
+  else { r=170;g=200;b=255; }
+  return `rgb(${r},${g},${b})`;
+}
+
+// ---- Module 1: Planck ----
+function planckRel(wl_nm, T){ // cường độ tương đối (không cần hằng số tuyệt đối)
+  const h=6.626e-34, c=3e8, k=1.381e-23;
+  const wl = wl_nm*1e-9;
+  const x = h*c/(wl*k*T);
+  return (1/Math.pow(wl,5)) / (Math.exp(x)-1);
+}
+function drawPlanck(){
+  const T = +document.getElementById('T').value;
+  document.getElementById('Tv').textContent = T+' K';
+  const lmax = 2.9e-3 / T; // m
+  const lmax_nm = lmax*1e9;
+  const W=520,H=300, x0=44,y0=260, plotW=440,plotH=230;
+  const wlMin=50, wlMax=2000;
+  // tìm max trên dải để chuẩn hóa
+  let peak=0;
+  for(let wl=wlMin;wl<=wlMax;wl+=5){ const v=planckRel(wl,T); if(v>peak)peak=v; }
+  const X = wl => x0 + (wl-wlMin)/(wlMax-wlMin)*plotW;
+  const Y = v => y0 - v/peak*plotH;
+  let pts=[];
+  for(let wl=wlMin;wl<=wlMax;wl+=5){ pts.push(X(wl).toFixed(1)+','+Y(planckRel(wl,T)).toFixed(1)); }
+  let svg='';
+  // dải màu nhìn thấy nền
+  for(let wl=380;wl<=750;wl+=6){ const [r,g,b]=wl2rgb(wl); svg+=`<rect x="${X(wl).toFixed(1)}" y="${y0-plotH}" width="${(X(wl+6)-X(wl)).toFixed(1)}" height="${plotH}" fill="rgb(${r},${g},${b})" opacity="0.18"/>`; }
+  // trục
+  svg+=`<line class="axis" x1="${x0}" y1="${y0}" x2="${x0+plotW}" y2="${y0}"/>`;
+  svg+=`<line class="axis" x1="${x0}" y1="${y0}" x2="${x0}" y2="${y0-plotH}"/>`;
+  // đường cong
+  svg+=`<polyline points="${pts.join(' ')}" fill="none" stroke="#fbbf24" stroke-width="2.5"/>`;
+  // vạch đỉnh
+  if (lmax_nm>=wlMin && lmax_nm<=wlMax){
+    svg+=`<line x1="${X(lmax_nm).toFixed(1)}" y1="${y0}" x2="${X(lmax_nm).toFixed(1)}" y2="${y0-plotH}" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+    svg+=`<text x="${(X(lmax_nm)+4).toFixed(1)}" y="${y0-plotH+14}" fill="#fca5a5">λ_max</text>`;
+  }
+  // nhãn trục x
+  [200,500,1000,1500,2000].forEach(w=>{ svg+=`<text x="${X(w).toFixed(1)}" y="${y0+16}" text-anchor="middle">${w}</text>`; });
+  svg+=`<text x="${x0+plotW/2}" y="${H-4}" text-anchor="middle">bước sóng (nm) — vùng tô là ánh sáng nhìn thấy</text>`;
+  svg+=`<text x="10" y="${y0-plotH-6}">cường độ</text>`;
+  document.getElementById('plancksvg').innerHTML = svg;
+
+  let region = lmax_nm<380?'tử ngoại (UV)' : lmax_nm>750?'hồng ngoại (IR)' : 'ánh sáng nhìn thấy';
+  document.getElementById('planckout').innerHTML =
+    `<span class="stat">λ_max = <strong>${fmt(lmax_nm,0)} nm</strong></span>` +
+    `<span class="stat">vùng: <strong>${region}</strong></span>` +
+    `<span class="stat">màu sao <span class="swatch" style="background:${starColor(T)}"></span></span>` +
+    `<br>Độ trưng tương đối ∝ T⁴: so với Mặt Trời = <strong>${fmt(Math.pow(T/5778,4),2)}×</strong> (chỉ phần T⁴, chưa kể bán kính).`;
+}
+function setT(t){ document.getElementById('T').value=t; drawPlanck(); }
+
+// ---- Module 2: Stefan-Boltzmann ----
+function calcSB(){
+  const R=+document.getElementById('sbR').value, T=+document.getElementById('sbT').value;
+  const Tsun=5778;
+  const Lrel = R*R * Math.pow(T/Tsun,4);
+  const Labs = Lrel * 3.83e26;
+  document.getElementById('sbout').innerHTML =
+    `L/L☉ = (R/R☉)² × (T/T☉)⁴ = ${fmt(R*R,3)} × ${fmt(Math.pow(T/Tsun,4),3)} = <strong>${Lrel<0.01?fmtE(Lrel):fmt(Lrel,2)} L☉</strong><br>` +
+    `<span class="stat">L ≈ <strong>${fmtE(Labs)} W</strong></span>` +
+    `<span class="stat">màu <span class="swatch" style="background:${starColor(T)}"></span></span>`;
+}
+function setSB(r,t){ document.getElementById('sbR').value=r; document.getElementById('sbT').value=t; calcSB(); }
+
+// ---- Module 3: spectra ----
+const specData = [
+  { name:'Vật đặc nóng → phổ LIÊN TỤC', desc:'Vật rắn/khí đặc nóng (lõi sao, dây tóc đèn) phát dải màu trơn, không đứt đoạn. Đây chính là đường cong Planck.' },
+  { name:'Khí loãng nóng → phổ PHÁT XẠ', desc:'Khí loãng nóng (đèn neon, tinh vân) tự phát chỉ vài vạch sáng rời rạc trên nền tối, tại các bước sóng đặc trưng của nguyên tố.' },
+  { name:'Khí nguội chắn trước nguồn → phổ HẤP THỤ', desc:'Phổ liên tục đi qua khí loãng nguội bị khoét vài vạch tối — đúng các bước sóng mà khí đó vốn phát xạ. Phổ Mặt Trời thuộc loại này (vạch Fraunhofer).' }
+];
+const lines = [410,434,486,589,656]; // các vạch demo (nm)
+let curSpec=0;
+function setSpec(i){
+  curSpec=i;
+  [0,1,2].forEach(k=>document.getElementById('t'+k).classList.toggle('active',k===i));
+  const W=520,H=70;
+  let svg='';
+  if (i===0){ // liên tục
+    for(let wl=380;wl<=750;wl+=2){ const [r,g,b]=wl2rgb(wl); const x=(wl-380)/(750-380)*W; svg+=`<rect x="${x.toFixed(1)}" y="0" width="${(W/((750-380)/2)+0.5).toFixed(1)}" height="${H}" fill="rgb(${r},${g},${b})"/>`; }
+  } else if (i===1){ // phát xạ: nền đen + vạch sáng
+    svg+=`<rect x="0" y="0" width="${W}" height="${H}" fill="#000"/>`;
+    lines.forEach(wl=>{ const [r,g,b]=wl2rgb(wl); const x=(wl-380)/(750-380)*W; svg+=`<rect x="${(x-2).toFixed(1)}" y="0" width="4" height="${H}" fill="rgb(${r},${g},${b})"/>`; });
+  } else { // hấp thụ: liên tục + vạch tối
+    for(let wl=380;wl<=750;wl+=2){ const [r,g,b]=wl2rgb(wl); const x=(wl-380)/(750-380)*W; svg+=`<rect x="${x.toFixed(1)}" y="0" width="${(W/((750-380)/2)+0.5).toFixed(1)}" height="${H}" fill="rgb(${r},${g},${b})"/>`; }
+    lines.forEach(wl=>{ const x=(wl-380)/(750-380)*W; svg+=`<rect x="${(x-2).toFixed(1)}" y="0" width="4" height="${H}" fill="#1a1a1a"/>`; });
+  }
+  document.getElementById('specsvg').innerHTML=svg;
+  document.getElementById('specout').innerHTML = `<strong>${specData[i].name}</strong><br>${specData[i].desc}`;
+}
+
+drawPlanck();
+calcSB();
+setSpec(0);
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

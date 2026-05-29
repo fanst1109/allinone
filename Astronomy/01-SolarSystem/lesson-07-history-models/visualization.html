@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Lịch sử mô hình vũ trụ</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 130px; }
+  input[type="range"] { flex: 1; min-width: 180px; accent-color: #4338ca; }
+  .val { font-family: monospace; font-weight: 700; color: #4338ca; min-width: 60px; display: inline-block; }
+  .stat { display: inline-block; background: #e0e7ff; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #4338ca; }
+  .result { padding: 14px; background: #e0e7ff; border-radius: 8px; margin-top: 12px; font-size: 15px; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  button.run { background:#4338ca; color:#fff; border:none; padding:8px 14px; border-radius:5px; cursor:pointer; font-weight:600; margin:3px; }
+
+  .panels { display: flex; gap: 14px; flex-wrap: wrap; }
+  .panel { flex: 1 1 200px; min-width: 0; }
+  .panel h3 { margin: 4px 0; color:#334155; font-size:15px; }
+
+  svg.orb {
+    display: block; margin: 6px auto;
+    width: 100%; max-width: 320px; height: auto;
+    background: radial-gradient(circle at 50% 50%, #1e293b, #0b1120);
+    border-radius: 10px;
+  }
+  svg.orb .orbit { fill: none; stroke: #475569; stroke-width: 1; stroke-dasharray: 3 3; }
+  svg.orb .sun { fill: #fde047; }
+  svg.orb .earth { fill: #38bdf8; }
+  svg.orb .mars { fill: #ef4444; }
+  svg.orb .sight { stroke: #94a3b8; stroke-width: 1; stroke-dasharray: 2 2; opacity:0.6; }
+  svg.orb .appath { fill:none; stroke:#facc15; stroke-width:2; }
+  svg.orb text { font: 11px sans-serif; fill: #e2e8f0; }
+
+  /* timeline */
+  .tl { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0; }
+  .tl button { border:1px solid #cbd5e0; background:#f1f5f9; padding:6px 10px; border-radius:6px; cursor:pointer; font-size:13px; }
+  .tl button.active { background:#4338ca; color:#fff; border-color:#4338ca; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Solar System</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-small-bodies/visualization.html">L6: Thiên thể nhỏ</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Lịch sử mô hình vũ trụ</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-telescopes/visualization.html">L8: Kính thiên văn →</a>
+</nav>
+
+<main>
+<h1>Lesson 07 — Lịch sử mô hình vũ trụ</h1>
+<p>Ba công cụ: <strong>Nghịch hành Sao Hỏa</strong> (vì sao nhật tâm giải thích tự nhiên), <strong>Địa tâm vs Nhật tâm</strong> (cùng chuyển động, hai cách nhìn), và <strong>Timeline</strong> Ptolemy → Newton.</p>
+
+<h2>1. Nghịch hành Sao Hỏa (nhật tâm)</h2>
+<div class="card">
+  <p class="note">Trái Đất (xanh, vòng trong, nhanh) và Sao Hỏa (đỏ, vòng ngoài, chậm) quay quanh Mặt Trời. Đường ngắm Trái Đc → Sao Hỏa kéo ra nền sao tạo <strong>đường biểu kiến</strong> (vàng). Khi Trái Đất vượt Sao Hỏa, đường vàng thắt thành nút — đó là nghịch hành.</p>
+  <div class="row">
+    <button class="run" id="btnPlay" onclick="toggleAnim()">▶ Chạy</button>
+    <button class="run" onclick="clearTrail()">🧹 Xóa vệt</button>
+    <label style="min-width:auto">Thời gian (năm):</label>
+    <input type="range" id="time" min="0" max="4" value="0" step="0.02" oninput="manualTime()">
+    <span class="val" id="timev">0.00</span>
+  </div>
+  <svg class="orb" style="max-width:420px" viewBox="0 0 360 360" id="retrosvg"></svg>
+  <div class="result" id="retroout"></div>
+</div>
+
+<h2>2. Địa tâm (epicycle) vs Nhật tâm</h2>
+<div class="card">
+  <p class="note">Cùng một chuyển động biểu kiến, hai mô hình. <strong>Trái:</strong> địa tâm — Sao Hỏa chạy trên ngoại luân (vòng nhỏ) gắn trên hoãn luân (vòng lớn) quanh Trái Đất. <strong>Phải:</strong> nhật tâm — đơn giản, hai vòng quanh Mặt Trời.</p>
+  <div class="row">
+    <button class="run" id="btnPlay2" onclick="toggleAnim2()">▶ Chạy cả hai</button>
+    <label style="min-width:auto">Pha:</label>
+    <input type="range" id="phase" min="0" max="360" value="0" step="2" oninput="manualPhase()">
+    <span class="val" id="phasev">0°</span>
+  </div>
+  <div class="panels">
+    <div class="panel">
+      <h3>Địa tâm (Ptolemy)</h3>
+      <svg class="orb" viewBox="0 0 280 280" id="geosvg"></svg>
+    </div>
+    <div class="panel">
+      <h3>Nhật tâm (Copernicus)</h3>
+      <svg class="orb" viewBox="0 0 280 280" id="heliosvg"></svg>
+    </div>
+  </div>
+  <div class="result" id="cmpout">Cả hai khớp vị trí biểu kiến, nhưng nhật tâm không cần ngoại luân — đơn giản hơn nhiều.</div>
+</div>
+
+<h2>3. Timeline: Ptolemy → Newton</h2>
+<div class="card">
+  <div class="tl" id="tl"></div>
+  <div class="result" id="tlout"></div>
+</div>
+
+<script>
+const D2R = Math.PI/180;
+const fmt = (x,n=2) => (x<0?'−':'') + Math.abs(x).toFixed(n);
+const T_E = 1.0, T_M = 1.88;          // chu kỳ năm
+const wE = 2*Math.PI/T_E, wM = 2*Math.PI/T_M;
+
+// ---------- Module 1: Nghịch hành ----------
+const R1 = { cx:180, cy:180, rE:55, rM:105 };
+let animOn=false, t=0, raf=null;
+let trail = [];   // điểm biểu kiến (góc) theo thời gian
+
+function bodyPos(r, w, time, c){ return { x: c.cx + r*Math.cos(w*time), y: c.cy - r*Math.sin(w*time) }; }
+
+function drawRetro(time) {
+  const E = bodyPos(R1.rE, wE, time, R1);
+  const M = bodyPos(R1.rM, wM, time, R1);
+  // hướng biểu kiến từ Trái Đất tới Sao Hỏa, chiếu lên "nền sao" (vòng rất lớn)
+  let ang = Math.atan2(-(M.y - E.y), (M.x - E.x)); // góc trên trời
+  // điểm trên vòng nền theo góc
+  const Rbg = 150;
+  const bx = R1.cx + Rbg*Math.cos(ang), by = R1.cy - Rbg*Math.sin(ang);
+  trail.push([bx, by]);
+  if (trail.length > 220) trail.shift();
+
+  let svg = '';
+  svg += `<circle class="orbit" cx="${R1.cx}" cy="${R1.cy}" r="${R1.rE}"/>`;
+  svg += `<circle class="orbit" cx="${R1.cx}" cy="${R1.cy}" r="${R1.rM}"/>`;
+  // đường biểu kiến
+  if (trail.length>1){
+    let pts = trail.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+    svg += `<polyline class="appath" points="${pts}"/>`;
+  }
+  // đường ngắm
+  svg += `<line class="sight" x1="${E.x}" y1="${E.y}" x2="${bx}" y2="${by}"/>`;
+  // Mặt Trời, hành tinh
+  svg += `<circle class="sun" cx="${R1.cx}" cy="${R1.cy}" r="9"/>`;
+  svg += `<circle class="earth" cx="${E.x}" cy="${E.y}" r="6"/>`;
+  svg += `<circle class="mars" cx="${M.x}" cy="${M.y}" r="7"/>`;
+  svg += `<text x="${E.x+8}" y="${E.y}">Trái Đất</text>`;
+  svg += `<text x="${M.x+8}" y="${M.y}" fill="#fca5a5">Sao Hỏa</text>`;
+  retrosvg.innerHTML = svg;
+
+  // tốc độ góc biểu kiến: so sánh 2 mẫu gần nhau để phát hiện nghịch hành
+  const dt = 0.02;
+  const M2 = bodyPos(R1.rM, wM, time+dt, R1), E2 = bodyPos(R1.rE, wE, time+dt, R1);
+  let ang2 = Math.atan2(-(M2.y - E2.y), (M2.x - E2.x));
+  let dAng = ang2 - ang;
+  while (dAng > Math.PI) dAng -= 2*Math.PI;
+  while (dAng < -Math.PI) dAng += 2*Math.PI;
+  const retro = dAng < 0;
+  retroout.innerHTML =
+    `Thời gian: <strong>${fmt(time)} năm</strong>. ` +
+    `Chu kỳ giao hội Sao Hỏa ≈ 2.14 năm → cứ ~26 tháng nghịch hành một lần.<br>` +
+    (retro ? `<span class="stat" style="background:#fee2e2">🔴 Sao Hỏa đang NGHỊCH HÀNH (lùi trên nền sao)</span>`
+           : `<span class="stat" style="background:#dcfce7">🟢 Thuận hành (tiến bình thường)</span>`) +
+    ` — nhưng quỹ đạo thật của nó vẫn tiến đều quanh Mặt Trời.`;
+}
+function manualTime(){ if(animOn) toggleAnim(); t=+time.value; timev.textContent=fmt(t); drawRetro(t); }
+function clearTrail(){ trail=[]; drawRetro(t); }
+function toggleAnim(){ animOn=!animOn; btnPlay.textContent=animOn?'⏸ Dừng':'▶ Chạy'; if(animOn) loop(); else if(raf) cancelAnimationFrame(raf); }
+function loop(){ t=(t+0.012)%4; time.value=t; timev.textContent=fmt(t); drawRetro(t); if(animOn) raf=requestAnimationFrame(loop); }
+
+// ---------- Module 2: Geo vs Helio ----------
+let anim2On=false, ph=0, raf2=null;
+function drawCompare(phaseDeg){
+  const time = phaseDeg/360 * 2;   // ánh xạ pha → thời gian
+  // helio
+  const Hc = {cx:140, cy:140, rE:45, rM:90};
+  const E = bodyPos(Hc.rE, wE, time, Hc);
+  const M = bodyPos(Hc.rM, wM, time, Hc);
+  let h = '';
+  h += `<circle class="orbit" cx="${Hc.cx}" cy="${Hc.cy}" r="${Hc.rE}"/>`;
+  h += `<circle class="orbit" cx="${Hc.cx}" cy="${Hc.cy}" r="${Hc.rM}"/>`;
+  h += `<circle class="sun" cx="${Hc.cx}" cy="${Hc.cy}" r="8"/>`;
+  h += `<circle class="earth" cx="${E.x}" cy="${E.y}" r="5"/>`;
+  h += `<circle class="mars" cx="${M.x}" cy="${M.y}" r="6"/>`;
+  h += `<text x="${Hc.cx-14}" y="${Hc.cy-12}" fill="#fde047">MT</text>`;
+  heliosvg.innerHTML = h;
+
+  // geo: Trái Đất ở tâm; Sao Hỏa = vị trí tương đối (M-E) ⇒ ngoại luân quanh tâm hoãn luân
+  const Gc = {cx:140, cy:140};
+  // tâm hoãn luân chạy theo hướng Mặt Trời (đối với Trái Đất) ở khoảng cách lớn,
+  // ngoại luân bán kính = quỹ đạo Trái Đất; tổng vị trí Sao Hỏa giống helio (tịnh tiến)
+  const def_r = 90;       // hoãn luân
+  const epi_r = 45;       // ngoại luân (= quỹ đạo Trái Đất)
+  // hướng tới Mặt Trời từ Trái Đất = ngược hướng Trái Đất quanh MT
+  const sunDir = Math.atan2(-(Hc.cy - E.y), (Hc.cx - E.x));
+  const defC = { x: Gc.cx + def_r*Math.cos(wM*time - Math.PI/2*0), y: Gc.cy - def_r*Math.sin(wM*time) };
+  // dùng vị trí tương đối thực để đảm bảo khớp biểu kiến:
+  const relx = M.x - E.x, rely = M.y - E.y;
+  const marsGeo = { x: Gc.cx + relx, y: Gc.cy + rely };
+  // tâm ngoại luân = điểm trên hoãn luân
+  const epiC = { x: Gc.cx + (relx>=0?def_r:def_r)*Math.cos(Math.atan2(rely,relx)) , y: 0};
+  let g = '';
+  g += `<circle class="orbit" cx="${Gc.cx}" cy="${Gc.cy}" r="${def_r}"/>`;     // hoãn luân
+  // ngoại luân quanh điểm trên hoãn luân (đặt tâm ngoại luân theo hướng tới Sao Hỏa)
+  const ed = Math.hypot(relx, rely) || 1;
+  const ecx = Gc.cx + (relx/ed)*(ed - epi_r*0 ) ; // đơn giản: vẽ ngoại luân quanh điểm cách Trái Đất
+  // tâm ngoại luân: giữa Trái Đất(=tâm) và Sao Hỏa, trên hoãn luân
+  const ang = Math.atan2(rely, relx);
+  const ecX = Gc.cx + def_r*Math.cos(ang)*0.6 + (relx*0.0);
+  const epiCenter = { x: Gc.cx + relx - epi_r*Math.cos(ang)*0, y: Gc.cy + rely };
+  g += `<circle class="orbit" cx="${marsGeo.x.toFixed(1)}" cy="${marsGeo.y.toFixed(1)}" r="${epi_r}"/>`;
+  g += `<line class="sight" x1="${Gc.cx}" y1="${Gc.cy}" x2="${marsGeo.x}" y2="${marsGeo.y}"/>`;
+  g += `<circle class="earth" cx="${Gc.cx}" cy="${Gc.cy}" r="6"/>`;
+  g += `<circle class="mars" cx="${marsGeo.x.toFixed(1)}" cy="${marsGeo.y.toFixed(1)}" r="6"/>`;
+  g += `<text x="${Gc.cx-16}" y="${Gc.cy-10}">Trái Đất</text>`;
+  g += `<text x="6" y="20" fill="#94a3b8">+ ngoại luân</text>`;
+  geosvg.innerHTML = g;
+}
+function manualPhase(){ if(anim2On) toggleAnim2(); ph=+phase.value; phasev.textContent=ph+'°'; drawCompare(ph); }
+function toggleAnim2(){ anim2On=!anim2On; btnPlay2.textContent=anim2On?'⏸ Dừng':'▶ Chạy cả hai'; if(anim2On) loop2(); else if(raf2) cancelAnimationFrame(raf2); }
+function loop2(){ ph=(ph+1.2)%360; phase.value=ph; phasev.textContent=Math.round(ph)+'°'; drawCompare(ph); if(anim2On) raf2=requestAnimationFrame(loop2); }
+
+// ---------- Module 3: Timeline ----------
+const MILESTONES = [
+  ['~150','Ptolemy','Mô hình địa tâm với ngoại luân (epicycle) + hoãn luân (deferent). Cần ~40 vòng để khớp dữ liệu. Chạy được nhưng không có nguyên lý vật lý.'],
+  ['1543','Copernicus','Mô hình nhật tâm (De revolutionibus). Mặt Trời ở tâm; nghịch hành là ảo giác do Trái Đất chuyển động — không cần ngoại luân.'],
+  ['1546–1601','Tycho Brahe','Số liệu quan sát chính xác ~1–2 phút cung (gấp ~10 lần thời đó). Nền móng dữ liệu cho Kepler.'],
+  ['1609','Kepler','Định luật 1 (quỹ đạo elip) & 2 (diện tích bằng nhau). Thay vòng tròn bằng elip nhờ số liệu Sao Hỏa của Tycho.'],
+  ['1609–1610','Galileo','Kính thiên văn: thấy 4 vệ tinh Sao Mộc và đủ pha của Sao Kim (kể cả pha tròn đầy) → bằng chứng bác bỏ địa tâm thuần.'],
+  ['1619','Kepler','Định luật 3: T² = a³. Liên hệ chu kỳ với bán trục lớn cho mọi hành tinh.'],
+  ['1687','Newton','Định luật vạn vật hấp dẫn F = G·m₁·m₂/r². Chứng minh 3 định luật Kepler là hệ quả của một lực duy nhất — thống nhất vật lý trời và đất.'],
+];
+function buildTL(){
+  let html='';
+  MILESTONES.forEach((m,i)=>{ html += `<button onclick="selTL(${i})" id="tlb${i}">${m[0]} · ${m[1]}</button>`; });
+  document.getElementById('tl').innerHTML = html;
+  selTL(0);
+}
+function selTL(i){
+  MILESTONES.forEach((m,j)=>document.getElementById('tlb'+j).classList.toggle('active', i===j));
+  const m = MILESTONES[i];
+  document.getElementById('tlout').innerHTML = `<strong>${m[0]} — ${m[1]}:</strong> ${m[2]}`;
+}
+
+// refs + init
+const btnPlay=document.getElementById('btnPlay'), time=document.getElementById('time'), timev=document.getElementById('timev');
+const retrosvg=document.getElementById('retrosvg'), retroout=document.getElementById('retroout');
+const btnPlay2=document.getElementById('btnPlay2'), phase=document.getElementById('phase'), phasev=document.getElementById('phasev');
+const geosvg=document.getElementById('geosvg'), heliosvg=document.getElementById('heliosvg'), cmpout=document.getElementById('cmpout');
+
+drawRetro(0);
+drawCompare(0);
+buildTL();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

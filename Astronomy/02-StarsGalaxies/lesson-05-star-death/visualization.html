@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Cái chết của sao</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 150px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100px; max-width: 100%; }
+  input[type="range"] { flex: 1; min-width: 180px; accent-color: #b45309; }
+  .val { font-family: monospace; font-weight: 700; color: #b45309; min-width: 70px; display: inline-block; }
+  .stat { display: inline-block; background: #fef3c7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #b45309; }
+  .result { padding: 14px; background: #fef3c7; border-radius: 8px; margin-top: 12px; font-size: 15px; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  button { background: #b45309; color: #fff; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer; font-weight: 600; margin: 3px; }
+  button:hover { background: #92400e; }
+
+  .flow { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+  .stage { padding: 10px 14px; border-radius: 8px; border: 2px solid #e2e8f0; background: #f8fafc; color: #94a3b8; font-weight: 600; transition: all .25s; }
+  .stage.on { border-color: #b45309; background: #fff7ed; color: #7c2d12; box-shadow: 0 2px 8px rgba(180,83,9,.18); }
+  .stage small { display: block; font-weight: 400; font-size: 12px; color: #64748b; margin-top: 3px; }
+
+  svg.sn { display: block; margin: 12px auto; width: 100%; max-width: 460px; height: auto; background: radial-gradient(circle at 50% 50%, #1e1b4b, #0f0a26); border-radius: 10px; }
+  svg.sn text { font: 12px sans-serif; fill: #e2e8f0; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Stars &amp; Galaxies</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-star-life/visualization.html">L4: Vòng đời sao</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Cái chết của sao</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-interstellar-medium/visualization.html">L6: Môi trường liên sao →</a>
+</nav>
+
+<main>
+<h1>Lesson 05 — Cái chết của sao</h1>
+<p>Ba công cụ tương tác: <strong>Fate Simulator</strong> (khối lượng → số phận), <strong>Mô phỏng sụp đổ lõi</strong> (supernova), và <strong>Máy tính mật độ tàn dư</strong>.</p>
+
+<h2>1. Fate Simulator — Khối lượng quyết định số phận</h2>
+<div class="card">
+  <p class="note">Kéo slider khối lượng ban đầu của sao. Flowchart sẽ sáng đúng nhánh số phận. Ngưỡng phân nhánh chính: <code>~8 M☉</code>.</p>
+  <div class="row">
+    <label>Khối lượng ban đầu M:</label>
+    <input type="range" id="mass" min="0.1" max="40" value="1" step="0.1" oninput="fate()">
+    <span class="val" id="massv">1.0 M☉</span>
+  </div>
+  <div class="row">
+    <button onclick="setMass(1)">Mặt Trời (1)</button>
+    <button onclick="setMass(6)">6 M☉</button>
+    <button onclick="setMass(18)">Betelgeuse (18)</button>
+    <button onclick="setMass(30)">30 M☉</button>
+  </div>
+  <div class="flow" id="flow"></div>
+  <div class="result" id="fateout"></div>
+</div>
+
+<h2>2. Mô phỏng sụp đổ lõi → Supernova</h2>
+<div class="card">
+  <p class="note">Sao khối lượng lớn: lõi sắt sụp → nén tới mật độ hạt nhân → nảy ngược → sóng xung kích thổi tung vỏ. Bấm "Chạy".</p>
+  <svg class="sn" viewBox="0 0 460 260" id="snsvg"></svg>
+  <div class="row">
+    <button onclick="runSN()">▶ Chạy sụp đổ</button>
+    <button onclick="resetSN()">↺ Đặt lại</button>
+  </div>
+  <div class="result" id="snout">Lõi sắt cân bằng — chờ nhiên liệu cạn.</div>
+</div>
+
+<h2>3. Máy tính mật độ tàn dư</h2>
+<div class="card">
+  <p class="note">Mật độ <code>ρ = M / [(4/3)πR³]</code>. Thử lùn trắng (R~9000 km) vs sao neutron (R~11 km) cùng khối lượng để thấy chênh lệch.</p>
+  <div class="row">
+    <label>Khối lượng M (M☉):</label>
+    <input type="number" id="dM" value="1.4" step="0.1" min="0.1" max="3" oninput="dens()">
+    <label>Bán kính R (km):</label>
+    <input type="number" id="dR" value="11" step="0.5" min="1" max="100000" oninput="dens()">
+  </div>
+  <div class="row">
+    <button onclick="setDens(0.6,9000)">Lùn trắng</button>
+    <button onclick="setDens(1.4,11)">Sao neutron</button>
+    <button onclick="setDens(1,6371)">Cỡ Trái Đất</button>
+  </div>
+  <div class="result" id="densout"></div>
+</div>
+
+<script>
+const Msun = 1.989e30;      // kg
+const fmt = (x, n=1) => (x<0?'−':'') + Math.abs(x).toFixed(n);
+function sci(x, n=2) {
+  if (x === 0) return '0';
+  const e = Math.floor(Math.log10(Math.abs(x)));
+  const m = x / Math.pow(10, e);
+  return m.toFixed(n) + '×10' + sup(e);
+}
+function sup(e) {
+  const map = {'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+  return String(e).split('').map(c => map[c] || c).join('');
+}
+
+// ---------- Module 1: Fate Simulator ----------
+function fate() {
+  const m = +document.getElementById('mass').value;
+  document.getElementById('massv').textContent = fmt(m,1) + ' M☉';
+  let stages, verdict, color;
+  if (m < 8) {
+    // lùn trắng — lõi tàn dư xấp xỉ
+    stages = [
+      ['Dãy chính', 'Đốt hydro → heli ở lõi'],
+      ['Khổng lồ đỏ', 'Lõi co, vỏ phồng, nguội & đỏ'],
+      ['Tinh vân hành tinh', 'Thổi bay vỏ ngoài, lộ lõi nóng'],
+      ['LÙN TRẮNG', 'Áp suất suy biến electron · bền tới 1.4 M☉']
+    ];
+    verdict = `M = ${fmt(m,1)} M☉ < 8 M☉ → nhánh nhẹ. Kết thúc thành <strong>lùn trắng</strong>. Lõi tàn dư ước tính ~${fmt(0.1+m*0.11,2)} M☉ (dưới giới hạn Chandrasekhar 1.4 M☉).`;
+  } else {
+    // ước lượng thô lõi tàn dư
+    const core = 1.1 + (m - 8) * 0.09;
+    const ns = core <= 3;
+    stages = [
+      ['Dãy chính (sao lớn)', 'Đốt nhanh, sáng & nóng'],
+      ['Siêu khổng lồ', 'Đốt từng lớp tới lõi sắt'],
+      ['Lõi sắt sụp đổ', 'Vượt giới hạn Chandrasekhar → sụp'],
+      ['SUPERNOVA loại II', 'Sóng xung kích thổi tung vỏ'],
+      [ns ? 'SAO NEUTRON' : 'LỖ ĐEN', ns ? 'Lõi 1.4–3 M☉ · suy biến neutron' : 'Lõi > 3 M☉ · không gì chặn nổi']
+    ];
+    verdict = `M = ${fmt(m,1)} M☉ > 8 M☉ → nhánh nặng. <strong>Supernova loại II</strong>, lõi tàn dư ước tính ~${fmt(core,2)} M☉ → ` +
+      (ns ? `<strong>sao neutron</strong> (trong khoảng 1.4–3 M☉).` : `<strong>lỗ đen</strong> (vượt giới hạn TOV ~3 M☉).`);
+  }
+  const flow = document.getElementById('flow');
+  flow.innerHTML = stages.map((s,i) =>
+    `<div class="stage on" style="transition-delay:${i*40}ms"><span>${s[0]}</span><small>${s[1]}</small></div>`
+  ).join('<div style="text-align:center;color:#b45309">↓</div>');
+  document.getElementById('fateout').innerHTML = verdict;
+}
+function setMass(m){ document.getElementById('mass').value = m; fate(); }
+
+// ---------- Module 2: Supernova animation ----------
+let snTimer = null, snT = 0;
+function drawSN(t) {
+  // t: 0..1 phase
+  const cx = 230, cy = 130;
+  let svg = '';
+  // các lớp vỏ (hành tinh hành) tĩnh mờ
+  const layers = [['#1e3a8a','H'],['#0e7490','He'],['#15803d','C/O'],['#a16207','Si']];
+  // lõi co: bán kính giảm rồi nảy
+  let coreR;
+  if (t < 0.4) coreR = 34 - (t/0.4)*30;          // sụp đổ
+  else if (t < 0.55) coreR = 4 + ((t-0.4)/0.15)*6; // nảy
+  else coreR = 10;
+  // sóng xung kích
+  const shockR = t > 0.5 ? (t-0.5)/0.5 * 210 : 0;
+  // lớp vỏ
+  layers.forEach((L,i) => {
+    const r = 110 - i*20 + (t>0.5 ? (t-0.5)*120 : 0);
+    svg += `<circle cx="${cx}" cy="${cy}" r="${Math.max(0,r)}" fill="none" stroke="${L[1]==='Si'?'#a16207':L[0]}" stroke-width="${t>0.55?1.5:6}" opacity="${t>0.6?0.35:0.6}"/>`;
+  });
+  // sóng xung kích
+  if (shockR > 0) {
+    svg += `<circle cx="${cx}" cy="${cy}" r="${shockR}" fill="none" stroke="#fbbf24" stroke-width="3" opacity="${1-(t-0.5)/0.5*0.7}"/>`;
+    svg += `<circle cx="${cx}" cy="${cy}" r="${shockR*0.7}" fill="none" stroke="#fde68a" stroke-width="2" opacity="${1-(t-0.5)/0.5*0.6}"/>`;
+  }
+  // lõi
+  const coreColor = t < 0.4 ? '#f97316' : (t < 0.55 ? '#fef08a' : '#e0f2fe');
+  svg += `<circle cx="${cx}" cy="${cy}" r="${coreR}" fill="${coreColor}" stroke="#fff" stroke-width="1.5"/>`;
+  // nhãn giai đoạn
+  let phase = t < 0.4 ? 'Lõi sắt sụp đổ (v ~70.000 km/s)' :
+              t < 0.55 ? 'Nảy ngược ở mật độ hạt nhân' :
+              t < 0.95 ? 'Sóng xung kích thổi tung vỏ → SUPERNOVA' :
+              'Tàn dư: sao neutron (~11 km)';
+  svg += `<text x="20" y="245">${phase}</text>`;
+  document.getElementById('snsvg').innerHTML = svg;
+  document.getElementById('snout').textContent = phase;
+}
+function runSN() {
+  resetSN();
+  snTimer = setInterval(() => {
+    snT += 0.02;
+    if (snT >= 1) { snT = 1; clearInterval(snTimer); snTimer = null; }
+    drawSN(snT);
+  }, 30);
+}
+function resetSN() {
+  if (snTimer) { clearInterval(snTimer); snTimer = null; }
+  snT = 0; drawSN(0);
+}
+
+// ---------- Module 3: Density calculator ----------
+function dens() {
+  const M = (+document.getElementById('dM').value) * Msun;  // kg
+  const R = (+document.getElementById('dR').value) * 1000;  // m
+  const V = (4/3) * Math.PI * Math.pow(R, 3);               // m³
+  const rho = M / V;                                        // kg/m³
+  const rho_cgs = rho / 1000;                               // g/cm³ (1 kg/m³ = 1e-3 g/cm³)
+  const vsWater = rho_cgs / 1.0;
+  const vsEarth = rho_cgs / 5.5;
+  let kind = rho_cgs > 1e13 ? 'cỡ sao neutron (mật độ hạt nhân)' :
+             rho_cgs > 1e5 ? 'cỡ lùn trắng' :
+             rho_cgs > 3 ? 'cỡ hành tinh đá' : 'loãng';
+  document.getElementById('densout').innerHTML =
+    `<span class="stat">ρ = <strong>${sci(rho_cgs)} g/cm³</strong></span>` +
+    `<span class="stat">= ${sci(rho)} kg/m³</span><br>` +
+    `So với nước: <strong>${sci(vsWater)}×</strong> · so với Trái Đất: <strong>${sci(vsEarth)}×</strong><br>` +
+    `→ Vật chất ${kind}.`;
+}
+function setDens(m,r){ document.getElementById('dM').value = m; document.getElementById('dR').value = r; dens(); }
+
+// init
+fate();
+resetSN();
+dens();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

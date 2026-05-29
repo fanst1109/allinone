@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L03: Digital Signatures & PKI — Cryptography T3</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root { --bg: #f5f6f8; --accent: #334155; --accent-soft: #f1f5f9; --accent-hover: #1e293b; }
+  h1 { color: #1e293b; margin-bottom: 4px; }
+  .subtitle { color: #64748b; margin-bottom: 28px; font-size: 15px; }
+  h2 { color: #1e293b; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+  .module { background: #fff; border-radius: 10px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 28px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin: 14px 0; padding: 16px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+  label { font-size: 13px; font-weight: 600; color: #4a5568; }
+  input[type="number"] { width: 80px; padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 14px; font-family: monospace; }
+  .info-box { background: #f1f5f9; border-left: 4px solid #334155; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; line-height: 1.6; }
+  .good-box { background: #f0fdf4; border-left: 4px solid #22c55e; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 10px 0; font-size: 14px; }
+  .warn-box { background: #fef9c3; border-left: 4px solid #eab308; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 10px 0; font-size: 14px; }
+  .err-box { background: #fef2f2; border-left: 4px solid #ef4444; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 10px 0; font-size: 14px; }
+  button { padding: 9px 18px; background: #334155; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  button:hover { background: #1e293b; }
+  button.danger { background: #dc2626; }
+  button.danger:hover { background: #b91c1c; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 10px; }
+  th { background: #334155; color: white; padding: 8px 12px; text-align: left; }
+  td { padding: 7px 12px; border-bottom: 1px solid #e2e8f0; font-family: monospace; }
+  tr:nth-child(even) td { background: #f8fafc; }
+  tr.highlight td { background: #fef9c3; font-weight: 700; }
+  /* PKI chain */
+  .cert-chain { display: flex; flex-direction: column; gap: 0; margin: 20px 0; }
+  .cert-node { background: #fff; border: 2px solid #cbd5e0; border-radius: 10px; padding: 16px 20px; position: relative; }
+  .cert-node.root { border-color: #f97316; background: #fff7ed; }
+  .cert-node.intermediate { border-color: #a855f7; background: #faf5ff; }
+  .cert-node.leaf { border-color: #22c55e; background: #f0fdf4; }
+  .cert-connector { width: 2px; height: 30px; background: #cbd5e0; margin: 0 auto; position: relative; }
+  .cert-connector::after { content:'▼'; position:absolute; bottom:-4px; left:50%; transform:translateX(-50%); font-size:14px; color:#cbd5e0; }
+  .cert-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; margin-bottom: 6px; }
+  .badge-root { background: #fed7aa; color: #9a3412; }
+  .badge-inter { background: #e9d5ff; color: #6b21a8; }
+  .badge-leaf { background: #bbf7d0; color: #14532d; }
+  .cert-fields { font-size: 12px; font-family: monospace; line-height: 1.8; }
+  .cert-field-row { display: flex; gap: 12px; }
+  .cert-field-key { color: #718096; width: 90px; flex-shrink: 0; }
+  .cert-field-val { color: #1e293b; font-weight: 600; }
+  /* Revocation methods */
+  .revoke-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; }
+  .revoke-card { background: #f8fafc; border-radius: 8px; padding: 16px; border: 1px solid #e2e8f0; }
+  .revoke-card h4 { margin: 0 0 8px; font-size: 14px; color: #1e293b; }
+  .revoke-pros, .revoke-cons { font-size: 12px; margin: 4px 0; }
+  .revoke-pros { color: #166534; }
+  .revoke-cons { color: #991b1b; }
+  /* Sony PS3 */
+  .ps3-box { background: #fef2f2; border: 2px solid #ef4444; border-radius: 10px; padding: 20px; margin: 16px 0; }
+  .ps3-box h3 { color: #dc2626; margin: 0 0 12px; }
+  .step { background: #f8fafc; border-radius: 8px; padding: 12px 16px; margin: 8px 0; font-family: monospace; font-size: 13px; border: 1px solid #e2e8f0; }
+  .step.danger { background: #fef2f2; border-color: #fca5a5; }
+  @media (max-width: 700px) { .revoke-grid { grid-template-columns: 1fr; } input[type="number"] { width: 70px; } }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-diffie-hellman-ecc/visualization.html">← L02: DH &amp; ECC</a>
+  <span class="sep">·</span>
+  <span class="current">L03: Signatures &amp; PKI</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-tls-frontier/visualization.html">L04: TLS &amp; Frontier →</a>
+</nav>
+<main>
+  <h1>Lesson 03: Digital Signatures &amp; PKI</h1>
+  <p class="subtitle">RSA Sign/Verify · ECDSA k-reuse Attack · PKI Chain of Trust · Sony PS3 Hack</p>
+
+  <!-- Module 1: RSA Sign/Verify -->
+  <section class="module">
+    <h2>1. RSA Sign &amp; Verify (số nhỏ)</h2>
+    <div class="info-box">Nhập RSA key (n, e, d) và hash H(m). Ký bằng private key d, verify bằng public key e. Xem từng bước fast exponentiation.</div>
+    <div class="controls">
+      <div class="ctrl-group"><label>n:</label><input type="number" id="sv-n" value="143" min="10"></div>
+      <div class="ctrl-group"><label>e (public):</label><input type="number" id="sv-e" value="7" min="2"></div>
+      <div class="ctrl-group"><label>d (private):</label><input type="number" id="sv-d" value="103" min="2"></div>
+      <div class="ctrl-group"><label>H(m) — hash:</label><input type="number" id="sv-h" value="10" min="1"></div>
+      <button onclick="doSignVerify()">Ký &amp; Verify</button>
+    </div>
+    <div id="sv-result"></div>
+    <div id="sv-steps" style="margin-top:14px;overflow-x:auto;"></div>
+  </section>
+
+  <!-- Module 2: ECDSA k-reuse Attack -->
+  <section class="module">
+    <h2>2. ECDSA k-reuse Attack — Recover Private Key</h2>
+    <div class="warn-box"><strong>⚠ Demo tấn công:</strong> Nếu k bị dùng lại cho 2 signatures → attacker recover private key d. Đây chính là lỗi Sony PS3.</div>
+    <div class="controls">
+      <div class="ctrl-group"><label>Order n:</label><input type="number" id="eck-n" value="11" min="5"></div>
+      <div class="ctrl-group"><label>Private key d:</label><input type="number" id="eck-d" value="9" min="1"></div>
+      <div class="ctrl-group"><label>r (từ k·G):</label><input type="number" id="eck-r" value="2" min="1"></div>
+      <div class="ctrl-group"><label>k (bí mật):</label><input type="number" id="eck-k" value="4" min="1"></div>
+      <div class="ctrl-group"><label>H(m₁):</label><input type="number" id="eck-h1" value="3" min="1"></div>
+      <div class="ctrl-group"><label>H(m₂):</label><input type="number" id="eck-h2" value="7" min="1"></div>
+      <button onclick="ecdsaKReuse()">Tính attack</button>
+    </div>
+    <div id="eck-sigs" style="margin-top:14px;"></div>
+    <div id="eck-attack" style="margin-top:14px;"></div>
+
+    <div class="ps3-box" style="margin-top:24px;">
+      <h3>Sony PS3 Hack (2010) — fail0verflow</h3>
+      <p style="font-size:14px;margin-bottom:12px;">Sony dùng k = CONSTANT (không random!) cho mọi lần ký firmware. Kết quả: hai chữ ký bất kỳ đều có cùng r. fail0verflow thu thập 2 firmware packages:</p>
+      <div class="step danger">Bước 1: Nhận thấy r₁ = r₂ trong hai firmware signatures → cùng k!</div>
+      <div class="step danger">Bước 2: k = (H₁−H₂)·(s₁−s₂)⁻¹ mod n → tính ra k cụ thể</div>
+      <div class="step danger">Bước 3: d = (s₁·k−H₁)·r⁻¹ mod n → recover master signing key</div>
+      <div class="step danger">Bước 4: Ký bất kỳ game homebrew trông như Sony official → jailbreak!</div>
+      <p style="font-size:13px;color:#dc2626;margin-top:12px;"><strong>Fix:</strong> Dùng Ed25519 (deterministic k = hash(privkey‖message)), hoặc dùng CSPRNG đúng cách.</p>
+    </div>
+  </section>
+
+  <!-- Module 3: PKI Chain of Trust -->
+  <section class="module">
+    <h2>3. Certificate Chain of Trust</h2>
+    <div class="info-box">Mỗi khi bạn truy cập HTTPS, browser verify một chuỗi certificate. Nhấn vào từng cert để xem chi tiết.</div>
+
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
+      <button onclick="showChain('github')" style="background:#f8fafc;color:#334155;border:1px solid #cbd5e0;">github.com</button>
+      <button onclick="showChain('google')" style="background:#f8fafc;color:#334155;border:1px solid #cbd5e0;">google.com</button>
+      <button onclick="showChain('lets')" style="background:#f8fafc;color:#334155;border:1px solid #cbd5e0;">Let's Encrypt</button>
+    </div>
+
+    <div id="cert-chain-out"></div>
+
+    <h3 style="margin-top:28px;">Phương thức revocation</h3>
+    <div class="revoke-grid">
+      <div class="revoke-card">
+        <h4>CRL</h4>
+        <div style="font-size:12px;color:#4a5568;margin-bottom:8px;">Certificate Revocation List — danh sách serial bị thu hồi</div>
+        <div class="revoke-pros">✓ Đơn giản, offline capable</div>
+        <div class="revoke-cons">✗ CRL có thể lớn (&gt;1MB)</div>
+        <div class="revoke-cons">✗ Cập nhật chậm (24h–7d)</div>
+        <div class="revoke-cons">✗ Lộ domain khi download</div>
+      </div>
+      <div class="revoke-card">
+        <h4>OCSP</h4>
+        <div style="font-size:12px;color:#4a5568;margin-bottom:8px;">Online Certificate Status Protocol — query real-time</div>
+        <div class="revoke-pros">✓ Real-time check</div>
+        <div class="revoke-cons">✗ Privacy: lộ domain cho CA</div>
+        <div class="revoke-cons">✗ OCSP down → browser lơ lửng</div>
+        <div class="revoke-cons">✗ Latency mỗi kết nối</div>
+      </div>
+      <div class="revoke-card">
+        <h4>OCSP Stapling</h4>
+        <div style="font-size:12px;color:#4a5568;margin-bottom:8px;">Server đính kèm OCSP response đã ký vào TLS handshake</div>
+        <div class="revoke-pros">✓ Không lộ domain cho CA</div>
+        <div class="revoke-pros">✓ Không latency cho client</div>
+        <div class="revoke-pros">✓ Server cache OCSP response</div>
+        <div class="revoke-cons">✗ Server phải support</div>
+      </div>
+      <div class="revoke-card">
+        <h4>Certificate Transparency</h4>
+        <div style="font-size:12px;color:#4a5568;margin-bottom:8px;">Append-only public log mọi cert — detect mis-issuance</div>
+        <div class="revoke-pros">✓ Phát hiện cert giả mạo</div>
+        <div class="revoke-pros">✓ Public, auditable</div>
+        <div class="revoke-pros">✓ Required by Chrome từ 2018</div>
+        <div class="revoke-cons">✗ Không ngăn immediate attack</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Module 4: Algorithm Comparison -->
+  <section class="module">
+    <h2>4. So sánh thuật toán chữ ký</h2>
+    <table>
+      <tr><th>Thuật toán</th><th>Cơ sở</th><th>k</th><th>Ký/s</th><th>Verify/s</th><th>Sig size</th><th>Trạng thái</th></tr>
+      <tr><td>RSA-PKCS1v1.5</td><td>Factoring</td><td>N/A</td><td>~500</td><td>~15,000</td><td>256 B</td><td>⚠ Legacy</td></tr>
+      <tr><td>RSA-PSS</td><td>Factoring</td><td>N/A</td><td>~500</td><td>~15,000</td><td>256 B</td><td>✓ Current</td></tr>
+      <tr><td>ECDSA-P256</td><td>ECDLP</td><td>Random</td><td>~15,000</td><td>~12,000</td><td>64 B</td><td>⚠ k-reuse risk</td></tr>
+      <tr><td>Ed25519</td><td>ECDLP</td><td>Deterministic</td><td>~140,000</td><td>~70,000</td><td>64 B</td><td>✓ Recommended</td></tr>
+      <tr><td>Dilithium-3 (PQ)</td><td>Lattice</td><td>N/A</td><td>~8,000</td><td>~10,000</td><td>3,293 B</td><td>✓ PQ safe</td></tr>
+    </table>
+    <div class="info-box" style="margin-top:16px;">Dilithium-3 là một trong các thuật toán NIST PQC — chống quantum. Xem chi tiết ở <a href="../lesson-04-tls-frontier/visualization.html">T3-L04: TLS & Frontier</a>.</div>
+  </section>
+
+</main>
+
+<script>
+function modpow(base, exp, mod) {
+  if(mod===1n) return 0n;
+  let result=1n; base=((base%mod)+mod)%mod;
+  while(exp>0n){if(exp%2n===1n)result=result*base%mod;exp/=2n;base=base*base%mod;}
+  return result;
+}
+function extGcd(a,b){if(b===0n)return{g:a,x:1n,y:0n};let{g,x,y}=extGcd(b,a%b);return{g,x:y,y:x-(a/b)*y};}
+function modinv(a,m){a=((a%m)+m)%m;let{g,x}=extGcd(a,m);if(g!==1n)return null;return((x%m)+m)%m;}
+
+function doSignVerify() {
+  let n=BigInt(document.getElementById('sv-n').value||143);
+  let e=BigInt(document.getElementById('sv-e').value||7);
+  let d=BigInt(document.getElementById('sv-d').value||103);
+  let h=BigInt(document.getElementById('sv-h').value||10);
+  if(h>=n){document.getElementById('sv-result').innerHTML='<div class="err-box">H(m) phải < n</div>';return;}
+  let s=modpow(h,d,n);
+  let check=modpow(s,e,n);
+  let ok=check===h;
+  document.getElementById('sv-result').innerHTML=`
+    <div class="${ok?'good-box':'err-box'}">
+      <strong>Ký:</strong> s = H(m)^d mod n = ${h}^${d} mod ${n} = <strong>${s}</strong><br>
+      <strong>Verify:</strong> s^e mod n = ${s}^${e} mod ${n} = <strong>${check}</strong> ${ok?'= H(m) ✓':'≠ H(m) ✗'}
+    </div>`;
+  // fast exp table for signing
+  let bits=d.toString(2);
+  let html=`<p style="font-size:13px;color:#4a5568;"><strong>Fast exp: ${h}^${d} mod ${n}</strong> (nhị phân d = ${bits})</p>`;
+  html+=`<table><tr><th>Bit</th><th>curr² mod n</th><th>Nhân nếu bit=1</th><th>result</th></tr>`;
+  let curr=h%n,result=1n;
+  for(let i=bits.length-1;i>=0;i--){
+    let bit=bits[bits.length-1-i];
+    let mul=bit==='1'?`×${curr}=${result*curr%n}`:'(skip)';
+    if(bit==='1')result=result*curr%n;
+    let sq=curr*curr%n;
+    html+=`<tr class="${bit==='1'?'highlight':''}"><td>${bit}</td><td>${curr}²=${sq}</td><td>${mul}</td><td>${result}</td></tr>`;
+    if(i>0)curr=sq;
+  }
+  html+='</table>';
+  document.getElementById('sv-steps').innerHTML=html;
+}
+
+function ecdsaKReuse() {
+  let n=BigInt(document.getElementById('eck-n').value||11);
+  let d=BigInt(document.getElementById('eck-d').value||9);
+  let r=BigInt(document.getElementById('eck-r').value||2);
+  let k=BigInt(document.getElementById('eck-k').value||4);
+  let h1=BigInt(document.getElementById('eck-h1').value||3);
+  let h2=BigInt(document.getElementById('eck-h2').value||7);
+  let kinv=modinv(k,n);
+  if(!kinv){document.getElementById('eck-sigs').innerHTML='<div class="err-box">k không có nghịch đảo mod n</div>';return;}
+  let s1=((kinv*(h1+r*d))%n+n)%n;
+  let s2=((kinv*(h2+r*d))%n+n)%n;
+  document.getElementById('eck-sigs').innerHTML=`
+    <div class="info-box">
+      <strong>Signing (cùng k=${k}):</strong><br>
+      s₁ = k⁻¹·(H(m₁)+r·d) mod n = ${kinv}·(${h1}+${r}·${d}) mod ${n} = <strong>${s1}</strong> → Sig₁ = (${r}, ${s1})<br>
+      s₂ = k⁻¹·(H(m₂)+r·d) mod n = ${kinv}·(${h2}+${r}·${d}) mod ${n} = <strong>${s2}</strong> → Sig₂ = (${r}, ${s2})<br>
+      <span style="color:#dc2626;">Lưu ý: r₁ = r₂ = ${r} (cùng k → cùng điểm k·G → cùng r) — đây là dấu hiệu k-reuse!</span>
+    </div>`;
+  // Attack
+  let diff_h=((h1-h2)%n+n)%n;
+  let diff_s=((s1-s2)%n+n)%n;
+  let diff_s_inv=modinv(diff_s,n);
+  if(!diff_s_inv||diff_s===0n){
+    document.getElementById('eck-attack').innerHTML='<div class="warn-box">s₁=s₂ (cùng hash) — không attack được trường hợp này.</div>';return;
+  }
+  let k_rec=(diff_h*diff_s_inv%n+n)%n;
+  let rinv=modinv(r,n);
+  let d_rec=rinv?((s1*k_rec-h1)%n*rinv%n+n)%n:null;
+  document.getElementById('eck-attack').innerHTML=`
+    <div class="err-box">
+      <strong>⚠ Attack thành công:</strong><br><br>
+      k = (H(m₁)−H(m₂))·(s₁−s₂)⁻¹ mod n<br>
+        = (${h1}−${h2})·(${s1}−${s2})⁻¹ mod ${n}<br>
+        = ${diff_h}·${diff_s_inv} mod ${n} = <strong>${k_rec}</strong> ${k_rec===k?'✓ = k thật!':'✗'}<br><br>
+      d = (s₁·k−H(m₁))·r⁻¹ mod n<br>
+        = (${s1}·${k_rec}−${h1})·${rinv} mod ${n} = <strong>${d_rec??'N/A'}</strong> ${d_rec===d?'✓ = private key thật!':''}
+    </div>`;
+}
+
+// PKI Chain data
+const chains = {
+  github: {
+    root: {label:'DigiCert Global Root CA', expires:'2031-11-10', algo:'RSA-2048 SHA-256', type:'Self-signed'},
+    inter: {label:'DigiCert TLS RSA SHA256 2020 CA1', expires:'2031-04-13', algo:'RSA-2048 SHA-256', issuer:'DigiCert Global Root CA'},
+    leaf:  {label:'github.com', expires:'2025-06-10', algo:'RSA-2048 SHA-256', san:'github.com, www.github.com', issuer:'DigiCert TLS RSA SHA256 2020 CA1'}
+  },
+  google: {
+    root: {label:'GTS Root R1', expires:'2036-06-22', algo:'RSA-4096 SHA-256', type:'Self-signed'},
+    inter: {label:'GTS CA 1C3', expires:'2027-10-04', algo:'ECDSA P-256 SHA-256', issuer:'GTS Root R1'},
+    leaf:  {label:'*.google.com', expires:'2024-10-28', algo:'ECDSA P-256 SHA-256', san:'*.google.com, google.com', issuer:'GTS CA 1C3'}
+  },
+  lets: {
+    root: {label:'ISRG Root X1', expires:'2035-06-04', algo:'RSA-4096 SHA-256', type:'Self-signed'},
+    inter: {label:"Let's Encrypt R10", expires:'2027-03-12', algo:'RSA-2048 SHA-256', issuer:'ISRG Root X1'},
+    leaf:  {label:'example.com (sample)', expires:'2025-09-01', algo:'ECDSA P-256 SHA-256', san:'example.com, www.example.com', issuer:"Let's Encrypt R10"}
+  }
+};
+
+function showChain(key) {
+  let c=chains[key];
+  let html=`<div class="cert-chain">
+    <div class="cert-node root">
+      <span class="cert-badge badge-root">ROOT CA</span>
+      <div class="cert-fields">
+        <div class="cert-field-row"><span class="cert-field-key">Subject:</span><span class="cert-field-val">${c.root.label}</span></div>
+        <div class="cert-field-row"><span class="cert-field-key">Issuer:</span><span class="cert-field-val">${c.root.type}</span></div>
+        <div class="cert-field-row"><span class="cert-field-key">Algorithm:</span><span class="cert-field-val">${c.root.algo}</span></div>
+        <div class="cert-field-row"><span class="cert-field-key">Expires:</span><span class="cert-field-val">${c.root.expires}</span></div>
+        <div class="cert-field-row"><span class="cert-field-key">Trust:</span><span class="cert-field-val">Preinstalled in OS/Browser</span></div>
+      </div>
+    </div>
+    <div class="cert-connector"></div>
+    <div class="cert-node intermediate">
+      <span class="cert-badge badge-inter">INTERMEDIATE CA</span>
+      <div class="cert-fields">
+        <div class="cert-field-row"><span class="cert-field-key">Subject:</span><span class="cert-field-val">${c.inter.label}</span></div>
+        <div class="cert-field-row"><span class="cert-field-key">Issuer:</span><span class="cert-field-val">${c.inter.issuer}</span></div>
+        <div class="cert-field-row"><span class="cert-field-key">Algorithm:</span><span class="cert-field-val">${c.inter.algo}</span></div>
+        <div class="cert-field-row"><span class="cert-field-key">Expires:</span><span class="cert-field-val">${c.inter.expires}</span></div>
+        <div class="cert-field-row"><span class="cert-field-key">Signed by:</span><span class="cert-field-val">Root CA private key</span></div>
+      </div>
+    </div>
+    <div class="cert-connector"></div>
+    <div class="cert-node leaf">
+      <span class="cert-badge badge-leaf">LEAF CERT</span>
+      <div class="cert-fields">
+        <div class="cert-field-row"><span class="cert-field-key">Subject:</span><span class="cert-field-val">${c.leaf.label}</span></div>
+        <div class="cert-field-row"><span class="cert-field-key">Issuer:</span><span class="cert-field-val">${c.leaf.issuer}</span></div>
+        <div class="cert-field-row"><span class="cert-field-key">Algorithm:</span><span class="cert-field-val">${c.leaf.algo}</span></div>
+        <div class="cert-field-row"><span class="cert-field-key">Expires:</span><span class="cert-field-val">${c.leaf.expires}</span></div>
+        <div class="cert-field-row"><span class="cert-field-key">SAN:</span><span class="cert-field-val">${c.leaf.san}</span></div>
+        <div class="cert-field-row"><span class="cert-field-key">Signed by:</span><span class="cert-field-val">Intermediate CA private key</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="good-box">Verify chain: Browser check leaf cert bằng intermediate public key → check intermediate bằng root public key → root đã preinstall → TRUSTED ✓</div>`;
+  document.getElementById('cert-chain-out').innerHTML=html;
+}
+
+// init
+doSignVerify();
+showChain('github');
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

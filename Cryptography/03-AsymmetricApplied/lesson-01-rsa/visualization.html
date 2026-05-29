@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L01: RSA — Cryptography T3</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root { --bg: #f5f6f8; --accent: #334155; --accent-soft: #f1f5f9; --accent-hover: #1e293b; }
+  h1 { color: #1e293b; margin-bottom: 4px; }
+  .subtitle { color: #64748b; margin-bottom: 28px; font-size: 15px; }
+  h2 { color: #1e293b; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+  .module { background: #fff; border-radius: 10px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 28px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin: 14px 0; padding: 16px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+  label { font-size: 13px; font-weight: 600; color: #4a5568; }
+  input[type="range"] { width: 130px; accent-color: var(--accent); }
+  input[type="number"], input[type="text"] { width: 90px; padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 14px; font-family: monospace; }
+  .val-badge { display: inline-block; background: #f1f5f9; color: #334155; padding: 2px 8px; border-radius: 4px; font-size: 13px; font-weight: 700; font-family: monospace; }
+  .info-box { background: #f1f5f9; border-left: 4px solid #334155; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; line-height: 1.6; }
+  .good-box { background: #f0fdf4; border-left: 4px solid #22c55e; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 10px 0; font-size: 14px; }
+  .warn-box { background: #fef9c3; border-left: 4px solid #eab308; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 10px 0; font-size: 14px; }
+  .err-box { background: #fef2f2; border-left: 4px solid #ef4444; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 10px 0; font-size: 14px; }
+  .stats-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .stat-chip { background: #f1f5f9; padding: 10px 14px; border-radius: 6px; font-family: monospace; font-size: 13px; border-left: 3px solid #334155; min-width: 100px; }
+  .stat-chip .name { color: #718096; font-size: 11px; display: block; margin-bottom: 2px; }
+  .stat-chip .val { color: #1e293b; font-weight: 700; font-size: 15px; }
+  button { padding: 9px 18px; background: #334155; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  button:hover { background: #1e293b; }
+  button.secondary { background: #f1f5f9; color: #334155; border: 1px solid #cbd5e0; }
+  button.secondary:hover { background: #e2e8f0; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 10px; }
+  th { background: #334155; color: white; padding: 8px 12px; text-align: left; }
+  td { padding: 7px 12px; border-bottom: 1px solid #e2e8f0; font-family: monospace; }
+  tr:nth-child(even) td { background: #f8fafc; }
+  tr.highlight td { background: #fef9c3; font-weight: 700; }
+  .step { background: #f8fafc; border-radius: 8px; padding: 12px 16px; margin: 8px 0; font-family: monospace; font-size: 13px; border: 1px solid #e2e8f0; }
+  .step.active { background: #fef9c3; border-color: #eab308; }
+  .step.done { background: #f0fdf4; border-color: #22c55e; }
+  .prime-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .prime-tag { background: #f1f5f9; border: 1px solid #cbd5e0; border-radius: 4px; padding: 3px 10px; font-size: 12px; font-family: monospace; cursor: pointer; transition: background 0.1s; }
+  .prime-tag:hover, .prime-tag.selected { background: #334155; color: white; border-color: #334155; }
+  .attack-demo { background: #fef2f2; border-radius: 8px; padding: 20px; border: 1px solid #fca5a5; margin-top: 16px; }
+  .col2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 700px) { .col2 { grid-template-columns: 1fr; } input[type="range"] { width: 100%; max-width: 200px; } }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../02-ModernSymmetric/lesson-04-mac-prng-kdf/visualization.html">← T2-L04: MAC/PRNG/KDF</a>
+  <span class="sep">·</span>
+  <span class="current">L01: RSA</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-diffie-hellman-ecc/visualization.html">L02: DH &amp; ECC →</a>
+</nav>
+<main>
+  <h1>Lesson 01: RSA</h1>
+  <p class="subtitle">Rivest–Shamir–Adleman (1977) · Keygen · Encrypt/Decrypt · Extended Euclidean · Attacks</p>
+
+  <!-- Module 1: RSA Key Generator -->
+  <section class="module">
+    <h2>1. RSA Key Generator</h2>
+    <div class="info-box">Chọn hai số nguyên tố p, q từ danh sách — hệ thống tính n, φ(n), e, d tự động. Xem toàn bộ quá trình Extended Euclidean.</div>
+
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Số nguyên tố p:</label>
+        <div class="prime-list" id="p-list"></div>
+        <span style="font-size:12px;color:#718096;">p = <span id="p-val" style="font-weight:700;font-family:monospace;">11</span></span>
+      </div>
+      <div class="ctrl-group">
+        <label>Số nguyên tố q:</label>
+        <div class="prime-list" id="q-list"></div>
+        <span style="font-size:12px;color:#718096;">q = <span id="q-val" style="font-weight:700;font-family:monospace;">13</span></span>
+      </div>
+      <div class="ctrl-group">
+        <label>Public exponent e:</label>
+        <input type="number" id="e-input" value="7" min="3" max="999" style="width:80px;">
+      </div>
+      <button onclick="computeRSA()">Tính ngay</button>
+    </div>
+
+    <div class="stats-row" id="key-stats" style="display:none">
+      <div class="stat-chip"><span class="name">n = p·q</span><span class="val" id="n-out">—</span></div>
+      <div class="stat-chip"><span class="name">φ(n) = (p-1)(q-1)</span><span class="val" id="phi-out">—</span></div>
+      <div class="stat-chip"><span class="name">e (public)</span><span class="val" id="e-out">—</span></div>
+      <div class="stat-chip"><span class="name">d = e⁻¹ mod φ(n)</span><span class="val" id="d-out">—</span></div>
+      <div class="stat-chip"><span class="name">gcd(e, φ)</span><span class="val" id="gcd-out">—</span></div>
+    </div>
+
+    <div id="key-result" style="margin-top:14px;"></div>
+
+    <h3 style="margin-top:20px;">Extended Euclidean — tính d từng bước</h3>
+    <div id="euclid-table" style="overflow-x:auto;"></div>
+  </section>
+
+  <!-- Module 2: Encrypt / Decrypt -->
+  <section class="module">
+    <h2>2. Mã hóa &amp; Giải mã</h2>
+    <div class="info-box">Nhập message m (0 &lt; m &lt; n). Xem c = m^e mod n và giải mã lại.</div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Message m:</label>
+        <input type="number" id="msg-input" value="9" min="1" max="9999">
+      </div>
+      <button onclick="doEncryptDecrypt()">Encrypt → Decrypt</button>
+    </div>
+    <div id="enc-dec-result"></div>
+    <div id="fastexp-table" style="margin-top:16px;overflow-x:auto;"></div>
+  </section>
+
+  <!-- Module 3: Fast Exponentiation -->
+  <section class="module">
+    <h2>3. Fast Exponentiation (Square-and-Multiply)</h2>
+    <div class="info-box">Tính base^exp mod n bằng bình phương lặp — O(log exp) phép nhân thay vì O(exp).</div>
+    <div class="controls">
+      <div class="ctrl-group"><label>base:</label><input type="number" id="fe-base" value="48" min="1" max="9999"></div>
+      <div class="ctrl-group"><label>exp:</label><input type="number" id="fe-exp" value="103" min="1" max="9999"></div>
+      <div class="ctrl-group"><label>mod:</label><input type="number" id="fe-mod" value="143" min="2" max="99999"></div>
+      <button onclick="runFastExp()">Tính</button>
+    </div>
+    <div id="fe-result"></div>
+    <div id="fe-steps" style="margin-top:12px;overflow-x:auto;"></div>
+  </section>
+
+  <!-- Module 4: Attacks -->
+  <section class="module">
+    <h2>4. Attack Demos</h2>
+
+    <h3>4a. Small Exponent Attack</h3>
+    <div class="info-box">Nếu e=3 và m nhỏ (m³ &lt; n), thì c = m³ chính xác — không có phép mod. Recover m = ∛c đơn giản.</div>
+    <div class="controls">
+      <div class="ctrl-group"><label>e (= 3):</label><input type="number" id="sa-e" value="3" min="3" max="3" style="width:60px;"></div>
+      <div class="ctrl-group"><label>m:</label><input type="number" id="sa-m" value="42" min="1" max="999"></div>
+      <div class="ctrl-group"><label>n:</label><input type="number" id="sa-n" value="1234567" min="100"></div>
+      <button onclick="smallExpAttack()">Thử tấn công</button>
+    </div>
+    <div id="sa-result"></div>
+
+    <h3 style="margin-top:24px;">4b. Common Modulus Attack</h3>
+    <div class="info-box">Cùng n, hai exponent e₁, e₂ với gcd(e₁,e₂)=1, hai ciphertext c₁=m^e₁, c₂=m^e₂ → recover m dùng Extended Euclidean.</div>
+    <div class="controls">
+      <div class="ctrl-group"><label>Shared n:</label><input type="number" id="cm-n" value="143" min="10"></div>
+      <div class="ctrl-group"><label>e₁:</label><input type="number" id="cm-e1" value="7" min="2"></div>
+      <div class="ctrl-group"><label>e₂:</label><input type="number" id="cm-e2" value="11" min="2"></div>
+      <div class="ctrl-group"><label>m:</label><input type="number" id="cm-m" value="9" min="1"></div>
+      <button onclick="commonModAttack()">Demo</button>
+    </div>
+    <div id="cm-result"></div>
+  </section>
+
+</main>
+
+<script>
+// ============ Helper math ============
+function gcd(a, b) { while(b) { [a,b]=[b,a%b]; } return a; }
+function modpow(base, exp, mod) {
+  let result = 1n;
+  base = base % mod;
+  while(exp > 0n) {
+    if(exp % 2n === 1n) result = result * base % mod;
+    exp = exp / 2n;
+    base = base * base % mod;
+  }
+  return result;
+}
+// Extended Euclidean: returns {gcd, x, y} where a*x + b*y = gcd
+function extGcd(a, b) {
+  let steps = [];
+  let old_r = a, r = b, old_s = 1n, s = 0n, old_t = 0n, t = 1n;
+  while(r !== 0n) {
+    let q = old_r / r;
+    steps.push({q, r:old_r, s:old_s, t:old_t});
+    [old_r, r] = [r, old_r - q*r];
+    [old_s, s] = [s, old_s - q*s];
+    [old_t, t] = [t, old_t - q*t];
+  }
+  steps.push({q:null, r:old_r, s:old_s, t:old_t});
+  return {gcd: old_r, x: old_s, y: old_t, steps};
+}
+function modinv(a, m) {
+  let {gcd, x} = extGcd(a, m);
+  if(gcd !== 1n) return null;
+  return ((x % m) + m) % m;
+}
+function cbrt_int(n) { // integer cube root
+  if(n < 0n) return null;
+  if(n === 0n) return 0n;
+  let x = BigInt(Math.round(Math.pow(Number(n), 1/3)));
+  // adjust
+  for(let dx = -2n; dx <= 2n; dx++) {
+    let t = x + dx;
+    if(t > 0n && t*t*t === n) return t;
+  }
+  return null;
+}
+
+// ============ Primes <=100 ============
+const PRIMES = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97];
+let selP = 11, selQ = 13;
+let rsaN = 0n, rsaPhi = 0n, rsaE = 7n, rsaD = 0n;
+
+function buildPrimeLists() {
+  ['p','q'].forEach(pq => {
+    let div = document.getElementById(pq+'-list');
+    div.innerHTML = '';
+    PRIMES.slice(2).forEach(pr => { // skip 2,3 too small
+      let tag = document.createElement('span');
+      tag.className = 'prime-tag' + ((pq==='p'?selP:selQ)===pr?' selected':'');
+      tag.textContent = pr;
+      tag.onclick = () => { if(pq==='p') selP=pr; else selQ=pr; buildPrimeLists(); document.getElementById(pq+'-val').textContent=pr; };
+      div.appendChild(tag);
+    });
+  });
+}
+
+function computeRSA() {
+  let p = BigInt(selP), q = BigInt(selQ);
+  let eVal = BigInt(document.getElementById('e-input').value || 7);
+  if(p === q) { showResult('key-result','err','p và q phải khác nhau!'); return; }
+  let n = p * q;
+  let phi = (p-1n)*(q-1n);
+  let g = gcd(eVal, phi);
+  document.getElementById('n-out').textContent = n;
+  document.getElementById('phi-out').textContent = phi;
+  document.getElementById('e-out').textContent = eVal;
+  document.getElementById('gcd-out').textContent = g;
+  document.getElementById('key-stats').style.display = 'flex';
+
+  if(g !== 1n) {
+    showResult('key-result','err',`gcd(${eVal}, ${phi}) = ${g} ≠ 1. Chọn e khác (thử e = 7, 11, 13, 17...)`);
+    return;
+  }
+  if(eVal >= phi) {
+    showResult('key-result','err','e phải nhỏ hơn φ(n).');
+    return;
+  }
+
+  let d = modinv(eVal, phi);
+  rsaN = n; rsaPhi = phi; rsaE = eVal; rsaD = d;
+  document.getElementById('d-out').textContent = d;
+  showResult('key-result','good',
+    `✓ Public key: (n=${n}, e=${eVal}) | Private key: d=${d}<br>Kiểm tra: e×d = ${eVal}×${d} = ${eVal*d} = ${(eVal*d-1n)/phi}×φ(n)+1 ✓`
+  );
+
+  // Extended Euclidean table
+  let {steps} = extGcd(eVal, phi);
+  let html = `<table><tr><th>Bước</th><th>a</th><th>b</th><th>q = a÷b</th><th>r = a mod b</th><th>s</th><th>t (= d ứng viên)</th></tr>`;
+  let i=0;
+  // simulate properly: gcd(phi, e)
+  let {steps:steps2, gcd:g2, x:x2, y:y2} = extGcd(phi, eVal);
+  steps2.forEach((st, idx) => {
+    let cls = (st.r === 1n) ? ' class="highlight"' : '';
+    if(st.q !== null)
+      html += `<tr${cls}><td>${idx+1}</td><td>${idx===0?phi:steps2[idx-1]?.r??'—'}</td><td>${eVal}</td><td>${st.q}</td><td>${steps2[idx+1]?.r??0n}</td><td>${st.s}</td><td>${st.t}</td></tr>`;
+  });
+  html += `<tr class="highlight"><td colspan="6">Nghịch đảo mod: −y2 = ${-y2} ≡ <strong>${((-y2)%phi+phi)%phi}</strong> (mod ${phi})</td></tr>`;
+  html += '</table>';
+  document.getElementById('euclid-table').innerHTML = html;
+}
+
+function showResult(id, type, html) {
+  let cls = type==='good'?'good-box':type==='warn'?'warn-box':'err-box';
+  document.getElementById(id).innerHTML = `<div class="${cls}">${html}</div>`;
+}
+
+function doEncryptDecrypt() {
+  if(rsaN === 0n) { alert('Tính keygen trước!'); return; }
+  let m = BigInt(document.getElementById('msg-input').value || 9);
+  if(m <= 0n || m >= rsaN) {
+    showResult('enc-dec-result','err',`m phải trong khoảng 1 ≤ m < n=${rsaN}`);
+    return;
+  }
+  let c = modpow(m, rsaE, rsaN);
+  let m2 = modpow(c, rsaD, rsaN);
+  let ok = m2 === m;
+  document.getElementById('enc-dec-result').innerHTML = `
+    <div class="${ok?'good-box':'err-box'}">
+      <strong>Encrypt:</strong> c = ${m}^${rsaE} mod ${rsaN} = <strong>${c}</strong><br>
+      <strong>Decrypt:</strong> m = ${c}^${rsaD} mod ${rsaN} = <strong>${m2}</strong><br>
+      ${ok ? '✓ Khớp với bản rõ ban đầu!' : '✗ KHÔNG khớp — kiểm tra lại keygen!'}
+    </div>`;
+  // show fast exp steps for encryption
+  showFastExpSteps('fastexp-table', m, rsaE, rsaN, `Mã hóa: ${m}^${rsaE} mod ${rsaN}`);
+}
+
+function runFastExp() {
+  let base = BigInt(document.getElementById('fe-base').value||2);
+  let exp  = BigInt(document.getElementById('fe-exp').value||10);
+  let mod  = BigInt(document.getElementById('fe-mod').value||143);
+  let res = modpow(base, exp, mod);
+  document.getElementById('fe-result').innerHTML = `<div class="good-box"><strong>${base}^${exp} mod ${mod} = ${res}</strong></div>`;
+  showFastExpSteps('fe-steps', base, exp, mod, `${base}^${exp} mod ${mod}`);
+}
+
+function showFastExpSteps(targetId, base, exp, mod, title) {
+  let bits = exp.toString(2);
+  let html = `<p style="font-size:13px;color:#4a5568;"><strong>${title}</strong> — nhị phân exp = ${bits}</p>`;
+  html += `<table><tr><th>Bit</th><th>Bình phương current</th><th>Nhân (nếu bit=1)</th><th>Result</th></tr>`;
+  let curr = base % mod;
+  let result = 1n;
+  for(let i = bits.length-1; i >= 0; i--) {
+    let bit = bits[bits.length-1-i];
+    let sq = curr;
+    let mult = bit==='1' ? `×${curr} = ${result*curr%mod}` : '(skip)';
+    if(bit==='1') result = result * curr % mod;
+    let nextSq = curr*curr%mod;
+    html += `<tr class="${bit==='1'?'highlight':''}"><td>${bit}</td><td>${curr}² mod ${mod} = ${nextSq}</td><td>${mult}</td><td>${result}</td></tr>`;
+    if(i > 0) curr = nextSq;
+  }
+  html += `</table>`;
+  document.getElementById(targetId).innerHTML = html;
+}
+
+function smallExpAttack() {
+  let e = 3n;
+  let m = BigInt(document.getElementById('sa-m').value || 42);
+  let n = BigInt(document.getElementById('sa-n').value || 1234567);
+  let c = modpow(m, e, n);
+  let mCube = m*m*m;
+  let noMod = mCube < n;
+  let recovered = noMod ? cbrt_int(c) : null;
+  let html = `
+    <div class="${noMod?'err-box':'good-box'}">
+      <strong>m³ = ${m}³ = ${mCube}</strong> | n = ${n}<br>
+      ${noMod ? `m³ < n → <strong>c = ${c} = m³ thật sự (không mod!)</strong>` : `m³ ≥ n → có phép mod, attack thất bại (m đủ lớn).`}
+      ${noMod && recovered ? `<br>∛c = ∛${c} = <strong>${recovered}</strong> ← recover thành công!` : ''}
+      ${!noMod ? '<br>Thử m nhỏ hơn để thấy attack thành công.' : ''}
+    </div>`;
+  document.getElementById('sa-result').innerHTML = html;
+}
+
+function commonModAttack() {
+  let n = BigInt(document.getElementById('cm-n').value || 143);
+  let e1 = BigInt(document.getElementById('cm-e1').value || 7);
+  let e2 = BigInt(document.getElementById('cm-e2').value || 11);
+  let m = BigInt(document.getElementById('cm-m').value || 9);
+  if(m >= n) { document.getElementById('cm-result').innerHTML='<div class="err-box">m phải < n</div>'; return; }
+  let g = gcd(e1, e2);
+  let c1 = modpow(m, e1, n);
+  let c2 = modpow(m, e2, n);
+  if(g !== 1n) {
+    document.getElementById('cm-result').innerHTML=`<div class="warn-box">gcd(e₁,e₂) = ${g} ≠ 1 → attack không hoạt động trực tiếp. Chọn e₁, e₂ coprime (e.g. 7 và 11).</div>`;
+    return;
+  }
+  // Find a,b: a*e1 + b*e2 = 1
+  let {x:a, y:b} = extGcd(e1, e2);
+  // m = c1^a * c2^b mod n (handle negative exponents)
+  let mRecovered;
+  if(a >= 0n && b >= 0n) {
+    mRecovered = modpow(c1,a,n) * modpow(c2,b,n) % n;
+  } else if(a < 0n) {
+    let c1inv = modinv(c1, n);
+    if(!c1inv) { document.getElementById('cm-result').innerHTML='<div class="err-box">c1 không invertible mod n — chọn m khác.</div>'; return; }
+    mRecovered = modpow(c1inv,-a,n) * modpow(c2,b,n) % n;
+  } else {
+    let c2inv = modinv(c2, n);
+    if(!c2inv) { document.getElementById('cm-result').innerHTML='<div class="err-box">c2 không invertible mod n.</div>'; return; }
+    mRecovered = modpow(c1,a,n) * modpow(c2inv,-b,n) % n;
+  }
+  document.getElementById('cm-result').innerHTML = `
+    <div class="${mRecovered===m?'good-box':'err-box'}">
+      c₁ = ${m}^${e1} mod ${n} = <strong>${c1}</strong><br>
+      c₂ = ${m}^${e2} mod ${n} = <strong>${c2}</strong><br>
+      Tìm a,b: ${a}×${e1} + ${b}×${e2} = 1<br>
+      m_recovered = c₁^${a} · c₂^${b} mod ${n} = <strong>${mRecovered}</strong><br>
+      ${mRecovered===m?'✓ Tấn công thành công! m = '+mRecovered:'✗ Thất bại — kiểm tra lại tham số.'}
+    </div>`;
+}
+
+// ============ Init ============
+buildPrimeLists();
+computeRSA();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

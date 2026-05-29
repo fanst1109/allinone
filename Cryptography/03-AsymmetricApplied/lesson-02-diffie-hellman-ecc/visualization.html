@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L02: Diffie-Hellman & ECC — Cryptography T3</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root { --bg: #f5f6f8; --accent: #334155; --accent-soft: #f1f5f9; --accent-hover: #1e293b; }
+  h1 { color: #1e293b; margin-bottom: 4px; }
+  .subtitle { color: #64748b; margin-bottom: 28px; font-size: 15px; }
+  h2 { color: #1e293b; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+  .module { background: #fff; border-radius: 10px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 28px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin: 14px 0; padding: 16px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+  label { font-size: 13px; font-weight: 600; color: #4a5568; }
+  input[type="number"] { width: 80px; padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 14px; font-family: monospace; }
+  .info-box { background: #f1f5f9; border-left: 4px solid #334155; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; line-height: 1.6; }
+  .good-box { background: #f0fdf4; border-left: 4px solid #22c55e; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 10px 0; font-size: 14px; }
+  .warn-box { background: #fef9c3; border-left: 4px solid #eab308; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 10px 0; font-size: 14px; }
+  .err-box { background: #fef2f2; border-left: 4px solid #ef4444; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 10px 0; font-size: 14px; }
+  button { padding: 9px 18px; background: #334155; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  button:hover { background: #1e293b; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 10px; }
+  th { background: #334155; color: white; padding: 8px 12px; text-align: left; }
+  td { padding: 7px 12px; border-bottom: 1px solid #e2e8f0; font-family: monospace; }
+  tr:nth-child(even) td { background: #f8fafc; }
+  tr.highlight td { background: #fef9c3; font-weight: 700; }
+  .dh-diagram { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; margin: 20px 0; align-items: start; }
+  .dh-party { background: #f1f5f9; border-radius: 10px; padding: 18px; border: 2px solid #cbd5e0; }
+  .dh-party.alice { border-color: #60a5fa; background: #eff6ff; }
+  .dh-party.bob { border-color: #34d399; background: #f0fdf4; }
+  .dh-party.eve { border-color: #f87171; background: #fef2f2; }
+  .dh-party h3 { margin: 0 0 10px; font-size: 15px; }
+  .dh-arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding-top: 40px; }
+  .dh-arrow .arrow-line { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #4a5568; }
+  .pub-val { font-family: monospace; background: #e0f2fe; border-radius: 4px; padding: 2px 8px; font-weight: 700; color: #0369a1; }
+  .priv-val { font-family: monospace; background: #fce7f3; border-radius: 4px; padding: 2px 8px; font-weight: 700; color: #9d174d; }
+  .shared-val { font-family: monospace; background: #dcfce7; border-radius: 4px; padding: 2px 8px; font-weight: 700; color: #166534; }
+  .ecc-canvas-wrap { overflow-x: auto; }
+  canvas { border-radius: 8px; border: 1px solid #e2e8f0; max-width: 100%; height: auto; }
+  .comparison-table td:first-child { font-weight: 700; }
+  .compare-chip { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 700; }
+  .chip-good { background: #dcfce7; color: #166534; }
+  .chip-warn { background: #fef9c3; color: #92400e; }
+  .chip-bad  { background: #fee2e2; color: #991b1b; }
+  @media (max-width: 700px) { .dh-diagram { grid-template-columns: 1fr; } .dh-arrow { flex-direction: row; padding-top: 0; } }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-rsa/visualization.html">← L01: RSA</a>
+  <span class="sep">·</span>
+  <span class="current">L02: DH & ECC</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-digital-signatures-pki/visualization.html">L03: Digital Signatures →</a>
+</nav>
+<main>
+  <h1>Lesson 02: Diffie-Hellman &amp; ECC</h1>
+  <p class="subtitle">Key Exchange · Discrete Log Problem · Elliptic Curve Point Addition · Curve25519</p>
+
+  <!-- Module 1: DH Calculator -->
+  <section class="module">
+    <h2>1. Diffie-Hellman Calculator</h2>
+    <div class="info-box">Nhập các tham số DH. Hệ thống mô phỏng toàn bộ quá trình trao đổi và highlight những gì Eve thấy được.</div>
+
+    <div class="controls">
+      <div class="ctrl-group"><label>Prime p:</label><input type="number" id="dh-p" value="23" min="5" max="9999"></div>
+      <div class="ctrl-group"><label>Generator g:</label><input type="number" id="dh-g" value="5" min="2" max="99"></div>
+      <div class="ctrl-group"><label>Alice secret a:</label><input type="number" id="dh-a" value="6" min="1" max="99"></div>
+      <div class="ctrl-group"><label>Bob secret b:</label><input type="number" id="dh-b" value="15" min="1" max="99"></div>
+      <button onclick="runDH()">Tính DH</button>
+    </div>
+
+    <div id="dh-diagram-out"></div>
+    <div id="dh-result" style="margin-top:14px;"></div>
+    <div id="dh-table" style="margin-top:14px;overflow-x:auto;"></div>
+  </section>
+
+  <!-- Module 2: MITM Attack -->
+  <section class="module">
+    <h2>2. MITM Attack trên DH</h2>
+    <div class="warn-box">DH không xác thực — Mallory can intercept! Ấn nút để xem demo tấn công man-in-the-middle.</div>
+    <div class="controls">
+      <div class="ctrl-group"><label>Mallory secret m:</label><input type="number" id="mitm-m" value="7" min="1" max="99"></div>
+      <button onclick="runMITM()">Demo MITM</button>
+    </div>
+    <div id="mitm-result"></div>
+  </section>
+
+  <!-- Module 3: ECC Point Operations -->
+  <section class="module">
+    <h2>3. ECC Point Addition trên F_p</h2>
+    <div class="info-box">Tính cộng hai điểm trên đường cong y²=x³+ax+b mod p. Xem từng bước modular arithmetic.</div>
+    <div class="controls">
+      <div class="ctrl-group"><label>a (curve):</label><input type="number" id="ecc-a" value="2" min="-20" max="20"></div>
+      <div class="ctrl-group"><label>b (curve):</label><input type="number" id="ecc-b" value="3" min="-20" max="20"></div>
+      <div class="ctrl-group"><label>p (prime):</label><input type="number" id="ecc-p" value="17" min="5" max="9999"></div>
+      <div class="ctrl-group"><label>P_x, P_y:</label><input type="number" id="px" value="3" min="0"> <input type="number" id="py" value="6" min="0"></div>
+      <div class="ctrl-group"><label>Q_x, Q_y:</label><input type="number" id="qx" value="3" min="0"> <input type="number" id="qy" value="6" min="0"></div>
+      <button onclick="eccAdd()">P + Q</button>
+      <button onclick="eccDouble()">2P (doubling)</button>
+    </div>
+    <div id="ecc-steps"></div>
+    <div style="margin-top:20px;">
+      <h3>Vẽ đường cong (trực giác thực số)</h3>
+      <div class="ecc-canvas-wrap">
+        <canvas id="ecc-canvas" width="500" height="300" viewBox="0 0 500 300"></canvas>
+      </div>
+      <div style="font-size:12px;color:#718096;margin-top:4px;">Đường cong y²=x³+ax+b trên ℝ (minh họa trực giác — không phải trên F_p)</div>
+    </div>
+  </section>
+
+  <!-- Module 4: ECC Scalar Multiplication -->
+  <section class="module">
+    <h2>4. ECC Scalar Multiplication (k·P)</h2>
+    <div class="info-box">Tính k·P bằng double-and-add. Nhập k và điểm base P (dùng cùng đường cong từ module 3).</div>
+    <div class="controls">
+      <div class="ctrl-group"><label>k:</label><input type="number" id="scalar-k" value="5" min="1" max="99"></div>
+      <div class="ctrl-group"><label>P_x:</label><input type="number" id="scalar-px" value="3" min="0"></div>
+      <div class="ctrl-group"><label>P_y:</label><input type="number" id="scalar-py" value="6" min="0"></div>
+      <button onclick="eccScalar()">Tính k·P</button>
+    </div>
+    <div id="scalar-steps" style="overflow-x:auto;"></div>
+  </section>
+
+  <!-- Module 5: Key Size Comparison -->
+  <section class="module">
+    <h2>5. So sánh kích thước khóa: ECC vs RSA vs DH</h2>
+    <table class="comparison-table">
+      <tr><th>Bảo mật (bit)</th><th>RSA (bit)</th><th>DH mod p (bit)</th><th>ECC (bit)</th><th>Ưu thế ECC</th></tr>
+      <tr><td>80</td><td>1024</td><td>1024</td><td>160</td><td><span class="compare-chip chip-good">6.4×</span></td></tr>
+      <tr><td>112</td><td>2048</td><td>2048</td><td>224</td><td><span class="compare-chip chip-good">9.1×</span></td></tr>
+      <tr><td>128</td><td>3072</td><td>3072</td><td>256</td><td><span class="compare-chip chip-good">12×</span></td></tr>
+      <tr><td>192</td><td>7680</td><td>7680</td><td>384</td><td><span class="compare-chip chip-good">20×</span></td></tr>
+      <tr><td>256</td><td>15360</td><td>15360</td><td>512</td><td><span class="compare-chip chip-good">30×</span></td></tr>
+    </table>
+    <div class="warn-box" style="margin-top:16px;">
+      <strong>Post-quantum note</strong>: Cả RSA, DH, và ECC đều bị phá bởi thuật toán Shor trên máy tính lượng tử. NIST PQC (Kyber, Dilithium) không dùng factoring/DLP/ECDLP. Xem T3-L04.
+    </div>
+  </section>
+
+</main>
+
+<script>
+function modpow(base, exp, mod) {
+  if(mod === 1n) return 0n;
+  let result = 1n;
+  base = ((base % mod) + mod) % mod;
+  while(exp > 0n) {
+    if(exp % 2n === 1n) result = result * base % mod;
+    exp /= 2n;
+    base = base * base % mod;
+  }
+  return result;
+}
+function extGcd(a, b) {
+  if(b === 0n) return {g:a, x:1n, y:0n};
+  let {g, x, y} = extGcd(b, a % b);
+  return {g, x:y, y: x - (a/b)*y};
+}
+function modinv(a, m) {
+  a = ((a % m) + m) % m;
+  let {g, x} = extGcd(a, m);
+  if(g !== 1n) return null;
+  return ((x % m) + m) % m;
+}
+
+// ---- DH ----
+function runDH() {
+  let p = BigInt(document.getElementById('dh-p').value||23);
+  let g = BigInt(document.getElementById('dh-g').value||5);
+  let a = BigInt(document.getElementById('dh-a').value||6);
+  let b = BigInt(document.getElementById('dh-b').value||15);
+  let A = modpow(g, a, p);
+  let B = modpow(g, b, p);
+  let Ka = modpow(B, a, p);
+  let Kb = modpow(A, b, p);
+  let ok = Ka === Kb;
+
+  document.getElementById('dh-diagram-out').innerHTML = `
+  <div class="dh-diagram">
+    <div class="dh-party alice">
+      <h3>🔵 Alice</h3>
+      Bí mật: <span class="priv-val">a = ${a}</span><br><br>
+      Tính: <code>A = g^a mod p</code><br>
+      = ${g}^${a} mod ${p} = <span class="pub-val">${A}</span><br><br>
+      Nhận B = <span class="pub-val">${B}</span><br>
+      K = B^a mod p = ${B}^${a} mod ${p} = <span class="shared-val">${Ka}</span>
+    </div>
+    <div class="dh-arrow">
+      <div class="arrow-line">→ <span class="pub-val">A=${A}</span> →</div>
+      <div style="font-size:11px;color:#94a3b8;text-align:center;">Public params:<br>p=${p}, g=${g}</div>
+      <div class="arrow-line">← <span class="pub-val">B=${B}</span> ←</div>
+    </div>
+    <div class="dh-party bob">
+      <h3>🟢 Bob</h3>
+      Bí mật: <span class="priv-val">b = ${b}</span><br><br>
+      Tính: <code>B = g^b mod p</code><br>
+      = ${g}^${b} mod ${p} = <span class="pub-val">${B}</span><br><br>
+      Nhận A = <span class="pub-val">${A}</span><br>
+      K = A^b mod p = ${A}^${b} mod ${p} = <span class="shared-val">${Kb}</span>
+    </div>
+  </div>`;
+
+  document.getElementById('dh-result').innerHTML = ok
+    ? `<div class="good-box">✓ Shared secret: K = g^(ab) mod p = ${g}^(${a}×${b}) mod ${p} = <strong>${Ka}</strong>.<br>Eve thấy: g=${g}, p=${p}, A=${A}, B=${B}. Phải giải DLP để tìm a hoặc b.</div>`
+    : `<div class="err-box">Hai bên ra kết quả khác nhau (Ka=${Ka}, Kb=${Kb}). Kiểm tra lại tham số.</div>`;
+
+  // Show computation table
+  let html = `<table><tr><th></th><th>Tính</th><th>Kết quả</th><th>Ghi chú</th></tr>
+    <tr><td>A = g^a mod p</td><td>${g}^${a} mod ${p}</td><td class="pub-val">${A}</td><td>Alice gửi công khai</td></tr>
+    <tr><td>B = g^b mod p</td><td>${g}^${b} mod ${p}</td><td class="pub-val">${B}</td><td>Bob gửi công khai</td></tr>
+    <tr><td>K (Alice)</td><td>${B}^${a} mod ${p}</td><td class="shared-val">${Ka}</td><td>= g^(ab) mod p</td></tr>
+    <tr><td>K (Bob)</td><td>${A}^${b} mod ${p}</td><td class="shared-val">${Kb}</td><td>= g^(ab) mod p</td></tr>
+  </table>`;
+  document.getElementById('dh-table').innerHTML = html;
+}
+
+function runMITM() {
+  let p = BigInt(document.getElementById('dh-p').value||23);
+  let g = BigInt(document.getElementById('dh-g').value||5);
+  let a = BigInt(document.getElementById('dh-a').value||6);
+  let b = BigInt(document.getElementById('dh-b').value||15);
+  let m = BigInt(document.getElementById('mitm-m').value||7);
+  let A = modpow(g, a, p);
+  let B = modpow(g, b, p);
+  let M = modpow(g, m, p);
+  let K_am = modpow(A, m, p); // Alice thinks shared with Bob
+  let K_mb = modpow(B, m, p); // Bob thinks shared with Alice
+  document.getElementById('mitm-result').innerHTML = `
+    <div class="err-box">
+      <strong>⚠ MITM Attack</strong><br><br>
+      Mallory chặn và thay thế:<br>
+      - Alice gửi <span class="pub-val">A=${A}</span> → Mallory chặn, gửi Bob <span class="pub-val">M=${M}</span> (g^m)<br>
+      - Bob gửi <span class="pub-val">B=${B}</span> → Mallory chặn, gửi Alice <span class="pub-val">M=${M}</span><br><br>
+      <strong>Kết quả:</strong><br>
+      - Alice & Mallory share: K1 = A^m mod p = ${A}^${m} mod ${p} = <span class="shared-val">${K_am}</span><br>
+      - Bob & Mallory share: K2 = B^m mod p = ${B}^${m} mod ${p} = <span class="shared-val">${K_mb}</span><br><br>
+      Alice và Bob tin rằng họ đang nói chuyện với nhau. Mallory decrypt rồi re-encrypt mọi message.<br>
+      <strong>Fix</strong>: Signed DH — server ký public value bằng certificate (TLS 1.3).
+    </div>`;
+}
+
+// ---- ECC ----
+function eccMod(x, p) { return ((x % p) + p) % p; }
+function eccAdd(p1, p2, a, p) {
+  // p1, p2: {x:BigInt, y:BigInt} or null (point at infinity)
+  if(!p1) return p2;
+  if(!p2) return p1;
+  if(p1.x === p2.x) {
+    if(p1.y !== p2.y || p1.y === 0n) return null; // point at infinity
+    // doubling
+    let num = (3n*p1.x*p1.x + a);
+    let den = 2n*p1.y;
+    let dinv = modinv(eccMod(den, p), p);
+    if(!dinv) return null;
+    let lam = eccMod(num * dinv, p);
+    let xr = eccMod(lam*lam - 2n*p1.x, p);
+    let yr = eccMod(lam*(p1.x - xr) - p1.y, p);
+    return {x:xr, y:yr};
+  }
+  let num = p2.y - p1.y;
+  let den = p2.x - p1.x;
+  let dinv = modinv(eccMod(den, p), p);
+  if(!dinv) return null;
+  let lam = eccMod(num * dinv, p);
+  let xr = eccMod(lam*lam - p1.x - p2.x, p);
+  let yr = eccMod(lam*(p1.x - xr) - p1.y, p);
+  return {x:xr, y:yr};
+}
+
+function eccAddWithSteps(p1, p2, a, p) {
+  let steps = [];
+  if(!p1) return {result:p2, steps:['P1 = O (vô cực) → kết quả là P2']};
+  if(!p2) return {result:p1, steps:['P2 = O (vô cực) → kết quả là P1']};
+  let isDouble = (p1.x === p2.x && p1.y === p2.y);
+  if(p1.x === p2.x && p1.y !== p2.y) return {result:null, steps:['P và −P → kết quả là O (point at infinity)']};
+  let lam, xr, yr;
+  if(isDouble) {
+    let num = (3n*p1.x*p1.x + a);
+    let den = 2n*p1.y;
+    let dnorm = eccMod(den, p);
+    let dinv = modinv(dnorm, p);
+    steps.push(`λ = (3x² + a) / (2y) mod p`);
+    steps.push(`  = (3×${p1.x}² + ${a}) / (2×${p1.y}) mod ${p}`);
+    steps.push(`  = ${num} / ${den} mod ${p}`);
+    steps.push(`  Tính ${dnorm}⁻¹ mod ${p} = ${dinv}`);
+    lam = eccMod(num * (dinv??0n), p);
+    steps.push(`  λ = ${eccMod(num,p)} × ${dinv} mod ${p} = ${lam}`);
+  } else {
+    let num = p2.y - p1.y;
+    let den = p2.x - p1.x;
+    let dnorm = eccMod(den, p);
+    let dinv = modinv(dnorm, p);
+    steps.push(`λ = (y₂−y₁) / (x₂−x₁) mod p`);
+    steps.push(`  = (${p2.y}−${p1.y}) / (${p2.x}−${p1.x}) mod ${p}`);
+    steps.push(`  = ${num} / ${den} mod ${p}`);
+    steps.push(`  Tính ${dnorm}⁻¹ mod ${p} = ${dinv}`);
+    lam = eccMod(num * (dinv??0n), p);
+    steps.push(`  λ = ${eccMod(num,p)} × ${dinv} mod ${p} = ${lam}`);
+  }
+  if(isDouble) {
+    xr = eccMod(lam*lam - 2n*p1.x, p);
+    steps.push(`x_R = λ² − 2x_P mod p = ${lam}² − ${2n*p1.x} mod ${p} = ${lam*lam} − ${2n*p1.x} mod ${p} = ${xr}`);
+  } else {
+    xr = eccMod(lam*lam - p1.x - p2.x, p);
+    steps.push(`x_R = λ² − x_P − x_Q mod p = ${lam*lam} − ${p1.x} − ${p2.x} mod ${p} = ${xr}`);
+  }
+  yr = eccMod(lam*(p1.x - xr) - p1.y, p);
+  steps.push(`y_R = λ(x_P − x_R) − y_P mod p = ${lam}×(${p1.x}−${xr}) − ${p1.y} mod ${p} = ${yr}`);
+  // verify
+  let lhs = eccMod(yr*yr, p);
+  let rhs = eccMod(xr*xr*xr + a*xr + BigInt(document.getElementById('ecc-b').value||3), p);
+  steps.push(`Verify: y_R² = ${yr}² = ${yr*yr} mod ${p} = ${lhs}; x_R³+ax_R+b mod p = ${rhs}. ${lhs===rhs?'✓':'✗ (rounding — re-check inputs)'}`);
+  return {result:{x:xr, y:yr}, steps};
+}
+
+function renderECCSteps(steps, result) {
+  let html = steps.map(s => `<div class="step">${s}</div>`).join('');
+  if(result) html += `<div class="good-box">Kết quả: <strong>R = (${result.x}, ${result.y})</strong></div>`;
+  else html += `<div class="warn-box">Kết quả: O (điểm vô cực)</div>`;
+  document.getElementById('ecc-steps').innerHTML = html;
+}
+
+function getECCParams() {
+  return {
+    a: BigInt(document.getElementById('ecc-a').value||2),
+    b: BigInt(document.getElementById('ecc-b').value||3),
+    p: BigInt(document.getElementById('ecc-p').value||17)
+  };
+}
+
+function eccAdd_btn() {
+  let {a,b,p} = getECCParams();
+  let P = {x:BigInt(document.getElementById('px').value||3), y:BigInt(document.getElementById('py').value||6)};
+  let Q = {x:BigInt(document.getElementById('qx').value||3), y:BigInt(document.getElementById('qy').value||6)};
+  let {result, steps} = eccAddWithSteps(P, Q, a, p);
+  renderECCSteps(steps, result);
+  drawCurve();
+}
+function eccDouble() {
+  let {a,b,p} = getECCParams();
+  let P = {x:BigInt(document.getElementById('px').value||3), y:BigInt(document.getElementById('py').value||6)};
+  document.getElementById('qx').value = P.x;
+  document.getElementById('qy').value = P.y;
+  let {result, steps} = eccAddWithSteps(P, P, a, p);
+  renderECCSteps(['2P (Point Doubling):'].concat(steps), result);
+  drawCurve();
+}
+
+function eccScalar() {
+  let {a,b,p} = getECCParams();
+  let k = parseInt(document.getElementById('scalar-k').value||5);
+  let P = {x:BigInt(document.getElementById('scalar-px').value||3), y:BigInt(document.getElementById('scalar-py').value||6)};
+  let kBin = k.toString(2);
+  let html = `<p style="font-size:13px;color:#4a5568;">k=${k} = ${kBin} (nhị phân) — Double-and-Add:</p>`;
+  html += `<table><tr><th>Bit</th><th>Thao tác</th><th>Điểm hiện tại</th></tr>`;
+  let curr = null; // accumulator
+  let temp = {x:P.x, y:P.y}; // doubling register
+  for(let i = kBin.length-1; i >= 0; i--) {
+    let bit = kBin[kBin.length-1-i];
+    if(bit==='1') {
+      curr = eccAdd(curr, temp, a, p);
+      html += `<tr class="highlight"><td>${bit}</td><td>Add temp → R</td><td>${curr?`(${curr.x}, ${curr.y})`:'O'}</td></tr>`;
+    } else {
+      html += `<tr><td>${bit}</td><td>(skip add)</td><td>${curr?`(${curr.x}, ${curr.y})`:'O'}</td></tr>`;
+    }
+    if(i>0) temp = eccAdd(temp, temp, a, p);
+  }
+  html += '</table>';
+  if(curr) html += `<div class="good-box">k·P = ${k}·(${P.x},${P.y}) = <strong>(${curr.x}, ${curr.y})</strong></div>`;
+  document.getElementById('scalar-steps').innerHTML = html;
+}
+
+// ---- Canvas curve drawing ----
+function drawCurve() {
+  let a = parseFloat(document.getElementById('ecc-a').value||2);
+  let b = parseFloat(document.getElementById('ecc-b').value||3);
+  let canvas = document.getElementById('ecc-canvas');
+  let ctx = canvas.getContext('2d');
+  let W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(0,0,W,H);
+  // axes
+  let cx = W/2, cy = H/2;
+  let scale = 60;
+  ctx.strokeStyle = '#94a3b8';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(W,cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx,0); ctx.lineTo(cx,H); ctx.stroke();
+  // curve
+  ctx.strokeStyle = '#334155';
+  ctx.lineWidth = 2;
+  for(let sign of [1,-1]) {
+    ctx.beginPath();
+    let started = false;
+    for(let xi = -W/(2*scale); xi <= W/(2*scale); xi += 0.02) {
+      let y2 = xi*xi*xi + a*xi + b;
+      if(y2 < 0) { started=false; continue; }
+      let yi = sign * Math.sqrt(y2);
+      let sx = cx + xi*scale, sy = cy - yi*scale;
+      if(!started) { ctx.moveTo(sx,sy); started=true; } else ctx.lineTo(sx,sy);
+    }
+    ctx.stroke();
+  }
+  // label
+  ctx.fillStyle = '#334155';
+  ctx.font = '12px monospace';
+  ctx.fillText(`y² = x³ + ${a}x + ${b}`, 10, 20);
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '11px sans-serif';
+  ctx.fillText('(trên ℝ — minh họa trực giác)', 10, 36);
+}
+
+// init
+runDH();
+drawCurve();
+document.getElementById('ecc-a').addEventListener('change', drawCurve);
+document.getElementById('ecc-b').addEventListener('change', drawCurve);
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

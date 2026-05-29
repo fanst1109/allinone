@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 04 — Concurrency & Isolation</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  button.primary { background: #0f766e; color: #fff; border: 0; padding: 7px 14px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+  button.primary:hover { background: #115e59; }
+  button.primary:disabled { background: #94a3b8; cursor: default; }
+  button.ghost { background: #e2e8f0; color: #334155; border: 0; padding: 7px 14px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  /* Module 1: two-transaction sim */
+  .scenario-pick span { display:inline-block; padding:4px 12px; border-radius:6px; background:#e2e8f0; cursor:pointer; margin:0 6px 6px 0; font-size:13px; }
+  .scenario-pick span.active { background:#0f766e; color:#fff; }
+  .tx-cols { display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:12px; }
+  .tx { border:2px solid #e2e8f0; border-radius:8px; padding:10px; }
+  .tx.t1 { border-color:#3b82f6; }
+  .tx.t2 { border-color:#d97706; }
+  .tx h3 { margin:0 0 6px; font-size:14px; }
+  .tx .step { font-size:13px; padding:4px 6px; border-radius:4px; margin:3px 0; font-variant-numeric: tabular-nums; }
+  .tx .step.done { background:#dbeafe; }
+  .tx.t2 .step.done { background:#fde68a; }
+  .tx .step.next { outline:2px dashed #0f766e; }
+  .statebar { margin-top:12px; padding:10px; background:#f1f5f9; border-radius:6px; font-variant-numeric: tabular-nums; font-size:14px; }
+  .statebar b { color:#0f766e; }
+  .anomaly-box { margin-top:10px; padding:10px 12px; border-radius:6px; font-size:14px; min-height:20px; }
+  .anomaly-box.warn { background:#fee2e2; border-left:4px solid #dc2626; }
+  .anomaly-box.ok { background:#dcfce7; border-left:4px solid #16a34a; }
+  /* Module 2: isolation table */
+  table { border-collapse: collapse; width: 100%; margin-top: 8px; }
+  th, td { padding: 7px 10px; border-bottom: 1px solid #eee; font-size: 13px; text-align: center; }
+  th:first-child, td:first-child { text-align:left; }
+  th { background: #f0fdfa; }
+  tr.lvl { cursor:pointer; }
+  tr.lvl:hover td { background:#f0fdfa; }
+  tr.lvl.sel td { background:#ccfbf1; font-weight:600; }
+  td.blocked { color:#16a34a; font-weight:700; }
+  td.allowed { color:#dc2626; }
+  td.hl-block { background:#bbf7d0 !important; }
+  td.hl-allow { background:#fecaca !important; }
+  .iso-note { margin-top:10px; font-size:13px; color:#334155; }
+  /* Module 3: deadlock */
+  .dl-controls span { display:inline-block; padding:4px 12px; border-radius:6px; background:#e2e8f0; cursor:pointer; margin:0 6px 6px 0; font-size:13px; }
+  .dl-controls span.active { background:#0f766e; color:#fff; }
+  svg { display:block; max-width:100%; height:auto; margin:8px auto; }
+  .dl-verdict { margin-top:8px; padding:10px 12px; border-radius:6px; font-size:14px; }
+  .dl-verdict.dead { background:#fee2e2; border-left:4px solid #dc2626; }
+  .dl-verdict.safe { background:#dcfce7; border-left:4px solid #16a34a; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-transaction-acid/visualization.html">← L3: Transaction & ACID</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Concurrency & Isolation</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-query-execution/visualization.html">L5: Query Execution →</a>
+</nav>
+<main>
+<h1>Concurrency & Isolation</h1>
+<p class="note">Ba mô-đun: (1) bấm từng bước hai transaction song song để thấy anomaly, (2) bảng isolation level × anomaly, (3) đồ thị wait-for phát hiện deadlock.</p>
+
+<div class="panel">
+  <h2>1 · Mô phỏng hai transaction song song</h2>
+  <p class="note">Chọn một kịch bản, rồi bấm <b>▶ Bước tiếp</b> để chạy lần lượt từng thao tác theo lịch trình đan xen. Theo dõi giá trị và anomaly phát sinh.</p>
+  <div class="scenario-pick" id="scenarioPick"></div>
+  <div>
+    <button class="primary" id="btnStep" onclick="stepSim()">▶ Bước tiếp</button>
+    <button class="ghost" onclick="resetSim()">↺ Đặt lại</button>
+  </div>
+  <div class="tx-cols">
+    <div class="tx t1"><h3>T1</h3><div id="t1steps"></div></div>
+    <div class="tx t2"><h3>T2</h3><div id="t2steps"></div></div>
+  </div>
+  <div class="statebar" id="statebar"></div>
+  <div class="anomaly-box" id="anomalyBox">Bấm "Bước tiếp" để bắt đầu.</div>
+</div>
+
+<div class="panel">
+  <h2>2 · Isolation level × Anomaly</h2>
+  <p class="note">Bấm vào một dòng mức cô lập để highlight: cột nào được <b style="color:#16a34a">ngăn</b> (xanh), cột nào vẫn <b style="color:#dc2626">có thể xảy ra</b> (đỏ).</p>
+  <table id="isoTable">
+    <thead>
+      <tr><th>Isolation level</th><th>Dirty read</th><th>Non-repeatable read</th><th>Phantom read</th></tr>
+    </thead>
+    <tbody id="isoBody"></tbody>
+  </table>
+  <div class="iso-note" id="isoNote">← Chọn một mức cô lập để xem nó ngăn được gì. Cô lập càng cao = đúng hơn nhưng chậm / ít song song hơn.</div>
+</div>
+
+<div class="panel">
+  <h2>3 · Deadlock — đồ thị wait-for</h2>
+  <p class="note">Chọn thứ tự khóa của hai transaction. Đồ thị "ai chờ ai" có chu trình ⇒ deadlock.</p>
+  <div class="dl-controls" id="dlControls"></div>
+  <svg width="460" height="200" viewBox="0 0 460 200" id="dlSvg"></svg>
+  <div class="dl-verdict" id="dlVerdict"></div>
+</div>
+
+<script>
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+
+// ===== Module 1: two-transaction simulation =====
+// Mỗi kịch bản: danh sách bước theo thứ tự thời gian. Mỗi bước {tx, label, act}
+// act(state) cập nhật state & trả về {note, anomaly?}
+const SCENARIOS = {
+  dirty: {
+    name: 'Dirty read',
+    init: () => ({ balance: 100, t1Uncommitted: null, t2saw: null }),
+    t1: ['UPDATE balance=200 (chưa commit)', 'ROLLBACK → balance về 100'],
+    t2: ['SELECT balance', 'dùng giá trị đã đọc'],
+    order: [ {tx:1,i:0}, {tx:2,i:0}, {tx:1,i:1}, {tx:2,i:1} ],
+    run(state, step){
+      if(step.tx===1 && step.i===0){ state.t1Uncommitted = 200; return {note:'T1 ghi balance=200 nhưng CHƯA commit (committed vẫn =100).'}; }
+      if(step.tx===2 && step.i===0){ state.t2saw = state.t1Uncommitted; return {note:`T2 đọc thấy <b>${state.t2saw}</b> — đây là dữ liệu T1 chưa commit (đọc bẩn).`}; }
+      if(step.tx===1 && step.i===1){ state.t1Uncommitted=null; return {note:'T1 ROLLBACK → balance committed = 100. Giá trị 200 chưa từng tồn tại thật.'}; }
+      if(step.tx===2 && step.i===1){ return {anomaly:'DIRTY READ', note:`T2 đã dùng <b>200</b> để quyết định, nhưng thực tế balance chỉ là <b>100</b>. Giá trị "ma" do đọc dữ liệu chưa commit rồi bị rollback.`}; }
+    }
+  },
+  nonrepeat: {
+    name: 'Non-repeatable read',
+    init: () => ({ price: 100, t2read1: null, t2read2: null }),
+    t1: ['UPDATE price=150', 'COMMIT'],
+    t2: ['SELECT price (lần 1)', 'SELECT price (lần 2)'],
+    order: [ {tx:2,i:0}, {tx:1,i:0}, {tx:1,i:1}, {tx:2,i:1} ],
+    run(state, step){
+      if(step.tx===2 && step.i===0){ state.t2read1 = state.price; return {note:`T2 đọc price lần 1 = <b>${state.t2read1}</b>.`}; }
+      if(step.tx===1 && step.i===0){ state.price = 150; return {note:'T1 ghi price=150 (chưa commit).'}; }
+      if(step.tx===1 && step.i===1){ return {note:'T1 COMMIT → price=150 là thật.'}; }
+      if(step.tx===2 && step.i===1){ state.t2read2 = state.price; return {anomaly:'NON-REPEATABLE READ', note:`T2 đọc price lần 2 = <b>${state.t2read2}</b>. Cùng một dòng, cùng transaction, hai lần đọc ra <b>${state.t2read1} ≠ ${state.t2read2}</b>.`}; }
+    }
+  },
+  lost: {
+    name: 'Lost update',
+    init: () => ({ stock: 10, t1read: null, t2read: null }),
+    t1: ['read stock', 'write stock−4'],
+    t2: ['read stock', 'write stock−3'],
+    order: [ {tx:1,i:0}, {tx:2,i:0}, {tx:1,i:1}, {tx:2,i:1} ],
+    run(state, step){
+      if(step.tx===1 && step.i===0){ state.t1read = state.stock; return {note:`T1 đọc stock = <b>${state.t1read}</b> (định bán 4).`}; }
+      if(step.tx===2 && step.i===0){ state.t2read = state.stock; return {note:`T2 đọc stock = <b>${state.t2read}</b> (định bán 3).`}; }
+      if(step.tx===1 && step.i===1){ state.stock = state.t1read - 4; return {note:`T1 ghi stock = ${state.t1read}−4 = <b>${state.stock}</b>.`}; }
+      if(step.tx===2 && step.i===1){ state.stock = state.t2read - 3; return {anomaly:'LOST UPDATE', note:`T2 ghi stock = ${state.t2read}−3 = <b>${state.stock}</b>, ĐÈ lên kết quả của T1. Bán tổng 7 nhưng stock chỉ giảm 3. Đúng phải là 10−4−3 = <b>3</b>.`}; }
+    }
+  }
+};
+
+let curScenario = 'dirty';
+let simState, simStep;
+
+function buildScenarioPick(){
+  document.getElementById('scenarioPick').innerHTML = Object.keys(SCENARIOS).map(k=>
+    `<span class="${k===curScenario?'active':''}" onclick="pickScenario('${k}')">${SCENARIOS[k].name}</span>`).join('');
+}
+function pickScenario(k){ curScenario = k; resetSim(); buildScenarioPick(); }
+
+function resetSim(){
+  const sc = SCENARIOS[curScenario];
+  simState = sc.init();
+  simStep = 0;
+  document.getElementById('btnStep').disabled = false;
+  renderSim();
+  document.getElementById('anomalyBox').className = 'anomaly-box';
+  document.getElementById('anomalyBox').innerHTML = 'Bấm "Bước tiếp" để bắt đầu.';
+}
+
+function renderSim(highlightStep){
+  const sc = SCENARIOS[curScenario];
+  const nextStep = simStep < sc.order.length ? sc.order[simStep] : null;
+  function renderCol(txNum, labels){
+    return labels.map((lab,i)=>{
+      // số bước đã done của tx này
+      let done = sc.order.slice(0, simStep).some(s=>s.tx===txNum && s.i===i);
+      let isNext = nextStep && nextStep.tx===txNum && nextStep.i===i;
+      return `<div class="step ${done?'done':''} ${isNext?'next':''}">t${i+1}: ${lab}</div>`;
+    }).join('');
+  }
+  document.getElementById('t1steps').innerHTML = renderCol(1, sc.t1);
+  document.getElementById('t2steps').innerHTML = renderCol(2, sc.t2);
+  // statebar
+  let sb = '';
+  if(curScenario==='dirty') sb = `balance (committed) = <b>${simState.t1Uncommitted!=null?'100 (đang có bản chưa commit='+simState.t1Uncommitted+')':'100'}</b>`;
+  else if(curScenario==='nonrepeat') sb = `price = <b>${simState.price}</b>`;
+  else if(curScenario==='lost') sb = `stock = <b>${simState.stock}</b>`;
+  document.getElementById('statebar').innerHTML = 'Trạng thái: ' + sb;
+}
+
+function stepSim(){
+  const sc = SCENARIOS[curScenario];
+  if(simStep >= sc.order.length) return;
+  const step = sc.order[simStep];
+  const res = sc.run(simState, step) || {};
+  simStep++;
+  renderSim();
+  const box = document.getElementById('anomalyBox');
+  if(res.anomaly){
+    box.className = 'anomaly-box warn';
+    box.innerHTML = `⚠ <b>${res.anomaly}</b> — ${res.note}`;
+  } else {
+    box.className = 'anomaly-box';
+    box.innerHTML = res.note || '';
+  }
+  if(simStep >= sc.order.length){
+    document.getElementById('btnStep').disabled = true;
+  }
+}
+
+buildScenarioPick();
+resetSim();
+
+// ===== Module 2: isolation table =====
+// b = blocked (ngăn), a = allowed (có thể xảy ra)
+const ISO = [
+  {name:'READ UNCOMMITTED', dirty:'a', nonrep:'a', phantom:'a', note:'Lỏng nhất — không ngăn gì. Chỉ dùng cho báo cáo ước lượng siêu nhanh, chấp nhận đọc bẩn.'},
+  {name:'READ COMMITTED', dirty:'b', nonrep:'a', phantom:'a', note:'Ngăn dirty read (chỉ đọc dữ liệu đã commit). Mặc định của PostgreSQL & Oracle — cân bằng tốt.'},
+  {name:'REPEATABLE READ', dirty:'b', nonrep:'b', phantom:'a', note:'Ngăn thêm non-repeatable read (cùng dòng đọc lại không đổi). Theo chuẩn vẫn có thể phantom; PostgreSQL/MySQL trên thực tế thường ngăn cả phantom.'},
+  {name:'SERIALIZABLE', dirty:'b', nonrep:'b', phantom:'b', note:'Chặt nhất — như chạy lần lượt. Đúng nhất nhưng đắt nhất (ít song song). Dùng cho chuyển tiền, kiểm kho chặt.'},
+];
+function cell(v){ return v==='b' ? '<td class="blocked">ngăn</td>' : '<td class="allowed">có thể</td>'; }
+function buildIso(){
+  document.getElementById('isoBody').innerHTML = ISO.map((r,i)=>
+    `<tr class="lvl" data-i="${i}" onclick="selIso(${i})"><td>${r.name}</td>${cell(r.dirty)}${cell(r.nonrep)}${cell(r.phantom)}</tr>`).join('');
+}
+function selIso(i){
+  const rows = document.querySelectorAll('#isoBody tr.lvl');
+  rows.forEach(tr=>{
+    tr.classList.toggle('sel', +tr.dataset.i===i);
+    const tds = tr.querySelectorAll('td');
+    for(let c=1;c<=3;c++) tds[c].classList.remove('hl-block','hl-allow');
+  });
+  const r = ISO[i];
+  const tds = rows[i].querySelectorAll('td');
+  [['dirty',1],['nonrep',2],['phantom',3]].forEach(([k,c])=>{
+    tds[c].classList.add(r[k]==='b' ? 'hl-block' : 'hl-allow');
+  });
+  document.getElementById('isoNote').innerHTML = `<b>${r.name}</b>: ${r.note}`;
+}
+buildIso();
+selIso(1);
+
+// ===== Module 3: deadlock wait-for graph =====
+// Hai kịch bản: cross (chéo → deadlock) | same (cùng thứ tự → an toàn)
+const DL = {
+  cross: { name:'Khóa chéo (T1: A→B, T2: B→A)', edges:[ {from:'T1',to:'T2',lab:'chờ B'}, {from:'T2',to:'T1',lab:'chờ A'} ] },
+  same:  { name:'Cùng thứ tự (cả hai: A→B)',    edges:[ {from:'T2',to:'T1',lab:'chờ A'} ] },
+};
+let curDL = 'cross';
+function buildDLControls(){
+  document.getElementById('dlControls').innerHTML = Object.keys(DL).map(k=>
+    `<span class="${k===curDL?'active':''}" onclick="pickDL('${k}')">${DL[k].name}</span>`).join('');
+}
+function pickDL(k){ curDL=k; buildDLControls(); drawDL(); }
+// phát hiện chu trình trong đồ thị có hướng
+function hasCycle(edges){
+  const adj = {}; edges.forEach(e=>{ (adj[e.from] ||= []).push(e.to); });
+  const WHITE=0,GRAY=1,BLACK=2; const color={};
+  const nodes = new Set(); edges.forEach(e=>{nodes.add(e.from);nodes.add(e.to);});
+  nodes.forEach(n=>color[n]=WHITE);
+  function dfs(u){
+    color[u]=GRAY;
+    for(const v of (adj[u]||[])){
+      if(color[v]===GRAY) return true;
+      if(color[v]===WHITE && dfs(v)) return true;
+    }
+    color[u]=BLACK; return false;
+  }
+  for(const n of nodes){ if(color[n]===WHITE && dfs(n)) return true; }
+  return false;
+}
+const POS = { T1:{x:110,y:100}, T2:{x:350,y:100} };
+function drawDL(){
+  const d = DL[curDL];
+  const cyc = hasCycle(d.edges);
+  let svg = `<defs><marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="${cyc?'#dc2626':'#0f766e'}"/></marker></defs>`;
+  // nodes
+  for(const n of ['T1','T2']){
+    const p = POS[n];
+    svg += `<circle cx="${p.x}" cy="${p.y}" r="34" fill="#fff" stroke="${cyc?'#dc2626':'#0f766e'}" stroke-width="3"/>`;
+    svg += `<text x="${p.x}" y="${p.y+6}" text-anchor="middle" font-size="20" font-weight="700" fill="#0f172a">${n}</text>`;
+  }
+  // edges (curved so two opposite edges don't overlap)
+  d.edges.forEach((e,idx)=>{
+    const a=POS[e.from], b=POS[e.to];
+    const dx=b.x-a.x, dy=b.y-a.y, len=Math.hypot(dx,dy);
+    const ux=dx/len, uy=dy/len;
+    // điểm bắt đầu/kết thúc lùi khỏi vòng tròn bán kính 38
+    const sx=a.x+ux*38, sy=a.y+uy*38, ex=b.x-ux*38, ey=b.y-uy*38;
+    // độ cong: nếu có 2 cạnh thì cong ngược chiều nhau
+    const bend = d.edges.length>1 ? (idx===0? -40 : 40) : -28;
+    const mx=(sx+ex)/2 + (-uy)*bend, my=(sy+ey)/2 + (ux)*bend;
+    const col = cyc?'#dc2626':'#0f766e';
+    svg += `<path d="M${sx},${sy} Q${mx},${my} ${ex},${ey}" fill="none" stroke="${col}" stroke-width="2.5" marker-end="url(#arr)"/>`;
+    svg += `<text x="${mx}" y="${my-6}" text-anchor="middle" font-size="12" fill="${col}" font-weight="600">${e.lab}</text>`;
+  });
+  document.getElementById('dlSvg').innerHTML = svg;
+  const v = document.getElementById('dlVerdict');
+  if(cyc){
+    v.className = 'dl-verdict dead';
+    v.innerHTML = '⚠ <b>CÓ chu trình → DEADLOCK.</b> T1 giữ A chờ B (T2 giữ), T2 giữ B chờ A (T1 giữ) — vòng tròn chờ vĩnh viễn. Cách phá: chọn một <b>victim</b> rollback (detection), hoặc <b>timeout</b> tự hủy & thử lại.';
+  } else {
+    v.className = 'dl-verdict safe';
+    v.innerHTML = '✓ <b>KHÔNG có chu trình → an toàn.</b> Vì cả hai khóa theo cùng thứ tự (A trước B), T2 chỉ chờ T1 nhả A rồi chạy tiếp. Đây là cách <b>phòng ngừa</b> deadlock: luôn khóa tài nguyên theo thứ tự cố định.';
+  }
+}
+buildDLControls();
+drawDL();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

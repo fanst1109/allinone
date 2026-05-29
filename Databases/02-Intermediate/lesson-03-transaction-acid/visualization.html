@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 03 — Transaction & ACID</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  button.primary { background: #0f766e; color: #fff; border: 0; padding: 7px 14px; border-radius: 5px; cursor: pointer; font-size: 14px; margin: 4px 6px 4px 0; }
+  button.primary:hover { background: #115e59; }
+  button.danger { background: #b91c1c; }
+  button.danger:hover { background: #991b1b; }
+  button.ghost { background: #e2e8f0; color: #334155; }
+  button.ghost:hover { background: #cbd5e1; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  /* Module 1: accounts */
+  .accounts { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 12px; }
+  .acct { flex: 1 1 160px; max-width: 240px; border: 2px solid #e2e8f0; border-radius: 10px; padding: 14px; text-align: center; transition: .2s; }
+  .acct.flash { border-color: #0f766e; background: #f0fdfa; }
+  .acct .lbl { font-size: 13px; color: #64748b; }
+  .acct .bal { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; color: #0f766e; margin-top: 4px; }
+  .total { margin-top: 12px; font-size: 15px; font-variant-numeric: tabular-nums; }
+  .total b { color: #0f766e; }
+  .total.bad b { color: #b91c1c; }
+  .tx-toggle { margin: 10px 0 4px; font-size: 14px; }
+  .log { margin-top: 12px; background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 10px 12px; font-family: ui-monospace, monospace; font-size: 12.5px; min-height: 60px; max-height: 200px; overflow-y: auto; white-space: pre-wrap; }
+  .log .ok { color: #6ee7b7; }
+  .log .err { color: #fca5a5; }
+  .log .info { color: #93c5fd; }
+  /* Module 3: ACID cards */
+  .acid-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+  .acid-card { flex: 1 1 90px; max-width: 140px; border: 2px solid #e2e8f0; border-radius: 10px; padding: 14px 8px; text-align: center; cursor: pointer; transition: .15s; }
+  .acid-card:hover { border-color: #0f766e; }
+  .acid-card.sel { border-color: #0f766e; background: #f0fdfa; }
+  .acid-card .ltr { font-size: 30px; font-weight: 800; color: #0f766e; }
+  .acid-card .nm { font-size: 12px; font-weight: 700; margin-top: 2px; }
+  .acid-detail { margin-top: 14px; padding: 14px; background: #f0fdfa; border-left: 4px solid #0f766e; border-radius: 4px; font-size: 14px; min-height: 50px; }
+  .acid-detail h3 { margin: 0 0 6px; font-size: 16px; }
+  /* SVG state diagram */
+  .state-node rect { fill: #f1f5f9; stroke: #94a3b8; stroke-width: 1.5; transition: .2s; }
+  .state-node text { font-size: 13px; fill: #1e293b; font-weight: 600; }
+  .state-node.active rect { fill: #0f766e; stroke: #0f766e; }
+  .state-node.active text { fill: #fff; }
+  .state-node.committed.active rect { fill: #16a34a; stroke: #16a34a; }
+  .state-node.aborted.active rect { fill: #b91c1c; stroke: #b91c1c; }
+  .edge { stroke: #94a3b8; stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+  .edge-lbl { font-size: 11px; fill: #64748b; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-index/visualization.html">← L2: Index</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Transaction & ACID</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-concurrency-isolation/visualization.html">L4: Concurrency →</a>
+</nav>
+<main>
+<h1>Transaction & ACID</h1>
+<p class="note">Ba mô-đun tương tác: (1) chuyển tiền A→B có vs không transaction, (2) sơ đồ trạng thái transaction, (3) bộ thẻ ACID.</p>
+
+<div class="panel">
+  <h2>1 · Chuyển tiền A → B — có vs không transaction</h2>
+  <p class="note">Chuyển <b>200.000đ</b> từ A sang B (trừ A, rồi cộng B). Bật/tắt transaction rồi thử "Lỗi giữa chừng" để thấy khác biệt.</p>
+  <div class="tx-toggle">
+    <label><input type="checkbox" id="useTx" checked onchange="resetAccounts()"> Bọc trong transaction (BEGIN ... COMMIT)</label>
+  </div>
+  <div class="accounts">
+    <div class="acct" id="acctA"><div class="lbl">Tài khoản A</div><div class="bal" id="balA">1.000.000đ</div></div>
+    <div class="acct" id="acctB"><div class="lbl">Tài khoản B</div><div class="bal" id="balB">500.000đ</div></div>
+  </div>
+  <div class="total" id="total">Tổng tiền: <b>1.500.000đ</b></div>
+  <div style="margin-top:12px">
+    <button class="primary" onclick="runTransfer(false)">▶ Chạy thành công</button>
+    <button class="primary danger" onclick="runTransfer(true)">💥 Lỗi giữa chừng (chỉ trừ A rồi crash)</button>
+    <button class="primary ghost" onclick="resetAccounts()">↺ Đặt lại</button>
+  </div>
+  <div class="log" id="log"></div>
+</div>
+
+<div class="panel">
+  <h2>2 · Vòng đời trạng thái transaction</h2>
+  <p class="note">Bước hiện tại được tô đậm khi bạn chạy mô phỏng ở mục 1.</p>
+  <svg width="640" height="240" viewBox="0 0 640 240" role="img" aria-label="Sơ đồ trạng thái transaction">
+    <defs>
+      <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L7,3 L0,6 Z" fill="#94a3b8"/>
+      </marker>
+    </defs>
+    <!-- edges -->
+    <path class="edge" d="M150,55 L250,55"/>
+    <text class="edge-lbl" x="160" y="45">thao tác xong</text>
+    <path class="edge" d="M400,55 L500,55"/>
+    <text class="edge-lbl" x="410" y="45">COMMIT ok</text>
+    <path class="edge" d="M80,80 L80,150"/>
+    <text class="edge-lbl" x="88" y="120">gặp lỗi</text>
+    <path class="edge" d="M150,175 L250,175"/>
+    <text class="edge-lbl" x="160" y="165">ROLLBACK</text>
+    <!-- nodes -->
+    <g class="state-node" id="st-active"><rect x="20" y="35" width="130" height="42" rx="8"/><text x="85" y="61" text-anchor="middle">active</text></g>
+    <g class="state-node" id="st-partial"><rect x="250" y="35" width="150" height="42" rx="8"/><text x="325" y="61" text-anchor="middle">partially committed</text></g>
+    <g class="state-node committed" id="st-committed"><rect x="500" y="35" width="120" height="42" rx="8"/><text x="560" y="61" text-anchor="middle">committed</text></g>
+    <g class="state-node" id="st-failed"><rect x="20" y="155" width="130" height="42" rx="8"/><text x="85" y="181" text-anchor="middle">failed</text></g>
+    <g class="state-node aborted" id="st-aborted"><rect x="250" y="155" width="130" height="42" rx="8"/><text x="315" y="181" text-anchor="middle">aborted</text></g>
+  </svg>
+</div>
+
+<div class="panel">
+  <h2>3 · ACID — bấm từng chữ</h2>
+  <p class="note">Bốn tính chất mà transaction bảo đảm. Chọn một chữ để xem giải thích + ví dụ số.</p>
+  <div class="acid-row" id="acidRow"></div>
+  <div class="acid-detail" id="acidDetail">← Chọn một chữ A · C · I · D để xem chi tiết.</div>
+</div>
+
+<script>
+// ===== Module 1 + 2: money transfer + state diagram =====
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+const INIT = { A: 1000000, B: 500000 };
+let bal = { ...INIT };
+let busy = false;
+const fmt = n => n.toLocaleString('vi-VN') + 'đ';
+
+function render(){
+  document.getElementById('balA').textContent = fmt(bal.A);
+  document.getElementById('balB').textContent = fmt(bal.B);
+  const total = bal.A + bal.B;
+  const expected = INIT.A + INIT.B;
+  const t = document.getElementById('total');
+  t.innerHTML = 'Tổng tiền: <b>' + fmt(total) + '</b>' + (total === expected ? ' (giữ nguyên 1.500.000đ ✓)' : ' (lẽ ra phải là 1.500.000đ — tiền bốc hơi!)');
+  t.classList.toggle('bad', total !== expected);
+}
+function flash(id){ const e=document.getElementById(id); e.classList.add('flash'); setTimeout(()=>e.classList.remove('flash'),500); }
+function logLine(text, cls){ const l=document.getElementById('log'); l.innerHTML += `<span class="${cls||''}">${text}</span>\n`; l.scrollTop = l.scrollHeight; }
+function clearLog(){ document.getElementById('log').innerHTML=''; }
+
+const STATES = ['active','partial','committed','failed','aborted'];
+function setState(name){ STATES.forEach(s=>document.getElementById('st-'+s).classList.toggle('active', s===name)); }
+function clearState(){ STATES.forEach(s=>document.getElementById('st-'+s).classList.remove('active')); }
+
+function resetAccounts(){
+  if(busy) return;
+  bal = { ...INIT }; render(); clearLog(); clearState();
+}
+
+async function runTransfer(crash){
+  if(busy) return; busy = true;
+  bal = { ...INIT }; render(); clearLog(); clearState();
+  const useTx = document.getElementById('useTx').checked;
+  const snapshot = { ...bal }; // dùng để rollback nếu có transaction
+
+  if(useTx){ logLine('BEGIN;', 'info'); setState('active'); await sleep(500); }
+  else { logLine('-- auto-commit: mỗi câu UPDATE chốt ngay', 'info'); setState('active'); await sleep(500); }
+
+  // Bước 1: trừ A
+  bal.A -= 200000; render(); flash('acctA');
+  logLine('UPDATE accounts SET balance = balance - 200000 WHERE id = \'A\';');
+  if(!useTx) logLine('  -> COMMIT (auto): A = ' + fmt(bal.A) + ' đã chốt vĩnh viễn', 'ok');
+  else logLine('  -> (chưa chốt) A tạm = ' + fmt(bal.A), 'info');
+  await sleep(800);
+
+  if(crash){
+    logLine('💥 MÁY CHỦ SẬP — trước khi cộng tiền cho B!', 'err');
+    setState(useTx ? 'failed' : 'active');
+    await sleep(800);
+    if(useTx){
+      // rollback khôi phục
+      logLine('Khởi động lại → DBMS phát hiện transaction chưa COMMIT → ROLLBACK', 'info');
+      setState('aborted');
+      bal = { ...snapshot }; render(); flash('acctA');
+      logLine('ROLLBACK: A khôi phục = ' + fmt(bal.A) + ', B = ' + fmt(bal.B), 'ok');
+      logLine('✓ Tiền nguyên vẹn — tổng vẫn 1.500.000đ.', 'ok');
+    } else {
+      logLine('Không có transaction để rollback. Bước 1 đã chốt rồi.', 'err');
+      logLine('✗ A bị trừ 200.000đ nhưng B KHÔNG nhận → mất 200.000đ!', 'err');
+    }
+    busy = false; return;
+  }
+
+  // Bước 2: cộng B
+  bal.B += 200000; render(); flash('acctB');
+  logLine('UPDATE accounts SET balance = balance + 200000 WHERE id = \'B\';');
+  if(!useTx) logLine('  -> COMMIT (auto): B = ' + fmt(bal.B), 'ok');
+  else logLine('  -> (chưa chốt) B tạm = ' + fmt(bal.B), 'info');
+  await sleep(800);
+
+  if(useTx){
+    setState('partial'); await sleep(700);
+    logLine('COMMIT;', 'info');
+    setState('committed');
+    logLine('✓ Đã chốt: A = ' + fmt(bal.A) + ', B = ' + fmt(bal.B), 'ok');
+  } else {
+    logLine('✓ Hoàn tất (mỗi câu đã tự commit).', 'ok');
+  }
+  busy = false;
+}
+render();
+
+// ===== Module 3: ACID cards =====
+const ACID = [
+  { l:'A', nm:'Atomicity', title:'Atomicity — Tính nguyên tử',
+    body:'<b>Là gì:</b> Transaction là khối không thể chia nhỏ — tất cả thao tác cùng xảy ra, hoặc không thao tác nào xảy ra.<br><b>Vì sao cần:</b> Nghiệp vụ gồm nhiều bước; lỗi giữa chừng để lại dữ liệu dở dang → sai. Rollback loại bỏ "nửa vời".<br><b>Ví dụ số:</b> Chuyển 200k A→B, sập sau khi trừ A ⇒ rollback ⇒ A quay về <b>1.000.000</b>, B vẫn <b>500.000</b>. Không có kết cục A=800.000 mà B=500.000.' },
+  { l:'C', nm:'Consistency', title:'Consistency — Tính nhất quán',
+    body:'<b>Là gì:</b> Đưa database từ trạng thái hợp lệ sang trạng thái hợp lệ khác; mọi ràng buộc (PK, FK, CHECK, quy tắc nghiệp vụ) vẫn giữ.<br><b>Vì sao cần:</b> Dữ liệu vi phạm ràng buộc khiến các transaction sau dựa trên dữ liệu sai → lỗi lan rộng.<br><b>Ví dụ số:</b> Bất biến "tổng tiền không đổi". Trước: 1.000.000 + 500.000 = <b>1.500.000</b>. Sau commit: 800.000 + 700.000 = <b>1.500.000</b> ✓.' },
+  { l:'I', nm:'Isolation', title:'Isolation — Tính cô lập',
+    body:'<b>Là gì:</b> Nhiều transaction song song cho kết quả như thể chạy lần lượt; không nhìn thấy trạng thái dở dang của nhau.<br><b>Vì sao cần:</b> Hai người cùng rút từ A mà không cô lập → cùng đọc số dư cũ → rút quá số dư.<br><b>Ví dụ số:</b> A=1.000.000, T1 rút 800k & T2 rút 800k song song. Cô lập đúng: một cái chạy trước (A→200.000), cái sau bị từ chối. Không cô lập: A = −600.000 (sai). Chi tiết ở Lesson 04.' },
+  { l:'D', nm:'Durability', title:'Durability — Tính bền vững',
+    body:'<b>Là gì:</b> Đã COMMIT thì thay đổi vĩnh viễn — tồn tại qua mất điện, crash, khởi động lại.<br><b>Vì sao cần:</b> Người dùng nhận "thành công" rồi máy sập; nếu dữ liệu chỉ ở RAM thì mất.<br><b>Cơ chế:</b> WAL (write-ahead log) — ghi ý định ra log trên đĩa <i>trước</i> khi áp vào dữ liệu chính, nên restart có thể replay. Sau commit chuyển 200k: A=800.000, B=700.000 còn nguyên dù máy sập.' },
+];
+document.getElementById('acidRow').innerHTML = ACID.map((c,i)=>
+  `<div class="acid-card" data-i="${i}" onclick="selAcid(${i})"><div class="ltr">${c.l}</div><div class="nm">${c.nm}</div></div>`).join('');
+function selAcid(i){
+  document.querySelectorAll('.acid-card').forEach(e=>e.classList.toggle('sel', +e.dataset.i===i));
+  document.getElementById('acidDetail').innerHTML = `<h3>${ACID[i].title}</h3>${ACID[i].body}`;
+}
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

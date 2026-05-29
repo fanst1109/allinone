@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 02 — Index</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  button.primary { background: #0f766e; color: #fff; border: 0; padding: 7px 14px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+  button.primary:hover { background: #115e59; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  .modechip { display:inline-block; padding:3px 10px; border-radius:6px; background:#e2e8f0; cursor:pointer; margin-right:6px; font-size:13px; }
+  .modechip.active { background:#0f766e; color:#fff; }
+  .counter { margin-top: 10px; font-size: 14px; color: #334155; }
+  .counter b { color: #0f766e; }
+  /* module 1 rows */
+  .rows { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; }
+  .cell { width: 40px; height: 34px; display:flex; align-items:center; justify-content:center; border-radius: 4px; font-size: 13px; font-variant-numeric: tabular-nums; background: #f1f5f9; border:1px solid #e2e8f0; }
+  .cell.scan { background: #fef08a; }
+  .cell.hit { background: #bbf7d0; font-weight: 700; border-color:#16a34a; }
+  /* svg tree */
+  svg { max-width: 100%; height: auto; display:block; margin: 8px auto; }
+  .bt-node rect { fill:#f1f5f9; stroke:#94a3b8; stroke-width:1.5; }
+  .bt-node.path rect { fill:#fde68a; stroke:#d97706; }
+  .bt-node.found rect { fill:#bbf7d0; stroke:#16a34a; stroke-width:2.5; }
+  .bt-node text { font-size:13px; fill:#1e293b; font-variant-numeric: tabular-nums; }
+  .bt-edge { stroke:#cbd5e1; stroke-width:1.5; fill:none; }
+  .bt-edge.path { stroke:#d97706; stroke-width:2.5; }
+  input[type=text], input[type=number] { padding:6px 8px; border:1px solid #cbd5e1; border-radius:5px; font-size:14px; width:100%; max-width:180px; box-sizing:border-box; }
+  /* module 3 prefix */
+  .cond-grid { display:flex; flex-wrap:wrap; gap:10px; margin:12px 0; }
+  .cond { border:2px solid #e2e8f0; border-radius:8px; padding:8px 12px; }
+  .cond label { display:block; font-size:13px; color:#475569; margin-bottom:4px; user-select:none; }
+  .cond input { max-width:120px; }
+  .verdict { margin-top:12px; padding:12px; border-radius:6px; font-size:14px; }
+  .verdict.ok { background:#f0fdf4; border-left:4px solid #16a34a; }
+  .verdict.partial { background:#fffbeb; border-left:4px solid #d97706; }
+  .verdict.no { background:#fef2f2; border-left:4px solid #dc2626; }
+  .colchip { display:inline-block; padding:2px 9px; border-radius:5px; font-size:13px; margin:0 4px; font-family:monospace; }
+  .colchip.used { background:#bbf7d0; color:#14532d; font-weight:700; }
+  .colchip.unused { background:#e2e8f0; color:#64748b; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-chuan-hoa/visualization.html">← L1: Chuẩn hóa</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Index</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-transaction-acid/visualization.html">L3: Transaction & ACID →</a>
+</nav>
+<main>
+<h1>Index (chỉ mục)</h1>
+<p class="note">Ba mô-đun tương tác: (1) full scan vs B-tree lookup, (2) mô phỏng đường đi tra khóa qua B-tree, (3) bộ kiểm tra leftmost prefix cho composite index.</p>
+
+<div class="panel">
+  <h2>1 · Quét toàn bảng vs Index lookup — đếm số node chạm</h2>
+  <p class="note">Cùng tìm khóa <b id="m1target">37</b>. Quét tuyến tính phải đọc từng ô; index nhảy qua cây B-tree.</p>
+  <div>
+    <span class="modechip active" id="mScan" onclick="setM1('scan')">📄 Quét toàn bảng (O(n))</span>
+    <span class="modechip" id="mIdx" onclick="setM1('index')">🗂️ Dùng index (O(log n))</span>
+    <button class="primary" onclick="runM1()" style="margin-left:8px">▶ Chạy</button>
+  </div>
+  <div class="rows" id="m1rows"></div>
+  <svg id="m1tree" width="520" height="220" viewBox="0 0 520 220" style="display:none"></svg>
+  <div class="counter" id="m1counter"></div>
+</div>
+
+<div class="panel">
+  <h2>2 · Mô phỏng B-tree lookup — đường đi từ root xuống lá</h2>
+  <p class="note">Nhập một khóa (số) cần tìm, xem index thu hẹp dần qua từng tầng. Các khóa có trong cây: 10, 20, 40, 50, 57, 58, 70, 80, 90.</p>
+  <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap">
+    <input type="number" id="m2key" value="57" placeholder="khóa cần tìm">
+    <button class="primary" onclick="runM2()">▶ Tra cứu</button>
+  </div>
+  <svg id="m2tree" width="540" height="240" viewBox="0 0 540 240"></svg>
+  <div class="counter" id="m2counter"></div>
+</div>
+
+<div class="panel">
+  <h2>3 · Bộ kiểm tra leftmost prefix — index <code>(a, b, c)</code></h2>
+  <p class="note">Composite index sắp theo a → b → c. Nhập điều kiện <code>WHERE</code> (để trống = không có điều kiện cho cột đó), xem index dùng được tới đâu.</p>
+  <div class="cond-grid">
+    <div class="cond"><label>a =</label><input type="text" id="ca" placeholder="vd 7" oninput="checkPrefix()"></div>
+    <div class="cond"><label>b =</label><input type="text" id="cb" placeholder="vd paid" oninput="checkPrefix()"></div>
+    <div class="cond"><label>c =</label><input type="text" id="cc" placeholder="vd 2026" oninput="checkPrefix()"></div>
+  </div>
+  <div>
+    Index dùng tới:
+    <span class="colchip unused" id="chipA">a</span>
+    <span class="colchip unused" id="chipB">b</span>
+    <span class="colchip unused" id="chipC">c</span>
+  </div>
+  <div class="verdict no" id="verdict">Chưa nhập điều kiện nào.</div>
+</div>
+
+<script>
+// ============ Module 1: scan vs index ============
+const M1 = [12, 25, 37, 41, 8, 53, 19, 60, 33, 47, 5, 71]; // mảng dữ liệu (chưa sắp) cho scan
+const M1_TARGET = 37;
+let m1mode = 'scan';
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+
+function setM1(m){
+  m1mode = m;
+  document.getElementById('mScan').classList.toggle('active', m==='scan');
+  document.getElementById('mIdx').classList.toggle('active', m==='index');
+  document.getElementById('m1rows').style.display = m==='scan' ? 'flex' : 'none';
+  document.getElementById('m1tree').style.display = m==='index' ? 'block' : 'none';
+  document.getElementById('m1counter').innerHTML = '';
+  renderM1Rows();
+  if(m==='index') drawM1Tree();
+}
+function renderM1Rows(scanned=[], hit=-1){
+  document.getElementById('m1rows').innerHTML = M1.map((v,i)=>{
+    let cls = ''; if(i===hit) cls='hit'; else if(scanned.includes(i)) cls='scan';
+    return `<div class="cell ${cls}">${v}</div>`;
+  }).join('');
+}
+// Index = B-tree đã sắp xếp; cho tìm 37 ta đi 3 node
+function drawM1Tree(pathIds=[], foundId=-1){
+  // root [33|53], leaves
+  const nodes = [
+    {id:0, x:210, y:30, w:90, label:'33 | 53'},
+    {id:1, x:70,  y:140, w:90, label:'5 8 12 19'},
+    {id:2, x:215, y:140, w:90, label:'25 33 37 41'},
+    {id:3, x:370, y:140, w:90, label:'47 53 60 71'},
+  ];
+  const edges = [[0,1],[0,2],[0,3]];
+  let svg = '';
+  edges.forEach(([a,b])=>{
+    const na=nodes[a], nb=nodes[b];
+    const onpath = pathIds.includes(a) && pathIds.includes(b);
+    svg += `<path class="bt-edge ${onpath?'path':''}" d="M${na.x+na.w/2},${na.y+30} C${na.x+na.w/2},${na.y+70} ${nb.x+nb.w/2},${nb.y-40} ${nb.x+nb.w/2},${nb.y}"/>`;
+  });
+  nodes.forEach(n=>{
+    let cls = ''; if(n.id===foundId) cls='found'; else if(pathIds.includes(n.id)) cls='path';
+    svg += `<g class="bt-node ${cls}"><rect x="${n.x}" y="${n.y}" width="${n.w}" height="30" rx="5"/><text x="${n.x+n.w/2}" y="${n.y+20}" text-anchor="middle">${n.label}</text></g>`;
+  });
+  document.getElementById('m1tree').innerHTML = svg;
+}
+async function runM1(){
+  const c = document.getElementById('m1counter');
+  if(m1mode==='scan'){
+    renderM1Rows();
+    for(let i=0;i<M1.length;i++){
+      renderM1Rows(Array.from({length:i+1},(_,k)=>k));
+      c.innerHTML = `Đã chạm <b>${i+1}</b> ô...`;
+      await sleep(220);
+      if(M1[i]===M1_TARGET){
+        renderM1Rows(Array.from({length:i},(_,k)=>k), i);
+        c.innerHTML = `Tìm thấy sau khi chạm <b>${i+1}</b> ô. Trường hợp xấu nhất phải chạm cả <b>${M1.length}</b> ô. Với 1.000.000 dòng → tới 1.000.000 bước.`;
+        return;
+      }
+    }
+  } else {
+    drawM1Tree();
+    const path = [0, 2]; // root -> leaf chứa 37
+    c.innerHTML = 'Bắt đầu ở root...';
+    await sleep(500);
+    drawM1Tree([0]);
+    c.innerHTML = 'Root [33 | 53]: 37 nằm giữa 33 và 53 → đi nhánh giữa.';
+    await sleep(800);
+    drawM1Tree(path);
+    c.innerHTML = 'Leaf [25 33 37 41]: quét trong lá, tìm thấy 37.';
+    await sleep(700);
+    drawM1Tree(path, 2);
+    c.innerHTML = `Dùng index: chỉ chạm <b>2 node</b> (root → lá) cho cây này. Với 1.000.000 dòng → ~3-4 node thay vì 1.000.000.`;
+  }
+}
+
+// ============ Module 2: B-tree lookup path ============
+// cây 3 tầng cố định
+const M2_NODES = [
+  {id:0, x:230, y:24,  w:84,  label:'30 | 60', keys:[30,60]},      // root
+  {id:1, x:60,  y:118, w:74,  label:'10 | 20', keys:[10,20]},      // internal L
+  {id:2, x:228, y:118, w:74,  label:'40 | 50', keys:[40,50]},      // internal M
+  {id:3, x:400, y:118, w:74,  label:'70 | 80', keys:[70,80]},      // internal R
+  {id:4, x:40,  y:206, w:96,  label:'10 20',  keys:[10,20]},
+  {id:5, x:200, y:206, w:130, label:'40 50 57 58', keys:[40,50,57,58]},
+  {id:6, x:390, y:206, w:96,  label:'70 80 90', keys:[70,80,90]},
+];
+const M2_EDGES = [[0,1],[0,2],[0,3],[1,4],[2,5],[3,6]];
+function drawM2(pathIds=[], foundId=-1){
+  let svg = '';
+  M2_EDGES.forEach(([a,b])=>{
+    const na=M2_NODES[a], nb=M2_NODES[b];
+    const onpath = pathIds.includes(a) && pathIds.includes(b);
+    svg += `<path class="bt-edge ${onpath?'path':''}" d="M${na.x+na.w/2},${na.y+30} C${na.x+na.w/2},${na.y+60} ${nb.x+nb.w/2},${nb.y-30} ${nb.x+nb.w/2},${nb.y}"/>`;
+  });
+  M2_NODES.forEach(n=>{
+    let cls=''; if(n.id===foundId) cls='found'; else if(pathIds.includes(n.id)) cls='path';
+    svg += `<g class="bt-node ${cls}"><rect x="${n.x}" y="${n.y}" width="${n.w}" height="30" rx="5"/><text x="${n.x+n.w/2}" y="${n.y+20}" text-anchor="middle">${n.label}</text></g>`;
+  });
+  document.getElementById('m2tree').innerHTML = svg;
+}
+function routeChild(node, key){
+  // tìm internal/leaf con dựa trên khóa phân tách
+  const children = M2_EDGES.filter(([a])=>a===node.id).map(([,b])=>b);
+  if(children.length===0) return null;
+  // node.keys phân tách: key < keys[0] -> child0; keys[0]<=key<keys[1] -> child1; ...
+  let idx = node.keys.length; // mặc định nhánh cuối
+  for(let i=0;i<node.keys.length;i++){ if(key < node.keys[i]){ idx=i; break; } }
+  if(idx >= children.length) idx = children.length - 1; // clamp: cây minh họa rút gọn
+  return children[idx];
+}
+async function runM2(){
+  const key = parseInt(document.getElementById('m2key').value, 10);
+  const c = document.getElementById('m2counter');
+  if(isNaN(key)){ c.textContent='Hãy nhập một số.'; return; }
+  drawM2();
+  let cur = 0; const path=[];
+  let steps = 0;
+  while(true){
+    steps++;
+    path.push(cur); drawM2(path);
+    const node = M2_NODES[cur];
+    const isLeaf = M2_EDGES.filter(([a])=>a===cur).length===0;
+    await sleep(700);
+    if(isLeaf){
+      if(node.keys.includes(key)){
+        drawM2(path, cur);
+        c.innerHTML = `Leaf [${node.label}]: tìm thấy <b>${key}</b> sau <b>${steps}</b> lần đọc node. Lấy con trỏ tới dòng.`;
+      } else {
+        c.innerHTML = `Leaf [${node.label}]: <b>không có ${key}</b> trong cây. Đã chạm ${steps} node — vẫn chỉ ~chiều cao cây, không quét toàn bộ.`;
+      }
+      return;
+    }
+    const next = routeChild(node, key);
+    const dir = key < node.keys[0] ? 'trái' : (node.keys.length>1 && key < node.keys[1] ? 'giữa' : 'phải');
+    c.innerHTML = `Node [${node.label}]: so sánh ${key} → đi nhánh <b>${dir}</b>.`;
+    cur = next;
+  }
+}
+
+// ============ Module 3: leftmost prefix ============
+function checkPrefix(){
+  const a = document.getElementById('ca').value.trim();
+  const b = document.getElementById('cb').value.trim();
+  const c = document.getElementById('cc').value.trim();
+  // index dùng được tới đâu: phải liên tục từ a
+  let used = 0;
+  if(a!=='') { used = 1; if(b!=='') { used = 2; if(c!=='') used = 3; } }
+  // cập nhật chip
+  setChip('chipA', used>=1);
+  setChip('chipB', used>=2);
+  setChip('chipC', used>=3);
+  const v = document.getElementById('verdict');
+  const given = [a!=='', b!=='', c!==''];
+  if(!given[0] && !given[1] && !given[2]){
+    v.className='verdict no'; v.innerHTML='Chưa nhập điều kiện nào.'; return;
+  }
+  if(!given[0]){
+    // thiếu tiền tố a hoàn toàn
+    v.className='verdict no';
+    v.innerHTML='❌ <b>Không dùng được index.</b> Điều kiện thiếu cột đầu tiên <code>a</code> (leftmost prefix). Các giá trị của ' +
+      (given[1]?'<code>b</code>':'') + (given[1]&&given[2]?', ':'') + (given[2]?'<code>c</code>':'') +
+      ' nằm rải rác khắp index → phải full scan hoặc cần index khác.';
+    return;
+  }
+  // có a
+  const partial = (given[2] && !given[1]); // a và c nhưng thiếu b
+  if(partial){
+    v.className='verdict partial';
+    v.innerHTML='⚠ <b>Dùng index một phần</b> — chỉ tới cột <code>a</code>. Có <code>a</code> nhưng thiếu <code>b</code> ở giữa, nên <code>c</code> không liền sau <code>a</code> trong thứ tự index → <code>c</code> phải lọc thủ công sau khi thu hẹp theo <code>a</code>.';
+    return;
+  }
+  v.className='verdict ok';
+  const cols = ['a','b','c'].slice(0,used).map(x=>`<code>${x}</code>`).join(', ');
+  v.innerHTML = `✅ <b>Dùng được index</b> — tới cột ${cols}. Đây là một tiền tố trái liên tục hợp lệ của index <code>(a, b, c)</code>.`;
+}
+function setChip(id, on){
+  const e = document.getElementById(id);
+  e.className = 'colchip ' + (on?'used':'unused');
+}
+
+// init
+setM1('scan');
+drawM2();
+checkPrefix();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

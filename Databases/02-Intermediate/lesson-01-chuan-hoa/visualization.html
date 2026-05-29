@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 01 — Chuẩn hóa (Normalization)</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  button.primary { background: #0f766e; color: #fff; border: 0; padding: 7px 14px; border-radius: 5px; cursor: pointer; font-size: 14px; margin: 4px 4px 4px 0; }
+  button.primary:hover { background: #115e59; }
+  button.primary:disabled { background: #94a3b8; cursor: not-allowed; }
+  button.ghost { background: #e2e8f0; color: #0f172a; border: 0; padding: 7px 14px; border-radius: 5px; cursor: pointer; font-size: 14px; margin: 4px 4px 4px 0; }
+  table { border-collapse: collapse; width: 100%; margin-top: 8px; font-variant-numeric: tabular-nums; }
+  th, td { padding: 6px 10px; border-bottom: 1px solid #eee; font-size: 13px; text-align: left; }
+  th { background: #f0fdfa; }
+  td.k, th.k { color: #0f766e; font-weight: 700; }
+  .tbl-wrap { overflow-x: auto; }
+  tr.flash-bad td { background: #fecaca; transition: background .4s; }
+  tr.flash-bad td.changed { background: #fca5a5; font-weight: 700; }
+  td.moved { background: #fde68a; }
+  td.lost { background: #fecaca; text-decoration: line-through; }
+  .tbl-title { font-weight: 700; margin: 14px 0 2px; font-size: 14px; color: #334155; }
+  .log { margin-top: 10px; font-size: 13px; color: #334155; min-height: 20px; }
+  .log b { color: #0f766e; }
+  .tables-row { display: flex; flex-wrap: wrap; gap: 16px; }
+  .tables-row > div { flex: 1 1 280px; min-width: 0; }
+  .stage-bar span { display:inline-block; padding:3px 10px; border-radius:6px; background:#e2e8f0; margin-right:6px; font-size:13px; }
+  .stage-bar span.active { background:#0f766e; color:#fff; }
+  .quiz-q { font-weight: 600; margin: 8px 0; }
+  .quiz-opt { display:inline-block; padding:6px 14px; border:2px solid #cbd5e1; border-radius:6px; margin:4px 6px 4px 0; cursor:pointer; font-size:14px; }
+  .quiz-opt:hover { border-color:#0f766e; }
+  .quiz-opt.correct { background:#bbf7d0; border-color:#16a34a; }
+  .quiz-opt.wrong { background:#fecaca; border-color:#dc2626; }
+  .quiz-feedback { margin-top:8px; font-size:14px; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Chuẩn hóa</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-index/visualization.html">L2: Index →</a>
+</nav>
+<main>
+<h1>Chuẩn hóa (Normalization)</h1>
+<p class="note">Ba mô-đun tương tác: (1) mô phỏng anomaly trên bảng phi chuẩn, (2) tách bảng 1NF→2NF→3NF từng bước, (3) đoán normal form.</p>
+
+<div class="panel">
+  <h2>1 · Mô phỏng anomaly trên bảng "gộp tất cả"</h2>
+  <p class="note">Bảng <code>Orders</code> nhồi cả thông tin khách lẫn sản phẩm. Thử thao tác để thấy bệnh.</p>
+  <div>
+    <button class="primary" onclick="doUpdate()">✏ Sửa tên khách C1 → "An Nguyễn"</button>
+    <button class="primary" onclick="doDelete()">🗑 Xóa đơn cuối của khách C2</button>
+    <button class="ghost" onclick="resetAnomaly()">↺ Khôi phục bảng</button>
+  </div>
+  <div class="tbl-wrap"><table id="anomalyTbl"></table></div>
+  <div class="log" id="anomalyLog">← Bấm một thao tác để xem anomaly.</div>
+</div>
+
+<div class="panel">
+  <h2>2 · Tách bảng từng bước: 1NF → 2NF → 3NF</h2>
+  <p class="note">Bắt đầu từ một bảng phi chuẩn, bấm "Tách tiếp" để chuẩn hóa từng mức. Cột vàng là cột vừa được chuyển sang bảng mới.</p>
+  <div class="stage-bar" id="stageBar"></div>
+  <div>
+    <button class="primary" id="btnSplit" onclick="nextStage()">▶ Tách tiếp</button>
+    <button class="ghost" onclick="resetSplit()">↺ Về bảng gốc</button>
+  </div>
+  <div class="log" id="splitLog"></div>
+  <div class="tables-row" id="splitTables"></div>
+</div>
+
+<div class="panel">
+  <h2>3 · Bảng này đang ở normal form nào?</h2>
+  <p class="note">Đọc cấu trúc + phụ thuộc hàm rồi đoán dạng chuẩn cao nhất bảng đạt được.</p>
+  <div id="quiz"></div>
+  <button class="primary" onclick="nextQuiz()" style="margin-top:10px">↻ Câu khác</button>
+</div>
+
+<script>
+// ===== Module 1: anomaly =====
+const BASE_ORDERS = [
+  {order_id:1001, cust_id:'C1', cust_name:'An',   cust_city:'Hanoi',   product:'Bàn phím', qty:2},
+  {order_id:1002, cust_id:'C1', cust_name:'An',   cust_city:'Hanoi',   product:'Chuột',    qty:1},
+  {order_id:1003, cust_id:'C2', cust_name:'Bình', cust_city:'Da Nang', product:'Bàn phím', qty:1},
+  {order_id:1004, cust_id:'C3', cust_name:'Chi',  cust_city:'Hanoi',   product:'Màn hình', qty:1},
+];
+let orders = JSON.parse(JSON.stringify(BASE_ORDERS));
+function renderAnomaly(opts={}){
+  const cols = ['order_id','cust_id','cust_name','cust_city','product','qty'];
+  let html = '<tr>' + cols.map(c=>`<th>${c}</th>`).join('') + '</tr>';
+  orders.forEach(r=>{
+    const bad = opts.badRows && opts.badRows.includes(r.order_id);
+    html += `<tr class="${bad?'flash-bad':''}">` + cols.map(c=>{
+      const ch = bad && opts.changedCol===c ? 'changed' : '';
+      return `<td class="${ch}">${r[c]}</td>`;
+    }).join('') + '</tr>';
+  });
+  document.getElementById('anomalyTbl').innerHTML = html;
+}
+function doUpdate(){
+  // Sửa ĐÚNG MỘT dòng để minh họa rủi ro sót dòng -> mâu thuẫn
+  const i = orders.findIndex(r=>r.cust_id==='C1');
+  orders[i].cust_name = 'An Nguyễn';
+  const badRows = orders.filter(r=>r.cust_id==='C1').map(r=>r.order_id);
+  renderAnomaly({badRows, changedCol:'cust_name'});
+  document.getElementById('anomalyLog').innerHTML =
+    '<b>Update anomaly.</b> Tên khách C1 lặp ở <b>2 đơn</b> (1001, 1002). Ta vừa sửa <b>1 dòng</b> (1001) và "quên" dòng 1002 → cùng một người có hai tên: "An Nguyễn" và "An". Dữ liệu mâu thuẫn. Tên lặp ở bao nhiêu đơn thì rủi ro nhân lên bấy nhiêu.';
+}
+function doDelete(){
+  // Xóa đơn duy nhất của C2 -> mất luôn thông tin C2
+  const before = orders.length;
+  orders = orders.filter(r=>!(r.cust_id==='C2'));
+  renderAnomaly();
+  document.getElementById('anomalyLog').innerHTML =
+    '<b>Deletion anomaly.</b> Khách C2 (Bình) chỉ có đúng 1 đơn (1003). Xóa đơn này → <b>toàn bộ thông tin Bình biến mất</b> (tên, thành phố). Ta chỉ muốn xóa đơn, nhưng dữ liệu khách bị "ăn theo".';
+}
+function resetAnomaly(){
+  orders = JSON.parse(JSON.stringify(BASE_ORDERS));
+  renderAnomaly();
+  document.getElementById('anomalyLog').innerHTML = '← Bấm một thao tác để xem anomaly. (Insertion anomaly: không thể lưu khách mới chưa có đơn vì order_id là khóa chính, không được NULL.)';
+}
+renderAnomaly();
+
+// ===== Module 2: split 1NF->2NF->3NF =====
+// Stage 0: vi phạm 1NF (products nhồi danh sách)
+// Stage 1: 1NF (mỗi sản phẩm 1 dòng) — vẫn vi phạm 2NF & 3NF
+// Stage 2: 2NF (tách Products: product -> name, price)
+// Stage 3: 3NF (tách Cities: city -> zone)
+const STAGES = [
+  {
+    name: 'Vi phạm 1NF',
+    log: 'Cột <b>products</b> nhồi danh sách ("Bàn phím, Chuột") → không nguyên tử. Bấm "Tách tiếp" để đưa về 1NF.',
+    tables: [{
+      title: 'BigOrders (vi phạm 1NF)',
+      cols: ['order_id','cust_name','cust_city','products','zone'],
+      keys: ['order_id'],
+      moved: [],
+      rows: [
+        ['1001','An','Hanoi','Bàn phím, Chuột','Bắc'],
+        ['1003','Bình','Da Nang','Bàn phím','Trung'],
+        ['1004','Chi','Hanoi','Màn hình','Bắc'],
+      ]
+    }]
+  },
+  {
+    name: '1NF',
+    log: 'Đã ở <b>1NF</b>: mỗi (đơn, sản phẩm) một dòng, mọi ô nguyên tử. Nhưng khóa giờ là (order_id, product); <code>name/price</code> phụ thuộc bộ phận vào <code>product</code> → còn vi phạm 2NF.',
+    tables: [{
+      title: 'BigOrders (1NF, khóa ghép)',
+      cols: ['order_id','product','price','cust_name','cust_city','zone'],
+      keys: ['order_id','product'],
+      moved: [],
+      rows: [
+        ['1001','Bàn phím','350000','An','Hanoi','Bắc'],
+        ['1001','Chuột','150000','An','Hanoi','Bắc'],
+        ['1003','Bàn phím','350000','Bình','Da Nang','Trung'],
+        ['1004','Màn hình','2400000','Chi','Hanoi','Bắc'],
+      ]
+    }]
+  },
+  {
+    name: '2NF',
+    log: 'Đã ở <b>2NF</b>: tách <code>product → price</code> ra bảng <b>Products</b> (cột vàng đã chuyển đi). Giá lưu một lần. Còn lại: <code>cust_city → zone</code> là phụ thuộc bắc cầu → chưa đạt 3NF.',
+    tables: [
+      {
+        title: 'Products (mới)',
+        cols: ['product','price'],
+        keys: ['product'],
+        moved: ['price'],
+        rows: [['Bàn phím','350000'],['Chuột','150000'],['Màn hình','2400000']]
+      },
+      {
+        title: 'Orders',
+        cols: ['order_id','product','cust_name','cust_city','zone'],
+        keys: ['order_id','product'],
+        moved: [],
+        rows: [
+          ['1001','Bàn phím','An','Hanoi','Bắc'],
+          ['1001','Chuột','An','Hanoi','Bắc'],
+          ['1003','Bàn phím','Bình','Da Nang','Trung'],
+          ['1004','Màn hình','Chi','Hanoi','Bắc'],
+        ]
+      }
+    ]
+  },
+  {
+    name: '3NF',
+    log: 'Đã ở <b>3NF</b>: tách <code>cust_city → zone</code> ra bảng <b>Cities</b> (cột vàng đã chuyển đi). Mỗi dữ kiện lưu đúng một chỗ. Đổi zone của Hanoi → sửa 1 dòng trong Cities.',
+    tables: [
+      {
+        title: 'Products',
+        cols: ['product','price'],
+        keys: ['product'],
+        moved: [],
+        rows: [['Bàn phím','350000'],['Chuột','150000'],['Màn hình','2400000']]
+      },
+      {
+        title: 'Cities (mới)',
+        cols: ['city','zone'],
+        keys: ['city'],
+        moved: ['zone'],
+        rows: [['Hanoi','Bắc'],['Da Nang','Trung']]
+      },
+      {
+        title: 'Orders',
+        cols: ['order_id','product','cust_name','cust_city'],
+        keys: ['order_id','product'],
+        moved: [],
+        rows: [
+          ['1001','Bàn phím','An','Hanoi'],
+          ['1001','Chuột','An','Hanoi'],
+          ['1003','Bàn phím','Bình','Da Nang'],
+          ['1004','Màn hình','Chi','Hanoi'],
+        ]
+      }
+    ]
+  }
+];
+let stage = 0;
+function renderStage(){
+  document.getElementById('stageBar').innerHTML = STAGES.map((s,i)=>
+    `<span class="${i===stage?'active':''}">${s.name}</span>`).join('→ ');
+  document.getElementById('splitLog').innerHTML = STAGES[stage].log;
+  document.getElementById('splitTables').innerHTML = STAGES[stage].tables.map(t=>{
+    let html = `<div><div class="tbl-title">${t.title}</div><div class="tbl-wrap"><table>`;
+    html += '<tr>' + t.cols.map(c=>{
+      const isKey = t.keys.includes(c);
+      return `<th class="${isKey?'k':''}">${c}${isKey?' 🔑':''}</th>`;
+    }).join('') + '</tr>';
+    t.rows.forEach(r=>{
+      html += '<tr>' + r.map((cell,ci)=>{
+        const col = t.cols[ci];
+        const cls = t.moved.includes(col) ? 'moved' : (t.keys.includes(col)?'k':'');
+        return `<td class="${cls}">${cell}</td>`;
+      }).join('') + '</tr>';
+    });
+    html += '</table></div></div>';
+    return html;
+  }).join('');
+  document.getElementById('btnSplit').disabled = (stage >= STAGES.length-1);
+  document.getElementById('btnSplit').textContent = (stage >= STAGES.length-1) ? '✓ Đã đạt 3NF' : '▶ Tách tiếp';
+}
+function nextStage(){ if(stage < STAGES.length-1){ stage++; renderStage(); } }
+function resetSplit(){ stage = 0; renderStage(); }
+renderStage();
+
+// ===== Module 3: which normal form? =====
+const NFQUIZ = [
+  {
+    desc: '<code>Users(<b>id</b>, name, email)</code> — khóa đơn <b>id</b>, mọi ô nguyên tử, không cột nào suy ra cột khác.',
+    a: '3NF+',
+    why: 'Khóa đơn (không có phụ thuộc bộ phận), không có phụ thuộc bắc cầu → đạt 3NF (và BCNF).'
+  },
+  {
+    desc: '<code>Grades(<b>student_id, course_id</b>, course_name, grade)</code> — khóa ghép, biết <code>course_id → course_name</code>.',
+    a: '1NF',
+    why: 'course_name phụ thuộc bộ phận vào course_id (một phần khóa) → vi phạm 2NF. Cao nhất là 1NF.'
+  },
+  {
+    desc: '<code>Customers(<b>cust_id</b>, name, city, city_zone)</code> — khóa đơn, biết <code>city → city_zone</code>.',
+    a: '2NF',
+    why: 'Khóa đơn nên đạt 2NF; nhưng city_zone phụ thuộc bắc cầu qua city → vi phạm 3NF. Cao nhất là 2NF.'
+  },
+  {
+    desc: '<code>OrderItems(<b>order_id, product</b>, qty)</code> — khóa ghép, qty phụ thuộc cả hai cột, không cột không-khóa nào suy ra cột khác.',
+    a: '3NF+',
+    why: 'Phụ thuộc full vào khóa, không bắc cầu, mọi determinant là khóa → đạt 3NF (và BCNF).'
+  },
+  {
+    desc: '<code>Items(<b>id</b>, name, "size: 1,2,3")</code> — cột size nhồi danh sách nhiều giá trị.',
+    a: '0NF',
+    why: 'Ô chứa danh sách → không nguyên tử → chưa đạt cả 1NF.'
+  },
+];
+const NF_OPTS = ['0NF','1NF','2NF','3NF+'];
+let nfIdx = -1;
+function nextQuiz(){
+  let n; do { n = Math.floor(Math.random()*NFQUIZ.length); } while(n===nfIdx && NFQUIZ.length>1);
+  nfIdx = n; const item = NFQUIZ[n];
+  document.getElementById('quiz').innerHTML =
+    `<div class="quiz-q">${item.desc}</div>` +
+    NF_OPTS.map(o=>`<span class="quiz-opt" onclick="ansQuiz(this,'${o}')">${o==='3NF+'?'3NF / BCNF':o}</span>`).join('') +
+    `<div class="quiz-feedback" id="qfb"></div>`;
+}
+function ansQuiz(el, choice){
+  const item = NFQUIZ[nfIdx];
+  const correct = choice===item.a;
+  el.classList.add(correct?'correct':'wrong');
+  document.getElementById('qfb').innerHTML = (correct?'✅ Đúng! ':`❌ Sai — đáp án là <b>${item.a==='3NF+'?'3NF / BCNF':item.a}</b>. `) + item.why;
+}
+nextQuiz();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

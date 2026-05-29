@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T3-L04: t-SNE & UMAP</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #ecfeff;
+    --accent: #0e7490;
+    --accent-soft: #cffafe;
+    --accent-hover: #155e75;
+  }
+  h2 { color: var(--accent); margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid var(--accent-soft); }
+  h3 { color: #155e75; margin-top: 20px; }
+  .card { background: white; border-radius: 10px; padding: 20px 22px; box-shadow: 0 1px 4px rgba(0,0,0,0.09); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; color: #155e75; font-size: 14px; }
+  input[type="range"] { width: 150px; accent-color: var(--accent); }
+  .val { font-family: monospace; font-size: 13px; color: var(--accent); font-weight: 700; min-width: 36px; display: inline-block; }
+  button { padding: 7px 14px; border-radius: 6px; border: none; cursor: pointer; font-size: 13px; font-weight: 700; background: var(--accent); color: white; }
+  button:hover { background: var(--accent-hover); }
+  button.sec { background: var(--accent-soft); color: var(--accent-hover); }
+  svg.viz { display: block; border: 1px solid var(--accent-soft); border-radius: 8px; background: #f0fdff; width: 100%; height: auto; }
+  .info { font-family: monospace; font-size: 13px; background: #f0fdff; border: 1px solid var(--accent-soft); border-radius: 6px; padding: 10px 14px; margin-top: 10px; line-height: 1.9; }
+  .info .hi { color: var(--accent); font-weight: 700; }
+  .info .warn { color: #e05c2a; font-weight: 700; }
+  .hint { font-size: 13px; background: var(--accent-soft); padding: 9px 12px; border-left: 4px solid var(--accent); border-radius: 4px; margin: 10px 0; color: #155e75; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 820px) { .grid2 { grid-template-columns: 1fr; } }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; margin: 8px 0; align-items: center; }
+  .legend .sw { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  .pitfall-box { background: #fff7ed; border: 2px solid #f97316; border-radius: 8px; padding: 14px 16px; margin: 10px 0; }
+  .pitfall-box h4 { color: #c2410c; margin: 0 0 6px 0; font-size: 14px; }
+  .pitfall-box p { color: #7c2d12; font-size: 13px; margin: 0; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-pca-svd/visualization.html">← T3-L03: PCA</a>
+  <span class="sep">·</span>
+  <span class="current">T3-L04: t-SNE &amp; UMAP</span>
+  <span class="sep">·</span>
+  <a href="../../04-DeepLearning/lesson-01-neural-network/visualization.html">T4-L01: Neural Network →</a>
+</nav>
+<main>
+<h1>T3-L04: t-SNE &amp; UMAP</h1>
+<p style="color:#155e75;font-size:15px">Non-linear dimensionality reduction cho visualization. Mô phỏng đơn giản hóa của t-SNE mechanics.</p>
+
+<!-- === SECTION 1: t-SNE MECHANICS === -->
+<h2>1. t-SNE — High-Dim vs Low-Dim Probability</h2>
+<div class="card">
+  <div class="hint">t-SNE dùng <b>Gaussian</b> cho high-dim similarities P và <b>t-distribution</b> cho low-dim Q. Kéo slider để thấy tại sao heavy tail quan trọng (crowding problem).</div>
+  <div class="row">
+    <label>Khoảng cách high-dim d_high:</label>
+    <input type="range" id="tsne-dhigh" min="0.1" max="5" step="0.1" value="1" oninput="tsneUpdate()">
+    <span class="val" id="tsne-dhigh-val">1.0</span>
+  </div>
+  <svg class="viz" viewBox="0 0 520 260" id="tsne-dist-svg"></svg>
+  <div class="info" id="tsne-dist-info"></div>
+</div>
+
+<!-- === SECTION 2: PERPLEXITY DEMO === -->
+<h2>2. Ảnh Hưởng của Perplexity</h2>
+<div class="card">
+  <div class="hint">Mô phỏng t-SNE đơn giản với gradient descent. Perplexity thay đổi kết quả embedding. Click <b>Run t-SNE</b> để xem embedding sau hội tụ.</div>
+  <div class="row">
+    <label>Dataset:</label>
+    <select id="perp-dataset" style="padding:5px 8px;border-radius:5px;border:1px solid #a5f3fc;font-size:13px;">
+      <option value="3clusters">3 clusters rõ</option>
+      <option value="moons">Moons</option>
+      <option value="noise">Uniform noise</option>
+    </select>
+    <label>Perplexity: <span class="val" id="perp-val">15</span></label>
+    <input type="range" id="perp-slider" min="3" max="40" value="15" oninput="document.getElementById('perp-val').textContent=this.value">
+    <button onclick="runTSNE()">▶ Run t-SNE</button>
+  </div>
+  <div class="grid2">
+    <div>
+      <p style="font-size:13px;font-weight:700;color:var(--accent)">Data gốc (2D)</p>
+      <svg class="viz" viewBox="0 0 260 240" id="perp-raw-svg"></svg>
+    </div>
+    <div>
+      <p style="font-size:13px;font-weight:700;color:var(--accent)">t-SNE embedding</p>
+      <svg class="viz" viewBox="0 0 260 240" id="perp-tsne-svg"></svg>
+    </div>
+  </div>
+  <div class="info" id="perp-info">Chọn dataset và nhấn Run t-SNE.</div>
+</div>
+
+<!-- === SECTION 3: PITFALLS INTERACTIVE === -->
+<h2>3. Pitfalls của t-SNE</h2>
+<div class="card">
+  <div class="hint">4 pitfall quan trọng. Click từng pitfall để xem demo và giải thích.</div>
+  <div class="row">
+    <button onclick="showPitfall(1)">Pitfall 1: Cluster Size</button>
+    <button onclick="showPitfall(2)">Pitfall 2: Cluster Distance</button>
+    <button onclick="showPitfall(3)">Pitfall 3: Cluster Ảo</button>
+    <button onclick="showPitfall(4)">Pitfall 4: Topology</button>
+  </div>
+  <div id="pitfall-display">
+    <div class="grid2">
+      <div>
+        <p id="pitfall-left-label" style="font-size:13px;font-weight:700;color:var(--accent)">Chọn pitfall...</p>
+        <svg class="viz" viewBox="0 0 260 240" id="pitfall-left-svg"></svg>
+      </div>
+      <div>
+        <p id="pitfall-right-label" style="font-size:13px;font-weight:700;color:var(--accent)">t-SNE output</p>
+        <svg class="viz" viewBox="0 0 260 240" id="pitfall-right-svg"></svg>
+      </div>
+    </div>
+    <div class="info" id="pitfall-info">Nhấn một pitfall để xem demo.</div>
+  </div>
+</div>
+
+<!-- === SECTION 4: UMAP vs t-SNE === -->
+<h2>4. UMAP — Hyperparameters</h2>
+<div class="card">
+  <div class="hint">Mô phỏng hành vi của UMAP với n_neighbors và min_dist khác nhau trên cùng dataset.</div>
+  <div class="row">
+    <label>n_neighbors: <span class="val" id="umap-nn-val">15</span></label>
+    <input type="range" id="umap-nn" min="3" max="50" value="15" oninput="umapUpdate()">
+    <label>min_dist: <span class="val" id="umap-md-val">0.10</span></label>
+    <input type="range" id="umap-md" min="0" max="9" value="2" oninput="umapUpdate()">
+    <label>Dataset:</label>
+    <select id="umap-dataset" style="padding:5px 8px;border-radius:5px;border:1px solid #a5f3fc;font-size:13px;" onchange="umapUpdate()">
+      <option value="3clusters">3 clusters</option>
+      <option value="moons">Moons</option>
+      <option value="rings">Rings</option>
+    </select>
+  </div>
+  <div class="grid2">
+    <div>
+      <p style="font-size:13px;font-weight:700;color:#9333ea">UMAP embedding</p>
+      <svg class="viz" viewBox="0 0 260 240" id="umap-svg"></svg>
+    </div>
+    <div>
+      <p style="font-size:13px;font-weight:700;color:#e05c2a">PCA 2D (linear baseline)</p>
+      <svg class="viz" viewBox="0 0 260 240" id="umap-pca-svg"></svg>
+    </div>
+  </div>
+  <div class="info" id="umap-info"></div>
+</div>
+
+<script>
+// ====== UTILS ======
+const COLS=['#0e7490','#16a34a','#9333ea','#e05c2a','#b45309','#dc2626','#0369a1','#15803d','#7e22ce'];
+function rng(seed){let s=seed||42;return()=>{s=(s*1664525+1013904223)&0xffffffff;return (s>>>0)/4294967296;};}
+function dist(a,b){return Math.sqrt((a[0]-b[0])**2+(a[1]-b[1])**2);}
+function normalize(pts,W,H,pad){
+  const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);
+  const minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
+  const sx=(W-2*pad)/(maxX-minX||1),sy=(H-2*pad)/(maxY-minY||1),s=Math.min(sx,sy);
+  const cx=(minX+maxX)/2,cy=(minY+maxY)/2;
+  return pts.map(p=>[(p[0]-cx)*s+W/2,(p[1]-cy)*(-s)+H/2]);
+}
+
+function genData(type,seed){
+  const rand=rng(seed||42);
+  const pts=[];
+  if(type==='3clusters'){
+    [[0,2],[-2,-1],[2,-1]].forEach((c,ci)=>{for(let i=0;i<15;i++)pts.push([c[0]+(rand()-0.5)*0.8,c[1]+(rand()-0.5)*0.8,ci]);});
+  } else if(type==='moons'){
+    for(let i=0;i<20;i++){const t=Math.PI*i/19;pts.push([Math.cos(t)+(rand()-0.5)*0.15,Math.sin(t)+(rand()-0.5)*0.15,0]);}
+    for(let i=0;i<20;i++){const t=Math.PI+Math.PI*i/19;pts.push([1+Math.cos(t)+(rand()-0.5)*0.15,-0.3+Math.sin(t)+(rand()-0.5)*0.15,1]);}
+  } else if(type==='noise'){
+    for(let i=0;i<40;i++)pts.push([(rand()-0.5)*4,(rand()-0.5)*4,0]);
+  } else if(type==='rings'){
+    for(let i=0;i<20;i++){const t=2*Math.PI*i/20;pts.push([(1+0.08*(rand()-0.5))*Math.cos(t),(1+0.08*(rand()-0.5))*Math.sin(t),0]);}
+    for(let i=0;i<30;i++){const t=2*Math.PI*i/30;pts.push([(2.3+0.08*(rand()-0.5))*Math.cos(t),(2.3+0.08*(rand()-0.5))*Math.sin(t),1]);}
+  }
+  return pts;
+}
+
+function drawScatter(svgId,pts,W,H,pad,colors){
+  const norm=normalize(pts.map(p=>[p[0],p[1]]),W,H,pad);
+  let html='';
+  norm.forEach((p,i)=>{
+    const c=colors?colors[i]:COLS[(pts[i][2]||0)%COLS.length];
+    html+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="4" fill="${c}" stroke="white" stroke-width="1" opacity="0.85"/>`;
+  });
+  document.getElementById(svgId).innerHTML=html;
+}
+
+// ====== SECTION 1: Distribution comparison ======
+function tsneUpdate(){
+  const dhigh=+document.getElementById('tsne-dhigh').value;
+  document.getElementById('tsne-dhigh-val').textContent=dhigh.toFixed(1);
+  const svg=document.getElementById('tsne-dist-svg');
+  const W=520,H=260,padL=55,padR=20,padT=20,padB=40;
+  const hw=W-padL-padR,hh=H-padT-padB;
+  const dMax=6;
+  const sd=1.5; // sigma for high-dim Gaussian
+  const pHigh=Math.exp(-dhigh*dhigh/(2*sd*sd));
+  // Normalize over many points
+  const pts1d=[...Array(40)].map((_,i)=>(i+0.5)/40*dMax);
+  const gaussNorm=pts1d.reduce((s,d)=>s+Math.exp(-d*d/(2*sd*sd)),0);
+  const pH_norm=pHigh/gaussNorm;
+  let html='';
+  // Axes
+  html+=`<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H-padB}" stroke="#ccc"/>`;
+  html+=`<line x1="${padL}" y1="${H-padB}" x2="${W-padR}" y2="${H-padB}" stroke="#ccc"/>`;
+  // x labels
+  [0,1,2,3,4,5,6].forEach(v=>{const x=padL+v*hw/dMax;html+=`<text x="${x}" y="${H-padB+14}" text-anchor="middle" font-size="11" fill="#555">${v}</text>`;});
+  html+=`<text x="${W/2}" y="${H-padB+28}" text-anchor="middle" font-size="12" fill="#555">khoảng cách d</text>`;
+  html+=`<text x="12" y="${H/2}" text-anchor="middle" font-size="11" fill="#555" transform="rotate(-90,12,${H/2})">Probability</text>`;
+  // Gaussian curve (high-dim)
+  const gPts=pts1d.map(d=>[padL+d*hw/dMax,padT+hh*(1-Math.exp(-d*d/(2*sd*sd)))]);
+  html+=`<polyline points="${gPts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#0e7490" stroke-width="2.5"/>`;
+  html+=`<text x="${gPts[5][0]+5}" y="${gPts[5][1]-5}" font-size="12" fill="#0e7490" font-weight="700">Gaussian P (high-dim)</text>`;
+  // t-dist curve (low-dim, Cauchy 1+d^2)^-1
+  const tMax=Math.max(...pts1d.map(d=>1/(1+d*d)));
+  const tPts=pts1d.map(d=>[padL+d*hw/dMax,padT+hh*(1-1/(1+d*d)/tMax)]);
+  html+=`<polyline points="${tPts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#dc2626" stroke-width="2.5"/>`;
+  html+=`<text x="${tPts[8][0]+5}" y="${tPts[8][1]-5}" font-size="12" fill="#dc2626" font-weight="700">Cauchy Q (low-dim)</text>`;
+  // vertical at dhigh
+  const xv=padL+dhigh*hw/dMax;
+  html+=`<line x1="${xv}" y1="${padT}" x2="${xv}" y2="${H-padB}" stroke="#b45309" stroke-width="1.5" stroke-dasharray="5,3"/>`;
+  // P and Q values
+  const pG=Math.exp(-dhigh*dhigh/(2*sd*sd));
+  const pT=1/(1+dhigh*dhigh);
+  const yG=padT+hh*(1-pG);
+  const yT=padT+hh*(1-pT/tMax);
+  html+=`<circle cx="${xv}" cy="${yG}" r="5" fill="#0e7490"/>`;
+  html+=`<circle cx="${xv}" cy="${yT}" r="5" fill="#dc2626"/>`;
+  svg.innerHTML=html;
+  document.getElementById('tsne-dist-info').innerHTML=
+    `d_high=${dhigh} &nbsp;|&nbsp; Gaussian P = <span class="hi">${pG.toFixed(4)}</span> &nbsp;|&nbsp; Cauchy Q = <span class="hi">${pT.toFixed(4)}</span> &nbsp;|&nbsp; P/Q ratio = <span class="hi">${(pG/pT).toFixed(3)}</span> — Khi d lớn, P/Q có nghĩa <span class="${pG/pT>1?'hi':'warn'}">${pG/pT>1?'P > Q → attractor':'P < Q → repeller'}</span>`;
+}
+
+// ====== SECTION 2: t-SNE simplified simulation ======
+// True t-SNE is too heavy for browser — we simulate with force-directed layout approximating t-SNE behavior
+function computeAffinities(pts, perplexity) {
+  const n=pts.length;
+  const P=Array.from({length:n},()=>new Float32Array(n));
+  // For each point, compute bandwidth via binary search
+  for(let i=0;i<n;i++){
+    const dists=pts.map((_,j)=>j===i?Infinity:dist([pts[i][0],pts[i][1]],[pts[j][0],pts[j][1]]));
+    // Binary search for sigma
+    let lo=0.01,hi=10,sigma=1;
+    for(let iter=0;iter<30;iter++){
+      sigma=(lo+hi)/2;
+      const exps=dists.map(d=>Math.exp(-d*d/(2*sigma*sigma)));
+      const sum=exps.reduce((s,v)=>s+v,0);
+      if(sum<1e-10){hi=sigma*2;continue;}
+      const probs=exps.map(v=>v/sum);
+      const H=-probs.reduce((s,p)=>p>1e-10?s+p*Math.log2(p):s,0);
+      const perf=Math.pow(2,H);
+      if(perf<perplexity) lo=sigma; else hi=sigma;
+    }
+    const exps=dists.map(d=>Math.exp(-d*d/(2*sigma*sigma)));
+    const sum=exps.reduce((s,v)=>s+v,0);
+    for(let j=0;j<n;j++) P[i][j]=sum>0?exps[j]/sum:0;
+  }
+  // Symmetrize
+  const Psym=Array.from({length:n},()=>new Float32Array(n));
+  const n2=2*n;
+  for(let i=0;i<n;i++) for(let j=0;j<n;j++) Psym[i][j]=(P[i][j]+P[j][i])/n2;
+  return Psym;
+}
+
+function runTSNEGD(pts, P, nIter, lr) {
+  const n=pts.length;
+  // Initialize Y randomly
+  const rand=rng(42);
+  let Y=pts.map(()=>[(rand()-0.5)*0.1,(rand()-0.5)*0.1]);
+  const momentum=Array.from({length:n},()=>[0,0]);
+  for(let iter=0;iter<nIter;iter++){
+    // Compute Q
+    const Q=Array.from({length:n},()=>new Float32Array(n));
+    let Zsum=0;
+    for(let i=0;i<n;i++) for(let j=i+1;j<n;j++){
+      const d2=(Y[i][0]-Y[j][0])**2+(Y[i][1]-Y[j][1])**2;
+      const q=1/(1+d2);
+      Q[i][j]=q; Q[j][i]=q; Zsum+=2*q;
+    }
+    Zsum=Math.max(Zsum,1e-10);
+    // Gradient
+    const grad=Array.from({length:n},()=>[0,0]);
+    for(let i=0;i<n;i++) for(let j=0;j<n;j++){
+      if(i===j) continue;
+      const d2=(Y[i][0]-Y[j][0])**2+(Y[i][1]-Y[j][1])**2;
+      const qij=Q[i][j]/Zsum;
+      const force=4*(P[i][j]-qij)*(1/(1+d2));
+      grad[i][0]+=force*(Y[i][0]-Y[j][0]);
+      grad[i][1]+=force*(Y[i][1]-Y[j][1]);
+    }
+    // Update with momentum
+    const alpha=iter<250?0.5:0.8;
+    for(let i=0;i<n;i++){
+      momentum[i][0]=alpha*momentum[i][0]-lr*grad[i][0];
+      momentum[i][1]=alpha*momentum[i][1]-lr*grad[i][1];
+      Y[i][0]+=momentum[i][0];
+      Y[i][1]+=momentum[i][1];
+    }
+  }
+  return Y;
+}
+
+let perpPts=null;
+function runTSNE(){
+  const dtype=document.getElementById('perp-dataset').value;
+  const perplexity=+document.getElementById('perp-slider').value;
+  const rawData=genData(dtype,42);
+  perpPts=rawData;
+  // Draw raw
+  drawScatter('perp-raw-svg',rawData,260,240,22);
+  document.getElementById('perp-info').innerHTML='Đang tính t-SNE... (có thể mất vài giây)';
+  // Run async
+  setTimeout(()=>{
+    const pts=rawData.map(p=>[p[0],p[1]]);
+    const P=computeAffinities(pts,perplexity);
+    const Y=runTSNEGD(pts,P,300,50);
+    // Color by original label
+    const colors=rawData.map(p=>COLS[(p[2]||0)%COLS.length]);
+    const norm=normalize(Y,260,240,22);
+    let html='';
+    norm.forEach((p,i)=>{html+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="4" fill="${colors[i]}" stroke="white" stroke-width="1" opacity="0.85"/>`;});
+    document.getElementById('perp-tsne-svg').innerHTML=html;
+    const nc=dtype==='3clusters'?3:dtype==='moons'?2:1;
+    document.getElementById('perp-info').innerHTML=
+      `Perplexity=${perplexity} &nbsp;|&nbsp; Dataset: ${dtype} &nbsp;|&nbsp; ${rawData.length} điểm &nbsp;|&nbsp; <span class="hi">Màu = nhãn thật</span> (xác minh chất lượng embedding)`;
+  },10);
+}
+
+// ====== SECTION 3: PITFALLS ======
+function showPitfall(n){
+  const rand=rng(77+n*13);
+  const W=260,H=240,pad=22;
+  let leftPts=[], rightPts=[], leftLabel='', rightLabel='', info='';
+
+  if(n===1){
+    // Pitfall 1: cluster size meaningless
+    // Left: dense cluster A (100 pts, tight) + sparse cluster B (30 pts, spread)
+    for(let i=0;i<40;i++) leftPts.push([(rand()-0.5)*0.4-2,(rand()-0.5)*0.4,0]);
+    for(let i=0;i<10;i++) leftPts.push([(rand()-0.5)*2+2,(rand()-0.5)*2,1]);
+    // Right: simulate t-SNE showing both similarly sized
+    for(let i=0;i<40;i++) rightPts.push([(rand()-0.5)*0.8-2,(rand()-0.5)*0.8,0]);
+    for(let i=0;i<10;i++) rightPts.push([(rand()-0.5)*0.7+2,(rand()-0.5)*0.7,1]);
+    leftLabel='Data thật: A dense (40 pts), B sparse (10 pts)';
+    rightLabel='t-SNE: A và B trông gần bằng nhau!';
+    info='<span class="warn">Pitfall 1</span>: Cluster size trong t-SNE KHÔNG reflect số điểm hay mật độ. A có 40 điểm dense nhưng t-SNE co lại bằng B (10 điểm sparse). Đừng kết luận "tầm quan trọng" từ kích thước cluster.';
+  } else if(n===2){
+    // Pitfall 2: distance meaningless — 2 runs show different relative positions
+    for(let i=0;i<15;i++) leftPts.push([(rand()-0.5)*0.8-2,(rand()-0.5)*0.8,0]);
+    for(let i=0;i<15;i++) leftPts.push([(rand()-0.5)*0.8+2,(rand()-0.5)*0.8,1]);
+    for(let i=0;i<15;i++) leftPts.push([(rand()-0.5)*0.8,2+(rand()-0.5)*0.8,2]);
+    // Run 1: A-B close, C far
+    for(let i=0;i<15;i++) rightPts.push([(rand()-0.5)*0.6-0.5,(rand()-0.5)*0.6,0]);
+    for(let i=0;i<15;i++) rightPts.push([(rand()-0.5)*0.6+0.5,(rand()-0.5)*0.6,1]);
+    for(let i=0;i<15;i++) rightPts.push([(rand()-0.5)*0.6,3+(rand()-0.5)*0.6,2]);
+    leftLabel='Data gốc: A, B, C đều cách nhau 4 units';
+    rightLabel='t-SNE run 1: A-B gần, C xa (vô nghĩa)';
+    info='<span class="warn">Pitfall 2</span>: Khoảng cách GIỮA cluster trong t-SNE không có ý nghĩa. Mỗi lần chạy có thể cho vị trí cluster khác nhau. Không kết luận "A và B liên quan hơn C" chỉ từ plot.';
+  } else if(n===3){
+    // Pitfall 3: fake clusters from noise
+    for(let i=0;i<50;i++) leftPts.push([(rand()-0.5)*4,(rand()-0.5)*4,0]);
+    // t-SNE on uniform noise creates fake clusters
+    for(const [[cx,cy],lbl] of [[[−2,−1],0],[[ 0, 2],1],[[2,0],2],[[-1,1],3],[[1,-2],4]]){
+      for(let i=0;i<10;i++) rightPts.push([cx+(rand()-0.5)*0.7,cy+(rand()-0.5)*0.7,lbl]);
+    }
+    leftLabel='Data thật: UNIFORM RANDOM (không có cluster)';
+    rightLabel='t-SNE: tạo ra 5 cluster ảo!';
+    info='<span class="warn">Pitfall 3</span>: t-SNE tạo cluster ngay cả với data random. LUÔN validate cluster bằng phương pháp khác (K-means, thống kê) trước khi công bố. Chạy nhiều lần với seed khác — cluster ảo sẽ không ổn định.';
+  } else {
+    // Pitfall 4: topology not preserved
+    // Left: circle (connected ring)
+    for(let i=0;i<40;i++){const t=2*Math.PI*i/40;leftPts.push([(1+0.08*(rand()-0.5))*Math.cos(t),(1+0.08*(rand()-0.5))*Math.sin(t),0]);}
+    // Right: t-SNE might break the ring into 2 arcs
+    for(let i=0;i<20;i++){const t=Math.PI*i/20;rightPts.push([Math.cos(t)*1.2+(rand()-0.5)*0.2,Math.sin(t)*1.2+(rand()-0.5)*0.2-1.5,0]);}
+    for(let i=0;i<20;i++){const t=Math.PI+Math.PI*i/20;rightPts.push([Math.cos(t)*1.2+(rand()-0.5)*0.2,Math.sin(t)*1.2+(rand()-0.5)*0.2+1.5,0]);}
+    leftLabel='Data thật: 1 vòng tròn liên tục';
+    rightLabel='t-SNE: xé vòng thành 2 cụm rời!';
+    info='<span class="warn">Pitfall 4</span>: Topology không được preserve. Một cluster liên tục có thể bị xé ra, hoặc 2 cluster riêng biệt có thể bị hợp nhất. t-SNE chỉ đảm bảo local neighborhoods, không phải global topology.';
+  }
+  drawScatter('pitfall-left-svg',leftPts,W,H,pad);
+  drawScatter('pitfall-right-svg',rightPts,W,H,pad);
+  document.getElementById('pitfall-left-label').textContent=leftLabel;
+  document.getElementById('pitfall-right-label').textContent=rightLabel;
+  document.getElementById('pitfall-info').innerHTML=info;
+}
+
+// ====== SECTION 4: UMAP-like simulation ======
+// We simulate UMAP behavior via force-directed with different locality radius (n_neighbors controls)
+function umapSimulate(pts, nNeighbors, minDist) {
+  const n=pts.length;
+  const rand=rng(55);
+  // Initialize Y
+  let Y=pts.map(()=>[(rand()-0.5)*2,(rand()-0.5)*2]);
+  // Build kNN graph (approximate by threshold)
+  const dists=pts.map((p,i)=>pts.map((q,j)=>j===i?Infinity:dist([p[0],p[1]],[q[0],q[1]])));
+  const knnThresh=dists.map(row=>{
+    const sorted=[...row].filter(isFinite).sort((a,b)=>a-b);
+    return sorted[Math.min(nNeighbors-1,sorted.length-1)]||1;
+  });
+  const attractions=[];
+  for(let i=0;i<n;i++) for(let j=i+1;j<n;j++){
+    if(dists[i][j]<=knnThresh[i]||dists[j][i]<=knnThresh[j]) attractions.push([i,j,Math.exp(-dists[i][j])]);
+  }
+  // GD
+  for(let iter=0;iter<150;iter++){
+    const grad=Array.from({length:n},()=>[0,0]);
+    // Attractive forces
+    attractions.forEach(([i,j,w])=>{
+      const dx=Y[i][0]-Y[j][0],dy=Y[i][1]-Y[j][1];
+      const d2=dx*dx+dy*dy+1e-6;
+      const f=w/(d2+minDist*minDist)*0.5;
+      grad[i][0]-=f*dx; grad[i][1]-=f*dy;
+      grad[j][0]+=f*dx; grad[j][1]+=f*dy;
+    });
+    // Repulsive forces (negative sampling)
+    for(let s=0;s<n*2;s++){
+      const i=Math.floor(rand()*n),j=Math.floor(rand()*n);
+      if(i===j) continue;
+      const dx=Y[i][0]-Y[j][0],dy=Y[i][1]-Y[j][1];
+      const d2=dx*dx+dy*dy+1e-6;
+      const f=0.1/(d2*(1+d2));
+      grad[i][0]+=f*dx; grad[i][1]+=f*dy;
+    }
+    const lr=1.5*(1-iter/150);
+    for(let i=0;i<n;i++){Y[i][0]+=lr*grad[i][0];Y[i][1]+=lr*grad[i][1];}
+  }
+  return Y;
+}
+
+function pcaProject(pts){
+  // 2D PCA (just return first 2 dim since our data is already 2D)
+  // Compute covariance and project
+  const mx=pts.reduce((s,p)=>s+p[0],0)/pts.length;
+  const my=pts.reduce((s,p)=>s+p[1],0)/pts.length;
+  const cx=pts.map(p=>p[0]-mx),cy=pts.map(p=>p[1]-my);
+  const c00=cx.reduce((s,v,i)=>s+v*cx[i],0)/pts.length;
+  const c01=cx.reduce((s,v,i)=>s+v*cy[i],0)/pts.length;
+  const c11=cy.reduce((s,v,i)=>s+v*cy[i],0)/pts.length;
+  const trace=c00+c11,disc=Math.sqrt(Math.max(0,(c00-c11)**2/4+c01*c01));
+  const l1=trace/2+disc;
+  const v1=Math.abs(c01)>1e-10?[l1-c11,c01].map(x=>x/Math.sqrt((l1-c11)**2+c01*c01)):c00>=c11?[1,0]:[0,1];
+  const v2=[-v1[1],v1[0]];
+  return pts.map((p,i)=>[cx[i]*v1[0]+cy[i]*v1[1],cx[i]*v2[0]+cy[i]*v2[1]]);
+}
+
+function umapUpdate(){
+  const nn=+document.getElementById('umap-nn').value;
+  const mdIdx=+document.getElementById('umap-md').value;
+  const md=[0,0.01,0.05,0.1,0.2,0.3,0.4,0.5,0.7,1.0][mdIdx]||0.1;
+  document.getElementById('umap-nn-val').textContent=nn;
+  document.getElementById('umap-md-val').textContent=md.toFixed(2);
+  const dtype=document.getElementById('umap-dataset').value;
+  const rawData=genData(dtype,42);
+  const pts=rawData.map(p=>[p[0],p[1]]);
+  const colors=rawData.map(p=>COLS[(p[2]||0)%COLS.length]);
+  // UMAP sim
+  const Y=umapSimulate(pts,nn,md);
+  const normU=normalize(Y,260,240,22);
+  let html='';
+  normU.forEach((p,i)=>{html+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="4" fill="${colors[i]}" stroke="white" stroke-width="1" opacity="0.85"/>`;});
+  document.getElementById('umap-svg').innerHTML=html;
+  // PCA baseline
+  const Ypca=pcaProject(pts);
+  const normP=normalize(Ypca,260,240,22);
+  let phtml='';
+  normP.forEach((p,i)=>{phtml+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="4" fill="${colors[i]}" stroke="white" stroke-width="1" opacity="0.85"/>`;});
+  document.getElementById('umap-pca-svg').innerHTML=phtml;
+  document.getElementById('umap-info').innerHTML=
+    `n_neighbors=${nn} (${nn<8?'local':'global'} structure) &nbsp;|&nbsp; min_dist=${md} (${md<0.1?'dense clusters':'spread clusters'}) &nbsp;|&nbsp; Dataset: ${dtype}`;
+}
+
+// ====== INIT ======
+window.addEventListener('load',()=>{
+  tsneUpdate();
+  runTSNE();
+  showPitfall(1);
+  umapUpdate();
+});
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

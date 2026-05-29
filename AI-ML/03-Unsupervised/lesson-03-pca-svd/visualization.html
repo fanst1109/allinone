@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T3-L03: PCA & SVD</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #ecfeff;
+    --accent: #0e7490;
+    --accent-soft: #cffafe;
+    --accent-hover: #155e75;
+  }
+  h2 { color: var(--accent); margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid var(--accent-soft); }
+  .card { background: white; border-radius: 10px; padding: 20px 22px; box-shadow: 0 1px 4px rgba(0,0,0,0.09); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; color: #155e75; font-size: 14px; }
+  input[type="range"] { width: 150px; accent-color: var(--accent); }
+  .val { font-family: monospace; font-size: 13px; color: var(--accent); font-weight: 700; min-width: 32px; display: inline-block; }
+  button { padding: 7px 14px; border-radius: 6px; border: none; cursor: pointer; font-size: 13px; font-weight: 700; background: var(--accent); color: white; }
+  button:hover { background: var(--accent-hover); }
+  svg.viz { display: block; border: 1px solid var(--accent-soft); border-radius: 8px; background: #f0fdff; width: 100%; height: auto; }
+  .info { font-family: monospace; font-size: 13px; background: #f0fdff; border: 1px solid var(--accent-soft); border-radius: 6px; padding: 10px 14px; margin-top: 10px; line-height: 1.9; }
+  .info .hi { color: var(--accent); font-weight: 700; }
+  .hint { font-size: 13px; background: var(--accent-soft); padding: 9px 12px; border-left: 4px solid var(--accent); border-radius: 4px; margin: 10px 0; color: #155e75; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 820px) { .grid2 { grid-template-columns: 1fr; } }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; margin: 8px 0; }
+  .legend .item { display: flex; align-items: center; gap: 6px; }
+  .legend .sw { width: 18px; height: 4px; border-radius: 2px; display: inline-block; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-dbscan-density/visualization.html">← T3-L02: DBSCAN</a>
+  <span class="sep">·</span>
+  <span class="current">T3-L03: PCA &amp; SVD</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-tsne-umap/visualization.html">T3-L04: t-SNE/UMAP →</a>
+</nav>
+<main>
+<h1>T3-L03: PCA &amp; SVD</h1>
+<p style="color:#155e75;font-size:15px">Tìm hướng variance lớn nhất trong data. Kéo slider xoay để thấy projection thay đổi.</p>
+
+<!-- === SECTION 1: 2D POINT CLOUD + PC AXES === -->
+<h2>1. PCA trực tiếp — Point Cloud &amp; Principal Components</h2>
+<div class="card">
+  <div class="hint">PCA tính eigenvector của covariance matrix. Mũi tên đỏ = PC1 (variance lớn nhất), xanh = PC2. Độ dài tỷ lệ với √eigenvalue (standard deviation theo hướng đó).</div>
+  <div class="row">
+    <label>Dataset:</label>
+    <select id="pca-dataset" style="padding:5px 8px;border-radius:5px;border:1px solid #a5f3fc;font-size:13px;" onchange="pcaInit()">
+      <option value="ellipse">Ellipse nghiêng</option>
+      <option value="circle">Hình tròn (PC1≈PC2)</option>
+      <option value="line">Đường thẳng (PC2≈0)</option>
+      <option value="clusters">3 clusters iris-like</option>
+    </select>
+    <button onclick="pcaInit()">🔄 Tạo data mới</button>
+  </div>
+  <div class="grid2">
+    <div>
+      <p style="font-size:13px;font-weight:700;color:var(--accent)">Data gốc + PC axes</p>
+      <svg class="viz" viewBox="0 0 260 240" id="pca-raw-svg"></svg>
+    </div>
+    <div>
+      <p style="font-size:13px;font-weight:700;color:var(--accent)">Projection lên PC1</p>
+      <svg class="viz" viewBox="0 0 260 240" id="pca-proj-svg"></svg>
+    </div>
+  </div>
+  <div class="info" id="pca-info"></div>
+</div>
+
+<!-- === SECTION 2: INTERACTIVE ROTATION === -->
+<h2>2. Projection — Xoay Trục để Thấy Variance</h2>
+<div class="card">
+  <div class="hint">Kéo slider để xoay trục chiếu. Quan sát variance của data chiếu (histogram). PCA tự động tìm góc có variance max.</div>
+  <div class="row">
+    <label>Góc trục: <span class="val" id="rot-angle-val">0</span>°</label>
+    <input type="range" id="rot-angle" min="0" max="179" value="0" oninput="rotUpdate()">
+    <button onclick="document.getElementById('rot-angle').value=pcaBestAngle;rotUpdate()">Auto: PCA angle</button>
+  </div>
+  <div class="grid2">
+    <div>
+      <p style="font-size:13px;font-weight:700;color:var(--accent)">Scatter + projection line</p>
+      <svg class="viz" viewBox="0 0 260 240" id="rot-scatter-svg"></svg>
+    </div>
+    <div>
+      <p style="font-size:13px;font-weight:700;color:var(--accent)">Histogram của Z (projected)</p>
+      <svg class="viz" viewBox="0 0 260 240" id="rot-hist-svg"></svg>
+    </div>
+  </div>
+  <div class="info" id="rot-info"></div>
+</div>
+
+<!-- === SECTION 3: SCREE PLOT === -->
+<h2>3. Scree Plot &amp; Variance Explained</h2>
+<div class="card">
+  <div class="hint">Tìm "khuỷu tay" trên scree plot để chọn số component k. Đường nét đứt = cumulative variance explained (CVE).</div>
+  <div class="row">
+    <label>Dataset:</label>
+    <select id="scree-dataset" style="padding:5px 8px;border-radius:5px;border:1px solid #a5f3fc;font-size:13px;" onchange="drawScree()">
+      <option value="iris">Iris (4D)</option>
+      <option value="mnist50">MNIST-like (10D)</option>
+      <option value="noisy">Noisy high-D (8D)</option>
+    </select>
+    <label>Chọn k: <span class="val" id="scree-k-val">2</span></label>
+    <input type="range" id="scree-k" min="1" max="8" value="2" oninput="drawScree()">
+  </div>
+  <svg class="viz" viewBox="0 0 520 220" id="scree-svg"></svg>
+  <div class="info" id="scree-info"></div>
+</div>
+
+<script>
+// ====== UTILS ======
+function rng(seed){let s=seed||42;return()=>{s=(s*1664525+1013904223)&0xffffffff;return (s>>>0)/4294967296;};}
+function dot(a,b){return a[0]*b[0]+a[1]*b[1];}
+function norm(v){return Math.sqrt(v[0]**2+v[1]**2);}
+function normalize2(v){const n=norm(v);return [v[0]/n,v[1]/n];}
+
+// Power iteration for 2×2 symmetric matrix eigenvector (largest eigenvalue)
+function eigenvec2x2(C) {
+  // For 2x2 [[a,b],[b,d]], exact formula
+  const a=C[0][0],b=C[0][1],d=C[1][1];
+  const trace=a+d, det=a*d-b*b;
+  const disc=Math.sqrt(Math.max(0,(trace/2)**2-det));
+  const l1=trace/2+disc, l2=trace/2-disc;
+  let v1,v2;
+  if(Math.abs(b) > 1e-10) {
+    v1=normalize2([l1-d, b]);
+    v2=normalize2([l2-d, b]);
+  } else if(a>=d){
+    v1=[1,0]; v2=[0,1];
+  } else {
+    v1=[0,1]; v2=[1,0];
+  }
+  return {l1,l2,v1,v2};
+}
+
+function covariance2D(pts) {
+  const n=pts.length;
+  const mx=pts.reduce((s,p)=>s+p[0],0)/n, my=pts.reduce((s,p)=>s+p[1],0)/n;
+  const cx=pts.map(p=>p[0]-mx), cy=pts.map(p=>p[1]-my);
+  const c00=cx.reduce((s,v,i)=>s+v*cx[i],0)/n;
+  const c01=cx.reduce((s,v,i)=>s+v*cy[i],0)/n;
+  const c11=cy.reduce((s,v,i)=>s+v*cy[i],0)/n;
+  return {C:[[c00,c01],[c01,c11]],mx,my,cx,cy};
+}
+
+// ====== DATASETS ======
+function genData2D(type,seed){
+  const rand=rng(seed||42);
+  const pts=[];
+  if(type==='ellipse'){
+    for(let i=0;i<50;i++){
+      const t=2*Math.PI*rand();
+      const x=3*Math.cos(t)+(rand()-0.5)*0.5;
+      const y=0.7*Math.sin(t)+(rand()-0.5)*0.3;
+      // Rotate 35 degrees
+      const a=35*Math.PI/180;
+      pts.push([x*Math.cos(a)-y*Math.sin(a), x*Math.sin(a)+y*Math.cos(a)]);
+    }
+  } else if(type==='circle'){
+    for(let i=0;i<50;i++){const t=2*Math.PI*rand();const r=1+0.3*(rand()-0.5);pts.push([r*Math.cos(t),r*Math.sin(t)]);}
+  } else if(type==='line'){
+    for(let i=0;i<50;i++){const x=(rand()-0.5)*4;pts.push([x,0.5*x+(rand()-0.5)*0.2]);}
+  } else if(type==='clusters'){
+    [[0,2],[−2,−1],[2,−1]].forEach(c=>{
+      for(let i=0;i<17;i++)pts.push([c[0]+(rand()-0.5)*0.8,c[1]+(rand()-0.5)*0.8]);
+    });
+  }
+  return pts;
+}
+
+function scaleToSVG(pts,W,H,pad){
+  const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);
+  const cx=(Math.min(...xs)+Math.max(...xs))/2, cy=(Math.min(...ys)+Math.max(...ys))/2;
+  const rx=(Math.max(...xs)-Math.min(...xs))/2||1, ry=(Math.max(...ys)-Math.min(...ys))/2||1;
+  const s=Math.min((W-2*pad)/(2*rx),(H-2*pad)/(2*ry));
+  return pts.map(p=>[(p[0]-cx)*s+W/2,(p[1]-cy)*(-s)+H/2]);
+}
+
+// ====== SECTION 1: PCA Raw ======
+let pcaPts=[], pcaVec1=[], pcaVec2=[], pcaL1=0, pcaL2=0, pcaMx=0, pcaMy=0;
+let pcaBestAngle=0;
+const PCA_COLORS=['#0e7490','#16a34a','#9333ea'];
+
+function pcaInit(){
+  const dtype=document.getElementById('pca-dataset').value;
+  const seed=Date.now()&0xffff;
+  pcaPts=genData2D(dtype,seed);
+  const {C,mx,my}=covariance2D(pcaPts);
+  const {l1,l2,v1,v2}=eigenvec2x2(C);
+  pcaL1=l1; pcaL2=l2; pcaVec1=v1; pcaVec2=v2; pcaMx=mx; pcaMy=my;
+  pcaBestAngle=Math.round(Math.atan2(v1[1],v1[0])*180/Math.PI+360)%180;
+  drawPCAraw();
+  drawPCAproj();
+  rotPts=pcaPts;
+  document.getElementById('rot-angle').value=pcaBestAngle;
+  rotUpdate();
+}
+
+function drawPCAraw(){
+  const W=260,H=240,pad=25;
+  const spts=scaleToSVG(pcaPts,W,H,pad);
+  const smx=spts.reduce((s,p)=>s+p[0],0)/spts.length;
+  const smy=spts.reduce((s,p)=>s+p[1],0)/spts.length;
+  const scale=Math.min((W-2*pad),(H-2*pad))/2;
+  const sl=Math.sqrt(pcaL1)*scale*0.5;
+  const sl2=Math.sqrt(Math.max(0,pcaL2))*scale*0.5;
+  let html='';
+  // Points
+  const dtype=document.getElementById('pca-dataset').value;
+  spts.forEach((p,i)=>{
+    const ci=dtype==='clusters'?Math.floor(i/17):0;
+    html+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5" fill="${PCA_COLORS[ci%PCA_COLORS.length]}" stroke="white" stroke-width="1" opacity="0.85"/>`;
+  });
+  // PC1 arrow
+  const p1x=smx+pcaVec1[0]*sl, p1y=smy-pcaVec1[1]*sl;
+  const p1xn=smx-pcaVec1[0]*sl, p1yn=smy+pcaVec1[1]*sl;
+  html+=`<line x1="${p1xn.toFixed(1)}" y1="${p1yn.toFixed(1)}" x2="${p1x.toFixed(1)}" y2="${p1y.toFixed(1)}" stroke="#dc2626" stroke-width="2.5"/>`;
+  html+=`<polygon points="${p1x},${p1y} ${p1x-pcaVec1[0]*8+pcaVec1[1]*4},${p1y+pcaVec1[1]*8+pcaVec1[0]*4} ${p1x-pcaVec1[0]*8-pcaVec1[1]*4},${p1y+pcaVec1[1]*8-pcaVec1[0]*4}" fill="#dc2626"/>`;
+  html+=`<text x="${(p1x+4).toFixed(1)}" y="${(p1y-4).toFixed(1)}" font-size="12" font-weight="700" fill="#dc2626">PC1</text>`;
+  // PC2 arrow
+  if(sl2>5){
+    const p2x=smx+pcaVec2[0]*sl2, p2y=smy-pcaVec2[1]*sl2;
+    const p2xn=smx-pcaVec2[0]*sl2, p2yn=smy+pcaVec2[1]*sl2;
+    html+=`<line x1="${p2xn.toFixed(1)}" y1="${p2yn.toFixed(1)}" x2="${p2x.toFixed(1)}" y2="${p2y.toFixed(1)}" stroke="#16a34a" stroke-width="2"/>`;
+    html+=`<text x="${(p2x+4).toFixed(1)}" y="${(p2y-4).toFixed(1)}" font-size="11" font-weight="700" fill="#16a34a">PC2</text>`;
+  }
+  // Center dot
+  html+=`<circle cx="${smx.toFixed(1)}" cy="${smy.toFixed(1)}" r="4" fill="#b45309" stroke="white" stroke-width="1.5"/>`;
+  document.getElementById('pca-raw-svg').innerHTML=html;
+}
+
+function drawPCAproj(){
+  const W=260,H=240,pad=25;
+  // Project all points onto PC1
+  const projs=pcaPts.map(p=>dot([p[0]-pcaMx,p[1]-pcaMy],pcaVec1));
+  const minZ=Math.min(...projs),maxZ=Math.max(...projs);
+  const sx=p=>(p-minZ)/(maxZ-minZ||1)*(W-2*pad)+pad;
+  const midY=H/2;
+  let html='';
+  html+=`<line x1="${pad}" y1="${midY}" x2="${W-pad}" y2="${midY}" stroke="#94a3b8" stroke-width="1.5"/>`;
+  const dtype=document.getElementById('pca-dataset').value;
+  projs.forEach((z,i)=>{
+    const ci=dtype==='clusters'?Math.floor(i/17):0;
+    html+=`<circle cx="${sx(z).toFixed(1)}" cy="${midY}" r="4" fill="${PCA_COLORS[ci%PCA_COLORS.length]}" stroke="white" stroke-width="1" opacity="0.85"/>`;
+  });
+  html+=`<text x="${W/2}" y="${midY+30}" text-anchor="middle" font-size="11" fill="#555">PC1 projection (1D)</text>`;
+  // Variance indicator
+  const varz=projs.reduce((s,v)=>s+v*v,0)/projs.length;
+  html+=`<text x="${W/2}" y="${H-8}" text-anchor="middle" font-size="12" font-weight="700" fill="#dc2626">Variance: ${varz.toFixed(3)}</text>`;
+  document.getElementById('pca-proj-svg').innerHTML=html;
+  const tot=pcaL1+Math.max(0,pcaL2);
+  const ve=tot>0?((pcaL1/tot)*100).toFixed(1):100;
+  document.getElementById('pca-info').innerHTML=
+    `PC1 eigenvalue: <span class="hi">${pcaL1.toFixed(3)}</span> &nbsp;|&nbsp; PC2 eigenvalue: <span class="hi">${Math.max(0,pcaL2).toFixed(3)}</span> &nbsp;|&nbsp; Variance explained by PC1: <span class="hi">${ve}%</span>`;
+}
+
+// ====== SECTION 2: Rotation ======
+let rotPts=[];
+function rotUpdate(){
+  const angle=+document.getElementById('rot-angle').value;
+  document.getElementById('rot-angle-val').textContent=angle;
+  const rad=angle*Math.PI/180;
+  const v=[Math.cos(rad),Math.sin(rad)];
+  // Use pcaPts
+  const pts=pcaPts||genData2D('ellipse',42);
+  const mx=pts.reduce((s,p)=>s+p[0],0)/pts.length;
+  const my=pts.reduce((s,p)=>s+p[1],0)/pts.length;
+  const projs=pts.map(p=>dot([p[0]-mx,p[1]-my],v));
+  const varz=projs.reduce((s,z)=>s+z*z,0)/projs.length;
+  // Draw scatter
+  const W=260,H=240,pad=22;
+  const spts=scaleToSVG(pts,W,H,pad);
+  const smx=spts.reduce((s,p)=>s+p[0],0)/spts.length;
+  const smy=spts.reduce((s,p)=>s+p[1],0)/spts.length;
+  let html='';
+  // Projection line
+  const len=120;
+  html+=`<line x1="${(smx-v[0]*len).toFixed(1)}" y1="${(smy+v[1]*len).toFixed(1)}" x2="${(smx+v[0]*len).toFixed(1)}" y2="${(smy-v[1]*len).toFixed(1)}" stroke="#e05c2a" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+  // Projected points on line (as small ticks)
+  const minP=Math.min(...projs),maxP=Math.max(...projs);
+  const svgScale=Math.min((W-2*pad),(H-2*pad))/2/Math.max(Math.abs(maxP),Math.abs(minP),0.001)*0.9;
+  spts.forEach((sp,i)=>{
+    const px=smx+projs[i]*svgScale*v[0];
+    const py=smy-projs[i]*svgScale*v[1];
+    html+=`<line x1="${px.toFixed(1)}" y1="${py.toFixed(1)}" x2="${sp[0].toFixed(1)}" y2="${sp[1].toFixed(1)}" stroke="#94a3b8" stroke-width="0.8" opacity="0.4"/>`;
+    html+=`<circle cx="${sp[0].toFixed(1)}" cy="${sp[1].toFixed(1)}" r="3.5" fill="#0e7490" stroke="white" stroke-width="1" opacity="0.8"/>`;
+  });
+  document.getElementById('rot-scatter-svg').innerHTML=html;
+  // Draw histogram
+  drawHistogram('rot-hist-svg',projs,varz,W,H);
+  // Best angle info
+  const bestA=pcaBestAngle||0;
+  const diff=Math.abs(angle-bestA);
+  const isopt=(diff<5||diff>175);
+  document.getElementById('rot-info').innerHTML=
+    `Góc ${angle}° &nbsp;|&nbsp; Variance = <span class="hi">${varz.toFixed(4)}</span>${isopt?' ← <span class="hi">PCA optimal!</span>':''}`;
+}
+
+function drawHistogram(svgId,data,variance,W,H){
+  const svg=document.getElementById(svgId);
+  const pad=30, bins=15;
+  const minD=Math.min(...data),maxD=Math.max(...data);
+  const binW=(maxD-minD)/bins;
+  const counts=new Array(bins).fill(0);
+  data.forEach(v=>{const b=Math.min(bins-1,Math.floor((v-minD)/binW));counts[b]++;});
+  const maxC=Math.max(...counts);
+  const bw=(W-2*pad)/bins;
+  let html='';
+  html+=`<line x1="${pad}" y1="${H-pad}" x2="${W-pad}" y2="${H-pad}" stroke="#ccc" stroke-width="1"/>`;
+  counts.forEach((c,i)=>{
+    const bh=(c/maxC)*(H-2*pad);
+    const x=pad+i*bw;
+    html+=`<rect x="${x.toFixed(1)}" y="${(H-pad-bh).toFixed(1)}" width="${(bw-1).toFixed(1)}" height="${bh.toFixed(1)}" fill="#0e7490" opacity="0.75"/>`;
+  });
+  html+=`<text x="${W/2}" y="${H-8}" text-anchor="middle" font-size="12" font-weight="700" fill="#0e7490">Var = ${variance.toFixed(4)}</text>`;
+  svg.innerHTML=html;
+}
+
+// ====== SECTION 3: Scree Plot ======
+const SCREE_DATA = {
+  iris: {lambdas:[2.918,0.914,0.147,0.021], d:4, label:'Iris (4D)'},
+  mnist50: {lambdas:[18.2,12.4,8.1,5.3,3.8,2.6,1.9,1.4,0.9,0.4], d:10, label:'MNIST-like (10D)'},
+  noisy: {lambdas:[4.1,3.2,1.8,0.9,0.6,0.5,0.4,0.3], d:8, label:'Noisy (8D)'}
+};
+
+function drawScree(){
+  const dtype=document.getElementById('scree-dataset').value;
+  const k=+document.getElementById('scree-k').value;
+  document.getElementById('scree-k-val').textContent=k;
+  const {lambdas,d,label}=SCREE_DATA[dtype];
+  const nComp=lambdas.length;
+  document.getElementById('scree-k').max=nComp;
+  const total=lambdas.reduce((s,v)=>s+v,0);
+  const ve=lambdas.map(l=>l/total*100);
+  const cve=ve.reduce((acc,v,i)=>[...acc,(acc[i-1]||0)+v],[]);
+  const W=520,H=220,padL=50,padR=20,padT=20,padB=40;
+  const hw=W-padL-padR, hh=H-padT-padB;
+  const sx=i=>padL+i*hw/(nComp-1);
+  const sy_ve=v=>padT+hh*(1-v/Math.max(...ve));
+  const sy_cve=v=>padT+hh*(1-v/100);
+  let html='';
+  // Grid
+  [0,25,50,75,100].forEach(v=>{
+    const y=sy_cve(v);
+    html+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
+    html+=`<text x="${padL-4}" y="${y+4}" text-anchor="end" font-size="10" fill="#888">${v}%</text>`;
+  });
+  // Axes
+  html+=`<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H-padB}" stroke="#ccc" stroke-width="1"/>`;
+  html+=`<line x1="${padL}" y1="${H-padB}" x2="${W-padR}" y2="${H-padB}" stroke="#ccc" stroke-width="1"/>`;
+  // CVE line (dashed)
+  const cvePoints=cve.map((v,i)=>`${sx(i)},${sy_cve(v)}`).join(' ');
+  html+=`<polyline points="${cvePoints}" fill="none" stroke="#9333ea" stroke-width="2" stroke-dasharray="5,3"/>`;
+  // VE bars
+  ve.forEach((v,i)=>{
+    const barH=(v/Math.max(...ve))*hh;
+    const c=i<k?'#0e7490':'#94a3b8';
+    html+=`<rect x="${sx(i)-12}" y="${H-padB-barH}" width="24" height="${barH}" fill="${c}" opacity="${i<k?0.9:0.45}" rx="3"/>`;
+    html+=`<text x="${sx(i)}" y="${H-padB+14}" text-anchor="middle" font-size="11" fill="#555">PC${i+1}</text>`;
+    html+=`<text x="${sx(i)}" y="${(H-padB-barH-4).toFixed(1)}" text-anchor="middle" font-size="10" fill="${c}" font-weight="700">${v.toFixed(1)}%</text>`;
+  });
+  // CVE dots
+  cve.forEach((v,i)=>{
+    html+=`<circle cx="${sx(i)}" cy="${sy_cve(v)}" r="4" fill="#9333ea" stroke="white" stroke-width="1.5"/>`;
+  });
+  // Cut line at k
+  if(k<=nComp){
+    const xcut=sx(k-1)+sx(1)/2;
+    html+=`<line x1="${sx(k-1)+13}" y1="${padT}" x2="${sx(k-1)+13}" y2="${H-padB}" stroke="#e05c2a" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+  }
+  // Legend
+  html+=`<rect x="${padL}" y="${padT}" width="14" height="12" fill="#0e7490" rx="2"/>`;
+  html+=`<text x="${padL+18}" y="${padT+10}" font-size="11" fill="#555">Variance explained (% per PC)</text>`;
+  html+=`<line x1="${padL+180}" y1="${padT+6}" x2="${padL+200}" y2="${padT+6}" stroke="#9333ea" stroke-width="2" stroke-dasharray="4,2"/>`;
+  html+=`<text x="${padL+204}" y="${padT+10}" font-size="11" fill="#9333ea">Cumulative</text>`;
+  document.getElementById('scree-svg').innerHTML=html;
+  const cveK=cve[k-1];
+  const err=(100-cveK).toFixed(2);
+  document.getElementById('scree-info').innerHTML=
+    `k=${k} components giữ <span class="hi">${cveK.toFixed(1)}%</span> variance &nbsp;|&nbsp; Reconstruction error: <span class="hi">${err}%</span> &nbsp;|&nbsp; Dataset: ${label}`;
+  document.getElementById('scree-k-val').textContent=k;
+}
+
+// Init
+window.addEventListener('load',()=>{
+  pcaInit();
+  drawScree();
+});
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

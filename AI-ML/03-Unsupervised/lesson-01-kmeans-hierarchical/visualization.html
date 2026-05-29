@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T3-L01: K-means & Hierarchical Clustering</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #ecfeff;
+    --accent: #0e7490;
+    --accent-soft: #cffafe;
+    --accent-hover: #155e75;
+  }
+  h2 { color: var(--accent); margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid var(--accent-soft); }
+  h3 { color: #155e75; margin-top: 24px; }
+  .card { background: white; border-radius: 10px; padding: 20px 22px; box-shadow: 0 1px 4px rgba(0,0,0,0.09); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; color: #155e75; font-size: 14px; }
+  input[type="range"] { width: 160px; accent-color: var(--accent); }
+  .val { font-family: monospace; font-size: 13px; color: var(--accent); font-weight: 700; min-width: 32px; display: inline-block; }
+  button {
+    padding: 7px 14px; border-radius: 6px; border: none; cursor: pointer;
+    font-size: 13px; font-weight: 700; background: var(--accent); color: white;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.secondary { background: var(--accent-soft); color: var(--accent-hover); }
+  button.secondary:hover { background: #a5f3fc; }
+  svg.viz { display: block; border: 1px solid var(--accent-soft); border-radius: 8px; background: #f0fdff; width: 100%; height: auto; }
+  .info { font-family: monospace; font-size: 13px; background: #f0fdff; border: 1px solid var(--accent-soft); border-radius: 6px; padding: 10px 14px; margin-top: 10px; line-height: 1.9; }
+  .info .hi { color: var(--accent); font-weight: 700; }
+  .hint { color: #155e75; font-size: 13px; background: var(--accent-soft); padding: 9px 12px; border-left: 4px solid var(--accent); border-radius: 4px; margin: 10px 0; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; margin: 8px 0; }
+  .legend .item { display: flex; align-items: center; gap: 5px; }
+  .legend .sw { width: 14px; height: 14px; border-radius: 50%; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 820px) { .grid2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../02-ClassicalMethods/lesson-04-gradient-boosting/visualization.html">← T2-L04: Gradient Boosting</a>
+  <span class="sep">·</span>
+  <span class="current">T3-L01: K-means &amp; Hierarchical</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-dbscan-density/visualization.html">T3-L02: DBSCAN →</a>
+</nav>
+<main>
+<h1>T3-L01: K-means &amp; Hierarchical Clustering</h1>
+<p style="color:#155e75;font-size:15px">Tìm cấu trúc trong data không có nhãn. Tương tác để quan sát từng bước hội tụ.</p>
+
+<!-- === SECTION 1: K-MEANS ANIMATION === -->
+<h2>1. K-means — Animation từng Iteration</h2>
+<div class="card">
+  <div class="hint">Click <b>Khởi tạo</b> để chọn data + centroids ngẫu nhiên, rồi click <b>Next Step</b> để xem từng bước assign &amp; update.</div>
+  <div class="row">
+    <label>k: <span class="val" id="km-k-val">3</span></label>
+    <input type="range" id="km-k" min="2" max="5" value="3" oninput="document.getElementById('km-k-val').textContent=this.value">
+    <label>Dataset:</label>
+    <select id="km-dataset" style="padding:5px 8px;border-radius:5px;border:1px solid #a5f3fc;font-size:13px;">
+      <option value="blobs">3 blobs gọn</option>
+      <option value="overlap">Overlap</option>
+      <option value="unequal">Unequal size</option>
+      <option value="moons">Moons (K-means fail)</option>
+    </select>
+    <label>Init:</label>
+    <select id="km-init" style="padding:5px 8px;border-radius:5px;border:1px solid #a5f3fc;font-size:13px;">
+      <option value="kmpp">K-means++</option>
+      <option value="random">Random</option>
+    </select>
+  </div>
+  <div class="row">
+    <button onclick="kmInit()">🔄 Khởi tạo</button>
+    <button onclick="kmStep()" id="km-step-btn">⏭ Next Step</button>
+    <button class="secondary" onclick="kmRunAll()">⚡ Chạy hết</button>
+  </div>
+  <svg class="viz" viewBox="0 0 520 320" id="km-svg"></svg>
+  <div class="info" id="km-info">Chọn dataset và nhấn Khởi tạo.</div>
+</div>
+
+<!-- === SECTION 2: ELBOW + SILHOUETTE === -->
+<h2>2. Chọn k — Elbow &amp; Silhouette</h2>
+<div class="card">
+  <div class="hint">K-means chạy 5 lần (n_init=5) cho mỗi k, lấy inertia trung bình. Tìm "khuỷu tay" trên biểu đồ.</div>
+  <div class="row">
+    <label>Dataset:</label>
+    <select id="es-dataset" style="padding:5px 8px;border-radius:5px;border:1px solid #a5f3fc;font-size:13px;">
+      <option value="3blobs">3 blobs (elbow tại k=3)</option>
+      <option value="4blobs">4 blobs (elbow tại k=4)</option>
+      <option value="noisy">Noisy (elbow mờ)</option>
+    </select>
+    <button onclick="runElbow()">📊 Tính Elbow + Silhouette</button>
+  </div>
+  <div class="grid2">
+    <div>
+      <p style="font-size:13px;font-weight:700;color:var(--accent)">Inertia (WCSS)</p>
+      <svg class="viz" viewBox="0 0 260 200" id="elbow-svg"></svg>
+    </div>
+    <div>
+      <p style="font-size:13px;font-weight:700;color:var(--accent)">Mean Silhouette Score</p>
+      <svg class="viz" viewBox="0 0 260 200" id="sil-svg"></svg>
+    </div>
+  </div>
+  <div class="info" id="es-info">Nhấn nút để tính...</div>
+</div>
+
+<!-- === SECTION 3: HIERARCHICAL DENDROGRAM === -->
+<h2>3. Hierarchical Clustering — Dendrogram Interactive</h2>
+<div class="card">
+  <div class="hint">Kéo slider <b>Cut Height</b> để cắt dendrogram ở các mức khác nhau — số cluster thay đổi theo thời gian thực.</div>
+  <div class="row">
+    <label>Linkage:</label>
+    <select id="hc-linkage" style="padding:5px 8px;border-radius:5px;border:1px solid #a5f3fc;font-size:13px;" onchange="runHierarchical()">
+      <option value="single">Single (min)</option>
+      <option value="complete">Complete (max)</option>
+      <option value="average">Average</option>
+      <option value="ward" selected>Ward</option>
+    </select>
+    <label>Dataset:</label>
+    <select id="hc-dataset" style="padding:5px 8px;border-radius:5px;border:1px solid #a5f3fc;font-size:13px;" onchange="runHierarchical()">
+      <option value="blobs">3 blobs</option>
+      <option value="chain">Chain (single linkage)</option>
+      <option value="iris5">Iris 20pts</option>
+    </select>
+  </div>
+  <div class="row">
+    <label>Cut Height: <span class="val" id="hc-cut-val">50</span>%</label>
+    <input type="range" id="hc-cut" min="1" max="99" value="50" oninput="updateDendrogramCut(this.value)">
+  </div>
+  <div class="grid2">
+    <div>
+      <p style="font-size:13px;font-weight:700;color:var(--accent)">Dendrogram</p>
+      <svg class="viz" viewBox="0 0 260 280" id="dendro-svg"></svg>
+    </div>
+    <div>
+      <p style="font-size:13px;font-weight:700;color:var(--accent)">Scatter (màu = cluster)</p>
+      <svg class="viz" viewBox="0 0 260 280" id="hc-scatter-svg"></svg>
+    </div>
+  </div>
+  <div class="info" id="hc-info">Chọn linkage và dataset, nhấn Enter.</div>
+</div>
+
+<script>
+// ====== UTILITIES ======
+const COLORS = ['#0e7490','#e05c2a','#16a34a','#9333ea','#dc2626','#b45309'];
+const rng = (seed) => {
+  let s = seed || 42;
+  return () => { s = (s * 1664525 + 1013904223) & 0xffffffff; return (s >>> 0) / 4294967296; };
+};
+
+function dist2(a, b) {
+  return (a[0]-b[0])**2 + (a[1]-b[1])**2;
+}
+function dist(a, b) { return Math.sqrt(dist2(a, b)); }
+
+function generateData(type, n, seed) {
+  const rand = rng(seed || 42);
+  const pts = [];
+  if (type === 'blobs') {
+    const centers = [[120,80],[380,100],[250,230]];
+    centers.forEach(c => {
+      for (let i=0;i<(n||15);i++) {
+        pts.push([c[0]+(rand()-0.5)*60, c[1]+(rand()-0.5)*60]);
+      }
+    });
+  } else if (type === 'overlap') {
+    const centers = [[150,120],[300,150],[220,220]];
+    centers.forEach(c => {
+      for (let i=0;i<(n||15);i++) {
+        pts.push([c[0]+(rand()-0.5)*110, c[1]+(rand()-0.5)*110]);
+      }
+    });
+  } else if (type === 'unequal') {
+    for (let i=0;i<25;i++) pts.push([100+(rand()-0.5)*40, 160+(rand()-0.5)*40]);
+    for (let i=0;i<5;i++) pts.push([350+(rand()-0.5)*35, 140+(rand()-0.5)*35]);
+    for (let i=0;i<5;i++) pts.push([240+(rand()-0.5)*35, 250+(rand()-0.5)*35]);
+  } else if (type === 'moons') {
+    for (let i=0;i<20;i++) {
+      const t = Math.PI * i/19;
+      pts.push([120+130*Math.cos(t)+(rand()-0.5)*22, 160+70*Math.sin(t)+(rand()-0.5)*22]);
+    }
+    for (let i=0;i<20;i++) {
+      const t = Math.PI + Math.PI * i/19;
+      pts.push([260+130*Math.cos(t)+(rand()-0.5)*22, 180+70*Math.sin(t)+(rand()-0.5)*22]);
+    }
+  } else if (type === '3blobs') {
+    const centers = [[80,100],[200,80],[140,180]];
+    centers.forEach(c => {
+      for (let i=0;i<12;i++) pts.push([c[0]+(rand()-0.5)*45, c[1]+(rand()-0.5)*45]);
+    });
+  } else if (type === '4blobs') {
+    const centers = [[60,60],[180,60],[60,160],[180,160]];
+    centers.forEach(c => {
+      for (let i=0;i<10;i++) pts.push([c[0]+(rand()-0.5)*40, c[1]+(rand()-0.5)*40]);
+    });
+  } else if (type === 'noisy') {
+    for (let i=0;i<40;i++) pts.push([rand()*220, rand()*200]);
+  } else if (type === 'chain') {
+    for (let i=0;i<8;i++) pts.push([30+i*28+(rand()-0.5)*8, 140+(rand()-0.5)*8]);
+    for (let i=0;i<7;i++) pts.push([65+i*20, 80-i*8+(rand()-0.5)*8]);
+    for (let i=0;i<5;i++) pts.push([200+(rand()-0.5)*8, 60+(rand()-0.5)*40]);
+  } else if (type === 'iris5') {
+    const seed_centers = [[80,80],[200,70],[150,180],[90,160],[210,160]];
+    seed_centers.forEach(c => {
+      for (let i=0;i<4;i++) pts.push([c[0]+(rand()-0.5)*35, c[1]+(rand()-0.5)*35]);
+    });
+  }
+  return pts;
+}
+
+// ====== K-MEANS ======
+let kmPoints = [], kmCentroids = [], kmAssign = [], kmIter = 0, kmConverged = false;
+
+function kmeansppInit(pts, k, rand) {
+  const cens = [pts[Math.floor(rand()*pts.length)].slice()];
+  while (cens.length < k) {
+    const dists = pts.map(p => Math.min(...cens.map(c => dist2(p,c))));
+    const total = dists.reduce((a,b)=>a+b,0);
+    let r = rand()*total, cum = 0;
+    for (let i=0;i<pts.length;i++) { cum += dists[i]; if (cum >= r) { cens.push(pts[i].slice()); break; } }
+  }
+  return cens;
+}
+
+function kmInit() {
+  const k = parseInt(document.getElementById('km-k').value);
+  const dtype = document.getElementById('km-dataset').value;
+  const initType = document.getElementById('km-init').value;
+  const rand = rng(Date.now() & 0xffff);
+  kmPoints = generateData(dtype, 15, rand()*1000|0);
+  // Normalize to SVG coords
+  const xs = kmPoints.map(p=>p[0]), ys = kmPoints.map(p=>p[1]);
+  const minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
+  const scX=(440)/(maxX-minX||1), scY=(240)/(maxY-minY||1);
+  kmPoints = kmPoints.map(p=>[(p[0]-minX)*scX+40, (p[1]-minY)*scY+40]);
+  if (initType === 'kmpp') kmCentroids = kmeansppInit(kmPoints, k, rand);
+  else {
+    kmCentroids = [];
+    const used = new Set();
+    while (kmCentroids.length < k) { const i=Math.floor(rand()*kmPoints.length); if(!used.has(i)){used.add(i);kmCentroids.push(kmPoints[i].slice());} }
+  }
+  kmAssign = new Array(kmPoints.length).fill(0);
+  kmIter = 0; kmConverged = false;
+  document.getElementById('km-step-btn').disabled = false;
+  kmDraw('Khởi tạo xong. Nhấn Next Step để gán điểm vào centroid gần nhất.');
+}
+
+function kmAssignStep() {
+  let changed = false;
+  kmAssign = kmPoints.map((p, i) => {
+    const best = kmCentroids.reduce((bj,c,j)=>dist2(p,c)<dist2(p,kmCentroids[bj])?j:bj, 0);
+    if (best !== kmAssign[i]) changed = true;
+    return best;
+  });
+  return changed;
+}
+
+function kmUpdateStep() {
+  const k = kmCentroids.length;
+  const newCens = [];
+  for (let j=0;j<k;j++) {
+    const pts = kmPoints.filter((_,i)=>kmAssign[i]===j);
+    if (pts.length===0) { newCens.push(kmCentroids[j].slice()); continue; }
+    newCens.push([pts.reduce((s,p)=>s+p[0],0)/pts.length, pts.reduce((s,p)=>s+p[1],0)/pts.length]);
+  }
+  kmCentroids = newCens;
+}
+
+function kmInertia() {
+  return kmPoints.reduce((s,p,i)=>s+dist2(p,kmCentroids[kmAssign[i]]),0).toFixed(1);
+}
+
+function kmStep() {
+  if (kmConverged) return;
+  const changed = kmAssignStep();
+  if (!changed && kmIter > 0) { kmConverged = true; kmDraw(`✅ Hội tụ sau ${kmIter} iterations! Inertia = ${kmInertia()}`); document.getElementById('km-step-btn').disabled=true; return; }
+  kmUpdateStep();
+  kmIter++;
+  kmDraw(`Iter ${kmIter}: assign + update centroid. Inertia = ${kmInertia()}`);
+}
+
+function kmRunAll() {
+  if (!kmPoints.length) kmInit();
+  for (let i=0;i<50;i++) { const ch=kmAssignStep(); kmUpdateStep(); kmIter++; if(!ch&&i>0){kmConverged=true;break;} }
+  kmDraw(`⚡ Hội tụ sau ${kmIter} iterations. Inertia = ${kmInertia()}`);
+  document.getElementById('km-step-btn').disabled=true;
+}
+
+function kmDraw(msg) {
+  const svg = document.getElementById('km-svg');
+  const W=520, H=320;
+  let html = '';
+  // Voronoi-like background (colored by nearest centroid)
+  const step=10;
+  for (let x=0;x<W;x+=step) for (let y=0;y<H;y+=step) {
+    const j=kmCentroids.reduce((bj,c,jj)=>dist2([x,y],c)<dist2([x,y],kmCentroids[bj])?jj:bj,0);
+    const col = COLORS[j%COLORS.length];
+    html += `<rect x="${x}" y="${y}" width="${step}" height="${step}" fill="${col}" opacity="0.07"/>`;
+  }
+  // Points
+  kmPoints.forEach((p,i) => {
+    const c = COLORS[kmAssign[i]%COLORS.length];
+    html += `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="5" fill="${c}" stroke="white" stroke-width="1.5" opacity="0.9"/>`;
+  });
+  // Centroids
+  kmCentroids.forEach((c,j) => {
+    const col = COLORS[j%COLORS.length];
+    html += `<polygon points="${c[0]},${c[1]-9} ${c[0]+8},${c[1]+6} ${c[0]-8},${c[1]+6}" fill="${col}" stroke="white" stroke-width="2"/>`;
+  });
+  svg.innerHTML = html;
+  document.getElementById('km-info').innerHTML = `<span class="hi">Iter ${kmIter}</span> &nbsp;|&nbsp; k=${kmCentroids.length} &nbsp;|&nbsp; ${msg}`;
+}
+
+// ====== ELBOW + SILHOUETTE ======
+function kmeansRun(pts, k, rand) {
+  let cens = kmeansppInit(pts, k, rand);
+  let assign = new Array(pts.length).fill(0);
+  for (let iter=0;iter<50;iter++) {
+    const newA = pts.map(p=>cens.reduce((bj,c,j)=>dist2(p,c)<dist2(p,cens[bj])?j:bj,0));
+    const changed = newA.some((a,i)=>a!==assign[i]);
+    assign = newA;
+    cens = Array.from({length:k},(_,j)=>{
+      const pts_j=pts.filter((_,i)=>assign[i]===j);
+      if(!pts_j.length) return cens[j].slice();
+      return [pts_j.reduce((s,p)=>s+p[0],0)/pts_j.length, pts_j.reduce((s,p)=>s+p[1],0)/pts_j.length];
+    });
+    if(!changed) break;
+  }
+  const inertia = pts.reduce((s,p,i)=>s+dist2(p,cens[assign[i]]),0);
+  return {assign, cens, inertia};
+}
+
+function silhouetteScore(pts, assign, k) {
+  const scores = pts.map((p,i) => {
+    const myC = assign[i];
+    const same = pts.filter((_,j)=>j!==i&&assign[j]===myC);
+    if (!same.length) return 0;
+    const a = same.reduce((s,q)=>s+dist(p,q),0)/same.length;
+    let b = Infinity;
+    for (let c=0;c<k;c++) {
+      if(c===myC) continue;
+      const other = pts.filter((_,j)=>assign[j]===c);
+      if(!other.length) continue;
+      const mb = other.reduce((s,q)=>s+dist(p,q),0)/other.length;
+      if(mb<b) b=mb;
+    }
+    if(!isFinite(b)) return 0;
+    return (b-a)/Math.max(a,b);
+  });
+  return scores.reduce((s,v)=>s+v,0)/scores.length;
+}
+
+function runElbow() {
+  const dtype = document.getElementById('es-dataset').value;
+  const pts = generateData(dtype);
+  const rand = rng(42);
+  const inertias=[], sils=[];
+  for (let k=1;k<=8;k++) {
+    let best = Infinity;
+    let bestAssign=null;
+    for (let t=0;t<5;t++) {
+      const r2=rng(rand()*10000|0);
+      const res=kmeansRun(pts,k,r2);
+      if(res.inertia<best){best=res.inertia;bestAssign=res.assign;}
+    }
+    inertias.push(best);
+    sils.push(k>1?silhouetteScore(pts,bestAssign,k):0);
+  }
+  drawLinePlot('elbow-svg', Array.from({length:8},(_,i)=>i+1), inertias, 'Inertia', '#0e7490');
+  drawLinePlot('sil-svg', Array.from({length:8},(_,i)=>i+1).slice(1), sils.slice(1), 'Silhouette', '#16a34a');
+  const bestK_sil = sils.indexOf(Math.max(...sils))+1;
+  document.getElementById('es-info').innerHTML = `<span class="hi">Best k (Silhouette): k=${bestK_sil}</span> &nbsp;|&nbsp; Silhouette max = ${Math.max(...sils).toFixed(3)} &nbsp;|&nbsp; Tìm khuỷu tay trên đồ thị Inertia.`;
+}
+
+function drawLinePlot(svgId, xs, ys, label, color) {
+  const svg = document.getElementById(svgId);
+  const W=260,H=200,pad=38;
+  const minY=Math.min(...ys),maxY=Math.max(...ys);
+  const sx=i=>(pad+(i)*(W-pad*2)/(xs.length-1||1));
+  const sy=v=>(H-pad-(v-minY)/(maxY-minY||1)*(H-pad*2));
+  let html='';
+  // axes
+  html+=`<line x1="${pad}" y1="${pad}" x2="${pad}" y2="${H-pad}" stroke="#ccc" stroke-width="1"/>`;
+  html+=`<line x1="${pad}" y1="${H-pad}" x2="${W-pad}" y2="${H-pad}" stroke="#ccc" stroke-width="1"/>`;
+  // x labels
+  xs.forEach((x,i)=>{ html+=`<text x="${sx(i)}" y="${H-pad+14}" text-anchor="middle" font-size="11" fill="#555">${x}</text>`; });
+  // line
+  const points=xs.map((_,i)=>`${sx(i)},${sy(ys[i])}`).join(' ');
+  html+=`<polyline points="${points}" fill="none" stroke="${color}" stroke-width="2.5"/>`;
+  // dots
+  xs.forEach((_,i)=>{ html+=`<circle cx="${sx(i)}" cy="${sy(ys[i])}" r="4" fill="${color}" stroke="white" stroke-width="1.5"/>`; });
+  // y label
+  html+=`<text x="${pad-6}" y="${pad+4}" text-anchor="end" font-size="10" fill="#555">${maxY.toFixed(0)}</text>`;
+  html+=`<text x="${pad-6}" y="${H-pad}" text-anchor="end" font-size="10" fill="#555">${minY.toFixed(2)}</text>`;
+  html+=`<text x="${W/2}" y="${pad-8}" text-anchor="middle" font-size="12" font-weight="700" fill="${color}">${label}</text>`;
+  svg.innerHTML=html;
+}
+
+// ====== HIERARCHICAL ======
+let hcMerges=[], hcPoints=[], hcMaxDist=1;
+
+function hcDist(A, B, allPts, linkage) {
+  const dists = [];
+  A.forEach(ai=>B.forEach(bi=>dists.push(dist(allPts[ai],allPts[bi]))));
+  if (linkage==='single') return Math.min(...dists);
+  if (linkage==='complete') return Math.max(...dists);
+  if (linkage==='average') return dists.reduce((s,v)=>s+v,0)/dists.length;
+  if (linkage==='ward') {
+    const n1=A.length,n2=B.length;
+    const c1=[A.reduce((s,i)=>s+allPts[i][0],0)/n1,A.reduce((s,i)=>s+allPts[i][1],0)/n1];
+    const c2=[B.reduce((s,i)=>s+allPts[i][0],0)/n2,B.reduce((s,i)=>s+allPts[i][1],0)/n2];
+    return dist(c1,c2)*Math.sqrt(n1*n2/(n1+n2));
+  }
+  return dists.reduce((s,v)=>s+v,0)/dists.length;
+}
+
+function runHierarchical() {
+  const linkage = document.getElementById('hc-linkage').value;
+  const dtype = document.getElementById('hc-dataset').value;
+  hcPoints = generateData(dtype, 0, 77);
+  // Normalize
+  const xs=hcPoints.map(p=>p[0]),ys=hcPoints.map(p=>p[1]);
+  const minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
+  hcPoints=hcPoints.map(p=>[(p[0]-minX)/(maxX-minX||1)*200+30, (p[1]-minY)/(maxY-minY||1)*200+30]);
+
+  const n=hcPoints.length;
+  let clusters=Array.from({length:n},(_,i)=>[i]);
+  hcMerges=[];
+  for (let step=0;step<n-1;step++) {
+    let minD=Infinity,bi=-1,bj=-1;
+    for (let i=0;i<clusters.length;i++) for (let j=i+1;j<clusters.length;j++) {
+      const d=hcDist(clusters[i],clusters[j],hcPoints,linkage);
+      if(d<minD){minD=d;bi=i;bj=j;}
+    }
+    hcMerges.push({left:clusters[bi].slice(),right:clusters[bj].slice(),dist:minD,merged:clusters[bi].concat(clusters[bj])});
+    clusters=[...clusters.filter((_,i)=>i!==bi&&i!==bj),clusters[bi].concat(clusters[bj])];
+  }
+  hcMaxDist=Math.max(...hcMerges.map(m=>m.dist));
+  updateDendrogramCut(document.getElementById('hc-cut').value);
+}
+
+function updateDendrogramCut(val) {
+  document.getElementById('hc-cut-val').textContent=val;
+  const cutFrac=val/100;
+  const cutDist=cutFrac*hcMaxDist;
+  drawDendrogram(cutDist);
+  // Assign colors based on cut
+  const n=hcPoints.length;
+  const assign=new Array(n);
+  let color=0;
+  const bigMerges=hcMerges.filter(m=>m.dist>cutDist);
+  const smallMerges=hcMerges.filter(m=>m.dist<=cutDist);
+  // clusters at cut = merged groups from small merges, then any remaining singletons
+  // BFS: build clusters at cut
+  const parent=new Array(n).fill(-1);
+  const inMerge=new Set();
+  smallMerges.forEach(m=>{
+    m.left.forEach(i=>inMerge.add(i));
+    m.right.forEach(i=>inMerge.add(i));
+  });
+  // Find clusters by last small-merge that contains each point
+  const clMap=new Map();
+  let clId=0;
+  const assigned=new Set();
+  smallMerges.slice().reverse().forEach(m=>{
+    const key=m.merged.sort().join(',');
+    if(m.dist<=cutDist) {
+      m.merged.forEach(i=>{ if(!assigned.has(i)){assigned.add(i);assign[i]=clId;} });
+      clId++;
+    }
+  });
+  // Assign remaining unassigned
+  for(let i=0;i<n;i++) if(!assigned.has(i)){assign[i]=clId++;assigned.add(i);}
+  // Normalize cluster ids
+  const idMap=new Map();
+  let nc=0;
+  for(let i=0;i<n;i++){if(!idMap.has(assign[i])){idMap.set(assign[i],nc++);} assign[i]=idMap.get(assign[i]);}
+
+  // Draw scatter
+  const sv=document.getElementById('hc-scatter-svg');
+  let html='';
+  hcPoints.forEach((p,i)=>{
+    html+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="5" fill="${COLORS[assign[i]%COLORS.length]}" stroke="white" stroke-width="1.5"/>`;
+  });
+  sv.innerHTML=html;
+  document.getElementById('hc-info').innerHTML=`<span class="hi">Cut height = ${(cutDist).toFixed(2)}</span> → <span class="hi">${nc} clusters</span> &nbsp;|&nbsp; Linkage: ${document.getElementById('hc-linkage').value}`;
+}
+
+function drawDendrogram(cutDist) {
+  const svg=document.getElementById('dendro-svg');
+  const W=260,H=280,padL=20,padR=15,padT=15,padB=30;
+  const n=hcPoints.length;
+  const hw=W-padL-padR, hh=H-padT-padB;
+  // Compute leaf positions
+  const leafX={};
+  const leafOrder=[];
+  // Get order by last merge
+  function getOrder(merge) {
+    if(merge===null) return;
+    if(!merge.left||merge.left.length===0) return;
+    merge.left.forEach(i=>{ if(merge.left.length===1)leafOrder.push(i); });
+    merge.right.forEach(i=>{ if(merge.right.length===1)leafOrder.push(i); });
+  }
+  // Simple: just use points in merge order
+  const seen=new Set();
+  hcMerges.forEach(m=>{
+    m.left.forEach(i=>{if(!seen.has(i)){seen.add(i);leafOrder.push(i);}});
+    m.right.forEach(i=>{if(!seen.has(i)){seen.add(i);leafOrder.push(i);}});
+  });
+  leafOrder.forEach((i,pos)=>{ leafX[i]=padL+pos*hw/(leafOrder.length-1||1); });
+  // For each merge, compute x as mean of points
+  const mergeX=hcMerges.map(m=>m.merged.reduce((s,i)=>s+leafX[i],0)/m.merged.length);
+  const sy=v=>padT+hh*(1-v/hcMaxDist);
+  let html='';
+  // Cut line
+  if(hcMaxDist>0){
+    const cy=sy(cutDist);
+    html+=`<line x1="${padL}" y1="${cy}" x2="${W-padR}" y2="${cy}" stroke="#e05c2a" stroke-width="1.5" stroke-dasharray="5,3"/>`;
+    html+=`<text x="${W-padR+2}" y="${cy+4}" font-size="10" fill="#e05c2a">cut</text>`;
+  }
+  // Draw merges
+  hcMerges.forEach((m,mi)=>{
+    const y=sy(m.dist);
+    const xl=m.left.length===1?leafX[m.left[0]]:mergeX[hcMerges.findIndex(mm=>mm.merged.length===m.left.length&&mm.merged.every(i=>m.left.includes(i)))];
+    const xr=m.right.length===1?leafX[m.right[0]]:mergeX[hcMerges.findIndex(mm=>mm.merged.length===m.right.length&&mm.merged.every(i=>m.right.includes(i)))];
+    const mx=mergeX[mi];
+    // Left vertical
+    const yLeft=m.left.length===1?H-padB:sy(hcMerges.find(mm=>mm.merged.length>1&&mm.merged.every(i=>m.left.includes(i))&&mm.left.concat(mm.right).sort().join()===m.left.slice().sort().join())?.dist||0);
+    // Right vertical
+    const isAboveCut=m.dist>cutDist;
+    const col=isAboveCut?'#94a3b8':'var(--accent)';
+    html+=`<line x1="${xl}" y1="${y}" x2="${xr}" y2="${y}" stroke="${col}" stroke-width="1.8"/>`;
+    html+=`<line x1="${xl}" y1="${y}" x2="${xl}" y2="${m.left.length===1?H-padB:y+20}" stroke="${col}" stroke-width="1.8"/>`;
+    html+=`<line x1="${xr}" y1="${y}" x2="${xr}" y2="${m.right.length===1?H-padB:y+20}" stroke="${col}" stroke-width="1.8"/>`;
+  });
+  // Leaf labels
+  leafOrder.forEach((i,pos)=>{
+    html+=`<text x="${leafX[i]}" y="${H-padB+12}" text-anchor="middle" font-size="9" fill="#555">${i}</text>`;
+  });
+  // y axis
+  [0,0.25,0.5,0.75,1.0].forEach(v=>{
+    const val=(v*hcMaxDist).toFixed(1);
+    html+=`<text x="${padL-2}" y="${sy(v*hcMaxDist)+4}" text-anchor="end" font-size="9" fill="#888">${val}</text>`;
+    html+=`<line x1="${padL}" y1="${sy(v*hcMaxDist)}" x2="${padL+4}" y2="${sy(v*hcMaxDist)}" stroke="#ccc" stroke-width="1"/>`;
+  });
+  svg.innerHTML=html;
+}
+
+// ====== INIT ======
+window.addEventListener('load', () => {
+  kmInit();
+  runElbow();
+  runHierarchical();
+});
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

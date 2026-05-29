@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T3-L02: DBSCAN & Density-Based Clustering</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #ecfeff;
+    --accent: #0e7490;
+    --accent-soft: #cffafe;
+    --accent-hover: #155e75;
+  }
+  h2 { color: var(--accent); margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid var(--accent-soft); }
+  h3 { color: #155e75; margin-top: 20px; }
+  .card { background: white; border-radius: 10px; padding: 20px 22px; box-shadow: 0 1px 4px rgba(0,0,0,0.09); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; color: #155e75; font-size: 14px; }
+  input[type="range"] { width: 150px; accent-color: var(--accent); }
+  .val { font-family: monospace; font-size: 13px; color: var(--accent); font-weight: 700; min-width: 36px; display: inline-block; }
+  button { padding: 7px 14px; border-radius: 6px; border: none; cursor: pointer; font-size: 13px; font-weight: 700; background: var(--accent); color: white; }
+  button:hover { background: var(--accent-hover); }
+  button.sec { background: var(--accent-soft); color: var(--accent-hover); }
+  button.sec:hover { background: #a5f3fc; }
+  svg.viz { display: block; border: 1px solid var(--accent-soft); border-radius: 8px; background: #f0fdff; width: 100%; height: auto; }
+  .info { font-family: monospace; font-size: 13px; background: #f0fdff; border: 1px solid var(--accent-soft); border-radius: 6px; padding: 10px 14px; margin-top: 10px; line-height: 1.9; }
+  .info .hi { color: var(--accent); font-weight: 700; }
+  .info .warn { color: #e05c2a; font-weight: 700; }
+  .hint { font-size: 13px; background: var(--accent-soft); padding: 9px 12px; border-left: 4px solid var(--accent); border-radius: 4px; margin: 10px 0; color: #155e75; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; margin: 8px 0; }
+  .legend .item { display: flex; align-items: center; gap: 6px; }
+  .legend .sw { width: 13px; height: 13px; border-radius: 50%; display: inline-block; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 820px) { .grid2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-kmeans-hierarchical/visualization.html">← T3-L01: K-means</a>
+  <span class="sep">·</span>
+  <span class="current">T3-L02: DBSCAN</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-pca-svd/visualization.html">T3-L03: PCA →</a>
+</nav>
+<main>
+<h1>T3-L02: DBSCAN &amp; Density-Based Clustering</h1>
+<p style="color:#155e75;font-size:15px">Bắt cluster hình dạng tùy ý, tự detect noise. Kéo eps và minPts để quan sát real-time.</p>
+
+<!-- === SECTION 1: DBSCAN INTERACTIVE === -->
+<h2>1. DBSCAN Tương Tác — eps &amp; minPts Slider</h2>
+<div class="card">
+  <div class="hint">Kéo <b>eps</b> và <b>minPts</b> để thấy core/border/noise thay đổi theo thời gian thực. Thử các dataset để thấy khi nào DBSCAN tốt hơn K-means.</div>
+  <div class="row">
+    <label>Dataset:</label>
+    <select id="db-dataset" style="padding:5px 8px;border-radius:5px;border:1px solid #a5f3fc;font-size:13px;" onchange="dbInit()">
+      <option value="moons">🌙 Moons (K-means fail)</option>
+      <option value="rings">⭕ Concentric rings</option>
+      <option value="blobs">Blobs (cả 2 tốt)</option>
+      <option value="outlier">Outlier detection</option>
+    </select>
+    <button onclick="dbInit()">🔄 Tạo data mới</button>
+  </div>
+  <div class="row">
+    <label>eps: <span class="val" id="db-eps-val">35</span></label>
+    <input type="range" id="db-eps" min="5" max="120" value="35" oninput="dbUpdate()">
+    <label>minPts: <span class="val" id="db-minpts-val">4</span></label>
+    <input type="range" id="db-minpts" min="2" max="10" value="4" oninput="dbUpdate()">
+  </div>
+  <div class="legend">
+    <span class="item"><span class="sw" style="background:#0e7490"></span>Core</span>
+    <span class="item"><span class="sw" style="background:#7dd3e8"></span>Border</span>
+    <span class="item"><span class="sw" style="background:#e05c2a; border-radius: 0; transform: rotate(45deg)"></span>Noise</span>
+  </div>
+  <svg class="viz" viewBox="0 0 520 320" id="db-svg"></svg>
+  <div class="info" id="db-info">Đang tải...</div>
+</div>
+
+<!-- === SECTION 2: K-MEANS VS DBSCAN === -->
+<h2>2. K-means vs DBSCAN — Side by Side</h2>
+<div class="card">
+  <div class="hint">Cùng một dataset — K-means (trái) và DBSCAN (phải). Xem rõ sự khác biệt trên moons/rings.</div>
+  <div class="row">
+    <label>Dataset:</label>
+    <select id="cmp-dataset" style="padding:5px 8px;border-radius:5px;border:1px solid #a5f3fc;font-size:13px;" onchange="runCompare()">
+      <option value="moons">Moons</option>
+      <option value="rings">Concentric Rings</option>
+      <option value="blobs">Blobs</option>
+    </select>
+    <label>k (K-means):</label>
+    <input type="range" id="cmp-k" min="2" max="4" value="2" style="width:80px" oninput="document.getElementById('cmp-k-val').textContent=this.value;runCompare()">
+    <span class="val" id="cmp-k-val">2</span>
+  </div>
+  <div class="grid2">
+    <div>
+      <p style="font-size:13px;font-weight:700;color:#e05c2a">K-means (k=<span id="km-k-lbl">2</span>)</p>
+      <svg class="viz" viewBox="0 0 260 240" id="cmp-km-svg"></svg>
+    </div>
+    <div>
+      <p style="font-size:13px;font-weight:700;color:var(--accent)">DBSCAN (eps auto)</p>
+      <svg class="viz" viewBox="0 0 260 240" id="cmp-db-svg"></svg>
+    </div>
+  </div>
+  <div class="info" id="cmp-info"></div>
+</div>
+
+<!-- === SECTION 3: EPS EFFECT === -->
+<h2>3. Hiệu Ứng của eps — Từ All Noise đến 1 Cluster</h2>
+<div class="card">
+  <div class="hint">Kéo slider để thấy: eps nhỏ → tất cả noise; eps vừa → cluster đúng; eps lớn → 1 cluster khổng lồ.</div>
+  <div class="row">
+    <label>eps: <span class="val" id="ef-eps-val">20</span></label>
+    <input type="range" id="ef-eps" min="3" max="140" value="20" oninput="epsEffectUpdate()">
+    <label style="margin-left:12px">minPts=3 (cố định)</label>
+  </div>
+  <svg class="viz" viewBox="0 0 520 280" id="ef-svg"></svg>
+  <div class="info" id="ef-info"></div>
+</div>
+
+<script>
+// ====== UTILS ======
+const COLS = ['#0e7490','#16a34a','#9333ea','#e05c2a','#b45309','#dc2626'];
+function rng(seed) {
+  let s=seed||42;
+  return ()=>{ s=(s*1664525+1013904223)&0xffffffff; return (s>>>0)/4294967296; };
+}
+function dist(a,b){return Math.sqrt((a[0]-b[0])**2+(a[1]-b[1])**2);}
+function dist2(a,b){return (a[0]-b[0])**2+(a[1]-b[1])**2;}
+
+function normalize(pts, W, H, pad) {
+  const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);
+  const minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
+  const sx=(W-2*pad)/(maxX-minX||1),sy=(H-2*pad)/(maxY-minY||1);
+  return pts.map(p=>[(p[0]-minX)*sx+pad,(p[1]-minY)*sy+pad]);
+}
+
+function genData(type, seed) {
+  const rand=rng(seed||42);
+  const pts=[];
+  if(type==='moons'){
+    for(let i=0;i<25;i++){const t=Math.PI*i/24;pts.push([Math.cos(t)+(rand()-0.5)*0.2,Math.sin(t)+(rand()-0.5)*0.2]);}
+    for(let i=0;i<25;i++){const t=Math.PI+Math.PI*i/24;pts.push([1+Math.cos(t)+(rand()-0.5)*0.2,-0.3+Math.sin(t)+(rand()-0.5)*0.2]);}
+  } else if(type==='rings'){
+    for(let i=0;i<24;i++){const t=2*Math.PI*i/24;pts.push([(1+0.1*(rand()-0.5))*Math.cos(t),(1+0.1*(rand()-0.5))*Math.sin(t)]);}
+    for(let i=0;i<36;i++){const t=2*Math.PI*i/36;pts.push([(2.3+0.12*(rand()-0.5))*Math.cos(t),(2.3+0.12*(rand()-0.5))*Math.sin(t)]);}
+  } else if(type==='blobs'){
+    [[0,0],[3,0],[1.5,2.5]].forEach(c=>{
+      for(let i=0;i<16;i++)pts.push([c[0]+(rand()-0.5)*0.9,c[1]+(rand()-0.5)*0.9]);
+    });
+  } else if(type==='outlier'){
+    for(let i=0;i<30;i++)pts.push([1+(rand()-0.5)*0.6,1+(rand()-0.5)*0.6]);
+    for(let i=0;i<20;i++)pts.push([3+(rand()-0.5)*0.5,2+(rand()-0.5)*0.5]);
+    pts.push([6.5,5.5],[7,3.5],[2,6]);
+  }
+  return pts;
+}
+
+// ====== DBSCAN ======
+function dbscan(pts, eps, minPts) {
+  const n=pts.length;
+  const labels=new Array(n).fill(-2); // -2=unvisited
+  const types=new Array(n).fill('noise'); // core/border/noise
+  let cid=0;
+  // Compute neighbor sets
+  const nbrs=pts.map(p=>pts.map((_,j)=>j).filter(j=>dist(p,pts[j])<=eps));
+  for(let i=0;i<n;i++){
+    if(labels[i]!==-2) continue;
+    if(nbrs[i].length<minPts){labels[i]=-1;continue;} // noise for now
+    // core point
+    types[i]='core';
+    labels[i]=cid;
+    const Q=[...nbrs[i]];
+    const inQ=new Set(Q);
+    let qi=0;
+    while(qi<Q.length){
+      const q=Q[qi++];
+      if(labels[q]===-1){labels[q]=cid;types[q]='border';}
+      if(labels[q]!==-2) continue;
+      labels[q]=cid;
+      if(nbrs[q].length>=minPts){types[q]='core';nbrs[q].forEach(r=>{if(!inQ.has(r)){inQ.add(r);Q.push(r);}});}
+      else{types[q]='border';}
+    }
+    cid++;
+  }
+  return {labels,types,nClusters:cid};
+}
+
+function kmeansRun(pts,k){
+  const rand=rng(99);
+  let cens=[];
+  const used=new Set();
+  // kmeans++ init
+  cens.push(pts[Math.floor(rand()*pts.length)].slice());
+  while(cens.length<k){
+    const ds=pts.map(p=>Math.min(...cens.map(c=>dist2(p,c))));
+    const tot=ds.reduce((s,v)=>s+v,0);
+    let r=rand()*tot,cum=0;
+    for(let i=0;i<pts.length;i++){cum+=ds[i];if(cum>=r){cens.push(pts[i].slice());break;}}
+  }
+  let assign=new Array(pts.length).fill(0);
+  for(let it=0;it<50;it++){
+    const na=pts.map(p=>cens.reduce((bj,c,j)=>dist2(p,c)<dist2(p,cens[bj])?j:bj,0));
+    const ch=na.some((a,i)=>a!==assign[i]);assign=na;
+    cens=Array.from({length:k},(_,j)=>{const g=pts.filter((_,i)=>assign[i]===j);if(!g.length)return cens[j].slice();return [g.reduce((s,p)=>s+p[0],0)/g.length,g.reduce((s,p)=>s+p[1],0)/g.length];});
+    if(!ch)break;
+  }
+  return {assign,cens};
+}
+
+// ====== SECTION 1: DBSCAN Interactive ======
+let dbPts=[], dbPtsNorm=[];
+function dbInit(){
+  const dtype=document.getElementById('db-dataset').value;
+  const raw=genData(dtype, Date.now()&0xffff);
+  dbPts=normalize(raw,520,320,35);
+  dbUpdate();
+}
+function dbUpdate(){
+  const eps=+document.getElementById('db-eps').value;
+  const minPts=+document.getElementById('db-minpts').value;
+  document.getElementById('db-eps-val').textContent=eps;
+  document.getElementById('db-minpts-val').textContent=minPts;
+  const {labels,types,nClusters}=dbscan(dbPts,eps,minPts);
+  drawDBSCAN('db-svg',dbPts,labels,types,nClusters,eps,520,320);
+  const nc=types.filter(t=>t==='core').length;
+  const nb=types.filter(t=>t==='border').length;
+  const nn=types.filter(t=>t==='noise').length;
+  document.getElementById('db-info').innerHTML=
+    `<span class="hi">${nClusters} cluster(s)</span> &nbsp;|&nbsp; Core: <span class="hi">${nc}</span> &nbsp;|&nbsp; Border: <span class="hi">${nb}</span> &nbsp;|&nbsp; Noise: <span class="warn">${nn}</span> &nbsp;|&nbsp; eps=${eps}, minPts=${minPts}`;
+}
+
+function drawDBSCAN(svgId,pts,labels,types,nClusters,eps,W,H){
+  const svg=document.getElementById(svgId);
+  let html='';
+  // Draw eps circles around core points (faint)
+  pts.forEach((p,i)=>{
+    if(types[i]==='core')
+      html+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${eps}" fill="${COLS[labels[i]%COLS.length]}" opacity="0.07" stroke="${COLS[labels[i]%COLS.length]}" stroke-width="0.5" stroke-dasharray="3,2"/>`;
+  });
+  // Points
+  pts.forEach((p,i)=>{
+    if(types[i]==='noise'){
+      // X mark for noise
+      const x=p[0],y=p[1],s=5;
+      html+=`<line x1="${x-s}" y1="${y-s}" x2="${x+s}" y2="${y+s}" stroke="#e05c2a" stroke-width="2.5"/>`;
+      html+=`<line x1="${x+s}" y1="${y-s}" x2="${x-s}" y2="${y+s}" stroke="#e05c2a" stroke-width="2.5"/>`;
+    } else {
+      const c=labels[i]>=0?COLS[labels[i]%COLS.length]:'#94a3b8';
+      const r=types[i]==='core'?6:4.5;
+      const sw=types[i]==='core'?2:1;
+      html+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${r}" fill="${c}" stroke="white" stroke-width="${sw}" opacity="${types[i]==='core'?0.95:0.75}"/>`;
+    }
+  });
+  svg.innerHTML=html;
+}
+
+// ====== SECTION 2: Compare ======
+function runCompare(){
+  const dtype=document.getElementById('cmp-dataset').value;
+  const k=+document.getElementById('cmp-k').value;
+  document.getElementById('km-k-lbl').textContent=k;
+  document.getElementById('cmp-k-val').textContent=k;
+  const raw=genData(dtype,42);
+  const pts=normalize(raw,260,240,22);
+  // K-means
+  const {assign,cens}=kmeansRun(pts,k);
+  let khtml='';
+  // Voronoi bg
+  for(let x=0;x<260;x+=8) for(let y=0;y<240;y+=8){
+    const j=cens.reduce((bj,c,jj)=>dist2([x,y],c)<dist2([x,y],cens[bj])?jj:bj,0);
+    khtml+=`<rect x="${x}" y="${y}" width="8" height="8" fill="${COLS[j%COLS.length]}" opacity="0.08"/>`;
+  }
+  pts.forEach((p,i)=>{khtml+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="4.5" fill="${COLS[assign[i]%COLS.length]}" stroke="white" stroke-width="1.5"/>`;});
+  cens.forEach((c,j)=>{khtml+=`<polygon points="${c[0]},${c[1]-8} ${c[0]+7},${c[1]+5} ${c[0]-7},${c[1]+5}" fill="${COLS[j%COLS.length]}" stroke="white" stroke-width="2"/>`;});
+  document.getElementById('cmp-km-svg').innerHTML=khtml;
+
+  // DBSCAN with auto eps
+  const autoEps={'moons':30,'rings':22,'blobs':40}[dtype]||35;
+  const {labels,types,nClusters}=dbscan(pts,autoEps,3);
+  drawDBSCAN('cmp-db-svg',pts,labels,types,nClusters,autoEps,260,240);
+
+  const kmAcc=dtype==='blobs'?'Tốt (cluster spherical)':'Thường sai (non-convex)';
+  const dbAcc=dtype==='blobs'?'Tốt':'Tốt (density-connected)';
+  document.getElementById('cmp-info').innerHTML=
+    `K-means: <span class="${dtype==='blobs'?'hi':'warn'}">${kmAcc}</span> &nbsp;|&nbsp; DBSCAN: <span class="hi">${dbAcc}</span> (eps=${autoEps}, minPts=3, ${nClusters} cluster(s))`;
+}
+
+// ====== SECTION 3: EPS Effect ======
+let efPts=[];
+function epsEffectInit(){
+  const raw=genData('moons',55);
+  efPts=normalize(raw,520,280,35);
+}
+function epsEffectUpdate(){
+  const eps=+document.getElementById('ef-eps').value;
+  document.getElementById('ef-eps-val').textContent=eps;
+  const {labels,types,nClusters}=dbscan(efPts,eps,3);
+  drawDBSCAN('ef-svg',efPts,labels,types,nClusters,eps,520,280);
+  const noise=types.filter(t=>t==='noise').length;
+  const n=efPts.length;
+  let msg='';
+  if(nClusters===0) msg=`<span class="warn">Tất cả noise! eps quá nhỏ.</span>`;
+  else if(nClusters===1) msg=`<span class="warn">1 cluster khổng lồ — eps quá lớn, mất cấu trúc.</span>`;
+  else msg=`<span class="hi">${nClusters} clusters</span> — eps phù hợp!`;
+  document.getElementById('ef-info').innerHTML=`eps=${eps} &nbsp;|&nbsp; ${msg} &nbsp;|&nbsp; Noise: ${noise}/${n} điểm`;
+}
+
+// Init all
+window.addEventListener('load',()=>{
+  dbInit();
+  runCompare();
+  epsEffectInit();
+  epsEffectUpdate();
+});
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

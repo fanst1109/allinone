@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 01 — Giới thiệu CSDL & DBMS</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  button.primary { background: #0f766e; color: #fff; border: 0; padding: 7px 14px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+  button.primary:hover { background: #115e59; }
+  label { user-select: none; }
+  .rows { display: flex; flex-direction: column; gap: 3px; margin-top: 10px; max-height: 240px; overflow-y: auto; }
+  .row { display: flex; gap: 8px; padding: 3px 8px; border-radius: 4px; font-size: 13px; font-variant-numeric: tabular-nums; background: #f1f5f9; align-items: center; }
+  .row.scan { background: #fef08a; }
+  .row.hit { background: #bbf7d0; font-weight: 700; }
+  .row .c { min-width: 28px; }
+  .row .city { min-width: 70px; }
+  .counter { margin-top: 10px; font-size: 14px; color: #334155; }
+  .counter b { color: #0f766e; }
+  .legend span { display:inline-block; padding:2px 8px; border-radius:4px; font-size:12px; margin-right:6px; }
+  .modechip { display:inline-block; padding:3px 10px; border-radius:6px; background:#e2e8f0; cursor:pointer; margin-right:6px; font-size:13px; }
+  .modechip.active { background:#0f766e; color:#fff; }
+  table { border-collapse: collapse; width: 100%; margin-top: 8px; }
+  th, td { padding: 6px 10px; border-bottom: 1px solid #eee; font-size: 13px; text-align: left; }
+  th { background: #f0fdfa; }
+  .problem-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 12px; }
+  .prob { border: 2px solid #e2e8f0; border-radius: 8px; padding: 12px; cursor: pointer; transition: .15s; }
+  .prob:hover { border-color: #0f766e; }
+  .prob.sel { border-color: #0f766e; background: #f0fdfa; }
+  .prob .ic { font-size: 24px; }
+  .prob .t { font-weight: 700; margin: 4px 0; font-size: 14px; }
+  .prob-detail { margin-top: 12px; padding: 12px; background: #f0fdfa; border-left: 4px solid #0f766e; border-radius: 4px; font-size: 14px; min-height: 40px; }
+  .quiz-q { font-weight: 600; margin: 8px 0; }
+  .quiz-opt { display:inline-block; padding:6px 14px; border:2px solid #cbd5e1; border-radius:6px; margin:4px 6px 4px 0; cursor:pointer; font-size:14px; }
+  .quiz-opt:hover { border-color:#0f766e; }
+  .quiz-opt.correct { background:#bbf7d0; border-color:#16a34a; }
+  .quiz-opt.wrong { background:#fecaca; border-color:#dc2626; }
+  .quiz-feedback { margin-top:8px; font-size:14px; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Giới thiệu CSDL & DBMS</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-mo-hinh-quan-he/visualization.html">L2: Mô hình quan hệ →</a>
+</nav>
+<main>
+<h1>Giới thiệu CSDL & DBMS</h1>
+<p class="note">Ba mô-đun tương tác: (1) quét file phẳng vs index, (2) 5 vấn đề DBMS giải quyết, (3) phân loại OLTP/OLAP.</p>
+
+<div class="panel">
+  <h2>1 · Quét toàn bộ vs Index — tìm khách ở "Hanoi"</h2>
+  <p class="note">Cùng một truy vấn <code>WHERE city = 'Hanoi'</code>. So sánh số bước phải duyệt.</p>
+  <div>
+    <span class="modechip active" id="mScan" onclick="setMode('scan')">📄 Quét file phẳng (O(n))</span>
+    <span class="modechip" id="mIndex" onclick="setMode('index')">🗂️ Dùng index (O(log n))</span>
+    <button class="primary" onclick="runSearch()" style="margin-left:8px">▶ Chạy</button>
+  </div>
+  <div class="rows" id="rows"></div>
+  <div class="counter" id="counter"></div>
+</div>
+
+<div class="panel">
+  <h2>2 · Năm vấn đề DBMS giải quyết (file phẳng thì không)</h2>
+  <p class="note">Bấm vào từng ô để xem DBMS xử lý ra sao.</p>
+  <div class="problem-grid" id="probGrid"></div>
+  <div class="prob-detail" id="probDetail">← Chọn một vấn đề để xem chi tiết.</div>
+</div>
+
+<div class="panel">
+  <h2>3 · OLTP hay OLAP?</h2>
+  <p class="note">Đọc truy vấn rồi đoán nó thuộc loại tải nào.</p>
+  <div id="quiz"></div>
+  <button class="primary" onclick="nextQuiz()" style="margin-top:10px">↻ Câu khác</button>
+</div>
+
+<script>
+// ===== Module 1: scan vs index =====
+const DATA = [
+  {id:1, name:'An',   city:'Hanoi'},
+  {id:2, name:'Binh', city:'Da Nang'},
+  {id:3, name:'Chi',  city:'Hanoi'},
+  {id:4, name:'Dung', city:'HCM'},
+  {id:5, name:'En',   city:'Hue'},
+  {id:6, name:'Phuc', city:'Hanoi'},
+  {id:7, name:'Giang',city:'HCM'},
+  {id:8, name:'Ha',   city:'Da Nang'},
+  {id:9, name:'Khoa', city:'Hanoi'},
+  {id:10,name:'Lan',  city:'Hue'},
+];
+// index: city -> [row indices], đã "sắp" sẵn như B-tree cho phép nhảy thẳng
+const TARGET = 'Hanoi';
+const INDEX = {};
+DATA.forEach((r,i)=>{ (INDEX[r.city] ||= []).push(i); });
+let mode = 'scan';
+function setMode(m){ mode=m; document.getElementById('mScan').classList.toggle('active',m==='scan'); document.getElementById('mIndex').classList.toggle('active',m==='index'); renderRows(); document.getElementById('counter').innerHTML=''; }
+function renderRows(scanned=[], hits=[]){
+  document.getElementById('rows').innerHTML = DATA.map((r,i)=>{
+    let cls=''; if(hits.includes(i)) cls='hit'; else if(scanned.includes(i)) cls='scan';
+    return `<div class="row ${cls}"><span class="c">#${r.id}</span><span class="city">${r.city}</span><span>${r.name}</span></div>`;
+  }).join('');
+}
+async function runSearch(){
+  renderRows(); const counter=document.getElementById('counter');
+  const scanned=[], hits=[];
+  if(mode==='scan'){
+    for(let i=0;i<DATA.length;i++){
+      scanned.push(i); renderRows(scanned,hits);
+      counter.innerHTML = `Đã duyệt <b>${i+1}</b> / ${DATA.length} dòng...`;
+      await sleep(280);
+      if(DATA[i].city===TARGET) hits.push(i);
+    }
+    renderRows(scanned,hits);
+    counter.innerHTML = `Quét tuyến tính: phải đọc <b>cả ${DATA.length}</b> dòng để chắc chắn không bỏ sót. Với 1.000.000 dòng → 1.000.000 bước.`;
+  } else {
+    counter.innerHTML = `Index trỏ thẳng tới các dòng có city='Hanoi' — không cần đọc dòng khác.`;
+    await sleep(400);
+    for(const i of INDEX[TARGET]){ hits.push(i); renderRows([],hits); await sleep(300); }
+    counter.innerHTML = `Dùng index: chỉ chạm <b>${INDEX[TARGET].length}</b> dòng kết quả (sau ~log n bước tra cứu). Với 1.000.000 dòng → ~20 bước thay vì 1.000.000.`;
+  }
+}
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+renderRows();
+
+// ===== Module 2: 5 problems =====
+const PROBLEMS = [
+  {ic:'🔍', t:'Truy vấn', d:'<b>Truy vấn hiệu quả.</b> File phẳng phải quét O(n). DBMS dùng index (B-tree) tra ~O(log n): với 1 triệu dòng là ~20 bước thay vì 1 triệu.'},
+  {ic:'🛡️', t:'Toàn vẹn', d:'<b>Toàn vẹn dữ liệu.</b> DBMS cho khai báo ràng buộc (kiểu, primary key, foreign key, check). Dữ liệu sai (balance="abc", id trùng) bị từ chối ngay lúc ghi. File phẳng không cản gì.'},
+  {ic:'👥', t:'Đồng thời', d:'<b>Đồng thời.</b> 50 người cùng sửa file .csv → ghi đè, mất cập nhật. DBMS dùng transaction + lock/MVCC để song song mà vẫn đúng như chạy lần lượt.'},
+  {ic:'💾', t:'Bền vững', d:'<b>Bền vững & phục hồi.</b> Mất điện giữa lúc ghi file → hỏng. DBMS ghi write-ahead log (WAL) trước, nên khi bật lại có thể replay/rollback về trạng thái nhất quán.'},
+  {ic:'🔐', t:'Phân quyền', d:'<b>Kiểm soát truy cập.</b> DBMS phân quyền theo user/role: ai đọc bảng nào, ai được xóa. File phẳng chỉ có quyền mức hệ điều hành (cả file, hoặc không gì).'},
+];
+document.getElementById('probGrid').innerHTML = PROBLEMS.map((p,i)=>
+  `<div class="prob" data-i="${i}" onclick="selProb(${i})"><div class="ic">${p.ic}</div><div class="t">${p.t}</div></div>`).join('');
+function selProb(i){
+  document.querySelectorAll('.prob').forEach(e=>e.classList.toggle('sel', +e.dataset.i===i));
+  document.getElementById('probDetail').innerHTML = PROBLEMS[i].d;
+}
+
+// ===== Module 3: OLTP/OLAP quiz =====
+const QUIZ = [
+  {q:'"Trừ 1 khỏi tồn kho khi bán 1 sản phẩm"', a:'OLTP', why:'Ghi vài dòng, rất nhanh, xảy ra liên tục → giao dịch.'},
+  {q:'"Doanh thu trung bình theo quý trong 3 năm"', a:'OLAP', why:'Tổng hợp khối lớn, chạy hiếm → phân tích.'},
+  {q:'"Thêm 1 bình luận của user vào bài viết"', a:'OLTP', why:'Ghi 1 dòng, nhanh, thường xuyên.'},
+  {q:'"Top 10 sản phẩm bán chạy nhất mọi thời đại"', a:'OLAP', why:'Quét & tổng hợp toàn bộ lịch sử bán hàng.'},
+  {q:'"Cập nhật địa chỉ giao hàng của 1 khách"', a:'OLTP', why:'Sửa 1 dòng theo khóa, độ trễ thấp.'},
+  {q:'"Số khách hàng mới mỗi tháng, theo từng tỉnh"', a:'OLAP', why:'Gom nhóm & đếm trên khối dữ liệu lớn.'},
+];
+let qIdx = -1;
+function nextQuiz(){
+  let n; do { n = Math.floor(Math.random()*QUIZ.length); } while(n===qIdx && QUIZ.length>1);
+  qIdx = n; const item = QUIZ[n];
+  document.getElementById('quiz').innerHTML =
+    `<div class="quiz-q">${item.q}</div>` +
+    `<span class="quiz-opt" onclick="ansQuiz(this,'OLTP')">OLTP (giao dịch)</span>` +
+    `<span class="quiz-opt" onclick="ansQuiz(this,'OLAP')">OLAP (phân tích)</span>` +
+    `<div class="quiz-feedback" id="qfb"></div>`;
+}
+function ansQuiz(el, choice){
+  const item = QUIZ[qIdx];
+  const correct = choice===item.a;
+  el.classList.add(correct?'correct':'wrong');
+  document.getElementById('qfb').innerHTML = (correct?'✅ Đúng! ':`❌ Sai — đây là <b>${item.a}</b>. `) + item.why;
+}
+nextQuiz();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

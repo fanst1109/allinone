@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 03 — SQL cơ bản</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  button.primary { background: #0f766e; color: #fff; border: 0; padding: 7px 14px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+  button.primary:hover { background: #115e59; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 8px; }
+  th, td { padding: 6px 10px; border-bottom: 1px solid #eee; font-size: 13px; text-align: left; font-variant-numeric: tabular-nums; }
+  th { background: #f0fdfa; position: sticky; top: 0; }
+  .num { text-align: right; }
+  .tbl-wrap { overflow-x: auto; max-height: 320px; overflow-y: auto; }
+  td.nullv { color:#94a3b8; font-style: italic; }
+  tr.dim { opacity: .28; }
+  tr.kept { background: #f0fdfa; }
+  td.hidecol { color:#cbd5e1; text-decoration: line-through; }
+  /* query buttons */
+  .qbtns { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
+  .qbtn { border: 2px solid #cbd5e1; background:#fff; border-radius: 8px; padding: 8px 12px; cursor: pointer; font-size: 13px; max-width: 100%; text-align: left; transition: .15s; }
+  .qbtn:hover { border-color: #0f766e; }
+  .qbtn.active { border-color: #0f766e; background: #f0fdfa; }
+  .qbtn code { font-size: 12px; color:#0f766e; }
+  /* dropdown builder */
+  .builder { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 8px; }
+  .builder .grp { display: flex; flex-direction: column; gap: 3px; }
+  .builder label { font-size: 12px; color:#475569; font-weight: 600; }
+  .builder select, .builder input { padding: 6px 8px; border:1px solid #cbd5e1; border-radius: 5px; font-size: 13px; max-width: 160px; width: 100%; box-sizing: border-box; }
+  .sqlbox { background:#0f172a; color:#e2e8f0; padding: 12px 14px; border-radius: 6px; font-family: ui-monospace, monospace; font-size: 13px; margin: 10px 0; white-space: pre-wrap; word-break: break-word; }
+  .sqlbox .kw { color:#5eead4; font-weight: 700; }
+  .counter { margin-top: 8px; font-size: 14px; color:#334155; }
+  .counter b { color:#0f766e; }
+  /* execution order */
+  .steps { display:flex; flex-direction: column; gap:6px; }
+  .step { display:flex; gap:10px; align-items:flex-start; padding:8px 12px; border-radius:6px; background:#f1f5f9; border-left: 4px solid #cbd5e1; font-size:13px; transition:.2s; }
+  .step.on { background:#bbf7d0; border-left-color:#16a34a; }
+  .step.done { background:#ecfdf5; border-left-color:#16a34a; }
+  .step .si { font-weight:700; min-width:18px; color:#0f766e; }
+  .step .sd { color:#475569; }
+  .badge { display:inline-block; background:#0f766e; color:#fff; border-radius:4px; padding:1px 6px; font-size:11px; margin-left:6px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-mo-hinh-quan-he/visualization.html">← L2: Mô hình quan hệ</a>
+  <span class="sep">·</span>
+  <span class="current">L3: SQL cơ bản</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-sql-trung-cap/visualization.html">L4: SQL trung cấp →</a>
+</nav>
+<main>
+<h1>SQL cơ bản — Playground giả lập</h1>
+<p class="note">Một "SQL playground" chạy hoàn toàn bằng JavaScript trên bảng <code>products</code> mẫu (8 dòng). Không cần kết nối database thật. Bấm truy vấn dựng sẵn hoặc tự ghép mệnh đề để xem kết quả.</p>
+
+<div class="panel">
+  <h2>Bảng nguồn: products (8 dòng)</h2>
+  <p class="note">Mọi truy vấn dưới đây chạy trên đúng bảng này. Dòng id=8 có <code>stock</code> là NULL.</p>
+  <div class="tbl-wrap">
+    <table id="srcTable"></table>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>1 · Truy vấn dựng sẵn</h2>
+  <p class="note">Mỗi nút gắn 1 truy vấn. Bấm để chạy — kết quả hiển thị ở bảng bên dưới, kèm số dòng.</p>
+  <div class="qbtns" id="presetBtns"></div>
+  <div class="sqlbox" id="presetSql">-- Chọn một truy vấn ở trên --</div>
+  <div class="tbl-wrap"><table id="presetResult"></table></div>
+  <div class="counter" id="presetCounter"></div>
+</div>
+
+<div class="panel">
+  <h2>2 · Tự ghép truy vấn</h2>
+  <p class="note">Chọn cột, điều kiện WHERE, sắp xếp và giới hạn. Câu SQL tương ứng được sinh ra và thực thi ngay.</p>
+  <div class="builder">
+    <div class="grp">
+      <label>SELECT</label>
+      <select id="bCols">
+        <option value="*">* (mọi cột)</option>
+        <option value="name,price">name, price</option>
+        <option value="name,category">name, category</option>
+        <option value="name,category,price,stock">name, category, price, stock</option>
+      </select>
+    </div>
+    <div class="grp">
+      <label>WHERE cột</label>
+      <select id="bCol">
+        <option value="">(không lọc)</option>
+        <option value="category">category</option>
+        <option value="price">price</option>
+        <option value="stock">stock</option>
+      </select>
+    </div>
+    <div class="grp">
+      <label>toán tử</label>
+      <select id="bOp">
+        <option value="=">=</option>
+        <option value="<>">&lt;&gt;</option>
+        <option value="<">&lt;</option>
+        <option value=">">&gt;</option>
+        <option value="ISNULL">IS NULL</option>
+      </select>
+    </div>
+    <div class="grp">
+      <label>giá trị</label>
+      <input id="bVal" value="electronics" placeholder="giá trị">
+    </div>
+    <div class="grp">
+      <label>ORDER BY</label>
+      <select id="bOrder">
+        <option value="">(không sắp)</option>
+        <option value="price ASC">price ASC</option>
+        <option value="price DESC">price DESC</option>
+        <option value="name ASC">name ASC</option>
+      </select>
+    </div>
+    <div class="grp">
+      <label>LIMIT</label>
+      <select id="bLimit">
+        <option value="">(không giới hạn)</option>
+        <option value="1">1</option>
+        <option value="3">3</option>
+        <option value="5">5</option>
+      </select>
+    </div>
+    <button class="primary" onclick="runBuilder()">▶ Chạy</button>
+  </div>
+  <div class="sqlbox" id="builderSql"></div>
+  <div class="tbl-wrap"><table id="builderResult"></table></div>
+  <div class="counter" id="builderCounter"></div>
+</div>
+
+<div class="panel">
+  <h2>3 · Thứ tự thực thi: FROM → WHERE → SELECT → ORDER BY → LIMIT</h2>
+  <p class="note">Minh họa truy vấn <code>SELECT name, price FROM products WHERE price &gt; 100 ORDER BY price DESC LIMIT 3</code>. Bấm "Chạy từng bước" để xem dây chuyền.</p>
+  <div class="steps" id="execSteps"></div>
+  <button class="primary" onclick="runExec()" style="margin-top:10px">▶ Chạy từng bước</button>
+  <div class="tbl-wrap"><table id="execResult"></table></div>
+  <div class="counter" id="execCounter"></div>
+</div>
+
+<script>
+// ===== Dữ liệu nguồn =====
+const COLS = ['id','name','category','price','stock'];
+const NUMCOLS = new Set(['id','price','stock']);
+const DATA = [
+  {id:1, name:'Bút bi',          category:'stationery',  price:5,    stock:200},
+  {id:2, name:'Vở 200 trang',    category:'stationery',  price:25,   stock:150},
+  {id:3, name:'Bàn phím cơ',     category:'electronics', price:850,  stock:30},
+  {id:4, name:'Chuột không dây', category:'electronics', price:320,  stock:0},
+  {id:5, name:'Cặp sách',        category:'bag',         price:450,  stock:12},
+  {id:6, name:'Balo laptop',     category:'bag',         price:600,  stock:8},
+  {id:7, name:'Tai nghe',        category:'electronics', price:1200, stock:5},
+  {id:8, name:'Hộp bút',         category:'stationery',  price:40,   stock:null},
+];
+
+function renderTable(elId, rows, cols){
+  const el = document.getElementById(elId);
+  if(!rows.length){ el.innerHTML = '<tr><td>(0 dòng)</td></tr>'; return; }
+  const head = '<tr>' + cols.map(c=>`<th class="${NUMCOLS.has(c)?'num':''}">${c}</th>`).join('') + '</tr>';
+  const body = rows.map(r => '<tr>' + cols.map(c=>{
+    const v = r[c];
+    if(v === null) return '<td class="nullv">NULL</td>';
+    return `<td class="${NUMCOLS.has(c)?'num':''}">${v}</td>`;
+  }).join('') + '</tr>').join('');
+  el.innerHTML = head + body;
+}
+// bảng nguồn
+renderTable('srcTable', DATA, COLS);
+
+const colsOf = sel => sel === '*' ? COLS : sel.split(',').map(s=>s.trim());
+const projectRows = (rows, cols) => rows.map(r => { const o={}; cols.forEach(c=>o[c]=r[c]); return o; });
+
+// ===== Module 1: truy vấn dựng sẵn =====
+const PRESETS = [
+  { sql: "SELECT * FROM products;",
+    run: () => ({ rows: DATA, cols: COLS, note: "Lấy mọi cột, mọi dòng." }) },
+  { sql: "SELECT name, price FROM products WHERE price > 100 ORDER BY price DESC;",
+    run: () => { const r = DATA.filter(x=>x.price>100).sort((a,b)=>b.price-a.price);
+      return { rows: projectRows(r,['name','price']), cols:['name','price'], note:"Lọc price>100 rồi sắp giảm dần." }; } },
+  { sql: "SELECT name FROM products WHERE category = 'electronics';",
+    run: () => { const r = DATA.filter(x=>x.category==='electronics');
+      return { rows: projectRows(r,['name']), cols:['name'], note:"WHERE bằng chuỗi (nháy đơn)." }; } },
+  { sql: "SELECT name, category, price FROM products WHERE price BETWEEN 40 AND 600;",
+    run: () => { const r = DATA.filter(x=>x.price>=40 && x.price<=600);
+      return { rows: projectRows(r,['name','category','price']), cols:['name','category','price'], note:"BETWEEN bao gồm cả 40 và 600." }; } },
+  { sql: "SELECT name FROM products WHERE category IN ('bag','electronics');",
+    run: () => { const r = DATA.filter(x=>['bag','electronics'].includes(x.category));
+      return { rows: projectRows(r,['name']), cols:['name'], note:"IN = nhiều OR gộp lại." }; } },
+  { sql: "SELECT name FROM products WHERE name LIKE 'B%';",
+    run: () => { const r = DATA.filter(x=>/^B/.test(x.name));
+      return { rows: projectRows(r,['name']), cols:['name'], note:"LIKE 'B%' = tên bắt đầu bằng B." }; } },
+  { sql: "SELECT name FROM products WHERE stock IS NULL;",
+    run: () => { const r = DATA.filter(x=>x.stock===null);
+      return { rows: projectRows(r,['name']), cols:['name'], note:"IS NULL — KHÔNG dùng = NULL được." }; } },
+  { sql: "SELECT DISTINCT category FROM products;",
+    run: () => { const seen=new Set(), r=[]; DATA.forEach(x=>{ if(!seen.has(x.category)){ seen.add(x.category); r.push({category:x.category}); } });
+      return { rows:r, cols:['category'], note:"DISTINCT bỏ category trùng → 3 dòng." }; } },
+  { sql: "SELECT name, price FROM products ORDER BY price DESC LIMIT 3;",
+    run: () => { const r = [...DATA].sort((a,b)=>b.price-a.price).slice(0,3);
+      return { rows: projectRows(r,['name','price']), cols:['name','price'], note:"Top 3 đắt nhất: ORDER BY trước, LIMIT sau." }; } },
+];
+const highlightSql = s => s.replace(/\b(SELECT|FROM|WHERE|ORDER BY|LIMIT|OFFSET|DISTINCT|BETWEEN|AND|OR|NOT|IN|LIKE|IS|NULL|ASC|DESC)\b/g, '<span class="kw">$1</span>');
+document.getElementById('presetBtns').innerHTML = PRESETS.map((p,i)=>
+  `<button class="qbtn" data-i="${i}" onclick="runPreset(${i})"><code>${p.sql}</code></button>`).join('');
+function runPreset(i){
+  document.querySelectorAll('#presetBtns .qbtn').forEach(b=>b.classList.toggle('active', +b.dataset.i===i));
+  const p = PRESETS[i]; const out = p.run();
+  document.getElementById('presetSql').innerHTML = highlightSql(p.sql);
+  renderTable('presetResult', out.rows, out.cols);
+  document.getElementById('presetCounter').innerHTML = `${out.note} → trả về <b>${out.rows.length}</b> dòng.`;
+}
+
+// ===== Module 2: tự ghép =====
+function runBuilder(){
+  const cols = document.getElementById('bCols').value;
+  const wCol = document.getElementById('bCol').value;
+  const op   = document.getElementById('bOp').value;
+  let val    = document.getElementById('bVal').value.trim();
+  const order= document.getElementById('bOrder').value;
+  const limit= document.getElementById('bLimit').value;
+  const projCols = colsOf(cols);
+
+  // build SQL string
+  let sql = `SELECT ${cols} FROM products`;
+  let where = '';
+  if(wCol){
+    if(op==='ISNULL'){ where = `${wCol} IS NULL`; }
+    else {
+      const isNum = NUMCOLS.has(wCol);
+      const lit = isNum ? (val===''?'0':val) : `'${val}'`;
+      where = `${wCol} ${op} ${lit}`;
+    }
+    sql += `\nWHERE ${where}`;
+  }
+  if(order) sql += `\nORDER BY ${order}`;
+  if(limit) sql += `\nLIMIT ${limit}`;
+  sql += ';';
+  document.getElementById('builderSql').innerHTML = highlightSql(sql);
+
+  // execute
+  let rows = [...DATA];
+  if(wCol){
+    rows = rows.filter(r=>{
+      const cv = r[wCol];
+      if(op==='ISNULL') return cv===null;
+      if(cv===null) return false; // so sánh với NULL → loại
+      const isNum = NUMCOLS.has(wCol);
+      const target = isNum ? Number(val) : val;
+      switch(op){
+        case '=':  return cv==target;
+        case '<>': return cv!=target;
+        case '<':  return cv<target;
+        case '>':  return cv>target;
+      }
+      return true;
+    });
+  }
+  if(order){
+    const [oc,od] = order.split(' ');
+    rows.sort((a,b)=> od==='DESC' ? (b[oc]>a[oc]?1:-1) : (a[oc]>b[oc]?1:-1));
+  }
+  if(limit) rows = rows.slice(0, Number(limit));
+  renderTable('builderResult', projectRows(rows, projCols), projCols);
+  document.getElementById('builderCounter').innerHTML = `Trả về <b>${rows.length}</b> dòng.`;
+}
+// đổi placeholder giá trị theo cột chọn
+document.getElementById('bCol').addEventListener('change', e=>{
+  const v = e.target.value;
+  const inp = document.getElementById('bVal');
+  if(v==='category') inp.value = 'electronics';
+  else if(v==='price') inp.value = '100';
+  else if(v==='stock') inp.value = '0';
+});
+runBuilder();
+
+// ===== Module 3: thứ tự thực thi =====
+const EXEC_STEPS = [
+  { si:'1', name:'FROM products', sd:'Lấy bảng nguồn — 8 dòng đầu vào.', do:()=>({rows:[...DATA], cols:COLS}) },
+  { si:'2', name:'WHERE price > 100', sd:'Lọc giữ lại các hàng thỏa điều kiện.', do:()=>({rows:DATA.filter(x=>x.price>100), cols:COLS}) },
+  { si:'3', name:'SELECT name, price', sd:'Chọn 2 cột (và đặt alias nếu có). Alias chỉ "ra đời" ở bước này.', do:()=>({rows:projectRows(DATA.filter(x=>x.price>100),['name','price']), cols:['name','price']}) },
+  { si:'4', name:'ORDER BY price DESC', sd:'Sắp các dòng còn lại theo giá giảm dần (alias đã tồn tại nên dùng được ở đây).', do:()=>({rows:projectRows([...DATA].filter(x=>x.price>100).sort((a,b)=>b.price-a.price),['name','price']), cols:['name','price']}) },
+  { si:'5', name:'LIMIT 3', sd:'Cắt lấy 3 dòng đầu.', do:()=>({rows:projectRows([...DATA].filter(x=>x.price>100).sort((a,b)=>b.price-a.price).slice(0,3),['name','price']), cols:['name','price']}) },
+];
+function renderExecSteps(active=-1, done=-1){
+  document.getElementById('execSteps').innerHTML = EXEC_STEPS.map((s,i)=>{
+    let cls=''; if(i===active) cls='on'; else if(i<=done) cls='done';
+    return `<div class="step ${cls}"><span class="si">${s.si}</span><span><b>${s.name}</b><br><span class="sd">${s.sd}</span></span></div>`;
+  }).join('');
+}
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+async function runExec(){
+  renderExecSteps();
+  document.getElementById('execResult').innerHTML='';
+  document.getElementById('execCounter').innerHTML='';
+  for(let i=0;i<EXEC_STEPS.length;i++){
+    renderExecSteps(i, i-1);
+    const out = EXEC_STEPS[i].do();
+    renderTable('execResult', out.rows, out.cols);
+    document.getElementById('execCounter').innerHTML = `Sau bước <b>${EXEC_STEPS[i].si} (${EXEC_STEPS[i].name})</b>: còn <b>${out.rows.length}</b> dòng.`;
+    await sleep(1100);
+  }
+  renderExecSteps(-1, EXEC_STEPS.length-1);
+  document.getElementById('execCounter').innerHTML += ' <span class="badge">Xong</span> — đây là lý do alias định ở SELECT (bước 3) dùng được ở ORDER BY (bước 4) nhưng KHÔNG dùng được ở WHERE (bước 2).';
+}
+renderExecSteps();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 04 — SQL trung cấp (JOIN, GROUP BY)</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  button.primary { background: #0f766e; color: #fff; border: 0; padding: 7px 14px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+  button.primary:hover { background: #115e59; }
+  button.primary:disabled { background: #94a3b8; cursor: default; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  .modechip { display:inline-block; padding:4px 11px; border-radius:6px; background:#e2e8f0; cursor:pointer; margin:0 6px 6px 0; font-size:13px; }
+  .modechip.active { background:#0f766e; color:#fff; }
+  table { border-collapse: collapse; width: 100%; margin-top: 8px; font-variant-numeric: tabular-nums; }
+  th, td { padding: 5px 9px; border-bottom: 1px solid #eee; font-size: 13px; text-align: left; }
+  th { background: #f0fdfa; }
+  td.num, th.num { text-align: right; }
+  .two-tables { display: flex; gap: 16px; flex-wrap: wrap; }
+  .two-tables > div { flex: 1 1 200px; min-width: 0; }
+  .tbl-cap { font-weight: 700; font-size: 13px; margin-bottom: 2px; }
+  tr.lit { background: #fef08a !important; }
+  tr.matched { background: #bbf7d0 !important; }
+  .nullcell { color: #b91c1c; font-style: italic; font-weight: 700; }
+  .result-meta { margin-top: 10px; font-size: 14px; color: #334155; }
+  .result-meta b { color: #0f766e; }
+  code.q { display:block; background:#0f172a; color:#e2e8f0; padding:10px 12px; border-radius:6px; font-size:13px; white-space:pre-wrap; margin-top:10px; overflow-x:auto; }
+  .grp-box { border:2px solid #0f766e; border-radius:6px; padding:8px 10px; margin-top:8px; background:#f0fdfa; }
+  .grp-box .gh { font-weight:700; font-size:13px; }
+  .grp-box .gr { font-size:13px; padding:2px 0; }
+  .agg-line { font-size:13px; margin-top:4px; color:#334155; }
+  .agg-line b { color:#0f766e; }
+  .wh-grid { display:flex; gap:16px; flex-wrap:wrap; }
+  .wh-grid > div { flex:1 1 240px; min-width:0; }
+  .wh-card { border:2px solid #e2e8f0; border-radius:8px; padding:10px 12px; }
+  .wh-card h3 { margin:0 0 6px; font-size:15px; }
+  .crossed { text-decoration: line-through; color:#94a3b8; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-sql-co-ban/visualization.html">← L3: SQL cơ bản</a>
+  <span class="sep">·</span>
+  <span class="current">L4: SQL trung cấp</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-khoa-rang-buoc/visualization.html">L5: Khóa & ràng buộc →</a>
+</nav>
+<main>
+<h1>SQL trung cấp — JOIN & GROUP BY</h1>
+<p class="note">Ba mô-đun tương tác: (1) mô phỏng các loại JOIN, (2) mô phỏng GROUP BY + aggregate, (3) WHERE vs HAVING (lọc trước/sau gom). Dùng chung 2 bảng <code>customers</code> &amp; <code>orders</code>.</p>
+
+<div class="panel">
+  <h2>1 · Mô phỏng JOIN</h2>
+  <p class="note">Chọn loại JOIN rồi bấm <b>Ghép</b>. Điều kiện: <code>customers.id = orders.customer_id</code>. Ô <span class="nullcell">NULL</span> tô đỏ.</p>
+  <div class="two-tables">
+    <div>
+      <div class="tbl-cap">customers (m = 4)</div>
+      <table id="tblC"></table>
+    </div>
+    <div>
+      <div class="tbl-cap">orders (n = 5)</div>
+      <table id="tblO"></table>
+    </div>
+  </div>
+  <div style="margin-top:12px">
+    <span class="modechip active" data-j="INNER" onclick="setJoin('INNER')">INNER JOIN</span>
+    <span class="modechip" data-j="LEFT" onclick="setJoin('LEFT')">LEFT JOIN</span>
+    <span class="modechip" data-j="RIGHT" onclick="setJoin('RIGHT')">RIGHT JOIN</span>
+    <span class="modechip" data-j="FULL" onclick="setJoin('FULL')">FULL OUTER</span>
+    <span class="modechip" data-j="CROSS" onclick="setJoin('CROSS')">CROSS JOIN</span>
+    <button class="primary" id="joinBtn" onclick="runJoin()" style="margin-left:6px">▶ Ghép</button>
+  </div>
+  <code class="q" id="joinSql"></code>
+  <table id="joinResult"></table>
+  <div class="result-meta" id="joinMeta"></div>
+</div>
+
+<div class="panel">
+  <h2>2 · Mô phỏng GROUP BY + aggregate</h2>
+  <p class="note">Gom bảng <code>orders</code> theo một cột, rồi tính aggregate cho từng nhóm.</p>
+  <div>
+    Gom theo:
+    <span class="modechip active" data-g="customer_id" onclick="setGrpCol('customer_id')">customer_id</span>
+    <button class="primary" onclick="runGroup()" style="margin-left:6px">▶ Gom theo customer_id</button>
+  </div>
+  <code class="q" id="grpSql"></code>
+  <div id="grpBoxes"></div>
+  <div class="tbl-cap" style="margin-top:12px">Kết quả (mỗi nhóm 1 dòng):</div>
+  <table id="grpResult"></table>
+</div>
+
+<div class="panel">
+  <h2>3 · WHERE vs HAVING — lọc trước hay sau gom?</h2>
+  <p class="note">Cùng dữ liệu <code>orders</code>, hai chỗ lọc cho kết quả khác nhau.</p>
+  <div class="wh-grid">
+    <div class="wh-card">
+      <h3>WHERE amount &ge; 100 → GROUP BY</h3>
+      <p class="note" style="margin-top:0">Lọc <b>dòng</b> trước, rồi mới gom &amp; SUM.</p>
+      <div id="whereOut"></div>
+    </div>
+    <div class="wh-card">
+      <h3>GROUP BY → HAVING SUM &gt; 350</h3>
+      <p class="note" style="margin-top:0">Gom tất cả trước, rồi lọc <b>nhóm</b> theo tổng.</p>
+      <div id="havingOut"></div>
+    </div>
+  </div>
+  <div class="result-meta" id="whMeta"></div>
+</div>
+
+<script>
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+
+// ===== Dữ liệu dùng chung =====
+const CUST = [
+  {id:1, name:'An',   city:'Hanoi'},
+  {id:2, name:'Binh', city:'Da Nang'},
+  {id:3, name:'Chi',  city:'Hanoi'},
+  {id:4, name:'Dung', city:'HCM'},
+];
+const ORD = [
+  {id:101, customer_id:1, amount:200},
+  {id:102, customer_id:1, amount:150},
+  {id:103, customer_id:2, amount:300},
+  {id:104, customer_id:3, amount:500},
+  {id:105, customer_id:3, amount:50},
+];
+
+// render 2 bảng nguồn
+document.getElementById('tblC').innerHTML =
+  '<tr><th>id</th><th>name</th><th>city</th></tr>' +
+  CUST.map(c=>`<tr id="c${c.id}"><td>${c.id}</td><td>${c.name}</td><td>${c.city}</td></tr>`).join('');
+document.getElementById('tblO').innerHTML =
+  '<tr><th>id</th><th>customer_id</th><th class="num">amount</th></tr>' +
+  ORD.map(o=>`<tr id="o${o.id}"><td>${o.id}</td><td>${o.customer_id}</td><td class="num">${o.amount}</td></tr>`).join('');
+
+// ===== Module 1: JOIN =====
+let joinType = 'INNER';
+const NULLC = '<span class="nullcell">NULL</span>';
+function setJoin(t){
+  joinType = t;
+  document.querySelectorAll('[data-j]').forEach(e=>e.classList.toggle('active', e.dataset.j===t));
+  showSql();
+  document.getElementById('joinResult').innerHTML='';
+  document.getElementById('joinMeta').innerHTML='';
+  clearHi();
+}
+function showSql(){
+  const sqlMap = {
+    INNER:"SELECT c.name, o.id, o.amount\nFROM customers c\nINNER JOIN orders o ON c.id = o.customer_id;",
+    LEFT: "SELECT c.name, o.id, o.amount\nFROM customers c\nLEFT JOIN orders o ON c.id = o.customer_id;",
+    RIGHT:"SELECT c.name, o.id, o.amount\nFROM customers c\nRIGHT JOIN orders o ON c.id = o.customer_id;",
+    FULL: "SELECT c.name, o.id, o.amount\nFROM customers c\nFULL OUTER JOIN orders o ON c.id = o.customer_id;",
+    CROSS:"SELECT c.name, o.id\nFROM customers c\nCROSS JOIN orders o;   -- KHÔNG có ON",
+  };
+  document.getElementById('joinSql').textContent = sqlMap[joinType];
+}
+function clearHi(){ document.querySelectorAll('#tblC tr, #tblO tr').forEach(r=>r.className=''); }
+
+// tính các dòng kết quả của join
+function computeJoin(){
+  const rows = [];   // {name, oid, amount, isNull:'right'|'left'|null, cId, oId}
+  if(joinType==='CROSS'){
+    for(const c of CUST) for(const o of ORD) rows.push({name:c.name, oid:o.id, amount:o.amount, cId:c.id, oId:o.id});
+    return rows;
+  }
+  if(joinType==='RIGHT'){
+    // duyệt theo orders: giữ mọi đơn, đơn không khớp khách → name NULL
+    for(const o of ORD){
+      const c = CUST.find(x=>x.id===o.customer_id);
+      if(c) rows.push({name:c.name, oid:o.id, amount:o.amount, cId:c.id, oId:o.id});
+      else  rows.push({name:null, oid:o.id, amount:o.amount, isNull:'left', cId:null, oId:o.id});
+    }
+    return rows;
+  }
+  // INNER / LEFT / FULL: duyệt customers cho phần khớp + LEFT
+  const matchedOrders = new Set();
+  for(const c of CUST){
+    const hits = ORD.filter(o=>o.customer_id===c.id);
+    if(hits.length){
+      for(const o of hits){ rows.push({name:c.name, oid:o.id, amount:o.amount, cId:c.id, oId:o.id}); matchedOrders.add(o.id); }
+    } else if(joinType==='LEFT' || joinType==='FULL'){
+      rows.push({name:c.name, oid:null, amount:null, isNull:'right', cId:c.id, oId:null});
+    }
+  }
+  // FULL: bổ sung đơn mồ côi (không khớp khách nào)
+  if(joinType==='FULL'){
+    for(const o of ORD){
+      if(!matchedOrders.has(o.id)){
+        rows.push({name:null, oid:o.id, amount:o.amount, isNull:'left', cId:null, oId:o.id});
+      }
+    }
+  }
+  return rows;
+}
+
+async function runJoin(){
+  const btn = document.getElementById('joinBtn'); btn.disabled=true;
+  clearHi();
+  const res = document.getElementById('joinResult');
+  const isCross = joinType==='CROSS';
+  res.innerHTML = '<tr><th>name</th><th>'+(isCross?'o.id':'order_id')+'</th>'+(isCross?'':'<th class="num">amount</th>')+'</tr>';
+  document.getElementById('joinMeta').innerHTML='';
+  const rows = computeJoin();
+  let nullCount=0;
+  for(const r of rows){
+    // highlight nguồn
+    clearHi();
+    if(r.cId) document.getElementById('c'+r.cId)?.classList.add('lit');
+    if(r.oId) document.getElementById('o'+r.oId)?.classList.add('lit');
+    await sleep(260);
+    const nameCell = r.name===null ? NULLC : r.name;
+    const oidCell  = r.oid===null  ? NULLC : r.oid;
+    if(r.name===null||r.oid===null) nullCount++;
+    let html = `<tr><td>${nameCell}</td><td>${oidCell}</td>`;
+    if(!isCross){ html += `<td class="num">${r.amount===null?NULLC:r.amount}</td>`; }
+    html += '</tr>';
+    res.insertAdjacentHTML('beforeend', html);
+  }
+  clearHi();
+  let msg = `Kết quả: <b>${rows.length}</b> dòng. `;
+  if(isCross) msg += `Tích Descartes m×n = <b>4 × 5 = 20</b> dòng — KHÔNG có điều kiện ghép. Đây là cái bạn vô tình nhận khi quên <code>ON</code>!`;
+  else if(joinType==='INNER') msg += `Chỉ giữ dòng khớp được cả hai bên. Khách #4 Dung (không đơn) bị loại.`;
+  else if(joinType==='LEFT')  msg += `Giữ mọi khách; Dung không đơn → ${nullCount} dòng có ${NULLC}.`;
+  else if(joinType==='RIGHT') msg += `Giữ mọi đơn; mọi đơn đều có khách hợp lệ → giống INNER (không dòng NULL).`;
+  else if(joinType==='FULL')  msg += `Giữ cả hai bên = LEFT ∪ RIGHT; ở đây không có đơn mồ côi nên = LEFT (${nullCount} dòng NULL).`;
+  document.getElementById('joinMeta').innerHTML = msg;
+  btn.disabled=false;
+}
+showSql();
+
+// ===== Module 2: GROUP BY =====
+function setGrpCol(){ /* chỉ 1 cột trong demo */ }
+async function runGroup(){
+  document.getElementById('grpSql').textContent =
+    "SELECT customer_id,\n       COUNT(*)    AS so_don,\n       SUM(amount) AS tong,\n       AVG(amount) AS tb\nFROM orders\nGROUP BY customer_id;";
+  // gom
+  const groups = {};
+  ORD.forEach(o=>{ (groups[o.customer_id] ||= []).push(o); });
+  const boxes = document.getElementById('grpBoxes'); boxes.innerHTML='';
+  const resTbl = document.getElementById('grpResult');
+  resTbl.innerHTML = '<tr><th>customer_id</th><th class="num">COUNT(*)</th><th class="num">SUM</th><th class="num">AVG</th></tr>';
+  const keys = Object.keys(groups).sort((a,b)=>a-b);
+  for(const k of keys){
+    const g = groups[k];
+    const amts = g.map(o=>o.amount);
+    const cnt = amts.length;
+    const sum = amts.reduce((a,b)=>a+b,0);
+    const avg = sum/cnt;
+    const box = document.createElement('div');
+    box.className='grp-box';
+    box.innerHTML = `<div class="gh">Nhóm customer_id = ${k}</div>` +
+      g.map(o=>`<div class="gr">đơn #${o.id} · amount = ${o.amount}</div>`).join('') +
+      `<div class="agg-line">COUNT(*) = <b>${cnt}</b> · SUM = ${amts.join('+')} = <b>${sum}</b> · AVG = ${sum}/${cnt} = <b>${avg}</b></div>`;
+    boxes.appendChild(box);
+    await sleep(450);
+    resTbl.insertAdjacentHTML('beforeend',
+      `<tr><td>${k}</td><td class="num">${cnt}</td><td class="num">${sum}</td><td class="num">${avg}</td></tr>`);
+  }
+}
+
+// ===== Module 3: WHERE vs HAVING =====
+function buildWhereHaving(){
+  // WHERE amount >= 100 trước, rồi gom + SUM
+  const kept = ORD.filter(o=>o.amount>=100);
+  const dropped = ORD.filter(o=>o.amount<100);
+  const wg = {};
+  kept.forEach(o=>{ (wg[o.customer_id] ||= []).push(o.amount); });
+  let whHtml = '<table><tr><th>các đơn (sau WHERE)</th></tr>';
+  whHtml += ORD.map(o=> o.amount>=100
+      ? `<tr><td>#${o.id} amount=${o.amount}</td></tr>`
+      : `<tr><td class="crossed">#${o.id} amount=${o.amount} (bị loại)</td></tr>`).join('');
+  whHtml += '</table>';
+  whHtml += '<table style="margin-top:8px"><tr><th>customer_id</th><th class="num">SUM</th></tr>';
+  Object.keys(wg).sort((a,b)=>a-b).forEach(k=>{
+    const s = wg[k].reduce((a,b)=>a+b,0);
+    whHtml += `<tr><td>${k}</td><td class="num">${wg[k].join('+')}=${s}</td></tr>`;
+  });
+  whHtml += '</table>';
+  document.getElementById('whereOut').innerHTML = whHtml;
+
+  // HAVING: gom tất cả trước, rồi giữ SUM > 350
+  const hg = {};
+  ORD.forEach(o=>{ (hg[o.customer_id] ||= []).push(o.amount); });
+  let hvHtml = '<table><tr><th>customer_id</th><th class="num">SUM (tất cả)</th><th>HAVING&gt;350</th></tr>';
+  Object.keys(hg).sort((a,b)=>a-b).forEach(k=>{
+    const s = hg[k].reduce((a,b)=>a+b,0);
+    const keep = s>350;
+    hvHtml += `<tr class="${keep?'matched':''}"><td>${k}</td><td class="num">${s}</td><td>${keep?'✔ giữ':'✘ loại'}</td></tr>`;
+  });
+  hvHtml += '</table>';
+  document.getElementById('havingOut').innerHTML = hvHtml;
+
+  document.getElementById('whMeta').innerHTML =
+    'Để ý: <b>WHERE</b> loại đơn #105 (amount=50) <i>trước</i> khi gom → SUM của khách #3 chỉ còn 500. ' +
+    '<b>HAVING</b> gom đủ trước (khách #3 = 550) rồi mới lọc nhóm → chỉ khách #3 (550 &gt; 350) sống sót. ' +
+    'Cùng dữ liệu, hai chỗ lọc cho kết quả khác hẳn.';
+}
+buildWhereHaving();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

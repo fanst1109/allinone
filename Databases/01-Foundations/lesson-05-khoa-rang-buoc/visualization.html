@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 05 — Khóa & ràng buộc</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  button.primary { background: #0f766e; color: #fff; border: 0; padding: 7px 14px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+  button.primary:hover { background: #115e59; }
+  button.ghost { background: #e2e8f0; color: #334155; border: 0; padding: 7px 14px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+  button.ghost:hover { background: #cbd5e1; }
+  label { user-select: none; font-size: 14px; }
+  input, select { font-size: 14px; padding: 5px 8px; border: 1px solid #cbd5e1; border-radius: 5px; width: 100%; max-width: 220px; box-sizing: border-box; }
+  table { border-collapse: collapse; width: 100%; margin-top: 8px; }
+  th, td { padding: 6px 10px; border-bottom: 1px solid #eee; font-size: 13px; text-align: left; font-variant-numeric: tabular-nums; }
+  th { background: #f0fdfa; }
+  tr.flash { animation: flash .8s ease; }
+  @keyframes flash { from { background: #bbf7d0; } to { background: transparent; } }
+  .two-tables { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+  .tlabel { font-weight: 700; font-size: 13px; color: #0f766e; margin-bottom: 2px; }
+  .feedback { margin-top: 10px; padding: 10px 12px; border-radius: 6px; font-size: 14px; }
+  .feedback.ok { background: #dcfce7; border-left: 4px solid #16a34a; }
+  .feedback.err { background: #fee2e2; border-left: 4px solid #dc2626; }
+  .feedback.info { background: #e0f2fe; border-left: 4px solid #0284c7; }
+  .ctrl-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; margin-top: 10px; }
+  .ctrl-row .field { display: flex; flex-direction: column; gap: 3px; }
+  .modechip { display:inline-block; padding:3px 10px; border-radius:6px; background:#e2e8f0; cursor:pointer; margin:2px 6px 2px 0; font-size:13px; }
+  .modechip.active { background:#0f766e; color:#fff; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  code { background:#f1f5f9; padding:1px 5px; border-radius:4px; font-size:13px; }
+  .null { color:#94a3b8; font-style: italic; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-sql-trung-cap/visualization.html">← L4: SQL trung cấp</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Khóa & ràng buộc</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-thiet-ke-er/visualization.html">L6: Thiết kế ER →</a>
+</nav>
+<main>
+<h1>Khóa & ràng buộc</h1>
+<p class="note">Ba mô-đun tương tác: (1) primary key vs UNIQUE (trùng / NULL), (2) foreign key & toàn vẹn tham chiếu + ON DELETE, (3) bộ kiểm tra CHECK constraint.</p>
+
+<div class="panel">
+  <h2>1 · Primary key vs UNIQUE — trùng & NULL</h2>
+  <p class="note">Bảng <code>students(id PK, email UNIQUE)</code>. Thử chèn dòng mới: PK cấm trùng &amp; cấm NULL; UNIQUE cấm trùng nhưng cho phép <span class="null">NULL</span> (nhiều NULL được).</p>
+  <div class="ctrl-row">
+    <div class="field"><label>id (PRIMARY KEY)</label><input id="pk_id" placeholder="vd 4 — để trống = NULL"></div>
+    <div class="field"><label>email (UNIQUE)</label><input id="pk_email" placeholder="vd d@uni.edu — để trống = NULL"></div>
+    <button class="primary" onclick="tryInsertStudent()">▶ INSERT</button>
+    <button class="ghost" onclick="resetStudents()">↺ Reset</button>
+  </div>
+  <table id="studentsTbl"></table>
+  <div id="pkFeedback"></div>
+</div>
+
+<div class="panel">
+  <h2>2 · Foreign key & toàn vẹn tham chiếu</h2>
+  <p class="note"><code>orders.customer_id → customers.id</code>. Chèn đơn trỏ tới khách không tồn tại → bị từ chối. Chọn hành vi ON DELETE rồi xóa một khách để xem CASCADE / SET NULL / RESTRICT.</p>
+  <div class="two-tables">
+    <div>
+      <div class="tlabel">customers (id PK)</div>
+      <table id="custTbl"></table>
+    </div>
+    <div>
+      <div class="tlabel">orders (id PK, customer_id FK)</div>
+      <table id="ordTbl"></table>
+    </div>
+  </div>
+
+  <div class="ctrl-row">
+    <div class="field"><label>INSERT order — customer_id</label><input id="fk_cid" placeholder="vd 2 — trống = NULL"></div>
+    <button class="primary" onclick="tryInsertOrder()">▶ INSERT order</button>
+  </div>
+
+  <div style="margin-top:14px">
+    <div class="tlabel">Xóa một customer — hành vi ON DELETE:</div>
+    <span class="modechip active" id="mCascade" onclick="setFkMode('CASCADE')">CASCADE</span>
+    <span class="modechip" id="mSetnull" onclick="setFkMode('SET NULL')">SET NULL</span>
+    <span class="modechip" id="mRestrict" onclick="setFkMode('RESTRICT')">RESTRICT</span>
+    <div class="ctrl-row">
+      <div class="field"><label>DELETE customer — id</label><input id="fk_del" placeholder="vd 1"></div>
+      <button class="primary" onclick="tryDeleteCustomer()">▶ DELETE customer</button>
+      <button class="ghost" onclick="resetFk()">↺ Reset</button>
+    </div>
+  </div>
+  <div id="fkFeedback"></div>
+</div>
+
+<div class="panel">
+  <h2>3 · CHECK constraint — pass/fail</h2>
+  <p class="note">Hai ràng buộc: <code>CHECK (price &gt;= 0)</code> và <code>CHECK (age BETWEEN 0 AND 150)</code>. Nhập giá trị rồi kiểm tra.</p>
+  <div class="ctrl-row">
+    <div class="field"><label>price (CHECK ≥ 0)</label><input id="ck_price" type="number" placeholder="vd 50000 hoặc -10"></div>
+    <div class="field"><label>age (CHECK 0..150)</label><input id="ck_age" type="number" placeholder="vd 30 hoặc 200"></div>
+    <button class="primary" onclick="runCheck()">▶ Kiểm tra</button>
+  </div>
+  <div id="ckFeedback"></div>
+</div>
+
+<script>
+// ===== Helpers =====
+const $ = id => document.getElementById(id);
+function fb(elId, kind, html){ $(elId).innerHTML = `<div class="feedback ${kind}">${html}</div>`; }
+function cell(v){ return v === null ? '<span class="null">NULL</span>' : v; }
+
+// ===== Module 1: PK vs UNIQUE =====
+let students = [
+  {id:1, email:'an@uni.edu'},
+  {id:2, email:'binh@uni.edu'},
+  {id:3, email:'chi@uni.edu'},
+];
+function renderStudents(flashIdx=-1){
+  $('studentsTbl').innerHTML =
+    '<tr><th>id (PK)</th><th>email (UNIQUE)</th></tr>' +
+    students.map((s,i)=>`<tr class="${i===flashIdx?'flash':''}"><td>${cell(s.id)}</td><td>${cell(s.email)}</td></tr>`).join('');
+}
+function parseInput(v){ v = v.trim(); return v === '' ? null : v; }
+function tryInsertStudent(){
+  let idRaw = parseInput($('pk_id').value);
+  const email = parseInput($('pk_email').value);
+  // PK: NOT NULL
+  if(idRaw === null){
+    fb('pkFeedback','err','❌ TỪ CHỐI — <code>id</code> là PRIMARY KEY, không được NULL (PK tự kéo theo NOT NULL).');
+    return;
+  }
+  const id = Number(idRaw);
+  if(Number.isNaN(id)){ fb('pkFeedback','err','❌ id phải là số.'); return; }
+  // PK: UNIQUE
+  if(students.some(s=>s.id===id)){
+    fb('pkFeedback','err',`❌ TỪ CHỐI — vi phạm PRIMARY KEY: <code>id=${id}</code> đã tồn tại (không cho trùng).`);
+    return;
+  }
+  // UNIQUE on email: trùng cấm, nhưng nhiều NULL được
+  if(email !== null && students.some(s=>s.email===email)){
+    fb('pkFeedback','err',`❌ TỪ CHỐI — vi phạm UNIQUE: email <code>${email}</code> đã tồn tại.`);
+    return;
+  }
+  students.push({id, email});
+  renderStudents(students.length-1);
+  if(email === null){
+    fb('pkFeedback','ok','✅ CHẤP NHẬN — email = NULL được phép, và bạn có thể chèn <b>nhiều</b> dòng email NULL (vì NULL ≠ NULL). Đây là điểm khác PRIMARY KEY.');
+  } else {
+    fb('pkFeedback','ok',`✅ CHẤP NHẬN — id=${id} duy nhất, email duy nhất.`);
+  }
+}
+function resetStudents(){
+  students = [{id:1,email:'an@uni.edu'},{id:2,email:'binh@uni.edu'},{id:3,email:'chi@uni.edu'}];
+  renderStudents(); $('pkFeedback').innerHTML=''; $('pk_id').value=''; $('pk_email').value='';
+}
+renderStudents();
+
+// ===== Module 2: Foreign key =====
+let customers, orders, nextOrderId;
+function resetFk(){
+  customers = [{id:1,name:'An'},{id:2,name:'Binh'},{id:3,name:'Chi'}];
+  orders = [{id:10,customer_id:1},{id:11,customer_id:3},{id:12,customer_id:1}];
+  nextOrderId = 13;
+  renderFk(); $('fkFeedback').innerHTML=''; $('fk_cid').value=''; $('fk_del').value='';
+}
+function renderFk(flashOrd=-1){
+  $('custTbl').innerHTML = '<tr><th>id</th><th>name</th></tr>' +
+    customers.map(c=>`<tr><td>${c.id}</td><td>${c.name}</td></tr>`).join('');
+  $('ordTbl').innerHTML = '<tr><th>id</th><th>customer_id</th></tr>' +
+    orders.map(o=>`<tr class="${o.id===flashOrd?'flash':''}"><td>${o.id}</td><td>${cell(o.customer_id)}</td></tr>`).join('');
+}
+let fkMode = 'CASCADE';
+function setFkMode(m){
+  fkMode = m;
+  $('mCascade').classList.toggle('active', m==='CASCADE');
+  $('mSetnull').classList.toggle('active', m==='SET NULL');
+  $('mRestrict').classList.toggle('active', m==='RESTRICT');
+}
+function tryInsertOrder(){
+  const raw = parseInput($('fk_cid').value);
+  if(raw === null){
+    const id = nextOrderId++;
+    orders.push({id, customer_id:null}); renderFk(id);
+    fb('fkFeedback','ok',`✅ CHẤP NHẬN — order #${id} với customer_id = NULL. FK cho phép NULL ("chưa trỏ ai") → không vi phạm toàn vẹn tham chiếu.`);
+    return;
+  }
+  const cid = Number(raw);
+  if(Number.isNaN(cid)){ fb('fkFeedback','err','❌ customer_id phải là số hoặc để trống (NULL).'); return; }
+  if(!customers.some(c=>c.id===cid)){
+    fb('fkFeedback','err',`❌ TỪ CHỐI — vi phạm FOREIGN KEY: <code>customer_id=${cid}</code> không tồn tại trong <code>customers</code>. Toàn vẹn tham chiếu: mọi FK phải trỏ tới một dòng thật.`);
+    return;
+  }
+  const id = nextOrderId++;
+  orders.push({id, customer_id:cid}); renderFk(id);
+  fb('fkFeedback','ok',`✅ CHẤP NHẬN — order #${id} → customer ${cid} (tồn tại).`);
+}
+function tryDeleteCustomer(){
+  const raw = parseInput($('fk_del').value);
+  if(raw === null){ fb('fkFeedback','info','Nhập id customer cần xóa.'); return; }
+  const cid = Number(raw);
+  if(!customers.some(c=>c.id===cid)){
+    fb('fkFeedback','err',`❌ Không có customer id=${cid} để xóa.`); return;
+  }
+  const refs = orders.filter(o=>o.customer_id===cid);
+  if(fkMode==='RESTRICT'){
+    if(refs.length>0){
+      fb('fkFeedback','err',`❌ TỪ CHỐI (RESTRICT) — customer ${cid} còn ${refs.length} đơn tham chiếu (${refs.map(o=>'#'+o.id).join(', ')}). Không cho xóa "cha" khi còn "con".`);
+      return;
+    }
+    customers = customers.filter(c=>c.id!==cid); renderFk();
+    fb('fkFeedback','ok',`✅ Xóa customer ${cid} (không còn đơn nào tham chiếu).`);
+  } else if(fkMode==='CASCADE'){
+    customers = customers.filter(c=>c.id!==cid);
+    orders = orders.filter(o=>o.customer_id!==cid); renderFk();
+    fb('fkFeedback','ok',`✅ CASCADE — xóa customer ${cid} VÀ xóa luôn ${refs.length} đơn theo (${refs.map(o=>'#'+o.id).join(', ')||'không có'}). Không còn đơn mồ côi.`);
+  } else { // SET NULL
+    customers = customers.filter(c=>c.id!==cid);
+    orders.forEach(o=>{ if(o.customer_id===cid) o.customer_id=null; }); renderFk();
+    fb('fkFeedback','ok',`✅ SET NULL — xóa customer ${cid}; ${refs.length} đơn (${refs.map(o=>'#'+o.id).join(', ')||'không có'}) giữ lại nhưng customer_id = NULL (giữ lịch sử, bỏ liên kết).`);
+  }
+}
+resetFk();
+
+// ===== Module 3: CHECK =====
+function runCheck(){
+  const pRaw = $('ck_price').value.trim();
+  const aRaw = $('ck_age').value.trim();
+  let lines = [];
+  let allOk = true;
+  if(pRaw !== ''){
+    const p = Number(pRaw);
+    const ok = !Number.isNaN(p) && p >= 0;
+    allOk = allOk && ok;
+    lines.push(`<code>CHECK (price >= 0)</code> với price=${pRaw}: ${ok? '✅ PASS' : '❌ FAIL ('+pRaw+' >= 0 là false)'}`);
+  }
+  if(aRaw !== ''){
+    const a = Number(aRaw);
+    const ok = !Number.isNaN(a) && a >= 0 && a <= 150;
+    allOk = allOk && ok;
+    lines.push(`<code>CHECK (age BETWEEN 0 AND 150)</code> với age=${aRaw}: ${ok? '✅ PASS' : '❌ FAIL (ngoài [0,150])'}`);
+  }
+  if(lines.length===0){ fb('ckFeedback','info','Nhập price và/hoặc age để kiểm tra.'); return; }
+  const verdict = allOk
+    ? '✅ Mọi CHECK PASS → DBMS <b>CHẤP NHẬN</b> dòng.'
+    : '❌ Có CHECK FAIL → DBMS <b>TỪ CHỐI</b> toàn bộ dòng (không ghi gì).';
+  fb('ckFeedback', allOk?'ok':'err', lines.join('<br>') + '<br><br>' + verdict);
+}
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

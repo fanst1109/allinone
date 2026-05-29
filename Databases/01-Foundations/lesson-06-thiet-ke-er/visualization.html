@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 06 — Thiết kế ER & lược đồ</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  .modechip { display:inline-block; padding:5px 12px; border-radius:6px; background:#e2e8f0; cursor:pointer; margin:4px 6px 4px 0; font-size:14px; }
+  .modechip.active { background:#0f766e; color:#fff; }
+  .rule { margin-top:12px; padding:12px; background:#f0fdfa; border-left:4px solid #0f766e; border-radius:4px; font-size:14px; }
+  .tables { display:flex; flex-wrap:wrap; gap:14px; margin-top:14px; }
+  .tbl { border:2px solid #cbd5e1; border-radius:8px; overflow:hidden; min-width:0; flex:1 1 220px; max-width:320px; }
+  .tbl.bridge { border-color:#0f766e; }
+  .tbl-head { background:#0f766e; color:#fff; padding:6px 10px; font-weight:700; font-size:14px; }
+  .tbl.bridge .tbl-head { background:#b45309; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { padding: 5px 9px; border-bottom: 1px solid #eee; font-size: 13px; text-align: left; font-variant-numeric: tabular-nums; }
+  th { background: #f0fdfa; font-size:12px; }
+  .pk { font-weight:700; text-decoration: underline; color:#0f766e; }
+  .fk { color:#b45309; font-style: italic; }
+  .badge { display:inline-block; font-size:11px; padding:1px 6px; border-radius:4px; margin-left:4px; }
+  .badge.pk { background:#ccfbf1; color:#0f766e; text-decoration:none; }
+  .badge.fk { background:#fed7aa; color:#9a3412; font-style:normal; }
+  .er-explain { margin-top:12px; padding:12px; background:#f0fdfa; border-left:4px solid #0f766e; border-radius:4px; font-size:14px; min-height:40px; }
+  svg .erbox { cursor:pointer; }
+  svg .erbox:hover rect, svg .erbox:hover polygon { stroke:#b45309; stroke-width:3; }
+  .card-pick { display:inline-block; padding:6px 14px; border:2px solid #cbd5e1; border-radius:6px; margin:4px 6px 4px 0; cursor:pointer; font-size:14px; }
+  .card-pick:hover { border-color:#0f766e; }
+  .card-pick.active { border-color:#0f766e; background:#f0fdfa; }
+  .card-demo { margin-top:12px; padding:12px; background:#fafafa; border:1px solid #e2e8f0; border-radius:6px; font-size:14px; }
+  code { background:#f1f5f9; padding:1px 5px; border-radius:4px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-khoa-rang-buoc/visualization.html">← L5: Khóa & ràng buộc</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Thiết kế ER</span>
+</nav>
+<main>
+<h1>Thiết kế ER & lược đồ</h1>
+<p class="note">Ba mô-đun tương tác: (1) ánh xạ ER→bảng theo loại quan hệ, (2) sơ đồ ER bấm xem giải thích, (3) bộ chọn cardinality.</p>
+
+<div class="panel">
+  <h2>1 · Ánh xạ ER → bảng quan hệ</h2>
+  <p class="note">Chọn loại quan hệ giữa hai thực thể <b>A</b> và <b>B</b> để xem các bảng được sinh ra. Cột <span class="pk">gạch chân</span> = primary key, <span class="fk">in nghiêng</span> = foreign key.</p>
+  <div>
+    <span class="modechip active" id="m11" onclick="setRel('11')">1-1 (one-to-one)</span>
+    <span class="modechip" id="m1n" onclick="setRel('1n')">1-N (one-to-many)</span>
+    <span class="modechip" id="mnn" onclick="setRel('nn')">N-N (many-to-many)</span>
+  </div>
+  <div class="rule" id="ruleBox"></div>
+  <div class="tables" id="tablesBox"></div>
+</div>
+
+<div class="panel">
+  <h2>2 · Sơ đồ ER — Student · Enrolls · Course</h2>
+  <p class="note">Bấm vào hình chữ nhật (thực thể) hoặc hình thoi (quan hệ) để xem giải thích.</p>
+  <svg width="520" height="200" viewBox="0 0 520 200" role="img">
+    <!-- Student -->
+    <g class="erbox" onclick="erInfo('student')">
+      <rect x="20" y="70" width="120" height="60" rx="4" fill="#e0f2fe" stroke="#0369a1" stroke-width="2"/>
+      <text x="80" y="100" text-anchor="middle" font-size="15" font-weight="700" fill="#0c4a6e">Student</text>
+      <text x="80" y="118" text-anchor="middle" font-size="11" fill="#0369a1">tập thực thể</text>
+    </g>
+    <!-- line -->
+    <line x1="140" y1="100" x2="210" y2="100" stroke="#475569" stroke-width="2"/>
+    <text x="170" y="92" text-anchor="middle" font-size="13" fill="#b45309" font-weight="700">N</text>
+    <!-- Enrolls diamond -->
+    <g class="erbox" onclick="erInfo('enrolls')">
+      <polygon points="260,70 310,100 260,130 210,100" fill="#fef9c3" stroke="#b45309" stroke-width="2"/>
+      <text x="260" y="104" text-anchor="middle" font-size="13" font-weight="700" fill="#92400e">Enrolls</text>
+    </g>
+    <!-- line -->
+    <line x1="310" y1="100" x2="380" y2="100" stroke="#475569" stroke-width="2"/>
+    <text x="350" y="92" text-anchor="middle" font-size="13" fill="#b45309" font-weight="700">N</text>
+    <!-- Course -->
+    <g class="erbox" onclick="erInfo('course')">
+      <rect x="380" y="70" width="120" height="60" rx="4" fill="#e0f2fe" stroke="#0369a1" stroke-width="2"/>
+      <text x="440" y="100" text-anchor="middle" font-size="15" font-weight="700" fill="#0c4a6e">Course</text>
+      <text x="440" y="118" text-anchor="middle" font-size="11" fill="#0369a1">tập thực thể</text>
+    </g>
+    <!-- grade attribute on relationship -->
+    <line x1="260" y1="130" x2="260" y2="165" stroke="#475569" stroke-width="1.5" stroke-dasharray="0"/>
+    <ellipse cx="260" cy="178" rx="34" ry="16" fill="#fff" stroke="#b45309" stroke-width="1.5"/>
+    <text x="260" y="182" text-anchor="middle" font-size="11" fill="#92400e">grade</text>
+  </svg>
+  <div class="er-explain" id="erExplain">← Bấm một phần tử trong sơ đồ để xem giải thích.</div>
+</div>
+
+<div class="panel">
+  <h2>3 · Bộ chọn cardinality</h2>
+  <p class="note">Chọn một bản số để xem ví dụ đời thực và cách nó ánh xạ.</p>
+  <div>
+    <span class="card-pick active" data-c="11" onclick="setCard('11')">1-1</span>
+    <span class="card-pick" data-c="1n" onclick="setCard('1n')">1-N</span>
+    <span class="card-pick" data-c="nn" onclick="setCard('nn')">N-N</span>
+  </div>
+  <div class="card-demo" id="cardDemo"></div>
+</div>
+
+<script>
+// ===== Module 1: ER -> tables mapping =====
+function col(name, kind){
+  if(kind==='pk') return `<td class="pk">${name}<span class="badge pk">PK</span></td>`;
+  if(kind==='fk') return `<td class="fk">${name}<span class="badge fk">FK</span></td>`;
+  if(kind==='pkfk') return `<td class="pk">${name}<span class="badge pk">PK</span><span class="badge fk">FK</span></td>`;
+  return `<td>${name}</td>`;
+}
+function tbl(title, rows, bridge){
+  return `<div class="tbl ${bridge?'bridge':''}"><div class="tbl-head">${title}</div><table><tbody>`+
+    rows.map(r=>`<tr>${col(r[0], r[1])}</tr>`).join('')+`</tbody></table></div>`;
+}
+const REL = {
+  '11': {
+    rule: '<b>1-1.</b> Đặt FK ở một trong hai phía (kèm <code>UNIQUE</code>), thường ở phía tham gia bắt buộc (total). Ví dụ <code>Manages</code>: thêm <code>mgr_emp_id UNIQUE</code> vào Department. Không cần bảng thứ ba.',
+    tables: [
+      tbl('Employee', [['emp_id','pk'],['emp_name','']]),
+      tbl('Department', [['dept_id','pk'],['dept_name',''],['mgr_emp_id (UNIQUE)','fk']]),
+    ]
+  },
+  '1n': {
+    rule: '<b>1-N.</b> Đặt FK ở phía <b>N</b> (phía "nhiều"). Mỗi Employee thuộc đúng một Department → cột <code>dept_id</code> nằm trong Employee. Không tạo bảng nối.',
+    tables: [
+      tbl('Department', [['dept_id','pk'],['dept_name','']]),
+      tbl('Employee', [['emp_id','pk'],['emp_name',''],['dept_id (NOT NULL)','fk']]),
+    ]
+  },
+  'nn': {
+    rule: '<b>N-N.</b> Không phía nào đặt FK đơn được → tạo <b>bảng nối (junction table)</b> <code>Enrollment</code> với <b>FK kép</b> làm primary key. Thuộc tính của quan hệ (<code>grade</code>) nằm trong bảng nối.',
+    tables: [
+      tbl('Student', [['student_id','pk'],['name','']]),
+      tbl('Enrollment', [['student_id','pkfk'],['course_id','pkfk'],['grade','']], true),
+      tbl('Course', [['course_id','pk'],['title','']]),
+    ]
+  }
+};
+function setRel(r){
+  ['11','1n','nn'].forEach(k=>document.getElementById('m'+k).classList.toggle('active', k===r));
+  document.getElementById('ruleBox').innerHTML = REL[r].rule;
+  document.getElementById('tablesBox').innerHTML = REL[r].tables.join('');
+}
+setRel('11');
+
+// ===== Module 2: ER diagram explain =====
+const ER = {
+  student: '<b>Student (tập thực thể).</b> Hình chữ nhật = tập thực thể → ánh xạ thành một <b>bảng</b> <code>Student(student_id PK, name, ...)</code>. Mỗi sinh viên là một hàng. Bản số N: một sinh viên đăng ký nhiều môn.',
+  course:  '<b>Course (tập thực thể).</b> Cũng là một bảng <code>Course(course_id PK, title, ...)</code>. Bản số N: một môn có nhiều sinh viên đăng ký.',
+  enrolls: '<b>Enrolls (mối quan hệ N-N).</b> Hình thoi nối Student–Course. Vì cả hai phía đều "nhiều" → ánh xạ thành <b>bảng nối</b> <code>Enrollment(student_id, course_id)</code>, khóa chính là cặp FK kép. Thuộc tính <code>grade</code> của quan hệ nằm trong bảng nối vì điểm phụ thuộc cả cặp (sinh viên, môn).'
+};
+function erInfo(k){ document.getElementById('erExplain').innerHTML = ER[k]; }
+
+// ===== Module 3: cardinality picker =====
+const CARD = {
+  '11': '<b>1-1 (one-to-one).</b> Mỗi A nối tối đa một B và ngược lại.<br><b>Ví dụ đời thực:</b> <code>Person — Passport</code> (mỗi người một hộ chiếu, mỗi hộ chiếu của một người); <code>Department — Manages — Employee</code> (mỗi phòng đúng một trưởng phòng).<br><b>Ánh xạ:</b> đặt FK ở một phía kèm <code>UNIQUE</code>, thường ở phía total.',
+  '1n': '<b>1-N (one-to-many).</b> Một A nối nhiều B, mỗi B chỉ nối một A.<br><b>Ví dụ đời thực:</b> <code>Customer — Order</code> (một khách nhiều đơn, mỗi đơn một khách); <code>Department — Employee</code> (một phòng nhiều nhân viên).<br><b>Ánh xạ:</b> đặt FK ở phía N. Vd <code>Employee.dept_id</code>.',
+  'nn': '<b>N-N (many-to-many).</b> Một A nối nhiều B <i>và</i> một B nối nhiều A.<br><b>Ví dụ đời thực:</b> <code>Student — Course</code> (một SV nhiều môn, một môn nhiều SV); <code>Author — Book</code> (một tác giả nhiều sách, một sách nhiều tác giả).<br><b>Ánh xạ:</b> bắt buộc tạo <b>bảng nối</b> với FK kép làm PK.'
+};
+function setCard(c){
+  document.querySelectorAll('.card-pick').forEach(e=>e.classList.toggle('active', e.dataset.c===c));
+  document.getElementById('cardDemo').innerHTML = CARD[c];
+}
+setCard('11');
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -29,6 +29,7 @@
 | Chemistry | Hóa học đại cương — 2 tầng × 8 bài, cấu tạo chất → phản ứng → hóa sinh preview | [Chemistry/](./Chemistry/) |
 | Chinese | Lộ trình học tiếng Trung Phổ thông — 4 nhánh × 20 bài, phát âm Mandarin, chữ Hán Giản thể, HSK 1–4 | [Chinese/](./Chinese/) |
 | DataFoundations | Nền tảng cho DataStructures — binary, hex, bitwise, set theory | [DataFoundations/](./DataFoundations/) |
+| Databases | Cơ sở dữ liệu — 3 nhóm × 17 bài, mô hình quan hệ & SQL → index/transaction → NoSQL/phân tán | [Databases/](./Databases/) |
 | DataStructures | Cấu trúc dữ liệu — cách tổ chức và lưu trữ dữ liệu hiệu quả | [DataStructures/](./DataStructures/) |
 | Economics | Lộ trình học Kinh tế học — 4 tier từ tư duy nền tảng tới chuyên đề ứng dụng | [Economics/](./Economics/) |
 | English | Lộ trình học tiếng Anh — phát âm, từ vựng, ngữ pháp, kỹ năng | [English/](./English/) |

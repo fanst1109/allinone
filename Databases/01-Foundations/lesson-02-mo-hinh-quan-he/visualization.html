@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 02 — Mô hình quan hệ</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  button.primary { background: #0f766e; color: #fff; border: 0; padding: 7px 14px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+  button.primary:hover { background: #115e59; }
+  label { user-select: none; }
+  /* Module 1: relation table */
+  .rel-wrap { overflow-x: auto; }
+  table.rel { border-collapse: collapse; margin-top: 10px; }
+  table.rel th, table.rel td { padding: 7px 14px; border: 1px solid #cbd5e1; font-size: 14px; text-align: left; font-variant-numeric: tabular-nums; cursor: pointer; }
+  table.rel th { background: #f0fdfa; font-weight: 700; }
+  table.rel td.tuple-hi, table.rel th.tuple-hi { background: #bbf7d0; }
+  table.rel td.attr-hi, table.rel th.attr-hi { background: #fde68a; }
+  table.rel td.both-hi { background: #fca5a5; }
+  .metrics { display:flex; gap:18px; flex-wrap:wrap; margin-top:12px; }
+  .metric { background:#f1f5f9; border-radius:8px; padding:10px 16px; min-width:120px; }
+  .metric .lab { font-size:12px; color:#64748b; }
+  .metric .val { font-size:26px; font-weight:700; color:#0f766e; font-variant-numeric: tabular-nums; }
+  /* Module 2: cartesian */
+  .pairs { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .pair { padding:6px 12px; border:2px solid #cbd5e1; border-radius:20px; font-size:14px; cursor:pointer; user-select:none; font-variant-numeric: tabular-nums; transition:.12s; }
+  .pair:hover { border-color:#0f766e; }
+  .pair.sel { background:#0f766e; color:#fff; border-color:#0f766e; }
+  .rel-out { margin-top:12px; padding:12px; background:#f0fdfa; border-left:4px solid #0f766e; border-radius:4px; font-size:14px; min-height:24px; }
+  code.mono { background:#e2e8f0; padding:1px 6px; border-radius:4px; font-variant-numeric: tabular-nums; }
+  /* Module 3: 3-valued logic */
+  .expr-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap:10px; margin-top:12px; }
+  .expr { border:2px solid #e2e8f0; border-radius:8px; padding:10px 12px; cursor:pointer; transition:.12s; font-size:14px; font-family: ui-monospace, monospace; }
+  .expr:hover { border-color:#0f766e; }
+  .expr.sel { border-color:#0f766e; background:#f0fdfa; }
+  .verdict { margin-top:12px; padding:12px; border-radius:6px; font-size:14px; min-height:24px; }
+  .verdict.t { background:#bbf7d0; border-left:4px solid #16a34a; }
+  .verdict.f { background:#fecaca; border-left:4px solid #dc2626; }
+  .verdict.u { background:#fde68a; border-left:4px solid #d97706; }
+  .verdict.none { background:#f1f5f9; border-left:4px solid #94a3b8; color:#64748b; }
+  .badge { display:inline-block; padding:2px 10px; border-radius:5px; font-weight:700; font-size:13px; margin-right:6px; }
+  .badge.t { background:#16a34a; color:#fff; }
+  .badge.f { background:#dc2626; color:#fff; }
+  .badge.u { background:#d97706; color:#fff; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-gioi-thieu-csdl/visualization.html">← L1: Giới thiệu CSDL & DBMS</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Mô hình quan hệ</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-sql-co-ban/visualization.html">L3: SQL cơ bản →</a>
+</nav>
+<main>
+<h1>Mô hình quan hệ</h1>
+<p class="note">Ba mô-đun tương tác: (1) bậc &amp; lực lượng của một bảng, (2) tích Descartes &amp; chọn tập con tạo quan hệ, (3) logic ba trị với NULL.</p>
+
+<div class="panel">
+  <h2>1 · Bảng quan hệ <code>SinhVien</code> — bậc &amp; lực lượng</h2>
+  <p class="note">Bấm vào một <b>ô tiêu đề cột</b> để highlight một thuộc tính (vàng). Bấm vào một <b>ô đầu hàng (MaSV)</b> để highlight một bộ (xanh). Bậc &amp; lực lượng cập nhật theo dữ liệu.</p>
+  <div class="rel-wrap">
+    <table class="rel" id="relTable"></table>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="lab">Bậc (degree) = số cột</div><div class="val" id="mDegree">0</div></div>
+    <div class="metric"><div class="lab">Lực lượng (cardinality) = số hàng</div><div class="val" id="mCard">0</div></div>
+  </div>
+  <div style="margin-top:12px">
+    <button class="primary" onclick="addRow()">+ Thêm 1 bộ</button>
+    <button class="primary" onclick="delRow()" style="background:#b91c1c">− Xóa bộ cuối</button>
+    <button class="primary" onclick="clearHi()" style="background:#475569">↺ Bỏ highlight</button>
+  </div>
+  <div class="note" id="m1note"></div>
+</div>
+
+<div class="panel">
+  <h2>2 · Tích Descartes &amp; chọn tập con = một quan hệ</h2>
+  <p class="note">Với <code class="mono">Tuoi = {18, 19, 20}</code> và <code class="mono">Tinh = {HN, HCM}</code>, tích Descartes có <b>3 × 2 = 6</b> cặp. Bấm chọn một số cặp — tập các cặp được chọn chính là <b>một quan hệ</b> (tập con của tích).</p>
+  <div class="pairs" id="pairs"></div>
+  <div class="rel-out" id="relOut"></div>
+  <div style="margin-top:10px">
+    <button class="primary" onclick="selAllPairs()">Chọn tất cả (quan hệ đầy đủ)</button>
+    <button class="primary" onclick="clearPairs()" style="background:#475569">Bỏ chọn hết (quan hệ rỗng)</button>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>3 · Logic ba trị với NULL</h2>
+  <p class="note">Giả sử <code class="mono">Diem = NULL</code>. Bấm một biểu thức để xem kết quả TRUE / FALSE / UNKNOWN kèm giải thích.</p>
+  <div class="expr-grid" id="exprGrid"></div>
+  <div class="verdict none" id="verdict">← Chọn một biểu thức.</div>
+</div>
+
+<script>
+// ===== Module 1: relation table =====
+const ATTRS = ['MaSV','HoTen','Tuoi','Tinh'];
+let ROWS = [
+  ['SV01','An',19,'HN'],
+  ['SV02','Binh',20,'HCM'],
+  ['SV03','Chi',18,'HN'],
+  ['SV04','Dung',20,'DN'],
+];
+const POOL = [
+  ['SV05','En',21,'HUE'], ['SV06','Phuc',19,'HCM'],
+  ['SV07','Giang',22,'HN'], ['SV08','Ha',18,'DN'],
+];
+let hiCol = -1, hiRow = -1;
+function renderTable(){
+  const t = document.getElementById('relTable');
+  let html = '<tr>' + ATTRS.map((a,c)=>
+    `<th class="${c===hiCol?'attr-hi':''}" onclick="setCol(${c})">${a}</th>`).join('') + '</tr>';
+  ROWS.forEach((r,ri)=>{
+    html += '<tr>' + r.map((v,c)=>{
+      let cls = '';
+      const colHi = c===hiCol, rowHi = ri===hiRow;
+      if(colHi && rowHi) cls='both-hi'; else if(rowHi) cls='tuple-hi'; else if(colHi) cls='attr-hi';
+      const onc = c===0 ? `onclick="setRow(${ri})"` : '';
+      return `<td class="${cls}" ${onc}>${v}</td>`;
+    }).join('') + '</tr>';
+  });
+  t.innerHTML = html;
+  document.getElementById('mDegree').textContent = ATTRS.length;
+  document.getElementById('mCard').textContent = ROWS.length;
+}
+function setCol(c){ hiCol = (hiCol===c ? -1 : c); renderTable(); note(); }
+function setRow(r){ hiRow = (hiRow===r ? -1 : r); renderTable(); note(); }
+function clearHi(){ hiCol=-1; hiRow=-1; renderTable(); document.getElementById('m1note').textContent=''; }
+function addRow(){ if(ROWS.length<8){ ROWS.push(POOL[ROWS.length-4]); renderTable(); note(); } }
+function delRow(){ if(ROWS.length>1){ ROWS.pop(); if(hiRow>=ROWS.length) hiRow=-1; renderTable(); note(); } }
+function note(){
+  let msg = `Bậc luôn = ${ATTRS.length} (số cột, thuộc về schema). Lực lượng = ${ROWS.length} (số hàng, thuộc về instance — đổi khi thêm/xóa bộ).`;
+  if(hiCol>=0) msg += ` Đang highlight thuộc tính "${ATTRS[hiCol]}".`;
+  if(hiRow>=0) msg += ` Đang highlight bộ (${ROWS[hiRow].join(', ')}).`;
+  document.getElementById('m1note').textContent = msg;
+}
+renderTable();
+
+// ===== Module 2: cartesian product =====
+const TUOI = [18,19,20], TINH = ['HN','HCM'];
+const PAIRS = [];
+TUOI.forEach(t=> TINH.forEach(c=> PAIRS.push([t,c])));
+const selected = new Set();
+function renderPairs(){
+  document.getElementById('pairs').innerHTML = PAIRS.map((p,i)=>
+    `<span class="pair ${selected.has(i)?'sel':''}" onclick="togglePair(${i})">(${p[0]}, ${p[1]})</span>`).join('');
+  renderRelOut();
+}
+function togglePair(i){ selected.has(i)?selected.delete(i):selected.add(i); renderPairs(); }
+function selAllPairs(){ PAIRS.forEach((_,i)=>selected.add(i)); renderPairs(); }
+function clearPairs(){ selected.clear(); renderPairs(); }
+function renderRelOut(){
+  const chosen = [...selected].sort((a,b)=>a-b).map(i=>`(${PAIRS[i][0]}, ${PAIRS[i][1]})`);
+  const n = chosen.length;
+  let txt = `Tích Descartes Tuoi × Tinh có |Tuoi| × |Tinh| = 3 × 2 = <b>6</b> cặp. `;
+  if(n===0) txt += `Bạn đang chọn <b>0</b> cặp → đây là <b>quan hệ rỗng</b> (vẫn là một quan hệ hợp lệ).`;
+  else if(n===6) txt += `Bạn đang chọn <b>cả 6</b> cặp → <b>quan hệ đầy đủ</b>.`;
+  else txt += `Bạn đang chọn <b>${n}</b> cặp → một quan hệ (tập con) gồm: { ${chosen.join(', ')} }.`;
+  txt += `<br>Tổng số quan hệ khả dĩ trên hai domain này = 2<sup>6</sup> = <b>64</b>.`;
+  document.getElementById('relOut').innerHTML = txt;
+}
+renderPairs();
+
+// ===== Module 3: three-valued logic =====
+const EXPR = [
+  {e:'Diem = 5',       v:'u', why:'So sánh dính NULL → không biết Diem có bằng 5 hay không.'},
+  {e:'Diem <> 5',      v:'u', why:'Không biết giá trị thì cũng không phủ định được.'},
+  {e:'Diem >= 5',      v:'u', why:'Mọi phép so sánh có NULL đều cho UNKNOWN.'},
+  {e:'Diem = NULL',    v:'u', why:'So sánh giá trị với NULL luôn UNKNOWN — kể cả hai vế đều NULL.'},
+  {e:'NULL = NULL',    v:'u', why:'Hai "chưa biết" — không có cơ sở khẳng định bằng nhau.'},
+  {e:'Diem IS NULL',   v:'t', why:'IS NULL kiểm tra trạng thái trống của ô (không phải so sánh giá trị) → trả lời được: ô đúng là trống.'},
+  {e:'Diem IS NOT NULL', v:'f', why:'Ô đang trống nên "không trống" là FALSE.'},
+  {e:'NULL OR TRUE',   v:'t', why:'OR chỉ cần một vế TRUE là đủ, dù vế kia chưa biết.'},
+  {e:'NULL AND TRUE',  v:'u', why:'AND cần cả hai TRUE; một vế chưa biết → kết quả chưa biết.'},
+];
+const LABEL = {t:'TRUE', f:'FALSE', u:'UNKNOWN'};
+let exprSel = -1;
+document.getElementById('exprGrid').innerHTML = EXPR.map((x,i)=>
+  `<div class="expr" data-i="${i}" onclick="selExpr(${i})">${x.e}</div>`).join('');
+function selExpr(i){
+  exprSel = i;
+  document.querySelectorAll('.expr').forEach(e=>e.classList.toggle('sel', +e.dataset.i===i));
+  const x = EXPR[i];
+  const vd = document.getElementById('verdict');
+  vd.className = 'verdict ' + x.v;
+  vd.innerHTML = `<span class="badge ${x.v}">${LABEL[x.v]}</span> ${x.why}`;
+}
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L05: Mechanism Design — PoliticalScience</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root { --bg: #f5f5fb; --accent: #3730a3; --accent-soft: #e0e7ff; --accent-hover: #312e81; }
+  h1 { color: #1e1b4b; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 28px; font-size: 15px; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+  .module { background: white; border-radius: 10px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 28px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin: 14px 0; padding: 16px; background: #f8f7ff; border-radius: 8px; border: 1px solid #c7d2fe; }
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+  label { font-size: 13px; font-weight: 600; color: #4a5568; }
+  input[type="range"] { width: 130px; accent-color: var(--accent); }
+  .val-badge { display: inline-block; background: var(--accent-soft); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 13px; font-weight: 700; font-family: monospace; }
+  .info-box { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; line-height: 1.6; }
+  .stats-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .stat-chip { background: #edf2f7; padding: 8px 14px; border-radius: 6px; font-family: monospace; font-size: 13px; border-left: 3px solid var(--accent); min-width: 110px; }
+  .stat-chip .name { color: #718096; font-size: 11px; display: block; margin-bottom: 2px; }
+  .stat-chip .val { color: #2d3748; font-weight: 700; font-size: 15px; }
+  button { padding: 9px 20px; background: var(--accent); color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  button:hover { background: var(--accent-hover); }
+  button.secondary { background: #e0e7ff; color: var(--accent); }
+  .bidder-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+  .bidder-name { width: 70px; font-weight: 700; color: var(--accent); }
+  .val-input { width: 65px; padding: 5px 8px; border: 1px solid #c7d2fe; border-radius: 5px; font-size: 13px; text-align: center; }
+  .bid-display { width: 65px; text-align: center; font-family: monospace; font-weight: 700; }
+  .win-badge { background: #48bb78; color: white; padding: 2px 8px; border-radius: 3px; font-size: 11px; font-weight: 700; }
+  .surplus-disp { font-family: monospace; color: #3730a3; font-weight: 700; }
+  .auction-result { padding: 14px 18px; border-radius: 8px; margin: 14px 0; font-size: 14px; }
+  .auction-result.winner { background: #f0fff4; border: 2px solid #48bb78; }
+  select { padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 6px; background: white; font-size: 13px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 10px; }
+  th { background: var(--accent); color: white; padding: 8px 12px; text-align: left; }
+  td { padding: 7px 12px; border-bottom: 1px solid #e2e8f0; }
+  tr:nth-child(even) td { background: #f8f7ff; }
+  tr.winner-row td { background: #e0e7ff !important; font-weight: 700; }
+  @media (max-width: 600px) {
+    .controls { flex-direction: column; }
+    input[type="range"] { width: 100%; max-width: 200px; }
+    .bidder-row { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-deterrence-crisis/visualization.html">← L04: Deterrence</a>
+  <span class="sep">·</span>
+  <span class="current">L05: Mechanism Design</span>
+  <span class="sep">·</span>
+  <span>Kết thúc PoliticalScience 🎉</span>
+</nav>
+<main>
+  <h1>Lesson 05: Mechanism Design</h1>
+  <p class="subtitle">Second-price auction (Vickrey) · First-price vs Second-price · VCG mechanism · Revenue Equivalence</p>
+
+  <!-- Module 1: Auction Simulator -->
+  <section class="module">
+    <h2>1. Auction Simulator — So sánh First-price vs Second-price</h2>
+    <div class="info-box">
+      Nhập valuations thật của từng bidder. Chọn auction type. Thấy bid behavior, winner, giá, và surplus. Trong second-price: bid = valuation (dominant strategy). Trong first-price: bid = v×(n−1)/n (shading equilibrium).
+    </div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Số bidder (n): <span class="val-badge" id="n-bid-v">4</span></label>
+        <input type="range" id="n-bid" min="2" max="8" value="4" oninput="document.getElementById('n-bid-v').textContent=this.value; renderBidders()">
+      </div>
+      <div class="ctrl-group">
+        <label>Auction type:</label>
+        <select id="auction-type" onchange="runAuction()">
+          <option value="second">Second-price (Vickrey)</option>
+          <option value="first">First-price (strategic shading)</option>
+          <option value="allpay">All-pay auction</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label>&nbsp;</label>
+        <button onclick="randomizeValues()">🎲 Random valuations</button>
+      </div>
+    </div>
+    <div id="bidder-list" style="margin-top:12px;"></div>
+    <div id="auction-result" style="margin-top:14px;"></div>
+    <div class="stats-row" id="auction-stats" style="margin-top:10px;"></div>
+    <div style="margin-top:16px;">
+      <svg id="auction-svg" width="560" height="200" viewBox="0 0 560 200" style="display:block;max-width:100%;"></svg>
+    </div>
+  </section>
+
+  <!-- Module 2: Revenue comparison over 100 runs -->
+  <section class="module">
+    <h2>2. Revenue Equivalence — Monte Carlo (100 auctions)</h2>
+    <div class="info-box">
+      Chạy 100 auctions với valuations ngẫu nhiên từ Uniform[0, 100]. So sánh average revenue: first-price vs second-price. Theo Revenue Equivalence Theorem, chúng phải hội tụ về cùng giá trị khi n lớn.
+    </div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>n bidders: <span class="val-badge" id="n-mc-v">4</span></label>
+        <input type="range" id="n-mc" min="2" max="10" value="4" oninput="document.getElementById('n-mc-v').textContent=this.value">
+      </div>
+      <div class="ctrl-group">
+        <label>Số auctions: <span class="val-badge" id="mc-runs-v">100</span></label>
+        <input type="range" id="mc-runs" min="20" max="500" value="100" step="20" oninput="document.getElementById('mc-runs-v').textContent=this.value">
+      </div>
+    </div>
+    <button onclick="runMonteCarlo()">▶ Chạy Monte Carlo</button>
+    <div id="mc-result" style="margin-top:14px;"></div>
+    <svg id="mc-svg" width="560" height="200" viewBox="0 0 560 200" style="display:block;max-width:100%;margin-top:12px;"></svg>
+  </section>
+
+  <!-- Module 3: VCG Public Good -->
+  <section class="module">
+    <h2>3. VCG Mechanism — Public Good Decision</h2>
+    <div class="info-box">
+      n công dân quyết định xây dự án công cộng (cost C). Mỗi người khai báo giá trị vᵢ. VCG (Clarke) tính Clarke tax = bao nhiêu mỗi "pivotal agent" phải trả. Thay đổi values và cost để thấy ai pivotal.
+    </div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Project cost (C): <span class="val-badge" id="vcg-cost-v">100</span></label>
+        <input type="range" id="vcg-cost" min="20" max="300" value="100" step="10" oninput="document.getElementById('vcg-cost-v').textContent=this.value; renderVCG()">
+      </div>
+      <div class="ctrl-group">
+        <label>Số công dân: <span class="val-badge" id="vcg-n-v">4</span></label>
+        <input type="range" id="vcg-n" min="2" max="6" value="4" oninput="document.getElementById('vcg-n-v').textContent=this.value; renderVCGInputs()">
+      </div>
+    </div>
+    <div id="vcg-inputs" style="margin-top:12px;"></div>
+    <button onclick="computeVCG()" style="margin-top:12px;">Tính VCG</button>
+    <div id="vcg-result" style="margin-top:14px;"></div>
+  </section>
+</main>
+
+<script>
+// === Module 1: Auction Simulator ===
+let bidderValues = [100, 80, 60, 40];
+
+function renderBidders() {
+  const n = +document.getElementById('n-bid').value;
+  while (bidderValues.length < n) bidderValues.push(Math.floor(Math.random()*80+20));
+  bidderValues.length = n;
+
+  const list = document.getElementById('bidder-list');
+  list.innerHTML = bidderValues.map((v, i) => `
+    <div class="bidder-row">
+      <div class="bidder-name">Bidder ${i+1}</div>
+      <div class="ctrl-group" style="flex-direction:row;align-items:center;gap:6px;">
+        <label style="font-size:12px;">Valuation:</label>
+        <input class="val-input" type="number" id="val-${i}" value="${v}" min="1" max="200" onchange="bidderValues[${i}]=+this.value; runAuction()">
+      </div>
+      <div id="bid-cell-${i}" class="bid-display" style="color:#718096;">bid: —</div>
+      <div id="win-cell-${i}"></div>
+      <div id="sur-cell-${i}" class="surplus-disp">—</div>
+    </div>
+  `).join('');
+  runAuction();
+}
+
+function randomizeValues() {
+  const n = +document.getElementById('n-bid').value;
+  bidderValues = Array.from({length:n}, () => Math.floor(Math.random()*150+20)).sort((a,b)=>b-a);
+  bidderValues.forEach((v,i) => {
+    const el = document.getElementById(`val-${i}`);
+    if (el) el.value = v;
+  });
+  runAuction();
+}
+
+function runAuction() {
+  const n = +document.getElementById('n-bid').value;
+  const type = document.getElementById('auction-type').value;
+  const vals = Array.from({length:n}, (_,i) => +document.getElementById(`val-${i}`)?.value || bidderValues[i] || 0);
+
+  let bids, winnerIdx, price, surpluses;
+  const sorted = [...vals].map((v,i)=>({v,i})).sort((a,b)=>b.v-a.v);
+
+  if (type === 'second') {
+    bids = vals.slice(); // truth
+    winnerIdx = sorted[0].i;
+    price = sorted[1].v;
+    surpluses = vals.map((v,i) => i===winnerIdx ? v - price : 0);
+    updateBidCells(bids, winnerIdx, surpluses);
+    document.getElementById('auction-result').innerHTML = `
+      <div class="auction-result winner">
+        <strong>Second-Price (Vickrey):</strong> Bidder ${winnerIdx+1} wins (value=${vals[winnerIdx]}).
+        Pays: <strong>${price}</strong> (second-highest bid). Surplus = ${vals[winnerIdx]-price}.
+        <br><span style="color:#718096;font-size:12px;">All bid truthfully — dominant strategy.</span>
+      </div>`;
+  } else if (type === 'first') {
+    bids = vals.map(v => v * (n-1)/n);
+    winnerIdx = sorted[0].i;
+    price = bids[winnerIdx];
+    surpluses = vals.map((v,i) => i===winnerIdx ? v - price : 0);
+    updateBidCells(bids, winnerIdx, surpluses);
+    document.getElementById('auction-result').innerHTML = `
+      <div class="auction-result winner">
+        <strong>First-Price:</strong> Bidder ${winnerIdx+1} wins (value=${vals[winnerIdx]}).
+        Shaded bid: <strong>${price.toFixed(1)}</strong>. Pays own bid. Surplus = ${(vals[winnerIdx]-price).toFixed(1)}.
+        <br><span style="color:#718096;font-size:12px;">Bids shaded: b* = v×(n−1)/n = v×${((n-1)/n).toFixed(2)}.</span>
+      </div>`;
+  } else { // all-pay
+    bids = vals.map(v => v * (n-1)/n); // simplified
+    winnerIdx = sorted[0].i;
+    price = bids.reduce((s,b)=>s+b,0); // all pay their bids
+    surpluses = vals.map((v,i) => i===winnerIdx ? v - bids[i] : -bids[i]);
+    updateBidCells(bids, winnerIdx, surpluses);
+    document.getElementById('auction-result').innerHTML = `
+      <div class="auction-result winner">
+        <strong>All-Pay:</strong> Bidder ${winnerIdx+1} wins. Everyone pays their bid. Total revenue = ${price.toFixed(1)}.
+        <br><span style="color:#718096;font-size:12px;">Common in lobbying, R&D races, political contributions.</span>
+      </div>`;
+  }
+
+  const revenue = type === 'second' ? price : type === 'first' ? price : price;
+  document.getElementById('auction-stats').innerHTML = `
+    <div class="stat-chip"><span class="name">Winner</span><span class="val">Bidder ${winnerIdx+1}</span></div>
+    <div class="stat-chip"><span class="name">Revenue</span><span class="val">${type==='second'?price:(type==='first'?price.toFixed(1):price.toFixed(1))}</span></div>
+    <div class="stat-chip"><span class="name">Winner surplus</span><span class="val">${surpluses[winnerIdx].toFixed(1)}</span></div>
+    <div class="stat-chip"><span class="name">Efficient?</span><span class="val" style="color:#276749;">Yes ✓</span></div>
+  `;
+
+  drawAuctionBars(vals, bids, winnerIdx, type);
+}
+
+function updateBidCells(bids, winnerIdx, surpluses) {
+  bids.forEach((b, i) => {
+    const bc = document.getElementById(`bid-cell-${i}`);
+    const wc = document.getElementById(`win-cell-${i}`);
+    const sc = document.getElementById(`sur-cell-${i}`);
+    if (bc) bc.textContent = `bid: ${b.toFixed(1)}`;
+    if (wc) wc.innerHTML = i===winnerIdx ? '<span class="win-badge">WIN</span>' : '';
+    if (sc) { sc.textContent = `surplus: ${surpluses[i].toFixed(1)}`; sc.style.color = surpluses[i]>0?'#276749':surpluses[i]<0?'#c53030':'#718096'; }
+  });
+}
+
+function drawAuctionBars(vals, bids, winnerIdx, type) {
+  const svg = document.getElementById('auction-svg');
+  const W = 560, H = 200, padL = 60, padR = 20, padT = 20, padB = 35;
+  const cW = W-padL-padR, cH = H-padT-padB;
+  const n = vals.length;
+  const maxV = Math.max(...vals) * 1.1;
+  const bw = Math.min(40, cW/(n*3));
+  const gap = cW / n;
+
+  let html = '';
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + i*cH/4;
+    html += `<line x1="${padL}" y1="${y}" x2="${padL+cW}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
+    html += `<text x="${padL-5}" y="${y+4}" text-anchor="end" fill="#718096" font-size="10">${(maxV*(4-i)/4).toFixed(0)}</text>`;
+  }
+  html += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+cH}" stroke="#718096" stroke-width="1.5"/>`;
+  html += `<line x1="${padL}" y1="${padT+cH}" x2="${padL+cW}" y2="${padT+cH}" stroke="#718096" stroke-width="1.5"/>`;
+
+  for (let i = 0; i < n; i++) {
+    const cx = padL + gap*(i+0.5);
+    const vH = (vals[i]/maxV)*cH;
+    const bH = (bids[i]/maxV)*cH;
+    const isWinner = i === winnerIdx;
+
+    // Value bar
+    html += `<rect x="${cx-bw-2}" y="${padT+cH-vH}" width="${bw}" height="${vH}" fill="${isWinner?'#3730a3':'#c7d2fe'}" rx="3"/>`;
+    html += `<text x="${cx-bw/2-2}" y="${padT+cH-vH-3}" text-anchor="middle" fill="#3730a3" font-size="10">${vals[i]}</text>`;
+
+    // Bid bar
+    html += `<rect x="${cx+2}" y="${padT+cH-bH}" width="${bw}" height="${bH}" fill="${isWinner?'#48bb78':'#a0aec0'}" rx="3"/>`;
+    html += `<text x="${cx+bw/2+2}" y="${padT+cH-bH-3}" text-anchor="middle" fill="${isWinner?'#276749':'#718096'}" font-size="10">${bids[i].toFixed(0)}</text>`;
+
+    html += `<text x="${cx}" y="${padT+cH+14}" text-anchor="middle" fill="${isWinner?'#3730a3':'#718096'}" font-size="11" font-weight="${isWinner?'700':'400'}">B${i+1}${isWinner?' ★':''}</text>`;
+  }
+
+  html += `<rect x="${padL+cW-140}" y="${padT+8}" width="10" height="10" fill="#3730a3" rx="2"/>`;
+  html += `<text x="${padL+cW-126}" y="${padT+17}" fill="#3730a3" font-size="11">Valuation</text>`;
+  html += `<rect x="${padL+cW-140}" y="${padT+24}" width="10" height="10" fill="#48bb78" rx="2"/>`;
+  html += `<text x="${padL+cW-126}" y="${padT+33}" fill="#48bb78" font-size="11">Bid</text>`;
+
+  svg.innerHTML = html;
+}
+
+// === Module 2: Monte Carlo Revenue Equivalence ===
+function runMonteCarlo() {
+  const n = +document.getElementById('n-mc').value;
+  const runs = +document.getElementById('mc-runs').value;
+
+  let r1total = 0, r2total = 0;
+  const r1arr = [], r2arr = [];
+
+  for (let r = 0; r < runs; r++) {
+    const vals = Array.from({length:n}, ()=>Math.random()*100).sort((a,b)=>b-a);
+    // Second-price: revenue = 2nd highest val
+    r2total += vals[1];
+    r2arr.push(r2total/(r+1));
+    // First-price: b*(v) = v*(n-1)/n, revenue = highest bid = v1*(n-1)/n
+    r1total += vals[0] * (n-1)/n;
+    r1arr.push(r1total/(r+1));
+  }
+
+  const theoreticalRev = 100 * (n-1) / (n+1); // E[2nd order stat from Uniform[0,100], n bidders]
+
+  document.getElementById('mc-result').innerHTML = `
+    <div class="stats-row">
+      <div class="stat-chip"><span class="name">Avg revenue (2nd-price)</span><span class="val">${r2arr[r2arr.length-1].toFixed(2)}</span></div>
+      <div class="stat-chip"><span class="name">Avg revenue (1st-price)</span><span class="val">${r1arr[r1arr.length-1].toFixed(2)}</span></div>
+      <div class="stat-chip"><span class="name">Theoretical E[R]</span><span class="val">${theoreticalRev.toFixed(2)}</span></div>
+      <div class="stat-chip"><span class="name">Gap</span><span class="val">${Math.abs(r2arr[r2arr.length-1]-r1arr[r1arr.length-1]).toFixed(2)}</span></div>
+    </div>
+    <p style="font-size:13px;color:#718096;margin-top:8px;">
+      Revenue Equivalence: as runs → ∞, both converge to ${theoreticalRev.toFixed(1)}.
+      Theoretical = 100×(n−1)/(n+1) for Uniform[0,100].
+    </p>
+  `;
+
+  drawMCChart(r1arr, r2arr, theoreticalRev, runs);
+}
+
+function drawMCChart(r1arr, r2arr, theory, runs) {
+  const svg = document.getElementById('mc-svg');
+  const W = 560, H = 200, padL = 55, padR = 20, padT = 20, padB = 35;
+  const cW = W-padL-padR, cH = H-padT-padB;
+
+  const allVals = [...r1arr, ...r2arr, theory];
+  const minV = Math.min(...allVals) * 0.8;
+  const maxV = Math.max(...allVals) * 1.1;
+
+  const xS = i => padL + (i/runs)*cW;
+  const yS = v => padT + cH - ((v-minV)/(maxV-minV))*cH;
+
+  let html = '';
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + i*cH/4;
+    html += `<line x1="${padL}" y1="${y}" x2="${padL+cW}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
+    html += `<text x="${padL-5}" y="${y+4}" text-anchor="end" fill="#718096" font-size="10">${(maxV-i*(maxV-minV)/4).toFixed(1)}</text>`;
+  }
+  html += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+cH}" stroke="#718096" stroke-width="1.5"/>`;
+  html += `<line x1="${padL}" y1="${padT+cH}" x2="${padL+cW}" y2="${padT+cH}" stroke="#718096" stroke-width="1.5"/>`;
+
+  // First-price line
+  let p1 = r1arr.map((v,i)=>(i===0?'M':'L')+xS(i)+','+yS(v)).join('');
+  html += `<path d="${p1}" fill="none" stroke="#3730a3" stroke-width="2"/>`;
+
+  // Second-price line
+  let p2 = r2arr.map((v,i)=>(i===0?'M':'L')+xS(i)+','+yS(v)).join('');
+  html += `<path d="${p2}" fill="none" stroke="#7c3aed" stroke-width="2" stroke-dasharray="5,3"/>`;
+
+  // Theory line
+  const ty = yS(theory);
+  html += `<line x1="${padL}" y1="${ty}" x2="${padL+cW}" y2="${ty}" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="6,3"/>`;
+  html += `<text x="${padL+cW-5}" y="${ty-4}" text-anchor="end" fill="#f59e0b" font-size="11">Theory=${theory.toFixed(1)}</text>`;
+
+  html += `<line x1="${padL+10}" y1="${padT+10}" x2="${padL+30}" y2="${padT+10}" stroke="#3730a3" stroke-width="2"/>`;
+  html += `<text x="${padL+34}" y="${padT+14}" fill="#3730a3" font-size="11">First-price avg revenue</text>`;
+  html += `<line x1="${padL+10}" y1="${padT+26}" x2="${padL+30}" y2="${padT+26}" stroke="#7c3aed" stroke-width="2" stroke-dasharray="5,3"/>`;
+  html += `<text x="${padL+34}" y="${padT+30}" fill="#7c3aed" font-size="11">Second-price avg revenue</text>`;
+  html += `<text x="${padL+cW/2}" y="${H-3}" text-anchor="middle" fill="#718096" font-size="12">Number of auctions →</text>`;
+
+  svg.innerHTML = html;
+}
+
+// === Module 3: VCG ===
+let vcgValues = [70, 50, 40, 30];
+
+function renderVCGInputs() {
+  const n = +document.getElementById('vcg-n').value;
+  while (vcgValues.length < n) vcgValues.push(Math.floor(Math.random()*60+10));
+  vcgValues.length = n;
+
+  document.getElementById('vcg-inputs').innerHTML = `
+    <div style="font-size:13px;font-weight:600;color:#718096;margin-bottom:8px;">Values per agent:</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;">
+      ${vcgValues.map((v,i) => `
+        <div class="ctrl-group">
+          <label>Agent ${i+1}</label>
+          <input class="val-input" type="number" id="vcg-val-${i}" value="${v}" min="0" max="300" style="width:70px;">
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function computeVCG() {
+  const n = +document.getElementById('vcg-n').value;
+  const C = +document.getElementById('vcg-cost').value;
+  const vals = Array.from({length:n}, (_,i) => +document.getElementById(`vcg-val-${i}`).value || 0);
+  vcgValues = [...vals];
+
+  const totalVal = vals.reduce((s,v)=>s+v,0);
+  const shouldBuild = totalVal > C;
+
+  // Clarke taxes
+  const taxes = vals.map((v, i) => {
+    const othersSum = totalVal - v;
+    const withoutI = othersSum > C; // would project happen without i?
+    if (!shouldBuild) return 0; // no project → no payment
+    if (withoutI) return 0; // not pivotal
+    // Pivotal: i's inclusion changed decision
+    // Clarke tax = C - othersSum (gap between cost and others' values)
+    return Math.max(0, C - othersSum);
+  });
+
+  const totalTax = taxes.reduce((s,t)=>s+t,0);
+  const budgetSurplus = totalTax - C;
+
+  let rows = vals.map((v,i) => {
+    const othersSum = totalVal - v;
+    const pivotal = shouldBuild && othersSum <= C;
+    const tax = taxes[i];
+    const netUtil = shouldBuild ? v - tax : 0;
+    return `<tr class="${pivotal?'winner-row':''}">
+      <td>Agent ${i+1}</td>
+      <td>${v}</td>
+      <td>${othersSum}</td>
+      <td>${pivotal?'★ Pivotal':'Not pivotal'}</td>
+      <td><strong>${tax}</strong></td>
+      <td>${netUtil}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('vcg-result').innerHTML = `
+    <div style="padding:12px 16px;border-radius:8px;background:${shouldBuild?'#f0fff4':'#fff5f5'};border:2px solid ${shouldBuild?'#48bb78':'#fc8181'};margin-bottom:14px;font-size:14px;">
+      <strong>Decision: ${shouldBuild?'BUILD ✓':'DON\'T BUILD ✗'}</strong>
+      &nbsp; Total value = ${totalVal} | Cost = ${C} | ${shouldBuild?`Surplus = ${totalVal-C}`:`Deficit = ${C-totalVal}`}
+    </div>
+    <table>
+      <thead><tr><th>Agent</th><th>Value vᵢ</th><th>Others' sum</th><th>Pivotal?</th><th>Clarke tax</th><th>Net utility</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="stats-row" style="margin-top:12px;">
+      <div class="stat-chip"><span class="name">Total Clarke taxes</span><span class="val">${totalTax}</span></div>
+      <div class="stat-chip"><span class="name">Project cost</span><span class="val">${C}</span></div>
+      <div class="stat-chip"><span class="name">Budget balance</span><span class="val" style="color:${budgetSurplus>=0?'#276749':'#c53030'}">${budgetSurplus>=0?'+':''}${budgetSurplus}</span></div>
+    </div>
+    <p style="font-size:12px;color:#718096;margin-top:8px;">
+      ${budgetSurplus < 0 ? '⚠ Budget deficit: VCG taxes không đủ cover project cost → cần external subsidy (VCG deficit problem).' : '✓ Taxes cover cost.'}
+      Pivotal agents = những người mà không có họ, project không xảy ra.
+    </p>
+  `;
+}
+
+function renderVCG() {
+  const n = +document.getElementById('vcg-n').value;
+  renderVCGInputs();
+}
+
+// Initialize
+renderBidders();
+renderVCGInputs();
+</script>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

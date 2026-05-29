@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 02 — NoSQL: bốn họ</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  button.primary { background: #0f766e; color: #fff; border: 0; padding: 7px 14px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+  button.primary:hover { background: #115e59; }
+  label { user-select: none; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  code, pre { font-family: ui-monospace, Menlo, Consolas, monospace; }
+  pre { background:#0f172a; color:#e2e8f0; padding:12px 14px; border-radius:6px; overflow-x:auto; font-size:13px; line-height:1.5; margin:8px 0 0; }
+
+  /* Module 1 — chọn họ theo use case */
+  .uc-q { font-weight:600; margin:8px 0; font-size:15px; }
+  .uc-opts { display:grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap:10px; margin-top:10px; }
+  .uc-opt { border:2px solid #cbd5e1; border-radius:8px; padding:10px 12px; cursor:pointer; font-size:14px; transition:.15s; text-align:center; }
+  .uc-opt .ic { font-size:22px; display:block; margin-bottom:4px; }
+  .uc-opt:hover { border-color:#0f766e; }
+  .uc-opt.correct { background:#bbf7d0; border-color:#16a34a; }
+  .uc-opt.wrong { background:#fecaca; border-color:#dc2626; }
+  .uc-feedback { margin-top:10px; font-size:14px; min-height:20px; }
+
+  /* Module 2 — chuyển mô hình */
+  .modechip { display:inline-block; padding:4px 12px; border-radius:6px; background:#e2e8f0; cursor:pointer; margin:0 6px 6px 0; font-size:13px; }
+  .modechip.active { background:#0f766e; color:#fff; }
+  .model-box { margin-top:10px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 8px; }
+  th, td { padding: 6px 10px; border-bottom: 1px solid #eee; font-size: 13px; text-align: left; }
+  th { background: #f0fdfa; }
+  .tbl-cap { font-size:13px; color:#64748b; margin:6px 0 2px; }
+  svg { max-width:100%; height:auto; display:block; }
+
+  /* Module 3 — bảng đánh đổi */
+  .trade th, .trade td { vertical-align: top; }
+  .trade tbody tr { cursor:pointer; transition:.12s; }
+  .trade tbody tr:hover { background:#f0fdfa; }
+  .trade tbody tr.sel { background:#fef9c3; }
+  .sql-win { color:#0369a1; font-weight:600; }
+  .nosql-win { color:#9a3412; font-weight:600; }
+  .trade-detail { margin-top:12px; padding:12px; background:#f0fdfa; border-left:4px solid #0f766e; border-radius:4px; font-size:14px; min-height:40px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-storage-engine/visualization.html">← L1: Storage Engine</a>
+  <span class="sep">·</span>
+  <span class="current">L2: NoSQL</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-replication-sharding/visualization.html">L3: Replication & Sharding →</a>
+</nav>
+<main>
+<h1>NoSQL: bốn họ và khi nào dùng</h1>
+<p class="note">Ba mô-đun tương tác: (1) chọn họ NoSQL theo use case, (2) cùng một dữ liệu ở 4 mô hình, (3) bảng đánh đổi SQL vs NoSQL.</p>
+
+<div class="panel">
+  <h2>1 · Chọn họ NoSQL theo use case</h2>
+  <p class="note">Đọc tình huống, chọn họ phù hợp nhất. Có phản hồi đúng/sai kèm lý do.</p>
+  <div class="uc-q" id="ucQ"></div>
+  <div class="uc-opts" id="ucOpts"></div>
+  <div class="uc-feedback" id="ucFb"></div>
+  <button class="primary" onclick="nextUC()" style="margin-top:10px">↻ Tình huống khác</button>
+</div>
+
+<div class="panel">
+  <h2>2 · Cùng một dữ liệu, bốn mô hình</h2>
+  <p class="note">Dữ liệu: user <b>An</b> (id 42) ở Hanoi có 2 đơn hàng. Bấm để xem cùng dữ liệu đó biểu diễn ra sao ở từng mô hình.</p>
+  <div>
+    <span class="modechip active" data-m="rel"  onclick="setModel('rel')">🗄️ Quan hệ (bảng)</span>
+    <span class="modechip"        data-m="kv"   onclick="setModel('kv')">🔑 Key-Value</span>
+    <span class="modechip"        data-m="doc"  onclick="setModel('doc')">📄 Document (JSON)</span>
+    <span class="modechip"        data-m="graph" onclick="setModel('graph')">🕸️ Graph</span>
+  </div>
+  <div class="model-box" id="modelBox"></div>
+</div>
+
+<div class="panel">
+  <h2>3 · SQL vs NoSQL — bảng đánh đổi</h2>
+  <p class="note">Bấm vào một hàng để xem giải thích đánh đổi. <span class="sql-win">Xanh</span> = SQL lợi thế, <span class="nosql-win">cam</span> = NoSQL lợi thế.</p>
+  <table class="trade">
+    <thead><tr><th>Tiêu chí</th><th>SQL (quan hệ)</th><th>NoSQL</th></tr></thead>
+    <tbody id="tradeBody"></tbody>
+  </table>
+  <div class="trade-detail" id="tradeDetail">← Chọn một tiêu chí để xem đánh đổi chi tiết.</div>
+</div>
+
+<script>
+// ===== Module 1: chọn họ NoSQL theo use case =====
+const FAMILIES = [
+  {key:'kv',     ic:'🔑', label:'Key-Value'},
+  {key:'doc',    ic:'📄', label:'Document'},
+  {key:'column', ic:'🪵', label:'Column-family'},
+  {key:'graph',  ic:'🕸️', label:'Graph'},
+];
+const USECASES = [
+  {q:'Lưu giỏ hàng tạm, luôn tra theo userId, cần độ trễ cực thấp.', a:'kv',
+   why:'Luôn tra theo một khóa đã biết (userId), lấy nguyên cụm value — đúng sở trường key-value (Redis).'},
+  {q:'Catalog sản phẩm: sách, áo, điện thoại mỗi loại có thuộc tính khác nhau.', a:'doc',
+   why:'Schema linh hoạt: mỗi document mang đúng trường của loại, tránh rừng cột NULL (MongoDB).'},
+  {q:'Hệ gợi ý "người mua X cũng mua Y", duyệt quan hệ nhiều bậc.', a:'graph',
+   why:'Duyệt cạnh nhiều bậc là sở trường graph; quan hệ tương tự rất đắt trên SQL (Neo4j).'},
+  {q:'Thu 200.000 bản ghi cảm biến IoT mỗi giây, query theo thiết bị + thời gian.', a:'column',
+   why:'Ghi-nặng phân tán nhờ LSM-tree, query theo partition key (device) + dải thời gian (Cassandra).'},
+  {q:'Phiên đăng nhập (session) tra theo session id, tự hết hạn sau 1 giờ.', a:'kv',
+   why:'Tra theo khóa, value mờ, có TTL — đúng key-value (Redis EX 3600).'},
+  {q:'Mạng xã hội: tìm "bạn-của-bạn" chưa kết bạn trực tiếp.', a:'graph',
+   why:'Truy vấn duyệt 2+ bậc theo cạnh FRIEND — graph DB duyệt trực tiếp, rẻ hơn self-join nhiều lần.'},
+  {q:'Hồ sơ người dùng tự chứa: tên, địa chỉ lồng, mảng đơn hàng, lấy cả cụm một lần.', a:'doc',
+   why:'Một document JSON tự chứa, index được field lồng, đọc một phát ra hết (MongoDB).'},
+  {q:'Log sự kiện ứng dụng append-only, khối lượng ghi khổng lồ, hiếm đọc lại.', a:'column',
+   why:'Ghi tuần tự khối lớn, phân tán — column-family LSM-tree hợp time-series/log (Cassandra/HBase).'},
+];
+let ucIdx = -1;
+function nextUC(){
+  let n; do { n = Math.floor(Math.random()*USECASES.length); } while(n===ucIdx && USECASES.length>1);
+  ucIdx = n; const item = USECASES[n];
+  document.getElementById('ucQ').textContent = '"' + item.q + '"';
+  document.getElementById('ucOpts').innerHTML = FAMILIES.map(f =>
+    `<div class="uc-opt" data-k="${f.key}" onclick="ansUC(this,'${f.key}')"><span class="ic">${f.ic}</span>${f.label}</div>`).join('');
+  document.getElementById('ucFb').innerHTML = '';
+}
+function ansUC(el, choice){
+  const item = USECASES[ucIdx];
+  const correct = choice === item.a;
+  el.classList.add(correct ? 'correct' : 'wrong');
+  if(!correct){
+    const right = document.querySelector(`.uc-opt[data-k="${item.a}"]`);
+    if(right) right.classList.add('correct');
+  }
+  const rightLabel = FAMILIES.find(f=>f.key===item.a).label;
+  document.getElementById('ucFb').innerHTML =
+    (correct ? '✅ Đúng! ' : `❌ Chưa hợp nhất — nên dùng <b>${rightLabel}</b>. `) + item.why;
+}
+nextUC();
+
+// ===== Module 2: cùng dữ liệu, 4 mô hình =====
+function renderModel(m){
+  if(m==='rel'){
+    return `
+    <div class="tbl-cap">Bảng <code>users</code></div>
+    <table><thead><tr><th>id</th><th>name</th><th>city</th></tr></thead>
+      <tbody><tr><td>42</td><td>An</td><td>Hanoi</td></tr></tbody></table>
+    <div class="tbl-cap">Bảng <code>orders</code> (nối qua <code>user_id</code> = 42)</div>
+    <table><thead><tr><th>order_id</th><th>user_id</th><th>total</th><th>items</th></tr></thead>
+      <tbody>
+        <tr><td>1001</td><td>42</td><td>1.500.000</td><td>3</td></tr>
+        <tr><td>1002</td><td>42</td><td>800.000</td><td>1</td></tr>
+      </tbody></table>
+    <p class="note">Lấy user kèm đơn → <code>JOIN users ON orders.user_id = users.id</code>. Dữ liệu tách bảng, không trùng lặp.</p>`;
+  }
+  if(m==='kv'){
+    return `
+    <div class="tbl-cap">Bảng băm bền vững: <code>key → value</code> (value là blob mờ)</div>
+    <table><thead><tr><th>Key</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td><code>user:42</code></td><td><code>{"name":"An","city":"Hanoi"}</code></td></tr>
+        <tr><td><code>orders:user:42</code></td><td><code>[1001,1002]</code></td></tr>
+        <tr><td><code>order:1001</code></td><td><code>{"total":1500000,"items":3}</code></td></tr>
+        <tr><td><code>order:1002</code></td><td><code>{"total":800000,"items":1}</code></td></tr>
+      </tbody></table>
+    <p class="note"><code>GET user:42</code> tức thì. Nhưng "tìm mọi user ở Hanoi" thì không làm được hiệu quả — city nằm trong value, không index.</p>`;
+  }
+  if(m==='doc'){
+    return `
+    <div class="tbl-cap">Một document tự chứa trong collection <code>users</code> (orders nhúng vào)</div>
+<pre>{
+  "_id": 42,
+  "name": "An",
+  "address": { "city": "Hanoi", "zip": "100000" },
+  "orders": [
+    { "orderId": 1001, "total": 1500000, "items": 3 },
+    { "orderId": 1002, "total":  800000, "items": 1 }
+  ]
+}</pre>
+    <p class="note">Một lần đọc ra cả user lẫn đơn (đọc nhanh, khỏi JOIN). Đánh đổi: nếu nhúng dữ liệu dùng chung & đổi nhiều → trùng lặp, rủi ro bất nhất.</p>`;
+  }
+  // graph
+  return `
+    <div class="tbl-cap">Đỉnh & cạnh: An -[:PLACED]-> các đơn; An -[:LIVES_IN]-> Hanoi</div>
+    <svg width="520" height="240" viewBox="0 0 520 240" role="img" aria-label="Đồ thị user An, thành phố Hanoi và hai đơn hàng">
+      <defs>
+        <marker id="arr" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L8,3 L0,6 Z" fill="#64748b"/>
+        </marker>
+      </defs>
+      <!-- edges -->
+      <line x1="120" y1="120" x2="300" y2="60"  stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+      <line x1="120" y1="120" x2="300" y2="180" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+      <line x1="120" y1="120" x2="300" y2="120" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+      <text x="205" y="78"  font-size="11" fill="#475569">PLACED</text>
+      <text x="205" y="200" font-size="11" fill="#475569">PLACED</text>
+      <text x="200" y="112" font-size="11" fill="#475569">LIVES_IN</text>
+      <!-- nodes -->
+      <g>
+        <circle cx="120" cy="120" r="34" fill="#0f766e"/>
+        <text x="120" y="116" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">An</text>
+        <text x="120" y="132" text-anchor="middle" fill="#d1fae5" font-size="10">Person 42</text>
+      </g>
+      <g>
+        <circle cx="360" cy="60" r="30" fill="#2563eb"/>
+        <text x="360" y="58" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">#1001</text>
+        <text x="360" y="74" text-anchor="middle" fill="#dbeafe" font-size="10">1.5tr</text>
+      </g>
+      <g>
+        <circle cx="360" cy="180" r="30" fill="#2563eb"/>
+        <text x="360" y="178" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">#1002</text>
+        <text x="360" y="194" text-anchor="middle" fill="#dbeafe" font-size="10">0.8tr</text>
+      </g>
+      <g>
+        <circle cx="360" cy="120" r="30" fill="#b45309"/>
+        <text x="360" y="124" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Hanoi</text>
+      </g>
+    </svg>
+    <p class="note">Duyệt quan hệ trực tiếp theo cạnh: "đơn của An", "các đơn cùng thành phố"... rẻ kể cả nhiều bậc.</p>`;
+}
+function setModel(m){
+  document.querySelectorAll('.modechip').forEach(c => c.classList.toggle('active', c.dataset.m===m));
+  document.getElementById('modelBox').innerHTML = renderModel(m);
+}
+setModel('rel');
+
+// ===== Module 3: bảng đánh đổi SQL vs NoSQL =====
+const TRADE = [
+  {crit:'Schema', sql:'Cứng (schema-on-write)', nosql:'Linh hoạt (schema-on-read)', sqlWin:false,
+   d:'<b>Schema.</b> SQL kiểm tra cấu trúc khi GHI (do DB) → toàn vẹn mạnh nhưng đổi cấu trúc cần ALTER TABLE. NoSQL diễn giải khi ĐỌC (do app) → thêm trường khỏi migrate, nhưng gánh nặng đúng cấu trúc chuyển sang code.'},
+  {crit:'JOIN', sql:'Mạnh, cốt lõi', nosql:'Hạn chế / không có', sqlWin:true,
+   d:'<b>JOIN.</b> SQL ghép nhiều bảng tùy ý rất mạnh. NoSQL thường không JOIN rẻ → phải nhúng (denormalize) hoặc ghép ở tầng ứng dụng.'},
+  {crit:'Transaction', sql:'ACID đa-bảng mạnh', nosql:'Thường giới hạn', sqlWin:true,
+   d:'<b>Transaction.</b> SQL hỗ trợ ACID xuyên nhiều bảng. Nhiều NoSQL chỉ đảm bảo ACID trong phạm vi 1 document/partition.'},
+  {crit:'Nhất quán', sql:'Thường mạnh', nosql:'Thường eventual', sqlWin:true,
+   d:'<b>Nhất quán.</b> SQL thường nhất quán mạnh. NoSQL phân tán hay chọn nhất quán cuối cùng (eventual) để đổi lấy sẵn sàng — xem Lesson 04 (CAP).'},
+  {crit:'Mở rộng', sql:'Chủ yếu dọc (scale up)', nosql:'Ngang (scale out)', sqlWin:false,
+   d:'<b>Mở rộng.</b> SQL mở rộng chủ yếu bằng máy mạnh hơn (có trần). NoSQL thiết kế để thêm máy thường là tăng năng lực — thế mạnh scale-out.'},
+  {crit:'Truy vấn ad-hoc', sql:'Rất linh hoạt (SQL)', nosql:'Thường query-first', sqlWin:false,
+   d:'<b>Truy vấn ad-hoc.</b> SQL cho truy vấn tùy ý nhiều chiều. Nhiều NoSQL bắt thiết kế bảng theo truy vấn đã biết trước; truy vấn lạ ngoài thiết kế thường rất đắt.'},
+];
+document.getElementById('tradeBody').innerHTML = TRADE.map((t,i) => {
+  const sqlCell  = t.sqlWin  ? `<span class="sql-win">${t.sql}</span>`   : t.sql;
+  const nosqlCell = !t.sqlWin ? `<span class="nosql-win">${t.nosql}</span>` : t.nosql;
+  return `<tr data-i="${i}" onclick="selTrade(${i})"><td><b>${t.crit}</b></td><td>${sqlCell}</td><td>${nosqlCell}</td></tr>`;
+}).join('');
+function selTrade(i){
+  document.querySelectorAll('.trade tbody tr').forEach(r => r.classList.toggle('sel', +r.dataset.i===i));
+  document.getElementById('tradeDetail').innerHTML = TRADE[i].d;
+}
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 03 — Replication & Sharding</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  button.primary { background: #0f766e; color: #fff; border: 0; padding: 7px 14px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+  button.primary:hover { background: #115e59; }
+  button.primary:disabled { background: #94a3b8; cursor: not-allowed; }
+  button.danger { background: #dc2626; color:#fff; border:0; padding:7px 14px; border-radius:5px; cursor:pointer; font-size:14px; }
+  button.danger:hover { background:#b91c1c; }
+  label { user-select: none; font-size: 14px; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  .controls { display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center; margin:10px 0; }
+  .modechip { display:inline-block; padding:4px 12px; border-radius:6px; background:#e2e8f0; cursor:pointer; font-size:13px; }
+  .modechip.active { background:#0f766e; color:#fff; }
+  .status { margin-top:10px; font-size:14px; color:#334155; background:#f1f5f9; padding:8px 12px; border-radius:6px; min-height:20px; }
+  .status b { color:#0f766e; }
+  svg { display:block; max-width:100%; height:auto; }
+  .nodebox text { font-family: inherit; }
+  /* sharding */
+  .keytag { display:inline-flex; align-items:center; justify-content:center; width:38px; height:30px; border-radius:5px; font-size:12px; font-weight:600; font-variant-numeric:tabular-nums; }
+  .shard-cols { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+  .shard { flex:1 1 120px; min-width:0; border:2px solid #cbd5e1; border-radius:8px; padding:8px; background:#f8fafc; }
+  .shard h4 { margin:0 0 6px; font-size:13px; text-align:center; }
+  .shard .bin { display:flex; flex-wrap:wrap; gap:4px; min-height:34px; }
+  .shard .load { text-align:center; font-size:11px; color:#64748b; margin-top:6px; }
+  .moved { outline:3px solid #f59e0b; }
+  .legend span { display:inline-block; padding:2px 8px; border-radius:4px; font-size:12px; margin-right:6px; }
+  input[type=range] { vertical-align: middle; }
+  /* hotspot bars */
+  .bars { display:flex; gap:14px; align-items:flex-end; height:200px; margin-top:14px; padding-bottom:4px; }
+  .bar-wrap { flex:1 1 0; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; min-width:0; }
+  .bar { width:100%; max-width:70px; border-radius:5px 5px 0 0; transition:height .4s; }
+  .bar-lbl { font-size:12px; margin-top:6px; text-align:center; }
+  .bar-val { font-size:11px; color:#475569; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-nosql/visualization.html">← L2: NoSQL</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Replication & Sharding</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-cap-consistency/visualization.html">L4: CAP →</a>
+</nav>
+<main>
+<h1>Replication & Sharding</h1>
+<p class="note">Ba mô-đun tương tác: (1) leader–follower sync/async + lag + failover, (2) sharding hash vs range + reshuffle khi thêm shard, (3) hotspot khi range partition lệch.</p>
+
+<!-- ===== Module 1: Replication ===== -->
+<div class="panel">
+  <h2>1 · Leader–Follower: replicate, lag & failover</h2>
+  <p class="note">Ghi một giá trị mới vào leader, xem nó lan sang follower. Đọc follower trong lúc đang lag sẽ thấy giá trị cũ.</p>
+  <div class="controls">
+    <span>Chế độ:</span>
+    <span class="modechip active" id="mSync" onclick="setRepMode('sync')">Synchronous (chờ follower)</span>
+    <span class="modechip" id="mAsync" onclick="setRepMode('async')">Asynchronous (không chờ)</span>
+  </div>
+  <div class="controls">
+    <label>Replication lag: <b id="lagVal">1200</b> ms
+      <input type="range" id="lag" min="200" max="4000" step="200" value="1200" oninput="document.getElementById('lagVal').textContent=this.value">
+    </label>
+  </div>
+  <svg id="repSvg" width="560" height="220" viewBox="0 0 560 220" role="img" aria-label="Sơ đồ leader follower"></svg>
+  <div class="controls">
+    <button class="primary" id="btnWrite" onclick="doWrite()">▶ Ghi balance = <span id="nextVal">500</span> vào leader</button>
+    <button class="primary" id="btnReadF" onclick="readFollower()">👁 Đọc từ Follower F2</button>
+    <button class="danger" id="btnKill" onclick="killLeader()">💥 Leader chết → failover</button>
+    <button class="primary" onclick="resetRep()" style="background:#475569">↺ Reset</button>
+  </div>
+  <div class="status" id="repStatus">Leader & cả 2 follower đang ở balance = 300. Hãy ghi một giá trị mới.</div>
+</div>
+
+<!-- ===== Module 2: Sharding ===== -->
+<div class="panel">
+  <h2>2 · Sharding: hash vs range, và reshuffle khi thêm shard</h2>
+  <p class="note">12 key (user_id 100–111) được phân vào các shard. Đổi chiến lược, đổi số shard, rồi xem có bao nhiêu key phải di chuyển (viền cam).</p>
+  <div class="controls">
+    <span>Chiến lược:</span>
+    <span class="modechip active" id="sHash" onclick="setShardMode('hash')">Hash (mod N)</span>
+    <span class="modechip" id="sRange" onclick="setShardMode('range')">Range (theo khoảng id)</span>
+    <span class="modechip" id="sConsistent" onclick="setShardMode('consistent')">Consistent hashing</span>
+  </div>
+  <div class="controls">
+    <label>Số shard N: <b id="nShardVal">4</b>
+      <input type="range" id="nShard" min="2" max="6" step="1" value="4" oninput="changeShardN(this.value)">
+    </label>
+    <span class="note" id="moveInfo"></span>
+  </div>
+  <div class="shard-cols" id="shardCols"></div>
+  <div class="status" id="shardStatus"></div>
+</div>
+
+<!-- ===== Module 3: Hotspot ===== -->
+<div class="panel">
+  <h2>3 · Hotspot khi range partition lệch</h2>
+  <p class="note">Chia dân số Việt Nam theo chữ cái đầu của họ. "Nguyễn" chiếm ~38% → shard chứa "N" quá tải. Bấm để xem so sánh với hash rải đều.</p>
+  <div class="controls">
+    <span class="modechip active" id="hRange" onclick="setHotMode('range')">Range theo chữ cái (lệch)</span>
+    <span class="modechip" id="hHash" onclick="setHotMode('hash')">Hash (rải đều)</span>
+  </div>
+  <div class="bars" id="hotBars"></div>
+  <div class="status" id="hotStatus"></div>
+</div>
+
+<script>
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+
+/* ============ Module 1: Replication ============ */
+let repMode = 'sync';
+let leaderAlive = true;
+let writeSeq = 0;
+const BASE = 300;
+const STEP = 200;
+// node state values
+let st = { L: BASE, F1: BASE, F2: BASE };
+let leaderRole = 'L'; // which node is leader (changes after failover)
+function setRepMode(m){
+  repMode = m;
+  document.getElementById('mSync').classList.toggle('active', m==='sync');
+  document.getElementById('mAsync').classList.toggle('active', m==='async');
+}
+function nodeX(id){ return {L:90, F1:300, F2:470}[id]; }
+function drawRep(highlight){
+  highlight = highlight || {};
+  const nodes = [
+    {id:'L',  label: leaderRole==='L' ? 'Leader' : 'Follower'},
+    {id:'F1', label: leaderRole==='F1' ? 'Leader (mới)' : 'Follower F1'},
+    {id:'F2', label: leaderRole==='F2' ? 'Leader (mới)' : 'Follower F2'},
+  ];
+  let s = '';
+  // arrows leader -> followers
+  const lx = nodeX(leaderRole);
+  ['L','F1','F2'].forEach(id=>{
+    if(id===leaderRole) return;
+    const tx = nodeX(id);
+    const col = highlight.arrow && highlight.arrow.includes(id) ? '#0f766e' : '#cbd5e1';
+    const w = highlight.arrow && highlight.arrow.includes(id) ? 3 : 1.5;
+    s += `<line x1="${lx+40}" y1="70" x2="${tx+40}" y2="70" stroke="${col}" stroke-width="${w}" marker-end="url(#arr)"/>`;
+  });
+  nodes.forEach(n=>{
+    const x = nodeX(n.id);
+    const dead = (n.id==='L' && !leaderAlive);
+    const isLeader = (n.id===leaderRole);
+    const fill = dead ? '#fca5a5' : isLeader ? '#ccfbf1' : '#e2e8f0';
+    const stroke = dead ? '#dc2626' : isLeader ? '#0f766e' : '#94a3b8';
+    const ring = highlight.read===n.id ? '<rect x="'+(x-4)+'" y="42" width="96" height="76" rx="10" fill="none" stroke="#f59e0b" stroke-width="3"/>' : '';
+    s += `<g class="nodebox">${ring}
+      <rect x="${x}" y="46" width="88" height="68" rx="8" fill="${fill}" stroke="${stroke}" stroke-width="2"/>
+      <text x="${x+44}" y="68" text-anchor="middle" font-size="12" font-weight="700" fill="#334155">${n.label}</text>
+      <text x="${x+44}" y="92" text-anchor="middle" font-size="16" font-weight="700" fill="${dead?'#991b1b':'#0f766e'}">${dead?'✕ chết':'bal='+st[n.id]}</text>
+    </g>`;
+  });
+  s += `<text x="280" y="190" text-anchor="middle" font-size="12" fill="#64748b">Client luôn ghi vào Leader → leader replicate sang follower</text>`;
+  document.getElementById('repSvg').innerHTML =
+    `<defs><marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#0f766e"/></marker></defs>` + s;
+}
+async function doWrite(){
+  if(!leaderAlive){ document.getElementById('repStatus').innerHTML='⚠ Leader đã chết — bấm "Leader chết → failover" hoặc Reset.'; return; }
+  const btn = document.getElementById('btnWrite'); btn.disabled=true;
+  writeSeq++;
+  const val = BASE + STEP*writeSeq;
+  document.getElementById('nextVal').textContent = BASE + STEP*(writeSeq+1);
+  const stt = document.getElementById('repStatus');
+  // write to leader
+  st[leaderRole] = val;
+  drawRep();
+  stt.innerHTML = `t=0: Leader ghi <b>balance=${val}</b> vào WAL local, commit.`;
+  await sleep(500);
+  const lag = +document.getElementById('lag').value;
+  const followers = ['L','F1','F2'].filter(id=>id!==leaderRole);
+  if(repMode==='sync'){
+    stt.innerHTML = `<b>Synchronous:</b> leader CHỜ follower xác nhận trước khi báo client "xong". Đang gửi log... (lag ${lag}ms)`;
+    drawRep({arrow: followers});
+    await sleep(lag);
+    followers.forEach(id=> st[id]=val);
+    drawRep();
+    stt.innerHTML = `✅ <b>Synchronous xong.</b> Cả 3 node = ${val} TRƯỚC khi client nhận "thành công". Leader chết bây giờ → 0 mất mát (follower đã có).`;
+  } else {
+    stt.innerHTML = `<b>Asynchronous:</b> leader báo client "xong" NGAY (balance=${val}), follower nhận sau. ⚠ Trong ${lag}ms này, follower vẫn giá trị cũ — và nếu leader chết bây giờ, ghi này MẤT.`;
+    drawRep({arrow: followers});
+    await sleep(lag);
+    if(leaderAlive){ followers.forEach(id=> st[id]=val); drawRep();
+      stt.innerHTML = `✅ Sau ${lag}ms lag, follower đã bắt kịp = ${val}. (Nhưng nếu leader chết TRONG khoảng lag đó thì ghi này đã mất.)`;
+    }
+  }
+  btn.disabled=false;
+}
+function readFollower(){
+  if(!leaderAlive && leaderRole!=='F2'){ /* F2 may be new leader */ }
+  drawRep({read:'F2'});
+  const v = st['F2'];
+  const leaderVal = st[leaderRole];
+  const stale = v !== leaderVal;
+  document.getElementById('repStatus').innerHTML = stale
+    ? `👁 Đọc Follower F2 = <b>${v}</b> — nhưng leader đã là ${leaderVal}. <b style="color:#b45309">Đây là dữ liệu CŨ do replication lag</b> (đọc-sau-ghi thấy stale).`
+    : `👁 Đọc Follower F2 = <b>${v}</b> — khớp leader (${leaderVal}). Đã hội tụ, không stale.`;
+  setTimeout(drawRep, 1200);
+}
+async function killLeader(){
+  if(!leaderAlive){ resetRep(); return; }
+  const stt = document.getElementById('repStatus');
+  leaderAlive = false;
+  drawRep();
+  stt.innerHTML = `💥 Leader chết! Heartbeat mất...`;
+  await sleep(800);
+  // pick follower with newest value as new leader
+  const cand = ['F1','F2'];
+  cand.sort((a,b)=> st[b]-st[a]);
+  const newLeader = cand[0];
+  leaderRole = newLeader;
+  leaderAlive = true; // new leader alive
+  drawRep();
+  const lostNote = (st['F1']!==st['F2'] || true);
+  stt.innerHTML = `🔁 <b>Failover:</b> bầu <b>${newLeader}</b> (có log mới nhất, bal=${st[newLeader]}) làm leader mới. Nếu trước đó dùng async và leader cũ ack giá trị mà follower chưa nhận → giá trị đó đã mất.`;
+}
+function resetRep(){
+  st = {L:BASE, F1:BASE, F2:BASE}; leaderAlive=true; leaderRole='L'; writeSeq=0;
+  document.getElementById('nextVal').textContent = BASE+STEP;
+  drawRep();
+  document.getElementById('repStatus').innerHTML = `Reset. Cả 3 node = ${BASE}. Ghi một giá trị mới để bắt đầu.`;
+}
+drawRep();
+
+/* ============ Module 2: Sharding ============ */
+const KEYS = Array.from({length:12}, (_,i)=> 100+i); // 100..111
+let shardMode = 'hash';
+let nShard = 4;
+let prevAssign = null; // previous key->shard for highlighting moves
+const palette = ['#0f766e','#2563eb','#9333ea','#db2777','#ea580c','#0891b2'];
+
+// simple deterministic hash (so hash != id, more realistic spread)
+function h(key){ let x=(key*2654435761) >>> 0; return x; }
+function assignHash(key, N){ return h(key) % N; }
+function assignRange(key, N){
+  // 100..111 split into N contiguous ranges
+  const min=100, max=111, span=(max-min+1);
+  const per = span / N;
+  let s = Math.floor((key-min)/per);
+  if(s>=N) s=N-1;
+  return s;
+}
+// consistent hashing: place N nodes on ring, key -> next node clockwise
+function ringPos(x){ return (h(x) % 100000); } // 0..99999 ring
+let nodeRing = [];
+function buildRing(N){
+  nodeRing = [];
+  for(let i=0;i<N;i++){ nodeRing.push({node:i, pos: ringPos(1000003*(i+1))}); }
+  nodeRing.sort((a,b)=>a.pos-b.pos);
+}
+function assignConsistent(key, N){
+  const p = ringPos(key);
+  for(const e of nodeRing){ if(p<=e.pos) return e.node; }
+  return nodeRing[0].node; // wrap around
+}
+function computeAssign(N){
+  if(shardMode==='consistent') buildRing(N);
+  const a={};
+  KEYS.forEach(k=>{
+    a[k] = shardMode==='hash' ? assignHash(k,N)
+         : shardMode==='range' ? assignRange(k,N)
+         : assignConsistent(k,N);
+  });
+  return a;
+}
+function renderShards(assign, moved){
+  moved = moved || new Set();
+  const cols = document.getElementById('shardCols');
+  let html='';
+  const counts = Array(nShard).fill(0);
+  KEYS.forEach(k=> counts[assign[k]]++ );
+  for(let s=0;s<nShard;s++){
+    const tags = KEYS.filter(k=>assign[k]===s).map(k=>{
+      const c = palette[k % palette.length];
+      const mv = moved.has(k) ? ' moved' : '';
+      return `<span class="keytag${mv}" style="background:${c}22;color:${c};border:1px solid ${c}55">${k}</span>`;
+    }).join('');
+    html += `<div class="shard"><h4>S${s}</h4><div class="bin">${tags}</div><div class="load">${counts[s]} key</div></div>`;
+  }
+  cols.innerHTML = html;
+}
+function describeShard(){
+  const stt = document.getElementById('shardStatus');
+  if(shardMode==='hash')
+    stt.innerHTML = `<b>Hash (key mod N):</b> rải đều, nhưng đổi N thì hầu hết key đổi shard (viền cam). Range query kém vì id liền nhau văng đi mỗi nơi.`;
+  else if(shardMode==='range')
+    stt.innerHTML = `<b>Range:</b> id liền nhau nằm cùng shard → range query tốt. Nhưng nếu id mới luôn tăng dần, ghi mới dồn vào shard cuối → hotspot.`;
+  else
+    stt.innerHTML = `<b>Consistent hashing:</b> node & key trên một vòng băm. Thêm node chỉ di chuyển ~1/N key (các key giữa node mới và node liền trước), không xáo trộn toàn bộ như mod N.`;
+}
+function setShardMode(m){
+  shardMode=m;
+  ['hash','range','consistent'].forEach(x=> document.getElementById('s'+x[0].toUpperCase()+x.slice(1)).classList.toggle('active', x===m));
+  prevAssign=null;
+  const a=computeAssign(nShard); prevAssign=a;
+  renderShards(a);
+  describeShard();
+  document.getElementById('moveInfo').textContent='';
+}
+function changeShardN(v){
+  const oldN = nShard;
+  nShard = +v;
+  document.getElementById('nShardVal').textContent = v;
+  const before = prevAssign || computeAssign(oldN);
+  const after = computeAssign(nShard);
+  // compute moved keys
+  const moved = new Set();
+  KEYS.forEach(k=>{ if(before[k]!==after[k]) moved.add(k); });
+  renderShards(after, moved);
+  prevAssign = after;
+  const pct = Math.round(moved.size/KEYS.length*100);
+  if(nShard!==oldN){
+    const tag = shardMode==='consistent' ? 'Consistent hashing' : shardMode==='hash' ? 'Hash mod N' : 'Range';
+    document.getElementById('moveInfo').innerHTML =
+      `${tag}: N ${oldN}→${nShard} ⇒ <b style="color:#ea580c">${moved.size}/${KEYS.length} key phải di chuyển (${pct}%)</b>`;
+  }
+}
+setShardMode('hash');
+
+/* ============ Module 3: Hotspot ============ */
+let hotMode = 'range';
+// approximate distribution of first letter of Vietnamese surnames
+const RANGE_BUCKETS = [
+  {lbl:'A–M', pct:25, col:'#94a3b8'},
+  {lbl:'N (Nguyễn...)', pct:38, col:'#dc2626'},
+  {lbl:'O–T', pct:20, col:'#94a3b8'},
+  {lbl:'U–Z', pct:17, col:'#94a3b8'},
+];
+function renderHot(){
+  const data = hotMode==='range'
+    ? RANGE_BUCKETS
+    : [25,25,25,25].map((p,i)=>({lbl:'S'+i, pct:p, col:'#0f766e'}));
+  const max = Math.max(...data.map(d=>d.pct));
+  document.getElementById('hotBars').innerHTML = data.map(d=>{
+    const hPx = Math.round(d.pct/max*170);
+    return `<div class="bar-wrap"><div class="bar-val">${d.pct}%</div><div class="bar" style="height:${hPx}px;background:${d.col}"></div><div class="bar-lbl">${d.lbl}</div></div>`;
+  }).join('');
+  document.getElementById('hotStatus').innerHTML = hotMode==='range'
+    ? `⚠ <b>Hotspot:</b> shard "N" cõng <b style="color:#dc2626">38%</b> tải trong khi "U–Z" chỉ 17%. Range theo trường lệch → một shard quá tải, máy khác nhàn rỗi.`
+    : `✅ <b>Hash rải đều:</b> mỗi shard ~25% tải. Không hotspot — nhưng đổi lại mất khả năng range query gọn (id liền nhau bị tản).`;
+}
+function setHotMode(m){
+  hotMode=m;
+  document.getElementById('hRange').classList.toggle('active', m==='range');
+  document.getElementById('hHash').classList.toggle('active', m==='hash');
+  renderHot();
+}
+renderHot();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

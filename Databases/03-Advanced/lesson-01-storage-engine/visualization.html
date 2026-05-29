@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 01 — Storage Engine</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  button.primary { background: #0f766e; color: #fff; border: 0; padding: 7px 14px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+  button.primary:hover { background: #115e59; }
+  button.primary:disabled { background: #94a3b8; cursor: default; }
+  button.danger { background: #dc2626; color: #fff; border: 0; padding: 7px 14px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+  button.danger:hover { background: #b91c1c; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  .modechip { display:inline-block; padding:3px 10px; border-radius:6px; background:#e2e8f0; cursor:pointer; margin-right:6px; font-size:13px; }
+  .modechip.active { background:#0f766e; color:#fff; }
+
+  /* Module 1 — buffer pool */
+  .seq { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0; }
+  .pg { width:34px; height:34px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; background:#e2e8f0; border:2px solid transparent; }
+  .pg.cur { border-color:#0f766e; }
+  .pg.done-hit { background:#bbf7d0; }
+  .pg.done-miss { background:#fecaca; }
+  .frames { display:flex; gap:10px; margin:12px 0; flex-wrap:wrap; }
+  .frame { width:60px; height:60px; border-radius:8px; border:2px dashed #cbd5e1; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:18px; color:#0f766e; background:#f8fafc; }
+  .frame.full { border-style:solid; border-color:#0f766e; background:#f0fdfa; }
+  .flabel { font-size:11px; color:#94a3b8; text-align:center; margin-top:2px; }
+  .stat { display:inline-block; padding:4px 10px; border-radius:6px; background:#f1f5f9; margin-right:8px; font-size:13px; }
+  .stat b { color:#0f766e; }
+  .log-line { font-family:ui-monospace,monospace; font-size:13px; padding:2px 0; }
+  .log-line.hit { color:#16a34a; }
+  .log-line.miss { color:#dc2626; }
+
+  /* Module 2 — WAL */
+  .wal-cols { display:flex; gap:14px; flex-wrap:wrap; }
+  .wal-col { flex:1 1 240px; min-width:0; }
+  .wal-col h3 { font-size:14px; margin:6px 0; }
+  .logbox, .databox { border:1px solid #e2e8f0; border-radius:8px; padding:10px; min-height:120px; background:#f8fafc; font-family:ui-monospace,monospace; font-size:12.5px; }
+  .logbox .rec { padding:3px 6px; border-radius:4px; margin-bottom:3px; background:#fff7ed; border-left:3px solid #f59e0b; }
+  .logbox .rec.commit { background:#ecfdf5; border-left-color:#16a34a; font-weight:700; }
+  .databox .var { padding:3px 6px; }
+  .databox .var b { color:#0f766e; }
+  .databox .var.stale { color:#94a3b8; }
+  .crash-banner { background:#fee2e2; color:#b91c1c; border-radius:6px; padding:8px 12px; font-weight:700; margin:10px 0; }
+  .ok-banner { background:#dcfce7; color:#166534; border-radius:6px; padding:8px 12px; font-weight:700; margin:10px 0; }
+
+  /* Module 3 — B-tree vs LSM */
+  .bt-grid { display:flex; gap:16px; flex-wrap:wrap; }
+  .bt-card { flex:1 1 260px; min-width:0; border:2px solid #e2e8f0; border-radius:10px; padding:12px; }
+  .bt-card h3 { margin:0 0 6px; font-size:15px; }
+  .pages-row { display:flex; gap:6px; flex-wrap:wrap; margin:8px 0; min-height:40px; }
+  .dpage { padding:6px 8px; border-radius:5px; background:#e0e7ff; font-size:12px; font-family:ui-monospace,monospace; border:2px solid transparent; }
+  .dpage.write { border-color:#dc2626; background:#fecaca; }
+  .dpage.seqnew { border-color:#16a34a; background:#bbf7d0; }
+  .amp { font-size:12px; color:#475569; margin-top:6px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+  th, td { padding: 6px 10px; border-bottom: 1px solid #eee; font-size: 13px; text-align: left; }
+  th { background: #f0fdfa; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Storage Engine</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-nosql/visualization.html">L2: NoSQL →</a>
+</nav>
+<main>
+<h1>Storage Engine — cỗ máy lưu trữ</h1>
+<p class="note">Ba mô-đun tương tác: (1) buffer pool + LRU, (2) WAL + crash recovery, (3) B-tree vs LSM-tree.</p>
+
+<div class="panel">
+  <h2>1 · Buffer pool &amp; LRU — hit hay miss?</h2>
+  <p class="note">Pool có <b>3 frame</b> trong RAM. Chạy chuỗi truy cập page; page đã nằm trong pool = <span style="color:#16a34a">hit</span>, chưa có = <span style="color:#dc2626">miss</span> (phải đọc đĩa). LRU đuổi page ít dùng gần đây nhất khi pool đầy.</p>
+  <div>
+    <span class="modechip active" id="sq0" onclick="pickSeq(0)">Chuỗi A: A B C A D B E</span>
+    <span class="modechip" id="sq1" onclick="pickSeq(1)">Chuỗi B (có locality): A B A C A B C</span>
+  </div>
+  <div class="seq" id="seq"></div>
+  <div>
+    <div class="flabel" style="margin-bottom:4px">Buffer pool (RAM) — trái = sẽ bị đuổi trước</div>
+    <div class="frames" id="frames"></div>
+  </div>
+  <div style="margin:10px 0">
+    <span class="stat">Hit: <b id="hits">0</b></span>
+    <span class="stat">Miss: <b id="miss">0</b></span>
+    <span class="stat">Hit ratio: <b id="ratio">—</b></span>
+  </div>
+  <button class="primary" id="bpRun" onclick="runBuffer()">▶ Chạy từng bước</button>
+  <button class="primary" onclick="resetBuffer()" style="background:#475569">↺ Đặt lại</button>
+  <div id="bpLog" style="margin-top:10px"></div>
+</div>
+
+<div class="panel">
+  <h2>2 · WAL + crash recovery</h2>
+  <p class="note">Giao dịch T1 chuyển 30 từ A sang B. Quy tắc: <b>ghi log ra đĩa TRƯỚC</b> khi data page kịp flush. Bấm <b>Crash</b> bất cứ lúc nào để mất điện, rồi <b>Recovery</b> để replay log đưa về trạng thái nhất quán.</p>
+  <div style="margin-bottom:10px">
+    <button class="primary" id="walStep" onclick="walNext()">▶ Bước tiếp theo</button>
+    <button class="danger" id="walCrash" onclick="walCrash()">⚡ Crash (mất điện)</button>
+    <button class="primary" id="walRec" onclick="walRecover()" disabled>🔧 Recovery</button>
+    <button class="primary" onclick="walReset()" style="background:#475569">↺ Đặt lại</button>
+  </div>
+  <div id="walBanner"></div>
+  <div class="wal-cols">
+    <div class="wal-col">
+      <h3>📒 WAL trên đĩa (tuần tự, bền)</h3>
+      <div class="logbox" id="walLog"><span class="note">Chưa có log.</span></div>
+    </div>
+    <div class="wal-col">
+      <h3>💾 Data page trên đĩa</h3>
+      <div class="databox" id="walData"></div>
+    </div>
+  </div>
+  <p class="note" id="walMsg">Bấm "Bước tiếp theo" để xem từng giai đoạn của giao dịch.</p>
+</div>
+
+<div class="panel">
+  <h2>3 · B-tree (ghi tại chỗ) vs LSM-tree (ghi nối + compaction)</h2>
+  <p class="note">Cùng một loạt ghi <code>SET k=v</code>. Xem cách hai engine xử lý khác nhau.</p>
+  <button class="primary" id="btWrite" onclick="btWrite()">✍ Ghi 1 giá trị</button>
+  <button class="primary" onclick="btReset()" style="background:#475569">↺ Đặt lại</button>
+  <div class="bt-grid" style="margin-top:12px">
+    <div class="bt-card">
+      <h3>🌳 B-tree — update tại chỗ</h3>
+      <p class="note" style="margin:2px 0">Tìm đúng page chứa khóa rồi <b>ghi đè</b> (random write).</p>
+      <div class="pages-row" id="btPages"></div>
+      <div class="amp" id="btAmp"></div>
+    </div>
+    <div class="bt-card">
+      <h3>🪵 LSM-tree — ghi nối + compaction</h3>
+      <p class="note" style="margin:2px 0">Append vào memtable → flush <b>tuần tự</b> thành SSTable; compaction dồn lại.</p>
+      <div class="pages-row" id="lsmPages"></div>
+      <div class="amp" id="lsmAmp"></div>
+    </div>
+  </div>
+  <table>
+    <tr><th></th><th>B-tree</th><th>LSM-tree</th></tr>
+    <tr><td>Kiểu ghi</td><td>Tại chỗ, <b>ngẫu nhiên</b></td><td>Append, <b>tuần tự</b></td></tr>
+    <tr><td>Write amplification</td><td>Trung bình (đè page + WAL)</td><td>Cao hơn (compaction), nhưng tuần tự</td></tr>
+    <tr><td>Read amplification</td><td>Thấp, ổn định (~log n)</td><td>Cao hơn (nhiều tầng + Bloom filter)</td></tr>
+    <tr><td>Range scan</td><td>Rất tốt</td><td>Phải merge nhiều SSTable</td></tr>
+    <tr><td>Hợp tải</td><td>Đọc-nhiều, range query</td><td>Ghi-nặng, ingest lớn</td></tr>
+    <tr><td>Ví dụ</td><td>PostgreSQL, MySQL</td><td>Cassandra, RocksDB</td></tr>
+  </table>
+</div>
+
+<script>
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+
+// ========== Module 1: Buffer pool + LRU ==========
+const SEQS = [
+  ['A','B','C','A','D','B','E'],
+  ['A','B','A','C','A','B','C'],
+];
+let curSeq = 0;
+let bpResult = []; // hit/miss per step
+
+function pickSeq(i){
+  curSeq = i;
+  document.getElementById('sq0').classList.toggle('active', i===0);
+  document.getElementById('sq1').classList.toggle('active', i===1);
+  resetBuffer();
+}
+function renderSeq(curIdx=-1){
+  document.getElementById('seq').innerHTML = SEQS[curSeq].map((p,i)=>{
+    let cls='';
+    if(i===curIdx) cls='cur';
+    else if(bpResult[i]==='hit') cls='done-hit';
+    else if(bpResult[i]==='miss') cls='done-miss';
+    return `<div class="pg ${cls}">${p}</div>`;
+  }).join('');
+}
+function renderFrames(pool){
+  const slots=[0,1,2].map(i=>{
+    const v=pool[i];
+    return `<div><div class="frame ${v?'full':''}">${v||''}</div><div class="flabel">${i===0?'cũ nhất':(i===2?'mới nhất':'')}</div></div>`;
+  }).join('');
+  document.getElementById('frames').innerHTML = slots;
+}
+function resetBuffer(){
+  bpResult = [];
+  document.getElementById('hits').textContent='0';
+  document.getElementById('miss').textContent='0';
+  document.getElementById('ratio').textContent='—';
+  document.getElementById('bpLog').innerHTML='';
+  document.getElementById('bpRun').disabled=false;
+  renderSeq(); renderFrames([]);
+}
+async function runBuffer(){
+  resetBuffer();
+  document.getElementById('bpRun').disabled=true;
+  const seq=SEQS[curSeq], pool=[]; // pool: front = LRU (sẽ đuổi), back = mới nhất
+  let h=0,m=0; const log=document.getElementById('bpLog');
+  for(let i=0;i<seq.length;i++){
+    const p=seq[i];
+    renderSeq(i); await sleep(450);
+    const at=pool.indexOf(p);
+    let line;
+    if(at>=0){ // hit: dời p về cuối (mới nhất)
+      pool.splice(at,1); pool.push(p); h++; bpResult[i]='hit';
+      line=`<div class="log-line hit">[${p}] HIT — đã có trong pool, dùng lại (RAM ~100ns)</div>`;
+    } else { // miss
+      m++; bpResult[i]='miss';
+      let evicted='';
+      if(pool.length>=3){ evicted=pool.shift(); }
+      pool.push(p);
+      line=`<div class="log-line miss">[${p}] MISS — đọc đĩa${evicted?`, đuổi <b>${evicted}</b> (ít dùng nhất)`:''}</div>`;
+    }
+    renderFrames(pool); renderSeq(i);
+    log.insertAdjacentHTML('beforeend', line);
+    document.getElementById('hits').textContent=h;
+    document.getElementById('miss').textContent=m;
+    document.getElementById('ratio').textContent = ((h/(h+m))*100).toFixed(0)+'%';
+    await sleep(550);
+  }
+  renderSeq();
+  document.getElementById('bpRun').disabled=false;
+}
+renderSeq(); renderFrames([]);
+
+// ========== Module 2: WAL + crash recovery ==========
+// Trình tự sự kiện của T1: chuyển 30 từ A(100) sang B(50)
+const WAL_STEPS = [
+  {kind:'log',  rec:{txt:'LSN1: T1 UPDATE A old=100 new=70', commit:false}, msg:'Ghi log ý định sửa A ra ĐĨA trước. Data page chưa đổi.'},
+  {kind:'log',  rec:{txt:'LSN2: T1 UPDATE B old=50 new=80', commit:false}, msg:'Ghi log ý định sửa B ra đĩa. Data page vẫn A=100, B=50.'},
+  {kind:'log',  rec:{txt:'LSN3: T1 COMMIT', commit:true}, msg:'Ghi COMMIT ra đĩa → client được báo "thành công". Lưu ý data page vẫn CHƯA flush!'},
+  {kind:'flush',msg:'Buffer pool flush data page xuống đĩa: A=70, B=80. Giờ đĩa mới khớp log.'},
+];
+let walIdx=0, walCrashed=false, walDone=false;
+let walLog=[]; // {txt,commit}
+let walData={A:100,B:50}; // data page TRÊN ĐĨA
+let walFlushed=false;
+
+function renderWal(){
+  // log
+  const lb=document.getElementById('walLog');
+  lb.innerHTML = walLog.length? walLog.map(r=>`<div class="rec ${r.commit?'commit':''}">${r.txt}</div>`).join('') : '<span class="note">Chưa có log.</span>';
+  // data
+  const stale = !walFlushed && walLog.length>0;
+  document.getElementById('walData').innerHTML =
+    `<div class="var ${stale?'stale':''}">A = <b>${walData.A}</b></div>`+
+    `<div class="var ${stale?'stale':''}">B = <b>${walData.B}</b></div>`+
+    (stale?`<div class="note">(đĩa chưa khớp log — chưa flush)</div>`:'');
+}
+function walNext(){
+  if(walCrashed||walDone) return;
+  if(walIdx>=WAL_STEPS.length){ document.getElementById('walStep').disabled=true; return; }
+  const s=WAL_STEPS[walIdx++];
+  if(s.kind==='log'){ walLog.push(s.rec); }
+  else if(s.kind==='flush'){ walData={A:70,B:80}; walFlushed=true; walDone=true;
+    document.getElementById('walBanner').innerHTML='<div class="ok-banner">✓ Hoàn tất bình thường: log và data page đều nhất quán (A=70, B=80).</div>';
+    document.getElementById('walStep').disabled=true; document.getElementById('walCrash').disabled=true;
+  }
+  document.getElementById('walMsg').textContent=s.msg;
+  if(walIdx>=WAL_STEPS.length && !walDone) document.getElementById('walStep').disabled=true;
+  renderWal();
+}
+function walCrash(){
+  if(walDone) return;
+  walCrashed=true;
+  // mất điện: buffer pool (RAM) bay; data page TRÊN ĐĨA giữ nguyên trạng thái đã flush (ở đây chưa flush nên vẫn 100/50)
+  document.getElementById('walBanner').innerHTML=
+    `<div class="crash-banner">⚡ CRASH! Mất điện. Buffer pool (RAM) bay sạch. Data page trên đĩa: A=${walData.A}, B=${walData.B}`+
+    `${walLog.some(r=>r.commit)?' — nhưng log đã có COMMIT, dữ liệu commit phải được khôi phục!':' — log chưa COMMIT, T1 dở dang.'}</div>`;
+  document.getElementById('walStep').disabled=true;
+  document.getElementById('walCrash').disabled=true;
+  document.getElementById('walRec').disabled=false;
+  document.getElementById('walMsg').textContent='Bấm "Recovery" để storage engine đọc lại WAL và sửa trạng thái.';
+}
+function walRecover(){
+  const committed = walLog.some(r=>r.commit);
+  if(committed){
+    // REDO: áp after-image của T1
+    walData={A:70,B:80}; walFlushed=true;
+    document.getElementById('walBanner').innerHTML=
+      '<div class="ok-banner">🔧 Recovery — REDO: T1 đã COMMIT trong log → áp lại after-image. Kết quả nhất quán: A=70, B=80.</div>';
+    document.getElementById('walMsg').textContent='Giao dịch đã commit được khôi phục đầy đủ → Durability đảm bảo.';
+  } else {
+    // UNDO: T1 dở dang → trả before-image (đĩa vốn đã 100/50, nên giữ nguyên)
+    walData={A:100,B:50}; walFlushed=true;
+    document.getElementById('walBanner').innerHTML=
+      '<div class="ok-banner">🔧 Recovery — UNDO: T1 chưa COMMIT → hoàn tác về before-image. A=100, B=50 (như chưa từng chạy).</div>';
+    document.getElementById('walMsg').textContent='Giao dịch dở dang bị hoàn tác → Atomicity đảm bảo (không có chuyện A bị trừ mà B không cộng).';
+  }
+  document.getElementById('walRec').disabled=true;
+  walDone=true;
+  renderWal();
+}
+function walReset(){
+  walIdx=0; walCrashed=false; walDone=false; walLog=[]; walData={A:100,B:50}; walFlushed=false;
+  document.getElementById('walBanner').innerHTML='';
+  document.getElementById('walMsg').textContent='Bấm "Bước tiếp theo" để xem từng giai đoạn của giao dịch.';
+  document.getElementById('walStep').disabled=false;
+  document.getElementById('walCrash').disabled=false;
+  document.getElementById('walRec').disabled=true;
+  renderWal();
+}
+renderWal();
+
+// ========== Module 3: B-tree vs LSM ==========
+const BT_OPS = ['k3=10','k1=20','k3=30','k7=5','k1=99','k3=42'];
+let btIdx=0;
+let btState={}; // B-tree: key -> {val, writes}
+let lsmRuns=[]; // mảng các "SSTable/memtable" mỗi cái là mảng ghi
+let lsmWriteCount=0, btWriteCount=0;
+
+function renderBt(){
+  const keys=Object.keys(btState);
+  document.getElementById('btPages').innerHTML = keys.length?
+    keys.sort().map(k=>{
+      const s=btState[k];
+      return `<div class="dpage ${s.justWrote?'write':''}">${k}=${s.val}</div>`;
+    }).join('') : '<span class="note">Trống.</span>';
+  document.getElementById('btAmp').innerHTML =
+    `Tổng lần ghi đĩa (đè page): <b>${btWriteCount}</b> · luôn ghi <b>tại chỗ</b>, mỗi update tìm page rồi đè (random write).`;
+}
+function renderLsm(){
+  document.getElementById('lsmPages').innerHTML = lsmRuns.length?
+    lsmRuns.map((run,i)=>{
+      const label = i===lsmRuns.length-1 && run.live ? 'memtable(RAM)' : 'SSTable'+(i+1);
+      return `<div class="dpage ${run.justNew?'seqnew':''}">${label}: [${run.items.join(', ')}]</div>`;
+    }).join('') : '<span class="note">Trống.</span>';
+  document.getElementById('lsmAmp').innerHTML =
+    `Tổng lần ghi đĩa (append + compaction): <b>${lsmWriteCount}</b> · luôn ghi <b>tuần tự</b>; bản cũ còn nằm đó tới khi compaction dồn.`;
+}
+function btWrite(){
+  if(btIdx>=BT_OPS.length){ return; }
+  const op=BT_OPS[btIdx++];
+  const [k,v]=op.split('=');
+  // B-tree: ghi đè tại chỗ
+  Object.values(btState).forEach(s=>s.justWrote=false);
+  btState[k]={val:v, justWrote:true};
+  btWriteCount++; // 1 lần đè page mỗi ghi
+  renderBt();
+
+  // LSM: append vào memtable
+  lsmRuns.forEach(r=>r.justNew=false);
+  if(!lsmRuns.length || !lsmRuns[lsmRuns.length-1].live){
+    lsmRuns.push({items:[], live:true, justNew:true});
+  }
+  const mem=lsmRuns[lsmRuns.length-1];
+  mem.items.push(op);
+  lsmWriteCount++; // append
+  // memtable đầy (2 phần tử) → flush thành SSTable (tuần tự)
+  if(mem.items.length>=2){ mem.live=false; }
+  // compaction khi có >=3 SSTable: dồn thành 1, giữ giá trị mới nhất mỗi key
+  const ssTables=lsmRuns.filter(r=>!r.live);
+  if(ssTables.length>=3){
+    const merged={};
+    lsmRuns.forEach(r=>r.items.forEach(it=>{const[kk,vv]=it.split('=');merged[kk]=vv;}));
+    const items=Object.keys(merged).sort().map(kk=>kk+'='+merged[kk]);
+    lsmRuns=[{items, live:false, justNew:true}];
+    lsmWriteCount++; // compaction ghi lại 1 lần (tuần tự) → write amplification
+  }
+  renderLsm();
+  if(btIdx>=BT_OPS.length){ document.getElementById('btWrite').disabled=true; }
+}
+function btReset(){
+  btIdx=0; btState={}; lsmRuns=[]; lsmWriteCount=0; btWriteCount=0;
+  document.getElementById('btWrite').disabled=false;
+  renderBt(); renderLsm();
+}
+renderBt(); renderLsm();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

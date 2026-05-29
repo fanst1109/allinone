@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02: Vigenère & Polyalphabetic — Cryptography</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f8fafc;
+    --accent: #334155;
+    --accent-soft: #f1f5f9;
+    --accent-hover: #1e293b;
+  }
+  h1 { color: #0f172a; }
+  h2 { color: #1e293b; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e1; }
+  .lead { color: #475569; font-size: 16px; margin-bottom: 24px; }
+  .module { background: white; border-radius: 12px; border: 1px solid #e2e8f0; padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+  .module h3 { margin-top: 0; color: #1e293b; font-size: 17px; }
+
+  .row2 { display: flex; gap: 12px; flex-wrap: wrap; }
+  .col-half { flex: 1 1 200px; min-width: 0; }
+
+  .text-input { width: 100%; max-width: 420px; padding: 9px 13px; border: 2px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: 'Courier New', monospace; box-sizing: border-box; }
+  .text-input:focus { outline: none; border-color: #334155; }
+  textarea.text-input { width: 100%; max-width: 100%; }
+
+  .output-box { background: #f1f5f9; border-radius: 8px; padding: 12px 16px; font-family: 'Courier New', monospace; font-size: 15px; color: #0f172a; min-height: 44px; word-break: break-all; letter-spacing: 1px; }
+  .label { font-weight: 600; color: #334155; margin-bottom: 6px; display: block; font-size: 14px; }
+  .info-box { background: #f0f9ff; border-left: 3px solid #334155; padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 14px; color: #1e293b; margin: 10px 0; }
+  .warn-box { background: #fef9c3; border-left: 3px solid #f59e0b; padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 14px; color: #92400e; margin: 10px 0; }
+
+  .btn { padding: 8px 18px; background: #334155; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: background 0.15s; }
+  .btn:hover { background: #1e293b; }
+  .btn.secondary { background: #e2e8f0; color: #334155; }
+  .btn.secondary:hover { background: #cbd5e1; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+  /* Vigenère step table */
+  .step-table { border-collapse: collapse; width: 100%; overflow-x: auto; font-size: 13px; }
+  .step-table-wrap { overflow-x: auto; margin-top: 12px; }
+  .step-table th { background: #334155; color: white; padding: 7px 10px; text-align: center; white-space: nowrap; }
+  .step-table td { padding: 6px 10px; text-align: center; border-bottom: 1px solid #f1f5f9; font-family: 'Courier New', monospace; }
+  .step-table tr:nth-child(even) td { background: #f8fafc; }
+  .step-table td.key-cell { background: #e0e7ff; font-weight: 700; color: #3730a3; }
+  .step-table td.result-cell { background: #dcfce7; font-weight: 700; color: #166534; }
+
+  /* Kasiski */
+  .ct-display { font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.8; word-break: break-all; padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; min-height: 60px; }
+  .repeat-highlight { background: #fde68a; border-radius: 2px; font-weight: 700; }
+  .repeat-highlight.color-1 { background: #fde68a; }
+  .repeat-highlight.color-2 { background: #bfdbfe; }
+  .repeat-highlight.color-3 { background: #bbf7d0; }
+  .repeat-highlight.color-4 { background: #fecaca; }
+
+  .kasiski-result { margin-top: 12px; }
+  .kasiski-result table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  .kasiski-result th { background: #f1f5f9; padding: 6px 10px; text-align: left; font-weight: 600; color: #334155; border-bottom: 2px solid #e2e8f0; }
+  .kasiski-result td { padding: 5px 10px; border-bottom: 1px solid #f1f5f9; font-family: monospace; }
+  .gcd-result { font-size: 18px; font-weight: 700; color: #1e293b; margin-top: 12px; padding: 12px 16px; background: #f1f5f9; border-radius: 8px; }
+
+  /* IC calculator */
+  .ic-display { font-size: 28px; font-weight: 700; color: #334155; text-align: center; padding: 16px; }
+  .ic-scale { position: relative; height: 24px; background: linear-gradient(to right, #bfdbfe, #334155); border-radius: 12px; margin: 8px 0 4px; }
+  .ic-pointer { position: absolute; top: -4px; width: 4px; height: 32px; background: #dc2626; border-radius: 2px; transform: translateX(-50%); transition: left 0.3s; }
+  .ic-labels { display: flex; justify-content: space-between; font-size: 11px; color: #64748b; }
+  .ic-interp { text-align: center; font-size: 14px; margin-top: 6px; }
+
+  /* Column splitter */
+  .column-strip { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
+  .column-badge { background: #334155; color: white; border-radius: 6px; padding: 3px 10px; font-family: monospace; font-size: 13px; }
+  .column-freq-bar { display: flex; align-items: flex-end; gap: 2px; height: 80px; flex-wrap: nowrap; overflow-x: auto; }
+  .cf-bar { width: 12px; background: #334155; border-radius: 2px 2px 0 0; flex-shrink: 0; }
+  .cf-label { font-size: 9px; text-align: center; color: #64748b; }
+  .col-freq-wrap { display: flex; flex-direction: column; align-items: center; width: 14px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-caesar-substitution/visualization.html">← L01: Caesar</a>
+  <span class="sep">·</span>
+  <span class="current">L02: Vigenère</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-one-time-pad-perfect-secrecy/visualization.html">L03: OTP →</a>
+</nav>
+
+<main>
+  <h1>Lesson 02: Vigenère Cipher &amp; Polyalphabetic Encryption</h1>
+  <p class="lead">Nhiều Caesar luân phiên theo keyword. Kasiski test + Friedman IC để tìm key length. Phá từng column bằng frequency analysis.</p>
+
+  <!-- MODULE 1: Vigenere encrypt/decrypt -->
+  <h2>1. Vigenère Encrypt / Decrypt</h2>
+  <div class="module">
+    <h3>Tương tác encrypt và decrypt</h3>
+    <div class="row2">
+      <div class="col-half">
+        <label class="label">Plaintext / Ciphertext:</label>
+        <input type="text" class="text-input" id="vigText" value="ATTACKATDAWN" style="max-width:100%">
+      </div>
+      <div class="col-half">
+        <label class="label">Key (chỉ A–Z):</label>
+        <input type="text" class="text-input" id="vigKey" value="LEMON" style="max-width:100%">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="doVigenere('enc')">Encrypt →</button>
+      <button class="btn secondary" onclick="doVigenere('dec')">← Decrypt</button>
+    </div>
+    <div style="margin-top:12px;">
+      <span class="label">Kết quả:</span>
+      <div class="output-box" id="vigOutput">—</div>
+    </div>
+    <div class="step-table-wrap" id="stepWrap" style="display:none;">
+      <div style="font-size:13px; font-weight:600; color:#64748b; margin-bottom:6px; margin-top:12px;">Từng bước:</div>
+      <table class="step-table" id="stepTable">
+        <thead><tr>
+          <th>i</th><th>Plain</th><th>Key</th><th>K[i]</th>
+          <th>Phép tính</th><th>Cipher</th>
+        </tr></thead>
+        <tbody id="stepTbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MODULE 2: Kasiski Test -->
+  <h2>2. Kasiski Test — Tìm bigram/trigram lặp</h2>
+  <div class="module">
+    <h3>Tự động tìm repetitions và tính GCD</h3>
+    <label class="label">Ciphertext (nên dài ≥ 60 ký tự):</label>
+    <textarea class="text-input" id="kasiskiInput" rows="4">LXFOPVEFRNHRLXFOPVEFRNHRABCXYZLXFOPQRSTLXFOUVWXYZ</textarea>
+    <div class="btn-row">
+      <button class="btn" onclick="runKasiski()">Tìm lặp &amp; GCD</button>
+      <button class="btn secondary" onclick="loadKasiskiSample()">Nạp ví dụ dài</button>
+    </div>
+    <div class="ct-display" id="kasiskiDisplay" style="margin-top:12px;"></div>
+    <div class="kasiski-result" id="kasiskiResult"></div>
+  </div>
+
+  <!-- MODULE 3: Index of Coincidence -->
+  <h2>3. Friedman Index of Coincidence</h2>
+  <div class="module">
+    <h3>Tính IC và ước key length m</h3>
+    <label class="label">Ciphertext:</label>
+    <textarea class="text-input" id="icInput" rows="3">LXFOPVEFRNHRLXFOPVEFRNHRLXFOPVEFRNHRLXFOPVEFRNHRLXFOPVEFRNHRLXFOPVEFRNHR</textarea>
+    <div class="btn-row">
+      <button class="btn" onclick="calcIC()">Tính IC</button>
+      <button class="btn secondary" onclick="loadICRandom()">Nạp ciphertext ngẫu nhiên</button>
+    </div>
+    <div class="ic-display" id="icDisplay">—</div>
+    <div class="ic-scale"><div class="ic-pointer" id="icPointer" style="left:50%"></div></div>
+    <div class="ic-labels"><span>0.038 (uniform)</span><span>0.050</span><span>0.067 (English)</span></div>
+    <div class="ic-interp" id="icInterp"></div>
+  </div>
+
+  <!-- MODULE 4: Column Splitter + Freq -->
+  <h2>4. Chia Columns + Frequency từng Column</h2>
+  <div class="module">
+    <h3>Chia ciphertext thành m columns để phá từng Caesar</h3>
+    <div class="row2">
+      <div class="col-half">
+        <label class="label">Ciphertext:</label>
+        <textarea class="text-input" id="colInput" rows="3">LXFOPVEFRNHRLXFOPVEFRNHRLXFOPVEFRNHR</textarea>
+      </div>
+      <div class="col-half">
+        <label class="label">Key length m (guess từ Kasiski/IC):</label>
+        <input type="number" class="text-input" id="colM" value="5" min="1" max="20" style="max-width:100px">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="splitColumns()">Phân tích columns</button>
+    </div>
+    <div id="colResult" style="margin-top:16px;"></div>
+  </div>
+
+</main>
+
+<script>
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const ENGLISH_FREQ = {A:8.17,B:1.49,C:2.78,D:4.25,E:12.70,F:2.23,G:2.02,H:6.09,I:7.00,J:0.15,K:0.77,L:4.03,M:2.41,N:6.75,O:7.51,P:1.93,Q:0.10,R:5.99,S:6.33,T:9.06,U:2.76,V:0.98,W:2.36,X:0.15,Y:1.97,Z:0.07};
+
+// ===== Vigenère =====
+function vigIdx(ch) { return ch.charCodeAt(0) - 65; }
+function vigCh(i) { return LETTERS[((i % 26) + 26) % 26]; }
+
+function doVigenere(mode) {
+  const rawText = document.getElementById('vigText').value.toUpperCase().replace(/[^A-Z]/g,'');
+  const rawKey = document.getElementById('vigKey').value.toUpperCase().replace(/[^A-Z]/g,'');
+  if (!rawText || !rawKey) { document.getElementById('vigOutput').textContent = '— nhập text và key —'; return; }
+
+  const m = rawKey.length;
+  const result = [];
+  const rows = [];
+  rawText.split('').forEach((ch, i) => {
+    const ki = rawKey[i % m];
+    const kIdx = vigIdx(ki);
+    const pIdx = vigIdx(ch);
+    let cIdx, calc;
+    if (mode === 'enc') {
+      cIdx = (pIdx + kIdx) % 26;
+      calc = `(${pIdx}+${kIdx}) mod 26 = ${cIdx}`;
+    } else {
+      cIdx = (pIdx - kIdx + 26) % 26;
+      calc = `(${pIdx}-${kIdx}+26) mod 26 = ${cIdx}`;
+    }
+    result.push(vigCh(cIdx));
+    rows.push({ i, plain: ch, key: ki, kIdx, calc, cipher: vigCh(cIdx) });
+  });
+
+  document.getElementById('vigOutput').textContent = result.join('');
+  buildStepTable(rows, mode);
+}
+
+function buildStepTable(rows, mode) {
+  const wrap = document.getElementById('stepWrap');
+  const tbody = document.getElementById('stepTbody');
+  tbody.innerHTML = '';
+  wrap.style.display = 'block';
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    const col = mode === 'enc' ? 'Cipher' : 'Plain';
+    tr.innerHTML = `<td>${r.i}</td><td>${r.plain}(${vigIdx(r.plain)})</td>
+      <td class="key-cell">${r.key}(${r.kIdx})</td><td>${r.kIdx}</td>
+      <td>${r.calc}</td><td class="result-cell">${r.cipher}(${vigIdx(r.cipher)})</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+document.getElementById('vigText').addEventListener('input', () => {});
+doVigenere('enc');
+
+// ===== Kasiski =====
+const COLORS = ['color-1','color-2','color-3','color-4'];
+
+function runKasiski() {
+  const ct = document.getElementById('kasiskiInput').value.toUpperCase().replace(/[^A-Z]/g,'');
+  const repeats = findRepeats(ct, 3);
+  renderKasiskiDisplay(ct, repeats);
+  renderKasiskiResult(repeats);
+}
+
+function findRepeats(text, minLen) {
+  const found = {};
+  for (let len = Math.min(6, text.length-1); len >= minLen; len--) {
+    for (let i = 0; i <= text.length - len; i++) {
+      const pat = text.substr(i, len);
+      if (!found[pat]) {
+        const positions = [];
+        let idx = 0;
+        while ((idx = text.indexOf(pat, idx)) !== -1) { positions.push(idx); idx++; }
+        if (positions.length >= 2) found[pat] = positions;
+      }
+    }
+  }
+  // Filter: keep only non-overlapping significant ones
+  const result = [];
+  const usedPats = new Set();
+  Object.entries(found).forEach(([pat, positions]) => {
+    // Skip if this pat is a substring of a longer already-found pat
+    const isSubPat = result.some(r => r.pattern.includes(pat) && r.positions.length >= positions.length);
+    if (!isSubPat) {
+      result.push({ pattern: pat, positions });
+    }
+  });
+  return result.slice(0, 8);
+}
+
+function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+function gcdArr(arr) { return arr.reduce(gcd); }
+
+function renderKasiskiDisplay(ct, repeats) {
+  const display = document.getElementById('kasiskiDisplay');
+  // Mark positions
+  const marks = new Array(ct.length).fill(-1);
+  repeats.forEach((r, ri) => {
+    r.positions.forEach(pos => {
+      for (let j = 0; j < r.pattern.length; j++) {
+        if (marks[pos+j] === -1) marks[pos+j] = ri % 4;
+      }
+    });
+  });
+  let html = '';
+  ct.split('').forEach((ch, i) => {
+    if (marks[i] >= 0) html += `<span class="repeat-highlight ${COLORS[marks[i]]}">${ch}</span>`;
+    else html += ch;
+  });
+  display.innerHTML = html || '<span style="color:#94a3b8">—</span>';
+}
+
+function renderKasiskiResult(repeats) {
+  const div = document.getElementById('kasiskiResult');
+  if (repeats.length === 0) {
+    div.innerHTML = '<div class="warn-box">Không tìm thấy trigram lặp đủ để phân tích. Thử ciphertext dài hơn.</div>';
+    return;
+  }
+  let allDists = [];
+  let html = '<table><thead><tr><th>Pattern</th><th>Vị trí</th><th>Khoảng cách</th></tr></thead><tbody>';
+  repeats.forEach(r => {
+    const dists = [];
+    for (let i = 1; i < r.positions.length; i++) dists.push(r.positions[i] - r.positions[i-1]);
+    allDists = allDists.concat(dists);
+    html += `<tr><td>${r.pattern}</td><td>${r.positions.join(', ')}</td><td>${dists.join(', ')}</td></tr>`;
+  });
+  html += '</tbody></table>';
+  if (allDists.length >= 1) {
+    const g = gcdArr(allDists);
+    const factors = getFactors(g).filter(f => f > 1 && f <= 20);
+    html += `<div class="gcd-result">GCD của tất cả khoảng cách: <strong>${g}</strong><br>`;
+    html += `Key length candidates m: <strong>${factors.join(', ') || g}</strong></div>`;
+    html += `<div class="info-box">Các ước số của ${g} trong khoảng 2–20: ${factors.join(', ')}. Key length thường là số nhỏ nhất có ý nghĩa (2–10).</div>`;
+  }
+  div.innerHTML = html;
+}
+
+function getFactors(n) {
+  const f = [];
+  for (let i = 2; i <= Math.min(n, 30); i++) if (n % i === 0) f.push(i);
+  return f;
+}
+
+function loadKasiskiSample() {
+  // Vigenère of "THEQUICKBROWNFOX..." with key "LEMON" repeated
+  const sample = 'LXFOPVEFRNHRLXFOPVEFRNHRABCLXFOPVEFRNHRLXFOPVEFRNHRDEFGHI';
+  document.getElementById('kasiskiInput').value = sample;
+  runKasiski();
+}
+runKasiski();
+
+// ===== IC =====
+function calcIC() {
+  const text = document.getElementById('icInput').value.toUpperCase().replace(/[^A-Z]/g,'');
+  const N = text.length;
+  if (N < 2) { document.getElementById('icDisplay').textContent = '—'; return; }
+  const counts = {};
+  LETTERS.split('').forEach(l => counts[l] = 0);
+  text.split('').forEach(c => counts[c]++);
+  const ic = LETTERS.split('').reduce((sum, l) => sum + counts[l] * (counts[l]-1), 0) / (N * (N-1));
+  document.getElementById('icDisplay').textContent = ic.toFixed(4);
+
+  // Position pointer: 0.035–0.070 range
+  const pct = Math.min(100, Math.max(0, (ic - 0.035) / (0.070 - 0.035) * 100));
+  document.getElementById('icPointer').style.left = pct + '%';
+
+  // Estimate m
+  let interp = '';
+  if (ic >= 0.065) interp = `IC ≈ ${ic.toFixed(4)} → gần English (0.0667) → m ≈ 1 (có thể là Caesar hoặc text tiếng Anh thô).`;
+  else if (ic <= 0.040) interp = `IC ≈ ${ic.toFixed(4)} → gần uniform (0.0385) → key length m rất lớn hoặc text thật sự random.`;
+  else {
+    const mEst = 0.0267 / (ic - 0.0385);
+    interp = `IC ≈ ${ic.toFixed(4)} → ước m ≈ <strong>${mEst.toFixed(1)}</strong> (dùng công thức m ≈ 0.0267 / (IC − 0.0385)).`;
+  }
+  document.getElementById('icInterp').innerHTML = interp;
+}
+
+function loadICRandom() {
+  let s = '';
+  for (let i = 0; i < 200; i++) s += LETTERS[Math.floor(Math.random() * 26)];
+  document.getElementById('icInput').value = s;
+  calcIC();
+}
+calcIC();
+
+// ===== Column Splitter =====
+function splitColumns() {
+  const ct = document.getElementById('colInput').value.toUpperCase().replace(/[^A-Z]/g,'');
+  const m = parseInt(document.getElementById('colM').value) || 5;
+  const div = document.getElementById('colResult');
+
+  const columns = [];
+  for (let j = 0; j < m; j++) {
+    let col = '';
+    for (let i = j; i < ct.length; i += m) col += ct[i];
+    columns.push(col);
+  }
+
+  let html = `<div style="font-size:14px; color:#334155; margin-bottom:12px;">Chia thành <strong>${m} columns</strong>:</div>`;
+  columns.forEach((col, j) => {
+    const topChar = getTopChar(col);
+    const guessKey = LETTERS[(topChar.charCodeAt(0) - 65 - 4 + 26) % 26]; // top → E
+    html += `<div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin-bottom:10px;">`;
+    html += `<div style="font-weight:700; color:#334155; margin-bottom:6px;">Column ${j} (key[${j}]):</div>`;
+    html += `<div style="font-family:monospace; font-size:13px; color:#475569; word-break:break-all; margin-bottom:8px;">${col}</div>`;
+    html += `<div style="font-size:13px; margin-bottom:6px;">Ký tự phổ biến nhất: <strong>${topChar}</strong> → guess ${topChar}=E → key[${j}] = <strong>${guessKey}</strong></div>`;
+    html += renderMiniFreq(col);
+    html += `</div>`;
+  });
+
+  const keyGuess = columns.map(col => {
+    const top = getTopChar(col);
+    return LETTERS[(top.charCodeAt(0) - 65 - 4 + 26) % 26];
+  }).join('');
+  html += `<div class="info-box">Key guess (dựa trên top-char = E): <strong>${keyGuess}</strong><br>`;
+  html += `<em>Lưu ý: cần column đủ dài (≥30 ký tự) để frequency analysis chính xác.</em></div>`;
+  div.innerHTML = html;
+}
+
+function getTopChar(col) {
+  const counts = {};
+  LETTERS.split('').forEach(l => counts[l] = 0);
+  col.toUpperCase().split('').forEach(c => { if (counts[c] !== undefined) counts[c]++; });
+  return Object.keys(counts).sort((a,b) => counts[b]-counts[a])[0];
+}
+
+function renderMiniFreq(col) {
+  const counts = {};
+  LETTERS.split('').forEach(l => counts[l] = 0);
+  col.split('').forEach(c => counts[c]++);
+  const maxC = Math.max(...Object.values(counts), 1);
+  let html = '<div style="display:flex; align-items:flex-end; gap:2px; height:40px;">';
+  LETTERS.split('').forEach(l => {
+    const h = Math.round(counts[l] / maxC * 36);
+    html += `<div style="display:flex;flex-direction:column;align-items:center;width:12px;flex-shrink:0;">
+      <div style="width:10px;height:${h}px;background:#334155;border-radius:1px 1px 0 0;opacity:0.8"></div>
+      <div style="font-size:8px;color:#94a3b8;">${l}</div></div>`;
+  });
+  html += '</div>';
+  return html;
+}
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

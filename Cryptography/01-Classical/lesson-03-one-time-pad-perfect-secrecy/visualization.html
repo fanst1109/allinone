@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03: One-time Pad & Perfect Secrecy — Cryptography</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f8fafc;
+    --accent: #334155;
+    --accent-soft: #f1f5f9;
+    --accent-hover: #1e293b;
+  }
+  h1 { color: #0f172a; }
+  h2 { color: #1e293b; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e1; }
+  .lead { color: #475569; font-size: 16px; margin-bottom: 24px; }
+  .module { background: white; border-radius: 12px; border: 1px solid #e2e8f0; padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+  .module h3 { margin-top: 0; color: #1e293b; font-size: 17px; }
+
+  .text-input { width: 100%; max-width: 460px; padding: 9px 13px; border: 2px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: 'Courier New', monospace; box-sizing: border-box; }
+  .text-input:focus { outline: none; border-color: #334155; }
+  .label { font-weight: 600; color: #334155; margin-bottom: 6px; display: block; font-size: 14px; }
+  .output-box { background: #f1f5f9; border-radius: 8px; padding: 12px 16px; font-family: 'Courier New', monospace; font-size: 15px; color: #0f172a; min-height: 44px; word-break: break-all; letter-spacing: 1px; }
+  .info-box { background: #f0f9ff; border-left: 3px solid #334155; padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 14px; color: #1e293b; margin: 10px 0; }
+  .warn-box { background: #fff7ed; border-left: 3px solid #ea580c; padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 14px; color: #9a3412; margin: 10px 0; }
+  .danger-box { background: #fef2f2; border-left: 3px solid #dc2626; padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 14px; color: #991b1b; margin: 10px 0; }
+
+  .btn { padding: 8px 18px; background: #334155; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: background 0.15s; }
+  .btn:hover { background: #1e293b; }
+  .btn.secondary { background: #e2e8f0; color: #334155; }
+  .btn.secondary:hover { background: #cbd5e1; }
+  .btn.danger { background: #dc2626; }
+  .btn.danger:hover { background: #b91c1c; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+  /* XOR bit display */
+  .bit-table { border-collapse: collapse; font-family: 'Courier New', monospace; font-size: 13px; }
+  .bit-table td, .bit-table th { padding: 5px 8px; text-align: center; border: 1px solid #e2e8f0; }
+  .bit-table th { background: #334155; color: white; font-size: 12px; }
+  .bit-table .row-label { font-weight: 700; color: #334155; background: #f1f5f9; text-align: left; padding-left: 10px; }
+  .bit-table .xor-row td { background: #dcfce7; font-weight: 700; color: #166534; }
+  .bit-table .sep-row td { border: none; padding: 2px; background: #f8fafc; }
+  .bit-0 { color: #94a3b8; }
+  .bit-1 { color: #0f172a; font-weight: 700; }
+
+  /* Perfect secrecy demo */
+  .ps-candidates { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+  .ps-card { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; flex: 1 1 160px; min-width: 140px; cursor: pointer; transition: all 0.15s; }
+  .ps-card:hover { border-color: #334155; background: #f1f5f9; }
+  .ps-card.selected { border-color: #334155; background: #e2e8f0; }
+  .ps-card .ps-label { font-size: 12px; color: #64748b; margin-bottom: 4px; }
+  .ps-card .ps-val { font-family: monospace; font-size: 16px; font-weight: 700; color: #0f172a; }
+  .ps-card .ps-key { font-size: 12px; color: #475569; margin-top: 4px; font-family: monospace; }
+  .ps-note { font-size: 14px; color: #334155; padding: 10px; background: #f0f9ff; border-radius: 8px; margin-top: 10px; }
+
+  /* Key reuse attack */
+  .xor-row-display { display: flex; gap: 4px; flex-wrap: wrap; margin: 8px 0; }
+  .xor-char { display: flex; flex-direction: column; align-items: center; width: 36px; flex-shrink: 0; }
+  .xor-char .c1 { font-family: monospace; font-size: 14px; color: #3b82f6; font-weight: 700; }
+  .xor-char .c2 { font-family: monospace; font-size: 14px; color: #10b981; font-weight: 700; }
+  .xor-char .xr { font-family: monospace; font-size: 14px; color: #f59e0b; font-weight: 700; background: #fef9c3; border-radius: 3px; padding: 1px 4px; }
+  .xor-char .lbl { font-size: 9px; color: #94a3b8; }
+
+  /* Crib dragging */
+  .crib-row { display: flex; gap: 4px; flex-wrap: wrap; margin: 8px 0; }
+  .crib-pos { display: flex; flex-direction: column; align-items: center; width: 32px; flex-shrink: 0; }
+  .crib-pos .idx { font-size: 9px; color: #94a3b8; }
+  .crib-pos .xorv { font-family: monospace; font-size: 13px; font-weight: 700; color: #334155; }
+  .crib-pos .crib-c { font-family: monospace; font-size: 13px; color: #7c3aed; font-weight: 700; background: #ede9fe; border-radius: 3px; padding: 1px 3px; }
+  .crib-pos .result-c { font-family: monospace; font-size: 13px; font-weight: 700; }
+  .crib-pos .good { color: #16a34a; }
+  .crib-pos .bad { color: #dc2626; }
+
+  /* Entropy meter */
+  .entropy-bar { height: 24px; background: linear-gradient(to right, #fecaca, #fef9c3, #bbf7d0); border-radius: 12px; position: relative; margin: 8px 0; }
+  .entropy-fill { height: 100%; border-radius: 12px; background: #334155; transition: width 0.4s; }
+  .entropy-labels { display: flex; justify-content: space-between; font-size: 11px; color: #64748b; }
+
+  .two-col { display: flex; gap: 16px; flex-wrap: wrap; }
+  .col-h { flex: 1 1 200px; min-width: 0; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-vigenere-polyalphabetic/visualization.html">← L02: Vigenère</a>
+  <span class="sep">·</span>
+  <span class="current">L03: OTP & Perfect Secrecy</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-modular-arithmetic-foundations/visualization.html">L04: Modular Arithmetic →</a>
+</nav>
+
+<main>
+  <h1>Lesson 03: One-time Pad &amp; Perfect Secrecy</h1>
+  <p class="lead">Shannon (1949): OTP là cipher duy nhất đạt perfect secrecy. Nhưng key reuse phá huỷ tất cả — bài học từ Venona Project (1943–1980).</p>
+
+  <!-- MODULE 1: OTP Encrypt/Decrypt -->
+  <h2>1. OTP Encrypt / Decrypt — XOR từng ký tự</h2>
+  <div class="module">
+    <h3>Tự nhập plaintext và key</h3>
+    <div class="two-col">
+      <div class="col-h">
+        <label class="label">Plaintext (chỉ A–Z):</label>
+        <input type="text" class="text-input" id="otpPlain" value="HELLO" style="max-width:100%">
+      </div>
+      <div class="col-h">
+        <label class="label">Key (A–Z, cùng độ dài plaintext):</label>
+        <input type="text" class="text-input" id="otpKey" value="XMCKL" style="max-width:100%">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="doOTP()">Encrypt / Decrypt</button>
+      <button class="btn secondary" onclick="genRandomKey()">Tạo key ngẫu nhiên</button>
+    </div>
+    <div style="margin-top: 12px;">
+      <span class="label">Ciphertext:</span>
+      <div class="output-box" id="otpOutput">—</div>
+    </div>
+    <div id="otpBitTable" style="margin-top:16px; overflow-x: auto;"></div>
+    <div class="info-box" style="margin-top:12px;" id="otpInfo"></div>
+  </div>
+
+  <!-- MODULE 2: Perfect Secrecy Demo -->
+  <h2>2. Perfect Secrecy — Demo trực quan</h2>
+  <div class="module">
+    <h3>Cùng ciphertext — nhiều plaintext đều hợp lệ</h3>
+    <div class="info-box">Cho ciphertext dưới đây, chọn một plaintext candidate. Hệ thống tính key tương ứng. Mọi plaintext đều có một key hợp lệ — không cách nào biết plaintext nào là thật.</div>
+    <div style="margin: 12px 0;">
+      <label class="label">Ciphertext cố định:</label>
+      <div class="output-box" id="psCiphertext">QIJBF</div>
+    </div>
+    <div style="margin-bottom: 8px; font-size: 14px; font-weight: 600; color: #334155;">Chọn plaintext candidate:</div>
+    <div class="ps-candidates" id="psCandidates"></div>
+    <div class="ps-note" id="psNote">Nhấn vào một candidate để xem key tương ứng.</div>
+  </div>
+
+  <!-- MODULE 3: Key Reuse Attack -->
+  <h2>3. Key Reuse Attack — C1 ⊕ C2 = M1 ⊕ M2</h2>
+  <div class="module">
+    <h3>Tấn công khi cùng key encrypt 2 message khác nhau</h3>
+    <div class="warn-box">Đây là lỗi KHÔNG THỂ tha thứ trong crypto. Khi reuse key OTP, attacker tính được XOR của 2 plaintext — mọi thứ sẽ bị lộ theo thời gian.</div>
+    <div class="two-col">
+      <div class="col-h">
+        <label class="label">Message 1 (M1, chỉ A–Z):</label>
+        <input type="text" class="text-input" id="reuseM1" value="HELLO" style="max-width:100%">
+      </div>
+      <div class="col-h">
+        <label class="label">Message 2 (M2, cùng độ dài):</label>
+        <input type="text" class="text-input" id="reuseM2" value="WORLD" style="max-width:100%">
+      </div>
+    </div>
+    <div style="margin: 10px 0;">
+      <label class="label">Shared Key K (tự động tạo, cùng độ dài):</label>
+      <div class="output-box" id="sharedKey">—</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn danger" onclick="runReuseAttack()">Simulate attack</button>
+      <button class="btn secondary" onclick="genSharedKey()">Tạo key mới</button>
+    </div>
+    <div id="reuseResult" style="margin-top: 16px;"></div>
+
+    <!-- Crib dragging -->
+    <div id="cribSection" style="margin-top: 20px; display: none;">
+      <div style="font-weight:600; color:#334155; margin-bottom:8px;">Crib-dragging: thử từ mẫu trên M1⊕M2</div>
+      <div class="two-col" style="margin-bottom:10px;">
+        <div class="col-h">
+          <label class="label">Crib (chuỗi đoán trong M1):</label>
+          <input type="text" class="text-input" id="cribInput" value="HE" style="max-width:100%">
+        </div>
+        <div class="col-h">
+          <label class="label">Vị trí bắt đầu (0-based):</label>
+          <input type="number" class="text-input" id="cribPos" value="0" min="0" style="max-width:100px">
+        </div>
+      </div>
+      <button class="btn secondary" onclick="runCrib()">Kéo crib</button>
+      <div id="cribResult" style="margin-top:12px;"></div>
+    </div>
+  </div>
+
+  <!-- MODULE 4: Entropy Demo -->
+  <h2>4. Entropy — Key phải truly random</h2>
+  <div class="module">
+    <h3>So sánh entropy của các loại key</h3>
+    <div id="entropyDemos"></div>
+  </div>
+
+</main>
+
+<script>
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+function idx(c) { return c.charCodeAt(0) - 65; }
+function chr(i) { return LETTERS[((i % 26) + 26) % 26]; }
+
+// ===== OTP =====
+function doOTP() {
+  const pt = document.getElementById('otpPlain').value.toUpperCase().replace(/[^A-Z]/g,'');
+  const key = document.getElementById('otpKey').value.toUpperCase().replace(/[^A-Z]/g,'');
+  const minLen = Math.min(pt.length, key.length);
+  if (!pt || !key) return;
+
+  const ct = [];
+  for (let i = 0; i < minLen; i++) ct.push(chr(idx(pt[i]) + idx(key[i])));
+  document.getElementById('otpOutput').textContent = ct.join('') + (minLen < pt.length ? '...' : '');
+
+  if (key.length < pt.length) {
+    document.getElementById('otpInfo').innerHTML = `<strong>Cảnh báo:</strong> Key ngắn hơn plaintext (${key.length} < ${pt.length}). OTP yêu cầu key ≥ plaintext length. Chỉ encrypt ${minLen} ký tự đầu.`;
+  } else {
+    document.getElementById('otpInfo').innerHTML = `OTP encrypt thành công. Key length: ${key.length} ≥ plaintext length: ${pt.length}. Decrypt bằng cách nhập ciphertext làm plaintext với cùng key.`;
+  }
+  buildBitTable(pt.slice(0, minLen), key.slice(0, minLen), ct);
+}
+
+function buildBitTable(pt, key, ct) {
+  const container = document.getElementById('otpBitTable');
+  const n = Math.min(pt.length, 5); // show max 5 chars for readability
+  let html = `<div style="font-size:13px; font-weight:600; color:#64748b; margin-bottom:6px;">XOR bit-by-bit (hiển thị ${n} ký tự đầu, 5-bit encoding A=00000...Z=11001):</div>`;
+  html += '<div style="overflow-x:auto;"><table class="bit-table"><thead><tr><th>Ký tự</th>';
+  for (let i = 0; i < n; i++) html += `<th>${pt[i]}⊕${key[i]}</th>`;
+  html += '</tr></thead><tbody>';
+
+  const rows = [
+    { label: `Plaintext (P)`, vals: pt.slice(0,n), rowClass: '' },
+    { label: `Key (K)`, vals: key.slice(0,n), rowClass: '' },
+    { label: `Cipher (C=P⊕K)`, vals: ct.slice(0,n), rowClass: 'xor-row' },
+  ];
+
+  rows.forEach(({ label, vals, rowClass }) => {
+    html += `<tr class="${rowClass}"><td class="row-label">${label}</td>`;
+    vals.split ? vals.split('').forEach(c => {
+      const bits = idx(c).toString(2).padStart(5, '0');
+      html += `<td>${c}<br><span style="font-size:10px;letter-spacing:1px;">${bits.split('').map(b => `<span class="bit-${b}">${b}</span>`).join('')}</span></td>`;
+    }) : vals.forEach(c => {
+      const bits = idx(c).toString(2).padStart(5, '0');
+      html += `<td>${c}<br><span style="font-size:10px;letter-spacing:1px;">${bits.split('').map(b => `<span class="bit-${b}">${b}</span>`).join('')}</span></td>`;
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table></div>';
+  if (pt.length > 5) html += `<div style="font-size:12px; color:#94a3b8; margin-top:4px;">... và ${pt.length - 5} ký tự nữa</div>`;
+  container.innerHTML = html;
+}
+
+function genRandomKey() {
+  const pt = document.getElementById('otpPlain').value.toUpperCase().replace(/[^A-Z]/g,'');
+  let key = '';
+  for (let i = 0; i < pt.length || i < 8; i++) key += LETTERS[Math.floor(Math.random() * 26)];
+  document.getElementById('otpKey').value = key.slice(0, Math.max(pt.length, 5));
+  doOTP();
+}
+doOTP();
+
+// ===== Perfect Secrecy Demo =====
+const PS_CIPHER = 'QIJBF'; // C = HELLO ⊕ XMCKL (mod-26)
+const PS_CANDIDATES = ['HELLO','WORLD','ZZZZZ','APPLE','CATCH'];
+
+function buildPSCandidates() {
+  const container = document.getElementById('psCandidates');
+  PS_CANDIDATES.forEach(m => {
+    const div = document.createElement('div');
+    div.className = 'ps-card';
+    div.onclick = () => selectPS(m, div);
+    div.innerHTML = `<div class="ps-label">Plaintext candidate</div>
+      <div class="ps-val">${m}</div>
+      <div class="ps-key" id="psKey-${m}">key = ?</div>`;
+    container.appendChild(div);
+  });
+}
+
+function computeKey(plaintext, ciphertext) {
+  let key = '';
+  for (let i = 0; i < Math.min(plaintext.length, ciphertext.length); i++) {
+    key += chr(idx(ciphertext[i]) - idx(plaintext[i]));
+  }
+  return key;
+}
+
+function selectPS(m, div) {
+  document.querySelectorAll('.ps-card').forEach(c => c.classList.remove('selected'));
+  div.classList.add('selected');
+  const key = computeKey(m, PS_CIPHER);
+  document.getElementById(`psKey-${m}`).textContent = `key = "${key}"`;
+  document.getElementById('psNote').innerHTML = `<strong>${m}</strong> → key = "<strong>${key}</strong>"<br>Ciphertext "${PS_CIPHER}" hoàn toàn hợp lệ với plaintext này. Attacker không có cách phân biệt candidate nào là thật vì TẤT CẢ đều có key tương ứng. P(M="${m}"|C="${PS_CIPHER}") = P(M="${m}") — ciphertext không tiết lộ gì thêm.`;
+}
+buildPSCandidates();
+
+// ===== Key Reuse Attack =====
+let sharedK = '';
+
+function genSharedKey() {
+  const m1 = document.getElementById('reuseM1').value.toUpperCase().replace(/[^A-Z]/g,'');
+  const len = m1.length || 5;
+  sharedK = '';
+  for (let i = 0; i < len; i++) sharedK += LETTERS[Math.floor(Math.random() * 26)];
+  document.getElementById('sharedKey').textContent = sharedK;
+  document.getElementById('reuseResult').innerHTML = '';
+  document.getElementById('cribSection').style.display = 'none';
+}
+genSharedKey();
+
+function runReuseAttack() {
+  const M1 = document.getElementById('reuseM1').value.toUpperCase().replace(/[^A-Z]/g,'');
+  const M2 = document.getElementById('reuseM2').value.toUpperCase().replace(/[^A-Z]/g,'');
+  const minLen = Math.min(M1.length, M2.length, sharedK.length);
+  if (minLen < 1) return;
+
+  const C1 = [], C2 = [], XR = [];
+  for (let i = 0; i < minLen; i++) {
+    C1.push(chr(idx(M1[i]) + idx(sharedK[i])));
+    C2.push(chr(idx(M2[i]) + idx(sharedK[i])));
+    XR.push(chr(idx(M1[i]) - idx(M2[i])));
+  }
+
+  let html = `<div class="danger-box"><strong>Attacker nhìn thấy C1 và C2 — tính C1 ⊕ C2 = M1 ⊕ M2:</strong></div>`;
+  html += '<div class="xor-row-display">';
+  for (let i = 0; i < minLen; i++) {
+    html += `<div class="xor-char">
+      <span class="lbl">i=${i}</span>
+      <span class="c1">${C1[i]}</span>
+      <span class="lbl">C1</span>
+      <span class="c2">${C2[i]}</span>
+      <span class="lbl">C2</span>
+      <span class="xr">${XR[i]}</span>
+      <span class="lbl">⊕</span>
+    </div>`;
+  }
+  html += '</div>';
+  html += `<div class="info-box">C1⊕C2 = <strong>${XR.join('')}</strong> = M1⊕M2. Key K đã bị loại bỏ. Attacker biết XOR của 2 plaintext — dùng crib-dragging để recover từng phần.</div>`;
+
+  // Store for crib-dragging
+  window._XR = XR;
+  window._M1 = M1;
+  window._M2 = M2;
+  window._minLen = minLen;
+
+  document.getElementById('reuseResult').innerHTML = html;
+  document.getElementById('cribSection').style.display = 'block';
+  document.getElementById('cribInput').setAttribute('maxlength', minLen);
+}
+
+function runCrib() {
+  if (!window._XR) return;
+  const crib = document.getElementById('cribInput').value.toUpperCase().replace(/[^A-Z]/g,'');
+  const pos = parseInt(document.getElementById('cribPos').value) || 0;
+  const XR = window._XR;
+
+  if (!crib || pos + crib.length > XR.length) {
+    document.getElementById('cribResult').innerHTML = '<div class="warn-box">Crib quá dài hoặc pos vượt quá độ dài ciphertext.</div>';
+    return;
+  }
+
+  // If crib is M1[pos:], then M2[pos:] = XR[pos:] ⊕ crib
+  const guessM2 = [];
+  for (let i = 0; i < crib.length; i++) {
+    guessM2.push(chr(idx(XR[pos + i]) - idx(crib[i])));
+  }
+
+  // Is result printable/English-ish?
+  const isPrintable = guessM2.every(c => LETTERS.includes(c));
+
+  let html = `<div style="font-weight:600; margin-bottom:8px;">Nếu M1[${pos}:${pos+crib.length}] = "${crib}" thì M2[${pos}:${pos+crib.length}] = ?</div>`;
+  html += '<div class="crib-row">';
+  for (let i = 0; i < crib.length; i++) {
+    const good = LETTERS.includes(guessM2[i]);
+    html += `<div class="crib-pos">
+      <span class="idx">${pos+i}</span>
+      <span class="xorv">${XR[pos+i]}</span>
+      <span class="crib-c">${crib[i]}</span>
+      <span class="result-c ${good ? 'good' : 'bad'}">${guessM2[i]}</span>
+    </div>`;
+  }
+  html += '</div>';
+
+  const actual = window._M2 ? window._M2.slice(pos, pos + crib.length) : '?';
+  if (isPrintable) {
+    html += `<div class="info-box">M2[${pos}:${pos+crib.length}] = "<strong>${guessM2.join('')}</strong>" — hợp lệ! (thật sự M2 = "${actual}")</div>`;
+  } else {
+    html += `<div class="warn-box">M2[${pos}:${pos+crib.length}] = "${guessM2.join('')}" — có ký tự không hợp lệ → crib sai hoặc sai vị trí. Thử crib khác.</div>`;
+  }
+  document.getElementById('cribResult').innerHTML = html;
+}
+
+// ===== Entropy Demo =====
+const ENTROPY_SOURCES = [
+  { name: 'Seed 32-bit (pseudo-random)', entropy: 32, max: 256, desc: 'Dù key dài 256 bit, chỉ 2^32 ≈ 4 tỷ khả năng. Brute-force trong giây.' },
+  { name: 'Key true-random 32-bit', entropy: 32, max: 256, desc: '2^32 ≈ 4 tỷ. Brute-force trong giây trên máy tính hiện đại.' },
+  { name: 'Key true-random 64-bit', entropy: 64, max: 256, desc: '2^64 ≈ 18 nghìn tỷ tỷ. Cần ~580 năm với 1 tỷ trial/giây.' },
+  { name: 'Key true-random 128-bit (AES)', entropy: 128, max: 256, desc: '2^128 ≈ 3.4×10^38. Không thể brute-force với máy tính cổ điển.' },
+  { name: 'OTP true-random 256-bit', entropy: 256, max: 256, desc: '2^256 ≈ 1.2×10^77. Không thể brute-force dù có máy tính lượng tử hợp lý.' },
+];
+
+function buildEntropyDemos() {
+  const container = document.getElementById('entropyDemos');
+  let html = '';
+  ENTROPY_SOURCES.forEach(s => {
+    const pct = (s.entropy / 256) * 100;
+    const color = s.entropy <= 32 ? '#dc2626' : s.entropy <= 64 ? '#ea580c' : s.entropy <= 128 ? '#d97706' : '#16a34a';
+    html += `<div style="margin-bottom:16px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <span style="font-weight:600; font-size:14px; color:#1e293b;">${s.name}</span>
+        <span style="font-size:14px; font-weight:700; color:${color};">${s.entropy} bits</span>
+      </div>
+      <div style="background:#f1f5f9; border-radius: 8px; overflow:hidden; height:16px;">
+        <div style="height:100%; width:${pct}%; background:${color}; border-radius:8px; transition:width 0.3s;"></div>
+      </div>
+      <div style="font-size:13px; color:#475569; margin-top:4px;">${s.desc}</div>
+    </div>`;
+  });
+  html += `<div class="warn-box"><strong>Kết luận:</strong> Entropy thực sự của key = log₂(số key khả thi). Pseudo-random từ seed nhỏ → entropy thấp dù key bytes nhiều. True random → entropy = số bits. OTP chỉ an toàn khi key là <em>true random</em> và đủ dài.</div>`;
+  container.innerHTML = html;
+}
+buildEntropyDemos();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

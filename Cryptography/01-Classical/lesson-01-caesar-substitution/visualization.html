@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01: Caesar & Substitution — Cryptography</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f8fafc;
+    --accent: #334155;
+    --accent-soft: #f1f5f9;
+    --accent-hover: #1e293b;
+  }
+  h1 { color: #0f172a; }
+  h2 { color: #1e293b; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e1; }
+  .lead { color: #475569; font-size: 16px; margin-bottom: 24px; }
+
+  .module { background: white; border-radius: 12px; border: 1px solid #e2e8f0; padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+  .module h3 { margin-top: 0; color: #1e293b; font-size: 17px; }
+
+  /* Caesar slider */
+  .caesar-controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px; }
+  .caesar-controls label { font-weight: 600; color: #334155; }
+  .shift-slider { width: 200px; accent-color: #334155; }
+  .shift-display { background: #334155; color: white; border-radius: 6px; padding: 4px 12px; font-weight: 700; min-width: 36px; text-align: center; }
+  .text-input { width: 100%; max-width: 480px; padding: 10px 14px; border: 2px solid #cbd5e1; border-radius: 8px; font-size: 15px; font-family: 'Courier New', monospace; box-sizing: border-box; }
+  .text-input:focus { outline: none; border-color: #334155; }
+  .output-box { background: #f1f5f9; border-radius: 8px; padding: 12px 16px; font-family: 'Courier New', monospace; font-size: 15px; color: #0f172a; min-height: 44px; word-break: break-all; letter-spacing: 1px; }
+  .alpha-table { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 12px; }
+  .alpha-cell { display: flex; flex-direction: column; align-items: center; width: 28px; }
+  .alpha-plain { font-size: 11px; color: #64748b; font-weight: 600; }
+  .alpha-cipher { font-size: 13px; color: #334155; font-weight: 700; background: #e2e8f0; border-radius: 4px; width: 24px; text-align: center; padding: 2px 0; }
+
+  /* Brute force table */
+  .brute-table-wrap { overflow-x: auto; max-height: 320px; overflow-y: auto; }
+  .brute-table { border-collapse: collapse; width: 100%; min-width: 500px; }
+  .brute-table th { background: #334155; color: white; padding: 8px 12px; text-align: left; position: sticky; top: 0; font-size: 13px; }
+  .brute-table td { padding: 6px 12px; font-family: 'Courier New', monospace; font-size: 13px; border-bottom: 1px solid #f1f5f9; }
+  .brute-table tr.highlight-row td { background: #fef9c3; font-weight: 700; }
+  .brute-table tr:hover td { background: #f8fafc; }
+  .k-badge { display: inline-block; background: #334155; color: white; border-radius: 4px; padding: 1px 7px; font-size: 12px; min-width: 28px; text-align: center; }
+
+  /* Frequency analyzer */
+  .freq-bars { display: flex; align-items: flex-end; gap: 3px; height: 120px; margin: 12px 0; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+  .freq-bar-wrap { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; width: 22px; }
+  .freq-bar-container { position: relative; width: 18px; height: 100px; display: flex; align-items: flex-end; }
+  .freq-bar-en { position: absolute; bottom: 0; width: 18px; background: #bfdbfe; border-radius: 3px 3px 0 0; opacity: 0.6; }
+  .freq-bar-ct { position: absolute; bottom: 0; width: 18px; background: #334155; border-radius: 3px 3px 0 0; opacity: 0.85; }
+  .freq-label { font-size: 10px; color: #64748b; margin-top: 3px; font-weight: 600; }
+  .freq-legend { display: flex; gap: 16px; margin-bottom: 8px; font-size: 12px; }
+  .freq-legend span { display: flex; align-items: center; gap: 5px; }
+  .legend-box { width: 14px; height: 14px; border-radius: 3px; }
+
+  /* Substitution solver */
+  .sub-grid { display: grid; grid-template-columns: repeat(13, 1fr); gap: 4px; margin-bottom: 12px; }
+  @media (max-width: 600px) { .sub-grid { grid-template-columns: repeat(7, 1fr); } }
+  .sub-cell { display: flex; flex-direction: column; align-items: center; background: #f1f5f9; border-radius: 6px; padding: 4px 2px; border: 2px solid transparent; cursor: default; }
+  .sub-cell.active-cell { border-color: #334155; background: #e2e8f0; }
+  .sub-plain { font-size: 10px; color: #64748b; font-weight: 700; }
+  .sub-guess { font-size: 14px; font-weight: 700; color: #0f172a; width: 20px; text-align: center; background: transparent; border: none; border-bottom: 1px solid #94a3b8; padding: 0; cursor: pointer; outline: none; }
+  .sub-guess:focus { border-bottom-color: #334155; }
+  .decoded-text { background: #f1f5f9; border-radius: 8px; padding: 12px 16px; font-family: 'Courier New', monospace; font-size: 14px; min-height: 60px; word-break: break-all; line-height: 1.8; }
+  .decoded-char.known { color: #334155; font-weight: 700; }
+  .decoded-char.unknown { color: #94a3b8; }
+
+  .btn { padding: 8px 18px; background: #334155; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: background 0.15s; }
+  .btn:hover { background: #1e293b; }
+  .btn.secondary { background: #e2e8f0; color: #334155; }
+  .btn.secondary:hover { background: #cbd5e1; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+  .info-box { background: #f0f9ff; border-left: 3px solid #334155; padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 14px; color: #1e293b; margin: 10px 0; }
+
+  select { padding: 7px 12px; border: 2px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: white; cursor: pointer; }
+  select:focus { outline: none; border-color: #334155; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <span>← (Đầu Tầng 1)</span>
+  <span class="sep">·</span>
+  <span class="current">L01: Caesar & Substitution</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-vigenere-polyalphabetic/visualization.html">L02: Vigenère →</a>
+</nav>
+
+<main>
+  <h1>Lesson 01: Caesar Cipher &amp; Monoalphabetic Substitution</h1>
+  <p class="lead">Caesar cipher, monoalphabetic substitution, và frequency analysis của Al-Kindi (~850 AD). Tự thử encrypt/decrypt và phá cipher bằng tần số ký tự.</p>
+
+  <!-- MODULE 1: Caesar Interactive -->
+  <h2>1. Caesar Cipher — Interactive</h2>
+  <div class="module">
+    <h3>Encrypt / Decrypt với shift k</h3>
+    <div class="caesar-controls">
+      <label>Shift k =</label>
+      <input type="range" class="shift-slider" id="shiftSlider" min="0" max="25" value="3">
+      <span class="shift-display" id="shiftVal">3</span>
+      <label style="margin-left:16px">Mode:</label>
+      <select id="caesarMode">
+        <option value="enc">Encrypt</option>
+        <option value="dec">Decrypt</option>
+      </select>
+    </div>
+    <div style="margin-bottom: 10px;">
+      <label style="font-weight:600; color:#334155; display:block; margin-bottom:6px">Plaintext (chỉ A–Z, space được giữ nguyên):</label>
+      <input type="text" class="text-input" id="caesarInput" value="HELLO WORLD" placeholder="Nhập plaintext...">
+    </div>
+    <div style="margin-bottom:6px; font-weight:600; color:#334155;">Ciphertext:</div>
+    <div class="output-box" id="caesarOutput">KHOOR ZRUOG</div>
+    <div style="margin-top: 16px;">
+      <div style="font-size:13px; font-weight:600; color:#64748b; margin-bottom:6px;">Bảng ánh xạ A→?</div>
+      <div class="alpha-table" id="alphaTable"></div>
+    </div>
+  </div>
+
+  <!-- MODULE 2: Brute Force -->
+  <h2>2. Brute-force Caesar — 26 Key</h2>
+  <div class="module">
+    <h3>Thử tất cả 26 giá trị k</h3>
+    <div style="margin-bottom:10px;">
+      <input type="text" class="text-input" id="bruteInput" value="KHOOR ZRUOG" placeholder="Nhập ciphertext Caesar...">
+    </div>
+    <div class="btn-row" style="margin-bottom:12px;">
+      <button class="btn" onclick="runBrute()">Brute Force</button>
+    </div>
+    <div class="brute-table-wrap">
+      <table class="brute-table" id="bruteTable">
+        <thead><tr><th>k</th><th>Candidate Plaintext</th></tr></thead>
+        <tbody id="bruteTbody"></tbody>
+      </table>
+    </div>
+    <div class="info-box" style="margin-top:12px;">Dòng highlight màu vàng = candidate trông có nghĩa nhất (chứa nhiều từ tiếng Anh phổ biến).</div>
+  </div>
+
+  <!-- MODULE 3: Frequency Analyzer -->
+  <h2>3. Frequency Analyzer</h2>
+  <div class="module">
+    <h3>So sánh tần số ký tự ciphertext vs tiếng Anh chuẩn</h3>
+    <div style="margin-bottom:10px;">
+      <label style="font-weight:600; display:block; margin-bottom:6px;">Paste ciphertext:</label>
+      <textarea class="text-input" id="freqInput" rows="4" placeholder="Paste ciphertext dài ở đây (≥100 ký tự cho kết quả tốt)...">JNANA JQBNJ ZNAJN QJABJ NZJAB QJZNJ ABJNZ JQANB JZNAJ BQZNJ ANJBZ QNAJZ BNAJQ ZNAJB QZNAJ</textarea>
+    </div>
+    <div class="btn-row" style="margin-bottom:16px;">
+      <button class="btn" onclick="analyzeFreq()">Phân tích tần số</button>
+      <button class="btn secondary" onclick="loadSampleCiphertext()">Nạp ví dụ</button>
+    </div>
+    <div class="freq-legend">
+      <span><span class="legend-box" style="background:#bfdbfe;"></span>Tần số tiếng Anh chuẩn</span>
+      <span><span class="legend-box" style="background:#334155; opacity:0.85"></span>Tần số ciphertext</span>
+    </div>
+    <div class="freq-bars" id="freqBars"></div>
+    <div id="freqSuggestion" class="info-box" style="margin-top:8px; display:none;"></div>
+  </div>
+
+  <!-- MODULE 4: Substitution Solver -->
+  <h2>4. Substitution Cipher Solver</h2>
+  <div class="module">
+    <h3>Drag-and-guess ánh xạ ciphertext → plaintext</h3>
+    <div class="info-box" style="margin-bottom:16px;">Nhập guess cho từng ký tự cipher bên dưới. Khi bạn điền, toàn bộ ciphertext tự động decode theo mapping hiện tại.</div>
+
+    <div style="margin-bottom:10px;">
+      <label style="font-weight:600; display:block; margin-bottom:6px;">Ciphertext (substitution cipher):</label>
+      <textarea class="text-input" id="subCipherInput" rows="3" placeholder="Nhập hoặc paste ciphertext substitution...">ITSSG DGKSR</textarea>
+    </div>
+    <div class="btn-row" style="margin-bottom:12px;">
+      <button class="btn secondary" onclick="loadSubSample()">Nạp ví dụ</button>
+      <button class="btn secondary" onclick="resetSubMapping()">Reset mapping</button>
+    </div>
+
+    <div style="font-size:13px; font-weight:600; color:#64748b; margin-bottom:8px;">Bảng mapping: Cipher → Plaintext (click để sửa)</div>
+    <div class="sub-grid" id="subGrid"></div>
+
+    <div style="font-size:13px; font-weight:600; color:#64748b; margin-bottom:6px; margin-top:8px;">Decoded text:</div>
+    <div class="decoded-text" id="decodedText"></div>
+  </div>
+
+</main>
+
+<script>
+// ===== Constants =====
+const ENGLISH_FREQ = {
+  A:8.17,B:1.49,C:2.78,D:4.25,E:12.70,F:2.23,G:2.02,H:6.09,I:7.00,J:0.15,K:0.77,
+  L:4.03,M:2.41,N:6.75,O:7.51,P:1.93,Q:0.10,R:5.99,S:6.33,T:9.06,U:2.76,V:0.98,
+  W:2.36,X:0.15,Y:1.97,Z:0.07
+};
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+// Common English words for scoring
+const COMMON = ['THE','AND','ING','ION','IS','IN','IT','OF','TO','A','OR','AN','HE','AT','BUT','FOR','ARE','WAS','HER','HIS','NOT','THIS','WITH','THEY','FROM','THAT','HAVE','HAD','HAS','YOU'];
+
+// ===== Caesar =====
+function caesarChar(ch, k, mode) {
+  if (ch < 'A' || ch > 'Z') return ch;
+  const offset = mode === 'enc' ? k : (26 - k);
+  return LETTERS[(ch.charCodeAt(0) - 65 + offset) % 26];
+}
+
+function runCaesar() {
+  const k = parseInt(document.getElementById('shiftSlider').value);
+  const mode = document.getElementById('caesarMode').value;
+  document.getElementById('shiftVal').textContent = k;
+  const raw = document.getElementById('caesarInput').value.toUpperCase();
+  const out = raw.split('').map(c => caesarChar(c, k, mode)).join('');
+  document.getElementById('caesarOutput').textContent = out || '—';
+  buildAlphaTable(k);
+}
+
+function buildAlphaTable(k) {
+  const container = document.getElementById('alphaTable');
+  container.innerHTML = '';
+  LETTERS.split('').forEach(pl => {
+    const ci = LETTERS[(pl.charCodeAt(0) - 65 + k) % 26];
+    const wrap = document.createElement('div');
+    wrap.className = 'alpha-cell';
+    wrap.innerHTML = `<span class="alpha-plain">${pl}</span><span class="alpha-cipher">${ci}</span>`;
+    container.appendChild(wrap);
+  });
+}
+
+document.getElementById('shiftSlider').addEventListener('input', runCaesar);
+document.getElementById('caesarInput').addEventListener('input', runCaesar);
+document.getElementById('caesarMode').addEventListener('change', runCaesar);
+runCaesar();
+
+// ===== Brute Force =====
+function scoreText(text) {
+  let score = 0;
+  const upper = text.toUpperCase();
+  COMMON.forEach(w => {
+    let idx = 0;
+    while ((idx = upper.indexOf(w, idx)) !== -1) { score += w.length * w.length; idx++; }
+  });
+  return score;
+}
+
+function runBrute() {
+  const ct = document.getElementById('bruteInput').value.toUpperCase();
+  const tbody = document.getElementById('bruteTbody');
+  tbody.innerHTML = '';
+  let bestK = 0, bestScore = -1;
+  const rows = [];
+  for (let k = 0; k < 26; k++) {
+    const pt = ct.split('').map(c => caesarChar(c, k, 'dec')).join('');
+    const score = scoreText(pt);
+    rows.push({ k, pt, score });
+    if (score > bestScore) { bestScore = score; bestK = k; }
+  }
+  rows.forEach(({ k, pt, score }) => {
+    const tr = document.createElement('tr');
+    if (k === bestK) tr.className = 'highlight-row';
+    tr.innerHTML = `<td><span class="k-badge">${k}</span></td><td>${pt}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+runBrute();
+
+// ===== Frequency Analyzer =====
+function getFreqMap(text) {
+  const upper = text.toUpperCase().replace(/[^A-Z]/g, '');
+  const counts = {};
+  LETTERS.split('').forEach(l => counts[l] = 0);
+  upper.split('').forEach(c => { if (counts[c] !== undefined) counts[c]++; });
+  const total = upper.length || 1;
+  const freq = {};
+  LETTERS.split('').forEach(l => freq[l] = counts[l] / total * 100);
+  return { freq, total };
+}
+
+function analyzeFreq() {
+  const text = document.getElementById('freqInput').value;
+  const { freq, total } = getFreqMap(text);
+  renderFreqBars(freq);
+
+  // Suggestion: top-5 cipher letters vs English top-5
+  const enSorted = Object.keys(ENGLISH_FREQ).sort((a,b) => ENGLISH_FREQ[b]-ENGLISH_FREQ[a]);
+  const ctSorted = Object.keys(freq).sort((a,b) => freq[b]-freq[a]);
+  const sugg = document.getElementById('freqSuggestion');
+  let html = `<strong>Tổng ký tự: ${total}</strong><br>`;
+  html += `Top-5 ciphertext: <strong>${ctSorted.slice(0,5).join(', ')}</strong> → có thể tương ứng với `;
+  html += `Top-5 English: <strong>${enSorted.slice(0,5).join(', ')}</strong><br>`;
+  html += `Guess: <strong>${ctSorted[0]}→E, ${ctSorted[1]}→T, ${ctSorted[2]}→A</strong> (hãy thử trong Substitution Solver ở trên)`;
+  sugg.innerHTML = html;
+  sugg.style.display = 'block';
+}
+
+function renderFreqBars(ctFreq) {
+  const container = document.getElementById('freqBars');
+  container.innerHTML = '';
+  const maxEn = Math.max(...Object.values(ENGLISH_FREQ));
+  const maxCt = Math.max(...Object.values(ctFreq || {}), 0.1);
+  const maxVal = Math.max(maxEn, maxCt);
+
+  LETTERS.split('').forEach(l => {
+    const wrap = document.createElement('div');
+    wrap.className = 'freq-bar-wrap';
+    const enH = Math.round((ENGLISH_FREQ[l] / maxVal) * 96);
+    const ctH = ctFreq ? Math.round((ctFreq[l] / maxVal) * 96) : 0;
+    wrap.innerHTML = `
+      <div class="freq-bar-container">
+        <div class="freq-bar-en" style="height:${enH}px" title="${l}: English ${ENGLISH_FREQ[l].toFixed(1)}%"></div>
+        <div class="freq-bar-ct" style="height:${ctH}px" title="${l}: Ciphertext ${ctFreq?ctFreq[l].toFixed(1):'0'}%"></div>
+      </div>
+      <div class="freq-label">${l}</div>`;
+    container.appendChild(wrap);
+  });
+}
+renderFreqBars(null);
+
+function loadSampleCiphertext() {
+  // A substitution of "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG" × several times
+  const sample = 'ZIT AXBJH LMYDC NYF GAOPI YNKM ZIT QRPE WYV ZIT AXBJH LMYDC NYF GAOPI YNKM ZIT QRPE WYV ZITRE XYJH QRPE WYVD GAOPI YNKM ZIT AXBJH LMYDC NYF';
+  document.getElementById('freqInput').value = sample;
+  analyzeFreq();
+}
+
+// ===== Substitution Solver =====
+const subMapping = {}; // cipher char → guess plain char
+LETTERS.split('').forEach(l => subMapping[l] = '');
+
+function buildSubGrid() {
+  const container = document.getElementById('subGrid');
+  container.innerHTML = '';
+  LETTERS.split('').forEach(cipherCh => {
+    const cell = document.createElement('div');
+    cell.className = 'sub-cell';
+    cell.id = `sub-cell-${cipherCh}`;
+    const inp = document.createElement('input');
+    inp.className = 'sub-guess';
+    inp.maxLength = 1;
+    inp.value = subMapping[cipherCh];
+    inp.setAttribute('data-ch', cipherCh);
+    inp.addEventListener('input', e => {
+      const val = e.target.value.toUpperCase().replace(/[^A-Z]/g,'');
+      subMapping[cipherCh] = val.slice(-1);
+      e.target.value = subMapping[cipherCh];
+      updateDecoded();
+    });
+    cell.innerHTML = `<span class="sub-plain">${cipherCh}</span>`;
+    cell.appendChild(inp);
+    container.appendChild(cell);
+  });
+}
+
+function updateDecoded() {
+  const ct = document.getElementById('subCipherInput').value.toUpperCase();
+  const container = document.getElementById('decodedText');
+  let html = '';
+  ct.split('').forEach(ch => {
+    if (ch === ' ' || ch === '\n') {
+      html += ' ';
+    } else if (LETTERS.includes(ch)) {
+      const guess = subMapping[ch];
+      if (guess) {
+        html += `<span class="decoded-char known">${guess}</span>`;
+      } else {
+        html += `<span class="decoded-char unknown">${ch}</span>`;
+      }
+    } else {
+      html += ch;
+    }
+  });
+  container.innerHTML = html || '<span style="color:#94a3b8">— Nhập ciphertext và mapping để xem kết quả —</span>';
+}
+
+function resetSubMapping() {
+  LETTERS.split('').forEach(l => subMapping[l] = '');
+  buildSubGrid();
+  updateDecoded();
+}
+
+function loadSubSample() {
+  // "HELLO WORLD" encrypted with QWERTYUIOPASDFGHJKLZXCVBNM
+  // H→I, E→T, L→S, L→S, O→G, W→B, O→G, R→K, L→S, D→R
+  document.getElementById('subCipherInput').value = 'ITSSG BGKSR';
+  // Pre-fill some hints
+  subMapping['I'] = 'H';
+  subMapping['T'] = 'E';
+  subMapping['S'] = 'L';
+  subMapping['G'] = 'O';
+  subMapping['B'] = 'W';
+  subMapping['K'] = 'R';
+  subMapping['R'] = 'D';
+  buildSubGrid();
+  updateDecoded();
+}
+
+document.getElementById('subCipherInput').addEventListener('input', updateDecoded);
+buildSubGrid();
+updateDecoded();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

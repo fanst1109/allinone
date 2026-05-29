@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04: Modular Arithmetic Foundations — Cryptography</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f8fafc;
+    --accent: #334155;
+    --accent-soft: #f1f5f9;
+    --accent-hover: #1e293b;
+  }
+  h1 { color: #0f172a; }
+  h2 { color: #1e293b; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e1; }
+  .lead { color: #475569; font-size: 16px; margin-bottom: 24px; }
+  .module { background: white; border-radius: 12px; border: 1px solid #e2e8f0; padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+  .module h3 { margin-top: 0; color: #1e293b; font-size: 17px; }
+
+  .text-input { padding: 9px 13px; border: 2px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: 'Courier New', monospace; box-sizing: border-box; }
+  .text-input:focus { outline: none; border-color: #334155; }
+  .text-input.wide { width: 100%; max-width: 320px; }
+  .text-input.small { width: 80px; }
+  .label { font-weight: 600; color: #334155; margin-bottom: 6px; display: block; font-size: 14px; }
+  .output-box { background: #f1f5f9; border-radius: 8px; padding: 12px 16px; font-family: 'Courier New', monospace; font-size: 15px; color: #0f172a; min-height: 44px; }
+  .info-box { background: #f0f9ff; border-left: 3px solid #334155; padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 14px; color: #1e293b; margin: 10px 0; }
+  .result-highlight { font-size: 22px; font-weight: 700; color: #334155; padding: 8px 16px; background: #f1f5f9; border-radius: 8px; display: inline-block; }
+
+  .btn { padding: 8px 18px; background: #334155; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: background 0.15s; }
+  .btn:hover { background: #1e293b; }
+  .btn.secondary { background: #e2e8f0; color: #334155; }
+  .btn.secondary:hover { background: #cbd5e1; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; align-items: center; }
+
+  /* Modular clock */
+  .clock-wrap { display: flex; justify-content: center; margin: 16px 0; }
+  canvas.mod-clock { border-radius: 50%; }
+
+  /* Euclidean table */
+  .euclid-table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  .euclid-table th { background: #334155; color: white; padding: 8px 12px; text-align: center; }
+  .euclid-table td { padding: 8px 12px; text-align: center; border-bottom: 1px solid #f1f5f9; font-family: 'Courier New', monospace; }
+  .euclid-table tr:last-child td { background: #dcfce7; font-weight: 700; }
+  .euclid-table .eq { text-align: left; color: #475569; font-size: 13px; }
+
+  /* Extended Euclidean */
+  .ext-table { border-collapse: collapse; width: 100%; font-size: 13px; overflow-x: auto; }
+  .ext-table-wrap { overflow-x: auto; }
+  .ext-table th { background: #334155; color: white; padding: 7px 10px; text-align: center; font-size: 12px; white-space: nowrap; }
+  .ext-table td { padding: 6px 10px; text-align: center; border-bottom: 1px solid #f1f5f9; font-family: monospace; }
+  .ext-table tr.result-row td { background: #dcfce7; font-weight: 700; color: #166534; }
+
+  /* Fast exp */
+  .fastexp-steps { margin: 12px 0; }
+  .fastexp-step { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; margin-bottom: 6px; font-family: monospace; font-size: 14px; }
+  .fastexp-step.sq { background: #eff6ff; border-left: 3px solid #3b82f6; }
+  .fastexp-step.mul { background: #f0fdf4; border-left: 3px solid #16a34a; }
+  .fastexp-step .step-bit { background: #334155; color: white; border-radius: 4px; padding: 2px 8px; font-size: 12px; min-width: 20px; text-align: center; }
+  .fastexp-step .step-op { font-size: 12px; color: #64748b; }
+  .fastexp-step .step-result { font-weight: 700; color: #0f172a; }
+
+  .binary-display { display: flex; gap: 4px; margin: 8px 0; flex-wrap: wrap; }
+  .bin-bit { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; font-family: monospace; }
+  .bin-bit.b1 { background: #334155; color: white; }
+  .bin-bit.b0 { background: #f1f5f9; color: #94a3b8; border: 2px solid #e2e8f0; }
+
+  .two-col { display: flex; gap: 16px; flex-wrap: wrap; }
+  .col-h { flex: 1 1 200px; min-width: 0; }
+
+  /* Euler phi demo */
+  .phi-grid { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+  .phi-num { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
+  .phi-num.coprime { background: #dcfce7; color: #166534; border: 2px solid #86efac; }
+  .phi-num.not-coprime { background: #fee2e2; color: #991b1b; border: 2px solid #fca5a5; opacity: 0.7; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-one-time-pad-perfect-secrecy/visualization.html">← L03: OTP</a>
+  <span class="sep">·</span>
+  <span class="current">L04: Modular Arithmetic</span>
+  <span class="sep">·</span>
+  <a href="../../02-ModernSymmetric/lesson-01-block-ciphers-aes/visualization.html">T2-L01: Block Ciphers →</a>
+</nav>
+
+<main>
+  <h1>Lesson 04: Modular Arithmetic Foundations</h1>
+  <p class="lead">Nền tảng toán cho RSA: phép toán mod, Euclidean GCD, Extended Euclidean (modular inverse), Fermat's little theorem, Euler totient, và fast exponentiation.</p>
+
+  <!-- MODULE 1: Modular Clock -->
+  <h2>1. Phép Toán Modular — Đồng hồ số học</h2>
+  <div class="module">
+    <h3>Visualize a mod n trên đồng hồ tròn</h3>
+    <div class="two-col">
+      <div class="col-h">
+        <div class="btn-row" style="margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <label class="label" style="width:100%; margin-bottom:4px;">Modulus n:</label>
+          <input type="number" class="text-input small" id="clockN" value="12" min="2" max="30">
+          <label class="label" style="margin-left:12px;">Value a:</label>
+          <input type="number" class="text-input small" id="clockA" value="17">
+          <button class="btn" onclick="drawClock()" style="margin-left:8px;">Vẽ</button>
+        </div>
+        <div id="clockResult" class="output-box" style="max-width:280px;">—</div>
+        <div class="info-box" id="clockInfo" style="margin-top:10px;"></div>
+        <div style="margin-top:12px;">
+          <div class="label">Thử phép tính:</div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
+            <input type="number" class="text-input small" id="opA" value="17">
+            <select style="padding:8px; border:2px solid #cbd5e1; border-radius:8px; font-size:14px;" id="opType">
+              <option value="+">+</option>
+              <option value="*">×</option>
+              <option value="^">^</option>
+            </select>
+            <input type="number" class="text-input small" id="opB" value="8">
+            <span style="font-weight:600;">mod</span>
+            <input type="number" class="text-input small" id="opN" value="12">
+            <button class="btn secondary" onclick="calcOp()">=</button>
+          </div>
+          <div class="result-highlight" id="opResult">—</div>
+        </div>
+      </div>
+      <div class="col-h">
+        <div class="clock-wrap">
+          <canvas id="modClock" width="200" height="200" class="mod-clock"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULE 2: Euclidean GCD -->
+  <h2>2. Euclidean Algorithm — Tính GCD từng bước</h2>
+  <div class="module">
+    <h3>gcd(a, b) bằng phép chia liên tiếp</h3>
+    <div class="btn-row" style="margin-bottom:12px;">
+      <label class="label">a =</label>
+      <input type="number" class="text-input small" id="gcdA" value="252">
+      <label class="label" style="margin-left:8px;">b =</label>
+      <input type="number" class="text-input small" id="gcdB" value="105">
+      <button class="btn" onclick="runEuclidean()" style="margin-left:8px;">Tính GCD</button>
+    </div>
+    <div id="euclidResult"></div>
+  </div>
+
+  <!-- MODULE 3: Extended Euclidean -->
+  <h2>3. Extended Euclidean — Tìm Modular Inverse</h2>
+  <div class="module">
+    <h3>Tìm a⁻¹ mod n (= s trong as + nt = 1)</h3>
+    <div class="btn-row" style="margin-bottom:12px;">
+      <label class="label">a =</label>
+      <input type="number" class="text-input small" id="invA" value="7">
+      <label class="label" style="margin-left:8px;">n =</label>
+      <input type="number" class="text-input small" id="invN" value="26">
+      <button class="btn" onclick="runExtEuclid()" style="margin-left:8px;">Tính inverse</button>
+    </div>
+    <div id="extEuclidResult"></div>
+  </div>
+
+  <!-- MODULE 4: Euler Totient -->
+  <h2>4. Euler's Totient φ(n) — Bộ đếm coprime</h2>
+  <div class="module">
+    <h3>Visualize φ(n) = số phần tử coprime với n</h3>
+    <div class="btn-row" style="margin-bottom:12px;">
+      <label class="label">n =</label>
+      <input type="number" class="text-input small" id="phiN" value="15" min="2" max="60">
+      <button class="btn" onclick="calcPhi()" style="margin-left:8px;">Tính φ(n)</button>
+    </div>
+    <div id="phiResult"></div>
+  </div>
+
+  <!-- MODULE 5: Fast Exponentiation -->
+  <h2>5. Fast Exponentiation — Square-and-Multiply</h2>
+  <div class="module">
+    <h3>Tính a^k mod n trong O(log k) bước</h3>
+    <div class="btn-row" style="margin-bottom:12px; flex-wrap:wrap;">
+      <label class="label">a =</label>
+      <input type="number" class="text-input small" id="fastA" value="7">
+      <label class="label" style="margin-left:8px;">k =</label>
+      <input type="number" class="text-input small" id="fastK" value="13">
+      <label class="label" style="margin-left:8px;">mod n =</label>
+      <input type="number" class="text-input small" id="fastN" value="100">
+      <button class="btn" onclick="runFastExp()" style="margin-left:8px;">Tính</button>
+    </div>
+    <div id="fastExpResult"></div>
+  </div>
+
+</main>
+
+<script>
+// ===== Clock =====
+function drawClock() {
+  const n = parseInt(document.getElementById('clockN').value) || 12;
+  const a = parseInt(document.getElementById('clockA').value) || 0;
+  const mod = ((a % n) + n) % n;
+  document.getElementById('clockResult').textContent = `${a} mod ${n} = ${mod}`;
+  document.getElementById('clockInfo').innerHTML = `${a} = ${Math.floor(a/n)}·${n} + ${mod}. Kết quả: <strong>${mod}</strong>`;
+  renderClock(n, mod);
+}
+
+function renderClock(n, highlight) {
+  const canvas = document.getElementById('modClock');
+  const ctx = canvas.getContext('2d');
+  const cx = 100, cy = 100, r = 82;
+  ctx.clearRect(0, 0, 200, 200);
+
+  // Clock circle
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2*Math.PI);
+  ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = '#f8fafc'; ctx.fill();
+
+  // Numbers
+  for (let i = 0; i < n; i++) {
+    const angle = (i / n) * 2 * Math.PI - Math.PI/2;
+    const x = cx + Math.cos(angle) * (r - 14);
+    const y = cy + Math.sin(angle) * (r - 14);
+    if (i === highlight) {
+      ctx.beginPath(); ctx.arc(x, y, 13, 0, 2*Math.PI);
+      ctx.fillStyle = '#334155'; ctx.fill();
+      ctx.fillStyle = 'white';
+    } else {
+      ctx.fillStyle = '#1e293b';
+    }
+    ctx.font = n > 20 ? '10px monospace' : '12px monospace';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(i.toString(), x, y);
+  }
+
+  // Arrow to highlight
+  const angle = (highlight / n) * 2 * Math.PI - Math.PI/2;
+  const ex = cx + Math.cos(angle) * (r - 28);
+  const ey = cy + Math.sin(angle) * (r - 28);
+  ctx.beginPath(); ctx.moveTo(cx, cy);
+  ctx.lineTo(ex, ey);
+  ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Center dot
+  ctx.beginPath(); ctx.arc(cx, cy, 4, 0, 2*Math.PI);
+  ctx.fillStyle = '#334155'; ctx.fill();
+}
+
+function calcOp() {
+  const a = parseFloat(document.getElementById('opA').value);
+  const b = parseFloat(document.getElementById('opB').value);
+  const n = parseInt(document.getElementById('opN').value);
+  const op = document.getElementById('opType').value;
+  let result;
+  if (op === '+') result = ((a + b) % n + n) % n;
+  else if (op === '*') result = ((a * b) % n + n) % n;
+  else { // fast power
+    result = fastMod(Math.round(a), Math.round(b), n);
+  }
+  document.getElementById('opResult').textContent = `${a} ${op === '^' ? '^' : op} ${b} mod ${n} = ${result}`;
+}
+
+drawClock();
+
+// ===== Euclidean =====
+function runEuclidean() {
+  let a = parseInt(document.getElementById('gcdA').value);
+  let b = parseInt(document.getElementById('gcdB').value);
+  if (a < 0) a = -a; if (b < 0) b = -b;
+  if (a < b) [a, b] = [b, a];
+
+  const steps = [];
+  let _a = a, _b = b;
+  while (_b !== 0) {
+    const q = Math.floor(_a / _b);
+    const r = _a % _b;
+    steps.push({ a: _a, b: _b, q, r });
+    _a = _b; _b = r;
+  }
+  const g = _a;
+
+  let html = `<div style="overflow-x:auto;"><table class="euclid-table"><thead><tr><th>a</th><th>b</th><th>q = ⌊a/b⌋</th><th>r = a − q·b</th><th>Phương trình</th></tr></thead><tbody>`;
+  steps.forEach(s => {
+    html += `<tr><td>${s.a}</td><td>${s.b}</td><td>${s.q}</td><td>${s.r}</td><td class="eq">${s.a} = ${s.q}·${s.b} + ${s.r}</td></tr>`;
+  });
+  html += `</tbody></table></div>`;
+  html += `<div style="margin-top:12px;" class="info-box">gcd(${a}, ${b}) = <strong>${g}</strong>. Verify: ${a}/${g} = ${a/g}, ${b}/${g} = ${b/g} → cả hai nguyên ✓</div>`;
+  document.getElementById('euclidResult').innerHTML = html;
+}
+
+// ===== Extended Euclidean =====
+function extGcd(a, b) {
+  const steps = [];
+  // Table method: [q, r, s, t] where s*a_orig + t*b_orig = r
+  let r0=a, r1=b, s0=1, s1=0, t0=0, t1=1;
+  steps.push({ r: r0, s: s0, t: t0, q: '-' });
+  steps.push({ r: r1, s: s1, t: t1, q: '-' });
+  while (r1 !== 0) {
+    const q = Math.floor(r0 / r1);
+    const r2 = r0 - q*r1;
+    const s2 = s0 - q*s1;
+    const t2 = t0 - q*t1;
+    steps.push({ r: r2, s: s2, t: t2, q });
+    r0=r1; r1=r2; s0=s1; s1=s2; t0=t1; t1=t2;
+  }
+  return { gcd: r0, s: s0, t: t0, steps };
+}
+
+function runExtEuclid() {
+  const a = parseInt(document.getElementById('invA').value);
+  const n = parseInt(document.getElementById('invN').value);
+  if (a <= 0 || n <= 1) return;
+
+  const { gcd, s, t, steps } = extGcd(a, n);
+  let html = '';
+
+  if (gcd !== 1) {
+    html = `<div style="background:#fef2f2; border-left:3px solid #dc2626; padding:10px 14px; border-radius:0 8px 8px 0; color:#991b1b; font-size:14px;">gcd(${a}, ${n}) = ${gcd} ≠ 1 → <strong>${a}⁻¹ mod ${n} không tồn tại!</strong></div>`;
+    document.getElementById('extEuclidResult').innerHTML = html;
+    return;
+  }
+
+  html = `<div class="ext-table-wrap"><table class="ext-table"><thead><tr><th>Bước</th><th>q</th><th>r</th><th>s (hệ số a)</th><th>t (hệ số n)</th><th>Verify: s·${a} + t·${n}</th></tr></thead><tbody>`;
+  steps.slice(2).forEach((step, i) => {
+    const verify = step.s * a + step.t * n;
+    html += `<tr${step.r === 1 && step.s !== 0 ? ' class="result-row"' : ''}><td>${i+1}</td><td>${step.q}</td><td>${step.r}</td><td>${step.s}</td><td>${step.t}</td><td>${verify}</td></tr>`;
+  });
+  html += '</tbody></table></div>';
+
+  const inv = ((s % n) + n) % n;
+  html += `<div class="info-box" style="margin-top:12px;"><strong>${a}·(${s}) + ${n}·(${t}) = ${gcd}</strong><br>`;
+  html += `${a}⁻¹ mod ${n} = <span class="result-highlight">${inv}</span><br>`;
+  html += `Verify: ${a} × ${inv} = ${a*inv} = ${Math.floor(a*inv/n)}·${n} + ${a*inv % n} → ${a*inv % n === 1 ? '✓ đúng' : '✗ sai'}</div>`;
+  document.getElementById('extEuclidResult').innerHTML = html;
+}
+
+// ===== Euler Totient =====
+function calcPhi() {
+  const n = parseInt(document.getElementById('phiN').value);
+  if (n < 2) return;
+
+  const coprimes = [];
+  for (let i = 1; i <= n; i++) {
+    if (gcd(i, n) === 1) coprimes.push(i);
+  }
+
+  let html = `<div class="phi-grid">`;
+  for (let i = 1; i <= n; i++) {
+    const co = gcd(i, n) === 1;
+    html += `<div class="phi-num ${co ? 'coprime' : 'not-coprime'}" title="${i}: gcd(${i},${n})=${gcd(i,n)}">${i}</div>`;
+  }
+  html += `</div>`;
+
+  // Factorize n
+  const factors = factorize(n);
+  const phiCalc = computePhi(factors);
+  const factorStr = factors.map(([p,e]) => e>1 ? `${p}^${e}` : `${p}`).join('·');
+  const phiFormula = factors.map(([p,e]) => e>1 ? `p^${e-1}(p-1)=${Math.pow(p,e-1)*(p-1)}` : `(${p}-1)=${p-1}`).join(' × ');
+
+  html += `<div class="info-box">φ(${n}) = <strong>${phiCalc}</strong><br>`;
+  html += `<span style="color:#64748b; font-size:13px;">Phân tích: ${n} = ${factorStr} → φ = ${phiFormula} = ${phiCalc}</span><br>`;
+  html += `Các số coprime (màu xanh): ${coprimes.join(', ')}</div>`;
+  html += `<div style="font-size:13px; color:#475569; margin-top:6px;">Xanh = coprime với ${n}. Đỏ = có ước chung > 1 với ${n}.</div>`;
+  document.getElementById('phiResult').innerHTML = html;
+}
+
+function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+
+function factorize(n) {
+  const factors = [];
+  for (let p = 2; p * p <= n; p++) {
+    if (n % p === 0) {
+      let e = 0;
+      while (n % p === 0) { e++; n = Math.floor(n/p); }
+      factors.push([p, e]);
+    }
+  }
+  if (n > 1) factors.push([n, 1]);
+  return factors;
+}
+
+function computePhi(factors) {
+  return factors.reduce((phi, [p, e]) => phi * (Math.pow(p, e-1) * (p-1)), 1);
+}
+
+// ===== Fast Exponentiation =====
+function fastMod(a, k, n) {
+  if (n === 1) return 0;
+  let result = 1;
+  a = a % n;
+  while (k > 0) {
+    if (k % 2 === 1) result = (result * a) % n;
+    k = Math.floor(k / 2);
+    a = (a * a) % n;
+  }
+  return result;
+}
+
+function runFastExp() {
+  const a = parseInt(document.getElementById('fastA').value);
+  const k = parseInt(document.getElementById('fastK').value);
+  const n = parseInt(document.getElementById('fastN').value);
+  if (!a || k < 0 || !n) return;
+
+  const kBin = k.toString(2);
+  let html = `<div style="margin-bottom:12px;">`;
+  html += `<span style="font-weight:600; font-size:14px; color:#334155;">${a}^${k} mod ${n}</span><br>`;
+  html += `<span style="font-size:13px; color:#64748b;">k = ${k} = ${kBin}₂ (${kBin.length} bits)</span>`;
+  html += `</div>`;
+
+  // Binary display
+  html += `<div style="font-size:13px; font-weight:600; color:#64748b; margin-bottom:6px;">Biểu diễn nhị phân k = ${kBin}₂:</div>`;
+  html += `<div class="binary-display">`;
+  kBin.split('').forEach((b, i) => {
+    html += `<div class="bin-bit b${b}" title="bit ${kBin.length-1-i}, value 2^${kBin.length-1-i}=${Math.pow(2,kBin.length-1-i)}">${b}</div>`;
+  });
+  html += `</div>`;
+
+  // Steps
+  const steps = [];
+  let result = 1;
+  let base = a % n;
+  let kTmp = k;
+  while (kTmp > 0) {
+    const bit = kTmp & 1;
+    steps.push({ base, result_before: result, bit });
+    if (bit) result = (result * base) % n;
+    base = (base * base) % n;
+    kTmp >>= 1;
+  }
+
+  // Re-run showing square then multiply
+  let result2 = 1;
+  let base2 = a % n;
+  html += `<div class="fastexp-steps">`;
+  html += `<div style="font-size:13px; font-weight:600; color:#64748b; margin: 10px 0 6px;">Các bước (LSB → MSB):</div>`;
+
+  let k2 = k;
+  while (k2 > 0) {
+    const bit = k2 & 1;
+    // Square step
+    const beforeSq = result2;
+    const afterSq = (result2 * result2) % n;
+    // Multiply step (if bit=1)
+    const afterMul = bit ? (afterSq * (a % n)) % n : afterSq;
+
+    html += `<div class="fastexp-step sq">
+      <span class="step-bit">bit=${bit}</span>
+      <span class="step-op">Square:</span>
+      <span class="step-result">${beforeSq}² mod ${n} = ${beforeSq*beforeSq} mod ${n} = ${afterSq}</span>
+    </div>`;
+    if (bit) {
+      html += `<div class="fastexp-step mul">
+        <span class="step-bit">×base</span>
+        <span class="step-op">Multiply:</span>
+        <span class="step-result">${afterSq} × ${a%n} mod ${n} = ${afterSq*(a%n)} mod ${n} = ${afterMul}</span>
+      </div>`;
+    }
+    result2 = afterMul;
+    k2 >>= 1;
+  }
+  html += `</div>`;
+  html += `<div class="info-box"><strong>${a}^${k} mod ${n} = ${result2}</strong></div>`;
+
+  // Verify with Fermat if n is prime
+  const nVal = parseInt(document.getElementById('fastN').value);
+  if (isPrime(nVal) && k === nVal-1) {
+    html += `<div style="background:#dcfce7; border-left:3px solid #16a34a; padding:10px 14px; border-radius:0 8px 8px 0; font-size:14px; margin-top:8px;">Fermat's little theorem: k = ${nVal}-1 = p-1 với p = ${nVal} prime → kết quả phải = 1 (mod ${nVal}). Kết quả: <strong>${result2}</strong> ${result2===1?'✓':'— kiểm tra lại gcd(a,n)=1'}</div>`;
+  }
+  document.getElementById('fastExpResult').innerHTML = html;
+}
+
+function isPrime(n) {
+  if (n < 2) return false;
+  for (let i = 2; i * i <= n; i++) if (n % i === 0) return false;
+  return true;
+}
+
+// Init
+drawClock();
+calcOp();
+runEuclidean();
+runExtEuclid();
+calcPhi();
+runFastExp();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

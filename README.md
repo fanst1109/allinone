@@ -37,6 +37,7 @@
 | Physics | Vật lý — 3 tầng × 8 bài, cơ học → điện-từ → vật lý hiện đại preview | [Physics/](./Physics/) |
 | PoliticalScience | Chính trị học qua lý thuyết trò chơi — 3 tầng × 15 bài: NE → voting paradox → deterrence/mechanism design | [PoliticalScience/](./PoliticalScience/) |
 | Programming | Học lập trình bằng Go từ tư duy đến production — 9 tier × 84 lesson | [Programming/](./Programming/) |
+| Psychology | Tâm lý học khoa học — 3 tầng × 15 bài: cognitive (Stroop, biases) → social/developmental → clinical & methods | [Psychology/](./Psychology/) |
 | Statistics | Thống kê — 3 tầng × 15 bài: mô tả dữ liệu → suy luận → Bayesian, nhân quả, time series | [Statistics/](./Statistics/) |
 | Vectors | Lộ trình toán cho AI & ML — 6 tầng từ đại số phổ thông tới embedding/RAG | [Vectors/](./Vectors/) |
 

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Lỗ đen</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 150px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 120px; max-width: 100%; }
+  input[type="range"] { flex: 1; min-width: 180px; accent-color: #db2777; }
+  .val { font-family: monospace; font-weight: 700; color: #db2777; min-width: 90px; display: inline-block; }
+  .stat { display: inline-block; background: #fce7f3; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #db2777; }
+  .result { padding: 14px; background: #fce7f3; border-radius: 8px; margin-top: 12px; font-size: 15px; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  button { background: #db2777; color: #fff; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: 600; margin: 3px; font-size: 13px; }
+  button:hover { background: #be185d; }
+
+  svg.bh { display: block; margin: 12px auto; width: 100%; max-width: 460px; height: auto; background: radial-gradient(circle at 50% 50%, #1a0a2e, #05010f); border-radius: 10px; }
+  svg.bh text { font: 12px sans-serif; fill: #e2e8f0; }
+  table.esc { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+  table.esc th, table.esc td { border: 1px solid #e2e8f0; padding: 7px 10px; text-align: left; }
+  table.esc th { background: #fce7f3; color: #9d174d; }
+  table.esc td.bar { padding: 4px 6px; }
+  .barfill { height: 16px; background: #db2777; border-radius: 3px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Stars &amp; Galaxies</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-galaxies/visualization.html">L7: Ngân Hà &amp; thiên hà</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Lỗ đen</span>
+  <span class="sep">·</span>
+  <a href="../../03-Cosmology/lesson-01-expanding-universe/visualization.html">Tầng 3: Vũ trụ giãn nở →</a>
+</nav>
+
+<main>
+<h1>Lesson 08 — Lỗ đen</h1>
+<p>Ba công cụ tương tác: <strong>Máy tính bán kính Schwarzschild</strong>, <strong>Minh họa bẻ cong ánh sáng</strong>, và <strong>Bảng vận tốc thoát</strong>.</p>
+
+<h2>1. Schwarzschild Calculator — R_s theo khối lượng</h2>
+<div class="card">
+  <p class="note">Công thức <code>R_s = 2GM/c² ≈ 2.95 km × (M/M☉)</code>. Nhập khối lượng theo đơn vị Mặt Trời (M☉).</p>
+  <div class="row">
+    <label>Khối lượng M (M☉):</label>
+    <input type="number" id="mass" value="1" step="0.1" min="0.000001" oninput="rs()">
+  </div>
+  <div class="row">
+    <button onclick="setM(3.0e-6)">Trái Đất</button>
+    <button onclick="setM(1)">Mặt Trời</button>
+    <button onclick="setM(10)">Lỗ đen sao (10)</button>
+    <button onclick="setM(4e6)">Sgr A* (4 triệu)</button>
+    <button onclick="setM(6.5e9)">M87* (6.5 tỉ)</button>
+  </div>
+  <div class="result" id="rsout"></div>
+</div>
+
+<h2>2. Minh họa bẻ cong ánh sáng (thấu kính hấp dẫn)</h2>
+<div class="card">
+  <p class="note">Các tia sáng đi gần lỗ đen bị uốn cong; tia tới quá gần chân trời sự kiện bị nuốt. Kéo slider để đổi "độ mạnh" lỗ đen (R_s biểu kiến).</p>
+  <div class="row">
+    <label>Bán kính chân trời R_s (px):</label>
+    <input type="range" id="bend" min="10" max="60" value="32" step="1" oninput="bh()">
+    <span class="val" id="bendv">32</span>
+  </div>
+  <svg class="bh" viewBox="0 0 460 260" id="bhsvg"></svg>
+  <div class="result" id="bhout"></div>
+</div>
+
+<h2>3. Bảng vận tốc thoát (so với c)</h2>
+<div class="card">
+  <p class="note">Vận tốc thoát <code>v_esc = √(2GM/R)</code>. Tại chân trời lỗ đen, v_esc = c = 300.000 km/s → không gì thoát.</p>
+  <table class="esc" id="esctbl"></table>
+</div>
+
+<script>
+const G = 6.674e-11, c = 3e8, Msun = 1.989e30;  // SI
+const fmt = (x, n=1) => (x<0?'−':'') + Math.abs(x).toFixed(n);
+function sci(x, n=2) {
+  if (x === 0) return '0';
+  const e = Math.floor(Math.log10(Math.abs(x)));
+  if (e >= -1 && e <= 4) {
+    const dec = Math.max(0, 3 - e);
+    return Number(x.toFixed(dec)).toLocaleString('vi-VN');
+  }
+  const m = x / Math.pow(10, e);
+  return m.toFixed(n) + '×10' + sup(e);
+}
+function sup(e) {
+  const map = {'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+  return String(e).split('').map(c => map[c] || c).join('');
+}
+
+// ---------- Module 1: Schwarzschild calculator ----------
+function rs() {
+  const Msol = +document.getElementById('mass').value;
+  const M = Msol * Msun;                 // kg
+  const Rs = 2 * G * M / (c*c);          // m
+  const Rs_km = Rs / 1000;
+  // mô tả kích thước
+  let comp;
+  if (Rs < 0.01) comp = `nhỏ hơn hạt đậu (${sci(Rs*1000)} mm)`;
+  else if (Rs < 1) comp = `cỡ ${sci(Rs*100)} cm`;
+  else if (Rs_km < 5) comp = `cỡ một thành phố nhỏ`;
+  else if (Rs_km < 1e5) comp = `lớn hơn nhiều thành phố`;
+  else if (Rs_km < 1e7) comp = `cỡ một hành tinh / nhỏ hơn Mặt Trời`;
+  else comp = `to hơn cả Mặt Trời (R☉ ≈ 696.000 km)`;
+  let unit;
+  if (Rs < 1) unit = `${sci(Rs*1000)} mm`;
+  else if (Rs_km < 1) unit = `${sci(Rs)} m`;
+  else unit = `${sci(Rs_km)} km`;
+  document.getElementById('rsout').innerHTML =
+    `<span class="stat">M = <strong>${sci(Msol)} M☉</strong></span>` +
+    `<span class="stat">R_s = <strong>${unit}</strong></span><br>` +
+    `Mẹo nhanh: 2.95 km × ${sci(Msol)} = ${sci(2.95*Msol)} km (khớp).<br>` +
+    `→ Chân trời sự kiện ${comp}. R_s tỉ lệ thuận với M (gấp đôi M → gấp đôi R_s).`;
+}
+function setM(m){ document.getElementById('mass').value = m; rs(); }
+
+// ---------- Module 2: light bending ----------
+function bh() {
+  const Rs = +document.getElementById('bend').value;
+  document.getElementById('bendv').textContent = Rs;
+  const cx=300, cy=130;
+  let svg = '';
+  // vùng bồi tụ mờ
+  svg += `<ellipse cx="${cx}" cy="${cy}" rx="${Rs*2.4}" ry="${Rs*0.8}" fill="none" stroke="#f59e0b" stroke-width="3" opacity="0.35"/>`;
+  // vòng photon (sáng)
+  svg += `<circle cx="${cx}" cy="${cy}" r="${Rs*1.5}" fill="none" stroke="#fde68a" stroke-width="2" opacity="0.5"/>`;
+  // chân trời sự kiện (đen)
+  svg += `<circle cx="${cx}" cy="${cy}" r="${Rs}" fill="#000" stroke="#7c3aed" stroke-width="2"/>`;
+  // các tia sáng đi từ trái sang, với impact parameter b khác nhau
+  const GM = Rs;  // dùng Rs làm thước cong (định tính)
+  for (let i=0;i<9;i++) {
+    const y0 = cy - 110 + i*27;     // impact parameter
+    const b = y0 - cy;
+    let pts=[]; let captured=false;
+    for (let x=20; x<=440; x+=4) {
+      const dx = x - cx;
+      // độ lệch tích lũy đơn giản: lực ~ 1/r², chỉ định tính
+      const r = Math.hypot(dx, (cy + 0) - cy + (b));
+      // tính y theo mô hình lệch: y = y0 + deflection
+      pts.push([x, b]);
+    }
+    // mô phỏng đường cong: dùng đường bị uốn về tâm khi qua gần
+    let yy = y0; let curPts = [];
+    let vy = 0;
+    let alive = true;
+    for (let x=20; x<=440; x+=3) {
+      const dx = cx - x, dyy = cy - yy;
+      const dist = Math.hypot(dx, dyy);
+      if (dist < Rs) { alive=false; curPts.push([x,yy]); break; }   // bị nuốt
+      // gia tốc hướng tâm ~ 2.2*Rs² / dist²
+      const acc = 2.2 * Rs*Rs / (dist*dist);
+      const ax = acc * dx/dist, ay = acc * dyy/dist;
+      vy += ay * 3 * 0.02;
+      yy += vy * 3;
+      curPts.push([x,yy]);
+    }
+    const col = alive ? '#38bdf8' : '#ef4444';
+    svg += `<polyline points="${curPts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')}" fill="none" stroke="${col}" stroke-width="1.6" opacity="0.85"/>`;
+  }
+  svg += `<text x="20" y="22">Tia sáng → (xanh: thoát/bị bẻ cong · đỏ: bị nuốt)</text>`;
+  svg += `<text x="${cx-58}" y="${cy+Rs+22}" fill="#c4b5fd">chân trời sự kiện</text>`;
+  document.getElementById('bhsvg').innerHTML = svg;
+  document.getElementById('bhout').innerHTML =
+    `Tia đi xa: bẻ cong nhẹ. Tia đi gần chân trời: cong mạnh, có thể vòng quanh (vòng photon). ` +
+    `Tia tới trong chân trời (R_s ${Rs}px): <strong>bị nuốt</strong>, không thoát ra.`;
+}
+
+// ---------- Module 3: escape velocity table ----------
+function escTable() {
+  // [tên, M(kg), R(m)] — chân trời lỗ đen v_esc = c đúng tại R_s
+  const rows = [
+    ['Trái Đất', 5.972e24, 6.371e6],
+    ['Mặt Trời', 1.989e30, 6.96e8],
+    ['Sao neutron (1.4 M☉, 11 km)', 1.4*Msun, 1.1e4],
+    ['Chân trời lỗ đen (định nghĩa)', null, null]
+  ];
+  let html = `<tr><th>Vật</th><th>v_esc (km/s)</th><th>so với c</th><th class="bar">Tỉ lệ</th></tr>`;
+  rows.forEach(r => {
+    let v, frac;
+    if (r[1] === null) { v = c; frac = 1; }
+    else { v = Math.sqrt(2*G*r[1]/r[2]); frac = v/c; }
+    const vkm = v/1000;
+    html += `<tr><td>${r[0]}</td><td>${sci(vkm)}</td><td>${(frac*100).toFixed(frac<0.01?3:1)}% c</td>` +
+            `<td class="bar"><div class="barfill" style="width:${Math.max(2,frac*100).toFixed(1)}%"></div></td></tr>`;
+  });
+  document.getElementById('esctbl').innerHTML = html;
+}
+
+// init
+rs();
+bh();
+escTable();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

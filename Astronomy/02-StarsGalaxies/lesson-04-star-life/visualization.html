@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Vòng đời sao</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 160px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100px; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #b91c1c; }
+  .val { font-family: monospace; font-weight: 700; color: #b91c1c; min-width: 80px; display: inline-block; }
+  .stat { display: inline-block; background: #fee2e2; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #b91c1c; }
+  .result { padding: 14px; background: #fee2e2; border-radius: 8px; margin-top: 12px; font-size: 15px; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  button.preset { background:#b91c1c; color:#fff; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:600; margin:3px; }
+  svg.he { display:block; margin:12px auto; width:100%; max-width:420px; height:auto; background:#0f172a; border-radius:10px; }
+  svg.he text { font:12px sans-serif; fill:#e2e8f0; }
+  svg.life { display:block; margin:12px auto; width:100%; max-width:520px; height:auto; }
+  svg.life text { font:11px sans-serif; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Stars &amp; Galaxies</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-hr-diagram/visualization.html">L3: Biểu đồ H-R</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Vòng đời sao</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-star-death/visualization.html">L5: Cái chết của sao →</a>
+</nav>
+
+<main>
+<h1>Lesson 04 — Vòng đời sao</h1>
+<p>Hai công cụ: <strong>Cân bằng thủy tĩnh</strong> (khối lượng → lực hấp dẫn vs áp suất, nhiệt độ lõi, cơ chế nhiệt hạch) và <strong>Calculator thời gian sống</strong> (<code>t = 10 tỉ × M⁻²·⁵</code>).</p>
+
+<h2>1. Cân bằng thủy tĩnh</h2>
+<div class="card">
+  <p class="note">Kéo khối lượng. Mũi tên đỏ = hấp dẫn (kéo vào), mũi tên xanh = áp suất (đẩy ra). Nhiệt độ lõi quyết định nhiệt hạch bật hay không, và cơ chế p–p hay CNO.</p>
+  <div class="row">
+    <label>Khối lượng M/M☉:</label>
+    <input type="range" id="mass" min="0.02" max="30" value="1" step="0.01" oninput="drawHE()">
+    <span class="val" id="massv">1.00</span>
+  </div>
+  <svg class="he" viewBox="0 0 420 260" id="hesvg"></svg>
+  <div class="result" id="heout"></div>
+  <div style="margin-top:10px">
+    <button class="preset" onclick="setMass(0.05)">0.05 (lùn nâu)</button>
+    <button class="preset" onclick="setMass(1)">1 (Mặt Trời)</button>
+    <button class="preset" onclick="setMass(10)">10 (lớp B)</button>
+  </div>
+</div>
+
+<h2>2. Thời gian sống trên dải chính</h2>
+<div class="card">
+  <p class="note"><code>t/t☉ = (M/M☉)⁻²·⁵</code>, t☉ = 10 tỉ năm. Nặng → ngắn; nhẹ → vượt cả tuổi vũ trụ.</p>
+  <div class="row">
+    <label>Khối lượng M/M☉:</label>
+    <input type="number" id="lm" value="1" step="0.1" min="0.1" oninput="calcLife()">
+  </div>
+  <svg class="life" viewBox="0 0 520 90" id="lifesvg"></svg>
+  <div class="result" id="lifeout"></div>
+  <div style="margin-top:10px">
+    <button class="preset" onclick="setLM(0.5)">0.5 M☉</button>
+    <button class="preset" onclick="setLM(1)">1 M☉</button>
+    <button class="preset" onclick="setLM(10)">10 M☉</button>
+    <button class="preset" onclick="setLM(20)">20 M☉</button>
+  </div>
+</div>
+
+<script>
+const fmt=(x,n=2)=>(x<0?'−':'')+Math.abs(x).toFixed(n);
+function fmtYr(y){
+  if(y>=1e9) return fmt(y/1e9,1)+' tỉ năm';
+  if(y>=1e6) return fmt(y/1e6,1)+' triệu năm';
+  return fmt(y,0)+' năm';
+}
+// nhiệt độ lõi xấp xỉ (triệu K) theo khối lượng — minh họa
+function coreT(M){ return 15 * Math.pow(M, 0.6); } // triệu K, Mặt Trời ~15
+
+function drawHE(){
+  const M=+document.getElementById('mass').value;
+  document.getElementById('massv').textContent=fmt(M,2);
+  const Tc=coreT(M);
+  // bán kính hiển thị theo M (nén thị giác)
+  const r = 28 + 22*Math.log10(M+0.5+1);
+  const cx=210, cy=120;
+  let svg='';
+  // sao
+  let col = M<0.08 ? '#7c2d12' : (Tc>=20 ? '#bfdbfe' : (Tc>=10 ? '#fde047' : '#fb923c'));
+  svg+=`<circle cx="${cx}" cy="${cy}" r="${r.toFixed(1)}" fill="${col}" opacity="0.85"/>`;
+  // lõi
+  svg+=`<circle cx="${cx}" cy="${cy}" r="${(r*0.4).toFixed(1)}" fill="#fff7ed" opacity="0.6"/>`;
+  // mũi tên hấp dẫn (vào) — 4 hướng
+  const aIn = 18;
+  [[0,-1],[0,1],[-1,0],[1,0]].forEach(([dx,dy])=>{
+    const x1=cx+dx*(r+34), y1=cy+dy*(r+34), x2=cx+dx*(r+6), y2=cy+dy*(r+6);
+    svg+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#ef4444" stroke-width="3" marker-end="url(#arrIn)"/>`;
+  });
+  // mũi tên áp suất (ra) từ lõi
+  [[0,-1],[0,1],[-1,0],[1,0],[0.7,0.7],[-0.7,0.7],[0.7,-0.7],[-0.7,-0.7]].forEach(([dx,dy])=>{
+    const x1=cx+dx*(r*0.45), y1=cy+dy*(r*0.45), x2=cx+dx*(r*0.9), y2=cy+dy*(r*0.9);
+    svg+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#22d3ee" stroke-width="2.5" marker-end="url(#arrOut)"/>`;
+  });
+  svg+=`<defs><marker id="arrIn" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#ef4444"/></marker>`+
+       `<marker id="arrOut" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#22d3ee"/></marker></defs>`;
+  svg+=`<text x="12" y="22" fill="#ef4444">→ Hấp dẫn (kéo vào)</text>`;
+  svg+=`<text x="12" y="40" fill="#22d3ee">→ Áp suất (đẩy ra)</text>`;
+  document.getElementById('hesvg').innerHTML=svg;
+
+  let status, mech;
+  if (M < 0.08){ status='Không đủ nóng để đốt hydro → <strong>SAO LÙN NÂU</strong> (không vào dải chính).'; mech='—'; }
+  else if (Tc < 10){ status='Lõi gần ngưỡng; chỉ sao ≥ ~0.08 M☉ mới bật được nhiệt hạch H.'; mech='p–p (yếu)'; }
+  else { status='<strong>Cân bằng thủy tĩnh</strong>: nhiệt hạch giữ áp suất chống hấp dẫn → sao ổn định.';
+         mech = Tc>=20 ? 'CNO (sao nặng, nhạy T)' : 'chuỗi p–p (như Mặt Trời)'; }
+  document.getElementById('heout').innerHTML=
+    `<span class="stat">M = <strong>${fmt(M,2)} M☉</strong></span>`+
+    `<span class="stat">T lõi ≈ <strong>${fmt(Tc,0)} triệu K</strong></span>`+
+    `<span class="stat">cơ chế: <strong>${mech}</strong></span><br>${status}`;
+}
+function setMass(m){ document.getElementById('mass').value=m; drawHE(); }
+
+// life
+function calcLife(){
+  const M=+document.getElementById('lm').value;
+  const t = 1e10 * Math.pow(M,-2.5);
+  // thanh log: 1e6 .. 1e11 năm
+  const W=520,H=90, x0=20, bw=W-40, y=40, h=22;
+  const lo=6, hi=11; // log10 năm
+  const lt=Math.log10(t);
+  const f=Math.max(0,Math.min(1,(lt-lo)/(hi-lo)));
+  let svg='';
+  // gradient nền
+  svg+=`<rect x="${x0}" y="${y}" width="${bw}" height="${h}" fill="#e2e8f0" rx="6"/>`;
+  svg+=`<rect x="${x0}" y="${y}" width="${(bw*f).toFixed(1)}" height="${h}" fill="#b91c1c" rx="6"/>`;
+  // mốc tuổi vũ trụ 13.8 tỉ
+  const fu=(Math.log10(1.38e10)-lo)/(hi-lo);
+  svg+=`<line x1="${(x0+bw*fu).toFixed(1)}" y1="${y-6}" x2="${(x0+bw*fu).toFixed(1)}" y2="${y+h+6}" stroke="#1e293b" stroke-width="1.5" stroke-dasharray="3 2"/>`;
+  svg+=`<text x="${(x0+bw*fu).toFixed(1)}" y="${y-9}" text-anchor="middle" fill="#1e293b">tuổi vũ trụ</text>`;
+  // nhãn
+  [6,7,8,9,10,11].forEach(e=>{ const fx=(e-lo)/(hi-lo); svg+=`<text x="${(x0+bw*fx).toFixed(1)}" y="${y+h+18}" text-anchor="middle" fill="#475569">10${sup(e)}</text>`; });
+  document.getElementById('lifesvg').innerHTML=svg;
+  document.getElementById('lifeout').innerHTML=
+    `t = 10 tỉ × ${fmt(M,2)}⁻²·⁵ = <strong>${fmtYr(t)}</strong><br>`+
+    (M>1?`Nặng hơn Mặt Trời → đốt nhanh → sống ngắn hơn.`
+        :(M<1?`Nhẹ hơn Mặt Trời → đốt tiết kiệm → sống lâu hơn ${t>1.38e10?'(vượt tuổi vũ trụ!)':''}`:`Đúng mốc chuẩn Mặt Trời.`));
+}
+function sup(n){const s={'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};return String(n).split('').map(c=>s[c]||c).join('');}
+function setLM(m){ document.getElementById('lm').value=m; calcLife(); }
+
+drawHE();
+calcLife();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

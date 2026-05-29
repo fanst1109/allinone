@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Tổng hợp hạt nhân</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 160px; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #db2777; }
+  .val { font-family: monospace; font-weight: 700; color: #be185d; min-width: 70px; display: inline-block; }
+  .stat { display: inline-block; background: #fce7f3; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #be185d; }
+  .result { padding: 14px; background: #fce7f3; border-radius: 8px; margin-top: 12px; font-size: 15px; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  svg.massbar { display: block; margin: 12px auto; width: 100%; max-width: 460px; height: auto; }
+  svg.massbar text { font: 12px sans-serif; }
+
+  .ptable { display: grid; grid-template-columns: repeat(9, 1fr); gap: 3px; margin: 12px 0; max-width: 460px; }
+  .el { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 4px; font-size: 11px; cursor: pointer; color: #1a202c; border: 1px solid rgba(0,0,0,0.1); }
+  .el .sym { font-weight: 700; font-size: 13px; }
+  .el.bb { background: #bfdbfe; }
+  .el.star { background: #fde68a; }
+  .el.sn { background: #fbcfe8; }
+  .legend span { display:inline-block; margin:4px 10px 4px 0; font-size:13px; }
+  .sw { display:inline-block; width:14px; height:14px; border-radius:3px; vertical-align:middle; margin-right:5px; }
+  @media (max-width: 480px) { .ptable { grid-template-columns: repeat(6, 1fr); } .el { font-size: 10px; } }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Cosmology</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-dark-matter-energy/visualization.html">L3: Vật chất tối &amp; NL tối</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Tổng hợp hạt nhân</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-large-scale-structure/visualization.html">L5: Cấu trúc lớn →</a>
+</nav>
+
+<main>
+<h1>Lesson 04 — Tổng hợp hạt nhân: nguyên tố sinh ra ở đâu</h1>
+<p>Hai công cụ tương tác: <strong>Máy tính tỉ lệ BBN</strong> (kéo n:p → % Heli theo khối lượng, thấy vì sao ra 75/25) và <strong>Bảng tuần hoàn nguồn gốc</strong> (tô màu theo nơi nguyên tố sinh ra — bấm để xem chi tiết).</p>
+
+<h2>1. Máy tính tỉ lệ BBN — vì sao 75% H / 25% He</h2>
+<div class="card">
+  <p class="note">Mỗi hạt ⁴He cần 2 neutron + 2 proton; mọi neutron gần như đi vào He, proton dư thành Hydro. Kéo tỉ số neutron để xem % Heli theo khối lượng. Tỉ số tự nhiên ~1 neutron : 7 proton cho đúng 25%.</p>
+  <div class="row">
+    <label>Neutron (trên 16 hạt):</label>
+    <input type="range" id="nn" min="0" max="8" value="2" step="1" oninput="drawBBN()">
+    <span class="val" id="nnv">2</span>
+  </div>
+  <svg class="massbar" viewBox="0 0 460 90" id="bbnsvg"></svg>
+  <div class="result" id="bbnout"></div>
+  <div style="margin-top:6px">
+    <button onclick="setN(2)" style="background:#db2777;color:#fff;border:none;padding:8px 12px;border-radius:5px;cursor:pointer;font-weight:600;margin:3px">n:p ≈ 1:7 (thực tế → 25%)</button>
+  </div>
+</div>
+
+<h2>2. Bảng tuần hoàn nguồn gốc nguyên tố</h2>
+<div class="card">
+  <p class="note">Mỗi ô tô màu theo nơi nguyên tố được tạo ra. Bấm một ô để xem chi tiết. (Bảng rút gọn các nguyên tố tiêu biểu.)</p>
+  <div class="legend">
+    <span><i class="sw" style="background:#bfdbfe"></i>Big Bang (H, He)</span>
+    <span><i class="sw" style="background:#fde68a"></i>Dung hợp trong sao (→ Fe)</span>
+    <span><i class="sw" style="background:#fbcfe8"></i>Siêu tân tinh / sao neutron (> Fe)</span>
+  </div>
+  <div class="ptable" id="ptable"></div>
+  <div class="result" id="elout">Bấm một nguyên tố để xem nguồn gốc.</div>
+</div>
+
+<script>
+// ---------- Module 1: BBN ratio ----------
+function drawBBN() {
+  const total = 16;
+  let n = +nn.value;
+  nnv.textContent = n;
+  const p = total - n;
+  // mỗi He cần 2n + 2p; số He giới hạn bởi cả n và p
+  const heFromN = Math.floor(n / 2);
+  const heFromP = Math.floor(p / 2);
+  const nHe = Math.min(heFromN, heFromP);
+  const usedP = nHe * 2;
+  const nH = p - usedP; // proton dư = Hydro
+  const mHe = nHe * 4, mH = nH * 1, mTot = mHe + mH || 1;
+  const pctHe = mHe / mTot * 100, pctH = mH / mTot * 100;
+  // thanh khối lượng
+  const ox = 20, w = 420, y = 25, h = 36;
+  const wH = w * pctH/100, wHe = w * pctHe/100;
+  let svg = '';
+  svg += `<rect x="${ox}" y="${y}" width="${wH}" height="${h}" fill="#93c5fd" rx="4"/>`;
+  svg += `<rect x="${ox+wH}" y="${y}" width="${wHe}" height="${h}" fill="#f472b6" rx="4"/>`;
+  if (pctH>8) svg += `<text x="${ox+wH/2}" y="${y+23}" text-anchor="middle" fill="#1a202c" style="font-weight:700">H ${pctH.toFixed(0)}%</text>`;
+  if (pctHe>8) svg += `<text x="${ox+wH+wHe/2}" y="${y+23}" text-anchor="middle" fill="#fff" style="font-weight:700">He ${pctHe.toFixed(0)}%</text>`;
+  svg += `<text x="${ox}" y="${y+h+22}" fill="#475569" style="font-size:11px">Khối lượng: xanh = Hydro · hồng = Heli</text>`;
+  bbnsvg.innerHTML = svg;
+  bbnout.innerHTML =
+    `n:p = ${n}:${p} → tạo <strong>${nHe}</strong> hạt ⁴He (dùng ${nHe*2}n + ${usedP}p), dư <strong>${nH}</strong> hạt ¹H.<br>` +
+    `<span class="stat">KL He = ${nHe}×4 = ${mHe}</span>` +
+    `<span class="stat">KL H = ${nH}×1 = ${mH}</span>` +
+    `<span class="stat">%He (KL) = <strong>${pctHe.toFixed(1)}%</strong></span><br>` +
+    (Math.abs(pctHe-25)<2
+      ? '✓ Đúng tỉ lệ vũ trụ ~75% H / 25% He theo khối lượng — khớp quan sát (bằng chứng thứ 3 của Big Bang).'
+      : n===0 ? 'Không neutron → không tạo được Heli → 100% Hydro.'
+      : `Tỉ số neutron khác tự nhiên → %He lệch khỏi 25%. Thực tế n:p≈1:7 cho đúng 25%.`);
+}
+function setN(v){ nn.value = v; drawBBN(); }
+
+// ---------- Module 2: Periodic table origins ----------
+const elements = [
+  {s:'H',n:'Hydro',o:'bb',d:'Sinh trong Big Bang (BBN, 3 phút đầu). Nguyên tố phong phú nhất vũ trụ (~75% khối lượng).'},
+  {s:'He',n:'Heli',o:'bb',d:'Phần lớn từ Big Bang (~25% khối lượng); một ít thêm khi sao cháy Hydro.'},
+  {s:'Li',n:'Liti',o:'bb',d:'Chỉ vết nhỏ từ BBN (Li-7). BBN dừng quanh đây do khoảng trống khối lượng 5 & 8.'},
+  {s:'C',n:'Cacbon',o:'star',d:'Dung hợp Heli trong sao (triple-alpha: 3 ⁴He → ¹²C). Nền tảng của sự sống.'},
+  {s:'N',n:'Nitơ',o:'star',d:'Tạo trong sao qua chu trình CNO khi cháy Hydro.'},
+  {s:'O',n:'Oxy',o:'star',d:'Dung hợp trong sao (cháy Heli/Cacbon). Phổ biến thứ 3 trong vũ trụ.'},
+  {s:'Ne',n:'Neon',o:'star',d:'Cháy Cacbon trong sao khối lượng lớn.'},
+  {s:'Mg',n:'Magie',o:'star',d:'Cháy Cacbon/Neon trong sao.'},
+  {s:'Si',n:'Silic',o:'star',d:'Cháy Oxy trong sao; bước trước khi tạo Sắt.'},
+  {s:'Fe',n:'Sắt',o:'star',d:'Điểm dừng của dung hợp tỏa năng lượng (năng lượng liên kết/nucleon cao nhất ~8.79 MeV). Lõi sắt → sao sụp đổ.'},
+  {s:'Ni',n:'Niken',o:'star',d:'Gần đỉnh bền; tạo trong cháy Silic & siêu tân tinh.'},
+  {s:'Cu',n:'Đồng',o:'sn',d:'Nặng hơn Fe → cần bắt neutron (r/s-process), chủ yếu siêu tân tinh.'},
+  {s:'Ag',n:'Bạc',o:'sn',d:'r-process trong siêu tân tinh / va chạm sao neutron.'},
+  {s:'I',n:'Iốt',o:'sn',d:'Bắt neutron nhanh (r-process) trong môi trường năng lượng cao.'},
+  {s:'Pt',n:'Bạch kim',o:'sn',d:'r-process — va chạm sao neutron (xác nhận 2017 qua sóng hấp dẫn).'},
+  {s:'Au',n:'Vàng',o:'sn',d:'Nặng hơn Sắt → KHÔNG từ Big Bang/dung hợp thường. r-process trong siêu tân tinh & va chạm sao neutron.'},
+  {s:'U',n:'Uranium',o:'sn',d:'Nguyên tố nặng nhất tự nhiên; r-process trong các vụ nổ năng lượng cực lớn.'}
+];
+const labels = { bb:'Big Bang', star:'Dung hợp trong sao', sn:'Siêu tân tinh / sao neutron' };
+function buildPT() {
+  const pt = document.getElementById('ptable');
+  elements.forEach((e,i) => {
+    const div = document.createElement('div');
+    div.className = 'el ' + e.o;
+    div.innerHTML = `<span class="sym">${e.s}</span>`;
+    div.onclick = () => {
+      elout.innerHTML = `<strong>${e.n} (${e.s})</strong> — nguồn gốc: <strong>${labels[e.o]}</strong><br>${e.d}`;
+    };
+    pt.appendChild(div);
+  });
+}
+
+// init
+const nn = document.getElementById('nn'), nnv = document.getElementById('nnv');
+const bbnsvg = document.getElementById('bbnsvg'), bbnout = document.getElementById('bbnout');
+const elout = document.getElementById('elout');
+buildPT();
+drawBBN();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

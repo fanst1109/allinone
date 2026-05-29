@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T2-L03 — SVM</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #ecfeff;
+    --accent: #0e7490;
+    --accent-soft: #cffafe;
+    --accent-hover: #155e75;
+  }
+  body { background: var(--bg); }
+  h1 { color: #164e63; margin-bottom: 4px; }
+  .subtitle { color: #0e7490; margin-bottom: 24px; }
+  h2 { color: #164e63; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a5f3fc; }
+  h3 { color: #0e7490; font-size: 16px; margin-top: 18px; }
+  .card { background: white; border-radius: 8px; padding: 18px 20px; box-shadow: 0 1px 4px rgba(14,116,144,0.12); margin: 16px 0; border: 1px solid #cffafe; }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; font-size: 14px; color: #164e63; }
+  input[type="range"] { width: 160px; accent-color: var(--accent); }
+  .slider-val { display: inline-block; font-family: monospace; background: var(--accent-soft); padding: 2px 10px; border-radius: 4px; font-weight: 700; color: var(--accent); min-width: 52px; text-align: center; }
+  select { padding: 5px 10px; border: 1px solid #a5f3fc; border-radius: 4px; font-size: 14px; background: white; color: #164e63; }
+  canvas { display: block; border: 1px solid #a5f3fc; border-radius: 6px; background: #f0fdfe; }
+  .stat-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
+  .stat { background: var(--accent-soft); padding: 8px 14px; border-radius: 5px; font-family: monospace; font-size: 13px; border: 1px solid #67e8f9; }
+  .stat .name { color: #0e7490; font-size: 11px; font-weight: 700; }
+  .stat .val { color: #164e63; font-weight: 700; font-size: 15px; }
+  .formula { font-family: monospace; background: #164e63; color: #67e8f9; padding: 10px 14px; border-radius: 5px; font-size: 14px; margin: 10px 0; }
+  .info { background: #ecfeff; border-left: 4px solid var(--accent); padding: 10px 14px; margin: 10px 0; border-radius: 4px; font-size: 14px; }
+  .tabs { display: flex; gap: 0; }
+  .tab-btn { padding: 8px 18px; border: 1px solid #a5f3fc; border-bottom: none; background: #e0f2fe; color: #0c4a6e; cursor: pointer; font-weight: 600; font-size: 13px; border-radius: 5px 5px 0 0; }
+  .tab-btn.active { background: white; color: var(--accent); border-color: var(--accent); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 600px) { .grid2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-random-forest/visualization.html">← T2-L02: Random Forest</a>
+  <span class="sep">·</span>
+  <span class="current">T2-L03: SVM</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-gradient-boosting/visualization.html">T2-L04: Gradient Boosting →</a>
+</nav>
+<main>
+<h1>T2-L03 — Support Vector Machine (SVM)</h1>
+<p class="subtitle">Margin · Soft margin C · Kernel trick · RBF γ</p>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('svm')">SVM Classifier</button>
+  <button class="tab-btn" onclick="switchTab('kernel')">Kernel Calculator</button>
+  <button class="tab-btn" onclick="switchTab('cg')">C &amp; γ Heatmap</button>
+</div>
+
+<!-- TAB 1: SVM Classifier -->
+<div id="tab-svm" class="tab-panel active">
+<div class="card">
+  <h3>SVM — 2D Classifier với Kernel Selector</h3>
+  <div class="row">
+    <label>Kernel:</label>
+    <select id="kernelSel" onchange="svmDraw()">
+      <option value="linear">Linear</option>
+      <option value="poly">Polynomial (d=3)</option>
+      <option value="rbf" selected>RBF</option>
+    </select>
+    <label>C:</label>
+    <input type="range" id="cSlider" min="-2" max="3" step="0.1" value="0" oninput="svmDraw()">
+    <span class="slider-val" id="cVal">C=1</span>
+  </div>
+  <div class="row" id="gammaRow">
+    <label>γ:</label>
+    <input type="range" id="gammaSlider" min="-3" max="2" step="0.1" value="0" oninput="svmDraw()">
+    <span class="slider-val" id="gammaVal">γ=1</span>
+  </div>
+  <canvas id="svmCanvas" width="520" height="340"></canvas>
+  <div class="stat-row" id="svmStats"></div>
+  <div class="info" id="svmInfo"></div>
+</div>
+</div>
+
+<!-- TAB 2: Kernel Calculator -->
+<div id="tab-kernel" class="tab-panel">
+<div class="card">
+  <h3>Kernel Value Calculator</h3>
+  <div class="formula">K_linear = x·x'  ·  K_poly = (x·x'+c)^d  ·  K_rbf = exp(−γ‖x−x'‖²)</div>
+  <div class="row">
+    <label>x₁:</label>
+    <input type="range" id="x1" min="-3" max="3" step="0.1" value="1" oninput="calcKernel()">
+    <span class="slider-val" id="x1v">1.0</span>
+    <label>x₂:</label>
+    <input type="range" id="x2" min="-3" max="3" step="0.1" value="2" oninput="calcKernel()">
+    <span class="slider-val" id="x2v">2.0</span>
+  </div>
+  <div class="row">
+    <label>x'₁:</label>
+    <input type="range" id="x1p" min="-3" max="3" step="0.1" value="3" oninput="calcKernel()">
+    <span class="slider-val" id="x1pv">3.0</span>
+    <label>x'₂:</label>
+    <input type="range" id="x2p" min="-3" max="3" step="0.1" value="4" oninput="calcKernel()">
+    <span class="slider-val" id="x2pv">4.0</span>
+  </div>
+  <div class="row">
+    <label>γ:</label>
+    <input type="range" id="kGamma" min="-2" max="2" step="0.1" value="0" oninput="calcKernel()">
+    <span class="slider-val" id="kGammaV">γ=1</span>
+    <label>d:</label>
+    <input type="range" id="kDeg" min="1" max="5" step="1" value="2" oninput="calcKernel()">
+    <span class="slider-val" id="kDegV">d=2</span>
+  </div>
+  <div id="kernelResults" style="margin-top:12px;"></div>
+  <canvas id="kernelViz" width="500" height="200" style="margin-top:12px;" viewBox="0 0 500 200"></canvas>
+</div>
+</div>
+
+<!-- TAB 3: C & γ Heatmap -->
+<div id="tab-cg" class="tab-panel">
+<div class="card">
+  <h3>Validation Accuracy — Grid Search C × γ (RBF)</h3>
+  <p style="font-size:13px;color:#4a5568;">Simulated 5-fold CV accuracy trên non-linear dataset. Màu xanh = accuracy cao.</p>
+  <canvas id="hmCanvas" width="480" height="360" viewBox="0 0 480 360"></canvas>
+  <div class="info" id="hmInfo">Heatmap cho thấy: C=1–10, γ=0.1–1 thường là vùng optimal.</div>
+</div>
+</div>
+</main>
+
+<script>
+// ========================
+// TAB SWITCHING
+// ========================
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    const ns = ['svm','kernel','cg'];
+    b.classList.toggle('active', ns[i] === name);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'kernel') calcKernel();
+  if (name === 'cg') drawHeatmap();
+}
+
+// ========================
+// SVM CLASSIFIER
+// ========================
+function makePRNG(seed) {
+  let s = seed;
+  return () => { s=(s*1664525+1013904223)&0x7fffffff; return s/0x7fffffff; };
+}
+
+const RNG = makePRNG(42);
+const svmPts = [];
+// Linear dataset: two clusters + some overlap
+for (let i=0;i<20;i++) {
+  svmPts.push({x:60+RNG()*140, y:80+RNG()*140, cls:+1});
+  svmPts.push({x:280+RNG()*140, y:140+RNG()*140, cls:-1});
+}
+// XOR-like for nonlinear
+const xorPts = [];
+const RXOR = makePRNG(7);
+for (let i=0;i<50;i++) {
+  const q = Math.floor(i/12.5);
+  const cx = [120,340,340,120][q%4], cy = [100,100,260,260][q%4];
+  const cls = [1,-1,-1,1][q%4];
+  xorPts.push({x: cx+(RXOR()-0.5)*80, y: cy+(RXOR()-0.5)*80, cls});
+}
+
+function svmScore(x, y, kernel, C, gamma) {
+  // Simplified SVM-like scoring: linear combination of kernel values to support vectors
+  const pts = kernel==='linear' ? svmPts : xorPts;
+  // Heuristic: compute "soft" boundary based on nearest-class kernel
+  let pos=0, neg=0, pn=0, nn=0;
+  pts.forEach(p => {
+    let k;
+    const dx=x-p.x, dy=y-p.y;
+    const raw = (x*p.x+y*p.y)/50000;
+    if (kernel==='linear') k = raw;
+    else if (kernel==='poly') k = Math.pow(raw+0.5, 3);
+    else k = Math.exp(-gamma*(dx*dx+dy*dy)/10000);
+    if (p.cls===1) { pos+=k; pn++; }
+    else { neg+=k; nn++; }
+  });
+  return (pos/pn - neg/nn) * (0.5 + C*0.5);
+}
+
+function svmDraw() {
+  const kernel = document.getElementById('kernelSel').value;
+  const cRaw = parseFloat(document.getElementById('cSlider').value);
+  const C = Math.pow(10, cRaw);
+  const gammaRaw = parseFloat(document.getElementById('gammaSlider').value);
+  const gamma = Math.pow(10, gammaRaw);
+
+  document.getElementById('cVal').textContent = 'C=' + C.toFixed(C<1?3:2);
+  document.getElementById('gammaVal').textContent = 'γ=' + gamma.toFixed(gamma<1?3:2);
+  document.getElementById('gammaRow').style.display = kernel==='rbf' ? 'flex' : 'none';
+
+  const canvas = document.getElementById('svmCanvas');
+  const ctx = canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  const pts = kernel==='linear' ? svmPts : xorPts;
+
+  // Background
+  const step = 8;
+  for (let px=0;px<W;px+=step) {
+    for (let py=0;py<H;py+=step) {
+      const s = svmScore(px+step/2,py+step/2,kernel,C,gamma);
+      ctx.fillStyle = s>0 ? `rgba(14,116,144,${Math.min(0.15,Math.abs(s)*0.08)})` : `rgba(249,115,22,${Math.min(0.15,Math.abs(s)*0.08)})`;
+      ctx.fillRect(px,py,step,step);
+    }
+  }
+
+  // Decision boundary (score ≈ 0 contour) — draw as line
+  ctx.strokeStyle='#164e63'; ctx.lineWidth=2;
+  for (let px=0;px<W-step;px+=step) {
+    for (let py=0;py<H-step;py+=step) {
+      const s1=svmScore(px,py,kernel,C,gamma);
+      const s2=svmScore(px+step,py,kernel,C,gamma);
+      const s3=svmScore(px,py+step,kernel,C,gamma);
+      if (s1*s2<0) {
+        ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(px+step,py); ctx.stroke();
+      }
+      if (s1*s3<0) {
+        ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(px,py+step); ctx.stroke();
+      }
+    }
+  }
+
+  // Points
+  pts.forEach(p => {
+    const correct = svmScore(p.x,p.y,kernel,C,gamma)*p.cls>0;
+    ctx.fillStyle = p.cls===1 ? '#0e7490' : '#f97316';
+    ctx.beginPath(); ctx.arc(p.x,p.y,6,0,2*Math.PI); ctx.fill();
+    ctx.strokeStyle = correct ? 'white' : '#dc2626';
+    ctx.lineWidth = correct ? 1.5 : 2.5;
+    ctx.beginPath(); ctx.arc(p.x,p.y,6,0,2*Math.PI); ctx.stroke();
+  });
+
+  // Legend
+  ctx.fillStyle='#0e7490'; ctx.beginPath(); ctx.arc(20,H-24,5,0,2*Math.PI); ctx.fill();
+  ctx.fillStyle='#164e63'; ctx.font='12px sans-serif'; ctx.fillText('Class +1',30,H-20);
+  ctx.fillStyle='#f97316'; ctx.beginPath(); ctx.arc(110,H-24,5,0,2*Math.PI); ctx.fill();
+  ctx.fillStyle='#164e63'; ctx.fillText('Class −1',120,H-20);
+  ctx.fillStyle='#dc2626'; ctx.fillText('○ = misclassified',200,H-20);
+
+  const trainAcc = pts.filter(p=>svmScore(p.x,p.y,kernel,C,gamma)*p.cls>0).length/pts.length;
+  document.getElementById('svmStats').innerHTML =
+    `<div class="stat"><div class="name">Kernel</div><div class="val">${kernel}</div></div>
+     <div class="stat"><div class="name">C</div><div class="val">${C.toFixed(2)}</div></div>
+     <div class="stat"><div class="name">Train Acc</div><div class="val">${(trainAcc*100).toFixed(0)}%</div></div>`;
+
+  const kDesc = {linear:'Linear kernel — boundary là đường thẳng/hyperplane.', poly:'Polynomial d=3 — boundary là đường cong bậc 3.', rbf:'RBF kernel — boundary có thể là bất kỳ hình dạng nào.'};
+  const cDesc = C < 0.1 ? ' C nhỏ: margin rộng, nhiều vi phạm.' : C > 10 ? ' C lớn: margin hẹp, ít vi phạm.' : ' C vừa: balanced.';
+  const gDesc = kernel==='rbf' ? (gamma<0.1?' γ nhỏ: smooth boundary.': gamma>1?' γ lớn: overfit từng điểm.':" γ vừa: tốt.") : '';
+  document.getElementById('svmInfo').textContent = kDesc[kernel] + cDesc + gDesc;
+}
+svmDraw();
+
+// ========================
+// KERNEL CALCULATOR
+// ========================
+function calcKernel() {
+  const x1=parseFloat(document.getElementById('x1').value);
+  const x2=parseFloat(document.getElementById('x2').value);
+  const xp1=parseFloat(document.getElementById('x1p').value);
+  const xp2=parseFloat(document.getElementById('x2p').value);
+  const graw=parseFloat(document.getElementById('kGamma').value);
+  const gamma=Math.pow(10,graw);
+  const deg=parseInt(document.getElementById('kDeg').value);
+
+  document.getElementById('x1v').textContent=x1.toFixed(1);
+  document.getElementById('x2v').textContent=x2.toFixed(1);
+  document.getElementById('x1pv').textContent=xp1.toFixed(1);
+  document.getElementById('x2pv').textContent=xp2.toFixed(1);
+  document.getElementById('kGammaV').textContent='γ='+gamma.toFixed(gamma<1?3:2);
+  document.getElementById('kDegV').textContent='d='+deg;
+
+  const dot = x1*xp1 + x2*xp2;
+  const kLin = dot;
+  const kPoly = Math.pow(dot+1, deg);
+  const dist2 = (x1-xp1)**2 + (x2-xp2)**2;
+  const kRBF = Math.exp(-gamma*dist2);
+
+  document.getElementById('kernelResults').innerHTML =
+    `<table style="width:100%">
+      <tr><th>Kernel</th><th>Công thức</th><th>Giá trị</th></tr>
+      <tr><td>Linear</td><td>x·x' = ${x1.toFixed(1)}×${xp1.toFixed(1)} + ${x2.toFixed(1)}×${xp2.toFixed(1)}</td><td><b>${kLin.toFixed(3)}</b></td></tr>
+      <tr><td>Poly (d=${deg},c=1)</td><td>(${dot.toFixed(2)}+1)^${deg}</td><td><b>${kPoly.toFixed(3)}</b></td></tr>
+      <tr><td>RBF (γ=${gamma.toFixed(3)})</td><td>exp(−${gamma.toFixed(3)}×${dist2.toFixed(3)})</td><td><b>${kRBF.toFixed(4)}</b></td></tr>
+    </table>
+    <p style="font-size:12px;color:#4a5568;margin-top:6px;">‖x−x'‖² = (${x1}−${xp1})² + (${x2}−${xp2})² = ${dist2.toFixed(2)}</p>`;
+
+  // Draw RBF as function of distance
+  const canvas = document.getElementById('kernelViz');
+  const ctx = canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const pad={t:20,r:20,b:30,l:50};
+  const cw=W-pad.l-pad.r, ch=H-pad.t-pad.b;
+
+  ctx.strokeStyle='#e0f2fe'; ctx.lineWidth=1;
+  [0,0.5,1.0].forEach(v => {
+    const y=pad.t+ch-v*ch;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(W-pad.r,y); ctx.stroke();
+    ctx.fillStyle='#94a3b8'; ctx.font='10px monospace'; ctx.fillText(v.toFixed(1),2,y+4);
+  });
+
+  // RBF curve
+  ctx.strokeStyle='#0e7490'; ctx.lineWidth=2;
+  ctx.beginPath();
+  for (let i=0;i<=100;i++) {
+    const d2=i*i*0.2;
+    const k=Math.exp(-gamma*d2);
+    const x=pad.l+i/100*cw, y=pad.t+ch-k*ch;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+
+  // Current distance
+  const curD=Math.sqrt(dist2);
+  const curX=pad.l+Math.min(curD/Math.sqrt(100*0.2),1)*cw;
+  const curY=pad.t+ch-kRBF*ch;
+  ctx.fillStyle='#f97316'; ctx.beginPath(); ctx.arc(curX,curY,5,0,2*Math.PI); ctx.fill();
+  ctx.fillStyle='#164e63'; ctx.font='11px monospace';
+  ctx.fillText(`K=${kRBF.toFixed(3)}`,curX+8,curY-4);
+  ctx.fillStyle='#94a3b8'; ctx.font='10px monospace';
+  ctx.fillText('← ‖x−x\'‖', pad.l+cw/2, H-5);
+}
+
+// ========================
+// HEATMAP C x GAMMA
+// ========================
+function drawHeatmap() {
+  const Cs = [0.01, 0.1, 1, 10, 100];
+  const Gammas = [0.001, 0.01, 0.1, 1.0, 10];
+  // Simulated accuracy values
+  const acc = [
+    [0.55, 0.60, 0.72, 0.68, 0.61],
+    [0.62, 0.71, 0.88, 0.82, 0.70],
+    [0.68, 0.81, 0.96, 0.93, 0.78],
+    [0.70, 0.85, 0.94, 0.89, 0.75],
+    [0.72, 0.83, 0.91, 0.85, 0.71],
+  ];
+  const canvas = document.getElementById('hmCanvas');
+  const ctx = canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const pad={t:40,r:20,b:60,l:60};
+  const cw=W-pad.l-pad.r, ch=H-pad.t-pad.b;
+  const nC=Cs.length, nG=Gammas.length;
+  const cw2=cw/nC, ch2=ch/nG;
+
+  let bestAcc=0, bestC=0, bestG=0;
+  acc.forEach((row,ci) => row.forEach((v,gi) => { if(v>bestAcc){bestAcc=v;bestC=ci;bestG=gi;} }));
+
+  // Draw cells
+  acc.forEach((row,ci) => {
+    row.forEach((v,gi) => {
+      const x=pad.l+ci*cw2, y=pad.t+gi*ch2;
+      const t=Math.max(0,Math.min(1,(v-0.5)/0.5));
+      // Color: low=white, high=teal
+      const r=Math.round(255*(1-t)*0.9+14*t);
+      const g=Math.round(255*(1-t)*0.95+116*t);
+      const b=Math.round(255*(1-t)+144*t);
+      ctx.fillStyle=`rgb(${r},${g},${b})`;
+      ctx.fillRect(x,y,cw2-2,ch2-2);
+      ctx.fillStyle=v>0.85?'white':'#164e63';
+      ctx.font='bold 13px monospace'; ctx.textAlign='center';
+      ctx.fillText((v*100).toFixed(0)+'%',x+cw2/2,y+ch2/2+5);
+      if(ci===bestC&&gi===bestG){
+        ctx.strokeStyle='#f97316'; ctx.lineWidth=3;
+        ctx.strokeRect(x,y,cw2-2,ch2-2);
+      }
+    });
+  });
+  ctx.textAlign='left';
+
+  // Axes
+  ctx.fillStyle='#164e63'; ctx.font='12px monospace';
+  Cs.forEach((v,ci) => { const x=pad.l+ci*cw2+cw2/2; ctx.textAlign='center'; ctx.fillText('C='+v,x,H-5); });
+  Gammas.forEach((v,gi) => { const y=pad.t+gi*ch2+ch2/2+5; ctx.textAlign='right'; ctx.fillText('γ='+v,pad.l-5,y); });
+  ctx.textAlign='center';
+  ctx.font='13px sans-serif'; ctx.fillStyle='#0e7490';
+  ctx.fillText('← C (regularization) →', pad.l+cw/2, H-20);
+  ctx.textAlign='left';
+  document.getElementById('hmInfo').textContent =
+    `Best: C=${Cs[bestC]}, γ=${Gammas[bestG]}, Val Acc = ${(bestAcc*100).toFixed(0)}%. Vùng tối ưu: C∈[1,10], γ∈[0.1,1.0].`;
+}
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T1-L04 — Bias-Variance & Regularization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #ecfeff;
+    --accent: #0e7490;
+    --accent-soft: #cffafe;
+    --accent-hover: #155e75;
+  }
+  body { background: var(--bg); }
+  h1 { color: #164e63; margin-bottom: 4px; }
+  .subtitle { color: #0e7490; margin-bottom: 24px; }
+  h2 { color: #164e63; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a5f3fc; }
+  h3 { color: #0e7490; font-size: 16px; margin-top: 18px; }
+  .card {
+    background: white; border-radius: 8px; padding: 18px 20px;
+    box-shadow: 0 1px 4px rgba(14,116,144,0.12); margin: 16px 0;
+    border: 1px solid #cffafe;
+  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; font-size: 14px; color: #164e63; }
+  input[type="range"] { width: 200px; accent-color: var(--accent); }
+  .slider-val {
+    display: inline-block; font-family: monospace;
+    background: var(--accent-soft); padding: 2px 10px; border-radius: 4px;
+    font-weight: 700; color: var(--accent); min-width: 56px; text-align: center;
+  }
+  button {
+    background: var(--accent); color: white; border: none;
+    padding: 7px 16px; border-radius: 5px; font-size: 14px;
+    cursor: pointer; font-weight: 600; transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  svg { display: block; background: #f0fdfe; border: 1px solid #a5f3fc; border-radius: 6px; }
+  canvas { display: block; border: 1px solid #a5f3fc; border-radius: 6px; background: #f0fdfe; }
+  .stat-row {
+    display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0;
+  }
+  .stat {
+    background: var(--accent-soft); padding: 8px 14px; border-radius: 5px;
+    font-family: monospace; font-size: 13px; border: 1px solid #67e8f9;
+  }
+  .stat .name { color: #0e7490; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
+  .stat .val { color: #164e63; font-weight: 700; font-size: 15px; }
+  table { border-collapse: collapse; margin: 8px 0; font-size: 13px; }
+  table td, table th { padding: 6px 12px; border: 1px solid #a5f3fc; text-align: center; font-family: monospace; }
+  table th { background: var(--accent-soft); color: #164e63; font-weight: 700; }
+  .formula {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    background: #164e63; color: #67e8f9;
+    padding: 10px 14px; border-radius: 5px;
+    font-size: 14px; margin: 10px 0;
+  }
+  .info { background: #ecfeff; border-left: 4px solid var(--accent); padding: 10px 14px; margin: 10px 0; border-radius: 4px; font-size: 14px; }
+  .warn { background: #fff7ed; border-left: 4px solid #f97316; padding: 10px 14px; margin: 10px 0; border-radius: 4px; font-size: 14px; color: #9a3412; }
+  .tabs { display: flex; gap: 0; margin-bottom: 0; }
+  .tab-btn {
+    padding: 8px 18px; border: 1px solid #a5f3fc; border-bottom: none;
+    background: #e0f2fe; color: #0c4a6e; cursor: pointer; font-weight: 600;
+    font-size: 13px; border-radius: 5px 5px 0 0; transition: background 0.15s;
+  }
+  .tab-btn.active { background: white; color: var(--accent); border-color: var(--accent); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .cv-fold { display: flex; height: 28px; border-radius: 5px; overflow: hidden; gap: 3px; margin: 4px 0; }
+  .cv-fold .seg { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; border-radius: 3px; }
+  .seg-train { background: #0e7490; color: white; }
+  .seg-val { background: #f97316; color: white; }
+  .coeff-bar-wrap { display: flex; flex-direction: column; gap: 6px; margin: 8px 0; }
+  .coeff-row { display: flex; align-items: center; gap: 8px; font-size: 13px; font-family: monospace; }
+  .coeff-label { width: 28px; text-align: right; color: #0e7490; font-weight: 700; }
+  .coeff-track { flex: 1; height: 18px; background: #e0f2fe; border-radius: 9px; overflow: hidden; position: relative; max-width: 260px; }
+  .coeff-fill { height: 100%; border-radius: 9px; transition: width 0.3s; }
+  .coeff-val { width: 60px; text-align: right; color: #164e63; }
+  @media (max-width: 768px) {
+    input[type="range"] { width: 160px; }
+    table { font-size: 12px; }
+    table td, table th { padding: 4px 8px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-logistic-regression/visualization.html">← T1-L03: Logistic regression</a>
+  <span class="sep">·</span>
+  <span class="current">T1-L04: Bias-Variance</span>
+  <span class="sep">·</span>
+  <a href="../../02-ClassicalMethods/lesson-01-knn-decision-tree/visualization.html">T2-L01: KNN &amp; Tree →</a>
+</nav>
+<main>
+<h1>T1-L04 — Bias-Variance &amp; Regularization</h1>
+<p class="subtitle">Polynomial overfit · Ridge / Lasso shrinkage · k-Fold Cross-Validation</p>
+
+<!-- TAB NAVIGATION -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('poly')">Polynomial Fit</button>
+  <button class="tab-btn" onclick="switchTab('ridge')">Ridge λ</button>
+  <button class="tab-btn" onclick="switchTab('lasso')">Lasso Sparsity</button>
+  <button class="tab-btn" onclick="switchTab('cv')">k-Fold CV</button>
+</div>
+
+<!-- TAB 1: Polynomial Fit -->
+<div id="tab-poly" class="tab-panel active">
+<div class="card">
+  <h3>Polynomial Regression — Bias vs Variance</h3>
+  <p style="font-size:13px;color:#4a5568;">Dữ liệu: y = sin(πx) + noise (n=20 điểm). Kéo slider degree để xem underfit → sweet spot → overfit.</p>
+  <div class="row">
+    <label>Degree:</label>
+    <input type="range" id="degSlider" min="1" max="10" value="3" oninput="updatePoly()">
+    <span class="slider-val" id="degVal">3</span>
+  </div>
+  <canvas id="polyCanvas" width="600" height="300"></canvas>
+  <div class="stat-row" id="polyStats"></div>
+  <div id="polyComment" class="info"></div>
+</div>
+</div>
+
+<!-- TAB 2: Ridge -->
+<div id="tab-ridge" class="tab-panel">
+<div class="card">
+  <h3>Ridge Regression — Coefficient Shrinkage</h3>
+  <p style="font-size:13px;color:#4a5568;">Ban đầu: w = [5.0, −3.0, 7.0, −2.0]. Tăng λ để xem shrinkage monotonic.</p>
+  <div class="formula">L_ridge = MSE(w) + λ · Σ wⱼ²</div>
+  <div class="row">
+    <label>λ:</label>
+    <input type="range" id="ridgeSlider" min="0" max="100" value="0" oninput="updateRidge()">
+    <span class="slider-val" id="ridgeVal">0.00</span>
+  </div>
+  <div class="coeff-bar-wrap" id="ridgeBars"></div>
+  <div class="stat-row" id="ridgeStats"></div>
+  <table id="ridgeTable" style="margin-top:12px;">
+    <tr><th>λ</th><th>w₁</th><th>w₂</th><th>w₃</th><th>w₄</th><th>‖w‖²</th></tr>
+  </table>
+</div>
+</div>
+
+<!-- TAB 3: Lasso -->
+<div id="tab-lasso" class="tab-panel">
+<div class="card">
+  <h3>Lasso — Sparsity Demo</h3>
+  <p style="font-size:13px;color:#4a5568;">Features 1 và 3 quan trọng (true signal). Tăng λ → features ít quan trọng về 0.</p>
+  <div class="formula">L_lasso = MSE(w) + λ · Σ|wⱼ|</div>
+  <div class="row">
+    <label>λ:</label>
+    <input type="range" id="lassoSlider" min="0" max="100" value="0" oninput="updateLasso()">
+    <span class="slider-val" id="lassoVal">0.00</span>
+  </div>
+  <div class="coeff-bar-wrap" id="lassoBars"></div>
+  <div class="stat-row" id="lassoStats"></div>
+  <div id="lassoComment" class="info"></div>
+</div>
+</div>
+
+<!-- TAB 4: k-Fold CV -->
+<div id="tab-cv" class="tab-panel">
+<div class="card">
+  <h3>k-Fold Cross-Validation Visualizer</h3>
+  <p style="font-size:13px;color:#4a5568;">Nhấn "Chạy CV" để xem từng fold train/val, accuracy từng fold và summary.</p>
+  <div class="row">
+    <label>k =</label>
+    <input type="range" id="kSlider" min="2" max="10" value="5" oninput="updateK()">
+    <span class="slider-val" id="kVal">5</span>
+    <button onclick="runCV()">Chạy CV</button>
+  </div>
+  <div id="cvFolds" style="margin:12px 0;"></div>
+  <canvas id="cvCanvas" width="560" height="180"></canvas>
+  <div class="stat-row" id="cvStats" style="margin-top:10px;"></div>
+</div>
+</div>
+
+</main>
+
+<script>
+// ============================
+// TAB SWITCHING
+// ============================
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    const names = ['poly','ridge','lasso','cv'];
+    b.classList.toggle('active', names[i] === name);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+// ============================
+// POLYNOMIAL FIT
+// ============================
+// Generate fixed dataset: y = sin(πx) + noise
+const RNG_POLY = (function() {
+  let s = 42;
+  return () => { s = (s * 1664525 + 1013904223) & 0x7fffffff; return s / 0x7fffffff; };
+})();
+const N = 20;
+const polyX = [], polyY = [];
+for (let i = 0; i < N; i++) {
+  const x = -1 + 2 * i / (N - 1);
+  polyX.push(x);
+  polyY.push(Math.sin(Math.PI * x) + (RNG_POLY() - 0.5) * 0.5);
+}
+
+// Vandermonde matrix for polynomial fit
+function polyFit(xs, ys, deg) {
+  const n = xs.length;
+  const A = [];
+  for (let i = 0; i < n; i++) {
+    const row = [];
+    for (let d = 0; d <= deg; d++) row.push(Math.pow(xs[i], d));
+    A.push(row);
+  }
+  // Normal equations: (A^T A) w = A^T y  — simple for small deg
+  // Use Gaussian elimination
+  const At = transpose(A);
+  const AtA = matMul(At, A);
+  const Aty = matVec(At, ys);
+  return gaussSolve(AtA, Aty);
+}
+
+function transpose(M) {
+  return M[0].map((_, j) => M.map(r => r[j]));
+}
+function matMul(A, B) {
+  return A.map(r => B[0].map((_, j) => r.reduce((s, v, k) => s + v * B[k][j], 0)));
+}
+function matVec(M, v) {
+  return M.map(r => r.reduce((s, val, i) => s + val * v[i], 0));
+}
+function gaussSolve(A, b) {
+  const n = b.length;
+  const M = A.map((r, i) => [...r, b[i]]);
+  for (let col = 0; col < n; col++) {
+    let best = col;
+    for (let r = col + 1; r < n; r++) if (Math.abs(M[r][col]) > Math.abs(M[best][col])) best = r;
+    [M[col], M[best]] = [M[best], M[col]];
+    const piv = M[col][col];
+    if (Math.abs(piv) < 1e-12) continue;
+    for (let r = 0; r < n; r++) {
+      if (r === col) continue;
+      const f = M[r][col] / piv;
+      for (let c = col; c <= n; c++) M[r][c] -= f * M[col][c];
+    }
+  }
+  return M.map((r, i) => r[n] / r[i]);
+}
+
+function polyPredict(coeffs, x) {
+  return coeffs.reduce((s, c, i) => s + c * Math.pow(x, i), 0);
+}
+
+function mse(xs, ys, coeffs) {
+  return ys.reduce((s, y, i) => s + Math.pow(y - polyPredict(coeffs, xs[i]), 2), 0) / ys.length;
+}
+
+// Generate validation set (different noise seed)
+const RNG_VAL = (function() {
+  let s = 99;
+  return () => { s = (s * 22695477 + 1) & 0x7fffffff; return s / 0x7fffffff; };
+})();
+const valX = [], valY = [];
+for (let i = 0; i < 20; i++) {
+  const x = -1 + 2 * (i + 0.5) / 20;
+  valX.push(x);
+  valY.push(Math.sin(Math.PI * x) + (RNG_VAL() - 0.5) * 0.5);
+}
+
+function updatePoly() {
+  const deg = parseInt(document.getElementById('degSlider').value);
+  document.getElementById('degVal').textContent = deg;
+  const canvas = document.getElementById('polyCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  let coeffs;
+  try { coeffs = polyFit(polyX, polyY, deg); }
+  catch(e) { return; }
+
+  const trainMSE = mse(polyX, polyY, coeffs);
+  const valMSE = mse(valX, valY, coeffs);
+
+  // Draw
+  const toCanvasX = x => (x + 1) / 2 * (W - 60) + 30;
+  const toCanvasY = y => H/2 - y * (H/2 - 20);
+
+  // Grid
+  ctx.strokeStyle = '#e0f2fe'; ctx.lineWidth = 1;
+  [-1, 0, 1].forEach(v => {
+    ctx.beginPath(); ctx.moveTo(30, toCanvasY(v)); ctx.lineTo(W-30, toCanvasY(v)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(toCanvasX(v), 10); ctx.lineTo(toCanvasX(v), H-10); ctx.stroke();
+  });
+
+  // True function
+  ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1.5; ctx.setLineDash([4,3]);
+  ctx.beginPath();
+  for (let i = 0; i <= 100; i++) {
+    const x = -1 + 2*i/100;
+    const y = Math.sin(Math.PI * x);
+    i === 0 ? ctx.moveTo(toCanvasX(x), toCanvasY(y)) : ctx.lineTo(toCanvasX(x), toCanvasY(y));
+  }
+  ctx.stroke(); ctx.setLineDash([]);
+
+  // Fitted curve
+  const color = valMSE > trainMSE * 3 ? '#ef4444' : (trainMSE > 0.3 ? '#f97316' : '#0e7490');
+  ctx.strokeStyle = color; ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  let firstPt = true;
+  for (let i = 0; i <= 120; i++) {
+    const x = -1 + 2*i/120;
+    const y = polyPredict(coeffs, x);
+    if (y > 2 || y < -2) { firstPt = true; continue; }
+    firstPt ? ctx.moveTo(toCanvasX(x), toCanvasY(y)) : ctx.lineTo(toCanvasX(x), toCanvasY(y));
+    firstPt = false;
+  }
+  ctx.stroke();
+
+  // Training points
+  polyX.forEach((x, i) => {
+    ctx.fillStyle = '#0e7490';
+    ctx.beginPath(); ctx.arc(toCanvasX(x), toCanvasY(polyY[i]), 4, 0, 2*Math.PI); ctx.fill();
+  });
+
+  // Labels
+  ctx.fillStyle = '#94a3b8'; ctx.font = '11px monospace';
+  ctx.fillText('— true: sin(πx)', W-140, 20);
+  ctx.fillStyle = color;
+  ctx.fillText('— fitted deg ' + deg, W-140, 34);
+  ctx.fillStyle = '#0e7490';
+  ctx.fillText('● train pts', W-140, 48);
+
+  // Stats
+  document.getElementById('polyStats').innerHTML =
+    `<div class="stat"><div class="name">TRAIN MSE</div><div class="val">${trainMSE.toFixed(4)}</div></div>
+     <div class="stat"><div class="name">VAL MSE</div><div class="val">${valMSE.toFixed(4)}</div></div>
+     <div class="stat"><div class="name">GAP</div><div class="val">${(valMSE - trainMSE).toFixed(4)}</div></div>`;
+
+  const comments = {
+    1: '⬆ Underfit (High Bias): đường thẳng không capture được sin curve. Train & val MSE đều cao.',
+    2: 'Vẫn underfitting, nhưng đã tốt hơn.',
+    3: '✅ Sweet spot: train ≈ val MSE, đường cong khớp tốt với sin(πx).',
+    4: 'Gần sweet spot, val bắt đầu nhích lên.',
+    5: 'Bắt đầu overfit nhẹ — val MSE tăng dù train giảm.',
+    6: 'Overfit tăng. Val MSE > Train MSE rõ rệt.',
+    7: 'Overfit mạnh — đường cong bắt đầu "rung".',
+    8: 'High Variance: model dao động mạnh ở biên.',
+    9: 'Overfit nghiêm trọng.',
+    10: '⬆ Overfit cực độ (High Variance): train MSE gần 0 nhưng val MSE bùng nổ!'
+  };
+  document.getElementById('polyComment').textContent = comments[deg] || '';
+}
+updatePoly();
+
+// ============================
+// RIDGE
+// ============================
+const W0 = [5.0, -3.0, 7.0, -2.0];
+function ridgeShrink(w0, lam) {
+  // Approximation for orthogonal features: w_ridge = w / (1 + 2λ / max(‖w‖₂, 0.01))
+  const norm = Math.sqrt(w0.reduce((s, v) => s + v*v, 0));
+  const s = norm / (norm + 2 * lam);
+  return w0.map(v => v * s);
+}
+
+function updateRidge() {
+  const raw = parseInt(document.getElementById('ridgeSlider').value);
+  const lam = raw === 0 ? 0 : Math.pow(10, (raw - 50) / 20);
+  document.getElementById('ridgeVal').textContent = lam < 0.01 ? lam.toFixed(4) : lam.toFixed(2);
+
+  const w = ridgeShrink(W0, lam);
+  const norm2 = w.reduce((s, v) => s + v*v, 0);
+
+  const maxAbs = Math.max(...W0.map(Math.abs));
+  const barsHTML = w.map((v, i) => {
+    const pct = Math.abs(v) / maxAbs * 100;
+    const col = v >= 0 ? '#0e7490' : '#f97316';
+    return `<div class="coeff-row">
+      <span class="coeff-label">w${i+1}</span>
+      <div class="coeff-track">
+        <div class="coeff-fill" style="width:${pct.toFixed(1)}%;background:${col};"></div>
+      </div>
+      <span class="coeff-val">${v.toFixed(3)}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('ridgeBars').innerHTML = barsHTML;
+
+  document.getElementById('ridgeStats').innerHTML =
+    `<div class="stat"><div class="name">‖w‖²</div><div class="val">${norm2.toFixed(3)}</div></div>
+     <div class="stat"><div class="name">‖w‖₂</div><div class="val">${Math.sqrt(norm2).toFixed(3)}</div></div>
+     <div class="stat"><div class="name">λ</div><div class="val">${lam < 0.01 ? lam.toFixed(4) : lam.toFixed(3)}</div></div>`;
+
+  // Update reference table
+  const lambdas = [0, 0.1, 1, 10];
+  let rows = '';
+  lambdas.forEach(l => {
+    const wl = ridgeShrink(W0, l);
+    const n2 = wl.reduce((s, v) => s + v*v, 0);
+    const hl = Math.abs(l - lam) < lam * 0.2 + 0.01 ? ' style="background:#cffafe;"' : '';
+    rows += `<tr${hl}><td>${l}</td>${wl.map(v => `<td>${v.toFixed(2)}</td>`).join('')}<td>${n2.toFixed(2)}</td></tr>`;
+  });
+  document.getElementById('ridgeTable').innerHTML =
+    `<tr><th>λ</th><th>w₁</th><th>w₂</th><th>w₃</th><th>w₄</th><th>‖w‖²</th></tr>${rows}`;
+}
+updateRidge();
+
+// ============================
+// LASSO
+// ============================
+// Simulated Lasso path: features 2,4 go to 0 first, then 1, then 3
+function lassoPath(lam) {
+  // w0 = [3.5, -2.1, 4.8, -1.3, 2.0] — 5 features, features 1,3 important
+  const w0 = [3.5, -2.1, 4.8, -1.3, 2.0];
+  const thresholds = [0, 0, 0, 0, 0]; // each feature zeroed at different λ
+  // soft-thresholding simulation
+  return w0.map((v, i) => {
+    const importance = [0.5, 1.2, 0.3, 1.4, 0.8][i]; // higher = zeroed later
+    const effective = Math.max(0, Math.abs(v) - lam * importance);
+    return Math.sign(v) * effective;
+  });
+}
+
+function updateLasso() {
+  const raw = parseInt(document.getElementById('lassoSlider').value);
+  const lam = raw / 50;
+  document.getElementById('lassoVal').textContent = lam.toFixed(2);
+
+  const w = lassoPath(lam);
+  const nonzero = w.filter(v => Math.abs(v) > 0.001).length;
+  const l1 = w.reduce((s, v) => s + Math.abs(v), 0);
+
+  const w0 = [3.5, -2.1, 4.8, -1.3, 2.0];
+  const maxAbs = Math.max(...w0.map(Math.abs));
+  const barsHTML = w.map((v, i) => {
+    const pct = Math.abs(v) / maxAbs * 100;
+    const isZero = Math.abs(v) < 0.001;
+    const col = isZero ? '#cbd5e0' : (v >= 0 ? '#0e7490' : '#f97316');
+    const important = [true, false, true, false, false][i];
+    return `<div class="coeff-row">
+      <span class="coeff-label" style="color:${important?'#164e63':'#94a3b8'}">w${i+1}${important?' ★':''}</span>
+      <div class="coeff-track">
+        <div class="coeff-fill" style="width:${pct.toFixed(1)}%;background:${col};"></div>
+      </div>
+      <span class="coeff-val" style="color:${isZero?'#94a3b8':'#164e63'}">${isZero?'0.000':v.toFixed(3)}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('lassoBars').innerHTML = barsHTML;
+
+  document.getElementById('lassoStats').innerHTML =
+    `<div class="stat"><div class="name">Non-zero</div><div class="val">${nonzero}/5</div></div>
+     <div class="stat"><div class="name">‖w‖₁</div><div class="val">${l1.toFixed(3)}</div></div>
+     <div class="stat"><div class="name">λ</div><div class="val">${lam.toFixed(2)}</div></div>`;
+
+  let comment = '';
+  if (nonzero === 5) comment = 'Tất cả 5 features đang active. λ còn nhỏ.';
+  else if (nonzero === 4) comment = 'Feature 3 (ít quan trọng nhất) → 0. Sparsity bắt đầu.';
+  else if (nonzero === 3) comment = 'Features 2,3 → 0. Lasso đã loại bỏ features không quan trọng.';
+  else if (nonzero === 2) comment = '✅ Chỉ còn features 1,3 (★): đúng với ground truth signal!';
+  else if (nonzero === 1) comment = 'Regularize quá mạnh — mất feature quan trọng. Underfitting.';
+  else comment = 'Tất cả về 0 — model không học được gì. λ quá lớn.';
+  document.getElementById('lassoComment').textContent = comment;
+}
+updateLasso();
+
+// ============================
+// k-FOLD CV
+// ============================
+// Simulated 150-sample dataset (Iris-like): base accuracy ~0.94
+const BASE_ACC = 0.947;
+const RNG_CV = (function() {
+  let s = 17;
+  return () => { s = (s * 1664525 + 1013904223) & 0x7fffffff; return s / 0x7fffffff; };
+})();
+
+function updateK() {
+  document.getElementById('kVal').textContent = document.getElementById('kSlider').value;
+}
+
+function runCV() {
+  const k = parseInt(document.getElementById('kSlider').value);
+  const n = 150;
+  const foldSize = Math.floor(n / k);
+
+  // Draw fold structure
+  let foldsHTML = '';
+  const accs = [];
+  for (let f = 0; f < k; f++) {
+    const segs = [];
+    for (let i = 0; i < k; i++) {
+      segs.push(`<div class="seg ${i === f ? 'seg-val' : 'seg-train'}" style="flex:${foldSize}">${i === f ? 'VAL' : 'TR'}</div>`);
+    }
+    // Generate semi-random accuracy
+    const noise = (RNG_CV() - 0.5) * 0.06;
+    const acc = Math.min(1, Math.max(0.7, BASE_ACC + noise));
+    accs.push(acc);
+    foldsHTML += `<div style="display:flex;align-items:center;gap:8px;margin:3px 0;">
+      <span style="font-size:12px;font-weight:700;color:#0e7490;width:40px;">Fold ${f+1}</span>
+      <div class="cv-fold" style="flex:1;max-width:320px;">${segs.join('')}</div>
+      <span style="font-size:12px;font-family:monospace;color:#164e63;width:60px;">${(acc*100).toFixed(1)}%</span>
+    </div>`;
+  }
+  document.getElementById('cvFolds').innerHTML = foldsHTML;
+
+  // Draw bar chart
+  const canvas = document.getElementById('cvCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const mean = accs.reduce((a, b) => a + b) / accs.length;
+  const std = Math.sqrt(accs.reduce((s, a) => s + (a-mean)**2, 0) / (accs.length - 1));
+
+  const barW = Math.min(60, (W - 80) / k - 8);
+  const bX = i => 60 + i * ((W - 80) / k) + ((W - 80) / k - barW) / 2;
+  const bY = acc => H - 30 - (acc - 0.6) / 0.4 * (H - 60);
+
+  // Grid
+  ctx.strokeStyle = '#e0f2fe'; ctx.lineWidth = 1;
+  [0.6, 0.7, 0.8, 0.9, 1.0].forEach(v => {
+    const y = H - 30 - (v - 0.6) / 0.4 * (H - 60);
+    ctx.beginPath(); ctx.moveTo(50, y); ctx.lineTo(W-10, y); ctx.stroke();
+    ctx.fillStyle = '#94a3b8'; ctx.font = '10px monospace';
+    ctx.fillText((v*100).toFixed(0)+'%', 8, y + 4);
+  });
+
+  // Mean line
+  const meanY = bY(mean);
+  ctx.strokeStyle = '#0e7490'; ctx.lineWidth = 2; ctx.setLineDash([5,3]);
+  ctx.beginPath(); ctx.moveTo(50, meanY); ctx.lineTo(W-10, meanY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#0e7490'; ctx.font = '11px monospace';
+  ctx.fillText('mean=' + (mean*100).toFixed(1)+'%', W-120, meanY - 6);
+
+  // Bars
+  accs.forEach((acc, i) => {
+    const x = bX(i), y = bY(acc), h = H - 30 - y;
+    ctx.fillStyle = '#67e8f9';
+    ctx.fillRect(x, y, barW, h);
+    ctx.strokeStyle = '#0e7490'; ctx.lineWidth = 1.5;
+    ctx.strokeRect(x, y, barW, h);
+    ctx.fillStyle = '#164e63'; ctx.font = '11px monospace';
+    ctx.fillText('F'+(i+1), x + barW/2 - 8, H - 12);
+  });
+
+  document.getElementById('cvStats').innerHTML =
+    `<div class="stat"><div class="name">Mean Acc</div><div class="val">${(mean*100).toFixed(1)}%</div></div>
+     <div class="stat"><div class="name">Std</div><div class="val">±${(std*100).toFixed(1)}%</div></div>
+     <div class="stat"><div class="name">k</div><div class="val">${k}</div></div>
+     <div class="stat"><div class="name">Fold size</div><div class="val">${foldSize}</div></div>`;
+}
+updateK();
+runCV();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

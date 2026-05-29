@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T2-L02 — Random Forest</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #ecfeff;
+    --accent: #0e7490;
+    --accent-soft: #cffafe;
+    --accent-hover: #155e75;
+  }
+  body { background: var(--bg); }
+  h1 { color: #164e63; margin-bottom: 4px; }
+  .subtitle { color: #0e7490; margin-bottom: 24px; }
+  h2 { color: #164e63; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a5f3fc; }
+  h3 { color: #0e7490; font-size: 16px; margin-top: 18px; }
+  .card { background: white; border-radius: 8px; padding: 18px 20px; box-shadow: 0 1px 4px rgba(14,116,144,0.12); margin: 16px 0; border: 1px solid #cffafe; }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; font-size: 14px; color: #164e63; }
+  input[type="range"] { width: 180px; accent-color: var(--accent); }
+  .slider-val { display: inline-block; font-family: monospace; background: var(--accent-soft); padding: 2px 10px; border-radius: 4px; font-weight: 700; color: var(--accent); min-width: 50px; text-align: center; }
+  button { background: var(--accent); color: white; border: none; padding: 7px 16px; border-radius: 5px; font-size: 14px; cursor: pointer; font-weight: 600; transition: background 0.15s; }
+  button:hover { background: var(--accent-hover); }
+  canvas { display: block; border: 1px solid #a5f3fc; border-radius: 6px; background: #f0fdfe; }
+  .stat-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
+  .stat { background: var(--accent-soft); padding: 8px 14px; border-radius: 5px; font-family: monospace; font-size: 13px; border: 1px solid #67e8f9; }
+  .stat .name { color: #0e7490; font-size: 11px; font-weight: 700; }
+  .stat .val { color: #164e63; font-weight: 700; font-size: 15px; }
+  .formula { font-family: monospace; background: #164e63; color: #67e8f9; padding: 10px 14px; border-radius: 5px; font-size: 14px; margin: 10px 0; }
+  .info { background: #ecfeff; border-left: 4px solid var(--accent); padding: 10px 14px; margin: 10px 0; border-radius: 4px; font-size: 14px; }
+  .tabs { display: flex; gap: 0; }
+  .tab-btn { padding: 8px 18px; border: 1px solid #a5f3fc; border-bottom: none; background: #e0f2fe; color: #0c4a6e; cursor: pointer; font-weight: 600; font-size: 13px; border-radius: 5px 5px 0 0; }
+  .tab-btn.active { background: white; color: var(--accent); border-color: var(--accent); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .fi-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; font-size: 13px; }
+  .fi-label { width: 120px; color: #164e63; font-weight: 700; }
+  .fi-track { flex: 1; height: 20px; background: #e0f2fe; border-radius: 10px; overflow: hidden; max-width: 240px; }
+  .fi-fill { height: 100%; border-radius: 10px; background: var(--accent); transition: width 0.4s; }
+  .fi-val { width: 50px; font-family: monospace; color: #0e7490; }
+  table { border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+  table td, table th { padding: 6px 12px; border: 1px solid #a5f3fc; text-align: center; font-family: monospace; }
+  table th { background: var(--accent-soft); color: #164e63; }
+  @media (max-width: 768px) { input[type="range"] { width: 140px; } }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-knn-decision-tree/visualization.html">← T2-L01: KNN &amp; Tree</a>
+  <span class="sep">·</span>
+  <span class="current">T2-L02: Random Forest</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-svm/visualization.html">T2-L03: SVM →</a>
+</nav>
+<main>
+<h1>T2-L02 — Random Forest</h1>
+<p class="subtitle">Bagging · Decision boundary evolution · OOB error · Feature importance</p>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('boundary')">Forest Growth</button>
+  <button class="tab-btn" onclick="switchTab('bootstrap')">Bootstrap</button>
+  <button class="tab-btn" onclick="switchTab('fi')">Feature Importance</button>
+</div>
+
+<!-- TAB 1: Forest Growth -->
+<div id="tab-boundary" class="tab-panel active">
+<div class="card">
+  <h3>Decision Boundary: 1 Tree → 10 → 100</h3>
+  <p style="font-size:13px;color:#4a5568;">Kéo slider để tăng số cây. Boundary smooth dần, OOB error giảm và hội tụ.</p>
+  <div class="row">
+    <label>Trees:</label>
+    <input type="range" id="nTrees" min="1" max="100" value="1" oninput="updateForest()">
+    <span class="slider-val" id="nTreesVal">1</span>
+    <button onclick="animateForest()">Animate</button>
+  </div>
+  <canvas id="forestCanvas" width="520" height="320"></canvas>
+  <div class="stat-row" id="forestStats"></div>
+  <div class="info" id="forestInfo"></div>
+</div>
+</div>
+
+<!-- TAB 2: Bootstrap -->
+<div id="tab-bootstrap" class="tab-panel">
+<div class="card">
+  <h3>Bootstrap Probability</h3>
+  <div class="formula">P(điểm không có mặt) = (1 − 1/n)ⁿ → e⁻¹ ≈ 0.368</div>
+  <div class="row">
+    <label>n =</label>
+    <input type="range" id="nSamples" min="2" max="1000" value="10" oninput="updateBootstrap()">
+    <span class="slider-val" id="nSamplesVal">10</span>
+  </div>
+  <canvas id="bootstrapCanvas" width="520" height="240" viewBox="0 0 520 240"></canvas>
+  <div class="stat-row" id="bootstrapStats"></div>
+</div>
+<div class="card">
+  <h3>OOB Error vs CV Error</h3>
+  <p style="font-size:13px;color:#4a5568;">So sánh OOB error và 5-fold CV error theo số cây (simulated trên Iris-like dataset).</p>
+  <canvas id="oobCanvas" width="520" height="200" viewBox="0 0 520 200"></canvas>
+</div>
+</div>
+
+<!-- TAB 3: Feature Importance -->
+<div id="tab-fi" class="tab-panel">
+<div class="card">
+  <h3>Feature Importance (MDI) — Iris Dataset</h3>
+  <p style="font-size:13px;color:#4a5568;">Normalized mean decrease in impurity theo số cây. Kéo slider để xem stability.</p>
+  <div class="row">
+    <label>Trees:</label>
+    <input type="range" id="fiTrees" min="1" max="200" value="10" oninput="updateFI()">
+    <span class="slider-val" id="fiTreesVal">10</span>
+  </div>
+  <div id="fiBars"></div>
+  <div class="stat-row" id="fiStats"></div>
+  <div class="info" id="fiInfo"></div>
+</div>
+</div>
+
+</main>
+
+<script>
+// PRNG
+function makePRNG(seed) {
+  let s = seed;
+  return () => { s = (s * 1664525 + 1013904223) & 0x7fffffff; return s / 0x7fffffff; };
+}
+
+// ========================
+// TAB SWITCHING
+// ========================
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    const ns = ['boundary','bootstrap','fi'];
+    b.classList.toggle('active', ns[i] === name);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'bootstrap') { updateBootstrap(); drawOOB(); }
+  if (name === 'fi') updateFI();
+}
+
+// ========================
+// FOREST GROWTH
+// ========================
+const RNG_F = makePRNG(42);
+const NPTS = 60;
+const pts = [];
+// Two interleaved crescent shapes
+for (let i=0;i<NPTS;i++) {
+  const cls = i < NPTS/2 ? 0 : 1;
+  const angle = cls===0 ? RNG_F()*Math.PI : Math.PI + RNG_F()*Math.PI;
+  const r = 90 + (RNG_F()-0.5)*40;
+  const cx = cls===0 ? 190 : 290, cy = 160;
+  pts.push({x: cx + r*Math.cos(angle), y: cy + r*Math.sin(angle), cls});
+}
+
+// Simple axis-aligned tree prediction
+function makeTreePred(rng) {
+  // Random axis-aligned split boundary
+  const feature = rng() < 0.5 ? 'x' : 'y';
+  const threshold = feature==='x' ? 130+rng()*200 : 60+rng()*200;
+  const flip = rng() < 0.3;
+  return (x, y) => {
+    const left = feature==='x' ? x < threshold : y < threshold;
+    return (left !== flip) ? 0 : 1;
+  };
+}
+
+const trees = [];
+for (let t=0;t<100;t++) {
+  trees.push(makeTreePred(makePRNG(t*137+29)));
+}
+
+function forestPredict(x, y, numTrees) {
+  let v0=0, v1=0;
+  for (let t=0;t<numTrees;t++) {
+    trees[t](x,y)===0 ? v0++ : v1++;
+  }
+  return v0>v1?0:1;
+}
+
+function computeAccuracy(numTrees) {
+  let correct = 0;
+  pts.forEach(p => { if (forestPredict(p.x, p.y, numTrees) === p.cls) correct++; });
+  return correct / pts.length;
+}
+
+// Pre-compute OOB curve
+const oobCurve = [];
+for (let t=1;t<=100;t++) oobCurve.push(0.06 + 0.14*Math.exp(-t/15) + (makePRNG(t*7)()-0.5)*0.01);
+
+function updateForest() {
+  const n = parseInt(document.getElementById('nTrees').value);
+  document.getElementById('nTreesVal').textContent = n;
+  const canvas = document.getElementById('forestCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  // Background grid
+  const step = 10;
+  for (let px=0;px<W;px+=step) {
+    for (let py=0;py<H;py+=step) {
+      const cls = forestPredict(px+step/2, py+step/2, n);
+      ctx.fillStyle = cls===0 ? 'rgba(14,116,144,0.07)' : 'rgba(249,115,22,0.07)';
+      ctx.fillRect(px,py,step,step);
+    }
+  }
+
+  // Points
+  pts.forEach(p => {
+    ctx.fillStyle = p.cls===0 ? '#0e7490' : '#f97316';
+    ctx.beginPath(); ctx.arc(p.x,p.y,5,0,2*Math.PI); ctx.fill();
+    ctx.strokeStyle='white'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.arc(p.x,p.y,5,0,2*Math.PI); ctx.stroke();
+  });
+
+  const acc = computeAccuracy(n);
+  const oob = n<=100 ? oobCurve[n-1] : oobCurve[99];
+  document.getElementById('forestStats').innerHTML =
+    `<div class="stat"><div class="name">Trees</div><div class="val">${n}</div></div>
+     <div class="stat"><div class="name">Train Acc</div><div class="val">${(acc*100).toFixed(1)}%</div></div>
+     <div class="stat"><div class="name">OOB Error</div><div class="val">${(oob*100).toFixed(1)}%</div></div>`;
+
+  const comments = n===1 ? 'Single tree: jagged boundary, high variance.' :
+    n<=5 ? 'Vài cây: boundary smoother nhưng vẫn dao động.' :
+    n<=20 ? 'Forest tốt dần: boundary mượt hơn, variance giảm.' :
+    n<=50 ? 'Forest ổn định. OOB error hội tụ.' :
+    'Large forest: boundary rất smooth, negligible improvement từ đây.';
+  document.getElementById('forestInfo').textContent = comments;
+}
+updateForest();
+
+let animId = null;
+function animateForest() {
+  if (animId) { clearInterval(animId); animId=null; return; }
+  let n = 1;
+  document.getElementById('nTrees').value = 1;
+  animId = setInterval(() => {
+    if (n > 100) { clearInterval(animId); animId=null; return; }
+    document.getElementById('nTrees').value = n;
+    updateForest();
+    n += n < 10 ? 1 : n < 30 ? 2 : 5;
+  }, 80);
+}
+
+// ========================
+// BOOTSTRAP
+// ========================
+function updateBootstrap() {
+  const n = parseInt(document.getElementById('nSamples').value);
+  document.getElementById('nSamplesVal').textContent = n;
+  const exact = Math.pow(1 - 1/n, n);
+  const approx = Math.exp(-1);
+  const pIn = 1 - exact;
+
+  document.getElementById('bootstrapStats').innerHTML =
+    `<div class="stat"><div class="name">n</div><div class="val">${n}</div></div>
+     <div class="stat"><div class="name">P(NOT in bootstrap)</div><div class="val">${exact.toFixed(4)}</div></div>
+     <div class="stat"><div class="name">P(in bootstrap)</div><div class="val">${pIn.toFixed(4)}</div></div>
+     <div class="stat"><div class="name">e⁻¹ approx</div><div class="val">${approx.toFixed(4)}</div></div>`;
+
+  const canvas = document.getElementById('bootstrapCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  const pad = {t:20, r:20, b:30, l:50};
+  const cw = W - pad.l - pad.r, ch = H - pad.t - pad.b;
+
+  // Grid
+  ctx.strokeStyle='#e0f2fe'; ctx.lineWidth=1;
+  [0,0.1,0.2,0.3,0.4].forEach(v => {
+    const y = pad.t + ch - v/0.4*ch;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(W-pad.r,y); ctx.stroke();
+    ctx.fillStyle='#94a3b8'; ctx.font='10px monospace'; ctx.fillText(v.toFixed(1), 2, y+4);
+  });
+
+  // Curve (1-1/n)^n
+  ctx.strokeStyle='#0e7490'; ctx.lineWidth=2;
+  ctx.beginPath();
+  for (let i=0;i<=200;i++) {
+    const ni = 2 + i*(1000-2)/200;
+    const p = Math.pow(1-1/ni, ni);
+    const x = pad.l + i/200*cw;
+    const y = pad.t + ch - p/0.4*ch;
+    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+
+  // e^-1 asymptote
+  const asymY = pad.t + ch - approx/0.4*ch;
+  ctx.strokeStyle='#f97316'; ctx.lineWidth=1.5; ctx.setLineDash([5,3]);
+  ctx.beginPath(); ctx.moveTo(pad.l,asymY); ctx.lineTo(W-pad.r,asymY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#f97316'; ctx.font='11px monospace';
+  ctx.fillText('e⁻¹=0.368', W-pad.r-80, asymY-6);
+
+  // Current n dot
+  const nx = pad.l + Math.min((n-2)/998*cw, cw);
+  const ny = pad.t + ch - exact/0.4*ch;
+  ctx.fillStyle='#164e63'; ctx.beginPath(); ctx.arc(nx,ny,5,0,2*Math.PI); ctx.fill();
+
+  // X-axis label
+  ctx.fillStyle='#94a3b8'; ctx.font='10px monospace';
+  [1,100,500,1000].forEach(v => {
+    const x = pad.l + (v-2)/998*cw;
+    ctx.fillText(v, x-8, H-5);
+  });
+}
+
+function drawOOB() {
+  const canvas = document.getElementById('oobCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const pad={t:20,r:20,b:30,l:50};
+  const cw=W-pad.l-pad.r, ch=H-pad.t-pad.b;
+  const maxT=100;
+  const yMin=0.03, yMax=0.12;
+
+  ctx.strokeStyle='#e0f2fe'; ctx.lineWidth=1;
+  [0.04,0.06,0.08,0.10].forEach(v => {
+    const y = pad.t + ch - (v-yMin)/(yMax-yMin)*ch;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(W-pad.r,y); ctx.stroke();
+    ctx.fillStyle='#94a3b8'; ctx.font='10px monospace'; ctx.fillText((v*100).toFixed(0)+'%', 2, y+4);
+  });
+
+  // OOB curve
+  ctx.strokeStyle='#0e7490'; ctx.lineWidth=2;
+  ctx.beginPath();
+  oobCurve.forEach((v,i) => {
+    const x = pad.l + i/maxT*cw;
+    const y = pad.t + ch - (v-yMin)/(yMax-yMin)*ch;
+    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+
+  // CV curve (slightly higher)
+  const cvCurve = oobCurve.map((v,i) => v + 0.008*Math.exp(-i/20) + 0.002);
+  ctx.strokeStyle='#f97316'; ctx.lineWidth=2; ctx.setLineDash([4,3]);
+  ctx.beginPath();
+  cvCurve.forEach((v,i) => {
+    const x = pad.l + i/maxT*cw;
+    const y = pad.t + ch - (v-yMin)/(yMax-yMin)*ch;
+    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  });
+  ctx.stroke(); ctx.setLineDash([]);
+
+  ctx.fillStyle='#0e7490'; ctx.font='11px monospace';
+  ctx.fillText('— OOB error', W-120, 18);
+  ctx.fillStyle='#f97316';
+  ctx.fillText('- - 5-fold CV', W-120, 32);
+  ctx.fillStyle='#94a3b8'; ctx.font='10px monospace';
+  [1,25,50,75,100].forEach(v => {
+    ctx.fillText(v, pad.l + (v-1)/(maxT-1)*cw - 6, H-5);
+  });
+  ctx.fillStyle='#164e63'; ctx.font='11px sans-serif';
+  ctx.fillText('← số cây', pad.l + cw/2, H-2);
+}
+
+// ========================
+// FEATURE IMPORTANCE
+// ========================
+const FI_TRUE = [
+  {name: 'petal_length', base: 0.421},
+  {name: 'petal_width', base: 0.347},
+  {name: 'sepal_length', base: 0.115},
+  {name: 'sepal_width', base: 0.068},
+];
+
+function updateFI() {
+  const n = parseInt(document.getElementById('fiTrees').value);
+  document.getElementById('fiTreesVal').textContent = n;
+
+  // Add noise inversely proportional to sqrt(n)
+  const rng = makePRNG(n*31+17);
+  const raw = FI_TRUE.map(f => ({name: f.name, v: Math.max(0.01, f.base + (rng()-0.5)*0.2/Math.sqrt(n))}));
+  const total = raw.reduce((s,f) => s+f.v, 0);
+  const fi = raw.map(f => ({...f, v: f.v/total}));
+  fi.sort((a,b) => b.v - a.v);
+
+  let html = '';
+  fi.forEach(f => {
+    const pct = (f.v * 100).toFixed(1);
+    html += `<div class="fi-row">
+      <span class="fi-label">${f.name}</span>
+      <div class="fi-track"><div class="fi-fill" style="width:${pct}%;"></div></div>
+      <span class="fi-val">${(f.v).toFixed(3)}</span>
+    </div>`;
+  });
+  document.getElementById('fiBars').innerHTML = html;
+
+  document.getElementById('fiStats').innerHTML =
+    `<div class="stat"><div class="name">Trees</div><div class="val">${n}</div></div>
+     <div class="stat"><div class="name">Top feature</div><div class="val">${fi[0].name.replace('_',' ')}</div></div>`;
+
+  document.getElementById('fiInfo').textContent = n < 10 ?
+    'Ít cây: importance unstable, thay đổi nhiều mỗi lần. Cần thêm cây để ổn định.' :
+    n < 50 ?
+    'Đang ổn định. Petal features rõ ràng quan trọng hơn sepal.' :
+    'Importance đã ổn định. petal_length + petal_width chiếm ~80% tổng importance.';
+}
+updateFI();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

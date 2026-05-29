@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T2-L04 — Gradient Boosting</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #ecfeff;
+    --accent: #0e7490;
+    --accent-soft: #cffafe;
+    --accent-hover: #155e75;
+  }
+  body { background: var(--bg); }
+  h1 { color: #164e63; margin-bottom: 4px; }
+  .subtitle { color: #0e7490; margin-bottom: 24px; }
+  h2 { color: #164e63; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a5f3fc; }
+  h3 { color: #0e7490; font-size: 16px; margin-top: 18px; }
+  .card { background: white; border-radius: 8px; padding: 18px 20px; box-shadow: 0 1px 4px rgba(14,116,144,0.12); margin: 16px 0; border: 1px solid #cffafe; }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; font-size: 14px; color: #164e63; }
+  input[type="range"] { width: 160px; accent-color: var(--accent); }
+  .slider-val { display: inline-block; font-family: monospace; background: var(--accent-soft); padding: 2px 10px; border-radius: 4px; font-weight: 700; color: var(--accent); min-width: 60px; text-align: center; }
+  button { background: var(--accent); color: white; border: none; padding: 7px 16px; border-radius: 5px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button:hover { background: var(--accent-hover); }
+  button.sec { background: white; color: var(--accent); border: 2px solid var(--accent); }
+  canvas { display: block; border: 1px solid #a5f3fc; border-radius: 6px; background: #f0fdfe; }
+  .stat-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
+  .stat { background: var(--accent-soft); padding: 8px 14px; border-radius: 5px; font-family: monospace; font-size: 13px; border: 1px solid #67e8f9; }
+  .stat .name { color: #0e7490; font-size: 11px; font-weight: 700; }
+  .stat .val { color: #164e63; font-weight: 700; font-size: 15px; }
+  .formula { font-family: monospace; background: #164e63; color: #67e8f9; padding: 10px 14px; border-radius: 5px; font-size: 14px; margin: 10px 0; }
+  .info { background: #ecfeff; border-left: 4px solid var(--accent); padding: 10px 14px; margin: 10px 0; border-radius: 4px; font-size: 14px; }
+  .tabs { display: flex; gap: 0; }
+  .tab-btn { padding: 8px 18px; border: 1px solid #a5f3fc; border-bottom: none; background: #e0f2fe; color: #0c4a6e; cursor: pointer; font-weight: 600; font-size: 13px; border-radius: 5px 5px 0 0; }
+  .tab-btn.active { background: white; color: var(--accent); border-color: var(--accent); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  table { border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+  table td, table th { padding: 5px 10px; border: 1px solid #a5f3fc; text-align: center; font-family: monospace; }
+  table th { background: var(--accent-soft); color: #164e63; font-weight: 700; }
+  .step-row { display: flex; gap: 8px; margin: 4px 0; align-items: flex-start; }
+  .step-num { font-weight: 700; color: var(--accent); font-size: 14px; min-width: 28px; font-family: monospace; }
+  .step-desc { font-size: 13px; color: #164e63; }
+  @media (max-width: 768px) { input[type="range"] { width: 130px; } }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-svm/visualization.html">← T2-L03: SVM</a>
+  <span class="sep">·</span>
+  <span class="current">T2-L04: Gradient Boosting</span>
+  <span class="sep">·</span>
+  <a href="../../03-Unsupervised/lesson-01-kmeans-hierarchical/visualization.html">T3-L01: K-means →</a>
+</nav>
+<main>
+<h1>T2-L04 — Gradient Boosting</h1>
+<p class="subtitle">GBM regression step-by-step · Learning rate · Residual shrinkage · XGB vs LGBM</p>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('gbm')">GBM Regression</button>
+  <button class="tab-btn" onclick="switchTab('lr')">Learning Rate</button>
+  <button class="tab-btn" onclick="switchTab('compare')">XGB vs LightGBM</button>
+</div>
+
+<!-- TAB 1: GBM Step-by-step -->
+<div id="tab-gbm" class="tab-panel active">
+<div class="card">
+  <h3>GBM Regression — Animate Iterations</h3>
+  <div class="formula">F_m(x) = F_{m-1}(x) + η · hₘ(x)  &nbsp;|&nbsp;  hₘ fit to residuals rᵢ = yᵢ − F_{m-1}(xᵢ)</div>
+  <div class="row">
+    <label>Iter:</label>
+    <input type="range" id="iterSlider" min="0" max="20" value="0" oninput="updateGBM()">
+    <span class="slider-val" id="iterVal">0</span>
+    <button onclick="animateGBM()">Animate</button>
+    <label>η:</label>
+    <input type="range" id="etaSlider" min="1" max="10" value="3" oninput="updateGBM()">
+    <span class="slider-val" id="etaVal">0.3</span>
+  </div>
+  <canvas id="gbmCanvas" width="520" height="260" viewBox="0 0 520 260"></canvas>
+  <canvas id="residCanvas" width="520" height="160" style="margin-top:8px;" viewBox="0 0 520 160"></canvas>
+  <div class="stat-row" id="gbmStats"></div>
+  <div class="info" id="gbmInfo"></div>
+</div>
+
+<div class="card">
+  <h3>Iteration Log</h3>
+  <div id="iterLog" style="max-height:200px;overflow-y:auto;font-size:13px;font-family:monospace;"></div>
+</div>
+</div>
+
+<!-- TAB 2: Learning Rate Comparison -->
+<div id="tab-lr" class="tab-panel">
+<div class="card">
+  <h3>Learning Rate η — Effect on Convergence</h3>
+  <p style="font-size:13px;color:#4a5568;">So sánh Train MSE và Val MSE cho 3 learning rates theo số trees. Optimal: η nhỏ + nhiều trees + early stopping.</p>
+  <canvas id="lrCanvas" width="520" height="280" viewBox="0 0 520 280"></canvas>
+  <div class="info" id="lrInfo">η=0.1: chậm nhưng smooth convergence, ít overfit. η=0.5: nhanh đạt minimum nhưng volatile. η=1.0: overfit ngay sau vài iterations.</div>
+</div>
+</div>
+
+<!-- TAB 3: Comparison -->
+<div id="tab-compare" class="tab-panel">
+<div class="card">
+  <h3>XGBoost vs LightGBM vs sklearn GBM</h3>
+  <p style="font-size:13px;color:#4a5568;">Simulated benchmark: accuracy và training time theo dataset size.</p>
+  <canvas id="compareCanvas" width="520" height="260" viewBox="0 0 520 260"></canvas>
+  <div id="compareTable" style="margin-top:12px;"></div>
+</div>
+</div>
+
+</main>
+
+<script>
+// ========================
+// TAB SWITCHING
+// ========================
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    const ns = ['gbm','lr','compare'];
+    b.classList.toggle('active', ns[i] === name);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'lr') drawLR();
+  if (name === 'compare') drawCompare();
+}
+
+// ========================
+// GBM REGRESSION
+// ========================
+// Generate dataset: y = 0.5*sin(x) + x/3 + noise
+function makePRNG(seed) { let s=seed; return ()=>{s=(s*1664525+1013904223)&0x7fffffff;return s/0x7fffffff;}; }
+const RNG = makePRNG(42);
+const N=20;
+const gbmX=[],gbmY=[];
+for(let i=0;i<N;i++){
+  const x = -3+6*i/(N-1);
+  gbmX.push(x);
+  gbmY.push(0.5*Math.sin(x*1.5)+x/2+(RNG()-0.5)*0.5);
+}
+
+// GBM with stumps
+function fitStump(xs,ys,residuals) {
+  let bestSplit=xs[0], bestGain=-Infinity;
+  for(let s=0;s<xs.length-1;s++){
+    const threshold=(xs[s]+xs[s+1])/2;
+    const left=residuals.filter((_,i)=>xs[i]<threshold);
+    const right=residuals.filter((_,i)=>xs[i]>=threshold);
+    if(!left.length||!right.length) continue;
+    const lm=left.reduce((a,b)=>a+b)/left.length;
+    const rm=right.reduce((a,b)=>a+b)/right.length;
+    const gain=left.reduce((s,v)=>s-(v-lm)**2,0)+right.reduce((s,v)=>s-(v-rm)**2,0);
+    if(gain>bestGain){bestGain=gain;bestSplit=threshold;}
+  }
+  const lm=residuals.filter((_,i)=>xs[i]<bestSplit).reduce((a,b,_,arr)=>a+b/arr.length,0);
+  const rm=residuals.filter((_,i)=>xs[i]>=bestSplit).reduce((a,b,_,arr)=>a+b/arr.length,0);
+  return {split:bestSplit, lval:lm, rval:rm, predict:x=>x<bestSplit?lm:rm};
+}
+
+function mse(pred,truth) { return pred.reduce((s,p,i)=>s+(p-truth[i])**2,0)/pred.length; }
+
+// Pre-compute GBM iterations
+const MAX_ITER=20;
+const gbmHistory=[];
+let F=Array(N).fill(gbmY.reduce((a,b)=>a+b)/N);
+let residuals=[...gbmY.map((y,i)=>y-F[i])];
+gbmHistory.push({F:[...F],residuals:[...residuals],mse:mse(F,gbmY),iter:0,stump:null,eta:0.3});
+
+for(let m=1;m<=MAX_ITER;m++){
+  const eta=0.3;
+  const stump=fitStump(gbmX,gbmY,residuals);
+  const newF=F.map((f,i)=>f+eta*stump.predict(gbmX[i]));
+  const newRes=gbmY.map((y,i)=>y-newF[i]);
+  gbmHistory.push({F:[...newF],residuals:[...newRes],mse:mse(newF,gbmY),iter:m,stump,eta});
+  F=[...newF]; residuals=[...newRes];
+}
+
+let gbmAnimId=null;
+
+function updateGBM() {
+  const iter=parseInt(document.getElementById('iterSlider').value);
+  const etaRaw=parseInt(document.getElementById('etaSlider').value);
+  const eta=etaRaw/10;
+  document.getElementById('iterVal').textContent=iter;
+  document.getElementById('etaVal').textContent=eta.toFixed(1);
+
+  // Use pre-computed eta=0.3 history, scale visual
+  const hist=gbmHistory[iter];
+  const canvas=document.getElementById('gbmCanvas');
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  const toX=x=>(x+3)/6*(W-60)+30;
+  const toY=y=>{const range=6;return H/2-y*(H/2-20)/range;};
+
+  // Grid
+  ctx.strokeStyle='#e0f2fe';ctx.lineWidth=1;
+  [-3,0,3].forEach(v=>{const x=toX(v);ctx.beginPath();ctx.moveTo(x,10);ctx.lineTo(x,H-10);ctx.stroke();});
+  [-3,0,3].forEach(v=>{const y=toY(v);ctx.beginPath();ctx.moveTo(30,y);ctx.lineTo(W-30,y);ctx.stroke();});
+  ctx.fillStyle='#94a3b8';ctx.font='10px monospace';
+  [-3,0,3].forEach(v=>ctx.fillText(v,toX(v)-4,H-4));
+
+  // True function (dashed)
+  ctx.strokeStyle='#94a3b8';ctx.lineWidth=1.5;ctx.setLineDash([3,3]);
+  ctx.beginPath();
+  for(let i=0;i<=100;i++){const x=-3+6*i/100;const y=0.5*Math.sin(x*1.5)+x/2;i?ctx.lineTo(toX(x),toY(y)):ctx.moveTo(toX(x),toY(y));}
+  ctx.stroke();ctx.setLineDash([]);
+
+  // Current GBM prediction
+  const color=iter===0?'#94a3b8':iter<5?'#f97316':iter<10?'#0891b2':'#0e7490';
+  ctx.strokeStyle=color;ctx.lineWidth=2.5;
+  ctx.beginPath();
+  const sortedX=[...gbmX].sort((a,b)=>a-b);
+  sortedX.forEach((x,i)=>{
+    const fi=hist.F[gbmX.indexOf(x)];
+    i?ctx.lineTo(toX(x),toY(fi)):ctx.moveTo(toX(x),toY(fi));
+  });
+  ctx.stroke();
+
+  // Data points + residuals
+  gbmX.forEach((x,i)=>{
+    ctx.fillStyle='#164e63';ctx.beginPath();ctx.arc(toX(x),toY(gbmY[i]),4,0,2*Math.PI);ctx.fill();
+    // Residual line
+    ctx.strokeStyle='rgba(249,115,22,0.5)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(toX(x),toY(hist.F[i]));ctx.lineTo(toX(x),toY(gbmY[i]));ctx.stroke();
+  });
+
+  // Stump boundary
+  if(hist.stump){
+    const sx=toX(hist.stump.split);
+    ctx.strokeStyle='#f97316';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);
+    ctx.beginPath();ctx.moveTo(sx,10);ctx.lineTo(sx,H-10);ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Labels
+  ctx.fillStyle='#94a3b8';ctx.font='11px monospace';
+  ctx.fillText('— true fn',W-100,18);
+  ctx.fillStyle=color;ctx.fillText(`— iter ${iter}`,W-100,32);
+
+  // Residual chart
+  const rCanvas=document.getElementById('residCanvas');
+  const rCtx=rCanvas.getContext('2d');
+  const RW=rCanvas.width,RH=rCanvas.height;
+  rCtx.clearRect(0,0,RW,RH);
+  const toRX=x=>(x+3)/6*(RW-60)+30;
+  const toRY=r=>RH/2-r*(RH/2-15)/3;
+
+  rCtx.strokeStyle='#e0f2fe';rCtx.lineWidth=1;
+  rCtx.beginPath();rCtx.moveTo(30,RH/2);rCtx.lineTo(RW-30,RH/2);rCtx.stroke();
+  rCtx.fillStyle='#94a3b8';rCtx.font='10px monospace';rCtx.fillText('residuals',4,RH/2+4);
+
+  hist.residuals.forEach((r,i)=>{
+    const x=toRX(gbmX[i]);const y=toRY(r);
+    rCtx.fillStyle=r>0?'#0e7490':'#f97316';
+    rCtx.beginPath();rCtx.arc(x,y,4,0,2*Math.PI);rCtx.fill();
+    rCtx.strokeStyle='rgba(14,116,144,0.3)';rCtx.lineWidth=1;
+    rCtx.beginPath();rCtx.moveTo(x,RH/2);rCtx.lineTo(x,y);rCtx.stroke();
+  });
+
+  document.getElementById('gbmStats').innerHTML=
+    `<div class="stat"><div class="name">Iteration</div><div class="val">${iter}/${MAX_ITER}</div></div>
+     <div class="stat"><div class="name">Train MSE</div><div class="val">${hist.mse.toFixed(4)}</div></div>
+     <div class="stat"><div class="name">η</div><div class="val">${eta.toFixed(1)}</div></div>`;
+
+  const msg=iter===0?'F₀ = mean(y): constant prediction. Residuals lớn.':
+    iter<3?`Iter ${iter}: residuals đang thu nhỏ. MSE giảm mạnh.`:
+    iter<8?`Iter ${iter}: model đang khớp dần với true function.`:
+    iter<15?`Iter ${iter}: fine-tuning. Residuals nhỏ, model gần true fn.`:
+    `Iter ${iter}: residuals rất nhỏ. Có thể overfit nếu val loss tăng.`;
+  document.getElementById('gbmInfo').textContent=msg;
+
+  // Log
+  let logHTML='';
+  for(let m=0;m<=iter&&m<gbmHistory.length;m++){
+    const h=gbmHistory[m];
+    logHTML+=`<div style="color:${m===iter?'#0e7490':'#94a3b8'}">Iter ${m}: MSE=${h.mse.toFixed(4)}  |  residual_var=${(h.residuals.reduce((s,r)=>s+r*r,0)/N).toFixed(4)}</div>`;
+  }
+  document.getElementById('iterLog').innerHTML=logHTML;
+  document.getElementById('iterLog').scrollTop=1e9;
+}
+updateGBM();
+
+function animateGBM(){
+  if(gbmAnimId){clearInterval(gbmAnimId);gbmAnimId=null;return;}
+  let iter=0;
+  document.getElementById('iterSlider').value=0;
+  gbmAnimId=setInterval(()=>{
+    if(iter>MAX_ITER){clearInterval(gbmAnimId);gbmAnimId=null;return;}
+    document.getElementById('iterSlider').value=iter;
+    updateGBM();iter++;
+  },200);
+}
+
+// ========================
+// LEARNING RATE CHART
+// ========================
+function drawLR() {
+  const canvas=document.getElementById('lrCanvas');
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const pad={t:30,r:120,b:40,l:50};
+  const cw=W-pad.l-pad.r,ch=H-pad.t-pad.b;
+  const maxT=50,yMax=2.5,yMin=0;
+
+  // Grid
+  ctx.strokeStyle='#e0f2fe';ctx.lineWidth=1;
+  [0,0.5,1.0,1.5,2.0,2.5].forEach(v=>{
+    const y=pad.t+ch-(v-yMin)/(yMax-yMin)*ch;
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
+    ctx.fillStyle='#94a3b8';ctx.font='10px monospace';ctx.fillText(v.toFixed(1),2,y+4);
+  });
+  [0,10,20,30,40,50].forEach(v=>{
+    const x=pad.l+v/maxT*cw;
+    ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,pad.t+ch);ctx.stroke();
+    ctx.fillStyle='#94a3b8';ctx.font='10px monospace';ctx.fillText(v,x-8,H-5);
+  });
+
+  // GBM curves for different etas
+  const configs=[
+    {eta:0.1,color:'#0e7490',label:'η=0.1',trainFn:m=>0.15+1.8*Math.exp(-m*0.12),valFn:m=>0.18+1.8*Math.exp(-m*0.11)},
+    {eta:0.5,color:'#f97316',label:'η=0.5',trainFn:m=>0.08+1.8*Math.exp(-m*0.35),valFn:m=>0.25+1.5*Math.exp(-m*0.28)+0.003*m},
+    {eta:1.0,color:'#dc2626',label:'η=1.0',trainFn:m=>0.05+1.6*Math.exp(-m*0.7),valFn:m=>0.35+1.2*Math.exp(-m*0.5)+0.008*m},
+  ];
+
+  configs.forEach(({color,trainFn,valFn,label})=>{
+    // Train
+    ctx.strokeStyle=color;ctx.lineWidth=2;
+    ctx.beginPath();
+    for(let m=0;m<=maxT;m++){
+      const v=Math.max(0.05,trainFn(m));
+      const x=pad.l+m/maxT*cw;const y=pad.t+ch-(v-yMin)/(yMax-yMin)*ch;
+      m?ctx.lineTo(x,y):ctx.moveTo(x,y);
+    }
+    ctx.stroke();
+    // Val (dashed)
+    ctx.setLineDash([4,3]);
+    ctx.beginPath();
+    for(let m=0;m<=maxT;m++){
+      const v=Math.max(0.1,valFn(m));
+      const x=pad.l+m/maxT*cw;const y=pad.t+ch-(v-yMin)/(yMax-yMin)*ch;
+      m?ctx.lineTo(x,y):ctx.moveTo(x,y);
+    }
+    ctx.stroke();ctx.setLineDash([]);
+    // Legend
+    const ly=pad.t+configs.indexOf({color})+(configs.findIndex(c=>c.color===color))*20;
+    ctx.fillStyle=color;ctx.font='12px monospace';
+    ctx.fillText(label,W-pad.r+8,pad.t+(configs.findIndex(c=>c.color===color))*22+12);
+  });
+
+  ctx.fillStyle='#164e63';ctx.font='11px sans-serif';
+  ctx.fillText('Train',W-pad.r+8,H-25);
+  ctx.setLineDash([4,3]);ctx.strokeStyle='#164e63';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(W-pad.r+8,H-38);ctx.lineTo(W-pad.r+50,H-38);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillText('Val',W-pad.r+8,H-35);
+  ctx.fillStyle='#94a3b8';ctx.font='10px sans-serif';ctx.fillText('← # trees →',pad.l+cw/2-20,H-2);
+}
+
+// ========================
+// COMPARISON CHART
+// ========================
+function drawCompare() {
+  const data=[
+    {lib:'sklearn\nGBM',color:'#94a3b8',times:[8,45,180,1800],aucs:[0.91,0.918,0.921,0.923]},
+    {lib:'XGBoost',color:'#0e7490',times:[0.8,3,12,60],aucs:[0.915,0.928,0.934,0.938]},
+    {lib:'LightGBM',color:'#f97316',times:[0.3,1,4,20],aucs:[0.913,0.926,0.932,0.936]},
+  ];
+  const sizes=['1K','10K','100K','1M'];
+
+  const canvas=document.getElementById('compareCanvas');
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  // Accuracy chart (left half)
+  const LW=W/2-10,LH=H;
+  const pad={t:30,r:10,b:50,l:50};
+  const cw=LW-pad.l-pad.r,ch=LH-pad.t-pad.b;
+  const yMin=0.90,yMax=0.94;
+
+  ctx.fillStyle='#164e63';ctx.font='bold 12px sans-serif';ctx.textAlign='center';
+  ctx.fillText('Val AUC by dataset size',pad.l+cw/2,18);
+  ctx.textAlign='left';
+
+  ctx.strokeStyle='#e0f2fe';ctx.lineWidth=1;
+  [0.90,0.91,0.92,0.93,0.94].forEach(v=>{
+    const y=pad.t+ch-(v-yMin)/(yMax-yMin)*ch;
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+cw,y);ctx.stroke();
+    ctx.fillStyle='#94a3b8';ctx.font='9px monospace';ctx.fillText(v.toFixed(2),2,y+3);
+  });
+
+  data.forEach(({color,aucs})=>{
+    ctx.strokeStyle=color;ctx.lineWidth=2;
+    ctx.beginPath();
+    aucs.forEach((v,i)=>{
+      const x=pad.l+(i+0.5)/sizes.length*cw;
+      const y=pad.t+ch-(v-yMin)/(yMax-yMin)*ch;
+      i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+      ctx.fillStyle=color;ctx.fill();
+      ctx.arc(x,y,4,0,2*Math.PI);
+    });
+    ctx.stroke();
+  });
+  sizes.forEach((s,i)=>{
+    const x=pad.l+(i+0.5)/sizes.length*cw;
+    ctx.fillStyle='#4a5568';ctx.font='11px monospace';ctx.textAlign='center';
+    ctx.fillText(s,x,LH-5);
+  });
+  ctx.textAlign='left';
+
+  // Time chart (right half)
+  const RX=W/2+10;
+  const Rcw=W-RX-pad.r-10;
+
+  ctx.fillStyle='#164e63';ctx.font='bold 12px sans-serif';ctx.textAlign='center';
+  ctx.fillText('Train time (s, log scale)',RX+Rcw/2,18);
+  ctx.textAlign='left';
+
+  const logTimes=data.map(d=>d.times.map(t=>Math.log10(t+0.01)));
+  const yTmax=4,yTmin=-1;
+
+  ctx.strokeStyle='#e0f2fe';ctx.lineWidth=1;
+  [-1,0,1,2,3,4].forEach(v=>{
+    const y=pad.t+ch-(v-yTmin)/(yTmax-yTmin)*ch;
+    ctx.beginPath();ctx.moveTo(RX+pad.l,y);ctx.lineTo(RX+pad.l+Rcw,y);ctx.stroke();
+    ctx.fillStyle='#94a3b8';ctx.font='9px monospace';
+    ctx.fillText(['0.1s','1s','10s','100s','1000s','10Ks'][v+1],RX+2,y+3);
+  });
+
+  data.forEach(({color,times})=>{
+    ctx.strokeStyle=color;ctx.lineWidth=2;
+    ctx.beginPath();
+    times.forEach((t,i)=>{
+      const lv=Math.log10(t+0.01);
+      const x=RX+pad.l+(i+0.5)/sizes.length*Rcw;
+      const y=pad.t+ch-(lv-yTmin)/(yTmax-yTmin)*ch;
+      i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+    });
+    ctx.stroke();
+  });
+
+  // Legend
+  data.forEach(({lib,color},i)=>{
+    ctx.fillStyle=color;
+    ctx.fillRect(W-90,40+i*22,12,12);
+    ctx.fillStyle='#164e63';ctx.font='11px monospace';
+    ctx.fillText(lib.replace('\n',' '),W-75,52+i*22);
+  });
+
+  // Table
+  let html=`<table style="width:100%;font-size:12px;"><tr><th>Library</th>${sizes.map(s=>`<th>${s}</th>`).join('')}<th>Notes</th></tr>`;
+  const notes=['Level-wise, slow','2nd-order, regularized','Histogram, leaf-wise','Native cat.'];
+  data.forEach(({lib,times,aucs},di)=>{
+    html+=`<tr><td style="font-weight:700;color:${data[di].color}">${lib.replace('\n',' ')}</td>
+    ${times.map((t,i)=>`<td>${t}s / ${aucs[i].toFixed(3)}</td>`).join('')}
+    <td style="text-align:left;font-size:11px;color:#4a5568">${notes[di]||''}</td></tr>`;
+  });
+  html+='</table><p style="font-size:11px;color:#94a3b8;margin-top:4px;">Format: time / AUC</p>';
+  document.getElementById('compareTable').innerHTML=html;
+}
+drawCompare();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

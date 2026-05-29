@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T2-L01 — KNN & Decision Tree</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #ecfeff;
+    --accent: #0e7490;
+    --accent-soft: #cffafe;
+    --accent-hover: #155e75;
+  }
+  body { background: var(--bg); }
+  h1 { color: #164e63; margin-bottom: 4px; }
+  .subtitle { color: #0e7490; margin-bottom: 24px; }
+  h2 { color: #164e63; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a5f3fc; }
+  h3 { color: #0e7490; font-size: 16px; margin-top: 18px; }
+  .card {
+    background: white; border-radius: 8px; padding: 18px 20px;
+    box-shadow: 0 1px 4px rgba(14,116,144,0.12); margin: 16px 0;
+    border: 1px solid #cffafe;
+  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; font-size: 14px; color: #164e63; }
+  input[type="range"] { width: 180px; accent-color: var(--accent); }
+  .slider-val {
+    display: inline-block; font-family: monospace;
+    background: var(--accent-soft); padding: 2px 10px; border-radius: 4px;
+    font-weight: 700; color: var(--accent); min-width: 40px; text-align: center;
+  }
+  button {
+    background: var(--accent); color: white; border: none;
+    padding: 7px 16px; border-radius: 5px; font-size: 14px;
+    cursor: pointer; font-weight: 600; transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.sec { background: white; color: var(--accent); border: 2px solid var(--accent); }
+  button.sec:hover { background: var(--accent-soft); }
+  canvas { display: block; border: 1px solid #a5f3fc; border-radius: 6px; background: #f0fdfe; }
+  .stat-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
+  .stat {
+    background: var(--accent-soft); padding: 8px 14px; border-radius: 5px;
+    font-family: monospace; font-size: 13px; border: 1px solid #67e8f9;
+  }
+  .stat .name { color: #0e7490; font-size: 11px; font-weight: 700; }
+  .stat .val { color: #164e63; font-weight: 700; font-size: 15px; }
+  .formula { font-family: monospace; background: #164e63; color: #67e8f9; padding: 10px 14px; border-radius: 5px; font-size: 14px; margin: 10px 0; }
+  .info { background: #ecfeff; border-left: 4px solid var(--accent); padding: 10px 14px; margin: 10px 0; border-radius: 4px; font-size: 14px; }
+  .tabs { display: flex; gap: 0; }
+  .tab-btn { padding: 8px 18px; border: 1px solid #a5f3fc; border-bottom: none; background: #e0f2fe; color: #0c4a6e; cursor: pointer; font-weight: 600; font-size: 13px; border-radius: 5px 5px 0 0; }
+  .tab-btn.active { background: white; color: var(--accent); border-color: var(--accent); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  table { border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+  table td, table th { padding: 5px 10px; border: 1px solid #a5f3fc; text-align: center; font-family: monospace; }
+  table th { background: var(--accent-soft); color: #164e63; font-weight: 700; }
+  .entropy-input { width: 70px; font-family: monospace; font-size: 14px; padding: 4px 8px; border: 1px solid #a5f3fc; border-radius: 4px; text-align: center; }
+  .entropy-result { font-family: monospace; font-size: 22px; font-weight: 700; color: var(--accent); margin: 10px 0; }
+  .bar { height: 20px; background: var(--accent); border-radius: 3px; transition: width 0.3s; }
+  .ig-row { display: flex; align-items: center; gap: 8px; margin: 5px 0; font-size: 13px; }
+  .ig-label { width: 80px; font-weight: 700; color: #164e63; }
+  .ig-track { flex: 1; height: 18px; background: #e0f2fe; border-radius: 9px; overflow: hidden; max-width: 200px; }
+  .ig-fill { height: 100%; border-radius: 9px; background: var(--accent); transition: width 0.4s; }
+  .ig-val { width: 60px; font-family: monospace; color: #164e63; }
+  @media (max-width: 768px) {
+    input[type="range"] { width: 140px; }
+    canvas { max-width: 100%; height: auto; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../01-Foundations/lesson-04-bias-variance-regularization/visualization.html">← T1-L04: Bias-Variance</a>
+  <span class="sep">·</span>
+  <span class="current">T2-L01: KNN &amp; Tree</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-random-forest/visualization.html">T2-L02: Random Forest →</a>
+</nav>
+<main>
+<h1>T2-L01 — KNN &amp; Decision Tree</h1>
+<p class="subtitle">KNN classifier · Entropy calculator · Decision Tree builder (Play Tennis)</p>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('knn')">KNN Classifier</button>
+  <button class="tab-btn" onclick="switchTab('entropy')">Entropy</button>
+  <button class="tab-btn" onclick="switchTab('tree')">Decision Tree</button>
+</div>
+
+<!-- TAB 1: KNN -->
+<div id="tab-knn" class="tab-panel active">
+<div class="card">
+  <h3>KNN — 2D Classification</h3>
+  <p style="font-size:13px;color:#4a5568;">Click canvas để thêm điểm trắng (test point). Kéo slider k để xem boundary thay đổi. Click "Reset" để thêm dataset mới.</p>
+  <div class="row">
+    <label>k =</label>
+    <input type="range" id="knnK" min="1" max="15" value="3" oninput="knnDraw()">
+    <span class="slider-val" id="knnKVal">3</span>
+    <button onclick="knnReset()">Reset data</button>
+  </div>
+  <canvas id="knnCanvas" width="520" height="340" onclick="knnClick(event)"></canvas>
+  <div class="stat-row" id="knnStats"></div>
+  <div class="info" id="knnInfo">Click vào canvas để đặt điểm test và xem KNN predict.</div>
+</div>
+</div>
+
+<!-- TAB 2: Entropy -->
+<div id="tab-entropy" class="tab-panel">
+<div class="card">
+  <h3>Entropy &amp; Information Gain Calculator</h3>
+  <div class="formula">H(S) = −Σ pᵢ · log₂(pᵢ)</div>
+  <div class="row">
+    <label>Yes:</label>
+    <input type="range" id="entYes" min="0" max="14" value="9" oninput="calcEntropy()">
+    <span class="slider-val" id="entYesVal">9</span>
+    <label>No:</label>
+    <input type="range" id="entNo" min="0" max="14" value="5" oninput="calcEntropy()">
+    <span class="slider-val" id="entNoVal">5</span>
+  </div>
+  <div class="entropy-result" id="entResult">H = ? bit</div>
+  <canvas id="entCanvas" width="500" height="160" viewBox="0 0 500 160"></canvas>
+  <div id="entDetail" style="font-size:13px;font-family:monospace;color:#164e63;margin-top:8px;"></div>
+</div>
+
+<div class="card">
+  <h3>Information Gain — Play Tennis</h3>
+  <p style="font-size:13px;color:#4a5568;">Root entropy H(S)=0.940 bit (9 Yes, 5 No). IG của từng feature:</p>
+  <div id="igBars"></div>
+  <div class="info" id="igWinner"></div>
+</div>
+</div>
+
+<!-- TAB 3: Decision Tree -->
+<div id="tab-tree" class="tab-panel">
+<div class="card">
+  <h3>Decision Tree — Play Tennis (step-by-step)</h3>
+  <p style="font-size:13px;color:#4a5568;">Nhấn "Next split" để thêm từng nhánh của cây theo thuật toán ID3.</p>
+  <div class="row">
+    <button onclick="treeNext()">Next split</button>
+    <button class="sec" onclick="treeReset()">Reset</button>
+  </div>
+  <canvas id="treeCanvas" width="560" height="360" viewBox="0 0 560 360"></canvas>
+  <div class="info" id="treeInfo">Nhấn "Next split" để bắt đầu xây cây từ root.</div>
+</div>
+</div>
+</main>
+
+<script>
+// ========================
+// TAB SWITCHING
+// ========================
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    const ns = ['knn','entropy','tree'];
+    b.classList.toggle('active', ns[i] === name);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'entropy') { calcEntropy(); renderIG(); }
+  if (name === 'tree') treeReset();
+}
+
+// ========================
+// KNN
+// ========================
+const COLORS = ['#0e7490', '#f97316', '#7c3aed'];
+let knnPoints = [];
+let testPt = null;
+
+function knnReset() {
+  const RNG = (() => { let s=42; return () => { s=(s*1664525+1013904223)&0x7fffffff; return s/0x7fffffff; }; })();
+  knnPoints = [];
+  // Class 0: top-left cluster
+  for (let i=0;i<12;i++) knnPoints.push({x:80+RNG()*100, y:60+RNG()*100, cls:0});
+  // Class 1: bottom-right cluster
+  for (let i=0;i<12;i++) knnPoints.push({x:280+RNG()*120, y:200+RNG()*100, cls:1});
+  // Some interleaved points
+  for (let i=0;i<6;i++) knnPoints.push({x:160+RNG()*140, y:140+RNG()*80, cls: RNG()<0.5?0:1});
+  testPt = null;
+  knnDraw();
+}
+
+function dist2D(a, b) { return Math.sqrt((a.x-b.x)**2+(a.y-b.y)**2); }
+
+function knnPredict(pt, k) {
+  const sorted = knnPoints.slice().sort((a,b) => dist2D(pt,a)-dist2D(pt,b)).slice(0,k);
+  const votes = {};
+  sorted.forEach(p => votes[p.cls] = (votes[p.cls]||0) + 1);
+  return {cls: parseInt(Object.entries(votes).sort((a,b)=>b[1]-a[1])[0][0]), neighbors: sorted, votes};
+}
+
+function knnDraw() {
+  const k = parseInt(document.getElementById('knnK').value);
+  document.getElementById('knnKVal').textContent = k;
+  const canvas = document.getElementById('knnCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  // Background decision boundary (coarse grid)
+  const step = 12;
+  for (let px=0;px<W;px+=step) {
+    for (let py=0;py<H;py+=step) {
+      const {cls} = knnPredict({x:px+step/2,y:py+step/2}, k);
+      ctx.fillStyle = cls===0 ? 'rgba(14,116,144,0.06)' : 'rgba(249,115,22,0.06)';
+      ctx.fillRect(px, py, step, step);
+    }
+  }
+
+  // Draw points
+  knnPoints.forEach(p => {
+    ctx.fillStyle = COLORS[p.cls];
+    ctx.beginPath(); ctx.arc(p.x,p.y,6,0,2*Math.PI); ctx.fill();
+    ctx.strokeStyle = 'white'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(p.x,p.y,6,0,2*Math.PI); ctx.stroke();
+  });
+
+  // Test point
+  if (testPt) {
+    const {cls, neighbors, votes} = knnPredict(testPt, k);
+    // Draw circles to neighbors
+    neighbors.forEach(n => {
+      ctx.strokeStyle = 'rgba(100,100,100,0.4)'; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(testPt.x,testPt.y); ctx.lineTo(n.x,n.y); ctx.stroke();
+    });
+    ctx.setLineDash([]);
+    // Circle enclosing k neighbors
+    const maxD = Math.max(...neighbors.map(n => dist2D(testPt,n)));
+    ctx.strokeStyle = '#f97316'; ctx.lineWidth = 1.5; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.arc(testPt.x,testPt.y,maxD+4,0,2*Math.PI); ctx.stroke();
+    ctx.setLineDash([]);
+    // Test point itself
+    ctx.fillStyle = COLORS[cls];
+    ctx.beginPath(); ctx.arc(testPt.x,testPt.y,9,0,2*Math.PI); ctx.fill();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.arc(testPt.x,testPt.y,9,0,2*Math.PI); ctx.stroke();
+    ctx.fillStyle = 'white'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('?', testPt.x, testPt.y);
+    ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+
+    const voteStr = Object.entries(votes).map(([c,v]) => `Class ${c}: ${v}`).join(', ');
+    document.getElementById('knnInfo').textContent = `Predict: Class ${cls} (votes: ${voteStr}). k=${k} nearest neighbors.`;
+    document.getElementById('knnStats').innerHTML =
+      `<div class="stat"><div class="name">Predicted</div><div class="val">Class ${cls}</div></div>
+       <div class="stat"><div class="name">k</div><div class="val">${k}</div></div>`;
+  }
+
+  // Legend
+  ctx.fillStyle = COLORS[0]; ctx.beginPath(); ctx.arc(20, H-30, 6, 0, 2*Math.PI); ctx.fill();
+  ctx.fillStyle = '#164e63'; ctx.font = '12px sans-serif'; ctx.fillText('Class 0', 32, H-26);
+  ctx.fillStyle = COLORS[1]; ctx.beginPath(); ctx.arc(100, H-30, 6, 0, 2*Math.PI); ctx.fill();
+  ctx.fillStyle = '#164e63'; ctx.fillText('Class 1', 112, H-26);
+  ctx.fillStyle = '#94a3b8'; ctx.font = '11px sans-serif';
+  ctx.fillText(`k = ${k}`, W-50, 20);
+}
+
+function knnClick(e) {
+  const rect = e.target.getBoundingClientRect();
+  const scaleX = e.target.width / rect.width;
+  const scaleY = e.target.height / rect.height;
+  testPt = {x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY};
+  knnDraw();
+}
+
+knnReset();
+
+// ========================
+// ENTROPY
+// ========================
+function calcEntropy() {
+  const yes = parseInt(document.getElementById('entYes').value);
+  const no = parseInt(document.getElementById('entNo').value);
+  document.getElementById('entYesVal').textContent = yes;
+  document.getElementById('entNoVal').textContent = no;
+  const total = yes + no;
+
+  let h = 0, detail = '';
+  if (total === 0) { document.getElementById('entResult').textContent = 'H = ? (0 samples)'; return; }
+  if (yes > 0) { const p = yes/total; h -= p * Math.log2(p); detail += `−(${yes}/${total})·log₂(${yes}/${total})`; }
+  if (no > 0) { const p = no/total; h -= p * Math.log2(p); detail += ` − (${no}/${total})·log₂(${no}/${total})`; }
+  document.getElementById('entResult').textContent = `H = ${h.toFixed(4)} bit`;
+  document.getElementById('entDetail').textContent = detail + ` = ${h.toFixed(4)} bit`;
+
+  // Draw entropy curve
+  const canvas = document.getElementById('entCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  const pad = 30;
+  // Entropy curve for binary case
+  ctx.strokeStyle = '#a5f3fc'; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
+  [0,0.5,1.0].forEach(v => {
+    const x = pad + v*(W-2*pad);
+    ctx.beginPath(); ctx.moveTo(x,pad); ctx.lineTo(x,H-pad); ctx.stroke();
+    ctx.fillStyle='#94a3b8'; ctx.font='10px monospace'; ctx.fillText((v*100).toFixed(0)+'%', x-8, H-10);
+  });
+  [0,0.5,1.0].forEach(v => {
+    const y = H-pad - v*(H-2*pad);
+    ctx.beginPath(); ctx.moveTo(pad,y); ctx.lineTo(W-pad,y); ctx.stroke();
+    ctx.fillStyle='#94a3b8'; ctx.font='10px monospace'; ctx.fillText(v.toFixed(1), 0, y+4);
+  });
+  ctx.setLineDash([]);
+
+  // Curve
+  ctx.strokeStyle = '#0e7490'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i=0;i<=100;i++) {
+    const p = i/100;
+    let hv = 0;
+    if (p > 0 && p < 1) hv = -p*Math.log2(p) - (1-p)*Math.log2(1-p);
+    const cx = pad + p*(W-2*pad);
+    const cy = H-pad - hv*(H-2*pad);
+    i===0 ? ctx.moveTo(cx,cy) : ctx.lineTo(cx,cy);
+  }
+  ctx.stroke();
+
+  // Current point
+  if (total > 0) {
+    const p = yes/total;
+    let hv = 0;
+    if (p > 0 && p < 1) hv = -p*Math.log2(p) - (1-p)*Math.log2(1-p);
+    const cx = pad + p*(W-2*pad);
+    const cy = H-pad - hv*(H-2*pad);
+    ctx.fillStyle = '#f97316'; ctx.beginPath(); ctx.arc(cx,cy,6,0,2*Math.PI); ctx.fill();
+    ctx.fillStyle = '#164e63'; ctx.font = 'bold 12px monospace';
+    ctx.fillText(`H=${hv.toFixed(3)}`, cx+8, cy-6);
+  }
+}
+calcEntropy();
+
+// ========================
+// INFORMATION GAIN BARS
+// ========================
+const IG_DATA = [
+  {name: 'Outlook', ig: 0.246, color: '#0e7490'},
+  {name: 'Humidity', ig: 0.152, color: '#0891b2'},
+  {name: 'Wind', ig: 0.048, color: '#06b6d4'},
+  {name: 'Temp', ig: 0.029, color: '#67e8f9'},
+];
+
+function renderIG() {
+  const maxIG = Math.max(...IG_DATA.map(d => d.ig));
+  let html = '';
+  IG_DATA.forEach(d => {
+    const pct = (d.ig / maxIG * 100).toFixed(1);
+    html += `<div class="ig-row">
+      <span class="ig-label">${d.name}</span>
+      <div class="ig-track"><div class="ig-fill" style="width:${pct}%;background:${d.color};"></div></div>
+      <span class="ig-val">${d.ig.toFixed(3)} bit</span>
+    </div>`;
+  });
+  document.getElementById('igBars').innerHTML = html;
+  document.getElementById('igWinner').textContent = `Root node chọn: Outlook (IG=0.246) — cao nhất trong 4 features. Overcast branch đã pure (H=0) ngay lập tức!`;
+}
+
+// ========================
+// DECISION TREE
+// ========================
+// Steps of tree building
+const TREE_STEPS = [
+  {
+    text: 'Root: H(S)=0.940, 14 samples (9+/5−). Feature chọn: Outlook (IG=0.246 — cao nhất).',
+    nodes: [
+      {id:0, x:280, y:40, label:'Outlook?', type:'internal', color:'#0e7490'}
+    ],
+    edges: []
+  },
+  {
+    text: 'Outlook=Overcast (4 samples): 4 Yes, 0 No → Pure leaf! H=0, predict YES.',
+    nodes: [
+      {id:0, x:280, y:40, label:'Outlook?', type:'internal', color:'#0e7490'},
+      {id:1, x:140, y:140, label:'[Sunny]', type:'subtree', color:'#94a3b8'},
+      {id:2, x:280, y:140, label:'✓ YES', type:'leaf-yes', color:'#16a34a'},
+      {id:3, x:420, y:140, label:'[Rain]', type:'subtree', color:'#94a3b8'},
+    ],
+    edges: [
+      {from:0, to:1, label:'Sunny'},
+      {from:0, to:2, label:'Overcast'},
+      {from:0, to:3, label:'Rain'},
+    ]
+  },
+  {
+    text: 'Sunny branch (5): 2+/3−. Feature tốt nhất: Humidity (IG=0.970). High→NO, Normal→YES.',
+    nodes: [
+      {id:0, x:280, y:40, label:'Outlook?', type:'internal', color:'#0e7490'},
+      {id:1, x:140, y:140, label:'Humidity?', type:'internal', color:'#0e7490'},
+      {id:2, x:280, y:140, label:'✓ YES', type:'leaf-yes', color:'#16a34a'},
+      {id:3, x:420, y:140, label:'[Rain]', type:'subtree', color:'#94a3b8'},
+      {id:4, x:70, y:250, label:'✗ NO', type:'leaf-no', color:'#dc2626'},
+      {id:5, x:200, y:250, label:'✓ YES', type:'leaf-yes', color:'#16a34a'},
+    ],
+    edges: [
+      {from:0, to:1, label:'Sunny'},
+      {from:0, to:2, label:'Overcast'},
+      {from:0, to:3, label:'Rain'},
+      {from:1, to:4, label:'High'},
+      {from:1, to:5, label:'Normal'},
+    ]
+  },
+  {
+    text: 'Rain branch (5): 3+/2−. Feature tốt nhất: Wind (IG=0.970). Strong→NO, Weak→YES.',
+    nodes: [
+      {id:0, x:280, y:40, label:'Outlook?', type:'internal', color:'#0e7490'},
+      {id:1, x:140, y:140, label:'Humidity?', type:'internal', color:'#0e7490'},
+      {id:2, x:280, y:140, label:'✓ YES', type:'leaf-yes', color:'#16a34a'},
+      {id:3, x:420, y:140, label:'Wind?', type:'internal', color:'#0e7490'},
+      {id:4, x:70, y:250, label:'✗ NO', type:'leaf-no', color:'#dc2626'},
+      {id:5, x:200, y:250, label:'✓ YES', type:'leaf-yes', color:'#16a34a'},
+      {id:6, x:360, y:250, label:'✓ YES', type:'leaf-yes', color:'#16a34a'},
+      {id:7, x:490, y:250, label:'✗ NO', type:'leaf-no', color:'#dc2626'},
+    ],
+    edges: [
+      {from:0, to:1, label:'Sunny'},
+      {from:0, to:2, label:'Overcast'},
+      {from:0, to:3, label:'Rain'},
+      {from:1, to:4, label:'High'},
+      {from:1, to:5, label:'Normal'},
+      {from:3, to:6, label:'Weak'},
+      {from:3, to:7, label:'Strong'},
+    ]
+  },
+];
+
+let treeStep = -1;
+
+function treeReset() {
+  treeStep = -1;
+  const canvas = document.getElementById('treeCanvas');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  document.getElementById('treeInfo').textContent = 'Nhấn "Next split" để bắt đầu xây cây từ root.';
+}
+
+function treeNext() {
+  if (treeStep >= TREE_STEPS.length - 1) { treeReset(); return; }
+  treeStep++;
+  const step = TREE_STEPS[treeStep];
+  document.getElementById('treeInfo').textContent = step.text;
+
+  const canvas = document.getElementById('treeCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  // Draw edges
+  const nodeMap = {};
+  step.nodes.forEach(n => nodeMap[n.id] = n);
+  step.edges.forEach(e => {
+    const from = nodeMap[e.from], to = nodeMap[e.to];
+    ctx.strokeStyle = '#0e7490'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(from.x,from.y+20); ctx.lineTo(to.x,to.y-20); ctx.stroke();
+    const mx = (from.x+to.x)/2, my = (from.y+to.y)/2;
+    ctx.fillStyle = '#f97316'; ctx.font = '11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(e.label, mx, my);
+    ctx.textAlign='left';
+  });
+
+  // Draw nodes
+  step.nodes.forEach(n => {
+    const isLeaf = n.type.startsWith('leaf');
+    const isSub = n.type === 'subtree';
+    const rx = isLeaf || isSub ? 30 : 52, ry = 18;
+    ctx.fillStyle = isSub ? '#e0f2fe' : (isLeaf ? (n.color+'22') : '#ecfeff');
+    ctx.strokeStyle = n.color;
+    ctx.lineWidth = isLeaf ? 2.5 : 2;
+    ctx.beginPath();
+    ctx.ellipse(n.x, n.y, rx, ry, 0, 0, 2*Math.PI);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = n.color;
+    ctx.font = (isLeaf ? 'bold ' : '') + '12px sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(n.label, n.x, n.y);
+    ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+  });
+}
+
+renderIG();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 06 — View, Procedure, Trigger</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  button.primary { background: #0f766e; color: #fff; border: 0; padding: 7px 14px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+  button.primary:hover { background: #115e59; }
+  button.warn { background: #b45309; color:#fff; border:0; padding:7px 14px; border-radius:5px; cursor:pointer; font-size:14px; }
+  button.warn:hover { background:#92400e; }
+  button.ghost { background:#e2e8f0; color:#334155; border:0; padding:6px 12px; border-radius:5px; cursor:pointer; font-size:13px; }
+  button.ghost:hover { background:#cbd5e1; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 8px; }
+  th, td { padding: 6px 10px; border-bottom: 1px solid #eee; font-size: 13px; text-align: left; font-variant-numeric: tabular-nums; }
+  th { background: #f0fdfa; }
+  .grid2 { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:14px; margin-top:10px; }
+  .box { border:2px solid #e2e8f0; border-radius:8px; padding:12px; }
+  .box h3 { margin:0 0 6px; font-size:14px; }
+  .tag { display:inline-block; font-size:11px; padding:2px 8px; border-radius:10px; margin-left:6px; }
+  .tag.live { background:#bbf7d0; color:#166534; }
+  .tag.snap { background:#fde68a; color:#92400e; }
+  .stale { color:#b45309; font-weight:700; }
+  .fresh { color:#166534; font-weight:700; }
+  .ctrls { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:6px; }
+  .ctrls input { width:100%; max-width:90px; padding:5px 7px; border:1px solid #cbd5e1; border-radius:5px; font-size:13px; box-sizing:border-box; }
+  .log { font-family: ui-monospace, monospace; font-size:12px; background:#0f172a; color:#e2e8f0; border-radius:6px; padding:10px; max-height:220px; overflow-y:auto; margin-top:10px; }
+  .log .ins { color:#86efac; } .log .upd { color:#fde047; } .log .del { color:#fca5a5; }
+  .cmp-cell { cursor:pointer; }
+  .cmp-cell.sel { background:#f0fdfa; outline:2px solid #0f766e; }
+  .legend span { display:inline-block; padding:2px 8px; border-radius:4px; font-size:12px; margin-right:6px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-query-execution/visualization.html">← L5: Query Execution & EXPLAIN</a>
+  <span class="sep">·</span>
+  <span class="current">L6: View, Procedure, Trigger</span>
+</nav>
+<main>
+<h1>View, Procedure, Trigger</h1>
+<p class="note">Ba mô-đun tương tác: (1) view thường vs materialized view, (2) trigger tự ghi audit log, (3) bảng so sánh view vs materialized view.</p>
+
+<div class="panel">
+  <h2>1 · View thường vs Materialized view</h2>
+  <p class="note">Bảng gốc <code>don_hang(khach, tien)</code>. Cả hai view đều tính <code>SUM(tien) theo khach</code>. Sửa bảng gốc rồi xem cái nào tự đổi, cái nào phải <b>REFRESH</b>.</p>
+  <table id="srcTable"><thead><tr><th>id</th><th>khach</th><th>tien</th></tr></thead><tbody></tbody></table>
+  <div class="ctrls">
+    <input id="newKhach" placeholder="khach (An...)" type="text" style="max-width:120px">
+    <input id="newTien" placeholder="tien" type="number">
+    <button class="primary" onclick="addOrder()">+ Thêm đơn</button>
+    <button class="ghost" onclick="resetSrc()">↺ Reset bảng gốc</button>
+  </div>
+
+  <div class="grid2">
+    <div class="box">
+      <h3>👁 v_doanh_thu (view thường) <span class="tag live">tươi tức thì</span></h3>
+      <p class="note"><code>CREATE VIEW v_doanh_thu AS SELECT khach, SUM(tien)...</code></p>
+      <table id="viewTable"><thead><tr><th>khach</th><th>tong</th></tr></thead><tbody></tbody></table>
+      <p class="note" id="viewState"></p>
+    </div>
+    <div class="box">
+      <h3>📸 mv_doanh_thu (materialized) <span class="tag snap">ảnh chụp</span></h3>
+      <p class="note"><code>CREATE MATERIALIZED VIEW mv_doanh_thu AS ...</code></p>
+      <table id="mvTable"><thead><tr><th>khach</th><th>tong</th></tr></thead><tbody></tbody></table>
+      <p class="note" id="mvState"></p>
+      <button class="warn" onclick="refreshMV()" style="margin-top:6px">⟳ REFRESH MATERIALIZED VIEW</button>
+    </div>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>2 · Trigger demo — audit_log tự ghi</h2>
+  <p class="note">Bảng <code>nhan_vien(id, ten, luong)</code> gắn trigger <code>AFTER INSERT/UPDATE/DELETE</code>. Mỗi thao tác tự sinh một dòng trong <code>audit_log</code> bên dưới — không phải tự viết.</p>
+  <table id="nvTable"><thead><tr><th>id</th><th>ten</th><th>luong</th><th></th></tr></thead><tbody></tbody></table>
+  <div class="ctrls">
+    <input id="nvTen" placeholder="tên" type="text" style="max-width:120px">
+    <input id="nvLuong" placeholder="lương" type="number">
+    <button class="primary" onclick="nvInsert()">INSERT</button>
+    <button class="ghost" onclick="clearLog()">🗑 Xóa log</button>
+  </div>
+  <div class="log" id="auditLog"></div>
+</div>
+
+<div class="panel">
+  <h2>3 · So sánh — View vs Materialized view</h2>
+  <p class="note">Bấm vào ô để xem giải thích chi tiết.</p>
+  <table>
+    <thead><tr><th>Tiêu chí</th><th>View thường</th><th>Materialized view</th></tr></thead>
+    <tbody id="cmpBody"></tbody>
+  </table>
+  <div class="box" id="cmpDetail" style="margin-top:10px">← Chọn một ô để xem giải thích.</div>
+</div>
+
+<script>
+// ===== Module 1: view vs materialized view =====
+const SEED = [
+  {id:1, khach:'An',   tien:300000},
+  {id:2, khach:'Binh', tien:500000},
+  {id:3, khach:'An',   tien:200000},
+];
+let orders = [];
+let nextOid = 1;
+let mvSnapshot = null;     // kết quả đã "chụp"
+let mvDirty = false;       // bảng gốc đã đổi sau lần refresh gần nhất?
+
+function aggregate(rows){
+  const m = {};
+  rows.forEach(r => { m[r.khach] = (m[r.khach]||0) + Number(r.tien); });
+  return Object.keys(m).sort().map(k => ({khach:k, tong:m[k]}));
+}
+function fmt(n){ return Number(n).toLocaleString('vi-VN'); }
+
+function renderSrc(){
+  document.querySelector('#srcTable tbody').innerHTML =
+    orders.map(r => `<tr><td>${r.id}</td><td>${r.khach}</td><td>${fmt(r.tien)}</td></tr>`).join('');
+}
+function renderView(){
+  // view thường: luôn tính lại từ orders hiện tại
+  const agg = aggregate(orders);
+  document.querySelector('#viewTable tbody').innerHTML =
+    agg.map(r => `<tr><td>${r.khach}</td><td>${fmt(r.tong)}</td></tr>`).join('');
+  document.getElementById('viewState').innerHTML =
+    'Tính lại từ bảng gốc mỗi lần đọc → <span class="fresh">luôn khớp dữ liệu hiện tại</span>.';
+}
+function renderMV(){
+  document.querySelector('#mvTable tbody').innerHTML =
+    (mvSnapshot||[]).map(r => `<tr><td>${r.khach}</td><td>${fmt(r.tong)}</td></tr>`).join('');
+  document.getElementById('mvState').innerHTML = mvDirty
+    ? 'Bảng gốc đã đổi sau lần REFRESH → <span class="stale">dữ liệu CŨ (stale)</span>. Bấm REFRESH để cập nhật.'
+    : '<span class="fresh">Khớp</span> — vừa được REFRESH từ bảng gốc.';
+}
+function addOrder(){
+  const k = (document.getElementById('newKhach').value||'').trim();
+  const t = Number(document.getElementById('newTien').value);
+  if(!k || !t){ alert('Nhập tên khách và số tiền'); return; }
+  orders.push({id: nextOid++, khach:k, tien:t});
+  document.getElementById('newKhach').value=''; document.getElementById('newTien').value='';
+  mvDirty = true;          // materialized view giờ đã lỗi thời
+  renderSrc(); renderView(); renderMV();
+}
+function refreshMV(){
+  mvSnapshot = aggregate(orders);   // chụp lại ảnh
+  mvDirty = false;
+  renderMV();
+}
+function resetSrc(){
+  orders = SEED.map(o => ({...o}));
+  nextOid = SEED.length + 1;
+  refreshMV();                       // chụp ảnh ban đầu, đồng bộ
+  renderSrc(); renderView();
+}
+resetSrc();
+
+// ===== Module 2: trigger -> audit_log =====
+const NV_SEED = [
+  {id:1, ten:'An',   luong:10000000},
+  {id:2, ten:'Binh', luong:12000000},
+];
+let nv = [];
+let nextNvId = 1;
+let logSeq = 0;
+function renderNv(){
+  document.querySelector('#nvTable tbody').innerHTML = nv.map(r =>
+    `<tr>
+       <td>${r.id}</td><td>${r.ten}</td>
+       <td><input type="number" value="${r.luong}" style="max-width:120px"
+            onchange="nvUpdate(${r.id}, this.value)"></td>
+       <td><button class="ghost" onclick="nvDelete(${r.id})">DELETE</button></td>
+     </tr>`).join('');
+}
+function logRow(op, cls, msg){
+  logSeq++;
+  const ts = new Date().toLocaleTimeString('vi-VN');
+  const div = document.createElement('div');
+  div.innerHTML = `<span class="${cls}">[${ts}] #${logSeq} ${op}</span> ${msg}`;
+  const box = document.getElementById('auditLog');
+  box.prepend(div);
+}
+function nvInsert(){
+  const ten = (document.getElementById('nvTen').value||'').trim();
+  const luong = Number(document.getElementById('nvLuong').value);
+  if(!ten || !luong){ alert('Nhập tên và lương'); return; }
+  const id = nextNvId++;
+  nv.push({id, ten, luong});
+  document.getElementById('nvTen').value=''; document.getElementById('nvLuong').value='';
+  renderNv();
+  logRow('INSERT', 'ins', `→ audit_log: thêm nhan_vien #${id} (${ten}), luong=${fmt(luong)}`);
+}
+function nvUpdate(id, val){
+  const r = nv.find(x => x.id===id); if(!r) return;
+  const cu = r.luong; const moi = Number(val);
+  if(cu === moi){ logRow('UPDATE', 'upd', `(không đổi lương #${id} → trigger bỏ qua)`); return; }
+  r.luong = moi;
+  logRow('UPDATE', 'upd', `→ audit_log: #${id} luong ${fmt(cu)} → <b>${fmt(moi)}</b>`);
+}
+function nvDelete(id){
+  const r = nv.find(x => x.id===id); if(!r) return;
+  nv = nv.filter(x => x.id!==id);
+  renderNv();
+  logRow('DELETE', 'del', `→ audit_log: xóa nhan_vien #${id} (${r.ten}), luong_cu=${fmt(r.luong)}`);
+}
+function clearLog(){ document.getElementById('auditLog').innerHTML=''; logSeq=0; }
+function resetNv(){ nv = NV_SEED.map(o=>({...o})); nextNvId = NV_SEED.length+1; renderNv(); }
+resetNv();
+
+// ===== Module 3: comparison table =====
+const CMP = [
+  {crit:'Lưu dữ liệu?', v:'Không (chỉ lưu câu SELECT)', mv:'Có (lưu kết quả xuống đĩa)',
+   d:'View thường chỉ là định nghĩa truy vấn. Materialized view chiếm dung lượng thật bằng kích thước kết quả.'},
+  {crit:'Tốc độ đọc', v:'Bằng chạy lại truy vấn gốc', mv:'Rất nhanh (đọc bảng tính sẵn)',
+   d:'Đọc view thường = chi phí chạy lại join/aggregate mỗi lần. Materialized chỉ đọc một bảng đã tính → nhanh hơn nhiều với truy vấn nặng.'},
+  {crit:'Độ tươi dữ liệu', v:'Luôn tươi (real-time)', mv:'Cũ đến lần REFRESH',
+   d:'Đây là đánh đổi cốt lõi: materialized view đổi tốc độ lấy độ tươi. Sau khi bảng gốc đổi mà chưa REFRESH thì dữ liệu cũ (stale).'},
+  {crit:'Phù hợp với', v:'Logic dùng lại, dữ liệu đổi liên tục', mv:'Báo cáo/OLAP, truy vấn nặng ít đổi',
+   d:'Số dư tài khoản → view thường. Doanh thu theo tỉnh cho dashboard, chấp nhận cũ vài phút → materialized view.'},
+];
+document.getElementById('cmpBody').innerHTML = CMP.map((c,i) =>
+  `<tr>
+     <td><b>${c.crit}</b></td>
+     <td class="cmp-cell" data-i="${i}" onclick="selCmp(${i})">${c.v}</td>
+     <td class="cmp-cell" data-i="${i}" onclick="selCmp(${i})">${c.mv}</td>
+   </tr>`).join('');
+function selCmp(i){
+  document.querySelectorAll('.cmp-cell').forEach(e => e.classList.toggle('sel', +e.dataset.i===i));
+  document.getElementById('cmpDetail').innerHTML = CMP[i].d;
+}
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

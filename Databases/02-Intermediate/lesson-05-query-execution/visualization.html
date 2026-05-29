@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 05 — Query Execution & EXPLAIN</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  button.primary { background: #0f766e; color: #fff; border: 0; padding: 7px 14px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+  button.primary:hover { background: #115e59; }
+  button.primary:disabled { background: #94a3b8; cursor: default; }
+  label { user-select: none; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  .modechip { display:inline-block; padding:5px 12px; border-radius:6px; background:#e2e8f0; cursor:pointer; margin:3px 6px 3px 0; font-size:13px; border:2px solid transparent; }
+  .modechip.active { background:#0f766e; color:#fff; }
+
+  /* Module 1 */
+  .slider-row { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:12px 0; }
+  input[type=range] { width: 100%; max-width: 320px; }
+  .selval { font-weight:700; color:#0f766e; font-variant-numeric: tabular-nums; min-width: 70px; }
+  .costbars { margin-top:14px; display:flex; flex-direction:column; gap:10px; }
+  .costbar-wrap { }
+  .costbar-label { font-size:13px; margin-bottom:3px; display:flex; justify-content:space-between; }
+  .costbar-track { background:#f1f5f9; border-radius:5px; height:26px; overflow:hidden; }
+  .costbar-fill { height:100%; border-radius:5px; transition:width .25s; display:flex; align-items:center; padding-left:8px; color:#fff; font-size:12px; font-weight:700; box-sizing:border-box; }
+  .fill-seq { background:#3b82f6; }
+  .fill-idx { background:#f59e0b; }
+  .verdict { margin-top:12px; padding:10px 14px; border-radius:6px; font-size:14px; font-weight:600; }
+  .verdict.seq { background:#dbeafe; border-left:4px solid #3b82f6; }
+  .verdict.idx { background:#fef3c7; border-left:4px solid #f59e0b; }
+
+  /* Module 2 */
+  .join-tables { display:flex; gap:18px; flex-wrap:wrap; margin:12px 0; }
+  .jt { flex:1 1 140px; min-width:0; }
+  .jt h4 { margin:0 0 6px; font-size:13px; color:#334155; }
+  .jrow { padding:3px 8px; border-radius:4px; font-size:13px; background:#f1f5f9; margin-bottom:3px; font-variant-numeric: tabular-nums; }
+  .jrow.active { background:#fde68a; }
+  .jrow.probe { background:#bfdbfe; }
+  .jrow.matched { background:#bbf7d0; font-weight:700; }
+  table { border-collapse: collapse; width: 100%; margin-top: 8px; }
+  th, td { padding: 6px 10px; border-bottom: 1px solid #eee; font-size: 13px; text-align: left; }
+  th { background: #f0fdfa; }
+  .counter { margin-top: 10px; font-size: 14px; color: #334155; }
+  .counter b { color: #0f766e; }
+  .hashbox { margin-top:8px; font-size:13px; }
+  .hashbucket { display:inline-block; padding:3px 8px; margin:2px; border:1px solid #cbd5e1; border-radius:4px; background:#f8fafc; }
+
+  /* Module 3 */
+  .plan-svg-wrap { overflow-x:auto; }
+  .pnode { cursor:pointer; }
+  .pnode rect { transition: fill .15s; }
+  .pnode:hover rect { stroke:#0f766e; stroke-width:2.5; }
+  .pnode.sel rect { stroke:#0f766e; stroke-width:3; }
+  .plan-detail { margin-top:12px; padding:12px; background:#f0fdfa; border-left:4px solid #0f766e; border-radius:4px; font-size:14px; min-height:40px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-concurrency-isolation/visualization.html">← L4: Concurrency & Isolation</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Query Execution & EXPLAIN</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-view-procedure-trigger/visualization.html">L6: View/Procedure/Trigger →</a>
+</nav>
+<main>
+<h1>Query Execution & EXPLAIN</h1>
+<p class="note">Ba mô-đun tương tác: (1) optimizer chọn scan vs index theo selectivity, (2) ba join algorithm, (3) EXPLAIN viewer.</p>
+
+<!-- ===== Module 1 ===== -->
+<div class="panel">
+  <h2>1 · Optimizer: Quét toàn bảng vs Index</h2>
+  <p class="note">Mô hình: bảng <b>1.000.000 dòng</b>, <b>P = 10.000 trang</b>. <code>cost_seq = P × 1 = 10.000</code> (cố định). <code>cost_idx = số_dòng_khớp × random_page_cost</code>. Kéo thanh trượt để đổi % dòng khớp (selectivity) — optimizer chọn cái rẻ hơn.</p>
+  <div class="slider-row">
+    <label>% dòng khớp:</label>
+    <input type="range" id="selSlider" min="1" max="1000" value="20">
+    <span class="selval" id="selVal">2,00%</span>
+  </div>
+  <div class="slider-row">
+    <label>random_page_cost:</label>
+    <input type="range" id="rpcSlider" min="10" max="60" value="40">
+    <span class="selval" id="rpcVal">4,0</span>
+    <span class="note">(SSD ≈ 1,1 · HDD ≈ 4,0)</span>
+  </div>
+  <div class="costbars">
+    <div class="costbar-wrap">
+      <div class="costbar-label"><span>Seq Scan (quét toàn bảng)</span><span id="seqCostTxt"></span></div>
+      <div class="costbar-track"><div class="costbar-fill fill-seq" id="seqBar"></div></div>
+    </div>
+    <div class="costbar-wrap">
+      <div class="costbar-label"><span>Index Scan</span><span id="idxCostTxt"></span></div>
+      <div class="costbar-track"><div class="costbar-fill fill-idx" id="idxBar"></div></div>
+    </div>
+  </div>
+  <div class="verdict" id="verdict"></div>
+  <p class="note" id="breakeven"></p>
+</div>
+
+<!-- ===== Module 2 ===== -->
+<div class="panel">
+  <h2>2 · Ba thuật toán Join</h2>
+  <p class="note">Nối bảng nhỏ <b>L (left, 4 dòng)</b> với <b>R (right, 6 dòng)</b> trên <code>L.rid = R.id</code>. Chọn thuật toán rồi bấm Chạy để xem cách hoạt động và đếm số phép so sánh.</p>
+  <div>
+    <span class="modechip active" id="jNested" onclick="setJoin('nested')">🔁 Nested Loop</span>
+    <span class="modechip" id="jHash" onclick="setJoin('hash')">🗂️ Hash Join</span>
+    <span class="modechip" id="jMerge" onclick="setJoin('merge')">🔀 Merge Join</span>
+    <button class="primary" id="jRun" onclick="runJoin()" style="margin-left:8px">▶ Chạy</button>
+  </div>
+  <div class="join-tables">
+    <div class="jt">
+      <h4>L (outer) — <span id="lLabel"></span></h4>
+      <div id="tblL"></div>
+    </div>
+    <div class="jt">
+      <h4>R (inner) — <span id="rLabel"></span></h4>
+      <div id="tblR"></div>
+    </div>
+    <div class="jt">
+      <h4>Kết quả nối</h4>
+      <div id="tblOut"></div>
+    </div>
+  </div>
+  <div class="hashbox" id="hashBox"></div>
+  <div class="counter" id="joinCounter"></div>
+</div>
+
+<!-- ===== Module 3 ===== -->
+<div class="panel">
+  <h2>3 · EXPLAIN viewer — cây plan</h2>
+  <p class="note">Plan cho <code>SELECT o.id, c.name FROM orders o JOIN customers c ON c.id=o.customer_id WHERE c.city='Hanoi'</code>. Bấm vào từng node để xem giải thích cost/rows. (Đọc cây từ trong/dưới ra ngoài/trên.)</p>
+  <div class="plan-svg-wrap">
+    <svg width="560" height="320" viewBox="0 0 560 320" id="planSvg" role="img" aria-label="Cây execution plan"></svg>
+  </div>
+  <div class="plan-detail" id="planDetail">← Bấm một node để xem chi tiết.</div>
+</div>
+
+<script>
+// ============ Module 1: scan vs index ============
+const N = 1000000, P = 10000;
+const selSlider = document.getElementById('selSlider');
+const rpcSlider = document.getElementById('rpcSlider');
+function fmt(n){ return Math.round(n).toLocaleString('vi-VN'); }
+function updM1(){
+  const selPct = +selSlider.value / 1000;          // 0.1% .. 100%
+  const rpc = +rpcSlider.value / 10;               // 1.0 .. 6.0
+  const kRows = Math.max(1, Math.round(N * selPct / 100));
+  const costSeq = P * 1;
+  const costIdx = kRows * rpc;
+  document.getElementById('selVal').textContent = selPct.toFixed(2).replace('.', ',') + '%';
+  document.getElementById('rpcVal').textContent = rpc.toFixed(1).replace('.', ',');
+  const maxC = Math.max(costSeq, costIdx, 1);
+  document.getElementById('seqBar').style.width = (costSeq/maxC*100) + '%';
+  document.getElementById('idxBar').style.width = (costIdx/maxC*100) + '%';
+  document.getElementById('seqCostTxt').textContent = 'cost ≈ ' + fmt(costSeq);
+  document.getElementById('idxCostTxt').textContent = 'cost ≈ ' + fmt(costIdx) + ' (' + fmt(kRows) + ' dòng × ' + rpc.toFixed(1).replace('.', ',') + ')';
+  const v = document.getElementById('verdict');
+  if (costIdx < costSeq) {
+    v.className = 'verdict idx';
+    v.innerHTML = '✅ Optimizer chọn <b>Index Scan</b> — ít dòng khớp, random I/O vẫn rẻ hơn quét cả bảng.';
+  } else {
+    v.className = 'verdict seq';
+    v.innerHTML = '✅ Optimizer chọn <b>Seq Scan</b> — quá nhiều dòng khớp, đọc tuần tự cả ' + fmt(P) + ' trang rẻ hơn ' + fmt(kRows) + ' lần nhảy ngẫu nhiên.';
+  }
+  const breakK = costSeq / rpc;        // k khi cost bằng nhau
+  const breakPct = breakK / N * 100;
+  document.getElementById('breakeven').innerHTML =
+    'Điểm hòa vốn: <b>' + fmt(breakK) + ' dòng</b> (' + breakPct.toFixed(2).replace('.', ',') + '% bảng). Dưới ngưỡng → index thắng; trên ngưỡng → seq scan thắng.';
+}
+selSlider.oninput = updM1; rpcSlider.oninput = updM1; updM1();
+
+// ============ Module 2: join algorithms ============
+const L = [ {k:1, rid:2}, {k:2, rid:5}, {k:3, rid:2}, {k:4, rid:9} ];
+const R = [ {id:1,n:'An'}, {id:2,n:'Binh'}, {id:5,n:'Chi'}, {id:7,n:'Dung'}, {id:9,n:'En'}, {id:11,n:'Ha'} ];
+let joinMode = 'nested';
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+
+function setJoin(m){
+  joinMode = m;
+  document.getElementById('jNested').classList.toggle('active', m==='nested');
+  document.getElementById('jHash').classList.toggle('active', m==='hash');
+  document.getElementById('jMerge').classList.toggle('active', m==='merge');
+  renderJoin();
+  document.getElementById('joinCounter').innerHTML = '';
+  document.getElementById('hashBox').innerHTML = '';
+  document.getElementById('tblOut').innerHTML = '';
+}
+function lLabel(){ return joinMode==='merge' ? '4 dòng (đã sắp theo rid)' : '4 dòng'; }
+function rLabel(){
+  if (joinMode==='hash') return '6 dòng → build hash';
+  if (joinMode==='merge') return '6 dòng (đã sắp theo id)';
+  return '6 dòng (có index trên id)';
+}
+function renderJoin(lState={}, rState={}, out=[]){
+  document.getElementById('lLabel').textContent = lLabel();
+  document.getElementById('rLabel').textContent = rLabel();
+  // merge sorts L by rid for display
+  const Ld = joinMode==='merge' ? [...L].sort((a,b)=>a.rid-b.rid) : L;
+  document.getElementById('tblL').innerHTML = Ld.map((r,i)=>
+    `<div class="jrow ${lState[i]||''}">k=${r.k}, rid=${r.rid}</div>`).join('');
+  document.getElementById('tblR').innerHTML = R.map((r,i)=>
+    `<div class="jrow ${rState[i]||''}">id=${r.id}, ${r.n}</div>`).join('');
+  document.getElementById('tblOut').innerHTML = out.map(o=>
+    `<div class="jrow matched">k=${o.k} ⋈ ${o.n}</div>`).join('');
+}
+renderJoin();
+
+async function runJoin(){
+  document.getElementById('jRun').disabled = true;
+  document.getElementById('hashBox').innerHTML = '';
+  const out = []; let cmp = 0;
+  const counter = document.getElementById('joinCounter');
+  const Rmap = {}; R.forEach((r,i)=>Rmap[r.id]=i);
+
+  if (joinMode==='nested'){
+    for (let i=0;i<L.length;i++){
+      // có index trên R.id → tra thẳng thay vì duyệt cả R
+      const lState={[i]:'active'};
+      const j = Rmap[L[i].rid];
+      const rState = j!==undefined ? {[j]:'probe'} : {};
+      cmp++;
+      renderJoin(lState, rState, out);
+      counter.innerHTML = `Nested loop (inner có index): với mỗi dòng L, tra index R → ${cmp} lần tra.`;
+      await sleep(650);
+      if (j!==undefined){ out.push({k:L[i].k, n:R[j].n}); renderJoin(lState,{[j]:'matched'},out); await sleep(350); }
+    }
+    counter.innerHTML = `<b>Nested loop</b>: ${cmp} lần tra index (≈ m × log n). Không index sẽ là m × n = ${L.length*R.length} so sánh.`;
+  }
+
+  else if (joinMode==='hash'){
+    // build phase on R (smaller-ish here, but R is build side in demo)
+    counter.innerHTML = `Pha BUILD: xây hash table trên bảng R (key = id)...`;
+    let buckets = R.map(r=>`<span class="hashbucket">h(${r.id}) → ${r.n}</span>`).join('');
+    for (let i=0;i<R.length;i++){
+      renderJoin({}, {[i]:'active'}, out); cmp++;
+      document.getElementById('hashBox').innerHTML = 'Hash table: ' + R.slice(0,i+1).map(r=>`<span class="hashbucket">h(${r.id})→${r.n}</span>`).join('');
+      await sleep(350);
+    }
+    document.getElementById('hashBox').innerHTML = 'Hash table: ' + buckets;
+    // probe phase with L
+    for (let i=0;i<L.length;i++){
+      renderJoin({[i]:'active'}, {}, out); cmp++;
+      counter.innerHTML = `Pha PROBE: băm L.rid=${L[i].rid} → tra hash table (O(1))...`;
+      await sleep(550);
+      const j = Rmap[L[i].rid];
+      if (j!==undefined){ out.push({k:L[i].k, n:R[j].n}); renderJoin({[i]:'matched'},{[j]:'matched'},out); await sleep(350); }
+    }
+    counter.innerHTML = `<b>Hash join</b>: ${R.length} (build) + ${L.length} (probe) = ${cmp} thao tác ≈ O(m+n). Mỗi bảng đọc 1 lần.`;
+  }
+
+  else { // merge
+    const Ls = [...L].sort((a,b)=>a.rid-b.rid);
+    const Rs = [...R].sort((a,b)=>a.id-b.id);   // already sorted
+    let i=0, j=0;
+    while (i<Ls.length && j<Rs.length){
+      cmp++;
+      // map sorted index back to display positions
+      const li = Ls.findIndex((x,ix)=>ix===i);   // i in Ls order == display order (sorted)
+      renderJoin({[i]:'active'}, {[j]:'probe'}, out);
+      counter.innerHTML = `Hai con trỏ song song: L.rid=${Ls[i].rid} vs R.id=${Rs[j].id} → so sánh ${cmp} lần.`;
+      await sleep(600);
+      if (Ls[i].rid === Rs[j].id){
+        out.push({k:Ls[i].k, n:Rs[j].n});
+        renderJoin({[i]:'matched'}, {[j]:'matched'}, out);
+        await sleep(350);
+        i++;            // nhích L (R có thể trùng nhiều L, nên nhích L)
+      } else if (Ls[i].rid < Rs[j].id){ i++; }
+      else { j++; }
+    }
+    counter.innerHTML = `<b>Merge join</b>: input đã sắp → chỉ ${cmp} bước trộn ≈ O(m+n), không tốn sort. Hai con trỏ mỗi cái đi qua bảng 1 lần.`;
+  }
+  document.getElementById('jRun').disabled = false;
+}
+
+// ============ Module 3: EXPLAIN viewer ============
+const PLAN_NODES = {
+  hj:  { title:'Hash Join', cost:'cost=270.00..18750.00', rows:'rows=15600',
+         desc:'<b>Hash Join</b> — node trên cùng. Nối hai nhánh: quét <code>orders</code> (probe) với hash table dựng từ <code>customers</code> đã lọc. <code>cost=start..total</code>: 270 để có dòng đầu, 18750 để có toàn bộ. <code>rows=15600</code> = ước lượng số dòng kết quả. Chọn hash vì equi-join, một nhánh lớn.' },
+  seq: { title:'Seq Scan orders', cost:'cost=0.00..16370.00', rows:'rows=1000000',
+         desc:'<b>Seq Scan on orders</b> — quét toàn bộ 1.000.000 dòng <code>orders</code> tuần tự. Không lọc gì trên <code>orders</code> nên cần tất cả → full scan rẻ hơn dùng index. Đây là nhánh probe của hash join.' },
+  hash:{ title:'Hash (build)', cost:'cost=255.00..255.00', rows:'rows=15600',
+         desc:'<b>Hash</b> — pha BUILD: nhận 15.600 dòng <code>customers</code> đã lọc, dựng hash table trên <code>id</code> trong bộ nhớ để pha probe tra O(1).' },
+  idx: { title:'Index Scan customers', cost:'cost=0.42..255.00', rows:'rows=15600',
+         desc:'<b>Index Scan using idx_cust_city</b> với <code>Index Cond: city = \'Hanoi\'</code>. Dùng index vì <code>city=\'Hanoi\'</code> rất kén (chỉ ~15.600 / nhiều triệu) → selectivity thấp, index thắng. Cost chỉ 255.' }
+};
+const planBoxes = [
+  // x, y, w, h, key
+  [180, 20, 200, 50, 'hj'],
+  [40, 130, 200, 50, 'seq'],
+  [320, 130, 200, 50, 'hash'],
+  [320, 240, 200, 50, 'idx'],
+];
+const planEdges = [
+  // x1,y1,x2,y2
+  [280, 70, 140, 130],   // hj -> seq
+  [280, 70, 420, 130],   // hj -> hash
+  [420, 180, 420, 240],  // hash -> idx
+];
+function buildPlanSvg(){
+  const svg = document.getElementById('planSvg');
+  let s = '';
+  planEdges.forEach(e => {
+    s += `<line x1="${e[0]}" y1="${e[1]}" x2="${e[2]}" y2="${e[3]}" stroke="#94a3b8" stroke-width="2"/>`;
+  });
+  planBoxes.forEach(b => {
+    const [x,y,w,h,key] = b;
+    const node = PLAN_NODES[key];
+    s += `<g class="pnode" data-key="${key}" onclick="selPlan('${key}')">
+      <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="7" fill="#0f766e" />
+      <text x="${x+w/2}" y="${y+21}" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">${node.title}</text>
+      <text x="${x+w/2}" y="${y+39}" text-anchor="middle" fill="#bae6fd" font-size="11">${node.rows}</text>
+    </g>`;
+  });
+  svg.innerHTML = s;
+}
+function selPlan(key){
+  document.querySelectorAll('#planSvg .pnode').forEach(g => g.classList.toggle('sel', g.dataset.key===key));
+  const n = PLAN_NODES[key];
+  document.getElementById('planDetail').innerHTML = `<b>${n.title}</b> · <code>${n.cost} ${n.rows}</code><br>${n.desc}`;
+}
+buildPlanSvg();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T4-L02 — CNN</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #ecfeff;
+    --accent: #0e7490;
+    --accent-soft: #cffafe;
+    --accent-hover: #155e75;
+    --panel: #ffffff;
+    --line: #a5f3fc;
+    --ink: #164e63;
+    --muted: #0891b2;
+  }
+  body { margin: 0; background: var(--bg); }
+  main { max-width: 1100px; }
+  h1 { font-size: 24px; font-weight: 800; color: var(--ink); margin: 0 0 4px; }
+  .subtitle { color: var(--muted); margin-bottom: 22px; font-size: 14px; }
+  h2 { font-size: 18px; font-weight: 700; color: var(--ink); border-left: 4px solid var(--accent); padding-left: 10px; margin: 30px 0 14px; }
+  h3 { font-size: 14px; font-weight: 700; color: var(--accent); margin: 14px 0 8px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 20px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin-bottom: 12px; }
+  .controls label { font-size: 12.5px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+  .controls input[type=range] { width: 140px; }
+  .controls select, .controls input[type=number] { padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px; font-size: 13px; }
+  .btn { padding: 6px 14px; background: var(--accent); color: white; border: none; border-radius: 6px; font-size: 12.5px; cursor: pointer; font-weight: 600; }
+  .btn:hover { background: var(--accent-hover); }
+  .btn.sec { background: var(--accent-soft); color: var(--ink); }
+  .btn.sec:hover { background: var(--line); }
+  .val { font-family: ui-monospace, monospace; font-weight: 700; color: var(--ink); }
+  svg { display: block; background: #f0fdff; border: 1px solid var(--line); border-radius: 8px; }
+  .info { background: var(--accent-soft); border-left: 3px solid var(--accent); padding: 10px 14px; border-radius: 6px; font-size: 13px; margin: 10px 0; line-height: 1.55; }
+  .info code { background: #a5f3fc; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+  .step { font-family: ui-monospace, monospace; font-size: 12.5px; white-space: pre-wrap; background: #f0fdff; padding: 12px; border-radius: 6px; line-height: 1.6; margin: 8px 0; }
+  table.tb { border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+  table.tb th, table.tb td { padding: 6px 12px; border: 1px solid var(--line); text-align: center; }
+  table.tb th { background: var(--accent-soft); font-weight: 700; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 700px) { .two { grid-template-columns: 1fr; } }
+  .arch-box { display: flex; flex-direction: column; gap: 3px; align-items: center; }
+  .arch-layer { padding: 6px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; text-align: center; min-width: 160px; }
+  .arch-arrow { font-size: 16px; color: var(--muted); line-height: 1; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 700px) { .grid-2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-neural-network/visualization.html">← T4-L01: Neural network</a>
+  <span class="sep">·</span>
+  <span class="current">T4-L02: CNN</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-rnn-lstm/visualization.html">T4-L03: RNN/LSTM →</a>
+</nav>
+<main>
+<h1>T4-L02 — CNN (Convolutional Neural Network)</h1>
+<div class="subtitle">Convolution · Pooling · Receptive field · LeNet → ResNet</div>
+
+<!-- ── SECTION 1: CONVOLUTION DEMO ── -->
+<h2>1. Convolution Demo — kernel trượt trên input</h2>
+<div class="panel">
+  <h3>Chọn filter preset và bấm từng vị trí</h3>
+  <div class="controls">
+    <label>Filter:
+      <select id="filterSel">
+        <option value="sobel_x">Sobel-X (cạnh dọc)</option>
+        <option value="sobel_y">Sobel-Y (cạnh ngang)</option>
+        <option value="blur">Blur (trung bình)</option>
+        <option value="sharpen">Sharpen</option>
+        <option value="identity">Identity</option>
+      </select>
+    </label>
+    <label>Stride:
+      <select id="strideSel">
+        <option value="1">1</option>
+        <option value="2">2</option>
+      </select>
+    </label>
+    <label>Padding:
+      <select id="paddingSel">
+        <option value="0">none (P=0)</option>
+        <option value="1">same (P=1)</option>
+      </select>
+    </label>
+    <button class="btn sec" onclick="resetConvAnim()">Reset</button>
+  </div>
+  <div class="two">
+    <div>
+      <h3>Input 6×6</h3>
+      <svg id="svgInput" width="240" height="240" viewBox="0 0 240 240"></svg>
+    </div>
+    <div>
+      <h3>Output feature map</h3>
+      <svg id="svgOutput" width="240" height="240" viewBox="0 0 240 240"></svg>
+    </div>
+  </div>
+  <div id="convInfo" class="info" style="margin-top:10px">Click một ô trên <b>Output</b> để xem tính toán tại đó.</div>
+  <div id="convStep" class="step" style="display:none"></div>
+</div>
+
+<!-- ── SECTION 2: OUTPUT SIZE CALCULATOR ── -->
+<h2>2. Output Size Calculator</h2>
+<div class="panel">
+  <div class="controls">
+    <label>W (input): <input type="number" id="calcW" value="224" style="width:70px"></label>
+    <label>F (filter): <input type="number" id="calcF" value="11" style="width:60px"></label>
+    <label>P (padding): <input type="number" id="calcP" value="0" style="width:60px"></label>
+    <label>S (stride): <input type="number" id="calcS" value="4" style="width:60px"></label>
+    <button class="btn" onclick="calcOutputSize()">Tính</button>
+  </div>
+  <div id="calcResult" class="info"></div>
+  <h3>Bảng ví dụ nhanh</h3>
+  <table class="tb">
+    <thead><tr><th>Tên</th><th>W</th><th>F</th><th>P</th><th>S</th><th>Output</th></tr></thead>
+    <tbody>
+      <tr><td>MNIST conv1</td><td>28</td><td>5</td><td>0</td><td>1</td><td>24</td></tr>
+      <tr><td>Same padding</td><td>28</td><td>5</td><td>2</td><td>1</td><td>28</td></tr>
+      <tr><td>AlexNet conv1</td><td>224</td><td>11</td><td>0</td><td>4</td><td>54</td></tr>
+      <tr><td>VGG 3×3</td><td>32</td><td>3</td><td>1</td><td>1</td><td>32</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ── SECTION 3: POOLING DEMO ── -->
+<h2>3. Pooling Demo — Max vs Average</h2>
+<div class="panel">
+  <div class="controls">
+    <label>Kiểu:
+      <select id="poolType">
+        <option value="max">Max Pooling</option>
+        <option value="avg">Average Pooling</option>
+      </select>
+    </label>
+    <label>Pool size:
+      <select id="poolSize">
+        <option value="2">2×2</option>
+        <option value="3">3×3</option>
+      </select>
+    </label>
+    <button class="btn" onclick="runPooling()">Tính</button>
+  </div>
+  <div class="grid-2">
+    <div>
+      <h3>Input 4×4</h3>
+      <svg id="svgPoolIn" width="200" height="200" viewBox="0 0 200 200"></svg>
+    </div>
+    <div>
+      <h3 id="poolOutLabel">Output 2×2 (Max)</h3>
+      <svg id="svgPoolOut" width="200" height="200" viewBox="0 0 200 200"></svg>
+    </div>
+  </div>
+  <div id="poolInfo" class="info" style="margin-top:8px"></div>
+</div>
+
+<!-- ── SECTION 4: RECEPTIVE FIELD ── -->
+<h2>4. Receptive Field Calculator</h2>
+<div class="panel">
+  <p style="font-size:13px;color:var(--muted)">Mỗi hàng = 1 layer. Thêm/bớt layer, bấm Tính RF.</p>
+  <div id="rfLayers">
+    <div class="rf-row controls" style="margin-bottom:6px" data-idx="0">
+      <span style="font-size:12px;min-width:80px">Conv 3×3</span>
+      <label>F: <input type="number" class="rf-F" value="3" style="width:50px"></label>
+      <label>S: <input type="number" class="rf-S" value="1" style="width:50px"></label>
+    </div>
+    <div class="rf-row controls" style="margin-bottom:6px" data-idx="1">
+      <span style="font-size:12px;min-width:80px">Pool 2×2</span>
+      <label>F: <input type="number" class="rf-F" value="2" style="width:50px"></label>
+      <label>S: <input type="number" class="rf-S" value="2" style="width:50px"></label>
+    </div>
+    <div class="rf-row controls" style="margin-bottom:6px" data-idx="2">
+      <span style="font-size:12px;min-width:80px">Conv 3×3</span>
+      <label>F: <input type="number" class="rf-F" value="3" style="width:50px"></label>
+      <label>S: <input type="number" class="rf-S" value="1" style="width:50px"></label>
+    </div>
+    <div class="rf-row controls" style="margin-bottom:6px" data-idx="3">
+      <span style="font-size:12px;min-width:80px">Pool 2×2</span>
+      <label>F: <input type="number" class="rf-F" value="2" style="width:50px"></label>
+      <label>S: <input type="number" class="rf-S" value="2" style="width:50px"></label>
+    </div>
+  </div>
+  <div class="controls" style="margin-top:6px">
+    <button class="btn" onclick="calcRF()">Tính RF</button>
+    <button class="btn sec" onclick="addRFLayer()">+ Layer</button>
+    <button class="btn sec" onclick="removeRFLayer()">− Layer</button>
+  </div>
+  <div id="rfResult" class="info" style="margin-top:8px"></div>
+  <div id="rfTable" style="margin-top:8px"></div>
+</div>
+
+<!-- ── SECTION 5: ARCHITECTURE COMPARISON ── -->
+<h2>5. Classic Architectures</h2>
+<div class="panel">
+  <div class="controls">
+    <label>Chọn:
+      <select id="archSel" onchange="showArch()">
+        <option value="lenet">LeNet-5 (1998)</option>
+        <option value="alexnet">AlexNet (2012)</option>
+        <option value="vgg">VGG-16 (2014)</option>
+        <option value="resnet">ResNet-50 (2015)</option>
+      </select>
+    </label>
+  </div>
+  <div id="archViz" style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;margin-top:8px"></div>
+</div>
+
+<!-- ── SECTION 6: SKIP CONNECTION ── -->
+<h2>6. Skip Connection — ResNet</h2>
+<div class="panel">
+  <div class="controls">
+    <label>Số layers (không có skip):
+      <input type="range" id="skipDepth" min="5" max="60" value="30" oninput="updateSkip()">
+      <span class="val" id="skipDepthVal">30</span>
+    </label>
+    <label>Per-layer gradient factor:
+      <input type="range" id="skipFactor" min="50" max="99" value="90" oninput="updateSkip()">
+      <span class="val" id="skipFactorVal">0.90</span>
+    </label>
+  </div>
+  <svg id="svgSkip" width="580" height="260" viewBox="0 0 580 260"></svg>
+  <div id="skipInfo" class="info" style="margin-top:8px"></div>
+</div>
+
+</main>
+
+<script>
+// ── DATA ──
+const FILTERS = {
+  sobel_x: [[-1,0,1],[-2,0,2],[-1,0,1]],
+  sobel_y: [[-1,-2,-1],[0,0,0],[1,2,1]],
+  blur:    [[1/9,1/9,1/9],[1/9,1/9,1/9],[1/9,1/9,1/9]],
+  sharpen: [[0,-1,0],[-1,5,-1],[0,-1,0]],
+  identity:[[0,0,0],[0,1,0],[0,0,0]]
+};
+const INPUT_6x6 = [
+  [1,1,1,0,0,0],
+  [1,1,1,0,0,0],
+  [1,1,1,0,0,0],
+  [0,0,0,1,1,1],
+  [0,0,0,1,1,1],
+  [0,0,0,1,1,1]
+];
+const POOL_4x4 = [
+  [1,3,2,4],[5,6,1,2],[3,1,4,3],[2,4,3,1]
+];
+
+// ── HELPERS ──
+function clamp(v,mn,mx){return Math.max(mn,Math.min(mx,v));}
+function lerp(a,b,t){return a+(b-a)*t;}
+function heatColor(v,mn,mx){
+  const t=clamp((v-mn)/(mx-mn||1),0,1);
+  const r=Math.round(lerp(224,14,t)), g=Math.round(lerp(242,116,t)), b=Math.round(lerp(254,178,t));
+  return `rgb(${r},${g},${b})`;
+}
+function fmt(v){return Number.isInteger(v)?v:v.toFixed(3);}
+
+// ── CONVOLUTION DEMO ──
+let convState = { stride:1, pad:0, filter:'sobel_x', selR:-1, selC:-1 };
+
+function getConvOutput() {
+  const S=convState.stride, P=convState.pad;
+  const F=3, W=6, kern=FILTERS[convState.filter];
+  const Wp=W+2*P;
+  const outN=Math.floor((W-F+2*P)/S)+1;
+  // pad input
+  const padded=[];
+  for(let r=0;r<Wp;r++){padded.push([]);for(let c=0;c<Wp;c++)padded[r].push(0);}
+  for(let r=0;r<W;r++)for(let c=0;c<W;c++)padded[r+P][c+P]=INPUT_6x6[r][c];
+  const out=[];
+  for(let r=0;r<outN;r++){out.push([]);for(let c=0;c<outN;c++){
+    let s=0;
+    for(let fr=0;fr<F;fr++)for(let fc=0;fc<F;fc++)s+=kern[fr][fc]*padded[r*S+fr][c*S+fc];
+    out[r].push(s);
+  }}
+  return {out,outN,padded,kern,S,P};
+}
+
+function drawConv() {
+  const {out,outN,padded,kern,S,P}=getConvOutput();
+  const W=6,F=3,cell=38;
+  const svgIn=document.getElementById('svgInput');
+  const svgOut=document.getElementById('svgOutput');
+  // compute range
+  let mn=Infinity,mx=-Infinity;
+  for(let r=0;r<outN;r++)for(let c=0;c<outN;c++){mn=Math.min(mn,out[r][c]);mx=Math.max(mx,out[r][c]);}
+  // draw input
+  let html='';
+  for(let r=0;r<W;r++){for(let c=0;c<W;c++){
+    const v=INPUT_6x6[r][c];
+    const fill=v>0?'#0e7490':'#f0fdff';
+    const highlight=(convState.selR>=0)&&
+      r>=convState.selR*S-P&&r<convState.selR*S-P+F&&
+      c>=convState.selC*S-P&&c<convState.selC*S-P+F?'stroke:#f59e0b;stroke-width:3':'stroke:#a5f3fc;stroke-width:1';
+    html+=`<rect x="${c*cell+4}" y="${r*cell+4}" width="${cell-2}" height="${cell-2}" fill="${fill}" ${highlight} rx="3"/>`;
+    html+=`<text x="${c*cell+4+cell/2}" y="${r*cell+4+cell/2+4}" text-anchor="middle" font-size="13" fill="${v>0?'white':'#0891b2'}" font-family="monospace">${v}</text>`;
+  }}
+  svgIn.innerHTML=html;
+  // draw output
+  html='';
+  const outCell=Math.floor(230/Math.max(outN,1));
+  for(let r=0;r<outN;r++){for(let c=0;c<outN;c++){
+    const v=out[r][c];
+    const fill=heatColor(v,mn,mx);
+    const sel=(r===convState.selR&&c===convState.selC)?'stroke:#f59e0b;stroke-width:3':'stroke:#a5f3fc;stroke-width:1';
+    html+=`<rect x="${c*outCell+4}" y="${r*outCell+4}" width="${outCell-2}" height="${outCell-2}" fill="${fill}" ${sel} rx="3" onclick="selectConvCell(${r},${c})" style="cursor:pointer"/>`;
+    html+=`<text x="${c*outCell+4+outCell/2}" y="${r*outCell+4+outCell/2+4}" text-anchor="middle" font-size="12" fill="#164e63" font-family="monospace" pointer-events="none">${fmt(v)}</text>`;
+  }}
+  svgOut.innerHTML=html;
+  // info
+  const W_in=6,f=convState.filter;
+  document.getElementById('convInfo').innerHTML=
+    `Filter: <b>${f}</b> · Input 6×6 · P=${P} S=${S} · Output: <b>${outN}×${outN}</b> &nbsp;|&nbsp; Công thức: (6−3+2×${P})/${S}+1 = ${outN}`;
+  if(convState.selR>=0) showConvStep(out,padded,kern,S,P);
+  else document.getElementById('convStep').style.display='none';
+}
+
+function selectConvCell(r,c){convState.selR=r;convState.selC=c;drawConv();}
+
+function showConvStep(out,padded,kern,S,P){
+  const r=convState.selR,c=convState.selC,F=3;
+  let txt=`Output[${r},${c}] — kernel đặt tại (row_start=${r*S-P}, col_start=${c*S-P}):\n\n`;
+  let sum=0;
+  const lines=[];
+  for(let fr=0;fr<F;fr++){
+    const terms=[];
+    for(let fc=0;fc<F;fc++){
+      const pv=padded[r*S+fr][c*S+fc];
+      const kv=kern[fr][fc];
+      sum+=kv*pv;
+      terms.push(`(${fmt(kv)})×${pv}`);
+    }
+    lines.push('  '+terms.join(' + '));
+  }
+  txt+=lines.join('\n')+`\n\n= ${fmt(sum)}`;
+  const el=document.getElementById('convStep');
+  el.textContent=txt; el.style.display='block';
+}
+
+function resetConvAnim(){convState.selR=-1;convState.selC=-1;drawConv();}
+
+document.getElementById('filterSel').addEventListener('change',e=>{convState.filter=e.target.value;convState.selR=-1;convState.selC=-1;drawConv();});
+document.getElementById('strideSel').addEventListener('change',e=>{convState.stride=+e.target.value;convState.selR=-1;convState.selC=-1;drawConv();});
+document.getElementById('paddingSel').addEventListener('change',e=>{convState.pad=+e.target.value;convState.selR=-1;convState.selC=-1;drawConv();});
+
+// ── OUTPUT SIZE CALC ──
+function calcOutputSize(){
+  const W=+document.getElementById('calcW').value;
+  const F=+document.getElementById('calcF').value;
+  const P=+document.getElementById('calcP').value;
+  const S=+document.getElementById('calcS').value;
+  const out=Math.floor((W-F+2*P)/S)+1;
+  document.getElementById('calcResult').innerHTML=
+    `<b>Output = floor((${W} − ${F} + 2×${P}) / ${S}) + 1 = floor(${W-F+2*P} / ${S}) + 1 = ${Math.floor((W-F+2*P)/S)} + 1 = <span style="font-size:16px">${out}</span></b>`;
+}
+calcOutputSize();
+
+// ── POOLING DEMO ──
+function runPooling(){
+  const type=document.getElementById('poolType').value;
+  const psz=+document.getElementById('poolSize').value;
+  const stride=psz; // non-overlapping
+  const outN=Math.floor((4-psz)/stride)+1;
+  // draw input
+  const svgIn=document.getElementById('svgPoolIn');
+  const cell=46;
+  let html='';
+  for(let r=0;r<4;r++)for(let c=0;c<4;c++){
+    html+=`<rect x="${c*cell+4}" y="${r*cell+4}" width="${cell-2}" height="${cell-2}" fill="#cffafe" stroke="#a5f3fc" rx="3"/>`;
+    html+=`<text x="${c*cell+4+cell/2}" y="${r*cell+4+cell/2+4}" text-anchor="middle" font-size="14" fill="#164e63" font-family="monospace">${POOL_4x4[r][c]}</text>`;
+  }
+  svgIn.innerHTML=html;
+  // compute + draw output
+  const svgOut=document.getElementById('svgPoolOut');
+  const outCell=Math.floor(188/Math.max(outN,1));
+  let html2=''; let info='';
+  for(let r=0;r<outN;r++)for(let c=0;c<outN;c++){
+    const patch=[];
+    for(let pr=0;pr<psz;pr++)for(let pc=0;pc<psz;pc++)patch.push(POOL_4x4[r*stride+pr][c*stride+pc]);
+    const v=type==='max'?Math.max(...patch):patch.reduce((a,b)=>a+b,0)/patch.length;
+    const fill=heatColor(v,0,7);
+    html2+=`<rect x="${c*outCell+4}" y="${r*outCell+4}" width="${outCell-2}" height="${outCell-2}" fill="${fill}" stroke="#a5f3fc" rx="3"/>`;
+    html2+=`<text x="${c*outCell+4+outCell/2}" y="${r*outCell+4+outCell/2+4}" text-anchor="middle" font-size="14" fill="#164e63" font-family="monospace">${type==='avg'?v.toFixed(2):v}</text>`;
+    info+=`[${r},${c}]: {${patch.join(',')}} → ${type==='max'?'max':'avg'} = <b>${type==='avg'?v.toFixed(2):v}</b>&nbsp;&nbsp;`;
+  }
+  svgOut.innerHTML=html2;
+  document.getElementById('poolOutLabel').textContent=`Output ${outN}×${outN} (${type==='max'?'Max':'Avg'})`;
+  document.getElementById('poolInfo').innerHTML=info;
+}
+runPooling();
+
+// ── RECEPTIVE FIELD ──
+function addRFLayer(){
+  const c=document.getElementById('rfLayers');
+  const idx=c.querySelectorAll('.rf-row').length;
+  const d=document.createElement('div');
+  d.className='rf-row controls'; d.style.marginBottom='6px';
+  d.innerHTML=`<span style="font-size:12px;min-width:80px">Layer ${idx+1}</span>
+    <label>F: <input type="number" class="rf-F" value="3" style="width:50px"></label>
+    <label>S: <input type="number" class="rf-S" value="1" style="width:50px"></label>`;
+  c.appendChild(d);
+}
+function removeRFLayer(){
+  const c=document.getElementById('rfLayers');
+  const rows=c.querySelectorAll('.rf-row');
+  if(rows.length>1) c.removeChild(rows[rows.length-1]);
+}
+function calcRF(){
+  const rows=document.querySelectorAll('.rf-row');
+  let RF=1,jump=1;
+  const tableRows=[`<tr><th>Layer</th><th>F</th><th>S</th><th>jump</th><th>RF</th></tr>`];
+  tableRows.push(`<tr><td>Input</td><td>—</td><td>—</td><td>1</td><td>1</td></tr>`);
+  rows.forEach((row,i)=>{
+    const F=+row.querySelector('.rf-F').value;
+    const S=+row.querySelector('.rf-S').value;
+    RF=RF+(F-1)*jump;
+    jump=jump*S;
+    tableRows.push(`<tr><td>Layer ${i+1}</td><td>${F}</td><td>${S}</td><td>${jump}</td><td><b>${RF}</b></td></tr>`);
+  });
+  document.getElementById('rfResult').innerHTML=`Receptive field cuối: <b style="font-size:18px">${RF}×${RF}</b> pixels trên ảnh gốc`;
+  document.getElementById('rfTable').innerHTML=`<table class="tb">${tableRows.join('')}</table>`;
+}
+calcRF();
+
+// ── ARCHITECTURE COMPARISON ──
+const ARCHS={
+  lenet:{name:'LeNet-5 (LeCun 1998)',year:1998,params:'60K',acc:'~99.3% MNIST',color:'#0e7490',layers:[
+    {n:'Input 32×32',c:'#e0f2fe'},{n:'Conv1 6@5×5',c:'#bae6fd'},{n:'AvgPool 2×2',c:'#7dd3fc'},
+    {n:'Conv2 16@5×5',c:'#38bdf8'},{n:'AvgPool 2×2',c:'#7dd3fc'},
+    {n:'FC 120',c:'#0284c7'},{n:'FC 84',c:'#0369a1'},{n:'Output 10',c:'#0e7490'}
+  ]},
+  alexnet:{name:'AlexNet (Krizhevsky 2012)',year:2012,params:'62M',acc:'15.3% top-5 ImageNet',color:'#0891b2',layers:[
+    {n:'Input 224×224×3',c:'#e0f2fe'},{n:'Conv1 96@11×11 s4',c:'#bae6fd'},{n:'MaxPool 3×3 s2',c:'#7dd3fc'},
+    {n:'Conv2 256@5×5',c:'#38bdf8'},{n:'MaxPool 3×3 s2',c:'#7dd3fc'},
+    {n:'Conv3 384@3×3',c:'#0ea5e9'},{n:'Conv4 384@3×3',c:'#0ea5e9'},{n:'Conv5 256@3×3',c:'#0ea5e9'},
+    {n:'FC 4096 + Dropout',c:'#0284c7'},{n:'FC 4096 + Dropout',c:'#0284c7'},{n:'Softmax 1000',c:'#0e7490'}
+  ]},
+  vgg:{name:'VGG-16 (2014)',year:2014,params:'138M',acc:'7.3% top-5 ImageNet',color:'#0891b2',layers:[
+    {n:'Input 224×224×3',c:'#e0f2fe'},
+    {n:'2× Conv 64@3×3 same',c:'#bae6fd'},{n:'MaxPool 2×2 s2',c:'#7dd3fc'},
+    {n:'2× Conv 128@3×3 same',c:'#38bdf8'},{n:'MaxPool 2×2 s2',c:'#7dd3fc'},
+    {n:'3× Conv 256@3×3 same',c:'#0ea5e9'},{n:'MaxPool 2×2 s2',c:'#7dd3fc'},
+    {n:'3× Conv 512@3×3 same',c:'#0284c7'},{n:'MaxPool 2×2 s2',c:'#7dd3fc'},
+    {n:'3× Conv 512@3×3 same',c:'#0284c7'},{n:'MaxPool 2×2 s2',c:'#7dd3fc'},
+    {n:'FC 4096 × 2',c:'#0369a1'},{n:'Softmax 1000',c:'#0e7490'}
+  ]},
+  resnet:{name:'ResNet-50 (He 2015)',year:2015,params:'25M',acc:'3.57% top-5 ImageNet',color:'#155e75',layers:[
+    {n:'Input 224×224×3',c:'#e0f2fe'},{n:'Conv1 64@7×7 s2',c:'#bae6fd'},{n:'MaxPool 3×3 s2',c:'#7dd3fc'},
+    {n:'Stage1: 3× Bottleneck [64,64,256]',c:'#38bdf8',skip:true},
+    {n:'Stage2: 4× Bottleneck [128,128,512]',c:'#0ea5e9',skip:true},
+    {n:'Stage3: 6× Bottleneck [256,256,1024]',c:'#0284c7',skip:true},
+    {n:'Stage4: 3× Bottleneck [512,512,2048]',c:'#0369a1',skip:true},
+    {n:'Global Avg Pool',c:'#7dd3fc'},{n:'FC 1000 + Softmax',c:'#0e7490'}
+  ]}
+};
+
+function showArch(){
+  const key=document.getElementById('archSel').value;
+  const a=ARCHS[key];
+  let html=`<div class="arch-box">`;
+  a.layers.forEach((l,i)=>{
+    if(i>0) html+=`<div class="arch-arrow">↓</div>`;
+    const extra=l.skip?` <span style="font-size:10px;background:#f59e0b20;color:#b45309;padding:1px 5px;border-radius:4px">+ skip</span>`:'';
+    html+=`<div class="arch-layer" style="background:${l.c};color:#164e63">${l.n}${extra}</div>`;
+  });
+  html+=`</div>`;
+  html+=`<div style="flex:1;min-width:200px"><div class="info">
+    <b>${a.name}</b><br>
+    Tham số: <b>${a.params}</b><br>
+    Kết quả: <b>${a.acc}</b>
+  </div></div>`;
+  document.getElementById('archViz').innerHTML=html;
+}
+showArch();
+
+// ── SKIP CONNECTION GRADIENT ──
+function updateSkip(){
+  const depth=+document.getElementById('skipDepth').value;
+  const f=+document.getElementById('skipFactor').value/100;
+  document.getElementById('skipDepthVal').textContent=depth;
+  document.getElementById('skipFactorVal').textContent=f.toFixed(2);
+  drawSkip(depth,f);
+}
+function drawSkip(depth,f){
+  const svg=document.getElementById('svgSkip');
+  const W=580,H=260,pad=50;
+  const layers=Array.from({length:depth},(_, i)=>i);
+  const xScale=i=>(i/(depth-1))*(W-2*pad)+pad;
+  // gradient without skip: f^(depth-1-i)
+  // gradient with skip: approx 1 (always >=1 per path)
+  let html='';
+  // axes
+  html+=`<line x1="${pad}" y1="${H-40}" x2="${W-pad}" y2="${H-40}" stroke="#94a3b8" stroke-width="1.5"/>`;
+  html+=`<line x1="${pad}" y1="20" x2="${pad}" y2="${H-40}" stroke="#94a3b8" stroke-width="1.5"/>`;
+  // labels
+  html+=`<text x="${W/2}" y="${H-6}" text-anchor="middle" font-size="11" fill="#64748b">Layer (0=output, N-1=input)</text>`;
+  html+=`<text x="14" y="${H/2}" text-anchor="middle" font-size="11" fill="#64748b" transform="rotate(-90,14,${H/2})">|gradient|</text>`;
+  // plot no-skip (log scale from 1 to ~10^-20)
+  const yScale=v=>{
+    const logv=Math.max(Math.log10(Math.max(v,1e-25)),-25);
+    return (H-40)-((logv+25)/25)*(H-60);
+  };
+  // no-skip path
+  let dNoSkip=`M ${xScale(0)} ${yScale(1)}`;
+  for(let i=1;i<depth;i++){
+    const g=Math.pow(f,i);
+    dNoSkip+=` L ${xScale(i)} ${yScale(g)}`;
+  }
+  html+=`<path d="${dNoSkip}" fill="none" stroke="#ef4444" stroke-width="2.5"/>`;
+  // skip path: gradient ~1 always
+  html+=`<line x1="${pad}" y1="${yScale(1)}" x2="${W-pad}" y2="${yScale(1)}" stroke="#0e7490" stroke-width="2.5" stroke-dasharray="6 3"/>`;
+  // y-axis ticks
+  [-2,-5,-10,-15,-20].forEach(exp=>{
+    const y=yScale(Math.pow(10,exp));
+    if(y>20&&y<H-40){
+      html+=`<line x1="${pad-4}" y1="${y}" x2="${pad}" y2="${y}" stroke="#94a3b8" stroke-width="1"/>`;
+      html+=`<text x="${pad-8}" y="${y+4}" text-anchor="end" font-size="10" fill="#64748b">10^${exp}</text>`;
+    }
+  });
+  // legend
+  html+=`<rect x="${W-170}" y="30" width="140" height="64" fill="white" stroke="#e2e8f0" rx="6"/>`;
+  html+=`<line x1="${W-160}" y1="48" x2="${W-135}" y2="48" stroke="#ef4444" stroke-width="2.5"/>`;
+  html+=`<text x="${W-130}" y="52" font-size="12" fill="#374151">Không có skip</text>`;
+  html+=`<line x1="${W-160}" y1="68" x2="${W-135}" y2="68" stroke="#0e7490" stroke-width="2.5" stroke-dasharray="5 3"/>`;
+  html+=`<text x="${W-130}" y="72" font-size="12" fill="#374151">Skip connection</text>`;
+  // annotation
+  const gFinal=Math.pow(f,depth-1);
+  html+=`<text x="${xScale(depth-1)+4}" y="${yScale(gFinal)-8}" font-size="10" fill="#ef4444">≈${gFinal.toExponential(1)}</text>`;
+  svg.innerHTML=html;
+  document.getElementById('skipInfo').innerHTML=
+    `Sau <b>${depth}</b> layers với factor ${f.toFixed(2)}/layer: |gradient| tại input = ${f.toFixed(2)}^${depth-1} ≈ <b>${gFinal.toExponential(2)}</b>
+    ${gFinal<1e-10?'— <span style="color:#ef4444">thực tế bằng 0, không train được</span>':'— còn đủ'}.
+    Skip connection (đường dash xanh) giữ gradient luôn ~1 dù depth bao nhiêu.`;
+}
+updateSkip();
+
+// ── INIT ──
+drawConv();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

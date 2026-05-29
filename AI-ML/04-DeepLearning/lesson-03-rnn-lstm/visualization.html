@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T4-L03 — RNN / LSTM</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #ecfeff;
+    --accent: #0e7490;
+    --accent-soft: #cffafe;
+    --accent-hover: #155e75;
+    --panel: #ffffff;
+    --line: #a5f3fc;
+    --ink: #164e63;
+    --muted: #0891b2;
+  }
+  body { margin: 0; background: var(--bg); }
+  main { max-width: 1100px; }
+  h1 { font-size: 24px; font-weight: 800; color: var(--ink); margin: 0 0 4px; }
+  .subtitle { color: var(--muted); margin-bottom: 22px; font-size: 14px; }
+  h2 { font-size: 18px; font-weight: 700; color: var(--ink); border-left: 4px solid var(--accent); padding-left: 10px; margin: 30px 0 14px; }
+  h3 { font-size: 14px; font-weight: 700; color: var(--accent); margin: 12px 0 8px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 20px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin-bottom: 12px; }
+  .controls label { font-size: 12.5px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+  .controls input[type=range] { width: 130px; }
+  .controls select { padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px; font-size: 13px; }
+  .btn { padding: 6px 14px; background: var(--accent); color: white; border: none; border-radius: 6px; font-size: 12.5px; cursor: pointer; font-weight: 600; }
+  .btn:hover { background: var(--accent-hover); }
+  .btn.sec { background: var(--accent-soft); color: var(--ink); }
+  .btn.sec:hover { background: var(--line); }
+  .val { font-family: ui-monospace, monospace; font-weight: 700; color: var(--ink); min-width: 36px; display: inline-block; }
+  svg { display: block; background: #f0fdff; border: 1px solid var(--line); border-radius: 8px; }
+  .info { background: var(--accent-soft); border-left: 3px solid var(--accent); padding: 10px 14px; border-radius: 6px; font-size: 13px; margin: 10px 0; line-height: 1.55; }
+  .step { font-family: ui-monospace, monospace; font-size: 12px; white-space: pre-wrap; background: #f0fdff; padding: 12px; border-radius: 6px; line-height: 1.6; margin: 8px 0; border: 1px solid var(--line); }
+  table.tb { border-collapse: collapse; font-size: 13px; margin: 8px 0; width: 100%; }
+  table.tb th, table.tb td { padding: 6px 10px; border: 1px solid var(--line); text-align: center; }
+  table.tb th { background: var(--accent-soft); font-weight: 700; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 700px) { .two { grid-template-columns: 1fr; } }
+  .gate-bar { display: flex; align-items: center; gap: 8px; margin: 4px 0; font-size: 13px; }
+  .gate-fill { height: 20px; border-radius: 4px; transition: width 0.4s; background: var(--accent); }
+  .gate-label { min-width: 90px; font-family: monospace; font-size: 12px; color: var(--ink); }
+  .gate-val { font-family: monospace; font-size: 12px; color: var(--muted); min-width: 50px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-cnn/visualization.html">← T4-L02: CNN</a>
+  <span class="sep">·</span>
+  <span class="current">T4-L03: RNN/LSTM</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-transformer-attention/visualization.html">T4-L04: Transformer →</a>
+</nav>
+<main>
+<h1>T4-L03 — RNN / LSTM</h1>
+<div class="subtitle">RNN unroll · Vanishing gradient · LSTM gates · Seq2seq</div>
+
+<!-- ── SECTION 1: RNN UNROLL ── -->
+<h2>1. RNN Unrolled — Hidden state qua thời gian</h2>
+<div class="panel">
+  <div class="controls">
+    <label>Time steps hiện tại:
+      <input type="range" id="rnnStep" min="1" max="5" value="1" oninput="updateRNN()">
+      <span class="val" id="rnnStepVal">1</span>
+    </label>
+    <button class="btn" onclick="autoPlayRNN()">▶ Auto play</button>
+    <button class="btn sec" onclick="resetRNN()">Reset</button>
+  </div>
+  <svg id="svgRNN" width="700" height="220" viewBox="0 0 700 220"></svg>
+  <div id="rnnInfo" class="info"></div>
+  <div id="rnnStep2" class="step"></div>
+</div>
+
+<!-- ── SECTION 2: VANISHING GRADIENT ── -->
+<h2>2. Vanishing Gradient — Tại sao RNN "quên"</h2>
+<div class="panel">
+  <div class="controls">
+    <label>Gradient factor ρ/bước:
+      <input type="range" id="rhoSlider" min="60" max="99" value="90" oninput="drawVanish()">
+      <span class="val" id="rhoVal">0.90</span>
+    </label>
+    <label>Số bước T:
+      <input type="range" id="vanishT" min="10" max="100" value="50" oninput="drawVanish()">
+      <span class="val" id="vanishTVal">50</span>
+    </label>
+  </div>
+  <svg id="svgVanish" width="660" height="240" viewBox="0 0 660 240"></svg>
+  <div id="vanishInfo" class="info"></div>
+  <h3>Bảng tham chiếu nhanh</h3>
+  <table class="tb" id="vanishTable"></table>
+</div>
+
+<!-- ── SECTION 3: LSTM CELL ── -->
+<h2>3. LSTM Cell — 4 Gates Visualizer</h2>
+<div class="panel">
+  <div class="two">
+    <div>
+      <h3>Input</h3>
+      <div class="controls" style="flex-direction:column;align-items:flex-start;gap:6px">
+        <label>x_t[0]: <input type="range" id="lstmX0" min="-100" max="100" value="50" oninput="updateLSTM()"> <span class="val" id="lstmX0V">0.50</span></label>
+        <label>x_t[1]: <input type="range" id="lstmX1" min="-100" max="100" value="-30" oninput="updateLSTM()"> <span class="val" id="lstmX1V">-0.30</span></label>
+        <label>h_{t-1}[0]: <input type="range" id="lstmH0" min="-100" max="100" value="20" oninput="updateLSTM()"> <span class="val" id="lstmH0V">0.20</span></label>
+        <label>h_{t-1}[1]: <input type="range" id="lstmH1" min="-100" max="100" value="10" oninput="updateLSTM()"> <span class="val" id="lstmH1V">0.10</span></label>
+        <label>c_{t-1}[0]: <input type="range" id="lstmC0" min="-200" max="200" value="30" oninput="updateLSTM()"> <span class="val" id="lstmC0V">0.30</span></label>
+        <label>c_{t-1}[1]: <input type="range" id="lstmC1" min="-200" max="200" value="-10" oninput="updateLSTM()"> <span class="val" id="lstmC1V">-0.10</span></label>
+      </div>
+    </div>
+    <div>
+      <h3>Gate Values</h3>
+      <div id="gateViz"></div>
+      <div id="lstmResult" class="info" style="margin-top:8px"></div>
+    </div>
+  </div>
+  <div id="lstmStep" class="step"></div>
+</div>
+
+<!-- ── SECTION 4: SEQ2SEQ ── -->
+<h2>4. Seq2Seq Animation</h2>
+<div class="panel">
+  <div class="controls">
+    <button class="btn" onclick="nextSeq2seqStep()">▶ Bước tiếp theo</button>
+    <button class="btn sec" onclick="resetSeq2seq()">Reset</button>
+    <span id="seq2seqStatus" style="font-size:13px;color:var(--muted)"></span>
+  </div>
+  <svg id="svgSeq2seq" width="700" height="260" viewBox="0 0 700 260"></svg>
+  <div id="seq2seqInfo" class="info"></div>
+</div>
+
+</main>
+
+<script>
+// ── HELPERS ──
+const sigmoid=x=>1/(1+Math.exp(-x));
+const tanh=x=>Math.tanh(x);
+const fmt2=v=>v.toFixed(3);
+const fmt1=v=>v.toFixed(2);
+
+// ── RNN DATA ──
+const RNN_INPUTS=[[1,0],[0,1],[1,1],[0,0],[1,-1]];
+const RNN_LABELS=['x₁=[1,0]','x₂=[0,1]','x₃=[1,1]','x₄=[0,0]','x₅=[1,-1]'];
+const WX=[[0.1,0.2],[0.3,0.4],[0.5,0.6]]; // 3×2
+const WH=[[0.1,0.0,0.0],[0.0,0.1,0.0],[0.0,0.0,0.1]]; // 3×3
+// forward
+let rnnH=[[0,0,0]]; // h0..h5
+for(let t=0;t<5;t++){
+  const x=RNN_INPUTS[t];
+  const h=rnnH[t];
+  const z=[
+    WX[0][0]*x[0]+WX[0][1]*x[1]+WH[0][0]*h[0]+WH[0][1]*h[1]+WH[0][2]*h[2],
+    WX[1][0]*x[0]+WX[1][1]*x[1]+WH[1][0]*h[0]+WH[1][1]*h[1]+WH[1][2]*h[2],
+    WX[2][0]*x[0]+WX[2][1]*x[1]+WH[2][0]*h[0]+WH[2][1]*h[1]+WH[2][2]*h[2]
+  ];
+  rnnH.push([tanh(z[0]),tanh(z[1]),tanh(z[2])]);
+}
+
+let rnnAutoTimer=null;
+function resetRNN(){
+  if(rnnAutoTimer){clearInterval(rnnAutoTimer);rnnAutoTimer=null;}
+  document.getElementById('rnnStep').value=1;
+  updateRNN();
+}
+function autoPlayRNN(){
+  if(rnnAutoTimer){clearInterval(rnnAutoTimer);rnnAutoTimer=null;return;}
+  rnnAutoTimer=setInterval(()=>{
+    const sl=document.getElementById('rnnStep');
+    if(+sl.value<5) sl.value=+sl.value+1;
+    else { clearInterval(rnnAutoTimer); rnnAutoTimer=null; }
+    updateRNN();
+  },900);
+}
+
+function updateRNN(){
+  const T=+document.getElementById('rnnStep').value;
+  document.getElementById('rnnStepVal').textContent=T;
+  drawRNN(T);
+}
+
+function drawRNN(T){
+  const svg=document.getElementById('svgRNN');
+  const W=700,H=220,pad=40;
+  const steps=5;
+  const gapX=(W-2*pad)/(steps);
+  const cx=i=>pad+gapX/2+i*gapX;
+  const cy=H/2;
+  const R=28;
+  let html='';
+  // draw arrows between steps
+  for(let i=0;i<steps;i++){
+    const x1=cx(i)+R,x2=cx(i+1>=steps?i:i+1)-R;
+    if(i<steps-1){
+      const active=i<T-1;
+      html+=`<defs><marker id="arr${i}" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="${active?'#0e7490':'#94a3b8'}"/></marker></defs>`;
+      html+=`<line x1="${cx(i)+R}" y1="${cy}" x2="${cx(i+1)-R}" y2="${cy}" stroke="${active?'#0e7490':'#94a3b8'}" stroke-width="${active?2.5:1.5}" marker-end="url(#arr${i})"/>`;
+    }
+  }
+  // draw input arrows
+  for(let i=0;i<steps;i++){
+    const active=i<T;
+    html+=`<line x1="${cx(i)}" y1="${cy-R-6}" x2="${cx(i)}" y2="${cy-R}" stroke="${active?'#0e7490':'#d1d5db'}" stroke-width="${active?2:1}" marker-end="url(#arrd)"/>`;
+    html+=`<text x="${cx(i)}" y="${cy-R-14}" text-anchor="middle" font-size="11" fill="${active?'#0e7490':'#9ca3af'}" font-family="monospace">${RNN_LABELS[i]}</text>`;
+  }
+  html+=`<defs><marker id="arrd" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><polygon points="0,0 7,3 0,6" fill="#0e7490"/></marker></defs>`;
+  // draw hidden state nodes
+  for(let i=0;i<steps;i++){
+    const active=i<T;
+    const fill=active?'#cffafe':'#f1f5f9';
+    const stroke=active?'#0e7490':'#94a3b8';
+    html+=`<circle cx="${cx(i)}" cy="${cy}" r="${R}" fill="${fill}" stroke="${stroke}" stroke-width="${active?2.5:1.5}"/>`;
+    html+=`<text x="${cx(i)}" y="${cy-6}" text-anchor="middle" font-size="12" fill="${active?'#0e7490':'#9ca3af'}" font-weight="700">h${i+1}</text>`;
+    if(active){
+      const h=rnnH[i+1];
+      html+=`<text x="${cx(i)}" y="${cy+8}" text-anchor="middle" font-size="9" fill="#0e7490" font-family="monospace">[${h[0].toFixed(2)},</text>`;
+      html+=`<text x="${cx(i)}" y="${cy+18}" text-anchor="middle" font-size="9" fill="#0e7490" font-family="monospace">${h[1].toFixed(2)}]</text>`;
+    }
+  }
+  // h0
+  html+=`<circle cx="${pad-R-4}" cy="${cy}" r="${R*0.8}" fill="#e0f2fe" stroke="#0891b2" stroke-width="1.5"/>`;
+  html+=`<text x="${pad-R-4}" y="${cy+4}" text-anchor="middle" font-size="11" fill="#0891b2" font-weight="700">h₀=[0,0,0]</text>`;
+  html+=`<line x1="${pad-R-4+R*0.8}" y1="${cy}" x2="${pad-R}" y2="${cy}" stroke="#0891b2" stroke-width="1.5" marker-end="url(#arr0)"/>`;
+  svg.innerHTML=html;
+  // info
+  const h=rnnH[T];
+  const x=RNN_INPUTS[T-1];
+  document.getElementById('rnnInfo').innerHTML=
+    `<b>t=${T}</b>: x_t=${JSON.stringify(x)} &nbsp;→&nbsp; h_${T} = tanh(W_x·x_t + W_h·h_{t-1}) = [${h.map(v=>v.toFixed(3)).join(', ')}]`;
+  const hprev=rnnH[T-1];
+  let stepTxt=`Bước t=${T}:\n  h_prev = [${hprev.map(fmt2).join(', ')}]\n  x_t    = [${x.join(', ')}]\n\n  z = W_x·x + W_h·h_prev:\n`;
+  for(let i=0;i<3;i++){
+    const wx=WX[i][0]*x[0]+WX[i][1]*x[1];
+    const wh=WH[i][0]*hprev[0]+WH[i][1]*hprev[1]+WH[i][2]*hprev[2];
+    stepTxt+=`    z[${i}] = ${wx.toFixed(4)} + ${wh.toFixed(4)} = ${(wx+wh).toFixed(4)}\n`;
+  }
+  stepTxt+=`\n  h_${T} = tanh(z) = [${h.map(fmt2).join(', ')}]`;
+  document.getElementById('rnnStep2').textContent=stepTxt;
+}
+
+// ── VANISHING GRADIENT ──
+function drawVanish(){
+  const rho=+document.getElementById('rhoSlider').value/100;
+  const T=+document.getElementById('vanishT').value;
+  document.getElementById('rhoVal').textContent=rho.toFixed(2);
+  document.getElementById('vanishTVal').textContent=T;
+  const svg=document.getElementById('svgVanish');
+  const W=660,H=240,pad=55;
+  let html='';
+  // axes
+  html+=`<line x1="${pad}" y1="${H-35}" x2="${W-20}" y2="${H-35}" stroke="#94a3b8" stroke-width="1.5"/>`;
+  html+=`<line x1="${pad}" y1="20" x2="${pad}" y2="${H-35}" stroke="#94a3b8" stroke-width="1.5"/>`;
+  html+=`<text x="${(W+pad)/2}" y="${H-6}" text-anchor="middle" font-size="11" fill="#64748b">Time step (bước lùi)</text>`;
+  html+=`<text x="14" y="${H/2}" text-anchor="middle" font-size="11" fill="#64748b" transform="rotate(-90,14,${H/2})">|gradient|</text>`;
+  const yScale=v=>{
+    const logv=Math.max(Math.log10(Math.max(v,1e-25)),-25);
+    return (H-35)-((logv+25)/25)*(H-58);
+  };
+  const xScale=i=>pad+(i/T)*(W-pad-20);
+  // plot gradient curve
+  let d=`M ${xScale(0)} ${yScale(1)}`;
+  for(let i=1;i<=T;i++) d+=` L ${xScale(i)} ${yScale(Math.pow(rho,i))}`;
+  html+=`<path d="${d}" fill="none" stroke="#ef4444" stroke-width="2.5"/>`;
+  // threshold line at 0.01
+  const yThresh=yScale(0.01);
+  html+=`<line x1="${pad}" y1="${yThresh}" x2="${W-20}" y2="${yThresh}" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5 3"/>`;
+  html+=`<text x="${W-22}" y="${yThresh-4}" text-anchor="end" font-size="10" fill="#f59e0b">threshold 0.01</text>`;
+  // y ticks
+  [-1,-2,-5,-10,-15,-20].forEach(exp=>{
+    const y=yScale(Math.pow(10,exp));
+    if(y>20&&y<H-35){
+      html+=`<line x1="${pad-4}" y1="${y}" x2="${pad}" y2="${y}" stroke="#94a3b8" stroke-width="1"/>`;
+      html+=`<text x="${pad-7}" y="${y+4}" text-anchor="end" font-size="10" fill="#64748b">10^${exp}</text>`;
+    }
+  });
+  // x ticks
+  [0,10,20,30,50,T].forEach(t=>{
+    if(t<=T){
+      const x=xScale(t);
+      html+=`<line x1="${x}" y1="${H-35}" x2="${x}" y2="${H-31}" stroke="#94a3b8" stroke-width="1"/>`;
+      html+=`<text x="${x}" y="${H-22}" text-anchor="middle" font-size="10" fill="#64748b">${t}</text>`;
+    }
+  });
+  // final value annotation
+  const gFinal=Math.pow(rho,T);
+  html+=`<circle cx="${xScale(T)}" cy="${yScale(gFinal)}" r="4" fill="#ef4444"/>`;
+  html+=`<text x="${xScale(T)-6}" y="${Math.max(yScale(gFinal)-8,25)}" text-anchor="end" font-size="10" fill="#ef4444">${gFinal.toExponential(2)}</text>`;
+  svg.innerHTML=html;
+  document.getElementById('vanishInfo').innerHTML=
+    `ρ = ${rho.toFixed(2)}, T = ${T}: gradient tại step 0 = ${rho.toFixed(2)}^${T} = <b>${gFinal.toExponential(3)}</b>
+    ${gFinal<0.01?'— <span style="color:#ef4444">đã vanish (< 0.01)</span>':'— còn khá mạnh'}.`;
+  // table
+  const rows=[[0.95,10],[0.90,20],[0.85,30],[0.80,50],[rho,T]];
+  let tableHtml='<thead><tr><th>ρ</th><th>T=10</th><th>T=20</th><th>T=50</th><th>T=100</th></tr></thead><tbody>';
+  [0.99,0.95,0.90,0.85].forEach(r=>{
+    tableHtml+=`<tr><td>${r}</td>`;
+    [10,20,50,100].forEach(t=>{
+      const g=Math.pow(r,t);
+      tableHtml+=`<td style="${g<0.01?'color:#ef4444':'color:#0e7490'}">${g.toExponential(2)}</td>`;
+    });
+    tableHtml+='</tr>';
+  });
+  tableHtml+='</tbody>';
+  document.getElementById('vanishTable').innerHTML=tableHtml;
+}
+drawVanish();
+document.getElementById('rhoSlider').addEventListener('input',drawVanish);
+document.getElementById('vanishT').addEventListener('input',drawVanish);
+
+// ── LSTM GATES ──
+function updateLSTM(){
+  const x0=+document.getElementById('lstmX0').value/100;
+  const x1=+document.getElementById('lstmX1').value/100;
+  const h0=+document.getElementById('lstmH0').value/100;
+  const h1=+document.getElementById('lstmH1').value/100;
+  const c0=+document.getElementById('lstmC0').value/100;
+  const c1=+document.getElementById('lstmC1').value/100;
+  document.getElementById('lstmX0V').textContent=x0.toFixed(2);
+  document.getElementById('lstmX1V').textContent=x1.toFixed(2);
+  document.getElementById('lstmH0V').textContent=h0.toFixed(2);
+  document.getElementById('lstmH1V').textContent=h1.toFixed(2);
+  document.getElementById('lstmC0V').textContent=c0.toFixed(2);
+  document.getElementById('lstmC1V').textContent=c1.toFixed(2);
+  // concat = [h0,h1,x0,x1]
+  const inp=[h0,h1,x0,x1];
+  // simple weight matrices (4×4 each, for H=2 d=2)
+  const Wf=[[0.5,0.3,-0.2,0.4],[0.2,0.6,0.3,-0.1]];
+  const Wi=[[-0.3,0.4,0.7,-0.2],[0.5,-0.2,0.3,0.6]];
+  const Wc=[[0.4,-0.3,0.5,0.2],[-0.2,0.5,-0.3,0.4]];
+  const Wo=[[0.6,0.1,-0.4,0.3],[-0.1,0.7,0.2,-0.5]];
+  const bf=[0.1,-0.1], bi=[0.0,0.0], bc=[0.0,0.0], bo=[0.1,0.1];
+  const mv=(W,x,b)=>W.map((row,i)=>row.reduce((s,w,j)=>s+w*inp[j],0)+b[i]);
+  const pre_f=mv(Wf,inp,bf);
+  const pre_i=mv(Wi,inp,bi);
+  const pre_c=mv(Wc,inp,bc);
+  const pre_o=mv(Wo,inp,bo);
+  const f=pre_f.map(sigmoid);
+  const ig=pre_i.map(sigmoid);
+  const cc=pre_c.map(tanh);
+  const og=pre_o.map(sigmoid);
+  const c_prev=[c0,c1];
+  const c_new=f.map((fv,i)=>fv*c_prev[i]+ig[i]*cc[i]);
+  const h_new=og.map((ov,i)=>ov*tanh(c_new[i]));
+  // draw gate bars
+  const gates=[
+    {name:'Forget f_t', vals:f, color:'#ef4444'},
+    {name:'Input i_t', vals:ig, color:'#0e7490'},
+    {name:'Candidate c̃_t (shifted)', vals:cc.map(v=>(v+1)/2), color:'#0891b2'},
+    {name:'Output o_t', vals:og, color:'#155e75'}
+  ];
+  let ghtml='';
+  gates.forEach(g=>{
+    g.vals.forEach((v,i)=>{
+      const pct=(Math.abs(v)*100).toFixed(0);
+      ghtml+=`<div class="gate-bar">
+        <span class="gate-label">${g.name}[${i}]</span>
+        <div style="flex:1;background:#e0f2fe;border-radius:4px;height:18px;overflow:hidden">
+          <div class="gate-fill" style="width:${pct}%;background:${g.color}"></div>
+        </div>
+        <span class="gate-val">${fmt2(v)}</span>
+      </div>`;
+    });
+  });
+  document.getElementById('gateViz').innerHTML=ghtml;
+  document.getElementById('lstmResult').innerHTML=
+    `c_new = [<b>${fmt2(c_new[0])}</b>, <b>${fmt2(c_new[1])}</b>] &nbsp;|&nbsp; h_new = [<b>${fmt2(h_new[0])}</b>, <b>${fmt2(h_new[1])}</b>]`;
+  const stepTxt=`LSTM Cell walk-through:
+concat = [h_{t-1}, x_t] = [${h0.toFixed(2)},${h1.toFixed(2)},${x0.toFixed(2)},${x1.toFixed(2)}]
+
+pre_f = Wf·concat + bf → f_t = σ(pre_f)
+  f_t = [${fmt2(f[0])}, ${fmt2(f[1])}]  (forget gate)
+
+pre_i = Wi·concat + bi → i_t = σ(pre_i)
+  i_t = [${fmt2(ig[0])}, ${fmt2(ig[1])}]  (input gate)
+
+pre_c = Wc·concat + bc → c̃_t = tanh(pre_c)
+  c̃_t = [${fmt2(cc[0])}, ${fmt2(cc[1])}]  (candidate)
+
+pre_o = Wo·concat + bo → o_t = σ(pre_o)
+  o_t = [${fmt2(og[0])}, ${fmt2(og[1])}]  (output gate)
+
+c_t = f_t ⊙ c_{t-1} + i_t ⊙ c̃_t
+    = [${fmt2(f[0])}×${fmt1(c0)}+${fmt2(ig[0])}×${fmt2(cc[0])}, ${fmt2(f[1])}×${fmt1(c1)}+${fmt2(ig[1])}×${fmt2(cc[1])}]
+    = [${fmt2(c_new[0])}, ${fmt2(c_new[1])}]
+
+h_t = o_t ⊙ tanh(c_t)
+    = [${fmt2(og[0])}×tanh(${fmt2(c_new[0])}), ${fmt2(og[1])}×tanh(${fmt2(c_new[1])})]
+    = [${fmt2(h_new[0])}, ${fmt2(h_new[1])}]`;
+  document.getElementById('lstmStep').textContent=stepTxt;
+}
+['lstmX0','lstmX1','lstmH0','lstmH1','lstmC0','lstmC1'].forEach(id=>
+  document.getElementById(id).addEventListener('input',updateLSTM));
+updateLSTM();
+
+// ── SEQ2SEQ ──
+const SEQ2SEQ={
+  src:['I','love','cats','<END>'],
+  tgt:['Tôi','yêu','mèo','<END>'],
+  steps:[
+    {phase:'encode',idx:0,msg:'Encoder đọc "I" → cập nhật h_enc[1]'},
+    {phase:'encode',idx:1,msg:'Encoder đọc "love" → cập nhật h_enc[2]'},
+    {phase:'encode',idx:2,msg:'Encoder đọc "cats" → cập nhật h_enc[3]'},
+    {phase:'context',idx:-1,msg:'h_enc[3] = context vector c — tóm tắt toàn bộ câu nguồn'},
+    {phase:'decode',idx:0,msg:'Decoder nhận c, sinh token "Tôi"'},
+    {phase:'decode',idx:1,msg:'Decoder nhận "Tôi", sinh "yêu"'},
+    {phase:'decode',idx:2,msg:'Decoder nhận "yêu", sinh "mèo"'},
+    {phase:'decode',idx:3,msg:'Decoder sinh <END> — hoàn thành!'}
+  ]
+};
+let seq2seqCur=0;
+function drawSeq2seq(step){
+  const s=SEQ2SEQ;
+  const svg=document.getElementById('svgSeq2seq');
+  const W=700,H=260;
+  let html='';
+  const encY=80, decY=185, Rn=26;
+  const srcN=s.src.length, tgtN=s.tgt.length;
+  // encoder nodes
+  const encX=i=>60+i*130;
+  const decX=i=>60+i*130;
+  // context arrow
+  if(step.phase==='context'||step.phase==='decode'){
+    html+=`<rect x="${encX(srcN-1)-30}" y="${(encY+decY)/2-14}" width="60" height="28" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>`;
+    html+=`<text x="${encX(srcN-1)}" y="${(encY+decY)/2+5}" text-anchor="middle" font-size="11" fill="#b45309" font-weight="700">context</text>`;
+    html+=`<line x1="${encX(srcN-1)}" y1="${encY+Rn}" x2="${encX(srcN-1)}" y2="${(encY+decY)/2-14}" stroke="#f59e0b" stroke-width="2"/>`;
+    html+=`<line x1="${encX(srcN-1)}" y1="${(encY+decY)/2+14}" x2="${decX(0)}" y2="${decY-Rn}" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5 3"/>`;
+  }
+  // encoder labels
+  s.src.forEach((w,i)=>{
+    const active=step.phase!=='context'&&step.phase!=='decode'? i<=step.idx : true;
+    const cx=encX(i);
+    html+=`<circle cx="${cx}" cy="${encY}" r="${Rn}" fill="${active?'#cffafe':'#f1f5f9'}" stroke="${active?'#0e7490':'#94a3b8'}" stroke-width="${active?2.5:1.5}"/>`;
+    html+=`<text x="${cx}" y="${encY+4}" text-anchor="middle" font-size="11" fill="${active?'#0e7490':'#9ca3af'}" font-weight="700">${w}</text>`;
+    if(i<srcN-1){
+      html+=`<line x1="${cx+Rn}" y1="${encY}" x2="${encX(i+1)-Rn}" y2="${encY}" stroke="${active?'#0e7490':'#d1d5db'}" stroke-width="${active?2:1.5}"/>`;
+    }
+    html+=`<text x="${cx}" y="${encY-Rn-6}" text-anchor="middle" font-size="10" fill="#94a3b8">h_enc${i+1}</text>`;
+  });
+  html+=`<text x="30" y="${encY+4}" text-anchor="middle" font-size="11" fill="#0891b2" font-weight="700">Encoder</text>`;
+  // decoder nodes
+  s.tgt.forEach((w,i)=>{
+    const active=step.phase==='decode'&&i<=step.idx;
+    const cx=decX(i);
+    html+=`<circle cx="${cx}" cy="${decY}" r="${Rn}" fill="${active?'#d1fae5':'#f1f5f9'}" stroke="${active?'#059669':'#94a3b8'}" stroke-width="${active?2.5:1.5}"/>`;
+    html+=`<text x="${cx}" y="${decY+4}" text-anchor="middle" font-size="11" fill="${active?'#059669':'#9ca3af'}" font-weight="700">${w}</text>`;
+    if(i<tgtN-1){
+      html+=`<line x1="${cx+Rn}" y1="${decY}" x2="${decX(i+1)-Rn}" y2="${decY}" stroke="${active?'#059669':'#d1d5db'}" stroke-width="${active?2:1.5}"/>`;
+    }
+    html+=`<text x="${cx}" y="${decY+Rn+14}" text-anchor="middle" font-size="10" fill="#94a3b8">h_dec${i+1}</text>`;
+  });
+  html+=`<text x="30" y="${decY+4}" text-anchor="middle" font-size="11" fill="#059669" font-weight="700">Decoder</text>`;
+  svg.innerHTML=html;
+  document.getElementById('seq2seqInfo').innerHTML=`<b>Bước ${seq2seqCur+1}/${SEQ2SEQ.steps.length}</b>: ${step.msg}`;
+  document.getElementById('seq2seqStatus').textContent=`${seq2seqCur+1}/${SEQ2SEQ.steps.length}`;
+}
+function nextSeq2seqStep(){
+  if(seq2seqCur<SEQ2SEQ.steps.length-1) seq2seqCur++;
+  drawSeq2seq(SEQ2SEQ.steps[seq2seqCur]);
+}
+function resetSeq2seq(){
+  seq2seqCur=0;
+  drawSeq2seq(SEQ2SEQ.steps[0]);
+}
+resetSeq2seq();
+
+// ── INIT ──
+updateRNN();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

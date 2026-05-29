@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T4-L04 — Transformer & Attention</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #ecfeff;
+    --accent: #0e7490;
+    --accent-soft: #cffafe;
+    --accent-hover: #155e75;
+    --panel: #ffffff;
+    --line: #a5f3fc;
+    --ink: #164e63;
+    --muted: #0891b2;
+  }
+  body { margin: 0; background: var(--bg); }
+  main { max-width: 1100px; }
+  h1 { font-size: 24px; font-weight: 800; color: var(--ink); margin: 0 0 4px; }
+  .subtitle { color: var(--muted); margin-bottom: 22px; font-size: 14px; }
+  h2 { font-size: 18px; font-weight: 700; color: var(--ink); border-left: 4px solid var(--accent); padding-left: 10px; margin: 30px 0 14px; }
+  h3 { font-size: 14px; font-weight: 700; color: var(--accent); margin: 12px 0 8px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 20px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin-bottom: 12px; }
+  .controls label { font-size: 12.5px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+  .controls input[type=range] { width: 130px; }
+  .controls select { padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px; font-size: 13px; }
+  .btn { padding: 6px 14px; background: var(--accent); color: white; border: none; border-radius: 6px; font-size: 12.5px; cursor: pointer; font-weight: 600; }
+  .btn:hover { background: var(--accent-hover); }
+  .btn.sec { background: var(--accent-soft); color: var(--ink); }
+  .btn.sec:hover { background: var(--line); }
+  .val { font-family: ui-monospace, monospace; font-weight: 700; color: var(--ink); min-width: 40px; display: inline-block; }
+  svg { display: block; background: #f0fdff; border: 1px solid var(--line); border-radius: 8px; }
+  .info { background: var(--accent-soft); border-left: 3px solid var(--accent); padding: 10px 14px; border-radius: 6px; font-size: 13px; margin: 10px 0; line-height: 1.55; }
+  .step { font-family: ui-monospace, monospace; font-size: 12px; white-space: pre-wrap; background: #f0fdff; padding: 12px; border-radius: 6px; line-height: 1.6; margin: 8px 0; border: 1px solid var(--line); }
+  table.tb { border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+  table.tb th, table.tb td { padding: 6px 10px; border: 1px solid var(--line); text-align: center; }
+  table.tb th { background: var(--accent-soft); font-weight: 700; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 720px) { .two { grid-template-columns: 1fr; } }
+  .token-btn { padding: 5px 10px; border-radius: 20px; border: 2px solid var(--accent); background: var(--accent-soft); font-size: 13px; cursor: pointer; font-weight: 600; color: var(--ink); transition: all 0.2s; }
+  .token-btn.active { background: var(--accent); color: white; }
+  .token-btn:hover { background: var(--accent-hover); color: white; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-rnn-lstm/visualization.html">← T4-L03: RNN/LSTM</a>
+  <span class="sep">·</span>
+  <span class="current">T4-L04: Transformer</span>
+  <span class="sep">·</span>
+  <a href="../../05-NLP-Applied/lesson-01-text-vectorization/visualization.html">T5-L01: Text vectorization →</a>
+</nav>
+<main>
+<h1>T4-L04 — Transformer & Attention</h1>
+<div class="subtitle">Self-attention · Multi-head · Positional encoding · Transformer architecture</div>
+
+<!-- ── SECTION 1: SELF-ATTENTION DEMO ── -->
+<h2>1. Self-Attention — Attention heatmap tương tác</h2>
+<div class="panel">
+  <h3>Câu ví dụ</h3>
+  <div class="controls" id="tokenButtons" style="margin-bottom:12px">
+    <span style="font-size:12.5px;color:var(--muted)">Click token để xem attention từ token đó:</span>
+  </div>
+  <div class="controls">
+    <label>Câu:
+      <select id="sentenceSel" onchange="loadSentence()">
+        <option value="0">the cat sat on the mat</option>
+        <option value="1">I saw the man with the telescope</option>
+        <option value="2">the animal did not cross because it was tired</option>
+      </select>
+    </label>
+    <label>Temperature (softmax):
+      <input type="range" id="tempSlider" min="10" max="300" value="100" oninput="renderAttention()">
+      <span class="val" id="tempVal">1.00</span>
+    </label>
+  </div>
+  <div class="two">
+    <div>
+      <h3>Attention matrix A[i,j]</h3>
+      <svg id="svgAttn" width="360" height="360" viewBox="0 0 360 360"></svg>
+    </div>
+    <div>
+      <h3>Attention từ token đã chọn</h3>
+      <svg id="svgAttnBar" width="360" height="280" viewBox="0 0 360 280"></svg>
+      <div id="attnInfo" class="info"></div>
+    </div>
+  </div>
+  <div id="attnStep" class="step"></div>
+</div>
+
+<!-- ── SECTION 2: MULTI-HEAD ── -->
+<h2>2. Multi-Head Attention — 8 heads khác nhau</h2>
+<div class="panel">
+  <div class="controls">
+    <label>d_model:
+      <select id="dmodelSel" onchange="renderMultiHead()">
+        <option value="512">512 (paper gốc)</option>
+        <option value="256">256</option>
+        <option value="128">128</option>
+      </select>
+    </label>
+    <label>Số heads:
+      <select id="headsSel" onchange="renderMultiHead()">
+        <option value="8">8</option>
+        <option value="4">4</option>
+        <option value="2">2</option>
+        <option value="1">1</option>
+      </select>
+    </label>
+  </div>
+  <div id="multiHeadViz"></div>
+  <div id="multiHeadInfo" class="info"></div>
+  <div id="paramsTable"></div>
+</div>
+
+<!-- ── SECTION 3: POSITIONAL ENCODING ── -->
+<h2>3. Positional Encoding — Sinusoidal</h2>
+<div class="panel">
+  <div class="controls">
+    <label>d_model:
+      <input type="range" id="peD" min="8" max="64" step="8" value="32" oninput="renderPE()">
+      <span class="val" id="peDVal">32</span>
+    </label>
+    <label>Max pos:
+      <input type="range" id="peMaxPos" min="8" max="50" value="20" oninput="renderPE()">
+      <span class="val" id="peMaxPosVal">20</span>
+    </label>
+  </div>
+  <svg id="svgPE" width="660" height="200" viewBox="0 0 660 200"></svg>
+  <div id="peInfo" class="info"></div>
+  <h3>Bảng giá trị PE (d=4, pos=0..4)</h3>
+  <div id="peTable"></div>
+</div>
+
+<!-- ── SECTION 4: TRANSFORMER ARCHITECTURE ── -->
+<h2>4. Transformer Architecture</h2>
+<div class="panel">
+  <div class="controls">
+    <label>Chế độ:
+      <select id="archMode" onchange="renderArch()">
+        <option value="both">Encoder + Decoder (full)</option>
+        <option value="encoder">Encoder only (BERT)</option>
+        <option value="decoder">Decoder only (GPT)</option>
+      </select>
+    </label>
+  </div>
+  <svg id="svgArch" width="680" height="380" viewBox="0 0 680 380"></svg>
+  <div id="archInfo" class="info"></div>
+</div>
+
+<!-- ── SECTION 5: RNN VS TRANSFORMER ── -->
+<h2>5. RNN vs Transformer — Complexity so sánh</h2>
+<div class="panel">
+  <div class="controls">
+    <label>Độ dài sequence n:
+      <input type="range" id="seqLen" min="10" max="2000" value="100" oninput="renderCompare()">
+      <span class="val" id="seqLenVal">100</span>
+    </label>
+  </div>
+  <svg id="svgCompare" width="660" height="240" viewBox="0 0 660 240"></svg>
+  <div id="compareInfo" class="info"></div>
+  <table class="tb" id="compareTable" style="margin-top:8px"></table>
+</div>
+
+</main>
+
+<script>
+// ── HELPERS ──
+const softmax=v=>{const m=Math.max(...v);const e=v.map(x=>Math.exp(x-m));const s=e.reduce((a,b)=>a+b);return e.map(x=>x/s);};
+const fmt3=v=>v.toFixed(3);
+function heatColor(t){
+  // 0=white 1=deep teal
+  const r=Math.round(236+(14-236)*t), g=Math.round(254+(116-254)*t), b=Math.round(255+(178-255)*t);
+  return `rgb(${r},${g},${b})`;
+}
+
+// ── SENTENCE DATA ──
+const SENTENCES=[
+  ['the','cat','sat','on','the','mat'],
+  ['I','saw','the','man','with','telescope'],
+  ['the','animal','did','not','cross','it']
+];
+// precomputed "semantic" embeddings for demo (3D → compute dot products)
+const EMBEDDINGS=[
+  // sentence 0: the,cat,sat,on,the,mat
+  [[1,0,0],[0,1,0],[0,0,1],[0,1,1],[1,0,0],[1,0,1]],
+  // sentence 1: I,saw,the,man,with,telescope
+  [[1,0,1],[0,1,0],[1,0,0],[0,1,0],[0,0,1],[0,1,1]],
+  // sentence 2: the,animal,did,not,cross,it
+  [[1,0,0],[0,1,1],[0,0,1],[0,1,0],[0,1,0],[0,1,1]]
+];
+
+let curSentence=0, curToken=0;
+let attnMatrix=[];
+
+function loadSentence(){
+  curSentence=+document.getElementById('sentenceSel').value;
+  curToken=0;
+  buildTokenButtons();
+  computeAttention();
+  renderAttention();
+}
+
+function buildTokenButtons(){
+  const tokens=SENTENCES[curSentence];
+  const div=document.getElementById('tokenButtons');
+  div.innerHTML='<span style="font-size:12.5px;color:var(--muted)">Token chọn:</span> ';
+  tokens.forEach((t,i)=>{
+    const b=document.createElement('button');
+    b.className='token-btn'+(i===curToken?' active':'');
+    b.textContent=t;
+    b.onclick=()=>{curToken=i;buildTokenButtons();renderAttention();};
+    div.appendChild(b);
+  });
+}
+
+function computeAttention(){
+  const tokens=SENTENCES[curSentence];
+  const emb=EMBEDDINGS[curSentence];
+  const n=tokens.length;
+  const temp=+document.getElementById('tempSlider').value/100;
+  // QKT: dot product of embeddings as proxy
+  const raw=[];
+  for(let i=0;i<n;i++){
+    const row=[];
+    for(let j=0;j<n;j++){
+      let s=0;for(let k=0;k<emb[i].length;k++) s+=emb[i][k]*emb[j][k];
+      row.push(s/temp);
+    }
+    raw.push(row);
+  }
+  attnMatrix=raw.map(row=>softmax(row));
+}
+
+function renderAttention(){
+  const tokens=SENTENCES[curSentence];
+  const n=tokens.length;
+  const temp=+document.getElementById('tempSlider').value/100;
+  document.getElementById('tempVal').textContent=temp.toFixed(2);
+  computeAttention();
+  const cell=Math.floor(320/n);
+  const off=20;
+  // heatmap
+  let html='';
+  for(let i=0;i<n;i++) for(let j=0;j<n;j++){
+    const v=attnMatrix[i][j];
+    const fill=heatColor(v);
+    const stroke=(i===curToken||j===curToken)?'stroke:#0e7490;stroke-width:2':'stroke:#cffafe;stroke-width:0.5';
+    html+=`<rect x="${off+j*cell}" y="${off+i*cell}" width="${cell}" height="${cell}" fill="${fill}" ${stroke}/>`;
+    html+=`<text x="${off+j*cell+cell/2}" y="${off+i*cell+cell/2+4}" text-anchor="middle" font-size="${Math.max(8,cell/4)}" fill="#164e63" font-family="monospace">${v.toFixed(2)}</text>`;
+  }
+  // labels
+  tokens.forEach((t,i)=>{
+    html+=`<text x="${off+i*cell+cell/2}" y="14" text-anchor="middle" font-size="10" fill="${i===curToken?'#0e7490':'#94a3b8'}" font-weight="${i===curToken?'700':'400'}" font-family="monospace">${t}</text>`;
+    html+=`<text x="${off-4}" y="${off+i*cell+cell/2+4}" text-anchor="end" font-size="10" fill="${i===curToken?'#0e7490':'#94a3b8'}" font-weight="${i===curToken?'700':'400'}" font-family="monospace">${t}</text>`;
+  });
+  document.getElementById('svgAttn').innerHTML=html;
+  // bar chart for selected token
+  const row=attnMatrix[curToken];
+  let bhtml='';
+  const barMaxW=300, bh=36, pad2=60;
+  tokens.forEach((t,j)=>{
+    const w=row[j]*barMaxW;
+    bhtml+=`<rect x="${pad2}" y="${j*bh+10}" width="${Math.max(w,1)}" height="${bh-6}" fill="${heatColor(row[j])}" stroke="#0e7490" stroke-width="0.5" rx="3"/>`;
+    bhtml+=`<text x="${pad2-4}" y="${j*bh+10+bh/2}" text-anchor="end" font-size="11" fill="#164e63" font-family="monospace">${t}</text>`;
+    bhtml+=`<text x="${pad2+w+4}" y="${j*bh+10+bh/2}" font-size="11" fill="#0e7490" font-family="monospace">${row[j].toFixed(3)}</text>`;
+  });
+  document.getElementById('svgAttnBar').innerHTML=bhtml;
+  document.getElementById('attnInfo').innerHTML=
+    `"<b>${tokens[curToken]}</b>" chú ý nhất đến "<b>${tokens[row.indexOf(Math.max(...row))]}</b>" (${Math.max(...row).toFixed(3)})`;
+  // step detail
+  const row_raw=EMBEDDINGS[curSentence];
+  let stepTxt=`Attention từ "${tokens[curToken]}" (row ${curToken}):\n\nQKᵀ/√d_k (trước softmax) → softmax:\n`;
+  attnMatrix[curToken].forEach((a,j)=>{
+    stepTxt+=`  → "${tokens[j]}": ${a.toFixed(4)}\n`;
+  });
+  stepTxt+=`\nSum = ${attnMatrix[curToken].reduce((a,b)=>a+b,0).toFixed(6)} ✓`;
+  document.getElementById('attnStep').textContent=stepTxt;
+}
+
+// ── MULTI-HEAD ──
+function renderMultiHead(){
+  const d=+document.getElementById('dmodelSel').value;
+  const h=+document.getElementById('headsSel').value;
+  const dk=Math.floor(d/h);
+  const perHead=3*d*dk;
+  const totalHeads=h*perHead;
+  const wo=d*d;
+  const total=totalHeads+wo;
+  // draw heads
+  const W=Math.min(660,h*80);
+  let html=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">`;
+  const colors=['#cffafe','#d1fae5','#ede9fe','#fef3c7','#fee2e2','#e0e7ff','#d1d5db','#fce7f3'];
+  for(let i=0;i<h;i++){
+    html+=`<div style="background:${colors[i%colors.length]};border:1px solid #a5f3fc;border-radius:8px;padding:8px 10px;text-align:center;min-width:70px">
+      <div style="font-size:11px;font-weight:700;color:#164e63">Head ${i+1}</div>
+      <div style="font-size:10px;color:#0891b2">Q,K,V: ${d}×${dk}</div>
+      <div style="font-size:10px;color:#0891b2">out: n×${dk}</div>
+    </div>`;
+  }
+  html+=`</div>`;
+  html+=`<div style="font-size:12px;color:var(--muted);margin-bottom:6px">→ Concat: n×${dk*h} → × W_O (${d*h===d?d:dk*h}×${d}) → n×${d}</div>`;
+  document.getElementById('multiHeadViz').innerHTML=html;
+  document.getElementById('multiHeadInfo').innerHTML=
+    `d_model=${d}, h=${h} heads, d_k=d_v=${dk}. Mỗi head học 1 pattern attention khác nhau.`;
+  const tableHtml=`<table class="tb"><thead><tr><th>Thành phần</th><th>Shape</th><th>Params</th></tr></thead><tbody>
+    <tr><td>W_Q per head</td><td>${d}×${dk}</td><td>${d*dk}</td></tr>
+    <tr><td>W_K per head</td><td>${d}×${dk}</td><td>${d*dk}</td></tr>
+    <tr><td>W_V per head</td><td>${d}×${dk}</td><td>${d*dk}</td></tr>
+    <tr><td>× ${h} heads</td><td>—</td><td>${h*3*d*dk}</td></tr>
+    <tr><td>W_O output</td><td>${dk*h}×${d}</td><td>${dk*h*d}</td></tr>
+    <tr style="font-weight:700;background:var(--accent-soft)"><td>Total</td><td>—</td><td>${total.toLocaleString()}</td></tr>
+  </tbody></table>`;
+  document.getElementById('paramsTable').innerHTML=tableHtml;
+}
+renderMultiHead();
+
+// ── POSITIONAL ENCODING ──
+function renderPE(){
+  const d=+document.getElementById('peD').value;
+  const maxPos=+document.getElementById('peMaxPos').value;
+  document.getElementById('peDVal').textContent=d;
+  document.getElementById('peMaxPosVal').textContent=maxPos;
+  // compute PE matrix
+  const PE=[];
+  for(let pos=0;pos<maxPos;pos++){
+    const row=[];
+    for(let i=0;i<d/2;i++){
+      row.push(Math.sin(pos/Math.pow(10000,2*i/d)));
+      row.push(Math.cos(pos/Math.pow(10000,2*i/d)));
+    }
+    PE.push(row);
+  }
+  // draw heatmap
+  const W=640,H=180,pad=15;
+  const cellW=(W-pad)/d, cellH=(H-pad)/maxPos;
+  let html='';
+  for(let pos=0;pos<maxPos;pos++) for(let di=0;di<d;di++){
+    const v=(PE[pos][di]+1)/2; // map [-1,1] to [0,1]
+    const fill=heatColor(v);
+    html+=`<rect x="${pad+di*cellW}" y="${pad+pos*cellH}" width="${cellW}" height="${cellH}" fill="${fill}"/>`;
+  }
+  // axis labels
+  for(let pos=0;pos<=maxPos;pos+=Math.max(1,Math.floor(maxPos/5))){
+    html+=`<text x="4" y="${pad+pos*cellH+cellH/2+3}" font-size="9" fill="#94a3b8" text-anchor="end">${pos}</text>`;
+  }
+  for(let di=0;di<d;di+=Math.max(1,Math.floor(d/8))){
+    html+=`<text x="${pad+di*cellW+cellW/2}" y="${pad-3}" font-size="9" fill="#94a3b8" text-anchor="middle">${di}</text>`;
+  }
+  html+=`<text x="${W/2}" y="${H+8}" text-anchor="middle" font-size="10" fill="#64748b">chiều (0..${d-1})</text>`;
+  html+=`<text x="4" y="${H/2}" text-anchor="middle" font-size="10" fill="#64748b" transform="rotate(-90,4,${H/2})">pos</text>`;
+  document.getElementById('svgPE').innerHTML=html;
+  document.getElementById('peInfo').innerHTML=
+    `Heatmap PE[pos][dim]. Màu: trắng=sin/cos≈-1, xanh đậm≈+1. Chiều thấp oscillate nhanh (vị trí gần); chiều cao chậm (vị trí xa).`;
+  // small table d=4
+  let thtml='<table class="tb"><thead><tr><th>pos</th><th>PE[0]=sin(pos)</th><th>PE[1]=cos(pos)</th><th>PE[2]=sin(pos/100)</th><th>PE[3]=cos(pos/100)</th></tr></thead><tbody>';
+  for(let pos=0;pos<=4;pos++){
+    thtml+=`<tr><td>${pos}</td>
+      <td>${Math.sin(pos).toFixed(3)}</td>
+      <td>${Math.cos(pos).toFixed(3)}</td>
+      <td>${Math.sin(pos/100).toFixed(4)}</td>
+      <td>${Math.cos(pos/100).toFixed(4)}</td></tr>`;
+  }
+  thtml+='</tbody></table>';
+  document.getElementById('peTable').innerHTML=thtml;
+}
+renderPE();
+
+// ── TRANSFORMER ARCH ──
+function renderArch(){
+  const mode=document.getElementById('archMode').value;
+  const svg=document.getElementById('svgArch');
+  const W=680,H=380;
+  let html='';
+  const encLayers=['Embedding\n+ Pos Enc','Multi-Head\nSelf-Attn','Add & Norm','FFN','Add & Norm'];
+  const decLayers=['Embedding\n+ Pos Enc','Masked\nSelf-Attn','Add & Norm','Cross-Attn','Add & Norm','FFN','Add & Norm'];
+  function drawStack(x,w,layers,title,color){
+    html+=`<text x="${x+w/2}" y="16" text-anchor="middle" font-size="13" fill="#164e63" font-weight="700">${title}</text>`;
+    const startY=30;
+    const layH=Math.floor((H-50)/(layers.length));
+    layers.forEach((l,i)=>{
+      const y=startY+i*layH;
+      const lc=l.includes('Attn')?color:l.includes('FFN')?'#d1fae5':l.includes('Add')?'#ede9fe':'#f1f5f9';
+      html+=`<rect x="${x+4}" y="${y}" width="${w-8}" height="${layH-4}" fill="${lc}" stroke="#a5f3fc" rx="6"/>`;
+      const lines=l.split('\n');
+      lines.forEach((line,li)=>{
+        html+=`<text x="${x+w/2}" y="${y+(layH-4)/2+li*13-(lines.length-1)*6.5+4}" text-anchor="middle" font-size="11" fill="#164e63">${line}</text>`;
+      });
+      if(i<layers.length-1){
+        html+=`<line x1="${x+w/2}" y1="${y+layH-4}" x2="${x+w/2}" y2="${y+layH}" stroke="#0e7490" stroke-width="1.5"/>`;
+      }
+    });
+    html+=`<rect x="${x+2}" y="26" width="${w-4}" height="${H-55}" fill="none" stroke="${color}" stroke-width="2" rx="8" stroke-dasharray="6 4"/>`;
+  }
+  if(mode==='both'){
+    drawStack(10,310,encLayers,'Encoder (×6)','#0e7490');
+    drawStack(360,310,decLayers,'Decoder (×6)','#059669');
+    // arrow encoder → decoder
+    html+=`<defs><marker id="arrm" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#f59e0b"/></marker></defs>`;
+    html+=`<line x1="320" y1="${H/2}" x2="360" y2="${H/2}" stroke="#f59e0b" stroke-width="2.5" marker-end="url(#arrm)"/>`;
+    html+=`<text x="340" y="${H/2-8}" text-anchor="middle" font-size="10" fill="#b45309">K,V</text>`;
+    document.getElementById('archInfo').innerHTML='<b>Full Transformer</b>: Encoder đọc nguồn (song song), Decoder sinh đích (causal). Cross-attention: Decoder nhận K,V từ Encoder.';
+  } else if(mode==='encoder'){
+    drawStack(180,320,encLayers,'Encoder only (BERT)','#0e7490');
+    document.getElementById('archInfo').innerHTML='<b>Encoder-only (BERT)</b>: Bi-directional self-attention — mọi token nhìn mọi token. Dùng cho classification, NER, QA.';
+  } else {
+    drawStack(180,320,decLayers,'Decoder only (GPT)','#7c3aed');
+    document.getElementById('archInfo').innerHTML='<b>Decoder-only (GPT)</b>: Causal (masked) self-attention — token t chỉ nhìn 1..t. Dùng cho text generation, auto-regressive.';
+  }
+  svg.innerHTML=html;
+}
+renderArch();
+
+// ── COMPARE RNN VS TRANSFORMER ──
+function renderCompare(){
+  const n=+document.getElementById('seqLen').value;
+  document.getElementById('seqLenVal').textContent=n;
+  const svg=document.getElementById('svgCompare');
+  const W=660,H=240,pad=60;
+  const nMax=2000;
+  const xScale=v=>pad+(v/nMax)*(W-pad-20);
+  let html='';
+  html+=`<line x1="${pad}" y1="${H-35}" x2="${W-20}" y2="${H-35}" stroke="#94a3b8" stroke-width="1.5"/>`;
+  html+=`<line x1="${pad}" y1="20" x2="${pad}" y2="${H-35}" stroke="#94a3b8" stroke-width="1.5"/>`;
+  html+=`<text x="${(W+pad)/2}" y="${H-6}" text-anchor="middle" font-size="11" fill="#64748b">Độ dài sequence n</text>`;
+  html+=`<text x="16" y="${H/2}" text-anchor="middle" font-size="11" fill="#64748b" transform="rotate(-90,16,${H/2})">Operations (log)</text>`;
+  const yMax=8; // log10 of max
+  const yScale=v=>{
+    const logv=Math.max(Math.log10(Math.max(v,1)),0);
+    return (H-35)-(logv/yMax)*(H-58);
+  };
+  // RNN: n steps sequential
+  let dRNN=`M ${xScale(1)} ${yScale(1)}`;
+  for(let i=2;i<=nMax;i+=20) dRNN+=` L ${xScale(i)} ${yScale(i)}`;
+  html+=`<path d="${dRNN}" fill="none" stroke="#ef4444" stroke-width="2.5"/>`;
+  // Transformer: n^2 parallel
+  let dT=`M ${xScale(1)} ${yScale(1)}`;
+  for(let i=2;i<=nMax;i+=20) dT+=` L ${xScale(i)} ${yScale(i*i)}`;
+  html+=`<path d="${dT}" fill="none" stroke="#0e7490" stroke-width="2.5"/>`;
+  // current n marker
+  const xN=xScale(n);
+  html+=`<line x1="${xN}" y1="20" x2="${xN}" y2="${H-35}" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5 3"/>`;
+  html+=`<text x="${xN+4}" y="32" font-size="11" fill="#b45309">n=${n}</text>`;
+  // y ticks
+  [1,2,3,4,5,6].forEach(exp=>{
+    const y=yScale(Math.pow(10,exp));
+    if(y>20&&y<H-35){
+      html+=`<line x1="${pad-4}" y1="${y}" x2="${pad}" y2="${y}" stroke="#94a3b8" stroke-width="1"/>`;
+      html+=`<text x="${pad-7}" y="${y+4}" text-anchor="end" font-size="10" fill="#64748b">10^${exp}</text>`;
+    }
+  });
+  // legend
+  html+=`<rect x="${W-170}" y="30" width="145" height="56" fill="white" stroke="#e2e8f0" rx="6"/>`;
+  html+=`<line x1="${W-160}" y1="46" x2="${W-135}" y2="46" stroke="#ef4444" stroke-width="2.5"/>`;
+  html+=`<text x="${W-130}" y="50" font-size="12" fill="#374151">RNN: O(n) seq</text>`;
+  html+=`<line x1="${W-160}" y1="66" x2="${W-135}" y2="66" stroke="#0e7490" stroke-width="2.5"/>`;
+  html+=`<text x="${W-130}" y="70" font-size="12" fill="#374151">Transformer: O(n²)</text>`;
+  svg.innerHTML=html;
+  document.getElementById('compareInfo').innerHTML=
+    `n=${n}: RNN sequential ops = <b>${n}</b> | Transformer memory = <b>${(n*n).toLocaleString()}</b> attention values.
+    Nhưng n² ops là <b>parallel</b> trên GPU → thực tế Transformer <b>nhanh hơn nhiều</b>.`;
+  document.getElementById('compareTable').innerHTML=`<thead><tr><th>n</th><th>RNN (sequential)</th><th>Transformer (attn size)</th><th>GPU practical</th></tr></thead>
+  <tbody>
+    <tr><td>128</td><td>128</td><td>16,384</td><td>Transformer nhanh hơn</td></tr>
+    <tr><td>512</td><td>512</td><td>262,144</td><td>Transformer nhanh hơn</td></tr>
+    <tr><td>1,000</td><td>1,000</td><td>1,000,000</td><td>Tương đương</td></tr>
+    <tr><td>10,000</td><td>10,000</td><td>100,000,000</td><td>RNN có thể tốt hơn</td></tr>
+  </tbody>`;
+}
+renderCompare();
+
+// ── INIT ──
+loadSentence();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

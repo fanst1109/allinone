@@ -26,6 +26,7 @@
 | --- | --- | --- |
 | AI-ML | Học máy & AI ứng dụng — 8 bài: pipeline ML, regression, neural net, embeddings, RAG, CLIP | [AI-ML/](./AI-ML/) |
 | Algorithms | Kỹ thuật & paradigm giải thuật — 8 tier × ~52 lesson (sort, search, greedy, DP, graph, string) | [Algorithms/](./Algorithms/) |
+| Astronomy | Thiên văn học — 3 tầng × 8 bài: bầu trời & Hệ Mặt Trời → sao & thiên hà → vũ trụ học (Big Bang, vật chất tối) | [Astronomy/](./Astronomy/) |
 | Biology | Sinh học — 3 tầng × 8 bài, phân tử & tế bào → di truyền & tiến hóa → sinh lý & sinh thái | [Biology/](./Biology/) |
 | Chemistry | Hóa học đại cương — 2 tầng × 8 bài, cấu tạo chất → phản ứng → hóa sinh preview | [Chemistry/](./Chemistry/) |
 | Chinese | Lộ trình học tiếng Trung Phổ thông — 4 nhánh × 20 bài, phát âm Mandarin, chữ Hán Giản thể, HSK 1–4 | [Chinese/](./Chinese/) |

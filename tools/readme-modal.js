@@ -40,6 +40,7 @@
   var LS_MODE_KEY   = 'rmViewMode';
   var LS_WIDTH_KEY  = 'rmSidebarWidth';
   var LS_TOC_KEY    = 'rmTocVisible';
+  var LS_OPEN_KEY   = 'rmSidebarOpen';   // chỉ auto-open lại khi mode = sidebar
   var MODES         = ['modal', 'sidebar', 'fullscreen'];
   var DEFAULT_W     = 400;   // sidebar mặc định px
   var MIN_W         = 260;
@@ -633,6 +634,13 @@
     });
 
     // ── open / close ──
+    // Persist sidebar-open state để giữ panel mở khi chuyển trang trong cùng
+    // domain. Chỉ áp dụng cho sidebar (modal/fullscreen mà tự pop lên mỗi
+    // trang sẽ rất phiền), nên dùng key riêng LS_OPEN_KEY chứ không cờ chung.
+    function setSidebarOpenFlag(v) {
+      try { localStorage.setItem(LS_OPEN_KEY, v ? '1' : '0'); } catch (e) {}
+    }
+
     function open() {
       if (!rendered) {
         try {
@@ -654,8 +662,10 @@
 
       if (currentMode === 'sidebar') {
         enableSidebarSplit();
+        setSidebarOpenFlag(true);
       } else {
         backdrop.classList.add('rm-open');
+        setSidebarOpenFlag(false);
       }
     }
 
@@ -665,6 +675,7 @@
       panel.setAttribute('aria-hidden', 'true');
       btn.classList.remove('rm-hidden');
       disableSidebarSplit();
+      setSidebarOpenFlag(false);
     }
 
     // ── Mode toggle (có thể đổi khi đang mở) ──
@@ -679,9 +690,12 @@
           if (newMode === 'sidebar') {
             backdrop.classList.remove('rm-open');
             enableSidebarSplit();
+            setSidebarOpenFlag(true);
           } else {
             disableSidebarSplit();
             backdrop.classList.add('rm-open');
+            // Modal/full đang mở khi chuyển từ sidebar → đừng auto-pop trang sau
+            setSidebarOpenFlag(false);
           }
         }
       });
@@ -696,6 +710,12 @@
 
     // Áp dụng mode ban đầu (không mở panel)
     applyMode(currentMode);
+
+    // Auto-mở panel nếu trang trước để sidebar ở trạng thái mở.
+    // Chỉ áp dụng cho mode === 'sidebar' (modal/full pop tự động sẽ phiền).
+    if (currentMode === 'sidebar' && localStorage.getItem(LS_OPEN_KEY) === '1') {
+      open();
+    }
   }
 
   if (document.readyState === 'loading') {

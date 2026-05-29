@@ -16,7 +16,7 @@ Sau bài này bạn sẽ:
 ## Kiến thức tiền đề
 
 - [Lesson 01 — Giới thiệu CSDL & DBMS](../lesson-01-gioi-thieu-csdl/): biết DBMS quan hệ là gì, vì sao bảng là mô hình mặc định.
-- Khái niệm **tập hợp (set)** và **tích Descartes**: nếu chưa chắc, xem [DataFoundations — Set Theory](../../../DataFoundations/02-SetTheory/index.html). Mô hình quan hệ chính là một ứng dụng trực tiếp của lý thuyết tập hợp.
+- Khái niệm **tập hợp (set)** và **tích Descartes**: nếu chưa chắc, xem [DataFoundations — Set Theory](../../../DataFoundations/03-MathFoundations/index.html). Mô hình quan hệ chính là một ứng dụng trực tiếp của lý thuyết tập hợp.
 
 ---
 
@@ -320,7 +320,7 @@ Giờ mỗi ô chứa một giá trị đơn (atomic ✓), và truy vấn theo t
 ## 8. Code & Minh họa
 
 - Minh họa tương tác: [visualization.html](./visualization.html) — gồm ba mô-đun: (1) bảng `SinhVien` cho bấm xem degree/cardinality tự cập nhật và highlight một bộ/thuộc tính; (2) mô phỏng tích Descartes hai domain nhỏ rồi chọn tập con để tạo "một quan hệ"; (3) bộ kiểm tra logic ba trị với NULL.
-- Mô hình quan hệ là một ứng dụng trực tiếp của lý thuyết tập hợp: [DataFoundations — Set Theory](../../../DataFoundations/02-SetTheory/index.html).
+- Mô hình quan hệ là một ứng dụng trực tiếp của lý thuyết tập hợp: [DataFoundations — Set Theory](../../../DataFoundations/03-MathFoundations/index.html).
 
 ---
 

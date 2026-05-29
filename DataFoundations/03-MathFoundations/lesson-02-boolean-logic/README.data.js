@@ -1,5 +1,5 @@
 // AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
-// Source: DataFoundations/03-Logic/lesson-01-boolean-logic/README.md
+// Source: DataFoundations/03-MathFoundations/lesson-02-boolean-logic/README.md
 // Chạy lại: go run tools/build-readme-data.go
 window.README_MD = `# Lesson 01 — Logic & Boolean Algebra (đại số Boolean)
 

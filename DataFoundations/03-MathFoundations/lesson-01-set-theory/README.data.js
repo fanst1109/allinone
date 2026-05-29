@@ -1,5 +1,5 @@
 // AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
-// Source: DataFoundations/02-SetTheory/lesson-01-set-theory/README.md
+// Source: DataFoundations/03-MathFoundations/lesson-01-set-theory/README.md
 // Chạy lại: go run tools/build-readme-data.go
 window.README_MD = `# Lesson 01 — Set Theory (lý thuyết tập hợp)
 

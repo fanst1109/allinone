@@ -63,5 +63,5 @@ Thư mục này tập hợp các bài học về **cơ sở dữ liệu (databas
 ## Liên hệ với các lĩnh vực khác
 
 - **Index** dựa trực tiếp trên [B-tree](../DataStructures/02-Intermediate/lesson-04-balanced-trees/) và [Hash Table](../DataStructures/01-Basic/lesson-06-hash-table/); storage engine dùng [LSM-tree & Bloom filter](../DataStructures/03-Advanced/lesson-04-advanced-structures/).
-- **Mô hình quan hệ** là ứng dụng trực tiếp của [lý thuyết tập hợp & quan hệ](../DataFoundations/02-SetTheory/).
+- **Mô hình quan hệ** là ứng dụng trực tiếp của [lý thuyết tập hợp & quan hệ](../DataFoundations/03-MathFoundations/).
 - **Query optimizer** dùng kiến thức [sắp xếp & hashing](../Algorithms/) để chọn join algorithm.

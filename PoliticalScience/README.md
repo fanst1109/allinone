@@ -58,7 +58,7 @@ Game theory cho tình huống chính trị: hợp tác, mặc cả, đe doạ, t
 ## Kiến thức tiền đề
 
 - **Bắt buộc**: [`Math/01-Arithmetic-Algebra`](../Math/01-Arithmetic-Algebra/) (giải hệ phương trình tuyến tính cho mixed NE).
-- **Khuyến nghị**: [`Vectors/05-Probability/lesson-06`](../Vectors/05-Probability/lesson-06-expectation-variance/) (kỳ vọng cho mixed strategy), [`DataFoundations/03-Logic`](../DataFoundations/03-Logic/) (proof phản chứng cho Arrow).
+- **Khuyến nghị**: [`Vectors/05-Probability/lesson-06`](../Vectors/05-Probability/lesson-06-expectation-variance/) (kỳ vọng cho mixed strategy), [`DataFoundations/03-MathFoundations`](../DataFoundations/03-MathFoundations/) (proof phản chứng cho Arrow).
 - **Không cần**: calculus, lập trình.
 
 ## Liên kết chéo
@@ -68,7 +68,7 @@ Game theory cho tình huống chính trị: hợp tác, mặc cả, đe doạ, t
 | T1 L01–L02 | [`Economics/Tier2-Microeconomics`](../Economics/Tier2-Microeconomics/) — game theory thị trường (oligopoly) |
 | T1 L03 | [`Vectors/05-Probability/lesson-06`](../Vectors/05-Probability/lesson-06-expectation-variance/) — expected value |
 | T1 L05 | [`Biology/02-Genetics-Evolution`](../Biology/02-Genetics-Evolution/) — evolution of cooperation |
-| T2 L02 | [`DataFoundations/03-Logic`](../DataFoundations/03-Logic/) — proof formal |
+| T2 L02 | [`DataFoundations/03-MathFoundations`](../DataFoundations/03-MathFoundations/) — proof formal |
 | T2 L03 | [`Economics/Tier3-Macroeconomics`](../Economics/Tier3-Macroeconomics/) — political business cycle |
 | T3 L02–L03 | [`Economics/Tier4-Applied`](../Economics/Tier4-Applied/) — information economics, labor |
 | T3 L05 | [`Algorithms/`](../Algorithms/) — auction algorithms, mechanism complexity |

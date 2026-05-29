@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T3-L03: Stress & Coping — Psychology</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fdf4ff;
+    --accent: #a21caf;
+    --accent-soft: #fae8ff;
+    --accent-hover: #86198f;
+  }
+  main { max-width: 1000px; }
+
+  .section { background: var(--panel); border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+  h2 { color: var(--accent); margin-top: 0; }
+
+  /* HPA Axis */
+  .hpa-flow { display: flex; flex-direction: column; align-items: center; gap: 0; margin-top: 12px; }
+  .hpa-node { background: var(--accent-soft); border: 2px solid var(--accent); border-radius: 10px; padding: 10px 20px; min-width: 220px; text-align: center; cursor: pointer; transition: background .2s; }
+  .hpa-node:hover { background: #e9d5ff; }
+  .hpa-node .organ { font-weight: 700; color: var(--accent); }
+  .hpa-node .hormone { font-size: .8rem; color: var(--muted); margin-top: 2px; }
+  .hpa-arrow { text-align: center; font-size: 1.4rem; color: var(--accent); line-height: 1.5; }
+  .hpa-detail { background: var(--accent-soft); border-radius: 8px; padding: 12px 16px; margin-top: 12px; font-size: .87rem; display: none; }
+  .hpa-detail.show { display: block; }
+  .hpa-cols { display: flex; gap: 20px; margin-top: 16px; flex-wrap: wrap; }
+  .hpa-col { flex: 1; min-width: 200px; background: #f8fafc; border-radius: 8px; padding: 12px; border: 1px solid var(--line); }
+  .hpa-col h4 { margin: 0 0 8px; font-size: .9rem; color: var(--accent); }
+
+  /* Cortisol Curve */
+  canvas { border: 1px solid var(--line); border-radius: 8px; background: white; display: block; }
+  .curve-controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+  .curve-controls label { font-size: .88rem; }
+  .curve-controls select, .curve-controls input[type=range] { padding: 4px 8px; }
+
+  /* SRRS Calculator */
+  .srrs-events { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 12px; max-height: 320px; overflow-y: auto; padding-right: 4px; }
+  @media(max-width:600px){ .srrs-events { grid-template-columns: 1fr; } }
+  .srrs-item { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 6px; border: 1px solid var(--line); cursor: pointer; transition: background .15s; font-size: .82rem; }
+  .srrs-item:hover { background: var(--accent-soft); }
+  .srrs-item.checked { background: #fae8ff; border-color: var(--accent); }
+  .srrs-item input { accent-color: var(--accent); flex-shrink: 0; }
+  .srrs-score-box { background: var(--accent-soft); border-radius: 10px; padding: 16px; text-align: center; margin-top: 16px; }
+  .srrs-total { font-size: 2rem; font-weight: 800; color: var(--accent); }
+  .srrs-risk { font-weight: 600; margin-top: 4px; }
+  .risk-low { color: #15803d; }
+  .risk-mod { color: #d97706; }
+  .risk-high { color: #dc2626; }
+
+  /* Coping Tree */
+  .coping-tree { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+  .coping-q { background: #f8fafc; border-radius: 8px; padding: 14px; border-left: 4px solid var(--accent); }
+  .coping-q p { margin: 0 0 10px; font-weight: 600; }
+  .coping-q .options { display: flex; gap: 10px; flex-wrap: wrap; }
+  .coping-opt { padding: 7px 14px; border: 2px solid var(--line); border-radius: 6px; cursor: pointer; font-size: .88rem; transition: all .2s; }
+  .coping-opt:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .coping-opt.selected { background: var(--accent); color: white; border-color: var(--accent); }
+  .coping-result { background: #dcfce7; border: 1px solid #22c55e; border-radius: 8px; padding: 12px; margin-top: 12px; display: none; }
+  .coping-result.show { display: block; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-therapy-approaches/visualization.html">← T3-L02: Therapy</a>
+  <span class="sep">·</span>
+  <span class="current">T3-L03: Stress & Coping</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-research-methods-ethics/visualization.html">T3-L04: Research Methods →</a>
+</nav>
+<main>
+  <h1>T3-L03 — Stress & Coping: Căng thẳng và ứng phó</h1>
+
+  <!-- HPA Axis -->
+  <div class="section">
+    <h2>1. HPA Axis — Con đường sinh lý của stress</h2>
+    <p>Nhấn vào từng ô để xem chi tiết chức năng và hormone.</p>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start">
+      <div style="flex:0 0 auto">
+        <div class="hpa-flow">
+          <div class="hpa-node" onclick="showHPA('stressor')"><div class="organ">Stressor</div><div class="hormone">Kích thích ban đầu</div></div>
+          <div class="hpa-arrow">↓</div>
+          <div class="hpa-node" onclick="showHPA('hypothalamus')"><div class="organ">Hypothalamus</div><div class="hormone">→ tiết CRH</div></div>
+          <div class="hpa-arrow">↓</div>
+          <div class="hpa-node" onclick="showHPA('pituitary')"><div class="organ">Anterior Pituitary</div><div class="hormone">→ tiết ACTH</div></div>
+          <div class="hpa-arrow">↓</div>
+          <div class="hpa-node" onclick="showHPA('adrenal')"><div class="organ">Adrenal Cortex</div><div class="hormone">→ tiết Cortisol</div></div>
+          <div class="hpa-arrow">↓</div>
+          <div class="hpa-node" onclick="showHPA('effects')"><div class="organ">Cơ quan đích</div><div class="hormone">Acute adaptive effects</div></div>
+          <div class="hpa-arrow" style="font-size:1rem;color:#16a34a">↩ Negative feedback</div>
+        </div>
+      </div>
+      <div style="flex:1;min-width:220px">
+        <div class="hpa-detail" id="hpa-detail">Nhấn vào ô bất kỳ để xem chi tiết.</div>
+        <div class="hpa-cols">
+          <div class="hpa-col">
+            <h4>SNS Pathway (nhanh ~giây)</h4>
+            <p style="font-size:.82rem;margin:0">Hypothalamus → SNS → Adrenal Medulla → <strong>Epinephrine + Norepinephrine</strong>.<br>Tức thì: HR↑, BP↑, đồng tử giãn.</p>
+          </div>
+          <div class="hpa-col">
+            <h4>HPA Pathway (chậm ~phút)</h4>
+            <p style="font-size:.82rem;margin:0">Hypothalamus → CRH → Pituitary → ACTH → Adrenal Cortex → <strong>Cortisol</strong>.<br>Sustained: glucose↑, immune suppress (short-term).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cortisol Curve -->
+  <div class="section">
+    <h2>2. Cortisol Response — Acute vs Chronic Stress</h2>
+    <div class="curve-controls">
+      <label>Loại stress: <select id="curve-type" onchange="drawCortisol()">
+        <option value="acute">Acute stress (1 stressor)</option>
+        <option value="chronic">Chronic stress (nhiều stressor)</option>
+        <option value="circadian">Nhịp circadian bình thường</option>
+      </select></label>
+    </div>
+    <canvas id="cortisol-canvas" width="700" height="260" viewBox="0 0 700 260"></canvas>
+    <p id="cortisol-desc" style="font-size:.83rem;color:var(--muted);margin-top:8px"></p>
+  </div>
+
+  <!-- SRRS Calculator -->
+  <div class="section">
+    <h2>3. Holmes-Rahe SRRS Calculator — Tính điểm căng thẳng cuộc sống</h2>
+    <p>Tick các sự kiện đã xảy ra trong <strong>12 tháng qua</strong>:</p>
+    <div class="srrs-events" id="srrs-list"></div>
+    <div class="srrs-score-box">
+      <div>Tổng điểm (LCU): <span class="srrs-total" id="srrs-total">0</span></div>
+      <div class="srrs-risk" id="srrs-risk">Chưa chọn sự kiện nào.</div>
+    </div>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:8px">⚠ SRRS là công cụ nghiên cứu, không thay thế đánh giá lâm sàng. Correlation với illness ~r=0.25–0.35 (moderate). Appraisal cá nhân quan trọng hơn tổng điểm thuần túy.</p>
+  </div>
+
+  <!-- Coping Strategy Decision Tree -->
+  <div class="section">
+    <h2>4. Coping Strategy Decision Tool — Lazarus Model</h2>
+    <p>Trả lời 2 câu hỏi để xác định chiến lược ứng phó phù hợp nhất:</p>
+    <div class="coping-tree">
+      <div class="coping-q">
+        <p>1. Stressor này có thể thay đổi/kiểm soát được không?</p>
+        <div class="options">
+          <div class="coping-opt" id="ctrl-yes" onclick="selectCoping('ctrl','yes')">Có — tôi có thể làm gì đó</div>
+          <div class="coping-opt" id="ctrl-no" onclick="selectCoping('ctrl','no')">Không — nằm ngoài tầm kiểm soát</div>
+          <div class="coping-opt" id="ctrl-partial" onclick="selectCoping('ctrl','partial')">Một phần</div>
+        </div>
+      </div>
+      <div class="coping-q">
+        <p>2. Mức độ cảm xúc hiện tại:</p>
+        <div class="options">
+          <div class="coping-opt" id="emo-low" onclick="selectCoping('emo','low')">Bình tĩnh — có thể suy nghĩ rõ ràng</div>
+          <div class="coping-opt" id="emo-high" onclick="selectCoping('emo','high')">Căng thẳng cao — khó tập trung</div>
+        </div>
+      </div>
+    </div>
+    <div class="coping-result" id="coping-result"></div>
+  </div>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+<script>
+// HPA Axis
+const hpaInfo = {
+  stressor: '<strong>Stressor</strong>: bất kỳ stimulus nào mà não diễn giải là đe dọa — có thể là thực (mối nguy vật lý) hoặc tâm lý (áp lực xã hội, lo lắng tương lai). Amygdala và prefrontal cortex đóng vai trò trung tâm trong việc "quyết định" có kích hoạt stress response không.',
+  hypothalamus: '<strong>Hypothalamus</strong>: "trung tâm điều khiển" của hệ thần kinh thực vật. Tiết <strong>CRH (Corticotropin-Releasing Hormone)</strong> vào portal blood → kích hoạt anterior pituitary. Cũng kích hoạt SNS trực tiếp → epinephrine (nhanh hơn).',
+  pituitary: '<strong>Anterior Pituitary</strong>: nhận CRH → tiết <strong>ACTH (Adrenocorticotropic Hormone)</strong> vào máu. ACTH đến tuyến thượng thận trong vài phút. Negative feedback: cortisol cao → ức chế pituitary (giảm ACTH release).',
+  adrenal: '<strong>Adrenal Cortex</strong> (vỏ thượng thận): ACTH kích thích → tiết <strong>Cortisol</strong> (glucocorticoid). Cortisol peak sau stressor: ~20–30 phút. Adrenal Medulla (tủy): tiết epinephrine/norepinephrine (nhanh hơn, qua SNS).',
+  effects: '<strong>Effects of Cortisol (Acute, adaptive)</strong>:<ul style="margin:6px 0;padding-left:20px"><li>Tăng glucose máu (glycogenolysis, gluconeogenesis) → energy cho cơ.</li><li>Tăng heart rate, blood pressure.</li><li>Ức chế tiêu hóa, sinh sản, tăng trưởng.</li><li>Short-term: tăng immune mobilization (long-term: immune suppression).</li><li>Tăng alertness, memory consolidation.</li></ul>Chronic cortisol cao → hippocampal atrophy, immune suppression, CVD.',
+};
+function showHPA(key) {
+  const el = document.getElementById('hpa-detail');
+  el.innerHTML = hpaInfo[key];
+  el.classList.add('show');
+}
+
+// Cortisol Curve
+function drawCortisol() {
+  const canvas = document.getElementById('cortisol-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const padL = 55, padR = 20, padT = 20, padB = 40;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  ctx.clearRect(0,0,W,H);
+
+  const type = document.getElementById('curve-type').value;
+  let xLabel, data, yMax, desc;
+
+  if (type === 'acute') {
+    xLabel = 'Thời gian (phút)'; yMax = 40;
+    // Baseline 10, stressor at t=0, peak 25 at t=20, return to 10 at t=90
+    data = Array.from({length:121},(_, t) => {
+      if (t < 5) return 10;
+      if (t <= 20) return 10 + 15 * ((t-5)/15);
+      return 10 + 15 * Math.exp(-0.04*(t-20));
+    });
+    desc = 'Acute stress: baseline ~10 μg/dL → peak ~25 μg/dL sau 20 phút → trở về baseline sau ~90 phút (nhờ negative feedback). Đây là phản ứng THÍCH NGHI — adaptive.';
+  } else if (type === 'chronic') {
+    xLabel = 'Ngày'; yMax = 40;
+    // Chronic: baseline elevated, multiple spikes, never fully returns
+    data = Array.from({length:121},(_, t) => {
+      const base = 15; // elevated baseline
+      const spike1 = t >= 10 && t <= 30 ? 12 * Math.exp(-0.06*(t-10)) : 0;
+      const spike2 = t >= 40 && t <= 60 ? 10 * Math.exp(-0.06*(t-40)) : 0;
+      const spike3 = t >= 65 && t <= 90 ? 14 * Math.exp(-0.06*(t-65)) : 0;
+      const spike4 = t >= 100 ? 11 * Math.exp(-0.06*(t-100)) : 0;
+      return base + spike1 + spike2 + spike3 + spike4;
+    });
+    desc = 'Chronic stress: baseline cortisol elevated (~15 μg/dL thay vì 10), không về baseline hoàn toàn giữa các stressor. Dần dần dẫn đến allostatic load: hippocampal atrophy, immune suppression, CVD risk.';
+  } else {
+    xLabel = 'Giờ trong ngày'; yMax = 25;
+    data = Array.from({length:121},(_, i) => {
+      const h = (i/120)*24;
+      // Circadian: peak at 8am (~15), low at midnight (~3)
+      return 3 + 12 * Math.exp(-Math.pow(h-8,2)/8) + 2 * Math.exp(-Math.pow(h-14,2)/4);
+    });
+    desc = 'Nhịp circadian bình thường: cortisol cao nhất lúc ~8 giờ sáng (cortisol awakening response, CAR). Giảm dần trong ngày, thấp nhất lúc nửa đêm. Disruption của nhịp này (chronic stress, shift work) là marker của allostatic overload.';
+  }
+
+  // Axes
+  ctx.strokeStyle = '#cbd5e0'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(padL,padT); ctx.lineTo(padL,padT+plotH); ctx.lineTo(padL+plotW,padT+plotH); ctx.stroke();
+  ctx.fillStyle = '#4a5568'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+  for (let v = 0; v <= yMax; v += 10) {
+    const y = padT + plotH - (v/yMax)*plotH;
+    ctx.fillText(v, padL-6, y+4);
+    ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = .5;
+    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+plotW,y); ctx.stroke();
+  }
+  ctx.fillStyle = '#555'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+  ctx.save(); ctx.translate(14, padT+plotH/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('Cortisol (μg/dL)', 0, 0); ctx.restore();
+
+  // X axis
+  const nTicks = type === 'circadian' ? 6 : type === 'acute' ? 6 : 6;
+  ctx.textAlign = 'center'; ctx.fillStyle = '#4a5568';
+  for (let i = 0; i <= nTicks; i++) {
+    const x = padL + (i/nTicks)*plotW;
+    let label;
+    if (type === 'acute') label = (i * 20) + '';
+    else if (type === 'chronic') label = (i * 20) + '';
+    else label = (i * 4) + 'h';
+    ctx.fillText(label, x, padT+plotH+16);
+  }
+  ctx.fillText(xLabel, padL+plotW/2, padT+plotH+30);
+
+  // Draw curve
+  ctx.beginPath(); ctx.strokeStyle = '#a21caf'; ctx.lineWidth = 2.5;
+  data.forEach((v, i) => {
+    const x = padL + (i/(data.length-1))*plotW;
+    const y = padT + plotH - (v/yMax)*plotH;
+    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+
+  // Normal range band
+  const normLow = padT + plotH - (18/yMax)*plotH;
+  const normHigh = padT + plotH - (5/yMax)*plotH;
+  ctx.fillStyle = 'rgba(34,197,94,0.1)';
+  ctx.fillRect(padL, normLow, plotW, normHigh-normLow);
+  ctx.fillStyle = '#16a34a'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
+  ctx.fillText('Normal range', padL+plotW-4, normLow+12);
+
+  document.getElementById('cortisol-desc').textContent = desc;
+}
+drawCortisol();
+
+// SRRS
+const srrsEvents = [
+  { text: 'Mất vợ/chồng (death of spouse)', lcu: 100 },
+  { text: 'Ly hôn (divorce)', lcu: 73 },
+  { text: 'Ly thân (marital separation)', lcu: 65 },
+  { text: 'Tù giam (jail term)', lcu: 63 },
+  { text: 'Mất thành viên gia đình thân thiết', lcu: 63 },
+  { text: 'Bệnh hoặc tai nạn nghiêm trọng', lcu: 53 },
+  { text: 'Kết hôn (marriage)', lcu: 50 },
+  { text: 'Mất việc (fired at work)', lcu: 47 },
+  { text: 'Hòa giải hôn nhân', lcu: 45 },
+  { text: 'Nghỉ hưu (retirement)', lcu: 45 },
+  { text: 'Thay đổi sức khỏe thành viên gia đình', lcu: 44 },
+  { text: 'Có thai (pregnancy)', lcu: 40 },
+  { text: 'Thêm thành viên gia đình mới', lcu: 39 },
+  { text: 'Thay đổi lớn trong công việc kinh doanh', lcu: 39 },
+  { text: 'Thay đổi tài chính đáng kể', lcu: 38 },
+  { text: 'Mất bạn thân (death of close friend)', lcu: 37 },
+  { text: 'Chuyển sang ngành nghề khác', lcu: 36 },
+  { text: 'Tăng/giảm tranh cãi với vợ/chồng', lcu: 35 },
+  { text: 'Vay nợ/thế chấp lớn', lcu: 31 },
+  { text: 'Mất nhà thế chấp (foreclosure)', lcu: 30 },
+  { text: 'Thay đổi trách nhiệm công việc', lcu: 29 },
+  { text: 'Con cái rời gia đình', lcu: 29 },
+  { text: 'Thành tích cá nhân nổi bật', lcu: 28 },
+  { text: 'Vợ/chồng bắt đầu/dừng đi làm', lcu: 26 },
+  { text: 'Bắt đầu hoặc kết thúc học vấn', lcu: 26 },
+  { text: 'Gặp rắc rối với sếp', lcu: 23 },
+  { text: 'Thay đổi giờ hoặc điều kiện làm việc', lcu: 20 },
+  { text: 'Chuyển chỗ ở (change in residence)', lcu: 20 },
+  { text: 'Kỳ nghỉ (vacation)', lcu: 13 },
+  { text: 'Vi phạm luật nhỏ', lcu: 11 },
+];
+
+let srrsChecked = new Set();
+document.getElementById('srrs-list').innerHTML = srrsEvents.map((e, i) =>
+  `<label class="srrs-item" id="sri-${i}">
+    <input type="checkbox" onchange="toggleSRRS(${i})" style="accent-color:var(--accent)">
+    <span style="flex:1">${e.text}</span>
+    <span style="font-weight:700;color:var(--accent);flex-shrink:0">${e.lcu}</span>
+  </label>`
+).join('');
+
+function toggleSRRS(i) {
+  srrsChecked.has(i) ? srrsChecked.delete(i) : srrsChecked.add(i);
+  document.getElementById(`sri-${i}`).classList.toggle('checked', srrsChecked.has(i));
+  updateSRRS();
+}
+function updateSRRS() {
+  const total = [...srrsChecked].reduce((s, i) => s + srrsEvents[i].lcu, 0);
+  document.getElementById('srrs-total').textContent = total;
+  const el = document.getElementById('srrs-risk');
+  if (total === 0) { el.textContent = 'Chưa chọn sự kiện nào.'; el.className = 'srrs-risk'; }
+  else if (total < 150) { el.textContent = `Nguy cơ thấp (~30% bệnh tật trong 12 tháng tới)`; el.className = 'srrs-risk risk-low'; }
+  else if (total < 300) { el.textContent = `Nguy cơ trung bình (~50% bệnh tật trong 12 tháng tới) — hãy chú ý coping`; el.className = 'srrs-risk risk-mod'; }
+  else { el.textContent = `Nguy cơ cao (~80% bệnh tật trong 12 tháng tới) — cần tích cực xây dựng coping resources`; el.className = 'srrs-risk risk-high'; }
+}
+
+// Coping Decision Tree
+let copingState = {};
+function selectCoping(key, val) {
+  copingState[key] = val;
+  ['yes','no','partial'].forEach(v => document.getElementById('ctrl-'+v) && document.getElementById('ctrl-'+v).classList.remove('selected'));
+  ['low','high'].forEach(v => document.getElementById('emo-'+v) && document.getElementById('emo-'+v).classList.remove('selected'));
+  const el = document.getElementById(key === 'ctrl' ? 'ctrl-'+val : 'emo-'+val);
+  if (el) el.classList.add('selected');
+  if (copingState.ctrl && copingState.emo) showCopingResult();
+}
+
+const copingRecommendations = {
+  'yes-low': { title: 'Problem-Focused Coping', color: '#15803d', text: 'Tình huống controllable + bạn bình tĩnh = điều kiện tốt nhất để giải quyết vấn đề trực tiếp. Chiến lược: (1) Xác định vấn đề cụ thể. (2) Brainstorm solutions. (3) Thực hiện và đánh giá. (4) Lên kế hoạch từng bước. Ví dụ: deadline dồn → ưu tiên hóa, thương lượng gia hạn, chia nhỏ task.' },
+  'yes-high': { title: 'Emotion Regulation trước, rồi Problem-Focused', color: '#d97706', text: 'Bạn có thể giải quyết được, nhưng cảm xúc đang cao → cần regulate trước để thinking rõ ràng. Bước 1: Hít thở sâu, 5–10 phút mindfulness. Bước 2: Write journal để xả cảm xúc. Bước 3: Sau khi bình tĩnh → áp dụng problem-solving. Đừng ra quyết định quan trọng khi cảm xúc còn cao.' },
+  'no-low': { title: 'Emotion-Focused Coping (Adaptive)', color: '#2563eb', text: 'Không thể thay đổi tình huống → tập trung thay đổi cách mình trải nghiệm nó. Chiến lược: (1) Reappraisal: tìm ý nghĩa mới ("Bài học từ trải nghiệm này là gì?"). (2) Tìm hỗ trợ xã hội (emotional support). (3) Acceptance (DBT/ACT). (4) Mindfulness. Ví dụ: mất người thân → không thể thay đổi, nhưng có thể tìm cách grieving lành mạnh.' },
+  'no-high': { title: 'Distress Tolerance + Emotion Regulation', color: '#dc2626', text: 'Không kiểm soát được + cảm xúc cao = nguy cơ dùng maladaptive coping (substance, avoidance). Ưu tiên ngay: (1) Distress tolerance: TIPP (Temperature, Intense exercise, Paced breathing, Paired relaxation). (2) Đừng cô lập — gọi người tin tưởng. (3) Mindfulness: observe without judgment. Tránh: rượu bia, mạng xã hội quá độ, isolation.' },
+  'partial-low': { title: 'Kết hợp: Problem-Focused cho phần kiểm soát được', color: '#6d28d9', text: 'Xác định phần nào bạn có thể kiểm soát → tập trung vào đó. Buông bỏ phần không thể kiểm soát bằng acceptance. Ví dụ: bị sếp không hài lòng → kiểm soát được: cải thiện chất lượng công việc, giao tiếp tốt hơn. Không kiểm soát được: quyết định cuối cùng của sếp. CBT và ACT đặc biệt hữu ích cho loại tình huống này.' },
+  'partial-high': { title: 'Emotion Regulation trước, rồi phân tích phần nào controllable', color: '#6d28d9', text: 'Đợi cảm xúc dịu lại. Sau đó tách biệt: "Phần nào tôi có thể làm gì đó? Phần nào phải chấp nhận?" Problem-solve phần controllable; accept phần uncontrollable. Đây là framework của Reinhold Niebuhr\'s Serenity Prayer và core của ACT/CBT.' },
+};
+
+function showCopingResult() {
+  const key = copingState.ctrl + '-' + copingState.emo;
+  const rec = copingRecommendations[key];
+  const el = document.getElementById('coping-result');
+  el.style.background = rec.color + '18';
+  el.style.borderColor = rec.color;
+  el.innerHTML = `<strong style="color:${rec.color}">${rec.title}</strong><p style="font-size:.87rem;margin:8px 0 0">${rec.text}</p>`;
+  el.classList.add('show');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T3-L05: Statistics in Psychology — Psychology</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fdf4ff;
+    --accent: #a21caf;
+    --accent-soft: #fae8ff;
+    --accent-hover: #86198f;
+  }
+  main { max-width: 1000px; }
+
+  .section { background: var(--panel); border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+  h2 { color: var(--accent); margin-top: 0; }
+
+  /* Calculator inputs */
+  .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+  @media(max-width:560px){ .calc-grid { grid-template-columns: 1fr; } }
+  .calc-group { background: var(--accent-soft); border-radius: 8px; padding: 14px; }
+  .calc-group h4 { margin: 0 0 10px; color: var(--accent); font-size: .9rem; }
+  .input-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: .88rem; }
+  .input-row label { width: 50px; flex-shrink: 0; }
+  .input-row input { width: 80px; padding: 5px 8px; border: 1px solid var(--line); border-radius: 5px; font-size: .88rem; }
+  .calc-btn { background: var(--accent); color: white; border: none; padding: 9px 20px; border-radius: 8px; cursor: pointer; margin-top: 8px; font-size: .9rem; }
+  .calc-btn:hover { background: var(--accent-hover); }
+  .result-box { background: white; border: 2px solid var(--accent); border-radius: 10px; padding: 14px; margin-top: 14px; }
+  .result-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid var(--line); font-size: .88rem; }
+  .result-row:last-child { border-bottom: none; }
+  .result-val { font-weight: 700; color: var(--accent); }
+  .result-sig { font-weight: 700; padding: 4px 10px; border-radius: 6px; }
+  .sig-yes { background: #dcfce7; color: #166534; }
+  .sig-no { background: #fee2e2; color: #991b1b; }
+
+  /* ANOVA Visualizer */
+  .anova-groups { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+  .anova-group { flex: 1; min-width: 140px; background: var(--accent-soft); border-radius: 8px; padding: 12px; }
+  .anova-group h4 { margin: 0 0 8px; font-size: .88rem; color: var(--accent); }
+  .anova-group input { width: 100%; padding: 5px 8px; border: 1px solid var(--line); border-radius: 5px; font-size: .88rem; box-sizing: border-box; margin-bottom: 5px; }
+  canvas#anova-canvas { border: 1px solid var(--line); border-radius: 8px; background: white; margin-top: 12px; display: block; }
+
+  /* Power curve */
+  .power-controls { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 12px; }
+  .power-ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+  .power-ctrl-group label { font-size: .83rem; color: var(--muted); }
+  .power-ctrl-group input[type=range] { width: 140px; accent-color: var(--accent); }
+  .power-ctrl-group span { font-size: .88rem; font-weight: 700; color: var(--accent); }
+  canvas#power-canvas { border: 1px solid var(--line); border-radius: 8px; background: white; display: block; }
+
+  /* Effect size visualizer */
+  .eff-viz { margin-top: 12px; }
+  .eff-controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+  .eff-controls label { font-size: .88rem; }
+  .eff-controls input[type=range] { accent-color: var(--accent); width: 160px; }
+  canvas#eff-canvas { border: 1px solid var(--line); border-radius: 8px; background: white; display: block; }
+  .eff-stats { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 8px; font-size: .85rem; }
+  .eff-stat-item { background: var(--accent-soft); padding: 6px 12px; border-radius: 6px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-research-methods-ethics/visualization.html">← T3-L04: Research Methods</a>
+  <span class="sep">·</span>
+  <span class="current">T3-L05: Statistics</span>
+  <span class="sep">·</span>
+  <span>Kết thúc Psychology 🎉</span>
+</nav>
+<main>
+  <h1>T3-L05 — Statistics in Psychology</h1>
+
+  <!-- t-test Calculator -->
+  <div class="section">
+    <h2>1. Independent t-test Calculator</h2>
+    <p>Nhập thông số 2 nhóm → tính t, p, Cohen's d.</p>
+    <div class="calc-grid">
+      <div class="calc-group">
+        <h4>Nhóm 1 (experimental)</h4>
+        <div class="input-row"><label>n₁</label><input type="number" id="n1" value="30" min="2"></div>
+        <div class="input-row"><label>M₁</label><input type="number" id="m1" value="18" step="0.1"></div>
+        <div class="input-row"><label>SD₁</label><input type="number" id="sd1" value="6" step="0.1" min="0.1"></div>
+      </div>
+      <div class="calc-group">
+        <h4>Nhóm 2 (control)</h4>
+        <div class="input-row"><label>n₂</label><input type="number" id="n2" value="30" min="2"></div>
+        <div class="input-row"><label>M₂</label><input type="number" id="m2" value="22" step="0.1"></div>
+        <div class="input-row"><label>SD₂</label><input type="number" id="sd2" value="7" step="0.1" min="0.1"></div>
+      </div>
+    </div>
+    <button class="calc-btn" onclick="calcTtest()">Tính kết quả</button>
+    <div class="result-box" id="ttest-result" style="display:none"></div>
+  </div>
+
+  <!-- ANOVA Visualizer -->
+  <div class="section">
+    <h2>2. ANOVA Visualizer — So sánh 3 nhóm</h2>
+    <p>Nhập mean và SD cho 3 nhóm (n=30 mỗi nhóm). Xem biểu đồ phân bố và ước tính F.</p>
+    <div class="anova-groups">
+      <div class="anova-group">
+        <h4>Nhóm 1 — CBT</h4>
+        <input type="number" id="ag1m" value="15" placeholder="Mean" step="0.5" oninput="drawANOVA()">
+        <input type="number" id="ag1s" value="6" placeholder="SD" step="0.5" min="1" oninput="drawANOVA()">
+      </div>
+      <div class="anova-group">
+        <h4>Nhóm 2 — Behavioral</h4>
+        <input type="number" id="ag2m" value="17" placeholder="Mean" step="0.5" oninput="drawANOVA()">
+        <input type="number" id="ag2s" value="6.5" placeholder="SD" step="0.5" min="1" oninput="drawANOVA()">
+      </div>
+      <div class="anova-group">
+        <h4>Nhóm 3 — Control</h4>
+        <input type="number" id="ag3m" value="22" placeholder="Mean" step="0.5" oninput="drawANOVA()">
+        <input type="number" id="ag3s" value="7" placeholder="SD" step="0.5" min="1" oninput="drawANOVA()">
+      </div>
+    </div>
+    <canvas id="anova-canvas" width="700" height="220" viewBox="0 0 700 220"></canvas>
+    <div id="anova-stats" style="margin-top:10px;font-size:.86rem;display:flex;gap:16px;flex-wrap:wrap"></div>
+  </div>
+
+  <!-- Power Curve -->
+  <div class="section">
+    <h2>3. Statistical Power Curve</h2>
+    <p>Thay đổi effect size (d) và alpha để xem bao nhiêu người cần để đạt power ≥ 0.80.</p>
+    <div class="power-controls">
+      <div class="power-ctrl-group">
+        <label>Effect size d: <span id="d-val">0.50</span></label>
+        <input type="range" id="d-slider" min="0.1" max="1.5" step="0.05" value="0.5" oninput="updatePowerCurve()">
+      </div>
+      <div class="power-ctrl-group">
+        <label>Alpha (α): <span id="a-val">0.05</span></label>
+        <input type="range" id="a-slider" min="0.01" max="0.1" step="0.01" value="0.05" oninput="updatePowerCurve()">
+      </div>
+      <div style="background:var(--accent-soft);padding:8px 14px;border-radius:8px;font-size:.86rem">
+        n cho power=0.80: <strong id="n-needed" style="color:var(--accent)">--</strong>
+      </div>
+    </div>
+    <canvas id="power-canvas" width="700" height="240" viewBox="0 0 700 240"></canvas>
+  </div>
+
+  <!-- Effect Size Visualizer -->
+  <div class="section">
+    <h2>4. Effect Size Visualizer — Overlap giữa 2 phân bố</h2>
+    <p>Thay đổi Cohen's d để thấy overlap giữa experimental và control group:</p>
+    <div class="eff-controls">
+      <label>Cohen's d: <strong id="eff-d-val">0.50</strong></label>
+      <input type="range" id="eff-d-slider" min="0" max="2" step="0.05" value="0.5" oninput="drawEffectSize()">
+      <span id="eff-d-bench" style="padding:4px 10px;border-radius:6px;font-size:.82rem;font-weight:600"></span>
+    </div>
+    <canvas id="eff-canvas" width="700" height="200" viewBox="0 0 700 200"></canvas>
+    <div class="eff-stats" id="eff-stats"></div>
+  </div>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+<script>
+// Helpers
+function normalPDF(x, mean, sd) {
+  return Math.exp(-0.5*((x-mean)/sd)**2) / (sd * Math.sqrt(2*Math.PI));
+}
+function normalCDF(x) {
+  const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;
+  const sign=x<0?-1:1; const xAbs=Math.abs(x)/Math.sqrt(2);
+  const t2=1/(1+p*xAbs);
+  const y=1-(((((a5*t2+a4)*t2)+a3)*t2+a2)*t2+a1)*t2*Math.exp(-xAbs*xAbs);
+  return 0.5*(1+sign*y);
+}
+function tToP(t, df) {
+  if (df >= 120) return 2*(1-normalCDF(Math.abs(t)));
+  const x = df/(df+t*t);
+  // Beta incomplete approximation
+  let p = 0.5 * Math.exp((df*Math.log(x) + Math.log(1-x))/2);
+  p = Math.max(0.0001, Math.min(0.9999, p * 2));
+  return p;
+}
+function cohensBenchmark(d) {
+  if (d < 0.2) return { label: 'Negligible', color: '#9ca3af' };
+  if (d < 0.5) return { label: 'Small', color: '#3b82f6' };
+  if (d < 0.8) return { label: 'Medium', color: '#f59e0b' };
+  return { label: 'Large', color: '#dc2626' };
+}
+
+// t-test Calculator
+function calcTtest() {
+  const n1=+document.getElementById('n1').value, m1=+document.getElementById('m1').value, sd1=+document.getElementById('sd1').value;
+  const n2=+document.getElementById('n2').value, m2=+document.getElementById('m2').value, sd2=+document.getElementById('sd2').value;
+  if (n1<2||n2<2||sd1<=0||sd2<=0) { alert('Nhập giá trị hợp lệ.'); return; }
+
+  const sp = Math.sqrt(((n1-1)*sd1*sd1+(n2-1)*sd2*sd2)/(n1+n2-2));
+  const se = sp * Math.sqrt(1/n1+1/n2);
+  const t = (m1-m2)/se;
+  const df = n1+n2-2;
+  const p = tToP(Math.abs(t), df);
+  const d = Math.abs(m1-m2)/sp;
+  const bench = cohensBenchmark(d);
+  const sig = p < 0.05;
+
+  document.getElementById('ttest-result').style.display = 'block';
+  document.getElementById('ttest-result').innerHTML = `
+    <div class="result-row"><span>Pooled SD (s<sub>p</sub>)</span><span class="result-val">${sp.toFixed(3)}</span></div>
+    <div class="result-row"><span>SE<sub>diff</sub></span><span class="result-val">${se.toFixed(3)}</span></div>
+    <div class="result-row"><span>t-statistic</span><span class="result-val">${t.toFixed(3)}</span></div>
+    <div class="result-row"><span>df</span><span class="result-val">${df}</span></div>
+    <div class="result-row"><span>p-value (two-tailed, approx)</span><span class="result-val">${p < 0.001 ? '< 0.001' : p.toFixed(3)}</span></div>
+    <div class="result-row"><span>Cohen's d</span><span class="result-val" style="color:${bench.color}">${d.toFixed(3)} (${bench.label})</span></div>
+    <div class="result-row"><span>Kết luận α=0.05</span><span class="result-sig ${sig?'sig-yes':'sig-no'}">${sig ? '✓ Significant (reject H₀)' : '✗ Not significant'}</span></div>
+    ${sig ? `<div style="margin-top:8px;font-size:.83rem;color:var(--muted)">Diễn giải: Nhóm 1 (M=${m1}) ${m1<m2?'thấp hơn':'cao hơn'} nhóm 2 (M=${m2}) đáng kể, t(${df})=${t.toFixed(2)}, p=${p<0.001?'<0.001':p.toFixed(3)}, d=${d.toFixed(2)} (${bench.label} effect).</div>` : ''}
+  `;
+}
+calcTtest();
+
+// ANOVA Visualizer
+function drawANOVA() {
+  const groups = [
+    { m: +document.getElementById('ag1m').value, s: +document.getElementById('ag1s').value, color: '#a21caf', label: 'CBT' },
+    { m: +document.getElementById('ag2m').value, s: +document.getElementById('ag2s').value, color: '#7c3aed', label: 'Behavioral' },
+    { m: +document.getElementById('ag3m').value, s: +document.getElementById('ag3s').value, color: '#2563eb', label: 'Control' },
+  ];
+  const canvas = document.getElementById('anova-canvas');
+  const ctx = canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height, pad=40;
+
+  const allMeans = groups.map(g=>g.m);
+  const xMin = Math.min(...allMeans) - 3*Math.max(...groups.map(g=>g.s));
+  const xMax = Math.max(...allMeans) + 3*Math.max(...groups.map(g=>g.s));
+
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(pad,H-pad); ctx.lineTo(W-pad,H-pad); ctx.stroke();
+
+  const yMax = Math.max(...groups.map(g => normalPDF(g.m, g.m, g.s))) * 1.15;
+
+  groups.forEach(g => {
+    ctx.beginPath(); ctx.strokeStyle = g.color; ctx.lineWidth = 2.5;
+    for (let i=0; i<=200; i++) {
+      const x = xMin + (i/200)*(xMax-xMin);
+      const y = normalPDF(x, g.m, g.s);
+      const px = pad + ((x-xMin)/(xMax-xMin))*(W-2*pad);
+      const py = (H-pad) - (y/yMax)*(H-2*pad);
+      i===0 ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+    // mean line
+    const mpx = pad + ((g.m-xMin)/(xMax-xMin))*(W-2*pad);
+    ctx.strokeStyle=g.color; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(mpx, H-pad); ctx.lineTo(mpx, pad); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle=g.color; ctx.font='11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(g.label+' M='+g.m, mpx, pad-4);
+  });
+
+  // Calculate simplified F
+  const n = 30; const k = 3; const N = n*k;
+  const grandMean = groups.reduce((s,g)=>s+g.m,0)/k;
+  const SSbetween = groups.reduce((s,g)=>s+n*(g.m-grandMean)**2,0);
+  const SSwithin = groups.reduce((s,g)=>s+(n-1)*g.s*g.s,0);
+  const MSbetween = SSbetween/(k-1);
+  const MSwithin = SSwithin/(N-k);
+  const F = MSbetween/MSwithin;
+  const eta2 = SSbetween/(SSbetween+SSwithin);
+
+  let pApprox;
+  if (F > 10) pApprox = '<0.001';
+  else if (F > 5) pApprox = '~0.005–0.01';
+  else if (F > 3.1) pApprox = '~0.01–0.05';
+  else pApprox = '>0.05';
+
+  document.getElementById('anova-stats').innerHTML = `
+    <span style="background:var(--accent-soft);padding:5px 10px;border-radius:6px"><strong>F(${k-1},${N-k})</strong> = ${F.toFixed(2)}</span>
+    <span style="background:var(--accent-soft);padding:5px 10px;border-radius:6px"><strong>p</strong> ≈ ${pApprox}</span>
+    <span style="background:var(--accent-soft);padding:5px 10px;border-radius:6px"><strong>η²</strong> = ${eta2.toFixed(3)} (${eta2<0.06?'Small':eta2<0.14?'Medium':'Large'})</span>
+    <span style="background:var(--accent-soft);padding:5px 10px;border-radius:6px"><strong>Grand mean</strong> = ${grandMean.toFixed(1)}</span>
+  `;
+}
+drawANOVA();
+
+// Power Curve
+function calcPower(d, n, alpha) {
+  const z_alpha = alpha === 0.01 ? 2.326 : alpha === 0.05 ? 1.960 : alpha === 0.10 ? 1.282 : 1.960;
+  const lambda = d * Math.sqrt(n/2);
+  return normalCDF(lambda - z_alpha) + normalCDF(-lambda - z_alpha);
+}
+
+function updatePowerCurve() {
+  const d = +document.getElementById('d-slider').value;
+  const alpha = +document.getElementById('a-slider').value;
+  document.getElementById('d-val').textContent = d.toFixed(2);
+  document.getElementById('a-val').textContent = alpha.toFixed(2);
+
+  // Find n for power=0.80
+  let nNeeded = 'N/A';
+  for (let n=5; n<=500; n++) {
+    if (calcPower(d, n, alpha) >= 0.80) { nNeeded = n; break; }
+  }
+  document.getElementById('n-needed').textContent = nNeeded + (nNeeded !== 'N/A' ? '/group' : '');
+
+  const canvas = document.getElementById('power-canvas');
+  const ctx = canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height, padL=55, padR=20, padT=20, padB=40;
+  const plotW=W-padL-padR, plotH=H-padT-padB;
+  ctx.clearRect(0,0,W,H);
+
+  // Axes
+  ctx.strokeStyle='#cbd5e0'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(padL,padT); ctx.lineTo(padL,padT+plotH); ctx.lineTo(padL+plotW,padT+plotH); ctx.stroke();
+
+  const nMax = 120;
+  // Y axis labels
+  ctx.fillStyle='#4a5568'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+  for (let v=0; v<=1; v+=0.2) {
+    const y=padT+plotH-(v)*plotH;
+    ctx.fillText((v*100).toFixed(0)+'%', padL-6, y+4);
+    ctx.strokeStyle='#e2e8f0'; ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+plotW,y); ctx.stroke();
+  }
+  ctx.save(); ctx.translate(14, padT+plotH/2); ctx.rotate(-Math.PI/2);
+  ctx.fillStyle='#555'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('Power (1−β)', 0, 0); ctx.restore();
+  ctx.fillStyle='#4a5568'; ctx.textAlign='center';
+  for (let n=0; n<=nMax; n+=20) {
+    ctx.fillText(n, padL+(n/nMax)*plotW, padT+plotH+16);
+  }
+  ctx.fillText('n per group', padL+plotW/2, padT+plotH+30);
+
+  // Power curve
+  ctx.beginPath(); ctx.strokeStyle='#a21caf'; ctx.lineWidth=2.5;
+  for (let n=2; n<=nMax; n++) {
+    const pw = calcPower(d, n, alpha);
+    const x = padL+(n/nMax)*plotW;
+    const y = padT+plotH-pw*plotH;
+    n===2 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+
+  // Power=0.80 line
+  const pw80y = padT+plotH-0.80*plotH;
+  ctx.strokeStyle='#22c55e'; ctx.lineWidth=1; ctx.setLineDash([5,5]);
+  ctx.beginPath(); ctx.moveTo(padL,pw80y); ctx.lineTo(padL+plotW,pw80y); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#15803d'; ctx.font='10px sans-serif'; ctx.textAlign='left';
+  ctx.fillText('Power = 0.80', padL+4, pw80y-4);
+
+  // Mark n_needed
+  if (typeof nNeeded === 'number' && nNeeded <= nMax) {
+    const nx = padL+(nNeeded/nMax)*plotW;
+    ctx.strokeStyle='#f59e0b'; ctx.lineWidth=1.5; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(nx, padT); ctx.lineTo(nx, padT+plotH); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#d97706'; ctx.font='bold 10px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('n='+nNeeded, nx, padT+12);
+  }
+}
+updatePowerCurve();
+
+// Effect Size Visualizer
+function drawEffectSize() {
+  const d = +document.getElementById('eff-d-slider').value;
+  document.getElementById('eff-d-val').textContent = d.toFixed(2);
+  const bench = cohensBenchmark(d);
+  const benchEl = document.getElementById('eff-d-bench');
+  benchEl.textContent = bench.label;
+  benchEl.style.background = bench.color + '22';
+  benchEl.style.color = bench.color;
+
+  const canvas = document.getElementById('eff-canvas');
+  const ctx = canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height, pad=40;
+  ctx.clearRect(0,0,W,H);
+
+  const sd = 1; // standardized
+  const mean1 = 0, mean2 = d;
+  const xMin = -3.5; const xMax = d + 3.5;
+
+  const yMax = normalPDF(0,0,sd) * 1.2;
+
+  function xToP(x) { return pad + ((x-xMin)/(xMax-xMin))*(W-2*pad); }
+  function yToP(y) { return (H-pad) - (y/yMax)*(H-2*pad); }
+
+  // Fill overlap
+  const overlap_start = d > 0 ? d/2 : -1;
+  ctx.beginPath();
+  for (let i=0; i<=200; i++) {
+    const x = xMin + (i/200)*(xMax-xMin);
+    if (x < overlap_start) continue;
+    const y1 = normalPDF(x, mean1, sd);
+    const y2 = normalPDF(x, mean2, sd);
+    const yMin = Math.min(y1, y2);
+    if (i===0 || x <= overlap_start) { ctx.moveTo(xToP(x), yToP(yMin)); }
+    else { ctx.lineTo(xToP(x), yToP(yMin)); }
+  }
+  ctx.strokeStyle = 'rgba(162,28,175,0.2)'; ctx.lineWidth = 0; ctx.fillStyle = 'rgba(162,28,175,0.15)';
+  ctx.fill();
+
+  // Draw curves
+  [{ m: mean1, color: '#2563eb', label: 'Control' }, { m: mean2, color: '#a21caf', label: 'Treatment' }].forEach(g => {
+    ctx.beginPath(); ctx.strokeStyle = g.color; ctx.lineWidth = 2.5;
+    for (let i=0; i<=200; i++) {
+      const x = xMin + (i/200)*(xMax-xMin);
+      const y = normalPDF(x, g.m, sd);
+      i===0 ? ctx.moveTo(xToP(x), yToP(y)) : ctx.lineTo(xToP(x), yToP(y));
+    }
+    ctx.stroke();
+    // Mean line
+    ctx.strokeStyle = g.color; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(xToP(g.m), yToP(0)); ctx.lineTo(xToP(g.m), yToP(normalPDF(g.m,g.m,sd))); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = g.color; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(g.label + ' (M=' + g.m.toFixed(1) + ')', xToP(g.m), pad-4);
+  });
+
+  // Axis
+  ctx.strokeStyle = '#cbd5e0'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad, H-pad); ctx.lineTo(W-pad, H-pad); ctx.stroke();
+
+  // Overlap percentage (approximate)
+  let overlapArea = 0;
+  const steps = 500;
+  const dx = (xMax-xMin)/steps;
+  for (let i=0; i<steps; i++) {
+    const x = xMin + i*dx;
+    overlapArea += Math.min(normalPDF(x,mean1,sd), normalPDF(x,mean2,sd)) * dx;
+  }
+  const overlapPct = (overlapArea * 100).toFixed(0);
+  const u3 = (normalCDF(d) * 100).toFixed(0);
+
+  document.getElementById('eff-stats').innerHTML = `
+    <div class="eff-stat-item">Cohen's d = <strong>${d.toFixed(2)}</strong> (${bench.label})</div>
+    <div class="eff-stat-item">Overlap ≈ <strong>${overlapPct}%</strong></div>
+    <div class="eff-stat-item">U₃ = <strong>${u3}%</strong> treatment > median control</div>
+    <div class="eff-stat-item">r ≈ <strong>${(d/Math.sqrt(d*d+4)).toFixed(2)}</strong></div>
+  `;
+}
+drawEffectSize();
+</script>
+</body>
+</html>

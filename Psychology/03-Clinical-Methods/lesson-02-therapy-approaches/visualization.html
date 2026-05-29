@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T3-L02: Therapy Approaches — Psychology</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fdf4ff;
+    --accent: #a21caf;
+    --accent-soft: #fae8ff;
+    --accent-hover: #86198f;
+  }
+  main { max-width: 1000px; }
+
+  .section { background: var(--panel); border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+  h2 { color: var(--accent); margin-top: 0; }
+
+  /* ABC Model */
+  .abc-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 12px; }
+  @media(max-width:600px){ .abc-grid { grid-template-columns: 1fr; } }
+  .abc-box { border-radius: 8px; padding: 14px; }
+  .abc-a { background: #fff3cd; border: 2px solid #f59e0b; }
+  .abc-b { background: #fee2e2; border: 2px solid #ef4444; }
+  .abc-c { background: #fecaca; border: 2px solid #dc2626; }
+  .abc-b-new { background: #dcfce7; border: 2px solid #22c55e; }
+  .abc-c-new { background: #bbf7d0; border: 2px solid #16a34a; }
+  .abc-label { font-weight: 700; font-size: 1.2rem; margin-bottom: 6px; }
+  .abc-box textarea { width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 6px; font-size: .85rem; resize: vertical; min-height: 60px; box-sizing: border-box; }
+  .restructure-btn { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-top: 12px; font-size: .9rem; }
+  .restructure-btn:hover { background: var(--accent-hover); }
+  .restructure-output { margin-top: 12px; display: none; }
+  .distortion-tag { display: inline-block; background: #fee2e2; color: #991b1b; border-radius: 4px; padding: 2px 8px; font-size: .78rem; margin: 2px; }
+
+  /* Exposure Hierarchy Builder */
+  .hierarchy-controls { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .hierarchy-controls input { flex: 1; min-width: 200px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 6px; }
+  .hierarchy-controls input[type=number] { width: 80px; flex: 0 0 80px; }
+  .add-step-btn { background: var(--accent); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
+  .hierarchy-list { list-style: none; padding: 0; }
+  .hier-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 6px; margin-bottom: 6px; }
+  .suds-bar { flex: 1; height: 10px; background: var(--line); border-radius: 5px; overflow: hidden; }
+  .suds-fill { height: 100%; border-radius: 5px; transition: width .5s; }
+  .suds-label { width: 50px; font-size: .82rem; font-weight: 700; }
+
+  /* Habituation curve */
+  .habit-controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+  .habit-controls label { font-size: .88rem; }
+  .habit-controls select { padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; }
+  canvas#habit-canvas { border: 1px solid var(--line); border-radius: 8px; background: white; display: block; }
+
+  /* Effect size chart */
+  .effect-bars { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .eff-row { display: flex; align-items: center; gap: 10px; }
+  .eff-label { width: 200px; font-size: .82rem; flex-shrink: 0; }
+  @media(max-width:480px){ .eff-label { width: 130px; font-size:.76rem; } }
+  .eff-track { flex: 1; height: 18px; background: var(--line); border-radius: 9px; overflow: hidden; }
+  .eff-fill { height: 100%; border-radius: 9px; transition: width 1s; }
+  .eff-d { width: 50px; font-size: .82rem; font-weight: 700; color: var(--accent); }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-psychopathology/visualization.html">← T3-L01: Psychopathology</a>
+  <span class="sep">·</span>
+  <span class="current">T3-L02: Therapy</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-stress-coping/visualization.html">T3-L03: Stress →</a>
+</nav>
+<main>
+  <h1>T3-L02 — Therapy Approaches: Các phương pháp trị liệu</h1>
+
+  <!-- ABC Model -->
+  <div class="section">
+    <h2>1. Mô hình ABC — Cognitive Restructuring</h2>
+    <p>Nhập sự kiện và niềm tin tiêu cực. Nhấn <strong>Phân tích & Tái cơ cấu</strong> để thấy cách CBT xử lý.</p>
+    <div class="abc-grid">
+      <div class="abc-box abc-a">
+        <div class="abc-label" style="color:#d97706">A — Activating Event</div>
+        <textarea id="abc-a" placeholder="Sự kiện kích hoạt... (vd: Gửi email 2 ngày không ai trả lời)"></textarea>
+      </div>
+      <div class="abc-box abc-b">
+        <div class="abc-label" style="color:#dc2626">B — Belief (tiêu cực)</div>
+        <textarea id="abc-b" placeholder="Niềm tin tiêu cực... (vd: Chắc họ ghét tôi, tôi không được yêu)"></textarea>
+      </div>
+      <div class="abc-box abc-c">
+        <div class="abc-label" style="color:#b91c1c">C — Consequence</div>
+        <textarea id="abc-c" placeholder="Cảm xúc / hành vi kết quả... (vd: Buồn, rút lui xã hội)"></textarea>
+      </div>
+    </div>
+    <button class="restructure-btn" onclick="doRestructure()">Phân tích & Tái cơ cấu CBT</button>
+    <div class="restructure-output" id="restructure-out">
+      <p><strong>Distortions phát hiện:</strong> <span id="distortions-found"></span></p>
+      <p style="font-size:.85rem;color:var(--muted)"><strong>Câu hỏi Socratic để kiểm tra niềm tin:</strong></p>
+      <ul id="socratic-qs" style="font-size:.85rem;color:var(--muted)"></ul>
+      <div class="abc-grid" style="margin-top:10px">
+        <div></div>
+        <div class="abc-box abc-b-new">
+          <div class="abc-label" style="color:#15803d">B mới — Thực tế hơn</div>
+          <textarea id="abc-b-new" placeholder="Nhập niềm tin thực tế hơn sau khi kiểm tra bằng chứng..."></textarea>
+        </div>
+        <div class="abc-box abc-c-new">
+          <div class="abc-label" style="color:#166534">C mới — Cảm xúc mới</div>
+          <textarea id="abc-c-new" placeholder="Cảm xúc / hành vi khi có niềm tin mới..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Exposure Hierarchy Builder -->
+  <div class="section">
+    <h2>2. Exposure Hierarchy Builder — Xây thang phơi nhiễm</h2>
+    <p>Nhập từng bước tiếp xúc và SUDS (0–100) để xây thang phơi nhiễm cho phobia/anxiety.</p>
+    <div class="hierarchy-controls">
+      <input type="text" id="step-text" placeholder="Mô tả bước tiếp xúc (vd: Xem ảnh nhện)">
+      <input type="number" id="step-suds" min="0" max="100" placeholder="SUDS">
+      <button class="add-step-btn" onclick="addStep()">+ Thêm bước</button>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:12px">
+      <button onclick="loadExample('spider')" style="background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:5px 12px;cursor:pointer;font-size:.83rem">Ví dụ: Spider phobia</button>
+      <button onclick="loadExample('speech')" style="background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:5px 12px;cursor:pointer;font-size:.83rem">Ví dụ: Glossophobia</button>
+      <button onclick="clearHierarchy()" style="background:#fee2e2;color:#dc2626;border:1px solid #dc2626;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:.83rem">Xóa tất cả</button>
+    </div>
+    <ul class="hierarchy-list" id="hierarchy-list"></ul>
+    <p style="font-size:.82rem;color:var(--muted);margin-top:8px">Nguyên tắc: ở lại mỗi bước cho đến khi SUDS giảm ≥50% trước khi tiến lên bước tiếp theo. Không thoát ra khi lo âu còn cao.</p>
+  </div>
+
+  <!-- Habituation Curve -->
+  <div class="section">
+    <h2>3. Habituation Curve — Lo âu theo thời gian với Exposure</h2>
+    <div class="habit-controls">
+      <label>Tình huống: <select id="habit-scenario" onchange="drawHabituation()">
+        <option value="phobia">Specific Phobia (spider)</option>
+        <option value="ocd">OCD (ERP — rửa tay)</option>
+        <option value="ptsd">PTSD (Prolonged Exposure)</option>
+      </select></label>
+      <label>Session: <select id="habit-session" onchange="drawHabituation()">
+        <option value="1">Session 1</option>
+        <option value="2">Session 3</option>
+        <option value="3">Session 6</option>
+        <option value="4">Session 10</option>
+      </select></label>
+    </div>
+    <canvas id="habit-canvas" width="700" height="280" viewBox="0 0 700 280"></canvas>
+    <p id="habit-desc" style="font-size:.83rem;color:var(--muted);margin-top:8px"></p>
+  </div>
+
+  <!-- Effect Size Comparison -->
+  <div class="section">
+    <h2>4. Effect Size — So sánh hiệu quả các phương pháp trị liệu</h2>
+    <p>Cohen's d so với nhóm control/waitlist. d = 0.2 (nhỏ), 0.5 (vừa), 0.8 (lớn).</p>
+    <div class="effect-bars" id="effect-chart"></div>
+    <div style="display:flex;gap:20px;margin-top:12px;flex-wrap:wrap;font-size:.8rem">
+      <span style="color:#a21caf">■ Rất lớn (>1.0)</span>
+      <span style="color:#2563eb">■ Lớn (0.8–1.0)</span>
+      <span style="color:#16a34a">■ Vừa (0.5–0.8)</span>
+      <span style="color:#d97706">■ Nhỏ (<0.5)</span>
+    </div>
+  </div>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+<script>
+// ABC Model
+const distortionKeywords = {
+  'Catastrophizing': ['chắc','sắp','tệ nhất','sa thải','vô cứu','hỏng','thảm','không thể cứu'],
+  'Overgeneralization': ['không bao giờ','luôn luôn','mọi lúc','không ai','tất cả','không có ai'],
+  'Mind-reading': ['họ nghĩ','chắc họ','họ ghét','mọi người nghĩ','ai cũng thấy'],
+  'All-or-nothing': ['hoàn toàn','tuyệt đối','không có gì tốt','vô dụng','thất bại hoàn toàn'],
+  'Personalization': ['lỗi của tôi','tại tôi','vì tôi','tôi làm hỏng','do tôi'],
+};
+const socraticQuestions = [
+  'Bằng chứng CỤ THỂ nào ủng hộ niềm tin này?',
+  'Bằng chứng nào PHẢN BÁC niềm tin này?',
+  'Có giải thích thay thế nào không?',
+  'Điều tệ nhất thực sự có thể xảy ra? Xác suất là bao nhiêu?',
+  'Nếu người bạn đến nói với bạn điều tương tự, bạn sẽ nói gì?',
+  'Tình huống này sẽ quan trọng thế nào sau 5 năm?',
+];
+function doRestructure() {
+  const belief = (document.getElementById('abc-b').value || '').toLowerCase();
+  const found = [];
+  for (const [name, kws] of Object.entries(distortionKeywords)) {
+    if (kws.some(kw => belief.includes(kw))) found.push(name);
+  }
+  if (found.length === 0) found.push('Không phát hiện tự động — hãy tự kiểm tra các distortions: Catastrophizing, Overgeneralization, Mind-reading...');
+  document.getElementById('distortions-found').innerHTML = found.map(f => `<span class="distortion-tag">${f}</span>`).join('');
+  const qHtml = socraticQuestions.slice(0,4).map(q => `<li>${q}</li>`).join('');
+  document.getElementById('socratic-qs').innerHTML = qHtml;
+  document.getElementById('restructure-out').style.display = 'block';
+}
+
+// Exposure Hierarchy
+let steps = [];
+function addStep() {
+  const text = document.getElementById('step-text').value.trim();
+  const suds = parseInt(document.getElementById('step-suds').value);
+  if (!text || isNaN(suds) || suds < 0 || suds > 100) { alert('Nhập mô tả và SUDS (0–100).'); return; }
+  steps.push({ text, suds });
+  steps.sort((a, b) => a.suds - b.suds);
+  document.getElementById('step-text').value = '';
+  document.getElementById('step-suds').value = '';
+  renderHierarchy();
+}
+function clearHierarchy() { steps = []; renderHierarchy(); }
+function loadExample(type) {
+  if (type === 'spider') {
+    steps = [
+      { text: 'Xem tranh nhện nhỏ từ xa', suds: 20 },
+      { text: 'Xem video nhện', suds: 30 },
+      { text: 'Xem ảnh nhện lớn', suds: 40 },
+      { text: 'Ở cùng phòng với hộp có nhện (5m)', suds: 55 },
+      { text: 'Đến gần hộp 1m', suds: 65 },
+      { text: 'Mở hộp (nhện bên trong)', suds: 75 },
+      { text: 'Để nhện bò lên bàn (không chạm)', suds: 85 },
+      { text: 'Để nhện bò lên tay mình', suds: 95 },
+    ];
+  } else {
+    steps = [
+      { text: 'Thuyết trình trước gương một mình', suds: 20 },
+      { text: 'Đọc văn bản to trước 1 người thân', suds: 35 },
+      { text: 'Trình bày ngắn trước 3 người thân', suds: 50 },
+      { text: 'Trình bày trước nhóm 5 người bạn', suds: 65 },
+      { text: 'Trình bày trước 15 người không quen', suds: 80 },
+      { text: 'Trình bày chính thức + Q&A, 50 người', suds: 95 },
+    ];
+  }
+  renderHierarchy();
+}
+function getSudsColor(s) {
+  if (s <= 30) return '#22c55e';
+  if (s <= 50) return '#84cc16';
+  if (s <= 70) return '#f59e0b';
+  if (s <= 85) return '#f97316';
+  return '#ef4444';
+}
+function renderHierarchy() {
+  const el = document.getElementById('hierarchy-list');
+  if (steps.length === 0) { el.innerHTML = '<li style="color:var(--muted);font-size:.85rem;padding:8px">Chưa có bước nào. Thêm bước hoặc dùng ví dụ mẫu.</li>'; return; }
+  el.innerHTML = steps.map((s, i) => `
+    <li class="hier-item" style="background:${getSudsColor(s.suds)}18;border-left:4px solid ${getSudsColor(s.suds)}">
+      <span style="font-weight:700;color:var(--muted);min-width:20px">${i+1}.</span>
+      <span style="flex:1;font-size:.88rem">${s.text}</span>
+      <div class="suds-bar"><div class="suds-fill" style="width:${s.suds}%;background:${getSudsColor(s.suds)}"></div></div>
+      <span class="suds-label" style="color:${getSudsColor(s.suds)}">SUDS ${s.suds}</span>
+      <button onclick="removeStep(${i})" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:.9rem">✕</button>
+    </li>
+  `).join('');
+}
+function removeStep(i) { steps.splice(i,1); renderHierarchy(); }
+renderHierarchy();
+
+// Habituation Curve
+const habitData = {
+  phobia: {
+    sessions: [
+      { start: 75, peak: 80, plateauTime: 10, endSuds: 40, note: 'Session 1: SUDS bắt đầu 75, peak 80 sau ~5 phút, giảm về 40 sau 45 phút.' },
+      { start: 60, peak: 65, plateauTime: 8, endSuds: 30, note: 'Session 3: SUDS khởi đầu giảm xuống 60 (habituation giữa các session).' },
+      { start: 45, peak: 48, plateauTime: 5, endSuds: 20, note: 'Session 6: SUDS thấp hơn nhiều. Habituation rõ ràng.' },
+      { start: 25, peak: 27, plateauTime: 3, endSuds: 10, note: 'Session 10: Sợ hãi gần như đã xử lý. SUDS chỉ còn 25 khởi đầu.' },
+    ]
+  },
+  ocd: {
+    sessions: [
+      { start: 80, peak: 88, plateauTime: 15, endSuds: 45, note: 'ERP Session 1: Peak rất cao (88), habituation chậm hơn phobia, nhưng xảy ra sau ~45 phút.' },
+      { start: 65, peak: 70, plateauTime: 10, endSuds: 35, note: 'ERP Session 3: Peak giảm, habituation nhanh hơn.' },
+      { start: 50, peak: 53, plateauTime: 6, endSuds: 22, note: 'ERP Session 6: Tiến bộ đáng kể.' },
+      { start: 30, peak: 32, plateauTime: 3, endSuds: 12, note: 'ERP Session 10: Compulsion không còn cần thiết để giảm lo âu.' },
+    ]
+  },
+  ptsd: {
+    sessions: [
+      { start: 85, peak: 90, plateauTime: 20, endSuds: 55, note: 'PE Session 1 (Prolonged Exposure): Rất khó khăn; peak cao và habituation chậm. Cần therapist hỗ trợ.' },
+      { start: 70, peak: 75, plateauTime: 15, endSuds: 40, note: 'PE Session 3: Habituation bắt đầu rõ hơn.' },
+      { start: 55, peak: 58, plateauTime: 10, endSuds: 28, note: 'PE Session 6: Trauma memory trở nên manageable hơn.' },
+      { start: 35, peak: 38, plateauTime: 5, endSuds: 15, note: 'PE Session 10: Ký ức được "contextualize" — "đây là quá khứ, không phải hiện tại".' },
+    ]
+  }
+};
+
+function drawHabituation() {
+  const canvas = document.getElementById('habit-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const padL = 50, padR = 20, padT = 20, padB = 40;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  ctx.clearRect(0, 0, W, H);
+
+  const scenario = document.getElementById('habit-scenario').value;
+  const sessionIdx = parseInt(document.getElementById('habit-session').value) - 1;
+  const d = habitData[scenario].sessions[sessionIdx];
+
+  // Axes
+  ctx.strokeStyle = '#cbd5e0'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT+plotH); ctx.lineTo(padL+plotW, padT+plotH); ctx.stroke();
+  // Y labels
+  ctx.fillStyle = '#4a5568'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+  for (let s = 0; s <= 100; s += 20) {
+    const y = padT + plotH - (s/100)*plotH;
+    ctx.fillText(s, padL-6, y+4);
+    ctx.strokeStyle = '#e2e8f0'; ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL+plotW, y); ctx.stroke();
+  }
+  ctx.fillStyle = '#4a5568'; ctx.textAlign = 'center';
+  ctx.fillText('SUDS', padL-35, padT+plotH/2);
+  ctx.fillText('Thời gian (phút)', padL + plotW/2, padT+plotH+30);
+  // X labels
+  ctx.textAlign = 'center';
+  for (let t = 0; t <= 60; t += 10) {
+    const x = padL + (t/60)*plotW;
+    ctx.fillStyle = '#4a5568'; ctx.fillText(t, x, padT+plotH+18);
+  }
+
+  // Curve: quick rise, peak, slow decline
+  const totalTime = 60; // minutes
+  const numPoints = 120;
+  function getSudsAtTime(t) {
+    const peakT = d.plateauTime * 0.4;
+    if (t <= peakT) {
+      return d.start + (d.peak - d.start) * (t / peakT);
+    } else {
+      const decay = Math.exp(-0.03 * (t - peakT));
+      return d.endSuds + (d.peak - d.endSuds) * decay;
+    }
+  }
+  ctx.beginPath(); ctx.strokeStyle = '#a21caf'; ctx.lineWidth = 2.5;
+  for (let i = 0; i <= numPoints; i++) {
+    const t = (i / numPoints) * totalTime;
+    const s = getSudsAtTime(t);
+    const x = padL + (t/totalTime)*plotW;
+    const y = padT + plotH - (s/100)*plotH;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Threshold line at 50% initial
+  const thresh = d.start * 0.5;
+  const threshY = padT + plotH - (thresh/100)*plotH;
+  ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 1; ctx.setLineDash([5,5]);
+  ctx.beginPath(); ctx.moveTo(padL, threshY); ctx.lineTo(padL+plotW, threshY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#15803d'; ctx.font = '10px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText(`50% ngưỡng (${thresh.toFixed(0)})`, padL+4, threshY-4);
+
+  // Labels
+  ctx.fillStyle = '#a21caf'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText(`Peak: ${d.peak}`, padL + (d.plateauTime*0.4/totalTime)*plotW + 5, padT + plotH - (d.peak/100)*plotH - 6);
+  ctx.fillStyle = '#6b7280'; ctx.font = '11px sans-serif';
+  ctx.fillText(`Kết: ${d.endSuds}`, padL + plotW - 60, padT + plotH - (d.endSuds/100)*plotH - 6);
+
+  document.getElementById('habit-desc').textContent = d.note;
+}
+drawHabituation();
+
+// Effect Size Chart
+const effectData = [
+  { label: 'Exposure — Specific Phobia', d: 1.5, color: '#a21caf' },
+  { label: 'PE — PTSD', d: 1.2, color: '#a21caf' },
+  { label: 'ERP — OCD', d: 1.1, color: '#a21caf' },
+  { label: 'CBT — Anxiety', d: 0.9, color: '#2563eb' },
+  { label: 'CBT — MDD', d: 0.62, color: '#16a34a' },
+  { label: 'MBCT — MDD Relapse Prev', d: 0.42, color: '#d97706' },
+  { label: 'Psychodynamic — Mixed', d: 0.60, color: '#16a34a' },
+  { label: 'Medication (SSRI) — MDD', d: 0.35, color: '#d97706' },
+];
+const dMax = 1.8;
+document.getElementById('effect-chart').innerHTML = effectData.map(d => `
+  <div class="eff-row">
+    <div class="eff-label">${d.label}</div>
+    <div class="eff-track"><div class="eff-fill" style="width:${(d.d/dMax*100).toFixed(1)}%;background:${d.color}"></div></div>
+    <div class="eff-d">d=${d.d}</div>
+  </div>
+`).join('');
+</script>
+</body>
+</html>

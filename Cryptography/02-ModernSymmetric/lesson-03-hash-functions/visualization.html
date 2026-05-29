@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L03: Hash Functions — Cryptography</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f8fafc;
+    --accent: #334155;
+    --accent-soft: #f1f5f9;
+    --accent-hover: #1e293b;
+  }
+  h2 { color: var(--accent); margin-top: 2rem; font-size: 1.2rem; }
+  h3 { color: var(--ink-soft); font-size: 1rem; margin-top: 1.2rem; }
+  .section { background: var(--panel); border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+  .btn { padding: 7px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: background 0.2s; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--line-strong); }
+  .btn-secondary:hover { background: var(--line); }
+  .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 0.8rem 0; }
+  .info-box { background: var(--accent-soft); border-left: 3px solid var(--accent); padding: 0.6rem 1rem; border-radius: 0 6px 6px 0; margin: 0.6rem 0; font-size: 0.88rem; }
+  .warn-box { background: #fef3c7; border-left: 3px solid #f59e0b; padding: 0.6rem 1rem; border-radius: 0 6px 6px 0; margin: 0.6rem 0; font-size: 0.88rem; }
+  .good-box { background: #d1fae5; border-left: 3px solid #10b981; padding: 0.6rem 1rem; border-radius: 0 6px 6px 0; margin: 0.6rem 0; font-size: 0.88rem; }
+  .dead-box { background: #fee2e2; border-left: 3px solid #ef4444; padding: 0.6rem 1rem; border-radius: 0 6px 6px 0; margin: 0.6rem 0; font-size: 0.88rem; }
+  code { font-family: monospace; background: var(--accent-soft); padding: 1px 4px; border-radius: 3px; font-size: 0.85em; }
+
+  /* SHA mini visualizer */
+  .sha-input-row { display: flex; gap: 8px; margin-bottom: 0.8rem; flex-wrap: wrap; }
+  .sha-input-row input { flex: 1; min-width: 180px; padding: 8px 12px; border: 2px solid var(--line-strong); border-radius: 6px; font-size: 0.95rem; }
+  .hash-display { font-family: monospace; font-size: 0.82rem; word-break: break-all; background: #f0fdf4; border: 1px solid #a7f3d0; border-radius: 6px; padding: 0.8rem; margin: 0.5rem 0; }
+  .hash-display .byte-span { display: inline-block; border-radius: 2px; padding: 0 2px; transition: background 0.3s; }
+  .hash-display .byte-span.changed { background: #fef3c7; }
+  .pad-block { display: flex; flex-wrap: wrap; gap: 4px; margin: 0.5rem 0; }
+  .pad-byte { display: inline-block; width: 28px; height: 24px; line-height: 24px; text-align: center; font-family: monospace; font-size: 0.7rem; border-radius: 3px; }
+  .pad-byte.data { background: #dbeafe; border: 1px solid #93c5fd; }
+  .pad-byte.pad1 { background: #fde68a; border: 1px solid #f59e0b; }
+  .pad-byte.pad0 { background: #f3f4f6; border: 1px solid var(--line); }
+  .pad-byte.len { background: #ddd6fe; border: 1px solid #7c3aed; }
+
+  /* Birthday simulator */
+  .birthday-controls { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; margin-bottom: 0.8rem; }
+  .birthday-controls label { font-size: 0.85rem; color: var(--ink-soft); }
+  .birthday-controls input[type=range] { width: 100%; }
+  .birthday-controls .val { font-weight: 700; font-family: monospace; min-width: 60px; font-size: 0.9rem; }
+  #bdChart { width: 100%; max-width: 560px; display: block; margin: 0 auto; }
+
+  /* Timeline */
+  .timeline { position: relative; padding-left: 24px; }
+  .timeline::before { content:''; position:absolute; left:8px; top:0; bottom:0; width:2px; background:var(--line-strong); }
+  .timeline-item { position:relative; margin-bottom:1rem; }
+  .timeline-item::before { content:''; position:absolute; left:-20px; top:6px; width:10px; height:10px; border-radius:50%; background:var(--accent); }
+  .timeline-item.dead::before { background:#ef4444; }
+  .timeline-item.warn::before { background:#f59e0b; }
+  .timeline-year { font-weight:700; font-size:0.9rem; color:var(--accent); }
+  .timeline-year.dead { color:#ef4444; }
+  .timeline-text { font-size:0.85rem; color:var(--ink-soft); }
+
+  /* Length extension */
+  .le-step { background: var(--accent-soft); border-radius: 6px; padding: 0.7rem 1rem; margin: 0.4rem 0; font-size: 0.85rem; }
+  .le-step strong { color: var(--accent); }
+
+  @media (max-width: 480px) {
+    .birthday-controls { grid-template-columns: 1fr; }
+    .sha-input-row input { font-size: 0.85rem; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-modes-of-operation/visualization.html">← L02: Modes</a>
+  <span class="sep">·</span>
+  <span class="current">L03: Hash functions</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-mac-prng-kdf/visualization.html">L04: MAC/PRNG/KDF →</a>
+</nav>
+
+<main>
+<h1>Hash Functions</h1>
+
+<!-- 1. SHA-256 mini-visualizer -->
+<section class="section">
+  <h2>1. SHA-256 — avalanche effect & padding</h2>
+  <p style="font-size:0.88rem;color:var(--ink-soft)">Nhập 2 chuỗi gần giống nhau để thấy hash thay đổi hoàn toàn (avalanche effect). Với Web Crypto API — đây là SHA-256 thật.</p>
+
+  <div class="sha-input-row">
+    <input type="text" id="shaIn1" value="abc" oninput="updateSHA()" placeholder="Chuỗi 1">
+    <input type="text" id="shaIn2" value="abd" oninput="updateSHA()" placeholder="Chuỗi 2 (thay đổi 1 ký tự)">
+  </div>
+
+  <div style="font-size:0.82rem;color:var(--muted);margin-bottom:4px">SHA-256 của chuỗi 1:</div>
+  <div class="hash-display" id="hashOut1">—</div>
+  <div style="font-size:0.82rem;color:var(--muted);margin-bottom:4px">SHA-256 của chuỗi 2:</div>
+  <div class="hash-display" id="hashOut2">—</div>
+  <div id="diffNote" style="font-size:0.82rem;color:var(--muted);margin-top:4px"></div>
+
+  <h3>Padding của chuỗi 1</h3>
+  <p style="font-size:0.82rem;color:var(--ink-soft)">SHA-256 chia message thành block 512 bit. Padding: thêm 0x80, đủ 0x00, rồi 64-bit length.</p>
+  <div class="pad-block" id="padDisplay"></div>
+  <div style="font-size:0.75rem;color:var(--muted);margin-top:4px">
+    <span style="background:#dbeafe;padding:2px 6px;border-radius:3px">Data</span>
+    <span style="background:#fde68a;padding:2px 6px;border-radius:3px;margin-left:6px">0x80 (pad start)</span>
+    <span style="background:#f3f4f6;padding:2px 6px;border-radius:3px;margin-left:6px">0x00 (padding)</span>
+    <span style="background:#ddd6fe;padding:2px 6px;border-radius:3px;margin-left:6px">Length (8 byte)</span>
+  </div>
+</section>
+
+<!-- 2. Birthday collision simulator -->
+<section class="section">
+  <h2>2. Birthday collision simulator</h2>
+  <p style="font-size:0.88rem;color:var(--ink-soft)">Chọn kích thước hash (n bit), chạy thử ngẫu nhiên, đếm số lần thử đến khi có collision. So sánh với lý thuyết 2^(n/2).</p>
+
+  <div class="birthday-controls">
+    <label>Hash size:</label>
+    <input type="range" id="nBits" min="8" max="24" step="4" value="16" oninput="updateNBits()">
+    <span class="val" id="nBitsVal">16 bit</span>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="runBirthday(1)">Run 1 lần</button>
+    <button class="btn btn-secondary" onclick="runBirthday(20)">Run 20 lần</button>
+    <button class="btn btn-secondary" onclick="clearBirthday()">Xóa</button>
+  </div>
+
+  <svg id="bdChart" height="200" viewBox="0 0 560 200"></svg>
+  <div id="bdStats" style="font-size:0.85rem;margin-top:0.5rem"></div>
+</section>
+
+<!-- 3. MD5/SHA1 dead timeline -->
+<section class="section">
+  <h2>3. MD5 & SHA-1 — timeline sụp đổ</h2>
+
+  <h3>MD5 (128-bit)</h3>
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-year">1992</div>
+      <div class="timeline-text">Ron Rivest thiết kế MD5 — cải tiến MD4.</div>
+    </div>
+    <div class="timeline-item warn">
+      <div class="timeline-year">1996</div>
+      <div class="timeline-text">Boer & Bosselaers tìm weakness trong compression function MD5.</div>
+    </div>
+    <div class="timeline-item dead">
+      <div class="timeline-year dead">2004 ⚠</div>
+      <div class="timeline-text">Wang et al.: <strong>collision thực trong vài giờ</strong> trên PC thường. MD5 cryptographically broken.</div>
+    </div>
+    <div class="timeline-item dead">
+      <div class="timeline-year dead">2008 ⚠</div>
+      <div class="timeline-text">Sotirov et al.: chosen-prefix → forge CA certificate. Rouge CA tấn công SSL/TLS.</div>
+    </div>
+    <div class="timeline-item dead">
+      <div class="timeline-year dead">2012 ⚠</div>
+      <div class="timeline-text">Flame malware: dùng MD5 forge Windows Update cert → inject malware vào hệ thống có update.</div>
+    </div>
+  </div>
+  <div class="dead-box">❌ MD5 = DEAD. Không dùng cho bất kỳ mục đích crypto nào.</div>
+
+  <h3>SHA-1 (160-bit)</h3>
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-year">1995</div>
+      <div class="timeline-text">SHA-1 chuẩn hóa bởi NSA/NIST.</div>
+    </div>
+    <div class="timeline-item warn">
+      <div class="timeline-year">2005</div>
+      <div class="timeline-text">Wang et al.: attack lý thuyết ~2⁶³ ops (< brute 2⁸⁰). SHA-1 "weakened".</div>
+    </div>
+    <div class="timeline-item dead">
+      <div class="timeline-year dead">2017 ⚠</div>
+      <div class="timeline-text"><strong>SHAttered</strong> (Google + CWI): 2 PDF khác nhau cùng SHA-1 hash. Cost: ~6,500 CPU-years.</div>
+    </div>
+    <div class="timeline-item dead">
+      <div class="timeline-year dead">2019–2020 ⚠</div>
+      <div class="timeline-text">Chosen-prefix SHA-1 collision với $75k → $50k GPU budget. Git đang chuyển SHA-256.</div>
+    </div>
+  </div>
+  <div class="dead-box">❌ SHA-1 = DEAD. Không dùng cho signature, certificate, hay collision-resistant context.</div>
+
+  <h3>SHA-256 & SHA-3 — An toàn</h3>
+  <div class="good-box">✓ SHA-256 (2001): vẫn an toàn 2024. Dùng trong TLS, Bitcoin, Git (khi chuyển).<br>✓ SHA-3/Keccak (2015): sponge construction — không bị length extension attack. Backup cho SHA-2.</div>
+</section>
+
+<!-- 4. Length extension attack -->
+<section class="section">
+  <h2>4. Length Extension Attack</h2>
+  <p style="font-size:0.88rem;color:var(--ink-soft)">Minh họa: API ký request bằng SHA-256(secret ‖ message). Mallory biết hash nhưng không biết secret → forge request mới.</p>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="runLengthExt()">Simulate attack</button>
+    <button class="btn btn-secondary" onclick="resetLE()">Reset</button>
+  </div>
+
+  <div id="leDisplay"></div>
+
+  <div class="info-box" style="margin-top:1rem">
+    💡 <strong>Fix</strong>: Dùng HMAC thay vì hash trực tiếp. HMAC(K,M) = H((K⊕opad)‖H((K⊕ipad)‖M)) — double hashing với key mixing ngăn extension.
+  </div>
+</section>
+
+</main>
+
+<script>
+// ============================================================
+// 1. SHA-256 visualizer (real SHA-256 via Web Crypto)
+// ============================================================
+let prevHash1 = '', prevHash2 = '';
+
+async function sha256hex(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function updateSHA() {
+  const s1 = document.getElementById('shaIn1').value;
+  const s2 = document.getElementById('shaIn2').value;
+  const [h1, h2] = await Promise.all([sha256hex(s1), sha256hex(s2)]);
+
+  function renderHash(h, prev, elId) {
+    let html = '';
+    for (let i = 0; i < h.length; i += 2) {
+      const byte = h.slice(i, i+2);
+      const prevByte = prev.slice(i, i+2);
+      const cls = byte !== prevByte ? 'byte-span changed' : 'byte-span';
+      html += `<span class="${cls}">${byte}</span>`;
+    }
+    document.getElementById(elId).innerHTML = html;
+  }
+  renderHash(h1, prevHash1, 'hashOut1');
+  renderHash(h2, prevHash2, 'hashOut2');
+  prevHash1 = h1; prevHash2 = h2;
+
+  // Diff count
+  let diff = 0;
+  for (let i = 0; i < 64; i += 2) {
+    if (h1.slice(i,i+2) !== h2.slice(i,i+2)) diff++;
+  }
+  document.getElementById('diffNote').textContent = `Số byte khác nhau: ${diff}/32 (${Math.round(diff/32*100)}%). Lý thuyết kỳ vọng: ~50%.`;
+
+  // Padding display
+  renderPadding(s1);
+}
+
+function renderPadding(str) {
+  const bytes = new TextEncoder().encode(str);
+  const L = bytes.length;
+  // Pad to next multiple of 64
+  const padded = [];
+  for (let i = 0; i < L; i++) padded.push({v: bytes[i].toString(16).padStart(2,'0'), type:'data'});
+  padded.push({v:'80', type:'pad1'});
+  // Zeros until 56 bytes mod 64
+  while ((padded.length % 64) !== 56) padded.push({v:'00', type:'pad0'});
+  // 8-byte length (big-endian, in bits)
+  const bitLen = BigInt(L * 8);
+  const lenHex = bitLen.toString(16).padStart(16,'0');
+  for (let i = 0; i < 8; i++) padded.push({v: lenHex.slice(i*2,i*2+2), type:'len'});
+
+  // Show first 64 bytes (1 block)
+  const show = padded.slice(0, 64);
+  const html = show.map(({v,type}) => `<span class="pad-byte ${type}">${v}</span>`).join('');
+  document.getElementById('padDisplay').innerHTML = html + (padded.length > 64 ? ` <span style="color:var(--muted);font-size:0.75rem">+${padded.length-64} more bytes</span>` : '');
+}
+
+// Init
+updateSHA();
+
+// ============================================================
+// 2. Birthday collision simulator
+// ============================================================
+let nBits = 16;
+let bdResults = [];
+
+function updateNBits() {
+  nBits = parseInt(document.getElementById('nBits').value);
+  document.getElementById('nBitsVal').textContent = nBits + ' bit';
+  clearBirthday();
+}
+
+// Simple hash: djb2 truncated to nBits
+function miniHash(input) {
+  let h = 5381;
+  for (let i = 0; i < input.length; i++)
+    h = ((h << 5) + h) ^ input.charCodeAt(i);
+  return ((h >>> 0) % (1 << nBits));
+}
+
+function birthdayTrial() {
+  const seen = new Map();
+  let tries = 0;
+  const maxSpace = 1 << nBits;
+  while (true) {
+    tries++;
+    const key = Math.random().toString(36).slice(2, 8) + tries;
+    const h = miniHash(key);
+    if (seen.has(h)) return tries;
+    seen.set(h, key);
+    if (tries > maxSpace * 4) return tries; // safety
+  }
+}
+
+function runBirthday(n) {
+  for (let i = 0; i < n; i++) bdResults.push(birthdayTrial());
+  renderBDChart();
+}
+
+function clearBirthday() {
+  bdResults = [];
+  renderBDChart();
+}
+
+function renderBDChart() {
+  const svg = document.getElementById('bdChart');
+  const W = 560, H = 200;
+  const theory = Math.round(1.17 * Math.sqrt(1 << nBits));
+
+  if (bdResults.length === 0) {
+    svg.innerHTML = `<text x="${W/2}" y="${H/2}" text-anchor="middle" fill="var(--muted)" font-size="14">Nhấn "Run" để bắt đầu thử nghiệm</text>`;
+    document.getElementById('bdStats').textContent = `Lý thuyết: ~${theory} thử. Hash space: 2^${nBits} = ${(1<<nBits).toLocaleString()} giá trị.`;
+    return;
+  }
+
+  const avg = Math.round(bdResults.reduce((a,b)=>a+b,0) / bdResults.length);
+  const maxV = Math.max(...bdResults, theory) * 1.2;
+  const barW = Math.min(30, Math.floor((W - 60) / bdResults.length));
+
+  let bars = '';
+  for (let i = 0; i < bdResults.length; i++) {
+    const h = Math.round((bdResults[i] / maxV) * (H - 40));
+    const x = 40 + i * (barW + 2);
+    const y = H - 20 - h;
+    bars += `<rect x="${x}" y="${y}" width="${barW}" height="${h}" fill="var(--accent)" opacity="0.7" rx="2"/>`;
+  }
+
+  // Theory line
+  const ty = Math.round(H - 20 - (theory / maxV) * (H - 40));
+  const avgY = Math.round(H - 20 - (avg / maxV) * (H - 40));
+
+  svg.innerHTML = `
+    ${bars}
+    <line x1="40" y1="${ty}" x2="${W-10}" y2="${ty}" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5,3"/>
+    <text x="${W-8}" y="${ty+4}" font-size="10" fill="#f59e0b" text-anchor="end">lý thuyết ${theory}</text>
+    <line x1="40" y1="${avgY}" x2="${W-10}" y2="${avgY}" stroke="#10b981" stroke-width="2" stroke-dasharray="5,3"/>
+    <text x="${W-8}" y="${avgY+4}" font-size="10" fill="#10b981" text-anchor="end">TB thực tế ${avg}</text>
+    <line x1="40" y1="10" x2="40" y2="${H-20}" stroke="var(--line-strong)" stroke-width="1"/>
+    <line x1="40" y1="${H-20}" x2="${W-10}" y2="${H-20}" stroke="var(--line-strong)" stroke-width="1"/>
+    <text x="20" y="${H-20}" font-size="10" fill="var(--muted)" text-anchor="middle">0</text>
+    <text x="20" y="14" font-size="10" fill="var(--muted)" text-anchor="middle">${Math.round(maxV)}</text>
+  `;
+
+  document.getElementById('bdStats').innerHTML =
+    `Số thử nghiệm: <strong>${bdResults.length}</strong> · Trung bình thực tế: <strong>${avg}</strong> · Lý thuyết: <strong>${theory}</strong> · Hash space: 2<sup>${nBits}</sup> = ${(1<<nBits).toLocaleString()}`;
+}
+
+renderBDChart();
+
+// ============================================================
+// 4. Length extension attack demo
+// ============================================================
+function simHash(data) {
+  // Simple Merkle-Damgård-like hash (32-bit state for demo)
+  let state = 0x6a09e667;
+  for (let i = 0; i < data.length; i += 4) {
+    let w = 0;
+    for (let j = 0; j < 4; j++) {
+      w = (w << 8) | (i+j < data.length ? data[i+j] : 0);
+    }
+    state = ((state * 0x6c62272e) ^ w ^ (state >>> 7)) >>> 0;
+  }
+  return state.toString(16).padStart(8,'0');
+}
+
+function runLengthExt() {
+  const secret = new TextEncoder().encode("s3cr3t_k3y_"); // 11 bytes
+  const msg = new TextEncoder().encode("user=alice&role=user");
+  // Full input = secret || msg
+  const full = new Uint8Array(secret.length + msg.length);
+  full.set(secret); full.set(msg, secret.length);
+  const originalTag = simHash(full);
+
+  // Padding of original input
+  const origLen = full.length;
+  const padded = addPad(full);
+  const paddedMsg = padded.slice(secret.length);
+
+  // Extra data to append
+  const extra = new TextEncoder().encode("&role=admin");
+  // Forged full = secret || msg || padding || extra
+  const forgedFull = new Uint8Array(padded.length + extra.length);
+  forgedFull.set(padded); forgedFull.set(extra, padded.length);
+  const forgedTag = simHash(forgedFull);
+
+  document.getElementById('leDisplay').innerHTML = `
+    <div class="le-step"><strong>Bước 1 — Gốc:</strong><br>
+    Server tính tag = H(secret ‖ "user=alice&role=user")<br>
+    Tag = <code>${originalTag}</code><br>
+    Alice gửi: "user=alice&role=user" + tag = <code>${originalTag}</code>
+    </div>
+    <div class="le-step" style="background:#fef3c7;border-color:#f59e0b">
+    <strong>Bước 2 — Mallory biết tag nhưng KHÔNG biết secret:</strong><br>
+    Biết len(secret) ≈ 11 (thường suy ra được từ context), biết message gốc.<br>
+    Tính padding của "secret ‖ message" → forge: "user=alice&role=user" ‖ <span style="color:#f59e0b">padding</span> ‖ "&role=admin"
+    </div>
+    <div class="le-step" style="background:#fee2e2;border-color:#ef4444">
+    <strong>Bước 3 — Forge tag:</strong><br>
+    Mallory tính H(secret ‖ forged_request) = H tại state sau khi process padding<br>
+    Forged request: "user=alice&role=user[padding]&role=admin"<br>
+    Forged tag = <code>${forgedTag}</code><br><br>
+    <strong>Server verify:</strong> H(secret ‖ forged_request) = ${forgedTag} — ✓ MATCH! Bị hack.
+    </div>
+    <div class="info-box">
+    ✅ <strong>Fix với HMAC</strong>: HMAC = H((K⊕opad)‖H((K⊕ipad)‖M)). Inner hash kết thúc trước outer hash bắt đầu → không thể extend state.
+    SHA-3 (sponge) cũng không bị vulnerability này vì kiến trúc khác Merkle-Damgård.
+    </div>`;
+}
+
+function addPad(data) {
+  const L = data.length;
+  const arr = [...data, 0x80];
+  while ((arr.length % 64) !== 56) arr.push(0x00);
+  const bitLen = BigInt(L * 8);
+  const lenHex = bitLen.toString(16).padStart(16,'0');
+  for (let i = 0; i < 8; i++) arr.push(parseInt(lenHex.slice(i*2,i*2+2),16));
+  return new Uint8Array(arr);
+}
+
+function resetLE() {
+  document.getElementById('leDisplay').innerHTML = '';
+}
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

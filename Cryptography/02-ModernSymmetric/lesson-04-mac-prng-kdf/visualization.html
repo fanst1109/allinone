@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L04: MAC, PRNG & KDF — Cryptography</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f8fafc;
+    --accent: #334155;
+    --accent-soft: #f1f5f9;
+    --accent-hover: #1e293b;
+  }
+  h2 { color: var(--accent); margin-top: 2rem; font-size: 1.2rem; }
+  h3 { color: var(--ink-soft); font-size: 1rem; margin-top: 1.2rem; }
+  .section { background: var(--panel); border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+  .btn { padding: 7px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: background 0.2s; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--line-strong); }
+  .btn-secondary:hover { background: var(--line); }
+  .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 0.8rem 0; }
+  .info-box { background: var(--accent-soft); border-left: 3px solid var(--accent); padding: 0.6rem 1rem; border-radius: 0 6px 6px 0; margin: 0.6rem 0; font-size: 0.88rem; }
+  .warn-box { background: #fef3c7; border-left: 3px solid #f59e0b; padding: 0.6rem 1rem; border-radius: 0 6px 6px 0; margin: 0.6rem 0; font-size: 0.88rem; }
+  .good-box { background: #d1fae5; border-left: 3px solid #10b981; padding: 0.6rem 1rem; border-radius: 0 6px 6px 0; margin: 0.6rem 0; font-size: 0.88rem; }
+  code { font-family: monospace; background: var(--accent-soft); padding: 1px 4px; border-radius: 3px; font-size: 0.85em; }
+
+  /* HMAC step-by-step */
+  .hmac-input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 0.8rem; }
+  .hmac-input-grid label { font-size: 0.82rem; color: var(--muted); }
+  .hmac-input-grid input { width: 100%; padding: 7px 10px; border: 2px solid var(--line-strong); border-radius: 6px; font-size: 0.88rem; box-sizing: border-box; }
+  .hmac-step { margin: 0.5rem 0; }
+  .hmac-step-label { font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+  .hmac-step-val { font-family: monospace; font-size: 0.8rem; word-break: break-all; background: #f8f9fa; padding: 6px 10px; border-radius: 4px; border: 1px solid var(--line); }
+  .hmac-final { background: var(--accent); color: #fff; padding: 8px 14px; border-radius: 6px; font-family: monospace; font-size: 0.85rem; word-break: break-all; margin-top: 0.5rem; }
+
+  /* LCG */
+  .lcg-controls { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 0.8rem; align-items: flex-end; }
+  .lcg-controls label { font-size: 0.8rem; color: var(--muted); display: block; }
+  .lcg-controls input[type=number] { width: 80px; padding: 6px 8px; border: 2px solid var(--line-strong); border-radius: 5px; font-family: monospace; font-size: 0.9rem; }
+  .lcg-seq { display: flex; flex-wrap: wrap; gap: 6px; margin: 0.5rem 0; }
+  .lcg-cell { padding: 6px 10px; background: var(--accent-soft); border: 1px solid var(--line-strong); border-radius: 5px; font-family: monospace; font-size: 0.85rem; min-width: 50px; text-align: center; }
+  .lcg-cell.predicted { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+  #lcgChart { width: 100%; max-width: 560px; display: block; margin: 0.5rem auto; }
+
+  /* KDF benchmark */
+  .kdf-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin: 0.8rem 0; }
+  .kdf-card { background: var(--accent-soft); border: 2px solid var(--line); border-radius: 8px; padding: 1rem; }
+  .kdf-card h4 { margin: 0 0 0.5rem; font-size: 0.95rem; color: var(--accent); }
+  .kdf-card .kdf-time { font-size: 1.4rem; font-weight: 700; color: var(--accent); }
+  .kdf-card .kdf-desc { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+  .kdf-card .kdf-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; margin-top: 6px; }
+  .kdf-card.best { border-color: #10b981; }
+  .kdf-card.ok { border-color: #f59e0b; }
+  .kdf-card.meh { border-color: var(--line-strong); }
+
+  .kdf-param-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; flex-wrap: wrap; }
+  .kdf-param-row label { font-size: 0.82rem; color: var(--ink-soft); min-width: 140px; }
+  .kdf-param-row input[type=range] { flex: 1; min-width: 100px; max-width: 240px; }
+  .kdf-param-row span { font-family: monospace; font-size: 0.88rem; font-weight: 700; min-width: 80px; }
+
+  /* CSPRNG vs LCG */
+  .rng-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0.8rem 0; }
+  .rng-panel { border-radius: 8px; padding: 1rem; }
+  .rng-panel h4 { margin: 0 0 0.5rem; font-size: 0.9rem; }
+  .rng-dots { display: flex; flex-wrap: wrap; gap: 3px; min-height: 100px; align-content: flex-start; }
+  .rng-dot { width: 14px; height: 14px; border-radius: 2px; }
+
+  @media (max-width: 600px) {
+    .hmac-input-grid { grid-template-columns: 1fr; }
+    .rng-compare { grid-template-columns: 1fr; }
+    .kdf-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 380px) {
+    .kdf-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-hash-functions/visualization.html">← L03: Hash functions</a>
+  <span class="sep">·</span>
+  <span class="current">L04: MAC / PRNG / KDF</span>
+  <span class="sep">·</span>
+  <a href="../../../03-AsymmetricApplied/lesson-01-rsa/visualization.html">T3-L01: RSA →</a>
+</nav>
+
+<main>
+<h1>MAC, PRNG & KDF</h1>
+
+<!-- 1. HMAC step-by-step -->
+<section class="section">
+  <h2>1. HMAC — từng bước tính toán</h2>
+  <p style="font-size:0.88rem;color:var(--ink-soft)">Nhập key và message để xem HMAC-SHA256 tính như thế nào. Sử dụng Web Crypto API — giá trị thật.</p>
+
+  <div class="hmac-input-grid">
+    <div>
+      <label>Key</label>
+      <input type="text" id="hmacKey" value="secret" oninput="updateHMAC()">
+    </div>
+    <div>
+      <label>Message</label>
+      <input type="text" id="hmacMsg" value="user=alice&role=user" oninput="updateHMAC()">
+    </div>
+  </div>
+
+  <div class="hmac-step">
+    <div class="hmac-step-label">Key (hex, padded to 64 bytes)</div>
+    <div class="hmac-step-val" id="hKPad">—</div>
+  </div>
+  <div class="hmac-step">
+    <div class="hmac-step-label">K_inner = Key ⊕ ipad (0x36...)</div>
+    <div class="hmac-step-val" id="hKInner">—</div>
+  </div>
+  <div class="hmac-step">
+    <div class="hmac-step-label">K_outer = Key ⊕ opad (0x5c...)</div>
+    <div class="hmac-step-val" id="hKOuter">—</div>
+  </div>
+  <div class="hmac-step">
+    <div class="hmac-step-label">Inner hash = SHA256(K_inner ‖ message)</div>
+    <div class="hmac-step-val" id="hInner">—</div>
+  </div>
+  <div class="hmac-step-label" style="margin-top:0.5rem;font-size:0.78rem;font-weight:700;color:var(--muted)">HMAC-SHA256 = SHA256(K_outer ‖ inner_hash)</div>
+  <div class="hmac-final" id="hFinal">—</div>
+
+  <div class="info-box" style="margin-top:0.8rem">HMAC fix length-extension: inner hash hoàn thành trước → outer hash nhận input đầy đủ, không thể extend. Dùng cho API authentication (AWS Sig v4, JWT HS256).</div>
+</section>
+
+<!-- 2. LCG predict-next -->
+<section class="section">
+  <h2>2. LCG — đoán output tiếp theo</h2>
+  <p style="font-size:0.88rem;color:var(--ink-soft)">LCG: X<sub>n+1</sub> = (a·X<sub>n</sub> + c) mod m. Sau khi thấy 3 output, ta đoán được X<sub>4</sub> và mọi output sau.</p>
+
+  <div class="lcg-controls">
+    <div><label>a (multiplier)</label><input type="number" id="lcgA" value="1103515245" oninput="runLCG()"></div>
+    <div><label>c (increment)</label><input type="number" id="lcgC" value="12345" oninput="runLCG()"></div>
+    <div><label>m (modulus, 2^k)</label><input type="number" id="lcgM" value="2147483648" oninput="runLCG()"></div>
+    <div><label>X₀ (seed)</label><input type="number" id="lcgSeed" value="42" oninput="runLCG()"></div>
+    <div><label>Show n terms</label><input type="number" id="lcgN" value="10" min="5" max="20" oninput="runLCG()"></div>
+  </div>
+
+  <div class="lcg-seq" id="lcgSeq"></div>
+  <div id="lcgPredict" style="font-size:0.85rem;margin-top:0.5rem"></div>
+
+  <svg id="lcgChart" height="120" viewBox="0 0 560 120"></svg>
+  <div class="warn-box">⚠ LCG là tuyến tính: biết 3 output → giải a, c → predict vô hạn. KHÔNG dùng cho crypto. Dùng <code>crypto.getRandomValues()</code> (browser) hay <code>crypto/rand</code> (Go).</div>
+</section>
+
+<!-- 3. CSPRNG vs LCG output -->
+<section class="section">
+  <h2>3. CSPRNG vs LCG — entropy visualization</h2>
+  <p style="font-size:0.88rem;color:var(--ink-soft)">Mỗi chấm = 1 byte random. LCG có chu kỳ ngắn → pattern lặp. CSPRNG trông hoàn toàn ngẫu nhiên.</p>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="genRNG(100)">Sinh 100 byte</button>
+    <button class="btn btn-secondary" onclick="genRNG(400)">Sinh 400 byte</button>
+    <button class="btn btn-secondary" onclick="clearRNG()">Xóa</button>
+  </div>
+
+  <div class="rng-compare">
+    <div class="rng-panel" style="background:#fee2e2;border:1px solid #fca5a5">
+      <h4 style="color:#b91c1c">LCG (insecure)</h4>
+      <div class="rng-dots" id="rngLCG"></div>
+    </div>
+    <div class="rng-panel" style="background:#d1fae5;border:1px solid #a7f3d0">
+      <h4 style="color:#065f46">CSPRNG (Web Crypto)</h4>
+      <div class="rng-dots" id="rngCSPRNG"></div>
+    </div>
+  </div>
+  <div id="rngNote" style="font-size:0.82rem;color:var(--muted)"></div>
+</section>
+
+<!-- 4. KDF parameters & security -->
+<section class="section">
+  <h2>4. KDF — cost parameters & brute-force time</h2>
+  <p style="font-size:0.88rem;color:var(--ink-soft)">Điều chỉnh parameters và xem thời gian brute-force 8-char password.</p>
+
+  <div class="kdf-param-row">
+    <label>Hash time/attempt (ms)</label>
+    <input type="range" id="kdfTime" min="1" max="500" step="1" value="100" oninput="updateKDF()">
+    <span id="kdfTimeVal">100 ms</span>
+  </div>
+  <div class="kdf-param-row">
+    <label>Attacker servers</label>
+    <input type="range" id="kdfServers" min="1" max="5" step="1" value="1" oninput="updateKDF()">
+    <span id="kdfServersVal">1</span>
+  </div>
+  <div class="kdf-param-row">
+    <label>Password charset</label>
+    <input type="range" id="kdfCharset" min="1" max="4" step="1" value="2" oninput="updateKDF()">
+    <span id="kdfCharsetVal">a-z (26 chars)</span>
+  </div>
+  <div class="kdf-param-row">
+    <label>Password length</label>
+    <input type="range" id="kdfLen" min="6" max="16" step="1" value="8" oninput="updateKDF()">
+    <span id="kdfLenVal">8 ký tự</span>
+  </div>
+
+  <div id="kdfResult" style="margin-top:1rem"></div>
+
+  <h3>So sánh KDF algorithms</h3>
+  <div class="kdf-grid">
+    <div class="kdf-card meh">
+      <h4>PBKDF2-SHA256</h4>
+      <div class="kdf-time">~80ms</div>
+      <div class="kdf-desc">600,000 iter (OWASP 2023). Không memory-hard → GPU-friendly.</div>
+      <div class="kdf-tag" style="background:#fef3c7;color:#92400e">FIPS / Legacy</div>
+    </div>
+    <div class="kdf-card ok">
+      <h4>bcrypt (cost=12)</h4>
+      <div class="kdf-time">~100ms</div>
+      <div class="kdf-desc">Battle-tested 25 năm. Giới hạn 72 byte input! Không memory-hard.</div>
+      <div class="kdf-tag" style="background:#fef3c7;color:#92400e">⚠ 72-byte limit</div>
+    </div>
+    <div class="kdf-card ok">
+      <h4>scrypt (N=2¹⁶)</h4>
+      <div class="kdf-time">~100ms, 64MB</div>
+      <div class="kdf-desc">Memory-hard — ASIC-resistant hơn bcrypt. Khó tune parameters.</div>
+      <div class="kdf-tag" style="background:#dbeafe;color:#1e40af">Memory-hard</div>
+    </div>
+    <div class="kdf-card best">
+      <h4>Argon2id</h4>
+      <div class="kdf-time">~100ms, 64MB</div>
+      <div class="kdf-desc">PHC winner 2015. Memory + CPU hard. Side-channel resistant. Recommended.</div>
+      <div class="kdf-tag" style="background:#d1fae5;color:#065f46">✓ Default 2024</div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ============================================================
+// 1. HMAC via Web Crypto (real SHA-256)
+// ============================================================
+const IPAD = 0x36, OPAD = 0x5c;
+
+async function sha256raw(data) {
+  const buf = await crypto.subtle.digest('SHA-256', data);
+  return new Uint8Array(buf);
+}
+
+function toHex(arr) {
+  return Array.from(arr).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function updateHMAC() {
+  const K = new TextEncoder().encode(document.getElementById('hmacKey').value || 'key');
+  const M = new TextEncoder().encode(document.getElementById('hmacMsg').value || '');
+
+  // Key processing
+  let keyPad = new Uint8Array(64);
+  if (K.length > 64) {
+    const h = await sha256raw(K);
+    keyPad.set(h);
+  } else {
+    keyPad.set(K);
+  }
+
+  const kInner = keyPad.map(b => b ^ IPAD);
+  const kOuter = keyPad.map(b => b ^ OPAD);
+
+  // Inner hash
+  const innerInput = new Uint8Array(64 + M.length);
+  innerInput.set(kInner); innerInput.set(M, 64);
+  const innerHash = await sha256raw(innerInput);
+
+  // Final HMAC
+  const outerInput = new Uint8Array(64 + 32);
+  outerInput.set(kOuter); outerInput.set(innerHash, 64);
+  const finalHash = await sha256raw(outerInput);
+
+  document.getElementById('hKPad').textContent = toHex(keyPad).slice(0,64) + '...';
+  document.getElementById('hKInner').textContent = toHex(kInner).slice(0,32) + '...';
+  document.getElementById('hKOuter').textContent = toHex(kOuter).slice(0,32) + '...';
+  document.getElementById('hInner').textContent = toHex(innerHash);
+  document.getElementById('hFinal').textContent = toHex(finalHash);
+}
+
+updateHMAC();
+
+// ============================================================
+// 2. LCG
+// ============================================================
+function runLCG() {
+  const a = BigInt(document.getElementById('lcgA').value || 1103515245);
+  const c = BigInt(document.getElementById('lcgC').value || 12345);
+  const m = BigInt(document.getElementById('lcgM').value || 2147483648);
+  let x = BigInt(document.getElementById('lcgSeed').value || 42);
+  const n = parseInt(document.getElementById('lcgN').value || 10);
+
+  const seq = [];
+  for (let i = 0; i <= n; i++) {
+    seq.push(Number(x));
+    x = (a * x + c) % m;
+  }
+
+  // Show first 3 as "known", rest as "predicted"
+  const html = seq.map((v, i) => {
+    const cls = i >= 3 ? 'lcg-cell predicted' : 'lcg-cell';
+    return `<div class="${cls}" title="X_${i}">${v}</div>`;
+  }).join('');
+  document.getElementById('lcgSeq').innerHTML = html;
+
+  document.getElementById('lcgPredict').innerHTML =
+    `<span style="color:var(--muted)">Xanh = known · </span>
+     <span style="color:#b91c1c">Đỏ = predicted (từ biết a=${a}, c=${c}, m=${m})</span>`;
+
+  // Chart
+  drawLCGChart(seq, Number(m));
+}
+
+function drawLCGChart(seq, m) {
+  const svg = document.getElementById('lcgChart');
+  const W = 560, H = 120;
+  const n = seq.length;
+  const barW = Math.max(2, Math.floor((W - 40) / n) - 2);
+  let bars = '';
+  for (let i = 0; i < n; i++) {
+    const h = Math.round((seq[i] / m) * (H - 20));
+    const x = 40 + i * (barW + 2);
+    const y = H - h;
+    const fill = i >= 3 ? '#ef4444' : 'var(--accent)';
+    bars += `<rect x="${x}" y="${y}" width="${barW}" height="${h}" fill="${fill}" opacity="0.75" rx="1"/>`;
+  }
+  svg.innerHTML = bars +
+    `<line x1="40" y1="10" x2="40" y2="${H}" stroke="var(--line-strong)" stroke-width="1"/>
+     <line x1="40" y1="${H}" x2="${W}" y2="${H}" stroke="var(--line-strong)" stroke-width="1"/>
+     <text x="20" y="14" font-size="9" fill="var(--muted)" text-anchor="middle">${m}</text>
+     <text x="20" y="${H}" font-size="9" fill="var(--muted)" text-anchor="middle">0</text>`;
+}
+
+runLCG();
+
+// ============================================================
+// 3. CSPRNG vs LCG entropy visualization
+// ============================================================
+let lcgRNG_x = 42;
+function nextLCG() {
+  lcgRNG_x = ((1664525 * lcgRNG_x + 1013904223) >>> 0);
+  return lcgRNG_x & 0xff;
+}
+
+function byteToColor(b) {
+  // Map byte to hue
+  const h = Math.round(b / 255 * 300);
+  return `hsl(${h},70%,55%)`;
+}
+
+function genRNG(n) {
+  const lcgDiv = document.getElementById('rngLCG');
+  const csDiv = document.getElementById('rngCSPRNG');
+  const csBuf = new Uint8Array(n);
+  crypto.getRandomValues(csBuf);
+
+  for (let i = 0; i < n; i++) {
+    const lv = nextLCG();
+    const cv = csBuf[i];
+    const ld = document.createElement('div');
+    ld.className = 'rng-dot';
+    ld.style.background = byteToColor(lv);
+    ld.title = lv;
+    lcgDiv.appendChild(ld);
+    const cd = document.createElement('div');
+    cd.className = 'rng-dot';
+    cd.style.background = byteToColor(cv);
+    cd.title = cv;
+    csDiv.appendChild(cd);
+  }
+  const total = lcgDiv.children.length;
+  document.getElementById('rngNote').textContent = `Tổng: ${total} byte. LCG có chu kỳ cố định → pattern màu lặp lại. CSPRNG: không có pattern.`;
+}
+
+function clearRNG() {
+  document.getElementById('rngLCG').innerHTML = '';
+  document.getElementById('rngCSPRNG').innerHTML = '';
+  document.getElementById('rngNote').textContent = '';
+  lcgRNG_x = 42;
+}
+
+// ============================================================
+// 4. KDF brute-force calculator
+// ============================================================
+const CHARSETS = {1: {n:10, label:'0-9 (10 chars)'}, 2: {n:26, label:'a-z (26 chars)'}, 3: {n:62, label:'a-z+A-Z+0-9 (62)'}, 4: {n:95, label:'All printable (95)'}};
+
+function updateKDF() {
+  const timeMs = parseInt(document.getElementById('kdfTime').value);
+  const serverExp = parseInt(document.getElementById('kdfServers').value);
+  const servers = Math.pow(10, serverExp - 1); // 1,10,100,1000,10000
+  const charsetKey = parseInt(document.getElementById('kdfCharset').value);
+  const pwLen = parseInt(document.getElementById('kdfLen').value);
+  const charset = CHARSETS[charsetKey];
+
+  document.getElementById('kdfTimeVal').textContent = timeMs + ' ms';
+  document.getElementById('kdfServersVal').textContent = servers.toLocaleString() + ' server' + (servers > 1 ? 's' : '');
+  document.getElementById('kdfCharsetVal').textContent = charset.label;
+  document.getElementById('kdfLenVal').textContent = pwLen + ' ký tự';
+
+  // Password space = charset.n ^ pwLen
+  const spaceLog10 = pwLen * Math.log10(charset.n);
+  const space = Math.pow(10, spaceLog10);
+
+  // Time per attempt = timeMs ms / servers
+  const timePerAttemptSec = (timeMs / 1000) / servers;
+  // Average = space / 2 attempts
+  const avgTimeSec = (space / 2) * timePerAttemptSec;
+
+  function fmtTime(sec) {
+    if (sec < 1) return (sec * 1000).toFixed(1) + ' ms';
+    if (sec < 60) return sec.toFixed(1) + ' giây';
+    if (sec < 3600) return (sec/60).toFixed(1) + ' phút';
+    if (sec < 86400) return (sec/3600).toFixed(1) + ' giờ';
+    if (sec < 31557600) return (sec/86400).toFixed(1) + ' ngày';
+    if (sec < 31557600*1000) return (sec/31557600).toExponential(2) + ' năm';
+    return (sec/31557600).toExponential(2) + ' năm';
+  }
+
+  const safe = avgTimeSec > 31557600; // > 1 year
+  const color = safe ? '#10b981' : '#ef4444';
+  const verdict = avgTimeSec > 31557600 * 1000 ? 'An toàn (cực kỳ)' :
+                  avgTimeSec > 31557600 * 10 ? 'An toàn' :
+                  avgTimeSec > 31557600 ? 'Tương đối an toàn' :
+                  avgTimeSec > 86400 ? 'Cần tăng complexity' : 'KHÔNG AN TOÀN';
+
+  document.getElementById('kdfResult').innerHTML = `
+    <div style="background:var(--accent-soft);border-radius:8px;padding:1rem">
+      <div style="margin-bottom:6px">Password space: ${charset.n}<sup>${pwLen}</sup> ≈ 10<sup>${spaceLog10.toFixed(1)}</sup></div>
+      <div style="margin-bottom:6px">Thời gian 1 attempt: ${timeMs}ms / ${servers.toLocaleString()} servers = ${(timeMs/servers).toFixed(3)}ms</div>
+      <div style="margin-bottom:6px">Trung bình brute-force: <strong style="font-size:1.1rem;color:${color}">${fmtTime(avgTimeSec)}</strong></div>
+      <div style="font-weight:700;color:${color}">${verdict}</div>
+      <div style="font-size:0.78rem;color:var(--muted);margin-top:6px">⚠ Giả sử attacker biết KDF algorithm và parameters. Salt được giả sử đã biết (thường lưu cùng hash).</div>
+    </div>`;
+}
+
+updateKDF();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

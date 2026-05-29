@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L01: Block Ciphers & AES — Cryptography</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f8fafc;
+    --accent: #334155;
+    --accent-soft: #f1f5f9;
+    --accent-hover: #1e293b;
+  }
+
+  h2 { color: var(--accent); margin-top: 2rem; font-size: 1.2rem; }
+  h3 { color: var(--ink-soft); font-size: 1rem; margin-top: 1.5rem; }
+
+  .section { background: var(--panel); border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+
+  /* --- AES state grid --- */
+  .state-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    max-width: 320px;
+    margin: 1rem auto;
+  }
+  .state-cell {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    background: var(--accent-soft);
+    border: 2px solid var(--line);
+    font-family: monospace;
+    font-size: 0.72rem;
+    cursor: default;
+    transition: background 0.3s, border-color 0.3s, transform 0.3s;
+    user-select: none;
+  }
+  .state-cell .hex { font-weight: 700; font-size: 0.85rem; }
+  .state-cell .char { color: var(--muted); font-size: 0.65rem; }
+  .state-cell.highlight { background: #fef3c7; border-color: #f59e0b; }
+  .state-cell.shifted { background: #dbeafe; border-color: #3b82f6; }
+  .state-cell.mixed { background: #d1fae5; border-color: #10b981; }
+  .state-cell.xored { background: #ede9fe; border-color: #7c3aed; }
+
+  .step-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin: 1rem 0; }
+  .btn { padding: 7px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: background 0.2s; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--line-strong); }
+  .btn-secondary:hover { background: var(--line); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .step-label { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.5rem; min-height: 1.4em; }
+  .step-desc { font-size: 0.88rem; color: var(--ink-soft); background: var(--accent-soft); border-left: 3px solid var(--accent); padding: 0.6rem 1rem; border-radius: 0 6px 6px 0; margin-top: 0.5rem; min-height: 2.5em; }
+
+  .label-row { display: flex; gap: 6px; max-width: 320px; margin: 0 auto 4px; }
+  .label-col { flex: 1; text-align: center; font-size: 0.65rem; color: var(--muted); font-weight: 600; }
+
+  /* --- S-box lookup --- */
+  .sbox-lookup { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; }
+  .sbox-input { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .sbox-input label { font-size: 0.78rem; color: var(--muted); }
+  .sbox-input input[type=number] { width: 80px; padding: 6px 10px; border: 2px solid var(--line-strong); border-radius: 6px; font-family: monospace; font-size: 1.1rem; text-align: center; }
+  .sbox-arrow { font-size: 1.5rem; color: var(--accent); }
+  .sbox-output { background: var(--accent); color: #fff; padding: 8px 18px; border-radius: 8px; font-family: monospace; font-size: 1.2rem; font-weight: 700; min-width: 70px; text-align: center; }
+  .sbox-note { font-size: 0.75rem; color: var(--muted); margin-top: 4px; text-align: center; }
+
+  /* --- DES Timeline --- */
+  .timeline { position: relative; padding-left: 24px; }
+  .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--line-strong); }
+  .timeline-item { position: relative; margin-bottom: 1rem; }
+  .timeline-item::before { content: ''; position: absolute; left: -20px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+  .timeline-item.dead::before { background: #ef4444; }
+  .timeline-year { font-weight: 700; font-size: 0.9rem; color: var(--accent); }
+  .timeline-text { font-size: 0.85rem; color: var(--ink-soft); }
+
+  /* --- Brute-force calculator --- */
+  .bf-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.6rem; flex-wrap: wrap; }
+  .bf-row label { font-size: 0.85rem; min-width: 120px; color: var(--ink-soft); }
+  .bf-row input[type=range] { flex: 1; min-width: 120px; max-width: 260px; }
+  .bf-row .val { font-family: monospace; font-weight: 700; min-width: 60px; font-size: 0.9rem; }
+  .bf-result { background: var(--accent-soft); border: 1px solid var(--line-strong); border-radius: 8px; padding: 1rem; margin-top: 1rem; font-size: 0.9rem; }
+  .bf-result .big { font-size: 1.3rem; font-weight: 700; color: var(--accent); }
+
+  @media (max-width: 480px) {
+    .state-grid { max-width: 260px; }
+    .state-cell .hex { font-size: 0.75rem; }
+    .sbox-lookup { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../../01-Classical/lesson-04-modular-arithmetic-foundations/visualization.html">← T1-L04: Modular arithmetic</a>
+  <span class="sep">·</span>
+  <span class="current">L01: Block ciphers & AES</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-modes-of-operation/visualization.html">L02: Modes →</a>
+</nav>
+
+<main>
+<h1>Block Ciphers & AES</h1>
+
+<!-- 1. AES Round Visualizer -->
+<section class="section">
+  <h2>1. AES single-round visualizer</h2>
+  <p style="font-size:0.88rem;color:var(--ink-soft)">Plaintext "ATTACKATDAWN!!!!" (16 byte) — key "YELLOW SUBMARINE". Bấm "Bước tiếp" để xem từng phép biến đổi.</p>
+
+  <div class="label-row" id="colLabels">
+    <div class="label-col">Col 0</div>
+    <div class="label-col">Col 1</div>
+    <div class="label-col">Col 2</div>
+    <div class="label-col">Col 3</div>
+  </div>
+  <div class="state-grid" id="stateGrid"></div>
+  <div class="step-label" id="stepLabel">Bước 0: Plaintext ban đầu</div>
+  <div class="step-desc" id="stepDesc">State 4×4 byte. Các byte nạp theo cột: col 0 = A,T,T,A; col 1 = C,K,A,T; col 2 = A,T,D,A; col 3 = W,N,!,!</div>
+
+  <div class="step-buttons">
+    <button class="btn btn-primary" id="btnNext" onclick="nextStep()">Bước tiếp ▶</button>
+    <button class="btn btn-secondary" onclick="resetAES()">Đặt lại</button>
+  </div>
+</section>
+
+<!-- 2. S-box lookup -->
+<section class="section">
+  <h2>2. S-box lookup tương tác</h2>
+  <p style="font-size:0.88rem;color:var(--ink-soft)">Nhập byte (0–255) để tra S-box. Ví dụ: 0x53 (= 83) → 0xED (= 237).</p>
+  <div class="sbox-lookup">
+    <div class="sbox-input">
+      <label>Input (thập phân 0–255)</label>
+      <input type="number" id="sboxIn" min="0" max="255" value="83" oninput="lookupSbox()">
+      <div class="sbox-note" id="sboxInHex">= 0x53</div>
+    </div>
+    <div class="sbox-arrow">→</div>
+    <div>
+      <div class="sbox-output" id="sboxOut">0xED</div>
+      <div class="sbox-note" id="sboxOutDec">= 237</div>
+    </div>
+  </div>
+  <p style="font-size:0.82rem;color:var(--muted);margin-top:1rem">S-box được tính bằng nghịch đảo trong GF(2⁸) + affine transformation. Không phải random — có cấu trúc algebraic rõ ràng.</p>
+</section>
+
+<!-- 3. DES Timeline -->
+<section class="section">
+  <h2>3. DES — lịch sử sụp đổ</h2>
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-year">1977</div>
+      <div class="timeline-text">DES được NIST chuẩn hóa. 64-bit block, 56-bit key, 16-round Feistel. IBM + NSA thiết kế.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">1993</div>
+      <div class="timeline-text">Michael Wiener chứng minh 56-bit có thể brute-force với ~1 triệu USD hardware trong 3.5 giờ (lý thuyết).</div>
+    </div>
+    <div class="timeline-item dead">
+      <div class="timeline-year">1998 ⚠</div>
+      <div class="timeline-text">EFF "Deep Crack" — phần cứng 250,000 USD — phá DES trong 56 giờ (DES Challenge II). 56-bit officially dead.</div>
+    </div>
+    <div class="timeline-item dead">
+      <div class="timeline-year">1999 ⚠</div>
+      <div class="timeline-text">Deep Crack + distributed.net: brute-force trong 22 giờ 15 phút. Nail in the coffin.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2001</div>
+      <div class="timeline-text">AES (Rijndael) chuẩn hóa — NIST FIPS 197. 128-bit block, 128/192/256-bit key.</div>
+    </div>
+    <div class="timeline-item dead">
+      <div class="timeline-year">2017 ⚠</div>
+      <div class="timeline-text">NIST deprecated 3DES. Disallowed hoàn toàn từ 2023.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. Brute-force calculator -->
+<section class="section">
+  <h2>4. Brute-force time calculator</h2>
+  <p style="font-size:0.88rem;color:var(--ink-soft)">Điều chỉnh số bit key và tốc độ máy tính để xem thời gian crack.</p>
+
+  <div class="bf-row">
+    <label>Key size (bits)</label>
+    <input type="range" id="bfBits" min="40" max="256" step="8" value="128" oninput="updateBF()">
+    <span class="val" id="bfBitsVal">128 bit</span>
+  </div>
+  <div class="bf-row">
+    <label>Speed (keys/sec)</label>
+    <input type="range" id="bfSpeed" min="9" max="21" step="1" value="15" oninput="updateBF()">
+    <span class="val" id="bfSpeedVal">10¹⁵</span>
+  </div>
+
+  <div class="bf-result" id="bfResult"></div>
+</section>
+
+</main>
+
+<script>
+// ============================================================
+// AES S-BOX (full 256 entries)
+// ============================================================
+const SBOX = [
+  0x63,0x7c,0x77,0x7b,0xf2,0x6b,0x6f,0xc5,0x30,0x01,0x67,0x2b,0xfe,0xd7,0xab,0x76,
+  0xca,0x82,0xc9,0x7d,0xfa,0x59,0x47,0xf0,0xad,0xd4,0xa2,0xaf,0x9c,0xa4,0x72,0xc0,
+  0xb7,0xfd,0x93,0x26,0x36,0x3f,0xf7,0xcc,0x34,0xa5,0xe5,0xf1,0x71,0xd8,0x31,0x15,
+  0x04,0xc7,0x23,0xc3,0x18,0x96,0x05,0x9a,0x07,0x12,0x80,0xe2,0xeb,0x27,0xb2,0x75,
+  0x09,0x83,0x2c,0x1a,0x1b,0x6e,0x5a,0xa0,0x52,0x3b,0xd6,0xb3,0x29,0xe3,0x2f,0x84,
+  0x53,0xd1,0x00,0xed,0x20,0xfc,0xb1,0x5b,0x6a,0xcb,0xbe,0x39,0x4a,0x4c,0x58,0xcf,
+  0xd0,0xef,0xaa,0xfb,0x43,0x4d,0x33,0x85,0x45,0xf9,0x02,0x7f,0x50,0x3c,0x9f,0xa8,
+  0x51,0xa3,0x40,0x8f,0x92,0x9d,0x38,0xf5,0xbc,0xb6,0xda,0x21,0x10,0xff,0xf3,0xd2,
+  0xcd,0x0c,0x13,0xec,0x5f,0x97,0x44,0x17,0xc4,0xa7,0x7e,0x3d,0x64,0x5d,0x19,0x73,
+  0x60,0x81,0x4f,0xdc,0x22,0x2a,0x90,0x88,0x46,0xee,0xb8,0x14,0xde,0x5e,0x0b,0xdb,
+  0xe0,0x32,0x3a,0x0a,0x49,0x06,0x24,0x5c,0xc2,0xd3,0xac,0x62,0x91,0x95,0xe4,0x79,
+  0xe7,0xc8,0x37,0x6d,0x8d,0xd5,0x4e,0xa9,0x6c,0x56,0xf4,0xea,0x65,0x7a,0xae,0x08,
+  0xba,0x78,0x25,0x2e,0x1c,0xa6,0xb4,0xc6,0xe8,0xdd,0x74,0x1f,0x4b,0xbd,0x8b,0x8a,
+  0x70,0x3e,0xb5,0x66,0x48,0x03,0xf6,0x0e,0x61,0x35,0x57,0xb9,0x86,0xc1,0x1d,0x9e,
+  0xe1,0xf8,0x98,0x11,0x69,0xd9,0x8e,0x94,0x9b,0x1e,0x87,0xe9,0xce,0x55,0x28,0xdf,
+  0x8c,0xa1,0x89,0x0d,0xbf,0xe6,0x42,0x68,0x41,0x99,0x2d,0x0f,0xb0,0x54,0xbb,0x16
+];
+
+// ============================================================
+// AES Round Visualizer
+// ============================================================
+// Plaintext: "ATTACKATDAWN!!!!" -> column-major 4x4
+// state[row][col]
+const plaintext = "ATTACKATDAWN!!!!";
+// Round key 0: "YELLOW SUBMARINE" (16 chars)
+const keyBytes = "YELLOW SUBMARINE".split('').map(c => c.charCodeAt(0));
+
+// Build initial state (column-major: bytes go down columns)
+function buildInitState(text) {
+  const bytes = text.split('').map(c => c.charCodeAt(0));
+  // state[row][col]
+  const s = Array.from({length:4}, () => Array(4).fill(0));
+  for (let col = 0; col < 4; col++)
+    for (let row = 0; row < 4; row++)
+      s[row][col] = bytes[col*4 + row];
+  return s;
+}
+
+function buildKeyState(kBytes) {
+  const s = Array.from({length:4}, () => Array(4).fill(0));
+  for (let col = 0; col < 4; col++)
+    for (let row = 0; row < 4; row++)
+      s[row][col] = kBytes[col*4 + row];
+  return s;
+}
+
+let aesSteps = []; // array of {state, highlight, label, desc}
+let aesStep = 0;
+
+function copyState(s) { return s.map(r => [...r]); }
+
+function initAESSteps() {
+  aesSteps = [];
+  const s0 = buildInitState(plaintext);
+  aesSteps.push({
+    state: copyState(s0),
+    highlight: [],
+    label: 'Bước 0: Plaintext ban đầu',
+    desc: 'State 4×4 byte. Nạp theo cột: col 0 = A,T,T,A; col 1 = C,K,A,T; col 2 = A,T,D,A; col 3 = W,N,!,!'
+  });
+
+  // AddRoundKey (Round 0)
+  const ks = buildKeyState(keyBytes);
+  const s1 = copyState(s0);
+  for (let r = 0; r < 4; r++)
+    for (let c = 0; c < 4; c++)
+      s1[r][c] = s0[r][c] ^ ks[r][c];
+  aesSteps.push({
+    state: copyState(s1),
+    highlight: Array.from({length:16}, (_,i)=>i), // all xored
+    mode: 'xor',
+    label: 'AddRoundKey (Round 0): XOR với master key',
+    desc: 'Mỗi byte state XOR với byte key tương ứng. Key = "YELLOW SUBMARINE". Ví dụ: A(0x41) ⊕ Y(0x59) = 0x18.'
+  });
+
+  // SubBytes
+  const s2 = copyState(s1);
+  for (let r = 0; r < 4; r++)
+    for (let c = 0; c < 4; c++)
+      s2[r][c] = SBOX[s1[r][c]];
+  aesSteps.push({
+    state: copyState(s2),
+    highlight: Array.from({length:16}, (_,i)=>i),
+    mode: 'sub',
+    label: 'SubBytes: tra S-box cho từng byte',
+    desc: 'Mỗi byte thay bằng S-box[byte]. Phi tuyến — phá quan hệ tuyến tính giữa input và output.'
+  });
+
+  // ShiftRows
+  const s3 = copyState(s2);
+  // Row 0: no shift, Row 1: shift left 1, Row 2: shift left 2, Row 3: shift left 3
+  for (let r = 1; r < 4; r++) {
+    const tmp = [...s3[r]];
+    for (let c = 0; c < 4; c++)
+      s3[r][c] = tmp[(c + r) % 4];
+  }
+  aesSteps.push({
+    state: copyState(s3),
+    highlight: [4,5,6,7, 8,9,10,11, 12,13,14,15],
+    mode: 'shift',
+    label: 'ShiftRows: dịch cyclic mỗi hàng',
+    desc: 'Row 0: không dịch · Row 1: dịch trái 1 · Row 2: dịch trái 2 · Row 3: dịch trái 3. Khuếch tán byte ra các cột.'
+  });
+
+  // MixColumns (simplified — just show color change, not actual GF arithmetic)
+  const s4 = copyState(s3);
+  // Simplified MixColumns — for display show a mock result
+  function gmul(a, b) {
+    let p = 0, hbs = 0;
+    for (let i = 0; i < 8; i++) {
+      if (b & 1) p ^= a;
+      hbs = a & 0x80;
+      a = (a << 1) & 0xff;
+      if (hbs) a ^= 0x1b;
+      b >>= 1;
+    }
+    return p;
+  }
+  for (let c = 0; c < 4; c++) {
+    const s = s3.map(r => r[c]);
+    s4[0][c] = gmul(s[0],2) ^ gmul(s[1],3) ^ s[2] ^ s[3];
+    s4[1][c] = s[0] ^ gmul(s[1],2) ^ gmul(s[2],3) ^ s[3];
+    s4[2][c] = s[0] ^ s[1] ^ gmul(s[2],2) ^ gmul(s[3],3);
+    s4[3][c] = gmul(s[0],3) ^ s[1] ^ s[2] ^ gmul(s[3],2);
+  }
+  aesSteps.push({
+    state: copyState(s4),
+    highlight: Array.from({length:16}, (_,i)=>i),
+    mode: 'mix',
+    label: 'MixColumns: nhân với ma trận MDS trong GF(2⁸)',
+    desc: 'Mỗi cột nhân với matrix cố định [2,3,1,1/1,2,3,1/1,1,2,3/3,1,1,2]. 1 bit đổi → 4 byte output đổi.'
+  });
+
+  // AddRoundKey (Round 1 — simplified: XOR same key for demo)
+  const s5 = copyState(s4);
+  for (let r = 0; r < 4; r++)
+    for (let c = 0; c < 4; c++)
+      s5[r][c] = s4[r][c] ^ ((keyBytes[c*4+r] ^ 0x5f) & 0xff); // mock round key 1
+  aesSteps.push({
+    state: copyState(s5),
+    highlight: Array.from({length:16}, (_,i)=>i),
+    mode: 'xor',
+    label: 'AddRoundKey (Round 1): XOR với round key 1',
+    desc: 'Round key 1 được sinh từ master key qua key schedule (S-box + rotation). Hoàn thành Round 1 / 10.'
+  });
+}
+
+function cellIdx(r, c) { return r * 4 + c; }
+
+function renderGrid(state, highlights, mode) {
+  const grid = document.getElementById('stateGrid');
+  grid.innerHTML = '';
+  for (let r = 0; r < 4; r++) {
+    for (let c = 0; c < 4; c++) {
+      const idx = cellIdx(r, c);
+      const v = state[r][c];
+      const hex = v.toString(16).toUpperCase().padStart(2,'0');
+      const ch = (v >= 32 && v < 127) ? String.fromCharCode(v) : '·';
+      const cell = document.createElement('div');
+      cell.className = 'state-cell';
+      if (highlights.includes(idx)) {
+        if (mode === 'sub') cell.classList.add('highlight');
+        else if (mode === 'shift') cell.classList.add('shifted');
+        else if (mode === 'mix') cell.classList.add('mixed');
+        else if (mode === 'xor') cell.classList.add('xored');
+      }
+      cell.innerHTML = `<span class="hex">${hex}</span><span class="char">${ch}</span>`;
+      grid.appendChild(cell);
+    }
+  }
+}
+
+function nextStep() {
+  if (aesStep >= aesSteps.length - 1) {
+    document.getElementById('btnNext').disabled = true;
+    return;
+  }
+  aesStep++;
+  const st = aesSteps[aesStep];
+  renderGrid(st.state, st.highlight, st.mode || '');
+  document.getElementById('stepLabel').textContent = st.label;
+  document.getElementById('stepDesc').textContent = st.desc;
+  if (aesStep >= aesSteps.length - 1) document.getElementById('btnNext').disabled = true;
+}
+
+function resetAES() {
+  aesStep = 0;
+  document.getElementById('btnNext').disabled = false;
+  const st = aesSteps[0];
+  renderGrid(st.state, [], '');
+  document.getElementById('stepLabel').textContent = st.label;
+  document.getElementById('stepDesc').textContent = st.desc;
+}
+
+// ============================================================
+// S-box lookup
+// ============================================================
+function lookupSbox() {
+  let v = parseInt(document.getElementById('sboxIn').value) || 0;
+  v = Math.max(0, Math.min(255, v));
+  document.getElementById('sboxInHex').textContent = '= 0x' + v.toString(16).toUpperCase().padStart(2,'0');
+  const out = SBOX[v];
+  document.getElementById('sboxOut').textContent = '0x' + out.toString(16).toUpperCase().padStart(2,'0');
+  document.getElementById('sboxOutDec').textContent = '= ' + out;
+}
+
+// ============================================================
+// Brute-force calculator
+// ============================================================
+function updateBF() {
+  const bits = parseInt(document.getElementById('bfBits').value);
+  const exp = parseInt(document.getElementById('bfSpeed').value);
+  document.getElementById('bfBitsVal').textContent = bits + ' bit';
+  document.getElementById('bfSpeedVal').textContent = '10^' + exp;
+
+  // keys = 2^bits, speed = 10^exp (keys/sec)
+  // average trials = 2^(bits-1)
+  // time_sec = 2^(bits-1) / 10^exp
+  const log2_speed = exp / Math.LOG2E; // log2(10^exp)
+  const log2_trials = bits - 1;
+  const log2_seconds = log2_trials - log2_speed;
+  // Convert to human-readable
+  const secPerYear = 3.156e7;
+  const years = Math.pow(2, log2_seconds) / secPerYear;
+
+  let timeStr, commentary;
+  if (years < 0.001) {
+    timeStr = (Math.pow(2, log2_seconds) * 1000).toExponential(2) + ' ms';
+    commentary = 'Không an toàn!';
+  } else if (years < 1) {
+    timeStr = (Math.pow(2, log2_seconds) / 3600).toFixed(1) + ' giờ';
+    commentary = 'Không an toàn!';
+  } else if (years < 1000) {
+    timeStr = years.toFixed(1) + ' năm';
+    commentary = years < 100 ? 'Không an toàn!' : 'Còn yếu';
+  } else if (years < 1e10) {
+    timeStr = (years / 1e9).toExponential(2) + ' tỷ năm';
+    commentary = 'An toàn';
+  } else {
+    timeStr = years.toExponential(2) + ' năm';
+    commentary = years > 1e20 ? 'Hoàn toàn an toàn' : 'An toàn';
+  }
+  const universeAge = 1.38e10;
+  const ratio = years / universeAge;
+  const ratioStr = ratio < 0.01 ? '' : ` (~${ratio.toFixed(1)}× tuổi vũ trụ)`;
+
+  document.getElementById('bfResult').innerHTML =
+    `<div>Key space: 2<sup>${bits}</sup> = 10<sup>${(bits * Math.LOG10E).toFixed(1)}</sup></div>
+     <div>Tốc độ: 10<sup>${exp}</sup> keys/giây</div>
+     <div>Thời gian trung bình: <span class="big">${timeStr}</span>${ratioStr}</div>
+     <div style="margin-top:6px;font-weight:700;color:${commentary.includes('toàn') ? '#10b981' : '#ef4444'}">${commentary}</div>`;
+}
+
+// ============================================================
+// Init
+// ============================================================
+initAESSteps();
+resetAES();
+lookupSbox();
+updateBF();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

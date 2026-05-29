@@ -178,17 +178,18 @@
     document.body.appendChild(btn);
     document.body.appendChild(panel);
 
-    // Vị trí bottom — 3 yếu tố cộng dồn:
-    //   base 24px (cách đáy chuẩn) + 56px nếu trang có IPA reader (English/) để
-    //   nút TOC không chồng nút IPA + 56px nếu mobile để clear Chrome iOS / Safari
-    //   tab bar ~50px ở đáy che bottom: 24px (root cause của "TOC tap không có
-    //   phản ứng" — nút nằm sau tab bar trình duyệt, tap trúng UI hệ thống).
-    //   env(safe-area-inset-bottom) thêm padding cho iPhone notch (0 nếu không có).
+    // Vị trí bottom — cộng dồn:
+    //   base 24px + 56px nếu trang có IPA reader (English/) hoặc Pinyin reader
+    //   (Chinese/) để nút TOC không chồng nút reader đó + 56px nếu mobile để
+    //   clear Chrome iOS / Safari tab bar ~50px ở đáy che bottom: 24px (root
+    //   cause của "TOC tap không có phản ứng" — nút nằm sau tab bar trình
+    //   duyệt). env(safe-area-inset-bottom) thêm padding cho iPhone notch.
     const hasIPA = window.location.pathname.includes('/English/');
+    const hasZH  = window.location.pathname.includes('/Chinese/');
     const isMobile = window.matchMedia && window.matchMedia('(max-width: 700px)').matches;
-    const ipaShift = hasIPA ? 56 : 0;
+    const readerShift = (hasIPA || hasZH) ? 56 : 0;
     const mobileShift = isMobile ? 56 : 0;
-    const btnBottom = 24 + ipaShift + mobileShift;
+    const btnBottom = 24 + readerShift + mobileShift;
     const panelBottom = btnBottom + 56;
     btn.style.bottom = `calc(${btnBottom}px + env(safe-area-inset-bottom, 0px))`;
     panel.style.bottom = `calc(${panelBottom}px + env(safe-area-inset-bottom, 0px))`;

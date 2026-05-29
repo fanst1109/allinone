@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 04 — CAP & Nhất quán phân tán</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  button.primary { background: #0f766e; color: #fff; border: 0; padding: 7px 14px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+  button.primary:hover { background: #115e59; }
+  button.primary:disabled { background: #94a3b8; cursor: not-allowed; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  .modechip { display:inline-block; padding:4px 12px; border-radius:6px; background:#e2e8f0; cursor:pointer; margin-right:6px; font-size:13px; user-select:none; }
+  .modechip.active { background:#0f766e; color:#fff; }
+  .controls { margin: 10px 0; display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  svg { display:block; max-width:100%; height:auto; margin: 8px auto; }
+  .log { margin-top: 10px; font-size: 13px; color:#334155; background:#f8fafc; border-radius:6px; padding:10px 12px; min-height:40px; line-height:1.55; }
+  .log b { color:#0f766e; }
+  .verdict { margin-top:8px; padding:10px 12px; border-radius:6px; font-size:14px; }
+  .verdict.bad { background:#fecaca; border-left:4px solid #dc2626; }
+  .verdict.ok  { background:#bbf7d0; border-left:4px solid #16a34a; }
+  .verdict.warn{ background:#fef9c3; border-left:4px solid #ca8a04; }
+  /* CAP triangle */
+  .cap-vertex { cursor:pointer; }
+  .cap-detail { margin-top:12px; padding:12px; background:#f0fdfa; border-left:4px solid #0f766e; border-radius:4px; font-size:14px; min-height:40px; }
+  .pill { display:inline-block; padding:2px 9px; border-radius:10px; font-size:12px; font-weight:700; }
+  .pill.c { background:#dbeafe; color:#1e40af; }
+  .pill.a { background:#dcfce7; color:#166534; }
+  .pill.p { background:#fef3c7; color:#92400e; }
+  /* quorum */
+  .qrow { display:flex; flex-wrap:wrap; gap:18px; align-items:center; margin:6px 0; }
+  .qrow label { font-size:14px; min-width:30px; }
+  input[type=range] { width:100%; max-width:240px; }
+  .qval { font-weight:700; color:#0f766e; min-width:22px; display:inline-block; text-align:center; }
+  .nodes-box { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; }
+  .nd { width:54px; height:54px; border-radius:8px; border:2px solid #cbd5e1; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex-direction:column; background:#f8fafc; }
+  .nd .lbl { font-size:10px; font-weight:500; color:#64748b; }
+  .nd.w { border-color:#2563eb; background:#dbeafe; }
+  .nd.r { border-color:#16a34a; background:#dcfce7; }
+  .nd.wr { border-color:#7c3aed; background:#ede9fe; }
+  .qlegend span { display:inline-block; padding:2px 8px; border-radius:4px; font-size:12px; margin-right:8px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-replication-sharding/visualization.html">← L3: Replication & Sharding</a>
+  <span class="sep">·</span>
+  <span class="current">L4: CAP & Nhất quán phân tán</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-data-warehouse-olap/visualization.html">L5: Data Warehouse & OLAP →</a>
+</nav>
+<main>
+<h1>CAP & Nhất quán phân tán</h1>
+<p class="note">Ba mô-đun tương tác: (1) mô phỏng partition + chế độ CP/AP, (2) tam giác CAP tương tác, (3) máy tính quorum R+W&gt;N.</p>
+
+<div class="panel">
+  <h2>1 · Mô phỏng partition — CP hay AP?</h2>
+  <p class="note">Hai node giữ cùng dữ liệu <code>balance</code>. Tạo partition (cắt liên kết), ghi vào node 1, rồi đọc từ node 2 theo chế độ đã chọn.</p>
+  <div>
+    <span class="modechip active" id="mCP" onclick="setCAP('CP')">🔒 CP (ưu tiên nhất quán)</span>
+    <span class="modechip" id="mAP" onclick="setCAP('AP')">⚡ AP (ưu tiên sẵn sàng)</span>
+  </div>
+  <div class="controls">
+    <button class="primary" id="btnPart" onclick="togglePartition()">✂ Tạo partition (cắt liên kết)</button>
+    <button class="primary" id="btnWrite" onclick="doWrite()">✍ Ghi balance=1.500.000 vào Node 1</button>
+    <button class="primary" id="btnRead" onclick="doRead()">👁 Đọc từ Node 2</button>
+    <button class="primary" onclick="resetSim()" style="background:#64748b">↻ Reset</button>
+  </div>
+  <svg width="520" height="200" viewBox="0 0 520 200" id="capSvg">
+    <!-- link -->
+    <line id="link" x1="170" y1="100" x2="350" y2="100" stroke="#16a34a" stroke-width="5"/>
+    <text id="linkLbl" x="260" y="90" text-anchor="middle" font-size="12" fill="#16a34a">đồng bộ OK</text>
+    <!-- node1 -->
+    <rect x="40" y="60" width="130" height="80" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="105" y="88" text-anchor="middle" font-size="14" font-weight="700" fill="#1e40af">Node 1</text>
+    <text id="n1val" x="105" y="118" text-anchor="middle" font-size="15" font-weight="700" fill="#0f172a">1.000.000</text>
+    <!-- node2 -->
+    <rect x="350" y="60" width="130" height="80" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+    <text x="415" y="88" text-anchor="middle" font-size="14" font-weight="700" fill="#166534">Node 2</text>
+    <text id="n2val" x="415" y="118" text-anchor="middle" font-size="15" font-weight="700" fill="#0f172a">1.000.000</text>
+    <!-- client markers -->
+    <text id="cli" x="260" y="175" text-anchor="middle" font-size="12" fill="#64748b"></text>
+  </svg>
+  <div class="log" id="capLog">Bước 1: bấm <b>Tạo partition</b>, sau đó <b>Ghi vào Node 1</b>, rồi <b>Đọc từ Node 2</b>.</div>
+  <div id="capVerdict"></div>
+</div>
+
+<div class="panel">
+  <h2>2 · Tam giác CAP — chọn 2 đỉnh</h2>
+  <p class="note">Nhấp vào 2 đỉnh muốn giữ. Trong hệ phân tán thật, <b>P là bắt buộc</b> → đánh đổi thực sự chỉ là C vs A khi partition.</p>
+  <svg width="360" height="270" viewBox="0 0 360 270" id="triSvg">
+    <line id="eCA" x1="180" y1="40" x2="60"  y2="220" stroke="#cbd5e1" stroke-width="3"/>
+    <line id="eCP" x1="180" y1="40" x2="300" y2="220" stroke="#cbd5e1" stroke-width="3"/>
+    <line id="eAP" x1="60"  y1="220" x2="300" y2="220" stroke="#cbd5e1" stroke-width="3"/>
+    <g class="cap-vertex" onclick="toggleV('C')">
+      <circle id="vC" cx="180" cy="40" r="30" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+      <text x="180" y="46" text-anchor="middle" font-size="20" font-weight="700" fill="#1e40af">C</text>
+    </g>
+    <g class="cap-vertex" onclick="toggleV('A')">
+      <circle id="vA" cx="60" cy="220" r="30" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+      <text x="60" y="226" text-anchor="middle" font-size="20" font-weight="700" fill="#166534">A</text>
+    </g>
+    <g class="cap-vertex" onclick="toggleV('P')">
+      <circle id="vP" cx="300" cy="220" r="30" fill="#fef3c7" stroke="#ca8a04" stroke-width="2"/>
+      <text x="300" y="226" text-anchor="middle" font-size="20" font-weight="700" fill="#92400e">P</text>
+    </g>
+    <text x="180" y="12" text-anchor="middle" font-size="11" fill="#64748b">Consistency</text>
+    <text x="60" y="262" text-anchor="middle" font-size="11" fill="#64748b">Availability</text>
+    <text x="300" y="262" text-anchor="middle" font-size="11" fill="#64748b">Partition tol.</text>
+  </svg>
+  <div class="cap-detail" id="triDetail">← Chọn đúng 2 đỉnh để xem hệ tương ứng.</div>
+</div>
+
+<div class="panel">
+  <h2>3 · Máy tính quorum — R + W &gt; N?</h2>
+  <p class="note">Chỉnh N (tổng bản sao), W (ghi chờ), R (đọc hỏi). Điều kiện đảm bảo đọc thấy ghi mới nhất là <code>R + W &gt; N</code>.</p>
+  <div class="qrow"><label>N</label><input type="range" id="qN" min="1" max="7" value="3" oninput="renderQuorum()"><span class="qval" id="qNv">3</span></div>
+  <div class="qrow"><label>W</label><input type="range" id="qW" min="1" max="7" value="2" oninput="renderQuorum()"><span class="qval" id="qWv">2</span></div>
+  <div class="qrow"><label>R</label><input type="range" id="qR" min="1" max="7" value="2" oninput="renderQuorum()"><span class="qval" id="qRv">2</span></div>
+  <div class="qlegend">
+    <span style="background:#dbeafe;border:2px solid #2563eb">W: node nhận ghi mới</span>
+    <span style="background:#dcfce7;border:2px solid #16a34a">R: node được đọc</span>
+    <span style="background:#ede9fe;border:2px solid #7c3aed">overlap (vừa ghi vừa đọc)</span>
+  </div>
+  <div class="nodes-box" id="qNodes"></div>
+  <div class="verdict" id="qVerdict"></div>
+</div>
+
+<script>
+// ===== Module 1: partition CP/AP =====
+const OLD = '1.000.000', NEW = '1.500.000';
+let capMode = 'CP';
+let partitioned = false, node1 = OLD, node2 = OLD, n1HasNew = false;
+
+function setCAP(m){
+  capMode = m;
+  document.getElementById('mCP').classList.toggle('active', m==='CP');
+  document.getElementById('mAP').classList.toggle('active', m==='AP');
+  document.getElementById('capVerdict').innerHTML = '';
+  document.getElementById('capLog').innerHTML = `Chế độ <b>${m}</b> đã chọn. Tạo partition → ghi Node 1 → đọc Node 2 để xem hậu quả.`;
+}
+function togglePartition(){
+  partitioned = !partitioned;
+  const link = document.getElementById('link'), lbl = document.getElementById('linkLbl');
+  const btn = document.getElementById('btnPart');
+  if(partitioned){
+    link.setAttribute('stroke','#dc2626'); link.setAttribute('stroke-dasharray','6 6');
+    lbl.textContent = '✂ ĐỨT (partition)'; lbl.setAttribute('fill','#dc2626');
+    btn.textContent = '🔗 Nối lại liên kết';
+    document.getElementById('capLog').innerHTML = '<b>Partition đang xảy ra:</b> Node 1 và Node 2 không trao đổi được. Giờ ghi vào Node 1.';
+  } else {
+    link.setAttribute('stroke','#16a34a'); link.removeAttribute('stroke-dasharray');
+    lbl.textContent = 'đồng bộ OK'; lbl.setAttribute('fill','#16a34a');
+    btn.textContent = '✂ Tạo partition (cắt liên kết)';
+    // nối lại -> đồng bộ (eventual): node2 hội tụ về node1
+    if(n1HasNew){ node2 = NEW; document.getElementById('n2val').textContent = node2;
+      document.getElementById('capLog').innerHTML = '🔗 <b>Nối lại:</b> Node 2 đồng bộ về Node 1 → cả hai = <b>'+NEW+'</b>. Đây là lúc hệ hội tụ (eventual consistency).'; }
+  }
+  document.getElementById('capVerdict').innerHTML = '';
+}
+function doWrite(){
+  node1 = NEW; n1HasNew = true;
+  document.getElementById('n1val').textContent = node1;
+  document.getElementById('cli').textContent = '↑ client ghi 1.500.000 vào Node 1';
+  if(!partitioned){
+    node2 = NEW; document.getElementById('n2val').textContent = node2;
+    document.getElementById('capLog').innerHTML = 'Không có partition → ghi lan ngay sang Node 2. Cả hai = <b>'+NEW+'</b>. (Lúc bình thường có cả C lẫn A.)';
+  } else {
+    document.getElementById('capLog').innerHTML = 'Đã ghi <b>'+NEW+'</b> vào Node 1. Nhưng partition đang chặn → Node 2 vẫn giữ <b>'+OLD+'</b>. Giờ thử đọc Node 2.';
+  }
+  document.getElementById('capVerdict').innerHTML = '';
+}
+function doRead(){
+  const v = document.getElementById('capVerdict');
+  document.getElementById('cli').textContent = '↑ client đọc từ Node 2';
+  if(!partitioned){
+    v.className = 'verdict ok';
+    v.innerHTML = '✅ Node 2 trả <b>'+node2+'</b> — đúng giá trị mới nhất. Không partition nên có cả Consistency lẫn Availability.';
+    return;
+  }
+  // partitioned
+  if(capMode==='CP'){
+    v.className = 'verdict warn';
+    v.innerHTML = '🔒 <b>CP:</b> Node 2 biết mình có thể không mới nhất → <b>TỪ CHỐI / chờ</b> tới khi nối lại Node 1. '+
+      'Hy sinh <span class="pill a">A</span> (request bị treo) để không trả dữ liệu sai. Giữ được <span class="pill c">C</span>.';
+  } else {
+    v.className = 'verdict bad';
+    v.innerHTML = '⚡ <b>AP:</b> Node 2 trả ngay <b>'+node2+'</b> — nhưng đây là <b>giá trị CŨ, sai sự thật</b> (thật ra đã là '+NEW+'). '+
+      'Giữ <span class="pill a">A</span> (luôn phản hồi) nhưng hy sinh <span class="pill c">C</span>. Hậu quả: client tưởng số dư còn 1.000.000.';
+  }
+}
+function resetSim(){
+  partitioned=false; node1=OLD; node2=OLD; n1HasNew=false;
+  document.getElementById('n1val').textContent=OLD; document.getElementById('n2val').textContent=OLD;
+  document.getElementById('cli').textContent='';
+  const link=document.getElementById('link'), lbl=document.getElementById('linkLbl');
+  link.setAttribute('stroke','#16a34a'); link.removeAttribute('stroke-dasharray');
+  lbl.textContent='đồng bộ OK'; lbl.setAttribute('fill','#16a34a');
+  document.getElementById('btnPart').textContent='✂ Tạo partition (cắt liên kết)';
+  document.getElementById('capVerdict').innerHTML='';
+  document.getElementById('capLog').innerHTML='Đã reset. Bấm <b>Tạo partition</b> → <b>Ghi Node 1</b> → <b>Đọc Node 2</b>.';
+}
+
+// ===== Module 2: CAP triangle =====
+let chosen = [];
+const TRI = {
+  'C,P': {name:'CP — Consistency + Partition tolerance', body:'Khi partition: <b>từ chối/chờ</b> để không trả dữ liệu cũ → hy sinh <span class="pill a">A</span>. '+
+    'Ví dụ thực: <b>ngân hàng, hệ thanh toán, khóa phân tán</b> (ZooKeeper, etcd, HBase, Spanner). Sai = thảm họa nên thà từ chối.'},
+  'A,P': {name:'AP — Availability + Partition tolerance', body:'Khi partition: <b>luôn trả lời</b> dù dữ liệu có thể cũ → hy sinh <span class="pill c">C</span> (eventual consistency). '+
+    'Ví dụ thực: <b>giỏ hàng (Dynamo), feed mạng xã hội, bộ đếm view</b> (Cassandra). Cũ một chút chấp nhận được.'},
+  'C,A': {name:'CA — chỉ tồn tại khi KHÔNG có partition', body:'⚠ Trong hệ phân tán thật, partition <b>sẽ</b> xảy ra → <b>P là bắt buộc</b>. '+
+    'Một hệ "bỏ P" sẽ sập khi cáp đứt → không dùng được phân tán. CA chỉ hợp lý cho hệ <b>một node duy nhất</b> (không phân tán).'}
+};
+function key(arr){ return [...arr].sort().join(','); }
+function toggleV(v){
+  const i = chosen.indexOf(v);
+  if(i>=0) chosen.splice(i,1);
+  else { if(chosen.length>=2) chosen.shift(); chosen.push(v); }
+  ['C','A','P'].forEach(x=>{
+    const c = document.getElementById('v'+x);
+    const on = chosen.includes(x);
+    c.setAttribute('stroke-width', on?'5':'2');
+    c.setAttribute('fill', on ? ({C:'#93c5fd',A:'#86efac',P:'#fde68a'})[x] : ({C:'#dbeafe',A:'#dcfce7',P:'#fef3c7'})[x]);
+  });
+  const det = document.getElementById('triDetail');
+  if(chosen.length<2){ det.innerHTML = '← Chọn đúng 2 đỉnh để xem hệ tương ứng. (Đã chọn '+chosen.length+'/2)'; return; }
+  const info = TRI[key(chosen)];
+  det.innerHTML = '<b>'+info.name+'</b><br>'+info.body;
+}
+
+// ===== Module 3: quorum =====
+function renderQuorum(){
+  let N = +document.getElementById('qN').value;
+  let W = +document.getElementById('qW').value;
+  let R = +document.getElementById('qR').value;
+  // clamp W,R <= N
+  if(W>N){ W=N; document.getElementById('qW').value=N; }
+  if(R>N){ R=N; document.getElementById('qR').value=N; }
+  document.getElementById('qNv').textContent=N;
+  document.getElementById('qWv').textContent=W;
+  document.getElementById('qRv').textContent=R;
+  // visual: nodes 1..N. W = first W nodes (đã ghi mới). R = last R nodes (đang đọc). overlap = giao.
+  // dùng cách bố trí cụ thể để overlap = max(0, W+R-N)
+  const box = document.getElementById('qNodes'); box.innerHTML='';
+  const overlapCount = Math.max(0, W + R - N);
+  for(let i=0;i<N;i++){
+    const isW = i < W;                 // W node đầu nhận ghi
+    const isR = i >= N - R;            // R node cuối được đọc
+    let cls='nd', tag='';
+    if(isW && isR){ cls+=' wr'; tag='W+R'; }
+    else if(isW){ cls+=' w'; tag='W'; }
+    else if(isR){ cls+=' r'; tag='R'; }
+    box.innerHTML += `<div class="${cls}">N${i+1}<span class="lbl">${tag||'—'}</span></div>`;
+  }
+  const v = document.getElementById('qVerdict');
+  const sum = R + W;
+  if(sum > N){
+    v.className='verdict ok';
+    v.innerHTML = `R + W = ${R} + ${W} = <b>${sum}</b> &gt; N = ${N} ✅<br>`+
+      `Tập đọc và tập ghi giao nhau ở <b>${overlapCount}</b> node (ô tím). Đọc chắc chắn chạm node có giá trị mới nhất → <b>đảm bảo đọc thấy ghi mới nhất</b> (nhất quán mạnh kiểu quorum).`;
+  } else {
+    v.className='verdict bad';
+    v.innerHTML = `R + W = ${R} + ${W} = <b>${sum}</b> ${sum===N?'=':'&lt;'} N = ${N} ❌<br>`+
+      `Tập đọc và tập ghi <b>có thể không giao nhau</b> (overlap = ${overlapCount}). Đọc có thể trúng toàn node cũ → <b>KHÔNG đảm bảo</b>; chỉ eventual consistency (nhanh hơn nhưng có thể đọc dữ liệu cũ).`;
+  }
+}
+renderQuorum();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

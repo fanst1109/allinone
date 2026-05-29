@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 05 — Data Warehouse & OLAP</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  button.primary { background: #0f766e; color: #fff; border: 0; padding: 7px 14px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+  button.primary:hover { background: #115e59; }
+  button.ghost { background: #e2e8f0; color: #334155; border: 0; padding: 7px 14px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+  button.ghost:hover { background: #cbd5e1; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  .schema-wrap { overflow-x: auto; }
+  svg { display:block; max-width: 100%; height: auto; }
+  .tbl-box { cursor: pointer; }
+  .tbl-box rect { transition: .15s; }
+  .tbl-box.sel rect.head { fill: #0f766e; }
+  .detail { margin-top: 12px; padding: 12px; background: #f0fdfa; border-left: 4px solid #0f766e; border-radius: 4px; font-size: 14px; min-height: 40px; }
+  .detail table { border-collapse: collapse; width: 100%; margin-top: 6px; }
+  .detail th, .detail td { padding: 4px 8px; border-bottom: 1px solid #e2e8f0; font-size: 13px; text-align: left; }
+  .detail th { background: #ccfbf1; }
+  .role-fact { color:#b45309; font-weight:700; }
+  .role-fk { color:#7c3aed; font-weight:700; }
+  .role-pk { color:#0369a1; font-weight:700; }
+  .role-desc { color:#475569; }
+  .modechip { display:inline-block; padding:3px 10px; border-radius:6px; background:#e2e8f0; cursor:pointer; margin-right:6px; font-size:13px; }
+  .modechip.active { background:#0f766e; color:#fff; }
+  .store-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 12px; }
+  .store-col { border:2px solid #e2e8f0; border-radius:8px; padding:10px; }
+  .store-col h3 { margin:0 0 6px; font-size:14px; }
+  .cellgrid { display:flex; flex-wrap:wrap; gap:3px; margin-top:6px; }
+  .cell { width:30px; height:22px; border-radius:3px; background:#f1f5f9; font-size:10px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-variant-numeric:tabular-nums; }
+  .cell.read { background:#fef08a; color:#854d0e; }
+  .cell.need { background:#bbf7d0; color:#166534; font-weight:700; }
+  .cell.skip { opacity:.35; }
+  .colhdr { font-size:11px; color:#64748b; margin-top:8px; }
+  .counter { margin-top:10px; font-size:14px; color:#334155; }
+  .counter b { color:#0f766e; }
+  .olap-tbl { border-collapse: collapse; width:100%; margin-top:10px; }
+  .olap-tbl th, .olap-tbl td { padding:6px 10px; border-bottom:1px solid #e2e8f0; font-size:13px; text-align:left; font-variant-numeric:tabular-nums; }
+  .olap-tbl th { background:#f0fdfa; }
+  .levelbar { margin:10px 0; }
+  .lvl { display:inline-block; padding:4px 12px; border-radius:6px; background:#e2e8f0; font-size:13px; margin:0 4px; }
+  .lvl.active { background:#0f766e; color:#fff; font-weight:700; }
+  @media (max-width:480px){ .store-grid { grid-template-columns: 1fr; } .cell { width:26px; } }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-cap-consistency/visualization.html">← L4: CAP & Nhất quán phân tán</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Data Warehouse & OLAP</span>
+</nav>
+<main>
+<h1>Data Warehouse & OLAP</h1>
+<p class="note">Ba mô-đun tương tác: (1) sơ đồ star schema, (2) row vs columnar storage, (3) mini OLAP roll-up/drill-down.</p>
+
+<div class="panel">
+  <h2>1 · Star schema — bấm vào bảng để xem cột & vai trò</h2>
+  <p class="note">Fact table ở giữa (cam), các dimension vây quanh (xanh). Bấm một bảng để xem chi tiết cột.</p>
+  <div class="schema-wrap">
+    <svg id="schema" width="640" height="360" viewBox="0 0 640 360" role="img" aria-label="Star schema">
+      <!-- spokes -->
+      <line x1="320" y1="180" x2="320" y2="70"  stroke="#cbd5e1" stroke-width="2"/>
+      <line x1="320" y1="180" x2="120" y2="180" stroke="#cbd5e1" stroke-width="2"/>
+      <line x1="320" y1="180" x2="520" y2="180" stroke="#cbd5e1" stroke-width="2"/>
+      <line x1="320" y1="180" x2="320" y2="290" stroke="#cbd5e1" stroke-width="2"/>
+      <!-- tables injected by JS -->
+      <g id="tables"></g>
+    </svg>
+  </div>
+  <div class="detail" id="schemaDetail">← Bấm một bảng trong sơ đồ để xem cột và vai trò (measure / khóa ngoại / mô tả).</div>
+</div>
+
+<div class="panel">
+  <h2>2 · Row vs Columnar — truy vấn <code>SUM(amount)</code></h2>
+  <p class="note">Bảng 5 cột × 8 dòng. Truy vấn chỉ cần cột <b>amount</b>. Xem mỗi cách lưu phải đọc bao nhiêu ô.</p>
+  <div>
+    <span class="modechip active" id="mRow" onclick="setStore('row')">📦 Row storage</span>
+    <span class="modechip" id="mCol" onclick="setStore('col')">🗂️ Columnar storage</span>
+    <button class="primary" onclick="runStore()" style="margin-left:8px">▶ Chạy SUM(amount)</button>
+  </div>
+  <div class="store-grid">
+    <div class="store-col">
+      <h3 id="storeTitle">Cách đọc trên đĩa</h3>
+      <div class="colhdr" id="colHdr"></div>
+      <div class="cellgrid" id="cellgrid"></div>
+    </div>
+    <div class="store-col">
+      <h3>Diễn giải</h3>
+      <div class="counter" id="storeCounter">Chọn cách lưu rồi bấm "Chạy".</div>
+    </div>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>3 · Mini OLAP — roll-up / drill-down theo thời gian</h2>
+  <p class="note">Doanh thu (triệu) của fact nhỏ. Bấm để cuộn lên (ngày → tháng → quý) hoặc khoan xuống.</p>
+  <div class="levelbar">
+    <span class="lvl" id="lvlDay">Ngày</span> →
+    <span class="lvl" id="lvlMonth">Tháng</span> →
+    <span class="lvl" id="lvlQuarter">Quý</span>
+  </div>
+  <div>
+    <button class="ghost" onclick="rollUp()">⬆ Roll-up (gộp lên)</button>
+    <button class="ghost" onclick="drillDown()">⬇ Drill-down (chi tiết hơn)</button>
+  </div>
+  <table class="olap-tbl" id="olapTbl"></table>
+  <div class="counter" id="olapNote"></div>
+</div>
+
+<script>
+// ===== Module 1: star schema =====
+const TABLES = {
+  fact: {
+    x:320, y:180, w:150, h:60, fact:true, title:'fact_sales',
+    cols:[
+      ['date_id','fk','→ dim_date'],
+      ['product_id','fk','→ dim_product'],
+      ['store_id','fk','→ dim_store'],
+      ['quantity','fact','measure: số lượng'],
+      ['amount','fact','measure: doanh thu'],
+    ]
+  },
+  date: {
+    x:320, y:40, w:140, h:46, title:'dim_date',
+    cols:[['date_id','pk','khóa chính'],['day','desc','ngày'],['month','desc','tháng'],['quarter','desc','quý'],['year','desc','năm']]
+  },
+  product: {
+    x:560, y:180, w:140, h:46, title:'dim_product',
+    cols:[['product_id','pk','khóa chính'],['name','desc','tên sản phẩm'],['category','desc','danh mục'],['brand','desc','thương hiệu']]
+  },
+  store: {
+    x:80, y:180, w:140, h:46, title:'dim_store',
+    cols:[['store_id','pk','khóa chính'],['store_name','desc','tên cửa hàng'],['city','desc','thành phố'],['region','desc','vùng']]
+  },
+  customer: {
+    x:320, y:320, w:140, h:46, title:'dim_customer',
+    cols:[['customer_id','pk','khóa chính'],['name','desc','tên'],['segment','desc','phân khúc'],['city','desc','thành phố']]
+  },
+};
+const ROLE_LBL = { fact:'<span class="role-fact">measure</span>', fk:'<span class="role-fk">khóa ngoại</span>', pk:'<span class="role-pk">khóa chính</span>', desc:'<span class="role-desc">mô tả</span>' };
+function drawTables(){
+  const g = document.getElementById('tables');
+  g.innerHTML = Object.entries(TABLES).map(([k,t])=>{
+    const fill = t.fact ? '#fdba74' : '#7dd3fc';
+    const head = t.fact ? '#ea580c' : '#0284c7';
+    const x = t.x - t.w/2, y = t.y - t.h/2;
+    return `<g class="tbl-box" data-k="${k}" onclick="selTable('${k}')">
+      <rect x="${x}" y="${y}" width="${t.w}" height="${t.h}" rx="6" fill="${fill}" stroke="${head}" stroke-width="1.5"/>
+      <rect class="head" x="${x}" y="${y}" width="${t.w}" height="22" rx="6" fill="${head}"/>
+      <text x="${t.x}" y="${y+15}" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">${t.title}</text>
+      <text x="${t.x}" y="${y+40}" text-anchor="middle" fill="#1e293b" font-size="11">${t.fact?'sự kiện (rất nhiều dòng)':'chiều (mô tả)'}</text>
+    </g>`;
+  }).join('');
+}
+function selTable(k){
+  document.querySelectorAll('.tbl-box').forEach(e=>e.classList.toggle('sel', e.dataset.k===k));
+  const t = TABLES[k];
+  const rows = t.cols.map(c=>`<tr><td><code>${c[0]}</code></td><td>${ROLE_LBL[c[1]]}</td><td>${c[2]}</td></tr>`).join('');
+  document.getElementById('schemaDetail').innerHTML =
+    `<b>${t.title}</b> — ${t.fact?'bảng sự kiện (fact table): chứa số đo + khóa ngoại tới dimension.':'bảng chiều (dimension table): mô tả để cắt lát/gom nhóm.'}` +
+    `<table><tr><th>Cột</th><th>Vai trò</th><th>Ý nghĩa</th></tr>${rows}</table>`;
+}
+drawTables();
+
+// ===== Module 2: row vs columnar =====
+const COLS = ['date_id','product_id','store_id','quantity','amount'];
+const NEED_COL = 4; // amount
+const NROWS = 8;
+const SAMPLE = [
+  ['20240105','P1','S1','2','200'],
+  ['20240120','P2','S1','1','50'],
+  ['20240210','P1','S2','3','300'],
+  ['20240315','P2','S2','4','200'],
+  ['20240318','P1','S1','1','100'],
+  ['20240402','P3','S3','2','160'],
+  ['20240419','P1','S3','5','500'],
+  ['20240505','P2','S1','3','150'],
+];
+let storeMode = 'row';
+function setStore(m){ storeMode=m; document.getElementById('mRow').classList.toggle('active',m==='row'); document.getElementById('mCol').classList.toggle('active',m==='col'); renderCells(); document.getElementById('storeCounter').innerHTML='Bấm "Chạy SUM(amount)".'; }
+function renderCells(read=new Set(), mode=storeMode){
+  document.getElementById('storeTitle').textContent = mode==='row' ? 'Row storage — byte mỗi DÒNG liền nhau' : 'Columnar storage — byte mỗi CỘT liền nhau';
+  document.getElementById('colHdr').textContent = mode==='row'
+    ? 'Đọc theo hàng: muốn 1 cột vẫn phải đọc cả dòng.'
+    : 'Đọc theo cột: nhảy thẳng vào cột amount, bỏ qua cột khác.';
+  // layout: 8 rows x 5 cols
+  let html='';
+  for(let r=0;r<NROWS;r++){
+    for(let c=0;c<COLS.length;c++){
+      const idx = r*COLS.length+c;
+      let cls='cell';
+      const isNeed = c===NEED_COL;
+      if(read.has(idx)){ cls += isNeed ? ' need' : ' read'; }
+      else if(mode==='col' && !isNeed){ cls += ' skip'; }
+      html += `<div class="${cls}" title="${COLS[c]}">${SAMPLE[r][c].slice(-3)}</div>`;
+    }
+  }
+  document.getElementById('cellgrid').innerHTML = html;
+}
+async function runStore(){
+  const read = new Set(); renderCells(read);
+  const counter = document.getElementById('storeCounter');
+  let count=0;
+  if(storeMode==='row'){
+    for(let r=0;r<NROWS;r++){
+      for(let c=0;c<COLS.length;c++){ read.add(r*COLS.length+c); count++; }
+      renderCells(read);
+      counter.innerHTML = `Đọc cả dòng ${r+1}: đã chạm <b>${count}</b> ô (để lấy được cột amount).`;
+      await sleep(220);
+    }
+    counter.innerHTML = `<b>Row storage</b>: phải đọc cả <b>${NROWS*COLS.length}</b> ô (5 cột × 8 dòng), nhưng chỉ dùng cột amount → phí 4/5. Trên bảng 20 cột × 10 triệu dòng: đọc 200 triệu ô.`;
+  } else {
+    for(let r=0;r<NROWS;r++){
+      read.add(r*COLS.length+NEED_COL); count++;
+      renderCells(read);
+      counter.innerHTML = `Đọc thẳng cột amount, dòng ${r+1}: đã chạm <b>${count}</b> ô.`;
+      await sleep(220);
+    }
+    counter.innerHTML = `<b>Columnar</b>: chỉ đọc <b>${NROWS}</b> ô (đúng cột amount) thay vì ${NROWS*COLS.length}. Ít hơn 5 lần. Trên bảng 20 cột × 10 triệu dòng: 10 triệu ô thay vì 200 triệu → ít hơn ~20 lần, lại nén tốt hơn.`;
+  }
+}
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+renderCells();
+
+// ===== Module 3: mini OLAP =====
+// fact theo ngày (date, revenue triệu); month & quarter suy ra
+const FACT = [
+  {date:'05/01', month:1, q:1, rev:10},
+  {date:'12/01', month:1, q:1, rev:20},
+  {date:'20/01', month:1, q:1, rev:5},
+  {date:'02/02', month:2, q:1, rev:30},
+  {date:'18/02', month:2, q:1, rev:10},
+  {date:'09/03', month:3, q:1, rev:15},
+  {date:'27/03', month:3, q:1, rev:25},
+];
+const LEVELS = ['day','month','quarter'];
+let lvl = 0;
+function aggregate(){
+  if(lvl===0){
+    return FACT.map(f=>[f.date, f.rev]);
+  } else if(lvl===1){
+    const m={}; FACT.forEach(f=> m[f.month]=(m[f.month]||0)+f.rev );
+    return Object.keys(m).map(k=>['Tháng '+k, m[k]]);
+  } else {
+    const q={}; FACT.forEach(f=> q[f.q]=(q[f.q]||0)+f.rev );
+    return Object.keys(q).map(k=>['Quý '+k, q[k]]);
+  }
+}
+function renderOlap(action){
+  document.getElementById('lvlDay').classList.toggle('active', lvl===0);
+  document.getElementById('lvlMonth').classList.toggle('active', lvl===1);
+  document.getElementById('lvlQuarter').classList.toggle('active', lvl===2);
+  const rows = aggregate();
+  const hdr = lvl===0?'Ngày':(lvl===1?'Tháng':'Quý');
+  const total = rows.reduce((s,r)=>s+r[1],0);
+  document.getElementById('olapTbl').innerHTML =
+    `<tr><th>${hdr}</th><th>Doanh thu (triệu)</th></tr>` +
+    rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('') +
+    `<tr><th>Tổng</th><th>${total}</th></tr>`;
+  const nrow = rows.length;
+  let msg='';
+  if(action==='up') msg = `⬆ Roll-up: gộp lên mức <b>${hdr.toLowerCase()}</b> → còn <b>${nrow}</b> dòng, mỗi dòng tổng hợp nhiều hơn.`;
+  else if(action==='down') msg = `⬇ Drill-down: bung về mức <b>${hdr.toLowerCase()}</b> → <b>${nrow}</b> dòng chi tiết hơn (cùng dữ liệu, không tạo mới).`;
+  else msg = `Đang ở mức <b>${hdr.toLowerCase()}</b>: ${nrow} dòng. Tổng luôn = ${total} triệu dù ở mức nào (roll-up chỉ gom lại).`;
+  document.getElementById('olapNote').innerHTML = msg;
+}
+function rollUp(){ if(lvl<2){ lvl++; renderOlap('up'); } else renderOlap(); }
+function drillDown(){ if(lvl>0){ lvl--; renderOlap('down'); } else renderOlap(); }
+renderOlap();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

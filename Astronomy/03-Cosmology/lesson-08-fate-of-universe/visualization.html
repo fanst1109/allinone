@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Số phận vũ trụ</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 170px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 90px; }
+  input[type="range"] { flex: 1; min-width: 150px; accent-color: #2563eb; }
+  .val { font-family: monospace; font-weight: 700; color: #2563eb; min-width: 80px; display: inline-block; }
+  .stat { display: inline-block; background: #dbeafe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #1d4ed8; }
+  .result { padding: 14px; background: #dbeafe; border-radius: 8px; margin-top: 12px; font-size: 15px; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  button { background: #2563eb; color: #fff; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: 600; margin: 3px; }
+  svg.fate {
+    display: block; margin: 12px auto;
+    width: 100%; max-width: 500px; height: auto;
+    background: #0b1220; border-radius: 10px;
+  }
+  svg.fate text { font: 11px sans-serif; fill: #cbd5e0; }
+  .tl { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+  .tlbtn { background: #1e293b; color: #cbd5e0; border: 1px solid #334155; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+  .tlbtn.active { background: #2563eb; color: #fff; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Cosmology</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-relativity-spacetime/visualization.html">L7: Tương đối &amp; không-thời gian</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Số phận vũ trụ</span>
+</nav>
+
+<main>
+<h1>Lesson 08 — Số phận vũ trụ</h1>
+<p>Ba công cụ: <strong>Mô phỏng a(t)</strong> (Ω &amp; năng lượng tối → quỹ đạo kích thước vũ trụ), <strong>Calculator Ω &amp; mật độ tới hạn</strong>, và <strong>Dòng thời gian tương lai</strong>. Đây là bài cuối lộ trình.</p>
+
+<h2>1. Mô phỏng số phận — quỹ đạo a(t)</h2>
+<div class="card">
+  <p class="note">a(t) = hệ số giãn nở (kích thước tương đối của vũ trụ). Kéo slider mật độ vật chất và mức năng lượng tối → đường cong cho thấy vũ trụ co lại (Crunch), giãn tăng tốc (Freeze) hay bùng vô hạn (Rip).</p>
+  <div class="row">
+    <label>Ω vật chất:</label>
+    <input type="range" id="om" min="0" max="3" value="0.31" step="0.01" oninput="drawFate()">
+    <span class="val" id="omv">0.31</span>
+  </div>
+  <div class="row">
+    <label>Năng lượng tối (w):</label>
+    <input type="range" id="de" min="-1.5" max="0" value="-1" step="0.05" oninput="drawFate()">
+    <span class="val" id="dev">−1.0</span>
+  </div>
+  <svg class="fate" viewBox="0 0 500 300" id="fatesvg"></svg>
+  <div class="result" id="fateout"></div>
+  <div style="margin-top:10px">
+    <button onclick="preset(0.31,-1)">Thực tế (Freeze)</button>
+    <button onclick="preset(2.5,0)">Vật chất đặc (Crunch)</button>
+    <button onclick="preset(0.31,-1.4)">Phantom (Rip)</button>
+  </div>
+</div>
+
+<h2>2. Calculator Ω &amp; mật độ tới hạn</h2>
+<div class="card">
+  <p class="note"><code>ρ_c = 3H₀²/(8πG)</code>, <code>Ω = ρ/ρ_c</code>. Nhập H₀ và mật độ thực ρ.</p>
+  <div class="row">
+    <label>H₀ (km/s/Mpc):</label>
+    <input type="number" id="H0" value="70" step="1" min="50" max="100" oninput="calcOmega()">
+    <label>ρ (×10⁻²⁷ kg/m³):</label>
+    <input type="number" id="rho" value="9.2" step="0.1" min="0" max="50" oninput="calcOmega()">
+  </div>
+  <div class="result" id="omegaout"></div>
+</div>
+
+<h2>3. Dòng thời gian tương lai</h2>
+<div class="card">
+  <p class="note">Bấm qua các mốc từ nay tới chết nhiệt (kịch bản Big Freeze).</p>
+  <div class="tl" id="tlbar"></div>
+  <div class="result" id="tlout"></div>
+</div>
+
+<script>
+const fmt = (x, n=1) => (x<0?'−':'') + Math.abs(x).toFixed(n);
+
+function drawFate() {
+  const om = +document.getElementById('om').value;
+  const w = +document.getElementById('de').value;
+  document.getElementById('omv').textContent = om.toFixed(2);
+  document.getElementById('dev').textContent = fmt(w,1);
+  const W=500,H=300, x0=50, y0=H-40, plotW=W-90, plotH=H-70;
+  // tích phân a(t) đơn giản (Friedmann hiện tượng luận)
+  // da/dt ∝ sqrt(Ωm/a + ΩΛ * a^(-(1+3w)) )  với ΩΛ = 1 - Ωm (giả định phẳng)
+  const OL = Math.max(0, 1 - om);
+  let a = 1.0;   // hôm nay a=1, đi tới tương lai
+  const dt = 0.01;
+  let pts = [[0, a]];
+  let t = 0, crunch=false, rip=false;
+  for (let i=0;i<400;i++){
+    // mật độ: vật chất ∝ a^-3, năng lượng tối ∝ a^(-3(1+w))
+    const rhoM = om / (a*a*a);
+    const rhoDE = OL * Math.pow(a, -3*(1+w));
+    let H2 = rhoM + rhoDE - (om+OL-1)/(a*a); // số hạng cong
+    if (H2 <= 0) { crunch = true; }
+    let Hrate = crunch ? -Math.sqrt(Math.abs(rhoM + rhoDE)) : Math.sqrt(Math.max(0,H2));
+    a += Hrate * a * dt * 2;
+    t += dt;
+    if (a <= 0.02){ a=0; pts.push([t,0]); break; }
+    if (a > 6){ rip = (w < -1); pts.push([t,a]); break; }
+    pts.push([t, a]);
+  }
+  const tmax = pts[pts.length-1][0] || 1;
+  const amax = Math.max(...pts.map(p=>p[1]), 1.5);
+  let path = pts.map(p => `${(x0 + p[0]/tmax*plotW).toFixed(1)},${(y0 - p[1]/amax*plotH).toFixed(1)}`).join(' ');
+  let svg='';
+  svg += `<line x1="${x0}" y1="${y0}" x2="${x0+plotW}" y2="${y0}" stroke="#334155"/>`;
+  svg += `<line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y0-plotH}" stroke="#334155"/>`;
+  svg += `<text x="${x0+plotW-60}" y="${y0+20}">thời gian →</text>`;
+  svg += `<text x="6" y="${y0-plotH+10}">a(t)</text>`;
+  // đường a=1 (hôm nay)
+  svg += `<line x1="${x0}" y1="${(y0-1/amax*plotH).toFixed(1)}" x2="${x0+plotW}" y2="${(y0-1/amax*plotH).toFixed(1)}" stroke="#475569" stroke-dasharray="3 3"/>`;
+  svg += `<text x="${x0+4}" y="${(y0-1/amax*plotH-4).toFixed(1)}">nay (a=1)</text>`;
+  svg += `<polyline points="${path}" fill="none" stroke="#60a5fa" stroke-width="2.6"/>`;
+  document.getElementById('fatesvg').innerHTML = svg;
+
+  let verdict, cls;
+  if (crunch){ verdict = '🔴 BIG CRUNCH — giãn nở dừng rồi đảo, vũ trụ co về điểm nóng đặc.'; }
+  else if (rip || w < -1){ verdict = '💥 BIG RIP — năng lượng tối phantom (w < −1) bùng vô hạn, xé mọi cấu trúc.'; }
+  else { verdict = '❄ BIG FREEZE — giãn tăng tốc mãi, loãng lạnh dần tới chết nhiệt (kịch bản được ưu ái).'; }
+  document.getElementById('fateout').innerHTML =
+    `<span class="stat">Ω_vật chất = ${om.toFixed(2)}</span><span class="stat">Ω_Λ ≈ ${OL.toFixed(2)}</span><span class="stat">w = ${fmt(w,1)}</span><br>${verdict}`;
+}
+function preset(om,w){ document.getElementById('om').value=om; document.getElementById('de').value=w; drawFate(); }
+
+function calcOmega() {
+  const H0 = +document.getElementById('H0').value;
+  const rho = +document.getElementById('rho').value * 1e-27;
+  const G = 6.674e-11;
+  const H0si = H0 * 1000 / (3.086e22);   // s^-1
+  const rhoC = 3*H0si*H0si / (8*Math.PI*G);
+  const Omega = rho / rhoC;
+  const atoms = rhoC / 1.67e-27;
+  let geo = Omega > 1.02 ? 'đóng (cầu)' : Omega < 0.98 ? 'mở (yên ngựa)' : 'phẳng';
+  document.getElementById('omegaout').innerHTML =
+    `<span class="stat">ρ_c ≈ <strong>${(rhoC*1e27).toFixed(1)}×10⁻²⁷</strong> kg/m³</span>` +
+    `<span class="stat">≈ <strong>${atoms.toFixed(1)}</strong> H/m³</span><br>` +
+    `<span class="stat">Ω = ρ/ρ_c = <strong>${Omega.toFixed(2)}</strong></span>` +
+    `<span class="stat">hình học: <strong>${geo}</strong></span><br>` +
+    `<em>Lưu ý: số phận thật còn phụ thuộc bản chất năng lượng tối, không chỉ Ω.</em>`;
+}
+
+const TL = [
+  ['13.8 tỉ năm (NAY)', 'Sao đang sinh, thiên hà sáng, ta đang sống. Giãn nở đang tăng tốc.'],
+  ['~100 tỉ năm', 'Giãn nở đẩy hầu hết thiên hà ngoài Nhóm Địa phương ra khỏi tầm nhìn.'],
+  ['~10¹⁴ năm', 'Hết khí → ngừng hình thành sao; sao cuối tắt → "Kỷ thoái hóa".'],
+  ['~10¹⁵–10⁴⁰ năm', 'Chỉ còn tàn dư: lùn trắng nguội, sao neutron, lỗ đen. (Proton có thể phân rã.)'],
+  ['~10⁶⁷–10¹⁰⁰ năm', 'Lỗ đen bay hơi hết qua bức xạ Hawking (sao: ~10⁶⁷; siêu khối: ~10¹⁰⁰ năm).'],
+  ['→ ∞', 'Chỉ còn photon/neutrino loãng; nhiệt độ → 0 K; entropy cực đại — CHẾT NHIỆT.']
+];
+function buildTL() {
+  const bar = document.getElementById('tlbar');
+  bar.innerHTML = TL.map((t,i)=>`<button class="tlbtn${i===0?' active':''}" onclick="showTL(${i})">${t[0]}</button>`).join('');
+  showTL(0);
+}
+function showTL(i) {
+  document.querySelectorAll('.tlbtn').forEach((b,j)=>b.classList.toggle('active', i===j));
+  document.getElementById('tlout').innerHTML = `<strong>${TL[i][0]}</strong><br>${TL[i][1]}`;
+}
+
+drawFate(); calcOmega(); buildTL();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

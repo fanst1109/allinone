@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02: Attention — Psychology</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fdf4ff;
+    --accent: #a21caf;
+    --accent-soft: #fae8ff;
+    --accent-hover: #86198f;
+  }
+  h1 { color: #581c87; }
+  h2 { color: #6b21a8; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #f5d0fe; }
+  .lead { color: #6b21a8; font-size: 1.05rem; margin-bottom: 28px; }
+  .module { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 28px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+  .module h3 { color: #7e22ce; margin-top: 0; }
+
+  /* Stroop */
+  #stroop-display {
+    font-size: 3.5rem;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    text-align: center;
+    padding: 32px 16px;
+    border-radius: 12px;
+    background: #f8f9fa;
+    margin: 16px 0;
+    cursor: pointer;
+    user-select: none;
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #e2e8f0;
+    transition: background 0.1s;
+  }
+  #stroop-display:active { background: #f0e6ff; }
+  #stroop-instruction { font-size: 1rem; color: #6b21a8; font-weight: 600; text-align: center; margin-bottom: 8px; }
+
+  .stroop-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 12px 0; }
+  .stroop-btn { padding: 10px 20px; border: 2px solid; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 700; background: #fff; transition: transform 0.1s; }
+  .stroop-btn:active { transform: scale(0.96); }
+  .stroop-btn.correct { background: #dcfce7; border-color: #16a34a; }
+  .stroop-btn.wrong { background: #fee2e2; border-color: #dc2626; }
+
+  .stroop-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+  .stat-box { background: var(--accent-soft); border-radius: 8px; padding: 12px; text-align: center; }
+  .stat-val { font-size: 1.8rem; font-weight: 800; color: var(--accent); }
+  .stat-lbl { font-size: 0.78rem; color: #6b21a8; }
+
+  .result-box { background: #f3f4f6; border-radius: 8px; padding: 12px 16px; font-size: 0.9rem; line-height: 1.6; margin-top: 10px; }
+  .result-box strong { color: var(--accent); }
+
+  .progress-bar { height: 6px; background: #e9d5ff; border-radius: 3px; margin: 8px 0; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.3s; }
+
+  .btn { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 8px 18px; cursor: pointer; font-size: 0.9rem; }
+  .btn:hover { background: var(--accent-hover); }
+  .btn.outline { background: transparent; border: 2px solid var(--accent); color: var(--accent); }
+  .btn.outline:hover { background: var(--accent-soft); }
+
+  /* Change blindness */
+  #cb-container { position: relative; width: 100%; max-width: 380px; margin: 0 auto; }
+  #cb-canvas { width: 100%; border-radius: 8px; display: block; }
+  #cb-overlay { position: absolute; inset: 0; background: #f3f4f6; border-radius: 8px; opacity: 0; pointer-events: none; }
+  #cb-clicks { font-size: 0.85rem; color: #6b7280; margin-top: 6px; text-align: center; }
+
+  @media (max-width: 500px) {
+    #stroop-display { font-size: 2.4rem; padding: 20px 10px; }
+    .stroop-btns { gap: 7px; }
+    .stroop-btn { padding: 8px 14px; font-size: 0.9rem; }
+    .stroop-stats { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-perception-illusions/visualization.html">← L01: Perception</a>
+  <span class="sep">·</span>
+  <span class="current">L02: Attention</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-memory/visualization.html">L03: Memory →</a>
+</nav>
+<main>
+  <h1>Lesson 02: Attention</h1>
+  <p class="lead">Attention là tài nguyên giới hạn. Trải nghiệm Stroop effect trực tiếp, xem change blindness, và hiểu tại sao 46% người không thấy gorilla.</p>
+
+  <!-- MODULE 1: Stroop Test -->
+  <section class="module">
+    <h3>1. Stroop Test — Tự đo phản ứng của bạn</h3>
+    <p>Nhiệm vụ: nhấn nút tên <strong>MÀU MỰC</strong> (không phải đọc từ in). Làm 20 trial, xem RT congruent vs incongruent của chính bạn.</p>
+    <div id="stroop-instruction">Nhấn "Bắt đầu" để thử</div>
+    <div id="stroop-display" style="color:#4a5568;">Nhấn Bắt đầu</div>
+    <div class="stroop-btns" id="stroop-btns" style="display:none">
+      <button class="stroop-btn" data-color="red" style="color:red; border-color:red;">ĐỎ</button>
+      <button class="stroop-btn" data-color="blue" style="color:blue; border-color:blue;">XANH</button>
+      <button class="stroop-btn" data-color="green" style="color:green; border-color:green;">LỤC</button>
+      <button class="stroop-btn" data-color="orange" style="color:darkorange; border-color:darkorange;">CAM</button>
+    </div>
+    <div class="progress-bar" style="display:none" id="stroop-prog"><div class="progress-fill" id="stroop-prog-fill" style="width:0%"></div></div>
+    <div class="stroop-stats" id="stroop-stats" style="display:none">
+      <div class="stat-box"><div class="stat-val" id="stat-con">—</div><div class="stat-lbl">Congruent RT (ms)</div></div>
+      <div class="stat-box"><div class="stat-val" id="stat-inc">—</div><div class="stat-lbl">Incongruent RT (ms)</div></div>
+      <div class="stat-box"><div class="stat-val" id="stat-effect">—</div><div class="stat-lbl">Stroop Effect</div></div>
+      <div class="stat-box"><div class="stat-val" id="stat-acc">—</div><div class="stat-lbl">Độ chính xác</div></div>
+    </div>
+    <div id="stroop-start-row" style="text-align:center;margin-top:12px;">
+      <button class="btn" id="stroop-start">Bắt đầu</button>
+    </div>
+    <div class="result-box" id="stroop-result" style="display:none"></div>
+  </section>
+
+  <!-- MODULE 2: Change Blindness -->
+  <section class="module">
+    <h3>2. Change Blindness</h3>
+    <p>Hai scene lần lượt hiện với màn blank ngắn giữa. Tìm điểm khác nhau giữa 2 ảnh. Click khi thấy.</p>
+    <div id="cb-container">
+      <canvas id="cb-canvas" width="380" height="220"></canvas>
+      <div id="cb-overlay"></div>
+    </div>
+    <div id="cb-clicks">Đang tìm... (click vào vùng thay đổi khi thấy)</div>
+    <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;">
+      <button class="btn" id="cb-start">Bắt đầu flicker</button>
+      <button class="btn outline" id="cb-reveal">Hiện đáp án</button>
+    </div>
+    <div class="result-box" id="cb-result">
+      Rensink et al. (1997): với thay đổi ở "high-interest" area, người xem cần trung bình <strong>12 lần lặp (~2.9 giây)</strong> để phát hiện. Low-interest area: 32 lần (~7.7 giây). Não không lưu ảnh đầy đủ — chỉ mã hóa vùng được attend.
+    </div>
+  </section>
+
+  <!-- MODULE 3: Inattentional blindness -->
+  <section class="module">
+    <h3>3. Inattentional Blindness — Paradigm Đơn Giản</h3>
+    <p>Đếm số lần hình tròn <strong>ĐỎ</strong> bị nảy vào tường. Khi kết thúc, trả lời câu hỏi thêm.</p>
+    <canvas id="ib-canvas" width="380" height="220" viewBox="0 0 380 220" style="border-radius:8px;background:#f8f9fa;display:block;max-width:100%;"></canvas>
+    <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;align-items:center;">
+      <button class="btn" id="ib-start">Bắt đầu (8 giây)</button>
+      <span id="ib-count-display" style="font-weight:700;color:#6b21a8;font-size:1.1rem;"></span>
+    </div>
+    <div id="ib-question" style="display:none;margin-top:14px;">
+      <p style="font-weight:600;color:#3b0764;">Bạn đếm được bao nhiêu lần? Và... bạn có thấy hình vuông <strong>đen</strong> xuất hiện ở giữa màn hình không?</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn" id="ib-yes">Có, tôi thấy hình vuông</button>
+        <button class="btn outline" id="ib-no">Không thấy / Không chắc</button>
+      </div>
+    </div>
+    <div class="result-box" id="ib-result" style="display:none"></div>
+  </section>
+
+</main>
+
+<script>
+// ===== STROOP TEST =====
+const STROOP_WORDS = ['ĐỎ','XANH','LỤC','CAM'];
+const STROOP_COLORS = ['red','blue','green','orange'];
+const STROOP_DISPLAY_COLORS = {red:'#dc2626', blue:'#2563eb', green:'#16a34a', orange:'#ea580c'};
+const TOTAL_TRIALS = 20;
+
+let stroopState = 'idle';
+let stroopTrials = [];
+let stroopIdx = 0;
+let stroopStart = 0;
+let conRT = [], incRT = [], correct = 0;
+
+function genTrial() {
+  const wordIdx = Math.floor(Math.random() * 4);
+  const colorIdx = Math.floor(Math.random() * 4);
+  const congruent = wordIdx === colorIdx;
+  return { word: STROOP_WORDS[wordIdx], color: STROOP_COLORS[colorIdx], congruent };
+}
+
+function buildTrials() {
+  stroopTrials = [];
+  for (let i = 0; i < TOTAL_TRIALS; i++) stroopTrials.push(genTrial());
+  // ensure roughly half congruent
+}
+
+function showTrial() {
+  const t = stroopTrials[stroopIdx];
+  const disp = document.getElementById('stroop-display');
+  disp.textContent = t.word;
+  disp.style.color = STROOP_DISPLAY_COLORS[t.color];
+  document.getElementById('stroop-instruction').textContent =
+    `Trial ${stroopIdx+1}/${TOTAL_TRIALS} — Nhấn tên MÀU MỰC (${t.congruent ? 'Congruent' : 'Incongruent'} — don't worry about this label)`;
+  document.getElementById('stroop-prog-fill').style.width = (stroopIdx / TOTAL_TRIALS * 100) + '%';
+  stroopStart = performance.now();
+}
+
+document.getElementById('stroop-start').addEventListener('click', () => {
+  buildTrials();
+  stroopIdx = 0; conRT = []; incRT = []; correct = 0;
+  stroopState = 'running';
+  document.getElementById('stroop-start-row').style.display = 'none';
+  document.getElementById('stroop-btns').style.display = 'flex';
+  document.getElementById('stroop-prog').style.display = 'block';
+  document.getElementById('stroop-stats').style.display = 'grid';
+  document.getElementById('stroop-result').style.display = 'none';
+  document.getElementById('stroop-instruction').textContent = `Trial 1/${TOTAL_TRIALS} — Nhấn tên MÀU MỰC`;
+  showTrial();
+});
+
+document.querySelectorAll('.stroop-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (stroopState !== 'running') return;
+    const rt = performance.now() - stroopStart;
+    const t = stroopTrials[stroopIdx];
+    const isCorrect = btn.dataset.color === t.color;
+    if (isCorrect) {
+      correct++;
+      if (t.congruent) conRT.push(rt); else incRT.push(rt);
+      btn.classList.add('correct');
+    } else {
+      btn.classList.add('wrong');
+      // wrong answer – still record
+    }
+    setTimeout(() => {
+      btn.classList.remove('correct','wrong');
+      stroopIdx++;
+      if (stroopIdx >= TOTAL_TRIALS) {
+        finishStroop();
+      } else {
+        showTrial();
+      }
+    }, 250);
+  });
+});
+
+function avg(arr) { return arr.length ? Math.round(arr.reduce((a,b)=>a+b,0)/arr.length) : null; }
+
+function finishStroop() {
+  stroopState = 'done';
+  document.getElementById('stroop-btns').style.display = 'none';
+  document.getElementById('stroop-prog-fill').style.width = '100%';
+  document.getElementById('stroop-instruction').textContent = 'Xong! Kết quả của bạn:';
+  const mCon = avg(conRT), mInc = avg(incRT);
+  const effect = mCon && mInc ? mInc - mCon : null;
+  document.getElementById('stat-con').textContent = mCon !== null ? mCon + 'ms' : 'N/A';
+  document.getElementById('stat-inc').textContent = mInc !== null ? mInc + 'ms' : 'N/A';
+  document.getElementById('stat-effect').textContent = effect !== null ? '+' + effect + 'ms' : 'N/A';
+  document.getElementById('stat-acc').textContent = Math.round(correct/TOTAL_TRIALS*100) + '%';
+
+  let msg = '';
+  if (effect !== null) {
+    if (effect > 200) msg = `Stroop effect <strong>+${effect}ms</strong> — rõ rệt (≥ nghiên cứu điển hình). Đọc tự động gây interference mạnh.`;
+    else if (effect > 50) msg = `Stroop effect <strong>+${effect}ms</strong> — trong khoảng điển hình (150–300ms theo MacLeod 1991).`;
+    else if (effect > 0) msg = `Stroop effect <strong>+${effect}ms</strong> — nhẹ. Có thể do số congruent/incongruent ít, hoặc tốc độ phản ứng đồng đều cao.`;
+    else msg = `Stroop effect <strong>${effect}ms</strong> — không điển hình. Có thể cần thêm trial hoặc kiểm tra độ chính xác.`;
+  }
+  msg += ` | MacLeod (1991) meta-analysis: trung bình <strong>150–300ms</strong>. Stroop gốc 1935: 470ms/từ.`;
+  const r = document.getElementById('stroop-result');
+  r.innerHTML = msg;
+  r.style.display = 'block';
+  document.getElementById('stroop-start-row').style.display = 'block';
+  document.getElementById('stroop-start').textContent = 'Thử lại';
+}
+
+// ===== CHANGE BLINDNESS =====
+const cbCanvas = document.getElementById('cb-canvas');
+const cbCtx = cbCanvas.getContext('2d');
+const cbOverlay = document.getElementById('cb-overlay');
+let cbRunning = false, cbInterval = null, cbPhase = 0, cbFlickers = 0;
+let cbRevealed = false;
+
+// Scene: colored rectangles, one will change color
+const SCENE = [
+  {x:30, y:30, w:80, h:60, color:'#ef4444', label:'A'},
+  {x:160, y:20, w:70, h:50, color:'#3b82f6', label:'B'},
+  {x:270, y:35, w:70, h:55, color:'#22c55e', label:'C'},
+  {x:40, y:130, w:90, h:60, color:'#f59e0b', label:'D'},
+  {x:170, y:125, w:80, h:65, color:'#8b5cf6', label:'E'},
+  {x:280, y:135, w:70, h:55, color:'#ec4899', label:'F'},
+];
+// Change: rectangle B changes from blue to orange
+const CHANGE_IDX = 1; // B
+const CHANGE_COLOR_ALT = '#f97316';
+
+function drawScene(alt) {
+  cbCtx.clearRect(0,0,cbCanvas.width,cbCanvas.height);
+  cbCtx.fillStyle = '#f9fafb';
+  cbCtx.fillRect(0,0,cbCanvas.width,cbCanvas.height);
+  SCENE.forEach((r, i) => {
+    cbCtx.fillStyle = (i === CHANGE_IDX && alt) ? CHANGE_COLOR_ALT : r.color;
+    cbCtx.beginPath();
+    cbCtx.roundRect(r.x, r.y, r.w, r.h, 6);
+    cbCtx.fill();
+    cbCtx.fillStyle = '#fff';
+    cbCtx.font = 'bold 18px sans-serif';
+    cbCtx.textAlign = 'center';
+    cbCtx.fillText(r.label, r.x + r.w/2, r.y + r.h/2 + 6);
+  });
+}
+
+drawScene(false);
+
+document.getElementById('cb-start').addEventListener('click', () => {
+  if (cbInterval) clearInterval(cbInterval);
+  cbRunning = true; cbFlickers = 0; cbPhase = 0; cbRevealed = false;
+  document.getElementById('cb-clicks').textContent = 'Đang chạy... Tìm điểm khác nhau — click vào vùng đó!';
+  cbInterval = setInterval(() => {
+    cbFlickers++;
+    if (cbPhase === 0) {
+      drawScene(false);
+      cbOverlay.style.opacity = '0';
+      cbPhase = 1;
+    } else if (cbPhase === 1) {
+      cbOverlay.style.opacity = '0.9';
+      cbPhase = 2;
+    } else if (cbPhase === 2) {
+      drawScene(true);
+      cbOverlay.style.opacity = '0';
+      cbPhase = 3;
+    } else {
+      cbOverlay.style.opacity = '0.9';
+      cbPhase = 0;
+    }
+  }, 280);
+});
+
+cbCanvas.addEventListener('click', (e) => {
+  if (!cbRunning) return;
+  const rect = cbCanvas.getBoundingClientRect();
+  const scaleX = cbCanvas.width / rect.width;
+  const x = (e.clientX - rect.left) * scaleX;
+  const y = (e.clientY - rect.top) * scaleX;
+  const target = SCENE[CHANGE_IDX];
+  if (x >= target.x && x <= target.x + target.w && y >= target.y && y <= target.y + target.h) {
+    clearInterval(cbInterval); cbRunning = false;
+    cbOverlay.style.opacity = '0';
+    drawScene(false);
+    // highlight
+    cbCtx.strokeStyle = '#dc2626'; cbCtx.lineWidth = 4;
+    cbCtx.strokeRect(target.x-4, target.y-4, target.w+8, target.h+8);
+    document.getElementById('cb-clicks').textContent = `Đúng rồi! Sau ${Math.round(cbFlickers/4)} lần lặp (~${(cbFlickers*0.28/4).toFixed(1)}s). Hình chữ nhật B đổi màu xanh → cam.`;
+  } else {
+    document.getElementById('cb-clicks').textContent = `Chưa đúng vùng. Tiếp tục tìm... (${Math.round(cbFlickers/4)} lần lặp)`;
+  }
+});
+
+document.getElementById('cb-reveal').addEventListener('click', () => {
+  if (cbInterval) { clearInterval(cbInterval); cbRunning = false; }
+  cbOverlay.style.opacity = '0';
+  drawScene(false);
+  const target = SCENE[CHANGE_IDX];
+  cbCtx.strokeStyle = '#dc2626'; cbCtx.lineWidth = 4;
+  cbCtx.strokeRect(target.x-4, target.y-4, target.w+8, target.h+8);
+  cbCtx.fillStyle = '#dc2626'; cbCtx.font = '13px sans-serif'; cbCtx.textAlign = 'left';
+  cbCtx.fillText('← Thay đổi ở đây (B: xanh → cam)', target.x + target.w + 8, target.y + 20);
+  document.getElementById('cb-clicks').textContent = 'Đáp án: hình B đổi màu từ xanh → cam.';
+});
+
+// ===== INATTENTIONAL BLINDNESS =====
+const ibCanvas = document.getElementById('ib-canvas');
+const ibCtx = ibCanvas.getContext('2d');
+let ibRunning = false, ibAnim = null, ibTime = 0;
+let ibBounces = 0, ibSquareShown = false;
+
+const ibBalls = [
+  {x:60,  y:80,  vx:3,  vy:2,  r:18, color:'#dc2626'}, // RED target
+  {x:200, y:140, vx:-2, vy:3,  r:18, color:'#2563eb'}, // blue distractor
+  {x:300, y:60,  vx:-3, vy:-2, r:18, color:'#16a34a'}, // green distractor
+];
+
+const DURATION = 8000; // 8 seconds
+let ibStartTime = 0;
+
+function drawIB() {
+  ibCtx.clearRect(0,0,ibCanvas.width,ibCanvas.height);
+  ibCtx.fillStyle = '#f8f9fa';
+  ibCtx.fillRect(0,0,ibCanvas.width,ibCanvas.height);
+
+  // Draw unexpected square in middle (seconds 3.5–5.5)
+  const elapsed = performance.now() - ibStartTime;
+  if (elapsed > 3500 && elapsed < 5500 && ibRunning) {
+    ibSquareShown = true;
+    ibCtx.fillStyle = 'rgba(0,0,0,0.85)';
+    ibCtx.fillRect(155, 85, 70, 50);
+  }
+
+  // Balls
+  ibBalls.forEach(b => {
+    ibCtx.beginPath();
+    ibCtx.arc(b.x, b.y, b.r, 0, Math.PI*2);
+    ibCtx.fillStyle = b.color;
+    ibCtx.fill();
+  });
+
+  // Timer bar
+  if (ibRunning) {
+    const prog = Math.min(1, (performance.now() - ibStartTime) / DURATION);
+    ibCtx.fillStyle = '#e9d5ff';
+    ibCtx.fillRect(10, ibCanvas.height-14, ibCanvas.width-20, 8);
+    ibCtx.fillStyle = '#a21caf';
+    ibCtx.fillRect(10, ibCanvas.height-14, (ibCanvas.width-20)*prog, 8);
+    ibCtx.fillStyle = '#3b0764'; ibCtx.font = '12px sans-serif'; ibCtx.textAlign = 'left';
+    ibCtx.fillText(`Đếm số nảy của quả ĐỎ...`, 14, ibCanvas.height-20);
+  }
+}
+
+function ibStep() {
+  const W = ibCanvas.width, H = ibCanvas.height - 20;
+  ibBalls.forEach(b => {
+    b.x += b.vx; b.y += b.vy;
+    if (b.x - b.r <= 0 || b.x + b.r >= W) {
+      b.vx *= -1;
+      b.x = Math.max(b.r, Math.min(W - b.r, b.x));
+      if (b.color === '#dc2626') ibBounces++;
+    }
+    if (b.y - b.r <= 0 || b.y + b.r >= H) {
+      b.vy *= -1;
+      b.y = Math.max(b.r, Math.min(H - b.r, b.y));
+      if (b.color === '#dc2626') ibBounces++;
+    }
+  });
+  drawIB();
+  if (performance.now() - ibStartTime < DURATION && ibRunning) {
+    ibAnim = requestAnimationFrame(ibStep);
+  } else if (ibRunning) {
+    ibRunning = false;
+    endIB();
+  }
+}
+
+function endIB() {
+  drawIB();
+  document.getElementById('ib-count-display').textContent = '';
+  document.getElementById('ib-question').style.display = 'block';
+}
+
+document.getElementById('ib-start').addEventListener('click', () => {
+  if (ibAnim) cancelAnimationFrame(ibAnim);
+  ibBounces = 0; ibSquareShown = false; ibRunning = true;
+  ibStartTime = performance.now();
+  ibBalls[0].x=60; ibBalls[0].y=80; ibBalls[1].x=200; ibBalls[1].y=140; ibBalls[2].x=300; ibBalls[2].y=60;
+  document.getElementById('ib-question').style.display = 'none';
+  document.getElementById('ib-result').style.display = 'none';
+  document.getElementById('ib-count-display').textContent = '';
+  ibAnim = requestAnimationFrame(ibStep);
+});
+
+function showIBResult(saw) {
+  document.getElementById('ib-question').style.display = 'none';
+  const r = document.getElementById('ib-result');
+  r.style.display = 'block';
+  const squareInfo = ibSquareShown ? 'Hình vuông ĐEN xuất hiện ~3.5–5.5 giây, giữa màn hình, kích thước lớn.' : 'Hình vuông không hiện do timing.';
+  if (saw) {
+    r.innerHTML = `Bạn thấy hình vuông! Khoảng <strong>54%</strong> người thấy nó (tùy mức độ tập trung vào task đếm). ` + squareInfo + ` Simons & Chabris (1999): <strong>46%</strong> người KHÔNG thấy gorilla dù nó hiện 9 giây giữa màn hình.`;
+  } else {
+    r.innerHTML = `Bạn đã miss hình vuông — đây là inattentional blindness! ` + squareInfo + ` Simons & Chabris (1999): <strong>46% miss gorilla</strong> khi đang đếm pass bóng. Drew et al. (2013): 83% radiologists miss gorilla nhỏ trên CT scan.`;
+  }
+}
+
+document.getElementById('ib-yes').addEventListener('click', () => showIBResult(true));
+document.getElementById('ib-no').addEventListener('click', () => showIBResult(false));
+
+// initial draw
+drawIB();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

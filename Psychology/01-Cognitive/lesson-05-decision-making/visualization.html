@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05: Decision Making — Psychology</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fdf4ff;
+    --accent: #a21caf;
+    --accent-soft: #fae8ff;
+    --accent-hover: #86198f;
+  }
+  h1 { color: #581c87; }
+  h2 { color: #6b21a8; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #f5d0fe; }
+  .lead { color: #6b21a8; font-size: 1.05rem; margin-bottom: 28px; }
+  .module { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 28px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+  .module h3 { color: #7e22ce; margin-top: 0; }
+  .btn { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 8px 18px; cursor: pointer; font-size: 0.9rem; }
+  .btn:hover { background: var(--accent-hover); }
+  .btn.outline { background: transparent; border: 2px solid var(--accent); color: var(--accent); }
+  .btn.outline:hover { background: var(--accent-soft); }
+  .result-box { background: #f3f4f6; border-radius: 8px; padding: 12px 16px; font-size: 0.9rem; line-height: 1.6; margin-top: 10px; }
+  .result-box strong { color: var(--accent); }
+
+  /* Lottery choices */
+  .lottery-row { display: flex; gap: 14px; flex-wrap: wrap; margin: 12px 0; }
+  .lottery-card { flex: 1 1 180px; border: 2px solid var(--line); border-radius: 10px; padding: 14px; cursor: pointer; transition: border-color 0.2s, background 0.2s; text-align: center; }
+  .lottery-card:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .lottery-card.chosen { border-color: var(--accent); background: var(--accent-soft); }
+  .lottery-card h4 { margin: 0 0 6px; color: #581c87; }
+  .lottery-card p { margin: 0; font-size: 0.85rem; color: #4a5568; }
+  .lottery-card .ev { font-size: 0.8rem; color: #718096; margin-top: 6px; }
+
+  /* Loss aversion slider */
+  .la-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 10px 0; }
+  .la-row label { font-size: 0.9rem; color: #4a5568; }
+  input[type=range] { flex: 1; min-width: 80px; max-width: 200px; accent-color: var(--accent); }
+  .val-badge { background: var(--accent-soft); color: var(--accent-hover); border-radius: 6px; padding: 2px 8px; font-size: 0.85rem; font-weight: 600; }
+
+  /* Value function canvas */
+  #vf-canvas { display: block; max-width: 100%; }
+  #pw-canvas { display: block; max-width: 100%; }
+
+  /* Lottery task grid */
+  .task-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+  .task-card { border: 2px solid var(--line); border-radius: 8px; padding: 10px; cursor: pointer; text-align: center; transition: border-color 0.2s, background 0.2s; }
+  .task-card:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .task-card.chosen { border-color: var(--accent); background: var(--accent-soft); }
+
+  @media (max-width: 500px) {
+    .lottery-row { flex-direction: column; }
+    .task-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-cognitive-biases/visualization.html">← L04: Cognitive Biases</a>
+  <span class="sep">·</span>
+  <span class="current">L05: Decision Making</span>
+  <span class="sep">·</span>
+  <a href="../../02-Social-Developmental/lesson-01-social-influence/visualization.html">T2-L01: Social Influence →</a>
+</nav>
+<main>
+  <h1>Lesson 05: Decision Making</h1>
+  <p class="lead">Chọn lottery để ước tính loss aversion của bạn. Xem value function S-shape và probability weighting. Mọi phản hồi dựa trên dữ liệu Prospect Theory thật.</p>
+
+  <!-- MODULE 1: Loss Aversion Task -->
+  <section class="module">
+    <h3>1. Đo Loss Aversion Của Bạn</h3>
+    <p>5 quyết định liên tiếp. Mỗi lần: bạn được mời tham gia một bet. Chọn <strong>Chấp nhận</strong> hoặc <strong>Từ chối</strong>.</p>
+    <div id="la-task-area">
+      <div id="la-trial-info" style="font-weight:600;color:#6b21a8;margin-bottom:8px;"></div>
+      <div id="la-bet-display" style="background:#f0e6ff;border-radius:10px;padding:20px;text-align:center;font-size:1.1rem;color:#3b0764;margin:12px 0;"></div>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn" id="la-accept">Chấp nhận bet</button>
+        <button class="btn outline" id="la-reject">Từ chối</button>
+      </div>
+    </div>
+    <div class="result-box" id="la-result" style="display:none;"></div>
+    <button class="btn outline" id="la-restart" style="margin-top:10px;display:none;">Làm lại</button>
+  </section>
+
+  <!-- MODULE 2: Value Function -->
+  <section class="module">
+    <h3>2. Prospect Theory Value Function (S-shape)</h3>
+    <p>Hàm value v(x) = x^α (gains, concave) và v(x) = −λ(−x)^β (losses, convex). Kéo slider để thay đổi λ.</p>
+    <canvas id="vf-canvas" width="500" height="300" viewBox="0 0 500 300"></canvas>
+    <div class="la-row">
+      <label>λ (loss aversion):</label>
+      <input type="range" id="vf-lambda" min="1" max="4" step="0.1" value="2.25">
+      <span class="val-badge" id="vf-lambda-val">λ = 2.25</span>
+    </div>
+    <div class="result-box" id="vf-result">
+      Kahneman & Tversky (1992): α = β ≈ 0.88, λ ≈ 2.25. Hàm <strong>concave phần gain</strong> (risk-averse) và <strong>convex phần loss</strong> (risk-seeking). Điểm uốn tại reference point (0).
+    </div>
+  </section>
+
+  <!-- MODULE 3: Probability Weighting -->
+  <section class="module">
+    <h3>3. Probability Weighting Function</h3>
+    <p>w(p) = p^γ / [p^γ + (1−p)^γ]^(1/γ). Đường chéo = không bias. Đường cong = overweight nhỏ, underweight lớn.</p>
+    <canvas id="pw-canvas" width="400" height="300" viewBox="0 0 400 300"></canvas>
+    <div class="la-row">
+      <label>γ (curvature):</label>
+      <input type="range" id="pw-gamma" min="0.3" max="1.0" step="0.05" value="0.69">
+      <span class="val-badge" id="pw-gamma-val">γ = 0.69</span>
+    </div>
+    <div class="result-box" id="pw-result">
+      γ = 1 → đường thẳng (không bias). γ &lt; 1 → S-shape đặc trưng. w(0.01) ≈ 4–6% (overweight 4x). w(0.90) ≈ 71% (underweight). Giải thích lottery + insurance paradox.
+    </div>
+  </section>
+
+  <!-- MODULE 4: Allais Paradox -->
+  <section class="module">
+    <h3>4. Allais Paradox — Bạn Có Vi Phạm EUT Không?</h3>
+    <p>Trả lời 2 câu hỏi độc lập. Sau đó xem kết quả.</p>
+
+    <p style="font-weight:600;color:#3b0764;">Problem 1: Chọn một trong hai:</p>
+    <div class="task-grid" id="allais-p1">
+      <div class="task-card" data-p="1" data-c="A">
+        <strong>1A</strong><br>
+        <span style="color:#16a34a;">100%: Nhận $1,000,000</span>
+        <div style="font-size:0.8rem;color:#718096;margin-top:4px;">EV: $1,000,000</div>
+      </div>
+      <div class="task-card" data-p="1" data-c="B">
+        <strong>1B</strong><br>
+        <span style="color:#2563eb;">89%: $1,000,000<br>10%: $5,000,000<br>1%: $0</span>
+        <div style="font-size:0.8rem;color:#718096;margin-top:4px;">EV: $1,390,000</div>
+      </div>
+    </div>
+
+    <p style="font-weight:600;color:#3b0764;margin-top:16px;">Problem 2: Chọn một trong hai:</p>
+    <div class="task-grid" id="allais-p2">
+      <div class="task-card" data-p="2" data-c="A">
+        <strong>2A</strong><br>
+        <span style="color:#2563eb;">11%: $1,000,000<br>89%: $0</span>
+        <div style="font-size:0.8rem;color:#718096;margin-top:4px;">EV: $110,000</div>
+      </div>
+      <div class="task-card" data-p="2" data-c="B">
+        <strong>2B</strong><br>
+        <span style="color:#2563eb;">10%: $5,000,000<br>90%: $0</span>
+        <div style="font-size:0.8rem;color:#718096;margin-top:4px;">EV: $500,000</div>
+      </div>
+    </div>
+    <button class="btn" id="allais-check" style="margin-top:12px;" disabled>Xem kết quả</button>
+    <div class="result-box" id="allais-result" style="display:none;"></div>
+  </section>
+
+</main>
+
+<script>
+// ===== LOSS AVERSION TASK =====
+// Bets: 50% win X, 50% lose 50. X varies — user accept/reject → infer lambda
+const LA_BETS = [
+  {win: 60,  lose: 50},
+  {win: 80,  lose: 50},
+  {win: 100, lose: 50},
+  {win: 130, lose: 50},
+  {win: 160, lose: 50},
+];
+let laIdx = 0, laAccepted = [];
+
+function showLABet() {
+  if (laIdx >= LA_BETS.length) { finishLA(); return; }
+  const b = LA_BETS[laIdx];
+  document.getElementById('la-trial-info').textContent = `Quyết định ${laIdx+1}/${LA_BETS.length}`;
+  document.getElementById('la-bet-display').innerHTML =
+    `Tung đồng xu:<br>
+     <strong style="color:#16a34a;">Mặt ngửa → THẮNG $${b.win}</strong><br>
+     <strong style="color:#dc2626;">Mặt xấp → THUA $${b.lose}</strong><br>
+     <span style="font-size:0.85rem;color:#718096;">Expected value: $${(0.5*b.win - 0.5*b.lose).toFixed(0)} | Bạn có chấp nhận không?</span>`;
+}
+
+document.getElementById('la-accept').addEventListener('click', () => {
+  laAccepted.push(true); laIdx++; showLABet();
+});
+document.getElementById('la-reject').addEventListener('click', () => {
+  laAccepted.push(false); laIdx++; showLABet();
+});
+
+function finishLA() {
+  document.getElementById('la-task-area').style.display = 'none';
+  document.getElementById('la-result').style.display = 'block';
+  document.getElementById('la-restart').style.display = 'inline-block';
+
+  // Find threshold: first accepted bet (or last rejected)
+  const firstAccept = laAccepted.findIndex(a => a);
+  const allRejected = laAccepted.every(a => !a);
+  const allAccepted = laAccepted.every(a => a);
+
+  let lambdaEst, msg;
+  if (allRejected) {
+    lambdaEst = '>3.2';
+    msg = `Bạn từ chối tất cả các bet — kể cả thắng $160/thua $50. Điều này gợi ý λ > 3.2 (rất risk-averse). Tversky & Kahneman median: λ ≈ 2.0.`;
+  } else if (allAccepted) {
+    lambdaEst = '<1.2';
+    msg = `Bạn chấp nhận tất cả — kể cả thắng $60/thua $50 (EV+$5). λ < 1.2 (gần neutral/risk-tolerant). Hiếm gặp trong nghiên cứu — median λ ≈ 2.0.`;
+  } else {
+    const threshold = LA_BETS[firstAccept].win;
+    lambdaEst = (threshold / 50).toFixed(1);
+    msg = `Bạn bắt đầu chấp nhận khi win = $${threshold} với lose = $50. λ ước tính = ${threshold}/50 = <strong>${lambdaEst}</strong>. Tversky & Kahneman (1991): median λ = 2.0. Gächter et al. (2022, 30k người): range 1.3–2.1.`;
+  }
+  document.getElementById('la-result').innerHTML = `<strong>Lambda ước tính của bạn: ${lambdaEst}</strong><br>${msg}`;
+}
+
+document.getElementById('la-restart').addEventListener('click', () => {
+  laIdx = 0; laAccepted = [];
+  document.getElementById('la-task-area').style.display = 'block';
+  document.getElementById('la-result').style.display = 'none';
+  document.getElementById('la-restart').style.display = 'none';
+  showLABet();
+});
+
+showLABet();
+
+// ===== VALUE FUNCTION =====
+const vfCanvas = document.getElementById('vf-canvas');
+const vfCtx = vfCanvas.getContext('2d');
+
+function drawValueFunction(lambda) {
+  const W = vfCanvas.width, H = vfCanvas.height;
+  const cx = W/2, cy = H/2;
+  const scaleX = W/2 - 30, scaleY = H/2 - 30;
+  const alpha = 0.88, beta = 0.88;
+
+  vfCtx.clearRect(0,0,W,H);
+  vfCtx.fillStyle = '#f9fafb'; vfCtx.fillRect(0,0,W,H);
+
+  // Axes
+  vfCtx.strokeStyle = '#cbd5e0'; vfCtx.lineWidth = 1;
+  vfCtx.beginPath(); vfCtx.moveTo(20, cy); vfCtx.lineTo(W-20, cy); vfCtx.stroke();
+  vfCtx.beginPath(); vfCtx.moveTo(cx, 10); vfCtx.lineTo(cx, H-10); vfCtx.stroke();
+  vfCtx.fillStyle = '#718096'; vfCtx.font = '11px sans-serif'; vfCtx.textAlign = 'center';
+  vfCtx.fillText('Lợi (gain) →', cx + scaleX*0.6, cy - 8);
+  vfCtx.fillText('← Mất (loss)', cx - scaleX*0.6, cy - 8);
+  vfCtx.fillText('Value ↑', cx - 16, 20); vfCtx.textAlign = 'left';
+
+  // Value function
+  vfCtx.strokeStyle = '#a21caf'; vfCtx.lineWidth = 2.5;
+  vfCtx.beginPath();
+  const maxX = 100;
+  for (let px = 1; px <= W-20; px++) {
+    const xNorm = (px - cx) / scaleX; // -1 to 1
+    const x = xNorm * maxX;
+    let v;
+    if (x >= 0) v = Math.pow(x, alpha);
+    else v = -lambda * Math.pow(-x, beta);
+    const vMax = Math.pow(maxX, alpha);
+    const vMin = -lambda * Math.pow(maxX, beta);
+    const yNorm = v / Math.max(vMax, -vMin);
+    const pyRaw = cy - yNorm * (scaleY - 10);
+    const py = Math.max(10, Math.min(H-10, pyRaw));
+    if (px === 1) vfCtx.moveTo(px, py); else vfCtx.lineTo(px, py);
+  }
+  vfCtx.stroke();
+
+  // Reference point dot
+  vfCtx.beginPath(); vfCtx.arc(cx, cy, 5, 0, Math.PI*2);
+  vfCtx.fillStyle = '#dc2626'; vfCtx.fill();
+  vfCtx.fillStyle = '#dc2626'; vfCtx.font = '10px sans-serif'; vfCtx.textAlign = 'left';
+  vfCtx.fillText('Reference point', cx+8, cy+14);
+
+  // Annotations
+  vfCtx.fillStyle = '#4a5568'; vfCtx.font = '10px sans-serif'; vfCtx.textAlign = 'center';
+  vfCtx.fillText('Concave (risk-averse)', cx + scaleX*0.5, cy - scaleY*0.4);
+  vfCtx.fillText('Convex (risk-seeking)', cx - scaleX*0.5, cy + scaleY*0.4);
+}
+
+drawValueFunction(2.25);
+document.getElementById('vf-lambda').addEventListener('input', () => {
+  const lam = parseFloat(document.getElementById('vf-lambda').value);
+  document.getElementById('vf-lambda-val').textContent = 'λ = ' + lam;
+  drawValueFunction(lam);
+  document.getElementById('vf-result').innerHTML =
+    `λ = ${lam}: pain(loss $100) / pleasure(gain $100) = ${lam}. ` +
+    (lam < 1.5 ? 'Hampir risk-neutral.' : lam <= 2.5 ? 'Trong khoảng Tversky & Kahneman (1992): λ ≈ 2.25.' : 'Loss-averse mạnh.') +
+    ' Gächter et al. (2022): trung bình λ ≈ 1.3–2.1 tùy văn hóa.';
+});
+
+// ===== PROBABILITY WEIGHTING =====
+const pwCanvas = document.getElementById('pw-canvas');
+const pwCtx = pwCanvas.getContext('2d');
+
+function w(p, gamma) {
+  if (p === 0) return 0; if (p === 1) return 1;
+  const num = Math.pow(p, gamma);
+  const denom = Math.pow(Math.pow(p, gamma) + Math.pow(1-p, gamma), 1/gamma);
+  return num/denom;
+}
+
+function drawProbWeighting(gamma) {
+  const W = pwCanvas.width, H = pwCanvas.height;
+  const PAD = {left:40, right:20, top:20, bottom:40};
+  const pW = W - PAD.left - PAD.right, pH = H - PAD.top - PAD.bottom;
+
+  pwCtx.clearRect(0,0,W,H);
+  pwCtx.fillStyle = '#f9fafb'; pwCtx.fillRect(0,0,W,H);
+
+  // Grid
+  pwCtx.strokeStyle = '#e2e8f0'; pwCtx.lineWidth = 1;
+  [0,0.25,0.5,0.75,1].forEach(v => {
+    const x = PAD.left + v*pW, y = PAD.top + (1-v)*pH;
+    pwCtx.beginPath(); pwCtx.moveTo(x, PAD.top); pwCtx.lineTo(x, PAD.top+pH); pwCtx.stroke();
+    pwCtx.beginPath(); pwCtx.moveTo(PAD.left, y); pwCtx.lineTo(PAD.left+pW, y); pwCtx.stroke();
+    pwCtx.fillStyle = '#718096'; pwCtx.font = '10px sans-serif'; pwCtx.textAlign = 'center';
+    pwCtx.fillText(v.toFixed(2), x, PAD.top+pH+16);
+    if (v > 0) { pwCtx.textAlign = 'right'; pwCtx.fillText(v.toFixed(2), PAD.left-4, y+4); }
+  });
+  pwCtx.fillStyle = '#718096'; pwCtx.font = '11px sans-serif'; pwCtx.textAlign = 'center';
+  pwCtx.fillText('Xác suất thực (p)', PAD.left+pW/2, H-4);
+  pwCtx.save(); pwCtx.translate(12, PAD.top+pH/2); pwCtx.rotate(-Math.PI/2); pwCtx.fillText('w(p)', 0, 0); pwCtx.restore();
+
+  // Diagonal (no bias)
+  pwCtx.strokeStyle = '#cbd5e0'; pwCtx.lineWidth = 1.5; pwCtx.setLineDash([4,4]);
+  pwCtx.beginPath(); pwCtx.moveTo(PAD.left, PAD.top+pH); pwCtx.lineTo(PAD.left+pW, PAD.top); pwCtx.stroke();
+  pwCtx.setLineDash([]);
+
+  // Weighting curve
+  pwCtx.strokeStyle = '#a21caf'; pwCtx.lineWidth = 2.5;
+  pwCtx.beginPath();
+  for (let i = 0; i <= 200; i++) {
+    const p = i/200;
+    const wp = w(p, gamma);
+    const x = PAD.left + p*pW;
+    const y = PAD.top + (1-wp)*pH;
+    if (i===0) pwCtx.moveTo(x,y); else pwCtx.lineTo(x,y);
+  }
+  pwCtx.stroke();
+
+  // Annotate specific points
+  const pts = [[0.01,'1%→'+Math.round(w(0.01,gamma)*100)+'%'],[0.10,'10%→'+Math.round(w(0.10,gamma)*100)+'%'],[0.90,'90%→'+Math.round(w(0.90,gamma)*100)+'%']];
+  pts.forEach(([p, label]) => {
+    const wp = w(p, gamma);
+    const x = PAD.left + p*pW;
+    const y = PAD.top + (1-wp)*pH;
+    pwCtx.beginPath(); pwCtx.arc(x,y,4,0,Math.PI*2);
+    pwCtx.fillStyle = '#dc2626'; pwCtx.fill();
+    pwCtx.fillStyle = '#dc2626'; pwCtx.font = '9px sans-serif'; pwCtx.textAlign = p < 0.5 ? 'left' : 'right';
+    pwCtx.fillText(label, x+(p<0.5?6:-6), y-4);
+  });
+}
+
+drawProbWeighting(0.69);
+document.getElementById('pw-gamma').addEventListener('input', () => {
+  const g = parseFloat(document.getElementById('pw-gamma').value);
+  document.getElementById('pw-gamma-val').textContent = 'γ = ' + g;
+  drawProbWeighting(g);
+  const w01 = Math.round(w(0.01,g)*100), w50 = Math.round(w(0.5,g)*100), w90 = Math.round(w(0.9,g)*100);
+  document.getElementById('pw-result').innerHTML =
+    `γ = ${g}: w(1%) = <strong>${w01}%</strong>, w(50%) = <strong>${w50}%</strong>, w(90%) = <strong>${w90}%</strong>. ` +
+    (g < 0.6 ? 'Curvature mạnh — overweight nhỏ rất lớn.' : g >= 1 ? 'γ = 1: không bias (đường thẳng).' : 'Tversky & Kahneman (1992) tham số hoá γ ≈ 0.69.');
+});
+
+// ===== ALLAIS =====
+let allaisP1 = null, allaisP2 = null;
+
+document.querySelectorAll('.task-card').forEach(card => {
+  card.addEventListener('click', () => {
+    const p = card.dataset.p, c = card.dataset.c;
+    document.querySelectorAll(`.task-card[data-p="${p}"]`).forEach(x => x.classList.remove('chosen'));
+    card.classList.add('chosen');
+    if (p === '1') allaisP1 = c; else allaisP2 = c;
+    if (allaisP1 && allaisP2) document.getElementById('allais-check').disabled = false;
+  });
+});
+
+document.getElementById('allais-check').addEventListener('click', () => {
+  const r = document.getElementById('allais-result');
+  r.style.display = 'block';
+  const combo = `${allaisP1}+${allaisP2}`;
+  let msg = `Bạn chọn <strong>1${allaisP1}</strong> và <strong>2${allaisP2}</strong>. `;
+  if (combo === 'A+A') {
+    msg += 'Nhất quán với EUT (avoid certain $0 trong P1, lấy EV cao hơn trong P2). Allais (1953): thiểu số chọn combo này.';
+  } else if (combo === 'B+B') {
+    msg += 'Nhất quán với EUT (risk-neutral, chọn EV cao). Allais (1953): thiểu số combo này.';
+  } else if (combo === 'A+B') {
+    msg += '<strong>Vi phạm EUT!</strong> Allais paradox — đây là combination phổ biến nhất (~65%). P1A→safe certainty effect, P2B→EV cao khi cả 2 đều risky. Vi phạm independence axiom. Prospect Theory giải thích: w(1.0) >> w(0.99) (certainty effect).';
+  } else {
+    msg += 'Combo ít phổ biến. Allais (1953): 1A+2B là vi phạm EUT phổ biến nhất (~65% người), chứng tỏ independence axiom bị phá vỡ trong thực tế.';
+  }
+  msg += ' Allais (1953): đây là first published systematic violation of EUT. Von Neumann bực mình — nhưng kết quả replicates mạnh trong 70 năm.';
+  r.innerHTML = msg;
+});
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

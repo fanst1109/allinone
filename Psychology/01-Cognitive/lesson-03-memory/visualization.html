@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03: Memory — Psychology</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fdf4ff;
+    --accent: #a21caf;
+    --accent-soft: #fae8ff;
+    --accent-hover: #86198f;
+  }
+  h1 { color: #581c87; }
+  h2 { color: #6b21a8; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #f5d0fe; }
+  .lead { color: #6b21a8; font-size: 1.05rem; margin-bottom: 28px; }
+  .module { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 28px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+  .module h3 { color: #7e22ce; margin-top: 0; }
+
+  .btn { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 8px 18px; cursor: pointer; font-size: 0.9rem; }
+  .btn:hover { background: var(--accent-hover); }
+  .btn.outline { background: transparent; border: 2px solid var(--accent); color: var(--accent); }
+  .btn.outline:hover { background: var(--accent-soft); }
+  .result-box { background: #f3f4f6; border-radius: 8px; padding: 12px 16px; font-size: 0.9rem; line-height: 1.6; margin-top: 10px; }
+  .result-box strong { color: var(--accent); }
+
+  /* Digit span */
+  #ds-display { font-size: 3rem; font-weight: 900; letter-spacing: 0.2em; text-align: center; padding: 24px; background: #f8f9fa; border-radius: 12px; margin: 16px 0; min-height: 80px; display: flex; align-items: center; justify-content: center; color: #1f2328; }
+  #ds-input { font-size: 1.4rem; width: 100%; max-width: 320px; display: block; margin: 10px auto; padding: 8px 16px; border: 2px solid var(--accent); border-radius: 8px; text-align: center; letter-spacing: 0.15em; }
+  .ds-stats { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+  .ds-stat { background: var(--accent-soft); border-radius: 8px; padding: 10px 18px; text-align: center; }
+  .ds-stat .val { font-size: 1.6rem; font-weight: 800; color: var(--accent); }
+  .ds-stat .lbl { font-size: 0.78rem; color: #6b21a8; }
+
+  /* Ebbinghaus chart */
+  #eb-canvas { display: block; max-width: 100%; }
+  .ctrl-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
+  .ctrl-row label { font-size: 0.9rem; color: #4a5568; }
+  input[type=range] { flex: 1; min-width: 80px; max-width: 180px; accent-color: var(--accent); }
+  .val-badge { background: var(--accent-soft); color: var(--accent-hover); border-radius: 6px; padding: 2px 8px; font-size: 0.85rem; font-weight: 600; }
+
+  /* DRM false memory */
+  .word-grid { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0; }
+  .word-chip { background: var(--accent-soft); color: #3b0764; border-radius: 20px; padding: 6px 14px; font-size: 0.9rem; font-weight: 600; border: 2px solid transparent; cursor: default; }
+  .word-chip.seen { background: #dcfce7; color: #14532d; border-color: #16a34a; }
+  .word-chip.false { background: #fee2e2; color: #7f1d1d; border-color: #dc2626; }
+  .word-chip.correct { background: #dcfce7; color: #14532d; border-color: #16a34a; }
+  .recog-btn { background: #fff; border: 2px solid var(--line-strong); border-radius: 20px; padding: 6px 14px; font-size: 0.9rem; cursor: pointer; transition: background 0.15s; }
+  .recog-btn:hover { background: var(--accent-soft); }
+
+  @media (max-width: 500px) {
+    #ds-display { font-size: 2.2rem; padding: 16px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-attention/visualization.html">← L02: Attention</a>
+  <span class="sep">·</span>
+  <span class="current">L03: Memory</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-cognitive-biases/visualization.html">L04: Cognitive Biases →</a>
+</nav>
+<main>
+  <h1>Lesson 03: Memory</h1>
+  <p class="lead">Đo digit span của bạn, thấy Ebbinghaus curve chạy theo thời gian, và trải nghiệm false memory qua DRM paradigm.</p>
+
+  <!-- MODULE 1: Digit Span -->
+  <section class="module">
+    <h3>1. Digit Span Test — Đo STM Capacity</h3>
+    <p>Nhìn vào chuỗi số (hiện 1.5 giây), che đi, rồi nhập lại chính xác. Bắt đầu từ 3 chữ số, tăng dần. Test dừng khi sai 2 lần liên tiếp.</p>
+    <div id="ds-phase-info" style="text-align:center;color:#6b21a8;font-weight:600;margin:8px 0;">Nhấn Bắt đầu</div>
+    <div id="ds-display">?</div>
+    <input type="text" id="ds-input" placeholder="Nhập dãy số bạn vừa thấy..." style="display:none" inputmode="numeric">
+    <div style="text-align:center;margin-top:8px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn" id="ds-start">Bắt đầu</button>
+      <button class="btn outline" id="ds-submit" style="display:none">Xác nhận</button>
+    </div>
+    <div class="ds-stats" id="ds-stats" style="display:none">
+      <div class="ds-stat"><div class="val" id="ds-span">—</div><div class="lbl">Digit Span</div></div>
+      <div class="ds-stat"><div class="val" id="ds-attempts">—</div><div class="lbl">Số lần thử</div></div>
+    </div>
+    <div class="result-box" id="ds-result" style="display:none"></div>
+  </section>
+
+  <!-- MODULE 2: Ebbinghaus Curve -->
+  <section class="module">
+    <h3>2. Ebbinghaus Forgetting Curve</h3>
+    <p>R(t) = e<sup>−t/s</sup>. Kéo slider để thay đổi stability (s) — như sau mỗi lần review. Điểm đỏ = dữ liệu gốc Ebbinghaus (1885).</p>
+    <canvas id="eb-canvas" width="540" height="280" viewBox="0 0 540 280"></canvas>
+    <div class="ctrl-row">
+      <label>Stability s:</label>
+      <input type="range" id="eb-s" min="0.5" max="20" step="0.5" value="1">
+      <span class="val-badge" id="eb-s-val">s = 1 ngày</span>
+    </div>
+    <div class="ctrl-row">
+      <label>Thêm review tại ngày:</label>
+      <input type="range" id="eb-review" min="1" max="10" step="1" value="3">
+      <span class="val-badge" id="eb-review-val">Ngày 3</span>
+      <button class="btn outline" id="eb-add-review">+ Thêm review</button>
+    </div>
+    <div class="result-box" id="eb-result">
+      Ebbinghaus gốc (s≈1 ngày, nonsense syllables): sau 1 ngày chỉ còn ~33%. Với meaningful material (từ vựng, khái niệm), s lớn hơn. Mỗi lần review đúng thời điểm tăng s.
+    </div>
+  </section>
+
+  <!-- MODULE 3: DRM False Memory -->
+  <section class="module">
+    <h3>3. DRM False Memory Paradigm</h3>
+    <p>Bước 1: Đọc kỹ 15 từ dưới đây trong 30 giây. Bước 2: Nhận dạng từ nào đã xuất hiện.</p>
+    <div id="drm-step1">
+      <div class="word-grid" id="drm-study-list"></div>
+      <div id="drm-timer" style="color:#6b21a8;font-weight:600;text-align:center;font-size:1.1rem;margin:8px 0;"></div>
+      <button class="btn" id="drm-ready">Sẵn sàng nhận dạng (ẩn danh sách)</button>
+    </div>
+    <div id="drm-step2" style="display:none;">
+      <p style="font-weight:600;color:#3b0764;">Bước 2: Từ nào có trong danh sách lúc nãy? (Click để đánh dấu Có/Không)</p>
+      <div id="drm-recog-list" class="word-grid"></div>
+      <button class="btn" id="drm-check" style="margin-top:12px;">Kiểm tra đáp án</button>
+    </div>
+    <div class="result-box" id="drm-result" style="display:none;"></div>
+  </section>
+
+</main>
+
+<script>
+// ===== DIGIT SPAN =====
+let dsLength = 3, dsSequence = '', dsAttempts = 0, dsErrors = 0, dsBestSpan = 2;
+let dsPhase = 'idle'; // idle | showing | entering
+
+function genDigits(n) {
+  let s = '';
+  for (let i = 0; i < n; i++) s += Math.floor(Math.random()*10);
+  return s;
+}
+
+function dsShow() {
+  dsPhase = 'showing';
+  dsSequence = genDigits(dsLength);
+  document.getElementById('ds-display').textContent = dsSequence;
+  document.getElementById('ds-input').style.display = 'none';
+  document.getElementById('ds-submit').style.display = 'none';
+  document.getElementById('ds-phase-info').textContent = `Liệt độ dài ${dsLength} — Ghi nhớ!`;
+  setTimeout(() => {
+    document.getElementById('ds-display').textContent = '• '.repeat(dsLength).trim();
+    document.getElementById('ds-input').value = '';
+    document.getElementById('ds-input').style.display = 'block';
+    document.getElementById('ds-submit').style.display = 'inline-block';
+    document.getElementById('ds-input').focus();
+    dsPhase = 'entering';
+    document.getElementById('ds-phase-info').textContent = 'Nhập chuỗi vừa thấy:';
+  }, 1500);
+}
+
+document.getElementById('ds-start').addEventListener('click', () => {
+  dsLength = 3; dsAttempts = 0; dsErrors = 0; dsBestSpan = 2;
+  document.getElementById('ds-stats').style.display = 'flex';
+  document.getElementById('ds-result').style.display = 'none';
+  document.getElementById('ds-start').textContent = 'Thử lại';
+  dsShow();
+});
+
+function dsSubmit() {
+  if (dsPhase !== 'entering') return;
+  const val = document.getElementById('ds-input').value.trim();
+  dsAttempts++;
+  const correct = val === dsSequence;
+  if (correct) {
+    dsBestSpan = Math.max(dsBestSpan, dsLength);
+    dsErrors = 0;
+    dsLength++;
+    document.getElementById('ds-phase-info').textContent = `Đúng rồi! Tăng lên ${dsLength} chữ số.`;
+    setTimeout(dsShow, 800);
+  } else {
+    dsErrors++;
+    document.getElementById('ds-phase-info').textContent = `Sai. Đúng là: ${dsSequence}. ${dsErrors===1 ? 'Một lần nữa.' : 'Kết thúc.'}`;
+    if (dsErrors >= 2) {
+      dsFinish();
+    } else {
+      setTimeout(dsShow, 1200);
+    }
+  }
+  document.getElementById('ds-span').textContent = dsBestSpan;
+  document.getElementById('ds-attempts').textContent = dsAttempts;
+}
+
+document.getElementById('ds-submit').addEventListener('click', dsSubmit);
+document.getElementById('ds-input').addEventListener('keydown', e => { if (e.key === 'Enter') dsSubmit(); });
+
+function dsFinish() {
+  dsPhase = 'done';
+  document.getElementById('ds-input').style.display = 'none';
+  document.getElementById('ds-submit').style.display = 'none';
+  const r = document.getElementById('ds-result');
+  r.style.display = 'block';
+  let msg = `Digit span của bạn: <strong>${dsBestSpan}</strong>. `;
+  if (dsBestSpan <= 5) msg += 'Dưới trung bình — có thể do bối cảnh thực nghiệm, không đại diện cho khả năng thực.';
+  else if (dsBestSpan <= 8) msg += 'Trong khoảng bình thường (5–9, trung bình 7 — Miller 1956).';
+  else msg += 'Trên trung bình. Bạn có thể đang dùng chunking hiệu quả hoặc phonological rehearsal tốt.';
+  msg += ` Miller (1956): 7±2 items. Cowan (2001): focus window chỉ ~4 slots, còn lại nhờ rehearsal.`;
+  r.innerHTML = msg;
+}
+
+// ===== EBBINGHAUS CURVE =====
+const ebCanvas = document.getElementById('eb-canvas');
+const ebCtx = ebCanvas.getContext('2d');
+let ebS = 1, ebReviews = []; // review days
+
+// Ebbinghaus 1885 actual data points
+const EBBINGHAUS_DATA = [
+  {t: 20/1440, r: 0.58}, // 20 min
+  {t: 1/24,    r: 0.44}, // 1 hour
+  {t: 1,       r: 0.33}, // 1 day
+  {t: 2,       r: 0.28},
+  {t: 6,       r: 0.25},
+  {t: 31,      r: 0.21}
+];
+
+function drawEbbinghaus() {
+  const W = ebCanvas.width, H = ebCanvas.height;
+  const PAD = {left:50, right:20, top:20, bottom:40};
+  const plotW = W - PAD.left - PAD.right;
+  const plotH = H - PAD.top - PAD.bottom;
+  const maxT = 14; // days
+
+  ebCtx.clearRect(0,0,W,H);
+  ebCtx.fillStyle = '#f9fafb';
+  ebCtx.fillRect(0,0,W,H);
+
+  // Axes
+  ebCtx.strokeStyle = '#cbd5e0'; ebCtx.lineWidth = 1;
+  // Gridlines
+  for (let r = 0; r <= 1; r += 0.2) {
+    const y = PAD.top + plotH * (1 - r);
+    ebCtx.beginPath();
+    ebCtx.moveTo(PAD.left, y);
+    ebCtx.lineTo(PAD.left + plotW, y);
+    ebCtx.stroke();
+    ebCtx.fillStyle = '#718096'; ebCtx.font = '10px sans-serif'; ebCtx.textAlign = 'right';
+    ebCtx.fillText(Math.round(r*100)+'%', PAD.left - 5, y + 4);
+  }
+  for (let d = 0; d <= maxT; d += 2) {
+    const x = PAD.left + (d/maxT)*plotW;
+    ebCtx.beginPath(); ebCtx.moveTo(x, PAD.top); ebCtx.lineTo(x, PAD.top+plotH); ebCtx.stroke();
+    ebCtx.fillStyle = '#718096'; ebCtx.font = '10px sans-serif'; ebCtx.textAlign = 'center';
+    ebCtx.fillText('Ngày '+d, x, PAD.top + plotH + 18);
+  }
+  // Axis labels
+  ebCtx.fillStyle = '#4a5568'; ebCtx.font = '11px sans-serif'; ebCtx.textAlign = 'center';
+  ebCtx.fillText('Thời gian (ngày)', PAD.left + plotW/2, H - 4);
+  ebCtx.save(); ebCtx.translate(14, PAD.top + plotH/2); ebCtx.rotate(-Math.PI/2);
+  ebCtx.fillText('Retention', 0, 0); ebCtx.restore();
+
+  // Draw curve (segments, adjust s after reviews)
+  ebCtx.strokeStyle = '#a21caf'; ebCtx.lineWidth = 2.5;
+  ebCtx.beginPath();
+  let currentS = ebS, lastReviewRetention = 1, lastReviewT = 0;
+  // Pre-compute reviews sorted
+  const sortedReviews = [...ebReviews].sort((a,b)=>a-b);
+  let nextRevIdx = 0;
+
+  const getRetention = (t) => {
+    // Piecewise: each review resets the starting retention and adjusts s
+    let seg = 0, prevT = 0, prevR = 1, segS = ebS;
+    for (let i = 0; i < sortedReviews.length && sortedReviews[i] < t; i++) {
+      const rt = sortedReviews[i];
+      const rVal = prevR * Math.exp(-(rt - prevT)/segS);
+      prevR = rVal;
+      prevT = rt;
+      segS = Math.min(20, segS * 2.5); // review multiplies s by 2.5
+    }
+    return prevR * Math.exp(-(t - prevT)/segS);
+  };
+
+  for (let px = 0; px <= plotW; px++) {
+    const t = (px/plotW)*maxT;
+    const r = getRetention(t);
+    const cx = PAD.left + px, cy = PAD.top + plotH*(1-r);
+    if (px===0) ebCtx.moveTo(cx,cy); else ebCtx.lineTo(cx,cy);
+  }
+  ebCtx.stroke();
+
+  // Draw review lines
+  sortedReviews.forEach(rt => {
+    const x = PAD.left + (rt/maxT)*plotW;
+    ebCtx.strokeStyle = '#16a34a'; ebCtx.lineWidth = 1.5; ebCtx.setLineDash([4,3]);
+    ebCtx.beginPath(); ebCtx.moveTo(x, PAD.top); ebCtx.lineTo(x, PAD.top+plotH); ebCtx.stroke();
+    ebCtx.setLineDash([]);
+    ebCtx.fillStyle = '#16a34a'; ebCtx.font = '10px sans-serif'; ebCtx.textAlign = 'center';
+    ebCtx.fillText('review', x, PAD.top-4);
+  });
+
+  // Plot Ebbinghaus data points (small dots = original data)
+  EBBINGHAUS_DATA.forEach(d => {
+    if (d.t > maxT) return;
+    const x = PAD.left + (d.t/maxT)*plotW;
+    const y = PAD.top + plotH*(1-d.r);
+    ebCtx.beginPath(); ebCtx.arc(x,y,5,0,Math.PI*2);
+    ebCtx.fillStyle = '#dc2626'; ebCtx.fill();
+    ebCtx.strokeStyle = '#fff'; ebCtx.lineWidth = 1.5; ebCtx.stroke();
+  });
+
+  // Legend
+  ebCtx.fillStyle = '#dc2626'; ebCtx.fillRect(PAD.left, PAD.top, 10, 10);
+  ebCtx.fillStyle = '#4a5568'; ebCtx.font = '10px sans-serif'; ebCtx.textAlign = 'left';
+  ebCtx.fillText('Dữ liệu Ebbinghaus 1885', PAD.left + 13, PAD.top + 9);
+  ebCtx.fillStyle = '#a21caf'; ebCtx.fillRect(PAD.left + 160, PAD.top, 16, 3);
+  ebCtx.fillStyle = '#4a5568'; ebCtx.fillText('Mô hình (s='+ebS+'d)', PAD.left + 180, PAD.top + 9);
+
+  // Today annotation
+  const r14 = getRetention(14);
+  const x14 = PAD.left + plotW, y14 = PAD.top + plotH*(1-r14);
+  ebCtx.fillStyle = '#a21caf'; ebCtx.font = '11px sans-serif'; ebCtx.textAlign = 'right';
+  ebCtx.fillText('Ngày 14: '+Math.round(r14*100)+'%', x14, y14-8);
+}
+
+document.getElementById('eb-s').addEventListener('input', () => {
+  ebS = parseFloat(document.getElementById('eb-s').value);
+  document.getElementById('eb-s-val').textContent = 's = ' + ebS + ' ngày';
+  drawEbbinghaus();
+});
+
+document.getElementById('eb-add-review').addEventListener('click', () => {
+  const day = parseInt(document.getElementById('eb-review').value);
+  if (!ebReviews.includes(day)) { ebReviews.push(day); drawEbbinghaus(); }
+  document.getElementById('eb-result').innerHTML = `Reviews thêm: ngày ${ebReviews.sort((a,b)=>a-b).join(', ')}. Mỗi review tăng s × 2.5 → đường cong phẳng hơn sau đó.`;
+});
+
+document.getElementById('eb-review').addEventListener('input', () => {
+  document.getElementById('eb-review-val').textContent = 'Ngày ' + document.getElementById('eb-review').value;
+});
+
+drawEbbinghaus();
+
+// ===== DRM PARADIGM =====
+// Category: SLEEP
+const DRM_STUDIED = ['Bed','Rest','Drowsy','Tired','Night','Dark','Pillow','Comfort','Dream','Blanket','Snore','Slumber','Yawn','Nap','Quiet'];
+const DRM_CRITICAL = 'Sleep'; // not studied, but semantically central
+const DRM_FOILS = ['Desk','Run','Water','Bridge']; // unrelated foils
+const DRM_RECOG = shuffleArr([...DRM_STUDIED.slice(0,10), DRM_CRITICAL, ...DRM_FOILS]);
+let drmSelections = {};
+
+function shuffleArr(a) {
+  const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];} return b;
+}
+
+const studyList = document.getElementById('drm-study-list');
+DRM_STUDIED.forEach(w => {
+  const chip = document.createElement('div');
+  chip.className = 'word-chip'; chip.textContent = w; studyList.appendChild(chip);
+});
+
+// Timer
+let drmTimerInt = null;
+let drmSecs = 30;
+function startDRMTimer() {
+  drmTimerInt = setInterval(() => {
+    drmSecs--;
+    document.getElementById('drm-timer').textContent = drmSecs > 0 ? `Còn ${drmSecs} giây...` : 'Hết giờ! Nhấn sẵn sàng.';
+    if (drmSecs <= 0) clearInterval(drmTimerInt);
+  }, 1000);
+  document.getElementById('drm-timer').textContent = `Còn ${drmSecs} giây...`;
+}
+startDRMTimer();
+
+document.getElementById('drm-ready').addEventListener('click', () => {
+  clearInterval(drmTimerInt);
+  document.getElementById('drm-step1').style.display = 'none';
+  document.getElementById('drm-step2').style.display = 'block';
+  const recogList = document.getElementById('drm-recog-list');
+  recogList.innerHTML = '';
+  drmSelections = {};
+  DRM_RECOG.forEach(w => {
+    drmSelections[w] = false;
+    const btn = document.createElement('button');
+    btn.className = 'recog-btn'; btn.textContent = w;
+    btn.addEventListener('click', () => {
+      drmSelections[w] = !drmSelections[w];
+      btn.style.background = drmSelections[w] ? '#fae8ff' : '';
+      btn.style.borderColor = drmSelections[w] ? '#a21caf' : '';
+    });
+    recogList.appendChild(btn);
+  });
+});
+
+document.getElementById('drm-check').addEventListener('click', () => {
+  const recogList = document.getElementById('drm-recog-list');
+  recogList.querySelectorAll('.recog-btn').forEach(btn => {
+    const w = btn.textContent;
+    const selected = drmSelections[w];
+    const isStudied = DRM_STUDIED.includes(w);
+    const isCritical = w === DRM_CRITICAL;
+    const isFoil = DRM_FOILS.includes(w);
+
+    btn.disabled = true;
+    if (isStudied && selected) { btn.style.background='#dcfce7'; btn.style.borderColor='#16a34a'; btn.textContent=w+' ✓'; }
+    else if (isStudied && !selected) { btn.style.background='#fef9c3'; btn.style.borderColor='#ca8a04'; btn.textContent=w+' (miss)'; }
+    else if (isCritical && selected) { btn.style.background='#fee2e2'; btn.style.borderColor='#dc2626'; btn.textContent=w+' ← FALSE MEMORY!'; }
+    else if (isCritical && !selected) { btn.style.background='#f0fdf4'; btn.style.borderColor='#16a34a'; btn.textContent=w+' (không có ✓)'; }
+    else if (isFoil && selected) { btn.style.background='#fee2e2'; btn.style.borderColor='#dc2626'; btn.textContent=w+' ✗ (sai)'; }
+    else { btn.style.background='#f9fafb'; }
+  });
+
+  const criticalSelected = drmSelections[DRM_CRITICAL];
+  const r = document.getElementById('drm-result');
+  r.style.display = 'block';
+  if (criticalSelected) {
+    r.innerHTML = `Bạn "nhận ra" từ <strong>"${DRM_CRITICAL}"</strong> — nhưng nó KHÔNG có trong danh sách! Đây là <strong>false memory</strong>. Roediger & McDermott (1995): <strong>55–58%</strong> participants nhận ra critical word với cùng confidence như từ đã học. Nguyên nhân: activation spreading trong semantic network — 15 từ liên quan kích hoạt "sleep" rất mạnh.`;
+  } else {
+    r.innerHTML = `Bạn không chọn "${DRM_CRITICAL}" — bạn thoát! Nhưng Roediger & McDermott (1995) cho thấy <strong>55–58%</strong> người nhận ra critical word dù không có trong danh sách, với confidence ngang từ đã học thật. False memory là hệ quả của reconstructive memory, không phải thiếu chú ý.`;
+  }
+});
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

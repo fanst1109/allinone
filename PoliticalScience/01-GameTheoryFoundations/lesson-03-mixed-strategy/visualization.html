@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03: Mixed Strategies — PoliticalScience</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f5f5fb;
+    --accent: #3730a3;
+    --accent-soft: #e0e7ff;
+    --accent-hover: #312e81;
+  }
+  h1 { color: #1e1b4b; }
+  h2 { color: #312e81; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #c7d2fe; }
+
+  .tab-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tab-btn { padding: 8px 16px; border: 2px solid #c7d2fe; border-radius: 8px; background: white; cursor: pointer; font-size: 14px; color: #312e81; }
+  .tab-btn.active { background: #3730a3; color: white; border-color: #3730a3; }
+
+  .chart-area { position: relative; margin: 0 auto; }
+  svg { display: block; margin: 0 auto; }
+
+  .slider-row { display: flex; align-items: center; gap: 12px; margin: 12px 0; flex-wrap: wrap; }
+  .slider-row label { font-size: 14px; font-weight: 600; color: #374151; min-width: 160px; }
+  .slider-row input[type=range] { flex: 1; min-width: 120px; max-width: 320px; }
+  .slider-val { font-size: 16px; font-weight: 700; color: #3730a3; min-width: 40px; }
+
+  .result-box { background: white; border: 2px solid #c7d2fe; border-radius: 10px; padding: 14px 18px; margin-top: 12px; }
+  .result-box h4 { color: #312e81; margin: 0 0 6px; }
+  .result-box p { margin: 4px 0; font-size: 14px; line-height: 1.6; }
+  .eq-highlight { background: #fef9c3; border: 2px solid #f59e0b; border-radius: 6px; padding: 6px 12px; display: inline-block; font-weight: 700; color: #92400e; }
+
+  .payoff-table { border-collapse: collapse; margin: 8px 0; font-size: 14px; }
+  .payoff-table th, .payoff-table td { border: 1px solid #c7d2fe; padding: 6px 12px; text-align: center; }
+  .payoff-table th { background: #e0e7ff; color: #312e81; }
+
+  .sim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 600px) { .sim-grid { grid-template-columns: 1fr; } }
+  .sim-box { background: white; border: 2px solid #e0e7ff; border-radius: 10px; padding: 14px; }
+  .sim-box h4 { color: #312e81; margin: 0 0 8px; font-size: 14px; }
+
+  .rps-btn { padding: 10px 20px; border: 2px solid #c7d2fe; border-radius: 8px; background: white; cursor: pointer; font-size: 18px; margin: 4px; }
+  .rps-btn:hover { background: #e0e7ff; }
+  .rps-result { margin-top: 10px; font-size: 15px; font-weight: 600; min-height: 24px; }
+  .rps-score { font-size: 22px; font-weight: 700; color: #3730a3; }
+  .rps-history { max-height: 120px; overflow-y: auto; font-size: 12px; font-family: monospace; background: #f9fafb; border-radius: 6px; padding: 8px; margin-top: 8px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-dominance-nash/visualization.html">← L02: Dominance &amp; Nash</a>
+  <span class="sep">·</span>
+  <span class="current">L03: Mixed Strategies</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-extensive-form-spe/visualization.html">L04: Extensive form →</a>
+</nav>
+<main>
+  <h1>Lesson 03: Mixed Strategies &amp; Minimax</h1>
+  <p class="lead">Trực quan hóa indifference principle: kéo slider xác suất của một player và quan sát expected payoff của player kia thay đổi. Giao điểm của hai đường là mixed NE.</p>
+
+  <section class="module">
+    <h2>Module 1: Indifference Principle — Tìm Mixed NE bằng slider</h2>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="selectMixedGame(0)">Matching Pennies</button>
+      <button class="tab-btn" onclick="selectMixedGame(1)">Battle of Sexes</button>
+      <button class="tab-btn" onclick="selectMixedGame(2)">Chicken</button>
+      <button class="tab-btn" onclick="selectMixedGame(3)">Custom 2×2</button>
+    </div>
+
+    <div id="gameInfoBox" style="background:#e0e7ff; border-radius:10px; padding:12px 16px; margin-bottom:16px; font-size:14px; line-height:1.6;"></div>
+
+    <div class="slider-row">
+      <label id="sliderLabel_p">p = P(Row chọn S1):</label>
+      <input type="range" id="slP" min="0" max="100" value="50" oninput="updateChart()">
+      <span class="slider-val" id="valP">0.50</span>
+    </div>
+
+    <div id="customInputArea" style="display:none; margin-bottom:12px;">
+      <p style="font-size:13px; color:#6b7280; margin-bottom:8px;">Payoffs Row (U,L) (U,R) (D,L) (D,R) — Col (U,L) (U,R) (D,L) (D,R):</p>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <input type="number" id="c_UL_r" value="4" style="width:48px; text-align:center;" oninput="updateMixedGame3()">
+        <input type="number" id="c_UR_r" value="0" style="width:48px; text-align:center;" oninput="updateMixedGame3()">
+        <input type="number" id="c_DL_r" value="1" style="width:48px; text-align:center;" oninput="updateMixedGame3()">
+        <input type="number" id="c_DR_r" value="3" style="width:48px; text-align:center;" oninput="updateMixedGame3()">
+        <span style="color:#6b7280; align-self:center;">Col:</span>
+        <input type="number" id="c_UL_c" value="2" style="width:48px; text-align:center;" oninput="updateMixedGame3()">
+        <input type="number" id="c_UR_c" value="3" style="width:48px; text-align:center;" oninput="updateMixedGame3()">
+        <input type="number" id="c_DL_c" value="0" style="width:48px; text-align:center;" oninput="updateMixedGame3()">
+        <input type="number" id="c_DR_c" value="4" style="width:48px; text-align:center;" oninput="updateMixedGame3()">
+      </div>
+    </div>
+
+    <!-- SVG chart -->
+    <div class="chart-area">
+      <svg id="chart" width="520" height="300" viewBox="0 0 520 300">
+        <!-- axes -->
+        <line x1="60" y1="240" x2="480" y2="240" stroke="#94a3b8" stroke-width="1.5"/>
+        <line x1="60" y1="30" x2="60" y2="240" stroke="#94a3b8" stroke-width="1.5"/>
+        <!-- axis labels -->
+        <text x="270" y="272" text-anchor="middle" font-size="12" fill="#6b7280">p = P(Row chọn S1)</text>
+        <text x="12" y="140" text-anchor="middle" font-size="12" fill="#6b7280" transform="rotate(-90, 12, 140)">E[payoff Column]</text>
+        <!-- p=0 -->
+        <text x="60" y="256" text-anchor="middle" font-size="11" fill="#94a3b8">0</text>
+        <text x="480" y="256" text-anchor="middle" font-size="11" fill="#94a3b8">1</text>
+        <!-- lines rendered by JS -->
+        <line id="lineS1" x1="60" y1="120" x2="480" y2="120" stroke="#3730a3" stroke-width="2.5" stroke-dasharray="none"/>
+        <line id="lineS2" x1="60" y1="120" x2="480" y2="120" stroke="#059669" stroke-width="2.5"/>
+        <!-- NE marker -->
+        <circle id="neMarker" cx="270" cy="120" r="7" fill="#f59e0b" stroke="white" stroke-width="2"/>
+        <text id="neLabel" x="270" y="110" text-anchor="middle" font-size="12" font-weight="bold" fill="#92400e">p* = 0.50</text>
+        <!-- current p marker -->
+        <line id="curPLine" x1="270" y1="30" x2="270" y2="240" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
+        <text x="62" y="27" font-size="11" fill="#3730a3" font-weight="bold">— E[Col|S1=Col chọn chiến lược 1]</text>
+        <text x="62" y="42" font-size="11" fill="#059669" font-weight="bold">— E[Col|S2=Col chọn chiến lược 2]</text>
+      </svg>
+    </div>
+
+    <div class="result-box" id="resultBox">
+      <h4>Phân tích</h4>
+      <p id="resultText">Kéo slider để xem.</p>
+    </div>
+  </section>
+
+  <section class="module">
+    <h2>Module 2: Rock-Paper-Scissors — Mixed NE duy nhất (1/3, 1/3, 1/3)</h2>
+    <p style="font-size:14px; color:#374151; margin-bottom:12px;">Chơi RPS chống "AI optimal" (luôn (1/3,1/3,1/3)). Nếu bạn lệch khỏi (1/3,1/3,1/3), AI có thể exploit bạn — nhưng vì AI cũng ngẫu nhiên đều, không ai exploit được ai. Quan sát điểm số hội tụ về 0.</p>
+
+    <div class="sim-grid">
+      <div class="sim-box">
+        <h4>Bạn (Human)</h4>
+        <div>
+          <button class="rps-btn" onclick="rpsPlay('R')">🪨 Rock</button>
+          <button class="rps-btn" onclick="rpsPlay('P')">📄 Paper</button>
+          <button class="rps-btn" onclick="rpsPlay('S')">✂️ Scissors</button>
+        </div>
+        <div class="rps-result" id="rpsResult">Chọn move để bắt đầu.</div>
+        <div style="margin-top:10px; font-size:14px;">
+          Score: Bạn <span class="rps-score" id="rpsScoreH">0</span> — AI <span class="rps-score" id="rpsScoreA">0</span> (Hòa: <span id="rpsScoreTie">0</span>)
+        </div>
+        <div style="margin-top:8px; font-size:13px; color:#6b7280;">Rounds: <span id="rpsRounds">0</span></div>
+        <div class="rps-history" id="rpsHistory"></div>
+        <button onclick="rpsReset()" style="margin-top:8px; padding:6px 14px; border:1px solid #c7d2fe; border-radius:6px; background:white; cursor:pointer; font-size:13px;">Reset</button>
+      </div>
+      <div class="sim-box">
+        <h4>AI strategy: Uniform (1/3, 1/3, 1/3)</h4>
+        <svg width="200" height="200" viewBox="0 0 200 200" style="display:block; margin:0 auto;">
+          <circle cx="100" cy="100" r="80" fill="none" stroke="#e0e7ff" stroke-width="12"/>
+          <circle cx="100" cy="100" r="80" fill="none" stroke="#3730a3" stroke-width="12"
+            stroke-dasharray="167.6 502" stroke-dashoffset="0" id="rpsArcR"/>
+          <circle cx="100" cy="100" r="80" fill="none" stroke="#059669" stroke-width="12"
+            stroke-dasharray="167.6 502" stroke-dashoffset="-167.6" id="rpsArcP"/>
+          <circle cx="100" cy="100" r="80" fill="none" stroke="#dc2626" stroke-width="12"
+            stroke-dasharray="167.6 502" stroke-dashoffset="-335.2" id="rpsArcS"/>
+          <text x="100" y="84" text-anchor="middle" font-size="13" fill="#1e40af">🪨 33.3%</text>
+          <text x="100" y="100" text-anchor="middle" font-size="13" fill="#059669">📄 33.3%</text>
+          <text x="100" y="116" text-anchor="middle" font-size="13" fill="#dc2626">✂️ 33.3%</text>
+        </svg>
+        <p style="font-size:13px; color:#374151; text-align:center; margin-top:8px;">AI cố định (1/3,1/3,1/3). Không ai có thể exploit ai ở mixed NE.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+// ---- Module 1: Indifference chart ----
+const MIXED_GAMES = [
+  {
+    name: "Matching Pennies",
+    rows: ["Heads (H)", "Tails (T)"],
+    cols: ["Heads (H)", "Tails (T)"],
+    pay: [[[1,-1],[-1,1]],[[-1,1],[1,-1]]],
+    desc: "Zero-sum, symmetric. Không có NE thuần. Mixed NE: p* = q* = 1/2. Chart: kéo slider p (xác suất Row chọn H). Đường xanh dương = E[Col|S1] khi Col chọn H, đường xanh lá = E[Col|S2] khi Col chọn T. Giao điểm tại p* = 1/2 là mixed NE."
+  },
+  {
+    name: "Battle of Sexes",
+    rows: ["Football (F)", "Opera (O)"],
+    cols: ["Football (F)", "Opera (O)"],
+    pay: [[[3,2],[0,0]],[[0,0],[2,3]]],
+    desc: "Coordination bất đối xứng. Hai NE thuần + 1 NE mixed. Chart: E[Cô|F] và E[Cô|O] theo p = P(Anh chọn F). Giao điểm tại p* = 3/5 = 0.6."
+  },
+  {
+    name: "Chicken",
+    rows: ["Swerve (S)", "Drive (D)"],
+    cols: ["Swerve (S)", "Drive (D)"],
+    pay: [[[0,0],[-1,1]],[[1,-1],[-10,-10]]],
+    desc: "Anti-coordination. Hai NE thuần + 1 NE mixed. Chart: E[Col|S] và E[Col|D] theo p = P(Row chọn S). Giao điểm tại p* = 9/10."
+  },
+  {
+    name: "Custom 2×2",
+    rows: ["Up (U)", "Down (D)"],
+    cols: ["Left (L)", "Right (R)"],
+    pay: [[[4,2],[0,3]],[[1,0],[3,4]]],
+    desc: "Game custom — nhập payoffs ở trên. Chart tự update."
+  }
+];
+
+let curMG = 0;
+
+function selectMixedGame(idx) {
+  curMG = idx;
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
+  document.getElementById('customInputArea').style.display = idx===3?'block':'none';
+  document.getElementById('gameInfoBox').innerHTML = MIXED_GAMES[idx].desc;
+  document.getElementById('sliderLabel_p').textContent = `p = P(Row chọn ${MIXED_GAMES[idx].rows[0]}):`;
+  updateChart();
+}
+
+function updateMixedGame3() {
+  const p = [
+    [[+document.getElementById('c_UL_r').value, +document.getElementById('c_UL_c').value],
+     [+document.getElementById('c_UR_r').value, +document.getElementById('c_UR_c').value]],
+    [[+document.getElementById('c_DL_r').value, +document.getElementById('c_DL_c').value],
+     [+document.getElementById('c_DR_r').value, +document.getElementById('c_DR_c').value]]
+  ];
+  MIXED_GAMES[3].pay = p;
+  if (curMG === 3) updateChart();
+}
+
+function updateChart() {
+  const p = document.getElementById('slP').value / 100;
+  document.getElementById('valP').textContent = p.toFixed(2);
+  const g = MIXED_GAMES[curMG];
+  const pay = g.pay;
+
+  // E[Col(S1)] = pay[0][0][1]*p + pay[1][0][1]*(1-p)
+  // E[Col(S2)] = pay[0][1][1]*p + pay[1][1][1]*(1-p)
+  const eCS1 = (pv) => pay[0][0][1]*pv + pay[1][0][1]*(1-pv);
+  const eCS2 = (pv) => pay[0][1][1]*pv + pay[1][1][1]*(1-pv);
+
+  // Find chart range
+  const ys = [eCS1(0),eCS1(1),eCS2(0),eCS2(1)];
+  const yMin = Math.min(...ys) - 1, yMax = Math.max(...ys) + 1;
+  const mapY = (v) => 240 - (v - yMin) / (yMax - yMin) * 210;
+  const mapX = (pv) => 60 + pv * 420;
+
+  // Draw lines
+  const svg = document.getElementById('chart');
+  document.getElementById('lineS1').setAttribute('x1', mapX(0));
+  document.getElementById('lineS1').setAttribute('y1', mapY(eCS1(0)));
+  document.getElementById('lineS1').setAttribute('x2', mapX(1));
+  document.getElementById('lineS1').setAttribute('y2', mapY(eCS1(1)));
+  document.getElementById('lineS2').setAttribute('x1', mapX(0));
+  document.getElementById('lineS2').setAttribute('y1', mapY(eCS2(0)));
+  document.getElementById('lineS2').setAttribute('x2', mapX(1));
+  document.getElementById('lineS2').setAttribute('y2', mapY(eCS2(1)));
+
+  // current p line
+  document.getElementById('curPLine').setAttribute('x1', mapX(p));
+  document.getElementById('curPLine').setAttribute('x2', mapX(p));
+
+  // Find NE p: eCS1(p*) = eCS2(p*)
+  // pay[0][0][1]*p + pay[1][0][1]*(1-p) = pay[0][1][1]*p + pay[1][1][1]*(1-p)
+  // (pay[0][0][1] - pay[1][0][1] - pay[0][1][1] + pay[1][1][1]) * p = pay[1][1][1] - pay[1][0][1]
+  const A = pay[0][0][1] - pay[1][0][1] - pay[0][1][1] + pay[1][1][1];
+  const B2 = pay[1][1][1] - pay[1][0][1];
+  let pStar = A === 0 ? null : B2 / A;
+
+  if (pStar !== null && pStar >= 0 && pStar <= 1) {
+    const neX = mapX(pStar), neY = mapY(eCS1(pStar));
+    document.getElementById('neMarker').setAttribute('cx', neX);
+    document.getElementById('neMarker').setAttribute('cy', neY);
+    document.getElementById('neLabel').setAttribute('x', neX);
+    document.getElementById('neLabel').setAttribute('y', neY - 10);
+    document.getElementById('neLabel').textContent = `p* = ${pStar.toFixed(2)}`;
+    document.getElementById('neMarker').style.display = 'block';
+    document.getElementById('neLabel').style.display = 'block';
+  } else {
+    document.getElementById('neMarker').style.display = 'none';
+    document.getElementById('neLabel').style.display = 'none';
+  }
+
+  // Y-axis ticks
+  const midY = (yMin + yMax) / 2;
+  // update y-axis label
+  const yTick = svg.querySelector('#yTick');
+  // Add y=0 line if in range
+  let zeroLine = svg.querySelector('#zeroLine');
+  if (!zeroLine) {
+    zeroLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    zeroLine.setAttribute('id', 'zeroLine');
+    zeroLine.setAttribute('stroke', '#94a3b8');
+    zeroLine.setAttribute('stroke-dasharray', '3,3');
+    zeroLine.setAttribute('stroke-width', '1');
+    svg.insertBefore(zeroLine, svg.firstChild.nextSibling);
+  }
+  if (yMin < 0 && yMax > 0) {
+    const y0 = mapY(0);
+    zeroLine.setAttribute('x1', 60); zeroLine.setAttribute('y1', y0);
+    zeroLine.setAttribute('x2', 480); zeroLine.setAttribute('y2', y0);
+    zeroLine.style.display = 'block';
+  } else {
+    zeroLine.style.display = 'none';
+  }
+
+  // Result box
+  const curE1 = eCS1(p), curE2 = eCS2(p);
+  const diff = curE1 - curE2;
+  let msg = `<p>Tại p = ${p.toFixed(2)}:<br>
+    E[Col|chọn ${g.cols[0]}] = <strong style="color:#3730a3">${curE1.toFixed(3)}</strong><br>
+    E[Col|chọn ${g.cols[1]}] = <strong style="color:#059669">${curE2.toFixed(3)}</strong><br>`;
+  if (Math.abs(diff) < 0.01) {
+    msg += `<span style="color:#f59e0b; font-weight:700">→ Column INDIFFERENT! Đây là p* để tạo mixed NE.</span>`;
+  } else if (diff > 0) {
+    msg += `→ ${g.cols[0]} tốt hơn cho Column (${diff.toFixed(3)}). Column sẽ chọn ${g.cols[0]} pure → không phải mixed NE.`;
+  } else {
+    msg += `→ ${g.cols[1]} tốt hơn cho Column (${(-diff).toFixed(3)}). Column sẽ chọn ${g.cols[1]} pure → không phải mixed NE.`;
+  }
+  if (pStar !== null && pStar >= 0 && pStar <= 1) {
+    msg += `<br><span class="eq-highlight">Mixed NE: p* = ${pStar.toFixed(3)}</span>`;
+  } else {
+    msg += `<br><em>Không tìm được mixed NE trong [0,1] → game có NE thuần.</em>`;
+  }
+  msg += '</p>';
+  document.getElementById('resultBox').innerHTML = '<h4>Phân tích indifference</h4>' + msg;
+}
+
+// ---- Module 2: RPS ----
+let rpsH = 0, rpsA = 0, rpsTie = 0, rpsRound = 0;
+let rpsLog = [];
+
+function rpsPlay(human) {
+  const choices = ['R','P','S'];
+  const emoji = {'R':'🪨','P':'📄','S':'✂️'};
+  const ai = choices[Math.floor(Math.random()*3)];
+  rpsRound++;
+  let res = '';
+  if (human === ai) { rpsTie++; res = '🤝 Hòa'; }
+  else if ((human==='R'&&ai==='S')||(human==='P'&&ai==='R')||(human==='S'&&ai==='P')) { rpsH++; res = '🎉 Bạn thắng'; }
+  else { rpsA++; res = '🤖 AI thắng'; }
+  rpsLog.unshift(`R${rpsRound}: Bạn=${emoji[human]} AI=${emoji[ai]} → ${res}`);
+  if (rpsLog.length > 20) rpsLog.pop();
+  document.getElementById('rpsResult').textContent = `${emoji[human]} vs ${emoji[ai]} → ${res}`;
+  document.getElementById('rpsScoreH').textContent = rpsH;
+  document.getElementById('rpsScoreA').textContent = rpsA;
+  document.getElementById('rpsScoreTie').textContent = rpsTie;
+  document.getElementById('rpsRounds').textContent = rpsRound;
+  document.getElementById('rpsHistory').innerHTML = rpsLog.join('<br>');
+}
+
+function rpsReset() {
+  rpsH = rpsA = rpsTie = rpsRound = 0; rpsLog = [];
+  document.getElementById('rpsResult').textContent = 'Chọn move để bắt đầu.';
+  document.getElementById('rpsScoreH').textContent = '0';
+  document.getElementById('rpsScoreA').textContent = '0';
+  document.getElementById('rpsScoreTie').textContent = '0';
+  document.getElementById('rpsRounds').textContent = '0';
+  document.getElementById('rpsHistory').innerHTML = '';
+}
+
+// init
+selectMixedGame(0);
+</script>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

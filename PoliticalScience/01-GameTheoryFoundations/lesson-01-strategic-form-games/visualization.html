@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01: Strategic-form games — PoliticalScience</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f5f5fb;
+    --accent: #3730a3;
+    --accent-soft: #e0e7ff;
+    --accent-hover: #312e81;
+  }
+  h1 { color: #1e1b4b; }
+  h2 { color: #312e81; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #c7d2fe; }
+
+  .tab-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .tab-btn {
+    padding: 8px 16px; border: 2px solid #c7d2fe; border-radius: 8px;
+    background: white; cursor: pointer; font-size: 14px; color: #312e81;
+    transition: all 0.15s;
+  }
+  .tab-btn.active { background: #3730a3; color: white; border-color: #3730a3; }
+  .tab-btn:hover:not(.active) { background: #e0e7ff; }
+
+  .game-desc { background: #e0e7ff; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; font-size: 15px; line-height: 1.6; }
+  .game-desc strong { color: #312e81; }
+
+  .bimatrix-wrap { overflow-x: auto; }
+  .bimatrix {
+    border-collapse: collapse; margin: 0 auto 20px;
+  }
+  .bimatrix th, .bimatrix td {
+    border: 2px solid #c7d2fe; padding: 0; text-align: center;
+  }
+  .bimatrix .corner { background: transparent; border: none; }
+  .bimatrix .col-header {
+    background: #e0e7ff; color: #312e81; font-weight: 700;
+    padding: 10px 20px; font-size: 14px;
+  }
+  .bimatrix .row-header {
+    background: #e0e7ff; color: #312e81; font-weight: 700;
+    padding: 10px 16px; font-size: 14px; writing-mode: horizontal-tb;
+  }
+  .cell {
+    width: 120px; height: 80px; cursor: pointer; position: relative;
+    transition: background 0.15s;
+  }
+  .cell:hover { background: #eff6ff; }
+  .cell.ne-highlight { background: #fef9c3; outline: 3px solid #f59e0b; }
+  .cell.best-row { background: #dbeafe; }
+  .cell.best-col { background: #dcfce7; }
+  .cell.best-both { background: #fef9c3; outline: 3px solid #f59e0b; }
+  .cell-inner { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 4px; }
+  .payoff-row { font-size: 18px; font-weight: 700; color: #1e40af; }
+  .payoff-col { font-size: 18px; font-weight: 700; color: #166534; }
+  .payoff-sep { font-size: 12px; color: #6b7280; }
+
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; font-size: 13px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-box { width: 16px; height: 16px; border-radius: 3px; }
+
+  .info-panel {
+    background: white; border: 2px solid #c7d2fe; border-radius: 10px;
+    padding: 14px 18px; margin-top: 16px; min-height: 60px;
+  }
+  .info-panel h4 { color: #312e81; margin: 0 0 6px; font-size: 15px; }
+  .info-panel p { margin: 0; font-size: 14px; line-height: 1.6; color: #374151; }
+
+  .strategy-labels {
+    display: flex; gap: 8px; align-items: center; margin-bottom: 8px;
+    font-size: 13px; color: #6b7280;
+  }
+
+  .slider-section { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+  @media (max-width: 600px) { .slider-section { grid-template-columns: 1fr; } }
+  .slider-group { background: white; border-radius: 10px; padding: 14px; border: 2px solid #e0e7ff; }
+  .slider-group label { font-size: 13px; font-weight: 600; color: #374151; display: block; margin-bottom: 6px; }
+  .slider-group input[type=range] { width: 100%; margin-bottom: 4px; }
+  .slider-val { font-size: 14px; font-weight: 700; color: #312e81; }
+
+  .ne-label {
+    display: inline-block; background: #f59e0b; color: white;
+    font-size: 11px; font-weight: 700; border-radius: 4px; padding: 2px 6px;
+    position: absolute; top: 4px; right: 4px;
+  }
+
+  .player-label { font-size: 13px; color: #6b7280; }
+  .axis-label-row { font-weight: 700; color: #3730a3; font-size: 15px; text-align: center; padding: 6px 0; }
+  .axis-label-col { font-weight: 700; color: #3730a3; font-size: 15px; writing-mode: vertical-lr; transform: rotate(180deg); padding: 6px 0; text-align: center; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <span>← (đầu Tầng 1)</span>
+  <span class="sep">·</span>
+  <span class="current">L01: Strategic-form</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-dominance-nash/visualization.html">L02: Dominance &amp; Nash →</a>
+</nav>
+<main>
+  <h1>Lesson 01: Strategic-form games</h1>
+  <p class="lead">Khám phá 4 game kinh điển qua bimatrix tương tác. Hover từng ô để xem best response. Kéo slider để thay đổi payoff và quan sát cấu trúc game thay đổi.</p>
+
+  <section class="module">
+    <h2>Module 1: Bốn game kinh điển</h2>
+
+    <div class="tab-bar" id="tabBar">
+      <button class="tab-btn active" onclick="selectGame(0)">Prisoner's Dilemma</button>
+      <button class="tab-btn" onclick="selectGame(1)">Stag Hunt</button>
+      <button class="tab-btn" onclick="selectGame(2)">Chicken</button>
+      <button class="tab-btn" onclick="selectGame(3)">Battle of Sexes</button>
+    </div>
+
+    <div class="game-desc" id="gameDesc"></div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-box" style="background:#1e40af"></div><span style="color:#1e40af; font-weight:700">Số đỏ = payoff Row</span></div>
+      <div class="legend-item"><div class="legend-box" style="background:#166534"></div><span style="color:#166534; font-weight:700">Số xanh = payoff Column</span></div>
+      <div class="legend-item"><div class="legend-box" style="background:#dbeafe"></div>Best response Row</div>
+      <div class="legend-item"><div class="legend-box" style="background:#dcfce7"></div>Best response Column</div>
+      <div class="legend-item"><div class="legend-box" style="background:#fef9c3; outline: 2px solid #f59e0b"></div>Nash Equilibrium</div>
+    </div>
+
+    <div class="bimatrix-wrap">
+      <table class="bimatrix" id="matrix">
+        <thead>
+          <tr>
+            <td class="corner" style="width:90px"></td>
+            <td class="corner" style="width:40px"></td>
+            <th class="col-header" id="colH1"></th>
+            <th class="col-header" id="colH2"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="corner" rowspan="2" id="rowAxisLabel" style="font-weight:700; color:#3730a3; font-size:15px; text-align:right; padding-right:10px; vertical-align:middle"></td>
+            <th class="row-header" id="rowH1"></th>
+            <td class="cell" id="c00" onmouseenter="hover(0,0)" onmouseleave="unhover()">
+              <div class="cell-inner">
+                <span class="payoff-row" id="p00r"></span>
+                <span class="payoff-sep">,</span>
+                <span class="payoff-col" id="p00c"></span>
+              </div>
+            </td>
+            <td class="cell" id="c01" onmouseenter="hover(0,1)" onmouseleave="unhover()">
+              <div class="cell-inner">
+                <span class="payoff-row" id="p01r"></span>
+                <span class="payoff-sep">,</span>
+                <span class="payoff-col" id="p01c"></span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <th class="row-header" id="rowH2"></th>
+            <td class="cell" id="c10" onmouseenter="hover(1,0)" onmouseleave="unhover()">
+              <div class="cell-inner">
+                <span class="payoff-row" id="p10r"></span>
+                <span class="payoff-sep">,</span>
+                <span class="payoff-col" id="p10c"></span>
+              </div>
+            </td>
+            <td class="cell" id="c11" onmouseenter="hover(1,1)" onmouseleave="unhover()">
+              <div class="cell-inner">
+                <span class="payoff-row" id="p11r"></span>
+                <span class="payoff-sep">,</span>
+                <span class="payoff-col" id="p11c"></span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="info-panel" id="infoPanel">
+      <p>Hover vào từng ô để xem phân tích best response.</p>
+    </div>
+  </section>
+
+  <section class="module">
+    <h2>Module 2: Thay đổi payoff — quan sát cấu trúc thay đổi</h2>
+    <p style="font-size:14px; color:#374151;">Kéo slider để thay đổi payoff của <strong>Prisoner's Dilemma</strong>. Khi T (temptation to defect) nhỏ hơn R (reward of cooperate), cấu trúc game thay đổi hoàn toàn.</p>
+
+    <div class="slider-section">
+      <div class="slider-group">
+        <label>R — Cả hai Cooperate: <span class="slider-val" id="valR">−1</span></label>
+        <input type="range" id="slR" min="-10" max="10" value="-1" step="1" oninput="updateCustom()">
+      </div>
+      <div class="slider-group">
+        <label>P — Cả hai Defect: <span class="slider-val" id="valP">−5</span></label>
+        <input type="range" id="slP" min="-10" max="10" value="-5" step="1" oninput="updateCustom()">
+      </div>
+      <div class="slider-group">
+        <label>T — Defect khi đối phương Cooperate: <span class="slider-val" id="valT">0</span></label>
+        <input type="range" id="slT" min="-10" max="10" value="0" step="1" oninput="updateCustom()">
+      </div>
+      <div class="slider-group">
+        <label>S — Cooperate khi đối phương Defect: <span class="slider-val" id="valS">−10</span></label>
+        <input type="range" id="slS" min="-10" max="10" value="-10" step="1" oninput="updateCustom()">
+      </div>
+    </div>
+
+    <div class="bimatrix-wrap" style="margin-top:16px;">
+      <table class="bimatrix" id="customMatrix">
+        <thead>
+          <tr>
+            <td class="corner" style="width:90px"></td>
+            <td class="corner" style="width:40px"></td>
+            <th class="col-header">Cooperate (C)</th>
+            <th class="col-header">Defect (D)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="corner" rowspan="2" style="font-weight:700; color:#3730a3; font-size:15px; text-align:right; padding-right:10px; vertical-align:middle">Row</td>
+            <th class="row-header">C</th>
+            <td class="cell" id="cc00">
+              <div class="cell-inner">
+                <span class="payoff-row" id="cp00r"></span>
+                <span class="payoff-sep">,</span>
+                <span class="payoff-col" id="cp00c"></span>
+              </div>
+            </td>
+            <td class="cell" id="cc01">
+              <div class="cell-inner">
+                <span class="payoff-row" id="cp01r"></span>
+                <span class="payoff-sep">,</span>
+                <span class="payoff-col" id="cp01c"></span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <th class="row-header">D</th>
+            <td class="cell" id="cc10">
+              <div class="cell-inner">
+                <span class="payoff-row" id="cp10r"></span>
+                <span class="payoff-sep">,</span>
+                <span class="payoff-col" id="cp10c"></span>
+              </div>
+            </td>
+            <td class="cell" id="cc11">
+              <div class="cell-inner">
+                <span class="payoff-row" id="cp11r"></span>
+                <span class="payoff-sep">,</span>
+                <span class="payoff-col" id="cp11c"></span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="info-panel" id="customInfo">
+      <h4 id="customGameType">Loại game: —</h4>
+      <p id="customExplain">Thay đổi slider để xem phân tích.</p>
+    </div>
+  </section>
+
+  <section class="module">
+    <h2>Module 3: Tóm tắt — Phân loại 4 game</h2>
+    <div class="bimatrix-wrap">
+      <table style="width:100%; border-collapse:collapse; font-size:14px;">
+        <thead>
+          <tr style="background:#e0e7ff; color:#312e81;">
+            <th style="padding:10px; text-align:left; border:2px solid #c7d2fe;">Game</th>
+            <th style="padding:10px; border:2px solid #c7d2fe;">Zero-sum?</th>
+            <th style="padding:10px; border:2px solid #c7d2fe;">Symmetric?</th>
+            <th style="padding:10px; border:2px solid #c7d2fe;"># NE pure</th>
+            <th style="padding:10px; text-align:left; border:2px solid #c7d2fe;">Vấn đề cốt lõi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:10px; border:2px solid #c7d2fe; font-weight:700;">Prisoner's Dilemma</td>
+            <td style="padding:10px; border:2px solid #c7d2fe; text-align:center;">Không</td>
+            <td style="padding:10px; border:2px solid #c7d2fe; text-align:center;">Có</td>
+            <td style="padding:10px; border:2px solid #c7d2fe; text-align:center;">1 (D,D)</td>
+            <td style="padding:10px; border:2px solid #c7d2fe;">Social dilemma: cá nhân vs tập thể</td>
+          </tr>
+          <tr style="background:#f9fafb;">
+            <td style="padding:10px; border:2px solid #c7d2fe; font-weight:700;">Stag Hunt</td>
+            <td style="padding:10px; border:2px solid #c7d2fe; text-align:center;">Không</td>
+            <td style="padding:10px; border:2px solid #c7d2fe; text-align:center;">Có</td>
+            <td style="padding:10px; border:2px solid #c7d2fe; text-align:center;">2: (S,S),(H,H)</td>
+            <td style="padding:10px; border:2px solid #c7d2fe;">Coordination: kỳ vọng về đối phương</td>
+          </tr>
+          <tr>
+            <td style="padding:10px; border:2px solid #c7d2fe; font-weight:700;">Chicken</td>
+            <td style="padding:10px; border:2px solid #c7d2fe; text-align:center;">Không</td>
+            <td style="padding:10px; border:2px solid #c7d2fe; text-align:center;">Có</td>
+            <td style="padding:10px; border:2px solid #c7d2fe; text-align:center;">2: (S,D),(D,S)</td>
+            <td style="padding:10px; border:2px solid #c7d2fe;">Anti-coordination: ai nhượng bộ?</td>
+          </tr>
+          <tr style="background:#f9fafb;">
+            <td style="padding:10px; border:2px solid #c7d2fe; font-weight:700;">Battle of Sexes</td>
+            <td style="padding:10px; border:2px solid #c7d2fe; text-align:center;">Không</td>
+            <td style="padding:10px; border:2px solid #c7d2fe; text-align:center;">Không</td>
+            <td style="padding:10px; border:2px solid #c7d2fe; text-align:center;">2: (F,F),(O,O)</td>
+            <td style="padding:10px; border:2px solid #c7d2fe;">Phối hợp bất đối xứng</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script>
+const GAMES = [
+  {
+    name: "Prisoner's Dilemma",
+    rowPlayer: "Nghi phạm A",
+    colPlayer: "Nghi phạm B",
+    rowStrats: ["Cooperate (C)", "Defect (D)"],
+    colStrats: ["Cooperate (C)", "Defect (D)"],
+    payoffs: [[[-1,-1],[-10,0]],[[0,-10],[-5,-5]]],
+    desc: "<strong>Prisoner's Dilemma</strong>: Hai nghi phạm bị giam riêng. Khai (Defect) hay im lặng (Cooperate)? Số là <em>số năm tù</em> — càng nhỏ càng tốt (hay: payoff = số âm). Kết quả: cả hai khai dù (C,C) tốt hơn cho cả hai — <strong>social dilemma</strong> kinh điển.",
+    neLabel: ["(D,D) là Nash Equilibrium duy nhất", "D dominates C cho cả hai players"]
+  },
+  {
+    name: "Stag Hunt",
+    rowPlayer: "Thợ săn A",
+    colPlayer: "Thợ săn B",
+    rowStrats: ["Stag (S)", "Hare (H)"],
+    colStrats: ["Stag (S)", "Hare (H)"],
+    payoffs: [[[4,4],[0,3]],[[3,0],[2,2]]],
+    desc: "<strong>Stag Hunt</strong>: Cùng săn hươu (Stag, cần cả hai) hay tự săn thỏ (Hare, an toàn)? Có <strong>2 Nash Equilibria</strong>: (S,S)=4,4 và (H,H)=2,2. Cả hai thích (S,S) nhưng chỉ đạt được khi tin tưởng đối phương — đây là <strong>coordination game</strong>.",
+    neLabel: ["(S,S) = NE Pareto-superior", "(H,H) = NE an toàn hơn"]
+  },
+  {
+    name: "Chicken",
+    rowPlayer: "Player A",
+    colPlayer: "Player B",
+    rowStrats: ["Swerve (S)", "Drive (D)"],
+    colStrats: ["Swerve (S)", "Drive (D)"],
+    payoffs: [[[0,0],[-1,1]],[[1,-1],[-10,-10]]],
+    desc: "<strong>Chicken / Hawk-Dove</strong>: Ai sẽ nhường trước? (D,D) = thảm họa. Hai NE: (S,D) và (D,S) — mỗi người muốn làm <em>ngược</em> với đối phương. Đây là <strong>anti-coordination game</strong>. Ứng dụng: khủng hoảng Cuba, filibuster, đàm phán cliff-edge.",
+    neLabel: ["(S,D) = NE: A nhường, B không", "(D,S) = NE: B nhường, A không"]
+  },
+  {
+    name: "Battle of Sexes",
+    rowPlayer: "Anh (Row)",
+    colPlayer: "Cô (Column)",
+    rowStrats: ["Football (F)", "Opera (O)"],
+    colStrats: ["Football (F)", "Opera (O)"],
+    payoffs: [[[3,2],[0,0]],[[0,0],[2,3]]],
+    desc: "<strong>Battle of the Sexes</strong>: Cả hai muốn ở cùng nhau nhưng sở thích khác. Anh thích Football (3,2), cô thích Opera (2,3). Hai NE: (F,F) và (O,O). Mỗi người thích <em>NE khác nhau</em> — phối hợp bất đối xứng. Ứng dụng: chuẩn kỹ thuật, phân công liên minh.",
+    neLabel: ["(F,F) = NE: Anh thích hơn", "(O,O) = NE: Cô thích hơn"]
+  }
+];
+
+let currentGame = 0;
+
+function selectGame(idx) {
+  currentGame = idx;
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
+  renderGame();
+}
+
+function renderGame() {
+  const g = GAMES[currentGame];
+  document.getElementById('gameDesc').innerHTML = g.desc;
+  document.getElementById('rowAxisLabel').textContent = g.rowPlayer;
+  document.getElementById('colH1').textContent = g.colStrats[0];
+  document.getElementById('colH2').textContent = g.colStrats[1];
+  document.getElementById('rowH1').textContent = g.rowStrats[0];
+  document.getElementById('rowH2').textContent = g.rowStrats[1];
+
+  for (let r=0;r<2;r++) for (let c=0;c<2;c++) {
+    const [pR, pC] = g.payoffs[r][c];
+    document.getElementById(`p${r}${c}r`).textContent = pR;
+    document.getElementById(`p${r}${c}c`).textContent = pC;
+  }
+  highlightNE();
+  unhover();
+}
+
+function highlightNE() {
+  const g = GAMES[currentGame];
+  const pay = g.payoffs;
+  // find NE
+  for (let r=0;r<2;r++) for (let c=0;c<2;c++) {
+    const cell = document.getElementById(`c${r}${c}`);
+    cell.className = 'cell';
+    // remove ne label
+    const old = cell.querySelector('.ne-label');
+    if (old) old.remove();
+  }
+  const nes = findNE(pay);
+  nes.forEach(([r,c]) => {
+    const cell = document.getElementById(`c${r}${c}`);
+    cell.classList.add('ne-highlight');
+    const lbl = document.createElement('span');
+    lbl.className = 'ne-label';
+    lbl.textContent = 'NE';
+    cell.querySelector('.cell-inner').appendChild(lbl);
+  });
+}
+
+function findNE(pay) {
+  // best responses
+  const brRow = [[],[]], brCol = [[],[]];
+  // Row BR to each col strategy
+  for (let c=0;c<2;c++) {
+    const r0 = pay[0][c][0], r1 = pay[1][c][0];
+    if (r0 > r1) brRow[c] = [0];
+    else if (r1 > r0) brRow[c] = [1];
+    else brRow[c] = [0,1];
+  }
+  // Col BR to each row strategy
+  for (let r=0;r<2;r++) {
+    const c0 = pay[r][0][1], c1 = pay[r][1][1];
+    if (c0 > c1) brCol[r] = [0];
+    else if (c1 > c0) brCol[r] = [1];
+    else brCol[r] = [0,1];
+  }
+  const nes = [];
+  for (let r=0;r<2;r++) for (let c=0;c<2;c++) {
+    if (brRow[c].includes(r) && brCol[r].includes(c)) nes.push([r,c]);
+  }
+  return nes;
+}
+
+function hover(r, c) {
+  const g = GAMES[currentGame];
+  const pay = g.payoffs;
+  // reset all
+  for (let i=0;i<2;i++) for (let j=0;j<2;j++) {
+    const cell = document.getElementById(`c${i}${j}`);
+    cell.className = 'cell';
+  }
+  highlightNE();
+
+  // BR for Row given col=c
+  const rowPayoffs = [pay[0][c][0], pay[1][c][0]];
+  const maxRow = Math.max(...rowPayoffs);
+  // BR for Col given row=r
+  const colPayoffs = [pay[r][0][1], pay[r][1][1]];
+  const maxCol = Math.max(...colPayoffs);
+
+  for (let i=0;i<2;i++) {
+    if (rowPayoffs[i] === maxRow) {
+      const cell = document.getElementById(`c${i}${c}`);
+      if (!cell.classList.contains('ne-highlight')) cell.classList.add('best-row');
+    }
+  }
+  for (let j=0;j<2;j++) {
+    if (colPayoffs[j] === maxCol) {
+      const cell = document.getElementById(`c${r}${j}`);
+      if (!cell.classList.contains('ne-highlight')) cell.classList.add('best-col');
+    }
+  }
+
+  const [pR, pC] = pay[r][c];
+  const panel = document.getElementById('infoPanel');
+  const brRowStrats = rowPayoffs.map((p,i)=>p===maxRow?g.rowStrats[i]:null).filter(Boolean);
+  const brColStrats = colPayoffs.map((p,i)=>p===maxCol?g.colStrats[i]:null).filter(Boolean);
+  panel.innerHTML = `
+    <h4>Ô (${g.rowStrats[r]}, ${g.colStrats[c]}) → <span style="color:#1e40af">${pR}</span>, <span style="color:#166534">${pC}</span></h4>
+    <p>
+      <strong>${g.rowPlayer}</strong> nhận <strong style="color:#1e40af">${pR}</strong> — best response khi Column chơi <em>${g.colStrats[c]}</em>: <strong>${brRowStrats.join(' hoặc ')}</strong><br>
+      <strong>${g.colPlayer}</strong> nhận <strong style="color:#166534">${pC}</strong> — best response khi Row chơi <em>${g.rowStrats[r]}</em>: <strong>${brColStrats.join(' hoặc ')}</strong>
+    </p>`;
+}
+
+function unhover() {
+  highlightNE();
+  document.getElementById('infoPanel').innerHTML = '<p>Hover vào từng ô để xem phân tích best response.</p>';
+}
+
+function updateCustom() {
+  const R = +document.getElementById('slR').value;
+  const P = +document.getElementById('slP').value;
+  const T = +document.getElementById('slT').value;
+  const S = +document.getElementById('slS').value;
+  document.getElementById('valR').textContent = R;
+  document.getElementById('valP').textContent = P;
+  document.getElementById('valT').textContent = T;
+  document.getElementById('valS').textContent = S;
+
+  // Symmetric game: (C,C)=(R,R), (D,D)=(P,P), (C,D)=(S,T), (D,C)=(T,S)
+  const pay = [[[R,R],[S,T]],[[T,S],[P,P]]];
+  document.getElementById('cp00r').textContent = R; document.getElementById('cp00c').textContent = R;
+  document.getElementById('cp01r').textContent = S; document.getElementById('cp01c').textContent = T;
+  document.getElementById('cp10r').textContent = T; document.getElementById('cp10c').textContent = S;
+  document.getElementById('cp11r').textContent = P; document.getElementById('cp11c').textContent = P;
+
+  const cells = ['cc00','cc01','cc10','cc11'];
+  cells.forEach(id => { document.getElementById(id).className = 'cell'; });
+
+  const nes = findNE(pay);
+  nes.forEach(([r,c]) => {
+    document.getElementById(`cc${r}${c}`).classList.add('ne-highlight');
+  });
+
+  // Classify
+  let gameType = '?', explain = '';
+  const isPD = T > R && R > P && P > S;
+  const isStagHunt = R > T && R > P && P > S;
+  const isChicken = T > R && R > S && S > P;
+  const isHarmony = R > T && R > S;
+
+  if (isPD) {
+    gameType = 'Prisoner\'s Dilemma';
+    explain = 'T > R > P > S. D dominates C cho cả hai. NE = (D,D), nhưng (C,C) Pareto-tốt hơn.';
+  } else if (isStagHunt) {
+    gameType = 'Stag Hunt (Coordination)';
+    explain = 'R > T ≥ P > S. Không có dominance. Hai NE: (C,C) và (D,D). Kết quả phụ thuộc kỳ vọng.';
+  } else if (isChicken) {
+    gameType = 'Chicken (Hawk-Dove)';
+    explain = 'T > R > S > P. Hai NE: (C,D) và (D,C). Anti-coordination.';
+  } else if (isHarmony) {
+    gameType = 'Harmony Game';
+    explain = 'C dominate D cho cả hai. NE = (C,C). Không có dilemma!';
+  } else {
+    gameType = 'Game khác';
+    explain = 'Cấu trúc không khớp 4 loại chuẩn — thử kéo slider để tạo PD: T > R > P > S.';
+  }
+  document.getElementById('customGameType').textContent = `Loại game: ${gameType}`;
+  document.getElementById('customExplain').textContent = explain;
+}
+
+// init
+renderGame();
+updateCustom();
+</script>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

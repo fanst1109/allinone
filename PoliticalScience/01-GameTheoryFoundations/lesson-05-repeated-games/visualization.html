@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05: Repeated Games — PoliticalScience</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f5f5fb;
+    --accent: #3730a3;
+    --accent-soft: #e0e7ff;
+    --accent-hover: #312e81;
+  }
+  h1 { color: #1e1b4b; }
+  h2 { color: #312e81; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #c7d2fe; }
+
+  .ctrl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+  @media (max-width: 600px) { .ctrl-grid { grid-template-columns: 1fr; } }
+  .ctrl-box { background: white; border: 2px solid #e0e7ff; border-radius: 10px; padding: 14px; }
+  .ctrl-box h4 { color: #312e81; margin: 0 0 10px; font-size: 14px; }
+
+  .strat-btn {
+    padding: 6px 12px; border: 2px solid #c7d2fe; border-radius: 6px;
+    background: white; cursor: pointer; font-size: 13px; color: #312e81; margin: 3px;
+  }
+  .strat-btn.sel { background: #3730a3; color: white; border-color: #3730a3; }
+  .strat-btn:hover:not(.sel) { background: #e0e7ff; }
+
+  .slider-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .slider-row label { font-size: 13px; color: #374151; min-width: 90px; }
+  .slider-row input[type=range] { flex: 1; min-width: 100px; max-width: 200px; }
+  .slider-val { font-size: 14px; font-weight: 700; color: #3730a3; min-width: 36px; }
+
+  .btn { padding: 8px 18px; border: 2px solid #3730a3; border-radius: 8px; background: white; color: #3730a3; cursor: pointer; font-size: 14px; font-weight: 600; }
+  .btn:hover { background: #e0e7ff; }
+  .btn.primary { background: #3730a3; color: white; }
+  .btn.primary:hover { background: #312e81; }
+
+  .round-grid { display: flex; gap: 4px; flex-wrap: wrap; margin: 10px 0; }
+  .round-cell {
+    width: 36px; height: 36px; border-radius: 6px; display: flex; align-items: center;
+    justify-content: center; font-size: 11px; font-weight: 700; border: 2px solid transparent;
+  }
+  @media (max-width: 480px) { .round-cell { width: 28px; height: 28px; font-size: 10px; } }
+  .rc-CC { background: #dcfce7; color: #166534; border-color: #86efac; }
+  .rc-CD { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+  .rc-DC { background: #fef9c3; color: #92400e; border-color: #fde68a; }
+  .rc-DD { background: #f3f4f6; color: #374151; border-color: #d1d5db; }
+
+  .score-board { display: flex; gap: 16px; flex-wrap: wrap; margin: 10px 0; }
+  .score-item { background: white; border: 2px solid #c7d2fe; border-radius: 8px; padding: 10px 16px; text-align: center; }
+  .score-item .sname { font-size: 12px; color: #6b7280; }
+  .score-item .sval { font-size: 22px; font-weight: 700; color: #3730a3; }
+
+  .threshold-chart { position: relative; }
+  svg.tc { display: block; margin: 0 auto; }
+
+  .payoff-inputs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 10px 0; }
+  @media (max-width: 480px) { .payoff-inputs { grid-template-columns: repeat(2, 1fr); } }
+  .payoff-in { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .payoff-in label { font-size: 11px; color: #6b7280; font-weight: 600; }
+  .payoff-in input { width: 100%; max-width: 56px; text-align: center; font-size: 15px; font-weight: 700; border: 1px solid #c7d2fe; border-radius: 4px; padding: 4px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-extensive-form-spe/visualization.html">← L04: Extensive form</a>
+  <span class="sep">·</span>
+  <span class="current">L05: Repeated Games</span>
+  <span class="sep">·</span>
+  <a href="../../02-VotingSocialChoice/lesson-01-voting-systems/visualization.html">T2-L01: Voting Systems →</a>
+</nav>
+<main>
+  <h1>Lesson 05: Repeated Games &amp; Cooperation</h1>
+  <p class="lead">Tournament simulator: chọn 2 chiến lược, chạy N rounds, xem ai "win". Slider δ thay đổi payoff discounting và threshold hợp tác.</p>
+
+  <section class="module">
+    <h2>Module 1: Strategy Tournament — Mô phỏng N rounds</h2>
+
+    <div class="ctrl-grid">
+      <div class="ctrl-box">
+        <h4>Chiến lược Player 1</h4>
+        <div id="strat1Btns"></div>
+      </div>
+      <div class="ctrl-box">
+        <h4>Chiến lược Player 2</h4>
+        <div id="strat2Btns"></div>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:flex-start; margin-bottom:14px;">
+      <div style="flex:1; min-width:200px;">
+        <h4 style="font-size:14px; color:#312e81; margin-bottom:8px;">Payoffs PD</h4>
+        <div class="payoff-inputs">
+          <div class="payoff-in"><label>R (C,C)</label><input type="number" id="pR" value="3" oninput="updateAll()"></div>
+          <div class="payoff-in"><label>T (D,C)</label><input type="number" id="pT" value="5" oninput="updateAll()"></div>
+          <div class="payoff-in"><label>P (D,D)</label><input type="number" id="pP" value="1" oninput="updateAll()"></div>
+          <div class="payoff-in"><label>S (C,D)</label><input type="number" id="pS" value="0" oninput="updateAll()"></div>
+        </div>
+      </div>
+      <div style="flex:1; min-width:180px;">
+        <div class="slider-row">
+          <label>Rounds N:</label>
+          <input type="range" id="slN" min="5" max="50" value="20" oninput="updateAll()">
+          <span class="slider-val" id="valN">20</span>
+        </div>
+        <div class="slider-row">
+          <label>Discount δ:</label>
+          <input type="range" id="slDelta" min="0" max="99" value="75" oninput="updateAll()">
+          <span class="slider-val" id="valDelta">0.75</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap;">
+      <button class="btn primary" onclick="runTournament()">▶ Run Tournament</button>
+      <button class="btn" onclick="resetTournament()">↺ Reset</button>
+    </div>
+
+    <div class="score-board" id="scoreBoard">
+      <div class="score-item"><div class="sname">P1 Total</div><div class="sval" id="sc1">—</div></div>
+      <div class="score-item"><div class="sname">P2 Total</div><div class="sval" id="sc2">—</div></div>
+      <div class="score-item"><div class="sname">P1 Disc.</div><div class="sval" id="sc1d">—</div></div>
+      <div class="score-item"><div class="sname">P2 Disc.</div><div class="sval" id="sc2d">—</div></div>
+    </div>
+
+    <div class="round-grid" id="roundGrid"></div>
+    <div style="font-size:12px; color:#6b7280; margin-top:4px; display:flex; gap:10px; flex-wrap:wrap;">
+      <span><span style="background:#dcfce7; padding:2px 6px; border-radius:3px;">CC</span> Cả hai C</span>
+      <span><span style="background:#fee2e2; padding:2px 6px; border-radius:3px;">CD</span> P1=C, P2=D</span>
+      <span><span style="background:#fef9c3; padding:2px 6px; border-radius:3px;">DC</span> P1=D, P2=C</span>
+      <span><span style="background:#f3f4f6; padding:2px 6px; border-radius:3px;">DD</span> Cả hai D</span>
+    </div>
+  </section>
+
+  <section class="module">
+    <h2>Module 2: Ngưỡng δ* — Grim Trigger Cooperation Threshold</h2>
+    <p style="font-size:14px; color:#374151; margin-bottom:12px;">Với payoffs hiện tại, tính δ* tối thiểu để Grim Trigger sustain cooperation. Slider δ cho thấy vùng cooperation (xanh) vs defection (đỏ).</p>
+
+    <div id="thresholdInfo" style="background:#e0e7ff; border-radius:10px; padding:12px 16px; font-size:14px; line-height:1.6; margin-bottom:12px;"></div>
+
+    <div class="threshold-chart">
+      <svg class="tc" id="thresholdSvg" width="500" height="200" viewBox="0 0 500 200">
+        <!-- bar -->
+        <rect x="50" y="80" width="400" height="40" rx="6" fill="#f3f4f6" stroke="#e0e7ff" stroke-width="1"/>
+        <rect id="coopBar" x="50" y="80" width="200" height="40" rx="6" fill="#dcfce7"/>
+        <rect id="defBar" x="250" y="80" width="200" height="40" rx="6" fill="#fee2e2"/>
+        <line id="threshLine" x1="250" y1="60" x2="250" y2="140" stroke="#dc2626" stroke-width="2" stroke-dasharray="4,3"/>
+        <line id="deltaLine" x1="250" y1="60" x2="250" y2="140" stroke="#3730a3" stroke-width="3"/>
+        <!-- labels -->
+        <text x="50" y="74" font-size="11" fill="#6b7280">δ=0</text>
+        <text x="445" y="74" font-size="11" fill="#6b7280">δ=1</text>
+        <text id="threshLabel" x="250" y="55" text-anchor="middle" font-size="12" font-weight="bold" fill="#dc2626">δ*=0.50</text>
+        <text id="deltaLabel" x="250" y="165" text-anchor="middle" font-size="12" font-weight="bold" fill="#3730a3">δ=0.75</text>
+        <text x="130" y="106" text-anchor="middle" font-size="13" fill="#166534" font-weight="700">Defect zone</text>
+        <text x="360" y="106" text-anchor="middle" font-size="13" fill="#166534" font-weight="700">Coop zone</text>
+      </svg>
+    </div>
+  </section>
+
+  <section class="module">
+    <h2>Module 3: Finitely Repeated PD — Unraveling</h2>
+    <p style="font-size:14px; color:#374151; margin-bottom:12px;">Xem backward induction "unravel" từ round T xuống round 1 — mọi round đều defect.</p>
+    <div class="slider-row">
+      <label>T rounds:</label>
+      <input type="range" id="slT_fin" min="2" max="8" value="4" oninput="updateFinite()">
+      <span class="slider-val" id="valT_fin">4</span>
+    </div>
+    <div id="finiteGrid" style="display:flex; gap:6px; flex-wrap:wrap; margin: 10px 0;"></div>
+    <div id="finiteInfo" style="background:white; border:2px solid #c7d2fe; border-radius:10px; padding:12px 16px; font-size:14px; line-height:1.6;"></div>
+  </section>
+</main>
+
+<script>
+// ---- Strategies ----
+const STRATEGIES = ['Always-C', 'Always-D', 'Tit-for-Tat', 'Grim Trigger', 'Pavlov', 'Random'];
+
+function getMove(strat, myHistory, theirHistory, round) {
+  if (strat === 'Always-C') return 'C';
+  if (strat === 'Always-D') return 'D';
+  if (strat === 'Tit-for-Tat') return round === 0 ? 'C' : theirHistory[round-1];
+  if (strat === 'Grim Trigger') return theirHistory.includes('D') ? 'D' : 'C';
+  if (strat === 'Pavlov') {
+    if (round === 0) return 'C';
+    const lastMe = myHistory[round-1], lastThem = theirHistory[round-1];
+    const lastOutcome = lastMe + lastThem;
+    return (lastOutcome === 'CC' || lastOutcome === 'DC') ? lastMe : (lastMe === 'C' ? 'D' : 'C');
+  }
+  if (strat === 'Random') return Math.random() < 0.5 ? 'C' : 'D';
+  return 'C';
+}
+
+let sel1 = 'Tit-for-Tat', sel2 = 'Grim Trigger';
+
+function buildStratBtns() {
+  ['strat1Btns','strat2Btns'].forEach((id, pi) => {
+    const el = document.getElementById(id);
+    el.innerHTML = STRATEGIES.map(s => `<button class="strat-btn${(pi===0&&sel1===s)||(pi===1&&sel2===s)?' sel':''}" onclick="selStrat(${pi},'${s}')">${s}</button>`).join('');
+  });
+}
+
+function selStrat(pi, s) {
+  if (pi===0) sel1=s; else sel2=s;
+  buildStratBtns();
+}
+
+function getPayoffs() {
+  return {
+    R: +document.getElementById('pR').value,
+    T: +document.getElementById('pT').value,
+    P: +document.getElementById('pP').value,
+    S: +document.getElementById('pS').value
+  };
+}
+
+function runTournament() {
+  const N = +document.getElementById('slN').value;
+  const δ = +document.getElementById('slDelta').value / 100;
+  const pay = getPayoffs();
+  const h1=[], h2=[];
+  let s1=0, s2=0, s1d=0, s2d=0;
+  const cells = [];
+
+  for (let r=0; r<N; r++) {
+    const m1 = getMove(sel1, h1, h2, r);
+    const m2 = getMove(sel2, h2, h1, r);
+    h1.push(m1); h2.push(m2);
+    let p1, p2;
+    if (m1==='C'&&m2==='C') { p1=pay.R; p2=pay.R; }
+    else if (m1==='C'&&m2==='D') { p1=pay.S; p2=pay.T; }
+    else if (m1==='D'&&m2==='C') { p1=pay.T; p2=pay.S; }
+    else { p1=pay.P; p2=pay.P; }
+    s1+=p1; s2+=p2;
+    s1d+=p1*Math.pow(δ,r); s2d+=p2*Math.pow(δ,r);
+    cells.push({ out: m1+m2, p1, p2, r });
+  }
+
+  document.getElementById('sc1').textContent = s1.toFixed(1);
+  document.getElementById('sc2').textContent = s2.toFixed(1);
+  document.getElementById('sc1d').textContent = s1d.toFixed(2);
+  document.getElementById('sc2d').textContent = s2d.toFixed(2);
+
+  const grid = document.getElementById('roundGrid');
+  grid.innerHTML = cells.map(c =>
+    `<div class="round-cell rc-${c.out}" title="R${c.r+1}: P1=${c.p1},P2=${c.p2}">${c.out}</div>`
+  ).join('');
+}
+
+function resetTournament() {
+  document.getElementById('sc1').textContent='—';
+  document.getElementById('sc2').textContent='—';
+  document.getElementById('sc1d').textContent='—';
+  document.getElementById('sc2d').textContent='—';
+  document.getElementById('roundGrid').innerHTML='';
+}
+
+function updateAll() {
+  document.getElementById('valN').textContent = document.getElementById('slN').value;
+  document.getElementById('valDelta').textContent = (+document.getElementById('slDelta').value/100).toFixed(2);
+  updateThreshold();
+}
+
+function updateThreshold() {
+  const δ = +document.getElementById('slDelta').value / 100;
+  const pay = getPayoffs();
+  const { R, T, P, S } = pay;
+  let info = '', δstar = null;
+  if (T - P !== 0) {
+    δstar = (T - R) / (T - P);
+    const vCoop = R / (1 - δ);
+    const vDev = T + δ * P / (1 - δ);
+    const sustain = δ >= δstar;
+    info = `<strong>δ* = (T−R)/(T−P) = (${T}−${R})/(${T}−${P}) = ${δstar.toFixed(3)}</strong><br>
+      Với δ = ${δ.toFixed(2)}: V(coop) = ${R}/(1−${δ.toFixed(2)}) = <strong>${vCoop.toFixed(2)}</strong> | V(deviate) = ${T} + ${δ.toFixed(2)}·${P}/(1−${δ.toFixed(2)}) = <strong>${vDev.toFixed(2)}</strong><br>
+      <span style="color:${sustain?'#059669':'#dc2626'}; font-weight:700">${sustain?'✓ Grim Trigger sustains cooperation (δ ≥ δ*)':'✗ Không sustain cooperation (δ < δ*). Deviate có lợi.'}</span>`;
+  } else {
+    info = 'T = P: không có meaningful threshold.';
+  }
+  document.getElementById('thresholdInfo').innerHTML = info;
+
+  // Draw threshold bar
+  if (δstar !== null) {
+    const mapX = (v) => 50 + Math.max(0, Math.min(1, v)) * 400;
+    const x_thresh = mapX(δstar);
+    const x_delta = mapX(δ);
+    document.getElementById('threshLine').setAttribute('x1', x_thresh);
+    document.getElementById('threshLine').setAttribute('x2', x_thresh);
+    document.getElementById('threshLabel').setAttribute('x', x_thresh);
+    document.getElementById('threshLabel').textContent = `δ*=${δstar.toFixed(2)}`;
+    document.getElementById('deltaLine').setAttribute('x1', x_delta);
+    document.getElementById('deltaLine').setAttribute('x2', x_delta);
+    document.getElementById('deltaLabel').setAttribute('x', x_delta);
+    document.getElementById('deltaLabel').textContent = `δ=${δ.toFixed(2)}`;
+    // Color bars
+    document.getElementById('coopBar').setAttribute('width', Math.max(0, x_thresh-50));
+    document.getElementById('coopBar').setAttribute('x', 50);
+    document.getElementById('defBar').setAttribute('x', x_thresh);
+    document.getElementById('defBar').setAttribute('width', Math.max(0, 450-x_thresh));
+    // Swap colors: left of δ* = defection zone, right = coop zone
+    document.getElementById('coopBar').setAttribute('fill', '#fee2e2');
+    document.getElementById('defBar').setAttribute('fill', '#dcfce7');
+    document.getElementById('thresholdSvg').querySelector('text[x="130"]').setAttribute('x', Math.max(70, (x_thresh-50)/2+50));
+    document.getElementById('thresholdSvg').querySelector('text[x="360"]').setAttribute('x', Math.min(430, (450-x_thresh)/2+x_thresh));
+    document.getElementById('thresholdSvg').querySelector('text[x="130"]').textContent = 'Defect zone';
+    document.getElementById('thresholdSvg').querySelector('text[x="360"]').textContent = 'Coop zone';
+  }
+}
+
+// Finite game unraveling
+function updateFinite() {
+  const T = +document.getElementById('slT_fin').value;
+  document.getElementById('valT_fin').textContent = T;
+  const pay = getPayoffs();
+  const { R, P } = pay;
+
+  const grid = document.getElementById('finiteGrid');
+  const cells = [];
+  // Animate: round T is first to "unravel" to DD
+  for (let r=1; r<=T; r++) {
+    cells.push(`<div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+      <div style="font-size:11px;color:#6b7280;">R${r}</div>
+      <div class="round-cell rc-DD" style="width:44px;height:44px;font-size:13px;" title="Round ${r}: (D,D) by backward induction">DD</div>
+      <div style="font-size:11px;color:#374151;font-weight:600;">(${P},${P})</div>
+    </div>`);
+  }
+  grid.innerHTML = cells.join('');
+
+  let totalPayoff = 0;
+  for (let r=0; r<T; r++) totalPayoff += P;
+  const coopPayoff = R * T;
+
+  document.getElementById('finiteInfo').innerHTML = `
+    <strong>Backward induction trong finitely repeated PD (T=${T} rounds)</strong>:<br>
+    Round ${T} (cuối): không có tương lai → D dominates C → (D,D)=(${P},${P}).<br>
+    Round ${T-1}: biết round ${T} là (D,D) bất kể → không cần "reward" cooperation → D dominates C → (D,D).<br>
+    ${T>2?`... (unraveling ${T-2} bước nữa) ...`:<br>}
+    Round 1: (D,D).<br>
+    <strong>Tổng payoff thực tế: ${totalPayoff} (mỗi bên)</strong> | So với hợp tác: <strong>${coopPayoff}</strong>. Bỏ phí <strong>${coopPayoff-totalPayoff}</strong> unit mỗi người.<br>
+    <span style="color:#dc2626;">Giải pháp: game phải infinite hoặc T ngẫu nhiên (unknown) để hợp tác có thể sustain.</span>
+  `;
+}
+
+// init
+buildStratBtns();
+updateAll();
+updateFinite();
+</script>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

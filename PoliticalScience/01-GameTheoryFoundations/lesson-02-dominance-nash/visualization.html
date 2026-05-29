@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02: Dominance & Nash — PoliticalScience</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f5f5fb;
+    --accent: #3730a3;
+    --accent-soft: #e0e7ff;
+    --accent-hover: #312e81;
+  }
+  h1 { color: #1e1b4b; }
+  h2 { color: #312e81; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #c7d2fe; }
+
+  .ctrl-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+  .btn {
+    padding: 8px 18px; border: 2px solid #3730a3; border-radius: 8px;
+    background: white; color: #3730a3; cursor: pointer; font-size: 14px; font-weight: 600;
+    transition: all 0.15s;
+  }
+  .btn:hover { background: #e0e7ff; }
+  .btn.primary { background: #3730a3; color: white; }
+  .btn.primary:hover { background: #312e81; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .matrix-wrap { overflow-x: auto; margin-bottom: 16px; }
+  .gmatrix { border-collapse: collapse; }
+  .gmatrix th, .gmatrix td { border: 2px solid #c7d2fe; text-align: center; }
+  .gmatrix .ch { background: #e0e7ff; color: #312e81; font-weight: 700; padding: 8px 16px; font-size: 13px; }
+  .gmatrix .gcell {
+    width: 90px; height: 70px; position: relative; cursor: default;
+    transition: background 0.2s, opacity 0.3s;
+  }
+  .gcell .ci { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 2px; }
+  .gcell .pr { font-size: 16px; font-weight: 700; color: #1e40af; }
+  .gcell .pc { font-size: 16px; font-weight: 700; color: #166534; }
+  .gcell .sep { font-size: 11px; color: #9ca3af; }
+  .gcell.ne { background: #fef9c3; outline: 3px solid #f59e0b; }
+  .gcell.br-row { background: #dbeafe; }
+  .gcell.br-col { background: #dcfce7; }
+  .gcell.eliminated { opacity: 0.2; background: #f3f4f6; }
+  .gcell .ne-badge {
+    position: absolute; top: 3px; right: 3px;
+    background: #f59e0b; color: white; font-size: 10px; font-weight: 700;
+    padding: 1px 5px; border-radius: 4px;
+  }
+  .row-elim { opacity: 0.2; }
+  .col-elim { opacity: 0.2; }
+
+  .log-box {
+    background: #1e1b4b; color: #a5b4fc; font-family: monospace; font-size: 13px;
+    border-radius: 10px; padding: 14px 16px; min-height: 80px; line-height: 1.8;
+    margin-top: 12px; max-height: 200px; overflow-y: auto;
+  }
+  .log-box .step-ok { color: #86efac; }
+  .log-box .step-elim { color: #fca5a5; }
+  .log-box .step-ne { color: #fde68a; }
+  .log-box .step-info { color: #93c5fd; }
+
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; margin-bottom: 10px; }
+  .lbox { width: 14px; height: 14px; border-radius: 3px; display: inline-block; vertical-align: middle; margin-right: 4px; }
+
+  .preset-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .preset-btn { padding: 6px 14px; border: 2px solid #c7d2fe; border-radius: 8px; background: white; color: #3730a3; cursor: pointer; font-size: 13px; }
+  .preset-btn:hover { background: #e0e7ff; }
+  .preset-btn.active { background: #3730a3; color: white; border-color: #3730a3; }
+
+  .input-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+    margin-bottom: 12px;
+  }
+  @media (max-width: 480px) { .input-grid { grid-template-columns: repeat(2, 1fr); } }
+  .input-cell {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    background: white; border: 2px solid #e0e7ff; border-radius: 8px; padding: 10px 8px;
+  }
+  .input-cell label { font-size: 11px; color: #6b7280; font-weight: 600; }
+  .input-cell input { width: 100%; max-width: 60px; text-align: center; font-size: 15px; font-weight: 700; border: 1px solid #c7d2fe; border-radius: 4px; padding: 4px; }
+
+  .corner-cell { background: transparent; border: none !important; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-strategic-form-games/visualization.html">← L01: Strategic-form</a>
+  <span class="sep">·</span>
+  <span class="current">L02: Dominance &amp; Nash</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-mixed-strategy/visualization.html">L03: Mixed →</a>
+</nav>
+<main>
+  <h1>Lesson 02: Dominance &amp; Nash Equilibrium</h1>
+  <p class="lead">Tìm Nash Equilibrium bằng cách highlight best response và thực hiện IESDS từng bước. Xem hàng/cột bị eliminated mờ dần.</p>
+
+  <section class="module">
+    <h2>Module 1: Tìm NE — Best Response Grid</h2>
+
+    <div class="preset-row" id="presetRow">
+      <button class="preset-btn active" onclick="loadPreset(0)">Prisoner's Dilemma</button>
+      <button class="preset-btn" onclick="loadPreset(1)">Stag Hunt</button>
+      <button class="preset-btn" onclick="loadPreset(2)">Chicken</button>
+      <button class="preset-btn" onclick="loadPreset(3)">Battle of Sexes</button>
+      <button class="preset-btn" onclick="loadPreset(4)">3×3 IESDS</button>
+      <button class="preset-btn" onclick="loadPreset(5)">Custom</button>
+    </div>
+
+    <div id="customInputs" style="display:none;">
+      <p style="font-size:13px; color:#6b7280; margin-bottom:8px;">Nhập payoffs (Row, Col) cho game 2×2 symmetric:</p>
+      <div class="input-grid">
+        <div class="input-cell"><label>C,C → Row</label><input type="number" id="iCC_r" value="-1" oninput="buildCustom()"></div>
+        <div class="input-cell"><label>C,D → Row</label><input type="number" id="iCD_r" value="-10" oninput="buildCustom()"></div>
+        <div class="input-cell"><label>D,C → Row</label><input type="number" id="iDC_r" value="0" oninput="buildCustom()"></div>
+        <div class="input-cell"><label>D,D → Row</label><input type="number" id="iDD_r" value="-5" oninput="buildCustom()"></div>
+        <div class="input-cell"><label>C,C → Col</label><input type="number" id="iCC_c" value="-1" oninput="buildCustom()"></div>
+        <div class="input-cell"><label>C,D → Col</label><input type="number" id="iCD_c" value="0" oninput="buildCustom()"></div>
+        <div class="input-cell"><label>D,C → Col</label><input type="number" id="iDC_c" value="-10" oninput="buildCustom()"></div>
+        <div class="input-cell"><label>D,D → Col</label><input type="number" id="iDD_c" value="-5" oninput="buildCustom()"></div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <span><span class="lbox" style="background:#dbeafe; border:1px solid #93c5fd;"></span>Best response Row</span>
+      <span><span class="lbox" style="background:#dcfce7; border:1px solid #6ee7b7;"></span>Best response Column</span>
+      <span><span class="lbox" style="background:#fef9c3; outline:2px solid #f59e0b;"></span>Nash Equilibrium</span>
+      <span><span class="lbox" style="background:#f3f4f6; opacity:0.4; border:1px solid #d1d5db;"></span>Eliminated (IESDS)</span>
+    </div>
+
+    <div class="matrix-wrap" id="matrixWrap"></div>
+
+    <div class="ctrl-row">
+      <button class="btn primary" id="btnIESDS" onclick="stepIESDS()">▶ IESDS Step</button>
+      <button class="btn" id="btnReset" onclick="resetIESDS()">↺ Reset</button>
+      <button class="btn" id="btnShowNE" onclick="showNE()">✦ Show NE</button>
+    </div>
+
+    <div class="log-box" id="logBox">
+      <span class="step-info">Nhấn "IESDS Step" để bắt đầu loại chiến lược bị dominated. "Show NE" để highlight Nash Equilibrium.</span>
+    </div>
+  </section>
+
+  <section class="module">
+    <h2>Module 2: Best Response Correspondence — Trực quan hóa</h2>
+    <p style="font-size:14px; color:#374151; margin-bottom:12px;">Với game 2×2, mỗi ô màu xanh dương = best response Row, xanh lá = best response Column, vàng = Nash (cả hai BR). Hover ô để xem phân tích chi tiết.</p>
+    <div id="brGrid" class="matrix-wrap"></div>
+    <div id="brInfo" style="background:white; border:2px solid #c7d2fe; border-radius:10px; padding:12px 16px; margin-top:10px; font-size:14px; min-height:50px; color:#374151;">Hover vào ô để xem best response analysis.</div>
+  </section>
+</main>
+
+<script>
+const PRESETS = [
+  {
+    name: "Prisoner's Dilemma",
+    rows: ["Cooperate (C)", "Defect (D)"],
+    cols: ["Cooperate (C)", "Defect (D)"],
+    pay: [[[-1,-1],[-10,0]],[[0,-10],[-5,-5]]]
+  },
+  {
+    name: "Stag Hunt",
+    rows: ["Stag (S)", "Hare (H)"],
+    cols: ["Stag (S)", "Hare (H)"],
+    pay: [[[4,4],[0,3]],[[3,0],[2,2]]]
+  },
+  {
+    name: "Chicken",
+    rows: ["Swerve (S)", "Drive (D)"],
+    cols: ["Swerve (S)", "Drive (D)"],
+    pay: [[[0,0],[-1,1]],[[1,-1],[-10,-10]]]
+  },
+  {
+    name: "Battle of Sexes",
+    rows: ["Football (F)", "Opera (O)"],
+    cols: ["Football (F)", "Opera (O)"],
+    pay: [[[3,2],[0,0]],[[0,0],[2,3]]]
+  },
+  {
+    name: "3×3 IESDS demo",
+    rows: ["Top (T)", "Mid (M)", "Bot (B)"],
+    cols: ["Left (L)", "Mid (M)", "Right (R)"],
+    pay: [[[4,3],[2,7],[0,4]],[[5,3],[5,5],[3,3]],[[6,3],[4,3],[2,3]]]
+  },
+  {
+    name: "Custom",
+    rows: ["C", "D"],
+    cols: ["C", "D"],
+    pay: [[[-1,-1],[-10,0]],[[0,-10],[-5,-5]]]
+  }
+];
+
+let curPreset = 0;
+let game = null;
+let eliminated = { rows: [], cols: [] };
+let activeGame = null; // current game state for IESDS
+let neShown = false;
+
+function loadPreset(idx) {
+  curPreset = idx;
+  document.querySelectorAll('.preset-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
+  document.getElementById('customInputs').style.display = idx===5 ? 'block' : 'none';
+  game = JSON.parse(JSON.stringify(PRESETS[idx]));
+  activeGame = JSON.parse(JSON.stringify(game));
+  eliminated = { rows: [], cols: [] };
+  neShown = false;
+  renderMatrix();
+  renderBRGrid();
+  logClear();
+  log('step-info', `Game: ${game.name}. Nhấn "IESDS Step" để bắt đầu.`);
+}
+
+function buildCustom() {
+  const p = [
+    [[+document.getElementById('iCC_r').value, +document.getElementById('iCC_c').value],
+     [+document.getElementById('iCD_r').value, +document.getElementById('iCD_c').value]],
+    [[+document.getElementById('iDC_r').value, +document.getElementById('iDC_c').value],
+     [+document.getElementById('iDD_r').value, +document.getElementById('iDD_c').value]]
+  ];
+  PRESETS[5].pay = p;
+  if (curPreset === 5) loadPreset(5);
+}
+
+function renderMatrix() {
+  const g = game;
+  const nR = g.rows.length, nC = g.cols.length;
+  let html = `<table class="gmatrix">
+    <thead><tr><td class="corner-cell"></td><td class="corner-cell"></td>`;
+  for (let c=0; c<nC; c++) {
+    const elim = eliminated.cols.includes(c);
+    html += `<th class="ch${elim?' col-elim':''}" id="ch_c${c}">${g.cols[c]}</th>`;
+  }
+  html += '</tr></thead><tbody>';
+  for (let r=0; r<nR; r++) {
+    const rElim = eliminated.rows.includes(r);
+    html += `<tr><th class="ch${rElim?' row-elim':''}" id="ch_r${r}">${g.rows[r]}</th>`;
+    html += `<td class="corner-cell"></td>`;
+    for (let c=0; c<nC; c++) {
+      const cElim = eliminated.cols.includes(c);
+      const [pR, pC] = g.pay[r][c];
+      const elim = (rElim || cElim) ? ' eliminated' : '';
+      html += `<td class="gcell${elim}" id="gc_${r}_${c}">
+        <div class="ci">
+          <span class="pr">${pR}</span>
+          <span class="sep">,</span>
+          <span class="pc">${pC}</span>
+        </div>
+      </td>`;
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table>';
+  document.getElementById('matrixWrap').innerHTML = html;
+}
+
+function getActivePay() {
+  const g = game;
+  const activeRows = g.rows.map((_,i)=>i).filter(i=>!eliminated.rows.includes(i));
+  const activeCols = g.cols.map((_,i)=>i).filter(i=>!eliminated.cols.includes(i));
+  return { activeRows, activeCols };
+}
+
+function stepIESDS() {
+  const g = game;
+  const { activeRows, activeCols } = getActivePay();
+  if (activeRows.length <= 1 && activeCols.length <= 1) {
+    log('step-ne', 'IESDS hoàn tất — không còn gì có thể loại.');
+    showNE(); return;
+  }
+  let found = false;
+  // Check Row dominance
+  for (const ri of activeRows) {
+    for (const rj of activeRows) {
+      if (ri === rj) continue;
+      let dominates = true;
+      for (const c of activeCols) {
+        if (g.pay[ri][c][0] <= g.pay[rj][c][0]) { dominates = false; break; }
+      }
+      if (dominates) {
+        eliminated.rows.push(rj);
+        log('step-elim', `Loại hàng "${g.rows[rj]}" — bị strictly dominated bởi "${g.rows[ri]}" (Row payoff ${activeCols.map(c=>g.pay[ri][c][0]).join('>')} vs ${activeCols.map(c=>g.pay[rj][c][0]).join(',')})`);
+        found = true; break;
+      }
+    }
+    if (found) break;
+  }
+  if (!found) {
+    for (const ci of activeCols) {
+      for (const cj of activeCols) {
+        if (ci === cj) continue;
+        let dominates = true;
+        for (const r of activeRows) {
+          if (g.pay[r][ci][1] <= g.pay[r][cj][1]) { dominates = false; break; }
+        }
+        if (dominates) {
+          eliminated.cols.push(cj);
+          log('step-elim', `Loại cột "${g.cols[cj]}" — bị strictly dominated bởi "${g.cols[ci]}" (Col payoff ${activeRows.map(r=>g.pay[r][ci][1]).join('>')} vs ${activeRows.map(r=>g.pay[r][cj][1]).join(',')})`);
+          found = true; break;
+        }
+      }
+      if (found) break;
+    }
+  }
+  if (!found) {
+    log('step-ok', 'Không còn chiến lược nào bị strictly dominated. IESDS kết thúc.');
+    const { activeRows: ar, activeCols: ac } = getActivePay();
+    if (ar.length === 1 && ac.length === 1) {
+      log('step-ne', `Kết quả duy nhất: (${g.rows[ar[0]]}, ${g.cols[ac[0]]}) = (${g.pay[ar[0]][ac[0]][0]}, ${g.pay[ar[0]][ac[0]][1]}) → đây là NE duy nhất.`);
+    } else {
+      log('step-info', `Game rút xuống ${ar.length}×${ac.length}. Dùng "Show NE" để tìm NE trong game thu nhỏ.`);
+    }
+  }
+  renderMatrix();
+  // re-highlight eliminated
+}
+
+function resetIESDS() {
+  eliminated = { rows: [], cols: [] };
+  neShown = false;
+  renderMatrix();
+  logClear();
+  log('step-info', `Reset. Game: ${game.name}.`);
+}
+
+function showNE() {
+  const g = game;
+  const { activeRows, activeCols } = getActivePay();
+  const nes = [];
+  for (const r of activeRows) {
+    for (const c of activeCols) {
+      const brRow = activeRows.filter(ri => g.pay[ri][c][0] >= g.pay[r][c][0] && g.pay[ri][c][0] > g.pay[r][c][0]);
+      const brCol = activeCols.filter(ci => g.pay[r][ci][1] >= g.pay[r][c][1] && g.pay[r][ci][1] > g.pay[r][c][1]);
+      const rowBest = activeRows.every(ri => g.pay[r][c][0] >= g.pay[ri][c][0]);
+      const colBest = activeCols.every(ci => g.pay[r][c][1] >= g.pay[r][ci][1]);
+      if (rowBest && colBest) nes.push([r,c]);
+    }
+  }
+  // Also highlight BR
+  for (const c of activeCols) {
+    const maxR = Math.max(...activeRows.map(r=>g.pay[r][c][0]));
+    for (const r of activeRows) {
+      if (g.pay[r][c][0] === maxR && !eliminated.rows.includes(r)) {
+        const el = document.getElementById(`gc_${r}_${c}`);
+        if (el && !el.classList.contains('ne')) el.classList.add('br-row');
+      }
+    }
+  }
+  for (const r of activeRows) {
+    const maxC = Math.max(...activeCols.map(c=>g.pay[r][c][1]));
+    for (const c of activeCols) {
+      if (g.pay[r][c][1] === maxC && !eliminated.cols.includes(c)) {
+        const el = document.getElementById(`gc_${r}_${c}`);
+        if (el && !el.classList.contains('ne')) el.classList.add('br-col');
+      }
+    }
+  }
+  nes.forEach(([r,c]) => {
+    const el = document.getElementById(`gc_${r}_${c}`);
+    if (el) {
+      el.className = 'gcell ne';
+      const b = document.createElement('span'); b.className='ne-badge'; b.textContent='NE';
+      el.querySelector('.ci').appendChild(b);
+    }
+    log('step-ne', `Nash Equilibrium: (${g.rows[r]}, ${g.cols[c]}) = (${g.pay[r][c][0]}, ${g.pay[r][c][1]})`);
+  });
+  if (nes.length === 0) log('step-info', 'Không có NE thuần trong phần game còn lại → cần mixed strategy (xem L03).');
+  neShown = true;
+}
+
+function renderBRGrid() {
+  const g = game;
+  const nR = g.rows.length, nC = g.cols.length;
+  // Only 2×2
+  if (nR > 2 || nC > 2) {
+    document.getElementById('brGrid').innerHTML = '<p style="color:#6b7280; font-size:14px;">BR grid chỉ hiển thị với game 2×2. Chọn preset 2×2.</p>';
+    document.getElementById('brInfo').textContent = '';
+    return;
+  }
+  // BR
+  const brRow = Array.from({length:nR}, () => Array(nC).fill(false));
+  const brCol = Array.from({length:nR}, () => Array(nC).fill(false));
+  for (let c=0;c<nC;c++) {
+    const maxR = Math.max(...Array.from({length:nR},(_,r)=>g.pay[r][c][0]));
+    for (let r=0;r<nR;r++) if (g.pay[r][c][0]===maxR) brRow[r][c]=true;
+  }
+  for (let r=0;r<nR;r++) {
+    const maxC = Math.max(...Array.from({length:nC},(_,c)=>g.pay[r][c][1]));
+    for (let c=0;c<nC;c++) if (g.pay[r][c][1]===maxC) brCol[r][c]=true;
+  }
+  let html = `<table class="gmatrix"><thead><tr>
+    <td class="corner-cell"></td><td class="corner-cell"></td>`;
+  for (let c=0;c<nC;c++) html += `<th class="ch">${g.cols[c]}</th>`;
+  html += '</tr></thead><tbody>';
+  for (let r=0;r<nR;r++) {
+    html += `<tr><th class="ch">${g.rows[r]}</th><td class="corner-cell"></td>`;
+    for (let c=0;c<nC;c++) {
+      const [pR,pC] = g.pay[r][c];
+      let cls = 'gcell';
+      if (brRow[r][c] && brCol[r][c]) cls += ' ne';
+      else if (brRow[r][c]) cls += ' br-row';
+      else if (brCol[r][c]) cls += ' br-col';
+      html += `<td class="${cls}" id="br_${r}_${c}" onmouseenter="brHover(${r},${c})" onmouseleave="brUnhover()">
+        <div class="ci"><span class="pr">${pR}</span><span class="sep">,</span><span class="pc">${pC}</span></div>
+        ${(brRow[r][c]&&brCol[r][c])?'<span class="ne-badge">NE</span>':''}
+      </td>`;
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table>';
+  document.getElementById('brGrid').innerHTML = html;
+}
+
+function brHover(r, c) {
+  const g = game;
+  const nR = g.rows.length, nC = g.cols.length;
+  const [pR, pC] = g.pay[r][c];
+  const brRow_c = Array.from({length:nR},(_,ri)=>g.pay[ri][c][0]);
+  const maxR = Math.max(...brRow_c);
+  const brCol_r = Array.from({length:nC},(_,ci)=>g.pay[r][ci][1]);
+  const maxC = Math.max(...brCol_r);
+  const isRowBR = g.pay[r][c][0] === maxR;
+  const isColBR = g.pay[r][c][1] === maxC;
+  const brRowStrats = brRow_c.map((v,i)=>v===maxR?g.rows[i]:null).filter(Boolean);
+  const brColStrats = brCol_r.map((v,i)=>v===maxC?g.cols[i]:null).filter(Boolean);
+  document.getElementById('brInfo').innerHTML = `
+    <strong>(${g.rows[r]}, ${g.cols[c]})</strong> → Row nhận <span style="color:#1e40af; font-weight:700">${pR}</span>, Column nhận <span style="color:#166534; font-weight:700">${pC}</span><br>
+    Row BR khi Column chơi <em>${g.cols[c]}</em>: <strong>${brRowStrats.join(', ')}</strong> — Row ở đây là BR? <strong style="color:${isRowBR?'#166534':'#dc2626'}">${isRowBR?'✓ Có':'✗ Không'}</strong><br>
+    Column BR khi Row chơi <em>${g.rows[r]}</em>: <strong>${brColStrats.join(', ')}</strong> — Column ở đây là BR? <strong style="color:${isColBR?'#166534':'#dc2626'}">${isColBR?'✓ Có':'✗ Không'}</strong><br>
+    ${isRowBR && isColBR ? '<strong style="color:#f59e0b">→ Đây là Nash Equilibrium!</strong>' : '<span style="color:#6b7280">→ Không phải NE (ít nhất một player muốn lệch)</span>'}
+  `;
+}
+
+function brUnhover() {
+  document.getElementById('brInfo').textContent = 'Hover vào ô để xem best response analysis.';
+}
+
+let logLines = [];
+function log(cls, msg) {
+  logLines.push(`<div class="${cls}">${msg}</div>`);
+  document.getElementById('logBox').innerHTML = logLines.join('');
+  document.getElementById('logBox').scrollTop = 999999;
+}
+function logClear() { logLines = []; document.getElementById('logBox').innerHTML = ''; }
+
+// init
+loadPreset(0);
+</script>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

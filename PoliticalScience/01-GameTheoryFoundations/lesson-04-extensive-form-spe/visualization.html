@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04: Extensive Form & SPE — PoliticalScience</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f5f5fb;
+    --accent: #3730a3;
+    --accent-soft: #e0e7ff;
+    --accent-hover: #312e81;
+  }
+  h1 { color: #1e1b4b; }
+  h2 { color: #312e81; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #c7d2fe; }
+
+  .preset-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tab-btn { padding: 8px 16px; border: 2px solid #c7d2fe; border-radius: 8px; background: white; cursor: pointer; font-size: 14px; color: #312e81; }
+  .tab-btn.active { background: #3730a3; color: white; border-color: #3730a3; }
+
+  .tree-area { position: relative; overflow-x: auto; }
+  svg.tree-svg { display: block; margin: 0 auto; }
+
+  .node-circle { cursor: pointer; }
+  .node-label { font-size: 13px; font-weight: 700; }
+  .edge-label { font-size: 12px; fill: #6b7280; }
+  .payoff-label { font-size: 13px; font-weight: 700; }
+
+  .ctrl-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 14px 0; }
+  .btn { padding: 8px 18px; border: 2px solid #3730a3; border-radius: 8px; background: white; color: #3730a3; cursor: pointer; font-size: 14px; font-weight: 600; }
+  .btn:hover { background: #e0e7ff; }
+  .btn.primary { background: #3730a3; color: white; }
+  .btn.primary:hover { background: #312e81; }
+
+  .log-box { background: #1e1b4b; color: #a5b4fc; font-family: monospace; font-size: 13px; border-radius: 10px; padding: 14px 16px; min-height: 60px; line-height: 1.8; margin-top: 12px; max-height: 200px; overflow-y: auto; }
+  .log-ok { color: #86efac; }
+  .log-spe { color: #fde68a; }
+  .log-info { color: #93c5fd; }
+  .log-elim { color: #fca5a5; }
+
+  /* Ultimatum slider */
+  .ult-wrap { display: flex; flex-direction: column; gap: 14px; }
+  .ult-offer { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .ult-offer label { font-size: 14px; font-weight: 600; color: #374151; min-width: 140px; }
+  .ult-offer input[type=range] { flex: 1; min-width: 120px; max-width: 300px; }
+  .ult-val { font-size: 18px; font-weight: 700; color: #3730a3; min-width: 30px; }
+  .ult-bars { display: flex; gap: 12px; align-items: flex-end; height: 120px; }
+  .ult-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .ult-bar { width: 60px; border-radius: 6px 6px 0 0; transition: height 0.3s, background 0.3s; }
+  .ult-bar-label { font-size: 12px; color: #6b7280; }
+  .ult-result { font-size: 15px; font-weight: 600; min-height: 24px; padding: 10px; background: white; border-radius: 8px; border: 2px solid #c7d2fe; }
+  .ult-insight { background: #e0e7ff; border-radius: 10px; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin-top: 10px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-mixed-strategy/visualization.html">← L03: Mixed Strategies</a>
+  <span class="sep">·</span>
+  <span class="current">L04: Extensive form &amp; SPE</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-repeated-games/visualization.html">L05: Repeated games →</a>
+</nav>
+<main>
+  <h1>Lesson 04: Extensive Form &amp; SPE</h1>
+  <p class="lead">Trực quan hóa backward induction trên game tree — nodes đỏ lên dần từ lá lên gốc. SPE path hiển thị đậm.</p>
+
+  <section class="module">
+    <h2>Module 1: Backward Induction — Game Tree Tương tác</h2>
+
+    <div class="preset-row">
+      <button class="tab-btn active" onclick="loadTree(0)">Entry Deterrence</button>
+      <button class="tab-btn" onclick="loadTree(1)">Trust Game</button>
+      <button class="tab-btn" onclick="loadTree(2)">3-Level Game</button>
+    </div>
+
+    <div id="treeDesc" style="background:#e0e7ff; border-radius:10px; padding:12px 16px; margin-bottom:16px; font-size:14px; line-height:1.6;"></div>
+
+    <div class="tree-area">
+      <svg id="treeSvg" class="tree-svg" width="560" height="320" viewBox="0 0 560 320"></svg>
+    </div>
+
+    <div class="ctrl-row">
+      <button class="btn primary" id="btnBI" onclick="stepBI()">▶ Backward Induction Step</button>
+      <button class="btn" onclick="resetBI()">↺ Reset</button>
+      <button class="btn" onclick="showSPE()">✦ Show SPE</button>
+    </div>
+    <div class="log-box" id="treeLog"><span class="log-info">Nhấn "Backward Induction Step" để bắt đầu từ lá.</span></div>
+  </section>
+
+  <section class="module">
+    <h2>Module 2: Ultimatum Game — SPE vs Thực nghiệm</h2>
+    <p style="font-size:14px; color:#374151; margin-bottom:12px;">Kéo slider để chọn phần Proposer offer cho Responder. SPE predict offer = 1. Thực nghiệm: offer trung bình ~40-50%. Quan sát Responder decision theo rational model.</p>
+
+    <div class="ult-wrap">
+      <div class="ult-offer">
+        <label>Offer cho Responder:</label>
+        <input type="range" id="ultSlider" min="0" max="100" value="30" oninput="updateUlt()">
+        <span class="ult-val" id="ultVal">30</span>
+        <span style="font-size:13px; color:#6b7280;">/ 100</span>
+      </div>
+
+      <div class="ult-bars">
+        <div class="ult-bar-wrap">
+          <div id="barProposer" class="ult-bar" style="height:70px; background:#3730a3;"></div>
+          <span class="ult-bar-label">Proposer</span>
+          <span id="barPropVal" style="font-size:14px; font-weight:700; color:#3730a3;">70</span>
+        </div>
+        <div class="ult-bar-wrap">
+          <div id="barResponder" class="ult-bar" style="height:30px; background:#059669;"></div>
+          <span class="ult-bar-label">Responder</span>
+          <span id="barRespVal" style="font-size:14px; font-weight:700; color:#059669;">30</span>
+        </div>
+      </div>
+
+      <div class="ult-result" id="ultResult">—</div>
+
+      <div class="ult-insight" id="ultInsight"></div>
+    </div>
+  </section>
+
+  <section class="module">
+    <h2>Module 3: Empty Threats — Credibility Check</h2>
+    <p style="font-size:14px; color:#374151; margin-bottom:12px;">Xem tại sao một số Nash Equilibrium không phải SPE vì dựa trên lời đe dọa không credible.</p>
+    <div id="threatDemo" style="background:white; border:2px solid #c7d2fe; border-radius:10px; padding:16px; font-size:14px; line-height:1.8;"></div>
+  </section>
+</main>
+
+<script>
+// ---- Module 1: Tree ----
+const TREES = [
+  {
+    name: "Entry Deterrence",
+    desc: "Player 1 (Entrant) chọn In hoặc Out. Nếu In: Player 2 (Incumbent) chọn Cooperate (C) hoặc Fight (F). Payoffs (P1, P2). <strong>Empty threat</strong>: P2 đe dọa Fight để ngăn P1 vào — nhưng nếu P1 thật sự vào, P2 tốt hơn khi Cooperate.",
+    nodes: [
+      { id: 0, x: 100, y: 160, player: 1, label: "P1" },
+      { id: 1, x: 300, y: 80, player: 2, label: "P2" },
+      { id: 2, x: 300, y: 240, player: -1, label: "Out" },  // terminal
+      { id: 3, x: 460, y: 40, player: -1, label: "C" },    // terminal
+      { id: 4, x: 460, y: 120, player: -1, label: "F" },   // terminal
+    ],
+    edges: [
+      { from: 0, to: 1, label: "In" },
+      { from: 0, to: 2, label: "Out" },
+      { from: 1, to: 3, label: "C" },
+      { from: 1, to: 4, label: "F" },
+    ],
+    payoffs: { 2: [2,3], 3: [4,4], 4: [0,1] },
+    biOrder: [3, 4, 1, 2, 0], // order of BI steps
+    speNodes: [3, 1, 0], // highlighted as SPE path
+    biDescriptions: [
+      "Node C (lá): payoff (4,4). Đây là terminal node — không cần quyết định.",
+      "Node F (lá): payoff (0,1). Terminal node.",
+      "Node P2 (Incumbent): C→P2 payoff=4; F→P2 payoff=1. 4>1 → P2 chọn Cooperate. Gán P2 node = (4,4).",
+      "Node Out (lá): payoff (2,3). Terminal node.",
+      "Node P1 (Entrant): In→P1 payoff=4; Out→P1 payoff=2. 4>2 → P1 chọn In. SPE path: In → Cooperate → (4,4)."
+    ]
+  },
+  {
+    name: "Trust Game",
+    desc: "Investor chọn Invest hoặc Not Invest. Nếu Invest: Trustee chọn Keep hoặc Return. Backward induction: Trustee Keep (40>20), so Investor Not Invest (10>0). Vấn đề: (20,20) không đạt được vì thiếu credible commitment.",
+    nodes: [
+      { id: 0, x: 80, y: 160, player: 1, label: "Inv" },
+      { id: 1, x: 260, y: 90, player: 2, label: "Tru" },
+      { id: 2, x: 260, y: 240, player: -1, label: "NI" },
+      { id: 3, x: 440, y: 50, player: -1, label: "K" },
+      { id: 4, x: 440, y: 130, player: -1, label: "R" },
+    ],
+    edges: [
+      { from: 0, to: 1, label: "Invest" },
+      { from: 0, to: 2, label: "Not Invest" },
+      { from: 1, to: 3, label: "Keep" },
+      { from: 1, to: 4, label: "Return" },
+    ],
+    payoffs: { 2: [10,10], 3: [0,40], 4: [20,20] },
+    biOrder: [3, 4, 1, 2, 0],
+    speNodes: [2, 0],
+    biDescriptions: [
+      "Node Keep (lá): payoff (0,40). Terminal.",
+      "Node Return (lá): payoff (20,20). Terminal.",
+      "Node Trustee: Keep→Trustee payoff=40; Return→Trustee payoff=20. 40>20 → Trustee chọn Keep. Gán = (0,40). Vấn đề credibility!",
+      "Node Not Invest (lá): payoff (10,10). Terminal.",
+      "Node Investor: Invest→Inv payoff=0; Not Invest→Inv payoff=10. 10>0 → Investor chọn Not Invest. SPE: Not Invest → (10,10). Mặc dù (20,20) khả thi."
+    ]
+  },
+  {
+    name: "3-Level Game",
+    desc: "P1 → P2 → P1 (3 levels). P1 chọn L/R. Nếu L: P2 chọn A/B. Nếu R: P2 chọn C/D. Nếu L→A: P1 chọn E(3,2)/F(1,4). Nếu L→B → (2,3). Nếu R→C → (4,1). Nếu R→D → (0,5).",
+    nodes: [
+      { id: 0, x: 60, y: 160, player: 1, label: "P1" },
+      { id: 1, x: 200, y: 80, player: 2, label: "P2" },
+      { id: 2, x: 200, y: 240, player: 2, label: "P2'" },
+      { id: 3, x: 340, y: 40, player: 1, label: "P1'" },
+      { id: 4, x: 340, y: 130, player: -1, label: "B" },
+      { id: 5, x: 340, y: 200, player: -1, label: "C" },
+      { id: 6, x: 340, y: 280, player: -1, label: "D" },
+      { id: 7, x: 480, y: 20, player: -1, label: "E" },
+      { id: 8, x: 480, y: 60, player: -1, label: "F" },
+    ],
+    edges: [
+      { from: 0, to: 1, label: "L" },
+      { from: 0, to: 2, label: "R" },
+      { from: 1, to: 3, label: "A" },
+      { from: 1, to: 4, label: "B" },
+      { from: 2, to: 5, label: "C" },
+      { from: 2, to: 6, label: "D" },
+      { from: 3, to: 7, label: "E" },
+      { from: 3, to: 8, label: "F" },
+    ],
+    payoffs: { 4: [2,3], 5: [4,1], 6: [0,5], 7: [3,2], 8: [1,4] },
+    biOrder: [7, 8, 3, 4, 5, 6, 1, 2, 0],
+    speNodes: [7, 3, 1, 0],
+    biDescriptions: [
+      "Node E (lá): payoff (3,2). Terminal.",
+      "Node F (lá): payoff (1,4). Terminal.",
+      "Node P1' (sau A): E→P1 payoff=3; F→P1 payoff=1. 3>1 → P1 chọn E. Gán = (3,2).",
+      "Node B (lá): payoff (2,3). Terminal.",
+      "Node C (lá): payoff (4,1). Terminal.",
+      "Node D (lá): payoff (0,5). Terminal.",
+      "Node P2 (sau L): A→P2 payoff=2; B→P2 payoff=3. 3>2 → P2 chọn B. Wait — recheck: A gán = (3,2), P2 nhận 2; B=(2,3), P2 nhận 3. 3>2 → P2 chọn B. Gán L-branch = (2,3).",
+      "Node P2' (sau R): C→P2 payoff=1; D→P2 payoff=5. 5>1 → P2' chọn D. Gán R-branch = (0,5).",
+      "Node P1 gốc: L→P1 payoff=2 (sau P2 chọn B); R→P1 payoff=0 (sau P2' chọn D). 2>0 → P1 chọn L. SPE: L→B→(2,3)."
+    ]
+  }
+];
+
+let curTree = 0;
+let biStep = 0;
+let biDone = false;
+let biLog = [];
+let resolvedNodes = {};
+
+function loadTree(idx) {
+  curTree = idx;
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===idx));
+  const t = TREES[idx];
+  document.getElementById('treeDesc').innerHTML = t.desc;
+  biStep = 0; biDone = false; biLog = []; resolvedNodes = {};
+  drawTree();
+  document.getElementById('treeLog').innerHTML = '<span class="log-info">Nhấn "Backward Induction Step" để bắt đầu từ lá.</span>';
+}
+
+function drawTree(highlighted=[]) {
+  const t = TREES[curTree];
+  const svg = document.getElementById('treeSvg');
+  const W = 560, H = 320;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  let html = '';
+
+  // Edges
+  for (const e of t.edges) {
+    const n1 = t.nodes[e.from], n2 = t.nodes[e.to];
+    const isSPE = highlighted.includes(e.from) && highlighted.includes(e.to) && biDone;
+    const stroke = isSPE ? '#f59e0b' : '#94a3b8';
+    const sw = isSPE ? 3 : 1.5;
+    html += `<line x1="${n1.x}" y1="${n1.y}" x2="${n2.x}" y2="${n2.y}" stroke="${stroke}" stroke-width="${sw}"/>`;
+    const mx = (n1.x+n2.x)/2, my = (n2.y+n1.y)/2 - 8;
+    html += `<text x="${mx}" y="${my}" text-anchor="middle" class="edge-label" fill="#6b7280" font-size="12">${e.label}</text>`;
+  }
+
+  // Nodes
+  for (const n of t.nodes) {
+    const isResolved = resolvedNodes[n.id] !== undefined;
+    const isSPENode = highlighted.includes(n.id) && biDone;
+    if (n.player === -1) {
+      // Terminal leaf
+      const pay = t.payoffs[n.id];
+      if (pay) {
+        const col = isSPENode ? '#f59e0b' : (isResolved ? '#059669' : '#374151');
+        html += `<circle cx="${n.x}" cy="${n.y}" r="5" fill="${col}"/>`;
+        html += `<text x="${n.x+10}" y="${n.y-6}" font-size="13" font-weight="700" fill="${col}">(${pay[0]},${pay[1]})</text>`;
+      }
+    } else {
+      const fill = isSPENode ? '#f59e0b' : (isResolved ? '#dc2626' : (n.player===1?'#3730a3':'#059669'));
+      const pay = resolvedNodes[n.id];
+      html += `<circle cx="${n.x}" cy="${n.y}" r="16" fill="${fill}" stroke="white" stroke-width="2" class="node-circle"/>`;
+      html += `<text x="${n.x}" y="${n.y+5}" text-anchor="middle" font-size="12" font-weight="700" fill="white">${n.label}</text>`;
+      if (pay) {
+        html += `<text x="${n.x}" y="${n.y-24}" text-anchor="middle" font-size="11" fill="${fill}">(${pay[0]},${pay[1]})</text>`;
+      }
+    }
+  }
+
+  svg.innerHTML = html;
+}
+
+function stepBI() {
+  const t = TREES[curTree];
+  const order = t.biOrder;
+  if (biStep >= order.length) { biDone = true; showSPE(); return; }
+  const nodeIdx = order[biStep];
+  const desc = t.biDescriptions[biStep];
+  const n = t.nodes[nodeIdx];
+
+  // Resolve node
+  if (n.player === -1) {
+    const pay = t.payoffs[nodeIdx];
+    resolvedNodes[nodeIdx] = pay;
+  } else {
+    // find children
+    const children = t.edges.filter(e=>e.from===nodeIdx).map(e=>e.to);
+    const resolved = children.filter(c=>resolvedNodes[c]!==undefined);
+    if (resolved.length > 0) {
+      const best = resolved.reduce((best, c) => {
+        const cp = resolvedNodes[c] || [0,0];
+        const bp = resolvedNodes[best] || [0,0];
+        return cp[n.player-1] > bp[n.player-1] ? c : best;
+      }, resolved[0]);
+      resolvedNodes[nodeIdx] = resolvedNodes[best];
+    }
+  }
+
+  biLog.push(`<div class="log-ok">Step ${biStep+1}: ${desc}</div>`);
+  document.getElementById('treeLog').innerHTML = biLog.join('');
+  document.getElementById('treeLog').scrollTop = 99999;
+  biStep++;
+  drawTree([]);
+  if (biStep >= order.length) { biDone = true; setTimeout(showSPE, 300); }
+}
+
+function resetBI() {
+  biStep = 0; biDone = false; biLog = []; resolvedNodes = {};
+  drawTree([]);
+  document.getElementById('treeLog').innerHTML = '<span class="log-info">Reset. Nhấn "Backward Induction Step".</span>';
+}
+
+function showSPE() {
+  const t = TREES[curTree];
+  drawTree(t.speNodes);
+  const outcome = resolvedNodes[0];
+  biLog.push(`<div class="log-spe">✦ SPE Path highlighted (vàng). SPE outcome: (${outcome?outcome[0]+','+outcome[1]:'?'})</div>`);
+  document.getElementById('treeLog').innerHTML = biLog.join('');
+  document.getElementById('treeLog').scrollTop = 99999;
+}
+
+// ---- Module 2: Ultimatum ----
+function updateUlt() {
+  const offer = +document.getElementById('ultSlider').value;
+  const proposer = 100 - offer;
+  document.getElementById('ultVal').textContent = offer;
+  document.getElementById('barPropVal').textContent = proposer;
+  document.getElementById('barRespVal').textContent = offer;
+  const maxH = 100;
+  document.getElementById('barProposer').style.height = (proposer / 100 * maxH) + 'px';
+  document.getElementById('barResponder').style.height = Math.max(offer / 100 * maxH, 2) + 'px';
+  document.getElementById('barProposer').style.background = proposer > 50 ? '#3730a3' : '#6366f1';
+  document.getElementById('barResponder').style.background = offer >= 30 ? '#059669' : (offer > 0 ? '#f59e0b' : '#dc2626');
+
+  let result = '', insight = '';
+  if (offer === 0) {
+    result = '⚠ Offer = 0: Responder indifferent (rational model). Trong thực tế: 99%+ reject.';
+    insight = '<strong>SPE prediction</strong>: Proposer offer 0, Responder indifferent (accept hay reject đều bằng 0). Proposer giữ 100. <br><strong>Thực nghiệm</strong>: Offer 0 bị reject hầu như 100%. Người ta sẵn sàng thiệt để "punish" sự bất công.';
+  } else if (offer === 1) {
+    result = '✓ SPE prediction: Offer 1, Responder accept (1 > 0). Proposer giữ 99.';
+    insight = 'Đây là <strong>SPE outcome</strong> theo rational model. Trong thực nghiệm (Güth et al. 1982): offer trung bình ~40%, và offer < 20-30% bị reject ~50% thời gian.';
+  } else if (offer < 20) {
+    result = `⚠ Offer ${offer}%: Rational Responder accept (${offer} > 0). Nhưng thực tế hay bị reject.`;
+    insight = `Offer thấp (${offer}%) → theo model duy lý, Responder accept (bất kỳ x > 0). Nhưng trong thực nghiệm, offer dưới 20-25% bị reject ~40-60% thời gian vì <em>fairness preferences</em> và <em>spite</em>.`;
+  } else if (offer < 40) {
+    result = `⚠ Offer ${offer}%: Rational Responder accept. Thực nghiệm: ~30% reject.`;
+    insight = `Offer ${offer}% ở vùng "có thể bị reject". Proposer suboptimal theo SPE (nên offer ít hơn), nhưng trong thực tế offer thấp hơn rủi ro reject.`;
+  } else if (offer <= 55) {
+    result = `✓ Offer ${offer}%: Thực nghiệm cho thấy đây là vùng "fair" — Responder gần như luôn accept.`;
+    insight = `Offer gần 50% là phổ biến nhất trong experiments ("Homo Fairness"). Proposer từ bỏ ~50 so với SPE prediction nhưng đảm bảo deal thành công. Lý do: reciprocity norm, sợ bị reject, thậm chí altruism.`;
+  } else {
+    result = `✓ Offer ${offer}%: Responder chắc chắn accept. Proposer "generous" hơn SPE cần thiết.`;
+    insight = `Offer > 50% là Proposer cho đi nhiều hơn cần. Có thể do altruism, strategic generosity (reputation), hoặc sai lầm.`;
+  }
+  document.getElementById('ultResult').textContent = result;
+  document.getElementById('ultInsight').innerHTML = insight;
+}
+
+// ---- Module 3: Empty threats ----
+document.getElementById('threatDemo').innerHTML = `
+<strong>Kịch bản: P1 có thể enter thị trường. P2 (incumbent) đe dọa "Nếu mày vào, tao sẽ price war (Fight)".</strong><br><br>
+<table style="border-collapse:collapse; font-size:13px; width:100%;">
+  <tr style="background:#e0e7ff; color:#312e81;">
+    <th style="padding:8px; border:1px solid #c7d2fe;">Scenario</th>
+    <th style="padding:8px; border:1px solid #c7d2fe;">P2 thực sự làm gì nếu P1 Enter?</th>
+    <th style="padding:8px; border:1px solid #c7d2fe;">Lời đe dọa credible?</th>
+    <th style="padding:8px; border:1px solid #c7d2fe;">SPE</th>
+  </tr>
+  <tr>
+    <td style="padding:8px; border:1px solid #c7d2fe;">P2 payoff: Fight=1, Coop=4</td>
+    <td style="padding:8px; border:1px solid #c7d2fe;">Coop (4>1)</td>
+    <td style="padding:8px; border:1px solid #c7d2fe; color:#dc2626;">❌ Empty threat</td>
+    <td style="padding:8px; border:1px solid #c7d2fe;">P1 Enter; P2 Coop</td>
+  </tr>
+  <tr style="background:#f9fafb;">
+    <td style="padding:8px; border:1px solid #c7d2fe;">P2 payoff: Fight=6, Coop=2 (P2 "tough")</td>
+    <td style="padding:8px; border:1px solid #c7d2fe;">Fight (6>2)</td>
+    <td style="padding:8px; border:1px solid #c7d2fe; color:#059669;">✓ Credible threat</td>
+    <td style="padding:8px; border:1px solid #c7d2fe;">P1 Stay Out; P2 Fight</td>
+  </tr>
+</table>
+<br>
+<strong>Lesson</strong>: Lời đe dọa chỉ credible nếu thực sự tốt cho bên đe dọa khi thực hiện. SPE loại bỏ equilibria dựa trên empty threats — đây là lý do "reputation" và "commitment devices" quan trọng trong chính trị.
+`;
+
+// init
+loadTree(0);
+updateUlt();
+</script>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

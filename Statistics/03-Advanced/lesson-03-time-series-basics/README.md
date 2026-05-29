@@ -498,7 +498,7 @@ ACF lag 1 ≈ −0.1 — gần 0, không có autocorrelation đáng kể. Series
 
 Bạn đã hoàn thành toàn bộ lộ trình Statistics (3 tầng, 18 bài). Hướng áp dụng tiếp theo:
 
-- **[AI/ML trong Vectors/06-AI-ML/](../../../Vectors/06-AI-ML/)**: Time series + Bayesian inference là nền tảng của nhiều mô hình ML (HMM, Gaussian process, Bayesian neural nets).
+- **[AI/ML trong AI-ML/lesson-AI-ML/](../../../AI-ML/)**: Time series + Bayesian inference là nền tảng của nhiều mô hình ML (HMM, Gaussian process, Bayesian neural nets).
 - **[Economics/](../../../Economics/)**: Econometrics mở rộng OLS và ARIMA cho panel data, IV regression, diff-in-diff.
 - Thực hành: Python (`statsmodels`, `pmdarima`, `prophet`), R (`forecast` package).
 

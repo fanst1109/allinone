@@ -1,5 +1,5 @@
 // AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
-// Source: Vectors/06-AI-ML/lesson-07-vector-db-rag/README.md
+// Source: AI-ML/lesson-07-vector-db-rag/README.md
 // Chạy lại: go run tools/build-readme-data.go
 window.README_MD = `# Lesson 07 — Vector Database + RAG
 

@@ -1,5 +1,5 @@
 // AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
-// Source: Vectors/06-AI-ML/lesson-04-neural-network/README.md
+// Source: AI-ML/lesson-04-neural-network/README.md
 // Chạy lại: go run tools/build-readme-data.go
 window.README_MD = `# Lesson 04 — Neural Network 1-hidden-layer
 

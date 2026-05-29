@@ -1,6 +1,6 @@
 # Vectors — Lộ trình toán cho AI & Machine Learning
 
-Lộ trình **6 tầng** đi từ đại số phổ thông cơ bản nhất tới embedding, vector database và RAG. Mọi thứ học ở các tầng trước sẽ được **gọi lại** ở tầng sau, không có khái niệm "treo".
+Lộ trình **5 tầng** đi từ đại số phổ thông cơ bản nhất tới xác suất, MLE và cross-entropy — phần toán nền cho ML. Phần ứng dụng ML (linear regression, embedding, RAG, CLIP) đã được **tách ra lĩnh vực [`AI-ML/`](../AI-ML/)** ở cấp gốc.
 
 ## Triết lý
 
@@ -8,9 +8,9 @@ Lộ trình **6 tầng** đi từ đại số phổ thông cơ bản nhất tớ
 - **Cụ thể trước, trừu tượng sau**: mọi cơ chế đều có ví dụ số chạy được trước khi vào công thức.
 - **Trực giác trước hình thức**: giải thích "vì sao đúng / vì sao nhanh" trước khi đưa định lý.
 - **Mỗi bài học có visualization tương tác** — gõ số, kéo slider, thấy ngay kết quả.
-- **Code mặc định: Go** cho Tầng 1–4. Từ Tầng 5 trở đi (`Probability`, `AI-ML`) có thể chuyển Python vì hệ sinh thái ML chủ yếu Python.
+- **Code mặc định: Go** cho Tầng 1–4. Tầng 5 (`Probability`) có thể dùng Python vì ecosystem ML.
 
-## 6 tầng
+## 5 tầng
 
 | # | Tầng | Trạng thái | Nội dung chính |
 |---|------|------------|----------------|
@@ -19,7 +19,8 @@ Lộ trình **6 tầng** đi từ đại số phổ thông cơ bản nhất tớ
 | 3 | [Calculus](./03-Calculus/) | ✅ Đã có | Giới hạn, đạo hàm, chain rule, gradient, tích phân |
 | 4 | [Linear Algebra](./04-LinearAlgebra/) | ✅ Đã có | Vector, ma trận, eigenvector, PCA, SVD |
 | 5 | [Probability](./05-Probability/) | ✅ Đã có | Xác suất, Bayes, phân phối, MLE, cross-entropy |
-| 6 | [AI/ML](./06-AI-ML/) | ✅ Đã có | Linear regression → embedding → RAG → CLIP |
+
+Sau Tầng 5: tiếp tục sang [`AI-ML/`](../AI-ML/) (linear regression → neural net → embedding → RAG → CLIP) hoặc [`Statistics/`](../Statistics/) (suy luận thống kê, kiểm định giả thuyết).
 
 ## Cách học
 

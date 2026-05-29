@@ -28,7 +28,7 @@ Tầng cuối — toán đại cương của năm 1-2 đại học kỹ thuật.
 ## Sau tầng này
 
 Math hoàn chỉnh. Tiếp theo có thể chuyển sang:
-- **Vectors/05-Probability + 06-AI-ML** — áp dụng vào ML.
+- **Vectors/05-Probability + AI-ML** — áp dụng vào ML.
 - **Physics** — dùng calculus + linear algebra + ODE để mô hình hóa.
 - **Economics** — dùng calculus + xác suất cho econometrics.
 

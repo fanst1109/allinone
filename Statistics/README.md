@@ -2,7 +2,7 @@
 
 Thống kê là **khoa học rút ra kết luận từ dữ liệu**: mô tả tập dữ liệu hiện có, suy luận về tổng thể từ một mẫu, và kiểm định xem một hiệu ứng có thực hay chỉ do ngẫu nhiên.
 
-Lĩnh vực này bổ trợ — không trùng — với [`Vectors/05-Probability`](../Vectors/05-Probability/) (lý thuyết xác suất) và [`Vectors/06-AI-ML`](../Vectors/06-AI-ML/) (hồi quy & ML). Probability dạy *"nếu tung xúc xắc công bằng, xác suất ra mặt 6 là 1/6"* — đi từ mô hình ra dữ liệu. Thống kê đi ngược lại: *"tôi tung 1000 lần ra 240 mặt 6, xúc xắc có công bằng không?"* — đi từ dữ liệu ra mô hình.
+Lĩnh vực này bổ trợ — không trùng — với [`Vectors/05-Probability`](../Vectors/05-Probability/) (lý thuyết xác suất) và [`AI-ML`](../AI-ML/) (hồi quy & ML). Probability dạy *"nếu tung xúc xắc công bằng, xác suất ra mặt 6 là 1/6"* — đi từ mô hình ra dữ liệu. Thống kê đi ngược lại: *"tôi tung 1000 lần ra 240 mặt 6, xúc xắc có công bằng không?"* — đi từ dữ liệu ra mô hình.
 
 ## Triết lý
 
@@ -53,7 +53,7 @@ Lĩnh vực này bổ trợ — không trùng — với [`Vectors/05-Probability
 ## Liên kết chéo
 
 - `Vectors/05-Probability` → cung cấp lý thuyết RV, normal, MLE mà Tầng 2 sẽ dùng.
-- `Vectors/06-AI-ML/lesson-02-linear-regression` → bài này dùng nhiều khái niệm từ Tầng 1 & 2 (residual, hypothesis test, R²).
+- `AI-ML/lesson-02-linear-regression` → bài này dùng nhiều khái niệm từ Tầng 1 & 2 (residual, hypothesis test, R²).
 - `Economics/` → econometrics dùng heavy hypothesis testing & causal inference.
 - `Biology/02-Genetics-Evolution` → di truyền quần thể (Hardy–Weinberg) là ứng dụng thống kê.
 

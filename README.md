@@ -24,6 +24,7 @@
 
 | Lĩnh vực | Mô tả | Liên kết |
 | --- | --- | --- |
+| AI-ML | Học máy & AI ứng dụng — 8 bài: pipeline ML, regression, neural net, embeddings, RAG, CLIP | [AI-ML/](./AI-ML/) |
 | Algorithms | Kỹ thuật & paradigm giải thuật — 8 tier × ~52 lesson (sort, search, greedy, DP, graph, string) | [Algorithms/](./Algorithms/) |
 | Biology | Sinh học — 3 tầng × 8 bài, phân tử & tế bào → di truyền & tiến hóa → sinh lý & sinh thái | [Biology/](./Biology/) |
 | Chemistry | Hóa học đại cương — 2 tầng × 8 bài, cấu tạo chất → phản ứng → hóa sinh preview | [Chemistry/](./Chemistry/) |
@@ -39,7 +40,7 @@
 | Programming | Học lập trình bằng Go từ tư duy đến production — 9 tier × 84 lesson | [Programming/](./Programming/) |
 | Psychology | Tâm lý học khoa học — 3 tầng × 15 bài: cognitive (Stroop, biases) → social/developmental → clinical & methods | [Psychology/](./Psychology/) |
 | Statistics | Thống kê — 3 tầng × 15 bài: mô tả dữ liệu → suy luận → Bayesian, nhân quả, time series | [Statistics/](./Statistics/) |
-| Vectors | Lộ trình toán cho AI & ML — 6 tầng từ đại số phổ thông tới embedding/RAG | [Vectors/](./Vectors/) |
+| Vectors | Lộ trình toán cho AI & ML — 5 tầng từ đại số phổ thông tới xác suất & cross-entropy | [Vectors/](./Vectors/) |
 
 > Mở [`index.html`](./index.html) ở root để xem trang chính có liên kết tới mọi lĩnh vực.
 

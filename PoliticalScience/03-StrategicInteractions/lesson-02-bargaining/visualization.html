@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L02: Bargaining — PoliticalScience</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root { --bg: #f5f5fb; --accent: #3730a3; --accent-soft: #e0e7ff; --accent-hover: #312e81; }
+  h1 { color: #1e1b4b; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 28px; font-size: 15px; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+  .module { background: white; border-radius: 10px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 28px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin: 14px 0; padding: 16px; background: #f8f7ff; border-radius: 8px; border: 1px solid #c7d2fe; }
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+  label { font-size: 13px; font-weight: 600; color: #4a5568; }
+  input[type="range"] { width: 130px; accent-color: var(--accent); }
+  .val-badge { display: inline-block; background: var(--accent-soft); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 13px; font-weight: 700; font-family: monospace; }
+  .stats-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .stat-chip { background: #edf2f7; padding: 8px 14px; border-radius: 6px; font-family: monospace; font-size: 13px; border-left: 3px solid var(--accent); min-width: 120px; }
+  .stat-chip .name { color: #718096; font-size: 11px; display: block; margin-bottom: 2px; }
+  .stat-chip .val { color: #2d3748; font-weight: 700; font-size: 16px; }
+  .info-box { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; line-height: 1.6; }
+  button { padding: 9px 20px; background: var(--accent); color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  button:hover { background: var(--accent-hover); }
+  .bar-wrap { display: flex; height: 40px; border-radius: 6px; overflow: hidden; margin: 16px 0; font-size: 14px; font-weight: 700; }
+  .bar-p1 { background: #3730a3; display: flex; align-items: center; justify-content: center; color: white; transition: width 0.5s; }
+  .bar-p2 { background: #7c3aed; display: flex; align-items: center; justify-content: center; color: white; transition: width 0.5s; }
+  .bar-d1 { background: #f87171; height: 6px; border-radius: 3px 0 0 3px; }
+  .bar-d2 { background: #fb923c; height: 6px; border-radius: 0 3px 3px 0; }
+  .round-list { max-height: 260px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; }
+  .round-item { display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+  .round-item:last-child { border-bottom: none; }
+  .round-num { color: #718096; width: 50px; font-size: 12px; }
+  .offer-bar { flex: 1; height: 18px; border-radius: 4px; overflow: hidden; display: flex; }
+  .ob-p1 { background: #3730a3; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; }
+  .ob-p2 { background: #7c3aed; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; }
+  .round-status { width: 60px; font-size: 12px; text-align: right; }
+  .accept-badge { color: #276749; font-weight: 700; }
+  .reject-badge { color: #c53030; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th { background: var(--accent); color: white; padding: 8px 12px; text-align: left; }
+  td { padding: 7px 12px; border-bottom: 1px solid #e2e8f0; }
+  tr:nth-child(even) td { background: #f8f7ff; }
+  .highlight-row td { background: #e0e7ff !important; font-weight: 700; }
+  @media (max-width: 600px) {
+    .controls { flex-direction: column; }
+    input[type="range"] { width: 100%; max-width: 200px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-collective-action/visualization.html">← L01: Collective Action</a>
+  <span class="sep">·</span>
+  <span class="current">L02: Bargaining</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-signaling-screening/visualization.html">L03: Signaling →</a>
+</nav>
+<main>
+  <h1>Lesson 02: Bargaining</h1>
+  <p class="subtitle">Nash bargaining solution · Rubinstein alternating offers · Ultimatum game</p>
+
+  <!-- Module 1: Nash Bargaining -->
+  <section class="module">
+    <h2>1. Nash Bargaining Solution</h2>
+    <div class="info-box">
+      Thay đổi disagreement point d₁, d₂ và bargaining power α. Xem Nash product được maximize ở đâu và ai nhận bao nhiêu surplus.
+    </div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Tổng surplus (S): <span class="val-badge" id="s-v">100</span></label>
+        <input type="range" id="s-slider" min="50" max="300" value="100" step="10" oninput="document.getElementById('s-v').textContent=this.value; renderNash()">
+      </div>
+      <div class="ctrl-group">
+        <label>d₁ (outside option P1): <span class="val-badge" id="d1-v">0</span></label>
+        <input type="range" id="d1-slider" min="0" max="80" value="0" oninput="document.getElementById('d1-v').textContent=this.value; renderNash()">
+      </div>
+      <div class="ctrl-group">
+        <label>d₂ (outside option P2): <span class="val-badge" id="d2-v">0</span></label>
+        <input type="range" id="d2-slider" min="0" max="80" value="0" oninput="document.getElementById('d2-v').textContent=this.value; renderNash()">
+      </div>
+      <div class="ctrl-group">
+        <label>α (power P1, 0-1): <span class="val-badge" id="alpha-v">0.50</span></label>
+        <input type="range" id="alpha-slider" min="0" max="100" value="50" oninput="document.getElementById('alpha-v').textContent=(this.value/100).toFixed(2); renderNash()">
+      </div>
+    </div>
+    <div id="nash-bar-wrap"></div>
+    <div class="stats-row" id="nash-stats"></div>
+    <div style="margin-top:16px;">
+      <svg id="nash-svg" width="560" height="200" viewBox="0 0 560 200" style="display:block;max-width:100%;"></svg>
+    </div>
+  </section>
+
+  <!-- Module 2: Rubinstein -->
+  <section class="module">
+    <h2>2. Rubinstein Alternating Offers — Animation</h2>
+    <div class="info-box">
+      Kéo δ và xem chuỗi offer-counteroffer hội tụ về SPE. Trong SPE, Player 1 accept ở round 0. Đây là "off-equilibrium path" nếu reject.
+    </div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>δ₁ (patience P1): <span class="val-badge" id="d1r-v">0.80</span></label>
+        <input type="range" id="d1r-slider" min="10" max="99" value="80" oninput="document.getElementById('d1r-v').textContent=(this.value/100).toFixed(2); renderRubinstein()">
+      </div>
+      <div class="ctrl-group">
+        <label>δ₂ (patience P2): <span class="val-badge" id="d2r-v">0.80</span></label>
+        <input type="range" id="d2r-slider" min="10" max="99" value="80" oninput="document.getElementById('d2r-v').textContent=(this.value/100).toFixed(2); renderRubinstein()">
+      </div>
+      <div class="ctrl-group">
+        <label>Rounds to show: <span class="val-badge" id="rounds-v">6</span></label>
+        <input type="range" id="rounds-slider" min="2" max="12" value="6" oninput="document.getElementById('rounds-v').textContent=this.value; renderRubinstein()">
+      </div>
+    </div>
+    <div id="rub-spe" style="margin-top:12px;"></div>
+    <div class="round-list" id="rub-rounds" style="margin-top:14px;"></div>
+    <div class="stats-row" id="rub-stats" style="margin-top:12px;"></div>
+  </section>
+
+  <!-- Module 3: Ultimatum -->
+  <section class="module">
+    <h2>3. Ultimatum Game — Fairness Threshold</h2>
+    <div class="info-box">
+      Ubiquitous dalam percobaan. SPE: offer (99, 1). Tuy nhiên, người thật reject nếu offer &lt; ~30%. Hãy simulasi với fairness threshold của Player 2.
+    </div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Tổng: <span class="val-badge">100</span></label>
+      </div>
+      <div class="ctrl-group">
+        <label>Offer P1 cho P1 (%): <span class="val-badge" id="ult-offer-v">60</span></label>
+        <input type="range" id="ult-offer" min="50" max="99" value="60" oninput="document.getElementById('ult-offer-v').textContent=this.value; renderUltimatum()">
+      </div>
+      <div class="ctrl-group">
+        <label>Fairness threshold P2 (%): <span class="val-badge" id="ult-thresh-v">30</span></label>
+        <input type="range" id="ult-thresh" min="0" max="50" value="30" oninput="document.getElementById('ult-thresh-v').textContent=this.value; renderUltimatum()">
+      </div>
+      <div class="ctrl-group">
+        <label>β (envy parameter P2): <span class="val-badge" id="ult-beta-v">0.50</span></label>
+        <input type="range" id="ult-beta" min="0" max="100" value="50" oninput="document.getElementById('ult-beta-v').textContent=(this.value/100).toFixed(2); renderUltimatum()">
+      </div>
+    </div>
+    <div id="ult-result" style="margin-top:16px;"></div>
+    <div style="margin-top:16px;">
+      <svg id="ult-svg" width="560" height="180" viewBox="0 0 560 180" style="display:block;max-width:100%;"></svg>
+    </div>
+  </section>
+</main>
+
+<script>
+// === Module 1: Nash Bargaining ===
+function renderNash() {
+  const S = +document.getElementById('s-slider').value;
+  const d1 = +document.getElementById('d1-slider').value;
+  const d2 = +document.getElementById('d2-slider').value;
+  const alpha = +document.getElementById('alpha-slider').value / 100;
+
+  // Check feasibility
+  if (d1 + d2 >= S) {
+    document.getElementById('nash-stats').innerHTML = `<div style="color:#c53030;font-weight:600;">d₁ + d₂ ≥ S: không có surplus để chia!</div>`;
+    return;
+  }
+
+  const surplus = S - d1 - d2;
+  const u1 = d1 + alpha * surplus;
+  const u2 = d2 + (1-alpha) * surplus;
+  const nashProduct = (u1 - d1) * (u2 - d2);
+
+  // Bar
+  document.getElementById('nash-bar-wrap').innerHTML = `
+    <div style="margin-bottom:8px;font-size:13px;color:#718096;">Phân chia (u₁, u₂):</div>
+    <div class="bar-wrap">
+      <div class="bar-p1" style="width:${(u1/S*100).toFixed(1)}%">P1: ${u1.toFixed(1)}</div>
+      <div class="bar-p2" style="width:${(u2/S*100).toFixed(1)}%">P2: ${u2.toFixed(1)}</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:#718096;">
+      <span>← d₁=${d1} + share</span><span>d₂=${d2} + share →</span>
+    </div>
+  `;
+
+  document.getElementById('nash-stats').innerHTML = `
+    <div class="stat-chip"><span class="name">u₁ (P1 nhận)</span><span class="val">${u1.toFixed(1)}</span></div>
+    <div class="stat-chip"><span class="name">u₂ (P2 nhận)</span><span class="val">${u2.toFixed(1)}</span></div>
+    <div class="stat-chip"><span class="name">Surplus</span><span class="val">${surplus.toFixed(1)}</span></div>
+    <div class="stat-chip"><span class="name">Nash Product</span><span class="val">${nashProduct.toFixed(1)}</span></div>
+  `;
+
+  // Nash product curve
+  drawNashCurve(S, d1, d2, u1);
+}
+
+function drawNashCurve(S, d1, d2, solX) {
+  const svg = document.getElementById('nash-svg');
+  const W = 560, H = 200, padL = 50, padR = 20, padT = 20, padB = 35;
+  const cW = W - padL - padR, cH = H - padT - padB;
+
+  let maxNP = 0;
+  for (let x = d1; x <= S - d2; x += 0.5) {
+    const np = (x-d1)*(S-x-d2);
+    if (np > maxNP) maxNP = np;
+  }
+
+  const xS = x => padL + ((x - d1) / (S - d1 - d2)) * cW;
+  const yS = v => padT + cH - (v / maxNP) * cH;
+
+  let html = '';
+  // Grid
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + i*cH/4;
+    html += `<line x1="${padL}" y1="${y}" x2="${padL+cW}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
+  }
+  html += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+cH}" stroke="#718096" stroke-width="1.5"/>`;
+  html += `<line x1="${padL}" y1="${padT+cH}" x2="${padL+cW}" y2="${padT+cH}" stroke="#718096" stroke-width="1.5"/>`;
+
+  // Nash product curve
+  let path = '';
+  for (let x = d1 + 0.1; x <= S - d2 - 0.1; x += 0.5) {
+    const np = (x-d1)*(S-x-d2);
+    const px = xS(x), py = yS(np);
+    path += (x === d1 + 0.1 ? 'M' : 'L') + `${px},${py}`;
+  }
+  html += `<path d="${path}" fill="none" stroke="#3730a3" stroke-width="2.5"/>`;
+
+  // Solution vertical line
+  const sx = xS(solX);
+  const solNP = (solX-d1)*(S-solX-d2);
+  html += `<line x1="${sx}" y1="${padT}" x2="${sx}" y2="${padT+cH}" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4,3"/>`;
+  html += `<circle cx="${sx}" cy="${yS(solNP)}" r="5" fill="#f59e0b"/>`;
+  html += `<text x="${sx+6}" y="${yS(solNP)-4}" fill="#f59e0b" font-size="11" font-weight="700">Max</text>`;
+
+  // Labels
+  html += `<text x="${padL+cW/2}" y="${H-3}" text-anchor="middle" fill="#718096" font-size="12">u₁ →</text>`;
+  html += `<text x="12" y="${padT+cH/2}" fill="#3730a3" font-size="11" transform="rotate(-90,12,${padT+cH/2})">Nash Product</text>`;
+
+  svg.innerHTML = html;
+}
+
+// === Module 2: Rubinstein ===
+function renderRubinstein() {
+  const d1 = +document.getElementById('d1r-slider').value / 100;
+  const d2 = +document.getElementById('d2r-slider').value / 100;
+  const rounds = +document.getElementById('rounds-slider').value;
+
+  // SPE
+  const v1 = (1 - d2) / (1 - d1 * d2);
+  const v2 = d2 * (1 - d1) / (1 - d1 * d2);
+
+  document.getElementById('rub-spe').innerHTML = `
+    <div style="padding:12px 16px;background:#e0e7ff;border-radius:8px;font-size:14px;">
+      <strong>SPE (accept ngay round 0):</strong>
+      Player 1 nhận <strong>${(v1*100).toFixed(1)}%</strong>,
+      Player 2 nhận <strong>${(v2*100).toFixed(1)}%</strong>
+      <span style="color:#718096;font-size:12px;"> (δ₁=${d1.toFixed(2)}, δ₂=${d2.toFixed(2)})</span>
+    </div>
+  `;
+
+  // Off-equilibrium path: what would happen if they kept rejecting
+  let html = '';
+  let offerList = [];
+  for (let t = 0; t < rounds; t++) {
+    // Even round: P1 proposes; Odd round: P2 proposes
+    const isP1 = t % 2 === 0;
+    const discount = Math.pow(d1, Math.floor(t/2)) * Math.pow(d2, Math.ceil(t/2));
+    let offer1, offer2;
+    if (isP1) {
+      offer1 = v1; offer2 = v2;
+    } else {
+      offer1 = d1 * v1; offer2 = 1 - d1 * v1;
+    }
+    const dv1 = offer1 * discount;
+    const dv2 = offer2 * discount;
+    offerList.push({ t, isP1, offer1: offer1*100, offer2: offer2*100, dv1: dv1*100, dv2: dv2*100 });
+  }
+
+  html = offerList.map(o => `
+    <div class="round-item">
+      <div class="round-num">Round ${o.t} ${o.isP1 ? '(P1)' : '(P2)'}</div>
+      <div class="offer-bar">
+        <div class="ob-p1" style="width:${o.offer1.toFixed(0)}%">${o.offer1.toFixed(0)}%</div>
+        <div class="ob-p2" style="width:${(100-o.offer1).toFixed(0)}%">${(100-o.offer1).toFixed(0)}%</div>
+      </div>
+      <div class="round-status ${o.t === 0 ? 'accept-badge' : 'reject-badge'}">${o.t===0?'Accept':'Reject'}</div>
+    </div>
+  `).join('');
+  document.getElementById('rub-rounds').innerHTML = html;
+
+  document.getElementById('rub-stats').innerHTML = `
+    <div class="stat-chip"><span class="name">Player 1 (proposer)</span><span class="val">${(v1*100).toFixed(1)}%</span></div>
+    <div class="stat-chip"><span class="name">Player 2 (responder)</span><span class="val">${(v2*100).toFixed(1)}%</span></div>
+    <div class="stat-chip"><span class="name">First-mover advantage</span><span class="val">${((v1-0.5)*100).toFixed(1)}%</span></div>
+  `;
+}
+
+// === Module 3: Ultimatum ===
+function renderUltimatum() {
+  const offer = +document.getElementById('ult-offer').value; // P1 keeps
+  const threshold = +document.getElementById('ult-thresh').value;
+  const beta = +document.getElementById('ult-beta').value / 100;
+
+  const p1_get = offer;
+  const p2_get = 100 - offer;
+
+  // Fehr-Schmidt: P2 utility if accept
+  const inequality = p1_get - p2_get; // if > 0, P1 gets more
+  const p2_util = p2_get - beta * Math.max(inequality, 0);
+
+  const accept_behavioral = p2_get >= threshold; // behavioral threshold
+  const accept_rational = p2_get > 0; // SPE: accept anything > 0
+  const accept_fs = p2_util >= 0; // Fehr-Schmidt
+
+  const p1_payoff_accept = p1_get;
+  const p1_payoff_reject = 0;
+  const p2_payoff_accept = p2_get;
+  const p2_payoff_reject = 0;
+
+  let resultHTML = `
+    <div style="display:flex;flex-wrap:wrap;gap:14px;">
+      <div style="flex:1;min-width:220px;padding:14px;background:#f8f7ff;border-radius:8px;border:1px solid #c7d2fe;">
+        <div style="font-size:13px;font-weight:700;color:#4a5568;margin-bottom:8px;">Offer của Player 1</div>
+        <div class="bar-wrap">
+          <div class="bar-p1" style="width:${p1_get}%">P1: ${p1_get}</div>
+          <div class="bar-p2" style="width:${p2_get}%">P2: ${p2_get}</div>
+        </div>
+      </div>
+      <div style="flex:1;min-width:220px;padding:14px;border-radius:8px;border:2px solid ${accept_behavioral?'#48bb78':'#fc8181'};background:${accept_behavioral?'#f0fff4':'#fff5f5'};">
+        <div style="font-size:15px;font-weight:700;color:${accept_behavioral?'#276749':'#c53030'};">
+          ${accept_behavioral ? '✓ Player 2 ACCEPT' : '✗ Player 2 REJECT'}
+        </div>
+        <div style="font-size:12px;color:#718096;margin-top:6px;">
+          Behavioral threshold: ${threshold}% | P2 receives: ${p2_get}%
+        </div>
+        <div style="font-size:12px;color:#718096;">Fehr-Schmidt U₂: ${p2_util.toFixed(1)} → ${accept_fs?'accept':'reject'}</div>
+      </div>
+    </div>
+    <div class="stats-row" style="margin-top:12px;">
+      <div class="stat-chip"><span class="name">P1 payoff</span><span class="val">${accept_behavioral ? p1_get : 0}</span></div>
+      <div class="stat-chip"><span class="name">P2 payoff</span><span class="val">${accept_behavioral ? p2_get : 0}</span></div>
+      <div class="stat-chip"><span class="name">SPE prediction</span><span class="val">Accept (P2 gets 1)</span></div>
+      <div class="stat-chip"><span class="name">P2 Fehr-Schmidt utility</span><span class="val">${p2_util.toFixed(1)}</span></div>
+    </div>
+  `;
+  document.getElementById('ult-result').innerHTML = resultHTML;
+
+  // Draw acceptance region
+  drawUltimatum(threshold, beta);
+}
+
+function drawUltimatum(threshold, beta) {
+  const svg = document.getElementById('ult-svg');
+  const W = 560, H = 180, padL = 50, padR = 20, padT = 20, padB = 35;
+  const cW = W-padL-padR, cH = H-padT-padB;
+
+  const xS = x => padL + x/100 * cW;  // x = offer to P1 (50-99)
+  const offerRange = { min: 50, max: 100 };
+  const xOff = x => padL + (x-50)/50 * cW;
+  const yS = v => padT + cH - Math.max(0, Math.min(1, (v+30)/130)) * cH;
+
+  let html = '';
+
+  // Grid
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + i*cH/4;
+    html += `<line x1="${padL}" y1="${y}" x2="${padL+cW}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
+  }
+  html += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+cH}" stroke="#718096" stroke-width="1.5"/>`;
+  html += `<line x1="${padL}" y1="${padT+cH}" x2="${padL+cW}" y2="${padT+cH}" stroke="#718096" stroke-width="1.5"/>`;
+
+  // P2 utility curve (Fehr-Schmidt)
+  let path = '';
+  for (let offer = 50; offer <= 99; offer++) {
+    const p1_get = offer, p2_get = 100 - offer;
+    const ineq = p1_get - p2_get;
+    const util = p2_get - beta * Math.max(ineq, 0);
+    const px = xOff(offer), py = yS(util/100);
+    path += (offer === 50 ? 'M' : 'L') + `${px},${py}`;
+  }
+  html += `<path d="${path}" fill="none" stroke="#3730a3" stroke-width="2.5"/>`;
+
+  // Zero utility line
+  const zeroY = yS(0);
+  html += `<line x1="${padL}" y1="${zeroY}" x2="${padL+cW}" y2="${zeroY}" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,3"/>`;
+  html += `<text x="${padL+cW-60}" y="${zeroY-4}" fill="#f59e0b" font-size="11">U₂ = 0</text>`;
+
+  // Threshold line
+  const threshX = xOff(100 - threshold); // offer to P1 such that P2 gets threshold
+  html += `<line x1="${threshX}" y1="${padT}" x2="${threshX}" y2="${padT+cH}" stroke="#fc8181" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+  html += `<text x="${threshX+3}" y="${padT+14}" fill="#fc8181" font-size="11">Reject threshold</text>`;
+
+  // Labels
+  html += `<text x="${padL+cW/2}" y="${H-3}" text-anchor="middle" fill="#718096" font-size="12">Offer P1 giữ (%) →</text>`;
+  html += `<text x="12" y="${padT+cH/2}" fill="#3730a3" font-size="11" transform="rotate(-90,12,${padT+cH/2})">P2 Utility</text>`;
+
+  // X ticks
+  for (let x = 50; x <= 100; x += 10) {
+    const px = xOff(x);
+    html += `<text x="${px}" y="${padT+cH+14}" text-anchor="middle" fill="#718096" font-size="10">${x}</text>`;
+  }
+
+  // Accept / Reject regions
+  const acceptEnd = xOff(100 - threshold);
+  html += `<rect x="${padL}" y="${padT}" width="${acceptEnd-padL}" height="${cH}" fill="#f0fff4" opacity="0.4"/>`;
+  html += `<rect x="${acceptEnd}" y="${padT}" width="${padL+cW-acceptEnd}" height="${cH}" fill="#fff5f5" opacity="0.4"/>`;
+  html += `<text x="${padL+8}" y="${padT+16}" fill="#276749" font-size="11">Accept region</text>`;
+  html += `<text x="${acceptEnd+4}" y="${padT+16}" fill="#c53030" font-size="11">Reject</text>`;
+
+  svg.innerHTML = html;
+}
+
+// Initialize
+renderNash();
+renderRubinstein();
+renderUltimatum();
+</script>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L03: Signaling & Screening — PoliticalScience</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root { --bg: #f5f5fb; --accent: #3730a3; --accent-soft: #e0e7ff; --accent-hover: #312e81; }
+  h1 { color: #1e1b4b; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 28px; font-size: 15px; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+  .module { background: white; border-radius: 10px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 28px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin: 14px 0; padding: 16px; background: #f8f7ff; border-radius: 8px; border: 1px solid #c7d2fe; }
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+  label { font-size: 13px; font-weight: 600; color: #4a5568; }
+  input[type="range"] { width: 130px; accent-color: var(--accent); }
+  .val-badge { display: inline-block; background: var(--accent-soft); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 13px; font-weight: 700; font-family: monospace; }
+  .info-box { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; line-height: 1.6; }
+  .stats-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .stat-chip { background: #edf2f7; padding: 8px 14px; border-radius: 6px; font-family: monospace; font-size: 13px; border-left: 3px solid var(--accent); min-width: 110px; }
+  .stat-chip .name { color: #718096; font-size: 11px; display: block; margin-bottom: 2px; }
+  .stat-chip .val { color: #2d3748; font-weight: 700; font-size: 15px; }
+  button { padding: 9px 20px; background: var(--accent); color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  button:hover { background: var(--accent-hover); }
+  button.secondary { background: #e0e7ff; color: var(--accent); }
+  .eq-zone { display: flex; border-radius: 8px; overflow: hidden; margin: 14px 0; height: 50px; }
+  .zone-no { background: #fff5f5; border: 1px solid #fc8181; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #c53030; font-weight: 700; transition: width 0.4s; }
+  .zone-sep { background: #e0e7ff; border: 1px solid #3730a3; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #3730a3; font-weight: 700; transition: width 0.4s; }
+  .zone-no2 { background: #fff5f5; border: 1px solid #fc8181; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #c53030; font-weight: 700; transition: width 0.4s; }
+  .type-card { padding: 14px 18px; border-radius: 8px; margin: 8px 0; border: 2px solid; }
+  .type-h { border-color: #3730a3; background: #eef2ff; }
+  .type-l { border-color: #7c3aed; background: #faf5ff; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th { background: var(--accent); color: white; padding: 8px 12px; text-align: left; }
+  td { padding: 7px 12px; border-bottom: 1px solid #e2e8f0; }
+  tr.sep-eq td { background: #e0e7ff; font-weight: 700; }
+  .lemons-bar { height: 28px; border-radius: 6px; overflow: hidden; display: flex; margin: 8px 0; }
+  .bar-good { background: #48bb78; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 700; transition: width 0.5s; }
+  .bar-bad { background: #fc8181; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 700; transition: width 0.5s; }
+  @media (max-width: 600px) {
+    .controls { flex-direction: column; }
+    input[type="range"] { width: 100%; max-width: 200px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-bargaining/visualization.html">← L02: Bargaining</a>
+  <span class="sep">·</span>
+  <span class="current">L03: Signaling & Screening</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-deterrence-crisis/visualization.html">L04: Deterrence →</a>
+</nav>
+<main>
+  <h1>Lesson 03: Signaling & Screening</h1>
+  <p class="subtitle">Spence job-market signaling · Akerlof lemons · Cheap talk credibility</p>
+
+  <!-- Module 1: Spence Signaling -->
+  <section class="module">
+    <h2>1. Spence Job-Market Signaling — Separating Equilibrium</h2>
+    <div class="info-box">
+      Thay đổi chi phí giáo dục cho High/Low type và xem khoảng e* nơi separating equilibrium tồn tại. Khi khoảng [e_lo, e_hi] không rỗng = separating có thể xảy ra.
+    </div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Lương High-type (k): <span class="val-badge" id="wH-v">100</span></label>
+        <input type="range" id="wH-slider" min="60" max="200" value="100" step="10" oninput="document.getElementById('wH-v').textContent=this.value; renderSpence()">
+      </div>
+      <div class="ctrl-group">
+        <label>Lương Low-type (k): <span class="val-badge" id="wL-v">50</span></label>
+        <input type="range" id="wL-slider" min="20" max="100" value="50" step="10" oninput="document.getElementById('wL-v').textContent=this.value; renderSpence()">
+      </div>
+      <div class="ctrl-group">
+        <label>c_H (cost High, k/năm): <span class="val-badge" id="cH-v">5</span></label>
+        <input type="range" id="cH-slider" min="1" max="20" value="5" oninput="document.getElementById('cH-v').textContent=this.value; renderSpence()">
+      </div>
+      <div class="ctrl-group">
+        <label>c_L (cost Low, k/năm): <span class="val-badge" id="cL-v">10</span></label>
+        <input type="range" id="cL-slider" min="2" max="30" value="10" oninput="document.getElementById('cL-v').textContent=this.value; renderSpence()">
+      </div>
+    </div>
+    <div id="spence-zones"></div>
+    <div id="spence-stats" class="stats-row"></div>
+    <div style="margin-top:16px;">
+      <svg id="spence-svg" width="560" height="220" viewBox="0 0 560 220" style="display:block;max-width:100%;"></svg>
+    </div>
+    <div id="spence-table" style="margin-top:16px;"></div>
+  </section>
+
+  <!-- Module 2: Akerlof Lemons -->
+  <section class="module">
+    <h2>2. Akerlof's Market for Lemons — Adverse Selection</h2>
+    <div class="info-box">
+      Thay đổi ratio v_B/v_S để xem khi nào market survive hay collapse. Theo dõi spiral: buyer offer → average quality → buyer value → hạ offer → ...
+    </div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>v_B/v_S ratio: <span class="val-badge" id="vr-v">1.50</span></label>
+        <input type="range" id="vr-slider" min="100" max="300" value="150" oninput="document.getElementById('vr-v').textContent=(this.value/100).toFixed(2); renderLemons()">
+      </div>
+      <div class="ctrl-group">
+        <label>Giá ban đầu buyer offer: <span class="val-badge" id="p0-v">0.50</span></label>
+        <input type="range" id="p0-slider" min="10" max="100" value="50" oninput="document.getElementById('p0-v').textContent=(this.value/100).toFixed(2); renderLemons()">
+      </div>
+    </div>
+    <div id="lemons-spiral" style="margin-top:12px;"></div>
+    <div style="margin-top:12px;">
+      <svg id="lemons-svg" width="560" height="200" viewBox="0 0 560 200" style="display:block;max-width:100%;"></svg>
+    </div>
+  </section>
+
+  <!-- Module 3: Cheap Talk -->
+  <section class="module">
+    <h2>3. Cheap Talk — Credibility & Bias</h2>
+    <div class="info-box">
+      Crawford-Sobel model. Thay đổi bias b và xem tối đa bao nhiêu intervals (thông tin) có thể được truyền. Màu xanh = truyền thông tin; màu đỏ = babbling (không có thông tin).
+    </div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Bias b: <span class="val-badge" id="bias-v">0.10</span></label>
+        <input type="range" id="bias-slider" min="1" max="50" value="10" oninput="document.getElementById('bias-v').textContent=(this.value/100).toFixed(2); renderCheapTalk()">
+      </div>
+      <div class="ctrl-group">
+        <label>State θ hiện tại: <span class="val-badge" id="theta-v">0.50</span></label>
+        <input type="range" id="theta-slider" min="0" max="100" value="50" oninput="document.getElementById('theta-v').textContent=(this.value/100).toFixed(2); renderCheapTalk()">
+      </div>
+    </div>
+    <div id="ct-partition" style="margin-top:12px;"></div>
+    <div id="ct-stats" class="stats-row" style="margin-top:12px;"></div>
+    <div style="margin-top:12px;">
+      <svg id="ct-svg" width="560" height="160" viewBox="0 0 560 160" style="display:block;max-width:100%;"></svg>
+    </div>
+  </section>
+</main>
+
+<script>
+// === Module 1: Spence Signaling ===
+function renderSpence() {
+  const wH = +document.getElementById('wH-slider').value;
+  const wL = +document.getElementById('wL-slider').value;
+  const cH = +document.getElementById('cH-slider').value;
+  const cL = +document.getElementById('cL-slider').value;
+
+  if (wH <= wL) {
+    document.getElementById('spence-zones').innerHTML = `<div style="color:#c53030;font-weight:600;">wH phải > wL!</div>`;
+    return;
+  }
+  if (cH >= cL) {
+    document.getElementById('spence-zones').innerHTML = `<div style="color:#c53030;font-weight:600;">c_H phải &lt; c_L (high-type signal ít tốn hơn)!</div>`;
+    return;
+  }
+
+  const gap = wH - wL;
+  const e_lo = gap / cL;
+  const e_hi = gap / cH;
+  const feasible = e_lo <= e_hi;
+
+  const maxE = Math.ceil(e_hi * 1.5);
+
+  document.getElementById('spence-zones').innerHTML = `
+    <div class="info-box" style="background:${feasible?'#e0e7ff':'#fff5f5'};border-color:${feasible?'#3730a3':'#fc8181'};">
+      ${feasible
+        ? `<strong>Separating equilibrium tồn tại</strong> khi e* ∈ [${e_lo.toFixed(1)}, ${e_hi.toFixed(1)}] năm. High-type signal, Low-type không imitate.`
+        : `<strong>Separating equilibrium KHÔNG tồn tại</strong>: e_lo = ${e_lo.toFixed(1)} > e_hi = ${e_hi.toFixed(1)}. c_L/c_H ratio quá nhỏ.`
+      }
+    </div>
+  `;
+
+  document.getElementById('spence-stats').innerHTML = `
+    <div class="stat-chip"><span class="name">Wage gap</span><span class="val">${gap}k</span></div>
+    <div class="stat-chip"><span class="name">e* min (IC_Low)</span><span class="val">${e_lo.toFixed(1)} yr</span></div>
+    <div class="stat-chip"><span class="name">e* max (IC_High)</span><span class="val">${e_hi.toFixed(1)} yr</span></div>
+    <div class="stat-chip"><span class="name">c_L/c_H ratio</span><span class="val">${(cL/cH).toFixed(1)}×</span></div>
+  `;
+
+  // Draw net payoff curves
+  drawSpenceCurves(wH, wL, cH, cL, e_lo, e_hi, maxE);
+
+  // Table
+  let rows = '';
+  const steps = [0, Math.round(e_lo*10)/10, Math.round((e_lo+e_hi)/2*10)/10, Math.round(e_hi*10)/10, Math.ceil(e_hi)];
+  steps.forEach(e => {
+    const net_H = wH - cH * e;
+    const net_L = wH - cL * e;
+    const L_prefer_0 = wL > net_L;
+    const H_prefer_e = net_H > wL;
+    const isGood = e >= e_lo && e <= e_hi;
+    rows += `<tr class="${isGood?'sep-eq':''}">
+      <td>${e.toFixed(1)}</td>
+      <td>${net_H.toFixed(0)}k</td>
+      <td>${net_L.toFixed(0)}k</td>
+      <td>${L_prefer_0?'✓ No imitate':'✗ Would imitate'}</td>
+      <td>${H_prefer_e?'✓ Signal worth it':'✗ Not worth it'}</td>
+    </tr>`;
+  });
+  document.getElementById('spence-table').innerHTML = `
+    <table><thead><tr><th>e* (yr)</th><th>H net</th><th>L net (if imitate)</th><th>L prefer 0?</th><th>H prefer e*?</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+    <p style="font-size:12px;color:#718096;margin-top:6px;">Highlighted rows = valid separating equilibrium. Wages baseline: High=${wH}k, Low=${wL}k.</p>
+  `;
+}
+
+function drawSpenceCurves(wH, wL, cH, cL, e_lo, e_hi, maxE) {
+  const svg = document.getElementById('spence-svg');
+  const W = 560, H = 220, padL = 55, padR = 20, padT = 20, padB = 35;
+  const cW = W-padL-padR, cH2 = H-padT-padB;
+
+  const minY = Math.min(0, wL - cL * maxE) - 10;
+  const maxY = wH + 10;
+
+  const xS = e => padL + (e / maxE) * cW;
+  const yS = v => padT + cH2 - ((v - minY) / (maxY - minY)) * cH2;
+
+  let html = '';
+  // Grid
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + i*cH2/4;
+    html += `<line x1="${padL}" y1="${y}" x2="${padL+cW}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
+  }
+  html += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+cH2}" stroke="#718096" stroke-width="1.5"/>`;
+  html += `<line x1="${padL}" y1="${padT+cH2}" x2="${padL+cW}" y2="${padT+cH2}" stroke="#718096" stroke-width="1.5"/>`;
+
+  // wL horizontal line
+  const wLy = yS(wL);
+  html += `<line x1="${padL}" y1="${wLy}" x2="${padL+cW}" y2="${wLy}" stroke="#48bb78" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+  html += `<text x="${padL+4}" y="${wLy-4}" fill="#48bb78" font-size="11">w_L=${wL}k</text>`;
+
+  // H net payoff line: wH - cH * e
+  let pathH = '';
+  for (let e = 0; e <= maxE; e += 0.1) {
+    const net = wH - cH * e;
+    pathH += (e < 0.05 ? 'M' : 'L') + xS(e) + ',' + yS(net);
+  }
+  html += `<path d="${pathH}" fill="none" stroke="#3730a3" stroke-width="2.5"/>`;
+  html += `<text x="${padL+cW-70}" y="${yS(wH - cH * maxE)-5}" fill="#3730a3" font-size="11">High-type</text>`;
+
+  // L net payoff line: wH - cL * e
+  let pathL = '';
+  for (let e = 0; e <= maxE; e += 0.1) {
+    const net = wH - cL * e;
+    pathL += (e < 0.05 ? 'M' : 'L') + xS(e) + ',' + yS(net);
+  }
+  html += `<path d="${pathL}" fill="none" stroke="#7c3aed" stroke-width="2" stroke-dasharray="6,3"/>`;
+  html += `<text x="${padL+cW-70}" y="${yS(wH - cL * maxE)-5}" fill="#7c3aed" font-size="11">Low-type</text>`;
+
+  // Separating zone shading
+  if (e_lo <= e_hi) {
+    const zoneX = xS(e_lo);
+    const zoneW = xS(e_hi) - xS(e_lo);
+    html += `<rect x="${zoneX}" y="${padT}" width="${zoneW}" height="${cH2}" fill="#e0e7ff" opacity="0.5"/>`;
+    html += `<text x="${zoneX + zoneW/2}" y="${padT+16}" text-anchor="middle" fill="#3730a3" font-size="11" font-weight="700">Separating zone</text>`;
+  }
+
+  // Markers
+  if (e_lo > 0 && e_lo <= maxE) {
+    const elx = xS(e_lo);
+    html += `<line x1="${elx}" y1="${padT}" x2="${elx}" y2="${padT+cH2}" stroke="#f59e0b" stroke-width="1.5"/>`;
+    html += `<text x="${elx-2}" y="${padT+cH2+14}" text-anchor="middle" fill="#f59e0b" font-size="10">e*_lo=${e_lo.toFixed(1)}</text>`;
+  }
+  if (e_hi <= maxE) {
+    const ehx = xS(e_hi);
+    html += `<line x1="${ehx}" y1="${padT}" x2="${ehx}" y2="${padT+cH2}" stroke="#f59e0b" stroke-width="1.5"/>`;
+    html += `<text x="${ehx-2}" y="${padT+cH2+14}" text-anchor="middle" fill="#f59e0b" font-size="10">e*_hi=${e_hi.toFixed(1)}</text>`;
+  }
+
+  // Y-axis ticks
+  for (let i = 0; i <= 5; i++) {
+    const y = padT + i*cH2/5;
+    const v = maxY - i*(maxY-minY)/5;
+    html += `<text x="${padL-5}" y="${y+4}" text-anchor="end" fill="#718096" font-size="10">${v.toFixed(0)}</text>`;
+  }
+  html += `<text x="${padL+cW/2}" y="${H-3}" text-anchor="middle" fill="#718096" font-size="12">Education e (năm)</text>`;
+
+  svg.innerHTML = html;
+}
+
+// === Module 2: Akerlof Lemons ===
+function renderLemons() {
+  const vr = +document.getElementById('vr-slider').value / 100;
+  let p = +document.getElementById('p0-slider').value / 100;
+
+  const spiral = [];
+  let iter = 0;
+  const maxIter = 15;
+
+  while (iter < maxIter && p > 0.001) {
+    const q_avg = p / 2; // average quality of cars sold
+    const buyer_value = vr * q_avg;
+    const survives = buyer_value >= p;
+
+    spiral.push({ iter, p: p.toFixed(3), q_avg: q_avg.toFixed(3), bv: buyer_value.toFixed(3), survives });
+
+    if (!survives) {
+      p = buyer_value;
+    } else {
+      break;
+    }
+    iter++;
+  }
+
+  const survived = spiral.length > 0 && spiral[spiral.length-1].survives;
+
+  let spiralHTML = `
+    <div style="padding:10px 14px;background:${survived?'#f0fff4':'#fff5f5'};border-radius:8px;border:2px solid ${survived?'#48bb78':'#fc8181'};margin-bottom:12px;font-size:14px;font-weight:700;color:${survived?'#276749':'#c53030'};">
+      ${survived ? `✓ Market survives! v_B/v_S = ${vr.toFixed(2)} ≥ 2 → buyer value ≥ price at each level.` : `✗ Market COLLAPSES. v_B/v_S = ${vr.toFixed(2)} < 2 → adverse selection spiral.`}
+    </div>
+  `;
+
+  // Spiral steps
+  spiralHTML += `<div style="font-size:13px;color:#718096;margin-bottom:8px;">Adverse selection spiral (${spiral.length} iterations):</div>`;
+  spiralHTML += spiral.slice(0, 8).map(s => `
+    <div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px;border-bottom:1px solid #f0f0f0;">
+      <span style="color:#718096;width:30px;">t${s.iter}</span>
+      <span>Buyer offers <strong>${s.p}</strong></span>
+      <span style="color:#718096;">→ avg q = ${s.q_avg}</span>
+      <span style="color:#718096;">→ BV = ${s.bv}</span>
+      <span style="color:${s.survives?'#276749':'#c53030'};font-weight:700;">${s.survives?'✓ OK':'✗ drop'}</span>
+    </div>
+  `).join('');
+
+  document.getElementById('lemons-spiral').innerHTML = spiralHTML;
+
+  drawLemons(vr);
+}
+
+function drawLemons(vr) {
+  const svg = document.getElementById('lemons-svg');
+  const W = 560, H = 200, padL = 55, padR = 20, padT = 20, padB = 35;
+  const cW = W-padL-padR, cH = H-padT-padB;
+
+  const xS = p => padL + p * cW;
+  const yS = v => padT + cH - v * cH;
+
+  let html = '';
+  // Grid
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + i*cH/4;
+    html += `<line x1="${padL}" y1="${y}" x2="${padL+cW}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
+  }
+  html += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+cH}" stroke="#718096" stroke-width="1.5"/>`;
+  html += `<line x1="${padL}" y1="${padT+cH}" x2="${padL+cW}" y2="${padT+cH}" stroke="#718096" stroke-width="1.5"/>`;
+
+  // 45-degree line: buyer_value = p
+  html += `<line x1="${xS(0)}" y1="${yS(0)}" x2="${xS(1)}" y2="${yS(1)}" stroke="#a0aec0" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+  html += `<text x="${xS(0.9)}" y="${yS(0.9)+12}" fill="#a0aec0" font-size="11">p = BV</text>`;
+
+  // Buyer value curve: BV(p) = vr * p/2
+  let bvPath = '';
+  for (let p = 0; p <= 1; p += 0.01) {
+    const bv = vr * p / 2;
+    bvPath += (p < 0.005 ? 'M' : 'L') + xS(p) + ',' + yS(Math.min(bv, 1));
+  }
+  html += `<path d="${bvPath}" fill="none" stroke="#3730a3" stroke-width="2.5"/>`;
+  html += `<text x="${xS(0.8)}" y="${yS(vr*0.8/2)-5}" fill="#3730a3" font-size="11">Buyer Value = ${vr.toFixed(1)} × p/2</text>`;
+
+  // Intersection point
+  const pStar = vr < 2 ? 0 : 1;
+  if (pStar > 0) {
+    html += `<circle cx="${xS(pStar)}" cy="${yS(pStar)}" r="5" fill="#48bb78"/>`;
+    html += `<text x="${xS(pStar)+6}" y="${yS(pStar)-4}" fill="#48bb78" font-size="11">Market</text>`;
+  } else {
+    html += `<circle cx="${xS(0)}" cy="${yS(0)}" r="6" fill="#fc8181"/>`;
+    html += `<text x="${xS(0.02)}" y="${yS(0)+14}" fill="#fc8181" font-size="11">Collapse</text>`;
+  }
+
+  // Labels
+  html += `<text x="${padL+cW/2}" y="${H-3}" text-anchor="middle" fill="#718096" font-size="12">Buyer's offer price p →</text>`;
+  html += `<text x="12" y="${padT+cH/2}" fill="#3730a3" font-size="11" transform="rotate(-90,12,${padT+cH/2})">Value</text>`;
+
+  // Y ticks
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + i*cH/4;
+    html += `<text x="${padL-5}" y="${y+4}" text-anchor="end" fill="#718096" font-size="10">${(1-i/4).toFixed(2)}</text>`;
+  }
+
+  svg.innerHTML = html;
+}
+
+// === Module 3: Cheap Talk ===
+function renderCheapTalk() {
+  const b = +document.getElementById('bias-slider').value / 100;
+  const theta = +document.getElementById('theta-slider').value / 100;
+
+  // Max intervals K such that K(K+1) * 2b <= 1
+  // Condition: for partition [t0=0, t1, ..., tK=1], need 2b*(K-1) < 1 (approx)
+  // More precisely: K(K-1)*2b <= 1 doesn't work perfectly.
+  // Simplified: K_max = floor(1/(2b) + 0.5)
+  let K = 0;
+  for (let k = 1; k <= 50; k++) {
+    // uniform partition thresholds: t_i = i/k
+    // For uniform: t_i = i/k, midpoints at (2i-1)/(2k)
+    // IC: S indifferent at t_i: |t_i + b - mid_i| = |t_i + b - mid_{i+1}|
+    // For uniform partition this doesn't hold perfectly, but approximate:
+    // K_max ≈ sqrt(1/(2b))
+    if (k * (k + 1) * 2 * b <= 1) {
+      K = k;
+    } else {
+      break;
+    }
+  }
+  if (K === 0) K = 1; // babbling
+
+  const isBabbling = K <= 1;
+
+  // Build partition boundaries (uniform for simplicity)
+  const thresholds = [0];
+  for (let i = 1; i < K; i++) {
+    thresholds.push(i / K);
+  }
+  thresholds.push(1);
+
+  // Find which interval theta falls in
+  let interval = 0;
+  for (let i = 0; i < K; i++) {
+    if (theta >= thresholds[i] && theta <= thresholds[i+1]) {
+      interval = i;
+      break;
+    }
+  }
+  const mid = (thresholds[interval] + thresholds[interval+1]) / 2;
+  const S_target = theta + b;
+  const D_action = mid;
+
+  document.getElementById('ct-stats').innerHTML = `
+    <div class="stat-chip"><span class="name">Bias b</span><span class="val">${b.toFixed(2)}</span></div>
+    <div class="stat-chip"><span class="name">Max intervals K</span><span class="val">${K}</span></div>
+    <div class="stat-chip"><span class="name">Credibility</span><span class="val" style="color:${isBabbling?'#c53030':'#276749'}">${isBabbling?'Babbling':'Partial'}</span></div>
+    <div class="stat-chip"><span class="name">θ falls in</span><span class="val">Interval ${interval+1}</span></div>
+    <div class="stat-chip"><span class="name">D action</span><span class="val">${D_action.toFixed(2)}</span></div>
+    <div class="stat-chip"><span class="name">S target</span><span class="val">${S_target.toFixed(2)}</span></div>
+  `;
+
+  // Partition visualization
+  let partHTML = `<div style="margin:10px 0;">`;
+  partHTML += `<div style="font-size:13px;font-weight:700;color:#4a5568;margin-bottom:6px;">Partition [0,1] into ${K} intervals${isBabbling?' (babbling)':''}:</div>`;
+  partHTML += `<div style="display:flex;height:36px;border-radius:6px;overflow:hidden;">`;
+  const colors = ['#c7d2fe','#a5b4fc','#818cf8','#6366f1','#4f46e5','#4338ca','#3730a3','#312e81'];
+  for (let i = 0; i < K; i++) {
+    const w = ((thresholds[i+1] - thresholds[i]) * 100).toFixed(1);
+    const isActive = i === interval;
+    const color = isActive ? '#3730a3' : colors[i % colors.length];
+    partHTML += `<div style="width:${w}%;background:${color};display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700;position:relative;border:${isActive?'2px solid #f59e0b':'1px solid rgba(255,255,255,0.2)'};">
+      ${K<=6 ? `[${thresholds[i].toFixed(2)},${thresholds[i+1].toFixed(2)})` : ''}
+    </div>`;
+  }
+  partHTML += `</div>`;
+
+  // Theta position
+  const thetaPct = theta * 100;
+  partHTML += `<div style="position:relative;height:20px;margin-top:2px;">
+    <div style="position:absolute;left:${thetaPct}%;transform:translateX(-50%);font-size:11px;color:#f59e0b;font-weight:700;">θ=${theta.toFixed(2)}</div>
+  </div>`;
+  partHTML += `</div>`;
+
+  document.getElementById('ct-partition').innerHTML = partHTML;
+
+  drawCheapTalk(b, K);
+}
+
+function drawCheapTalk(b, K) {
+  const svg = document.getElementById('ct-svg');
+  const W = 560, H = 160, padL = 50, padR = 20, padT = 20, padB = 30;
+  const cW = W-padL-padR, cH = H-padT-padB;
+
+  let html = '';
+  // Axes
+  html += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+cH}" stroke="#718096" stroke-width="1.5"/>`;
+  html += `<line x1="${padL}" y1="${padT+cH}" x2="${padL+cW}" y2="${padT+cH}" stroke="#718096" stroke-width="1.5"/>`;
+
+  // Plot K_max vs b
+  const xS = bVal => padL + bVal * cW;
+  const yS = kVal => padT + cH - (kVal / 12) * cH;
+
+  let path = '';
+  for (let bv = 0.01; bv <= 0.5; bv += 0.005) {
+    let K2 = 0;
+    for (let k = 1; k <= 50; k++) {
+      if (k * (k+1) * 2 * bv <= 1) K2 = k; else break;
+    }
+    if (K2 === 0) K2 = 1;
+    path += (bv <= 0.015 ? 'M' : 'L') + xS(bv) + ',' + yS(K2);
+  }
+  html += `<path d="${path}" fill="none" stroke="#3730a3" stroke-width="2.5"/>`;
+
+  // Current b marker
+  const bCurrent = b;
+  const bx = xS(Math.min(bCurrent, 0.5));
+  html += `<line x1="${bx}" y1="${padT}" x2="${bx}" y2="${padT+cH}" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4,3"/>`;
+  html += `<circle cx="${bx}" cy="${yS(K)}" r="5" fill="#f59e0b"/>`;
+  html += `<text x="${bx+6}" y="${yS(K)-4}" fill="#f59e0b" font-size="11">K=${K}</text>`;
+
+  // Labels
+  html += `<text x="${padL+cW/2}" y="${H-2}" text-anchor="middle" fill="#718096" font-size="12">Bias b →</text>`;
+  html += `<text x="12" y="${padT+cH/2}" fill="#3730a3" font-size="11" transform="rotate(-90,12,${padT+cH/2})">Max intervals K</text>`;
+
+  // Y ticks
+  for (let k = 0; k <= 12; k += 3) {
+    const y = yS(k);
+    html += `<text x="${padL-5}" y="${y+4}" text-anchor="end" fill="#718096" font-size="10">${k}</text>`;
+  }
+  // X ticks
+  for (let bv = 0; bv <= 0.5; bv += 0.1) {
+    const x = xS(bv);
+    html += `<text x="${x}" y="${padT+cH+14}" text-anchor="middle" fill="#718096" font-size="10">${bv.toFixed(1)}</text>`;
+  }
+
+  // Region labels
+  html += `<text x="${xS(0.05)}" y="${padT+16}" fill="#276749" font-size="11" font-weight="700">Informative</text>`;
+  html += `<text x="${xS(0.35)}" y="${padT+16}" fill="#c53030" font-size="11" font-weight="700">Babbling</text>`;
+
+  svg.innerHTML = html;
+}
+
+// Initialize
+renderSpence();
+renderLemons();
+renderCheapTalk();
+</script>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L01: Collective Action & Public Goods — PoliticalScience</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root { --bg: #f5f5fb; --accent: #3730a3; --accent-soft: #e0e7ff; --accent-hover: #312e81; }
+  h1 { color: #1e1b4b; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 28px; font-size: 15px; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+  .module { background: white; border-radius: 10px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 28px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin: 14px 0; padding: 16px; background: #f8f7ff; border-radius: 8px; border: 1px solid #c7d2fe; }
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+  label { font-size: 13px; font-weight: 600; color: #4a5568; }
+  input[type="range"] { width: 130px; accent-color: var(--accent); }
+  .val-badge { display: inline-block; background: var(--accent-soft); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 13px; font-weight: 700; font-family: monospace; }
+  .stats-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .stat-chip { background: #edf2f7; padding: 8px 14px; border-radius: 6px; font-family: monospace; font-size: 13px; border-left: 3px solid var(--accent); min-width: 120px; }
+  .stat-chip .name { color: #718096; font-size: 11px; display: block; margin-bottom: 2px; }
+  .stat-chip .val { color: #2d3748; font-weight: 700; font-size: 16px; }
+  .info-box { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; line-height: 1.6; }
+  button { padding: 9px 20px; background: var(--accent); color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  button:hover { background: var(--accent-hover); }
+  button.secondary { background: #e0e7ff; color: var(--accent); }
+  button.secondary:hover { background: #c7d2fe; }
+  .player-grid { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0; }
+  .player-card { background: #f7f7ff; border: 2px solid #c7d2fe; border-radius: 8px; padding: 10px 14px; min-width: 110px; text-align: center; transition: all 0.3s; }
+  .player-card.cooperate { border-color: #48bb78; background: #f0fff4; }
+  .player-card.defect { border-color: #fc8181; background: #fff5f5; }
+  .player-card .p-name { font-size: 12px; font-weight: 600; color: #718096; }
+  .player-card .p-action { font-size: 14px; font-weight: 700; margin: 4px 0; }
+  .player-card .p-payoff { font-size: 16px; font-weight: 800; color: var(--accent); }
+  .payoff-bar { height: 12px; border-radius: 6px; margin-top: 6px; transition: width 0.4s; }
+  .chart-area { width: 100%; max-width: 600px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th { background: var(--accent); color: white; padding: 8px 12px; text-align: left; }
+  td { padding: 7px 12px; border-bottom: 1px solid #e2e8f0; }
+  tr:nth-child(even) td { background: #f8f7ff; }
+  .highlight-row td { background: #e0e7ff !important; font-weight: 700; }
+  .ne-badge { display: inline-block; background: #fc8181; color: white; padding: 1px 6px; border-radius: 3px; font-size: 11px; }
+  .so-badge { display: inline-block; background: #48bb78; color: white; padding: 1px 6px; border-radius: 3px; font-size: 11px; }
+  @media (max-width: 600px) {
+    .controls { flex-direction: column; }
+    input[type="range"] { width: 100%; max-width: 200px; }
+    .player-card { min-width: 80px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../02-VotingSocialChoice/lesson-05-gerrymandering-apportionment/visualization.html">← T2-L05: Gerrymandering</a>
+  <span class="sep">·</span>
+  <span class="current">L01: Collective Action</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-bargaining/visualization.html">L02: Bargaining →</a>
+</nav>
+<main>
+  <h1>Lesson 01: Collective Action & Public Goods</h1>
+  <p class="subtitle">N-player public goods game — free-rider problem, tragedy of the commons, giải pháp Olson & Ostrom</p>
+
+  <!-- Module 1: PGG Calculator -->
+  <section class="module">
+    <h2>1. N-Player Public Goods Game — Tính payoff</h2>
+    <div class="info-box">
+      Điều chỉnh các tham số. Xem payoff NE (không ai contribute) vs Social Optimum (tất cả contribute). Marginal benefit cá nhân = m/n, nếu &lt; 1 thì defect là dominant strategy.
+    </div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>n (số người chơi): <span class="val-badge" id="n-v">6</span></label>
+        <input type="range" id="n-slider" min="2" max="20" value="6" oninput="updateN(this.value)">
+      </div>
+      <div class="ctrl-group">
+        <label>m (multiplier): <span class="val-badge" id="m-v">2.0</span></label>
+        <input type="range" id="m-slider" min="11" max="49" value="20" oninput="updateM(this.value)">
+      </div>
+      <div class="ctrl-group">
+        <label>e (endowment): <span class="val-badge" id="e-v">10</span></label>
+        <input type="range" id="e-slider" min="5" max="50" value="10" step="5" oninput="updateE(this.value)">
+      </div>
+    </div>
+    <div class="stats-row" id="pgg-stats"></div>
+    <div style="margin-top:20px;" id="pgg-table-wrap"></div>
+  </section>
+
+  <!-- Module 2: Interactive Simulation -->
+  <section class="module">
+    <h2>2. Mô phỏng n lượt — contribution rate</h2>
+    <div class="info-box">
+      Agents rational luôn defect. Agents random đôi khi contribute. Chạy 30 rounds, xem contribution rate và payoff trung bình thay đổi thế nào. So sánh xã hội rational thuần túy vs hỗn hợp.
+    </div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Số rational agents: <span class="val-badge" id="r-agents-v">4</span></label>
+        <input type="range" id="r-agents" min="0" max="10" value="4" oninput="document.getElementById('r-agents-v').textContent=this.value; updateRandomAgents()">
+      </div>
+      <div class="ctrl-group">
+        <label>Số random agents: <span class="val-badge" id="rand-agents-v">2</span></label>
+        <input type="range" id="rand-agents" min="0" max="10" value="2" oninput="document.getElementById('rand-agents-v').textContent=this.value; updateRandomAgents()">
+      </div>
+      <div class="ctrl-group">
+        <label>Prob(contribute) random: <span class="val-badge" id="p-contrib-v">0.50</span></label>
+        <input type="range" id="p-contrib" min="0" max="100" value="50" oninput="document.getElementById('p-contrib-v').textContent=(this.value/100).toFixed(2)">
+      </div>
+    </div>
+    <div style="margin-top:12px;">
+      <button onclick="runSimulation()">▶ Chạy 30 rounds</button>
+      <button class="secondary" style="margin-left:8px;" onclick="resetSim()">Reset</button>
+    </div>
+    <div class="player-grid" id="agent-display" style="margin-top:16px;"></div>
+    <div style="margin-top:16px;">
+      <svg id="sim-chart" width="580" height="220" viewBox="0 0 580 220" style="display:block; max-width:100%;"></svg>
+    </div>
+    <div class="stats-row" id="sim-stats" style="margin-top:12px;"></div>
+  </section>
+
+  <!-- Module 3: Tragedy Scenario -->
+  <section class="module">
+    <h2>3. Tragedy of the Commons — Ngư trường mô phỏng</h2>
+    <div class="info-box">
+      Biển có trữ lượng cá. Mỗi vòng, tàu cá (rational) đánh nhiều nhất có thể. Xem trữ lượng sụt giảm. So sánh kịch bản: không có quy định vs Ostrom's quota.
+    </div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Số tàu cá: <span class="val-badge" id="boats-v">8</span></label>
+        <input type="range" id="boats-slider" min="2" max="15" value="8" oninput="document.getElementById('boats-v').textContent=this.value">
+      </div>
+      <div class="ctrl-group">
+        <label>Tốc độ hồi phục (%): <span class="val-badge" id="regen-v">20</span></label>
+        <input type="range" id="regen-slider" min="5" max="50" value="20" oninput="document.getElementById('regen-v').textContent=this.value">
+      </div>
+      <div class="ctrl-group">
+        <label>Quota mỗi tàu: <span class="val-badge" id="quota-v">60</span></label>
+        <input type="range" id="quota-slider" min="10" max="150" value="60" step="10" oninput="document.getElementById('quota-v').textContent=this.value">
+      </div>
+    </div>
+    <div style="margin:12px 0;">
+      <button onclick="runTragedySim(false)">▶ Không quota (tragedy)</button>
+      <button class="secondary" style="margin-left:8px;" onclick="runTragedySim(true)">▶ Có Ostrom quota</button>
+    </div>
+    <svg id="tragedy-chart" width="580" height="220" viewBox="0 0 580 220" style="display:block; max-width:100%; margin-top:8px;"></svg>
+    <div id="tragedy-verdict" style="margin-top:12px;"></div>
+  </section>
+</main>
+
+<script>
+// === Module 1: PGG Calculator ===
+let pggN = 6, pggM = 2.0, pggE = 10;
+
+function updateN(v) { pggN = +v; document.getElementById('n-v').textContent = v; updateRandomAgents(); renderPGG(); }
+function updateM(v) { pggM = v/10; document.getElementById('m-v').textContent = pggM.toFixed(1); renderPGG(); }
+function updateE(v) { pggE = +v; document.getElementById('e-v').textContent = v; renderPGG(); }
+
+function renderPGG() {
+  const n = pggN, m = pggM, e = pggE;
+  const marginal = m/n;
+  const net = marginal - 1;
+  const ne_payoff = e;
+  const so_payoff = m * e;
+  const gap = so_payoff - ne_payoff;
+
+  document.getElementById('pgg-stats').innerHTML = `
+    <div class="stat-chip"><span class="name">Marginal benefit (m/n)</span><span class="val">${marginal.toFixed(3)}</span></div>
+    <div class="stat-chip"><span class="name">Net per unit contributed</span><span class="val" style="color:${net<0?'#c53030':'#276749'}">${net.toFixed(3)}</span></div>
+    <div class="stat-chip"><span class="name">NE payoff (all defect)</span><span class="val">${ne_payoff}</span></div>
+    <div class="stat-chip"><span class="name">Social optimum payoff</span><span class="val">${so_payoff}</span></div>
+    <div class="stat-chip"><span class="name">Efficiency gap</span><span class="val" style="color:#c53030">${gap}</span></div>
+  `;
+
+  // Table of scenarios
+  let rows = '';
+  for (let k = 0; k <= n; k++) {
+    const contrib = k * e;
+    const pool = m * contrib;
+    const per_person = pool / n;
+    // Payoff for a cooperator (contributed e)
+    const coop_payoff = (0) + per_person; // gave e, gets share
+    const def_payoff = e + per_person; // gave 0, gets share
+    const isNE = k === 0;
+    const isSO = k === n;
+    rows += `<tr class="${isNE?'highlight-row':isSO?'highlight-row':''}">
+      <td>${k} người contribute ${isNE?'<span class="ne-badge">NE</span>':isSO?'<span class="so-badge">Optimum</span>':''}</td>
+      <td>${contrib}</td>
+      <td>${(m*contrib).toFixed(1)}</td>
+      <td>${per_person.toFixed(1)}</td>
+      <td>${(e + per_person).toFixed(1)}</td>
+    </tr>`;
+  }
+  document.getElementById('pgg-table-wrap').innerHTML = `
+    <table><thead><tr><th>Kịch bản</th><th>Pool input</th><th>Pool × m</th><th>Chia đều/người</th><th>Payoff defector</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+    <p style="font-size:12px;color:#718096;margin-top:8px;">Payoff defector = e (giữ) + share. Payoff cooperator = 0 + share.</p>
+  `;
+}
+
+// === Module 2: Simulation ===
+let simRunning = false;
+let simData = [];
+
+function updateRandomAgents() {
+  const r = +document.getElementById('r-agents').value;
+  const rnd = +document.getElementById('rand-agents').value;
+  document.getElementById('r-agents-v').textContent = r;
+  document.getElementById('rand-agents-v').textContent = rnd;
+  renderAgentDisplay(r, rnd, []);
+}
+
+function renderAgentDisplay(r, rnd, actions) {
+  const grid = document.getElementById('agent-display');
+  let html = '';
+  for (let i = 0; i < r; i++) {
+    const act = actions[i] !== undefined ? actions[i] : null;
+    const cls = act === null ? '' : (act === 0 ? 'defect' : 'cooperate');
+    const label = act === null ? '?' : (act === 0 ? 'Defect' : 'Contribute');
+    html += `<div class="player-card ${cls}"><div class="p-name">Rational ${i+1}</div><div class="p-action">${label}</div><div class="p-payoff" id="rp-${i}">—</div></div>`;
+  }
+  for (let i = 0; i < rnd; i++) {
+    const act = actions[r+i] !== undefined ? actions[r+i] : null;
+    const cls = act === null ? '' : (act === 0 ? 'defect' : 'cooperate');
+    const label = act === null ? '?' : (act === 0 ? 'Defect' : 'Contribute');
+    html += `<div class="player-card ${cls}"><div class="p-name">Random ${i+1}</div><div class="p-action">${label}</div><div class="p-payoff" id="rndp-${i}">—</div></div>`;
+  }
+  grid.innerHTML = html;
+}
+
+function runSimulation() {
+  const r = +document.getElementById('r-agents').value;
+  const rnd = +document.getElementById('rand-agents').value;
+  const n = r + rnd;
+  const p = +document.getElementById('p-contrib').value / 100;
+  const e = pggE, m = pggM;
+  if (n === 0) return;
+
+  simData = [];
+  let round = 0;
+  const totalRounds = 30;
+
+  function step() {
+    if (round >= totalRounds) {
+      drawSimChart();
+      return;
+    }
+    // Rational: always defect (contribute 0)
+    const actions = [];
+    for (let i = 0; i < r; i++) actions.push(0);
+    for (let i = 0; i < rnd; i++) actions.push(Math.random() < p ? e : 0);
+
+    const pool = actions.reduce((s, a) => s + a, 0);
+    const share = m * pool / n;
+    const payoffs = actions.map(a => (e - a) + share);
+    const contrib_rate = actions.filter(a => a > 0).length / n;
+
+    simData.push({ round: round+1, contrib_rate, avg_payoff: payoffs.reduce((s,x)=>s+x,0)/n });
+
+    // Update display last round
+    if (round === totalRounds - 1) {
+      renderAgentDisplay(r, rnd, actions);
+      const avgP = payoffs.reduce((s,x)=>s+x,0)/n;
+      document.getElementById('sim-stats').innerHTML = `
+        <div class="stat-chip"><span class="name">Contribution rate (last round)</span><span class="val">${(contrib_rate*100).toFixed(0)}%</span></div>
+        <div class="stat-chip"><span class="name">Avg payoff (last round)</span><span class="val">${avgP.toFixed(1)}</span></div>
+        <div class="stat-chip"><span class="name">NE benchmark</span><span class="val">${e}</span></div>
+        <div class="stat-chip"><span class="name">Optimum benchmark</span><span class="val">${(m*e).toFixed(1)}</span></div>
+      `;
+    }
+
+    round++;
+    setTimeout(step, 60);
+  }
+
+  drawSimChart();
+  step();
+}
+
+function resetSim() {
+  simData = [];
+  drawSimChart();
+  document.getElementById('agent-display').innerHTML = '';
+  document.getElementById('sim-stats').innerHTML = '';
+}
+
+function drawSimChart() {
+  const svg = document.getElementById('sim-chart');
+  const W = 580, H = 220, padL = 50, padR = 20, padT = 20, padB = 40;
+  const cW = W - padL - padR, cH = H - padT - padB;
+
+  if (!simData.length) {
+    svg.innerHTML = `<text x="${W/2}" y="${H/2}" text-anchor="middle" fill="#a0aec0" font-size="14">Nhấn "Chạy 30 rounds" để bắt đầu</text>`;
+    return;
+  }
+
+  const maxR = 30;
+  const xScale = i => padL + (i / maxR) * cW;
+  const yContrib = v => padT + cH - v * cH;
+  const yPayoff = v => padT + cH - (v / (pggM * pggE)) * cH;
+
+  let html = `<defs><clipPath id="cp"><rect x="${padL}" y="${padT}" width="${cW}" height="${cH}"/></clipPath></defs>`;
+  // Grid
+  for (let i = 0; i <= 5; i++) {
+    const y = padT + i * cH / 5;
+    html += `<line x1="${padL}" y1="${y}" x2="${padL+cW}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
+  }
+  // Axes
+  html += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+cH}" stroke="#718096" stroke-width="1.5"/>`;
+  html += `<line x1="${padL}" y1="${padT+cH}" x2="${padL+cW}" y2="${padT+cH}" stroke="#718096" stroke-width="1.5"/>`;
+
+  // Contribution rate line (blue)
+  let contribPath = '';
+  simData.forEach((d, i) => {
+    contribPath += (i===0?'M':'L') + xScale(d.round) + ',' + yContrib(d.contrib_rate);
+  });
+  html += `<path d="${contribPath}" fill="none" stroke="#3730a3" stroke-width="2.5" clip-path="url(#cp)"/>`;
+
+  // Avg payoff line (green)
+  let payoffPath = '';
+  simData.forEach((d, i) => {
+    payoffPath += (i===0?'M':'L') + xScale(d.round) + ',' + yPayoff(d.avg_payoff);
+  });
+  html += `<path d="${payoffPath}" fill="none" stroke="#48bb78" stroke-width="2" stroke-dasharray="5,3" clip-path="url(#cp)"/>`;
+
+  // Labels
+  html += `<text x="10" y="${padT+cH/2}" fill="#3730a3" font-size="11" transform="rotate(-90,10,${padT+cH/2})">Contribution rate</text>`;
+  html += `<text x="${padL+cW/2}" y="${H-5}" text-anchor="middle" fill="#718096" font-size="12">Round</text>`;
+
+  // Legend
+  html += `<line x1="${padL+cW-120}" y1="${padT+10}" x2="${padL+cW-100}" y2="${padT+10}" stroke="#3730a3" stroke-width="2.5"/>`;
+  html += `<text x="${padL+cW-96}" y="${padT+14}" fill="#3730a3" font-size="11">Contrib rate</text>`;
+  html += `<line x1="${padL+cW-120}" y1="${padT+26}" x2="${padL+cW-100}" y2="${padT+26}" stroke="#48bb78" stroke-width="2" stroke-dasharray="5,3"/>`;
+  html += `<text x="${padL+cW-96}" y="${padT+30}" fill="#48bb78" font-size="11">Avg payoff (scaled)</text>`;
+
+  // Y-axis ticks
+  for (let i = 0; i <= 5; i++) {
+    const y = padT + i * cH / 5;
+    const v = ((5-i)/5).toFixed(1);
+    html += `<text x="${padL-5}" y="${y+4}" text-anchor="end" fill="#718096" font-size="10">${v}</text>`;
+  }
+
+  svg.innerHTML = html;
+}
+
+// === Module 3: Tragedy ===
+let tragedyData = [];
+
+function runTragedySim(hasQuota) {
+  const boats = +document.getElementById('boats-slider').value;
+  const regen = +document.getElementById('regen-slider').value / 100;
+  const quota = +document.getElementById('quota-slider').value;
+  const maxFish = 1000;
+  const greedy = Math.floor(maxFish / boats * 1.5); // rational: overshoot
+
+  let stock = maxFish;
+  const noq = [], withq = [];
+  const rounds = 25;
+
+  for (let t = 0; t < rounds; t++) {
+    noq.push(stock);
+    const catch_noq = hasQuota ? 0 : Math.min(stock, boats * greedy);
+    if (!hasQuota) {
+      stock = Math.max(0, stock - catch_noq);
+      stock = Math.min(maxFish, stock + stock * regen);
+    }
+  }
+
+  stock = maxFish;
+  const quotaData = [];
+  for (let t = 0; t < rounds; t++) {
+    quotaData.push(stock);
+    const catch_q = Math.min(stock, boats * quota);
+    stock = Math.max(0, stock - catch_q);
+    stock = Math.min(maxFish, stock + stock * regen);
+  }
+
+  // Run both separately
+  let s1 = maxFish, s2 = maxFish;
+  const d1 = [], d2 = [];
+  for (let t = 0; t < rounds; t++) {
+    d1.push(s1);
+    const c1 = Math.min(s1, boats * greedy);
+    s1 = Math.max(0, s1 - c1);
+    s1 = Math.min(maxFish, s1 + s1 * regen);
+
+    d2.push(s2);
+    const c2 = Math.min(s2, boats * quota);
+    s2 = Math.max(0, s2 - c2);
+    s2 = Math.min(maxFish, s2 + s2 * regen);
+  }
+
+  tragedyData = { noQuota: d1, quota: d2, maxFish, rounds };
+  drawTragedyChart();
+
+  const verdict = document.getElementById('tragedy-verdict');
+  const finalNoQ = d1[d1.length-1];
+  const finalQ = d2[d2.length-1];
+  verdict.innerHTML = `
+    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;">
+      <div class="stat-chip"><span class="name">Trữ lượng cuối (không quota)</span><span class="val" style="color:${finalNoQ<100?'#c53030':'#276749'}">${finalNoQ.toFixed(0)}</span></div>
+      <div class="stat-chip"><span class="name">Trữ lượng cuối (có quota)</span><span class="val" style="color:${finalQ>400?'#276749':'#c53030'}">${finalQ.toFixed(0)}</span></div>
+      <div class="stat-chip"><span class="name">Quota/tàu/round</span><span class="val">${quota}</span></div>
+      <div class="stat-chip"><span class="name">Catch greedy/tàu</span><span class="val">${greedy}</span></div>
+    </div>
+    <p style="font-size:13px;color:#718096;margin-top:8px;">
+      ${finalNoQ < 50 ? '⚠ Tragedy! Ngư trường sụp đổ khi không có quy định.' : ''}
+      ${finalQ > 400 ? ' Ostrom quota giữ được ngư trường bền vững.' : ''}
+    </p>
+  `;
+}
+
+function drawTragedyChart() {
+  const svg = document.getElementById('tragedy-chart');
+  const W = 580, H = 220, padL = 55, padR = 20, padT = 20, padB = 35;
+  const cW = W - padL - padR, cH = H - padT - padB;
+
+  if (!tragedyData.noQuota) {
+    svg.innerHTML = `<text x="${W/2}" y="${H/2}" text-anchor="middle" fill="#a0aec0" font-size="14">Nhấn nút để chạy mô phỏng</text>`;
+    return;
+  }
+
+  const { noQuota, quota: qd, maxFish, rounds } = tragedyData;
+  const xS = i => padL + (i/(rounds-1)) * cW;
+  const yS = v => padT + cH - (v/maxFish)*cH;
+
+  let html = '';
+  // Grid
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + i*cH/4;
+    html += `<line x1="${padL}" y1="${y}" x2="${padL+cW}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
+    html += `<text x="${padL-5}" y="${y+4}" text-anchor="end" fill="#718096" font-size="10">${(maxFish*(4-i)/4).toFixed(0)}</text>`;
+  }
+  html += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+cH}" stroke="#718096" stroke-width="1.5"/>`;
+  html += `<line x1="${padL}" y1="${padT+cH}" x2="${padL+cW}" y2="${padT+cH}" stroke="#718096" stroke-width="1.5"/>`;
+
+  // noQuota line (red)
+  let p1 = noQuota.map((v,i) => (i===0?'M':'L')+xS(i)+','+yS(v)).join('');
+  html += `<path d="${p1}" fill="none" stroke="#fc8181" stroke-width="2.5"/>`;
+
+  // quota line (green)
+  let p2 = qd.map((v,i) => (i===0?'M':'L')+xS(i)+','+yS(v)).join('');
+  html += `<path d="${p2}" fill="none" stroke="#48bb78" stroke-width="2.5"/>`;
+
+  // sustainable line
+  const sustY = yS(maxFish * 0.5);
+  html += `<line x1="${padL}" y1="${sustY}" x2="${padL+cW}" y2="${sustY}" stroke="#a0aec0" stroke-width="1" stroke-dasharray="4,3"/>`;
+  html += `<text x="${padL+4}" y="${sustY-4}" fill="#a0aec0" font-size="10">Ngưỡng bền vững</text>`;
+
+  // Legend
+  html += `<line x1="${padL+10}" y1="${padT+10}" x2="${padL+30}" y2="${padT+10}" stroke="#fc8181" stroke-width="2.5"/>`;
+  html += `<text x="${padL+34}" y="${padT+14}" fill="#fc8181" font-size="11">Không quota (tragedy)</text>`;
+  html += `<line x1="${padL+10}" y1="${padT+26}" x2="${padL+30}" y2="${padT+26}" stroke="#48bb78" stroke-width="2.5"/>`;
+  html += `<text x="${padL+34}" y="${padT+30}" fill="#48bb78" font-size="11">Có Ostrom quota</text>`;
+
+  html += `<text x="${padL+cW/2}" y="${H-3}" text-anchor="middle" fill="#718096" font-size="12">Round</text>`;
+  svg.innerHTML = html;
+}
+
+// Initialize
+renderPGG();
+updateRandomAgents();
+drawSimChart();
+drawTragedyChart();
+</script>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

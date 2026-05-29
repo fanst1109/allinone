@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L04: Deterrence & Crisis Bargaining — PoliticalScience</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root { --bg: #f5f5fb; --accent: #3730a3; --accent-soft: #e0e7ff; --accent-hover: #312e81; }
+  h1 { color: #1e1b4b; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 28px; font-size: 15px; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+  .module { background: white; border-radius: 10px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 28px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin: 14px 0; padding: 16px; background: #f8f7ff; border-radius: 8px; border: 1px solid #c7d2fe; }
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+  label { font-size: 13px; font-weight: 600; color: #4a5568; }
+  input[type="range"] { width: 130px; accent-color: var(--accent); }
+  .val-badge { display: inline-block; background: var(--accent-soft); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 13px; font-weight: 700; font-family: monospace; }
+  .info-box { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; line-height: 1.6; }
+  .stats-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .stat-chip { background: #edf2f7; padding: 8px 14px; border-radius: 6px; font-family: monospace; font-size: 13px; border-left: 3px solid var(--accent); min-width: 110px; }
+  .stat-chip .name { color: #718096; font-size: 11px; display: block; margin-bottom: 2px; }
+  .stat-chip .val { color: #2d3748; font-weight: 700; font-size: 15px; }
+  button { padding: 9px 20px; background: var(--accent); color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  button:hover { background: var(--accent-hover); }
+  button.secondary { background: #e0e7ff; color: var(--accent); }
+  .payoff-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px; max-width: 400px; font-size: 13px; margin: 14px 0; }
+  .pg-header { background: #3730a3; color: white; padding: 8px 10px; text-align: center; font-weight: 700; border-radius: 4px; }
+  .pg-cell { background: white; padding: 10px; text-align: center; border: 2px solid #e2e8f0; border-radius: 4px; transition: background 0.3s; }
+  .pg-cell.ne { border-color: #f59e0b !important; background: #fffbeb !important; }
+  .pg-cell.catastrophe { border-color: #fc8181 !important; background: #fff5f5 !important; }
+  .pg-cell .payoffs { font-weight: 700; font-size: 14px; }
+  .pg-cell .label { font-size: 10px; color: #718096; margin-top: 2px; }
+  .strategy-btn { padding: 6px 14px; border: 2px solid #c7d2fe; border-radius: 6px; background: white; cursor: pointer; font-size: 13px; font-weight: 600; color: #3730a3; margin: 3px; }
+  .strategy-btn.active { background: #3730a3; color: white; border-color: #3730a3; }
+  .crisis-timeline { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; }
+  .ct-step { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 13px; }
+  .ct-actor { font-weight: 700; width: 60px; color: var(--accent); }
+  .ct-action { flex: 1; }
+  .ct-risk { width: 80px; text-align: right; font-family: monospace; font-size: 12px; }
+  @media (max-width: 600px) {
+    .controls { flex-direction: column; }
+    input[type="range"] { width: 100%; max-width: 200px; }
+    .payoff-grid { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-signaling-screening/visualization.html">← L03: Signaling</a>
+  <span class="sep">·</span>
+  <span class="current">L04: Deterrence & Crisis</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-mechanism-design/visualization.html">L05: Mechanism Design →</a>
+</nav>
+<main>
+  <h1>Lesson 04: Deterrence & Crisis Bargaining</h1>
+  <p class="subtitle">Chicken game · Commitment devices (Schelling) · MAD · Brinkmanship</p>
+
+  <!-- Module 1: Chicken Game -->
+  <section class="module">
+    <h2>1. Chicken Game — Nash Equilibria</h2>
+    <div class="info-box">
+      Thay đổi payoffs để thấy pure NE và mixed NE. Màu vàng = Nash Equilibrium (không ai muốn unilaterally deviate). Màu đỏ = catastrophe outcome.
+    </div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Payoff (Draw, Draw): <span class="val-badge" id="p-dd-v">0</span></label>
+        <input type="range" id="p-dd" min="-5" max="5" value="0" oninput="document.getElementById('p-dd-v').textContent=this.value; renderChicken()">
+      </div>
+      <div class="ctrl-group">
+        <label>Payoff (winner): <span class="val-badge" id="p-win-v">+5</span></label>
+        <input type="range" id="p-win" min="1" max="20" value="5" oninput="document.getElementById('p-win-v').textContent='+'+this.value; renderChicken()">
+      </div>
+      <div class="ctrl-group">
+        <label>Payoff (loser): <span class="val-badge" id="p-lose-v">-2</span></label>
+        <input type="range" id="p-lose" min="-10" max="-1" value="-2" oninput="document.getElementById('p-lose-v').textContent=this.value; renderChicken()">
+      </div>
+      <div class="ctrl-group">
+        <label>Catastrophe payoff: <span class="val-badge" id="p-cat-v">-50</span></label>
+        <input type="range" id="p-cat" min="-200" max="-10" value="-50" step="5" oninput="document.getElementById('p-cat-v').textContent=this.value; renderChicken()">
+      </div>
+    </div>
+    <div id="chicken-grid" style="margin-top:12px;"></div>
+    <div class="stats-row" id="chicken-stats" style="margin-top:14px;"></div>
+    <div style="margin-top:16px;">
+      <svg id="chicken-svg" width="440" height="200" viewBox="0 0 440 200" style="display:block;max-width:100%;"></svg>
+    </div>
+  </section>
+
+  <!-- Module 2: Commitment Device -->
+  <section class="module">
+    <h2>2. Commitment Device — Game Tree</h2>
+    <div class="info-box">
+      Toggle commitment device của Player A. Khi A commit (không thể Swerve), B's best response thay đổi. So sánh equilibrium với/không có commitment.
+    </div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Commitment mode A:</label>
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          <button class="strategy-btn active" id="no-commit-btn" onclick="setCommit(false)">Flexible</button>
+          <button class="strategy-btn" id="commit-btn" onclick="setCommit(true)">Committed (Straight only)</button>
+        </div>
+      </div>
+      <div class="ctrl-group">
+        <label>A aggression level: <span class="val-badge" id="aggr-v">50</span>%</label>
+        <input type="range" id="aggr" min="0" max="100" value="50" oninput="document.getElementById('aggr-v').textContent=this.value; renderCommitment()">
+      </div>
+    </div>
+    <div id="commit-tree" style="margin-top:14px;"></div>
+    <svg id="commit-svg" width="500" height="280" viewBox="0 0 500 280" style="display:block;max-width:100%;margin-top:12px;"></svg>
+  </section>
+
+  <!-- Module 3: Brinkmanship / MAD -->
+  <section class="module">
+    <h2>3. Brinkmanship & MAD Simulator</h2>
+    <div class="info-box">
+      Mô phỏng crisis escalation. Mỗi bước, bên nào chọn escalate thêm thì war probability tăng. Khi war_prob đủ cao, bên rational sẽ back down. Xem điều kiện MAD stability.
+    </div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Status quo value (A): <span class="val-badge" id="sq-a-v">50</span></label>
+        <input type="range" id="sq-a" min="10" max="100" value="50" step="5" oninput="document.getElementById('sq-a-v').textContent=this.value; renderMAD()">
+      </div>
+      <div class="ctrl-group">
+        <label>Value of winning: <span class="val-badge" id="win-v-v">80</span></label>
+        <input type="range" id="win-v" min="10" max="150" value="80" step="5" oninput="document.getElementById('win-v-v').textContent=this.value; renderMAD()">
+      </div>
+      <div class="ctrl-group">
+        <label>War damage (−W): <span class="val-badge" id="war-d-v">-200</span></label>
+        <input type="range" id="war-d" min="50" max="500" value="200" step="10" oninput="document.getElementById('war-d-v').textContent='-'+this.value; renderMAD()">
+      </div>
+      <div class="ctrl-group">
+        <label>P(war) per escalation step: <span class="val-badge" id="esc-p-v">15</span>%</label>
+        <input type="range" id="esc-p" min="5" max="50" value="15" oninput="document.getElementById('esc-p-v').textContent=this.value; renderMAD()">
+      </div>
+    </div>
+    <div id="mad-result" style="margin-top:14px;"></div>
+    <div id="mad-timeline" class="crisis-timeline" style="margin-top:14px;"></div>
+    <svg id="mad-svg" width="560" height="200" viewBox="0 0 560 200" style="display:block;max-width:100%;margin-top:14px;"></svg>
+  </section>
+</main>
+
+<script>
+// === Module 1: Chicken Game ===
+let chickCommit = false;
+
+function renderChicken() {
+  const dd = +document.getElementById('p-dd').value;
+  const win = +document.getElementById('p-win').value;
+  const lose = +document.getElementById('p-lose').value;
+  const cat = +document.getElementById('p-cat').value;
+
+  // Payoff matrix: rows = A, cols = B
+  // (SW, SW) = dd,dd; (SW, ST) = lose,win; (ST, SW) = win,lose; (ST,ST) = cat,cat
+  const m = [[dd,dd],[lose,win],[win,lose],[cat,cat]];
+
+  // Check NE for each cell
+  // Cell (i,j): A has row i (0=SW,1=ST), B has col j (0=SW,1=ST)
+  const payoff = (r, c) => ({a: r===0?(c===0?dd:lose):(c===0?win:cat), b: c===0?(r===0?dd:lose):(r===0?win:cat)});
+
+  const isNE = (r, c) => {
+    const p = payoff(r, c);
+    const altR = payoff(1-r, c);
+    const altC = payoff(r, 1-c);
+    return p.a >= altR.a && p.b >= altC.b;
+  };
+
+  const cells = [
+    {r:0, c:0, label:'SW,SW', cat:false},
+    {r:0, c:1, label:'SW,ST', cat:false},
+    {r:1, c:0, label:'ST,SW', cat:false},
+    {r:1, c:1, label:'ST,ST', cat:true},
+  ];
+
+  // Grid
+  let gridHTML = `<div class="payoff-grid">
+    <div class="pg-header">A \\ B</div>
+    <div class="pg-header">B: Swerve</div>
+    <div class="pg-header">B: Straight</div>
+    <div class="pg-header">A: Swerve</div>`;
+
+  cells.forEach(cell => {
+    const p = payoff(cell.r, cell.c);
+    const ne = isNE(cell.r, cell.c);
+    gridHTML += `<div class="pg-cell ${ne?'ne':''} ${cell.cat?'catastrophe':''}">
+      <div class="payoffs">(${p.a}, ${p.b})</div>
+      <div class="label">${ne?'★ NE':''}${cell.cat?'☢ Catastrophe':''}</div>
+    </div>`;
+  });
+  gridHTML += '</div>';
+  document.getElementById('chicken-grid').innerHTML = gridHTML;
+
+  // Mixed NE
+  // B indifferent: p_A*cat + (1-p_A)*win_for_B = p_A*lose_for_B + (1-p_A)*dd
+  // p_A*(cat) + (1-p_A)*win = p_A*lose + (1-p_A)*dd
+  // p_A*cat + win - p_A*win = p_A*lose + dd - p_A*dd
+  // p_A*(cat - win - lose + dd) = dd - win
+  // p_A = (dd - win) / (cat - win - lose + dd)
+  const p_A = (dd - win) / (cat - win - lose + dd);
+  const p_B = (dd - win) / (cat - win - lose + dd); // symmetric
+
+  const validMixed = p_A > 0 && p_A < 1;
+  const expPayoff = validMixed ? (p_A * cat + (1-p_A) * win).toFixed(2) : 'N/A';
+
+  document.getElementById('chicken-stats').innerHTML = `
+    <div class="stat-chip"><span class="name">Pure NE 1</span><span class="val">(ST, SW)</span></div>
+    <div class="stat-chip"><span class="name">Pure NE 2</span><span class="val">(SW, ST)</span></div>
+    <div class="stat-chip"><span class="name">Mixed NE p(Straight)</span><span class="val">${validMixed ? p_A.toFixed(3) : 'Invalid'}</span></div>
+    <div class="stat-chip"><span class="name">E[payoff] mixed</span><span class="val">${expPayoff}</span></div>
+  `;
+
+  // Draw mixed strategy region
+  drawChickenMixed(dd, win, lose, cat, p_A);
+}
+
+function drawChickenMixed(dd, win, lose, cat, p_mix) {
+  const svg = document.getElementById('chicken-svg');
+  const W = 440, H = 200, padL = 55, padR = 20, padT = 20, padB = 35;
+  const cW = W-padL-padR, cH = H-padT-padB;
+
+  const xS = p => padL + p * cW;
+  const minPay = Math.min(dd, win, lose, cat) - 2;
+  const maxPay = Math.max(dd, win, lose, cat) + 2;
+  const yS = v => padT + cH - ((v - minPay)/(maxPay - minPay)) * cH;
+
+  let html = '';
+  // Grid lines
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + i*cH/4;
+    html += `<line x1="${padL}" y1="${y}" x2="${padL+cW}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
+  }
+  html += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+cH}" stroke="#718096" stroke-width="1.5"/>`;
+  html += `<line x1="${padL}" y1="${padT+cH}" x2="${padL+cW}" y2="${padT+cH}" stroke="#718096" stroke-width="1.5"/>`;
+
+  // E[payoff | Straight] as function of p_B (prob B plays Straight)
+  let pStraight = '', pSwerve = '';
+  for (let pb = 0; pb <= 1; pb += 0.01) {
+    const eST = pb * cat + (1-pb) * win;
+    const eSW = pb * lose + (1-pb) * dd;
+    pStraight += (pb < 0.005 ? 'M' : 'L') + xS(pb) + ',' + yS(eST);
+    pSwerve += (pb < 0.005 ? 'M' : 'L') + xS(pb) + ',' + yS(eSW);
+  }
+  html += `<path d="${pStraight}" fill="none" stroke="#3730a3" stroke-width="2.5"/>`;
+  html += `<path d="${pSwerve}" fill="none" stroke="#7c3aed" stroke-width="2" stroke-dasharray="5,3"/>`;
+
+  // Intersection = mixed NE
+  if (p_mix > 0 && p_mix < 1) {
+    const mx = xS(p_mix);
+    const eST = p_mix * cat + (1-p_mix) * win;
+    const my = yS(eST);
+    html += `<circle cx="${mx}" cy="${my}" r="6" fill="#f59e0b"/>`;
+    html += `<line x1="${mx}" y1="${padT}" x2="${mx}" y2="${padT+cH}" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+    html += `<text x="${mx+6}" y="${my-4}" fill="#f59e0b" font-size="11" font-weight="700">Mixed NE p=${p_mix.toFixed(2)}</text>`;
+  }
+
+  // Legend
+  html += `<line x1="${padL+cW-140}" y1="${padT+10}" x2="${padL+cW-120}" y2="${padT+10}" stroke="#3730a3" stroke-width="2.5"/>`;
+  html += `<text x="${padL+cW-116}" y="${padT+14}" fill="#3730a3" font-size="11">E[A|Straight]</text>`;
+  html += `<line x1="${padL+cW-140}" y1="${padT+26}" x2="${padL+cW-120}" y2="${padT+26}" stroke="#7c3aed" stroke-width="2" stroke-dasharray="5,3"/>`;
+  html += `<text x="${padL+cW-116}" y="${padT+30}" fill="#7c3aed" font-size="11">E[A|Swerve]</text>`;
+
+  html += `<text x="${padL+cW/2}" y="${H-3}" text-anchor="middle" fill="#718096" font-size="12">p_B (prob B plays Straight) →</text>`;
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + i*cH/4;
+    const v = maxPay - i*(maxPay-minPay)/4;
+    html += `<text x="${padL-5}" y="${y+4}" text-anchor="end" fill="#718096" font-size="10">${v.toFixed(0)}</text>`;
+  }
+
+  svg.innerHTML = html;
+}
+
+// === Module 2: Commitment ===
+let committed = false;
+
+function setCommit(c) {
+  committed = c;
+  document.getElementById('no-commit-btn').classList.toggle('active', !c);
+  document.getElementById('commit-btn').classList.toggle('active', c);
+  renderCommitment();
+}
+
+function renderCommitment() {
+  const aggr = +document.getElementById('aggr').value / 100;
+  const win = +document.getElementById('p-win').value;
+  const lose = +document.getElementById('p-lose').value;
+  const cat = +document.getElementById('p-cat').value;
+  const dd = +document.getElementById('p-dd').value;
+
+  let html = '';
+  if (committed) {
+    html = `<div class="info-box" style="background:#fff5f5;border-color:#fc8181;">
+      <strong>A committed: chỉ có thể chọn Straight.</strong><br>
+      B biết A không thể Swerve → B's best response: Swerve (nhận ${lose} khi ST vs ${dd} khi SW nếu A swerves — irrelevant now. B gets lose if Straight, dd if Swerve... wait: if A always Straight: B gets cat if Straight, lose if Swerve. Since lose > cat, B chooses <strong>Swerve</strong>).
+      <br>→ <strong>Equilibrium: (Straight, Swerve). A wins: +${win}. B loses: ${lose}.</strong>
+    </div>`;
+  } else {
+    const pMix = (dd - win) / (cat - win - lose + dd);
+    const validMixed = pMix > 0 && pMix < 1;
+    html = `<div class="info-box">
+      <strong>A flexible:</strong> A's optimal mix p = ${validMixed ? pMix.toFixed(2) : 'invalid'} (Straight).<br>
+      2 pure NE: (ST,SW) và (SW,ST) — A may or may not win.<br>
+      A's expected payoff in mixed NE ≈ ${validMixed ? (pMix*cat+(1-pMix)*win).toFixed(1) : 'N/A'}.
+    </div>`;
+  }
+  document.getElementById('commit-tree').innerHTML = html;
+
+  drawCommitTree(committed, win, lose, cat, dd);
+}
+
+function drawCommitTree(committed, win, lose, cat, dd) {
+  const svg = document.getElementById('commit-svg');
+  const W = 500, H = 280;
+
+  let html = '';
+
+  if (committed) {
+    // Simplified tree: A must Straight; B chooses
+    html += `<text x="250" y="30" text-anchor="middle" fill="#3730a3" font-size="14" font-weight="700">A: Committed (Straight only)</text>`;
+    // A node
+    html += `<circle cx="250" cy="60" r="18" fill="#3730a3"/>`;
+    html += `<text x="250" y="65" text-anchor="middle" fill="white" font-size="12">A</text>`;
+    // Only Straight branch
+    html += `<line x1="250" y1="78" x2="250" y2="130" stroke="#3730a3" stroke-width="2"/>`;
+    html += `<text x="270" y="110" fill="#3730a3" font-size="12">Straight (forced)</text>`;
+    // B node
+    html += `<circle cx="250" cy="148" r="18" fill="#7c3aed"/>`;
+    html += `<text x="250" y="153" text-anchor="middle" fill="white" font-size="12">B</text>`;
+    // B Swerve (left)
+    html += `<line x1="236" y1="163" x2="130" y2="215" stroke="#48bb78" stroke-width="2"/>`;
+    html += `<text x="165" y="205" fill="#48bb78" font-size="11" text-anchor="middle">Swerve</text>`;
+    html += `<rect x="80" y="220" width="100" height="36" rx="6" fill="#f0fff4" stroke="#48bb78" stroke-width="2"/>`;
+    html += `<text x="130" y="238" text-anchor="middle" fill="#276749" font-size="12" font-weight="700">(+${win}, ${lose})</text>`;
+    html += `<text x="130" y="252" text-anchor="middle" fill="#718096" font-size="11">A wins!</text>`;
+    // B Straight (right)
+    html += `<line x1="264" y1="163" x2="370" y2="215" stroke="#fc8181" stroke-width="2"/>`;
+    html += `<text x="335" y="205" fill="#fc8181" font-size="11" text-anchor="middle">Straight</text>`;
+    html += `<rect x="320" y="220" width="100" height="36" rx="6" fill="#fff5f5" stroke="#fc8181" stroke-width="2"/>`;
+    html += `<text x="370" y="238" text-anchor="middle" fill="#c53030" font-size="12" font-weight="700">(${cat}, ${cat})</text>`;
+    html += `<text x="370" y="252" text-anchor="middle" fill="#718096" font-size="11">Catastrophe</text>`;
+
+    // B's best response arrow
+    html += `<path d="M 135 258 Q 100 268 118 243" fill="none" stroke="#276749" stroke-width="1.5" marker-end="url(#arr)"/>`;
+    html += `<text x="60" y="270" fill="#276749" font-size="11" font-weight="700">B's best response: Swerve</text>`;
+
+  } else {
+    // Full game tree: A chooses first (imperfect info)
+    html += `<text x="250" y="30" text-anchor="middle" fill="#3730a3" font-size="14" font-weight="700">A: Flexible (can Swerve or Straight)</text>`;
+    html += `<circle cx="250" cy="60" r="18" fill="#3730a3"/>`;
+    html += `<text x="250" y="65" text-anchor="middle" fill="white" font-size="12">A</text>`;
+    // Swerve left
+    html += `<line x1="237" y1="74" x2="130" y2="120" stroke="#a0aec0" stroke-width="2"/>`;
+    html += `<text x="165" y="108" fill="#a0aec0" font-size="11">Swerve</text>`;
+    html += `<circle cx="130" cy="138" r="14" fill="#7c3aed"/>`;
+    html += `<text x="130" y="143" text-anchor="middle" fill="white" font-size="11">B</text>`;
+    html += `<line x1="121" y1="150" x2="75" y2="200" stroke="#48bb78" stroke-width="1.5"/>`;
+    html += `<text x="90" y="195" fill="#718096" font-size="10">SW</text>`;
+    html += `<rect x="40" y="207" width="72" height="30" rx="4" fill="#f7f7ff" stroke="#c7d2fe"/>`;
+    html += `<text x="76" y="225" text-anchor="middle" fill="#2d3748" font-size="11">(${dd},${dd})</text>`;
+    html += `<line x1="139" y1="150" x2="183" y2="200" stroke="#fc8181" stroke-width="1.5"/>`;
+    html += `<text x="170" y="195" fill="#718096" font-size="10">ST</text>`;
+    html += `<rect x="151" y="207" width="72" height="30" rx="4" fill="#fff5f5" stroke="#fc8181"/>`;
+    html += `<text x="187" y="225" text-anchor="middle" fill="#2d3748" font-size="11">(${lose},${win})</text>`;
+    // Straight right
+    html += `<line x1="263" y1="74" x2="370" y2="120" stroke="#3730a3" stroke-width="2"/>`;
+    html += `<text x="330" y="108" fill="#3730a3" font-size="11">Straight</text>`;
+    html += `<circle cx="370" cy="138" r="14" fill="#7c3aed"/>`;
+    html += `<text x="370" y="143" text-anchor="middle" fill="white" font-size="11">B</text>`;
+    html += `<line x1="361" y1="150" x2="317" y2="200" stroke="#48bb78" stroke-width="1.5"/>`;
+    html += `<text x="330" y="195" fill="#718096" font-size="10">SW</text>`;
+    html += `<rect x="285" y="207" width="72" height="30" rx="4" fill="#f0fff4" stroke="#48bb78"/>`;
+    html += `<text x="321" y="225" text-anchor="middle" fill="#276749" font-size="11">(+${win},${lose})</text>`;
+    html += `<line x1="379" y1="150" x2="423" y2="200" stroke="#fc8181" stroke-width="1.5"/>`;
+    html += `<text x="415" y="195" fill="#718096" font-size="10">ST</text>`;
+    html += `<rect x="397" y="207" width="72" height="30" rx="4" fill="#fff5f5" stroke="#fc8181"/>`;
+    html += `<text x="433" y="225" text-anchor="middle" fill="#c53030" font-size="11">(${cat},${cat})</text>`;
+    html += `<text x="250" y="270" text-anchor="middle" fill="#718096" font-size="12">Multiple equilibria — no dominant strategy</text>`;
+  }
+
+  svg.innerHTML = html;
+}
+
+// === Module 3: MAD ===
+function renderMAD() {
+  const sq = +document.getElementById('sq-a').value;
+  const winV = +document.getElementById('win-v').value;
+  const warD = +document.getElementById('war-d').value;
+  const escP = +document.getElementById('esc-p').value / 100;
+
+  // MAD conditions
+  const deterStable = winV < sq + warD; // winning not worth it if war likely
+
+  // Brinkmanship steps
+  const steps = [];
+  let warProb = 0.0;
+  for (let step = 0; step < 10; step++) {
+    warProb = 1 - Math.pow(1-escP, step + 1);
+    const EU_escalate = (1-warProb) * winV + warProb * (-warD);
+    const EU_backdown = 0; // backing down = lose face but avoid war
+    const choiceA = EU_escalate > EU_backdown ? 'Escalate' : 'Back down';
+    steps.push({ step: step+1, warProb: warProb.toFixed(3), EU_esc: EU_escalate.toFixed(1), EU_bd: EU_backdown, choice: choiceA });
+    if (choiceA === 'Back down') break;
+  }
+
+  // Result
+  const finalStep = steps[steps.length-1];
+  const outcome = finalStep.choice === 'Back down' ? 'De-escalation' : 'War risk high';
+
+  document.getElementById('mad-result').innerHTML = `
+    <div style="padding:12px 16px;border-radius:8px;background:${deterStable?'#f0fff4':'#fff5f5'};border:2px solid ${deterStable?'#48bb78':'#fc8181'};font-size:14px;">
+      <strong>MAD deterrence: ${deterStable ? 'STABLE ✓' : 'UNSTABLE ✗'}</strong><br>
+      ${deterStable ? `Win value (${winV}) &lt; SQ + War damage (${sq+warD}) → neither party willing to gamble on war.` : `Win value (${winV}) ≥ SQ + War damage (${sq+warD}) → at least one party may risk war → MAD fails!`}
+    </div>
+    <div class="stats-row" style="margin-top:10px;">
+      <div class="stat-chip"><span class="name">Status quo value</span><span class="val">${sq}</span></div>
+      <div class="stat-chip"><span class="name">Win value</span><span class="val">${winV}</span></div>
+      <div class="stat-chip"><span class="name">War damage</span><span class="val">-${warD}</span></div>
+      <div class="stat-chip"><span class="name">P(war)/escalation</span><span class="val">${(escP*100).toFixed(0)}%</span></div>
+    </div>
+  `;
+
+  let tl = steps.map(s => `
+    <div class="ct-step" style="background:${s.choice==='Back down'?'#f0fff4':s.warProb>0.5?'#fff5f5':'#f8f7ff'};">
+      <span class="ct-actor">Step ${s.step}</span>
+      <span class="ct-action">EU(escalate)=${s.EU_esc}, EU(back)=0 → <strong>${s.choice}</strong></span>
+      <span class="ct-risk" style="color:${s.warProb>0.4?'#c53030':s.warProb>0.2?'#d69e2e':'#276749'}">P(war)=${(s.warProb*100).toFixed(0)}%</span>
+    </div>
+  `).join('');
+  document.getElementById('mad-timeline').innerHTML = tl;
+
+  drawMADChart(sq, winV, warD, escP);
+}
+
+function drawMADChart(sq, winV, warD, escP) {
+  const svg = document.getElementById('mad-svg');
+  const W = 560, H = 200, padL = 55, padR = 20, padT = 20, padB = 35;
+  const cW = W-padL-padR, cH = H-padT-padB;
+
+  const steps = 10;
+  const xS = i => padL + (i/steps) * cW;
+  const minV = Math.min(-warD, 0) - 5;
+  const maxV = Math.max(winV, sq) + 5;
+  const yS = v => padT + cH - ((v-minV)/(maxV-minV)) * cH;
+
+  let html = '';
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + i*cH/4;
+    html += `<line x1="${padL}" y1="${y}" x2="${padL+cW}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
+    html += `<text x="${padL-5}" y="${y+4}" text-anchor="end" fill="#718096" font-size="10">${(maxV - i*(maxV-minV)/4).toFixed(0)}</text>`;
+  }
+  html += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+cH}" stroke="#718096" stroke-width="1.5"/>`;
+  html += `<line x1="${padL}" y1="${padT+cH}" x2="${padL+cW}" y2="${padT+cH}" stroke="#718096" stroke-width="1.5"/>`;
+
+  // EU(escalate) curve
+  let euPath = '';
+  for (let i = 0; i <= steps; i++) {
+    const wp = 1 - Math.pow(1-escP, i);
+    const eu = (1-wp)*winV + wp*(-warD);
+    euPath += (i===0?'M':'L') + xS(i) + ',' + yS(eu);
+  }
+  html += `<path d="${euPath}" fill="none" stroke="#3730a3" stroke-width="2.5"/>`;
+
+  // EU(back down) = sq line
+  html += `<line x1="${xS(0)}" y1="${yS(0)}" x2="${xS(steps)}" y2="${yS(0)}" stroke="#48bb78" stroke-width="2" stroke-dasharray="5,3"/>`;
+  html += `<text x="${xS(8)}" y="${yS(0)-5}" fill="#48bb78" font-size="11">EU(back down) = 0</text>`;
+
+  // Crossover point
+  // eu = (1-wp)*winV + wp*(-warD) = 0 → winV = wp*(winV+warD) → wp = winV/(winV+warD)
+  const wpCross = winV / (winV + warD);
+  // step: 1-(1-escP)^n = wpCross → n = log(1-wpCross)/log(1-escP)
+  if (escP < 1 && wpCross < 1) {
+    const nCross = Math.log(1-wpCross) / Math.log(1-escP);
+    if (nCross > 0 && nCross < steps) {
+      const cx = xS(nCross);
+      html += `<line x1="${cx}" y1="${padT}" x2="${cx}" y2="${padT+cH}" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+      html += `<text x="${cx+3}" y="${padT+16}" fill="#f59e0b" font-size="11">Back down at step ${nCross.toFixed(1)}</text>`;
+    }
+  }
+
+  html += `<line x1="${padL+cW-130}" y1="${padT+10}" x2="${padL+cW-110}" y2="${padT+10}" stroke="#3730a3" stroke-width="2.5"/>`;
+  html += `<text x="${padL+cW-106}" y="${padT+14}" fill="#3730a3" font-size="11">EU(escalate)</text>`;
+  html += `<text x="${padL+cW/2}" y="${H-3}" text-anchor="middle" fill="#718096" font-size="12">Escalation step →</text>`;
+
+  svg.innerHTML = html;
+}
+
+// Initialize
+renderChicken();
+renderCommitment();
+renderMAD();
+</script>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

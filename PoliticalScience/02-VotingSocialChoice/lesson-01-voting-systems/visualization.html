@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L01: Voting Systems — PoliticalScience</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root { --bg: #f5f5fb; --accent: #3730a3; --accent-soft: #e0e7ff; --accent-hover: #312e81; }
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 28px; font-size: 15px; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+  .module { background: white; border-radius: 10px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 28px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; margin: 16px 0; padding: 16px; background: #f7f9fc; border-radius: 8px; border: 1px solid #e2e8f0; }
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+  label { font-size: 13px; font-weight: 600; color: #4a5568; }
+  input[type="range"] { width: 140px; accent-color: var(--accent); }
+  .val-badge { display: inline-block; background: var(--accent-soft); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 13px; font-weight: 700; font-family: monospace; min-width: 32px; text-align: center; }
+  .results-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 18px; }
+  .rule-card { background: #f7f9fc; border-radius: 8px; padding: 14px; border: 2px solid #e2e8f0; transition: border-color 0.3s; }
+  .rule-card.winner-card { border-color: var(--accent); background: var(--accent-soft); }
+  .rule-card .rule-name { font-size: 12px; font-weight: 700; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .rule-card .winner-name { font-size: 20px; font-weight: 800; color: var(--accent); }
+  .rule-card .detail { font-size: 12px; color: #718096; margin-top: 4px; font-family: monospace; }
+  .bar-group { margin: 10px 0; }
+  .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 13px; }
+  .bar-label { width: 24px; font-weight: 700; color: #4a5568; }
+  .bar-track { flex: 1; height: 18px; background: #edf2f7; border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
+  .bar-val { width: 48px; text-align: right; font-family: monospace; font-size: 12px; color: #4a5568; }
+  .bar-fill.a { background: #3730a3; }
+  .bar-fill.b { background: #0891b2; }
+  .bar-fill.c { background: #7c3aed; }
+  .info-box { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; }
+  .pairwise-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
+  .pairwise-table th, .pairwise-table td { padding: 8px 12px; border: 1px solid #e2e8f0; text-align: center; }
+  .pairwise-table th { background: #f7f9fc; font-weight: 700; color: #4a5568; }
+  .pw-win { background: #c6f6d5; color: #276749; font-weight: 700; }
+  .pw-lose { background: #fff5f5; color: #c53030; }
+  .irv-steps { list-style: none; padding: 0; margin: 12px 0; }
+  .irv-steps li { padding: 8px 14px; border-left: 3px solid var(--accent); margin-bottom: 6px; background: #f7f9fc; border-radius: 0 6px 6px 0; font-size: 13px; font-family: monospace; }
+  .summary-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .summary-chip { display: flex; align-items: center; gap: 8px; background: #edf2f7; padding: 8px 14px; border-radius: 6px; font-size: 13px; }
+  .summary-chip .chip-rule { color: #718096; }
+  .summary-chip .chip-winner { font-weight: 800; color: var(--accent); font-size: 16px; }
+  @media (max-width: 700px) {
+    .results-grid { grid-template-columns: repeat(2, 1fr); }
+    input[type="range"] { width: 100%; max-width: 240px; }
+  }
+  @media (max-width: 440px) {
+    .results-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../01-GameTheoryFoundations/lesson-05-repeated-games/visualization.html">← T1-L05: Repeated games</a>
+  <span class="sep">·</span>
+  <span class="current">L01: Voting systems</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-arrows-impossibility/visualization.html">L02: Arrow →</a>
+</nav>
+<main>
+  <h1>Lesson 01: Voting Systems — 6 Luật, 6 Winner</h1>
+  <p class="subtitle">Kéo slider thay đổi profile cử tri — xem ngay winner theo 6 luật thay đổi real-time</p>
+
+  <!-- Module 1: Interactive profile -->
+  <section class="module">
+    <h2>1. Profile cử tri tương tác</h2>
+    <div class="info-box">
+      3 nhóm cử tri (tổng 100). Mỗi nhóm có ranking cố định: I = A>B>C, II = B>C>A, III = C>B>A.
+      Kéo slider để thay đổi tỷ lệ — winner 6 luật cập nhật ngay.
+    </div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Nhóm I (A>B>C): <span class="val-badge" id="g1v">35</span></label>
+        <input type="range" id="g1" min="0" max="98" value="35">
+      </div>
+      <div class="ctrl-group">
+        <label>Nhóm II (B>C>A): <span class="val-badge" id="g2v">33</span></label>
+        <input type="range" id="g2" min="0" max="98" value="33">
+      </div>
+      <div class="ctrl-group">
+        <label>Nhóm III (C>B>A): <span class="val-badge" id="g3v">32</span></label>
+        <input type="range" id="g3" min="0" max="98" value="32" disabled>
+      </div>
+    </div>
+    <p style="font-size:13px;color:#718096;margin:0 0 12px;">Nhóm III tự điều chỉnh = 100 − I − II.</p>
+
+    <!-- Bar chart -->
+    <h3 style="margin-bottom:8px;font-size:14px;color:#4a5568;">Phân phối phiếu đầu (Plurality)</h3>
+    <div class="bar-group">
+      <div class="bar-row"><span class="bar-label">A</span><div class="bar-track"><div class="bar-fill a" id="barA" style="width:35%"></div></div><span class="bar-val" id="barAv">35</span></div>
+      <div class="bar-row"><span class="bar-label">B</span><div class="bar-track"><div class="bar-fill b" id="barB" style="width:33%"></div></div><span class="bar-val" id="barBv">33</span></div>
+      <div class="bar-row"><span class="bar-label">C</span><div class="bar-track"><div class="bar-fill c" id="barC" style="width:32%"></div></div><span class="bar-val" id="barCv">32</span></div>
+    </div>
+
+    <!-- 6 result cards -->
+    <h3 style="margin-top:20px;margin-bottom:8px;font-size:14px;color:#4a5568;">Winner theo 6 voting rules</h3>
+    <div class="results-grid" id="resultsGrid">
+      <!-- filled by JS -->
+    </div>
+  </section>
+
+  <!-- Module 2: Pairwise matrix -->
+  <section class="module">
+    <h2>2. Bảng pairwise comparison (Condorcet)</h2>
+    <div class="info-box">Ô (hàng X, cột Y): số cử tri prefer X hơn Y. Xanh = thắng; đỏ = thua.</div>
+    <table class="pairwise-table" id="pwTable">
+      <thead><tr><th>vs</th><th>A</th><th>B</th><th>C</th><th>Thắng</th></tr></thead>
+      <tbody id="pwBody"></tbody>
+    </table>
+    <p id="condorcetNote" style="margin-top:10px;font-size:14px;color:#2d3748;font-weight:600;"></p>
+  </section>
+
+  <!-- Module 3: IRV step-by-step -->
+  <section class="module">
+    <h2>3. IRV — từng bước elimination</h2>
+    <ol class="irv-steps" id="irvSteps"></ol>
+    <p id="irvResult" style="font-size:15px;font-weight:700;color:var(--accent);margin-top:10px;"></p>
+  </section>
+
+  <!-- Module 4: Condorcet cycle demo -->
+  <section class="module">
+    <h2>4. Condorcet Cycle — khi không có winner</h2>
+    <div class="info-box">Profile đặc biệt: 1 cử tri A>B>C, 1 cử tri B>C>A, 1 cử tri C>A>B → pairwise cycle.</div>
+    <table class="pairwise-table">
+      <thead><tr><th>vs</th><th>A</th><th>B</th><th>C</th></tr></thead>
+      <tbody>
+        <tr><td><strong>A</strong></td><td>—</td><td class="pw-win">A wins (2-1)</td><td class="pw-lose">C wins (2-1)</td></tr>
+        <tr><td><strong>B</strong></td><td class="pw-lose">A wins (2-1)</td><td>—</td><td class="pw-win">B wins (2-1)</td></tr>
+        <tr><td><strong>C</strong></td><td class="pw-win">C wins (2-1)</td><td class="pw-lose">B wins (2-1)</td><td>—</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:12px;font-size:14px;color:#c53030;font-weight:700;">A &gt; B &gt; C &gt; A — cycle! Không có Condorcet winner. → Dẫn đến Arrow's Impossibility (Lesson 02).</p>
+  </section>
+</main>
+
+<script>
+const CANDS = ['A','B','C'];
+// rankings: group[i] = [first, second, third] for cand indices (0=A,1=B,2=C)
+// Group I: A>B>C, Group II: B>C>A, Group III: C>B>A
+const RANKINGS = [
+  [0,1,2], // Group I: A>B>C
+  [1,2,0], // Group II: B>C>A
+  [2,1,0], // Group III: C>B>A
+];
+
+function getGroups() {
+  const g1 = +document.getElementById('g1').value;
+  const g2 = +document.getElementById('g2').value;
+  const g3 = Math.max(0, 100 - g1 - g2);
+  return [g1, g2, g3];
+}
+
+function plurality(groups) {
+  const pts = [0,0,0];
+  for (let g=0; g<3; g++) pts[RANKINGS[g][0]] += groups[g];
+  const max = Math.max(...pts);
+  const winners = CANDS.filter((_,i) => pts[i] === max);
+  return { winner: winners.join('/'), detail: `A:${pts[0]}, B:${pts[1]}, C:${pts[2]}`, pts };
+}
+
+function pairwise(groups) {
+  // pw[i][j] = # voters prefer cand i over cand j
+  const pw = [[0,0,0],[0,0,0],[0,0,0]];
+  for (let g=0; g<3; g++) {
+    const rank = RANKINGS[g];
+    for (let a=0; a<3; a++) for (let b=0; b<3; b++) {
+      if (rank.indexOf(a) < rank.indexOf(b)) pw[a][b] += groups[g];
+    }
+  }
+  return pw;
+}
+
+function condorcetWinner(pw) {
+  for (let i=0; i<3; i++) {
+    if (CANDS.every((_,j) => j===i || pw[i][j] > pw[j][i])) return CANDS[i];
+  }
+  return null;
+}
+
+function borda(groups) {
+  const pts = [0,0,0];
+  for (let g=0; g<3; g++) {
+    const rank = RANKINGS[g];
+    pts[rank[0]] += groups[g] * 2;
+    pts[rank[1]] += groups[g] * 1;
+    // rank[2] += 0
+  }
+  const max = Math.max(...pts);
+  const winners = CANDS.filter((_,i) => pts[i] === max);
+  return { winner: winners.join('/'), detail: `A:${pts[0]}, B:${pts[1]}, C:${pts[2]}`, pts };
+}
+
+function twoRound(groups) {
+  const p = plurality(groups);
+  // Sort by plurality score
+  const order = [0,1,2].sort((a,b) => p.pts[b] - p.pts[a]);
+  const top2 = order.slice(0,2);
+  const eliminated = order[2];
+  // Eliminated group voters go to their next preferred among top2
+  const newGroups = [0,0,0];
+  for (let g=0; g<3; g++) {
+    const pref = RANKINGS[g].filter(c => top2.includes(c));
+    newGroups[pref[0]] += groups[g];
+  }
+  const w = newGroups[top2[0]] >= newGroups[top2[1]] ? top2[0] : top2[1];
+  const v0 = newGroups[top2[0]], v1 = newGroups[top2[1]];
+  return { winner: CANDS[w], detail: `${CANDS[top2[0]]}:${v0} vs ${CANDS[top2[1]]}:${v1} (${CANDS[eliminated]} eliminated)` };
+}
+
+function irv(groups) {
+  let remaining = [0,1,2];
+  let g = [...groups];
+  const steps = [];
+  while (remaining.length > 1) {
+    const pts = {};
+    remaining.forEach(c => pts[c] = 0);
+    for (let grp=0; grp<3; grp++) {
+      const top = RANKINGS[grp].find(c => remaining.includes(c));
+      pts[top] += groups[grp];
+    }
+    const total = remaining.reduce((s,c) => s+pts[c], 0);
+    const str = remaining.map(c => `${CANDS[c]}:${pts[c]}`).join(', ');
+    steps.push(`Vòng ${steps.length+1}: ${str}`);
+    const maxVotes = Math.max(...remaining.map(c => pts[c]));
+    if (maxVotes > total/2) {
+      const w = remaining.find(c => pts[c] === maxVotes);
+      return { winner: CANDS[w], steps, detail: `${CANDS[w]} vượt 50%` };
+    }
+    const minVotes = Math.min(...remaining.map(c => pts[c]));
+    const elim = remaining.find(c => pts[c] === minVotes);
+    steps.push(`  → Loại ${CANDS[elim]} (${pts[elim]} phiếu ít nhất)`);
+    remaining = remaining.filter(c => c !== elim);
+  }
+  return { winner: CANDS[remaining[0]], steps, detail: 'Còn lại duy nhất' };
+}
+
+function approval(groups) {
+  // approve top-2
+  const pts = [0,0,0];
+  for (let g=0; g<3; g++) {
+    pts[RANKINGS[g][0]] += groups[g];
+    pts[RANKINGS[g][1]] += groups[g];
+  }
+  const max = Math.max(...pts);
+  const winners = CANDS.filter((_,i) => pts[i] === max);
+  return { winner: winners.join('/'), detail: `A:${pts[0]}, B:${pts[1]}, C:${pts[2]} (approve top-2)` };
+}
+
+function update() {
+  const groups = getGroups();
+  const g1=groups[0], g2=groups[1], g3=groups[2];
+  document.getElementById('g1v').textContent = g1;
+  document.getElementById('g2v').textContent = g2;
+  document.getElementById('g3v').textContent = g3;
+  document.getElementById('g3').value = g3;
+
+  // Bars
+  ['A','B','C'].forEach((c,i) => {
+    const v = groups[i === 0 ? 0 : i === 1 ? 1 : 2];
+    // map group index: A is group I first, B is group II first, C is group III first
+    const votes = [g1, g2, g3][i];
+    document.getElementById('bar'+c).style.width = votes + '%';
+    document.getElementById('bar'+c+'v').textContent = votes;
+  });
+
+  const pl = plurality(groups);
+  const bd = borda(groups);
+  const tr = twoRound(groups);
+  const iv = irv(groups);
+  const pw = pairwise(groups);
+  const cw = condorcetWinner(pw);
+  const ap = approval(groups);
+
+  const rules = [
+    { name: 'Plurality', winner: pl.winner, detail: pl.detail },
+    { name: 'Two-Round', winner: tr.winner, detail: tr.detail },
+    { name: 'IRV', winner: iv.winner, detail: iv.detail },
+    { name: 'Borda Count', winner: bd.winner, detail: bd.detail },
+    { name: 'Condorcet', winner: cw || 'Cycle!', detail: cw ? `${cw} beats all 1-on-1` : 'No winner — cycle' },
+    { name: 'Approval', winner: ap.winner, detail: ap.detail },
+  ];
+
+  // All winners set
+  const winnerSet = new Set(rules.map(r => r.winner).filter(w => w !== 'Cycle!'));
+
+  const grid = document.getElementById('resultsGrid');
+  grid.innerHTML = rules.map(r => `
+    <div class="rule-card${r.winner !== 'Cycle!' && winnerSet.size > 1 ? '' : ''}">
+      <div class="rule-name">${r.name}</div>
+      <div class="winner-name">${r.winner}</div>
+      <div class="detail">${r.detail}</div>
+    </div>
+  `).join('');
+
+  // Pairwise table
+  const body = document.getElementById('pwBody');
+  body.innerHTML = CANDS.map((c,i) => {
+    const wins = CANDS.filter((_,j) => j!==i && pw[i][j] > pw[j][i]).length;
+    return `<tr>
+      <td><strong>${c}</strong></td>
+      ${CANDS.map((_,j) => {
+        if (i===j) return '<td>—</td>';
+        const vi = pw[i][j], vj = pw[j][i];
+        const cls = vi > vj ? 'pw-win' : vi < vj ? 'pw-lose' : '';
+        return `<td class="${cls}">${vi}-${vj}</td>`;
+      }).join('')}
+      <td><strong>${wins}/2</strong></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('condorcetNote').textContent = cw
+    ? `Condorcet winner: ${cw} (thắng tất cả cuộc đối đầu 1-1)`
+    : 'Không có Condorcet winner — tồn tại cycle trong pairwise comparison.';
+
+  // IRV steps
+  const stepsEl = document.getElementById('irvSteps');
+  stepsEl.innerHTML = iv.steps.map(s => `<li>${s}</li>`).join('');
+  document.getElementById('irvResult').textContent = `IRV winner: ${iv.winner}`;
+}
+
+// Slider logic: g1+g2 <= 100, g3 auto
+document.getElementById('g1').addEventListener('input', () => {
+  const g1 = +document.getElementById('g1').value;
+  const maxG2 = 100 - g1;
+  const g2El = document.getElementById('g2');
+  if (+g2El.value > maxG2) g2El.value = maxG2;
+  g2El.max = maxG2;
+  update();
+});
+document.getElementById('g2').addEventListener('input', () => {
+  const g2 = +document.getElementById('g2').value;
+  const maxG1 = 100 - g2;
+  const g1El = document.getElementById('g1');
+  if (+g1El.value > maxG1) g1El.value = maxG1;
+  g1El.max = maxG1;
+  update();
+});
+
+update();
+</script>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

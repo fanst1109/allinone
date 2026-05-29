@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L02: Arrow's Impossibility — PoliticalScience</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root { --bg: #f5f5fb; --accent: #3730a3; --accent-soft: #e0e7ff; --accent-hover: #312e81; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+  .module { background: white; border-radius: 10px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 28px; }
+  .info-box { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; }
+  .subtitle { color: #4a5568; margin-bottom: 28px; font-size: 15px; }
+  /* Voter preference editor */
+  .pref-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+  .pref-table th { background: #f0f0ff; color: var(--accent); font-weight: 700; padding: 8px 12px; border: 1px solid #c7d2fe; text-align: center; }
+  .pref-table td { padding: 8px 12px; border: 1px solid #e2e8f0; text-align: center; }
+  select.rank-sel { padding: 4px 8px; border: 1px solid #c7d2fe; border-radius: 4px; background: white; font-size: 13px; }
+  /* Pairwise */
+  .pw-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin: 14px 0; }
+  .pw-cell { padding: 10px; border-radius: 8px; text-align: center; font-size: 13px; }
+  .pw-cell .cands { font-size: 11px; color: #718096; }
+  .pw-cell .score { font-size: 18px; font-weight: 800; }
+  .pw-win { background: #c6f6d5; }
+  .pw-win .score { color: #276749; }
+  .pw-cycle { background: #fef3c7; }
+  .pw-cycle .score { color: #92400e; }
+  /* Axiom toggle */
+  .axiom-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin: 14px 0; }
+  .axiom-btn { padding: 10px 14px; border-radius: 8px; border: 2px solid #c7d2fe; background: white; cursor: pointer; font-size: 13px; font-weight: 700; color: var(--accent); transition: all 0.2s; text-align: left; }
+  .axiom-btn.on { background: var(--accent); color: white; border-color: var(--accent); }
+  .axiom-btn .ax-name { font-size: 14px; font-weight: 800; display: block; }
+  .axiom-btn .ax-desc { font-size: 11px; opacity: 0.75; font-weight: 400; }
+  /* Rule × axiom matrix */
+  .matrix-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 14px; }
+  .matrix-table th { background: #f0f0ff; color: var(--accent); padding: 8px; border: 1px solid #c7d2fe; text-align: center; font-size: 12px; }
+  .matrix-table td { padding: 8px; border: 1px solid #e2e8f0; text-align: center; }
+  .ax-ok { color: #276749; font-weight: 700; }
+  .ax-fail { color: #c53030; font-weight: 700; }
+  .ax-dimmed { opacity: 0.3; }
+  /* Arrow animation */
+  .cycle-svg { display: block; max-width: 100%; margin: 16px auto; }
+  .verdict { padding: 14px 18px; border-radius: 8px; font-size: 15px; font-weight: 700; margin-top: 14px; text-align: center; }
+  .verdict.ok { background: #f0fff4; color: #276749; border: 2px solid #68d391; }
+  .verdict.fail { background: #fff5f5; color: #c53030; border: 2px solid #fc8181; }
+  @media (max-width: 600px) {
+    .axiom-grid { grid-template-columns: 1fr 1fr; }
+    .pw-grid { grid-template-columns: repeat(3,1fr); }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-voting-systems/visualization.html">← L01: Voting systems</a>
+  <span class="sep">·</span>
+  <span class="current">L02: Arrow's impossibility</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-median-voter-spatial/visualization.html">L03: Median voter →</a>
+</nav>
+<main>
+  <h1>Lesson 02: Arrow's Impossibility Theorem</h1>
+  <p class="subtitle">Condorcet cycle + toggle axiom — xem rule nào vi phạm gì</p>
+
+  <!-- Module 1: Condorcet Cycle -->
+  <section class="module">
+    <h2>1. Condorcet Cycle — khi majority vote tạo vòng tròn</h2>
+    <div class="info-box">3 cử tri với preferences tạo cycle: A > B > C > A. Không có "người tốt nhất" theo đa số.</div>
+
+    <table class="pref-table" id="prefTable">
+      <thead>
+        <tr>
+          <th>Cử tri</th>
+          <th>Hạng 1</th>
+          <th>Hạng 2</th>
+          <th>Hạng 3</th>
+        </tr>
+      </thead>
+      <tbody id="prefBody">
+        <!-- filled by JS -->
+      </tbody>
+    </table>
+    <p style="font-size:12px;color:#718096;margin:4px 0 12px;">Chỉnh dropdown để thay đổi preferences và quan sát cycle xuất hiện/biến mất.</p>
+
+    <!-- Pairwise results -->
+    <h3 style="font-size:14px;color:#4a5568;margin-bottom:8px;">Pairwise majority vote</h3>
+    <div class="pw-grid" id="pwGrid"></div>
+
+    <!-- SVG cycle visualization -->
+    <svg class="cycle-svg" width="320" height="180" viewBox="0 0 320 180" id="cycleSvg">
+      <defs>
+        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#3730a3"/>
+        </marker>
+        <marker id="arrowred" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#e53e3e"/>
+        </marker>
+      </defs>
+      <!-- static nodes -->
+      <circle cx="160" cy="30" r="22" fill="#e0e7ff" stroke="#3730a3" stroke-width="2"/>
+      <text x="160" y="35" text-anchor="middle" font-weight="700" fill="#3730a3" font-size="16">A</text>
+      <circle cx="60" cy="150" r="22" fill="#e0e7ff" stroke="#3730a3" stroke-width="2"/>
+      <text x="60" y="155" text-anchor="middle" font-weight="700" fill="#3730a3" font-size="16">B</text>
+      <circle cx="260" cy="150" r="22" fill="#e0e7ff" stroke="#3730a3" stroke-width="2"/>
+      <text x="260" y="155" text-anchor="middle" font-weight="700" fill="#3730a3" font-size="16">C</text>
+      <!-- arrows: filled by JS -->
+      <g id="cycleArrows"></g>
+    </svg>
+
+    <div class="verdict" id="cycleVerdict"></div>
+  </section>
+
+  <!-- Module 2: Axiom toggle -->
+  <section class="module">
+    <h2>2. Bảng vi phạm axiom — rule × axiom</h2>
+    <div class="info-box">Click axiom để bật/tắt. Ô màu đỏ = rule vi phạm axiom đó. Mọi rule đều vi phạm ít nhất 1 axiom.</div>
+
+    <div class="axiom-grid" id="axiomToggles"></div>
+
+    <table class="matrix-table" id="matrixTable">
+      <thead>
+        <tr id="matrixHead"></tr>
+      </thead>
+      <tbody id="matrixBody"></tbody>
+    </table>
+
+    <div class="verdict" id="arrowVerdict"></div>
+  </section>
+
+  <!-- Module 3: What if we drop an axiom? -->
+  <section class="module">
+    <h2>3. Nếu bỏ 1 axiom, rule nào thoả mãn?</h2>
+    <div class="info-box">Mỗi voting rule "mua" tính hợp lệ bằng cách từ bỏ 1 axiom. Lựa chọn axiom nào vi phạm là quyết định chính trị.</div>
+
+    <table class="matrix-table">
+      <thead>
+        <tr>
+          <th>Nếu chấp nhận vi phạm...</th>
+          <th>Rule có thể dùng</th>
+          <th>Hậu quả thực tế</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>IIA</strong></td>
+          <td>Borda, Plurality</td>
+          <td>Spoiler effect — ứng viên C không có cơ hội nhưng làm B thua A</td>
+        </tr>
+        <tr>
+          <td><strong>Transitivity</strong></td>
+          <td>Condorcet (có thể cycle)</td>
+          <td>Đôi khi không có winner — cycle gây deadlock nghị viện</td>
+        </tr>
+        <tr>
+          <td><strong>Non-dictatorship</strong></td>
+          <td>Dictatorial rule</td>
+          <td>1 người quyết tất cả — không phải dân chủ</td>
+        </tr>
+        <tr>
+          <td><strong>IIA + Universal domain</strong></td>
+          <td>Median Voter Rule</td>
+          <td>Chỉ hoạt động khi preference single-peaked (Lesson 03)</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+
+<script>
+// Preference editor state: 3 voters, 3 candidates A=0, B=1, C=2
+const CANDS = ['A','B','C'];
+let prefs = [
+  [0,1,2], // voter 1: A>B>C
+  [1,2,0], // voter 2: B>C>A
+  [2,0,1], // voter 3: C>A>B
+];
+
+function isValidPerm(arr) {
+  return arr.length === 3 && new Set(arr).size === 3;
+}
+
+function renderPrefTable() {
+  const body = document.getElementById('prefBody');
+  body.innerHTML = prefs.map((pref, vi) => `
+    <tr>
+      <td><strong>Cử tri ${vi+1}</strong></td>
+      ${[0,1,2].map(rank => `
+        <td>
+          <select class="rank-sel" data-voter="${vi}" data-rank="${rank}" onchange="changeRank(this)">
+            ${CANDS.map((c,ci) => `<option value="${ci}" ${pref[rank]===ci?'selected':''}>${c}</option>`).join('')}
+          </select>
+        </td>
+      `).join('')}
+    </tr>
+  `).join('');
+}
+
+function changeRank(sel) {
+  const vi = +sel.dataset.voter;
+  const rank = +sel.dataset.rank;
+  const val = +sel.value;
+  // Simple swap with existing
+  const oldVal = prefs[vi][rank];
+  const swapRank = prefs[vi].indexOf(val);
+  prefs[vi][rank] = val;
+  prefs[vi][swapRank] = oldVal;
+  renderPrefTable();
+  update();
+}
+
+function computePairwise() {
+  // pw[i][j] = # voters prefer cand i over j
+  const pw = [[0,0,0],[0,0,0],[0,0,0]];
+  for (let v=0; v<3; v++) {
+    for (let a=0; a<3; a++) for (let b=0; b<3; b++) {
+      if (prefs[v].indexOf(a) < prefs[v].indexOf(b)) pw[a][b]++;
+    }
+  }
+  return pw;
+}
+
+function update() {
+  const pw = computePairwise();
+  // Render pairwise grid
+  const pairs = [[0,1],[0,2],[1,2]];
+  const pwGrid = document.getElementById('pwGrid');
+  const cells = [];
+  const edges = {}; // edge[i][j] = 1 if i beats j in majority
+
+  pairs.forEach(([a,b]) => {
+    const va = pw[a][b], vb = pw[b][a];
+    const wA = va > vb, wB = vb > va;
+    edges[`${a}_${b}`] = wA ? 1 : (wB ? -1 : 0);
+    cells.push(`
+      <div class="pw-cell ${wA||wB?'pw-win':'pw-cycle'}">
+        <div class="cands">${CANDS[a]} vs ${CANDS[b]}</div>
+        <div class="score">${wA?CANDS[a]:wB?CANDS[b]:'Tie'}</div>
+        <div class="cands">${va}–${vb}</div>
+      </div>
+    `);
+  });
+  pwGrid.innerHTML = cells.join('');
+
+  // Check for cycle: A>B, B>C, C>A or A>C, C>B, B>A
+  const ab = pw[0][1] > pw[1][0]; // A beats B
+  const ba = pw[1][0] > pw[0][1];
+  const bc = pw[1][2] > pw[2][1];
+  const cb = pw[2][1] > pw[1][2];
+  const ca = pw[2][0] > pw[0][2];
+  const ac = pw[0][2] > pw[2][0];
+  const hasCycle = (ab && bc && ca) || (ba && cb && ac);
+
+  // SVG arrows
+  const svg = document.getElementById('cycleArrows');
+  const nodes = [{x:160,y:30},{x:60,y:150},{x:260,y:150}]; // A,B,C
+  const arrowPairs = [[0,1],[1,2],[0,2]]; // A-B, B-C, A-C
+  const beaters = [ab?0:(ba?1:-1), bc?1:(cb?2:-1), ac?0:(ca?2:-1)];
+
+  let arrowSVG = '';
+  function nodeEdge(from, to) {
+    const f = nodes[from], t = nodes[to];
+    const dx = t.x - f.x, dy = t.y - f.y;
+    const len = Math.sqrt(dx*dx+dy*dy);
+    const ux = dx/len, uy = dy/len;
+    const sx = f.x + ux*22, sy = f.y + uy*22;
+    const ex = t.x - ux*24, ey = t.y - uy*24;
+    return {sx,sy,ex,ey};
+  }
+  arrowPairs.forEach(([a,b],idx) => {
+    const winner = beaters[idx];
+    if (winner < 0) return; // tie
+    const from = winner === a ? a : b;
+    const to = winner === a ? b : a;
+    const {sx,sy,ex,ey} = nodeEdge(from,to);
+    const isCycleEdge = hasCycle;
+    const color = isCycleEdge ? '#e53e3e' : '#3730a3';
+    const marker = isCycleEdge ? 'url(#arrowred)' : 'url(#arrowhead)';
+    arrowSVG += `<line x1="${sx}" y1="${sy}" x2="${ex}" y2="${ey}" stroke="${color}" stroke-width="2.5" marker-end="${marker}"/>`;
+  });
+  svg.innerHTML = arrowSVG;
+
+  const verdict = document.getElementById('cycleVerdict');
+  if (hasCycle) {
+    verdict.className = 'verdict fail';
+    verdict.textContent = 'Condorcet cycle tồn tại! Majority vote vi phạm transitivity — không có clear winner.';
+  } else {
+    const winner = CANDS.find((_,i) => ab===undefined ? false : [0,1,2].every(j => j===i || pw[i][j] > pw[j][i]));
+    if (winner) {
+      verdict.className = 'verdict ok';
+      verdict.textContent = `Condorcet winner: ${winner} — thắng tất cả cuộc 1-1. Không có cycle.`;
+    } else {
+      verdict.className = 'verdict fail';
+      verdict.textContent = 'Không có Condorcet winner duy nhất, nhưng cũng không có cycle đầy đủ.';
+    }
+  }
+}
+
+// Arrow axiom matrix
+const AXIOMS = [
+  { id:'U', name:'Universal Domain', short:'(U)' },
+  { id:'P', name:'Pareto', short:'(P)' },
+  { id:'IIA', name:'Independence of Irrelevant Alternatives', short:'(IIA)' },
+  { id:'D', name:'Non-dictatorship', short:'(D)' },
+  { id:'T', name:'Transitivity', short:'(Trans)' },
+];
+
+const RULES = [
+  { name:'Plurality', fails:['IIA'] },
+  { name:'Borda Count', fails:['IIA'] },
+  { name:'IRV', fails:['IIA','T'] }, // IRV can fail IIA and monotonicity (related to T)
+  { name:'Condorcet', fails:['T'] },
+  { name:'Dictatorial', fails:['D'] },
+  { name:'Majority (2 cands)', fails:[] }, // only works for 2 alternatives, so U is partial
+];
+
+let activeAxioms = new Set(AXIOMS.map(a => a.id));
+
+function renderAxiomMatrix() {
+  // Toggles
+  const toggleDiv = document.getElementById('axiomToggles');
+  toggleDiv.innerHTML = AXIOMS.map(ax => `
+    <button class="axiom-btn ${activeAxioms.has(ax.id)?'on':''}" onclick="toggleAxiom('${ax.id}')">
+      <span class="ax-name">${ax.short}</span>
+      <span class="ax-desc">${ax.name}</span>
+    </button>
+  `).join('');
+
+  // Matrix head
+  const head = document.getElementById('matrixHead');
+  head.innerHTML = `<th>Rule</th>` + AXIOMS.map(ax =>
+    `<th class="${activeAxioms.has(ax.id)?'':'ax-dimmed'}">${ax.short}</th>`
+  ).join('') + `<th>Arrow feasible?</th>`;
+
+  // Matrix body
+  const body = document.getElementById('matrixBody');
+  body.innerHTML = RULES.map(rule => {
+    const cells = AXIOMS.map(ax => {
+      const fails = rule.fails.includes(ax.id);
+      const active = activeAxioms.has(ax.id);
+      return `<td class="${active?(fails?'ax-fail':'ax-ok'):'ax-dimmed'}">${fails?'✗':'✓'}</td>`;
+    }).join('');
+    // Is rule feasible given active axioms? (fails no active axiom)
+    const feasible = !rule.fails.some(f => activeAxioms.has(f));
+    return `<tr>
+      <td style="font-weight:700;color:#2d3748">${rule.name}</td>
+      ${cells}
+      <td class="${feasible?'ax-ok':'ax-fail'}">${feasible?'✓ OK':'✗ Fails'}</td>
+    </tr>`;
+  }).join('');
+
+  // Arrow verdict
+  const dictOK = !activeAxioms.has('D');
+  const anyFeasible = RULES.filter(r => r.name !== 'Dictatorial').some(r => !r.fails.some(f => activeAxioms.has(f)));
+  const arrowV = document.getElementById('arrowVerdict');
+  if (anyFeasible) {
+    arrowV.className = 'verdict ok';
+    arrowV.textContent = 'Với tập axiom hiện tại, tồn tại rule không vi phạm (bằng cách drop một axiom).';
+  } else {
+    arrowV.className = 'verdict fail';
+    arrowV.textContent = 'Arrow\'s Theorem: với đầy đủ 5 axiom, không có rule non-dictatorial nào hợp lệ.';
+  }
+}
+
+function toggleAxiom(id) {
+  if (activeAxioms.has(id)) activeAxioms.delete(id);
+  else activeAxioms.add(id);
+  renderAxiomMatrix();
+}
+
+renderPrefTable();
+update();
+renderAxiomMatrix();
+</script>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

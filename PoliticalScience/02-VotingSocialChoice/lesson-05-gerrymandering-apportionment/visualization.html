@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L05: Gerrymandering & Coalition Power — PoliticalScience</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root { --bg: #f5f5fb; --accent: #3730a3; --accent-soft: #e0e7ff; --accent-hover: #312e81; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+  .module { background: white; border-radius: 10px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 28px; }
+  .info-box { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; }
+  .subtitle { color: #4a5568; margin-bottom: 28px; font-size: 15px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; margin: 12px 0; padding: 14px; background: #f7f9fc; border-radius: 8px; border: 1px solid #e2e8f0; }
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+  label { font-size: 13px; font-weight: 600; color: #4a5568; }
+  input[type="range"] { width: 130px; accent-color: var(--accent); }
+  .val-badge { display: inline-block; background: var(--accent-soft); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 13px; font-weight: 700; font-family: monospace; min-width: 30px; text-align: center; }
+  .btn { padding: 8px 16px; background: var(--accent); color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .btn:hover { background: var(--accent-hover); }
+  .btn.secondary { background: #718096; }
+  /* Grid */
+  .grid-wrap { display: flex; gap: 24px; flex-wrap: wrap; margin: 14px 0; align-items: flex-start; }
+  .grid-section { flex: 1; min-width: 200px; }
+  .grid-section h4 { font-size: 13px; color: #4a5568; margin: 0 0 8px; }
+  .voter-grid { display: grid; gap: 3px; }
+  .voter-cell { width: 32px; height: 32px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; cursor: pointer; position: relative; border: 2px solid transparent; transition: opacity 0.2s; }
+  .voter-cell.red { background: #e53e3e; }
+  .voter-cell.blue { background: #3182ce; }
+  .voter-cell.d1 { border-color: #f59e0b; box-shadow: inset 0 0 0 1px #f59e0b; }
+  .voter-cell.d2 { border-color: #10b981; box-shadow: inset 0 0 0 1px #10b981; }
+  .voter-cell.d3 { border-color: #8b5cf6; box-shadow: inset 0 0 0 1px #8b5cf6; }
+  .voter-cell.d4 { border-color: #f97316; box-shadow: inset 0 0 0 1px #f97316; }
+  /* Stats */
+  .stats-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .stat-chip { background: #edf2f7; padding: 8px 14px; border-radius: 6px; font-size: 13px; border-left: 3px solid var(--accent); font-family: monospace; }
+  .stat-chip.danger { border-left-color: #e53e3e; }
+  .stat-chip.ok { border-left-color: #38a169; }
+  /* Shapley table */
+  .perm-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; }
+  .perm-table th { background: var(--accent-soft); color: var(--accent); padding: 8px; border: 1px solid #c7d2fe; font-weight: 700; text-align: center; }
+  .perm-table td { padding: 7px 10px; border: 1px solid #e2e8f0; text-align: center; }
+  .perm-table td.pivot { background: #fef3c7; font-weight: 800; color: #92400e; }
+  .power-bar { display: flex; gap: 0; border-radius: 6px; overflow: hidden; height: 28px; margin: 12px 0; }
+  .power-seg { display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: white; transition: flex 0.4s; }
+  /* Hamilton */
+  .quota-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; }
+  .quota-table th { background: #f0f4ff; color: var(--accent); padding: 7px 10px; border: 1px solid #c7d2fe; }
+  .quota-table td { padding: 7px 10px; border: 1px solid #e2e8f0; text-align: center; }
+  .quota-table td.highlight { background: #fef3c7; font-weight: 700; }
+  .paradox-note { padding: 10px 14px; border-radius: 6px; font-size: 14px; font-weight: 700; margin-top: 8px; }
+  .paradox-note.yes { background: #fff5f5; color: #c53030; border: 2px solid #fc8181; }
+  .paradox-note.no { background: #f0fff4; color: #276749; border: 2px solid #68d391; }
+  @media (max-width: 600px) {
+    .voter-cell { width: 26px; height: 26px; font-size: 9px; }
+    input[type="range"] { width: 100%; max-width: 220px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-strategic-voting/visualization.html">← L04: Strategic voting</a>
+  <span class="sep">·</span>
+  <span class="current">L05: Gerrymandering</span>
+  <span class="sep">·</span>
+  <a href="../../03-StrategicInteractions/lesson-01-collective-action/visualization.html">T3-L01: Collective action →</a>
+</nav>
+<main>
+  <h1>Lesson 05: Gerrymandering & Coalition Power</h1>
+  <p class="subtitle">Vẽ district, efficiency gap, Shapley-Shubik permutation</p>
+
+  <!-- Module 1: Gerrymandering grid -->
+  <section class="module">
+    <h2>1. Gerrymandering Grid — Vẽ biên giới district</h2>
+    <div class="info-box">Click voter để toggle R/B. Kéo slider để thay đổi preset layout. Nhấn "Compact" hoặc "Gerrymander" để áp preset.</div>
+
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Layout preset:</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn" onclick="applyPreset('compact')">Compact</button>
+          <button class="btn secondary" onclick="applyPreset('pack')">Pack Blue</button>
+          <button class="btn secondary" onclick="applyPreset('crack')">Crack Blue</button>
+          <button class="btn secondary" onclick="applyPreset('custom')">Reset custom</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-wrap">
+      <div class="grid-section">
+        <h4>Grid 8×4 (32 cử tri) — Click ô để đổi R/B</h4>
+        <div class="voter-grid" style="grid-template-columns:repeat(8,34px);" id="voterGrid"></div>
+        <p style="font-size:11px;color:#718096;margin-top:6px;">Viền màu = district. Vàng=D1, Xanh=D2, Tím=D3, Cam=D4</p>
+      </div>
+      <div class="grid-section" style="min-width:180px;">
+        <h4>Kết quả 4 districts</h4>
+        <div id="districtResults"></div>
+        <div class="stats-row" id="egStats"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Module 2: Shapley-Shubik -->
+  <section class="module">
+    <h2>2. Shapley-Shubik Power Index</h2>
+    <div class="info-box">Nhập số ghế 3 đảng và threshold. Mọi permutation được hiển thị kèm pivot đánh dấu.</div>
+
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Đảng A: <span class="val-badge" id="saV">45</span> ghế</label>
+        <input type="range" id="sA" min="1" max="70" value="45" oninput="updateShapley()">
+      </div>
+      <div class="ctrl-group">
+        <label>Đảng B: <span class="val-badge" id="sbV">35</span> ghế</label>
+        <input type="range" id="sB" min="1" max="70" value="35" oninput="updateShapley()">
+      </div>
+      <div class="ctrl-group">
+        <label>Đảng C: <span class="val-badge" id="scV">20</span> ghế</label>
+        <input type="range" id="sC" min="1" max="70" value="20" oninput="updateShapley()">
+      </div>
+      <div class="ctrl-group">
+        <label>Threshold q: <span class="val-badge" id="sqV">51</span></label>
+        <input type="range" id="sQ" min="1" max="100" value="51" oninput="updateShapley()">
+      </div>
+    </div>
+
+    <table class="perm-table" id="permTable">
+      <thead>
+        <tr><th>#</th><th>Thứ tự gia nhập</th><th>Running total</th><th>Pivot</th></tr>
+      </thead>
+      <tbody id="permBody"></tbody>
+    </table>
+
+    <h4 style="margin-top:16px;font-size:14px;color:#4a5568;">Power Index</h4>
+    <div class="power-bar" id="powerBar"></div>
+    <div id="powerLabels" style="display:flex;gap:8px;flex-wrap:wrap;font-size:13px;margin-top:4px;"></div>
+    <div id="shapleyNote" style="margin-top:10px;font-size:14px;color:#4a5568;"></div>
+  </section>
+
+  <!-- Module 3: Hamilton -->
+  <section class="module">
+    <h2>3. Hamilton Method & Apportionment Paradox</h2>
+    <div class="info-box">Kéo slider tổng ghế. Xem quota và phân phối thay đổi — Alabama Paradox xảy ra khi tăng ghế làm 1 bang mất ghế.</div>
+
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Tổng ghế (H): <span class="val-badge" id="hV">10</span></label>
+        <input type="range" id="hSeats" min="5" max="30" value="10" oninput="updateHamilton()">
+      </div>
+    </div>
+
+    <table class="quota-table" id="quotaTable">
+      <thead>
+        <tr><th>Bang</th><th>Dân số</th><th>Quota</th><th>Sàn</th><th>Phần lẻ</th><th>Ghế cuối</th></tr>
+      </thead>
+      <tbody id="quotaBody"></tbody>
+    </table>
+
+    <div id="paradoxNote" class="paradox-note no" style="margin-top:10px;"></div>
+    <canvas id="hamiltonCanvas" width="580" height="120" viewBox="0 0 580 120" style="margin-top:14px;display:block;max-width:100%;"></canvas>
+  </section>
+</main>
+
+<script>
+// Module 1: Gerrymandering Grid
+const ROWS = 4, COLS = 8;
+let grid = []; // 'R' or 'B'
+let districts = []; // 0..3 for each cell
+
+// Default: 16R 16B alternating
+function initGrid() {
+  grid = [];
+  for (let r=0; r<ROWS; r++) for (let c=0; c<COLS; c++) {
+    grid.push((r+c)%2===0 ? 'R' : 'B');
+  }
+}
+
+// District assignments for presets
+function applyPreset(type) {
+  initGrid();
+  districts = new Array(ROWS*COLS).fill(0);
+
+  if (type === 'compact') {
+    // 4 horizontal districts (1 row each)
+    for (let i=0; i<ROWS*COLS; i++) districts[i] = Math.floor(i/COLS);
+  } else if (type === 'pack') {
+    // Pack blue: d0 = left 4 cols (lots of B), d1-3 = right 4 cols (more R)
+    // Make blue heavy on left
+    for (let r=0; r<ROWS; r++) for (let c=0; c<COLS; c++) {
+      grid[r*COLS+c] = c < 4 ? 'B' : 'R'; // All B on left, all R on right
+    }
+    // Override: add some R on left
+    grid[0*COLS+0]='R'; grid[1*COLS+2]='R'; grid[3*COLS+1]='R';
+    // D0: cols 0-3 (packed Blue)
+    for (let r=0; r<ROWS; r++) for (let c=0; c<COLS; c++) {
+      districts[r*COLS+c] = c < 4 ? 0 : (r < 2 ? 1 : r < 3 ? 2 : 3);
+    }
+  } else if (type === 'crack') {
+    // Crack: mix blues into losing positions
+    // 20R, 12B — Red majority. Crack blue across all districts
+    grid = [];
+    for (let r=0; r<ROWS; r++) for (let c=0; c<COLS; c++) {
+      const idx = r*COLS+c;
+      grid.push(idx < 20 ? 'R' : 'B');
+    }
+    for (let i=0; i<ROWS*COLS; i++) districts[i] = Math.floor(i/COLS);
+    // Districts: 0=row0(8R,0B), 1=row1(8R,0B)... not interesting
+    // Override to crack Blue into corners
+    for (let r=0; r<ROWS; r++) for (let c=0; c<COLS; c++) {
+      grid[r*COLS+c] = (c===7||c===0) ? 'B' : 'R';
+    }
+    // 4 districts by columns: cols 0-1, 2-3, 4-5, 6-7
+    for (let r=0; r<ROWS; r++) for (let c=0; c<COLS; c++) {
+      districts[r*COLS+c] = Math.floor(c/2);
+    }
+  } else {
+    // Custom/reset
+    for (let i=0; i<ROWS*COLS; i++) districts[i] = Math.floor(i/COLS);
+  }
+  renderGrid();
+}
+
+function renderGrid() {
+  const g = document.getElementById('voterGrid');
+  g.innerHTML = Array.from({length:ROWS*COLS}, (_,i) => {
+    const d = districts[i];
+    const cls = `voter-cell ${grid[i]==='R'?'red':'blue'} d${d+1}`;
+    return `<div class="${cls}" onclick="toggleCell(${i})">${grid[i]}<sub style="font-size:8px">${d+1}</sub></div>`;
+  }).join('');
+  updateEG();
+}
+
+function toggleCell(i) {
+  grid[i] = grid[i]==='R' ? 'B' : 'R';
+  renderGrid();
+}
+
+function updateEG() {
+  const dStats = Array.from({length:4}, () => ({R:0,B:0}));
+  for (let i=0; i<ROWS*COLS; i++) dStats[districts[i]][grid[i]]++;
+
+  let totalR=0, totalB=0, wastedR=0, wastedB=0;
+  const results = dStats.map((d,idx) => {
+    const tot = d.R+d.B;
+    totalR += d.R; totalB += d.B;
+    const needed = Math.ceil(tot/2);
+    let wR=0, wB=0, winner='Tie';
+    if (d.R > d.B) { winner='Red'; wR=d.R-needed; wB=d.B; }
+    else if (d.B > d.R) { winner='Blue'; wB=d.B-needed; wR=d.R; }
+    else { winner='Tie'; wR=d.R/2; wB=d.B/2; }
+    wastedR+=wR; wastedB+=wB;
+    return {R:d.R,B:d.B,winner,wR,wB};
+  });
+
+  const total = totalR+totalB;
+  const eg = total>0 ? (wastedR-wastedB)/total : 0;
+
+  const dr = document.getElementById('districtResults');
+  dr.innerHTML = results.map((r,i) => {
+    const dcol = ['#f59e0b','#10b981','#8b5cf6','#f97316'][i];
+    return `<div style="padding:6px 10px;border-left:3px solid ${dcol};margin-bottom:6px;background:#f7f9fc;border-radius:0 5px 5px 0;font-size:12px;">
+      D${i+1}: <span style="color:#e53e3e;font-weight:700">R:${r.R}</span> <span style="color:#3182ce;font-weight:700">B:${r.B}</span>
+      → <strong>${r.winner}</strong> <span style="color:#718096;">(R-waste:${r.wR.toFixed(0)}, B-waste:${r.wB.toFixed(0)})</span>
+    </div>`;
+  }).join('');
+
+  const rSeats = results.filter(r=>r.winner==='Red').length;
+  const bSeats = results.filter(r=>r.winner==='Blue').length;
+  const rPct = (totalR/total*100).toFixed(0);
+  const bPct = (totalB/total*100).toFixed(0);
+  const egAbs = Math.abs(eg*100).toFixed(1);
+
+  const statsDiv = document.getElementById('egStats');
+  statsDiv.innerHTML = `
+    <div class="stat-chip">Phiếu: R ${rPct}% / B ${bPct}%</div>
+    <div class="stat-chip">Ghế: R ${rSeats} / B ${bSeats}</div>
+    <div class="stat-chip ${Math.abs(eg)>0.07?'danger':'ok'}">Efficiency Gap: ${(eg*100).toFixed(1)}% ${Math.abs(eg)>0.07?'⚠ >7%':''}</div>
+    <div class="stat-chip">Wasted: R=${wastedR.toFixed(0)}, B=${wastedB.toFixed(0)}</div>
+  `;
+}
+
+// Module 2: Shapley-Shubik
+function permutations(arr) {
+  if (arr.length <= 1) return [arr];
+  const result = [];
+  for (let i=0; i<arr.length; i++) {
+    const rest = permutations([...arr.slice(0,i),...arr.slice(i+1)]);
+    rest.forEach(p => result.push([arr[i],...p]));
+  }
+  return result;
+}
+
+function updateShapley() {
+  const a = +document.getElementById('sA').value;
+  const b = +document.getElementById('sB').value;
+  const c = +document.getElementById('sC').value;
+  const q = +document.getElementById('sQ').value;
+
+  document.getElementById('saV').textContent = a;
+  document.getElementById('sbV').textContent = b;
+  document.getElementById('scV').textContent = c;
+  document.getElementById('sqV').textContent = q;
+
+  const parties = [{name:'A',seats:a},{name:'B',seats:b},{name:'C',seats:c}];
+  const perms = permutations([0,1,2]);
+  const pivotCount = [0,0,0];
+
+  const tbody = document.getElementById('permBody');
+  tbody.innerHTML = perms.map((perm,idx) => {
+    let running = 0, pivotIdx = -1;
+    const steps = perm.map(pi => {
+      running += parties[pi].seats;
+      if (pivotIdx < 0 && running >= q) { pivotIdx = pi; }
+      return {pi, running};
+    });
+    if (pivotIdx >= 0) pivotCount[pivotIdx]++;
+
+    const rowText = perm.map(pi => parties[pi].name).join(' → ');
+    const runText = steps.map(s => s.running).join(' → ');
+    const pivotName = pivotIdx >= 0 ? parties[pivotIdx].name : '?';
+    if (pivotIdx >= 0) {
+      return `<tr>
+        <td>${idx+1}</td>
+        <td>${rowText}</td>
+        <td>${runText}</td>
+        <td class="pivot">${pivotName}</td>
+      </tr>`;
+    }
+    return `<tr><td>${idx+1}</td><td>${rowText}</td><td>${runText}</td><td>—</td></tr>`;
+  }).join('');
+
+  const total = 6;
+  const pcts = pivotCount.map(c => (c/total*100).toFixed(0));
+  const COLORS = ['#3730a3','#0891b2','#7c3aed'];
+
+  const bar = document.getElementById('powerBar');
+  bar.innerHTML = parties.map((p,i) => `
+    <div class="power-seg" style="flex:${pivotCount[i]};background:${COLORS[i]};">
+      ${pivotCount[i]>0?p.name+' '+pcts[i]+'%':''}
+    </div>
+  `).join('');
+
+  const lbls = document.getElementById('powerLabels');
+  lbls.innerHTML = parties.map((p,i) => `
+    <div style="display:flex;align-items:center;gap:5px;">
+      <div style="width:12px;height:12px;background:${COLORS[i]};border-radius:2px"></div>
+      <span>${p.name}: ${pivotCount[i]}/${total} = <strong>${pcts[i]}%</strong></span>
+    </div>
+  `).join('');
+
+  const note = document.getElementById('shapleyNote');
+  if (pivotCount[0]===pivotCount[1] && pivotCount[1]===pivotCount[2]) {
+    note.textContent = `Tất cả đảng có quyền lực bằng nhau (${pcts[0]}%) — dù số ghế khác nhau! Mọi coalition 2-đảng đều đủ threshold.`;
+  } else {
+    const maxPower = Math.max(...pivotCount);
+    const strongest = parties.find((_,i) => pivotCount[i]===maxPower);
+    note.textContent = `Đảng ${strongest.name} có quyền lực lớn nhất (${(maxPower/total*100).toFixed(0)}%). Số ghế ≠ quyền lực pivot.`;
+  }
+}
+
+// Module 3: Hamilton
+const POP = {A:1500,B:1200,C:800,D:300,E:200};
+const POPS = Object.values(POP);
+const NAMES = Object.keys(POP);
+const TOTAL_POP = POPS.reduce((s,x)=>s+x,0);
+
+let prevSeats = null;
+
+function updateHamilton() {
+  const H = +document.getElementById('hSeats').value;
+  document.getElementById('hV').textContent = H;
+
+  const quotas = POPS.map(p => p/TOTAL_POP*H);
+  const floors = quotas.map(q => Math.floor(q));
+  const remainders = quotas.map((q,i) => q - floors[i]);
+
+  const remaining = H - floors.reduce((s,x)=>s+x,0);
+  // Sort by remainder descending, assign extras
+  const order = remainders.map((r,i)=>({r,i})).sort((a,b)=>b.r-a.r);
+  const extra = new Array(POPS.length).fill(0);
+  for (let k=0; k<remaining; k++) extra[order[k].i]++;
+  const seats = floors.map((f,i) => f+extra[i]);
+
+  const tbody = document.getElementById('quotaBody');
+  tbody.innerHTML = NAMES.map((n,i) => `
+    <tr>
+      <td><strong>${n}</strong></td>
+      <td>${POPS[i].toLocaleString()}</td>
+      <td>${quotas[i].toFixed(3)}</td>
+      <td>${floors[i]}</td>
+      <td class="${extra[i]>0?'highlight':''}">${remainders[i].toFixed(3)}${extra[i]>0?' ★':''}</td>
+      <td><strong>${seats[i]}</strong></td>
+    </tr>
+  `).join('');
+
+  // Alabama paradox check
+  const noteEl = document.getElementById('paradoxNote');
+  if (prevSeats) {
+    const losers = NAMES.filter((n,i) => seats[i] < prevSeats[i]);
+    if (losers.length > 0 && H > +document.getElementById('hSeats').min) {
+      noteEl.className = 'paradox-note yes';
+      noteEl.textContent = `Alabama Paradox! Tăng ghế lên ${H} nhưng ${losers.join(', ')} mất ghế so với ${H-1} ghế.`;
+    } else {
+      noteEl.className = 'paradox-note no';
+      noteEl.textContent = `Không có Alabama Paradox ở ${H} ghế. Thử kéo slider để tìm paradox.`;
+    }
+  } else {
+    noteEl.className = 'paradox-note no';
+    noteEl.textContent = `Kéo slider để xem Hamilton apportionment thay đổi. Tìm khi nào Alabama Paradox xuất hiện.`;
+  }
+
+  prevSeats = [...seats];
+
+  // Draw chart
+  drawHamiltonChart(seats, H);
+}
+
+function drawHamiltonChart(seats, H) {
+  const cvs = document.getElementById('hamiltonCanvas');
+  const ctx = cvs.getContext('2d');
+  const w = cvs.width, h = cvs.height;
+  ctx.clearRect(0,0,w,h);
+
+  const colors = ['#3730a3','#0891b2','#7c3aed','#f59e0b','#10b981'];
+  const barW = Math.floor((w-60) / NAMES.length) - 8;
+  const maxSeat = Math.max(...seats, 1);
+
+  NAMES.forEach((n,i) => {
+    const x = 30 + i*(barW+8);
+    const barH = seats[i]/maxSeat*(h-40);
+    ctx.fillStyle = colors[i];
+    ctx.fillRect(x, h-30-barH, barW, barH);
+    ctx.fillStyle = '#2d3748';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(n, x+barW/2, h-15);
+    ctx.fillStyle = colors[i];
+    ctx.fillText(seats[i], x+barW/2, h-33-barH);
+  });
+
+  ctx.fillStyle = '#718096';
+  ctx.font = '11px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText(`Tổng ${H} ghế | Dân số: ${TOTAL_POP.toLocaleString()}`, 5, 14);
+}
+
+// Init
+applyPreset('compact');
+updateShapley();
+updateHamilton();
+</script>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

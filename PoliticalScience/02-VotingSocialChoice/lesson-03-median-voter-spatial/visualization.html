@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L03: Median Voter — PoliticalScience</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root { --bg: #f5f5fb; --accent: #3730a3; --accent-soft: #e0e7ff; --accent-hover: #312e81; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+  .module { background: white; border-radius: 10px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 28px; }
+  .info-box { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; }
+  .subtitle { color: #4a5568; margin-bottom: 28px; font-size: 15px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; margin: 16px 0; padding: 16px; background: #f7f9fc; border-radius: 8px; border: 1px solid #e2e8f0; }
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+  label { font-size: 13px; font-weight: 600; color: #4a5568; }
+  input[type="range"] { width: 160px; accent-color: var(--accent); }
+  select { padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 6px; background: white; font-size: 13px; }
+  .val-badge { display: inline-block; background: var(--accent-soft); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 13px; font-weight: 700; font-family: monospace; min-width: 36px; text-align: center; }
+  .vote-bars { margin: 16px 0; }
+  .vbar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 14px; }
+  .vbar-label { width: 60px; font-weight: 700; }
+  .vbar-label.a { color: #3730a3; }
+  .vbar-label.b { color: #0891b2; }
+  .vbar-track { flex: 1; height: 22px; background: #edf2f7; border-radius: 4px; overflow: hidden; }
+  .vbar-fill-a { height: 100%; background: #3730a3; border-radius: 4px; transition: width 0.3s; }
+  .vbar-fill-b { height: 100%; background: #0891b2; border-radius: 4px; transition: width 0.3s; }
+  .vbar-pct { width: 44px; font-family: monospace; font-size: 13px; color: #4a5568; }
+  .verdict { padding: 12px 16px; border-radius: 8px; font-size: 15px; font-weight: 700; margin-top: 12px; text-align: center; }
+  .verdict.a { background: #e0e7ff; color: #3730a3; border: 2px solid #818cf8; }
+  .verdict.b { background: #cffafe; color: #0e7490; border: 2px solid #67e8f9; }
+  .verdict.tie { background: #f0fff4; color: #276749; border: 2px solid #68d391; }
+  canvas { display: block; max-width: 100%; margin: 0 auto; }
+  .btn { padding: 8px 18px; background: var(--accent); color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+  .btn:hover { background: var(--accent-hover); }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin: 8px 0; font-size: 13px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 14px; height: 14px; border-radius: 50%; }
+  @media (max-width: 600px) {
+    input[type="range"] { width: 100%; max-width: 220px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-arrows-impossibility/visualization.html">← L02: Arrow's impossibility</a>
+  <span class="sep">·</span>
+  <span class="current">L03: Median voter</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-strategic-voting/visualization.html">L04: Strategic voting →</a>
+</nav>
+<main>
+  <h1>Lesson 03: Median Voter Theorem</h1>
+  <p class="subtitle">Kéo 2 ứng viên trên trục chính sách — xem vote share và Nash Equilibrium</p>
+
+  <!-- Module 1: Spatial model -->
+  <section class="module">
+    <h2>1. Mô hình không gian 1 chiều</h2>
+    <div class="info-box">Kéo slider vị trí A và B. Ứng viên nào gần cử tri hơn nhận phiếu. Nhấn "Tìm NE" để cả 2 converge về median.</div>
+
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Phân phối cử tri:</label>
+        <select id="distSel" onchange="updateDist()">
+          <option value="uniform">Uniform (đều)</option>
+          <option value="normal">Normal (chuẩn, median ≈ 0)</option>
+          <option value="bimodal">Bimodal (phân cực)</option>
+          <option value="skew">Lệch trái (center-left)</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label>Vị trí A: <span class="val-badge" id="posAv">-2.0</span></label>
+        <input type="range" id="posA" min="-50" max="50" value="-20" oninput="updateSliders()">
+      </div>
+      <div class="ctrl-group">
+        <label>Vị trí B: <span class="val-badge" id="posBv">2.0</span></label>
+        <input type="range" id="posB" min="-50" max="50" value="20" oninput="updateSliders()">
+      </div>
+      <div class="ctrl-group">
+        <label>&nbsp;</label>
+        <button class="btn" onclick="findNE()">Tìm NE →</button>
+      </div>
+    </div>
+
+    <canvas id="spatialCanvas" width="620" height="200" viewBox="0 0 620 200"></canvas>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#3730a3"></div> Ứng viên A</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#0891b2"></div> Ứng viên B</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div> Median voter</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div> Midpoint A-B</div>
+    </div>
+
+    <div class="vote-bars">
+      <div class="vbar-row">
+        <span class="vbar-label a">A</span>
+        <div class="vbar-track"><div class="vbar-fill-a" id="vbarA" style="width:50%"></div></div>
+        <span class="vbar-pct" id="vbarApct">50%</span>
+      </div>
+      <div class="vbar-row">
+        <span class="vbar-label b">B</span>
+        <div class="vbar-track"><div class="vbar-fill-b" id="vbarB" style="width:50%"></div></div>
+        <span class="vbar-pct" id="vbarBpct">50%</span>
+      </div>
+    </div>
+    <div class="verdict tie" id="spatialVerdict">Tie — 50% mỗi ứng viên</div>
+  </section>
+
+  <!-- Module 2: NE animation -->
+  <section class="module">
+    <h2>2. Nash Equilibrium — quá trình converge</h2>
+    <div class="info-box">Nhấn "Chạy animation" để xem A và B di chuyển về median từng bước.</div>
+    <canvas id="neCanvas" width="620" height="120" viewBox="0 0 620 120"></canvas>
+    <div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap;">
+      <button class="btn" onclick="startNEAnim()">Chạy animation</button>
+      <button class="btn" style="background:#718096" onclick="resetNEAnim()">Reset</button>
+    </div>
+    <div id="neStepText" style="margin-top:10px;font-size:14px;color:#4a5568;min-height:40px;"></div>
+  </section>
+
+  <!-- Module 3: Bimodal problem -->
+  <section class="module">
+    <h2>3. Khi bimodal — hạn chế của MVT</h2>
+    <div class="info-box">Với phân phối cử tri bimodal (phân cực), convergence về median vẫn là NE nhưng cả 2 ứng viên có thể mất base. Chọn "Bimodal" ở trên để xem.</div>
+    <canvas id="bimodalCanvas" width="620" height="180" viewBox="0 0 620 180"></canvas>
+    <p style="font-size:13px;color:#718096;margin-top:8px;">Vùng xanh = cử tri nhóm A; Vùng cam = cử tri nhóm B. Khi cả 2 ứng viên ở 0, đường voter trống rỗng ở trung tâm — rủi ro "base not showing up".</p>
+  </section>
+</main>
+
+<script>
+const W = 620, H = 200;
+const AXIS_MIN = -5, AXIS_MAX = 5;
+const TOTAL_VOTERS = 1000;
+
+function toPixel(x, w) { return ((x - AXIS_MIN) / (AXIS_MAX - AXIS_MIN)) * w; }
+function fromPixel(px, w) { return (px / w) * (AXIS_MAX - AXIS_MIN) + AXIS_MIN; }
+
+// Distribution functions
+function getDistribution(type) {
+  const voters = [];
+  if (type === 'uniform') {
+    for (let i=0; i<TOTAL_VOTERS; i++) voters.push(AXIS_MIN + (i/TOTAL_VOTERS)*(AXIS_MAX - AXIS_MIN));
+  } else if (type === 'normal') {
+    // Box-Muller
+    for (let i=0; i<TOTAL_VOTERS; i++) {
+      const u1 = Math.random(), u2 = Math.random();
+      let x = Math.sqrt(-2*Math.log(u1)) * Math.cos(2*Math.PI*u2) * 1.5;
+      x = Math.max(AXIS_MIN, Math.min(AXIS_MAX, x));
+      voters.push(x);
+    }
+  } else if (type === 'bimodal') {
+    for (let i=0; i<TOTAL_VOTERS; i++) {
+      const side = Math.random() < 0.5;
+      const center = side ? -3 : 3;
+      let x = center + (Math.random()-0.5)*1.5;
+      x = Math.max(AXIS_MIN, Math.min(AXIS_MAX, x));
+      voters.push(x);
+    }
+  } else if (type === 'skew') {
+    for (let i=0; i<TOTAL_VOTERS; i++) {
+      let x = -1 + (Math.random()-0.5)*4;
+      x = Math.max(AXIS_MIN, Math.min(AXIS_MAX, x));
+      voters.push(x);
+    }
+  }
+  voters.sort((a,b) => a-b);
+  return voters;
+}
+
+let voters = getDistribution('uniform');
+let medianVal = 0;
+
+function getMedian(vs) { return vs[Math.floor(vs.length/2)]; }
+
+function computeVotes(a, b, vs) {
+  let va=0, vb=0, tie=0;
+  for (const v of vs) {
+    const da = Math.abs(v-a), db = Math.abs(v-b);
+    if (da < db) va++;
+    else if (db < da) vb++;
+    else tie++;
+  }
+  return { va: va+tie/2, vb: vb+tie/2 };
+}
+
+function getPosA() { return +document.getElementById('posA').value / 10; }
+function getPosB() { return +document.getElementById('posB').value / 10; }
+
+function drawSpatial(canvasId, a, b, vs, h) {
+  const cvs = document.getElementById(canvasId);
+  const ctx = cvs.getContext('2d');
+  const w = cvs.width;
+  ctx.clearRect(0,0,w,h);
+
+  const med = getMedian(vs);
+  const midpt = (a+b)/2;
+
+  // Distribution histogram
+  const bins = 50;
+  const binW = (AXIS_MAX - AXIS_MIN) / bins;
+  const counts = new Array(bins).fill(0);
+  for (const v of vs) {
+    const bi = Math.floor((v - AXIS_MIN) / binW);
+    if (bi >= 0 && bi < bins) counts[bi]++;
+  }
+  const maxCount = Math.max(...counts);
+
+  const histH = h - 80;
+  ctx.fillStyle = '#c7d2fe';
+  for (let bi=0; bi<bins; bi++) {
+    const bx = toPixel(AXIS_MIN + bi*binW, w);
+    const bw = toPixel(AXIS_MIN + (bi+1)*binW, w) - bx;
+    const bh = (counts[bi]/maxCount) * histH;
+    // Color by who gets this bin
+    const binCenter = AXIS_MIN + (bi+0.5)*binW;
+    const da = Math.abs(binCenter-a), db = Math.abs(binCenter-b);
+    ctx.fillStyle = da < db ? '#c7d2fe' : db < da ? '#cffafe' : '#e2e8f0';
+    ctx.fillRect(bx, h-50-bh, bw-1, bh);
+  }
+
+  // Axis line
+  ctx.strokeStyle = '#94a3b8';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(20, h-50);
+  ctx.lineTo(w-20, h-50);
+  ctx.stroke();
+
+  // Tick marks
+  ctx.fillStyle = '#718096';
+  ctx.font = '11px sans-serif';
+  ctx.textAlign = 'center';
+  for (let x=AXIS_MIN; x<=AXIS_MAX; x++) {
+    const px = toPixel(x, w);
+    ctx.beginPath();
+    ctx.moveTo(px, h-54);
+    ctx.lineTo(px, h-46);
+    ctx.stroke();
+    ctx.fillText(x, px, h-36);
+  }
+
+  // Midpoint line
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([4,3]);
+  const mpx = toPixel(midpt, w);
+  ctx.beginPath();
+  ctx.moveTo(mpx, 10);
+  ctx.lineTo(mpx, h-30);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Median marker
+  ctx.strokeStyle = '#10b981';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([6,3]);
+  const medx = toPixel(med, w);
+  ctx.beginPath();
+  ctx.moveTo(medx, 10);
+  ctx.lineTo(medx, h-30);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Candidate A
+  const ax = toPixel(a, w);
+  ctx.fillStyle = '#3730a3';
+  ctx.beginPath();
+  ctx.arc(ax, h-50, 9, 0, 2*Math.PI);
+  ctx.fill();
+  ctx.fillStyle = 'white';
+  ctx.font = 'bold 11px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('A', ax, h-46);
+
+  // Candidate B
+  const bx2 = toPixel(b, w);
+  ctx.fillStyle = '#0891b2';
+  ctx.beginPath();
+  ctx.arc(bx2, h-50, 9, 0, 2*Math.PI);
+  ctx.fill();
+  ctx.fillStyle = 'white';
+  ctx.fillText('B', bx2, h-46);
+
+  // Labels
+  ctx.fillStyle = '#3730a3';
+  ctx.font = 'bold 12px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(`A=${a.toFixed(1)}`, ax, h-65);
+  ctx.fillStyle = '#0891b2';
+  ctx.fillText(`B=${b.toFixed(1)}`, bx2, h-65);
+  ctx.fillStyle = '#10b981';
+  ctx.fillText(`median=${med.toFixed(1)}`, medx, h-20);
+  ctx.fillStyle = '#b45309';
+  ctx.fillText(`mid=${midpt.toFixed(1)}`, mpx, h-10);
+}
+
+function updateSliders() {
+  const a = getPosA(), b = getPosB();
+  document.getElementById('posAv').textContent = a.toFixed(1);
+  document.getElementById('posBv').textContent = b.toFixed(1);
+
+  const {va, vb} = computeVotes(a, b, voters);
+  const total = va+vb;
+  const pctA = (va/total*100).toFixed(1);
+  const pctB = (vb/total*100).toFixed(1);
+
+  document.getElementById('vbarA').style.width = pctA+'%';
+  document.getElementById('vbarB').style.width = pctB+'%';
+  document.getElementById('vbarApct').textContent = pctA+'%';
+  document.getElementById('vbarBpct').textContent = pctB+'%';
+
+  const v = document.getElementById('spatialVerdict');
+  if (Math.abs(va-vb) < 5) {
+    v.className = 'verdict tie';
+    v.textContent = `Tie — A: ${pctA}%, B: ${pctB}%`;
+  } else if (va > vb) {
+    v.className = 'verdict a';
+    v.textContent = `A thắng — ${pctA}% vs ${pctB}%`;
+  } else {
+    v.className = 'verdict b';
+    v.textContent = `B thắng — ${pctB}% vs ${pctA}%`;
+  }
+
+  drawSpatial('spatialCanvas', a, b, voters, H);
+}
+
+function updateDist() {
+  const type = document.getElementById('distSel').value;
+  voters = getDistribution(type);
+  medianVal = getMedian(voters);
+  updateSliders();
+  drawBimodal();
+}
+
+function findNE() {
+  const med = getMedian(voters);
+  const steps = 30;
+  let a = getPosA(), b = getPosB();
+  let step = 0;
+  const anim = setInterval(() => {
+    a += (med - a) * 0.15;
+    b += (med - b) * 0.15;
+    document.getElementById('posA').value = Math.round(a*10);
+    document.getElementById('posB').value = Math.round(b*10);
+    updateSliders();
+    step++;
+    if (step >= steps) {
+      clearInterval(anim);
+      document.getElementById('posA').value = Math.round(med*10);
+      document.getElementById('posB').value = Math.round(med*10);
+      updateSliders();
+    }
+  }, 50);
+}
+
+// NE animation canvas
+let neAnimFrame = null;
+let neA = -3, neB = 3;
+const NE_STEPS = [
+  { a: -3, b: 3, text: 'Bước 1: A ở −3, B ở 3. Midpoint = 0. Cả 2 tie 50-50.' },
+  { a: -1, b: 3, text: 'Bước 2: A dịch về −1. Midpoint = 1. A lấy được [−5,1] → 60%. A wins!' },
+  { a: -1, b: 1, text: 'Bước 3: B phản ứng, dịch về 1. Midpoint = 0. 50-50 lại.' },
+  { a: 0, b: 1, text: 'Bước 4: A dịch về 0. Midpoint = 0.5. A gets [−5,0.5] → 55%.' },
+  { a: 0, b: 0, text: 'Bước 5: B dịch về 0 (median). Cả 2 tại 0 = Nash Equilibrium! Không ai muốn rời đây.' },
+];
+let neStep = 0;
+let neAnimVoters = getDistribution('uniform');
+
+function drawNECanvas(a, b) {
+  const cvs = document.getElementById('neCanvas');
+  const ctx = cvs.getContext('2d');
+  const w = cvs.width, h = cvs.height;
+  ctx.clearRect(0,0,w,h);
+
+  const med = getMedian(neAnimVoters);
+  const midpt = (a+b)/2;
+
+  // Axis
+  ctx.strokeStyle = '#94a3b8';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(20, h/2+20);
+  ctx.lineTo(w-20, h/2+20);
+  ctx.stroke();
+
+  for (let x=AXIS_MIN; x<=AXIS_MAX; x++) {
+    const px = toPixel(x, w);
+    ctx.beginPath();
+    ctx.moveTo(px, h/2+16);
+    ctx.lineTo(px, h/2+24);
+    ctx.stroke();
+    ctx.fillStyle = '#718096';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(x, px, h/2+36);
+  }
+
+  // Vote shade
+  const ax = toPixel(a, w), bx = toPixel(b, w);
+  const mpx = toPixel(midpt, w);
+  ctx.fillStyle = 'rgba(55,48,163,0.15)';
+  ctx.fillRect(20, h/2-30, mpx-20, 50);
+  ctx.fillStyle = 'rgba(8,145,178,0.15)';
+  ctx.fillRect(mpx, h/2-30, w-20-mpx, 50);
+
+  // Median
+  ctx.strokeStyle = '#10b981';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([5,3]);
+  const medx = toPixel(med, w);
+  ctx.beginPath(); ctx.moveTo(medx,10); ctx.lineTo(medx,h-20); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Candidates
+  ctx.fillStyle = '#3730a3';
+  ctx.beginPath(); ctx.arc(ax, h/2+20, 10, 0, 2*Math.PI); ctx.fill();
+  ctx.fillStyle = 'white';
+  ctx.font = 'bold 12px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('A', ax, h/2+24);
+
+  ctx.fillStyle = '#0891b2';
+  ctx.beginPath(); ctx.arc(bx, h/2+20, 10, 0, 2*Math.PI); ctx.fill();
+  ctx.fillStyle = 'white';
+  ctx.fillText('B', bx, h/2+24);
+
+  ctx.fillStyle = '#3730a3';
+  ctx.font = '12px sans-serif';
+  ctx.textAlign = 'center';
+  const {va, vb} = computeVotes(a, b, neAnimVoters);
+  const total = va+vb;
+  ctx.fillText(`A: ${(va/total*100).toFixed(0)}%`, ax, h/2+5);
+  ctx.fillStyle = '#0891b2';
+  ctx.fillText(`B: ${(vb/total*100).toFixed(0)}%`, bx, h/2+5);
+
+  ctx.fillStyle = '#10b981';
+  ctx.font = '11px sans-serif';
+  ctx.fillText('median', medx, 20);
+}
+
+function startNEAnim() {
+  neStep = 0;
+  runNEStep();
+}
+function runNEStep() {
+  if (neStep >= NE_STEPS.length) return;
+  const s = NE_STEPS[neStep];
+  // Animate smoothly
+  let curA = neStep > 0 ? NE_STEPS[neStep-1].a : -3;
+  let curB = neStep > 0 ? NE_STEPS[neStep-1].b : 3;
+  const targetA = s.a, targetB = s.b;
+  let frames = 0;
+  const anim = setInterval(() => {
+    curA += (targetA - curA) * 0.2;
+    curB += (targetB - curB) * 0.2;
+    drawNECanvas(curA, curB);
+    frames++;
+    if (frames > 25) {
+      clearInterval(anim);
+      drawNECanvas(targetA, targetB);
+      document.getElementById('neStepText').textContent = s.text;
+      neStep++;
+      if (neStep < NE_STEPS.length) {
+        setTimeout(runNEStep, 1200);
+      }
+    }
+  }, 40);
+}
+function resetNEAnim() {
+  neStep = 0;
+  drawNECanvas(-3, 3);
+  document.getElementById('neStepText').textContent = 'Nhấn "Chạy animation" để bắt đầu.';
+}
+
+// Bimodal static canvas
+function drawBimodal() {
+  const cvs = document.getElementById('bimodalCanvas');
+  const ctx = cvs.getContext('2d');
+  const w = cvs.width, h = cvs.height;
+  ctx.clearRect(0,0,w,h);
+
+  const biVoters = [];
+  for (let i=0; i<1000; i++) {
+    const side = Math.random() < 0.5;
+    const center = side ? -3 : 3;
+    biVoters.push(Math.max(-5, Math.min(5, center + (Math.random()-0.5)*1.4)));
+  }
+  biVoters.sort((a,b) => a-b);
+  const med = getMedian(biVoters);
+
+  const bins = 50, binW = 10/bins;
+  const counts = new Array(bins).fill(0);
+  for (const v of biVoters) {
+    const bi = Math.floor((v+5)/binW);
+    if (bi>=0 && bi<bins) counts[bi]++;
+  }
+  const maxC = Math.max(...counts);
+  const histH = h-80;
+
+  ctx.fillStyle = '#718096';
+  ctx.font = '12px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Phân phối bimodal: 2 đỉnh ở −3 và +3 (xã hội phân cực)', w/2, 18);
+
+  for (let bi=0; bi<bins; bi++) {
+    const bx = toPixel(-5 + bi*binW, w);
+    const bw2 = toPixel(-5 + (bi+1)*binW, w) - bx;
+    const binCtr = -5 + (bi+0.5)*binW;
+    ctx.fillStyle = binCtr < 0 ? 'rgba(55,48,163,0.4)' : 'rgba(8,145,178,0.4)';
+    ctx.fillRect(bx, h-60-(counts[bi]/maxC)*histH, bw2-1, (counts[bi]/maxC)*histH);
+  }
+
+  ctx.strokeStyle = '#94a3b8';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(20, h-60);
+  ctx.lineTo(w-20, h-60);
+  ctx.stroke();
+
+  for (let x=-5; x<=5; x++) {
+    const px = toPixel(x, w);
+    ctx.beginPath();
+    ctx.moveTo(px, h-63);
+    ctx.lineTo(px, h-57);
+    ctx.stroke();
+    ctx.fillStyle = '#718096';
+    ctx.font = '11px sans-serif';
+    ctx.fillText(x, px, h-44);
+  }
+
+  // Median
+  const medx = toPixel(0, w);
+  ctx.strokeStyle = '#10b981';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([5,3]);
+  ctx.beginPath();
+  ctx.moveTo(medx, 25);
+  ctx.lineTo(medx, h-40);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#10b981';
+  ctx.font = 'bold 12px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Median ≈ 0', medx, h-30);
+  ctx.fillStyle = '#c53030';
+  ctx.font = '12px sans-serif';
+  ctx.fillText('← Gần như không có cử tri ở đây!', medx, h-15);
+}
+
+// Init
+updateDist();
+drawNECanvas(-3, 3);
+resetNEAnim();
+</script>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

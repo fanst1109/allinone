@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L04: Strategic Voting — PoliticalScience</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root { --bg: #f5f5fb; --accent: #3730a3; --accent-soft: #e0e7ff; --accent-hover: #312e81; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+  .module { background: white; border-radius: 10px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 28px; }
+  .info-box { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; }
+  .subtitle { color: #4a5568; margin-bottom: 28px; font-size: 15px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; margin: 14px 0; padding: 14px; background: #f7f9fc; border-radius: 8px; border: 1px solid #e2e8f0; }
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+  label { font-size: 13px; font-weight: 600; color: #4a5568; }
+  input[type="range"] { width: 130px; accent-color: var(--accent); }
+  select { padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 6px; background: white; font-size: 13px; }
+  .val-badge { display: inline-block; background: var(--accent-soft); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 13px; font-weight: 700; font-family: monospace; min-width: 30px; text-align: center; }
+  /* Compare panel */
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 14px 0; }
+  .scenario { border-radius: 8px; padding: 16px; }
+  .scenario.sincere { background: #f0fff4; border: 2px solid #68d391; }
+  .scenario.strategic { background: #fff5f5; border: 2px solid #fc8181; }
+  .scenario h4 { margin: 0 0 10px; font-size: 14px; }
+  .scenario.sincere h4 { color: #276749; }
+  .scenario.strategic h4 { color: #c53030; }
+  .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; font-size: 12px; }
+  .bar-lbl { width: 20px; font-weight: 700; }
+  .bar-track { flex: 1; height: 16px; background: #e2e8f0; border-radius: 3px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s; }
+  .fill-a { background: #3730a3; }
+  .fill-b { background: #0891b2; }
+  .fill-c { background: #7c3aed; }
+  .bar-val { width: 30px; text-align: right; font-family: monospace; font-size: 11px; color: #4a5568; }
+  .winner-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-weight: 800; font-size: 16px; margin-top: 8px; }
+  .winner-badge.a { background: #3730a3; color: white; }
+  .winner-badge.b { background: #0891b2; color: white; }
+  .winner-badge.c { background: #7c3aed; color: white; }
+  /* IRV demo */
+  .irv-container { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .irv-col { background: #f7f9fc; border-radius: 8px; padding: 14px; }
+  .irv-col h4 { margin: 0 0 8px; font-size: 14px; color: #4a5568; }
+  .irv-step { padding: 6px 10px; border-left: 3px solid var(--accent); margin-bottom: 5px; background: white; border-radius: 0 5px 5px 0; font-size: 12px; font-family: monospace; }
+  .irv-step.elim { border-left-color: #e53e3e; background: #fff5f5; }
+  .irv-step.win { border-left-color: #38a169; background: #f0fff4; font-weight: 700; }
+  .mono-note { padding: 12px 16px; border-radius: 8px; font-size: 14px; margin-top: 12px; }
+  .mono-note.paradox { background: #fff5f5; border: 2px solid #fc8181; color: #c53030; }
+  .mono-note.normal { background: #f0fff4; border: 2px solid #68d391; color: #276749; }
+  /* Duverger */
+  .duverger-chart { display: flex; gap: 10px; align-items: flex-end; height: 120px; margin: 14px 0; }
+  .d-bar { flex: 1; border-radius: 4px 4px 0 0; display: flex; align-items: flex-end; justify-content: center; font-size: 11px; font-weight: 700; color: white; padding-bottom: 4px; transition: height 0.5s; }
+  .btn { padding: 8px 18px; background: var(--accent); color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .btn:hover { background: var(--accent-hover); }
+  @media (max-width: 600px) {
+    .compare-grid, .irv-container { grid-template-columns: 1fr; }
+    input[type="range"] { width: 100%; max-width: 220px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-median-voter-spatial/visualization.html">← L03: Median voter</a>
+  <span class="sep">·</span>
+  <span class="current">L04: Strategic voting</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-gerrymandering-apportionment/visualization.html">L05: Gerrymandering →</a>
+</nav>
+<main>
+  <h1>Lesson 04: Strategic Voting</h1>
+  <p class="subtitle">Sincere vs tactical — xem khi nào nói dối preference thay đổi winner</p>
+
+  <!-- Module 1: Tactical voting demo -->
+  <section class="module">
+    <h2>1. Tactical Voting trong Plurality</h2>
+    <div class="info-box">Kéo slider thay đổi số cử tri. Nút "Chuyển tactical" mô phỏng nhóm C-supporters vote B thay vì C khi biết C không có cơ hội.</div>
+
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Nhóm I (A>B>C): <span class="val-badge" id="g1v">45</span></label>
+        <input type="range" id="g1" min="0" max="90" value="45" oninput="updateTactical()">
+      </div>
+      <div class="ctrl-group">
+        <label>Nhóm II (B>A>C): <span class="val-badge" id="g2v">30</span></label>
+        <input type="range" id="g2" min="0" max="90" value="30" oninput="updateTactical()">
+      </div>
+      <div class="ctrl-group">
+        <label>Nhóm III (C>B>A): <span class="val-badge" id="g3v">25</span></label>
+        <input type="range" id="g3" min="0" max="90" value="25" disabled>
+      </div>
+      <div class="ctrl-group">
+        <label>% Nhóm III vote tactical: <span class="val-badge" id="tactv">100</span>%</label>
+        <input type="range" id="tact" min="0" max="100" value="100" oninput="updateTactical()">
+      </div>
+    </div>
+
+    <div class="compare-grid" id="compareGrid">
+      <!-- filled by JS -->
+    </div>
+    <p id="tacticalNote" style="font-size:14px;margin-top:10px;font-weight:600;color:#4a5568;"></p>
+  </section>
+
+  <!-- Module 2: IRV non-monotonicity -->
+  <section class="module">
+    <h2>2. IRV Non-Monotonicity — Nghịch lý tăng rank</h2>
+    <div class="info-box">Kéo slider thay đổi số cử tri. Khi "Tăng rank A" được bật, một nhóm đổi từ C>B>A sang A>B>C — xem IRV winner có thể thay đổi.</div>
+
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Nhóm 1 (A>B>C): <span class="val-badge" id="m1v">6</span></label>
+        <input type="range" id="m1" min="1" max="20" value="6" oninput="updateIRV()">
+      </div>
+      <div class="ctrl-group">
+        <label>Nhóm 2 (B>C>A): <span class="val-badge" id="m2v">4</span></label>
+        <input type="range" id="m2" min="1" max="20" value="4" oninput="updateIRV()">
+      </div>
+      <div class="ctrl-group">
+        <label>Nhóm 3 (C>A>B): <span class="val-badge" id="m3v">3</span></label>
+        <input type="range" id="m3" min="1" max="20" value="3" oninput="updateIRV()">
+      </div>
+      <div class="ctrl-group">
+        <label>Số cử tri "tăng rank A": <span class="val-badge" id="shiftv">0</span></label>
+        <input type="range" id="shift" min="0" max="15" value="0" oninput="updateIRV()">
+      </div>
+    </div>
+    <p style="font-size:12px;color:#718096;margin:4px 0 10px;">"Tăng rank A" = nhóm 3 (C>A>B) đổi sang A>C>B — họ rank A cao hơn. Xem có gây IRV winner flip không.</p>
+
+    <div class="irv-container" id="irvContainer">
+      <!-- filled by JS -->
+    </div>
+    <div class="mono-note" id="monoNote"></div>
+  </section>
+
+  <!-- Module 3: Duverger visualization -->
+  <section class="module">
+    <h2>3. Duverger's Law — Plurality dẫn đến 2 đảng</h2>
+    <div class="info-box">Mô phỏng "wasted vote effect" qua nhiều chu kỳ bầu cử. Đảng nhỏ mất phiếu dần khi voters chuyển sang 2 đảng lớn.</div>
+
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Bầu cử (chu kỳ): <span class="val-badge" id="cycleNum">0</span></label>
+      </div>
+      <div class="ctrl-group">
+        <label>&nbsp;</label>
+        <button class="btn" onclick="runCycle()">Chạy 1 chu kỳ</button>
+      </div>
+      <div class="ctrl-group">
+        <label>&nbsp;</label>
+        <button class="btn" style="background:#718096" onclick="resetDuverger()">Reset</button>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;align-items:flex-end;height:140px;margin:14px 0;padding:0 10px;" id="duvergerBars">
+    </div>
+    <div id="duvergerLegend" style="display:flex;gap:10px;flex-wrap:wrap;font-size:13px;margin-top:4px;"></div>
+    <p id="duvergerNote" style="font-size:13px;color:#718096;margin-top:8px;"></p>
+  </section>
+</main>
+
+<script>
+// Module 1: Tactical voting
+function updateTactical() {
+  const g1 = +document.getElementById('g1').value;
+  const g2 = +document.getElementById('g2').value;
+  const g3 = Math.max(0, 100 - g1 - g2);
+  const tact = +document.getElementById('tact').value;
+
+  document.getElementById('g1v').textContent = g1;
+  document.getElementById('g2v').textContent = g2;
+  document.getElementById('g3v').textContent = g3;
+  document.getElementById('tactv').textContent = tact;
+  document.getElementById('g3').value = g3;
+
+  // Adjust sliders max
+  document.getElementById('g2').max = 100 - g1;
+
+  // Sincere: Group I votes A, Group II votes B, Group III votes C
+  const sA = g1, sB = g2, sC = g3;
+  const sincere = {A: sA, B: sB, C: sC};
+
+  // Strategic: tactPct% of Group III votes B instead of C
+  const tactVoters = Math.round(g3 * tact / 100);
+  const stA = g1, stB = g2 + tactVoters, stC = g3 - tactVoters;
+  const strategic = {A: stA, B: stB, C: stC};
+
+  function winner(scores) {
+    const max = Math.max(scores.A, scores.B, scores.C);
+    return ['A','B','C'].filter(k => scores[k] === max).join('/');
+  }
+
+  function renderScenario(title, scores, type) {
+    const total = scores.A + scores.B + scores.C || 1;
+    const w = winner(scores);
+    return `
+      <div class="scenario ${type}">
+        <h4>${title}</h4>
+        <div class="bar-row"><span class="bar-lbl">A</span><div class="bar-track"><div class="bar-fill fill-a" style="width:${scores.A/total*100}%"></div></div><span class="bar-val">${scores.A}</span></div>
+        <div class="bar-row"><span class="bar-lbl">B</span><div class="bar-track"><div class="bar-fill fill-b" style="width:${scores.B/total*100}%"></div></div><span class="bar-val">${scores.B}</span></div>
+        <div class="bar-row"><span class="bar-lbl">C</span><div class="bar-track"><div class="bar-fill fill-c" style="width:${scores.C/total*100}%"></div></div><span class="bar-val">${scores.C}</span></div>
+        <div><span class="winner-badge ${w.toLowerCase().replace('/','')}">Winner: ${w}</span></div>
+      </div>
+    `;
+  }
+
+  const grid = document.getElementById('compareGrid');
+  grid.innerHTML = renderScenario('Sincere voting', sincere, 'sincere') +
+    renderScenario(`Strategic (${tact}% nhóm C vote B)`, strategic, 'strategic');
+
+  const sWinner = winner(sincere), stWinner = winner(strategic);
+  const note = document.getElementById('tacticalNote');
+  if (sWinner !== stWinner) {
+    note.style.color = '#c53030';
+    note.textContent = `Tactical voting thay đổi winner: ${sWinner} → ${stWinner}! Gibbard-Satterthwaite minh chứng.`;
+  } else {
+    note.style.color = '#276749';
+    note.textContent = `Winner không đổi (${sWinner}) — trong ví dụ này tactical voting không hiệu quả.`;
+  }
+}
+
+// Module 2: IRV non-monotonicity
+function irvRun(groups, rankings) {
+  // groups: [n1,n2,n3,...], rankings: [[0,1,2], ...] (candidate indices A=0,B=1,C=2)
+  let remaining = [0,1,2];
+  let steps = [];
+  const TOTAL = groups.reduce((s,x)=>s+x,0);
+
+  while (remaining.length > 1) {
+    const pts = {};
+    remaining.forEach(c => pts[c] = 0);
+    for (let g=0; g<groups.length; g++) {
+      if (groups[g] <= 0) continue;
+      const top = rankings[g].find(c => remaining.includes(c));
+      if (top !== undefined) pts[top] += groups[g];
+    }
+    const str = remaining.map(c => `${'ABC'[c]}:${pts[c]}`).join(', ');
+    steps.push({text: `${'ABC'[remaining[0]]} vs others: ${str}`, type: 'count', pts: {...pts}});
+
+    const maxV = Math.max(...remaining.map(c=>pts[c]));
+    if (maxV > TOTAL/2) {
+      const w = remaining.find(c=>pts[c]===maxV);
+      steps.push({text: `Winner: ${'ABC'[w]} (>${Math.round(TOTAL/2)} phiếu)`, type: 'win', winner: w});
+      return {winner: w, steps};
+    }
+    const minV = Math.min(...remaining.map(c=>pts[c]));
+    const elim = remaining.find(c=>pts[c]===minV);
+    steps.push({text: `Loại ${'ABC'[elim]} (${pts[elim]} phiếu ít nhất)`, type: 'elim', elim});
+    remaining = remaining.filter(c=>c!==elim);
+  }
+  steps.push({text: `Winner: ${'ABC'[remaining[0]]}`, type: 'win', winner: remaining[0]});
+  return {winner: remaining[0], steps};
+}
+
+function updateIRV() {
+  const m1 = +document.getElementById('m1').value;
+  const m2 = +document.getElementById('m2').value;
+  const m3 = +document.getElementById('m3').value;
+  const shift = Math.min(+document.getElementById('shift').value, m3);
+
+  document.getElementById('m1v').textContent = m1;
+  document.getElementById('m2v').textContent = m2;
+  document.getElementById('m3v').textContent = m3;
+  document.getElementById('shiftv').textContent = shift;
+
+  // Original: [m1 A>B>C, m2 B>C>A, m3 C>A>B]
+  const rankOrig = [[0,1,2],[1,2,0],[2,0,1]];
+  const grpOrig = [m1, m2, m3];
+
+  // Modified: shift voters move from group3 (C>A>B) to A>C>B
+  // Group 3a: C>A>B (m3-shift voters)
+  // Group 3b: A>C>B (shift voters) -- ranking: [0,2,1]
+  const rankMod = [[0,1,2],[1,2,0],[2,0,1],[0,2,1]];
+  const grpMod = [m1, m2, m3-shift, shift];
+
+  const orig = irvRun(grpOrig, rankOrig);
+  const mod = irvRun(grpMod, rankMod);
+
+  function renderIRVCol(title, result, type) {
+    return `
+      <div class="irv-col">
+        <h4>${title}</h4>
+        ${result.steps.map(s => `<div class="irv-step ${s.type}">${s.text}</div>`).join('')}
+      </div>
+    `;
+  }
+
+  document.getElementById('irvContainer').innerHTML =
+    renderIRVCol('Profile gốc', orig, 'orig') +
+    renderIRVCol(`+${shift} cử tri "tăng rank A"`, mod, 'mod');
+
+  const mono = document.getElementById('monoNote');
+  if (orig.winner !== mod.winner) {
+    mono.className = 'mono-note paradox';
+    mono.textContent = `Non-monotonicity! Tăng rank A làm winner đổi: ${'ABC'[orig.winner]} → ${'ABC'[mod.winner]}. Paradox IRV.`;
+  } else {
+    mono.className = 'mono-note normal';
+    mono.textContent = `Winner không đổi (${'ABC'[orig.winner]}). Thử tăng "số cử tri tăng rank A" để tìm flip point.`;
+  }
+}
+
+// Module 3: Duverger
+const PARTIES = ['Đảng A (Lớn)', 'Đảng B (Lớn)', 'Đảng C (Nhỏ)', 'Đảng D (Rất nhỏ)'];
+const COLORS = ['#3730a3','#0891b2','#7c3aed','#f59e0b'];
+let duvVotes = [42, 38, 15, 5];
+let duvCycle = 0;
+
+function renderDuverger() {
+  const total = duvVotes.reduce((s,x)=>s+x,0);
+  const maxV = Math.max(...duvVotes);
+  const bars = document.getElementById('duvergerBars');
+  bars.innerHTML = duvVotes.map((v,i) => {
+    const pct = (v/total*100).toFixed(0);
+    const h = (v/maxV*120);
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+      <div style="font-size:11px;font-weight:700;color:${COLORS[i]}">${pct}%</div>
+      <div style="width:100%;height:${h}px;background:${COLORS[i]};border-radius:4px 4px 0 0;"></div>
+    </div>`;
+  }).join('');
+
+  const legend = document.getElementById('duvergerLegend');
+  legend.innerHTML = PARTIES.map((p,i) => `
+    <div style="display:flex;align-items:center;gap:5px;">
+      <div style="width:12px;height:12px;background:${COLORS[i]};border-radius:2px;"></div>
+      <span>${p}: ${duvVotes[i]}%</span>
+    </div>
+  `).join('');
+
+  document.getElementById('cycleNum').textContent = duvCycle;
+  const note = document.getElementById('duvergerNote');
+  if (duvVotes[2] < 3 || duvVotes[3] < 1) {
+    note.textContent = `Sau ${duvCycle} chu kỳ: Duverger's Law tác dụng — hệ thống hội tụ về 2 đảng (A và B).`;
+    note.style.color = '#c53030';
+  } else {
+    note.textContent = `Cử tri strategic dần rời bỏ đảng nhỏ để tránh "wasted vote" → dồn về A hoặc B.`;
+    note.style.color = '#718096';
+  }
+}
+
+function runCycle() {
+  duvCycle++;
+  // Wasted vote effect: voters move from small parties to top-2
+  // Each cycle: ~20% of small party voters tactical-switch to whichever big party is closer
+  const [a,b,c,d] = duvVotes;
+  const total = a+b+c+d;
+  const wasted_c = Math.ceil(c * 0.25);
+  const wasted_d = Math.ceil(d * 0.35);
+  // Split between A and B proportionally
+  const totalBig = a + b;
+  duvVotes[0] = Math.round(a + wasted_c * (a/totalBig) + wasted_d * (a/totalBig));
+  duvVotes[1] = Math.round(b + wasted_c * (b/totalBig) + wasted_d * (b/totalBig));
+  duvVotes[2] = Math.max(0, c - wasted_c);
+  duvVotes[3] = Math.max(0, d - wasted_d);
+  // Normalize to 100
+  const newTotal = duvVotes.reduce((s,x)=>s+x,0);
+  duvVotes = duvVotes.map(v => Math.round(v/newTotal*100));
+  renderDuverger();
+}
+
+function resetDuverger() {
+  duvVotes = [42, 38, 15, 5];
+  duvCycle = 0;
+  renderDuverger();
+}
+
+// Init
+updateTactical();
+updateIRV();
+renderDuverger();
+</script>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L01: Social Influence — Psychology T2</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fdf4ff;
+    --accent: #a21caf;
+    --accent-soft: #fae8ff;
+    --accent-hover: #86198f;
+  }
+  .module { background: var(--panel); border-radius: 12px; padding: 24px; margin-bottom: 28px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+  .module h2 { color: var(--accent); margin-top: 0; font-size: 1.2rem; border-bottom: 2px solid var(--accent-soft); padding-bottom: 8px; }
+  .btn { background: var(--accent); color: #fff; border: none; padding: 8px 18px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: background 0.2s; }
+  .btn:hover { background: var(--accent-hover); }
+  .btn-outline { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
+  .btn-outline:hover { background: var(--accent-soft); }
+  /* Asch */
+  .line-container { display: flex; align-items: flex-end; gap: 20px; justify-content: center; margin: 16px 0; flex-wrap: wrap; }
+  .line-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .line { width: 20px; background: var(--accent); border-radius: 3px; transition: all 0.3s; }
+  .line-label { font-weight: 700; font-size: 0.85rem; color: var(--ink-soft); }
+  .confederate-vote { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 12px 0; }
+  .vote-chip { padding: 4px 12px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; }
+  .vote-chip.wrong { background: #fee2e2; color: #b91c1c; }
+  .vote-chip.right { background: #d1fae5; color: #065f46; }
+  .asch-result { text-align: center; font-size: 1.1rem; font-weight: 700; padding: 12px; border-radius: 8px; margin-top: 12px; }
+  .asch-conform { background: #fee2e2; color: #b91c1c; }
+  .asch-resist { background: #d1fae5; color: #065f46; }
+  /* Milgram */
+  .volt-scale { width: 100%; margin: 12px 0; }
+  .volt-display { text-align: center; font-size: 2rem; font-weight: 800; color: var(--accent); margin: 8px 0; }
+  .volt-label { text-align: center; font-size: 0.9rem; color: var(--ink-soft); margin-bottom: 12px; }
+  .volt-zones { display: flex; height: 24px; border-radius: 6px; overflow: hidden; margin: 12px 0; }
+  .zone { display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: #fff; }
+  .zone.slight { background: #22c55e; flex: 2; }
+  .zone.moderate { background: #eab308; flex: 2; }
+  .zone.strong { background: #f97316; flex: 2; }
+  .zone.very-strong { background: #ef4444; flex: 2; }
+  .zone.intense { background: #b91c1c; flex: 2; }
+  .zone.extreme { background: #7f1d1d; flex: 2; }
+  .zone.danger { background: #450a0a; flex: 1; }
+  .zone.xxx { background: #000; flex: 1; }
+  .obedience-bar { background: var(--accent-soft); border-radius: 8px; padding: 12px; margin-top: 8px; }
+  .ob-row { display: flex; align-items: center; gap: 10px; margin: 6px 0; font-size: 0.85rem; }
+  .ob-bar-fill { height: 16px; border-radius: 4px; background: var(--accent); min-width: 4px; transition: width 0.5s; }
+  .ob-label { min-width: 220px; max-width: 220px; color: var(--ink-soft); font-size: 0.8rem; }
+  /* Bystander */
+  .bystander-grid { display: flex; flex-wrap: wrap; gap: 12px; margin: 12px 0; justify-content: center; }
+  .person-icon { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; cursor: pointer; transition: all 0.2s; border: 3px solid transparent; }
+  .person-icon.bystander { background: #e0e7ef; }
+  .person-icon.helping { background: #d1fae5; border-color: #22c55e; }
+  .person-icon.ignoring { background: #fee2e2; border-color: #ef4444; }
+  .bystander-stats { background: var(--accent-soft); border-radius: 8px; padding: 14px; text-align: center; }
+  .big-stat { font-size: 2.2rem; font-weight: 800; color: var(--accent); }
+  /* Steps indicator */
+  .steps { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+  .step-item { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 8px; background: #f8f9fa; border-left: 4px solid var(--line); font-size: 0.88rem; transition: all 0.3s; }
+  .step-item.passed { border-left-color: #22c55e; background: #d1fae5; }
+  .step-item.blocked { border-left-color: #ef4444; background: #fee2e2; }
+  .step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  /* Stats table */
+  table.data-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  table.data-table th { background: var(--accent-soft); color: var(--accent); padding: 7px 10px; text-align: left; font-size: 0.82rem; }
+  table.data-table td { padding: 7px 10px; border-bottom: 1px solid var(--line); }
+  table.data-table tr:last-child td { border-bottom: none; }
+  .highlight-row td { font-weight: 700; color: var(--accent); }
+  @media (max-width: 480px) {
+    .ob-label { min-width: 140px; max-width: 140px; font-size: 0.73rem; }
+    .line-container { gap: 12px; }
+    .line { width: 14px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Tầng 2</a>
+  <span class="sep">·</span>
+  <a href="../../01-Cognitive/lesson-05-decision-making/visualization.html">← T1-L05: Decision making</a>
+  <span class="sep">·</span>
+  <span class="current">L01: Social Influence</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-group-dynamics/visualization.html">L02: Group dynamics →</a>
+</nav>
+<main>
+  <h1>Social Influence — Ảnh Hưởng Xã Hội</h1>
+
+  <!-- MODULE 1: ASCH -->
+  <div class="module">
+    <h2>1. Asch Line Judgment (1951) — Thí nghiệm tuân theo nhóm</h2>
+    <p>Nhìn vào các đường thẳng. Đường nào ở cột phải bằng đường chuẩn (Standard)?<br>
+    Bấm <strong>"Tạo trial mới"</strong> rồi quyết định sau khi nghe đáp án của 6 confederate.</p>
+
+    <div class="line-container" id="aschLines">
+      <div class="line-wrap">
+        <div class="line" id="lineStd" style="height:120px;"></div>
+        <div class="line-label">Chuẩn</div>
+      </div>
+      <div class="line-wrap">
+        <div class="line" id="lineA" style="height:80px; background:#666;"></div>
+        <div class="line-label">A</div>
+      </div>
+      <div class="line-wrap">
+        <div class="line" id="lineB" style="height:120px; background:#666;"></div>
+        <div class="line-label">B</div>
+      </div>
+      <div class="line-wrap">
+        <div class="line" id="lineC" style="height:100px; background:#666;"></div>
+        <div class="line-label">C</div>
+      </div>
+    </div>
+
+    <div id="confVotes" class="confederate-vote" style="display:none;"></div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px;">
+      <button class="btn" onclick="generateAschTrial()">Tạo trial mới</button>
+      <button class="btn btn-outline" onclick="aschChoose('A')">Chọn A</button>
+      <button class="btn btn-outline" onclick="aschChoose('B')">Chọn B</button>
+      <button class="btn btn-outline" onclick="aschChoose('C')">Chọn C</button>
+    </div>
+
+    <div id="aschResultBox" style="display:none;" class="asch-result"></div>
+
+    <div style="margin-top:16px; background:var(--accent-soft); border-radius:8px; padding:12px;">
+      <strong>Tổng kết thí nghiệm của bạn:</strong>
+      <div id="aschScore" style="font-size:0.88rem;margin-top:6px;">Chưa có trial nào.</div>
+    </div>
+
+    <details style="margin-top:12px;">
+      <summary style="cursor:pointer;color:var(--accent);font-weight:600;">Xem dữ liệu gốc Asch 1951</summary>
+      <table class="data-table" style="margin-top:8px;">
+        <tr><th>Điều kiện</th><th>Tỷ lệ đúng</th><th>Conform rate</th></tr>
+        <tr class="highlight-row"><td>Solo (không nhóm)</td><td>99%</td><td>&lt;1%</td></tr>
+        <tr><td>3 confederates sai</td><td>~67%</td><td>~33%</td></tr>
+        <tr class="highlight-row"><td>7+ confederates sai</td><td>~63%</td><td>~37%</td></tr>
+        <tr><td>Có 1 ally đúng</td><td>~95%</td><td>~5%</td></tr>
+        <tr><td>Nhóm không đồng thuận</td><td>~89%</td><td>~11%</td></tr>
+      </table>
+    </details>
+  </div>
+
+  <!-- MODULE 2: MILGRAM -->
+  <div class="module">
+    <h2>2. Milgram Obedience (1963) — Điện giật vì lệnh trên</h2>
+    <p>Thí nghiệm "dạy và học". Bạn là "Teacher". Mỗi lần Learner sai, bạn nhấn nút tăng điện. Bấm <strong>Tiếp tục</strong> hay <strong>Từ chối</strong>?</p>
+
+    <div class="volt-display" id="voltDisplay">15 V</div>
+    <div class="volt-label" id="voltLabel">Slight Shock</div>
+
+    <div class="volt-zones">
+      <div class="zone slight">Slight</div>
+      <div class="zone moderate">Moderate</div>
+      <div class="zone strong">Strong</div>
+      <div class="zone very-strong">Very Strong</div>
+      <div class="zone intense">Intense</div>
+      <div class="zone extreme">Extreme</div>
+      <div class="zone danger">Danger</div>
+      <div class="zone xxx">XXX</div>
+    </div>
+
+    <div id="milgramMessage" style="padding:10px;background:#fff3cd;border-radius:8px;margin:10px 0;font-size:0.88rem;min-height:40px;">
+      Bắt đầu thí nghiệm. Nhấn "Tiếp tục" để tăng điện áp.
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:12px 0;">
+      <button class="btn" id="btnContinue" onclick="milgramContinue()">Tiếp tục ↑</button>
+      <button class="btn btn-outline" id="btnRefuse" onclick="milgramRefuse()">Từ chối</button>
+      <button class="btn btn-outline" onclick="milgramReset()">Reset</button>
+    </div>
+
+    <div id="milgramResult" style="display:none;"></div>
+
+    <details style="margin-top:12px;">
+      <summary style="cursor:pointer;color:var(--accent);font-weight:600;">Xem data: % đến 450V theo điều kiện</summary>
+      <div class="obedience-bar" style="margin-top:10px;">
+        <div class="ob-row">
+          <div class="ob-label">Cơ bản (voice only)</div>
+          <div class="ob-bar-fill" style="width:65%;"></div>
+          <strong>65%</strong>
+        </div>
+        <div class="ob-row">
+          <div class="ob-label">Voice feedback rõ hơn</div>
+          <div class="ob-bar-fill" style="width:62.5%;"></div>
+          <strong>62.5%</strong>
+        </div>
+        <div class="ob-row">
+          <div class="ob-label">Proximity (nhìn thấy learner)</div>
+          <div class="ob-bar-fill" style="width:40%;"></div>
+          <strong>40%</strong>
+        </div>
+        <div class="ob-row">
+          <div class="ob-label">Touch (ép tay learner)</div>
+          <div class="ob-bar-fill" style="width:30%;"></div>
+          <strong>30%</strong>
+        </div>
+        <div class="ob-row">
+          <div class="ob-label">Peers refuse first</div>
+          <div class="ob-bar-fill" style="width:10%;"></div>
+          <strong>10%</strong>
+        </div>
+        <div class="ob-row">
+          <div class="ob-label">Experimenter qua điện thoại</div>
+          <div class="ob-bar-fill" style="width:20%;"></div>
+          <strong>20%</strong>
+        </div>
+        <div class="ob-row">
+          <div class="ob-label">Burger 2009 (đến 150V eq.)</div>
+          <div class="ob-bar-fill" style="width:70%;"></div>
+          <strong>70%</strong>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <!-- MODULE 3: BYSTANDER -->
+  <div class="module">
+    <h2>3. Bystander Effect — Diffusion of Responsibility</h2>
+    <p>Bấm vào biểu tượng người để set số lượng. Xem tỷ lệ can thiệp thay đổi theo số người chứng kiến.</p>
+
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0;">
+      <label style="font-weight:600;">Số người chứng kiến: <span id="witnessCount">1</span></label>
+      <input type="range" min="1" max="20" value="1" id="witnessSlider" oninput="updateBystander()" style="flex:1;min-width:120px;max-width:300px;">
+    </div>
+
+    <div class="bystander-grid" id="bystanderGrid"></div>
+
+    <div class="bystander-stats">
+      <div class="big-stat" id="bystanderProb">85%</div>
+      <div style="font-size:0.9rem;color:var(--ink-soft);">Xác suất có người can thiệp</div>
+      <div style="font-size:0.82rem;margin-top:6px;" id="bystanderFormula">1 − (1−0.85)^1 = 85%</div>
+    </div>
+
+    <div style="margin-top:14px;">
+      <strong>Mô hình 5 bước can thiệp (Latané & Darley):</strong>
+      <div class="steps" id="stepsViz">
+        <div class="step-item" id="step1"><div class="step-num">1</div> Notice — nhận ra có chuyện xảy ra</div>
+        <div class="step-item" id="step2"><div class="step-num">2</div> Interpret — hiểu đây là tình huống khẩn</div>
+        <div class="step-item" id="step3"><div class="step-num">3</div> Assume responsibility — nhận trách nhiệm can thiệp</div>
+        <div class="step-item" id="step4"><div class="step-num">4</div> Know how — biết cách giúp</div>
+        <div class="step-item" id="step5"><div class="step-num">5</div> Decide to help — quyết định hành động</div>
+      </div>
+      <p style="font-size:0.83rem;color:var(--ink-soft);margin-top:8px;">
+        Trong nhóm đông, bước 2 (pluralistic ignorance) và bước 3 (diffusion of responsibility) thường bị block.
+      </p>
+    </div>
+
+    <details style="margin-top:12px;">
+      <summary style="cursor:pointer;color:var(--accent);font-weight:600;">Dữ liệu gốc: Smoke-filled room & Seizure study</summary>
+      <table class="data-table" style="margin-top:8px;">
+        <tr><th>Tình huống</th><th>Điều kiện</th><th>Can thiệp</th></tr>
+        <tr><td>Phòng có khói</td><td>Solo</td><td>75%</td></tr>
+        <tr class="highlight-row"><td>Phòng có khói</td><td>3 passive confederates</td><td>10%</td></tr>
+        <tr><td>Lên cơn động kinh</td><td>Solo (1 nghe)</td><td>85%</td></tr>
+        <tr class="highlight-row"><td>Lên cơn động kinh</td><td>6 người nghe</td><td>31%</td></tr>
+      </table>
+    </details>
+  </div>
+
+  <!-- MODULE 4: STANFORD PRISON -->
+  <div class="module">
+    <h2>4. Stanford Prison Experiment — Timeline & Critique</h2>
+    <p>Nhấn vào từng ngày để xem diễn biến và đánh giá methodology.</p>
+
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;" id="speDays">
+      <button class="btn btn-outline" onclick="showSPEDay(0)">Ngày 1</button>
+      <button class="btn btn-outline" onclick="showSPEDay(1)">Ngày 2</button>
+      <button class="btn btn-outline" onclick="showSPEDay(2)">Ngày 3-4</button>
+      <button class="btn btn-outline" onclick="showSPEDay(3)">Ngày 5-6</button>
+      <button class="btn btn-outline" onclick="showSPEDay(4)">Kết thúc</button>
+      <button class="btn btn-outline" onclick="showSPEDay(5)">BBC 2002</button>
+    </div>
+
+    <div id="speContent" style="padding:14px;background:var(--accent-soft);border-radius:8px;font-size:0.88rem;min-height:80px;">
+      Chọn ngày để xem diễn biến.
+    </div>
+
+    <div style="margin-top:14px;padding:12px;background:#fff3cd;border-radius:8px;font-size:0.85rem;">
+      <strong>⚠ Methodological issues:</strong>
+      <ul style="margin:6px 0;padding-left:18px;">
+        <li>Zimbardo <em>coach</em> guards cư xử hung hãn (Le Texier, 2018 — tài liệu ghi âm)</li>
+        <li>Không có control group — không baseline để so sánh</li>
+        <li>Demand characteristics: participants đang "diễn" vai trò họ nghĩ expected</li>
+        <li>Ad tuyển dụng dùng từ "prison life" → self-selection bias</li>
+        <li>Công bố như demonstration, không phải RCT</li>
+      </ul>
+    </div>
+  </div>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+
+<script>
+// ============ ASCH ============
+let aschCorrect = 'B', aschTrials = 0, aschConforms = 0, trialReady = false;
+
+const lines = {
+  A: [60, 80, 100, 90, 120, 70],
+  B: [120, 100, 80, 120, 90, 110],
+  C: [90, 110, 120, 80, 100, 80]
+};
+const standards = [120, 100, 80, 120, 90, 110];
+let currentTrial = 0;
+
+function generateAschTrial() {
+  currentTrial = Math.floor(Math.random() * lines.A.length);
+  const stdH = standards[currentTrial];
+  document.getElementById('lineStd').style.height = stdH + 'px';
+  document.getElementById('lineA').style.height = lines.A[currentTrial] + 'px';
+  document.getElementById('lineB').style.height = lines.B[currentTrial] + 'px';
+  document.getElementById('lineC').style.height = lines.C[currentTrial] + 'px';
+
+  // Find correct answer
+  const opts = {A: lines.A[currentTrial], B: lines.B[currentTrial], C: lines.C[currentTrial]};
+  aschCorrect = Object.entries(opts).find(([k,v]) => v === stdH)?.[0] || 'B';
+
+  // Confederate votes — always wrong (pick one of the wrong ones)
+  const wrongs = Object.keys(opts).filter(k => k !== aschCorrect);
+  const confAnswer = wrongs[Math.floor(Math.random() * wrongs.length)];
+
+  const votesDiv = document.getElementById('confVotes');
+  votesDiv.innerHTML = '';
+  votesDiv.style.display = 'flex';
+  for (let i = 1; i <= 6; i++) {
+    const chip = document.createElement('span');
+    chip.className = 'vote-chip wrong';
+    chip.textContent = `P${i}: "${confAnswer}"`;
+    votesDiv.appendChild(chip);
+  }
+
+  document.getElementById('aschResultBox').style.display = 'none';
+  trialReady = true;
+}
+
+function aschChoose(choice) {
+  if (!trialReady) { alert('Bấm "Tạo trial mới" trước!'); return; }
+  trialReady = false;
+  aschTrials++;
+  const box = document.getElementById('aschResultBox');
+  box.style.display = 'block';
+  if (choice === aschCorrect) {
+    box.className = 'asch-result asch-resist';
+    box.textContent = `✓ Bạn RESIST conform — chọn đúng "${choice}" dù nhóm nói khác! (Đáp án: ${aschCorrect})`;
+  } else {
+    aschConforms++;
+    box.className = 'asch-result asch-conform';
+    box.textContent = `✗ Bạn CONFORM — chọn "${choice}" theo nhóm. Đáp án đúng là "${aschCorrect}".`;
+  }
+  const rate = aschTrials > 0 ? Math.round(aschConforms / aschTrials * 100) : 0;
+  document.getElementById('aschScore').innerHTML =
+    `${aschTrials} trials | Conform: <strong>${aschConforms}</strong> lần | Rate của bạn: <strong>${rate}%</strong> (Asch gốc: 37%)`;
+}
+
+// ============ MILGRAM ============
+const voltLevels = [15,30,45,60,75,90,105,120,135,150,165,180,195,210,225,240,255,270,285,300,315,330,345,360,375,390,405,420,435,450];
+const voltLabels = ['Slight','Slight','Slight','Slight','Moderate','Moderate','Moderate','Moderate','Strong','Strong','Strong','Strong','Very Strong','Very Strong','Very Strong','Very Strong','Intense','Intense','Intense','Extreme Intensity','Extreme Intensity','Extreme Intensity','Extreme Intensity','Danger: Severe Shock','Danger: Severe Shock','Danger: Severe Shock','Danger: Severe Shock','XXX','XXX','XXX'];
+const learnerResponses = {
+  75: '(ugh)',
+  120: '"Ugh! Hey, this really hurts!"',
+  150: '"Ugh! That\'s all. Get me out of here. I absolutely refuse to go on!"',
+  180: '"I can\'t stand the pain! Let me out!"',
+  270: '(intense agonized screams)',
+  300: '(kicks on wall, refuses to answer)',
+  315: '(pounds wall, then silence)',
+  330: '...(silence)...',
+};
+const experimenterLines = [
+  'Please continue.',
+  'The experiment requires that you continue.',
+  'It is absolutely essential that you continue.',
+  'You have no other choice, you must go on.'
+];
+let milgramStep = 0, milgramRefused = false, expLineIdx = 0;
+
+function milgramContinue() {
+  if (milgramRefused) return;
+  milgramStep = Math.min(milgramStep + 1, voltLevels.length - 1);
+  const v = voltLevels[milgramStep];
+  document.getElementById('voltDisplay').textContent = v + ' V';
+  document.getElementById('voltLabel').textContent = voltLabels[milgramStep];
+
+  let msg = experimenterLines[Math.min(expLineIdx, 3)];
+  if (learnerResponses[v]) msg = `🗣 Learner: ${learnerResponses[v]}<br><em>Experimenter: "${msg}"</em>`;
+  document.getElementById('milgramMessage').innerHTML = msg;
+  expLineIdx++;
+
+  if (v === 450) {
+    document.getElementById('milgramResult').style.display = 'block';
+    document.getElementById('milgramResult').innerHTML = `<div style="padding:12px;background:#fee2e2;border-radius:8px;margin-top:10px;">
+      <strong>450V — MAX reached.</strong> Bạn thuộc 65% subjects đi đến cùng. Experimenter nói "thí nghiệm kết thúc".<br>
+      <em>Learner thực ra không bị giật — họ là confederate.</em>
+    </div>`;
+    document.getElementById('btnContinue').disabled = true;
+  }
+}
+
+function milgramRefuse() {
+  milgramRefused = true;
+  const v = voltLevels[milgramStep];
+  let percent;
+  if (v <= 150) percent = '~35%';
+  else if (v <= 300) percent = '~20%';
+  else percent = '~15%';
+  document.getElementById('milgramResult').style.display = 'block';
+  document.getElementById('milgramResult').innerHTML = `<div style="padding:12px;background:#d1fae5;border-radius:8px;margin-top:10px;">
+    <strong>Bạn từ chối ở ${v}V.</strong> Trong thí nghiệm Milgram, khoảng ${percent} subjects dừng ở mức điện áp tương đương này.<br>
+    65% subjects tiếp tục đến 450V.
+  </div>`;
+  document.getElementById('btnContinue').disabled = true;
+}
+
+function milgramReset() {
+  milgramStep = 0; milgramRefused = false; expLineIdx = 0;
+  document.getElementById('voltDisplay').textContent = '15 V';
+  document.getElementById('voltLabel').textContent = 'Slight Shock';
+  document.getElementById('milgramMessage').innerHTML = 'Bắt đầu thí nghiệm. Nhấn "Tiếp tục" để tăng điện áp.';
+  document.getElementById('milgramResult').style.display = 'none';
+  document.getElementById('btnContinue').disabled = false;
+}
+
+// ============ BYSTANDER ============
+function updateBystander() {
+  const n = parseInt(document.getElementById('witnessSlider').value);
+  document.getElementById('witnessCount').textContent = n;
+
+  const pIndividual = 0.85;
+  const pIntervene = 1 - Math.pow(1 - pIndividual / n, n);
+  const displayP = Math.round(pIntervene * 100);
+
+  document.getElementById('bystanderProb').textContent = displayP + '%';
+  document.getElementById('bystanderFormula').textContent =
+    `P(ai đó can thiệp) = 1 − (1 − ${pIndividual}/${n})^${n} ≈ ${displayP}%`;
+
+  // Render person icons
+  const grid = document.getElementById('bystanderGrid');
+  grid.innerHTML = '';
+  for (let i = 0; i < Math.min(n, 20); i++) {
+    const div = document.createElement('div');
+    div.className = 'person-icon bystander';
+    div.textContent = '🧑';
+    grid.appendChild(div);
+  }
+  if (n > 20) {
+    const more = document.createElement('div');
+    more.style.cssText = 'font-size:0.8rem;color:var(--ink-soft);align-self:center;';
+    more.textContent = `+${n-20} nữa`;
+    grid.appendChild(more);
+  }
+
+  // Update steps
+  const steps = document.querySelectorAll('.step-item');
+  steps.forEach((s, i) => { s.className = 'step-item'; });
+  if (n === 1) {
+    steps.forEach(s => s.className = 'step-item passed');
+  } else {
+    steps[0].className = 'step-item passed';
+    steps[1].className = n > 3 ? 'step-item blocked' : 'step-item passed';
+    steps[2].className = 'step-item blocked';
+    steps[3].className = 'step-item passed';
+    steps[4].className = 'step-item blocked';
+  }
+}
+updateBystander();
+
+// ============ STANFORD PRISON ============
+const speData = [
+  { title: 'Ngày 1 — Bắt đầu', content: 'Participants nhận vai ngẫu nhiên. Guards trang bị kính mắt phản chiếu, dùi cui, còi. Prisoners nhận đồng phục & số ID. Không khí ban đầu khá bình thường — participants nhận thức đây là "thí nghiệm".' },
+  { title: 'Ngày 2 — Nổi loạn và đàn áp', content: 'Prisoners nổi loạn: chặn cửa bằng giường, xé số ID. Guards phun bình chữa cháy, lột đồng phục tù nhân, đưa vào confinement. Zimbardo ghi nhận guards tự phát triển chiến thuật đàn áp — nhưng audio cho thấy Zimbardo & staff đã gợi ý trước.' },
+  { title: 'Ngày 3-4 — Leo thang', content: 'Guards tăng cường kiểm soát: dùng đặc quyền (food, bedding), buộc prisoners làm humiliating tasks. Prisoner #8612 bắt đầu biểu hiện distress, muốn bỏ cuộc. Zimbardo ban đầu không cho vì nghĩ là "diễn". ⚠ Đây là dấu hiệu demand characteristics rõ nhất.' },
+  { title: 'Ngày 5-6 — Đỉnh điểm', content: 'Thêm prisoners breakdown. Guards đêm khuya (khi không ai quay phim) tàn bạo hơn nhiều. Zimbardo nhận ra khi bạn gái Christina Maslach (nhà tâm lý học) phản đối mạnh mẽ sau khi tham quan.' },
+  { title: 'Kết thúc — Ngày 6', content: 'Thí nghiệm bị dừng sớm (dự kiến 2 tuần → 6 ngày). Zimbardo kết luận: "Role và institution thay đổi hành vi người bình thường." Kết luận này lan rộng trong textbooks — nhưng phương pháp không đủ để kết luận như vậy.' },
+  { title: 'BBC Prison Study (Haslam & Reicher, 2002)', content: 'Replicate có kiểm soát chặt, quay phim công khai cho TV. Kết quả ngược: Prisoners đoàn kết, xây identity nhóm mạnh. Guards trở nên thiếu hiệu quả, từ chối fill role. Kết luận: Social identity và leadership quan trọng hơn role assignment — ngược với SPE.' }
+];
+
+function showSPEDay(idx) {
+  const d = speData[idx];
+  document.getElementById('speContent').innerHTML = `<strong>${d.title}</strong><p style="margin-top:8px;line-height:1.6;">${d.content}</p>`;
+}
+</script>
+</body>
+</html>

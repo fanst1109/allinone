@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L03: Attribution & Stereotype — Psychology T2</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fdf4ff;
+    --accent: #a21caf;
+    --accent-soft: #fae8ff;
+    --accent-hover: #86198f;
+  }
+  .module { background: var(--panel); border-radius: 12px; padding: 24px; margin-bottom: 28px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+  .module h2 { color: var(--accent); margin-top: 0; font-size: 1.2rem; border-bottom: 2px solid var(--accent-soft); padding-bottom: 8px; }
+  .btn { background: var(--accent); color: #fff; border: none; padding: 8px 18px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: background 0.2s; }
+  .btn:hover { background: var(--accent-hover); }
+  .btn-outline { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
+  .btn-outline:hover { background: var(--accent-soft); }
+  /* Scenario card */
+  .scenario-box { background: #f8f9fa; border-left: 4px solid var(--accent); padding: 14px 16px; border-radius: 0 8px 8px 0; font-size: 0.9rem; margin: 12px 0; line-height: 1.6; }
+  .choice-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
+  .choice-btn { flex: 1; min-width: 120px; padding: 10px 14px; border-radius: 8px; cursor: pointer; font-size: 0.87rem; font-weight: 600; border: 2px solid var(--line); background: #fff; transition: all 0.2s; text-align: center; }
+  .choice-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .choice-btn.internal { border-color: #3b82f6; background: #dbeafe; color: #1d4ed8; }
+  .choice-btn.external { border-color: #22c55e; background: #d1fae5; color: #15803d; }
+  .choice-btn.selected { box-shadow: 0 0 0 3px rgba(162,28,175,0.3); }
+  .result-reveal { padding: 12px; border-radius: 8px; margin-top: 10px; font-size: 0.87rem; display: none; }
+  /* Kelley table */
+  .kelley-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 14px 0; }
+  .kelley-cell { padding: 10px; border-radius: 8px; border: 2px solid var(--line); text-align: center; cursor: pointer; transition: all 0.2s; font-size: 0.83rem; }
+  .kelley-cell:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .kelley-cell.high { background: #d1fae5; border-color: #22c55e; color: #15803d; }
+  .kelley-cell.low { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+  .kelley-result { text-align: center; font-weight: 700; font-size: 1.1rem; padding: 12px; border-radius: 8px; margin-top: 8px; }
+  /* IAT mini */
+  .iat-screen { background: #1e1e2e; color: #fff; border-radius: 12px; padding: 20px; text-align: center; min-height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .iat-word { font-size: 2.2rem; font-weight: 800; margin: 8px 0; transition: opacity 0.2s; }
+  .iat-face { font-size: 3rem; }
+  .iat-instructions { font-size: 0.8rem; color: #a0aec0; margin-bottom: 8px; }
+  .iat-keys { display: flex; gap: 20px; justify-content: center; margin-top: 12px; }
+  .iat-key { padding: 8px 20px; border-radius: 6px; font-weight: 700; font-size: 1rem; cursor: pointer; border: none; }
+  .key-left { background: #3b82f6; color: #fff; }
+  .key-right { background: #ef4444; color: #fff; }
+  .iat-feedback { height: 28px; font-size: 1.2rem; font-weight: 700; margin-top: 8px; }
+  .iat-rt { font-size: 0.8rem; color: #a0aec0; margin-top: 4px; }
+  /* Stereotype threat bar */
+  .bar-group { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; }
+  .bar-row { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; }
+  .bar-fill { height: 24px; border-radius: 4px; transition: width 0.5s; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; font-weight: 700; font-size: 0.8rem; color: #fff; min-width: 30px; }
+  .bar-fill.control { background: #3b82f6; }
+  .bar-fill.threat { background: #ef4444; }
+  .bar-label { min-width: 130px; max-width: 130px; font-size: 0.82rem; color: var(--ink-soft); }
+  @media (max-width: 480px) {
+    .kelley-grid { grid-template-columns: 1fr; }
+    .bar-label { min-width: 90px; max-width: 90px; font-size: 0.75rem; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Tầng 2</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-group-dynamics/visualization.html">← L02: Group Dynamics</a>
+  <span class="sep">·</span>
+  <span class="current">L03: Attribution & Stereotype</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-developmental/visualization.html">L04: Developmental →</a>
+</nav>
+<main>
+  <h1>Attribution &amp; Stereotype — Gán Nguyên Nhân &amp; Định Kiến</h1>
+
+  <!-- MODULE 1: ATTRIBUTION GAME -->
+  <div class="module">
+    <h2>1. Attribution Game — Internal hay External?</h2>
+    <p>Đọc tình huống. Chọn giải thích nào bạn nghĩ đến đầu tiên. Sau đó xem reveal về FAE.</p>
+
+    <div id="scenarioBox" class="scenario-box">Bấm "Tình huống mới" để bắt đầu.</div>
+
+    <div class="choice-row">
+      <div class="choice-btn internal" onclick="chooseAttrib('internal')">🧠 Internal<br><small>Do tính cách / năng lực</small></div>
+      <div class="choice-btn external" onclick="chooseAttrib('external')">🌍 External<br><small>Do hoàn cảnh / luck</small></div>
+    </div>
+
+    <button class="btn" onclick="nextScenario()" style="margin-top:8px;">Tình huống mới</button>
+
+    <div class="result-reveal" id="attribReveal"></div>
+
+    <div style="margin-top:14px;background:var(--accent-soft);border-radius:8px;padding:12px;font-size:0.85rem;">
+      <strong>Tổng kết của bạn:</strong> <span id="attribScore">Chưa có câu trả lời.</span>
+    </div>
+  </div>
+
+  <!-- MODULE 2: KELLEY COVARIATION -->
+  <div class="module">
+    <h2>2. Kelley Covariation Model — Phân tích Attribution</h2>
+    <p>Chọn mức độ của 3 yếu tố để xem attribution nào được suggest.</p>
+    <p style="font-size:0.85rem;color:var(--ink-soft);">Tình huống: <em>Nam cười khi xem bộ phim X.</em></p>
+
+    <div class="kelley-grid">
+      <div>
+        <div style="font-weight:700;font-size:0.88rem;margin-bottom:6px;">Consensus</div>
+        <div style="font-size:0.78rem;color:var(--ink-soft);margin-bottom:8px;">Người khác cũng cười phim X không?</div>
+        <button class="btn btn-outline" style="width:48%;font-size:0.8rem;" onclick="setKelley('consensus','high')">Cao ✓</button>
+        <button class="btn btn-outline" style="width:48%;font-size:0.8rem;" onclick="setKelley('consensus','low')">Thấp ✗</button>
+        <div id="consensusVal" style="margin-top:6px;font-size:0.82rem;color:var(--ink-soft);">—</div>
+      </div>
+      <div>
+        <div style="font-weight:700;font-size:0.88rem;margin-bottom:6px;">Distinctiveness</div>
+        <div style="font-size:0.78rem;color:var(--ink-soft);margin-bottom:8px;">Nam chỉ cười phim X, không cười phim khác?</div>
+        <button class="btn btn-outline" style="width:48%;font-size:0.8rem;" onclick="setKelley('distinct','high')">Cao ✓</button>
+        <button class="btn btn-outline" style="width:48%;font-size:0.8rem;" onclick="setKelley('distinct','low')">Thấp ✗</button>
+        <div id="distinctVal" style="margin-top:6px;font-size:0.82rem;color:var(--ink-soft);">—</div>
+      </div>
+      <div>
+        <div style="font-weight:700;font-size:0.88rem;margin-bottom:6px;">Consistency</div>
+        <div style="font-size:0.78rem;color:var(--ink-soft);margin-bottom:8px;">Nam luôn cười mỗi khi xem phim X?</div>
+        <button class="btn btn-outline" style="width:48%;font-size:0.8rem;" onclick="setKelley('consist','high')">Cao ✓</button>
+        <button class="btn btn-outline" style="width:48%;font-size:0.8rem;" onclick="setKelley('consist','low')">Thấp ✗</button>
+        <div id="consistVal" style="margin-top:6px;font-size:0.82rem;color:var(--ink-soft);">—</div>
+      </div>
+    </div>
+
+    <div id="kelleyResult" class="kelley-result" style="background:var(--accent-soft);"></div>
+  </div>
+
+  <!-- MODULE 3: STEREOTYPE THREAT -->
+  <div class="module">
+    <h2>3. Stereotype Threat — Dữ Liệu Steele & Aronson (1995)</h2>
+    <p>So sánh performance ở điều kiện control vs threat. Chọn nhóm và điều kiện để xem data.</p>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+      <button class="btn" onclick="loadSTData('race')">Race (Black/White)</button>
+      <button class="btn btn-outline" onclick="loadSTData('gender')">Gender (Women/Men Math)</button>
+    </div>
+
+    <div id="stChart" class="bar-group"></div>
+
+    <div id="stNote" style="padding:10px;background:#fff3cd;border-radius:8px;font-size:0.83rem;margin-top:10px;"></div>
+
+    <details style="margin-top:12px;">
+      <summary style="cursor:pointer;color:var(--accent);font-weight:600;">Critique của Stereotype Threat research</summary>
+      <div style="padding:10px;font-size:0.84rem;line-height:1.6;margin-top:6px;">
+        <strong>Meta-analysis Flore & Wicherts (2015)</strong>: gender stereotype threat trên math — tổng 47 studies: effect d ≈ 0.22 (small). Nhiều studies nhỏ, publication bias có thể inflate estimates.<br><br>
+        <strong>Replications mixed</strong>: Một số không replicate effect trong low-threat conditions. Effect mạnh nhất khi stereotype saliency rất cao (explicit statement).<br><br>
+        <strong>Vẫn có policy value</strong>: Ngay cả small effect, nếu xảy ra hàng ngàn lần/năm (classroom, SAT, hiring tests) → cumulative impact lớn.
+      </div>
+    </details>
+  </div>
+
+  <!-- MODULE 4: IAT DEMO + CRITIQUE -->
+  <div class="module">
+    <h2>4. Mini IAT Demo — Implicit Association Test</h2>
+    <p>Thử IAT rút gọn: bấm <strong>J</strong> (hoặc nút Tốt) nếu từ/ảnh thuộc nhóm <strong>Tốt hoặc Mặt tươi</strong>, bấm <strong>F</strong> (hoặc nút Xấu) nếu thuộc nhóm <strong>Xấu hoặc Mặt mếu</strong>. Nhanh nhất có thể!</p>
+
+    <div class="iat-screen" id="iatScreen">
+      <div class="iat-instructions" id="iatInstr">Bấm "Bắt đầu" để thử</div>
+      <div class="iat-face" id="iatStimulus">👤</div>
+      <div class="iat-word" id="iatWord"></div>
+      <div class="iat-feedback" id="iatFeedback"></div>
+      <div class="iat-rt" id="iatRT"></div>
+    </div>
+
+    <div class="iat-keys" style="margin:12px 0;">
+      <button class="iat-key key-left" onclick="iatRespond('congruent')" id="keyLeft">F — Xấu / 😢</button>
+      <button class="iat-key key-right" onclick="iatRespond('incongruent')" id="keyRight">J — Tốt / 😊</button>
+    </div>
+
+    <button class="btn" onclick="startIAT()">Bắt đầu Block</button>
+    <button class="btn btn-outline" onclick="resetIAT()" style="margin-left:8px;">Reset</button>
+
+    <div id="iatResults" style="display:none;margin-top:12px;padding:14px;background:var(--accent-soft);border-radius:8px;font-size:0.87rem;"></div>
+
+    <div style="margin-top:14px;padding:12px;background:#fee2e2;border-radius:8px;font-size:0.83rem;">
+      <strong>⚠ Critique IAT:</strong> Test-retest r ≈ 0.35–0.55 | Predictive validity r ≈ 0.15 | Oswald et al. (2015): "little evidence IAT predicts discrimination." Mini IAT này chỉ là <em>demo concept</em>, không có giá trị chẩn đoán cá nhân.
+    </div>
+  </div>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+
+<script>
+// ============ ATTRIBUTION GAME ============
+const scenarios = [
+  { text: 'Anh Minh trễ buổi họp quan trọng 20 phút.', fae: 'internal', explanation: 'FAE phổ biến: "Anh ấy lười biếng / không tôn trọng người khác." Nhưng: có thể kẹt xe, con bệnh, sự cố. Cần consensus & distinctiveness trước khi kết luận.' },
+  { text: 'Chị Lan viết bài luận ủng hộ tư nhân hóa giáo dục — bạn biết đây là bài tập được giao chủ đề.', fae: 'external', explanation: 'Jones & Harris 1967: Người ta vẫn gán attitude cho tác giả dù biết bài là assigned. Đây là FAE kinh điển — tình huống (assigned topic) bị bỏ qua.' },
+  { text: 'Một nhân viên mới làm sai report quan trọng đầu tiên của họ.', fae: 'internal', explanation: 'FAE: "Họ incompetent." External factors: mới vào, không được training đủ, deadline không thực tế, hệ thống phức tạp.' },
+  { text: 'Bạn trượt bài kiểm tra quan trọng.', fae: 'external', explanation: 'Self-serving bias: khi là chính mình, ta thường gán external (đề khó, phòng ồn). Khi là người khác, ta gán internal. Actor-observer asymmetry.' },
+  { text: 'Một tài xế vượt đèn đỏ.', fae: 'internal', explanation: 'FAE: "Người này liều lĩnh / không tuân thủ luật." External: cấp cứu, không thấy đèn, brake fail. Cần context.' },
+  { text: 'Một startup fails sau 2 năm.', fae: 'internal', explanation: 'Hindsight bias + FAE: "Founder thiếu kinh nghiệm / kỹ năng." External: timing thị trường sai, COVID, competitor, funding. Thực tế ~90% startups fail — situation cực kỳ quan trọng.' }
+];
+let currentScenario = -1, totalAttempts = 0, internalCount = 0;
+
+function nextScenario() {
+  currentScenario = (currentScenario + 1) % scenarios.length;
+  document.getElementById('scenarioBox').textContent = scenarios[currentScenario].text;
+  document.getElementById('attribReveal').style.display = 'none';
+}
+
+function chooseAttrib(choice) {
+  if (currentScenario < 0) { alert('Bấm "Tình huống mới" trước!'); return; }
+  totalAttempts++;
+  if (choice === 'internal') internalCount++;
+  const s = scenarios[currentScenario];
+  const reveal = document.getElementById('attribReveal');
+  reveal.style.display = 'block';
+  if (choice === s.fae) {
+    reveal.style.background = '#d1fae5';
+    reveal.innerHTML = `<strong>Đây là lựa chọn điển hình!</strong> ${s.explanation}`;
+  } else {
+    reveal.style.background = '#fef3c7';
+    reveal.innerHTML = `<strong>Lựa chọn ít phổ biến hơn.</strong> ${s.explanation}`;
+  }
+  const pct = Math.round(internalCount / totalAttempts * 100);
+  document.getElementById('attribScore').innerHTML =
+    `${totalAttempts} tình huống | Internal: ${internalCount} (${pct}%) | External: ${totalAttempts-internalCount} (${100-pct}%) | (FAE predict: >60% internal)`;
+}
+nextScenario();
+
+// ============ KELLEY ============
+let kelley = { consensus: null, distinct: null, consist: null };
+
+function setKelley(dim, val) {
+  kelley[dim] = val;
+  const labels = { consensus: 'consensusVal', distinct: 'distinctVal', consist: 'consistVal' };
+  const el = document.getElementById(labels[dim]);
+  el.textContent = val === 'high' ? '✓ Cao' : '✗ Thấp';
+  el.style.color = val === 'high' ? '#15803d' : '#b91c1c';
+  updateKelleyResult();
+}
+
+function updateKelleyResult() {
+  const r = document.getElementById('kelleyResult');
+  const { consensus: c, distinct: d, consist: co } = kelley;
+  if (!c || !d || !co) { r.textContent = 'Chọn đủ 3 yếu tố...'; r.style.background = '#f0f0f0'; return; }
+
+  let result, bg;
+  if (c === 'high' && d === 'high' && co === 'high') {
+    result = '→ External attribution: Phim X hay (situational)'; bg = '#d1fae5';
+  } else if (c === 'low' && d === 'low' && co === 'high') {
+    result = '→ Internal attribution: Nam thích cười / vui tính (dispositional)'; bg = '#dbeafe';
+  } else if (c === 'high' && d === 'high' && co === 'low') {
+    result = '→ Circumstantial: Coincidence / random (no strong attribution)'; bg = '#fef3c7';
+  } else if (c === 'low' && d === 'high' && co === 'high') {
+    result = '→ Internal: Nam có gì đặc biệt với phim X (cụ thể hơn dispositional)'; bg = '#e9d5ff';
+  } else {
+    result = '→ Mixed: Cần thêm thông tin để kết luận rõ ràng'; bg = '#fef9c3';
+  }
+  r.textContent = result; r.style.background = bg;
+}
+
+// ============ STEREOTYPE THREAT ============
+const stData = {
+  race: {
+    bars: [
+      { label: 'Trắng — Control', val: 5.7, max: 12, cls: 'control' },
+      { label: 'Trắng — Threat', val: 5.9, max: 12, cls: 'control' },
+      { label: 'Black — Control', val: 5.4, max: 12, cls: 'control' },
+      { label: 'Black — Threat', val: 3.2, max: 12, cls: 'threat' }
+    ],
+    note: 'Steele & Aronson (1995): Khi nói "bài test đo IQ" (threat), Black students score giảm 2.2 điểm (d≈1.0 trong study này). White students không bị ảnh hưởng. Gap hoàn toàn do một câu nói về identity.'
+  },
+  gender: {
+    bars: [
+      { label: 'Nam — Control', val: 7.8, max: 15, cls: 'control' },
+      { label: 'Nam — Threat', val: 7.6, max: 15, cls: 'control' },
+      { label: 'Nữ — Control', val: 7.5, max: 15, cls: 'control' },
+      { label: 'Nữ — Threat', val: 5.4, max: 15, cls: 'threat' }
+    ],
+    note: 'Spencer et al. (1999): Phụ nữ làm tốt ngang nam trong control. Khi nói "bài test này có sự khác biệt giới", phụ nữ score giảm 2.1 điểm (d≈0.5). Meta-analysis (Flore & Wicherts 2015): average d≈0.22 across 47 studies.'
+  }
+};
+
+function loadSTData(type) {
+  const d = stData[type];
+  const chart = document.getElementById('stChart');
+  chart.innerHTML = '';
+  const maxVal = d.bars[0].max;
+  d.bars.forEach(b => {
+    const pct = (b.val / maxVal * 100).toFixed(0);
+    const row = document.createElement('div');
+    row.className = 'bar-row';
+    row.innerHTML = `
+      <div class="bar-label">${b.label}</div>
+      <div class="bar-fill ${b.cls}" style="width:${pct}%;">${b.val}</div>
+      <span style="font-size:0.8rem;color:var(--ink-soft);">/${maxVal}</span>
+    `;
+    chart.appendChild(row);
+  });
+  document.getElementById('stNote').textContent = d.note;
+}
+loadSTData('race');
+
+// ============ IAT ============
+const iatWords = {
+  good: ['Hạnh phúc', 'Tươi sáng', 'Xuất sắc', 'Yêu thương', 'Tuyệt vời'],
+  bad: ['Đau khổ', 'Tệ hại', 'Kinh khủng', 'Thù ghét', 'Tồi tệ'],
+  face_happy: ['😊', '😄', '🙂', '😁'],
+  face_sad: ['😢', '😞', '😠', '😖']
+};
+
+let iatTrials = [], iatIdx = 0, iatStartTime = 0, iatRunning = false;
+let rtCongruent = [], rtIncongruent = [];
+
+function generateIATTrials() {
+  const trials = [];
+  // Block A: congruent (happy face + good word → same key)
+  for (let i = 0; i < 6; i++) {
+    if (Math.random() > 0.5) {
+      trials.push({ type: 'congruent', stim: iatWords.good[Math.floor(Math.random()*5)], correct: 'congruent', category: 'word' });
+      trials.push({ type: 'congruent', stim: iatWords.face_happy[Math.floor(Math.random()*4)], correct: 'congruent', category: 'face' });
+    } else {
+      trials.push({ type: 'incongruent', stim: iatWords.bad[Math.floor(Math.random()*5)], correct: 'incongruent', category: 'word' });
+      trials.push({ type: 'incongruent', stim: iatWords.face_sad[Math.floor(Math.random()*4)], correct: 'incongruent', category: 'face' });
+    }
+  }
+  return trials.sort(() => Math.random() - 0.5).slice(0, 12);
+}
+
+function startIAT() {
+  iatTrials = generateIATTrials();
+  iatIdx = 0; iatRunning = true;
+  rtCongruent = []; rtIncongruent = [];
+  document.getElementById('iatResults').style.display = 'none';
+  showIATTrial();
+}
+
+function showIATTrial() {
+  if (iatIdx >= iatTrials.length) { endIAT(); return; }
+  const t = iatTrials[iatIdx];
+  document.getElementById('iatStimulus').textContent = t.category === 'face' ? t.stim : '';
+  document.getElementById('iatWord').textContent = t.category === 'word' ? t.stim : '';
+  document.getElementById('iatFeedback').textContent = '';
+  document.getElementById('iatRT').textContent = `Trial ${iatIdx+1}/${iatTrials.length}`;
+  document.getElementById('iatInstr').textContent = t.category === 'face' ? 'Mặt người → bấm phím!' : 'Từ ngữ → bấm phím!';
+  iatStartTime = Date.now();
+}
+
+function iatRespond(side) {
+  if (!iatRunning || iatIdx >= iatTrials.length) return;
+  const t = iatTrials[iatIdx];
+  const rt = Date.now() - iatStartTime;
+  const correct = (side === t.correct);
+  if (correct) {
+    document.getElementById('iatFeedback').textContent = '✓';
+    document.getElementById('iatFeedback').style.color = '#22c55e';
+    if (t.correct === 'congruent') rtCongruent.push(rt);
+    else rtIncongruent.push(rt);
+  } else {
+    document.getElementById('iatFeedback').textContent = '✗';
+    document.getElementById('iatFeedback').style.color = '#ef4444';
+  }
+  document.getElementById('iatRT').textContent = `RT: ${rt}ms`;
+  iatIdx++;
+  setTimeout(showIATTrial, 600);
+}
+
+function endIAT() {
+  iatRunning = false;
+  document.getElementById('iatStimulus').textContent = '✅';
+  document.getElementById('iatWord').textContent = '';
+  document.getElementById('iatInstr').textContent = 'Hoàn thành!';
+  const avgC = rtCongruent.length ? Math.round(rtCongruent.reduce((a,b)=>a+b)/rtCongruent.length) : 0;
+  const avgI = rtIncongruent.length ? Math.round(rtIncongruent.reduce((a,b)=>a+b)/rtIncongruent.length) : 0;
+  const diff = avgI - avgC;
+  const el = document.getElementById('iatResults');
+  el.style.display = 'block';
+  el.innerHTML = `
+    <strong>Kết quả mini IAT:</strong><br>
+    RT congruent (Tốt + 😊): ${avgC}ms | RT incongruent (Xấu + 😊): ${avgI}ms<br>
+    Chênh lệch: <strong>${diff > 0 ? '+' : ''}${diff}ms</strong><br>
+    <span style="color:var(--ink-soft);font-size:0.8rem;">
+    ⚠ Demo này KHÔNG có giá trị chẩn đoán. Sample quá nhỏ (12 trials). IAT thật cần 100+ trials với calibration. Test-retest r ≈ 0.45, predictive validity r ≈ 0.15.
+    </span>
+  `;
+}
+
+function resetIAT() {
+  iatRunning = false; iatIdx = 0;
+  document.getElementById('iatStimulus').textContent = '👤';
+  document.getElementById('iatWord').textContent = '';
+  document.getElementById('iatFeedback').textContent = '';
+  document.getElementById('iatRT').textContent = '';
+  document.getElementById('iatInstr').textContent = 'Bấm "Bắt đầu" để thử';
+  document.getElementById('iatResults').style.display = 'none';
+}
+
+// Keyboard support
+document.addEventListener('keydown', (e) => {
+  if (!iatRunning) return;
+  if (e.key === 'j' || e.key === 'J') iatRespond('incongruent');
+  if (e.key === 'f' || e.key === 'F') iatRespond('congruent');
+});
+</script>
+</body>
+</html>

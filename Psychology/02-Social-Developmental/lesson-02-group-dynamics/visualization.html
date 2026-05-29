@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L02: Group Dynamics — Psychology T2</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fdf4ff;
+    --accent: #a21caf;
+    --accent-soft: #fae8ff;
+    --accent-hover: #86198f;
+  }
+  .module { background: var(--panel); border-radius: 12px; padding: 24px; margin-bottom: 28px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+  .module h2 { color: var(--accent); margin-top: 0; font-size: 1.2rem; border-bottom: 2px solid var(--accent-soft); padding-bottom: 8px; }
+  .btn { background: var(--accent); color: #fff; border: none; padding: 8px 18px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: background 0.2s; }
+  .btn:hover { background: var(--accent-hover); }
+  .btn-outline { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
+  .btn-outline:hover { background: var(--accent-soft); }
+  /* Ringelmann */
+  .ring-chart { display: flex; align-items: flex-end; gap: 16px; justify-content: center; margin: 16px 0; flex-wrap: wrap; }
+  .ring-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .ring-bar { width: 44px; border-radius: 4px 4px 0 0; transition: height 0.5s; min-height: 4px; }
+  .ring-bar.expected { background: #cbd5e0; }
+  .ring-bar.actual { background: var(--accent); }
+  .ring-label { font-size: 0.78rem; color: var(--ink-soft); font-weight: 600; }
+  .ring-val { font-size: 0.8rem; font-weight: 700; }
+  /* Groupthink checklist */
+  .symptom-list { display: flex; flex-direction: column; gap: 6px; }
+  .symptom-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 0.87rem; border: 2px solid var(--line); transition: all 0.2s; }
+  .symptom-item:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .symptom-item.checked { background: var(--accent-soft); border-color: var(--accent); }
+  .symptom-item .chk { width: 18px; height: 18px; border-radius: 4px; border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.8rem; }
+  .symptom-item.checked .chk { background: var(--accent); color: #fff; }
+  .symptom-score { text-align: center; font-size: 1.3rem; font-weight: 800; color: var(--accent); margin: 8px 0; }
+  /* Polarization */
+  .polar-meter { width: 100%; height: 28px; background: linear-gradient(to right, #3b82f6, #e5e7eb, #ef4444); border-radius: 14px; position: relative; margin: 12px 0; }
+  .polar-needle { position: absolute; top: -6px; width: 4px; height: 40px; background: var(--ink); border-radius: 2px; transform: translateX(-50%); transition: left 0.5s; }
+  .polar-labels { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--ink-soft); }
+  /* Minimal group */
+  .group-game { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin: 12px 0; }
+  .group-side { flex: 1; min-width: 140px; max-width: 220px; padding: 14px; border-radius: 10px; text-align: center; }
+  .group-side.blue { background: #dbeafe; border: 2px solid #3b82f6; }
+  .group-side.green { background: #d1fae5; border: 2px solid #22c55e; }
+  .alloc-slider { width: 100%; margin: 8px 0; }
+  .alloc-display { font-size: 1.4rem; font-weight: 800; }
+  .alloc-display.blue { color: #2563eb; }
+  .alloc-display.green { color: #16a34a; }
+  /* Data table */
+  table.dt { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+  table.dt th { background: var(--accent-soft); color: var(--accent); padding: 7px 10px; text-align: left; }
+  table.dt td { padding: 7px 10px; border-bottom: 1px solid var(--line); }
+  table.dt .hi td { font-weight: 700; color: var(--accent); }
+  @media (max-width: 480px) {
+    .ring-bar { width: 32px; }
+    .ring-chart { gap: 8px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Tầng 2</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-social-influence/visualization.html">← L01: Social Influence</a>
+  <span class="sep">·</span>
+  <span class="current">L02: Group Dynamics</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-attribution-stereotype/visualization.html">L03: Attribution →</a>
+</nav>
+<main>
+  <h1>Group Dynamics — Động Lực Nhóm</h1>
+
+  <!-- MODULE 1: RINGELMANN -->
+  <div class="module">
+    <h2>1. Social Loafing — Ringelmann Rope Pull Simulator</h2>
+    <p>Kéo thanh trượt để thêm người. So sánh lực <strong>kỳ vọng</strong> (xám) và lực <strong>thực tế</strong> (tím).</p>
+
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0;">
+      <label style="font-weight:600;">Số người: <span id="nPeople">1</span></label>
+      <input type="range" min="1" max="8" value="1" id="nSlider" oninput="updateRingelmann()" style="flex:1;min-width:120px;max-width:280px;">
+    </div>
+
+    <div class="ring-chart" id="ringChart"></div>
+
+    <div style="display:flex;gap:20px;flex-wrap:wrap;justify-content:center;margin:8px 0;">
+      <span style="display:flex;align-items:center;gap:6px;font-size:0.85rem;"><span style="display:inline-block;width:16px;height:16px;background:#cbd5e0;border-radius:3px;"></span> Kỳ vọng</span>
+      <span style="display:flex;align-items:center;gap:6px;font-size:0.85rem;"><span style="display:inline-block;width:16px;height:16px;background:var(--accent);border-radius:3px;"></span> Thực tế</span>
+    </div>
+
+    <div id="ringStats" style="background:var(--accent-soft);border-radius:8px;padding:12px;text-align:center;margin-top:8px;font-size:0.9rem;">
+    </div>
+  </div>
+
+  <!-- MODULE 2: GROUPTHINK -->
+  <div class="module">
+    <h2>2. Groupthink Checklist — 8 Triệu Chứng Janis</h2>
+    <p>Chọn case study rồi check các triệu chứng groupthink xuất hiện trong sự kiện đó.</p>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+      <button class="btn" onclick="loadCase('bop')">Bay of Pigs 1961</button>
+      <button class="btn btn-outline" onclick="loadCase('challenger')">Challenger 1986</button>
+      <button class="btn btn-outline" onclick="loadCase('custom')">Tùy chỉnh</button>
+    </div>
+
+    <div id="caseDesc" style="padding:10px;background:#f8f9fa;border-radius:8px;font-size:0.85rem;margin-bottom:12px;min-height:40px;">
+      Chọn case study để xem mô tả.
+    </div>
+
+    <div class="symptom-list" id="symptomList">
+      <div class="symptom-item" onclick="toggleSymptom(0)" id="s0"><div class="chk"></div><span><strong>Illusion of invulnerability</strong> — cảm giác bất khả xâm phạm</span></div>
+      <div class="symptom-item" onclick="toggleSymptom(1)" id="s1"><div class="chk"></div><span><strong>Collective rationalization</strong> — hợp lý hóa cảnh báo</span></div>
+      <div class="symptom-item" onclick="toggleSymptom(2)" id="s2"><div class="chk"></div><span><strong>Belief in moral right</strong> — tin mục tiêu đủ tốt</span></div>
+      <div class="symptom-item" onclick="toggleSymptom(3)" id="s3"><div class="chk"></div><span><strong>Stereotyping out-group</strong> — coi kẻ thù là yếu</span></div>
+      <div class="symptom-item" onclick="toggleSymptom(4)" id="s4"><div class="chk"></div><span><strong>Pressure on dissenters</strong> — áp lực người phản đối</span></div>
+      <div class="symptom-item" onclick="toggleSymptom(5)" id="s5"><div class="chk"></div><span><strong>Self-censorship</strong> — tự bịt miệng</span></div>
+      <div class="symptom-item" onclick="toggleSymptom(6)" id="s6"><div class="chk"></div><span><strong>Illusion of unanimity</strong> — ảo giác đồng thuận</span></div>
+      <div class="symptom-item" onclick="toggleSymptom(7)" id="s7"><div class="chk"></div><span><strong>Self-appointed mindguards</strong> — lọc thông tin tiêu cực</span></div>
+    </div>
+
+    <div class="symptom-score">
+      <span id="symptomCount">0</span>/8 triệu chứng
+    </div>
+    <div id="symptomRisk" style="text-align:center;font-size:0.87rem;padding:8px;border-radius:8px;"></div>
+  </div>
+
+  <!-- MODULE 3: GROUP POLARIZATION -->
+  <div class="module">
+    <h2>3. Group Polarization — Thảo luận đẩy quan điểm đến đâu?</h2>
+    <p>Nhập quan điểm ban đầu của nhóm (1-7), điều chỉnh tỷ lệ người ủng hộ, rồi simulate group discussion.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;flex-wrap:wrap;">
+      <div>
+        <label style="font-size:0.87rem;font-weight:600;">Mean ban đầu (1-7): <span id="initialMeanVal">4.0</span></label>
+        <input type="range" min="1" max="7" step="0.1" value="4" id="initialMean" oninput="updatePolar()" style="width:100%;">
+      </div>
+      <div>
+        <label style="font-size:0.87rem;font-weight:600;">% người ủng hộ (>4): <span id="supportPctVal">60%</span></label>
+        <input type="range" min="0" max="100" value="60" id="supportPct" oninput="updatePolar()" style="width:100%;">
+      </div>
+    </div>
+
+    <div style="margin:12px 0;">
+      <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:4px;">
+        <span>1 — Phản đối mạnh</span><span>4 — Trung lập</span><span>7 — Ủng hộ mạnh</span>
+      </div>
+      <div class="polar-meter">
+        <div class="polar-needle" id="needleBefore" style="left:43%; background:#666;"></div>
+        <div class="polar-needle" id="needleAfter" style="left:65%; background:var(--accent);"></div>
+      </div>
+      <div style="display:flex;gap:16px;justify-content:center;font-size:0.83rem;margin-top:6px;">
+        <span style="display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:12px;height:12px;background:#666;border-radius:2px;"></span> Trước thảo luận</span>
+        <span style="display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:12px;height:12px;background:var(--accent);border-radius:2px;"></span> Sau thảo luận</span>
+      </div>
+    </div>
+
+    <div id="polarResult" style="background:var(--accent-soft);border-radius:8px;padding:12px;text-align:center;font-size:0.9rem;"></div>
+  </div>
+
+  <!-- MODULE 4: MINIMAL GROUP -->
+  <div class="module">
+    <h2>4. Minimal Group Game — Tajfel (1971)</h2>
+    <p>Bạn được giao vào <strong id="userGroup">Nhóm Xanh</strong>. Phân bổ 100 điểm thưởng ẩn danh cho một thành viên mỗi nhóm. Không ai biết bạn là ai.</p>
+
+    <div class="group-game">
+      <div class="group-side blue">
+        <div style="font-size:1.4rem;">🔵</div>
+        <div style="font-weight:700;margin:4px 0;">Nhóm Xanh</div>
+        <div id="blueGroupLabel" style="font-size:0.78rem;color:#2563eb;margin-bottom:8px;">(Nhóm của bạn)</div>
+        <div class="alloc-display blue" id="blueAlloc">60</div>
+        <div style="font-size:0.78rem;color:var(--ink-soft);">điểm</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:2;gap:8px;">
+        <label style="font-size:0.85rem;font-weight:600;">Kéo thanh để phân bổ:</label>
+        <input type="range" min="0" max="100" value="60" id="allocSlider" oninput="updateAlloc()" style="width:100%;max-width:280px;">
+        <div style="font-size:0.78rem;color:var(--ink-soft);">Tổng luôn = 100</div>
+      </div>
+      <div class="group-side green">
+        <div style="font-size:1.4rem;">🟢</div>
+        <div style="font-weight:700;margin:4px 0;">Nhóm Xanh Lá</div>
+        <div style="font-size:0.78rem;color:#16a34a;margin-bottom:8px;">(Nhóm khác)</div>
+        <div class="alloc-display green" id="greenAlloc">40</div>
+        <div style="font-size:0.78rem;color:var(--ink-soft);">điểm</div>
+      </div>
+    </div>
+
+    <button class="btn" onclick="submitAlloc()" style="display:block;margin:0 auto;">Nộp quyết định</button>
+
+    <div id="allocResult" style="display:none;margin-top:12px;padding:12px;border-radius:8px;font-size:0.87rem;"></div>
+
+    <details style="margin-top:14px;">
+      <summary style="cursor:pointer;color:var(--accent);font-weight:600;">Dữ liệu Tajfel gốc (1971)</summary>
+      <table class="dt" style="margin-top:8px;">
+        <tr><th>Điều kiện phân nhóm</th><th>% thiên vị in-group</th></tr>
+        <tr class="hi"><td>Prefer Klee vs Kandinsky (random)</td><td>70-80%</td></tr>
+        <tr><td>Tung đồng xu (random hoàn toàn)</td><td>65-75%</td></tr>
+        <tr><td>Chỉ biết label, không gặp ai</td><td>60-70%</td></tr>
+        <tr><td>Cùng nhóm, quen nhau</td><td>85-90%</td></tr>
+      </table>
+    </details>
+  </div>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+
+<script>
+// ============ RINGELMANN ============
+const ringData = {
+  expected: [63, 126, 189, 252, 315, 378, 441, 504],
+  actual: [63, 118, 160, 195, 210, 222, 238, 248]
+};
+
+function updateRingelmann() {
+  const n = parseInt(document.getElementById('nSlider').value);
+  document.getElementById('nPeople').textContent = n;
+  const maxVal = 504;
+  const chart = document.getElementById('ringChart');
+  chart.innerHTML = '';
+  for (let i = 1; i <= n; i++) {
+    const exp = ringData.expected[i-1];
+    const act = ringData.actual[i-1];
+    const expH = Math.round(exp / maxVal * 200);
+    const actH = Math.round(act / maxVal * 200);
+    const eff = Math.round(act / exp * 100);
+    const wrap = document.createElement('div');
+    wrap.className = 'ring-bar-wrap';
+    wrap.innerHTML = `
+      <div style="display:flex;align-items:flex-end;gap:4px;">
+        <div class="ring-bar expected" style="height:${expH}px;"></div>
+        <div class="ring-bar actual" style="height:${actH}px;"></div>
+      </div>
+      <div class="ring-label">${i} người</div>
+      <div class="ring-val" style="color:var(--accent);">${act}kg</div>
+      <div style="font-size:0.72rem;color:#888;">(${eff}%)</div>
+    `;
+    chart.appendChild(wrap);
+  }
+  const exp = ringData.expected[n-1];
+  const act = ringData.actual[n-1];
+  const eff = Math.round(act / exp * 100);
+  const perPerson = Math.round(act / n);
+  document.getElementById('ringStats').innerHTML =
+    `<strong>${n} người</strong>: Kỳ vọng <strong>${exp} kg</strong> → Thực tế <strong>${act} kg</strong> | Hiệu suất: <strong>${eff}%</strong> | Mỗi người trung bình: <strong>${perPerson} kg</strong> (solo: 63 kg)`;
+}
+updateRingelmann();
+
+// ============ GROUPTHINK ============
+const cases = {
+  bop: {
+    desc: '<strong>Bay of Pigs (1961)</strong>: Kennedy + CIA + NSC kế hoạch đổ bộ 1,400 người Cuba lật đổ Castro. Thất bại sau 87 giờ. Nhiều cố vấn sau đó thừa nhận biết kế hoạch có vấn đề nhưng không lên tiếng. Check các triệu chứng có trong sự kiện này.',
+    checked: [0,1,2,3,4,5,6,7]
+  },
+  challenger: {
+    desc: '<strong>Challenger disaster (1986)</strong>: Kỹ sư Thiokol cảnh báo o-ring bị giòn ở -2°C. Buổi phóng: -2°C. Áp lực từ NASA management. 73 giây sau khi phóng: nổ, 7 người hy sinh. Check các triệu chứng bạn nhận thấy.',
+    checked: [1,4,5,6]
+  },
+  custom: {
+    desc: 'Chọn một sự kiện bạn tự biết (cuộc họp, dự án failed...) và check các triệu chứng xuất hiện.',
+    checked: []
+  }
+};
+let checkedSymptoms = new Set();
+
+function loadCase(id) {
+  const c = cases[id];
+  document.getElementById('caseDesc').innerHTML = c.desc;
+  checkedSymptoms = new Set();
+  for (let i = 0; i < 8; i++) {
+    const el = document.getElementById('s'+i);
+    el.className = 'symptom-item';
+    el.querySelector('.chk').textContent = '';
+  }
+  if (id !== 'custom') {
+    c.checked.forEach(i => {
+      checkedSymptoms.add(i);
+      const el = document.getElementById('s'+i);
+      el.className = 'symptom-item checked';
+      el.querySelector('.chk').textContent = '✓';
+    });
+  }
+  updateSymptomScore();
+}
+
+function toggleSymptom(i) {
+  const el = document.getElementById('s'+i);
+  if (checkedSymptoms.has(i)) {
+    checkedSymptoms.delete(i);
+    el.className = 'symptom-item';
+    el.querySelector('.chk').textContent = '';
+  } else {
+    checkedSymptoms.add(i);
+    el.className = 'symptom-item checked';
+    el.querySelector('.chk').textContent = '✓';
+  }
+  updateSymptomScore();
+}
+
+function updateSymptomScore() {
+  const n = checkedSymptoms.size;
+  document.getElementById('symptomCount').textContent = n;
+  const riskEl = document.getElementById('symptomRisk');
+  if (n <= 2) {
+    riskEl.style.background = '#d1fae5';
+    riskEl.textContent = 'Rủi ro thấp — ít triệu chứng.';
+  } else if (n <= 5) {
+    riskEl.style.background = '#fef3c7';
+    riskEl.textContent = 'Rủi ro trung bình — có dấu hiệu groupthink.';
+  } else {
+    riskEl.style.background = '#fee2e2';
+    riskEl.textContent = '⚠ Rủi ro cao — nhiều triệu chứng. Cần devil\'s advocate và anonymous feedback ngay.';
+  }
+}
+
+// ============ POLARIZATION ============
+function updatePolar() {
+  const mean = parseFloat(document.getElementById('initialMean').value);
+  const pct = parseInt(document.getElementById('supportPct').value);
+  document.getElementById('initialMeanVal').textContent = mean.toFixed(1);
+  document.getElementById('supportPctVal').textContent = pct + '%';
+
+  // Shift: toward majority direction, magnitude = f(mean distance from center, pct majority)
+  const distFromCenter = mean - 4;
+  const majorityStrength = (pct - 50) / 50; // -1 to 1
+  const shift = distFromCenter * 0.3 + majorityStrength * 0.6;
+  const afterMean = Math.max(1, Math.min(7, mean + shift));
+
+  const leftBefore = ((mean - 1) / 6) * 100;
+  const leftAfter = ((afterMean - 1) / 6) * 100;
+  document.getElementById('needleBefore').style.left = leftBefore + '%';
+  document.getElementById('needleAfter').style.left = leftAfter + '%';
+
+  const direction = shift > 0.05 ? '↑ tăng (ủng hộ hơn)' : shift < -0.05 ? '↓ giảm (phản đối hơn)' : '→ ổn định (không đủ polarize)';
+  document.getElementById('polarResult').innerHTML =
+    `Trước: <strong>${mean.toFixed(1)}</strong> | Sau: <strong>${afterMean.toFixed(1)}</strong> | Shift: <strong>${shift > 0 ? '+' : ''}${shift.toFixed(2)}</strong> — ${direction}<br>
+    <span style="font-size:0.82rem;color:var(--ink-soft);">(Stoner 1961: shift ~+0.8 to +1.0 khi majority ủng hộ)</span>`;
+}
+updatePolar();
+
+// ============ MINIMAL GROUP ============
+function updateAlloc() {
+  const blue = parseInt(document.getElementById('allocSlider').value);
+  const green = 100 - blue;
+  document.getElementById('blueAlloc').textContent = blue;
+  document.getElementById('greenAlloc').textContent = green;
+}
+
+function submitAlloc() {
+  const blue = parseInt(document.getElementById('allocSlider').value);
+  const green = 100 - blue;
+  const inGroupBias = blue - 50;
+  const resultEl = document.getElementById('allocResult');
+  resultEl.style.display = 'block';
+
+  if (inGroupBias > 10) {
+    resultEl.style.background = '#fae8ff';
+    resultEl.innerHTML = `Bạn cho in-group <strong>${blue}</strong> vs out-group <strong>${green}</strong> — in-group bias <strong>+${inGroupBias} điểm</strong>.<br>
+    Bạn thuộc ~70% participants thiên vị in-group (Tajfel 1971). Chỉ một cái nhãn ngẫu nhiên đã đủ!`;
+  } else if (inGroupBias < -10) {
+    resultEl.style.background = '#d1fae5';
+    resultEl.innerHTML = `Bạn cho out-group nhiều hơn (<strong>${green}</strong> vs <strong>${blue}</strong>) — bạn thuộc ~15% participants "ngược chiều".<br>
+    Một số người muốn "công bằng" hay "khiêm tốn" → out-group preference.`;
+  } else {
+    resultEl.style.background = '#f0f9ff';
+    resultEl.innerHTML = `Bạn phân bổ khá công bằng (<strong>${blue}</strong> vs <strong>${green}</strong>) — bạn thuộc ~15% "equal allocators".<br>
+    Tajfel gốc: chỉ ~20-30% phân bổ cân bằng hoặc out-group favor.`;
+  }
+}
+
+// Randomize user's group
+const userGroup = Math.random() > 0.5 ? 'Nhóm Xanh' : 'Nhóm Xanh Lá';
+document.getElementById('userGroup').textContent = userGroup;
+if (userGroup === 'Nhóm Xanh Lá') {
+  document.getElementById('blueGroupLabel').textContent = '';
+  document.querySelector('.group-side.green').innerHTML =
+    document.querySelector('.group-side.green').innerHTML.replace('(Nhóm khác)', '(Nhóm của bạn)');
+}
+</script>
+</body>
+</html>

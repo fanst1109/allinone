@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L05: Personality — Psychology T2</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fdf4ff;
+    --accent: #a21caf;
+    --accent-soft: #fae8ff;
+    --accent-hover: #86198f;
+  }
+  .module { background: var(--panel); border-radius: 12px; padding: 24px; margin-bottom: 28px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+  .module h2 { color: var(--accent); margin-top: 0; font-size: 1.2rem; border-bottom: 2px solid var(--accent-soft); padding-bottom: 8px; }
+  .btn { background: var(--accent); color: #fff; border: none; padding: 8px 18px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: background 0.2s; }
+  .btn:hover { background: var(--accent-hover); }
+  .btn-outline { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
+  .btn-outline:hover { background: var(--accent-soft); }
+  /* Big 5 test */
+  .item-row { padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .item-row:last-child { border-bottom: none; }
+  .item-text { font-size: 0.88rem; margin-bottom: 6px; }
+  .likert { display: flex; gap: 6px; flex-wrap: wrap; }
+  .likert-btn { width: 36px; height: 28px; border-radius: 4px; border: 2px solid var(--line); background: #fff; cursor: pointer; font-size: 0.78rem; font-weight: 700; transition: all 0.2s; }
+  .likert-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .likert-btn.selected { background: var(--accent); color: #fff; border-color: var(--accent); }
+  /* Spider chart */
+  .spider-container { display: flex; justify-content: center; margin: 12px 0; }
+  /* Distribution histogram */
+  .hist-wrap { display: flex; flex-direction: column; gap: 4px; margin: 12px 0; }
+  .hist-bar-row { display: flex; align-items: center; gap: 8px; }
+  .hist-label { min-width: 28px; font-size: 0.78rem; color: var(--ink-soft); text-align: right; }
+  .hist-bar { height: 18px; border-radius: 3px; transition: width 0.5s; }
+  /* Twin scatter */
+  .scatter-area { position: relative; width: 100%; max-width: 360px; margin: 0 auto; }
+  .scatter-dot { position: absolute; width: 10px; height: 10px; border-radius: 50%; transform: translate(-50%, -50%); cursor: pointer; }
+  /* Trait toggle */
+  .trait-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .trait-tab { padding: 5px 12px; border-radius: 16px; cursor: pointer; font-size: 0.82rem; font-weight: 600; border: 2px solid var(--line); background: #fff; transition: all 0.2s; }
+  .trait-tab:hover { border-color: var(--accent); }
+  .trait-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  @media (max-width: 480px) {
+    .likert { gap: 4px; }
+    .likert-btn { width: 30px; height: 26px; font-size: 0.72rem; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Tầng 2</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-developmental/visualization.html">← L04: Developmental</a>
+  <span class="sep">·</span>
+  <span class="current">L05: Personality</span>
+  <span class="sep">·</span>
+  <a href="../../03-Clinical-Methods/lesson-01-psychopathology/visualization.html">T3-L01: Psychopathology →</a>
+</nav>
+<main>
+  <h1>Personality — Tính Cách &amp; Big Five (OCEAN)</h1>
+
+  <!-- MODULE 1: MINI BIG FIVE TEST -->
+  <div class="module">
+    <h2>1. Mini Big Five Test (10 Items)</h2>
+    <p>Đánh giá từng mục từ 1 (Hoàn toàn không đồng ý) đến 5 (Hoàn toàn đồng ý). Sau đó xem biểu đồ radar 5 traits.</p>
+
+    <div id="testItems"></div>
+
+    <button class="btn" onclick="calcBigFive()" style="margin-top:14px;">Xem kết quả</button>
+    <button class="btn btn-outline" onclick="resetTest()" style="margin-left:8px;">Reset</button>
+
+    <div id="testResult" style="display:none;margin-top:16px;">
+      <div class="spider-container">
+        <canvas id="spiderCanvas" width="300" height="300"></canvas>
+      </div>
+      <div id="traitScores" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;justify-content:center;"></div>
+      <div id="traitInterpret" style="margin-top:12px;padding:12px;background:var(--accent-soft);border-radius:8px;font-size:0.85rem;line-height:1.7;"></div>
+    </div>
+  </div>
+
+  <!-- MODULE 2: DISTRIBUTION — CONTINUOUS vs BIMODAL -->
+  <div class="module">
+    <h2>2. Continuous vs Bimodal — Tại sao MBTI sai về distribution</h2>
+    <p>Chọn trait để xem distribution thực tế (bell curve, not bimodal) so với assumption của MBTI.</p>
+
+    <div class="trait-tabs" id="traitTabs">
+      <div class="trait-tab active" onclick="showDist('E')">Extraversion</div>
+      <div class="trait-tab" onclick="showDist('N')">Neuroticism</div>
+      <div class="trait-tab" onclick="showDist('C')">Conscientiousness</div>
+      <div class="trait-tab" onclick="showDist('MBTI')">MBTI (claimed)</div>
+    </div>
+
+    <canvas id="distCanvas" width="500" height="180" viewBox="0 0 500 180"></canvas>
+
+    <div id="distNote" style="margin-top:10px;padding:10px;background:#fff3cd;border-radius:8px;font-size:0.83rem;"></div>
+  </div>
+
+  <!-- MODULE 3: HERITABILITY TWIN SCATTER -->
+  <div class="module">
+    <h2>3. Twin Studies — Heritability của Personality Traits</h2>
+    <p>Scatter plot so sánh trait scores giữa các cặp twins. Xem pattern của identical vs fraternal.</p>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+      <button class="btn" onclick="showTwins('mz_apart')">Identical (reared apart)</button>
+      <button class="btn btn-outline" onclick="showTwins('mz_together')">Identical (together)</button>
+      <button class="btn btn-outline" onclick="showTwins('dz_apart')">Fraternal (apart)</button>
+      <button class="btn btn-outline" onclick="showTwins('dz_together')">Fraternal (together)</button>
+    </div>
+
+    <div style="position:relative;">
+      <canvas id="twinCanvas" width="320" height="320" style="max-width:100%;display:block;margin:0 auto;border:1px solid var(--line);border-radius:8px;"></canvas>
+    </div>
+
+    <div id="twinStats" style="margin-top:10px;padding:12px;background:var(--accent-soft);border-radius:8px;font-size:0.87rem;text-align:center;"></div>
+
+    <details style="margin-top:12px;">
+      <summary style="cursor:pointer;color:var(--accent);font-weight:600;">Bảng tổng hợp heritability (Bouchard et al. 1990)</summary>
+      <table style="width:100%;border-collapse:collapse;font-size:0.85rem;margin-top:8px;">
+        <tr style="background:var(--accent-soft);"><th style="padding:6px;text-align:left;">Comparison</th><th style="padding:6px;">r</th><th style="padding:6px;">n pairs</th></tr>
+        <tr style="border-bottom:1px solid var(--line);"><td style="padding:6px;font-weight:700;color:var(--accent);">Identical apart (MZ-A)</td><td style="padding:6px;text-align:center;font-weight:700;">0.50</td><td style="padding:6px;text-align:center;">~69</td></tr>
+        <tr style="border-bottom:1px solid var(--line);"><td style="padding:6px;">Identical together (MZ-T)</td><td style="padding:6px;text-align:center;">0.52</td><td style="padding:6px;text-align:center;">~217</td></tr>
+        <tr style="border-bottom:1px solid var(--line);"><td style="padding:6px;">Fraternal apart (DZ-A)</td><td style="padding:6px;text-align:center;">0.21</td><td style="padding:6px;text-align:center;">~55</td></tr>
+        <tr style="border-bottom:1px solid var(--line);"><td style="padding:6px;">Fraternal together (DZ-T)</td><td style="padding:6px;text-align:center;">0.23</td><td style="padding:6px;text-align:center;">~114</td></tr>
+        <tr><td style="padding:6px;">Adoptive siblings</td><td style="padding:6px;text-align:center;">0.07</td><td style="padding:6px;text-align:center;">~99</td></tr>
+      </table>
+      <p style="font-size:0.78rem;color:var(--ink-soft);margin-top:6px;">h² ≈ 2×(MZ-A − DZ-A) = 2×(0.50 − 0.21) = 0.58 ≈ <strong>58% heritability</strong></p>
+    </details>
+  </div>
+
+  <!-- MODULE 4: MBTI CRITIQUE -->
+  <div class="module">
+    <h2>4. MBTI vs Big Five — So Sánh Chất Lượng Khoa Học</h2>
+    <p>Click vào từng tiêu chí để xem so sánh chi tiết.</p>
+
+    <div id="mbtiCriteria" style="display:flex;flex-direction:column;gap:8px;"></div>
+
+    <div id="criteriaDetail" style="margin-top:12px;padding:14px;background:var(--accent-soft);border-radius:8px;font-size:0.87rem;line-height:1.6;min-height:60px;">
+      Chọn tiêu chí để xem phân tích.
+    </div>
+
+    <div style="margin-top:14px;padding:12px;background:#d1fae5;border-radius:8px;font-size:0.83rem;">
+      <strong>Bottom line:</strong> Big Five có test-retest r > 0.75, predictive validity r ≈ 0.20-0.25 với job performance, cross-cultural validity, continuous distribution. MBTI useful như conversation tool — không phải scientific assessment cho HR/clinical.
+    </div>
+  </div>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+
+<script>
+// ============ BIG FIVE TEST ============
+const testItems = [
+  { text: 'Tôi thích gặp gỡ người mới và dành nhiều thời gian với mọi người.', trait: 'E', reverse: false },
+  { text: 'Tôi thường cảm thấy lo lắng hoặc căng thẳng ngay cả khi không có lý do rõ ràng.', trait: 'N', reverse: false },
+  { text: 'Tôi luôn lên kế hoạch trước và tổ chức công việc cẩn thận.', trait: 'C', reverse: false },
+  { text: 'Tôi sẵn sàng giúp đỡ người lạ dù không được yêu cầu.', trait: 'A', reverse: false },
+  { text: 'Tôi thích khám phá ý tưởng mới, triết học, hoặc nghệ thuật.', trait: 'O', reverse: false },
+  { text: 'Tôi thấy các buổi tụ tập xã hội là mệt mỏi và cần thời gian một mình để nạp lại năng lượng.', trait: 'E', reverse: true },
+  { text: 'Tôi hiếm khi bị ảnh hưởng bởi stress và thường giữ được bình tĩnh.', trait: 'N', reverse: true },
+  { text: 'Tôi hay trì hoãn và khó duy trì deadline.', trait: 'C', reverse: true },
+  { text: 'Tôi có xu hướng không quan tâm nhiều đến cảm xúc người khác khi cần ra quyết định.', trait: 'A', reverse: true },
+  { text: 'Tôi thích routine và ít thay đổi hơn là thử nghiệm điều mới.', trait: 'O', reverse: true }
+];
+
+const traitColors = { O: '#8b5cf6', C: '#3b82f6', E: '#f59e0b', A: '#22c55e', N: '#ef4444' };
+const traitNames = { O: 'Openness', C: 'Conscientiousness', E: 'Extraversion', A: 'Agreeableness', N: 'Neuroticism' };
+let responses = new Array(10).fill(0);
+
+function buildTest() {
+  const container = document.getElementById('testItems');
+  container.innerHTML = '';
+  testItems.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'item-row';
+    div.innerHTML = `<div class="item-text"><strong>${idx+1}.</strong> ${item.text}</div>
+    <div class="likert" id="likert_${idx}">
+      ${[1,2,3,4,5].map(v => `<button class="likert-btn" onclick="setResponse(${idx},${v})">${v}</button>`).join('')}
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--ink-soft);margin-top:2px;">
+      <span>1 = Không đồng ý</span><span>5 = Đồng ý</span>
+    </div>`;
+    container.appendChild(div);
+  });
+}
+
+function setResponse(idx, val) {
+  responses[idx] = val;
+  const row = document.getElementById('likert_' + idx);
+  row.querySelectorAll('.likert-btn').forEach((b, bi) => {
+    b.className = 'likert-btn' + (bi === val - 1 ? ' selected' : '');
+  });
+}
+
+function calcBigFive() {
+  const scores = { O: 0, C: 0, E: 0, A: 0, N: 0 };
+  const counts = { O: 0, C: 0, E: 0, A: 0, N: 0 };
+  testItems.forEach((item, idx) => {
+    if (responses[idx] === 0) return;
+    const val = item.reverse ? (6 - responses[idx]) : responses[idx];
+    scores[item.trait] += val;
+    counts[item.trait]++;
+  });
+  const pct = {};
+  ['O','C','E','A','N'].forEach(t => {
+    pct[t] = counts[t] > 0 ? Math.round(scores[t] / (counts[t] * 5) * 100) : 50;
+  });
+  document.getElementById('testResult').style.display = 'block';
+  drawSpider(pct);
+  renderTraitScores(pct);
+}
+
+function drawSpider(pct) {
+  const canvas = document.getElementById('spiderCanvas');
+  const ctx = canvas.getContext('2d');
+  const cx = 150, cy = 150, maxR = 110;
+  const traits = ['O','C','E','A','N'];
+  const labels = ['O\nOpen', 'C\nConsc', 'E\nExtra', 'A\nAgree', 'N\nNeuro'];
+  const angles = traits.map((_, i) => (i * 2 * Math.PI / 5) - Math.PI / 2);
+
+  ctx.clearRect(0, 0, 300, 300);
+
+  // Grid circles
+  [20,40,60,80,100].forEach(r => {
+    ctx.beginPath();
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 1;
+    angles.forEach((a, i) => {
+      const x = cx + Math.cos(a) * maxR * r / 100;
+      const y = cy + Math.sin(a) * maxR * r / 100;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.closePath();
+    ctx.stroke();
+  });
+
+  // Spokes
+  angles.forEach(a => {
+    ctx.beginPath();
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(a) * maxR, cy + Math.sin(a) * maxR);
+    ctx.stroke();
+  });
+
+  // Filled polygon
+  ctx.beginPath();
+  traits.forEach((t, i) => {
+    const r = maxR * pct[t] / 100;
+    const x = cx + Math.cos(angles[i]) * r;
+    const y = cy + Math.sin(angles[i]) * r;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(162,28,175,0.2)';
+  ctx.fill();
+  ctx.strokeStyle = '#a21caf';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+
+  // Dots + labels
+  traits.forEach((t, i) => {
+    const r = maxR * pct[t] / 100;
+    const x = cx + Math.cos(angles[i]) * r;
+    const y = cy + Math.sin(angles[i]) * r;
+    ctx.beginPath();
+    ctx.arc(x, y, 5, 0, 2 * Math.PI);
+    ctx.fillStyle = traitColors[t];
+    ctx.fill();
+
+    const lx = cx + Math.cos(angles[i]) * (maxR + 20);
+    const ly = cy + Math.sin(angles[i]) * (maxR + 20);
+    ctx.fillStyle = traitColors[t];
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(t + ' ' + pct[t] + '%', lx, ly);
+  });
+}
+
+function renderTraitScores(pct) {
+  const container = document.getElementById('traitScores');
+  container.innerHTML = '';
+  const interpret = document.getElementById('traitInterpret');
+  let txt = '<strong>Nhận xét:</strong><br>';
+  ['O','C','E','A','N'].forEach(t => {
+    const div = document.createElement('div');
+    div.style.cssText = `padding:6px 12px;border-radius:16px;background:${traitColors[t]}22;border:2px solid ${traitColors[t]};font-size:0.82rem;font-weight:700;color:${traitColors[t]};`;
+    div.textContent = `${t}: ${pct[t]}%`;
+    container.appendChild(div);
+    const level = pct[t] >= 70 ? 'cao' : pct[t] <= 30 ? 'thấp' : 'trung bình';
+    txt += `• <strong>${traitNames[t]}</strong> ${pct[t]}% — ${level}. `;
+    if (t === 'N' && pct[t] >= 70) txt += '(Dễ stress, lo âu nhiều.) ';
+    if (t === 'C' && pct[t] >= 70) txt += '(Có tổ chức, đáng tin.) ';
+    if (t === 'E' && pct[t] <= 30) txt += '(Introvert — cần thời gian một mình.) ';
+    txt += '<br>';
+  });
+  txt += '<br><em>Mini test 10 items — chỉ indicative, không chẩn đoán. Validated Big Five cần 44-240 items.</em>';
+  interpret.innerHTML = txt;
+}
+
+function resetTest() {
+  responses = new Array(10).fill(0);
+  buildTest();
+  document.getElementById('testResult').style.display = 'none';
+}
+buildTest();
+
+// ============ DISTRIBUTION ============
+const distCtx = document.getElementById('distCanvas').getContext('2d');
+const distNotes = {
+  E: 'Extraversion theo Big Five: phân phối chuẩn (bell curve), gần unimodal. Hầu hết người ở middle range (40-60%). MBTI cắt ở giữa → mất thông tin về mức độ.',
+  N: 'Neuroticism: unimodal, slight skew. Không có "N-type" và "non-N-type" — là continuous spectrum.',
+  C: 'Conscientiousness: phân phối chuẩn với slight positive skew (mean ~55%). Continuous — không có threshold tự nhiên giữa "organized" và "disorganized".',
+  MBTI: 'MBTI assumed bimodal — 2 đỉnh tách biệt giữa E và I, S và N, etc. Nhưng data thực tế không show bimodality. Điều này làm mất thông tin và misclassify người ở middle.'
+};
+
+function showDist(type) {
+  document.querySelectorAll('.trait-tab').forEach(t => {
+    t.className = 'trait-tab' + (t.textContent.includes(type) || (type === 'MBTI' && t.textContent === 'MBTI (claimed)') ? ' active' : '');
+  });
+  drawDist(type);
+  document.getElementById('distNote').textContent = distNotes[type];
+}
+
+function gaussian(x, mu, sig) {
+  return Math.exp(-0.5 * ((x - mu) / sig) ** 2) / (sig * Math.sqrt(2 * Math.PI));
+}
+
+function drawDist(type) {
+  const ctx = distCtx;
+  const W = 500, H = 180;
+  ctx.clearRect(0, 0, W, H);
+
+  ctx.fillStyle = '#f8f9fa';
+  ctx.fillRect(0, 0, W, H);
+
+  const pad = 30;
+  const chartW = W - 2 * pad;
+  const chartH = H - 40;
+
+  // Axes
+  ctx.strokeStyle = '#94a3b8';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(pad, 10);
+  ctx.lineTo(pad, chartH + 10);
+  ctx.lineTo(W - pad, chartH + 10);
+  ctx.stroke();
+
+  // Labels
+  ctx.fillStyle = '#64748b';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Mức độ trait →', W / 2, H - 5);
+
+  let points = [];
+  let color = '#a21caf';
+
+  if (type === 'MBTI') {
+    // Bimodal — two peaks
+    for (let x = 0; x <= 100; x++) {
+      const y = gaussian(x, 30, 12) * 0.5 + gaussian(x, 70, 12) * 0.5;
+      points.push([x, y]);
+    }
+    color = '#ef4444';
+  } else {
+    // Unimodal normal, slight variations
+    const params = { E: [52, 14], N: [45, 15], C: [56, 13] };
+    const [mu, sig] = params[type] || [50, 14];
+    for (let x = 0; x <= 100; x++) {
+      const y = gaussian(x, mu, sig);
+      points.push([x, y]);
+    }
+    color = traitColors[type] || '#a21caf';
+  }
+
+  const maxY = Math.max(...points.map(p => p[1]));
+
+  // Draw filled curve
+  ctx.beginPath();
+  ctx.moveTo(pad, chartH + 10);
+  points.forEach(([x, y]) => {
+    const px = pad + (x / 100) * chartW;
+    const py = chartH + 10 - (y / maxY) * (chartH - 10);
+    ctx.lineTo(px, py);
+  });
+  ctx.lineTo(W - pad, chartH + 10);
+  ctx.closePath();
+  ctx.fillStyle = color + '30';
+  ctx.fill();
+
+  ctx.beginPath();
+  points.forEach(([x, y], i) => {
+    const px = pad + (x / 100) * chartW;
+    const py = chartH + 10 - (y / maxY) * (chartH - 10);
+    i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+  });
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+
+  // Midline (MBTI cut point)
+  if (type !== 'MBTI') {
+    ctx.strokeStyle = '#94a3b8';
+    ctx.setLineDash([4, 4]);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(pad + chartW * 0.5, 10);
+    ctx.lineTo(pad + chartW * 0.5, chartH + 10);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '9px sans-serif';
+    ctx.fillText('MBTI cut', pad + chartW * 0.5, 22);
+  }
+}
+showDist('E');
+
+// ============ TWIN SCATTER ============
+const twinConfigs = {
+  mz_apart: { r: 0.50, color: '#a21caf', label: 'Identical twins — reared apart', n: 60 },
+  mz_together: { r: 0.52, color: '#8b5cf6', label: 'Identical twins — reared together', n: 80 },
+  dz_apart: { r: 0.21, color: '#3b82f6', label: 'Fraternal twins — reared apart', n: 50 },
+  dz_together: { r: 0.23, color: '#22c55e', label: 'Fraternal twins — reared together', n: 70 }
+};
+
+function showTwins(type) {
+  const cfg = twinConfigs[type];
+  const canvas = document.getElementById('twinCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = 320, H = 320, pad = 40;
+  ctx.clearRect(0, 0, W, H);
+
+  // Axes
+  ctx.strokeStyle = '#94a3b8';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(pad, H - pad);
+  ctx.lineTo(W - pad, H - pad);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(pad, pad);
+  ctx.lineTo(pad, H - pad);
+  ctx.stroke();
+
+  // Labels
+  ctx.fillStyle = '#64748b';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Twin 1 score', W / 2, H - 10);
+  ctx.save();
+  ctx.translate(14, H / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('Twin 2 score', 0, 0);
+  ctx.restore();
+
+  // Generate correlated points
+  const chartW = W - 2 * pad, chartH = H - 2 * pad;
+  function randn() {
+    let u = 0, v = 0;
+    while (u === 0) u = Math.random();
+    while (v === 0) v = Math.random();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  }
+
+  const r = cfg.r;
+  const pts = [];
+  for (let i = 0; i < cfg.n; i++) {
+    const x = randn() * 0.15 + 0.5;
+    const z = randn() * 0.15 + 0.5;
+    const y = r * x + Math.sqrt(1 - r * r) * z;
+    pts.push([Math.max(0.02, Math.min(0.98, x)), Math.max(0.02, Math.min(0.98, y))]);
+  }
+
+  // Regression line
+  const avgX = pts.reduce((s, p) => s + p[0], 0) / pts.length;
+  const avgY = pts.reduce((s, p) => s + p[1], 0) / pts.length;
+  const slope = r;
+  ctx.beginPath();
+  ctx.strokeStyle = cfg.color + '80';
+  ctx.lineWidth = 2;
+  ctx.moveTo(pad, H - pad - (avgY - slope * (avgX - 0)) * chartH);
+  ctx.lineTo(W - pad, H - pad - (avgY + slope * (1 - avgX)) * chartH);
+  ctx.stroke();
+
+  // Points
+  pts.forEach(([x, y]) => {
+    ctx.beginPath();
+    ctx.arc(pad + x * chartW, H - pad - y * chartH, 4, 0, 2 * Math.PI);
+    ctx.fillStyle = cfg.color + 'aa';
+    ctx.fill();
+  });
+
+  // r label
+  ctx.fillStyle = cfg.color;
+  ctx.font = 'bold 13px sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText(`r = ${cfg.r}`, W - pad - 8, pad + 16);
+
+  document.getElementById('twinStats').innerHTML = `<strong>${cfg.label}</strong><br>
+  Pearson r = <strong>${cfg.r}</strong> — ${cfg.r > 0.4 ? 'Tương quan mạnh → heritability cao' : 'Tương quan yếu → ít genetic influence'}<br>
+  h² estimate (từ MZ-A vs DZ-A): <strong>≈ 2 × (0.50 − 0.21) = 0.58</strong>`;
+}
+showTwins('mz_apart');
+
+// ============ MBTI CRITERIA ============
+const criteria = [
+  { label: 'Test-retest reliability', mbti: '~50% same type', bigfive: 'r ≈ 0.75-0.85', ok: false, detail: 'McCrae & Costa (1989): 50% của participants nhận type khác MBTI sau 5 tuần. Big Five NEO-PI-R: r ≈ 0.80 sau 6 tuần. Implications: bạn không thể reliably assign người vào role dựa trên score không stable.' },
+  { label: 'Score distribution', mbti: 'Assumed bimodal', bigfive: 'Continuous, unimodal', ok: false, detail: 'MBTI assumes E vs I là 2 categories tách biệt. Data thực tế: continuous bell curve. Cắt continuous trait ở midpoint → half information lost. Người score 49 (I) và 51 (E) đều bị gán nhãn khác nhau dù gần như identical.' },
+  { label: 'Predictive validity (job)', mbti: 'Not significant', bigfive: 'C: r ≈ 0.22', ok: false, detail: 'Conscientiousness trong Big Five là best single predictor of job performance (r ≈ 0.22, Barrick & Mount 1991). MBTI dimensions không predict job performance significantly. Meta-analysis (Furnham 1996): MBTI "has no incremental validity over chance."' },
+  { label: 'Cross-cultural validity', mbti: 'Limited data', bigfive: 'Validated 50+ countries', ok: false, detail: 'Big Five factor structure replicates across 50+ countries (Schmitt et al. 2007). MBTI: primarily developed và validated trong Western samples, limited cross-cultural replication.' },
+  { label: 'Covers neuroticism?', mbti: 'No (missing N)', bigfive: 'Yes (N = 1/5 traits)', ok: false, detail: 'Neuroticism (emotional instability) là một trong most clinically relevant personality traits — predicts depression, anxiety, relationship issues. MBTI không có dimension tương đương → misses important variation.' },
+  { label: 'Sample size validation', mbti: 'Proprietary', bigfive: 'Thousands of studies', ok: true, detail: 'Both have large user bases, nhưng Big Five research là open-science: thousands of peer-reviewed studies, public datasets. MBTI validation data largely proprietary (Myers-Briggs Foundation controls).' }
+];
+
+function buildCriteria() {
+  const c = document.getElementById('mbtiCriteria');
+  criteria.forEach((cr, i) => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;cursor:pointer;border:2px solid var(--line);background:#fff;transition:all 0.2s;font-size:0.85rem;';
+    row.onclick = () => showCriterion(i);
+    row.innerHTML = `
+      <span style="font-size:1.1rem;">${cr.ok ? '⚠' : '❌'}</span>
+      <span style="flex:1;font-weight:600;">${cr.label}</span>
+      <span style="color:#b91c1c;font-size:0.8rem;min-width:90px;text-align:right;">MBTI: ${cr.mbti}</span>
+      <span style="color:#15803d;font-size:0.8rem;min-width:90px;text-align:right;">Big5: ${cr.bigfive}</span>
+    `;
+    row.addEventListener('mouseover', () => row.style.background = 'var(--accent-soft)');
+    row.addEventListener('mouseout', () => row.style.background = '#fff');
+    c.appendChild(row);
+  });
+}
+
+function showCriterion(i) {
+  const cr = criteria[i];
+  document.getElementById('criteriaDetail').innerHTML =
+    `<strong>${cr.label}</strong><br><br>${cr.detail}`;
+}
+buildCriteria();
+</script>
+</body>
+</html>

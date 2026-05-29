@@ -1,5 +1,5 @@
 // AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
-// Source: AI-ML/lesson-06-word-embeddings/README.md
+// Source: AI-ML/05-NLP-Applied/lesson-02-word-embeddings/README.md
 // Chạy lại: go run tools/build-readme-data.go
 window.README_MD = `# Lesson 06 — Word Embedding: Từ thưa sang dày, từ ký tự sang nghĩa
 

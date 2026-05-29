@@ -1,5 +1,5 @@
 // AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
-// Source: AI-ML/lesson-05-text-vectorization/README.md
+// Source: AI-ML/05-NLP-Applied/lesson-01-text-vectorization/README.md
 // Chạy lại: go run tools/build-readme-data.go
 window.README_MD = `# Lesson 05 — Text vectorization cổ điển: One-hot, Bag-of-Words, TF-IDF
 

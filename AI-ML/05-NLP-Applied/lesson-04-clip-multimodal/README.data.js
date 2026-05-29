@@ -1,5 +1,5 @@
 // AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
-// Source: AI-ML/lesson-08-clip-multimodal/README.md
+// Source: AI-ML/05-NLP-Applied/lesson-04-clip-multimodal/README.md
 // Chạy lại: go run tools/build-readme-data.go
 window.README_MD = `# Lesson 08 — CLIP và Multimodal Embedding
 

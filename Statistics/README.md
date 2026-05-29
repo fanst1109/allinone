@@ -53,7 +53,7 @@ Lĩnh vực này bổ trợ — không trùng — với [`Vectors/05-Probability
 ## Liên kết chéo
 
 - `Vectors/05-Probability` → cung cấp lý thuyết RV, normal, MLE mà Tầng 2 sẽ dùng.
-- `AI-ML/lesson-02-linear-regression` → bài này dùng nhiều khái niệm từ Tầng 1 & 2 (residual, hypothesis test, R²).
+- `AI-ML/01-Foundations/lesson-02-linear-regression` → bài này dùng nhiều khái niệm từ Tầng 1 & 2 (residual, hypothesis test, R²).
 - `Economics/` → econometrics dùng heavy hypothesis testing & causal inference.
 - `Biology/02-Genetics-Evolution` → di truyền quần thể (Hardy–Weinberg) là ứng dụng thống kê.
 

@@ -1,5 +1,5 @@
 // AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
-// Source: AI-ML/lesson-02-linear-regression/README.md
+// Source: AI-ML/01-Foundations/lesson-02-linear-regression/README.md
 // Chạy lại: go run tools/build-readme-data.go
 window.README_MD = `# Lesson 02 — Linear Regression
 

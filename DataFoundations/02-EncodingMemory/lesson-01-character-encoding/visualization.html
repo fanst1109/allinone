@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Character Encoding</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f5f3ff;
+    --accent: #553c9a;
+    --accent-soft: #ede9fe;
+    --accent-hover: #44337a;
+  }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #c4b5fd; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.09); margin: 16px 0; }
+  input[type="text"] {
+    font-family: monospace; font-size: 15px; padding: 8px 12px;
+    border: 1px solid #c4b5fd; border-radius: 5px; width: 280px; max-width: 100%;
+  }
+  button {
+    background: #553c9a; color: white; border: none;
+    padding: 8px 16px; border-radius: 5px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #44337a; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  .byte-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .byte-block {
+    background: #ede9fe; border: 1px solid #c4b5fd; border-radius: 6px;
+    padding: 8px 10px; font-family: monospace; font-size: 13px;
+    min-width: 64px; text-align: center;
+  }
+  .byte-block .char { font-size: 20px; font-weight: 700; color: #553c9a; }
+  .byte-block .cp  { color: #6b46c1; font-size: 11px; }
+  .byte-block .hex { color: #2b6cb0; }
+  .byte-block .bin { color: #276749; font-size: 11px; word-break: break-all; }
+  .byte-block .nbytes { font-size: 10px; color: #718096; margin-top: 2px; }
+  .step-log {
+    background: #1a202c; color: #9ae6b4; font-family: monospace;
+    padding: 12px; border-radius: 6px; white-space: pre-wrap;
+    max-height: 300px; overflow-y: auto; font-size: 13px; line-height: 1.7;
+  }
+  .compare-tbl { border-collapse: collapse; width: 100%; font-size: 14px; }
+  .compare-tbl th, .compare-tbl td { border: 1px solid #e2e8f0; padding: 8px 12px; }
+  .compare-tbl th { background: #ede9fe; color: #553c9a; }
+  .compare-tbl tr:nth-child(even) { background: #faf9ff; }
+  .bar-wrap { display: flex; align-items: center; gap: 8px; }
+  .bar { height: 20px; border-radius: 3px; font-size: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; min-width: 4px; transition: width 0.3s; }
+  .bar-utf8  { background: #553c9a; }
+  .bar-utf16 { background: #3182ce; }
+  .bar-utf32 { background: #276749; }
+  .nfc-nfd { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 500px) { .nfc-nfd { grid-template-columns: 1fr; } }
+  .nfd-box { background: #f7f9fc; border-radius: 6px; padding: 12px; border: 1px solid #e2e8f0; font-family: monospace; font-size: 13px; line-height: 2; }
+  .nfd-box h4 { margin: 0 0 6px; color: #553c9a; }
+  .diff-bad { color: #c53030; font-weight: 700; }
+  .diff-ok  { color: #276749; font-weight: 700; }
+  .hint { color: #718096; font-size: 13px; }
+  .byte-decode-row { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+  .bd-byte {
+    width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;
+    font-family: monospace; font-size: 14px; border-radius: 6px; border: 2px solid #c4b5fd;
+    cursor: text; background: #faf9ff;
+  }
+  .bd-byte.lead { border-color: #6b46c1; background: #ede9fe; color: #553c9a; font-weight: 700; }
+  .bd-byte.cont { border-color: #9ae6b4; background: #f0fff4; color: #276749; }
+  .bd-byte.err  { border-color: #fc8181; background: #fff5f5; color: #c53030; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../01-NumberRepresentation/lesson-03-floating-point/visualization.html">← N1-L03: Floating-Point</a>
+  <span class="sep">·</span>
+  <span class="current">N2-L01: Character Encoding</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-endianness-memory/visualization.html">N2-L02: Endianness →</a>
+</nav>
+<main>
+<h1>Lesson 01 — Character Encoding</h1>
+
+<!-- ===== MODULE 1: Text → UTF-8 Bytes ===== -->
+<h2>1. Text → UTF-8 byte breakdown</h2>
+<div class="card">
+  <p>Nhập chuỗi bất kỳ (tiếng Việt, emoji, CJK...) để xem từng ký tự encode thành bao nhiêu byte UTF-8.</p>
+  <div class="row">
+    <input type="text" id="txt-input" value="café 🌍" placeholder="Nhập text...">
+    <button onclick="encodeTxt()">Encode UTF-8</button>
+  </div>
+  <div class="row" style="gap:6px">
+    <button onclick="setEx('A')">A</button>
+    <button onclick="setEx('é')">é</button>
+    <button onclick="setEx('中')">中</button>
+    <button onclick="setEx('🌍')">🌍</button>
+    <button onclick="setEx('café')">café</button>
+    <button onclick="setEx('Xin chào')">Xin chào</button>
+    <button onclick="setEx('Hello 世界 🎉')">Mixed</button>
+  </div>
+  <div id="byte-list-out" class="byte-list" style="margin-top:14px"></div>
+  <div id="encode-summary" style="font-size:13px;color:#553c9a;margin-top:4px"></div>
+</div>
+
+<!-- ===== MODULE 2: UTF-8 Decode ===== -->
+<h2>2. UTF-8 Decode — bytes → code point (step-by-step)</h2>
+<div class="card">
+  <p>Nhập chuỗi hex bytes (cách nhau bằng space) để decode step-by-step.</p>
+  <div class="row">
+    <input type="text" id="hex-input" value="E4 B8 AD E6 96 87" placeholder="vd: E4 B8 AD">
+    <button onclick="decodeHex()">Decode</button>
+  </div>
+  <div class="row" style="gap:6px">
+    <button onclick="setHex('41')">41 (A)</button>
+    <button onclick="setHex('C3 A9')">C3 A9 (é)</button>
+    <button onclick="setHex('E4 B8 AD')">E4 B8 AD (中)</button>
+    <button onclick="setHex('F0 9F 8C 8D')">F0 9F 8C 8D (🌍)</button>
+    <button onclick="setHex('E4 B8 AD E6 96 87')">中文</button>
+  </div>
+  <div id="decode-log" class="step-log" style="margin-top:10px">Nhập hex bytes và bấm Decode...</div>
+</div>
+
+<!-- ===== MODULE 3: Compare Encodings ===== -->
+<h2>3. So sánh UTF-8 vs UTF-16 vs UTF-32</h2>
+<div class="card">
+  <div class="row">
+    <input type="text" id="cmp-input" value="Hello 世界 🌍" placeholder="Nhập text...">
+    <button onclick="compareEncodings()">So sánh</button>
+  </div>
+  <div id="cmp-table" style="margin-top:12px;overflow-x:auto"></div>
+  <div id="cmp-bars" style="margin-top:12px"></div>
+</div>
+
+<!-- ===== MODULE 4: NFC vs NFD ===== -->
+<h2>4. NFC vs NFD — Normalization demo</h2>
+<div class="card">
+  <p>Ký tự <code>é</code> có 2 cách biểu diễn trong Unicode. Dù nhìn giống nhau, bytes lại khác nhau!</p>
+  <div class="nfc-nfd">
+    <div class="nfd-box">
+      <h4>NFC (Composed)</h4>
+      é = U+00E9<br>
+      UTF-8: C3 A9 (2 byte)<br>
+      Binary: 11000011 10101001<br>
+      <br>
+      Chuỗi "café":<br>
+      63 61 66 C3 A9<br>
+      → 5 bytes
+    </div>
+    <div class="nfd-box">
+      <h4>NFD (Decomposed)</h4>
+      é = U+0065 + U+0301<br>
+      UTF-8: 65 CC 81 (3 byte)<br>
+      Binary: 01100101 11001100 10000001<br>
+      <br>
+      Chuỗi "café" (NFD):<br>
+      63 61 66 65 CC 81<br>
+      → 6 bytes
+    </div>
+  </div>
+  <div id="nfc-compare" style="margin-top:14px;font-family:monospace;font-size:14px;line-height:2">
+    <div>NFC "café" (5 bytes): <code>63 61 66 C3 A9</code></div>
+    <div>NFD "café" (6 bytes): <code>63 61 66 65 CC 81</code></div>
+    <div>Bằng nhau? → <span class="diff-bad">FALSE</span> (bytes khác dù nhìn giống)</div>
+    <div style="margin-top:8px;color:#553c9a">Giải pháp: normalize cả hai về NFC trước khi so sánh.</div>
+  </div>
+  <div style="margin-top:14px">
+    <label style="font-weight:600">Thử nhập chuỗi có dấu:</label>
+    <div class="row" style="margin-top:6px">
+      <input type="text" id="norm-input" value="Hà Nội" placeholder="Text có dấu tiếng Việt">
+      <button onclick="normDemo()">Phân tích</button>
+    </div>
+    <div id="norm-out" class="step-log" style="margin-top:8px">...</div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// =================== MODULE 1: Text → UTF-8 ===================
+function setEx(s) { document.getElementById('txt-input').value = s; encodeTxt(); }
+
+function charToUTF8Bytes(cp) {
+  const bytes = [];
+  if (cp <= 0x7F) {
+    bytes.push(cp);
+  } else if (cp <= 0x7FF) {
+    bytes.push(0xC0 | (cp >> 6));
+    bytes.push(0x80 | (cp & 0x3F));
+  } else if (cp <= 0xFFFF) {
+    bytes.push(0xE0 | (cp >> 12));
+    bytes.push(0x80 | ((cp >> 6) & 0x3F));
+    bytes.push(0x80 | (cp & 0x3F));
+  } else {
+    bytes.push(0xF0 | (cp >> 18));
+    bytes.push(0x80 | ((cp >> 12) & 0x3F));
+    bytes.push(0x80 | ((cp >> 6) & 0x3F));
+    bytes.push(0x80 | (cp & 0x3F));
+  }
+  return bytes;
+}
+
+function encodeTxt() {
+  const s = document.getElementById('txt-input').value;
+  const out = document.getElementById('byte-list-out');
+  const sum = document.getElementById('encode-summary');
+  out.innerHTML = '';
+  if (!s) return;
+
+  let totalBytes = 0;
+  const codePoints = [...s]; // split by Unicode code point
+  codePoints.forEach(ch => {
+    const cp = ch.codePointAt(0);
+    const bytes = charToUTF8Bytes(cp);
+    totalBytes += bytes.length;
+    const hexBytes = bytes.map(b => b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
+    const binBytes = bytes.map(b => b.toString(2).padStart(8,'0')).join(' ');
+    const cpHex = 'U+' + cp.toString(16).toUpperCase().padStart(4,'0');
+    const rangeLabel = bytes.length === 1 ? '1 byte (ASCII)' :
+                       bytes.length === 2 ? '2 byte' :
+                       bytes.length === 3 ? '3 byte' : '4 byte';
+    const block = document.createElement('div');
+    block.className = 'byte-block';
+    block.innerHTML = `<div class="char">${ch}</div>
+      <div class="cp">${cpHex}</div>
+      <div class="hex">${hexBytes}</div>
+      <div class="bin">${binBytes}</div>
+      <div class="nbytes">${rangeLabel}</div>`;
+    out.appendChild(block);
+  });
+  sum.textContent = `${codePoints.length} ký tự Unicode · ${totalBytes} byte UTF-8`;
+}
+encodeTxt();
+
+// =================== MODULE 2: Hex Decode ===================
+function setHex(s) { document.getElementById('hex-input').value = s; decodeHex(); }
+
+function decodeHex() {
+  const raw = document.getElementById('hex-input').value.trim();
+  const log = document.getElementById('decode-log');
+  const parts = raw.split(/\s+/).filter(s => s);
+  const bytes = [];
+  for (const p of parts) {
+    const v = parseInt(p, 16);
+    if (isNaN(v) || v < 0 || v > 255) { log.textContent = `Byte không hợp lệ: "${p}"`; return; }
+    bytes.push(v);
+  }
+  if (!bytes.length) { log.textContent = 'Nhập hex bytes...'; return; }
+
+  let lines = [`Bytes: ${bytes.map(b => b.toString(16).toUpperCase().padStart(2,'0')).join(' ')}`];
+  lines.push('');
+
+  let i = 0;
+  while (i < bytes.length) {
+    const b0 = bytes[i];
+    let seqLen, cp, header;
+    if ((b0 & 0x80) === 0) {
+      seqLen = 1;
+      cp = b0;
+      header = `Byte 1: ${b0.toString(2).padStart(8,'0')} → leading 0 → 1-byte (ASCII)`;
+    } else if ((b0 & 0xE0) === 0xC0) {
+      seqLen = 2;
+      header = `Byte 1: ${b0.toString(2).padStart(8,'0')} → leading 110 → 2-byte sequence`;
+    } else if ((b0 & 0xF0) === 0xE0) {
+      seqLen = 3;
+      header = `Byte 1: ${b0.toString(2).padStart(8,'0')} → leading 1110 → 3-byte sequence`;
+    } else if ((b0 & 0xF8) === 0xF0) {
+      seqLen = 4;
+      header = `Byte 1: ${b0.toString(2).padStart(8,'0')} → leading 11110 → 4-byte sequence`;
+    } else {
+      lines.push(`⚠ Byte ${i}: 0x${b0.toString(16).toUpperCase()} — invalid leading byte`);
+      i++; continue;
+    }
+
+    if (i + seqLen > bytes.length) {
+      lines.push(`⚠ Cần ${seqLen} byte nhưng chỉ còn ${bytes.length - i} byte.`);
+      break;
+    }
+
+    lines.push(header);
+
+    // Validate and extract payload
+    const seq = bytes.slice(i, i + seqLen);
+    let payload = '';
+    let valid = true;
+
+    if (seqLen === 1) {
+      payload = b0.toString(2).padStart(7,'0');
+    } else {
+      // Extract bits from leading byte
+      const maskLen = [0, 0, 5, 4, 3];
+      const leading = b0 & ((1 << maskLen[seqLen]) - 1);
+      payload = leading.toString(2).padStart(maskLen[seqLen], '0');
+      for (let j = 1; j < seqLen; j++) {
+        const cb = seq[j];
+        if ((cb & 0xC0) !== 0x80) { lines.push(`⚠ Byte ${i+j}: 0x${cb.toString(16).toUpperCase()} không phải continuation byte (cần 10xxxxxx)`); valid = false; break; }
+        const contBits = (cb & 0x3F).toString(2).padStart(6,'0');
+        payload += contBits;
+        lines.push(`Byte ${j+1}: ${cb.toString(2).padStart(8,'0')} → continuation 10|${contBits}`);
+      }
+    }
+
+    if (valid) {
+      cp = parseInt(payload, 2);
+      const cpHex = 'U+' + cp.toString(16).toUpperCase().padStart(4,'0');
+      const char = String.fromCodePoint(cp);
+      lines.push(`Ghép payload bits: ${payload}`);
+      lines.push(`Code point: ${payload} (binary) = 0x${cp.toString(16).toUpperCase()} = ${cp} = ${cpHex}`);
+      lines.push(`Ký tự: "${char}"`);
+    }
+    lines.push('');
+    i += seqLen;
+  }
+
+  log.textContent = lines.join('\n');
+}
+decodeHex();
+
+// =================== MODULE 3: Compare Encodings ===================
+function compareEncodings() {
+  const s = document.getElementById('cmp-input').value;
+  if (!s) return;
+
+  const codePoints = [...s];
+  let utf8Bytes = 0, utf16Bytes = 0, utf32Bytes = codePoints.length * 4;
+  const rows = [];
+
+  codePoints.forEach(ch => {
+    const cp = ch.codePointAt(0);
+    const u8 = charToUTF8Bytes(cp).length;
+    const u16 = cp >= 0x10000 ? 4 : 2;
+    utf8Bytes += u8;
+    utf16Bytes += u16;
+    const cpHex = 'U+' + cp.toString(16).toUpperCase().padStart(4,'0');
+    rows.push({ char: ch, cp: cpHex, u8, u16, u32: 4 });
+  });
+
+  let html = `<table class="compare-tbl"><thead>
+    <tr><th>Ký tự</th><th>Code Point</th><th>UTF-8 bytes</th><th>UTF-16 bytes</th><th>UTF-32 bytes</th></tr>
+    </thead><tbody>`;
+  rows.forEach(r => {
+    html += `<tr><td style="font-size:18px">${r.char}</td><td>${r.cp}</td>
+      <td>${r.u8}</td><td>${r.u16}</td><td>${r.u32}</td></tr>`;
+  });
+  html += `<tr style="font-weight:700;background:#ede9fe">
+    <td colspan="2">Tổng (${codePoints.length} ký tự)</td>
+    <td style="color:#553c9a">${utf8Bytes} byte</td>
+    <td style="color:#3182ce">${utf16Bytes} byte</td>
+    <td style="color:#276749">${utf32Bytes} byte</td>
+    </tr></tbody></table>`;
+  document.getElementById('cmp-table').innerHTML = html;
+
+  const maxB = Math.max(utf8Bytes, utf16Bytes, utf32Bytes);
+  const pct = (v) => Math.max(4, Math.round(v / maxB * 200));
+  document.getElementById('cmp-bars').innerHTML = `
+    <div style="font-size:13px;margin-bottom:6px;color:#553c9a;font-weight:600">Kích thước tương đối:</div>
+    <div class="bar-wrap"><div class="bar bar-utf8" style="width:${pct(utf8Bytes)}px">${utf8Bytes}B</div><span style="font-size:12px;color:#553c9a">UTF-8</span></div>
+    <div class="bar-wrap" style="margin-top:4px"><div class="bar bar-utf16" style="width:${pct(utf16Bytes)}px">${utf16Bytes}B</div><span style="font-size:12px;color:#3182ce">UTF-16</span></div>
+    <div class="bar-wrap" style="margin-top:4px"><div class="bar bar-utf32" style="width:${pct(utf32Bytes)}px">${utf32Bytes}B</div><span style="font-size:12px;color:#276749">UTF-32</span></div>`;
+}
+compareEncodings();
+
+// =================== MODULE 4: NFC/NFD Demo ===================
+function normDemo() {
+  const s = document.getElementById('norm-input').value;
+  const out = document.getElementById('norm-out');
+  if (!s) return;
+
+  const enc = new TextEncoder();
+  const u8 = enc.encode(s);
+  const hexBytes = Array.from(u8).map(b => b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
+
+  const codePoints = [...s];
+  let cpList = codePoints.map(ch => {
+    const cp = ch.codePointAt(0);
+    return `U+${cp.toString(16).toUpperCase().padStart(4,'0')}(${ch})`;
+  }).join(' ');
+
+  let lines = [];
+  lines.push(`Chuỗi: "${s}"`);
+  lines.push(`Số ký tự Unicode: ${codePoints.length}`);
+  lines.push(`Code points: ${cpList}`);
+  lines.push(`UTF-8 bytes (${u8.length}): ${hexBytes}`);
+  lines.push('');
+
+  // Check for combining chars (code points 0x300-0x36F are combining diacritics)
+  let hasCombining = false;
+  codePoints.forEach(ch => {
+    const cp = ch.codePointAt(0);
+    if (cp >= 0x300 && cp <= 0x36F) { hasCombining = true; }
+    if (cp >= 0x1DC0 && cp <= 0x1DFF) { hasCombining = true; }
+  });
+
+  if (hasCombining) {
+    lines.push('⚠ Phát hiện combining characters (NFD form)!');
+    lines.push('Cần normalize về NFC trước khi so sánh string.');
+  } else {
+    lines.push('✓ Không phát hiện combining characters rời → có thể NFC hoặc thuần ASCII/Latin.');
+  }
+
+  lines.push('');
+  lines.push('Chú ý: browser JavaScript thường normalize form khi nhập từ bàn phím,');
+  lines.push('nhưng dữ liệu từ API ngoài có thể ở NFD. Luôn normalize trước khi compare!');
+
+  out.textContent = lines.join('\n');
+}
+normDemo();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

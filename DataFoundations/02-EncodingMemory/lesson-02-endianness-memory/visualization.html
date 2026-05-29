@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Endianness & Memory Layout</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f5f3ff;
+    --accent: #553c9a;
+    --accent-soft: #ede9fe;
+    --accent-hover: #44337a;
+  }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #c4b5fd; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.09); margin: 16px 0; }
+  input[type="text"] {
+    font-family: monospace; font-size: 15px; padding: 8px 12px;
+    border: 1px solid #c4b5fd; border-radius: 5px; width: 160px; max-width: 100%;
+  }
+  button {
+    background: #553c9a; color: white; border: none;
+    padding: 8px 16px; border-radius: 5px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #44337a; }
+  button.active { background: #44337a; box-shadow: inset 0 0 0 2px #c4b5fd; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  .mem-grid { display: flex; gap: 0; margin: 12px 0; flex-wrap: wrap; }
+  .mem-cell {
+    width: 72px; border: 1px solid #c4b5fd; text-align: center;
+    font-family: monospace; font-size: 13px; padding: 6px 4px;
+  }
+  .mem-cell .addr { font-size: 10px; color: #718096; }
+  .mem-cell .val  { font-size: 16px; font-weight: 700; margin: 3px 0; }
+  .mem-cell .bit  { font-size: 10px; color: #718096; word-break: break-all; }
+  .mem-cell.msb { background: #fef3c7; border-color: #f59e0b; }
+  .mem-cell.lsb { background: #d1fae5; border-color: #10b981; }
+  .mem-cell.mid { background: #ede9fe; border-color: #8b5cf6; }
+  .mem-cell.pad { background: #f1f5f9; border-color: #cbd5e0; }
+  .mem-cell.pad .val { color: #94a3b8; }
+  .type-btn { padding: 6px 12px; font-size: 13px; border-radius: 4px; }
+  .endian-toggle { display: flex; gap: 0; }
+  .endian-toggle button {
+    border-radius: 0; border: 1px solid #553c9a;
+    background: white; color: #553c9a; padding: 7px 16px;
+  }
+  .endian-toggle button:first-child { border-radius: 5px 0 0 5px; }
+  .endian-toggle button:last-child  { border-radius: 0 5px 5px 0; }
+  .endian-toggle button.active { background: #553c9a; color: white; }
+  .step-log {
+    background: #1a202c; color: #9ae6b4; font-family: monospace;
+    padding: 12px; border-radius: 6px; white-space: pre-wrap;
+    max-height: 240px; overflow-y: auto; font-size: 13px; line-height: 1.7;
+  }
+  /* Struct builder */
+  .struct-canvas {
+    display: flex; flex-wrap: wrap; gap: 0;
+    border: 2px solid #c4b5fd; border-radius: 6px; overflow: hidden;
+    margin: 12px 0; min-height: 60px;
+  }
+  .sc-cell {
+    height: 60px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-family: monospace; font-size: 12px; font-weight: 700;
+    border-right: 1px solid #c4b5fd; cursor: default;
+    transition: background 0.2s; position: relative;
+  }
+  .sc-cell:last-child { border-right: none; }
+  .sc-cell .offset { font-size: 9px; position: absolute; top: 3px; left: 3px; color: #718096; }
+  .sc-cell.field-char  { background: #fef3c7; color: #92400e; }
+  .sc-cell.field-short { background: #dbeafe; color: #1e3a8a; }
+  .sc-cell.field-int   { background: #d1fae5; color: #064e3b; }
+  .sc-cell.field-long  { background: #ede9fe; color: #3730a3; }
+  .sc-cell.field-pad   { background: #f1f5f9; color: #94a3b8; font-style: italic; }
+  .field-controls { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+  .fc-btn { padding: 6px 12px; font-size: 13px; }
+  .fc-btn.char  { background: #fef3c7; color: #92400e; border: 2px solid #f59e0b; }
+  .fc-btn.short { background: #dbeafe; color: #1e3a8a; border: 2px solid #3b82f6; }
+  .fc-btn.int   { background: #d1fae5; color: #064e3b; border: 2px solid #10b981; }
+  .fc-btn.long  { background: #ede9fe; color: #3730a3; border: 2px solid #8b5cf6; }
+  .fc-btn.clear { background: #fee2e2; color: #991b1b; border: 2px solid #ef4444; }
+  .fc-btn:hover { filter: brightness(0.93); }
+  .struct-info { font-size: 14px; font-family: monospace; color: #553c9a; margin-top: 6px; }
+  .legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; margin: 6px 0; }
+  .legend-item { display: flex; align-items: center; gap: 4px; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 2px; }
+  select {
+    font-size: 14px; padding: 7px 10px;
+    border: 1px solid #c4b5fd; border-radius: 5px; background: white;
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-character-encoding/visualization.html">← N2-L01: Char Encoding</a>
+  <span class="sep">·</span>
+  <span class="current">N2-L02: Endianness</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-hashing-fundamentals/visualization.html">N2-L03: Hashing →</a>
+</nav>
+<main>
+<h1>Lesson 02 — Endianness & Memory Layout</h1>
+
+<!-- ===== MODULE 1: Endianness Visualizer ===== -->
+<h2>1. Endianness — 4-byte value in memory</h2>
+<div class="card">
+  <p>Nhập giá trị hex 32-bit. Xem bytes trong RAM theo big-endian và little-endian.</p>
+  <div class="row">
+    <label style="font-weight:600">Hex value:</label>
+    <input type="text" id="hex-val" value="12345678" placeholder="hex, vd 12345678">
+    <div class="endian-toggle">
+      <button id="btn-le" class="active" onclick="setEndian('le')">Little-Endian</button>
+      <button id="btn-be" onclick="setEndian('be')">Big-Endian</button>
+    </div>
+    <button onclick="renderEndian()">Hiển thị</button>
+  </div>
+  <div class="row" style="gap:6px">
+    <button onclick="setHexVal('12345678')">0x12345678</button>
+    <button onclick="setHexVal('DEADBEEF')">0xDEADBEEF</button>
+    <button onclick="setHexVal('AABBCCDD')">0xAABBCCDD</button>
+    <button onclick="setHexVal('00000001')">0x00000001</button>
+  </div>
+  <div id="endian-cells" class="mem-grid" style="margin-top:14px"></div>
+  <div id="endian-legend" class="legend" style="margin-top:4px">
+    <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>MSB (byte cao nhất)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div>LSB (byte thấp nhất)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#8b5cf6"></div>Byte trung gian</div>
+  </div>
+  <div id="endian-note" style="font-family:monospace;font-size:14px;margin-top:8px;line-height:1.8"></div>
+</div>
+
+<!-- ===== MODULE 2: htonl/ntohl Simulator ===== -->
+<h2>2. htonl / ntohl Simulator</h2>
+<div class="card">
+  <div class="row">
+    <label style="font-weight:600">Giá trị hex:</label>
+    <input type="text" id="hton-in" value="12345678" placeholder="8 hex chars">
+    <select id="hton-fn">
+      <option value="htonl">htonl (host → network, 32-bit)</option>
+      <option value="htons">htons (host → network, 16-bit)</option>
+      <option value="ntohl">ntohl (network → host, 32-bit)</option>
+      <option value="ntohs">ntohs (network → host, 16-bit)</option>
+    </select>
+    <button onclick="runHton()">Chạy</button>
+  </div>
+  <div id="hton-log" class="step-log" style="margin-top:10px">Nhập giá trị và chọn hàm...</div>
+</div>
+
+<!-- ===== MODULE 3: Struct Layout Builder ===== -->
+<h2>3. Struct Layout Builder — tính padding</h2>
+<div class="card">
+  <p>Thêm fields để xây struct. Xem layout bộ nhớ và padding (màu xám) tự động tính.</p>
+  <div class="field-controls">
+    <button class="fc-btn char"  onclick="addField('char')">+ char (1B)</button>
+    <button class="fc-btn short" onclick="addField('short')">+ short (2B)</button>
+    <button class="fc-btn int"   onclick="addField('int')">+ int (4B)</button>
+    <button class="fc-btn long"  onclick="addField('long')">+ long (8B)</button>
+    <button class="fc-btn clear" onclick="clearStruct()">Clear</button>
+  </div>
+  <div id="struct-canvas" class="struct-canvas"></div>
+  <div id="struct-info" class="struct-info"></div>
+  <div class="legend" style="margin-top:8px">
+    <div class="legend-item"><div class="legend-dot" style="background:#fef3c7;border:1px solid #f59e0b"></div>char</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#dbeafe;border:1px solid #3b82f6"></div>short</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#d1fae5;border:1px solid #10b981"></div>int</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ede9fe;border:1px solid #8b5cf6"></div>long</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f1f5f9;border:1px solid #cbd5e0"></div>padding</div>
+  </div>
+  <div style="margin-top:12px">
+    <strong style="color:#553c9a">Presets:</strong>
+    <div class="row" style="gap:6px;margin-top:4px">
+      <button onclick="setStructPreset('A')">struct A (char, int)</button>
+      <button onclick="setStructPreset('B')">struct B (int, char)</button>
+      <button onclick="setStructPreset('C')">struct C (char, int, char)</button>
+      <button onclick="setStructPreset('D')">struct D optimized</button>
+      <button onclick="setStructPreset('E')">struct E (char, double, char)</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODULE 4: Reorder Demo ===== -->
+<h2>4. Field Reorder — giảm padding</h2>
+<div class="card">
+  <p>Thêm fields bên trái (original), sau đó xem version đã được reorder tự động (sắp xếp lớn → nhỏ).</p>
+  <div class="field-controls">
+    <button class="fc-btn char"  onclick="addField2('char')">+ char</button>
+    <button class="fc-btn short" onclick="addField2('short')">+ short</button>
+    <button class="fc-btn int"   onclick="addField2('int')">+ int</button>
+    <button class="fc-btn long"  onclick="addField2('long')">+ long</button>
+    <button class="fc-btn clear" onclick="clearStruct2()">Clear</button>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <div>
+      <div style="font-weight:600;color:#553c9a;margin-bottom:4px">Original (thứ tự bạn chọn)</div>
+      <div id="reorder-orig" class="struct-canvas" style="min-height:50px"></div>
+      <div id="reorder-orig-info" class="struct-info"></div>
+    </div>
+    <div>
+      <div style="font-weight:600;color:#276749;margin-bottom:4px">Optimized (tự động reorder)</div>
+      <div id="reorder-opt" class="struct-canvas" style="min-height:50px"></div>
+      <div id="reorder-opt-info" class="struct-info"></div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// =================== MODULE 1: Endianness ===================
+let currentEndian = 'le';
+function setEndian(e) {
+  currentEndian = e;
+  document.getElementById('btn-le').classList.toggle('active', e === 'le');
+  document.getElementById('btn-be').classList.toggle('active', e === 'be');
+  renderEndian();
+}
+function setHexVal(v) {
+  document.getElementById('hex-val').value = v;
+  renderEndian();
+}
+
+function renderEndian() {
+  const raw = document.getElementById('hex-val').value.replace(/^0x/i,'').padStart(8,'0').slice(-8);
+  const val = parseInt(raw, 16);
+  if (isNaN(val)) return;
+
+  const bytes = [
+    (val >>> 24) & 0xFF,
+    (val >>> 16) & 0xFF,
+    (val >>>  8) & 0xFF,
+    (val >>>  0) & 0xFF,
+  ]; // MSB → LSB
+
+  const order = currentEndian === 'le' ? [3,2,1,0] : [0,1,2,3];
+  const labels = currentEndian === 'le'
+    ? ['LSB','mid','mid','MSB']
+    : ['MSB','mid','mid','LSB'];
+  const classes = currentEndian === 'le'
+    ? ['lsb','mid','mid','msb']
+    : ['msb','mid','mid','lsb'];
+
+  const baseAddr = 0x200;
+  let html = '';
+  order.forEach((bi, i) => {
+    const b = bytes[bi];
+    html += `<div class="mem-cell ${classes[i]}">
+      <div class="addr">0x${(baseAddr+i).toString(16).toUpperCase()}</div>
+      <div class="val">0x${b.toString(16).toUpperCase().padStart(2,'0')}</div>
+      <div class="bit">${b.toString(2).padStart(8,'0')}</div>
+      <div style="font-size:10px;color:#718096">${labels[i]}</div>
+    </div>`;
+  });
+  document.getElementById('endian-cells').innerHTML = html;
+
+  const byteStrs = order.map(bi => '0x' + bytes[bi].toString(16).toUpperCase().padStart(2,'0'));
+  document.getElementById('endian-note').innerHTML =
+    `Giá trị: <strong>0x${raw.toUpperCase()}</strong><br>` +
+    `${currentEndian === 'le' ? 'Little-endian' : 'Big-endian'} bytes: <strong>[${byteStrs.join(', ')}]</strong><br>` +
+    `Decimal: ${val >>> 0}`;
+}
+renderEndian();
+
+// =================== MODULE 2: htonl ===================
+function bswap32(v) {
+  return (((v & 0xFF) << 24) | (((v >> 8) & 0xFF) << 16) | (((v >> 16) & 0xFF) << 8) | ((v >>> 24) & 0xFF)) >>> 0;
+}
+function bswap16(v) {
+  return (((v & 0xFF) << 8) | ((v >> 8) & 0xFF)) & 0xFFFF;
+}
+
+function runHton() {
+  const raw = document.getElementById('hton-in').value.replace(/^0x/i,'');
+  const fn = document.getElementById('hton-fn').value;
+  const is32 = fn.endsWith('l');
+  const input = parseInt(raw.padStart(8,'0').slice(-8), 16) >>> 0;
+  const log = document.getElementById('hton-log');
+
+  let lines = [];
+  lines.push(`Hàm: ${fn}   Input: 0x${input.toString(16).toUpperCase().padStart(is32?8:4,'0')}`);
+  lines.push('');
+
+  if (is32) {
+    const bytes = [(input>>>24)&0xFF,(input>>>16)&0xFF,(input>>>8)&0xFF,input&0xFF];
+    lines.push(`Input bytes (MSB→LSB): ${bytes.map(b=>'0x'+b.toString(16).toUpperCase().padStart(2,'0')).join(' ')}`);
+    lines.push('');
+    lines.push('Trên x86/x64 (little-endian):');
+    lines.push(`  RAM layout: ${[bytes[3],bytes[2],bytes[1],bytes[0]].map(b=>'0x'+b.toString(16).toUpperCase().padStart(2,'0')).join(' ')} (LSB ở địa chỉ thấp)`);
+    lines.push('');
+    const result = bswap32(input);
+    lines.push(`${fn} = byte-swap 32-bit:`);
+    const rb = [(result>>>24)&0xFF,(result>>>16)&0xFF,(result>>>8)&0xFF,result&0xFF];
+    lines.push(`  → 0x${result.toString(16).toUpperCase().padStart(8,'0')}`);
+    lines.push(`  Wire bytes (địa chỉ thấp→cao): ${rb.map(b=>'0x'+b.toString(16).toUpperCase().padStart(2,'0')).join(' ')}`);
+    lines.push(`  = big-endian (MSB đầu tiên) ✓`);
+  } else {
+    const v16 = input & 0xFFFF;
+    const bytes = [(v16>>8)&0xFF, v16&0xFF];
+    lines.push(`Input 16-bit: 0x${v16.toString(16).toUpperCase().padStart(4,'0')}`);
+    lines.push(`Input bytes (MSB→LSB): ${bytes.map(b=>'0x'+b.toString(16).toUpperCase().padStart(2,'0')).join(' ')}`);
+    const result = bswap16(v16);
+    lines.push(`${fn} = byte-swap 16-bit = 0x${result.toString(16).toUpperCase().padStart(4,'0')}`);
+  }
+
+  lines.push('');
+  lines.push('Trên big-endian machine: hàm này là no-op (không làm gì).');
+  log.textContent = lines.join('\n');
+}
+runHton();
+
+// =================== MODULE 3 & 4: Struct Builder ===================
+const SIZES = { char:1, short:2, int:4, long:8 };
+const CLASSES = { char:'field-char', short:'field-short', int:'field-int', long:'field-long' };
+let structFields = [];
+let struct2Fields = [];
+
+function calcLayout(fields) {
+  // Returns array of {type, name, offset, size, cls} + padding cells
+  let offset = 0;
+  const cells = [];
+  let maxAlign = 1;
+
+  fields.forEach((f, idx) => {
+    const size = SIZES[f];
+    const align = size;
+    maxAlign = Math.max(maxAlign, align);
+    // Add padding
+    if (offset % align !== 0) {
+      const pad = align - (offset % align);
+      for (let p = 0; p < pad; p++) {
+        cells.push({ type: 'pad', name: `pad${idx}_${p}`, offset: offset + p, size: 1, cls: 'field-pad' });
+      }
+      offset += pad;
+    }
+    cells.push({ type: f, name: `${f}${idx}`, offset, size, cls: CLASSES[f] });
+    offset += size;
+  });
+
+  // Trailing padding
+  if (offset % maxAlign !== 0) {
+    const trail = maxAlign - (offset % maxAlign);
+    for (let p = 0; p < trail; p++) {
+      cells.push({ type: 'pad', name: `trail_${p}`, offset: offset + p, size: 1, cls: 'field-pad' });
+    }
+    offset += trail;
+  }
+
+  return { cells, totalSize: offset, maxAlign };
+}
+
+function renderStruct(fields, canvasId, infoId) {
+  const canvas = document.getElementById(canvasId);
+  const info = document.getElementById(infoId);
+  if (!fields.length) { canvas.innerHTML = '<div style="color:#94a3b8;padding:16px;font-size:13px">Thêm fields bên trên...</div>'; info.textContent = ''; return; }
+
+  const { cells, totalSize, maxAlign } = calcLayout(fields);
+  const cellW = Math.max(28, Math.min(52, Math.floor(280 / totalSize)));
+
+  let html = '';
+  cells.forEach(c => {
+    const w = c.size * cellW;
+    const isPad = c.type === 'pad';
+    html += `<div class="sc-cell ${c.cls}" style="width:${w}px;min-width:${w}px">
+      <span class="offset">${c.offset}</span>
+      <span>${isPad ? 'PAD' : c.type}</span>
+      <span style="font-size:9px">${c.size}B</span>
+    </div>`;
+  });
+  canvas.innerHTML = html;
+
+  const dataCells = cells.filter(c => c.type !== 'pad');
+  const paddingBytes = cells.filter(c => c.type === 'pad').length;
+  const dataBytes = cells.filter(c => c.type !== 'pad').reduce((a,c) => a + c.size, 0);
+  info.innerHTML = `sizeof = <strong>${totalSize}</strong> byte  |  data = ${dataBytes}B  |  padding = ${paddingBytes}B  |  alignment = ${maxAlign}B`;
+}
+
+function addField(f) { structFields.push(f); renderStruct(structFields, 'struct-canvas', 'struct-info'); }
+function clearStruct() { structFields = []; renderStruct([], 'struct-canvas', 'struct-info'); }
+
+const PRESETS = {
+  A: ['char','int'],
+  B: ['int','char'],
+  C: ['char','int','char'],
+  D: ['int','char','char'],
+  E: ['char','long','char'],
+};
+function setStructPreset(key) { structFields = [...PRESETS[key]]; renderStruct(structFields, 'struct-canvas', 'struct-info'); }
+
+function addField2(f) {
+  struct2Fields.push(f);
+  renderStruct(struct2Fields, 'reorder-orig', 'reorder-orig-info');
+  const sorted = [...struct2Fields].sort((a,b) => SIZES[b] - SIZES[a]);
+  renderStruct(sorted, 'reorder-opt', 'reorder-opt-info');
+}
+function clearStruct2() {
+  struct2Fields = [];
+  renderStruct([], 'reorder-orig', 'reorder-orig-info');
+  renderStruct([], 'reorder-opt', 'reorder-opt-info');
+}
+
+// Init with struct C
+setStructPreset('C');
+struct2Fields = ['char','int','char'];
+renderStruct(struct2Fields, 'reorder-orig', 'reorder-orig-info');
+const sorted0 = [...struct2Fields].sort((a,b) => SIZES[b] - SIZES[a]);
+renderStruct(sorted0, 'reorder-opt', 'reorder-opt-info');
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

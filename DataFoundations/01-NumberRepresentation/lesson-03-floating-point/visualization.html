@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — IEEE 754 Floating-Point</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f5f3ff;
+    --accent: #553c9a;
+    --accent-soft: #ede9fe;
+    --accent-hover: #44337a;
+  }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #c4b5fd; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.09); margin: 16px 0; }
+  .bit-row { display: flex; gap: 2px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  .bit {
+    width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+    font-family: monospace; font-size: 14px; font-weight: 700;
+    border-radius: 4px; cursor: pointer; user-select: none; transition: transform 0.1s;
+  }
+  .bit:hover { transform: scale(1.1); }
+  .bit.sign-1 { background: #f56565; color: white; }
+  .bit.sign-0 { background: #fed7d7; color: #c53030; }
+  .bit.exp-1  { background: #4299e1; color: white; }
+  .bit.exp-0  { background: #bee3f8; color: #2b6cb0; }
+  .bit.man-1  { background: #48bb78; color: white; }
+  .bit.man-0  { background: #c6f6d5; color: #276749; }
+  .bit-sep { width: 4px; }
+  .bit-label-row { display: flex; gap: 2px; flex-wrap: wrap; }
+  .bit-lbl { width: 32px; text-align: center; font-size: 10px; color: #718096; }
+  .result-box {
+    background: #1a202c; color: #68d391; font-family: monospace;
+    padding: 12px 16px; border-radius: 6px; font-size: 15px; margin-top: 10px;
+  }
+  .result-box .nan-inf { color: #fc8181; }
+  .result-box .zero-dn { color: #f6ad55; }
+  .legend { display: flex; gap: 12px; flex-wrap: wrap; margin: 8px 0; font-size: 13px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .legend-dot { width: 14px; height: 14px; border-radius: 3px; }
+  input[type="number"], input[type="text"] {
+    font-family: monospace; font-size: 15px; padding: 7px 11px;
+    border: 1px solid #c4b5fd; border-radius: 5px; width: 160px;
+  }
+  button {
+    background: #553c9a; color: white; border: none;
+    padding: 8px 16px; border-radius: 5px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #44337a; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  .step-log {
+    background: #1a202c; color: #9ae6b4; font-family: monospace;
+    padding: 12px; border-radius: 6px; white-space: pre-wrap;
+    max-height: 240px; overflow-y: auto; font-size: 13px;
+    line-height: 1.7;
+  }
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 600px) { .compare-grid { grid-template-columns: 1fr; } }
+  .cmp-box { background: #f7f9fc; border-radius: 6px; padding: 14px; border: 1px solid #e2e8f0; }
+  .cmp-box h4 { margin: 0 0 8px; color: #553c9a; }
+  .cmp-val { font-family: monospace; font-size: 13px; word-break: break-all; line-height: 1.8; }
+  .diff-hi { background: #fef3cd; padding: 1px 2px; border-radius: 2px; }
+  .canc-row { display: flex; gap: 16px; flex-wrap: wrap; }
+  .canc-col { flex: 1; min-width: 220px; background: #f7f9fc; border-radius: 6px; padding: 12px; border: 1px solid #e2e8f0; }
+  .canc-col h4 { margin: 0 0 6px; font-size: 14px; }
+  .err-bad { color: #c53030; font-weight: 700; }
+  .err-ok  { color: #276749; font-weight: 700; }
+  .hex-input { width: 120px; }
+  table.special-tbl { border-collapse: collapse; width: 100%; font-size: 14px; }
+  table.special-tbl th, table.special-tbl td { border: 1px solid #e2e8f0; padding: 7px 10px; text-align: left; }
+  table.special-tbl th { background: #ede9fe; color: #553c9a; }
+  table.special-tbl tr:nth-child(even) { background: #faf9ff; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-bitwise-ops/visualization.html">← L2: Bitwise Ops</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Floating-Point</span>
+  <span class="sep">·</span>
+  <a href="../../02-EncodingMemory/lesson-01-character-encoding/visualization.html">N2-L01: Character Encoding →</a>
+</nav>
+<main>
+<h1>Lesson 03 — IEEE 754 Floating-Point</h1>
+
+<!-- ===== MODULE 1: Float32 Bit Builder ===== -->
+<h2>1. Float32 Bit Builder — 32 toggle bits</h2>
+<div class="card">
+  <p>Bấm vào bất kỳ bit để toggle 0↔1. Xem kết quả decode real-time. Màu: <span style="color:#c53030">đỏ</span> = sign · <span style="color:#2b6cb0">xanh</span> = exponent · <span style="color:#276749">xanh lá</span> = mantissa.</p>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#f56565"></div>Sign (1 bit)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#4299e1"></div>Exponent (8 bit)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#48bb78"></div>Mantissa (23 bit)</div>
+  </div>
+  <div id="bit-label-row-1" class="bit-label-row"></div>
+  <div id="bit-row-1" class="bit-row"></div>
+  <div id="bit-result-1" class="result-box">= ?</div>
+
+  <div class="row" style="margin-top:14px">
+    <button onclick="setBitsFromPreset('1.0')">1.0</button>
+    <button onclick="setBitsFromPreset('0.15625')">0.15625</button>
+    <button onclick="setBitsFromPreset('-pi')">−π</button>
+    <button onclick="setBitsFromPreset('nan')">NaN</button>
+    <button onclick="setBitsFromPreset('+inf')">+Inf</button>
+    <button onclick="setBitsFromPreset('-inf')">−Inf</button>
+    <button onclick="setBitsFromPreset('+0')">+0</button>
+    <button onclick="setBitsFromPreset('-0')">−0</button>
+    <button onclick="setBitsFromPreset('denorm')">Denormal</button>
+    <button onclick="clearBits()">Reset</button>
+  </div>
+</div>
+
+<!-- ===== MODULE 2: Decimal → IEEE 754 ===== -->
+<h2>2. Decimal → IEEE 754 Converter (step-by-step)</h2>
+<div class="card">
+  <div class="row">
+    <label>Nhập số thực:</label>
+    <input type="number" id="dec-input" value="0.15625" step="any">
+    <select id="bit-mode">
+      <option value="32">float32</option>
+      <option value="64">float64</option>
+    </select>
+    <button onclick="encodeDecimal()">Encode →</button>
+  </div>
+  <div id="encode-log" class="step-log" style="margin-top:10px">Nhập số và bấm Encode...</div>
+</div>
+
+<!-- ===== MODULE 3: 0.1 + 0.2 ===== -->
+<h2>3. Bẫy 0.1 + 0.2 — bit-level proof</h2>
+<div class="card">
+  <p>Tại sao <code>0.1 + 0.2 ≠ 0.3</code>? Xem biểu diễn bit chính xác của từng số:</p>
+  <div class="compare-grid">
+    <div class="cmp-box">
+      <h4>float64: 0.1</h4>
+      <div class="cmp-val" id="bits-01">...</div>
+    </div>
+    <div class="cmp-box">
+      <h4>float64: 0.2</h4>
+      <div class="cmp-val" id="bits-02">...</div>
+    </div>
+    <div class="cmp-box">
+      <h4>float64: 0.1 + 0.2</h4>
+      <div class="cmp-val" id="bits-012">...</div>
+    </div>
+    <div class="cmp-box">
+      <h4>float64: 0.3 (literal)</h4>
+      <div class="cmp-val" id="bits-03">...</div>
+    </div>
+  </div>
+  <div id="sum-diff" style="margin-top:12px;font-family:monospace;font-size:14px;line-height:2"></div>
+</div>
+
+<!-- ===== MODULE 4: float32 vs float64 ===== -->
+<h2>4. float32 vs float64 — precision side-by-side</h2>
+<div class="card">
+  <div class="row">
+    <label>Nhập số:</label>
+    <input type="number" id="prec-input" value="3.14159265358979323846" step="any">
+    <button onclick="comparePrec()">So sánh</button>
+  </div>
+  <div id="prec-result" style="margin-top:12px"></div>
+</div>
+
+<!-- ===== MODULE 5: Catastrophic Cancellation ===== -->
+<h2>5. Catastrophic Cancellation Demo</h2>
+<div class="card">
+  <p>Nhập hai số lớn gần nhau. Xem sai số khi trừ bằng float32 vs float64.</p>
+  <div class="row">
+    <label>a:</label><input type="number" id="canc-a" value="100000001" step="any">
+    <label>b:</label><input type="number" id="canc-b" value="100000000" step="any">
+    <button onclick="cancDemo()">Tính a − b</button>
+  </div>
+  <div class="canc-row" id="canc-result" style="margin-top:12px"></div>
+</div>
+
+<!-- ===== MODULE 6: Special Values Table ===== -->
+<h2>6. Bảng giá trị đặc biệt IEEE 754</h2>
+<div class="card">
+  <table class="special-tbl">
+    <tr><th>Bit pattern (E, M)</th><th>Tên</th><th>Giá trị float32</th><th>Ghi chú</th></tr>
+    <tr><td>E=0, M=0, S=0</td><td>+0</td><td>0x00000000</td><td>+0 == −0 nhưng 1/+0 = +Inf</td></tr>
+    <tr><td>E=0, M=0, S=1</td><td>−0</td><td>0x80000000</td><td>1/−0 = −Inf</td></tr>
+    <tr><td>E=0, M≠0</td><td>Denormal</td><td>±(0.M)×2⁻¹²⁶</td><td>Lấp đầy khoảng gần 0</td></tr>
+    <tr><td>E=255, M=0, S=0</td><td>+Infinity</td><td>0x7F800000</td><td>Overflow, 1/+0</td></tr>
+    <tr><td>E=255, M=0, S=1</td><td>−Infinity</td><td>0xFF800000</td><td>Log(0), 1/−0</td></tr>
+    <tr><td>E=255, M≠0</td><td>NaN</td><td>0x7FC00000 (quiet)</td><td>0/0, sqrt(−1), Inf−Inf</td></tr>
+    <tr><td>1≤E≤254</td><td>Normal</td><td>(−1)ˢ×1.M×2^(E−127)</td><td>Phần lớn số thực</td></tr>
+  </table>
+</div>
+
+</main>
+
+<script>
+// =================== MODULE 1: Bit Builder ===================
+const BITS = new Array(32).fill(0);
+
+function getFieldClass(i) {
+  if (i === 31) return 'sign';
+  if (i >= 23) return 'exp';
+  return 'man';
+}
+
+function buildBitUI() {
+  const labelRow = document.getElementById('bit-label-row-1');
+  const bitRow = document.getElementById('bit-row-1');
+  labelRow.innerHTML = '';
+  bitRow.innerHTML = '';
+  for (let i = 31; i >= 0; i--) {
+    const lbl = document.createElement('div');
+    lbl.className = 'bit-lbl';
+    lbl.textContent = i === 31 ? 'S' : i >= 23 ? 'E' + (30 - i) : 'M' + (22 - i);
+    labelRow.appendChild(lbl);
+
+    const sep = document.createElement('div');
+    if (i === 23 || i === 31) { sep.className = 'bit-sep'; bitRow.appendChild(sep); }
+
+    const b = document.createElement('div');
+    const field = getFieldClass(i);
+    b.className = `bit ${field}-${BITS[i]}`;
+    b.id = 'b' + i;
+    b.textContent = BITS[i];
+    b.onclick = () => toggleBit(i);
+    bitRow.appendChild(b);
+  }
+  updateBitResult();
+}
+
+function toggleBit(i) {
+  BITS[i] ^= 1;
+  const b = document.getElementById('b' + i);
+  const field = getFieldClass(i);
+  b.textContent = BITS[i];
+  b.className = `bit ${field}-${BITS[i]}`;
+  updateBitResult();
+}
+
+function setAllBits(pattern) {
+  for (let i = 0; i < 32; i++) {
+    BITS[i] = (pattern >> i) & 1;
+  }
+  buildBitUI();
+}
+
+function bitsToUint32() {
+  let v = 0;
+  for (let i = 0; i < 32; i++) v |= (BITS[i] << i);
+  return v >>> 0;
+}
+
+function uint32ToFloat(v) {
+  const buf = new ArrayBuffer(4);
+  new Uint32Array(buf)[0] = v;
+  return new Float32Array(buf)[0];
+}
+
+function updateBitResult() {
+  const u32 = bitsToUint32();
+  const f = uint32ToFloat(u32);
+  const hex = '0x' + u32.toString(16).toUpperCase().padStart(8, '0');
+  const sign = BITS[31];
+  let expByte = 0;
+  for (let i = 23; i <= 30; i++) expByte |= (BITS[i] << (i - 23));
+  let manBits = 0;
+  for (let i = 0; i < 23; i++) manBits |= (BITS[i] << i);
+
+  const el = document.getElementById('bit-result-1');
+  let cls = '';
+  let detail = '';
+
+  if (expByte === 0 && manBits === 0) {
+    cls = 'zero-dn'; detail = `${sign ? '−' : '+'}0`;
+  } else if (expByte === 0) {
+    cls = 'zero-dn'; detail = `Denormal: ${f.toExponential(6)}`;
+  } else if (expByte === 255 && manBits === 0) {
+    cls = 'nan-inf'; detail = `${sign ? '−' : '+'}Infinity`;
+  } else if (expByte === 255) {
+    cls = 'nan-inf'; detail = 'NaN (Not a Number)';
+  } else {
+    detail = `${f}  ≈ ${f.toPrecision(7)}`;
+  }
+
+  el.innerHTML = `<span class="${cls}">${hex}  →  ${detail}</span>
+Sign=${sign}  |  E_stored=${expByte} (E_real=${expByte - 127})  |  Mantissa=${manBits.toString(2).padStart(23,'0')}`;
+}
+
+const PRESETS = {
+  '1.0':     0x3F800000,
+  '0.15625': 0x3E200000,
+  '-pi':     0xC0490FDB,
+  'nan':     0x7FC00000,
+  '+inf':    0x7F800000,
+  '-inf':    0xFF800000,
+  '+0':      0x00000000,
+  '-0':      0x80000000,
+  'denorm':  0x00000001,
+};
+
+function setBitsFromPreset(key) { setAllBits(PRESETS[key]); }
+function clearBits() { setAllBits(0); }
+
+buildBitUI();
+
+// =================== MODULE 2: Decimal → IEEE 754 ===================
+function toBinaryFraction(n, bits) {
+  let s = '';
+  for (let i = 0; i < bits; i++) {
+    n *= 2;
+    if (n >= 1) { s += '1'; n -= 1; } else s += '0';
+    if (n === 0) break;
+  }
+  return s;
+}
+
+function encodeDecimal() {
+  const raw = parseFloat(document.getElementById('dec-input').value);
+  const mode = parseInt(document.getElementById('bit-mode').value);
+  const log = document.getElementById('encode-log');
+  if (isNaN(raw)) { log.textContent = 'Số không hợp lệ.'; return; }
+
+  const bias = mode === 32 ? 127 : 1023;
+  const manBits = mode === 32 ? 23 : 52;
+  const expBits = mode === 32 ? 8 : 11;
+  const maxExp = (1 << expBits) - 2; // 254 or 2046
+
+  let lines = [];
+  lines.push(`Input: ${raw}  (${mode === 32 ? 'float32' : 'float64'})`);
+  lines.push('');
+
+  const sign = raw < 0 ? 1 : 0;
+  let abs = Math.abs(raw);
+  lines.push(`Bước 1 — Sign: ${sign} (${raw < 0 ? 'âm' : 'dương'})`);
+
+  if (!isFinite(raw) || isNaN(raw)) {
+    lines.push('Số đặc biệt — không encode bằng quy tắc thông thường.');
+    log.textContent = lines.join('\n'); return;
+  }
+
+  if (abs === 0) { lines.push('= ±0, exponent=0, mantissa=0'); log.textContent = lines.join('\n'); return; }
+
+  // Find exponent
+  let exp = Math.floor(Math.log2(abs));
+  // Edge case
+  if (Math.pow(2, exp + 1) <= abs) exp++;
+  let mantissa = abs / Math.pow(2, exp) - 1; // the fractional part of 1.M
+
+  lines.push(`Bước 2 — Viết dạng 1.M × 2^e:`);
+  lines.push(`  abs = ${abs}`);
+  lines.push(`  e = floor(log2(${abs})) = ${exp}`);
+  lines.push(`  1.M = ${abs} / 2^${exp} = ${(abs / Math.pow(2, exp)).toPrecision(10)}`);
+  lines.push(`  M (phần lẻ) = ${mantissa.toPrecision(10)}`);
+  lines.push('');
+
+  const eStored = exp + bias;
+  lines.push(`Bước 3 — Exponent lưu: ${exp} + ${bias} = ${eStored} = ${eStored.toString(2).padStart(expBits,'0')}₂`);
+
+  // Mantissa binary
+  let manBin = '';
+  let m = mantissa;
+  for (let i = 0; i < manBits; i++) {
+    m *= 2;
+    if (m >= 1) { manBin += '1'; m -= 1; } else manBin += '0';
+  }
+
+  lines.push(`Bước 4 — Mantissa (${manBits} bit): ${manBin.slice(0,8)} ${manBin.slice(8,16)} ${manBin.slice(16,24)} ${manBin.slice(24)}`);
+  lines.push('');
+
+  const signStr = sign.toString();
+  const expStr = eStored.toString(2).padStart(expBits,'0');
+  lines.push(`Kết quả: ${signStr} ${expStr} ${manBin}`);
+
+  // Hex
+  if (mode === 32) {
+    const buf = new ArrayBuffer(4);
+    const fa = new Float32Array(buf);
+    fa[0] = raw;
+    const u = new Uint32Array(buf)[0];
+    lines.push(`Hex (float32): 0x${u.toString(16).toUpperCase().padStart(8,'0')}`);
+    lines.push(`Verify decode: ${fa[0]}`);
+  } else {
+    const buf = new ArrayBuffer(8);
+    const fa = new Float64Array(buf);
+    fa[0] = raw;
+    const lo = new Uint32Array(buf)[0];
+    const hi = new Uint32Array(buf)[1];
+    lines.push(`Hex (float64): 0x${hi.toString(16).toUpperCase().padStart(8,'0')}${lo.toString(16).toUpperCase().padStart(8,'0')}`);
+    lines.push(`Verify decode: ${fa[0]}`);
+  }
+
+  log.textContent = lines.join('\n');
+}
+encodeDecimal();
+
+// =================== MODULE 3: 0.1 + 0.2 ===================
+function float64ToBinStr(v) {
+  const buf = new ArrayBuffer(8);
+  new Float64Array(buf)[0] = v;
+  const ui = new Uint32Array(buf);
+  const hi = ui[1].toString(2).padStart(32,'0');
+  const lo = ui[0].toString(2).padStart(32,'0');
+  return hi + lo;
+}
+
+function binStrToHex64(s) {
+  let h = '';
+  for (let i = 0; i < 64; i += 4) h += parseInt(s.slice(i,i+4),2).toString(16).toUpperCase();
+  return '0x' + h;
+}
+
+function formatBin64(v) {
+  const s = float64ToBinStr(v);
+  return `Sign: ${s[0]}<br>Exp:  ${s.slice(1,12)}<br>Mant: ${s.slice(12,36)}<br>      ${s.slice(36)}<br>Hex: ${binStrToHex64(s)}<br>Decimal: ${v.toPrecision(17)}`;
+}
+
+(function() {
+  document.getElementById('bits-01').innerHTML = formatBin64(0.1);
+  document.getElementById('bits-02').innerHTML = formatBin64(0.2);
+  document.getElementById('bits-012').innerHTML = formatBin64(0.1 + 0.2);
+  document.getElementById('bits-03').innerHTML = formatBin64(0.3);
+
+  const s012 = float64ToBinStr(0.1 + 0.2);
+  const s03  = float64ToBinStr(0.3);
+  let diffBits = 0;
+  for (let i = 0; i < 64; i++) if (s012[i] !== s03[i]) diffBits++;
+
+  const diff = (0.1 + 0.2) - 0.3;
+  document.getElementById('sum-diff').innerHTML =
+    `0.1 + 0.2 = <strong>${(0.1+0.2).toPrecision(17)}</strong><br>` +
+    `0.3 literal = <strong>${(0.3).toPrecision(17)}</strong><br>` +
+    `Sai lệch = <strong style="color:#c53030">${diff.toExponential(3)}</strong><br>` +
+    `Số bit khác nhau: <strong>${diffBits}</strong>/64`;
+})();
+
+// =================== MODULE 4: Precision compare ===================
+function comparePrec() {
+  const v = parseFloat(document.getElementById('prec-input').value);
+  if (isNaN(v)) return;
+
+  const buf32 = new ArrayBuffer(4);
+  new Float32Array(buf32)[0] = v;
+  const f32 = new Float32Array(buf32)[0];
+
+  const buf64 = new ArrayBuffer(8);
+  new Float64Array(buf64)[0] = v;
+  const f64 = new Float64Array(buf64)[0];
+
+  const err32 = Math.abs(v - f32);
+  const err64 = Math.abs(v - f64);
+
+  document.getElementById('prec-result').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div class="cmp-box">
+        <h4>float32 (~7 chữ số)</h4>
+        <div class="cmp-val">
+          Lưu: ${f32.toPrecision(8)}<br>
+          Sai số: ${err32.toExponential(3)}<br>
+          Tỷ lệ: ${(err32/Math.abs(v)*100).toExponential(2)}%
+        </div>
+      </div>
+      <div class="cmp-box">
+        <h4>float64 (~15-16 chữ số)</h4>
+        <div class="cmp-val">
+          Lưu: ${f64.toPrecision(17)}<br>
+          Sai số: ${err64.toExponential(3)}<br>
+          Tỷ lệ: ${err64 === 0 ? '0%' : (err64/Math.abs(v)*100).toExponential(2) + '%'}
+        </div>
+      </div>
+    </div>
+    <p style="font-size:13px;color:#718096;margin-top:8px">float64 chính xác hơn float32 khoảng <strong>${err32 > 0 ? (err32/Math.max(err64,1e-300)).toExponential(1) : '∞'}</strong> lần.</p>`;
+}
+comparePrec();
+
+// =================== MODULE 5: Catastrophic Cancellation ===================
+function cancDemo() {
+  const a = parseFloat(document.getElementById('canc-a').value);
+  const b = parseFloat(document.getElementById('canc-b').value);
+  const expected = a - b;
+
+  const buf = new ArrayBuffer(4);
+  const fa = new Float32Array(buf);
+  fa[0] = a; const a32 = fa[0];
+  fa[0] = b; const b32 = fa[0];
+  const res32 = a32 - b32;
+  const err32 = Math.abs(res32 - expected);
+
+  const res64 = a - b; // JS is float64
+  const err64 = Math.abs(res64 - expected);
+
+  const rel32 = expected !== 0 ? err32 / Math.abs(expected) * 100 : 0;
+  const rel64 = expected !== 0 ? err64 / Math.abs(expected) * 100 : 0;
+
+  const ok32 = err32 === 0;
+  const ok64 = err64 === 0;
+
+  document.getElementById('canc-result').innerHTML = `
+    <div class="canc-col">
+      <h4>float32</h4>
+      a = ${a32.toPrecision(7)}<br>
+      b = ${b32.toPrecision(7)}<br>
+      a − b = <span class="${ok32 ? 'err-ok' : 'err-bad'}">${res32}</span><br>
+      Kỳ vọng: ${expected}<br>
+      Sai số: <span class="${ok32 ? 'err-ok' : 'err-bad'}">${err32.toExponential(2)} (${rel32.toFixed(1)}%)</span>
+    </div>
+    <div class="canc-col">
+      <h4>float64 (JS)</h4>
+      a = ${a.toPrecision(15)}<br>
+      b = ${b.toPrecision(15)}<br>
+      a − b = <span class="${ok64 ? 'err-ok' : 'err-bad'}">${res64}</span><br>
+      Kỳ vọng: ${expected}<br>
+      Sai số: <span class="${ok64 ? 'err-ok' : 'err-bad'}">${err64 === 0 ? '0 (chính xác)' : err64.toExponential(2) + ' (' + rel64.toFixed(1) + '%)'}</span>
+    </div>`;
+}
+cancDemo();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

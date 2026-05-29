@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Hashing Fundamentals</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f5f3ff;
+    --accent: #553c9a;
+    --accent-soft: #ede9fe;
+    --accent-hover: #44337a;
+  }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #c4b5fd; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.09); margin: 16px 0; }
+  input[type="text"], input[type="number"] {
+    font-family: monospace; font-size: 15px; padding: 8px 12px;
+    border: 1px solid #c4b5fd; border-radius: 5px; max-width: 100%;
+  }
+  button {
+    background: #553c9a; color: white; border: none;
+    padding: 8px 16px; border-radius: 5px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #44337a; }
+  button.secondary { background: #4a5568; }
+  button.secondary:hover { background: #2d3748; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  select {
+    font-size: 14px; padding: 7px 10px;
+    border: 1px solid #c4b5fd; border-radius: 5px; background: white;
+  }
+  /* Hash table */
+  .ht-grid { display: flex; flex-direction: column; gap: 3px; margin: 12px 0; }
+  .ht-bucket {
+    display: flex; align-items: center; gap: 6px;
+    padding: 4px 0; min-height: 36px; flex-wrap: wrap;
+  }
+  .ht-idx {
+    width: 32px; text-align: right; font-family: monospace; font-size: 13px;
+    color: #718096; flex-shrink: 0;
+  }
+  .ht-slot {
+    min-width: 52px; height: 32px; border: 2px solid #c4b5fd; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: monospace; font-size: 13px; font-weight: 700;
+    background: white; color: #2d3748; transition: background 0.25s;
+  }
+  .ht-slot.filled { background: #ede9fe; border-color: #553c9a; color: #553c9a; }
+  .ht-slot.highlight { background: #fef3c7; border-color: #d97706; animation: pop 0.3s; }
+  .ht-slot.collision { background: #fee2e2; border-color: #ef4444; }
+  @keyframes pop { from { transform: scale(1.15); } to { transform: scale(1); } }
+  .chain-node {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: #ede9fe; border: 2px solid #553c9a; border-radius: 20px;
+    padding: 3px 10px; font-family: monospace; font-size: 13px; font-weight: 700;
+    color: #553c9a;
+  }
+  .chain-arrow { font-size: 16px; color: #553c9a; margin: 0 2px; }
+  .step-log {
+    background: #1a202c; color: #9ae6b4; font-family: monospace;
+    padding: 12px; border-radius: 6px; white-space: pre-wrap;
+    max-height: 220px; overflow-y: auto; font-size: 13px; line-height: 1.7;
+  }
+  /* Load factor chart */
+  .lf-row { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+  .lf-bar { height: 18px; border-radius: 3px; min-width: 2px; transition: width 0.3s; }
+  .lf-lbl { font-size: 12px; font-family: monospace; color: #4a5568; min-width: 100px; }
+  /* Avalanche */
+  .av-bit-row { display: flex; gap: 2px; flex-wrap: wrap; margin: 6px 0; }
+  .av-bit {
+    width: 18px; height: 18px; border-radius: 2px; display: flex;
+    align-items: center; justify-content: center; font-size: 10px; font-family: monospace;
+  }
+  .av-bit.same { background: #e2e8f0; color: #4a5568; }
+  .av-bit.diff { background: #f56565; color: white; }
+  .probe-compare { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 12px; }
+  @media (max-width: 600px) { .probe-compare { grid-template-columns: 1fr; } }
+  .probe-box { background: #f7f9fc; border-radius: 6px; padding: 10px; border: 1px solid #e2e8f0; }
+  .probe-box h4 { margin: 0 0 8px; color: #553c9a; font-size: 13px; }
+  .probe-step {
+    display: flex; gap: 4px; align-items: center; font-family: monospace;
+    font-size: 12px; margin: 3px 0;
+  }
+  .ps-idx { background: #ede9fe; color: #553c9a; padding: 2px 6px; border-radius: 3px; font-weight: 700; }
+  .ps-ok  { color: #276749; }
+  .ps-col { color: #c53030; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-endianness-memory/visualization.html">← N2-L02: Endianness</a>
+  <span class="sep">·</span>
+  <span class="current">N2-L03: Hashing</span>
+  <span class="sep">·</span>
+  <a href="../../03-MathFoundations/lesson-01-set-theory/visualization.html">N3-L01: Set Theory →</a>
+</nav>
+<main>
+<h1>Lesson 03 — Hashing Fundamentals</h1>
+
+<!-- ===== MODULE 1: Hash Table Interactive ===== -->
+<h2>1. Hash Table Interactive — insert & collision</h2>
+<div class="card">
+  <div class="row">
+    <label style="font-weight:600">Nhập key (số nguyên hoặc chuỗi):</label>
+    <input type="text" id="ht-key" value="22" style="width:120px">
+    <label>m (table size):</label>
+    <input type="number" id="ht-m" value="7" min="2" max="20" style="width:60px">
+    <select id="ht-mode">
+      <option value="chain">Separate Chaining</option>
+      <option value="linear">Linear Probing</option>
+    </select>
+    <button onclick="htInsert()">Insert</button>
+    <button class="secondary" onclick="htClear()">Clear</button>
+  </div>
+  <div class="row" style="gap:6px">
+    <button onclick="htBatch('22,15,8')">Demo 22,15,8</button>
+    <button onclick="htBatch('5,27,13,6,48')">Demo 5,27,13,6,48</button>
+    <button onclick="htBatch('10,20,30,40,50,60,70')">All → bucket 0 (mod 7)</button>
+  </div>
+  <div id="ht-grid" class="ht-grid" style="margin-top:12px"></div>
+  <div id="ht-log" class="step-log" style="margin-top:8px">Nhập key và bấm Insert...</div>
+</div>
+
+<!-- ===== MODULE 2: Collision Strategies Compare ===== -->
+<h2>2. So sánh chiến lược collision handling</h2>
+<div class="card">
+  <div class="row">
+    <input type="text" id="cmp-keys" value="22,15,8,1,29" placeholder="keys cách nhau bằng dấu phẩy">
+    <input type="number" id="cmp-m" value="7" min="3" max="15" style="width:60px">
+    <button onclick="compareStrategies()">So sánh</button>
+  </div>
+  <div id="strategies-out" class="probe-compare"></div>
+</div>
+
+<!-- ===== MODULE 3: Load Factor → Expected Probes ===== -->
+<h2>3. Load Factor → Expected Probe Count</h2>
+<div class="card">
+  <p>Kéo thanh trượt để thay đổi load factor α. Xem expected probes cho open addressing.</p>
+  <div class="row">
+    <label style="font-weight:600">α = n/m:</label>
+    <input type="range" id="lf-slider" min="1" max="95" value="50"
+           oninput="updateLF(this.value)" style="width:200px">
+    <span id="lf-val" style="font-family:monospace;font-size:16px;color:#553c9a">0.50</span>
+  </div>
+  <div id="lf-chart" style="margin-top:10px"></div>
+  <div id="lf-note" style="font-size:13px;color:#718096;margin-top:6px"></div>
+</div>
+
+<!-- ===== MODULE 4: Avalanche Effect ===== -->
+<h2>4. Avalanche Effect — FNV-1a demo</h2>
+<div class="card">
+  <p>Thay đổi 1 byte input → xem bao nhiêu bit output thay đổi (avalanche effect tốt ≈ 50%).</p>
+  <div class="row">
+    <label>Input 1:</label>
+    <input type="text" id="av-a" value="hello" style="width:120px">
+    <label>Input 2:</label>
+    <input type="text" id="av-b" value="hxllo" style="width:120px">
+    <button onclick="runAvalanche()">Tính</button>
+  </div>
+  <div id="av-result" style="margin-top:10px"></div>
+</div>
+
+</main>
+
+<script>
+// =================== Hash functions ===================
+function hashKey(key, m) {
+  if (/^\d+$/.test(String(key).trim())) {
+    return Math.abs(parseInt(key)) % m;
+  }
+  // FNV-1a 32-bit for strings
+  let h = 0x811c9dc5;
+  const s = String(key);
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h % m;
+}
+
+function fnv1a32(s) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h;
+}
+
+// =================== MODULE 1: Hash Table ===================
+let htData = { mode: 'chain', m: 7, chains: [], table: [] };
+
+function htClear() {
+  const m = parseInt(document.getElementById('ht-m').value) || 7;
+  const mode = document.getElementById('ht-mode').value;
+  htData = { mode, m, chains: Array.from({length:m},()=>[]), table: new Array(m).fill(null) };
+  renderHT();
+  document.getElementById('ht-log').textContent = `Bảng mới — m=${m}, mode=${mode}`;
+}
+
+function htInsert() {
+  const key = document.getElementById('ht-key').value.trim();
+  const m = parseInt(document.getElementById('ht-m').value) || 7;
+  const mode = document.getElementById('ht-mode').value;
+  if (!key) return;
+
+  if (htData.m !== m || htData.mode !== mode) htClear();
+
+  const h = hashKey(key, m);
+  const log = document.getElementById('ht-log');
+  let lines = [`Insert key="${key}" → h=${h} (key mod ${m})`];
+
+  if (mode === 'chain') {
+    htData.chains[h].push(key);
+    lines.push(`Chaining: thêm vào bucket[${h}] → chain length = ${htData.chains[h].length}`);
+  } else {
+    let idx = h, i = 0;
+    while (htData.table[idx] !== null && htData.table[idx] !== key) {
+      i++;
+      idx = (h + i) % m;
+      if (i >= m) { lines.push('⚠ Bảng đầy!'); log.textContent = lines.join('\n'); return; }
+      lines.push(`  Probe ${i}: slot[${idx}] = ${htData.table[idx] !== null ? '"'+htData.table[idx]+'" (có)' : 'trống'}`);
+    }
+    htData.table[idx] = key;
+    lines.push(`→ Lưu tại slot[${idx}] (${i === 0 ? 'không collision' : i + ' probe'})`);
+  }
+
+  log.textContent = lines.join('\n');
+  renderHT(h);
+}
+
+function htBatch(keys) {
+  htClear();
+  keys.split(',').forEach(k => {
+    document.getElementById('ht-key').value = k.trim();
+    htInsert();
+  });
+}
+
+function renderHT(highlight = -1) {
+  const { mode, m, chains, table } = htData;
+  let html = '';
+  for (let i = 0; i < m; i++) {
+    html += `<div class="ht-bucket"><div class="ht-idx">[${i}]</div>`;
+    if (mode === 'chain') {
+      if (chains[i].length === 0) {
+        html += `<div class="ht-slot" style="color:#cbd5e0">∅</div>`;
+      } else {
+        chains[i].forEach((k, j) => {
+          html += `<span class="chain-node ${i === highlight ? 'highlight' : ''}">${k}</span>`;
+          if (j < chains[i].length - 1) html += `<span class="chain-arrow">→</span>`;
+        });
+        html += `<span class="chain-arrow">→</span><span style="color:#cbd5e0;font-family:monospace">null</span>`;
+      }
+    } else {
+      const cls = table[i] === null ? '' : i === highlight ? 'highlight' : 'filled';
+      html += `<div class="ht-slot ${cls}">${table[i] !== null ? table[i] : '·'}</div>`;
+    }
+    html += '</div>';
+  }
+  document.getElementById('ht-grid').innerHTML = html;
+}
+
+htClear();
+
+// =================== MODULE 2: Compare Strategies ===================
+function probeLinear(key, m, table) {
+  const h = hashKey(key, m);
+  let steps = [], idx = h;
+  for (let i = 0; i < m; i++) {
+    idx = (h + i) % m;
+    if (table[idx] === null) { table[idx] = key; steps.push({idx, result:'placed'}); return steps; }
+    steps.push({idx, result:'collision', existing: table[idx]});
+  }
+  steps.push({idx: -1, result:'full'});
+  return steps;
+}
+
+function probeQuadratic(key, m, table) {
+  const h = hashKey(key, m);
+  let steps = [], idx = h;
+  for (let i = 0; i < m; i++) {
+    idx = (h + i*i) % m;
+    if (table[idx] === null) { table[idx] = key; steps.push({idx, result:'placed'}); return steps; }
+    steps.push({idx, result:'collision', existing: table[idx]});
+  }
+  steps.push({idx: -1, result:'full'});
+  return steps;
+}
+
+function compareStrategies() {
+  const keys = document.getElementById('cmp-keys').value.split(',').map(k => k.trim()).filter(Boolean);
+  const m = parseInt(document.getElementById('cmp-m').value) || 7;
+
+  const strategies = [
+    { name: 'Chaining', key: 'chain' },
+    { name: 'Linear Probing', key: 'linear' },
+    { name: 'Quadratic Probing', key: 'quad' },
+  ];
+
+  let html = '';
+  strategies.forEach(({ name, key }) => {
+    const table = new Array(m).fill(null);
+    const chains = Array.from({length:m},()=>[]);
+    let log = `<h4>${name}</h4>`;
+
+    keys.forEach(k => {
+      const h = hashKey(k, m);
+      if (key === 'chain') {
+        chains[h].push(k);
+        log += `<div class="probe-step"><span class="ps-idx">[${h}]</span><span class="ps-ok">"${k}" → bucket ${h}</span></div>`;
+      } else if (key === 'linear') {
+        const steps = probeLinear(k, m, table);
+        steps.forEach(s => {
+          if (s.result === 'placed') log += `<div class="probe-step"><span class="ps-idx">[${s.idx}]</span><span class="ps-ok">✓ "${k}"</span></div>`;
+          else log += `<div class="probe-step"><span class="ps-idx">[${s.idx}]</span><span class="ps-col">collision (${s.existing})</span></div>`;
+        });
+      } else {
+        const steps = probeQuadratic(k, m, table);
+        steps.forEach(s => {
+          if (s.result === 'placed') log += `<div class="probe-step"><span class="ps-idx">[${s.idx}]</span><span class="ps-ok">✓ "${k}"</span></div>`;
+          else log += `<div class="probe-step"><span class="ps-idx">[${s.idx}]</span><span class="ps-col">collision</span></div>`;
+        });
+      }
+    });
+
+    html += `<div class="probe-box">${log}</div>`;
+  });
+  document.getElementById('strategies-out').innerHTML = html;
+}
+compareStrategies();
+
+// =================== MODULE 3: Load Factor ===================
+function updateLF(pct) {
+  const alpha = pct / 100;
+  document.getElementById('lf-val').textContent = alpha.toFixed(2);
+
+  // Expected probes for open addressing (linear probing)
+  const successProbes = alpha < 1 ? 0.5 * (1 + 1/(1-alpha)) : 999;
+  const failProbes    = alpha < 1 ? 0.5 * (1 + 1/Math.pow(1-alpha,2)) : 999;
+  const chainAvg      = 1 + alpha;
+
+  const scale = 40; // pixels per unit
+  const maxBar = 200;
+  const bar = (v) => `${Math.min(maxBar, Math.round(v * scale))}px`;
+
+  document.getElementById('lf-chart').innerHTML = `
+    <div class="lf-row">
+      <div class="lf-lbl">Chain avg O(1+α):</div>
+      <div class="lf-bar" style="width:${bar(chainAvg)};background:#553c9a"></div>
+      <span style="font-size:13px;font-family:monospace;color:#553c9a">${chainAvg.toFixed(2)} compare</span>
+    </div>
+    <div class="lf-row">
+      <div class="lf-lbl">OA success:</div>
+      <div class="lf-bar" style="width:${bar(Math.min(successProbes,5))};background:#3182ce"></div>
+      <span style="font-size:13px;font-family:monospace;color:#3182ce">${successProbes < 100 ? successProbes.toFixed(2) : '∞'} probes</span>
+    </div>
+    <div class="lf-row">
+      <div class="lf-lbl">OA fail:</div>
+      <div class="lf-bar" style="width:${bar(Math.min(failProbes,5))};background:#e53e3e"></div>
+      <span style="font-size:13px;font-family:monospace;color:#e53e3e">${failProbes < 100 ? failProbes.toFixed(2) : '∞'} probes</span>
+    </div>`;
+
+  let note = '';
+  if (alpha < 0.5) note = 'α < 0.5: performance tốt, lãng phí bộ nhớ.';
+  else if (alpha < 0.7) note = 'α < 0.7: vùng lý tưởng cho open addressing.';
+  else if (alpha < 0.9) note = '⚠ α > 0.7: nên resize. OA bắt đầu chậm.';
+  else note = '🔴 α > 0.9: OA rất chậm. Resize ngay!';
+  document.getElementById('lf-note').textContent = note;
+}
+updateLF(50);
+
+// =================== MODULE 4: Avalanche ===================
+function runAvalanche() {
+  const a = document.getElementById('av-a').value;
+  const b = document.getElementById('av-b').value;
+  if (!a || !b) return;
+
+  const ha = fnv1a32(a);
+  const hb = fnv1a32(b);
+  const diff = ha ^ hb;
+  let diffBits = 0;
+  let binA = '', binB = '';
+  let avBits = [];
+  for (let i = 31; i >= 0; i--) {
+    const ba = (ha >> i) & 1, bb = (hb >> i) & 1;
+    binA += ba; binB += bb;
+    const same = ba === bb;
+    if (!same) diffBits++;
+    avBits.push(!same);
+  }
+
+  const pct = (diffBits / 32 * 100).toFixed(1);
+  const quality = diffBits >= 12 && diffBits <= 20 ? '✓ Tốt (avalanche ~50%)' :
+                  diffBits < 8 ? '⚠ Kém — quá ít bit thay đổi' : '⚠ Khá tốt';
+
+  let bitsHtml = '<div class="av-bit-row">';
+  avBits.forEach(d => {
+    bitsHtml += `<div class="av-bit ${d ? 'diff' : 'same'}">${d ? '✕' : '·'}</div>`;
+  });
+  bitsHtml += '</div>';
+
+  document.getElementById('av-result').innerHTML = `
+    <div style="font-family:monospace;font-size:13px;line-height:2">
+      Input 1: <strong>"${a}"</strong> → FNV-1a = 0x${ha.toString(16).toUpperCase().padStart(8,'0')}<br>
+      Input 2: <strong>"${b}"</strong> → FNV-1a = 0x${hb.toString(16).toUpperCase().padStart(8,'0')}<br>
+      XOR diff: 0x${diff.toString(16).toUpperCase().padStart(8,'0')}<br>
+      Số bit thay đổi: <strong style="color:#553c9a">${diffBits}/32 (${pct}%)</strong> — ${quality}
+    </div>
+    <div style="margin-top:6px;font-size:12px;color:#718096">Bit đỏ = thay đổi, xám = giữ nguyên:</div>
+    ${bitsHtml}`;
+}
+runAvalanche();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

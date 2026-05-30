@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Mạch tuần tự &amp; Flip-flop</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #a3e635; }
+
+  /* ── Card ── */
+  .card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+
+  /* ── Flip-flop selector ── */
+  .ff-selector {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .ff-selector button {
+    padding: 8px 18px;
+    border-radius: 20px;
+    border: 2px solid #d1d5db;
+    background: white;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    color: #374151;
+    transition: all 0.15s;
+  }
+  .ff-selector button.active {
+    background: #4d7c0f;
+    border-color: #4d7c0f;
+    color: white;
+  }
+
+  /* ── Sim Layout ── */
+  .sim-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  .sim-controls h3 {
+    font-size: 15px;
+    color: #374151;
+    margin: 0 0 10px 0;
+  }
+  .input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 8px 0;
+  }
+  .input-row label {
+    min-width: 60px;
+    font-weight: 700;
+    font-size: 14px;
+    color: #374151;
+  }
+  .toggle-btn {
+    width: 48px; height: 28px;
+    border-radius: 14px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    transition: all 0.15s;
+  }
+  .toggle-btn.high {
+    background: #4d7c0f;
+    color: white;
+  }
+  .toggle-btn.low {
+    background: #d1d5db;
+    color: #374151;
+  }
+  .clk-btn {
+    padding: 8px 20px;
+    border-radius: 6px;
+    border: 2px solid #4d7c0f;
+    background: #4d7c0f;
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.15s;
+  }
+  .clk-btn:hover { background: #3f6212; border-color: #3f6212; }
+  .clk-btn:active { transform: scale(0.96); }
+
+  /* ── State display ── */
+  .state-box {
+    background: #f0fdf4;
+    border: 2px solid #86efac;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 8px;
+  }
+  .state-row {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin: 6px 0;
+  }
+  .state-lbl {
+    font-weight: 700;
+    font-size: 13px;
+    color: #374151;
+    min-width: 40px;
+  }
+  .bit-display {
+    width: 44px; height: 44px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 900;
+    font-family: monospace;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+  }
+  .bit-display.high {
+    background: #4d7c0f;
+    color: white;
+    border-color: #3f6212;
+  }
+  .bit-display.low {
+    background: #f9fafb;
+    color: #9ca3af;
+    border-color: #d1d5db;
+  }
+  .bit-display.forbidden {
+    background: #fee2e2;
+    color: #dc2626;
+    border-color: #dc2626;
+  }
+  .mode-badge {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    background: #ecfccb;
+    color: #3f6212;
+    border: 1px solid #a3e635;
+  }
+  .mode-badge.warn {
+    background: #fee2e2;
+    color: #dc2626;
+    border-color: #dc2626;
+  }
+
+  /* ── FF Symbol SVG ── */
+  .ff-svg-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 8px 0;
+  }
+
+  /* ── History table ── */
+  .history-wrap {
+    overflow-x: auto;
+    margin-top: 16px;
+  }
+  table.history-tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  table.history-tbl th {
+    background: #4d7c0f;
+    color: white;
+    padding: 6px 10px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  table.history-tbl td {
+    padding: 5px 10px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: center;
+    font-family: monospace;
+  }
+  table.history-tbl tr:nth-child(even) td { background: #f0fdf4; }
+  table.history-tbl td.forbidden-cell { color: #dc2626; font-weight: 700; }
+  table.history-tbl td.q1 { color: #4d7c0f; font-weight: 700; }
+  table.history-tbl td.q0 { color: #6b7280; }
+  .history-clear {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid #d1d5db;
+    background: white;
+    cursor: pointer;
+    color: #374151;
+    float: right;
+    margin-bottom: 4px;
+  }
+
+  /* ── Timing Diagram ── */
+  #timing-canvas-wrap {
+    overflow-x: auto;
+    margin-top: 8px;
+  }
+  canvas#timingCanvas {
+    display: block;
+  }
+  .timing-controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+    align-items: center;
+  }
+  .timing-controls label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+  }
+  .timing-controls select, .timing-controls input[type="range"] {
+    font-size: 13px;
+  }
+
+  /* ── T Divider ── */
+  .divider-demo {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .div-ff {
+    background: white;
+    border: 2px solid #4d7c0f;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+  }
+  .div-ff .ff-label {
+    font-weight: 700;
+    font-size: 13px;
+    color: #374151;
+    margin-bottom: 6px;
+  }
+  .div-ff .freq-lbl {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 4px;
+  }
+  .div-run-btn {
+    padding: 8px 20px;
+    border-radius: 6px;
+    border: 2px solid #1d4ed8;
+    background: #1d4ed8;
+    color: white;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 12px;
+  }
+  .div-run-btn:hover { background: #1e40af; }
+  .div-run-btn.running { background: #dc2626; border-color: #dc2626; }
+
+  /* ── Description box ── */
+  .desc-box {
+    background: #fffbeb;
+    border-left: 4px solid #f59e0b;
+    border-radius: 0 6px 6px 0;
+    padding: 10px 14px;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-top: 10px;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    .sim-layout { grid-template-columns: 1fr; }
+    .divider-demo { grid-template-columns: 1fr; }
+    .ff-selector { gap: 6px; }
+    .ff-selector button { padding: 6px 12px; font-size: 13px; }
+  }
+  @media (max-width: 400px) {
+    .card { padding: 14px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Electronics — Digital &amp; MCU</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-combinational/visualization.html">← L2: Mạch tổ hợp</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Mạch tuần tự &amp; flip-flop</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-registers-counters/visualization.html">L4: Thanh ghi &amp; bộ đếm →</a>
+</nav>
+
+<main>
+<h1>Lesson 03 — Mạch tuần tự &amp; Flip-flop</h1>
+<p>Mô phỏng tương tác: chọn loại flip-flop, toggle ngõ vào, nhấn cạnh clock — quan sát Q/Q' cập nhật và giản đồ thời gian.</p>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 1 — Flip-flop Simulator
+     ══════════════════════════════════════════════════════════ -->
+<h2>1. Mô phỏng Flip-flop</h2>
+<div class="card">
+  <div class="ff-selector">
+    <button class="active" onclick="selectFF('SR')">SR Latch (NOR)</button>
+    <button onclick="selectFF('D')">D Flip-flop</button>
+    <button onclick="selectFF('JK')">JK Flip-flop</button>
+    <button onclick="selectFF('T')">T Flip-flop</button>
+  </div>
+
+  <div class="sim-layout">
+    <!-- Left: controls -->
+    <div class="sim-controls">
+      <h3 id="ff-title">SR Latch (NOR) — Active High</h3>
+
+      <div id="inputs-container">
+        <!-- dynamically filled by JS -->
+      </div>
+
+      <button class="clk-btn" id="clk-btn" onclick="clockEdge()">
+        ↑ Cạnh lên Clock
+      </button>
+
+      <div class="state-box" style="margin-top:14px">
+        <div class="state-row">
+          <span class="state-lbl">Q =</span>
+          <div class="bit-display" id="disp-Q">0</div>
+          <span class="state-lbl">Q' =</span>
+          <div class="bit-display" id="disp-Qn">1</div>
+          <span class="mode-badge" id="mode-badge">Hold</span>
+        </div>
+        <div id="state-note" style="font-size:12px; color:#6b7280; margin-top:6px;"></div>
+      </div>
+    </div>
+
+    <!-- Right: FF Symbol SVG + truth table note -->
+    <div>
+      <div class="ff-svg-wrap">
+        <svg id="ff-symbol" width="220" height="160" viewBox="0 0 220 160">
+          <!-- filled by JS -->
+        </svg>
+      </div>
+      <div id="truth-table-mini" style="font-size:12px; margin-top:6px;"></div>
+    </div>
+  </div>
+
+  <!-- History -->
+  <div class="history-wrap">
+    <button class="history-clear" onclick="clearHistory()">Xoá lịch sử</button>
+    <div style="font-weight:700; font-size:13px; color:#374151; margin-bottom:4px;">Lịch sử trạng thái</div>
+    <table class="history-tbl" id="history-tbl">
+      <thead id="history-head"></thead>
+      <tbody id="history-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 2 — Timing Diagram
+     ══════════════════════════════════════════════════════════ -->
+<h2>2. Giản đồ thời gian (Timing Diagram)</h2>
+<div class="card">
+  <p>Giản đồ thời gian hiển thị tín hiệu clock, ngõ vào và ngõ ra Q theo thời gian. Nhấn <strong>↑ Cạnh lên Clock</strong> ở module 1 để thêm bước vào giản đồ.</p>
+
+  <div class="timing-controls">
+    <label>Hiển thị cho:</label>
+    <span style="font-size:13px; color:#4d7c0f; font-weight:700;" id="timing-ff-label">SR Latch</span>
+  </div>
+
+  <div id="timing-canvas-wrap">
+    <canvas id="timingCanvas" width="720" height="200"></canvas>
+  </div>
+  <p style="font-size:12px; color:#6b7280; margin-top:6px;">Mũi tên ↑ trên CLK: khoảnh khắc cạnh lên, Q cập nhật. Giản đồ lưu 16 bước gần nhất.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 3 — T Flip-flop Frequency Divider
+     ══════════════════════════════════════════════════════════ -->
+<h2>3. T Flip-flop chia tần — nền bộ đếm</h2>
+<div class="card">
+  <p>3 T flip-flop (T=1 cố định) ghép nối tiếp: ngõ ra Q của FF trước là clock của FF sau. Kết quả: mỗi tầng chia đôi tần số — giống hệt cột bit 0, 1, 2 của bộ đếm nhị phân 3 bit.</p>
+
+  <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+    <div>
+      <label style="font-size:13px; font-weight:600; color:#374151;">Clock vào: </label>
+      <select id="freq-select" style="font-size:13px; padding:4px 8px; border-radius:4px; border:1px solid #d1d5db;">
+        <option value="8">8 Hz (chậm, dễ quan sát)</option>
+        <option value="4" selected>4 Hz</option>
+        <option value="2">2 Hz</option>
+        <option value="1">1 Hz</option>
+      </select>
+    </div>
+    <button class="div-run-btn" id="div-run-btn" onclick="toggleDivider()">▶ Chạy</button>
+  </div>
+
+  <div class="divider-demo" id="divider-ffs">
+    <div class="div-ff" id="div-ff0">
+      <div class="ff-label">FF1 — Bit 0 (LSB)</div>
+      <div class="bit-display low" id="div-q0" style="width:60px;height:60px;font-size:28px;margin:8px auto;">0</div>
+      <div class="freq-lbl" id="div-f0">f/2</div>
+    </div>
+    <div class="div-ff" id="div-ff1">
+      <div class="ff-label">FF2 — Bit 1</div>
+      <div class="bit-display low" id="div-q1" style="width:60px;height:60px;font-size:28px;margin:8px auto;">0</div>
+      <div class="freq-lbl" id="div-f1">f/4</div>
+    </div>
+    <div class="div-ff" id="div-ff2">
+      <div class="ff-label">FF3 — Bit 2 (MSB)</div>
+      <div class="bit-display low" id="div-q2" style="width:60px;height:60px;font-size:28px;margin:8px auto;">0</div>
+      <div class="freq-lbl" id="div-f2">f/8</div>
+    </div>
+  </div>
+
+  <div style="margin-top:14px; background:#f0fdf4; border-radius:6px; padding:10px 14px; font-size:13px; line-height:1.7;">
+    <strong>Bộ đếm nhị phân 3 bit:</strong> Giá trị hiện tại (MSB→LSB):
+    <span id="counter-val" style="font-family:monospace; font-weight:700; font-size:16px; color:#4d7c0f; margin-left:6px;">FF3 FF2 FF1 = 000₂ = 0</span>
+  </div>
+
+  <canvas id="divCanvas" width="720" height="180" style="margin-top:14px; display:block;"></canvas>
+  <p style="font-size:12px; color:#6b7280; margin-top:4px;">Giản đồ thời gian tự động — 3 kênh: CLK vào, Q của FF1, Q của FF2, Q của FF3. Mỗi lần chạy ghi 16 chu kỳ CLK.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 4 — FF Symbol SVG Reference
+     ══════════════════════════════════════════════════════════ -->
+<h2>4. Ký hiệu flip-flop chuẩn</h2>
+<div class="card">
+  <p>Ký hiệu logic chuẩn (IEEE/IEC) cho các loại flip-flop. Tam giác nhỏ tại CLK biểu thị kích cạnh lên (positive edge-triggered).</p>
+  <div style="overflow-x:auto;">
+    <svg width="680" height="200" viewBox="0 0 680 200">
+      <!-- Background -->
+      <rect width="680" height="200" fill="#f8fafc" rx="8"/>
+
+      <!-- SR Latch -->
+      <rect x="20" y="40" width="80" height="80" fill="white" stroke="#4d7c0f" stroke-width="2" rx="4"/>
+      <text x="60" y="60" text-anchor="middle" fill="#374151" font-size="11" font-weight="700">SR</text>
+      <text x="60" y="74" text-anchor="middle" fill="#374151" font-size="10">Latch</text>
+      <!-- S input -->
+      <line x1="0" y1="60" x2="20" y2="60" stroke="#374151" stroke-width="1.5"/>
+      <text x="22" y="58" fill="#374151" font-size="10" font-weight="700">S</text>
+      <!-- R input -->
+      <line x1="0" y1="90" x2="20" y2="90" stroke="#374151" stroke-width="1.5"/>
+      <text x="22" y="88" fill="#374151" font-size="10" font-weight="700">R</text>
+      <!-- Q output -->
+      <line x1="100" y1="60" x2="120" y2="60" stroke="#374151" stroke-width="1.5"/>
+      <text x="95" y="58" fill="#4d7c0f" font-size="10" font-weight="700">Q</text>
+      <!-- Q' output -->
+      <line x1="100" y1="90" x2="120" y2="90" stroke="#374151" stroke-width="1.5"/>
+      <text x="93" y="88" fill="#dc2626" font-size="10" font-weight="700">Q'</text>
+      <!-- Label below -->
+      <text x="60" y="138" text-anchor="middle" fill="#6b7280" font-size="11">SR Latch</text>
+
+      <!-- D FF -->
+      <rect x="170" y="30" width="90" height="100" fill="white" stroke="#4d7c0f" stroke-width="2" rx="4"/>
+      <text x="215" y="52" text-anchor="middle" fill="#374151" font-size="12" font-weight="700">D</text>
+      <!-- D input -->
+      <line x1="150" y1="60" x2="170" y2="60" stroke="#374151" stroke-width="1.5"/>
+      <text x="172" y="58" fill="#374151" font-size="10" font-weight="700">D</text>
+      <!-- CLK input with edge triangle -->
+      <line x1="150" y1="95" x2="170" y2="95" stroke="#374151" stroke-width="1.5"/>
+      <polygon points="170,89 170,101 182,95" fill="#374151"/>
+      <text x="185" y="93" fill="#374151" font-size="9">CLK</text>
+      <!-- Q output -->
+      <line x1="260" y1="60" x2="280" y2="60" stroke="#374151" stroke-width="1.5"/>
+      <text x="250" y="58" fill="#4d7c0f" font-size="10" font-weight="700">Q</text>
+      <!-- Q' output -->
+      <line x1="260" y1="95" x2="280" y2="95" stroke="#374151" stroke-width="1.5"/>
+      <text x="248" y="93" fill="#dc2626" font-size="10" font-weight="700">Q'</text>
+      <text x="215" y="148" text-anchor="middle" fill="#6b7280" font-size="11">D Flip-flop</text>
+      <text x="215" y="160" text-anchor="middle" fill="#6b7280" font-size="10">(positive edge)</text>
+
+      <!-- JK FF -->
+      <rect x="330" y="30" width="90" height="120" fill="white" stroke="#4d7c0f" stroke-width="2" rx="4"/>
+      <text x="375" y="52" text-anchor="middle" fill="#374151" font-size="12" font-weight="700">JK</text>
+      <!-- J input -->
+      <line x1="310" y1="55" x2="330" y2="55" stroke="#374151" stroke-width="1.5"/>
+      <text x="332" y="53" fill="#374151" font-size="10" font-weight="700">J</text>
+      <!-- CLK input -->
+      <line x1="310" y1="90" x2="330" y2="90" stroke="#374151" stroke-width="1.5"/>
+      <polygon points="330,84 330,96 342,90" fill="#374151"/>
+      <text x="345" y="88" fill="#374151" font-size="9">CLK</text>
+      <!-- K input -->
+      <line x1="310" y1="125" x2="330" y2="125" stroke="#374151" stroke-width="1.5"/>
+      <text x="332" y="123" fill="#374151" font-size="10" font-weight="700">K</text>
+      <!-- Q output -->
+      <line x1="420" y1="55" x2="440" y2="55" stroke="#374151" stroke-width="1.5"/>
+      <text x="410" y="53" fill="#4d7c0f" font-size="10" font-weight="700">Q</text>
+      <!-- Q' output -->
+      <line x1="420" y1="90" x2="440" y2="90" stroke="#374151" stroke-width="1.5"/>
+      <text x="408" y="88" fill="#dc2626" font-size="10" font-weight="700">Q'</text>
+      <text x="375" y="168" text-anchor="middle" fill="#6b7280" font-size="11">JK Flip-flop</text>
+
+      <!-- T FF -->
+      <rect x="500" y="30" width="90" height="100" fill="white" stroke="#4d7c0f" stroke-width="2" rx="4"/>
+      <text x="545" y="52" text-anchor="middle" fill="#374151" font-size="12" font-weight="700">T</text>
+      <!-- T input -->
+      <line x1="480" y1="60" x2="500" y2="60" stroke="#374151" stroke-width="1.5"/>
+      <text x="502" y="58" fill="#374151" font-size="10" font-weight="700">T</text>
+      <!-- CLK input -->
+      <line x1="480" y1="95" x2="500" y2="95" stroke="#374151" stroke-width="1.5"/>
+      <polygon points="500,89 500,101 512,95" fill="#374151"/>
+      <text x="515" y="93" fill="#374151" font-size="9">CLK</text>
+      <!-- Q output -->
+      <line x1="590" y1="60" x2="610" y2="60" stroke="#374151" stroke-width="1.5"/>
+      <text x="580" y="58" fill="#4d7c0f" font-size="10" font-weight="700">Q</text>
+      <!-- Q' output -->
+      <line x1="590" y1="95" x2="610" y2="95" stroke="#374151" stroke-width="1.5"/>
+      <text x="578" y="93" fill="#dc2626" font-size="10" font-weight="700">Q'</text>
+      <text x="545" y="148" text-anchor="middle" fill="#6b7280" font-size="11">T Flip-flop</text>
+      <text x="545" y="160" text-anchor="middle" fill="#6b7280" font-size="10">(positive edge)</text>
+
+      <!-- Triangle legend -->
+      <polygon points="20,170 26,176 20,182" fill="none" stroke="#374151" stroke-width="1.5" transform="translate(180,8)"/>
+      <text x="212" y="183" fill="#6b7280" font-size="10">= kích cạnh lên (positive edge-triggered)</text>
+    </svg>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// FLIP-FLOP SIMULATOR — Module 1
+// ═══════════════════════════════════════════════════════════
+
+const FF_CONFIGS = {
+  SR: {
+    title: 'SR Latch (NOR) — Active High',
+    inputs: [
+      { id: 'inp_S', label: 'S (Set)', val: 0 },
+      { id: 'inp_R', label: 'R (Reset)', val: 0 },
+    ],
+    histHeaders: ['Bước', 'S', 'R', 'Q (trước)', 'Chế độ', 'Q (sau)', 'Q\''],
+    isLatch: true,
+    desc: 'S=R=1 là trạng thái cấm (forbidden). S=R=0 là Hold. Với SR Latch, không cần clock — kết quả cập nhật ngay.'
+  },
+  D: {
+    title: 'D Flip-flop — Positive Edge-Triggered',
+    inputs: [
+      { id: 'inp_D', label: 'D', val: 0 },
+    ],
+    histHeaders: ['Bước', 'D', 'Q (trước)', 'Q (sau)', 'Q\''],
+    isLatch: false,
+    desc: 'Tại cạnh lên clock: Q = D. Giữa các cạnh: Q không đổi dù D thay đổi.'
+  },
+  JK: {
+    title: 'JK Flip-flop — Positive Edge-Triggered',
+    inputs: [
+      { id: 'inp_J', label: 'J', val: 0 },
+      { id: 'inp_K', label: 'K', val: 0 },
+    ],
+    histHeaders: ['Bước', 'J', 'K', 'Q (trước)', 'Chế độ', 'Q (sau)', 'Q\''],
+    isLatch: false,
+    desc: 'J=K=0: Hold. J=1,K=0: Set. J=0,K=1: Reset. J=K=1: Toggle (đảo Q).'
+  },
+  T: {
+    title: 'T Flip-flop — Positive Edge-Triggered',
+    inputs: [
+      { id: 'inp_T', label: 'T', val: 1 },
+    ],
+    histHeaders: ['Bước', 'T', 'Q (trước)', 'Q (sau)', 'Q\''],
+    isLatch: false,
+    desc: 'T=0: Hold (Q không đổi). T=1: Toggle (Q đảo). T=1 cố định → chia đôi tần số clock.'
+  }
+};
+
+let currentFF = 'SR';
+let Q = 0; // current state
+let stepCount = 0;
+let historyRows = []; // for timing diagram
+const MAX_HISTORY = 16;
+
+// per-ff input states
+const inputVals = { inp_S:0, inp_R:0, inp_D:0, inp_J:0, inp_K:0, inp_T:1 };
+
+function selectFF(type) {
+  currentFF = type;
+  Q = 0;
+  stepCount = 0;
+  historyRows = [];
+
+  // Update selector buttons
+  document.querySelectorAll('.ff-selector button').forEach(b => {
+    b.classList.toggle('active', b.textContent.includes(type) || (type === 'SR' && b.textContent.includes('SR')));
+  });
+  // More precise match
+  document.querySelectorAll('.ff-selector button').forEach(b => b.classList.remove('active'));
+  const btns = document.querySelectorAll('.ff-selector button');
+  const typeMap = { SR:0, D:1, JK:2, T:3 };
+  btns[typeMap[type]].classList.add('active');
+
+  const cfg = FF_CONFIGS[type];
+  document.getElementById('ff-title').textContent = cfg.title;
+  document.getElementById('timing-ff-label').textContent = cfg.title;
+
+  // Show/hide clock button
+  const clkBtn = document.getElementById('clk-btn');
+  clkBtn.style.display = cfg.isLatch ? 'none' : '';
+
+  // Build inputs
+  buildInputs(cfg);
+  renderFFSymbol(type);
+  renderTruthMini(type);
+  buildHistoryHeaders(cfg);
+  renderState();
+  drawTiming();
+}
+
+function buildInputs(cfg) {
+  const container = document.getElementById('inputs-container');
+  container.innerHTML = '';
+  cfg.inputs.forEach(inp => {
+    const row = document.createElement('div');
+    row.className = 'input-row';
+    const lbl = document.createElement('label');
+    lbl.textContent = inp.label;
+    const btn = document.createElement('button');
+    btn.className = 'toggle-btn ' + (inputVals[inp.id] ? 'high' : 'low');
+    btn.id = inp.id + '_btn';
+    btn.textContent = inputVals[inp.id] ? '1' : '0';
+    btn.onclick = () => toggleInput(inp.id);
+    row.appendChild(lbl);
+    row.appendChild(btn);
+    container.appendChild(row);
+
+    // For SR latch: also trigger immediately on toggle
+    if (cfg.isLatch && inp.id !== undefined) {
+      btn.addEventListener('click', () => {
+        if (FF_CONFIGS[currentFF].isLatch) {
+          latchUpdate();
+        }
+      });
+    }
+  });
+  // Add SR latch auto-note
+  if (cfg.isLatch) {
+    const note = document.createElement('div');
+    note.className = 'desc-box';
+    note.textContent = cfg.desc;
+    container.appendChild(note);
+  } else {
+    const note = document.createElement('div');
+    note.className = 'desc-box';
+    note.textContent = cfg.desc;
+    container.appendChild(note);
+  }
+}
+
+function toggleInput(id) {
+  inputVals[id] = inputVals[id] ? 0 : 1;
+  const btn = document.getElementById(id + '_btn');
+  if (btn) {
+    btn.textContent = inputVals[id] ? '1' : '0';
+    btn.className = 'toggle-btn ' + (inputVals[id] ? 'high' : 'low');
+  }
+  // For SR latch, update immediately
+  if (FF_CONFIGS[currentFF].isLatch) {
+    latchUpdate();
+  }
+}
+
+function latchUpdate() {
+  const S = inputVals['inp_S'];
+  const R = inputVals['inp_R'];
+  const Qprev = Q;
+  let mode, Qnew, forbidden = false;
+
+  if (S === 0 && R === 0) { mode = 'Hold'; Qnew = Q; }
+  else if (S === 1 && R === 0) { mode = 'Set'; Qnew = 1; }
+  else if (S === 0 && R === 1) { mode = 'Reset'; Qnew = 0; }
+  else { mode = 'Cấm!'; Qnew = 0; forbidden = true; }
+
+  if (mode !== 'Hold') {
+    Q = Qnew;
+    stepCount++;
+    addHistory({ type:'SR', S, R, Qprev, mode, Qnew: Q, Qn: 1 - Q, forbidden });
+    renderState(mode, forbidden);
+    drawTiming();
+  } else {
+    renderState(mode, false);
+  }
+}
+
+function clockEdge() {
+  const cfg = FF_CONFIGS[currentFF];
+  const Qprev = Q;
+  let mode = '', Qnew = Q, forbidden = false;
+  const row = { type: currentFF, Qprev };
+
+  if (currentFF === 'D') {
+    const D = inputVals['inp_D'];
+    Qnew = D;
+    mode = D ? 'Set (D=1)' : 'Reset (D=0)';
+    row.D = D;
+  } else if (currentFF === 'JK') {
+    const J = inputVals['inp_J'];
+    const K = inputVals['inp_K'];
+    row.J = J; row.K = K;
+    if (J === 0 && K === 0) { mode = 'Hold'; Qnew = Q; }
+    else if (J === 1 && K === 0) { mode = 'Set'; Qnew = 1; }
+    else if (J === 0 && K === 1) { mode = 'Reset'; Qnew = 0; }
+    else { mode = 'Toggle'; Qnew = 1 - Q; }
+  } else if (currentFF === 'T') {
+    const T = inputVals['inp_T'];
+    row.T = T;
+    if (T === 0) { mode = 'Hold'; Qnew = Q; }
+    else { mode = 'Toggle'; Qnew = 1 - Q; }
+  }
+
+  Q = Qnew;
+  stepCount++;
+  row.mode = mode;
+  row.Qnew = Q;
+  row.Qn = 1 - Q;
+  row.forbidden = false;
+  addHistory(row);
+  renderState(mode, false);
+  drawTiming();
+}
+
+function addHistory(row) {
+  historyRows.push(row);
+  if (historyRows.length > MAX_HISTORY) historyRows.shift();
+  renderHistory();
+}
+
+function renderState(mode, forbidden) {
+  const dispQ = document.getElementById('disp-Q');
+  const dispQn = document.getElementById('disp-Qn');
+  const badge = document.getElementById('mode-badge');
+  const note = document.getElementById('state-note');
+
+  dispQ.textContent = Q;
+  dispQ.className = 'bit-display ' + (forbidden ? 'forbidden' : (Q ? 'high' : 'low'));
+  dispQn.textContent = forbidden ? 'X' : (1 - Q);
+  dispQn.className = 'bit-display ' + (forbidden ? 'forbidden' : ((1-Q) ? 'high' : 'low'));
+
+  if (mode) {
+    badge.textContent = mode;
+    badge.className = 'mode-badge' + (forbidden ? ' warn' : '');
+  }
+
+  if (forbidden) {
+    note.textContent = 'Trạng thái cấm: Q = Q\' = 0. Khi S,R về 00, trạng thái không xác định!';
+    note.style.color = '#dc2626';
+  } else {
+    note.textContent = '';
+  }
+}
+
+function renderHistory() {
+  const body = document.getElementById('history-body');
+  body.innerHTML = '';
+  const rows = [...historyRows].reverse();
+  rows.forEach((r, i) => {
+    const tr = document.createElement('tr');
+    let cells = [];
+    const step = historyRows.length - i;
+
+    if (r.type === 'SR') {
+      cells = [step, r.S, r.R, r.Qprev,
+        `<span class="${r.forbidden ? 'forbidden-cell' : ''}">${r.mode}</span>`,
+        `<span class="${r.Qnew ? 'q1' : 'q0'}">${r.forbidden ? 'X' : r.Qnew}</span>`,
+        r.forbidden ? 'X' : r.Qn];
+    } else if (r.type === 'D') {
+      cells = [step, r.D, r.Qprev,
+        `<span class="${r.Qnew ? 'q1' : 'q0'}">${r.Qnew}</span>`, r.Qn];
+    } else if (r.type === 'JK') {
+      cells = [step, r.J, r.K, r.Qprev, r.mode,
+        `<span class="${r.Qnew ? 'q1' : 'q0'}">${r.Qnew}</span>`, r.Qn];
+    } else if (r.type === 'T') {
+      cells = [step, r.T, r.Qprev,
+        `<span class="${r.Qnew ? 'q1' : 'q0'}">${r.Qnew}</span>`, r.Qn];
+    }
+    tr.innerHTML = cells.map(c => `<td>${c}</td>`).join('');
+    body.appendChild(tr);
+  });
+}
+
+function buildHistoryHeaders(cfg) {
+  const head = document.getElementById('history-head');
+  head.innerHTML = '<tr>' + cfg.histHeaders.map(h => `<th>${h}</th>`).join('') + '</tr>';
+  document.getElementById('history-body').innerHTML = '';
+}
+
+function clearHistory() {
+  historyRows = [];
+  stepCount = 0;
+  Q = 0;
+  document.getElementById('history-body').innerHTML = '';
+  renderState('Hold', false);
+  drawTiming();
+}
+
+// ── FF Symbol SVG ──
+function renderFFSymbol(type) {
+  const svg = document.getElementById('ff-symbol');
+  const W = 220, H = 160;
+
+  const symbols = {
+    SR: `
+      <rect x="70" y="30" width="80" height="90" fill="white" stroke="#4d7c0f" stroke-width="2.5" rx="5"/>
+      <text x="110" y="60" text-anchor="middle" fill="#374151" font-size="15" font-weight="700">SR</text>
+      <text x="110" y="76" text-anchor="middle" fill="#374151" font-size="12">Latch</text>
+      <line x1="20" y1="58" x2="70" y2="58" stroke="#374151" stroke-width="2"/>
+      <text x="72" y="56" fill="#374151" font-size="12" font-weight="700">S</text>
+      <line x1="20" y1="90" x2="70" y2="90" stroke="#374151" stroke-width="2"/>
+      <text x="72" y="88" fill="#374151" font-size="12" font-weight="700">R</text>
+      <line x1="150" y1="58" x2="200" y2="58" stroke="#4d7c0f" stroke-width="2"/>
+      <text x="145" y="56" fill="#4d7c0f" font-size="12" font-weight="700">Q</text>
+      <line x1="150" y1="90" x2="200" y2="90" stroke="#dc2626" stroke-width="2"/>
+      <text x="143" y="88" fill="#dc2626" font-size="12" font-weight="700">Q'</text>
+      <text x="20" y="56" fill="#374151" font-size="11">S</text>
+      <text x="20" y="88" fill="#374151" font-size="11">R</text>
+      <circle cx="20" cy="55" r="3" fill="#1d4ed8"/>
+      <circle cx="20" cy="87" r="3" fill="#dc2626"/>
+    `,
+    D: `
+      <rect x="60" y="20" width="90" height="110" fill="white" stroke="#4d7c0f" stroke-width="2.5" rx="5"/>
+      <text x="105" y="50" text-anchor="middle" fill="#374151" font-size="15" font-weight="700">D</text>
+      <line x1="10" y1="55" x2="60" y2="55" stroke="#374151" stroke-width="2"/>
+      <text x="62" y="53" fill="#374151" font-size="12" font-weight="700">D</text>
+      <line x1="10" y1="95" x2="60" y2="95" stroke="#374151" stroke-width="2"/>
+      <polygon points="60,89 60,101 72,95" fill="#374151"/>
+      <text x="10" y="53" fill="#374151" font-size="11">D</text>
+      <text x="10" y="93" fill="#374151" font-size="11">CLK</text>
+      <line x1="150" y1="55" x2="200" y2="55" stroke="#4d7c0f" stroke-width="2"/>
+      <text x="145" y="53" fill="#4d7c0f" font-size="12" font-weight="700">Q</text>
+      <line x1="150" y1="95" x2="200" y2="95" stroke="#dc2626" stroke-width="2"/>
+      <text x="143" y="93" fill="#dc2626" font-size="12" font-weight="700">Q'</text>
+      <circle cx="10" cy="52" r="3" fill="#1d4ed8"/>
+      <circle cx="10" cy="92" r="3" fill="#374151"/>
+    `,
+    JK: `
+      <rect x="60" y="10" width="90" height="130" fill="white" stroke="#4d7c0f" stroke-width="2.5" rx="5"/>
+      <text x="105" y="38" text-anchor="middle" fill="#374151" font-size="15" font-weight="700">JK</text>
+      <line x1="10" y1="48" x2="60" y2="48" stroke="#374151" stroke-width="2"/>
+      <text x="62" y="46" fill="#374151" font-size="12" font-weight="700">J</text>
+      <line x1="10" y1="85" x2="60" y2="85" stroke="#374151" stroke-width="2"/>
+      <polygon points="60,79 60,91 72,85" fill="#374151"/>
+      <line x1="10" y1="120" x2="60" y2="120" stroke="#374151" stroke-width="2"/>
+      <text x="62" y="118" fill="#374151" font-size="12" font-weight="700">K</text>
+      <text x="10" y="46" fill="#374151" font-size="11">J</text>
+      <text x="10" y="83" fill="#374151" font-size="11">CLK</text>
+      <text x="10" y="118" fill="#374151" font-size="11">K</text>
+      <line x1="150" y1="48" x2="200" y2="48" stroke="#4d7c0f" stroke-width="2"/>
+      <text x="145" y="46" fill="#4d7c0f" font-size="12" font-weight="700">Q</text>
+      <line x1="150" y1="85" x2="200" y2="85" stroke="#dc2626" stroke-width="2"/>
+      <text x="143" y="83" fill="#dc2626" font-size="12" font-weight="700">Q'</text>
+      <circle cx="10" cy="45" r="3" fill="#1d4ed8"/>
+      <circle cx="10" cy="82" r="3" fill="#374151"/>
+      <circle cx="10" cy="117" r="3" fill="#dc2626"/>
+    `,
+    T: `
+      <rect x="60" y="20" width="90" height="110" fill="white" stroke="#4d7c0f" stroke-width="2.5" rx="5"/>
+      <text x="105" y="50" text-anchor="middle" fill="#374151" font-size="15" font-weight="700">T</text>
+      <line x1="10" y1="55" x2="60" y2="55" stroke="#374151" stroke-width="2"/>
+      <text x="62" y="53" fill="#374151" font-size="12" font-weight="700">T</text>
+      <line x1="10" y1="95" x2="60" y2="95" stroke="#374151" stroke-width="2"/>
+      <polygon points="60,89 60,101 72,95" fill="#374151"/>
+      <text x="10" y="53" fill="#374151" font-size="11">T</text>
+      <text x="10" y="93" fill="#374151" font-size="11">CLK</text>
+      <line x1="150" y1="55" x2="200" y2="55" stroke="#4d7c0f" stroke-width="2"/>
+      <text x="145" y="53" fill="#4d7c0f" font-size="12" font-weight="700">Q</text>
+      <line x1="150" y1="95" x2="200" y2="95" stroke="#dc2626" stroke-width="2"/>
+      <text x="143" y="93" fill="#dc2626" font-size="12" font-weight="700">Q'</text>
+      <circle cx="10" cy="52" r="3" fill="#9333ea"/>
+      <circle cx="10" cy="92" r="3" fill="#374151"/>
+    `
+  };
+  svg.innerHTML = symbols[type] || '';
+}
+
+function renderTruthMini(type) {
+  const tables = {
+    SR: `<table style="border-collapse:collapse;font-size:11px;width:100%">
+      <tr style="background:#4d7c0f;color:white"><th style="padding:3px 6px">S</th><th style="padding:3px 6px">R</th><th style="padding:3px 6px">Q'</th><th style="padding:3px 6px">Mode</th></tr>
+      <tr><td style="padding:2px 6px;text-align:center">0</td><td style="text-align:center">0</td><td style="text-align:center">Q</td><td>Hold</td></tr>
+      <tr style="background:#f0fdf4"><td style="padding:2px 6px;text-align:center">1</td><td style="text-align:center">0</td><td style="text-align:center">1</td><td>Set</td></tr>
+      <tr><td style="padding:2px 6px;text-align:center">0</td><td style="text-align:center">1</td><td style="text-align:center">0</td><td>Reset</td></tr>
+      <tr style="background:#fee2e2"><td style="padding:2px 6px;text-align:center;color:#dc2626;font-weight:700">1</td><td style="text-align:center;color:#dc2626;font-weight:700">1</td><td style="text-align:center;color:#dc2626;font-weight:700">X</td><td style="color:#dc2626;font-weight:700">Cấm!</td></tr>
+    </table>`,
+    D: `<table style="border-collapse:collapse;font-size:11px;width:100%">
+      <tr style="background:#4d7c0f;color:white"><th style="padding:3px 6px">CLK</th><th>D</th><th>Q'</th></tr>
+      <tr><td style="padding:2px 6px;text-align:center">↑</td><td style="text-align:center">0</td><td style="text-align:center;color:#4d7c0f;font-weight:700">0</td></tr>
+      <tr style="background:#f0fdf4"><td style="padding:2px 6px;text-align:center">↑</td><td style="text-align:center">1</td><td style="text-align:center;color:#4d7c0f;font-weight:700">1</td></tr>
+      <tr><td style="padding:2px 6px;text-align:center">0/1</td><td style="text-align:center">X</td><td style="text-align:center">Q</td></tr>
+    </table>`,
+    JK: `<table style="border-collapse:collapse;font-size:11px;width:100%">
+      <tr style="background:#4d7c0f;color:white"><th style="padding:3px 6px">J</th><th>K</th><th>Q'</th><th>Mode</th></tr>
+      <tr><td style="padding:2px 6px;text-align:center">0</td><td style="text-align:center">0</td><td style="text-align:center">Q</td><td>Hold</td></tr>
+      <tr style="background:#f0fdf4"><td style="padding:2px 6px;text-align:center">1</td><td style="text-align:center">0</td><td style="text-align:center;color:#4d7c0f;font-weight:700">1</td><td>Set</td></tr>
+      <tr><td style="padding:2px 6px;text-align:center">0</td><td style="text-align:center">1</td><td style="text-align:center">0</td><td>Reset</td></tr>
+      <tr style="background:#f0fdf4"><td style="padding:2px 6px;text-align:center">1</td><td style="text-align:center">1</td><td style="text-align:center;color:#9333ea;font-weight:700">Q'</td><td style="color:#9333ea">Toggle</td></tr>
+    </table>`,
+    T: `<table style="border-collapse:collapse;font-size:11px;width:100%">
+      <tr style="background:#4d7c0f;color:white"><th style="padding:3px 6px">CLK</th><th>T</th><th>Q'</th><th>Mode</th></tr>
+      <tr><td style="padding:2px 6px;text-align:center">↑</td><td style="text-align:center">0</td><td style="text-align:center">Q</td><td>Hold</td></tr>
+      <tr style="background:#f0fdf4"><td style="padding:2px 6px;text-align:center">↑</td><td style="text-align:center">1</td><td style="text-align:center;color:#9333ea;font-weight:700">Q'</td><td style="color:#9333ea">Toggle</td></tr>
+    </table>`
+  };
+  document.getElementById('truth-table-mini').innerHTML = tables[type] || '';
+}
+
+// ═══════════════════════════════════════════════════════════
+// TIMING DIAGRAM — Module 2
+// ═══════════════════════════════════════════════════════════
+
+function drawTiming() {
+  const canvas = document.getElementById('timingCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  if (historyRows.length === 0) {
+    ctx.fillStyle = '#9ca3af';
+    ctx.font = '13px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Nhấn ↑ Cạnh lên Clock để thêm bước vào giản đồ...', W/2, H/2);
+    return;
+  }
+
+  const N = historyRows.length;
+  const LABEL_W = 56;
+  const stepW = Math.min(60, (W - LABEL_W - 10) / Math.max(N, 1));
+  const totalW = LABEL_W + stepW * N + 10;
+  canvas.width = Math.max(W, totalW);
+  ctx.clearRect(0, 0, canvas.width, H);
+
+  // Determine signals to draw
+  const type = currentFF;
+  let signals = [];
+  if (type === 'SR') {
+    signals = [
+      { label: 'CLK', data: historyRows.map(() => 1), isClk: true },
+      { label: 'S', data: historyRows.map(r => r.S) },
+      { label: 'R', data: historyRows.map(r => r.R) },
+      { label: 'Q', data: historyRows.map(r => r.Qnew), isQ: true },
+    ];
+  } else if (type === 'D') {
+    signals = [
+      { label: 'CLK', data: historyRows.map(() => 1), isClk: true },
+      { label: 'D', data: historyRows.map(r => r.D) },
+      { label: 'Q', data: historyRows.map(r => r.Qnew), isQ: true },
+    ];
+  } else if (type === 'JK') {
+    signals = [
+      { label: 'CLK', data: historyRows.map(() => 1), isClk: true },
+      { label: 'J', data: historyRows.map(r => r.J) },
+      { label: 'K', data: historyRows.map(r => r.K) },
+      { label: 'Q', data: historyRows.map(r => r.Qnew), isQ: true },
+    ];
+  } else if (type === 'T') {
+    signals = [
+      { label: 'CLK', data: historyRows.map(() => 1), isClk: true },
+      { label: 'T', data: historyRows.map(r => r.T) },
+      { label: 'Q', data: historyRows.map(r => r.Qnew), isQ: true },
+    ];
+  }
+
+  const rowH = Math.floor((H - 20) / signals.length);
+  const sigH = rowH * 0.55;
+  const sigMid = rowH * 0.5;
+
+  signals.forEach((sig, si) => {
+    const yBase = 10 + si * rowH + rowH * 0.5;
+    const yHi = yBase - sigH / 2;
+    const yLo = yBase + sigH / 2;
+
+    // Label
+    ctx.fillStyle = sig.isQ ? '#4d7c0f' : '#374151';
+    ctx.font = 'bold 12px monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(sig.label, LABEL_W - 6, yBase + 4);
+
+    // Draw waveform
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = sig.isQ ? '#4d7c0f' : sig.isClk ? '#374151' : '#1d4ed8';
+
+    if (sig.isClk) {
+      // Draw clock pulses: one per step
+      ctx.beginPath();
+      let x = LABEL_W;
+      ctx.moveTo(x, yLo);
+      for (let i = 0; i < N; i++) {
+        const x1 = LABEL_W + i * stepW;
+        const x2 = LABEL_W + (i + 0.4) * stepW;
+        const x3 = LABEL_W + (i + 0.5) * stepW;
+        const x4 = LABEL_W + (i + 1) * stepW;
+        ctx.moveTo(x1, yLo);
+        ctx.lineTo(x1, yHi);
+        ctx.lineTo(x2, yHi);
+        ctx.lineTo(x2, yLo);
+        ctx.lineTo(x4, yLo);
+
+        // Draw rising edge marker (arrow)
+        ctx.moveTo(x1, yHi - 2);
+        ctx.lineTo(x1, yHi - 8);
+      }
+      ctx.stroke();
+
+      // Arrow heads for rising edges
+      for (let i = 0; i < N; i++) {
+        const x1 = LABEL_W + i * stepW;
+        ctx.beginPath();
+        ctx.moveTo(x1 - 4, yHi - 6);
+        ctx.lineTo(x1, yHi - 11);
+        ctx.lineTo(x1 + 4, yHi - 6);
+        ctx.fillStyle = '#374151';
+        ctx.fill();
+      }
+    } else {
+      // Draw data signal
+      ctx.beginPath();
+      for (let i = 0; i <= N; i++) {
+        const val = i < N ? sig.data[i] : sig.data[N - 1];
+        const prevVal = i > 0 ? sig.data[i - 1] : sig.data[0];
+        const x = LABEL_W + i * stepW;
+        const y = val ? yHi : yLo;
+        if (i === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          // Transition
+          if (prevVal !== val) {
+            ctx.lineTo(x, prevVal ? yHi : yLo);
+            ctx.lineTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
+        }
+      }
+      ctx.stroke();
+    }
+
+    // Grid lines
+    ctx.strokeStyle = '#e5e7eb';
+    ctx.lineWidth = 0.5;
+    for (let i = 0; i <= N; i++) {
+      const x = LABEL_W + i * stepW;
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, H);
+      ctx.stroke();
+    }
+  });
+
+  // Step labels at bottom
+  ctx.fillStyle = '#9ca3af';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'center';
+  for (let i = 0; i < N; i++) {
+    ctx.fillText('t' + (i + 1), LABEL_W + (i + 0.5) * stepW, H - 2);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// T FLIP-FLOP DIVIDER — Module 3
+// ═══════════════════════════════════════════════════════════
+
+let divRunning = false;
+let divInterval = null;
+let divClkCount = 0;
+let divQs = [0, 0, 0];
+let divHistory = []; // each entry: { clk, q0, q1, q2 }
+const DIV_MAX_STEPS = 32;
+
+function toggleDivider() {
+  if (divRunning) {
+    stopDivider();
+  } else {
+    startDivider();
+  }
+}
+
+function startDivider() {
+  divRunning = true;
+  divQs = [0, 0, 0];
+  divClkCount = 0;
+  divHistory = [];
+  const btn = document.getElementById('div-run-btn');
+  btn.textContent = '■ Stop';
+  btn.classList.add('running');
+  updateDivDisplay();
+  drawDivTiming();
+
+  const freq = parseInt(document.getElementById('freq-select').value);
+  const period = 1000 / freq; // ms per full clock cycle
+
+  // We simulate clock: each half-period is half a cycle
+  let clkState = 0;
+  divInterval = setInterval(() => {
+    clkState = 1 - clkState;
+    if (clkState === 1) {
+      // Rising edge
+      // FF1 triggers on CLK rising
+      const newQ0 = 1 - divQs[0];
+      const prevQ0 = divQs[0];
+      const newQ1 = prevQ0 === 1 ? (1 - divQs[1]) : divQs[1]; // FF2 triggers on Q0 falling edge? No — T FF triggers on CLK rising. But here FF2's CLK is Q0 output.
+      // Actually: FF2's clock is Q0. FF2 sees rising edge when Q0 goes from 0→1.
+      // Q0 goes 0→1 when prevQ0=0 (after toggle: newQ0=1).
+      const q0RisingEdge = (prevQ0 === 0); // Q0 transitions 0→1 on this master CLK rising
+      const newQ2before = divQs[2];
+      const q1RisingEdge = (divQs[1] === 0 && q0RisingEdge && newQ1 === 1); // Q1 rising edge
+
+      divQs[0] = newQ0;
+      if (q0RisingEdge) divQs[1] = 1 - divQs[1];
+      const q1AfterUpdate = divQs[1];
+      if (q0RisingEdge && divQs[1] === 1) {
+        // Actually simpler: FF1 toggles on every CLK ↑ → Q0 freq = CLK/2
+        // FF2 toggles on Q0 ↑ → Q1 freq = Q0/2 = CLK/4
+        // FF3 toggles on Q1 ↑ → Q2 freq = Q1/2 = CLK/8
+      }
+
+      divClkCount++;
+      divHistory.push({ clk: 1, q0: divQs[0], q1: divQs[1], q2: divQs[2] });
+      if (divHistory.length > DIV_MAX_STEPS) divHistory.shift();
+
+      updateDivDisplay();
+      drawDivTiming();
+
+      if (divClkCount >= DIV_MAX_STEPS / 2) {
+        stopDivider();
+      }
+    }
+  }, period / 2);
+
+  // Simplified correct simulation: use separate counters
+  clearInterval(divInterval);
+  divQs = [0, 0, 0];
+  divClkCount = 0;
+  divHistory = [];
+  let masterClock = 0; // counts half-cycles; rising at even->odd
+
+  divInterval = setInterval(() => {
+    masterClock++;
+    const isRising = (masterClock % 2 === 1); // odd = rising edge
+
+    if (isRising) {
+      const prevQ0 = divQs[0];
+      divQs[0] = 1 - divQs[0]; // FF1 toggles on every CLK ↑
+
+      const prevQ1 = divQs[1];
+      if (prevQ0 === 1 && divQs[0] === 0) {
+        // Q0 falling edge → FF2 sees falling. But T FF with positive edge...
+        // Convention: FF2 CLK = Q0; FF2 is positive-edge-triggered.
+        // Q0 positive edge = prevQ0=0, newQ0=1
+      }
+      if (prevQ0 === 0 && divQs[0] === 1) {
+        // Q0 rising edge → FF2 clock rising
+        const prevQ1b = divQs[1];
+        divQs[1] = 1 - divQs[1];
+        if (prevQ1b === 0 && divQs[1] === 1) {
+          // Q1 rising edge → FF3 clock rising
+          divQs[2] = 1 - divQs[2];
+        }
+      }
+
+      divClkCount++;
+      divHistory.push({ clk: masterClock, q0: divQs[0], q1: divQs[1], q2: divQs[2] });
+      if (divHistory.length > DIV_MAX_STEPS) divHistory.shift();
+
+      updateDivDisplay();
+      drawDivTiming();
+
+      if (divClkCount >= 16) {
+        stopDivider();
+      }
+    }
+  }, period / 2);
+}
+
+function stopDivider() {
+  divRunning = false;
+  clearInterval(divInterval);
+  const btn = document.getElementById('div-run-btn');
+  btn.textContent = '▶ Chạy';
+  btn.classList.remove('running');
+}
+
+function updateDivDisplay() {
+  const [q0, q1, q2] = divQs;
+  const qs = [q0, q1, q2];
+  qs.forEach((q, i) => {
+    const el = document.getElementById(`div-q${i}`);
+    el.textContent = q;
+    el.className = 'bit-display ' + (q ? 'high' : 'low');
+    el.style.width = '60px'; el.style.height = '60px';
+    el.style.fontSize = '28px'; el.style.margin = '8px auto';
+  });
+  const freq = parseInt(document.getElementById('freq-select').value);
+  document.getElementById('div-f0').textContent = `${freq/2} Hz`;
+  document.getElementById('div-f1').textContent = `${freq/4} Hz`;
+  document.getElementById('div-f2').textContent = `${freq/8} Hz`;
+
+  const val = (q2 << 2) | (q1 << 1) | q0;
+  document.getElementById('counter-val').textContent =
+    `FF3 FF2 FF1 = ${q2}${q1}${q0}₂ = ${val}`;
+}
+
+function drawDivTiming() {
+  const canvas = document.getElementById('divCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  if (divHistory.length < 2) {
+    ctx.fillStyle = '#9ca3af';
+    ctx.font = '13px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Nhấn ▶ Chạy để xem giản đồ thời gian...', W/2, H/2);
+    return;
+  }
+
+  const N = divHistory.length;
+  const LABEL_W = 60;
+  const stepW = (W - LABEL_W - 10) / N;
+  const signals = [
+    { label: 'CLK', data: divHistory.map((_, i) => 1), isClk: true },
+    { label: 'Q0 (FF1)', data: divHistory.map(r => r.q0), color: '#4d7c0f' },
+    { label: 'Q1 (FF2)', data: divHistory.map(r => r.q1), color: '#1d4ed8' },
+    { label: 'Q2 (FF3)', data: divHistory.map(r => r.q2), color: '#9333ea' },
+  ];
+
+  const rowH = Math.floor(H / signals.length);
+  const sigH = rowH * 0.55;
+
+  signals.forEach((sig, si) => {
+    const yBase = si * rowH + rowH * 0.5;
+    const yHi = yBase - sigH / 2;
+    const yLo = yBase + sigH / 2;
+
+    ctx.fillStyle = sig.color || '#374151';
+    ctx.font = 'bold 11px monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(sig.label, LABEL_W - 4, yBase + 4);
+
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = sig.color || '#374151';
+
+    if (sig.isClk) {
+      for (let i = 0; i < N; i++) {
+        const x1 = LABEL_W + i * stepW;
+        const x2 = LABEL_W + (i + 0.45) * stepW;
+        const x3 = LABEL_W + (i + 1) * stepW;
+        ctx.beginPath();
+        ctx.moveTo(x1, yLo);
+        ctx.lineTo(x1, yHi);
+        ctx.lineTo(x2, yHi);
+        ctx.lineTo(x2, yLo);
+        ctx.lineTo(x3, yLo);
+        ctx.stroke();
+      }
+    } else {
+      ctx.beginPath();
+      let prevVal = sig.data[0];
+      ctx.moveTo(LABEL_W, prevVal ? yHi : yLo);
+      for (let i = 0; i < N; i++) {
+        const x = LABEL_W + i * stepW;
+        const val = sig.data[i];
+        if (val !== prevVal) {
+          ctx.lineTo(x, prevVal ? yHi : yLo);
+          ctx.lineTo(x, val ? yHi : yLo);
+        } else {
+          ctx.lineTo(x, val ? yHi : yLo);
+        }
+        prevVal = val;
+      }
+      ctx.lineTo(LABEL_W + N * stepW, prevVal ? yHi : yLo);
+      ctx.stroke();
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// INITIALISE
+// ═══════════════════════════════════════════════════════════
+selectFF('SR');
+drawTiming();
+drawDivTiming();
+updateDivDisplay();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

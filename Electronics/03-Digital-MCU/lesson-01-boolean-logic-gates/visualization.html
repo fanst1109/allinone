@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Đại số Boolean &amp; Cổng logic</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #a3e635; }
+
+  /* ── Card wrapper ── */
+  .card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+
+  /* ── Gate selector buttons ── */
+  .gate-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .gate-btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: 2px solid #d1d5db;
+    background: white;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    color: #374151;
+    transition: all 0.15s;
+  }
+  .gate-btn:hover { border-color: #4d7c0f; color: #4d7c0f; }
+  .gate-btn.active {
+    background: #4d7c0f;
+    border-color: #4d7c0f;
+    color: white;
+  }
+
+  /* ── Gate simulator layout ── */
+  .gate-sim {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+    margin: 16px 0;
+  }
+  .inputs-col { display: flex; flex-direction: column; gap: 12px; }
+  .output-col { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+
+  /* ── Toggle buttons for inputs ── */
+  .input-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #374151;
+  }
+  .toggle-btn {
+    width: 64px; height: 36px;
+    border-radius: 18px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 900;
+    transition: all 0.15s;
+    color: white;
+  }
+  .toggle-btn.low  { background: #374151; }
+  .toggle-btn.high { background: #dc2626; }
+
+  /* ── Output indicator ── */
+  .output-indicator {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    border: 4px solid #d1d5db;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; font-weight: 900;
+    transition: all 0.2s;
+  }
+  .output-indicator.low  { background: #f1f5f9; color: #94a3b8; border-color: #94a3b8; }
+  .output-indicator.high { background: #dc2626; color: white; border-color: #dc2626; box-shadow: 0 0 16px rgba(220,38,38,0.4); }
+
+  .output-label { font-size: 13px; color: #6b7280; font-weight: 600; }
+
+  /* ── Gate SVG area ── */
+  .gate-svg-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* ── Truth table ── */
+  .truth-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-top: 12px;
+    font-family: monospace;
+  }
+  .truth-table th {
+    background: #4d7c0f;
+    color: white;
+    padding: 8px 14px;
+    text-align: center;
+  }
+  .truth-table td {
+    padding: 7px 14px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: center;
+  }
+  .truth-table tr.active-row td {
+    background: #fef08a;
+    font-weight: 700;
+  }
+  .truth-table td.bit-1 { color: #dc2626; font-weight: 700; }
+  .truth-table td.bit-0 { color: #374151; }
+
+  /* ── Expression evaluator ── */
+  .expr-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .expr-input-row input[type="text"] {
+    flex: 1;
+    min-width: 180px;
+    max-width: 100%;
+    padding: 8px 12px;
+    border: 2px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 15px;
+    font-family: monospace;
+    box-sizing: border-box;
+  }
+  .expr-input-row input[type="text"]:focus {
+    outline: none;
+    border-color: #4d7c0f;
+  }
+  .expr-btn {
+    padding: 8px 18px;
+    background: #4d7c0f;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .expr-btn:hover { background: #3d6b0c; }
+
+  .expr-help {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+  .expr-error { color: #dc2626; font-size: 14px; font-weight: 600; margin-top: 8px; }
+  .expr-result-table { overflow-x: auto; }
+
+  /* ── De Morgan demo ── */
+  .demorgan-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 12px 0;
+  }
+  .dm-box {
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+  }
+  .dm-box.active { border-color: #4d7c0f; background: #f0fdf4; }
+  .dm-formula {
+    font-family: monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 8px;
+  }
+  .dm-value {
+    font-size: 28px;
+    font-weight: 900;
+    margin: 8px 0;
+    transition: color 0.2s;
+  }
+  .dm-value.v1 { color: #dc2626; }
+  .dm-value.v0 { color: #94a3b8; }
+
+  .dm-inputs {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin: 12px 0;
+  }
+
+  .equal-sign {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 900;
+    color: #4d7c0f;
+  }
+  .equal-check {
+    font-size: 13px;
+    margin-top: 6px;
+    font-weight: 700;
+  }
+
+  /* ── Result box ── */
+  .result-box {
+    background: #f0fdf4;
+    border: 2px solid #86efac;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-top: 12px;
+  }
+  .result-box .hl { color: #14532d; font-weight: 700; font-size: 16px; }
+
+  /* ── Info strip ── */
+  .info-strip {
+    background: #ecfccb;
+    border-left: 4px solid #4d7c0f;
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 12px 0;
+  }
+
+  /* ── Wiring lines in gate SVG ── */
+  .wire-low  { stroke: #374151; }
+  .wire-high { stroke: #dc2626; }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .gate-sim { grid-template-columns: 1fr; gap: 12px; }
+    .gate-svg-wrap { order: -1; }
+    .output-col { flex-direction: row; align-items: center; gap: 16px; }
+    .demorgan-grid { grid-template-columns: 1fr; }
+    .equal-sign { transform: rotate(90deg); }
+    main { max-width: 100%; }
+  }
+  @media (max-width: 400px) {
+    .gate-btn { padding: 6px 12px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Electronics — Digital &amp; MCU</a>
+  <span class="sep">·</span>
+  <a href="../../02-Semiconductors/lesson-08-opamp-applications/visualization.html">← T2·L8: Op-amp ứng dụng</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Boolean &amp; cổng logic</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-combinational/visualization.html">L2: Mạch tổ hợp →</a>
+</nav>
+
+<main>
+<h1>Lesson 01 — Đại số Boolean &amp; Cổng logic</h1>
+<p>Bộ mô phỏng cổng logic tương tác: bật/tắt ngõ vào A và B, quan sát ngõ ra thay đổi trực tiếp cùng bảng chân trị highlight. Thử đánh biểu thức Boolean tùy ý và khám phá định luật De Morgan trực quan.</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — Gate Simulator
+     ═══════════════════════════════════════════════════ -->
+<h2>1. Mô phỏng cổng logic</h2>
+<div class="card">
+  <p>Chọn loại cổng, bật/tắt ngõ vào A và B (NOT chỉ dùng A).</p>
+
+  <div class="gate-selector" id="gateSel">
+    <button class="gate-btn active" onclick="selectGate('AND')">AND</button>
+    <button class="gate-btn" onclick="selectGate('OR')">OR</button>
+    <button class="gate-btn" onclick="selectGate('NOT')">NOT</button>
+    <button class="gate-btn" onclick="selectGate('NAND')">NAND</button>
+    <button class="gate-btn" onclick="selectGate('NOR')">NOR</button>
+    <button class="gate-btn" onclick="selectGate('XOR')">XOR</button>
+    <button class="gate-btn" onclick="selectGate('XNOR')">XNOR</button>
+  </div>
+
+  <div class="gate-sim">
+    <!-- Inputs -->
+    <div class="inputs-col">
+      <div class="input-toggle">
+        <button class="toggle-btn low" id="btnA" onclick="toggleInput('A')">0</button>
+        <span>A</span>
+      </div>
+      <div class="input-toggle" id="inputBRow">
+        <button class="toggle-btn low" id="btnB" onclick="toggleInput('B')">0</button>
+        <span>B</span>
+      </div>
+    </div>
+
+    <!-- Gate SVG -->
+    <div class="gate-svg-wrap">
+      <svg id="gateSvg" width="240" height="120" viewBox="0 0 240 120">
+        <!-- Drawn by JS -->
+      </svg>
+    </div>
+
+    <!-- Output -->
+    <div class="output-col">
+      <div class="output-indicator low" id="outIndicator">0</div>
+      <div class="output-label">Ngõ ra Y</div>
+    </div>
+  </div>
+
+  <!-- Gate info -->
+  <div class="result-box" id="gateInfo">Chọn cổng và thay đổi ngõ vào...</div>
+
+  <!-- Truth table -->
+  <div style="overflow-x:auto; margin-top:16px;">
+    <table class="truth-table" id="truthTable">
+      <thead id="ttHead"></thead>
+      <tbody id="ttBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Boolean Expression Evaluator
+     ═══════════════════════════════════════════════════ -->
+<h2>2. Đánh biểu thức Boolean tùy ý</h2>
+<div class="card">
+  <div class="info-strip">
+    <strong>Cú pháp hỗ trợ:</strong>
+    biến <code>A</code>, <code>B</code>, <code>C</code> (hoa/thường);
+    NOT: <code>!</code> hoặc <code>~</code>;
+    AND: <code>&amp;</code> hoặc <code>*</code> hoặc khoảng trắng;
+    OR: <code>|</code> hoặc <code>+</code>;
+    XOR: <code>^</code>;
+    Dấu ngoặc <code>()</code> được hỗ trợ.<br>
+    Ví dụ: <code>A &amp; B | !C</code> &nbsp;·&nbsp; <code>!(A &amp; B)</code> &nbsp;·&nbsp; <code>A ^ B</code> &nbsp;·&nbsp; <code>!A | !B</code>
+  </div>
+
+  <div class="expr-input-row">
+    <input type="text" id="exprInput" value="!(A & B)" placeholder="Nhập biểu thức..." oninput="evalExpr()">
+    <button class="expr-btn" onclick="evalExpr()">Tính bảng</button>
+  </div>
+  <div class="expr-error" id="exprError"></div>
+  <div class="expr-result-table" id="exprResult"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — De Morgan Demo
+     ═══════════════════════════════════════════════════ -->
+<h2>3. De Morgan trực quan</h2>
+<div class="card">
+  <p>Định luật De Morgan nói hai biểu thức sau luôn bằng nhau. Thay đổi A, B để thấy cả hai vế luôn cho kết quả giống nhau.</p>
+
+  <!-- De Morgan 1 -->
+  <h3 style="margin-bottom:8px">De Morgan 1: <code style="font-size:15px">(A · B)̄ = Ā + B̄</code></h3>
+
+  <div class="dm-inputs">
+    <div class="input-toggle">
+      <button class="toggle-btn low" id="dm1BtnA" onclick="toggleDM(1,'A')">0</button>
+      <span style="font-weight:700">A</span>
+    </div>
+    <div class="input-toggle">
+      <button class="toggle-btn low" id="dm1BtnB" onclick="toggleDM(1,'B')">0</button>
+      <span style="font-weight:700">B</span>
+    </div>
+  </div>
+
+  <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+    <div class="dm-box" id="dm1Left">
+      <div class="dm-formula">NOT(A AND B)</div>
+      <div class="dm-value v0" id="dm1LVal">0</div>
+      <div style="font-size:13px;color:#6b7280">(A·B)̄</div>
+    </div>
+    <div class="equal-sign" id="dm1Eq">=</div>
+    <div class="dm-box" id="dm1Right">
+      <div class="dm-formula">NOT A OR NOT B</div>
+      <div class="dm-value v0" id="dm1RVal">0</div>
+      <div style="font-size:13px;color:#6b7280">Ā + B̄</div>
+    </div>
+  </div>
+  <div class="equal-check" id="dm1Check">— chờ thay đổi —</div>
+
+  <hr style="margin:20px 0; border:none; border-top:1px solid #e5e7eb;">
+
+  <!-- De Morgan 2 -->
+  <h3 style="margin-bottom:8px">De Morgan 2: <code style="font-size:15px">(A + B)̄ = Ā · B̄</code></h3>
+
+  <div class="dm-inputs">
+    <div class="input-toggle">
+      <button class="toggle-btn low" id="dm2BtnA" onclick="toggleDM(2,'A')">0</button>
+      <span style="font-weight:700">A</span>
+    </div>
+    <div class="input-toggle">
+      <button class="toggle-btn low" id="dm2BtnB" onclick="toggleDM(2,'B')">0</button>
+      <span style="font-weight:700">B</span>
+    </div>
+  </div>
+
+  <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+    <div class="dm-box" id="dm2Left">
+      <div class="dm-formula">NOT(A OR B)</div>
+      <div class="dm-value v0" id="dm2LVal">0</div>
+      <div style="font-size:13px;color:#6b7280">(A+B)̄</div>
+    </div>
+    <div class="equal-sign" id="dm2Eq">=</div>
+    <div class="dm-box" id="dm2Right">
+      <div class="dm-formula">NOT A AND NOT B</div>
+      <div class="dm-value v0" id="dm2RVal">0</div>
+      <div style="font-size:13px;color:#6b7280">Ā · B̄</div>
+    </div>
+  </div>
+  <div class="equal-check" id="dm2Check">— chờ thay đổi —</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 4 — NAND Universal Gate Demo
+     ═══════════════════════════════════════════════════ -->
+<h2>4. NAND vạn năng — dựng cổng khác từ NAND</h2>
+<div class="card">
+  <p>Chọn hàm cần dựng. Sơ đồ bên dưới hiển thị cách nối NAND để đạt được hàm đó. Bật/tắt A, B để xác minh.</p>
+
+  <div class="gate-selector" id="univSel">
+    <button class="gate-btn active" onclick="selectUniv('NOT_NAND')">NOT từ NAND</button>
+    <button class="gate-btn" onclick="selectUniv('AND_NAND')">AND từ NAND</button>
+    <button class="gate-btn" onclick="selectUniv('OR_NAND')">OR từ NAND</button>
+    <button class="gate-btn" onclick="selectUniv('XOR_NAND')">XOR từ NAND</button>
+  </div>
+
+  <!-- Inputs for universal demo -->
+  <div class="inputs-col" style="flex-direction:row; gap:16px; margin-bottom:12px; align-items:center;">
+    <div class="input-toggle">
+      <button class="toggle-btn low" id="uBtnA" onclick="toggleUniv('A')">0</button>
+      <span>A</span>
+    </div>
+    <div class="input-toggle" id="uRowB">
+      <button class="toggle-btn low" id="uBtnB" onclick="toggleUniv('B')">0</button>
+      <span>B</span>
+    </div>
+  </div>
+
+  <div style="overflow-x:auto;">
+    <svg id="univSvg" width="560" height="180" viewBox="0 0 560 180">
+      <!-- Drawn by JS -->
+    </svg>
+  </div>
+
+  <div class="result-box" id="univResult">Chọn hàm cần dựng...</div>
+</div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// SHARED STATE
+// ═══════════════════════════════════════════════════════
+let state = { gateType: 'AND', A: 0, B: 0 };
+let univState = { fn: 'NOT_NAND', A: 0, B: 0 };
+let dm1State = { A: 0, B: 0 };
+let dm2State = { A: 0, B: 0 };
+
+// ═══════════════════════════════════════════════════════
+// GATE LOGIC
+// ═══════════════════════════════════════════════════════
+function gateCalc(type, a, b) {
+  switch(type) {
+    case 'AND':  return a & b;
+    case 'OR':   return a | b;
+    case 'NOT':  return a ^ 1;
+    case 'NAND': return (a & b) ^ 1;
+    case 'NOR':  return (a | b) ^ 1;
+    case 'XOR':  return a ^ b;
+    case 'XNOR': return (a ^ b) ^ 1;
+    default: return 0;
+  }
+}
+
+const GATE_INFO = {
+  AND:  { expr: 'Y = A · B',         desc: 'Y = 1 chỉ khi tất cả ngõ vào = 1', inputs: 2 },
+  OR:   { expr: 'Y = A + B',         desc: 'Y = 0 chỉ khi tất cả ngõ vào = 0', inputs: 2 },
+  NOT:  { expr: 'Y = Ā',             desc: 'Lật giá trị ngõ vào (1 ngõ vào)',   inputs: 1 },
+  NAND: { expr: 'Y = (A · B)̄',      desc: 'NAND = AND rồi lật — cổng vạn năng', inputs: 2 },
+  NOR:  { expr: 'Y = (A + B)̄',      desc: 'NOR = OR rồi lật — cổng vạn năng',  inputs: 2 },
+  XOR:  { expr: 'Y = A ⊕ B',         desc: 'Y = 1 khi A ≠ B (khác nhau)',        inputs: 2 },
+  XNOR: { expr: 'Y = (A ⊕ B)̄',     desc: 'Y = 1 khi A = B (giống nhau)',        inputs: 2 },
+};
+
+// ═══════════════════════════════════════════════════════
+// MODULE 1: Gate Simulator
+// ═══════════════════════════════════════════════════════
+function selectGate(type) {
+  state.gateType = type;
+  document.querySelectorAll('#gateSel .gate-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent === type);
+  });
+  // NOT only has 1 input
+  document.getElementById('inputBRow').style.opacity = (type === 'NOT') ? '0.3' : '1';
+  document.getElementById('inputBRow').style.pointerEvents = (type === 'NOT') ? 'none' : 'auto';
+  renderGate();
+}
+
+function toggleInput(inp) {
+  state[inp] ^= 1;
+  const btn = document.getElementById('btn' + inp);
+  btn.textContent = state[inp];
+  btn.className = 'toggle-btn ' + (state[inp] ? 'high' : 'low');
+  renderGate();
+}
+
+function renderGate() {
+  const { gateType, A, B } = state;
+  const info = GATE_INFO[gateType];
+  const Y = gateCalc(gateType, A, B);
+
+  // Output indicator
+  const ind = document.getElementById('outIndicator');
+  ind.textContent = Y;
+  ind.className = 'output-indicator ' + (Y ? 'high' : 'low');
+
+  // Gate info
+  document.getElementById('gateInfo').innerHTML =
+    `<div><strong>Cổng ${gateType}</strong>: ${info.expr}</div>` +
+    `<div style="margin-top:4px">${info.desc}</div>` +
+    `<div style="margin-top:6px">A = <span class="hl">${A}</span>` +
+    (info.inputs === 2 ? `, B = <span class="hl">${B}</span>` : '') +
+    ` → Y = <span class="hl" style="font-size:20px">${Y}</span></div>`;
+
+  // Draw gate SVG
+  drawGateSvg(gateType, A, B, Y);
+
+  // Render truth table
+  renderTruthTable(gateType, A, B);
+}
+
+// ── SVG gate drawing ──────────────────────────────────
+function drawGateSvg(type, A, B, Y) {
+  const svg = document.getElementById('gateSvg');
+  const wA = A ? '#dc2626' : '#374151';
+  const wB = B ? '#dc2626' : '#374151';
+  const wY = Y ? '#dc2626' : '#374151';
+  const sw = 2.5; // stroke-width
+
+  const shapes = {
+    AND: `
+      <!-- Input wires -->
+      <line x1="20" y1="45" x2="80" y2="45" stroke="${wA}" stroke-width="${sw}"/>
+      <line x1="20" y1="75" x2="80" y2="75" stroke="${wB}" stroke-width="${sw}"/>
+      <!-- Gate body: flat left + arc right -->
+      <path d="M80,30 L80,90 Q140,90 140,60 Q140,30 80,30 Z"
+            fill="#ecfccb" stroke="#4d7c0f" stroke-width="2.5"/>
+      <!-- Output wire -->
+      <line x1="140" y1="60" x2="220" y2="60" stroke="${wY}" stroke-width="${sw}"/>
+      <!-- Labels -->
+      <text x="8" y="49" fill="${wA}" font-size="14" font-weight="700">A</text>
+      <text x="8" y="79" fill="${wB}" font-size="14" font-weight="700">B</text>
+      <text x="225" y="65" fill="${wY}" font-size="14" font-weight="700">Y</text>
+      <!-- Bit values -->
+      <text x="40" y="42" fill="${wA}" font-size="12" font-weight="900">${A}</text>
+      <text x="40" y="72" fill="${wB}" font-size="12" font-weight="900">${B}</text>
+      <text x="175" y="57" fill="${wY}" font-size="12" font-weight="900">${Y}</text>
+    `,
+    OR: `
+      <line x1="20" y1="45" x2="80" y2="45" stroke="${wA}" stroke-width="${sw}"/>
+      <line x1="20" y1="75" x2="80" y2="75" stroke="${wB}" stroke-width="${sw}"/>
+      <!-- OR shape: curved left, pointed right -->
+      <path d="M75,30 Q85,60 75,90 Q110,90 140,60 Q110,30 75,30 Z"
+            fill="#ecfccb" stroke="#4d7c0f" stroke-width="2.5"/>
+      <line x1="140" y1="60" x2="220" y2="60" stroke="${wY}" stroke-width="${sw}"/>
+      <text x="8" y="49" fill="${wA}" font-size="14" font-weight="700">A</text>
+      <text x="8" y="79" fill="${wB}" font-size="14" font-weight="700">B</text>
+      <text x="225" y="65" fill="${wY}" font-size="14" font-weight="700">Y</text>
+      <text x="40" y="42" fill="${wA}" font-size="12" font-weight="900">${A}</text>
+      <text x="40" y="72" fill="${wB}" font-size="12" font-weight="900">${B}</text>
+      <text x="175" y="57" fill="${wY}" font-size="12" font-weight="900">${Y}</text>
+    `,
+    NOT: `
+      <!-- Only A input -->
+      <line x1="20" y1="60" x2="80" y2="60" stroke="${wA}" stroke-width="${sw}"/>
+      <!-- Triangle -->
+      <polygon points="80,30 80,90 140,60" fill="#ecfccb" stroke="#4d7c0f" stroke-width="2.5"/>
+      <!-- Bubble (inversion circle) -->
+      <circle cx="146" cy="60" r="6" fill="white" stroke="#4d7c0f" stroke-width="2.5"/>
+      <line x1="152" y1="60" x2="220" y2="60" stroke="${wY}" stroke-width="${sw}"/>
+      <text x="8" y="64" fill="${wA}" font-size="14" font-weight="700">A</text>
+      <text x="225" y="65" fill="${wY}" font-size="14" font-weight="700">Y</text>
+      <text x="40" y="57" fill="${wA}" font-size="12" font-weight="900">${A}</text>
+      <text x="175" y="57" fill="${wY}" font-size="12" font-weight="900">${Y}</text>
+    `,
+    NAND: `
+      <line x1="20" y1="45" x2="80" y2="45" stroke="${wA}" stroke-width="${sw}"/>
+      <line x1="20" y1="75" x2="80" y2="75" stroke="${wB}" stroke-width="${sw}"/>
+      <path d="M80,30 L80,90 Q140,90 140,60 Q140,30 80,30 Z"
+            fill="#ecfccb" stroke="#4d7c0f" stroke-width="2.5"/>
+      <!-- Bubble -->
+      <circle cx="146" cy="60" r="6" fill="white" stroke="#4d7c0f" stroke-width="2.5"/>
+      <line x1="152" y1="60" x2="220" y2="60" stroke="${wY}" stroke-width="${sw}"/>
+      <text x="8" y="49" fill="${wA}" font-size="14" font-weight="700">A</text>
+      <text x="8" y="79" fill="${wB}" font-size="14" font-weight="700">B</text>
+      <text x="225" y="65" fill="${wY}" font-size="14" font-weight="700">Y</text>
+      <text x="40" y="42" fill="${wA}" font-size="12" font-weight="900">${A}</text>
+      <text x="40" y="72" fill="${wB}" font-size="12" font-weight="900">${B}</text>
+      <text x="175" y="57" fill="${wY}" font-size="12" font-weight="900">${Y}</text>
+    `,
+    NOR: `
+      <line x1="20" y1="45" x2="80" y2="45" stroke="${wA}" stroke-width="${sw}"/>
+      <line x1="20" y1="75" x2="80" y2="75" stroke="${wB}" stroke-width="${sw}"/>
+      <path d="M75,30 Q85,60 75,90 Q110,90 140,60 Q110,30 75,30 Z"
+            fill="#ecfccb" stroke="#4d7c0f" stroke-width="2.5"/>
+      <!-- Bubble -->
+      <circle cx="146" cy="60" r="6" fill="white" stroke="#4d7c0f" stroke-width="2.5"/>
+      <line x1="152" y1="60" x2="220" y2="60" stroke="${wY}" stroke-width="${sw}"/>
+      <text x="8" y="49" fill="${wA}" font-size="14" font-weight="700">A</text>
+      <text x="8" y="79" fill="${wB}" font-size="14" font-weight="700">B</text>
+      <text x="225" y="65" fill="${wY}" font-size="14" font-weight="700">Y</text>
+      <text x="40" y="42" fill="${wA}" font-size="12" font-weight="900">${A}</text>
+      <text x="40" y="72" fill="${wB}" font-size="12" font-weight="900">${B}</text>
+      <text x="175" y="57" fill="${wY}" font-size="12" font-weight="900">${Y}</text>
+    `,
+    XOR: `
+      <line x1="20" y1="45" x2="80" y2="45" stroke="${wA}" stroke-width="${sw}"/>
+      <line x1="20" y1="75" x2="80" y2="75" stroke="${wB}" stroke-width="${sw}"/>
+      <!-- XOR: OR shape + extra curved bar on left -->
+      <path d="M75,30 Q85,60 75,90 Q110,90 140,60 Q110,30 75,30 Z"
+            fill="#ecfccb" stroke="#4d7c0f" stroke-width="2.5"/>
+      <!-- Extra curved line -->
+      <path d="M68,30 Q78,60 68,90" fill="none" stroke="#4d7c0f" stroke-width="2.5"/>
+      <line x1="140" y1="60" x2="220" y2="60" stroke="${wY}" stroke-width="${sw}"/>
+      <text x="8" y="49" fill="${wA}" font-size="14" font-weight="700">A</text>
+      <text x="8" y="79" fill="${wB}" font-size="14" font-weight="700">B</text>
+      <text x="225" y="65" fill="${wY}" font-size="14" font-weight="700">Y</text>
+      <text x="40" y="42" fill="${wA}" font-size="12" font-weight="900">${A}</text>
+      <text x="40" y="72" fill="${wB}" font-size="12" font-weight="900">${B}</text>
+      <text x="175" y="57" fill="${wY}" font-size="12" font-weight="900">${Y}</text>
+    `,
+    XNOR: `
+      <line x1="20" y1="45" x2="80" y2="45" stroke="${wA}" stroke-width="${sw}"/>
+      <line x1="20" y1="75" x2="80" y2="75" stroke="${wB}" stroke-width="${sw}"/>
+      <path d="M75,30 Q85,60 75,90 Q110,90 140,60 Q110,30 75,30 Z"
+            fill="#ecfccb" stroke="#4d7c0f" stroke-width="2.5"/>
+      <path d="M68,30 Q78,60 68,90" fill="none" stroke="#4d7c0f" stroke-width="2.5"/>
+      <!-- Bubble -->
+      <circle cx="146" cy="60" r="6" fill="white" stroke="#4d7c0f" stroke-width="2.5"/>
+      <line x1="152" y1="60" x2="220" y2="60" stroke="${wY}" stroke-width="${sw}"/>
+      <text x="8" y="49" fill="${wA}" font-size="14" font-weight="700">A</text>
+      <text x="8" y="79" fill="${wB}" font-size="14" font-weight="700">B</text>
+      <text x="225" y="65" fill="${wY}" font-size="14" font-weight="700">Y</text>
+      <text x="40" y="42" fill="${wA}" font-size="12" font-weight="900">${A}</text>
+      <text x="40" y="72" fill="${wB}" font-size="12" font-weight="900">${B}</text>
+      <text x="175" y="57" fill="${wY}" font-size="12" font-weight="900">${Y}</text>
+    `,
+  };
+  svg.innerHTML = shapes[type] || '';
+}
+
+// ── Truth table rendering ──────────────────────────────
+function renderTruthTable(type, curA, curB) {
+  const info = GATE_INFO[type];
+  const thead = document.getElementById('ttHead');
+  const tbody = document.getElementById('ttBody');
+
+  if (info.inputs === 1) {
+    thead.innerHTML = '<tr><th>A</th><th>Y</th></tr>';
+    tbody.innerHTML = '';
+    [0, 1].forEach(a => {
+      const y = gateCalc(type, a, 0);
+      const active = (a === curA);
+      tbody.innerHTML += `<tr class="${active ? 'active-row' : ''}">
+        <td class="bit-${a}">${a}</td>
+        <td class="bit-${y}">${y}</td>
+      </tr>`;
+    });
+  } else {
+    thead.innerHTML = '<tr><th>A</th><th>B</th><th>Y</th></tr>';
+    tbody.innerHTML = '';
+    for (let a = 0; a <= 1; a++) {
+      for (let b = 0; b <= 1; b++) {
+        const y = gateCalc(type, a, b);
+        const active = (a === curA && b === curB);
+        tbody.innerHTML += `<tr class="${active ? 'active-row' : ''}">
+          <td class="bit-${a}">${a}</td>
+          <td class="bit-${b}">${b}</td>
+          <td class="bit-${y}">${y}</td>
+        </tr>`;
+      }
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE 2: Boolean Expression Evaluator
+// ═══════════════════════════════════════════════════════
+
+function parseExpr(expr) {
+  // Detect variables used (A, B, C)
+  const varSet = new Set();
+  for (const ch of expr.toUpperCase()) {
+    if ('ABC'.includes(ch)) varSet.add(ch);
+  }
+  const vars = [...varSet].sort();
+  return vars;
+}
+
+function evalBoolExpr(exprRaw, vals) {
+  // Replace variables with values, operators with JS equivalents
+  let expr = exprRaw.toUpperCase();
+  // Replace variables
+  for (const [v, val] of Object.entries(vals)) {
+    expr = expr.replace(new RegExp(v, 'g'), val);
+  }
+  // Operators: ! and ~ = !, & and * = &&, | and + = ||, ^ = ^
+  expr = expr.replace(/~/g, '!');
+  // XOR (^) needs special handling after numeric substitution
+  // AND: & or * (but not **, use word boundary careful)
+  expr = expr.replace(/\*/g, '&');
+  // Convert bitwise ops to logical with !! for bool safety
+  // We'll eval with bit ops since values are 0/1
+  // Just ensure valid JS
+  expr = expr.replace(/\|(?!\|)/g, '|');  // keep single |
+  expr = expr.replace(/&(?!&)/g, '&');    // keep single &
+  // Handle implicit AND: two adjacent numbers "1 0" → "1 & 0"
+  expr = expr.replace(/(\d)\s+(\d)/g, '$1 & $2');
+  // eslint-disable-next-line no-new-func
+  const fn = new Function('return (' + expr + ') | 0');
+  return fn();
+}
+
+function evalExpr() {
+  const raw = document.getElementById('exprInput').value.trim();
+  const errEl = document.getElementById('exprError');
+  const resEl = document.getElementById('exprResult');
+
+  if (!raw) { resEl.innerHTML = ''; errEl.textContent = ''; return; }
+
+  const vars = parseExpr(raw);
+  if (vars.length === 0) { errEl.textContent = 'Không tìm thấy biến (A, B, C).'; resEl.innerHTML = ''; return; }
+  if (vars.length > 3) { errEl.textContent = 'Tối đa 3 biến (A, B, C).'; resEl.innerHTML = ''; return; }
+
+  errEl.textContent = '';
+
+  const n = vars.length;
+  const rows = 1 << n; // 2^n
+
+  // Header
+  let html = '<table class="truth-table"><thead><tr>';
+  vars.forEach(v => html += `<th>${v}</th>`);
+  html += `<th>Y = ${escHtml(raw)}</th></tr></thead><tbody>`;
+
+  for (let i = 0; i < rows; i++) {
+    const vals = {};
+    vars.forEach((v, idx) => {
+      vals[v] = (i >> (n - 1 - idx)) & 1;
+    });
+
+    let y;
+    try {
+      y = evalBoolExpr(raw, vals);
+    } catch(e) {
+      errEl.textContent = 'Lỗi cú pháp: ' + e.message;
+      resEl.innerHTML = '';
+      return;
+    }
+
+    html += '<tr>';
+    vars.forEach(v => html += `<td class="bit-${vals[v]}">${vals[v]}</td>`);
+    html += `<td class="bit-${y}">${y}</td></tr>`;
+  }
+
+  html += '</tbody></table>';
+  resEl.innerHTML = html;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Run on load
+evalExpr();
+
+// ═══════════════════════════════════════════════════════
+// MODULE 3: De Morgan Demo
+// ═══════════════════════════════════════════════════════
+function toggleDM(rule, inp) {
+  if (rule === 1) {
+    dm1State[inp] ^= 1;
+    const btn = document.getElementById('dm1Btn' + inp);
+    btn.textContent = dm1State[inp];
+    btn.className = 'toggle-btn ' + (dm1State[inp] ? 'high' : 'low');
+    renderDM1();
+  } else {
+    dm2State[inp] ^= 1;
+    const btn = document.getElementById('dm2Btn' + inp);
+    btn.textContent = dm2State[inp];
+    btn.className = 'toggle-btn ' + (dm2State[inp] ? 'high' : 'low');
+    renderDM2();
+  }
+}
+
+function setDmValue(id, val) {
+  const el = document.getElementById(id);
+  el.textContent = val;
+  el.className = 'dm-value ' + (val ? 'v1' : 'v0');
+}
+
+function renderDM1() {
+  const { A, B } = dm1State;
+  const left  = ((A & B) ^ 1);        // NOT(A AND B)
+  const right = ((A ^ 1) | (B ^ 1));  // NOT A OR NOT B
+  setDmValue('dm1LVal', left);
+  setDmValue('dm1RVal', right);
+  const eq = (left === right);
+  document.getElementById('dm1Left').className  = 'dm-box' + (eq ? ' active' : '');
+  document.getElementById('dm1Right').className = 'dm-box' + (eq ? ' active' : '');
+  document.getElementById('dm1Check').innerHTML =
+    eq ? '<span style="color:#4d7c0f">Hai vế bằng nhau = ' + left + ' — De Morgan 1 đúng!</span>'
+       : '<span style="color:#dc2626">Hai vế KHAC nhau — kiểm tra lại!</span>';
+}
+
+function renderDM2() {
+  const { A, B } = dm2State;
+  const left  = ((A | B) ^ 1);        // NOT(A OR B)
+  const right = ((A ^ 1) & (B ^ 1));  // NOT A AND NOT B
+  setDmValue('dm2LVal', left);
+  setDmValue('dm2RVal', right);
+  const eq = (left === right);
+  document.getElementById('dm2Left').className  = 'dm-box' + (eq ? ' active' : '');
+  document.getElementById('dm2Right').className = 'dm-box' + (eq ? ' active' : '');
+  document.getElementById('dm2Check').innerHTML =
+    eq ? '<span style="color:#4d7c0f">Hai vế bằng nhau = ' + left + ' — De Morgan 2 đúng!</span>'
+       : '<span style="color:#dc2626">Hai vế KHAC nhau — kiểm tra lại!</span>';
+}
+
+renderDM1();
+renderDM2();
+
+// ═══════════════════════════════════════════════════════
+// MODULE 4: Universal NAND Demo
+// ═══════════════════════════════════════════════════════
+const UNIV_CONFIG = {
+  NOT_NAND: {
+    label: 'NOT từ NAND: nối cả 2 ngõ vào của NAND với nhau',
+    inputs: 1,
+    formula: 'Y = NAND(A, A) = Ā',
+    steps: [
+      { id: 'N1', inputs: ['A','A'], out: 'Y' }
+    ]
+  },
+  AND_NAND: {
+    label: 'AND từ NAND: NAND rồi NOT (2 cổng NAND)',
+    inputs: 2,
+    formula: 'P = NAND(A,B); Y = NAND(P,P) = A·B',
+    steps: [
+      { id: 'N1', inputs: ['A','B'], out: 'P' },
+      { id: 'N2', inputs: ['P','P'], out: 'Y' }
+    ]
+  },
+  OR_NAND: {
+    label: 'OR từ NAND: NOT A, NOT B, rồi NAND (3 cổng NAND)',
+    inputs: 2,
+    formula: 'NA=NAND(A,A); NB=NAND(B,B); Y=NAND(NA,NB)=A+B',
+    steps: [
+      { id: 'N1', inputs: ['A','A'], out: 'NA' },
+      { id: 'N2', inputs: ['B','B'], out: 'NB' },
+      { id: 'N3', inputs: ['NA','NB'], out: 'Y' }
+    ]
+  },
+  XOR_NAND: {
+    label: 'XOR từ NAND: 4 cổng NAND',
+    inputs: 2,
+    formula: 'P=NAND(A,B); Q=NAND(A,P); R=NAND(B,P); Y=NAND(Q,R)=A⊕B',
+    steps: [
+      { id: 'N1', inputs: ['A','B'],   out: 'P' },
+      { id: 'N2', inputs: ['A','P'],   out: 'Q' },
+      { id: 'N3', inputs: ['B','P'],   out: 'R' },
+      { id: 'N4', inputs: ['Q','R'],   out: 'Y' }
+    ]
+  }
+};
+
+function selectUniv(fn) {
+  univState.fn = fn;
+  document.querySelectorAll('#univSel .gate-btn').forEach(b => {
+    b.classList.remove('active');
+    if (b.textContent.includes(fn.replace('_NAND','').replace('_',' '))) {
+      // match by fn key label is not reliable — match by onclick
+    }
+  });
+  // simpler: match by button's onclick text
+  document.querySelectorAll('#univSel .gate-btn').forEach(b => {
+    const onc = b.getAttribute('onclick');
+    b.classList.toggle('active', onc && onc.includes("'" + fn + "'"));
+  });
+  const cfg = UNIV_CONFIG[fn];
+  document.getElementById('uRowB').style.opacity = cfg.inputs === 1 ? '0.3' : '1';
+  document.getElementById('uRowB').style.pointerEvents = cfg.inputs === 1 ? 'none' : 'auto';
+  renderUniv();
+}
+
+function toggleUniv(inp) {
+  univState[inp] ^= 1;
+  const btn = document.getElementById('uBtn' + inp);
+  btn.textContent = univState[inp];
+  btn.className = 'toggle-btn ' + (univState[inp] ? 'high' : 'low');
+  renderUniv();
+}
+
+function nand(a, b) { return (a & b) ^ 1; }
+
+function evalUniv(fn, A, B) {
+  switch(fn) {
+    case 'NOT_NAND': return { Y: nand(A,A) };
+    case 'AND_NAND': { const P = nand(A,B); return { P, Y: nand(P,P) }; }
+    case 'OR_NAND':  { const NA=nand(A,A), NB=nand(B,B); return { NA, NB, Y: nand(NA,NB) }; }
+    case 'XOR_NAND': { const P=nand(A,B), Q=nand(A,P), R=nand(B,P); return { P, Q, R, Y: nand(Q,R) }; }
+    default: return { Y: 0 };
+  }
+}
+
+function renderUniv() {
+  const { fn, A, B } = univState;
+  const cfg = UNIV_CONFIG[fn];
+  const vals = evalUniv(fn, A, B);
+  const Y = vals.Y;
+
+  // Draw SVG diagram
+  drawUnivSvg(fn, A, B, vals);
+
+  // Text result
+  const expected = {
+    NOT_NAND: A^1,
+    AND_NAND: A&B,
+    OR_NAND:  A|B,
+    XOR_NAND: A^B,
+  };
+  const expFn = { NOT_NAND:'NOT', AND_NAND:'AND', OR_NAND:'OR', XOR_NAND:'XOR' }[fn];
+  const expVal = expected[fn];
+  document.getElementById('univResult').innerHTML =
+    `<div>${cfg.label}</div>` +
+    `<div style="margin-top:6px; font-family:monospace">${cfg.formula}</div>` +
+    `<div style="margin-top:8px">A=${A}` + (cfg.inputs===2 ? `, B=${B}` : '') +
+    ` → Y = <span class="hl" style="font-size:20px">${Y}</span>` +
+    ` &nbsp; (kiểm tra: ${expFn}(${A}${cfg.inputs===2?','+B:''}) = <span class="hl">${expVal}</span>` +
+    (Y === expVal ? ' <span style="color:#4d7c0f">✓ khớp</span>' : ' <span style="color:#dc2626">✗ không khớp!</span>') +
+    ')</div>';
+}
+
+function wireColor(v) { return v ? '#dc2626' : '#374151'; }
+
+function drawNandSymbol(svg, cx, cy, w, h, label, outVal, extraAttr='') {
+  // Gate body
+  const left = cx - w/2;
+  const top  = cy - h/2;
+  const bot  = cy + h/2;
+  const right = cx + w/2 - 8; // leave room for bubble
+  svg.innerHTML += `
+    <path d="M${left},${top} L${left},${bot} Q${cx+w/2-8},${bot} ${cx+w/2-8},${cy} Q${cx+w/2-8},${top} ${left},${top} Z"
+          fill="#ecfccb" stroke="#4d7c0f" stroke-width="2"/>
+    <circle cx="${cx+w/2-2}" cy="${cy}" r="5" fill="white" stroke="#4d7c0f" stroke-width="2"/>
+    <text x="${cx}" y="${cy+5}" text-anchor="middle" fill="#4d7c0f" font-size="10" font-weight="700">${label}</text>
+  `;
+}
+
+function drawUnivSvg(fn, A, B, vals) {
+  const svg = document.getElementById('univSvg');
+  svg.innerHTML = '';
+  const sw = 2;
+
+  if (fn === 'NOT_NAND') {
+    // Single NAND: A comes in from both inputs
+    const wA = wireColor(A);
+    const wY = wireColor(vals.Y);
+    // A label
+    svg.innerHTML += `<text x="20" y="88" fill="${wA}" font-size="13" font-weight="700">A=${A}</text>`;
+    // Wire A top input
+    svg.innerHTML += `<line x1="52" y1="72" x2="120" y2="72" stroke="${wA}" stroke-width="${sw}"/>`;
+    // Wire A bottom input
+    svg.innerHTML += `<line x1="52" y1="108" x2="120" y2="108" stroke="${wA}" stroke-width="${sw}"/>`;
+    // Junction dot at x=52
+    svg.innerHTML += `<line x1="52" y1="72" x2="52" y2="108" stroke="${wA}" stroke-width="${sw}"/>`;
+    svg.innerHTML += `<circle cx="52" cy="90" r="4" fill="${wA}"/>`;
+    // NAND gate symbol at cx=170, cy=90
+    svg.innerHTML += `
+      <path d="M120,60 L120,120 Q168,120 168,90 Q168,60 120,60 Z" fill="#ecfccb" stroke="#4d7c0f" stroke-width="2"/>
+      <circle cx="174" cy="90" r="6" fill="white" stroke="#4d7c0f" stroke-width="2"/>
+      <text x="144" y="95" text-anchor="middle" fill="#4d7c0f" font-size="11" font-weight="700">NAND</text>
+    `;
+    // Output wire
+    svg.innerHTML += `<line x1="180" y1="90" x2="260" y2="90" stroke="${wY}" stroke-width="${sw}"/>`;
+    // NOT A annotation
+    svg.innerHTML += `<text x="270" y="78" fill="${wY}" font-size="12" font-weight="700">Ā = Y</text>`;
+    svg.innerHTML += `<text x="270" y="96" fill="${wY}" font-size="18" font-weight="900">${vals.Y}</text>`;
+  }
+  else if (fn === 'AND_NAND') {
+    const wA = wireColor(A), wB = wireColor(B);
+    const P = vals.P;
+    const wP = wireColor(P), wY = wireColor(vals.Y);
+
+    // NAND1 at x=120, NAND2 (NOT) at x=320
+    // Input wires
+    svg.innerHTML += `<text x="10" y="72" fill="${wA}" font-size="12" font-weight="700">A=${A}</text>`;
+    svg.innerHTML += `<text x="10" y="108" fill="${wB}" font-size="12" font-weight="700">B=${B}</text>`;
+    svg.innerHTML += `<line x1="45" y1="68" x2="100" y2="68" stroke="${wA}" stroke-width="${sw}"/>`;
+    svg.innerHTML += `<line x1="45" y1="112" x2="100" y2="112" stroke="${wB}" stroke-width="${sw}"/>`;
+    // NAND1
+    svg.innerHTML += `
+      <path d="M100,50 L100,130 Q155,130 155,90 Q155,50 100,50 Z" fill="#ecfccb" stroke="#4d7c0f" stroke-width="2"/>
+      <circle cx="161" cy="90" r="6" fill="white" stroke="#4d7c0f" stroke-width="2"/>
+      <text x="127" y="95" text-anchor="middle" fill="#4d7c0f" font-size="10" font-weight="700">NAND₁</text>
+    `;
+    // P wire (split to both inputs of NAND2)
+    svg.innerHTML += `<line x1="167" y1="90" x2="210" y2="90" stroke="${wP}" stroke-width="${sw}"/>`;
+    svg.innerHTML += `<text x="180" y="84" fill="${wP}" font-size="10" font-weight="700">P=${P}</text>`;
+    svg.innerHTML += `<circle cx="210" cy="90" r="4" fill="${wP}"/>`;
+    svg.innerHTML += `<line x1="210" y1="75" x2="280" y2="75" stroke="${wP}" stroke-width="${sw}"/>`;
+    svg.innerHTML += `<line x1="210" y1="105" x2="280" y2="105" stroke="${wP}" stroke-width="${sw}"/>`;
+    svg.innerHTML += `<line x1="210" y1="75" x2="210" y2="105" stroke="${wP}" stroke-width="${sw}"/>`;
+    // NAND2
+    svg.innerHTML += `
+      <path d="M280,57 L280,123 Q335,123 335,90 Q335,57 280,57 Z" fill="#ecfccb" stroke="#4d7c0f" stroke-width="2"/>
+      <circle cx="341" cy="90" r="6" fill="white" stroke="#4d7c0f" stroke-width="2"/>
+      <text x="307" y="95" text-anchor="middle" fill="#4d7c0f" font-size="10" font-weight="700">NAND₂</text>
+    `;
+    // Output
+    svg.innerHTML += `<line x1="347" y1="90" x2="430" y2="90" stroke="${wY}" stroke-width="${sw}"/>`;
+    svg.innerHTML += `<text x="435" y="82" fill="${wY}" font-size="12" font-weight="700">Y=A·B</text>`;
+    svg.innerHTML += `<text x="440" y="104" fill="${wY}" font-size="18" font-weight="900">${vals.Y}</text>`;
+  }
+  else if (fn === 'OR_NAND') {
+    const wA = wireColor(A), wB = wireColor(B);
+    const NA = vals.NA, NB = vals.NB;
+    const wNA = wireColor(NA), wNB = wireColor(NB), wY = wireColor(vals.Y);
+
+    svg.innerHTML += `<text x="8" y="42" fill="${wA}" font-size="11" font-weight="700">A=${A}</text>`;
+    svg.innerHTML += `<text x="8" y="142" fill="${wB}" font-size="11" font-weight="700">B=${B}</text>`;
+    // NAND1 (NOT A) at y=35
+    svg.innerHTML += `<line x1="40" y1="35" x2="40" y2="55" stroke="${wA}" stroke-width="${sw}"/>`;
+    svg.innerHTML += `<circle cx="40" cy="35" r="3" fill="${wA}"/>`;
+    svg.innerHTML += `<line x1="40" y1="55" x2="80" y2="55" stroke="${wA}" stroke-width="${sw}"/>`;
+    svg.innerHTML += `<line x1="40" y1="55" x2="80" y2="55" stroke="${wA}" stroke-width="${sw}"/>`;
+    // Split A to both inputs of NAND1
+    svg.innerHTML += `<line x1="40" y1="35" x2="80" y2="35" stroke="${wA}" stroke-width="${sw}"/>`;
+    svg.innerHTML += `<line x1="40" y1="55" x2="80" y2="55" stroke="${wA}" stroke-width="${sw}"/>`;
+    // NAND1 gate
+    svg.innerHTML += `
+      <path d="M80,20 L80,70 Q115,70 115,45 Q115,20 80,20 Z" fill="#ecfccb" stroke="#4d7c0f" stroke-width="1.5"/>
+      <circle cx="120" cy="45" r="5" fill="white" stroke="#4d7c0f" stroke-width="1.5"/>
+      <text x="97" y="49" text-anchor="middle" fill="#4d7c0f" font-size="9" font-weight="700">N₁</text>
+    `;
+    svg.innerHTML += `<text x="126" y="41" fill="${wNA}" font-size="9">Ā=${NA}</text>`;
+    svg.innerHTML += `<line x1="125" y1="45" x2="340" y2="45" stroke="${wNA}" stroke-width="${sw}"/>`;
+
+    // NAND2 (NOT B) at y=135
+    svg.innerHTML += `<line x1="40" y1="125" x2="80" y2="125" stroke="${wB}" stroke-width="${sw}"/>`;
+    svg.innerHTML += `<line x1="40" y1="145" x2="80" y2="145" stroke="${wB}" stroke-width="${sw}"/>`;
+    svg.innerHTML += `<line x1="40" y1="125" x2="40" y2="145" stroke="${wB}" stroke-width="${sw}"/>`;
+    svg.innerHTML += `<circle cx="40" cy="135" r="3" fill="${wB}"/>`;
+    svg.innerHTML += `
+      <path d="M80,110 L80,160 Q115,160 115,135 Q115,110 80,110 Z" fill="#ecfccb" stroke="#4d7c0f" stroke-width="1.5"/>
+      <circle cx="120" cy="135" r="5" fill="white" stroke="#4d7c0f" stroke-width="1.5"/>
+      <text x="97" y="139" text-anchor="middle" fill="#4d7c0f" font-size="9" font-weight="700">N₂</text>
+    `;
+    svg.innerHTML += `<text x="126" y="131" fill="${wNB}" font-size="9">B̄=${NB}</text>`;
+    svg.innerHTML += `<line x1="125" y1="135" x2="340" y2="135" stroke="${wNB}" stroke-width="${sw}"/>`;
+
+    // NAND3 at y=90 (middle)
+    svg.innerHTML += `
+      <path d="M340,60 L340,120 Q385,120 385,90 Q385,60 340,60 Z" fill="#ecfccb" stroke="#4d7c0f" stroke-width="1.5"/>
+      <circle cx="390" cy="90" r="5" fill="white" stroke="#4d7c0f" stroke-width="1.5"/>
+      <text x="362" y="94" text-anchor="middle" fill="#4d7c0f" font-size="9" font-weight="700">N₃</text>
+    `;
+    svg.innerHTML += `<line x1="395" y1="90" x2="470" y2="90" stroke="${wireColor(vals.Y)}" stroke-width="${sw}"/>`;
+    svg.innerHTML += `<text x="475" y="82" fill="${wireColor(vals.Y)}" font-size="12" font-weight="700">Y=A+B</text>`;
+    svg.innerHTML += `<text x="480" y="104" fill="${wireColor(vals.Y)}" font-size="18" font-weight="900">${vals.Y}</text>`;
+  }
+  else if (fn === 'XOR_NAND') {
+    const wA=wireColor(A), wB=wireColor(B);
+    const P=vals.P, Q=vals.Q, R=vals.R;
+    const wP=wireColor(P), wQ=wireColor(Q), wR=wireColor(R), wY=wireColor(vals.Y);
+
+    // Compact 4-NAND XOR layout
+    svg.innerHTML += `<text x="5" y="52" fill="${wA}" font-size="11" font-weight="700">A=${A}</text>`;
+    svg.innerHTML += `<text x="5" y="132" fill="${wB}" font-size="11" font-weight="700">B=${B}</text>`;
+
+    // Input lines
+    svg.innerHTML += `<line x1="35" y1="48" x2="80" y2="48" stroke="${wA}" stroke-width="${sw}"/>`;
+    svg.innerHTML += `<line x1="35" y1="130" x2="80" y2="130" stroke="${wB}" stroke-width="${sw}"/>`;
+
+    // NAND1 (A,B) → P, placed center-top
+    svg.innerHTML += `<line x1="80" y1="80" x2="80" y2="48" stroke="${wA}" stroke-width="${sw}"/>`;
+    svg.innerHTML += `<line x1="80" y1="98" x2="80" y2="130" stroke="${wB}" stroke-width="${sw}"/>`;
+    svg.innerHTML += `
+      <path d="M80,65 L80,113 Q116,113 116,89 Q116,65 80,65 Z" fill="#ecfccb" stroke="#4d7c0f" stroke-width="1.5"/>
+      <circle cx="121" cy="89" r="5" fill="white" stroke="#4d7c0f" stroke-width="1.5"/>
+      <text x="98" y="93" text-anchor="middle" fill="#4d7c0f" font-size="9" font-weight="700">N₁</text>
+    `;
+    svg.innerHTML += `<text x="128" y="86" fill="${wP}" font-size="9">P=${P}</text>`;
+    // P wire to N2 and N3
+    svg.innerHTML += `<line x1="126" y1="89" x2="165" y2="89" stroke="${wP}" stroke-width="${sw}"/>`;
+    svg.innerHTML += `<circle cx="165" cy="89" r="3" fill="${wP}"/>`;
+    svg.innerHTML += `<line x1="165" y1="89" x2="165" y2="52" stroke="${wP}" stroke-width="${sw}"/>`;
+    svg.innerHTML += `<line x1="165" y1="89" x2="165" y2="130" stroke="${wP}" stroke-width="${sw}"/>`;
+
+    // A to N2
+    svg.innerHTML += `<circle cx="35" cy="48" r="3" fill="${wA}"/>`;
+    svg.innerHTML += `<line x1="35" y1="48" x2="35" y2="38" stroke="${wA}" stroke-width="${sw}"/>`;
+    svg.innerHTML += `<line x1="35" y1="38" x2="188" y2="38" stroke="${wA}" stroke-width="${sw}"/>`;
+    svg.innerHTML += `<line x1="188" y1="38" x2="188" y2="47" stroke="${wA}" stroke-width="${sw}"/>`;
+    svg.innerHTML += `<line x1="165" y1="52" x2="188" y2="52" stroke="${wP}" stroke-width="${sw}"/>`;
+    // NAND2 (A,P) → Q
+    svg.innerHTML += `
+      <path d="M188,32 L188,68 Q224,68 224,50 Q224,32 188,32 Z" fill="#ecfccb" stroke="#4d7c0f" stroke-width="1.5"/>
+      <circle cx="229" cy="50" r="5" fill="white" stroke="#4d7c0f" stroke-width="1.5"/>
+      <text x="206" y="54" text-anchor="middle" fill="#4d7c0f" font-size="9" font-weight="700">N₂</text>
+    `;
+    svg.innerHTML += `<line x1="234" y1="50" x2="360" y2="50" stroke="${wQ}" stroke-width="${sw}"/>`;
+    svg.innerHTML += `<text x="246" y="46" fill="${wQ}" font-size="9">Q=${Q}</text>`;
+
+    // B to N3
+    svg.innerHTML += `<circle cx="35" cy="130" r="3" fill="${wB}"/>`;
+    svg.innerHTML += `<line x1="35" y1="130" x2="35" y2="142" stroke="${wB}" stroke-width="${sw}"/>`;
+    svg.innerHTML += `<line x1="35" y1="142" x2="188" y2="142" stroke="${wB}" stroke-width="${sw}"/>`;
+    svg.innerHTML += `<line x1="188" y1="142" x2="188" y2="135" stroke="${wB}" stroke-width="${sw}"/>`;
+    svg.innerHTML += `<line x1="165" y1="130" x2="188" y2="130" stroke="${wP}" stroke-width="${sw}"/>`;
+    // NAND3 (B,P) → R
+    svg.innerHTML += `
+      <path d="M188,115 L188,150 Q224,150 224,132 Q224,115 188,115 Z" fill="#ecfccb" stroke="#4d7c0f" stroke-width="1.5"/>
+      <circle cx="229" cy="132" r="5" fill="white" stroke="#4d7c0f" stroke-width="1.5"/>
+      <text x="206" y="136" text-anchor="middle" fill="#4d7c0f" font-size="9" font-weight="700">N₃</text>
+    `;
+    svg.innerHTML += `<line x1="234" y1="132" x2="360" y2="132" stroke="${wR}" stroke-width="${sw}"/>`;
+    svg.innerHTML += `<text x="246" y="128" fill="${wR}" font-size="9">R=${R}</text>`;
+
+    // NAND4 (Q,R) → Y
+    svg.innerHTML += `
+      <path d="M360,60 L360,122 Q400,122 400,91 Q400,60 360,60 Z" fill="#ecfccb" stroke="#4d7c0f" stroke-width="1.5"/>
+      <circle cx="405" cy="91" r="5" fill="white" stroke="#4d7c0f" stroke-width="1.5"/>
+      <text x="380" y="95" text-anchor="middle" fill="#4d7c0f" font-size="9" font-weight="700">N₄</text>
+    `;
+    svg.innerHTML += `<line x1="410" y1="91" x2="480" y2="91" stroke="${wY}" stroke-width="${sw}"/>`;
+    svg.innerHTML += `<text x="485" y="84" fill="${wY}" font-size="12" font-weight="700">Y=A⊕B</text>`;
+    svg.innerHTML += `<text x="490" y="104" fill="${wY}" font-size="18" font-weight="900">${vals.Y}</text>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+selectGate('AND');
+selectUniv('NOT_NAND');
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

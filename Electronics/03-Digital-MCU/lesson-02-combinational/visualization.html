@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Mạch tổ hợp (Combinational)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #a3e635; }
+
+  .card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+
+  /* ── Bit Toggle Buttons ── */
+  .bit-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 8px 0;
+  }
+  .bit-btn {
+    width: 44px; height: 44px;
+    border-radius: 8px;
+    border: 2px solid #d1d5db;
+    background: #f3f4f6;
+    font-size: 18px;
+    font-weight: 900;
+    font-family: monospace;
+    cursor: pointer;
+    color: #374151;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .bit-btn.on {
+    background: #4d7c0f;
+    border-color: #4d7c0f;
+    color: white;
+  }
+  .bit-label {
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 700;
+    min-width: 32px;
+    text-align: center;
+  }
+  .result-box {
+    background: #f0fdf4;
+    border: 2px solid #86efac;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    font-family: monospace;
+    font-size: 15px;
+    line-height: 1.9;
+  }
+  .hl { color: #14532d; font-weight: 700; font-size: 17px; }
+  .carry-active { color: #dc2626; font-weight: 700; }
+  .carry-zero   { color: #6b7280; }
+
+  /* ── Tab system ── */
+  .tab-bar { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tab-bar button {
+    padding: 7px 14px;
+    border-radius: 6px 6px 0 0;
+    border: 2px solid #d1d5db;
+    border-bottom: none;
+    background: #f9fafb;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #374151;
+  }
+  .tab-bar button.active {
+    background: white;
+    border-color: #4d7c0f;
+    color: #4d7c0f;
+    border-bottom: 2px solid white;
+    margin-bottom: -2px;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── SVG gate diagrams ── */
+  .gate-wrap {
+    display: flex;
+    justify-content: center;
+    overflow-x: auto;
+    margin: 12px 0;
+  }
+
+  /* ── Ripple carry carry-chain display ── */
+  .fa-chain {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin: 14px 0;
+    justify-content: center;
+  }
+  .fa-cell {
+    background: #f0fdf4;
+    border: 2px solid #86efac;
+    border-radius: 8px;
+    padding: 10px 12px;
+    text-align: center;
+    min-width: 80px;
+    font-size: 13px;
+    font-family: monospace;
+  }
+  .fa-cell .fa-label { font-weight: 700; font-size: 11px; color: #4d7c0f; margin-bottom: 4px; }
+  .fa-cell.carry-lit { border-color: #dc2626; background: #fff1f2; }
+
+  /* ── MUX interactive ── */
+  .mux-layout {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 16px;
+    align-items: center;
+    margin: 12px 0;
+  }
+  .mux-inputs { display: flex; flex-direction: column; gap: 8px; }
+  .mux-input-row { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+  .mux-input-row label { width: 28px; font-weight: 700; font-family: monospace; color: #374151; }
+  .mux-input-row .bit-btn { width: 36px; height: 36px; font-size: 15px; }
+  .mux-box {
+    background: #f0fdf4;
+    border: 2.5px solid #4d7c0f;
+    border-radius: 10px;
+    padding: 16px 18px;
+    text-align: center;
+    font-weight: 700;
+    color: #14532d;
+    font-size: 14px;
+    min-width: 90px;
+  }
+  .mux-output {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 15px;
+    font-family: monospace;
+  }
+
+  /* ── Decoder ── */
+  .dec-outputs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+  .dec-out {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 2px solid #d1d5db;
+    font-size: 13px;
+    font-family: monospace;
+    font-weight: 700;
+    background: #f9fafb;
+    color: #9ca3af;
+    min-width: 48px;
+    text-align: center;
+    transition: all 0.2s;
+  }
+  .dec-out.active {
+    background: #4d7c0f;
+    border-color: #4d7c0f;
+    color: white;
+  }
+
+  /* ── K-map ── */
+  .kmap-wrap {
+    overflow-x: auto;
+    margin: 12px 0;
+  }
+  .kmap-table {
+    border-collapse: collapse;
+    font-size: 15px;
+    font-family: monospace;
+    margin: 0 auto;
+  }
+  .kmap-table th {
+    background: #4d7c0f;
+    color: white;
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+  .kmap-table td {
+    width: 54px; height: 54px;
+    text-align: center;
+    vertical-align: middle;
+    border: 2px solid #d1d5db;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+    position: relative;
+    user-select: none;
+  }
+  .kmap-table td.val-1 { background: #d1fae5; color: #065f46; }
+  .kmap-table td.val-0 { background: #f9fafb; color: #9ca3af; }
+  .kmap-table td.grp1 { outline: 3px solid #dc2626; outline-offset: -4px; }
+  .kmap-table td.grp2 { outline: 3px solid #1d4ed8; outline-offset: -6px; }
+  .kmap-table td.grp12 {
+    outline: 3px solid #dc2626;
+    box-shadow: inset 0 0 0 5px #bfdbfe;
+  }
+  .kmap-table td.row-head { background: #f0fdf4; font-size: 13px; font-weight: 700; cursor: default; color: #4d7c0f; }
+  .kmap-result {
+    margin-top: 12px;
+    padding: 12px 16px;
+    background: #f0fdf4;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: monospace;
+    line-height: 1.8;
+    color: #14532d;
+  }
+
+  /* ── Select input row ── */
+  .select-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 8px 0;
+  }
+  .select-row label { font-weight: 700; font-size: 14px; color: #374151; }
+  .select-row select {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 2px solid #d1fae5;
+    font-size: 14px;
+    font-family: monospace;
+    color: #374151;
+    background: white;
+    cursor: pointer;
+  }
+  .select-row select:focus { outline: none; border-color: #4d7c0f; }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .mux-layout { grid-template-columns: 1fr; }
+    .fa-cell { min-width: 70px; font-size: 12px; }
+    .bit-btn { width: 40px; height: 40px; font-size: 16px; }
+  }
+  @media (max-width: 400px) {
+    .kmap-table td { width: 42px; height: 42px; font-size: 16px; }
+    .kmap-table th { padding: 6px 10px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Electronics — Digital &amp; MCU</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-boolean-logic-gates/visualization.html">← L1: Boolean &amp; cổng logic</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Mạch tổ hợp</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-sequential-flipflops/visualization.html">L3: Mạch tuần tự &amp; flip-flop →</a>
+</nav>
+
+<main>
+<h1>Lesson 02 — Mạch tổ hợp (Combinational Logic)</h1>
+<p>Bốn công cụ tương tác: Bộ cộng nhị phân (half/full adder + ripple carry) · Multiplexer 4:1 · Decoder 3:8 · Công cụ K-map rút gọn.</p>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 1 — BINARY ADDER
+     ══════════════════════════════════════════════════════════ -->
+<h2>1. Bộ cộng nhị phân</h2>
+<div class="card">
+  <div class="tab-bar">
+    <button class="active" onclick="showAdderTab('half')">Half Adder</button>
+    <button onclick="showAdderTab('full')">Full Adder</button>
+    <button onclick="showAdderTab('ripple')">Ripple Carry 4-bit</button>
+  </div>
+
+  <!-- HALF ADDER TAB -->
+  <div class="tab-panel active" id="adder-half">
+    <p>Bật/tắt ngõ vào A và B để xem Sum và Carry thay đổi theo thời gian thực. Sơ đồ cổng SVG hiển thị bên dưới.</p>
+    <div class="bit-row">
+      <span class="bit-label">A</span>
+      <button class="bit-btn" id="ha-A" onclick="toggleHaBit('A')">0</button>
+      <span class="bit-label">B</span>
+      <button class="bit-btn" id="ha-B" onclick="toggleHaBit('B')">0</button>
+    </div>
+    <div class="result-box" id="ha-result">
+      Nhấn bit để xem kết quả...
+    </div>
+    <div class="gate-wrap">
+      <svg width="480" height="200" viewBox="0 0 480 200">
+        <!-- Background -->
+        <rect width="480" height="200" fill="#f8fafc" rx="8"/>
+
+        <!-- Input wires -->
+        <!-- A wire -->
+        <line x1="30" y1="70" x2="140" y2="70" stroke="#374151" stroke-width="2" id="ha-wire-A"/>
+        <!-- A → XOR (top) -->
+        <line x1="30" y1="70" x2="30" y2="130" stroke="#374151" stroke-width="2" id="ha-wire-A2"/>
+        <line x1="30" y1="130" x2="250" y2="130" stroke="#374151" stroke-width="2" id="ha-wire-A3"/>
+        <!-- B wire top -->
+        <line x1="60" y1="90" x2="140" y2="90" stroke="#374151" stroke-width="2" id="ha-wire-B"/>
+        <!-- B → AND (bottom) -->
+        <line x1="60" y1="90" x2="60" y2="150" stroke="#374151" stroke-width="2" id="ha-wire-B2"/>
+        <line x1="60" y1="150" x2="250" y2="150" stroke="#374151" stroke-width="2" id="ha-wire-B3"/>
+
+        <!-- Input labels -->
+        <text x="14" y="74" font-size="14" font-weight="700" fill="#374151" id="ha-lbl-A">A=0</text>
+        <text x="14" y="94" font-size="14" font-weight="700" fill="#374151" id="ha-lbl-B">B=0</text>
+
+        <!-- XOR gate (top) centered at x=200, y=80 -->
+        <!-- Body: curved trapezoid-style using path -->
+        <path d="M140,60 Q170,80 140,100 L200,100 Q240,80 200,60 Z" fill="white" stroke="#4d7c0f" stroke-width="2.5" id="ha-xor-body"/>
+        <!-- Extra curved line for XOR -->
+        <path d="M136,60 Q152,80 136,100" fill="none" stroke="#4d7c0f" stroke-width="2.5" id="ha-xor-extra"/>
+        <!-- XOR label -->
+        <text x="178" y="84" font-size="11" font-weight="700" fill="#4d7c0f" text-anchor="middle">XOR</text>
+
+        <!-- AND gate (bottom) centered at x=200, y=140 -->
+        <path d="M140,120 L140,160 L180,160 Q220,140 180,120 Z" fill="white" stroke="#1d4ed8" stroke-width="2.5" id="ha-and-body"/>
+        <text x="170" y="144" font-size="11" font-weight="700" fill="#1d4ed8" text-anchor="middle">AND</text>
+
+        <!-- Output wires -->
+        <line x1="200" y1="80" x2="380" y2="80" stroke="#4d7c0f" stroke-width="2" id="ha-out-sum"/>
+        <line x1="220" y1="140" x2="380" y2="140" stroke="#1d4ed8" stroke-width="2" id="ha-out-carry"/>
+
+        <!-- Output labels -->
+        <text x="388" y="84" font-size="14" font-weight="700" fill="#4d7c0f" id="ha-lbl-sum">Sum = 0</text>
+        <text x="388" y="144" font-size="14" font-weight="700" fill="#1d4ed8" id="ha-lbl-carry">Carry = 0</text>
+
+        <!-- Input dots -->
+        <circle cx="30" cy="70" r="4" fill="#374151" id="ha-dot-A"/>
+        <circle cx="60" cy="90" r="4" fill="#374151" id="ha-dot-B"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- FULL ADDER TAB -->
+  <div class="tab-panel" id="adder-full">
+    <p>Full adder có 3 ngõ vào: A, B và Carry-in (Cᵢₙ). Ngõ ra: Sum và Carry-out (Cₒᵤₜ).</p>
+    <div class="bit-row">
+      <span class="bit-label">A</span>
+      <button class="bit-btn" id="fa-A" onclick="toggleFaBit('A')">0</button>
+      <span class="bit-label">B</span>
+      <button class="bit-btn" id="fa-B" onclick="toggleFaBit('B')">0</button>
+      <span class="bit-label">Cᵢₙ</span>
+      <button class="bit-btn" id="fa-Cin" onclick="toggleFaBit('Cin')">0</button>
+    </div>
+    <div class="result-box" id="fa-result">
+      Nhấn bit để xem kết quả...
+    </div>
+    <div class="gate-wrap">
+      <svg width="520" height="220" viewBox="0 0 520 220">
+        <rect width="520" height="220" fill="#f8fafc" rx="8"/>
+
+        <!-- Input labels -->
+        <text x="8" y="68" font-size="13" font-weight="700" fill="#374151" id="fa-lbl-A">A=0</text>
+        <text x="8" y="108" font-size="13" font-weight="700" fill="#374151" id="fa-lbl-B">B=0</text>
+        <text x="8" y="148" font-size="13" font-weight="700" fill="#9333ea" id="fa-lbl-Cin">Cᵢₙ=0</text>
+
+        <!-- HA1: XOR of A,B → Sum1 -->
+        <!-- wires A,B → HA1 XOR -->
+        <line x1="44" y1="65" x2="120" y2="65" stroke="#374151" stroke-width="1.8"/>
+        <line x1="44" y1="105" x2="120" y2="105" stroke="#374151" stroke-width="1.8"/>
+        <!-- HA1 XOR gate -->
+        <path d="M120,52 Q148,80 120,108 L172,108 Q210,80 172,52 Z" fill="white" stroke="#4d7c0f" stroke-width="2.2" id="fa-xor1-body"/>
+        <path d="M117,52 Q132,80 117,108" fill="none" stroke="#4d7c0f" stroke-width="2.2"/>
+        <text x="158" y="84" font-size="10" font-weight="700" fill="#4d7c0f" text-anchor="middle">XOR1</text>
+        <!-- HA1 AND gate (for C1) -->
+        <line x1="44" y1="65" x2="44" y2="135" stroke="#374151" stroke-width="1.8"/>
+        <line x1="44" y1="135" x2="120" y2="135" stroke="#374151" stroke-width="1.8"/>
+        <line x1="70" y1="105" x2="70" y2="155" stroke="#374151" stroke-width="1.8"/>
+        <line x1="70" y1="155" x2="120" y2="155" stroke="#374151" stroke-width="1.8"/>
+        <path d="M120,128 L120,162 L152,162 Q184,145 152,128 Z" fill="white" stroke="#1d4ed8" stroke-width="2.2" id="fa-and1-body"/>
+        <text x="148" y="149" font-size="10" font-weight="700" fill="#1d4ed8" text-anchor="middle">AND1</text>
+
+        <!-- Sum1 wire: XOR1 out → XOR2 in -->
+        <line x1="210" y1="80" x2="270" y2="80" stroke="#4d7c0f" stroke-width="1.8" id="fa-wire-sum1"/>
+        <!-- Cin wire → XOR2 in -->
+        <line x1="44" y1="145" x2="260" y2="145" stroke="#9333ea" stroke-width="1.8"/>
+        <line x1="260" y1="100" x2="270" y2="100" stroke="#9333ea" stroke-width="1.8"/>
+        <line x1="260" y1="100" x2="260" y2="145" stroke="#9333ea" stroke-width="1.8"/>
+
+        <!-- HA2: XOR2 (Sum1, Cin) → Sum -->
+        <path d="M270,68 Q298,84 270,100 L322,100 Q360,84 322,68 Z" fill="white" stroke="#4d7c0f" stroke-width="2.2" id="fa-xor2-body"/>
+        <path d="M267,68 Q282,84 267,100" fill="none" stroke="#4d7c0f" stroke-width="2.2"/>
+        <text x="308" y="88" font-size="10" font-weight="700" fill="#4d7c0f" text-anchor="middle">XOR2</text>
+
+        <!-- Sum output wire -->
+        <line x1="360" y1="84" x2="440" y2="84" stroke="#4d7c0f" stroke-width="1.8" id="fa-out-sum"/>
+        <text x="448" y="88" font-size="13" font-weight="700" fill="#4d7c0f" id="fa-lbl-sum">Sum=0</text>
+
+        <!-- AND2: Sum1, Cin → C2 -->
+        <line x1="240" y1="80" x2="240" y2="170" stroke="#4d7c0f" stroke-width="1.8"/>
+        <line x1="240" y1="170" x2="270" y2="170" stroke="#4d7c0f" stroke-width="1.8"/>
+        <line x1="255" y1="145" x2="270" y2="145" stroke="#9333ea" stroke-width="1.8"/>
+        <line x1="255" y1="145" x2="255" y2="170" stroke="#9333ea" stroke-width="1.8"/>
+
+        <path d="M270,158 L270,184 L300,184 Q330,171 300,158 Z" fill="white" stroke="#1d4ed8" stroke-width="2.2" id="fa-and2-body"/>
+        <text x="294" y="175" font-size="10" font-weight="700" fill="#1d4ed8" text-anchor="middle">AND2</text>
+
+        <!-- C1 wire (AND1 out) -->
+        <line x1="184" y1="145" x2="370" y2="145" stroke="#dc2626" stroke-width="1.8" id="fa-wire-c1"/>
+        <!-- C2 wire (AND2 out) -->
+        <line x1="330" y1="171" x2="350" y2="171" stroke="#dc2626" stroke-width="1.8" id="fa-wire-c2"/>
+        <line x1="350" y1="145" x2="350" y2="171" stroke="#dc2626" stroke-width="1.8"/>
+
+        <!-- OR gate for Cout = C1 + C2 -->
+        <path d="M370,132 Q400,145 370,158 L415,158 Q445,145 415,132 Z" fill="white" stroke="#dc2626" stroke-width="2.2" id="fa-or-body"/>
+        <path d="M368,132 Q380,145 368,158" fill="none" stroke="#dc2626" stroke-width="2.2"/>
+        <text x="405" y="149" font-size="10" font-weight="700" fill="#dc2626" text-anchor="middle">OR</text>
+
+        <!-- Cout output -->
+        <line x1="445" y1="145" x2="480" y2="145" stroke="#dc2626" stroke-width="1.8" id="fa-out-cout"/>
+        <text x="448" y="118" font-size="13" font-weight="700" fill="#dc2626" id="fa-lbl-cout">Cₒᵤₜ=0</text>
+        <line x1="460" y1="120" x2="460" y2="145" stroke="#dc2626" stroke-width="1" stroke-dasharray="4,3"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- RIPPLE CARRY TAB -->
+  <div class="tab-panel" id="adder-ripple">
+    <p>Nhập 2 số 4-bit (nhấn từng bit). Xem chi tiết Cᵢₙ/Sum/Cₒᵤₜ lan truyền qua từng full adder.</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+      <div>
+        <div style="font-weight:700; font-size:13px; color:#374151; margin-bottom:6px;">Số A (bit 3…0):</div>
+        <div class="bit-row" id="rc-A-row"></div>
+        <div style="font-size:13px; color:#6b7280; margin-top:4px;" id="rc-A-dec">A = 0 (0₁₀)</div>
+      </div>
+      <div>
+        <div style="font-weight:700; font-size:13px; color:#374151; margin-bottom:6px;">Số B (bit 3…0):</div>
+        <div class="bit-row" id="rc-B-row"></div>
+        <div style="font-size:13px; color:#6b7280; margin-top:4px;" id="rc-B-dec">B = 0 (0₁₀)</div>
+      </div>
+    </div>
+    <div class="fa-chain" id="rc-chain"></div>
+    <div class="result-box" id="rc-result">Nhấn bit để cộng...</div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 2 — MUX 4:1
+     ══════════════════════════════════════════════════════════ -->
+<h2>2. Multiplexer 4:1</h2>
+<div class="card">
+  <p>Đặt giá trị cho 4 ngõ vào D₀–D₃ và chọn đường select (S₁, S₀). MUX chọn đúng 1 ngõ vào và chuyển sang ngõ ra Y.</p>
+
+  <div class="mux-layout">
+    <!-- Left: inputs D0-D3 -->
+    <div class="mux-inputs">
+      <div style="font-weight:700; font-size:13px; color:#374151; margin-bottom:4px;">Ngõ vào dữ liệu:</div>
+      <div class="mux-input-row">
+        <label>D₀</label>
+        <button class="bit-btn" id="mux-D0" onclick="toggleMuxD(0)">0</button>
+        <span style="font-size:12px; color:#6b7280;" id="mux-d0-note"></span>
+      </div>
+      <div class="mux-input-row">
+        <label>D₁</label>
+        <button class="bit-btn" id="mux-D1" onclick="toggleMuxD(1)">0</button>
+        <span style="font-size:12px; color:#6b7280;" id="mux-d1-note"></span>
+      </div>
+      <div class="mux-input-row">
+        <label>D₂</label>
+        <button class="bit-btn" id="mux-D2" onclick="toggleMuxD(2)">0</button>
+        <span style="font-size:12px; color:#6b7280;" id="mux-d2-note"></span>
+      </div>
+      <div class="mux-input-row">
+        <label>D₃</label>
+        <button class="bit-btn" id="mux-D3" onclick="toggleMuxD(3)">0</button>
+        <span style="font-size:12px; color:#6b7280;" id="mux-d3-note"></span>
+      </div>
+    </div>
+
+    <!-- Center: MUX box SVG -->
+    <div>
+      <svg width="140" height="200" viewBox="0 0 140 200">
+        <polygon points="20,10 120,40 120,160 20,190" fill="#f0fdf4" stroke="#4d7c0f" stroke-width="2.5"/>
+        <text x="70" y="98" text-anchor="middle" fill="#14532d" font-size="14" font-weight="700">MUX</text>
+        <text x="70" y="116" text-anchor="middle" fill="#14532d" font-size="13">4 : 1</text>
+        <!-- Select lines at bottom -->
+        <text x="70" y="178" text-anchor="middle" fill="#4d7c0f" font-size="11" font-weight="700" id="mux-sel-label">S=00</text>
+        <!-- Output arrow -->
+        <line x1="120" y1="100" x2="138" y2="100" stroke="#14532d" stroke-width="2.5"/>
+        <polygon points="134,96 140,100 134,104" fill="#14532d"/>
+      </svg>
+    </div>
+
+    <!-- Right: select + output -->
+    <div class="mux-output">
+      <div style="font-weight:700; font-size:13px; color:#374151; margin-bottom:4px;">Đường chọn select:</div>
+      <div class="select-row">
+        <label>S₁</label>
+        <button class="bit-btn" id="mux-S1" onclick="toggleMuxS(1)">0</button>
+        <label>S₀</label>
+        <button class="bit-btn" id="mux-S0" onclick="toggleMuxS(0)">0</button>
+      </div>
+      <div id="mux-result" class="result-box" style="margin-top:8px; min-width:180px;">Y = ?</div>
+    </div>
+  </div>
+
+  <!-- MUX truth table -->
+  <div style="overflow-x:auto; margin-top:12px;">
+    <table style="border-collapse:collapse; font-size:13px; font-family:monospace; width:100%; max-width:400px;">
+      <thead>
+        <tr>
+          <th style="background:#4d7c0f; color:white; padding:7px 12px;">S₁</th>
+          <th style="background:#4d7c0f; color:white; padding:7px 12px;">S₀</th>
+          <th style="background:#4d7c0f; color:white; padding:7px 12px;">Ngõ ra Y</th>
+          <th style="background:#4d7c0f; color:white; padding:7px 12px;">Biểu thức</th>
+        </tr>
+      </thead>
+      <tbody id="mux-truth-body"></tbody>
+    </table>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 3 — DECODER 3:8
+     ══════════════════════════════════════════════════════════ -->
+<h2>3. Decoder 3:8</h2>
+<div class="card">
+  <p>Nhập 3 bit địa chỉ (A₂, A₁, A₀). Decoder kích hoạt đúng 1 trong 8 ngõ ra. Ứng dụng: giải mã địa chỉ bộ nhớ, LED 7 đoạn.</p>
+
+  <div class="bit-row">
+    <span class="bit-label">A₂</span>
+    <button class="bit-btn" id="dec-A2" onclick="toggleDecBit(2)">0</button>
+    <span class="bit-label">A₁</span>
+    <button class="bit-btn" id="dec-A1" onclick="toggleDecBit(1)">0</button>
+    <span class="bit-label">A₀</span>
+    <button class="bit-btn" id="dec-A0" onclick="toggleDecBit(0)">0</button>
+  </div>
+
+  <div class="dec-outputs" id="dec-outputs"></div>
+
+  <div class="result-box" id="dec-result">Nhấn bit để giải mã...</div>
+
+  <!-- Decoder SVG (simple schematic) -->
+  <div class="gate-wrap" style="margin-top:12px;">
+    <svg width="480" height="140" viewBox="0 0 480 140">
+      <rect width="480" height="140" fill="#f8fafc" rx="8"/>
+      <!-- Decoder box -->
+      <rect x="140" y="20" width="120" height="100" fill="#f0fdf4" stroke="#4d7c0f" stroke-width="2.5" rx="6"/>
+      <text x="200" y="60" text-anchor="middle" fill="#14532d" font-size="13" font-weight="700">DECODER</text>
+      <text x="200" y="78" text-anchor="middle" fill="#14532d" font-size="12">3 : 8</text>
+      <text x="200" y="96" text-anchor="middle" fill="#4d7c0f" font-size="11" id="dec-svg-label">000 → Y₀</text>
+
+      <!-- Input lines -->
+      <line x1="40" y1="45" x2="140" y2="45" stroke="#374151" stroke-width="1.8"/>
+      <line x1="40" y1="70" x2="140" y2="70" stroke="#374151" stroke-width="1.8"/>
+      <line x1="40" y1="95" x2="140" y2="95" stroke="#374151" stroke-width="1.8"/>
+      <text x="8" y="49" font-size="12" font-weight="700" fill="#374151" id="dec-svg-A2">A₂=0</text>
+      <text x="8" y="74" font-size="12" font-weight="700" fill="#374151" id="dec-svg-A1">A₁=0</text>
+      <text x="8" y="99" font-size="12" font-weight="700" fill="#374151" id="dec-svg-A0">A₀=0</text>
+      <circle cx="40" cy="45" r="3" fill="#374151"/>
+      <circle cx="40" cy="70" r="3" fill="#374151"/>
+      <circle cx="40" cy="95" r="3" fill="#374151"/>
+
+      <!-- Output lines (8) -->
+      <g id="dec-svg-outs">
+        <!-- will be drawn by JS -->
+      </g>
+    </svg>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 4 — K-MAP TOOL
+     ══════════════════════════════════════════════════════════ -->
+<h2>4. Công cụ K-map (3 biến)</h2>
+<div class="card">
+  <p>Nhấn vào ô K-map để đổi giá trị 0/1. Công cụ tự nhận dạng nhóm đơn giản và gợi ý biểu thức rút gọn. Trục BC theo thứ tự mã Gray (00, 01, 11, 10).</p>
+
+  <div class="kmap-wrap">
+    <table class="kmap-table" id="kmap-table">
+      <thead>
+        <tr>
+          <th style="background:#2d3748;">A \ BC</th>
+          <th>BC=00</th>
+          <th>BC=01</th>
+          <th>BC=11</th>
+          <th>BC=10</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-head">A=0</td>
+          <td id="km-0" onclick="toggleKmap(0)">0</td>
+          <td id="km-1" onclick="toggleKmap(1)">0</td>
+          <td id="km-3" onclick="toggleKmap(3)">0</td>
+          <td id="km-2" onclick="toggleKmap(2)">0</td>
+        </tr>
+        <tr>
+          <td class="row-head">A=1</td>
+          <td id="km-4" onclick="toggleKmap(4)">0</td>
+          <td id="km-5" onclick="toggleKmap(5)">0</td>
+          <td id="km-7" onclick="toggleKmap(7)">0</td>
+          <td id="km-6" onclick="toggleKmap(6)">0</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="display:flex; gap:8px; flex-wrap:wrap; margin: 10px 0;">
+    <button onclick="loadKmapPreset(0)" style="padding:6px 12px; border-radius:6px; border:2px solid #4d7c0f; background:white; color:#4d7c0f; font-size:13px; font-weight:700; cursor:pointer;">Ví dụ 1: Σm(0,1,2,4,5)</button>
+    <button onclick="loadKmapPreset(1)" style="padding:6px 12px; border-radius:6px; border:2px solid #4d7c0f; background:white; color:#4d7c0f; font-size:13px; font-weight:700; cursor:pointer;">Ví dụ 2: Σm(0,1,4,5,7)</button>
+    <button onclick="loadKmapPreset(2)" style="padding:6px 12px; border-radius:6px; border:2px solid #4d7c0f; background:white; color:#4d7c0f; font-size:13px; font-weight:700; cursor:pointer;">Ví dụ 3: Σm(1,3,5,7)</button>
+    <button onclick="clearKmap()" style="padding:6px 12px; border-radius:6px; border:2px solid #d1d5db; background:white; color:#6b7280; font-size:13px; font-weight:700; cursor:pointer;">Xóa tất cả</button>
+  </div>
+
+  <div class="kmap-result" id="kmap-result">Nhấn ô K-map để nhập giá trị...</div>
+
+  <!-- Minterm detail table -->
+  <div style="overflow-x:auto; margin-top:12px;">
+    <table style="border-collapse:collapse; font-size:13px; font-family:monospace; width:100%;">
+      <thead>
+        <tr>
+          <th style="background:#2d3748; color:white; padding:7px 10px; text-align:center;">m</th>
+          <th style="background:#2d3748; color:white; padding:7px 10px;">A</th>
+          <th style="background:#2d3748; color:white; padding:7px 10px;">B</th>
+          <th style="background:#2d3748; color:white; padding:7px 10px;">C</th>
+          <th style="background:#2d3748; color:white; padding:7px 10px;">F</th>
+          <th style="background:#2d3748; color:white; padding:7px 10px;">Minterm</th>
+        </tr>
+      </thead>
+      <tbody id="kmap-detail-body"></tbody>
+    </table>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// MODULE 1A: HALF ADDER
+// ═══════════════════════════════════════════════════════════════════════
+const haState = { A: 0, B: 0 };
+
+function toggleHaBit(bit) {
+  haState[bit] ^= 1;
+  const btn = document.getElementById('ha-' + bit);
+  btn.textContent = haState[bit];
+  btn.classList.toggle('on', haState[bit] === 1);
+  updateHalfAdder();
+}
+
+function updateHalfAdder() {
+  const { A, B } = haState;
+  const sum   = A ^ B;
+  const carry = A & B;
+
+  document.getElementById('ha-lbl-A').textContent    = `A=${A}`;
+  document.getElementById('ha-lbl-B').textContent    = `B=${B}`;
+  document.getElementById('ha-lbl-sum').textContent  = `Sum = ${sum}`;
+  document.getElementById('ha-lbl-carry').textContent = `Carry = ${carry}`;
+
+  // Color wires
+  const wireColor = (v) => v ? '#4d7c0f' : '#9ca3af';
+  document.getElementById('ha-wire-A').setAttribute('stroke', wireColor(A));
+  document.getElementById('ha-wire-A2').setAttribute('stroke', wireColor(A));
+  document.getElementById('ha-wire-A3').setAttribute('stroke', wireColor(A));
+  document.getElementById('ha-wire-B').setAttribute('stroke', wireColor(B));
+  document.getElementById('ha-wire-B2').setAttribute('stroke', wireColor(B));
+  document.getElementById('ha-wire-B3').setAttribute('stroke', wireColor(B));
+  document.getElementById('ha-out-sum').setAttribute('stroke', wireColor(sum));
+  document.getElementById('ha-out-carry').setAttribute('stroke', wireColor(carry));
+  document.getElementById('ha-dot-A').setAttribute('fill', wireColor(A));
+  document.getElementById('ha-dot-B').setAttribute('fill', wireColor(B));
+
+  // Gate highlight
+  document.getElementById('ha-xor-body').setAttribute('stroke', sum ? '#4d7c0f' : '#a3a3a3');
+  document.getElementById('ha-and-body').setAttribute('stroke', carry ? '#1d4ed8' : '#a3a3a3');
+
+  document.getElementById('ha-result').innerHTML =
+    `A=${A}, B=${B}<br>` +
+    `<strong>Sum = A ⊕ B = ${A} ⊕ ${B} = <span class="hl">${sum}</span></strong><br>` +
+    `<strong>Carry = A · B = ${A} · ${B} = <span class="${carry ? 'carry-active' : 'carry-zero'}">${carry}</span></strong><br>` +
+    `<em>Kết quả nhị phân: ${A}+${B} = ${A+B} = ${(A+B).toString(2).padStart(2,'0')}₂</em>`;
+}
+
+updateHalfAdder();
+
+// ═══════════════════════════════════════════════════════════════════════
+// MODULE 1B: FULL ADDER
+// ═══════════════════════════════════════════════════════════════════════
+const faState = { A: 0, B: 0, Cin: 0 };
+
+function toggleFaBit(bit) {
+  faState[bit] ^= 1;
+  const btn = document.getElementById('fa-' + bit);
+  btn.textContent = faState[bit];
+  btn.classList.toggle('on', faState[bit] === 1);
+  updateFullAdder();
+}
+
+function updateFullAdder() {
+  const { A, B, Cin } = faState;
+  const xor1 = A ^ B;
+  const c1   = A & B;
+  const sum  = xor1 ^ Cin;
+  const c2   = xor1 & Cin;
+  const cout = c1 | c2;
+
+  document.getElementById('fa-lbl-A').textContent   = `A=${A}`;
+  document.getElementById('fa-lbl-B').textContent   = `B=${B}`;
+  document.getElementById('fa-lbl-Cin').textContent = `Cᵢₙ=${Cin}`;
+  document.getElementById('fa-lbl-sum').textContent  = `Sum=${sum}`;
+  document.getElementById('fa-lbl-cout').textContent = `Cₒᵤₜ=${cout}`;
+
+  const wc = (v) => v ? '#4d7c0f' : '#9ca3af';
+  document.getElementById('fa-wire-sum1').setAttribute('stroke', xor1 ? '#4d7c0f' : '#9ca3af');
+  document.getElementById('fa-wire-c1').setAttribute('stroke', c1 ? '#dc2626' : '#9ca3af');
+  document.getElementById('fa-wire-c2').setAttribute('stroke', c2 ? '#dc2626' : '#9ca3af');
+  document.getElementById('fa-out-sum').setAttribute('stroke', sum ? '#4d7c0f' : '#9ca3af');
+  document.getElementById('fa-out-cout').setAttribute('stroke', cout ? '#dc2626' : '#9ca3af');
+
+  document.getElementById('fa-result').innerHTML =
+    `A=${A}, B=${B}, Cᵢₙ=${Cin}<br>` +
+    `XOR1 = A⊕B = ${A}⊕${B} = ${xor1}<br>` +
+    `AND1 = A·B = ${A}·${B} = <span class="${c1?'carry-active':'carry-zero'}">${c1}</span><br>` +
+    `<strong>Sum = XOR1⊕Cᵢₙ = ${xor1}⊕${Cin} = <span class="hl">${sum}</span></strong><br>` +
+    `AND2 = XOR1·Cᵢₙ = ${xor1}·${Cin} = ${c2}<br>` +
+    `<strong>Cₒᵤₜ = AND1+AND2 = ${c1}+${c2} = <span class="${cout?'carry-active':'carry-zero'}">${cout}</span></strong><br>` +
+    `<em>${A}+${B}+${Cin} = ${A+B+Cin} = ${(A+B+Cin).toString(2).padStart(2,'0')}₂ (Sum=${sum}, Cₒᵤₜ=${cout})</em>`;
+}
+
+updateFullAdder();
+
+// ═══════════════════════════════════════════════════════════════════════
+// MODULE 1C: RIPPLE CARRY 4-BIT
+// ═══════════════════════════════════════════════════════════════════════
+const rcBits = {
+  A: [0, 0, 0, 0],  // A[0] = LSB, A[3] = MSB
+  B: [0, 0, 0, 0]
+};
+
+function initRippleCarry() {
+  ['A', 'B'].forEach(name => {
+    const row = document.getElementById(`rc-${name}-row`);
+    row.innerHTML = '';
+    for (let i = 3; i >= 0; i--) {
+      const lbl = document.createElement('span');
+      lbl.className = 'bit-label';
+      lbl.textContent = `[${i}]`;
+      row.appendChild(lbl);
+
+      const btn = document.createElement('button');
+      btn.className = 'bit-btn';
+      btn.id = `rc-${name}-${i}`;
+      btn.textContent = '0';
+      btn.onclick = () => {
+        rcBits[name][i] ^= 1;
+        btn.textContent = rcBits[name][i];
+        btn.classList.toggle('on', rcBits[name][i] === 1);
+        updateRippleCarry();
+      };
+      row.appendChild(btn);
+    }
+  });
+  updateRippleCarry();
+}
+
+function updateRippleCarry() {
+  const A = rcBits.A, B = rcBits.B;
+  const aVal = A[3]*8 + A[2]*4 + A[1]*2 + A[0];
+  const bVal = B[3]*8 + B[2]*4 + B[1]*2 + B[0];
+
+  document.getElementById('rc-A-dec').textContent = `A = ${A[3]}${A[2]}${A[1]}${A[0]}₂ (${aVal}₁₀)`;
+  document.getElementById('rc-B-dec').textContent = `B = ${B[3]}${B[2]}${B[1]}${B[0]}₂ (${bVal}₁₀)`;
+
+  // Compute each FA
+  const fas = [];
+  let cin = 0;
+  for (let i = 0; i < 4; i++) {
+    const a = A[i], b = B[i];
+    const sum  = a ^ b ^ cin;
+    const cout = (a & b) | (cin & (a ^ b));
+    fas.push({ a, b, cin, sum, cout });
+    cin = cout;
+  }
+  const finalCout = fas[3].cout;
+  const sumVal = fas[3].sum*8 + fas[2].sum*4 + fas[1].sum*2 + fas[0].sum;
+  const totalVal = (finalCout << 4) | sumVal;
+
+  // Render FA chain
+  const chain = document.getElementById('rc-chain');
+  chain.innerHTML = '';
+  for (let i = 3; i >= 0; i--) {
+    const fa = fas[i];
+    const cell = document.createElement('div');
+    cell.className = 'fa-cell' + (fa.cout ? ' carry-lit' : '');
+    cell.innerHTML =
+      `<div class="fa-label">FA[${i}] — bit ${i}</div>` +
+      `A${i}=${fa.a} B${i}=${fa.b}<br>` +
+      `Cᵢₙ=<span class="${fa.cin?'carry-active':'carry-zero'}">${fa.cin}</span><br>` +
+      `Sum${i}=<strong>${fa.sum}</strong><br>` +
+      `Cₒᵤₜ=<span class="${fa.cout?'carry-active':'carry-zero'}">${fa.cout}</span>`;
+    chain.appendChild(cell);
+
+    if (i > 0) {
+      const arrow = document.createElement('div');
+      arrow.style.cssText = 'display:flex;align-items:center;font-size:18px;color:#dc2626;font-weight:700;';
+      arrow.textContent = fa.cout ? '→' : '→';
+      arrow.style.color = fa.cout ? '#dc2626' : '#9ca3af';
+      chain.appendChild(arrow);
+    }
+  }
+
+  const sumBits = `${fas[3].sum}${fas[2].sum}${fas[1].sum}${fas[0].sum}`;
+  const fullResult = finalCout ? `1${sumBits}` : `0${sumBits}`;
+
+  document.getElementById('rc-result').innerHTML =
+    `<strong>A = ${A[3]}${A[2]}${A[1]}${A[0]}₂ (${aVal}₁₀) &nbsp;+&nbsp; B = ${B[3]}${B[2]}${B[1]}${B[0]}₂ (${bVal}₁₀)</strong><br>` +
+    `Cout=${finalCout}, Sum = ${sumBits}₂<br>` +
+    `Kết quả đầy đủ: <span class="hl">${fullResult}₂ = ${totalVal}₁₀</span><br>` +
+    (aVal + bVal !== totalVal ? `<span style="color:#dc2626">Chú ý: kết quả ${totalVal} ≠ ${aVal+bVal} (${aVal+bVal}) — kiểm tra logic!</span>` : `<em>Kiểm tra: ${aVal} + ${bVal} = ${aVal+bVal} ✓</em>`);
+}
+
+initRippleCarry();
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// MODULE 2: MUX 4:1
+// ═══════════════════════════════════════════════════════════════════════
+const muxState = { D: [0, 0, 0, 0], S: [0, 0] }; // S[1]=S1, S[0]=S0
+
+function toggleMuxD(idx) {
+  muxState.D[idx] ^= 1;
+  document.getElementById(`mux-D${idx}`).textContent = muxState.D[idx];
+  document.getElementById(`mux-D${idx}`).classList.toggle('on', muxState.D[idx] === 1);
+  updateMux();
+}
+
+function toggleMuxS(idx) {
+  muxState.S[idx] ^= 1;
+  document.getElementById(`mux-S${idx}`).textContent = muxState.S[idx];
+  document.getElementById(`mux-S${idx}`).classList.toggle('on', muxState.S[idx] === 1);
+  updateMux();
+}
+
+function updateMux() {
+  const { D, S } = muxState;
+  const sel = S[1] * 2 + S[0];  // 0-3
+  const Y   = D[sel];
+
+  // Update notes
+  for (let i = 0; i < 4; i++) {
+    const note = document.getElementById(`mux-d${i}-note`);
+    note.textContent = i === sel ? '← đang chọn' : '';
+    note.style.color = '#4d7c0f';
+  }
+
+  document.getElementById('mux-sel-label').textContent = `S=${S[1]}${S[0]}`;
+
+  document.getElementById('mux-result').innerHTML =
+    `S₁=${S[1]}, S₀=${S[0]} → sel = ${sel}<br>` +
+    `Chọn D${sel} = <span class="hl">${D[sel]}</span><br>` +
+    `<strong>Y = ${Y}</strong>`;
+
+  // Update truth table highlighting
+  buildMuxTruthTable(sel);
+}
+
+function buildMuxTruthTable(activeSel) {
+  const tbody = document.getElementById('mux-truth-body');
+  tbody.innerHTML = '';
+  const rows = [
+    [0, 0, 'D₀', "S₁'·S₀'·D₀"],
+    [0, 1, 'D₁', "S₁'·S₀·D₁"],
+    [1, 0, 'D₂', "S₁·S₀'·D₂"],
+    [1, 1, 'D₃', "S₁·S₀·D₃"],
+  ];
+  rows.forEach(([s1, s0, out, expr], idx) => {
+    const tr = document.createElement('tr');
+    const isActive = idx === activeSel;
+    tr.style.background = isActive ? '#ecfccb' : '';
+    tr.innerHTML =
+      `<td style="padding:6px 12px; border-bottom:1px solid #e5e7eb; font-weight:${isActive?'700':'400'}">${s1}</td>` +
+      `<td style="padding:6px 12px; border-bottom:1px solid #e5e7eb; font-weight:${isActive?'700':'400'}">${s0}</td>` +
+      `<td style="padding:6px 12px; border-bottom:1px solid #e5e7eb; color:${isActive?'#14532d':''}; font-weight:${isActive?'700':'400'}">${out}</td>` +
+      `<td style="padding:6px 12px; border-bottom:1px solid #e5e7eb; font-size:12px; color:#6b7280">${expr}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+updateMux();
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// MODULE 3: DECODER 3:8
+// ═══════════════════════════════════════════════════════════════════════
+const decBits = [0, 0, 0]; // [A0, A1, A2]
+
+function toggleDecBit(idx) {
+  decBits[idx] ^= 1;
+  const btn = document.getElementById(`dec-A${idx}`);
+  btn.textContent = decBits[idx];
+  btn.classList.toggle('on', decBits[idx] === 1);
+  updateDecoder();
+}
+
+function initDecoder() {
+  const outDiv = document.getElementById('dec-outputs');
+  outDiv.innerHTML = '';
+  for (let i = 0; i < 8; i++) {
+    const d = document.createElement('div');
+    d.className = 'dec-out';
+    d.id = `dec-out-${i}`;
+    d.textContent = `Y${i}`;
+    outDiv.appendChild(d);
+  }
+
+  // SVG output lines
+  const g = document.getElementById('dec-svg-outs');
+  g.innerHTML = '';
+  const yStart = 30, yStep = 14;
+  for (let i = 0; i < 8; i++) {
+    const y = yStart + i * yStep;
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", "260"); line.setAttribute("y1", y);
+    line.setAttribute("x2", "370"); line.setAttribute("y2", y);
+    line.setAttribute("stroke", "#9ca3af"); line.setAttribute("stroke-width", "1.5");
+    line.id = `dec-svg-line-${i}`;
+    g.appendChild(line);
+
+    const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    txt.setAttribute("x", "375"); txt.setAttribute("y", y + 4);
+    txt.setAttribute("font-size", "11"); txt.setAttribute("font-weight", "700");
+    txt.setAttribute("fill", "#9ca3af");
+    txt.textContent = `Y${i}`;
+    txt.id = `dec-svg-txt-${i}`;
+    g.appendChild(txt);
+  }
+
+  updateDecoder();
+}
+
+function updateDecoder() {
+  const A2 = decBits[2], A1 = decBits[1], A0 = decBits[0];
+  const addr = A2 * 4 + A1 * 2 + A0;
+
+  document.getElementById('dec-svg-A2').textContent = `A₂=${A2}`;
+  document.getElementById('dec-svg-A1').textContent = `A₁=${A1}`;
+  document.getElementById('dec-svg-A0').textContent = `A₀=${A0}`;
+  document.getElementById('dec-svg-label').textContent = `${A2}${A1}${A0} → Y${addr}`;
+
+  for (let i = 0; i < 8; i++) {
+    const active = (i === addr);
+    document.getElementById(`dec-out-${i}`).classList.toggle('active', active);
+
+    const line = document.getElementById(`dec-svg-line-${i}`);
+    const txt  = document.getElementById(`dec-svg-txt-${i}`);
+    if (line) { line.setAttribute("stroke", active ? "#4d7c0f" : "#9ca3af"); line.setAttribute("stroke-width", active ? "2.5" : "1.5"); }
+    if (txt)  { txt.setAttribute("fill", active ? "#4d7c0f" : "#9ca3af"); }
+  }
+
+  // Build minterm
+  const lits = [
+    `A₂${A2?'':''}`, `A₁${A1?'':''}`, `A₀${A0?'':''}`
+  ];
+  const minterms = [
+    `A₂'·A₁'·A₀'`, `A₂'·A₁'·A₀`, `A₂'·A₁·A₀'`, `A₂'·A₁·A₀`,
+    `A₂·A₁'·A₀'`, `A₂·A₁'·A₀`, `A₂·A₁·A₀'`, `A₂·A₁·A₀`
+  ];
+
+  document.getElementById('dec-result').innerHTML =
+    `Địa chỉ A₂A₁A₀ = ${A2}${A1}${A0}₂ = ${addr}₁₀<br>` +
+    `Ngõ ra active: <span class="hl">Y${addr} = 1</span>, Y₀–Y${addr>0?addr-1:'-'} và Y${addr<7?addr+1:'-'}–Y₇ = 0<br>` +
+    `Biểu thức: Y${addr} = ${minterms[addr]}<br>` +
+    `<em>Ứng dụng: địa chỉ 0x${addr.toString(16).toUpperCase()} chọn chip nhớ hoặc thiết bị thứ ${addr}</em>`;
+}
+
+initDecoder();
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// MODULE 4: K-MAP TOOL (3 variables A, B, C)
+// ═══════════════════════════════════════════════════════════════════════
+// K-map cell layout (row=A, col=BC):
+//   col order: BC=00(m0/m4), BC=01(m1/m5), BC=11(m3/m7), BC=10(m2/m6)
+//   A=0: m0,m1,m3,m2   A=1: m4,m5,m7,m6
+const kmapVals = new Array(8).fill(0);
+
+// For each minterm: A,B,C values
+const MINTERM_ABC = [
+  [0,0,0],[0,0,1],[0,1,0],[0,1,1],
+  [1,0,0],[1,0,1],[1,1,0],[1,1,1]
+];
+
+// K-map cell order in the table (left to right per row)
+// Row A=0: m0,m1,m3,m2 | Row A=1: m4,m5,m7,m6
+const KMAP_ROW0 = [0, 1, 3, 2];
+const KMAP_ROW1 = [4, 5, 7, 6];
+
+// Adjacency map for groups of 2 (pairs kề nhau trên K-map)
+// All pairs: [i,j] where i,j are minterm indices
+const KMAP_PAIRS = [
+  // Same row adjacency
+  [0,1],[1,3],[3,2],[2,0],  // row 0 cycle
+  [4,5],[5,7],[7,6],[6,4],  // row 1 cycle
+  // Column adjacency (same col, A=0 ↔ A=1)
+  [0,4],[1,5],[3,7],[2,6],
+];
+
+// Groups of 4
+const KMAP_QUADS = [
+  // Top row / bottom row
+  [0,1,3,2], [4,5,7,6],
+  // Columns of 4
+  [0,1,4,5], [1,3,5,7], [3,2,7,6], [2,0,6,4],
+  // "wrap" quads
+  [0,4,2,6], // corners (col 00 + col 10 = col 00 and 10 across both rows)
+];
+
+function toggleKmap(m) {
+  kmapVals[m] ^= 1;
+  updateKmap();
+}
+
+function clearKmap() {
+  kmapVals.fill(0);
+  updateKmap();
+}
+
+function loadKmapPreset(idx) {
+  kmapVals.fill(0);
+  const presets = [
+    [0,1,2,4,5],    // F = B' + A'C'
+    [0,1,4,5,7],    // F = B' + AC
+    [1,3,5,7],      // F = C
+  ];
+  presets[idx].forEach(m => { kmapVals[m] = 1; });
+  updateKmap();
+}
+
+function updateKmap() {
+  // Update cell display
+  KMAP_ROW0.forEach(m => {
+    const td = document.getElementById(`km-${m}`);
+    td.textContent = kmapVals[m];
+    td.className = kmapVals[m] ? 'val-1' : 'val-0';
+  });
+  KMAP_ROW1.forEach(m => {
+    const td = document.getElementById(`km-${m}`);
+    td.textContent = kmapVals[m];
+    td.className = kmapVals[m] ? 'val-1' : 'val-0';
+  });
+
+  // Find groups
+  const ones = kmapVals.map((v,i) => v ? i : -1).filter(i => i >= 0);
+  let groups = [];
+  let covered = new Set();
+
+  if (ones.length === 0) {
+    document.getElementById('kmap-result').textContent = 'F = 0 (hằng số 0 — không có minterm nào = 1)';
+    buildKmapDetailTable();
+    return;
+  }
+  if (ones.length === 8) {
+    document.getElementById('kmap-result').textContent = 'F = 1 (hằng số 1 — tất cả minterm = 1)';
+    highlightKmapGroups([]);
+    buildKmapDetailTable();
+    return;
+  }
+
+  // Try groups of 4 first
+  KMAP_QUADS.forEach(quad => {
+    if (quad.every(m => kmapVals[m] === 1)) {
+      groups.push(quad);
+      quad.forEach(m => covered.add(m));
+    }
+  });
+
+  // Then groups of 2 (only for uncovered ones)
+  KMAP_PAIRS.forEach(pair => {
+    if (pair.every(m => kmapVals[m] === 1) && pair.some(m => !covered.has(m))) {
+      groups.push(pair);
+      pair.forEach(m => covered.add(m));
+    }
+  });
+
+  // Singles (any uncovered 1)
+  ones.forEach(m => {
+    if (!covered.has(m)) {
+      groups.push([m]);
+      covered.add(m);
+    }
+  });
+
+  // Generate expression terms
+  const terms = groups.map(grp => getGroupTerm(grp));
+  const expr = terms.join(' + ') || '0';
+
+  // Dedup
+  const uniqueTerms = [...new Set(terms)];
+  const cleanExpr = uniqueTerms.join(' + ');
+
+  document.getElementById('kmap-result').innerHTML =
+    `Minterm = 1: {${ones.join(', ')}}<br>` +
+    `Nhóm tìm được: ${groups.map(g => '{m'+g.join(',m')+'}'+(g.length > 1 ? ` (x${g.length})` : '')).join(' · ')}<br>` +
+    `<strong>F = <span style="color:#14532d;font-size:16px">${cleanExpr}</span></strong>`;
+
+  highlightKmapGroups(groups);
+  buildKmapDetailTable();
+}
+
+function getGroupTerm(group) {
+  if (group.length === 8) return '1';
+  if (group.length === 0) return '0';
+
+  // For each variable (A, B, C), check if it's constant across the group
+  const vals = group.map(m => MINTERM_ABC[m]);
+  const terms = [];
+  ['A','B','C'].forEach((varName, vi) => {
+    const col = vals.map(v => v[vi]);
+    const allZero = col.every(v => v === 0);
+    const allOne  = col.every(v => v === 1);
+    if (allOne)  terms.push(varName);
+    if (allZero) terms.push(varName + "'");
+  });
+  return terms.length > 0 ? terms.join('·') : '1';
+}
+
+function highlightKmapGroups(groups) {
+  // Reset all
+  [...KMAP_ROW0, ...KMAP_ROW1].forEach(m => {
+    const td = document.getElementById(`km-${m}`);
+    if (!td) return;
+    td.classList.remove('grp1', 'grp2', 'grp12');
+  });
+
+  if (groups.length === 0) return;
+
+  groups.forEach((grp, gi) => {
+    grp.forEach(m => {
+      const td = document.getElementById(`km-${m}`);
+      if (!td) return;
+      if (gi === 0) td.classList.add('grp1');
+      else if (gi === 1) {
+        if (td.classList.contains('grp1')) td.classList.add('grp12');
+        else td.classList.add('grp2');
+      }
+    });
+  });
+}
+
+function buildKmapDetailTable() {
+  const tbody = document.getElementById('kmap-detail-body');
+  tbody.innerHTML = '';
+  for (let m = 0; m < 8; m++) {
+    const [A, B, C] = MINTERM_ABC[m];
+    const F = kmapVals[m];
+    const mt = F ? (
+      (A ? 'A' : "A'") + '·' + (B ? 'B' : "B'") + '·' + (C ? 'C' : "C'")
+    ) : '—';
+    const tr = document.createElement('tr');
+    tr.style.background = F ? '#f0fdf4' : '';
+    tr.innerHTML =
+      `<td style="padding:5px 10px; text-align:center; border-bottom:1px solid #e5e7eb; font-weight:700; color:#4d7c0f">m${m}</td>` +
+      `<td style="padding:5px 10px; border-bottom:1px solid #e5e7eb">${A}</td>` +
+      `<td style="padding:5px 10px; border-bottom:1px solid #e5e7eb">${B}</td>` +
+      `<td style="padding:5px 10px; border-bottom:1px solid #e5e7eb">${C}</td>` +
+      `<td style="padding:5px 10px; border-bottom:1px solid #e5e7eb; font-weight:700; color:${F?'#065f46':'#9ca3af'}">${F}</td>` +
+      `<td style="padding:5px 10px; border-bottom:1px solid #e5e7eb; font-size:12px; color:#6b7280">${mt}</td>`;
+    tbody.appendChild(tr);
+  }
+}
+
+updateKmap();
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// TAB HELPERS
+// ═══════════════════════════════════════════════════════════════════════
+function showAdderTab(which) {
+  ['half', 'full', 'ripple'].forEach(t => {
+    document.getElementById(`adder-${t}`).classList.toggle('active', t === which);
+  });
+  document.querySelectorAll('.tab-bar button').forEach((b, i) => {
+    const tabs = ['half', 'full', 'ripple'];
+    b.classList.toggle('active', tabs[i] === which);
+  });
+}
+
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

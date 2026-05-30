@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Vi điều khiển &amp; GPIO</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #a3e635; }
+
+  .card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+
+  /* ── Tabs ── */
+  .tab-bar { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tab-bar button {
+    padding: 7px 14px;
+    border-radius: 6px 6px 0 0;
+    border: 2px solid #d1d5db;
+    border-bottom: none;
+    background: #f9fafb;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #374151;
+    transition: all 0.15s;
+  }
+  .tab-bar button.active {
+    background: white;
+    border-color: #4d7c0f;
+    color: #4d7c0f;
+    border-bottom: 2px solid white;
+    margin-bottom: -2px;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── Result / info boxes ── */
+  .result-box {
+    background: #f0fdf4;
+    border: 2px solid #86efac;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  .result-box .hi  { color: #14532d; font-weight: 700; font-size: 15px; }
+  .result-box .warn { color: #dc2626; font-weight: 600; }
+  .result-box .ok   { color: #047857; font-weight: 600; }
+
+  /* ── Code block ── */
+  .code-block {
+    background: #1a202c;
+    color: #e2e8f0;
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-x: auto;
+    margin: 12px 0;
+    white-space: pre;
+  }
+  .code-block .kw  { color: #63b3ed; }
+  .code-block .fn  { color: #68d391; }
+  .code-block .num { color: #f6ad55; }
+  .code-block .cmt { color: #718096; }
+  .code-block .hi  { color: #faf089; font-weight: 700; }
+
+  /* ── Slider ── */
+  .slider-group { display: flex; flex-direction: column; gap: 6px; margin: 10px 0; }
+  .slider-group label { font-weight: 700; font-size: 14px; color: #374151; }
+  .slider-group input[type="range"] { width: 100%; max-width: 480px; accent-color: #4d7c0f; }
+  .slider-val { font-family: monospace; font-size: 15px; color: #4d7c0f; font-weight: 700; }
+
+  /* ── Two-col layout ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  /* ── MCU board SVG container ── */
+  .board-wrap {
+    display: flex;
+    justify-content: center;
+    overflow-x: auto;
+    margin: 8px 0;
+  }
+
+  /* ── Pin grid (GPIO panel) ── */
+  .pin-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .pin-btn {
+    width: 52px;
+    height: 52px;
+    border-radius: 8px;
+    border: 2px solid #d1d5db;
+    background: #f9fafb;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    transition: all 0.15s;
+    color: #374151;
+    user-select: none;
+  }
+  .pin-btn.out-high {
+    background: #fef08a;
+    border-color: #ca8a04;
+    color: #78350f;
+    box-shadow: 0 0 8px rgba(234,179,8,0.5);
+  }
+  .pin-btn.out-low {
+    background: #e5e7eb;
+    border-color: #6b7280;
+    color: #374151;
+  }
+  .pin-btn.in-mode {
+    background: #dbeafe;
+    border-color: #3b82f6;
+    color: #1e40af;
+  }
+  .pin-btn.pwm-mode {
+    background: #ede9fe;
+    border-color: #7c3aed;
+    color: #4c1d95;
+  }
+  .pin-btn .pin-num  { font-size: 14px; font-weight: 800; }
+  .pin-btn .pin-mode { font-size: 10px; font-weight: 600; }
+
+  .led-circle {
+    display: inline-block;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: #d1d5db;
+    border: 2px solid #9ca3af;
+    vertical-align: middle;
+    transition: all 0.2s;
+  }
+  .led-circle.on {
+    background: #facc15;
+    border-color: #ca8a04;
+    box-shadow: 0 0 10px 4px rgba(250,204,21,0.55);
+  }
+  .led-circle.on.red    { background:#ef4444; border-color:#b91c1c; box-shadow:0 0 10px 4px rgba(239,68,68,0.55); }
+  .led-circle.on.green  { background:#22c55e; border-color:#15803d; box-shadow:0 0 10px 4px rgba(34,197,94,0.55); }
+  .led-circle.on.blue   { background:#3b82f6; border-color:#1d4ed8; box-shadow:0 0 10px 4px rgba(59,130,246,0.55); }
+  .led-circle.on.pwm    { border-color:#7c3aed; box-shadow:0 0 10px 4px rgba(124,58,237,0.45); }
+
+  /* ── Button simulation ── */
+  .btn-sim {
+    display: inline-block;
+    padding: 10px 22px;
+    border-radius: 6px;
+    border: 3px solid #374151;
+    background: #f9fafb;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.08s;
+    color: #1a202c;
+  }
+  .btn-sim:active, .btn-sim.pressed {
+    background: #374151;
+    color: white;
+    transform: scale(0.96);
+  }
+
+  /* ── Pull diagram ── */
+  .pull-toggle { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .pull-toggle button {
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 2px solid #d1d5db;
+    background: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #374151;
+    transition: all 0.15s;
+  }
+  .pull-toggle button.active {
+    background: #4d7c0f;
+    border-color: #4d7c0f;
+    color: white;
+  }
+
+  /* ── PWM bar ── */
+  .pwm-bar-wrap {
+    background: #f1f5f9;
+    border-radius: 6px;
+    height: 28px;
+    position: relative;
+    overflow: hidden;
+    margin: 8px 0;
+    border: 1px solid #cbd5e1;
+  }
+  .pwm-bar-fill {
+    height: 100%;
+    background: #7c3aed;
+    transition: width 0.1s;
+  }
+  .pwm-bar-label {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    font-weight: 700;
+    color: #374151;
+  }
+
+  /* ── ADC meter ── */
+  .adc-meter-wrap {
+    background: #f1f5f9;
+    border-radius: 6px;
+    height: 24px;
+    position: relative;
+    overflow: hidden;
+    margin: 6px 0;
+    border: 1px solid #cbd5e1;
+  }
+  .adc-meter-fill {
+    height: 100%;
+    background: linear-gradient(to right, #22c55e, #f59e0b, #ef4444);
+    transition: width 0.1s;
+  }
+
+  /* ── Waveform canvas ── */
+  #pwmCanvas {
+    display: block;
+    width: 100%;
+    max-width: 480px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    background: #0f172a;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 680px) {
+    .two-col { grid-template-columns: 1fr; }
+    .pin-btn  { width: 44px; height: 44px; }
+    .pin-btn .pin-num { font-size: 12px; }
+    .pin-btn .pin-mode { font-size: 9px; }
+  }
+  @media (max-width: 420px) {
+    .pin-btn { width: 38px; height: 38px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Electronics — Digital &amp; MCU</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-adc-dac/visualization.html">← L5: ADC/DAC &amp; lấy mẫu</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Vi điều khiển &amp; GPIO</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-communication-protocols/visualization.html">L7: Giao tiếp →</a>
+</nav>
+
+<main>
+<h1>Lesson 06 — Vi điều khiển &amp; GPIO</h1>
+<p>Mô phỏng tương tác: bảng GPIO bật/tắt LED ảo, nút nhấn với pull-up/pull-down, slider PWM (LED mờ/tỏ), slider ADC đọc cảm biến, khung code cập nhật theo hành động.</p>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 1 — GPIO OUTPUT — LED control
+     ══════════════════════════════════════════════════════════ -->
+<h2>1. GPIO OUTPUT — Điều khiển LED</h2>
+<div class="card">
+  <p>Bấm vào chân GPIO để chuyển HIGH/LOW. LED ảo tương ứng sẽ sáng/tắt. Xem code Arduino cập nhật bên dưới.</p>
+
+  <div class="two-col">
+    <div>
+      <p style="font-size:13px; color:#6b7280; margin:0 0 8px;">Các chân OUTPUT (bấm để bật/tắt):</p>
+      <div class="pin-grid" id="outPinGrid"></div>
+
+      <div style="margin-top:16px;">
+        <p style="font-size:13px; color:#6b7280; margin:0 0 6px;">LED ảo:</p>
+        <div id="ledRow" style="display:flex; gap:14px; align-items:center; flex-wrap:wrap;"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="code-block" id="gpioCode">
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(<span class="num">8</span>, OUTPUT);
+  <span class="fn">pinMode</span>(<span class="num">9</span>, OUTPUT);
+  <span class="fn">pinMode</span>(<span class="num">10</span>, OUTPUT);
+  <span class="fn">pinMode</span>(<span class="num">11</span>, OUTPUT);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="cmt">// Bấm chân ở bên trái</span>
+  <span class="cmt">// để xem lệnh tương ứng</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="result-box" id="gpioResult">
+    Bấm chân GPIO bên trái để xem kết quả và code tương ứng.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 2 — INPUT + Pull-up / Pull-down
+     ══════════════════════════════════════════════════════════ -->
+<h2>2. Input số — Nút nhấn &amp; Pull-up/Pull-down</h2>
+<div class="card">
+  <div class="tab-bar">
+    <button class="active" onclick="showPullTab('pull-demo')">Mô phỏng nút nhấn</button>
+    <button onclick="showPullTab('pull-diagram')">Sơ đồ mạch</button>
+  </div>
+
+  <div class="tab-panel active" id="pull-demo">
+    <div class="pull-toggle">
+      <button class="active" onclick="setPullMode('pullup')" id="btn-pullup">Pull-up</button>
+      <button onclick="setPullMode('pulldown')" id="btn-pulldown">Pull-down</button>
+    </div>
+
+    <div class="two-col">
+      <div>
+        <p style="font-size:14px; margin:0 0 8px;">Trạng thái chân GPIO (chân 2):</p>
+        <div id="pinState" style="font-size:28px; font-weight:800; padding:12px; border-radius:8px; background:#f0fdf4; border:2px solid #86efac; text-align:center; color:#14532d;">
+          HIGH
+        </div>
+        <p style="font-size:12px; color:#6b7280; margin:8px 0 12px;" id="pullExplain">
+          Pull-up: R kéo chân lên VCC → HIGH khi không nhấn
+        </p>
+
+        <div style="margin-bottom:12px;">
+          <span style="font-size:13px; color:#374151; font-weight:600;">LED ảo: </span>
+          <span class="led-circle" id="inputLed"></span>
+        </div>
+
+        <button class="btn-sim" id="btnSim"
+          onmousedown="pressBtn(true)" onmouseup="pressBtn(false)"
+          ontouchstart="pressBtn(true)" ontouchend="pressBtn(false)">
+          Nhấn &amp; giữ nút
+        </button>
+      </div>
+
+      <div>
+        <div class="code-block" id="inputCode">
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(<span class="num">2</span>, <span class="hi">INPUT_PULLUP</span>);
+  <span class="fn">pinMode</span>(<span class="num">13</span>, OUTPUT);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="kw">bool</span> btn = <span class="fn">digitalRead</span>(<span class="num">2</span>);
+  <span class="cmt">// HIGH = thả, LOW = nhấn</span>
+  <span class="kw">if</span> (btn == LOW) {
+    <span class="fn">digitalWrite</span>(<span class="num">13</span>, HIGH);
+  } <span class="kw">else</span> {
+    <span class="fn">digitalWrite</span>(<span class="num">13</span>, LOW);
+  }
+}</div>
+      </div>
+    </div>
+
+    <div class="result-box" id="inputResult">
+      Chọn Pull-up hoặc Pull-down rồi nhấn giữ nút.
+    </div>
+  </div>
+
+  <div class="tab-panel" id="pull-diagram">
+    <div class="two-col">
+      <div>
+        <p style="font-weight:700; margin-bottom:6px;">Pull-up (active-low)</p>
+        <svg width="220" height="260" viewBox="0 0 220 260">
+          <rect width="220" height="260" fill="#f8fafc" rx="8"/>
+          <!-- VCC rail -->
+          <text x="110" y="24" text-anchor="middle" fill="#dc2626" font-weight="700" font-size="13">VCC (5 V)</text>
+          <line x1="110" y1="28" x2="110" y2="50" stroke="#dc2626" stroke-width="2"/>
+          <!-- Resistor pull-up -->
+          <rect x="90" y="50" width="40" height="20" fill="white" stroke="#4d7c0f" stroke-width="2" rx="3"/>
+          <text x="110" y="62" text-anchor="middle" fill="#4d7c0f" font-size="11" font-weight="700">10 kΩ</text>
+          <text x="140" y="62" fill="#4d7c0f" font-size="10">pull-up</text>
+          <!-- Wire to junction -->
+          <line x1="110" y1="70" x2="110" y2="110" stroke="#374151" stroke-width="2"/>
+          <!-- Junction dot -->
+          <circle cx="110" cy="110" r="4" fill="#374151"/>
+          <!-- GPIO label -->
+          <line x1="110" y1="110" x2="170" y2="110" stroke="#374151" stroke-width="2"/>
+          <text x="175" y="114" fill="#1d4ed8" font-size="12" font-weight="700">GPIO 2</text>
+          <!-- Button -->
+          <line x1="110" y1="110" x2="110" y2="145" stroke="#374151" stroke-width="2"/>
+          <circle cx="110" cy="150" r="8" fill="white" stroke="#374151" stroke-width="2.5"/>
+          <text x="110" y="154" text-anchor="middle" fill="#374151" font-size="10" font-weight="700">SW</text>
+          <line x1="110" y1="158" x2="110" y2="185" stroke="#374151" stroke-width="2"/>
+          <!-- GND -->
+          <line x1="90" y1="185" x2="130" y2="185" stroke="#374151" stroke-width="2"/>
+          <line x1="95" y1="191" x2="125" y2="191" stroke="#374151" stroke-width="1.5"/>
+          <line x1="100" y1="197" x2="120" y2="197" stroke="#374151" stroke-width="1"/>
+          <text x="110" y="215" text-anchor="middle" fill="#374151" font-size="11">GND</text>
+          <!-- State annotations -->
+          <text x="10" y="98" fill="#047857" font-size="11">Thả: HIGH</text>
+          <text x="10" y="168" fill="#dc2626" font-size="11">Nhấn: LOW</text>
+        </svg>
+      </div>
+      <div>
+        <p style="font-weight:700; margin-bottom:6px;">Pull-down (active-high)</p>
+        <svg width="220" height="260" viewBox="0 0 220 260">
+          <rect width="220" height="260" fill="#f8fafc" rx="8"/>
+          <!-- VCC -->
+          <text x="110" y="24" text-anchor="middle" fill="#dc2626" font-weight="700" font-size="13">VCC (5 V)</text>
+          <line x1="110" y1="28" x2="110" y2="55" stroke="#dc2626" stroke-width="2"/>
+          <!-- Button -->
+          <circle cx="110" cy="65" r="8" fill="white" stroke="#374151" stroke-width="2.5"/>
+          <text x="110" y="69" text-anchor="middle" fill="#374151" font-size="10" font-weight="700">SW</text>
+          <line x1="110" y1="73" x2="110" y2="105" stroke="#374151" stroke-width="2"/>
+          <!-- Junction -->
+          <circle cx="110" cy="105" r="4" fill="#374151"/>
+          <!-- GPIO label -->
+          <line x1="110" y1="105" x2="170" y2="105" stroke="#374151" stroke-width="2"/>
+          <text x="175" y="109" fill="#1d4ed8" font-size="12" font-weight="700">GPIO 2</text>
+          <!-- Resistor pull-down -->
+          <line x1="110" y1="105" x2="110" y2="140" stroke="#374151" stroke-width="2"/>
+          <rect x="90" y="140" width="40" height="20" fill="white" stroke="#4d7c0f" stroke-width="2" rx="3"/>
+          <text x="110" y="152" text-anchor="middle" fill="#4d7c0f" font-size="11" font-weight="700">10 kΩ</text>
+          <text x="140" y="152" fill="#4d7c0f" font-size="10">pull-dn</text>
+          <line x1="110" y1="160" x2="110" y2="185" stroke="#374151" stroke-width="2"/>
+          <!-- GND -->
+          <line x1="90" y1="185" x2="130" y2="185" stroke="#374151" stroke-width="2"/>
+          <line x1="95" y1="191" x2="125" y2="191" stroke="#374151" stroke-width="1.5"/>
+          <line x1="100" y1="197" x2="120" y2="197" stroke="#374151" stroke-width="1"/>
+          <text x="110" y="215" text-anchor="middle" fill="#374151" font-size="11">GND</text>
+          <!-- State annotations -->
+          <text x="10" y="94" fill="#dc2626" font-size="11">Thả: LOW</text>
+          <text x="10" y="168" fill="#047857" font-size="11">Nhấn: HIGH</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 3 — PWM slider
+     ══════════════════════════════════════════════════════════ -->
+<h2>3. PWM — Điều chế độ rộng xung</h2>
+<div class="card">
+  <div class="two-col">
+    <div>
+      <div class="slider-group">
+        <label>Duty cycle: <span class="slider-val" id="pwmDutyVal">50%</span></label>
+        <input type="range" id="pwmSlider" min="0" max="255" step="1" value="128" oninput="updatePWM()">
+      </div>
+
+      <table style="font-size:14px; border-collapse:collapse; margin:12px 0; width:100%; max-width:340px;">
+        <tr>
+          <td style="padding:4px 8px 4px 0; color:#6b7280;">analogWrite value:</td>
+          <td style="padding:4px 0; font-family:monospace; font-weight:700; color:#7c3aed;" id="pwmValue">128</td>
+        </tr>
+        <tr>
+          <td style="padding:4px 8px 4px 0; color:#6b7280;">Duty cycle D:</td>
+          <td style="padding:4px 0; font-family:monospace; font-weight:700; color:#7c3aed;" id="pwmDuty">50.2%</td>
+        </tr>
+        <tr>
+          <td style="padding:4px 8px 4px 0; color:#6b7280;">V_avg (5 V supply):</td>
+          <td style="padding:4px 0; font-family:monospace; font-weight:700; color:#1d4ed8;" id="pwmVavg">2.51 V</td>
+        </tr>
+        <tr>
+          <td style="padding:4px 8px 4px 0; color:#6b7280;">Dòng LED (220 Ω, V_f=2V):</td>
+          <td style="padding:4px 0; font-family:monospace; font-weight:700;" id="pwmI">2.3 mA</td>
+        </tr>
+      </table>
+
+      <p style="font-size:13px; color:#374151; font-weight:600; margin:10px 0 4px;">LED ảo (độ sáng theo duty):</p>
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+        <span class="led-circle on pwm" id="pwmLed" style="width:28px; height:28px;"></span>
+        <div style="flex:1;">
+          <div class="pwm-bar-wrap">
+            <div class="pwm-bar-fill" id="pwmBarFill" style="width:50%;"></div>
+            <span class="pwm-bar-label" id="pwmBarLabel">50%</span>
+          </div>
+        </div>
+      </div>
+
+      <p style="font-size:13px; font-weight:600; color:#374151; margin:8px 0 4px;">Dạng sóng PWM:</p>
+      <canvas id="pwmCanvas" width="480" height="80"></canvas>
+    </div>
+
+    <div>
+      <div class="code-block" id="pwmCode">
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(<span class="num">9</span>, OUTPUT);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="cmt">// analogWrite: 0..255</span>
+  <span class="fn">analogWrite</span>(<span class="num">9</span>, <span class="hi" id="pwmCodeVal">128</span>);
+  <span class="cmt">// Duty = 128/255 = 50.2%</span>
+  <span class="cmt">// V_avg = 2.51 V</span>
+}</div>
+
+      <div class="result-box" id="pwmResult">
+        Kéo thanh trượt để thay đổi duty cycle.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 4 — Analog input / ADC sensor
+     ══════════════════════════════════════════════════════════ -->
+<h2>4. Input tương tự — ADC &amp; cảm biến</h2>
+<div class="card">
+  <p>Mô phỏng cảm biến điện trở (quang trở LDR) qua mạch phân áp. Kéo thanh trượt để thay đổi giá trị cảm biến.</p>
+
+  <div class="two-col">
+    <div>
+      <div class="slider-group">
+        <label>Giá trị cảm biến (LDR): <span class="slider-val" id="ldrVal">Sáng vừa</span></label>
+        <input type="range" id="ldrSlider" min="0" max="100" step="1" value="50" oninput="updateADC()">
+        <div style="display:flex; justify-content:space-between; font-size:11px; color:#6b7280; max-width:480px;">
+          <span>Sáng nhất (LDR=500Ω)</span>
+          <span>Tối nhất (LDR=200kΩ)</span>
+        </div>
+      </div>
+
+      <table style="font-size:14px; border-collapse:collapse; margin:12px 0; width:100%; max-width:340px;">
+        <tr>
+          <td style="padding:4px 8px 4px 0; color:#6b7280;">R_LDR ước tính:</td>
+          <td style="padding:4px 0; font-family:monospace; font-weight:700;" id="ldrR">14.2 kΩ</td>
+        </tr>
+        <tr>
+          <td style="padding:4px 8px 4px 0; color:#6b7280;">V_A0 (phân áp):</td>
+          <td style="padding:4px 0; font-family:monospace; font-weight:700; color:#1d4ed8;" id="ldrV">2.50 V</td>
+        </tr>
+        <tr>
+          <td style="padding:4px 8px 4px 0; color:#6b7280;">analogRead (0–1023):</td>
+          <td style="padding:4px 0; font-family:monospace; font-weight:700; color:#4d7c0f;" id="ldrADC">511</td>
+        </tr>
+        <tr>
+          <td style="padding:4px 8px 4px 0; color:#6b7280;">Ngưỡng (> 500 = tối):</td>
+          <td style="padding:4px 0; font-weight:700;" id="ldrThreshold">Sáng → LED tắt</td>
+        </tr>
+      </table>
+
+      <p style="font-size:13px; font-weight:600; color:#374151; margin:8px 0 4px;">Mức ADC:</p>
+      <div class="adc-meter-wrap">
+        <div class="adc-meter-fill" id="adcMeterFill" style="width:50%;"></div>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:11px; color:#6b7280;">
+        <span>0 (0 V)</span><span>511 (2.5 V)</span><span>1023 (5 V)</span>
+      </div>
+    </div>
+
+    <div>
+      <div class="code-block" id="adcCode">
+<span class="kw">const int</span> LDR = A0;
+<span class="kw">const int</span> LED = <span class="num">13</span>;
+<span class="kw">const int</span> THR = <span class="num">500</span>;
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(LED, OUTPUT);
+  <span class="fn">Serial</span>.begin(<span class="num">9600</span>);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="kw">int</span> val = <span class="fn">analogRead</span>(LDR);
+  <span class="cmt">// val = <span id="adcCodeVal">511</span></span>
+  <span class="kw">float</span> v = val*<span class="num">5.0</span>/<span class="num">1023.0</span>;
+  <span class="fn">Serial</span>.println(v);
+
+  <span class="kw">if</span> (val > THR) {
+    <span class="fn">digitalWrite</span>(LED, HIGH);
+  } <span class="kw">else</span> {
+    <span class="fn">digitalWrite</span>(LED, LOW);
+  }
+  <span class="fn">delay</span>(<span class="num">200</span>);
+}</div>
+
+      <div class="result-box" id="adcResult">
+        Kéo thanh trượt để thay đổi ánh sáng.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 5 — MCU board overview SVG
+     ══════════════════════════════════════════════════════════ -->
+<h2>5. Sơ đồ tổng quan MCU (ATmega328P / Arduino Uno)</h2>
+<div class="card">
+  <p>Các khối chức năng tích hợp trên 1 chip. Bấm vào khối để xem mô tả.</p>
+
+  <div class="board-wrap">
+    <svg width="640" height="340" viewBox="0 0 640 340">
+      <!-- Background -->
+      <rect width="640" height="340" fill="#0f172a" rx="10"/>
+
+      <!-- CPU core -->
+      <rect x="240" y="120" width="160" height="100" fill="#1e3a5f" stroke="#3b82f6" stroke-width="2" rx="6" class="mcu-block" id="blk-cpu" style="cursor:pointer" onclick="showBlock('cpu')"/>
+      <text x="320" y="163" text-anchor="middle" fill="#93c5fd" font-size="13" font-weight="700">CPU</text>
+      <text x="320" y="180" text-anchor="middle" fill="#93c5fd" font-size="11">ALU + Registers</text>
+      <text x="320" y="196" text-anchor="middle" fill="#93c5fd" font-size="10">16 MHz / 8-bit</text>
+
+      <!-- Flash -->
+      <rect x="60" y="30" width="110" height="60" fill="#14532d" stroke="#22c55e" stroke-width="2" rx="6" class="mcu-block" style="cursor:pointer" onclick="showBlock('flash')"/>
+      <text x="115" y="58" text-anchor="middle" fill="#86efac" font-size="12" font-weight="700">Flash ROM</text>
+      <text x="115" y="74" text-anchor="middle" fill="#86efac" font-size="11">32 KB chương trình</text>
+
+      <!-- SRAM -->
+      <rect x="190" y="30" width="100" height="60" fill="#1e3a5f" stroke="#60a5fa" stroke-width="2" rx="6" class="mcu-block" style="cursor:pointer" onclick="showBlock('sram')"/>
+      <text x="240" y="58" text-anchor="middle" fill="#93c5fd" font-size="12" font-weight="700">SRAM</text>
+      <text x="240" y="74" text-anchor="middle" fill="#93c5fd" font-size="11">2 KB biến tạm</text>
+
+      <!-- EEPROM -->
+      <rect x="310" y="30" width="100" height="60" fill="#2d1657" stroke="#a78bfa" stroke-width="2" rx="6" class="mcu-block" style="cursor:pointer" onclick="showBlock('eeprom')"/>
+      <text x="360" y="58" text-anchor="middle" fill="#c4b5fd" font-size="12" font-weight="700">EEPROM</text>
+      <text x="360" y="74" text-anchor="middle" fill="#c4b5fd" font-size="11">1 KB lưu trữ</text>
+
+      <!-- GPIO -->
+      <rect x="30" y="140" width="100" height="80" fill="#3b1f04" stroke="#f59e0b" stroke-width="2" rx="6" class="mcu-block" style="cursor:pointer" onclick="showBlock('gpio')"/>
+      <text x="80" y="173" text-anchor="middle" fill="#fcd34d" font-size="12" font-weight="700">GPIO</text>
+      <text x="80" y="190" text-anchor="middle" fill="#fcd34d" font-size="11">23 chân I/O</text>
+      <text x="80" y="206" text-anchor="middle" fill="#fcd34d" font-size="10">Pull-up nội</text>
+
+      <!-- ADC -->
+      <rect x="30" y="240" width="100" height="60" fill="#1a2e05" stroke="#84cc16" stroke-width="2" rx="6" class="mcu-block" style="cursor:pointer" onclick="showBlock('adc')"/>
+      <text x="80" y="265" text-anchor="middle" fill="#bef264" font-size="12" font-weight="700">ADC</text>
+      <text x="80" y="281" text-anchor="middle" fill="#bef264" font-size="11">6 kênh, 10-bit</text>
+
+      <!-- Timer/PWM -->
+      <rect x="510" y="30" width="110" height="60" fill="#3b1f04" stroke="#f97316" stroke-width="2" rx="6" class="mcu-block" style="cursor:pointer" onclick="showBlock('timer')"/>
+      <text x="565" y="55" text-anchor="middle" fill="#fed7aa" font-size="12" font-weight="700">Timer/Counter</text>
+      <text x="565" y="71" text-anchor="middle" fill="#fed7aa" font-size="11">3 timer, PWM</text>
+
+      <!-- UART/SPI/I2C -->
+      <rect x="510" y="120" width="110" height="80" fill="#1e1e3f" stroke="#818cf8" stroke-width="2" rx="6" class="mcu-block" style="cursor:pointer" onclick="showBlock('serial')"/>
+      <text x="565" y="153" text-anchor="middle" fill="#c7d2fe" font-size="12" font-weight="700">UART</text>
+      <text x="565" y="168" text-anchor="middle" fill="#c7d2fe" font-size="11">SPI / I2C</text>
+      <text x="565" y="184" text-anchor="middle" fill="#c7d2fe" font-size="10">Giao tiếp nối tiếp</text>
+
+      <!-- Oscillator -->
+      <rect x="510" y="240" width="110" height="60" fill="#1a0505" stroke="#f87171" stroke-width="2" rx="6" class="mcu-block" style="cursor:pointer" onclick="showBlock('osc')"/>
+      <text x="565" y="265" text-anchor="middle" fill="#fca5a5" font-size="12" font-weight="700">Oscillator</text>
+      <text x="565" y="281" text-anchor="middle" fill="#fca5a5" font-size="11">16 MHz xung nhịp</text>
+
+      <!-- Bus lines (horizontal) -->
+      <!-- Flash → CPU -->
+      <line x1="170" y1="60" x2="240" y2="155" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
+      <!-- SRAM → CPU -->
+      <line x1="290" y1="90" x2="290" y2="120" stroke="#60a5fa" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
+      <!-- EEPROM → CPU -->
+      <line x1="360" y1="90" x2="360" y2="120" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
+      <!-- GPIO → CPU -->
+      <line x1="130" y1="180" x2="240" y2="180" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
+      <!-- ADC → CPU -->
+      <line x1="130" y1="265" x2="240" y2="210" stroke="#84cc16" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
+      <!-- Timer → CPU -->
+      <line x1="510" y1="60" x2="400" y2="155" stroke="#f97316" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
+      <!-- Serial → CPU -->
+      <line x1="510" y1="165" x2="400" y2="165" stroke="#818cf8" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
+      <!-- Osc → CPU -->
+      <line x1="510" y1="265" x2="400" y2="210" stroke="#f87171" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
+
+      <!-- "1 CHIP" label -->
+      <text x="320" y="322" text-anchor="middle" fill="#475569" font-size="11" font-style="italic">Tất cả trên 1 chip — ATmega328P (28 chân DIP)</text>
+    </svg>
+  </div>
+
+  <div class="result-box" id="blockInfo">
+    Bấm vào khối màu sắc để xem mô tả chi tiết.
+  </div>
+</div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// Helpers
+// ═══════════════════════════════════════════════════════════
+function showTab(id, barSelector) {
+  const bar = document.querySelector(barSelector || '.tab-bar');
+  bar.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function showPullTab(id) {
+  document.querySelectorAll('#pull-demo, #pull-diagram').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 1: GPIO OUTPUT — LED blink panel
+// ═══════════════════════════════════════════════════════════
+const OUTPUT_PINS = [
+  { num: 8,  color: 'red',   label: 'LED đỏ' },
+  { num: 9,  color: 'green', label: 'LED xanh lá' },
+  { num: 10, color: 'blue',  label: 'LED xanh dương' },
+  { num: 11, color: 'yellow', label: 'LED vàng' },
+];
+const pinState = {}; // num → 'HIGH'|'LOW'
+OUTPUT_PINS.forEach(p => pinState[p.num] = 'LOW');
+
+function buildGPIOPanel() {
+  const grid = document.getElementById('outPinGrid');
+  const ledRow = document.getElementById('ledRow');
+  grid.innerHTML = '';
+  ledRow.innerHTML = '';
+
+  OUTPUT_PINS.forEach(p => {
+    // Pin button
+    const btn = document.createElement('button');
+    btn.className = 'pin-btn out-low';
+    btn.id = 'pinBtn_' + p.num;
+    btn.innerHTML = `<span class="pin-num">${p.num}</span><span class="pin-mode">LOW</span>`;
+    btn.onclick = () => togglePin(p.num);
+    grid.appendChild(btn);
+
+    // LED
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;color:#374151;';
+    wrap.innerHTML = `<span class="led-circle" id="led_${p.num}"></span><span>${p.label}</span>`;
+    ledRow.appendChild(wrap);
+  });
+}
+
+function togglePin(num) {
+  pinState[num] = pinState[num] === 'HIGH' ? 'LOW' : 'HIGH';
+  const isHigh = pinState[num] === 'HIGH';
+  const btn = document.getElementById('pinBtn_' + num);
+  btn.className = 'pin-btn ' + (isHigh ? 'out-high' : 'out-low');
+  btn.querySelector('.pin-mode').textContent = isHigh ? 'HIGH' : 'LOW';
+
+  const led = document.getElementById('led_' + num);
+  const info = OUTPUT_PINS.find(p => p.num === num);
+  led.className = 'led-circle' + (isHigh ? ' on ' + info.color : '');
+
+  updateGPIOCode();
+  updateGPIOResult();
+}
+
+function updateGPIOCode() {
+  const lines = OUTPUT_PINS.map(p => {
+    const val = pinState[p.num];
+    const hl = val === 'HIGH' ? 'hi' : 'cmt';
+    return `  <span class="fn">digitalWrite</span>(<span class="num">${p.num}</span>, <span class="${hl}">${val}</span>);  <span class="cmt">// ${p.label}</span>`;
+  }).join('\n');
+
+  document.getElementById('gpioCode').innerHTML =
+    `<span class="kw">void</span> <span class="fn">setup</span>() {\n` +
+    OUTPUT_PINS.map(p => `  <span class="fn">pinMode</span>(<span class="num">${p.num}</span>, OUTPUT);`).join('\n') +
+    `\n}\n\n<span class="kw">void</span> <span class="fn">loop</span>() {\n` +
+    lines + `\n}`;
+}
+
+function updateGPIOResult() {
+  const highPins = OUTPUT_PINS.filter(p => pinState[p.num] === 'HIGH');
+  const lowPins  = OUTPUT_PINS.filter(p => pinState[p.num] === 'LOW');
+  const ledI = 13.6; // (5-2)/220 mA per LED
+  const totalI = highPins.length * ledI;
+  const safeClass = totalI <= 20 ? 'ok' : (totalI <= 40 ? 'ok' : 'warn');
+  const safeMsg = totalI <= 20 ? 'An toàn' : (totalI <= 40 ? 'Cẩn thận — gần giới hạn' : 'Nguy hiểm — cần transistor!');
+
+  document.getElementById('gpioResult').innerHTML =
+    `Đang HIGH: <span class="hi">${highPins.map(p=>p.num).join(', ') || '(không có)'}</span><br>` +
+    `Đang LOW: ${lowPins.map(p=>p.num).join(', ') || '(không có)'}<br>` +
+    `Tổng dòng (mỗi LED ~ ${ledI} mA): <span class="hi">${totalI.toFixed(1)} mA</span><br>` +
+    `Trạng thái: <span class="${safeClass}">${safeMsg}</span>`;
+}
+
+buildGPIOPanel();
+updateGPIOCode();
+updateGPIOResult();
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 2: Input + Pull-up/Pull-down
+// ═══════════════════════════════════════════════════════════
+let pullMode = 'pullup';
+let btnPressed = false;
+
+function setPullMode(mode) {
+  pullMode = mode;
+  document.getElementById('btn-pullup').classList.toggle('active', mode === 'pullup');
+  document.getElementById('btn-pulldown').classList.toggle('active', mode === 'pulldown');
+  pressBtn(false); // reset
+  updateInputState();
+}
+
+function pressBtn(pressed) {
+  btnPressed = pressed;
+  document.getElementById('btnSim').classList.toggle('pressed', pressed);
+  updateInputState();
+}
+
+function updateInputState() {
+  // pullup: not pressed = HIGH, pressed = LOW
+  // pulldown: not pressed = LOW, pressed = HIGH
+  let pinHigh;
+  if (pullMode === 'pullup') {
+    pinHigh = !btnPressed;
+  } else {
+    pinHigh = btnPressed;
+  }
+
+  const stateDiv = document.getElementById('pinState');
+  const led = document.getElementById('inputLed');
+  const explain = document.getElementById('pullExplain');
+  const codeEl = document.getElementById('inputCode');
+  const resultEl = document.getElementById('inputResult');
+
+  stateDiv.textContent = pinHigh ? 'HIGH' : 'LOW';
+  stateDiv.style.background = pinHigh ? '#f0fdf4' : '#fef2f2';
+  stateDiv.style.borderColor = pinHigh ? '#86efac' : '#fca5a5';
+  stateDiv.style.color = pinHigh ? '#14532d' : '#991b1b';
+
+  // LED sáng khi nhấn (cả 2 mode đều bật LED khi nhấn)
+  led.className = 'led-circle' + (btnPressed ? ' on green' : '');
+
+  if (pullMode === 'pullup') {
+    explain.textContent = 'Pull-up: R kéo chân lên VCC → HIGH khi không nhấn (active-low)';
+    codeEl.innerHTML =
+      `<span class="kw">void</span> <span class="fn">setup</span>() {\n` +
+      `  <span class="fn">pinMode</span>(<span class="num">2</span>, <span class="hi">INPUT_PULLUP</span>);\n` +
+      `  <span class="fn">pinMode</span>(<span class="num">13</span>, OUTPUT);\n}\n\n` +
+      `<span class="kw">void</span> <span class="fn">loop</span>() {\n` +
+      `  <span class="kw">bool</span> btn = <span class="fn">digitalRead</span>(<span class="num">2</span>);\n` +
+      `  <span class="cmt">// Nhấn = LOW, thả = HIGH</span>\n` +
+      `  <span class="kw">if</span> (btn == <span class="hi">LOW</span>) {\n` +
+      `    <span class="fn">digitalWrite</span>(<span class="num">13</span>, HIGH);\n` +
+      `  } <span class="kw">else</span> {\n` +
+      `    <span class="fn">digitalWrite</span>(<span class="num">13</span>, LOW);\n` +
+      `  }\n}`;
+  } else {
+    explain.textContent = 'Pull-down: R kéo chân xuống GND → LOW khi không nhấn (active-high)';
+    codeEl.innerHTML =
+      `<span class="kw">void</span> <span class="fn">setup</span>() {\n` +
+      `  <span class="fn">pinMode</span>(<span class="num">2</span>, INPUT);\n` +
+      `  <span class="cmt">// Dùng R 10kΩ ngoài → GND</span>\n` +
+      `  <span class="fn">pinMode</span>(<span class="num">13</span>, OUTPUT);\n}\n\n` +
+      `<span class="kw">void</span> <span class="fn">loop</span>() {\n` +
+      `  <span class="kw">bool</span> btn = <span class="fn">digitalRead</span>(<span class="num">2</span>);\n` +
+      `  <span class="cmt">// Nhấn = HIGH, thả = LOW</span>\n` +
+      `  <span class="kw">if</span> (btn == <span class="hi">HIGH</span>) {\n` +
+      `    <span class="fn">digitalWrite</span>(<span class="num">13</span>, HIGH);\n` +
+      `  } <span class="kw">else</span> {\n` +
+      `    <span class="fn">digitalWrite</span>(<span class="num">13</span>, LOW);\n` +
+      `  }\n}`;
+  }
+
+  const stateWord = pinHigh ? 'HIGH (1)' : 'LOW (0)';
+  const ledWord = btnPressed ? 'SÁNG' : 'TẮT';
+  const currentStr = pullMode === 'pullup'
+    ? 'Khi nhấn: dòng qua R_pull = 5V/10kΩ = 0.5 mA (rất nhỏ)'
+    : 'Khi thả: dòng qua R_pull = 5V/10kΩ = 0.5 mA (giữ LOW)';
+
+  resultEl.innerHTML =
+    `Mode: <span class="hi">${pullMode === 'pullup' ? 'Pull-up (INPUT_PULLUP)' : 'Pull-down (điện trở ngoài)'}</span><br>` +
+    `Nút: <strong>${btnPressed ? 'ĐANG NHẤN' : 'Thả'}</strong> — Chân GPIO: <span class="hi">${stateWord}</span><br>` +
+    `LED: <span class="hi">${ledWord}</span><br>` +
+    `<span class="ok">${currentStr}</span>`;
+}
+
+updateInputState();
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 3: PWM
+// ═══════════════════════════════════════════════════════════
+function updatePWM() {
+  const val = parseInt(document.getElementById('pwmSlider').value);
+  const duty = val / 255;
+  const dutyPct = (duty * 100).toFixed(1);
+  const vAvg = (duty * 5.0).toFixed(2);
+  const vF = 2.0;
+  const rLed = 220;
+  const iAvg = ((duty * 5.0 - vF) / rLed * 1000);
+  const iAvgStr = iAvg > 0 ? iAvg.toFixed(2) + ' mA' : '0 mA (LED tắt)';
+  const iClass = iAvg > 20 ? 'warn' : 'ok';
+
+  document.getElementById('pwmDutyVal').textContent = dutyPct + '%';
+  document.getElementById('pwmValue').textContent = val;
+  document.getElementById('pwmDuty').textContent = dutyPct + '%';
+  document.getElementById('pwmVavg').textContent = vAvg + ' V';
+  document.getElementById('pwmI').innerHTML = `<span class="${iClass}">${iAvgStr}</span>`;
+
+  // Update code
+  document.getElementById('pwmCodeVal').textContent = val;
+  const codeEl = document.getElementById('pwmCode');
+  codeEl.innerHTML =
+    `<span class="kw">void</span> <span class="fn">setup</span>() {\n` +
+    `  <span class="fn">pinMode</span>(<span class="num">9</span>, OUTPUT);\n}\n\n` +
+    `<span class="kw">void</span> <span class="fn">loop</span>() {\n` +
+    `  <span class="cmt">// analogWrite: 0..255</span>\n` +
+    `  <span class="fn">analogWrite</span>(<span class="num">9</span>, <span class="hi">${val}</span>);\n` +
+    `  <span class="cmt">// Duty = ${val}/255 = ${dutyPct}%</span>\n` +
+    `  <span class="cmt">// V_avg = ${vAvg} V</span>\n}`;
+
+  // Update bar
+  document.getElementById('pwmBarFill').style.width = dutyPct + '%';
+  document.getElementById('pwmBarLabel').textContent = dutyPct + '%';
+
+  // Update LED brightness via opacity
+  const ledEl = document.getElementById('pwmLed');
+  const minOp = 0.05;
+  ledEl.style.opacity = val === 0 ? '0.1' : (minOp + duty * (1 - minOp)).toFixed(3);
+  const r = Math.round(duty * 255); const g = Math.round(duty * 100);
+  ledEl.style.background = val === 0 ? '#d1d5db' : `rgb(${180 + r/3},${100 + g},${220})`;
+  ledEl.style.boxShadow = val === 0 ? 'none' : `0 0 ${Math.round(duty*14)}px ${Math.round(duty*6)}px rgba(124,58,237,${(duty*0.5).toFixed(2)})`;
+
+  // Draw waveform
+  drawPWMWave(duty);
+
+  // Result box
+  document.getElementById('pwmResult').innerHTML =
+    `analogWrite(9, <span class="hi">${val}</span>)<br>` +
+    `Duty cycle D = ${val}/255 = <span class="hi">${dutyPct}%</span><br>` +
+    `V_avg = D × 5 V = <span class="hi">${vAvg} V</span><br>` +
+    `Dòng LED (220 Ω, V_f=2V): <span class="${iClass}">${iAvgStr}</span><br>` +
+    `Tần số PWM (chân 9): ~490 Hz → chu kỳ ~2.04 ms`;
+}
+
+function drawPWMWave(duty) {
+  const canvas = document.getElementById('pwmCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(0, 0, W, H);
+
+  const cycles = 4;
+  const cycleW = W / cycles;
+  const margin = 10;
+  const high_y = margin;
+  const low_y  = H - margin;
+
+  ctx.strokeStyle = '#7c3aed';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+
+  for (let c = 0; c < cycles; c++) {
+    const xStart = c * cycleW;
+    const xOn    = xStart + duty * cycleW;
+
+    if (c === 0) ctx.moveTo(xStart, high_y);
+
+    // HIGH phase
+    ctx.lineTo(xOn,   high_y);
+    // Fall edge
+    ctx.lineTo(xOn,   low_y);
+    // LOW phase
+    ctx.lineTo(xStart + cycleW, low_y);
+    // Rise edge for next cycle
+    if (c < cycles - 1) ctx.lineTo(xStart + cycleW, high_y);
+  }
+  ctx.stroke();
+
+  // Labels
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '11px monospace';
+  ctx.fillText('HIGH', 4, high_y + 13);
+  ctx.fillText('LOW',  4, low_y - 4);
+
+  // Duty annotation
+  if (duty > 0.05 && duty < 0.95) {
+    const xMid = duty * cycleW / 2;
+    ctx.strokeStyle = '#fbbf24';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(xMid, high_y); ctx.lineTo(xMid, low_y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#fbbf24';
+    ctx.fillText('t_on', xMid - 10, H / 2 + 4);
+  }
+}
+
+// Init PWM
+updatePWM();
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 4: ADC / LDR sensor
+// ═══════════════════════════════════════════════════════════
+function updateADC() {
+  const slVal = parseInt(document.getElementById('ldrSlider').value); // 0=bright, 100=dark
+  // LDR range: 500 Ω (bright) → 200 kΩ (dark)
+  // Log interpolation for more realistic response
+  const ldrMin = 500, ldrMax = 200000;
+  const t = slVal / 100;
+  const ldrR = ldrMin * Math.pow(ldrMax / ldrMin, t); // exponential
+  const rFix = 10000; // 10 kΩ
+  const vA0 = 5.0 * ldrR / (rFix + ldrR);
+  const adcVal = Math.round(vA0 / 5.0 * 1023);
+  const pct = adcVal / 1023;
+
+  // Labels
+  let brightLabel;
+  if (slVal < 15) brightLabel = 'Rất sáng (ban ngày ngoài trời)';
+  else if (slVal < 35) brightLabel = 'Sáng (trong phòng)';
+  else if (slVal < 55) brightLabel = 'Sáng vừa';
+  else if (slVal < 75) brightLabel = 'Mờ (chạng vạng)';
+  else if (slVal < 90) brightLabel = 'Tối (buổi tối)';
+  else brightLabel = 'Rất tối (bóng tối)';
+
+  document.getElementById('ldrVal').textContent = brightLabel;
+
+  const ldrStr = ldrR >= 1000 ? (ldrR/1000).toFixed(1) + ' kΩ' : ldrR.toFixed(0) + ' Ω';
+  document.getElementById('ldrR').textContent = ldrStr;
+  document.getElementById('ldrV').textContent = vA0.toFixed(2) + ' V';
+  document.getElementById('ldrADC').textContent = adcVal;
+  document.getElementById('adcCodeVal').textContent = adcVal;
+
+  const isDark = adcVal > 500;
+  const thrEl = document.getElementById('ldrThreshold');
+  thrEl.innerHTML = isDark
+    ? `<span class="hi">Tối (${adcVal} > 500) → LED bật</span>`
+    : `<span class="ok">Sáng (${adcVal} ≤ 500) → LED tắt</span>`;
+
+  // Meter
+  document.getElementById('adcMeterFill').style.width = (pct * 100).toFixed(1) + '%';
+
+  // Result
+  const resultEl = document.getElementById('adcResult');
+  resultEl.innerHTML =
+    `Môi trường: <span class="hi">${brightLabel}</span><br>` +
+    `LDR ≈ ${ldrStr} — V_A0 = 5 × ${(ldrR/1000).toFixed(1)}k / (10k + ${(ldrR/1000).toFixed(1)}k) = <span class="hi">${vA0.toFixed(2)} V</span><br>` +
+    `analogRead(A0) = <span class="hi">${adcVal}</span> / 1023<br>` +
+    `Ngưỡng 500: ${isDark
+      ? '<span class="warn">Tối → bật đèn (digitalWrite HIGH)</span>'
+      : '<span class="ok">Sáng → tắt đèn (digitalWrite LOW)</span>'}`;
+}
+
+updateADC();
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 5: MCU block info
+// ═══════════════════════════════════════════════════════════
+const blockInfo = {
+  cpu: {
+    title: 'CPU — Bộ xử lý trung tâm',
+    body: 'ALU (Arithmetic Logic Unit) thực hiện phép tính số học và logic. 32 thanh ghi 8-bit tốc độ cao. Program Counter (PC) theo dõi lệnh đang thực thi. Tốc độ 16 MHz = 16 triệu lệnh/giây (1 lệnh/chu kỳ với AVR RISC).'
+  },
+  flash: {
+    title: 'Flash ROM — Bộ nhớ chương trình',
+    body: '32 KB lưu trữ code (sketch Arduino). Ghi khi nạp firmware qua USB. Giữ dữ liệu khi mất điện. Ghi được ~ 10 000 lần. Tốc độ đọc: 1 lệnh/chu kỳ ở 16 MHz.'
+  },
+  sram: {
+    title: 'SRAM — Bộ nhớ biến tạm',
+    body: '2 KB lưu biến toàn cục, stack, heap. Mất dữ liệu khi tắt nguồn. Đây thường là nút thắt cổ chai — khai báo quá nhiều biến → stack overflow. Dùng PROGMEM để lưu chuỗi hằng số vào Flash thay vì SRAM.'
+  },
+  eeprom: {
+    title: 'EEPROM — Bộ nhớ cấu hình',
+    body: '1 KB lưu cấu hình vĩnh viễn (địa chỉ IP, thông số cảm biến, calibration). Đọc/ghi qua thư viện EEPROM.h. Ghi được ~ 100 000 lần. Chậm hơn SRAM (3.4 ms/byte).'
+  },
+  gpio: {
+    title: 'GPIO — Chân vào/ra đa năng',
+    body: '23 chân I/O. Mỗi chân: OUTPUT (HIGH/LOW), INPUT, INPUT_PULLUP. Dòng max: 40 mA/chân, 200 mA tổng chip. Pull-up nội 20–50 kΩ (kích hoạt bằng INPUT_PULLUP). Chân PWM (~): 3, 5, 6, 9, 10, 11.'
+  },
+  adc: {
+    title: 'ADC — Bộ chuyển đổi tương tự-số',
+    body: '6 kênh đầu vào (A0–A5). Độ phân giải 10-bit: 0–1023 tương ứng 0–5 V. Tốc độ: ~10 000 mẫu/giây (100 µs/mẫu). Tham chiếu mặc định = VCC = 5 V. Dùng analogRead() để đọc.'
+  },
+  timer: {
+    title: 'Timer/Counter — Bộ đếm thời gian',
+    body: '3 timer: Timer0 (8-bit, millis/delay), Timer1 (16-bit, servo), Timer2 (8-bit, âm thanh). Tạo PWM phần cứng tần số ~490 Hz (Timer1/2) và ~980 Hz (Timer0). Interrupt overflow/compare dùng cho tác vụ định kỳ.'
+  },
+  serial: {
+    title: 'UART / SPI / I2C — Giao tiếp nối tiếp',
+    body: 'UART: giao tiếp máy tính qua USB (Serial.begin/print). SPI: 4 dây, tốc độ cao (SD card, màn hình TFT, encoder). I2C: 2 dây, nhiều thiết bị trên 1 bus (cảm biến BME280, OLED, RTC). Xem Lesson 07 để biết chi tiết.'
+  },
+  osc: {
+    title: 'Oscillator — Bộ tạo xung nhịp',
+    body: 'Thạch anh 16 MHz ngoài (chính xác ±20 ppm). Oscillator nội 8 MHz (tiết kiệm 2 chân, kém chính xác hơn ±10%). Xung nhịp quyết định tốc độ CPU, tần số PWM, baud rate UART. Prescaler chia tần cho timer.'
+  }
+};
+
+function showBlock(id) {
+  const info = blockInfo[id];
+  if (!info) return;
+  document.getElementById('blockInfo').innerHTML =
+    `<strong style="font-size:15px;color:#14532d;">${info.title}</strong><br><span style="font-family:sans-serif;font-size:13px;">${info.body}</span>`;
+}
+
+// Draw initial PWM wave
+drawPWMWave(0.5);
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

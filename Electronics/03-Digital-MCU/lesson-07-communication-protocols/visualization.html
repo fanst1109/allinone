@@ -1,0 +1,1630 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Giao tiếp UART, I2C, SPI</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #84cc16; }
+
+  .card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.10);
+    margin: 16px 0;
+  }
+
+  /* ── Tabs ── */
+  .tab-bar { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tab-bar button {
+    padding: 8px 16px;
+    border-radius: 6px 6px 0 0;
+    border: 2px solid #d1d5db;
+    border-bottom: none;
+    background: #f9fafb;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #374151;
+    transition: all 0.15s;
+  }
+  .tab-bar button.active {
+    background: white;
+    border-color: #4d7c0f;
+    color: #4d7c0f;
+    border-bottom: 2px solid white;
+    margin-bottom: -2px;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── Controls ── */
+  .ctrl-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    margin-bottom: 14px;
+  }
+  .ctrl-group { display: flex; flex-direction: column; gap: 5px; }
+  .ctrl-group label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #374151;
+  }
+  .ctrl-group select,
+  .ctrl-group input[type="number"],
+  .ctrl-group input[type="text"] {
+    padding: 7px 10px;
+    border: 2px solid #d1fae5;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: monospace;
+    box-sizing: border-box;
+    transition: border-color 0.15s;
+  }
+  .ctrl-group select:focus,
+  .ctrl-group input:focus { outline: none; border-color: #4d7c0f; }
+  .ctrl-group input[type="number"] { max-width: 140px; width: 100%; }
+  .ctrl-group input[type="text"] { max-width: 220px; width: 100%; }
+
+  .btn-primary {
+    padding: 8px 18px;
+    background: #4d7c0f;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-primary:hover { background: #3a5c0a; }
+
+  /* ── Result boxes ── */
+  .result-box {
+    background: #f0fdf4;
+    border: 2px solid #86efac;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  .result-box .hl { color: #14532d; font-weight: 700; font-size: 15px; }
+  .result-box .warn { color: #dc2626; font-weight: 600; }
+  .result-box .info { color: #1d4ed8; font-weight: 600; }
+
+  /* ── Signal canvas ── */
+  .canvas-wrap {
+    overflow-x: auto;
+    margin: 12px 0;
+    border-radius: 6px;
+    background: #0f172a;
+    padding: 8px;
+  }
+
+  /* ── Bit labels ── */
+  .bit-legend {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+    font-size: 12px;
+  }
+  .bit-tag {
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-family: monospace;
+  }
+  .bit-start { background: #fbbf24; color: #78350f; }
+  .bit-data  { background: #3b82f6; color: white; }
+  .bit-parity{ background: #8b5cf6; color: white; }
+  .bit-stop  { background: #22c55e; color: #14532d; }
+  .bit-idle  { background: #6b7280; color: white; }
+
+  /* ── I2C bus diagram ── */
+  .i2c-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 10px 0;
+  }
+  .i2c-device {
+    border: 2px solid #4d7c0f;
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    background: #f0fdf4;
+    min-width: 90px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .i2c-device.master { background: #4d7c0f; color: white; }
+  .i2c-device.slave  { background: white; }
+  .i2c-device.active-slave { background: #fef9c3; border-color: #f59e0b; }
+  .i2c-device .addr { font-size: 11px; color: #6b7280; font-weight: 400; margin-top: 3px; }
+  .i2c-device.master .addr { color: #bbf7d0; }
+
+  .i2c-bus-line {
+    flex: 1;
+    height: 4px;
+    background: #4d7c0f;
+    position: relative;
+    min-width: 20px;
+  }
+
+  /* ── SPI wiring diagram ── */
+  .spi-table { border-collapse: collapse; width: 100%; font-size: 13px; margin: 10px 0; }
+  .spi-table th { background: #1d4ed8; color: white; padding: 7px 10px; text-align: left; }
+  .spi-table td { padding: 7px 10px; border-bottom: 1px solid #e5e7eb; }
+  .spi-table tr:nth-child(even) td { background: #eff6ff; }
+  .wire-mosi { color: #dc2626; font-weight: 700; }
+  .wire-miso { color: #2563eb; font-weight: 700; }
+  .wire-sclk { color: #7c3aed; font-weight: 700; }
+  .wire-cs   { color: #d97706; font-weight: 700; }
+
+  /* ── Comparison table ── */
+  .cmp-table { border-collapse: collapse; width: 100%; font-size: 13px; margin: 10px 0; }
+  .cmp-table th {
+    background: #1e293b;
+    color: white;
+    padding: 8px 10px;
+    text-align: left;
+  }
+  .cmp-table td { padding: 8px 10px; border-bottom: 1px solid #e5e7eb; }
+  .cmp-table tr:nth-child(even) td { background: #f8fafc; }
+  .cmp-table .uart-col { color: #b45309; font-weight: 700; }
+  .cmp-table .i2c-col  { color: #4d7c0f;  font-weight: 700; }
+  .cmp-table .spi-col  { color: #1d4ed8;  font-weight: 700; }
+
+  /* ── Scenario selector ── */
+  .scenario-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+    margin: 12px 0;
+  }
+  .scenario-card {
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: white;
+    font-size: 13px;
+  }
+  .scenario-card:hover { border-color: #4d7c0f; background: #f0fdf4; }
+  .scenario-card.selected { border-color: #4d7c0f; background: #dcfce7; }
+  .scenario-card .sc-title { font-weight: 700; color: #1a202c; margin-bottom: 4px; }
+  .scenario-card .sc-desc { color: #6b7280; line-height: 1.4; }
+
+  .suggest-box {
+    background: #eff6ff;
+    border: 2px solid #93c5fd;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .suggest-box .proto { font-size: 18px; font-weight: 900; margin-right: 8px; }
+  .suggest-uart { color: #b45309; }
+  .suggest-i2c  { color: #4d7c0f; }
+  .suggest-spi  { color: #1d4ed8; }
+
+  /* ── SPI shift register visual ── */
+  .shift-wrap { display: flex; gap: 4px; margin: 12px 0; flex-wrap: wrap; align-items: center; }
+  .shift-bit {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: monospace;
+    font-size: 16px;
+    font-weight: 900;
+    border: 2px solid #d1d5db;
+    background: white;
+    transition: all 0.3s;
+  }
+  .shift-bit.val1 { background: #dc2626; border-color: #dc2626; color: white; }
+  .shift-bit.val0 { background: #e5e7eb; border-color: #9ca3af; color: #374151; }
+  .shift-bit.active { box-shadow: 0 0 0 3px #fbbf24; }
+  .shift-label { font-size: 12px; color: #6b7280; margin-top: 4px; text-align: center; width: 40px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    .ctrl-row { flex-direction: column; align-items: flex-start; }
+    .ctrl-group input[type="number"],
+    .ctrl-group input[type="text"] { max-width: 100%; }
+    .scenario-grid { grid-template-columns: 1fr; }
+    .shift-bit { width: 32px; height: 32px; font-size: 13px; }
+    .shift-label { width: 32px; }
+  }
+  @media (max-width: 400px) {
+    .i2c-device { min-width: 70px; padding: 8px 8px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Electronics — Digital &amp; MCU</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-microcontroller-gpio/visualization.html">← L6: Vi điều khiển &amp; GPIO</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Giao tiếp UART/I2C/SPI</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-project/visualization.html">L8: Dự án tổng hợp →</a>
+</nav>
+
+<main>
+<h1>Lesson 07 — Giao tiếp: UART, I2C, SPI</h1>
+<p>Mô phỏng tương tác ba giao thức nối tiếp phổ biến nhất trong hệ thống nhúng. Nhập dữ liệu, quan sát giản đồ xung và so sánh đặc điểm từng giao thức.</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — UART Frame Visualizer
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. UART — Mô phỏng khung truyền và thời gian</h2>
+<div class="card">
+  <p>Nhập ký tự ASCII hoặc giá trị hex, chọn cấu hình và baud rate — xem giản đồ xung TX và thời gian truyền.</p>
+
+  <div class="ctrl-row">
+    <div class="ctrl-group">
+      <label>Ký tự / byte</label>
+      <input type="text" id="uart-char" value="A" maxlength="1" oninput="updateUART()">
+    </div>
+    <div class="ctrl-group">
+      <label>Baud rate</label>
+      <select id="uart-baud" onchange="updateUART()">
+        <option value="9600">9600 bps</option>
+        <option value="19200">19200 bps</option>
+        <option value="38400">38400 bps</option>
+        <option value="57600">57600 bps</option>
+        <option value="115200" selected>115200 bps</option>
+        <option value="230400">230400 bps</option>
+        <option value="460800">460800 bps</option>
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <label>Cấu hình</label>
+      <select id="uart-config" onchange="updateUART()">
+        <option value="8N1" selected>8N1 (phổ biến)</option>
+        <option value="8E1">8E1 (parity chẵn)</option>
+        <option value="8O1">8O1 (parity lẻ)</option>
+        <option value="8N2">8N2 (2 stop bits)</option>
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <label>Số byte truyền</label>
+      <input type="number" id="uart-nbytes" value="1" min="1" max="100" oninput="updateUART()">
+    </div>
+  </div>
+
+  <!-- Signal canvas -->
+  <div class="canvas-wrap">
+    <canvas id="uart-canvas" width="720" height="120"></canvas>
+  </div>
+
+  <!-- Bit legend -->
+  <div class="bit-legend">
+    <span class="bit-tag bit-idle">IDLE</span>
+    <span class="bit-tag bit-start">START</span>
+    <span class="bit-tag bit-data">DATA (LSB→MSB)</span>
+    <span class="bit-tag bit-parity" id="parity-legend-tag" style="display:none">PARITY</span>
+    <span class="bit-tag bit-stop">STOP</span>
+  </div>
+
+  <div class="result-box" id="uart-result">Nhập dữ liệu ở trên để xem kết quả...</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — I2C Bus Simulator
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. I2C — Mô phỏng bus và giao tiếp địa chỉ</h2>
+<div class="card">
+  <div class="tab-bar">
+    <button class="active" onclick="showI2CTab('i2c-bus')">Bus diagram</button>
+    <button onclick="showI2CTab('i2c-wave')">Giản đồ xung SDA/SCL</button>
+    <button onclick="showI2CTab('i2c-addr')">Giải mã địa chỉ</button>
+  </div>
+
+  <!-- Sub-tab: Bus diagram -->
+  <div class="tab-panel active" id="i2c-bus">
+    <p>Nhấp vào slave để master giao tiếp với nó. Xem SDA/SCL thay đổi bên dưới.</p>
+
+    <div class="ctrl-row">
+      <div class="ctrl-group">
+        <label>Tốc độ I2C</label>
+        <select id="i2c-speed" onchange="updateI2CBus()">
+          <option value="100000">100 kHz (Standard)</option>
+          <option value="400000" selected>400 kHz (Fast)</option>
+          <option value="1000000">1 MHz (Fast Plus)</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label>Hoạt động</label>
+        <select id="i2c-rw">
+          <option value="W">Ghi (Write)</option>
+          <option value="R" selected>Đọc (Read)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Bus visualization -->
+    <div style="margin: 16px 0;">
+      <div style="font-size: 12px; color: #6b7280; margin-bottom: 6px; font-weight: 700;">SDA ──── </div>
+      <div class="i2c-row" id="i2c-device-row">
+        <!-- built by JS -->
+      </div>
+      <div style="font-size: 12px; color: #6b7280; margin-top: 6px; font-weight: 700;">SCL ────</div>
+    </div>
+
+    <div style="overflow-x: auto; margin: 12px 0;">
+      <canvas id="i2c-bus-canvas" width="700" height="140"></canvas>
+    </div>
+
+    <div class="result-box" id="i2c-bus-result">Nhấp vào thiết bị slave để xem giao tiếp I2C...</div>
+
+    <div style="margin-top: 12px; font-size: 13px; color: #374151; background: #f0fdf4; border-radius: 6px; padding: 10px 14px; line-height: 1.7;">
+      <strong>Thiết bị trong bus:</strong><br>
+      MCU (Master) · BME280 0x76 (cảm biến nhiệt độ/ẩm) · DS3231 0x68 (RTC) · OLED 0x3C (màn hình) · ADS1115 0x48 (ADC 16-bit)
+    </div>
+  </div>
+
+  <!-- Sub-tab: SDA/SCL waveform -->
+  <div class="tab-panel" id="i2c-wave">
+    <p>Giản đồ xung SDA và SCL cho một giao dịch I2C điển hình (ghi 1 byte vào địa chỉ 0x76).</p>
+    <div class="canvas-wrap">
+      <canvas id="i2c-wave-canvas" width="720" height="160"></canvas>
+    </div>
+    <div style="margin-top: 10px; font-size: 13px; line-height: 1.8; background: #f8fafc; border-radius: 6px; padding: 10px 14px;">
+      <strong>Chú giải:</strong>
+      <span style="background:#fbbf24; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight:700; color:#78350f; margin: 0 4px;">S</span> Start condition —
+      <span style="background:#ef4444; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight:700; color:white; margin: 0 4px;">ADDR</span> Địa chỉ 7-bit —
+      <span style="background:#8b5cf6; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight:700; color:white; margin: 0 4px;">R/W</span> —
+      <span style="background:#22c55e; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight:700; color:white; margin: 0 4px;">ACK</span> —
+      <span style="background:#3b82f6; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight:700; color:white; margin: 0 4px;">DATA</span> —
+      <span style="background:#f59e0b; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight:700; color:white; margin: 0 4px;">P</span> Stop condition
+    </div>
+  </div>
+
+  <!-- Sub-tab: Address decoder -->
+  <div class="tab-panel" id="i2c-addr">
+    <p>Nhập địa chỉ I2C (decimal hoặc hex với tiền tố 0x), xem chuyển đổi nhị phân và byte ghi/đọc trên bus.</p>
+    <div class="ctrl-row">
+      <div class="ctrl-group">
+        <label>Địa chỉ slave (7-bit)</label>
+        <input type="text" id="i2c-addr-input" value="0x76" oninput="decodeI2CAddr()" style="max-width:140px">
+      </div>
+    </div>
+    <div class="result-box" id="i2c-addr-result">Nhập địa chỉ để giải mã...</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — SPI Shift Register
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. SPI — Mô phỏng dịch bit MOSI/MISO</h2>
+<div class="card">
+  <div class="tab-bar">
+    <button class="active" onclick="showSPITab('spi-shift')">Dịch bit</button>
+    <button onclick="showSPITab('spi-wire')">Sơ đồ kết nối</button>
+    <button onclick="showSPITab('spi-wave')">Giản đồ xung</button>
+  </div>
+
+  <!-- Sub-tab: Shift register -->
+  <div class="tab-panel active" id="spi-shift">
+    <p>Nhập byte muốn gửi qua MOSI. Nhấn "Dịch 1 bit" để xem từng bit được chuyển ra từ shift register. Đồng thời MISO nhận bit từ slave.</p>
+
+    <div class="ctrl-row">
+      <div class="ctrl-group">
+        <label>Byte MOSI (hex)</label>
+        <input type="text" id="spi-mosi-input" value="0xA5" oninput="initSPIShift()" style="max-width:120px">
+      </div>
+      <div class="ctrl-group">
+        <label>Byte MISO (hex)</label>
+        <input type="text" id="spi-miso-input" value="0x3C" oninput="initSPIShift()" style="max-width:120px">
+      </div>
+      <div class="ctrl-group">
+        <label>Clock SPI</label>
+        <select id="spi-clock-sel">
+          <option value="1">1 MHz</option>
+          <option value="4">4 MHz</option>
+          <option value="10" selected>10 MHz</option>
+          <option value="40">40 MHz</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 24px; flex-wrap: wrap; margin: 12px 0; align-items: flex-start;">
+      <div>
+        <div style="font-size: 12px; font-weight: 700; color: #dc2626; margin-bottom: 4px;">MOSI (Master → Slave)</div>
+        <div class="shift-wrap" id="mosi-bits"></div>
+        <div style="display: flex; gap: 4px;" id="mosi-labels"></div>
+      </div>
+      <div>
+        <div style="font-size: 12px; font-weight: 700; color: #2563eb; margin-bottom: 4px;">MISO (Slave → Master)</div>
+        <div class="shift-wrap" id="miso-bits"></div>
+        <div style="display: flex; gap: 4px;" id="miso-labels"></div>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+      <button class="btn-primary" onclick="stepSPI()">Dịch 1 bit (Clock ↑)</button>
+      <button class="btn-primary" onclick="runSPI()" id="spi-run-btn">Auto (x8)</button>
+      <button onclick="initSPIShift()" style="padding:8px 14px; border:2px solid #d1d5db; border-radius:6px; cursor:pointer; font-weight:600; font-size:14px;">Reset</button>
+    </div>
+
+    <div class="result-box" id="spi-shift-result">Nhấn "Dịch 1 bit" hoặc "Auto" để bắt đầu...</div>
+  </div>
+
+  <!-- Sub-tab: Wiring diagram -->
+  <div class="tab-panel" id="spi-wire">
+    <p>Sơ đồ kết nối SPI từ 1 MCU đến N slave. Chọn số slave để xem số chân cần dùng.</p>
+    <div class="ctrl-row">
+      <div class="ctrl-group">
+        <label>Số slave SPI</label>
+        <input type="number" id="spi-n-slaves" value="3" min="1" max="8" oninput="updateSPIWire()">
+      </div>
+    </div>
+    <div style="overflow-x: auto; margin: 12px 0;">
+      <canvas id="spi-wire-canvas" width="700" height="260"></canvas>
+    </div>
+    <div class="result-box" id="spi-wire-result"></div>
+  </div>
+
+  <!-- Sub-tab: SPI waveform -->
+  <div class="tab-panel" id="spi-wave">
+    <p>Giản đồ xung 4 đường tín hiệu SPI (SCLK, CS, MOSI, MISO) khi truyền byte 0xA5.</p>
+    <div class="canvas-wrap">
+      <canvas id="spi-wave-canvas" width="720" height="200"></canvas>
+    </div>
+    <div style="margin-top: 10px; font-size: 13px; line-height: 1.8; background: #f8fafc; border-radius: 6px; padding: 10px 14px;">
+      CS xuống LOW → chọn slave. SCLK tạo 8 xung. MOSI và MISO dịch bit đồng thời.
+      Sau 8 xung, CS lên HIGH → kết thúc giao dịch.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 4 — So sánh và gợi ý giao thức
+     ═══════════════════════════════════════════════════════ -->
+<h2>4. Bảng so sánh và gợi ý giao thức</h2>
+<div class="card">
+  <div class="tab-bar">
+    <button class="active" onclick="showCmpTab('cmp-table')">Bảng so sánh</button>
+    <button onclick="showCmpTab('cmp-scenario')">Chọn tình huống</button>
+    <button onclick="showCmpTab('cmp-wire')">Đếm số dây</button>
+  </div>
+
+  <!-- Sub-tab: Comparison table -->
+  <div class="tab-panel active" id="cmp-table">
+    <div style="overflow-x: auto;">
+      <table class="cmp-table">
+        <thead>
+          <tr>
+            <th>Tiêu chí</th>
+            <th class="uart-col">UART</th>
+            <th class="i2c-col">I2C</th>
+            <th class="spi-col">SPI</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Số dây (cơ bản)</td>
+            <td class="uart-col">2 (TX + RX)</td>
+            <td class="i2c-col">2 (SDA + SCL)</td>
+            <td class="spi-col">3 + 1/slave</td>
+          </tr>
+          <tr>
+            <td>Đồng bộ?</td>
+            <td>Không (bất đồng bộ)</td>
+            <td class="i2c-col">Có (SCL)</td>
+            <td class="spi-col">Có (SCLK)</td>
+          </tr>
+          <tr>
+            <td>Tốc độ điển hình</td>
+            <td>9.6 k – 921.6 kbps</td>
+            <td>100 kHz – 1 MHz</td>
+            <td class="spi-col">1 – 100+ MHz</td>
+          </tr>
+          <tr>
+            <td>Số thiết bị trên bus</td>
+            <td>1 đối 1</td>
+            <td class="i2c-col">Nhiều (địa chỉ 7-bit)</td>
+            <td>Nhiều (1 CS/slave)</td>
+          </tr>
+          <tr>
+            <td>Full-duplex?</td>
+            <td class="uart-col">Có</td>
+            <td>Không (bán song công)</td>
+            <td class="spi-col">Có</td>
+          </tr>
+          <tr>
+            <td>Phát hiện lỗi</td>
+            <td>Parity (tùy chọn)</td>
+            <td class="i2c-col">ACK/NACK</td>
+            <td>Không</td>
+          </tr>
+          <tr>
+            <td>Cần pull-up?</td>
+            <td>Không</td>
+            <td class="i2c-col">Có (4.7 kΩ)</td>
+            <td>Không</td>
+          </tr>
+          <tr>
+            <td>Khoảng cách</td>
+            <td class="uart-col">Xa (RS-232 → 50 m)</td>
+            <td>Ngắn (< 1 m)</td>
+            <td>Rất ngắn (< 30 cm)</td>
+          </tr>
+          <tr>
+            <td>Ứng dụng điển hình</td>
+            <td>GPS, BT, debug, WiFi module</td>
+            <td class="i2c-col">Cảm biến, RTC, OLED nhỏ</td>
+            <td class="spi-col">Thẻ SD, TFT, Flash, ADC</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Sub-tab: Scenario chooser -->
+  <div class="tab-panel" id="cmp-scenario">
+    <p>Chọn tình huống thực tế — công cụ sẽ gợi ý giao thức phù hợp nhất và giải thích lý do.</p>
+    <div class="scenario-grid" id="scenario-grid">
+      <!-- built by JS -->
+    </div>
+    <div class="suggest-box" id="suggest-box" style="display:none;"></div>
+  </div>
+
+  <!-- Sub-tab: Wire count calculator -->
+  <div class="tab-panel" id="cmp-wire">
+    <p>Tính số dây cần thiết khi kết nối N thiết bị bằng mỗi giao thức.</p>
+    <div class="ctrl-row">
+      <div class="ctrl-group">
+        <label>Số thiết bị ngoại vi</label>
+        <input type="number" id="wire-n" value="4" min="1" max="16" oninput="updateWireCalc()">
+      </div>
+    </div>
+    <div style="overflow-x: auto; margin: 12px 0;">
+      <canvas id="wire-chart-canvas" width="680" height="260"></canvas>
+    </div>
+    <div class="result-box" id="wire-calc-result"></div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════════════════
+
+function hexToByte(s) {
+  s = s.trim().toLowerCase();
+  if (s.startsWith('0x')) s = s.slice(2);
+  const v = parseInt(s, 16);
+  return isNaN(v) ? null : (v & 0xFF);
+}
+
+function fmtTime(us) {
+  if (us < 1) return (us * 1000).toFixed(2) + ' ns';
+  if (us < 1000) return us.toFixed(3) + ' µs';
+  return (us / 1000).toFixed(4) + ' ms';
+}
+
+function showTab(panelId, allClass, btnIndex, btns) {
+  document.querySelectorAll('.' + allClass).forEach(p => p.classList.remove('active'));
+  document.getElementById(panelId).classList.add('active');
+}
+
+function showI2CTab(id) {
+  document.querySelectorAll('#i2c-bus, #i2c-wave, #i2c-addr').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  // highlight button
+  const btns = document.querySelectorAll('.card .tab-bar button');
+  // find which card we're in — just update relevant ones
+  event.target.closest('.tab-bar').querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  if (id === 'i2c-wave') drawI2CWave();
+  if (id === 'i2c-addr') decodeI2CAddr();
+}
+
+function showSPITab(id) {
+  document.querySelectorAll('#spi-shift, #spi-wire, #spi-wave').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.closest('.tab-bar').querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  if (id === 'spi-wire') updateSPIWire();
+  if (id === 'spi-wave') drawSPIWave();
+}
+
+function showCmpTab(id) {
+  document.querySelectorAll('#cmp-table, #cmp-scenario, #cmp-wire').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.closest('.tab-bar').querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  if (id === 'cmp-wire') updateWireCalc();
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 1: UART
+// ═══════════════════════════════════════════════════════════
+
+function updateUART() {
+  const charInput = document.getElementById('uart-char').value;
+  const baud = parseInt(document.getElementById('uart-baud').value);
+  const config = document.getElementById('uart-config').value;
+  const nBytes = Math.max(1, Math.min(100, parseInt(document.getElementById('uart-nbytes').value) || 1));
+
+  // Get byte value
+  let byteVal;
+  if (charInput.length === 0) { byteVal = 0x41; } // default 'A'
+  else { byteVal = charInput.charCodeAt(0) & 0xFF; }
+
+  // Parse config
+  const dataBits = 8;
+  const hasParity = config.includes('E') || config.includes('O');
+  const stopBits = config.includes('2') ? 2 : 1;
+  const parityType = config.includes('E') ? 'even' : config.includes('O') ? 'odd' : 'none';
+
+  // Total bits per frame
+  const frameBits = 1 + dataBits + (hasParity ? 1 : 0) + stopBits;
+  const T_bit_us = 1e6 / baud;
+  const T_frame_us = frameBits * T_bit_us;
+  const T_total_us = T_frame_us * nBytes;
+  const throughput_bps = (dataBits * baud) / frameBits;
+  const throughput_Bps = throughput_bps / 8;
+
+  // Toggle parity legend tag
+  document.getElementById('parity-legend-tag').style.display = hasParity ? 'inline-block' : 'none';
+
+  // Calculate parity bit
+  let parityBit = 0;
+  if (hasParity) {
+    let ones = 0;
+    for (let i = 0; i < 8; i++) { ones += (byteVal >> i) & 1; }
+    parityBit = (parityType === 'even') ? (ones % 2) : ((ones + 1) % 2);
+  }
+
+  // Draw waveform
+  drawUARTWave(byteVal, baud, config, dataBits, hasParity, parityBit, stopBits);
+
+  // Results
+  const bitSeq = [];
+  for (let i = 0; i < 8; i++) bitSeq.push((byteVal >> i) & 1);
+
+  document.getElementById('uart-result').innerHTML = `
+Ký tự: <span class="hl">'${charInput || 'A'}'</span> = <span class="hl">0x${byteVal.toString(16).toUpperCase().padStart(2,'0')}</span> = <span class="hl">${byteVal.toString(2).padStart(8,'0')}</span> (nhị phân)<br>
+Cấu hình: <span class="info">${config}</span> → ${frameBits} bit/frame (1 start + ${dataBits} data${hasParity ? ' + 1 parity' : ''} + ${stopBits} stop)<br>
+Baud rate: <span class="hl">${baud.toLocaleString()} bps</span> → T_bit = ${fmtTime(T_bit_us)} · T_frame = ${fmtTime(T_frame_us)}<br>
+${nBytes > 1 ? `Truyền ${nBytes} byte: T_total = ${fmtTime(T_total_us)}<br>` : ''}
+Hiệu suất: ${dataBits}/${frameBits} = <span class="hl">${((dataBits/frameBits)*100).toFixed(1)}%</span> → Throughput thực = <span class="hl">${throughput_Bps.toFixed(0)} byte/s = ${(throughput_Bps/1024).toFixed(2)} kB/s</span><br>
+Thứ tự bit trên dây: IDLE → START(0) → ${bitSeq.join(' ')}${hasParity ? ' P('+parityBit+')' : ''} → STOP(1) → IDLE
+  `;
+}
+
+function drawUARTWave(byteVal, baud, config, dataBits, hasParity, parityBit, stopBits) {
+  const canvas = document.getElementById('uart-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // background
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(0, 0, W, H);
+
+  // Build bit sequence: [idle, start, d0..d7, (parity), stop...]
+  const bits = [];
+  bits.push({ v: 1, type: 'idle',  label: 'IDLE' });
+  bits.push({ v: 0, type: 'start', label: 'S' });
+  for (let i = 0; i < 8; i++) {
+    bits.push({ v: (byteVal >> i) & 1, type: 'data', label: 'D'+i });
+  }
+  if (hasParity) {
+    bits.push({ v: parityBit, type: 'parity', label: 'P' });
+  }
+  for (let i = 0; i < stopBits; i++) {
+    bits.push({ v: 1, type: 'stop', label: 'STOP' });
+  }
+  bits.push({ v: 1, type: 'idle', label: '' });
+
+  const N = bits.length;
+  const padL = 10, padR = 10;
+  const drawW = W - padL - padR;
+  const bitW = drawW / N;
+  const yLow = H - 20, yHigh = 18;
+  const yLabel = H - 4;
+
+  // Color map
+  const colorMap = {
+    idle:   '#4b5563',
+    start:  '#f59e0b',
+    data:   '#3b82f6',
+    parity: '#8b5cf6',
+    stop:   '#22c55e'
+  };
+
+  // Draw grid lines
+  ctx.strokeStyle = '#1e3a5f';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= N; i++) {
+    const x = padL + i * bitW;
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H - 16); ctx.stroke();
+  }
+
+  // Draw signal
+  ctx.lineWidth = 2.5;
+  let prevX = padL, prevY = bits[0].v ? yHigh : yLow;
+  ctx.beginPath();
+  ctx.moveTo(prevX, prevY);
+  bits.forEach((bit, i) => {
+    const x = padL + i * bitW;
+    const y = bit.v ? yHigh : yLow;
+    if (y !== prevY) {
+      ctx.lineTo(x, prevY);
+      ctx.lineTo(x, y);
+    }
+    ctx.lineTo(x + bitW, y);
+    prevY = y;
+  });
+  ctx.strokeStyle = '#f0fdf4';
+  ctx.stroke();
+
+  // Colored fill under signal
+  bits.forEach((bit, i) => {
+    const x = padL + i * bitW;
+    const y = bit.v ? yHigh : yLow;
+    const fillH = H - 16 - y;
+    if (fillH > 0) {
+      ctx.fillStyle = colorMap[bit.type] + '40'; // transparent
+      ctx.fillRect(x + 1, y, bitW - 2, fillH);
+    }
+  });
+
+  // Labels
+  ctx.font = 'bold 10px monospace';
+  ctx.textAlign = 'center';
+  bits.forEach((bit, i) => {
+    if (!bit.label) return;
+    const x = padL + i * bitW + bitW / 2;
+    ctx.fillStyle = colorMap[bit.type];
+    ctx.fillText(bit.label, x, yLabel);
+    // bit value label
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText(bit.v, x, bit.v ? yHigh + 12 : yLow - 4);
+  });
+
+  // Y-axis labels
+  ctx.fillStyle = '#64748b';
+  ctx.textAlign = 'left';
+  ctx.font = '10px monospace';
+  ctx.fillText('HIGH', 1, yHigh + 4);
+  ctx.fillText('LOW', 1, yLow + 4);
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 2: I2C
+// ═══════════════════════════════════════════════════════════
+
+const I2C_DEVICES = [
+  { name: 'MCU', addr: null, role: 'master', desc: 'Master' },
+  { name: 'BME280', addr: 0x76, role: 'slave', desc: 'Nhiệt/Ẩm/Áp' },
+  { name: 'DS3231', addr: 0x68, role: 'slave', desc: 'RTC' },
+  { name: 'OLED', addr: 0x3C, role: 'slave', desc: 'Màn hình' },
+  { name: 'ADS1115', addr: 0x48, role: 'slave', desc: 'ADC 16-bit' },
+];
+
+let activeSlaveIdx = null;
+
+function buildI2CBusRow() {
+  const row = document.getElementById('i2c-device-row');
+  row.innerHTML = '';
+  I2C_DEVICES.forEach((dev, i) => {
+    if (i > 0 && i < I2C_DEVICES.length) {
+      const line = document.createElement('div');
+      line.className = 'i2c-bus-line';
+      row.appendChild(line);
+    }
+    const card = document.createElement('div');
+    card.className = 'i2c-device ' + dev.role;
+    if (i === activeSlaveIdx) card.classList.add('active-slave');
+    card.innerHTML = `<strong>${dev.name}</strong><div class="addr">${dev.addr !== null ? '0x'+dev.addr.toString(16).toUpperCase() : 'Master'}</div>`;
+    if (dev.role === 'slave') {
+      card.onclick = () => { activeSlaveIdx = i; buildI2CBusRow(); updateI2CBus(); };
+    }
+    row.appendChild(card);
+  });
+}
+
+function updateI2CBus() {
+  if (activeSlaveIdx === null) {
+    document.getElementById('i2c-bus-result').innerHTML = 'Nhấp vào thiết bị slave để xem giao tiếp I2C...';
+    drawI2CBusWave(null, 'R');
+    return;
+  }
+  const dev = I2C_DEVICES[activeSlaveIdx];
+  const speed = parseInt(document.getElementById('i2c-speed').value);
+  const rw = document.getElementById('i2c-rw').value;
+  const addr = dev.addr;
+  const T_bit_ns = 1e9 / speed;
+  const T_bit_us = T_bit_ns / 1000;
+
+  // I2C frame analysis
+  // 1 addr frame = Start + 7 addr bits + R/W + ACK + (data 8b + ACK)×1 + Stop
+  // bits: Start(1 half-period) + 9 clock pulses for addr+rw+ack + 9 clock pulses for data+ack + Stop
+  const bitsPerByte = 9; // 8 bit + 1 ACK
+  const totalClocks = 1 + bitsPerByte + bitsPerByte + 1; // start + addr+rw+ack + data+ack + stop
+  const T_us = totalClocks * T_bit_us;
+
+  // Write address byte value
+  const addrByte_W = (addr << 1) | 0;
+  const addrByte_R = (addr << 1) | 1;
+  const addrByte = rw === 'W' ? addrByte_W : addrByte_R;
+
+  document.getElementById('i2c-bus-result').innerHTML = `
+Master → Slave <span class="hl">${dev.name}</span> (địa chỉ <span class="hl">0x${addr.toString(16).toUpperCase()}</span>), hoạt động: <span class="info">${rw === 'W' ? 'Ghi' : 'Đọc'}</span><br>
+Byte địa chỉ trên bus: <span class="hl">0x${addrByte.toString(16).toUpperCase().padStart(2,'0')}</span>
+= địa chỉ <span class="hl">0x${addr.toString(16).toUpperCase()}</span> (7-bit) dịch trái 1 bit + bit R/W = <span class="hl">${rw === 'W' ? '0' : '1'}</span><br>
+Tốc độ: <span class="hl">${(speed/1000).toLocaleString()} kHz</span> → T_bit = ${fmtTime(T_bit_us)}<br>
+Giao dịch 1 byte dữ liệu ≈ <span class="hl">${T_us.toFixed(2)} µs</span> (start + 9+9 clock + stop)
+  `;
+
+  drawI2CBusWave(addr, rw);
+}
+
+function drawI2CBusWave(addr, rw) {
+  const canvas = document.getElementById('i2c-bus-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(0, 0, W, H);
+
+  if (addr === null) {
+    ctx.fillStyle = '#9ca3af';
+    ctx.font = '14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Chọn slave để xem giản đồ xung', W/2, H/2);
+    return;
+  }
+
+  // Simple I2C waveform: SCL, SDA
+  const yScl = 40, ySda = 100;
+  const lineH = 28;
+  const padL = 50, padR = 20;
+  const segW = (W - padL - padR) / 22; // segments
+
+  // Labels
+  ctx.fillStyle = '#374151';
+  ctx.font = 'bold 12px monospace';
+  ctx.textAlign = 'right';
+  ctx.fillText('SCL', padL - 4, yScl + 4);
+  ctx.fillText('SDA', padL - 4, ySda + 4);
+
+  // Build segments
+  // Format: each segment is [scl_val, sda_val, label, color]
+  const addrBits = [];
+  for (let i = 6; i >= 0; i--) addrBits.push((addr >> i) & 1);
+  const rwBit = rw === 'W' ? 0 : 1;
+  const ackBit = 0; // slave pulls low
+
+  // Segments: [scl, sda, label, labelColor]
+  const segs = [
+    // Idle
+    [1, 1, '', '#6b7280'],
+    // Start (SCL high, SDA falls)
+    [1, 0, 'S', '#f59e0b'],
+    // 7 addr bits
+    ...addrBits.map((b, i) => [1, b, `A${6-i}`, '#ef4444']),
+    // R/W bit
+    [1, rwBit, 'R/W', '#8b5cf6'],
+    // ACK
+    [1, ackBit, 'ACK', '#22c55e'],
+    // 1 data bit sample (simplified)
+    [1, 1, 'D7', '#3b82f6'],
+    [1, 0, '...', '#3b82f6'],
+    // Stop (SCL high, SDA rises)
+    [1, 1, 'P', '#f59e0b'],
+    // Idle
+    [1, 1, '', '#6b7280'],
+  ];
+
+  const N = segs.length;
+  const bW = (W - padL - padR) / N;
+
+  // Draw SCL
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = '#7c3aed';
+  ctx.beginPath();
+  segs.forEach((seg, i) => {
+    const x = padL + i * bW;
+    const y = seg[0] ? yScl - lineH/2 : yScl + lineH/2;
+    if (i === 0) ctx.moveTo(x, y);
+    else {
+      const prevY = segs[i-1][0] ? yScl - lineH/2 : yScl + lineH/2;
+      if (y !== prevY) { ctx.lineTo(x, prevY); ctx.lineTo(x, y); }
+      ctx.lineTo(x + bW, y);
+    }
+  });
+  ctx.stroke();
+
+  // Draw SDA
+  ctx.strokeStyle = '#4d7c0f';
+  ctx.beginPath();
+  segs.forEach((seg, i) => {
+    const x = padL + i * bW;
+    const y = seg[1] ? ySda - lineH/2 : ySda + lineH/2;
+    if (i === 0) ctx.moveTo(x, y);
+    else {
+      const prevY = segs[i-1][1] ? ySda - lineH/2 : ySda + lineH/2;
+      if (y !== prevY) { ctx.lineTo(x, prevY); ctx.lineTo(x, y); }
+      ctx.lineTo(x + bW, y);
+    }
+  });
+  ctx.stroke();
+
+  // Labels
+  ctx.font = 'bold 9px monospace';
+  ctx.textAlign = 'center';
+  segs.forEach((seg, i) => {
+    if (!seg[2]) return;
+    const x = padL + i * bW + bW / 2;
+    ctx.fillStyle = seg[3];
+    ctx.fillText(seg[2], x, H - 4);
+  });
+
+  // Y-axis guides
+  ctx.font = '9px monospace';
+  ctx.fillStyle = '#9ca3af';
+  ctx.textAlign = 'left';
+  ctx.fillText('H', 2, yScl - lineH/2 + 4);
+  ctx.fillText('L', 2, yScl + lineH/2 + 4);
+  ctx.fillText('H', 2, ySda - lineH/2 + 4);
+  ctx.fillText('L', 2, ySda + lineH/2 + 4);
+}
+
+function drawI2CWave() {
+  const canvas = document.getElementById('i2c-wave-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(0, 0, W, H);
+
+  const addr = 0x76; // BME280
+  const data = 0xFA; // register address
+  const ySCL = 40, ySDA = 100;
+  const lineH = 26;
+  const padL = 50, padR = 20;
+
+  // Build detailed I2C frame for addr + data write
+  // S, A6..A0, W, ACK, D7..D0, ACK, P
+  const addrBits = [];
+  for (let i = 6; i >= 0; i--) addrBits.push((addr >> i) & 1);
+  const dataBits = [];
+  for (let i = 7; i >= 0; i--) dataBits.push((data >> i) & 1);
+
+  // segments: [scl, sda, label, labelColor]
+  const segs = [
+    [1,1,'IDLE','#6b7280'],
+    [1,0,'S','#fbbf24'],       // Start: SDA falls while SCL HIGH
+    // Addr byte: 7 bits
+    ...addrBits.map((b,i) => [1, b, 'A'+(6-i), '#ef4444']),
+    [1, 0, 'W', '#8b5cf6'],    // R/W = 0 (Write)
+    [1, 0, 'ACK', '#22c55e'],  // Slave ACK (pulls low)
+    // Data byte: 8 bits
+    ...dataBits.map((b,i) => [1, b, 'D'+(7-i), '#3b82f6']),
+    [1, 0, 'ACK', '#22c55e'],  // Slave ACK
+    [1, 1, 'P', '#fbbf24'],    // Stop: SDA rises while SCL HIGH
+    [1, 1, 'IDLE', '#6b7280'],
+  ];
+
+  const N = segs.length;
+  const bW = (W - padL - padR) / N;
+
+  // Labels left
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = 'bold 11px monospace';
+  ctx.textAlign = 'right';
+  ctx.fillText('SCL', padL - 4, ySCL + 4);
+  ctx.fillText('SDA', padL - 4, ySDA + 4);
+
+  function drawSignal(y, vals, color) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    vals.forEach((v, i) => {
+      const x = padL + i * bW;
+      const yv = v ? y - lineH/2 : y + lineH/2;
+      if (i === 0) { ctx.moveTo(x, yv); ctx.lineTo(x + bW, yv); return; }
+      const prevY = vals[i-1] ? y - lineH/2 : y + lineH/2;
+      if (yv !== prevY) { ctx.lineTo(x, prevY); ctx.lineTo(x, yv); }
+      ctx.lineTo(x + bW, yv);
+    });
+    ctx.stroke();
+  }
+
+  drawSignal(ySCL, segs.map(s => s[0]), '#a78bfa');
+  drawSignal(ySDA, segs.map(s => s[1]), '#4ade80');
+
+  // Background color for each segment
+  const colorFillMap = { S:'#fbbf2440', A:'#ef444430', W:'#8b5cf630', ACK:'#22c55e40', D:'#3b82f630', P:'#fbbf2440', IDLE:'transparent' };
+  segs.forEach((seg, i) => {
+    const x = padL + i * bW;
+    const lbl = seg[2];
+    const key = lbl.startsWith('A') ? 'A' : lbl.startsWith('D') ? 'D' : lbl;
+    const fill = colorFillMap[key] || 'transparent';
+    if (fill !== 'transparent') {
+      ctx.fillStyle = fill;
+      ctx.fillRect(x, 0, bW, H - 16);
+    }
+  });
+
+  // Redraw signals on top
+  drawSignal(ySCL, segs.map(s => s[0]), '#a78bfa');
+  drawSignal(ySDA, segs.map(s => s[1]), '#4ade80');
+
+  // Labels bottom
+  ctx.font = 'bold 9px monospace';
+  ctx.textAlign = 'center';
+  segs.forEach((seg, i) => {
+    if (!seg[2] || seg[2] === 'IDLE') return;
+    const x = padL + i * bW + bW / 2;
+    ctx.fillStyle = seg[3];
+    ctx.fillText(seg[2], x, H - 3);
+  });
+
+  // Horizontal guides
+  ctx.strokeStyle = '#1e3a5f';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 3]);
+  [ySCL, ySDA].forEach(y => {
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+  });
+  ctx.setLineDash([]);
+}
+
+function decodeI2CAddr() {
+  const inp = document.getElementById('i2c-addr-input').value.trim();
+  let addr;
+  if (inp.toLowerCase().startsWith('0x')) {
+    addr = parseInt(inp.slice(2), 16);
+  } else {
+    addr = parseInt(inp, 10);
+  }
+
+  const box = document.getElementById('i2c-addr-result');
+  if (isNaN(addr) || addr < 0 || addr > 127) {
+    box.innerHTML = '<span class="warn">Địa chỉ không hợp lệ. Nhập 0–127 (decimal) hoặc 0x00–0x7F (hex).</span>';
+    return;
+  }
+
+  const addrBin = addr.toString(2).padStart(7, '0');
+  const writeFrame = (addr << 1) | 0;
+  const readFrame  = (addr << 1) | 1;
+
+  // Known devices
+  const knownDevices = {
+    0x3C: 'OLED SSD1306', 0x3D: 'OLED SSD1306 (alt)',
+    0x48: 'ADS1115 / TMP102 / PCF8574', 0x49: 'ADS1115 (A0=VCC)',
+    0x4A: 'ADS1115 (A0=SDA)', 0x4B: 'ADS1115 (A0=SCL)',
+    0x57: 'AT24C EEPROM', 0x50: 'AT24C EEPROM (A0-A2=GND)',
+    0x68: 'MPU6050 (AD0=GND) / DS3231 RTC', 0x69: 'MPU6050 (AD0=VCC)',
+    0x76: 'BME280 (SDO=GND) / BMP280', 0x77: 'BME280 (SDO=VCC) / BMP280',
+    0x40: 'INA219 / HTU21D / Si7021',
+    0x1D: 'ADXL345 (ALT=GND)', 0x53: 'ADXL345 (ALT=VCC)',
+  };
+  const known = knownDevices[addr] || 'Không có trong danh sách phổ biến';
+
+  box.innerHTML = `
+Địa chỉ slave: <span class="hl">0x${addr.toString(16).toUpperCase().padStart(2,'0')}</span>
+= <span class="hl">${addr}</span> (decimal)
+= <span class="hl">0b${addrBin}</span> (7-bit binary)<br><br>
+Byte trên bus khi <strong>GHI (Write)</strong>: <span class="hl">0x${writeFrame.toString(16).toUpperCase().padStart(2,'0')}</span>
+= địa chỉ dịch trái 1 bit [${addrBin}] + bit W=0 → [${addrBin}0]<br>
+Byte trên bus khi <strong>ĐỌC (Read)</strong>: <span class="hl">0x${readFrame.toString(16).toUpperCase().padStart(2,'0')}</span>
+= địa chỉ dịch trái 1 bit [${addrBin}] + bit R=1 → [${addrBin}1]<br><br>
+Thiết bị phổ biến dùng địa chỉ này: <span class="info">${known}</span>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 3: SPI
+// ═══════════════════════════════════════════════════════════
+
+let spiStep = 0;
+let mosiVal = 0xA5;
+let misoVal = 0x3C;
+let spiRunning = false;
+
+function initSPIShift() {
+  const mosi = hexToByte(document.getElementById('spi-mosi-input').value);
+  const miso = hexToByte(document.getElementById('spi-miso-input').value);
+  mosiVal = mosi !== null ? mosi : 0xA5;
+  misoVal = miso !== null ? miso : 0x3C;
+  spiStep = 0;
+  renderSPIBits();
+  document.getElementById('spi-shift-result').innerHTML = 'Nhấn "Dịch 1 bit" để bắt đầu. MSB đi trước (bit 7 → bit 0).';
+}
+
+function renderSPIBits() {
+  const mosiContainer = document.getElementById('mosi-bits');
+  const misoContainer = document.getElementById('miso-bits');
+  const mosiLabels = document.getElementById('mosi-labels');
+  const misoLabels = document.getElementById('miso-labels');
+  mosiContainer.innerHTML = '';
+  misoContainer.innerHTML = '';
+  mosiLabels.innerHTML = '';
+  misoLabels.innerHTML = '';
+
+  for (let i = 7; i >= 0; i--) {
+    const mosiB = (mosiVal >> i) & 1;
+    const misoB = (misoVal >> i) & 1;
+    const bitIdx = 7 - i; // 0 = MSB first
+
+    const makeDiv = (v, sent) => {
+      const d = document.createElement('div');
+      d.className = 'shift-bit val' + v;
+      d.textContent = v;
+      if (sent) {
+        d.style.opacity = '0.3';
+        d.style.transform = 'scale(0.85)';
+      }
+      if (bitIdx === spiStep && spiStep < 8) {
+        d.classList.add('active');
+        d.style.opacity = '1';
+        d.style.transform = 'scale(1.1)';
+      }
+      return d;
+    };
+
+    const makeLabel = (text) => {
+      const d = document.createElement('div');
+      d.className = 'shift-label';
+      d.textContent = text;
+      return d;
+    };
+
+    const mosiSent = bitIdx < spiStep;
+    const misoSent = bitIdx < spiStep;
+
+    mosiContainer.appendChild(makeDiv(mosiB, mosiSent));
+    misoContainer.appendChild(makeDiv(misoB, misoSent));
+    mosiLabels.appendChild(makeLabel('D' + i));
+    misoLabels.appendChild(makeLabel('D' + i));
+  }
+}
+
+function stepSPI() {
+  if (spiStep >= 8) {
+    document.getElementById('spi-shift-result').innerHTML =
+      `Hoàn tất 8 bit! MOSI đã gửi: <span class="hl">0x${mosiVal.toString(16).toUpperCase().padStart(2,'0')}</span> · MISO nhận: <span class="hl">0x${misoVal.toString(16).toUpperCase().padStart(2,'0')}</span>. Nhấn Reset để bắt đầu lại.`;
+    return;
+  }
+
+  const clock = parseInt(document.getElementById('spi-clock-sel').value);
+  const T_ns = 1000 / clock; // ns per bit
+  const bitPos = 7 - spiStep; // MSB first
+  const mosiB = (mosiVal >> bitPos) & 1;
+  const misoB = (misoVal >> bitPos) & 1;
+
+  spiStep++;
+  renderSPIBits();
+
+  document.getElementById('spi-shift-result').innerHTML =
+    `Clock ${spiStep}/8 (T_bit = ${T_ns.toFixed(1)} ns @ ${clock} MHz)<br>` +
+    `MOSI D${bitPos} = <span class="${mosiB ? 'hl' : 'info'}">${mosiB}</span> phát ra · MISO D${bitPos} = <span class="${misoB ? 'hl' : 'info'}">${misoB}</span> nhận về<br>` +
+    `MOSI đã gửi ${spiStep} bit / 8: <span class="hl">${mosiVal.toString(2).padStart(8,'0').slice(0, spiStep)}_${'_'.repeat(8 - spiStep)}</span>`;
+}
+
+function runSPI() {
+  if (spiRunning) return;
+  spiRunning = true;
+  initSPIShift();
+  let i = 0;
+  const interval = setInterval(() => {
+    if (i >= 8) {
+      clearInterval(interval);
+      spiRunning = false;
+      document.getElementById('spi-shift-result').innerHTML =
+        `Auto hoàn tất! MOSI gửi: <span class="hl">0x${mosiVal.toString(16).toUpperCase().padStart(2,'0')}</span> (${mosiVal.toString(2).padStart(8,'0')}) · MISO nhận: <span class="hl">0x${misoVal.toString(16).toUpperCase().padStart(2,'0')}</span> (${misoVal.toString(2).padStart(8,'0')})`;
+      return;
+    }
+    stepSPI();
+    i++;
+  }, 350);
+}
+
+function updateSPIWire() {
+  const n = Math.max(1, Math.min(8, parseInt(document.getElementById('spi-n-slaves').value) || 3));
+  const canvas = document.getElementById('spi-wire-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(0, 0, W, H);
+
+  const mcuX = 60, mcuY = 30, mcuW = 80, mcuH = H - 60;
+  // Draw MCU
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(mcuX, mcuY, mcuW, mcuH);
+  ctx.fillStyle = 'white';
+  ctx.font = 'bold 12px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('MCU', mcuX + mcuW/2, mcuY + mcuH/2 - 8);
+  ctx.font = '10px monospace';
+  ctx.fillText('Master', mcuX + mcuW/2, mcuY + mcuH/2 + 8);
+
+  // Shared bus lines from MCU
+  const busY = {
+    MOSI: mcuY + 40,
+    MISO: mcuY + 80,
+    SCLK: mcuY + 120,
+  };
+  const busColors = { MOSI: '#dc2626', MISO: '#2563eb', SCLK: '#7c3aed' };
+  const slaveW = 70, slaveH = 60;
+  const slaveStartX = mcuX + mcuW + 40;
+  const slaveSpacing = Math.min(90, (W - slaveStartX - slaveW - 10) / Math.max(1, n - 1));
+
+  // Draw shared bus (horizontal lines to end of last slave)
+  const lastSlaveX = slaveStartX + (n - 1) * slaveSpacing;
+  Object.entries(busY).forEach(([name, y]) => {
+    ctx.strokeStyle = busColors[name];
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(mcuX + mcuW, y);
+    ctx.lineTo(lastSlaveX + slaveW/2, y);
+    ctx.stroke();
+    // Label
+    ctx.fillStyle = busColors[name];
+    ctx.font = 'bold 10px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(name, mcuX + mcuW + 2, y - 2);
+  });
+
+  // CS lines
+  const csStartY = mcuY + mcuH - 20;
+  for (let i = 0; i < n; i++) {
+    const sx = slaveStartX + i * slaveSpacing;
+    const sy = mcuY + mcuH/2 + 30;
+    const csY = sy + 20 + i * 0;
+    ctx.strokeStyle = '#d97706';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 3]);
+    ctx.beginPath();
+    ctx.moveTo(mcuX + mcuW, mcuY + mcuH - 10 - i * 12);
+    ctx.lineTo(sx + slaveW/2, mcuY + mcuH - 10 - i * 12);
+    ctx.lineTo(sx + slaveW/2, mcuY + slaveH + 8);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // CS label
+    ctx.fillStyle = '#d97706';
+    ctx.font = 'bold 9px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('CS'+(i+1), sx + slaveW/2, mcuY + slaveH + 20);
+  }
+
+  // Draw slaves
+  for (let i = 0; i < n; i++) {
+    const sx = slaveStartX + i * slaveSpacing;
+    const sy = mcuY;
+    ctx.fillStyle = '#eff6ff';
+    ctx.strokeStyle = '#1d4ed8';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(sx, sy, slaveW, slaveH, 6);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#1e293b';
+    ctx.font = 'bold 11px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('Slave', sx + slaveW/2, sy + slaveH/2 - 4);
+    ctx.font = '10px monospace';
+    ctx.fillText(String(i + 1), sx + slaveW/2, sy + slaveH/2 + 12);
+
+    // Vertical drops to bus
+    Object.entries(busY).forEach(([name, y]) => {
+      ctx.strokeStyle = busColors[name];
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(sx + slaveW/2, sy + slaveH);
+      ctx.lineTo(sx + slaveW/2, y);
+      ctx.stroke();
+      ctx.fillStyle = busColors[name];
+      ctx.beginPath();
+      ctx.arc(sx + slaveW/2, y, 3, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  }
+
+  // Wire count result
+  const mcu_pins = 3 + n; // MOSI+MISO+SCLK + n×CS
+  const wire_count = 3 + n; // same as MCU pins for single master
+  document.getElementById('spi-wire-result').innerHTML =
+    `<strong>${n} slave SPI</strong> → Chân MCU cần: <span class="hl">3</span> (MOSI+MISO+SCLK) + <span class="hl">${n}</span> (CS) = <span class="hl">${mcu_pins} chân</span><br>` +
+    `Tổng dây: MOSI+MISO+SCLK dùng chung + ${n} dây CS riêng = <span class="hl">${wire_count} dây</span><br>` +
+    `So sánh: I2C dùng ${n} slave chỉ cần <span class="info">2 chân</span>; SPI cần <span class="hl">${mcu_pins} chân</span> nhưng nhanh hơn nhiều.`;
+}
+
+function drawSPIWave() {
+  const canvas = document.getElementById('spi-wave-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(0, 0, W, H);
+
+  const data = 0xA5; // 10100101
+  const bits = [];
+  for (let i = 7; i >= 0; i--) bits.push((data >> i) & 1);
+
+  // 4 signals: CS, SCLK, MOSI, MISO (0xA5 → 0x3C = 00111100)
+  const misoData = 0x3C;
+  const misoB = [];
+  for (let i = 7; i >= 0; i--) misoB.push((misoData >> i) & 1);
+
+  const signals = ['CS', 'SCLK', 'MOSI', 'MISO'];
+  const colors  = ['#d97706', '#a78bfa', '#dc2626', '#2563eb'];
+  const yPos    = [30, 75, 120, 165];
+  const lineH   = 18;
+  const padL    = 55, padR = 20;
+  const N       = 12; // idle + CS_fall + 8 clocks + CS_rise + idle
+
+  function getBitSeq(sig) {
+    // Returns array of [value, label] for each segment
+    if (sig === 'CS')   return [[1,''],[0,'S'],[0,''],[0,''],[0,''],[0,''],[0,''],[0,''],[0,''],[0,''],[1,'E'],[1,'']];
+    if (sig === 'SCLK') return [[1,''],[1,''],[0,'1'],[1,''],[0,'2'],[1,''],[0,'3'],[1,''],[0,'4'],[1,''],[1,''],[1,'']].slice(0,12);
+    if (sig === 'MOSI') {
+      const seq = [[0,''],[0,'']];
+      bits.forEach((b,i) => seq.push([b,'D'+(7-i)]));
+      seq.push([0,''], [0,'']);
+      return seq;
+    }
+    if (sig === 'MISO') {
+      const seq = [[0,''],[0,'']];
+      misoB.forEach((b,i) => seq.push([b,'D'+(7-i)]));
+      seq.push([0,''], [0,'']);
+      return seq;
+    }
+    return Array(12).fill([0,'']);
+  }
+
+  const bW = (W - padL - padR) / N;
+
+  signals.forEach((sig, si) => {
+    const y = yPos[si];
+    const col = colors[si];
+    const seq = getBitSeq(sig);
+
+    // Label
+    ctx.fillStyle = col;
+    ctx.font = 'bold 11px monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(sig, padL - 4, y + 4);
+
+    // Signal
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    seq.forEach((s, i) => {
+      const x = padL + i * bW;
+      const yv = s[0] ? y - lineH : y + lineH;
+      if (i === 0) { ctx.moveTo(x, yv); ctx.lineTo(x + bW, yv); return; }
+      const prevY = seq[i-1][0] ? y - lineH : y + lineH;
+      if (yv !== prevY) { ctx.lineTo(x, prevY); ctx.lineTo(x, yv); }
+      ctx.lineTo(x + bW, yv);
+    });
+    ctx.stroke();
+
+    // Labels
+    ctx.font = '9px monospace';
+    ctx.textAlign = 'center';
+    seq.forEach((s, i) => {
+      if (!s[1]) return;
+      const x = padL + i * bW + bW/2;
+      ctx.fillStyle = col;
+      ctx.fillText(s[1], x, H - 4);
+    });
+  });
+
+  // Horizontal dashed guides
+  ctx.strokeStyle = '#1e3a5f';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([2, 4]);
+  yPos.forEach(y => {
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+  });
+  ctx.setLineDash([]);
+
+  // Bit boundary lines
+  ctx.strokeStyle = '#334155';
+  ctx.lineWidth = 1;
+  for (let i = 2; i <= 10; i++) {
+    const x = padL + i * bW;
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H - 16); ctx.stroke();
+  }
+
+  // Legend top-right
+  ctx.font = '10px monospace';
+  ctx.fillStyle = '#64748b';
+  ctx.textAlign = 'right';
+  ctx.fillText(`0xA5 = ${data.toString(2).padStart(8,'0')}`, W - padR, 14);
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 4: Comparison / Scenario / Wire count
+// ═══════════════════════════════════════════════════════════
+
+const SCENARIOS = [
+  {
+    title: 'Debug qua Serial Monitor',
+    desc: 'In log ra máy tính để kiểm tra chương trình',
+    proto: 'uart',
+    reason: 'UART là cầu nối trực tiếp MCU ↔ máy tính. Chip USB-UART (CH340, CP2102) convert UART thành cổng COM/ttyUSB. Tốc độ 115200 bps đủ dùng cho log text.',
+  },
+  {
+    title: 'Đọc cảm biến nhiệt độ BME280',
+    desc: 'Đọc nhiệt độ + độ ẩm + áp suất mỗi giây',
+    proto: 'i2c',
+    reason: 'BME280 hỗ trợ cả I2C và SPI. Ở 1 Hz đọc, I2C 400 kHz dư thừa. Ưu tiên I2C để tiết kiệm chân MCU, đặc biệt khi đã có cảm biến khác trên cùng bus.',
+  },
+  {
+    title: 'Hiển thị lên màn hình TFT 320×240',
+    desc: 'Update màn hình 30 FPS, 2 byte/pixel',
+    proto: 'spi',
+    reason: 'Cần băng thông lớn: 320×240×2 byte × 30 fps = 4.6 MB/s = 36.9 Mbps. I2C max 3.4 MHz không đủ. SPI ≥ 40 MHz mới đạt 30 FPS. Chip ILI9341 hỗ trợ SPI 40 MHz write.',
+  },
+  {
+    title: 'Đọc vị trí từ module GPS',
+    desc: 'Nhận chuỗi NMEA $GPGLL từ GPS NEO-6M',
+    proto: 'uart',
+    reason: 'GPS NEO-6M chỉ có cổng UART, gửi chuỗi NMEA ở 9600 bps mặc định. Không có lựa chọn khác — phải dùng UART.',
+  },
+  {
+    title: 'Lưu dữ liệu vào thẻ SD',
+    desc: 'Ghi file log 100 KB vào thẻ micro-SD',
+    proto: 'spi',
+    reason: 'Thẻ SD dùng giao thức SPI (mode đơn giản) hoặc SDIO (mode nhanh). Thư viện SD Arduino dùng SPI. Cần tốc độ cao vì ghi 100 KB với SPI 10 MHz chỉ mất ~80 ms.',
+  },
+  {
+    title: '5 cảm biến I2C khác nhau',
+    desc: 'BME280 + DS3231 + OLED + MPU6050 + ADS1115 cùng lúc',
+    proto: 'i2c',
+    reason: 'Tất cả đều hỗ trợ I2C với địa chỉ khác nhau — dùng chung 2 dây SDA+SCL. Nếu dùng SPI cho 5 thiết bị cần 3+5=8 chân MCU; I2C chỉ cần 2 chân.',
+  },
+  {
+    title: 'Giao tiếp MCU ↔ ESP32 (WiFi module)',
+    desc: 'ESP32 nhận lệnh từ MCU và gửi dữ liệu lên cloud',
+    proto: 'uart',
+    reason: 'Giao tiếp MCU ↔ ESP32 qua UART là phổ biến nhất. ESP32 có thể chạy AT commands hoặc firmware tùy chỉnh, nhận/gửi qua Serial (UART). SPI cũng khả dụng nhưng phức tạp hơn.',
+  },
+  {
+    title: 'ADC ngoài 12-bit tốc độ cao',
+    desc: 'Đọc ADC MCP3208 ở 100 kSPS',
+    proto: 'spi',
+    reason: 'MCP3208 hỗ trợ SPI đến 2 MHz. 100 kSPS × 12 bit = 1.2 Mbps → cần SPI ≥ 1.2 MHz. I2C max 400 kHz không đủ. SPI là lựa chọn duy nhất cho ADC tốc độ cao.',
+  },
+];
+
+function buildScenarios() {
+  const grid = document.getElementById('scenario-grid');
+  SCENARIOS.forEach((sc, i) => {
+    const card = document.createElement('div');
+    card.className = 'scenario-card';
+    card.innerHTML = `<div class="sc-title">${sc.title}</div><div class="sc-desc">${sc.desc}</div>`;
+    card.onclick = () => showSuggestion(sc, card);
+    grid.appendChild(card);
+  });
+}
+
+function showSuggestion(sc, clickedCard) {
+  document.querySelectorAll('.scenario-card').forEach(c => c.classList.remove('selected'));
+  clickedCard.classList.add('selected');
+
+  const protoName = { uart: 'UART', i2c: 'I2C', spi: 'SPI' }[sc.proto];
+  const protoClass = { uart: 'suggest-uart', i2c: 'suggest-i2c', spi: 'suggest-spi' }[sc.proto];
+
+  const box = document.getElementById('suggest-box');
+  box.style.display = 'block';
+  box.innerHTML = `
+    <span class="proto ${protoClass}">${protoName}</span>
+    <strong>${sc.title}</strong><br>
+    ${sc.reason}
+  `;
+}
+
+function updateWireCalc() {
+  const n = Math.max(1, Math.min(16, parseInt(document.getElementById('wire-n').value) || 4));
+  const i2c = 2;
+  const spi = 3 + n;
+  const uart = 2 * n;
+
+  const canvas = document.getElementById('wire-chart-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(0, 0, W, H);
+
+  // Bar chart
+  const vals = [i2c, spi, uart];
+  const labels = ['I2C', 'SPI', 'UART'];
+  const colors = ['#4d7c0f', '#1d4ed8', '#b45309'];
+  const maxVal = Math.max(...vals, 1);
+  const barW = 80;
+  const gap = 60;
+  const totalW = vals.length * (barW + gap) - gap;
+  const startX = (W - totalW) / 2;
+  const chartH = H - 80;
+  const padT = 20;
+
+  vals.forEach((v, i) => {
+    const x = startX + i * (barW + gap);
+    const barH = (v / maxVal) * chartH;
+    const y = padT + chartH - barH;
+
+    ctx.fillStyle = colors[i];
+    ctx.beginPath();
+    ctx.roundRect(x, y, barW, barH, 4);
+    ctx.fill();
+
+    // Value label
+    ctx.fillStyle = colors[i];
+    ctx.font = 'bold 16px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(v, x + barW/2, y - 6);
+    ctx.fillText('chân', x + barW/2, y + 16 > y + barH - 4 ? y - 20 : y + barH - 4);
+
+    // Bottom label
+    ctx.fillStyle = '#1a202c';
+    ctx.font = 'bold 13px sans-serif';
+    ctx.fillText(labels[i], x + barW/2, H - 28);
+    ctx.font = '11px sans-serif';
+    ctx.fillStyle = '#6b7280';
+    ctx.fillText(i === 0 ? '2 dây' : i === 1 ? `3+${n}` : `2×${n}`, x + barW/2, H - 12);
+  });
+
+  document.getElementById('wire-calc-result').innerHTML =
+    `Với <span class="hl">${n} thiết bị ngoại vi</span>:<br>` +
+    `<span class="i2c-col">I2C</span>: <span class="hl">2 chân MCU</span> (SDA + SCL dùng chung) — tiết kiệm nhất<br>` +
+    `<span class="spi-col">SPI</span>: <span class="hl">${spi} chân MCU</span> (3 dùng chung + ${n} CS riêng) — nhanh nhất<br>` +
+    `<span class="uart-col">UART (${n} kênh riêng)</span>: <span class="hl">${uart} chân MCU</span> — tốn nhất`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+
+// Init all modules
+updateUART();
+buildI2CBusRow();
+updateI2CBus();
+drawI2CWave();
+decodeI2CAddr();
+initSPIShift();
+updateSPIWire();
+drawSPIWave();
+buildScenarios();
+updateWireCalc();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

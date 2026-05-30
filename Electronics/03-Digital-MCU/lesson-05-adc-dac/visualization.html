@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — ADC/DAC &amp; Lấy mẫu</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #bbf7d0; }
+  h3 { color: #365314; margin-top: 20px; }
+
+  .card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+    margin: 16px 0;
+  }
+
+  .row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 8px 0;
+  }
+
+  label { font-weight: 600; }
+
+  input[type="range"] {
+    width: 180px;
+    max-width: 100%;
+    accent-color: #4d7c0f;
+  }
+
+  input[type="number"], input[type="text"] {
+    padding: 7px 10px;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: monospace;
+    width: 110px;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  select {
+    padding: 7px 8px;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    font-size: 14px;
+    background: white;
+  }
+
+  .val-badge {
+    display: inline-block;
+    min-width: 80px;
+    padding: 3px 10px;
+    background: #ecfccb;
+    border-radius: 5px;
+    font-family: monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: #365314;
+  }
+
+  button {
+    background: #4d7c0f;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  button:hover { background: #3f6212; }
+  button.muted { background: #94a3b8; }
+  button.muted:hover { background: #64748b; }
+  button.muted.active { background: #4d7c0f; }
+
+  .stat {
+    display: inline-block;
+    background: #ecfccb;
+    padding: 6px 12px;
+    border-radius: 6px;
+    margin: 3px 6px 3px 0;
+    font-family: monospace;
+    font-size: 14px;
+  }
+  .stat strong { color: #365314; }
+
+  .result {
+    padding: 14px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  .result code {
+    background: #ecfccb;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 13px;
+  }
+
+  .warn-box {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #7c2d12;
+    margin-top: 10px;
+  }
+
+  .formula {
+    font-family: monospace;
+    background: #1a202c;
+    color: #a8e063;
+    padding: 10px 16px;
+    border-radius: 6px;
+    margin: 8px 0;
+    font-size: 14px;
+    overflow-x: auto;
+  }
+
+  /* SVG canvas */
+  .svg-wrap { overflow-x: auto; }
+  svg.wave-canvas {
+    display: block;
+    margin: 12px auto;
+    background: #0f172a;
+    border-radius: 8px;
+  }
+  svg.quant-canvas {
+    display: block;
+    margin: 12px auto;
+    background: #0f172a;
+    border-radius: 8px;
+  }
+
+  /* ADC/DAC calculator */
+  .calc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 600px) {
+    .calc-grid { grid-template-columns: 1fr; }
+  }
+
+  .calc-block {
+    background: #f8fafc;
+    border-radius: 6px;
+    padding: 14px;
+    border: 1px solid #e2e8f0;
+  }
+  .calc-block h3 { margin-top: 0; margin-bottom: 10px; }
+
+  table.info-table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  table.info-table th {
+    background: #4d7c0f;
+    color: white;
+    padding: 8px 12px;
+    text-align: left;
+  }
+  table.info-table td {
+    padding: 7px 12px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  table.info-table tr:nth-child(even) td { background: #f7fef0; }
+
+  /* Alias indicator */
+  .alias-indicator {
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 8px;
+    display: inline-block;
+  }
+  .alias-ok   { background: #dcfce7; color: #14532d; }
+  .alias-warn { background: #fef3c7; color: #78350f; }
+  .alias-bad  { background: #fee2e2; color: #7f1d1d; }
+
+  /* Staircase canvas */
+  svg.stair-canvas {
+    display: block;
+    margin: 12px auto;
+    background: #0f172a;
+    border-radius: 8px;
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Electronics — Digital &amp; MCU</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-registers-counters/visualization.html">← L4: Thanh ghi &amp; bộ đếm</a>
+  <span class="sep">·</span>
+  <span class="current">L5: ADC/DAC &amp; lấy mẫu</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-microcontroller-gpio/visualization.html">L6: Vi điều khiển &amp; GPIO →</a>
+</nav>
+
+<main>
+<h1>Lesson 05 — ADC/DAC &amp; Lấy mẫu</h1>
+<p>Ba công cụ tương tác: (1) mô phỏng lấy mẫu + aliasing, (2) mô phỏng lượng tử hóa + bậc thang, (3) máy tính ADC/DAC.</p>
+
+<!-- ========== MODULE 1: Sampling & Aliasing ========== -->
+<h2>1. Lấy mẫu (Sampling) &amp; Định lý Nyquist</h2>
+<div class="card">
+  <p>Kéo các slider để thay đổi tần số tín hiệu và tần số lấy mẫu. Quan sát khi nào aliasing xảy ra.</p>
+
+  <div class="row">
+    <label>Tần số tín hiệu f_signal:</label>
+    <input type="range" id="fSignal" min="1" max="500" step="1" value="100" oninput="drawSampling()">
+    <span class="val-badge" id="fSignal_lbl">100 Hz</span>
+  </div>
+  <div class="row">
+    <label>Tần số lấy mẫu f_s:</label>
+    <input type="range" id="fSample" min="50" max="2000" step="10" value="800" oninput="drawSampling()">
+    <span class="val-badge" id="fSample_lbl">800 Hz</span>
+  </div>
+  <div class="row">
+    <button class="muted" onclick="setSampPreset('good')">Ví dụ tốt (f_s &gt; 2·f)</button>
+    <button class="muted" onclick="setSampPreset('edge')">Ranh giới Nyquist</button>
+    <button class="muted" onclick="setSampPreset('alias')">Aliasing rõ ràng</button>
+    <button class="muted" onclick="setSampPreset('audio')">Audio CD (44.1k / 20k)</button>
+  </div>
+
+  <div id="nyquist_status" class="alias-indicator alias-ok" style="margin:8px 0">Đang tính...</div>
+
+  <div class="svg-wrap">
+    <svg class="wave-canvas" id="sampSvg" width="640" height="280" viewBox="0 0 640 280"></svg>
+  </div>
+  <div class="result" id="sampResult"></div>
+
+  <div class="warn-box" id="aliasExplain" style="display:none"></div>
+</div>
+
+<!-- ========== MODULE 2: Quantization ========== -->
+<h2>2. Lượng tử hóa (Quantization) &amp; Sai số</h2>
+<div class="card">
+  <p>Thay đổi số bit để xem đường bậc thang số hóa chồng lên sóng liên tục. Sai số lượng tử thu hẹp khi tăng bit.</p>
+
+  <div class="row">
+    <label>Số bit n:</label>
+    <input type="range" id="nBits" min="1" max="8" step="1" value="4" oninput="drawQuantization()">
+    <span class="val-badge" id="nBits_lbl">4 bit</span>
+  </div>
+  <div class="row">
+    <label>V_ref (V):</label>
+    <input type="range" id="vRef" min="1" max="10" step="0.5" value="5" oninput="drawQuantization()">
+    <span class="val-badge" id="vRef_lbl">5.0 V</span>
+  </div>
+  <div class="row">
+    <label>Tần số tín hiệu:</label>
+    <input type="range" id="qFreq" min="1" max="10" step="1" value="3" oninput="drawQuantization()">
+    <span class="val-badge" id="qFreq_lbl">3 Hz</span>
+  </div>
+
+  <div class="svg-wrap">
+    <svg class="stair-canvas" id="quantSvg" width="640" height="260" viewBox="0 0 640 260"></svg>
+  </div>
+  <div class="result" id="quantResult"></div>
+</div>
+
+<!-- ========== MODULE 3: ADC/DAC Calculator ========== -->
+<h2>3. Máy tính ADC / DAC</h2>
+<div class="card">
+  <div class="calc-grid">
+    <!-- ADC -->
+    <div class="calc-block">
+      <h3>ADC — Tương tự → Số</h3>
+      <div class="row" style="flex-direction:column; align-items:flex-start; gap:8px">
+        <div class="row">
+          <label style="min-width:90px">V_in (V):</label>
+          <input type="number" id="adc_vin" step="0.01" value="2.50" oninput="calcADC()">
+        </div>
+        <div class="row">
+          <label style="min-width:90px">V_ref (V):</label>
+          <input type="number" id="adc_vref" step="0.1" value="5.0" oninput="calcADC()">
+        </div>
+        <div class="row">
+          <label style="min-width:90px">Số bit:</label>
+          <select id="adc_bits" onchange="calcADC()">
+            <option value="8">8-bit (Arduino 5V)</option>
+            <option value="10" selected>10-bit (Arduino Uno)</option>
+            <option value="12">12-bit (STM32/ESP32)</option>
+            <option value="16">16-bit (ADS1115)</option>
+          </select>
+        </div>
+      </div>
+      <div class="result" id="adc_result" style="margin-top:10px"></div>
+    </div>
+
+    <!-- DAC -->
+    <div class="calc-block">
+      <h3>DAC — Số → Tương tự</h3>
+      <div class="row" style="flex-direction:column; align-items:flex-start; gap:8px">
+        <div class="row">
+          <label style="min-width:90px">Code:</label>
+          <input type="number" id="dac_code" step="1" value="512" min="0" oninput="calcDAC()">
+        </div>
+        <div class="row">
+          <label style="min-width:90px">V_ref (V):</label>
+          <input type="number" id="dac_vref" step="0.1" value="5.0" oninput="calcDAC()">
+        </div>
+        <div class="row">
+          <label style="min-width:90px">Số bit:</label>
+          <select id="dac_bits" onchange="calcDAC()">
+            <option value="8">8-bit</option>
+            <option value="10" selected>10-bit</option>
+            <option value="12">12-bit</option>
+            <option value="16">16-bit</option>
+          </select>
+        </div>
+      </div>
+      <div class="result" id="dac_result" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+  <!-- Quick presets -->
+  <div style="margin-top:16px">
+    <strong>Ví dụ nhanh:</strong>
+    <div class="row" style="flex-wrap:wrap; gap:6px; margin-top:6px">
+      <button class="muted" onclick="setCalcPreset('uno_mid')">Arduino Uno — V_in=2.5V</button>
+      <button class="muted" onclick="setCalcPreset('stm_1v')">STM32 12-bit — V_in=1.0V</button>
+      <button class="muted" onclick="setCalcPreset('ads16')">ADS1115 16-bit — V_in=3.75V</button>
+      <button class="muted" onclick="setCalcPreset('uno_raw')">Arduino raw=614</button>
+    </div>
+  </div>
+
+  <!-- Resolution table -->
+  <h3 style="margin-top:20px">Bảng so sánh độ phân giải theo bit</h3>
+  <table class="info-table" id="resTable"></table>
+</div>
+
+</main>
+
+<script>
+// ============================================================
+// HELPERS
+// ============================================================
+const NS = 'http://www.w3.org/2000/svg';
+
+function svgEl(tag, attrs) {
+  const el = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  return el;
+}
+
+function fmtFreq(f) {
+  if (f >= 1e6) return (f / 1e6).toFixed(2) + ' MHz';
+  if (f >= 1e3) return (f / 1e3).toFixed(2) + ' kHz';
+  return f.toFixed(0) + ' Hz';
+}
+
+function fmtV(v) {
+  if (Math.abs(v) < 0.001) return (v * 1000).toFixed(3) + ' µV';
+  if (Math.abs(v) < 1)    return (v * 1000).toFixed(3) + ' mV';
+  return v.toFixed(4) + ' V';
+}
+
+// ============================================================
+// MODULE 1 — Sampling & Aliasing
+// ============================================================
+const S_W = 640, S_H = 280, S_PAD = { t: 20, b: 40, l: 50, r: 20 };
+const S_PLOT_W = S_W - S_PAD.l - S_PAD.r;
+const S_PLOT_H = S_H - S_PAD.t - S_PAD.b;
+
+function setSampPreset(name) {
+  const presets = {
+    good:  { sig: 100, fs: 800 },
+    edge:  { sig: 100, fs: 210 },
+    alias: { sig: 400, fs: 500 },
+    audio: { sig: 400, fs: 2000 }  // scaled: 400~=20kHz, 2000~=44.1kHz (ratio)
+  };
+  const p = presets[name];
+  document.getElementById('fSignal').value = p.sig;
+  document.getElementById('fSample').value = p.fs;
+  drawSampling();
+}
+
+function drawSampling() {
+  const fSig = parseFloat(document.getElementById('fSignal').value);
+  const fS   = parseFloat(document.getElementById('fSample').value);
+  document.getElementById('fSignal_lbl').textContent = fSig + ' Hz';
+  document.getElementById('fSample_lbl').textContent = fS  + ' Hz';
+
+  const svg = document.getElementById('sampSvg');
+  svg.innerHTML = '';
+
+  const CYCLES = 3;
+  const T_SIG = 1 / fSig;
+  const T_WIN = CYCLES * T_SIG;
+  const STEPS = 600;
+
+  // Axes helpers
+  const cx = x => S_PAD.l + (x / T_WIN) * S_PLOT_W;
+  const cy = y => S_PAD.t + S_PLOT_H / 2 - y * (S_PLOT_H / 2 - 8);
+
+  // Grid lines (time)
+  for (let i = 0; i <= CYCLES; i++) {
+    const gx = cx(i * T_SIG);
+    svg.appendChild(svgEl('line', { x1: gx, y1: S_PAD.t, x2: gx, y2: S_PAD.t + S_PLOT_H,
+      stroke: '#1e293b', 'stroke-width': 1 }));
+    const lbl = svgEl('text', { x: gx, y: S_H - 6, 'text-anchor': 'middle',
+      fill: '#94a3b8', 'font-size': 10 });
+    lbl.textContent = (i === 0 ? '0' : i + 'T');
+    svg.appendChild(lbl);
+  }
+  // Zero line
+  svg.appendChild(svgEl('line', { x1: S_PAD.l, y1: cy(0), x2: S_PAD.l + S_PLOT_W, y2: cy(0),
+    stroke: '#475569', 'stroke-width': 1.5 }));
+  // ±1 labels
+  for (const [v, lbl] of [[1, '+1'], [-1, '-1'], [0, '0']]) {
+    const t = svgEl('text', { x: S_PAD.l - 6, y: cy(v) + 4, 'text-anchor': 'end',
+      fill: '#94a3b8', 'font-size': 10 });
+    t.textContent = lbl;
+    svg.appendChild(t);
+  }
+  // Title
+  const titleEl = svgEl('text', { x: S_PAD.l + 4, y: S_PAD.t + 14,
+    fill: '#94a3b8', 'font-size': 11 });
+  titleEl.textContent = 'biên độ (chuẩn hóa)';
+  svg.appendChild(titleEl);
+
+  // Draw analog signal (green)
+  const pts = [];
+  for (let i = 0; i <= STEPS; i++) {
+    const t = (i / STEPS) * T_WIN;
+    const v = Math.sin(2 * Math.PI * fSig * t);
+    const cmd = i === 0 ? 'M' : 'L';
+    pts.push(`${cmd}${cx(t).toFixed(1)},${cy(v).toFixed(1)}`);
+  }
+  svg.appendChild(svgEl('path', { d: pts.join(' '), stroke: '#4ade80',
+    'stroke-width': 2, fill: 'none', opacity: 0.7 }));
+
+  // Compute aliased frequency
+  const nyquist = fS / 2;
+  const isGood = fSig < nyquist;
+  const fAlias = fSig < nyquist ? fSig : Math.abs(fSig - Math.round(fSig / fS) * fS);
+
+  // Draw reconstructed / aliased signal (blue dotted)
+  if (!isGood && fAlias > 0) {
+    const pts2 = [];
+    for (let i = 0; i <= STEPS; i++) {
+      const t = (i / STEPS) * T_WIN;
+      const v = Math.sin(2 * Math.PI * fAlias * t);
+      const cmd = i === 0 ? 'M' : 'L';
+      pts2.push(`${cmd}${cx(t).toFixed(1)},${cy(v).toFixed(1)}`);
+    }
+    svg.appendChild(svgEl('path', { d: pts2.join(' '), stroke: '#f87171',
+      'stroke-width': 2, fill: 'none', 'stroke-dasharray': '6 4' }));
+  }
+
+  // Draw sample dots
+  const nSamples = Math.ceil(T_WIN * fS);
+  for (let i = 0; i <= nSamples; i++) {
+    const t_s = i / fS;
+    if (t_s > T_WIN) break;
+    const v_s = Math.sin(2 * Math.PI * fSig * t_s);
+    const dotX = cx(t_s);
+    const dotY = cy(v_s);
+    // Stem
+    svg.appendChild(svgEl('line', { x1: dotX, y1: cy(0), x2: dotX, y2: dotY,
+      stroke: '#fbbf24', 'stroke-width': 1.5, opacity: 0.8 }));
+    // Dot
+    svg.appendChild(svgEl('circle', { cx: dotX, cy: dotY, r: 4,
+      fill: '#fbbf24', stroke: '#0f172a', 'stroke-width': 1.5 }));
+  }
+
+  // Legend
+  const legItems = [
+    ['Tín hiệu gốc f_signal', '#4ade80', false],
+    ['Mẫu (sample)', '#fbbf24', false],
+  ];
+  if (!isGood && fAlias > 0) {
+    legItems.push(['Tín hiệu tái tạo sai (alias)', '#f87171', true]);
+  }
+  let lx = S_PAD.l + 4;
+  for (const [lbl, col, dashed] of legItems) {
+    const r = svgEl('rect', { x: lx, y: S_PAD.t + 2, width: 22, height: 4,
+      fill: col, rx: 2 });
+    if (dashed) r.setAttribute('stroke-dasharray', '4 2');
+    svg.appendChild(r);
+    const t = svgEl('text', { x: lx + 26, y: S_PAD.t + 9,
+      fill: col, 'font-size': 11, 'font-weight': 700 });
+    t.textContent = lbl;
+    svg.appendChild(t);
+    lx += lbl.length * 6.5 + 40;
+  }
+
+  // Status badge
+  const statusEl = document.getElementById('nyquist_status');
+  const aliasBox  = document.getElementById('aliasExplain');
+
+  if (isGood) {
+    statusEl.className = 'alias-indicator alias-ok';
+    statusEl.textContent = `f_s = ${fS} Hz > 2 × ${fSig} Hz = ${2*fSig} Hz — Nyquist thoa man. Khong co aliasing.`;
+    aliasBox.style.display = 'none';
+  } else if (fSig === nyquist) {
+    statusEl.className = 'alias-indicator alias-warn';
+    statusEl.textContent = `f_s = ${fS} Hz = 2 × ${fSig} Hz — dung ranh gioi Nyquist. Co the bi aliasing.`;
+    aliasBox.style.display = 'none';
+  } else {
+    statusEl.className = 'alias-indicator alias-bad';
+    statusEl.textContent = `Vi pham Nyquist! f_s = ${fS} Hz < 2 × ${fSig} = ${2*fSig} Hz. Aliasing xay ra!`;
+    aliasBox.style.display = 'block';
+    aliasBox.innerHTML = `<strong>Aliasing:</strong> f_signal = ${fSig} Hz bi "hoa trang" thanh f_alias = <strong>${fAlias.toFixed(0)} Hz</strong>. Duong do net dut la tin hieu sai ma bo so se "thay". Giai phap: dat bo loc low-pass cat moi tan so > ${nyquist} Hz truoc ADC.`;
+  }
+
+  document.getElementById('sampResult').innerHTML = `
+    <div class="row">
+      <span class="stat">f_signal = <strong>${fSig} Hz</strong></span>
+      <span class="stat">f_s = <strong>${fS} Hz</strong></span>
+      <span class="stat">T_s = <strong>${(1000/fS).toFixed(3)} ms</strong></span>
+      <span class="stat">Nyquist = f_s/2 = <strong>${nyquist} Hz</strong></span>
+      <span class="stat">Mau trong 3 chu ky = <strong>${nSamples} mau</strong></span>
+    </div>
+    <div style="margin-top:6px">
+      ${isGood
+        ? `Ty le lay mau: <code>f_s / f_signal = ${(fS/fSig).toFixed(1)}x</code> — du de tai tao chinh xac.`
+        : `<span style="color:#dc2626">f_signal = ${fSig} Hz vuot qua Nyquist ${nyquist} Hz → f_alias = ${fAlias.toFixed(0)} Hz</span>`
+      }
+    </div>`;
+}
+
+// ============================================================
+// MODULE 2 — Quantization
+// ============================================================
+const Q_W = 640, Q_H = 260, Q_PAD = { t: 20, b: 40, l: 60, r: 20 };
+const Q_PLOT_W = Q_W - Q_PAD.l - Q_PAD.r;
+const Q_PLOT_H = Q_H - Q_PAD.t - Q_PAD.b;
+
+function drawQuantization() {
+  const n    = parseInt(document.getElementById('nBits').value);
+  const vRef = parseFloat(document.getElementById('vRef').value);
+  const freq = parseFloat(document.getElementById('qFreq').value);
+  document.getElementById('nBits_lbl').textContent = n + ' bit';
+  document.getElementById('vRef_lbl').textContent  = vRef.toFixed(1) + ' V';
+  document.getElementById('qFreq_lbl').textContent = freq + ' Hz';
+
+  const svg = document.getElementById('quantSvg');
+  svg.innerHTML = '';
+
+  const levels = Math.pow(2, n);
+  const lsb = vRef / levels;
+  const T_WIN = 2 / freq;  // show 2 cycles
+  const STEPS = 500;
+
+  // Helpers
+  const cx = t => Q_PAD.l + (t / T_WIN) * Q_PLOT_W;
+  const cy = v => Q_PAD.t + Q_PLOT_H - (v / vRef) * Q_PLOT_H;
+
+  // Horizontal level guides (quantization levels)
+  const maxLinesShown = Math.min(levels + 1, 33);
+  for (let i = 0; i <= maxLinesShown; i++) {
+    const v = i * lsb;
+    const gy = cy(v);
+    if (gy < Q_PAD.t || gy > Q_PAD.t + Q_PLOT_H) continue;
+    svg.appendChild(svgEl('line', { x1: Q_PAD.l, y1: gy, x2: Q_PAD.l + Q_PLOT_W, y2: gy,
+      stroke: '#1e293b', 'stroke-width': (i === 0 || i === levels) ? 1.5 : 0.8 }));
+    if (n <= 4 || i % Math.ceil(levels / 8) === 0) {
+      const t = svgEl('text', { x: Q_PAD.l - 4, y: gy + 4, 'text-anchor': 'end',
+        fill: '#64748b', 'font-size': 10 });
+      t.textContent = v.toFixed(2) + 'V';
+      svg.appendChild(t);
+    }
+  }
+
+  // Y axis labels
+  for (const v of [0, vRef / 2, vRef]) {
+    const t = svgEl('text', { x: Q_PAD.l - 4, y: cy(v) + 4, 'text-anchor': 'end',
+      fill: '#94a3b8', 'font-size': 10 });
+    t.textContent = v.toFixed(1) + 'V';
+    svg.appendChild(t);
+  }
+
+  // Time labels
+  for (let i = 0; i <= 2; i++) {
+    const gx = cx(i / freq);
+    svg.appendChild(svgEl('line', { x1: gx, y1: Q_PAD.t, x2: gx, y2: Q_PAD.t + Q_PLOT_H,
+      stroke: '#1e293b', 'stroke-width': 1 }));
+    const t = svgEl('text', { x: gx, y: Q_H - 6, 'text-anchor': 'middle',
+      fill: '#94a3b8', 'font-size': 10 });
+    t.textContent = i + 'T';
+    svg.appendChild(t);
+  }
+
+  // Original analog wave (dim green)
+  const analog_pts = [];
+  for (let i = 0; i <= STEPS; i++) {
+    const t = (i / STEPS) * T_WIN;
+    const v = vRef / 2 * (1 + Math.sin(2 * Math.PI * freq * t));
+    const cmd = i === 0 ? 'M' : 'L';
+    analog_pts.push(`${cmd}${cx(t).toFixed(1)},${cy(v).toFixed(1)}`);
+  }
+  svg.appendChild(svgEl('path', { d: analog_pts.join(' '), stroke: '#4ade80',
+    'stroke-width': 1.5, fill: 'none', opacity: 0.5 }));
+
+  // Staircase (quantized signal, bright)
+  const stair_pts = [];
+  const SAMPLES = Math.min(levels * 8, 200);
+  for (let i = 0; i <= SAMPLES; i++) {
+    const t = (i / SAMPLES) * T_WIN;
+    const v_raw = vRef / 2 * (1 + Math.sin(2 * Math.PI * freq * t));
+    const code = Math.min(Math.round(v_raw / lsb), levels - 1);
+    const v_q = code * lsb;
+    const x = cx(t);
+    const y = cy(v_q);
+    if (i === 0) {
+      stair_pts.push(`M${x.toFixed(1)},${y.toFixed(1)}`);
+    } else {
+      const t_prev = ((i - 1) / SAMPLES) * T_WIN;
+      const v_prev_raw = vRef / 2 * (1 + Math.sin(2 * Math.PI * freq * t_prev));
+      const code_prev = Math.min(Math.round(v_prev_raw / lsb), levels - 1);
+      const v_prev_q = code_prev * lsb;
+      const y_prev = cy(v_prev_q);
+      // Horizontal step at previous quantized level
+      stair_pts.push(`L${x.toFixed(1)},${y_prev.toFixed(1)}`);
+      // Vertical jump to new level
+      stair_pts.push(`L${x.toFixed(1)},${y.toFixed(1)}`);
+    }
+  }
+  svg.appendChild(svgEl('path', { d: stair_pts.join(' '), stroke: '#facc15',
+    'stroke-width': 2, fill: 'none' }));
+
+  // Error shading (difference between analog and staircase)
+  // For visual clarity, just show max error lines at a sample point
+  const t_sample = T_WIN * 0.22;
+  const v_raw_ex = vRef / 2 * (1 + Math.sin(2 * Math.PI * freq * t_sample));
+  const code_ex  = Math.min(Math.round(v_raw_ex / lsb), levels - 1);
+  const v_q_ex   = code_ex * lsb;
+  const ex_x = cx(t_sample);
+  if (Math.abs(v_raw_ex - v_q_ex) > 0.001) {
+    svg.appendChild(svgEl('line', {
+      x1: ex_x, y1: cy(v_raw_ex), x2: ex_x, y2: cy(v_q_ex),
+      stroke: '#f87171', 'stroke-width': 2.5, 'stroke-dasharray': '3 2'
+    }));
+    // Error label
+    const errLbl = svgEl('text', {
+      x: ex_x + 6, y: (cy(v_raw_ex) + cy(v_q_ex)) / 2 + 4,
+      fill: '#f87171', 'font-size': 10, 'font-weight': 700
+    });
+    errLbl.textContent = 'err';
+    svg.appendChild(errLbl);
+  }
+
+  // Legend
+  const legData = [
+    ['Analog goc', '#4ade80'], ['So hoa (staircase)', '#facc15'], ['Sai so luong tu', '#f87171']
+  ];
+  let legX = Q_PAD.l + 4;
+  for (const [lbl, col] of legData) {
+    svg.appendChild(svgEl('rect', { x: legX, y: Q_PAD.t + 2, width: 20, height: 4, fill: col, rx: 2 }));
+    const t = svgEl('text', { x: legX + 24, y: Q_PAD.t + 9, fill: col, 'font-size': 11, 'font-weight': 700 });
+    t.textContent = lbl;
+    svg.appendChild(t);
+    legX += lbl.length * 6 + 38;
+  }
+
+  // Result
+  const maxErr = lsb / 2;
+  document.getElementById('quantResult').innerHTML = `
+    <div class="row">
+      <span class="stat">n = <strong>${n} bit</strong></span>
+      <span class="stat">Muc = <strong>2<sup>${n}</sup> = ${levels}</strong></span>
+      <span class="stat">LSB = V_ref/2<sup>n</sup> = <strong>${lsb.toFixed(4)} V (${(lsb*1000).toFixed(2)} mV)</strong></span>
+      <span class="stat">Sai so toi da = <strong>±${maxErr.toFixed(4)} V</strong></span>
+    </div>
+    <div style="margin-top:6px">
+      <code>Buoc LSB = ${vRef}V / ${levels} = ${lsb.toFixed(4)} V</code> —
+      ${n <= 3 ? 'Do phan giai kha thap — bac thang ro rang.' :
+        n <= 5 ? 'Do phan giai trung binh — bac thang nho dan.' :
+        'Do phan giai tot — bac thang gan nhu khong nhin thay.'}
+    </div>`;
+}
+
+// ============================================================
+// MODULE 3 — ADC/DAC Calculator
+// ============================================================
+function calcADC() {
+  const vin  = parseFloat(document.getElementById('adc_vin').value)  || 0;
+  const vref = parseFloat(document.getElementById('adc_vref').value) || 5;
+  const n    = parseInt(document.getElementById('adc_bits').value);
+  const maxCode = Math.pow(2, n) - 1;
+  const lsb  = vref / Math.pow(2, n);
+
+  if (vin < 0 || vin > vref) {
+    document.getElementById('adc_result').innerHTML = `<span style="color:#dc2626">V_in (${vin}V) phai trong khoang 0..${vref}V.</span>`;
+    return;
+  }
+  const code = Math.round(vin / vref * maxCode);
+  const vBack = code / maxCode * vref;
+  const err = vin - vBack;
+
+  document.getElementById('adc_result').innerHTML = `
+    <div class="row">
+      <span class="stat">Code = <strong>${code}</strong> (0b${code.toString(2).padStart(n > 12 ? 16 : n, '0')})</span>
+    </div>
+    <div class="row">
+      <span class="stat">LSB = <strong>${(lsb*1000).toFixed(3)} mV</strong></span>
+      <span class="stat">V tai tao = <strong>${vBack.toFixed(4)} V</strong></span>
+      <span class="stat">Sai so = <strong>${(err*1000).toFixed(3)} mV</strong></span>
+    </div>
+    <div style="margin-top:6px; font-family:monospace; font-size:12px; color:#4a5568">
+      Code = round(${vin}/${vref} × ${maxCode}) = round(${(vin/vref*maxCode).toFixed(3)}) = ${code}
+    </div>`;
+}
+
+function calcDAC() {
+  const code = parseInt(document.getElementById('dac_code').value) || 0;
+  const vref = parseFloat(document.getElementById('dac_vref').value) || 5;
+  const n    = parseInt(document.getElementById('dac_bits').value);
+  const maxCode = Math.pow(2, n) - 1;
+  const lsb = vref / Math.pow(2, n);
+
+  if (code < 0 || code > maxCode) {
+    document.getElementById('dac_result').innerHTML = `<span style="color:#dc2626">Code (${code}) phai trong 0..${maxCode}.</span>`;
+    return;
+  }
+  const vout = code / maxCode * vref;
+
+  document.getElementById('dac_result').innerHTML = `
+    <div class="row">
+      <span class="stat">V_out = <strong>${vout.toFixed(4)} V</strong></span>
+    </div>
+    <div class="row">
+      <span class="stat">LSB = <strong>${(lsb*1000).toFixed(3)} mV</strong></span>
+      <span class="stat">Code / Max = <strong>${code} / ${maxCode} = ${(code/maxCode*100).toFixed(2)}%</strong></span>
+    </div>
+    <div style="margin-top:6px; font-family:monospace; font-size:12px; color:#4a5568">
+      V_out = ${code}/${maxCode} × ${vref} = ${vout.toFixed(4)} V
+    </div>`;
+}
+
+function setCalcPreset(name) {
+  const presets = {
+    uno_mid: { vin: 2.5,  vref: 5.0, bits_adc: '10', code: 512,  vref_dac: 5.0, bits_dac: '10' },
+    stm_1v:  { vin: 1.0,  vref: 3.3, bits_adc: '12', code: 1241, vref_dac: 3.3, bits_dac: '12' },
+    ads16:   { vin: 3.75, vref: 5.0, bits_adc: '16', code: 49151, vref_dac: 5.0, bits_dac: '16' },
+    uno_raw: { vin: 3.0,  vref: 5.0, bits_adc: '10', code: 614,  vref_dac: 5.0, bits_dac: '10' },
+  };
+  const p = presets[name];
+  document.getElementById('adc_vin').value  = p.vin;
+  document.getElementById('adc_vref').value = p.vref;
+  document.getElementById('adc_bits').value = p.bits_adc;
+  document.getElementById('dac_code').value = p.code;
+  document.getElementById('dac_vref').value = p.vref_dac;
+  document.getElementById('dac_bits').value = p.bits_dac;
+  calcADC();
+  calcDAC();
+}
+
+function buildResTable() {
+  const configs = [
+    { n: 8,  vref: 5.0,  note: 'Servo, điều khiển cơ bản' },
+    { n: 10, vref: 5.0,  note: 'Arduino Uno (mặc định)' },
+    { n: 12, vref: 3.3,  note: 'STM32, ESP32' },
+    { n: 16, vref: 5.0,  note: 'ADS1115 — đo lường chính xác' },
+    { n: 24, vref: 5.0,  note: 'ADS1299 — EEG y tế' },
+  ];
+  let html = `<thead><tr><th>n-bit</th><th>V_ref</th><th>Số mức (2^n)</th><th>Bước LSB</th><th>Ứng dụng</th></tr></thead><tbody>`;
+  for (const c of configs) {
+    const levels = Math.pow(2, c.n);
+    const lsb = c.vref / levels;
+    const lsbStr = lsb < 0.001 ? (lsb * 1e6).toFixed(2) + ' µV' : lsb < 1 ? (lsb * 1000).toFixed(3) + ' mV' : lsb.toFixed(4) + ' V';
+    html += `<tr><td><strong>${c.n}-bit</strong></td><td>${c.vref} V</td><td>${levels.toLocaleString()}</td><td>${lsbStr}</td><td style="font-size:12px">${c.note}</td></tr>`;
+  }
+  html += '</tbody>';
+  document.getElementById('resTable').innerHTML = html;
+}
+
+// ============================================================
+// Init
+// ============================================================
+drawSampling();
+drawQuantization();
+calcADC();
+calcDAC();
+buildResTable();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

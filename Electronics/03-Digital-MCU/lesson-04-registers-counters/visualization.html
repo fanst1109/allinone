@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Thanh ghi &amp; Bộ đếm</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #86efac; }
+
+  /* ── card ── */
+  .card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+
+  /* ── accent palette: green #4d7c0f ── */
+  :root {
+    --acc: #4d7c0f;
+    --acc-soft: #ecfccb;
+    --acc-border: #a3e635;
+    --acc-mid: #84cc16;
+    --red: #dc2626;
+    --blue: #1d4ed8;
+    --gray: #374151;
+    --gray-lt: #6b7280;
+  }
+
+  /* ── control buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: 2px solid var(--acc-border);
+    background: white;
+    color: var(--acc);
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn:hover { background: var(--acc-soft); }
+  .btn.active, .btn:active { background: var(--acc); color: white; border-color: var(--acc); }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+
+  /* ── info box ── */
+  .info-box {
+    background: var(--acc-soft);
+    border: 2px solid var(--acc-border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-top: 12px;
+  }
+  .info-box .hl { color: #14532d; font-weight: 700; font-size: 16px; }
+  .info-box .warn { color: var(--red); font-weight: 600; }
+  .info-box .ok { color: #047857; font-weight: 600; }
+  .info-box .note { color: var(--gray-lt); font-size: 12px; }
+
+  /* ══════════════════════════════════════
+     MODULE 1 — Shift Register
+  ═══════════════════════════════════════ */
+  .sr-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .sr-input-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .sr-input-row label { font-weight: 700; font-size: 14px; color: var(--gray); }
+  .sr-bit-input {
+    width: 44px;
+    height: 44px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 700;
+    font-family: monospace;
+    border: 2px solid var(--acc-border);
+    border-radius: 6px;
+    background: var(--acc-soft);
+    color: var(--acc);
+  }
+  .sr-bit-input:focus { outline: none; border-color: var(--acc); }
+
+  .ff-chain {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 8px 0;
+  }
+  .ff-box {
+    width: 64px;
+    min-width: 56px;
+    height: 64px;
+    border: 2px solid var(--acc);
+    border-radius: 6px;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: background 0.3s, transform 0.2s;
+    flex-shrink: 0;
+  }
+  .ff-box.changed {
+    background: #fef08a;
+    transform: scale(1.08);
+  }
+  .ff-label {
+    font-size: 10px;
+    color: var(--gray-lt);
+    font-family: monospace;
+    position: absolute;
+    top: 3px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+  .ff-val {
+    font-size: 28px;
+    font-weight: 900;
+    font-family: monospace;
+    color: var(--acc);
+  }
+  .ff-val.one { color: var(--red); }
+  .ff-arrow {
+    font-size: 22px;
+    color: var(--gray-lt);
+    padding: 0 4px;
+    flex-shrink: 0;
+  }
+  .ff-serial-tag {
+    font-size: 11px;
+    background: var(--acc);
+    color: white;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .sr-log {
+    font-family: monospace;
+    font-size: 13px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 10px 14px;
+    max-height: 180px;
+    overflow-y: auto;
+    line-height: 1.6;
+  }
+  .sr-log .step-new { color: var(--acc); font-weight: 700; }
+  .sr-log .step-old { color: var(--gray-lt); }
+
+  /* mode tabs */
+  .mode-row { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 12px; }
+  .mode-btn {
+    padding: 6px 14px;
+    border-radius: 6px 6px 0 0;
+    border: 2px solid #d1d5db;
+    border-bottom: none;
+    background: #f9fafb;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--gray);
+    transition: all 0.15s;
+  }
+  .mode-btn.active {
+    background: white;
+    border-color: var(--acc);
+    color: var(--acc);
+    border-bottom: 2px solid white;
+    margin-bottom: -2px;
+  }
+
+  /* ══════════════════════════════════════
+     MODULE 2 — Binary Counter
+  ═══════════════════════════════════════ */
+  .counter-display {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 16px 0;
+  }
+  .counter-bit {
+    width: 72px;
+    min-width: 56px;
+    height: 72px;
+    border: 3px solid var(--acc);
+    border-radius: 8px;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: background 0.25s, transform 0.2s;
+    flex-shrink: 0;
+  }
+  .counter-bit.flipped {
+    background: #fef08a;
+    transform: scale(1.12);
+  }
+  .counter-bit.one { border-color: var(--red); }
+  .counter-bit .cb-label {
+    font-size: 11px;
+    color: var(--gray-lt);
+    font-family: monospace;
+    position: absolute;
+    top: 4px;
+  }
+  .counter-bit .cb-val {
+    font-size: 34px;
+    font-weight: 900;
+    font-family: monospace;
+    color: var(--acc);
+    line-height: 1;
+  }
+  .counter-bit.one .cb-val { color: var(--red); }
+  .counter-bit .cb-weight {
+    font-size: 10px;
+    color: var(--gray-lt);
+    font-family: monospace;
+    position: absolute;
+    bottom: 4px;
+  }
+
+  .counter-info {
+    text-align: center;
+    margin: 8px 0 16px;
+  }
+  .counter-info .dec-val {
+    font-size: 48px;
+    font-weight: 900;
+    font-family: monospace;
+    color: var(--acc);
+    line-height: 1;
+  }
+  .counter-info .bin-val {
+    font-size: 18px;
+    font-family: monospace;
+    color: var(--gray);
+    margin-top: 4px;
+  }
+
+  .counter-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    margin: 12px 0;
+  }
+  .mod-select {
+    padding: 8px 12px;
+    border: 2px solid var(--acc-border);
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--acc);
+    background: var(--acc-soft);
+    cursor: pointer;
+  }
+  .speed-label { font-size: 13px; color: var(--gray); }
+  .speed-input { width: 56px; padding: 6px 8px; border: 2px solid var(--acc-border); border-radius: 6px;
+                 font-size: 13px; text-align: center; }
+
+  /* freq divider visualization */
+  .freq-wrap { overflow-x: auto; }
+  .freq-table { border-collapse: collapse; min-width: 420px; font-size: 13px; width: 100%; }
+  .freq-table th {
+    background: var(--acc);
+    color: white;
+    padding: 7px 10px;
+    text-align: left;
+    font-size: 13px;
+  }
+  .freq-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #e5e7eb;
+    font-family: monospace;
+  }
+  .freq-table tr:nth-child(even) td { background: #f0fdf4; }
+  .freq-table td.active-row { background: #fef9c3; font-weight: 700; }
+
+  /* waveform */
+  .wave-wrap { overflow-x: auto; margin: 8px 0; }
+
+  /* ══════════════════════════════════════
+     MODULE 3 — Mod-N counter
+  ═══════════════════════════════════════ */
+  .modn-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 12px 0;
+  }
+  .modn-col { display: flex; flex-direction: column; gap: 8px; }
+  .modn-col label { font-size: 13px; font-weight: 700; color: var(--gray); }
+  .modn-col input[type="number"] {
+    padding: 8px 10px;
+    border: 2px solid var(--acc-border);
+    border-radius: 6px;
+    font-size: 15px;
+    font-family: monospace;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .modn-col input:focus { outline: none; border-color: var(--acc); }
+  .modn-seq {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin: 8px 0;
+  }
+  .modn-cell {
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--acc-border);
+    border-radius: 6px;
+    background: var(--acc-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: monospace;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--acc);
+    transition: background 0.2s, border-color 0.2s;
+    flex-shrink: 0;
+  }
+  .modn-cell.active {
+    background: var(--acc);
+    color: white;
+    border-color: var(--acc);
+    transform: scale(1.1);
+  }
+  .modn-cell.reset {
+    background: var(--red);
+    color: white;
+    border-color: var(--red);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    .modn-grid { grid-template-columns: 1fr; }
+    .counter-bit { width: 56px; min-width: 44px; height: 56px; }
+    .counter-bit .cb-val { font-size: 26px; }
+    .counter-info .dec-val { font-size: 36px; }
+    .ff-box { width: 52px; min-width: 44px; height: 52px; }
+    .ff-val { font-size: 22px; }
+    .modn-cell { width: 34px; height: 34px; font-size: 13px; }
+  }
+  @media (max-width: 400px) {
+    .counter-bit { width: 46px; min-width: 40px; height: 46px; }
+    .counter-bit .cb-val { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Electronics — Digital &amp; MCU</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-sequential-flipflops/visualization.html">← L3: Mạch tuần tự &amp; flip-flop</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Thanh ghi &amp; bộ đếm</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-adc-dac/visualization.html">L5: ADC/DAC &amp; lấy mẫu →</a>
+</nav>
+
+<main>
+<h1>Lesson 04 — Thanh ghi &amp; Bộ đếm</h1>
+<p>Ba module tương tác: <strong>Thanh ghi dịch</strong> (nhập bit, bấm clock, xem dịch từng bước) · <strong>Bộ đếm nhị phân</strong> (manual/auto, chọn mod-N, thấy bit lật) · <strong>Chia tần số &amp; sóng</strong> (hiển thị tần số từng tầng).</p>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 1 — Shift Register
+     ══════════════════════════════════════════════════════════ -->
+<h2>1. Mô phỏng thanh ghi dịch (Shift Register)</h2>
+<div class="card">
+  <div class="mode-row">
+    <button class="mode-btn active" onclick="setSRMode('SIPO')">SIPO</button>
+    <button class="mode-btn" onclick="setSRMode('SISO')">SISO</button>
+    <button class="mode-btn" onclick="setSRMode('PISO')">PISO</button>
+  </div>
+
+  <div class="sr-wrap">
+
+    <!-- SIPO / SISO input -->
+    <div id="sr-serial-in-row" class="sr-input-row">
+      <label>Bit nối tiếp vào:</label>
+      <input type="number" id="sr-serial-bit" class="sr-bit-input" min="0" max="1" value="1">
+      <span style="font-size:13px;color:var(--gray-lt)">(chỉ 0 hoặc 1)</span>
+    </div>
+
+    <!-- PISO input -->
+    <div id="sr-parallel-in-row" class="sr-input-row" style="display:none">
+      <label>Nạp song song (4 bit):</label>
+      <input type="number" id="piso-b3" class="sr-bit-input" min="0" max="1" value="1" placeholder="b3">
+      <input type="number" id="piso-b2" class="sr-bit-input" min="0" max="1" value="1" placeholder="b2">
+      <input type="number" id="piso-b1" class="sr-bit-input" min="0" max="1" value="0" placeholder="b1">
+      <input type="number" id="piso-b0" class="sr-bit-input" min="0" max="1" value="1" placeholder="b0">
+      <button class="btn" onclick="pisoLoad()">Load</button>
+    </div>
+
+    <!-- FF chain visualization -->
+    <div>
+      <div style="font-size:13px;color:var(--gray-lt);margin-bottom:6px;">
+        Chuỗi 4 flip-flop (FF₃ = vị trí cao nhất / nhận vào nối tiếp):
+      </div>
+      <div class="ff-chain" id="sr-chain">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+
+    <!-- Mode description -->
+    <div id="sr-mode-desc" style="font-size:13px;color:var(--gray);background:#f8fafc;padding:10px 14px;border-radius:6px;border-left:3px solid var(--acc-mid);">
+    </div>
+
+    <!-- Controls -->
+    <div class="btn-row">
+      <button class="btn active" id="sr-clk-btn" onclick="srClock()">CLK (1 xung)</button>
+      <button class="btn" onclick="srReset()">Reset (0000)</button>
+      <button class="btn" onclick="srAutoFill()">Tự điền chuỗi mẫu</button>
+    </div>
+
+    <!-- Log -->
+    <div>
+      <div style="font-size:12px;color:var(--gray-lt);margin-bottom:4px;">Lịch sử trạng thái:</div>
+      <div class="sr-log" id="sr-log">Bấm CLK để bắt đầu dịch bit...</div>
+    </div>
+
+    <!-- Result box -->
+    <div class="info-box" id="sr-result">
+      Trạng thái khởi đầu: FF₃=0, FF₂=0, FF₁=0, FF₀=0
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 2 — Binary Counter
+     ══════════════════════════════════════════════════════════ -->
+<h2>2. Bộ đếm nhị phân tương tác</h2>
+<div class="card">
+
+  <div class="counter-controls">
+    <label class="speed-label">Mod-N:
+      <select class="mod-select" id="mod-select" onchange="setMod(this.value)">
+        <option value="16">Mod-16 (4 bit, 0–15)</option>
+        <option value="8">Mod-8 (0–7)</option>
+        <option value="10" selected>Mod-10 (BCD, 0–9)</option>
+        <option value="6">Mod-6 (0–5)</option>
+        <option value="12">Mod-12 (0–11)</option>
+        <option value="5">Mod-5 (0–4)</option>
+        <option value="3">Mod-3 (0–2)</option>
+      </select>
+    </label>
+    <label class="speed-label">Auto tốc độ (ms):
+      <input type="number" id="auto-speed" class="speed-input" value="600" min="100" max="3000" step="100">
+    </label>
+  </div>
+
+  <!-- Decimal + binary display -->
+  <div class="counter-info">
+    <div class="dec-val" id="ctr-dec">0</div>
+    <div class="bin-val" id="ctr-bin">0000</div>
+  </div>
+
+  <!-- Bit boxes -->
+  <div class="counter-display" id="ctr-bits">
+    <!-- rendered by JS -->
+  </div>
+
+  <!-- Controls -->
+  <div class="btn-row" style="justify-content:center;">
+    <button class="btn active" id="clk-btn" onclick="counterStep()">CLK (+1)</button>
+    <button class="btn" id="auto-btn" onclick="toggleAuto()">Auto-run</button>
+    <button class="btn" onclick="counterReset()">Reset</button>
+  </div>
+
+  <!-- Last event info -->
+  <div class="info-box" id="ctr-info">
+    Bấm CLK để đếm. Bit màu vàng = vừa lật, đỏ = 1, xanh = 0.
+  </div>
+
+  <!-- History table -->
+  <div style="margin-top:16px;">
+    <div style="font-size:12px;color:var(--gray-lt);margin-bottom:6px;">10 bước gần nhất:</div>
+    <div style="overflow-x:auto;">
+      <table class="freq-table" id="ctr-history-table">
+        <thead>
+          <tr>
+            <th>CLK#</th>
+            <th>Q₃</th><th>Q₂</th><th>Q₁</th><th>Q₀</th>
+            <th>Thập phân</th>
+            <th>Bit lật</th>
+          </tr>
+        </thead>
+        <tbody id="ctr-history-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 3 — Frequency Divider
+     ══════════════════════════════════════════════════════════ -->
+<h2>3. Chia tần số &amp; Sóng xung</h2>
+<div class="card">
+
+  <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:16px;">
+    <div>
+      <label style="font-size:13px;font-weight:700;display:block;margin-bottom:4px;">Tần số đầu vào (Hz):</label>
+      <input type="number" id="freq-in" value="32768" min="1" max="10000000"
+             style="padding:8px;border:2px solid var(--acc-border);border-radius:6px;font-size:14px;width:140px;"
+             oninput="buildFreqTable()">
+    </div>
+    <div>
+      <label style="font-size:13px;font-weight:700;display:block;margin-bottom:4px;">Số tầng:</label>
+      <input type="number" id="freq-stages" value="8" min="1" max="20"
+             style="padding:8px;border:2px solid var(--acc-border);border-radius:6px;font-size:14px;width:70px;"
+             oninput="buildFreqTable()">
+    </div>
+    <button class="btn" onclick="document.getElementById('freq-in').value=32768;document.getElementById('freq-stages').value=15;buildFreqTable()">
+      32.768 kHz / 15 tầng
+    </button>
+    <button class="btn" onclick="document.getElementById('freq-in').value=16000000;document.getElementById('freq-stages').value=8;buildFreqTable()">
+      16 MHz / 8 tầng
+    </button>
+  </div>
+
+  <div class="freq-wrap">
+    <table class="freq-table" id="freq-table">
+      <thead>
+        <tr>
+          <th>Tầng</th>
+          <th>Chia bởi</th>
+          <th>Tần số ra</th>
+          <th>Chu kỳ</th>
+          <th>Ghi chú</th>
+        </tr>
+      </thead>
+      <tbody id="freq-tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- Waveform SVG -->
+  <div style="margin-top:20px;">
+    <div style="font-size:13px;font-weight:700;color:var(--gray);margin-bottom:8px;">
+      Sóng xung (4 tầng đầu — CLK, Q₀, Q₁, Q₂):
+    </div>
+    <div class="wave-wrap">
+      <svg id="wave-svg" width="600" height="200" viewBox="0 0 600 200" style="display:block;max-width:100%;">
+        <!-- rendered by JS -->
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 4 — Mod-N interactive
+     ══════════════════════════════════════════════════════════ -->
+<h2>4. Bộ đếm Mod-N — thiết kế &amp; trực quan</h2>
+<div class="card">
+  <p>Nhập N để xem chuỗi đếm, trạng thái reset và bit nào nối vào cổng NAND.</p>
+
+  <div class="modn-grid">
+    <div class="modn-col">
+      <label>Giá trị N (đếm 0 → N−1):</label>
+      <input type="number" id="modn-n" value="10" min="2" max="64" oninput="buildModN()">
+    </div>
+    <div class="modn-col">
+      <label>Tần số CLK vào (Hz):</label>
+      <input type="number" id="modn-clk" value="1000" min="1" oninput="buildModN()">
+    </div>
+  </div>
+
+  <div class="info-box" id="modn-design" style="margin-bottom:12px;"></div>
+
+  <div style="font-size:13px;color:var(--gray-lt);margin-bottom:8px;">
+    Chuỗi đếm (bấm vào ô để xem trạng thái nhị phân):
+  </div>
+  <div class="modn-seq" id="modn-seq"></div>
+  <div id="modn-binstate" style="font-family:monospace;font-size:14px;min-height:24px;color:var(--acc);margin-top:8px;"></div>
+
+  <!-- Auto-step thru mod-N -->
+  <div class="btn-row" style="margin-top:12px;">
+    <button class="btn active" onclick="modnStep()">Bước tiếp</button>
+    <button class="btn" id="modn-auto-btn" onclick="modnToggleAuto()">Auto</button>
+    <button class="btn" onclick="modnReset()">Reset</button>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// MODULE 1: Shift Register
+// ═══════════════════════════════════════════════════════════
+
+let srMode = 'SIPO';
+let srState = [0, 0, 0, 0]; // [FF3, FF2, FF1, FF0]
+let srClkCount = 0;
+let srSerialOut = []; // collected serial out (SISO/PISO)
+const SR_BITS = 4;
+
+const srModeDesc = {
+  SIPO: 'SIPO (Serial-In, Parallel-Out): nhập bit nối tiếp qua đầu vào Serial In, đọc dữ liệu song song Q₃Q₂Q₁Q₀. Ứng dụng: 74HC595 — mở rộng ngõ ra từ 3 chân vi điều khiển sang 8 ngõ ra.',
+  SISO: 'SISO (Serial-In, Serial-Out): bit vào từ FF₃, ra từ FF₀. Dữ liệu truyền qua n xung clock — dùng cho pipeline delay hoặc truyền nối tiếp đơn giản.',
+  PISO: 'PISO (Parallel-In, Serial-Out): nạp 4 bit song song bằng nút Load, sau đó xuất từng bit qua n xung clock. Ứng dụng: truyền byte qua 1 dây (SPI/UART truyền đi).'
+};
+
+function setSRMode(mode) {
+  srMode = mode;
+  document.querySelectorAll('.mode-btn').forEach((b, i) => {
+    b.classList.toggle('active', ['SIPO','SISO','PISO'][i] === mode);
+  });
+  const pisoRow = document.getElementById('sr-parallel-in-row');
+  const serialRow = document.getElementById('sr-serial-in-row');
+  pisoRow.style.display = mode === 'PISO' ? 'flex' : 'none';
+  serialRow.style.display = mode !== 'PISO' ? 'flex' : 'none';
+  document.getElementById('sr-mode-desc').textContent = srModeDesc[mode];
+  srReset();
+}
+
+function srReset() {
+  srState = [0, 0, 0, 0];
+  srClkCount = 0;
+  srSerialOut = [];
+  renderSRChain([-1]);
+  document.getElementById('sr-log').innerHTML = 'Reset. Trạng thái: 0000';
+  document.getElementById('sr-result').innerHTML = 'Trạng thái: FF₃=0 FF₂=0 FF₁=0 FF₀=0 <span class="note">(Thập phân: 0)</span>';
+}
+
+function pisoLoad() {
+  const bits = ['piso-b3','piso-b2','piso-b1','piso-b0'].map(id => {
+    const v = parseInt(document.getElementById(id).value);
+    return (v === 0 || v === 1) ? v : 0;
+  });
+  srState = [...bits];
+  srClkCount = 0;
+  srSerialOut = [];
+  renderSRChain([-1]);
+  const bStr = bits.join('');
+  logSR(`<span class="step-new">LOAD: Nạp song song → [${bStr}] (= ${parseInt(bStr,2)})</span>`);
+  updateSRResult(-1);
+}
+
+function srClock() {
+  const serialIn = parseInt(document.getElementById('sr-serial-bit').value) || 0;
+  const safeBit = (serialIn === 1) ? 1 : 0;
+
+  const prev = [...srState];
+  let changed = [];
+  let logMsg = '';
+  let serialOutBit = null;
+
+  if (srMode === 'SIPO' || srMode === 'SISO') {
+    // shift right: FF3 ← new bit, FF2 ← FF3, FF1 ← FF2, FF0 ← FF1
+    serialOutBit = srState[3]; // FF0 shifts out
+    srState[3] = srState[2];
+    srState[2] = srState[1];
+    srState[1] = srState[0];
+    srState[0] = safeBit; // FF3 gets new serial in
+    // find changed indices
+    for (let i = 0; i < SR_BITS; i++) {
+      if (srState[i] !== prev[i]) changed.push(i);
+    }
+    srClkCount++;
+    if (srMode === 'SISO') {
+      srSerialOut.push(serialOutBit);
+      logMsg = `CLK${srClkCount}: In=${safeBit} → [${srState.join('')}] | Serial Out=${serialOutBit}`;
+    } else {
+      logMsg = `CLK${srClkCount}: In=${safeBit} → Q₃Q₂Q₁Q₀=[${srState.join('')}] = ${parseInt(srState.join(''),2)}`;
+    }
+  } else if (srMode === 'PISO') {
+    // shift right, serial out from FF0 (LSB first)
+    serialOutBit = srState[3]; // rightmost = FF0
+    srState[3] = srState[2];
+    srState[2] = srState[1];
+    srState[1] = srState[0];
+    srState[0] = 0; // shift in 0 from left
+    for (let i = 0; i < SR_BITS; i++) {
+      if (srState[i] !== prev[i]) changed.push(i);
+    }
+    srClkCount++;
+    srSerialOut.push(serialOutBit);
+    logMsg = `CLK${srClkCount}: Serial Out=${serialOutBit} | Còn lại=[${srState.join('')}]`;
+  }
+
+  renderSRChain(changed);
+  logSR(`<span class="step-new">${logMsg}</span>`);
+  updateSRResult(serialOutBit);
+
+  // flash changed boxes
+  setTimeout(() => renderSRChain([]), 350);
+}
+
+function renderSRChain(changedIdx) {
+  const chain = document.getElementById('sr-chain');
+  // Labels: FF3 (input side) → FF2 → FF1 → FF0 (output side)
+  let html = '<span class="ff-serial-tag">Serial In →</span><span class="ff-arrow">→</span>';
+  for (let i = 0; i < SR_BITS; i++) {
+    const idx = i; // FF3 first
+    const val = srState[idx];
+    const isChanged = changedIdx.includes(idx);
+    html += `<div class="ff-box${isChanged ? ' changed' : ''}">
+      <span class="ff-label">FF${3-i}</span>
+      <span class="ff-val${val === 1 ? ' one' : ''}">${val}</span>
+    </div>`;
+    if (i < SR_BITS - 1) html += '<span class="ff-arrow">→</span>';
+  }
+  html += '<span class="ff-arrow">→</span><span class="ff-serial-tag">→ Serial Out</span>';
+  chain.innerHTML = html;
+}
+
+function updateSRResult(serialOut) {
+  const bStr = srState.join('');
+  const dec = parseInt(bStr, 2);
+  let extra = '';
+  if (srMode === 'SIPO') {
+    extra = `<br><span class="ok">Ngõ ra song song Q₃Q₂Q₁Q₀ = <strong>${bStr}</strong> = ${dec} (thập phân)</span>`;
+  } else if (srMode === 'SISO') {
+    extra = `<br><span class="ok">Chuỗi Serial Out (${srSerialOut.length} bit): [${srSerialOut.join(', ')}]</span>`;
+  } else {
+    extra = `<br><span class="ok">Chuỗi Serial Out (${srSerialOut.length} bit): [${srSerialOut.join(', ')}]</span>`;
+    if (srSerialOut.length === SR_BITS) {
+      extra += `<br><span class="hl">Đã xuất xong: ${srSerialOut.join('')} = ${parseInt(srSerialOut.join(''),2)} (thập phân)</span>`;
+    }
+  }
+  document.getElementById('sr-result').innerHTML =
+    `CLK #${srClkCount} | Trạng thái: [${bStr}]${extra}`;
+}
+
+function logSR(msg) {
+  const log = document.getElementById('sr-log');
+  const lines = log.innerHTML.split('\n');
+  lines.unshift(msg);
+  if (lines.length > 20) lines.pop();
+  log.innerHTML = lines.join('\n');
+}
+
+function srAutoFill() {
+  // Prefill sequence: 1011
+  const seq = [1, 0, 1, 1];
+  srReset();
+  let delay = 0;
+  seq.forEach(bit => {
+    setTimeout(() => {
+      document.getElementById('sr-serial-bit').value = bit;
+      srClock();
+    }, delay);
+    delay += 500;
+  });
+}
+
+// Init SR
+setSRMode('SIPO');
+
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 2: Binary Counter
+// ═══════════════════════════════════════════════════════════
+
+let ctrMod = 10;
+let ctrVal = 0;
+let ctrAutoTimer = null;
+let ctrClkCount = 0;
+let ctrHistory = []; // [{clk, val, flipped}]
+
+function setMod(n) {
+  ctrMod = parseInt(n);
+  counterReset();
+}
+
+function counterReset() {
+  ctrVal = 0;
+  ctrClkCount = 0;
+  ctrHistory = [];
+  renderCounter(ctrVal, []);
+  renderHistory();
+  document.getElementById('ctr-info').innerHTML =
+    `Mod-${ctrMod}: đếm 0 → ${ctrMod-1}, sau đó reset về 0. Bấm CLK để bắt đầu.`;
+}
+
+function counterStep() {
+  const prev = ctrVal;
+  ctrVal = (ctrVal + 1) % ctrMod;
+  ctrClkCount++;
+
+  // find flipped bits (compare prev and ctrVal as 4-bit)
+  const flipped = [];
+  for (let i = 0; i < 4; i++) {
+    if (((prev >> i) & 1) !== ((ctrVal >> i) & 1)) flipped.push(i);
+  }
+
+  // Detect reset
+  const isReset = (prev === ctrMod - 1 && ctrVal === 0);
+
+  renderCounter(ctrVal, flipped);
+
+  // History entry
+  ctrHistory.unshift({ clk: ctrClkCount, val: ctrVal, prev: prev, flipped: flipped, isReset });
+  if (ctrHistory.length > 10) ctrHistory.pop();
+  renderHistory();
+
+  // Info
+  const binStr = to4bin(ctrVal);
+  const prevStr = to4bin(prev);
+  let infoHTML = `CLK #${ctrClkCount}: ${prev} (${prevStr}) → <span class="hl">${ctrVal} (${binStr})</span>`;
+  if (flipped.length > 0) {
+    infoHTML += `<br>Bit lật: ${flipped.map(i => `Q${i}`).join(', ')} (tổng ${flipped.length} bit)`;
+  }
+  if (isReset) {
+    infoHTML += `<br><span class="warn">RESET: đếm đến ${prev} (= Mod-${ctrMod}) → về 0</span>`;
+  }
+  // Freq note
+  infoHTML += `<br><span class="note">Mod-${ctrMod}: chia tần số đầu vào cho ${ctrMod}</span>`;
+  document.getElementById('ctr-info').innerHTML = infoHTML;
+}
+
+function to4bin(n) {
+  return ('0000' + n.toString(2)).slice(-4);
+}
+
+function renderCounter(val, flipped) {
+  const container = document.getElementById('ctr-bits');
+  let html = '';
+  const weights = [8, 4, 2, 1];
+  const bitLabels = ['Q₃', 'Q₂', 'Q₁', 'Q₀'];
+  for (let i = 3; i >= 0; i--) {
+    const bit = (val >> i) & 1;
+    const isOne = bit === 1;
+    const isFlipped = flipped.includes(i);
+    html += `<div class="counter-bit${isFlipped ? ' flipped' : ''}${isOne ? ' one' : ''}">
+      <span class="cb-label">${bitLabels[3-i]}</span>
+      <span class="cb-val">${bit}</span>
+      <span class="cb-weight">${weights[3-i]}</span>
+    </div>`;
+    if (i > 0) html += `<div style="font-size:22px;color:var(--gray-lt);align-self:center;padding:0 2px;"></div>`;
+  }
+  container.innerHTML = html;
+
+  document.getElementById('ctr-dec').textContent = val;
+  document.getElementById('ctr-bin').textContent = to4bin(val);
+}
+
+function renderHistory() {
+  const tbody = document.getElementById('ctr-history-body');
+  if (ctrHistory.length === 0) { tbody.innerHTML = ''; return; }
+  tbody.innerHTML = ctrHistory.map((h, idx) => {
+    const b = to4bin(h.val);
+    const flipStr = h.flipped.length > 0 ? h.flipped.map(i=>`Q${i}`).join(', ') : '—';
+    const cls = h.isReset ? 'active-row' : (idx === 0 ? 'active-row' : '');
+    const resetNote = h.isReset ? ' (RESET)' : '';
+    return `<tr>
+      <td class="${cls}">${h.clk}</td>
+      <td>${(h.val>>3)&1}</td>
+      <td>${(h.val>>2)&1}</td>
+      <td>${(h.val>>1)&1}</td>
+      <td>${h.val&1}</td>
+      <td class="${cls}">${h.val}${resetNote}</td>
+      <td>${flipStr}</td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleAuto() {
+  const btn = document.getElementById('auto-btn');
+  if (ctrAutoTimer) {
+    clearInterval(ctrAutoTimer);
+    ctrAutoTimer = null;
+    btn.textContent = 'Auto-run';
+    btn.classList.remove('active');
+  } else {
+    const speed = parseInt(document.getElementById('auto-speed').value) || 600;
+    ctrAutoTimer = setInterval(counterStep, speed);
+    btn.textContent = 'Stop';
+    btn.classList.add('active');
+  }
+}
+
+// Init counter
+setMod(10);
+
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 3: Frequency Divider Table + Waveform
+// ═══════════════════════════════════════════════════════════
+
+function fmtFreq(f) {
+  if (f >= 1e6) return (f/1e6).toFixed(f % 1e6 === 0 ? 0 : 3) + ' MHz';
+  if (f >= 1e3) return (f/1e3).toFixed(f % 1e3 === 0 ? 0 : 3) + ' kHz';
+  return f.toFixed(f < 10 ? 3 : (f < 100 ? 2 : 1)) + ' Hz';
+}
+
+function fmtPeriod(p) {
+  if (p < 1e-6) return (p*1e9).toFixed(2) + ' ns';
+  if (p < 1e-3) return (p*1e6).toFixed(2) + ' µs';
+  if (p < 1)    return (p*1e3).toFixed(2) + ' ms';
+  return p.toFixed(2) + ' s';
+}
+
+function buildFreqTable() {
+  const f0 = parseFloat(document.getElementById('freq-in').value) || 32768;
+  const stages = Math.min(20, Math.max(1, parseInt(document.getElementById('freq-stages').value) || 8));
+
+  const tbody = document.getElementById('freq-tbody');
+  let rows = [];
+  // Row 0: CLK input
+  rows.push(`<tr><td>CLK (đầu vào)</td><td>—</td><td class="active-row"><strong>${fmtFreq(f0)}</strong></td><td>${fmtPeriod(1/f0)}</td><td>Tín hiệu gốc</td></tr>`);
+
+  let f = f0;
+  for (let s = 1; s <= stages; s++) {
+    f = f / 2;
+    const note = (s === stages && Math.abs(f - 1) < 0.01) ? 'Q → 1 Hz (giây đồng hồ!)' :
+                 (f < 1) ? 'Cận DC' :
+                 (s <= 4) ? `Q${s-1} (tầng ${s})` : `Q${s-1}`;
+    const hi = (Math.abs(f - 1) < 0.01) ? 'active-row' : '';
+    rows.push(`<tr><td>Tầng ${s}</td><td>÷ ${Math.pow(2,s)}</td><td class="${hi}">${fmtFreq(f)}</td><td>${fmtPeriod(1/f)}</td><td>${note}</td></tr>`);
+  }
+  tbody.innerHTML = rows.join('');
+
+  drawWaveform(f0);
+}
+
+function drawWaveform(f0) {
+  const svg = document.getElementById('wave-svg');
+  const W = 600, H = 200;
+  const labels = ['CLK', 'Q₀', 'Q₁', 'Q₂'];
+  const rowH = 42;
+  const rowTop = 8;
+  const leftPad = 42;
+  const wW = W - leftPad - 8;
+  const periods = 16; // show 16 CLK periods
+  const pxPerPeriod = wW / periods;
+
+  let svgContent = '';
+  svgContent += `<rect width="${W}" height="${H}" fill="#f8fafc" rx="8"/>`;
+
+  const colors = ['#1d4ed8', '#4d7c0f', '#dc2626', '#9333ea'];
+
+  for (let row = 0; row < 4; row++) {
+    const y0 = rowTop + row * rowH;
+    const yHigh = y0 + 4;
+    const yLow  = y0 + rowH - 8;
+    const midY  = (yHigh + yLow) / 2;
+
+    // Label
+    svgContent += `<text x="2" y="${midY+4}" fill="${colors[row]}" font-size="11" font-weight="700" font-family="monospace">${labels[row]}</text>`;
+
+    // Baseline
+    svgContent += `<line x1="${leftPad}" y1="${yLow}" x2="${W-8}" y2="${yLow}" stroke="#e5e7eb" stroke-width="1"/>`;
+
+    // Wave: divides by 2^row
+    const halfPeriods = periods; // CLK has 'periods' half-periods visible
+    const divBy = Math.pow(2, row);
+    // each CLK half-period = pxPerPeriod/2 pixels
+    // signal half-period = divBy * pxPerPeriod/2 pixels
+    const halfPx = pxPerPeriod / 2;
+    const sigHalfPx = divBy * halfPx;
+    const totalW = periods * pxPerPeriod;
+
+    let path = `M${leftPad},${yLow}`;
+    let x = leftPad;
+    let level = 0; // start LOW
+    while (x < leftPad + totalW + 1) {
+      const nextX = Math.min(x + sigHalfPx, leftPad + totalW);
+      const curY = level === 0 ? yLow : yHigh;
+      const nextY = level === 0 ? yHigh : yLow;
+      // horizontal segment
+      path += ` L${nextX},${curY}`;
+      // vertical transition
+      if (nextX < leftPad + totalW) path += ` L${nextX},${nextY}`;
+      x = nextX;
+      level = 1 - level;
+    }
+    svgContent += `<path d="${path}" fill="none" stroke="${colors[row]}" stroke-width="2" stroke-linejoin="round"/>`;
+  }
+
+  svg.innerHTML = svgContent;
+}
+
+buildFreqTable();
+
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 4: Mod-N counter interactive
+// ═══════════════════════════════════════════════════════════
+
+let modnN = 10;
+let modnCurrent = 0;
+let modnAutoTimer = null;
+
+function buildModN() {
+  modnN = Math.max(2, Math.min(64, parseInt(document.getElementById('modn-n').value) || 10));
+  modnCurrent = 0;
+  modnAutoTimer && clearInterval(modnAutoTimer) && (modnAutoTimer = null);
+  document.getElementById('modn-auto-btn').textContent = 'Auto';
+  document.getElementById('modn-auto-btn').classList.remove('active');
+
+  // Calculate required bits
+  const bits = Math.ceil(Math.log2(modnN + 0.01));
+  const nBin = modnN.toString(2).padStart(bits, '0');
+
+  // Which bits are 1 in N
+  const nandBits = [];
+  for (let i = bits - 1; i >= 0; i--) {
+    if ((modnN >> i) & 1) nandBits.push(`Q${i}`);
+  }
+
+  const fClk = parseFloat(document.getElementById('modn-clk').value) || 1000;
+  const fOut = fClk / modnN;
+
+  document.getElementById('modn-design').innerHTML =
+    `<strong>N = ${modnN}</strong> = ${nBin} nhị phân<br>` +
+    `Số flip-flop cần: <span class="hl">${bits} FF</span> (${bits} bit, đếm 0–${Math.pow(2,bits)-1})<br>` +
+    `Cổng NAND: nối <span class="hl">${nandBits.join(' và ')}</span> → CLR (reset khi ${nandBits.join('=')}=1, tức = ${modnN})<br>` +
+    `Tần số ra (carry/overflow): ${fmtFreq(fClk)} ÷ ${modnN} = <span class="hl">${fmtFreq(fOut)}</span>`;
+
+  renderModnSeq();
+}
+
+function renderModnSeq() {
+  const seq = document.getElementById('modn-seq');
+  const bits = Math.ceil(Math.log2(modnN + 0.01));
+  let html = '';
+  for (let i = 0; i < modnN; i++) {
+    const isCurrent = (i === modnCurrent);
+    html += `<div class="modn-cell${isCurrent ? ' active' : ''}" onclick="modnSelect(${i})">${i}</div>`;
+  }
+  // reset cell
+  html += `<div class="modn-cell reset" title="Reset về 0">→0</div>`;
+  seq.innerHTML = html;
+
+  // Update binary state display
+  const curBin = modnCurrent.toString(2).padStart(bits, '0');
+  document.getElementById('modn-binstate').textContent =
+    `Trạng thái hiện tại: ${modnCurrent} = ${curBin} nhị phân`;
+}
+
+function modnSelect(n) {
+  modnCurrent = n;
+  renderModnSeq();
+}
+
+function modnStep() {
+  const prev = modnCurrent;
+  modnCurrent = (modnCurrent + 1) % modnN;
+  renderModnSeq();
+  if (prev === modnN - 1) {
+    // flash reset
+    const cells = document.querySelectorAll('.modn-cell.active');
+    // handled by renderModnSeq
+  }
+}
+
+function modnReset() {
+  modnCurrent = 0;
+  renderModnSeq();
+}
+
+function modnToggleAuto() {
+  const btn = document.getElementById('modn-auto-btn');
+  if (modnAutoTimer) {
+    clearInterval(modnAutoTimer);
+    modnAutoTimer = null;
+    btn.textContent = 'Auto';
+    btn.classList.remove('active');
+  } else {
+    modnAutoTimer = setInterval(modnStep, 500);
+    btn.textContent = 'Stop';
+    btn.classList.add('active');
+  }
+}
+
+// Init Mod-N
+buildModN();
+
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

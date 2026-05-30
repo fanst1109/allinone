@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Dự án tổng hợp: Hệ điều khiển nhiệt độ</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #a3e635; }
+
+  .card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+    margin: 16px 0;
+  }
+
+  /* ── Module 1: Block diagram ── */
+  .block-svg-wrap {
+    display: flex;
+    justify-content: center;
+    overflow-x: auto;
+    margin: 12px 0;
+  }
+
+  /* ── Module 2: Control panel ── */
+  .control-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 12px 0;
+  }
+  .ctrl-col { display: flex; flex-direction: column; gap: 14px; }
+
+  .slider-row { display: flex; flex-direction: column; gap: 6px; }
+  .slider-row label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #374151;
+  }
+  .slider-row input[type="range"] {
+    width: 100%;
+    accent-color: #4d7c0f;
+  }
+  .slider-val {
+    font-family: monospace;
+    font-size: 15px;
+    font-weight: 700;
+    color: #4d7c0f;
+  }
+
+  /* ── OLED Display ── */
+  .oled-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 16px 0;
+  }
+  .oled-screen {
+    background: #0a0a0a;
+    border: 3px solid #374151;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-family: monospace;
+    color: #ffffff;
+    width: 220px;
+    box-shadow: 0 0 12px rgba(0,200,255,0.2) inset;
+  }
+  .oled-row {
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .oled-row.big {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .oled-row.state-cool { color: #60a5fa; }
+  .oled-row.state-heat { color: #f87171; }
+  .oled-row.state-ok   { color: #86efac; }
+  .oled-row.state-alarm { color: #fbbf24; }
+
+  /* ── LED indicators ── */
+  .led-row {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin: 12px 0;
+  }
+  .led-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+  }
+  .led-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid #d1d5db;
+    background: #e5e7eb;
+    transition: background 0.3s, box-shadow 0.3s;
+    flex-shrink: 0;
+  }
+  .led-dot.on-red {
+    background: #ef4444;
+    border-color: #dc2626;
+    box-shadow: 0 0 8px #ef4444;
+  }
+  .led-dot.on-green {
+    background: #22c55e;
+    border-color: #16a34a;
+    box-shadow: 0 0 8px #22c55e;
+  }
+  .led-dot.on-yellow {
+    background: #f59e0b;
+    border-color: #d97706;
+    box-shadow: 0 0 8px #f59e0b;
+  }
+
+  /* ── State badge ── */
+  .state-badge {
+    display: inline-block;
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    transition: all 0.3s;
+    text-align: center;
+    min-width: 160px;
+  }
+  .badge-heat { background: #fef2f2; color: #dc2626; border: 2px solid #fca5a5; }
+  .badge-cool { background: #eff6ff; color: #1d4ed8; border: 2px solid #93c5fd; }
+  .badge-ok   { background: #f0fdf4; color: #15803d; border: 2px solid #86efac; }
+  .badge-alarm{ background: #fffbeb; color: #b45309; border: 2px solid #fcd34d; }
+
+  /* ── Temperature gauge ── */
+  .temp-gauge-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 8px 0;
+  }
+
+  /* ── Chart ── */
+  .chart-wrap {
+    width: 100%;
+    overflow-x: auto;
+    margin: 12px 0;
+  }
+  canvas#tempChart {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* ── Hysteresis band legend ── */
+  .hys-legend {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    margin-top: 8px;
+  }
+  .hys-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .hys-swatch {
+    width: 24px;
+    height: 10px;
+    border-radius: 3px;
+  }
+
+  /* ── Auto/Manual controls ── */
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+  .btn {
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: 2px solid #d1d5db;
+    background: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #374151;
+    transition: all 0.15s;
+  }
+  .btn:hover { border-color: #4d7c0f; color: #4d7c0f; }
+  .btn.active { background: #4d7c0f; border-color: #4d7c0f; color: white; }
+  .btn.danger { border-color: #ef4444; color: #ef4444; }
+  .btn.danger:hover { background: #ef4444; color: white; }
+
+  /* ── Info box ── */
+  .info-box {
+    background: #f0fdf4;
+    border: 2px solid #86efac;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 10px 0;
+  }
+  .info-box.blue { background: #eff6ff; border-color: #93c5fd; }
+  .info-box.amber { background: #fffbeb; border-color: #fcd34d; }
+  .info-box.red   { background: #fef2f2; border-color: #fca5a5; }
+
+  /* ── ADC readout ── */
+  .adc-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-family: monospace;
+    font-size: 13px;
+    background: #1a202c;
+    color: #a3e635;
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin: 10px 0;
+  }
+  .adc-row span { color: #f0fdf4; }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    .control-grid { grid-template-columns: 1fr; }
+    .oled-screen { width: 180px; }
+    .oled-row.big { font-size: 16px; }
+  }
+  @media (max-width: 400px) {
+    .btn { padding: 7px 12px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Electronics — Digital &amp; MCU</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-communication-protocols/visualization.html">← L7: Giao tiếp</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Dự án tổng hợp</span>
+  <span class="sep">·</span>
+  <span>🎓 Hoàn tất lộ trình Electronics</span>
+</nav>
+
+<main>
+<h1>Lesson 08 — Dự án tổng hợp: Hệ điều khiển nhiệt độ tự động</h1>
+<p>Mô phỏng tương tác toàn hệ nhúng: cảm biến → ADC → MCU → actuator → hiển thị. Thay đổi nhiệt độ môi trường và quan sát hệ phản ứng theo logic hysteresis.</p>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 1 — Sơ đồ khối hệ thống
+     ══════════════════════════════════════════════════════════ -->
+<h2>1. Sơ đồ khối hệ thống (Sense → Process → Act)</h2>
+<div class="card">
+  <p>Luồng dữ liệu trong hệ được chiếu sáng theo trạng thái hiện tại. Bấm <strong>Chạy mô phỏng</strong> để xem hệ thống hoạt động tự động.</p>
+  <div class="block-svg-wrap">
+    <svg id="blockSvg" width="700" height="180" viewBox="0 0 700 180">
+      <!-- Background -->
+      <rect width="700" height="180" fill="#f8fafc" rx="12"/>
+
+      <!-- Block: Sensor -->
+      <rect id="blk-sensor" x="10" y="50" width="110" height="80" rx="8"
+            fill="#f0fdf4" stroke="#4d7c0f" stroke-width="2"/>
+      <text x="65" y="82" text-anchor="middle" fill="#166534" font-size="11" font-weight="700">CẢM BIẾN</text>
+      <text x="65" y="96" text-anchor="middle" fill="#374151" font-size="10">Thermistor</text>
+      <text x="65" y="109" text-anchor="middle" fill="#374151" font-size="10">NTC 10kΩ</text>
+      <text x="65" y="122" text-anchor="middle" fill="#4d7c0f" font-size="11" font-weight="700" id="blk-t-val">37.5°C</text>
+
+      <!-- Arrow 1: Sensor → ADC -->
+      <line id="arr1" x1="120" y1="90" x2="148" y2="90" stroke="#d1d5db" stroke-width="2.5"/>
+      <polygon id="arr1-head" points="148,86 156,90 148,94" fill="#d1d5db"/>
+
+      <!-- Block: ADC -->
+      <rect id="blk-adc" x="156" y="50" width="110" height="80" rx="8"
+            fill="#f0fdf4" stroke="#4d7c0f" stroke-width="2"/>
+      <text x="211" y="82" text-anchor="middle" fill="#166534" font-size="11" font-weight="700">ADC 10-bit</text>
+      <text x="211" y="96" text-anchor="middle" fill="#374151" font-size="10">V_A0 → số</text>
+      <text x="211" y="112" text-anchor="middle" fill="#4d7c0f" font-size="11" font-weight="700" id="blk-adc-val">383</text>
+
+      <!-- Arrow 2: ADC → MCU -->
+      <line id="arr2" x1="266" y1="90" x2="294" y2="90" stroke="#d1d5db" stroke-width="2.5"/>
+      <polygon id="arr2-head" points="294,86 302,90 294,94" fill="#d1d5db"/>
+
+      <!-- Block: MCU -->
+      <rect id="blk-mcu" x="302" y="30" width="120" height="120" rx="8"
+            fill="#eff6ff" stroke="#1d4ed8" stroke-width="2.5"/>
+      <text x="362" y="56" text-anchor="middle" fill="#1d4ed8" font-size="11" font-weight="700">MCU</text>
+      <text x="362" y="70" text-anchor="middle" fill="#374151" font-size="10">Arduino Uno</text>
+      <text x="362" y="86" text-anchor="middle" fill="#374151" font-size="10">Hysteresis</text>
+      <text x="362" y="100" text-anchor="middle" fill="#374151" font-size="10">logic</text>
+      <text x="362" y="116" text-anchor="middle" fill="#1d4ed8" font-size="11" font-weight="700" id="blk-state-val">OK</text>
+      <text x="362" y="132" text-anchor="middle" fill="#374151" font-size="10" id="blk-sp-val">SP=37.5°C ±0.5</text>
+
+      <!-- Arrow 3a: MCU → Fan (MOSFET) -->
+      <line id="arr3a" x1="422" y1="68" x2="450" y2="55" stroke="#d1d5db" stroke-width="2.5"/>
+      <polygon id="arr3a-head" points="446,51 454,53 450,61" fill="#d1d5db"/>
+
+      <!-- Block: Fan/MOSFET -->
+      <rect id="blk-fan" x="454" y="30" width="110" height="60" rx="8"
+            fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+      <text x="509" y="55" text-anchor="middle" fill="#9a3412" font-size="11" font-weight="700">MOSFET+Quạt</text>
+      <text x="509" y="69" text-anchor="middle" fill="#374151" font-size="10">IRLZ44N, 12V</text>
+      <text x="509" y="82" text-anchor="middle" fill="#ea580c" font-size="11" font-weight="700" id="blk-fan-val">TẮT</text>
+
+      <!-- Arrow 3b: MCU → Heater (Relay) -->
+      <line id="arr3b" x1="422" y1="112" x2="450" y2="125" stroke="#d1d5db" stroke-width="2.5"/>
+      <polygon id="arr3b-head" points="446,121 454,123 450,131" fill="#d1d5db"/>
+
+      <!-- Block: Heater/Relay -->
+      <rect id="blk-heat" x="454" y="100" width="110" height="60" rx="8"
+            fill="#fef2f2" stroke="#dc2626" stroke-width="2"/>
+      <text x="509" y="124" text-anchor="middle" fill="#991b1b" font-size="11" font-weight="700">Relay+Sưởi</text>
+      <text x="509" y="138" text-anchor="middle" fill="#374151" font-size="10">5V relay, 220V AC</text>
+      <text x="509" y="150" text-anchor="middle" fill="#dc2626" font-size="11" font-weight="700" id="blk-heat-val">TẮT</text>
+
+      <!-- Arrow 4: MCU → OLED (down, then right) -->
+      <line id="arr4" x1="362" y1="150" x2="362" y2="162" stroke="#d1d5db" stroke-width="2"/>
+      <line id="arr4b" x1="362" y1="162" x2="590" y2="162" stroke="#d1d5db" stroke-width="2"/>
+      <polygon id="arr4-head" points="586,158 594,162 586,166" fill="#d1d5db"/>
+
+      <!-- Block: OLED -->
+      <rect id="blk-oled" x="594" y="140" width="96" height="38" rx="8"
+            fill="#1a202c" stroke="#4b5563" stroke-width="2"/>
+      <text x="642" y="156" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="700">OLED I2C</text>
+      <text x="642" y="170" text-anchor="middle" fill="#a3e635" font-size="10" id="blk-oled-val">128×64</text>
+
+      <!-- Feedback arrow: Actuator effect → Environment → Sensor (dashed curve) -->
+      <path id="arr-feedback" d="M 564 90 Q 640 20 65 40" fill="none"
+            stroke="#9ca3af" stroke-width="1.5" stroke-dasharray="5,4"/>
+      <polygon points="69,36 61,40 69,44" fill="#9ca3af"/>
+      <text x="350" y="18" text-anchor="middle" fill="#9ca3af" font-size="10" font-style="italic">vòng phản hồi (feedback loop)</text>
+    </svg>
+  </div>
+  <div class="btn-row">
+    <button class="btn active" id="btn-auto" onclick="toggleAuto()">Chạy mô phỏng tự động</button>
+    <button class="btn" id="btn-reset" onclick="resetSim()">Đặt lại</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 2 — Bảng điều khiển tương tác
+     ══════════════════════════════════════════════════════════ -->
+<h2>2. Bảng điều khiển tương tác</h2>
+<div class="card">
+  <div class="control-grid">
+    <!-- Cột trái: sliders -->
+    <div class="ctrl-col">
+      <div class="slider-row">
+        <label>Nhiệt độ môi trường: <span class="slider-val" id="env-val">37.5 °C</span></label>
+        <input type="range" id="env-slider" min="25" max="45" step="0.1" value="37.5"
+               oninput="onEnvChange()">
+        <small style="color:#6b7280;">Kéo thanh để thay đổi nhiệt độ môi trường (25–45 °C)</small>
+      </div>
+
+      <div class="slider-row">
+        <label>Setpoint (mục tiêu): <span class="slider-val" id="sp-val">37.5 °C</span></label>
+        <input type="range" id="sp-slider" min="30" max="42" step="0.5" value="37.5"
+               oninput="onSetpointChange()">
+      </div>
+
+      <div class="slider-row">
+        <label>Hysteresis (vùng trễ): <span class="slider-val" id="hys-val">± 0.5 °C</span></label>
+        <input type="range" id="hys-slider" min="0.1" max="2.0" step="0.1" value="0.5"
+               oninput="onHysChange()">
+        <small style="color:#6b7280;">Hysteresis nhỏ → nhạy hơn nhưng dễ chattering</small>
+      </div>
+    </div>
+
+    <!-- Cột phải: OLED + LED + state -->
+    <div class="ctrl-col">
+      <div class="oled-wrap">
+        <div class="oled-screen">
+          <div class="oled-row big" id="oled-temp">T: 37.5 C</div>
+          <div class="oled-row" id="oled-sp">Set:37.5C Hys:0.5</div>
+          <div class="oled-row" id="oled-state">   IN RANGE  </div>
+          <div class="oled-row" id="oled-bar">|#########|</div>
+        </div>
+      </div>
+
+      <div class="led-row">
+        <div class="led-item">
+          <div class="led-dot" id="led-red"></div>
+          <span>LED đỏ (HEATING)</span>
+        </div>
+        <div class="led-item">
+          <div class="led-dot" id="led-green"></div>
+          <span>LED xanh (COOLING)</span>
+        </div>
+        <div class="led-item">
+          <div class="led-dot" id="led-alarm"></div>
+          <span>Cảnh báo</span>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-top:8px;">
+        <span class="state-badge badge-ok" id="state-badge">IN RANGE</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADC readout -->
+  <div class="adc-row" id="adc-readout">
+    <span>ADC:</span> <span id="adc-val">383</span>
+    <span>V_A0:</span> <span id="vadc-val">1.875 V</span>
+    <span>R_NTC:</span> <span id="rntc-val">5993 Ω</span>
+    <span>Tính toán: B-param Steinhart-Hart</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 3 — Đồ thị nhiệt độ theo thời gian
+     ══════════════════════════════════════════════════════════ -->
+<h2>3. Đồ thị nhiệt độ theo thời gian</h2>
+<div class="card">
+  <p>Đồ thị hiển thị nhiệt độ dao động quanh setpoint với hysteresis. Vùng xanh lá = trong ngưỡng cho phép, chứng minh hysteresis ngăn chattering.</p>
+
+  <div class="hys-legend">
+    <div class="hys-item">
+      <div class="hys-swatch" style="background:#ef4444;"></div>
+      <span>Nhiệt độ thực</span>
+    </div>
+    <div class="hys-item">
+      <div class="hys-swatch" style="background:#1d4ed8;"></div>
+      <span>Setpoint</span>
+    </div>
+    <div class="hys-item">
+      <div class="hys-swatch" style="background:rgba(134,239,172,0.5); border:1px solid #22c55e;"></div>
+      <span>Vùng trễ (hysteresis band)</span>
+    </div>
+    <div class="hys-item">
+      <div class="hys-swatch" style="background:#fca5a5; border:1px solid #ef4444;"></div>
+      <span>Đang sưởi</span>
+    </div>
+    <div class="hys-item">
+      <div class="hys-swatch" style="background:#93c5fd; border:1px solid #1d4ed8;"></div>
+      <span>Đang làm mát</span>
+    </div>
+  </div>
+
+  <div class="chart-wrap">
+    <canvas id="tempChart" height="220"></canvas>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn" onclick="clearChart()">Xóa đồ thị</button>
+    <button class="btn" id="btn-inject-cold" onclick="injectCold()">Tiêm lạnh đột ngột</button>
+    <button class="btn" id="btn-inject-hot" onclick="injectHot()">Tiêm nóng đột ngột</button>
+  </div>
+  <div class="info-box" id="chart-info">
+    Chạy mô phỏng tự động để thấy nhiệt độ dao động và hysteresis hoạt động.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 4 — Minh họa Hysteresis
+     ══════════════════════════════════════════════════════════ -->
+<h2>4. Phân tích Hysteresis — vì sao tránh được chattering</h2>
+<div class="card">
+  <p>Hình dưới minh họa hai trường hợp: <strong>không có hysteresis</strong> (ON/OFF đơn giản) so với <strong>có hysteresis</strong>. Quan sát số lần relay đóng/ngắt.</p>
+  <div class="block-svg-wrap">
+    <svg id="hysSvg" width="640" height="260" viewBox="0 0 640 260">
+      <rect width="640" height="260" fill="#f8fafc" rx="10"/>
+
+      <!-- Left panel: no hysteresis -->
+      <text x="160" y="22" text-anchor="middle" fill="#dc2626" font-size="13" font-weight="700">BANG-BANG (không hysteresis)</text>
+      <!-- Temperature line (wavy) -->
+      <path id="wave-no-hys" d="" fill="none" stroke="#374151" stroke-width="2"/>
+      <!-- Setpoint line -->
+      <line x1="20" y1="130" x2="300" y2="130" stroke="#1d4ed8" stroke-width="1.5" stroke-dasharray="6,3"/>
+      <text x="296" y="127" text-anchor="end" fill="#1d4ed8" font-size="10">SP</text>
+      <!-- ON/OFF bars below -->
+      <text x="20" y="195" fill="#374151" font-size="10">Relay:</text>
+      <g id="relay-nohys-bars"></g>
+      <text x="20" y="240" fill="#dc2626" font-size="11" id="chattering-count">Số lần đóng/ngắt: ...</text>
+
+      <!-- Divider -->
+      <line x1="320" y1="10" x2="320" y2="255" stroke="#d1d5db" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+      <!-- Right panel: with hysteresis -->
+      <text x="480" y="22" text-anchor="middle" fill="#15803d" font-size="13" font-weight="700">HYSTERESIS (bài này dùng)</text>
+      <!-- Hysteresis band -->
+      <rect id="hys-band-rect" x="325" y="115" width="305" height="30"
+            fill="rgba(134,239,172,0.3)" stroke="#22c55e" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="630" y="127" text-anchor="end" fill="#15803d" font-size="10" id="hys-upper-lbl">+h</text>
+      <text x="630" y="147" text-anchor="end" fill="#15803d" font-size="10" id="hys-lower-lbl">-h</text>
+      <!-- Setpoint line right -->
+      <line x1="325" y1="130" x2="625" y2="130" stroke="#1d4ed8" stroke-width="1.5" stroke-dasharray="6,3"/>
+      <text x="621" y="127" text-anchor="end" fill="#1d4ed8" font-size="10">SP</text>
+      <!-- Temperature line with hysteresis -->
+      <path id="wave-with-hys" d="" fill="none" stroke="#374151" stroke-width="2"/>
+      <!-- Relay bars right -->
+      <text x="328" y="195" fill="#374151" font-size="10">Relay:</text>
+      <g id="relay-hys-bars"></g>
+      <text x="328" y="240" fill="#15803d" font-size="11" id="stable-count">Số lần đóng/ngắt: ...</text>
+    </svg>
+  </div>
+  <div class="info-box">
+    <strong>Kết luận:</strong> Bang-bang đóng/ngắt relay rất nhiều lần khi nhiệt độ dao động nhỏ quanh setpoint. Hysteresis tạo "vùng im lặng" rộng = h °C mỗi phía — relay chỉ đóng/ngắt khi nhiệt độ thực sự vượt ngưỡng.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 5 — ADC & Steinhart-Hart calculator
+     ══════════════════════════════════════════════════════════ -->
+<h2>5. Máy tính ADC — Thermistor NTC</h2>
+<div class="card">
+  <p>Nhập giá trị ADC (0–1023) đọc được từ Arduino, hệ tính ngay ra điện áp V_A0, điện trở R_NTC và nhiệt độ °C.</p>
+
+  <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:flex-end; margin:12px 0;">
+    <div class="slider-row" style="flex:1; min-width:200px;">
+      <label>Giá trị ADC: <span class="slider-val" id="adc-in-val">383</span></label>
+      <input type="range" id="adc-in" min="50" max="950" step="1" value="383" oninput="calcNTC()">
+    </div>
+    <div style="flex:1; min-width:200px;">
+      <div class="slider-row">
+        <label>R1 (Ω): <span class="slider-val" id="r1-val">10000</span></label>
+        <input type="range" id="r1-in" min="1000" max="47000" step="1000" value="10000" oninput="calcNTC()">
+      </div>
+    </div>
+    <div style="flex:1; min-width:200px;">
+      <div class="slider-row">
+        <label>B-coefficient: <span class="slider-val" id="b-val">3950</span></label>
+        <input type="range" id="b-in" min="3000" max="5000" step="50" value="3950" oninput="calcNTC()">
+      </div>
+    </div>
+  </div>
+
+  <div class="adc-row" id="ntc-result">
+    Chỉnh slider ADC để xem kết quả...
+  </div>
+
+  <div style="overflow-x:auto; margin-top:14px;">
+    <table id="ntc-table" style="width:100%; border-collapse:collapse; font-size:13px;">
+      <thead>
+        <tr style="background:#4d7c0f; color:white;">
+          <th style="padding:7px 10px; text-align:left;">Nhiệt độ (°C)</th>
+          <th style="padding:7px 10px; text-align:left;">R_NTC (Ω)</th>
+          <th style="padding:7px 10px; text-align:left;">V_A0 (V)</th>
+          <th style="padding:7px 10px; text-align:left;">ADC (0–1023)</th>
+          <th style="padding:7px 10px; text-align:left;">Ghi chú</th>
+        </tr>
+      </thead>
+      <tbody id="ntc-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ════════════════════════════════════════════════════════════
+// CONSTANTS & STATE
+// ════════════════════════════════════════════════════════════
+const VCC = 5.0;
+const ADC_MAX = 1023;
+const R1 = 10000;
+const R0 = 10000;   // NTC at 25°C
+const B  = 3950;
+const T0 = 298.15;  // 25°C in Kelvin
+
+let setpoint  = 37.5;
+let hysteresis = 0.5;
+let envTemp   = 37.5;
+let simState  = 'OK';   // 'HEATING' | 'COOLING' | 'OK'
+let autoRunning = true;
+
+// Chart data
+const CHART_MAX_POINTS = 120;
+let chartData = [];       // {t, temp, state}
+let simTime = 0;
+
+// Auto simulation state
+let autoTemp = 35.0;      // auto starts cold
+let autoDir = 1;          // +1 = heating env, -1 = cooling
+let autoIntervalId = null;
+
+// ════════════════════════════════════════════════════════════
+// STEINHART-HART (B-parameter)
+// ════════════════════════════════════════════════════════════
+function tempToRNTC(tempC, b = B) {
+  const T = tempC + 273.15;
+  return R0 * Math.exp(b * (1/T - 1/T0));
+}
+
+function rNTCtoTemp(rNtc, b = B) {
+  const lnR = Math.log(rNtc / R0);
+  const invT = 1/T0 + lnR / b;
+  return 1/invT - 273.15;
+}
+
+function tempToADC(tempC) {
+  const rNtc = tempToRNTC(tempC);
+  const vA0  = VCC * rNtc / (R1 + rNtc);
+  return Math.round(vA0 / VCC * ADC_MAX);
+}
+
+function adcToInfo(adcVal, r1 = R1, b = B) {
+  const vA0 = adcVal * VCC / ADC_MAX;
+  const rNtc = r1 * vA0 / (VCC - vA0);
+  const tempC = rNTCtoTemp(rNtc, b);
+  return { vA0, rNtc, tempC };
+}
+
+// ════════════════════════════════════════════════════════════
+// HYSTERESIS CONTROL LOGIC
+// ════════════════════════════════════════════════════════════
+function applyControl(temp) {
+  const heatOn  = setpoint - hysteresis;
+  const coolOn  = setpoint + hysteresis;
+
+  if (temp < heatOn) {
+    simState = 'HEATING';
+  } else if (temp > coolOn) {
+    simState = 'COOLING';
+  }
+  // else: HOLD — không thay đổi simState
+  return simState;
+}
+
+// ════════════════════════════════════════════════════════════
+// UPDATE ALL UI ELEMENTS
+// ════════════════════════════════════════════════════════════
+function updateAll(temp) {
+  applyControl(temp);
+
+  const heatOn  = setpoint - hysteresis;
+  const coolOn  = setpoint + hysteresis;
+  const alarm   = temp > 42.0 || temp < 30.0;
+  const rNtc    = tempToRNTC(temp);
+  const vA0     = VCC * rNtc / (R1 + rNtc);
+  const adcVal  = Math.round(vA0 / VCC * ADC_MAX);
+
+  // ── ADC readout ──
+  document.getElementById('adc-val').textContent  = adcVal;
+  document.getElementById('vadc-val').textContent = vA0.toFixed(3) + ' V';
+  document.getElementById('rntc-val').textContent = Math.round(rNtc) + ' Ω';
+
+  // ── OLED ──
+  document.getElementById('oled-temp').textContent = 'T: ' + temp.toFixed(1) + ' C';
+  document.getElementById('oled-sp').textContent   = 'Set:' + setpoint.toFixed(1) + 'C H:' + hysteresis.toFixed(1);
+  const stateEl = document.getElementById('oled-state');
+  stateEl.className = 'oled-row';
+  if (alarm) {
+    stateEl.textContent = '!! ALARM !!';
+    stateEl.classList.add('state-alarm');
+  } else if (simState === 'HEATING') {
+    stateEl.textContent = '>> HEATING <<';
+    stateEl.classList.add('state-heat');
+  } else if (simState === 'COOLING') {
+    stateEl.textContent = '>> COOLING <<';
+    stateEl.classList.add('state-cool');
+  } else {
+    stateEl.textContent = '   IN RANGE  ';
+    stateEl.classList.add('state-ok');
+  }
+
+  // Bar: map temp 30–42 to 0–10 hashes
+  const barLen = Math.max(0, Math.min(10, Math.round((temp - 30) / 12 * 10)));
+  document.getElementById('oled-bar').textContent = '|' + '#'.repeat(barLen) + '.'.repeat(10 - barLen) + '|';
+
+  // ── LED dots ──
+  const ledRed   = document.getElementById('led-red');
+  const ledGreen = document.getElementById('led-green');
+  const ledAlarm = document.getElementById('led-alarm');
+  ledRed.className   = 'led-dot' + (simState === 'HEATING' ? ' on-red' : '');
+  ledGreen.className = 'led-dot' + (simState === 'COOLING' ? ' on-green' : '');
+  ledAlarm.className = 'led-dot' + (alarm ? ' on-yellow' : '');
+
+  // ── State badge ──
+  const badge = document.getElementById('state-badge');
+  if (alarm) {
+    badge.textContent = 'ALARM!';
+    badge.className   = 'state-badge badge-alarm';
+  } else if (simState === 'HEATING') {
+    badge.textContent = 'HEATING — Sưởi đang bật';
+    badge.className   = 'state-badge badge-heat';
+  } else if (simState === 'COOLING') {
+    badge.textContent = 'COOLING — Quạt đang bật';
+    badge.className   = 'state-badge badge-cool';
+  } else {
+    badge.textContent = 'IN RANGE — Ổn định';
+    badge.className   = 'state-badge badge-ok';
+  }
+
+  // ── Block diagram ──
+  highlightBlocks(temp, simState, adcVal, alarm);
+
+  // ── Chart data ──
+  chartData.push({ t: simTime++, temp, state: simState, alarm });
+  if (chartData.length > CHART_MAX_POINTS) chartData.shift();
+  drawChart();
+
+  // ── Chart info ──
+  const countHeat = chartData.filter(d => d.state === 'HEATING').length;
+  const countCool = chartData.filter(d => d.state === 'COOLING').length;
+  document.getElementById('chart-info').innerHTML =
+    `Hiện tại: <strong>${temp.toFixed(2)} °C</strong> | ` +
+    `Setpoint: <strong>${setpoint.toFixed(1)} °C</strong> | ` +
+    `Vùng trễ: <strong>${heatOn.toFixed(1)}–${coolOn.toFixed(1)} °C</strong> | ` +
+    `HEATING: ${countHeat} mẫu | COOLING: ${countCool} mẫu trong ${chartData.length} mẫu cuối`;
+}
+
+// ════════════════════════════════════════════════════════════
+// BLOCK DIAGRAM HIGHLIGHT
+// ════════════════════════════════════════════════════════════
+function highlightBlocks(temp, state, adcVal, alarm) {
+  const ACTIVE  = '#a3e635';
+  const INACTIVE = '#d1d5db';
+  const HEAT_COLOR = '#ef4444';
+  const COOL_COLOR = '#3b82f6';
+  const ALARM_COLOR = '#f59e0b';
+
+  // Color active blocks
+  const activeColor = alarm ? ALARM_COLOR : (state === 'HEATING' ? HEAT_COLOR : state === 'COOLING' ? COOL_COLOR : ACTIVE);
+
+  // Always active: sensor, ADC, MCU
+  ['blk-sensor', 'blk-adc', 'blk-mcu'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('stroke', activeColor);
+  });
+  ['arr1', 'arr2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.setAttribute('stroke', activeColor); }
+  });
+  ['arr1-head', 'arr2-head'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('fill', activeColor);
+  });
+
+  // Fan block
+  const fanActive = state === 'COOLING';
+  const fanColor  = fanActive ? COOL_COLOR : INACTIVE;
+  document.getElementById('blk-fan').setAttribute('stroke', fanColor);
+  document.getElementById('blk-fan-val').textContent = fanActive ? 'BẬT' : 'TẮT';
+  document.getElementById('blk-fan-val').setAttribute('fill', fanActive ? COOL_COLOR : '#9ca3af');
+  document.getElementById('arr3a').setAttribute('stroke', fanColor);
+  document.getElementById('arr3a-head').setAttribute('fill', fanColor);
+
+  // Heater block
+  const heatActive = state === 'HEATING';
+  const heatColor  = heatActive ? HEAT_COLOR : INACTIVE;
+  document.getElementById('blk-heat').setAttribute('stroke', heatColor);
+  document.getElementById('blk-heat-val').textContent = heatActive ? 'BẬT' : 'TẮT';
+  document.getElementById('blk-heat-val').setAttribute('fill', heatActive ? HEAT_COLOR : '#9ca3af');
+  document.getElementById('arr3b').setAttribute('stroke', heatColor);
+  document.getElementById('arr3b-head').setAttribute('fill', heatColor);
+
+  // OLED block always active
+  document.getElementById('blk-oled').setAttribute('stroke', activeColor);
+  ['arr4', 'arr4b'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('stroke', activeColor);
+  });
+  document.getElementById('arr4-head').setAttribute('fill', activeColor);
+
+  // Update text labels in blocks
+  document.getElementById('blk-t-val').textContent   = temp.toFixed(1) + '°C';
+  document.getElementById('blk-adc-val').textContent = adcVal;
+  document.getElementById('blk-state-val').textContent = state;
+  document.getElementById('blk-sp-val').textContent   = 'SP=' + setpoint.toFixed(1) + '°C ±' + hysteresis.toFixed(1);
+  document.getElementById('blk-oled-val').textContent = temp.toFixed(1) + '°C';
+}
+
+// ════════════════════════════════════════════════════════════
+// CHART DRAWING
+// ════════════════════════════════════════════════════════════
+function drawChart() {
+  const canvas = document.getElementById('tempChart');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 600;
+  const H = 220;
+
+  // Set canvas internal resolution
+  canvas.width  = W;
+  canvas.height = H;
+
+  ctx.clearRect(0, 0, W, H);
+
+  if (chartData.length < 2) return;
+
+  const PAD = { top: 20, right: 20, bottom: 30, left: 44 };
+  const plotW = W - PAD.left - PAD.right;
+  const plotH = H - PAD.top - PAD.bottom;
+
+  // Temperature range: setpoint ± 4°C or min/max of data
+  const temps = chartData.map(d => d.temp);
+  const tMin = Math.min(...temps, setpoint - hysteresis - 1.5);
+  const tMax = Math.max(...temps, setpoint + hysteresis + 1.5);
+  const tRange = tMax - tMin || 1;
+
+  function xOf(i) { return PAD.left + (i / (CHART_MAX_POINTS - 1)) * plotW; }
+  function yOf(t) { return PAD.top + plotH - ((t - tMin) / tRange) * plotH; }
+
+  // ── Hysteresis band ──
+  const yUpper = yOf(setpoint + hysteresis);
+  const yLower = yOf(setpoint - hysteresis);
+  ctx.fillStyle = 'rgba(134,239,172,0.25)';
+  ctx.fillRect(PAD.left, yUpper, plotW, yLower - yUpper);
+  ctx.strokeStyle = '#22c55e';
+  ctx.setLineDash([5, 3]);
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(PAD.left, yUpper); ctx.lineTo(PAD.left + plotW, yUpper); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(PAD.left, yLower); ctx.lineTo(PAD.left + plotW, yLower); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // ── Setpoint line ──
+  const ySP = yOf(setpoint);
+  ctx.strokeStyle = '#1d4ed8';
+  ctx.setLineDash([6, 4]);
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(PAD.left, ySP); ctx.lineTo(PAD.left + plotW, ySP); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#1d4ed8';
+  ctx.font = '10px sans-serif';
+  ctx.fillText('SP=' + setpoint.toFixed(1), PAD.left + plotW - 42, ySP - 3);
+
+  // ── State-colored background segments ──
+  for (let i = 0; i < chartData.length - 1; i++) {
+    const d = chartData[i];
+    const x0 = xOf(CHART_MAX_POINTS - chartData.length + i);
+    const x1 = xOf(CHART_MAX_POINTS - chartData.length + i + 1);
+    if (d.state === 'HEATING') {
+      ctx.fillStyle = 'rgba(252,165,165,0.25)';
+    } else if (d.state === 'COOLING') {
+      ctx.fillStyle = 'rgba(147,197,253,0.25)';
+    } else {
+      ctx.fillStyle = 'transparent';
+    }
+    ctx.fillRect(x0, PAD.top, x1 - x0, plotH);
+  }
+
+  // ── Temperature curve ──
+  ctx.strokeStyle = '#ef4444';
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  chartData.forEach((d, i) => {
+    const x = xOf(CHART_MAX_POINTS - chartData.length + i);
+    const y = yOf(d.temp);
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  // ── Alarm marks ──
+  chartData.forEach((d, i) => {
+    if (d.alarm) {
+      const x = xOf(CHART_MAX_POINTS - chartData.length + i);
+      ctx.fillStyle = '#f59e0b';
+      ctx.beginPath();
+      ctx.arc(x, yOf(d.temp), 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
+
+  // ── Y axis labels ──
+  ctx.fillStyle = '#374151';
+  ctx.font = '11px monospace';
+  ctx.textAlign = 'right';
+  const steps = 4;
+  for (let s = 0; s <= steps; s++) {
+    const t = tMin + (s / steps) * tRange;
+    const y = yOf(t);
+    ctx.fillText(t.toFixed(1) + '°', PAD.left - 4, y + 4);
+    ctx.strokeStyle = '#e5e7eb';
+    ctx.lineWidth = 0.8;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + plotW, y); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // ── X axis label ──
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#9ca3af';
+  ctx.font = '10px sans-serif';
+  ctx.fillText('← ' + chartData.length + ' mẫu gần nhất (1 giây/mẫu) →', PAD.left + plotW / 2, H - 5);
+}
+
+// ════════════════════════════════════════════════════════════
+// AUTO SIMULATION
+// ════════════════════════════════════════════════════════════
+function startAuto() {
+  if (autoIntervalId) clearInterval(autoIntervalId);
+  autoRunning = true;
+  document.getElementById('btn-auto').classList.add('active');
+  document.getElementById('btn-auto').textContent = 'Dừng mô phỏng';
+
+  autoIntervalId = setInterval(() => {
+    // Simulate environment temperature slowly drifting
+    // Heater warms at +0.15°C/step, fan cools at -0.12°C/step, natural drift ±0.02
+    const noise = (Math.random() - 0.5) * 0.08;
+    if (simState === 'HEATING') {
+      autoTemp += 0.18 + noise;
+    } else if (simState === 'COOLING') {
+      autoTemp -= 0.14 + noise;
+    } else {
+      // Natural drift: slowly approach ambient (simulate thermal loss)
+      const ambientDrift = (autoTemp > setpoint) ? -0.05 : 0.05;
+      autoTemp += ambientDrift + noise;
+    }
+
+    // Clamp
+    autoTemp = Math.max(25, Math.min(45, autoTemp));
+
+    // Update env slider
+    document.getElementById('env-slider').value = autoTemp.toFixed(1);
+    document.getElementById('env-val').textContent = autoTemp.toFixed(1) + ' °C';
+    envTemp = autoTemp;
+
+    updateAll(autoTemp);
+  }, 400);
+}
+
+function stopAuto() {
+  clearInterval(autoIntervalId);
+  autoIntervalId = null;
+  autoRunning = false;
+  document.getElementById('btn-auto').classList.remove('active');
+  document.getElementById('btn-auto').textContent = 'Chạy mô phỏng tự động';
+}
+
+function toggleAuto() {
+  if (autoRunning) stopAuto();
+  else { autoTemp = envTemp; startAuto(); }
+}
+
+function resetSim() {
+  stopAuto();
+  simState = 'OK';
+  autoTemp = 35.0;
+  chartData = [];
+  simTime = 0;
+  document.getElementById('env-slider').value = '37.5';
+  document.getElementById('env-val').textContent = '37.5 °C';
+  document.getElementById('sp-slider').value = '37.5';
+  document.getElementById('sp-val').textContent = '37.5 °C';
+  document.getElementById('hys-slider').value = '0.5';
+  document.getElementById('hys-val').textContent = '± 0.5 °C';
+  setpoint = 37.5;
+  hysteresis = 0.5;
+  envTemp = 37.5;
+  updateAll(37.5);
+  drawHysComparison();
+}
+
+// ════════════════════════════════════════════════════════════
+// SLIDER HANDLERS
+// ════════════════════════════════════════════════════════════
+function onEnvChange() {
+  stopAuto();
+  envTemp = parseFloat(document.getElementById('env-slider').value);
+  document.getElementById('env-val').textContent = envTemp.toFixed(1) + ' °C';
+  autoTemp = envTemp;
+  updateAll(envTemp);
+}
+
+function onSetpointChange() {
+  setpoint = parseFloat(document.getElementById('sp-slider').value);
+  document.getElementById('sp-val').textContent = setpoint.toFixed(1) + ' °C';
+  updateAll(envTemp);
+  drawHysComparison();
+}
+
+function onHysChange() {
+  hysteresis = parseFloat(document.getElementById('hys-slider').value);
+  document.getElementById('hys-val').textContent = '± ' + hysteresis.toFixed(1) + ' °C';
+  updateAll(envTemp);
+  drawHysComparison();
+}
+
+// ════════════════════════════════════════════════════════════
+// INJECT EVENTS
+// ════════════════════════════════════════════════════════════
+function injectCold() {
+  stopAuto();
+  autoTemp = setpoint - hysteresis - 2.0;
+  envTemp = autoTemp;
+  document.getElementById('env-slider').value = autoTemp.toFixed(1);
+  document.getElementById('env-val').textContent = autoTemp.toFixed(1) + ' °C';
+  updateAll(autoTemp);
+  startAuto();
+}
+
+function injectHot() {
+  stopAuto();
+  autoTemp = setpoint + hysteresis + 2.0;
+  envTemp = autoTemp;
+  document.getElementById('env-slider').value = autoTemp.toFixed(1);
+  document.getElementById('env-val').textContent = autoTemp.toFixed(1) + ' °C';
+  updateAll(autoTemp);
+  startAuto();
+}
+
+function clearChart() {
+  chartData = [];
+  simTime = 0;
+  const canvas = document.getElementById('tempChart');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  document.getElementById('chart-info').textContent = 'Đồ thị đã xóa. Chạy lại mô phỏng để thu thập dữ liệu mới.';
+}
+
+// ════════════════════════════════════════════════════════════
+// HYSTERESIS COMPARISON DIAGRAM
+// ════════════════════════════════════════════════════════════
+function drawHysComparison() {
+  const h = hysteresis;
+  const sp = setpoint;
+  const STEPS = 60;
+  const X0 = 20, X1 = 300, YMid = 130, YSCALE = 18; // px per °C
+  const X0R = 325, X1R = 625; // right panel
+
+  // Generate synthetic temperature signal: small oscillation around SP
+  const amplitude = 0.8; // °C oscillation amplitude
+  const noHysRelayChanges = [];
+  const hysRelayChanges = [];
+  let hysState = 'OFF';
+  let noHysState = 'OFF';
+  let noHysCount = 0;
+  let hysCount = 0;
+
+  const ptsLeft = [];
+  const ptsRight = [];
+
+  for (let i = 0; i < STEPS; i++) {
+    const t = sp + amplitude * Math.sin(i * 0.4) + 0.3 * Math.sin(i * 1.1);
+    ptsLeft.push(t);
+    ptsRight.push(t);
+
+    // No hysteresis: simple threshold
+    const newNoHysState = t < sp ? 'ON' : 'OFF';
+    if (newNoHysState !== noHysState) { noHysCount++; noHysState = newNoHysState; }
+    noHysRelayChanges.push(noHysState === 'ON');
+
+    // With hysteresis
+    if (t < sp - h) hysState = 'ON';
+    else if (t > sp + h) hysState = 'OFF';
+    // else HOLD
+    if (hysState === 'ON' && hysRelayChanges.length > 0 && !hysRelayChanges[hysRelayChanges.length - 1]) hysCount++;
+    else if (hysState === 'OFF' && hysRelayChanges.length > 0 && hysRelayChanges[hysRelayChanges.length - 1]) hysCount++;
+    hysRelayChanges.push(hysState === 'ON');
+  }
+
+  // Draw left (no hysteresis)
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const makePathD = (pts, x0, x1, yMid, yScale) => {
+    const step = (x1 - x0) / (pts.length - 1);
+    return pts.map((t, i) => {
+      const x = x0 + i * step;
+      const y = yMid - (t - sp) * yScale;
+      return (i === 0 ? 'M' : 'L') + x.toFixed(1) + ',' + y.toFixed(1);
+    }).join(' ');
+  };
+
+  document.getElementById('wave-no-hys').setAttribute('d', makePathD(ptsLeft, X0, X1, YMid, YSCALE));
+  document.getElementById('wave-with-hys').setAttribute('d', makePathD(ptsRight, X0R, X1R, YMid, YSCALE));
+
+  // Hysteresis band on right
+  const yUpper = YMid - h * YSCALE;
+  const yLower = YMid + h * YSCALE;
+  const bandRect = document.getElementById('hys-band-rect');
+  bandRect.setAttribute('y', yUpper.toFixed(1));
+  bandRect.setAttribute('height', (yLower - yUpper).toFixed(1));
+
+  document.getElementById('hys-upper-lbl').textContent = '+' + h.toFixed(1) + '°';
+  document.getElementById('hys-lower-lbl').textContent = '-' + h.toFixed(1) + '°';
+
+  // Draw relay bars (no hys)
+  const barsNoHys = document.getElementById('relay-nohys-bars');
+  barsNoHys.innerHTML = '';
+  const barStep = (X1 - X0) / STEPS;
+  noHysRelayChanges.forEach((on, i) => {
+    if (on) {
+      const rect = document.createElementNS(svgNS, 'rect');
+      rect.setAttribute('x', (X0 + i * barStep).toFixed(1));
+      rect.setAttribute('y', '200');
+      rect.setAttribute('width', barStep.toFixed(1));
+      rect.setAttribute('height', '14');
+      rect.setAttribute('fill', '#ef4444');
+      rect.setAttribute('opacity', '0.8');
+      barsNoHys.appendChild(rect);
+    }
+  });
+  document.getElementById('chattering-count').textContent =
+    'Số lần đóng/ngắt: ' + noHysCount + ' lần (chattering!)';
+  document.getElementById('chattering-count').setAttribute('fill', noHysCount > 5 ? '#dc2626' : '#374151');
+
+  // Draw relay bars (with hys)
+  const barsHys = document.getElementById('relay-hys-bars');
+  barsHys.innerHTML = '';
+  const barStepR = (X1R - X0R) / STEPS;
+  hysRelayChanges.forEach((on, i) => {
+    if (on) {
+      const rect = document.createElementNS(svgNS, 'rect');
+      rect.setAttribute('x', (X0R + i * barStepR).toFixed(1));
+      rect.setAttribute('y', '200');
+      rect.setAttribute('width', barStepR.toFixed(1));
+      rect.setAttribute('height', '14');
+      rect.setAttribute('fill', '#22c55e');
+      rect.setAttribute('opacity', '0.8');
+      barsHys.appendChild(rect);
+    }
+  });
+  document.getElementById('stable-count').textContent =
+    'Số lần đóng/ngắt: ' + hysCount + ' lần (ổn định)';
+  document.getElementById('stable-count').setAttribute('fill', '#15803d');
+}
+
+// ════════════════════════════════════════════════════════════
+// NTC CALCULATOR (Module 5)
+// ════════════════════════════════════════════════════════════
+function calcNTC() {
+  const adcVal = parseInt(document.getElementById('adc-in').value);
+  const r1 = parseInt(document.getElementById('r1-in').value);
+  const b  = parseInt(document.getElementById('b-in').value);
+
+  document.getElementById('adc-in-val').textContent = adcVal;
+  document.getElementById('r1-val').textContent = r1.toLocaleString();
+  document.getElementById('b-val').textContent = b;
+
+  const info = adcToInfo(adcVal, r1, b);
+  document.getElementById('ntc-result').innerHTML =
+    `<span>ADC: ${adcVal}</span>  ` +
+    `<span>V_A0: ${info.vA0.toFixed(4)} V</span>  ` +
+    `<span>R_NTC: ${Math.round(info.rNtc)} Ω (${(info.rNtc/1000).toFixed(2)} kΩ)</span>  ` +
+    `<span>Nhiệt độ: <strong style="font-size:16px; color:#a3e635;">${info.tempC.toFixed(2)} °C</strong></span>`;
+
+  // Rebuild table
+  buildNTCTable(r1, b);
+}
+
+function buildNTCTable(r1, b) {
+  const temps = [10, 15, 20, 25, 30, 35, 37, 38, 40, 42, 45, 50];
+  const tbody = document.getElementById('ntc-tbody');
+  tbody.innerHTML = '';
+  const sp = setpoint;
+  const h  = hysteresis;
+
+  temps.forEach(tC => {
+    const rNtc = tempToRNTC(tC, b);
+    const vA0  = VCC * rNtc / (r1 + rNtc);
+    const adc  = Math.round(vA0 / VCC * ADC_MAX);
+    let note = '';
+    let bg = '';
+    if (tC < sp - h)       { note = 'HEATING zone';  bg = '#fef2f2'; }
+    else if (tC > sp + h)  { note = 'COOLING zone';  bg = '#eff6ff'; }
+    else                   { note = 'Hysteresis band'; bg = '#f0fdf4'; }
+    if (tC === 42)         { note += ' ⚠ ALARM_HI'; bg = '#fffbeb'; }
+
+    const tr = document.createElement('tr');
+    tr.style.background = bg;
+    tr.innerHTML = `
+      <td style="padding:6px 10px; font-weight:700;">${tC} °C</td>
+      <td style="padding:6px 10px; font-family:monospace;">${Math.round(rNtc).toLocaleString()}</td>
+      <td style="padding:6px 10px; font-family:monospace;">${vA0.toFixed(3)}</td>
+      <td style="padding:6px 10px; font-family:monospace;">${adc}</td>
+      <td style="padding:6px 10px; font-size:12px; color:#6b7280;">${note}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════
+window.addEventListener('load', () => {
+  updateAll(envTemp);
+  drawHysComparison();
+  buildNTCTable(R1, B);
+  calcNTC();
+  startAuto();
+});
+
+window.addEventListener('resize', () => {
+  if (chartData.length > 1) drawChart();
+});
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

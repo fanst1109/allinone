@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Châu Âu trung đại</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette WorldHistory / Trung đại ── */
+  :root {
+    --accent:        #0f766e;
+    --accent-soft:   #ccfbf1;
+    --accent-dark:   #134e4a;
+    --red-war:       #b91c1c;
+    --red-soft:      #fee2e2;
+    --gold:          #b45309;
+    --gold-soft:     #fef3c7;
+    --blue-trade:    #1d4ed8;
+    --blue-soft:     #dbeafe;
+    --stone:         #57534e;
+    --stone-soft:    #f5f5f4;
+    --purple:        #7c3aed;
+    --purple-soft:   #ede9fe;
+    --bg-card:       #ffffff;
+    --church-green:  #15803d;
+    --church-soft:   #dcfce7;
+  }
+
+  main { max-width: 1100px; }
+
+  h1 { color: var(--accent-dark); font-size: 1.6rem; margin-bottom: 6px; }
+  h2 {
+    color: var(--accent);
+    margin-top: 44px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent-soft);
+    font-size: 1.15rem;
+  }
+  .subtitle {
+    color: var(--stone);
+    font-size: 15px;
+    margin-bottom: 22px;
+    font-style: italic;
+  }
+
+  /* ── Cards and info-boxes ── */
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 6px rgba(15,118,110,.12);
+    margin: 16px 0;
+  }
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .war-box {
+    background: var(--red-soft);
+    border-left: 4px solid var(--red-war);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .gold-box {
+    background: var(--gold-soft);
+    border-left: 4px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .church-box {
+    background: var(--church-soft);
+    border-left: 4px solid var(--church-green);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-war { background: var(--red-war); color: white; }
+  .btn-war:hover { background: #991b1b; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+
+  /* ═══════════════════════════════════════════════
+     MODULE 1 — Kim tự tháp phong kiến tương tác
+     ═══════════════════════════════════════════════ */
+  .pyramid-wrap {
+    width: 100%;
+    overflow-x: auto;
+  }
+  .pyramid-svg {
+    display: block;
+    margin: 0 auto;
+  }
+  .feud-detail {
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    font-size: 14px;
+    line-height: 1.7;
+    display: none;
+  }
+  .feud-detail.show { display: block; }
+  .feud-detail-title {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--accent-dark);
+    margin-bottom: 6px;
+  }
+
+  /* ═══════════════════════════════════════════════
+     MODULE 2 — Bản đồ Thập tự chinh (SVG)
+     ═══════════════════════════════════════════════ */
+  .map-wrap { width: 100%; overflow-x: auto; }
+  .crusade-map { display: block; margin: 0 auto; }
+
+  .step-panel {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    min-height: 68px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .era-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .tag-call   { background: var(--accent-soft);  color: var(--accent-dark); }
+  .tag-first  { background: var(--red-soft);     color: #991b1b; }
+  .tag-third  { background: var(--gold-soft);    color: var(--gold); }
+  .tag-fourth { background: var(--purple-soft);  color: #5b21b6; }
+  .tag-end    { background: var(--stone-soft);   color: var(--stone); }
+
+  .step-dots { display: flex; gap: 8px; margin: 10px 0; flex-wrap: wrap; }
+  .step-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid #d1d5db; background: #f9fafb;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #9ca3af;
+    cursor: pointer; transition: all .2s;
+  }
+  .step-dot.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .step-dot.done   { background: #0d9488; border-color: #0d9488; color: white; }
+
+  /* ═══════════════════════════════════════════════
+     MODULE 3 — Timeline 476–1450
+     ═══════════════════════════════════════════════ */
+  .timeline {
+    position: relative;
+    padding: 12px 0 12px 36px;
+    margin: 8px 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 14px; top: 0; bottom: 0; width: 3px;
+    background: linear-gradient(180deg,
+      #15803d 0%, #0f766e 30%, #b45309 55%, #b91c1c 75%, #7c3aed 100%);
+    border-radius: 2px;
+  }
+  .tl-item { position: relative; margin-bottom: 22px; padding-left: 20px; }
+  .tl-item::before {
+    content: ''; position: absolute;
+    left: -28px; top: 6px;
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 3px solid white; box-shadow: 0 0 0 2px var(--accent);
+    background: var(--accent);
+  }
+  .tl-item.frank::before  { background: #15803d; box-shadow: 0 0 0 2px #15803d; }
+  .tl-item.church::before { background: var(--church-green); box-shadow: 0 0 0 2px var(--church-green); }
+  .tl-item.war::before    { background: var(--red-war); box-shadow: 0 0 0 2px var(--red-war); }
+  .tl-item.plague::before { background: #7c3aed; box-shadow: 0 0 0 2px #7c3aed; }
+  .tl-item.key::before {
+    width: 18px; height: 18px; left: -30px; top: 4px;
+    background: var(--red-war);
+    box-shadow: 0 0 0 3px var(--red-war), 0 0 0 6px rgba(185,28,28,.2);
+  }
+  .tl-item.keyf::before {
+    width: 18px; height: 18px; left: -30px; top: 4px;
+    background: #15803d;
+    box-shadow: 0 0 0 3px #15803d, 0 0 0 6px rgba(21,128,61,.2);
+  }
+  .tl-item.keyp::before {
+    width: 18px; height: 18px; left: -30px; top: 4px;
+    background: #7c3aed;
+    box-shadow: 0 0 0 3px #7c3aed, 0 0 0 6px rgba(124,58,237,.2);
+  }
+  .tl-year  { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 2px; }
+  .tl-item.frank .tl-year   { color: #15803d; }
+  .tl-item.church .tl-year  { color: var(--church-green); }
+  .tl-item.war .tl-year     { color: var(--red-war); }
+  .tl-item.plague .tl-year  { color: #7c3aed; }
+  .tl-item.key .tl-year     { color: var(--red-war); font-size: 15px; }
+  .tl-item.keyf .tl-year    { color: #15803d; font-size: 15px; }
+  .tl-item.keyp .tl-year    { color: #7c3aed; font-size: 15px; }
+  .tl-title  { font-weight: 700; font-size: 14px; color: #1f2937; line-height: 1.4; }
+  .tl-desc   { font-size: 13px; color: #6b7280; margin-top: 3px; line-height: 1.5; }
+  .tl-badge  {
+    display: inline-block; padding: 1px 8px; border-radius: 10px;
+    font-size: 11px; font-weight: 700; margin-left: 6px; vertical-align: middle;
+  }
+  .badge-frank  { background: #dcfce7; color: #14532d; }
+  .badge-church { background: var(--church-soft); color: var(--church-green); }
+  .badge-war    { background: var(--red-soft); color: #991b1b; }
+  .badge-plague { background: var(--purple-soft); color: #5b21b6; }
+  .badge-trade  { background: var(--blue-soft); color: #1e3a8a; }
+
+  .tl-era-sep {
+    margin: 20px 0 16px -36px;
+    padding: 6px 14px 6px 36px;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase;
+    border-radius: 0 20px 20px 0;
+    display: inline-block;
+  }
+  .era-sep-frank   { background: #dcfce7; color: #14532d; }
+  .era-sep-feudal  { background: var(--gold-soft); color: var(--gold); }
+  .era-sep-church  { background: var(--church-soft); color: var(--church-green); }
+  .era-sep-crusade { background: var(--red-soft); color: #991b1b; }
+  .era-sep-plague  { background: var(--purple-soft); color: #5b21b6; }
+
+  /* ═══════════════════════════════════════════════
+     MODULE 4 — Quiz
+     ═══════════════════════════════════════════════ */
+  .quiz-q { font-weight: 700; font-size: 15px; margin-bottom: 12px; color: #1f2937; line-height: 1.5; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .quiz-opt {
+    padding: 10px 14px; border-radius: 7px; border: 2px solid #e5e7eb;
+    background: #f9fafb; cursor: pointer; font-size: 14px; text-align: left;
+    transition: border-color .15s, background .15s;
+  }
+  .quiz-opt:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct { border-color: #15803d; background: #dcfce7; color: #14532d; font-weight: 600; }
+  .quiz-opt.wrong   { border-color: var(--red-war); background: var(--red-soft); color: #991b1b; }
+  .quiz-opt.disabled { cursor: default; }
+  .quiz-feedback {
+    padding: 12px 16px; border-radius: 8px; font-size: 14px; line-height: 1.6;
+    margin-top: 8px; display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok  { background: #dcfce7; color: #14532d; border: 1px solid #15803d; }
+  .quiz-feedback.err { background: var(--red-soft); color: #991b1b; border: 1px solid var(--red-war); }
+  .quiz-nav { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .quiz-progress { font-size: 13px; color: var(--stone); }
+  .quiz-score { font-weight: 700; color: #15803d; font-size: 15px; }
+
+  /* ═══════════════════════════════════════════════
+     Responsive
+     ═══════════════════════════════════════════════ */
+  @media (max-width: 600px) {
+    .tl-era-sep { font-size: 11px; padding-left: 30px; }
+    .step-panel { font-size: 13px; }
+    .feud-detail { font-size: 13px; }
+    h1 { font-size: 1.3rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử TG — Trung-cận đại</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-byzantine-islam/visualization.html">← L1: Byzantine &amp; Hồi giáo</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Châu Âu trung đại</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-asia-empires-mongols/visualization.html">L3: Đế chế châu Á &amp; Mông Cổ →</a>
+</nav>
+
+<main>
+<h1>Lesson 02 — Châu Âu trung đại (476–1450)</h1>
+<p class="subtitle">Từ sụp đổ La Mã đến bình minh Phục hưng: phong kiến, Giáo hội, Thập tự chinh và Cái Chết Đen</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — Kim tự tháp phong kiến tương tác
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Sơ đồ kim tự tháp phong kiến — click để xem vai trò</h2>
+
+<div class="card">
+  <div class="info-box">
+    Bấm vào từng tầng trong kim tự tháp để xem chi tiết vai trò, nghĩa vụ và quyền lợi của mỗi tầng lớp trong hệ thống phong kiến trung đại.
+  </div>
+
+  <div class="pyramid-wrap">
+    <svg class="pyramid-svg" width="680" height="480" viewBox="0 0 680 480">
+      <defs>
+        <marker id="arr-teal" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#0f766e"/>
+        </marker>
+        <marker id="arr-gold" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#b45309"/>
+        </marker>
+        <marker id="arr-church" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#15803d"/>
+        </marker>
+      </defs>
+
+      <!-- ── Nền tam giác gợi ý hình tháp ── -->
+      <polygon points="340,20 40,460 640,460" fill="#f0fdf9" stroke="#a7f3d0" stroke-width="1.5" stroke-dasharray="6,4"/>
+
+      <!-- ════ Tầng 1: Vua ════ -->
+      <g id="feud-king" onclick="feudShow('king')" style="cursor:pointer" tabindex="0" role="button" aria-label="Vua">
+        <rect x="255" y="30" width="170" height="72" rx="8"
+              fill="#0f766e" stroke="#134e4a" stroke-width="2.5"/>
+        <text x="340" y="57" font-size="16" fill="white" font-weight="700"
+              text-anchor="middle" font-family="sans-serif">Vua</text>
+        <text x="340" y="75" font-size="12" fill="#ccfbf1"
+              text-anchor="middle" font-family="sans-serif">(King)</text>
+        <text x="340" y="91" font-size="10" fill="#99f6e4"
+              text-anchor="middle" font-family="sans-serif">Chủ quyền danh nghĩa · ban đất cho lãnh chúa</text>
+      </g>
+
+      <!-- Mũi tên xuống từ Vua -->
+      <line x1="340" y1="102" x2="340" y2="142"
+            stroke="#0f766e" stroke-width="2" marker-end="url(#arr-teal)"/>
+      <text x="350" y="128" font-size="10" fill="#0f766e" font-family="sans-serif">Ban fief</text>
+
+      <!-- Mũi tên lên từ Lãnh chúa lớn → Vua -->
+      <line x1="325" y1="142" x2="325" y2="102"
+            stroke="#b45309" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr-gold)"/>
+      <text x="268" y="128" font-size="10" fill="#b45309" font-family="sans-serif">Quân + thuế</text>
+
+      <!-- ════ Tầng 2: Lãnh chúa lớn ════ -->
+      <g id="feud-lord" onclick="feudShow('lord')" style="cursor:pointer" tabindex="0" role="button" aria-label="Lãnh chúa lớn">
+        <rect x="185" y="142" width="310" height="72" rx="8"
+              fill="#b45309" stroke="#92400e" stroke-width="2"/>
+        <text x="340" y="168" font-size="14" fill="white" font-weight="700"
+              text-anchor="middle" font-family="sans-serif">Lãnh chúa lớn</text>
+        <text x="340" y="186" font-size="11" fill="#fef3c7"
+              text-anchor="middle" font-family="sans-serif">(Duke / Count / Earl)</text>
+        <text x="340" y="202" font-size="10" fill="#fef3c7"
+              text-anchor="middle" font-family="sans-serif">Quản lãnh thổ rộng · có quân đội riêng</text>
+      </g>
+
+      <!-- Mũi tên xuống → Hiệp sĩ -->
+      <line x1="340" y1="214" x2="340" y2="254"
+            stroke="#0f766e" stroke-width="2" marker-end="url(#arr-teal)"/>
+      <!-- Mũi tên lên từ Hiệp sĩ → Lãnh chúa lớn -->
+      <line x1="325" y1="254" x2="325" y2="214"
+            stroke="#b45309" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr-gold)"/>
+
+      <!-- ════ Tầng 3: Hiệp sĩ ════ -->
+      <g id="feud-knight" onclick="feudShow('knight')" style="cursor:pointer" tabindex="0" role="button" aria-label="Hiệp sĩ">
+        <rect x="125" y="254" width="430" height="72" rx="8"
+              fill="#1d4ed8" stroke="#1e3a8a" stroke-width="2"/>
+        <text x="340" y="280" font-size="14" fill="white" font-weight="700"
+              text-anchor="middle" font-family="sans-serif">Hiệp sĩ</text>
+        <text x="340" y="298" font-size="11" fill="#bfdbfe"
+              text-anchor="middle" font-family="sans-serif">(Knight)</text>
+        <text x="340" y="314" font-size="10" fill="#bfdbfe"
+              text-anchor="middle" font-family="sans-serif">Chiến binh cưỡi ngựa · nhận fief nhỏ · 40 ngày quân dịch/năm</text>
+      </g>
+
+      <!-- Mũi tên xuống → Nông dân -->
+      <line x1="340" y1="326" x2="340" y2="366"
+            stroke="#0f766e" stroke-width="2" marker-end="url(#arr-teal)"/>
+      <!-- Mũi tên lên từ Nông dân → Hiệp sĩ -->
+      <line x1="325" y1="366" x2="325" y2="326"
+            stroke="#b45309" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr-gold)"/>
+
+      <!-- ════ Tầng 4: Nông nô / Nông dân ════ -->
+      <g id="feud-serf" onclick="feudShow('serf')" style="cursor:pointer" tabindex="0" role="button" aria-label="Nông nô và nông dân">
+        <rect x="55" y="366" width="570" height="72" rx="8"
+              fill="#57534e" stroke="#44403c" stroke-width="2"/>
+        <text x="340" y="393" font-size="14" fill="white" font-weight="700"
+              text-anchor="middle" font-family="sans-serif">Nông nô &amp; Nông dân</text>
+        <text x="340" y="411" font-size="11" fill="#e7e5e4"
+              text-anchor="middle" font-family="sans-serif">(Serf &amp; Free Peasant)</text>
+        <text x="340" y="427" font-size="10" fill="#d6d3d1"
+              text-anchor="middle" font-family="sans-serif">Canh tác · đóng thuế · nông nô gắn với đất, không thể rời tự ý</text>
+      </g>
+
+      <!-- ════ Giáo hội — nằm bên cạnh tháp ════ -->
+      <g id="feud-church" onclick="feudShow('church')" style="cursor:pointer" tabindex="0" role="button" aria-label="Giáo hội">
+        <rect x="3" y="142" width="140" height="120" rx="8"
+              fill="#15803d" stroke="#14532d" stroke-width="2" stroke-dasharray="7,3"/>
+        <text x="73" y="172" font-size="12" fill="white" font-weight="700"
+              text-anchor="middle" font-family="sans-serif">Giáo hội</text>
+        <text x="73" y="190" font-size="10" fill="#bbf7d0"
+              text-anchor="middle" font-family="sans-serif">Công giáo</text>
+        <text x="73" y="210" font-size="9" fill="#bbf7d0"
+              text-anchor="middle" font-family="sans-serif">Sở hữu ~1/3 đất</text>
+        <text x="73" y="226" font-size="9" fill="#bbf7d0"
+              text-anchor="middle" font-family="sans-serif">Song hành với tháp</text>
+        <text x="73" y="242" font-size="9" fill="#bbf7d0"
+              text-anchor="middle" font-family="sans-serif">Không phụ thuộc vua</text>
+      </g>
+      <!-- Mũi tên Giáo hội ↔ tháp (ảnh hưởng lẫn nhau) -->
+      <line x1="143" y1="195" x2="183" y2="178"
+            stroke="#15803d" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr-church)"/>
+
+      <!-- Ghi chú nhỏ hướng dẫn click -->
+      <text x="340" y="460" font-size="11" fill="#78716c"
+            text-anchor="middle" font-family="sans-serif" font-style="italic">
+        Bấm vào từng tầng / Giáo hội để xem chi tiết
+      </text>
+
+      <!-- Nhãn mũi tên -->
+      <text x="350" y="244" font-size="10" fill="#0f766e" font-family="sans-serif">Bảo vệ</text>
+      <text x="266" y="244" font-size="10" fill="#b45309" font-family="sans-serif">Lao động</text>
+      <text x="350" y="357" font-size="10" fill="#0f766e" font-family="sans-serif">Cấp đất</text>
+      <text x="264" y="357" font-size="10" fill="#b45309" font-family="sans-serif">Phục vụ</text>
+    </svg>
+  </div>
+
+  <div class="feud-detail" id="feud-detail">
+    <div class="feud-detail-title" id="feud-detail-title"></div>
+    <div id="feud-detail-body"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Bản đồ Thập tự chinh (SVG tương tác)
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Bản đồ Thập tự chinh: đường tiến quân tới Đất Thánh</h2>
+
+<div class="card">
+  <div class="war-box">
+    <strong>Cách dùng:</strong> Nhấn <strong>Bước tiếp theo</strong> để theo dõi từng giai đoạn Thập tự chinh — từ lời kêu gọi của Giáo hoàng đến thất thủ Acre (1291). Bấm số để nhảy thẳng đến bước.
+  </div>
+
+  <div class="step-dots" id="crusade-dots"></div>
+
+  <div class="map-wrap">
+    <svg class="crusade-map" id="crusade-svg" width="700" height="400" viewBox="0 0 700 400">
+      <!-- ── Biển (nền) ── -->
+      <rect width="700" height="400" fill="#a8d8ea"/>
+
+      <!-- ── Đất liền châu Âu ── -->
+      <!-- Tây Âu (Pháp, Tây Ban Nha) -->
+      <polygon points="30,60 90,50 140,55 185,60 210,75 225,100 220,130 205,155 180,170 155,175 125,172 100,165 75,150 50,135 30,115 25,90 30,60"
+               fill="#d6d3d1" stroke="#a8a29e" stroke-width="1"/>
+      <!-- Bán đảo Ý -->
+      <polygon points="255,105 300,95 320,100 335,110 345,125 348,150 344,178 338,205 330,230 320,255 308,278 298,295 285,310 275,320 262,305 258,280 255,250 252,220 250,190 248,165 250,138 255,118 255,105"
+               fill="#d6d3d1" stroke="#a8a29e" stroke-width="1"/>
+      <!-- Pháp + Bắc Âu -->
+      <polygon points="185,60 240,50 280,48 315,52 330,62 330,85 318,100 300,100 275,102 255,106 235,110 215,118 205,130 205,155 180,170 155,175 145,160 140,140 145,110 170,80 185,60"
+               fill="#d6d3d1" stroke="#a8a29e" stroke-width="1"/>
+      <!-- Germania -->
+      <polygon points="280,48 340,40 390,38 435,42 460,55 468,75 460,95 440,105 415,112 390,115 365,115 345,110 330,100 318,100 300,100 280,78 280,48"
+               fill="#d6d3d1" stroke="#a8a29e" stroke-width="1"/>
+      <!-- Balkan / Hy Lạp -->
+      <polygon points="365,115 415,112 460,105 490,118 498,145 490,168 475,188 460,210 445,228 430,238 415,232 400,218 385,198 375,175 368,152 368,132 365,115"
+               fill="#d6d3d1" stroke="#a8a29e" stroke-width="1"/>
+      <!-- Hy Lạp phần dưới -->
+      <polygon points="400,218 415,230 422,248 418,265 406,274 393,268 385,250 388,232 400,218"
+               fill="#d6d3d1" stroke="#a8a29e" stroke-width="1"/>
+      <!-- Tiểu Á (Anatolia) -->
+      <polygon points="490,118 550,108 595,105 635,110 658,125 665,148 655,168 635,182 608,192 580,196 555,192 530,188 505,180 490,162 488,140 490,118"
+               fill="#d6d3d1" stroke="#a8a29e" stroke-width="1"/>
+      <!-- Levant (Syria, Palestine) -->
+      <polygon points="614,192 640,182 660,192 668,215 662,238 648,252 630,258 615,248 606,228 607,208 614,192"
+               fill="#d6d3d1" stroke="#a8a29e" stroke-width="1"/>
+      <!-- Bắc Phi -->
+      <polygon points="80,282 145,272 210,268 270,272 325,275 380,280 430,285 480,290 525,295 545,302 540,338 510,352 470,360 430,365 380,362 330,354 280,344 230,335 185,330 140,328 100,318 80,302 80,282"
+               fill="#e7e5e4" stroke="#a8a29e" stroke-width="1"/>
+      <!-- Ai Cập -->
+      <polygon points="560,282 608,278 645,282 660,300 656,330 642,348 618,358 596,360 575,352 558,335 552,310 555,295 560,282"
+               fill="#e7e5e4" stroke="#a8a29e" stroke-width="1"/>
+
+      <!-- ── Constantinople (điểm trung chuyển) ── -->
+      <circle cx="480" cy="125" r="7" fill="#7c3aed" stroke="white" stroke-width="2"/>
+      <text x="490" y="118" font-size="9" fill="#5b21b6" font-weight="700" font-family="sans-serif">Constantinople</text>
+
+      <!-- ── Jerusalem (mục tiêu) ── -->
+      <circle id="jerusalem-dot" cx="635" cy="230" r="8" fill="#b91c1c" stroke="white" stroke-width="2"/>
+      <text x="647" y="225" font-size="9" fill="#991b1b" font-weight="700" font-family="sans-serif">Jerusalem</text>
+
+      <!-- ── Acre ── -->
+      <circle cx="628" cy="210" r="4" fill="#b45309" stroke="white" stroke-width="1.5"/>
+      <text x="638" y="207" font-size="8" fill="#92400e" font-family="sans-serif">Acre</text>
+
+      <!-- ── Rome ── -->
+      <circle cx="281" cy="190" r="5" fill="#b91c1c" stroke="white" stroke-width="1.5"/>
+      <text x="290" y="186" font-size="9" fill="#991b1b" font-weight="700" font-family="sans-serif">Rome</text>
+
+      <!-- ── Clermont (điểm xuất phát lời kêu gọi) ── -->
+      <circle cx="213" cy="118" r="4" fill="#0f766e" stroke="white" stroke-width="1.5"/>
+      <text x="220" y="114" font-size="8" fill="#134e4a" font-family="sans-serif">Clermont</text>
+
+      <!-- ── Nhãn vùng ── -->
+      <text x="150" y="105" font-size="9" fill="#57534e" font-family="sans-serif" font-weight="700">PHÁP</text>
+      <text x="285" y="200" font-size="8" fill="#57534e" font-family="sans-serif">Ý</text>
+      <text x="420" y="155" font-size="9" fill="#57534e" font-family="sans-serif" font-weight="700">BALKAN</text>
+      <text x="555" y="148" font-size="9" fill="#57534e" font-family="sans-serif" font-weight="700">TIỂU Á</text>
+      <text x="300" y="318" font-size="9" fill="#57534e" font-family="sans-serif">BẮC PHI</text>
+      <text x="595" y="320" font-size="8" fill="#57534e" font-family="sans-serif">AI CẬP</text>
+      <text x="618" y="225" font-size="9" fill="#57534e" font-family="sans-serif">LEVANT</text>
+
+      <!-- ── Đường Thập tự chinh (render bằng JS) ── -->
+      <g id="crusade-routes"></g>
+      <!-- ── Các mốc nổi bật (render bằng JS) ── -->
+      <g id="crusade-markers"></g>
+
+      <!-- ── Nhãn Địa Trung Hải ── -->
+      <text x="350" y="230" font-size="11" fill="#1d4ed8" font-weight="700"
+            text-anchor="middle" font-family="sans-serif">ĐỊA TRUNG HẢI</text>
+    </svg>
+  </div>
+
+  <div class="step-panel" id="crusade-panel">
+    <span class="era-tag tag-call" id="crusade-era-tag">Chuẩn bị</span><br>
+    <span id="crusade-text">Nhấn <strong>Bắt đầu</strong> để theo dõi các cuộc Thập tự chinh từ 1095 đến 1291.</span>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-secondary" id="btn-crusade-prev" onclick="crusadePrev()">← Trước</button>
+    <button class="btn btn-war" id="btn-crusade-next" onclick="crusadeNext()">Bắt đầu →</button>
+    <button class="btn btn-secondary" onclick="crusadeReset()">Khởi động lại</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — Timeline 476–1450
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. Chuỗi thời gian: 476 → 1450</h2>
+
+<div class="card">
+  <div class="timeline">
+
+    <!-- ── Giai đoạn 1: Sau sụp đổ La Mã ── -->
+    <div class="tl-era-sep era-sep-frank">Vương quốc German &amp; Đế quốc Frank</div>
+
+    <div class="tl-item frank keyf">
+      <div class="tl-year">476</div>
+      <div class="tl-title">Tây La Mã sụp đổ
+        <span class="tl-badge badge-frank">Mốc khai mở</span>
+      </div>
+      <div class="tl-desc">Odoacer phế truất Romulus Augustulus. Đông La Mã (Byzantine) tồn tại tiếp. Các vương quốc German hình thành trên lãnh thổ Tây Âu: Frank, Visigoth, Ostrogoth, Lombard...</div>
+    </div>
+
+    <div class="tl-item frank">
+      <div class="tl-year">496</div>
+      <div class="tl-title">Clovis I cải đạo Công giáo</div>
+      <div class="tl-desc">Vua Frank cải đạo tạo liên minh với Giáo hội La Mã — nền tảng cho quyền lực chính trị–tôn giáo của Frank tại Tây Âu.</div>
+    </div>
+
+    <div class="tl-item frank">
+      <div class="tl-year">768–814</div>
+      <div class="tl-title">Trị vì của Charlemagne
+        <span class="tl-badge badge-frank">Đỉnh Frank</span>
+      </div>
+      <div class="tl-desc">Chinh phục Saxon, Lombard, Avar. Mở rộng vương quốc Frank ra hầu hết Tây và Trung Âu. Cải cách Caroline: chuẩn hóa tiền tệ, chữ viết, giáo dục.</div>
+    </div>
+
+    <div class="tl-item frank keyf">
+      <div class="tl-year">25/12/800</div>
+      <div class="tl-title">Charlemagne được phong Hoàng đế La Mã
+        <span class="tl-badge badge-frank">Sự kiện then chốt</span>
+      </div>
+      <div class="tl-desc">Giáo hoàng Leo III đặt vương miện tại Rome. Tiền lệ: Giáo hoàng là người trao quyền cho Hoàng đế — mầm mống tranh cãi Giáo hoàng–Hoàng đế suốt thời Trung đại.</div>
+    </div>
+
+    <div class="tl-item frank">
+      <div class="tl-year">843</div>
+      <div class="tl-title">Hiệp ước Verdun — chia đôi đế quốc Frank
+        <span class="tl-badge badge-frank">Chia cắt</span>
+      </div>
+      <div class="tl-desc">Ba cháu Charlemagne chia đế quốc thành ba: Tây Francia (→ Pháp), Đông Francia (→ Đức), Trung Francia (→ Ý + vùng đệm). Bản đồ chính trị châu Âu hiện đại bắt đầu hình thành.</div>
+    </div>
+
+    <!-- ── Giai đoạn 2: Phong kiến và Giáo hội ── -->
+    <div class="tl-era-sep era-sep-feudal">Phong kiến &amp; Giáo hội cực thịnh</div>
+
+    <div class="tl-item church">
+      <div class="tl-year">910</div>
+      <div class="tl-title">Tu viện Cluny — cải cách tu viện
+        <span class="tl-badge badge-church">Giáo hội</span>
+      </div>
+      <div class="tl-desc">Tu viện Cluny (Burgundy, Pháp) dẫn đầu phong trào chấn chỉnh đạo đức và kỷ cương Giáo hội. Ảnh hưởng mạnh đến hàng trăm tu viện khắp châu Âu.</div>
+    </div>
+
+    <div class="tl-item church">
+      <div class="tl-year">1054</div>
+      <div class="tl-title">Đại Ly giáo — Công giáo và Chính thống giáo tách nhau
+        <span class="tl-badge badge-church">Phân chia</span>
+      </div>
+      <div class="tl-desc">Rome và Constantinople rút phép thông công lẫn nhau. Kitô giáo chia thành Công giáo La Mã (phía Tây) và Chính thống giáo Đông Phương (Byzantine). Vết thương kéo dài đến ngày nay.</div>
+    </div>
+
+    <div class="tl-item church">
+      <div class="tl-year">1071</div>
+      <div class="tl-title">Manzikert — Byzantine thất bại trước Seljuk Turks
+        <span class="tl-badge badge-war">Quân sự</span>
+      </div>
+      <div class="tl-desc">Seljuk Turks chiếm hầu hết Tiểu Á. Byzantine mất vùng đất quan trọng — yếu tố thúc đẩy Hoàng đế Alexios I cầu cứu Giáo hoàng Urban II (1095).</div>
+    </div>
+
+    <div class="tl-item church">
+      <div class="tl-year">1073–1122</div>
+      <div class="tl-title">Tranh cãi đầu tư quyền (Investiture Controversy)
+        <span class="tl-badge badge-church">Giáo hoàng vs. Hoàng đế</span>
+      </div>
+      <div class="tl-desc">Giáo hoàng Gregory VII tuyên bố chỉ Giáo hoàng mới có quyền bổ nhiệm Giám mục. Hoàng đế Henry IV bị tuyệt thông, đứng ngoài tuyết Canossa năm 1077 để xin tha. Kết thúc bằng Concordat of Worms (1122): thỏa hiệp giữa hai quyền.</div>
+    </div>
+
+    <!-- ── Giai đoạn 3: Thập tự chinh ── -->
+    <div class="tl-era-sep era-sep-crusade">Thập tự chinh (1095–1291)</div>
+
+    <div class="tl-item war key">
+      <div class="tl-year">1095</div>
+      <div class="tl-title">Giáo hoàng Urban II kêu gọi Thập tự chinh I tại Clermont
+        <span class="tl-badge badge-war">Khởi đầu</span>
+      </div>
+      <div class="tl-desc">Lời kêu gọi được hưởng ứng nhiệt tình khắp Tây Âu. Dân chúng hô vang "Deus vult!" ("Chúa muốn!"). Dòng người bắt đầu tập kết hướng về Đất Thánh.</div>
+    </div>
+
+    <div class="tl-item war key">
+      <div class="tl-year">1099</div>
+      <div class="tl-title">Thập tự chinh I chiếm Jerusalem (15/7/1099)
+        <span class="tl-badge badge-war">Đỉnh cao TTC</span>
+      </div>
+      <div class="tl-desc">Sau ba năm hành quân, quân Thập tự chinh chiếm được Jerusalem. Thành lập Vương quốc Jerusalem và ba nhà nước Thập tự chinh ở Levant. Sự tàn sát dân thường sau đó là sự kiện gây tranh cãi lịch sử.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">1187</div>
+      <div class="tl-title">Saladin tái chiếm Jerusalem
+        <span class="tl-badge badge-war">Bước ngoặt</span>
+      </div>
+      <div class="tl-desc">Saladin (Salah ad-Din Yusuf) thống nhất Ai Cập và Syria, đánh bại quân Thập tự chinh tại Hattin, tái chiếm Jerusalem. Thập tự chinh III (1189–1192) do Richard I "Sư tử" dẫn đầu không chiếm lại được thành.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">1202–1204</div>
+      <div class="tl-title">Thập tự chinh IV — cướp phá Constantinople
+        <span class="tl-badge badge-war">Thất bại đạo đức</span>
+      </div>
+      <div class="tl-desc">Thay vì đến Đất Thánh, quân Thập tự chinh cướp phá Constantinople (kinh đô Byzantine Kitô giáo). Byzantine không bao giờ hoàn toàn hồi phục. Vết thương giữa Công giáo và Chính thống giáo sâu thêm.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">1291</div>
+      <div class="tl-title">Acre thất thủ — kết thúc Thập tự chinh
+        <span class="tl-badge badge-war">Kết thúc</span>
+      </div>
+      <div class="tl-desc">Thành trì cuối cùng của người Thập tự chinh ở Đất Thánh thất thủ trước quân Mamluk. Chấm dứt sự hiện diện quân sự Tây Âu ở Trung Đông sau ~200 năm.</div>
+    </div>
+
+    <!-- ── Giai đoạn 4: Suy thoái và Cái Chết Đen ── -->
+    <div class="tl-era-sep era-sep-plague">Cuối trung đại: Thương mại, Cái Chết Đen, Tan rã phong kiến</div>
+
+    <div class="tl-item">
+      <div class="tl-year">Thế kỉ XI–XIV</div>
+      <div class="tl-title">Hồi sinh đô thị và thương mại
+        <span class="tl-badge badge-trade">Kinh tế</span>
+      </div>
+      <div class="tl-desc">Venice, Genoa, Florence phát triển thành trung tâm thương mại. Đại học đầu tiên (Bologna ~1088, Paris ~1150, Oxford ~1096). Tầng lớp thương nhân đô thị xuất hiện — lực lượng mới bên ngoài tháp phong kiến.</div>
+    </div>
+
+    <div class="tl-item plague keyp">
+      <div class="tl-year">1347–1351</div>
+      <div class="tl-title">Cái Chết Đen (Black Death)
+        <span class="tl-badge badge-plague">Thảm họa</span>
+      </div>
+      <div class="tl-desc">Dịch hạch (Yersinia pestis) từ Trung Á qua Crimea vào châu Âu. Giết ước tính 30–60% dân số châu Âu (số liệu còn khác nhau). Thiếu lao động → nông nô đòi quyền → phong kiến tan rã. Giáo hội mất uy tín.</div>
+    </div>
+
+    <div class="tl-item plague">
+      <div class="tl-year">1358</div>
+      <div class="tl-title">Jacquerie — nổi dậy nông dân ở Pháp</div>
+      <div class="tl-desc">Một trong những cuộc nổi dậy nông dân lớn nhất Tây Âu sau Cái Chết Đen. Nông dân đòi tự do và điều kiện tốt hơn. Bị đàn áp nhưng là triệu chứng của hệ thống phong kiến đang tan rã.</div>
+    </div>
+
+    <div class="tl-item plague">
+      <div class="tl-year">1337–1453</div>
+      <div class="tl-title">Chiến tranh Trăm Năm Anh–Pháp
+        <span class="tl-badge badge-war">Chiến tranh</span>
+      </div>
+      <div class="tl-desc">Xung đột kéo dài nhất thời Trung đại Tây Âu. Biểu hiện cuối của hiệp sĩ phong kiến và bước đầu xây dựng nhà nước dân tộc. Jeanne d'Arc (1412–1431) xuất hiện như biểu tượng bản sắc dân tộc Pháp.</div>
+    </div>
+
+    <div class="tl-item plague keyp">
+      <div class="tl-year">1453</div>
+      <div class="tl-title">Constantinople thất thủ trước Ottoman
+        <span class="tl-badge badge-plague">Kết thúc Trung đại</span>
+      </div>
+      <div class="tl-desc">Sultan Mehmed II chiếm Constantinople. Byzantine sụp đổ sau gần 1.000 năm. Học giả Byzantine chạy sang Ý mang theo tri thức Hy Lạp cổ đại — một kênh nữa thúc đẩy Phục hưng Ý.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 4 — Quiz
+     ═══════════════════════════════════════════════════════ -->
+<h2>4. Ôn tập — Trắc nghiệm</h2>
+
+<div class="card" id="quiz-card">
+  <div class="quiz-q"    id="quiz-q"></div>
+  <div class="quiz-opts" id="quiz-opts"></div>
+  <div class="quiz-feedback" id="quiz-fb"></div>
+  <div class="quiz-nav">
+    <button class="btn btn-primary" id="btn-quiz-next" onclick="quizNext()" style="display:none">Câu tiếp →</button>
+    <span class="quiz-progress" id="quiz-prog"></span>
+    <span class="quiz-score"    id="quiz-score"></span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCRIPTS
+     ═══════════════════════════════════════════════════════ -->
+<script>
+/* ════════════════════════════════════════════════
+   MODULE 1 — Kim tự tháp phong kiến
+   ════════════════════════════════════════════════ */
+
+const FEUD_DATA = {
+  king: {
+    title: 'Vua (King)',
+    body: `<strong>Vị trí:</strong> Đỉnh tháp phong kiến. Về danh nghĩa, sở hữu toàn bộ đất đai trong vương quốc.<br><br>
+<strong>Quyền hạn:</strong> Ban phong đất đai (<em>fief</em>) cho các lãnh chúa lớn. Thu thuế và đóng góp đặc biệt. Chỉ huy quân đội toàn quốc khi cần. Xét xử các vụ tranh chấp cấp cao nhất.<br><br>
+<strong>Giới hạn thực tế:</strong> Quyền lực của vua phụ thuộc vào sự tuân thủ của các lãnh chúa địa phương — ai không có lực lượng quân sự đủ mạnh rất khó thực thi. Nhiều vua trung đại yếu hơn các lãnh chúa lớn trong lãnh địa riêng của mình.<br><br>
+<strong>Nghĩa vụ ngược lại:</strong> Vua phải bảo vệ lãnh chúa khi bị tấn công, cung cấp công lý, và không vi phạm các quyền tập tục của lãnh chúa. Nếu vi phạm, chư hầu có quyền nổi loạn hoặc rời bỏ lời thề.`
+  },
+  lord: {
+    title: 'Lãnh chúa lớn — Công tước, Bá tước (Duke, Count, Earl)',
+    body: `<strong>Vị trí:</strong> Tầng thứ hai. Nhận đất lớn (<em>fief</em>) từ vua, quản lý lãnh thổ rộng với nhiều làng và thành phố nhỏ.<br><br>
+<strong>Quyền hạn trong lãnh địa:</strong> Quyền tư pháp (xét xử tội phạm và tranh chấp trong lãnh địa). Quyền đánh thuế người trong lãnh địa. Quyền đúc tiền ở một số nơi. Quyền ban fief nhỏ hơn cho các hiệp sĩ bên dưới.<br><br>
+<strong>Nghĩa vụ với vua:</strong> Cung cấp một số lượng quân nhất định khi vua triệu tập (thường tính theo diện tích fief). Tham dự các hội đồng tư vấn hoàng gia. Đóng góp tài chính trong các dịp đặc biệt (tiền chuộc vua bị bắt, lễ phong hiệp sĩ cho con trai vua, v.v.)<br><br>
+<strong>Thực tế quyền lực:</strong> Trong phần lớn thời Trung đại, các lãnh chúa lớn gần như là "tiểu vương" trong lãnh địa riêng — vua khó can thiệp trực tiếp vào nội bộ lãnh địa của họ.`
+  },
+  knight: {
+    title: 'Hiệp sĩ (Knight)',
+    body: `<strong>Vị trí:</strong> Tầng chiến binh — xương sống quân sự của chế độ phong kiến. Nhận fief nhỏ (thường một vài làng) từ lãnh chúa lớn.<br><br>
+<strong>Quân dịch:</strong> Cung cấp ~40 ngày dịch vụ quân sự mỗi năm khi lãnh chúa triệu tập. Mang theo ngựa chiến, giáp sắt và vũ khí riêng — đây là lý do tại sao hiệp sĩ cần fief: chi phí trang bị rất cao.<br><br>
+<strong>Lý tưởng hiệp sĩ (Chivalry):</strong> Từ thế kỉ XI–XII, Giáo hội và tầng lớp quý tộc xây dựng bộ quy tắc <em>chivalry</em>: hiệp sĩ phải dũng cảm, trung thành với lãnh chúa, bảo vệ phụ nữ và người yếu, và ngoan đạo. Lý tưởng này được ca ngợi trong thơ ca và truyền thuyết (như Arthur và các Hiệp sĩ Bàn Tròn) nhưng trong thực tế hiệp sĩ thường hành xử thô bạo.<br><br>
+<strong>Sự suy tàn:</strong> Khi cung nỏ dài (longbow, thế kỉ XIV) và sau đó súng thần công phổ biến, hiệp sĩ cưỡi ngựa trong giáp sắt mất dần vai trò quân sự quyết định. Trận Crécy (1346) là ví dụ: cung thủ Anh tiêu diệt kỵ binh Pháp.`
+  },
+  serf: {
+    title: 'Nông nô và Nông dân (Serf & Free Peasant)',
+    body: `<strong>Vị trí:</strong> Tầng đáy — chiếm >90% dân số trung đại. Là lực lượng lao động nuôi sống toàn bộ tháp phong kiến.<br><br>
+<strong>Nông nô (Serf) — khác nô lệ:</strong> Bị gắn với đất đai (<em>glebae adscripti</em>) — không thể tự ý rời bỏ lãnh địa. Nhưng không thể bị bán riêng lẻ tách khỏi đất. Có quyền kết hôn (thường cần phép lãnh chúa), có nhà riêng và mảnh vườn nhỏ, được bảo vệ bởi một số quyền tập tục.<br><br>
+<strong>Nghĩa vụ:</strong> Canh tác đất của lãnh chúa (<em>demesne</em>) một số ngày mỗi tuần — thường 3 ngày/tuần trên đất lãnh chúa, còn lại trên mảnh của mình. Đóng nhiều khoản lệ phí: khi con cái kết hôn (<em>merchet</em>), khi thừa kế đất (<em>heriot</em>), khi dùng cối xay/lò bánh của lãnh chúa (<em>banalité</em>).<br><br>
+<strong>Nông dân tự do (Free Peasant):</strong> Không bị gắn với đất, trả tiền thuê đất và có nhiều quyền hơn — nhưng vẫn nằm trong hệ thống phong kiến và chịu nhiều nghĩa vụ.<br><br>
+<strong>Con đường thoát:</strong> Trốn đến đô thị (ở Đức: <em>Stadtluft macht frei</em>); được lãnh chúa giải phóng; sau Cái Chết Đen — thiếu lao động cho phép nông nô đàm phán điều kiện tốt hơn.`
+  },
+  church: {
+    title: 'Giáo hội Công giáo — Song hành với tháp phong kiến',
+    body: `<strong>Vị trí đặc biệt:</strong> Giáo hội không nằm trong tháp phong kiến theo nghĩa thông thường — mà song hành với nó như một hệ thống quyền lực độc lập.<br><br>
+<strong>Sở hữu đất đai:</strong> Vào thời kỳ đỉnh cao, Giáo hội kiểm soát ước tính khoảng 1/3 đất đai ở Tây Âu. Các Giám mục và Tu viện trưởng nhận fief từ vua và lãnh chúa, nhưng không phải thực hiện dịch vụ quân sự mà cung cấp dịch vụ tôn giáo, giáo dục và hành chính.<br><br>
+<strong>Cơ sở hạ tầng độc nhất:</strong> Hệ thống giáo phận trải khắp châu Âu, sử dụng ngôn ngữ chung (tiếng Latin), liên lạc với nhau ngay cả khi vương quốc thế tục không liên lạc được. Đây là "mạng lưới" hành chính duy nhất xuyên biên giới.<br><br>
+<strong>Quyền tuyệt thông:</strong> Giáo hoàng có thể tuyệt thông (<em>excommunication</em>) bất kỳ ai kể cả vua và hoàng đế — loại khỏi cộng đồng Kitô giáo, cho phép chư hầu được giải thoát khỏi lời thề trung thành. Đây là vũ khí chính trị mạnh nhất của Giáo hội.<br><br>
+<strong>Sự suy yếu:</strong> Cuối thế kỉ XIII–XIV: "Cuộc giam cầm Avignon" (1309–1377) khi Giáo hoàng bị Pháp kiểm soát; sau đó "Ly giáo Tây Phương" với hai và ba Giáo hoàng song song. Những điều này làm mất uy tín Giáo hội, mầm mống cho Cải cách Kháng nghị thế kỉ XVI.`
+  }
+};
+
+function feudShow(id) {
+  const data = FEUD_DATA[id];
+  if (!data) return;
+  const detail = document.getElementById('feud-detail');
+  document.getElementById('feud-detail-title').textContent = data.title;
+  document.getElementById('feud-detail-body').innerHTML = data.body;
+  detail.className = 'feud-detail show';
+  detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ════════════════════════════════════════════════
+   MODULE 2 — Bản đồ Thập tự chinh
+   ════════════════════════════════════════════════ */
+
+/*
+  Tọa độ tham khảo (700×400 canvas):
+  Clermont ≈ (213, 118)   — Pháp
+  Rome ≈ (281, 190)
+  Constantinople ≈ (480, 125)
+  Antioch ≈ (600, 178)
+  Jerusalem ≈ (635, 230)
+  Acre ≈ (628, 210)
+  Tyre ≈ (625, 215)
+  Constantinople ≈ (480, 125)
+  Zara ≈ (390, 140)
+*/
+
+const CRUSADE_STEPS = [
+  {
+    tag: 'tag-call', era: 'Chuẩn bị',
+    year: '1095',
+    title: 'Giáo hoàng Urban II kêu gọi tại Clermont',
+    text: '<strong>1095 — Thượng hội đồng Clermont (Pháp):</strong> Hoàng đế Byzantine Alexios I cầu cứu Giáo hoàng Urban II sau thất bại Manzikert (1071). Urban II kêu gọi các hiệp sĩ và dân thường Tây Âu lên đường giải phóng Đất Thánh. Lời kêu gọi được hưởng ứng nhiệt tình: "Deus vult!" ("Chúa muốn!"). Đám đông tập hợp từ khắp Pháp, Đức, Ý, Anh, Flanders.',
+    routes: [],
+    markers: [
+      { x: 213, y: 118, r: 8, fill: '#0f766e', label: 'Clermont\n1095', lx: 218, ly: 108 }
+    ]
+  },
+  {
+    tag: 'tag-first', era: 'Thập tự chinh I',
+    year: '1096–1099',
+    title: 'Thập tự chinh thứ nhất — chiếm Jerusalem',
+    text: '<strong>1096–1099 — Thập tự chinh I:</strong> Quân châu Âu tập kết ở Constantinople, vượt qua Tiểu Á (Anatolia) sau nhiều trận đánh ác liệt với Seljuk Turks. Tái chiếm Antioch (tháng 6/1098) sau bao vây 9 tháng. <strong>15/7/1099</strong>: Jerusalem thất thủ sau bao vây 5 tuần. Thành lập Vương quốc Jerusalem và các nhà nước Thập tự chinh ở Levant. Đây là Thập tự chinh thành công nhất về quân sự.',
+    routes: [
+      { pts: [[213,118],[281,190],[480,125],[550,155],[600,178],[635,230]], color: '#b91c1c', dash: false, label: 'TTC I (1096–99)' }
+    ],
+    markers: [
+      { x: 213, y: 118, r: 6, fill: '#0f766e', label: '', lx: 0, ly: 0 },
+      { x: 600, y: 178, r: 6, fill: '#b91c1c', label: 'Antioch\n1098', lx: 608, ly: 170 },
+      { x: 635, y: 230, r: 9, fill: '#b91c1c', label: '★ Jerusalem\n1099', lx: 647, ly: 220 }
+    ]
+  },
+  {
+    tag: 'tag-first', era: 'Vương quốc Jerusalem',
+    year: '1099–1187',
+    title: 'Các nhà nước Thập tự chinh ở Levant',
+    text: '<strong>1099–1187 — Nhà nước Thập tự chinh:</strong> Sau chiến thắng, người Thập tự chinh lập 4 nhà nước nhỏ ở Levant: Vương quốc Jerusalem, Công quốc Antioch, Bá quốc Tripoli, Bá quốc Edessa. Đây là "tiền đồn" Kitô giáo ở Trung Đông, cần phòng thủ liên tục. Edessa thất thủ năm 1144 — dẫn đến Thập tự chinh II (1147–1149) thất bại.',
+    routes: [
+      { pts: [[213,118],[281,190],[480,125],[550,155],[600,178],[635,230]], color: '#b91c1c', dash: false, label: '' }
+    ],
+    markers: [
+      { x: 635, y: 230, r: 9, fill: '#b91c1c', label: 'VQ Jerusalem', lx: 647, ly: 225 },
+      { x: 600, y: 178, r: 6, fill: '#b45309', label: 'Antioch', lx: 608, ly: 170 },
+      { x: 625, y: 210, r: 5, fill: '#b45309', label: 'Acre', lx: 633, ly: 204 },
+      { x: 615, y: 195, r: 5, fill: '#b45309', label: 'Tripoli', lx: 606, ly: 188 },
+      { x: 560, y: 165, r: 5, fill: '#b45309', label: 'Edessa\n(1144)', lx: 568, ly: 158 }
+    ]
+  },
+  {
+    tag: 'tag-third', era: 'Thập tự chinh III',
+    year: '1189–1192',
+    title: 'Thập tự chinh III — Saladin và Richard I',
+    text: '<strong>1187–1192:</strong> Saladin (Salah ad-Din) thống nhất Ai Cập và Syria, tái chiếm Jerusalem (1187) sau trận Hattin. Thập tự chinh III do ba vua dẫn đầu: Richard I "Sư tử" (Anh), Philip II (Pháp), Frederick I (Đức). Frederick chết đuối trước khi đến nơi. Philip bỏ về sớm. Richard I đánh nhau với Saladin qua nhiều trận nhưng <strong>không chiếm lại được Jerusalem</strong>. Hiệp ước 1192: người hành hương Kitô giáo được vào thành.',
+    routes: [
+      { pts: [[213,118],[281,190],[480,125],[550,155],[600,178],[635,230]], color: '#b91c1c', dash: false, label: '' },
+      { pts: [[213,118],[281,190],[410,200],[560,200],[625,210]], color: '#b45309', dash: true, label: 'TTC III (1189–92)' }
+    ],
+    markers: [
+      { x: 625, y: 210, r: 8, fill: '#b45309', label: 'Richard I vs\nSaladin ở Acre', lx: 635, ly: 200 },
+      { x: 635, y: 230, r: 7, fill: '#7c3aed', label: 'Jerusalem\n(Saladin 1187)', lx: 645, ly: 225 }
+    ]
+  },
+  {
+    tag: 'tag-fourth', era: 'Thập tự chinh IV',
+    year: '1202–1204',
+    title: 'Thập tự chinh IV — Cướp phá Constantinople',
+    text: '<strong>1202–1204 — Thảm kịch:</strong> Quân Thập tự chinh nợ Venice chi phí vận chuyển. Venice đề nghị họ tấn công Zara (đối thủ thương mại) rồi sau đó Constantinople. Năm 1204, quân Công giáo cướp phá Constantinople — kinh đô Byzantine Kitô giáo — trong ba ngày. Đây là <strong>thất bại đạo đức lớn nhất</strong> của phong trào: tấn công đồng đạo thay vì giải phóng Đất Thánh. Byzantine không bao giờ hồi phục hoàn toàn.',
+    routes: [
+      { pts: [[213,118],[281,190],[480,125],[550,155],[600,178],[635,230]], color: '#b91c1c', dash: false, label: '' },
+      { pts: [[213,118],[281,190],[390,140],[480,125]], color: '#7c3aed', dash: false, label: 'TTC IV — cướp Constantinople' }
+    ],
+    markers: [
+      { x: 390, y: 140, r: 6, fill: '#7c3aed', label: 'Zara', lx: 396, ly: 132 },
+      { x: 480, y: 125, r: 10, fill: '#7c3aed', label: '★ Constantinople\nbị cướp 1204', lx: 492, ly: 112 }
+    ]
+  },
+  {
+    tag: 'tag-end', era: 'Kết thúc',
+    year: '1291',
+    title: 'Acre thất thủ — Kết thúc Thập tự chinh',
+    text: '<strong>1291 — Thất thủ Acre:</strong> Sau nhiều Thập tự chinh thất bại (Thứ 5, 6, 7, 8), thành trì cuối cùng của người Thập tự chinh là Acre thất thủ trước quân Mamluk (Ai Cập). Chấm dứt gần 200 năm hiện diện quân sự Tây Âu ở Đất Thánh. Tuy nhiên hệ quả thương mại, văn hóa và địa chính trị của Thập tự chinh kéo dài lâu hơn nhiều.',
+    routes: [
+      { pts: [[213,118],[281,190],[480,125],[550,155],[600,178],[635,230]], color: '#b91c1c', dash: false, label: 'TTC I' },
+      { pts: [[213,118],[281,190],[410,200],[560,200],[625,210]], color: '#b45309', dash: true, label: 'TTC III' },
+      { pts: [[213,118],[281,190],[390,140],[480,125]], color: '#7c3aed', dash: false, label: 'TTC IV' }
+    ],
+    markers: [
+      { x: 625, y: 210, r: 10, fill: '#57534e', label: '✕ Acre thất thủ\n1291', lx: 635, ly: 200 },
+      { x: 635, y: 230, r: 7, fill: '#57534e', label: 'Jerusalem\n(Hồi giáo)', lx: 645, ly: 225 }
+    ]
+  }
+];
+
+let crusadeStep = -1;
+
+function drawCrusadeRoutes(stepIdx) {
+  const routesEl = document.getElementById('crusade-routes');
+  const markersEl = document.getElementById('crusade-markers');
+  routesEl.innerHTML = '';
+  markersEl.innerHTML = '';
+
+  if (stepIdx < 0) return;
+
+  const svgNS = 'http://www.w3.org/2000/svg';
+
+  // Defs for arrow markers
+  const defs = document.createElementNS(svgNS, 'defs');
+  ['#b91c1c', '#b45309', '#7c3aed', '#57534e'].forEach((col, i) => {
+    const mk = document.createElementNS(svgNS, 'marker');
+    mk.setAttribute('id', 'cr-arr-' + i);
+    mk.setAttribute('markerWidth', '8');
+    mk.setAttribute('markerHeight', '8');
+    mk.setAttribute('refX', '6');
+    mk.setAttribute('refY', '3');
+    mk.setAttribute('orient', 'auto');
+    const path = document.createElementNS(svgNS, 'path');
+    path.setAttribute('d', 'M0,0 L0,6 L8,3 z');
+    path.setAttribute('fill', col);
+    mk.appendChild(path);
+    defs.appendChild(mk);
+  });
+  routesEl.appendChild(defs);
+
+  const colorMap = { '#b91c1c': 'cr-arr-0', '#b45309': 'cr-arr-1', '#7c3aed': 'cr-arr-2', '#57534e': 'cr-arr-3' };
+
+  CRUSADE_STEPS[stepIdx].routes.forEach(route => {
+    const pts = route.pts;
+    // Tạo polyline
+    const pl = document.createElementNS(svgNS, 'polyline');
+    pl.setAttribute('points', pts.map(p => p.join(',')).join(' '));
+    pl.setAttribute('fill', 'none');
+    pl.setAttribute('stroke', route.color);
+    pl.setAttribute('stroke-width', '2.5');
+    pl.setAttribute('opacity', '0.85');
+    if (route.dash) pl.setAttribute('stroke-dasharray', '8,5');
+    const arrowId = colorMap[route.color] || 'cr-arr-0';
+    pl.setAttribute('marker-end', 'url(#' + arrowId + ')');
+    routesEl.appendChild(pl);
+
+    // Nhãn đường
+    if (route.label) {
+      const midIdx = Math.floor(pts.length / 2);
+      const mp = pts[midIdx];
+      const t = document.createElementNS(svgNS, 'text');
+      t.setAttribute('x', mp[0] + 4);
+      t.setAttribute('y', mp[1] - 6);
+      t.setAttribute('font-size', '9');
+      t.setAttribute('fill', route.color);
+      t.setAttribute('font-family', 'sans-serif');
+      t.setAttribute('font-weight', '700');
+      t.textContent = route.label;
+      routesEl.appendChild(t);
+    }
+  });
+
+  CRUSADE_STEPS[stepIdx].markers.forEach(m => {
+    const c = document.createElementNS(svgNS, 'circle');
+    c.setAttribute('cx', m.x);
+    c.setAttribute('cy', m.y);
+    c.setAttribute('r', m.r);
+    c.setAttribute('fill', m.fill);
+    c.setAttribute('stroke', 'white');
+    c.setAttribute('stroke-width', '2');
+    markersEl.appendChild(c);
+
+    if (m.label) {
+      const lines = m.label.split('\n');
+      lines.forEach((line, li) => {
+        const t = document.createElementNS(svgNS, 'text');
+        t.setAttribute('x', m.lx);
+        t.setAttribute('y', m.ly + li * 12);
+        t.setAttribute('font-size', '9');
+        t.setAttribute('fill', m.fill);
+        t.setAttribute('font-family', 'sans-serif');
+        t.setAttribute('font-weight', '700');
+        t.textContent = line;
+        markersEl.appendChild(t);
+      });
+    }
+  });
+}
+
+function crusadeUpdateUI() {
+  const step = crusadeStep;
+  const data = step >= 0 ? CRUSADE_STEPS[step] : null;
+
+  const tag = document.getElementById('crusade-era-tag');
+  const text = document.getElementById('crusade-text');
+  if (data) {
+    tag.className = 'era-tag ' + data.tag;
+    tag.textContent = data.era + ' · ' + data.year;
+    text.innerHTML = data.text;
+  } else {
+    tag.className = 'era-tag tag-call';
+    tag.textContent = 'Chuẩn bị';
+    text.innerHTML = 'Nhấn <strong>Bắt đầu</strong> để theo dõi các cuộc Thập tự chinh từ 1095 đến 1291.';
+  }
+
+  document.getElementById('btn-crusade-prev').disabled = step <= 0;
+  document.getElementById('btn-crusade-next').textContent =
+    step < 0 ? 'Bắt đầu →' :
+    step >= CRUSADE_STEPS.length - 1 ? 'Hoàn thành' :
+    'Bước tiếp →';
+  document.getElementById('btn-crusade-next').disabled = step >= CRUSADE_STEPS.length - 1;
+
+  const dots = document.getElementById('crusade-dots');
+  dots.innerHTML = '';
+  for (let i = 0; i < CRUSADE_STEPS.length; i++) {
+    const d = document.createElement('div');
+    d.className = 'step-dot' + (i === step ? ' active' : i < step ? ' done' : '');
+    d.textContent = i + 1;
+    const si = i;
+    d.onclick = function() { crusadeGoTo(si); };
+    dots.appendChild(d);
+  }
+
+  drawCrusadeRoutes(step);
+}
+
+function crusadeNext()  { if (crusadeStep < CRUSADE_STEPS.length - 1) { crusadeStep++; crusadeUpdateUI(); } }
+function crusadePrev()  { if (crusadeStep > 0) { crusadeStep--; crusadeUpdateUI(); } }
+function crusadeGoTo(i) { crusadeStep = i; crusadeUpdateUI(); }
+function crusadeReset() { crusadeStep = -1; crusadeUpdateUI(); }
+
+crusadeUpdateUI();
+
+/* ════════════════════════════════════════════════
+   MODULE 4 — Quiz
+   ════════════════════════════════════════════════ */
+
+const QUIZ = [
+  {
+    q: 'Sự kiện nào năm 800 SCN đặt tiền lệ quan trọng cho quyền lực Giáo hoàng đối với các vua chúa Tây Âu?',
+    opts: [
+      'Clovis I tự ý cải đạo sang Công giáo không cần Giáo hoàng cho phép',
+      'Giáo hoàng Leo III đặt vương miện "Hoàng đế La Mã" lên đầu Charlemagne',
+      'Hiệp ước Verdun chia đế quốc Frank thành ba phần',
+      'Đại Ly giáo chia Kitô giáo thành hai nhánh'
+    ],
+    correct: 1,
+    explain: 'Ngày 25/12/800, Giáo hoàng Leo III đặt vương miện lên đầu Charlemagne tại Rome — tạo tiền lệ rằng Giáo hoàng là người trao tính hợp pháp cho hoàng đế thế tục. Điều này mở ra cuộc tranh giành "ai có quyền phong vương" kéo dài suốt thời Trung đại, đỉnh điểm là Investiture Controversy thế kỉ XI–XII.'
+  },
+  {
+    q: 'Trong hệ thống phong kiến, nông nô (serf) khác nô lệ (slave) ở điểm cơ bản nào?',
+    opts: [
+      'Nông nô được trả tiền lương; nô lệ thì không',
+      'Nông nô gắn với đất và không thể bị bán riêng lẻ tách khỏi đất; nô lệ là tài sản hoàn toàn có thể mua bán tự do',
+      'Nông nô có quyền bầu cử; nô lệ không có',
+      'Nô lệ được Giáo hội bảo vệ; nông nô thì không'
+    ],
+    correct: 1,
+    explain: 'Nông nô bị gắn với đất (glebae adscripti) — không tự ý rời bỏ lãnh địa, nhưng cũng không thể bị bán riêng lẻ tách khỏi đất. Họ có nhà riêng, được kết hôn, có tài sản nhỏ và được bảo vệ bởi quyền tập tục. Nô lệ La Mã cổ đại là tài sản hoàn toàn — có thể mua bán, không có quyền pháp lý. Nông nô là tầng trung gian, không phải nô lệ hiện đại.'
+  },
+  {
+    q: 'Thập tự chinh thứ nhất (1096–1099) khác các cuộc Thập tự chinh sau ở điểm nào quan trọng nhất?',
+    opts: [
+      'Chỉ có Thập tự chinh I mới được Giáo hoàng chính thức kêu gọi',
+      'Thập tự chinh I là cuộc duy nhất đi đường bộ qua Tiểu Á',
+      'Thập tự chinh I thành công trong việc chiếm Jerusalem — điều các cuộc sau không làm được',
+      'Chỉ có Thập tự chinh I mới có sự tham gia của hiệp sĩ'
+    ],
+    correct: 2,
+    explain: 'Thập tự chinh I (1096–1099) là cuộc duy nhất đạt được mục tiêu chiếm Jerusalem (ngày 15/7/1099). Thập tự chinh II thất bại tại Damascus. Thập tự chinh III không chiếm lại Jerusalem mặc dù có ba vua dẫn đầu. Thập tự chinh IV cướp phá Constantinople thay vì đến Đất Thánh. Từ Thập tự chinh V trở đi đều thất bại hoặc đạt kết quả rất hạn chế.'
+  },
+  {
+    q: 'Cái Chết Đen (1347–1351) dẫn đến sự suy yếu của chế độ phong kiến qua cơ chế kinh tế nào?',
+    opts: [
+      'Dịch bệnh giết chết các lãnh chúa nhiều hơn nông dân nên quyền lực chuyển sang nông dân',
+      'Thiếu lao động sau dịch làm tăng giá trị của nông dân còn sống — họ có thể đàm phán điều kiện tốt hơn',
+      'Dịch bệnh phá hủy toàn bộ hệ thống sở hữu đất đai phong kiến',
+      'Giáo hội mua lại toàn bộ đất đai của lãnh chúa chết vì dịch'
+    ],
+    correct: 1,
+    explain: 'Cơ chế là cung–cầu lao động: khi 30–60% dân số chết, lao động trở nên khan hiếm. Lãnh chúa cần người canh tác đất của mình — không thể đơn giản "thay thế" nông nô. Nông dân còn sống có lợi thế đàm phán: có thể đòi tiền công cao hơn, ít nghĩa vụ hơn, hoặc tự do di chuyển. Nhiều lãnh chúa buộc phải nhượng bộ. Đây không phải "phá hủy hệ thống" ngay lập tức mà là xói mòn dần qua nhiều thập kỉ.'
+  },
+  {
+    q: 'Thập tự chinh thứ tư (1202–1204) bị xem là thất bại tồi tệ nhất vì lý do gì?',
+    opts: [
+      'Quân đội bị tiêu diệt hoàn toàn trước khi đến được Tiểu Á',
+      'Giáo hoàng rút lại lệnh Thập tự chinh giữa chừng',
+      'Thay vì tấn công Đất Thánh, quân Thập tự chinh cướp phá Constantinople — kinh đô Kitô giáo Byzantine',
+      'Thập tự chinh IV là cuộc đầu tiên bị thất bại trong trận chiến ở Tiểu Á'
+    ],
+    correct: 2,
+    explain: 'Thập tự chinh IV chưa bao giờ đến Đất Thánh. Nợ Venice → tấn công Zara (1202) → rồi Constantinople (1204). Quân Công giáo cướp phá kinh đô Byzantine Kitô giáo — tấn công đồng đạo thay vì giải phóng Đất Thánh. Byzantine không bao giờ hoàn toàn hồi phục. Vết thương Công giáo–Chính thống giáo từ 1054 được khoét thêm sâu và kéo dài đến ngày nay.'
+  },
+  {
+    q: 'Cuộc tranh cãi Canossa (1077) thể hiện điều gì về cân bằng quyền lực giữa Giáo hoàng và Hoàng đế vào thế kỉ XI?',
+    opts: [
+      'Hoàng đế Henry IV có nhiều quyền lực hơn vì ông từ chối lệnh tuyệt thông',
+      'Giáo hoàng Gregory VII bị buộc phải tha thứ cho Henry IV dưới áp lực quân sự',
+      'Giáo hoàng có đủ quyền năng tinh thần để buộc hoàng đế mạnh nhất châu Âu phải cầu xin tha thứ',
+      'Canossa là cuộc gặp gỡ hòa bình không liên quan đến quyền lực chính trị'
+    ],
+    correct: 2,
+    explain: 'Năm 1077, Hoàng đế Henry IV đứng ba ngày trong tuyết lạnh ngoài lâu đài Canossa (Ý) để xin Giáo hoàng Gregory VII tha thứ và hủy lệnh tuyệt thông. Một hoàng đế mạnh nhất châu Âu cúi đầu trước Giáo hoàng — thể hiện sức mạnh tinh thần của Giáo hoàng ở đỉnh cao. Tuy nhiên, Henry sau đó vẫn tiếp tục đấu tranh; Concordat of Worms (1122) là thỏa hiệp, không phải chiến thắng tuyệt đối của một bên.'
+  },
+  {
+    q: 'Phong trào thương mại và đô thị hồi sinh từ thế kỉ XI góp phần làm tan rã phong kiến theo cách nào?',
+    opts: [
+      'Thương nhân dùng tiền mua vũ khí và tấn công các lãnh chúa',
+      'Đô thị tạo ra không gian tự do ngoài hệ thống phong kiến; nông nô trốn đến thành phố có thể trở thành người tự do',
+      'Giáo hội cấm thương mại và điều này làm yếu kinh tế phong kiến',
+      'Thương nhân nước ngoài mang quân đội vào chiếm đất của lãnh chúa'
+    ],
+    correct: 1,
+    explain: 'Đô thị tạo ra "lối thoát" khỏi lãnh địa: ở Đức có nguyên tắc Stadtluft macht frei ("Không khí đô thị làm người tự do") — nông nô ở đô thị 1 năm 1 ngày mà không bị đòi lại thì trở thành công dân tự do. Tầng lớp thương nhân và thợ thủ công đô thị (bourgeoisie) tích lũy của cải và quyền lực bên ngoài hệ thống phong kiến — trở thành đối trọng kinh tế và chính trị với lãnh chúa.'
+  }
+];
+
+let quizIdx = 0;
+let quizScore = 0;
+let quizAnswered = false;
+
+function quizRender() {
+  const q = QUIZ[quizIdx];
+  document.getElementById('quiz-q').textContent = 'Câu ' + (quizIdx + 1) + '/' + QUIZ.length + ': ' + q.q;
+  document.getElementById('quiz-prog').textContent = (quizIdx + 1) + ' / ' + QUIZ.length;
+  document.getElementById('quiz-score').textContent = quizIdx > 0 ? 'Điểm: ' + quizScore + '/' + quizIdx : '';
+
+  const optsEl = document.getElementById('quiz-opts');
+  optsEl.innerHTML = '';
+  q.opts.forEach(function(opt, i) {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = function() { quizAnswer(i); };
+    optsEl.appendChild(btn);
+  });
+
+  document.getElementById('quiz-fb').className = 'quiz-feedback';
+  document.getElementById('quiz-fb').innerHTML = '';
+  document.getElementById('btn-quiz-next').style.display = 'none';
+  quizAnswered = false;
+}
+
+function quizAnswer(chosen) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+
+  const q = QUIZ[quizIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach(function(btn, i) {
+    btn.classList.add('disabled');
+    btn.onclick = null;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === chosen && chosen !== q.correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb');
+  if (chosen === q.correct) {
+    quizScore++;
+    fb.className = 'quiz-feedback show ok';
+    fb.innerHTML = '<strong>Đúng!</strong> ' + q.explain;
+  } else {
+    fb.className = 'quiz-feedback show err';
+    fb.innerHTML = '<strong>Chưa đúng.</strong> Đáp án: <em>' + q.opts[q.correct] + '</em>. ' + q.explain;
+  }
+
+  document.getElementById('quiz-score').textContent = 'Điểm: ' + quizScore + '/' + (quizIdx + 1);
+
+  if (quizIdx < QUIZ.length - 1) {
+    document.getElementById('btn-quiz-next').style.display = 'inline-block';
+  } else {
+    const pct = Math.round((quizScore / QUIZ.length) * 100);
+    document.getElementById('quiz-score').textContent = 'Kết quả: ' + quizScore + '/' + QUIZ.length + ' (' + pct + '%)';
+    document.getElementById('quiz-prog').textContent =
+      pct >= 80 ? 'Xuất sắc!' : pct >= 60 ? 'Tốt — ôn lại các câu sai.' : 'Cần ôn tập thêm.';
+  }
+}
+
+function quizNext() {
+  quizIdx++;
+  if (quizIdx < QUIZ.length) quizRender();
+}
+
+quizRender();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

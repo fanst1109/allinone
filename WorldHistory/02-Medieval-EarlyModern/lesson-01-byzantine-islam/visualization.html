@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Byzantine &amp; Sự trỗi dậy của Hồi giáo</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette ── */
+  :root {
+    --accent:        #0f766e;
+    --accent-soft:   #ccfbf1;
+    --accent-dark:   #134e4a;
+    --red-war:       #b91c1c;
+    --red-soft:      #fee2e2;
+    --gold:          #b45309;
+    --gold-soft:     #fef3c7;
+    --blue-trade:    #1d4ed8;
+    --blue-soft:     #dbeafe;
+    --stone:         #57534e;
+    --stone-soft:    #f5f5f4;
+    --bg-card:       #ffffff;
+    --purple:        #7c3aed;
+    --purple-soft:   #ede9fe;
+    --islam-green:   #15803d;
+    --islam-soft:    #dcfce7;
+    --byz-purple:    #6d28d9;
+    --byz-soft:      #ede9fe;
+  }
+
+  main { max-width: 1100px; }
+
+  h1 { color: var(--accent-dark); font-size: 1.65rem; margin-bottom: 6px; }
+  h2 {
+    color: var(--accent);
+    margin-top: 44px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent-soft);
+    font-size: 1.2rem;
+  }
+  .subtitle {
+    color: var(--stone);
+    font-size: 15px;
+    margin-bottom: 22px;
+    font-style: italic;
+  }
+
+  /* ── Cards & boxes ── */
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 6px rgba(15,118,110,.12);
+    margin: 16px 0;
+  }
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .islam-box {
+    background: var(--islam-soft);
+    border-left: 4px solid var(--islam-green);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .byz-box {
+    background: var(--byz-soft);
+    border-left: 4px solid var(--byz-purple);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .gold-box {
+    background: var(--gold-soft);
+    border-left: 4px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .war-box {
+    background: var(--red-soft);
+    border-left: 4px solid var(--red-war);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary   { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-islam     { background: var(--islam-green); color: white; }
+  .btn-islam:hover { background: #166534; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 1 — Bản đồ động
+     ══════════════════════════════════════════════ */
+  #map-stage { width: 100%; overflow-x: auto; }
+  #map-canvas {
+    display: block;
+    margin: 0 auto;
+    border-radius: 8px;
+    border: 2px solid #cbd5e1;
+    max-width: 100%;
+  }
+  .step-panel {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    min-height: 68px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .era-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .tag-init    { background: var(--byz-soft);    color: var(--byz-purple); }
+  .tag-byz     { background: var(--byz-soft);    color: var(--byz-purple); }
+  .tag-rashid  { background: var(--islam-soft);  color: var(--islam-green); }
+  .tag-umay    { background: #bbf7d0;             color: #166534; }
+  .tag-abbasid { background: var(--gold-soft);   color: var(--gold); }
+  .step-dots {
+    display: flex; gap: 8px; margin: 10px 0; flex-wrap: wrap;
+  }
+  .step-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid #d1d5db; background: #f9fafb;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #9ca3af;
+    cursor: pointer; transition: all .2s;
+  }
+  .step-dot.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .step-dot.done   { background: var(--islam-green); border-color: var(--islam-green); color: white; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 2 — Timeline
+     ══════════════════════════════════════════════ */
+  .timeline {
+    position: relative;
+    padding: 12px 0 12px 36px;
+    margin: 8px 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 14px; top: 0; bottom: 0; width: 3px;
+    background: linear-gradient(180deg, var(--byz-purple), var(--islam-green), var(--gold), var(--red-war));
+    border-radius: 2px;
+  }
+  .tl-item {
+    position: relative; margin-bottom: 22px; padding-left: 20px;
+  }
+  .tl-item::before {
+    content: ''; position: absolute;
+    left: -28px; top: 6px;
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 3px solid white; box-shadow: 0 0 0 2px var(--accent);
+    background: var(--accent);
+  }
+  .tl-item.byz::before       { background: var(--byz-purple); box-shadow: 0 0 0 2px var(--byz-purple); }
+  .tl-item.islam::before     { background: var(--islam-green); box-shadow: 0 0 0 2px var(--islam-green); }
+  .tl-item.golden::before    { background: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
+  .tl-item.war::before       { background: var(--red-war); box-shadow: 0 0 0 2px var(--red-war); }
+  .tl-item.key::before {
+    width: 18px; height: 18px; left: -30px; top: 4px;
+    background: var(--byz-purple);
+    box-shadow: 0 0 0 3px var(--byz-purple), 0 0 0 6px rgba(109,40,217,.2);
+  }
+  .tl-item.keyI::before {
+    width: 18px; height: 18px; left: -30px; top: 4px;
+    background: var(--islam-green);
+    box-shadow: 0 0 0 3px var(--islam-green), 0 0 0 6px rgba(21,128,61,.2);
+  }
+  .tl-year  { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 2px; }
+  .tl-item.byz    .tl-year { color: var(--byz-purple); }
+  .tl-item.key    .tl-year { color: var(--byz-purple); font-size: 15px; }
+  .tl-item.islam  .tl-year { color: var(--islam-green); }
+  .tl-item.keyI   .tl-year { color: var(--islam-green); font-size: 15px; }
+  .tl-item.golden .tl-year { color: var(--gold); }
+  .tl-item.war    .tl-year { color: var(--red-war); }
+  .tl-title { font-weight: 700; font-size: 14px; color: #1f2937; line-height: 1.4; }
+  .tl-desc  { font-size: 13px; color: #6b7280; margin-top: 3px; line-height: 1.5; }
+  .tl-badge {
+    display: inline-block; padding: 1px 8px; border-radius: 10px;
+    font-size: 11px; font-weight: 700; margin-left: 6px; vertical-align: middle;
+  }
+  .badge-byz    { background: var(--byz-soft);    color: var(--byz-purple); }
+  .badge-islam  { background: var(--islam-soft);  color: var(--islam-green); }
+  .badge-golden { background: var(--gold-soft);   color: var(--gold); }
+  .badge-war    { background: var(--red-soft);    color: #991b1b; }
+  .tl-era-sep {
+    margin: 20px 0 16px -36px;
+    padding: 6px 14px 6px 36px;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase;
+    border-radius: 0 20px 20px 0;
+    display: inline-block;
+  }
+  .era-sep-byz    { background: var(--byz-soft);   color: var(--byz-purple); }
+  .era-sep-islam  { background: var(--islam-soft);  color: var(--islam-green); }
+  .era-sep-golden { background: var(--gold-soft);   color: var(--gold); }
+  .era-sep-war    { background: var(--red-soft);    color: #991b1b; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 3 — Thành tựu Hoàng kim
+     ══════════════════════════════════════════════ */
+  .achieve-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 14px;
+    margin: 14px 0;
+  }
+  .achieve-card {
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: border-color .15s, box-shadow .15s, transform .15s;
+    position: relative;
+  }
+  .achieve-card:hover, .achieve-card.active {
+    border-color: var(--accent);
+    box-shadow: 0 4px 16px rgba(15,118,110,.15);
+    transform: translateY(-2px);
+  }
+  .achieve-card.active { background: var(--accent-soft); }
+  .achieve-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+    display: block;
+    line-height: 1;
+  }
+  .achieve-title {
+    font-weight: 700; font-size: 14px; color: #1f2937; margin-bottom: 4px;
+  }
+  .achieve-who {
+    font-size: 12px; color: var(--accent); font-weight: 600; margin-bottom: 6px;
+  }
+  .achieve-short {
+    font-size: 13px; color: #4b5563; line-height: 1.5;
+  }
+  .achieve-detail {
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 14px;
+    font-size: 14px;
+    line-height: 1.7;
+    display: none;
+  }
+  .achieve-detail.show { display: block; }
+  .achieve-detail-title {
+    font-weight: 700; font-size: 15px; color: var(--accent-dark); margin-bottom: 8px;
+  }
+  .achieve-impact {
+    background: white;
+    border-left: 4px solid var(--gold);
+    border-radius: 0 6px 6px 0;
+    padding: 8px 12px;
+    margin-top: 10px;
+    font-size: 13px;
+  }
+
+  /* ══════════════════════════════════════════════
+     MODULE 4 — Quiz
+     ══════════════════════════════════════════════ */
+  .quiz-q { font-weight: 700; font-size: 15px; margin-bottom: 12px; color: #1f2937; line-height: 1.5; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .quiz-opt {
+    padding: 10px 14px; border-radius: 7px; border: 2px solid #e5e7eb;
+    background: #f9fafb; cursor: pointer; font-size: 14px; text-align: left;
+    transition: border-color .15s, background .15s;
+  }
+  .quiz-opt:hover     { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct   { border-color: var(--islam-green); background: var(--islam-soft); color: #14532d; font-weight: 600; }
+  .quiz-opt.wrong     { border-color: var(--red-war); background: var(--red-soft); color: #991b1b; }
+  .quiz-opt.disabled  { cursor: default; }
+  .quiz-feedback {
+    padding: 12px 16px; border-radius: 8px; font-size: 14px; line-height: 1.6;
+    margin-top: 8px; display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok  { background: var(--islam-soft); color: #14532d; border: 1px solid var(--islam-green); }
+  .quiz-feedback.err { background: var(--red-soft);   color: #991b1b; border: 1px solid var(--red-war); }
+  .quiz-nav   { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .quiz-progress { font-size: 13px; color: var(--stone); }
+  .quiz-score    { font-weight: 700; color: var(--islam-green); font-size: 15px; }
+
+  /* ── Legend ── */
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600;
+  }
+  .legend-dot {
+    width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0;
+  }
+
+  @media (max-width: 600px) {
+    .achieve-grid { grid-template-columns: 1fr; }
+    .tl-era-sep   { font-size: 11px; padding-left: 30px; }
+    .step-panel   { font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử TG — Trung-cận đại</a>
+  <span class="sep">·</span>
+  <a href="../../01-Ancient/lesson-08-tong-ket-co-dai/visualization.html">← T1: Tổng kết</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Byzantine &amp; Hồi giáo</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-medieval-europe/visualization.html">L2: Châu Âu trung đại →</a>
+</nav>
+
+<main>
+<h1>Lesson 01 — Byzantine &amp; Sự trỗi dậy của Hồi giáo</h1>
+<p class="subtitle">Từ sự tồn tại bền bỉ của Đế quốc Đông La Mã đến sự bành trướng thần kỳ của Hồi giáo và Thời hoàng kim trí tuệ — thế kỉ IV đến XV</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — Bản đồ động
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Bản đồ động: Byzantine thu hẹp &amp; Hồi giáo bành trướng (330 – 750)</h2>
+
+<div class="card">
+  <div class="info-box">
+    <strong>Cách dùng:</strong> Nhấn <strong>Bước tiếp theo</strong> để xem từng giai đoạn. Màu tím = Byzantine; Màu xanh lá = lãnh thổ Hồi giáo bành trướng thêm ở mỗi bước.
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:rgba(109,40,217,0.6)"></div> Đế quốc Byzantine</div>
+    <div class="legend-item"><div class="legend-dot" style="background:rgba(21,128,61,0.65)"></div> Rashidun (632–661)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:rgba(21,128,61,0.55)"></div> Umayyad mở rộng (661–750)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#e7e5e4"></div> Ngoài kiểm soát</div>
+  </div>
+
+  <div class="step-dots" id="map-dots"></div>
+
+  <div id="map-stage">
+    <canvas id="map-canvas" width="720" height="400"></canvas>
+  </div>
+
+  <div class="step-panel" id="map-panel">
+    <span class="era-tag tag-init" id="map-era-tag">Khởi đầu</span><br>
+    <span id="map-text">Nhấn <strong>Bắt đầu</strong> để xem sự biến đổi lãnh thổ Byzantine và Hồi giáo từ thế kỉ IV đến VIII.</span>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-secondary" id="btn-map-prev" onclick="mapPrev()">← Trước</button>
+    <button class="btn btn-primary"   id="btn-map-next" onclick="mapNext()">Bắt đầu →</button>
+    <button class="btn btn-secondary" onclick="mapReset()">Khởi động lại</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Timeline thế kỉ IV – XV
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Chuỗi thời gian: thế kỉ IV – XV</h2>
+
+<div class="card">
+  <div class="timeline">
+
+    <!-- Byzantine sơ kỳ -->
+    <div class="tl-era-sep era-sep-byz">Đế quốc Byzantine — hình thành &amp; cực thịnh</div>
+
+    <div class="tl-item byz">
+      <div class="tl-year">330 SCN</div>
+      <div class="tl-title">Constantine I dời đô sang Constantinople
+        <span class="tl-badge badge-byz">Byzantine ra đời</span>
+      </div>
+      <div class="tl-desc">Thành phố Byzantium được đổi tên, xây dựng thành thủ đô mới của đế chế. Vị trí trên eo biển Bosphorus — ba mặt biển, một mặt đất — tạo lợi thế phòng thủ tự nhiên.</div>
+    </div>
+
+    <div class="tl-item byz">
+      <div class="tl-year">395 SCN</div>
+      <div class="tl-title">Đế chế La Mã chia đôi vĩnh viễn</div>
+      <div class="tl-desc">Theodosius I qua đời, để lại Đông La Mã cho Arcadius và Tây La Mã cho Honorius. Hai phần không bao giờ hợp nhất lại.</div>
+    </div>
+
+    <div class="tl-item key">
+      <div class="tl-year">476 SCN</div>
+      <div class="tl-title">Tây La Mã sụp đổ — Byzantine tiếp tục
+        <span class="tl-badge badge-byz">Bước ngoặt</span>
+      </div>
+      <div class="tl-desc">Romulus Augustulus bị phế truất bởi Odoacer. Đây là sự kiện thường được coi là kết thúc thời Cổ đại và mở đầu Trung đại ở châu Âu. Byzantine vẫn tồn tại.</div>
+    </div>
+
+    <div class="tl-item byz">
+      <div class="tl-year">527–565 SCN</div>
+      <div class="tl-title">Triều đại Justinian I — đỉnh cao Byzantine
+        <span class="tl-badge badge-byz">Cực thịnh</span>
+      </div>
+      <div class="tl-desc">Justinian soạn Bộ luật (529–534), xây Hagia Sophia (537), tái chiếm Bắc Phi và Ý. Đại dịch Justinian (541–549) giết hàng chục triệu người, làm suy yếu thành quả chinh phục.</div>
+    </div>
+
+    <!-- Hồi giáo ra đời -->
+    <div class="tl-era-sep era-sep-islam">Hồi giáo ra đời &amp; bành trướng</div>
+
+    <div class="tl-item islam">
+      <div class="tl-year">610 SCN</div>
+      <div class="tl-title">Muhammad nhận Khải huyền đầu tiên tại Mecca</div>
+      <div class="tl-desc">Theo tường thuật Hồi giáo, thiên sứ Jibril truyền lời Chúa cho Muhammad trong hang Hira. Bắt đầu giai đoạn 23 năm truyền đạt kinh Quran.</div>
+    </div>
+
+    <div class="tl-item keyI">
+      <div class="tl-year">622 SCN — Hijra</div>
+      <div class="tl-title">Muhammad di cư từ Mecca đến Medina
+        <span class="tl-badge badge-islam">Năm 1 Hồi giáo</span>
+      </div>
+      <div class="tl-desc">Hijra ("cuộc di cư") đánh dấu thành lập cộng đồng chính trị – tôn giáo (ummah) tại Medina. Đây là năm 1 trong lịch Hồi giáo (Hegira calendar).</div>
+    </div>
+
+    <div class="tl-item islam">
+      <div class="tl-year">630 SCN</div>
+      <div class="tl-title">Muhammad chiếm lại Mecca gần không đổ máu</div>
+      <div class="tl-desc">Phần lớn bán đảo Ả Rập hợp nhất. Đền Kaaba được tái xác nhận là trung tâm thờ phụng của Hồi giáo, các tượng thần đa thần bị dỡ bỏ.</div>
+    </div>
+
+    <div class="tl-item keyI">
+      <div class="tl-year">632 SCN</div>
+      <div class="tl-title">Muhammad qua đời — bành trướng Arab bắt đầu
+        <span class="tl-badge badge-islam">Rashidun</span>
+      </div>
+      <div class="tl-desc">Bốn Caliph Rashidun kế tiếp (632–661 SCN). Umar ibn al-Khattab chinh phục Syria (636), Palestine (638), Ai Cập (642) từ Byzantine; Iraq và Ba Tư Sassanid sụp đổ 651.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">636 SCN</div>
+      <div class="tl-title">Trận Yarmouk — Byzantine mất Syria
+        <span class="tl-badge badge-war">Quyết định</span>
+      </div>
+      <div class="tl-desc">Quân Arab đánh bại Byzantine tại sông Yarmouk (Jordan–Syria ngày nay). Byzantine rút khỏi Syria vĩnh viễn. Palestine (638) và Ai Cập (642) tiếp theo.</div>
+    </div>
+
+    <div class="tl-item islam">
+      <div class="tl-year">661 SCN</div>
+      <div class="tl-title">Vương triều Umayyad thành lập tại Damascus</div>
+      <div class="tl-desc">Muawiyah ibn Abi Sufyan thành lập triều đại thế tập đầu tiên, thủ đô Damascus (Syria). Gây bất bình trong cộng đồng Shia — hạt mầm của nhiều xung đột sau này.</div>
+    </div>
+
+    <div class="tl-item islam">
+      <div class="tl-year">711 SCN</div>
+      <div class="tl-title">Tariq ibn Ziyad vượt Gibraltar — Al-Andalus
+        <span class="tl-badge badge-islam">Tây Âu</span>
+      </div>
+      <div class="tl-desc">Quân Umayyad chiếm bán đảo Iberia (Tây Ban Nha – Bồ Đào Nha). Ngọn núi Gibraltar mang tên ông (Jabal Tariq). Hồi giáo tiến vào Tây Âu.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">717–718 SCN</div>
+      <div class="tl-title">Vây hãm Constantinople lần II — thất bại
+        <span class="tl-badge badge-byz">Byzantine thắng</span>
+      </div>
+      <div class="tl-desc">Quân Umayyad vây Constantinople 12 tháng. Byzantine dùng "Lửa Hy Lạp" (Greek Fire) tiêu diệt hạm đội. Constantinople đứng vững thêm 700 năm nữa.</div>
+    </div>
+
+    <div class="tl-item islam">
+      <div class="tl-year">732 SCN</div>
+      <div class="tl-title">Trận Tours/Poitiers — dừng lại ở Pháp</div>
+      <div class="tl-desc">Charles Martel chặn quân Umayyad tại trung tâm nước Pháp. Hồi giáo không tiến sâu hơn vào Tây Âu. Giá trị chiến lược của trận này vẫn được sử gia tranh luận.</div>
+    </div>
+
+    <div class="tl-item keyI">
+      <div class="tl-year">750 SCN</div>
+      <div class="tl-title">Vương triều Abbasid lật đổ Umayyad — thủ đô Baghdad
+        <span class="tl-badge badge-islam">Abbasid</span>
+      </div>
+      <div class="tl-desc">Cách mạng Abbasid (được hậu thuẫn bởi tầng lớp Ba Tư). Thủ đô mới Baghdad xây 762 SCN. Mở ra Thời hoàng kim Hồi giáo.</div>
+    </div>
+
+    <!-- Thời hoàng kim -->
+    <div class="tl-era-sep era-sep-golden">Thời hoàng kim Hồi giáo (thế kỉ VIII – XIII)</div>
+
+    <div class="tl-item golden">
+      <div class="tl-year">830 SCN</div>
+      <div class="tl-title">Bayt al-Hikmah — Nhà Trí tuệ Baghdad
+        <span class="tl-badge badge-golden">Trí tuệ</span>
+      </div>
+      <div class="tl-desc">Thư viện và viện nghiên cứu lớn nhất thế giới lúc bấy giờ, dưới thời Caliph Al-Ma'mun. Hàng nghìn tác phẩm Hy Lạp, Ba Tư, Ấn Độ được dịch và phát triển.</div>
+    </div>
+
+    <div class="tl-item golden">
+      <div class="tl-year">Thế kỉ IX–X</div>
+      <div class="tl-title">Al-Khwarizmi — Đại số và Thuật toán</div>
+      <div class="tl-desc">Al-Kitab al-jabr (820 SCN) đặt nền móng đại số. Tên ông → "Algoritmus" → thuật toán (algorithm). Truyền bá chữ số Ả Rập (gốc Hindu, có số 0) sang châu Âu.</div>
+    </div>
+
+    <div class="tl-item golden">
+      <div class="tl-year">980–1037 SCN</div>
+      <div class="tl-title">Ibn Sina (Avicenna) — Canon of Medicine</div>
+      <div class="tl-desc">Bộ bách khoa y học đồ sộ, dùng làm giáo trình tại các trường đại học châu Âu đến thế kỉ XVII. Tổng hợp Hippocrates – Galen với quan sát lâm sàng mới.</div>
+    </div>
+
+    <!-- Byzantine muộn & sụp đổ -->
+    <div class="tl-era-sep era-sep-byz">Byzantine muộn — suy giảm và kết thúc</div>
+
+    <div class="tl-item byz">
+      <div class="tl-year">1054 SCN</div>
+      <div class="tl-title">Đại Ly giáo — Công giáo và Chính thống giáo tách đôi</div>
+      <div class="tl-desc">Giáo hội Kitô giáo chính thức chia đôi: Giáo hoàng Rome (Công giáo) và Thượng phụ Constantinople (Chính thống giáo Đông phương). Rạn nứt tích lũy nhiều thế kỉ.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">1071 SCN</div>
+      <div class="tl-title">Trận Manzikert — Byzantine mất Tiểu Á
+        <span class="tl-badge badge-war">Thất bại nặng</span>
+      </div>
+      <div class="tl-desc">Seljuk Thổ Nhĩ Kỳ đánh bại Byzantine tại Manzikert (Armenia). Phần lớn Tiểu Á (Anatolia) mất vĩnh viễn. Hoàng đế Alexios I kêu cứu Giáo hoàng → Thập tự chinh lần I (1095).</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">1204 SCN</div>
+      <div class="tl-title">Thập tự chinh lần IV cướp phá Constantinople
+        <span class="tl-badge badge-war">Bi kịch</span>
+      </div>
+      <div class="tl-desc">Quân Thập tự chinh Công giáo phá vỡ thỏa thuận, cướp phá thành phố Kitô giáo Đông phương. Chia cắt Đế quốc Latin (1204–1261). Byzantine phục hồi nhưng không còn mạnh.</div>
+    </div>
+
+    <div class="tl-item key">
+      <div class="tl-year">1453 SCN</div>
+      <div class="tl-title">Constantinople thất thủ — Byzantine kết thúc
+        <span class="tl-badge badge-war">Cuối Byzantine</span>
+      </div>
+      <div class="tl-desc">Sultan Mehmed II (Ottoman) dùng pháo đại bác khổng lồ phá Tường Theodosian. Hoàng đế Constantine XI tử trận. Kết thúc gần 1 100 năm Byzantine. Học giả chạy sang Ý, thúc đẩy Renaissance.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — Thành tựu Thời hoàng kim
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. Thời hoàng kim Hồi giáo — Thành tựu nổi bật</h2>
+
+<div class="card">
+  <div class="info-box">
+    Nhấn vào từng thẻ để xem chi tiết thành tựu và tác động lâu dài đến thế giới.
+  </div>
+
+  <div class="achieve-grid" id="achieve-grid">
+    <!-- Thẻ được inject bởi JS -->
+  </div>
+
+  <div class="achieve-detail" id="achieve-detail">
+    <div class="achieve-detail-title" id="achieve-detail-title"></div>
+    <div id="achieve-detail-body"></div>
+    <div class="achieve-impact" id="achieve-detail-impact"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 4 — Quiz ôn tập
+     ═══════════════════════════════════════════════════════ -->
+<h2>4. Ôn tập — Trắc nghiệm</h2>
+
+<div class="card" id="quiz-card">
+  <div class="quiz-q"    id="quiz-q"></div>
+  <div class="quiz-opts" id="quiz-opts"></div>
+  <div class="quiz-feedback" id="quiz-fb"></div>
+  <div class="quiz-nav">
+    <button class="btn btn-islam" id="btn-quiz-next" onclick="quizNext()" style="display:none">Câu tiếp →</button>
+    <span class="quiz-progress" id="quiz-prog"></span>
+    <span class="quiz-score"    id="quiz-score"></span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCRIPTS
+     ═══════════════════════════════════════════════════════ -->
+<script>
+/* ════════════════════════════════════════════════
+   MODULE 1 — Bản đồ động Byzantine & Hồi giáo
+   ════════════════════════════════════════════════ */
+
+const mapCanvas = document.getElementById('map-canvas');
+const mCtx = mapCanvas.getContext('2d');
+const MW = mapCanvas.width, MH = mapCanvas.height;
+
+/*
+  Bản đồ đơn giản hóa vùng Địa Trung Hải, Cận Đông, Trung Á và Tây Âu.
+  Canvas 720×400. Trục tham chiếu:
+    Tây: x≈20 (Đại Tây Dương / Tây Ban Nha)
+    Đông: x≈700 (Trung Á / Ấn Độ)
+    Bắc: y≈20 (châu Âu trung)
+    Nam: y≈385 (Bắc Phi / Bán đảo Ả Rập)
+  Rome ≈ (250, 185); Constantinople ≈ (415, 155); Mecca ≈ (550, 310); Baghdad ≈ (600, 230)
+*/
+
+function drawSea() {
+  const g = mCtx.createLinearGradient(0, 0, 0, MH);
+  g.addColorStop(0, '#bfdbfe');
+  g.addColorStop(1, '#93c5fd');
+  mCtx.fillStyle = g;
+  mCtx.fillRect(0, 0, MW, MH);
+}
+
+function drawPoly(pts, color) {
+  mCtx.fillStyle = color;
+  mCtx.beginPath();
+  mCtx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) mCtx.lineTo(pts[i][0], pts[i][1]);
+  mCtx.closePath();
+  mCtx.fill();
+}
+
+function strokePoly(pts, color, lw) {
+  mCtx.strokeStyle = color;
+  mCtx.lineWidth = lw || 0.8;
+  mCtx.beginPath();
+  mCtx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) mCtx.lineTo(pts[i][0], pts[i][1]);
+  mCtx.closePath();
+  mCtx.stroke();
+}
+
+const LAND_COLOR = '#e7e5e4';
+
+// Định nghĩa các vùng đất
+const REGIONS = {
+  // Bán đảo Iberia (Tây Ban Nha – Bồ Đào Nha)
+  iberia: [[20,75],[65,62],[110,58],[148,62],[175,70],[200,85],[210,110],[200,138],[185,162],[162,175],[135,178],[108,172],[80,166],[55,156],[30,140],[20,115],[20,75]],
+  // Gaul / Pháp
+  gaul: [[148,62],[195,55],[240,50],[270,52],[295,62],[305,80],[300,105],[282,115],[262,118],[240,118],[215,122],[200,132],[185,140],[185,110],[175,70],[148,62]],
+  // Britain
+  britain: [[138,28],[175,24],[198,30],[210,50],[205,65],[188,70],[168,66],[148,53],[138,40],[138,28]],
+  // Germania + Dacia
+  germaniaDacia: [[270,52],[325,42],[375,38],[425,40],[465,52],[480,72],[468,92],[448,102],[420,110],[388,116],[358,118],[325,110],[305,80],[295,62],[270,52]],
+  // Bán đảo Ý
+  italy: [[222,110],[262,100],[282,96],[305,105],[316,130],[308,158],[302,188],[292,220],[280,252],[268,278],[255,298],[242,318],[232,332],[222,322],[216,298],[212,268],[210,238],[210,205],[212,175],[215,148],[218,128],[222,110]],
+  // Sicily
+  sicily: [[240,330],[262,328],[280,332],[288,345],[278,356],[255,358],[240,350],[235,340],[240,330]],
+  // Balkan + Hy Lạp
+  balkan: [[325,110],[388,116],[425,112],[448,122],[458,148],[448,168],[438,190],[425,210],[410,225],[395,232],[378,222],[362,205],[352,188],[345,165],[340,145],[335,125],[325,110]],
+  // Tiểu Á (Anatolia)
+  anatolia: [[425,112],[478,105],[528,100],[572,102],[608,112],[635,128],[645,148],[638,165],[622,178],[598,188],[572,192],[545,188],[518,182],[495,172],[472,158],[455,148],[448,122],[425,112]],
+  // Constantinople (điểm nhỏ)
+  // Syria / Levant
+  syria: [[598,188],[630,178],[652,185],[665,205],[662,228],[650,245],[635,252],[618,248],[605,232],[602,210],[598,188]],
+  // Palestine / Giuđê
+  palestine: [[618,248],[638,242],[652,250],[658,268],[652,284],[638,290],[622,286],[612,272],[614,258],[618,248]],
+  // Ai Cập
+  egypt: [[540,278],[598,272],[638,278],[660,295],[658,318],[645,335],[622,344],[598,346],[575,340],[555,328],[542,310],[538,292],[540,278]],
+  // Bắc Phi (Libya, Tunisia, Algeria, Morocco)
+  northAfrica: [[20,290],[75,278],[135,268],[195,262],[255,258],[315,260],[375,264],[430,270],[480,275],[520,278],[538,292],[540,310],[520,328],[490,342],[450,352],[410,358],[370,358],[330,352],[290,342],[250,335],[210,330],[170,328],[128,322],[88,315],[52,305],[22,295],[20,290]],
+  // Bán đảo Ả Rập (Arabia)
+  arabia: [[538,292],[555,278],[580,268],[608,262],[638,260],[660,268],[672,288],[670,312],[660,335],[645,350],[625,360],[600,368],[572,372],[545,368],[525,355],[515,340],[512,320],[520,298],[530,286],[538,292]],
+  // Mesopotamia (Iraq)
+  mesopotamia: [[605,232],[635,220],[658,228],[672,248],[672,272],[660,285],[645,290],[630,282],[618,268],[612,250],[605,232]],
+  // Ba Tư / Iran
+  persia: [[638,165],[672,155],[700,160],[710,180],[708,205],[700,225],[682,238],[665,242],[652,238],[638,228],[635,210],[630,195],[635,178],[638,165]],
+  // Trung Á (Transoxiana)
+  centralAsia: [[672,105],[700,98],[720,100],[720,145],[710,160],[700,160],[682,158],[668,148],[665,128],[668,112],[672,105]],
+};
+
+function drawLandBase() {
+  // Vẽ tất cả vùng đất màu xám nhạt
+  Object.values(REGIONS).forEach(pts => drawPoly(pts, LAND_COLOR));
+}
+
+// Màu Byzantine
+const BYZ_COLOR   = 'rgba(109,40,217,0.58)';
+// Màu Hồi giáo (Rashidun)
+const RASH_COLOR  = 'rgba(21,128,61,0.65)';
+// Màu Umayyad mở rộng
+const UMAY_COLOR  = 'rgba(21,128,61,0.52)';
+
+// Các bước lịch sử
+const MAP_STEPS = [
+  {
+    era: 'Byzantine cực thịnh', tag: 'tag-byz',
+    year: 'Khoảng 550 SCN — thời Justinian I',
+    title: 'Đế quốc Byzantine dưới Justinian I',
+    text: '<strong>Thế kỉ VI — Đỉnh cao Byzantine:</strong> Justinian I (527–565 SCN) mở rộng lãnh thổ qua chinh phạt: tái chiếm Bắc Phi từ Vandal (533–534), một phần Ý từ Ostrogoth (535–555). Ở đỉnh cao, Byzantine kiểm soát Balkan, Tiểu Á, Syria, Palestine, Ai Cập và dải Bắc Phi đến Tunisia. Constantinople là thành phố lớn nhất phương Tây, dân số ước tính 300.000–500.000 người.',
+    byz: ['balkan','anatolia','syria','palestine','egypt','northAfrica','italy'],
+    islam: [],
+    islamExt: []
+  },
+  {
+    era: 'Rashidun bành trướng', tag: 'tag-rashid',
+    year: '632–661 SCN — bốn Caliph đầu tiên',
+    title: 'Bành trướng Arab (Rashidun): 632–661 SCN',
+    text: '<strong>Ba mươi năm thay đổi thế giới:</strong> Bốn Caliph Rashidun dẫn quân Arab chinh phục với tốc độ choáng ngợp. Sau chiến thắng tại sông Yarmouk (636), Syria và Palestine rời khỏi Byzantine mãi mãi. Ai Cập thất thủ (642). Đế chế Ba Tư Sassanid — đối thủ lịch sử của Byzantine — sụp đổ hoàn toàn (651). Toàn bộ bán đảo Ả Rập đã nằm trong cộng đồng Hồi giáo.',
+    byz: ['balkan','anatolia','italy'],
+    islam: ['arabia','mesopotamia','persia','syria','palestine','egypt'],
+    islamExt: []
+  },
+  {
+    era: 'Umayyad — Bắc Phi', tag: 'tag-umay',
+    year: '661–700 SCN — Vương triều Umayyad tiến về Tây',
+    title: 'Umayyad chinh phục Bắc Phi (661–700)',
+    text: '<strong>Hướng Tây qua Bắc Phi:</strong> Umayyad tiếp tục tiến về phía Tây dọc theo Bắc Phi. Carthage (Tunisia) — từng là trung tâm quan trọng của Byzantine — thất thủ năm 698 SCN. Người Berber ban đầu kháng cự mạnh, nhưng dần được tích hợp vào lực lượng Hồi giáo. Byzantine mất hoàn toàn Bắc Phi.',
+    byz: ['balkan','anatolia','italy'],
+    islam: ['arabia','mesopotamia','persia','syria','palestine','egypt'],
+    islamExt: ['northAfrica']
+  },
+  {
+    era: 'Umayyad — Iberia & Trung Á', tag: 'tag-umay',
+    year: '700–732 SCN — bành trướng tối đa',
+    title: 'Umayyad: Tây Ban Nha và Trung Á (700–732)',
+    text: '<strong>Đế chế trải dài hai lục địa:</strong> Năm 711, Tariq ibn Ziyad vượt eo biển Gibraltar (Jabal Tariq — Núi Tariq) chiếm bán đảo Iberia — Al-Andalus. Cùng thời gian, phía Đông tiến vào Trung Á (Transoxiana, nay là Uzbekistan – Afghanistan) và Sindh (Pakistan). Năm 732, trận Tours/Poitiers chặn tiến quân vào Pháp. Umayyad kiểm soát lãnh thổ từ Tây Ban Nha đến biên giới Ấn Độ.',
+    byz: ['balkan','anatolia'],
+    islam: ['arabia','mesopotamia','persia','syria','palestine','egypt'],
+    islamExt: ['northAfrica','iberia','centralAsia']
+  }
+];
+
+let mapStep = -1;
+
+function drawCityDot(x, y, color, label, labelX, labelY) {
+  mCtx.fillStyle = color;
+  mCtx.beginPath();
+  mCtx.arc(x, y, 5, 0, Math.PI * 2);
+  mCtx.fill();
+  mCtx.strokeStyle = 'white';
+  mCtx.lineWidth = 1.5;
+  mCtx.stroke();
+  if (label) {
+    mCtx.font = 'bold 10px sans-serif';
+    mCtx.fillStyle = color;
+    mCtx.textAlign = 'center';
+    mCtx.fillText(label, labelX || x, labelY || y - 9);
+    mCtx.textAlign = 'left';
+  }
+}
+
+function drawMap(stepIdx) {
+  mCtx.clearRect(0, 0, MW, MH);
+  drawSea();
+  drawLandBase();
+
+  if (stepIdx >= 0) {
+    const step = MAP_STEPS[stepIdx];
+    // Byzantine
+    step.byz.forEach(k => { if (REGIONS[k]) drawPoly(REGIONS[k], BYZ_COLOR); });
+    // Islam core
+    step.islam.forEach(k => { if (REGIONS[k]) drawPoly(REGIONS[k], RASH_COLOR); });
+    // Islam expanded
+    step.islamExt.forEach(k => { if (REGIONS[k]) drawPoly(REGIONS[k], UMAY_COLOR); });
+  }
+
+  // Viền nhẹ
+  Object.values(REGIONS).forEach(pts => strokePoly(pts, '#a8a29e', 0.5));
+
+  // Nhãn địa danh
+  const labels = [
+    { x: 108, y: 118, text: 'HISPANIA',    c: '#374151', s: 9,  b: false },
+    { x: 230, y: 75,  text: 'GALLIA',      c: '#374151', s: 9,  b: false },
+    { x: 172, y: 44,  text: 'BRITANNIA',   c: '#374151', s: 8,  b: false },
+    { x: 360, y: 72,  text: 'GERMANIA',    c: '#374151', s: 9,  b: false },
+    { x: 245, y: 185, text: 'ITALIA',      c: '#374151', s: 9,  b: false },
+    { x: 382, y: 165, text: 'BALKAN',      c: '#374151', s: 9,  b: false },
+    { x: 535, y: 145, text: 'ASIA MINOR',  c: '#374151', s: 9,  b: false },
+    { x: 625, y: 215, text: 'SYRIA',       c: '#374151', s: 8,  b: false },
+    { x: 598, y: 310, text: 'AEGYPTUS',    c: '#374151', s: 9,  b: false },
+    { x: 310, y: 302, text: 'AFRICA',      c: '#374151', s: 10, b: false },
+    { x: 580, y: 328, text: 'ARABIA',      c: '#374151', s: 9,  b: false },
+    { x: 640, y: 248, text: 'IRAQ',        c: '#374151', s: 8,  b: false },
+    { x: 682, y: 188, text: 'PERSIA',      c: '#374151', s: 9,  b: false },
+    { x: 700, y: 122, text: 'TRANSOX.',    c: '#374151', s: 8,  b: false },
+    { x: 350, y: 195, text: 'MARE NOSTRUM',c: '#1d4ed8', s: 10, b: true  },
+    { x: 350, y: 208, text: '(Địa Trung Hải)', c: '#1d4ed8', s: 8, b: false },
+  ];
+  labels.forEach(lb => {
+    mCtx.font = `${lb.b ? '700' : '500'} ${lb.s}px sans-serif`;
+    mCtx.fillStyle = lb.c;
+    mCtx.textAlign = 'center';
+    mCtx.fillText(lb.text, lb.x, lb.y);
+    mCtx.textAlign = 'left';
+  });
+
+  // Thành phố quan trọng
+  drawCityDot(413, 150, '#6d28d9', 'Constantinople', 413, 140);
+  drawCityDot(548, 312, '#b91c1c', 'Mecca', 548, 302);
+  drawCityDot(600, 228, '#b45309', 'Baghdad', 600, 218);
+  drawCityDot(248, 178, '#374151', 'Rome', 248, 168);
+  drawCityDot(592, 195, '#374151', 'Damascus', 592, 185);
+
+  // Mũi tên chỉ hướng bành trướng theo bước
+  if (stepIdx === 1) {
+    // Hướng Bắc Phi, Iraq, Persia
+    drawArrowMap(548, 292, 490, 270, '#15803d', 1.5);
+    drawArrowMap(600, 225, 650, 210, '#15803d', 1.5);
+  } else if (stepIdx === 2) {
+    drawArrowMap(490, 270, 310, 265, '#15803d', 1.5);
+    mCtx.font = 'bold 9px sans-serif';
+    mCtx.fillStyle = '#15803d';
+    mCtx.textAlign = 'center';
+    mCtx.fillText('698: Carthage', 240, 260);
+    mCtx.textAlign = 'left';
+  } else if (stepIdx === 3) {
+    drawArrowMap(200, 265, 108, 130, '#15803d', 1.5);
+    drawArrowMap(690, 145, 710, 120, '#15803d', 1.5);
+    mCtx.font = 'bold 9px sans-serif';
+    mCtx.fillStyle = '#15803d';
+    mCtx.textAlign = 'center';
+    mCtx.fillText('711: Gibraltar', 130, 108);
+    mCtx.fillText('~712: Sindh', 710, 108);
+    mCtx.textAlign = 'left';
+  }
+}
+
+function drawArrowMap(x1, y1, x2, y2, color, lw) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const ang = Math.atan2(dy, dx);
+  mCtx.save();
+  mCtx.strokeStyle = color;
+  mCtx.lineWidth = lw;
+  mCtx.setLineDash([5, 3]);
+  mCtx.beginPath();
+  mCtx.moveTo(x1, y1);
+  mCtx.lineTo(x2, y2);
+  mCtx.stroke();
+  mCtx.setLineDash([]);
+  // Arrow head
+  mCtx.fillStyle = color;
+  mCtx.beginPath();
+  mCtx.moveTo(x2, y2);
+  mCtx.lineTo(x2 - 9 * Math.cos(ang - .4), y2 - 9 * Math.sin(ang - .4));
+  mCtx.lineTo(x2 - 9 * Math.cos(ang + .4), y2 - 9 * Math.sin(ang + .4));
+  mCtx.closePath();
+  mCtx.fill();
+  mCtx.restore();
+}
+
+function mapUpdateUI() {
+  const step = mapStep;
+  const data = step >= 0 ? MAP_STEPS[step] : null;
+
+  const tag  = document.getElementById('map-era-tag');
+  const text = document.getElementById('map-text');
+  if (data) {
+    tag.className = 'era-tag ' + data.tag;
+    tag.textContent = data.era + ' · ' + data.year;
+    text.innerHTML = data.text;
+  } else {
+    tag.className = 'era-tag tag-init';
+    tag.textContent = 'Khởi đầu';
+    text.innerHTML = 'Nhấn <strong>Bắt đầu</strong> để xem sự biến đổi lãnh thổ Byzantine và Hồi giáo từ thế kỉ IV đến VIII.';
+  }
+
+  document.getElementById('btn-map-prev').disabled = step <= 0;
+  document.getElementById('btn-map-next').textContent =
+    step < 0 ? 'Bắt đầu →' :
+    step >= MAP_STEPS.length - 1 ? 'Hoàn thành' : 'Bước tiếp theo →';
+  document.getElementById('btn-map-next').disabled = step >= MAP_STEPS.length - 1;
+
+  const dots = document.getElementById('map-dots');
+  dots.innerHTML = '';
+  for (let i = 0; i < MAP_STEPS.length; i++) {
+    const d = document.createElement('div');
+    d.className = 'step-dot' + (i === step ? ' active' : i < step ? ' done' : '');
+    d.textContent = i + 1;
+    const si = i;
+    d.onclick = () => mapGoTo(si);
+    dots.appendChild(d);
+  }
+
+  drawMap(step);
+}
+
+function mapNext()  { if (mapStep < MAP_STEPS.length - 1) { mapStep++; mapUpdateUI(); } }
+function mapPrev()  { if (mapStep > 0) { mapStep--; mapUpdateUI(); } }
+function mapGoTo(i) { mapStep = i; mapUpdateUI(); }
+function mapReset() { mapStep = -1; mapUpdateUI(); }
+
+drawMap(-1);
+mapUpdateUI();
+
+/* ════════════════════════════════════════════════
+   MODULE 3 — Thành tựu Thời hoàng kim
+   ════════════════════════════════════════════════ */
+
+const ACHIEVEMENTS = [
+  {
+    icon: '∑',
+    title: 'Đại số (Algebra)',
+    who: 'Al-Khwarizmi — Baghdad, khoảng 820 SCN',
+    short: 'Đặt nền móng đại số. Tên ông → "algorithm" (thuật toán).',
+    body: `<strong>Al-Khwarizmi</strong> (khoảng 780–850 SCN) viết <em>Al-Kitab al-mukhtasar fi hisab al-jabr wal-muqabala</em> — tựa sách chứa từ <em>al-jabr</em> (bù trừ, hoàn trả), nguồn gốc của từ <strong>algebra</strong> trong các ngôn ngữ hiện đại.<br><br>
+Ông hệ thống hóa phương pháp giải phương trình bậc nhất và bậc hai bằng ngôn ngữ đại số — không phải hình học như người Hy Lạp. Đây là bước tiến cơ bản: từ "hình" sang "ký hiệu".<br><br>
+Tên ông được Latin hóa thành <em>Algorithmus</em> — nguồn gốc trực tiếp của từ <strong>algorithm (thuật toán)</strong>, khái niệm trung tâm của khoa học máy tính hiện đại.`,
+    impact: 'Tác động ngày nay: Mọi phương trình toán học, mọi thuật toán máy tính, mọi mã hóa dữ liệu đều kế thừa công trình của Al-Khwarizmi.'
+  },
+  {
+    icon: '0',
+    title: 'Chữ số Ả Rập & Số 0',
+    who: 'Học giả Ả Rập, truyền từ Ấn Độ — thế kỉ IX',
+    short: 'Truyền bá hệ thống số vị trí (0–9) sang châu Âu, thay thế số La Mã.',
+    body: `Hệ thống chữ số 0–9 xuất phát từ <strong>Ấn Độ</strong> (Brahmi numerals), nhưng học giả Ả Rập — đặc biệt Al-Khwarizmi — là người chuyển đổi và truyền bá sang châu Âu qua các bản dịch Latin từ thế kỉ X–XI.<br><br>
+Điểm cốt lõi: <strong>hệ thống số vị trí</strong> (positional numeral system) — giá trị của chữ số phụ thuộc vào vị trí của nó (2 trong "24" khác 2 trong "200"). Khái niệm <strong>số 0</strong> như placeholder vị trí là cách mạng.<br><br>
+So sánh: cộng MCMXLIV + CDXLVI bằng số La Mã (= 1944 + 446 = 2390 = MMCCCXC) so với cộng 1944 + 446 = 2390. Sự khác biệt là rõ ràng.`,
+    impact: 'Tác động ngày nay: Mọi phép tính — từ sổ kế toán đến máy tính — dùng hệ thống số này. Tài chính, khoa học, kỹ thuật hiện đại đều không thể hoạt động với số La Mã.'
+  },
+  {
+    icon: '⚕',
+    title: 'Y học — Canon of Medicine',
+    who: 'Ibn Sina (Avicenna) — 980–1037 SCN',
+    short: 'Bộ bách khoa y học, giáo trình châu Âu đến thế kỉ XVII.',
+    body: `<strong>Ibn Sina</strong> (980–1037 SCN) — được châu Âu biết qua tên Latin <em>Avicenna</em> — viết <em>Al-Qanun fi al-Tibb</em> (Canon of Medicine): bộ bách khoa y học 5 tập, tổng hợp Hippocrates, Galen với hàng nghìn quan sát lâm sàng mới.<br><br>
+Các đóng góp nổi bật: phân loại bệnh theo nguyên nhân; thử nghiệm lâm sàng (clinical trial) sơ khai; mô tả bệnh lao (tuberculosis); phân tích tâm lý học như là một phần y khoa.<br><br>
+<strong>Al-Razi (854–925 SCN)</strong> phân biệt lần đầu bệnh đậu mùa (smallpox) với bệnh sởi (measles) — bước nền tảng trong chẩn đoán. <strong>Ibn al-Nafis (1213–1288)</strong> mô tả tuần hoàn phổi (máu từ tim phải → phổi → tim trái), trước William Harvey hơn 300 năm.`,
+    impact: 'Tác động ngày nay: Canon of Medicine là sách giáo khoa y khoa tại đại học Paris và Oxford đến thế kỉ XVII. Ibn al-Nafis mô tả tuần hoàn phổi 300 năm trước Harvey (1628).'
+  },
+  {
+    icon: '★',
+    title: 'Thiên văn học',
+    who: 'Al-Battani, Al-Biruni — thế kỉ IX–XI',
+    short: 'Đài thiên văn hiện đại, đặt tên sao, đề xuất nhật tâm luận sơ khai.',
+    body: `<strong>Al-Battani (858–929 SCN)</strong> cải thiện đáng kể bảng thiên văn của Ptolemy: tính chính xác hơn góc nghiêng trục Trái Đất, chu kỳ năm mặt trời, và phát triển các hàm lượng giác. Tên ông được Latin hóa thành <em>Albategnius</em>.<br><br>
+Nhiều tên ngôi sao hiện đang dùng có nguồn gốc Ả Rập: <strong>Aldebaran</strong> (mắt bò đực), <strong>Betelgeuse</strong> (vai người khổng lồ), <strong>Rigel</strong> (chân), <strong>Altair</strong> (con đại bàng đang bay), <strong>Deneb</strong> (đuôi).<br><br>
+<strong>Al-Biruni (973–1048 SCN)</strong> không chỉ làm thiên văn — ông còn đề xuất khả năng Trái Đất quay quanh Mặt Trời (heliocentric model) khoảng 500 năm trước Copernicus, dù không phát triển thành hệ thống đầy đủ.`,
+    impact: 'Tác động ngày nay: Copernicus, Galileo và Kepler đều đọc và trích dẫn công trình của các học giả Hồi giáo. Nhiều tên sao và thuật ngữ thiên văn vẫn mang gốc tiếng Ả Rập.'
+  },
+  {
+    icon: 'φ',
+    title: 'Triết học — Aristotle truyền về châu Âu',
+    who: 'Ibn Rushd (Averroes) — 1126–1198 SCN',
+    short: 'Bình chú Aristotle → truyền sang châu Âu → ảnh hưởng Thomas Aquinas.',
+    body: `<strong>Ibn Rushd (1126–1198 SCN)</strong> — được châu Âu biết qua tên Latin <em>Averroes</em> — viết bộ bình chú toàn diện nhất các tác phẩm của Aristotle, bao phủ mọi lĩnh vực: logic, vật lý học, tâm lý học, siêu hình học, đạo đức học.<br><br>
+Các bình chú này được dịch sang Latin và trở thành <em>cầu nối</em> đưa triết học Aristotle vào các trường đại học châu Âu thế kỉ XII–XIII. <strong>Thomas Aquinas</strong> (1225–1274) — triết gia Kitô giáo vĩ đại — xây dựng hệ thống triết học của mình dựa phần lớn trên Aristotle qua bình chú của Ibn Rushd. Trường phái này gọi là <em>Averroism</em>.<br><br>
+<strong>Al-Farabi (872–950)</strong> phát triển triết học Aristotle trong bối cảnh Hồi giáo, ảnh hưởng đến cả Ibn Sina và triết học Do Thái (Maimonides).`,
+    impact: 'Tác động ngày nay: Nếu không có Ibn Rushd, Aristotle có thể đã không trở lại châu Âu. Toàn bộ nền học thuật Kinh viện (Scholasticism) — nền tảng của triết học Tây phương hiện đại — được xây trên cầu nối này.'
+  },
+  {
+    icon: '🏛',
+    title: 'Bayt al-Hikmah — Nhà Trí tuệ',
+    who: 'Baghdad, thời Abbasid — thế kỉ VIII–XIII',
+    short: 'Trung tâm dịch thuật và nghiên cứu lớn nhất thế giới lúc bấy giờ.',
+    body: `<strong>Bayt al-Hikmah</strong> (House of Wisdom / Nhà Trí tuệ) được phát triển dưới thời Caliph Harun al-Rashid (786–809) và đạt đỉnh dưới thời Al-Ma'mun (813–833 SCN).<br><br>
+Chức năng: thư viện khổng lồ, viện dịch thuật, và trung tâm nghiên cứu — quy tụ học giả từ Ả Rập, Ba Tư, Syria, Ấn Độ, và ngay cả Kitô giáo và Do Thái. Hàng nghìn tác phẩm của Aristotle, Euclid, Ptolemy, Hippocrates, Galen được dịch sang tiếng Ả Rập, rồi bình chú và phát triển.<br><br>
+Chính sách của triều đình: trả tiền công theo trọng lượng bản dịch bằng vàng. Đây là ví dụ hiếm của "đầu tư nhà nước vào học thuật" quy mô lớn trong lịch sử tiền hiện đại.`,
+    impact: 'Tác động ngày nay: Phong trào dịch thuật tại Toledo (thế kỉ XI–XII) đưa kho tàng này từ tiếng Ả Rập sang Latin → các đại học châu Âu → Renaissance và Cách mạng Khoa học.'
+  }
+];
+
+let activeAchieve = -1;
+
+function renderAchievements() {
+  const grid = document.getElementById('achieve-grid');
+  grid.innerHTML = '';
+  ACHIEVEMENTS.forEach((a, i) => {
+    const card = document.createElement('div');
+    card.className = 'achieve-card' + (i === activeAchieve ? ' active' : '');
+    card.innerHTML = `
+      <span class="achieve-icon">${a.icon}</span>
+      <div class="achieve-title">${a.title}</div>
+      <div class="achieve-who">${a.who}</div>
+      <div class="achieve-short">${a.short}</div>
+    `;
+    card.onclick = () => achieveShow(i);
+    grid.appendChild(card);
+  });
+}
+
+function achieveShow(i) {
+  const a = ACHIEVEMENTS[i];
+  activeAchieve = i;
+  renderAchievements();
+  const detail = document.getElementById('achieve-detail');
+  document.getElementById('achieve-detail-title').textContent = a.title + ' — ' + a.who;
+  document.getElementById('achieve-detail-body').innerHTML = a.body;
+  document.getElementById('achieve-detail-impact').innerHTML = '<strong>Tác động lâu dài:</strong> ' + a.impact.replace(/^Tác động ngày nay: /, '');
+  detail.className = 'achieve-detail show';
+  detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+renderAchievements();
+
+/* ════════════════════════════════════════════════
+   MODULE 4 — Quiz
+   ════════════════════════════════════════════════ */
+
+const QUIZ = [
+  {
+    q: 'Vì sao Đế quốc Byzantine tồn tại được sau khi Tây La Mã sụp đổ năm 476 SCN?',
+    opts: [
+      'Vì Byzantine có quân đội lớn hơn và nhiều pháo thuyền hơn Tây La Mã',
+      'Vì Constantinople có vị trí phòng thủ tự nhiên (ba mặt biển), kinh tế phát triển hơn, và ít bị tấn công hơn từ các tộc Germanic',
+      'Vì Giáo hoàng Roma bảo vệ Byzantine bằng quân đội Công giáo',
+      'Vì Byzantine liên minh quân sự với đế chế Ba Tư Sassanid'
+    ],
+    correct: 1,
+    explain: 'Ba yếu tố chính: (1) Vị trí tự nhiên của Constantinople — ba mặt biển, tường Theodosian kiên cố mặt đất, khiến rất khó tấn công; (2) Phương Đông có nền kinh tế đô thị và thương mại phát triển hơn, nguồn thu ngân sách lớn hơn; (3) Các cuộc xâm lược Germanic (Visigoths, Vandals, Ostrogoths) chủ yếu nhắm vào miền Tây. Byzantine tiếp tục sống thêm ~1 000 năm cho đến 1453.'
+  },
+  {
+    q: 'Năm nào được chọn là năm 1 trong lịch Hồi giáo (Hijra calendar) và vì sao?',
+    opts: [
+      'Khoảng 570 SCN — năm Muhammad ra đời',
+      '610 SCN — năm Muhammad nhận Khải huyền đầu tiên tại hang Hira',
+      '622 SCN — năm Muhammad di cư từ Mecca đến Medina (Hijra), thành lập cộng đồng chính trị – tôn giáo',
+      '632 SCN — năm Muhammad qua đời và bành trướng Arab bắt đầu'
+    ],
+    correct: 2,
+    explain: 'Năm 622 SCN (Hijra — cuộc di cư) được chọn vì đây là thời điểm Muhammad và các tín đồ thành lập cộng đồng Hồi giáo độc lập (ummah) tại Medina — lần đầu tiên Hồi giáo có nền tảng chính trị, xã hội và quân sự. Đây là mốc "khai sinh nhà nước" thực chất hơn là ngày sinh hay ngày Khải huyền đầu tiên. Caliph Umar chính thức hóa lịch này khoảng 638–639 SCN.'
+  },
+  {
+    q: 'Từ nào trong tiếng Anh (và nhiều ngôn ngữ hiện đại) bắt nguồn từ tên nhà toán học Hồi giáo Al-Khwarizmi?',
+    opts: [
+      'Algebra (đại số) — từ tựa sách của ông',
+      'Algorithm (thuật toán) — từ tên Latin hóa của ông là "Algorithmus"',
+      'Cả hai: "algebra" từ tựa sách và "algorithm" từ tên ông',
+      'Chỉ "algebra" — "algorithm" có nguồn gốc Hy Lạp'
+    ],
+    correct: 2,
+    explain: 'Đúng — cả hai đều từ Al-Khwarizmi: "Algebra" từ từ "al-jabr" trong tựa tác phẩm của ông; "Algorithm" từ tên ông được Latin hóa thành "Algorithmus". Đây là một trường hợp hiếm trong lịch sử khi tên một người tạo ra hai từ quan trọng trong hai lĩnh vực khác nhau (toán học và khoa học máy tính).'
+  },
+  {
+    q: 'Trận Yarmouk (636 SCN) có ý nghĩa gì trong lịch sử Byzantine và Hồi giáo?',
+    opts: [
+      'Byzantine thắng, chặn đứng quân Arab, giữ Syria thêm 300 năm',
+      'Quân Arab thắng, Byzantine mất Syria vĩnh viễn — mở đầu bành trướng nhanh chóng sang Palestine và Ai Cập',
+      'Trận hòa — dẫn đến hiệp ước phân chia Syria giữa Byzantine và Caliph',
+      'Byzantine thất bại nhưng giữ được Constantinople nhờ "Lửa Hy Lạp"'
+    ],
+    correct: 1,
+    explain: 'Trận Yarmouk (636 SCN) tại sông Yarmouk (biên giới Jordan – Syria ngày nay) là một trong những trận chiến quyết định nhất lịch sử. Quân Arab đánh bại lực lượng Byzantine lớn hơn nhiều lần. Kết quả: Byzantine mất Syria vĩnh viễn. Chỉ 2 năm sau (638 SCN), Jerusalem thất thủ; Ai Cập (642 SCN) tiếp theo. Byzantine rút lui về Anatolia và không bao giờ chiếm lại các tỉnh này.'
+  },
+  {
+    q: 'Vai trò của học giả Hồi giáo trong việc bảo tồn và phát triển triết học Hy Lạp cổ điển là gì?',
+    opts: [
+      'Chỉ sao chép và lưu giữ nguyên văn — không thêm bớt gì',
+      'Dịch từ tiếng Hy Lạp sang tiếng Ả Rập, bình chú, sửa sai và phát triển thêm — rồi truyền lại cho châu Âu qua bản dịch Latin',
+      'Chủ yếu phá hủy sách Hy Lạp vì coi chúng là phi Hồi giáo',
+      'Chỉ bảo tồn y học Hy Lạp — không quan tâm đến toán học hay triết học'
+    ],
+    correct: 1,
+    explain: 'Học giả Hồi giáo là những người kế thừa sáng tạo, không phải người sao chép thụ động: họ dịch từ tiếng Hy Lạp (và Syriac, Ba Tư, Ấn Độ) sang tiếng Ả Rập; bình chú và thêm giải thích mới; sửa sai khi cần (ví dụ Ibn al-Nafis sửa Galen về tuần hoàn máu); và phát triển thêm (Al-Khwarizmi từ số học Hy Lạp tạo ra đại số). Sau đó, qua Phong trào dịch thuật Toledo (thế kỉ XI–XII), các tác phẩm này được dịch sang Latin và vào châu Âu, thúc đẩy Phục hưng.'
+  },
+  {
+    q: '"Thời hoàng kim Hồi giáo" kết thúc vào thời điểm nào và vì lý do gì?',
+    opts: [
+      'Khoảng 750 SCN khi Abbasid thay Umayyad — triều đại mới không quan tâm học thuật',
+      'Khoảng 1258 SCN khi quân Mông Cổ của Hulagu Khan phá hủy Baghdad và giết Caliph Al-Musta\'sim',
+      'Khoảng 1095 SCN khi Thập tự chinh lần I bắt đầu tấn công các thành phố Hồi giáo',
+      'Khoảng 900 SCN khi đế chế Abbasid phân mảnh thành nhiều vương quốc nhỏ'
+    ],
+    correct: 1,
+    explain: 'Năm 1258 SCN, quân Mông Cổ của Hulagu Khan (cháu Thành Cát Tư Hãn) phá hủy Baghdad trong 13 ngày. Theo tường thuật lịch sử, thư viện Bayt al-Hikmah và các kho sách bị tiêu hủy — "nước sông Tigris chuyển màu đen vì mực". Caliph Al-Musta'sim bị giết. Đây là kết thúc của đế chế Abbasid và là cú sốc mà thế giới Hồi giáo không bao giờ hoàn toàn phục hồi về quy mô cũ. Nhiều học giả trốn sang Ai Cập (Mamluk) và tiếp tục công việc.'
+  },
+  {
+    q: 'Vì sao sự sụp đổ của Constantinople năm 1453 lại gián tiếp thúc đẩy phong trào Phục hưng (Renaissance) ở Ý?',
+    opts: [
+      'Vì người Ottoman mang nhiều sách mới đến bán ở Venice',
+      'Vì nhiều học giả Byzantine chạy sang Ý, mang theo sách vở và tri thức Hy Lạp – La Mã cổ điển',
+      'Vì Thổ Nhĩ Kỳ đóng Con đường Tơ lụa, buộc châu Âu phải phát triển khoa học để tìm đường biển khác',
+      'Vì Giáo hoàng tổ chức thu thập sách từ các tu viện Byzantine'
+    ],
+    correct: 1,
+    explain: 'Khi Constantinople thất thủ (1453), nhiều học giả Byzantine chạy sang Ý — đặc biệt là Venice, Florence và Rome — mang theo bản thảo tiếng Hy Lạp cổ điển mà châu Âu Tây phương ít có. Những bản thảo này bao gồm tác phẩm của Plato (chứ không chỉ Aristotle đã biết trước), Archimedes, Euclid và nhiều học giả khác. Sự tiếp xúc này đổ thêm nhiên liệu vào phong trào nhân văn (Humanism) đang hình thành tại Florence và các thành phố Ý khác.'
+  }
+];
+
+let quizIdx = 0, quizScore = 0, quizAnswered = false;
+
+function quizRender() {
+  const q = QUIZ[quizIdx];
+  document.getElementById('quiz-q').textContent = `Câu ${quizIdx + 1}/${QUIZ.length}: ${q.q}`;
+  document.getElementById('quiz-prog').textContent = `${quizIdx + 1} / ${QUIZ.length}`;
+  document.getElementById('quiz-score').textContent = quizIdx > 0 ? `Điểm: ${quizScore}/${quizIdx}` : '';
+
+  const optsEl = document.getElementById('quiz-opts');
+  optsEl.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = () => quizAnswer(i);
+    optsEl.appendChild(btn);
+  });
+
+  document.getElementById('quiz-fb').className = 'quiz-feedback';
+  document.getElementById('quiz-fb').innerHTML = '';
+  document.getElementById('btn-quiz-next').style.display = 'none';
+  quizAnswered = false;
+}
+
+function quizAnswer(chosen) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+
+  const q = QUIZ[quizIdx];
+  document.querySelectorAll('.quiz-opt').forEach((btn, i) => {
+    btn.classList.add('disabled');
+    btn.onclick = null;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === chosen && chosen !== q.correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb');
+  if (chosen === q.correct) {
+    quizScore++;
+    fb.className = 'quiz-feedback show ok';
+    fb.innerHTML = '<strong>Đúng!</strong> ' + q.explain;
+  } else {
+    fb.className = 'quiz-feedback show err';
+    fb.innerHTML = '<strong>Chưa đúng.</strong> Đáp án: <em>' + q.opts[q.correct] + '</em>. ' + q.explain;
+  }
+
+  document.getElementById('quiz-score').textContent = `Điểm: ${quizScore}/${quizIdx + 1}`;
+
+  if (quizIdx < QUIZ.length - 1) {
+    document.getElementById('btn-quiz-next').style.display = 'inline-block';
+  } else {
+    const pct = Math.round((quizScore / QUIZ.length) * 100);
+    document.getElementById('quiz-score').textContent = `Kết quả: ${quizScore}/${QUIZ.length} (${pct}%)`;
+    document.getElementById('quiz-prog').textContent =
+      pct >= 86 ? 'Xuất sắc!' : pct >= 57 ? 'Tốt — ôn lại các câu sai.' : 'Cần ôn tập thêm.';
+  }
+}
+
+function quizNext() {
+  quizIdx++;
+  if (quizIdx < QUIZ.length) quizRender();
+}
+
+quizRender();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

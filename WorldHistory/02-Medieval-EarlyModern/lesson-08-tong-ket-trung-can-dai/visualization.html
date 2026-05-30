@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Tổng kết Tầng 2: Từ trung đại sang cận đại</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent:        #0f766e;
+    --accent-soft:   #ccfbf1;
+    --accent-hover:  #0d6460;
+    --red-war:       #b91c1c;
+    --blue-link:     #1d4ed8;
+    --grey-minor:    #57534e;
+    --gold:          #b45309;
+    --purple:        #7c3aed;
+    --bg-card:       #ffffff;
+    --bg-section:    #f0fdfa;
+    --border:        #99f6e4;
+  }
+
+  main { max-width: 1100px; }
+
+  h1 { color: var(--accent-hover); font-size: 1.6rem; }
+  h2 { color: var(--accent); margin-top: 40px; padding-bottom: 6px;
+       border-bottom: 2px solid var(--accent-soft); }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(15,118,110,.10);
+    margin: 16px 0;
+    border: 1px solid var(--border);
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ═══════════════════════════════════════════════
+     MODULE 1 — Timeline đa tuyến
+  ═══════════════════════════════════════════════ */
+  #tl-wrap {
+    width: 100%;
+    overflow-x: auto;
+    background: var(--bg-section);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 16px 0 8px;
+  }
+  #tl-svg { display: block; margin: 0 auto; }
+
+  .tl-dot { cursor: pointer; }
+  .tl-dot:hover { opacity: .75; }
+
+  #tl-detail {
+    min-height: 90px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.75;
+  }
+  #tl-detail .ev-title {
+    font-weight: 700; font-size: 16px;
+    color: var(--accent-hover); margin-bottom: 4px;
+  }
+  #tl-detail .ev-link a { color: var(--blue-link); font-size: 13px; }
+  #tl-detail .ev-tag {
+    display: inline-block;
+    padding: 2px 9px; border-radius: 10px;
+    font-size: 11px; font-weight: 700; margin-right: 6px;
+  }
+  .tag-found   { background: #ccfbf1; color: #0d6460; }
+  .tag-war     { background: #fee2e2; color: #991b1b; }
+  .tag-culture { background: #fef3c7; color: #92400e; }
+  .tag-idea    { background: #dbeafe; color: #1d4ed8; }
+  .tag-trade   { background: #f3e8ff; color: #6d28d9; }
+
+  .tl-legend {
+    display: flex; gap: 14px; flex-wrap: wrap;
+    align-items: center;
+    margin: 8px 12px 0;
+    font-size: 12px; color: #555;
+  }
+  .tl-legend-item { display: flex; align-items: center; gap: 5px; }
+  .tl-legend-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+
+  .civ-filters {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin: 12px 0 4px;
+  }
+  .civ-btn {
+    padding: 5px 13px; border-radius: 20px; border: 2px solid transparent;
+    font-size: 12px; font-weight: 700; cursor: pointer;
+    transition: opacity .15s, border-color .15s;
+  }
+  .civ-btn.off { opacity: .35; }
+
+  /* ═══════════════════════════════════════════════
+     MODULE 2 — Bảng so sánh
+  ═══════════════════════════════════════════════ */
+  .cmp-wrap { overflow-x: auto; }
+  table.cmp-table {
+    width: 100%; min-width: 700px;
+    border-collapse: collapse; font-size: 13px; line-height: 1.5;
+  }
+  table.cmp-table thead th {
+    background: var(--accent); color: white;
+    padding: 10px 11px; text-align: left; font-weight: 700;
+    white-space: nowrap;
+  }
+  table.cmp-table thead th:first-child { border-radius: 8px 0 0 0; }
+  table.cmp-table thead th:last-child  { border-radius: 0 8px 0 0; }
+  table.cmp-table tbody tr { cursor: pointer; transition: background .12s; }
+  table.cmp-table tbody tr:nth-child(odd)  { background: #fff; }
+  table.cmp-table tbody tr:nth-child(even) { background: var(--bg-section); }
+  table.cmp-table tbody tr:hover,
+  table.cmp-table tbody tr.active { background: var(--accent-soft); }
+  table.cmp-table tbody td { padding: 8px 11px; border-bottom: 1px solid var(--border); }
+  table.cmp-table tbody td:first-child { font-weight: 700; color: var(--accent-hover); }
+
+  #cmp-detail {
+    background: var(--bg-section);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-top: 12px;
+    font-size: 14px; line-height: 1.8;
+    display: none;
+  }
+  #cmp-detail.visible { display: block; }
+  #cmp-detail h3 { color: var(--accent-hover); margin: 0 0 8px; font-size: 16px; }
+
+  /* ═══════════════════════════════════════════════
+     MODULE 3 — Bản đồ dịch chuyển
+  ═══════════════════════════════════════════════ */
+  #shift-wrap {
+    width: 100%; overflow-x: auto;
+    background: var(--bg-section);
+    border-radius: 12px; border: 1px solid var(--border);
+    padding: 16px 0 8px;
+  }
+  #shift-svg { display: block; margin: 0 auto; }
+
+  .era-btn-wrap {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 4px;
+  }
+  .era-btn {
+    padding: 6px 16px; border-radius: 20px;
+    border: 2px solid var(--accent); background: white;
+    color: var(--accent); font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: background .15s, color .15s;
+  }
+  .era-btn.active { background: var(--accent); color: white; }
+
+  #shift-detail {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px 18px; margin-top: 10px;
+    font-size: 14px; line-height: 1.75; min-height: 70px;
+  }
+
+  /* ═══════════════════════════════════════════════
+     MODULE 4 — Quiz
+  ═══════════════════════════════════════════════ */
+  .quiz-progress {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 16px; font-size: 14px; color: #555;
+  }
+  .quiz-bar-wrap { flex: 1; height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
+  .quiz-bar { height: 100%; background: var(--accent); border-radius: 4px; transition: width .3s; }
+
+  .quiz-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 22px 26px; margin: 8px 0;
+  }
+  .quiz-q { font-weight: 700; font-size: 16px; color: #1f2937; margin-bottom: 16px; line-height: 1.5; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-opt {
+    padding: 10px 16px; border-radius: 7px; border: 2px solid #d1d5db;
+    background: white; cursor: pointer; font-size: 14px;
+    text-align: left; transition: border-color .15s, background .15s; line-height: 1.5;
+  }
+  .quiz-opt:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct { border-color: #16a34a; background: #dcfce7; color: #166534; font-weight: 700; }
+  .quiz-opt.wrong   { border-color: #dc2626; background: #fee2e2; color: #991b1b; }
+  .quiz-opt:disabled { cursor: default; opacity: .85; }
+
+  .quiz-feedback {
+    margin-top: 12px; padding: 12px 16px; border-radius: 7px;
+    font-size: 14px; line-height: 1.7; display: none;
+  }
+  .quiz-feedback.visible { display: block; }
+  .quiz-feedback.ok  { background: #dcfce7; border: 1px solid #86efac; color: #166534; }
+  .quiz-feedback.err { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; }
+
+  .quiz-nav { display: flex; gap: 10px; margin-top: 16px; justify-content: flex-end; }
+
+  .quiz-result {
+    text-align: center; padding: 32px 16px;
+    background: var(--bg-section); border-radius: 12px;
+    border: 1px solid var(--border); display: none;
+  }
+  .quiz-result.visible { display: block; }
+  .quiz-result .score { font-size: 2.5rem; font-weight: 900; color: var(--accent); }
+  .quiz-result .score-label { font-size: 1rem; color: #555; margin-top: 4px; }
+  .quiz-result .result-msg  { margin-top: 12px; font-size: 15px; font-weight: 600; }
+
+  /* responsive */
+  @media (max-width: 600px) {
+    table.cmp-table { font-size: 11px; }
+    .quiz-card { padding: 16px 14px; }
+    .quiz-q { font-size: 14px; }
+    .quiz-opt { font-size: 13px; }
+    .civ-btn { font-size: 11px; padding: 4px 10px; }
+    .era-btn { font-size: 11px; padding: 5px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử TG — Trung-cận đại</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-science-enlightenment/visualization.html">← L7: CM khoa học &amp; Khai sáng</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Tổng kết Tầng 2</span>
+  <span class="sep">·</span>
+  <a href="../../03-Modern-Contemporary/lesson-01-revolutions/visualization.html">Tầng 3 → Các cuộc cách mạng</a>
+</nav>
+
+<main>
+  <h1>Tổng kết Tầng 2 — Từ trung đại sang cận đại</h1>
+  <p style="color:#555; font-size:15px; margin-top:-6px;">
+    Thế kỉ V–XVIII: từ Byzantine &amp; Hồi giáo → châu Âu phong kiến → các đế chế châu Á &amp; Mông Cổ
+    → Phục hưng → phát kiến địa lý → Cải cách tôn giáo → Cách mạng khoa học &amp; Khai sáng.
+    Tương tác với timeline, bảng so sánh, sơ đồ dịch chuyển quyền lực và quiz ôn tập.
+  </p>
+
+  <!-- ────────────────────────────────────────────
+       MODULE 1 — Timeline đa tuyến
+  ──────────────────────────────────────────────── -->
+  <h2>1. Timeline tổng hợp Tầng 2 (thế kỉ V–XVIII)</h2>
+  <p style="font-size:14px; color:#555;">
+    Mỗi dải = một khu vực/chủ đề. Nhấp vào mốc để xem chi tiết và liên kết bài học.
+    Dùng nút lọc để ẩn/hiện từng tuyến.
+  </p>
+
+  <div class="civ-filters" id="civ-filters"></div>
+
+  <div id="tl-wrap">
+    <svg id="tl-svg" width="980" height="420" viewBox="0 0 980 420"></svg>
+  </div>
+
+  <div class="tl-legend">
+    <span class="tl-legend-item"><span class="tl-legend-dot" style="background:#0f766e"></span> Dựng nước / Đỉnh cao</span>
+    <span class="tl-legend-item"><span class="tl-legend-dot" style="background:#b91c1c"></span> Chiến tranh / Sụp đổ</span>
+    <span class="tl-legend-item"><span class="tl-legend-dot" style="background:#b45309"></span> Văn hóa / Kiến trúc</span>
+    <span class="tl-legend-item"><span class="tl-legend-dot" style="background:#1d4ed8"></span> Tư tưởng / Tôn giáo</span>
+    <span class="tl-legend-item"><span class="tl-legend-dot" style="background:#7c3aed"></span> Thương mại / Phát kiến</span>
+  </div>
+
+  <div id="tl-detail">
+    <div style="color:#78716c; font-size:14px;">← Nhấp vào một mốc trên timeline để xem chi tiết.</div>
+  </div>
+
+  <!-- ────────────────────────────────────────────
+       MODULE 2 — Bảng so sánh các giai đoạn
+  ──────────────────────────────────────────────── -->
+  <h2>2. Bảng so sánh các phong trào và đế chế lớn</h2>
+  <div class="card">
+    <p style="font-size:14px; color:#555; margin-top:0;">
+      Nhấp vào hàng để xem phân tích chi tiết, liên hệ nhân–quả và bài học tương ứng.
+    </p>
+    <div class="cmp-wrap">
+      <table class="cmp-table" id="cmp-table">
+        <thead>
+          <tr>
+            <th>Phong trào / Đế chế</th>
+            <th>Thời kỳ</th>
+            <th>Trung tâm</th>
+            <th>Động lực chính</th>
+            <th>Thành tựu nổi bật</th>
+            <th>Hệ quả lâu dài</th>
+          </tr>
+        </thead>
+        <tbody id="cmp-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+  <div id="cmp-detail"></div>
+
+  <!-- ────────────────────────────────────────────
+       MODULE 3 — Sơ đồ dịch chuyển quyền lực
+  ──────────────────────────────────────────────── -->
+  <h2>3. Dịch chuyển trung tâm quyền lực (thế kỉ V–XVIII)</h2>
+  <p style="font-size:14px; color:#555;">
+    Chọn giai đoạn để xem ai dẫn đầu thế giới về kinh tế, học thuật và quyền lực quân sự.
+  </p>
+
+  <div class="era-btn-wrap" id="era-btns"></div>
+
+  <div id="shift-wrap">
+    <svg id="shift-svg" width="700" height="320" viewBox="0 0 700 320"></svg>
+  </div>
+
+  <div id="shift-detail">
+    <div style="color:#78716c; font-size:14px;">← Chọn một giai đoạn để xem phân tích.</div>
+  </div>
+
+  <!-- ────────────────────────────────────────────
+       MODULE 4 — Quiz ôn tập
+  ──────────────────────────────────────────────── -->
+  <h2>4. Quiz ôn tập toàn Tầng 2</h2>
+  <p style="font-size:14px; color:#555;">
+    14 câu hỏi xuyên suốt các bài 01–07. Bao gồm mốc thời gian, nhân vật, nhân–quả và liên hệ Việt Nam.
+  </p>
+
+  <div class="card">
+    <div class="quiz-progress">
+      <span id="quiz-counter">Câu 1 / 14</span>
+      <div class="quiz-bar-wrap"><div class="quiz-bar" id="quiz-bar" style="width:7%"></div></div>
+      <span id="quiz-score-live">0 đúng</span>
+    </div>
+    <div id="quiz-area"></div>
+    <div id="quiz-result" class="quiz-result"></div>
+  </div>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   DATA — Tuyến timeline (row definitions)
+   ═══════════════════════════════════════════════════════ */
+const TRACKS = [
+  { id: 'byzantine',  label: 'Byzantine',        color: '#0f766e', row: 0 },
+  { id: 'islam',      label: 'Hồi giáo',          color: '#b45309', row: 1 },
+  { id: 'europe',     label: 'Châu Âu TĐ',        color: '#1d4ed8', row: 2 },
+  { id: 'asia',       label: 'Châu Á & Mông Cổ',  color: '#dc2626', row: 3 },
+  { id: 'ideas',      label: 'Phục hưng & Khoa học', color: '#7c3aed', row: 4 },
+  { id: 'explore',    label: 'Phát kiến / Cải cách', color: '#b45309', row: 5 },
+  { id: 'vietnam',    label: 'Việt Nam',           color: '#059669', row: 6 },
+];
+
+/* ═══════════════════════════════════════════════════════
+   DATA — Sự kiện timeline
+   ═══════════════════════════════════════════════════════ */
+const EVENTS = [
+  /* Byzantine */
+  { track:'byzantine', year:476,  label:'476', title:'Tây La Mã sụp đổ — Byzantine tồn tại', type:'war',
+    detail:'Tướng Odoacer phế truất Romulus Augustulus. Đông La Mã (Byzantine) tiếp tục dưới đế đô Constantinople. Đây là mốc quy ước mở đầu thời trung đại.',
+    lesson:{ text:'Lesson 01 — Byzantine & Hồi giáo', href:'../lesson-01-byzantine-islam/visualization.html' }},
+  { track:'byzantine', year:537,  label:'537', title:'Hagia Sophia hoàn thành', type:'culture',
+    detail:'Justinian I xây Hagia Sophia (532–537) — nhà thờ vòm lớn nhất thế giới thời đó (đường kính 31m). Biểu tượng kiến trúc Byzantine, sau này trở thành thánh đường Hồi giáo (1453) rồi bảo tàng (1934), nay lại là thánh đường (2020).',
+    lesson:{ text:'Lesson 01 — Byzantine & Hồi giáo', href:'../lesson-01-byzantine-islam/visualization.html' }},
+  { track:'byzantine', year:1054, label:'1054', title:'Đại Ly giáo — Kitô giáo chia đôi', type:'idea',
+    detail:'Giáo hoàng Leo IX (La Mã) và Giáo chủ Cerularius (Constantinople) rút phép thông công lẫn nhau. Kitô giáo tách thành Công giáo La Mã và Chính thống giáo — vết rạn vẫn chưa lành đến ngày nay.',
+    lesson:{ text:'Lesson 01 — Byzantine & Hồi giáo', href:'../lesson-01-byzantine-islam/visualization.html' }},
+  { track:'byzantine', year:1453, label:'1453', title:'Ottoman chiếm Constantinople — Byzantine kết thúc', type:'war',
+    detail:'Mehmed II (22 tuổi) dùng đại pháo công phá tường thành. Byzantine kết thúc sau ~1.000 năm. Nhiều học giả Byzantine chạy sang Ý — một trong các nhân tố thúc đẩy Phục hưng. Ottoman kiểm soát eo biển Bosphorus → thương mại Đông–Tây bị chặn → châu Âu phải tìm đường biển mới.',
+    lesson:{ text:'Lesson 01 — Byzantine & Hồi giáo', href:'../lesson-01-byzantine-islam/visualization.html' }},
+
+  /* Hồi giáo */
+  { track:'islam', year:622,  label:'622', title:'Hegira — Hồi giáo ra đời', type:'idea',
+    detail:'Muhammad rời Mecca đến Medina — năm 1 trong lịch Hồi giáo. Trong 10 năm, Muhammad thống nhất bán đảo Arabia. Đây là khởi đầu của tôn giáo lớn thứ hai thế giới (~1,8 tỷ tín đồ hiện nay).',
+    lesson:{ text:'Lesson 01 — Byzantine & Hồi giáo', href:'../lesson-01-byzantine-islam/visualization.html' }},
+  { track:'islam', year:750,  label:'750', title:'Vương triều Abbasid — Thời đại vàng', type:'found',
+    detail:'Baghdad (lập 762) trở thành trung tâm học thuật lớn nhất thế giới. "Nhà Trí Tuệ" (Bayt al-Hikma) dịch và phát triển toán học Hy Lạp, y học Ấn Độ. Al-Khwarizmi phát triển đại số (~820); Ibn Sina (Avicenna) viết bộ bách khoa y học.',
+    lesson:{ text:'Lesson 01 — Byzantine & Hồi giáo', href:'../lesson-01-byzantine-islam/visualization.html' }},
+  { track:'islam', year:1258, label:'1258', title:'Mông Cổ phá Baghdad — Abbasid kết thúc', type:'war',
+    detail:'Hulagu Khan phá Baghdad, giết ~200.000 người (ước tính, còn khác nhau), đốt Nhà Trí Tuệ. Kết thúc Thời đại vàng Abbasid. Tri thức tích lũy nhiều thế kỉ một phần bị mất, một phần được các học giả mang sang Cairo (Mamluk) và tiếp tục.',
+    lesson:{ text:'Lesson 01 — Byzantine & Hồi giáo', href:'../lesson-01-byzantine-islam/visualization.html' }},
+  { track:'islam', year:1453, label:'1453', title:'Ottoman — đế chế Hồi giáo mới', type:'found',
+    detail:'Ottoman chiếm Constantinople, kế thừa vị trí trung gian thương mại Đông–Tây. Đế chế Ottoman (1299–1922) trở thành cường quốc Hồi giáo lớn nhất thế kỉ XV–XVII, kiểm soát tuyến thương mại từ châu Á sang châu Âu.',
+    lesson:{ text:'Lesson 01 — Byzantine & Hồi giáo', href:'../lesson-01-byzantine-islam/visualization.html' }},
+
+  /* Châu Âu trung đại */
+  { track:'europe', year:800,  label:'800', title:'Charlemagne — Hoàng đế La Mã Thần Thánh', type:'found',
+    detail:'Giáo hoàng Leo III đội vương miện cho Charlemagne tại Roma. Lần đầu tiên Tây Âu có vẻ thống nhất sau 324 năm. Tuy đế chế tan rã sau 843, đây là khuôn mẫu cho Đế chế La Mã Thần Thánh kéo dài đến 1806.',
+    lesson:{ text:'Lesson 02 — Châu Âu trung đại', href:'../lesson-02-medieval-europe/visualization.html' }},
+  { track:'europe', year:1095, label:'1095', title:'Thập tự chinh I — Giáo hoàng Urban II kêu gọi', type:'war',
+    detail:'Tại Công đồng Clermont (1095), Urban II kêu gọi giải phóng Đất Thánh. 1099: Thập tự quân chiếm Jerusalem, thảm sát cả người Hồi giáo lẫn Do Thái. Mở ra hai thế kỉ Thập tự chinh (1095–1291) — 9 lần, kết thúc thất bại về quân sự nhưng tăng giao lưu văn hóa.',
+    lesson:{ text:'Lesson 02 — Châu Âu trung đại', href:'../lesson-02-medieval-europe/visualization.html' }},
+  { track:'europe', year:1215, label:'1215', title:'Magna Carta', type:'idea',
+    detail:'Các nam tước Anh buộc vua John ký Magna Carta — giới hạn quyền vua, bảo đảm quyền xét xử công bằng. Tiền lệ lịch sử: lần đầu tiên quyền lực vua bị ràng buộc bởi văn bản pháp lý. Nền tảng xa của hiến pháp hiện đại.',
+    lesson:{ text:'Lesson 02 — Châu Âu trung đại', href:'../lesson-02-medieval-europe/visualization.html' }},
+  { track:'europe', year:1347, label:'1347', title:'Dịch hạch đen — 1/3 châu Âu tử vong', type:'war',
+    detail:'Dịch hạch (Yersinia pestis) vào châu Âu theo tuyến thương mại Mông Cổ. 1347–1351: ước tính 30–60% dân số châu Âu tử vong (~25 triệu người). Hệ quả: thiếu lao động → nông nô đòi tự do → chế độ phong kiến rạn nứt. Gián tiếp thúc đẩy Phục hưng.',
+    lesson:{ text:'Lesson 02 — Châu Âu trung đại', href:'../lesson-02-medieval-europe/visualization.html' }},
+  { track:'europe', year:1648, label:'1648', title:'Hòa ước Westphalia — chủ quyền quốc gia', type:'found',
+    detail:'Kết thúc Chiến tranh Ba Mươi Năm (1618–1648, ~8 triệu người chết). Nguyên tắc chủ quyền quốc gia: mỗi quốc gia tự quyết vấn đề nội bộ. Nền tảng của hệ thống quan hệ quốc tế và Liên Hợp Quốc ngày nay.',
+    lesson:{ text:'Lesson 06 — Cải cách tôn giáo', href:'../lesson-06-reformation/visualization.html' }},
+
+  /* Châu Á & Mông Cổ */
+  { track:'asia', year:618,  label:'618', title:'Nhà Đường — Trung Hoa cực thịnh', type:'found',
+    detail:'Nhà Đường (618–907): GDP ước tính ~30% thế giới; thủ đô Trường An (~1 triệu dân) là thành phố lớn nhất thế giới. Xuất khẩu văn hóa (chữ Hán, Phật giáo, kỹ thuật) sang Nhật, Hàn Quốc, Việt Nam.',
+    lesson:{ text:'Lesson 03 — Các đế chế châu Á & Mông Cổ', href:'../lesson-03-asia-empires-mongols/visualization.html' }},
+  { track:'asia', year:1206, label:'1206', title:'Thành Cát Tư Hãn — Đế quốc Mông Cổ', type:'found',
+    detail:'Thống nhất các bộ lạc Mông Cổ. 1206–1294: chinh phục từ Thái Bình Dương đến Đông Âu — đế quốc ~24 triệu km² bộ liền kề, lớn nhất lịch sử. "Pax Mongolica" cho phép thương mại xuyên lục địa nhưng cũng lan truyền Dịch hạch đen.',
+    lesson:{ text:'Lesson 03 — Các đế chế châu Á & Mông Cổ', href:'../lesson-03-asia-empires-mongols/visualization.html' }},
+  { track:'asia', year:1405, label:'1405', title:'Trịnh Hòa — 7 chuyến hải trình', type:'trade',
+    detail:'Đô đốc Trịnh Hòa (nhà Minh) thực hiện 7 chuyến đi lớn (1405–1433) đến Đông Nam Á, Ấn Độ, vùng Vịnh Ba Tư, và Đông Phi. Đội thuyền ~300 tàu, ~30.000 người — lớn hơn hạm đội Columbus ~100 lần. Nhà Minh sau đó "bế quan" — cơ hội lớn bị bỏ lỡ.',
+    lesson:{ text:'Lesson 03 — Các đế chế châu Á & Mông Cổ', href:'../lesson-03-asia-empires-mongols/visualization.html' }},
+
+  /* Phục hưng & Khoa học */
+  { track:'ideas', year:1450, label:'1450', title:'Máy in Gutenberg', type:'idea',
+    detail:'Gutenberg hoàn thiện máy in bằng chữ rời kim loại — lần đầu tiên in ấn hàng loạt ở châu Âu. Trong 50 năm, ~20 triệu cuốn sách được in — nhiều hơn toàn bộ sách viết tay trước đó. Khuếch đại tất cả phong trào tư tưởng: Cải cách, Khoa học, Khai sáng.',
+    lesson:{ text:'Lesson 04 — Phục hưng', href:'../lesson-04-renaissance/visualization.html' }},
+  { track:'ideas', year:1503, label:'1503', title:'Leonardo da Vinci — Mona Lisa', type:'culture',
+    detail:'Mona Lisa (~1503–1519): kỹ thuật sfumato (chuyển sắc mờ dần), bố cục tam giác, phong cảnh hư ảo — đỉnh cao hội họa Phục hưng. Da Vinci còn để lại >13.000 trang ghi chú về giải phẫu, máy bay, thủy lực — 400 năm trước khi các phát minh này trở thành hiện thực.',
+    lesson:{ text:'Lesson 04 — Phục hưng', href:'../lesson-04-renaissance/visualization.html' }},
+  { track:'ideas', year:1543, label:'1543', title:'Copernicus — mô hình nhật tâm', type:'idea',
+    detail:'Copernicus xuất bản "De Revolutionibus" — Trái Đất quay quanh Mặt Trời. Mở đầu Cách mạng khoa học. Galileo (1610) dùng kính thiên văn xác nhận; bị Giáo hội xét xử 1633. Newton (1687) hoàn thiện — ba định luật chuyển động + hấp dẫn.',
+    lesson:{ text:'Lesson 07 — CM khoa học & Khai sáng', href:'../lesson-07-science-enlightenment/visualization.html' }},
+  { track:'ideas', year:1687, label:'1687', title:'Newton — Principia Mathematica', type:'idea',
+    detail:'Ba định luật chuyển động + định luật vạn vật hấp dẫn. Một bộ phương trình giải thích chuyển động từ hạt táo rơi đến quỹ đạo hành tinh. Nền tảng của vật lý cổ điển và kỹ thuật công nghiệp. Newton là tổng hợp của Cách mạng khoa học.',
+    lesson:{ text:'Lesson 07 — CM khoa học & Khai sáng', href:'../lesson-07-science-enlightenment/visualization.html' }},
+  { track:'ideas', year:1762, label:'1762', title:'Khai sáng đỉnh cao — Rousseau, Voltaire', type:'idea',
+    detail:'Rousseau "Khế ước xã hội" (1762): chủ quyền thuộc về nhân dân. Voltaire chỉ trích Giáo hội và chuyên chế. Montesquieu "Tinh thần pháp luật" (1748): tam quyền phân lập. Ba tư tưởng này trực tiếp vào Hiến pháp Mỹ (1787) và Tuyên ngôn nhân quyền Pháp (1789).',
+    lesson:{ text:'Lesson 07 — CM khoa học & Khai sáng', href:'../lesson-07-science-enlightenment/visualization.html' }},
+
+  /* Phát kiến & Cải cách */
+  { track:'explore', year:1492, label:'1492', title:'Columbus — châu Mỹ kết nối', type:'trade',
+    detail:'Columbus đến đảo Bahamas (12/10/1492). Không phải người đầu tiên đến châu Mỹ (người bản địa có từ ~15.000 năm trước; Viking ~1000 SCN). Nhưng chuyến đi này mở ra giao lưu liên tục, bền vững giữa hai bán cầu — "Trao đổi Columbus": bạc, vàng, thuốc lá, khoai tây đổi sang Cũ thế giới; ngựa, đậu mùa đổi sang Mới.',
+    lesson:{ text:'Lesson 05 — Phát kiến địa lý', href:'../lesson-05-age-of-exploration/visualization.html' }},
+  { track:'explore', year:1498, label:'1498', title:'Vasco da Gama — đường biển đến Ấn Độ', type:'trade',
+    detail:'Cập cảng Calicut, Ấn Độ (1498). Chuyến đi đầu tiên mang về lợi nhuận ~60 lần chi phí. Phá vỡ độc quyền thương mại Ottoman–Venice. Bồ Đào Nha kiểm soát thương mại Ấn Độ Dương trong thế kỉ XVI.',
+    lesson:{ text:'Lesson 05 — Phát kiến địa lý', href:'../lesson-05-age-of-exploration/visualization.html' }},
+  { track:'explore', year:1517, label:'1517', title:'Luther — 95 luận điểm', type:'idea',
+    detail:'Martin Luther đăng 95 luận điểm tại Wittenberg (31/10/1517), chỉ trích bán ân xá. Nhờ máy in, chúng lan khắp châu Đức trong vài tuần. 1521: bị rút phép thông công nhưng không bị thiêu — quá muộn để dập tắt. Châu Âu chia đôi Công giáo / Tin Lành.',
+    lesson:{ text:'Lesson 06 — Cải cách tôn giáo', href:'../lesson-06-reformation/visualization.html' }},
+  { track:'explore', year:1776, label:'1776', title:'Tuyên ngôn Độc lập Mỹ — Khai sáng hiện thực hóa', type:'found',
+    detail:'Jefferson viết dựa trực tiếp vào Locke: "Tất cả mọi người sinh ra bình đẳng... có quyền sống, tự do và mưu cầu hạnh phúc." 1789: Cách mạng Pháp — kết thúc Tầng 2, mở đầu Tầng 3.',
+    lesson:{ text:'Lesson 07 — CM khoa học & Khai sáng', href:'../lesson-07-science-enlightenment/visualization.html' }},
+
+  /* Việt Nam */
+  { track:'vietnam', year:938,  label:'938', title:'Ngô Quyền — kết thúc 1.000 năm Bắc thuộc', type:'found',
+    detail:'Trận Bạch Đằng (938): Ngô Quyền đánh bại quân Nam Hán. Kết thúc hơn 1.000 năm đô hộ phương Bắc. Bắt đầu thời đại độc lập tự chủ. Đinh (968), Tiền Lê (980), Lý (1009) kế tiếp.',
+    lesson:{ text:'Xem VietnameseHistory — Các triều đại quân chủ', href:'../../../VietnameseHistory/02-Monarchical-Dynasties/' }},
+  { track:'vietnam', year:1288, label:'1288', title:'Ba lần đại thắng Mông Cổ', type:'war',
+    detail:'1258 (Trần Thái Tông), 1285 (Trần Hưng Đạo đại thắng), 1288 (trận Bạch Đằng lần 2 — Trần Hưng Đạo đóng cọc như Ngô Quyền). Đại Việt là một trong số ít thực thể chống lại và đánh lui đế quốc Mông Cổ thành công.',
+    lesson:{ text:'Xem VietnameseHistory — Các triều đại quân chủ', href:'../../../VietnameseHistory/02-Monarchical-Dynasties/' }},
+  { track:'vietnam', year:1428, label:'1428', title:'Lê Lợi — giải phóng khỏi nhà Minh', type:'found',
+    detail:'Nhà Minh xâm lược Đại Việt 1407, đô hộ 20 năm. Lê Lợi (khởi nghĩa Lam Sơn 1418) đánh đuổi quân Minh, lập nhà Lê (1428). Nguyễn Trãi soạn "Bình Ngô đại cáo" — tuyên ngôn độc lập đầu tiên của Việt Nam.',
+    lesson:{ text:'Xem VietnameseHistory — Các triều đại quân chủ', href:'../../../VietnameseHistory/02-Monarchical-Dynasties/' }},
+  { track:'vietnam', year:1651, label:'1651', title:'Alexandre de Rhodes — chữ Quốc ngữ', type:'idea',
+    detail:'Xuất bản từ điển Việt–Bồ–La tại Rome (1651). Hệ thống hóa chữ Quốc ngữ từ công trình của các giáo sĩ Bồ Đào Nha và Pháp trước đó (đặc biệt Francisco de Pina). Di sản phát kiến địa lý: alphabet La Tinh trở thành chữ viết của người Việt.',
+    lesson:{ text:'Xem VietnameseHistory — Các triều đại quân chủ', href:'../../../VietnameseHistory/02-Monarchical-Dynasties/' }},
+];
+
+/* ═══════════════════════════════════════════════════════
+   DATA — Bảng so sánh
+   ═══════════════════════════════════════════════════════ */
+const CMP_DATA = [
+  {
+    name: 'Thời đại vàng Hồi giáo',
+    period: '750–1258',
+    center: 'Baghdad (Abbasid)',
+    drive: 'Thương mại Á–Âu; bảo trợ học thuật',
+    achievement: 'Đại số, y học Ibn Sina, triết học Ibn Rushd; bảo tồn tri thức Hy Lạp',
+    legacy: 'Truyền tri thức cổ đại sang châu Âu qua bản dịch Ả Rập; số học và đại số nền tảng của STEM',
+    detail: `<h3>Thời đại vàng Hồi giáo (750–1258) — Khi Hồi giáo dẫn đầu thế giới về học thuật</h3>
+<p><strong>Bối cảnh:</strong> Vương triều Abbasid (750–1258) xây Baghdad và lập "Nhà Trí Tuệ" (Bayt al-Hikma) — trung tâm dịch thuật và nghiên cứu. Hàng trăm tác phẩm Hy Lạp, Ba Tư, Ấn Độ được dịch sang tiếng Ả Rập, rồi tổng hợp và phát triển thêm.</p>
+<p><strong>Thành tựu nổi bật:</strong> Al-Khwarizmi (~820): phát triển đại số (<em>al-jabr</em> → "algebra") và thuật toán (<em>algoritmi</em> → "algorithm"). Ibn Sina (Avicenna, 980–1037): bộ y học <em>Canon</em> dùng ở các trường y châu Âu đến thế kỉ XVIII. Ibn Rushd (Averroes, 1126–1198): bình chú Aristotle, cầu nối triết học Hy Lạp sang châu Âu Kitô giáo.</p>
+<p><strong>Kết thúc và hệ quả:</strong> Mông Cổ phá Baghdad 1258 — đứt đoạn đột ngột. Nhưng tri thức đã được sao chép và truyền sang nhiều nơi: Cairo (Mamluk), Cordoba (Al-Andalus, bị chinh phục 1492), và qua bản dịch sang tiếng La Tinh vào châu Âu thế kỉ XII–XIII. Phục hưng châu Âu một phần dựa trên di sản này.</p>
+<p><strong>Liên hệ bài học:</strong> <a href="../lesson-01-byzantine-islam/visualization.html">Lesson 01 — Byzantine & Hồi giáo</a></p>`
+  },
+  {
+    name: 'Chế độ phong kiến châu Âu',
+    period: 'Thế kỉ IX–XIV',
+    center: 'Tây Âu (Pháp, Đức, Anh, Ý)',
+    drive: 'Bảo vệ trong thời hỗn loạn; Giáo hội là trụ cột',
+    achievement: 'Magna Carta 1215; các trường đại học đầu tiên (Bologna 1088, Oxford ~1096, Paris ~1150)',
+    legacy: 'Magna Carta: nền tảng hiến pháp; đại học: thiết chế bền vững nhất trung đại',
+    detail: `<h3>Chế độ phong kiến châu Âu — Trật tự từ hỗn loạn</h3>
+<p><strong>Cơ chế hoạt động:</strong> Vua ban đất cho lãnh chúa lớn (baron), lãnh chúa lớn cho lãnh chúa nhỏ (knight), đổi lại nhận quân đội và thuế. Nông nô gắn liền với đất — không thể bỏ đi. Giáo hội đứng bên cạnh (và đôi khi trên) vua: thu thuế thập phân, kiểm soát giáo dục, có tòa án riêng (Tòa án Dị giáo từ thế kỉ XII).</p>
+<p><strong>Thập tự chinh:</strong> 9 lần (1095–1291). Thất bại về quân sự — Thập tự quân không giữ được Jerusalem lâu dài. Nhưng hệ quả không ngờ: thương nhân Ý (Venice, Genoa) thịnh vượng từ vận chuyển Thập tự quân → tích lũy vốn → tài trợ Phục hưng.</p>
+<p><strong>Dịch hạch đen (1347–1351):</strong> Giết 30–60% dân số châu Âu. Thiếu lao động → nông nô có thể đòi tiền công → chế độ phong kiến rạn nứt từ bên trong. Nghịch lý: thảm họa nhân khẩu học là một trong các nhân tố thúc đẩy biến đổi xã hội dẫn đến Phục hưng.</p>
+<p><strong>Liên hệ bài học:</strong> <a href="../lesson-02-medieval-europe/visualization.html">Lesson 02 — Châu Âu trung đại</a></p>`
+  },
+  {
+    name: 'Đế quốc Mông Cổ',
+    period: '1206–1368 (ở Trung Hoa)',
+    center: 'Karakorum; sau đó Bắc Kinh (nhà Nguyên)',
+    drive: 'Chinh phục quân sự; kỵ binh cơ động',
+    achievement: '~24 triệu km² — đế quốc bộ liền kề lớn nhất lịch sử; "Pax Mongolica"',
+    legacy: 'Kết nối thương mại xuyên lục địa; nhưng cũng lan Dịch hạch đen. Ba lần đại thắng tại Đại Việt.',
+    detail: `<h3>Đế quốc Mông Cổ — Lớn nhất nhưng không lâu dài nhất</h3>
+<p><strong>Vì sao Mông Cổ chinh phục được?</strong> Kỵ binh cơ động vô song; kỹ thuật công thành học từ các kỹ sư Trung Hoa và Ba Tư bị chinh phục; tâm lý chiến (tin đồn tàn bạo khiến thành trì đầu hàng); và sự phân mảnh của các đối thủ.</p>
+<p><strong>"Pax Mongolica":</strong> Khi đế quốc ổn định (~1260–1350), thương mại từ Trung Hoa đến châu Âu an toàn hơn bao giờ. Marco Polo (1271–1295) đến Trung Hoa theo tuyến này. Nhưng Dịch hạch đen cũng lan theo cùng tuyến.</p>
+<p><strong>Việt Nam và Mông Cổ:</strong> Ba lần Mông Cổ xâm lược Đại Việt (1258, 1285, 1288) — cả ba bị đánh lui. Trần Hưng Đạo dùng chiến thuật "vườn không nhà trống", tránh đối đầu trực diện, rồi tập kích khi địch kiệt sức. Bạch Đằng 1288: đóng cọc chặn thuyền Mông Cổ — lặp lại kế Ngô Quyền 938.</p>
+<p><strong>Vì sao tan rã nhanh?</strong> Không có hệ thống hành chính, văn hóa và kinh tế để duy trì. Hậu duệ Thành Cát Tư Hãn chia lãnh thổ (ulus) và bị đồng hóa: nhà Nguyên bị Hán hóa, Il-Khanate theo Hồi giáo, Golden Horde theo Hồi giáo và văn hóa Turkic.</p>
+<p><strong>Liên hệ bài học:</strong> <a href="../lesson-03-asia-empires-mongols/visualization.html">Lesson 03 — Các đế chế châu Á & Mông Cổ</a></p>`
+  },
+  {
+    name: 'Phục hưng',
+    period: 'Thế kỉ XIV–XVI',
+    center: 'Florence, Venice, Rome; sau đó Bắc Âu',
+    drive: 'Thương mại Địa Trung Hải; bảo trợ nghệ thuật; học giả Byzantine tị nạn',
+    achievement: 'Leonardo, Michelangelo, Raphael; Machiavelli; máy in Gutenberg',
+    legacy: 'Nhân văn: con người là trung tâm. Tiền đề Cách mạng khoa học và Khai sáng.',
+    detail: `<h3>Phục hưng — Tái sinh con người</h3>
+<p><strong>Vì sao ở Ý?</strong> Ba yếu tố: (1) Thương mại Địa Trung Hải tạo ra tầng lớp thương nhân giàu có muốn bảo trợ nghệ thuật (nhà Medici ở Florence). (2) Giáo hội La Mã ở Roma tạo nhu cầu công trình nghệ thuật lớn. (3) Học giả Byzantine chạy sang Ý sau 1453, mang theo bản thảo Hy Lạp cổ.</p>
+<p><strong>Nhân văn (Humanism) là gì?</strong> Tư tưởng đặt con người — không phải Thiên Chúa — làm trung tâm sự quan tâm. Nghiên cứu văn học, triết học, lịch sử cổ điển (<em>studia humanitatis</em>) thay thế thần học thuần túy. Petrarch (~1340): "Văn học Hy Lạp–La Mã phản ánh sự vĩ đại của con người."</p>
+<p><strong>Máy in (1450) — nhân tố nhân lên:</strong> Không có máy in, Phục hưng là phong trào của giới quý tộc và học giả. Có máy in, ý tưởng nhân văn lan xuống tầng lớp đô thị. Cải cách tôn giáo (1517) dựa hoàn toàn vào máy in để lan rộng.</p>
+<p><strong>Liên hệ bài học:</strong> <a href="../lesson-04-renaissance/visualization.html">Lesson 04 — Phục hưng</a></p>`
+  },
+  {
+    name: 'Phát kiến địa lý',
+    period: '1488–1600',
+    center: 'Bồ Đào Nha, Tây Ban Nha',
+    drive: 'Tìm đường thương mại tránh Ottoman; vàng; truyền giáo',
+    achievement: 'Vasco da Gama 1498; Columbus 1492; Magellan 1519–1522; "Trao đổi Columbus"',
+    legacy: 'Kết nối hai bán cầu lần đầu; bạc châu Mỹ tài trợ châu Âu; thảm họa dân số bản địa',
+    detail: `<h3>Phát kiến địa lý — Thế giới kết nối lần đầu</h3>
+<p><strong>Động lực:</strong> Ottoman kiểm soát eo biển và tuyến đường bộ Đông–Tây sau 1453 → hàng hóa Á Đông (gia vị, tơ lụa) đắt hơn. Bồ Đào Nha và Tây Ban Nha cần đường biển riêng. Công nghệ hàng hải tiến bộ: la bàn (từ Trung Hoa qua Ả Rập), astrolabe, tàu caravel.</p>
+<p><strong>"Trao đổi Columbus" — hai chiều:</strong> Từ Mới sang Cũ thế giới: khoai tây, ngô, cà chua, thuốc lá, ca cao, cao su. Khoai tây có thể đã giúp dân số châu Âu tăng mạnh thế kỉ XVIII–XIX. Từ Cũ sang Mới: ngựa (thay đổi văn hóa bản địa), bò, lúa mì, đường. Và bệnh tật: đậu mùa, sởi giết ước tính 50–90% dân số bản địa.</p>
+<p><strong>Trịnh Hòa vs. Columbus:</strong> Đội thuyền Trịnh Hòa (1405–1433) lớn hơn hạm đội Columbus ~100 lần. Nhưng nhà Minh không tiếp tục — "bế quan tỏa cảng" sau 1433. Sự tương phản này cho thấy kết quả phụ thuộc vào thể chế và quyết sách chính trị, không chỉ năng lực kỹ thuật.</p>
+<p><strong>Liên hệ Việt Nam:</strong> Giáo sĩ Bồ Đào Nha theo tuyến thương mại đến Đông Nam Á. Francisco de Pina, Alexandre de Rhodes vào Đại Việt thế kỉ XVII — kết quả: chữ Quốc ngữ alphabet La Tinh.</p>
+<p><strong>Liên hệ bài học:</strong> <a href="../lesson-05-age-of-exploration/visualization.html">Lesson 05 — Phát kiến địa lý</a></p>`
+  },
+  {
+    name: 'Cải cách tôn giáo',
+    period: '1517–1648',
+    center: 'Đức (Luther), Thụy Sĩ (Calvin), Anh (Henry VIII)',
+    drive: 'Phản đối tham nhũng giáo hội; máy in khuếch đại; thương nhân muốn thoát thuế giáo hội',
+    achievement: 'Kitô giáo Tin Lành; Kinh Thánh bằng tiếng địa phương; Hòa ước Westphalia 1648',
+    legacy: 'Tự do lương tâm cá nhân; chủ quyền quốc gia; nền tảng hệ thống quan hệ quốc tế hiện đại',
+    detail: `<h3>Cải cách tôn giáo — Vỡ thống nhất Kitô giáo châu Âu</h3>
+<p><strong>Tại sao Luther thành công khi Hus thất bại?</strong> Jan Hus bị thiêu 1415 vì cùng luận điểm về Kinh Thánh. Luther 1517 không bị thiêu vì: (1) Máy in đã in và lan rộng luận điểm của ông trước khi Giáo hội kịp phản ứng — không thể dập tắt ý tưởng đã phổ biến. (2) Các công tước Đức muốn chiếm tài sản Giáo hội bảo vệ Luther vì lợi ích chính trị.</p>
+<p><strong>Không chỉ là thần học:</strong> Lý do kinh tế: thương nhân và quý tộc phản đối thuế nộp về Roma; các vua muốn kiểm soát Giáo hội trong lãnh thổ mình. Lý do xã hội: việc đọc Kinh Thánh bằng tiếng địa phương tạo ra áp lực biết chữ — gián tiếp thúc đẩy giáo dục đại chúng.</p>
+<p><strong>Chiến tranh Ba Mươi Năm (1618–1648):</strong> Chiến tranh tôn giáo trở thành chiến tranh địa chính trị. ~8 triệu người chết (30–45% dân số Trung Âu theo một số ước tính). Hòa ước Westphalia 1648: nguyên tắc mỗi quốc gia tự quyết — nền tảng hệ thống quan hệ quốc tế đến ngày nay (kể cả nguyên tắc chủ quyền trong Hiến chương Liên Hợp Quốc).</p>
+<p><strong>Liên hệ bài học:</strong> <a href="../lesson-06-reformation/visualization.html">Lesson 06 — Cải cách tôn giáo</a></p>`
+  },
+  {
+    name: 'Cách mạng khoa học & Khai sáng',
+    period: '1543–1789',
+    center: 'Anh, Pháp, Hà Lan, Ý',
+    drive: 'Phương pháp thực nghiệm; in ấn; thương mại tạo vốn cho nghiên cứu',
+    achievement: 'Copernicus, Galileo, Newton; Locke, Montesquieu, Voltaire, Rousseau; Tuyên ngôn Mỹ 1776',
+    legacy: 'Khoa học hiện đại; dân chủ; nhân quyền; tam quyền phân lập; nền tảng thế giới hiện đại',
+    detail: `<h3>Cách mạng khoa học & Khai sáng — Con người làm chủ lý trí</h3>
+<p><strong>Cách mạng khoa học là gì?</strong> Không chỉ là các phát minh cụ thể — mà là sự thay đổi phương pháp tư duy. Từ "quyền uy nói gì thì đúng" (Aristotle, Kinh Thánh) sang "bằng chứng quan sát quyết định". Galileo bị Giáo hội xét xử 1633 không phải vì ông sai về khoa học, mà vì ông thách thức quyền giải thích thực tại của Giáo hội.</p>
+<p><strong>Newton — tổng hợp của cả thời đại:</strong> Principia (1687) thống nhất Kepler (chuyển động hành tinh) và Galileo (chuyển động trên mặt đất) vào một hệ phương trình. Ý nghĩa triết học: nếu vũ trụ vận hành theo quy luật lý trí có thể hiểu được, thì xã hội cũng có thể được tổ chức theo lý trí — đây là cầu nối sang Khai sáng.</p>
+<p><strong>Khai sáng và hệ quả chính trị:</strong> Locke (1690): quyền tự nhiên — sống, tự do, tài sản. Montesquieu (1748): tam quyền phân lập. Rousseau (1762): chủ quyền nhân dân. Jefferson đọc Locke và viết Tuyên ngôn Độc lập 1776. Mirabeau đọc Montesquieu và soạn Hiến pháp Pháp 1791. Domino: Khai sáng → Cách mạng Mỹ → Cách mạng Pháp → chuỗi cách mạng thế kỉ XIX.</p>
+<p><strong>Liên hệ bài học:</strong> <a href="../lesson-07-science-enlightenment/visualization.html">Lesson 07 — CM khoa học & Khai sáng</a></p>`
+  },
+];
+
+/* ═══════════════════════════════════════════════════════
+   DATA — Giai đoạn dịch chuyển quyền lực
+   ═══════════════════════════════════════════════════════ */
+const ERAS = [
+  {
+    id: 'early-medieval',
+    label: 'Thế kỉ V–VIII',
+    title: 'Phân mảnh hậu La Mã',
+    leaders: [
+      { name: 'Byzantine', x: 200, y: 80, r: 55, color: '#0f766e', score: 75 },
+      { name: 'Sassanid Ba Tư', x: 350, y: 100, r: 45, color: '#b45309', score: 60 },
+      { name: 'Tây Âu phong kiến', x: 100, y: 160, r: 35, color: '#1d4ed8', score: 30 },
+      { name: 'Nhà Đường', x: 560, y: 80, r: 60, color: '#dc2626', score: 80 },
+      { name: 'Hồi giáo sơ kỳ', x: 300, y: 200, r: 38, color: '#b45309', score: 50 },
+    ],
+    detail: 'Sau khi Tây La Mã sụp đổ (476), châu Âu phân mảnh thành nhiều vương quốc nhỏ. Byzantine và Sassanid Ba Tư là hai cường quốc chính ở phương Tây. Nhà Đường Trung Hoa là đế chế lớn nhất và thịnh vượng nhất. Hồi giáo chỉ mới ra đời (622) nhưng đang mở rộng nhanh chóng.'
+  },
+  {
+    id: 'islamic-golden',
+    label: 'Thế kỉ IX–XI',
+    title: 'Thời đại vàng Hồi giáo & Nhà Tống',
+    leaders: [
+      { name: 'Abbasid Hồi giáo', x: 280, y: 80, r: 65, color: '#b45309', score: 90 },
+      { name: 'Byzantine', x: 160, y: 130, r: 42, color: '#0f766e', score: 55 },
+      { name: 'Nhà Tống', x: 530, y: 90, r: 60, color: '#dc2626', score: 85 },
+      { name: 'Tây Âu phong kiến', x: 90, y: 180, r: 38, color: '#1d4ed8', score: 35 },
+      { name: 'Đại Việt (Lý)', x: 590, y: 200, r: 28, color: '#059669', score: 35 },
+    ],
+    detail: 'Baghdad (Abbasid) là trung tâm tri thức lớn nhất thế giới — Nhà Trí Tuệ dịch thuật và phát triển toán học, y học, triết học. Nhà Tống Trung Hoa phát triển in ấn, la bàn, thuốc súng và kinh tế thị trường tiên tiến nhất thế giới. Tây Âu còn trong thời kỳ tối của trung đại. Đại Việt vừa giành độc lập (938).'
+  },
+  {
+    id: 'mongol',
+    label: 'Thế kỉ XIII',
+    title: 'Đế quốc Mông Cổ',
+    leaders: [
+      { name: 'Đế quốc Mông Cổ', x: 370, y: 100, r: 80, color: '#6b7280', score: 95 },
+      { name: 'Ý (thương mại)', x: 140, y: 150, r: 38, color: '#1d4ed8', score: 45 },
+      { name: 'Nhà Tống (suy)', x: 520, y: 170, r: 40, color: '#dc2626', score: 50 },
+      { name: 'Đại Việt (Trần)', x: 590, y: 230, r: 30, color: '#059669', score: 40 },
+    ],
+    detail: 'Mông Cổ (đỉnh ~24 triệu km²) thống trị từ Thái Bình Dương đến Đông Âu. Phá Baghdad 1258 — kết thúc Thời đại vàng Abbasid. Nhà Tống cũng bị chinh phục 1279. Nhưng Đại Việt đánh lui ba lần xâm lược (1258, 1285, 1288). Ý (Venice, Genoa) thịnh vượng nhờ vận tải Thập tự chinh và thương mại.'
+  },
+  {
+    id: 'renaissance',
+    label: 'Thế kỉ XV',
+    title: 'Phục hưng & Phát kiến địa lý',
+    leaders: [
+      { name: 'Ý (Florence/Venice)', x: 180, y: 100, r: 55, color: '#1d4ed8', score: 75 },
+      { name: 'Bồ Đào Nha', x: 95, y: 170, r: 48, color: '#7c3aed', score: 70 },
+      { name: 'Ottoman', x: 280, y: 130, r: 58, color: '#b45309', score: 80 },
+      { name: 'Nhà Minh', x: 510, y: 90, r: 60, color: '#dc2626', score: 78 },
+      { name: 'Đại Việt (Lê)', x: 590, y: 200, r: 30, color: '#059669', score: 40 },
+    ],
+    detail: 'Phục hưng Florence (Medici bảo trợ Leonardo, Michelangelo). Bồ Đào Nha mở đường biển: Dias 1488, Columbus 1492, Vasco da Gama 1498. Ottoman chiếm Constantinople 1453 — kế thừa vị trí trung gian thương mại. Nhà Minh giàu nhất thế giới (~GDP 25%) nhưng chọn "bế quan" sau hải trình Trịnh Hòa.'
+  },
+  {
+    id: 'early-modern',
+    label: 'Thế kỉ XVI–XVII',
+    title: 'Cải cách & Cách mạng khoa học',
+    leaders: [
+      { name: 'Tây Ban Nha / Bồ Đào Nha', x: 140, y: 110, r: 58, color: '#7c3aed', score: 82 },
+      { name: 'Hà Lan', x: 220, y: 190, r: 42, color: '#1d4ed8', score: 65 },
+      { name: 'Anh', x: 140, y: 230, r: 40, color: '#0f766e', score: 60 },
+      { name: 'Ottoman (đỉnh 1683)', x: 310, y: 110, r: 55, color: '#b45309', score: 75 },
+      { name: 'Nhà Minh / Thanh', x: 510, y: 100, r: 55, color: '#dc2626', score: 72 },
+    ],
+    detail: 'Bạc từ châu Mỹ đổ về châu Âu — Tây Ban Nha là siêu cường. Hà Lan nổi lên qua thương mại hàng hải (VOC 1602 — công ty cổ phần đầu tiên thế giới). Cải cách tôn giáo chia đôi châu Âu. Cách mạng khoa học: Galileo, Descartes, Newton. Ottoman đỉnh cao (Vienna 1683) rồi bắt đầu suy. Nhà Minh suy, Mãn Thanh thay thế (1644).'
+  },
+  {
+    id: 'enlightenment',
+    label: 'Thế kỉ XVIII',
+    title: 'Khai sáng — Ngưỡng cửa thế giới hiện đại',
+    leaders: [
+      { name: 'Anh', x: 150, y: 100, r: 62, color: '#0f766e', score: 88 },
+      { name: 'Pháp', x: 230, y: 165, r: 55, color: '#1d4ed8', score: 82 },
+      { name: 'Hà Lan', x: 160, y: 210, r: 38, color: '#b45309', score: 65 },
+      { name: 'Ottoman (suy)', x: 330, y: 120, r: 45, color: '#6b7280', score: 58 },
+      { name: 'Nhà Thanh (đỉnh)', x: 510, y: 90, r: 58, color: '#dc2626', score: 80 },
+    ],
+    detail: 'Anh dẫn đầu: Cách mạng Danh Dự 1688, Newton, Adam Smith, bắt đầu Cách mạng công nghiệp (~1760). Pháp là trung tâm Khai sáng (Voltaire, Rousseau, Montesquieu) nhưng vẫn chế độ tuyệt đối. Tuyên ngôn Độc lập Mỹ 1776 là hiện thực hóa tư tưởng Khai sáng. 1789: Cách mạng Pháp — đóng lại cửa Tầng 2, mở ra Tầng 3.'
+  },
+];
+
+/* ═══════════════════════════════════════════════════════
+   DATA — Quiz
+   ═══════════════════════════════════════════════════════ */
+const QUIZ = [
+  {
+    q: "Thành phố nào được coi là trung tâm học thuật lớn nhất thế giới trong Thời đại vàng Hồi giáo (thế kỉ IX–XI)?",
+    opts: ["Jerusalem", "Cairo", "Baghdad", "Cordoba"],
+    ans: 2,
+    exp: "Baghdad (thủ đô Abbasid, lập 762) — nhà Trí Tuệ (Bayt al-Hikma) tại đây dịch thuật và phát triển toán học, y học, triết học từ di sản Hy Lạp, Ba Tư và Ấn Độ. Al-Khwarizmi (đại số, thuật toán) và Ibn Sina (y học) làm việc trong truyền thống này. Baghdad bị Mông Cổ phá năm 1258."
+  },
+  {
+    q: "Máy in của Gutenberg (1450) ảnh hưởng trực tiếp nhất đến sự kiện nào xảy ra chỉ 67 năm sau?",
+    opts: [
+      "Vasco da Gama đến Ấn Độ (1498)",
+      "Luther đăng 95 luận điểm và lan rộng khắp châu Âu (1517)",
+      "Trận Lepanto — Ottoman thua hải chiến (1571)",
+      "Newton xuất bản Principia (1687)"
+    ],
+    ans: 1,
+    exp: "95 luận điểm của Luther (1517) lan khắp châu Đức trong vài tuần nhờ máy in — điều này không thể xảy ra trước 1450. Jan Hus (1415) nêu các luận điểm tương tự nhưng bị thiêu vì không có cơ chế phổ biến rộng. Máy in biến Cải cách từ một tranh luận học thuật thành phong trào quần chúng."
+  },
+  {
+    q: "Đế quốc Mông Cổ đạt diện tích tối đa khoảng bao nhiêu km², và đây là kỷ lục gì?",
+    opts: [
+      "~5 triệu km² — đế chế lớn nhất châu Á",
+      "~14 triệu km² — đế chế lớn nhất trong thế kỉ XIII",
+      "~24 triệu km² — đế chế bộ liền kề lớn nhất lịch sử",
+      "~33 triệu km² — đế chế lớn nhất mọi thời đại kể cả hải ngoại"
+    ],
+    ans: 2,
+    exp: "~24 triệu km² — đế chế bộ liền kề (contiguous) lớn nhất lịch sử. Đế quốc Anh (thế kỉ XIX–XX) lớn hơn (~35 triệu km²) nhưng là đế quốc hải ngoại, không liền kề. Đế quốc Mông Cổ trải từ Thái Bình Dương đến Đông Âu và Ba Tư — nối liền bằng đường bộ trong khoảng 1 thế hệ người."
+  },
+  {
+    q: "Hòa ước Westphalia (1648) kết thúc Chiến tranh Ba Mươi Năm và thiết lập nguyên tắc quan trọng nào?",
+    opts: [
+      "Tự do thương mại giữa các quốc gia châu Âu",
+      "Chủ quyền quốc gia — mỗi nước tự quyết vấn đề nội bộ, không nước khác can thiệp",
+      "Bãi bỏ chế độ phong kiến ở toàn châu Âu",
+      "Công nhận Tin Lành là tôn giáo chính thức ở toàn châu Âu"
+    ],
+    ans: 1,
+    exp: "Nguyên tắc chủ quyền quốc gia (state sovereignty) — mỗi quốc gia là thực thể chính trị độc lập, các quốc gia khác không can thiệp vào nội bộ. Đây là nền tảng của hệ thống quan hệ quốc tế hiện đại, được tái khẳng định trong Hiến chương Liên Hợp Quốc (1945). Chiến tranh Ba Mươi Năm (1618–1648) giết ~8 triệu người — một trong các cuộc chiến tàn phá nhất lịch sử châu Âu."
+  },
+  {
+    q: "Ottoman chiếm Constantinople năm 1453 dẫn đến hệ quả không ngờ nào đặc biệt quan trọng?",
+    opts: [
+      "Phật giáo lan sang châu Âu qua các học giả Byzantine tị nạn",
+      "Các học giả Byzantine chạy sang Ý mang theo bản thảo Hy Lạp — thúc đẩy Phục hưng; tuyến thương mại bị chặn → châu Âu tìm đường biển",
+      "Hy Lạp trở thành nước Hồi giáo và không còn ảnh hưởng đến châu Âu",
+      "Byzantine di cư sang Nga và đặt nền tảng cho Đế quốc Nga"
+    ],
+    ans: 1,
+    exp: "Hai hệ quả song song: (1) Học giả Byzantine chạy sang Ý mang bản thảo Hy Lạp cổ — một trong các nhân tố thúc đẩy Phục hưng Florence. (2) Ottoman kiểm soát eo biển Bosphorus và tuyến thương mại Đông–Tây → giá hàng hóa châu Á tăng → Bồ Đào Nha và Tây Ban Nha phải tìm đường biển mới → phát kiến địa lý 1488–1522. Một biến cố kéo theo hai phong trào lớn."
+  },
+  {
+    q: "Đại Việt đánh lui quân Mông Cổ mấy lần và ai là nhà chỉ huy nổi tiếng nhất?",
+    opts: [
+      "Hai lần — Lý Thường Kiệt",
+      "Ba lần (1258, 1285, 1288) — Trần Hưng Đạo",
+      "Bốn lần — Lê Lợi",
+      "Một lần — Ngô Quyền"
+    ],
+    ans: 1,
+    exp: "Ba lần: 1258 (Trần Thái Tông đánh lui lần đầu), 1285 và 1288 (Trần Hưng Đạo — chiến thuật 'vườn không nhà trống' + phục kích). Trận Bạch Đằng 1288: đóng cọc xuống lòng sông đón thuyền Mông Cổ khi thủy triều xuống — lặp lại kế của Ngô Quyền năm 938. Đại Việt là một trong số ít thực thể chống cự thành công với đế quốc Mông Cổ."
+  },
+  {
+    q: "Đội hải trình của Trịnh Hòa (nhà Minh, 1405–1433) lớn hơn hạm đội Columbus khoảng bao nhiêu lần, và tại sao Trung Hoa không tiếp tục?",
+    opts: [
+      "~5 lần lớn hơn; Trung Hoa không tìm thấy đường sang châu Mỹ",
+      "~100 lần lớn hơn; nhà Minh chọn 'bế quan tỏa cảng' sau 1433 vì quyết sách chính trị nội bộ",
+      "~3 lần lớn hơn; Trịnh Hòa chết trên biển nên không tiếp tục",
+      "~20 lần lớn hơn; bệnh dịch tiêu diệt thủy thủ đoàn"
+    ],
+    ans: 1,
+    exp: "Đội thuyền Trịnh Hòa: ~300 tàu, ~30.000 người. Columbus (1492): 3 tàu, ~90 người — chênh lệch ~100 lần về quy mô. Nhà Minh sau 1433 chuyển hướng sang lo nguy cơ từ phía bắc (Mông Cổ) và phe Nho giáo bảo thủ phản đối chi phí hải trình. 'Bế quan' là quyết sách chính trị, không phải giới hạn kỹ thuật — bài học về tầm quan trọng của thể chế và quyết định chính sách."
+  },
+  {
+    q: "John Locke (1690) đề xuất ba quyền tự nhiên của con người. Ba quyền đó là gì?",
+    opts: [
+      "Tự do, bình đẳng, bác ái",
+      "Tự do ngôn luận, tự do tín ngưỡng, tự do hội họp",
+      "Sống, tự do và tài sản",
+      "Sống, tự do và mưu cầu hạnh phúc"
+    ],
+    ans: 2,
+    exp: "Locke (Two Treatises of Government, 1690): quyền sống (life), tự do (liberty) và tài sản (property). Jefferson khi viết Tuyên ngôn Độc lập Mỹ (1776) đã đổi 'tài sản' thành 'mưu cầu hạnh phúc' — mở rộng hơn. Khế ước xã hội theo Locke: người dân trao một phần quyền cho nhà nước để bảo vệ ba quyền này; nếu nhà nước vi phạm, người dân có quyền nổi dậy — đây chính là lý luận của Tuyên ngôn Độc lập Mỹ."
+  },
+  {
+    q: "Copernicus (1543) và Galileo (~1610–1633) đều ủng hộ mô hình nhật tâm. Ai là người hoàn thiện lý thuyết này bằng toán học và vật lý?",
+    opts: [
+      "Descartes (~1637) — với phương pháp nghi ngờ triệt để",
+      "Newton (~1687) — Principia Mathematica thống nhất chuyển động thiên thể và trên Trái Đất",
+      "Kepler (~1609) — các định luật quỹ đạo hành tinh là công trình hoàn chỉnh nhất",
+      "Harvey (~1628) — mô tả tuần hoàn máu hoàn chỉnh lý thuyết nhật tâm"
+    ],
+    ans: 1,
+    exp: "Newton (Principia, 1687) thống nhất: định luật vạn vật hấp dẫn + ba định luật chuyển động giải thích cả quỹ đạo hành tinh (Kepler) lẫn chuyển động trên mặt đất (Galileo). Kepler (1609) đóng góp quan trọng (quỹ đạo elipse), nhưng Newton là người tổng hợp và tạo ra khung toán học hoàn chỉnh. Harvey (1628) thuộc y học, không liên quan nhật tâm."
+  },
+  {
+    q: "Chữ Quốc ngữ Việt Nam (alphabet La Tinh) hình thành theo chuỗi nhân–quả nào?",
+    opts: [
+      "Nhà Minh du nhập alphabet La Tinh vào Đại Việt trong thời đô hộ (1407–1427)",
+      "Phát kiến địa lý Bồ Đào Nha → giáo sĩ Dòng Tên đến Đông Nam Á → phiên âm tiếng Việt bằng chữ La Tinh để truyền giáo",
+      "Cách mạng Pháp lan sang Việt Nam và đem theo alphabet Pháp",
+      "Thương nhân Hà Lan dạy alphabet cho người Việt để tiện buôn bán"
+    ],
+    ans: 1,
+    exp: "Chuỗi đầy đủ: Phát kiến địa lý Bồ Đào Nha (1488–) → đường biển đến Đông Nam Á → giáo sĩ Dòng Tên theo tuyến thương mại → Francisco de Pina rồi Alexandre de Rhodes vào Đại Việt (thế kỉ XVII) → phiên âm tiếng Việt bằng alphabet La Tinh để dạy giáo lý → từ điển Việt–Bồ–La (1651). Chữ Quốc ngữ là hệ quả trực tiếp của phát kiến địa lý Bồ Đào Nha ba thế kỉ trước."
+  },
+  {
+    q: "'Trao đổi Columbus' (Columbian Exchange) sau 1492 gây ra hậu quả nào nghiêm trọng nhất về nhân khẩu học?",
+    opts: [
+      "Dịch hạch đen lan từ châu Mỹ sang châu Âu, giết ~30% dân số",
+      "Bệnh tật từ châu Âu (đậu mùa, sởi) giết ước tính 50–90% dân số bản địa châu Mỹ trong thế kỉ XVI",
+      "Người châu Âu bị sốt rét châu Mỹ, không thể lập thuộc địa bền vững",
+      "Bệnh tật từ châu Mỹ lan sang Trung Hoa và Ấn Độ, phá hoại thương mại"
+    ],
+    ans: 1,
+    exp: "Đây là một trong những thảm họa nhân khẩu học lớn nhất lịch sử nhân loại. Người bản địa châu Mỹ chưa từng tiếp xúc với đậu mùa, sởi, cúm châu Âu nên không có miễn dịch. Ước tính 50–90% tử vong (số liệu còn khác nhau nhưng mức độ thảm khốc được các nhà nghiên cứu đồng thuận). Dân số Mexico trước Columbus ~20–25 triệu, xuống còn ~1 triệu vào thế kỉ XVII theo một số ước tính."
+  },
+  {
+    q: "Hòa ước Westphalia (1648) đặt nền tảng cho hệ thống quốc tế hiện đại. Điều này thể hiện rõ nhất ở văn kiện quốc tế nào của thế kỉ XX?",
+    opts: [
+      "Công ước Geneva về tù nhân chiến tranh (1949)",
+      "Nguyên tắc chủ quyền quốc gia trong Hiến chương Liên Hợp Quốc (1945)",
+      "Hiệp ước không phổ biến vũ khí hạt nhân (1968)",
+      "Công ước Liên Hợp Quốc về Luật Biển (1982)"
+    ],
+    ans: 1,
+    exp: "Hiến chương Liên Hợp Quốc (1945), Điều 2 khoản 1: 'Tổ chức LHQ dựa trên nguyên tắc bình đẳng chủ quyền của tất cả các thành viên.' Điều 2 khoản 7 cấm can thiệp vào công việc nội bộ các nước. Đây trực tiếp kế thừa nguyên tắc Westphalia 1648 — hơn 300 năm liên tục, nguyên tắc này là nền tảng quan hệ quốc tế mặc dù bị thách thức nhiều lần."
+  },
+  {
+    q: "Ý nghĩa chính của câu 'Tôi tư duy, vậy tôi tồn tại' (Cogito, ergo sum) của Descartes (1637) đối với tư tưởng cận đại?",
+    opts: [
+      "Khẳng định linh hồn bất tử — người suy nghĩ sẽ tồn tại mãi",
+      "Đặt lý trí cá nhân làm điểm xuất phát chắc chắn nhất — con người không cần quyền uy bên ngoài để tìm sự thật",
+      "Phủ nhận sự tồn tại của Thiên Chúa một cách lịch sự",
+      "Khẳng định ý thức tập thể quan trọng hơn suy nghĩ cá nhân"
+    ],
+    ans: 1,
+    exp: "Descartes bắt đầu bằng cách hoài nghi tất cả — thế giới bên ngoài, ký ức, Thiên Chúa — nhưng tìm ra một điều không thể hoài nghi: bản thân hành vi suy nghĩ. 'Tôi tư duy, vậy tôi tồn tại.' Ý nghĩa Khai sáng: lý trí cá nhân — không phải Kinh Thánh, không phải truyền thống, không phải quyền uy — là nền tảng tri thức. Đây là cầu nối giữa Cách mạng khoa học và tư tưởng Khai sáng chính trị."
+  },
+  {
+    q: "Năm 938, Ngô Quyền đánh bại quân Nam Hán trên sông Bạch Đằng bằng kế gì, và kế đó được lặp lại khi nào?",
+    opts: [
+      "Dùng voi chiến; lặp lại 1288 chống Mông Cổ",
+      "Đóng cọc gỗ xuống lòng sông khi thủy triều xuống để đâm thủng thuyền địch; lặp lại năm 1288 khi Trần Hưng Đạo chống Mông Cổ",
+      "Thuyền giả vờ thua rồi dụ địch vào vùng nước cạn; lặp lại 1285",
+      "Đốt thuyền địch bằng dầu hỏa; lặp lại 1427 chống nhà Minh"
+    ],
+    ans: 1,
+    exp: "Ngô Quyền (938): đóng cọc gỗ bịt sắt xuống sông Bạch Đằng, dụ thuyền Nam Hán vào khi thủy triều cao, chờ thủy triều xuống — cọc lộ ra đâm thủng thuyền. Trần Hưng Đạo (Bạch Đằng 1288) dùng cùng kế chống thủy quân Mông Cổ. Khoảng cách 350 năm giữa hai lần dùng cùng một chiến thuật — cho thấy ký ức lịch sử và địa lý sông Bạch Đằng là tài sản chiến lược của người Việt."
+  },
+];
+
+/* ═══════════════════════════════════════════════════════
+   MODULE 1 — Timeline render
+   ═══════════════════════════════════════════════════════ */
+const TL_W = 980, TL_H = 420;
+const AXIS_X0 = 55, AXIS_X1 = 950;
+const MIN_YEAR = 450, MAX_YEAR = 1810;
+const RANGE = MAX_YEAR - MIN_YEAR;
+const ROW_COUNT = TRACKS.length;
+const ROW_Y = [];
+for (let i = 0; i < ROW_COUNT; i++) ROW_Y[i] = 46 + i * 54;
+
+function xOf(year) {
+  return AXIS_X0 + (year - MIN_YEAR) / RANGE * (AXIS_X1 - AXIS_X0);
+}
+
+const svgNS = "http://www.w3.org/2000/svg";
+function svgEl(tag, attrs) {
+  const el = document.createElementNS(svgNS, tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  return el;
+}
+
+let trackVisible = {};
+TRACKS.forEach(t => trackVisible[t.id] = true);
+
+function buildCivFilters() {
+  const wrap = document.getElementById('civ-filters');
+  TRACKS.forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'civ-btn';
+    btn.textContent = t.label;
+    btn.style.background = t.color;
+    btn.style.color = '#fff';
+    btn.style.borderColor = t.color;
+    btn.dataset.id = t.id;
+    btn.addEventListener('click', () => {
+      trackVisible[t.id] = !trackVisible[t.id];
+      btn.classList.toggle('off', !trackVisible[t.id]);
+      redrawTimeline();
+    });
+    wrap.appendChild(btn);
+  });
+}
+
+function redrawTimeline() {
+  const svg = document.getElementById('tl-svg');
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+  // Background
+  svg.appendChild(svgEl('rect', { x: 0, y: 0, width: TL_W, height: TL_H, fill: '#f0fdfa', rx: 10 }));
+
+  // Era bands
+  const bands = [
+    { from: 450,  to: 800,  label: 'Sơ trung đại', fill: '#fef3c7', opacity: 0.5 },
+    { from: 800,  to: 1300, label: 'Trung đại thịnh', fill: '#dbeafe', opacity: 0.4 },
+    { from: 1300, to: 1600, label: 'Phục hưng & Phát kiến', fill: '#dcfce7', opacity: 0.4 },
+    { from: 1600, to: 1810, label: 'Cận đại sơ kỳ', fill: '#fce7f3', opacity: 0.35 },
+  ];
+  bands.forEach(b => {
+    const x = xOf(b.from), w = xOf(b.to) - xOf(b.from);
+    svg.appendChild(svgEl('rect', { x, y: 6, width: w, height: TL_H - 24, fill: b.fill, opacity: b.opacity }));
+    const t = svgEl('text', { x: x + w / 2, y: 19, 'text-anchor': 'middle', 'font-size': '9', fill: '#78716c', 'font-style': 'italic' });
+    t.textContent = b.label; svg.appendChild(t);
+  });
+
+  // Track lines
+  TRACKS.forEach(t => {
+    if (!trackVisible[t.id]) return;
+    const y = ROW_Y[t.row];
+    svg.appendChild(svgEl('line', { x1: AXIS_X0, y1: y, x2: AXIS_X1, y2: y,
+      stroke: t.color, 'stroke-width': '2', 'stroke-opacity': '0.22' }));
+    const lbl = svgEl('text', { x: AXIS_X0 - 4, y: y + 4, 'text-anchor': 'end',
+      'font-size': '8.5', fill: t.color, 'font-weight': '700' });
+    lbl.textContent = t.label.split(' ')[0]; svg.appendChild(lbl);
+  });
+
+  // Year ticks
+  const tickYears = [500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800];
+  tickYears.forEach(yr => {
+    const x = xOf(yr);
+    svg.appendChild(svgEl('line', { x1: x, y1: TL_H - 20, x2: x, y2: TL_H - 12, stroke: '#9ca3af', 'stroke-width': '1' }));
+    const t = svgEl('text', { x, y: TL_H - 3, 'text-anchor': 'middle', 'font-size': '8', fill: '#6b7280' });
+    t.textContent = yr; svg.appendChild(t);
+  });
+
+  // Events
+  const typeColor = { found: '#0f766e', war: '#b91c1c', culture: '#b45309', idea: '#1d4ed8', trade: '#7c3aed' };
+  EVENTS.forEach((ev, idx) => {
+    const track = TRACKS.find(t => t.id === ev.track);
+    if (!track || !trackVisible[track.id]) return;
+    const x = xOf(ev.year);
+    const y = ROW_Y[track.row];
+    const col = typeColor[ev.type] || track.color;
+    const circle = svgEl('circle', { cx: x, cy: y, r: 7, fill: col, stroke: 'white', 'stroke-width': '2' });
+    circle.classList.add('tl-dot');
+    circle.addEventListener('click', () => showTlEvent(ev, col));
+    svg.appendChild(circle);
+    const above = idx % 2 === 0;
+    const labelY = above ? y - 11 : y + 20;
+    const t = svgEl('text', { x, y: labelY, 'text-anchor': 'middle', 'font-size': '7.5', fill: col, 'font-weight': '600' });
+    t.textContent = ev.label; svg.appendChild(t);
+  });
+}
+
+function showTlEvent(ev, col) {
+  const tagNames = { found: 'Dựng nước', war: 'Chiến tranh/Sụp đổ', culture: 'Văn hóa', idea: 'Tư tưởng/Tôn giáo', trade: 'Thương mại/Phát kiến' };
+  const tagCls   = { found: 'tag-found', war: 'tag-war', culture: 'tag-culture', idea: 'tag-idea', trade: 'tag-trade' };
+  const track = TRACKS.find(t => t.id === ev.track);
+  document.getElementById('tl-detail').innerHTML = `
+    <div class="ev-title">${ev.title} — <span style="font-weight:400;font-size:13px;color:#78716c">${ev.label}</span></div>
+    <div style="margin-bottom:8px;">
+      <span class="ev-tag ${tagCls[ev.type]}">${tagNames[ev.type]}</span>
+      <span class="ev-tag" style="background:#e5e7eb;color:#374151;font-weight:600;">${track?.label || ''}</span>
+    </div>
+    <div style="margin-bottom:10px;">${ev.detail}</div>
+    <div class="ev-link"><a href="${ev.lesson.href}">${ev.lesson.text} →</a></div>`;
+}
+
+/* ═══════════════════════════════════════════════════════
+   MODULE 2 — Bảng so sánh
+   ═══════════════════════════════════════════════════════ */
+function buildCmpTable() {
+  const tbody = document.getElementById('cmp-tbody');
+  CMP_DATA.forEach((row, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${row.name}</td>
+      <td>${row.period}</td>
+      <td>${row.center}</td>
+      <td>${row.drive}</td>
+      <td>${row.achievement}</td>
+      <td>${row.legacy}</td>`;
+    tr.addEventListener('click', () => {
+      document.querySelectorAll('#cmp-tbody tr').forEach(r => r.classList.remove('active'));
+      tr.classList.add('active');
+      const det = document.getElementById('cmp-detail');
+      det.innerHTML = row.detail;
+      det.classList.add('visible');
+      det.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   MODULE 3 — Sơ đồ dịch chuyển quyền lực
+   ═══════════════════════════════════════════════════════ */
+let currentEra = 0;
+
+function buildEraButtons() {
+  const wrap = document.getElementById('era-btns');
+  ERAS.forEach((era, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'era-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = era.label;
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.era-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentEra = i;
+      renderShiftSvg(i);
+      document.getElementById('shift-detail').innerHTML =
+        `<strong>${era.title}</strong><br>${era.detail}`;
+    });
+    wrap.appendChild(btn);
+  });
+}
+
+function renderShiftSvg(idx) {
+  const era = ERAS[idx];
+  const svg = document.getElementById('shift-svg');
+  const W = 700, H = 320;
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+  // Background
+  svg.appendChild(svgEl('rect', { x: 0, y: 0, width: W, height: H, fill: '#f0fdfa', rx: 10 }));
+
+  // Title
+  const tit = svgEl('text', { x: W / 2, y: 28, 'text-anchor': 'middle', 'font-size': '14', fill: '#0d6460', 'font-weight': '700' });
+  tit.textContent = era.title; svg.appendChild(tit);
+
+  // Leader bubbles
+  era.leaders.forEach(ldr => {
+    const g = document.createElementNS(svgNS, 'g');
+    // Bubble
+    const circle = svgEl('circle', { cx: ldr.x, cy: ldr.y + 40, r: ldr.r,
+      fill: ldr.color, opacity: 0.18, stroke: ldr.color, 'stroke-width': '2' });
+    g.appendChild(circle);
+    // Score arc (simple: inner filled circle proportional to score)
+    const filled = svgEl('circle', { cx: ldr.x, cy: ldr.y + 40, r: ldr.r * ldr.score / 100,
+      fill: ldr.color, opacity: 0.45 });
+    g.appendChild(filled);
+    // Name
+    const name = svgEl('text', { x: ldr.x, y: ldr.y + 40 + 4, 'text-anchor': 'middle',
+      'font-size': '10', fill: '#1f2937', 'font-weight': '700' });
+    name.textContent = ldr.name; g.appendChild(name);
+    // Score label
+    const score = svgEl('text', { x: ldr.x, y: ldr.y + 40 + 17, 'text-anchor': 'middle',
+      'font-size': '9', fill: '#374151' });
+    score.textContent = `Sức mạnh: ${ldr.score}`; g.appendChild(score);
+    svg.appendChild(g);
+  });
+
+  // Legend
+  const legend = svgEl('text', { x: 14, y: H - 8, 'font-size': '9', fill: '#78716c', 'font-style': 'italic' });
+  legend.textContent = 'Vòng tròn: kích thước ~ quyền lực. Màu đặc bên trong ~ mức độ hiện thực hóa.';
+  svg.appendChild(legend);
+}
+
+/* ═══════════════════════════════════════════════════════
+   MODULE 4 — Quiz
+   ═══════════════════════════════════════════════════════ */
+let qIdx = 0, score = 0, answered = false;
+
+function renderQuiz() {
+  if (qIdx >= QUIZ.length) { showResult(); return; }
+  const q = QUIZ[qIdx];
+  answered = false;
+  document.getElementById('quiz-counter').textContent = `Câu ${qIdx + 1} / ${QUIZ.length}`;
+  document.getElementById('quiz-bar').style.width = `${(qIdx / QUIZ.length) * 100}%`;
+
+  const optsHtml = q.opts.map((o, i) =>
+    `<button class="quiz-opt" onclick="selectOpt(${i})">${o}</button>`
+  ).join('');
+
+  document.getElementById('quiz-area').innerHTML = `
+    <div class="quiz-card">
+      <div class="quiz-q">${q.q}</div>
+      <div class="quiz-opts">${optsHtml}</div>
+      <div id="qfb" class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="btn btn-primary" id="next-btn" onclick="nextQ()" disabled>
+        ${qIdx < QUIZ.length - 1 ? 'Câu tiếp theo →' : 'Xem kết quả →'}
+      </button>
+    </div>`;
+}
+
+function selectOpt(i) {
+  if (answered) return;
+  answered = true;
+  const q = QUIZ[qIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((o, idx) => {
+    o.disabled = true;
+    if (idx === q.ans) o.classList.add('correct');
+    if (idx === i && i !== q.ans) o.classList.add('wrong');
+  });
+  const ok = i === q.ans;
+  if (ok) score++;
+  document.getElementById('quiz-score-live').textContent = `${score} đúng`;
+  const fb = document.getElementById('qfb');
+  fb.classList.add('visible', ok ? 'ok' : 'err');
+  fb.innerHTML = `<strong>${ok ? 'Đúng!' : 'Chưa đúng.'}</strong> ${q.exp}`;
+  document.getElementById('next-btn').disabled = false;
+}
+
+function nextQ() { qIdx++; renderQuiz(); }
+
+function showResult() {
+  document.getElementById('quiz-area').innerHTML = '';
+  document.getElementById('quiz-bar').style.width = '100%';
+  document.getElementById('quiz-counter').textContent = 'Hoàn thành!';
+  const pct = Math.round((score / QUIZ.length) * 100);
+  let stars, msg;
+  if (pct >= 90) { stars = '★★★'; msg = 'Xuất sắc! Bạn nắm vững toàn bộ Tầng 2 — Từ trung đại sang cận đại.'; }
+  else if (pct >= 70) { stars = '★★'; msg = 'Tốt! Ôn lại các bài để củng cố thêm.'; }
+  else { stars = '★'; msg = 'Cần ôn thêm — hãy xem lại các bài lesson 01–07 và thử lại.'; }
+
+  const res = document.getElementById('quiz-result');
+  res.classList.add('visible');
+  res.innerHTML = `
+    <div class="score">${score} / ${QUIZ.length}</div>
+    <div class="score-label">(${pct}%) <span style="color:var(--gold);font-size:1.3rem">${stars}</span></div>
+    <div class="result-msg">${msg}</div>
+    <div style="margin-top:20px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="restartQuiz()">Làm lại từ đầu</button>
+      <a href="../../03-Modern-Contemporary/lesson-01-revolutions/visualization.html"
+         style="display:inline-block; padding:8px 18px; border-radius:6px; background:var(--blue-link);
+                color:white; text-decoration:none; font-size:14px; font-weight:600;">
+        Sang Tầng 3 →
+      </a>
+    </div>`;
+}
+
+function restartQuiz() {
+  qIdx = 0; score = 0; answered = false;
+  document.getElementById('quiz-score-live').textContent = '0 đúng';
+  document.getElementById('quiz-result').classList.remove('visible');
+  renderQuiz();
+}
+
+// Init
+buildCivFilters();
+redrawTimeline();
+buildCmpTable();
+buildEraButtons();
+renderShiftSvg(0);
+document.getElementById('shift-detail').innerHTML =
+  `<strong>${ERAS[0].title}</strong><br>${ERAS[0].detail}`;
+renderQuiz();
+</script>
+
+</body>
+</html>

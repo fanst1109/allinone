@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Cải cách tôn giáo (Reformation)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette WorldHistory / Cải cách tôn giáo ── */
+  :root {
+    --accent:        #0f766e;
+    --accent-soft:   #ccfbf1;
+    --accent-dark:   #134e4a;
+    --red-war:       #b91c1c;
+    --red-soft:      #fee2e2;
+    --gold:          #b45309;
+    --gold-soft:     #fef3c7;
+    --blue:          #1d4ed8;
+    --blue-soft:     #dbeafe;
+    --stone:         #57534e;
+    --stone-soft:    #f5f5f4;
+    --bg-card:       #ffffff;
+    --purple:        #7c3aed;
+    --purple-soft:   #ede9fe;
+    /* Giáo phái màu sắc */
+    --catholic:      #7c3aed;   /* tím — Công giáo */
+    --catholic-soft: #ede9fe;
+    --lutheran:      #0f766e;   /* xanh teal — Lutheran */
+    --lutheran-soft: #ccfbf1;
+    --calvinist:     #1d4ed8;   /* xanh dương — Calvin */
+    --calvinist-soft:#dbeafe;
+    --anglican:      #b45309;   /* vàng cam — Anh giáo */
+    --anglican-soft: #fef3c7;
+    --mixed:         #57534e;   /* xám — vùng hỗn hợp */
+    --mixed-soft:    #f5f5f4;
+  }
+
+  main { max-width: 1100px; }
+
+  h1 { color: var(--accent-dark); font-size: 1.65rem; margin-bottom: 6px; }
+  h2 {
+    color: var(--accent);
+    margin-top: 44px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent-soft);
+    font-size: 1.2rem;
+  }
+
+  .subtitle {
+    color: var(--stone);
+    font-size: 15px;
+    margin-bottom: 22px;
+    font-style: italic;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 6px rgba(15,118,110,.12);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .war-box {
+    background: var(--red-soft);
+    border-left: 4px solid var(--red-war);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .gold-box {
+    background: var(--gold-soft);
+    border-left: 4px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 1 — Bản đồ phân bố tôn giáo
+     ══════════════════════════════════════════════ */
+  .map-wrap { width: 100%; overflow-x: auto; }
+  .map-legend {
+    display: flex; gap: 14px; flex-wrap: wrap;
+    margin: 10px 0 14px; align-items: center;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; color: #374151;
+  }
+  .legend-swatch {
+    width: 18px; height: 18px; border-radius: 4px; flex-shrink: 0;
+  }
+
+  .map-tooltip {
+    background: #1e293b;
+    color: white;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-top: 10px;
+    min-height: 54px;
+    display: none;
+  }
+  .map-tooltip.show { display: block; }
+  .map-tooltip strong { color: #99f6e4; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 2 — Sơ đồ phân nhánh Kitô giáo
+     ══════════════════════════════════════════════ */
+  .branch-wrap { width: 100%; overflow-x: auto; }
+
+  .branch-detail {
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    font-size: 14px;
+    line-height: 1.7;
+    display: none;
+  }
+  .branch-detail.show { display: block; }
+  .branch-detail-title {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--accent-dark);
+    margin-bottom: 6px;
+  }
+
+  /* ══════════════════════════════════════════════
+     MODULE 3 — Timeline 1517–1648
+     ══════════════════════════════════════════════ */
+  .timeline {
+    position: relative;
+    padding: 12px 0 12px 36px;
+    margin: 8px 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 14px; top: 0; bottom: 0; width: 3px;
+    background: linear-gradient(180deg, var(--accent), var(--blue), var(--red-war), var(--gold), #374151);
+    border-radius: 2px;
+  }
+  .tl-item {
+    position: relative; margin-bottom: 22px; padding-left: 20px;
+  }
+  .tl-item::before {
+    content: ''; position: absolute;
+    left: -28px; top: 6px;
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 3px solid white; box-shadow: 0 0 0 2px var(--accent);
+    background: var(--accent);
+  }
+  .tl-item.reform::before  { background: var(--accent);  box-shadow: 0 0 0 2px var(--accent); }
+  .tl-item.catholic::before{ background: var(--purple);  box-shadow: 0 0 0 2px var(--purple); }
+  .tl-item.war::before     { background: var(--red-war); box-shadow: 0 0 0 2px var(--red-war); }
+  .tl-item.treaty::before  { background: var(--gold);    box-shadow: 0 0 0 2px var(--gold); }
+  .tl-item.key::before {
+    width: 18px; height: 18px; left: -30px; top: 4px;
+    background: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent), 0 0 0 6px rgba(15,118,110,.2);
+  }
+  .tl-item.keywar::before {
+    width: 18px; height: 18px; left: -30px; top: 4px;
+    background: var(--red-war);
+    box-shadow: 0 0 0 3px var(--red-war), 0 0 0 6px rgba(185,28,28,.2);
+  }
+  .tl-item.keytreaty::before {
+    width: 18px; height: 18px; left: -30px; top: 4px;
+    background: var(--gold);
+    box-shadow: 0 0 0 3px var(--gold), 0 0 0 6px rgba(180,83,9,.2);
+  }
+  .tl-year  { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 2px; }
+  .tl-item.catholic .tl-year { color: var(--purple); }
+  .tl-item.war .tl-year      { color: var(--red-war); }
+  .tl-item.treaty .tl-year   { color: var(--gold); }
+  .tl-item.key .tl-year      { color: var(--accent); font-size: 15px; }
+  .tl-item.keywar .tl-year   { color: var(--red-war); font-size: 15px; }
+  .tl-item.keytreaty .tl-year{ color: var(--gold); font-size: 15px; }
+  .tl-title {
+    font-weight: 700; font-size: 14px; color: #1f2937; line-height: 1.4;
+  }
+  .tl-desc {
+    font-size: 13px; color: #6b7280; margin-top: 3px; line-height: 1.5;
+  }
+  .tl-badge {
+    display: inline-block; padding: 1px 8px; border-radius: 10px;
+    font-size: 11px; font-weight: 700; margin-left: 6px; vertical-align: middle;
+  }
+  .badge-reform   { background: var(--accent-soft);   color: var(--accent-dark); }
+  .badge-catholic { background: var(--catholic-soft); color: #4c1d95; }
+  .badge-war      { background: var(--red-soft);      color: #991b1b; }
+  .badge-treaty   { background: var(--gold-soft);     color: var(--gold); }
+  .badge-key      { background: #ccfbf1;              color: var(--accent-dark); }
+
+  .tl-era-sep {
+    margin: 20px 0 16px -36px;
+    padding: 6px 14px 6px 36px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    border-radius: 0 20px 20px 0;
+    display: inline-block;
+  }
+  .era-sep-reform   { background: var(--accent-soft);   color: var(--accent-dark); }
+  .era-sep-catholic { background: var(--catholic-soft); color: #4c1d95; }
+  .era-sep-war      { background: var(--red-soft);      color: #991b1b; }
+  .era-sep-treaty   { background: var(--gold-soft);     color: var(--gold); }
+
+  /* ══════════════════════════════════════════════
+     MODULE 4 — Quiz
+     ══════════════════════════════════════════════ */
+  .quiz-q { font-weight: 700; font-size: 15px; margin-bottom: 12px; color: #1f2937; line-height: 1.5; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .quiz-opt {
+    padding: 10px 14px; border-radius: 7px; border: 2px solid #e5e7eb;
+    background: #f9fafb; cursor: pointer; font-size: 14px; text-align: left;
+    transition: border-color .15s, background .15s;
+  }
+  .quiz-opt:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct { border-color: #15803d; background: #dcfce7; color: #14532d; font-weight: 600; }
+  .quiz-opt.wrong   { border-color: var(--red-war); background: var(--red-soft); color: #991b1b; }
+  .quiz-opt.disabled { cursor: default; }
+  .quiz-feedback {
+    padding: 12px 16px; border-radius: 8px; font-size: 14px; line-height: 1.6;
+    margin-top: 8px; display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok  { background: #dcfce7; color: #14532d; border: 1px solid #15803d; }
+  .quiz-feedback.err { background: var(--red-soft); color: #991b1b; border: 1px solid var(--red-war); }
+  .quiz-nav { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .quiz-progress { font-size: 13px; color: var(--stone); }
+  .quiz-score { font-weight: 700; color: #15803d; font-size: 15px; }
+
+  @media (max-width: 600px) {
+    .tl-era-sep { font-size: 11px; padding-left: 30px; }
+    .branch-detail { font-size: 13px; }
+    .map-tooltip { font-size: 12px; }
+    .map-legend { gap: 8px; }
+    .legend-item { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử TG — Trung-cận đại</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-age-of-exploration/visualization.html">← L5: Phát kiến địa lý</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Cải cách tôn giáo</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-science-enlightenment/visualization.html">L7: CM khoa học &amp; Khai sáng →</a>
+</nav>
+
+<main>
+<h1>Lesson 06 — Cải cách tôn giáo (Reformation)</h1>
+<p class="subtitle">Từ 95 luận đề của Luther (1517) đến Hòa ước Westphalia (1648) — một thế kỉ biến động tôn giáo và chính trị làm thay đổi châu Âu</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — Bản đồ phân bố tôn giáo châu Âu sau Cải cách
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Bản đồ tôn giáo châu Âu sau Cải cách (khoảng 1600)</h2>
+
+<div class="card">
+  <div class="info-box">
+    <strong>Cách dùng:</strong> Bấm vào từng vùng trên bản đồ để xem thông tin chi tiết về phân bố tôn giáo. Màu sắc thể hiện hệ phái chiếm đa số sau Cải cách tôn giáo.
+  </div>
+
+  <div class="map-legend">
+    <div class="legend-item">
+      <div class="legend-swatch" style="background: rgba(124,58,237,0.65)"></div>
+      <span>Công giáo (Catholic)</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background: rgba(15,118,110,0.70)"></div>
+      <span>Lutheran (Tin Lành Luther)</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background: rgba(29,78,216,0.65)"></div>
+      <span>Calvinist / Cải cách</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background: rgba(180,83,9,0.65)"></div>
+      <span>Anh giáo (Anglican)</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background: rgba(87,83,78,0.45)"></div>
+      <span>Hỗn hợp / Phức tạp</span>
+    </div>
+  </div>
+
+  <div class="map-wrap">
+    <svg id="ref-map" width="700" height="440" viewBox="0 0 700 440"
+         style="display:block;margin:0 auto;border-radius:8px;border:2px solid #cbd5e1;">
+
+      <!-- Nền biển -->
+      <defs>
+        <linearGradient id="sea-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#bfdbfe"/>
+          <stop offset="1" stop-color="#93c5fd"/>
+        </linearGradient>
+      </defs>
+      <rect width="700" height="440" fill="url(#sea-grad)"/>
+
+      <!-- ── Đất liền nền (xám nhạt) ── -->
+      <!-- Bán đảo Iberia -->
+      <polygon points="30,95 85,80 130,72 165,75 195,85 215,105 210,140 198,168 180,188 158,198 130,198 100,192 72,185 50,170 35,148 28,122" fill="#e7e5e4"/>
+      <!-- Pháp / Gaul -->
+      <polygon points="165,75 205,65 248,58 288,62 308,72 318,90 312,110 298,122 278,126 258,128 235,132 215,140 210,140 195,85 165,75" fill="#e7e5e4"/>
+      <!-- Britain -->
+      <polygon points="152,32 188,28 210,36 220,58 215,74 198,78 175,75 158,62 150,47" fill="#e7e5e4"/>
+      <!-- Ireland *)
+      <polygon points="118,45 140,38 152,46 148,64 132,70 115,62 112,50" fill="#e7e5e4"/>
+      <!-- Scandinavia (Norway/Sweden/Denmark) -->
+      <polygon points="295,30 345,22 395,20 440,28 465,48 460,72 442,90 415,100 388,106 362,100 335,90 315,75 295,58 290,42" fill="#e7e5e4"/>
+      <!-- Jutland / Denmark -->
+      <polygon points="315,75 335,70 350,78 348,96 335,104 318,98 310,86" fill="#e7e5e4"/>
+      <!-- Germania / Đức -->
+      <polygon points="288,62 348,50 398,46 445,50 470,68 468,92 452,108 428,118 398,124 370,128 342,124 318,118 308,110 308,90 298,78" fill="#e7e5e4"/>
+      <!-- Hà Lan / Bỉ vùng thấp -->
+      <polygon points="248,58 280,54 295,60 295,80 278,88 258,88 240,78 238,64" fill="#e7e5e4"/>
+      <!-- Bohemia / Séc -->
+      <polygon points="398,80 440,74 465,80 468,100 452,112 425,118 398,112 385,98 388,84" fill="#e7e5e4"/>
+      <!-- Ba Lan / Đông Âu -->
+      <polygon points="445,50 498,42 545,44 578,56 582,80 568,98 540,106 508,108 478,104 452,96 450,76 448,60" fill="#e7e5e4"/>
+      <!-- Balkan / Đông Nam Âu -->
+      <polygon points="370,128 425,118 468,120 492,138 498,162 488,185 470,202 450,215 428,222 405,218 385,205 368,185 362,160 362,140" fill="#e7e5e4"/>
+      <!-- Hy Lạp -->
+      <polygon points="405,218 428,222 438,242 432,265 418,278 402,272 388,255 386,235 395,220" fill="#e7e5e4"/>
+      <!-- Bán đảo Ý -->
+      <polygon points="258,128 288,118 312,112 330,120 345,138 348,162 340,192 328,222 315,248 302,270 290,290 278,298 265,285 260,260 255,232 252,200 252,170 252,148 255,135" fill="#e7e5e4"/>
+      <!-- Sicily -->
+      <polygon points="278,298 305,295 328,302 338,316 326,328 295,330 272,322 268,308" fill="#e7e5e4"/>
+      <!-- Sardinia -->
+      <polygon points="218,222 236,216 248,228 244,255 230,265 215,258 210,242 212,228" fill="#e7e5e4"/>
+      <!-- Corsica -->
+      <polygon points="232,172 248,167 258,176 254,198 240,205 226,196 224,180" fill="#e7e5e4"/>
+      <!-- Bắc Phi (Tunisia, Algeria) -->
+      <polygon points="95,308 158,296 220,290 278,294 335,300 380,310 425,318 460,328 498,340 490,370 450,385 400,392 350,390 300,382 250,374 200,370 155,368 110,358 85,340 82,320" fill="#e7e5e4"/>
+      <!-- Tiểu Á / Thổ Nhĩ Kỳ -->
+      <polygon points="492,138 548,124 598,118 640,126 660,148 655,172 638,188 610,200 580,205 550,200 520,194 498,180 492,162" fill="#e7e5e4"/>
+      <!-- Ottomans / Đông Địa Trung Hải -->
+      <polygon points="468,120 492,110 542,108 578,112 598,118 590,132 568,144 540,150 510,148 488,138" fill="#e7e5e4"/>
+
+      <!-- ═══════════════════════════════════════════════
+           LỚP MÀU TÔN GIÁO — bấm để xem chi tiết
+           ═══════════════════════════════════════════════ -->
+
+      <!-- CATHOLIC — Tây Ban Nha -->
+      <polygon class="map-region" data-region="spain"
+        points="30,95 85,80 130,72 165,75 195,85 215,105 210,140 198,168 180,188 158,198 130,198 100,192 72,185 50,170 35,148 28,122"
+        fill="rgba(124,58,237,0.60)" stroke="#4c1d95" stroke-width="1.2" style="cursor:pointer"/>
+
+      <!-- CATHOLIC — Pháp (hỗn hợp nhưng chính thức vẫn Công giáo) -->
+      <polygon class="map-region" data-region="france"
+        points="165,75 205,65 248,58 288,62 308,72 318,90 312,110 298,122 278,126 258,128 235,132 215,140 210,140 195,85 165,75"
+        fill="rgba(87,83,78,0.45)" stroke="#3d3835" stroke-width="1.2" style="cursor:pointer"/>
+
+      <!-- CATHOLIC — Ý -->
+      <polygon class="map-region" data-region="italy"
+        points="258,128 288,118 312,112 330,120 345,138 348,162 340,192 328,222 315,248 302,270 290,290 278,298 265,285 260,260 255,232 252,200 252,170 252,148 255,135"
+        fill="rgba(124,58,237,0.60)" stroke="#4c1d95" stroke-width="1.2" style="cursor:pointer"/>
+
+      <!-- CATHOLIC — Sicily + Sardinia + Corsica -->
+      <polygon class="map-region" data-region="italy"
+        points="278,298 305,295 328,302 338,316 326,328 295,330 272,322 268,308"
+        fill="rgba(124,58,237,0.55)" stroke="#4c1d95" stroke-width="1"/>
+      <polygon class="map-region" data-region="italy"
+        points="218,222 236,216 248,228 244,255 230,265 215,258 210,242 212,228"
+        fill="rgba(124,58,237,0.50)" stroke="#4c1d95" stroke-width="1"/>
+      <polygon class="map-region" data-region="italy"
+        points="232,172 248,167 258,176 254,198 240,205 226,196 224,180"
+        fill="rgba(124,58,237,0.50)" stroke="#4c1d95" stroke-width="1"/>
+
+      <!-- ANGLICAN — Anh + Ireland -->
+      <polygon class="map-region" data-region="england"
+        points="152,32 188,28 210,36 220,58 215,74 198,78 175,75 158,62 150,47"
+        fill="rgba(180,83,9,0.65)" stroke="#78350f" stroke-width="1.2" style="cursor:pointer"/>
+      <polygon class="map-region" data-region="england"
+        points="118,45 140,38 152,46 148,64 132,70 115,62 112,50"
+        fill="rgba(180,83,9,0.55)" stroke="#78350f" stroke-width="1"/>
+
+      <!-- LUTHERAN — Scandinavia -->
+      <polygon class="map-region" data-region="scandinavia"
+        points="295,30 345,22 395,20 440,28 465,48 460,72 442,90 415,100 388,106 362,100 335,90 315,75 295,58 290,42"
+        fill="rgba(15,118,110,0.65)" stroke="#134e4a" stroke-width="1.2" style="cursor:pointer"/>
+      <polygon class="map-region" data-region="scandinavia"
+        points="315,75 335,70 350,78 348,96 335,104 318,98 310,86"
+        fill="rgba(15,118,110,0.60)" stroke="#134e4a" stroke-width="1"/>
+
+      <!-- LUTHERAN / HỖN HỢP — Đức (phía bắc Lutheran, phía nam Catholic) -->
+      <polygon class="map-region" data-region="germany"
+        points="288,62 348,50 398,46 445,50 470,68 468,92 452,108 428,118 398,124 370,128 342,124 318,118 308,110 308,90 298,78"
+        fill="rgba(87,83,78,0.45)" stroke="#3d3835" stroke-width="1.2" style="cursor:pointer"/>
+
+      <!-- HỖN HỢP / CALVINIST — Hà Lan -->
+      <polygon class="map-region" data-region="netherlands"
+        points="248,58 280,54 295,60 295,80 278,88 258,88 240,78 238,64"
+        fill="rgba(29,78,216,0.60)" stroke="#1e3a8a" stroke-width="1.2" style="cursor:pointer"/>
+
+      <!-- CATHOLIC / CALVINIST — Bohemia + Ba Lan phức tạp -->
+      <polygon class="map-region" data-region="bohemia"
+        points="398,80 440,74 465,80 468,100 452,112 425,118 398,112 385,98 388,84"
+        fill="rgba(87,83,78,0.45)" stroke="#3d3835" stroke-width="1.2" style="cursor:pointer"/>
+
+      <!-- CATHOLIC — Ba Lan -->
+      <polygon class="map-region" data-region="poland"
+        points="445,50 498,42 545,44 578,56 582,80 568,98 540,106 508,108 478,104 452,96 450,76 448,60"
+        fill="rgba(124,58,237,0.55)" stroke="#4c1d95" stroke-width="1.2" style="cursor:pointer"/>
+
+      <!-- CALVINIST / Trưởng lão — Scotland (phần bắc Britain) -->
+      <!-- Scotland biểu diễn là vùng trên cùng của Britain — đơn giản hóa -->
+
+      <!-- OTTOMAN (không Kitô giáo — xám đặc biệt) -->
+      <polygon class="map-region" data-region="ottoman"
+        points="370,128 425,118 468,120 492,110 542,108 578,112 598,118 640,126 660,148 655,172 638,188 610,200 580,205 550,200 520,194 498,180 492,162 488,138 468,120 468,100 452,112 428,118"
+        fill="rgba(40,40,40,0.30)" stroke="#374151" stroke-width="1.2" style="cursor:pointer"/>
+
+      <!-- Nhãn vùng biển -->
+      <text x="160" y="250" font-size="12" fill="#1e40af" font-weight="700"
+            text-anchor="middle" font-family="sans-serif" opacity="0.7">Đại Tây Dương</text>
+      <text x="380" y="260" font-size="12" fill="#1e40af" font-weight="700"
+            text-anchor="middle" font-family="sans-serif" opacity="0.7">Địa Trung Hải</text>
+      <text x="580" y="60" font-size="11" fill="#1e40af" font-weight="700"
+            text-anchor="middle" font-family="sans-serif" opacity="0.7">Biển Baltic</text>
+      <text x="500" y="228" font-size="11" fill="#1e40af" font-weight="700"
+            text-anchor="middle" font-family="sans-serif" opacity="0.7">Biển Aegean</text>
+
+      <!-- Nhãn quốc gia / vùng -->
+      <text x="115" y="138" font-size="11" fill="#4c1d95" font-weight="700"
+            text-anchor="middle" font-family="sans-serif">Tây Ban Nha</text>
+      <text x="248" y="102" font-size="11" fill="#3d3835" font-weight="700"
+            text-anchor="middle" font-family="sans-serif">Pháp</text>
+      <text x="183" y="54" font-size="10" fill="#78350f" font-weight="700"
+            text-anchor="middle" font-family="sans-serif">Anh</text>
+      <text x="130" y="54" font-size="9" fill="#78350f" font-weight="600"
+            text-anchor="middle" font-family="sans-serif">Ai-len</text>
+      <text x="380" y="60" font-size="11" fill="#134e4a" font-weight="700"
+            text-anchor="middle" font-family="sans-serif">Scandinavia</text>
+      <text x="380" y="92" font-size="11" fill="#3d3835" font-weight="700"
+            text-anchor="middle" font-family="sans-serif">Đức</text>
+      <text x="268" y="72" font-size="9" fill="#1e3a8a" font-weight="700"
+            text-anchor="middle" font-family="sans-serif">Hà Lan</text>
+      <text x="300" y="192" font-size="10" fill="#4c1d95" font-weight="700"
+            text-anchor="middle" font-family="sans-serif">Ý</text>
+      <text x="512" y="74" font-size="10" fill="#4c1d95" font-weight="700"
+            text-anchor="middle" font-family="sans-serif">Ba Lan</text>
+      <text x="428" y="95" font-size="9" fill="#3d3835" font-weight="700"
+            text-anchor="middle" font-family="sans-serif">Bohemia</text>
+      <text x="530" y="155" font-size="10" fill="#374151" font-weight="700"
+            text-anchor="middle" font-family="sans-serif">Đế quốc Ottoman</text>
+
+      <!-- Điểm đánh dấu Wittenberg (nơi Luther đóng luận đề) -->
+      <circle cx="368" cy="85" r="5" fill="#0f766e" stroke="white" stroke-width="2"/>
+      <text x="368" y="78" font-size="9" fill="#134e4a" font-weight="700"
+            text-anchor="middle" font-family="sans-serif">Wittenberg</text>
+
+      <!-- Điểm đánh dấu Geneva (Calvin) -->
+      <circle cx="248" cy="148" r="5" fill="#1d4ed8" stroke="white" stroke-width="2"/>
+      <text x="248" y="142" font-size="9" fill="#1e3a8a" font-weight="700"
+            text-anchor="middle" font-family="sans-serif">Geneva</text>
+
+      <!-- Điểm đánh dấu Rome -->
+      <circle cx="305" cy="230" r="5" fill="#7c3aed" stroke="white" stroke-width="2"/>
+      <text x="305" y="224" font-size="9" fill="#4c1d95" font-weight="700"
+            text-anchor="middle" font-family="sans-serif">Roma</text>
+
+      <!-- Điểm đánh dấu London -->
+      <circle cx="188" cy="56" r="4" fill="#b45309" stroke="white" stroke-width="2"/>
+      <text x="192" y="49" font-size="8" fill="#78350f" font-weight="600"
+            font-family="sans-serif">London</text>
+
+      <!-- Điểm Trento -->
+      <circle cx="300" cy="140" r="4" fill="#7c3aed" stroke="white" stroke-width="2"/>
+      <text x="305" y="135" font-size="8" fill="#4c1d95" font-weight="600"
+            font-family="sans-serif">Trento</text>
+
+    </svg>
+  </div>
+
+  <div class="map-tooltip" id="map-tooltip"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Sơ đồ phân nhánh Kitô giáo phương Tây
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Sơ đồ phân nhánh Kitô giáo phương Tây</h2>
+
+<div class="card">
+  <div class="info-box">
+    Bấm vào từng nhánh để xem thông tin chi tiết về học thuyết, nguồn gốc và phân bố địa lý. Sơ đồ cho thấy Kitô giáo phương Tây phân hóa như thế nào từ thế kỉ XVI.
+  </div>
+
+  <div class="branch-wrap">
+    <svg id="branch-svg" width="680" height="420" viewBox="0 0 680 420"
+         style="display:block;margin:0 auto;">
+
+      <defs>
+        <marker id="arr-main" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#374151"/>
+        </marker>
+        <marker id="arr-teal" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#0f766e"/>
+        </marker>
+        <marker id="arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#1d4ed8"/>
+        </marker>
+        <marker id="arr-gold" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#b45309"/>
+        </marker>
+        <marker id="arr-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#7c3aed"/>
+        </marker>
+      </defs>
+
+      <!-- ── Gốc: Kitô giáo phương Tây ── -->
+      <g id="branch-root" onclick="branchShow('root')" style="cursor:pointer">
+        <rect x="240" y="20" width="200" height="64" rx="10" fill="#374151" stroke="#1f2937" stroke-width="2"/>
+        <text x="340" y="46" font-size="14" fill="white" font-weight="700"
+              text-anchor="middle" font-family="sans-serif">Kitô giáo phương Tây</text>
+        <text x="340" y="64" font-size="11" fill="#d1d5db"
+              text-anchor="middle" font-family="sans-serif">Đến thế kỉ XV</text>
+        <text x="340" y="78" font-size="10" fill="#9ca3af"
+              text-anchor="middle" font-family="sans-serif">Dưới quyền Giáo hoàng Roma</text>
+      </g>
+
+      <!-- ── Thân nhánh từ gốc ── -->
+      <line x1="340" y1="84" x2="340" y2="115" stroke="#374151" stroke-width="2.5" marker-end="url(#arr-main)"/>
+      <text x="355" y="104" font-size="10" fill="#6b7280" font-family="sans-serif">1517–1648</text>
+
+      <!-- ── Ngã ba: Công giáo vs Tin Lành ── -->
+      <!-- Nhánh trái: Công giáo giữ nguyên -->
+      <line x1="340" y1="115" x2="120" y2="115" stroke="#7c3aed" stroke-width="2"/>
+      <line x1="120" y1="115" x2="120" y2="148" stroke="#7c3aed" stroke-width="2" marker-end="url(#arr-purple)"/>
+      <!-- Nhánh phải: Cải cách -->
+      <line x1="340" y1="115" x2="560" y2="115" stroke="#374151" stroke-width="2"/>
+      <line x1="560" y1="115" x2="560" y2="148" stroke="#374151" stroke-width="2" marker-end="url(#arr-main)"/>
+      <!-- Nhánh giữa: Lutheran -->
+      <line x1="340" y1="115" x2="340" y2="148" stroke="#0f766e" stroke-width="2" marker-end="url(#arr-teal)"/>
+
+      <!-- ── Công giáo La Mã (trái) ── -->
+      <g id="branch-catholic" onclick="branchShow('catholic')" style="cursor:pointer">
+        <rect x="30" y="148" width="180" height="80" rx="8" fill="#7c3aed" stroke="#4c1d95" stroke-width="2"/>
+        <text x="120" y="175" font-size="13" fill="white" font-weight="700"
+              text-anchor="middle" font-family="sans-serif">Công giáo La Mã</text>
+        <text x="120" y="193" font-size="11" fill="#ddd6fe"
+              text-anchor="middle" font-family="sans-serif">(Roman Catholic)</text>
+        <text x="120" y="212" font-size="10" fill="#c4b5fd"
+              text-anchor="middle" font-family="sans-serif">Phản Cải cách từ 1540s</text>
+        <text x="120" y="224" font-size="9" fill="#a78bfa"
+              text-anchor="middle" font-family="sans-serif">Tây Ban Nha · Ý · Pháp · Ba Lan</text>
+      </g>
+
+      <!-- ── Lutheran (giữa) ── -->
+      <g id="branch-lutheran" onclick="branchShow('lutheran')" style="cursor:pointer">
+        <rect x="250" y="148" width="180" height="80" rx="8" fill="#0f766e" stroke="#134e4a" stroke-width="2"/>
+        <text x="340" y="175" font-size="13" fill="white" font-weight="700"
+              text-anchor="middle" font-family="sans-serif">Lutheran</text>
+        <text x="340" y="193" font-size="11" fill="#ccfbf1"
+              text-anchor="middle" font-family="sans-serif">(Phái Luther)</text>
+        <text x="340" y="212" font-size="10" fill="#99f6e4"
+              text-anchor="middle" font-family="sans-serif">Từ 1517 — Martin Luther</text>
+        <text x="340" y="224" font-size="9" fill="#5eead4"
+              text-anchor="middle" font-family="sans-serif">Đức · Scandinavia · Vùng Baltic</text>
+      </g>
+
+      <!-- ── Cải cách (phải) — nhánh mẹ Calvin + Anh giáo ── -->
+      <g id="branch-reformed-parent" onclick="branchShow('reformed-parent')" style="cursor:pointer">
+        <rect x="470" y="148" width="185" height="80" rx="8" fill="#374151" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="6,3"/>
+        <text x="562" y="175" font-size="13" fill="white" font-weight="700"
+              text-anchor="middle" font-family="sans-serif">Các phái Cải cách khác</text>
+        <text x="562" y="193" font-size="10" fill="#d1d5db"
+              text-anchor="middle" font-family="sans-serif">Đa dạng theo vùng</text>
+        <text x="562" y="212" font-size="10" fill="#d1d5db"
+              text-anchor="middle" font-family="sans-serif">Calvin, Anh giáo, Anabaptist...</text>
+      </g>
+
+      <!-- ── Từ nhánh Cải cách ra Calvin và Anh giáo ── -->
+      <line x1="562" y1="228" x2="562" y2="258" stroke="#374151" stroke-width="2"/>
+      <line x1="562" y1="258" x2="430" y2="258" stroke="#1d4ed8" stroke-width="2"/>
+      <line x1="430" y1="258" x2="430" y2="290" stroke="#1d4ed8" stroke-width="2" marker-end="url(#arr-blue)"/>
+      <line x1="562" y1="258" x2="640" y2="258" stroke="#b45309" stroke-width="2"/>
+      <line x1="640" y1="258" x2="640" y2="290" stroke="#b45309" stroke-width="2" marker-end="url(#arr-gold)"/>
+
+      <!-- ── Calvin / Cải cách Reformed ── -->
+      <g id="branch-calvin" onclick="branchShow('calvin')" style="cursor:pointer">
+        <rect x="335" y="290" width="190" height="80" rx="8" fill="#1d4ed8" stroke="#1e3a8a" stroke-width="2"/>
+        <text x="430" y="317" font-size="13" fill="white" font-weight="700"
+              text-anchor="middle" font-family="sans-serif">Calvinist / Cải cách</text>
+        <text x="430" y="335" font-size="11" fill="#bfdbfe"
+              text-anchor="middle" font-family="sans-serif">(Reformed)</text>
+        <text x="430" y="353" font-size="10" fill="#93c5fd"
+              text-anchor="middle" font-family="sans-serif">Từ 1536 — Jean Calvin</text>
+        <text x="430" y="365" font-size="9" fill="#60a5fa"
+              text-anchor="middle" font-family="sans-serif">Thụy Sĩ · Hà Lan · Scotland · Pháp</text>
+      </g>
+
+      <!-- ── Anh giáo (Anglican) ── -->
+      <g id="branch-anglican" onclick="branchShow('anglican')" style="cursor:pointer">
+        <rect x="545" y="290" width="130" height="80" rx="8" fill="#b45309" stroke="#78350f" stroke-width="2"/>
+        <text x="610" y="317" font-size="13" fill="white" font-weight="700"
+              text-anchor="middle" font-family="sans-serif">Anh giáo</text>
+        <text x="610" y="335" font-size="11" fill="#fed7aa"
+              text-anchor="middle" font-family="sans-serif">(Anglican)</text>
+        <text x="610" y="353" font-size="10" fill="#fbbf24"
+              text-anchor="middle" font-family="sans-serif">Từ 1534 — Henry VIII</text>
+        <text x="610" y="365" font-size="9" fill="#fcd34d"
+              text-anchor="middle" font-family="sans-serif">Anh · Ireland · Xứ Wales</text>
+      </g>
+
+      <!-- ── Nhãn thời gian chính ── -->
+      <text x="30" y="415" font-size="11" fill="#6b7280" font-family="sans-serif"
+            font-style="italic">* Phân bố thực tế phức tạp hơn — nhiều vùng có nhiều hệ phái song song</text>
+
+      <!-- ── Chú giải nguyên lý Luther ── -->
+      <rect x="30" y="260" width="200" height="104" rx="8" fill="#ccfbf1" stroke="#0f766e" stroke-width="1"/>
+      <text x="130" y="280" font-size="11" fill="#134e4a" font-weight="700"
+            text-anchor="middle" font-family="sans-serif">3 nguyên tắc Luther:</text>
+      <text x="42" y="298" font-size="10" fill="#134e4a" font-family="sans-serif">· Sola Fide — chỉ đức tin</text>
+      <text x="42" y="314" font-size="10" fill="#134e4a" font-family="sans-serif">· Sola Scriptura — chỉ Kinh Thánh</text>
+      <text x="42" y="330" font-size="10" fill="#134e4a" font-family="sans-serif">· Sola Gratia — chỉ ân sủng</text>
+      <text x="42" y="352" font-size="10" fill="#0f766e" font-family="sans-serif" font-style="italic">→ bác bỏ vai trò trung gian</text>
+      <text x="42" y="364" font-size="10" fill="#0f766e" font-family="sans-serif" font-style="italic">   của Giáo hội</text>
+
+    </svg>
+  </div>
+
+  <div class="branch-detail" id="branch-detail">
+    <div class="branch-detail-title" id="branch-detail-title"></div>
+    <div id="branch-detail-body"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — Timeline 1517–1648
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. Chuỗi thời gian: 1517–1648</h2>
+
+<div class="card">
+  <div class="timeline">
+
+    <!-- ── Giai đoạn 1: Cải cách Lutheran ── -->
+    <div class="tl-era-sep era-sep-reform">Cải cách Lutheran — Đức (1517–1530)</div>
+
+    <div class="tl-item key">
+      <div class="tl-year">31/10/1517</div>
+      <div class="tl-title">Martin Luther gửi 95 luận đề
+        <span class="tl-badge badge-key">Khởi đầu</span>
+      </div>
+      <div class="tl-desc">Luther gửi bản luận đề thần học về phép xá tội cho Tổng Giám mục tại Mainz. Được in và lan truyền khắp nước Đức trong vài tuần — điều chỉ có thể nhờ máy in Gutenberg (khoảng 1440). Đây là điểm khởi đầu quy ước của Cải cách.</div>
+    </div>
+
+    <div class="tl-item reform">
+      <div class="tl-year">1519</div>
+      <div class="tl-title">Tranh luận Leipzig — Luther thừa nhận đồng tình với Jan Hus</div>
+      <div class="tl-desc">Trong cuộc tranh luận với Johann Eck, Luther bị buộc phải nhận rằng ông đồng ý với nhiều quan điểm của Jan Hus — người đã bị hành hình như dị giáo năm 1415. Bước ngoặt không thể quay lại.</div>
+    </div>
+
+    <div class="tl-item reform">
+      <div class="tl-year">1520</div>
+      <div class="tl-title">Leo X ra sắc lệnh Exsurge Domine — Luther đốt sắc lệnh</div>
+      <div class="tl-desc">Giáo hoàng Leo X yêu cầu Luther rút lại 41 điểm trong 60 ngày. Luther đốt sắc lệnh công khai tại Wittenberg — một hành động thách thức chưa từng có.</div>
+    </div>
+
+    <div class="tl-item key">
+      <div class="tl-year">Tháng 1/1521</div>
+      <div class="tl-title">Luther bị rút phép thông công
+        <span class="tl-badge badge-reform">Ly giáo chính thức</span>
+      </div>
+      <div class="tl-desc">Giáo hoàng Leo X rút phép thông công (excommunication) — Luther chính thức bị loại khỏi Giáo hội Công giáo.</div>
+    </div>
+
+    <div class="tl-item reform">
+      <div class="tl-year">Tháng 4/1521</div>
+      <div class="tl-title">Nghị hội Worms — Luther từ chối rút lại giáo lý</div>
+      <div class="tl-desc">Trước Hoàng đế Charles V và toàn bộ các lãnh chúa Đế quốc, Luther từ chối rút lại bất kỳ giáo lý nào. Ông bị kết là dị giáo và đặt ngoài vòng pháp luật. Được Tuyển hầu tước Friedrich III xứ Sachsen bảo vệ và ẩn náu tại Lâu đài Wartburg.</div>
+    </div>
+
+    <div class="tl-item reform">
+      <div class="tl-year">1521–1522</div>
+      <div class="tl-title">Luther dịch Kinh Thánh sang tiếng Đức tại Wartburg</div>
+      <div class="tl-desc">Hoàn thành Tân Ước tiếng Đức năm 1522; toàn bộ Kinh Thánh hoàn chỉnh năm 1534. Bản dịch này có ảnh hưởng lớn đến sự chuẩn hóa tiếng Đức hiện đại.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">1524–1525</div>
+      <div class="tl-title">Chiến tranh Nông dân Đức
+        <span class="tl-badge badge-war">Xung đột</span>
+      </div>
+      <div class="tl-desc">Nông dân diễn giải tư tưởng tự do tinh thần của Luther thành lời kêu gọi bình đẳng xã hội. Luther bác bỏ và ủng hộ dập tắt cuộc nổi dậy. Ước tính hơn 100.000 người chết.</div>
+    </div>
+
+    <div class="tl-item reform">
+      <div class="tl-year">1529</div>
+      <div class="tl-title">Nghị hội Speyer — ra đời thuật ngữ "Protestant"
+        <span class="tl-badge badge-reform">Định danh</span>
+      </div>
+      <div class="tl-desc">Phe Cải cách ký bản Protestatio phản đối việc hủy bỏ sự khoan nhượng với tư tưởng cải cách. Từ đó họ được gọi là "Protestants" — Tin Lành trong tiếng Việt.</div>
+    </div>
+
+    <!-- ── Giai đoạn 2: Cải cách mở rộng ── -->
+    <div class="tl-era-sep era-sep-reform">Cải cách mở rộng — Calvin &amp; Anh giáo (1530–1563)</div>
+
+    <div class="tl-item reform">
+      <div class="tl-year">1534</div>
+      <div class="tl-title">Đạo luật Tối cao — Ly giáo Anh chính thức
+        <span class="tl-badge badge-reform">Anh giáo ra đời</span>
+      </div>
+      <div class="tl-desc">Quốc hội Anh tuyên bố Henry VIII là "Người đứng đầu tối cao dưới trần thế của Giáo hội Anh". Ly giáo Anh khởi phát từ động lực chính trị — tranh chấp hôn nhân giữa Henry VIII và Giáo hoàng.</div>
+    </div>
+
+    <div class="tl-item reform">
+      <div class="tl-year">1536</div>
+      <div class="tl-title">Calvin xuất bản Institutio Christianae Religionis tại Basel</div>
+      <div class="tl-desc">Hệ thống thần học Calvinist được trình bày có hệ thống. Đặc trưng: học thuyết tiền định (predestination) — Thiên Chúa đã quyết định từ trước vĩnh cửu ai được cứu rỗi.</div>
+    </div>
+
+    <div class="tl-item reform">
+      <div class="tl-year">1541</div>
+      <div class="tl-title">Calvin xây dựng thần quyền tại Geneva</div>
+      <div class="tl-desc">Geneva trở thành "Rome của Tin Lành" — trung tâm đào tạo mục sư và phổ biến tư tưởng Calvin ra Pháp (Huguenots), Hà Lan, Scotland và sau này Bắc Mỹ.</div>
+    </div>
+
+    <!-- ── Giai đoạn 3: Phản Cải cách ── -->
+    <div class="tl-era-sep era-sep-catholic">Phản Cải cách Công giáo (1540–1563)</div>
+
+    <div class="tl-item catholic">
+      <div class="tl-year">1540</div>
+      <div class="tl-title">Dòng Tên (Jesuits) được Giáo hoàng Paul III phê chuẩn
+        <span class="tl-badge badge-catholic">Phản Cải cách</span>
+      </div>
+      <div class="tl-desc">Ignatius of Loyola thành lập Dòng Tên — lực lượng giáo dục và truyền giáo toàn cầu, kỷ luật quân sự, trung thành tuyệt đối với Giáo hoàng. Dòng Tên đóng vai trò quan trọng trong việc đưa Kitô giáo vào Việt Nam và phát triển chữ Quốc ngữ (Alexandre de Rhodes, 1651).</div>
+    </div>
+
+    <div class="tl-item catholic">
+      <div class="tl-year">1545–1563</div>
+      <div class="tl-title">Công đồng Trento — Phản Cải cách chính thức
+        <span class="tl-badge badge-catholic">Công đồng</span>
+      </div>
+      <div class="tl-desc">Ba giai đoạn họp tại Trento (bắc Ý). Kết quả: (1) Cải cách kỷ luật — cấm mua bán chức vụ, lập chủng viện đào tạo linh mục. (2) Thần học — bác bỏ hoàn toàn sola fide, sola scriptura; khẳng định quyền uy Giáo hoàng. Sự phân chia tôn giáo châu Âu trở nên cố định.</div>
+    </div>
+
+    <!-- ── Giai đoạn 4: Chiến tranh tôn giáo ── -->
+    <div class="tl-era-sep era-sep-war">Chiến tranh tôn giáo châu Âu (1555–1648)</div>
+
+    <div class="tl-item treaty">
+      <div class="tl-year">1555</div>
+      <div class="tl-title">Hòa ước Augsburg — cuius regio, eius religio
+        <span class="tl-badge badge-treaty">Hòa ước</span>
+      </div>
+      <div class="tl-desc">Nguyên tắc "vùng của ai, tôn giáo của người đó" — mỗi vương công có quyền quyết định tôn giáo cho lãnh thổ (Công giáo hoặc Lutheran). Chưa bao gồm Calvinist — mầm mống xung đột tiếp theo.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">1562–1598</div>
+      <div class="tl-title">Chiến tranh tôn giáo Pháp — Thảm sát Đêm Thánh Bartholomew
+        <span class="tl-badge badge-war">Xung đột</span>
+      </div>
+      <div class="tl-desc">Xung đột giữa Công giáo và Huguenot (Calvin). Đỉnh điểm: 24/8/1572, hàng nghìn Huguenot bị giết tại Paris và các tỉnh. Kết thúc bằng Sắc lệnh Nantes (1598) của Henry IV — cho phép Huguenot thờ phụng tự do trong phạm vi hạn chế.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">1568–1648</div>
+      <div class="tl-title">Chiến tranh Tám mươi Năm — Hà Lan giành độc lập</div>
+      <div class="tl-desc">Hà Lan Tin Lành nổi dậy chống Tây Ban Nha Công giáo. Kết thúc bằng sự công nhận độc lập của Hà Lan tại Hòa ước Westphalia (1648).</div>
+    </div>
+
+    <div class="tl-item keywar">
+      <div class="tl-year">23/5/1618</div>
+      <div class="tl-title">Sự kiện ném người qua cửa sổ ở Praha — bắt đầu Chiến tranh Ba Mươi Năm
+        <span class="tl-badge badge-war">Khởi đầu chiến tranh</span>
+      </div>
+      <div class="tl-desc">Quý tộc Tin Lành Bohemia ném các đại diện Công giáo của Hoàng đế Habsburg qua cửa sổ lâu đài Praha. Đây là tín hiệu khởi đầu cuộc nổi dậy Bohemia chống quyền lực Habsburg, mở ra Chiến tranh Ba Mươi Năm — cuộc chiến tàn phá nhất châu Âu trước Thế chiến I.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">1618–1648</div>
+      <div class="tl-title">Chiến tranh Ba Mươi Năm — thảm họa nhân đạo châu Âu
+        <span class="tl-badge badge-war">Chiến tranh</span>
+      </div>
+      <div class="tl-desc">Cuộc chiến lan rộng từ Bohemia thành xung đột đế quốc toàn châu Âu. Dân số một số vùng Đức giảm 25–40%; vùng Bohemia mất khoảng 1/3 dân số do chiến tranh, đói kém và dịch bệnh (số liệu còn khác nhau giữa các nguồn).</div>
+    </div>
+
+    <div class="tl-item keytreaty">
+      <div class="tl-year">1648</div>
+      <div class="tl-title">Hòa ước Westphalia — kết thúc kỷ nguyên chiến tranh tôn giáo
+        <span class="tl-badge badge-treaty">Westphalia</span>
+      </div>
+      <div class="tl-desc">Hai hiệp ước ký tại Osnabrück và Münster: (1) Mở rộng Augsburg 1555 — nay bao gồm Calvinism. (2) Công nhận độc lập Hà Lan và Thụy Sĩ. (3) Đặt nền cho khái niệm chủ quyền quốc gia hiện đại — mỗi nhà nước có quyền tối cao trong lãnh thổ của mình. Kết thúc ý tưởng "đế quốc Kitô giáo thống nhất" dưới quyền Giáo hoàng hay Hoàng đế. Mở đường cho Khai sáng thế kỉ XVIII.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 4 — Quiz ôn tập
+     ═══════════════════════════════════════════════════════ -->
+<h2>4. Ôn tập — Trắc nghiệm</h2>
+
+<div class="card" id="quiz-card">
+  <div class="quiz-q"    id="quiz-q"></div>
+  <div class="quiz-opts" id="quiz-opts"></div>
+  <div class="quiz-feedback" id="quiz-fb"></div>
+  <div class="quiz-nav">
+    <button class="btn btn-primary" id="btn-quiz-next" onclick="quizNext()" style="display:none">Câu tiếp →</button>
+    <button class="btn btn-secondary" id="btn-quiz-restart" onclick="quizRestart()" style="display:none">Làm lại</button>
+    <span class="quiz-progress" id="quiz-prog"></span>
+    <span class="quiz-score"    id="quiz-score"></span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCRIPTS
+     ═══════════════════════════════════════════════════════ -->
+<script>
+/* ════════════════════════════════════════════════
+   MODULE 1 — Bản đồ tôn giáo châu Âu
+   ════════════════════════════════════════════════ */
+
+const REGION_DATA = {
+  spain: {
+    name: 'Tây Ban Nha &amp; Bồ Đào Nha',
+    faith: 'Công giáo La Mã',
+    color: '#7c3aed',
+    desc: 'Tây Ban Nha và Bồ Đào Nha là thành lũy vững chắc nhất của Công giáo sau Cải cách. Tòa án Dị giáo (Inquisition) hoạt động tích cực — bất kỳ phong trào Tin Lành nào đều bị dập tắt nhanh chóng. Vua Tây Ban Nha (Charles V, sau là Philip II) coi việc bảo vệ Công giáo là nghĩa vụ thiêng liêng. Từ đây, Dòng Tên (Jesuits) theo chân các đoàn thám hiểm đến châu Á, châu Mỹ, châu Phi.'
+  },
+  france: {
+    name: 'Pháp',
+    faith: 'Chính thức Công giáo — nhưng phức tạp',
+    color: '#57534e',
+    desc: 'Pháp chính thức vẫn là Công giáo, nhưng thiểu số Huguenot (Calvin) chiếm khoảng 10% dân số và gây ra các cuộc Chiến tranh tôn giáo Pháp (1562–1598). Đỉnh điểm là Vụ thảm sát Đêm Thánh Bartholomew (24/8/1572). Sắc lệnh Nantes (1598) của Henry IV tạm thời cho phép Huguenot thờ phụng tự do — nhưng bị hủy năm 1685 bởi Louis XIV, dẫn đến hàng trăm nghìn Huguenot di tản.'
+  },
+  italy: {
+    name: 'Ý &amp; các đảo Địa Trung Hải',
+    faith: 'Công giáo La Mã',
+    color: '#7c3aed',
+    desc: 'Ý là trung tâm của Giáo hội Công giáo với Roma là thủ đô giáo hoàng. Các phong trào Tin Lành nhỏ xuất hiện nhưng bị Tòa án Dị giáo và sau đó Công đồng Trento dập tắt. Trento (thành phố tổ chức Công đồng 1545–1563) nằm ở bắc Ý — điểm giao thoa văn hóa giữa Ý và vùng nói tiếng Đức.'
+  },
+  england: {
+    name: 'Anh, Wales &amp; Ireland',
+    faith: 'Anh giáo (Anglican)',
+    color: '#b45309',
+    desc: 'Anh giáo ra đời từ Đạo luật Tối cao (1534) của Henry VIII — không phải vì lý do thần học mà vì tranh chấp hôn nhân với Giáo hoàng. Về mặt thần học, Anh giáo dần trở thành "con đường trung dung" giữa Công giáo và Tin Lành dưới thời Elizabeth I (1558–1603). Scotland theo Calvinism (Presbyterian Church) do John Knox đem về từ Geneva. Ireland phần lớn giữ Công giáo — một nguồn xung đột kéo dài đến tận thế kỉ XX.'
+  },
+  scandinavia: {
+    name: 'Scandinavia (Đan Mạch, Thụy Điển, Na Uy)',
+    faith: 'Lutheran',
+    color: '#0f766e',
+    desc: 'Scandinavia sớm và toàn diện theo Lutheran. Vua Đan Mạch Christian III (trị vì 1534–1559) áp đặt Lutheran như quốc giáo. Thụy Điển dưới Gustav Vasa tương tự. Lutheran ở Scandinavia mang đặc điểm nhà nước mạnh — Giáo hội Lutheran là giáo hội quốc gia được nhà nước bảo trợ, tồn tại đến thế kỉ XX ở một số nước.'
+  },
+  germany: {
+    name: 'Đức (Đế quốc La Mã Thần thánh)',
+    faith: 'Hỗn hợp — Lutheran (bắc) / Công giáo (nam)',
+    color: '#57534e',
+    desc: 'Đức là nơi phức tạp nhất về tôn giáo sau Cải cách. Theo nguyên tắc cuius regio eius religio (Hòa ước Augsburg, 1555), mỗi vương công quyết định tôn giáo cho lãnh thổ của mình. Kết quả: các vùng bắc và trung Đức (Saxony, Prussia, Brandenburg) theo Lutheran; các vùng nam (Bavaria, Austria) và tây nam theo Công giáo. Sự pha trộn này là nguyên nhân trực tiếp của Chiến tranh Ba Mươi Năm (1618–1648).'
+  },
+  netherlands: {
+    name: 'Hà Lan &amp; Bỉ (Vùng Thấp)',
+    faith: 'Chủ yếu Calvinist (phần Hà Lan)',
+    color: '#1d4ed8',
+    desc: 'Hà Lan là một trong những trường hợp độc đáo nhất: tư tưởng Calvin lan vào từ Geneva, kết hợp với cuộc nổi dậy chống Tây Ban Nha Công giáo (Chiến tranh Tám mươi Năm, 1568–1648). Kết quả: các tỉnh phía bắc (Hà Lan ngày nay) theo Calvinist và giành độc lập; các tỉnh phía nam (Bỉ ngày nay) vẫn Công giáo dưới quyền Tây Ban Nha. Hà Lan độc lập trở thành trung tâm thương mại và tự do tư tưởng châu Âu thế kỉ XVII.'
+  },
+  bohemia: {
+    name: 'Bohemia (Séc) &amp; Trung Âu',
+    faith: 'Hỗn hợp và tranh chấp',
+    color: '#57534e',
+    desc: 'Bohemia có truyền thống cải cách từ Jan Hus (thế kỉ XV) và có cộng đồng Tin Lành lớn. Đây là nơi bùng phát Chiến tranh Ba Mươi Năm với Sự kiện ném người qua cửa sổ ở Praha (1618). Sau khi nhà Habsburg tái chinh phục (Trận White Mountain, 1620), Bohemia bị cưỡng bức Công giáo hóa — khoảng 1/3 dân số tị nạn hoặc thiệt mạng.'
+  },
+  poland: {
+    name: 'Ba Lan &amp; Lithuania',
+    faith: 'Công giáo (phần lớn)',
+    color: '#7c3aed',
+    desc: 'Ba Lan thế kỉ XVI có giai đoạn đáng kể Tin Lành (Calvinist, Lutheran, thậm chí Socinian) nhờ chính sách tương đối khoan nhượng của giới quý tộc. Tuy nhiên, từ cuối thế kỉ XVI, cuộc Phản Cải cách do Dòng Tên dẫn đầu đã kéo Ba Lan trở lại Công giáo gần như hoàn toàn. Đến thế kỉ XVII, Ba Lan được coi là "Tiền đồn Công giáo" ở Đông Âu.'
+  },
+  ottoman: {
+    name: 'Đế quốc Ottoman',
+    faith: 'Hồi giáo (không thuộc Cải cách Kitô giáo)',
+    color: '#374151',
+    desc: 'Đế quốc Ottoman (theo Hồi giáo) kiểm soát Đông Nam Âu, Bắc Phi và Trung Đông trong giai đoạn này. Đáng chú ý: Đế quốc Ottoman đôi khi bảo hộ các nhóm Tin Lành chống Habsburg — không vì lý do tôn giáo mà vì lý do địa chính trị (cùng chống kẻ thù chung Habsburg Công giáo). Năm 1529, quân Ottoman bao vây Vienna lần đầu — đe dọa trực tiếp đến trung tâm của Đế quốc La Mã Thần thánh.'
+  }
+};
+
+document.querySelectorAll('.map-region').forEach(el => {
+  el.addEventListener('click', function() {
+    const key = this.dataset.region;
+    const d = REGION_DATA[key];
+    if (!d) return;
+    const tip = document.getElementById('map-tooltip');
+    tip.innerHTML = '<strong>' + d.name + '</strong> — ' + d.faith + '<br>' + d.desc;
+    tip.classList.add('show');
+    tip.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+  el.addEventListener('mouseenter', function() {
+    this.style.opacity = '0.8';
+  });
+  el.addEventListener('mouseleave', function() {
+    this.style.opacity = '1';
+  });
+});
+
+/* ════════════════════════════════════════════════
+   MODULE 2 — Sơ đồ phân nhánh Kitô giáo
+   ════════════════════════════════════════════════ */
+
+const BRANCH_DATA = {
+  root: {
+    title: 'Kitô giáo phương Tây trước Cải cách',
+    body: 'Đến thế kỉ XV, toàn bộ Kitô giáo phương Tây về mặt hình thức nằm dưới quyền Giáo hoàng Roma. Sau Đại ly giáo (1054), Kitô giáo đã tách thành phương Đông (Chính Thống giáo) và phương Tây (Công giáo La Mã). Trong phương Tây, có những phong trào cải cách sớm hơn (Jan Hus, John Wycliffe) nhưng đều bị dập tắt. Máy in Gutenberg (khoảng 1440) là công nghệ then chốt làm thay đổi điều đó từ năm 1517.'
+  },
+  catholic: {
+    title: 'Công giáo La Mã — Phản Cải cách',
+    body: '<strong>Đặc điểm thần học:</strong> Giữ nguyên 7 bí tích, vai trò Truyền thống bên cạnh Kinh Thánh, quyền uy Giáo hoàng, cứu rỗi qua đức tin và công đức.<br><br><strong>Phản Cải cách:</strong> Công đồng Trento (1545–1563) — vừa cải cách kỷ luật nội bộ (chủng viện, chống mua bán chức vụ) vừa khẳng định lại giáo lý Công giáo và bác bỏ thần học Tin Lành.<br><br><strong>Dòng Tên (1540):</strong> Lực lượng giáo dục và truyền giáo toàn cầu — đặt nền móng cho việc đưa Kitô giáo vào Việt Nam và phát triển chữ Quốc ngữ (Alexandre de Rhodes, 1651).<br><br><strong>Phân bố:</strong> Tây Ban Nha, Bồ Đào Nha, Ý, Pháp, Ba Lan, Áo, Ireland, Bỉ, các nước Mỹ Latinh và Philippines.'
+  },
+  lutheran: {
+    title: 'Lutheran — Phái Luther',
+    body: '<strong>Người sáng lập:</strong> Martin Luther (1483–1546) — tu sĩ và giáo sư thần học tại Wittenberg, Đức.<br><br><strong>Ba nguyên tắc cốt lõi:</strong><br>• <em>Sola Fide</em> — chỉ đức tin đưa đến cứu rỗi (bác bỏ phép xá tội)<br>• <em>Sola Scriptura</em> — chỉ Kinh Thánh là thẩm quyền cuối cùng (bác bỏ quyền uy Giáo hoàng)<br>• <em>Sola Gratia</em> — chỉ ân sủng tự do của Thiên Chúa<br><br><strong>Thực hành:</strong> Giữ 2 bí tích (Rửa tội và Thánh Thể), phụng vụ bằng tiếng địa phương, nhấn mạnh giảng dạy Kinh Thánh.<br><br><strong>Phân bố:</strong> Đức (phía bắc và trung), Đan Mạch, Thụy Điển, Na Uy, Phần Lan, vùng Baltic. Sau này lan sang Bắc Mỹ qua di dân.'
+  },
+  'reformed-parent': {
+    title: 'Các phái Cải cách khác',
+    body: 'Ngoài Luther, phong trào Cải cách sinh ra nhiều nhánh khác từ bối cảnh địa phương và thần học khác nhau:<br><br>• <strong>Calvinist / Cải cách (Reformed)</strong> — hệ thống thần học chặt chẽ của Jean Calvin tại Geneva<br>• <strong>Anh giáo (Anglican)</strong> — ly giáo Anh từ động lực chính trị của Henry VIII<br>• <strong>Anabaptist</strong> — phong trào cực đoan hơn (không công nhận phép rửa tội trẻ sơ sinh, từ chối nghĩa vụ quân sự) — bị cả Công giáo lẫn các phái Tin Lành khác đàn áp<br>• <strong>Socinian / Unitarians</strong> — bác bỏ học thuyết Ba Ngôi — thiểu số nhỏ tại Ba Lan'
+  },
+  calvin: {
+    title: 'Calvinist / Cải cách (Reformed)',
+    body: '<strong>Người sáng lập:</strong> Jean Calvin (1509–1564) — luật sư và thần học gia người Pháp, hoạt động tại Geneva.<br><br><strong>Học thuyết tiền định (Predestination):</strong> Đặc trưng nổi bật nhất — Thiên Chúa đã quyết định từ trước vĩnh cửu ai được cứu rỗi (the elect) và ai không, hoàn toàn không phụ thuộc vào hành động hay ý chí con người.<br><br><strong>Cơ cấu tổ chức:</strong> Trưởng lão (Presbyterian) thay vì giám mục — dân chủ hơn trong cơ cấu Giáo hội.<br><br><strong>Geneva:</strong> Thành phố thần quyền — "Rome của Tin Lành", xuất phát điểm đào tạo mục sư cho toàn châu Âu.<br><br><strong>Phân bố:</strong> Thụy Sĩ, Hà Lan, Scotland (Presbyterian), Huguenots ở Pháp, Puritans ở Anh và Bắc Mỹ.'
+  },
+  anglican: {
+    title: 'Anh giáo (Church of England)',
+    body: '<strong>Nguồn gốc:</strong> Không phải thần học mà là chính trị. Vua Henry VIII (trị vì 1509–1547) muốn hủy hôn nhân với Catherine of Aragon nhưng Giáo hoàng từ chối. Quốc hội Anh thông qua Đạo luật Tối cao (1534) — đặt vua Anh làm người đứng đầu Giáo hội.<br><br><strong>Đặc điểm:</strong> "Con đường trung dung" (via media) dưới thời Elizabeth I — giữ cơ cấu giám mục và nhiều nghi lễ từ Công giáo, nhưng thần học tiếp thu từ Cải cách (nhấn mạnh Kinh Thánh, phụng vụ bằng tiếng Anh qua Book of Common Prayer, 1549).<br><br><strong>Giải tán tu viện (1535–1540):</strong> Tài sản đất đai khổng lồ của Giáo hội chuyển vào ngân khố nhà nước và tay quý tộc ủng hộ Henry.<br><br><strong>Phân bố:</strong> Anh, Wales, Ireland (thiểu số), sau này lan sang toàn cầu qua Đế quốc Anh.'
+  }
+};
+
+function branchShow(key) {
+  const d = BRANCH_DATA[key];
+  if (!d) return;
+  const detail = document.getElementById('branch-detail');
+  document.getElementById('branch-detail-title').textContent = d.title;
+  document.getElementById('branch-detail-body').innerHTML = d.body;
+  detail.classList.add('show');
+  detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ════════════════════════════════════════════════
+   MODULE 4 — Quiz
+   ════════════════════════════════════════════════ */
+
+const QUIZ = [
+  {
+    q: 'Thuật ngữ "Protestant" (Tin Lành) bắt nguồn từ sự kiện nào?',
+    opts: [
+      'Luther từ chối rút lại giáo lý tại Nghị hội Worms (1521)',
+      'Bản Protestatio của phe Cải cách tại Nghị hội Speyer (1529)',
+      'Giáo hoàng Leo X rút phép thông công Luther (1521)',
+      'Sự kiện ném người qua cửa sổ ở Praha (1618)'
+    ],
+    correct: 1,
+    feedback: 'Đúng! Năm 1529, tại Nghị hội Speyer thứ hai, phe Cải cách ký bản Protestatio phản đối việc hủy bỏ sự khoan nhượng với tư tưởng cải cách. Từ protestatio (Latin: sự tuyên bố phản đối) trở thành gốc của "Protestant".'
+  },
+  {
+    q: 'Nguyên tắc "Sola Scriptura" của Luther có nghĩa là gì?',
+    opts: [
+      'Chỉ có đức tin mới đưa đến cứu rỗi',
+      'Chỉ có ân sủng của Thiên Chúa mới cứu được con người',
+      'Chỉ có Kinh Thánh là thẩm quyền cuối cùng — không phải Giáo hoàng hay công đồng',
+      'Chỉ có tu sĩ mới được đọc và giải thích Kinh Thánh'
+    ],
+    correct: 2,
+    feedback: 'Đúng! Sola Scriptura ("Kinh Thánh mà thôi") nghĩa là Kinh Thánh là thẩm quyền tối cao trong các vấn đề đức tin và đạo đức — không phải Giáo hoàng, không phải công đồng, không phải truyền thống Giáo hội. Đây là nguyên tắc cách mạng vì nó cho phép bất kỳ ai biết chữ tự phán xét đúng sai.'
+  },
+  {
+    q: 'Đạo luật Tối cao (Act of Supremacy, 1534) tuyên bố điều gì?',
+    opts: [
+      'Henry VIII có quyền ly hôn với Catherine of Aragon',
+      'Henry VIII là Người đứng đầu tối cao của Giáo hội Anh',
+      'Phụng vụ Giáo hội Anh phải chuyển sang tiếng Anh',
+      'Tài sản các tu viện được chuyển cho nhà nước'
+    ],
+    correct: 1,
+    feedback: 'Đúng! Đạo luật Tối cao (1534) tuyên bố Henry VIII là "Người đứng đầu tối cao dưới trần thế của Giáo hội Anh". Đây là hành động pháp lý cắt đứt Giáo hội Anh khỏi quyền uy Giáo hoàng Roma — dù về thần học Henry VIII vẫn giữ nhiều giáo lý Công giáo.'
+  },
+  {
+    q: 'Hòa ước Augsburg (1555) áp dụng nguyên tắc gì, và có hạn chế quan trọng nào?',
+    opts: [
+      '"Cuius regio eius religio" — áp dụng cho cả Công giáo, Lutheran và Calvinist',
+      '"Cuius regio eius religio" — chỉ cho Công giáo và Lutheran, không bao gồm Calvinist',
+      'Tự do tôn giáo cá nhân cho mọi công dân trong Đế quốc',
+      'Cấm mọi xung đột tôn giáo trong Đế quốc La Mã Thần thánh'
+    ],
+    correct: 1,
+    feedback: 'Đúng! Augsburg 1555 áp dụng "cuius regio eius religio" (vùng của ai, tôn giáo của người đó) — nhưng CHỈ cho Công giáo và Lutheran, không bao gồm Calvinist. Đây là hạn chế quan trọng: khi Calvinism lan rộng sau 1560, nó trở thành mầm mống xung đột dẫn đến Chiến tranh Ba Mươi Năm (1618–1648).'
+  },
+  {
+    q: 'Dòng Tên (Jesuits) có liên hệ gì với lịch sử Việt Nam?',
+    opts: [
+      'Dòng Tên đưa đạo Phật vào Việt Nam từ Ấn Độ',
+      'Tu sĩ Dòng Tên — đặc biệt Alexandre de Rhodes — đóng vai trò quan trọng trong việc đưa Kitô giáo vào Việt Nam và phát triển chữ Quốc ngữ',
+      'Dòng Tên giúp Nguyễn Hoàng thống nhất đất nước vào thế kỉ XVII',
+      'Dòng Tên không có liên hệ gì với lịch sử Việt Nam'
+    ],
+    correct: 1,
+    feedback: 'Đúng! Tu sĩ Dòng Tên đóng vai trò then chốt trong lịch sử Việt Nam: họ đưa Kitô giáo vào từ thế kỉ XVII, và đặc biệt Alexandre de Rhodes (1593–1660) đã phát triển và phổ biến chữ Quốc ngữ — hệ thống chữ cái Latin ghi tiếng Việt mà người Việt dùng cho đến ngày nay — qua tác phẩm Dictionarium Annamiticum Lusitanum et Latinum (1651).'
+  },
+  {
+    q: 'Hòa ước Westphalia (1648) được coi là quan trọng về lịch sử chính trị quốc tế vì lý do gì?',
+    opts: [
+      'Lần đầu tiên cho phép tự do tôn giáo tuyệt đối cho mọi công dân châu Âu',
+      'Đặt nền cho khái niệm chủ quyền quốc gia hiện đại và kết thúc ý tưởng "đế quốc Kitô giáo thống nhất"',
+      'Lập ra Liên Hợp Quốc tiền thân để giải quyết tranh chấp',
+      'Công nhận Calvinism lần đầu tiên và chấm dứt mọi xung đột tôn giáo vĩnh viễn'
+    ],
+    correct: 1,
+    feedback: 'Đúng! Westphalia 1648 quan trọng về chính trị quốc tế vì: (1) Đặt nền cho khái niệm chủ quyền quốc gia — mỗi nhà nước có quyền tối cao trong lãnh thổ của mình, không có quyền lực bên ngoài (kể cả Giáo hoàng hay Hoàng đế) can thiệp. (2) Kết thúc ý tưởng "đế quốc Kitô giáo thống nhất". Điều này mở đường cho Khai sáng thế kỉ XVIII khi các nhà tư tưởng hỏi: nếu không phải tôn giáo, thì điều gì là nền tảng của quyền lực chính đáng?'
+  }
+];
+
+let qIdx = 0, score = 0, answered = false;
+
+function quizRender() {
+  const q = QUIZ[qIdx];
+  document.getElementById('quiz-q').textContent = (qIdx + 1) + '. ' + q.q;
+  const opts = document.getElementById('quiz-opts');
+  opts.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = () => quizAnswer(i);
+    opts.appendChild(btn);
+  });
+  const fb = document.getElementById('quiz-fb');
+  fb.className = 'quiz-feedback';
+  fb.textContent = '';
+  document.getElementById('btn-quiz-next').style.display = 'none';
+  document.getElementById('btn-quiz-restart').style.display = 'none';
+  document.getElementById('quiz-prog').textContent = 'Câu ' + (qIdx + 1) + ' / ' + QUIZ.length;
+  document.getElementById('quiz-score').textContent = '';
+  answered = false;
+}
+
+function quizAnswer(i) {
+  if (answered) return;
+  answered = true;
+  const q = QUIZ[qIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach(o => o.classList.add('disabled'));
+  const fb = document.getElementById('quiz-fb');
+  if (i === q.correct) {
+    opts[i].classList.add('correct');
+    fb.className = 'quiz-feedback show ok';
+    fb.innerHTML = '✓ Chính xác! ' + q.feedback;
+    score++;
+  } else {
+    opts[i].classList.add('wrong');
+    opts[q.correct].classList.add('correct');
+    fb.className = 'quiz-feedback show err';
+    fb.innerHTML = '✗ Chưa đúng. Đáp án đúng: <strong>' + q.opts[q.correct] + '</strong>. ' + q.feedback;
+  }
+  const nextBtn = document.getElementById('btn-quiz-next');
+  const restartBtn = document.getElementById('btn-quiz-restart');
+  if (qIdx < QUIZ.length - 1) {
+    nextBtn.style.display = 'inline-block';
+  } else {
+    restartBtn.style.display = 'inline-block';
+    const sc = document.getElementById('quiz-score');
+    const pct = Math.round(score / QUIZ.length * 100);
+    sc.textContent = 'Kết quả: ' + score + '/' + QUIZ.length + ' (' + pct + '%)';
+  }
+}
+
+function quizNext() {
+  qIdx++;
+  quizRender();
+}
+
+function quizRestart() {
+  qIdx = 0; score = 0;
+  quizRender();
+}
+
+quizRender();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

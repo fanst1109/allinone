@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Các cuộc phát kiến địa lý</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette WorldHistory / Phát kiến địa lý ── */
+  :root {
+    --accent:        #0f766e;
+    --accent-soft:   #ccfbf1;
+    --accent-dark:   #134e4a;
+    --blue-expl:     #1d4ed8;
+    --blue-soft:     #dbeafe;
+    --red-trade:     #b91c1c;
+    --red-soft:      #fee2e2;
+    --gold:          #b45309;
+    --gold-soft:     #fef3c7;
+    --stone:         #57534e;
+    --stone-soft:    #f5f5f4;
+    --bg-card:       #ffffff;
+    --green-new:     #15803d;
+    --green-soft:    #dcfce7;
+    --purple:        #7c3aed;
+    --purple-soft:   #ede9fe;
+  }
+
+  main { max-width: 1100px; }
+
+  h1 { color: var(--accent-dark); font-size: 1.65rem; margin-bottom: 6px; }
+  h2 {
+    color: var(--accent);
+    margin-top: 44px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent-soft);
+    font-size: 1.2rem;
+  }
+
+  .subtitle {
+    color: var(--stone);
+    font-size: 15px;
+    margin-bottom: 22px;
+    font-style: italic;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 6px rgba(15,118,110,.12);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .warn-box {
+    background: var(--red-soft);
+    border-left: 4px solid var(--red-trade);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .gold-box {
+    background: var(--gold-soft);
+    border-left: 4px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .green-box {
+    background: var(--green-soft);
+    border-left: 4px solid var(--green-new);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary   { background: var(--accent);   color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-blue      { background: var(--blue-expl); color: white; }
+  .btn-blue:hover { background: #1e40af; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+
+  /* Step dots */
+  .step-dots { display: flex; gap: 8px; margin: 10px 0; flex-wrap: wrap; }
+  .step-dot {
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 2px solid #d1d5db; background: #f9fafb;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #9ca3af;
+    cursor: pointer; transition: all .2s;
+  }
+  .step-dot.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .step-dot.done   { background: #0d9488; border-color: #0d9488; color: white; }
+
+  .step-panel {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    min-height: 80px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ══════════════════════════════════════════════
+     MODULE 1 — Bản đồ động tuyến thám hiểm
+     ══════════════════════════════════════════════ */
+  #map-stage { width: 100%; overflow-x: auto; }
+  #map-canvas {
+    display: block;
+    margin: 0 auto;
+    border-radius: 8px;
+    border: 2px solid #cbd5e1;
+    max-width: 100%;
+  }
+
+  .explorer-legend {
+    display: flex; gap: 14px; flex-wrap: wrap; margin: 10px 0;
+  }
+  .exp-leg-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 600;
+  }
+  .exp-leg-dot {
+    width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0;
+  }
+
+  .era-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .tag-port  { background: var(--accent-soft); color: var(--accent-dark); }
+  .tag-spain { background: var(--gold-soft); color: var(--gold); }
+  .tag-globe { background: var(--purple-soft); color: var(--purple); }
+
+  /* ══════════════════════════════════════════════
+     MODULE 2 — Columbian Exchange
+     ══════════════════════════════════════════════ */
+  .exchange-wrap {
+    width: 100%;
+    overflow-x: auto;
+  }
+  .exchange-svg {
+    display: block;
+    margin: 0 auto;
+  }
+
+  .exch-detail {
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    font-size: 14px;
+    line-height: 1.7;
+    display: none;
+  }
+  .exch-detail.show { display: block; }
+  .exch-detail-title {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--accent-dark);
+    margin-bottom: 6px;
+  }
+  .exch-detail.warn-style {
+    background: var(--red-soft);
+    border-color: var(--red-trade);
+  }
+  .exch-detail.warn-style .exch-detail-title { color: var(--red-trade); }
+  .exch-detail.gold-style {
+    background: var(--gold-soft);
+    border-color: var(--gold);
+  }
+  .exch-detail.gold-style .exch-detail-title { color: var(--gold); }
+
+  /* ══════════════════════════════════════════════
+     MODULE 3 — Timeline
+     ══════════════════════════════════════════════ */
+  .timeline {
+    position: relative;
+    padding: 12px 0 12px 36px;
+    margin: 8px 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 14px; top: 0; bottom: 0; width: 3px;
+    background: linear-gradient(180deg, var(--accent), var(--blue-expl), var(--gold), var(--purple));
+    border-radius: 2px;
+  }
+  .tl-item {
+    position: relative; margin-bottom: 22px; padding-left: 20px;
+  }
+  .tl-item::before {
+    content: ''; position: absolute;
+    left: -28px; top: 6px;
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 3px solid white; box-shadow: 0 0 0 2px var(--accent);
+    background: var(--accent);
+  }
+  .tl-item.port::before   { background: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+  .tl-item.spain::before  { background: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
+  .tl-item.exch::before   { background: var(--red-trade); box-shadow: 0 0 0 2px var(--red-trade); }
+  .tl-item.globe::before  { background: var(--purple); box-shadow: 0 0 0 2px var(--purple); }
+  .tl-item.key::before {
+    width: 18px; height: 18px; left: -30px; top: 4px;
+    background: var(--blue-expl);
+    box-shadow: 0 0 0 3px var(--blue-expl), 0 0 0 6px rgba(29,78,216,.2);
+  }
+  .tl-year  { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 2px; }
+  .tl-item.spain .tl-year { color: var(--gold); }
+  .tl-item.key   .tl-year { color: var(--blue-expl); font-size: 15px; }
+  .tl-item.exch  .tl-year { color: var(--red-trade); }
+  .tl-item.globe .tl-year { color: var(--purple); }
+  .tl-title { font-weight: 700; font-size: 14px; color: #1f2937; line-height: 1.4; }
+  .tl-desc  { font-size: 13px; color: #6b7280; margin-top: 3px; line-height: 1.5; }
+  .tl-badge {
+    display: inline-block; padding: 1px 8px; border-radius: 10px;
+    font-size: 11px; font-weight: 700; margin-left: 6px; vertical-align: middle;
+  }
+  .badge-port  { background: var(--accent-soft); color: var(--accent-dark); }
+  .badge-spain { background: var(--gold-soft); color: var(--gold); }
+  .badge-key   { background: var(--blue-soft); color: var(--blue-expl); }
+  .badge-exch  { background: var(--red-soft); color: #991b1b; }
+  .badge-globe { background: var(--purple-soft); color: var(--purple); }
+
+  .tl-era-sep {
+    margin: 20px 0 16px -36px;
+    padding: 6px 14px 6px 36px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    border-radius: 0 20px 20px 0;
+    display: inline-block;
+  }
+  .era-sep-port  { background: var(--accent-soft); color: var(--accent-dark); }
+  .era-sep-spain { background: var(--gold-soft); color: var(--gold); }
+  .era-sep-exch  { background: var(--red-soft); color: #991b1b; }
+  .era-sep-globe { background: var(--purple-soft); color: var(--purple); }
+
+  /* ══════════════════════════════════════════════
+     MODULE 4 — Quiz
+     ══════════════════════════════════════════════ */
+  .quiz-q    { font-weight: 700; font-size: 15px; margin-bottom: 12px; color: #1f2937; line-height: 1.5; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .quiz-opt  {
+    padding: 10px 14px; border-radius: 7px; border: 2px solid #e5e7eb;
+    background: #f9fafb; cursor: pointer; font-size: 14px; text-align: left;
+    transition: border-color .15s, background .15s;
+  }
+  .quiz-opt:hover  { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct { border-color: #15803d; background: #dcfce7; color: #14532d; font-weight: 600; }
+  .quiz-opt.wrong   { border-color: var(--red-trade); background: var(--red-soft); color: #991b1b; }
+  .quiz-opt.disabled { cursor: default; }
+  .quiz-feedback {
+    padding: 12px 16px; border-radius: 8px; font-size: 14px; line-height: 1.6;
+    margin-top: 8px; display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok  { background: #dcfce7; color: #14532d; border: 1px solid #15803d; }
+  .quiz-feedback.err { background: var(--red-soft); color: #991b1b; border: 1px solid var(--red-trade); }
+  .quiz-nav  { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .quiz-progress { font-size: 13px; color: var(--stone); }
+  .quiz-score    { font-weight: 700; color: #15803d; font-size: 15px; }
+
+  @media (max-width: 600px) {
+    .tl-era-sep { font-size: 11px; padding-left: 30px; }
+    .step-panel { font-size: 13px; }
+    .exch-detail { font-size: 13px; }
+    h1 { font-size: 1.3rem; }
+    .explorer-legend { gap: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử TG — Trung-cận đại</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-renaissance/visualization.html">← L4: Phục hưng</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Phát kiến địa lý</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-reformation/visualization.html">L6: Cải cách tôn giáo →</a>
+</nav>
+
+<main>
+<h1>Lesson 05 — Các cuộc phát kiến địa lý</h1>
+<p class="subtitle">Từ Ceuta (1415) đến vòng quanh Trái Đất (1522) — hành trình, Columbian Exchange và hệ quả toàn cầu</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — Bản đồ động các tuyến thám hiểm
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Bản đồ động: các tuyến thám hiểm lớn</h2>
+
+<div class="card">
+  <div class="info-box">
+    <strong>Cách dùng:</strong> Nhấn <strong>Bước tiếp theo</strong> để xem từng tuyến thám hiểm vẽ dần lên bản đồ — Dias, Vasco da Gama, Columbus và Magellan. Bấm thẳng vào số thứ tự để nhảy bước.
+  </div>
+
+  <div class="explorer-legend" id="map-legend">
+    <div class="exp-leg-item"><div class="exp-leg-dot" style="background:#0f766e"></div>Dias (1488)</div>
+    <div class="exp-leg-item"><div class="exp-leg-dot" style="background:#0891b2"></div>Vasco da Gama (1497–99)</div>
+    <div class="exp-leg-item"><div class="exp-leg-dot" style="background:#b45309"></div>Columbus (1492)</div>
+    <div class="exp-leg-item"><div class="exp-leg-dot" style="background:#7c3aed"></div>Magellan–Elcano (1519–22)</div>
+  </div>
+
+  <div class="step-dots" id="map-dots"></div>
+
+  <div id="map-stage">
+    <canvas id="map-canvas" width="720" height="380"></canvas>
+  </div>
+
+  <div class="step-panel" id="map-panel">
+    <span class="era-tag tag-port" id="map-era-tag">Khởi đầu</span><br>
+    <span id="map-text">Nhấn <strong>Bắt đầu</strong> để xem từng tuyến thám hiểm được vẽ lên bản đồ thế giới.</span>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-secondary" id="btn-map-prev" onclick="mapPrev()">← Trước</button>
+    <button class="btn btn-primary"   id="btn-map-next" onclick="mapNext()">Bắt đầu →</button>
+    <button class="btn btn-secondary" onclick="mapReset()">Khởi động lại</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Sơ đồ Columbian Exchange
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Trao đổi Columbus (Columbian Exchange)</h2>
+
+<div class="card">
+  <div class="info-box">
+    Bấm vào từng nhóm hàng hóa / dịch bệnh để xem tác động cụ thể. Sơ đồ trình bày cả hai chiều — tích cực lẫn bi thảm — từ nhiều góc nhìn.
+  </div>
+
+  <div class="exchange-wrap">
+    <svg class="exchange-svg" id="exch-svg" width="700" height="460" viewBox="0 0 700 460">
+      <defs>
+        <marker id="arr-teal" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#0f766e"/>
+        </marker>
+        <marker id="arr-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#b91c1c"/>
+        </marker>
+        <marker id="arr-gold" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#b45309"/>
+        </marker>
+        <marker id="arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#1d4ed8"/>
+        </marker>
+        <linearGradient id="grad-old" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#0f766e" stop-opacity=".18"/>
+          <stop offset="1" stop-color="#0f766e" stop-opacity=".05"/>
+        </linearGradient>
+        <linearGradient id="grad-new" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#15803d" stop-opacity=".18"/>
+          <stop offset="1" stop-color="#15803d" stop-opacity=".05"/>
+        </linearGradient>
+      </defs>
+
+      <!-- ── Nền hai vùng ── -->
+      <rect x="10"  y="10" width="295" height="440" rx="12" fill="url(#grad-old)" stroke="#0f766e" stroke-width="1.5"/>
+      <rect x="395" y="10" width="295" height="440" rx="12" fill="url(#grad-new)" stroke="#15803d" stroke-width="1.5"/>
+
+      <!-- Tiêu đề hai phía -->
+      <text x="157" y="38" text-anchor="middle" font-size="14" font-weight="700" fill="#134e4a" font-family="sans-serif">CUU THE GIOI</text>
+      <text x="157" y="54" text-anchor="middle" font-size="11" fill="#0f766e" font-family="sans-serif">(chau Au · chau A · chau Phi)</text>
+      <text x="543" y="38" text-anchor="middle" font-size="14" font-weight="700" fill="#14532d" font-family="sans-serif">TAN THE GIOI</text>
+      <text x="543" y="54" text-anchor="middle" font-size="11" fill="#15803d" font-family="sans-serif">(chau My)</text>
+
+      <!-- ── Đại dương ở giữa ── -->
+      <rect x="310" y="10" width="80" height="440" rx="0" fill="#bfdbfe" opacity=".6"/>
+      <text x="350" y="230" text-anchor="middle" font-size="11" fill="#1d4ed8" font-weight="700" font-family="sans-serif" writing-mode="tb" transform="rotate(90,350,230)">DAI TAY DUONG</text>
+
+      <!-- ═══ CHIỀU 1: Tân → Cựu (cây trồng) — màu xanh lá ═══ -->
+      <!-- Mũi tên tổng -->
+      <path d="M 395,120 C 370,120 360,120 307,120" fill="none" stroke="#15803d" stroke-width="2.5" marker-end="url(#arr-teal)" stroke-dasharray="6,3"/>
+      <text x="350" y="113" text-anchor="middle" font-size="10" fill="#15803d" font-weight="700" font-family="sans-serif">CÂY TRỒNG</text>
+
+      <!-- Cây trồng (nhóm bấm được) -->
+      <g id="exch-potato" onclick="exchShow('potato')" style="cursor:pointer">
+        <rect x="418" y="75" width="120" height="32" rx="7" fill="#15803d" stroke="#14532d" stroke-width="1.5"/>
+        <text x="478" y="96" text-anchor="middle" font-size="12" fill="white" font-weight="700" font-family="sans-serif">Khoai tay · Ngo</text>
+      </g>
+      <g id="exch-tomato" onclick="exchShow('tomato')" style="cursor:pointer">
+        <rect x="418" y="115" width="120" height="32" rx="7" fill="#16a34a" stroke="#14532d" stroke-width="1.5"/>
+        <text x="478" y="136" text-anchor="middle" font-size="12" fill="white" font-weight="700" font-family="sans-serif">Ca chua · Ot</text>
+      </g>
+      <g id="exch-cacao" onclick="exchShow('cacao')" style="cursor:pointer">
+        <rect x="418" y="155" width="120" height="32" rx="7" fill="#166534" stroke="#14532d" stroke-width="1.5"/>
+        <text x="478" y="176" text-anchor="middle" font-size="12" fill="white" font-weight="700" font-family="sans-serif">Cacao · Thuoc la</text>
+      </g>
+
+      <!-- ═══ CHIỀU 2: Cựu → Tân (vật nuôi) — màu teal ═══ -->
+      <path d="M 307,240 C 340,240 360,240 395,240" fill="none" stroke="#0f766e" stroke-width="2.5" marker-end="url(#arr-teal)"/>
+      <text x="350" y="233" text-anchor="middle" font-size="10" fill="#0f766e" font-weight="700" font-family="sans-serif">VÂT NUÔI</text>
+
+      <g id="exch-horse" onclick="exchShow('horse')" style="cursor:pointer">
+        <rect x="28" y="215" width="120" height="32" rx="7" fill="#0f766e" stroke="#134e4a" stroke-width="1.5"/>
+        <text x="88" y="236" text-anchor="middle" font-size="12" fill="white" font-weight="700" font-family="sans-serif">Ngua · Bo · Lon</text>
+      </g>
+      <g id="exch-wheat" onclick="exchShow('wheat')" style="cursor:pointer">
+        <rect x="160" y="215" width="120" height="32" rx="7" fill="#0d9488" stroke="#134e4a" stroke-width="1.5"/>
+        <text x="220" y="236" text-anchor="middle" font-size="12" fill="white" font-weight="700" font-family="sans-serif">Lua mi · Mia</text>
+      </g>
+
+      <!-- ═══ CHIỀU 3: Cựu → Tân (dịch bệnh) — màu đỏ ═══ -->
+      <path d="M 307,320 C 340,320 360,320 395,320" fill="none" stroke="#b91c1c" stroke-width="3" marker-end="url(#arr-red)"/>
+      <text x="350" y="312" text-anchor="middle" font-size="10" fill="#b91c1c" font-weight="700" font-family="sans-serif">DICH BÊNH</text>
+
+      <g id="exch-disease" onclick="exchShow('disease')" style="cursor:pointer">
+        <rect x="28" y="295" width="260" height="40" rx="7" fill="#b91c1c" stroke="#991b1b" stroke-width="2"/>
+        <text x="158" y="310" text-anchor="middle" font-size="12" fill="white" font-weight="700" font-family="sans-serif">Dau mua · Soi · Cum</text>
+        <text x="158" y="327" text-anchor="middle" font-size="11" fill="#fecaca" font-family="sans-serif">Giam 80–90% dan so ban dia</text>
+      </g>
+
+      <!-- ═══ CHIỀU 4: Cựu → Tân (buôn bán nô lệ) — màu tối ═══ -->
+      <path d="M 307,400 C 340,400 360,400 395,400" fill="none" stroke="#374151" stroke-width="2.5" marker-end="url(#arr-blue)" stroke-dasharray="8,4"/>
+      <text x="350" y="392" text-anchor="middle" font-size="10" fill="#374151" font-weight="700" font-family="sans-serif">CHAU PHI</text>
+
+      <g id="exch-slave" onclick="exchShow('slave')" style="cursor:pointer">
+        <rect x="28" y="375" width="260" height="40" rx="7" fill="#374151" stroke="#1f2937" stroke-width="2"/>
+        <text x="158" y="390" text-anchor="middle" font-size="12" fill="white" font-weight="700" font-family="sans-serif">Buon ban no le</text>
+        <text x="158" y="407" text-anchor="middle" font-size="11" fill="#d1d5db" font-family="sans-serif">~12,5 trieu nguoi bi bat (1501–TK XIX)</text>
+      </g>
+
+      <!-- Ghi chú tân thế giới nhận -->
+      <text x="543" y="260" text-anchor="middle" font-size="12" fill="#374151" font-family="sans-serif" font-style="italic">(nhan dong vat nuoi,</text>
+      <text x="543" y="276" text-anchor="middle" font-size="12" fill="#374151" font-family="sans-serif" font-style="italic">dich benh, </text>
+      <text x="543" y="292" text-anchor="middle" font-size="12" fill="#374151" font-family="sans-serif" font-style="italic">lao dong cuong buc)</text>
+
+      <!-- Label hướng mũi tên -->
+      <text x="157" y="200" text-anchor="middle" font-size="10" fill="#9ca3af" font-family="sans-serif">← bam de xem chi tiet</text>
+      <text x="543" y="200" text-anchor="middle" font-size="10" fill="#9ca3af" font-family="sans-serif">← bam de xem chi tiet</text>
+    </svg>
+  </div>
+
+  <div class="exch-detail" id="exch-detail">
+    <div class="exch-detail-title" id="exch-title"></div>
+    <div id="exch-body"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — Timeline 1415–1522
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. Chuỗi thời gian: 1415–1522</h2>
+
+<div class="card">
+  <div class="timeline">
+
+    <!-- ── Bồ Đào Nha sơ kỳ ── -->
+    <div class="tl-era-sep era-sep-port">Bo Dao Nha — Chuong trinh tham hiem</div>
+
+    <div class="tl-item port">
+      <div class="tl-year">1415</div>
+      <div class="tl-title">Bo Dao Nha chiem Ceuta (Bac Phi)
+        <span class="tl-badge badge-port">Mo dau</span>
+      </div>
+      <div class="tl-desc">Cuoc tan cong dau tien vuot khoi bán dao Iberia. Mo dau ki nguyen tham hiem Bo Dao Nha, nguon goc tu khao khat giat do quyen kiem soat tuyen thuong mai Bac Phi.</div>
+    </div>
+
+    <div class="tl-item port">
+      <div class="tl-year">1418–1460</div>
+      <div class="tl-title">Hoang tu Henry nha hang hai — chuong trinh Sagres</div>
+      <div class="tl-desc">Henry (1394–1460) to chuc hang loat chuyen tham hiem bo Tay Phi mot cach he thong. 1434: Gil Eanes vuot Mui Bojador — ranh gioi tam ly lon. 1441: bat dau buon ban no le Tay Phi.</div>
+    </div>
+
+    <div class="tl-item key">
+      <div class="tl-year">1488</div>
+      <div class="tl-title">Bartolomeu Dias vuot Mui Hao Vong
+        <span class="tl-badge badge-key">Dot pha</span>
+      </div>
+      <div class="tl-desc">Lan dau tien tau chau Au vao An Do Duong. Chung minh chau Phi co tan cung va con duong bien sang An Do la kha thi. Mo duong cho Vasco da Gama.</div>
+    </div>
+
+    <div class="tl-item key">
+      <div class="tl-year">1497–1499</div>
+      <div class="tl-title">Vasco da Gama den Calicut (An Do)
+        <span class="tl-badge badge-key">Lich su</span>
+      </div>
+      <div class="tl-desc">Roi Lisbon thang 7/1497 voi 4 tau, 170 nguoi. 20/5/1498: den Calicut — ket thuc 10 thang hanh trinh. Gia vi mang ve tri gia gap 60 lan chi phi. Mo doc quyen thuong mai An Do Duong cho Bo Dao Nha.</div>
+    </div>
+
+    <!-- ── Tây Ban Nha ── -->
+    <div class="tl-era-sep era-sep-spain">Tay Ban Nha — Tan the gioi</div>
+
+    <div class="tl-item spain">
+      <div class="tl-year">1493</div>
+      <div class="tl-title">Giao hoang ban sac lenh Inter caetera
+        <span class="tl-badge badge-spain">Phap ly</span>
+      </div>
+      <div class="tl-desc">Chia the gioi "chua duoc kham pha" giua Bo Dao Nha (phia dong) va Tay Ban Nha (phia tay) theo duong kinh tuyen. Nen tang cho Dieu uoc Tordesillas (1494).</div>
+    </div>
+
+    <div class="tl-item key">
+      <div class="tl-year">12/10/1492</div>
+      <div class="tl-title">Columbus dat chan len San Salvador (Bahamas)
+        <span class="tl-badge badge-key">Tan the gioi</span>
+      </div>
+      <div class="tl-desc">Roi Palos de la Frontera 3/8/1492 voi 3 tau (Nina, Pinta, Santa Maria) va 90 thuy thu. Columbus den cuoi doi van tin minh o chau A — dat ten dan ban dia la "Indians". Diem khoi dau lien tuc noi chau Au voi chau My.</div>
+    </div>
+
+    <!-- ── Columbian Exchange bắt đầu ── -->
+    <div class="tl-era-sep era-sep-exch">Columbian Exchange bat dau</div>
+
+    <div class="tl-item exch">
+      <div class="tl-year">Sau 1492</div>
+      <div class="tl-title">Dich benh tan pha dan so ban dia chau My
+        <span class="tl-badge badge-exch">Tham hoa</span>
+      </div>
+      <div class="tl-desc">Dau mua, soi, cum lan nhanh hon quan doi chiem phap. Mot so vung giam 80–90% dan so. Dich lam suy yeu Aztec truoc khi Cortes den (1519) va chia re de Inca truoc khi Pizarro den (1532).</div>
+    </div>
+
+    <div class="tl-item exch">
+      <div class="tl-year">Khoang 1501</div>
+      <div class="tl-title">Bat dau buon ban no le xuyen Dai Tay Duong
+        <span class="tl-badge badge-exch">Vi pham nhan quyen</span>
+      </div>
+      <div class="tl-desc">Dan so ban dia suy giam manh tao ra "thieu lao dong" theo nhan quan thuc dan. Uoc tinh 12,5 trieu nguoi chau Phi bi dua sang chau My den the ki XIX; 1,5–2 trieu chet tren duong.</div>
+    </div>
+
+    <!-- ── Vòng quanh Trái Đất ── -->
+    <div class="tl-era-sep era-sep-globe">Vong quanh Trai Dat lan dau tien</div>
+
+    <div class="tl-item globe">
+      <div class="tl-year">1519</div>
+      <div class="tl-title">Magellan roi Tay Ban Nha — 5 tau, 270 nguoi
+        <span class="tl-badge badge-globe">Khoi hanh</span>
+      </div>
+      <div class="tl-desc">Ferdinand Magellan (nguoi Bo Dao Nha phuc vu Tay Ban Nha) de xuat di vong Nam My de den Quan dao Gia vi (Moluccas). Khong vi pham tuyen duong Bo Dao Nha.</div>
+    </div>
+
+    <div class="tl-item globe">
+      <div class="tl-year">Thang 11/1520</div>
+      <div class="tl-title">Vuot Eo bien Magellan — dat chan vao Thai Binh Duong</div>
+      <div class="tl-desc">Hanh trinh qua eo bien nguy hiem mat 38 ngay, 1 tau bo tron quay ve. Magellan dat ten "Mar Pacifico" — Bien Yen Tinh. Thai Binh Duong rong lon hon bat ky ai du doan.</div>
+    </div>
+
+    <div class="tl-item globe">
+      <div class="tl-year">27/4/1521</div>
+      <div class="tl-title">Magellan bi giet tai Mactan (Philippines)</div>
+      <div class="tl-desc">Can thiep vao tranh chap giua cac thu linh dia phuong. Can thiep chinh tri dia phuong thuong gay hau qua bat ngo ngay ca voi cac nha tham hiem vu trang. Juan Sebastian Elcano tiep tuc chi huy.</div>
+    </div>
+
+    <div class="tl-item key">
+      <div class="tl-year">6/9/1522</div>
+      <div class="tl-title">Victoria tro ve Tay Ban Nha — ket thuc vong quanh Trai Dat
+        <span class="tl-badge badge-key">Lan dau tien</span>
+      </div>
+      <div class="tl-desc">Chi 1 tau trong 5 con song sot; 18 nguoi trong 270. Lan dau tien trong lich su nhan loai, mot chuyen di da di vong hoan toan quanh Trai Dat. Chung minh thuc nghiem hinh cau cua hanh tinh va quy mo thuc cua Thai Binh Duong.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 4 — Quiz ôn tập
+     ═══════════════════════════════════════════════════════ -->
+<h2>4. On tap — Trac nghiem</h2>
+
+<div class="card" id="quiz-card">
+  <div class="quiz-q"    id="quiz-q"></div>
+  <div class="quiz-opts" id="quiz-opts"></div>
+  <div class="quiz-feedback" id="quiz-fb"></div>
+  <div class="quiz-nav">
+    <button class="btn btn-primary" id="btn-quiz-next" onclick="quizNext()" style="display:none">Cau tiep →</button>
+    <span class="quiz-progress" id="quiz-prog"></span>
+    <span class="quiz-score"    id="quiz-score"></span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCRIPTS — MODULE 1: Bản đồ động
+     ═══════════════════════════════════════════════════════ -->
+<script>
+/* ═════════════════════════════════════════════════
+   Bản đồ thế giới đơn giản hóa — hệ tọa độ canvas
+   720 × 380 px
+   Quy chiếu gần đúng:
+     x = 0 → kinh tuyến ~165°T  (rìa tây bản đồ, gần Philippines)
+     x = 720 → kinh tuyến ~195°T (sau khi vòng, về lại châu Âu)
+     Bản đồ cuộn từ trái: Bồ Đào Nha ≈ x=195, x=200
+     y = 0 → vĩ tuyến ~80°B; y = 380 → ~70°N
+     Lisbon ≈ (195, 130), Mũi Hảo Vọng ≈ (260, 310), Calicut ≈ (420, 185),
+     Columbus Bahamas ≈ (105, 145), Tây Ban Nha ≈ (190, 130), Nam Mỹ cực nam ≈ (130, 330)
+   Lưu ý: bản đồ này ĐƠN GIẢN HÓA để minh họa hướng/tuyến đường, không phải GPS.
+   ═════════════════════════════════════════════════ */
+
+const MC  = document.getElementById('map-canvas');
+const mCtx = MC.getContext('2d');
+const MW  = 720, MH = 380;
+
+/* ─── Vẽ nền biển ─── */
+function drawSea() {
+  const g = mCtx.createLinearGradient(0, 0, 0, MH);
+  g.addColorStop(0, '#bfdbfe');
+  g.addColorStop(1, '#93c5fd');
+  mCtx.fillStyle = g;
+  mCtx.fillRect(0, 0, MW, MH);
+}
+
+/* ─── Helper vẽ polygon đất liền ─── */
+function fillPoly(pts, color, stroke) {
+  mCtx.beginPath();
+  mCtx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) mCtx.lineTo(pts[i][0], pts[i][1]);
+  mCtx.closePath();
+  mCtx.fillStyle = color || '#d1c9bc';
+  mCtx.fill();
+  if (stroke) {
+    mCtx.strokeStyle = stroke;
+    mCtx.lineWidth = 0.8;
+    mCtx.stroke();
+  }
+}
+
+/* ─── Vẽ đất liền nền ─── */
+function drawLand() {
+  const LC = '#d6cfc4'; // màu đất
+  const LS = '#b0a898'; // viền
+
+  // Châu Âu Tây (Bồ Đào Nha, Tây Ban Nha, Pháp)
+  fillPoly([[155,60],[190,50],[210,52],[220,65],[215,80],[205,95],[200,105],
+            [192,115],[185,120],[175,118],[165,112],[155,100],[145,90],[140,75],[155,60]], LC, LS);
+
+  // Anh - đảo
+  fillPoly([[160,35],[175,30],[185,36],[182,52],[170,58],[158,52],[155,42],[160,35]], LC, LS);
+
+  // Bắc Phi
+  fillPoly([[140,115],[190,108],[240,105],[290,108],[330,112],[370,115],[400,118],
+            [430,122],[460,125],[480,130],[490,138],[490,155],[460,160],[430,165],
+            [390,170],[350,170],[310,165],[270,160],[240,155],[210,150],[185,145],
+            [160,140],[145,130],[140,115]], LC, LS);
+
+  // Tây Phi (Ghana, Nigeria vùng ven biển)
+  fillPoly([[145,130],[160,140],[185,145],[210,150],[230,155],[235,165],[230,178],
+            [220,190],[210,200],[200,208],[190,205],[182,195],[175,185],[165,175],
+            [155,162],[145,148],[140,135],[145,130]], LC, LS);
+
+  // Nam Phi / Mũi Hảo Vọng
+  fillPoly([[175,185],[210,200],[235,202],[250,205],[265,210],[270,225],[268,245],
+            [260,265],[248,282],[235,295],[225,305],[215,310],[205,308],[195,300],
+            [185,285],[178,270],[172,250],[168,230],[165,212],[170,198],[175,185]], LC, LS);
+
+  // Đông Phi + Horn of Africa
+  fillPoly([[265,210],[290,205],[310,200],[330,195],[340,190],[345,180],[342,168],
+            [335,160],[330,155],[320,158],[310,165],[300,168],[290,170],[278,172],
+            [270,175],[266,185],[264,200],[265,210]], LC, LS);
+
+  // Ấn Độ (bán đảo)
+  fillPoly([[370,115],[400,110],[420,108],[440,112],[455,120],[460,135],[455,155],
+            [445,175],[432,188],[420,195],[408,198],[395,192],[382,180],[372,165],
+            [365,148],[362,133],[365,120],[370,115]], LC, LS);
+
+  // Đông Nam Á (Malacca, Indonesia sơ lược)
+  fillPoly([[480,130],[510,120],[540,118],[565,122],[580,130],[585,145],[575,158],
+            [560,165],[540,168],[520,165],[505,158],[492,148],[482,138],[480,130]], LC, LS);
+
+  // Trung Quốc + Đông Á (tóm lược)
+  fillPoly([[540,68],[575,60],[610,58],[640,62],[660,72],[665,90],[655,105],[640,115],
+            [620,118],[598,115],[578,110],[558,105],[542,95],[538,82],[540,68]], LC, LS);
+
+  // Nhật Bản (đảo sơ lược)
+  fillPoly([[640,68],[652,62],[665,65],[668,78],[658,88],[645,90],[638,82],[640,68]], LC, LS);
+
+  // Châu Mỹ — Bắc (Cuba / Caribbean)
+  fillPoly([[50,110],[65,105],[80,107],[90,115],[95,125],[88,132],[72,135],[58,130],[48,120],[50,110]], LC, LS);
+
+  // Bắc Mỹ (đơn giản)
+  fillPoly([[65,40],[100,32],[130,30],[150,35],[165,45],[170,65],[165,85],[155,100],
+            [140,108],[125,112],[110,110],[95,105],[80,107],[65,108],[55,100],
+            [48,85],[48,65],[55,50],[65,40]], LC, LS);
+
+  // Trung Mỹ / Mexico
+  fillPoly([[80,107],[95,105],[110,110],[115,120],[110,132],[100,140],[90,145],[80,142],
+            [72,135],[73,122],[80,107]], LC, LS);
+
+  // Nam Mỹ (Brazil, Argentina, cực nam)
+  fillPoly([[100,140],[120,135],[138,138],[150,145],[158,158],[160,178],[155,200],
+            [148,225],[140,248],[130,268],[118,285],[108,298],[98,305],[88,300],
+            [80,285],[75,265],[74,245],[78,220],[82,200],[88,178],[92,158],[100,140]], LC, LS);
+
+  // Philippines sơ lược
+  fillPoly([[600,130],[612,125],[622,130],[620,145],[610,152],[600,148],[595,138],[600,130]], LC, LS);
+}
+
+/* ─── Nhãn trên bản đồ ─── */
+function drawLabels(step) {
+  mCtx.font = 'bold 10px sans-serif';
+  mCtx.textAlign = 'center';
+
+  const labels = [
+    { x: 175, y: 100, text: 'LISBON', color: '#134e4a' },
+    { x: 178, y: 113, text: '(Bo Dao Nha)', color: '#666', bold: false, size: 9 },
+    { x: 210, y: 308, text: 'Mui Hao Vong', color: '#0f766e', size: 9 },
+    { x: 428, y: 196, text: 'Calicut', color: '#0f766e', size: 9 },
+  ];
+  if (step >= 2) {
+    labels.push({ x: 86, y: 125, text: 'Bahamas', color: '#b45309', size: 9 });
+    labels.push({ x: 100, y: 145, text: '(Columbus 1492)', color: '#b45309', size: 8 });
+  }
+  if (step >= 3) {
+    labels.push({ x: 104, y: 300, text: 'Cuc nam', color: '#7c3aed', size: 9 });
+    labels.push({ x: 610, y: 145, text: 'Philippines', color: '#7c3aed', size: 9 });
+  }
+
+  labels.forEach(l => {
+    mCtx.font = (l.bold === false ? '' : 'bold ') + (l.size || 10) + 'px sans-serif';
+    mCtx.fillStyle = l.color;
+    mCtx.fillText(l.text, l.x, l.y);
+  });
+}
+
+/* ─── Helper vẽ đường cong ─── */
+function drawRoute(pts, color, dash) {
+  if (pts.length < 2) return;
+  mCtx.save();
+  mCtx.strokeStyle = color;
+  mCtx.lineWidth = 2.5;
+  if (dash) mCtx.setLineDash(dash);
+  else mCtx.setLineDash([]);
+  mCtx.beginPath();
+  mCtx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) {
+    if (i + 1 < pts.length) {
+      const mx = (pts[i][0] + pts[i+1][0]) / 2;
+      const my = (pts[i][1] + pts[i+1][1]) / 2;
+      mCtx.quadraticCurveTo(pts[i][0], pts[i][1], mx, my);
+    } else {
+      mCtx.lineTo(pts[i][0], pts[i][1]);
+    }
+  }
+  mCtx.stroke();
+  // Mũi tên cuối
+  const last = pts[pts.length-1];
+  const prev = pts[pts.length-2];
+  const ang = Math.atan2(last[1]-prev[1], last[0]-prev[0]);
+  mCtx.setLineDash([]);
+  mCtx.fillStyle = color;
+  mCtx.beginPath();
+  mCtx.moveTo(last[0], last[1]);
+  mCtx.lineTo(last[0] - 10*Math.cos(ang-0.4), last[1] - 10*Math.sin(ang-0.4));
+  mCtx.lineTo(last[0] - 10*Math.cos(ang+0.4), last[1] - 10*Math.sin(ang+0.4));
+  mCtx.closePath();
+  mCtx.fill();
+  mCtx.restore();
+}
+
+/* ─── Điểm neo trên bản đồ ─── */
+function drawDot(x, y, color, r) {
+  mCtx.beginPath();
+  mCtx.arc(x, y, r||5, 0, 2*Math.PI);
+  mCtx.fillStyle = color;
+  mCtx.fill();
+  mCtx.strokeStyle = 'white';
+  mCtx.lineWidth = 1.5;
+  mCtx.stroke();
+}
+
+/* ─── Dữ liệu từng bước ─── */
+const MAP_STEPS = [
+  {
+    tag: 'tag-port', tagText: 'Bo Dao Nha',
+    year: '1415–1488', title: 'Bo Dao Nha tien xuat — tung buoc xuong Nam Phi',
+    text: '<strong>1415–1488 — Chuong trinh tham hiem Bo Dao Nha:</strong> Tu Ceuta (1415) den Mui Hao Vong (1488), Bo Dao Nha mat 73 nam kham pha tung buoc doc bo Tay Phi. <em>Hoang tu Henry nha hang hai</em> to chuc truong Sagres, tich luy kien thuc hang hai qua nhieu the he. 1434: vuot Mui Bojador (rao can tam ly). 1488: <strong>Bartolomeu Dias</strong> vuot Mui Hao Vong lan dau — chung minh chau Phi co tan cung.',
+    draw: function() {
+      // Dias: Lisbon → Tây Phi → Mũi Hảo Vọng
+      drawRoute([
+        [175, 108], [168, 130], [162, 152], [158, 172],
+        [155, 192], [160, 220], [165, 248], [175, 272],
+        [190, 290], [210, 305]
+      ], '#0f766e');
+      drawDot(175, 108, '#0f766e', 6);
+      drawDot(210, 305, '#0f766e', 7);
+    }
+  },
+  {
+    tag: 'tag-port', tagText: 'Bo Dao Nha',
+    year: '1497–1499', title: 'Vasco da Gama — Con duong bien den An Do',
+    text: '<strong>1497–1499 — Vasco da Gama:</strong> Roi Lisbon thang 7/1497 voi 4 tau, 170 nguoi. Di vong Mui Hao Vong, den Malindi (Kenya), duoc hoa tieu Arab dan duong qua An Do Duong. <strong>20/5/1498: den Calicut (bao Tay An Do)</strong> — ket thuc 10 thang hanh trinh. Mang ve gia vi tri gia gap 60 lan chi phi. Bo Dao Nha phá vỡ the doc quyen cua thuong nhan Arab. Tro ve Lisbon 1499 voi 55/170 nguoi (phan lon chet vi benh scorbut).',
+    draw: function() {
+      drawRoute([
+        [175, 108], [168, 130], [162, 152], [158, 172],
+        [155, 192], [160, 220], [165, 248], [175, 272],
+        [190, 290], [210, 305]
+      ], '#0f766e', [5,3]);
+      // Da Gama thêm: vòng Hảo Vọng → Ấn Độ
+      drawRoute([
+        [175, 108], [168, 140], [162, 175], [160, 215],
+        [170, 262], [195, 295], [215, 308],
+        [235, 302], [260, 288], [285, 272],
+        [312, 258], [340, 242], [368, 220],
+        [395, 200], [420, 190]
+      ], '#0891b2');
+      drawDot(175, 108, '#0891b2', 6);
+      drawDot(420, 190, '#0891b2', 7);
+    }
+  },
+  {
+    tag: 'tag-spain', tagText: 'Tay Ban Nha',
+    year: '1492', title: 'Columbus — Tan the gioi (huong Tay)',
+    text: '<strong>12/10/1492 — Christopher Columbus:</strong> Roi Palos de la Frontera (Tay Ban Nha) 3/8/1492 voi 3 tau. Tuan theo gio mau dich (trade winds) xuong phia nam roi quay sang tay. Dat chan len San Salvador (Bahamas) — ngay "phat hien chau My". Tiep tuc kham pha Cuba, Hispaniola. Tro ve 1493. <em>Den cuoi doi, Columbus van tin minh o chau A</em> — ong dat ten dan ban dia la "Indians" vi nghi o vung quan dao An Do. Nham lan nay ton tai den ngay nay.',
+    draw: function() {
+      drawRoute([
+        [175, 108], [168, 140], [162, 175], [160, 215],
+        [170, 262], [195, 295], [215, 308],
+        [235, 302], [260, 288], [285, 272],
+        [312, 258], [340, 242], [368, 220],
+        [395, 200], [420, 190]
+      ], '#0891b2', [4,3]);
+      drawRoute([
+        [175, 108], [168, 130], [162, 152], [158, 172],
+        [155, 192], [160, 220], [165, 248], [175, 272],
+        [190, 290], [210, 305]
+      ], '#0f766e', [4,3]);
+      // Columbus: Tây Ban Nha → xuống nam → qua Đại Tây Dương → Bahamas
+      drawRoute([
+        [190, 108], [185, 125], [175, 142],
+        [148, 148], [125, 145], [105, 140],
+        [86, 130]
+      ], '#b45309');
+      drawDot(190, 108, '#b45309', 6);
+      drawDot(86, 130, '#b45309', 7);
+    }
+  },
+  {
+    tag: 'tag-globe', tagText: 'Vong quanh Trai Dat',
+    year: '1519–1522', title: 'Magellan–Elcano — Lan dau tien vong quanh Trai Dat',
+    text: '<strong>1519–1522 — Ferdinand Magellan / Juan Sebastian Elcano:</strong> 5 tau, 270 nguoi roi Tay Ban Nha 20/9/1519. Di xuong Nam My, vuot <em>Eo bien Magellan</em> (38 ngay nguy hiem). Dat chan vao Thai Binh Duong lan dau — "Mar Pacifico". 6/3/1521: den Guam. 27/4/1521: Magellan bi giet tai Mactan (Philippines). 6/9/1522: tau <em>Victoria</em> tro ve Tay Ban Nha — <strong>18 nguoi song sot trong 270</strong>. Lan dau tien nhan loai di vong hoan toan Trai Dat, chung minh thuc nghiem hinh cau cua hanh tinh.',
+    draw: function() {
+      // Đường Magellan: Tây Ban Nha → xuống Nam Mỹ → vòng cực nam → Thái Bình Dương → Philippines → Ấn Độ Dương → châu Phi → về
+      drawRoute([
+        [190, 108], [185, 120], [175, 140],
+        [155, 160], [140, 185], [125, 210],
+        [112, 240], [100, 268], [90, 295],
+        [82, 328]
+      ], '#7c3aed');
+      // Thái Bình Dương
+      drawRoute([
+        [82, 328], [80, 310], [78, 285],
+        [70, 255], [62, 225], [55, 195],
+        [48, 165], [48, 140], [52, 115],
+        [58, 90], [65, 70]
+      ], '#7c3aed');
+      // Philippines và về
+      drawRoute([
+        [65, 70], [90, 80], [115, 88],
+        [145, 92], [170, 95], [200, 92],
+        [230, 88], [260, 85], [290, 82],
+        [320, 80], [350, 78], [380, 76],
+        [410, 75], [438, 78],
+        [450, 90], [460, 108], [460, 130],
+        [452, 155], [442, 178], [428, 192]
+      ], '#7c3aed', [5,3]);
+      drawRoute([
+        [428, 192], [410, 200], [390, 210],
+        [365, 220], [335, 232], [305, 245],
+        [278, 258], [255, 270], [232, 282],
+        [215, 295], [210, 308],
+        [205, 295], [195, 278], [182, 260],
+        [172, 240], [165, 215], [160, 188],
+        [155, 162], [158, 140], [168, 120],
+        [182, 110], [190, 108]
+      ], '#7c3aed', [5,3]);
+
+      // Vẽ lại các tuyến cũ mờ hơn
+      drawRoute([
+        [175, 108], [168, 140], [162, 175], [160, 215],
+        [170, 262], [195, 295], [215, 308],
+        [235, 302], [260, 288], [285, 272],
+        [312, 258], [340, 242], [368, 220],
+        [395, 200], [420, 190]
+      ], 'rgba(8,145,178,0.3)');
+      drawRoute([
+        [190, 108], [185, 125], [175, 142],
+        [148, 148], [125, 145], [105, 140],
+        [86, 130]
+      ], 'rgba(180,83,9,0.3)');
+
+      drawDot(190, 108, '#7c3aed', 6);
+      drawDot(610, 140, '#7c3aed', 7);
+
+      // Nhãn đặc biệt
+      mCtx.font = 'bold 9px sans-serif';
+      mCtx.fillStyle = '#7c3aed';
+      mCtx.textAlign = 'center';
+      mCtx.fillText('Eo Magellan', 85, 338);
+    }
+  }
+];
+
+let mapStep = -1;
+
+function drawMap(step) {
+  mCtx.clearRect(0, 0, MW, MH);
+  drawSea();
+  drawLand();
+  drawLabels(step);
+
+  // Vẽ tuyến đường theo step
+  if (step >= 0) MAP_STEPS[step].draw();
+
+  // Vẽ điểm Lisbon
+  drawDot(178, 108, '#134e4a', 5);
+  mCtx.font = 'bold 9px sans-serif';
+  mCtx.fillStyle = '#134e4a';
+  mCtx.textAlign = 'left';
+  mCtx.fillText('Lisbon', 185, 112);
+
+  // Chú thích biển
+  mCtx.font = 'italic 10px sans-serif';
+  mCtx.fillStyle = '#1d4ed8';
+  mCtx.textAlign = 'center';
+  mCtx.fillText('DAI TAY DUONG', 120, 200);
+  mCtx.fillText('AN DO DUONG', 340, 238);
+  mCtx.fillText('THAI BINH DUONG', 58, 180);
+}
+
+function updateMapUI(step) {
+  const s = MAP_STEPS[step];
+  document.getElementById('map-era-tag').className = 'era-tag ' + s.tag;
+  document.getElementById('map-era-tag').textContent = s.tagText;
+  document.getElementById('map-text').innerHTML =
+    '<strong>' + s.year + ' — ' + s.title + '</strong><br>' + s.text;
+  // dots
+  const dots = document.querySelectorAll('.step-dot');
+  dots.forEach((d, i) => {
+    d.className = 'step-dot' + (i < step ? ' done' : i === step ? ' active' : '');
+  });
+  document.getElementById('btn-map-prev').disabled = step <= 0;
+  document.getElementById('btn-map-next').textContent =
+    step >= MAP_STEPS.length - 1 ? 'Hoan thanh ✓' : 'Buoc tiep theo →';
+  document.getElementById('btn-map-next').disabled = step >= MAP_STEPS.length - 1;
+}
+
+function mapNext() {
+  if (mapStep < MAP_STEPS.length - 1) {
+    mapStep++;
+    drawMap(mapStep);
+    updateMapUI(mapStep);
+  }
+}
+function mapPrev() {
+  if (mapStep > 0) {
+    mapStep--;
+    drawMap(mapStep);
+    updateMapUI(mapStep);
+  }
+}
+function mapGoTo(i) {
+  mapStep = i;
+  drawMap(mapStep);
+  updateMapUI(mapStep);
+}
+function mapReset() {
+  mapStep = -1;
+  mCtx.clearRect(0, 0, MW, MH);
+  drawSea();
+  drawLand();
+  drawLabels(-1);
+  // Lisbon dot
+  drawDot(178, 108, '#134e4a', 5);
+  mCtx.font = 'bold 9px sans-serif';
+  mCtx.fillStyle = '#134e4a';
+  mCtx.textAlign = 'left';
+  mCtx.fillText('Lisbon', 185, 112);
+  mCtx.font = 'italic 10px sans-serif';
+  mCtx.fillStyle = '#1d4ed8';
+  mCtx.textAlign = 'center';
+  mCtx.fillText('DAI TAY DUONG', 120, 200);
+  mCtx.fillText('AN DO DUONG', 340, 238);
+  mCtx.fillText('THAI BINH DUONG', 58, 180);
+
+  document.getElementById('map-era-tag').className = 'era-tag tag-port';
+  document.getElementById('map-era-tag').textContent = 'Khoi dau';
+  document.getElementById('map-text').innerHTML = 'Nhan <strong>Bat dau</strong> de xem tung tuyen tham hiem duoc ve len ban do the gioi.';
+  document.querySelectorAll('.step-dot').forEach(d => d.className = 'step-dot');
+  document.getElementById('btn-map-prev').disabled = true;
+  document.getElementById('btn-map-next').disabled = false;
+  document.getElementById('btn-map-next').textContent = 'Bat dau →';
+}
+
+// Tạo dots
+(function initDots() {
+  const wrap = document.getElementById('map-dots');
+  MAP_STEPS.forEach((s, i) => {
+    const d = document.createElement('div');
+    d.className = 'step-dot';
+    d.textContent = i + 1;
+    d.title = s.title;
+    d.onclick = () => mapGoTo(i);
+    wrap.appendChild(d);
+  });
+})();
+
+// Vẽ ban đầu
+mapReset();
+</script>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCRIPTS — MODULE 2: Columbian Exchange
+     ═══════════════════════════════════════════════════════ -->
+<script>
+const EXCH_DATA = {
+  potato: {
+    title: 'Khoai tay & Ngo — Cach mang luong thuc',
+    style: '',
+    body: `<p><strong>Khoai tay (Solanum tuberosum)</strong> — nguon goc Andes (Peru/Bolivia). Den chau Au the ki XVI nhung chi duoc chap nhan rong rai the ki XVIII. O Ireland, nong dan ngheo gan nhu chi song nho khoai tay vi nang suat cao tren dat ngheo. <em>Great Famine 1845–1849</em>: benh nam Phytophthora infestans tan pha mua khoai — ~1 trieu nguoi chet doi, 1–2 trieu di cu.</p>
+    <p><strong>Ngo (Zea mays)</strong> — nguon goc Mexico. Luong thuc quan trong o chau Phi va chau Au; nang suat cao tren dat kem hon lua mi. Gop phan vao bung no dan so the ki XVIII–XIX.</p>
+    <div style="margin-top:8px;padding:8px 12px;background:#dcfce7;border-radius:6px;font-size:13px;">
+    <strong>Tac dong nhan khau hoc:</strong> Nhieu nha su hoc cho rang khoai tay la mot trong nhung nguyen nhan chinh cua viec dan so chau Au tang vot tu ~100 trieu (1700) len ~400 trieu (1900).
+    </div>`
+  },
+  tomato: {
+    title: 'Ca chua & Ot — Cuoc cach mang am thuc toan cau',
+    style: '',
+    body: `<p><strong>Ca chua (Solanum lycopersicum)</strong> — nguon goc Andes. Ban dau nguoi chau Au nghi ca chua doc (vi thuoc ho Solanaceae). Den the ki XIX moi pho bien rong rai. Khong co ca chua thi khong co nuoc sot ca chua Y, khong co pizza — am thuc Dia Trung Hai hoan toan khac.</p>
+    <p><strong>Ot (Capsicum)</strong> — nguon goc Mexico/Caribbean. Lan truyen cuc nhanh qua cac mang luoi thuong mai Bồ Đào Nha va Ottoman. Am thuc Thai Lan, An Do, Trung Quoc, Han Quoc, Ethiopia... khong the tuong tuong thieu ot — nhung truoc 1492, tam ky toan bo chau A <em>khong co ot</em>.</p>`
+  },
+  cacao: {
+    title: 'Cacao & Thuoc la — Hang hoa thuong mai toan cau',
+    style: '',
+    body: `<p><strong>Cacao</strong> — nguon goc Mexico/Central America. La nen tang cua nganh chocolate toan cau. Vua Aztec Montezuma II uong "xocolatl" moi ngay — khong co duong va sua. Chocolate chau Au chi pho bien sau khi them duong (tu mia chau My) va sua vao.</p>
+    <p><strong>Thuoc la (Nicotiana)</strong> — ngay lap tuc tro thanh hang hoa thuong mai toan cau sau 1492. Den the ki XVII, thuoc la la mot trong nhung hang xuat khau quan trong nhat cua Virginia (chau My thuoc Anh). Nganh trong thuoc la phu thuoc vao lao dong no le — tao ra chuoi lien he truc tiep voi buon ban no le.</p>
+    <div style="margin-top:8px;padding:8px 12px;background:#fee2e2;border-radius:6px;font-size:13px;">
+    <strong>Goc nhin y te:</strong> Thuoc la ban dau duoc quang cao la "thuc uong suc khoe". The ki XX moi chung minh ro moi lien he thuoc la — ung thu. Day la vi du ve Columbian Exchange co hai lau dai nhat.
+    </div>`
+  },
+  horse: {
+    title: 'Ngua, Bo, Lon — Vat nuoi thay doi chau My',
+    style: 'gold-style',
+    body: `<p>Truoc 1492, <em>khong co ngua, bo, lon, cuu hay ga o chau My</em> — chi co lạc đa khong buou (llama, alpaca) o Andes, cho va ga tay.</p>
+    <p><strong>Ngua</strong> dac biet thay doi van hoa cac bo toc dong co Bac My: Comanche, Lakota Sioux, Cheyenne hoan toan bien doi loi song sang ky ma sau khi co ngua (the ki XVII–XVIII). "Van minh ngua" cua ho thuc ra la rat moi — khong qua 200 nam truoc khi nguoi chau Au an ep vao.
+    <strong>Bo va lon</strong> la nguon thuc pham quan trong cho nguoi dinh cu nhung cung pha hoai he sinh thai ban dia: an het cay coi, xam chiem vung dat nong nghiep ban dia, canh tranh voi dong vat hoang da dia phuong.</p>`
+  },
+  wheat: {
+    title: 'Lua mi & Mia — Nong nghiep thuoc dia',
+    style: 'gold-style',
+    body: `<p><strong>Lua mi</strong> la luong thuc chu yeu nguoi dinh cu mang sang, thay the mot phan cay trong ban dia. Bien dai chua khai phat (pampas Argentina, dong bang My) tro thanh "vua lua mi" the gioi the ki XIX–XX.</p>
+    <p><strong>Mia (Saccharum officinarum)</strong> nguon goc chau A — la cay thuoc dia quan trong nhat. Cac don dien mia o Cuba, Brazil, Caribbean yeu cau luong lao dong kiet suc, nguy hiem (cat mia, lo duong nong). Chinh su gia tang san xuat mia tao ra nhu cau lao dong no le khong lo — day la lien ket truc tiep giua Columbian Exchange va buon ban no le xuyen Dai Tay Duong.</p>`
+  },
+  disease: {
+    title: 'Dich benh — Tham hoa nhan khau hoc chua tung co',
+    style: 'warn-style',
+    body: `<p>Day la chieu trao doi bi tham nhat: <strong>dau mua (smallpox), soi (measles), cum, thuong han, bach hau</strong>. Nguoi ban dia chau My khong co he mien dich voi cac benh nay — khong phai vi ho "yeu hon" ma vi lich su tien hoa khac:</p>
+    <ul style="margin:6px 0 6px 18px;font-size:13px;line-height:1.7">
+      <li>Chau Au-A-Phi song chung voi vat nuoi ~10.000 nam → benh truyen nhiem lon phan lon nguon goc tu vi khuan/virus vat nuoi (bo, lon, gia cam).</li>
+      <li>Qua nhieu the he, nguoi song sot tich luy mot muc khang the. Chau My co it vat nuoi → it benh "zoonotic" → dan so ban dia khong co mien dich.</li>
+    </ul>
+    <div style="padding:8px 12px;background:#b91c1c;border-radius:6px;color:white;font-size:13px;margin-top:8px">
+      <strong>Quy mo (so lieu con tranh cai):</strong> Truoc 1492: uoc tinh 50–100 trieu nguoi ban dia chau My. Den khoang 1600: giam xuong con 5–10 trieu nguoi o nhieu khu vuc — muc giam 80–90% o mot so vung. Day la mot trong nhung su kien giam dan so lon nhat trong lich su nhan loai co ghi chep.
+    </div>
+    <p style="margin-top:8px"><strong>Hau qua cu the:</strong> Dich dau mua giet hang chuc nghin nguoi Aztec TRUOC khi Cortes vao bao vay Tenochtitlan (1521). Dich gay noi chien ke vi trong de Inca (Huascar vs. Atahualpa) TRUOC khi Pizarro den Peru (1532). Day la yeu to quyet dinh lon hon ca vu khi.</p>`
+  },
+  slave: {
+    title: 'Buon ban no le xuyen Dai Tay Duong — Vi pham nhan quyen quy mo lich su',
+    style: 'warn-style',
+    body: `<p>Dan so ban dia suy giam manh tao ra "thieu lao dong" theo nhan quan nguoi thuc dan. Giai phap ho chon: nhap khau nguoi chau Phi cuong ep.</p>
+    <div style="padding:8px 12px;background:#b91c1c;border-radius:6px;color:white;font-size:13px;margin:8px 0">
+      <strong>Quy mo (theo Transatlantic Slave Trade Database):</strong><br>
+      • Khoang 12,5 trieu nguoi chau Phi bi dua sang chau My (1501 – the ki XIX)<br>
+      • It nhat 1,5–2 trieu chet tren duong do dieu kien van chuyen vo nhan dao<br>
+      • Phan lon den don dien mia (Brazil, Caribbean), bong (My), thuoc la (Virginia)
+    </div>
+    <p><strong>He qua van hoa:</strong> Cac cong dong nguoi goc Phi o chau My hinh thanh van hoa moi giau suc song: nhac blues, jazz, samba, reggae, capoeira... deu co goc re tu day. Nhung tat ca dat duoc bang nhieu the he mat tu do.</p>
+    <p><em>Ghi chu:</em> Day la mot trong nhung vi pham nhan quyen quy mo lon nhat trong lich su — can phan tich khach quan, khoa hoc, khong giam nhe hay binh thuong hoa.</p>`
+  }
+};
+
+function exchShow(key) {
+  const d = EXCH_DATA[key];
+  if (!d) return;
+  const panel = document.getElementById('exch-detail');
+  document.getElementById('exch-title').textContent = d.title;
+  document.getElementById('exch-body').innerHTML = d.body;
+  panel.className = 'exch-detail show' + (d.style ? ' ' + d.style : '');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+</script>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCRIPTS — MODULE 4: Quiz
+     ═══════════════════════════════════════════════════════ -->
+<script>
+const QUIZ = [
+  {
+    q: 'Nhà thám hiểm nào lần đầu tiên chứng minh châu Phi có tận cùng bằng cách vượt qua điểm cực nam của lục địa này?',
+    opts: [
+      'Vasco da Gama',
+      'Bartolomeu Dias',
+      'Henry nhà hàng hải',
+      'Ferdinand Magellan'
+    ],
+    ans: 1,
+    fb: '<strong>Bartolomeu Dias (1488)</strong> là người đầu tiên vượt Mũi Hảo Vọng (Cape of Good Hope), chứng minh châu Phi có tận cùng và con đường biển sang Ấn Độ là khả thi. Vasco da Gama sau đó (1497–1499) đã hoàn thành hành trình đến Calicut (Ấn Độ). Henry nhà hàng hải là người tổ chức chương trình thám hiểm nhưng không tự đi. Magellan đi vòng Nam Mỹ, không phải châu Phi.'
+  },
+  {
+    q: 'Tại sao dịch đậu mùa quan trọng hơn vũ khí trong việc chinh phục đế chế Aztec?',
+    opts: [
+      'Súng của Tây Ban Nha không đủ mạnh để đánh quân Aztec',
+      'Dịch bệnh giết lãnh đạo, phá vỡ cấu trúc xã hội và tinh thần chiến đấu trước khi quân đội đến',
+      'Người Aztec tự nguyện đầu hàng vì sợ dịch bệnh',
+      'Cortés dùng dịch bệnh như vũ khí sinh học có chủ ý'
+    ],
+    ans: 1,
+    fb: 'Dịch đậu mùa giết hoàng đế Cuitláhuac và ước tính 40% dân số Tenochtitlan TRƯỚC khi Cortés tấn công lần cuối (1521). Điều này phá vỡ toàn bộ chuỗi chỉ huy quân sự, hậu cần và tinh thần chiến đấu. Đây là hậu quả không chủ ý của tiếp xúc sinh học — Cortés không thể "dùng" dịch bệnh như vũ khí có chủ ý vì không ai hiểu vi khuẩn học thời đó.'
+  },
+  {
+    q: 'Điều ước Tordesillas (1494) chia thế giới giữa Bồ Đào Nha và Tây Ban Nha theo cơ sở nào?',
+    opts: [
+      'Đường xích đạo — Bồ Đào Nha lấy bắc, Tây Ban Nha lấy nam',
+      'Đường kinh tuyến ở 370 hải lý tây Quần đảo Cape Verde — Bồ Đào Nha phía đông, Tây Ban Nha phía tây',
+      'Biển Địa Trung Hải — Bồ Đào Nha lấy tây, Tây Ban Nha lấy đông',
+      'Châu Phi cho Bồ Đào Nha, châu Mỹ cho Tây Ban Nha'
+    ],
+    ans: 1,
+    fb: '<strong>Đường kinh tuyến 46°37\' Tây</strong> (370 hải lý phía tây Cape Verde) là ranh giới. Bồ Đào Nha lấy phía đông (châu Phi + Ấn Độ Dương + Brazil). Tây Ban Nha lấy phía tây (phần lớn châu Mỹ + Thái Bình Dương). Đây là phân chia do Giáo hoàng Alexander VI làm trung gian sau tranh chấp từ chuyến đi đầu của Columbus. Không bên nào hỏi ý kiến người dân các vùng đất bị "chia".'
+  },
+  {
+    q: 'Sau chuyến đi vòng quanh thế giới của Magellan–Elcano (1519–1522), bao nhiêu người trong số 270 người xuất phát đã sống sót trở về?',
+    opts: [
+      '90 người (khoảng 1/3)',
+      '18 người',
+      '55 người',
+      '1 người duy nhất — Elcano'
+    ],
+    ans: 1,
+    fb: '<strong>Chỉ 18 người</strong> trong 270 xuất phát trở về Tây Ban Nha trên con tàu duy nhất còn lại — <em>Victoria</em>. Đây là hành trình có tỷ lệ tử vong cực kỳ cao. Các nguyên nhân: bệnh scorbut (thiếu vitamin C), chiến đấu với người địa phương (Magellan chết ở Mactan), đắm tàu, một tàu bỏ trốn quay về sớm. Con số 55 người là số sống sót trong chuyến đi của Vasco da Gama.'
+  },
+  {
+    q: 'Cây trồng nào từ châu Mỹ có tác động lớn nhất đến dân số châu Âu và châu Á theo các nhà sử học?',
+    opts: [
+      'Cacao và thuốc lá',
+      'Khoai tây và ngô',
+      'Cà chua và ớt',
+      'Cao su và lạc'
+    ],
+    ans: 1,
+    fb: '<strong>Khoai tây và ngô</strong> được nhiều nhà sử học coi là tác động nhân khẩu học lớn nhất. Khoai tây cho năng suất calo cao trên đất nghèo — đặc biệt ở Bắc Âu và Ireland. Ngô thích hợp với nhiều loại đất và khí hậu, trở thành lương thực chính ở châu Phi nhiệt đới và Nam Âu. Hai loại cây này góp phần quan trọng vào việc dân số thế giới tăng từ ~500 triệu (1500) lên ~1,6 tỷ (1900). Cà chua và ớt thay đổi ẩm thực nhưng không phải nguồn calo chính.'
+  },
+  {
+    q: 'Buôn bán nô lệ xuyên Đại Tây Dương bắt đầu vì lý do trực tiếp nào?',
+    opts: [
+      'Người châu Phi tự nguyện di cư để tìm cơ hội kinh tế',
+      'Dịch bệnh làm giảm mạnh dân số bản địa châu Mỹ, tạo ra "thiếu lao động" cho đồn điền',
+      'Bồ Đào Nha cần thu hồi chi phí thám hiểm bằng cách bán người',
+      'Điều ước Tordesillas yêu cầu sử dụng lao động châu Phi'
+    ],
+    ans: 1,
+    fb: 'Nguyên nhân trực tiếp là <strong>dân số bản địa châu Mỹ sụt giảm thảm khốc</strong> do dịch bệnh, làm suy kiệt nguồn lao động cho đồn điền đường, mỏ bạc và thuốc lá. Hệ quả: người châu Âu quay sang nhập khẩu lao động cưỡng bức từ châu Phi — một chuỗi nhân-quả bi thảm: phát kiến địa lý → tiếp xúc sinh học → dịch bệnh → sụt giảm dân số bản địa → buôn bán nô lệ. Điều ước Tordesillas không đề cập vấn đề lao động.'
+  }
+];
+
+let qIdx = 0, score = 0, answered = false;
+
+function quizRender() {
+  const q = QUIZ[qIdx];
+  document.getElementById('quiz-q').textContent = (qIdx+1) + '. ' + q.q;
+  const opts = document.getElementById('quiz-opts');
+  opts.innerHTML = '';
+  q.opts.forEach((o, i) => {
+    const b = document.createElement('button');
+    b.className = 'quiz-opt';
+    b.textContent = String.fromCharCode(65+i) + '. ' + o;
+    b.onclick = () => quizAnswer(i);
+    opts.appendChild(b);
+  });
+  const fb = document.getElementById('quiz-fb');
+  fb.className = 'quiz-feedback';
+  fb.innerHTML = '';
+  document.getElementById('btn-quiz-next').style.display = 'none';
+  document.getElementById('quiz-prog').textContent = 'Cau ' + (qIdx+1) + '/' + QUIZ.length;
+  document.getElementById('quiz-score').textContent = score > 0 ? score + ' dung' : '';
+  answered = false;
+}
+
+function quizAnswer(i) {
+  if (answered) return;
+  answered = true;
+  const q = QUIZ[qIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((b, j) => {
+    b.classList.add('disabled');
+    if (j === q.ans) b.classList.add('correct');
+    else if (j === i && i !== q.ans) b.classList.add('wrong');
+  });
+  const ok = i === q.ans;
+  if (ok) score++;
+  const fb = document.getElementById('quiz-fb');
+  fb.className = 'quiz-feedback show ' + (ok ? 'ok' : 'err');
+  fb.innerHTML = (ok ? '<strong>Chinh xac!</strong> ' : '<strong>Chua dung.</strong> ') + q.fb;
+  document.getElementById('quiz-score').textContent = score + '/' + QUIZ.length + ' dung';
+  document.getElementById('btn-quiz-next').style.display =
+    qIdx < QUIZ.length - 1 ? 'inline-block' : 'none';
+  if (qIdx === QUIZ.length - 1) {
+    const fin = document.createElement('p');
+    fin.style.cssText = 'margin-top:12px;font-weight:700;font-size:15px;color:#0f766e';
+    fin.textContent = 'Hoan thanh! Ket qua: ' + score + '/' + QUIZ.length;
+    document.getElementById('quiz-fb').appendChild(fin);
+  }
+}
+
+function quizNext() {
+  if (qIdx < QUIZ.length - 1) {
+    qIdx++;
+    quizRender();
+  }
+}
+
+quizRender();
+</script>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

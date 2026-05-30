@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Các đế chế châu Á &amp; Đế quốc Mông Cổ</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette WorldHistory / Châu Á & Mông Cổ ── */
+  :root {
+    --accent:       #0f766e;
+    --accent-soft:  #ccfbf1;
+    --accent-dark:  #134e4a;
+    --red-war:      #b91c1c;
+    --red-soft:     #fee2e2;
+    --gold:         #b45309;
+    --gold-soft:    #fef3c7;
+    --blue-trade:   #1d4ed8;
+    --blue-soft:    #dbeafe;
+    --stone:        #57534e;
+    --stone-soft:   #f5f5f4;
+    --bg-card:      #ffffff;
+    --purple:       #7c3aed;
+    --purple-soft:  #ede9fe;
+    --mongol:       #92400e;
+    --mongol-soft:  #fef3c7;
+  }
+
+  main { max-width: 1100px; }
+
+  h1 { color: var(--accent-dark); font-size: 1.65rem; margin-bottom: 6px; }
+  h2 {
+    color: var(--accent);
+    margin-top: 44px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent-soft);
+    font-size: 1.2rem;
+  }
+  .subtitle {
+    color: var(--stone);
+    font-size: 15px;
+    margin-bottom: 22px;
+    font-style: italic;
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 6px rgba(15,118,110,.12);
+    margin: 16px 0;
+  }
+
+  /* ── Info boxes ── */
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .war-box {
+    background: var(--red-soft);
+    border-left: 4px solid var(--red-war);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .trade-box {
+    background: var(--blue-soft);
+    border-left: 4px solid var(--blue-trade);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .mongol-box {
+    background: var(--mongol-soft);
+    border-left: 4px solid var(--mongol);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary   { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-war   { background: var(--red-war); color: white; }
+  .btn-war:hover { background: #991b1b; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+
+  /* ── Step dots ── */
+  .step-dots { display: flex; gap: 8px; margin: 10px 0; flex-wrap: wrap; }
+  .step-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid #d1d5db; background: #f9fafb;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #9ca3af;
+    cursor: pointer; transition: all .2s;
+  }
+  .step-dot.active { background: var(--mongol); border-color: var(--mongol); color: white; }
+  .step-dot.done   { background: var(--accent); border-color: var(--accent); color: white; }
+
+  /* ── Map stage ── */
+  #map-stage { width: 100%; overflow-x: auto; }
+  #map-canvas {
+    display: block;
+    margin: 0 auto;
+    border-radius: 8px;
+    border: 2px solid #cbd5e1;
+  }
+  .step-panel {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    min-height: 68px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .era-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .tag-tang    { background: #dcfce7; color: #15803d; }
+  .tag-song    { background: var(--accent-soft); color: var(--accent-dark); }
+  .tag-mongol  { background: var(--mongol-soft); color: var(--mongol); }
+  .tag-yuan    { background: var(--red-soft); color: var(--red-war); }
+  .tag-ming    { background: var(--purple-soft); color: var(--purple); }
+  .tag-pax     { background: var(--blue-soft); color: var(--blue-trade); }
+
+  /* ── Dynasty Timeline ── */
+  .dynasty-bar-wrap {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+  .dynasty-svg {
+    display: block;
+    margin: 0 auto;
+  }
+
+  /* ── Inventions grid ── */
+  .inv-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+    margin: 14px 0;
+  }
+  .inv-card {
+    background: var(--accent-soft);
+    border: 1px solid #99f6e4;
+    border-radius: 10px;
+    padding: 16px;
+    cursor: pointer;
+    transition: box-shadow .15s, transform .15s;
+    position: relative;
+  }
+  .inv-card:hover { box-shadow: 0 4px 16px rgba(15,118,110,.2); transform: translateY(-2px); }
+  .inv-card.active { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(15,118,110,.25); }
+  .inv-icon { font-size: 28px; margin-bottom: 8px; }
+  .inv-name { font-weight: 700; font-size: 15px; color: var(--accent-dark); margin-bottom: 4px; }
+  .inv-era  { font-size: 12px; color: var(--stone); margin-bottom: 6px; }
+  .inv-short { font-size: 13px; color: #374151; line-height: 1.5; }
+
+  .inv-detail {
+    background: white;
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-top: 14px;
+    font-size: 14px;
+    line-height: 1.7;
+    display: none;
+  }
+  .inv-detail.show { display: block; }
+  .inv-detail-title {
+    font-weight: 700; font-size: 16px; color: var(--accent-dark); margin-bottom: 10px;
+  }
+
+  /* ── Silk Road SVG ── */
+  .silk-wrap { width: 100%; overflow-x: auto; }
+  .silk-svg  { display: block; margin: 0 auto; }
+
+  /* ── Timeline (vertical) ── */
+  .timeline {
+    position: relative;
+    padding: 12px 0 12px 36px;
+    margin: 8px 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 14px; top: 0; bottom: 0; width: 3px;
+    background: linear-gradient(180deg, #15803d, var(--accent), var(--mongol), var(--red-war), var(--purple));
+    border-radius: 2px;
+  }
+  .tl-item { position: relative; margin-bottom: 22px; padding-left: 20px; }
+  .tl-item::before {
+    content: ''; position: absolute;
+    left: -28px; top: 6px;
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 3px solid white; box-shadow: 0 0 0 2px var(--accent);
+    background: var(--accent);
+  }
+  .tl-item.tang::before   { background: #15803d; box-shadow: 0 0 0 2px #15803d; }
+  .tl-item.song::before   { background: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+  .tl-item.mongol::before { background: var(--mongol); box-shadow: 0 0 0 2px var(--mongol); }
+  .tl-item.yuan::before   { background: var(--red-war); box-shadow: 0 0 0 2px var(--red-war); }
+  .tl-item.ming::before   { background: var(--purple); box-shadow: 0 0 0 2px var(--purple); }
+  .tl-item.key::before {
+    width: 18px; height: 18px; left: -30px; top: 4px;
+    background: var(--mongol);
+    box-shadow: 0 0 0 3px var(--mongol), 0 0 0 6px rgba(146,64,14,.2);
+  }
+  .tl-year  { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 2px; }
+  .tl-item.tang .tl-year   { color: #15803d; }
+  .tl-item.mongol .tl-year { color: var(--mongol); }
+  .tl-item.yuan .tl-year   { color: var(--red-war); }
+  .tl-item.ming .tl-year   { color: var(--purple); }
+  .tl-item.key .tl-year    { color: var(--mongol); font-size: 15px; }
+  .tl-title { font-weight: 700; font-size: 14px; color: #1f2937; line-height: 1.4; }
+  .tl-desc  { font-size: 13px; color: #6b7280; margin-top: 3px; line-height: 1.5; }
+  .tl-badge {
+    display: inline-block; padding: 1px 8px; border-radius: 10px;
+    font-size: 11px; font-weight: 700; margin-left: 6px; vertical-align: middle;
+  }
+  .badge-tang   { background: #dcfce7; color: #15803d; }
+  .badge-song   { background: var(--accent-soft); color: var(--accent-dark); }
+  .badge-mongol { background: var(--mongol-soft); color: var(--mongol); }
+  .badge-yuan   { background: var(--red-soft); color: #991b1b; }
+  .badge-ming   { background: var(--purple-soft); color: var(--purple); }
+
+  .tl-era-sep {
+    margin: 20px 0 16px -36px;
+    padding: 6px 14px 6px 36px;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase;
+    border-radius: 0 20px 20px 0; display: inline-block;
+  }
+  .era-sep-tang   { background: #dcfce7; color: #15803d; }
+  .era-sep-song   { background: var(--accent-soft); color: var(--accent-dark); }
+  .era-sep-mongol { background: var(--mongol-soft); color: var(--mongol); }
+  .era-sep-yuan   { background: var(--red-soft); color: #991b1b; }
+  .era-sep-ming   { background: var(--purple-soft); color: var(--purple); }
+
+  /* ── Quiz ── */
+  .quiz-q { font-weight: 700; font-size: 15px; margin-bottom: 12px; color: #1f2937; line-height: 1.5; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .quiz-opt {
+    padding: 10px 14px; border-radius: 7px; border: 2px solid #e5e7eb;
+    background: #f9fafb; cursor: pointer; font-size: 14px; text-align: left;
+    transition: border-color .15s, background .15s;
+  }
+  .quiz-opt:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct { border-color: #15803d; background: #dcfce7; color: #14532d; font-weight: 600; }
+  .quiz-opt.wrong   { border-color: var(--red-war); background: var(--red-soft); color: #991b1b; }
+  .quiz-opt.disabled { cursor: default; }
+  .quiz-feedback {
+    padding: 12px 16px; border-radius: 8px; font-size: 14px; line-height: 1.6;
+    margin-top: 8px; display: none;
+  }
+  .quiz-feedback.show  { display: block; }
+  .quiz-feedback.ok    { background: #dcfce7; color: #14532d; border: 1px solid #15803d; }
+  .quiz-feedback.err   { background: var(--red-soft); color: #991b1b; border: 1px solid var(--red-war); }
+  .quiz-nav { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .quiz-progress { font-size: 13px; color: var(--stone); }
+  .quiz-score    { font-weight: 700; color: #15803d; font-size: 15px; }
+
+  @media (max-width: 600px) {
+    .inv-grid { grid-template-columns: 1fr 1fr; }
+    .tl-era-sep { font-size: 11px; padding-left: 28px; }
+    .step-panel { font-size: 13px; }
+    h2 { font-size: 1.05rem; }
+  }
+  @media (max-width: 400px) {
+    .inv-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử TG — Trung-cận đại</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-medieval-europe/visualization.html">← L2: Châu Âu trung đại</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Đế chế châu Á &amp; Mông Cổ</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-renaissance/visualization.html">L4: Phục hưng →</a>
+</nav>
+
+<main>
+<h1>Lesson 03 — Các đế chế châu Á &amp; Đế quốc Mông Cổ</h1>
+<p class="subtitle">Từ hoàng kim nhà Đường, phát minh nhà Tống, đến đế quốc liền thổ lớn nhất lịch sử và Pax Mongolica</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — Bản đồ động bành trướng Mông Cổ
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Bản đồ động: bành trướng Đế quốc Mông Cổ</h2>
+
+<div class="card">
+  <div class="info-box">
+    <strong>Cách dùng:</strong> Nhấn <strong>Bước tiếp theo</strong> hoặc bấm vào số thứ tự để xem từng giai đoạn bành trướng. Mỗi bước tô màu vùng lãnh thổ mới Mông Cổ kiểm soát.
+  </div>
+
+  <div class="step-dots" id="map-dots"></div>
+
+  <div id="map-stage">
+    <canvas id="map-canvas" width="720" height="390"></canvas>
+  </div>
+
+  <div class="step-panel" id="map-panel">
+    <span class="era-tag tag-mongol" id="map-era-tag">Khởi đầu</span><br>
+    <span id="map-text">Nhấn <strong>Bắt đầu</strong> để theo dõi bành trướng đế quốc Mông Cổ từ 1206 đến đỉnh cao.</span>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-secondary" id="btn-map-prev" onclick="mapPrev()">← Trước</button>
+    <button class="btn btn-primary"   id="btn-map-next" onclick="mapNext()">Bắt đầu →</button>
+    <button class="btn btn-secondary" onclick="mapReset()">Khởi động lại</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Timeline triều đại Trung Hoa
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Timeline: Đường → Tống → Nguyên → Minh</h2>
+
+<div class="card">
+  <div class="info-box">
+    Thanh ngang phía trên thể hiện thời kỳ và độ dài tương đối các triều đại. Bên dưới là các mốc quan trọng theo thứ tự thời gian.
+  </div>
+
+  <div class="dynasty-bar-wrap">
+    <svg class="dynasty-svg" width="700" height="90" viewBox="0 0 700 90">
+      <defs>
+        <linearGradient id="grad-tang" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#15803d"/>
+          <stop offset="100%" stop-color="#22c55e"/>
+        </linearGradient>
+        <linearGradient id="grad-song" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#0f766e"/>
+          <stop offset="100%" stop-color="#14b8a6"/>
+        </linearGradient>
+        <linearGradient id="grad-yuan" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#b91c1c"/>
+          <stop offset="100%" stop-color="#ef4444"/>
+        </linearGradient>
+        <linearGradient id="grad-ming" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#7c3aed"/>
+          <stop offset="100%" stop-color="#a78bfa"/>
+        </linearGradient>
+        <linearGradient id="grad-5dai" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#78716c"/>
+          <stop offset="100%" stop-color="#a8a29e"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Trục thời gian 618 → 1644 (tổng 1026 năm, dải 680px) -->
+      <!-- Scale: (năm - 618) / 1026 * 680 + 10 -->
+      <!-- 618 → x=10; 907 → x=201; 960 → x=235; 1127 → x=341; 1271 → x=448; 1368 → x=512; 1644 → x=690 -->
+
+      <!-- Tang: 618–907 = 289 năm, x=10, w=191 -->
+      <rect x="10"  y="10" width="191" height="40" rx="6" fill="url(#grad-tang)"/>
+      <text x="106" y="35" text-anchor="middle" font-size="13" font-weight="700" fill="white" font-family="sans-serif">Nhà Đường</text>
+      <text x="106" y="50" text-anchor="middle" font-size="10" fill="#dcfce7" font-family="sans-serif">618 – 907</text>
+
+      <!-- Ngũ Đại: 907–960 = 53 năm, x=201, w=35 -->
+      <rect x="201" y="10" width="35"  height="40" rx="4" fill="url(#grad-5dai)"/>
+      <text x="218" y="30" text-anchor="middle" font-size="9" font-weight="700" fill="white" font-family="sans-serif">Ngũ</text>
+      <text x="218" y="42" text-anchor="middle" font-size="9" fill="#e7e5e4" font-family="sans-serif">Đại</text>
+
+      <!-- Song: 960–1279 = 319 năm, x=236, w=211 -->
+      <rect x="236" y="10" width="211" height="40" rx="6" fill="url(#grad-song)"/>
+      <text x="341" y="35" text-anchor="middle" font-size="13" font-weight="700" fill="white" font-family="sans-serif">Nhà Tống</text>
+      <text x="341" y="50" text-anchor="middle" font-size="10" fill="#ccfbf1" font-family="sans-serif">960 – 1279</text>
+
+      <!-- Yuan: 1279–1368 = 89 năm, x=447, w=59 -->
+      <rect x="447" y="10" width="59"  height="40" rx="6" fill="url(#grad-yuan)"/>
+      <text x="476" y="32" text-anchor="middle" font-size="12" font-weight="700" fill="white" font-family="sans-serif">Nguyên</text>
+      <text x="476" y="47" text-anchor="middle" font-size="10" fill="#fecaca" font-family="sans-serif">1271–1368</text>
+
+      <!-- Ming: 1368–1644 = 276 năm, x=506, w=183 -->
+      <rect x="506" y="10" width="183" height="40" rx="6" fill="url(#grad-ming)"/>
+      <text x="598" y="35" text-anchor="middle" font-size="13" font-weight="700" fill="white" font-family="sans-serif">Nhà Minh</text>
+      <text x="598" y="50" text-anchor="middle" font-size="10" fill="#ddd6fe" font-family="sans-serif">1368 – 1644</text>
+
+      <!-- Đường kẻ phân chia Bắc/Nam Tống -->
+      <line x1="341" y1="8" x2="341" y2="52" stroke="white" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <text x="338" y="62" text-anchor="middle" font-size="9" fill="#0f766e" font-family="sans-serif">1127</text>
+      <text x="338" y="72" text-anchor="middle" font-size="8" fill="#57534e" font-family="sans-serif">Bắc↔Nam</text>
+
+      <!-- Dấu chú thích mốc quan trọng -->
+      <!-- 1206 Thành Cát Tư Hãn: (1206-618)/1026*680+10 ≈ 397 -->
+      <line x1="397" y1="50" x2="397" y2="80" stroke="#92400e" stroke-width="1.5"/>
+      <text x="397" y="88" text-anchor="middle" font-size="9" fill="#92400e" font-weight="700" font-family="sans-serif">1206 TG Hãn</text>
+
+      <!-- Năm trục -->
+      <text x="10"  y="88" font-size="9" fill="#57534e" font-family="sans-serif">618</text>
+      <text x="201" y="88" font-size="9" fill="#57534e" font-family="sans-serif">907</text>
+      <text x="690" y="88" font-size="9" text-anchor="end" fill="#57534e" font-family="sans-serif">1644</text>
+    </svg>
+  </div>
+
+  <div class="timeline">
+
+    <div class="tl-era-sep era-sep-tang">Nhà Đường (618–907)</div>
+
+    <div class="tl-item tang">
+      <div class="tl-year">618</div>
+      <div class="tl-title">Nhà Đường thành lập <span class="tl-badge badge-tang">Ra đời</span></div>
+      <div class="tl-desc">Lý Uyên lập triều sau khi nhà Tùy sụp đổ. Con ông là Đường Thái Tông (trị vì 626–649) tạo ra giai đoạn "Trinh Quán chi trị" và mở rộng lãnh thổ tới Trung Á.</div>
+    </div>
+
+    <div class="tl-item tang">
+      <div class="tl-year">690–705</div>
+      <div class="tl-title">Võ Tắc Thiên xưng đế <span class="tl-badge badge-tang">Ngoại lệ lịch sử</span></div>
+      <div class="tl-desc">Người phụ nữ duy nhất trong lịch sử Trung Hoa xưng đế chính thức, lập triều Võ Chu. Bà mở rộng khoa cử và thăng tiến người tài, bất kể gốc gác.</div>
+    </div>
+
+    <div class="tl-item tang">
+      <div class="tl-year">712–756</div>
+      <div class="tl-title">Khai Nguyên thịnh thế (Đường Huyền Tông) <span class="tl-badge badge-tang">Đỉnh cao</span></div>
+      <div class="tl-desc">Dân số ước tính 80 triệu người, kinh đô Trường An đạt hơn 1 triệu dân — thành phố quốc tế lớn nhất thế giới. Lý Bạch, Đỗ Phủ — thơ Đường rực rỡ nhất.</div>
+    </div>
+
+    <div class="tl-item key">
+      <div class="tl-year">755–763</div>
+      <div class="tl-title">Loạn An Lộc Sơn <span class="tl-badge badge-mongol">Bước ngoặt</span></div>
+      <div class="tl-desc">Tướng An Lộc Sơn chiếm Trường An, Đường Huyền Tông phải bỏ chạy. Mặc dù dẹp được, nhà Đường không bao giờ phục hồi hoàn toàn — sứ quân địa phương trở nên bán độc lập.</div>
+    </div>
+
+    <div class="tl-item tang">
+      <div class="tl-year">907</div>
+      <div class="tl-title">Nhà Đường sụp đổ — Ngũ Đại Thập Quốc</div>
+      <div class="tl-desc">Sau Loạn Hoàng Sào (875–884) và nội chiến, Chu Ôn phế vua lập Hậu Lương. 53 năm phân liệt (907–960) với 5 triều đại ngắn ở miền Bắc và 10 vương quốc ở miền Nam.</div>
+    </div>
+
+    <div class="tl-era-sep era-sep-song">Nhà Tống (960–1279)</div>
+
+    <div class="tl-item song">
+      <div class="tl-year">960</div>
+      <div class="tl-title">Tống Thái Tổ thống nhất, lập nhà Tống <span class="tl-badge badge-song">Ra đời</span></div>
+      <div class="tl-desc">Triệu Khuông Dận thống nhất phần lớn Trung Hoa. Kinh đô Biện Kinh (Kaifeng). Chủ trương "thượng văn hạ vũ" — ưu tiên văn quan, hạn chế quyền tướng.</div>
+    </div>
+
+    <div class="tl-item song">
+      <div class="tl-year">~1040</div>
+      <div class="tl-title">Tất Thăng phát minh chữ in rời (Movable Type) <span class="tl-badge badge-song">Phát minh</span></div>
+      <div class="tl-desc">Chữ rời bằng đất sét nung — tiền thân của máy in Gutenberg (1450). Cùng thời kỳ: la bàn hàng hải, thuốc súng trong quân sự, tiền giấy Jiaozi đều được hoàn thiện.</div>
+    </div>
+
+    <div class="tl-item song">
+      <div class="tl-year">1127</div>
+      <div class="tl-title">Quân Kim chiếm Biện Kinh — Bắc Tống kết thúc <span class="tl-badge badge-song">Bước ngoặt</span></div>
+      <div class="tl-desc">Sự kiện Tĩnh Khang: hoàng đế và thái thượng hoàng bị quân Nữ Chân bắt. Triều đình chạy xuống Nam Kinh, lập Nam Tống với kinh đô Lâm An (Hangzhou).</div>
+    </div>
+
+    <div class="tl-item song">
+      <div class="tl-year">1279</div>
+      <div class="tl-title">Mông Cổ diệt Nam Tống — Trung Hoa thuộc nhà Nguyên</div>
+      <div class="tl-desc">Hốt Tất Liệt hoàn thành chinh phục. Trận Nhai Môn: hoàng đế nhỏ và đoàn tùy tùng nhảy xuống biển. Nhà Tống kết thúc sau 319 năm.</div>
+    </div>
+
+    <div class="tl-era-sep era-sep-mongol">Đế quốc Mông Cổ (1206–1368)</div>
+
+    <div class="tl-item key">
+      <div class="tl-year">1206</div>
+      <div class="tl-title">Thành Cát Tư Hãn thống nhất thảo nguyên <span class="tl-badge badge-mongol">Khai sinh đế quốc</span></div>
+      <div class="tl-desc">Đại Khurultai tại sông Onon: Temüjin được phong "Thành Cát Tư Hãn" — Đại Hãn của vũ trụ. Toàn bộ thảo nguyên Mông Cổ lần đầu thống nhất dưới một quyền lãnh đạo.</div>
+    </div>
+
+    <div class="tl-item mongol">
+      <div class="tl-year">1215</div>
+      <div class="tl-title">Chiếm Trung Đô (Bắc Kinh) — chinh phục Kim bắt đầu</div>
+      <div class="tl-desc">Quân Mông Cổ chiếm và đốt cháy kinh đô nhà Kim. Đây là lần đầu Mông Cổ đối đầu với một nền văn minh đô thị lớn — họ học kỹ thuật công thành từ tù binh Trung Hoa.</div>
+    </div>
+
+    <div class="tl-item mongol">
+      <div class="tl-year">1219–1221</div>
+      <div class="tl-title">Chinh phục đế quốc Khwarezm (Trung Á / Iran) <span class="tl-badge badge-mongol">Chinh phạt</span></div>
+      <div class="tl-desc">Samarkand, Bukhara, Nishapur bị tàn phá. Hệ thống tưới tiêu và đô thị Trung Á mất nhiều thế kỉ mới phục hồi. Ước tính hàng triệu người thiệt mạng (số liệu còn tranh luận).</div>
+    </div>
+
+    <div class="tl-item mongol">
+      <div class="tl-year">1227</div>
+      <div class="tl-title">Thành Cát Tư Hãn mất — chia đế quốc cho 4 con</div>
+      <div class="tl-desc">Đế quốc chia thành 4 ulus (hãn quốc): Mông Cổ–Trung Hoa (sau là nhà Nguyên), Kim Trướng (Golden Horde — Nga/Đông Âu), Chagatai (Trung Á), Ilkhanate (Ba Tư/Iraq).</div>
+    </div>
+
+    <div class="tl-item mongol">
+      <div class="tl-year">1241</div>
+      <div class="tl-title">Kỵ binh Mông Cổ vào Ba Lan và Hungary <span class="tl-badge badge-mongol">Cực Tây</span></div>
+      <div class="tl-desc">Thắng tại Legnica (Ba Lan) và Mohi (Hungary). Đạo quân trinh thám Mông Cổ cách Vienna chỉ 60km — rồi dừng lại vì tin Đại Hãn Ögedei mất. Châu Âu thoát hiểm may mắn.</div>
+    </div>
+
+    <div class="tl-item yuan">
+      <div class="tl-year">1258</div>
+      <div class="tl-title">Baghdad thất thủ — Khalifate Abbasid kết thúc <span class="tl-badge badge-yuan">Sự kiện lớn</span></div>
+      <div class="tl-desc">Hốt Tất Liệt sai em là Hülügu tấn công. Thư viện lớn nhất thế giới (Dar al-Hikma) bị phá. Khalifate Abbasid — trung tâm văn hóa Hồi giáo 500 năm — kết thúc. Sông Tigris đổi màu từ mực sách.</div>
+    </div>
+
+    <div class="tl-item yuan">
+      <div class="tl-year">1271</div>
+      <div class="tl-title">Hốt Tất Liệt lập nhà Nguyên — Marco Polo <span class="tl-badge badge-yuan">Nhà Nguyên</span></div>
+      <div class="tl-desc">Kinh đô Đại Đô (Bắc Kinh). Khoảng 1271–1295, Marco Polo thực hiện hành trình đến triều đình Hốt Tất Liệt, lưu trú ~17 năm. Ghi chép của ông khơi dậy tò mò châu Âu về châu Á.</div>
+    </div>
+
+    <div class="tl-item yuan">
+      <div class="tl-year">1258, 1285, 1287–88</div>
+      <div class="tl-title">Ba lần xâm lược Đại Việt — thất bại cả ba <span class="tl-badge badge-yuan">Liên hệ VN</span></div>
+      <div class="tl-desc">Nhà Trần dùng chiến thuật "vườn không nhà trống" và địa hình sông nước. Trận Bạch Đằng 1288: Trần Quốc Tuấn dùng cọc gỗ bịt sắt phá hạm đội Mông Cổ, bắt sống tướng Ô Mã Nhi.</div>
+    </div>
+
+    <div class="tl-item yuan">
+      <div class="tl-year">1368</div>
+      <div class="tl-title">Người Hán lật đổ nhà Nguyên — nhà Minh ra đời</div>
+      <div class="tl-desc">Chu Nguyên Chương (Hồng Vũ Đế), xuất thân nông dân, đánh đuổi quân Mông Cổ về thảo nguyên. Nhà Minh phục hưng văn hóa Hán, tái lập khoa cử, xây Tử Cấm Thành.</div>
+    </div>
+
+    <div class="tl-era-sep era-sep-ming">Nhà Minh (1368–1644)</div>
+
+    <div class="tl-item ming">
+      <div class="tl-year">1403–1424</div>
+      <div class="tl-title">Vĩnh Lạc Đế — dời đô Bắc Kinh, tài trợ Trịnh Hòa <span class="tl-badge badge-ming">Vĩnh Lạc</span></div>
+      <div class="tl-desc">Xây Tử Cấm Thành (1406–1420), dời đô từ Nam Kinh về Bắc Kinh (1421). Tài trợ 7 chuyến hải hành vĩ đại của Trịnh Hòa — đội tàu lớn nhất thế giới khi đó.</div>
+    </div>
+
+    <div class="tl-item key">
+      <div class="tl-year">1405–1433</div>
+      <div class="tl-title">Bảy chuyến hải hành của Trịnh Hòa <span class="tl-badge badge-ming">Hải hành</span></div>
+      <div class="tl-desc">Đoàn thuyền đến Đông Nam Á, Ấn Độ, Ả Rập, Đông Phi. Chuyến đầu có 317 tàu, 28.000 người. Không xâm chiếm mà thiết lập quan hệ triều cống. Sau 1433: đình chỉ — Trung Hoa "đóng cửa biển."</div>
+    </div>
+
+    <div class="tl-item ming">
+      <div class="tl-year">1644</div>
+      <div class="tl-title">Nhà Minh sụp đổ — nhà Thanh (Mãn Châu) lên thay</div>
+      <div class="tl-desc">Quân nông dân Li Zicheng chiếm Bắc Kinh, Sùng Trinh Đế tự tử. Quân Mãn Châu nhân cơ hội tiến vào, lập nhà Thanh (1644–1912) — triều đại phong kiến cuối cùng của Trung Hoa.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — Bốn phát minh lớn & tương tác
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. Bốn phát minh lớn thời Tống</h2>
+
+<div class="card">
+  <div class="info-box">
+    Bấm vào từng phát minh để xem chi tiết về hoàn cảnh, tác động tại Trung Hoa, và ý nghĩa toàn cầu.
+  </div>
+
+  <div class="inv-grid" id="inv-grid">
+
+    <div class="inv-card" onclick="invShow('print')" id="inv-print">
+      <div class="inv-icon">🖨</div>
+      <div class="inv-name">Kỹ thuật in (Movable Type)</div>
+      <div class="inv-era">Tống — Tất Thăng, ~1040</div>
+      <div class="inv-short">Chữ rời đất sét nung — tiền thân máy in Gutenberg 1450.</div>
+    </div>
+
+    <div class="inv-card" onclick="invShow('compass')" id="inv-compass">
+      <div class="inv-icon">🧭</div>
+      <div class="inv-name">La bàn (Compass)</div>
+      <div class="inv-era">Tống — Hàng hải ~thế kỉ XI</div>
+      <div class="inv-short">Kim chỉ Nam ứng dụng vào hàng hải, mở đường cho phát kiến địa lý.</div>
+    </div>
+
+    <div class="inv-card" onclick="invShow('gunpowder')" id="inv-gunpowder">
+      <div class="inv-icon">💥</div>
+      <div class="inv-name">Thuốc súng (Gunpowder)</div>
+      <div class="inv-era">Đường–Tống — ~thế kỉ IX–X</div>
+      <div class="inv-short">Từ pháo hoa đến vũ khí chiến tranh — thay đổi toàn bộ nghệ thuật quân sự.</div>
+    </div>
+
+    <div class="inv-card" onclick="invShow('paper-money')" id="inv-paper-money">
+      <div class="inv-icon">💴</div>
+      <div class="inv-name">Tiền giấy (Paper Money)</div>
+      <div class="inv-era">Tống — Jiaozi, thế kỉ X–XI</div>
+      <div class="inv-short">Đồng tiền giấy chính phủ phát hành đầu tiên trên thế giới.</div>
+    </div>
+
+  </div>
+
+  <div class="inv-detail" id="inv-detail">
+    <div class="inv-detail-title" id="inv-detail-title"></div>
+    <div id="inv-detail-body"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 4 — Con đường Tơ lụa & Pax Mongolica
+     ═══════════════════════════════════════════════════════ -->
+<h2>4. Con đường Tơ lụa &amp; Pax Mongolica</h2>
+
+<div class="card">
+  <div class="trade-box">
+    <strong>Pax Mongolica (~1250–1350):</strong> Khi đế quốc Mông Cổ kiểm soát một dải liên tục từ Trung Quốc đến Đông Âu, Con đường Tơ lụa trở nên an toàn và sôi động chưa từng có. Hệ thống trạm ngựa Yam (~1.400 trạm) truyền tin 400 km/ngày.
+  </div>
+
+  <div class="silk-wrap">
+    <canvas id="silk-canvas" width="700" height="320"></canvas>
+  </div>
+
+  <div class="mongol-box" style="margin-top:14px">
+    <strong>Hai mặt của Pax Mongolica:</strong><br>
+    Tích cực: Marco Polo (1271–1295) ghi chép về phương Đông, bốn phát minh Trung Hoa lan sang châu Âu, gia vị và hàng hóa phương Đông sôi động.<br>
+    Tiêu cực: Cái Chết Đen (1346–1353) — dịch hạch đi theo con đường thương mại, giết ~30–60% dân châu Âu và tỷ lệ cao ở Trung Đông.
+  </div>
+
+  <div id="silk-legend" style="margin-top:10px; font-size:13px; display:flex; gap:20px; flex-wrap:wrap;">
+    <span><span style="display:inline-block;width:16px;height:4px;background:#b45309;border-radius:2px;vertical-align:middle;margin-right:4px"></span>Con đường Tơ lụa (tuyến đất)</span>
+    <span><span style="display:inline-block;width:16px;height:4px;background:#1d4ed8;border-radius:2px;vertical-align:middle;margin-right:4px"></span>Hải trình Trịnh Hòa</span>
+    <span><span style="display:inline-block;width:16px;height:4px;background:#b91c1c;border-radius:2px;vertical-align:middle;margin-right:4px;border-top:2px dashed #b91c1c"></span>Đường lây lan Cái Chết Đen</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 5 — Quiz ôn tập
+     ═══════════════════════════════════════════════════════ -->
+<h2>5. Ôn tập — Trắc nghiệm</h2>
+
+<div class="card" id="quiz-card">
+  <div class="quiz-q"    id="quiz-q"></div>
+  <div class="quiz-opts" id="quiz-opts"></div>
+  <div class="quiz-feedback" id="quiz-fb"></div>
+  <div class="quiz-nav">
+    <button class="btn btn-primary" id="btn-quiz-next" onclick="quizNext()" style="display:none">Câu tiếp →</button>
+    <span class="quiz-progress" id="quiz-prog"></span>
+    <span class="quiz-score"    id="quiz-score"></span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCRIPTS
+     ═══════════════════════════════════════════════════════ -->
+<script>
+/* ══════════════════════════════════════════════════════════
+   MODULE 1 — Bản đồ động bành trướng Mông Cổ
+   ══════════════════════════════════════════════════════════ */
+
+const mapCanvas = document.getElementById('map-canvas');
+const mCtx = mapCanvas.getContext('2d');
+const MW = mapCanvas.width, MH = mapCanvas.height;
+
+/* Tọa độ canvas 720×390
+   Chiều Đông–Tây: x=20 (Tây Âu) → x=700 (Thái Bình Dương)
+   Chiều Bắc–Nam:  y=15 (Siberia) → y=375 (Ấn Độ/Đông Nam Á)
+   Điểm tham chiếu: Bắc Kinh ≈ (565, 165); Venice ≈ (250, 175); Baghdad ≈ (460, 225)
+*/
+
+function drawSeaM() {
+  const g = mCtx.createLinearGradient(0, 0, 0, MH);
+  g.addColorStop(0, '#bfdbfe');
+  g.addColorStop(1, '#93c5fd');
+  mCtx.fillStyle = g;
+  mCtx.fillRect(0, 0, MW, MH);
+}
+
+function drawPolyM(pts, color) {
+  mCtx.fillStyle = color;
+  mCtx.beginPath();
+  mCtx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) mCtx.lineTo(pts[i][0], pts[i][1]);
+  mCtx.closePath();
+  mCtx.fill();
+}
+
+// Vẽ đất liền nền (đơn giản hóa)
+function drawLandBaseM() {
+  const LAND = '#e7e5e4';
+
+  // ── Châu Âu / vùng Nga phía Tây ──
+  drawPolyM([[20,20],[100,18],[160,22],[210,30],[250,40],[280,50],[300,60],[310,80],
+    [305,110],[285,130],[260,145],[235,155],[210,165],[190,175],[170,185],[150,190],
+    [130,195],[100,200],[70,205],[40,200],[22,190],[20,160],[18,120],[20,70],[20,20]], LAND);
+
+  // ── Bán đảo Iberia ──
+  drawPolyM([[20,80],[60,75],[90,80],[105,95],[100,115],[80,130],[55,135],[30,125],[18,110],[20,80]], LAND);
+
+  // ── Bắc Phi ──
+  drawPolyM([[20,205],[80,200],[140,198],[200,200],[260,205],[320,210],[370,215],
+    [420,220],[450,228],[470,235],[480,250],[470,265],[450,275],[400,280],[350,282],
+    [300,278],[250,272],[200,265],[150,260],[100,258],[60,255],[30,252],[20,240],[20,205]], LAND);
+
+  // ── Trung Đông / Bán đảo Ả Rập ──
+  drawPolyM([[430,195],[470,188],[510,185],[540,192],[555,205],[560,225],[555,245],
+    [540,260],[520,270],[500,275],[480,270],[465,260],[455,245],[445,230],[435,215],[430,195]], LAND);
+
+  // ── Bán đảo Ả Rập ──
+  drawPolyM([[455,245],[490,240],[520,245],[545,260],[555,285],[550,310],[535,330],
+    [510,340],[485,345],[460,340],[445,320],[440,295],[448,268],[455,245]], LAND);
+
+  // ── Persia / Iran ──
+  drawPolyM([[460,185],[510,178],[555,180],[590,188],[615,200],[620,220],[610,240],
+    [590,252],[565,258],[540,255],[510,248],[485,238],[462,225],[458,205],[460,185]], LAND);
+
+  // ── Trung Á (thảo nguyên) ──
+  drawPolyM([[300,60],[380,50],[460,45],[530,48],[590,55],[640,65],[670,80],
+    [680,110],[670,140],[650,160],[620,172],[590,178],[560,182],[530,178],[500,172],
+    [470,168],[440,160],[410,148],[380,138],[350,125],[320,110],[305,90],[300,60]], LAND);
+
+  // ── Siberia (phần) ──
+  drawPolyM([[290,20],[380,15],[460,18],[540,20],[620,22],[680,25],[700,40],
+    [700,75],[680,80],[640,65],[590,55],[530,48],[460,45],[380,50],[300,60],[290,20]], LAND);
+
+  // ── Trung Hoa ──
+  drawPolyM([[530,178],[590,178],[625,185],[650,195],[665,215],[670,240],[660,265],
+    [640,280],[610,290],[580,295],[555,290],[530,278],[510,265],[495,248],[490,228],
+    [500,208],[515,192],[530,178]], LAND);
+
+  // ── Đông Nam Á (đơn giản) ──
+  drawPolyM([[555,290],[600,295],[630,305],[650,320],[645,345],[620,358],[590,360],
+    [565,352],[545,338],[540,315],[548,298],[555,290]], LAND);
+
+  // ── Ấn Độ ──
+  drawPolyM([[520,248],[555,242],[590,255],[615,275],[625,305],[620,335],[605,360],
+    [580,375],[555,378],[530,370],[510,350],[500,320],[505,290],[515,268],[520,248]], LAND);
+
+  // ── Nhật Bản (đơn giản) ──
+  drawPolyM([[660,145],[680,140],[698,148],[700,162],[690,174],[670,178],[656,168],[655,152],[660,145]], LAND);
+
+  // ── Triều Tiên ──
+  drawPolyM([[630,158],[648,150],[658,158],[660,175],[648,185],[632,180],[625,168],[630,158]], LAND);
+}
+
+// Dữ liệu các giai đoạn bành trướng Mông Cổ
+const MONGOL_STEPS = [
+  {
+    era: 'Trước 1206', tag: 'tag-song',
+    year: 'Trước 1206',
+    title: 'Thảo nguyên Mông Cổ — các bộ lạc rời rạc',
+    text: '<strong>Trước 1206 — Thảo nguyên phân chia:</strong> Mông Cổ, Naiman, Kerait, Tatar, Merkit... là các bộ tộc thường xuyên tranh chiến nhau. Temüjin (sinh ~1162) trải qua tuổi trẻ bị bắt cóc và nô lệ. Qua nhiều liên minh, chiến thắng và ám sát, ông dần thống nhất các bộ tộc.',
+    regions: [
+      // Thảo nguyên Mông Cổ
+      [[440,48],[530,45],[600,50],[650,62],[680,80],[670,110],[640,130],[600,145],[560,152],[530,148],[500,142],[470,135],[450,120],[440,100],[440,48]]
+    ],
+    color: 'rgba(146,64,14,0.50)'
+  },
+  {
+    era: '1206–1227', tag: 'tag-mongol',
+    year: '1206–1227',
+    title: 'Thành Cát Tư Hãn chinh phục Trung Á & Bắc Trung Hoa',
+    text: '<strong>1206–1227 — Chinh phạt khởi đầu:</strong> Sau đại hội Khurultai 1206, đế quốc mở rộng nhanh: Tây Hạ (1209), Kim (Bắc Trung Hoa, 1215), đế quốc Khwarezm (Trung Á / Iran, 1219–1221). Trung Đô (Bắc Kinh) thất thủ 1215. Thành Cát Tư Hãn mất 1227 trong chiến dịch diệt Tây Hạ.',
+    regions: [
+      // Thảo nguyên Mông Cổ
+      [[440,48],[530,45],[600,50],[650,62],[680,80],[670,110],[640,130],[600,145],[560,152],[530,148],[500,142],[470,135],[450,120],[440,100],[440,48]],
+      // Bắc Trung Hoa (Kim)
+      [[530,148],[600,145],[640,130],[660,142],[665,165],[660,190],[635,200],[600,205],[570,200],[545,188],[530,175],[520,158],[530,148]],
+      // Trung Á (Khwarezm / thảo nguyên)
+      [[300,62],[380,50],[440,48],[440,100],[450,120],[460,140],[455,162],[430,172],[400,170],[375,160],[350,145],[330,130],[315,112],[305,90],[300,62]]
+    ],
+    color: 'rgba(146,64,14,0.60)'
+  },
+  {
+    era: '1227–1259', tag: 'tag-mongol',
+    year: '1227–1259',
+    title: 'Oa Khoát Đài & Mông Kha: Nga, Đông Âu, Ba Tư',
+    text: '<strong>1227–1259 — Bành trướng sang Tây:</strong> Con Thành Cát Tư Hãn là Oa Khoát Đài (Ögedei) tiếp tục: chiếm Nga (Kiev thất thủ 1240), tiến vào Ba Lan và Hungary 1241 — dừng vì Ögedei mất. Ilkhanate (Ba Tư) thành lập. Em Hốt Tất Liệt là Hülügu phá Baghdad 1258.',
+    regions: [
+      [[440,48],[530,45],[600,50],[650,62],[680,80],[670,110],[640,130],[600,145],[560,152],[530,148],[500,142],[470,135],[450,120],[440,100],[440,48]],
+      [[530,148],[600,145],[640,130],[660,142],[665,165],[660,190],[635,200],[600,205],[570,200],[545,188],[530,175],[520,158],[530,148]],
+      [[300,62],[380,50],[440,48],[440,100],[450,120],[460,140],[455,162],[430,172],[400,170],[375,160],[350,145],[330,130],[315,112],[305,90],[300,62]],
+      // Nga / Đông Âu (Kim Trướng)
+      [[170,30],[250,22],[320,25],[380,30],[420,40],[440,48],[440,100],[420,120],[390,130],[360,125],[320,118],[280,112],[240,108],[200,110],[170,115],[145,120],[125,130],[110,145],[115,160],[130,168],[160,165],[185,170],[200,180],[190,192],[165,195],[135,195],[110,195],[80,200],[55,205],[30,200],[22,188],[22,155],[30,130],[50,110],[80,90],[110,72],[140,55],[170,40],[170,30]],
+      // Ba Tư / Iraq (Ilkhanate)
+      [[420,168],[460,162],[510,162],[555,165],[590,178],[618,195],[620,218],[610,240],[585,252],[560,258],[535,252],[510,244],[486,236],[462,222],[445,208],[430,192],[420,175],[420,168]]
+    ],
+    color: 'rgba(146,64,14,0.62)'
+  },
+  {
+    era: '1259–1279', tag: 'tag-yuan',
+    year: '1259–1279 (Hốt Tất Liệt)',
+    title: 'Nhà Nguyên chinh phục hoàn toàn Trung Hoa & Nam Tống',
+    text: '<strong>1259–1279 — Hốt Tất Liệt & nhà Nguyên:</strong> Hốt Tất Liệt lập nhà Nguyên (1271). Năm 1279 diệt Nam Tống — lần đầu toàn bộ Trung Hoa thuộc một "ngoại tộc." Hai lần xâm lược Nhật Bản (1274, 1281) thất bại vì bão biển "kamikaze." Đại Việt chống cự thành công (1258, 1285, 1288). Đế quốc đạt cực đại ~24 triệu km².',
+    regions: [
+      [[440,48],[530,45],[600,50],[650,62],[680,80],[670,110],[640,130],[600,145],[560,152],[530,148],[500,142],[470,135],[450,120],[440,100],[440,48]],
+      // Toàn bộ Trung Hoa
+      [[530,148],[600,145],[650,158],[668,178],[672,205],[665,232],[648,258],[622,275],[592,285],[560,288],[530,278],[505,262],[492,240],[488,215],[500,192],[518,175],[530,148]],
+      [[300,62],[380,50],[440,48],[440,100],[450,120],[460,140],[455,162],[430,172],[400,170],[375,160],[350,145],[330,130],[315,112],[305,90],[300,62]],
+      [[170,30],[250,22],[320,25],[380,30],[420,40],[440,48],[440,100],[420,120],[390,130],[360,125],[320,118],[280,112],[240,108],[200,110],[170,115],[145,120],[125,130],[110,145],[115,160],[130,168],[160,165],[185,170],[200,180],[190,192],[165,195],[135,195],[110,195],[80,200],[55,205],[30,200],[22,188],[22,155],[30,130],[50,110],[80,90],[110,72],[140,55],[170,40],[170,30]],
+      [[420,168],[460,162],[510,162],[555,165],[590,178],[618,195],[620,218],[610,240],[585,252],[560,258],[535,252],[510,244],[486,236],[462,222],[445,208],[430,192],[420,175],[420,168]]
+    ],
+    color: 'rgba(185,28,28,0.55)'
+  }
+];
+
+let mapStep = -1;
+
+function drawMapM(stepIdx) {
+  mCtx.clearRect(0, 0, MW, MH);
+  drawSeaM();
+  drawLandBaseM();
+
+  if (stepIdx >= 0) {
+    const step = MONGOL_STEPS[stepIdx];
+    step.regions.forEach(region => {
+      drawPolyM(region, step.color);
+    });
+  }
+
+  // Nhãn địa danh
+  const labels = [
+    { x: 565, y: 180, text: 'TRUNG HOA', bold: true,  color: '#374151', size: 10 },
+    { x: 385, y: 98,  text: 'THẢO NGUYÊN TRUNG Á', bold: false, color: '#374151', size: 9 },
+    { x: 535, y: 268, text: 'ĐNÁ', bold: false, color: '#374151', size: 9 },
+    { x: 560, y: 310, text: 'ẤN ĐỘ', bold: false, color: '#374151', size: 9 },
+    { x: 482, y: 218, text: 'BA TƯ', bold: false, color: '#374151', size: 9 },
+    { x: 456, y: 260, text: 'Ả RẬP', bold: false, color: '#374151', size: 9 },
+    { x: 190, y: 90,  text: 'NGA', bold: false, color: '#374151', size: 9 },
+    { x: 135, y: 150, text: 'ĐÔNG ÂU', bold: false, color: '#374151', size: 9 },
+    { x: 170, y: 225, text: 'BẮC PHI', bold: false, color: '#374151', size: 9 },
+    { x: 672, y: 155, text: 'NHẬT', bold: false, color: '#374151', size: 9 },
+    { x: 640, y: 175, text: 'BẢN', bold: false, color: '#374151', size: 9 },
+    { x: 636, y: 340, text: 'ĐÔNG NAM Á', bold: false, color: '#374151', size: 8 },
+  ];
+  labels.forEach(lb => {
+    mCtx.font = `${lb.bold ? '700' : '500'} ${lb.size}px sans-serif`;
+    mCtx.fillStyle = lb.color;
+    mCtx.textAlign = 'center';
+    mCtx.fillText(lb.text, lb.x, lb.y);
+  });
+  mCtx.textAlign = 'left';
+
+  // Điểm thành phố quan trọng
+  const cities = [
+    { x: 565, y: 168, name: 'Bắc Kinh', color: '#b91c1c' },
+    { x: 450, y: 222, name: 'Baghdad', color: '#b45309' },
+    { x: 395, y: 152, name: 'Samarkand', color: '#92400e' },
+    { x: 248, y: 178, name: 'Venice', color: '#1d4ed8' },
+    { x: 172, y: 158, name: 'Kiev', color: '#57534e' },
+    { x: 542, y: 264, name: 'Thăng Long', color: '#15803d' },
+    { x: 555, y: 320, name: 'Calicut', color: '#1d4ed8' },
+  ];
+  cities.forEach(c => {
+    mCtx.fillStyle = c.color;
+    mCtx.beginPath();
+    mCtx.arc(c.x, c.y, 4, 0, Math.PI * 2);
+    mCtx.fill();
+    mCtx.strokeStyle = 'white';
+    mCtx.lineWidth = 1.5;
+    mCtx.stroke();
+    mCtx.fillStyle = c.color;
+    mCtx.font = '9px sans-serif';
+    mCtx.textAlign = 'left';
+    mCtx.fillText(c.name, c.x + 6, c.y + 4);
+  });
+
+  // Thông tin diện tích nếu bước cuối
+  if (stepIdx === MONGOL_STEPS.length - 1) {
+    mCtx.fillStyle = 'rgba(185,28,28,0.92)';
+    mCtx.font = 'bold 12px sans-serif';
+    mCtx.textAlign = 'center';
+    mCtx.fillText('~24 triệu km² — đế chế liền thổ lớn nhất lịch sử', MW / 2, 25);
+    mCtx.fillText('(~22% diện tích đất liền Trái Đất)', MW / 2, 40);
+    mCtx.textAlign = 'left';
+  }
+}
+
+function mapUpdateUI() {
+  const step = mapStep;
+  const data = step >= 0 ? MONGOL_STEPS[step] : null;
+
+  const tag  = document.getElementById('map-era-tag');
+  const text = document.getElementById('map-text');
+  if (data) {
+    tag.className = 'era-tag ' + data.tag;
+    tag.textContent = data.era + ' · ' + data.year;
+    text.innerHTML = data.text;
+  } else {
+    tag.className = 'era-tag tag-mongol';
+    tag.textContent = 'Khởi đầu';
+    text.innerHTML = 'Nhấn <strong>Bắt đầu</strong> để theo dõi bành trướng đế quốc Mông Cổ từ 1206 đến đỉnh cao.';
+  }
+
+  document.getElementById('btn-map-prev').disabled = step <= 0;
+  document.getElementById('btn-map-next').textContent =
+    step < 0 ? 'Bắt đầu →' :
+    step >= MONGOL_STEPS.length - 1 ? 'Hoàn thành' :
+    'Bước tiếp theo →';
+  document.getElementById('btn-map-next').disabled = step >= MONGOL_STEPS.length - 1;
+
+  const dots = document.getElementById('map-dots');
+  dots.innerHTML = '';
+  for (let i = 0; i < MONGOL_STEPS.length; i++) {
+    const d = document.createElement('div');
+    d.className = 'step-dot' + (i === step ? ' active' : i < step ? ' done' : '');
+    d.textContent = i + 1;
+    const si = i;
+    d.onclick = function() { mapGoTo(si); };
+    dots.appendChild(d);
+  }
+
+  drawMapM(step);
+}
+
+function mapNext()  { if (mapStep < MONGOL_STEPS.length - 1) { mapStep++; mapUpdateUI(); } }
+function mapPrev()  { if (mapStep > 0) { mapStep--; mapUpdateUI(); } }
+function mapGoTo(i) { mapStep = i; mapUpdateUI(); }
+function mapReset() { mapStep = -1; mapUpdateUI(); }
+
+drawMapM(-1);
+mapUpdateUI();
+
+/* ══════════════════════════════════════════════════════════
+   MODULE 3 — Bốn phát minh lớn
+   ══════════════════════════════════════════════════════════ */
+
+const INV_DATA = {
+  'print': {
+    title: 'Kỹ thuật in (Movable Type) — Tất Thăng, ~1040',
+    body: `<strong>Hoàn cảnh phát minh:</strong> Tất Thăng (Bi Sheng, ~990–1051) làm chữ rời bằng đất sét nung, đặt vào khung sắt có mật bọc, nung nóng để in rồi tháo ra tái sử dụng. Trước đó đã có in khắc bản gỗ từ thế kỉ VII, nhưng không linh hoạt bằng chữ rời. Sau Tất Thăng, Triều Tiên cải tiến thành chữ rời bằng đồng (~thế kỉ XIII).<br><br>
+<strong>Tác động tại Trung Hoa:</strong> Sách, kinh Phật, tài liệu hành chính, bản đồ được sản xuất nhanh hơn và rẻ hơn. Hỗ trợ sự phát triển của khoa cử — tài liệu ôn thi có thể in ra nhiều bản. Tuy nhiên, do tiếng Hán có hàng nghìn ký tự, kỹ thuật in rời chậm phổ biến hơn so với chữ cái Latin 26 chữ.<br><br>
+<strong>Tác động toàn cầu:</strong> Kỹ thuật lan sang Triều Tiên và có thể ảnh hưởng gián tiếp đến Johannes Gutenberg (1450, Mainz), người tái phát minh bằng kim loại chì. Máy in Gutenberg tạo cuộc cách mạng thông tin: kinh Thánh, tác phẩm khoa học, pamphlet cải cách tôn giáo được phổ biến rộng rãi — góp phần Cải cách Tôn giáo (1517), Cách mạng Khoa học, và Khai sáng.`
+  },
+  'compass': {
+    title: 'La bàn (Compass) — Hàng hải thế kỉ XI',
+    body: `<strong>Hoàn cảnh phát minh:</strong> Người Trung Hoa biết nam châm chỉ hướng từ thế kỉ I–II (từ thạch, dùng trong địa lý phong thủy). Dạng "cái muỗng từ thạch" (si nan) và kim nổi trên nước xuất hiện từ thế kỉ IX–X. Ứng dụng vào hàng hải (kim từ nổi trong bát nước) được ghi nhận từ thế kỉ XI trong thời Tống.<br><br>
+<strong>Tác động tại Trung Hoa:</strong> Thuyền buôn Tống có thể hàng hải trong đêm tối hoặc trời mây không nhìn được sao. Thương mại đường biển với Đông Nam Á, Ấn Độ, và Ả Rập phát triển mạnh — đây là điều kiện kỹ thuật cho các cảng Tuyền Châu và Quảng Châu trở thành trung tâm quốc tế.<br><br>
+<strong>Tác động toàn cầu:</strong> Người Ả Rập tiếp nhận la bàn ~thế kỉ XII, rồi châu Âu tiếp nhận qua bán đảo Iberia. La bàn là một trong ba điều kiện kỹ thuật chính cho phát kiến địa lý (cùng với bản đồ biển và tàu thuyền đại dương). Columbus (1492), Vasco da Gama (1498) đều nhờ la bàn.`
+  },
+  'gunpowder': {
+    title: 'Thuốc súng (Gunpowder) — Đường–Tống, thế kỉ IX–X',
+    body: `<strong>Hoàn cảnh phát minh:</strong> Phát hiện tình cờ từ các thầy thuốc luyện đan thời nhà Đường (~thế kỉ IX): hỗn hợp kali nitrat (diêm tiêu), lưu huỳnh và than gây cháy mạnh. Công thức và quy trình được hoàn thiện vào thời Tống và bí giữ như bí mật quân sự. Trước tiên dùng trong pháo hoa, sau đó phát triển thành vũ khí: hỏa tiễn, lựu đạn gốm, pháo (cannon từ ~thế kỉ XIII).<br><br>
+<strong>Tác động tại Trung Hoa:</strong> Nhà Tống dùng vũ khí thuốc súng chống quân Kim và Mông Cổ — tuy không ngăn được chinh phục, nhưng cho thấy ứng dụng quân sự sớm. Nhà Minh nổi tiếng với pháo thuyền và Vạn Lý Trường Thành được gia cố để chống pháo.<br><br>
+<strong>Tác động toàn cầu:</strong> Đến tay người Ả Rập ~thế kỉ XIII, rồi châu Âu. Pháo (cannon) thay đổi nghệ thuật công thành: thành lũy đá trung đại không còn tác dụng sau khi pháo phổ biến. Điều này góp phần vào sự sụp đổ của Constantinople (1453) và biến đổi toàn bộ chiến tranh châu Âu từ thế kỉ XIV trở đi.`
+  },
+  'paper-money': {
+    title: 'Tiền giấy (Paper Money) — Jiaozi, thế kỉ X–XI',
+    body: `<strong>Hoàn cảnh phát minh:</strong> Vấn đề thực tế: tiền đồng (copper cash) nặng và khó vận chuyển số lượng lớn. Tứ Xuyên (vùng có nhiều giao dịch, ít đồng) phát triển "Jiaozi" — giấy chứng nhận tiền gửi tại các cửa hàng tư nhân. Đến thế kỉ XI, nhà nước Tống quốc hữu hóa và phát hành toàn quốc. Đây là đồng tiền giấy do chính phủ chính thức phát hành đầu tiên trên thế giới.<br><br>
+<strong>Tác động tại Trung Hoa:</strong> Thương mại dễ dàng hơn nhiều — giao dịch lớn không cần vận chuyển hàng tạ tiền đồng. Nhà Nguyên tiếp tục và mở rộng — Marco Polo ngạc nhiên trước tiền giấy và ghi chép chi tiết trong cuốn du ký.<br><br>
+<strong>Tác động toàn cầu:</strong> Tiền giấy là nền tảng của toàn bộ hệ thống tài chính hiện đại: ngân hàng trung ương, tín dụng, chính sách tiền tệ. Tuy nhiên, cả nhà Tống lẫn Nguyên đều trải qua lạm phát nặng khi in quá nhiều tiền — bài học về quản lý cung tiền vẫn còn nguyên giá trị.`
+  }
+};
+
+function invShow(id) {
+  const data = INV_DATA[id];
+  if (!data) return;
+
+  // Bỏ active tất cả
+  document.querySelectorAll('.inv-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('inv-' + id).classList.add('active');
+
+  const detail = document.getElementById('inv-detail');
+  document.getElementById('inv-detail-title').textContent = data.title;
+  document.getElementById('inv-detail-body').innerHTML = data.body;
+  detail.className = 'inv-detail show';
+  detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ══════════════════════════════════════════════════════════
+   MODULE 4 — Con đường Tơ lụa
+   ══════════════════════════════════════════════════════════ */
+
+(function drawSilkRoad() {
+  const canvas = document.getElementById('silk-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  // Nền biển
+  const seaG = ctx.createLinearGradient(0, 0, 0, H);
+  seaG.addColorStop(0, '#e0f2fe');
+  seaG.addColorStop(1, '#bae6fd');
+  ctx.fillStyle = seaG;
+  ctx.fillRect(0, 0, W, H);
+
+  // Đất liền đơn giản hóa (giống bản đồ Mông Cổ nhưng nhỏ hơn)
+  // Scale: canvas 700×320, ánh xạ từ canvas Mông Cổ 720×390
+  // sx = x * 700/720 ≈ x * 0.972; sy = y * 320/390 ≈ y * 0.821
+  function silkPoly(pts, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  const LCLR = '#d6d3d1';
+  // Châu Âu
+  silkPoly([[18,16],[90,14],[150,18],[200,24],[240,34],[265,40],[285,50],[298,65],[295,90],[270,106],[245,120],[215,130],[190,145],[165,152],[130,156],[90,162],[40,164],[22,156],[18,130],[15,98],[18,56],[18,16]], LCLR);
+  // Iberia
+  silkPoly([[18,65],[55,62],[82,65],[96,78],[92,94],[72,107],[48,110],[26,102],[15,90],[18,65]], LCLR);
+  // Bắc Phi
+  silkPoly([[18,168],[80,164],[140,162],[200,164],[260,168],[318,172],[368,175],[412,180],[440,188],[455,195],[462,205],[455,218],[430,230],[380,232],[320,228],[260,222],[200,218],[148,214],[98,212],[54,210],[24,200],[18,190],[18,168]], LCLR);
+  // Trung Đông
+  silkPoly([[410,160],[445,154],[482,152],[512,158],[524,168],[528,184],[520,200],[505,212],[480,220],[462,218],[445,208],[430,195],[420,178],[410,165],[410,160]], LCLR);
+  // Ba Tư
+  silkPoly([[447,134],[495,128],[534,132],[565,140],[585,152],[586,172],[576,188],[555,198],[530,200],[505,196],[480,186],[460,175],[448,162],[447,140],[447,134]], LCLR);
+  // Trung Á
+  silkPoly([[285,50],[362,40],[440,38],[500,40],[555,44],[610,52],[645,64],[650,88],[638,108],[610,120],[580,130],[548,136],[520,134],[492,130],[462,128],[440,132],[415,128],[390,120],[365,110],[340,100],[315,88],[298,72],[285,58],[285,50]], LCLR);
+  // Siberia
+  silkPoly([[280,16],[360,12],[440,14],[510,16],[580,18],[640,20],[685,30],[690,60],[648,64],[610,52],[555,44],[500,40],[440,38],[362,40],[285,50],[280,28],[280,16]], LCLR);
+  // Trung Hoa
+  silkPoly([[516,136],[578,132],[612,140],[635,154],[645,172],[645,196],[633,212],[608,222],[580,226],[552,224],[526,214],[505,202],[498,182],[505,162],[516,148],[516,136]], LCLR);
+  // ĐNÁ + một phần
+  silkPoly([[540,226],[585,228],[615,238],[628,254],[622,274],[600,282],[575,280],[550,268],[538,250],[538,234],[540,226]], LCLR);
+  // Ấn Độ
+  silkPoly([[506,198],[538,194],[565,204],[580,222],[584,250],[576,272],[560,292],[538,298],[515,290],[500,268],[496,244],[500,220],[506,206],[506,198]], LCLR);
+
+  // ── Con đường Tơ lụa (đất liền — nâu vàng) ──
+  ctx.strokeStyle = '#b45309';
+  ctx.lineWidth = 3;
+  ctx.setLineDash([]);
+  ctx.beginPath();
+  // Venice → Constantinople → Antioch → Baghdad → Samarkand → Kashgar → Dunhuang → Chang'an
+  ctx.moveTo(248, 134); // Venice (thành phố)
+  ctx.lineTo(330, 118); // Constantinople
+  ctx.lineTo(382, 130); // Antioch
+  ctx.lineTo(430, 180); // Baghdad
+  ctx.lineTo(468, 154); // Ctesiphon
+  ctx.lineTo(502, 136); // Tabriz/Merv
+  ctx.lineTo(536, 116); // Samarkand
+  ctx.lineTo(562, 110); // Kashgar
+  ctx.lineTo(596, 126); // Dunhuang
+  ctx.lineTo(630, 152); // Chang'an (Bắc Kinh)
+  ctx.stroke();
+
+  // ── Hải trình Trịnh Hòa (xanh dương) ──
+  ctx.strokeStyle = '#1d4ed8';
+  ctx.lineWidth = 2.5;
+  ctx.setLineDash([6, 3]);
+  ctx.beginPath();
+  // Bắc Kinh → Calicut → Hormuz → Aden → Mombasa
+  ctx.moveTo(630, 152); // Bắc Kinh
+  ctx.bezierCurveTo(630, 200, 590, 225, 548, 240); // ĐNÁ
+  ctx.bezierCurveTo(520, 252, 505, 265, 520, 282); // Calicut (Ấn Độ)
+  ctx.bezierCurveTo(510, 290, 495, 280, 468, 264); // qua Sri Lanka
+  ctx.bezierCurveTo(448, 248, 440, 225, 428, 200); // vịnh Ba Tư
+  ctx.bezierCurveTo(420, 188, 410, 185, 400, 195); // Hormuz
+  ctx.bezierCurveTo(380, 205, 360, 212, 340, 215); // Aden
+  ctx.bezierCurveTo(315, 220, 290, 230, 270, 245); // bờ Đông Phi
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // ── Đường Cái Chết Đen (đỏ đứt đoạn) ──
+  ctx.strokeStyle = '#b91c1c';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.moveTo(536, 116); // Samarkand
+  ctx.lineTo(430, 140); // Crimea
+  ctx.lineTo(380, 130); // Constantinople
+  ctx.lineTo(330, 120); // Biển Đen
+  ctx.lineTo(278, 120); // Venetia/Genova
+  ctx.lineTo(240, 125); // Marseilles
+  ctx.lineTo(180, 130); // Paris
+  ctx.lineTo(140, 118); // London
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Nhãn thành phố
+  const silkCities = [
+    { x: 248, y: 133, name: 'Venice', color: '#1d4ed8' },
+    { x: 330, y: 116, name: 'Constantinople', color: '#57534e' },
+    { x: 428, y: 178, name: 'Baghdad', color: '#b45309' },
+    { x: 536, y: 114, name: 'Samarkand', color: '#92400e' },
+    { x: 628, y: 150, name: 'Bắc Kinh', color: '#b91c1c' },
+    { x: 520, y: 280, name: 'Calicut', color: '#1d4ed8' },
+    { x: 542, y: 238, name: 'Thăng Long', color: '#15803d' },
+  ];
+  silkCities.forEach(c => {
+    ctx.fillStyle = c.color;
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.fillStyle = c.color;
+    ctx.font = 'bold 9px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(c.name, c.x + 6, c.y + 4);
+  });
+
+  // Nhãn vùng địa lý
+  const regions = [
+    { x: 155, y: 75, text: 'CHÂU ÂU', color: '#374151', size: 9 },
+    { x: 285, y: 190, text: 'ĐỊA TRUNG HẢI', color: '#1d4ed8', size: 9, bold: true },
+    { x: 390, y: 82, text: 'THẢO NGUYÊN TRUNG Á', color: '#92400e', size: 9 },
+    { x: 570, y: 180, text: 'TRUNG HOA', color: '#374151', size: 9 },
+    { x: 550, y: 262, text: 'ẤN ĐỘ', color: '#374151', size: 9 },
+    { x: 190, y: 195, text: 'BẮC PHI', color: '#374151', size: 8 },
+    { x: 590, y: 252, text: 'ĐNÁ', color: '#374151', size: 8 },
+  ];
+  regions.forEach(r => {
+    ctx.font = `${r.bold ? '700' : '500'} ${r.size}px sans-serif`;
+    ctx.fillStyle = r.color;
+    ctx.textAlign = 'center';
+    ctx.fillText(r.text, r.x, r.y);
+  });
+  ctx.textAlign = 'left';
+})();
+
+/* ══════════════════════════════════════════════════════════
+   MODULE 5 — Quiz
+   ══════════════════════════════════════════════════════════ */
+
+const QUIZ = [
+  {
+    q: 'Vì sao nhà Tống giàu về kinh tế nhưng lại yếu về quân sự?',
+    opts: [
+      'Vì nhà Tống không có tiền trả lương quân đội',
+      'Vì chính sách "thượng văn hạ vũ" — ưu tiên văn quan, hạn chế quyền lực tướng lĩnh',
+      'Vì người Tống theo Phật giáo phản đối chiến tranh',
+      'Vì bốn phát minh lớn tiêu tốn hết ngân sách quốc phòng',
+    ],
+    correct: 1,
+    explain: 'Tống Thái Tổ rút kinh nghiệm từ loạn phiên trấn nhà Đường: ông chủ trương "thượng văn hạ vũ," đặt quân đội dưới kiểm soát dân sự, luân chuyển tướng liên tục để không xây dựng lòng trung thành riêng với binh sĩ. Kết quả: ổn định nội trị nhưng quân đội kém hiệu quả trước kỵ binh Kim và Mông Cổ. Đây là ví dụ điển hình về đánh đổi giữa ổn định chính trị và năng lực quân sự.'
+  },
+  {
+    q: 'Đế quốc Mông Cổ có diện tích liền thổ tối đa khoảng bao nhiêu km² và đây là kỷ lục gì?',
+    opts: [
+      'Khoảng 5 triệu km² — đế chế lớn nhất thế giới mọi thời đại',
+      'Khoảng 10 triệu km² — bằng đế quốc Anh thời đỉnh cao',
+      'Khoảng 24 triệu km² — đế chế liền thổ (không tính hải ngoại) lớn nhất lịch sử',
+      'Khoảng 50 triệu km² — chiếm gần 1/3 bề mặt Trái Đất',
+    ],
+    correct: 2,
+    explain: 'Đế quốc Mông Cổ ở đỉnh cao (~1270–1280) chiếm ~24 triệu km² — kỷ lục đế chế LIỀN THỔ lớn nhất lịch sử. Đế quốc Anh thế kỉ XIX lớn hơn tổng cộng (~33 triệu km²) nhưng không liền thổ — gồm nhiều lãnh thổ rải rác khắp thế giới nối bằng đường biển. Phân biệt "liền thổ" và "hải ngoại" rất quan trọng khi so sánh đế quốc.'
+  },
+  {
+    q: 'La bàn thời Tống đóng vai trò gì trong phát kiến địa lý thế kỉ XV–XVI của châu Âu?',
+    opts: [
+      'Vai trò trực tiếp không đáng kể — châu Âu tự phát minh la bàn riêng',
+      'Là một trong những điều kiện kỹ thuật cần thiết — cùng bản đồ biển và tàu thuyền đại dương',
+      'Là phát minh quan trọng nhất — không có la bàn, không thể có phát kiến địa lý',
+      'Đóng vai trò thứ yếu — thực ra thiên văn học mới quyết định',
+    ],
+    correct: 1,
+    explain: 'La bàn là một ĐIỀU KIỆN CẦN nhưng KHÔNG ĐỦ — cùng với bản đồ biển (portolan charts), tàu thuyền vượt đại dương (caravel), kiến thức thiên văn, và tài trợ của nhà nước mới tạo thành điều kiện đủ. Không thể nói la bàn là "quan trọng nhất" hay "không đáng kể" — lịch sử không đơn giản hóa như vậy. La bàn đến tay người Ả Rập thế kỉ XII, rồi châu Âu — đây là ví dụ tốt về trao đổi kỹ thuật qua Con đường Tơ lụa.'
+  },
+  {
+    q: 'Trận Bạch Đằng 1288 kết thúc như thế nào và vì sao quan trọng?',
+    opts: [
+      'Quân Nguyên thắng nhưng rút lui vì dịch bệnh; nhà Trần phải nộp cống sau đó',
+      'Trần Quốc Tuấn dùng cọc gỗ bịt sắt phá hạm đội Mông Cổ; quân Nguyên từ bỏ xâm lược Đại Việt',
+      'Quân hai bên hòa; nhà Trần đồng ý gia nhập hệ thống triều cống của nhà Nguyên',
+      'Chiến thắng nhờ viện trợ từ Champa; đánh dấu liên minh Việt–Chăm đầu tiên',
+    ],
+    correct: 1,
+    explain: 'Trận Bạch Đằng 1288: Trần Quốc Tuấn cắm cọc gỗ bọc sắt dưới sông theo triều nước — khi triều lên cọc chìm cho thuyền Mông Cổ vào, khi triều xuống thuyền mắc cọc. Hạm đội bị phá, tướng Ô Mã Nhi bị bắt. Nhà Nguyên sau đó không còn xâm lược Đại Việt nữa. Đây là ví dụ kinh điển về chiến thuật "dĩ nhược thắng cường" — dùng địa hình và thời điểm (triều nước) thay vì sức mạnh trực tiếp chống lại đế quốc mạnh nhất thế giới khi đó.'
+  },
+  {
+    q: 'Vì sao nhà Minh đình chỉ các chuyến hải hành của Trịnh Hòa sau 1433?',
+    opts: [
+      'Vì Trịnh Hòa mất và không ai đủ tài năng thay thế',
+      'Vì các chuyến hải hành thất bại, bị bão phá hủy nhiều tàu',
+      'Vì phe Nho giáo bảo thủ coi hải hành tốn kém, vô ích và "phi Nho giáo"; hồ sơ bị tiêu hủy',
+      'Vì phát hiện ra rằng các vùng đất đã đến không có hàng hóa giá trị',
+    ],
+    correct: 2,
+    explain: 'Sau khi Vĩnh Lạc Đế mất (1424), phe Nho giáo quan lại bảo thủ lấy lại ảnh hưởng. Họ coi hải hành là: tốn kém ngân sách, không phù hợp với đạo Nho (giao thương xa xứ bị coi thấp), và mang lại uy thế cho những người như Trịnh Hòa (thái giám — tầng lớp bị quan lại Nho giáo xem thường). Hồ sơ hải hành thậm chí bị tiêu hủy chủ động. Đây là quyết định chính trị–văn hóa, không phải kỹ thuật — và là một trong những bước ngoặt lớn của lịch sử thế giới.'
+  },
+  {
+    q: '"Pax Mongolica" chỉ có tác động tích cực — tạo thương mại và giao lưu văn hóa." Nhận định này đúng hay sai?',
+    opts: [
+      'Đúng — Mông Cổ chủ động thúc đẩy giao lưu và bảo vệ thương nhân',
+      'Sai hoàn toàn — đế quốc Mông Cổ chỉ tàn phá, không có tác động tích cực',
+      'Đúng một phần — có tích cực (thương mại, văn hóa) nhưng cũng là con đường Cái Chết Đen (1346–1353)',
+      'Không thể đánh giá vì thiếu tư liệu lịch sử',
+    ],
+    correct: 2,
+    explain: 'Đây là ví dụ tốt về "hai mặt của một hiện tượng lịch sử." Pax Mongolica tạo điều kiện: Con đường Tơ lụa an toàn, Marco Polo du hành, bốn phát minh Trung Hoa lan sang châu Âu. NHƯNG cùng con đường thương mại đó, dịch hạch (Cái Chết Đen) lan từ Trung Á đến châu Âu ~1346–1353, giết 30–60% dân châu Âu. Lịch sử hiếm khi đơn giản là "tốt" hay "xấu" — tư duy phân tích đòi hỏi nhìn cả hai chiều.'
+  },
+  {
+    q: 'Sắp xếp các sự kiện sau theo đúng thứ tự thời gian:\n(A) Thành Cát Tư Hãn được phong tại Khurultai\n(B) Trận Bạch Đằng Giang\n(C) Trịnh Hòa bắt đầu chuyến hải hành đầu tiên\n(D) Baghdad thất thủ, Khalifate Abbasid kết thúc',
+    opts: [
+      'A → B → D → C',
+      'A → D → B → C',
+      'D → A → B → C',
+      'B → A → D → C',
+    ],
+    correct: 1,
+    explain: 'Đúng thứ tự: A (1206 — Khurultai) → D (1258 — Baghdad thất thủ) → B (1288 — Bạch Đằng) → C (1405 — Trịnh Hòa). Lưu ý: Baghdad (1258) và Bạch Đằng (1288) đều trong thời kỳ đế quốc Mông Cổ/nhà Nguyên; Trịnh Hòa là đầu nhà Minh, sau khi Mông Cổ đã bị đánh đuổi. Nhớ: Thành Cát Tư Hãn (1206) → Baghdad (1258) → Bạch Đằng (1288) → Trịnh Hòa (1405).'
+  }
+];
+
+let quizIdx = 0;
+let quizScore = 0;
+let quizAnswered = false;
+
+function quizRender() {
+  const q = QUIZ[quizIdx];
+  document.getElementById('quiz-q').textContent = `Câu ${quizIdx + 1}/${QUIZ.length}: ${q.q}`;
+  document.getElementById('quiz-prog').textContent = `${quizIdx + 1} / ${QUIZ.length}`;
+  document.getElementById('quiz-score').textContent = quizIdx > 0 ? `Điểm: ${quizScore}/${quizIdx}` : '';
+
+  const optsEl = document.getElementById('quiz-opts');
+  optsEl.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = function() { quizAnswer(i); };
+    optsEl.appendChild(btn);
+  });
+
+  document.getElementById('quiz-fb').className = 'quiz-feedback';
+  document.getElementById('quiz-fb').innerHTML = '';
+  document.getElementById('btn-quiz-next').style.display = 'none';
+  quizAnswered = false;
+}
+
+function quizAnswer(chosen) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+
+  const q = QUIZ[quizIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((btn, i) => {
+    btn.classList.add('disabled');
+    btn.onclick = null;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === chosen && chosen !== q.correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb');
+  if (chosen === q.correct) {
+    quizScore++;
+    fb.className = 'quiz-feedback show ok';
+    fb.innerHTML = '<strong>Đúng!</strong> ' + q.explain;
+  } else {
+    fb.className = 'quiz-feedback show err';
+    fb.innerHTML = '<strong>Chưa đúng.</strong> Đáp án: <em>' + q.opts[q.correct] + '</em>. ' + q.explain;
+  }
+
+  document.getElementById('quiz-score').textContent = `Điểm: ${quizScore}/${quizIdx + 1}`;
+
+  if (quizIdx < QUIZ.length - 1) {
+    document.getElementById('btn-quiz-next').style.display = 'inline-block';
+  } else {
+    const pct = Math.round((quizScore / QUIZ.length) * 100);
+    document.getElementById('quiz-score').textContent = `Kết quả: ${quizScore}/${QUIZ.length} (${pct}%)`;
+    document.getElementById('quiz-prog').textContent =
+      pct >= 80 ? 'Xuất sắc!' : pct >= 60 ? 'Tốt — ôn lại các câu sai.' : 'Cần ôn tập thêm.';
+  }
+}
+
+function quizNext() {
+  quizIdx++;
+  if (quizIdx < QUIZ.length) quizRender();
+}
+
+quizRender();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

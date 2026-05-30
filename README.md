@@ -35,6 +35,7 @@
 | Databases | Cơ sở dữ liệu — 3 nhóm × 17 bài, mô hình quan hệ & SQL → index/transaction → NoSQL/phân tán | [Databases/](./Databases/) |
 | DataStructures | Cấu trúc dữ liệu — cách tổ chức và lưu trữ dữ liệu hiệu quả | [DataStructures/](./DataStructures/) |
 | Economics | Lộ trình học Kinh tế học — 4 tier từ tư duy nền tảng tới chuyên đề ứng dụng | [Economics/](./Economics/) |
+| Electronics | Điện tử thực hành — 3 tầng × 8 bài: linh kiện thụ động (Ohm, RC, RL, lọc) → bán dẫn (diode, BJT, MOSFET, op-amp) → số & vi điều khiển | [Electronics/](./Electronics/) |
 | English | Lộ trình học tiếng Anh — phát âm, từ vựng, ngữ pháp, kỹ năng | [English/](./English/) |
 | Math | Toán cổ điển — 6 tầng × 8 bài, số học → calculus → toán năm 1 đại học | [Math/](./Math/) |
 | Physics | Vật lý — 3 tầng × 8 bài, cơ học → điện-từ → vật lý hiện đại preview | [Physics/](./Physics/) |
